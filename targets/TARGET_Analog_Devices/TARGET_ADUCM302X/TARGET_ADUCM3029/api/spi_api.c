@@ -64,11 +64,11 @@ int adi_spi_memtype = 0;
    guarantee 4 byte alignmnet.
  *******************************************************************************/
 ADI_SPI_HANDLE      spi_Handle0;
-uint32_t            spi_Mem0[(ADI_SPI_MEMORY_SIZE + 3)/4];
+uint32_t            spi_Mem0[(ADI_SPI_MEMORY_SIZE + 3) / 4];
 ADI_SPI_HANDLE      spi_Handle1;
-uint32_t            spi_Mem1[(ADI_SPI_MEMORY_SIZE + 3)/4];
+uint32_t            spi_Mem1[(ADI_SPI_MEMORY_SIZE + 3) / 4];
 ADI_SPI_HANDLE      spi_Handle2;
-uint32_t            spi_Mem2[(ADI_SPI_MEMORY_SIZE + 3)/4];
+uint32_t            spi_Mem2[(ADI_SPI_MEMORY_SIZE + 3) / 4];
 #if defined(ADI_DEBUG)
 #warning "BUILD_SPI_MI_DYNAMIC is NOT defined.  Memory allocation for SPI will be static"
 int adi_spi_memtype = 1;
@@ -150,13 +150,13 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 
     if (ssel != NC) {
-        if ( (ssel == SPI0_CS0) || (ssel == SPI1_CS0) || (ssel == SPI2_CS0)) {
+        if ((ssel == SPI0_CS0) || (ssel == SPI1_CS0) || (ssel == SPI2_CS0)) {
             spi_cs = ADI_SPI_CS0;
-        } else if ( (ssel == SPI0_CS1) || (ssel == SPI1_CS1) || (ssel == SPI2_CS1)) {
+        } else if ((ssel == SPI0_CS1) || (ssel == SPI1_CS1) || (ssel == SPI2_CS1)) {
             spi_cs = ADI_SPI_CS1;
-        } else if ( (ssel == SPI0_CS2) || (ssel == SPI1_CS2) || (ssel == SPI2_CS2)) {
+        } else if ((ssel == SPI0_CS2) || (ssel == SPI1_CS2) || (ssel == SPI2_CS2)) {
             spi_cs = ADI_SPI_CS2;
-        } else if ( (ssel == SPI0_CS3) || (ssel == SPI1_CS3) || (ssel == SPI2_CS3)) {
+        } else if ((ssel == SPI0_CS3) || (ssel == SPI1_CS3) || (ssel == SPI2_CS3)) {
             spi_cs = ADI_SPI_CS3;
         }
 
@@ -237,8 +237,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
     if ((uint32_t)mode & 0x1) {
         phase = true;
-    }
-    else {
+    } else {
         phase = false;
     }
     SPI_Return = adi_spi_SetClockPhase(SPI_Handle, phase);
@@ -249,8 +248,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
     if ((uint32_t)mode & 0x2) {
         polarity = true;
-    }
-    else {
+    } else {
         polarity = false;
     }
     SPI_Return = adi_spi_SetClockPolarity(SPI_Handle, polarity);
@@ -321,7 +319,7 @@ int spi_master_write(spi_t *obj, int value)
         return 1;
     }
 
-    return((int)RxBuf);
+    return ((int)RxBuf);
 }
 
 
@@ -347,10 +345,10 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
     ADI_SPI_HANDLE  SPI_Handle;
     ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
 
-    transceive.pReceiver        = (uint8_t*)rx_buffer;
+    transceive.pReceiver        = (uint8_t *)rx_buffer;
     transceive.ReceiverBytes    = rx_length;            /* link transceive data size to the remaining count */
     transceive.nRxIncrement     = 1;                    /* auto increment buffer */
-    transceive.pTransmitter     = (uint8_t*)tx_buffer;  /* initialize data attributes */
+    transceive.pTransmitter     = (uint8_t *)tx_buffer; /* initialize data attributes */
     transceive.TransmitterBytes = tx_length;            /* link transceive data size to the remaining count */
     transceive.nTxIncrement     = 1;                    /* auto increment buffer */
 
@@ -361,9 +359,8 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
     if (SPI_Return) {
         obj->error = SPI_EVENT_ERROR;
         return -1;
-    }
-    else {
-        return((int)tx_length);
+    } else {
+        return ((int)tx_length);
     }
 }
 

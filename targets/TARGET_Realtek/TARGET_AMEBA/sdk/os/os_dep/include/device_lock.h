@@ -10,12 +10,11 @@
 #ifndef _DEVICE_LOCK_H_
 #define _DEVICE_LOCK_H_
 
-enum _RT_DEV_LOCK_E
-{
-	RT_DEV_LOCK_EFUSE = 0,
-	RT_DEV_LOCK_FLASH = 1,
-	RT_DEV_LOCK_CRYPTO = 2,
-	RT_DEV_LOCK_MAX = 3
+enum _RT_DEV_LOCK_E {
+    RT_DEV_LOCK_EFUSE = 0,
+    RT_DEV_LOCK_FLASH = 1,
+    RT_DEV_LOCK_CRYPTO = 2,
+    RT_DEV_LOCK_MAX = 3
 };
 typedef uint32_t RT_DEV_LOCK_E;
 

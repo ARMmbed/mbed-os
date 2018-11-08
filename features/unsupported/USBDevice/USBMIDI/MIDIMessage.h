@@ -46,19 +46,23 @@ class MIDIMessage {
 public:
     MIDIMessage() : length(4) {}
 
-    MIDIMessage(uint8_t *buf) : length(4) {
-        for (int i = 0; i < 4; i++)
+    MIDIMessage(uint8_t *buf) : length(4)
+    {
+        for (int i = 0; i < 4; i++) {
             data[i] = buf[i];
+        }
     }
 
     // New constructor, buf is a true MIDI message (not USBMidi message) and buf_len true message length.
-    MIDIMessage(uint8_t *buf, int buf_len) {
-        length=buf_len+1;
+    MIDIMessage(uint8_t *buf, int buf_len)
+    {
+        length = buf_len + 1;
         // first byte keeped for retro-compatibility
-        data[0]=0;
+        data[0] = 0;
 
-        for (int i = 0; i < buf_len; i++)
-            data[i+1] = buf[i];
+        for (int i = 0; i < buf_len; i++) {
+            data[i + 1] = buf[i];
+        }
     }
 
     // create messages
@@ -69,7 +73,8 @@ public:
      * @param channel Key channel (0-15, default 0)
      * @returns A MIDIMessage
      */
-    static MIDIMessage NoteOff(int key, int velocity = 127, int channel = 0) {
+    static MIDIMessage NoteOff(int key, int velocity = 127, int channel = 0)
+    {
         MIDIMessage msg;
         msg.data[0] = CABLE_NUM | 0x08;
         msg.data[1] = 0x80 | (channel & 0x0F);
@@ -84,7 +89,8 @@ public:
      * @param channel Key channel (0-15, default 0)
      * @returns A MIDIMessage
      */
-    static MIDIMessage NoteOn(int key, int velocity = 127, int channel = 0) {
+    static MIDIMessage NoteOn(int key, int velocity = 127, int channel = 0)
+    {
         MIDIMessage msg;
         msg.data[0] = CABLE_NUM | 0x09;
         msg.data[1] = 0x90 | (channel & 0x0F);
@@ -99,7 +105,8 @@ public:
      * @param channel Key channel (0-15, default 0)
      * @returns A MIDIMessage
      */
-    static MIDIMessage PolyphonicAftertouch(int key, int pressure, int channel = 0) {
+    static MIDIMessage PolyphonicAftertouch(int key, int pressure, int channel = 0)
+    {
         MIDIMessage msg;
         msg.data[0] = CABLE_NUM | 0x0A;
         msg.data[1] = 0xA0 | (channel & 0x0F);
@@ -114,7 +121,8 @@ public:
      * @param channel Controller channel (0-15, default 0)
      * @returns A MIDIMessage
      */
-    static MIDIMessage ControlChange(int control, int value, int channel = 0) {
+    static MIDIMessage ControlChange(int control, int value, int channel = 0)
+    {
         MIDIMessage msg;
         msg.data[0] = CABLE_NUM | 0x0B;
         msg.data[1] = 0xB0 | (channel & 0x0F);
@@ -128,7 +136,8 @@ public:
      * @param channel Channel (0-15, default 0)
      * @returns A MIDIMessage
      */
-    static MIDIMessage ProgramChange(int program, int channel = 0) {
+    static MIDIMessage ProgramChange(int program, int channel = 0)
+    {
         MIDIMessage msg;
         msg.data[0] = CABLE_NUM | 0x0C;
         msg.data[1] = 0xC0 | (channel & 0x0F);
@@ -142,7 +151,8 @@ public:
      * @param channel Key channel (0-15, default 0)
      * @returns A MIDIMessage
      */
-    static MIDIMessage ChannelAftertouch(int pressure, int channel = 0) {
+    static MIDIMessage ChannelAftertouch(int pressure, int channel = 0)
+    {
         MIDIMessage msg;
         msg.data[0] = CABLE_NUM | 0x0D;
         msg.data[1] = 0xD0 | (channel & 0x0F);
@@ -156,7 +166,8 @@ public:
      * @param channel Channel (0-15, default 0)
      * @returns A MIDIMessage
      */
-    static MIDIMessage PitchWheel(int pitch = 0, int channel = 0) {
+    static MIDIMessage PitchWheel(int pitch = 0, int channel = 0)
+    {
         MIDIMessage msg;
         int p = pitch + 8192;    // 0 - 16383, 8192 is center
         msg.data[0] = CABLE_NUM | 0x0E;
@@ -170,17 +181,19 @@ public:
      * @param channel Channel (0-15, default 0)
      * @returns A MIDIMessage
      */
-    static MIDIMessage AllNotesOff(int channel = 0) {
+    static MIDIMessage AllNotesOff(int channel = 0)
+    {
         return ControlChange(123, 0, channel);
     }
 
-     /** Create a SysEx message
-     * @param data SysEx data (including 0xF0 .. 0xF7)
-     * @param len SysEx data length
-     * @returns A MIDIMessage
-     */
-    static MIDIMessage SysEx(uint8_t *data, int len) {
-        MIDIMessage msg=MIDIMessage(data,len);
+    /** Create a SysEx message
+    * @param data SysEx data (including 0xF0 .. 0xF7)
+    * @param len SysEx data length
+    * @returns A MIDIMessage
+    */
+    static MIDIMessage SysEx(uint8_t *data, int len)
+    {
+        MIDIMessage msg = MIDIMessage(data, len);
         return msg;
     }
 
@@ -203,50 +216,64 @@ public:
     /** Read the message type
      * @returns MIDIMessageType
      */
-    MIDIMessageType type() {
-        switch((data[1] >> 4) & 0xF) {
-            case 0x8: return NoteOffType;
-            case 0x9: return NoteOnType;
-            case 0xA: return PolyphonicAftertouchType;
+    MIDIMessageType type()
+    {
+        switch ((data[1] >> 4) & 0xF) {
+            case 0x8:
+                return NoteOffType;
+            case 0x9:
+                return NoteOnType;
+            case 0xA:
+                return PolyphonicAftertouchType;
             case 0xB:
-                if(controller() < 120) { // standard controllers
+                if (controller() < 120) { // standard controllers
                     return ControlChangeType;
-                } else if(controller() == 123) {
+                } else if (controller() == 123) {
                     return AllNotesOffType;
                 } else {
                     return ErrorType; // unsupported atm
                 }
-            case 0xC: return ProgramChangeType;
-            case 0xD: return ChannelAftertouchType;
-            case 0xE: return PitchWheelType;
-            case 0xF: return SysExType;
-            default: return ErrorType;
+            case 0xC:
+                return ProgramChangeType;
+            case 0xD:
+                return ChannelAftertouchType;
+            case 0xE:
+                return PitchWheelType;
+            case 0xF:
+                return SysExType;
+            default:
+                return ErrorType;
         }
     }
 
     /** Read the channel number */
-    int channel() {
+    int channel()
+    {
         return (data[1] & 0x0F);
     }
 
     /** Read the key ID */
-    int key() {
+    int key()
+    {
         return (data[2] & 0x7F);
     }
 
     /** Read the velocity */
-    int velocity() {
+    int velocity()
+    {
         return (data[3] & 0x7F);
     }
 
     /** Read the controller value */
-    int value() {
+    int value()
+    {
         return (data[3] & 0x7F);
     }
 
     /** Read the aftertouch pressure */
-    int pressure() {
-        if(type() == PolyphonicAftertouchType) {
+    int pressure()
+    {
+        if (type() == PolyphonicAftertouchType) {
             return (data[3] & 0x7F);
         } else {
             return (data[2] & 0x7F);
@@ -254,22 +281,25 @@ public:
     }
 
     /** Read the controller number */
-    int controller() {
+    int controller()
+    {
         return (data[2] & 0x7F);
     }
 
     /** Read the program number */
-    int program() {
+    int program()
+    {
         return (data[2] & 0x7F);
     }
 
     /** Read the pitch value */
-    int pitch() {
+    int pitch()
+    {
         int p = ((data[3] & 0x7F) << 7) | (data[2] & 0x7F);
         return p - 8192; // 0 - 16383, 8192 is center
     }
 
-    uint8_t data[MAX_MIDI_MESSAGE_SIZE+1];
+    uint8_t data[MAX_MIDI_MESSAGE_SIZE + 1];
     uint8_t length;
 };
 

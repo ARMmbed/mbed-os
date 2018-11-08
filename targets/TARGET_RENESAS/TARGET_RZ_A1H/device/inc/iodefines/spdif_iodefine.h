@@ -52,9 +52,8 @@
 #define SPDIFRDAD (SPDIF.RDAD)
 
 
-typedef struct st_spdif
-{
-                                                           /* SPDIF            */
+typedef struct st_spdif {
+    /* SPDIF            */
     volatile uint32_t  TLCA;                                   /*  TLCA            */
     volatile uint32_t  TRCA;                                   /*  TRCA            */
     volatile uint32_t  TLCS;                                   /*  TLCS            */

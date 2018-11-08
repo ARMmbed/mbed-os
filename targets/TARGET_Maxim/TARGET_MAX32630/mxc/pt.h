@@ -64,7 +64,7 @@ extern "C" {
  * Structure type for pulse train mode configuration.
  * @note       Do not use for square wave
  */
-typedef struct { 
+typedef struct {
     uint32_t bps;           /**< pulse train bit rate */
     uint32_t pattern;       /**< Output pattern to shift out, starts at LSB */
     uint8_t ptLength;       /**< Number of bits in pulse train, 0 = 32bits, 1 = non valid , 2 = 2 bits, ... */
@@ -120,7 +120,7 @@ __STATIC_INLINE void PT_Start(mxc_pt_regs_t *pt)
     MXC_PTG->enable |= (1 << ptIndex);
 
     //wait for PT to start
-    while( (MXC_PTG->enable & (1 << ptIndex)) == 0 );
+    while ((MXC_PTG->enable & (1 << ptIndex)) == 0);
 }
 
 /**
@@ -134,7 +134,7 @@ __STATIC_INLINE void PT_StartMulti(uint32_t pts)
     MXC_PTG->enable |= pts;
 
     //wait for PTs to start
-    while( (MXC_PTG->enable & pts) != pts );
+    while ((MXC_PTG->enable & pts) != pts);
 }
 
 /**
@@ -264,7 +264,7 @@ __STATIC_INLINE uint32_t PT_GetFlags(void)
 /**
  * @brief      Clears the pulse train's interrupt flag.
  *
- * @param      mask  bits to clear, see \ref PT_INTFL_Register Register for details. 
+ * @param      mask  bits to clear, see \ref PT_INTFL_Register Register for details.
  */
 __STATIC_INLINE void PT_ClearFlags(uint32_t mask)
 {
@@ -287,7 +287,7 @@ __STATIC_INLINE void PT_SetRestart(mxc_pt_regs_t *ptToRestart, mxc_pt_regs_t *pt
 
     MXC_ASSERT(ptStopIndex >= 0);
 
-    if(restartIndex) {
+    if (restartIndex) {
         ptToRestart->restart |= (ptStopIndex << MXC_F_PT_RESTART_PT_Y_SELECT_POS) |
                                 MXC_F_PT_RESTART_ON_PT_Y_LOOP_EXIT;
     } else {
@@ -304,10 +304,11 @@ __STATIC_INLINE void PT_SetRestart(mxc_pt_regs_t *ptToRestart, mxc_pt_regs_t *pt
  */
 __STATIC_INLINE void PT_RestartDisable(mxc_pt_regs_t *ptToRestart, uint8_t restartIndex)
 {
-    if(restartIndex)
+    if (restartIndex) {
         ptToRestart->restart &= ~MXC_F_PT_RESTART_ON_PT_Y_LOOP_EXIT;
-    else
+    } else {
         ptToRestart->restart &= ~MXC_F_PT_RESTART_ON_PT_X_LOOP_EXIT;
+    }
 }
 
 /**
@@ -320,7 +321,7 @@ __STATIC_INLINE void PT_RestartDisable(mxc_pt_regs_t *ptToRestart, uint8_t resta
 __STATIC_INLINE void PT_Resync(uint32_t resyncPts)
 {
     MXC_PTG->resync = resyncPts;
-    while(MXC_PTG->resync);
+    while (MXC_PTG->resync);
 }
 /**@} end of group pulsetrains*/
 

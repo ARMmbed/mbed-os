@@ -81,10 +81,8 @@ static uint32_t EDMA_GetInstance(DMA_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_EDMA_COUNT; instance++)
-    {
-        if (s_edmaBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_EDMA_COUNT; instance++) {
+        if (s_edmaBases[instance] == base) {
             break;
         }
     }
@@ -209,20 +207,17 @@ void EDMA_EnableChannelInterrupts(DMA_Type *base, uint32_t channel, uint32_t mas
     assert(channel < FSL_FEATURE_EDMA_MODULE_CHANNEL);
 
     /* Enable error interrupt */
-    if (mask & kEDMA_ErrorInterruptEnable)
-    {
+    if (mask & kEDMA_ErrorInterruptEnable) {
         base->EEI |= (0x1U << channel);
     }
 
     /* Enable Major interrupt */
-    if (mask & kEDMA_MajorInterruptEnable)
-    {
+    if (mask & kEDMA_MajorInterruptEnable) {
         base->TCD[channel].CSR |= DMA_CSR_INTMAJOR_MASK;
     }
 
     /* Enable Half major interrupt */
-    if (mask & kEDMA_HalfInterruptEnable)
-    {
+    if (mask & kEDMA_HalfInterruptEnable) {
         base->TCD[channel].CSR |= DMA_CSR_INTHALF_MASK;
     }
 }
@@ -232,20 +227,17 @@ void EDMA_DisableChannelInterrupts(DMA_Type *base, uint32_t channel, uint32_t ma
     assert(channel < FSL_FEATURE_EDMA_MODULE_CHANNEL);
 
     /* Disable error interrupt */
-    if (mask & kEDMA_ErrorInterruptEnable)
-    {
+    if (mask & kEDMA_ErrorInterruptEnable) {
         base->EEI &= ~(0x1U << channel);
     }
 
     /* Disable Major interrupt */
-    if (mask & kEDMA_MajorInterruptEnable)
-    {
+    if (mask & kEDMA_MajorInterruptEnable) {
         base->TCD[channel].CSR &= ~DMA_CSR_INTMAJOR_MASK;
     }
 
     /* Disable Half major interrupt */
-    if (mask & kEDMA_HalfInterruptEnable)
-    {
+    if (mask & kEDMA_HalfInterruptEnable) {
         base->TCD[channel].CSR &= ~DMA_CSR_INTHALF_MASK;
     }
 }
@@ -294,8 +286,7 @@ void EDMA_TcdSetTransferConfig(edma_tcd_t *tcd, const edma_transfer_config_t *co
     /* Starting major iteration count */
     tcd->BITER = config->majorLoopCounts;
     /* Enable scatter/gather processing */
-    if (nextTcd != NULL)
-    {
+    if (nextTcd != NULL) {
         tcd->DLAST_SGA = (uint32_t)nextTcd;
         /*
             Before call EDMA_TcdSetTransferConfig or EDMA_SetTransferConfig,
@@ -331,8 +322,7 @@ void EDMA_TcdSetChannelLink(edma_tcd_t *tcd, edma_channel_link_type_t type, uint
     assert(((uint32_t)tcd & 0x1FU) == 0);
     assert(linkedChannel < FSL_FEATURE_EDMA_MODULE_CHANNEL);
 
-    if (type == kEDMA_MinorLink) /* Minor link config */
-    {
+    if (type == kEDMA_MinorLink) { /* Minor link config */
         uint32_t tmpreg;
 
         /* Enable minor link */
@@ -345,9 +335,7 @@ void EDMA_TcdSetChannelLink(edma_tcd_t *tcd, edma_channel_link_type_t type, uint
         tmpreg = tcd->BITER & (~DMA_BITER_ELINKYES_LINKCH_MASK);
         tmpreg |= DMA_BITER_ELINKYES_LINKCH(linkedChannel);
         tcd->BITER = tmpreg;
-    }
-    else if (type == kEDMA_MajorLink) /* Major link config */
-    {
+    } else if (type == kEDMA_MajorLink) { /* Major link config */
         uint32_t tmpreg;
 
         /* Enable major link */
@@ -355,9 +343,7 @@ void EDMA_TcdSetChannelLink(edma_tcd_t *tcd, edma_channel_link_type_t type, uint
         /* Set major linked channel */
         tmpreg = tcd->CSR & (~DMA_CSR_MAJORLINKCH_MASK);
         tcd->CSR = tmpreg | DMA_CSR_MAJORLINKCH(linkedChannel);
-    }
-    else /* Link none */
-    {
+    } else { /* Link none */
         tcd->CITER &= ~DMA_CITER_ELINKYES_ELINK_MASK;
         tcd->BITER &= ~DMA_BITER_ELINKYES_ELINK_MASK;
         tcd->CSR &= ~DMA_CSR_MAJORELINK_MASK;
@@ -380,14 +366,12 @@ void EDMA_TcdEnableInterrupts(edma_tcd_t *tcd, uint32_t mask)
     assert(tcd != NULL);
 
     /* Enable Major interrupt */
-    if (mask & kEDMA_MajorInterruptEnable)
-    {
+    if (mask & kEDMA_MajorInterruptEnable) {
         tcd->CSR |= DMA_CSR_INTMAJOR_MASK;
     }
 
     /* Enable Half major interrupt */
-    if (mask & kEDMA_HalfInterruptEnable)
-    {
+    if (mask & kEDMA_HalfInterruptEnable) {
         tcd->CSR |= DMA_CSR_INTHALF_MASK;
     }
 }
@@ -397,14 +381,12 @@ void EDMA_TcdDisableInterrupts(edma_tcd_t *tcd, uint32_t mask)
     assert(tcd != NULL);
 
     /* Disable Major interrupt */
-    if (mask & kEDMA_MajorInterruptEnable)
-    {
+    if (mask & kEDMA_MajorInterruptEnable) {
         tcd->CSR &= ~DMA_CSR_INTMAJOR_MASK;
     }
 
     /* Disable Half major interrupt */
-    if (mask & kEDMA_HalfInterruptEnable)
-    {
+    if (mask & kEDMA_HalfInterruptEnable) {
         tcd->CSR &= ~DMA_CSR_INTHALF_MASK;
     }
 }
@@ -416,32 +398,23 @@ uint32_t EDMA_GetRemainingBytes(DMA_Type *base, uint32_t channel)
     uint32_t nbytes = 0;
     uint32_t remainingBytes = 0;
 
-    if (DMA_CSR_DONE_MASK & base->TCD[channel].CSR)
-    {
+    if (DMA_CSR_DONE_MASK & base->TCD[channel].CSR) {
         remainingBytes = 0;
-    }
-    else
-    {
+    } else {
         /* Calculate the nbytes */
-        if (base->TCD[channel].NBYTES_MLOFFYES & (DMA_NBYTES_MLOFFYES_SMLOE_MASK | DMA_NBYTES_MLOFFYES_DMLOE_MASK))
-        {
+        if (base->TCD[channel].NBYTES_MLOFFYES & (DMA_NBYTES_MLOFFYES_SMLOE_MASK | DMA_NBYTES_MLOFFYES_DMLOE_MASK)) {
             nbytes = (base->TCD[channel].NBYTES_MLOFFYES & DMA_NBYTES_MLOFFYES_NBYTES_MASK) >>
                      DMA_NBYTES_MLOFFYES_NBYTES_SHIFT;
-        }
-        else
-        {
+        } else {
             nbytes =
                 (base->TCD[channel].NBYTES_MLOFFNO & DMA_NBYTES_MLOFFNO_NBYTES_MASK) >> DMA_NBYTES_MLOFFNO_NBYTES_SHIFT;
         }
         /* Calculate the unfinished bytes */
-        if (base->TCD[channel].CITER_ELINKNO & DMA_CITER_ELINKNO_ELINK_MASK)
-        {
+        if (base->TCD[channel].CITER_ELINKNO & DMA_CITER_ELINKNO_ELINK_MASK) {
             remainingBytes = ((base->TCD[channel].CITER_ELINKYES & DMA_CITER_ELINKYES_CITER_MASK) >>
                               DMA_CITER_ELINKYES_CITER_SHIFT) *
                              nbytes;
-        }
-        else
-        {
+        } else {
             remainingBytes =
                 ((base->TCD[channel].CITER_ELINKNO & DMA_CITER_ELINKNO_CITER_MASK) >> DMA_CITER_ELINKNO_CITER_SHIFT) *
                 nbytes;
@@ -472,18 +445,15 @@ void EDMA_ClearChannelStatusFlags(DMA_Type *base, uint32_t channel, uint32_t mas
     assert(channel < FSL_FEATURE_EDMA_MODULE_CHANNEL);
 
     /* Clear DONE bit flag */
-    if (mask & kEDMA_DoneFlag)
-    {
+    if (mask & kEDMA_DoneFlag) {
         base->CDNE = channel;
     }
     /* Clear ERROR bit flag */
-    if (mask & kEDMA_ErrorFlag)
-    {
+    if (mask & kEDMA_ErrorFlag) {
         base->CERR = channel;
     }
     /* Clear INT bit flag */
-    if (mask & kEDMA_InterruptFlag)
-    {
+    if (mask & kEDMA_InterruptFlag) {
         base->CINT = channel;
     }
 }
@@ -566,8 +536,7 @@ void EDMA_PrepareTransfer(edma_transfer_config_t *config,
     config->srcAddr = (uint32_t)srcAddr;
     config->minorLoopBytes = bytesEachRequest;
     config->majorLoopCounts = transferBytes / bytesEachRequest;
-    switch (srcWidth)
-    {
+    switch (srcWidth) {
         case 1U:
             config->srcTransferSize = kEDMA_TransferSize1Bytes;
             break;
@@ -586,8 +555,7 @@ void EDMA_PrepareTransfer(edma_transfer_config_t *config,
         default:
             break;
     }
-    switch (destWidth)
-    {
+    switch (destWidth) {
         case 1U:
             config->destTransferSize = kEDMA_TransferSize1Bytes;
             break;
@@ -606,8 +574,7 @@ void EDMA_PrepareTransfer(edma_transfer_config_t *config,
         default:
             break;
     }
-    switch (type)
-    {
+    switch (type) {
         case kEDMA_MemoryToMemory:
             config->destOffset = destWidth;
             config->srcOffset = srcWidth;
@@ -632,19 +599,15 @@ status_t EDMA_SubmitTransfer(edma_handle_t *handle, const edma_transfer_config_t
 
     edma_tcd_t *tcdRegs = (edma_tcd_t *)&handle->base->TCD[handle->channel];
 
-    if (handle->tcdPool == NULL)
-    {
+    if (handle->tcdPool == NULL) {
         /*
             Check if EDMA is busy: if the given channel started transfer, CSR will be not zero. Because
             if it is the last transfer, DREQ will be set. If not, ESG will be set. So in order to suit
             this check mechanism, EDMA_CreatHandle will clear CSR register.
         */
-        if ((tcdRegs->CSR != 0) && ((tcdRegs->CSR & DMA_CSR_DONE_MASK) == 0))
-        {
+        if ((tcdRegs->CSR != 0) && ((tcdRegs->CSR & DMA_CSR_DONE_MASK) == 0)) {
             return kStatus_EDMA_Busy;
-        }
-        else
-        {
+        } else {
             EDMA_SetTransferConfig(handle->base, handle->channel, config, NULL);
             /* Enable auto disable request feature */
             handle->base->TCD[handle->channel].CSR |= DMA_CSR_DREQ_MASK;
@@ -653,9 +616,7 @@ status_t EDMA_SubmitTransfer(edma_handle_t *handle, const edma_transfer_config_t
 
             return kStatus_Success;
         }
-    }
-    else /* Use the TCD queue. */
-    {
+    } else { /* Use the TCD queue. */
         uint32_t primask;
         uint32_t csr;
         int8_t currentTcd;
@@ -664,8 +625,7 @@ status_t EDMA_SubmitTransfer(edma_handle_t *handle, const edma_transfer_config_t
 
         /* Check if tcd pool is full. */
         primask = DisableGlobalIRQ();
-        if (handle->tcdUsed >= handle->tcdSize)
-        {
+        if (handle->tcdUsed >= handle->tcdSize) {
             EnableGlobalIRQ(primask);
 
             return kStatus_EDMA_QueueFull;
@@ -674,8 +634,7 @@ status_t EDMA_SubmitTransfer(edma_handle_t *handle, const edma_transfer_config_t
         handle->tcdUsed++;
         /* Calculate index of next TCD */
         nextTcd = currentTcd + 1U;
-        if (nextTcd == handle->tcdSize)
-        {
+        if (nextTcd == handle->tcdSize) {
             nextTcd = 0U;
         }
         /* Advance queue tail index */
@@ -691,8 +650,7 @@ status_t EDMA_SubmitTransfer(edma_handle_t *handle, const edma_transfer_config_t
         /* Link current TCD with next TCD for identification of current TCD */
         handle->tcdPool[currentTcd].DLAST_SGA = (uint32_t)&handle->tcdPool[nextTcd];
         /* Chain from previous descriptor unless tcd pool size is 1(this descriptor is its own predecessor). */
-        if (currentTcd != previousTcd)
-        {
+        if (currentTcd != previousTcd) {
             /* Enable scatter/gather feature in the previous TCD block. */
             csr = (handle->tcdPool[previousTcd].CSR | DMA_CSR_ESG_MASK) & ~DMA_CSR_DREQ_MASK;
             handle->tcdPool[previousTcd].CSR = csr;
@@ -702,8 +660,7 @@ status_t EDMA_SubmitTransfer(edma_handle_t *handle, const edma_transfer_config_t
                 link the TCD register in case link the current TCD with the dead chain when TCD loading occurs
                 before link the previous TCD block.
             */
-            if (tcdRegs->DLAST_SGA == (uint32_t)&handle->tcdPool[currentTcd])
-            {
+            if (tcdRegs->DLAST_SGA == (uint32_t)&handle->tcdPool[currentTcd]) {
                 /* Enable scatter/gather also in the TCD registers. */
                 csr = (tcdRegs->CSR | DMA_CSR_ESG_MASK) & ~DMA_CSR_DREQ_MASK;
                 /* Must write the CSR register one-time, because the transfer maybe finished anytime. */
@@ -718,8 +675,7 @@ status_t EDMA_SubmitTransfer(edma_handle_t *handle, const edma_transfer_config_t
                     transfer again. And if ESG is set, it means transfer has notfinished, so TCD dynamic
                     link succeed.
                 */
-                if (tcdRegs->CSR & DMA_CSR_ESG_MASK)
-                {
+                if (tcdRegs->CSR & DMA_CSR_ESG_MASK) {
                     return kStatus_Success;
                 }
                 /*
@@ -727,22 +683,17 @@ status_t EDMA_SubmitTransfer(edma_handle_t *handle, const edma_transfer_config_t
                     condition when ESG bit is not set: it means the dynamic TCD link succeed and the current
                     TCD block has been loaded into TCD registers.
                 */
-                if (tcdRegs->DLAST_SGA == (uint32_t)&handle->tcdPool[nextTcd])
-                {
+                if (tcdRegs->DLAST_SGA == (uint32_t)&handle->tcdPool[nextTcd]) {
                     return kStatus_Success;
                 }
                 /*
                     If go to this, means the previous transfer finished, and the DONE bit is set.
                     So shall configure TCD registers.
                 */
-            }
-            else if (tcdRegs->DLAST_SGA != 0)
-            {
+            } else if (tcdRegs->DLAST_SGA != 0) {
                 /* The current TCD block has been linked successfully. */
                 return kStatus_Success;
-            }
-            else
-            {
+            } else {
                 /*
                     DLAST_SGA is 0 and it means the first submit transfer, so shall configure
                     TCD registers.
@@ -752,8 +703,7 @@ status_t EDMA_SubmitTransfer(edma_handle_t *handle, const edma_transfer_config_t
         /* There is no live chain, TCD block need to be installed in TCD registers. */
         EDMA_InstallTCD(handle->base, handle->channel, &handle->tcdPool[currentTcd]);
         /* Enable channel request again. */
-        if (handle->flags & EDMA_TRANSFER_ENABLED_MASK)
-        {
+        if (handle->flags & EDMA_TRANSFER_ENABLED_MASK) {
             handle->base->SERQ = DMA_SERQ_SERQ(handle->channel);
         }
 
@@ -765,27 +715,21 @@ void EDMA_StartTransfer(edma_handle_t *handle)
 {
     assert(handle != NULL);
 
-    if (handle->tcdPool == NULL)
-    {
+    if (handle->tcdPool == NULL) {
         handle->base->SERQ = DMA_SERQ_SERQ(handle->channel);
-    }
-    else /* Use the TCD queue. */
-    {
+    } else { /* Use the TCD queue. */
         uint32_t primask;
         edma_tcd_t *tcdRegs = (edma_tcd_t *)&handle->base->TCD[handle->channel];
 
         handle->flags |= EDMA_TRANSFER_ENABLED_MASK;
 
         /* Check if there was at least one descriptor submitted since reset (TCD in registers is valid) */
-        if (tcdRegs->DLAST_SGA != 0U)
-        {
+        if (tcdRegs->DLAST_SGA != 0U) {
             primask = DisableGlobalIRQ();
             /* Check if channel request is actually disable. */
-            if ((handle->base->ERQ & (1U << handle->channel)) == 0U)
-            {
+            if ((handle->base->ERQ & (1U << handle->channel)) == 0U) {
                 /* Check if transfer is paused. */
-                if ((!(tcdRegs->CSR & DMA_CSR_DONE_MASK)) || (tcdRegs->CSR & DMA_CSR_ESG_MASK))
-                {
+                if ((!(tcdRegs->CSR & DMA_CSR_DONE_MASK)) || (tcdRegs->CSR & DMA_CSR_ESG_MASK)) {
                     /*
                         Re-enable channel request must be as soon as possible, so must put it into
                         critical section to avoid task switching or interrupt service routine.
@@ -825,12 +769,9 @@ void EDMA_HandleIRQ(edma_handle_t *handle)
 
     /* Clear EDMA interrupt flag */
     handle->base->CINT = handle->channel;
-    if (handle->tcdPool == NULL)
-    {
+    if (handle->tcdPool == NULL) {
         (handle->callback)(handle, handle->userData, true, 0);
-    }
-    else /* Use the TCD queue. */
-    {
+    } else { /* Use the TCD queue. */
         uint32_t sga = handle->base->TCD[handle->channel].DLAST_SGA;
         uint32_t sga_index;
         int32_t tcds_done;
@@ -844,34 +785,24 @@ void EDMA_HandleIRQ(edma_handle_t *handle)
         /* Get the index of the current transfer TCD blcoks. */
         sga_index = sga / sizeof(edma_tcd_t);
         /* Adjust header positions. */
-        if (transfer_done)
-        {
+        if (transfer_done) {
             /* New header shall point to the next TCD (current one is already finished) */
             new_header = sga_index;
-        }
-        else
-        {
+        } else {
             /* New header shall point to this descriptor (not finished yet) */
             new_header = sga_index ? sga_index - 1U : handle->tcdSize - 1U;
         }
         /* Calculate the number of finished TCDs */
-        if (new_header == handle->header)
-        {
-            if (handle->tcdUsed == handle->tcdSize)
-            {
+        if (new_header == handle->header) {
+            if (handle->tcdUsed == handle->tcdSize) {
                 tcds_done = handle->tcdUsed;
-            }
-            else
-            {
+            } else {
                 /* Internal error occurs. */
                 tcds_done = 0;
             }
-        }
-        else
-        {
+        } else {
             tcds_done = new_header - handle->header;
-            if (tcds_done < 0)
-            {
+            if (tcds_done < 0) {
                 tcds_done += handle->tcdSize;
             }
         }
@@ -880,8 +811,7 @@ void EDMA_HandleIRQ(edma_handle_t *handle)
         /* Release TCD blocks. */
         handle->tcdUsed -= tcds_done;
         /* Invoke callback function. */
-        if (handle->callback)
-        {
+        if (handle->callback) {
             (handle->callback)(handle, handle->userData, transfer_done, tcds_done);
         }
     }
@@ -892,48 +822,40 @@ void EDMA_HandleIRQ(edma_handle_t *handle)
 
 void DMA0_04_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 0U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 0U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[0]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 4U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 4U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[4]);
     }
 }
 
 void DMA0_15_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 1U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 1U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[1]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 5U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 5U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[5]);
     }
 }
 
 void DMA0_26_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 2U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 2U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[2]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 6U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 6U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[6]);
     }
 }
 
 void DMA0_37_DriverIRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 3U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 3U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[3]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 7U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 7U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[7]);
     }
 }
@@ -944,192 +866,160 @@ void DMA0_37_DriverIRQHandler(void)
 
 void DMA0_DMA16_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 0U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 0U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[0]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 16U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 16U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[16]);
     }
 }
 
 void DMA1_DMA17_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 1U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 1U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[1]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 17U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 17U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[17]);
     }
 }
 
 void DMA2_DMA18_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 2U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 2U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[2]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 18U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 18U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[18]);
     }
 }
 
 void DMA3_DMA19_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 3U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 3U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[3]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 19U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 19U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[19]);
     }
 }
 
 void DMA4_DMA20_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 4U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 4U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[4]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 20U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 20U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[20]);
     }
 }
 
 void DMA5_DMA21_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 5U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 5U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[5]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 21U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 21U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[21]);
     }
 }
 
 void DMA6_DMA22_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 6U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 6U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[6]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 22U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 22U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[22]);
     }
 }
 
 void DMA7_DMA23_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 7U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 7U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[7]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 23U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 23U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[23]);
     }
 }
 
 void DMA8_DMA24_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 8U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 8U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[8]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 24U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 24U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[24]);
     }
 }
 
 void DMA9_DMA25_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 9U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 9U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[9]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 25U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 25U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[25]);
     }
 }
 
 void DMA10_DMA26_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 10U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 10U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[10]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 26U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 26U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[26]);
     }
 }
 
 void DMA11_DMA27_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 11U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 11U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[11]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 27U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 27U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[27]);
     }
 }
 
 void DMA12_DMA28_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 12U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 12U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[12]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 28U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 28U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[28]);
     }
 }
 
 void DMA13_DMA29_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 13U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 13U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[13]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 29U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 29U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[29]);
     }
 }
 
 void DMA14_DMA30_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 14U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 14U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[14]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 30U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 30U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[30]);
     }
 }
 
 void DMA15_DMA31_IRQHandler(void)
 {
-    if ((EDMA_GetChannelStatusFlags(DMA0, 15U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 15U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[15]);
     }
-    if ((EDMA_GetChannelStatusFlags(DMA0, 31U) & kEDMA_InterruptFlag) != 0U)
-    {
+    if ((EDMA_GetChannelStatusFlags(DMA0, 31U) & kEDMA_InterruptFlag) != 0U) {
         EDMA_HandleIRQ(s_EDMAHandle[31]);
     }
 }

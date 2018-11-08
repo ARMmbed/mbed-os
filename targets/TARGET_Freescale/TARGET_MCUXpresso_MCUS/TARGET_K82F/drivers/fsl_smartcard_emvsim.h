@@ -56,8 +56,7 @@
 #define SMARTCARD_CWT_ADJUSTMENT (3u)
 
 /*! @brief General Purpose Counter clock selections */
-typedef enum _emvsim_gpc_clock_select
-{
+typedef enum _emvsim_gpc_clock_select {
     kEMVSIM_GPCClockDisable = 0u, /*!< Disabled */
     kEMVSIM_GPCCardClock = 1u,    /*!< Card clock */
     kEMVSIM_GPCRxClock = 2u,      /*!< Receive clock */
@@ -65,15 +64,13 @@ typedef enum _emvsim_gpc_clock_select
 } emvsim_gpc_clock_select_t;
 
 /*! @brief EMVSIM card presence detection edge control */
-typedef enum _presence_detect_edge
-{
+typedef enum _presence_detect_edge {
     kEMVSIM_DetectOnFallingEdge = 0u, /*!< Presence detected on the falling edge */
     kEMVSIM_DetectOnRisingEdge = 1u,  /*!< Presence detected on the rising edge */
 } emvsim_presence_detect_edge_t;
 
 /*! @brief EMVSIM card presence detection status */
-typedef enum _presence_detect_status
-{
+typedef enum _presence_detect_status {
     kEMVSIM_DetectPinIsLow = 0u,  /*!< Presence detected pin is logic low */
     kEMVSIM_DetectPinIsHigh = 1u, /*!< Presence detected pin is logic high */
 } emvsim_presence_detect_status_t;

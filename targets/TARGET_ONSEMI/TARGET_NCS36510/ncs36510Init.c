@@ -53,11 +53,11 @@ boolean fTrim()
     /**- Copy trims in registers */
     if (TRIMREG->REVISION_CODE != 0xFFFFFFFF) {
 
-        if ( TRIMREG->MAC_ADDR_LOW != 0xFFFFFFFF ) {
+        if (TRIMREG->MAC_ADDR_LOW != 0xFFFFFFFF) {
             MACHWREG->LONG_ADDRESS_LOW = TRIMREG->MAC_ADDR_LOW;
         }
 
-        if ( TRIMREG->MAC_ADDR_HIGH != 0xFFFFFFFF ) {
+        if (TRIMREG->MAC_ADDR_HIGH != 0xFFFFFFFF) {
             MACHWREG->LONG_ADDRESS_HIGH = TRIMREG->MAC_ADDR_HIGH;
         }
 
@@ -98,13 +98,13 @@ boolean fTrim()
 
     } else {
 
-        return(False);
+        return (False);
     }
 
     /** Read in user trim values programmed in the flash memory
     The user trim values take precedence over factory trim for MAC address
     */
-    if (( USERTRIMREG->MAC_ADDRESS_LOW != 0xFFFFFFFF ) &&
+    if ((USERTRIMREG->MAC_ADDRESS_LOW != 0xFFFFFFFF) &&
             (USERTRIMREG->MAC_ADDRESS_HIGH != 0xFFFFFFFF)) {
 
         MACHWREG->LONG_ADDRESS_LOW = USERTRIMREG->MAC_ADDRESS_LOW;
@@ -126,7 +126,7 @@ boolean fTrim()
     if (USERTRIMREG->TX_TRIM != 0xFFFFFFFF) {
         RFANATRIMREG->TX_TRIM.BITS.TX_TUNE = (USERTRIMREG->TX_TRIM & 0x0000000F);
     }
-    return(status);
+    return (status);
 }
 
 /* See clock.h for documentation. */
@@ -137,23 +137,23 @@ void fClockInit()
     CLOCKREG->CCR.BITS.OSC_SEL = 1;
 
     /** - Wait external 32MHz oscillator to be ready */
-    while(CLOCKREG->CSR.BITS.XTAL32M != 1) {} /* If you get stuck here, something is wrong with board or trim values */
+    while (CLOCKREG->CSR.BITS.XTAL32M != 1) {} /* If you get stuck here, something is wrong with board or trim values */
 
     /** Internal 32MHz calibration \n *//** - Enable internal 32MHz clock */
     PMUREG->CONTROL.BITS.INT32M = 0;
 
     /** - Wait 5 uSec for clock to stabilize */
     volatile uint8_t Timer;
-    for(Timer = 0; Timer < 10; Timer++);
+    for (Timer = 0; Timer < 10; Timer++);
 
     /** - Enable calibration */
     CLOCKREG->CCR.BITS.CAL32M = True;
 
     /** - Wait calibration to be completed */
-    while(CLOCKREG->CSR.BITS.CAL32MDONE == False); /* If you stuck here, issue with internal 32M calibration */
+    while (CLOCKREG->CSR.BITS.CAL32MDONE == False); /* If you stuck here, issue with internal 32M calibration */
 
     /** - Check calibration status */
-    while(CLOCKREG->CSR.BITS.CAL32MFAIL == True); /* If you stuck here, issue with internal 32M calibration */
+    while (CLOCKREG->CSR.BITS.CAL32MFAIL == True); /* If you stuck here, issue with internal 32M calibration */
 
     /** - Power down internal 32MHz osc */
     PMUREG->CONTROL.BITS.INT32M = 1;
@@ -162,16 +162,16 @@ void fClockInit()
     PMUREG->CONTROL.BITS.INT32K = 0;
 
     /** - Wait 5 uSec for clock to stabilize */
-    for(Timer = 0; Timer < 10; Timer++);
+    for (Timer = 0; Timer < 10; Timer++);
 
     /** - Enable calibration */
     CLOCKREG->CCR.BITS.CAL32K = True;
 
     /** - Wait calibration to be completed */
-    while(CLOCKREG->CSR.BITS.DONE32K == False); /* If you stuck here, issue with internal 32K calibration */
+    while (CLOCKREG->CSR.BITS.DONE32K == False); /* If you stuck here, issue with internal 32K calibration */
 
     /** - Check calibration status */
-    while(CLOCKREG->CSR.BITS.CAL32K == True); /* If you stuck here, issue with internal 32M calibration */
+    while (CLOCKREG->CSR.BITS.CAL32K == True); /* If you stuck here, issue with internal 32M calibration */
 
     /** - Power down external 32KHz osc */
     PMUREG->CONTROL.BITS.EXT32K = 1;
@@ -270,7 +270,7 @@ static void fHwInit(void)
     NVIC_SetPriority(Tim0_IRQn, 14);
     NVIC_SetPriority(Tim1_IRQn, 14);
     NVIC_SetPriority(Tim2_IRQn, 14);
-    NVIC_SetPriority(Uart1_IRQn,14);
+    NVIC_SetPriority(Uart1_IRQn, 14);
     NVIC_SetPriority(Spi_IRQn, 14);
     NVIC_SetPriority(I2C_IRQn, 14);
     NVIC_SetPriority(Gpio_IRQn, 14);
@@ -305,7 +305,7 @@ void fNcs36510Init(void)
 
     /**- Clear all pending SV and systick */
     SCB->ICSR = (uint32_t)0x0A000000;
-    SCB->VTOR = (uint32_t) (&__Vectors);
+    SCB->VTOR = (uint32_t)(&__Vectors);
 
     /**- Initialize hardware */
     fHwInit();

@@ -274,33 +274,32 @@
 #define DVDEC_YCTNB_Fn_COUNT (9)
 
 
-typedef struct st_dvdec
-{
-                                                           /* DVDEC            */
+typedef struct st_dvdec {
+    /* DVDEC            */
     volatile uint16_t ADCCR1;                                 /*  ADCCR1          */
     volatile uint8_t   dummy1[4];                              /*                  */
 
-/* #define DVDEC_TGCRn_COUNT (3) */
+    /* #define DVDEC_TGCRn_COUNT (3) */
     volatile uint16_t TGCR1;                                  /*  TGCR1           */
     volatile uint16_t TGCR2;                                  /*  TGCR2           */
     volatile uint16_t TGCR3;                                  /*  TGCR3           */
     volatile uint8_t   dummy2[6];                              /*                  */
 
-/* #define DVDEC_SYNSCRn_COUNT (5) */
+    /* #define DVDEC_SYNSCRn_COUNT (5) */
     volatile uint16_t SYNSCR1;                                /*  SYNSCR1         */
     volatile uint16_t SYNSCR2;                                /*  SYNSCR2         */
     volatile uint16_t SYNSCR3;                                /*  SYNSCR3         */
     volatile uint16_t SYNSCR4;                                /*  SYNSCR4         */
     volatile uint16_t SYNSCR5;                                /*  SYNSCR5         */
 
-/* #define DVDEC_HAFCCRn_COUNT (3) */
+    /* #define DVDEC_HAFCCRn_COUNT (3) */
     volatile uint16_t HAFCCR1;                                /*  HAFCCR1         */
     volatile uint16_t HAFCCR2;                                /*  HAFCCR2         */
     volatile uint16_t HAFCCR3;                                /*  HAFCCR3         */
     volatile uint16_t VCDWCR1;                                /*  VCDWCR1         */
     volatile uint8_t   dummy3[4];                              /*                  */
 
-/* #define DVDEC_DCPCRn_COUNT (8) */
+    /* #define DVDEC_DCPCRn_COUNT (8) */
     volatile uint16_t DCPCR1;                                 /*  DCPCR1          */
     volatile uint16_t DCPCR2;                                 /*  DCPCR2          */
     volatile uint16_t DCPCR3;                                 /*  DCPCR3          */
@@ -313,19 +312,19 @@ typedef struct st_dvdec
     volatile uint16_t BTLCR;                                  /*  BTLCR           */
     volatile uint16_t BTGPCR;                                 /*  BTGPCR          */
 
-/* #define DVDEC_ACCCRn_COUNT (3) */
+    /* #define DVDEC_ACCCRn_COUNT (3) */
     volatile uint16_t ACCCR1;                                 /*  ACCCR1          */
     volatile uint16_t ACCCR2;                                 /*  ACCCR2          */
     volatile uint16_t ACCCR3;                                 /*  ACCCR3          */
     volatile uint16_t TINTCR;                                 /*  TINTCR          */
     volatile uint16_t YCDCR;                                  /*  YCDCR           */
 
-/* #define DVDEC_AGCCRn_COUNT (2) */
+    /* #define DVDEC_AGCCRn_COUNT (2) */
     volatile uint16_t AGCCR1;                                 /*  AGCCR1          */
     volatile uint16_t AGCCR2;                                 /*  AGCCR2          */
     volatile uint16_t PKLIMITCR;                              /*  PKLIMITCR       */
 
-/* #define DVDEC_RGORCRn_COUNT (7) */
+    /* #define DVDEC_RGORCRn_COUNT (7) */
     volatile uint16_t RGORCR1;                                /*  RGORCR1         */
     volatile uint16_t RGORCR2;                                /*  RGORCR2         */
     volatile uint16_t RGORCR3;                                /*  RGORCR3         */
@@ -339,23 +338,23 @@ typedef struct st_dvdec
     volatile uint16_t VSYNCSR;                                /*  VSYNCSR         */
     volatile uint16_t HSYNCSR;                                /*  HSYNCSR         */
 
-/* #define DVDEC_DCPSRn_COUNT (2) */
+    /* #define DVDEC_DCPSRn_COUNT (2) */
     volatile uint16_t DCPSR1;                                 /*  DCPSR1          */
     volatile uint16_t DCPSR2;                                 /*  DCPSR2          */
     volatile uint8_t   dummy5[4];                              /*                  */
     volatile uint16_t NSDSR;                                  /*  NSDSR           */
 
-/* #define DVDEC_CROMASRn_COUNT (2) */
+    /* #define DVDEC_CROMASRn_COUNT (2) */
     volatile uint16_t CROMASR1;                               /*  CROMASR1        */
     volatile uint16_t CROMASR2;                               /*  CROMASR2        */
     volatile uint16_t SYNCSSR;                                /*  SYNCSSR         */
 
-/* #define DVDEC_AGCCSRn_COUNT (2) */
+    /* #define DVDEC_AGCCSRn_COUNT (2) */
     volatile uint16_t AGCCSR1;                                /*  AGCCSR1         */
     volatile uint16_t AGCCSR2;                                /*  AGCCSR2         */
     volatile uint8_t   dummy6[108];                            /*                  */
 
-/* #define DVDEC_YCSCRn_COUNT (7) */
+    /* #define DVDEC_YCSCRn_COUNT (7) */
     volatile uint16_t YCSCR3;                                 /*  YCSCR3          */
     volatile uint16_t YCSCR4;                                 /*  YCSCR4          */
     volatile uint16_t YCSCR5;                                 /*  YCSCR5          */
@@ -370,7 +369,7 @@ typedef struct st_dvdec
     volatile uint16_t DCPCR9;                                 /*  DCPCR9          */
     volatile uint8_t   dummy9[16];                             /*                  */
 
-/* #define DVDEC_YCTWA_Fn_COUNT (9) */
+    /* #define DVDEC_YCTWA_Fn_COUNT (9) */
     volatile uint16_t YCTWA_F0;                               /*  YCTWA_F0        */
     volatile uint16_t YCTWA_F1;                               /*  YCTWA_F1        */
     volatile uint16_t YCTWA_F2;                               /*  YCTWA_F2        */
@@ -381,7 +380,7 @@ typedef struct st_dvdec
     volatile uint16_t YCTWA_F7;                               /*  YCTWA_F7        */
     volatile uint16_t YCTWA_F8;                               /*  YCTWA_F8        */
 
-/* #define DVDEC_YCTWB_Fn_COUNT (9) */
+    /* #define DVDEC_YCTWB_Fn_COUNT (9) */
     volatile uint16_t YCTWB_F0;                               /*  YCTWB_F0        */
     volatile uint16_t YCTWB_F1;                               /*  YCTWB_F1        */
     volatile uint16_t YCTWB_F2;                               /*  YCTWB_F2        */
@@ -392,7 +391,7 @@ typedef struct st_dvdec
     volatile uint16_t YCTWB_F7;                               /*  YCTWB_F7        */
     volatile uint16_t YCTWB_F8;                               /*  YCTWB_F8        */
 
-/* #define DVDEC_YCTNA_Fn_COUNT (9) */
+    /* #define DVDEC_YCTNA_Fn_COUNT (9) */
     volatile uint16_t YCTNA_F0;                               /*  YCTNA_F0        */
     volatile uint16_t YCTNA_F1;                               /*  YCTNA_F1        */
     volatile uint16_t YCTNA_F2;                               /*  YCTNA_F2        */
@@ -403,7 +402,7 @@ typedef struct st_dvdec
     volatile uint16_t YCTNA_F7;                               /*  YCTNA_F7        */
     volatile uint16_t YCTNA_F8;                               /*  YCTNA_F8        */
 
-/* #define DVDEC_YCTNB_Fn_COUNT (9) */
+    /* #define DVDEC_YCTNB_Fn_COUNT (9) */
     volatile uint16_t YCTNB_F0;                               /*  YCTNB_F0        */
     volatile uint16_t YCTNB_F1;                               /*  YCTNB_F1        */
     volatile uint16_t YCTNB_F2;                               /*  YCTNB_F2        */
@@ -426,10 +425,10 @@ typedef struct st_dvdec
 
 /* Channel array defines of DVDEC (2)*/
 #ifdef  DECLARE_DVDEC_CHANNELS
-volatile struct st_dvdec*  DVDEC[ DVDEC_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    DVDEC_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_dvdec  *DVDEC[ DVDEC_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        DVDEC_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_DVDEC_CHANNELS */
 /* End of channel array defines of DVDEC (2)*/
 

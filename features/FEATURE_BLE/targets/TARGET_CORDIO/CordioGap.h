@@ -33,8 +33,7 @@ namespace cordio {
 /**
  * @see ::Gap
  */
-class Gap : public ::Gap
-{
+class Gap : public ::Gap {
 public:
     /**
      * Return the Gap singleton implementing ::Gap for the Cordio stac.
@@ -60,7 +59,7 @@ public:
      * @see ::Gap::setAdvertisingData
      */
     virtual ble_error_t setAdvertisingData(
-        const GapAdvertisingData&, const GapAdvertisingData&
+        const GapAdvertisingData &, const GapAdvertisingData &
     );
 
     /**
@@ -69,8 +68,8 @@ public:
     virtual ble_error_t connect(
         const BLEProtocol::AddressBytes_t  peerAddr,
         BLEProtocol::AddressType_t peerAddrType,
-        const ConnectionParams_t* connectionParams,
-        const GapScanningParams* scanParams
+        const ConnectionParams_t *connectionParams,
+        const GapScanningParams *scanParams
     );
 
     /**

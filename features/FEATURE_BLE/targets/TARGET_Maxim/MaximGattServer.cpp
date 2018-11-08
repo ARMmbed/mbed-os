@@ -56,7 +56,8 @@ static uint16_t currentHandle = 0x20;
 static UUID cccUUID(BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG);
 static const uint16_t cccSize = sizeof(uint16_t);
 
-MaximGattServer &MaximGattServer::getInstance() {
+MaximGattServer &MaximGattServer::getInstance()
+{
     static MaximGattServer m_instance;
     return m_instance;
 }
@@ -84,7 +85,7 @@ ble_error_t MaximGattServer::addService(GattService &service)
     }
 
     // Create WiCentric attribute list
-    mxmSvc->attGroup->pAttr = (attsAttr_t*)malloc(attListLen * sizeof(attsAttr_t));;
+    mxmSvc->attGroup->pAttr = (attsAttr_t *)malloc(attListLen * sizeof(attsAttr_t));;
     if (mxmSvc->attGroup->pAttr == NULL) {
         return BLE_ERROR_BUFFER_OVERFLOW;
     }
@@ -101,7 +102,7 @@ ble_error_t MaximGattServer::addService(GattService &service)
     } else {
         mxmSvc->uuidLen = sizeof(UUID::ShortUUIDBytes_t);
     }
-    currAtt->pValue = (uint8_t*)malloc(mxmSvc->uuidLen);
+    currAtt->pValue = (uint8_t *)malloc(mxmSvc->uuidLen);
     memcpy(currAtt->pValue, service.getUUID().getBaseUUID(), mxmSvc->uuidLen);
     currAtt->maxLen = mxmSvc->uuidLen;
     currAtt->pLen = &mxmSvc->uuidLen;
@@ -116,8 +117,8 @@ ble_error_t MaximGattServer::addService(GattService &service)
 
         /* Skip any incompletely defined, read-only characteristics. */
         if ((p_char->getValueAttribute().getValuePtr() == NULL) &&
-            (p_char->getValueAttribute().getLength() == 0) &&
-            (p_char->getProperties() == GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)) {
+                (p_char->getValueAttribute().getLength() == 0) &&
+                (p_char->getProperties() == GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)) {
             continue;
         }
 
@@ -127,7 +128,7 @@ ble_error_t MaximGattServer::addService(GattService &service)
 
         p_char->getValueAttribute().setHandle(currentHandle);
         mxmSvc->chars[i].descLen = 1 + sizeof(currentHandle) + p_char->getValueAttribute().getUUID().getLen();
-        currAtt->pValue = (uint8_t*)malloc(mxmSvc->chars[i].descLen);
+        currAtt->pValue = (uint8_t *)malloc(mxmSvc->chars[i].descLen);
         uint8_t *pValue = currAtt->pValue;
         *pValue++ = p_char->getProperties();
         memcpy(pValue, &currentHandle, sizeof(currentHandle));
@@ -150,8 +151,12 @@ ble_error_t MaximGattServer::addService(GattService &service)
             currAtt->settings |= ATTS_SET_UUID_128;
         }
         currAtt->permissions = 0;
-        if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)  { currAtt->permissions |= ATTS_PERMIT_READ; }
-        if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE) { currAtt->permissions |= ATTS_PERMIT_WRITE; }
+        if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)  {
+            currAtt->permissions |= ATTS_PERMIT_READ;
+        }
+        if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE) {
+            currAtt->permissions |= ATTS_PERMIT_WRITE;
+        }
         currAtt++;
 
         bool cccCreated = false;
@@ -207,8 +212,8 @@ ble_error_t MaximGattServer::addService(GattService &service)
             currentHandle++;
 
             currAtt->pUuid = cccUUID.getBaseUUID();
-            currAtt->pValue = (uint8_t*)&cccValues[cccCnt];
-            currAtt->pLen = (uint16_t*)&cccSize;
+            currAtt->pValue = (uint8_t *)&cccValues[cccCnt];
+            currAtt->pLen = (uint16_t *)&cccSize;
             currAtt->maxLen = sizeof(uint16_t);
             currAtt->settings = ATTS_SET_CCC;
             currAtt->permissions = (ATTS_PERMIT_READ | ATTS_PERMIT_WRITE);
@@ -237,7 +242,7 @@ ble_error_t MaximGattServer::addService(GattService &service)
     AttsAddGroup(mxmSvc->attGroup);
 
     AttRegister(attCback);
-    AttsCccRegister(cccCnt, (attsCccSet_t*)cccSet, cccCback);
+    AttsCccRegister(cccCnt, (attsCccSet_t *)cccSet, cccCback);
 
     return BLE_ERROR_NONE;
 }
@@ -260,7 +265,7 @@ ble_error_t MaximGattServer::read(Gap::Handle_t connectionHandle, GattAttribute:
             if (connectionHandle == DM_CONN_ID_NONE) { // CCCDs are always 16 bits
                 return BLE_ERROR_PARAM_OUT_OF_RANGE;
             }
-            *((uint16_t*)buffer) = AttsCccGet(connectionHandle, idx);
+            *((uint16_t *)buffer) = AttsCccGet(connectionHandle, idx);
             *lengthP = 2;   // CCCDs are always 16 bits
             return BLE_ERROR_NONE;
         }
@@ -274,7 +279,7 @@ ble_error_t MaximGattServer::write(GattAttribute::Handle_t attributeHandle, cons
 {
     uint16_t connectionHandle = MaximGap::getInstance().getConnectionHandle();
 
-    if (AttsSetAttr(attributeHandle, len, (uint8_t*)buffer) != ATT_SUCCESS) {
+    if (AttsSetAttr(attributeHandle, len, (uint8_t *)buffer) != ATT_SUCCESS) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -292,10 +297,10 @@ ble_error_t MaximGattServer::write(GattAttribute::Handle_t attributeHandle, cons
                 // This characteristic has a CCCD attribute. Handle notifications and indications.
                 uint16_t cccEnabled = AttsCccEnabled(connectionHandle, idx);
                 if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
-                    AttsHandleValueNtf(connectionHandle, attributeHandle, len, (uint8_t*)buffer);
+                    AttsHandleValueNtf(connectionHandle, attributeHandle, len, (uint8_t *)buffer);
                 }
                 if (cccEnabled & ATT_CLIENT_CFG_INDICATE) {
-                    AttsHandleValueInd(connectionHandle, attributeHandle, len, (uint8_t*)buffer);
+                    AttsHandleValueInd(connectionHandle, attributeHandle, len, (uint8_t *)buffer);
                 }
             }
         }
@@ -313,7 +318,7 @@ ble_error_t MaximGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
             if ((connectionHandle == DM_CONN_ID_NONE) || (len != 2)) { // CCCDs are always 16 bits
                 return BLE_ERROR_PARAM_OUT_OF_RANGE;
             }
-            AttsCccSet(connectionHandle, idx, *((uint16_t*)buffer));
+            AttsCccSet(connectionHandle, idx, *((uint16_t *)buffer));
             return BLE_ERROR_NONE;
         }
     }

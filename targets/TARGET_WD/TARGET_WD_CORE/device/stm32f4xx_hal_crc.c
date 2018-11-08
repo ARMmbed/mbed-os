@@ -3,10 +3,10 @@
   * @file    stm32f4xx_hal_crc.c
   * @author  MCD Application Team
   * @brief   CRC HAL module driver.
-  *          This file provides firmware functions to manage the following 
+  *          This file provides firmware functions to manage the following
   *          functionalities of the Cyclic Redundancy Check (CRC) peripheral:
   *           + Initialization and de-initialization functions
-  *           + Peripheral Control functions 
+  *           + Peripheral Control functions
   *           + Peripheral State functions
   *
   @verbatim
@@ -18,12 +18,12 @@
 
       (#) Enable CRC AHB clock using __HAL_RCC_CRC_CLK_ENABLE();
 
-      (#) Use HAL_CRC_Accumulate() function to compute the CRC value of 
+      (#) Use HAL_CRC_Accumulate() function to compute the CRC value of
           a 32-bit data buffer using combination of the previous CRC value
           and the new one.
 
-      (#) Use HAL_CRC_Calculate() function to compute the CRC Value of 
-          a new 32-bit data buffer. This function resets the CRC computation  
+      (#) Use HAL_CRC_Calculate() function to compute the CRC Value of
+          a new 32-bit data buffer. This function resets the CRC computation
           unit before starting the computation to avoid getting wrong CRC values.
 
   @endverbatim
@@ -64,7 +64,7 @@
   * @{
   */
 
-/** @addtogroup CRC 
+/** @addtogroup CRC
   * @{
   */
 
@@ -83,19 +83,19 @@
   */
 
 /** @addtogroup CRC_Exported_Functions_Group1
- *  @brief   Initialization and de-initialization functions 
+ *  @brief   Initialization and de-initialization functions
  *
-@verbatim     
+@verbatim
   ==============================================================================
             ##### Initialization and de-initialization functions #####
   ==============================================================================
     [..]  This section provides functions allowing to:
-      (+) Initialize the CRC according to the specified parameters 
+      (+) Initialize the CRC according to the specified parameters
           in the CRC_InitTypeDef and create the associated handle
       (+) DeInitialize the CRC peripheral
       (+) Initialize the CRC MSP
-      (+) DeInitialize CRC MSP 
- 
+      (+) DeInitialize CRC MSP
+
 @endverbatim
   * @{
   */
@@ -109,31 +109,29 @@
   */
 HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc)
 {
-  /* Check the CRC handle allocation */
-  if(hcrc == NULL)
-  {
-    return HAL_ERROR;
-  }
+    /* Check the CRC handle allocation */
+    if (hcrc == NULL) {
+        return HAL_ERROR;
+    }
 
-  /* Check the parameters */
-  assert_param(IS_CRC_ALL_INSTANCE(hcrc->Instance));
+    /* Check the parameters */
+    assert_param(IS_CRC_ALL_INSTANCE(hcrc->Instance));
 
-  if(hcrc->State == HAL_CRC_STATE_RESET)
-  {
-    /* Allocate lock resource and initialize it */
-    hcrc->Lock = HAL_UNLOCKED;
-    /* Init the low level hardware */
-    HAL_CRC_MspInit(hcrc);
-  }
-  
-  /* Change CRC peripheral state */
-  hcrc->State = HAL_CRC_STATE_BUSY;
-   
-  /* Change CRC peripheral state */
-  hcrc->State = HAL_CRC_STATE_READY;
-  
-  /* Return function status */
-  return HAL_OK;
+    if (hcrc->State == HAL_CRC_STATE_RESET) {
+        /* Allocate lock resource and initialize it */
+        hcrc->Lock = HAL_UNLOCKED;
+        /* Init the low level hardware */
+        HAL_CRC_MspInit(hcrc);
+    }
+
+    /* Change CRC peripheral state */
+    hcrc->State = HAL_CRC_STATE_BUSY;
+
+    /* Change CRC peripheral state */
+    hcrc->State = HAL_CRC_STATE_READY;
+
+    /* Return function status */
+    return HAL_OK;
 }
 
 /**
@@ -144,29 +142,28 @@ HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc)
   */
 HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc)
 {
-  /* Check the CRC handle allocation */
-  if(hcrc == NULL)
-  {
-    return HAL_ERROR;
-  }
+    /* Check the CRC handle allocation */
+    if (hcrc == NULL) {
+        return HAL_ERROR;
+    }
 
-  /* Check the parameters */
-  assert_param(IS_CRC_ALL_INSTANCE(hcrc->Instance));
+    /* Check the parameters */
+    assert_param(IS_CRC_ALL_INSTANCE(hcrc->Instance));
 
-  /* Change CRC peripheral state */
-  hcrc->State = HAL_CRC_STATE_BUSY;
+    /* Change CRC peripheral state */
+    hcrc->State = HAL_CRC_STATE_BUSY;
 
-  /* DeInit the low level hardware */
-  HAL_CRC_MspDeInit(hcrc);
+    /* DeInit the low level hardware */
+    HAL_CRC_MspDeInit(hcrc);
 
-  /* Change CRC peripheral state */
-  hcrc->State = HAL_CRC_STATE_RESET;
+    /* Change CRC peripheral state */
+    hcrc->State = HAL_CRC_STATE_RESET;
 
-  /* Release Lock */
-  __HAL_UNLOCK(hcrc);
+    /* Release Lock */
+    __HAL_UNLOCK(hcrc);
 
-  /* Return function status */
-  return HAL_OK;
+    /* Return function status */
+    return HAL_OK;
 }
 
 /**
@@ -177,11 +174,11 @@ HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc)
   */
 __weak void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hcrc);
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_CRC_MspInit could be implemented in the user file
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hcrc);
+    /* NOTE : This function Should not be modified, when the callback is needed,
+              the HAL_CRC_MspInit could be implemented in the user file
+     */
 }
 
 /**
@@ -192,24 +189,24 @@ __weak void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
   */
 __weak void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hcrc);
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_CRC_MspDeInit could be implemented in the user file
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hcrc);
+    /* NOTE : This function Should not be modified, when the callback is needed,
+              the HAL_CRC_MspDeInit could be implemented in the user file
+     */
 }
 
 /**
   * @}
-  */ 
+  */
 
 /** @addtogroup CRC_Exported_Functions_Group2
- *  @brief   Peripheral Control functions 
+ *  @brief   Peripheral Control functions
  *
-@verbatim  
+@verbatim
   ==============================================================================
                       ##### Peripheral Control functions #####
-  ==============================================================================  
+  ==============================================================================
     [..]  This section provides functions allowing to:
       (+) Compute the 32-bit CRC value of 32-bit data buffer,
           using combination of the previous CRC value and the new one.
@@ -231,28 +228,27 @@ __weak void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
   */
 uint32_t HAL_CRC_Accumulate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t BufferLength)
 {
-  uint32_t index = 0U;
+    uint32_t index = 0U;
 
-  /* Process Locked */
-  __HAL_LOCK(hcrc);
+    /* Process Locked */
+    __HAL_LOCK(hcrc);
 
-  /* Change CRC peripheral state */
-  hcrc->State = HAL_CRC_STATE_BUSY;
+    /* Change CRC peripheral state */
+    hcrc->State = HAL_CRC_STATE_BUSY;
 
-  /* Enter Data to the CRC calculator */
-  for(index = 0U; index < BufferLength; index++)
-  {
-    hcrc->Instance->DR = pBuffer[index];
-  }
+    /* Enter Data to the CRC calculator */
+    for (index = 0U; index < BufferLength; index++) {
+        hcrc->Instance->DR = pBuffer[index];
+    }
 
-  /* Change CRC peripheral state */
-  hcrc->State = HAL_CRC_STATE_READY;
+    /* Change CRC peripheral state */
+    hcrc->State = HAL_CRC_STATE_READY;
 
-  /* Process Unlocked */
-  __HAL_UNLOCK(hcrc);
+    /* Process Unlocked */
+    __HAL_UNLOCK(hcrc);
 
-  /* Return the CRC computed value */
-  return hcrc->Instance->DR;
+    /* Return the CRC computed value */
+    return hcrc->Instance->DR;
 }
 
 /**
@@ -266,47 +262,46 @@ uint32_t HAL_CRC_Accumulate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_
   */
 uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t BufferLength)
 {
-  uint32_t index = 0U;
+    uint32_t index = 0U;
 
-  /* Process Locked */
-  __HAL_LOCK(hcrc); 
+    /* Process Locked */
+    __HAL_LOCK(hcrc);
 
-  /* Change CRC peripheral state */
-  hcrc->State = HAL_CRC_STATE_BUSY;
+    /* Change CRC peripheral state */
+    hcrc->State = HAL_CRC_STATE_BUSY;
 
-  /* Reset CRC Calculation Unit */
-  __HAL_CRC_DR_RESET(hcrc);
+    /* Reset CRC Calculation Unit */
+    __HAL_CRC_DR_RESET(hcrc);
 
-  /* Enter Data to the CRC calculator */
-  for(index = 0U; index < BufferLength; index++)
-  {
-    hcrc->Instance->DR = pBuffer[index];
-  }
+    /* Enter Data to the CRC calculator */
+    for (index = 0U; index < BufferLength; index++) {
+        hcrc->Instance->DR = pBuffer[index];
+    }
 
-  /* Change CRC peripheral state */
-  hcrc->State = HAL_CRC_STATE_READY;
+    /* Change CRC peripheral state */
+    hcrc->State = HAL_CRC_STATE_READY;
 
-  /* Process Unlocked */
-  __HAL_UNLOCK(hcrc);
+    /* Process Unlocked */
+    __HAL_UNLOCK(hcrc);
 
-  /* Return the CRC computed value */
-  return hcrc->Instance->DR;
+    /* Return the CRC computed value */
+    return hcrc->Instance->DR;
 }
 
 /**
   * @}
-  */ 
+  */
 
-  
+
 /** @addtogroup CRC_Exported_Functions_Group3
- *  @brief   Peripheral State functions 
+ *  @brief   Peripheral State functions
  *
-@verbatim   
+@verbatim
   ==============================================================================
                       ##### Peripheral State functions #####
-  ==============================================================================  
+  ==============================================================================
     [..]
-    This subsection permits to get in run-time the status of the peripheral 
+    This subsection permits to get in run-time the status of the peripheral
     and the data flow.
 
 @endverbatim
@@ -321,7 +316,7 @@ uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t
   */
 HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc)
 {
-  return hcrc->State;
+    return hcrc->State;
 }
 
 /**

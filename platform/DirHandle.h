@@ -80,7 +80,7 @@ public:
      */
     virtual void rewind() = 0;
 
-    /** Get the sizeof the directory 
+    /** Get the sizeof the directory
      *
      *  @return         Number of files in the directory
      */
@@ -107,7 +107,10 @@ public:
      *   -1 on error.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::close")
-    virtual int closedir() { return close(); };
+    virtual int closedir()
+    {
+        return close();
+    };
 
     /** Return the directory entry at the current position, and
      *  advances the position to the next entry.
@@ -127,7 +130,10 @@ public:
     /** Resets the position to the beginning of the directory.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::rewind")
-    virtual void rewinddir() { rewind(); }
+    virtual void rewinddir()
+    {
+        rewind();
+    }
 
     /** Returns the current position of the DirHandle.
      *
@@ -136,14 +142,20 @@ public:
      *  -1 on error.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::tell")
-    virtual off_t telldir() { return tell(); }
+    virtual off_t telldir()
+    {
+        return tell();
+    }
 
     /** Sets the position of the DirHandle.
      *
      *  @param location The location to seek to. Must be a value returned by telldir.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::seek")
-    virtual void seekdir(off_t location) { seek(location); }
+    virtual void seekdir(off_t location)
+    {
+        seek(location);
+    }
 };
 
 /**@}*/

@@ -40,11 +40,12 @@
 ADXL345::ADXL345(PinName mosi,
                  PinName miso,
                  PinName sck,
-                 PinName cs) : spi_(mosi, miso, sck), nCS_(cs) {
+                 PinName cs) : spi_(mosi, miso, sck), nCS_(cs)
+{
 
     //2MHz, allowing us to use the fastest data rates.
     spi_.frequency(2000000);
-    spi_.format(8,3);
+    spi_.format(8, 3);
 
     nCS_ = 1;
 
@@ -52,25 +53,29 @@ ADXL345::ADXL345(PinName mosi,
 
 }
 
-int ADXL345::getDevId(void) {
+int ADXL345::getDevId(void)
+{
 
     return oneByteRead(ADXL345_DEVID_REG);
 
 }
 
-int ADXL345::getTapThreshold(void) {
+int ADXL345::getTapThreshold(void)
+{
 
     return oneByteRead(ADXL345_THRESH_TAP_REG);
 
 }
 
-void ADXL345::setTapThreshold(int threshold) {
+void ADXL345::setTapThreshold(int threshold)
+{
 
     oneByteWrite(ADXL345_THRESH_TAP_REG, threshold);
 
 }
 
-int ADXL345::getOffset(int axis) {
+int ADXL345::getOffset(int axis)
+{
 
     int address = 0;
 
@@ -86,7 +91,8 @@ int ADXL345::getOffset(int axis) {
 
 }
 
-void ADXL345::setOffset(int axis, char offset) {
+void ADXL345::setOffset(int axis, char offset)
+{
 
     int address = 0;
 
@@ -102,13 +108,15 @@ void ADXL345::setOffset(int axis, char offset) {
 
 }
 
-int ADXL345::getTapDuration(void) {
+int ADXL345::getTapDuration(void)
+{
 
-    return oneByteRead(ADXL345_DUR_REG)*625;
+    return oneByteRead(ADXL345_DUR_REG) * 625;
 
 }
 
-void ADXL345::setTapDuration(int duration_us) {
+void ADXL345::setTapDuration(int duration_us)
+{
 
     int tapDuration = duration_us / 625;
 
@@ -116,13 +124,15 @@ void ADXL345::setTapDuration(int duration_us) {
 
 }
 
-float ADXL345::getTapLatency(void) {
+float ADXL345::getTapLatency(void)
+{
 
-    return oneByteRead(ADXL345_LATENT_REG)*1.25;
+    return oneByteRead(ADXL345_LATENT_REG) * 1.25;
 
 }
 
-void ADXL345::setTapLatency(int latency_ms) {
+void ADXL345::setTapLatency(int latency_ms)
+{
 
     int tapLatency = latency_ms / 1.25;
 
@@ -130,13 +140,15 @@ void ADXL345::setTapLatency(int latency_ms) {
 
 }
 
-float ADXL345::getWindowTime(void) {
+float ADXL345::getWindowTime(void)
+{
 
-    return oneByteRead(ADXL345_WINDOW_REG)*1.25;
+    return oneByteRead(ADXL345_WINDOW_REG) * 1.25;
 
 }
 
-void ADXL345::setWindowTime(int window_ms) {
+void ADXL345::setWindowTime(int window_ms)
+{
 
     int windowTime = window_ms / 1.25;
 
@@ -144,73 +156,85 @@ void ADXL345::setWindowTime(int window_ms) {
 
 }
 
-int ADXL345::getActivityThreshold(void) {
+int ADXL345::getActivityThreshold(void)
+{
 
     return oneByteRead(ADXL345_THRESH_ACT_REG);
 
 }
 
-void ADXL345::setActivityThreshold(int threshold) {
+void ADXL345::setActivityThreshold(int threshold)
+{
 
     oneByteWrite(ADXL345_THRESH_ACT_REG, threshold);
 
 }
 
-int ADXL345::getInactivityThreshold(void) {
+int ADXL345::getInactivityThreshold(void)
+{
 
     return oneByteRead(ADXL345_THRESH_INACT_REG);
 
 }
 
-void ADXL345::setInactivityThreshold(int threshold) {
+void ADXL345::setInactivityThreshold(int threshold)
+{
 
     return oneByteWrite(ADXL345_THRESH_INACT_REG, threshold);
 
 }
 
-int ADXL345::getTimeInactivity(void) {
+int ADXL345::getTimeInactivity(void)
+{
 
     return oneByteRead(ADXL345_TIME_INACT_REG);
 
 }
 
-void ADXL345::setTimeInactivity(int timeInactivity) {
+void ADXL345::setTimeInactivity(int timeInactivity)
+{
 
     oneByteWrite(ADXL345_TIME_INACT_REG, timeInactivity);
 
 }
 
-int ADXL345::getActivityInactivityControl(void) {
+int ADXL345::getActivityInactivityControl(void)
+{
 
     return oneByteRead(ADXL345_ACT_INACT_CTL_REG);
 
 }
 
-void ADXL345::setActivityInactivityControl(int settings) {
+void ADXL345::setActivityInactivityControl(int settings)
+{
 
     oneByteWrite(ADXL345_ACT_INACT_CTL_REG, settings);
 
 }
 
-int ADXL345::getFreefallThreshold(void) {
+int ADXL345::getFreefallThreshold(void)
+{
 
     return oneByteRead(ADXL345_THRESH_FF_REG);
 
 }
 
-void ADXL345::setFreefallThreshold(int threshold) {
+void ADXL345::setFreefallThreshold(int threshold)
+{
 
     oneByteWrite(ADXL345_THRESH_FF_REG, threshold);
 
 }
 
-int ADXL345::getFreefallTime(void) {
+int ADXL345::getFreefallTime(void)
+{
 
-    return oneByteRead(ADXL345_TIME_FF_REG)*5;
+    return oneByteRead(ADXL345_TIME_FF_REG) * 5;
 
 }
 
-void ADXL345::setFreefallTime(int freefallTime_ms) {
+void ADXL345::setFreefallTime(int freefallTime_ms)
+{
 
     int freefallTime = freefallTime_ms / 5;
 
@@ -218,25 +242,29 @@ void ADXL345::setFreefallTime(int freefallTime_ms) {
 
 }
 
-int ADXL345::getTapAxisControl(void) {
+int ADXL345::getTapAxisControl(void)
+{
 
     return oneByteRead(ADXL345_TAP_AXES_REG);
 
 }
 
-void ADXL345::setTapAxisControl(int settings) {
+void ADXL345::setTapAxisControl(int settings)
+{
 
     oneByteWrite(ADXL345_TAP_AXES_REG, settings);
 
 }
 
-int ADXL345::getTapSource(void) {
+int ADXL345::getTapSource(void)
+{
 
     return oneByteRead(ADXL345_ACT_TAP_STATUS_REG);
 
 }
 
-void ADXL345::setPowerMode(char mode) {
+void ADXL345::setPowerMode(char mode)
+{
 
     //Get the current register contents, so we don't clobber the rate value.
     char registerContents = oneByteRead(ADXL345_BW_RATE_REG);
@@ -247,61 +275,71 @@ void ADXL345::setPowerMode(char mode) {
 
 }
 
-int ADXL345::getPowerControl(void) {
+int ADXL345::getPowerControl(void)
+{
 
     return oneByteRead(ADXL345_POWER_CTL_REG);
 
 }
 
-void ADXL345::setPowerControl(int settings) {
+void ADXL345::setPowerControl(int settings)
+{
 
     oneByteWrite(ADXL345_POWER_CTL_REG, settings);
 
 }
 
-int ADXL345::getInterruptEnableControl(void) {
+int ADXL345::getInterruptEnableControl(void)
+{
 
     return oneByteRead(ADXL345_INT_ENABLE_REG);
 
 }
 
-void ADXL345::setInterruptEnableControl(int settings) {
+void ADXL345::setInterruptEnableControl(int settings)
+{
 
     oneByteWrite(ADXL345_INT_ENABLE_REG, settings);
 
 }
 
-int ADXL345::getInterruptMappingControl(void) {
+int ADXL345::getInterruptMappingControl(void)
+{
 
     return oneByteRead(ADXL345_INT_MAP_REG);
 
 }
 
-void ADXL345::setInterruptMappingControl(int settings) {
+void ADXL345::setInterruptMappingControl(int settings)
+{
 
     oneByteWrite(ADXL345_INT_MAP_REG, settings);
 
 }
 
-int ADXL345::getInterruptSource(void){
+int ADXL345::getInterruptSource(void)
+{
 
     return oneByteRead(ADXL345_INT_SOURCE_REG);
 
 }
 
-int ADXL345::getDataFormatControl(void){
+int ADXL345::getDataFormatControl(void)
+{
 
     return oneByteRead(ADXL345_DATA_FORMAT_REG);
 
 }
 
-void ADXL345::setDataFormatControl(int settings){
+void ADXL345::setDataFormatControl(int settings)
+{
 
     oneByteWrite(ADXL345_DATA_FORMAT_REG, settings);
 
 }
 
-void ADXL345::setDataRate(int rate) {
+void ADXL345::setDataRate(int rate)
+{
 
     //Get the current register contents, so we don't clobber the power bit.
     char registerContents = oneByteRead(ADXL345_BW_RATE_REG);
@@ -313,7 +351,8 @@ void ADXL345::setDataRate(int rate) {
 
 }
 
-void ADXL345::getOutput(int* readings){
+void ADXL345::getOutput(int *readings)
+{
 
     char buffer[6];
 
@@ -325,25 +364,29 @@ void ADXL345::getOutput(int* readings){
 
 }
 
-int ADXL345::getFifoControl(void){
+int ADXL345::getFifoControl(void)
+{
 
     return oneByteRead(ADXL345_FIFO_CTL);
 
 }
 
-void ADXL345::setFifoControl(int settings){
+void ADXL345::setFifoControl(int settings)
+{
 
     oneByteWrite(ADXL345_FIFO_STATUS, settings);
 
 }
 
-int ADXL345::getFifoStatus(void){
+int ADXL345::getFifoStatus(void)
+{
 
     return oneByteRead(ADXL345_FIFO_STATUS);
 
 }
 
-int ADXL345::oneByteRead(int address) {
+int ADXL345::oneByteRead(int address)
+{
 
     int tx = (ADXL345_SPI_READ | (address & 0x3F));
     int rx = 0;
@@ -359,7 +402,8 @@ int ADXL345::oneByteRead(int address) {
 
 }
 
-void ADXL345::oneByteWrite(int address, char data) {
+void ADXL345::oneByteWrite(int address, char data)
+{
 
     int tx = (ADXL345_SPI_WRITE | (address & 0x3F));
 
@@ -372,7 +416,8 @@ void ADXL345::oneByteWrite(int address, char data) {
 
 }
 
-void ADXL345::multiByteRead(int startAddress, char* buffer, int size) {
+void ADXL345::multiByteRead(int startAddress, char *buffer, int size)
+{
 
     int tx = (ADXL345_SPI_READ | ADXL345_MULTI_BYTE | (startAddress & 0x3F));
 
@@ -388,7 +433,8 @@ void ADXL345::multiByteRead(int startAddress, char* buffer, int size) {
 
 }
 
-void ADXL345::multiByteWrite(int startAddress, char* buffer, int size) {
+void ADXL345::multiByteWrite(int startAddress, char *buffer, int size)
+{
 
     int tx = (ADXL345_SPI_WRITE | ADXL345_MULTI_BYTE | (startAddress & 0x3F));
 

@@ -46,7 +46,7 @@ uint32_t SystemCoreClock = __SYSTEM_CLOCK;
  * @brief   Updates the SystemCoreClock with current core Clock
  *          retrieved from cpu registers.
  */
-void SystemCoreClockUpdate (void)
+void SystemCoreClockUpdate(void)
 {
 
     SystemCoreClock = __SYSTEM_CLOCK;
@@ -62,7 +62,7 @@ void SystemCoreClockUpdate (void)
  * @brief  Setup the microcontroller system.
  *         Initialize the System.
  */
-void SystemInit (void)
+void SystemInit(void)
 {
 
 #ifdef UNALIGNED_SUPPORT_DISABLE
@@ -79,17 +79,17 @@ void SystemInit (void)
      * I2C0, UART0, UART1, TIMER0, TIMER1, DUAL TIMER, TRNG
      */
     CMSDK_SYSCON->APBCLKCFG0SET = SYSTEM_CORE_TIMER0
-                            | SYSTEM_CORE_TIMER1
-                            | SYSTEM_CORE_DUALTIMER0
-                            | SYSTEM_CORE_UART0
-                            | SYSTEM_CORE_UART1
-                            | SYSTEM_CORE_I2C0
-                            | SYSTEM_CORE_WDOG
-                            | SYSTEM_CORE_QSPI
-                            | SYSTEM_CORE_SPI0
-                            | SYSTEM_CORE_SPI1
-                            | SYSTEM_CORE_I2C1
-                            | SYSTEM_CORE_TRNG;
+                                  | SYSTEM_CORE_TIMER1
+                                  | SYSTEM_CORE_DUALTIMER0
+                                  | SYSTEM_CORE_UART0
+                                  | SYSTEM_CORE_UART1
+                                  | SYSTEM_CORE_I2C0
+                                  | SYSTEM_CORE_WDOG
+                                  | SYSTEM_CORE_QSPI
+                                  | SYSTEM_CORE_SPI0
+                                  | SYSTEM_CORE_SPI1
+                                  | SYSTEM_CORE_I2C1
+                                  | SYSTEM_CORE_TRNG;
     /* Beetle System Core Config */
     SystemCoreConfig();
 }

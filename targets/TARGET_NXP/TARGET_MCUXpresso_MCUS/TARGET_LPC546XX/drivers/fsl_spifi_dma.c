@@ -35,15 +35,13 @@
  ******************************************************************************/
 
 /*<! Structure definition for spifi_dma_private_handle_t. The structure is private. */
-typedef struct _spifi_dma_private_handle
-{
+typedef struct _spifi_dma_private_handle {
     SPIFI_Type *base;
     spifi_dma_handle_t *handle;
 } spifi_dma_private_handle_t;
 
 /* SPIFI DMA transfer handle. */
-enum _spifi_dma_tansfer_states
-{
+enum _spifi_dma_tansfer_states {
     kSPIFI_Idle,   /* TX idle. */
     kSPIFI_BusBusy /* RX busy. */
 };
@@ -101,12 +99,10 @@ static void SPIFI_SendDMACallback(dma_handle_t *handle, void *param, bool transf
     handle = handle;
     intmode = intmode;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         SPIFI_TransferAbortSendDMA(spifiPrivateHandle->base, spifiPrivateHandle->handle);
 
-        if (spifiPrivateHandle->handle->callback)
-        {
+        if (spifiPrivateHandle->handle->callback) {
             spifiPrivateHandle->handle->callback(spifiPrivateHandle->base, spifiPrivateHandle->handle,
                                                  kStatus_SPIFI_Idle, spifiPrivateHandle->handle->userData);
         }
@@ -121,13 +117,11 @@ static void SPIFI_ReceiveDMACallback(dma_handle_t *handle, void *param, bool tra
     handle = handle;
     intmode = intmode;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         /* Disable transfer. */
         SPIFI_TransferAbortReceiveDMA(spifiPrivateHandle->base, spifiPrivateHandle->handle);
 
-        if (spifiPrivateHandle->handle->callback)
-        {
+        if (spifiPrivateHandle->handle->callback) {
             spifiPrivateHandle->handle->callback(spifiPrivateHandle->base, spifiPrivateHandle->handle,
                                                  kStatus_SPIFI_Idle, spifiPrivateHandle->handle->userData);
         }
@@ -192,12 +186,9 @@ status_t SPIFI_TransferSendDMA(SPIFI_Type *base, spifi_dma_handle_t *handle, spi
     status_t status;
 
     /* If previous TX not finished. */
-    if (kSPIFI_BusBusy == handle->state)
-    {
+    if (kSPIFI_BusBusy == handle->state) {
         status = kStatus_SPIFI_Busy;
-    }
-    else
-    {
+    } else {
         handle->state = kSPIFI_BusBusy;
 
         /* Prepare transfer. */
@@ -225,12 +216,9 @@ status_t SPIFI_TransferReceiveDMA(SPIFI_Type *base, spifi_dma_handle_t *handle, 
     status_t status;
 
     /* If previous TX not finished. */
-    if (kSPIFI_BusBusy == handle->state)
-    {
+    if (kSPIFI_BusBusy == handle->state) {
         status = kStatus_SPIFI_Busy;
-    }
-    else
-    {
+    } else {
         handle->state = kSPIFI_BusBusy;
 
         /* Prepare transfer. */
@@ -282,12 +270,9 @@ status_t SPIFI_TransferGetSendCountDMA(SPIFI_Type *base, spifi_dma_handle_t *han
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kSPIFI_BusBusy)
-    {
+    if (handle->state != kSPIFI_BusBusy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = handle->transferSize - DMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel);
     }
 
@@ -300,12 +285,9 @@ status_t SPIFI_TransferGetReceiveCountDMA(SPIFI_Type *base, spifi_dma_handle_t *
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kSPIFI_BusBusy)
-    {
+    if (handle->state != kSPIFI_BusBusy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = handle->transferSize - DMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel);
     }
 

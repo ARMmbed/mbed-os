@@ -49,8 +49,7 @@
 /*@}*/
 
 /*! @brief List of RTC interrupts */
-typedef enum _rtc_interrupt_enable
-{
+typedef enum _rtc_interrupt_enable {
     kRTC_TimeInvalidInterruptEnable = RTC_IER_TIIE_MASK,  /*!< Time invalid interrupt.*/
     kRTC_TimeOverflowInterruptEnable = RTC_IER_TOIE_MASK, /*!< Time overflow interrupt.*/
     kRTC_AlarmInterruptEnable = RTC_IER_TAIE_MASK,        /*!< Alarm interrupt.*/
@@ -58,16 +57,14 @@ typedef enum _rtc_interrupt_enable
 } rtc_interrupt_enable_t;
 
 /*! @brief List of RTC flags */
-typedef enum _rtc_status_flags
-{
+typedef enum _rtc_status_flags {
     kRTC_TimeInvalidFlag = RTC_SR_TIF_MASK,  /*!< Time invalid flag */
     kRTC_TimeOverflowFlag = RTC_SR_TOF_MASK, /*!< Time overflow flag */
     kRTC_AlarmFlag = RTC_SR_TAF_MASK         /*!< Alarm flag*/
 } rtc_status_flags_t;
 
 /*! @brief List of RTC Oscillator capacitor load settings */
-typedef enum _rtc_osc_cap_load
-{
+typedef enum _rtc_osc_cap_load {
     kRTC_Capacitor_2p = RTC_CR_SC2P_MASK,  /*!< 2pF capacitor load */
     kRTC_Capacitor_4p = RTC_CR_SC4P_MASK,  /*!< 4pF capacitor load */
     kRTC_Capacitor_8p = RTC_CR_SC8P_MASK,  /*!< 8pF capacitor load */
@@ -75,8 +72,7 @@ typedef enum _rtc_osc_cap_load
 } rtc_osc_cap_load_t;
 
 /*! @brief Structure is used to hold the date and time */
-typedef struct _rtc_datetime
-{
+typedef struct _rtc_datetime {
     uint16_t year;  /*!< Range from 1970 to 2099.*/
     uint8_t month;  /*!< Range from 1 to 12.*/
     uint8_t day;    /*!< Range from 1 to 31 (depending on month).*/
@@ -94,8 +90,7 @@ typedef struct _rtc_datetime
  *
  * The config struct can be made const so it resides in flash
  */
-typedef struct _rtc_config
-{
+typedef struct _rtc_config {
     bool wakeupSelect;             /*!< true: Wakeup pin outputs the 32KHz clock;
                                         false:Wakeup pin used to wakeup the chip  */
     bool updateMode;               /*!< true: Registers can be written even when locked under certain

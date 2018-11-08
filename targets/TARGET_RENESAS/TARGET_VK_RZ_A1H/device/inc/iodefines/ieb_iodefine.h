@@ -30,8 +30,8 @@
 #define IEB_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_ieb
-{                                                          /* IEB              */
+struct st_ieb {
+    /* IEB              */
     volatile uint8_t   B0BCR;                                  /*  B0BCR           */
     volatile uint8_t   dummy495[3];                            /*                  */
     volatile uint8_t   B0PSR;                                  /*  B0PSR           */

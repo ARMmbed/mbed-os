@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   wsf_os.h
- *        
+ *
  *  \brief  Software foundation OS API.
  *
  *          $Date: 2012-10-22 14:09:36 -0700 (Mon, 22 Oct 2012) $
  *          $Revision: 359 $
- *  
+ *
  *  Copyright (c) 2009-2016 ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: LicenseRef-PBL
@@ -34,11 +34,10 @@ extern "C" {
 **************************************************************************************************/
 
 /*! Common message structure passed to event handler */
-typedef struct
-{
-  uint16_t        param;          /*! General purpose parameter passed to event handler */
-  uint8_t         event;          /*! General purpose event value passed to event handler */
-  uint8_t         status;         /*! General purpose status value passed to event handler */
+typedef struct {
+    uint16_t        param;          /*! General purpose parameter passed to event handler */
+    uint8_t         event;          /*! General purpose event value passed to event handler */
+    uint8_t         status;         /*! General purpose status value passed to event handler */
 } wsfMsgHdr_t;
 
 /**************************************************************************************************
@@ -48,7 +47,7 @@ typedef struct
 /*************************************************************************************************/
 /*!
  *  \fn     wsfEventHandler_t
- *        
+ *
  *  \brief  Event handler callback function.
  *
  *  \param  event    Mask of events set for the event handler.
@@ -66,7 +65,7 @@ typedef void (*wsfEventHandler_t)(wsfEventMask_t event, wsfMsgHdr_t *pMsg);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfSetEvent
- *        
+ *
  *  \brief  Set an event for an event handler.
  *
  *  \param  handlerId   Handler ID.
@@ -80,7 +79,7 @@ void WsfSetEvent(wsfHandlerId_t handlerId, wsfEventMask_t event);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfTaskLock
- *        
+ *
  *  \brief  Lock task scheduling.
  *
  *  \return None.
@@ -91,7 +90,7 @@ void WsfTaskLock(void);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfTaskUnlock
- *        
+ *
  *  \brief  Unlock task scheduling.
  *
  *  \return None.
@@ -102,7 +101,7 @@ void WsfTaskUnlock(void);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfTaskSetReady
- *        
+ *
  *  \brief  Set the task used by the given handler as ready to run.
  *
  *  \param  handlerId   Event handler ID.
@@ -116,7 +115,7 @@ void WsfTaskSetReady(wsfHandlerId_t handlerId, wsfTaskEvent_t event);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfTaskMsgQueue
- *        
+ *
  *  \brief  Return the task message queue used by the given handler.
  *
  *  \param  handlerId   Event handler ID.
@@ -129,7 +128,7 @@ wsfQueue_t *WsfTaskMsgQueue(wsfHandlerId_t handlerId);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfOsSetNextHandler
- *        
+ *
  *  \brief  Set the next WSF handler function in the WSF OS handler array.  This function
  *          should only be called as part of the OS initialization procedure.
  *

@@ -36,16 +36,14 @@ typedef fnet_int32_t fnet_mempool_desc_t;
 
 /* Memory pool unit header.*/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_mempool_unit_header
-{
+typedef struct fnet_mempool_unit_header {
     fnet_size_t                         size FNET_COMP_PACKED;                     /* Unit size. */
     struct fnet_mempool_unit_header     *ptr FNET_COMP_PACKED;   /* Pointer to the next free block. */
 }
 fnet_mempool_unit_header_t;
 FNET_COMP_PACKED_END
 
-typedef enum
-{
+typedef enum {
     FNET_MEMPOOL_ALIGN_8 = (0x7u),       /* Evenly divisible by 8.*/
     FNET_MEMPOOL_ALIGN_16 = (0xFu),      /* Evenly divisible by 16.*/
     FNET_MEMPOOL_ALIGN_32 = (0x1Fu),     /* Evenly divisible by 32.*/
@@ -57,15 +55,15 @@ fnet_mempool_align_t;
 extern "C" {
 #endif
 
-fnet_mempool_desc_t fnet_mempool_init( void *pool_ptr, fnet_size_t pool_size, fnet_mempool_align_t alignment );
-void fnet_mempool_release( fnet_mempool_desc_t mpool );
-void fnet_mempool_free( fnet_mempool_desc_t mpool, void *ap );
-void *fnet_mempool_malloc(fnet_mempool_desc_t mpool, fnet_size_t nbytes );
-fnet_size_t fnet_mempool_free_mem_status( fnet_mempool_desc_t mpool);
-fnet_size_t fnet_mempool_malloc_max( fnet_mempool_desc_t mpool );
+fnet_mempool_desc_t fnet_mempool_init(void *pool_ptr, fnet_size_t pool_size, fnet_mempool_align_t alignment);
+void fnet_mempool_release(fnet_mempool_desc_t mpool);
+void fnet_mempool_free(fnet_mempool_desc_t mpool, void *ap);
+void *fnet_mempool_malloc(fnet_mempool_desc_t mpool, fnet_size_t nbytes);
+fnet_size_t fnet_mempool_free_mem_status(fnet_mempool_desc_t mpool);
+fnet_size_t fnet_mempool_malloc_max(fnet_mempool_desc_t mpool);
 
 #if 0 /* For Debug needs.*/
-fnet_return_t fnet_mempool_check( fnet_mempool_desc_t mpool );
+fnet_return_t fnet_mempool_check(fnet_mempool_desc_t mpool);
 #endif
 
 #if defined(__cplusplus)

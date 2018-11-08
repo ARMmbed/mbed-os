@@ -72,17 +72,17 @@
   *          - SUCCESS: HRTIMx registers are de-initialized
   *          - ERROR: invalid HRTIMx instance
   */
-ErrorStatus LL_HRTIM_DeInit(HRTIM_TypeDef* HRTIMx)
+ErrorStatus LL_HRTIM_DeInit(HRTIM_TypeDef *HRTIMx)
 {
-  ErrorStatus result = SUCCESS;
+    ErrorStatus result = SUCCESS;
 
-  /* Check the parameters */
-  assert_param(IS_HRTIM_ALL_INSTANCE(HRTIMx)); 
+    /* Check the parameters */
+    assert_param(IS_HRTIM_ALL_INSTANCE(HRTIMx));
 
-  LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_HRTIM1);
-  LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_HRTIM1);  
-  
-  return result;
+    LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_HRTIM1);
+    LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_HRTIM1);
+
+    return result;
 }
 /**
   * @}

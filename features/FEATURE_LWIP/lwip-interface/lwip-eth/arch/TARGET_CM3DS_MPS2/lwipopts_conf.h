@@ -22,10 +22,10 @@
 /* size is 1522 bytes to accommodate the four-byte VLAN tag. */
 #define ETH_MAX_FLEN                  1522u /* recommended size for a VLAN frame */
 
-  /* Maximum Transfer Unit
-   * The IEEE 802.3 specification limits the data portion of the 802.3 frame
-   * to a minimum of 46 and a maximum of 1500 bytes, this is on L3 level.
-   */
+/* Maximum Transfer Unit
+ * The IEEE 802.3 specification limits the data portion of the 802.3 frame
+ * to a minimum of 46 and a maximum of 1500 bytes, this is on L3 level.
+ */
 #define ETH_L2_HEADER_LEN             22u
 
 #define ETH_MAX_PAYLOAD_LEN           (ETH_MAX_FLEN - ETH_L2_HEADER_LEN)

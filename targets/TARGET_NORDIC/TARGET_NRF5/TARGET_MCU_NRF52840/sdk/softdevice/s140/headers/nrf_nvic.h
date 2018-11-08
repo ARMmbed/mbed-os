@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2000 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 /**
  * @defgroup nrf_nvic_api SoftDevice NVIC API
@@ -72,10 +72,10 @@ extern "C" {
 #define __NRF_NVIC_NVMC_IRQn (30) /**< The peripheral ID of the NVMC. IRQ numbers are used to identify peripherals, but the NVMC doesn't have an IRQ number in the MDK. */
 
 #ifdef NRF51
-  #define __NRF_NVIC_ISER_COUNT (1) /**< The number of ISER/ICER registers in the NVIC that are used. */
+#define __NRF_NVIC_ISER_COUNT (1) /**< The number of ISER/ICER registers in the NVIC that are used. */
 
-  /**@brief Interrupts used by the SoftDevice. */
-  #define __NRF_NVIC_SD_IRQS_0 ((uint32_t)( \
+/**@brief Interrupts used by the SoftDevice. */
+#define __NRF_NVIC_SD_IRQS_0 ((uint32_t)( \
         (1U << POWER_CLOCK_IRQn) \
       | (1U << RADIO_IRQn) \
       | (1U << RTC0_IRQn) \
@@ -89,15 +89,15 @@ extern "C" {
       | (1U << (uint32_t)SWI5_IRQn) \
     ))
 
-  /**@brief Interrupts available for to application. */
-  #define __NRF_NVIC_APP_IRQS_0 (~__NRF_NVIC_SD_IRQS_0)
+/**@brief Interrupts available for to application. */
+#define __NRF_NVIC_APP_IRQS_0 (~__NRF_NVIC_SD_IRQS_0)
 #endif
 
 #ifdef NRF52_SERIES
-  #define __NRF_NVIC_ISER_COUNT (2) /**< The number of ISER/ICER registers in the NVIC that are used. */
+#define __NRF_NVIC_ISER_COUNT (2) /**< The number of ISER/ICER registers in the NVIC that are used. */
 
-  /**@brief Interrupts used by the SoftDevice. */
-  #define __NRF_NVIC_SD_IRQS_0 ((uint32_t)( \
+/**@brief Interrupts used by the SoftDevice. */
+#define __NRF_NVIC_SD_IRQS_0 ((uint32_t)( \
         (1U << POWER_CLOCK_IRQn) \
       | (1U << RADIO_IRQn) \
       | (1U << RTC0_IRQn) \
@@ -110,11 +110,11 @@ extern "C" {
       | (1U << (uint32_t)SWI4_EGU4_IRQn) \
       | (1U << (uint32_t)SWI5_EGU5_IRQn) \
     ))
-  #define __NRF_NVIC_SD_IRQS_1 ((uint32_t)0)
+#define __NRF_NVIC_SD_IRQS_1 ((uint32_t)0)
 
-  /**@brief Interrupts available for to application. */
-  #define __NRF_NVIC_APP_IRQS_0 (~__NRF_NVIC_SD_IRQS_0)
-  #define __NRF_NVIC_APP_IRQS_1 (~__NRF_NVIC_SD_IRQS_1)
+/**@brief Interrupts available for to application. */
+#define __NRF_NVIC_APP_IRQS_0 (~__NRF_NVIC_SD_IRQS_0)
+#define __NRF_NVIC_APP_IRQS_1 (~__NRF_NVIC_SD_IRQS_1)
 #endif
 /**@} */
 
@@ -124,10 +124,9 @@ extern "C" {
  * @{ */
 
 /**@brief Type representing the state struct for the SoftDevice NVIC module. */
-typedef struct
-{
-  uint32_t volatile __irq_masks[__NRF_NVIC_ISER_COUNT]; /**< IRQs enabled by the application in the NVIC. */
-  uint32_t volatile __cr_flag;                          /**< Non-zero if already in a critical region */
+typedef struct {
+    uint32_t volatile __irq_masks[__NRF_NVIC_ISER_COUNT]; /**< IRQs enabled by the application in the NVIC. */
+    uint32_t volatile __cr_flag;                          /**< Non-zero if already in a critical region */
 } nrf_nvic_state_t;
 
 /**@brief Variable keeping the state for the SoftDevice NVIC module. This must be declared in an
@@ -204,7 +203,7 @@ __STATIC_INLINE uint32_t sd_nvic_DisableIRQ(IRQn_Type IRQn);
  * @retval ::NRF_SUCCESS The interrupt is available for the application.
  * @retval ::NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE IRQn is not available for the application.
  */
-__STATIC_INLINE uint32_t sd_nvic_GetPendingIRQ(IRQn_Type IRQn, uint32_t * p_pending_irq);
+__STATIC_INLINE uint32_t sd_nvic_GetPendingIRQ(IRQn_Type IRQn, uint32_t *p_pending_irq);
 
 /**@brief  Set Pending Interrupt.
  * @note Corresponds to NVIC_SetPendingIRQ in CMSIS.
@@ -256,7 +255,7 @@ __STATIC_INLINE uint32_t sd_nvic_SetPriority(IRQn_Type IRQn, uint32_t priority);
  * @retval ::NRF_SUCCESS The interrupt priority is returned in p_priority.
  * @retval ::NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE - IRQn is not available for the application.
  */
-__STATIC_INLINE uint32_t sd_nvic_GetPriority(IRQn_Type IRQn, uint32_t * p_priority);
+__STATIC_INLINE uint32_t sd_nvic_GetPriority(IRQn_Type IRQn, uint32_t *p_priority);
 
 /**@brief System Reset.
  * @note Corresponds to NVIC_SystemReset in CMSIS.
@@ -276,7 +275,7 @@ __STATIC_INLINE uint32_t sd_nvic_SystemReset(void);
  *
  * @retval ::NRF_SUCCESS
  */
-__STATIC_INLINE uint32_t sd_nvic_critical_region_enter(uint8_t * p_is_nested_critical_region);
+__STATIC_INLINE uint32_t sd_nvic_critical_region_enter(uint8_t *p_is_nested_critical_region);
 
 /**@brief Exit critical region.
  *
@@ -295,219 +294,184 @@ __STATIC_INLINE uint32_t sd_nvic_critical_region_exit(uint8_t is_nested_critical
 
 __STATIC_INLINE int __sd_nvic_irq_disable(void)
 {
-  int pm = __get_PRIMASK();
-  __disable_irq();
-  return pm;
+    int pm = __get_PRIMASK();
+    __disable_irq();
+    return pm;
 }
 
 __STATIC_INLINE void __sd_nvic_irq_enable(void)
 {
-  __enable_irq();
+    __enable_irq();
 }
 
 __STATIC_INLINE uint32_t __sd_nvic_app_accessible_irq(IRQn_Type IRQn)
 {
-  if (IRQn < 32)
-  {
-    return ((1UL<<IRQn) & __NRF_NVIC_APP_IRQS_0) != 0;
-  }
+    if (IRQn < 32) {
+        return ((1UL << IRQn) & __NRF_NVIC_APP_IRQS_0) != 0;
+    }
 #ifdef NRF52_SERIES
-  else if (IRQn < 64)
-  {
-    return ((1UL<<(IRQn-32)) & __NRF_NVIC_APP_IRQS_1) != 0;
-  }
+    else if (IRQn < 64) {
+        return ((1UL << (IRQn - 32)) & __NRF_NVIC_APP_IRQS_1) != 0;
+    }
 #endif
-  else
-  {
-    return 1;
-  }
+    else {
+        return 1;
+    }
 }
 
 __STATIC_INLINE uint32_t __sd_nvic_is_app_accessible_priority(uint32_t priority)
 {
-  if(priority >= (1 << __NVIC_PRIO_BITS))
-  {
-    return 0;
-  }
+    if (priority >= (1 << __NVIC_PRIO_BITS)) {
+        return 0;
+    }
 #ifdef NRF51
-  if(   priority == 0
-     || priority == 2
-     )
-  {
-    return 0;
-  }
+    if (priority == 0
+            || priority == 2
+       ) {
+        return 0;
+    }
 #endif
 #ifdef NRF52_SERIES
-  if(   priority == 0
-     || priority == 1
-     || priority == 4
-     || priority == 5
-     )
-  {
-    return 0;
-  }
+    if (priority == 0
+            || priority == 1
+            || priority == 4
+            || priority == 5
+       ) {
+        return 0;
+    }
 #endif
-  return 1;
+    return 1;
 }
 
 
 __STATIC_INLINE uint32_t sd_nvic_EnableIRQ(IRQn_Type IRQn)
 {
-  if (!__sd_nvic_app_accessible_irq(IRQn))
-  {
-    return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
-  }
-  if (!__sd_nvic_is_app_accessible_priority(NVIC_GetPriority(IRQn)))
-  {
-    return NRF_ERROR_SOC_NVIC_INTERRUPT_PRIORITY_NOT_ALLOWED;
-  }
+    if (!__sd_nvic_app_accessible_irq(IRQn)) {
+        return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
+    }
+    if (!__sd_nvic_is_app_accessible_priority(NVIC_GetPriority(IRQn))) {
+        return NRF_ERROR_SOC_NVIC_INTERRUPT_PRIORITY_NOT_ALLOWED;
+    }
 
-  if (nrf_nvic_state.__cr_flag)
-  {
-    nrf_nvic_state.__irq_masks[(uint32_t)((int32_t)IRQn) >> 5] |= (uint32_t)(1 << ((uint32_t)((int32_t)IRQn) & (uint32_t)0x1F));
-  }
-  else
-  {
-    NVIC_EnableIRQ(IRQn);
-  }
-  return NRF_SUCCESS;
+    if (nrf_nvic_state.__cr_flag) {
+        nrf_nvic_state.__irq_masks[(uint32_t)((int32_t)IRQn) >> 5] |= (uint32_t)(1 << ((uint32_t)((int32_t)IRQn) & (uint32_t)0x1F));
+    } else {
+        NVIC_EnableIRQ(IRQn);
+    }
+    return NRF_SUCCESS;
 }
 
 __STATIC_INLINE uint32_t sd_nvic_DisableIRQ(IRQn_Type IRQn)
 {
-  if (!__sd_nvic_app_accessible_irq(IRQn))
-  {
-    return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
-  }
+    if (!__sd_nvic_app_accessible_irq(IRQn)) {
+        return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
+    }
 
-  if (nrf_nvic_state.__cr_flag)
-  {
-    nrf_nvic_state.__irq_masks[(uint32_t)((int32_t)IRQn) >> 5] &= ~(1UL << ((uint32_t)(IRQn) & 0x1F));
-  }
-  else
-  {
-    NVIC_DisableIRQ(IRQn);
-  }
+    if (nrf_nvic_state.__cr_flag) {
+        nrf_nvic_state.__irq_masks[(uint32_t)((int32_t)IRQn) >> 5] &= ~(1UL << ((uint32_t)(IRQn) & 0x1F));
+    } else {
+        NVIC_DisableIRQ(IRQn);
+    }
 
-  return NRF_SUCCESS;
+    return NRF_SUCCESS;
 }
 
-__STATIC_INLINE uint32_t sd_nvic_GetPendingIRQ(IRQn_Type IRQn, uint32_t * p_pending_irq)
+__STATIC_INLINE uint32_t sd_nvic_GetPendingIRQ(IRQn_Type IRQn, uint32_t *p_pending_irq)
 {
-  if (__sd_nvic_app_accessible_irq(IRQn))
-  {
-    *p_pending_irq = NVIC_GetPendingIRQ(IRQn);
-    return NRF_SUCCESS;
-  }
-  else
-  {
-    return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
-  }
+    if (__sd_nvic_app_accessible_irq(IRQn)) {
+        *p_pending_irq = NVIC_GetPendingIRQ(IRQn);
+        return NRF_SUCCESS;
+    } else {
+        return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
+    }
 }
 
 __STATIC_INLINE uint32_t sd_nvic_SetPendingIRQ(IRQn_Type IRQn)
 {
-  if (__sd_nvic_app_accessible_irq(IRQn))
-  {
-    NVIC_SetPendingIRQ(IRQn);
-    return NRF_SUCCESS;
-  }
-  else
-  {
-    return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
-  }
+    if (__sd_nvic_app_accessible_irq(IRQn)) {
+        NVIC_SetPendingIRQ(IRQn);
+        return NRF_SUCCESS;
+    } else {
+        return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
+    }
 }
 
 __STATIC_INLINE uint32_t sd_nvic_ClearPendingIRQ(IRQn_Type IRQn)
 {
-  if (__sd_nvic_app_accessible_irq(IRQn))
-  {
-    NVIC_ClearPendingIRQ(IRQn);
-    return NRF_SUCCESS;
-  }
-  else
-  {
-    return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
-  }
+    if (__sd_nvic_app_accessible_irq(IRQn)) {
+        NVIC_ClearPendingIRQ(IRQn);
+        return NRF_SUCCESS;
+    } else {
+        return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
+    }
 }
 
 __STATIC_INLINE uint32_t sd_nvic_SetPriority(IRQn_Type IRQn, uint32_t priority)
 {
-  if (!__sd_nvic_app_accessible_irq(IRQn))
-  {
-    return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
-  }
+    if (!__sd_nvic_app_accessible_irq(IRQn)) {
+        return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
+    }
 
-  if (!__sd_nvic_is_app_accessible_priority(priority))
-  {
-    return NRF_ERROR_SOC_NVIC_INTERRUPT_PRIORITY_NOT_ALLOWED;
-  }
+    if (!__sd_nvic_is_app_accessible_priority(priority)) {
+        return NRF_ERROR_SOC_NVIC_INTERRUPT_PRIORITY_NOT_ALLOWED;
+    }
 
-  NVIC_SetPriority(IRQn, (uint32_t)priority);
-  return NRF_SUCCESS;
+    NVIC_SetPriority(IRQn, (uint32_t)priority);
+    return NRF_SUCCESS;
 }
 
-__STATIC_INLINE uint32_t sd_nvic_GetPriority(IRQn_Type IRQn, uint32_t * p_priority)
+__STATIC_INLINE uint32_t sd_nvic_GetPriority(IRQn_Type IRQn, uint32_t *p_priority)
 {
-  if (__sd_nvic_app_accessible_irq(IRQn))
-  {
-    *p_priority = (NVIC_GetPriority(IRQn) & 0xFF);
-    return NRF_SUCCESS;
-  }
-  else
-  {
-    return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
-  }
+    if (__sd_nvic_app_accessible_irq(IRQn)) {
+        *p_priority = (NVIC_GetPriority(IRQn) & 0xFF);
+        return NRF_SUCCESS;
+    } else {
+        return NRF_ERROR_SOC_NVIC_INTERRUPT_NOT_AVAILABLE;
+    }
 }
 
 __STATIC_INLINE uint32_t sd_nvic_SystemReset(void)
 {
-  NVIC_SystemReset();
-  return NRF_ERROR_SOC_NVIC_SHOULD_NOT_RETURN;
+    NVIC_SystemReset();
+    return NRF_ERROR_SOC_NVIC_SHOULD_NOT_RETURN;
 }
 
-__STATIC_INLINE uint32_t sd_nvic_critical_region_enter(uint8_t * p_is_nested_critical_region)
+__STATIC_INLINE uint32_t sd_nvic_critical_region_enter(uint8_t *p_is_nested_critical_region)
 {
-  int was_masked = __sd_nvic_irq_disable();
-  if (!nrf_nvic_state.__cr_flag)
-  {
-    nrf_nvic_state.__cr_flag = 1;
-    nrf_nvic_state.__irq_masks[0] = ( NVIC->ICER[0] & __NRF_NVIC_APP_IRQS_0 );
-    NVIC->ICER[0] = __NRF_NVIC_APP_IRQS_0;
-    #ifdef NRF52_SERIES
-    nrf_nvic_state.__irq_masks[1] = ( NVIC->ICER[1] & __NRF_NVIC_APP_IRQS_1 );
-    NVIC->ICER[1] = __NRF_NVIC_APP_IRQS_1;
-    #endif
-    *p_is_nested_critical_region = 0;
-  }
-  else
-  {
-    *p_is_nested_critical_region = 1;
-  }
-  if (!was_masked)
-  {
-    __sd_nvic_irq_enable();
-  }
-  return NRF_SUCCESS;
+    int was_masked = __sd_nvic_irq_disable();
+    if (!nrf_nvic_state.__cr_flag) {
+        nrf_nvic_state.__cr_flag = 1;
+        nrf_nvic_state.__irq_masks[0] = (NVIC->ICER[0] & __NRF_NVIC_APP_IRQS_0);
+        NVIC->ICER[0] = __NRF_NVIC_APP_IRQS_0;
+#ifdef NRF52_SERIES
+        nrf_nvic_state.__irq_masks[1] = (NVIC->ICER[1] & __NRF_NVIC_APP_IRQS_1);
+        NVIC->ICER[1] = __NRF_NVIC_APP_IRQS_1;
+#endif
+        *p_is_nested_critical_region = 0;
+    } else {
+        *p_is_nested_critical_region = 1;
+    }
+    if (!was_masked) {
+        __sd_nvic_irq_enable();
+    }
+    return NRF_SUCCESS;
 }
 
 __STATIC_INLINE uint32_t sd_nvic_critical_region_exit(uint8_t is_nested_critical_region)
 {
-  if (nrf_nvic_state.__cr_flag && (is_nested_critical_region == 0))
-  {
-    int was_masked = __sd_nvic_irq_disable();
-    NVIC->ISER[0] = nrf_nvic_state.__irq_masks[0];
-    #ifdef NRF52_SERIES
-    NVIC->ISER[1] = nrf_nvic_state.__irq_masks[1];
-    #endif
-    nrf_nvic_state.__cr_flag = 0;
-    if (!was_masked)
-    {
-      __sd_nvic_irq_enable();
+    if (nrf_nvic_state.__cr_flag && (is_nested_critical_region == 0)) {
+        int was_masked = __sd_nvic_irq_disable();
+        NVIC->ISER[0] = nrf_nvic_state.__irq_masks[0];
+#ifdef NRF52_SERIES
+        NVIC->ISER[1] = nrf_nvic_state.__irq_masks[1];
+#endif
+        nrf_nvic_state.__cr_flag = 0;
+        if (!was_masked) {
+            __sd_nvic_irq_enable();
+        }
     }
-  }
 
-  return NRF_SUCCESS;
+    return NRF_SUCCESS;
 }
 
 #endif /* SUPPRESS_INLINE_IMPLEMENTATION */

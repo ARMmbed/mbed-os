@@ -182,8 +182,7 @@ TEST_GROUP(Serial_Asynchronous)
     event_callback_t tx_callback;
     event_callback_t rx_callback;
 
-    void setup()
-    {
+    void setup() {
         serial_tx = new Serial(TEST_SERIAL_ONE_TX_PIN, NC);
         serial_rx = new Serial(NC, TEST_SERIAL_TWO_RX_PIN);
         tx_complete = false;
@@ -200,8 +199,7 @@ TEST_GROUP(Serial_Asynchronous)
         memset(rx_buf, TEST_BYTE_RX, sizeof(rx_buf));
     }
 
-    void teardown()
-    {
+    void teardown() {
         delete serial_tx;
         serial_tx = NULL;
         delete serial_rx;
@@ -209,10 +207,9 @@ TEST_GROUP(Serial_Asynchronous)
 
     }
 
-    uint32_t cmpnbufc(uint8_t expect, uint8_t *actual, uint32_t offset, uint32_t end, const char *file, uint32_t line)
-    {
+    uint32_t cmpnbufc(uint8_t expect, uint8_t *actual, uint32_t offset, uint32_t end, const char *file, uint32_t line) {
         uint32_t i;
-        for (i = offset; i < end; i++){
+        for (i = offset; i < end; i++) {
             if (expect != actual[i]) {
                 break;
             }
@@ -224,10 +221,9 @@ TEST_GROUP(Serial_Asynchronous)
         return i;
     }
 
-    uint32_t cmpnbuf(uint8_t *expect, uint8_t *actual, uint32_t offset, uint32_t end, const char *file, uint32_t line)
-    {
+    uint32_t cmpnbuf(uint8_t *expect, uint8_t *actual, uint32_t offset, uint32_t end, const char *file, uint32_t line) {
         uint32_t i;
-        for (i = offset; i < end; i++){
+        for (i = offset; i < end; i++) {
             if (expect[i] != actual[i]) {
                 break;
             }
@@ -308,29 +304,29 @@ TEST(Serial_Asynchronous, rx_parity_error)
 
 TEST(Serial_Asynchronous, rx_framing_error)
 {
-   int rc;
-   serial_tx->baud(4800);
-   serial_rx->read(rx_buf, LONG_XFR, rx_callback, -1);
-   rc = serial_tx->write(tx_buf, LONG_XFR, tx_callback, -1);
-   CHECK_EQUAL(0, rc);
+    int rc;
+    serial_tx->baud(4800);
+    serial_rx->read(rx_buf, LONG_XFR, rx_callback, -1);
+    rc = serial_tx->write(tx_buf, LONG_XFR, tx_callback, -1);
+    CHECK_EQUAL(0, rc);
 
-   while ((!tx_complete) || (!rx_complete));
+    while ((!tx_complete) || (!rx_complete));
 
-   CHECK_EQUAL(SERIAL_EVENT_TX_COMPLETE, tx_event_flag);
-   CHECK_EQUAL(SERIAL_EVENT_RX_FRAMING_ERROR, rx_event_flag);
+    CHECK_EQUAL(SERIAL_EVENT_TX_COMPLETE, tx_event_flag);
+    CHECK_EQUAL(SERIAL_EVENT_RX_FRAMING_ERROR, rx_event_flag);
 }
 
 TEST(Serial_Asynchronous, char_matching_success)
 {
     // match found
-    serial_rx->read(rx_buf, LONG_XFR, rx_callback, -1, (uint8_t)(TEST_BYTE_TX_BASE+5));
+    serial_rx->read(rx_buf, LONG_XFR, rx_callback, -1, (uint8_t)(TEST_BYTE_TX_BASE + 5));
     serial_tx->write(tx_buf, LONG_XFR, tx_callback, -1);
 
     while ((!tx_complete) || (!rx_complete));
 
     CHECK_EQUAL(SERIAL_EVENT_TX_COMPLETE, tx_event_flag);
     CHECK_EQUAL(SERIAL_EVENT_RX_CHARACTER_MATCH, rx_event_flag);
-    
+
     cmpnbufc(TEST_BYTE_RX, rx_buf, 5, sizeof(rx_buf), __FILE__, __LINE__);
 }
 

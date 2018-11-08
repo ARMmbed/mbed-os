@@ -167,9 +167,9 @@ typedef fnet_uint32_t   fnet_scope_id_t;
  * @showinitializer
  ******************************************************************************/
 #if FNET_CFG_IP6
-    #define FNET_SA_DATA_SIZE       (sizeof(struct in6_addr)) 
+#define FNET_SA_DATA_SIZE       (sizeof(struct in6_addr))
 #else /* IPv4 */
-    #define FNET_SA_DATA_SIZE       (sizeof(struct in_addr))
+#define FNET_SA_DATA_SIZE       (sizeof(struct in_addr))
 #endif
 
 /**************************************************************************/ /*!
@@ -181,9 +181,9 @@ typedef fnet_uint32_t   fnet_scope_id_t;
  * @showinitializer
  ******************************************************************************/
 #if FNET_CFG_IP6
-    #define FNET_IP_ADDR_STR_SIZE       FNET_IP6_ADDR_STR_SIZE
+#define FNET_IP_ADDR_STR_SIZE       FNET_IP6_ADDR_STR_SIZE
 #else /* IPv4 */
-    #define FNET_IP_ADDR_STR_SIZE       FNET_IP4_ADDR_STR_SIZE
+#define FNET_IP_ADDR_STR_SIZE       FNET_IP4_ADDR_STR_SIZE
 #endif
 
 #define FNET_IP_ADDR_STR_SIZE_MAX       FNET_IP6_ADDR_STR_SIZE
@@ -195,8 +195,7 @@ typedef fnet_uint32_t   fnet_scope_id_t;
  *
  * Actually, it represents an IPv4 address (in network endian).
  ******************************************************************************/
-struct in_addr
-{
+struct in_addr {
     fnet_ip4_addr_t s_addr; /**< @brief 32-bit IPv4 address (in network byte order).
                             */
 };
@@ -210,8 +209,7 @@ struct in_addr
  * also defines the equivalent structure @ref sockaddr_in
  * ("in" means "Internet").
  ******************************************************************************/
-struct sockaddr_in
-{
+struct sockaddr_in {
     fnet_address_family_t   sin_family;     /**< @brief Specifies the address family. @n
                                             * It must ne set to @ref AF_INET.*/
     fnet_uint16_t           sin_port;       /**< @brief 16-bit port number used to
@@ -234,8 +232,7 @@ struct sockaddr_in
  *
  * Actually, it represents an IPv6 address.
  ******************************************************************************/
-struct in6_addr
-{
+struct in6_addr {
     fnet_ip6_addr_t s6_addr;        /**< @brief 128-bit IPv6 address.*/
 };
 
@@ -248,8 +245,7 @@ struct in6_addr
  * also defines the equivalent structure @ref sockaddr_in6
  * ("in" means "Internet").
  ******************************************************************************/
-struct sockaddr_in6
-{
+struct sockaddr_in6 {
     fnet_address_family_t   sin6_family;    /**< @brief Specifies the address family. @n
                                             * It must ne set to @ref AF_INET6. */
     fnet_uint16_t           sin6_port;      /**< @brief 16-bit port number used to
@@ -268,8 +264,7 @@ struct sockaddr_in6
  * protocols. For the TCP/IP stack @c sa_data, it contains a destination address
  * and port number for a socket.
  ******************************************************************************/
-struct sockaddr
-{
+struct sockaddr {
     fnet_address_family_t   sa_family;      /**< @brief Address family. Specifies the
                                             * address family, to which the address belongs. @n
                                             * It is defined by @ref fnet_address_family_t.*/
@@ -291,8 +286,7 @@ struct sockaddr
  * @see IP_ADD_MEMBERSHIP, IP_DROP_MEMBERSHIP
  *
  ******************************************************************************/
-struct ip_mreq
-{
+struct ip_mreq {
     struct in_addr  imr_multiaddr;      /**< @brief IPv4 multicast address of group. */
     fnet_scope_id_t imr_interface;      /**< @brief Interface index. It equals to the scope zone index, defining network interface.@n
                                          * If this member is zero, the default interface is used. */
@@ -307,8 +301,7 @@ struct ip_mreq
  * @see IPV6_JOIN_GROUP, IPV6_LEAVE_GROUP
  *
  ******************************************************************************/
-struct ipv6_mreq
-{
+struct ipv6_mreq {
     struct in6_addr ipv6imr_multiaddr;  /**< @brief IPv6 multicast address of group. */
     fnet_scope_id_t ipv6imr_interface;  /**< @brief Interface index. It equals to the scope zone index, defining network interface.@n
                                          * If this member is zero, the default interface is used. */
@@ -317,8 +310,7 @@ struct ipv6_mreq
 /**************************************************************************/ /*!
  * @brief Socket types.
  ******************************************************************************/
-typedef enum
-{
+typedef enum {
     SOCK_UNSPEC = (0U),  /**< @brief Unspecified socket type.
                          */
     SOCK_STREAM = (1U),  /**< @brief Stream socket.@n
@@ -342,8 +334,7 @@ typedef enum
 /**************************************************************************/ /*!
  * @brief Socket state.
  ******************************************************************************/
-typedef enum
-{
+typedef enum {
     SS_UNCONNECTED = (0),   /**< @brief Not connected to any socket.
                              */
     SS_CONNECTING  = (1),   /**< @brief In process of connecting.
@@ -358,8 +349,7 @@ typedef enum
  * @brief Protocol numbers and Level numbers for the @ref fnet_socket_setopt()
  * and the @ref fnet_socket_getopt().
  ******************************************************************************/
-typedef enum
-{
+typedef enum {
     IPPROTO_IP      = (0), /**< @brief IPv4 options level number
                             *   for @ref fnet_socket_getopt() and @ref fnet_socket_setopt().
                             */
@@ -483,8 +473,7 @@ typedef enum
  *</tr>
  *</table>
  ******************************************************************************/
-typedef enum
-{
+typedef enum {
     SO_ACCEPTCONN, /**< @brief Returns @c 1 if a socket is in
                                *   listening mode and returns @c 0 when vice versa.
                                *   This is the read-only option and it is
@@ -623,13 +612,13 @@ typedef enum
 
     /* IPv4 level (IPPROTO_IP) options */
 
-    IP_TOS      , /**< @brief  This option defines the IPv4 TOS
+    IP_TOS, /**< @brief  This option defines the IPv4 TOS
                         *   (type-of-service) field for outgoing datagrams.
                         */
-    IP_TTL ,  /**< @brief  This option defines the IPv4 TTL
+    IP_TTL,  /**< @brief  This option defines the IPv4 TTL
                         *   (time-to-live) vlaue for outgoing datagrams.
                         */
-    IP_MULTICAST_TTL ,     /**< @brief This option allows to change IPv4 "time to live" (TTL)
+    IP_MULTICAST_TTL,     /**< @brief This option allows to change IPv4 "time to live" (TTL)
                                  * value for outgoing multicast datagrams.
                                  * Otherwise, multicast datagrams are sent with a default value of 1,
                                  * to prevent them to be forwarded beyond the local network.@n
@@ -666,8 +655,7 @@ typedef enum
 /**************************************************************************/ /*!
  * @brief This structure is used for the @ref SO_LINGER option.
  ******************************************************************************/
-struct linger
-{
+struct linger {
     fnet_bool_t    l_onoff;  /**< @brief Determines, whether the option will be
                               *   turned on @c FNET_TRUE, or off @c FNET_FALSE.
                               */
@@ -682,7 +670,7 @@ struct linger
 /**************************************************************************/ /*!
  * @brief Socket descriptor.
  ******************************************************************************/
-typedef void* fnet_socket_t;
+typedef void *fnet_socket_t;
 
 /**************************************************************************/ /*!
  * @brief The flags parameters for receiving and sending functions
@@ -691,8 +679,7 @@ typedef void* fnet_socket_t;
  * The optional flag specifies the way, in which the call is made.
  * It can be constructed by using the bitwise OR.
  ******************************************************************************/
-typedef enum
-{
+typedef enum {
     MSG_OOB       = (0x1U),  /**< @brief Process out-of-band
                              * data instead of regular data. @n
                              *   This option is avalable only if
@@ -711,8 +698,7 @@ typedef enum
  *
  * They describe what types of socket operation will no longer be allowed.
  ******************************************************************************/
-typedef enum
-{
+typedef enum {
     SD_READ  = (0x1U), /**< @brief Data receiving is disabled.
                        */
     SD_WRITE = (0x2U), /**< @brief Data sending is disabled.
@@ -774,7 +760,7 @@ extern "C" {
  *   @ref fnet_socket_send(), and can be received only from this peer using the @ref fnet_socket_recv().
  *
  ******************************************************************************/
-fnet_socket_t fnet_socket( fnet_address_family_t family, fnet_socket_type_t type, fnet_uint32_t protocol );
+fnet_socket_t fnet_socket(fnet_address_family_t family, fnet_socket_type_t type, fnet_uint32_t protocol);
 
 /***************************************************************************/ /*!
  *
@@ -810,7 +796,7 @@ fnet_socket_t fnet_socket( fnet_address_family_t family, fnet_socket_type_t type
  * to assign a unique port to the socket with a value between 1024 and 5000.
  *
  ******************************************************************************/
-fnet_return_t fnet_socket_bind( fnet_socket_t s, const struct sockaddr *name, fnet_size_t namelen );
+fnet_return_t fnet_socket_bind(fnet_socket_t s, const struct sockaddr *name, fnet_size_t namelen);
 
 /***************************************************************************/ /*!
  *
@@ -844,7 +830,7 @@ fnet_return_t fnet_socket_bind( fnet_socket_t s, const struct sockaddr *name, fn
  * the excess pending connections will be reset and dropped.
  *
  ******************************************************************************/
-fnet_return_t fnet_socket_listen( fnet_socket_t s, fnet_size_t backlog );
+fnet_return_t fnet_socket_listen(fnet_socket_t s, fnet_size_t backlog);
 
 /***************************************************************************/ /*!
  *
@@ -887,7 +873,7 @@ fnet_return_t fnet_socket_listen( fnet_socket_t s, fnet_size_t backlog );
  * about the remote address of the accepted socket is returned.
  *
  ******************************************************************************/
-fnet_socket_t fnet_socket_accept( fnet_socket_t s, struct sockaddr *addr, fnet_size_t *addrlen );
+fnet_socket_t fnet_socket_accept(fnet_socket_t s, struct sockaddr *addr, fnet_size_t *addrlen);
 
 /***************************************************************************/ /*!
  *
@@ -941,7 +927,7 @@ fnet_socket_t fnet_socket_accept( fnet_socket_t s, struct sockaddr *addr, fnet_s
  * association by the stack, and the socket is marked as bound.
  *
  ******************************************************************************/
-fnet_return_t fnet_socket_connect( fnet_socket_t s, struct sockaddr *name, fnet_size_t namelen );
+fnet_return_t fnet_socket_connect(fnet_socket_t s, struct sockaddr *name, fnet_size_t namelen);
 
 /***************************************************************************/ /*!
  *
@@ -985,7 +971,7 @@ fnet_return_t fnet_socket_connect( fnet_socket_t s, struct sockaddr *name, fnet_
  * invocation beyond the options specified for the associated socket.
  *
  ******************************************************************************/
-fnet_int32_t fnet_socket_recv( fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags );
+fnet_int32_t fnet_socket_recv(fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags);
 
 /***************************************************************************/ /*!
  *
@@ -1042,7 +1028,7 @@ fnet_int32_t fnet_socket_recv( fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t l
  * invocation beyond the options specified for the associated socket.
  *
  ******************************************************************************/
-fnet_int32_t fnet_socket_recvfrom( fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags, struct sockaddr *from, fnet_size_t *fromlen );
+fnet_int32_t fnet_socket_recvfrom(fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags, struct sockaddr *from, fnet_size_t *fromlen);
 
 /***************************************************************************/ /*!
  *
@@ -1089,7 +1075,7 @@ fnet_int32_t fnet_socket_recvfrom( fnet_socket_t s, fnet_uint8_t *buf, fnet_size
  * invocation beyond the options specified for the associated socket.
  *
  ******************************************************************************/
-fnet_int32_t fnet_socket_send( fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags );
+fnet_int32_t fnet_socket_send(fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags);
 
 /***************************************************************************/ /*!
  *
@@ -1148,7 +1134,7 @@ fnet_int32_t fnet_socket_send( fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t l
  * invocation beyond the options specified for the associated socket.
  *
  ******************************************************************************/
-fnet_int32_t fnet_socket_sendto( fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags, const struct sockaddr *to, fnet_size_t tolen );
+fnet_int32_t fnet_socket_sendto(fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags, const struct sockaddr *to, fnet_size_t tolen);
 
 /***************************************************************************/ /*!
  *
@@ -1181,7 +1167,7 @@ fnet_int32_t fnet_socket_sendto( fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t
  * attached to the socket will not be freed until the @ref fnet_socket_close() is invoked.
  *
  ******************************************************************************/
-fnet_return_t fnet_socket_shutdown( fnet_socket_t s, fnet_sd_flags_t how );
+fnet_return_t fnet_socket_shutdown(fnet_socket_t s, fnet_sd_flags_t how);
 
 /***************************************************************************/ /*!
  *
@@ -1221,7 +1207,7 @@ fnet_return_t fnet_socket_shutdown( fnet_socket_t s, fnet_sd_flags_t how );
  * hard reset occurs immediately and unsent data will be deleted.
  *
  ******************************************************************************/
-fnet_return_t fnet_socket_close( fnet_socket_t s );
+fnet_return_t fnet_socket_close(fnet_socket_t s);
 
 /***************************************************************************/ /*!
  *
@@ -1256,7 +1242,7 @@ fnet_return_t fnet_socket_close( fnet_socket_t s );
  * The various socket options are described by the @ref fnet_socket_options_t.
  *
  ******************************************************************************/
-fnet_return_t fnet_socket_setopt( fnet_socket_t s, fnet_protocol_t level, fnet_socket_options_t optname, const void *optval, fnet_size_t optvallen );
+fnet_return_t fnet_socket_setopt(fnet_socket_t s, fnet_protocol_t level, fnet_socket_options_t optname, const void *optval, fnet_size_t optvallen);
 
 /***************************************************************************/ /*!
  *
@@ -1291,7 +1277,7 @@ fnet_return_t fnet_socket_setopt( fnet_socket_t s, fnet_protocol_t level, fnet_s
  * The various socket options are described by the @ref fnet_socket_options_t.
  *
  ******************************************************************************/
-fnet_return_t fnet_socket_getopt( fnet_socket_t s, fnet_protocol_t level, fnet_socket_options_t optname, void *optval, fnet_size_t *optvallen );
+fnet_return_t fnet_socket_getopt(fnet_socket_t s, fnet_protocol_t level, fnet_socket_options_t optname, void *optval, fnet_size_t *optvallen);
 
 /***************************************************************************/ /*!
  *
@@ -1322,7 +1308,7 @@ fnet_return_t fnet_socket_getopt( fnet_socket_t s, fnet_protocol_t level, fnet_s
  * @ref fnet_socket_sendto() call will not be returned by the @ref fnet_socket_getpeername().
  *
  ******************************************************************************/
-fnet_return_t fnet_socket_getpeername( fnet_socket_t s, struct sockaddr *name, fnet_size_t *namelen );
+fnet_return_t fnet_socket_getpeername(fnet_socket_t s, struct sockaddr *name, fnet_size_t *namelen);
 
 /***************************************************************************/ /*!
  *
@@ -1351,7 +1337,7 @@ fnet_return_t fnet_socket_getpeername( fnet_socket_t s, struct sockaddr *name, f
  * It is used on a bound or connected socket.
  *
  ******************************************************************************/
-fnet_return_t fnet_socket_getname( fnet_socket_t s, struct sockaddr *name, fnet_size_t *namelen );
+fnet_return_t fnet_socket_getname(fnet_socket_t s, struct sockaddr *name, fnet_size_t *namelen);
 
 /***************************************************************************/ /*!
  *
@@ -1425,7 +1411,7 @@ fnet_bool_t fnet_socket_addr_is_multicast(const struct sockaddr *addr);
  * To stop the event handling, set @c callback parameter to zero value.
  *
  ******************************************************************************/
-void fnet_socket_set_callback_on_rx( void(*callback)(void));
+void fnet_socket_set_callback_on_rx(void(*callback)(void));
 #endif
 
 /*  BSD Socket API names */

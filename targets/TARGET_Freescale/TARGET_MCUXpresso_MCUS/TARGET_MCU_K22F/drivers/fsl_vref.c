@@ -62,10 +62,8 @@ static uint32_t VREF_GetInstance(VREF_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_VREF_COUNT; instance++)
-    {
-        if (s_vrefBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_VREF_COUNT; instance++) {
+        if (s_vrefBases[instance] == base) {
             break;
         }
     }
@@ -84,7 +82,7 @@ void VREF_Init(VREF_Type *base, const vref_config_t *config)
     /* Ungate clock for VREF */
     CLOCK_EnableClock(s_vrefClocks[VREF_GetInstance(base)]);
 
-/* Configure VREF to a known state */
+    /* Configure VREF to a known state */
 #if defined(FSL_FEATURE_VREF_HAS_CHOP_OSC) && FSL_FEATURE_VREF_HAS_CHOP_OSC
     /* Set chop oscillator bit */
     base->TRM |= VREF_TRM_CHOPEN_MASK;
@@ -110,8 +108,7 @@ void VREF_Init(VREF_Type *base, const vref_config_t *config)
 #endif /* FSL_FEATURE_VREF_HAS_LOW_REFERENCE */
 
     /* Wait until internal voltage stable */
-    while ((base->SC & VREF_SC_VREFST_MASK) == 0)
-    {
+    while ((base->SC & VREF_SC_VREFST_MASK) == 0) {
     }
 }
 
@@ -123,7 +120,7 @@ void VREF_Deinit(VREF_Type *base)
 
 void VREF_GetDefaultConfig(vref_config_t *config)
 {
-/* Set High power buffer mode in */
+    /* Set High power buffer mode in */
 #if defined(FSL_FEATURE_VREF_MODE_LV_TYPE) && FSL_FEATURE_VREF_MODE_LV_TYPE
     config->bufferMode = kVREF_ModeHighPowerBuffer;
 #else
@@ -147,8 +144,7 @@ void VREF_SetTrimVal(VREF_Type *base, uint8_t trimValue)
     reg = ((reg & ~VREF_TRM_TRIM_MASK) | VREF_TRM_TRIM(trimValue));
     base->TRM = reg;
     /* Wait until internal voltage stable */
-    while ((base->SC & VREF_SC_VREFST_MASK) == 0)
-    {
+    while ((base->SC & VREF_SC_VREFST_MASK) == 0) {
     }
 }
 
@@ -165,8 +161,7 @@ void VREF_SetLowReferenceTrimVal(VREF_Type *base, uint8_t trimValue)
     reg = ((reg & ~VREF_VREFL_TRM_VREFL_TRIM_MASK) | VREF_VREFL_TRM_VREFL_TRIM(trimValue));
     base->VREFL_TRM = reg;
     /* Wait until internal voltage stable */
-    while ((base->SC & VREF_SC_VREFST_MASK) == 0)
-    {
+    while ((base->SC & VREF_SC_VREFST_MASK) == 0) {
     }
 }
 #endif /* FSL_FEATURE_VREF_HAS_LOW_REFERENCE */

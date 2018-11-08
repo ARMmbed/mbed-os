@@ -31,8 +31,8 @@ void trng_init(trng_t *obj)
 {
     /* Use TRNG0 for all HW entropy collection */
     obj->instance = TRNG0;
-    
-    if(!is_trng_enabled) {
+
+    if (!is_trng_enabled) {
         sl_trng_init(obj->instance);
         is_trng_enabled = true;
     }

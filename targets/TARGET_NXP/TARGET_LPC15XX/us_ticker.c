@@ -22,9 +22,11 @@
 
 int us_ticker_inited = 0;
 
-void us_ticker_init(void) {
-    if (us_ticker_inited)
+void us_ticker_init(void)
+{
+    if (us_ticker_inited) {
         return;
+    }
 
     us_ticker_inited = 1;
 
@@ -52,15 +54,18 @@ void us_ticker_init(void) {
     NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
-uint32_t us_ticker_read() {
-    if (!us_ticker_inited)
+uint32_t us_ticker_read()
+{
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     // Return SCT3 count value
     return LPC_SCT3->COUNT;
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
     // Set SCT3 match register 0 (critical section)
     core_util_critical_section_enter();
     LPC_SCT3->CTRL |= (1 << 2);
@@ -77,12 +82,14 @@ void us_ticker_fire_interrupt(void)
     NVIC_SetPendingIRQ(US_TICKER_TIMER_IRQn);
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
     // Disable interrupt on SCT3 event 0
     LPC_SCT3->EVEN = 0;
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
     // Clear SCT3 event 0 interrupt flag
     LPC_SCT3->EVFLAG = (1 << 0);
 }

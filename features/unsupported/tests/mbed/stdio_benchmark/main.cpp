@@ -1,12 +1,13 @@
 #include "mbed.h"
 
 #if !DEVICE_LOCALFILESYSTEM
-  #error [NOT_SUPPORTED] LocalFileSystem not supported
+#error [NOT_SUPPORTED] LocalFileSystem not supported
 #endif
 
 #define TEST_STDIO 0
 
-int main() {
+int main()
+{
     printf("\r\n\r\n*** Start of memory write test (2K bytes) ***\r\n");
 
     // dummy data
@@ -25,7 +26,7 @@ int main() {
 #if TEST_STDIO
     LocalFileSystem local("local");
     FILE *fp = fopen("/local/test.dat", "w");
-    fwrite(buf, sizeof(buf[0]), sizeof(buf)/sizeof(buf[0]), fp);
+    fwrite(buf, sizeof(buf[0]), sizeof(buf) / sizeof(buf[0]), fp);
     fclose(fp);
 #else
     FILEHANDLE fh = local_file_open("test.dat", O_WRONLY);
@@ -35,5 +36,5 @@ int main() {
 #endif
 
     duration = t.read() - starttime;
-    printf("Write completed in %.2f seconds. Average throughput = %.0f bytes/second.\r\n", duration, 2048/duration);
+    printf("Write completed in %.2f seconds. Average throughput = %.0f bytes/second.\r\n", duration, 2048 / duration);
 }

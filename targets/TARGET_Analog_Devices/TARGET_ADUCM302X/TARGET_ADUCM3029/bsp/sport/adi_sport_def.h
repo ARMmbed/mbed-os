@@ -99,8 +99,7 @@ POSSIBILITY OF SUCH DAMAGE.
  * \struct  ADI_SPORT_STATE
  *  Enumeration of different SPORT states.
  *****************************************************************************/
-typedef enum
-{
+typedef enum {
     ADI_SPORT_STATE_UNINITIALIZED = 0,  /*!< SPORT is not yet initialized */
     ADI_SPORT_STATE_INITIALIZED,        /*!< SPORT is initialized */
     ADI_SPORT_STATE_DATA_FLOW_ENABLED,  /*!< SPORT Tx or Rx data flow is enabled (SPORT peripheral cannot be re-configured) */
@@ -114,8 +113,7 @@ typedef enum
  *  Structure for initializing the static config.
  *****************************************************************************/
 
-typedef struct _ADI_SPORT_CONFIG
-{
+typedef struct _ADI_SPORT_CONFIG {
     uint32_t    CTL;            /*!< SPORT_CTL register. */
     uint32_t    DIV;            /*!< SPORT_DIV register. */
     uint32_t    TIM_CONVT;      /*!< TIM_CONVT Register. */
@@ -128,9 +126,8 @@ typedef struct _ADI_SPORT_CONFIG
  * \struct  ADI_SPORT_DEVICE_INFO
  *  SPORT device information.
  *****************************************************************************/
-typedef struct _ADI_SPORT_DEVICE_INFO
-{
-    volatile ADI_SPORT_TypeDef* pSportRegs;     /*!< Base address of the SPORT registers */
+typedef struct _ADI_SPORT_DEVICE_INFO {
+    volatile ADI_SPORT_TypeDef *pSportRegs;     /*!< Base address of the SPORT registers */
     ADI_SPORT_CONFIG            sportCfg;       /*!< SPORT configuration data */
     ADI_SPORT_STATE             eState;         /*!< To indicate the state of the device */
     const DMA_CHANn_TypeDef     eDMAChnlID;     /*!< DMA channel ID */
@@ -146,35 +143,34 @@ typedef struct _ADI_SPORT_DEVICE_INFO
 #define NUM_SPORT_BUFFER                (2u)
 
 /** SPORT driver instance data */
-typedef struct _ADI_SPORT_DEVICE
-{
-    ADI_SPORT_DEVICE_INFO *     pSportInfo;     /*!< pointer to the structure which stores the information about the SPORT instances.*/
+typedef struct _ADI_SPORT_DEVICE {
+    ADI_SPORT_DEVICE_INFO      *pSportInfo;     /*!< pointer to the structure which stores the information about the SPORT instances.*/
     ADI_SPORT_DIRECTION         eDirection;     /*!< Direction in which the SPORT is opened */
     ADI_CALLBACK                pfCallback;     /*!< Function pointer for callback function. */
-    void *                      pCBParam;       /*!< Parameter to callback function. */
+    void                       *pCBParam;       /*!< Parameter to callback function. */
     ADI_DT_CHANNEL              sportChannel;   /*!< SPORT channel to manage transmitted data buffers */
     volatile uint32_t           nHwError;       /*!< variable to store the hardware status */
 } ADI_SPORT_DEVICE;
 
 /** Initialize a SPORT device */
-static inline void sport_Init (ADI_SPORT_DEVICE * pDevice);
+static inline void sport_Init(ADI_SPORT_DEVICE *pDevice);
 
 /** Configure a SPORT device */
-static inline void sport_Configure (ADI_SPORT_DEVICE *pDevice, ADI_SPORT_CONFIG const * sportCfg);
+static inline void sport_Configure(ADI_SPORT_DEVICE *pDevice, ADI_SPORT_CONFIG const *sportCfg);
 
 /** Function prototype for submitting a buffer for SPORT Rx or Tx DMA driven transmission */
-static ADI_SPORT_RESULT sport_SubmitBufferDmaMode(ADI_SPORT_DEVICE * pDevice, ADI_DT_BUFF_INFO * pBuff);
+static ADI_SPORT_RESULT sport_SubmitBufferDmaMode(ADI_SPORT_DEVICE *pDevice, ADI_DT_BUFF_INFO *pBuff);
 
 /** Function prototype for submitting a buffer for SPORT Rx or Tx core driven transmission */
-static ADI_SPORT_RESULT sport_SubmitBufferIntMode(ADI_SPORT_DEVICE * pDevice, ADI_DT_BUFF_INFO * pBuff);
+static ADI_SPORT_RESULT sport_SubmitBufferIntMode(ADI_SPORT_DEVICE *pDevice, ADI_DT_BUFF_INFO *pBuff);
 
 /** Fucntion prototype for completing a SPORT transmission (Rx or Tx) */
-static void sport_Terminate(ADI_SPORT_DEVICE * pDevice);
+static void sport_Terminate(ADI_SPORT_DEVICE *pDevice);
 
 /** Interrupt Handlers */
 
 /** SPORT interrupt handler */
-static void sport_InterruptHandler(ADI_SPORT_DEVICE * pDevice);
+static void sport_InterruptHandler(ADI_SPORT_DEVICE *pDevice);
 
 static inline void sport_DmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg);
 

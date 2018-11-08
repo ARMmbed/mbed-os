@@ -69,7 +69,7 @@ static sn_coap_hdr_s        *sn_coap_protocol_copy_header(struct coap_s *handle,
 #endif
 #if ENABLE_RESENDINGS
 static uint8_t               sn_coap_protocol_linked_list_send_msg_store(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_ptr, uint16_t send_packet_data_len, uint8_t *send_packet_data_ptr, uint32_t sending_time, void *param);
-static sn_nsdl_transmit_s   *sn_coap_protocol_linked_list_send_msg_search(struct coap_s *handle,sn_nsdl_addr_s *src_addr_ptr, uint16_t msg_id);
+static sn_nsdl_transmit_s   *sn_coap_protocol_linked_list_send_msg_search(struct coap_s *handle, sn_nsdl_addr_s *src_addr_ptr, uint16_t msg_id);
 static void                  sn_coap_protocol_linked_list_send_msg_remove(struct coap_s *handle, sn_nsdl_addr_s *src_addr_ptr, uint16_t msg_id);
 static coap_send_msg_s      *sn_coap_protocol_allocate_mem_for_msg(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_ptr, uint16_t packet_data_len);
 static void                  sn_coap_protocol_release_allocated_send_msg_mem(struct coap_s *handle, coap_send_msg_s *freed_send_msg_ptr);
@@ -264,7 +264,7 @@ int8_t sn_coap_protocol_set_duplicate_buffer_size(struct coap_s *handle, uint8_t
 }
 
 int8_t sn_coap_protocol_set_retransmission_parameters(struct coap_s *handle,
-        uint8_t resending_count, uint8_t resending_intervall)
+                                                      uint8_t resending_count, uint8_t resending_intervall)
 {
 #if ENABLE_RESENDINGS
     if (handle == NULL) {
@@ -286,14 +286,14 @@ int8_t sn_coap_protocol_set_retransmission_parameters(struct coap_s *handle,
 }
 
 int8_t sn_coap_protocol_set_retransmission_buffer(struct coap_s *handle,
-        uint8_t buffer_size_messages, uint16_t buffer_size_bytes)
+                                                  uint8_t buffer_size_messages, uint16_t buffer_size_bytes)
 {
 #if ENABLE_RESENDINGS
     if (handle == NULL) {
         return -1;
     }
     if (buffer_size_bytes <= SN_COAP_MAX_ALLOWED_RESENDING_BUFF_SIZE_BYTES &&
-        buffer_size_messages <= SN_COAP_MAX_ALLOWED_RESENDING_BUFF_SIZE_MSGS ) {
+            buffer_size_messages <= SN_COAP_MAX_ALLOWED_RESENDING_BUFF_SIZE_MSGS) {
         handle->sn_coap_resending_queue_bytes = buffer_size_bytes;
         handle->sn_coap_resending_queue_msgs = buffer_size_messages;
         return 0;
@@ -325,10 +325,10 @@ int8_t sn_coap_protocol_delete_retransmission(struct coap_s *handle, uint16_t ms
         return -1;
     }
     ns_list_foreach_safe(coap_send_msg_s, tmp, &handle->linked_list_resent_msgs) {
-        if (tmp->send_msg_ptr && tmp->send_msg_ptr->packet_ptr ) {
+        if (tmp->send_msg_ptr && tmp->send_msg_ptr->packet_ptr) {
             uint16_t temp_msg_id = (tmp->send_msg_ptr->packet_ptr[2] << 8);
             temp_msg_id += (uint16_t)tmp->send_msg_ptr->packet_ptr[3];
-            if(temp_msg_id == msg_id){
+            if (temp_msg_id == msg_id) {
                 ns_list_remove(&handle->linked_list_resent_msgs, tmp);
                 --handle->count_resent_msgs;
                 sn_coap_protocol_release_allocated_send_msg_mem(handle, tmp);
@@ -435,8 +435,8 @@ int16_t sn_coap_protocol_build(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_p
         /* Store message to Linked list for resending purposes */
         uint32_t resend_time = sn_coap_calculate_new_resend_time(handle->system_time, handle->sn_coap_resending_intervall, 0);
         if (sn_coap_protocol_linked_list_send_msg_store(handle, dst_addr_ptr, byte_count_built, dst_packet_data_ptr,
-                resend_time,
-                param) == 0) {
+                                                        resend_time,
+                                                        param) == 0) {
             return -4;
         }
     }
@@ -446,7 +446,7 @@ int16_t sn_coap_protocol_build(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_p
 #if SN_COAP_DUPLICATION_MAX_MSGS_COUNT
     if (src_coap_msg_ptr->msg_type == COAP_MSG_TYPE_ACKNOWLEDGEMENT &&
             handle->sn_coap_duplication_buffer_size != 0) {
-        coap_duplication_info_s* info = sn_coap_protocol_linked_list_duplication_info_search(handle,
+        coap_duplication_info_s *info = sn_coap_protocol_linked_list_duplication_info_search(handle,
                                                                                              dst_addr_ptr,
                                                                                              src_coap_msg_ptr->msg_id);
         /* Update package data to duplication info struct if it's not there yet */
@@ -486,7 +486,7 @@ int16_t sn_coap_protocol_build(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_p
         stored_blockwise_msg_ptr->timestamp = handle->system_time;
 
         stored_blockwise_msg_ptr->coap_msg_ptr = sn_coap_protocol_copy_header(handle, src_coap_msg_ptr);
-        if( stored_blockwise_msg_ptr->coap_msg_ptr == NULL ){
+        if (stored_blockwise_msg_ptr->coap_msg_ptr == NULL) {
             handle->sn_coap_protocol_free(stored_blockwise_msg_ptr);
             stored_blockwise_msg_ptr = 0;
             tr_error("sn_coap_protocol_build - block header copy failed!");
@@ -525,7 +525,7 @@ int16_t sn_coap_protocol_build(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_p
         stored_blockwise_msg_ptr->timestamp = handle->system_time;
 
         stored_blockwise_msg_ptr->coap_msg_ptr = sn_coap_protocol_copy_header(handle, src_coap_msg_ptr);
-        if( stored_blockwise_msg_ptr->coap_msg_ptr == NULL ){
+        if (stored_blockwise_msg_ptr->coap_msg_ptr == NULL) {
             handle->sn_coap_protocol_free(stored_blockwise_msg_ptr);
             stored_blockwise_msg_ptr = 0;
             tr_error("sn_coap_protocol_build - blockwise (GET) copy header failed!");
@@ -549,7 +549,7 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
 
     /* * * * Check given pointer * * * */
     if (src_addr_ptr == NULL || src_addr_ptr->addr_ptr == NULL ||
-        packet_data_ptr == NULL || handle == NULL) {
+            packet_data_ptr == NULL || handle == NULL) {
         return NULL;
     }
 
@@ -652,7 +652,7 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
         } else { /* * * Message duplication detected * * */
             /* Set returned status to User */
             returned_dst_coap_msg_ptr->coap_status = COAP_STATUS_PARSER_DUPLICATED_MSG;
-            coap_duplication_info_s* response = sn_coap_protocol_linked_list_duplication_info_search(handle,
+            coap_duplication_info_s *response = sn_coap_protocol_linked_list_duplication_info_search(handle,
                                                                                                      src_addr_ptr,
                                                                                                      returned_dst_coap_msg_ptr->msg_id);
             /* Send ACK response */
@@ -660,7 +660,7 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
                 /* Check that response has been created */
                 if (response->packet_ptr) {
                     response->coap->sn_coap_tx_callback(response->packet_ptr,
-                            response->packet_len, response->address, response->param);
+                                                        response->packet_len, response->address, response->param);
                 }
             }
 
@@ -694,8 +694,8 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
         bool remove_from_the_list = false;
         if (stored_blockwise_msg_temp_ptr) {
             if (stored_blockwise_msg_temp_ptr->coap_msg_ptr &&
-                stored_blockwise_msg_temp_ptr->coap_msg_ptr->options_list_ptr &&
-                stored_blockwise_msg_temp_ptr->coap_msg_ptr->options_list_ptr->observe != COAP_OBSERVE_NONE) {
+                    stored_blockwise_msg_temp_ptr->coap_msg_ptr->options_list_ptr &&
+                    stored_blockwise_msg_temp_ptr->coap_msg_ptr->options_list_ptr->observe != COAP_OBSERVE_NONE) {
                 remove_from_the_list = false;
             } else {
                 remove_from_the_list = true;
@@ -704,7 +704,7 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
         if (remove_from_the_list) {
             ns_list_remove(&handle->linked_list_blockwise_sent_msgs, stored_blockwise_msg_temp_ptr);
             if (stored_blockwise_msg_temp_ptr->coap_msg_ptr) {
-                if(stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_ptr){
+                if (stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_ptr) {
                     handle->sn_coap_protocol_free(stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_ptr);
                     stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_ptr = 0;
                 }
@@ -755,8 +755,8 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
 
 int8_t sn_coap_protocol_exec(struct coap_s *handle, uint32_t current_time)
 {
-    if( !handle ){
-       return -1;
+    if (!handle) {
+        return -1;
     }
 
     /* * * * Store current System time * * * */
@@ -778,7 +778,7 @@ int8_t sn_coap_protocol_exec(struct coap_s *handle, uint32_t current_time)
 rescan:
     ns_list_foreach(coap_send_msg_s, stored_msg_ptr, &handle->linked_list_resent_msgs) {
         // First check that msg belongs to handle
-        if( stored_msg_ptr->coap == handle ){
+        if (stored_msg_ptr->coap == handle) {
             /* Check if it is time to send this message */
             if (current_time >= stored_msg_ptr->resending_time) {
                 /* * * Increase Resending counter  * * */
@@ -815,7 +815,7 @@ rescan:
                 } else {
                     /* Send message  */
                     stored_msg_ptr->coap->sn_coap_tx_callback(stored_msg_ptr->send_msg_ptr->packet_ptr,
-                            stored_msg_ptr->send_msg_ptr->packet_len, stored_msg_ptr->send_msg_ptr->dst_addr_ptr, stored_msg_ptr->param);
+                                                              stored_msg_ptr->send_msg_ptr->packet_len, stored_msg_ptr->send_msg_ptr->dst_addr_ptr, stored_msg_ptr->param);
 
                     /* * * Count new Resending time  * * */
                     stored_msg_ptr->resending_time = sn_coap_calculate_new_resend_time(current_time,
@@ -855,7 +855,7 @@ rescan:
  *****************************************************************************/
 
 static uint8_t sn_coap_protocol_linked_list_send_msg_store(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_ptr, uint16_t send_packet_data_len,
-        uint8_t *send_packet_data_ptr, uint32_t sending_time, void *param)
+                                                           uint8_t *send_packet_data_ptr, uint32_t sending_time, void *param)
 {
 
     coap_send_msg_s *stored_msg_ptr              = NULL;
@@ -926,7 +926,7 @@ static uint8_t sn_coap_protocol_linked_list_send_msg_store(struct coap_s *handle
  *****************************************************************************/
 
 static sn_nsdl_transmit_s *sn_coap_protocol_linked_list_send_msg_search(struct coap_s *handle,
-        sn_nsdl_addr_s *src_addr_ptr, uint16_t msg_id)
+                                                                        sn_nsdl_addr_s *src_addr_ptr, uint16_t msg_id)
 {
     /* Loop all stored resending messages Linked list */
     ns_list_foreach(coap_send_msg_s, stored_msg_ptr, &handle->linked_list_resent_msgs) {
@@ -1029,7 +1029,7 @@ static void sn_coap_protocol_send_rst(struct coap_s *handle, uint16_t msg_id, sn
  *****************************************************************************/
 
 static void sn_coap_protocol_linked_list_duplication_info_store(struct coap_s *handle, sn_nsdl_addr_s *addr_ptr,
-        uint16_t msg_id, void *param)
+                                                                uint16_t msg_id, void *param)
 {
     coap_duplication_info_s *stored_duplication_info_ptr = NULL;
 
@@ -1092,8 +1092,8 @@ static void sn_coap_protocol_linked_list_duplication_info_store(struct coap_s *h
  * \return Return value is 0 when message found and -1 if not found
  *****************************************************************************/
 
-static coap_duplication_info_s* sn_coap_protocol_linked_list_duplication_info_search(struct coap_s *handle,
-        sn_nsdl_addr_s *addr_ptr, uint16_t msg_id)
+static coap_duplication_info_s *sn_coap_protocol_linked_list_duplication_info_search(struct coap_s *handle,
+                                                                                     sn_nsdl_addr_s *addr_ptr, uint16_t msg_id)
 {
     /* Loop all nodes in Linked list for searching Message ID */
     ns_list_foreach(coap_duplication_info_s, stored_duplication_info_ptr, &handle->linked_list_duplication_msgs) {
@@ -1197,10 +1197,10 @@ static void sn_coap_protocol_linked_list_duplication_info_remove_old_ones(struct
 
 static void sn_coap_protocol_linked_list_blockwise_msg_remove(struct coap_s *handle, coap_blockwise_msg_s *removed_msg_ptr)
 {
-    if( removed_msg_ptr->coap == handle ){
+    if (removed_msg_ptr->coap == handle) {
         ns_list_remove(&handle->linked_list_blockwise_sent_msgs, removed_msg_ptr);
 
-        if( removed_msg_ptr->coap_msg_ptr ){
+        if (removed_msg_ptr->coap_msg_ptr) {
             if (removed_msg_ptr->coap_msg_ptr->payload_ptr) {
                 handle->sn_coap_protocol_free(removed_msg_ptr->coap_msg_ptr->payload_ptr);
                 removed_msg_ptr->coap_msg_ptr->payload_ptr = 0;
@@ -1225,9 +1225,9 @@ static void sn_coap_protocol_linked_list_blockwise_msg_remove(struct coap_s *han
  *****************************************************************************/
 
 static void sn_coap_protocol_linked_list_blockwise_payload_store(struct coap_s *handle, sn_nsdl_addr_s *addr_ptr,
-        uint16_t stored_payload_len,
-        uint8_t *stored_payload_ptr,
-        uint32_t block_number)
+                                                                 uint16_t stored_payload_len,
+                                                                 uint8_t *stored_payload_ptr,
+                                                                 uint32_t block_number)
 {
     if (!addr_ptr || !stored_payload_len || !stored_payload_ptr) {
         return;
@@ -1319,8 +1319,8 @@ static uint8_t *sn_coap_protocol_linked_list_blockwise_payload_search(struct coa
 }
 
 static bool sn_coap_protocol_linked_list_blockwise_payload_compare_block_number(struct coap_s *handle,
-                                                                                   sn_nsdl_addr_s *src_addr_ptr,
-                                                                                   uint32_t block_number)
+                                                                                sn_nsdl_addr_s *src_addr_ptr,
+                                                                                uint32_t block_number)
 {
     /* Loop all stored blockwise payloads in Linked list */
     ns_list_foreach(coap_blockwise_payload_s, stored_payload_info_ptr, &handle->linked_list_blockwise_received_payloads) {
@@ -1426,8 +1426,8 @@ static void sn_coap_protocol_linked_list_blockwise_remove_old_data(struct coap_s
             //TODO: Check do we need to check handle == removed_blocwise_msg_ptr->coap here?
 
             /* * * * Old Blockise message found, remove it from Linked list * * * */
-            if( removed_blocwise_msg_ptr->coap_msg_ptr ){
-                if(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr){
+            if (removed_blocwise_msg_ptr->coap_msg_ptr) {
+                if (removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr) {
                     handle->sn_coap_protocol_free(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr);
                     removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr = 0;
                 }
@@ -1473,15 +1473,14 @@ coap_send_msg_s *sn_coap_protocol_allocate_mem_for_msg(struct coap_s *handle, sn
     }
 
     //Locall structure for 1 malloc for send msg
-    struct
-    {
+    struct {
         sn_nsdl_transmit_s transmit;
         sn_nsdl_addr_s addr;
         uint8_t trail_data[];
     } *m;
     int trail_size = dst_addr_ptr->addr_len + packet_data_len;
 
-    m = handle->sn_coap_protocol_malloc(sizeof *m + trail_size);
+    m = handle->sn_coap_protocol_malloc(sizeof * m + trail_size);
     if (!m) {
         handle->sn_coap_protocol_free(msg_ptr);
         return NULL;
@@ -1545,7 +1544,7 @@ static uint16_t sn_coap_count_linked_list_size(const coap_send_msg_list_t *linke
 #if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
 void sn_coap_protocol_block_remove(struct coap_s *handle, sn_nsdl_addr_s *source_address, uint16_t payload_length, void *payload)
 {
-    if(!handle || !source_address || !payload){
+    if (!handle || !source_address || !payload) {
         return;
     }
 
@@ -1562,12 +1561,11 @@ void sn_coap_protocol_block_remove(struct coap_s *handle, sn_nsdl_addr_s *source
         }
 
         /* Check the payload */
-        if(payload_length != stored_payload_info_ptr->payload_len){
+        if (payload_length != stored_payload_info_ptr->payload_len) {
             continue;
         }
 
-        if(!memcmp(stored_payload_info_ptr->payload_ptr, payload, stored_payload_info_ptr->payload_len))
-        {
+        if (!memcmp(stored_payload_info_ptr->payload_ptr, payload, stored_payload_info_ptr->payload_len)) {
             /* Everything matches, remove and return. */
             sn_coap_protocol_linked_list_blockwise_payload_remove(handle, stored_payload_info_ptr);
             return;
@@ -1700,9 +1698,9 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
             uint32_t block_number = received_coap_msg_ptr->options_list_ptr->block1 >> 4;
             bool blocks_in_order = true;
             if (block_number > 0 &&
-                !sn_coap_protocol_linked_list_blockwise_payload_compare_block_number(handle,
-                                                                                     src_addr_ptr,
-                                                                                     block_number)) {
+                    !sn_coap_protocol_linked_list_blockwise_payload_compare_block_number(handle,
+                                                                                         src_addr_ptr,
+                                                                                         block_number)) {
                 blocks_in_order = false;
             }
 
@@ -1723,7 +1721,7 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                 }
 
                 if (sn_coap_parser_alloc_options(handle, src_coap_blockwise_ack_msg_ptr) == NULL) {
-                   tr_error("sn_coap_handle_blockwise_message - (recv block1) failed to allocate options!");
+                    tr_error("sn_coap_handle_blockwise_message - (recv block1) failed to allocate options!");
                     handle->sn_coap_protocol_free(src_coap_blockwise_ack_msg_ptr);
                     src_coap_blockwise_ack_msg_ptr = 0;
                     sn_coap_parser_release_allocated_coap_msg_mem(handle, received_coap_msg_ptr);
@@ -1868,8 +1866,8 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                 }
 
                 ns_list_remove(&handle->linked_list_blockwise_sent_msgs, previous_blockwise_msg_ptr);
-                if( previous_blockwise_msg_ptr->coap_msg_ptr ){
-                    if(previous_blockwise_msg_ptr->coap_msg_ptr->payload_ptr){
+                if (previous_blockwise_msg_ptr->coap_msg_ptr) {
+                    if (previous_blockwise_msg_ptr->coap_msg_ptr->payload_ptr) {
                         handle->sn_coap_protocol_free(previous_blockwise_msg_ptr->coap_msg_ptr->payload_ptr);
                         previous_blockwise_msg_ptr->coap_msg_ptr->payload_ptr = 0;
                     }
@@ -1903,7 +1901,7 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                 src_coap_blockwise_ack_msg_ptr->options_list_ptr->block2 = (block_number << 4) | block_temp;
 
                 /* Then get needed memory count for Packet data */
-                dst_packed_data_needed_mem = sn_coap_builder_calc_needed_packet_data_size_2(src_coap_blockwise_ack_msg_ptr ,handle->sn_coap_block_data_size);
+                dst_packed_data_needed_mem = sn_coap_builder_calc_needed_packet_data_size_2(src_coap_blockwise_ack_msg_ptr, handle->sn_coap_block_data_size);
 
                 /* Then allocate memory for Packet data */
                 dst_ack_packet_data_ptr = handle->sn_coap_protocol_malloc(dst_packed_data_needed_mem);
@@ -1962,9 +1960,9 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
 #if ENABLE_RESENDINGS
                 uint32_t resend_time = sn_coap_calculate_new_resend_time(handle->system_time, handle->sn_coap_resending_intervall, 0);
                 sn_coap_protocol_linked_list_send_msg_store(handle, src_addr_ptr,
-                        dst_packed_data_needed_mem,
-                        dst_ack_packet_data_ptr,
-                        resend_time, param);
+                                                            dst_packed_data_needed_mem,
+                                                            dst_ack_packet_data_ptr,
+                                                            resend_time, param);
 #endif
                 handle->sn_coap_protocol_free(dst_ack_packet_data_ptr);
                 dst_ack_packet_data_ptr = 0;
@@ -2060,7 +2058,7 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                  * This is needed only in case of notification message.
                 */
                 if (src_coap_blockwise_ack_msg_ptr->options_list_ptr &&
-                    src_coap_blockwise_ack_msg_ptr->options_list_ptr->observe != COAP_OBSERVE_NONE) {
+                        src_coap_blockwise_ack_msg_ptr->options_list_ptr->observe != COAP_OBSERVE_NONE) {
                     if (received_coap_msg_ptr->token_len && src_coap_blockwise_ack_msg_ptr->token_ptr) {
                         handle->sn_coap_protocol_free(src_coap_blockwise_ack_msg_ptr->token_ptr);
                         src_coap_blockwise_ack_msg_ptr->token_ptr = handle->sn_coap_protocol_malloc(received_coap_msg_ptr->token_len);
@@ -2077,7 +2075,7 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                 dst_ack_packet_data_ptr = handle->sn_coap_protocol_malloc(dst_packed_data_needed_mem);
                 if (!dst_ack_packet_data_ptr) {
                     tr_error("sn_coap_handle_blockwise_message - (recv block2) failed to allocate packet!");
-                    if(original_payload_ptr){
+                    if (original_payload_ptr) {
                         handle->sn_coap_protocol_free(original_payload_ptr);
                         original_payload_ptr = NULL;
                     }

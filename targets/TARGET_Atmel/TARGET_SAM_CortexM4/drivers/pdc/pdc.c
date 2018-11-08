@@ -129,7 +129,7 @@ void pdc_rx_clear_cnt(
  * \note It is forbidden to set both TXTEN and RXTEN for a half duplex
  * peripheral.
  *
- * \param[out] p_pdc 	  Device structure pointer
+ * \param[out] p_pdc      Device structure pointer
  * \param[in] ul_controls Transfer directions
  *                        (bit PERIPH_PTCR_RXTEN and bit PERIPH_PTCR_TXTEN)
  */

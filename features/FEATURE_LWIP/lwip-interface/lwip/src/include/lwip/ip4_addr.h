@@ -49,7 +49,7 @@ extern "C" {
 /** This is the aligned version of ip4_addr_t,
    used as local variable, on the stack, etc. */
 struct ip4_addr {
-  u32_t addr;
+    u32_t addr;
 };
 
 /** ip4_addr_t uses a struct for convenience only, so that the same defines can
@@ -65,7 +65,7 @@ typedef struct ip4_addr ip4_addr_t;
 #endif
 PACK_STRUCT_BEGIN
 struct ip4_addr2 {
-  PACK_STRUCT_FIELD(u16_t addrw[2]);
+    PACK_STRUCT_FIELD(u16_t addrw[2]);
 } PACK_STRUCT_STRUCT;
 PACK_STRUCT_END
 #ifdef PACK_STRUCT_USE_INCLUDES

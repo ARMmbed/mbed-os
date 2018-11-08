@@ -60,26 +60,21 @@ void RESET_SetPeripheralReset(reset_ip_name_t peripheral)
     assert(bitPos < 32u);
 
     /* ASYNC_SYSCON registers have offset 1024 */
-    if (regIndex >= SYSCON_PRESETCTRL_COUNT)
-    {
+    if (regIndex >= SYSCON_PRESETCTRL_COUNT) {
         /* reset register is in ASYNC_SYSCON */
 
         /* set bit */
         ASYNC_SYSCON->ASYNCPRESETCTRLSET = bitMask;
         /* wait until it reads 0b1 */
-        while (0u == (ASYNC_SYSCON->ASYNCPRESETCTRL & bitMask))
-        {
+        while (0u == (ASYNC_SYSCON->ASYNCPRESETCTRL & bitMask)) {
         }
-    }
-    else
-    {
+    } else {
         /* reset register is in SYSCON */
 
         /* set bit */
         SYSCON->PRESETCTRLSET[regIndex] = bitMask;
         /* wait until it reads 0b1 */
-        while (0u == (SYSCON->PRESETCTRL[regIndex] & bitMask))
-        {
+        while (0u == (SYSCON->PRESETCTRL[regIndex] & bitMask)) {
         }
     }
 }
@@ -93,26 +88,21 @@ void RESET_ClearPeripheralReset(reset_ip_name_t peripheral)
     assert(bitPos < 32u);
 
     /* ASYNC_SYSCON registers have offset 1024 */
-    if (regIndex >= SYSCON_PRESETCTRL_COUNT)
-    {
+    if (regIndex >= SYSCON_PRESETCTRL_COUNT) {
         /* reset register is in ASYNC_SYSCON */
 
         /* clear bit */
         ASYNC_SYSCON->ASYNCPRESETCTRLCLR = bitMask;
         /* wait until it reads 0b0 */
-        while (bitMask == (ASYNC_SYSCON->ASYNCPRESETCTRL & bitMask))
-        {
+        while (bitMask == (ASYNC_SYSCON->ASYNCPRESETCTRL & bitMask)) {
         }
-    }
-    else
-    {
+    } else {
         /* reset register is in SYSCON */
 
         /* clear bit */
         SYSCON->PRESETCTRLCLR[regIndex] = bitMask;
         /* wait until it reads 0b0 */
-        while (bitMask == (SYSCON->PRESETCTRL[regIndex] & bitMask))
-        {
+        while (bitMask == (SYSCON->PRESETCTRL[regIndex] & bitMask)) {
         }
     }
 }

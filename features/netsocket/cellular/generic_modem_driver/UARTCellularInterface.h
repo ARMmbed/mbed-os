@@ -34,9 +34,9 @@ class UARTCellularInterface : public PPPCellularInterface {
 public:
 
     UARTCellularInterface(PinName tx, PinName rx, PinName dcd = NC, PinName rts = NC, PinName cts = NC, PinName ri = NC,
-                             PinName dtr = NC, PinName dsr = NC, int baud = MBED_CONF_PPP_CELL_IFACE_BAUD_RATE,
-                             bool active_high = false,
-                             bool debug = false);
+                          PinName dtr = NC, PinName dsr = NC, int baud = MBED_CONF_PPP_CELL_IFACE_BAUD_RATE,
+                          bool active_high = false,
+                          bool debug = false);
 
     virtual ~UARTCellularInterface();
 

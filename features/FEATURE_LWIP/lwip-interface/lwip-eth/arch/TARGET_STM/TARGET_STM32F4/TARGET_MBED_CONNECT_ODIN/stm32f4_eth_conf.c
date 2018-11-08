@@ -18,8 +18,7 @@
 
 void _eth_config_mac(ETH_HandleTypeDef *heth)
 {
-    ETH_MACInitTypeDef macconf =
-    {
+    ETH_MACInitTypeDef macconf = {
         .Watchdog = ETH_WATCHDOG_ENABLE,
         .Jabber = ETH_JABBER_ENABLE,
         .InterFrameGap = ETH_INTERFRAMEGAP_96BIT,

@@ -92,13 +92,13 @@ typedef enum {
     P1_29 = 61,
 
     P1_31 = 63,
-    
+
     // Other mbed Pin Names
     LED1 = P0_7,
     LED2 = P0_7,
     LED3 = P0_7,
     LED4 = P0_7,
-    
+
     UART_TX = P0_19,
     UART_RX = P0_18,
 

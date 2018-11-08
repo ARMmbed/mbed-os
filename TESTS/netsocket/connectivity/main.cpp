@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
- #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-     #error [NOT_SUPPORTED] No network configuration found for this target.
- #endif
+#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#error [NOT_SUPPORTED] No network configuration found for this target.
+#endif
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -29,8 +29,9 @@ using namespace utest::v1;
 
 // Bringing the network up and down
 template <int COUNT>
-void test_bring_up_down() {
-    NetworkInterface* net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+void test_bring_up_down()
+{
+    NetworkInterface *net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
 
     for (int i = 0; i < COUNT; i++) {
         int err = MBED_CONF_APP_CONNECT_STATEMENT;
@@ -58,7 +59,8 @@ void test_bring_up_down() {
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(120, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -70,6 +72,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

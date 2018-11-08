@@ -17,11 +17,13 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 
-void pin_function(PinName pin, int function) {
+void pin_function(PinName pin, int function)
+{
     MBED_ASSERT(pin != (PinName)NC);
 
 }
 
-void pin_mode(PinName pin, PinMode mode) {
+void pin_mode(PinName pin, PinMode mode)
+{
     MBED_ASSERT(pin != (PinName)NC);
 }

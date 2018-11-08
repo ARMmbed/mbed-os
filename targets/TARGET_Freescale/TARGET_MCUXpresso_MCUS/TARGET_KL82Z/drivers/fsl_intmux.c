@@ -80,10 +80,8 @@ static uint32_t INTMUX_GetInstance(INTMUX_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_INTMUX_COUNT; instance++)
-    {
-        if (s_intmuxBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_INTMUX_COUNT; instance++) {
+        if (s_intmuxBases[instance] == base) {
             break;
         }
     }
@@ -100,8 +98,7 @@ static void INTMUX_CommonIRQHandler(uint32_t instance, uint32_t channel)
 
     intmuxBase = s_intmuxBases[instance];
     pendingIrqOffset = intmuxBase->CHANNEL[channel].CHn_VEC;
-    if (pendingIrqOffset)
-    {
+    if (pendingIrqOffset) {
         uint32_t isr = *(uint32_t *)(SCB->VTOR + pendingIrqOffset);
         ((void (*)(void))isr)();
     }
@@ -114,8 +111,7 @@ void INTMUX_Init(INTMUX_Type *base)
     /* Enable clock gate. */
     CLOCK_EnableClock(s_intmuxClockName[INTMUX_GetInstance(base)]);
     /* Reset all channels and enable NVIC vectors for all INTMUX channels. */
-    for (channel = 0; channel < FSL_FEATURE_INTMUX_CHANNEL_COUNT; channel++)
-    {
+    for (channel = 0; channel < FSL_FEATURE_INTMUX_CHANNEL_COUNT; channel++) {
         INTMUX_ResetChannel(base, channel);
         NVIC_EnableIRQ(s_intmuxIRQNumber[channel]);
     }
@@ -128,8 +124,7 @@ void INTMUX_Deinit(INTMUX_Type *base)
     /* Disable clock gate. */
     CLOCK_DisableClock(s_intmuxClockName[INTMUX_GetInstance(base)]);
     /* Disable NVIC vectors for all of the INTMUX channels. */
-    for (channel = 0; channel < FSL_FEATURE_INTMUX_CHANNEL_COUNT; channel++)
-    {
+    for (channel = 0; channel < FSL_FEATURE_INTMUX_CHANNEL_COUNT; channel++) {
         NVIC_DisableIRQ(s_intmuxIRQNumber[channel]);
     }
 }

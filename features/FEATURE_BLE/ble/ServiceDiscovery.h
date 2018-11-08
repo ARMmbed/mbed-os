@@ -55,7 +55,7 @@ public:
      * the callback scope.
      */
     typedef FunctionPointerWithContext<const DiscoveredService *>
-        ServiceCallback_t;
+    ServiceCallback_t;
 
     /**
      * Characteristic discovered event handler.
@@ -69,7 +69,7 @@ public:
      * beyond the callback scope.
      */
     typedef FunctionPointerWithContext<const DiscoveredCharacteristic *>
-        CharacteristicCallback_t;
+    CharacteristicCallback_t;
 
     /**
      * Service discovery ended event.
@@ -168,7 +168,8 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t reset(void) {
+    virtual ble_error_t reset(void)
+    {
         connHandle                 = 0;
         matchingServiceUUID        = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN);
         serviceCallback            = NULL;

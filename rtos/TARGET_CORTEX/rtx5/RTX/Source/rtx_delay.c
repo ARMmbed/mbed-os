@@ -34,54 +34,58 @@ SVC0_1(DelayUntil, osStatus_t, uint32_t)
 
 /// Wait for Timeout (Time Delay).
 /// \note API identical to osDelay
-osStatus_t svcRtxDelay (uint32_t ticks) {
+osStatus_t svcRtxDelay(uint32_t ticks)
+{
 
-  if (ticks == 0U) {
+    if (ticks == 0U) {
+        return osOK;
+    }
+
+    osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks);
+
     return osOK;
-  }
-
-  osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks);
-
-  return osOK;
 }
 
 /// Wait until specified time.
 /// \note API identical to osDelayUntil
-osStatus_t svcRtxDelayUntil (uint32_t ticks) {
+osStatus_t svcRtxDelayUntil(uint32_t ticks)
+{
 
-  ticks -= osRtxInfo.kernel.tick;
-  if (ticks == 0xFFFFFFFFU) {
-    EvrRtxThreadError(NULL, osErrorParameter);
-    return osErrorParameter;
-  }
-  if (ticks == 0U) {
+    ticks -= osRtxInfo.kernel.tick;
+    if (ticks == 0xFFFFFFFFU) {
+        EvrRtxThreadError(NULL, osErrorParameter);
+        return osErrorParameter;
+    }
+    if (ticks == 0U) {
+        return osOK;
+    }
+
+    osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks);
+
     return osOK;
-  }
-
-  osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks);
-
-  return osOK;
 }
 
 
 //  ==== Public API ====
 
 /// Wait for Timeout (Time Delay).
-osStatus_t osDelay (uint32_t ticks) {
-  EvrRtxThreadDelay(ticks);
-  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
-    EvrRtxThreadError(NULL, osErrorISR);
-    return osErrorISR;
-  }
-  return __svcDelay(ticks);
+osStatus_t osDelay(uint32_t ticks)
+{
+    EvrRtxThreadDelay(ticks);
+    if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+        EvrRtxThreadError(NULL, osErrorISR);
+        return osErrorISR;
+    }
+    return __svcDelay(ticks);
 }
 
 /// Wait until specified time.
-osStatus_t osDelayUntil (uint32_t ticks) {
-  EvrRtxThreadDelayUntil(ticks);
-  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
-    EvrRtxThreadError(NULL, osErrorISR);
-    return osErrorISR;
-  }
-  return __svcDelayUntil(ticks);
+osStatus_t osDelayUntil(uint32_t ticks)
+{
+    EvrRtxThreadDelayUntil(ticks);
+    if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
+        EvrRtxThreadError(NULL, osErrorISR);
+        return osErrorISR;
+    }
+    return __svcDelayUntil(ticks);
 }

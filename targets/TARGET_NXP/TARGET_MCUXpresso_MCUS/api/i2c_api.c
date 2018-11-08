@@ -98,8 +98,7 @@ int i2c_start(i2c_t *obj)
     I2C_Type *base = i2c_addrs[obj->instance];
     uint32_t status;
 
-    do
-    {
+    do {
         status = I2C_GetStatusFlags(base);
     } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 
@@ -117,8 +116,7 @@ int i2c_stop(i2c_t *obj)
     I2C_Type *base = i2c_addrs[obj->instance];
     uint32_t status;
 
-    do
-    {
+    do {
         status = I2C_GetStatusFlags(base);
     } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 

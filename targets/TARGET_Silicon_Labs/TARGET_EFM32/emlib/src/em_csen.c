@@ -87,11 +87,11 @@
  ******************************************************************************/
 void CSEN_DMBaselineSet(CSEN_TypeDef *csen, uint32_t up, uint32_t down)
 {
-  EFM_ASSERT(up < 0x10000);
-  EFM_ASSERT(down < 0x10000);
+    EFM_ASSERT(up < 0x10000);
+    EFM_ASSERT(down < 0x10000);
 
-  csen->DMBASELINE = (up << _CSEN_DMBASELINE_BASELINEUP_SHIFT)
-                     | (down << _CSEN_DMBASELINE_BASELINEDN_SHIFT);
+    csen->DMBASELINE = (up << _CSEN_DMBASELINE_BASELINEUP_SHIFT)
+                       | (down << _CSEN_DMBASELINE_BASELINEDN_SHIFT);
 }
 
 /***************************************************************************//**
@@ -113,47 +113,47 @@ void CSEN_DMBaselineSet(CSEN_TypeDef *csen, uint32_t up, uint32_t down)
  ******************************************************************************/
 void CSEN_Init(CSEN_TypeDef *csen, const CSEN_Init_TypeDef *init)
 {
-  uint32_t tmp;
+    uint32_t tmp;
 
-  EFM_ASSERT(CSEN_REF_VALID(csen));
-  EFM_ASSERT(init->warmUpCount < 4);
+    EFM_ASSERT(CSEN_REF_VALID(csen));
+    EFM_ASSERT(init->warmUpCount < 4);
 
-  /* Initialize CTRL. This will stop any conversion in progress. */
-  tmp = CSEN_CTRL_STM_DEFAULT;
+    /* Initialize CTRL. This will stop any conversion in progress. */
+    tmp = CSEN_CTRL_STM_DEFAULT;
 
-  if (init->cpAccuracyHi) {
-    tmp |= CSEN_CTRL_CPACCURACY_HI;
-  }
+    if (init->cpAccuracyHi) {
+        tmp |= CSEN_CTRL_CPACCURACY_HI;
+    }
 
-  if (init->localSense) {
-    tmp |= _CSEN_CTRL_LOCALSENS_MASK;
-  }
+    if (init->localSense) {
+        tmp |= _CSEN_CTRL_LOCALSENS_MASK;
+    }
 
-  if (init->keepWarm) {
-    tmp |= CSEN_CTRL_WARMUPMODE_KEEPCSENWARM;
-  }
+    if (init->keepWarm) {
+        tmp |= CSEN_CTRL_WARMUPMODE_KEEPCSENWARM;
+    }
 
-  csen->CTRL = tmp;
+    csen->CTRL = tmp;
 
-  /* Initialize TIMCTRL. */
-  csen->TIMCTRL = (init->warmUpCount << _CSEN_TIMCTRL_WARMUPCNT_SHIFT)
-                  | (init->pcReload << _CSEN_TIMCTRL_PCTOP_SHIFT)
-                  | (init->pcPrescale << _CSEN_TIMCTRL_PCPRESC_SHIFT);
+    /* Initialize TIMCTRL. */
+    csen->TIMCTRL = (init->warmUpCount << _CSEN_TIMCTRL_WARMUPCNT_SHIFT)
+                    | (init->pcReload << _CSEN_TIMCTRL_PCTOP_SHIFT)
+                    | (init->pcPrescale << _CSEN_TIMCTRL_PCPRESC_SHIFT);
 
-  /* PRSSEL only has one field */
-  csen->PRSSEL = init->prsSel << _CSEN_PRSSEL_PRSSEL_SHIFT;
+    /* PRSSEL only has one field */
+    csen->PRSSEL = init->prsSel << _CSEN_PRSSEL_PRSSEL_SHIFT;
 
-  /* Set input selections for inputs 0 to 31 */
-  csen->SCANINPUTSEL0 = (init->input0To7 << _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_SHIFT)
-                        | (init->input8To15 << _CSEN_SCANINPUTSEL0_INPUT8TO15SEL_SHIFT)
-                        | (init->input16To23 << _CSEN_SCANINPUTSEL0_INPUT16TO23SEL_SHIFT)
-                        | (init->input24To31 << _CSEN_SCANINPUTSEL0_INPUT24TO31SEL_SHIFT);
+    /* Set input selections for inputs 0 to 31 */
+    csen->SCANINPUTSEL0 = (init->input0To7 << _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_SHIFT)
+                          | (init->input8To15 << _CSEN_SCANINPUTSEL0_INPUT8TO15SEL_SHIFT)
+                          | (init->input16To23 << _CSEN_SCANINPUTSEL0_INPUT16TO23SEL_SHIFT)
+                          | (init->input24To31 << _CSEN_SCANINPUTSEL0_INPUT24TO31SEL_SHIFT);
 
-  /* Set input selections for inputs 32 to 63 */
-  csen->SCANINPUTSEL1 = (init->input32To39 << _CSEN_SCANINPUTSEL1_INPUT32TO39SEL_SHIFT)
-                        | (init->input40To47 << _CSEN_SCANINPUTSEL1_INPUT40TO47SEL_SHIFT)
-                        | (init->input48To55 << _CSEN_SCANINPUTSEL1_INPUT48TO55SEL_SHIFT)
-                        | (init->input56To63 << _CSEN_SCANINPUTSEL1_INPUT56TO63SEL_SHIFT);
+    /* Set input selections for inputs 32 to 63 */
+    csen->SCANINPUTSEL1 = (init->input32To39 << _CSEN_SCANINPUTSEL1_INPUT32TO39SEL_SHIFT)
+                          | (init->input40To47 << _CSEN_SCANINPUTSEL1_INPUT40TO47SEL_SHIFT)
+                          | (init->input48To55 << _CSEN_SCANINPUTSEL1_INPUT48TO55SEL_SHIFT)
+                          | (init->input56To63 << _CSEN_SCANINPUTSEL1_INPUT56TO63SEL_SHIFT);
 }
 
 /***************************************************************************//**
@@ -180,71 +180,71 @@ void CSEN_Init(CSEN_TypeDef *csen, const CSEN_Init_TypeDef *init)
  ******************************************************************************/
 void CSEN_InitMode(CSEN_TypeDef *csen, const CSEN_InitMode_TypeDef *init)
 {
-  uint32_t tmp;
+    uint32_t tmp;
 
-  EFM_ASSERT(CSEN_REF_VALID(csen));
-  EFM_ASSERT(init->dmIterPerCycle < 0x10);
-  EFM_ASSERT(init->dmCycles < 0x10);
+    EFM_ASSERT(CSEN_REF_VALID(csen));
+    EFM_ASSERT(init->dmIterPerCycle < 0x10);
+    EFM_ASSERT(init->dmCycles < 0x10);
 
-  /* Initialize CTRL. This will stop any conversion in progress.
-   * These composite inputs set multiple fields. They do not need
-   * to be shifted. */
-  tmp = ((uint32_t)init->sampleMode
-         | (uint32_t)init->convSel
-         | (uint32_t)init->cmpMode);
+    /* Initialize CTRL. This will stop any conversion in progress.
+     * These composite inputs set multiple fields. They do not need
+     * to be shifted. */
+    tmp = ((uint32_t)init->sampleMode
+           | (uint32_t)init->convSel
+           | (uint32_t)init->cmpMode);
 
-  tmp |= (init->trigSel << _CSEN_CTRL_STM_SHIFT)
-         | (init->accMode << _CSEN_CTRL_ACU_SHIFT)
-         | (init->sarRes << _CSEN_CTRL_SARCR_SHIFT);
+    tmp |= (init->trigSel << _CSEN_CTRL_STM_SHIFT)
+           | (init->accMode << _CSEN_CTRL_ACU_SHIFT)
+           | (init->sarRes << _CSEN_CTRL_SARCR_SHIFT);
 
-  if (init->enableDma) {
-    tmp |= CSEN_CTRL_DMAEN_ENABLE;
-  }
+    if (init->enableDma) {
+        tmp |= CSEN_CTRL_DMAEN_ENABLE;
+    }
 
-  if (init->sumOnly) {
-    tmp |= CSEN_CTRL_DRSF_ENABLE;
-  }
+    if (init->sumOnly) {
+        tmp |= CSEN_CTRL_DRSF_ENABLE;
+    }
 
-  if (init->autoGnd) {
-    tmp |= CSEN_CTRL_AUTOGND_ENABLE;
-  }
+    if (init->autoGnd) {
+        tmp |= CSEN_CTRL_AUTOGND_ENABLE;
+    }
 
-  /* Preserve the fields that were initialized by CSEN_Init(). */
-  tmp |= csen->CTRL & (_CSEN_CTRL_CPACCURACY_MASK
-                       | _CSEN_CTRL_LOCALSENS_MASK
-                       | _CSEN_CTRL_WARMUPMODE_MASK);
+    /* Preserve the fields that were initialized by CSEN_Init(). */
+    tmp |= csen->CTRL & (_CSEN_CTRL_CPACCURACY_MASK
+                         | _CSEN_CTRL_LOCALSENS_MASK
+                         | _CSEN_CTRL_WARMUPMODE_MASK);
 
-  csen->CTRL = tmp;
+    csen->CTRL = tmp;
 
-  /* EMACTRL only has one field */
-  csen->EMACTRL = init->emaSample << _CSEN_EMACTRL_EMASAMPLE_SHIFT;
+    /* EMACTRL only has one field */
+    csen->EMACTRL = init->emaSample << _CSEN_EMACTRL_EMASAMPLE_SHIFT;
 
-  /* CMPTHR only has one field */
-  csen->CMPTHR = init->cmpThr << _CSEN_CMPTHR_CMPTHR_SHIFT;
+    /* CMPTHR only has one field */
+    csen->CMPTHR = init->cmpThr << _CSEN_CMPTHR_CMPTHR_SHIFT;
 
-  /* SINGLECTRL only has one field */
-  csen->SINGLECTRL = init->singleSel << _CSEN_SINGLECTRL_SINGLESEL_SHIFT;
+    /* SINGLECTRL only has one field */
+    csen->SINGLECTRL = init->singleSel << _CSEN_SINGLECTRL_SINGLESEL_SHIFT;
 
-  /* Set all input enables */
-  csen->SCANMASK0 = init->inputMask0;
-  csen->SCANMASK1 = init->inputMask1;
+    /* Set all input enables */
+    csen->SCANMASK0 = init->inputMask0;
+    csen->SCANMASK1 = init->inputMask1;
 
-  /* Initialize DMCFG. */
-  tmp = (init->dmRes << _CSEN_DMCFG_CRMODE_SHIFT)
-        | (init->dmCycles << _CSEN_DMCFG_DMCR_SHIFT)
-        | (init->dmIterPerCycle << _CSEN_DMCFG_DMR_SHIFT)
-        | (init->dmDelta << _CSEN_DMCFG_DMG_SHIFT);
+    /* Initialize DMCFG. */
+    tmp = (init->dmRes << _CSEN_DMCFG_CRMODE_SHIFT)
+          | (init->dmCycles << _CSEN_DMCFG_DMCR_SHIFT)
+          | (init->dmIterPerCycle << _CSEN_DMCFG_DMR_SHIFT)
+          | (init->dmDelta << _CSEN_DMCFG_DMG_SHIFT);
 
-  if (init->dmFixedDelta) {
-    tmp |= CSEN_DMCFG_DMGRDIS;
-  }
+    if (init->dmFixedDelta) {
+        tmp |= CSEN_DMCFG_DMGRDIS;
+    }
 
-  csen->DMCFG = tmp;
+    csen->DMCFG = tmp;
 
-  /* Initialize ANACTRL. */
-  csen->ANACTRL = (init->resetPhase << _CSEN_ANACTRL_TRSTPROG_SHIFT)
-                  | (init->driveSel << _CSEN_ANACTRL_IDACIREFS_SHIFT)
-                  | (init->gainSel << _CSEN_ANACTRL_IREFPROG_SHIFT);
+    /* Initialize ANACTRL. */
+    csen->ANACTRL = (init->resetPhase << _CSEN_ANACTRL_TRSTPROG_SHIFT)
+                    | (init->driveSel << _CSEN_ANACTRL_IDACIREFS_SHIFT)
+                    | (init->gainSel << _CSEN_ANACTRL_IREFPROG_SHIFT);
 }
 
 /***************************************************************************//**
@@ -256,26 +256,26 @@ void CSEN_InitMode(CSEN_TypeDef *csen, const CSEN_InitMode_TypeDef *init)
  ******************************************************************************/
 void CSEN_Reset(CSEN_TypeDef *csen)
 {
-  EFM_ASSERT(CSEN_REF_VALID(csen));
+    EFM_ASSERT(CSEN_REF_VALID(csen));
 
-  /* Resetting CTRL stops any conversion in progress. */
-  csen->CTRL          = _CSEN_CTRL_RESETVALUE;
-  csen->TIMCTRL       = _CSEN_TIMCTRL_RESETVALUE;
-  csen->PRSSEL        = _CSEN_PRSSEL_RESETVALUE;
-  csen->DATA          = _CSEN_DATA_RESETVALUE;
-  csen->SCANMASK0     = _CSEN_SCANMASK0_RESETVALUE;
-  csen->SCANINPUTSEL0 = _CSEN_SCANINPUTSEL0_RESETVALUE;
-  csen->SCANMASK1     = _CSEN_SCANMASK1_RESETVALUE;
-  csen->SCANINPUTSEL1 = _CSEN_SCANINPUTSEL1_RESETVALUE;
-  csen->CMPTHR        = _CSEN_CMPTHR_RESETVALUE;
-  csen->EMA           = _CSEN_EMA_RESETVALUE;
-  csen->EMACTRL       = _CSEN_EMACTRL_RESETVALUE;
-  csen->SINGLECTRL    = _CSEN_SINGLECTRL_RESETVALUE;
-  csen->DMBASELINE    = _CSEN_DMBASELINE_RESETVALUE;
-  csen->DMCFG         = _CSEN_DMCFG_RESETVALUE;
-  csen->ANACTRL       = _CSEN_ANACTRL_RESETVALUE;
-  csen->IEN           = _CSEN_IEN_RESETVALUE;
-  csen->IFC           = _CSEN_IF_MASK;
+    /* Resetting CTRL stops any conversion in progress. */
+    csen->CTRL          = _CSEN_CTRL_RESETVALUE;
+    csen->TIMCTRL       = _CSEN_TIMCTRL_RESETVALUE;
+    csen->PRSSEL        = _CSEN_PRSSEL_RESETVALUE;
+    csen->DATA          = _CSEN_DATA_RESETVALUE;
+    csen->SCANMASK0     = _CSEN_SCANMASK0_RESETVALUE;
+    csen->SCANINPUTSEL0 = _CSEN_SCANINPUTSEL0_RESETVALUE;
+    csen->SCANMASK1     = _CSEN_SCANMASK1_RESETVALUE;
+    csen->SCANINPUTSEL1 = _CSEN_SCANINPUTSEL1_RESETVALUE;
+    csen->CMPTHR        = _CSEN_CMPTHR_RESETVALUE;
+    csen->EMA           = _CSEN_EMA_RESETVALUE;
+    csen->EMACTRL       = _CSEN_EMACTRL_RESETVALUE;
+    csen->SINGLECTRL    = _CSEN_SINGLECTRL_RESETVALUE;
+    csen->DMBASELINE    = _CSEN_DMBASELINE_RESETVALUE;
+    csen->DMCFG         = _CSEN_DMCFG_RESETVALUE;
+    csen->ANACTRL       = _CSEN_ANACTRL_RESETVALUE;
+    csen->IEN           = _CSEN_IEN_RESETVALUE;
+    csen->IFC           = _CSEN_IF_MASK;
 }
 
 /** @} (end addtogroup CSEN) */

@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -20,14 +20,14 @@
  */
 #define CONFIG_WITHOUT_MONITOR 1
 
-#undef  CONFIG_RTL8195A 
+#undef  CONFIG_RTL8195A
 #define CONFIG_RTL8195A 1
 #undef  CONFIG_FPGA
 #undef  CONFIG_RTL_SIM
 #undef  CONFIG_POST_SIM
 
 /*
- * < Mass Production Option 
+ * < Mass Production Option
  */
 #undef  CONFIG_MP
 #undef  CONFIG_CP
@@ -45,7 +45,7 @@
 #define CPU_CLOCK_SEL_VALUE (0)
 #define CONFIG_SDR_CLK 1
 #define CONFIG_SDR_100MHZ 1
-#undef  CONFIG_SDR_50MHZ 
+#undef  CONFIG_SDR_50MHZ
 #undef  CONFIG_SDR_25MHZ
 #undef  CONFIG_SDR_12_5MHZ
 #define SDR_CLOCK_SEL_VALUE (0)
@@ -59,7 +59,7 @@
 #define CONFIG_BOOT_FROM_JTAG 1
 #undef  CONFIG_ALIGNMENT_EXCEPTION_ENABLE
 #define CONFIG_KERNEL 1
-#define PLATFORM_FREERTOS	1
+#define PLATFORM_FREERTOS   1
 #undef  PLATFORM_UCOSII
 #undef  PLATFORM_ECOS
 #undef  CONFIG_TASK_SCHEDUL_DIS
@@ -102,7 +102,7 @@
 #undef CONFIG_USB_ROM_LIB
 //#define CONFIG_USB_DBGINFO_EN 1
 #if defined(CONFIG_INIC) || (CONFIG_USBD)
-#define DWC_DEVICE_ONLY	1
+#define DWC_DEVICE_ONLY 1
 #else
 #define  DWC_HOST_ONLY 1
 #define CONFIG_USB_HOST_ONLY 1
@@ -128,7 +128,7 @@
 #undef  CONFIG_DEBUG_LOG_I2S_HAL
 #undef CONFIG_NFC_EN
 #undef CONFIG_NFC_NORMAL
-#undef  CONFIG_NFC_TEST 
+#undef  CONFIG_NFC_TEST
 #undef CONFIG_NFC_MODULE
 #define CONFIG_SOC_PS_EN 1
 #define CONFIG_SOC_PS_NORMAL 1
@@ -138,7 +138,7 @@
 #define CONFIG_CRYPTO_NORMAL 1
 #undef  CONFIG_CRYPTO_TEST
 #define CONFIG_CRYPTO_MODULE 1
-#define CONFIG_MII_EN	1
+#define CONFIG_MII_EN   1
 #define CONFIG_PWM_EN 1
 #define CONFIG_PWM_NORMAL 1
 #undef  CONFIG_PWM_TEST
@@ -164,7 +164,7 @@
 #undef  CONFIG_BTBX_EN
 
 /*
- * < Engineer Mode Config 
+ * < Engineer Mode Config
  */
 #undef  CONFIG_JTAG
 #undef  CONFIG_COMPILE_FLASH_DOWNLOAD_CODE
@@ -172,7 +172,7 @@
 #undef  CONFIG_CMSIS_MATH_LIB_EN
 
 /*
- * < Application Config 
+ * < Application Config
  */
 #define CONFIG_NETWORK 1
 #define CONFIG_RTLIB_EN 1
@@ -181,7 +181,7 @@
 #define CONFIG_RTLIB_MODULE 1
 
 /*
- * < System Debug Message Config 
+ * < System Debug Message Config
  */
 #define CONFIG_UART_LOG_HISTORY 1
 #undef  CONFIG_CONSOLE_NORMALL_MODE
@@ -192,17 +192,17 @@
 #undef  CONFIG_DEBUG_INFO_MSG
 
 /*
- * < SDK Option Config 
+ * < SDK Option Config
  */
 //#undef  CONFIG_MBED_ENABLED
 #ifdef CONFIG_MBED_ENABLED
 #undef PLATFORM_FREERTOS
-#define PLATFORM_CMSIS_RTOS 	1
+#define PLATFORM_CMSIS_RTOS     1
 #endif
 #undef  CONFIG_APP_DEMO
 
 /*
- * < Select Chip Version 
+ * < Select Chip Version
  */
 #undef  CONFIG_CHIP_A_CUT
 #define CONFIG_CHIP_B_CUT 1
@@ -210,13 +210,13 @@
 #undef  CONFIG_CHIP_E_CUT
 
 /*
- * < Select toolchain 
+ * < Select toolchain
  */
 #undef  CONFIG_TOOLCHAIN_ASDK
 #undef  CONFIG_TOOLCHAIN_ARM_GCC
 
 /*
- * < Build Option 
+ * < Build Option
  */
 #define CONFIG_LINK_ROM_LIB 1
 #undef  CONFIG_LINK_ROM_SYMB

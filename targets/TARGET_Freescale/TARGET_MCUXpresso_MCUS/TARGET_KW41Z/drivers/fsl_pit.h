@@ -51,8 +51,7 @@
  * @brief List of PIT channels
  * @note Actual number of available channels is SoC dependent
  */
-typedef enum _pit_chnl
-{
+typedef enum _pit_chnl {
     kPIT_Chnl_0 = 0U, /*!< PIT channel number 0*/
     kPIT_Chnl_1,      /*!< PIT channel number 1 */
     kPIT_Chnl_2,      /*!< PIT channel number 2 */
@@ -60,14 +59,12 @@ typedef enum _pit_chnl
 } pit_chnl_t;
 
 /*! @brief List of PIT interrupts */
-typedef enum _pit_interrupt_enable
-{
+typedef enum _pit_interrupt_enable {
     kPIT_TimerInterruptEnable = PIT_TCTRL_TIE_MASK, /*!< Timer interrupt enable*/
 } pit_interrupt_enable_t;
 
 /*! @brief List of PIT status flags */
-typedef enum _pit_status_flags
-{
+typedef enum _pit_status_flags {
     kPIT_TimerFlag = PIT_TFLG_TIF_MASK, /*!< Timer flag */
 } pit_status_flags_t;
 
@@ -80,8 +77,7 @@ typedef enum _pit_status_flags
  *
  * The config struct can be made const so it resides in flash
  */
-typedef struct _pit_config
-{
+typedef struct _pit_config {
     bool enableRunInDebug; /*!< true: Timers run in debug mode; false: Timers stop in debug mode */
 } pit_config_t;
 
@@ -151,12 +147,9 @@ static inline void PIT_GetDefaultConfig(pit_config_t *config)
  */
 static inline void PIT_SetTimerChainMode(PIT_Type *base, pit_chnl_t channel, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CHANNEL[channel].TCTRL |= PIT_TCTRL_CHN_MASK;
-    }
-    else
-    {
+    } else {
         base->CHANNEL[channel].TCTRL &= ~PIT_TCTRL_CHN_MASK;
     }
 }

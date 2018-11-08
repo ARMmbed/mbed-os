@@ -5,11 +5,11 @@
 USBSerial serial;
 DigitalOut l1(LED1);
 
-int main(void) {
+int main(void)
+{
     int i = 0;
 
-    while(1)
-    {
+    while (1) {
         l1 = !l1;
         printf("Hello\r\n");
         serial.printf("I am a virtual serial port: %d\r\n", i++);

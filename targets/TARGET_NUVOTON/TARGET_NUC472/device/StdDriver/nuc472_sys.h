@@ -1051,7 +1051,7 @@ Example 1: If user want to set PA.0 as SC0_CD in initial function,
 
 /**
   * @brief      Clear Brown-out detector interrupt flag
-  * @param      None  
+  * @param      None
   * @return     None
   * @details    This macro clear Brown-out detector interrupt flag.
   */
@@ -1059,7 +1059,7 @@ Example 1: If user want to set PA.0 as SC0_CD in initial function,
 
 /**
   * @brief      Set Brown-out detector function to normal mode
-  * @param      None  
+  * @param      None
   * @return     None
   * @details    This macro set Brown-out detector to normal mode.
   */
@@ -1067,31 +1067,31 @@ Example 1: If user want to set PA.0 as SC0_CD in initial function,
 
 /**
   * @brief      Disable Brown-out detector function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro disable Brown-out detector function.  
+  * @details    This macro disable Brown-out detector function.
   */
-#define SYS_DISABLE_BOD()               (SYS->BODCTL &= ~SYS_BODCTL_BODEN_Msk)     
+#define SYS_DISABLE_BOD()               (SYS->BODCTL &= ~SYS_BODCTL_BODEN_Msk)
 
 /**
   * @brief      Enable Brown-out detector function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro enable Brown-out detector function.  
+  * @details    This macro enable Brown-out detector function.
   */
 #define SYS_ENABLE_BOD()                (SYS->BODCTL |= SYS_BODCTL_BODEN_Msk)
 /**
   * @brief      Get Brown-out detector interrupt flag
-  * @param      None    
+  * @param      None
   * @retval     0   Brown-out detect interrupt flag is not set.
   * @retval     >=1 Brown-out detect interrupt flag is set.
-  * @details    This macro get Brown-out detector interrupt flag.    
+  * @details    This macro get Brown-out detector interrupt flag.
   */
-#define SYS_GET_BOD_INT_FLAG()          (SYS->BODCTL & SYS_BODCTL_BODINTF_Msk)    
+#define SYS_GET_BOD_INT_FLAG()          (SYS->BODCTL & SYS_BODCTL_BODINTF_Msk)
 
 /**
   * @brief      Get Brown-out detector status
-  * @param      None 
+  * @param      None
   * @retval     0   System voltage is higher than BOD_VL setting or BOD_EN is 0.
   * @retval     >=1 System voltage is lower than BOD_VL setting.
   * @details    This macro get Brown-out detector output status.
@@ -1101,7 +1101,7 @@ Example 1: If user want to set PA.0 as SC0_CD in initial function,
 
 /**
   * @brief      Disable Brown-out detector interrupt function
-  * @param      None   
+  * @param      None
   * @return     None
   * @details    This macro enable Brown-out detector interrupt function.
   */
@@ -1109,18 +1109,18 @@ Example 1: If user want to set PA.0 as SC0_CD in initial function,
 
 /**
   * @brief      Enable Brown-out detector reset function
-  * @param      None     
+  * @param      None
   * @return     None
-  * @details    This macro enable Brown-out detect reset function.  
+  * @details    This macro enable Brown-out detect reset function.
   */
 #define SYS_ENABLE_BOD_RST()            (SYS->BODCTL |= SYS_BODCTL_BODRSTEN_Msk)
 
 
 /**
-  * @brief      Set Brown-out detector function low power mode 
-  * @param      None     
+  * @brief      Set Brown-out detector function low power mode
+  * @param      None
   * @return     None
-  * @details    This macro set Brown-out detector to low power mode.  
+  * @details    This macro set Brown-out detector to low power mode.
   */
 #define SYS_SET_BOD_LPM()               (SYS->BODCTL |= SYS_BODCTL_BODLPM_Msk)
 
@@ -1132,61 +1132,61 @@ Example 1: If user want to set PA.0 as SC0_CD in initial function,
   *             - \ref SYS_BODCTL_BODVL_2_7V
   *             - \ref SYS_BODCTL_BODVL_2_2V
   * @return     None
-  * @details    This macro set Brown-out detector voltage level.  
+  * @details    This macro set Brown-out detector voltage level.
   */
-#define SYS_SET_BOD_LEVEL(u32Level)     (SYS->BODCTL = (SYS->BODCTL & ~SYS_BODCTL_BODVL_Msk) | u32Level) 
+#define SYS_SET_BOD_LEVEL(u32Level)     (SYS->BODCTL = (SYS->BODCTL & ~SYS_BODCTL_BODVL_Msk) | u32Level)
 
 /**
   * @brief      Get reset source is from Brown-out detector reset
-  * @param      None    
+  * @param      None
   * @retval     0   Previous reset source is not from Brown-out detector reset
   * @retval     >=1 Previous reset source is from Brown-out detector reset
-  * @details    This macro get previous reset source is from Brown-out detect reset or not.    
+  * @details    This macro get previous reset source is from Brown-out detect reset or not.
   */
 #define SYS_IS_BOD_RST()                (SYS->RSTSTS & SYS_RSTSTS_BODRF_Msk)
 
 /**
   * @brief      Get reset source is from CPU reset
-  * @param      None     
+  * @param      None
   * @retval     0   Previous reset source is not from CPU reset
   * @retval     >=1 Previous reset source is from CPU reset
-  * @details    This macro get previous reset source is from CPU reset. 
+  * @details    This macro get previous reset source is from CPU reset.
   */
 #define SYS_IS_CPU_RST()                (SYS->RSTSTS & SYS_RSTSTS_CPURF_Msk)
 
 /**
   * @brief      Get reset source is from LVR Reset
-  * @param      None     
+  * @param      None
   * @retval     0   Previous reset source is not from LVR Reset
   * @retval     >=1 Previous reset source is from LVR Reset
-  * @details    This macro get previous reset source is from Power-on Reset.   
+  * @details    This macro get previous reset source is from Power-on Reset.
   */
 #define SYS_IS_LVR_RST()                (SYS->RSTSTS & SYS_RSTSTS_LVRF_Msk)
 
 /**
   * @brief      Get reset source is from Power-on Reset
-  * @param      None     
+  * @param      None
   * @retval     0   Previous reset source is not from Power-on Reset
   * @retval     >=1 Previous reset source is from Power-on Reset
-  * @details    This macro get previous reset source is from Power-on Reset.   
+  * @details    This macro get previous reset source is from Power-on Reset.
   */
 #define SYS_IS_POR_RST()                (SYS->RSTSTS & SYS_RSTSTS_PORF_Msk)
 
 /**
   * @brief      Get reset source is from reset pin reset
-  * @param      None     
+  * @param      None
   * @retval     0   Previous reset source is not from reset pin reset
   * @retval     >=1 Previous reset source is from reset pin reset
-  * @details    This macro get previous reset source is from reset pin reset.  
+  * @details    This macro get previous reset source is from reset pin reset.
   */
 #define SYS_IS_RSTPIN_RST()             (SYS->RSTSTS & SYS_RSTSTS_PINRF_Msk)
 
 /**
   * @brief      Get reset source is from system reset
-  * @param      None     
+  * @param      None
   * @retval     0   Previous reset source is not from system reset
   * @retval     >=1 Previous reset source is from system reset
-  * @details    This macro get previous reset source is from system reset.   
+  * @details    This macro get previous reset source is from system reset.
   */
 #define SYS_IS_SYSTEM_RST()             (SYS->RSTSTS & SYS_RSTSTS_SYSRF_Msk)
 
@@ -1195,39 +1195,39 @@ Example 1: If user want to set PA.0 as SC0_CD in initial function,
   * @param      None
   * @retval     0   Previous reset source is not from window watch dog reset
   * @retval     >=1 Previous reset source is from window watch dog reset
-  * @details    This macro get previous reset source is from window watch dog reset.    
+  * @details    This macro get previous reset source is from window watch dog reset.
   */
 #define SYS_IS_WDT_RST()                (SYS->RSTSTS & SYS_RSTSTS_WDTRF_Msk)
 
 /**
   * @brief      Disable Low-Voltage-Reset function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro disable Low-Voltage-Reset function.      
+  * @details    This macro disable Low-Voltage-Reset function.
   */
 #define SYS_DISABLE_LVR()               (SYS->BODCTL &= ~SYS_BODCTL_LVREN_Msk)
 
 /**
   * @brief      Enable Low-Voltage-Reset function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro enable Low-Voltage-Reset function.  
+  * @details    This macro enable Low-Voltage-Reset function.
   */
 #define SYS_ENABLE_LVR()                (SYS->BODCTL |= SYS_BODCTL_LVREN_Msk)
 
 /**
   * @brief      Disable Power-on Reset function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro disable Power-on Reset function.  
+  * @details    This macro disable Power-on Reset function.
   */
 #define SYS_DISABLE_POR()               (SYS->PORCTL = 0x5AA5)
 
 /**
   * @brief      Enable Power-on Reset function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro enable Power-on Reset function.  
+  * @details    This macro enable Power-on Reset function.
   */
 #define SYS_ENABLE_POR()                (SYS->PORCTL = 0)
 
@@ -1236,14 +1236,14 @@ Example 1: If user want to set PA.0 as SC0_CD in initial function,
   * @brief      Clear reset source flag
   * @param[in]  u32RstSrc is reset source. Including:
   *             - \ref SYS_RSTSTS_PORF_Msk
-  *             - \ref SYS_RSTSTS_PINRF_Msk  
+  *             - \ref SYS_RSTSTS_PINRF_Msk
   *             - \ref SYS_RSTSTS_WDTRF_Msk
-  *             - \ref SYS_RSTSTS_LVRF_Msk 
-  *             - \ref SYS_RSTSTS_BODRF_Msk 
-  *             - \ref SYS_RSTSTS_SYSRF_Msk   
-	*             - \ref SYS_RSTSTS_CPURF_Msk
+  *             - \ref SYS_RSTSTS_LVRF_Msk
+  *             - \ref SYS_RSTSTS_BODRF_Msk
+  *             - \ref SYS_RSTSTS_SYSRF_Msk
+    *             - \ref SYS_RSTSTS_CPURF_Msk
   * @return     None
-  * @details    This macro clear reset source flag.   
+  * @details    This macro clear reset source flag.
   */
 #define SYS_CLEAR_RST_SOURCE(u32RstSrc) (SYS->RSTSTS = u32RstSrc )
 

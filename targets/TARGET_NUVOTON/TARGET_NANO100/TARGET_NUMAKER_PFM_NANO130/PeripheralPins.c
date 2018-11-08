@@ -31,7 +31,7 @@ const PinMap PinMap_ADC[] = {
     {PD_1, ADC_0_9, SYS_PD_L_MFP_PD1_MFP_ADC_CH9},
     {PD_2, ADC_0_10, SYS_PD_L_MFP_PD2_MFP_ADC_CH10},
     {PD_3, ADC_0_11, SYS_PD_L_MFP_PD3_MFP_ADC_CH11},
-    
+
     {NC,   NC,    0}
 };
 
@@ -45,7 +45,7 @@ const PinMap PinMap_I2C_SDA[] = {
     {PC_8, I2C_1, SYS_PC_H_MFP_PC8_MFP_I2C1_SDA},
     {PC_12, I2C_0, SYS_PC_H_MFP_PC12_MFP_I2C0_SDA},
     {PF_4, I2C_0, SYS_PF_L_MFP_PF4_MFP_I2C0_SDA},
-    
+
     {NC,    NC,    0}
 };
 
@@ -57,7 +57,7 @@ const PinMap PinMap_I2C_SCL[] = {
     {PC_9, I2C_1, SYS_PC_H_MFP_PC9_MFP_I2C1_SCL},
     {PC_13, I2C_0, SYS_PC_H_MFP_PC13_MFP_I2C0_SCL},
     {PF_5, I2C_0, SYS_PF_L_MFP_PF5_MFP_I2C0_SCL},
-    
+
     {NC,    NC,    0}
 };
 
@@ -94,7 +94,7 @@ const PinMap PinMap_UART_TX[] = {
     {PC_11, UART_1, SYS_PC_H_MFP_PC11_MFP_UART1_TX},
     {PD_1, UART_1, SYS_PD_L_MFP_PD1_MFP_UART1_TX},
     {PE_10, UART_1, SYS_PE_H_MFP_PE10_MFP_UART1_TX},
-    
+
     {NC,    NC,     0}
 };
 
@@ -106,7 +106,7 @@ const PinMap PinMap_UART_RX[] = {
     {PC_10, UART_1, SYS_PC_H_MFP_PC10_MFP_UART1_RX},
     {PD_0, UART_1, SYS_PD_L_MFP_PD0_MFP_UART1_RX},
     {PE_9, UART_1, SYS_PE_H_MFP_PE9_MFP_UART1_RX},
-    
+
     {NC,    NC,     0}
 };
 
@@ -115,7 +115,7 @@ const PinMap PinMap_UART_RTS[] = {
     {PB_6, UART_1, SYS_PB_L_MFP_PB6_MFP_UART1_RTS},
     {PD_2, UART_1, SYS_PD_L_MFP_PD2_MFP_UART1_RTS},
     {PE_11, UART_1, SYS_PE_H_MFP_PE11_MFP_UART1_RTS},
-    
+
     {NC,    NC,     0}
 };
 
@@ -124,7 +124,7 @@ const PinMap PinMap_UART_CTS[] = {
     {PB_7, UART_1, SYS_PB_L_MFP_PB7_MFP_UART1_CTS},
     {PD_3, UART_1, SYS_PD_L_MFP_PD3_MFP_UART1_CTS},
     {PE_12, UART_1, SYS_PE_H_MFP_PE12_MFP_UART1_CTS},
-    
+
     {NC,    NC,     0}
 };
 
@@ -142,7 +142,7 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PD_3, SPI_2, SYS_PD_L_MFP_PD3_MFP_SPI2_MOSI0},
     {PD_5, SPI_2, SYS_PD_L_MFP_PD5_MFP_SPI2_MOSI1},
     {PE_4, SPI_0, SYS_PE_L_MFP_PE4_MFP_SPI0_MOSI0},
-    
+
     {NC,    NC,    0}
 };
 
@@ -158,7 +158,7 @@ const PinMap PinMap_SPI_MISO[] = {
     {PD_2, SPI_2, SYS_PD_L_MFP_PD2_MFP_SPI2_MISO0},
     {PD_4, SPI_2, SYS_PD_L_MFP_PD4_MFP_SPI2_MISO1},
     {PE_3, SPI_0, SYS_PE_L_MFP_PE3_MFP_SPI0_MISO0},
-    
+
     {NC,    NC,    0}
 };
 
@@ -170,7 +170,7 @@ const PinMap PinMap_SPI_SCLK[] = {
     {PC_9, SPI_1, SYS_PC_H_MFP_PC9_MFP_SPI1_SCLK},
     {PD_1, SPI_2, SYS_PD_L_MFP_PD1_MFP_SPI2_SCLK},
     {PE_2, SPI_0, SYS_PE_L_MFP_PE2_MFP_SPI0_SCLK},
-    
+
     {NC,    NC,    0}
 };
 
@@ -185,6 +185,6 @@ const PinMap PinMap_SPI_SSEL[] = {
     {PC_8, SPI_1, SYS_PC_H_MFP_PC8_MFP_SPI1_SS0},
     {PD_0, SPI_2, SYS_PD_L_MFP_PD0_MFP_SPI2_SS0},
     {PE_1, SPI_0, SYS_PE_L_MFP_PE1_MFP_SPI0_SS0},
-    
+
     {NC,    NC,    0}
 };

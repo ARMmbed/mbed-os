@@ -231,9 +231,9 @@ extern "C"
   * @param[in] acmp The base address of ACMP module
   * @param[in] u32ChNum The ACMP number, could 0, 1, or 2
   * @param[in] u32Pin The input pin. For channel 0, valid values are \ref ACMP_CH0_POSPIN_P0,
-  *            \ref ACMP_CH0_POSPIN_P1, \ref ACMP_CH0_POSPIN_P2, \ref ACMP_CH0_POSPIN_P3, and \ref ACMP_CH0_POS_OPA0. 
-  *            For channel 1, valid values are , \ref ACMP_CH1_POSPIN_P0, \ref ACMP_CH1_POSPIN_P1, \ref ACMP_CH1_POSPIN_P2, 
-  *            \ref ACMP_CH1_POSPIN_P3, and \ref ACMP_CH1_POS_OPA1. For channel 2, valid values are , \ref ACMP_CH2_POSPIN_P0, 
+  *            \ref ACMP_CH0_POSPIN_P1, \ref ACMP_CH0_POSPIN_P2, \ref ACMP_CH0_POSPIN_P3, and \ref ACMP_CH0_POS_OPA0.
+  *            For channel 1, valid values are , \ref ACMP_CH1_POSPIN_P0, \ref ACMP_CH1_POSPIN_P1, \ref ACMP_CH1_POSPIN_P2,
+  *            \ref ACMP_CH1_POSPIN_P3, and \ref ACMP_CH1_POS_OPA1. For channel 2, valid values are , \ref ACMP_CH2_POSPIN_P0,
   *            \ref ACMP_CH2_POSPIN_P1, \ref ACMP_CH2_POSPIN_P2, and \ref ACMP_CH2_POSPIN_P3.
   * @return   None
   * @note   Except this setting, multi-function pin also needs to be configured

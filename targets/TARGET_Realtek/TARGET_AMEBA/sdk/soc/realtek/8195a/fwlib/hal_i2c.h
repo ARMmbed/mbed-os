@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -27,10 +27,10 @@
 
 // I2C supports user register address
 #define I2C_USER_REG_ADDR           1       //I2C User specific register address by using 
-                                            //the first I2C data as the register 
-                                            //address
-                                            
-// I2C SAL used module. Please set the I2C module flag to 1 to enable the related 
+//the first I2C data as the register
+//address
+
+// I2C SAL used module. Please set the I2C module flag to 1 to enable the related
 // I2C module functions.
 #define I2C0_USED                   1
 #define I2C1_USED                   1
@@ -48,47 +48,47 @@ typedef enum _I2C_DBG_LVL_ {
     HAL_I2C_LVL         =   0x01,
     SAL_I2C_LVL         =   0x02,
     VERI_I2C_LVL        =   0x03,
-}I2C_DBG_LVL,*PI2C_DBG_LVL;
+} I2C_DBG_LVL, *PI2C_DBG_LVL;
 
 #ifdef CONFIG_DEBUG_LOG
 #ifdef CONFIG_DEBUG_LOG_I2C_HAL
 #define DBG_I2C_LOG_PERD    100
 
-    #define I2CDBGLVL   0xFF
-    #define DBG_8195A_I2C(...)  do{ \
+#define I2CDBGLVL   0xFF
+#define DBG_8195A_I2C(...)  do{ \
                                     _DbgDump("\r"I2C_PREFIX __VA_ARGS__);\
                                 }while(0)
-   
-    #define DBG_8195A_I2C_LVL(LVL,...)  do{\
+
+#define DBG_8195A_I2C_LVL(LVL,...)  do{\
                                             if (LVL&I2CDBGLVL){\
                                                 _DbgDump("\r"I2C_PREFIX_LVL __VA_ARGS__);\
                                             }\
                                         }while(0)
 #else
-    #define DBG_I2C_LOG_PERD    100
-    #define DBG_8195A_I2C(...)
-    #define DBG_8195A_I2C_LVL(...)
+#define DBG_I2C_LOG_PERD    100
+#define DBG_8195A_I2C(...)
+#define DBG_8195A_I2C_LVL(...)
 #endif
 #else
-    #define DBG_I2C_LOG_PERD    100
-    #define DBG_8195A_I2C(...)
-    #define DBG_8195A_I2C_LVL(...)
+#define DBG_I2C_LOG_PERD    100
+#define DBG_8195A_I2C(...)
+#define DBG_8195A_I2C_LVL(...)
 #endif
 
 #define I2C_MTR_RTY_CNT     1024
 //======================================================
 // I2C HAL related enumeration
-// I2C Module Selection 
+// I2C Module Selection
 enum _I2C_MODULE_SEL_ {
-        I2C0_SEL    =   0x0,
-        I2C1_SEL    =   0x1,
-        I2C2_SEL    =   0x2,
-        I2C3_SEL    =   0x3,
+    I2C0_SEL    =   0x0,
+    I2C1_SEL    =   0x1,
+    I2C2_SEL    =   0x2,
+    I2C3_SEL    =   0x3,
 };
 typedef uint32_t I2C_MODULE_SEL;
 typedef uint32_t *PI2C_MODULE_SEL;
 
-// I2C HAL initial data structure 
+// I2C HAL initial data structure
 typedef struct _HAL_I2C_INIT_DAT_ {
     u8                  I2CIdx;         //I2C index used
     u8                  I2CEn;          //I2C module enable
@@ -112,16 +112,16 @@ typedef struct _HAL_I2C_INIT_DAT_ {
 
     u8                  I2CSlvAckGC;    //I2C slave acks to General Call
     u8                  I2CStop;        //I2C issues STOP bit or not
-    u16                 RSVD0;          //Bit0: used to control HalI2CMassSendRtl8195a_Patch sending 
-                                        //      RESTART or not by upper layer SW.
-    
+    u16                 RSVD0;          //Bit0: used to control HalI2CMassSendRtl8195a_Patch sending
+    //      RESTART or not by upper layer SW.
+
     u8                  *I2CRWData;     //I2C Read/Write data pointer
 
     u16                 I2CIntrMSK;     //I2C Interrupt Mask
-    u16                 I2CIntrClr;     //I2C Interrupt register to clear 
+    u16                 I2CIntrClr;     //I2C Interrupt register to clear
 
     u16                 I2CAckAddr;     //I2C target address in I2C Master mode,
-                                        //ack address in I2C Slave mode    
+    //ack address in I2C Slave mode
     u16                 I2CSdaHd;       //I2C SDA hold time
 
     u32                 I2CClk;         //I2C bus clock (in kHz)
@@ -129,24 +129,24 @@ typedef struct _HAL_I2C_INIT_DAT_ {
     u8                  I2CTxDMARqLv;   //I2C TX DMA Empty Level
     u8                  I2CRxDMARqLv;   //I2C RX DMA Full Level
     u16                 RSVD1;          //Reserved
-}HAL_I2C_INIT_DAT,*PHAL_I2C_INIT_DAT;
+} HAL_I2C_INIT_DAT, *PHAL_I2C_INIT_DAT;
 
 // I2C HAL Operations
 typedef struct _HAL_I2C_OP_ {
-    HAL_Status  (*HalI2CInit)       (VOID *Data);   //HAL I2C initialization
-    HAL_Status  (*HalI2CDeInit)     (VOID *Data);   //HAL I2C de-initialization
-    HAL_Status  (*HalI2CSend)       (VOID *Data);   //HAL I2C send
-    u8          (*HalI2CReceive)    (VOID *Data);   //HAL I2C receive
-    HAL_Status  (*HalI2CEnable)     (VOID *Data);   //HAL I2C enable module
-    HAL_Status  (*HalI2CIntrCtrl)   (VOID *Data);   //HAL I2C interrupt control
-    u32         (*HalI2CReadReg)    (VOID *Data, u8 I2CReg);//HAL I2C read register
-    HAL_Status  (*HalI2CWriteReg)   (VOID *Data, u8 I2CReg, u32 RegVal);//HAL I2C write register
-    HAL_Status  (*HalI2CSetCLK)     (VOID *Data);   //HAL I2C set bus clock
-    HAL_Status  (*HalI2CMassSend)   (VOID *Data);   //HAL I2C mass send
-    HAL_Status  (*HalI2CClrIntr)    (VOID *Data);   //HAL I2C clear interrupts
-    HAL_Status  (*HalI2CClrAllIntr) (VOID *Data);   //HAL I2C clear all interrupts
-    HAL_Status  (*HalI2CDMACtrl)    (VOID *Data);   //HAL I2C DMA control
-}HAL_I2C_OP, *PHAL_I2C_OP;
+    HAL_Status(*HalI2CInit)(VOID *Data);            //HAL I2C initialization
+    HAL_Status(*HalI2CDeInit)(VOID *Data);          //HAL I2C de-initialization
+    HAL_Status(*HalI2CSend)(VOID *Data);            //HAL I2C send
+    u8(*HalI2CReceive)(VOID *Data);                 //HAL I2C receive
+    HAL_Status(*HalI2CEnable)(VOID *Data);          //HAL I2C enable module
+    HAL_Status(*HalI2CIntrCtrl)(VOID *Data);        //HAL I2C interrupt control
+    u32(*HalI2CReadReg)(VOID *Data, u8 I2CReg);             //HAL I2C read register
+    HAL_Status(*HalI2CWriteReg)(VOID *Data, u8 I2CReg, u32 RegVal);     //HAL I2C write register
+    HAL_Status(*HalI2CSetCLK)(VOID *Data);          //HAL I2C set bus clock
+    HAL_Status(*HalI2CMassSend)(VOID *Data);        //HAL I2C mass send
+    HAL_Status(*HalI2CClrIntr)(VOID *Data);         //HAL I2C clear interrupts
+    HAL_Status(*HalI2CClrAllIntr)(VOID *Data);      //HAL I2C clear all interrupts
+    HAL_Status(*HalI2CDMACtrl)(VOID *Data);         //HAL I2C DMA control
+} HAL_I2C_OP, *PHAL_I2C_OP;
 //================= I2C HAL END   ===========================
 
 
@@ -156,7 +156,7 @@ typedef struct _HAL_I2C_OP_ {
 //======================================================
 // I2C SAL related enumerations
 // I2C Extend Features
-enum _I2C_EXD_SUPPORT_{
+enum _I2C_EXD_SUPPORT_ {
     I2C_EXD_RESTART     =   0x1,            //BIT_0, RESTART bit
     I2C_EXD_GENCALL     =   0x2,            //BIT_1, Master generates General Call. All "send" operations generate General Call addresss
     I2C_EXD_STARTB      =   0x4,            //BIT_2, Using START BYTE, instead of START Bit
@@ -165,11 +165,11 @@ enum _I2C_EXD_SUPPORT_{
     I2C_EXD_SLVACKGC    =   0x20,           //BIT_5, Slave acks to a General Call
     I2C_EXD_USER_REG    =   0x40,           //BIT_6, Using User Register Address
     I2C_EXD_USER_TWOB   =   0x80,           //BIT_7, User Register Address is 2-byte
-    I2C_EXD_MTR_ADDR_RTY=   0x100,          //BIT_8, Master retries to send start condition and Slave address when the slave doesn't ack 
-                                            //         the address.
-    I2C_EXD_MTR_ADDR_UPD=   0x200,         //BIT_9, Master dynamically updates slave address
-    I2C_EXD_MTR_HOLD_BUS=   0x400,         //BIT_10, Master doesn't generate STOP when the FIFO is empty. This would make Master hold
-                                            //         the bus.
+    I2C_EXD_MTR_ADDR_RTY =   0x100,         //BIT_8, Master retries to send start condition and Slave address when the slave doesn't ack
+    //         the address.
+    I2C_EXD_MTR_ADDR_UPD =   0x200,        //BIT_9, Master dynamically updates slave address
+    I2C_EXD_MTR_HOLD_BUS =   0x400,        //BIT_10, Master doesn't generate STOP when the FIFO is empty. This would make Master hold
+    //         the bus.
 };
 typedef uint32_t I2C_EXD_SUPPORT;
 typedef uint32_t *PI2C_EXD_SUPPORT;
@@ -183,7 +183,7 @@ enum _I2C_OP_TYPE_ {
 typedef uint32_t I2C_OP_TYPE;
 typedef uint32_t *PI2C_OP_TYPE;
 
-// I2C pinmux selection 
+// I2C pinmux selection
 enum _I2C_PINMUX_ {
     I2C_PIN_S0      =   0x0,
     I2C_PIN_S1      =   0x1,
@@ -193,7 +193,7 @@ enum _I2C_PINMUX_ {
 typedef uint32_t I2C_PINMUX;
 typedef uint32_t *PI2C_PINMUX;
 
-// I2C module status 
+// I2C module status
 enum _I2C_MODULE_STATUS_ {
     I2C_DISABLE     =   0x0,
     I2C_ENABLE      =   0x1,
@@ -201,26 +201,26 @@ enum _I2C_MODULE_STATUS_ {
 typedef uint32_t I2C_MODULE_STATUS;
 typedef uint32_t *PI2C_MODULE_STATUS;
 
-// I2C device status 
+// I2C device status
 enum _I2C_Device_STATUS_ {
     I2C_STS_UNINITIAL   =   0x00,
     I2C_STS_INITIALIZED =   0x01,
     I2C_STS_IDLE        =   0x02,
-    
-    I2C_STS_TX_READY    =   0x03,    
+
+    I2C_STS_TX_READY    =   0x03,
     I2C_STS_TX_ING      =   0x04,
-    
+
     I2C_STS_RX_READY    =   0x05,
     I2C_STS_RX_ING      =   0x06,
 
     I2C_STS_ERROR       =   0x10,
-    I2C_STS_TIMEOUT     =   0x11, 
+    I2C_STS_TIMEOUT     =   0x11,
 };
 typedef uint32_t I2C_Device_STATUS;
 typedef uint32_t *PI2C_Device_STATUS;
 
-// I2C feature status 
-enum _I2C_FEATURE_STATUS_{
+// I2C feature status
+enum _I2C_FEATURE_STATUS_ {
     I2C_FEATURE_DISABLED    =   0,
     I2C_FEATURE_ENABLED     =   1,
 };
@@ -284,7 +284,7 @@ enum _I2C1_DMA_MODULE_ {
 typedef uint32_t I2C1_DMA_MODULE;
 typedef uint32_t *PI2C1_DMA_MODULE;
 
-// I2C command type 
+// I2C command type
 enum _I2C_COMMAND_TYPE_ {
     I2C_WRITE_CMD   =   0x0,
     I2C_READ_CMD    =   0x1,
@@ -292,7 +292,7 @@ enum _I2C_COMMAND_TYPE_ {
 typedef uint32_t I2C_COMMAND_TYPE;
 typedef uint32_t *PI2C_COMMAND_TYPE;
 
-// I2C STOP BIT 
+// I2C STOP BIT
 enum _I2C_STOP_TYPE_ {
     I2C_STOP_DIS    =   0x0,
     I2C_STOP_EN     =   0x1,
@@ -300,14 +300,14 @@ enum _I2C_STOP_TYPE_ {
 typedef uint32_t I2C_STOP_TYPE;
 typedef uint32_t *PI2C_STOP_TYPE;
 
-// I2C error type 
+// I2C error type
 enum _I2C_ERR_TYPE_ {
     I2C_ERR_RX_UNDER    =   0x01,           //I2C RX FIFO Underflow
     I2C_ERR_RX_OVER     =   0x02,           //I2C RX FIFO Overflow
     I2C_ERR_TX_OVER     =   0x04,           //I2C TX FIFO Overflow
     I2C_ERR_TX_ABRT     =   0x08,           //I2C TX terminated
-    I2C_ERR_SLV_TX_NACK =   0x10,           //I2C slave transmission terminated by master NACK, 
-                                            //but there are data in slave TX FIFO
+    I2C_ERR_SLV_TX_NACK =   0x10,           //I2C slave transmission terminated by master NACK,
+    //but there are data in slave TX FIFO
     I2C_ERR_MST_A_NACK  =   0x12,
     I2C_ERR_MST_D_NACK  =   0x13,
     I2C_ERR_USER_REG_TO =   0x20,
@@ -325,7 +325,7 @@ typedef uint32_t *PI2C_ERR_TYPE;
 
 // I2C Time Out type
 enum _I2C_TIMEOUT_TYPE_ {
-    I2C_TIMEOOUT_DISABLE    =   0x00,           
+    I2C_TIMEOOUT_DISABLE    =   0x00,
     I2C_TIMEOOUT_ENDLESS    =   0xFFFFFFFF,
 };
 typedef uint32_t I2C_TIMEOUT_TYPE;
@@ -335,9 +335,9 @@ typedef uint32_t *PI2C_TIMEOUT_TYPE;
 // SAL I2C related data structures
 // I2C user callback adapter
 typedef struct _SAL_I2C_USERCB_ADPT_ {
-    VOID (*USERCB)      (VOID *Data);
+    VOID (*USERCB)(VOID *Data);
     u32  USERData;
-}SAL_I2C_USERCB_ADPT, *PSAL_I2C_USERCB_ADPT;
+} SAL_I2C_USERCB_ADPT, *PSAL_I2C_USERCB_ADPT;
 
 // I2C user callback structure
 typedef struct _SAL_I2C_USER_CB_ {
@@ -352,7 +352,7 @@ typedef struct _SAL_I2C_USER_CB_ {
     PSAL_I2C_USERCB_ADPT    pDMARXCB;       //I2C DMA Receive Callback
     PSAL_I2C_USERCB_ADPT    pDMARXCCB;      //I2C DMA Receive Complete Callback
     PSAL_I2C_USERCB_ADPT    pGENCALLCB;     //I2C General Call Callback
-}SAL_I2C_USER_CB, *PSAL_I2C_USER_CB;
+} SAL_I2C_USER_CB, *PSAL_I2C_USER_CB;
 
 // I2C Transmit Buffer
 typedef struct _SAL_I2C_TRANSFER_BUF_ {
@@ -361,7 +361,7 @@ typedef struct _SAL_I2C_TRANSFER_BUF_ {
     u32     RegAddr;                        //I2C Register Address. It's only valid in Master Mode.
     u32     RSVD;                           //
     u8      *pDataBuf;                      //I2C Transfer Buffer Pointer
-}SAL_I2C_TRANSFER_BUF,*PSAL_I2C_TRANSFER_BUF;
+} SAL_I2C_TRANSFER_BUF, *PSAL_I2C_TRANSFER_BUF;
 
 typedef struct _SAL_I2C_DMA_USER_DEF_ {
     u8      TxDatSrcWdth;
@@ -378,83 +378,83 @@ typedef struct _SAL_I2C_DMA_USER_DEF_ {
     u8      RxChNo;
     u8      RSVD2;
     u16     RSVD3;
-}SAL_I2C_DMA_USER_DEF, *PSAL_I2C_DMA_USER_DEF;
+} SAL_I2C_DMA_USER_DEF, *PSAL_I2C_DMA_USER_DEF;
 
 // RTK I2C OP
 typedef struct _RTK_I2C_OP_ {
-    HAL_Status (*Init)      (VOID *Data);
-    HAL_Status (*DeInit)    (VOID *Data);
-    HAL_Status (*Send)      (VOID *Data);
-    HAL_Status (*Receive)   (VOID *Data);
-    HAL_Status (*IoCtrl)    (VOID *Data);
-    HAL_Status (*PowerCtrl) (VOID *Data);    
-}RTK_I2C_OP, *PRTK_I2C_OP;
+    HAL_Status(*Init)(VOID *Data);
+    HAL_Status(*DeInit)(VOID *Data);
+    HAL_Status(*Send)(VOID *Data);
+    HAL_Status(*Receive)(VOID *Data);
+    HAL_Status(*IoCtrl)(VOID *Data);
+    HAL_Status(*PowerCtrl)(VOID *Data);
+} RTK_I2C_OP, *PRTK_I2C_OP;
 
-// Software API Level I2C Handler 
+// Software API Level I2C Handler
 typedef struct _SAL_I2C_HND_ {
     u8                      DevNum;             //I2C device number
     u8                      PinMux;             //I2C pin mux seletion
     u8                      OpType;             //I2C operation type selection
     volatile u8             DevSts;             //I2C device status
-    
+
     u8                      I2CMaster;          //I2C Master or Slave mode
     u8                      I2CAddrMod;         //I2C 7-bit or 10-bit mode
     u8                      I2CSpdMod;          //I2C SS/ FS/ HS speed mode
-    u8                      I2CAckAddr;         //I2C target address in Master 
-                                                //mode or ack address in Slave
-                                                //mode
-                                                
+    u8                      I2CAckAddr;         //I2C target address in Master
+    //mode or ack address in Slave
+    //mode
+
     u16                     I2CClk;             //I2C bus clock
     u8                      MasterRead;         //I2C Master Read Supported,
-                                                //An Address will be sent before
-                                                //read data back.
-                                                
+    //An Address will be sent before
+    //read data back.
+
     u8                      I2CDmaSel;          //I2C DMA module select
-                                                //         0 for DMA0,
-                                                //         1 for DMA1
+    //         0 for DMA0,
+    //         1 for DMA1
     u8                      I2CTxDMARqLv;       //I2C TX DMA Empty Level
     u8                      I2CRxDMARqLv;       //I2C RX DMA Full Level
     u16                     RSVD0;              //Reserved
 
     u32                     AddRtyTimeOut;      //I2C TimeOut Value for master send address retry
-                                                //(Originally Reserved.)
-    
+    //(Originally Reserved.)
+
     u32                     I2CExd;             //I2C extended options:
-                                                //bit 0: I2C RESTART supported,
-                                                //          0 for NOT supported,
-                                                //          1 for supported
-                                                //bit 1: I2C General Call supported
-                                                //          0 for NOT supported,
-                                                //          1 for supported
-                                                //bit 2: I2C START Byte supported
-                                                //          0 for NOT supported,
-                                                //          1 for supported
-                                                //bit 3: I2C Slave-No-Ack
-                                                //         supported
-                                                //          0 for NOT supported,
-                                                //          1 for supported
-                                                //bit 4: I2C bus loading,
-                                                //          0 for 100pf, 
-                                                //          1  for 400pf
-                                                //bit 5: I2C slave ack to General
-                                                //         Call
-                                                //bit 6: I2C User register address
-                                                //bit 7: I2C 2-Byte User register
-                                                //         address
-                                                //bit 8: I2C slave address no ack retry,
-                                                //        It's only for Master mode,
-                                                //        when slave doesn't ack the
-                                                //        address
-                                                //bit 31~bit 8: Reserved
+    //bit 0: I2C RESTART supported,
+    //          0 for NOT supported,
+    //          1 for supported
+    //bit 1: I2C General Call supported
+    //          0 for NOT supported,
+    //          1 for supported
+    //bit 2: I2C START Byte supported
+    //          0 for NOT supported,
+    //          1 for supported
+    //bit 3: I2C Slave-No-Ack
+    //         supported
+    //          0 for NOT supported,
+    //          1 for supported
+    //bit 4: I2C bus loading,
+    //          0 for 100pf,
+    //          1  for 400pf
+    //bit 5: I2C slave ack to General
+    //         Call
+    //bit 6: I2C User register address
+    //bit 7: I2C 2-Byte User register
+    //         address
+    //bit 8: I2C slave address no ack retry,
+    //        It's only for Master mode,
+    //        when slave doesn't ack the
+    //        address
+    //bit 31~bit 8: Reserved
     u32                     ErrType;            //
     u32                     TimeOut;            //I2C IO Timeout count,  in ms
-                                                                            
+
     PHAL_I2C_INIT_DAT       pInitDat;           //Pointer to I2C initial data struct
     PSAL_I2C_TRANSFER_BUF   pTXBuf;             //Pointer to I2C TX buffer
     PSAL_I2C_TRANSFER_BUF   pRXBuf;             //Pointer to I2C RX buffer
     PSAL_I2C_USER_CB        pUserCB;            //Pointer to I2C User Callback
     PSAL_I2C_DMA_USER_DEF   pDMAConf;           //Pointer to I2C User Define DMA config
-}SAL_I2C_HND, *PSAL_I2C_HND;
+} SAL_I2C_HND, *PSAL_I2C_HND;
 
 
 
@@ -467,9 +467,10 @@ RtkI2CIdxChk(
     IN  u8  I2CIdx
 )
 {
-    if (I2CIdx > I2C3_SEL)
+    if (I2CIdx > I2C3_SEL) {
         return HAL_ERR_UNKNOWN;
-        
+    }
+
     return HAL_OK;
 }
 #if 0
@@ -481,17 +482,20 @@ RtkI2COpTypeChk(
 {
     PSAL_I2C_HND    pSalI2CHND = (PSAL_I2C_HND) Data;
 
-    if (pSalI2CHND->OpType == I2C_POLL_TYPE)
+    if (pSalI2CHND->OpType == I2C_POLL_TYPE) {
         return HAL_ERR_UNKNOWN;
+    }
 
-    if (pSalI2CHND->OpType == I2C_DMA_TYPE)
+    if (pSalI2CHND->OpType == I2C_DMA_TYPE) {
         return HAL_ERR_UNKNOWN;
+    }
 
-    if (pSalI2CHND->OpType == I2C_INTR_TYPE)
+    if (pSalI2CHND->OpType == I2C_INTR_TYPE) {
         return HAL_ERR_UNKNOWN;
+    }
 
     pSalI2CHND = pSalI2CHND;
-    
+
     return HAL_OK;
 }
 #endif
@@ -504,10 +508,10 @@ RtkI2CDMAChk(
     PSAL_I2C_HND    pSalI2CHND = (PSAL_I2C_HND) Data;
 
     if (pSalI2CHND->OpType == I2C_DMA_TYPE) {
-        if (pSalI2CHND->DevNum >= I2C2_SEL)
+        if (pSalI2CHND->DevNum >= I2C2_SEL) {
             return HAL_ERR_UNKNOWN;
-    }
-    else {
+        }
+    } else {
         return HAL_ERR_UNKNOWN;
     }
 
@@ -524,11 +528,10 @@ RtkI2CDMAInitChk(
 
     if (pSalI2CHND->OpType != I2C_DMA_TYPE) {
         return HAL_ERR_UNKNOWN;
-    }
-    else {
+    } else {
         return HAL_OK;
     }
-    
+
 }
 
 //======================================================
@@ -539,7 +542,7 @@ _LONG_CALL_ROM_ HAL_Status RtkI2CDeInit(IN  VOID *Data);
 _LONG_CALL_ROM_ HAL_Status RtkI2CSend(IN  VOID *Data);
 _LONG_CALL_ROM_ HAL_Status RtkI2CReceive(IN  VOID *Data);
 _LONG_CALL_ROM_ VOID RtkSalI2COpInit(IN  VOID *Data);
-_LONG_CALL_ROM_ HAL_Status RtkI2CSendUserAddr(IN  VOID *Data,IN  u8  MtrWr);
+_LONG_CALL_ROM_ HAL_Status RtkI2CSendUserAddr(IN  VOID *Data, IN  u8  MtrWr);
 _LONG_CALL_ROM_ HAL_Status RtkI2CIoCtrl(IN  VOID *Data);
 _LONG_CALL_ROM_ HAL_Status RtkI2CPowerCtrl(IN  VOID *Data);
 _LONG_CALL_ HAL_Status RtkI2CInitForPS(IN  VOID *Data);
@@ -555,35 +558,35 @@ _LONG_CALL_ HAL_Status RtkI2CEnablePS(IN  VOID *Data);
 
 //======================================================
 // I2C SAL management data structures
-// I2C SAL handle private 
+// I2C SAL handle private
 typedef struct _SAL_I2C_HND_PRIV_ {
     VOID            **ppSalI2CHnd;              //Pointer to SAL_I2C_HND pointer
     SAL_I2C_HND     SalI2CHndPriv;              //Private SAL_I2C_HND
-}SAL_I2C_HND_PRIV, *PSAL_I2C_HND_PRIV;
+} SAL_I2C_HND_PRIV, *PSAL_I2C_HND_PRIV;
 
 //I2C SAL management adapter
 typedef struct _SAL_I2C_MNGT_ADPT_ {
     PSAL_I2C_HND_PRIV       pSalHndPriv;                //Pointer to SAL_I2C_HND
     PHAL_I2C_INIT_DAT       pHalInitDat;                //Pointer to HAL I2C initial data( HAL_I2C_INIT_DAT )
     PHAL_I2C_OP             pHalOp;                     //Pointer to HAL I2C operation( HAL_I2C_OP )
-    VOID                    (*pHalOpInit)(VOID*);       //Pointer to HAL I2C initialize function
+    VOID (*pHalOpInit)(VOID *);                         //Pointer to HAL I2C initialize function
     PIRQ_HANDLE             pIrqHnd;                    //Pointer to IRQ handler in SAL layer( IRQ_HANDLE )
     PSAL_I2C_USER_CB        pUserCB;                    //Pointer to SAL user callbacks (SAL_I2C_USER_CB )
     volatile u32            MstRDCmdCnt;                //Used for Master Read command count
     volatile u32            InnerTimeOut;               //Used for SAL internal timeout count
-    VOID                    (*pSalIrqFunc)(VOID*);      //Used for SAL I2C interrupt function
-    
+    VOID (*pSalIrqFunc)(VOID *);                        //Used for SAL I2C interrupt function
+
     PSAL_I2C_DMA_USER_DEF   pDMAConf;                   //Pointer to I2C User Define DMA config
     PHAL_GDMA_ADAPTER       pHalTxGdmaAdp;              //Pointer to HAL_GDMA_ADAPTER
     PHAL_GDMA_ADAPTER       pHalRxGdmaAdp;              //Pointer to HAL_GDMA_ADAPTER
     PHAL_GDMA_OP            pHalGdmaOp;                 //Pointer to HAL_GDMA_OP
-    VOID                    (*pHalGdmaOpInit)(VOID*);   //Pointer to HAL I2C initialize function
+    VOID (*pHalGdmaOpInit)(VOID *);                     //Pointer to HAL I2C initialize function
     PIRQ_HANDLE             pIrqTxGdmaHnd;              //Pointer to IRQ handler for Tx GDMA
     PIRQ_HANDLE             pIrqRxGdmaHnd;              //Pointer to IRQ handler for Rx GDMA
-    VOID                    (*pSalDMATxIrqFunc)(VOID*); //Used for SAL I2C interrupt function
-    VOID                    (*pSalDMARxIrqFunc)(VOID*); //Used for SAL I2C interrupt function
+    VOID (*pSalDMATxIrqFunc)(VOID *);                   //Used for SAL I2C interrupt function
+    VOID (*pSalDMARxIrqFunc)(VOID *);                   //Used for SAL I2C interrupt function
     u32                     RSVD;                       //Reserved
-}SAL_I2C_MNGT_ADPT, *PSAL_I2C_MNGT_ADPT;
+} SAL_I2C_MNGT_ADPT, *PSAL_I2C_MNGT_ADPT;
 
 //======================================================
 //SAL I2C management function prototype
@@ -596,7 +599,7 @@ u32 RtkSalI2CSts(IN  VOID *Data);
 extern _LONG_CALL_ VOID I2CISRHandle(IN  VOID *Data);
 extern _LONG_CALL_ VOID I2CTXGDMAISRHandle(IN  VOID *Data);
 extern _LONG_CALL_ VOID I2CRXGDMAISRHandle(IN  VOID *Data);
-extern HAL_Status I2CIsTimeout (IN  u32 StartCount, IN  u32 TimeoutCnt);
+extern HAL_Status I2CIsTimeout(IN  u32 StartCount, IN  u32 TimeoutCnt);
 extern HAL_TIMER_OP        HalTimerOp;
 //======================================================
 // Function Prototypes

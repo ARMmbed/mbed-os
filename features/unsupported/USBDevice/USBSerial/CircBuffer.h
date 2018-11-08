@@ -22,16 +22,19 @@
 template <class T, int Size>
 class CircBuffer {
 public:
-    CircBuffer():write(0), read(0){}
-    bool isFull() {
+    CircBuffer(): write(0), read(0) {}
+    bool isFull()
+    {
         return ((write + 1) % size == read);
     };
 
-    bool isEmpty() {
+    bool isEmpty()
+    {
         return (read == write);
     };
 
-    void queue(T k) {
+    void queue(T k)
+    {
         if (isFull()) {
             read++;
             read %= size;
@@ -40,24 +43,26 @@ public:
         write %= size;
     }
 
-    uint16_t available() {
+    uint16_t available()
+    {
         return (write >= read) ? write - read : size - read + write;
     };
 
-    bool dequeue(T * c) {
+    bool dequeue(T *c)
+    {
         bool empty = isEmpty();
         if (!empty) {
             *c = buf[read++];
             read %= size;
         }
-        return(!empty);
+        return (!empty);
     };
 
 private:
     volatile uint16_t write;
     volatile uint16_t read;
-    static const int size = Size+1;  //a modern optimizer should be able to remove this so it uses no ram.
-    T buf[Size+1];
+    static const int size = Size + 1; //a modern optimizer should be able to remove this so it uses no ram.
+    T buf[Size + 1];
 };
 
 #endif

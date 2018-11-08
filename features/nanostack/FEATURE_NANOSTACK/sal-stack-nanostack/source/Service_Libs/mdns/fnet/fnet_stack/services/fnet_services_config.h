@@ -42,7 +42,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_POLL_MAX
-    #define FNET_CFG_POLL_MAX   (11u)
+#define FNET_CFG_POLL_MAX   (11u)
 #endif
 
 //#include "services/dhcp/fnet_dhcp_config.h"

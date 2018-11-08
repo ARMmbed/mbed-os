@@ -34,12 +34,9 @@ void i2c_delay(unsigned int tick)
     start = MPS2_FPGAIO->COUNTER;
     end   = start + (tick);
 
-    if(end >= start)
-    {
+    if (end >= start) {
         while (MPS2_FPGAIO->COUNTER >= start && MPS2_FPGAIO->COUNTER < end);
-    }
-    else
-    {
+    } else {
         while (MPS2_FPGAIO->COUNTER >= start);
         while (MPS2_FPGAIO->COUNTER < end);
     }
@@ -56,12 +53,9 @@ void Sleepms(unsigned int msec)
     start = MPS2_FPGAIO->COUNTER;
     end   = start + (25 * msec * 1000);
 
-    if(end >= start)
-    {
+    if (end >= start) {
         while (MPS2_FPGAIO->COUNTER >= start && MPS2_FPGAIO->COUNTER < end);
-    }
-    else
-    {
+    } else {
         while (MPS2_FPGAIO->COUNTER >= start);
         while (MPS2_FPGAIO->COUNTER < end);
     }
@@ -77,12 +71,9 @@ void Sleepus(unsigned int usec)
     start = MPS2_FPGAIO->COUNTER;
     end   = start + (25 * usec);
 
-    if(end >= start)
-    {
+    if (end >= start) {
         while (MPS2_FPGAIO->COUNTER >= start && MPS2_FPGAIO->COUNTER < end);
-    }
-    else
-    {
+    } else {
         while (MPS2_FPGAIO->COUNTER >= start);
         while (MPS2_FPGAIO->COUNTER < end);
     }

@@ -56,7 +56,7 @@ typedef enum {
     PMU_PS_SEL_DIV_2_8  = MXC_V_PMU_CFG_PS_SEL_DIV_2_8,  // Timeout clk = PMU clock / 2^8 = 256
     PMU_PS_SEL_DIV_2_16 = MXC_V_PMU_CFG_PS_SEL_DIV_2_16, // Timeout clk = PMU clock / 2^16 = 65536
     PMU_PS_SEL_DIV_2_24 = MXC_V_PMU_CFG_PS_SEL_DIV_2_24  // Timeout clk =  PMU clock / 2^24 = 16777216
-}pmu_ps_sel_t;
+} pmu_ps_sel_t;
 
 /// @brief Defines the number of clk ticks for timeout duration
 typedef enum {
@@ -68,7 +68,7 @@ typedef enum {
     PMU_TO_SEL_TICKS_128 = MXC_V_PMU_CFG_TO_SEL_TICKS_128,    //timeout =  128 * Timeout clk period
     PMU_TO_SEL_TICKS_256 = MXC_V_PMU_CFG_TO_SEL_TICKS_256,    //timeout =  256 * Timeout clk period
     PMU_TO_SEL_TICKS_512 = MXC_V_PMU_CFG_TO_SEL_TICKS_512     //timeout =  512 * Timeout clk period
-}pmu_to_sel_t;
+} pmu_to_sel_t;
 
 
 /* The macros like the one below are designed to help build static PMU programs

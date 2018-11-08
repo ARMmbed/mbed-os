@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -30,22 +30,22 @@ typedef struct _HAL_PWM_ADAPTER_ {
     u32 period;    // the period of a PWM control cycle, in PWM tick
     u32 pulsewidth;    // the pulse width in a period of a PWM control cycle, in PWM tick. To control the ratio
 //    float duty_ratio;   // the dyty ratio = pulswidth/period
-}HAL_PWM_ADAPTER, *PHAL_PWM_ADAPTER;
+} HAL_PWM_ADAPTER, *PHAL_PWM_ADAPTER;
 
 
-extern HAL_Status 
+extern HAL_Status
 HAL_Pwm_Init(
     HAL_PWM_ADAPTER *pPwmAdapt,
     u32 pwm_id,
     u32 sel
 );
 
-extern void 
+extern void
 HAL_Pwm_Enable(
     HAL_PWM_ADAPTER *pPwmAdapt
 );
 
-extern void 
+extern void
 HAL_Pwm_Disable(
     HAL_PWM_ADAPTER *pPwmAdapt
 );

@@ -53,8 +53,7 @@
 /*!
  * @brief Flags
  */
-enum _adc_status_flags
-{
+enum _adc_status_flags {
     kADC_ThresholdCompareFlagOnChn0 = 1U << 0U,   /*!< Threshold comparison event on Channel 0. */
     kADC_ThresholdCompareFlagOnChn1 = 1U << 1U,   /*!< Threshold comparison event on Channel 1. */
     kADC_ThresholdCompareFlagOnChn2 = 1U << 2U,   /*!< Threshold comparison event on Channel 2. */
@@ -103,8 +102,7 @@ enum _adc_status_flags
  * @brief Interrupts
  * @note Not all the interrupt options are listed here
  */
-enum _adc_interrupt_enable
-{
+enum _adc_interrupt_enable {
     kADC_ConvSeqAInterruptEnable = ADC_INTEN_SEQA_INTEN_MASK, /*!< Enable interrupt upon completion of each individual
                                                                    conversion in sequence A, or entire sequence. */
     kADC_ConvSeqBInterruptEnable = ADC_INTEN_SEQB_INTEN_MASK, /*!< Enable interrupt upon completion of each individual
@@ -117,8 +115,7 @@ enum _adc_interrupt_enable
 /*!
  * @brief Define selection of clock mode.
  */
-typedef enum _adc_clock_mode
-{
+typedef enum _adc_clock_mode {
     kADC_ClockSynchronousMode =
         0U, /*!< The ADC clock would be derived from the system clock based on "clockDividerNumber". */
     kADC_ClockAsynchronousMode = 1U, /*!< The ADC clock would be based on the SYSCON block's divider. */
@@ -127,8 +124,7 @@ typedef enum _adc_clock_mode
 /*!
  * @brief Define selection of resolution.
  */
-typedef enum _adc_resolution
-{
+typedef enum _adc_resolution {
     kADC_Resolution6bit = 0U,  /*!< 6-bit resolution. */
     kADC_Resolution8bit = 1U,  /*!< 8-bit resolution. */
     kADC_Resolution10bit = 2U, /*!< 10-bit resolution. */
@@ -138,8 +134,7 @@ typedef enum _adc_resolution
 /*!
  * @brief Define selection of polarity of selected input trigger for conversion sequence.
  */
-typedef enum _adc_trigger_polarity
-{
+typedef enum _adc_trigger_polarity {
     kADC_TriggerPolarityNegativeEdge = 0U, /*!< A negative edge launches the conversion sequence on the trigger(s). */
     kADC_TriggerPolarityPositiveEdge = 1U, /*!< A positive edge launches the conversion sequence on the trigger(s). */
 } adc_trigger_polarity_t;
@@ -147,8 +142,7 @@ typedef enum _adc_trigger_polarity
 /*!
  * @brief Define selection of conversion sequence's priority.
  */
-typedef enum _adc_priority
-{
+typedef enum _adc_priority {
     kADC_PriorityLow = 0U,  /*!< This sequence would be preempted when another sequence is started. */
     kADC_PriorityHigh = 1U, /*!< This sequence would preempt other sequence even when is is started. */
 } adc_priority_t;
@@ -156,8 +150,7 @@ typedef enum _adc_priority
 /*!
  * @brief Define selection of conversion sequence's interrupt.
  */
-typedef enum _adc_seq_interrupt_mode
-{
+typedef enum _adc_seq_interrupt_mode {
     kADC_InterruptForEachConversion = 0U, /*!< The sequence interrupt/DMA trigger will be set at the end of each
                                                individual ADC conversion inside this conversion sequence. */
     kADC_InterruptForEachSequence = 1U,   /*!< The sequence interrupt/DMA trigger will be set when the entire set of
@@ -167,8 +160,7 @@ typedef enum _adc_seq_interrupt_mode
 /*!
  * @brief Define status of threshold compare result.
  */
-typedef enum _adc_threshold_compare_status
-{
+typedef enum _adc_threshold_compare_status {
     kADC_ThresholdCompareInRange = 0U,    /*!< LOW threshold <= conversion value <= HIGH threshold. */
     kADC_ThresholdCompareBelowRange = 1U, /*!< conversion value < LOW threshold. */
     kADC_ThresholdCompareAboveRange = 2U, /*!< conversion value > HIGH threshold. */
@@ -177,8 +169,7 @@ typedef enum _adc_threshold_compare_status
 /*!
  * @brief Define status of threshold crossing detection result.
  */
-typedef enum _adc_threshold_crossing_status
-{
+typedef enum _adc_threshold_crossing_status {
     /* The conversion on this channel had the same relationship (above or below) to the threshold value established by
      * the designated LOW threshold value as did the previous conversion on this channel. */
     kADC_ThresholdCrossingNoDetected = 0U, /*!< No threshold Crossing detected. */
@@ -197,8 +188,7 @@ typedef enum _adc_threshold_crossing_status
 /*!
  * @brief Define interrupt mode for threshold compare event.
  */
-typedef enum _adc_threshold_interrupt_mode
-{
+typedef enum _adc_threshold_interrupt_mode {
     kADC_ThresholdInterruptDisabled = 0U,   /*!< Threshold comparison interrupt is disabled. */
     kADC_ThresholdInterruptOnOutside = 1U,  /*!< Threshold comparison interrupt is enabled on outside threshold. */
     kADC_ThresholdInterruptOnCrossing = 2U, /*!< Threshold comparison interrupt is enabled on crossing threshold. */
@@ -207,8 +197,7 @@ typedef enum _adc_threshold_interrupt_mode
 /*!
  * @brief Define structure for configuring the block.
  */
-typedef struct _adc_config
-{
+typedef struct _adc_config {
     adc_clock_mode_t clockMode;   /*!< Select the clock mode for ADC converter. */
     uint32_t clockDividerNumber;  /*!< This field is only available when using kADC_ClockSynchronousMode for "clockMode"
                                        field. The divider would be plused by 1 based on the value in this field. The
@@ -225,8 +214,7 @@ typedef struct _adc_config
 /*!
  * @brief Define structure for configuring conversion sequence.
  */
-typedef struct _adc_conv_seq_config
-{
+typedef struct _adc_conv_seq_config {
     uint32_t channelMask; /*!< Selects which one or more of the ADC channels will be sampled and converted when this
                                sequence is launched. The masked channels would be involved in current conversion
                                sequence, beginning with the lowest-order. The available range is in 12-bit. */
@@ -245,8 +233,7 @@ typedef struct _adc_conv_seq_config
 /*!
  * @brief Define structure of keeping conversion result information.
  */
-typedef struct _adc_result_info
-{
+typedef struct _adc_result_info {
     uint32_t result;                                         /*!< Keey the conversion data value. */
     adc_threshold_compare_status_t thresholdCompareStatus;   /*!< Keep the threshold compare status. */
     adc_threshold_crossing_status_t thresholdCorssingStatus; /*!< Keep the threshold crossing status. */
@@ -318,12 +305,9 @@ bool ADC_DoSelfCalibration(ADC_Type *base);
  */
 static inline void ADC_EnableTemperatureSensor(ADC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->INSEL = (base->INSEL & ~ADC_INSEL_SEL_MASK) | ADC_INSEL_SEL(0x3);
-    }
-    else
-    {
+    } else {
         base->INSEL = (base->INSEL & ~ADC_INSEL_SEL_MASK) | ADC_INSEL_SEL(0);
     }
 }
@@ -347,12 +331,9 @@ static inline void ADC_EnableTemperatureSensor(ADC_Type *base, bool enable)
  */
 static inline void ADC_EnableConvSeqA(ADC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->SEQ_CTRL[0] |= ADC_SEQ_CTRL_SEQ_ENA_MASK;
-    }
-    else
-    {
+    } else {
         base->SEQ_CTRL[0] &= ~ADC_SEQ_CTRL_SEQ_ENA_MASK;
     }
 }
@@ -388,12 +369,9 @@ static inline void ADC_DoSoftwareTriggerConvSeqA(ADC_Type *base)
  */
 static inline void ADC_EnableConvSeqABurstMode(ADC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->SEQ_CTRL[0] |= ADC_SEQ_CTRL_BURST_MASK;
-    }
-    else
-    {
+    } else {
         base->SEQ_CTRL[0] &= ~ADC_SEQ_CTRL_BURST_MASK;
     }
 }
@@ -427,12 +405,9 @@ static inline void ADC_SetConvSeqAHighPriority(ADC_Type *base)
  */
 static inline void ADC_EnableConvSeqB(ADC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->SEQ_CTRL[1] |= ADC_SEQ_CTRL_SEQ_ENA_MASK;
-    }
-    else
-    {
+    } else {
         base->SEQ_CTRL[1] &= ~ADC_SEQ_CTRL_SEQ_ENA_MASK;
     }
 }
@@ -468,12 +443,9 @@ static inline void ADC_DoSoftwareTriggerConvSeqB(ADC_Type *base)
  */
 static inline void ADC_EnableConvSeqBBurstMode(ADC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->SEQ_CTRL[1] |= ADC_SEQ_CTRL_BURST_MASK;
-    }
-    else
-    {
+    } else {
         base->SEQ_CTRL[1] &= ~ADC_SEQ_CTRL_BURST_MASK;
     }
 }

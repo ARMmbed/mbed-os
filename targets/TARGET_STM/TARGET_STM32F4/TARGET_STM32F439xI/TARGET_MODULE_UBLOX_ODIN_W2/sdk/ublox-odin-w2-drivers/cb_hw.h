@@ -19,7 +19,7 @@
  * Description: Setup of hardware.
  *              TODO clean up this interface..
  *-------------------------------------------------------------------------*/
- 
+
 #ifndef _CB_HW_H_
 #define _CB_HW_H_
 
@@ -45,7 +45,7 @@ typedef enum {
     cbHW_RESET_REASON_UNKNOWN = 0,
     cbHW_RESET_REASON_FW_UPDATE,
     cbHW_RESET_REASON_PRODUCTION_MODE
-}cbHW_ResetReason;
+} cbHW_ResetReason;
 
 typedef enum {
     cbHW_FLOW_CONTROL_DISABLED = 0,
@@ -57,7 +57,7 @@ typedef enum {
     cbHW_IRQ_MEDIUM = 3U,
     cbHW_IRQ_DEFAULT = 5U,
     cbHW_IRQ_LOW = 12U
-}cbHW_PRIO_LVL;
+} cbHW_PRIO_LVL;
 
 typedef enum {
     cbHW_SYSTICK_DISABLED,
@@ -90,14 +90,14 @@ void cbHW_setSysTickMode(cbHW_SysTickMode sysTickMode);
  * Wait for specified amount of microseconds. May be interrupt dependent.
  * @note Granularity may vary between systems. Will be at least systick based.
  * The system may go to sleep during the delay.
- * 
+ *
  * @param us Time to delay in microseconds.
  */
 void cbHW_delay(cb_uint32 us);
 
 /**
 * Wait for specified amount of microseconds using a software loop.
-* @note Granularity may vary between systems. 
+* @note Granularity may vary between systems.
 * The system will not go to sleep during the delay.
 *
 * @param us Time to delay in microseconds.

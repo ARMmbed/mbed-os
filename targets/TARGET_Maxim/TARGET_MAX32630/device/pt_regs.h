@@ -79,7 +79,7 @@ extern "C" {
 /**
  * Structure type for the Pulse Train Global module registers allowing direct 32-bit access to each register.
  */
- typedef struct {
+typedef struct {
     __IO uint32_t enable;                               /**< <tt>\b 0x0000:</tt> \c PTG_ENABLE Register - Global Enable/Disable Controls for All Pulse Trains. */
     __IO uint32_t resync;                               /**< <tt>\b 0x0004:</tt> \c PTG_RESYNC Register - Global Resync (All Pulse Trains) Control.            */
     __IO uint32_t intfl;                                /**< <tt>\b 0x0008:</tt> \c PTG_INTFL Register - Pulse Train Interrupt Flags.                          */
@@ -103,7 +103,7 @@ typedef struct {
 /**
  * @ingroup    pulsetrain_registers
  * @defgroup   PTG_Register_Offsets Global Register Offsets
- * @brief      Pluse Train Global Control Register Offsets from the Pulse Train Global Base Peripheral Address. 
+ * @brief      Pluse Train Global Control Register Offsets from the Pulse Train Global Base Peripheral Address.
  * @{
  */
 #define MXC_R_PTG_OFFS_ENABLE                               ((uint32_t)0x00000000UL)    /**< Offset from the PTG Base Peripheral Address:<tt>\b 0x0000</tt> */
@@ -114,9 +114,9 @@ typedef struct {
 /**
  * @ingroup    pulsetrain_registers
  * @defgroup   PT_Register_Offsets Register Offsets: Configuration
- * @brief      Pluse Train Configuration Register Offsets from the Pulse Train Base Peripheral Address. 
+ * @brief      Pluse Train Configuration Register Offsets from the Pulse Train Base Peripheral Address.
  * @{
- */  
+ */
 #define MXC_R_PT_OFFS_RATE_LENGTH                           ((uint32_t)0x00000000UL)    /**< Offset from the PT Base Peripheral Address:<tt>\b 0x0000</tt> */
 #define MXC_R_PT_OFFS_TRAIN                                 ((uint32_t)0x00000004UL)    /**< Offset from the PT Base Peripheral Address:<tt>\b 0x0004</tt> */
 #define MXC_R_PT_OFFS_LOOP                                  ((uint32_t)0x00000008UL)    /**< Offset from the PT Base Peripheral Address:<tt>\b 0x0008</tt> */

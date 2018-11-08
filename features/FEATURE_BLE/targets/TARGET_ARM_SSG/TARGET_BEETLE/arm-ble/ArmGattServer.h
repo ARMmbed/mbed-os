@@ -25,8 +25,7 @@
 #include "generic/wsf_types.h"
 #include "att_api.h"
 
-class ArmGattServer : public GattServer
-{
+class ArmGattServer : public GattServer {
 public:
     static ArmGattServer &getInstance();
 
@@ -41,7 +40,10 @@ public:
     virtual ble_error_t areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP);
     virtual ble_error_t areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP);
 
-    virtual bool isOnDataReadAvailable() const { return true; }
+    virtual bool isOnDataReadAvailable() const
+    {
+        return true;
+    }
 
 private:
     static void cccCback(attsCccEvt_t *pEvt);
@@ -50,19 +52,20 @@ private:
     static uint8_t attsWriteCback(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, uint16_t len, uint8_t *pValue, attsAttr_t *pAttr);
 
     /*! client characteristic configuration descriptors settings */
-    #define MAX_CCC_CNT 20
+#define MAX_CCC_CNT 20
     attsCccSet_t cccSet[MAX_CCC_CNT];
     uint16_t cccValues[MAX_CCC_CNT];
     uint16_t cccHandles[MAX_CCC_CNT];
     uint8_t cccCnt;
 
 private:
-    ArmGattServer() : GattServer(), cccSet(), cccValues(), cccHandles(), cccCnt(0) {
+    ArmGattServer() : GattServer(), cccSet(), cccValues(), cccHandles(), cccCnt(0)
+    {
         /* empty */
     }
 
     ArmGattServer(const ArmGattServer &);
-    const ArmGattServer& operator=(const ArmGattServer &);
+    const ArmGattServer &operator=(const ArmGattServer &);
 };
 
 #endif /* _ARM_GATT_SERVER_H_ */

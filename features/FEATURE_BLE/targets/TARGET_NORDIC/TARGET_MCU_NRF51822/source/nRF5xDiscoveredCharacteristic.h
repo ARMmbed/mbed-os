@@ -37,8 +37,9 @@ public:
                GattAttribute::Handle_t  declHandleIn,
                GattAttribute::Handle_t  valueHandleIn);
 
-    void setLastHandle(GattAttribute::Handle_t last) {
-      lastHandle = last;
+    void setLastHandle(GattAttribute::Handle_t last)
+    {
+        lastHandle = last;
     }
 };
 

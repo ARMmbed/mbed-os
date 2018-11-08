@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_HAL_LPTIM_EX_H
 #define __STM32L0xx_HAL_LPTIM_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,7 +52,7 @@
 
 /** @defgroup LPTIMEx LPTIMEx
   * @{
-  */ 
+  */
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -83,13 +83,13 @@
   * @}
   */
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 
-   /** @addtogroup LPTIMEx_Private
-  * @{
-  */
+/** @addtogroup LPTIMEx_Private
+* @{
+*/
 #if defined (STM32L083xx) || defined (STM32L082xx) || defined (STM32L081xx) || \
   defined (STM32L073xx) || defined (STM32L072xx) || defined (STM32L071xx) || \
   defined (STM32L031xx) || defined (STM32L041xx)

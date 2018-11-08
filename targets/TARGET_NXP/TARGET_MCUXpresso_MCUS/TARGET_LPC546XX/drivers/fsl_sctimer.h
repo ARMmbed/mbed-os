@@ -49,22 +49,19 @@
 /*@}*/
 
 /*! @brief SCTimer PWM operation modes */
-typedef enum _sctimer_pwm_mode
-{
+typedef enum _sctimer_pwm_mode {
     kSCTIMER_EdgeAlignedPwm = 0U, /*!< Edge-aligned PWM */
     kSCTIMER_CenterAlignedPwm     /*!< Center-aligned PWM */
 } sctimer_pwm_mode_t;
 
 /*! @brief SCTimer counters when working as two independent 16-bit counters */
-typedef enum _sctimer_counter
-{
+typedef enum _sctimer_counter {
     kSCTIMER_Counter_L = 0U, /*!< Counter L */
     kSCTIMER_Counter_H       /*!< Counter H */
 } sctimer_counter_t;
 
 /*! @brief List of SCTimer input pins */
-typedef enum _sctimer_input
-{
+typedef enum _sctimer_input {
     kSCTIMER_Input_0 = 0U, /*!< SCTIMER input 0 */
     kSCTIMER_Input_1,      /*!< SCTIMER input 1 */
     kSCTIMER_Input_2,      /*!< SCTIMER input 2 */
@@ -76,8 +73,7 @@ typedef enum _sctimer_input
 } sctimer_input_t;
 
 /*! @brief List of SCTimer output pins */
-typedef enum _sctimer_out
-{
+typedef enum _sctimer_out {
     kSCTIMER_Out_0 = 0U, /*!< SCTIMER output 0*/
     kSCTIMER_Out_1,      /*!< SCTIMER output 1 */
     kSCTIMER_Out_2,      /*!< SCTIMER output 2 */
@@ -89,15 +85,13 @@ typedef enum _sctimer_out
 } sctimer_out_t;
 
 /*! @brief SCTimer PWM output pulse mode: high-true, low-true or no output */
-typedef enum _sctimer_pwm_level_select
-{
+typedef enum _sctimer_pwm_level_select {
     kSCTIMER_LowTrue = 0U, /*!< Low true pulses */
     kSCTIMER_HighTrue      /*!< High true pulses */
 } sctimer_pwm_level_select_t;
 
 /*! @brief Options to configure a SCTimer PWM signal */
-typedef struct _sctimer_pwm_signal_param
-{
+typedef struct _sctimer_pwm_signal_param {
     sctimer_out_t output;             /*!< The output pin to use to generate the PWM signal */
     sctimer_pwm_level_select_t level; /*!< PWM output active level select. */
     uint8_t dutyCyclePercent;         /*!< PWM pulse width, value should be between 1 to 100
@@ -105,8 +99,7 @@ typedef struct _sctimer_pwm_signal_param
 } sctimer_pwm_signal_param_t;
 
 /*! @brief SCTimer clock mode options */
-typedef enum _sctimer_clock_mode
-{
+typedef enum _sctimer_clock_mode {
     kSCTIMER_System_ClockMode = 0U, /*!< System Clock Mode */
     kSCTIMER_Sampled_ClockMode,     /*!< Sampled System Clock Mode */
     kSCTIMER_Input_ClockMode,       /*!< SCT Input Clock Mode */
@@ -114,8 +107,7 @@ typedef enum _sctimer_clock_mode
 } sctimer_clock_mode_t;
 
 /*! @brief SCTimer clock select options */
-typedef enum _sctimer_clock_select
-{
+typedef enum _sctimer_clock_select {
     kSCTIMER_Clock_On_Rise_Input_0 = 0U, /*!< Rising edges on input 0 */
     kSCTIMER_Clock_On_Fall_Input_0,      /*!< Falling edges on input 0 */
     kSCTIMER_Clock_On_Rise_Input_1,      /*!< Rising edges on input 1 */
@@ -140,8 +132,7 @@ typedef enum _sctimer_clock_select
  * Specifies what action should be taken if multiple events dictate that a given output should be
  * both set and cleared at the same time
  */
-typedef enum _sctimer_conflict_resolution
-{
+typedef enum _sctimer_conflict_resolution {
     kSCTIMER_ResolveNone = 0U, /*!< No change */
     kSCTIMER_ResolveSet,       /*!< Set output */
     kSCTIMER_ResolveClear,     /*!< Clear output */
@@ -149,8 +140,7 @@ typedef enum _sctimer_conflict_resolution
 } sctimer_conflict_resolution_t;
 
 /*! @brief List of SCTimer event types */
-typedef enum _sctimer_event
-{
+typedef enum _sctimer_event {
     kSCTIMER_InputLowOrMatchEvent =
         (0 << SCT_EVENT_CTRL_COMBMODE_SHIFT) + (0 << SCT_EVENT_CTRL_IOCOND_SHIFT) + (0 << SCT_EVENT_CTRL_OUTSEL_SHIFT),
     kSCTIMER_InputRiseOrMatchEvent =
@@ -213,8 +203,7 @@ typedef enum _sctimer_event
 typedef void (*sctimer_event_callback_t)(void);
 
 /*! @brief List of SCTimer interrupts */
-typedef enum _sctimer_interrupt_enable
-{
+typedef enum _sctimer_interrupt_enable {
     kSCTIMER_Event0InterruptEnable = (1U << 0),   /*!< Event 0 interrupt */
     kSCTIMER_Event1InterruptEnable = (1U << 1),   /*!< Event 1 interrupt */
     kSCTIMER_Event2InterruptEnable = (1U << 2),   /*!< Event 2 interrupt */
@@ -231,8 +220,7 @@ typedef enum _sctimer_interrupt_enable
 } sctimer_interrupt_enable_t;
 
 /*! @brief List of SCTimer flags */
-typedef enum _sctimer_status_flags
-{
+typedef enum _sctimer_status_flags {
     kSCTIMER_Event0Flag = (1U << 0),   /*!< Event 0 Flag */
     kSCTIMER_Event1Flag = (1U << 1),   /*!< Event 1 Flag */
     kSCTIMER_Event2Flag = (1U << 2),   /*!< Event 2 Flag */
@@ -261,8 +249,7 @@ typedef enum _sctimer_status_flags
  *
  * The configuration structure can be made constant so as to reside in flash.
  */
-typedef struct _sctimer_config
-{
+typedef struct _sctimer_config {
     bool enableCounterUnify;            /*!< true: SCT operates as a unified 32-bit counter;
                                              false: SCT operates as two 16-bit counters */
     sctimer_clock_mode_t clockMode;     /*!< SCT clock mode value */
@@ -352,7 +339,7 @@ void SCTIMER_GetDefaultConfig(sctimer_config_t *config);
  * @note When setting PWM output from multiple output pins, they all should use the same PWM mode
  * i.e all PWM's should be either edge-aligned or center-aligned.
  * When using this API, the PWM signal frequency of all the initialized channels must be the same.
- * Otherwise all the initialized channels' PWM signal frequency is equal to the last call to the 
+ * Otherwise all the initialized channels' PWM signal frequency is equal to the last call to the
  * API's pwmFreq_Hz.
  *
  * @param base        SCTimer peripheral base address
@@ -485,12 +472,9 @@ static inline void SCTIMER_ClearStatusFlags(SCT_Type *base, uint32_t mask)
 static inline void SCTIMER_StartTimer(SCT_Type *base, sctimer_counter_t countertoStart)
 {
     /* Clear HALT_L bit if counter is operating in 32-bit mode or user wants to start L counter */
-    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (countertoStart == kSCTIMER_Counter_L))
-    {
+    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (countertoStart == kSCTIMER_Counter_L)) {
         base->CTRL &= ~(SCT_CTRL_HALT_L_MASK);
-    }
-    else
-    {
+    } else {
         /* Start H counter */
         base->CTRL &= ~(SCT_CTRL_HALT_H_MASK);
     }
@@ -506,12 +490,9 @@ static inline void SCTIMER_StartTimer(SCT_Type *base, sctimer_counter_t countert
 static inline void SCTIMER_StopTimer(SCT_Type *base, sctimer_counter_t countertoStop)
 {
     /* Set HALT_L bit if counter is operating in 32-bit mode or user wants to stop L counter */
-    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (countertoStop == kSCTIMER_Counter_L))
-    {
+    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (countertoStop == kSCTIMER_Counter_L)) {
         base->CTRL |= (SCT_CTRL_HALT_L_MASK);
-    }
-    else
-    {
+    } else {
         /* Stop H counter */
         base->CTRL |= (SCT_CTRL_HALT_H_MASK);
     }
@@ -702,12 +683,9 @@ void SCTIMER_SetupOutputToggleAction(SCT_Type *base, uint32_t whichIO, uint32_t 
 static inline void SCTIMER_SetupCounterLimitAction(SCT_Type *base, sctimer_counter_t whichCounter, uint32_t event)
 {
     /* Use Counter_L bits if counter is operating in 32-bit mode or user wants to setup the L counter */
-    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (whichCounter == kSCTIMER_Counter_L))
-    {
+    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (whichCounter == kSCTIMER_Counter_L)) {
         base->LIMIT |= SCT_LIMIT_LIMMSK_L(1U << event);
-    }
-    else
-    {
+    } else {
         base->LIMIT |= SCT_LIMIT_LIMMSK_H(1U << event);
     }
 }
@@ -725,12 +703,9 @@ static inline void SCTIMER_SetupCounterLimitAction(SCT_Type *base, sctimer_count
 static inline void SCTIMER_SetupCounterStopAction(SCT_Type *base, sctimer_counter_t whichCounter, uint32_t event)
 {
     /* Use Counter_L bits if counter is operating in 32-bit mode or user wants to setup the L counter */
-    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (whichCounter == kSCTIMER_Counter_L))
-    {
+    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (whichCounter == kSCTIMER_Counter_L)) {
         base->STOP |= SCT_STOP_STOPMSK_L(1U << event);
-    }
-    else
-    {
+    } else {
         base->STOP |= SCT_STOP_STOPMSK_H(1U << event);
     }
 }
@@ -748,12 +723,9 @@ static inline void SCTIMER_SetupCounterStopAction(SCT_Type *base, sctimer_counte
 static inline void SCTIMER_SetupCounterStartAction(SCT_Type *base, sctimer_counter_t whichCounter, uint32_t event)
 {
     /* Use Counter_L bits if counter is operating in 32-bit mode or user wants to setup the L counter */
-    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (whichCounter == kSCTIMER_Counter_L))
-    {
+    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (whichCounter == kSCTIMER_Counter_L)) {
         base->START |= SCT_START_STARTMSK_L(1U << event);
-    }
-    else
-    {
+    } else {
         base->START |= SCT_START_STARTMSK_H(1U << event);
     }
 }
@@ -773,12 +745,9 @@ static inline void SCTIMER_SetupCounterStartAction(SCT_Type *base, sctimer_count
 static inline void SCTIMER_SetupCounterHaltAction(SCT_Type *base, sctimer_counter_t whichCounter, uint32_t event)
 {
     /* Use Counter_L bits if counter is operating in 32-bit mode or user wants to setup the L counter */
-    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (whichCounter == kSCTIMER_Counter_L))
-    {
+    if ((base->CONFIG & SCT_CONFIG_UNIFY_MASK) || (whichCounter == kSCTIMER_Counter_L)) {
         base->HALT |= SCT_HALT_HALTMSK_L(1U << event);
-    }
-    else
-    {
+    } else {
         base->HALT |= SCT_HALT_HALTMSK_H(1U << event);
     }
 }
@@ -794,12 +763,9 @@ static inline void SCTIMER_SetupCounterHaltAction(SCT_Type *base, sctimer_counte
  */
 static inline void SCTIMER_SetupDmaTriggerAction(SCT_Type *base, uint32_t dmaNumber, uint32_t event)
 {
-    if (dmaNumber == 0)
-    {
+    if (dmaNumber == 0) {
         base->DMA0REQUEST |= (1U << event);
-    }
-    else
-    {
+    } else {
         base->DMA1REQUEST |= (1U << event);
     }
 }

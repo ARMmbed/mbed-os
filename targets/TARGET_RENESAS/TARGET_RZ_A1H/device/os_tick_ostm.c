@@ -22,11 +22,11 @@
  * limitations under the License.
  */
 
-<<<<<<< HEAD
-=======
+<<< <<< < HEAD
+== == == =
 #ifdef MBED_CONF_RTOS_PRESENT
 
->>>>>>> upstream/mbed-os-5.7
+    >>> >>> > upstream / mbed - os - 5.7
 #include "os_tick.h"
 #include "irq_ctrl.h"
 
@@ -45,154 +45,161 @@
 #define OSTM_IRQn                   ((IRQn_ID_t)OSTMI0TINT_IRQn)
 
 
-static uint32_t OSTM_Clock;         // Timer tick frequency
+    static uint32_t OSTM_Clock;         // Timer tick frequency
 static uint8_t  OSTM_PendIRQ;       // Timer interrupt pending flag
 
 
 // Setup OS Tick.
-int32_t OS_Tick_Setup (uint32_t freq, IRQHandler_t handler) {
-  uint32_t clock;
-  uint32_t prio;
-  uint32_t bits;
+int32_t OS_Tick_Setup(uint32_t freq, IRQHandler_t handler)
+{
+    uint32_t clock;
+    uint32_t prio;
+    uint32_t bits;
 
-  if (freq == 0U) {
-    return (-1);
-  }
-  
-  OSTM_PendIRQ = 0U;
-
-  // Get CPG.FRQCR[IFC] bits
-  clock = (CPG.FRQCR >> 8) & 0x03;
-
-  // Determine Divider 2 output clock by using SystemCoreClock
-  if (clock == 0x03U) {
-    clock = (SystemCoreClock * 3U);
-  }
-  else if (clock == 0x01U) {
-    clock = (SystemCoreClock * 3U)/2U;
-  }
-  else {
-    clock = SystemCoreClock;
-  }
-
-  // Determine tick frequency
-  clock = clock / freq;
-
-  // Save frequency for later
-  OSTM_Clock = clock;
-
-  // Enable OSTM clock
-  CPG.STBCR5 &= ~(CPG_STBCR5_BIT_MSTP51);
-
-  // Stop the OSTM counter
-  OSTM.OSTMnTT  = 0x01U;
-
-  // Set interval timer mode and disable interrupts when counting starts
-  OSTM.OSTMnCTL = 0x00U;
-
-  // Set compare value
-  OSTM.OSTMnCMP = clock - 1U;
-
-  // Disable corresponding IRQ
-  IRQ_Disable     (OSTM_IRQn);
-  IRQ_ClearPending(OSTM_IRQn);
-
-  // Determine number of implemented priority bits
-  IRQ_SetPriority (OSTM_IRQn, 0xFFU);
-
-  prio = IRQ_GetPriority (OSTM_IRQn);
-
-  // At least bits [7:4] must be implemented
-  if ((prio & 0xF0U) == 0U) {
-    return (-1);
-  }
-
-  for (bits = 0; bits < 4; bits++) {
-    if ((prio & 0x01) != 0) {
-      break;
+    if (freq == 0U) {
+        return (-1);
     }
-    prio >>= 1;
-  }
-  
-  // Adjust configured priority to the number of implemented priority bits
-  prio = (OSTM_IRQ_PRIORITY << bits) & 0xFFUL;
 
-  // Set OSTM interrupt priority
-  IRQ_SetPriority(OSTM_IRQn, prio-1U);
+    OSTM_PendIRQ = 0U;
 
-  // Set edge-triggered, non-secure, single CPU targeted IRQ
-  IRQ_SetMode (OSTM_IRQn, IRQ_MODE_TRIG_EDGE);
+    // Get CPG.FRQCR[IFC] bits
+    clock = (CPG.FRQCR >> 8) & 0x03;
 
-  // Register tick interrupt handler function
-  IRQ_SetHandler(OSTM_IRQn, (IRQHandler_t)handler);
+    // Determine Divider 2 output clock by using SystemCoreClock
+    if (clock == 0x03U) {
+        clock = (SystemCoreClock * 3U);
+    } else if (clock == 0x01U) {
+        clock = (SystemCoreClock * 3U) / 2U;
+    } else {
+        clock = SystemCoreClock;
+    }
 
-  // Enable corresponding IRQ
-  IRQ_Enable (OSTM_IRQn);
+    // Determine tick frequency
+    clock = clock / freq;
 
-  return (0);
+    // Save frequency for later
+    OSTM_Clock = clock;
+
+    // Enable OSTM clock
+    CPG.STBCR5 &= ~(CPG_STBCR5_BIT_MSTP51);
+
+    // Stop the OSTM counter
+    OSTM.OSTMnTT  = 0x01U;
+
+    // Set interval timer mode and disable interrupts when counting starts
+    OSTM.OSTMnCTL = 0x00U;
+
+    // Set compare value
+    OSTM.OSTMnCMP = clock - 1U;
+
+    // Disable corresponding IRQ
+    IRQ_Disable(OSTM_IRQn);
+    IRQ_ClearPending(OSTM_IRQn);
+
+    // Determine number of implemented priority bits
+    IRQ_SetPriority(OSTM_IRQn, 0xFFU);
+
+    prio = IRQ_GetPriority(OSTM_IRQn);
+
+    // At least bits [7:4] must be implemented
+    if ((prio & 0xF0U) == 0U) {
+        return (-1);
+    }
+
+    for (bits = 0; bits < 4; bits++) {
+        if ((prio & 0x01) != 0) {
+            break;
+        }
+        prio >>= 1;
+    }
+
+    // Adjust configured priority to the number of implemented priority bits
+    prio = (OSTM_IRQ_PRIORITY << bits) & 0xFFUL;
+
+    // Set OSTM interrupt priority
+    IRQ_SetPriority(OSTM_IRQn, prio - 1U);
+
+    // Set edge-triggered, non-secure, single CPU targeted IRQ
+    IRQ_SetMode(OSTM_IRQn, IRQ_MODE_TRIG_EDGE);
+
+    // Register tick interrupt handler function
+    IRQ_SetHandler(OSTM_IRQn, (IRQHandler_t)handler);
+
+    // Enable corresponding IRQ
+    IRQ_Enable(OSTM_IRQn);
+
+    return (0);
 }
 
 /// Enable OS Tick.
-int32_t  OS_Tick_Enable (void) {
+int32_t  OS_Tick_Enable(void)
+{
 
-  if (OSTM_PendIRQ != 0U) {
-    OSTM_PendIRQ = 0U;
-    IRQ_SetPending (OSTM_IRQn);
-  }
+    if (OSTM_PendIRQ != 0U) {
+        OSTM_PendIRQ = 0U;
+        IRQ_SetPending(OSTM_IRQn);
+    }
 
-  // Start the OSTM counter
-  OSTM.OSTMnTS = 0x01U;
+    // Start the OSTM counter
+    OSTM.OSTMnTS = 0x01U;
 
-  return (0);
+    return (0);
 }
 
 /// Disable OS Tick.
-int32_t  OS_Tick_Disable (void) {
+int32_t  OS_Tick_Disable(void)
+{
 
-  // Stop the OSTM counter
-  OSTM.OSTMnTT = 0x01U;
+    // Stop the OSTM counter
+    OSTM.OSTMnTT = 0x01U;
 
-  if (IRQ_GetPending(OSTM_IRQn) != 0) {
-    IRQ_ClearPending (OSTM_IRQn);
-    OSTM_PendIRQ = 1U;
-  }
+    if (IRQ_GetPending(OSTM_IRQn) != 0) {
+        IRQ_ClearPending(OSTM_IRQn);
+        OSTM_PendIRQ = 1U;
+    }
 
-  return (0);
+    return (0);
 }
 
 // Acknowledge OS Tick IRQ.
-int32_t OS_Tick_AcknowledgeIRQ (void) {
-  return (IRQ_ClearPending (OSTM_IRQn));
+int32_t OS_Tick_AcknowledgeIRQ(void)
+{
+    return (IRQ_ClearPending(OSTM_IRQn));
 }
 
 // Get OS Tick IRQ number.
-int32_t  OS_Tick_GetIRQn (void) {
-  return (OSTM_IRQn);
+int32_t  OS_Tick_GetIRQn(void)
+{
+    return (OSTM_IRQn);
 }
 
 // Get OS Tick clock.
-uint32_t OS_Tick_GetClock (void) {
-  return (OSTM_Clock);
+uint32_t OS_Tick_GetClock(void)
+{
+    return (OSTM_Clock);
 }
 
 // Get OS Tick interval.
-uint32_t OS_Tick_GetInterval (void) {
-  return (OSTM.OSTMnCMP + 1U);
+uint32_t OS_Tick_GetInterval(void)
+{
+    return (OSTM.OSTMnCMP + 1U);
 }
 
 // Get OS Tick count value.
-uint32_t OS_Tick_GetCount (void) {
-  uint32_t cmp = OSTM.OSTMnCMP;
-  return  (cmp - OSTM.OSTMnCNT);
+uint32_t OS_Tick_GetCount(void)
+{
+    uint32_t cmp = OSTM.OSTMnCMP;
+    return (cmp - OSTM.OSTMnCNT);
 }
 
 // Get OS Tick overflow status.
-uint32_t OS_Tick_GetOverflow (void) {
-  return (IRQ_GetPending(OSTM_IRQn));
+uint32_t OS_Tick_GetOverflow(void)
+{
+    return (IRQ_GetPending(OSTM_IRQn));
 }
-<<<<<<< HEAD
-=======
+<<< <<< < HEAD
+== == == =
 
 #endif
 
->>>>>>> upstream/mbed-os-5.7
+    >>> >>> > upstream / mbed - os - 5.7

@@ -36,19 +36,18 @@
 /**************************************************************************//**
  * @brief GPIO_P EFR32MG12P GPIO P
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;         /**< Port Control Register  */
-  __IOM uint32_t MODEL;        /**< Port Pin Mode Low Register  */
-  __IOM uint32_t MODEH;        /**< Port Pin Mode High Register  */
-  __IOM uint32_t DOUT;         /**< Port Data Out Register  */
-  uint32_t       RESERVED0[2]; /**< Reserved for future use **/
-  __IOM uint32_t DOUTTGL;      /**< Port Data Out Toggle Register  */
-  __IM uint32_t  DIN;          /**< Port Data In Register  */
-  __IOM uint32_t PINLOCKN;     /**< Port Unlocked Pins Register  */
-  uint32_t       RESERVED1[1]; /**< Reserved for future use **/
-  __IOM uint32_t OVTDIS;       /**< Over Voltage Disable for all modes  */
-  uint32_t       RESERVED2[1]; /**< Reserved future */
+typedef struct {
+    __IOM uint32_t CTRL;         /**< Port Control Register  */
+    __IOM uint32_t MODEL;        /**< Port Pin Mode Low Register  */
+    __IOM uint32_t MODEH;        /**< Port Pin Mode High Register  */
+    __IOM uint32_t DOUT;         /**< Port Data Out Register  */
+    uint32_t       RESERVED0[2]; /**< Reserved for future use **/
+    __IOM uint32_t DOUTTGL;      /**< Port Data Out Toggle Register  */
+    __IM uint32_t  DIN;          /**< Port Data In Register  */
+    __IOM uint32_t PINLOCKN;     /**< Port Unlocked Pins Register  */
+    uint32_t       RESERVED1[1]; /**< Reserved for future use **/
+    __IOM uint32_t OVTDIS;       /**< Over Voltage Disable for all modes  */
+    uint32_t       RESERVED2[1]; /**< Reserved future */
 } GPIO_P_TypeDef;
 
 /** @} End of group Parts */

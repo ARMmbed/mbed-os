@@ -36,7 +36,7 @@
 //
 //*****************************************************************************
 extern "C" {
-    extern void __libc_init_array(void);
+extern void __libc_init_array(void);
 }
 #endif
 
@@ -68,7 +68,7 @@ unsigned int *pDivRom_uidiv;
 // automatically take precedence over these weak definitions
 //
 //*****************************************************************************
-     void ResetISR(void);
+void ResetISR(void);
 WEAK void NMI_Handler(void);
 WEAK void HardFault_Handler(void);
 WEAK void SVC_Handler(void);
@@ -138,7 +138,7 @@ extern void _vStackTop(void);
 //
 //*****************************************************************************
 extern void (* const g_pfnVectors[])(void);
-__attribute__ ((section(".isr_vector")))
+__attribute__((section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
     // Core Level - CM0plus
     &_vStackTop, // The initial stack pointer
@@ -199,21 +199,25 @@ void (* const g_pfnVectors[])(void) = {
 // ResetISR() function in order to cope with MCUs with multiple banks of
 // memory.
 //*****************************************************************************
-__attribute__ ((section(".after_vectors")))
-void data_init(unsigned int romstart, unsigned int start, unsigned int len) {
-    unsigned int *pulDest = (unsigned int*) start;
-    unsigned int *pulSrc = (unsigned int*) romstart;
+__attribute__((section(".after_vectors")))
+void data_init(unsigned int romstart, unsigned int start, unsigned int len)
+{
+    unsigned int *pulDest = (unsigned int *) start;
+    unsigned int *pulSrc = (unsigned int *) romstart;
     unsigned int loop;
-    for (loop = 0; loop < len; loop = loop + 4)
+    for (loop = 0; loop < len; loop = loop + 4) {
         *pulDest++ = *pulSrc++;
+    }
 }
 
-__attribute__ ((section(".after_vectors")))
-void bss_init(unsigned int start, unsigned int len) {
-    unsigned int *pulDest = (unsigned int*) start;
+__attribute__((section(".after_vectors")))
+void bss_init(unsigned int start, unsigned int len)
+{
+    unsigned int *pulDest = (unsigned int *) start;
     unsigned int loop;
-    for (loop = 0; loop < len; loop = loop + 4)
+    for (loop = 0; loop < len; loop = loop + 4) {
         *pulDest++ = 0;
+    }
 }
 
 //*****************************************************************************
@@ -234,9 +238,10 @@ extern unsigned int __bss_section_table_end;
 // Sets up a simple runtime environment and initializes the C/C++
 // library.
 //*****************************************************************************
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void
-ResetISR(void) {
+ResetISR(void)
+{
 
     //
     // Copy the data sections from flash to SRAM.
@@ -265,7 +270,7 @@ ResetISR(void) {
     // Patch the AEABI integer divide functions to use MCU's romdivide library
 #ifdef __USE_ROMDIVIDE
     // Get address of Integer division routines function table in ROM
-    unsigned int *div_ptr = (unsigned int *)((unsigned int *)*(PTR_ROM_DRIVER_TABLE))[4];
+    unsigned int *div_ptr = (unsigned int *)((unsigned int *) * (PTR_ROM_DRIVER_TABLE))[4];
     // Get addresses of integer divide routines in ROM
     // These address are then used by the code in aeabi_romdiv_patch.s
     pDivRom_idiv = (unsigned int *)div_ptr[0];
@@ -295,29 +300,34 @@ ResetISR(void) {
 // Default exception handlers. Override the ones here by defining your own
 // handler routines in your application code.
 //*****************************************************************************
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void NMI_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void HardFault_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void SVC_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void PendSV_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void SysTick_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
 //*****************************************************************************
@@ -326,8 +336,9 @@ void SysTick_Handler(void)
 // handler is not present in the application code.
 //
 //*****************************************************************************
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void IntDefaultHandler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 

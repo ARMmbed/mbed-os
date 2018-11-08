@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /** @file
@@ -98,7 +98,7 @@ uint32_t hci_mem_pool_close(void);
  * @retval NRF_ERROR_NO_MEM     Operation failure. No memory available for allocation.
  * @retval NRF_ERROR_NULL       Operation failure. NULL pointer supplied.
  */
-uint32_t hci_mem_pool_tx_alloc(void ** pp_buffer);
+uint32_t hci_mem_pool_tx_alloc(void **pp_buffer);
 
 /**@brief Function for freeing previously allocated TX memory.
  *
@@ -122,7 +122,7 @@ uint32_t hci_mem_pool_tx_free(void);
  * @retval NRF_ERROR_DATA_SIZE  Operation failure. Request size exceeds limit.
  * @retval NRF_ERROR_NULL       Operation failure. NULL pointer supplied.
  */
-uint32_t hci_mem_pool_rx_produce(uint32_t length, void ** pp_buffer);
+uint32_t hci_mem_pool_rx_produce(uint32_t length, void **pp_buffer);
 
 /**@brief Function for setting the length of the last produced RX memory block.
  *
@@ -145,7 +145,7 @@ uint32_t hci_mem_pool_rx_data_size_set(uint32_t length);
  * @retval NRF_ERROR_NO_MEM     Operation failure. No packet available to extract.
  * @retval NRF_ERROR_NULL       Operation failure. NULL pointer supplied.
  */
-uint32_t hci_mem_pool_rx_extract(uint8_t ** pp_buffer, uint32_t * p_length);
+uint32_t hci_mem_pool_rx_extract(uint8_t **pp_buffer, uint32_t *p_length);
 
 /**@brief Function for freeing previously extracted packet, which has been filled with read data.
  *
@@ -155,7 +155,7 @@ uint32_t hci_mem_pool_rx_extract(uint8_t ** pp_buffer, uint32_t * p_length);
  * @retval NRF_ERROR_NO_MEM        Operation failure. No packet available to free.
  * @retval NRF_ERROR_INVALID_ADDR  Operation failure. Not a valid pointer.
  */
-uint32_t hci_mem_pool_rx_consume(uint8_t * p_buffer);
+uint32_t hci_mem_pool_rx_consume(uint8_t *p_buffer);
 
 
 #ifdef __cplusplus

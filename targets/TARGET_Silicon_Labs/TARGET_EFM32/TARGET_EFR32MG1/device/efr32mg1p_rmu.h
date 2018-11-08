@@ -38,13 +38,12 @@
  * @{
  * @brief EFR32MG1P_RMU Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;     /**< Control Register  */
-  __IM uint32_t  RSTCAUSE; /**< Reset Cause Register  */
-  __IOM uint32_t CMD;      /**< Command Register  */
-  __IOM uint32_t RST;      /**< Reset Control Register  */
-  __IOM uint32_t LOCK;     /**< Configuration Lock Register  */
+typedef struct {
+    __IOM uint32_t CTRL;     /**< Control Register  */
+    __IM uint32_t  RSTCAUSE; /**< Reset Cause Register  */
+    __IOM uint32_t CMD;      /**< Command Register  */
+    __IOM uint32_t RST;      /**< Reset Control Register  */
+    __IOM uint32_t LOCK;     /**< Configuration Lock Register  */
 } RMU_TypeDef;             /** @} */
 
 /**************************************************************************//**

@@ -59,7 +59,7 @@
  * @param[in] p_mutex     Pointer to the mutex group. See @ref MUTEX_STORAGE_SIZE().
  * @param[in] mutex_size  The size of the mutex group in number of mutexes.
  */
-void pm_mutex_init(uint8_t * p_mutex, uint16_t mutex_size);
+void pm_mutex_init(uint8_t *p_mutex, uint16_t mutex_size);
 
 
 /**@brief Locks the mutex specified by the bit id.
@@ -70,7 +70,7 @@ void pm_mutex_init(uint8_t * p_mutex, uint16_t mutex_size);
  * @retval true   if it was possible to lock the mutex.
  * @retval false  otherwise.
  */
-bool pm_mutex_lock(uint8_t * p_mutex, uint16_t mutex_bit_id);
+bool pm_mutex_lock(uint8_t *p_mutex, uint16_t mutex_bit_id);
 
 
 /**@brief Locks the first unlocked mutex within the mutex group.
@@ -81,7 +81,7 @@ bool pm_mutex_lock(uint8_t * p_mutex, uint16_t mutex_bit_id);
  * @return The first unlocked mutex id in the group.
  * @retval group-size  if there was no unlocked mutex available.
  */
-uint16_t pm_mutex_lock_first_available(uint8_t * p_mutex, uint16_t mutex_size);
+uint16_t pm_mutex_lock_first_available(uint8_t *p_mutex, uint16_t mutex_size);
 
 
 /**@brief Unlocks the mutex specified by the bit id.
@@ -89,7 +89,7 @@ uint16_t pm_mutex_lock_first_available(uint8_t * p_mutex, uint16_t mutex_size);
  * @param[in, out] p_mutex       Pointer to the mutex group.
  * @param[in]      mutex_bit_id  The bit id of the mutex.
  */
-void pm_mutex_unlock(uint8_t * p_mutex, uint16_t mutex_bit_id);
+void pm_mutex_unlock(uint8_t *p_mutex, uint16_t mutex_bit_id);
 
 
 /**@brief Gets the locking status of the specified mutex.
@@ -100,7 +100,7 @@ void pm_mutex_unlock(uint8_t * p_mutex, uint16_t mutex_bit_id);
  * @retval true   if the mutex was locked.
  * @retval false  otherwise.
  */
-bool pm_mutex_lock_status_get(uint8_t * p_mutex, uint16_t mutex_bit_id);
+bool pm_mutex_lock_status_get(uint8_t *p_mutex, uint16_t mutex_bit_id);
 
 
 #endif // MUTEX_H__

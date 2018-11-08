@@ -25,11 +25,10 @@
 
 #ifdef USBHOST_3GMODULE
 
-class IUSBHostSerialListener
-{
+class IUSBHostSerialListener {
 public:
-  virtual void readable() = 0; //Called when new data is available
-  virtual void writeable() = 0; //Called when new space is available
+    virtual void readable() = 0; //Called when new data is available
+    virtual void writeable() = 0; //Called when new space is available
 };
 
 #endif /* USBHOST_3GMODULE */

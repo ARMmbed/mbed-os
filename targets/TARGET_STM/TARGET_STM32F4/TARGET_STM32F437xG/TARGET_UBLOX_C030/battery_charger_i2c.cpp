@@ -16,18 +16,18 @@
 
 #include "battery_charger_i2c.h"
 
-BatteryChargerI2c::BatteryChargerI2c(PinName sda, PinName scl):_i2c(), _hz(100000)
+BatteryChargerI2c::BatteryChargerI2c(PinName sda, PinName scl): _i2c(), _hz(100000)
 {
     i2c_init(&_i2c, sda, scl);
 }
 
-bool BatteryChargerI2c::read_from_i2c(int i2c_address, char* data_read, int length)
+bool BatteryChargerI2c::read_from_i2c(int i2c_address, char *data_read, int length)
 {
     int bytes_read = i2c_read(&_i2c, i2c_address, data_read, length, 1);
     return (length == bytes_read);
 }
 
-bool BatteryChargerI2c::write_to_i2c(int i2c_address, const char* data_write, int length)
+bool BatteryChargerI2c::write_to_i2c(int i2c_address, const char *data_write, int length)
 {
     int bytes_written = i2c_write(&_i2c, i2c_address, data_write, length, 1);
     return (length == bytes_written);

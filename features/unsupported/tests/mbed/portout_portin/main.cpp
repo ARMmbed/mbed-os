@@ -1,11 +1,11 @@
 #include "test_env.h"
 
 #if !DEVICE_PORTIN
-  #error [NOT_SUPPORTED] PortIn is not supported
+#error [NOT_SUPPORTED] PortIn is not supported
 #endif
 
 #if !DEVICE_PORTOUT
-  #error [NOT_SUPPORTED] PortOut is not supported
+#error [NOT_SUPPORTED] PortOut is not supported
 #endif
 
 #if defined(TARGET_K64F) || defined(TARGET_KL05Z)
@@ -233,9 +233,10 @@
 #define MASK_2   (P2_1 | P2_2)
 
 PortOut port_out(PORT_1, MASK_1);
-PortIn  port_in (PORT_2, MASK_2);
+PortIn  port_in(PORT_2, MASK_2);
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(PortOut PortIn);

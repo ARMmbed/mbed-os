@@ -31,7 +31,7 @@ struct gpio_irq_s {
     //IRQn_Type irq_n;
     //uint32_t irq_index;
     //uint32_t event;
-    
+
     PinName     pin;
     uint32_t    irq_handler;
     uint32_t    irq_id;
@@ -52,26 +52,26 @@ struct serial_s {
     UARTName uart;
     PinName pin_tx;
     PinName pin_rx;
-    
+
     uint32_t baudrate;
     uint32_t databits;
     uint32_t parity;
     uint32_t stopbits;
-    
-    void        (*vec)(void);
+
+    void (*vec)(void);
     uint32_t    irq_handler;
     uint32_t    irq_id;
     uint32_t    irq_en;
     uint32_t    inten_msk;
-    
+
     // Async transfer related fields
     DMAUsage    dma_usage_tx;
     DMAUsage    dma_usage_rx;
     int         dma_chn_id_tx;
     int         dma_chn_id_rx;
     uint32_t    event;
-    void        (*irq_handler_tx_async)(void);
-    void        (*irq_handler_rx_async)(void);
+    void (*irq_handler_tx_async)(void);
+    void (*irq_handler_rx_async)(void);
 };
 
 struct spi_s {
@@ -80,9 +80,9 @@ struct spi_s {
     PinName pin_mosi;
     PinName pin_sclk;
     PinName pin_ssel;
-    
+
     //void        (*vec)(void);
-    
+
     // Async transfer related fields
     DMAUsage    dma_usage;
     int         dma_chn_id_tx;
@@ -96,14 +96,14 @@ struct i2c_s {
     I2CName     i2c;
     //void        (*vec)(void);
     int         slaveaddr_state;
-    
+
     uint32_t    tran_ctrl;
-    char *      tran_beg;
-    char *      tran_pos;
-    char *      tran_end;
+    char       *tran_beg;
+    char       *tran_pos;
+    char       *tran_end;
     int         inten;
-    
-    
+
+
     // Async transfer related fields
     DMAUsage    dma_usage;
     uint32_t    event;
@@ -124,7 +124,7 @@ struct trng_s {
 
 struct can_s {
     CANName can;
-    int index; 
+    int index;
 };
 #ifdef __cplusplus
 }

@@ -89,9 +89,9 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
     // addr and size should be aligned to page size, and multiple of page size
     // page program should not cross sector boundaries
     if (!is_aligned(addr, page_size) ||
-        !is_aligned(size, page_size) ||
-        (size < page_size) ||
-        (((addr % current_sector_size) + size) > current_sector_size)) {
+            !is_aligned(size, page_size) ||
+            (size < page_size) ||
+            (((addr % current_sector_size) + size) > current_sector_size)) {
         return -1;
     }
 
@@ -108,7 +108,7 @@ bool FlashIAP::is_aligned_to_sector(uint32_t addr, uint32_t size)
 {
     uint32_t current_sector_size = flash_get_sector_size(&_flash, addr);
     if (!is_aligned(size, current_sector_size) ||
-        !is_aligned(addr, current_sector_size)) {
+            !is_aligned(addr, current_sector_size)) {
         return false;
     } else {
         return true;

@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   smp_defs.h
- *        
+ *
  *  \brief  Security manager constants and definitions from the Bluetooth specification.
  *
  *          $Date: 2011-10-14 21:35:03 -0700 (Fri, 14 Oct 2011) $
  *          $Revision: 191 $
- *  
+ *
  *  Copyright (c) 2010-2016 ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: LicenseRef-PBL

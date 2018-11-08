@@ -36,12 +36,11 @@
 /**************************************************************************//**
  * @brief RTCC_CC EFR32MG1P RTCC CC
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL; /**< CC Channel Control Register  */
-  __IOM uint32_t CCV;  /**< Capture/Compare Value Register  */
-  __IOM uint32_t TIME; /**< Capture/Compare Time Register  */
-  __IOM uint32_t DATE; /**< Capture/Compare Date Register  */
+typedef struct {
+    __IOM uint32_t CTRL; /**< CC Channel Control Register  */
+    __IOM uint32_t CCV;  /**< Capture/Compare Value Register  */
+    __IOM uint32_t TIME; /**< Capture/Compare Time Register  */
+    __IOM uint32_t DATE; /**< Capture/Compare Date Register  */
 } RTCC_CC_TypeDef;
 
 /** @} End of group Parts */

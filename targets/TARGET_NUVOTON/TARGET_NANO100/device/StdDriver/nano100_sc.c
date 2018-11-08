@@ -42,16 +42,17 @@ uint32_t SC_IsCardInserted(SC_T *sc)
     uint32_t cond1 = ((sc->PINCSR & SC_PINCSR_CD_PIN_ST_Msk) >> SC_PINCSR_CD_PIN_ST_Pos);
     uint32_t cond2 = ((sc->PINCSR & SC_PINCSR_CD_LEV_Msk) >> SC_PINCSR_CD_LEV_Pos);
 
-    if(sc == SC0 && u32CardStateIgnore[0] == 1)
+    if (sc == SC0 && u32CardStateIgnore[0] == 1) {
         return TRUE;
-    else if(sc == SC1 && u32CardStateIgnore[1] == 1)
+    } else if (sc == SC1 && u32CardStateIgnore[1] == 1) {
         return TRUE;
-    else if(sc == SC2 && u32CardStateIgnore[2] == 1)
+    } else if (sc == SC2 && u32CardStateIgnore[2] == 1) {
         return TRUE;
-    else if(cond1 != cond2)
+    } else if (cond1 != cond2) {
         return FALSE;
-    else
+    } else {
         return TRUE;
+    }
 }
 
 /**
@@ -93,15 +94,16 @@ void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR)
 {
     uint32_t u32Reg = 0, u32Intf;
 
-    if(sc == SC0)
+    if (sc == SC0) {
         u32Intf = 0;
-    else if(sc == SC1)
+    } else if (sc == SC1) {
         u32Intf = 1;
-    else
+    } else {
         u32Intf = 2;
+    }
 
-    if(u32CD != SC_PIN_STATE_IGNORE) {
-        u32Reg = u32CD ? 0: SC_PINCSR_CD_LEV_Msk;
+    if (u32CD != SC_PIN_STATE_IGNORE) {
+        u32Reg = u32CD ? 0 : SC_PINCSR_CD_LEV_Msk;
         u32CardStateIgnore[u32Intf] = 0;
     } else {
         u32CardStateIgnore[u32Intf] = 1;
@@ -120,12 +122,13 @@ void SC_ResetReader(SC_T *sc)
 {
     uint32_t u32Intf;
 
-    if(sc == SC0)
+    if (sc == SC0) {
         u32Intf = 0;
-    else if(sc == SC1)
+    } else if (sc == SC1) {
         u32Intf = 1;
-    else
+    } else {
         u32Intf = 2;
+    }
 
     // Reset FIFO
     sc->ALTCTL |= (SC_ALTCTL_TX_RST_Msk | SC_ALTCTL_RX_RST_Msk);
@@ -141,7 +144,7 @@ void SC_ResetReader(SC_T *sc)
     sc->PINCSR = (sc->PINCSR & ~SC_PINCSR_POW_EN_Msk) | SC_PINCSR_ADAC_CD_EN_Msk;
 
     /* Enable necessary interrupt for smartcard operation */
-    if(u32CardStateIgnore[u32Intf]) // Do not enable card detect interrupt if card present state ignore
+    if (u32CardStateIgnore[u32Intf]) // Do not enable card detect interrupt if card present state ignore
         sc->IER = (SC_IER_RDA_IE_Msk |
                    SC_IER_TERR_IE_Msk |
                    SC_IER_TMR0_IE_Msk |
@@ -181,7 +184,7 @@ void SC_SetBlockGuardTime(SC_T *sc, uint32_t u32BGT)
   */
 void SC_SetCharGuardTime(SC_T *sc, uint32_t u32CGT)
 {
-    u32CGT -= sc->CTL & SC_CTL_SLEN_Msk ? 11: 12;
+    u32CGT -= sc->CTL & SC_CTL_SLEN_Msk ? 11 : 12;
     sc->EGTR = u32CGT;
 }
 
@@ -221,10 +224,10 @@ void SC_StartTimer(SC_T *sc, uint32_t u32TimerNum, uint32_t u32Mode, uint32_t u3
 {
     uint32_t reg = u32Mode | (SC_TMR0_CNT_Msk & (u32ETUCount - 1));
 
-    if(u32TimerNum == 0) {
+    if (u32TimerNum == 0) {
         sc->TMR0 = reg;
         sc->ALTCTL |= SC_ALTCTL_TMR0_SEN_Msk;
-    } else if(u32TimerNum == 1) {
+    } else if (u32TimerNum == 1) {
         sc->TMR1 = reg;
         sc->ALTCTL |= SC_ALTCTL_TMR1_SEN_Msk;
     } else {   // timer 2
@@ -242,12 +245,13 @@ void SC_StartTimer(SC_T *sc, uint32_t u32TimerNum, uint32_t u32Mode, uint32_t u3
   */
 void SC_StopTimer(SC_T *sc, uint32_t u32TimerNum)
 {
-    if(u32TimerNum == 0)
+    if (u32TimerNum == 0) {
         sc->ALTCTL &= ~SC_ALTCTL_TMR0_SEN_Msk;
-    else if(u32TimerNum == 1)
+    } else if (u32TimerNum == 1) {
         sc->ALTCTL &= ~SC_ALTCTL_TMR1_SEN_Msk;
-    else    // timer 2
+    } else { // timer 2
         sc->ALTCTL &= ~SC_ALTCTL_TMR2_SEN_Msk;
+    }
 }
 
 

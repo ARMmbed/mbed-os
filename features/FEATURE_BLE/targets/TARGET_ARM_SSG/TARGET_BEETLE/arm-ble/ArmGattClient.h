@@ -22,16 +22,17 @@
 
 #include "GattClient.h"
 
-class ArmGattClient : public GattClient
-{
+class ArmGattClient : public GattClient {
 public:
-    static ArmGattClient &getInstance() {
+    static ArmGattClient &getInstance()
+    {
         static ArmGattClient m_instance;
         return m_instance;
     }
 
 public:
-    ArmGattClient() {
+    ArmGattClient()
+    {
         /* empty */
     }
 

@@ -5,18 +5,18 @@
   * @version V1.2.0
   * @date    01-July-2016
   * @brief   SDMMC Low Layer HAL module driver.
-  *    
-  *          This file provides firmware functions to manage the following 
+  *
+  *          This file provides firmware functions to manage the following
   *          functionalities of the SDMMC peripheral:
   *           + Initialization/de-initialization functions
   *           + I/O operation functions
-  *           + Peripheral Control functions 
+  *           + Peripheral Control functions
   *           + Peripheral State functions
-  *         
+  *
   @verbatim
   ==============================================================================
                        ##### SDMMC peripheral features #####
-  ==============================================================================        
+  ==============================================================================
     [..] The SD/SDIO MMC card host interface (SDIO) provides an interface between the APB2
          peripheral bus and MultiMedia cards (MMCs), SD memory cards, SDIO cards and CE-ATA
          devices.
@@ -32,50 +32,50 @@
              Rev1.1)
          (+) Data transfer up to 48 MHz for the 8 bit mode
          (+) Data and command output enable signals to control external bidirectional drivers.
-                 
-   
+
+
                            ##### How to use this driver #####
   ==============================================================================
     [..]
-      This driver is a considered as a driver of service for external devices drivers 
+      This driver is a considered as a driver of service for external devices drivers
       that interfaces with the SDIO peripheral.
-      According to the device used (SD card/ MMC card / SDIO card ...), a set of APIs 
+      According to the device used (SD card/ MMC card / SDIO card ...), a set of APIs
       is used in the device's driver to perform SDIO operations and functionalities.
-   
+
       This driver is almost transparent for the final user, it is only used to implement other
       functionalities of the external device.
-   
+
     [..]
       (+) The SDIO clock (SDIOCLK = 48 MHz) is coming from the PLL. Before start working with SDIO peripheral make sure that the
           PLL is well configured.
           The SDIO peripheral uses two clock signals:
           (++) SDIO adapter clock (SDIOCLK = 48 MHz)
           (++) APB2 bus clock (PCLK2)
-       
+
           -@@- PCLK2 and SDIO_CK clock frequencies must respect the following condition:
                Frequency(PCLK2) >= (3 / 8 x Frequency(SDIO_CK))
-  
+
       (+) Enable/Disable peripheral clock using RCC peripheral macros related to SDIO
           peripheral.
 
-      (+) Enable the Power ON State using the SDIO_PowerState_ON(SDIOx) 
+      (+) Enable the Power ON State using the SDIO_PowerState_ON(SDIOx)
           function and disable it using the function SDIO_PowerState_OFF(SDIOx).
-                
+
       (+) Enable/Disable the clock using the __SDIO_ENABLE()/__SDIO_DISABLE() macros.
-  
-      (+) Enable/Disable the peripheral interrupts using the macros __SDIO_ENABLE_IT(hsdio, IT) 
-          and __SDIO_DISABLE_IT(hsdio, IT) if you need to use interrupt mode. 
-  
-      (+) When using the DMA mode 
+
+      (+) Enable/Disable the peripheral interrupts using the macros __SDIO_ENABLE_IT(hsdio, IT)
+          and __SDIO_DISABLE_IT(hsdio, IT) if you need to use interrupt mode.
+
+      (+) When using the DMA mode
           (++) Configure the DMA in the MSP layer of the external device
-          (++) Active the needed channel Request 
+          (++) Active the needed channel Request
           (++) Enable the DMA using __SDIO_DMA_ENABLE() macro or Disable it using the macro
                __SDIO_DMA_DISABLE().
-  
-      (+) To control the CPSM (Command Path State Machine) and send 
-          commands to the card use the SDIO_SendCommand(SDIOx), 
+
+      (+) To control the CPSM (Command Path State Machine) and send
+          commands to the card use the SDIO_SendCommand(SDIOx),
           SDIO_GetCommandResponse() and SDIO_GetResponse() functions. First, user has
-          to fill the command structure (pointer to SDIO_CmdInitTypeDef) according 
+          to fill the command structure (pointer to SDIO_CmdInitTypeDef) according
           to the selected command to be sent.
           The parameters that should be filled are:
            (++) Command Argument
@@ -83,16 +83,16 @@
            (++) Command Response type
            (++) Command Wait
            (++) CPSM Status (Enable or Disable).
-  
+
           -@@- To check if the command is well received, read the SDIO_CMDRESP
               register using the SDIO_GetCommandResponse().
               The SDIO responses registers (SDIO_RESP1 to SDIO_RESP2), use the
               SDIO_GetResponse() function.
-  
-      (+) To control the DPSM (Data Path State Machine) and send/receive 
-           data to/from the card use the SDIO_DataConfig(), SDIO_GetDataCounter(), 
+
+      (+) To control the DPSM (Data Path State Machine) and send/receive
+           data to/from the card use the SDIO_DataConfig(), SDIO_GetDataCounter(),
           SDIO_ReadFIFO(), SDIO_WriteFIFO() and SDIO_GetFIFOCount() functions.
-  
+
     *** Read Operations ***
     =======================
     [..]
@@ -105,14 +105,14 @@
            (++) Data Transfer direction: should be from card (To SDIO)
            (++) Data Transfer mode
            (++) DPSM Status (Enable or Disable)
-                                     
+
       (#) Configure the SDIO resources to receive the data from the card
           according to selected transfer mode.
-  
+
       (#) Send the selected Read command.
-                    
+
       (#) Use the SDIO flags/interrupts to check the transfer status.
-  
+
     *** Write Operations ***
     ========================
     [..]
@@ -125,14 +125,14 @@
           (++) Data Transfer direction:  should be to card (To CARD)
           (++) Data Transfer mode
           (++) DPSM Status (Enable or Disable)
-  
-     (#) Configure the SDIO resources to send the data to the card according to 
+
+     (#) Configure the SDIO resources to send the data to the card according to
          selected transfer mode.
-                     
+
      (#) Send the selected Write command.
-                    
+
      (#) Use the SDIO flags/interrupts to check the transfer status.
-  
+
   @endverbatim
   ******************************************************************************
   * @attention
@@ -162,7 +162,7 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal.h"
@@ -191,15 +191,15 @@
   * @{
   */
 
-/** @defgroup HAL_SDMMC_LL_Group1 Initialization/de-initialization functions 
- *  @brief    Initialization and Configuration functions 
+/** @defgroup HAL_SDMMC_LL_Group1 Initialization/de-initialization functions
+ *  @brief    Initialization and Configuration functions
  *
-@verbatim    
+@verbatim
  ===============================================================================
               ##### Initialization/de-initialization functions #####
  ===============================================================================
     [..]  This section provides functions allowing to:
- 
+
 @endverbatim
   * @{
   */
@@ -208,50 +208,50 @@
   * @brief  Initializes the SDIO according to the specified
   *         parameters in the SDIO_InitTypeDef and create the associated handle.
   * @param  SDIOx: Pointer to SDIO register base
-  * @param  Init: SDIO initialization structure   
+  * @param  Init: SDIO initialization structure
   * @retval HAL status
   */
 HAL_StatusTypeDef SDIO_Init(SDIO_TypeDef *SDIOx, SDIO_InitTypeDef Init)
 {
-  uint32_t tmpreg = 0; 
+    uint32_t tmpreg = 0;
 
-  /* Check the parameters */
-  assert_param(IS_SDIO_ALL_INSTANCE(SDIOx));
-  assert_param(IS_SDIO_CLOCK_EDGE(Init.ClockEdge)); 
-  assert_param(IS_SDIO_CLOCK_BYPASS(Init.ClockBypass));
-  assert_param(IS_SDIO_CLOCK_POWER_SAVE(Init.ClockPowerSave));
-  assert_param(IS_SDIO_BUS_WIDE(Init.BusWide));
-  assert_param(IS_SDIO_HARDWARE_FLOW_CONTROL(Init.HardwareFlowControl));
-  assert_param(IS_SDIO_CLKDIV(Init.ClockDiv));
-  
-  /* Set SDIO configuration parameters */
-  tmpreg |= (Init.ClockEdge           |\
-             Init.ClockBypass         |\
-             Init.ClockPowerSave      |\
-             Init.BusWide             |\
-             Init.HardwareFlowControl |\
-             Init.ClockDiv
-             ); 
-  
-  /* Write to SDIO CLKCR */
-  MODIFY_REG(SDIOx->CLKCR, CLKCR_CLEAR_MASK, tmpreg);  
+    /* Check the parameters */
+    assert_param(IS_SDIO_ALL_INSTANCE(SDIOx));
+    assert_param(IS_SDIO_CLOCK_EDGE(Init.ClockEdge));
+    assert_param(IS_SDIO_CLOCK_BYPASS(Init.ClockBypass));
+    assert_param(IS_SDIO_CLOCK_POWER_SAVE(Init.ClockPowerSave));
+    assert_param(IS_SDIO_BUS_WIDE(Init.BusWide));
+    assert_param(IS_SDIO_HARDWARE_FLOW_CONTROL(Init.HardwareFlowControl));
+    assert_param(IS_SDIO_CLKDIV(Init.ClockDiv));
 
-  return HAL_OK;
+    /* Set SDIO configuration parameters */
+    tmpreg |= (Init.ClockEdge           | \
+               Init.ClockBypass         | \
+               Init.ClockPowerSave      | \
+               Init.BusWide             | \
+               Init.HardwareFlowControl | \
+               Init.ClockDiv
+              );
+
+    /* Write to SDIO CLKCR */
+    MODIFY_REG(SDIOx->CLKCR, CLKCR_CLEAR_MASK, tmpreg);
+
+    return HAL_OK;
 }
 
 /**
   * @}
   */
 
-/** @defgroup HAL_SDMMC_LL_Group2 I/O operation functions 
- *  @brief   Data transfers functions 
+/** @defgroup HAL_SDMMC_LL_Group2 I/O operation functions
+ *  @brief   Data transfers functions
  *
-@verbatim   
+@verbatim
  ===============================================================================
                       ##### I/O operation functions #####
- ===============================================================================  
+ ===============================================================================
     [..]
-    This subsection provides a set of functions allowing to manage the SDIO data 
+    This subsection provides a set of functions allowing to manage the SDIO data
     transfers.
 
 @endverbatim
@@ -259,43 +259,43 @@ HAL_StatusTypeDef SDIO_Init(SDIO_TypeDef *SDIOx, SDIO_InitTypeDef Init)
   */
 
 /**
-  * @brief  Read data (word) from Rx FIFO in blocking mode (polling) 
+  * @brief  Read data (word) from Rx FIFO in blocking mode (polling)
   * @param  SDIOx: Pointer to SDIO register base
   * @retval HAL status
   */
 uint32_t SDIO_ReadFIFO(SDIO_TypeDef *SDIOx)
 {
-  /* Read data from Rx FIFO */ 
-  return (SDIOx->FIFO);
+    /* Read data from Rx FIFO */
+    return (SDIOx->FIFO);
 }
 
 /**
-  * @brief  Write data (word) to Tx FIFO in blocking mode (polling) 
+  * @brief  Write data (word) to Tx FIFO in blocking mode (polling)
   * @param  SDIOx: Pointer to SDIO register base
   * @param  pWriteData: pointer to data to write
   * @retval HAL status
   */
 HAL_StatusTypeDef SDIO_WriteFIFO(SDIO_TypeDef *SDIOx, uint32_t *pWriteData)
-{ 
-  /* Write data to FIFO */ 
-  SDIOx->FIFO = *pWriteData;
+{
+    /* Write data to FIFO */
+    SDIOx->FIFO = *pWriteData;
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 /**
   * @}
   */
 
-/** @defgroup HAL_SDMMC_LL_Group3 Peripheral Control functions 
- *  @brief   management functions 
+/** @defgroup HAL_SDMMC_LL_Group3 Peripheral Control functions
+ *  @brief   management functions
  *
-@verbatim   
+@verbatim
  ===============================================================================
                       ##### Peripheral Control functions #####
- ===============================================================================  
+ ===============================================================================
     [..]
-    This subsection provides a set of functions allowing to control the SDIO data 
+    This subsection provides a set of functions allowing to control the SDIO data
     transfers.
 
 @endverbatim
@@ -303,76 +303,76 @@ HAL_StatusTypeDef SDIO_WriteFIFO(SDIO_TypeDef *SDIOx, uint32_t *pWriteData)
   */
 
 /**
-  * @brief  Set SDIO Power state to ON. 
+  * @brief  Set SDIO Power state to ON.
   * @param  SDIOx: Pointer to SDIO register base
   * @retval HAL status
   */
 HAL_StatusTypeDef SDIO_PowerState_ON(SDIO_TypeDef *SDIOx)
-{  
-  /* Set power state to ON */ 
-  SDIOx->POWER = SDIO_POWER_PWRCTRL;
-  
-  return HAL_OK; 
+{
+    /* Set power state to ON */
+    SDIOx->POWER = SDIO_POWER_PWRCTRL;
+
+    return HAL_OK;
 }
 
 /**
-  * @brief  Set SDIO Power state to OFF. 
+  * @brief  Set SDIO Power state to OFF.
   * @param  SDIOx: Pointer to SDIO register base
   * @retval HAL status
   */
 HAL_StatusTypeDef SDIO_PowerState_OFF(SDIO_TypeDef *SDIOx)
 {
-  /* Set power state to OFF */
-  SDIOx->POWER = (uint32_t)0x00000000;
-  
-  return HAL_OK;
+    /* Set power state to OFF */
+    SDIOx->POWER = (uint32_t)0x00000000;
+
+    return HAL_OK;
 }
 
 /**
-  * @brief  Get SDIO Power state. 
+  * @brief  Get SDIO Power state.
   * @param  SDIOx: Pointer to SDIO register base
-  * @retval Power status of the controller. The returned value can be one of the 
+  * @retval Power status of the controller. The returned value can be one of the
   *         following values:
   *            - 0x00: Power OFF
   *            - 0x02: Power UP
-  *            - 0x03: Power ON 
+  *            - 0x03: Power ON
   */
-uint32_t SDIO_GetPowerState(SDIO_TypeDef *SDIOx)  
+uint32_t SDIO_GetPowerState(SDIO_TypeDef *SDIOx)
 {
-  return (SDIOx->POWER & SDIO_POWER_PWRCTRL);
+    return (SDIOx->POWER & SDIO_POWER_PWRCTRL);
 }
 
 /**
   * @brief  Configure the SDIO command path according to the specified parameters in
-  *         SDIO_CmdInitTypeDef structure and send the command 
+  *         SDIO_CmdInitTypeDef structure and send the command
   * @param  SDIOx: Pointer to SDIO register base
-  * @param  SDIO_CmdInitStruct: pointer to a SDIO_CmdInitTypeDef structure that contains 
+  * @param  SDIO_CmdInitStruct: pointer to a SDIO_CmdInitTypeDef structure that contains
   *         the configuration information for the SDIO command
   * @retval HAL status
   */
 HAL_StatusTypeDef SDIO_SendCommand(SDIO_TypeDef *SDIOx, SDIO_CmdInitTypeDef *SDIO_CmdInitStruct)
 {
-  uint32_t tmpreg = 0;
-  
-  /* Check the parameters */
-  assert_param(IS_SDIO_CMD_INDEX(SDIO_CmdInitStruct->CmdIndex));
-  assert_param(IS_SDIO_RESPONSE(SDIO_CmdInitStruct->Response));
-  assert_param(IS_SDIO_WAIT(SDIO_CmdInitStruct->WaitForInterrupt));
-  assert_param(IS_SDIO_CPSM(SDIO_CmdInitStruct->CPSM));
+    uint32_t tmpreg = 0;
 
-  /* Set the SDIO Argument value */
-  SDIOx->ARG = SDIO_CmdInitStruct->Argument;
+    /* Check the parameters */
+    assert_param(IS_SDIO_CMD_INDEX(SDIO_CmdInitStruct->CmdIndex));
+    assert_param(IS_SDIO_RESPONSE(SDIO_CmdInitStruct->Response));
+    assert_param(IS_SDIO_WAIT(SDIO_CmdInitStruct->WaitForInterrupt));
+    assert_param(IS_SDIO_CPSM(SDIO_CmdInitStruct->CPSM));
 
-  /* Set SDIO command parameters */
-  tmpreg |= (uint32_t)(SDIO_CmdInitStruct->CmdIndex         |\
-                       SDIO_CmdInitStruct->Response         |\
-                       SDIO_CmdInitStruct->WaitForInterrupt |\
-                       SDIO_CmdInitStruct->CPSM);
-  
-  /* Write to SDIO CMD register */
-  MODIFY_REG(SDIOx->CMD, CMD_CLEAR_MASK, tmpreg); 
-  
-  return HAL_OK;  
+    /* Set the SDIO Argument value */
+    SDIOx->ARG = SDIO_CmdInitStruct->Argument;
+
+    /* Set SDIO command parameters */
+    tmpreg |= (uint32_t)(SDIO_CmdInitStruct->CmdIndex         | \
+                         SDIO_CmdInitStruct->Response         | \
+                         SDIO_CmdInitStruct->WaitForInterrupt | \
+                         SDIO_CmdInitStruct->CPSM);
+
+    /* Write to SDIO CMD register */
+    MODIFY_REG(SDIOx->CMD, CMD_CLEAR_MASK, tmpreg);
+
+    return HAL_OK;
 }
 
 /**
@@ -382,68 +382,68 @@ HAL_StatusTypeDef SDIO_SendCommand(SDIO_TypeDef *SDIOx, SDIO_CmdInitTypeDef *SDI
   */
 uint8_t SDIO_GetCommandResponse(SDIO_TypeDef *SDIOx)
 {
-  return (uint8_t)(SDIOx->RESPCMD);
+    return (uint8_t)(SDIOx->RESPCMD);
 }
 
 
 /**
   * @brief  Return the response received from the card for the last command
-  * @param  SDIO_RESP: Specifies the SDIO response register. 
+  * @param  SDIO_RESP: Specifies the SDIO response register.
   *          This parameter can be one of the following values:
   *            @arg SDIO_RESP1: Response Register 1
   *            @arg SDIO_RESP2: Response Register 2
   *            @arg SDIO_RESP3: Response Register 3
-  *            @arg SDIO_RESP4: Response Register 4  
+  *            @arg SDIO_RESP4: Response Register 4
   * @retval The Corresponding response register value
   */
 uint32_t SDIO_GetResponse(uint32_t SDIO_RESP)
 {
-  __IO uint32_t tmp = 0;
+    __IO uint32_t tmp = 0;
 
-  /* Check the parameters */
-  assert_param(IS_SDIO_RESP(SDIO_RESP));
+    /* Check the parameters */
+    assert_param(IS_SDIO_RESP(SDIO_RESP));
 
-  /* Get the response */
-  tmp = SDIO_RESP_ADDR + SDIO_RESP;
-  
-  return (*(__IO uint32_t *) tmp);
-}  
+    /* Get the response */
+    tmp = SDIO_RESP_ADDR + SDIO_RESP;
+
+    return (*(__IO uint32_t *) tmp);
+}
 
 /**
-  * @brief  Configure the SDIO data path according to the specified 
+  * @brief  Configure the SDIO data path according to the specified
   *         parameters in the SDIO_DataInitTypeDef.
-  * @param  SDIOx: Pointer to SDIO register base  
-  * @param  SDIO_DataInitStruct : pointer to a SDIO_DataInitTypeDef structure 
+  * @param  SDIOx: Pointer to SDIO register base
+  * @param  SDIO_DataInitStruct : pointer to a SDIO_DataInitTypeDef structure
   *         that contains the configuration information for the SDIO command.
   * @retval HAL status
   */
-HAL_StatusTypeDef SDIO_DataConfig(SDIO_TypeDef *SDIOx, SDIO_DataInitTypeDef* SDIO_DataInitStruct)
+HAL_StatusTypeDef SDIO_DataConfig(SDIO_TypeDef *SDIOx, SDIO_DataInitTypeDef *SDIO_DataInitStruct)
 {
-  uint32_t tmpreg = 0;
-  
-  /* Check the parameters */
-  assert_param(IS_SDIO_DATA_LENGTH(SDIO_DataInitStruct->DataLength));
-  assert_param(IS_SDIO_BLOCK_SIZE(SDIO_DataInitStruct->DataBlockSize));
-  assert_param(IS_SDIO_TRANSFER_DIR(SDIO_DataInitStruct->TransferDir));
-  assert_param(IS_SDIO_TRANSFER_MODE(SDIO_DataInitStruct->TransferMode));
-  assert_param(IS_SDIO_DPSM(SDIO_DataInitStruct->DPSM));
+    uint32_t tmpreg = 0;
 
-  /* Set the SDIO Data Timeout value */
-  SDIOx->DTIMER = SDIO_DataInitStruct->DataTimeOut;
+    /* Check the parameters */
+    assert_param(IS_SDIO_DATA_LENGTH(SDIO_DataInitStruct->DataLength));
+    assert_param(IS_SDIO_BLOCK_SIZE(SDIO_DataInitStruct->DataBlockSize));
+    assert_param(IS_SDIO_TRANSFER_DIR(SDIO_DataInitStruct->TransferDir));
+    assert_param(IS_SDIO_TRANSFER_MODE(SDIO_DataInitStruct->TransferMode));
+    assert_param(IS_SDIO_DPSM(SDIO_DataInitStruct->DPSM));
 
-  /* Set the SDIO DataLength value */
-  SDIOx->DLEN = SDIO_DataInitStruct->DataLength;
+    /* Set the SDIO Data Timeout value */
+    SDIOx->DTIMER = SDIO_DataInitStruct->DataTimeOut;
 
-  /* Set the SDIO data configuration parameters */
-  tmpreg |= (uint32_t)(SDIO_DataInitStruct->DataBlockSize |\
-                       SDIO_DataInitStruct->TransferDir   |\
-                       SDIO_DataInitStruct->TransferMode  |\
-                       SDIO_DataInitStruct->DPSM);
-  
-  /* Write to SDIO DCTRL */
-  MODIFY_REG(SDIOx->DCTRL, DCTRL_CLEAR_MASK, tmpreg);
+    /* Set the SDIO DataLength value */
+    SDIOx->DLEN = SDIO_DataInitStruct->DataLength;
 
-  return HAL_OK;
+    /* Set the SDIO data configuration parameters */
+    tmpreg |= (uint32_t)(SDIO_DataInitStruct->DataBlockSize | \
+                         SDIO_DataInitStruct->TransferDir   | \
+                         SDIO_DataInitStruct->TransferMode  | \
+                         SDIO_DataInitStruct->DPSM);
+
+    /* Write to SDIO DCTRL */
+    MODIFY_REG(SDIOx->DCTRL, DCTRL_CLEAR_MASK, tmpreg);
+
+    return HAL_OK;
 
 }
 
@@ -454,17 +454,17 @@ HAL_StatusTypeDef SDIO_DataConfig(SDIO_TypeDef *SDIOx, SDIO_DataInitTypeDef* SDI
   */
 uint32_t SDIO_GetDataCounter(SDIO_TypeDef *SDIOx)
 {
-  return (SDIOx->DCOUNT);
+    return (SDIOx->DCOUNT);
 }
 
 /**
   * @brief  Get the FIFO data
-  * @param  SDIOx: Pointer to SDIO register base 
+  * @param  SDIOx: Pointer to SDIO register base
   * @retval Data received
   */
 uint32_t SDIO_GetFIFOCount(SDIO_TypeDef *SDIOx)
 {
-  return (SDIOx->FIFO);
+    return (SDIOx->FIFO);
 }
 
 
@@ -478,12 +478,12 @@ uint32_t SDIO_GetFIFOCount(SDIO_TypeDef *SDIOx)
   */
 HAL_StatusTypeDef SDIO_SetSDIOReadWaitMode(uint32_t SDIO_ReadWaitMode)
 {
-  /* Check the parameters */
-  assert_param(IS_SDIO_READWAIT_MODE(SDIO_ReadWaitMode));
-  
-  *(__IO uint32_t *)DCTRL_RWMOD_BB = SDIO_ReadWaitMode;
-  
-  return HAL_OK;  
+    /* Check the parameters */
+    assert_param(IS_SDIO_READWAIT_MODE(SDIO_ReadWaitMode));
+
+    *(__IO uint32_t *)DCTRL_RWMOD_BB = SDIO_ReadWaitMode;
+
+    return HAL_OK;
 }
 
 /**

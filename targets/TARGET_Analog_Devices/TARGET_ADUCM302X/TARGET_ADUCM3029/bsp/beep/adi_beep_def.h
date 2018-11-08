@@ -87,37 +87,35 @@ typedef uint8_t ADI_BEEP_STATE;
  * \struct ADI_BEEP_DEV_DATA
  * Beeper device internal instance data structure.
  */
-typedef struct _ADI_BEEP_DEV_DATA
-{
+typedef struct _ADI_BEEP_DEV_DATA {
     volatile ADI_BEEP_STATE   state;          /*!< Device state                */
     ADI_CALLBACK              cbFunc;         /*!< Callback function           */
     void                      *cbParam;       /*!< Callback parameter          */
 #if ADI_BEEP_INCLUDE_PLAY_SEQUENCE == 1
-    ADI_BEEP_NOTE             (*pSeqArray)[];   /*!< Pointer to a user-allocated array of notes. */
+    ADI_BEEP_NOTE(*pSeqArray)[];                /*!< Pointer to a user-allocated array of notes. */
     volatile uint8_t            nSeqIndex;      /*!< Index for incrementing sequence */
     uint8_t                     nSeqMax;        /*!< Size of the sequence */
 #endif
-    SEM_VAR_DECLR      
+    SEM_VAR_DECLR
 } ADI_BEEP_DEV_DATA;
 
 
 /*! \struct ADI_BEEP_DRIVER_STRUCT
  *  BEEP Device Structure
  */
-typedef struct _ADI_BEEP_DRIVER_STRUCT
-{
+typedef struct _ADI_BEEP_DRIVER_STRUCT {
     ADI_BEEP_TypeDef   *pReg;          /*!< Pointer to register base           */
-    ADI_BEEP_DEV_DATA  *pData;         /*!< Pointer to device data structure   */  
+    ADI_BEEP_DEV_DATA  *pData;         /*!< Pointer to device data structure   */
 } ADI_BEEP_DRIVER_STRUCT;
 
 /*! \struct ADI_BEEP_STATIC_INIT
  *  conditionally create static initialization data based on adi_beep_config.h settings
  */
 typedef struct {
-	uint16_t BEEP_CFG;   /*!< Beeper configuration register */
-	uint16_t BEEP_STAT;  /*!< Beeper status register */
-	uint16_t BEEP_TONEA; /*!< Beeper ToneA register */
-	uint16_t BEEP_TONEB; /*!< Beeper ToneB register */
+    uint16_t BEEP_CFG;   /*!< Beeper configuration register */
+    uint16_t BEEP_STAT;  /*!< Beeper status register */
+    uint16_t BEEP_TONEA; /*!< Beeper ToneA register */
+    uint16_t BEEP_TONEB; /*!< Beeper ToneB register */
 } ADI_BEEP_STATIC_INIT;
 
 /* alias for the actual device structure */

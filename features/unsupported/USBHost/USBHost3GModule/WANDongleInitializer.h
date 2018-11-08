@@ -34,11 +34,13 @@
 
 #define WAN_DONGLE_TYPE_UNKNOWN    (-1)
 
-class WANDongleInitializer : public IUSBEnumerator
-{
+class WANDongleInitializer : public IUSBEnumerator {
 protected:
-    WANDongleInitializer(USBHost* pHost) { m_pHost = pHost; }
-    USBHost* m_pHost;
+    WANDongleInitializer(USBHost *pHost)
+    {
+        m_pHost = pHost;
+    }
+    USBHost *m_pHost;
     uint8_t m_serialIntfMap[WANDONGLE_MAX_SERIAL_PORTS];
 
 public:
@@ -49,9 +51,10 @@ public:
     virtual uint16_t getSerialVid() = 0;
     virtual uint16_t getSerialPid() = 0;
 
-    virtual bool switchMode(USBDeviceConnected* pDev) = 0;
+    virtual bool switchMode(USBDeviceConnected *pDev) = 0;
 
-    virtual USBEndpoint* getEp(USBDeviceConnected* pDev, int serialPortNumber, bool tx) {
+    virtual USBEndpoint *getEp(USBDeviceConnected *pDev, int serialPortNumber, bool tx)
+    {
         return pDev->getEndpoint(m_serialIntfMap[serialPortNumber], BULK_ENDPOINT, tx ? OUT : IN, 0);
     }
 
@@ -65,7 +68,10 @@ public:
 
     virtual int getType() = 0;
 
-    virtual uint8_t getSerialIntf(int index) { return m_serialIntfMap[index]; }
+    virtual uint8_t getSerialIntf(int index)
+    {
+        return m_serialIntfMap[index];
+    }
 };
 
 #endif /* USBHOST_3GMODULE */

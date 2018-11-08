@@ -535,15 +535,14 @@
 #define RIICnSARm_COUNT (3)
 
 
-typedef struct st_riic
-{
-                                                           /* RIIC             */
+typedef struct st_riic {
+    /* RIIC             */
 
-/* #define RIICnCRm_COUNT (2) */
+    /* #define RIICnCRm_COUNT (2) */
     union iodefine_reg32_t  RIICnCR1;                      /*  RIICnCR1        */
     union iodefine_reg32_t  RIICnCR2;                      /*  RIICnCR2        */
 
-/* #define RIICnMRm_COUNT (3) */
+    /* #define RIICnMRm_COUNT (3) */
     union iodefine_reg32_t  RIICnMR1;                      /*  RIICnMR1        */
     union iodefine_reg32_t  RIICnMR2;                      /*  RIICnMR2        */
     union iodefine_reg32_t  RIICnMR3;                      /*  RIICnMR3        */
@@ -551,11 +550,11 @@ typedef struct st_riic
     union iodefine_reg32_t  RIICnSER;                      /*  RIICnSER        */
     union iodefine_reg32_t  RIICnIER;                      /*  RIICnIER        */
 
-/* #define RIICnSRm_COUNT (2) */
+    /* #define RIICnSRm_COUNT (2) */
     union iodefine_reg32_t  RIICnSR1;                      /*  RIICnSR1        */
     union iodefine_reg32_t  RIICnSR2;                      /*  RIICnSR2        */
 
-/* #define RIICnSARm_COUNT (3) */
+    /* #define RIICnSARm_COUNT (3) */
     union iodefine_reg32_t  RIICnSAR0;                     /*  RIICnSAR0       */
     union iodefine_reg32_t  RIICnSAR1;                     /*  RIICnSAR1       */
     union iodefine_reg32_t  RIICnSAR2;                     /*  RIICnSAR2       */
@@ -563,16 +562,16 @@ typedef struct st_riic
     union iodefine_reg32_t  RIICnBRH;                      /*  RIICnBRH        */
     union iodefine_reg32_t  RIICnDRT;                      /*  RIICnDRT        */
     union iodefine_reg32_t  RIICnDRR;                      /*  RIICnDRR        */
-    
+
 } r_io_riic_t;
 
 
 /* Channel array defines of RIIC (2)*/
 #ifdef  DECLARE_RIIC_CHANNELS
-volatile struct st_riic*  RIIC[ RIIC_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    RIIC_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_riic  *RIIC[ RIIC_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        RIIC_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_RIIC_CHANNELS */
 /* End of channel array defines of RIIC (2)*/
 

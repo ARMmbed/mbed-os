@@ -38,8 +38,7 @@
  */
 
 /*! @brief FLEXCOMM peripheral modes. */
-typedef enum
-{
+typedef enum {
     FLEXCOMM_PERIPH_NONE,   /*!< No peripheral */
     FLEXCOMM_PERIPH_USART,  /*!< USART peripheral */
     FLEXCOMM_PERIPH_SPI,    /*!< SPI Peripheral */

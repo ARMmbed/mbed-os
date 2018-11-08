@@ -92,7 +92,7 @@ typedef enum {
     P1_29 = 61,
 
     P1_31 = 63,
-    
+
     // MicroNFCBoard pin names
     M_RST = P0_0,
     M_BOOT = P0_1,
@@ -101,7 +101,7 @@ typedef enum {
     M_SCL = P0_4,
     M_SDA = P0_5,
     M_D0 = P0_20,
-    
+
     M_A0 = P0_16,
     M_A1 = P0_15,
     M_A2 = P0_14,
@@ -120,7 +120,7 @@ typedef enum {
     p8 = M_SCL,
     p9 = M_SDA,
     p10 = M_D0,
-    
+
     p11 = M_IRQ,
     p12 = M_NCS,
     p13 = M_MISO,
@@ -130,11 +130,11 @@ typedef enum {
     p17 = M_A2,
     p18 = M_A1,
     p19 = M_A0,
-    
+
     // Other Pin Names
     LED1 = P0_11,
     LED2 = P0_12,
-    
+
     // Alias to have correct blue lights of death pattern
     LED3 = LED2,
     LED4 = LED1,

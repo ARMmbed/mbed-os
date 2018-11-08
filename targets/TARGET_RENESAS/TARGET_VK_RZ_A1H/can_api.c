@@ -101,51 +101,51 @@ static int can_initialized[CAN_NUM] = {0};
 
 #ifdef MAX_PERI
 static const PinMap PinMap_CAN_RD[] = {
-    {P7_8  , CAN_0, 4},
-    {P9_1  , CAN_0, 3},
-    {P1_4  , CAN_1, 3},
-    {P5_9  , CAN_1, 5},
-    {P7_11 , CAN_1, 4},
-    {P4_9  , CAN_2, 6},
-    {P6_4  , CAN_2, 3},
-    {P7_2  , CAN_2, 5},
-    {P2_12 , CAN_3, 5},
-    {P4_2  , CAN_3, 4},
-    {P1_5  , CAN_4, 3},
-    {P2_14 , CAN_4, 5},
-    {NC    , NC   , 0}
+    {P7_8, CAN_0, 4},
+    {P9_1, CAN_0, 3},
+    {P1_4, CAN_1, 3},
+    {P5_9, CAN_1, 5},
+    {P7_11, CAN_1, 4},
+    {P4_9, CAN_2, 6},
+    {P6_4, CAN_2, 3},
+    {P7_2, CAN_2, 5},
+    {P2_12, CAN_3, 5},
+    {P4_2, CAN_3, 4},
+    {P1_5, CAN_4, 3},
+    {P2_14, CAN_4, 5},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_CAN_TD[] = {
-    {P7_9  , CAN_0, 4},
-    {P9_0  , CAN_0, 3},
-    {P5_10 , CAN_1, 5},
-    {P7_10 , CAN_1, 4},
-    {P4_8  , CAN_2, 6},
-    {P6_5  , CAN_2, 3},
-    {P7_3  , CAN_2, 5},
-    {P2_13 , CAN_3, 5},
-    {P4_3  , CAN_3, 4},
-    {P4_11 , CAN_4, 6},
-    {P8_10 , CAN_4, 5},
-    {NC    , NC   , 0}
+    {P7_9, CAN_0, 4},
+    {P9_0, CAN_0, 3},
+    {P5_10, CAN_1, 5},
+    {P7_10, CAN_1, 4},
+    {P4_8, CAN_2, 6},
+    {P6_5, CAN_2, 3},
+    {P7_3, CAN_2, 5},
+    {P2_13, CAN_3, 5},
+    {P4_3, CAN_3, 4},
+    {P4_11, CAN_4, 6},
+    {P8_10, CAN_4, 5},
+    {NC, NC, 0}
 };
 #else
 static const PinMap PinMap_CAN_RD[] = {
-    {P9_1  , CAN_0, 3},
-    {P1_4  , CAN_1, 3},
-    {P5_9  , CAN_1, 5},
-    {P4_2  , CAN_3, 4},
-    {P1_5  , CAN_4, 3},
-    {NC    , NC   , 0}
+    {P9_1, CAN_0, 3},
+    {P1_4, CAN_1, 3},
+    {P5_9, CAN_1, 5},
+    {P4_2, CAN_3, 4},
+    {P1_5, CAN_4, 3},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_CAN_TD[] = {
-    {P9_0  , CAN_0, 3},
-    {P5_10 , CAN_1, 5},
-    {P4_3  , CAN_3, 4},
-    {P8_10 , CAN_4, 5},
-    {NC    , NC   , 0}
+    {P9_0, CAN_0, 3},
+    {P5_10, CAN_1, 5},
+    {P4_3, CAN_3, 4},
+    {P8_10, CAN_4, 5},
+    {NC, NC, 0}
 };
 #endif
 
@@ -209,63 +209,62 @@ static __IO uint32_t *ERFL_MATCH[] = {
 };
 
 static __IO uint32_t *CFCC_TBL[CAN_NUM][CAN_SND_RCV] = {
-    { &RSCAN0CFCC0 , &RSCAN0CFCC1  },
-    { &RSCAN0CFCC3 , &RSCAN0CFCC4  },
-    { &RSCAN0CFCC6 , &RSCAN0CFCC7  },
-    { &RSCAN0CFCC9 , &RSCAN0CFCC10 },
+    { &RSCAN0CFCC0, &RSCAN0CFCC1  },
+    { &RSCAN0CFCC3, &RSCAN0CFCC4  },
+    { &RSCAN0CFCC6, &RSCAN0CFCC7  },
+    { &RSCAN0CFCC9, &RSCAN0CFCC10 },
     { &RSCAN0CFCC12, &RSCAN0CFCC13 }
 };
 
 static __IO uint32_t *CFSTS_TBL[CAN_NUM][CAN_SND_RCV] = {
-    { &RSCAN0CFSTS0 , &RSCAN0CFSTS1  },
-    { &RSCAN0CFSTS3 , &RSCAN0CFSTS4  },
-    { &RSCAN0CFSTS6 , &RSCAN0CFSTS7  },
-    { &RSCAN0CFSTS9 , &RSCAN0CFSTS10 },
+    { &RSCAN0CFSTS0, &RSCAN0CFSTS1  },
+    { &RSCAN0CFSTS3, &RSCAN0CFSTS4  },
+    { &RSCAN0CFSTS6, &RSCAN0CFSTS7  },
+    { &RSCAN0CFSTS9, &RSCAN0CFSTS10 },
     { &RSCAN0CFSTS12, &RSCAN0CFSTS13 }
 };
 
 static __IO uint32_t *CFPCTR_TBL[CAN_NUM][CAN_SND_RCV] = {
-    { &RSCAN0CFPCTR0 , &RSCAN0CFPCTR1  },
-    { &RSCAN0CFPCTR3 , &RSCAN0CFPCTR4  },
-    { &RSCAN0CFPCTR6 , &RSCAN0CFPCTR7  },
-    { &RSCAN0CFPCTR9 , &RSCAN0CFPCTR10 },
+    { &RSCAN0CFPCTR0, &RSCAN0CFPCTR1  },
+    { &RSCAN0CFPCTR3, &RSCAN0CFPCTR4  },
+    { &RSCAN0CFPCTR6, &RSCAN0CFPCTR7  },
+    { &RSCAN0CFPCTR9, &RSCAN0CFPCTR10 },
     { &RSCAN0CFPCTR12, &RSCAN0CFPCTR13 }
 };
 
 static __IO uint32_t *CFID_TBL[CAN_NUM][CAN_SND_RCV] = {
-    { &RSCAN0CFID0 , &RSCAN0CFID1  },
-    { &RSCAN0CFID3 , &RSCAN0CFID4  },
-    { &RSCAN0CFID6 , &RSCAN0CFID7  },
-    { &RSCAN0CFID9 , &RSCAN0CFID10 },
+    { &RSCAN0CFID0, &RSCAN0CFID1  },
+    { &RSCAN0CFID3, &RSCAN0CFID4  },
+    { &RSCAN0CFID6, &RSCAN0CFID7  },
+    { &RSCAN0CFID9, &RSCAN0CFID10 },
     { &RSCAN0CFID12, &RSCAN0CFID13 }
 };
 
 static __IO uint32_t *CFPTR_TBL[CAN_NUM][CAN_SND_RCV] = {
-    { &RSCAN0CFPTR0 , &RSCAN0CFPTR1  },
-    { &RSCAN0CFPTR3 , &RSCAN0CFPTR4  },
-    { &RSCAN0CFPTR6 , &RSCAN0CFPTR7  },
-    { &RSCAN0CFPTR9 , &RSCAN0CFPTR10 },
+    { &RSCAN0CFPTR0, &RSCAN0CFPTR1  },
+    { &RSCAN0CFPTR3, &RSCAN0CFPTR4  },
+    { &RSCAN0CFPTR6, &RSCAN0CFPTR7  },
+    { &RSCAN0CFPTR9, &RSCAN0CFPTR10 },
     { &RSCAN0CFPTR12, &RSCAN0CFPTR13 }
 };
 
 static __IO uint32_t *CFDF0_TBL[CAN_NUM][CAN_SND_RCV] = {
-    { &RSCAN0CFDF00 , &RSCAN0CFDF01  },
-    { &RSCAN0CFDF03 , &RSCAN0CFDF04  },
-    { &RSCAN0CFDF06 , &RSCAN0CFDF07  },
-    { &RSCAN0CFDF09 , &RSCAN0CFDF010 },
+    { &RSCAN0CFDF00, &RSCAN0CFDF01  },
+    { &RSCAN0CFDF03, &RSCAN0CFDF04  },
+    { &RSCAN0CFDF06, &RSCAN0CFDF07  },
+    { &RSCAN0CFDF09, &RSCAN0CFDF010 },
     { &RSCAN0CFDF012, &RSCAN0CFDF013 }
 };
 
 static __IO uint32_t *CFDF1_TBL[CAN_NUM][CAN_SND_RCV] = {
-    { &RSCAN0CFDF10 , &RSCAN0CFDF11  },
-    { &RSCAN0CFDF13 , &RSCAN0CFDF14  },
-    { &RSCAN0CFDF16 , &RSCAN0CFDF17  },
-    { &RSCAN0CFDF19 , &RSCAN0CFDF110 },
+    { &RSCAN0CFDF10, &RSCAN0CFDF11  },
+    { &RSCAN0CFDF13, &RSCAN0CFDF14  },
+    { &RSCAN0CFDF16, &RSCAN0CFDF17  },
+    { &RSCAN0CFDF19, &RSCAN0CFDF110 },
     { &RSCAN0CFDF112, &RSCAN0CFDF113 }
 };
 
-static const can_info_int_t can_int_info[CAN_NUM][IRQ_NUM] = 
-{
+static const can_info_int_t can_int_info[CAN_NUM][IRQ_NUM] = {
     {   /* ch0 */
         { INTRCAN0REC_IRQn, can0_rec_irq         }, /* RxIrq */
         { INTRCAN0TRX_IRQn, can0_trx_irq         }, /* TxIrq */
@@ -323,16 +322,19 @@ static __IO uint32_t *dmy_gaflm  = &RSCAN0GAFLM0;
 static __IO uint32_t *dmy_gaflp0 = &RSCAN0GAFLP00;
 static __IO uint32_t *dmy_gaflp1 = &RSCAN0GAFLP10;
 
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id) {
+void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
+{
     irq_handler = handler;
     can_irq_id[obj->ch] = id;
 }
 
-void can_irq_free(can_t *obj) {
+void can_irq_free(can_t *obj)
+{
     can_irq_id[obj->ch] = 0;
 }
 
-void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable) {
+void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
+{
     __IO uint32_t *dmy_ctr;
 
     /* Wake-up Irq is not supported */
@@ -364,7 +366,8 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable) {
     }
 }
 
-static void can_rec_irq(uint32_t ch) {
+static void can_rec_irq(uint32_t ch)
+{
     __IO uint32_t *dmy_cfsts;
 
     dmy_cfsts = CFSTS_TBL[ch][CAN_RECV];
@@ -373,7 +376,8 @@ static void can_rec_irq(uint32_t ch) {
     irq_handler(can_irq_id[ch], IRQ_RX);
 }
 
-static void can_trx_irq(uint32_t ch) {
+static void can_trx_irq(uint32_t ch)
+{
     __IO uint32_t *dmy_cfsts;
 
     dmy_cfsts = CFSTS_TBL[ch][CAN_SEND];
@@ -382,10 +386,11 @@ static void can_trx_irq(uint32_t ch) {
     irq_handler(can_irq_id[ch], IRQ_TX);
 }
 
-static void can_err_irq(uint32_t ch, CanIrqType type) {
+static void can_err_irq(uint32_t ch, CanIrqType type)
+{
     __IO uint32_t *dmy_erfl;
     int val = 1;
-    
+
     dmy_erfl = ERFL_MATCH[ch];
     switch (type) {
         case IRQ_ERROR:
@@ -405,8 +410,8 @@ static void can_err_irq(uint32_t ch, CanIrqType type) {
             *dmy_erfl &= 0xFFFFFFFE;    // Clear BEF
             break;
         case IRQ_WAKEUP:
-            /* not supported */
-            /* fall through */
+        /* not supported */
+        /* fall through */
         default:
             val = 0;
             break;
@@ -416,147 +421,183 @@ static void can_err_irq(uint32_t ch, CanIrqType type) {
     }
 }
 
-static void can0_rec_irq(void) {
+static void can0_rec_irq(void)
+{
     can_rec_irq(CAN_0);
 }
 
-static void can1_rec_irq(void) {
+static void can1_rec_irq(void)
+{
     can_rec_irq(CAN_1);
 }
 
-static void can2_rec_irq(void) {
+static void can2_rec_irq(void)
+{
     can_rec_irq(CAN_2);
 }
 
-static void can3_rec_irq(void) {
+static void can3_rec_irq(void)
+{
     can_rec_irq(CAN_3);
 }
 
-static void can4_rec_irq(void) {
+static void can4_rec_irq(void)
+{
     can_rec_irq(CAN_4);
 }
 
-static void can0_trx_irq(void) {
+static void can0_trx_irq(void)
+{
     can_trx_irq(CAN_0);
 }
 
-static void can1_trx_irq(void) {
+static void can1_trx_irq(void)
+{
     can_trx_irq(CAN_1);
 }
 
-static void can2_trx_irq(void) {
+static void can2_trx_irq(void)
+{
     can_trx_irq(CAN_2);
 }
 
-static void can3_trx_irq(void) {
+static void can3_trx_irq(void)
+{
     can_trx_irq(CAN_3);
 }
 
-static void can4_trx_irq(void) {
+static void can4_trx_irq(void)
+{
     can_trx_irq(CAN_4);
 }
 
-static void can0_err_warning_irq(void) {
+static void can0_err_warning_irq(void)
+{
     can_err_irq(CAN_0, IRQ_ERROR);
 }
 
-static void can1_err_warning_irq(void) {
+static void can1_err_warning_irq(void)
+{
     can_err_irq(CAN_1, IRQ_ERROR);
 }
 
-static void can2_err_warning_irq(void) {
+static void can2_err_warning_irq(void)
+{
     can_err_irq(CAN_2, IRQ_ERROR);
 }
 
-static void can3_err_warning_irq(void) {
+static void can3_err_warning_irq(void)
+{
     can_err_irq(CAN_3, IRQ_ERROR);
 }
 
-static void can4_err_warning_irq(void) {
+static void can4_err_warning_irq(void)
+{
     can_err_irq(CAN_4, IRQ_ERROR);
 }
 
-static void can0_overrun_irq(void) {
+static void can0_overrun_irq(void)
+{
     can_err_irq(CAN_0, IRQ_OVERRUN);
 }
 
-static void can1_overrun_irq(void) {
+static void can1_overrun_irq(void)
+{
     can_err_irq(CAN_1, IRQ_OVERRUN);
 }
 
-static void can2_overrun_irq(void) {
+static void can2_overrun_irq(void)
+{
     can_err_irq(CAN_2, IRQ_OVERRUN);
 }
 
-static void can3_overrun_irq(void) {
+static void can3_overrun_irq(void)
+{
     can_err_irq(CAN_3, IRQ_OVERRUN);
 }
 
-static void can4_overrun_irq(void) {
+static void can4_overrun_irq(void)
+{
     can_err_irq(CAN_4, IRQ_OVERRUN);
 }
 
-static void can0_passive_irq(void) {
+static void can0_passive_irq(void)
+{
     can_err_irq(CAN_0, IRQ_PASSIVE);
 }
 
-static void can1_passive_irq(void) {
+static void can1_passive_irq(void)
+{
     can_err_irq(CAN_1, IRQ_PASSIVE);
 }
 
-static void can2_passive_irq(void) {
+static void can2_passive_irq(void)
+{
     can_err_irq(CAN_2, IRQ_PASSIVE);
 }
 
-static void can3_passive_irq(void) {
+static void can3_passive_irq(void)
+{
     can_err_irq(CAN_3, IRQ_PASSIVE);
 }
 
-static void can4_passive_irq(void) {
+static void can4_passive_irq(void)
+{
     can_err_irq(CAN_4, IRQ_PASSIVE);
 }
 
-static void can0_arb_lost_irq(void) {
+static void can0_arb_lost_irq(void)
+{
     can_err_irq(CAN_0, IRQ_ARB);
 }
 
-static void can1_arb_lost_irq(void) {
+static void can1_arb_lost_irq(void)
+{
     can_err_irq(CAN_1, IRQ_ARB);
 }
 
-static void can2_arb_lost_irq(void) {
+static void can2_arb_lost_irq(void)
+{
     can_err_irq(CAN_2, IRQ_ARB);
 }
 
-static void can3_arb_lost_irq(void) {
+static void can3_arb_lost_irq(void)
+{
     can_err_irq(CAN_3, IRQ_ARB);
 }
 
-static void can4_arb_lost_irq(void) {
+static void can4_arb_lost_irq(void)
+{
     can_err_irq(CAN_4, IRQ_ARB);
 }
 
-static void can0_bus_err_irq(void) {
+static void can0_bus_err_irq(void)
+{
     can_err_irq(CAN_0, IRQ_BUS);
 }
 
-static void can1_bus_err_irq(void) {
+static void can1_bus_err_irq(void)
+{
     can_err_irq(CAN_1, IRQ_BUS);
 }
 
-static void can2_bus_err_irq(void) {
+static void can2_bus_err_irq(void)
+{
     can_err_irq(CAN_2, IRQ_BUS);
 }
 
-static void can3_bus_err_irq(void) {
+static void can3_bus_err_irq(void)
+{
     can_err_irq(CAN_3, IRQ_BUS);
 }
 
-static void can4_bus_err_irq(void) {
+static void can4_bus_err_irq(void)
+{
     can_err_irq(CAN_4, IRQ_BUS);
 }
 
-void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
+{
     __IO uint32_t *dmy_ctr;
 
     /* determine the CAN to use */
@@ -586,7 +627,7 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
     can_initialized[obj->ch] = 1;
     /* reconfigure channel which is already initialized */
     can_reconfigure_channel();
-    
+
     /* pin out the can pins */
     pinmap_pinout(rd, PinMap_CAN_RD);
     pinmap_pinout(td, PinMap_CAN_TD);
@@ -595,19 +636,22 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
     can_frequency(obj, hz);
 }
 
-void can_init(can_t *obj, PinName rd, PinName td) {
+void can_init(can_t *obj, PinName rd, PinName td)
+{
     can_init_freq(obj, rd, td, 100000);
 }
 
-void can_free(can_t *obj) {
+void can_free(can_t *obj)
+{
     /* disable CAN clock */
     CPGSTBCR3 |= CPG_STBCR3_BIT_MSTP32;
 }
 
-int can_frequency(can_t *obj, int f) {
+int can_frequency(can_t *obj, int f)
+{
     __IO uint32_t *dmy_cfcc;
     int retval = 0;
-    
+
     if (f <= 1000000) {
         /* less than 1Mhz */
         /* set Channel Reset mode */
@@ -627,7 +671,8 @@ int can_frequency(can_t *obj, int f) {
     return retval;
 }
 
-void can_reset(can_t *obj) {
+void can_reset(can_t *obj)
+{
     /* Enter global reset mode */
     can_set_global_mode(GL_RESET);
     /* Enter channel reset mode */
@@ -638,7 +683,8 @@ void can_reset(can_t *obj) {
     can_reconfigure_channel();
 }
 
-int can_write(can_t *obj, CAN_Message msg, int cc) {
+int can_write(can_t *obj, CAN_Message msg, int cc)
+{
     __IO uint32_t *dmy_sts;
     __IO uint32_t *dmy_cfsts;
     __IO uint32_t *dmy_cfid;
@@ -653,7 +699,7 @@ int can_write(can_t *obj, CAN_Message msg, int cc) {
     while ((*dmy_sts & 0x07) != 0) {
         __NOP();
     }
-    
+
     if (((msg.format == CANStandard) && (msg.id <= 0x07FF)) || ((msg.format == CANExtended) && (msg.id <= 0x1FFFFFFF))) {
         /* send/receive FIFO buffer isn't full */
         dmy_cfsts = CFSTS_TBL[obj->ch][CAN_SEND];
@@ -680,11 +726,12 @@ int can_write(can_t *obj, CAN_Message msg, int cc) {
             retval = 1;
         }
     }
-    
+
     return retval;
 }
 
-int can_read(can_t *obj, CAN_Message *msg, int handle) {
+int can_read(can_t *obj, CAN_Message *msg, int handle)
+{
     __IO uint32_t *dmy_sts;
     __IO uint32_t *dmy_cfsts;
     __IO uint32_t *dmy_cfid;
@@ -699,7 +746,7 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
     while ((*dmy_sts & 0x07) != 0) {
         __NOP();
     }
-    
+
     /* send/receive FIFO buffer isn't empty */
     dmy_cfsts = CFSTS_TBL[obj->ch][CAN_RECV];
     while ((*dmy_cfsts & 0x01) != 0x01) {
@@ -725,25 +772,28 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
         *dmy_cfpctr = 0xFF;
         retval = 1;
     }
-    
+
     return retval;
 }
 
-unsigned char can_rderror(can_t *obj) {
+unsigned char can_rderror(can_t *obj)
+{
     __IO uint32_t *dmy_sts;
-    
+
     dmy_sts = STS_MATCH[obj->ch];
     return (unsigned char)((*dmy_sts >> 16) & 0xFF);
 }
 
-unsigned char can_tderror(can_t *obj) {
+unsigned char can_tderror(can_t *obj)
+{
     __IO uint32_t *dmy_sts;
-    
+
     dmy_sts = STS_MATCH[obj->ch];
     return (unsigned char)((*dmy_sts >> 24) & 0xFF);
 }
 
-int can_mode(can_t *obj, CanMode mode) {
+int can_mode(can_t *obj, CanMode mode)
+{
     __IO uint32_t *dmy_ctr;
     __IO uint32_t *dmy_sts;
     __IO uint32_t *dmy_cfcc;
@@ -751,7 +801,7 @@ int can_mode(can_t *obj, CanMode mode) {
     can_t *tmp_obj;
     tmp_obj = obj;
     int retval = 1;
-    
+
     switch (mode) {
         case MODE_RESET:
             can_set_global_mode(GL_RESET);
@@ -816,19 +866,20 @@ int can_mode(can_t *obj, CanMode mode) {
             }
             break;
         case MODE_TEST_SILENT:
-            /* not supported */
-            /* fall through */
+        /* not supported */
+        /* fall through */
         default:
             retval = 0;
             break;
     }
-    
+
     return retval;
 }
 
-int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) {
+int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle)
+{
     int retval = 0;
-    
+
     if ((format == CANStandard) || (format == CANExtended)) {
         if (((format == CANStandard) && (id <= 0x07FF)) || ((format == CANExtended) && (id <= 0x1FFFFFFF))) {
             /* set Global Reset mode and Channel Reset mode */
@@ -856,11 +907,12 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
             retval = 1;
         }
     }
-    
+
     return retval;
 }
 
-void can_monitor(can_t *obj, int silent) {
+void can_monitor(can_t *obj, int silent)
+{
     __IO uint32_t *dmy_ctr;
 
     /* set Channel Hold mode */
@@ -881,7 +933,8 @@ void can_monitor(can_t *obj, int silent) {
     }
 }
 
-static void can_reset_reg(can_t *obj) {
+static void can_reset_reg(can_t *obj)
+{
     __IO uint32_t *dmy_ctr;
 
     /* time stamp source uses peripheral clock (pclk(P1_phi)/2), CAN clock uses clkc(P1_phi/2),           */
@@ -901,7 +954,8 @@ static void can_reset_reg(can_t *obj) {
     *dmy_ctr &= 0xFFFF00FF;
 }
 
-static void can_reset_recv_rule(can_t *obj) {
+static void can_reset_recv_rule(can_t *obj)
+{
     /* number of receive rules of each chanel = 64 */
     RSCAN0GAFLCFG0 = 0x40404040;
     RSCAN0GAFLCFG1 = 0x40000000;
@@ -921,13 +975,14 @@ static void can_reset_recv_rule(can_t *obj) {
     RSCAN0GAFLECTR &= 0xFFFFFEFF;
 }
 
-static void can_reset_buffer(can_t *obj) {
+static void can_reset_buffer(can_t *obj)
+{
     __IO uint32_t *dmy_rfcc;
     __IO uint32_t *dmy_cfcc;
     __IO uint32_t *dmy_txqcc;
     __IO uint32_t *dmy_thlcc;
     int cnt;
-    
+
     /* set linked send buffer number(ex: if ch = 1 and mode = send, buffer number = 16), interval timer is pclk/2 */
     /* number of rows of send/receive FIFO buffer = 4 */
     dmy_cfcc = CFCC_TBL[obj->ch][CAN_SEND];
@@ -959,7 +1014,8 @@ static void can_reset_buffer(can_t *obj) {
     RSCAN0TMIEC2 = 0x00000000;
 }
 
-static void can_reconfigure_channel(void) {
+static void can_reconfigure_channel(void)
+{
     __IO uint32_t *dmy_cfcc;
     int ch_cnt;
 
@@ -977,7 +1033,8 @@ static void can_reconfigure_channel(void) {
     }
 }
 
-static void can_set_frequency(can_t *obj, int f) {
+static void can_set_frequency(can_t *obj, int f)
+{
     __IO uint32_t *dmy_cfg;
     int oldfreq = 0;
     int newfreq = 0;
@@ -989,7 +1046,7 @@ static void can_set_frequency(can_t *obj, int f) {
     uint8_t tseg1 = 0;
     uint8_t tseg2 = 0;
     uint8_t sjw = 0;
-    
+
     /* set clkc */
     if (RZ_A1_IsClockMode0() == false) {
         clkc_val = CM1_RENESAS_RZ_A1_P1_CLK / 2;
@@ -1011,13 +1068,14 @@ static void can_set_frequency(can_t *obj, int f) {
     /* calculate TSEG1 bit and TSEG2 bit */
     tseg1 = (tq - 1) * 0.666666667;
     tseg2 = (tq - 1) - tseg1;
-    sjw = (tseg2 > 4)? 4 : tseg2;
+    sjw = (tseg2 > 4) ? 4 : tseg2;
     /* set RSCAN0CmCFG register */
     dmy_cfg = CFG_MATCH[obj->ch];
     *dmy_cfg = ((sjw - 1) << 24) | ((tseg2 - 1) << 20) | ((tseg1 - 1) << 16) | brp;
 }
 
-static void can_set_global_mode(int mode) {
+static void can_set_global_mode(int mode)
+{
     /* set Global mode */
     RSCAN0GCTR = ((RSCAN0GCTR & 0xFFFFFFFC) | mode);
     /* Wait to cahnge into Global XXXX mode */
@@ -1026,7 +1084,8 @@ static void can_set_global_mode(int mode) {
     }
 }
 
-static void can_set_channel_mode(uint32_t ch, int mode) {
+static void can_set_channel_mode(uint32_t ch, int mode)
+{
     __IO uint32_t *dmy_ctr;
     __IO uint32_t *dmy_sts;
 

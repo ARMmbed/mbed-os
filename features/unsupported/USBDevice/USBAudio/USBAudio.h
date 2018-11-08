@@ -96,7 +96,7 @@ public:
     *
     * @returns true if successfull
     */
-    bool read(uint8_t * buf);
+    bool read(uint8_t *buf);
 
     /**
     * Try to read an audio packet. During a frame, only a single reading (you can't write and read an audio packet during the same frame)can be done using this method. Warning: Non Blocking
@@ -105,7 +105,7 @@ public:
     *
     * @returns true if successfull
     */
-    bool readNB(uint8_t * buf);
+    bool readNB(uint8_t *buf);
 
     /**
      * read last received packet if some.
@@ -121,7 +121,7 @@ public:
     * @param buf pointer on the audio packet which will be sent
     * @returns true if successful
     */
-    bool write(uint8_t * buf);
+    bool write(uint8_t *buf);
 
     /** Audio Jitter value*/
     enum AudioSampleCorrectType {
@@ -132,9 +132,9 @@ public:
     /**
      * Write packet in endpoint fifo. assuming tx fifo is empty
      * @param buf pointer on the audio packet which will be sent
-     * @param jitter_nb : AudioSampleCorrecttype 
-	 **/
-    void writeSync(uint8_t *buf, AudioSampleCorrectType jitter_nb = NoCorrection );
+     * @param jitter_nb : AudioSampleCorrecttype
+     **/
+    void writeSync(uint8_t *buf, AudioSampleCorrectType jitter_nb = NoCorrection);
 
     /**
     * Write and read an audio packet at the same time (on the same frame)
@@ -143,7 +143,7 @@ public:
     * @param buf_write pointer on the audio packet which will be sent
     * @returns true if successful
     */
-    bool readWrite(uint8_t * buf_read, uint8_t * buf_write);
+    bool readWrite(uint8_t *buf_read, uint8_t *buf_write);
 
 
     /** attach a handler to update the volume
@@ -151,15 +151,17 @@ public:
      * @param function Function to attach
      *
      */
-    void attach(void(*fptr)(void)) {
+    void attach(void(*fptr)(void))
+    {
         updateVol.attach(fptr);
     }
-	/** attach a handler to Tx Done
+    /** attach a handler to Tx Done
      *
      * @param function Function to attach
      *
      */
-    void attachTx(void(*fptr)(void)) {
+    void attachTx(void(*fptr)(void))
+    {
         txDone.attach(fptr);
     }
     /** attach a handler to Rx Done
@@ -167,7 +169,8 @@ public:
      * @param function Function to attach
      *
      */
-    void attachRx(void(*fptr)(void)) {
+    void attachRx(void(*fptr)(void))
+    {
         rxDone.attach(fptr);
     }
 
@@ -178,15 +181,18 @@ public:
      *
      */
     template<typename T>
-    void attach(T *tptr, void(T::*mptr)(void)) {
+    void attach(T *tptr, void(T::*mptr)(void))
+    {
         updateVol.attach(tptr, mptr);
     }
-	template<typename T>
-	void attachTx(T *tptr, void(T::*mptr)(void)) {
+    template<typename T>
+    void attachTx(T *tptr, void(T::*mptr)(void))
+    {
         txDone.attach(tptr, mptr);
     }
     template<typename T>
-	void attachRx(T *tptr, void(T::*mptr)(void)) {
+    void attachRx(T *tptr, void(T::*mptr)(void))
+    {
         rxDone.attach(tptr, mptr);
     }
 
@@ -216,21 +222,21 @@ protected:
     *
     * @returns pointer to the string product descriptor
     */
-    virtual uint8_t * stringIproductDesc();
+    virtual uint8_t *stringIproductDesc();
 
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
-    virtual uint8_t * stringIinterfaceDesc();
+    virtual uint8_t *stringIinterfaceDesc();
 
     /*
     * Get configuration descriptor
     *
     * @returns pointer to the configuration descriptor
     */
-    virtual uint8_t * configurationDesc();
+    virtual uint8_t *configurationDesc();
 
     /*
      * Called by USBDevice layer. Set interface/alternate of the device.
@@ -251,7 +257,7 @@ protected:
     * @param buf buffer received on endpoint 0
     * @param length length of this buffer
     */
-    virtual void USBCallback_requestCompleted(uint8_t * buf, uint32_t length);
+    virtual void USBCallback_requestCompleted(uint8_t *buf, uint32_t length);
 
     /*
     * Callback called on each Start of Frame event
@@ -314,10 +320,10 @@ private:
     uint16_t volRes;
 
     // Buffer containing one audio packet (to be read)
-    volatile uint8_t * buf_stream_in;
+    volatile uint8_t *buf_stream_in;
 
     // Buffer containing one audio packet (to be written)
-    volatile uint8_t * buf_stream_out;
+    volatile uint8_t *buf_stream_out;
 
     // callback to update volume
     Callback<void()> updateVol;

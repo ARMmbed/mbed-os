@@ -1,7 +1,7 @@
 #include "test_env.h"
 
 #if !DEVICE_PORTINOUT
-  #error [NOT_SUPPORTED] PortInOut is not supported
+#error [NOT_SUPPORTED] PortInOut is not supported
 #endif
 
 #if defined(TARGET_K64F)
@@ -221,7 +221,8 @@
 PortInOut port1(PORT_1, MASK_1);
 PortInOut port2(PORT_2, MASK_2);
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(PortInOut);
@@ -232,20 +233,32 @@ int main() {
     port1.output();
     port2.input();
 
-    port1 = MASK_1; wait(0.1);
-    if (port2 != MASK_2) check = false;
+    port1 = MASK_1;
+    wait(0.1);
+    if (port2 != MASK_2) {
+        check = false;
+    }
 
-    port1 = 0; wait(0.1);
-    if (port2 != 0) check = false;
+    port1 = 0;
+    wait(0.1);
+    if (port2 != 0) {
+        check = false;
+    }
 
     port1.input();
     port2.output();
 
-    port2 = MASK_2; wait(0.1);
-    if (port1 != MASK_1) check = false;
+    port2 = MASK_2;
+    wait(0.1);
+    if (port1 != MASK_1) {
+        check = false;
+    }
 
-    port2 = 0; wait(0.1);
-    if (port1 != 0) check = false;
+    port2 = 0;
+    wait(0.1);
+    if (port1 != 0) {
+        check = false;
+    }
 
     MBED_HOSTTEST_RESULT(check);
 }

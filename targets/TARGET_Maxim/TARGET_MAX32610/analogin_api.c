@@ -43,7 +43,7 @@
 #define ADC_PGA_CNT     0x1
 #define ADC_ACQ_CNT     0x1
 #define ADC_SLP_CNT     0x1
- 
+
 //******************************************************************************
 void analogin_init(analogin_t *obj, PinName pin)
 {
@@ -58,8 +58,8 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     // Set the ADC clock to the system clock frequency
     MXC_SET_FIELD(&MXC_CLKMAN->clk_ctrl, MXC_F_CLKMAN_CLK_CTRL_ADC_SOURCE_SELECT,
-        (MXC_F_CLKMAN_CLK_CTRL_ADC_GATE_N | (MXC_E_CLKMAN_ADC_SOURCE_SELECT_SYSTEM << 
-        MXC_F_CLKMAN_CLK_CTRL_ADC_SOURCE_SELECT_POS)));
+                  (MXC_F_CLKMAN_CLK_CTRL_ADC_GATE_N | (MXC_E_CLKMAN_ADC_SOURCE_SELECT_SYSTEM <<
+                                                       MXC_F_CLKMAN_CLK_CTRL_ADC_SOURCE_SELECT_POS)));
 
     // Enable AFE power
     MXC_PWRMAN->pwr_rst_ctrl |= MXC_F_PWRMAN_PWR_RST_CTRL_AFE_POWERED;
@@ -68,19 +68,19 @@ void analogin_init(analogin_t *obj, PinName pin)
     MXC_SET_FIELD(&obj->adc->tg_ctrl0, MXC_F_ADC_TG_CTRL0_PGA_TRK_CNT, PGA_TRK_CNT);
 
     // Setup sampling count and timing
-    MXC_SET_FIELD(&obj->adc->tg_ctrl1, (MXC_F_ADC_TG_CTRL1_PGA_ACQ_CNT | 
-        MXC_F_ADC_TG_CTRL1_ADC_ACQ_CNT | MXC_F_ADC_TG_CTRL1_ADC_SLP_CNT),
-        ((ADC_PGA_CNT << MXC_F_ADC_TG_CTRL1_PGA_ACQ_CNT_POS) | 
-        (ADC_ACQ_CNT << MXC_F_ADC_TG_CTRL1_ADC_ACQ_CNT_POS) |
-        (ADC_SLP_CNT << MXC_F_ADC_TG_CTRL1_ADC_SLP_CNT_POS) |
-        (MXC_F_ADC_TG_CTRL1_ADC_BRST_CNT)));
+    MXC_SET_FIELD(&obj->adc->tg_ctrl1, (MXC_F_ADC_TG_CTRL1_PGA_ACQ_CNT |
+                                        MXC_F_ADC_TG_CTRL1_ADC_ACQ_CNT | MXC_F_ADC_TG_CTRL1_ADC_SLP_CNT),
+                  ((ADC_PGA_CNT << MXC_F_ADC_TG_CTRL1_PGA_ACQ_CNT_POS) |
+                   (ADC_ACQ_CNT << MXC_F_ADC_TG_CTRL1_ADC_ACQ_CNT_POS) |
+                   (ADC_SLP_CNT << MXC_F_ADC_TG_CTRL1_ADC_SLP_CNT_POS) |
+                   (MXC_F_ADC_TG_CTRL1_ADC_BRST_CNT)));
 }
 
 //******************************************************************************
 float analogin_read(analogin_t *obj)
 {
     // Convert integer to float
-    return (((float)analogin_read_u16(obj)/(float)0xFFFF));
+    return (((float)analogin_read_u16(obj) / (float)0xFFFF));
 }
 
 //******************************************************************************
@@ -89,13 +89,13 @@ uint16_t analogin_read_u16(analogin_t *obj)
     // Set the pin to take readings from
     unsigned mux_pos;
     unsigned diff = 0;
-    if(obj->adc_pin >> PORT_SHIFT == 0xB) {
+    if (obj->adc_pin >> PORT_SHIFT == 0xB) {
         mux_pos = (obj->adc_pin & 0xF) + 8;
     } else {
         mux_pos = (obj->adc_pin & 0xF);
     }
 
-    if(obj->adc_pin >> PORT_SHIFT == 0xC) {
+    if (obj->adc_pin >> PORT_SHIFT == 0xC) {
         diff = 1;
         mux_pos = (obj->adc_pin & 0xF) + 8;
     }
@@ -108,22 +108,22 @@ uint16_t analogin_read_u16(analogin_t *obj)
 
     // Setup the ADC clock
     MXC_SET_FIELD(&obj->adc->ctrl0, (MXC_F_ADC_CTRL0_ADC_MODE | MXC_F_ADC_CTRL0_AVG_MODE |
-        MXC_F_ADC_CTRL0_ADC_CLK_MODE | MXC_F_ADC_CTRL0_ADC_BI_POL),
-        ((MXC_E_ADC_MODE_SMPLCNT_FULL_RATE << MXC_F_ADC_CTRL0_ADC_MODE_POS) | 
-        (MXC_E_ADC_AVG_MODE_FILTER_OUTPUT << MXC_F_ADC_CTRL0_AVG_MODE_POS) |
-        (0x2 << MXC_F_ADC_CTRL0_ADC_CLK_MODE_POS) |
-        MXC_F_ADC_CTRL0_ADC_CLK_EN));
+                                     MXC_F_ADC_CTRL0_ADC_CLK_MODE | MXC_F_ADC_CTRL0_ADC_BI_POL),
+                  ((MXC_E_ADC_MODE_SMPLCNT_FULL_RATE << MXC_F_ADC_CTRL0_ADC_MODE_POS) |
+                   (MXC_E_ADC_AVG_MODE_FILTER_OUTPUT << MXC_F_ADC_CTRL0_AVG_MODE_POS) |
+                   (0x2 << MXC_F_ADC_CTRL0_ADC_CLK_MODE_POS) |
+                   MXC_F_ADC_CTRL0_ADC_CLK_EN));
 
     // Setup the input multiplexor
-    MXC_SET_FIELD(&obj->adc->pga_ctrl, (MXC_F_ADC_PGA_CTRL_MUX_CH_SEL | 
-        MXC_F_ADC_PGA_CTRL_MUX_DIFF | MXC_F_ADC_PGA_CTRL_PGA_GAIN),
-        ((mux_pos << MXC_F_ADC_PGA_CTRL_MUX_CH_SEL_POS) |
-        (diff << MXC_F_ADC_PGA_CTRL_MUX_DIFF_POS)));
+    MXC_SET_FIELD(&obj->adc->pga_ctrl, (MXC_F_ADC_PGA_CTRL_MUX_CH_SEL |
+                                        MXC_F_ADC_PGA_CTRL_MUX_DIFF | MXC_F_ADC_PGA_CTRL_PGA_GAIN),
+                  ((mux_pos << MXC_F_ADC_PGA_CTRL_MUX_CH_SEL_POS) |
+                   (diff << MXC_F_ADC_PGA_CTRL_MUX_DIFF_POS)));
 
     // Setup voltage reference
-    MXC_SET_FIELD(&MXC_AFE->ctrl1, MXC_F_AFE_CTRL1_REF_ADC_VOLT_SEL, 
-        (MXC_F_AFE_CTRL1_REF_ADC_POWERUP | MXC_F_AFE_CTRL1_REF_BLK_POWERUP |
-        (MXC_E_AFE_REF_VOLT_SEL_1500 << MXC_F_AFE_CTRL1_REF_ADC_VOLT_SEL_POS)));
+    MXC_SET_FIELD(&MXC_AFE->ctrl1, MXC_F_AFE_CTRL1_REF_ADC_VOLT_SEL,
+                  (MXC_F_AFE_CTRL1_REF_ADC_POWERUP | MXC_F_AFE_CTRL1_REF_BLK_POWERUP |
+                   (MXC_E_AFE_REF_VOLT_SEL_1500 << MXC_F_AFE_CTRL1_REF_ADC_VOLT_SEL_POS)));
 
     // Clear the done bit
     obj->adc->intr = MXC_F_ADC_INTR_DONE_IF;
@@ -135,11 +135,11 @@ uint16_t analogin_read_u16(analogin_t *obj)
     obj->adc->ctrl0 |= MXC_F_ADC_CTRL0_CPU_ADC_START;
 
     // Wait for the conversion to complete
-    while(!(obj->adc->intr & MXC_F_ADC_INTR_DONE_IF)) {}
+    while (!(obj->adc->intr & MXC_F_ADC_INTR_DONE_IF)) {}
 
     // Get sample from the fifo
     uint16_t sample = (uint16_t)(obj->adc->out & 0xFFFF);
-    
+
     // Disable ADC
     obj->adc->ctrl0 &= ~MXC_F_ADC_CTRL0_CPU_ADC_EN;
 

@@ -63,8 +63,7 @@
 #endif
 
 /*! @brief CRC polynomials to use. */
-typedef enum _crc_polynomial
-{
+typedef enum _crc_polynomial {
     kCRC_Polynomial_CRC_CCITT = 0U, /*!< x^16+x^12+x^5+1 */
     kCRC_Polynomial_CRC_16 = 1U,    /*!< x^16+x^15+x^2+1 */
     kCRC_Polynomial_CRC_32 = 2U     /*!< x^32+x^26+x^23+x^22+x^16+x^12+x^11+x^10+x^8+x^7+x^5+x^4+x^2+x+1 */
@@ -76,8 +75,7 @@ typedef enum _crc_polynomial
 * This structure holds the configuration for the CRC protocol.
 *
 */
-typedef struct _crc_config
-{
+typedef struct _crc_config {
     crc_polynomial_t polynomial; /*!< CRC polynomial. */
     bool reverseIn;              /*!< Reverse bits on input. */
     bool complementIn;           /*!< Perform 1's complement on input. */

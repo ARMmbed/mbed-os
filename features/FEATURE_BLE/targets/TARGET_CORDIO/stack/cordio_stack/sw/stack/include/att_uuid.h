@@ -368,7 +368,7 @@ extern const uint8_t attValRangeUuid[ATT_16_UUID_LEN];   /*! Valid Range */
 extern const uint8_t attDnChUuid[ATT_16_UUID_LEN];       /*! Device Name */
 extern const uint8_t attApChUuid[ATT_16_UUID_LEN];       /*! Appearance */
 extern const uint8_t attPpfChUuid[ATT_16_UUID_LEN];      /*! Peripheral Privacy Flag */
-extern const uint8_t attRaChUuid[ATT_16_UUID_LEN];	     /*! Reconnection Address */
+extern const uint8_t attRaChUuid[ATT_16_UUID_LEN];       /*! Reconnection Address */
 extern const uint8_t attPpcpChUuid[ATT_16_UUID_LEN];     /*! Peripheral Preferred Connection Parameters */
 extern const uint8_t attScChUuid[ATT_16_UUID_LEN];       /*! Service Changed */
 extern const uint8_t attAlChUuid[ATT_16_UUID_LEN];       /*! Alert Level */

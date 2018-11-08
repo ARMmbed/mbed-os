@@ -55,13 +55,13 @@ static void gpio_irq_wud_req(gpio_irq_t *obj)
         uint32_t mask = pin_mask << (port << 3);
         if (!(MXC_IOMAN->wud_ack0 & mask)) {
             MXC_IOMAN->wud_req0 |= mask;
-            while(!(MXC_IOMAN->wud_ack0 & mask));
+            while (!(MXC_IOMAN->wud_ack0 & mask));
         }
     } else if (port < 8) {
-        uint32_t mask = pin_mask << ((port-4) << 3);
+        uint32_t mask = pin_mask << ((port - 4) << 3);
         if (!(MXC_IOMAN->wud_ack1 & mask)) {
             MXC_IOMAN->wud_req1 |= mask;
-            while(!(MXC_IOMAN->wud_ack1 & mask));
+            while (!(MXC_IOMAN->wud_ack1 & mask));
         }
     }
 }
@@ -179,13 +179,34 @@ static void handle_irq(unsigned int port)
     }
 }
 
-void gpio_irq_0(void) { handle_irq(0); }
-void gpio_irq_1(void) { handle_irq(1); }
-void gpio_irq_2(void) { handle_irq(2); }
-void gpio_irq_3(void) { handle_irq(3); }
-void gpio_irq_4(void) { handle_irq(4); }
-void gpio_irq_5(void) { handle_irq(5); }
-void gpio_irq_6(void) { handle_irq(6); }
+void gpio_irq_0(void)
+{
+    handle_irq(0);
+}
+void gpio_irq_1(void)
+{
+    handle_irq(1);
+}
+void gpio_irq_2(void)
+{
+    handle_irq(2);
+}
+void gpio_irq_3(void)
+{
+    handle_irq(3);
+}
+void gpio_irq_4(void)
+{
+    handle_irq(4);
+}
+void gpio_irq_5(void)
+{
+    handle_irq(5);
+}
+void gpio_irq_6(void)
+{
+    handle_irq(6);
+}
 
 int gpio_irq_init(gpio_irq_t *obj, PinName name, gpio_irq_handler handler, uint32_t id)
 {
@@ -219,7 +240,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName name, gpio_irq_handler handler, uint3
     gpio_irq_wud_req(obj);
 
     /* disable the interrupt locally */
-    MXC_GPIO->int_mode[port] &= ~(0xF << (pin*4));
+    MXC_GPIO->int_mode[port] &= ~(0xF << (pin * 4));
 
     /* clear a pending request */
     MXC_GPIO->intfl[port] = 1 << pin;
@@ -235,7 +256,7 @@ void gpio_irq_free(gpio_irq_t *obj)
 {
     /* disable interrupt */
     MXC_GPIO->inten[obj->port] &= ~(1 << obj->pin);
-    MXC_GPIO->int_mode[obj->port] &= ~(MXC_V_GPIO_INT_MODE_ANY_EDGE << (obj->pin*4));
+    MXC_GPIO->int_mode[obj->port] &= ~(MXC_V_GPIO_INT_MODE_ANY_EDGE << (obj->pin * 4));
     objs[obj->port][obj->pin] = NULL;
     gpio_irq_wud_clear(obj);
 }
@@ -249,10 +270,10 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     }
 
     if (obj->fall_en || obj->rise_en) {
-        MXC_GPIO->int_mode[obj->port] |= (MXC_V_GPIO_INT_MODE_ANY_EDGE << (obj->pin*4));
+        MXC_GPIO->int_mode[obj->port] |= (MXC_V_GPIO_INT_MODE_ANY_EDGE << (obj->pin * 4));
         gpio_irq_wud_config(obj); /* enable WUD for this pin so we may wake from deepsleep as well */
     } else {
-        MXC_GPIO->int_mode[obj->port] &= (MXC_V_GPIO_INT_MODE_ANY_EDGE << (obj->pin*4));
+        MXC_GPIO->int_mode[obj->port] &= (MXC_V_GPIO_INT_MODE_ANY_EDGE << (obj->pin * 4));
         gpio_irq_wud_clear(obj);
     }
 }

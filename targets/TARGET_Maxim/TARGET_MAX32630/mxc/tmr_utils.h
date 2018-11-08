@@ -37,7 +37,7 @@
  * $Revision: 24675 $
  *
  **************************************************************************** */
- 
+
 /* Define to prevent redundant inclusion */
 #ifndef _TMR_UTILS_H
 #define _TMR_UTILS_H
@@ -58,8 +58,8 @@ extern "C" {
  */
 /* **** Definitions **** */
 /** Macro to convert the parameter \p s from seconds to micro-seconds. */
-#define SEC(s)            (((unsigned long)s) * 1000000UL) 
-/** Macro to convert the parameter \p ms from milli-seconds to micro-seconds. */	
+#define SEC(s)            (((unsigned long)s) * 1000000UL)
+/** Macro to convert the parameter \p ms from milli-seconds to micro-seconds. */
 #define MSEC(ms)          (ms * 1000UL)
 /** Macro to convert the parameter \p us to micro-seconds. */
 #define USEC(us)          (us)
@@ -73,53 +73,53 @@ extern "C" {
  * @param      tmr   TMR module to operate on
  * @param      us    Number of microseconds to delay.
  */
-void TMR_Delay(mxc_tmr_regs_t* tmr, unsigned long us);
+void TMR_Delay(mxc_tmr_regs_t *tmr, unsigned long us);
 
 /**
  * @brief      Start the timeout time for the specified number of microseconds.
  * @param      tmr   TMR module to operate on
  * @param      us    Number of microseconds in the timeout.
  */
-void TMR_TO_Start(mxc_tmr_regs_t* tmr, unsigned long us);
+void TMR_TO_Start(mxc_tmr_regs_t *tmr, unsigned long us);
 
 /**
  * @brief      Check if the timeout has occured.
  * @param      tmr   TMR module to operate on
  * @return     #E_NO_ERROR if the timeout has not occurred, #E_TIME_OUT if it has.
  */
-int TMR_TO_Check(mxc_tmr_regs_t* tmr);
+int TMR_TO_Check(mxc_tmr_regs_t *tmr);
 
 /**
  * @brief      Stops the timer for the timeout.
  * @param      tmr   TMR module to operate on
  */
-void TMR_TO_Stop(mxc_tmr_regs_t* tmr);
+void TMR_TO_Stop(mxc_tmr_regs_t *tmr);
 
 /**
  * @brief      Clears the timeout flag.
  * @param      tmr   TMR module to operate on
  */
-void TMR_TO_Clear(mxc_tmr_regs_t* tmr);
+void TMR_TO_Clear(mxc_tmr_regs_t *tmr);
 
 /**
  * @brief      Get the number of microseconds elapsed since TMR_TO_Start().
  * @param      tmr   TMR module to operate on
  * @return     Number of microseconds since TMR_TO_Start().
  */
-unsigned TMR_TO_Elapsed(mxc_tmr_regs_t* tmr);
+unsigned TMR_TO_Elapsed(mxc_tmr_regs_t *tmr);
 
 /**
  * @brief      Get the number of microseconds remaining in the timeout.
  * @param      tmr   TMR module to operate on
  * @return     Number of microseconds since TMR_TO_Start().
  */
-unsigned TMR_TO_Remaining(mxc_tmr_regs_t* tmr);
+unsigned TMR_TO_Remaining(mxc_tmr_regs_t *tmr);
 
 /**
  * @brief      Start the stopwatch.
  * @param      tmr   TMR module to operate on
  */
-void TMR_SW_Start(mxc_tmr_regs_t* tmr);
+void TMR_SW_Start(mxc_tmr_regs_t *tmr);
 
 /**
  * @brief      Stop the stopwatch and return the number of microseconds that
@@ -127,7 +127,7 @@ void TMR_SW_Start(mxc_tmr_regs_t* tmr);
  * @param      tmr   TMR module to operate on
  * @return     Number of microseconds since TMR_TO_Start().
  */
-unsigned TMR_SW_Stop(mxc_tmr_regs_t* tmr);
+unsigned TMR_SW_Stop(mxc_tmr_regs_t *tmr);
 /**@} end of defgroup tmr_utils*/
 #ifdef __cplusplus
 }

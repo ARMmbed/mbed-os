@@ -132,8 +132,7 @@ class BLEInstanceBase;
  * }
  * @endcode
  */
-class BLE
-{
+class BLE {
 public:
     /**
      * Opaque type used to store the ID of a BLE instance.
@@ -178,7 +177,8 @@ public:
      *
      * @return Instance id of this BLE instance.
      */
-    InstanceID_t getInstanceID(void) const {
+    InstanceID_t getInstanceID(void) const
+    {
         return instanceID;
     }
 
@@ -192,14 +192,14 @@ public:
         /**
          * The ble instance which have events to process.
          */
-        BLE& ble;
+        BLE &ble;
     };
 
     /**
      * Events to process event handler
      */
-    typedef FunctionPointerWithContext<OnEventsToProcessCallbackContext*>
-        OnEventsToProcessCallback_t;
+    typedef FunctionPointerWithContext<OnEventsToProcessCallbackContext *>
+    OnEventsToProcessCallback_t;
 
     /**
      * Register a callback called when the BLE stack has pending work.
@@ -209,7 +209,7 @@ public:
      *
      * @param on_event_cb Callback invoked when there are new events to process.
      */
-    void onEventsToProcess(const OnEventsToProcessCallback_t& on_event_cb);
+    void onEventsToProcess(const OnEventsToProcessCallback_t &on_event_cb);
 
     /**
      * Process ALL pending events living in the BLE stack and return once all
@@ -229,7 +229,7 @@ public:
         /**
          * Reference to the BLE object that has been initialized
          */
-        BLE& ble;
+        BLE &ble;
 
         /**
          * Error status of the initialization.
@@ -283,7 +283,8 @@ public:
      * @attention This should be called before using anything else in the BLE
      * API.
      */
-    ble_error_t init(InitializationCompleteCallback_t completion_cb = NULL) {
+    ble_error_t init(InitializationCompleteCallback_t completion_cb = NULL)
+    {
         FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback(completion_cb);
         return initImplementation(callback);
     }
@@ -299,7 +300,8 @@ public:
      * initialization is complete.
      */
     template<typename T>
-    ble_error_t init(T *object, void (T::*completion_cb)(InitializationCompleteCallbackContext *context)) {
+    ble_error_t init(T *object, void (T::*completion_cb)(InitializationCompleteCallbackContext *context))
+    {
         FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback(object, completion_cb);
         return initImplementation(callback);
     }
@@ -357,7 +359,7 @@ public:
      *
      * @return A reference to a GattServer object associated to this BLE instance.
      */
-    GattServer& gattServer();
+    GattServer &gattServer();
 
     /**
      * A const alternative to gattServer().
@@ -365,7 +367,7 @@ public:
      * @return A const reference to a GattServer object associated to this BLE
      * instance.
      */
-    const GattServer& gattServer() const;
+    const GattServer &gattServer() const;
 
     /**
      * Accessors to GattClient. All GattClient related functionality requires
@@ -373,7 +375,7 @@ public:
      *
      * @return A reference to a GattClient object associated to this BLE instance.
      */
-    GattClient& gattClient();
+    GattClient &gattClient();
 
     /**
      * A const alternative to gattClient().
@@ -381,7 +383,7 @@ public:
      * @return A const reference to a GattClient object associated to this BLE
      * instance.
      */
-    const GattClient& gattClient() const;
+    const GattClient &gattClient() const;
 
     /**
      * Accessors to SecurityManager. All SecurityManager-related functionality
@@ -390,7 +392,7 @@ public:
      * @return A reference to a SecurityManager object associated to this BLE
      * instance.
      */
-    SecurityManager& securityManager();
+    SecurityManager &securityManager();
 
     /**
      * A const alternative to securityManager().
@@ -398,7 +400,7 @@ public:
      * @return A const reference to a SecurityManager object associated to this
      * BLE instance.
      */
-    const SecurityManager& securityManager() const;
+    const SecurityManager &securityManager() const;
 
     /**
      * Translate error code into a printable string.
@@ -407,7 +409,7 @@ public:
      *
      * @return A pointer to a const string describing the error.
      */
-    static const char* errorToString(ble_error_t error);
+    static const char *errorToString(ble_error_t error);
 
     /*
      * Deprecation alert!
@@ -457,7 +459,8 @@ public:
     ble_error_t setAddress(
         BLEProtocol::AddressType_t type,
         const BLEProtocol::AddressBytes_t address
-    ) {
+    )
+    {
         return gap().setAddress(type, address);
     }
 
@@ -473,7 +476,8 @@ public:
     MBED_DEPRECATED("Use ble.gap().getAddress(...)")
     ble_error_t getAddress(
         BLEProtocol::AddressType_t *typeP, BLEProtocol::AddressBytes_t address
-    ) {
+    )
+    {
         return gap().getAddress(typeP, address);
     }
 
@@ -486,7 +490,8 @@ public:
      *             ble.gap().setAdvertisingType(...).
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingType(...)")
-    void setAdvertisingType(GapAdvertisingParams::AdvertisingType advType) {
+    void setAdvertisingType(GapAdvertisingParams::AdvertisingType advType)
+    {
         gap().setAdvertisingType(advType);
     }
 
@@ -517,7 +522,8 @@ public:
      * code depending on the old semantics needs to be updated accordingly.
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingInterval(...)")
-    void setAdvertisingInterval(uint16_t interval) {
+    void setAdvertisingInterval(uint16_t interval)
+    {
         gap().setAdvertisingInterval(interval);
     }
 
@@ -530,7 +536,8 @@ public:
      *             ble.gap().getMinAdvertisingInterval(...).
      */
     MBED_DEPRECATED("Use ble.gap().getMinAdvertisingInterval(...)")
-    uint16_t getMinAdvertisingInterval(void) const {
+    uint16_t getMinAdvertisingInterval(void) const
+    {
         return gap().getMinAdvertisingInterval();
     }
 
@@ -543,7 +550,8 @@ public:
      *             ble.gap().getMinNonConnectableAdvertisingInterval(...).
      */
     MBED_DEPRECATED("Use ble.gap().getMinNonConnectableAdvertisingInterval(...)")
-    uint16_t getMinNonConnectableAdvertisingInterval(void) const {
+    uint16_t getMinNonConnectableAdvertisingInterval(void) const
+    {
         return gap().getMinNonConnectableAdvertisingInterval();
     }
 
@@ -556,7 +564,8 @@ public:
      *             ble.gap().getMaxAdvertisingInterval(...).
      */
     MBED_DEPRECATED("Use ble.gap().getMaxAdvertisingInterval(...)")
-    uint16_t getMaxAdvertisingInterval(void) const {
+    uint16_t getMaxAdvertisingInterval(void) const
+    {
         return gap().getMaxAdvertisingInterval();
     }
 
@@ -571,7 +580,8 @@ public:
      *             ble.gap().setAdvertisingTimeout(...).
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingTimeout(...)")
-    void setAdvertisingTimeout(uint16_t timeout) {
+    void setAdvertisingTimeout(uint16_t timeout)
+    {
         gap().setAdvertisingTimeout(timeout);
     }
 
@@ -587,7 +597,8 @@ public:
      *             ble.gap().setAdvertisingParams(...).
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingParams(...)")
-    void setAdvertisingParams(const GapAdvertisingParams &advParams) {
+    void setAdvertisingParams(const GapAdvertisingParams &advParams)
+    {
         gap().setAdvertisingParams(advParams);
     }
 
@@ -601,7 +612,8 @@ public:
      *             ble.gap().getAdvertisingParams(...).
      */
     MBED_DEPRECATED("Use ble.gap().getAdvertisingParams(...)")
-    const GapAdvertisingParams &getAdvertisingParams(void) const {
+    const GapAdvertisingParams &getAdvertisingParams(void) const
+    {
         return gap().getAdvertisingParams();
     }
 
@@ -622,7 +634,8 @@ public:
      *             ble.gap().accumulateAdvertisingPayload(flags).
      */
     MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayload(flags)")
-    ble_error_t accumulateAdvertisingPayload(uint8_t flags) {
+    ble_error_t accumulateAdvertisingPayload(uint8_t flags)
+    {
         return gap().accumulateAdvertisingPayload(flags);
     }
 
@@ -642,7 +655,8 @@ public:
      *             ble.gap().accumulateAdvertisingPayload(appearance).
      */
     MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayload(appearance)")
-    ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::Appearance app) {
+    ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::Appearance app)
+    {
         return gap().accumulateAdvertisingPayload(app);
     }
 
@@ -662,7 +676,8 @@ public:
      *             ble.gap().accumulateAdvertisingPayloadTxPower(txPower).
      */
     MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayloadTxPower(...)")
-    ble_error_t accumulateAdvertisingPayloadTxPower(int8_t power) {
+    ble_error_t accumulateAdvertisingPayloadTxPower(int8_t power)
+    {
         return gap().accumulateAdvertisingPayloadTxPower(power);
     }
 
@@ -682,7 +697,8 @@ public:
      *             be replaced with ble.gap().accumulateAdvertisingPayload(...).
      */
     MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayload(...)")
-    ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len) {
+    ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len)
+    {
         return gap().accumulateAdvertisingPayload(type, data, len);
     }
 
@@ -697,7 +713,8 @@ public:
      *             ble.gap().setAdvertisingPayload(...).
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingData(...)")
-    ble_error_t setAdvertisingData(const GapAdvertisingData &advData) {
+    ble_error_t setAdvertisingData(const GapAdvertisingData &advData)
+    {
         return gap().setAdvertisingPayload(advData);
     }
 
@@ -711,7 +728,8 @@ public:
      *             ble.gap().getAdvertisingPayload()(...).
      */
     MBED_DEPRECATED("Use ble.gap().getAdvertisingData(...)")
-    const GapAdvertisingData &getAdvertisingData(void) const {
+    const GapAdvertisingData &getAdvertisingData(void) const
+    {
         return gap().getAdvertisingPayload();
     }
 
@@ -726,7 +744,8 @@ public:
      *             ble.gap().clearAdvertisingPayload(...).
      */
     MBED_DEPRECATED("Use ble.gap().clearAdvertisingPayload(...)")
-    void clearAdvertisingPayload(void) {
+    void clearAdvertisingPayload(void)
+    {
         gap().clearAdvertisingPayload();
     }
 
@@ -745,7 +764,8 @@ public:
      * implicitly.
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingPayload(...)")
-    ble_error_t setAdvertisingPayload(void) {
+    ble_error_t setAdvertisingPayload(void)
+    {
         return BLE_ERROR_NONE;
     }
 
@@ -763,7 +783,8 @@ public:
      *             ble.gap().accumulateScanResponse(...).
      */
     MBED_DEPRECATED("Use ble.gap().accumulateScanResponse(...)")
-    ble_error_t accumulateScanResponse(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len) {
+    ble_error_t accumulateScanResponse(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len)
+    {
         return gap().accumulateScanResponse(type, data, len);
     }
 
@@ -777,7 +798,8 @@ public:
      *             ble.gap().clearScanResponse(...).
      */
     MBED_DEPRECATED("Use ble.gap().clearScanResponse(...)")
-    void clearScanResponse(void) {
+    void clearScanResponse(void)
+    {
         gap().clearScanResponse();
     }
 
@@ -790,7 +812,8 @@ public:
      *             ble.gap().startAdvertising(...).
      */
     MBED_DEPRECATED("Use ble.gap().startAdvertising(...)")
-    ble_error_t startAdvertising(void) {
+    ble_error_t startAdvertising(void)
+    {
         return gap().startAdvertising();
     }
 
@@ -803,7 +826,8 @@ public:
      *             ble.gap().stopAdvertising(...).
      */
     MBED_DEPRECATED("Use ble.gap().stopAdvertising(...)")
-    ble_error_t stopAdvertising(void) {
+    ble_error_t stopAdvertising(void)
+    {
         return gap().stopAdvertising();
     }
 
@@ -840,7 +864,8 @@ public:
     ble_error_t setScanParams(uint16_t interval       = GapScanningParams::SCAN_INTERVAL_MAX,
                               uint16_t window         = GapScanningParams::SCAN_WINDOW_MAX,
                               uint16_t timeout        = 0,
-                              bool     activeScanning = false) {
+                              bool     activeScanning = false)
+    {
         return gap().setScanParams(interval, window, timeout, activeScanning);
     }
 
@@ -865,7 +890,8 @@ public:
      *             ble.gap().setScanInterval(interval).
      */
     MBED_DEPRECATED("Use ble.gap().setScanInterval(...)")
-    ble_error_t setScanInterval(uint16_t interval) {
+    ble_error_t setScanInterval(uint16_t interval)
+    {
         return gap().setScanInterval(interval);
     }
 
@@ -890,7 +916,8 @@ public:
      *             ble.gap().setScanWindow(window).
      */
     MBED_DEPRECATED("Use ble.gap().setScanWindow(...)")
-    ble_error_t setScanWindow(uint16_t window) {
+    ble_error_t setScanWindow(uint16_t window)
+    {
         return gap().setScanWindow(window);
     }
 
@@ -917,7 +944,8 @@ public:
      *             ble.gap().setScanTimeout(...).
      */
     MBED_DEPRECATED("Use ble.gap().setScanTimeout(...)")
-    ble_error_t setScanTimeout(uint16_t timeout) {
+    ble_error_t setScanTimeout(uint16_t timeout)
+    {
         return gap().setScanTimeout(timeout);
     }
 
@@ -936,7 +964,8 @@ public:
      *             ble.gap().setActiveScanning(...).
      */
     MBED_DEPRECATED("Use ble.gap().setActiveScan(...)")
-    void setActiveScan(bool activeScanning) {
+    void setActiveScan(bool activeScanning)
+    {
         gap().setActiveScanning(activeScanning);
     }
 
@@ -955,7 +984,8 @@ public:
      *             ble.gap().startScan(callback).
      */
     MBED_DEPRECATED("Use ble.gap().startScan(callback)")
-    ble_error_t startScan(void (*callback)(const Gap::AdvertisementCallbackParams_t *params)) {
+    ble_error_t startScan(void (*callback)(const Gap::AdvertisementCallbackParams_t *params))
+    {
         return gap().startScan(callback);
     }
 
@@ -982,7 +1012,8 @@ public:
      *             ble.gap().stopScan().
      */
     MBED_DEPRECATED("Use ble.gap().stopScan()")
-    ble_error_t stopScan(void) {
+    ble_error_t stopScan(void)
+    {
         return gap().stopScan();
     }
 
@@ -1009,7 +1040,8 @@ public:
     ble_error_t connect(const BLEProtocol::AddressBytes_t  peerAddr,
                         BLEProtocol::AddressType_t         peerAddrType = BLEProtocol::AddressType::RANDOM_STATIC,
                         const Gap::ConnectionParams_t     *connectionParams = NULL,
-                        const GapScanningParams           *scanParams = NULL) {
+                        const GapScanningParams           *scanParams = NULL)
+    {
         return gap().connect(peerAddr, peerAddrType, connectionParams, scanParams);
     }
 
@@ -1023,7 +1055,8 @@ public:
      *              The reason for disconnection; sent back to the peer.
      */
     MBED_DEPRECATED("Use ble.gap().disconnect(...)")
-    ble_error_t disconnect(Gap::Handle_t connectionHandle, Gap::DisconnectionReason_t reason) {
+    ble_error_t disconnect(Gap::Handle_t connectionHandle, Gap::DisconnectionReason_t reason)
+    {
         return gap().disconnect(connectionHandle, reason);
     }
 
@@ -1045,7 +1078,8 @@ public:
      * connection.
      */
     MBED_DEPRECATED("Use ble.gap().disconnect(...)")
-    ble_error_t disconnect(Gap::DisconnectionReason_t reason) {
+    ble_error_t disconnect(Gap::DisconnectionReason_t reason)
+    {
         return gap().disconnect(reason);
     }
 
@@ -1059,7 +1093,8 @@ public:
      *             ble.gap().getState().
      */
     MBED_DEPRECATED("Use ble.gap().getGapState(...)")
-    Gap::GapState_t getGapState(void) const {
+    Gap::GapState_t getGapState(void) const
+    {
         return gap().getState();
     }
 
@@ -1081,7 +1116,8 @@ public:
      *             ble.gap().getPreferredConnectionParams().
      */
     MBED_DEPRECATED("Use ble.gap().getPreferredConnectionParams(...)")
-    ble_error_t getPreferredConnectionParams(Gap::ConnectionParams_t *params) {
+    ble_error_t getPreferredConnectionParams(Gap::ConnectionParams_t *params)
+    {
         return gap().getPreferredConnectionParams(params);
     }
 
@@ -1099,7 +1135,8 @@ public:
      *             ble.gap().setPreferredConnectionParams().
      */
     MBED_DEPRECATED("Use ble.gap().setPreferredConnectionParams(...)")
-    ble_error_t setPreferredConnectionParams(const Gap::ConnectionParams_t *params) {
+    ble_error_t setPreferredConnectionParams(const Gap::ConnectionParams_t *params)
+    {
         return gap().setPreferredConnectionParams(params);
     }
 
@@ -1119,7 +1156,8 @@ public:
      *             ble.gap().updateConnectionParams().
      */
     MBED_DEPRECATED("Use ble.gap().updateConnectionParams(...)")
-    ble_error_t updateConnectionParams(Gap::Handle_t handle, const Gap::ConnectionParams_t *params) {
+    ble_error_t updateConnectionParams(Gap::Handle_t handle, const Gap::ConnectionParams_t *params)
+    {
         return gap().updateConnectionParams(handle, params);
     }
 
@@ -1134,7 +1172,8 @@ public:
      *             ble.gap().setDeviceName().
      */
     MBED_DEPRECATED("Use ble.gap().setDeviceName(...)")
-    ble_error_t setDeviceName(const uint8_t *deviceName) {
+    ble_error_t setDeviceName(const uint8_t *deviceName)
+    {
         return gap().setDeviceName(deviceName);
     }
 
@@ -1162,7 +1201,8 @@ public:
      *             ble.gap().getDeviceName().
      */
     MBED_DEPRECATED("Use ble.gap().getDeviceName(...)")
-    ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP) {
+    ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP)
+    {
         return gap().getDeviceName(deviceName, lengthP);
     }
 
@@ -1177,7 +1217,8 @@ public:
      *             ble.gap().setAppearance().
      */
     MBED_DEPRECATED("Use ble.gap().setAppearance(...)")
-    ble_error_t setAppearance(GapAdvertisingData::Appearance appearance) {
+    ble_error_t setAppearance(GapAdvertisingData::Appearance appearance)
+    {
         return gap().setAppearance(appearance);
     }
 
@@ -1192,7 +1233,8 @@ public:
      *             ble.gap().getAppearance().
      */
     MBED_DEPRECATED("Use ble.gap().getAppearance(...)")
-    ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP) {
+    ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP)
+    {
         return gap().getAppearance(appearanceP);
     }
 
@@ -1206,7 +1248,8 @@ public:
      *             ble.gap().setTxPower().
      */
     MBED_DEPRECATED("Use ble.gap().setTxPower(...)")
-    ble_error_t setTxPower(int8_t txPower) {
+    ble_error_t setTxPower(int8_t txPower)
+    {
         return gap().setTxPower(txPower);
     }
 
@@ -1224,7 +1267,8 @@ public:
      *             ble.gap().getPermittedTxPowerValues().
      */
     MBED_DEPRECATED("Use ble.gap().getPermittedTxPowerValues(...)")
-    void getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP) {
+    void getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP)
+    {
         gap().getPermittedTxPowerValues(valueArrayPP, countP);
     }
 
@@ -1238,7 +1282,8 @@ public:
      *             ble.gattServer().addService().
      */
     MBED_DEPRECATED("Use ble.gattServer().addService(...)")
-    ble_error_t addService(GattService &service) {
+    ble_error_t addService(GattService &service)
+    {
         return gattServer().addService(service);
     }
 
@@ -1263,7 +1308,8 @@ public:
      *             ble.gattServer().read().
      */
     MBED_DEPRECATED("Use ble.gattServer().read(...)")
-    ble_error_t readCharacteristicValue(GattAttribute::Handle_t attributeHandle, uint8_t *buffer, uint16_t *lengthP) {
+    ble_error_t readCharacteristicValue(GattAttribute::Handle_t attributeHandle, uint8_t *buffer, uint16_t *lengthP)
+    {
         return gattServer().read(attributeHandle, buffer, lengthP);
     }
 
@@ -1294,7 +1340,8 @@ public:
      *             ble.gattServer().read().
      */
     MBED_DEPRECATED("Use ble.gattServer().read(...)")
-    ble_error_t readCharacteristicValue(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t *buffer, uint16_t *lengthP) {
+    ble_error_t readCharacteristicValue(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t *buffer, uint16_t *lengthP)
+    {
         return gattServer().read(connectionHandle, attributeHandle, buffer, lengthP);
     }
 
@@ -1325,7 +1372,8 @@ public:
     ble_error_t updateCharacteristicValue(GattAttribute::Handle_t  attributeHandle,
                                           const uint8_t           *value,
                                           uint16_t                 size,
-                                          bool                     localOnly = false) {
+                                          bool                     localOnly = false)
+    {
         return gattServer().write(attributeHandle, value, size, localOnly);
     }
 
@@ -1361,7 +1409,8 @@ public:
                                           GattAttribute::Handle_t  attributeHandle,
                                           const uint8_t           *value,
                                           uint16_t                 size,
-                                          bool                     localOnly = false) {
+                                          bool                     localOnly = false)
+    {
         return gattServer().write(connectionHandle, attributeHandle, value, size, localOnly);
     }
 
@@ -1389,7 +1438,8 @@ public:
     ble_error_t initializeSecurity(bool                                      enableBonding = true,
                                    bool                                      requireMITM   = true,
                                    SecurityManager::SecurityIOCapabilities_t iocaps        = SecurityManager::IO_CAPS_NONE,
-                                   const SecurityManager::Passkey_t          passkey       = NULL) {
+                                   const SecurityManager::Passkey_t          passkey       = NULL)
+    {
         return securityManager().init(enableBonding, requireMITM, iocaps, passkey);
     }
 
@@ -1407,7 +1457,8 @@ public:
      *             ble.securityManager().getLinkSecurity(...).
      */
     MBED_DEPRECATED("ble.securityManager().getLinkSecurity(...)")
-    ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager::LinkSecurityStatus_t *securityStatusP) {
+    ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager::LinkSecurityStatus_t *securityStatusP)
+    {
         return securityManager().getLinkSecurity(connectionHandle, securityStatusP);
     }
 
@@ -1425,7 +1476,8 @@ public:
      *             ble.securityManager().purgeAllBondingState().
      */
     MBED_DEPRECATED("ble.securityManager().purgeAllBondingState(...)")
-    ble_error_t purgeAllBondingState(void) {
+    ble_error_t purgeAllBondingState(void)
+    {
         return securityManager().purgeAllBondingState();
     }
 
@@ -1439,7 +1491,8 @@ public:
      *             ble.gap().onTimeout(callback).
      */
     MBED_DEPRECATED("ble.gap().onTimeout(callback)")
-    void onTimeout(Gap::TimeoutEventCallback_t timeoutCallback) {
+    void onTimeout(Gap::TimeoutEventCallback_t timeoutCallback)
+    {
         gap().onTimeout(timeoutCallback);
     }
 
@@ -1452,7 +1505,8 @@ public:
      *             ble.gap().onConnection(callback).
      */
     MBED_DEPRECATED("ble.gap().onConnection(callback)")
-    void onConnection(Gap::ConnectionEventCallback_t connectionCallback) {
+    void onConnection(Gap::ConnectionEventCallback_t connectionCallback)
+    {
         gap().onConnection(connectionCallback);
     }
 
@@ -1465,7 +1519,8 @@ public:
      *             ble.gap().onDisconnection(callback).
      */
     MBED_DEPRECATED("ble.gap().onDisconnection(callback)")
-    void onDisconnection(Gap::DisconnectionEventCallback_t disconnectionCallback) {
+    void onDisconnection(Gap::DisconnectionEventCallback_t disconnectionCallback)
+    {
         gap().onDisconnection(disconnectionCallback);
     }
 
@@ -1480,7 +1535,8 @@ public:
      */
     template<typename T>
     MBED_DEPRECATED("ble.gap().onDisconnection(callback)")
-    void onDisconnection(T *tptr, void (T::*mptr)(const Gap::DisconnectionCallbackParams_t*)) {
+    void onDisconnection(T *tptr, void (T::*mptr)(const Gap::DisconnectionCallbackParams_t *))
+    {
         gap().onDisconnection(tptr, mptr);
     }
 
@@ -1506,7 +1562,8 @@ public:
      *             ble.gap().onRadioNotification(...).
      */
     MBED_DEPRECATED("ble.gap().onRadioNotification(...)")
-    void onRadioNotification(void (*callback)(bool)) {
+    void onRadioNotification(void (*callback)(bool))
+    {
         gap().onRadioNotification(callback);
     }
 
@@ -1527,7 +1584,8 @@ public:
      *             ble.gattServer().onDataSent(...).
      */
     MBED_DEPRECATED("ble.gattServer().onDataSent(...)")
-    void onDataSent(void (*callback)(unsigned count)) {
+    void onDataSent(void (*callback)(unsigned count))
+    {
         gattServer().onDataSent(callback);
     }
 
@@ -1542,7 +1600,8 @@ public:
      */
     template <typename T>
     MBED_DEPRECATED("ble.gattServer().onDataSent(...)")
-    void onDataSent(T * objPtr, void (T::*memberPtr)(unsigned count)) {
+    void onDataSent(T *objPtr, void (T::*memberPtr)(unsigned count))
+    {
         gattServer().onDataSent(objPtr, memberPtr);
     }
 
@@ -1567,7 +1626,8 @@ public:
      *             ble.gattServer().onDataWritten(...).
      */
     MBED_DEPRECATED("ble.gattServer().onDataWritten(...)")
-    void onDataWritten(void (*callback)(const GattWriteCallbackParams *eventDataP)) {
+    void onDataWritten(void (*callback)(const GattWriteCallbackParams *eventDataP))
+    {
         gattServer().onDataWritten(callback);
     }
 
@@ -1582,7 +1642,8 @@ public:
      */
     template <typename T>
     MBED_DEPRECATED("ble.gattServer().onDataWritten(...)")
-    void onDataWritten(T * objPtr, void (T::*memberPtr)(const GattWriteCallbackParams *context)) {
+    void onDataWritten(T *objPtr, void (T::*memberPtr)(const GattWriteCallbackParams *context))
+    {
         gattServer().onDataWritten(objPtr, memberPtr);
     }
 
@@ -1611,7 +1672,8 @@ public:
      *             ble.gattServer().onDataRead(...).
      */
     MBED_DEPRECATED("ble.gattServer().onDataRead(...)")
-    ble_error_t onDataRead(void (*callback)(const GattReadCallbackParams *eventDataP)) {
+    ble_error_t onDataRead(void (*callback)(const GattReadCallbackParams *eventDataP))
+    {
         return gattServer().onDataRead(callback);
     }
 
@@ -1626,7 +1688,8 @@ public:
      */
     template <typename T>
     MBED_DEPRECATED("ble.gattServer().onDataRead(...)")
-    ble_error_t onDataRead(T * objPtr, void (T::*memberPtr)(const GattReadCallbackParams *context)) {
+    ble_error_t onDataRead(T *objPtr, void (T::*memberPtr)(const GattReadCallbackParams *context))
+    {
         return gattServer().onDataRead(objPtr, memberPtr);
     }
 
@@ -1640,7 +1703,8 @@ public:
      *             ble.gattServer().onUpdatesEnabled(callback).
      */
     MBED_DEPRECATED("ble.gattServer().onUpdatesEnabled(...)")
-    void onUpdatesEnabled(GattServer::EventCallback_t callback) {
+    void onUpdatesEnabled(GattServer::EventCallback_t callback)
+    {
         gattServer().onUpdatesEnabled(callback);
     }
 
@@ -1654,7 +1718,8 @@ public:
      *             ble.gattServer().onUpdatesDisabled(callback).
      */
     MBED_DEPRECATED("ble.gattServer().onUpdatesDisabled(...)")
-    void onUpdatesDisabled(GattServer::EventCallback_t callback) {
+    void onUpdatesDisabled(GattServer::EventCallback_t callback)
+    {
         gattServer().onUpdatesDisabled(callback);
     }
 
@@ -1668,7 +1733,8 @@ public:
      *             ble.gattServer().onConfirmationReceived(callback).
      */
     MBED_DEPRECATED("ble.gattServer().onConfirmationReceived(...)")
-    void onConfirmationReceived(GattServer::EventCallback_t callback) {
+    void onConfirmationReceived(GattServer::EventCallback_t callback)
+    {
         gattServer().onConfirmationReceived(callback);
     }
 
@@ -1685,7 +1751,8 @@ public:
      *             ble.securityManager().onSecuritySetupInitiated(callback).
      */
     MBED_DEPRECATED("ble.securityManager().onSecuritySetupInitiated(callback)")
-    void onSecuritySetupInitiated(SecurityManager::SecuritySetupInitiatedCallback_t callback) {
+    void onSecuritySetupInitiated(SecurityManager::SecuritySetupInitiatedCallback_t callback)
+    {
         securityManager().onSecuritySetupInitiated(callback);
     }
 
@@ -1701,7 +1768,8 @@ public:
      *             ble.securityManager().onSecuritySetupCompleted(callback).
      */
     MBED_DEPRECATED("ble.securityManager().onSecuritySetupCompleted(callback)")
-    void onSecuritySetupCompleted(SecurityManager::SecuritySetupCompletedCallback_t callback) {
+    void onSecuritySetupCompleted(SecurityManager::SecuritySetupCompletedCallback_t callback)
+    {
         securityManager().onSecuritySetupCompleted(callback);
     }
 
@@ -1719,7 +1787,8 @@ public:
      *             ble.securityManager().onLinkSecured(callback).
      */
     MBED_DEPRECATED("ble.securityManager().onLinkSecured(callback)")
-    void onLinkSecured(SecurityManager::LinkSecuredCallback_t callback) {
+    void onLinkSecured(SecurityManager::LinkSecuredCallback_t callback)
+    {
         securityManager().onLinkSecured(callback);
     }
 
@@ -1733,7 +1802,8 @@ public:
      *             ble.securityManager().onSecurityContextStored(callback).
      */
     MBED_DEPRECATED("ble.securityManager().onSecurityContextStored(callback)")
-    void onSecurityContextStored(SecurityManager::HandleSpecificEvent_t callback) {
+    void onSecurityContextStored(SecurityManager::HandleSpecificEvent_t callback)
+    {
         securityManager().onSecurityContextStored(callback);
     }
 
@@ -1750,7 +1820,8 @@ public:
      *             ble.securityManager().onPasskeyDisplay(callback).
      */
     MBED_DEPRECATED("ble.securityManager().onPasskeyDisplay(callback)")
-    void onPasskeyDisplay(SecurityManager::PasskeyDisplayCallback_t callback) {
+    void onPasskeyDisplay(SecurityManager::PasskeyDisplayCallback_t callback)
+    {
         return securityManager().onPasskeyDisplay(callback);
     }
 
@@ -1778,7 +1849,7 @@ private:
 
 private:
     // Prevent copy construction and copy assignment of BLE.
-    BLE(const BLE&);
+    BLE(const BLE &);
     BLE &operator=(const BLE &);
 
 private:

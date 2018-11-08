@@ -149,7 +149,8 @@ uint32_t SystemCoreClock = __CORE_SYS;  /*!< System Clock Frequency (Core Clock)
  * @brief  Update SystemCoreClock according register values.
  */
 void SystemCoreClockUpdate(void)
-{                               /* Get Core Clock Frequency */
+{
+    /* Get Core Clock Frequency */
     uint32_t CoreClock = 0U;
     uint32_t CoreClockInput = 0U;
     uint32_t regval = 0U;
@@ -200,28 +201,28 @@ void SystemCoreClockUpdate(void)
         CoreClockInput = CoreClock;
     }
     switch (TSB_CG->SYSCR & 7U) {
-    case 0U:
-        SystemCoreClock = CoreClockInput;       /* Gear -> fc      */
-        break;
-    case 1U:                   /* Gear -> fc/2     */
-        SystemCoreClock = CoreClockInput / 2U;
-        break;
-    case 2U:                   /* Gear -> fc/4     */
-        SystemCoreClock = CoreClockInput / 4U;
-        break;
-    case 3U:                   /* Gear -> fc/8     */
-        SystemCoreClock = CoreClockInput / 8U;
-        break;
-    case 4U:                   /* Gear -> fc/16     */
-        if (CoreClockInput >= OSC_16M) {
-            SystemCoreClock = CoreClockInput / 16U;
-        } else {
+        case 0U:
+            SystemCoreClock = CoreClockInput;       /* Gear -> fc      */
+            break;
+        case 1U:                   /* Gear -> fc/2     */
+            SystemCoreClock = CoreClockInput / 2U;
+            break;
+        case 2U:                   /* Gear -> fc/4     */
+            SystemCoreClock = CoreClockInput / 4U;
+            break;
+        case 3U:                   /* Gear -> fc/8     */
+            SystemCoreClock = CoreClockInput / 8U;
+            break;
+        case 4U:                   /* Gear -> fc/16     */
+            if (CoreClockInput >= OSC_16M) {
+                SystemCoreClock = CoreClockInput / 16U;
+            } else {
+                SystemCoreClock = 0U;
+            }
+            break;
+        default:
             SystemCoreClock = 0U;
-        }
-        break;
-    default:
-        SystemCoreClock = 0U;
-        break;
+            break;
     }
 }
 
@@ -238,7 +239,7 @@ void SystemInit(void)
 {
     uint32_t regval = 0U;
     volatile uint32_t pllst = 0U;
-    volatile uint32_t wuef = 0U;  
+    volatile uint32_t wuef = 0U;
     volatile uint32_t oscf = 0U;
     uint32_t wdte = 0U;
 
@@ -258,9 +259,9 @@ void SystemInit(void)
 #if (CLOCK_SETUP)               /* Clock(external) Setup */
     TSB_CG->SYSCR = SYSCR_Val;
     TSB_CG->WUPHCR &= WUPHCR_WUPT_MASK;
-    TSB_CG->WUPHCR |= WUPHCR_WUPT_EXT;    
-    TSB_CG->OSCCR |= CG_OSCCR_EOSCEN_SET;    
-    TSB_CG->WUPHCR |= CG_WUPHCR_WUCLK_SET;   
+    TSB_CG->WUPHCR |= WUPHCR_WUPT_EXT;
+    TSB_CG->OSCCR |= CG_OSCCR_EOSCEN_SET;
+    TSB_CG->WUPHCR |= CG_WUPHCR_WUCLK_SET;
     TSB_CG->WUPHCR |= CG_WUON_START_SET;
     wuef = TSB_CG->WUPHCR & CG_WUEF_VALUE_MASK;
     while (wuef) {
@@ -288,12 +289,12 @@ void SystemInit(void)
     TSB_CG->STBYCR = STBYCR_Val;
     TSB_CG->WUPHCR |= CG_WUON_START_SET;
     wuef = TSB_CG->WUPHCR & CG_WUEF_VALUE_MASK;
-   while (wuef) {
+    while (wuef) {
         wuef = TSB_CG->WUPHCR & CG_WUEF_VALUE_MASK;
-   }                           /* Warm-up */
+    }                           /* Warm-up */
     TSB_CG->PLL0SEL |= CG_PLL0SEL_PLL0SEL_SET;
-   pllst = TSB_CG->PLL0SEL & CG_PLL0SEL_PLL0ST_MASK;
-   while (pllst != CG_PLL0SEL_PLL0ST_MASK) {
+    pllst = TSB_CG->PLL0SEL & CG_PLL0SEL_PLL0ST_MASK;
+    while (pllst != CG_PLL0SEL_PLL0ST_MASK) {
         pllst = TSB_CG->PLL0SEL & CG_PLL0SEL_PLL0ST_MASK;
     }                           /*Confirm CGPLLSEL<PLLST> = "1" */
 

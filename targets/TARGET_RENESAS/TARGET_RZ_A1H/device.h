@@ -19,8 +19,8 @@
 #define MBED_DEVICE_H
 
 /* ->Take measures about optimization problems of web compiler */
-   /* Web compiler has problem that inlining code may not be generated correctly */
-   /* when "-O3 -Otime" was specified. */
+/* Web compiler has problem that inlining code may not be generated correctly */
+/* when "-O3 -Otime" was specified. */
 #if defined(__CC_ARM) && (__ARMCC_VERSION <= 5040027)
 #pragma Ospace
 #endif

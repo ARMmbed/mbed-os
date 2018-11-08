@@ -27,7 +27,7 @@
 #define TRACE_GROUP "iphc"
 
 typedef struct iphc_compress_state {
-    const lowpan_context_list_t * const context_list;
+    const lowpan_context_list_t *const context_list;
     const uint8_t *in;
     uint8_t *out;
     uint16_t len;
@@ -249,7 +249,7 @@ static bool compress_udp(iphc_compress_state_t *restrict cs)
         }
         *ptr++ = NHC_UDP | NHC_UDP_PORT_COMPRESS_BOTH;
         *ptr++ = (src_port & 0xF) << 4 |
-                                   (dst_port & 0xF);
+                 (dst_port & 0xF);
     } else if ((src_port & 0xff00) == 0xf000) {
         if (cs->out_space < 7) {
             return false;

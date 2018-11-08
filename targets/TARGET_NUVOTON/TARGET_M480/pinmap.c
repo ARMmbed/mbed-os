@@ -47,26 +47,26 @@ void pin_mode(PinName pin, PinMode mode)
     uint32_t mode_intern = GPIO_MODE_INPUT;
 
     switch (mode) {
-    case PullUp:
-        mode_intern = GPIO_MODE_INPUT;
-        break;
+        case PullUp:
+            mode_intern = GPIO_MODE_INPUT;
+            break;
 
-    case PullDown:
-    case PullNone:
-        // NOTE: Not support
-        return;
+        case PullDown:
+        case PullNone:
+            // NOTE: Not support
+            return;
 
-    case PushPull:
-        mode_intern = GPIO_MODE_OUTPUT;
-        break;
+        case PushPull:
+            mode_intern = GPIO_MODE_OUTPUT;
+            break;
 
-    case OpenDrain:
-        mode_intern = GPIO_MODE_OPEN_DRAIN;
-        break;
+        case OpenDrain:
+            mode_intern = GPIO_MODE_OPEN_DRAIN;
+            break;
 
-    case Quasi:
-        mode_intern = GPIO_MODE_QUASI;
-        break;
+        case Quasi:
+            mode_intern = GPIO_MODE_QUASI;
+            break;
     }
 
     GPIO_SetMode(gpio_base, 1 << pin_index, mode_intern);

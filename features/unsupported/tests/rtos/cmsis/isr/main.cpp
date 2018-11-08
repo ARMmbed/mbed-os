@@ -2,26 +2,29 @@
 #include "rtos.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 Queue<uint32_t, 5> queue;
 
 DigitalOut myled(LED1);
 
-void queue_isr() {
-    queue.put((uint32_t*)2);
+void queue_isr()
+{
+    queue.put((uint32_t *)2);
     myled = !myled;
 }
 
-void queue_thread(void const *argument) {
+void queue_thread(void const *argument)
+{
     while (true) {
-        queue.put((uint32_t*)1);
+        queue.put((uint32_t *)1);
         Thread::wait(1000);
     }
 }
 
-int main (void) {
+int main(void)
+{
     Thread thread(queue_thread);
 
     Ticker ticker;

@@ -81,7 +81,7 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
 
     /* Round total size up to at least be a neat multiple - allocation must
      * anyway be this much aligned. */
-    total_size = (total_size + 3) &~ 3;
+    total_size = (total_size + 3) & ~ 3;
 
     // Note - as well as this alloc+init, buffers can also be "realloced"
     // in buffer_headroom()
@@ -132,7 +132,7 @@ buffer_t *buffer_headroom(buffer_t *buf, uint16_t size)
     if (buf->size < (curr_len + size)) {
         /* This buffer isn't big enough at all - allocate a new block */
         // TODO - should we be giving them extra? probably
-        uint16_t new_total = (curr_len + size + 3) &~ 3;
+        uint16_t new_total = (curr_len + size + 3) & ~ 3;
         buffer_t *restrict new_buf = ns_dyn_mem_temporary_alloc(sizeof(buffer_t) + new_total);
         if (new_buf) {
             // Copy the buffer_t header
@@ -248,9 +248,9 @@ buffer_t *buffer_turnaround(buffer_t *buf)
 void buffer_note_predecessor(buffer_t *buf, const sockaddr_t *addr)
 {
     if (buf->options.need_predecessor && !buf->predecessor) {
-        buf->predecessor = ns_dyn_mem_temporary_alloc(sizeof *buf->predecessor);
+        buf->predecessor = ns_dyn_mem_temporary_alloc(sizeof * buf->predecessor);
         if (buf->predecessor) {
-            memcpy(buf->predecessor, addr, sizeof *buf->predecessor);
+            memcpy(buf->predecessor, addr, sizeof * buf->predecessor);
         }
     }
 }

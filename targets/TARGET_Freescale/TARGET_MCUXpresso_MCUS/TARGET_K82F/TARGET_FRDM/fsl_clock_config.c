@@ -89,8 +89,7 @@ void BOARD_BootClockVLPR(void)
 
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
     SMC_SetPowerModeVlpr(SMC);
-    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr)
-    {
+    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr) {
     }
 }
 
@@ -128,8 +127,7 @@ void BOARD_BootClockHSRUN(void)
 
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
     SMC_SetPowerModeHsrun(SMC);
-    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateHsrun)
-    {
+    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateHsrun) {
     }
 
     CLOCK_SetSimSafeDivs();
@@ -150,12 +148,13 @@ void BOARD_InitOsc0(void)
     const osc_config_t oscConfig = {.freq = BOARD_XTAL0_CLK_HZ,
                                     .capLoad = 0,
                                     .workMode = kOSC_ModeOscLowPower,
-                                    .oscerConfig = {
-                                        .enableMode = kOSC_ErClkEnable,
+    .oscerConfig = {
+        .enableMode = kOSC_ErClkEnable,
 #if (defined(FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER) && FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER)
-                                        .erclkDiv = 0U,
+        .erclkDiv = 0U,
 #endif
-                                    }};
+    }
+                                   };
 
     CLOCK_InitOsc0(&oscConfig);
 

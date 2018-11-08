@@ -185,9 +185,9 @@ uint32_t pio_get_writeprotect_status(const Pio *p_pio);
 void pio_capture_set_mode(Pio *p_pio, uint32_t ul_mode);
 void pio_capture_enable(Pio *p_pio);
 void pio_capture_disable(Pio *p_pio);
-uint32_t pio_capture_read(const Pio *p_pio, uint32_t * pul_data);
+uint32_t pio_capture_read(const Pio *p_pio, uint32_t *pul_data);
 void pio_capture_enable_interrupt(Pio *p_pio, const uint32_t ul_mask);
-void pio_capture_disable_interrupt(Pio * p_pio, const uint32_t ul_mask);
+void pio_capture_disable_interrupt(Pio *p_pio, const uint32_t ul_mask);
 uint32_t pio_capture_get_interrupt_status(const Pio *p_pio);
 uint32_t pio_capture_get_interrupt_mask(const Pio *p_pio);
 #if !(SAMV71 || SAMV70 || SAME70 || SAMS70)
@@ -267,10 +267,10 @@ uint8_t pio_keypad_get_release_column_index(const Pio *p_pio, uint8_t queue);
  * \subsection sam_pio_quickstart_use_case_1_setup_steps Initialization code
  * Add to the application initialization code:
  * \code
-	    pmc_enable_periph_clk(ID_PIOA);
+        pmc_enable_periph_clk(ID_PIOA);
 
-	    pio_set_output(PIOA, PIO_PA23, LOW, DISABLE, ENABLE);
-	    pio_set_input(PIOA, PIO_PA16, PIO_PULLUP);
+        pio_set_output(PIOA, PIO_PA23, LOW, DISABLE, ENABLE);
+        pio_set_input(PIOA, PIO_PA16, PIO_PULLUP);
 \endcode
  *
  * \subsection sam_pio_quickstart_use_case_1_setup_steps_workflow Workflow
@@ -284,22 +284,22 @@ uint8_t pio_keypad_get_release_column_index(const Pio *p_pio, uint8_t queue);
  * \subsection sam_pio_quickstart_use_case_1_example_code Example code
  *   Set the state of output pin 23 to match input pin 16:
  *   \code
-	if (pio_get(PIOA, PIO_TYPE_PIO_INPUT, PIO_PA16))
-	    pio_clear(PIOA, PIO_PA23);
-	else
-	    pio_set(PIOA, PIO_PA23);
+    if (pio_get(PIOA, PIO_TYPE_PIO_INPUT, PIO_PA16))
+        pio_clear(PIOA, PIO_PA23);
+    else
+        pio_set(PIOA, PIO_PA23);
 \endcode
  *
  * \subsection sam_pio_quickstart_use_case_1_example_workflow Workflow
  * -# We check the value of the pin:
  *     \code
-	if (pio_get(PIOA, PIO_TYPE_PIO_INPUT, PIO_PA16))
+    if (pio_get(PIOA, PIO_TYPE_PIO_INPUT, PIO_PA16))
 \endcode
  * -# Then we set the new output value based on the read pin value:
  *     \code
-	    pio_clear(PIOA, PIO_PA23);
-	else
-	    pio_set(PIOA, PIO_PA23);
+        pio_clear(PIOA, PIO_PA23);
+    else
+        pio_set(PIOA, PIO_PA23);
 \endcode
  */
 
@@ -318,15 +318,15 @@ uint8_t pio_keypad_get_release_column_index(const Pio *p_pio, uint8_t queue);
  * \subsection sam_pio_quickstart_use_case_2_setup_steps Initialization code
  * Add to the application initialization code:
  * \code
-	 pmc_enable_periph_clk(ID_PIOA);
+     pmc_enable_periph_clk(ID_PIOA);
 
-	 pio_set_output(PIOA, PIO_PA23, LOW, DISABLE, ENABLE);
-	 pio_set_input(PIOA, PIO_PA16, PIO_PULLUP);
+     pio_set_output(PIOA, PIO_PA23, LOW, DISABLE, ENABLE);
+     pio_set_input(PIOA, PIO_PA16, PIO_PULLUP);
 
-	 pio_handler_set(PIOA, ID_PIOA, PIO_PA16, PIO_IT_EDGE, pin_edge_handler);
-	 pio_enable_interrupt(PIOA, PIO_PA16);
+     pio_handler_set(PIOA, ID_PIOA, PIO_PA16, PIO_IT_EDGE, pin_edge_handler);
+     pio_enable_interrupt(PIOA, PIO_PA16);
 
-	 NVIC_EnableIRQ(PIOA_IRQn);
+     NVIC_EnableIRQ(PIOA_IRQn);
 \endcode
  *
  * \subsection sam_pio_quickstart_use_case_2_setup_steps_workflow Workflow
@@ -346,27 +346,27 @@ uint8_t pio_keypad_get_release_column_index(const Pio *p_pio, uint8_t queue);
  * \subsection sam_pio_quickstart_use_case_2_example_code Example code
  * Add the following function to your application:
  * \code
-	void pin_edge_handler(const uint32_t id, const uint32_t index)
-	{
-		if ((id == ID_PIOA) && (index == PIO_PA16)){
-			if (pio_get(PIOA, PIO_TYPE_PIO_INPUT, PIO_PA16))
-				pio_clear(PIOA, PIO_PA23);
-			else
-				pio_set(PIOA, PIO_PA23);
-		}
-	}
+    void pin_edge_handler(const uint32_t id, const uint32_t index)
+    {
+        if ((id == ID_PIOA) && (index == PIO_PA16)){
+            if (pio_get(PIOA, PIO_TYPE_PIO_INPUT, PIO_PA16))
+                pio_clear(PIOA, PIO_PA23);
+            else
+                pio_set(PIOA, PIO_PA23);
+        }
+    }
 \endcode
  *
  * \subsection sam_pio_quickstart_use_case_2_example_workflow Workflow
  * -# We check the value of the pin:
  *     \code
-	if (pio_get(PIOA, PIO_TYPE_PIO_INPUT, PIO_PA16))
+    if (pio_get(PIOA, PIO_TYPE_PIO_INPUT, PIO_PA16))
 \endcode
  * -# Then we set the new output value based on the read pin value:
  *     \code
-	    pio_clear(PIOA, PIO_PA23);
-	else
-	    pio_set(PIOA, PIO_PA23);
+        pio_clear(PIOA, PIO_PA23);
+    else
+        pio_set(PIOA, PIO_PA23);
 \endcode
  */
 

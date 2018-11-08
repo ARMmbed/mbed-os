@@ -62,8 +62,7 @@ extern "C" {
 /**
   * @brief  SPI Configuration Structure definition
   */
-typedef struct
-{
+typedef struct {
     uint32_t Mode;                /*!< Specifies the SPI operating mode.
                                      This parameter can be a value of @ref SPI_Mode */
 
@@ -116,8 +115,7 @@ typedef struct
 /**
   * @brief  HAL SPI State structure definition
   */
-typedef enum
-{
+typedef enum {
     HAL_SPI_STATE_RESET      = 0x00U,    /*!< Peripheral not Initialized                         */
     HAL_SPI_STATE_READY      = 0x01U,    /*!< Peripheral Initialized and ready for use           */
     HAL_SPI_STATE_BUSY       = 0x02U,    /*!< an internal process is ongoing                     */
@@ -131,8 +129,7 @@ typedef enum
 /**
   * @brief  SPI handle Structure definition
   */
-typedef struct __SPI_HandleTypeDef
-{
+typedef struct __SPI_HandleTypeDef {
     SPI_TypeDef                *Instance;      /*!< SPI registers base address               */
 
     SPI_InitTypeDef            Init;           /*!< SPI communication parameters             */
@@ -625,15 +622,15 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi);
 HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size,
-        uint32_t Timeout);
+                                          uint32_t Timeout);
 HAL_StatusTypeDef HAL_SPI_Transmit_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_SPI_Receive_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData,
-        uint16_t Size);
+                                             uint16_t Size);
 HAL_StatusTypeDef HAL_SPI_Transmit_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_SPI_Receive_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData,
-        uint16_t Size);
+                                              uint16_t Size);
 HAL_StatusTypeDef HAL_SPI_DMAPause(SPI_HandleTypeDef *hspi);
 HAL_StatusTypeDef HAL_SPI_DMAResume(SPI_HandleTypeDef *hspi);
 HAL_StatusTypeDef HAL_SPI_DMAStop(SPI_HandleTypeDef *hspi);

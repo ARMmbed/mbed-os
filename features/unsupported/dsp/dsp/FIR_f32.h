@@ -20,25 +20,28 @@
  * SOFTWARE.
  */
 #ifndef FIR_F32_H
-#define FIR_F32_H 
+#define FIR_F32_H
 
 #include <stdint.h>
 #include "arm_math.h"
 
 namespace dsp {
 
-template<uint16_t num_taps, uint32_t block_size=32>
+template<uint16_t num_taps, uint32_t block_size = 32>
 class FIR_f32 {
 public:
-    FIR_f32(const float32_t *coeff) {
-        arm_fir_init_f32(&fir, num_taps, (float32_t*)coeff, fir_state, block_size);
+    FIR_f32(const float32_t *coeff)
+    {
+        arm_fir_init_f32(&fir, num_taps, (float32_t *)coeff, fir_state, block_size);
     }
-    
-    void process(float32_t *sgn_in, float32_t *sgn_out) {
+
+    void process(float32_t *sgn_in, float32_t *sgn_out)
+    {
         arm_fir_f32(&fir, sgn_in, sgn_out, block_size);
     }
-    
-    void reset(void) {
+
+    void reset(void)
+    {
         memset(fir_state, 0, sizeof(fir_state));
     }
 

@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-// NOTE: Check all module base addresses (XXX_BASE in BSP) for free bit fields to define module name 
+// NOTE: Check all module base addresses (XXX_BASE in BSP) for free bit fields to define module name
 //       which encodes module base address and module index/subindex.
 #define NU_MODSUBINDEX_Pos              0
 #define NU_MODSUBINDEX_Msk              (0x1Ful << NU_MODSUBINDEX_Pos)
@@ -75,7 +75,7 @@ typedef enum {
     SPI_1_1 = (int) NU_MODNAME(SPI1_BASE, 1, 1),
     SPI_2_0 = (int) NU_MODNAME(SPI2_BASE, 2, 0),
     SPI_2_1 = (int) NU_MODNAME(SPI2_BASE, 2, 1),
-    
+
     SPI_0   = SPI_0_0,
     SPI_1   = SPI_1_0,
     SPI_2   = SPI_2_0
@@ -91,7 +91,7 @@ typedef enum {
     PWM_0_1 = (int) NU_MODNAME(PWM0_BASE, 0, 1),
     PWM_0_2 = (int) NU_MODNAME(PWM0_BASE, 0, 2),
     PWM_0_3 = (int) NU_MODNAME(PWM0_BASE, 0, 3),
-    
+
     PWM_1_0 = (int) NU_MODNAME(PWM1_BASE, 1, 0),
     PWM_1_1 = (int) NU_MODNAME(PWM1_BASE, 1, 1),
     PWM_1_2 = (int) NU_MODNAME(PWM1_BASE, 1, 2),

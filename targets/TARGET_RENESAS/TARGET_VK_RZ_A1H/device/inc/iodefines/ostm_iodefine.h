@@ -30,8 +30,8 @@
 #define OSTM_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_ostm
-{                                                          /* OSTM             */
+struct st_ostm {
+    /* OSTM             */
     volatile uint32_t  OSTMnCMP;                               /*  OSTMnCMP        */
     volatile uint32_t  OSTMnCNT;                               /*  OSTMnCNT        */
     volatile uint8_t   dummy1[8];                              /*                  */

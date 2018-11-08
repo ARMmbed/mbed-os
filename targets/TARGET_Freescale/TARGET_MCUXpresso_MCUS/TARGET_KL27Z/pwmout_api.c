@@ -27,7 +27,7 @@ static float pwm_clock_mhz;
 /* Array of TPM peripheral base address. */
 static TPM_Type *const tpm_addrs[] = TPM_BASE_PTRS;
 
-void pwmout_init(pwmout_t* obj, PinName pin)
+void pwmout_init(pwmout_t *obj, PinName pin)
 {
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(pwm != (PWMName)NC);
@@ -73,12 +73,12 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     pinmap_pinout(pin, PinMap_PWM);
 }
 
-void pwmout_free(pwmout_t* obj)
+void pwmout_free(pwmout_t *obj)
 {
     TPM_Deinit(tpm_addrs[obj->pwm_name >> TPM_SHIFT]);
 }
 
-void pwmout_write(pwmout_t* obj, float value)
+void pwmout_write(pwmout_t *obj, float value)
 {
     if (value < 0.0f) {
         value = 0.0f;
@@ -94,30 +94,31 @@ void pwmout_write(pwmout_t* obj, float value)
     base->CNT = 0;
 }
 
-float pwmout_read(pwmout_t* obj)
+float pwmout_read(pwmout_t *obj)
 {
     TPM_Type *base = tpm_addrs[obj->pwm_name >> TPM_SHIFT];
     uint16_t count = (base->CONTROLS[obj->pwm_name & 0xF].CnV) & TPM_CnV_VAL_MASK;
     uint16_t mod = base->MOD & TPM_MOD_MOD_MASK;
 
-    if (mod == 0)
+    if (mod == 0) {
         return 0.0;
+    }
     float v = (float)(count) / (float)(mod);
     return (v > 1.0f) ? (1.0f) : (v);
 }
 
-void pwmout_period(pwmout_t* obj, float seconds)
+void pwmout_period(pwmout_t *obj, float seconds)
 {
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms)
+void pwmout_period_ms(pwmout_t *obj, int ms)
 {
     pwmout_period_us(obj, ms * 1000);
 }
 
 // Set the PWM period, keeping the duty cycle the same.
-void pwmout_period_us(pwmout_t* obj, int us)
+void pwmout_period_us(pwmout_t *obj, int us)
 {
     TPM_Type *base = tpm_addrs[obj->pwm_name >> TPM_SHIFT];
     float dc = pwmout_read(obj);
@@ -127,17 +128,17 @@ void pwmout_period_us(pwmout_t* obj, int us)
     pwmout_write(obj, dc);
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds)
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us)
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
     TPM_Type *base = tpm_addrs[obj->pwm_name >> TPM_SHIFT];
     uint32_t value = (uint32_t)(pwm_clock_mhz * (float)us);

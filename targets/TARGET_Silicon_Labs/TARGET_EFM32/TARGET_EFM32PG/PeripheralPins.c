@@ -32,19 +32,19 @@ const PinMap PinMap_ADC[] = {
     {PA3,  ADC_0, adcPosSelAPORT4XCH11},
     {PA4,  ADC_0, adcPosSelAPORT3XCH12},
     {PA5,  ADC_0, adcPosSelAPORT4XCH13},
-    
+
     {PB11, ADC_0, adcPosSelAPORT4XCH27},
     {PB12, ADC_0, adcPosSelAPORT3XCH28},
     {PB14, ADC_0, adcPosSelAPORT3XCH30},
     {PB15, ADC_0, adcPosSelAPORT4XCH31},
-    
+
     {PC6,  ADC_0, adcPosSelAPORT1XCH6},
     {PC7,  ADC_0, adcPosSelAPORT2XCH7},
     {PC8,  ADC_0, adcPosSelAPORT1XCH8},
     {PC9,  ADC_0, adcPosSelAPORT2XCH9},
     {PC10, ADC_0, adcPosSelAPORT1XCH10},
     {PC11, ADC_0, adcPosSelAPORT2XCH11},
-    
+
     {PD9,  ADC_0, adcPosSelAPORT4XCH1},
     {PD10, ADC_0, adcPosSelAPORT3XCH2},
     {PD11, ADC_0, adcPosSelAPORT3YCH3},
@@ -52,7 +52,7 @@ const PinMap PinMap_ADC[] = {
     {PD13, ADC_0, adcPosSelAPORT3YCH5},
     {PD14, ADC_0, adcPosSelAPORT3XCH6},
     {PD15, ADC_0, adcPosSelAPORT4XCH7},
-    
+
     {PF0,  ADC_0, adcPosSelAPORT1XCH16},
     {PF1,  ADC_0, adcPosSelAPORT2XCH17},
     {PF2,  ADC_0, adcPosSelAPORT1XCH18},
@@ -61,7 +61,7 @@ const PinMap PinMap_ADC[] = {
     {PF5,  ADC_0, adcPosSelAPORT2XCH21},
     {PF6,  ADC_0, adcPosSelAPORT1XCH22},
     {PF7,  ADC_0, adcPosSelAPORT2XCH23},
-    {NC ,  NC   , NC}
+    {NC,  NC, NC}
 };
 
 /************I2C SCL***********/
@@ -100,7 +100,7 @@ const PinMap PinMap_I2C_SCL[] = {
     {PF7,  I2C_0, 30},
     {PA0,  I2C_0, 31},
 
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************I2C SDA***********/
@@ -140,7 +140,7 @@ const PinMap PinMap_I2C_SDA[] = {
     {PF7,  I2C_0, 31},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************PWM***************/
@@ -178,7 +178,7 @@ const PinMap PinMap_PWM[] = {
     {PF6,  PWM_CH2, 28},
     {PF7,  PWM_CH3, 28},
 
-    {NC  , NC     , NC}
+    {NC, NC, NC}
 };
 
 /*************SPI**************/
@@ -220,7 +220,7 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PF6,  SPI_1, 30},
     {PF7,  SPI_1, 31},
 
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
@@ -262,7 +262,7 @@ const PinMap PinMap_SPI_MISO[] = {
     {PF7,  SPI_1, 30},
     {PA0,  SPI_1, 31},
 
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_SPI_CLK[] = {
@@ -305,7 +305,7 @@ const PinMap PinMap_SPI_CLK[] = {
     {PA0,  SPI_1, 30},
     {PA1,  SPI_1, 31},
 
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_SPI_CS[] = {
@@ -346,7 +346,7 @@ const PinMap PinMap_SPI_CS[] = {
     {PF6,  SPI_1, 27},
     {PF7,  SPI_1, 28},
 
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************UART**************/
@@ -385,7 +385,7 @@ const PinMap PinMap_UART_TX[] = {
     {PF6,  USART_1, 30},
     {PF7,  USART_1, 31},
 
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_UART_RX[] = {
@@ -423,5 +423,5 @@ const PinMap PinMap_UART_RX[] = {
     {PF6,  USART_1, 29},
     {PF7,  USART_1, 30},
 
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };

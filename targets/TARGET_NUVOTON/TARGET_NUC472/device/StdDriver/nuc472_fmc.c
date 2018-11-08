@@ -35,12 +35,13 @@
   *            - \ref IS_BOOT_FROM_APROM
   * @return None
   */
-void FMC_SetBootSource (int32_t i32BootSrc)
+void FMC_SetBootSource(int32_t i32BootSrc)
 {
-    if (i32BootSrc == 1)
+    if (i32BootSrc == 1) {
         FMC->ISPCTL |= FMC_ISPCTL_BS_Msk;
-    else
+    } else {
         FMC->ISPCTL &= ~FMC_ISPCTL_BS_Msk;
+    }
 }
 
 
@@ -143,12 +144,13 @@ int32_t FMC_Erase(uint32_t u32PageAddr)
   * @retval   0  Is boot from APROM.
   * @retval   1  Is boot from LDROM.
   */
-int32_t FMC_GetBootSource (void)
+int32_t FMC_GetBootSource(void)
 {
-    if (FMC->ISPCTL & FMC_ISPCTL_BS_Msk)
+    if (FMC->ISPCTL & FMC_ISPCTL_BS_Msk) {
         return 1;
-    else
+    } else {
         return 0;
+    }
 }
 
 
@@ -351,16 +353,18 @@ uint32_t FMC_CRC8(uint32_t au32Data[], int i32Count)
     for (i32ByteIdx = 0; i32ByteIdx < 4; i32ByteIdx++) {
         for (u8Cnt = 0; u8Cnt < i32Count; u8Cnt++) {
             for (i = 0x80; i != 0; i /= 2) {
-                if ((au8CRC[i32ByteIdx] & 0x80)!=0) {
+                if ((au8CRC[i32ByteIdx] & 0x80) != 0) {
                     au8CRC[i32ByteIdx] *= 2;
                     au8CRC[i32ByteIdx] ^= 7;
-                } else
+                } else {
                     au8CRC[i32ByteIdx] *= 2;
+                }
 
                 u8InData = (au32Data[u8Cnt] >> (i32ByteIdx * 8)) & 0xff;
 
-                if ((u8InData & i) != 0)
-                    au8CRC[i32ByteIdx]^=0x7;
+                if ((u8InData & i) != 0) {
+                    au8CRC[i32ByteIdx] ^= 0x7;
+                }
             }
         }
     }
@@ -381,11 +385,12 @@ int32_t FMC_ReadConfig(uint32_t *u32Config, uint32_t u32Count)
     int         i;
 
     for (i = 0; i < u32Count; i++) {
-        u32Config[i] = FMC_Read(FMC_CONFIG_BASE + i*4);
+        u32Config[i] = FMC_Read(FMC_CONFIG_BASE + i * 4);
     }
 
-    if (FMC->ISPSTS & FMC_ISPSTS_CFGCRCF_Msk)
+    if (FMC->ISPSTS & FMC_ISPSTS_CFGCRCF_Msk) {
         return -1;
+    }
 
     return 0;
 }
@@ -414,8 +419,9 @@ int32_t FMC_WriteConfig(uint32_t *u32Config, uint32_t u32Count)
     for (i = 0; i < 4; i++) {
         u32Data = FMC_Read(FMC_CONFIG_BASE + i * 4);
 
-        if (u32Data != ((i < 3) ? u32Config[i] : u32CRC))
+        if (u32Data != ((i < 3) ? u32Config[i] : u32CRC)) {
             return -1;
+        }
     }
     return 0;
 }

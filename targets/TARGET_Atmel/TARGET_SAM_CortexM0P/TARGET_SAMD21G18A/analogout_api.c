@@ -99,7 +99,7 @@ float analogout_read(dac_t *obj)
 {
     MBED_ASSERT(obj);
     uint32_t data_val = data_reg_read(obj);
-    return data_val/(float)MAX_VAL_10BIT;
+    return data_val / (float)MAX_VAL_10BIT;
 }
 
 uint16_t analogout_read_u16(dac_t *obj)

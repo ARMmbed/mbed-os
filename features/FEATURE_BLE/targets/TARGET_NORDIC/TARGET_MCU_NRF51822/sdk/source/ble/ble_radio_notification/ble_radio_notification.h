@@ -46,7 +46,7 @@
 #include "nrf_soc.h"
 
 /**@brief Application radio notification event handler type. */
-typedef void (*ble_radio_notification_evt_handler_t) (bool radio_active);
+typedef void (*ble_radio_notification_evt_handler_t)(bool radio_active);
 
 /**@brief Function for initializing the Radio Notification module.
  *

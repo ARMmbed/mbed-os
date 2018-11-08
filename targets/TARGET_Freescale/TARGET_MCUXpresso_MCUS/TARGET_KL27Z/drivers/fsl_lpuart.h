@@ -50,8 +50,7 @@
 /*@}*/
 
 /*! @brief Error codes for the LPUART driver. */
-enum _lpuart_status
-{
+enum _lpuart_status {
     kStatus_LPUART_TxBusy = MAKE_STATUS(kStatusGroup_LPUART, 0),              /*!< TX busy */
     kStatus_LPUART_RxBusy = MAKE_STATUS(kStatusGroup_LPUART, 1),              /*!< RX busy */
     kStatus_LPUART_TxIdle = MAKE_STATUS(kStatusGroup_LPUART, 2),              /*!< LPUART transmitter is idle. */
@@ -70,16 +69,14 @@ enum _lpuart_status
 };
 
 /*! @brief LPUART parity mode. */
-typedef enum _lpuart_parity_mode
-{
+typedef enum _lpuart_parity_mode {
     kLPUART_ParityDisabled = 0x0U, /*!< Parity disabled */
     kLPUART_ParityEven = 0x2U,     /*!< Parity enabled, type even, bit setting: PE|PT = 10 */
     kLPUART_ParityOdd = 0x3U,      /*!< Parity enabled, type odd,  bit setting: PE|PT = 11 */
 } lpuart_parity_mode_t;
 
 /*! @brief LPUART stop bit count. */
-typedef enum _lpuart_stop_bit_count
-{
+typedef enum _lpuart_stop_bit_count {
     kLPUART_OneStopBit = 0U, /*!< One stop bit */
     kLPUART_TwoStopBit = 1U, /*!< Two stop bits */
 } lpuart_stop_bit_count_t;
@@ -89,8 +86,7 @@ typedef enum _lpuart_stop_bit_count
  *
  * This structure contains the settings for all LPUART interrupt configurations.
  */
-enum _lpuart_interrupt_enable
-{
+enum _lpuart_interrupt_enable {
 #if defined(FSL_FEATURE_LPUART_HAS_LIN_BREAK_DETECT) && FSL_FEATURE_LPUART_HAS_LIN_BREAK_DETECT
     kLPUART_LinBreakInterruptEnable = (LPUART_BAUD_LBKDIE_MASK >> 8), /*!< LIN break detect. */
 #endif
@@ -114,8 +110,7 @@ enum _lpuart_interrupt_enable
  *
  * This provides constants for the LPUART status flags for use in the LPUART functions.
  */
-enum _lpuart_flags
-{
+enum _lpuart_flags {
     kLPUART_TxDataRegEmptyFlag =
         (LPUART_STAT_TDRE_MASK), /*!< Transmit data register empty flag, sets when transmit buffer is empty */
     kLPUART_TransmissionCompleteFlag =
@@ -159,8 +154,7 @@ enum _lpuart_flags
 };
 
 /*! @brief LPUART configure structure. */
-typedef struct _lpuart_config
-{
+typedef struct _lpuart_config {
     uint32_t baudRate_Bps;           /*!< LPUART baud rate  */
     lpuart_parity_mode_t parityMode; /*!< Parity mode, disabled (default), even, odd */
 #if defined(FSL_FEATURE_LPUART_HAS_STOP_BIT_CONFIG_SUPPORT) && FSL_FEATURE_LPUART_HAS_STOP_BIT_CONFIG_SUPPORT
@@ -175,8 +169,7 @@ typedef struct _lpuart_config
 } lpuart_config_t;
 
 /*! @brief LPUART transfer structure. */
-typedef struct _lpuart_transfer
-{
+typedef struct _lpuart_transfer {
     uint8_t *data;   /*!< The buffer of data to be transfer.*/
     size_t dataSize; /*!< The byte count to be transfer. */
 } lpuart_transfer_t;
@@ -188,8 +181,7 @@ typedef struct _lpuart_handle lpuart_handle_t;
 typedef void (*lpuart_transfer_callback_t)(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData);
 
 /*! @brief LPUART handle structure. */
-struct _lpuart_handle
-{
+struct _lpuart_handle {
     uint8_t *volatile txData;   /*!< Address of remaining data to send. */
     volatile size_t txDataSize; /*!< Size of the remaining data to send. */
     size_t txDataSizeAll;       /*!< Size of the data to send out. */
@@ -415,13 +407,10 @@ static inline uint32_t LPUART_GetDataRegisterAddress(LPUART_Type *base)
  */
 static inline void LPUART_EnableTxDMA(LPUART_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->BAUD |= LPUART_BAUD_TDMAE_MASK;
         base->CTRL |= LPUART_CTRL_TIE_MASK;
-    }
-    else
-    {
+    } else {
         base->BAUD &= ~LPUART_BAUD_TDMAE_MASK;
         base->CTRL &= ~LPUART_CTRL_TIE_MASK;
     }
@@ -437,13 +426,10 @@ static inline void LPUART_EnableTxDMA(LPUART_Type *base, bool enable)
  */
 static inline void LPUART_EnableRxDMA(LPUART_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->BAUD |= LPUART_BAUD_RDMAE_MASK;
         base->CTRL |= LPUART_CTRL_RIE_MASK;
-    }
-    else
-    {
+    } else {
         base->BAUD &= ~LPUART_BAUD_RDMAE_MASK;
         base->CTRL &= ~LPUART_CTRL_RIE_MASK;
     }
@@ -467,12 +453,9 @@ static inline void LPUART_EnableRxDMA(LPUART_Type *base, bool enable)
  */
 static inline void LPUART_EnableTx(LPUART_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CTRL |= LPUART_CTRL_TE_MASK;
-    }
-    else
-    {
+    } else {
         base->CTRL &= ~LPUART_CTRL_TE_MASK;
     }
 }
@@ -487,12 +470,9 @@ static inline void LPUART_EnableTx(LPUART_Type *base, bool enable)
  */
 static inline void LPUART_EnableRx(LPUART_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CTRL |= LPUART_CTRL_RE_MASK;
-    }
-    else
-    {
+    } else {
         base->CTRL &= ~LPUART_CTRL_RE_MASK;
     }
 }

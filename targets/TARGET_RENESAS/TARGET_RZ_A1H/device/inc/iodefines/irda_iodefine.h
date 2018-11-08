@@ -39,9 +39,8 @@
 #define IRDAIRCR (IRDA.IRCR)
 
 
-typedef struct st_irda
-{
-                                                           /* IRDA             */
+typedef struct st_irda {
+    /* IRDA             */
     volatile uint8_t   IRCR;                                   /*  IRCR            */
 } r_io_irda_t;
 

@@ -45,14 +45,13 @@
 /*! @name Driver version */
 /*@{*/
 #define FSL_FTM_DRIVER_VERSION (MAKE_VERSION(2, 0, 2)) /*!< Version 2.0.2 */
-                                                       /*@}*/
+/*@}*/
 
 /*!
  * @brief List of FTM channels
  * @note Actual number of available channels is SoC dependent
  */
-typedef enum _ftm_chnl
-{
+typedef enum _ftm_chnl {
     kFTM_Chnl_0 = 0U, /*!< FTM channel number 0*/
     kFTM_Chnl_1,      /*!< FTM channel number 1 */
     kFTM_Chnl_2,      /*!< FTM channel number 2 */
@@ -64,8 +63,7 @@ typedef enum _ftm_chnl
 } ftm_chnl_t;
 
 /*! @brief List of FTM faults */
-typedef enum _ftm_fault_input
-{
+typedef enum _ftm_fault_input {
     kFTM_Fault_0 = 0U, /*!< FTM fault 0 input pin */
     kFTM_Fault_1,      /*!< FTM fault 1 input pin */
     kFTM_Fault_2,      /*!< FTM fault 2 input pin */
@@ -73,24 +71,21 @@ typedef enum _ftm_fault_input
 } ftm_fault_input_t;
 
 /*! @brief FTM PWM operation modes */
-typedef enum _ftm_pwm_mode
-{
+typedef enum _ftm_pwm_mode {
     kFTM_EdgeAlignedPwm = 0U, /*!< Edge-aligned PWM */
     kFTM_CenterAlignedPwm,    /*!< Center-aligned PWM */
     kFTM_CombinedPwm          /*!< Combined PWM */
 } ftm_pwm_mode_t;
 
 /*! @brief FTM PWM output pulse mode: high-true, low-true or no output */
-typedef enum _ftm_pwm_level_select
-{
+typedef enum _ftm_pwm_level_select {
     kFTM_NoPwmSignal = 0U, /*!< No PWM output on pin */
     kFTM_LowTrue,          /*!< Low true pulses */
     kFTM_HighTrue          /*!< High true pulses */
 } ftm_pwm_level_select_t;
 
 /*! @brief Options to configure a FTM channel's PWM signal */
-typedef struct _ftm_chnl_pwm_signal_param
-{
+typedef struct _ftm_chnl_pwm_signal_param {
     ftm_chnl_t chnlNumber;         /*!< The channel/channel pair number.
                                         In combined mode, this represents the channel pair number. */
     ftm_pwm_level_select_t level;  /*!< PWM output active level select. */
@@ -104,8 +99,7 @@ typedef struct _ftm_chnl_pwm_signal_param
 } ftm_chnl_pwm_signal_param_t;
 
 /*! @brief FlexTimer output compare mode */
-typedef enum _ftm_output_compare_mode
-{
+typedef enum _ftm_output_compare_mode {
     kFTM_NoOutputSignal = (1U << FTM_CnSC_MSA_SHIFT), /*!< No channel output when counter reaches CnV  */
     kFTM_ToggleOnMatch = ((1U << FTM_CnSC_MSA_SHIFT) | (1U << FTM_CnSC_ELSA_SHIFT)), /*!< Toggle output */
     kFTM_ClearOnMatch = ((1U << FTM_CnSC_MSA_SHIFT) | (2U << FTM_CnSC_ELSA_SHIFT)),  /*!< Clear output */
@@ -113,53 +107,46 @@ typedef enum _ftm_output_compare_mode
 } ftm_output_compare_mode_t;
 
 /*! @brief FlexTimer input capture edge */
-typedef enum _ftm_input_capture_edge
-{
+typedef enum _ftm_input_capture_edge {
     kFTM_RisingEdge = (1U << FTM_CnSC_ELSA_SHIFT),     /*!< Capture on rising edge only*/
     kFTM_FallingEdge = (2U << FTM_CnSC_ELSA_SHIFT),    /*!< Capture on falling edge only*/
     kFTM_RiseAndFallEdge = (3U << FTM_CnSC_ELSA_SHIFT) /*!< Capture on rising or falling edge */
 } ftm_input_capture_edge_t;
 
 /*! @brief FlexTimer dual edge capture modes */
-typedef enum _ftm_dual_edge_capture_mode
-{
+typedef enum _ftm_dual_edge_capture_mode {
     kFTM_OneShot = 0U,                           /*!< One-shot capture mode */
     kFTM_Continuous = (1U << FTM_CnSC_MSA_SHIFT) /*!< Continuous capture mode */
 } ftm_dual_edge_capture_mode_t;
 
 /*! @brief FlexTimer dual edge capture parameters */
-typedef struct _ftm_dual_edge_capture_param
-{
+typedef struct _ftm_dual_edge_capture_param {
     ftm_dual_edge_capture_mode_t mode;         /*!< Dual Edge Capture mode */
     ftm_input_capture_edge_t currChanEdgeMode; /*!< Input capture edge select for channel n */
     ftm_input_capture_edge_t nextChanEdgeMode; /*!< Input capture edge select for channel n+1 */
 } ftm_dual_edge_capture_param_t;
 
 /*! @brief FlexTimer quadrature decode modes */
-typedef enum _ftm_quad_decode_mode
-{
+typedef enum _ftm_quad_decode_mode {
     kFTM_QuadPhaseEncode = 0U, /*!< Phase A and Phase B encoding mode */
     kFTM_QuadCountAndDir       /*!< Count and direction encoding mode */
 } ftm_quad_decode_mode_t;
 
 /*! @brief FlexTimer quadrature phase polarities */
-typedef enum _ftm_phase_polarity
-{
+typedef enum _ftm_phase_polarity {
     kFTM_QuadPhaseNormal = 0U, /*!< Phase input signal is not inverted */
     kFTM_QuadPhaseInvert       /*!< Phase input signal is inverted */
 } ftm_phase_polarity_t;
 
 /*! @brief FlexTimer quadrature decode phase parameters */
-typedef struct _ftm_phase_param
-{
+typedef struct _ftm_phase_param {
     bool enablePhaseFilter;             /*!< True: enable phase filter; false: disable filter */
     uint32_t phaseFilterVal;            /*!< Filter value, used only if phase filter is enabled */
     ftm_phase_polarity_t phasePolarity; /*!< Phase polarity */
 } ftm_phase_params_t;
 
 /*! @brief Structure is used to hold the parameters to configure a FTM fault */
-typedef struct _ftm_fault_param
-{
+typedef struct _ftm_fault_param {
     bool enableFaultInput; /*!< True: Fault input is enabled; false: Fault input is disabled */
     bool faultLevel;       /*!< True: Fault polarity is active low; in other words, '0' indicates a fault;
                                 False: Fault polarity is active high */
@@ -168,24 +155,21 @@ typedef struct _ftm_fault_param
 } ftm_fault_param_t;
 
 /*! @brief FlexTimer pre-scaler factor for the dead time insertion*/
-typedef enum _ftm_deadtime_prescale
-{
+typedef enum _ftm_deadtime_prescale {
     kFTM_Deadtime_Prescale_1 = 1U, /*!< Divide by 1 */
     kFTM_Deadtime_Prescale_4,      /*!< Divide by 4 */
     kFTM_Deadtime_Prescale_16      /*!< Divide by 16 */
 } ftm_deadtime_prescale_t;
 
 /*! @brief FlexTimer clock source selection*/
-typedef enum _ftm_clock_source
-{
+typedef enum _ftm_clock_source {
     kFTM_SystemClock = 1U, /*!< System clock selected */
     kFTM_FixedClock,       /*!< Fixed frequency clock */
     kFTM_ExternalClock     /*!< External clock */
 } ftm_clock_source_t;
 
 /*! @brief FlexTimer pre-scaler factor selection for the clock source*/
-typedef enum _ftm_clock_prescale
-{
+typedef enum _ftm_clock_prescale {
     kFTM_Prescale_Divide_1 = 0U, /*!< Divide by 1 */
     kFTM_Prescale_Divide_2,      /*!< Divide by 2 */
     kFTM_Prescale_Divide_4,      /*!< Divide by 4 */
@@ -197,8 +181,7 @@ typedef enum _ftm_clock_prescale
 } ftm_clock_prescale_t;
 
 /*! @brief Options for the FlexTimer behaviour in BDM Mode */
-typedef enum _ftm_bdm_mode
-{
+typedef enum _ftm_bdm_mode {
     kFTM_BdmMode_0 = 0U,
     /*!< FTM counter stopped, CH(n)F bit can be set, FTM channels in functional mode, writes to MOD,CNTIN and C(n)V
        registers bypass the register buffers */
@@ -214,8 +197,7 @@ typedef enum _ftm_bdm_mode
 } ftm_bdm_mode_t;
 
 /*! @brief Options for the FTM fault control mode */
-typedef enum _ftm_fault_mode
-{
+typedef enum _ftm_fault_mode {
     kFTM_Fault_Disable = 0U, /*!< Fault control is disabled for all channels */
     kFTM_Fault_EvenChnls,    /*!< Enabled for even channels only(0,2,4,6) with manual fault clearing */
     kFTM_Fault_AllChnlsMan,  /*!< Enabled for all channels with manual fault clearing */
@@ -226,8 +208,7 @@ typedef enum _ftm_fault_mode
  * @brief FTM external trigger options
  * @note Actual available external trigger sources are SoC-specific
  */
-typedef enum _ftm_external_trigger
-{
+typedef enum _ftm_external_trigger {
     kFTM_Chnl0Trigger = (1U << 4), /*!< Generate trigger when counter equals chnl 0 CnV reg */
     kFTM_Chnl1Trigger = (1U << 5), /*!< Generate trigger when counter equals chnl 1 CnV reg */
     kFTM_Chnl2Trigger = (1U << 0), /*!< Generate trigger when counter equals chnl 2 CnV reg */
@@ -243,8 +224,7 @@ typedef enum _ftm_external_trigger
 } ftm_external_trigger_t;
 
 /*! @brief FlexTimer PWM sync options to update registers with buffer */
-typedef enum _ftm_pwm_sync_method
-{
+typedef enum _ftm_pwm_sync_method {
     kFTM_SoftwareTrigger = FTM_SYNC_SWSYNC_MASK,  /*!< Software triggers PWM sync */
     kFTM_HardwareTrigger_0 = FTM_SYNC_TRIG0_MASK, /*!< Hardware trigger 0 causes PWM sync */
     kFTM_HardwareTrigger_1 = FTM_SYNC_TRIG1_MASK, /*!< Hardware trigger 1 causes PWM sync */
@@ -255,8 +235,7 @@ typedef enum _ftm_pwm_sync_method
  * @brief FTM options available as loading point for register reload
  * @note Actual available reload points are SoC-specific
  */
-typedef enum _ftm_reload_point
-{
+typedef enum _ftm_reload_point {
     kFTM_Chnl0Match = (1U << 0),   /*!< Channel 0 match included as a reload point */
     kFTM_Chnl1Match = (1U << 1),   /*!< Channel 1 match included as a reload point */
     kFTM_Chnl2Match = (1U << 2),   /*!< Channel 2 match included as a reload point */
@@ -274,8 +253,7 @@ typedef enum _ftm_reload_point
  * @brief List of FTM interrupts
  * @note Actual available interrupts are SoC-specific
  */
-typedef enum _ftm_interrupt_enable
-{
+typedef enum _ftm_interrupt_enable {
     kFTM_Chnl0InterruptEnable = (1U << 0),        /*!< Channel 0 interrupt */
     kFTM_Chnl1InterruptEnable = (1U << 1),        /*!< Channel 1 interrupt */
     kFTM_Chnl2InterruptEnable = (1U << 2),        /*!< Channel 2 interrupt */
@@ -293,8 +271,7 @@ typedef enum _ftm_interrupt_enable
  * @brief List of FTM flags
  * @note Actual available flags are SoC-specific
  */
-typedef enum _ftm_status_flags
-{
+typedef enum _ftm_status_flags {
     kFTM_Chnl0Flag = (1U << 0),        /*!< Channel 0 Flag */
     kFTM_Chnl1Flag = (1U << 1),        /*!< Channel 1 Flag */
     kFTM_Chnl2Flag = (1U << 2),        /*!< Channel 2 Flag */
@@ -312,8 +289,7 @@ typedef enum _ftm_status_flags
 /*!
  * @brief List of FTM Quad Decoder flags.
  */
-enum _ftm_quad_decoder_flags
-{
+enum _ftm_quad_decoder_flags {
     kFTM_QuadDecoderCountingIncreaseFlag = FTM_QDCTRL_QUADIR_MASK, /*!< Counting direction is increasing (FTM counter
                                                                         increment), or the direction is decreasing. */
     kFTM_QuadDecoderCountingOverflowOnTopFlag = FTM_QDCTRL_TOFDIR_MASK, /*!< Indicates if the TOF bit was set on the top
@@ -329,8 +305,7 @@ enum _ftm_quad_decoder_flags
  *
  * The configuration structure can be made constant so as to reside in flash.
  */
-typedef struct _ftm_config
-{
+typedef struct _ftm_config {
     ftm_clock_prescale_t prescale;            /*!< FTM clock prescale value */
     ftm_bdm_mode_t bdmMode;                   /*!< FTM behavior in BDM mode */
     uint32_t pwmSyncMode;                     /*!< Synchronization methods to use to update buffered registers; Multiple
@@ -682,12 +657,9 @@ static inline void FTM_StopTimer(FTM_Type *base)
  */
 static inline void FTM_SetSoftwareCtrlEnable(FTM_Type *base, ftm_chnl_t chnlNumber, bool value)
 {
-    if (value)
-    {
+    if (value) {
         base->SWOCTRL |= (1U << chnlNumber);
-    }
-    else
-    {
+    } else {
         base->SWOCTRL &= ~(1U << chnlNumber);
     }
 }
@@ -701,12 +673,9 @@ static inline void FTM_SetSoftwareCtrlEnable(FTM_Type *base, ftm_chnl_t chnlNumb
  */
 static inline void FTM_SetSoftwareCtrlVal(FTM_Type *base, ftm_chnl_t chnlNumber, bool value)
 {
-    if (value)
-    {
+    if (value) {
         base->SWOCTRL |= (1U << (chnlNumber + FTM_SWOCTRL_CH0OCV_SHIFT));
-    }
-    else
-    {
+    } else {
         base->SWOCTRL &= ~(1U << (chnlNumber + FTM_SWOCTRL_CH0OCV_SHIFT));
     }
 }
@@ -721,12 +690,9 @@ static inline void FTM_SetSoftwareCtrlVal(FTM_Type *base, ftm_chnl_t chnlNumber,
  */
 static inline void FTM_SetGlobalTimeBaseOutputEnable(FTM_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CONF |= FTM_CONF_GTBEOUT_MASK;
-    }
-    else
-    {
+    } else {
         base->CONF &= ~FTM_CONF_GTBEOUT_MASK;
     }
 }
@@ -740,12 +706,9 @@ static inline void FTM_SetGlobalTimeBaseOutputEnable(FTM_Type *base, bool enable
  */
 static inline void FTM_SetOutputMask(FTM_Type *base, ftm_chnl_t chnlNumber, bool mask)
 {
-    if (mask)
-    {
+    if (mask) {
         base->OUTMASK |= (1U << chnlNumber);
-    }
-    else
-    {
+    } else {
         base->OUTMASK &= ~(1U << chnlNumber);
     }
 }
@@ -763,12 +726,9 @@ static inline void FTM_SetOutputMask(FTM_Type *base, ftm_chnl_t chnlNumber, bool
  */
 static inline void FTM_SetPwmOutputEnable(FTM_Type *base, ftm_chnl_t chnlNumber, bool value)
 {
-    if (value)
-    {
+    if (value) {
         base->SC |= (1U << (chnlNumber + FTM_SC_PWMEN0_SHIFT));
-    }
-    else
-    {
+    } else {
         base->SC &= ~(1U << (chnlNumber + FTM_SC_PWMEN0_SHIFT));
     }
 }
@@ -788,12 +748,9 @@ static inline void FTM_SetPwmOutputEnable(FTM_Type *base, ftm_chnl_t chnlNumber,
  */
 static inline void FTM_SetFaultControlEnable(FTM_Type *base, ftm_chnl_t chnlPairNumber, bool value)
 {
-    if (value)
-    {
+    if (value) {
         base->COMBINE |= (1U << (FTM_COMBINE_FAULTEN0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * chnlPairNumber)));
-    }
-    else
-    {
+    } else {
         base->COMBINE &= ~(1U << (FTM_COMBINE_FAULTEN0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * chnlPairNumber)));
     }
 }
@@ -807,12 +764,9 @@ static inline void FTM_SetFaultControlEnable(FTM_Type *base, ftm_chnl_t chnlPair
  */
 static inline void FTM_SetDeadTimeEnable(FTM_Type *base, ftm_chnl_t chnlPairNumber, bool value)
 {
-    if (value)
-    {
+    if (value) {
         base->COMBINE |= (1U << (FTM_COMBINE_DTEN0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * chnlPairNumber)));
-    }
-    else
-    {
+    } else {
         base->COMBINE &= ~(1U << (FTM_COMBINE_DTEN0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * chnlPairNumber)));
     }
 }
@@ -826,12 +780,9 @@ static inline void FTM_SetDeadTimeEnable(FTM_Type *base, ftm_chnl_t chnlPairNumb
  */
 static inline void FTM_SetComplementaryEnable(FTM_Type *base, ftm_chnl_t chnlPairNumber, bool value)
 {
-    if (value)
-    {
+    if (value) {
         base->COMBINE |= (1U << (FTM_COMBINE_COMP0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * chnlPairNumber)));
-    }
-    else
-    {
+    } else {
         base->COMBINE &= ~(1U << (FTM_COMBINE_COMP0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * chnlPairNumber)));
     }
 }
@@ -845,12 +796,9 @@ static inline void FTM_SetComplementaryEnable(FTM_Type *base, ftm_chnl_t chnlPai
  */
 static inline void FTM_SetInvertEnable(FTM_Type *base, ftm_chnl_t chnlPairNumber, bool value)
 {
-    if (value)
-    {
+    if (value) {
         base->INVCTRL |= (1U << chnlPairNumber);
-    }
-    else
-    {
+    } else {
         base->INVCTRL &= ~(1U << chnlPairNumber);
     }
 }
@@ -935,12 +883,9 @@ static inline void FTM_ClearQuadDecoderCounterValue(FTM_Type *base)
  */
 static inline void FTM_SetSoftwareTrigger(FTM_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->SYNC |= FTM_SYNC_SWSYNC_MASK;
-    }
-    else
-    {
+    } else {
         base->SYNC &= ~FTM_SYNC_SWSYNC_MASK;
     }
 }
@@ -954,12 +899,9 @@ static inline void FTM_SetSoftwareTrigger(FTM_Type *base, bool enable)
 static inline void FTM_SetWriteProtection(FTM_Type *base, bool enable)
 {
     /* Configure write protection */
-    if (enable)
-    {
+    if (enable) {
         base->FMS |= FTM_FMS_WPEN_MASK;
-    }
-    else
-    {
+    } else {
         base->MODE |= FTM_MODE_WPDIS_MASK;
     }
 }

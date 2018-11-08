@@ -66,8 +66,7 @@
 /*!
  * @brief LCD sigal polarity flags.
  */
-enum _lcdc_polarity_flags
-{
+enum _lcdc_polarity_flags {
     kLCDC_InvertVsyncPolarity = LCD_POL_IVS_MASK, /*!< Invert the VSYNC polarity, set to active low. */
     kLCDC_InvertHsyncPolarity = LCD_POL_IHS_MASK, /*!< Invert the HSYNC polarity, set to active low. */
     kLCDC_InvertClkPolarity = LCD_POL_IPC_MASK,   /*!< Invert the panel clock polarity, set to
@@ -78,8 +77,7 @@ enum _lcdc_polarity_flags
 /*!
  * @brief LCD bits per pixel.
  */
-typedef enum _lcdc_bpp
-{
+typedef enum _lcdc_bpp {
     kLCDC_1BPP = 0U,     /*!< 1 bpp. */
     kLCDC_2BPP = 1U,     /*!< 2 bpp. */
     kLCDC_4BPP = 2U,     /*!< 4 bpp. */
@@ -93,8 +91,7 @@ typedef enum _lcdc_bpp
 /*!
  * @brief The types of display panel.
  */
-typedef enum _lcdc_display
-{
+typedef enum _lcdc_display {
     kLCDC_DisplayTFT = LCD_CTRL_LCDTFT_MASK, /*!< Active matrix TFT panels with up to 24-bit bus interface. */
     kLCDC_DisplaySingleMonoSTN4Bit = LCD_CTRL_LCDBW_MASK, /*!< Single-panel monochrome STN (4-bit bus interface). */
     kLCDC_DisplaySingleMonoSTN8Bit =
@@ -102,7 +99,7 @@ typedef enum _lcdc_display
     kLCDC_DisplayDualMonoSTN4Bit =
         LCD_CTRL_LCDBW_MASK | LCD_CTRL_LCDDUAL_MASK, /*!< Dual-panel monochrome STN (4-bit bus interface). */
     kLCDC_DisplayDualMonoSTN8Bit = LCD_CTRL_LCDBW_MASK | LCD_CTRL_LCDMONO8_MASK |
-                                  LCD_CTRL_LCDDUAL_MASK,  /*!< Dual-panel monochrome STN (8-bit bus interface). */
+                                   LCD_CTRL_LCDDUAL_MASK,  /*!< Dual-panel monochrome STN (8-bit bus interface). */
     kLCDC_DisplaySingleColorSTN8Bit = 0U,                  /*!< Single-panel color STN (8-bit bus interface). */
     kLCDC_DisplayDualColorSTN8Bit = LCD_CTRL_LCDDUAL_MASK, /*!< Dual-panel coor STN (8-bit bus interface). */
 } lcdc_display_t;
@@ -110,8 +107,7 @@ typedef enum _lcdc_display
 /*!
  * @brief LCD panel buffer data format.
  */
-typedef enum _lcdc_data_format
-{
+typedef enum _lcdc_data_format {
     kLCDC_LittleEndian = 0U,                                   /*!< Little endian byte, little endian pixel. */
     kLCDC_BigEndian = LCD_CTRL_BEPO_MASK | LCD_CTRL_BEBO_MASK, /*!< Big endian byte, big endian pixel. */
     kLCDC_WinCeMode = LCD_CTRL_BEPO_MASK, /*!< little-endian byte, big-endian pixel for Windows CE mode. */
@@ -120,8 +116,7 @@ typedef enum _lcdc_data_format
 /*!
  * @brief LCD configuration structure.
  */
-typedef struct _lcdc_config
-{
+typedef struct _lcdc_config {
     uint32_t panelClock_Hz;  /*!< Panel clock in Hz. */
     uint16_t ppl;            /*!< Pixels per line, it must could be divided by 16. */
     uint8_t hsw;             /*!< HSYNC pulse width. */
@@ -146,8 +141,7 @@ typedef struct _lcdc_config
 /*!
  * @brief LCD vertical compare interrupt mode.
  */
-typedef enum _lcdc_vertical_compare_interrupt_mode
-{
+typedef enum _lcdc_vertical_compare_interrupt_mode {
     kLCDC_StartOfVsync,       /*!< Generate vertical compare interrupt at start of VSYNC. */
     kLCDC_StartOfBackPorch,   /*!< Generate vertical compare interrupt at start of back porch. */
     kLCDC_StartOfActiveVideo, /*!< Generate vertical compare interrupt at start of active video. */
@@ -157,8 +151,7 @@ typedef enum _lcdc_vertical_compare_interrupt_mode
 /*!
  * @brief LCD interrupts.
  */
-enum _lcdc_interrupts
-{
+enum _lcdc_interrupts {
     kLCDC_CursorInterrupt = LCD_CRSR_INTMSK_CRSRIM_MASK,      /*!< Cursor image read finished interrupt. */
     kLCDC_FifoUnderflowInterrupt = LCD_INTMSK_FUFIM_MASK,     /*!< FIFO underflow interrupt. */
     kLCDC_BaseAddrUpdateInterrupt = LCD_INTMSK_LNBUIM_MASK,   /*!< Panel frame base address update interrupt. */
@@ -169,8 +162,7 @@ enum _lcdc_interrupts
 /*!
  * @brief LCD panel frame.
  */
-typedef enum _lcdc_panel
-{
+typedef enum _lcdc_panel {
     kLCDC_UpperPanel, /*!< Upper panel frame. */
     kLCDC_LowerPanel  /*!< Lower panel frame. */
 } lcdc_panel_t;
@@ -178,8 +170,7 @@ typedef enum _lcdc_panel
 /*!
  * @brief LCD hardware cursor size
  */
-typedef enum _lcdc_cursor_size
-{
+typedef enum _lcdc_cursor_size {
     kLCDC_CursorSize32, /*!< 32x32 pixel cursor. */
     kLCDC_CursorSize64, /*!< 64x64 pixel cursor. */
 } lcdc_cursor_size_t;
@@ -187,8 +178,7 @@ typedef enum _lcdc_cursor_size
 /*!
  * @brief LCD hardware cursor palette
  */
-typedef struct _lcdc_cursor_palette
-{
+typedef struct _lcdc_cursor_palette {
     uint8_t red;   /*!< Red color component. */
     uint8_t green; /*!< Red color component. */
     uint8_t blue;  /*!< Red color component. */
@@ -197,8 +187,7 @@ typedef struct _lcdc_cursor_palette
 /*!
  * @brief LCD hardware cursor frame synchronization mode.
  */
-typedef enum _lcdc_cursor_sync_mode
-{
+typedef enum _lcdc_cursor_sync_mode {
     kLCDC_CursorAsync, /*!< Cursor change will be displayed immediately. */
     kLCDC_CursorSync,  /*!< Cursor change will be displayed in next frame. */
 } lcdc_cursor_sync_mode_t;
@@ -206,8 +195,7 @@ typedef enum _lcdc_cursor_sync_mode
 /*!
  * @brief LCD hardware cursor configuration structure.
  */
-typedef struct _lcdc_cursor_config
-{
+typedef struct _lcdc_cursor_config {
     lcdc_cursor_size_t size;            /*!< Cursor size. */
     lcdc_cursor_sync_mode_t syncMode;   /*!< Cursor synchronization mode. */
     lcdc_cursor_palette_t palette0;     /*!< Cursor palette 0. */
@@ -541,12 +529,9 @@ void LCDC_CursorGetDefaultConfig(lcdc_cursor_config_t *config);
  */
 static inline void LCDC_EnableCursor(LCD_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CRSR_CTRL |= LCD_CRSR_CTRL_CRSRON_MASK;
-    }
-    else
-    {
+    } else {
         base->CRSR_CTRL &= ~LCD_CRSR_CTRL_CRSRON_MASK;
     }
 }

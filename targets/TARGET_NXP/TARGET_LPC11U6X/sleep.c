@@ -19,7 +19,8 @@
 
 #if DEVICE_SLEEP
 
-void hal_sleep(void) {
+void hal_sleep(void)
+{
 
 #if (DEVICE_SEMIHOST == 1)
     // ensure debug is disconnected
@@ -37,33 +38,34 @@ void hal_sleep(void) {
 }
 
 
-void hal_deepsleep(void) {
+void hal_deepsleep(void)
+{
 
 #if (DEVICE_SEMIHOST == 1)
     // ensure debug is disconnected
     mbed_interface_disconnect();
 #endif
 
-  // PCON[PM] (bits 2:0) set to 1
-  LPC_PMU->PCON &= ~0x03;
-  LPC_PMU->PCON |= 0x01;
+    // PCON[PM] (bits 2:0) set to 1
+    LPC_PMU->PCON &= ~0x03;
+    LPC_PMU->PCON |= 0x01;
 
-  //According to user manual it is kinda picky about reserved bits, so we follow that nicely
-  //Keep WDOSC and BOD in same state as they are now during deepsleep
-  LPC_SYSCON->PDSLEEPCFG = 0x00000037 | (LPC_SYSCON->PDRUNCFG & (0x00000048));
+    //According to user manual it is kinda picky about reserved bits, so we follow that nicely
+    //Keep WDOSC and BOD in same state as they are now during deepsleep
+    LPC_SYSCON->PDSLEEPCFG = 0x00000037 | (LPC_SYSCON->PDRUNCFG & (0x00000048));
 
-  // Power up same as before powerdown
-  LPC_SYSCON->PDAWAKECFG = LPC_SYSCON->PDRUNCFG;
+    // Power up same as before powerdown
+    LPC_SYSCON->PDAWAKECFG = LPC_SYSCON->PDRUNCFG;
 
-  // All interrupts can wake
-  LPC_SYSCON->STARTERP0 = 0xFF;
-  LPC_SYSCON->STARTERP1 = 0xFFFFFFFF;
+    // All interrupts can wake
+    LPC_SYSCON->STARTERP0 = 0xFF;
+    LPC_SYSCON->STARTERP1 = 0xFFFFFFFF;
 
-  // SRC[SLEEPDEEP] set to 1 = deep sleep
-  SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    // SRC[SLEEPDEEP] set to 1 = deep sleep
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
 
-  // wait for interrupt
-  __WFI();
+    // wait for interrupt
+    __WFI();
 }
 
 #endif

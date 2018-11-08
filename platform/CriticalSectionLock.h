@@ -56,12 +56,12 @@ namespace mbed {
   */
 class CriticalSectionLock {
 public:
-    CriticalSectionLock() 
+    CriticalSectionLock()
     {
         core_util_critical_section_enter();
     }
 
-    ~CriticalSectionLock() 
+    ~CriticalSectionLock()
     {
         core_util_critical_section_exit();
     }
@@ -70,8 +70,8 @@ public:
      *
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.8",
-            "This function is inconsistent with RAII and is being removed in the future."
-            "Replaced by static function CriticalSectionLock::enable.")
+                          "This function is inconsistent with RAII and is being removed in the future."
+                          "Replaced by static function CriticalSectionLock::enable.")
     void lock()
     {
         core_util_critical_section_enter();
@@ -81,8 +81,8 @@ public:
      *
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.8",
-            "This function is inconsistent with RAII and is being removed in the future."
-            "Replaced by static function CriticalSectionLock::disable.")
+                          "This function is inconsistent with RAII and is being removed in the future."
+                          "Replaced by static function CriticalSectionLock::disable.")
     void unlock()
     {
         core_util_critical_section_exit();

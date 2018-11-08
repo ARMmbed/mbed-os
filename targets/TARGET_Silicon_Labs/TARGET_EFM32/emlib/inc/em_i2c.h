@@ -165,25 +165,25 @@ extern "C" {
 
 /** Clock low to high ratio settings. */
 typedef enum {
-  i2cClockHLRStandard  = _I2C_CTRL_CLHR_STANDARD,      /**< Ratio is 4:4 */
-  i2cClockHLRAsymetric = _I2C_CTRL_CLHR_ASYMMETRIC,    /**< Ratio is 6:3 */
-  i2cClockHLRFast      = _I2C_CTRL_CLHR_FAST           /**< Ratio is 11:3 */
+    i2cClockHLRStandard  = _I2C_CTRL_CLHR_STANDARD,      /**< Ratio is 4:4 */
+    i2cClockHLRAsymetric = _I2C_CTRL_CLHR_ASYMMETRIC,    /**< Ratio is 6:3 */
+    i2cClockHLRFast      = _I2C_CTRL_CLHR_FAST           /**< Ratio is 11:3 */
 } I2C_ClockHLR_TypeDef;
 
 /** Return codes for single master mode transfer function. */
 typedef enum {
-  /* In progress code (>0) */
-  i2cTransferInProgress = 1,    /**< Transfer in progress. */
+    /* In progress code (>0) */
+    i2cTransferInProgress = 1,    /**< Transfer in progress. */
 
-  /* Complete code (=0) */
-  i2cTransferDone       = 0,    /**< Transfer completed successfully. */
+    /* Complete code (=0) */
+    i2cTransferDone       = 0,    /**< Transfer completed successfully. */
 
-  /* Transfer error codes (<0) */
-  i2cTransferNack       = -1,   /**< NACK received during transfer. */
-  i2cTransferBusErr     = -2,   /**< Bus error during transfer (misplaced START/STOP). */
-  i2cTransferArbLost    = -3,   /**< Arbitration lost during transfer. */
-  i2cTransferUsageFault = -4,   /**< Usage fault. */
-  i2cTransferSwFault    = -5    /**< SW fault. */
+    /* Transfer error codes (<0) */
+    i2cTransferNack       = -1,   /**< NACK received during transfer. */
+    i2cTransferBusErr     = -2,   /**< Bus error during transfer (misplaced START/STOP). */
+    i2cTransferArbLost    = -3,   /**< Arbitration lost during transfer. */
+    i2cTransferUsageFault = -4,   /**< Usage fault. */
+    i2cTransferSwFault    = -5    /**< SW fault. */
 } I2C_TransferReturn_TypeDef;
 
 /*******************************************************************************
@@ -192,27 +192,27 @@ typedef enum {
 
 /** I2C initialization structure. */
 typedef struct {
-  /** Enable I2C peripheral when init completed. */
-  bool                 enable;
+    /** Enable I2C peripheral when init completed. */
+    bool                 enable;
 
-  /** Set to master (true) or slave (false) mode */
-  bool                 master;
+    /** Set to master (true) or slave (false) mode */
+    bool                 master;
 
-  /**
-   * I2C reference clock assumed when configuring bus frequency setup.
-   * Set it to 0 if currently configurated reference clock shall be used
-   * This parameter is only applicable if operating in master mode.
-   */
-  uint32_t             refFreq;
+    /**
+     * I2C reference clock assumed when configuring bus frequency setup.
+     * Set it to 0 if currently configurated reference clock shall be used
+     * This parameter is only applicable if operating in master mode.
+     */
+    uint32_t             refFreq;
 
-  /**
-   * (Max) I2C bus frequency to use. This parameter is only applicable
-   * if operating in master mode.
-   */
-  uint32_t             freq;
+    /**
+     * (Max) I2C bus frequency to use. This parameter is only applicable
+     * if operating in master mode.
+     */
+    uint32_t             freq;
 
-  /** Clock low/high ratio control. */
-  I2C_ClockHLR_TypeDef clhr;
+    /** Clock low/high ratio control. */
+    I2C_ClockHLR_TypeDef clhr;
 } I2C_Init_TypeDef;
 
 /** Suggested default config for I2C init structure. */
@@ -241,36 +241,36 @@ typedef struct {
  *     buf[1].data
  */
 typedef struct {
-  /**
-   * @brief
-   *   Address to use after (repeated) start.
-   * @details
-   *   Layout details, A = address bit, X = don't care bit (set to 0):
-   *   @li 7 bit address - use format AAAA AAAX.
-   *   @li 10 bit address - use format XXXX XAAX AAAA AAAA
-   */
-  uint16_t addr;
+    /**
+     * @brief
+     *   Address to use after (repeated) start.
+     * @details
+     *   Layout details, A = address bit, X = don't care bit (set to 0):
+     *   @li 7 bit address - use format AAAA AAAX.
+     *   @li 10 bit address - use format XXXX XAAX AAAA AAAA
+     */
+    uint16_t addr;
 
-  /** Flags defining sequence type and details, see I2C_FLAG_... defines. */
-  uint16_t flags;
-
-  /**
-   * Buffers used to hold data to send from or receive into depending
-   * on sequence type.
-   */
-  struct {
-    /** Buffer used for data to transmit/receive, must be @p len long. */
-    uint8_t  *data;
+    /** Flags defining sequence type and details, see I2C_FLAG_... defines. */
+    uint16_t flags;
 
     /**
-     * Number of bytes in @p data to send or receive. Notice that when
-     * receiving data to this buffer, at least 1 byte must be received.
-     * Setting @p len to 0 in the receive case is considered a usage fault.
-     * Transmitting 0 bytes is legal, in which case only the address
-     * is transmitted after the start condition.
+     * Buffers used to hold data to send from or receive into depending
+     * on sequence type.
      */
-    uint16_t len;
-  } buf[2];
+    struct {
+        /** Buffer used for data to transmit/receive, must be @p len long. */
+        uint8_t  *data;
+
+        /**
+         * Number of bytes in @p data to send or receive. Notice that when
+         * receiving data to this buffer, at least 1 byte must be received.
+         * Setting @p len to 0 in the receive case is considered a usage fault.
+         * Transmitting 0 bytes is legal, in which case only the address
+         * is transmitted after the start condition.
+         */
+        uint16_t len;
+    } buf[2];
 } I2C_TransferSeq_TypeDef;
 
 /*******************************************************************************
@@ -298,7 +298,7 @@ void I2C_Init(I2C_TypeDef *i2c, const I2C_Init_TypeDef *init);
  ******************************************************************************/
 __STATIC_INLINE void I2C_IntClear(I2C_TypeDef *i2c, uint32_t flags)
 {
-  i2c->IFC = flags;
+    i2c->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -314,7 +314,7 @@ __STATIC_INLINE void I2C_IntClear(I2C_TypeDef *i2c, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void I2C_IntDisable(I2C_TypeDef *i2c, uint32_t flags)
 {
-  i2c->IEN &= ~(flags);
+    i2c->IEN &= ~(flags);
 }
 
 /***************************************************************************//**
@@ -335,7 +335,7 @@ __STATIC_INLINE void I2C_IntDisable(I2C_TypeDef *i2c, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void I2C_IntEnable(I2C_TypeDef *i2c, uint32_t flags)
 {
-  i2c->IEN |= flags;
+    i2c->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -354,7 +354,7 @@ __STATIC_INLINE void I2C_IntEnable(I2C_TypeDef *i2c, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t I2C_IntGet(I2C_TypeDef *i2c)
 {
-  return i2c->IF;
+    return i2c->IF;
 }
 
 /***************************************************************************//**
@@ -376,10 +376,10 @@ __STATIC_INLINE uint32_t I2C_IntGet(I2C_TypeDef *i2c)
  ******************************************************************************/
 __STATIC_INLINE uint32_t I2C_IntGetEnabled(I2C_TypeDef *i2c)
 {
-  uint32_t ien;
+    uint32_t ien;
 
-  ien = i2c->IEN;
-  return i2c->IF & ien;
+    ien = i2c->IEN;
+    return i2c->IF & ien;
 }
 
 /***************************************************************************//**
@@ -395,7 +395,7 @@ __STATIC_INLINE uint32_t I2C_IntGetEnabled(I2C_TypeDef *i2c)
  ******************************************************************************/
 __STATIC_INLINE void I2C_IntSet(I2C_TypeDef *i2c, uint32_t flags)
 {
-  i2c->IFS = flags;
+    i2c->IFS = flags;
 }
 
 void I2C_Reset(I2C_TypeDef *i2c);
@@ -419,7 +419,7 @@ void I2C_Reset(I2C_TypeDef *i2c);
  ******************************************************************************/
 __STATIC_INLINE uint8_t I2C_SlaveAddressGet(I2C_TypeDef *i2c)
 {
-  return ((uint8_t)(i2c->SADDR));
+    return ((uint8_t)(i2c->SADDR));
 }
 
 /***************************************************************************//**
@@ -441,7 +441,7 @@ __STATIC_INLINE uint8_t I2C_SlaveAddressGet(I2C_TypeDef *i2c)
  ******************************************************************************/
 __STATIC_INLINE void I2C_SlaveAddressSet(I2C_TypeDef *i2c, uint8_t addr)
 {
-  i2c->SADDR = (uint32_t)addr & 0xfe;
+    i2c->SADDR = (uint32_t)addr & 0xfe;
 }
 
 /***************************************************************************//**
@@ -469,7 +469,7 @@ __STATIC_INLINE void I2C_SlaveAddressSet(I2C_TypeDef *i2c, uint8_t addr)
  ******************************************************************************/
 __STATIC_INLINE uint8_t I2C_SlaveAddressMaskGet(I2C_TypeDef *i2c)
 {
-  return ((uint8_t)(i2c->SADDRMASK));
+    return ((uint8_t)(i2c->SADDRMASK));
 }
 
 /***************************************************************************//**
@@ -497,7 +497,7 @@ __STATIC_INLINE uint8_t I2C_SlaveAddressMaskGet(I2C_TypeDef *i2c)
  ******************************************************************************/
 __STATIC_INLINE void I2C_SlaveAddressMaskSet(I2C_TypeDef *i2c, uint8_t mask)
 {
-  i2c->SADDRMASK = (uint32_t)mask & 0xfe;
+    i2c->SADDRMASK = (uint32_t)mask & 0xfe;
 }
 
 I2C_TransferReturn_TypeDef I2C_Transfer(I2C_TypeDef *i2c);

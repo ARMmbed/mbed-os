@@ -30,8 +30,8 @@
 #define LVDS_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_lvds
-{                                                          /* LVDS             */
+struct st_lvds {
+    /* LVDS             */
     volatile uint32_t  LVDS_UPDATE;                            /*  LVDS_UPDATE     */
     volatile uint32_t  LVDSFCL;                                /*  LVDSFCL         */
     volatile uint8_t   dummy608[24];                           /*                  */

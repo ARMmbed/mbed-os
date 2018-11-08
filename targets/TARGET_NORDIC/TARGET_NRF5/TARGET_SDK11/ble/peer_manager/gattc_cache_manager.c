@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -49,8 +49,7 @@
 
 #define MAX_SIMUL_SEC_PROCEDURES 2
 
-typedef struct
-{
+typedef struct {
     gccm_evt_handler_t  evt_handler;
 } gccm_t;
 
@@ -59,7 +58,7 @@ static gccm_t m_gccm;
 #define MODULE_INITIALIZED (m_gccm.evt_handler != NULL)
 #include "sdk_macros.h"
 
-static void internal_state_reset(gccm_t * gccm)
+static void internal_state_reset(gccm_t *gccm)
 {
     memset(gccm, 0, sizeof(gccm_t));
 }
@@ -69,7 +68,7 @@ static void internal_state_reset(gccm_t * gccm)
  *
  * @param[in]  p_event The event that has happend with peer id and flags.
  */
-static void pdb_evt_handler(pdb_evt_t const * p_event)
+static void pdb_evt_handler(pdb_evt_t const *p_event)
 {
     gccm_evt_t gccm_evt;
     gccm_evt.evt_id  = GCCM_EVT_REMOTE_DB_STORED;
@@ -81,15 +80,11 @@ static void pdb_evt_handler(pdb_evt_t const * p_event)
 ret_code_t gccm_init(gccm_evt_handler_t evt_handler)
 {
     ret_code_t err_code;
-    if (evt_handler == NULL)
-    {
+    if (evt_handler == NULL) {
         err_code = NRF_ERROR_NULL;
-    }
-    else
-    {
+    } else {
         err_code = pdb_register(pdb_evt_handler);
-        if (err_code == NRF_SUCCESS)
-        {
+        if (err_code == NRF_SUCCESS) {
             internal_state_reset(&m_gccm);
             m_gccm.evt_handler = evt_handler;
         }
@@ -99,7 +94,7 @@ ret_code_t gccm_init(gccm_evt_handler_t evt_handler)
 
 
 ret_code_t gccm_remote_db_store(pm_peer_id_t        peer_id,
-                                ble_gatt_db_srv_t * p_remote_db,
+                                ble_gatt_db_srv_t *p_remote_db,
                                 uint32_t            n_services)
 {
     VERIFY_MODULE_INITIALIZED();
@@ -117,8 +112,8 @@ ret_code_t gccm_remote_db_store(pm_peer_id_t        peer_id,
 
 
 ret_code_t gccm_remote_db_retrieve(pm_peer_id_t        peer_id,
-                                   ble_gatt_db_srv_t * p_remote_db,
-                                   uint32_t          * p_n_services)
+                                   ble_gatt_db_srv_t *p_remote_db,
+                                   uint32_t           *p_n_services)
 {
     VERIFY_MODULE_INITIALIZED();
     VERIFY_PARAM_NOT_NULL(p_remote_db);

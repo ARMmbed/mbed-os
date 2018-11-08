@@ -43,10 +43,11 @@
   */
 void FMC_SetBootSource(int32_t i32BootSrc)
 {
-    if(i32BootSrc)
-        FMC->ISPCTL |= FMC_ISPCTL_BS_Msk; /* Boot from LDROM */
-    else
-        FMC->ISPCTL &= ~FMC_ISPCTL_BS_Msk;/* Boot from APROM */
+    if (i32BootSrc) {
+        FMC->ISPCTL |= FMC_ISPCTL_BS_Msk;    /* Boot from LDROM */
+    } else {
+        FMC->ISPCTL &= ~FMC_ISPCTL_BS_Msk;    /* Boot from APROM */
+    }
 }
 
 
@@ -176,10 +177,11 @@ void FMC_EnableLDUpdate(void)
   */
 int32_t FMC_GetBootSource(void)
 {
-    if(FMC->ISPCTL & FMC_ISPCTL_BS_Msk)
+    if (FMC->ISPCTL & FMC_ISPCTL_BS_Msk) {
         return 1;
-    else
+    } else {
         return 0;
+    }
 }
 
 
@@ -234,8 +236,9 @@ int32_t FMC_ReadConfig(uint32_t *u32Config, uint32_t u32Count)
 {
     int32_t i;
 
-    for(i = 0; i < u32Count; i++)
+    for (i = 0; i < u32Count; i++) {
         u32Config[i] = FMC_Read(FMC_CONFIG_BASE + i * 4);
+    }
 
     return 0;
 }
@@ -259,11 +262,11 @@ int32_t FMC_WriteConfig(uint32_t *u32Config, uint32_t u32Count)
 {
     int32_t i;
 
-    for(i = 0; i < u32Count; i++)
-    {
+    for (i = 0; i < u32Count; i++) {
         FMC_Write(FMC_CONFIG_BASE + i * 4, u32Config[i]);
-        if(FMC_Read(FMC_CONFIG_BASE + i * 4) != u32Config[i])
+        if (FMC_Read(FMC_CONFIG_BASE + i * 4) != u32Config[i]) {
             return -1;
+        }
     }
 
     return 0;

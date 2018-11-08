@@ -79,7 +79,8 @@ public:
     ) : _client(client),
         _connectionHandle(connectionHandle),
         _uuid(uuid),
-        _gattHandle(attributeHandle) {
+        _gattHandle(attributeHandle)
+    {
     }
 
     /**
@@ -87,7 +88,7 @@ public:
      *
      * @return GattClient, which can operate on this descriptor.
      */
-    GattClient* getGattClient()
+    GattClient *getGattClient()
     {
         return _client;
     }
@@ -97,7 +98,7 @@ public:
      *
      * @return GattClient, which can operate on this descriptor.
      */
-    const GattClient* getGattClient() const
+    const GattClient *getGattClient() const
     {
         return _client;
     }
@@ -119,7 +120,7 @@ public:
      *
      * @return UUID of this descriptor.
      */
-    const UUID& getUUID(void) const
+    const UUID &getUUID(void) const
     {
         return _uuid;
     }

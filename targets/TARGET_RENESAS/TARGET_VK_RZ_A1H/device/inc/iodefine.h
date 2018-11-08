@@ -30,14 +30,13 @@
 #define R7S72100_IODEFINE_H
 #define IODEFINE_H_VERSION  100
 
-enum iodefine_byte_select_t
-{
+enum iodefine_byte_select_t {
     L = 0, H = 1,
-    LL= 0, LH = 1, HL = 2, HH = 3
+    LL = 0, LH = 1, HL = 2, HH = 3
 };
 
 /***********************************************************************
-  <<< [iodefine_reg32_t] >>> 
+  <<< [iodefine_reg32_t] >>>
 - Padding : sizeof(iodefine_reg32_t) == 4
 - Alignment(Offset) : &UINT32==0, &UINT16[0]==0, &UINT16[1]==2
 -                     &UINT8[0]==0, &UINT8[1]==1, &UINT8[2]==2, &UINT8[3]==3
@@ -46,8 +45,7 @@ enum iodefine_byte_select_t
 ************************************************************************/
 /* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
-union iodefine_reg32_t
-{
+union iodefine_reg32_t {
     volatile uint32_t  UINT32;                                  /*  32-bit Access   */
     volatile uint16_t  UINT16[2];                               /*  16-bit Access   */
     volatile uint8_t   UINT8[4];                                /*  8-bit Access    */
@@ -56,7 +54,7 @@ union iodefine_reg32_t
 /* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
 
 /***********************************************************************
-  <<< [iodefine_reg32_16_t] >>> 
+  <<< [iodefine_reg32_16_t] >>>
 - Padding : sizeof(iodefine_reg32_16_t) == 4
 - Alignment(Offset) : &UINT32==0, &UINT16[0]==0, &UINT16[1]==2
 - Endian : Independent (Same as CPU endian as register endian)
@@ -64,8 +62,7 @@ union iodefine_reg32_t
 ************************************************************************/
 /* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
-union iodefine_reg32_16_t
-{
+union iodefine_reg32_16_t {
     volatile uint32_t  UINT32;                                  /*  32-bit Access   */
     volatile uint16_t  UINT16[2];                               /*  16-bit Access   */
 };
@@ -73,7 +70,7 @@ union iodefine_reg32_16_t
 /* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
 
 /***********************************************************************
-  <<< [iodefine_reg16_8_t] >>> 
+  <<< [iodefine_reg16_8_t] >>>
 - Padding : sizeof(iodefine_reg16_8_t) == 2
 - Alignment(Offset) : &UINT16==0, &UINT8[0]==0, &UINT8[1]==1
 - Endian : Independent (Same as CPU endian as register endian)
@@ -81,8 +78,7 @@ union iodefine_reg32_16_t
 ************************************************************************/
 /* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
-union iodefine_reg16_8_t
-{
+union iodefine_reg16_8_t {
     volatile uint16_t  UINT16;                                  /*  16-bit Access   */
     volatile uint8_t   UINT8[2];                                /*  8-bit Access    */
 };

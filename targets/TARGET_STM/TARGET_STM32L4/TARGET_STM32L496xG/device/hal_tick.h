@@ -3,7 +3,7 @@
   * @file    hal_tick.h
   * @author  MCD Application Team
   * @brief   Initialization of HAL tick
-  ******************************************************************************  
+  ******************************************************************************
   * @attention
   *
   * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
@@ -30,19 +30,19 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
-  */ 
+  ******************************************************************************
+  */
 #ifndef __HAL_TICK_H
 #define __HAL_TICK_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include "stm32l4xx.h"
 #include "stm32l4xx_ll_tim.h"
 #include "cmsis_nvic.h"
-   
+
 #define TIM_MST      TIM5
 #define TIM_MST_IRQ  TIM5_IRQn
 #define TIM_MST_RCC  __HAL_RCC_TIM5_CLK_ENABLE()

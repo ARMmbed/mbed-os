@@ -15,15 +15,16 @@
  */
 #include "rtc_api.h"
 
- 
+
 #define LFCLK_FREQUENCY         (32768UL)
 #define RTC0_COUNTER_PRESCALER  ((LFCLK_FREQUENCY/8) - 1)
 #define COMPARE_COUNTERTIME       (691200UL) //86400 x 8
 
 
-time_t	initTime;
+time_t  initTime;
 
-void rtc_init(void) {
+void rtc_init(void)
+{
 
     NVIC_EnableIRQ(RTC0_IRQn);                                      // Enable Interrupt for the RTC in the core.
     //NRF_RTC0->TASKS_STOP =1;
@@ -36,7 +37,8 @@ void rtc_init(void) {
     NRF_RTC0->TASKS_START = 1;
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
     // [TODO]
 }
 
@@ -47,19 +49,22 @@ void rtc_free(void) {
  *  RTC_CCR[0] : 0 = Disabled, 1 = Enabled
  *
  */
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     // [TODO] return(((NRF_RTC0->TASKS_START) & 0x01) != 0);
 }
 
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
 
     time_t t = initTime;
-    t += (86400*NRF_RTC0->EVENTS_COMPARE[0]);
-    t += (int)((NRF_RTC0->COUNTER)/8);
-    return(t);
+    t += (86400 * NRF_RTC0->EVENTS_COMPARE[0]);
+    t += (int)((NRF_RTC0->COUNTER) / 8);
+    return (t);
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     // Convert the time in to a tm
 
     // Pause clock, and clear counter register (clears us count)

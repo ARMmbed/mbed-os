@@ -128,18 +128,18 @@
   */
 ErrorStatus LL_LPUART_DeInit(USART_TypeDef *LPUARTx)
 {
-  ErrorStatus status = SUCCESS;
+    ErrorStatus status = SUCCESS;
 
-  /* Check the parameters */
-  assert_param(IS_LPUART_INSTANCE(LPUARTx));
+    /* Check the parameters */
+    assert_param(IS_LPUART_INSTANCE(LPUARTx));
 
-  /* Force reset of LPUART peripheral */
-  LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_LPUART1);
+    /* Force reset of LPUART peripheral */
+    LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_LPUART1);
 
-  /* Release reset of LPUART peripheral */
-  LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_LPUART1);
+    /* Release reset of LPUART peripheral */
+    LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_LPUART1);
 
-  return (status);
+    return (status);
 }
 
 /**
@@ -157,64 +157,62 @@ ErrorStatus LL_LPUART_DeInit(USART_TypeDef *LPUARTx)
   */
 ErrorStatus LL_LPUART_Init(USART_TypeDef *LPUARTx, LL_LPUART_InitTypeDef *LPUART_InitStruct)
 {
-  ErrorStatus status = ERROR;
-  uint32_t periphclk = LL_RCC_PERIPH_FREQUENCY_NO;
+    ErrorStatus status = ERROR;
+    uint32_t periphclk = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check the parameters */
-  assert_param(IS_LPUART_INSTANCE(LPUARTx));
-  assert_param(IS_LL_LPUART_BAUDRATE(LPUART_InitStruct->BaudRate));
-  assert_param(IS_LL_LPUART_DATAWIDTH(LPUART_InitStruct->DataWidth));
-  assert_param(IS_LL_LPUART_STOPBITS(LPUART_InitStruct->StopBits));
-  assert_param(IS_LL_LPUART_PARITY(LPUART_InitStruct->Parity));
-  assert_param(IS_LL_LPUART_DIRECTION(LPUART_InitStruct->TransferDirection));
-  assert_param(IS_LL_LPUART_HWCONTROL(LPUART_InitStruct->HardwareFlowControl));
+    /* Check the parameters */
+    assert_param(IS_LPUART_INSTANCE(LPUARTx));
+    assert_param(IS_LL_LPUART_BAUDRATE(LPUART_InitStruct->BaudRate));
+    assert_param(IS_LL_LPUART_DATAWIDTH(LPUART_InitStruct->DataWidth));
+    assert_param(IS_LL_LPUART_STOPBITS(LPUART_InitStruct->StopBits));
+    assert_param(IS_LL_LPUART_PARITY(LPUART_InitStruct->Parity));
+    assert_param(IS_LL_LPUART_DIRECTION(LPUART_InitStruct->TransferDirection));
+    assert_param(IS_LL_LPUART_HWCONTROL(LPUART_InitStruct->HardwareFlowControl));
 
-  /* LPUART needs to be in disabled state, in order to be able to configure some bits in
-     CRx registers. Otherwise (LPUART not in Disabled state) => return ERROR */
-  if (LL_LPUART_IsEnabled(LPUARTx) == 0U)
-  {
-    /*---------------------------- LPUART CR1 Configuration -----------------------
-     * Configure LPUARTx CR1 (LPUART Word Length, Parity and Transfer Direction bits) with parameters:
-     * - DataWidth:          USART_CR1_M bits according to LPUART_InitStruct->DataWidth value
-     * - Parity:             USART_CR1_PCE, USART_CR1_PS bits according to LPUART_InitStruct->Parity value
-     * - TransferDirection:  USART_CR1_TE, USART_CR1_RE bits according to LPUART_InitStruct->TransferDirection value
-     */
-    MODIFY_REG(LPUARTx->CR1,
-               (USART_CR1_M | USART_CR1_PCE | USART_CR1_PS | USART_CR1_TE | USART_CR1_RE),
-               (LPUART_InitStruct->DataWidth | LPUART_InitStruct->Parity | LPUART_InitStruct->TransferDirection));
+    /* LPUART needs to be in disabled state, in order to be able to configure some bits in
+       CRx registers. Otherwise (LPUART not in Disabled state) => return ERROR */
+    if (LL_LPUART_IsEnabled(LPUARTx) == 0U) {
+        /*---------------------------- LPUART CR1 Configuration -----------------------
+         * Configure LPUARTx CR1 (LPUART Word Length, Parity and Transfer Direction bits) with parameters:
+         * - DataWidth:          USART_CR1_M bits according to LPUART_InitStruct->DataWidth value
+         * - Parity:             USART_CR1_PCE, USART_CR1_PS bits according to LPUART_InitStruct->Parity value
+         * - TransferDirection:  USART_CR1_TE, USART_CR1_RE bits according to LPUART_InitStruct->TransferDirection value
+         */
+        MODIFY_REG(LPUARTx->CR1,
+                   (USART_CR1_M | USART_CR1_PCE | USART_CR1_PS | USART_CR1_TE | USART_CR1_RE),
+                   (LPUART_InitStruct->DataWidth | LPUART_InitStruct->Parity | LPUART_InitStruct->TransferDirection));
 
-    /*---------------------------- LPUART CR2 Configuration -----------------------
-     * Configure LPUARTx CR2 (Stop bits) with parameters:
-     * - Stop Bits:          USART_CR2_STOP bits according to LPUART_InitStruct->StopBits value.
-     */
-    LL_LPUART_SetStopBitsLength(LPUARTx, LPUART_InitStruct->StopBits);
+        /*---------------------------- LPUART CR2 Configuration -----------------------
+         * Configure LPUARTx CR2 (Stop bits) with parameters:
+         * - Stop Bits:          USART_CR2_STOP bits according to LPUART_InitStruct->StopBits value.
+         */
+        LL_LPUART_SetStopBitsLength(LPUARTx, LPUART_InitStruct->StopBits);
 
-    /*---------------------------- LPUART CR3 Configuration -----------------------
-     * Configure LPUARTx CR3 (Hardware Flow Control) with parameters:
-     * - HardwareFlowControl: USART_CR3_RTSE, USART_CR3_CTSE bits according to LPUART_InitStruct->HardwareFlowControl value.
-     */
-    LL_LPUART_SetHWFlowCtrl(LPUARTx, LPUART_InitStruct->HardwareFlowControl);
+        /*---------------------------- LPUART CR3 Configuration -----------------------
+         * Configure LPUARTx CR3 (Hardware Flow Control) with parameters:
+         * - HardwareFlowControl: USART_CR3_RTSE, USART_CR3_CTSE bits according to LPUART_InitStruct->HardwareFlowControl value.
+         */
+        LL_LPUART_SetHWFlowCtrl(LPUARTx, LPUART_InitStruct->HardwareFlowControl);
 
-    /*---------------------------- LPUART BRR Configuration -----------------------
-     * Retrieve Clock frequency used for LPUART Peripheral
-     */
-    periphclk = LL_RCC_GetLPUARTClockFreq(LL_RCC_LPUART1_CLKSOURCE);
+        /*---------------------------- LPUART BRR Configuration -----------------------
+         * Retrieve Clock frequency used for LPUART Peripheral
+         */
+        periphclk = LL_RCC_GetLPUARTClockFreq(LL_RCC_LPUART1_CLKSOURCE);
 
-    /* Configure the LPUART Baud Rate :
-       - valid baud rate value (different from 0) is required
-       - Peripheral clock as returned by RCC service, should be valid (different from 0).
-    */
-    if ((periphclk != LL_RCC_PERIPH_FREQUENCY_NO)
-        && (LPUART_InitStruct->BaudRate != 0U))
-    {
-      status = SUCCESS;
-      LL_LPUART_SetBaudRate(LPUARTx,
-                            periphclk,
-                            LPUART_InitStruct->BaudRate);
+        /* Configure the LPUART Baud Rate :
+           - valid baud rate value (different from 0) is required
+           - Peripheral clock as returned by RCC service, should be valid (different from 0).
+        */
+        if ((periphclk != LL_RCC_PERIPH_FREQUENCY_NO)
+                && (LPUART_InitStruct->BaudRate != 0U)) {
+            status = SUCCESS;
+            LL_LPUART_SetBaudRate(LPUARTx,
+                                  periphclk,
+                                  LPUART_InitStruct->BaudRate);
+        }
     }
-  }
 
-  return (status);
+    return (status);
 }
 
 /**
@@ -226,13 +224,13 @@ ErrorStatus LL_LPUART_Init(USART_TypeDef *LPUARTx, LL_LPUART_InitTypeDef *LPUART
 
 void LL_LPUART_StructInit(LL_LPUART_InitTypeDef *LPUART_InitStruct)
 {
-  /* Set LPUART_InitStruct fields to default values */
-  LPUART_InitStruct->BaudRate            = 9600U;
-  LPUART_InitStruct->DataWidth           = LL_LPUART_DATAWIDTH_8B;
-  LPUART_InitStruct->StopBits            = LL_LPUART_STOPBITS_1;
-  LPUART_InitStruct->Parity              = LL_LPUART_PARITY_NONE ;
-  LPUART_InitStruct->TransferDirection   = LL_LPUART_DIRECTION_TX_RX;
-  LPUART_InitStruct->HardwareFlowControl = LL_LPUART_HWCONTROL_NONE;
+    /* Set LPUART_InitStruct fields to default values */
+    LPUART_InitStruct->BaudRate            = 9600U;
+    LPUART_InitStruct->DataWidth           = LL_LPUART_DATAWIDTH_8B;
+    LPUART_InitStruct->StopBits            = LL_LPUART_STOPBITS_1;
+    LPUART_InitStruct->Parity              = LL_LPUART_PARITY_NONE ;
+    LPUART_InitStruct->TransferDirection   = LL_LPUART_DIRECTION_TX_RX;
+    LPUART_InitStruct->HardwareFlowControl = LL_LPUART_HWCONTROL_NONE;
 }
 
 /**

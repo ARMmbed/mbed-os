@@ -53,8 +53,7 @@
 /*!
  * @brief DAC buffer flags.
  */
-enum _dac_buffer_status_flags
-{
+enum _dac_buffer_status_flags {
 #if defined(FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION) && FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION
     kDAC_BufferWatermarkFlag = DAC_SR_DACBFWMF_MASK,                  /*!< DAC Buffer Watermark Flag. */
 #endif                                                                /* FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION */
@@ -66,8 +65,7 @@ enum _dac_buffer_status_flags
 /*!
  * @brief DAC buffer interrupts.
  */
-enum _dac_buffer_interrupt_enable
-{
+enum _dac_buffer_interrupt_enable {
 #if defined(FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION) && FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION
     kDAC_BufferWatermarkInterruptEnable = DAC_C0_DACBWIEN_MASK,         /*!< DAC Buffer Watermark Interrupt Enable. */
 #endif                                                                  /* FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION */
@@ -80,8 +78,7 @@ enum _dac_buffer_interrupt_enable
 /*!
  * @brief DAC reference voltage source.
  */
-typedef enum _dac_reference_voltage_source
-{
+typedef enum _dac_reference_voltage_source {
     kDAC_ReferenceVoltageSourceVref1 = 0U, /*!< The DAC selects DACREF_1 as the reference voltage. */
     kDAC_ReferenceVoltageSourceVref2 = 1U, /*!< The DAC selects DACREF_2 as the reference voltage. */
 } dac_reference_voltage_source_t;
@@ -89,8 +86,7 @@ typedef enum _dac_reference_voltage_source
 /*!
  * @brief DAC buffer trigger mode.
  */
-typedef enum _dac_buffer_trigger_mode
-{
+typedef enum _dac_buffer_trigger_mode {
     kDAC_BufferTriggerByHardwareMode = 0U, /*!< The DAC hardware trigger is selected. */
     kDAC_BufferTriggerBySoftwareMode = 1U, /*!< The DAC software trigger is selected. */
 } dac_buffer_trigger_mode_t;
@@ -99,8 +95,7 @@ typedef enum _dac_buffer_trigger_mode
 /*!
  * @brief DAC buffer watermark.
  */
-typedef enum _dac_buffer_watermark
-{
+typedef enum _dac_buffer_watermark {
 #if defined(FSL_FEATURE_DAC_HAS_WATERMARK_1_WORD) && FSL_FEATURE_DAC_HAS_WATERMARK_1_WORD
     kDAC_BufferWatermark1Word = 0U, /*!< 1 word  away from the upper limit. */
 #endif                              /* FSL_FEATURE_DAC_HAS_WATERMARK_1_WORD */
@@ -119,8 +114,7 @@ typedef enum _dac_buffer_watermark
 /*!
  * @brief DAC buffer work mode.
  */
-typedef enum _dac_buffer_work_mode
-{
+typedef enum _dac_buffer_work_mode {
     kDAC_BufferWorkAsNormalMode = 0U, /*!< Normal mode. */
 #if defined(FSL_FEATURE_DAC_HAS_BUFFER_SWING_MODE) && FSL_FEATURE_DAC_HAS_BUFFER_SWING_MODE
     kDAC_BufferWorkAsSwingMode,       /*!< Swing mode. */
@@ -134,8 +128,7 @@ typedef enum _dac_buffer_work_mode
 /*!
  * @brief DAC module configuration.
  */
-typedef struct _dac_config
-{
+typedef struct _dac_config {
     dac_reference_voltage_source_t referenceVoltageSource; /*!< Select the DAC reference voltage source. */
     bool enableLowPowerMode;                               /*!< Enable the low power mode. */
 } dac_config_t;
@@ -143,8 +136,7 @@ typedef struct _dac_config
 /*!
  * @brief DAC buffer configuration.
  */
-typedef struct _dac_buffer_config
-{
+typedef struct _dac_buffer_config {
     dac_buffer_trigger_mode_t triggerMode; /*!< Select the buffer's trigger mode. */
 #if defined(FSL_FEATURE_DAC_HAS_WATERMARK_SELECTION) && FSL_FEATURE_DAC_HAS_WATERMARK_SELECTION
     dac_buffer_watermark_t watermark; /*!< Select the buffer's watermark. */
@@ -210,12 +202,9 @@ void DAC_GetDefaultConfig(dac_config_t *config);
  */
 static inline void DAC_Enable(DAC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->C0 |= DAC_C0_DACEN_MASK;
-    }
-    else
-    {
+    } else {
         base->C0 &= ~DAC_C0_DACEN_MASK;
     }
 }
@@ -235,12 +224,9 @@ static inline void DAC_Enable(DAC_Type *base, bool enable)
  */
 static inline void DAC_EnableBuffer(DAC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->C1 |= DAC_C1_DACBFEN_MASK;
-    }
-    else
-    {
+    } else {
         base->C1 &= ~DAC_C1_DACBFEN_MASK;
     }
 }
@@ -275,12 +261,9 @@ void DAC_GetDefaultBufferConfig(dac_buffer_config_t *config);
  */
 static inline void DAC_EnableBufferDMA(DAC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->C1 |= DAC_C1_DMAEN_MASK;
-    }
-    else
-    {
+    } else {
         base->C1 &= ~DAC_C1_DMAEN_MASK;
     }
 }

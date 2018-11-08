@@ -55,16 +55,14 @@
 #define FLEXIO_SPI_DUMMYDATA (0xFFFFU)
 
 /*! @brief Error codes for the FlexIO SPI driver. */
-enum _flexio_spi_status
-{
+enum _flexio_spi_status {
     kStatus_FLEXIO_SPI_Busy = MAKE_STATUS(kStatusGroup_FLEXIO_SPI, 1),  /*!< FlexIO SPI is busy. */
     kStatus_FLEXIO_SPI_Idle = MAKE_STATUS(kStatusGroup_FLEXIO_SPI, 2),  /*!< SPI is idle */
     kStatus_FLEXIO_SPI_Error = MAKE_STATUS(kStatusGroup_FLEXIO_SPI, 3), /*!< FlexIO SPI error. */
 };
 
 /*! @brief FlexIO SPI clock phase configuration. */
-typedef enum _flexio_spi_clock_phase
-{
+typedef enum _flexio_spi_clock_phase {
     kFLEXIO_SPI_ClockPhaseFirstEdge = 0x0U,  /*!< First edge on SPSCK occurs at the middle of the first
                                    *   cycle of a data transfer. */
     kFLEXIO_SPI_ClockPhaseSecondEdge = 0x1U, /*!< First edge on SPSCK occurs at the start of the
@@ -72,44 +70,38 @@ typedef enum _flexio_spi_clock_phase
 } flexio_spi_clock_phase_t;
 
 /*! @brief FlexIO SPI data shifter direction options. */
-typedef enum _flexio_spi_shift_direction
-{
+typedef enum _flexio_spi_shift_direction {
     kFLEXIO_SPI_MsbFirst = 0, /*!< Data transfers start with most significant bit. */
     kFLEXIO_SPI_LsbFirst = 1, /*!< Data transfers start with least significant bit. */
 } flexio_spi_shift_direction_t;
 
 /*! @brief FlexIO SPI data length mode options. */
-typedef enum _flexio_spi_data_bitcount_mode
-{
+typedef enum _flexio_spi_data_bitcount_mode {
     kFLEXIO_SPI_8BitMode = 0x08U,  /*!< 8-bit data transmission mode. */
     kFLEXIO_SPI_16BitMode = 0x10U, /*!< 16-bit data transmission mode. */
 } flexio_spi_data_bitcount_mode_t;
 
 /*! @brief Define FlexIO SPI interrupt mask. */
-enum _flexio_spi_interrupt_enable
-{
+enum _flexio_spi_interrupt_enable {
     kFLEXIO_SPI_TxEmptyInterruptEnable = 0x1U, /*!< Transmit buffer empty interrupt enable. */
     kFLEXIO_SPI_RxFullInterruptEnable = 0x2U,  /*!< Receive buffer full interrupt enable. */
 };
 
 /*! @brief Define FlexIO SPI status mask. */
-enum _flexio_spi_status_flags
-{
+enum _flexio_spi_status_flags {
     kFLEXIO_SPI_TxBufferEmptyFlag = 0x1U, /*!< Transmit buffer empty flag. */
     kFLEXIO_SPI_RxBufferFullFlag = 0x2U,  /*!< Receive buffer full flag. */
 };
 
 /*! @brief Define FlexIO SPI DMA mask. */
-enum _flexio_spi_dma_enable
-{
+enum _flexio_spi_dma_enable {
     kFLEXIO_SPI_TxDmaEnable = 0x1U,  /*!< Tx DMA request source */
     kFLEXIO_SPI_RxDmaEnable = 0x2U,  /*!< Rx DMA request source */
     kFLEXIO_SPI_DmaAllEnable = 0x3U, /*!< All DMA request source*/
 };
 
 /*! @brief Define FlexIO SPI transfer flags. */
-enum _flexio_spi_transfer_flags
-{
+enum _flexio_spi_transfer_flags {
     kFLEXIO_SPI_8bitMsb = 0x1U,  /*!< FlexIO SPI 8-bit MSB first */
     kFLEXIO_SPI_8bitLsb = 0x2U,  /*!< FlexIO SPI 8-bit LSB first */
     kFLEXIO_SPI_16bitMsb = 0x9U, /*!< FlexIO SPI 16-bit MSB first */
@@ -117,8 +109,7 @@ enum _flexio_spi_transfer_flags
 };
 
 /*! @brief Define FlexIO SPI access structure typedef. */
-typedef struct _flexio_spi_type
-{
+typedef struct _flexio_spi_type {
     FLEXIO_Type *flexioBase; /*!< FlexIO base pointer. */
     uint8_t SDOPinIndex;     /*!< Pin select for data output. */
     uint8_t SDIPinIndex;     /*!< Pin select for data input. */
@@ -129,8 +120,7 @@ typedef struct _flexio_spi_type
 } FLEXIO_SPI_Type;
 
 /*! @brief Define FlexIO SPI master configuration structure. */
-typedef struct _flexio_spi_master_config
-{
+typedef struct _flexio_spi_master_config {
     bool enableMaster;                        /*!< Enable/disable FlexIO SPI master after configuration. */
     bool enableInDoze;                        /*!< Enable/disable FlexIO operation in doze mode. */
     bool enableInDebug;                       /*!< Enable/disable FlexIO operation in debug mode. */
@@ -143,8 +133,7 @@ typedef struct _flexio_spi_master_config
 } flexio_spi_master_config_t;
 
 /*! @brief Define FlexIO SPI slave configuration structure. */
-typedef struct _flexio_spi_slave_config
-{
+typedef struct _flexio_spi_slave_config {
     bool enableSlave;                         /*!< Enable/disable FlexIO SPI slave after configuration. */
     bool enableInDoze;                        /*!< Enable/disable FlexIO operation in doze mode. */
     bool enableInDebug;                       /*!< Enable/disable FlexIO operation in debug mode. */
@@ -156,8 +145,7 @@ typedef struct _flexio_spi_slave_config
 } flexio_spi_slave_config_t;
 
 /*! @brief Define FlexIO SPI transfer structure. */
-typedef struct _flexio_spi_transfer
-{
+typedef struct _flexio_spi_transfer {
     uint8_t *txData; /*!< Send buffer. */
     uint8_t *rxData; /*!< Receive buffer. */
     size_t dataSize; /*!< Transfer bytes. */
@@ -183,8 +171,7 @@ typedef void (*flexio_spi_slave_transfer_callback_t)(FLEXIO_SPI_Type *base,
                                                      void *userData);
 
 /*! @brief Define FlexIO SPI handle structure. */
-struct _flexio_spi_master_handle
-{
+struct _flexio_spi_master_handle {
     uint8_t *txData;                                /*!< Transfer buffer. */
     uint8_t *rxData;                                /*!< Receive buffer. */
     size_t transferSize;                            /*!< Total bytes to be transferred. */
@@ -411,14 +398,11 @@ void FLEXIO_SPI_EnableDMA(FLEXIO_SPI_Type *base, uint32_t mask, bool enable);
 static inline uint32_t FLEXIO_SPI_GetTxDataRegisterAddress(FLEXIO_SPI_Type *base,
                                                            flexio_spi_shift_direction_t direction)
 {
-    if (direction == kFLEXIO_SPI_MsbFirst)
-    {
+    if (direction == kFLEXIO_SPI_MsbFirst) {
         return FLEXIO_GetShifterBufferAddress(base->flexioBase, kFLEXIO_ShifterBufferBitSwapped,
                                               base->shifterIndex[0]) +
                3U;
-    }
-    else
-    {
+    } else {
         return FLEXIO_GetShifterBufferAddress(base->flexioBase, kFLEXIO_ShifterBuffer, base->shifterIndex[0]);
     }
 }
@@ -435,12 +419,9 @@ static inline uint32_t FLEXIO_SPI_GetTxDataRegisterAddress(FLEXIO_SPI_Type *base
 static inline uint32_t FLEXIO_SPI_GetRxDataRegisterAddress(FLEXIO_SPI_Type *base,
                                                            flexio_spi_shift_direction_t direction)
 {
-    if (direction == kFLEXIO_SPI_MsbFirst)
-    {
+    if (direction == kFLEXIO_SPI_MsbFirst) {
         return FLEXIO_GetShifterBufferAddress(base->flexioBase, kFLEXIO_ShifterBufferBitSwapped, base->shifterIndex[1]);
-    }
-    else
-    {
+    } else {
         return FLEXIO_GetShifterBufferAddress(base->flexioBase, kFLEXIO_ShifterBufferByteSwapped,
                                               base->shifterIndex[1]);
     }
@@ -461,12 +442,9 @@ static inline uint32_t FLEXIO_SPI_GetRxDataRegisterAddress(FLEXIO_SPI_Type *base
 */
 static inline void FLEXIO_SPI_Enable(FLEXIO_SPI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->flexioBase->CTRL |= FLEXIO_CTRL_FLEXEN_MASK;
-    }
-    else
-    {
+    } else {
         base->flexioBase->CTRL &= ~FLEXIO_CTRL_FLEXEN_MASK;
     }
 }
@@ -493,12 +471,9 @@ void FLEXIO_SPI_MasterSetBaudRate(FLEXIO_SPI_Type *base, uint32_t baudRate_Bps, 
  */
 static inline void FLEXIO_SPI_WriteData(FLEXIO_SPI_Type *base, flexio_spi_shift_direction_t direction, uint16_t data)
 {
-    if (direction == kFLEXIO_SPI_MsbFirst)
-    {
+    if (direction == kFLEXIO_SPI_MsbFirst) {
         base->flexioBase->SHIFTBUFBBS[base->shifterIndex[0]] = data;
-    }
-    else
-    {
+    } else {
         base->flexioBase->SHIFTBUF[base->shifterIndex[0]] = data;
     }
 }
@@ -515,12 +490,9 @@ static inline void FLEXIO_SPI_WriteData(FLEXIO_SPI_Type *base, flexio_spi_shift_
  */
 static inline uint16_t FLEXIO_SPI_ReadData(FLEXIO_SPI_Type *base, flexio_spi_shift_direction_t direction)
 {
-    if (direction == kFLEXIO_SPI_MsbFirst)
-    {
+    if (direction == kFLEXIO_SPI_MsbFirst) {
         return base->flexioBase->SHIFTBUFBIS[base->shifterIndex[1]];
-    }
-    else
-    {
+    } else {
         return base->flexioBase->SHIFTBUFBYS[base->shifterIndex[1]];
     }
 }

@@ -88,7 +88,7 @@ static const PinMap PinMap_ADC[] = {
     {A1_3, ADC0_9,  0},
     {A1_4, ADC0_10, 0},
     {A1_5, ADC0_11, 0},
-    {NC  , NC,      0}
+    {NC, NC,      0}
 };
 
 /* mbed OS gpio_t structure for the CS pin linked to the ADC */

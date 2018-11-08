@@ -40,9 +40,9 @@
 #include "clkman_regs.h"
 #include "PeripheralPins.h"
 
-#define DEFAULT_CHAR	8
-#define DEFAULT_MODE	0
-#define DEFAULT_FREQ 	1000000
+#define DEFAULT_CHAR    8
+#define DEFAULT_MODE    0
+#define DEFAULT_FREQ    1000000
 
 // Formatting settings
 static int spi_bits;
@@ -60,7 +60,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_cntl;
 
     // Give the application the option to manually control Slave Select
-    if((SPIName)spi_ssel != (SPIName)NC) {
+    if ((SPIName)spi_ssel != (SPIName)NC) {
         spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
     } else {
         spi_cntl = spi_sclk;
@@ -71,7 +71,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     MBED_ASSERT((SPIName)spi != (SPIName)NC);
 
     // Set the obj pointer to the proper SPI Instance
-    obj->spi = (mxc_spi_regs_t*)spi;
+    obj->spi = (mxc_spi_regs_t *)spi;
 
     // Set the SPI index and FIFOs
     obj->index = MXC_SPI_BASE_TO_INSTANCE(obj->spi);
@@ -87,7 +87,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     // Enable SPI and FIFOs
     obj->spi->gen_ctrl = (MXC_F_SPI_GEN_CTRL_SPI_MSTR_EN |
                           MXC_F_SPI_GEN_CTRL_TX_FIFO_EN |
-                          MXC_F_SPI_GEN_CTRL_RX_FIFO_EN );
+                          MXC_F_SPI_GEN_CTRL_RX_FIFO_EN);
 }
 
 //******************************************************************************
@@ -112,12 +112,12 @@ void spi_frequency(spi_t *obj, int hz)
 {
     // Maximum frequency is half the system frequency
     MBED_ASSERT((unsigned int)hz <= (SystemCoreClock / 2));
-    unsigned clocks = ((SystemCoreClock/2)/(hz));
+    unsigned clocks = ((SystemCoreClock / 2) / (hz));
 
     // Figure out the divider ratio
     int clk_div = 1;
-    while(clk_div < 10) {
-        if(clocks < 0x10) {
+    while (clk_div < 10) {
+        if (clocks < 0x10) {
             break;
         }
         clk_div++;
@@ -125,11 +125,11 @@ void spi_frequency(spi_t *obj, int hz)
     }
 
     // Turn on the SPI clock
-    if(obj->index == 0) {
+    if (obj->index == 0) {
         MXC_CLKMAN->clk_ctrl_3_spi0 = clk_div;
-    } else if(obj->index == 1) {
+    } else if (obj->index == 1) {
         MXC_CLKMAN->clk_ctrl_4_spi1 = clk_div;
-    } else if(obj->index == 2) {
+    } else if (obj->index == 2) {
         MXC_CLKMAN->clk_ctrl_5_spi2 = clk_div;
     } else {
         MBED_ASSERT(0);
@@ -137,18 +137,18 @@ void spi_frequency(spi_t *obj, int hz)
 
     // Set the number of clocks to hold sclk high and low
     MXC_SET_FIELD(&obj->spi->mstr_cfg, (MXC_F_SPI_MSTR_CFG_SCK_HI_CLK | MXC_F_SPI_MSTR_CFG_SCK_LO_CLK),
-        ((clocks << MXC_F_SPI_MSTR_CFG_SCK_HI_CLK_POS) | (clocks << MXC_F_SPI_MSTR_CFG_SCK_LO_CLK_POS)));
+                  ((clocks << MXC_F_SPI_MSTR_CFG_SCK_HI_CLK_POS) | (clocks << MXC_F_SPI_MSTR_CFG_SCK_LO_CLK_POS)));
 }
 
 //******************************************************************************
 int spi_master_write(spi_t *obj, int value)
 {
     int bits = spi_bits;
-    if(spi_bits == 32) {
+    if (spi_bits == 32) {
         bits = 0;
     }
     // Create the header
-    uint16_t header = ((0x3 << MXC_F_SPI_FIFO_DIR_POS ) |  // TX and RX
+    uint16_t header = ((0x3 << MXC_F_SPI_FIFO_DIR_POS) |   // TX and RX
                        (0x0 << MXC_F_SPI_FIFO_UNIT_POS) | // Send bits
                        (bits << MXC_F_SPI_FIFO_SIZE_POS) | // Number of units
                        (0x1 << MXC_F_SPI_FIFO_DASS_POS));      // Deassert SS
@@ -157,7 +157,7 @@ int spi_master_write(spi_t *obj, int value)
     obj->txfifo->txfifo_16 = header;
 
     // Send the data
-    if(spi_bits < 17) {
+    if (spi_bits < 17) {
         obj->txfifo->txfifo_16 = (uint16_t)value;
     } else {
         obj->txfifo->txfifo_32 = (uint32_t)value;
@@ -167,20 +167,21 @@ int spi_master_write(spi_t *obj, int value)
     bits = spi_bits;
     int result = 0;
     int i = 0;
-    while(bits > 0) {
+    while (bits > 0) {
         // Wait for data
-        while(((obj->spi->fifo_ctrl & MXC_F_SPI_FIFO_CTRL_RX_FIFO_USED)
+        while (((obj->spi->fifo_ctrl & MXC_F_SPI_FIFO_CTRL_RX_FIFO_USED)
                 >> MXC_F_SPI_FIFO_CTRL_RX_FIFO_USED_POS) < 1) {}
 
-        result |= (obj->rxfifo->rxfifo_8 << (i++*8));
-        bits-=8;
+        result |= (obj->rxfifo->rxfifo_8 << (i++ * 8));
+        bits -= 8;
     }
 
     return result;
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {

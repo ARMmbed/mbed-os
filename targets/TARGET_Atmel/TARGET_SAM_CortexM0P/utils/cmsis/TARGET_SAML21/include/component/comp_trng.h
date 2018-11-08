@@ -60,11 +60,11 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  :1;               /*!< bit:      0  Reserved                           */
-        uint8_t  ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint8_t  :4;               /*!< bit:  2.. 5  Reserved                           */
-        uint8_t  RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-        uint8_t  :1;               /*!< bit:      7  Reserved                           */
+        uint8_t  : 1;              /*!< bit:      0  Reserved                           */
+        uint8_t  ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint8_t  : 4;              /*!< bit:  2.. 5  Reserved                           */
+        uint8_t  RUNSTDBY: 1;      /*!< bit:      6  Run in Standby                     */
+        uint8_t  : 1;              /*!< bit:      7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TRNG_CTRLA_Type;
@@ -83,8 +83,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DATARDYEO:1;      /*!< bit:      0  Data Ready Event Output            */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  DATARDYEO: 1;     /*!< bit:      0  Data Ready Event Output            */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TRNG_EVCTRL_Type;
@@ -101,8 +101,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DATARDY:1;        /*!< bit:      0  Data Ready Interrupt Enable        */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  DATARDY: 1;       /*!< bit:      0  Data Ready Interrupt Enable        */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TRNG_INTENCLR_Type;
@@ -119,8 +119,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DATARDY:1;        /*!< bit:      0  Data Ready Interrupt Enable        */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  DATARDY: 1;       /*!< bit:      0  Data Ready Interrupt Enable        */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TRNG_INTENSET_Type;
@@ -137,8 +137,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DATARDY:1;        /*!< bit:      0  Data Ready Interrupt Flag          */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  DATARDY: 1;       /*!< bit:      0  Data Ready Interrupt Flag          */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TRNG_INTFLAG_Type;
@@ -155,7 +155,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t DATA:32;          /*!< bit:  0..31  Output Data                        */
+        uint32_t DATA: 32;         /*!< bit:  0..31  Output Data                        */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TRNG_DATA_Type;

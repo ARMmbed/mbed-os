@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #include "sdk_common.h"
@@ -106,8 +106,7 @@ INTERRUPT_PRIORITY_VALIDATION(GPIOTE_CONFIG_IRQ_PRIORITY);
 #endif // defined(GPIOTE_FEATURE_CLR_PRESENT) || defined(__SDK_DOXYGEN__)
 
 /*lint -save -e661*/
-typedef struct
-{
+typedef struct {
     nrf_drv_gpiote_evt_handler_t handlers[GPIOTE_CH_NUM + GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS];
     int8_t                       pin_assignments[NUMBER_OF_PINS];
     int8_t                       port_handlers_pins[GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS];
@@ -154,8 +153,7 @@ __STATIC_INLINE void pin_in_use_by_te_set(uint32_t                     pin,
 {
     m_cb.pin_assignments[pin] = channel_id;
     m_cb.handlers[channel_id] = handler;
-    if (!is_channel)
-    {
+    if (!is_channel) {
         m_cb.port_handlers_pins[channel_id - GPIOTE_CH_NUM] = (int8_t)pin;
     }
 }
@@ -196,10 +194,8 @@ static int8_t channel_port_alloc(uint32_t pin, nrf_drv_gpiote_evt_handler_t hand
 
     // critical section
 
-    for (i = start_idx; i < end_idx; i++)
-    {
-        if (m_cb.handlers[i] == FORBIDDEN_HANDLER_ADDRESS)
-        {
+    for (i = start_idx; i < end_idx; i++) {
+        if (m_cb.handlers[i] == FORBIDDEN_HANDLER_ADDRESS) {
             pin_in_use_by_te_set(pin, i, handler, channel);
             channel_id = i;
             break;
@@ -213,8 +209,7 @@ static int8_t channel_port_alloc(uint32_t pin, nrf_drv_gpiote_evt_handler_t hand
 static void channel_free(uint8_t channel_id)
 {
     m_cb.handlers[channel_id] = FORBIDDEN_HANDLER_ADDRESS;
-    if (channel_id >= GPIOTE_CH_NUM)
-    {
+    if (channel_id >= GPIOTE_CH_NUM) {
         m_cb.port_handlers_pins[channel_id - GPIOTE_CH_NUM] = (int8_t)PIN_NOT_USED;
     }
 }
@@ -224,8 +219,7 @@ ret_code_t nrf_drv_gpiote_init(void)
 {
     ret_code_t err_code;
 
-    if (m_cb.state != NRF_DRV_STATE_UNINITIALIZED)
-    {
+    if (m_cb.state != NRF_DRV_STATE_UNINITIALIZED) {
         err_code = NRF_ERROR_INVALID_STATE;
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n",
                         (uint32_t)__func__,
@@ -235,13 +229,11 @@ ret_code_t nrf_drv_gpiote_init(void)
 
     uint8_t i;
 
-    for (i = 0; i < NUMBER_OF_PINS; i++)
-    {
+    for (i = 0; i < NUMBER_OF_PINS; i++) {
         pin_in_use_clear(i);
     }
 
-    for (i = 0; i < (GPIOTE_CH_NUM + GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS); i++)
-    {
+    for (i = 0; i < (GPIOTE_CH_NUM + GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS); i++) {
         channel_free(i);
     }
 
@@ -269,14 +261,10 @@ void nrf_drv_gpiote_uninit(void)
 
     uint32_t i;
 
-    for (i = 0; i < NUMBER_OF_PINS; i++)
-    {
-        if (pin_in_use_as_non_task_out(i))
-        {
+    for (i = 0; i < NUMBER_OF_PINS; i++) {
+        if (pin_in_use_as_non_task_out(i)) {
             nrf_drv_gpiote_out_uninit(i);
-        }
-        else if ( pin_in_use_by_gpiote(i))
-        {
+        } else if (pin_in_use_by_gpiote(i)) {
             /* Disable gpiote_in is having the same effect on out pin as gpiote_out_uninit on
              * so it can be called on all pins used by GPIOTE.
              */
@@ -289,7 +277,7 @@ void nrf_drv_gpiote_uninit(void)
 
 
 ret_code_t nrf_drv_gpiote_out_init(nrf_drv_gpiote_pin_t                pin,
-                                   nrf_drv_gpiote_out_config_t const * p_config)
+                                   nrf_drv_gpiote_out_config_t const *p_config)
 {
     ASSERT(pin < NUMBER_OF_PINS);
     ASSERT(m_cb.state == NRF_DRV_STATE_INITIALIZED);
@@ -297,38 +285,25 @@ ret_code_t nrf_drv_gpiote_out_init(nrf_drv_gpiote_pin_t                pin,
 
     ret_code_t err_code = NRF_SUCCESS;
 
-    if (pin_in_use(pin))
-    {
+    if (pin_in_use(pin)) {
         err_code = NRF_ERROR_INVALID_STATE;
-    }
-    else
-    {
-        if (p_config->task_pin)
-        {
+    } else {
+        if (p_config->task_pin) {
             int8_t channel = channel_port_alloc(pin, NULL, true);
 
-            if (channel != NO_CHANNELS)
-            {
+            if (channel != NO_CHANNELS) {
                 nrf_gpiote_task_configure(channel, pin, p_config->action, p_config->init_state);
-            }
-            else
-            {
+            } else {
                 err_code = NRF_ERROR_NO_MEM;
             }
-        }
-        else
-        {
+        } else {
             pin_in_use_set(pin);
         }
 
-        if (err_code == NRF_SUCCESS)
-        {
-            if (p_config->init_state == NRF_GPIOTE_INITIAL_VALUE_HIGH)
-            {
+        if (err_code == NRF_SUCCESS) {
+            if (p_config->init_state == NRF_GPIOTE_INITIAL_VALUE_HIGH) {
                 nrf_gpio_pin_set(pin);
-            }
-            else
-            {
+            } else {
                 nrf_gpio_pin_clear(pin);
             }
 
@@ -347,8 +322,7 @@ void nrf_drv_gpiote_out_uninit(nrf_drv_gpiote_pin_t pin)
     ASSERT(pin < NUMBER_OF_PINS);
     ASSERT(pin_in_use(pin));
 
-    if (pin_in_use_by_te(pin))
-    {
+    if (pin_in_use_by_te(pin)) {
         channel_free((uint8_t)channel_port_get(pin));
         nrf_gpiote_te_default(channel_port_get(pin));
     }
@@ -496,43 +470,31 @@ void nrf_drv_gpiote_clr_task_trigger(nrf_drv_gpiote_pin_t pin)
 #endif // defined(GPIOTE_FEATURE_CLR_PRESENT)
 
 ret_code_t nrf_drv_gpiote_in_init(nrf_drv_gpiote_pin_t               pin,
-                                  nrf_drv_gpiote_in_config_t const * p_config,
+                                  nrf_drv_gpiote_in_config_t const *p_config,
                                   nrf_drv_gpiote_evt_handler_t       evt_handler)
 {
     ASSERT(pin < NUMBER_OF_PINS);
     ret_code_t err_code = NRF_SUCCESS;
 
     /* Only one GPIOTE channel can be assigned to one physical pin. */
-    if (pin_in_use_by_gpiote(pin))
-    {
+    if (pin_in_use_by_gpiote(pin)) {
         err_code = NRF_ERROR_INVALID_STATE;
-    }
-    else
-    {
+    } else {
         int8_t channel = channel_port_alloc(pin, evt_handler, p_config->hi_accuracy);
-        if (channel != NO_CHANNELS)
-        {
-            if (p_config->is_watcher)
-            {
+        if (channel != NO_CHANNELS) {
+            if (p_config->is_watcher) {
                 nrf_gpio_cfg_watcher(pin);
-            }
-            else
-            {
+            } else {
                 nrf_gpio_cfg_input(pin, p_config->pull);
             }
 
-            if (p_config->hi_accuracy)
-            {
+            if (p_config->hi_accuracy) {
                 nrf_gpiote_event_configure(channel, pin, p_config->sense);
-            }
-            else
-            {
+            } else {
                 m_cb.port_handlers_pins[channel -
-                                        GPIOTE_CH_NUM] |= (p_config->sense) << SENSE_FIELD_POS;
+                                                GPIOTE_CH_NUM] |= (p_config->sense) << SENSE_FIELD_POS;
             }
-        }
-        else
-        {
+        } else {
             err_code = NRF_ERROR_NO_MEM;
         }
     }
@@ -547,40 +509,32 @@ void nrf_drv_gpiote_in_event_enable(nrf_drv_gpiote_pin_t pin, bool int_enable)
 {
     ASSERT(pin < NUMBER_OF_PINS);
     ASSERT(pin_in_use_by_gpiote(pin));
-    if (pin_in_use_by_port(pin))
-    {
+    if (pin_in_use_by_port(pin)) {
         uint8_t pin_and_sense =
             m_cb.port_handlers_pins[channel_port_get(pin) - GPIOTE_CH_NUM];
         nrf_gpiote_polarity_t polarity =
             (nrf_gpiote_polarity_t)(pin_and_sense >> SENSE_FIELD_POS);
         nrf_gpio_pin_sense_t sense;
-        if (polarity == NRF_GPIOTE_POLARITY_TOGGLE)
-        {
+        if (polarity == NRF_GPIOTE_POLARITY_TOGGLE) {
             /* read current pin state and set for next sense to oposit */
             sense = (nrf_gpio_pin_read(pin)) ?
                     NRF_GPIO_PIN_SENSE_LOW : NRF_GPIO_PIN_SENSE_HIGH;
-        }
-        else
-        {
+        } else {
             sense = (polarity == NRF_GPIOTE_POLARITY_LOTOHI) ?
                     NRF_GPIO_PIN_SENSE_HIGH : NRF_GPIO_PIN_SENSE_LOW;
         }
         nrf_gpio_cfg_sense_set(pin, sense);
-    }
-    else if (pin_in_use_by_te(pin))
-    {
+    } else if (pin_in_use_by_te(pin)) {
         int32_t             channel = (int32_t)channel_port_get(pin);
         nrf_gpiote_events_t event   = TE_IDX_TO_EVENT_ADDR(channel);
 
         nrf_gpiote_event_enable(channel);
 
         nrf_gpiote_event_clear(event);
-        if (int_enable)
-        {
+        if (int_enable) {
             nrf_drv_gpiote_evt_handler_t handler = channel_handler_get(channel_port_get(pin));
             // Enable the interrupt only if event handler was provided.
-            if (handler)
-            {
+            if (handler) {
                 nrf_gpiote_int_enable(1 << channel);
             }
         }
@@ -592,12 +546,9 @@ void nrf_drv_gpiote_in_event_disable(nrf_drv_gpiote_pin_t pin)
 {
     ASSERT(pin < NUMBER_OF_PINS);
     ASSERT(pin_in_use_by_gpiote(pin));
-    if (pin_in_use_by_port(pin))
-    {
+    if (pin_in_use_by_port(pin)) {
         nrf_gpio_cfg_sense_set(pin, NRF_GPIO_PIN_NOSENSE);
-    }
-    else if (pin_in_use_by_te(pin))
-    {
+    } else if (pin_in_use_by_te(pin)) {
         int32_t channel = (int32_t)channel_port_get(pin);
         nrf_gpiote_event_disable(channel);
         nrf_gpiote_int_disable(1 << channel);
@@ -610,8 +561,7 @@ void nrf_drv_gpiote_in_uninit(nrf_drv_gpiote_pin_t pin)
     ASSERT(pin < NUMBER_OF_PINS);
     ASSERT(pin_in_use_by_gpiote(pin));
     nrf_drv_gpiote_in_event_disable(pin);
-    if (pin_in_use_by_te(pin))
-    {
+    if (pin_in_use_by_te(pin)) {
         nrf_gpiote_te_default(channel_port_get(pin));
     }
     nrf_gpio_cfg_default(pin);
@@ -634,8 +584,7 @@ uint32_t nrf_drv_gpiote_in_event_addr_get(nrf_drv_gpiote_pin_t pin)
 
     nrf_gpiote_events_t event = NRF_GPIOTE_EVENTS_PORT;
 
-    if (pin_in_use_by_te(pin))
-    {
+    if (pin_in_use_by_te(pin)) {
         event = TE_IDX_TO_EVENT_ADDR(channel_port_get(pin));
     }
     return nrf_gpiote_event_addr_get(event);
@@ -652,10 +601,8 @@ void GPIOTE_IRQHandler(void)
     nrf_gpiote_events_t event = NRF_GPIOTE_EVENTS_IN_0;
     uint32_t            mask  = (uint32_t)NRF_GPIOTE_INT_IN0_MASK;
 
-    for (i = 0; i < GPIOTE_CH_NUM; i++)
-    {
-        if (nrf_gpiote_event_is_set(event) && nrf_gpiote_int_is_enabled(mask))
-        {
+    for (i = 0; i < GPIOTE_CH_NUM; i++) {
+        if (nrf_gpiote_event_is_set(event) && nrf_gpiote_int_is_enabled(mask)) {
             nrf_gpiote_event_clear(event);
             status |= mask;
         }
@@ -667,29 +614,24 @@ void GPIOTE_IRQHandler(void)
 
     /* collect PORT status event, if event is set read pins state. Processing is postponed to the
      * end of interrupt. */
-    if (nrf_gpiote_event_is_set(NRF_GPIOTE_EVENTS_PORT))
-    {
+    if (nrf_gpiote_event_is_set(NRF_GPIOTE_EVENTS_PORT)) {
         nrf_gpiote_event_clear(NRF_GPIOTE_EVENTS_PORT);
         status |= (uint32_t)NRF_GPIOTE_INT_PORT_MASK;
         nrf_gpio_ports_read(0, GPIO_COUNT, input);
     }
 
     /* Process pin events. */
-    if (status & NRF_GPIOTE_INT_IN_MASK)
-    {
+    if (status & NRF_GPIOTE_INT_IN_MASK) {
         mask = (uint32_t)NRF_GPIOTE_INT_IN0_MASK;
 
-        for (i = 0; i < GPIOTE_CH_NUM; i++)
-        {
-            if (mask & status)
-            {
+        for (i = 0; i < GPIOTE_CH_NUM; i++) {
+            if (mask & status) {
                 nrf_drv_gpiote_pin_t pin = nrf_gpiote_event_pin_get(i);
                 NRF_LOG_DEBUG("Event in number: %d.\r\n", i);
                 nrf_gpiote_polarity_t        polarity = nrf_gpiote_event_polarity_get(i);
                 nrf_drv_gpiote_evt_handler_t handler  = channel_handler_get(i);
                 NRF_LOG_DEBUG("Pin: %d, polarity: %d.\r\n", pin, polarity);
-                if (handler)
-                {
+                if (handler) {
                     handler(pin, polarity);
                 }
             }
@@ -697,8 +639,7 @@ void GPIOTE_IRQHandler(void)
         }
     }
 
-    if (status & (uint32_t)NRF_GPIOTE_INT_PORT_MASK)
-    {
+    if (status & (uint32_t)NRF_GPIOTE_INT_PORT_MASK) {
         /* Process port event. */
         uint32_t port_idx;
         uint8_t  repeat                  = 0;
@@ -706,43 +647,35 @@ void GPIOTE_IRQHandler(void)
         uint32_t pins_to_check[GPIO_COUNT];
 
         // Faster way of doing memset because in interrupt context.
-        for (port_idx = 0; port_idx < GPIO_COUNT; port_idx++)
-        {
+        for (port_idx = 0; port_idx < GPIO_COUNT; port_idx++) {
             pins_to_check[port_idx] = 0xFFFFFFFF;
         }
 
-        do
-        {
+        do {
             repeat = 0;
 
-            for (i = 0; i < GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS; i++)
-            {
+            for (i = 0; i < GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS; i++) {
                 uint8_t              pin_and_sense = m_cb.port_handlers_pins[i];
                 nrf_drv_gpiote_pin_t pin           = (pin_and_sense & ~SENSE_FIELD_MASK);
 
                 if ((m_cb.port_handlers_pins[i] != PIN_NOT_USED)
-                    && nrf_bitmask_bit_is_set(pin, pins_to_check))
-                {
+                        && nrf_bitmask_bit_is_set(pin, pins_to_check)) {
                     nrf_gpiote_polarity_t polarity =
                         (nrf_gpiote_polarity_t)((pin_and_sense &
                                                  SENSE_FIELD_MASK) >> SENSE_FIELD_POS);
                     nrf_drv_gpiote_evt_handler_t handler =
                         channel_handler_get(channel_port_get(pin));
-                    if (handler || (polarity == NRF_GPIOTE_POLARITY_TOGGLE))
-                    {
-                        if (polarity == NRF_GPIOTE_POLARITY_TOGGLE)
-                        {
+                    if (handler || (polarity == NRF_GPIOTE_POLARITY_TOGGLE)) {
+                        if (polarity == NRF_GPIOTE_POLARITY_TOGGLE) {
                             nrf_bitmask_bit_set(pin, toggle_mask);
                         }
                         nrf_gpio_pin_sense_t sense     = nrf_gpio_pin_sense_get(pin);
                         uint32_t             pin_state = nrf_bitmask_bit_is_set(pin, input);
                         if ((pin_state && (sense == NRF_GPIO_PIN_SENSE_HIGH)) ||
-                            (!pin_state && (sense == NRF_GPIO_PIN_SENSE_LOW))  )
-                        {
+                                (!pin_state && (sense == NRF_GPIO_PIN_SENSE_LOW))) {
                             NRF_LOG_DEBUG("PORT event for pin: %d, polarity: %d.\r\n", pin,
                                           polarity);
-                            if (polarity == NRF_GPIOTE_POLARITY_TOGGLE)
-                            {
+                            if (polarity == NRF_GPIOTE_POLARITY_TOGGLE) {
                                 nrf_gpio_pin_sense_t next_sense =
                                     (sense == NRF_GPIO_PIN_SENSE_HIGH) ?
                                     NRF_GPIO_PIN_SENSE_LOW :
@@ -751,8 +684,7 @@ void GPIOTE_IRQHandler(void)
                                 ++repeat;
 
                             }
-                            if (handler)
-                            {
+                            if (handler) {
                                 handler(pin, polarity);
                             }
                         }
@@ -760,8 +692,7 @@ void GPIOTE_IRQHandler(void)
                 }
             }
 
-            if (repeat)
-            {
+            if (repeat) {
                 // When one of the pins in low-accuracy and toggle mode becomes active,
                 // it's sense mode is inverted to clear the internal SENSE signal.
                 // State of any other enabled low-accuracy input in toggle mode must be checked
@@ -773,32 +704,25 @@ void GPIOTE_IRQHandler(void)
                 nrf_gpio_ports_read(0, GPIO_COUNT, new_input);
 
                 // Faster way of doing memcmp because in interrupt context.
-                for (port_idx = 0; port_idx < GPIO_COUNT; port_idx++)
-                {
-                    if (new_input[port_idx] != input[port_idx])
-                    {
+                for (port_idx = 0; port_idx < GPIO_COUNT; port_idx++) {
+                    if (new_input[port_idx] != input[port_idx]) {
                         input_unchanged = false;
                         break;
                     }
                 }
 
-                if (input_unchanged)
-                {
+                if (input_unchanged) {
                     // No change.
                     repeat = 0;
-                }
-                else
-                {
+                } else {
                     // Faster way of doing memcpy because in interrupt context.
-                    for (port_idx = 0; port_idx < GPIO_COUNT; port_idx++)
-                    {
+                    for (port_idx = 0; port_idx < GPIO_COUNT; port_idx++) {
                         input[port_idx]         = new_input[port_idx];
                         pins_to_check[port_idx] = toggle_mask[port_idx];
                     }
                 }
             }
-        }
-        while (repeat);
+        } while (repeat);
     }
 }
 

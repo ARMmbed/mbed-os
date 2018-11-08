@@ -22,7 +22,7 @@
 //
 //}
 
-// Change the NMI pin to an input. This allows NMI pin to 
+// Change the NMI pin to an input. This allows NMI pin to
 //  be used as a low power mode wakeup.  The application will
 //  need to change the pin back to NMI_b or wakeup only occurs once!
 void NMI_Handler(void)

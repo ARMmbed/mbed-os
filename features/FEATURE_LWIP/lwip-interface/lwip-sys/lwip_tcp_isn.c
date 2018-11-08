@@ -104,13 +104,13 @@ static u32_t base_time;
 void
 lwip_init_tcp_isn(u32_t boot_time, const u8_t *secret_16_bytes)
 {
-  /* Initialize the input buffer with the secret and trailing zeroes. */
-  memset(input, 0, sizeof(input));
+    /* Initialize the input buffer with the secret and trailing zeroes. */
+    memset(input, 0, sizeof(input));
 
-  MEMCPY(&input[36], secret_16_bytes, 16);
+    MEMCPY(&input[36], secret_16_bytes, 16);
 
-  /* Save the boot time in 4-us units. Overflow is no problem here. */
-  base_time = boot_time * 250000;
+    /* Save the boot time in 4-us units. Overflow is no problem here. */
+    base_time = boot_time * 250000;
 }
 
 /**
@@ -125,66 +125,66 @@ lwip_init_tcp_isn(u32_t boot_time, const u8_t *secret_16_bytes)
 
 u32_t
 lwip_hook_tcp_isn(const void *local_ip_ptr, u16_t local_port,
-        const void *remote_ip_ptr, u16_t remote_port)
+                  const void *remote_ip_ptr, u16_t remote_port)
 {
-  lwip_md5_context ctx;
-  u8_t output[16];
-  u32_t isn;
-  const ip_addr_t *local_ip = local_ip_ptr;
-  const ip_addr_t *remote_ip = remote_ip_ptr;
+    lwip_md5_context ctx;
+    u8_t output[16];
+    u32_t isn;
+    const ip_addr_t *local_ip = local_ip_ptr;
+    const ip_addr_t *remote_ip = remote_ip_ptr;
 
 #if LWIP_IPV4 && LWIP_IPV6
-  if (IP_IS_V6(local_ip))
+    if (IP_IS_V6(local_ip))
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
 #if LWIP_IPV6
-  {
-    const ip6_addr_t *local_ip6, *remote_ip6;
+    {
+        const ip6_addr_t *local_ip6, *remote_ip6;
 
-    local_ip6  = ip_2_ip6(local_ip);
-    remote_ip6 = ip_2_ip6(remote_ip);
+        local_ip6  = ip_2_ip6(local_ip);
+        remote_ip6 = ip_2_ip6(remote_ip);
 
-    SMEMCPY(&input[0],  &local_ip6->addr,  16);
-    SMEMCPY(&input[16], &remote_ip6->addr, 16);
-  }
+        SMEMCPY(&input[0],  &local_ip6->addr,  16);
+        SMEMCPY(&input[16], &remote_ip6->addr, 16);
+    }
 #endif /* LWIP_IPV6 */
 #if LWIP_IPV4 && LWIP_IPV6
-  else
+    else
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
 #if LWIP_IPV4
-  {
-    const ip4_addr_t *local_ip4, *remote_ip4;
+    {
+        const ip4_addr_t *local_ip4, *remote_ip4;
 
-    local_ip4  = ip_2_ip4(local_ip);
-    remote_ip4 = ip_2_ip4(remote_ip);
+        local_ip4  = ip_2_ip4(local_ip);
+        remote_ip4 = ip_2_ip4(remote_ip);
 
-    /* Represent IPv4 addresses as IPv4-mapped IPv6 addresses, to ensure that
-     * the IPv4 and IPv6 address spaces are completely disjoint. */
-    memset(&input[0], 0, 10);
-    input[10] = 0xff;
-    input[11] = 0xff;
-    SMEMCPY(&input[12], &local_ip4->addr, 4);
-    memset(&input[16], 0, 10);
-    input[26] = 0xff;
-    input[27] = 0xff;
-    SMEMCPY(&input[28], &remote_ip4->addr, 4);
-  }
+        /* Represent IPv4 addresses as IPv4-mapped IPv6 addresses, to ensure that
+         * the IPv4 and IPv6 address spaces are completely disjoint. */
+        memset(&input[0], 0, 10);
+        input[10] = 0xff;
+        input[11] = 0xff;
+        SMEMCPY(&input[12], &local_ip4->addr, 4);
+        memset(&input[16], 0, 10);
+        input[26] = 0xff;
+        input[27] = 0xff;
+        SMEMCPY(&input[28], &remote_ip4->addr, 4);
+    }
 #endif /* LWIP_IPV4 */
 
-  input[32] = local_port >> 8;
-  input[33] = local_port & 0xff;
-  input[34] = remote_port >> 8;
-  input[35] = remote_port & 0xff;
+    input[32] = local_port >> 8;
+    input[33] = local_port & 0xff;
+    input[34] = remote_port >> 8;
+    input[35] = remote_port & 0xff;
 
-  /* The secret and padding are already filled in. */
+    /* The secret and padding are already filled in. */
 
-  /* Generate the hash, using MD5. */
-  lwip_md5_starts(&ctx);
-  lwip_md5_update(&ctx, input, sizeof(input));
-  lwip_md5_finish(&ctx, output);
+    /* Generate the hash, using MD5. */
+    lwip_md5_starts(&ctx);
+    lwip_md5_update(&ctx, input, sizeof(input));
+    lwip_md5_finish(&ctx, output);
 
-  /* Arbitrarily take the first 32 bits from the generated hash. */
-  MEMCPY(&isn, output, sizeof(isn));
+    /* Arbitrarily take the first 32 bits from the generated hash. */
+    MEMCPY(&isn, output, sizeof(isn));
 
-  /* Add the current time in 4-microsecond units. */
-  return isn + base_time + sys_now() * 250;
+    /* Add the current time in 4-microsecond units. */
+    return isn + base_time + sys_now() * 250;
 }

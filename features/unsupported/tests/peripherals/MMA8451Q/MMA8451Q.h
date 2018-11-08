@@ -44,64 +44,63 @@
 *    }
 * }
 */
-class MMA8451Q
-{
+class MMA8451Q {
 public:
-  /**
-  * MMA8451Q constructor
-  *
-  * @param sda SDA pin
-  * @param sdl SCL pin
-  * @param addr addr of the I2C peripheral
-  */
-  MMA8451Q(PinName sda, PinName scl, int addr);
+    /**
+    * MMA8451Q constructor
+    *
+    * @param sda SDA pin
+    * @param sdl SCL pin
+    * @param addr addr of the I2C peripheral
+    */
+    MMA8451Q(PinName sda, PinName scl, int addr);
 
-  /**
-  * MMA8451Q destructor
-  */
-  ~MMA8451Q();
+    /**
+    * MMA8451Q destructor
+    */
+    ~MMA8451Q();
 
-  /**
-   * Get the value of the WHO_AM_I register
-   *
-   * @returns WHO_AM_I value
-   */
-  uint8_t getWhoAmI();
+    /**
+     * Get the value of the WHO_AM_I register
+     *
+     * @returns WHO_AM_I value
+     */
+    uint8_t getWhoAmI();
 
-  /**
-   * Get X axis acceleration
-   *
-   * @returns X axis acceleration
-   */
-  int16_t getAccX();
+    /**
+     * Get X axis acceleration
+     *
+     * @returns X axis acceleration
+     */
+    int16_t getAccX();
 
-  /**
-   * Get Y axis acceleration
-   *
-   * @returns Y axis acceleration
-   */
-  int16_t getAccY();
+    /**
+     * Get Y axis acceleration
+     *
+     * @returns Y axis acceleration
+     */
+    int16_t getAccY();
 
-  /**
-   * Get Z axis acceleration
-   *
-   * @returns Z axis acceleration
-   */
-  int16_t getAccZ();
+    /**
+     * Get Z axis acceleration
+     *
+     * @returns Z axis acceleration
+     */
+    int16_t getAccZ();
 
-  /**
-   * Get XYZ axis acceleration
-   *
-   * @param res array where acceleration data will be stored
-   */
-  void getAccAllAxis(int16_t * res);
+    /**
+     * Get XYZ axis acceleration
+     *
+     * @param res array where acceleration data will be stored
+     */
+    void getAccAllAxis(int16_t *res);
 
 private:
-  I2C m_i2c;
-  int m_addr;
-  void readRegs(int addr, uint8_t * data, int len);
-  void writeRegs(uint8_t * data, int len);
-  int16_t getAccAxis(uint8_t addr);
+    I2C m_i2c;
+    int m_addr;
+    void readRegs(int addr, uint8_t *data, int len);
+    void writeRegs(uint8_t *data, int len);
+    int16_t getAccAxis(uint8_t addr);
 
 };
 

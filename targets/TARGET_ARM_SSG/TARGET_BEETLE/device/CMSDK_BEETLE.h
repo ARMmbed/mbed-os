@@ -24,71 +24,70 @@
 #define CMSDK_BEETLE_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 
 /* -------------------------  Interrupt Number Definition  ------------------------ */
 
-typedef enum IRQn
-{
-/* -------------------  Cortex-M3 Processor Exceptions Numbers  ------------------- */
-  NonMaskableInt_IRQn           = -14,        /*  2 Non Maskable Interrupt          */
-  HardFault_IRQn                = -13,        /*  3 HardFault Interrupt             */
-  MemoryManagement_IRQn         = -12,        /*  4 Memory Management Interrupt     */
-  BusFault_IRQn                 = -11,        /*  5 Bus Fault Interrupt             */
-  UsageFault_IRQn               = -10,        /*  6 Usage Fault Interrupt           */
-  SVCall_IRQn                   =  -5,        /* 11 SV Call Interrupt               */
-  DebugMonitor_IRQn             =  -4,        /* 12 Debug Monitor Interrupt         */
-  PendSV_IRQn                   =  -2,        /* 14 Pend SV Interrupt               */
-  SysTick_IRQn                  =  -1,        /* 15 System Tick Interrupt           */
+typedef enum IRQn {
+    /* -------------------  Cortex-M3 Processor Exceptions Numbers  ------------------- */
+    NonMaskableInt_IRQn           = -14,        /*  2 Non Maskable Interrupt          */
+    HardFault_IRQn                = -13,        /*  3 HardFault Interrupt             */
+    MemoryManagement_IRQn         = -12,        /*  4 Memory Management Interrupt     */
+    BusFault_IRQn                 = -11,        /*  5 Bus Fault Interrupt             */
+    UsageFault_IRQn               = -10,        /*  6 Usage Fault Interrupt           */
+    SVCall_IRQn                   =  -5,        /* 11 SV Call Interrupt               */
+    DebugMonitor_IRQn             =  -4,        /* 12 Debug Monitor Interrupt         */
+    PendSV_IRQn                   =  -2,        /* 14 Pend SV Interrupt               */
+    SysTick_IRQn                  =  -1,        /* 15 System Tick Interrupt           */
 
-/* ---------------------  CMSDK_BEETLE Specific Interrupt Numbers  ---------------- */
-  UART0_IRQn                    = 0,       /* UART 0 RX and TX Combined Interrupt   */
-  Spare_IRQn                    = 1,       /* Undefined                             */
-  UART1_IRQn                    = 2,       /* UART 1 RX and TX Combined Interrupt   */
-  I2C0_IRQn                     = 3,       /* I2C 0 Interrupt                       */
-  I2C1_IRQn                     = 4,       /* I2C 1 Interrupt                       */
-  RTC_IRQn                      = 5,       /* RTC Interrupt                         */
-  PORT0_ALL_IRQn                = 6,       /* GPIO Port 0 combined Interrupt        */
-  PORT1_ALL_IRQn                = 7,       /* GPIO Port 1 combined Interrupt        */
-  TIMER0_IRQn                   = 8,       /* TIMER 0 Interrupt                     */
-  TIMER1_IRQn                   = 9,       /* TIMER 1 Interrupt                     */
-  DUALTIMER_IRQn                = 10,      /* Dual Timer Interrupt                  */
-  SPI0_IRQn                     = 11,      /* SPI 0 Interrupt                       */
-  UARTOVF_IRQn                  = 12,      /* UART 0,1,2 Overflow Interrupt         */
-  SPI1_IRQn                     = 13,      /* SPI 1 Interrupt                       */
-  QSPI_IRQn                     = 14,      /* QUAD SPI Interrupt                    */
-  DMA_IRQn                      = 15,      /* Reserved for DMA Interrup		    */
-  PORT0_0_IRQn                  = 16,      /* All P0 I/O pins used as irq source    */
-  PORT0_1_IRQn                  = 17,      /* There are 16 pins in total            */
-  PORT0_2_IRQn                  = 18,
-  PORT0_3_IRQn                  = 19,
-  PORT0_4_IRQn                  = 20,
-  PORT0_5_IRQn                  = 21,
-  PORT0_6_IRQn                  = 22,
-  PORT0_7_IRQn                  = 23,
-  PORT0_8_IRQn                  = 24,
-  PORT0_9_IRQn                  = 25,
-  PORT0_10_IRQn                 = 26,
-  PORT0_11_IRQn                 = 27,
-  PORT0_12_IRQn                 = 28,
-  PORT0_13_IRQn                 = 29,
-  PORT0_14_IRQn                 = 30,
-  PORT0_15_IRQn                 = 31,
-  SYSERROR_IRQn                 = 32,      /* System Error Interrupt                */
-  EFLASH_IRQn                   = 33,      /* Embedded Flash Interrupt              */
-  LLCC_TXCMD_EMPTY_IRQn         = 34,      /* t.b.a                                 */
-  LLCC_TXEVT_EMPTY_IRQn         = 35,      /* t.b.a                                 */
-  LLCC_TXDMAH_DONE_IRQn         = 36,      /* t.b.a                                 */
-  LLCC_TXDMAL_DONE_IRQn         = 37,      /* t.b.a                                 */
-  LLCC_RXCMD_VALID_IRQn         = 38,      /* t.b.a                                 */
-  LLCC_RXEVT_VALID_IRQn         = 39,      /* t.b.a                                 */
-  LLCC_RXDMAH_DONE_IRQn         = 40,      /* t.b.a                                 */
-  LLCC_RXDMAL_DONE_IRQn         = 41,      /* t.b.a                                 */
-  PORT2_ALL_IRQn                = 42,      /* GPIO Port 2 combined Interrupt        */
-  PORT3_ALL_IRQn                = 43,      /* GPIO Port 3 combined Interrupt        */
-  TRNG_IRQn                     = 44,      /* Random number generator Interrupt     */
+    /* ---------------------  CMSDK_BEETLE Specific Interrupt Numbers  ---------------- */
+    UART0_IRQn                    = 0,       /* UART 0 RX and TX Combined Interrupt   */
+    Spare_IRQn                    = 1,       /* Undefined                             */
+    UART1_IRQn                    = 2,       /* UART 1 RX and TX Combined Interrupt   */
+    I2C0_IRQn                     = 3,       /* I2C 0 Interrupt                       */
+    I2C1_IRQn                     = 4,       /* I2C 1 Interrupt                       */
+    RTC_IRQn                      = 5,       /* RTC Interrupt                         */
+    PORT0_ALL_IRQn                = 6,       /* GPIO Port 0 combined Interrupt        */
+    PORT1_ALL_IRQn                = 7,       /* GPIO Port 1 combined Interrupt        */
+    TIMER0_IRQn                   = 8,       /* TIMER 0 Interrupt                     */
+    TIMER1_IRQn                   = 9,       /* TIMER 1 Interrupt                     */
+    DUALTIMER_IRQn                = 10,      /* Dual Timer Interrupt                  */
+    SPI0_IRQn                     = 11,      /* SPI 0 Interrupt                       */
+    UARTOVF_IRQn                  = 12,      /* UART 0,1,2 Overflow Interrupt         */
+    SPI1_IRQn                     = 13,      /* SPI 1 Interrupt                       */
+    QSPI_IRQn                     = 14,      /* QUAD SPI Interrupt                    */
+    DMA_IRQn                      = 15,      /* Reserved for DMA Interrup         */
+    PORT0_0_IRQn                  = 16,      /* All P0 I/O pins used as irq source    */
+    PORT0_1_IRQn                  = 17,      /* There are 16 pins in total            */
+    PORT0_2_IRQn                  = 18,
+    PORT0_3_IRQn                  = 19,
+    PORT0_4_IRQn                  = 20,
+    PORT0_5_IRQn                  = 21,
+    PORT0_6_IRQn                  = 22,
+    PORT0_7_IRQn                  = 23,
+    PORT0_8_IRQn                  = 24,
+    PORT0_9_IRQn                  = 25,
+    PORT0_10_IRQn                 = 26,
+    PORT0_11_IRQn                 = 27,
+    PORT0_12_IRQn                 = 28,
+    PORT0_13_IRQn                 = 29,
+    PORT0_14_IRQn                 = 30,
+    PORT0_15_IRQn                 = 31,
+    SYSERROR_IRQn                 = 32,      /* System Error Interrupt                */
+    EFLASH_IRQn                   = 33,      /* Embedded Flash Interrupt              */
+    LLCC_TXCMD_EMPTY_IRQn         = 34,      /* t.b.a                                 */
+    LLCC_TXEVT_EMPTY_IRQn         = 35,      /* t.b.a                                 */
+    LLCC_TXDMAH_DONE_IRQn         = 36,      /* t.b.a                                 */
+    LLCC_TXDMAL_DONE_IRQn         = 37,      /* t.b.a                                 */
+    LLCC_RXCMD_VALID_IRQn         = 38,      /* t.b.a                                 */
+    LLCC_RXEVT_VALID_IRQn         = 39,      /* t.b.a                                 */
+    LLCC_RXDMAH_DONE_IRQn         = 40,      /* t.b.a                                 */
+    LLCC_RXDMAL_DONE_IRQn         = 41,      /* t.b.a                                 */
+    PORT2_ALL_IRQn                = 42,      /* GPIO Port 2 combined Interrupt        */
+    PORT3_ALL_IRQn                = 43,      /* GPIO Port 3 combined Interrupt        */
+    TRNG_IRQn                     = 44,      /* Random number generator Interrupt     */
 } IRQn_Type;
 
 
@@ -113,26 +112,25 @@ typedef enum IRQn
 
 /* -------------------  Start of section using anonymous unions  ------------------ */
 #if defined ( __CC_ARM   )
-  #pragma push
+#pragma push
 #pragma anon_unions
 #elif defined(__ICCARM__)
-  #pragma language=extended
+#pragma language=extended
 #elif defined(__GNUC__)
-  /* anonymous unions are enabled by default */
+/* anonymous unions are enabled by default */
 #elif defined(__TMS470__)
 /* anonymous unions are enabled by default */
 #elif defined(__TASKING__)
-  #pragma warning 586
+#pragma warning 586
 #else
-  #warning Not supported compiler type
+#warning Not supported compiler type
 #endif
 
 /* ======================================================================== */
 /* ============               LLCC/DMAC v1                     ============ */
 /* ======================================================================== */
 
-typedef struct
-{
+typedef struct {
     __IO uint32_t BUF_STATE;  // +0x00
     __I  uint32_t STATUS;     // +0x00
     __IO uint32_t PTR_ADDR;   // +0x08
@@ -177,16 +175,14 @@ typedef struct
 #define DMAC_CHAN_IRQ_IDX       0
 #define DMAC_CHAN_ERR_IDX       1
 
-typedef struct
-{
+typedef struct {
     __I  uint32_t ID_MAIN;         // +0x0000
     __I  uint32_t ID_REV;         // +0x0004
     __I  uint32_t rsvd_0008[30];     // +0x0008
     __IO uint32_t STANDBY_CTRL;      // +0x0080
 } LLCC_CTL_TypeDef;
 
-typedef struct
-{
+typedef struct {
     __I  uint32_t CMD_DATA0;        // +0x2000
     __I  uint32_t CMD_DATA1;        // +0x2004
     __I  uint32_t rsvd_008[14];     // +0x2008
@@ -210,8 +206,7 @@ typedef struct
     __I  uint32_t rsvd_0e8[6];      // +0x20e8
 } LLCC_RXD_TypeDef;
 
-typedef struct
-{
+typedef struct {
     __IO uint32_t CMD_DATA0;        // +0x3000
     __IO uint32_t CMD_DATA1;        // +0x3004
     __I  uint32_t rsvd_008[14];     // +0x3008
@@ -265,16 +260,15 @@ typedef struct
 #define LLCC_EVT_IDX         LLCC_EVT1_IDX
 
 /*------------- Universal Asynchronous Receiver Transmitter (UART) -----------*/
-typedef struct
-{
-  __IO   uint32_t  DATA;                     /* Offset: 0x000 (R/W) Data Register    */
-  __IO   uint32_t  STATE;                    /* Offset: 0x004 (R/W) Status Register  */
-  __IO   uint32_t  CTRL;                     /* Offset: 0x008 (R/W) Control Register */
-  union {
-    __I    uint32_t  INTSTATUS;              /* Offset: 0x00C (R/ ) Interrupt Status Register */
-    __O    uint32_t  INTCLEAR;               /* Offset: 0x00C ( /W) Interrupt Clear Register  */
+typedef struct {
+    __IO   uint32_t  DATA;                     /* Offset: 0x000 (R/W) Data Register    */
+    __IO   uint32_t  STATE;                    /* Offset: 0x004 (R/W) Status Register  */
+    __IO   uint32_t  CTRL;                     /* Offset: 0x008 (R/W) Control Register */
+    union {
+        __I    uint32_t  INTSTATUS;              /* Offset: 0x00C (R/ ) Interrupt Status Register */
+        __O    uint32_t  INTCLEAR;               /* Offset: 0x00C ( /W) Interrupt Clear Register  */
     };
-  __IO   uint32_t  BAUDDIV;                  /* Offset: 0x010 (R/W) Baudrate Divider Register */
+    __IO   uint32_t  BAUDDIV;                  /* Offset: 0x010 (R/W) Baudrate Divider Register */
 
 } CMSDK_UART_TypeDef;
 
@@ -333,14 +327,13 @@ typedef struct
 
 
 /*----------------------------- Timer (TIMER) -------------------------------*/
-typedef struct
-{
-  __IO   uint32_t  CTRL;                     /* Offset: 0x000 (R/W) Control Register */
-  __IO   uint32_t  VALUE;                    /* Offset: 0x004 (R/W) Current Value Register */
-  __IO   uint32_t  RELOAD;                   /* Offset: 0x008 (R/W) Reload Value Register */
-  union {
-    __I    uint32_t  INTSTATUS;              /* Offset: 0x00C (R/ ) Interrupt Status Register */
-    __O    uint32_t  INTCLEAR;               /* Offset: 0x00C ( /W) Interrupt Clear Register */
+typedef struct {
+    __IO   uint32_t  CTRL;                     /* Offset: 0x000 (R/W) Control Register */
+    __IO   uint32_t  VALUE;                    /* Offset: 0x004 (R/W) Current Value Register */
+    __IO   uint32_t  RELOAD;                   /* Offset: 0x008 (R/W) Reload Value Register */
+    union {
+        __I    uint32_t  INTSTATUS;              /* Offset: 0x00C (R/ ) Interrupt Status Register */
+        __O    uint32_t  INTCLEAR;               /* Offset: 0x00C ( /W) Interrupt Clear Register */
     };
 
 } CMSDK_TIMER_TypeDef;
@@ -373,26 +366,25 @@ typedef struct
 
 
 /*------------- Timer (TIM) --------------------------------------------------*/
-typedef struct
-{
-  __IO uint32_t Timer1Load;                  /* Offset: 0x000 (R/W) Timer 1 Load */
-  __I  uint32_t Timer1Value;                 /* Offset: 0x004 (R/ ) Timer 1 Counter Current Value */
-  __IO uint32_t Timer1Control;               /* Offset: 0x008 (R/W) Timer 1 Control */
-  __O  uint32_t Timer1IntClr;                /* Offset: 0x00C ( /W) Timer 1 Interrupt Clear */
-  __I  uint32_t Timer1RIS;                   /* Offset: 0x010 (R/ ) Timer 1 Raw Interrupt Status */
-  __I  uint32_t Timer1MIS;                   /* Offset: 0x014 (R/ ) Timer 1 Masked Interrupt Status */
-  __IO uint32_t Timer1BGLoad;                /* Offset: 0x018 (R/W) Background Load Register */
-       uint32_t RESERVED0;
-  __IO uint32_t Timer2Load;                  /* Offset: 0x020 (R/W) Timer 2 Load */
-  __I  uint32_t Timer2Value;                 /* Offset: 0x024 (R/ ) Timer 2 Counter Current Value */
-  __IO uint32_t Timer2Control;               /* Offset: 0x028 (R/W) Timer 2 Control */
-  __O  uint32_t Timer2IntClr;                /* Offset: 0x02C ( /W) Timer 2 Interrupt Clear */
-  __I  uint32_t Timer2RIS;                   /* Offset: 0x030 (R/ ) Timer 2 Raw Interrupt Status */
-  __I  uint32_t Timer2MIS;                   /* Offset: 0x034 (R/ ) Timer 2 Masked Interrupt Status */
-  __IO uint32_t Timer2BGLoad;                /* Offset: 0x038 (R/W) Background Load Register */
-       uint32_t RESERVED1[945];
-  __IO uint32_t ITCR;                        /* Offset: 0xF00 (R/W) Integration Test Control Register */
-  __O  uint32_t ITOP;                        /* Offset: 0xF04 ( /W) Integration Test Output Set Register */
+typedef struct {
+    __IO uint32_t Timer1Load;                  /* Offset: 0x000 (R/W) Timer 1 Load */
+    __I  uint32_t Timer1Value;                 /* Offset: 0x004 (R/ ) Timer 1 Counter Current Value */
+    __IO uint32_t Timer1Control;               /* Offset: 0x008 (R/W) Timer 1 Control */
+    __O  uint32_t Timer1IntClr;                /* Offset: 0x00C ( /W) Timer 1 Interrupt Clear */
+    __I  uint32_t Timer1RIS;                   /* Offset: 0x010 (R/ ) Timer 1 Raw Interrupt Status */
+    __I  uint32_t Timer1MIS;                   /* Offset: 0x014 (R/ ) Timer 1 Masked Interrupt Status */
+    __IO uint32_t Timer1BGLoad;                /* Offset: 0x018 (R/W) Background Load Register */
+    uint32_t RESERVED0;
+    __IO uint32_t Timer2Load;                  /* Offset: 0x020 (R/W) Timer 2 Load */
+    __I  uint32_t Timer2Value;                 /* Offset: 0x024 (R/ ) Timer 2 Counter Current Value */
+    __IO uint32_t Timer2Control;               /* Offset: 0x028 (R/W) Timer 2 Control */
+    __O  uint32_t Timer2IntClr;                /* Offset: 0x02C ( /W) Timer 2 Interrupt Clear */
+    __I  uint32_t Timer2RIS;                   /* Offset: 0x030 (R/ ) Timer 2 Raw Interrupt Status */
+    __I  uint32_t Timer2MIS;                   /* Offset: 0x034 (R/ ) Timer 2 Masked Interrupt Status */
+    __IO uint32_t Timer2BGLoad;                /* Offset: 0x038 (R/W) Background Load Register */
+    uint32_t RESERVED1[945];
+    __IO uint32_t ITCR;                        /* Offset: 0xF00 (R/W) Integration Test Control Register */
+    __O  uint32_t ITOP;                        /* Offset: 0xF04 ( /W) Integration Test Output Set Register */
 } CMSDK_DUALTIMER_BOTH_TypeDef;
 
 #define CMSDK_DUALTIMER1_LOAD_Pos            0                                                /* CMSDK_DUALTIMER1 LOAD: LOAD Position */
@@ -468,15 +460,14 @@ typedef struct
 #define CMSDK_DUALTIMER2_BGLOAD_Msk          (0xFFFFFFFFul << CMSDK_DUALTIMER2_BGLOAD_Pos)    /* CMSDK_DUALTIMER2 BGLOAD: Background Load Mask */
 
 
-typedef struct
-{
-  __IO uint32_t TimerLoad;                   /* Offset: 0x000 (R/W) Timer Load */
-  __I  uint32_t TimerValue;                  /* Offset: 0x000 (R/W) Timer Counter Current Value */
-  __IO uint32_t TimerControl;                /* Offset: 0x000 (R/W) Timer Control */
-  __O  uint32_t TimerIntClr;                 /* Offset: 0x000 (R/W) Timer Interrupt Clear */
-  __I  uint32_t TimerRIS;                    /* Offset: 0x000 (R/W) Timer Raw Interrupt Status */
-  __I  uint32_t TimerMIS;                    /* Offset: 0x000 (R/W) Timer Masked Interrupt Status */
-  __IO uint32_t TimerBGLoad;                 /* Offset: 0x000 (R/W) Background Load Register */
+typedef struct {
+    __IO uint32_t TimerLoad;                   /* Offset: 0x000 (R/W) Timer Load */
+    __I  uint32_t TimerValue;                  /* Offset: 0x000 (R/W) Timer Counter Current Value */
+    __IO uint32_t TimerControl;                /* Offset: 0x000 (R/W) Timer Control */
+    __O  uint32_t TimerIntClr;                 /* Offset: 0x000 (R/W) Timer Interrupt Clear */
+    __I  uint32_t TimerRIS;                    /* Offset: 0x000 (R/W) Timer Raw Interrupt Status */
+    __I  uint32_t TimerMIS;                    /* Offset: 0x000 (R/W) Timer Masked Interrupt Status */
+    __IO uint32_t TimerBGLoad;                 /* Offset: 0x000 (R/W) Background Load Register */
 } CMSDK_DUALTIMER_SINGLE_TypeDef;
 
 #define CMSDK_DUALTIMER_LOAD_Pos             0                                               /* CMSDK_DUALTIMER LOAD: LOAD Position */
@@ -517,28 +508,27 @@ typedef struct
 
 
 /*-------------------- General Purpose Input Output (GPIO) -------------------*/
-typedef struct
-{
-  __IO   uint32_t  DATA;                     /* Offset: 0x000 (R/W) DATA Register */
-  __IO   uint32_t  DATAOUT;                  /* Offset: 0x004 (R/W) Data Output Latch Register */
-         uint32_t  RESERVED0[2];
-  __IO   uint32_t  OUTENABLESET;             /* Offset: 0x010 (R/W) Output Enable Set Register */
-  __IO   uint32_t  OUTENABLECLR;             /* Offset: 0x014 (R/W) Output Enable Clear Register */
-  __IO   uint32_t  ALTFUNCSET;               /* Offset: 0x018 (R/W) Alternate Function Set Register */
-  __IO   uint32_t  ALTFUNCCLR;               /* Offset: 0x01C (R/W) Alternate Function Clear Register */
-  __IO   uint32_t  INTENSET;                 /* Offset: 0x020 (R/W) Interrupt Enable Set Register */
-  __IO   uint32_t  INTENCLR;                 /* Offset: 0x024 (R/W) Interrupt Enable Clear Register */
-  __IO   uint32_t  INTTYPESET;               /* Offset: 0x028 (R/W) Interrupt Type Set Register */
-  __IO   uint32_t  INTTYPECLR;               /* Offset: 0x02C (R/W) Interrupt Type Clear Register */
-  __IO   uint32_t  INTPOLSET;                /* Offset: 0x030 (R/W) Interrupt Polarity Set Register */
-  __IO   uint32_t  INTPOLCLR;                /* Offset: 0x034 (R/W) Interrupt Polarity Clear Register */
-  union {
-    __I    uint32_t  INTSTATUS;              /* Offset: 0x038 (R/ ) Interrupt Status Register */
-    __O    uint32_t  INTCLEAR;               /* Offset: 0x038 ( /W) Interrupt Clear Register */
+typedef struct {
+    __IO   uint32_t  DATA;                     /* Offset: 0x000 (R/W) DATA Register */
+    __IO   uint32_t  DATAOUT;                  /* Offset: 0x004 (R/W) Data Output Latch Register */
+    uint32_t  RESERVED0[2];
+    __IO   uint32_t  OUTENABLESET;             /* Offset: 0x010 (R/W) Output Enable Set Register */
+    __IO   uint32_t  OUTENABLECLR;             /* Offset: 0x014 (R/W) Output Enable Clear Register */
+    __IO   uint32_t  ALTFUNCSET;               /* Offset: 0x018 (R/W) Alternate Function Set Register */
+    __IO   uint32_t  ALTFUNCCLR;               /* Offset: 0x01C (R/W) Alternate Function Clear Register */
+    __IO   uint32_t  INTENSET;                 /* Offset: 0x020 (R/W) Interrupt Enable Set Register */
+    __IO   uint32_t  INTENCLR;                 /* Offset: 0x024 (R/W) Interrupt Enable Clear Register */
+    __IO   uint32_t  INTTYPESET;               /* Offset: 0x028 (R/W) Interrupt Type Set Register */
+    __IO   uint32_t  INTTYPECLR;               /* Offset: 0x02C (R/W) Interrupt Type Clear Register */
+    __IO   uint32_t  INTPOLSET;                /* Offset: 0x030 (R/W) Interrupt Polarity Set Register */
+    __IO   uint32_t  INTPOLCLR;                /* Offset: 0x034 (R/W) Interrupt Polarity Clear Register */
+    union {
+        __I    uint32_t  INTSTATUS;              /* Offset: 0x038 (R/ ) Interrupt Status Register */
+        __O    uint32_t  INTCLEAR;               /* Offset: 0x038 ( /W) Interrupt Clear Register */
     };
-         uint32_t RESERVED1[241];
-  __IO   uint32_t LB_MASKED[256];            /* Offset: 0x400 - 0x7FC Lower byte Masked Access Register (R/W) */
-  __IO   uint32_t UB_MASKED[256];            /* Offset: 0x800 - 0xBFC Upper byte Masked Access Register (R/W) */
+    uint32_t RESERVED1[241];
+    __IO   uint32_t LB_MASKED[256];            /* Offset: 0x400 - 0x7FC Lower byte Masked Access Register (R/W) */
+    __IO   uint32_t UB_MASKED[256];            /* Offset: 0x800 - 0xBFC Upper byte Masked Access Register (R/W) */
 } CMSDK_GPIO_TypeDef;
 
 #define CMSDK_GPIO_DATA_Pos            0                                          /* CMSDK_GPIO DATA: DATA Position */
@@ -591,59 +581,58 @@ typedef struct
 
 
 /*------------- System Control (SYSCON) --------------------------------------*/
-typedef struct
-{
-  __IO   uint32_t  REMAP;                    /* Offset: 0x000 (R/W) Remap Control Register */
-  __IO   uint32_t  PMUCTRL;                  /* Offset: 0x004 (R/W) PMU Control Register */
-  __IO   uint32_t  RESETOP;                  /* Offset: 0x008 (R/W) Reset Option Register */
-  __IO   uint32_t  EMICTRL;                  /* Offset: 0x00C (R/W) EMI Control Register */
-  __IO   uint32_t  RSTINFO;                  /* Offset: 0x010 (R/W) Reset Information Register */
-         uint32_t  RESERVED0[3];
-  __IO   uint32_t  AHBPER0SET;               /* Offset: 0x020 (R/W)AHB peripheral access control set */
-  __IO   uint32_t  AHBPER0CLR;               /* Offset: 0x024 (R/W)AHB peripheral access control clear */
-         uint32_t  RESERVED1[2];
-  __IO   uint32_t  APBPER0SET;               /* Offset: 0x030 (R/W)APB peripheral access control set */
-  __IO   uint32_t  APBPER0CLR;               /* Offset: 0x034 (R/W)APB peripheral access control clear */
-         uint32_t  RESERVED2[2];
-  __IO   uint32_t  MAINCLK;                  /* Offset: 0x040 (R/W) Main Clock Control Register */
-  __IO   uint32_t  AUXCLK;                   /* Offset: 0x044 (R/W) Auxiliary / RTC Control Register */
-  __IO   uint32_t  PLLCTRL;                  /* Offset: 0x048 (R/W) PLL Control Register */
-  __IO   uint32_t  PLLSTATUS;                /* Offset: 0x04C (R/W) PLL Status Register */
-  __IO   uint32_t  SLEEPCFG;                 /* Offset: 0x050 (R/W) Sleep Control Register */
-  __IO   uint32_t  FLASHAUXCFG;              /* Offset: 0x054 (R/W) Flash auxiliary settings Control Register */
-         uint32_t  RESERVED3[10];
-  __IO   uint32_t  AHBCLKCFG0SET;            /* Offset: 0x080 (R/W) AHB Peripheral Clock set in Active state */
-  __IO   uint32_t  AHBCLKCFG0CLR;            /* Offset: 0x084 (R/W) AHB Peripheral Clock clear in Active state */
-  __IO   uint32_t  AHBCLKCFG1SET;            /* Offset: 0x088 (R/W) AHB Peripheral Clock set in Sleep state */
-  __IO   uint32_t  AHBCLKCFG1CLR;            /* Offset: 0x08C (R/W) AHB Peripheral Clock clear in Sleep state */
-  __IO   uint32_t  AHBCLKCFG2SET;            /* Offset: 0x090 (R/W) AHB Peripheral Clock set in Deep Sleep state */
-  __IO   uint32_t  AHBCLKCFG2CLR;            /* Offset: 0x094 (R/W) AHB Peripheral Clock clear in Deep Sleep state */
-         uint32_t  RESERVED4[2];
-  __IO   uint32_t  APBCLKCFG0SET;            /* Offset: 0x0A0 (R/W) APB Peripheral Clock set in Active state */
-  __IO   uint32_t  APBCLKCFG0CLR;            /* Offset: 0x0A4 (R/W) APB Peripheral Clock clear in Active state */
-  __IO   uint32_t  APBCLKCFG1SET;            /* Offset: 0x0A8 (R/W) APB Peripheral Clock set in Sleep state */
-  __IO   uint32_t  APBCLKCFG1CLR;            /* Offset: 0x0AC (R/W) APB Peripheral Clock clear in Sleep state */
-  __IO   uint32_t  APBCLKCFG2SET;            /* Offset: 0x0B0 (R/W) APB Peripheral Clock set in Deep Sleep state */
-  __IO   uint32_t  APBCLKCFG2CLR;            /* Offset: 0x0B4 (R/W) APB Peripheral Clock clear in Deep Sleep state */
-         uint32_t  RESERVED5[2];
-  __IO   uint32_t  AHBPRST0SET;              /* Offset: 0x0C0 (R/W) AHB Peripheral reset select set */
-  __IO   uint32_t  AHBPRST0CLR;              /* Offset: 0x0C4 (R/W) AHB Peripheral reset select clear */
-  __IO   uint32_t  APBPRST0SET;              /* Offset: 0x0C8 (R/W) APB Peripheral reset select set */
-  __IO   uint32_t  APBPRST0CLR;              /* Offset: 0x0CC (R/W) APB Peripheral reset select clear */
-  __IO   uint32_t  PWRDNCFG0SET;             /* Offset: 0x0D0 (R/W) AHB Power down sleep wakeup source set */
-  __IO   uint32_t  PWRDNCFG0CLR;             /* Offset: 0x0D4 (R/W) AHB Power down sleep wakeup source clear */
-  __IO   uint32_t  PWRDNCFG1SET;             /* Offset: 0x0D8 (R/W) APB Power down sleep wakeup source set */
-  __IO   uint32_t  PWRDNCFG1CLR;             /* Offset: 0x0DC (R/W) APB Power down sleep wakeup source clear */
-  __O    uint32_t  RTCRESET;                 /* Offset: 0x0E0 ( /W) RTC reset */
-  __IO   uint32_t  EVENTCFG;                 /* Offset: 0x0E4 (R/W) Event interface Control Register */
-         uint32_t  RESERVED6[2];
-  __IO   uint32_t  PWROVRIDE0;               /* Offset: 0x0F0 (R/W) SRAM Power control overide */
-  __IO   uint32_t  PWROVRIDE1;               /* Offset: 0x0F4 (R/W) Embedded Flash Power control overide */
-  __I    uint32_t  MEMORYSTATUS;             /* Offset: 0x0F8 (R/ ) Memory Status Register */
-         uint32_t  RESERVED7[1];
-  __IO   uint32_t  GPIOPADCFG0;              /* Offset: 0x100 (R/W) IO pad settings */
-  __IO   uint32_t  GPIOPADCFG1;              /* Offset: 0x104 (R/W) IO pad settings */
-  __IO   uint32_t  TESTMODECFG;              /* Offset: 0x108 (R/W) Testmode boot bypass */
+typedef struct {
+    __IO   uint32_t  REMAP;                    /* Offset: 0x000 (R/W) Remap Control Register */
+    __IO   uint32_t  PMUCTRL;                  /* Offset: 0x004 (R/W) PMU Control Register */
+    __IO   uint32_t  RESETOP;                  /* Offset: 0x008 (R/W) Reset Option Register */
+    __IO   uint32_t  EMICTRL;                  /* Offset: 0x00C (R/W) EMI Control Register */
+    __IO   uint32_t  RSTINFO;                  /* Offset: 0x010 (R/W) Reset Information Register */
+    uint32_t  RESERVED0[3];
+    __IO   uint32_t  AHBPER0SET;               /* Offset: 0x020 (R/W)AHB peripheral access control set */
+    __IO   uint32_t  AHBPER0CLR;               /* Offset: 0x024 (R/W)AHB peripheral access control clear */
+    uint32_t  RESERVED1[2];
+    __IO   uint32_t  APBPER0SET;               /* Offset: 0x030 (R/W)APB peripheral access control set */
+    __IO   uint32_t  APBPER0CLR;               /* Offset: 0x034 (R/W)APB peripheral access control clear */
+    uint32_t  RESERVED2[2];
+    __IO   uint32_t  MAINCLK;                  /* Offset: 0x040 (R/W) Main Clock Control Register */
+    __IO   uint32_t  AUXCLK;                   /* Offset: 0x044 (R/W) Auxiliary / RTC Control Register */
+    __IO   uint32_t  PLLCTRL;                  /* Offset: 0x048 (R/W) PLL Control Register */
+    __IO   uint32_t  PLLSTATUS;                /* Offset: 0x04C (R/W) PLL Status Register */
+    __IO   uint32_t  SLEEPCFG;                 /* Offset: 0x050 (R/W) Sleep Control Register */
+    __IO   uint32_t  FLASHAUXCFG;              /* Offset: 0x054 (R/W) Flash auxiliary settings Control Register */
+    uint32_t  RESERVED3[10];
+    __IO   uint32_t  AHBCLKCFG0SET;            /* Offset: 0x080 (R/W) AHB Peripheral Clock set in Active state */
+    __IO   uint32_t  AHBCLKCFG0CLR;            /* Offset: 0x084 (R/W) AHB Peripheral Clock clear in Active state */
+    __IO   uint32_t  AHBCLKCFG1SET;            /* Offset: 0x088 (R/W) AHB Peripheral Clock set in Sleep state */
+    __IO   uint32_t  AHBCLKCFG1CLR;            /* Offset: 0x08C (R/W) AHB Peripheral Clock clear in Sleep state */
+    __IO   uint32_t  AHBCLKCFG2SET;            /* Offset: 0x090 (R/W) AHB Peripheral Clock set in Deep Sleep state */
+    __IO   uint32_t  AHBCLKCFG2CLR;            /* Offset: 0x094 (R/W) AHB Peripheral Clock clear in Deep Sleep state */
+    uint32_t  RESERVED4[2];
+    __IO   uint32_t  APBCLKCFG0SET;            /* Offset: 0x0A0 (R/W) APB Peripheral Clock set in Active state */
+    __IO   uint32_t  APBCLKCFG0CLR;            /* Offset: 0x0A4 (R/W) APB Peripheral Clock clear in Active state */
+    __IO   uint32_t  APBCLKCFG1SET;            /* Offset: 0x0A8 (R/W) APB Peripheral Clock set in Sleep state */
+    __IO   uint32_t  APBCLKCFG1CLR;            /* Offset: 0x0AC (R/W) APB Peripheral Clock clear in Sleep state */
+    __IO   uint32_t  APBCLKCFG2SET;            /* Offset: 0x0B0 (R/W) APB Peripheral Clock set in Deep Sleep state */
+    __IO   uint32_t  APBCLKCFG2CLR;            /* Offset: 0x0B4 (R/W) APB Peripheral Clock clear in Deep Sleep state */
+    uint32_t  RESERVED5[2];
+    __IO   uint32_t  AHBPRST0SET;              /* Offset: 0x0C0 (R/W) AHB Peripheral reset select set */
+    __IO   uint32_t  AHBPRST0CLR;              /* Offset: 0x0C4 (R/W) AHB Peripheral reset select clear */
+    __IO   uint32_t  APBPRST0SET;              /* Offset: 0x0C8 (R/W) APB Peripheral reset select set */
+    __IO   uint32_t  APBPRST0CLR;              /* Offset: 0x0CC (R/W) APB Peripheral reset select clear */
+    __IO   uint32_t  PWRDNCFG0SET;             /* Offset: 0x0D0 (R/W) AHB Power down sleep wakeup source set */
+    __IO   uint32_t  PWRDNCFG0CLR;             /* Offset: 0x0D4 (R/W) AHB Power down sleep wakeup source clear */
+    __IO   uint32_t  PWRDNCFG1SET;             /* Offset: 0x0D8 (R/W) APB Power down sleep wakeup source set */
+    __IO   uint32_t  PWRDNCFG1CLR;             /* Offset: 0x0DC (R/W) APB Power down sleep wakeup source clear */
+    __O    uint32_t  RTCRESET;                 /* Offset: 0x0E0 ( /W) RTC reset */
+    __IO   uint32_t  EVENTCFG;                 /* Offset: 0x0E4 (R/W) Event interface Control Register */
+    uint32_t  RESERVED6[2];
+    __IO   uint32_t  PWROVRIDE0;               /* Offset: 0x0F0 (R/W) SRAM Power control overide */
+    __IO   uint32_t  PWROVRIDE1;               /* Offset: 0x0F4 (R/W) Embedded Flash Power control overide */
+    __I    uint32_t  MEMORYSTATUS;             /* Offset: 0x0F8 (R/ ) Memory Status Register */
+    uint32_t  RESERVED7[1];
+    __IO   uint32_t  GPIOPADCFG0;              /* Offset: 0x100 (R/W) IO pad settings */
+    __IO   uint32_t  GPIOPADCFG1;              /* Offset: 0x104 (R/W) IO pad settings */
+    __IO   uint32_t  TESTMODECFG;              /* Offset: 0x108 (R/W) Testmode boot bypass */
 } CMSDK_SYSCON_TypeDef;
 
 #define CMSDK_SYSCON_REMAP_Pos                 0
@@ -678,26 +667,25 @@ typedef struct
 
 
 /*------------- PL230 uDMA (PL230) --------------------------------------*/
-typedef struct
-{
-  __I    uint32_t  DMA_STATUS;               /* Offset: 0x000 (R/W) DMA status Register */
-  __O    uint32_t  DMA_CFG;                  /* Offset: 0x004 ( /W) DMA configuration Register */
-  __IO   uint32_t  CTRL_BASE_PTR;            /* Offset: 0x008 (R/W) Channel Control Data Base Pointer Register */
-  __I    uint32_t  ALT_CTRL_BASE_PTR;        /* Offset: 0x00C (R/ ) Channel Alternate Control Data Base Pointer Register */
-  __I    uint32_t  DMA_WAITONREQ_STATUS;     /* Offset: 0x010 (R/ ) Channel Wait On Request Status Register */
-  __O    uint32_t  CHNL_SW_REQUEST;          /* Offset: 0x014 ( /W) Channel Software Request Register */
-  __IO   uint32_t  CHNL_USEBURST_SET;        /* Offset: 0x018 (R/W) Channel UseBurst Set Register */
-  __O    uint32_t  CHNL_USEBURST_CLR;        /* Offset: 0x01C ( /W) Channel UseBurst Clear Register */
-  __IO   uint32_t  CHNL_REQ_MASK_SET;        /* Offset: 0x020 (R/W) Channel Request Mask Set Register */
-  __O    uint32_t  CHNL_REQ_MASK_CLR;        /* Offset: 0x024 ( /W) Channel Request Mask Clear Register */
-  __IO   uint32_t  CHNL_ENABLE_SET;          /* Offset: 0x028 (R/W) Channel Enable Set Register */
-  __O    uint32_t  CHNL_ENABLE_CLR;          /* Offset: 0x02C ( /W) Channel Enable Clear Register */
-  __IO   uint32_t  CHNL_PRI_ALT_SET;         /* Offset: 0x030 (R/W) Channel Primary-Alterante Set Register */
-  __O    uint32_t  CHNL_PRI_ALT_CLR;         /* Offset: 0x034 ( /W) Channel Primary-Alterante Clear Register */
-  __IO   uint32_t  CHNL_PRIORITY_SET;        /* Offset: 0x038 (R/W) Channel Priority Set Register */
-  __O    uint32_t  CHNL_PRIORITY_CLR;        /* Offset: 0x03C ( /W) Channel Priority Clear Register */
-         uint32_t  RESERVED0[3];
-  __IO   uint32_t  ERR_CLR;                  /* Offset: 0x04C Bus Error Clear Register  (R/W) */
+typedef struct {
+    __I    uint32_t  DMA_STATUS;               /* Offset: 0x000 (R/W) DMA status Register */
+    __O    uint32_t  DMA_CFG;                  /* Offset: 0x004 ( /W) DMA configuration Register */
+    __IO   uint32_t  CTRL_BASE_PTR;            /* Offset: 0x008 (R/W) Channel Control Data Base Pointer Register */
+    __I    uint32_t  ALT_CTRL_BASE_PTR;        /* Offset: 0x00C (R/ ) Channel Alternate Control Data Base Pointer Register */
+    __I    uint32_t  DMA_WAITONREQ_STATUS;     /* Offset: 0x010 (R/ ) Channel Wait On Request Status Register */
+    __O    uint32_t  CHNL_SW_REQUEST;          /* Offset: 0x014 ( /W) Channel Software Request Register */
+    __IO   uint32_t  CHNL_USEBURST_SET;        /* Offset: 0x018 (R/W) Channel UseBurst Set Register */
+    __O    uint32_t  CHNL_USEBURST_CLR;        /* Offset: 0x01C ( /W) Channel UseBurst Clear Register */
+    __IO   uint32_t  CHNL_REQ_MASK_SET;        /* Offset: 0x020 (R/W) Channel Request Mask Set Register */
+    __O    uint32_t  CHNL_REQ_MASK_CLR;        /* Offset: 0x024 ( /W) Channel Request Mask Clear Register */
+    __IO   uint32_t  CHNL_ENABLE_SET;          /* Offset: 0x028 (R/W) Channel Enable Set Register */
+    __O    uint32_t  CHNL_ENABLE_CLR;          /* Offset: 0x02C ( /W) Channel Enable Clear Register */
+    __IO   uint32_t  CHNL_PRI_ALT_SET;         /* Offset: 0x030 (R/W) Channel Primary-Alterante Set Register */
+    __O    uint32_t  CHNL_PRI_ALT_CLR;         /* Offset: 0x034 ( /W) Channel Primary-Alterante Clear Register */
+    __IO   uint32_t  CHNL_PRIORITY_SET;        /* Offset: 0x038 (R/W) Channel Priority Set Register */
+    __O    uint32_t  CHNL_PRIORITY_CLR;        /* Offset: 0x03C ( /W) Channel Priority Clear Register */
+    uint32_t  RESERVED0[3];
+    __IO   uint32_t  ERR_CLR;                  /* Offset: 0x04C Bus Error Clear Register  (R/W) */
 
 } CMSDK_PL230_TypeDef;
 
@@ -774,21 +762,20 @@ typedef struct
 
 
 /*------------------- Watchdog ----------------------------------------------*/
-typedef struct
-{
+typedef struct {
 
-  __IO    uint32_t  LOAD;                   /* Offset: 0x000 (R/W) Watchdog Load Register */
-  __I     uint32_t  VALUE;                  /* Offset: 0x004 (R/ ) Watchdog Value Register */
-  __IO    uint32_t  CTRL;                   /* Offset: 0x008 (R/W) Watchdog Control Register */
-  __O     uint32_t  INTCLR;                 /* Offset: 0x00C ( /W) Watchdog Clear Interrupt Register */
-  __I     uint32_t  RAWINTSTAT;             /* Offset: 0x010 (R/ ) Watchdog Raw Interrupt Status Register */
-  __I     uint32_t  MASKINTSTAT;            /* Offset: 0x014 (R/ ) Watchdog Interrupt Status Register */
-        uint32_t  RESERVED0[762];
-  __IO    uint32_t  LOCK;                   /* Offset: 0xC00 (R/W) Watchdog Lock Register */
-        uint32_t  RESERVED1[191];
-  __IO    uint32_t  ITCR;                   /* Offset: 0xF00 (R/W) Watchdog Integration Test Control Register */
-  __O     uint32_t  ITOP;                   /* Offset: 0xF04 ( /W) Watchdog Integration Test Output Set Register */
-}CMSDK_WATCHDOG_TypeDef;
+    __IO    uint32_t  LOAD;                   /* Offset: 0x000 (R/W) Watchdog Load Register */
+    __I     uint32_t  VALUE;                  /* Offset: 0x004 (R/ ) Watchdog Value Register */
+    __IO    uint32_t  CTRL;                   /* Offset: 0x008 (R/W) Watchdog Control Register */
+    __O     uint32_t  INTCLR;                 /* Offset: 0x00C ( /W) Watchdog Clear Interrupt Register */
+    __I     uint32_t  RAWINTSTAT;             /* Offset: 0x010 (R/ ) Watchdog Raw Interrupt Status Register */
+    __I     uint32_t  MASKINTSTAT;            /* Offset: 0x014 (R/ ) Watchdog Interrupt Status Register */
+    uint32_t  RESERVED0[762];
+    __IO    uint32_t  LOCK;                   /* Offset: 0xC00 (R/W) Watchdog Lock Register */
+    uint32_t  RESERVED1[191];
+    __IO    uint32_t  ITCR;                   /* Offset: 0xF00 (R/W) Watchdog Integration Test Control Register */
+    __O     uint32_t  ITOP;                   /* Offset: 0xF04 ( /W) Watchdog Integration Test Output Set Register */
+} CMSDK_WATCHDOG_TypeDef;
 
 #define CMSDK_Watchdog_LOAD_Pos               0                                              /* CMSDK_Watchdog LOAD: LOAD Position */
 #define CMSDK_Watchdog_LOAD_Msk              (0xFFFFFFFFul << CMSDK_Watchdog_LOAD_Pos)       /* CMSDK_Watchdog LOAD: LOAD Mask */
@@ -824,17 +811,17 @@ typedef struct
 
 /* --------------------  End of section using anonymous unions  ------------------- */
 #if defined ( __CC_ARM   )
-  #pragma pop
+#pragma pop
 #elif defined(__ICCARM__)
-  /* leave anonymous unions enabled */
+/* leave anonymous unions enabled */
 #elif defined(__GNUC__)
-  /* anonymous unions are enabled by default */
+/* anonymous unions are enabled by default */
 #elif defined(__TMS470__)
-  /* anonymous unions are enabled by default */
+/* anonymous unions are enabled by default */
 #elif defined(__TASKING__)
-  #pragma warning restore
+#pragma warning restore
 #else
-  #warning Not supported compiler type
+#warning Not supported compiler type
 #endif
 
 

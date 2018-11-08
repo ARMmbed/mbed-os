@@ -159,7 +159,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SAMPLING:32;      /*!< bit:  0..31  Input Sampling Mode                */
+        uint32_t SAMPLING: 32;     /*!< bit:  0..31  Input Sampling Mode                */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } PORT_CTRL_Type;
@@ -177,18 +177,18 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t PINMASK:16;       /*!< bit:  0..15  Pin Mask for Multiple Pin Configuration */
-        uint32_t PMUXEN:1;         /*!< bit:     16  Select Peripheral Multiplexer      */
-        uint32_t INEN:1;           /*!< bit:     17  Input Enable                       */
-        uint32_t PULLEN:1;         /*!< bit:     18  Pull Enable                        */
-        uint32_t :3;               /*!< bit: 19..21  Reserved                           */
-        uint32_t DRVSTR:1;         /*!< bit:     22  Output Driver Strength Selection   */
-        uint32_t :1;               /*!< bit:     23  Reserved                           */
-        uint32_t PMUX:4;           /*!< bit: 24..27  Peripheral Multiplexing Template   */
-        uint32_t WRPMUX:1;         /*!< bit:     28  Write PMUX Registers               */
-        uint32_t :1;               /*!< bit:     29  Reserved                           */
-        uint32_t WRPINCFG:1;       /*!< bit:     30  Write PINCFG Registers             */
-        uint32_t HWSEL:1;          /*!< bit:     31  Half-Word Select                   */
+        uint32_t PINMASK: 16;      /*!< bit:  0..15  Pin Mask for Multiple Pin Configuration */
+        uint32_t PMUXEN: 1;        /*!< bit:     16  Select Peripheral Multiplexer      */
+        uint32_t INEN: 1;          /*!< bit:     17  Input Enable                       */
+        uint32_t PULLEN: 1;        /*!< bit:     18  Pull Enable                        */
+        uint32_t : 3;              /*!< bit: 19..21  Reserved                           */
+        uint32_t DRVSTR: 1;        /*!< bit:     22  Output Driver Strength Selection   */
+        uint32_t : 1;              /*!< bit:     23  Reserved                           */
+        uint32_t PMUX: 4;          /*!< bit: 24..27  Peripheral Multiplexing Template   */
+        uint32_t WRPMUX: 1;        /*!< bit:     28  Write PMUX Registers               */
+        uint32_t : 1;              /*!< bit:     29  Reserved                           */
+        uint32_t WRPINCFG: 1;      /*!< bit:     30  Write PINCFG Registers             */
+        uint32_t HWSEL: 1;         /*!< bit:     31  Half-Word Select                   */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } PORT_WRCONFIG_Type;
@@ -223,18 +223,18 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t PID0:5;           /*!< bit:  0.. 4  Port Event Pin Identifier 0        */
-        uint32_t EVACT0:2;         /*!< bit:  5.. 6  Port Event Action 0                */
-        uint32_t PORTEI0:1;        /*!< bit:      7  Port Event Enable Input 0          */
-        uint32_t PID1:5;           /*!< bit:  8..12  Port Event Pin Identifier 1        */
-        uint32_t EVACT1:2;         /*!< bit: 13..14  Port Event Action 1                */
-        uint32_t PORTEI1:1;        /*!< bit:     15  Port Event Enable Input 1          */
-        uint32_t PID2:5;           /*!< bit: 16..20  Port Event Pin Identifier 2        */
-        uint32_t EVACT2:2;         /*!< bit: 21..22  Port Event Action 2                */
-        uint32_t PORTEI2:1;        /*!< bit:     23  Port Event Enable Input 2          */
-        uint32_t PID3:5;           /*!< bit: 24..28  Port Event Pin Identifier 3        */
-        uint32_t EVACT3:2;         /*!< bit: 29..30  Port Event Action 3                */
-        uint32_t PORTEI3:1;        /*!< bit:     31  Port Event Enable Input 3          */
+        uint32_t PID0: 5;          /*!< bit:  0.. 4  Port Event Pin Identifier 0        */
+        uint32_t EVACT0: 2;        /*!< bit:  5.. 6  Port Event Action 0                */
+        uint32_t PORTEI0: 1;       /*!< bit:      7  Port Event Enable Input 0          */
+        uint32_t PID1: 5;          /*!< bit:  8..12  Port Event Pin Identifier 1        */
+        uint32_t EVACT1: 2;        /*!< bit: 13..14  Port Event Action 1                */
+        uint32_t PORTEI1: 1;       /*!< bit:     15  Port Event Enable Input 1          */
+        uint32_t PID2: 5;          /*!< bit: 16..20  Port Event Pin Identifier 2        */
+        uint32_t EVACT2: 2;        /*!< bit: 21..22  Port Event Action 2                */
+        uint32_t PORTEI2: 1;       /*!< bit:     23  Port Event Enable Input 2          */
+        uint32_t PID3: 5;          /*!< bit: 24..28  Port Event Pin Identifier 3        */
+        uint32_t EVACT3: 2;        /*!< bit: 29..30  Port Event Action 3                */
+        uint32_t PORTEI3: 1;       /*!< bit:     31  Port Event Enable Input 3          */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } PORT_EVCTRL_Type;
@@ -281,8 +281,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PMUXE:4;          /*!< bit:  0.. 3  Peripheral Multiplexing for Even-Numbered Pin */
-        uint8_t  PMUXO:4;          /*!< bit:  4.. 7  Peripheral Multiplexing for Odd-Numbered Pin */
+        uint8_t  PMUXE: 4;         /*!< bit:  0.. 3  Peripheral Multiplexing for Even-Numbered Pin */
+        uint8_t  PMUXO: 4;         /*!< bit:  4.. 7  Peripheral Multiplexing for Odd-Numbered Pin */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } PORT_PMUX_Type;
@@ -303,12 +303,12 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PMUXEN:1;         /*!< bit:      0  Select Peripheral Multiplexer      */
-        uint8_t  INEN:1;           /*!< bit:      1  Input Enable                       */
-        uint8_t  PULLEN:1;         /*!< bit:      2  Pull Enable                        */
-        uint8_t  :3;               /*!< bit:  3.. 5  Reserved                           */
-        uint8_t  DRVSTR:1;         /*!< bit:      6  Output Driver Strength Selection   */
-        uint8_t  :1;               /*!< bit:      7  Reserved                           */
+        uint8_t  PMUXEN: 1;        /*!< bit:      0  Select Peripheral Multiplexer      */
+        uint8_t  INEN: 1;          /*!< bit:      1  Input Enable                       */
+        uint8_t  PULLEN: 1;        /*!< bit:      2  Pull Enable                        */
+        uint8_t  : 3;              /*!< bit:  3.. 5  Reserved                           */
+        uint8_t  DRVSTR: 1;        /*!< bit:      6  Output Driver Strength Selection   */
+        uint8_t  : 1;              /*!< bit:      7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } PORT_PINCFG_Type;

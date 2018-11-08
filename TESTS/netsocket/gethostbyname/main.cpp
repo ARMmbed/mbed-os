@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
- #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-     #error [NOT_SUPPORTED] No network configuration found for this target.
- #endif
+#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#error [NOT_SUPPORTED] No network configuration found for this target.
+#endif
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -42,7 +42,8 @@ const char *ip_pref_repr;
 // Network setup
 NetworkInterface *net;
 
-void net_bringup() {
+void net_bringup()
+{
     net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
     TEST_ASSERT_EQUAL(0, err);
@@ -57,22 +58,24 @@ void net_bringup() {
 
 
 // DNS tests
-void test_dns_query() {
+void test_dns_query()
+{
     SocketAddress addr;
     int err = net->gethostbyname(MBED_CONF_APP_DNS_TEST_HOST, &addr);
     printf("DNS: query \"%s\" => \"%s\"\n",
-            MBED_CONF_APP_DNS_TEST_HOST, addr.get_ip_address());
+           MBED_CONF_APP_DNS_TEST_HOST, addr.get_ip_address());
 
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT((bool)addr);
     TEST_ASSERT(strlen(addr.get_ip_address()) > 1);
 }
 
-void test_dns_query_pref() {
+void test_dns_query_pref()
+{
     SocketAddress addr;
     int err = net->gethostbyname(MBED_CONF_APP_DNS_TEST_HOST, &addr, ip_pref);
     printf("DNS: query %s \"%s\" => \"%s\"\n",
-            ip_pref_repr, MBED_CONF_APP_DNS_TEST_HOST, addr.get_ip_address());
+           ip_pref_repr, MBED_CONF_APP_DNS_TEST_HOST, addr.get_ip_address());
 
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT((bool)addr);
@@ -80,11 +83,12 @@ void test_dns_query_pref() {
     TEST_ASSERT_EQUAL(ip_pref, addr.get_ip_version());
 }
 
-void test_dns_literal() {
+void test_dns_literal()
+{
     SocketAddress addr;
     int err = net->gethostbyname(ip_literal, &addr);
     printf("DNS: literal \"%s\" => \"%s\"\n",
-            ip_literal, addr.get_ip_address());
+           ip_literal, addr.get_ip_address());
 
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT((bool)addr);
@@ -92,11 +96,12 @@ void test_dns_literal() {
     TEST_ASSERT(strcmp(ip_literal, addr.get_ip_address()) == 0);
 }
 
-void test_dns_literal_pref() {
+void test_dns_literal_pref()
+{
     SocketAddress addr;
     int err = net->gethostbyname(ip_literal, &addr, ip_pref);
     printf("DNS: literal %s \"%s\" => \"%s\"\n",
-            ip_pref_repr, ip_literal, addr.get_ip_address());
+           ip_pref_repr, ip_literal, addr.get_ip_address());
 
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT((bool)addr);
@@ -107,7 +112,8 @@ void test_dns_literal_pref() {
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(120, "default_auto");
     net_bringup();
     return verbose_test_setup_handler(number_of_cases);
@@ -122,6 +128,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

@@ -30,7 +30,7 @@ typedef struct {
     void (*RamPatchFun2)(void);
 } RAM_START_TABLE;
 
-extern uint8_t * __ram_table_start__;
+extern uint8_t *__ram_table_start__;
 
 extern __longcall void HalWdgIntrHandle(void);
 extern __longcall void HalHardFaultHandler(u32);

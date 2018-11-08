@@ -188,7 +188,7 @@ int OWM_ReadBit(mxc_owm_regs_t *owm);
  * @retval  Number of bytes written if successful
  * @retval  #E_COMM_ERR if line short detected before transaction
  */
-int OWM_Write(mxc_owm_regs_t *owm, uint8_t* data, int len);
+int OWM_Write(mxc_owm_regs_t *owm, uint8_t *data, int len);
 
 /**
  * @brief   Read multiple bytes of data. Will block until transaction is complete.
@@ -199,7 +199,7 @@ int OWM_Write(mxc_owm_regs_t *owm, uint8_t* data, int len);
  * @retval Number of bytes read if successful
  * @retval #E_COMM_ERR if line short detected before transaction
  */
-int OWM_Read(mxc_owm_regs_t *owm, uint8_t* data, int len);
+int OWM_Read(mxc_owm_regs_t *owm, uint8_t *data, int len);
 
 /**
  * @brief   Starts 1-Wire communication with Read ROM command
@@ -209,7 +209,7 @@ int OWM_Read(mxc_owm_regs_t *owm, uint8_t* data, int len);
  * @retval  #E_NO_ERROR if everything is successful
  * @retval  #E_COMM_ERR if reset, read or write fails
  */
-int OWM_ReadROM(mxc_owm_regs_t *owm, uint8_t* ROMCode);
+int OWM_ReadROM(mxc_owm_regs_t *owm, uint8_t *ROMCode);
 
 /**
  * @brief   Starts 1-Wire communication with Match ROM command
@@ -218,7 +218,7 @@ int OWM_ReadROM(mxc_owm_regs_t *owm, uint8_t* ROMCode);
  * @retval  #E_NO_ERROR if everything is successful
  * @retval  #E_COMM_ERR if reset or write fails
  */
-int OWM_MatchROM(mxc_owm_regs_t *owm, uint8_t* ROMCode);
+int OWM_MatchROM(mxc_owm_regs_t *owm, uint8_t *ROMCode);
 
 /**
  * @brief   Starts 1-Wire communication with Overdrive Match ROM command
@@ -229,7 +229,7 @@ int OWM_MatchROM(mxc_owm_regs_t *owm, uint8_t* ROMCode);
  * @retval  #E_NO_ERROR if everything is successful
  * @retval  #E_COMM_ERR if reset or write fails
  */
-int OWM_ODMatchROM(mxc_owm_regs_t *owm, uint8_t* ROMCode);
+int OWM_ODMatchROM(mxc_owm_regs_t *owm, uint8_t *ROMCode);
 
 /**
  * @brief   Starts 1-Wire communication with Skip ROM command
@@ -264,7 +264,7 @@ int OWM_Resume(mxc_owm_regs_t *owm);
  * @param   ROMCode     Pointer to buffer with ROM code found
  * @retval  (1) = ROM found, (0) = no new ROM found, end of search
  */
-int OWM_SearchROM(mxc_owm_regs_t *owm, int newSearch, uint8_t* ROMCode);
+int OWM_SearchROM(mxc_owm_regs_t *owm, int newSearch, uint8_t *ROMCode);
 
 /**
  * @brief   Clear interrupt flags.
@@ -293,10 +293,11 @@ __STATIC_INLINE unsigned OWM_GetFlags(mxc_owm_regs_t *owm)
  */
 __STATIC_INLINE void OWM_SetExtPullup(mxc_owm_regs_t *owm, int enable)
 {
-    if(enable)
+    if (enable) {
         owm->cfg |= MXC_F_OWM_CFG_EXT_PULLUP_ENABLE;
-    else
+    } else {
         owm->cfg &= ~(MXC_F_OWM_CFG_EXT_PULLUP_ENABLE);
+    }
 }
 
 /**
@@ -306,10 +307,11 @@ __STATIC_INLINE void OWM_SetExtPullup(mxc_owm_regs_t *owm, int enable)
  */
 __STATIC_INLINE void OWM_SetOverdrive(mxc_owm_regs_t *owm, int enable)
 {
-    if(enable)
+    if (enable) {
         owm->cfg |= MXC_F_OWM_CFG_OVERDRIVE;
-    else
+    } else {
         owm->cfg &= ~(MXC_F_OWM_CFG_OVERDRIVE);
+    }
 }
 
 /**@} end of group owm */

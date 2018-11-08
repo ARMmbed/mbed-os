@@ -70,16 +70,11 @@ void TK_SetScanMode(uint32_t u32Mode)
 {
     TK->CTL &= ~TK_CTL_TMRTRGEN_Msk;
     TK->REFCTL &= ~TK_REFCTL_SCANALL_Msk;
-    if(u32Mode == TK_SCAN_MODE_PERIODIC)
-    {
+    if (u32Mode == TK_SCAN_MODE_PERIODIC) {
         TK->CTL |= u32Mode;
-    }
-    else if(u32Mode == TK_SCAN_MODE_ALL_KEY)
-    {
+    } else if (u32Mode == TK_SCAN_MODE_ALL_KEY) {
         TK->REFCTL |= u32Mode;
-    }
-    else if(u32Mode == TK_SCAN_MODE_PERIODIC_ALL_KEY)
-    {
+    } else if (u32Mode == TK_SCAN_MODE_PERIODIC_ALL_KEY) {
         TK->CTL |= TK_CTL_TMRTRGEN_Msk;
         TK->REFCTL |= TK_REFCTL_SCANALL_Msk;
     }
@@ -146,13 +141,14 @@ void TK_SetTkPol(uint32_t u32Mask, uint32_t u32PolSel)
 {
     uint32_t i;
 
-    if((1ul << 16) & u32Mask)
+    if ((1ul << 16) & u32Mask) {
         TK->POLCTL = (TK->POLCTL & ~TK_POLCTL_POLSEL16_Msk) | (u32PolSel << TK_POLCTL_POLSEL16_Pos);
+    }
 
-    for(i = 0 ; i < 16 ; i++)
-    {
-        if((1ul << i) & u32Mask)
-            TK->POLSEL = (TK->POLSEL & ~(TK_POLSEL_POLSELn_Msk << (i*2))) | (u32PolSel << (i*2));
+    for (i = 0 ; i < 16 ; i++) {
+        if ((1ul << i) & u32Mask) {
+            TK->POLSEL = (TK->POLSEL & ~(TK_POLSEL_POLSELn_Msk << (i * 2))) | (u32PolSel << (i * 2));
+        }
     }
 }
 

@@ -40,9 +40,9 @@
 #define __STM32F1xx_HAL_CAN_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
-     
+
 #if defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || \
     defined(STM32F103xG) || defined(STM32F105xC) || defined(STM32F107xC)
 
@@ -65,142 +65,137 @@
 /**
   * @brief  HAL State structures definition
   */
-typedef enum
-{
-  HAL_CAN_STATE_RESET             = 0x00U,  /*!< CAN not yet initialized or disabled */
-  HAL_CAN_STATE_READY             = 0x01U,  /*!< CAN initialized and ready for use   */
-  HAL_CAN_STATE_BUSY              = 0x02U,  /*!< CAN process is ongoing              */
-  HAL_CAN_STATE_BUSY_TX           = 0x12U,  /*!< CAN process is ongoing              */
-  HAL_CAN_STATE_BUSY_RX0          = 0x22U,  /*!< CAN process is ongoing              */
-  HAL_CAN_STATE_BUSY_RX1          = 0x32U,  /*!< CAN process is ongoing              */
-  HAL_CAN_STATE_BUSY_TX_RX0       = 0x42U,  /*!< CAN process is ongoing              */
-  HAL_CAN_STATE_BUSY_TX_RX1       = 0x52U,  /*!< CAN process is ongoing              */
-  HAL_CAN_STATE_BUSY_RX0_RX1      = 0x62U,  /*!< CAN process is ongoing              */
-  HAL_CAN_STATE_BUSY_TX_RX0_RX1   = 0x72U,  /*!< CAN process is ongoing              */
-  HAL_CAN_STATE_TIMEOUT           = 0x03U,  /*!< CAN in Timeout state                */
-  HAL_CAN_STATE_ERROR             = 0x04U   /*!< CAN error state                     */
+typedef enum {
+    HAL_CAN_STATE_RESET             = 0x00U,  /*!< CAN not yet initialized or disabled */
+    HAL_CAN_STATE_READY             = 0x01U,  /*!< CAN initialized and ready for use   */
+    HAL_CAN_STATE_BUSY              = 0x02U,  /*!< CAN process is ongoing              */
+    HAL_CAN_STATE_BUSY_TX           = 0x12U,  /*!< CAN process is ongoing              */
+    HAL_CAN_STATE_BUSY_RX0          = 0x22U,  /*!< CAN process is ongoing              */
+    HAL_CAN_STATE_BUSY_RX1          = 0x32U,  /*!< CAN process is ongoing              */
+    HAL_CAN_STATE_BUSY_TX_RX0       = 0x42U,  /*!< CAN process is ongoing              */
+    HAL_CAN_STATE_BUSY_TX_RX1       = 0x52U,  /*!< CAN process is ongoing              */
+    HAL_CAN_STATE_BUSY_RX0_RX1      = 0x62U,  /*!< CAN process is ongoing              */
+    HAL_CAN_STATE_BUSY_TX_RX0_RX1   = 0x72U,  /*!< CAN process is ongoing              */
+    HAL_CAN_STATE_TIMEOUT           = 0x03U,  /*!< CAN in Timeout state                */
+    HAL_CAN_STATE_ERROR             = 0x04U   /*!< CAN error state                     */
 
-}HAL_CAN_StateTypeDef;
+} HAL_CAN_StateTypeDef;
 
 /**
   * @brief  CAN init structure definition
   */
-typedef struct
-{
-  uint32_t Prescaler;  /*!< Specifies the length of a time quantum.
+typedef struct {
+    uint32_t Prescaler;  /*!< Specifies the length of a time quantum.
                             This parameter must be a number between Min_Data = 1 and Max_Data = 1024 */
 
-  uint32_t Mode;       /*!< Specifies the CAN operating mode.
+    uint32_t Mode;       /*!< Specifies the CAN operating mode.
                             This parameter can be a value of @ref CAN_operating_mode */
 
-  uint32_t SJW;        /*!< Specifies the maximum number of time quanta
+    uint32_t SJW;        /*!< Specifies the maximum number of time quanta
                             the CAN hardware is allowed to lengthen or
                             shorten a bit to perform resynchronization.
                             This parameter can be a value of @ref CAN_synchronisation_jump_width */
 
-  uint32_t BS1;        /*!< Specifies the number of time quanta in Bit Segment 1.
+    uint32_t BS1;        /*!< Specifies the number of time quanta in Bit Segment 1.
                             This parameter can be a value of @ref CAN_time_quantum_in_bit_segment_1 */
 
-  uint32_t BS2;        /*!< Specifies the number of time quanta in Bit Segment 2.
+    uint32_t BS2;        /*!< Specifies the number of time quanta in Bit Segment 2.
                             This parameter can be a value of @ref CAN_time_quantum_in_bit_segment_2 */
 
-  uint32_t TTCM;       /*!< Enable or disable the time triggered communication mode.
+    uint32_t TTCM;       /*!< Enable or disable the time triggered communication mode.
                             This parameter can be set to ENABLE or DISABLE. */
 
-  uint32_t ABOM;       /*!< Enable or disable the automatic bus-off management.
+    uint32_t ABOM;       /*!< Enable or disable the automatic bus-off management.
                             This parameter can be set to ENABLE or DISABLE */
 
-  uint32_t AWUM;       /*!< Enable or disable the automatic wake-up mode.
+    uint32_t AWUM;       /*!< Enable or disable the automatic wake-up mode.
                             This parameter can be set to ENABLE or DISABLE */
 
-  uint32_t NART;       /*!< Enable or disable the non-automatic retransmission mode.
+    uint32_t NART;       /*!< Enable or disable the non-automatic retransmission mode.
                             This parameter can be set to ENABLE or DISABLE */
 
-  uint32_t RFLM;       /*!< Enable or disable the receive FIFO Locked mode.
+    uint32_t RFLM;       /*!< Enable or disable the receive FIFO Locked mode.
                             This parameter can be set to ENABLE or DISABLE */
 
-  uint32_t TXFP;       /*!< Enable or disable the transmit FIFO priority.
+    uint32_t TXFP;       /*!< Enable or disable the transmit FIFO priority.
                             This parameter can be set to ENABLE or DISABLE */
-}CAN_InitTypeDef;
+} CAN_InitTypeDef;
 
-/** 
-  * @brief  CAN Tx message structure definition  
+/**
+  * @brief  CAN Tx message structure definition
   */
-typedef struct
-{
-  uint32_t StdId;    /*!< Specifies the standard identifier.
+typedef struct {
+    uint32_t StdId;    /*!< Specifies the standard identifier.
                           This parameter must be a number between Min_Data = 0 and Max_Data = 0x7FF */
 
-  uint32_t ExtId;    /*!< Specifies the extended identifier.
+    uint32_t ExtId;    /*!< Specifies the extended identifier.
                           This parameter must be a number between Min_Data = 0 and Max_Data = 0x1FFFFFFF */
 
-  uint32_t IDE;      /*!< Specifies the type of identifier for the message that will be transmitted.
+    uint32_t IDE;      /*!< Specifies the type of identifier for the message that will be transmitted.
                           This parameter can be a value of @ref CAN_Identifier_Type */
 
-  uint32_t RTR;      /*!< Specifies the type of frame for the message that will be transmitted.
+    uint32_t RTR;      /*!< Specifies the type of frame for the message that will be transmitted.
                           This parameter can be a value of @ref CAN_remote_transmission_request */
 
-  uint32_t DLC;      /*!< Specifies the length of the frame that will be transmitted.
+    uint32_t DLC;      /*!< Specifies the length of the frame that will be transmitted.
                           This parameter must be a number between Min_Data = 0 and Max_Data = 8 */
 
-  uint8_t Data[8];   /*!< Contains the data to be transmitted.
+    uint8_t Data[8];   /*!< Contains the data to be transmitted.
                           This parameter must be a number between Min_Data = 0 and Max_Data = 0xFF */
 
-}CanTxMsgTypeDef;
+} CanTxMsgTypeDef;
 
 /**
   * @brief  CAN Rx message structure definition
   */
-typedef struct
-{
-  uint32_t StdId;       /*!< Specifies the standard identifier.
+typedef struct {
+    uint32_t StdId;       /*!< Specifies the standard identifier.
                              This parameter must be a number between Min_Data = 0 and Max_Data = 0x7FF */
 
-  uint32_t ExtId;       /*!< Specifies the extended identifier.
+    uint32_t ExtId;       /*!< Specifies the extended identifier.
                              This parameter must be a number between Min_Data = 0 and Max_Data = 0x1FFFFFFF */
 
-  uint32_t IDE;         /*!< Specifies the type of identifier for the message that will be received.
+    uint32_t IDE;         /*!< Specifies the type of identifier for the message that will be received.
                              This parameter can be a value of @ref CAN_Identifier_Type */
 
-  uint32_t RTR;         /*!< Specifies the type of frame for the received message.
+    uint32_t RTR;         /*!< Specifies the type of frame for the received message.
                              This parameter can be a value of @ref CAN_remote_transmission_request */
 
-  uint32_t DLC;         /*!< Specifies the length of the frame that will be received.
+    uint32_t DLC;         /*!< Specifies the length of the frame that will be received.
                              This parameter must be a number between Min_Data = 0 and Max_Data = 8 */
 
-  uint8_t Data[8];      /*!< Contains the data to be received.
+    uint8_t Data[8];      /*!< Contains the data to be received.
                              This parameter must be a number between Min_Data = 0 and Max_Data = 0xFF */
 
-  uint32_t FMI;         /*!< Specifies the index of the filter the message stored in the mailbox passes through.
+    uint32_t FMI;         /*!< Specifies the index of the filter the message stored in the mailbox passes through.
                              This parameter must be a number between Min_Data = 0 and Max_Data = 0xFF */
 
-  uint32_t FIFONumber;  /*!< Specifies the receive FIFO number.
+    uint32_t FIFONumber;  /*!< Specifies the receive FIFO number.
                              This parameter can be CAN_FIFO0 or CAN_FIFO1 */
 
-}CanRxMsgTypeDef;
+} CanRxMsgTypeDef;
 
 /**
   * @brief  CAN handle Structure definition
   */
-typedef struct
-{
-  CAN_TypeDef                 *Instance;  /*!< Register base address          */
+typedef struct {
+    CAN_TypeDef                 *Instance;  /*!< Register base address          */
 
-  CAN_InitTypeDef             Init;       /*!< CAN required parameters        */
+    CAN_InitTypeDef             Init;       /*!< CAN required parameters        */
 
-  CanTxMsgTypeDef*            pTxMsg;     /*!< Pointer to transmit structure  */
+    CanTxMsgTypeDef            *pTxMsg;     /*!< Pointer to transmit structure  */
 
-  CanRxMsgTypeDef*            pRxMsg;     /*!< Pointer to reception structure for RX FIFO0 msg */
+    CanRxMsgTypeDef            *pRxMsg;     /*!< Pointer to reception structure for RX FIFO0 msg */
 
-  CanRxMsgTypeDef*            pRx1Msg;    /*!< Pointer to reception structure for RX FIFO1 msg */
+    CanRxMsgTypeDef            *pRx1Msg;    /*!< Pointer to reception structure for RX FIFO1 msg */
 
-  __IO HAL_CAN_StateTypeDef   State;      /*!< CAN communication state        */
+    __IO HAL_CAN_StateTypeDef   State;      /*!< CAN communication state        */
 
-  HAL_LockTypeDef             Lock;       /*!< CAN locking object             */
+    HAL_LockTypeDef             Lock;       /*!< CAN locking object             */
 
-  __IO uint32_t               ErrorCode;  /*!< CAN Error code                 */
+    __IO uint32_t               ErrorCode;  /*!< CAN Error code                 */
 
-}CAN_HandleTypeDef;
+} CAN_HandleTypeDef;
 
 /**
   * @}
@@ -393,7 +388,7 @@ typedef struct
 #define CAN_FLAG_SLAK              ((uint32_t)((MSR_REGISTER_INDEX << 8U) | CAN_MSR_SLAK_BIT_POSITION))   /*!< Sleep acknowledge flag */
 #define CAN_FLAG_SLAKI             ((uint32_t)((MSR_REGISTER_INDEX << 8U) | CAN_MSR_SLAKI_BIT_POSITION))  /*!< Sleep acknowledge flag */
 
-/* @note When SLAK interrupt is disabled (SLKIE=0), no polling on SLAKI is possible. 
+/* @note When SLAK interrupt is disabled (SLKIE=0), no polling on SLAKI is possible.
          In this case the SLAK bit can be polled.*/
 
 /* Error Flags */
@@ -656,7 +651,7 @@ typedef struct
   * @retval None.
   */
 #define __HAL_CAN_FIFO_RELEASE(__HANDLE__, __FIFONUMBER__) (((__FIFONUMBER__) == CAN_FIFO0)? \
-((__HANDLE__)->Instance->RF0R = CAN_RF0R_RFOM0) : ((__HANDLE__)->Instance->RF1R = CAN_RF1R_RFOM1)) 
+((__HANDLE__)->Instance->RF0R = CAN_RF0R_RFOM0) : ((__HANDLE__)->Instance->RF1R = CAN_RF1R_RFOM1))
 
 /**
   * @brief  Cancel a transmit request.
@@ -694,21 +689,21 @@ typedef struct
   */
 
 /** @addtogroup CAN_Exported_Functions_Group1
-  * @brief    Initialization and Configuration functions 
+  * @brief    Initialization and Configuration functions
   * @{
   */
 /* Initialization and de-initialization functions *****************************/
-HAL_StatusTypeDef HAL_CAN_Init(CAN_HandleTypeDef* hcan);
-HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef* hcan, CAN_FilterConfTypeDef* sFilterConfig);
-HAL_StatusTypeDef HAL_CAN_DeInit(CAN_HandleTypeDef* hcan);
-void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan);
-void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan);
+HAL_StatusTypeDef HAL_CAN_Init(CAN_HandleTypeDef *hcan);
+HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef *hcan, CAN_FilterConfTypeDef *sFilterConfig);
+HAL_StatusTypeDef HAL_CAN_DeInit(CAN_HandleTypeDef *hcan);
+void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan);
+void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan);
 /**
   * @}
   */
 
 /** @addtogroup CAN_Exported_Functions_Group2
-  * @brief    I/O operation functions 
+  * @brief    I/O operation functions
   * @{
   */
 /* I/O operation functions *****************************************************/
@@ -718,21 +713,21 @@ HAL_StatusTypeDef HAL_CAN_Receive(CAN_HandleTypeDef *hcan, uint8_t FIFONumber, u
 HAL_StatusTypeDef HAL_CAN_Receive_IT(CAN_HandleTypeDef *hcan, uint8_t FIFONumber);
 HAL_StatusTypeDef HAL_CAN_Sleep(CAN_HandleTypeDef *hcan);
 HAL_StatusTypeDef HAL_CAN_WakeUp(CAN_HandleTypeDef *hcan);
-void HAL_CAN_IRQHandler(CAN_HandleTypeDef* hcan);
-void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef* hcan);
-void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan);
+void HAL_CAN_IRQHandler(CAN_HandleTypeDef *hcan);
+void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan);
+void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan);
 void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan);
 /**
   * @}
   */
 
 /** @addtogroup CAN_Exported_Functions_Group3
-  * @brief   CAN Peripheral State functions 
+  * @brief   CAN Peripheral State functions
   * @{
   */
 /* Peripheral State and Error functions ***************************************/
 uint32_t HAL_CAN_GetError(CAN_HandleTypeDef *hcan);
-HAL_CAN_StateTypeDef HAL_CAN_GetState(CAN_HandleTypeDef* hcan);
+HAL_CAN_StateTypeDef HAL_CAN_GetState(CAN_HandleTypeDef *hcan);
 /**
   * @}
   */

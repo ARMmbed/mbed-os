@@ -26,65 +26,65 @@
 #define __CMSIS_ARMCC_H
 
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 400677)
-  #error "Please use ARM Compiler Toolchain V4.0.677 or later!"
+#error "Please use ARM Compiler Toolchain V4.0.677 or later!"
 #endif
 
 /* CMSIS compiler control architecture macros */
 #if (defined (__TARGET_ARCH_7_A ) && (__TARGET_ARCH_7_A  == 1))
-  #define __ARM_ARCH_7A__           1
+#define __ARM_ARCH_7A__           1
 #endif
 
 /* CMSIS compiler specific defines */
 #ifndef   __ASM
-  #define __ASM                                  __asm
+#define __ASM                                  __asm
 #endif
 #ifndef   __INLINE
-  #define __INLINE                               __inline
+#define __INLINE                               __inline
 #endif
 #ifndef   __FORCEINLINE
-  #define __FORCEINLINE                          __forceinline
+#define __FORCEINLINE                          __forceinline
 #endif
 #ifndef   __STATIC_INLINE
-  #define __STATIC_INLINE                        static __inline
+#define __STATIC_INLINE                        static __inline
 #endif
 #ifndef   __STATIC_FORCEINLINE
-  #define __STATIC_FORCEINLINE                   static __forceinline
+#define __STATIC_FORCEINLINE                   static __forceinline
 #endif
 #ifndef   __NO_RETURN
-  #define __NO_RETURN                            __declspec(noreturn)
+#define __NO_RETURN                            __declspec(noreturn)
 #endif
 #ifndef   CMSIS_DEPRECATED
-  #define CMSIS_DEPRECATED                       __attribute__((deprecated))
+#define CMSIS_DEPRECATED                       __attribute__((deprecated))
 #endif
 #ifndef   __USED
-  #define __USED                                 __attribute__((used))
+#define __USED                                 __attribute__((used))
 #endif
 #ifndef   __WEAK
-  #define __WEAK                                 __attribute__((weak))
+#define __WEAK                                 __attribute__((weak))
 #endif
 #ifndef   __PACKED
-  #define __PACKED                               __attribute__((packed))
+#define __PACKED                               __attribute__((packed))
 #endif
 #ifndef   __PACKED_STRUCT
-  #define __PACKED_STRUCT                        __packed struct
+#define __PACKED_STRUCT                        __packed struct
 #endif
 #ifndef   __UNALIGNED_UINT16_WRITE
-  #define __UNALIGNED_UINT16_WRITE(addr, val)    ((*((__packed uint16_t *)(addr))) = (val))
+#define __UNALIGNED_UINT16_WRITE(addr, val)    ((*((__packed uint16_t *)(addr))) = (val))
 #endif
 #ifndef   __UNALIGNED_UINT16_READ
-  #define __UNALIGNED_UINT16_READ(addr)          (*((const __packed uint16_t *)(addr)))
+#define __UNALIGNED_UINT16_READ(addr)          (*((const __packed uint16_t *)(addr)))
 #endif
 #ifndef   __UNALIGNED_UINT32_WRITE
-  #define __UNALIGNED_UINT32_WRITE(addr, val)    ((*((__packed uint32_t *)(addr))) = (val))
+#define __UNALIGNED_UINT32_WRITE(addr, val)    ((*((__packed uint32_t *)(addr))) = (val))
 #endif
 #ifndef   __UNALIGNED_UINT32_READ
-  #define __UNALIGNED_UINT32_READ(addr)          (*((const __packed uint32_t *)(addr)))
+#define __UNALIGNED_UINT32_READ(addr)          (*((const __packed uint32_t *)(addr)))
 #endif
 #ifndef   __ALIGNED
-  #define __ALIGNED(x)                           __attribute__((aligned(x)))
+#define __ALIGNED(x)                           __attribute__((aligned(x)))
 #endif
 #ifndef   __PACKED
-  #define __PACKED                               __attribute__((packed))
+#define __PACKED                               __attribute__((packed))
 #endif
 
 /* ##########################  Core Instruction Access  ######################### */
@@ -152,8 +152,8 @@
 #ifndef __NO_EMBEDDED_ASM
 __attribute__((section(".rev16_text"))) __STATIC_INLINE __ASM uint32_t __REV16(uint32_t value)
 {
-  rev16 r0, r0
-  bx lr
+    rev16 r0, r0
+    bx lr
 }
 #endif
 
@@ -166,8 +166,8 @@ __attribute__((section(".rev16_text"))) __STATIC_INLINE __ASM uint32_t __REV16(u
 #ifndef __NO_EMBEDDED_ASM
 __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int16_t __REVSH(int16_t value)
 {
-  revsh r0, r0
-  bx lr
+    revsh r0, r0
+    bx lr
 }
 #endif
 
@@ -207,9 +207,9 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int16_t __REVSH(in
   \return             value of type uint8_t at (*ptr)
  */
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 5060020)
-  #define __LDREXB(ptr)                                                        ((uint8_t ) __ldrex(ptr))
+#define __LDREXB(ptr)                                                        ((uint8_t ) __ldrex(ptr))
 #else
-  #define __LDREXB(ptr)          _Pragma("push") _Pragma("diag_suppress 3731") ((uint8_t ) __ldrex(ptr))  _Pragma("pop")
+#define __LDREXB(ptr)          _Pragma("push") _Pragma("diag_suppress 3731") ((uint8_t ) __ldrex(ptr))  _Pragma("pop")
 #endif
 
 /**
@@ -219,9 +219,9 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int16_t __REVSH(in
   \return        value of type uint16_t at (*ptr)
  */
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 5060020)
-  #define __LDREXH(ptr)                                                        ((uint16_t) __ldrex(ptr))
+#define __LDREXH(ptr)                                                        ((uint16_t) __ldrex(ptr))
 #else
-  #define __LDREXH(ptr)          _Pragma("push") _Pragma("diag_suppress 3731") ((uint16_t) __ldrex(ptr))  _Pragma("pop")
+#define __LDREXH(ptr)          _Pragma("push") _Pragma("diag_suppress 3731") ((uint16_t) __ldrex(ptr))  _Pragma("pop")
 #endif
 
 /**
@@ -231,9 +231,9 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int16_t __REVSH(in
   \return        value of type uint32_t at (*ptr)
  */
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 5060020)
-  #define __LDREXW(ptr)                                                        ((uint32_t ) __ldrex(ptr))
+#define __LDREXW(ptr)                                                        ((uint32_t ) __ldrex(ptr))
 #else
-  #define __LDREXW(ptr)          _Pragma("push") _Pragma("diag_suppress 3731") ((uint32_t ) __ldrex(ptr))  _Pragma("pop")
+#define __LDREXW(ptr)          _Pragma("push") _Pragma("diag_suppress 3731") ((uint32_t ) __ldrex(ptr))  _Pragma("pop")
 #endif
 
 /**
@@ -245,9 +245,9 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int16_t __REVSH(in
   \return          1  Function failed
  */
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 5060020)
-  #define __STREXB(value, ptr)                                                 __strex(value, ptr)
+#define __STREXB(value, ptr)                                                 __strex(value, ptr)
 #else
-  #define __STREXB(value, ptr)   _Pragma("push") _Pragma("diag_suppress 3731") __strex(value, ptr)        _Pragma("pop")
+#define __STREXB(value, ptr)   _Pragma("push") _Pragma("diag_suppress 3731") __strex(value, ptr)        _Pragma("pop")
 #endif
 
 /**
@@ -259,9 +259,9 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int16_t __REVSH(in
   \return          1  Function failed
  */
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 5060020)
-  #define __STREXH(value, ptr)                                                 __strex(value, ptr)
+#define __STREXH(value, ptr)                                                 __strex(value, ptr)
 #else
-  #define __STREXH(value, ptr)   _Pragma("push") _Pragma("diag_suppress 3731") __strex(value, ptr)        _Pragma("pop")
+#define __STREXH(value, ptr)   _Pragma("push") _Pragma("diag_suppress 3731") __strex(value, ptr)        _Pragma("pop")
 #endif
 
 /**
@@ -273,9 +273,9 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int16_t __REVSH(in
   \return          1  Function failed
  */
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 5060020)
-  #define __STREXW(value, ptr)                                                 __strex(value, ptr)
+#define __STREXW(value, ptr)                                                 __strex(value, ptr)
 #else
-  #define __STREXW(value, ptr)   _Pragma("push") _Pragma("diag_suppress 3731") __strex(value, ptr)        _Pragma("pop")
+#define __STREXW(value, ptr)   _Pragma("push") _Pragma("diag_suppress 3731") __strex(value, ptr)        _Pragma("pop")
 #endif
 
 /**
@@ -313,10 +313,10 @@ __STATIC_INLINE uint32_t __get_FPSCR(void)
 {
 #if ((defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined (__FPU_USED   ) && (__FPU_USED    == 1U))     )
-  register uint32_t __regfpscr         __ASM("fpscr");
-  return(__regfpscr);
+    register uint32_t __regfpscr         __ASM("fpscr");
+    return (__regfpscr);
 #else
-   return(0U);
+    return (0U);
 #endif
 }
 
@@ -328,10 +328,10 @@ __STATIC_INLINE void __set_FPSCR(uint32_t fpscr)
 {
 #if ((defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined (__FPU_USED   ) && (__FPU_USED    == 1U))     )
-  register uint32_t __regfpscr         __ASM("fpscr");
-  __regfpscr = (fpscr);
+    register uint32_t __regfpscr         __ASM("fpscr");
+    __regfpscr = (fpscr);
 #else
-  (void)fpscr;
+    (void)fpscr;
 #endif
 }
 
@@ -340,8 +340,8 @@ __STATIC_INLINE void __set_FPSCR(uint32_t fpscr)
  */
 __STATIC_INLINE uint32_t __get_CPSR(void)
 {
-  register uint32_t __regCPSR          __ASM("cpsr");
-  return(__regCPSR);
+    register uint32_t __regCPSR          __ASM("cpsr");
+    return (__regCPSR);
 }
 
 
@@ -350,8 +350,8 @@ __STATIC_INLINE uint32_t __get_CPSR(void)
  */
 __STATIC_INLINE void __set_CPSR(uint32_t cpsr)
 {
-  register uint32_t __regCPSR          __ASM("cpsr");
-  __regCPSR = cpsr;
+    register uint32_t __regCPSR          __ASM("cpsr");
+    __regCPSR = cpsr;
 }
 
 /** \brief  Get Mode
@@ -359,7 +359,7 @@ __STATIC_INLINE void __set_CPSR(uint32_t cpsr)
  */
 __STATIC_INLINE uint32_t __get_mode(void)
 {
-  return (__get_CPSR() & 0x1FU);
+    return (__get_CPSR() & 0x1FU);
 }
 
 /** \brief  Set Mode
@@ -367,9 +367,9 @@ __STATIC_INLINE uint32_t __get_mode(void)
  */
 __STATIC_INLINE __ASM void __set_mode(uint32_t mode)
 {
-  MOV  r1, lr
-  MSR  CPSR_C, r0
-  BX   r1
+    MOV  r1, lr
+    MSR  CPSR_C, r0
+    BX   r1
 }
 
 /** \brief  Get Stack Pointer
@@ -377,8 +377,8 @@ __STATIC_INLINE __ASM void __set_mode(uint32_t mode)
  */
 __STATIC_INLINE __ASM uint32_t __get_SP(void)
 {
-  MOV  r0, sp
-  BX   lr
+    MOV  r0, sp
+    BX   lr
 }
 
 /** \brief  Set Stack Pointer
@@ -386,8 +386,8 @@ __STATIC_INLINE __ASM uint32_t __get_SP(void)
  */
 __STATIC_INLINE __ASM void __set_SP(uint32_t stack)
 {
-  MOV  sp, r0
-  BX   lr
+    MOV  sp, r0
+    BX   lr
 }
 
 
@@ -396,15 +396,17 @@ __STATIC_INLINE __ASM void __set_SP(uint32_t stack)
  */
 __STATIC_INLINE __ASM uint32_t __get_SP_usr(void)
 {
-  ARM
-  PRESERVE8
+    ARM
+    PRESERVE8
 
-  MRS     R1, CPSR
-  CPS     #0x1F       ;no effect in USR mode
-  MOV     R0, SP
-  MSR     CPSR_c, R1  ;no effect in USR mode
-  ISB
-  BX      LR
+    MRS     R1, CPSR
+    CPS     #0x1F       ;
+    no effect in USR mode
+    MOV     R0, SP
+    MSR     CPSR_c, R1  ;
+    no effect in USR mode
+    ISB
+    BX      LR
 }
 
 /** \brief  Set USR/SYS Stack Pointer
@@ -412,15 +414,17 @@ __STATIC_INLINE __ASM uint32_t __get_SP_usr(void)
  */
 __STATIC_INLINE __ASM void __set_SP_usr(uint32_t topOfProcStack)
 {
-  ARM
-  PRESERVE8
+    ARM
+    PRESERVE8
 
-  MRS     R1, CPSR
-  CPS     #0x1F       ;no effect in USR mode
-  MOV     SP, R0
-  MSR     CPSR_c, R1  ;no effect in USR mode
-  ISB
-  BX      LR
+    MRS     R1, CPSR
+    CPS     #0x1F       ;
+    no effect in USR mode
+    MOV     SP, R0
+    MSR     CPSR_c, R1  ;
+    no effect in USR mode
+    ISB
+    BX      LR
 }
 
 /** \brief  Get FPEXC (Floating Point Exception Control Register)
@@ -429,10 +433,10 @@ __STATIC_INLINE __ASM void __set_SP_usr(uint32_t topOfProcStack)
 __STATIC_INLINE uint32_t __get_FPEXC(void)
 {
 #if (__FPU_PRESENT == 1)
-  register uint32_t __regfpexc         __ASM("fpexc");
-  return(__regfpexc);
+    register uint32_t __regfpexc         __ASM("fpexc");
+    return (__regfpexc);
 #else
-  return(0);
+    return (0);
 #endif
 }
 
@@ -442,8 +446,8 @@ __STATIC_INLINE uint32_t __get_FPEXC(void)
 __STATIC_INLINE void __set_FPEXC(uint32_t fpexc)
 {
 #if (__FPU_PRESENT == 1)
-  register uint32_t __regfpexc         __ASM("fpexc");
-  __regfpexc = (fpexc);
+    register uint32_t __regfpexc         __ASM("fpexc");
+    __regfpexc = (fpexc);
 #endif
 }
 
@@ -476,69 +480,69 @@ __STATIC_INLINE void __set_FPEXC(uint32_t fpexc)
  */
 __STATIC_INLINE __ASM void __FPU_Enable(void)
 {
-        ARM
+    ARM
 
-        //Permit access to VFP/NEON, registers by modifying CPACR
-        MRC     p15,0,R1,c1,c0,2
-        ORR     R1,R1,#0x00F00000
-        MCR     p15,0,R1,c1,c0,2
+    //Permit access to VFP/NEON, registers by modifying CPACR
+    MRC     p15, 0, R1, c1, c0, 2
+    ORR     R1, R1, #0x00F00000
+    MCR     p15, 0, R1, c1, c0, 2
 
-        //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
-        ISB
+    //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
+    ISB
 
-        //Enable VFP/NEON
-        VMRS    R1,FPEXC
-        ORR     R1,R1,#0x40000000
-        VMSR    FPEXC,R1
+    //Enable VFP/NEON
+    VMRS    R1, FPEXC
+    ORR     R1, R1, #0x40000000
+    VMSR    FPEXC, R1
 
-        //Initialise VFP/NEON registers to 0
-        MOV     R2,#0
+    //Initialise VFP/NEON registers to 0
+    MOV     R2, #0
 
-        //Initialise D16 registers to 0
-        VMOV    D0, R2,R2
-        VMOV    D1, R2,R2
-        VMOV    D2, R2,R2
-        VMOV    D3, R2,R2
-        VMOV    D4, R2,R2
-        VMOV    D5, R2,R2
-        VMOV    D6, R2,R2
-        VMOV    D7, R2,R2
-        VMOV    D8, R2,R2
-        VMOV    D9, R2,R2
-        VMOV    D10,R2,R2
-        VMOV    D11,R2,R2
-        VMOV    D12,R2,R2
-        VMOV    D13,R2,R2
-        VMOV    D14,R2,R2
-        VMOV    D15,R2,R2
+    //Initialise D16 registers to 0
+    VMOV    D0, R2, R2
+    VMOV    D1, R2, R2
+    VMOV    D2, R2, R2
+    VMOV    D3, R2, R2
+    VMOV    D4, R2, R2
+    VMOV    D5, R2, R2
+    VMOV    D6, R2, R2
+    VMOV    D7, R2, R2
+    VMOV    D8, R2, R2
+    VMOV    D9, R2, R2
+    VMOV    D10, R2, R2
+    VMOV    D11, R2, R2
+    VMOV    D12, R2, R2
+    VMOV    D13, R2, R2
+    VMOV    D14, R2, R2
+    VMOV    D15, R2, R2
 
-  IF {TARGET_FEATURE_EXTENSION_REGISTER_COUNT} == 32
-        //Initialise D32 registers to 0
-        VMOV    D16,R2,R2
-        VMOV    D17,R2,R2
-        VMOV    D18,R2,R2
-        VMOV    D19,R2,R2
-        VMOV    D20,R2,R2
-        VMOV    D21,R2,R2
-        VMOV    D22,R2,R2
-        VMOV    D23,R2,R2
-        VMOV    D24,R2,R2
-        VMOV    D25,R2,R2
-        VMOV    D26,R2,R2
-        VMOV    D27,R2,R2
-        VMOV    D28,R2,R2
-        VMOV    D29,R2,R2
-        VMOV    D30,R2,R2
-        VMOV    D31,R2,R2
-  ENDIF
+    IF {TARGET_FEATURE_EXTENSION_REGISTER_COUNT} == 32
+    //Initialise D32 registers to 0
+    VMOV    D16, R2, R2
+    VMOV    D17, R2, R2
+    VMOV    D18, R2, R2
+    VMOV    D19, R2, R2
+    VMOV    D20, R2, R2
+    VMOV    D21, R2, R2
+    VMOV    D22, R2, R2
+    VMOV    D23, R2, R2
+    VMOV    D24, R2, R2
+    VMOV    D25, R2, R2
+    VMOV    D26, R2, R2
+    VMOV    D27, R2, R2
+    VMOV    D28, R2, R2
+    VMOV    D29, R2, R2
+    VMOV    D30, R2, R2
+    VMOV    D31, R2, R2
+    ENDIF
 
-        //Initialise FPSCR to a known state
-        VMRS    R2,FPSCR
-        LDR     R3,=0x00086060 //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
-        AND     R2,R2,R3
-        VMSR    FPSCR,R2
+    //Initialise FPSCR to a known state
+    VMRS    R2, FPSCR
+    LDR     R3, = 0x00086060 //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
+                  AND     R2, R2, R3
+                  VMSR    FPSCR, R2
 
-        BX      LR
+                  BX      LR
 }
 
 #endif /* __CMSIS_ARMCC_H */

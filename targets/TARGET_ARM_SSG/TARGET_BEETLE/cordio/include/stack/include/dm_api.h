@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   dm_api.h
- *        
+ *
  *  \brief  Device Manager subsystem API.
  *
  *          $Date: 2016-03-29 11:20:44 -0700 (Tue, 29 Mar 2016) $
  *          $Revision: 6512 $
- *  
+ *
  *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
  *  Wicentric confidential and proprietary.
  *
@@ -192,7 +192,7 @@ extern "C" {
 #define DM_SEC_LEVEL_ENC            1     /*! Connection is encrypted with unauthenticated key */
 #define DM_SEC_LEVEL_ENC_AUTH       2     /*! Connection is encrypted with authenticated key */
 #define DM_SEC_LEVEL_ENC_LESC       3     /*! Connection is encrypted with LE Secure Connections */
-  
+
 /*! Random address types */
 #define DM_RAND_ADDR_STATIC         0xC0  /*! Static address */
 #define DM_RAND_ADDR_RESOLV         0x40  /*! Resolvable private address */
@@ -234,45 +234,44 @@ extern "C" {
 
 /*! DM callback events */
 #define DM_CBACK_START              0x20  /*! DM callback event starting value */
-enum
-{
-  DM_RESET_CMPL_IND = DM_CBACK_START,     /*! Reset complete */
-  DM_ADV_START_IND,                       /*! Advertising started */
-  DM_ADV_STOP_IND,                        /*! Advertising stopped */
-  DM_ADV_NEW_ADDR_IND,                    /*! New resolvable address has been generated */
-  DM_SCAN_START_IND,                      /*! Scanning started */
-  DM_SCAN_STOP_IND,                       /*! Scanning stopped */
-  DM_SCAN_REPORT_IND,                     /*! Scan data received from peer device */
-  DM_CONN_OPEN_IND,                       /*! Connection opened */
-  DM_CONN_CLOSE_IND,                      /*! Connection closed */
-  DM_CONN_UPDATE_IND,                     /*! Connection update complete */
-  DM_SEC_PAIR_CMPL_IND,                   /*! Pairing completed successfully */
-  DM_SEC_PAIR_FAIL_IND,                   /*! Pairing failed or other security failure */
-  DM_SEC_ENCRYPT_IND,                     /*! Connection encrypted */
-  DM_SEC_ENCRYPT_FAIL_IND,                /*! Encryption failed */
-  DM_SEC_AUTH_REQ_IND,                    /*! PIN or OOB data requested for pairing */
-  DM_SEC_KEY_IND,                         /*! Security key indication */
-  DM_SEC_LTK_REQ_IND,                     /*! LTK requested for encyption */
-  DM_SEC_PAIR_IND,                        /*! Incoming pairing request from master */
-  DM_SEC_SLAVE_REQ_IND,                   /*! Incoming security request from slave */
-  DM_SEC_CALC_OOB_IND,                    /*! Result of OOB Confirm Calculation Generation */
-  DM_SEC_ECC_KEY_IND,                     /*! Result of ECC Key Generation */
-  DM_SEC_COMPARE_IND,                     /*! Result of Just Works/Numeric Comparison Compare Value Calculation */
-  DM_SEC_KEYPRESS_IND,                    /*! Keypress indication from peer in passkey security */
-  DM_PRIV_RESOLVED_ADDR_IND,              /*! Private address resolved */
-  DM_CONN_READ_RSSI_IND,                  /*! Connection RSSI read */
-  DM_PRIV_ADD_DEV_TO_RES_LIST_IND,        /*! Device added to resolving list */
-  DM_PRIV_REM_DEV_FROM_RES_LIST_IND,      /*! Device removed from resolving list */
-  DM_PRIV_CLEAR_RES_LIST_IND,             /*! Resolving list cleared */
-  DM_PRIV_READ_PEER_RES_ADDR_IND,         /*! Peer resolving address read */
-  DM_PRIV_READ_LOCAL_RES_ADDR_IND,        /*! Local resolving address read */
-  DM_PRIV_SET_ADDR_RES_ENABLE_IND,        /*! Address resolving enable set */
-  DM_REM_CONN_PARAM_REQ_IND,              /*! Remote connection parameter requested */
-  DM_CONN_DATA_LEN_CHANGE_IND,            /*! Data length changed */
-  DM_CONN_WRITE_AUTH_TO_IND,              /*! Write authenticated payload complete */
-  DM_CONN_AUTH_TO_EXPIRED_IND,            /*! Authenticated payload timeout expired */
-  DM_ERROR_IND,                           /*! General error */
-  DM_VENDOR_SPEC_IND,                     /*! Vendor specific event */
+enum {
+    DM_RESET_CMPL_IND = DM_CBACK_START,     /*! Reset complete */
+    DM_ADV_START_IND,                       /*! Advertising started */
+    DM_ADV_STOP_IND,                        /*! Advertising stopped */
+    DM_ADV_NEW_ADDR_IND,                    /*! New resolvable address has been generated */
+    DM_SCAN_START_IND,                      /*! Scanning started */
+    DM_SCAN_STOP_IND,                       /*! Scanning stopped */
+    DM_SCAN_REPORT_IND,                     /*! Scan data received from peer device */
+    DM_CONN_OPEN_IND,                       /*! Connection opened */
+    DM_CONN_CLOSE_IND,                      /*! Connection closed */
+    DM_CONN_UPDATE_IND,                     /*! Connection update complete */
+    DM_SEC_PAIR_CMPL_IND,                   /*! Pairing completed successfully */
+    DM_SEC_PAIR_FAIL_IND,                   /*! Pairing failed or other security failure */
+    DM_SEC_ENCRYPT_IND,                     /*! Connection encrypted */
+    DM_SEC_ENCRYPT_FAIL_IND,                /*! Encryption failed */
+    DM_SEC_AUTH_REQ_IND,                    /*! PIN or OOB data requested for pairing */
+    DM_SEC_KEY_IND,                         /*! Security key indication */
+    DM_SEC_LTK_REQ_IND,                     /*! LTK requested for encyption */
+    DM_SEC_PAIR_IND,                        /*! Incoming pairing request from master */
+    DM_SEC_SLAVE_REQ_IND,                   /*! Incoming security request from slave */
+    DM_SEC_CALC_OOB_IND,                    /*! Result of OOB Confirm Calculation Generation */
+    DM_SEC_ECC_KEY_IND,                     /*! Result of ECC Key Generation */
+    DM_SEC_COMPARE_IND,                     /*! Result of Just Works/Numeric Comparison Compare Value Calculation */
+    DM_SEC_KEYPRESS_IND,                    /*! Keypress indication from peer in passkey security */
+    DM_PRIV_RESOLVED_ADDR_IND,              /*! Private address resolved */
+    DM_CONN_READ_RSSI_IND,                  /*! Connection RSSI read */
+    DM_PRIV_ADD_DEV_TO_RES_LIST_IND,        /*! Device added to resolving list */
+    DM_PRIV_REM_DEV_FROM_RES_LIST_IND,      /*! Device removed from resolving list */
+    DM_PRIV_CLEAR_RES_LIST_IND,             /*! Resolving list cleared */
+    DM_PRIV_READ_PEER_RES_ADDR_IND,         /*! Peer resolving address read */
+    DM_PRIV_READ_LOCAL_RES_ADDR_IND,        /*! Local resolving address read */
+    DM_PRIV_SET_ADDR_RES_ENABLE_IND,        /*! Address resolving enable set */
+    DM_REM_CONN_PARAM_REQ_IND,              /*! Remote connection parameter requested */
+    DM_CONN_DATA_LEN_CHANGE_IND,            /*! Data length changed */
+    DM_CONN_WRITE_AUTH_TO_IND,              /*! Write authenticated payload complete */
+    DM_CONN_AUTH_TO_EXPIRED_IND,            /*! Authenticated payload timeout expired */
+    DM_ERROR_IND,                           /*! General error */
+    DM_VENDOR_SPEC_IND,                     /*! Vendor specific event */
 };
 
 #define DM_CBACK_END                DM_VENDOR_SPEC_IND  /*! DM callback event ending value */
@@ -285,159 +284,142 @@ enum
 typedef uint8_t dmConnId_t;
 
 /*! Configuration structure */
-typedef struct
-{
-  uint8_t dummy;
+typedef struct {
+    uint8_t dummy;
 } dmCfg_t;
 
 /*! LTK data type */
-typedef struct
-{
-  uint8_t                   key[SMP_KEY_LEN];
-  uint8_t                   rand[SMP_RAND8_LEN];
-  uint16_t                  ediv;
+typedef struct {
+    uint8_t                   key[SMP_KEY_LEN];
+    uint8_t                   rand[SMP_RAND8_LEN];
+    uint16_t                  ediv;
 } dmSecLtk_t;
 
 /*! IRK data type */
-typedef struct
-{
-  uint8_t                   key[SMP_KEY_LEN];
-  bdAddr_t                  bdAddr;
-  uint8_t                   addrType;
+typedef struct {
+    uint8_t                   key[SMP_KEY_LEN];
+    bdAddr_t                  bdAddr;
+    uint8_t                   addrType;
 } dmSecIrk_t;
 
 /*! CSRK data type */
-typedef struct
-{
-  uint8_t                   key[SMP_KEY_LEN];
+typedef struct {
+    uint8_t                   key[SMP_KEY_LEN];
 } dmSecCsrk_t;
 
 /*! union of key types */
-typedef union
-{
-  dmSecLtk_t                ltk;
-  dmSecIrk_t                irk;
-  dmSecCsrk_t               csrk;
+typedef union {
+    dmSecLtk_t                ltk;
+    dmSecIrk_t                irk;
+    dmSecCsrk_t               csrk;
 } dmSecKey_t;
 
 /*! Data type for DM_SEC_PAIR_CMPL_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  uint8_t                   auth;         /*! Authentication and bonding flags */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    uint8_t                   auth;         /*! Authentication and bonding flags */
 } dmSecPairCmplIndEvt_t;
 
 /*! Data type for DM_SEC_ENCRYPT_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  bool_t                    usingLtk;     /*! TRUE if connection encrypted with LTK */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    bool_t                    usingLtk;     /*! TRUE if connection encrypted with LTK */
 } dmSecEncryptIndEvt_t;
 
 /*! Data type for DM_SEC_AUTH_REQ_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  bool_t                    oob;          /*! Out-of-band data requested */
-  bool_t                    display;      /*! TRUE if pin is to be displayed */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    bool_t                    oob;          /*! Out-of-band data requested */
+    bool_t                    display;      /*! TRUE if pin is to be displayed */
 } dmSecAuthReqIndEvt_t;
 
 /*! Data type for DM_SEC_PAIR_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  uint8_t                   auth;         /*! Authentication and bonding flags */
-  bool_t                    oob;          /*! Out-of-band pairing data present or not present */
-  uint8_t                   iKeyDist;     /*! Initiator key distribution flags */
-  uint8_t                   rKeyDist;     /*! Responder key distribution flags */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    uint8_t                   auth;         /*! Authentication and bonding flags */
+    bool_t                    oob;          /*! Out-of-band pairing data present or not present */
+    uint8_t                   iKeyDist;     /*! Initiator key distribution flags */
+    uint8_t                   rKeyDist;     /*! Responder key distribution flags */
 } dmSecPairIndEvt_t;
 
 /*! Data type for DM_SEC_SLAVE_REQ_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  uint8_t                   auth;         /*! Authentication and bonding flags */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    uint8_t                   auth;         /*! Authentication and bonding flags */
 } dmSecSlaveIndEvt_t;
 
 /*! Data type for DM_SEC_KEY_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  dmSecKey_t                keyData;      /*! Key data */
-  uint8_t                   type;         /*! Key type */
-  uint8_t                   secLevel;     /*! Security level of pairing when key was exchanged */
-  uint8_t                   encKeyLen;    /*! Length of encryption key used when data was transferred */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    dmSecKey_t                keyData;      /*! Key data */
+    uint8_t                   type;         /*! Key type */
+    uint8_t                   secLevel;     /*! Security level of pairing when key was exchanged */
+    uint8_t                   encKeyLen;    /*! Length of encryption key used when data was transferred */
 } dmSecKeyIndEvt_t;
 
 /*! Data type for DM_SEC_COMPARE_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;                       /*! Header */
-  uint8_t                   confirm[SMP_CONFIRM_LEN];  /*! Confirm value */
+typedef struct {
+    wsfMsgHdr_t               hdr;                       /*! Header */
+    uint8_t                   confirm[SMP_CONFIRM_LEN];  /*! Confirm value */
 } dmSecCnfIndEvt_t;
 
 /*! Data type for DM_SEC_KEYPRESS_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;                       /*! Header */
-  uint8_t                   notificationType;          /*! Type of keypress notification */
+typedef struct {
+    wsfMsgHdr_t               hdr;                       /*! Header */
+    uint8_t                   notificationType;          /*! Type of keypress notification */
 } dmSecKeypressIndEvt_t;
 
-typedef struct
-{
-  wsfMsgHdr_t               hdr;                       /*! Header */
-  uint8_t                   confirm[SMP_CONFIRM_LEN];  /*! Local confirm value */
-  uint8_t                   random[SMP_RAND_LEN];      /*! Local random value */
+typedef struct {
+    wsfMsgHdr_t               hdr;                       /*! Header */
+    uint8_t                   confirm[SMP_CONFIRM_LEN];  /*! Local confirm value */
+    uint8_t                   random[SMP_RAND_LEN];      /*! Local random value */
 } dmSecOobCalcIndEvt_t;
 
 /*! Data type for DM_ADV_NEW_ADDR_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  bdAddr_t                  addr;         /*! New resolvable private address */
-  bool_t                    firstTime;    /*! TRUE when address is generated for the first time */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    bdAddr_t                  addr;         /*! New resolvable private address */
+    bool_t                    firstTime;    /*! TRUE when address is generated for the first time */
 } dmAdvNewAddrIndEvt_t;
 
 /*! Union of DM callback event data types */
-typedef union
-{
-  wsfMsgHdr_t                        hdr;
-  hciLeAdvReportEvt_t                scanReport;
-  hciLeConnCmplEvt_t                 connOpen;
-  hciLeConnUpdateCmplEvt_t           connUpdate;
-  hciDisconnectCmplEvt_t             connClose;
-  dmSecPairCmplIndEvt_t              pairCmpl;
-  dmSecEncryptIndEvt_t               encryptInd;
-  dmSecAuthReqIndEvt_t               authReq;
-  dmSecPairIndEvt_t                  pairInd;
-  dmSecSlaveIndEvt_t                 slaveInd;
-  dmSecKeyIndEvt_t                   keyInd;
-  dmSecOobCalcIndEvt_t               oobCalcInd;
-  dmSecCnfIndEvt_t                   cnfInd;
-  hciLeLtkReqEvt_t                   ltkReqInd;
-  hciVendorSpecEvt_t                 vendorSpec;
-  dmAdvNewAddrIndEvt_t               advNewAddr;
-  wsfSecEccMsg_t                     eccMsg;
-  hciReadRssiCmdCmplEvt_t            readRssi;
-  hciLeReadPeerResAddrCmdCmplEvt_t   readPeerResAddr;
-  hciLeReadLocalResAddrCmdCmplEvt_t  readLocalResAddr;
-  hciLeSetAddrResEnableCmdCmplEvt_t  setAddrResEnable;
-  hciLeAddDevToResListCmdCmplEvt_t   addDevToResList;
-  hciLeRemDevFromResListCmdCmplEvt_t remDevFromResList;
-  hciLeClearResListCmdCmplEvt_t      clearResList;
-  hciLeRemConnParamReqEvt_t          remConnParamReq;
-  hciLeDataLenChangeEvt_t            dataLenChange;
-  hciWriteAuthPayloadToCmdCmplEvt_t writeAuthTo;
-  hciAuthPayloadToExpiredEvt_t      authToExpired;
+typedef union {
+    wsfMsgHdr_t                        hdr;
+    hciLeAdvReportEvt_t                scanReport;
+    hciLeConnCmplEvt_t                 connOpen;
+    hciLeConnUpdateCmplEvt_t           connUpdate;
+    hciDisconnectCmplEvt_t             connClose;
+    dmSecPairCmplIndEvt_t              pairCmpl;
+    dmSecEncryptIndEvt_t               encryptInd;
+    dmSecAuthReqIndEvt_t               authReq;
+    dmSecPairIndEvt_t                  pairInd;
+    dmSecSlaveIndEvt_t                 slaveInd;
+    dmSecKeyIndEvt_t                   keyInd;
+    dmSecOobCalcIndEvt_t               oobCalcInd;
+    dmSecCnfIndEvt_t                   cnfInd;
+    hciLeLtkReqEvt_t                   ltkReqInd;
+    hciVendorSpecEvt_t                 vendorSpec;
+    dmAdvNewAddrIndEvt_t               advNewAddr;
+    wsfSecEccMsg_t                     eccMsg;
+    hciReadRssiCmdCmplEvt_t            readRssi;
+    hciLeReadPeerResAddrCmdCmplEvt_t   readPeerResAddr;
+    hciLeReadLocalResAddrCmdCmplEvt_t  readLocalResAddr;
+    hciLeSetAddrResEnableCmdCmplEvt_t  setAddrResEnable;
+    hciLeAddDevToResListCmdCmplEvt_t   addDevToResList;
+    hciLeRemDevFromResListCmdCmplEvt_t remDevFromResList;
+    hciLeClearResListCmdCmplEvt_t      clearResList;
+    hciLeRemConnParamReqEvt_t          remConnParamReq;
+    hciLeDataLenChangeEvt_t            dataLenChange;
+    hciWriteAuthPayloadToCmdCmplEvt_t writeAuthTo;
+    hciAuthPayloadToExpiredEvt_t      authToExpired;
 } dmEvt_t;
 
 /*! Data type for DmSecSetOob */
-typedef struct
-{
-  uint8_t localRandom[SMP_RAND_LEN];      /*! Random value of the local device */
-  uint8_t localConfirm[SMP_CONFIRM_LEN];  /*! Confirm value of the local device */
-  uint8_t peerRandom[SMP_RAND_LEN];       /*! Random value of the peer device */
-  uint8_t peerConfirm[SMP_CONFIRM_LEN];   /*! Confirm value of the peer device */
+typedef struct {
+    uint8_t localRandom[SMP_RAND_LEN];      /*! Random value of the local device */
+    uint8_t localConfirm[SMP_CONFIRM_LEN];  /*! Confirm value of the local device */
+    uint8_t peerRandom[SMP_RAND_LEN];       /*! Random value of the peer device */
+    uint8_t peerConfirm[SMP_CONFIRM_LEN];   /*! Confirm value of the peer device */
 } dmSecLescOobCfg_t;
 
 /*! Callback type */
@@ -450,7 +432,7 @@ typedef void (*dmCback_t)(dmEvt_t *pDmEvt);
 /*************************************************************************************************/
 /*!
  *  \fn     DmRegister
- *        
+ *
  *  \brief  Register a callback with DM for scan and advertising events.
  *
  *  \param  cback  Client callback function.
@@ -463,7 +445,7 @@ void DmRegister(dmCback_t cback);
 /*************************************************************************************************/
 /*!
  *  \fn     DmFindAdType
- *        
+ *
  *  \brief  Find an advertising data element in the given advertising or scan response data.
  *
  *  \param  adType  Advertising data element type to find.
@@ -478,7 +460,7 @@ uint8_t *DmFindAdType(uint8_t adType, uint8_t dataLen, uint8_t *pData);
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvInit
- *        
+ *
  *  \brief  Initialize DM advertising.
  *
  *  \return None.
@@ -489,7 +471,7 @@ void DmAdvInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvStart
- *        
+ *
  *  \brief  Start advertising using the given advertising type and duration.
  *
  *  \param  advType       Advertising type.
@@ -505,7 +487,7 @@ void DmAdvStart(uint8_t advType, uint16_t duration, uint8_t peerAddrType, uint8_
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvStop
- *        
+ *
  *  \brief  Stop advertising.
  *
  *  \return None.
@@ -516,7 +498,7 @@ void DmAdvStop(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvSetInterval
- *        
+ *
  *  \brief  Set the minimum and maximum advertising intervals.
  *
  *  \param  intervalMin Minimum advertising interval.
@@ -530,10 +512,10 @@ void DmAdvSetInterval(uint16_t intervalMin, uint16_t intervalMax);
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvSetChannelMap
- *        
+ *
  *  \brief  Include or exclude certain channels from the advertising channel map.
  *
- *  \param  channelMap  Advertising channel map. 
+ *  \param  channelMap  Advertising channel map.
  *
  *  \return None.
  */
@@ -543,7 +525,7 @@ void DmAdvSetChannelMap(uint8_t channelMap);
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvSetData
- *        
+ *
  *  \brief  Set the advertising or scan response data to the given data.
  *
  *  \param  location  Data location.
@@ -558,7 +540,7 @@ void DmAdvSetData(uint8_t location, uint8_t len, uint8_t *pData);
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvSetAddrType
- *        
+ *
  *  \brief  Set the local address type used while advertising.  This function can be used to
  *          configure advertising to use a random address.
  *
@@ -572,13 +554,13 @@ void DmAdvSetAddrType(uint8_t addrType);
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvSetAdValue
- *        
+ *
  *  \brief  Set the value of an advertising data element in the given advertising or
  *          scan response data.  If the element already exists in the data then it is replaced
  *          with the new value.  If the element does not exist in the data it is appended
  *          to it, space permitting.
  *
- *  \param  adType       Advertising data element type. 
+ *  \param  adType       Advertising data element type.
  *  \param  len          Length of the value.  Maximum length is 29 bytes.
  *  \param  pValue       Pointer to the value.
  *  \param  pAdvDataLen  Advertising or scan response data length.  The new length is returned
@@ -594,7 +576,7 @@ bool_t DmAdvSetAdValue(uint8_t adType, uint8_t len, uint8_t *pValue, uint8_t *pA
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvSetName
- *        
+ *
  *  \brief  Set the device name in the given advertising or scan response data.  If the
  *          name can only fit in the data if it is shortened, the name is shortened
  *          and the AD type is changed to DM_ADV_TYPE_SHORT_NAME.
@@ -613,7 +595,7 @@ bool_t DmAdvSetName(uint8_t len, uint8_t *pValue, uint8_t *pAdvDataLen, uint8_t 
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvPrivInit
- *        
+ *
  *  \brief  Initialize private advertising.
  *
  *  \return None.
@@ -624,7 +606,7 @@ void DmAdvPrivInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvPrivStart
- *        
+ *
  *  \brief  Start using a private resolvable address.
  *
  *  \param  changeInterval  Interval between automatic address changes, in seconds.
@@ -637,7 +619,7 @@ void DmAdvPrivStart(uint16_t changeInterval);
 /*************************************************************************************************/
 /*!
  *  \fn     DmAdvPrivStop
- *        
+ *
  *  \brief  Stop using a private resolvable address.
  *
  *  \return None.
@@ -648,7 +630,7 @@ void DmAdvPrivStop(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmScanInit
- *        
+ *
  *  \brief  Initialize DM scanning.
  *
  *  \return None.
@@ -659,7 +641,7 @@ void DmScanInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmScanStart
- *        
+ *
  *  \brief  Start scanning.
  *
  *  \param  mode      Discoverability mode.
@@ -677,7 +659,7 @@ void DmScanStart(uint8_t mode, uint8_t scanType, bool_t filterDup, uint16_t dura
 /*************************************************************************************************/
 /*!
  *  \fn     DmScanStop
- *        
+ *
  *  \brief  Stop scanning.
  *
  *  \return None.
@@ -688,7 +670,7 @@ void DmScanStop(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmScanSetInterval
- *        
+ *
  *  \brief  Set the scan interval and window.
  *
  *  \param  scanInterval  The scan interval.
@@ -702,7 +684,7 @@ void DmScanSetInterval(uint16_t scanInterval, uint16_t scanWindow);
 /*************************************************************************************************/
 /*!
  *  \fn     DmScanSetAddrType
- *        
+ *
  *  \brief  Set the local address type used while scanning.  This function can be used to
  *          configure scanning to use a random address.
  *
@@ -716,7 +698,7 @@ void DmScanSetAddrType(uint8_t addrType);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnInit
- *        
+ *
  *  \brief  Initialize DM connection manager.
  *
  *  \return None.
@@ -727,7 +709,7 @@ void DmConnInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnMasterInit
- *        
+ *
  *  \brief  Initialize DM connection manager for operation as master.
  *
  *  \return None.
@@ -738,7 +720,7 @@ void DmConnMasterInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnSlaveInit
- *        
+ *
  *  \brief  Initialize DM connection manager for operation as slave.
  *
  *  \return None.
@@ -749,7 +731,7 @@ void DmConnSlaveInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnRegister
- *        
+ *
  *  \brief  Register with the DM connection manager.
  *
  *  \param  clientId  The client identifier.
@@ -763,7 +745,7 @@ void DmConnRegister(uint8_t clientId, dmCback_t cback);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnOpen
- *        
+ *
  *  \brief  Open a connection to a peer device with the given address.
  *
  *  \param  clientId  The client identifier.
@@ -778,7 +760,7 @@ dmConnId_t DmConnOpen(uint8_t clientId, uint8_t addrType, uint8_t *pAddr);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnClose
- *        
+ *
  *  \brief  Close the connection with the give connection identifier.
  *
  *  \param  clientId  The client identifier.
@@ -793,7 +775,7 @@ void DmConnClose(uint8_t clientId, dmConnId_t connId, uint8_t reason);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnAccept
- *        
+ *
  *  \brief  Accept a connection from the given peer device by initiating directed advertising.
  *
  *  \param  clientId  The client identifier.
@@ -809,7 +791,7 @@ dmConnId_t DmConnAccept(uint8_t clientId, uint8_t advType, uint8_t addrType, uin
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnUpdate
- *        
+ *
  *  \brief  Update the connection parameters of an open connection
  *
  *  \param  connId      Connection identifier.
@@ -823,7 +805,7 @@ void DmConnUpdate(dmConnId_t connId, hciConnSpec_t *pConnSpec);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnSetScanInterval
- *        
+ *
  *  \brief  Set the scan interval and window for created connections created with DmConnOpen().
  *
  *  \param  scanInterval  The scan interval.
@@ -837,7 +819,7 @@ void DmConnSetScanInterval(uint16_t scanInterval, uint16_t scanWindow);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnSetConnSpec
- *        
+ *
  *  \brief  Set the connection specification parameters for connections created with DmConnOpen().
  *
  *  \param  pConnSpec   Connection spec parameters.
@@ -850,7 +832,7 @@ void DmConnSetConnSpec(hciConnSpec_t *pConnSpec);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnSetAddrType
- *        
+ *
  *  \brief  Set the local address type used for connections created with DmConnOpen().
  *
  *  \param  addrType  Address type.
@@ -863,7 +845,7 @@ void DmConnSetAddrType(uint8_t addrType);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnSetIdle
- *        
+ *
  *  \brief  Configure a bit in the connection idle state mask as busy or idle.
  *
  *  \param  connId      Connection identifier.
@@ -878,7 +860,7 @@ void DmConnSetIdle(dmConnId_t connId, uint16_t idleMask, uint8_t idle);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnCheckIdle
- *        
+ *
  *  \brief  Check if a connection is idle.
  *
  *  \param  connId      Connection identifier.
@@ -891,7 +873,7 @@ uint16_t DmConnCheckIdle(dmConnId_t connId);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnReadRssi
- *        
+ *
  *  \brief  Read RSSI of a given connection.
  *
  *  \param  connId      Connection identifier.
@@ -965,7 +947,7 @@ void DmWriteAuthPayloadTimeout(dmConnId_t connId, uint16_t timeout);
 /*************************************************************************************************/
 /*!
  *  \fn     DmDevReset
- *        
+ *
  *  \brief  Reset the device.
  *
  *  \return None.
@@ -976,7 +958,7 @@ void DmDevReset(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmDevRole
- *        
+ *
  *  \brief  Return the device role indicating master or slave.
  *
  *  \return Device role.
@@ -987,7 +969,7 @@ uint8_t DmDevRole(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmDevSetRandAddr
- *        
+ *
  *  \brief  Set the random address to be used by the local device.
  *
  *  \param  pAddr     Random address.
@@ -1000,7 +982,7 @@ void DmDevSetRandAddr(uint8_t *pAddr);
 /*************************************************************************************************/
 /*!
  *  \fn     DmDevWhiteListAdd
- *        
+ *
  *  \brief  Add a peer device to the white list.  Note that this function cannot be called
  *          while advertising, scanning, or connecting with white list filtering active.
  *
@@ -1015,7 +997,7 @@ void DmDevWhiteListAdd(uint8_t addrType, uint8_t *pAddr);
 /*************************************************************************************************/
 /*!
  *  \fn     DmDevWhiteListRemove
- *        
+ *
  *  \brief  Remove a peer device from the white list.  Note that this function cannot be called
  *          while advertising, scanning, or connecting with white list filtering active.
  *
@@ -1030,7 +1012,7 @@ void DmDevWhiteListRemove(uint8_t addrType, uint8_t *pAddr);
 /*************************************************************************************************/
 /*!
  *  \fn     DmDevWhiteListClear
- *        
+ *
  *  \brief  Clear the white list.  Note that this function cannot be called while
  *          advertising, scanning, or connecting with white list filtering active.
  *
@@ -1042,7 +1024,7 @@ void DmDevWhiteListClear(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmDevSetFilterPolicy
- *        
+ *
  *  \brief  Set the Advertising, Scanning or Initiator filter policy.
  *
  *  \param  mode     Policy mode.
@@ -1056,7 +1038,7 @@ bool_t DmDevSetFilterPolicy(uint8_t mode, uint8_t policy);
 /*************************************************************************************************/
 /*!
  *  \fn     DmDevVsInit
- *        
+ *
  *  \brief  Vendor-specific controller initialization function.
  *
  *  \param  param    Vendor-specific parameter.
@@ -1069,7 +1051,7 @@ void DmDevVsInit(uint8_t param);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecInit
- *        
+ *
  *  \brief  Initialize DM security.
  *
  *  \return None.
@@ -1080,7 +1062,7 @@ void DmSecInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecLescInit
- *        
+ *
  *  \brief  Initialize DM LE Secure Connections security.
  *
  *  \return None.
@@ -1091,7 +1073,7 @@ void DmSecLescInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecPairReq
- *        
+ *
  *  \brief  This function is called by a master device to initiate pairing.
  *
  *  \param  connId    DM connection ID.
@@ -1108,7 +1090,7 @@ void DmSecPairReq(dmConnId_t connId, bool_t oob, uint8_t auth, uint8_t iKeyDist,
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecPairRsp
- *        
+ *
  *  \brief  This function is called by a slave device to proceed with pairing after a
  *          DM_SEC_PAIR_IND event is received.
  *
@@ -1126,7 +1108,7 @@ void DmSecPairRsp(dmConnId_t connId, bool_t oob, uint8_t auth, uint8_t iKeyDist,
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecCancelReq
- *        
+ *
  *  \brief  This function is called to cancel the pairing process.
  *
  *  \param  connId    DM connection ID.
@@ -1140,7 +1122,7 @@ void DmSecCancelReq(dmConnId_t connId, uint8_t reason);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecAuthRsp
- *        
+ *
  *  \brief  This function is called in response to a DM_SEC_AUTH_REQ_IND event to provide
  *          PIN or OOB data during pairing.
  *
@@ -1156,7 +1138,7 @@ void DmSecAuthRsp(dmConnId_t connId, uint8_t authDataLen, uint8_t *pAuthData);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecSlaveReq
- *        
+ *
  *  \brief  This function is called by a slave device to request that the master initiates
  *          pairing or link encryption.
  *
@@ -1171,7 +1153,7 @@ void DmSecSlaveReq(dmConnId_t connId, uint8_t auth);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecEncryptReq
- *        
+ *
  *  \brief  This function is called by a master device to initiate link encryption.
  *
  *  \param  connId    DM connection ID.
@@ -1186,9 +1168,9 @@ void DmSecEncryptReq(dmConnId_t connId, uint8_t secLevel, dmSecLtk_t *pLtk);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecLtkRsp
- *        
- *  \brief  This function is called by a slave in response to a DM_SEC_LTK_REQ_IND event 
- *          to provide the long term key used for encryption.  
+ *
+ *  \brief  This function is called by a slave in response to a DM_SEC_LTK_REQ_IND event
+ *          to provide the long term key used for encryption.
  *
  *  \param  connId    DM connection ID.
  *  \param  keyFound  TRUE if key found.
@@ -1203,8 +1185,8 @@ void DmSecLtkRsp(dmConnId_t connId, bool_t keyFound, uint8_t secLevel, uint8_t *
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecSetLocalCsrk
- *        
- *  \brief  This function sets the local CSRK used by the device.  
+ *
+ *  \brief  This function sets the local CSRK used by the device.
  *
  *  \param  pCsrk     Pointer to CSRK.
  *
@@ -1216,8 +1198,8 @@ void DmSecSetLocalCsrk(uint8_t *pCsrk);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecSetLocalIrk
- *        
- *  \brief  This function sets the local IRK used by the device.  
+ *
+ *  \brief  This function sets the local IRK used by the device.
  *
  *  \param  pCsrk     Pointer to IRK.
  *
@@ -1229,7 +1211,7 @@ void DmSecSetLocalIrk(uint8_t *pIrk);
 /*************************************************************************************************/
 /*!
  *  \fn     DmPrivInit
- *        
+ *
  *  \brief  Initialize DM privacy module.
  *
  *  \return None.
@@ -1240,7 +1222,7 @@ void DmPrivInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmPrivResolveAddr
- *        
+ *
  *  \brief  Resolve a private resolvable address.  When complete the client's callback function
  *          is called with a DM_PRIV_RESOLVED_ADDR_IND event.  The client must wait to receive
  *          this event before executing this function again.
@@ -1434,7 +1416,7 @@ uint8_t DmHostAddrType(uint8_t addrType);
 /*************************************************************************************************/
 /*!
  *  \fn     DmL2cConnUpdateCnf
- *        
+ *
  *  \brief  For internal use only.  L2C calls this function to send the result of an L2CAP
  *          connection update response to DM.
  *
@@ -1448,7 +1430,7 @@ void DmL2cConnUpdateCnf(uint16_t handle, uint16_t reason);
 /*************************************************************************************************/
 /*!
  *  \fn     DmL2cConnUpdateInd
- *        
+ *
  *  \brief  For internal use only.  L2C calls this function when it receives a connection update
  *          request from a peer device.
  *
@@ -1463,7 +1445,7 @@ void DmL2cConnUpdateInd(uint8_t identifier, uint16_t handle, hciConnSpec_t *pCon
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnIdByHandle
- *        
+ *
  *  \brief  For internal use only.  Find the connection ID with matching handle.
  *
  *  \param  handle  Handle to find.
@@ -1476,7 +1458,7 @@ dmConnId_t DmConnIdByHandle(uint16_t handle);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnInUse
- *        
+ *
  *  \brief  For internal use only.  Return TRUE if the connection is in use.
  *
  *  \param  connId  Connection ID.
@@ -1489,7 +1471,7 @@ bool_t DmConnInUse(dmConnId_t connId);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnPeerAddrType
- *        
+ *
  *  \brief  For internal use only.  Return the peer address type.
  *
  *  \param  connId  Connection ID.
@@ -1502,7 +1484,7 @@ uint8_t DmConnPeerAddrType(dmConnId_t connId);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnPeerAddr
- *        
+ *
  *  \brief  For internal use only.  Return the peer device address.
  *
  *  \param  connId  Connection ID.
@@ -1515,7 +1497,7 @@ uint8_t *DmConnPeerAddr(dmConnId_t connId);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnLocalAddrType
- *        
+ *
  *  \brief  For internal use only.  Return the local address type.
  *
  *  \param  connId  Connection ID.
@@ -1528,7 +1510,7 @@ uint8_t DmConnLocalAddrType(dmConnId_t connId);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnLocalAddr
- *        
+ *
  *  \brief  For internal use only.  Return the local address.
  *
  *  \param  connId  Connection ID.
@@ -1567,7 +1549,7 @@ uint8_t *DmConnLocalRpa(dmConnId_t connId);
 /*************************************************************************************************/
 /*!
  *  \fn     DmConnSecLevel
- *        
+ *
  *  \brief  For internal use only.  Return the security level of the connection.
  *
  *  \param  connId  Connection ID.
@@ -1580,7 +1562,7 @@ uint8_t DmConnSecLevel(dmConnId_t connId);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSmpEncryptReq
- *        
+ *
  *  \brief  For internal use only.  This function is called by SMP to request encryption.
  *
  *  \param  connId    DM connection ID.
@@ -1595,7 +1577,7 @@ void DmSmpEncryptReq(dmConnId_t connId, uint8_t secLevel, uint8_t *pKey);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSmpCbackExec
- *        
+ *
  *  \brief  For internal use only.  Execute DM callback from SMP procedures.
  *
  *  \param  pDmEvt    Pointer to callback event data.
@@ -1608,8 +1590,8 @@ void DmSmpCbackExec(dmEvt_t *pDmEvt);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecGetLocalCsrk
- *        
- *  \brief  For internal use only.  This function gets the local CSRK used by the device.  
+ *
+ *  \brief  For internal use only.  This function gets the local CSRK used by the device.
  *
  *  \return Pointer to CSRK.
  */
@@ -1619,8 +1601,8 @@ uint8_t *DmSecGetLocalCsrk(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecGetLocalIrk
- *        
- *  \brief  For internal use only.  This function gets the local IRK used by the device.  
+ *
+ *  \brief  For internal use only.  This function gets the local IRK used by the device.
  *
  *  \return Pointer to IRK.
  */
@@ -1630,8 +1612,8 @@ uint8_t *DmSecGetLocalIrk(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecGenerateEccKeyReq
- *        
- *  \brief  This function generates an ECC key for use with LESC security.  
+ *
+ *  \brief  This function generates an ECC key for use with LESC security.
  *
  *  \return none.
  */
@@ -1641,8 +1623,8 @@ void DmSecGenerateEccKeyReq(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecSetEccKey
- *        
- *  \brief  This function sets the ECC key for use with LESC security.  
+ *
+ *  \brief  This function sets the ECC key for use with LESC security.
  *
  *  \param  pKey      Pointer to key.
  *
@@ -1654,7 +1636,7 @@ void DmSecSetEccKey(wsfSecEccKey_t *pKey);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecGetEccKey
- *        
+ *
  *  \brief  This function gets the local ECC key for use with LESC security.
  *
  *  \return Pointer to local ECC key.
@@ -1665,7 +1647,7 @@ wsfSecEccKey_t *DmSecGetEccKey(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecSetDebugEccKey
- *        
+ *
  *  \brief  This function sets the ECC key for use with LESC security to standard debug keys values.
  *
  *  \return None.
@@ -1676,7 +1658,7 @@ void DmSecSetDebugEccKey(void);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecSetOob
- *        
+ *
  *  \brief  This function configures the DM to use OOB pairing for the given connection.
  *          The pRand and pConfirm contain the Random and Confirm values exchanged via
  *          out of band methods.
@@ -1692,10 +1674,10 @@ void DmSecSetOob(dmConnId_t connId, dmSecLescOobCfg_t *pConfig);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecCalcOobReq
- *        
- *  \brief  This function calculates the local random and confirm values used in LESC OOB pairing. 
+ *
+ *  \brief  This function calculates the local random and confirm values used in LESC OOB pairing.
  *          The operation's result is posted as a DM_SEC_CALC_OOB_IND event to the application's DM
- *          callback handler.  The local rand and confirm values are exchanged with the peer via 
+ *          callback handler.  The local rand and confirm values are exchanged with the peer via
  *          out-of-band (OOB) methods and passed into the DmSecSetOob after DM_CONN_OPEN_IND.
  *
  *  \param  pRand       Random value used in calculation.
@@ -1709,9 +1691,9 @@ void DmSecCalcOobReq(uint8_t *pRand, uint8_t *pPubKeyX);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecCompareRsp
- *        
+ *
  *  \brief  This function is called by the application in response to a DM_SEC_COMPARE_IND event.
- *          The valid parameter indicates if the compare value of the DM_SEC_COMPARE_IND was valid. 
+ *          The valid parameter indicates if the compare value of the DM_SEC_COMPARE_IND was valid.
  *
  *  \param  connId      ID of the connection
  *  \param  valid       TRUE if compare value was valid
@@ -1724,7 +1706,7 @@ void DmSecCompareRsp(dmConnId_t connId, bool_t valid);
 /*************************************************************************************************/
 /*!
  *  \fn     DmSecGetCompareValue
- *        
+ *
  *  \brief  This function returns the 6-digit compare value for the specified 128-bit confirm value.
  *
  *  \param  pConfirm    Pointer to 128-bit comfirm value.

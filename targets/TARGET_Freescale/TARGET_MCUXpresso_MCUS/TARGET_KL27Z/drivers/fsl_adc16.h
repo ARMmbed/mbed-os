@@ -53,16 +53,14 @@
 /*!
  * @brief Channel status flags.
  */
-enum _adc16_channel_status_flags
-{
+enum _adc16_channel_status_flags {
     kADC16_ChannelConversionDoneFlag = ADC_SC1_COCO_MASK, /*!< Conversion done. */
 };
 
 /*!
  * @brief Converter status flags.
  */
-enum _adc16_status_flags
-{
+enum _adc16_status_flags {
     kADC16_ActiveFlag = ADC_SC2_ADACT_MASK, /*!< Converter is active. */
 #if defined(FSL_FEATURE_ADC16_HAS_CALIBRATION) && FSL_FEATURE_ADC16_HAS_CALIBRATION
     kADC16_CalibrationFailedFlag = ADC_SC3_CALF_MASK, /*!< Calibration is failed. */
@@ -76,8 +74,7 @@ enum _adc16_status_flags
  * For some ADC16 channels, there are two pin selections in channel multiplexer. For example, ADC0_SE4a and ADC0_SE4b
  * are the different channels but share the same channel number.
  */
-typedef enum _adc_channel_mux_mode
-{
+typedef enum _adc_channel_mux_mode {
     kADC16_ChannelMuxA = 0U, /*!< For channel with channel mux a. */
     kADC16_ChannelMuxB = 1U, /*!< For channel with channel mux b. */
 } adc16_channel_mux_mode_t;
@@ -86,8 +83,7 @@ typedef enum _adc_channel_mux_mode
 /*!
  * @brief Clock divider for the converter.
  */
-typedef enum _adc16_clock_divider
-{
+typedef enum _adc16_clock_divider {
     kADC16_ClockDivider1 = 0U, /*!< For divider 1 from the input clock to the module. */
     kADC16_ClockDivider2 = 1U, /*!< For divider 2 from the input clock to the module. */
     kADC16_ClockDivider4 = 2U, /*!< For divider 4 from the input clock to the module. */
@@ -97,8 +93,7 @@ typedef enum _adc16_clock_divider
 /*!
  *@brief Converter's resolution.
  */
-typedef enum _adc16_resolution
-{
+typedef enum _adc16_resolution {
     /* This group of enumeration is for internal use which is related to register setting. */
     kADC16_Resolution8or9Bit = 0U,   /*!< Single End 8-bit or Differential Sample 9-bit. */
     kADC16_Resolution12or13Bit = 1U, /*!< Single End 12-bit or Differential Sample 13-bit. */
@@ -127,8 +122,7 @@ typedef enum _adc16_resolution
 /*!
  * @brief Clock source.
  */
-typedef enum _adc16_clock_source
-{
+typedef enum _adc16_clock_source {
     kADC16_ClockSourceAlt0 = 0U, /*!< Selection 0 of the clock source. */
     kADC16_ClockSourceAlt1 = 1U, /*!< Selection 1 of the clock source. */
     kADC16_ClockSourceAlt2 = 2U, /*!< Selection 2 of the clock source. */
@@ -141,8 +135,7 @@ typedef enum _adc16_clock_source
 /*!
  * @brief Long sample mode.
  */
-typedef enum _adc16_long_sample_mode
-{
+typedef enum _adc16_long_sample_mode {
     kADC16_LongSampleCycle24 = 0U,  /*!< 20 extra ADCK cycles, 24 ADCK cycles total. */
     kADC16_LongSampleCycle16 = 1U,  /*!< 12 extra ADCK cycles, 16 ADCK cycles total. */
     kADC16_LongSampleCycle10 = 2U,  /*!< 6 extra ADCK cycles, 10 ADCK cycles total. */
@@ -153,8 +146,7 @@ typedef enum _adc16_long_sample_mode
 /*!
  * @brief Reference voltage source.
  */
-typedef enum _adc16_reference_voltage_source
-{
+typedef enum _adc16_reference_voltage_source {
     kADC16_ReferenceVoltageSourceVref = 0U, /*!< For external pins pair of VrefH and VrefL. */
     kADC16_ReferenceVoltageSourceValt = 1U, /*!< For alternate reference pair of ValtH and ValtL. */
 } adc16_reference_voltage_source_t;
@@ -163,8 +155,7 @@ typedef enum _adc16_reference_voltage_source
 /*!
  * @brief Hardware average mode.
  */
-typedef enum _adc16_hardware_average_mode
-{
+typedef enum _adc16_hardware_average_mode {
     kADC16_HardwareAverageCount4 = 0U,   /*!< For hardware average with 4 samples. */
     kADC16_HardwareAverageCount8 = 1U,   /*!< For hardware average with 8 samples. */
     kADC16_HardwareAverageCount16 = 2U,  /*!< For hardware average with 16 samples. */
@@ -176,8 +167,7 @@ typedef enum _adc16_hardware_average_mode
 /*!
  * @brief Hardware compare mode.
  */
-typedef enum _adc16_hardware_compare_mode
-{
+typedef enum _adc16_hardware_compare_mode {
     kADC16_HardwareCompareMode0 = 0U, /*!< x < value1. */
     kADC16_HardwareCompareMode1 = 1U, /*!< x > value1. */
     kADC16_HardwareCompareMode2 = 2U, /*!< if value1 <= value2, then x < value1 || x > value2;
@@ -190,8 +180,7 @@ typedef enum _adc16_hardware_compare_mode
 /*!
  * @brief PGA's Gain mode.
  */
-typedef enum _adc16_pga_gain
-{
+typedef enum _adc16_pga_gain {
     kADC16_PGAGainValueOf1 = 0U,  /*!< For amplifier gain of 1.  */
     kADC16_PGAGainValueOf2 = 1U,  /*!< For amplifier gain of 2.  */
     kADC16_PGAGainValueOf4 = 2U,  /*!< For amplifier gain of 4.  */
@@ -205,8 +194,7 @@ typedef enum _adc16_pga_gain
 /*!
  * @brief ADC16 converter configuration .
  */
-typedef struct _adc16_config
-{
+typedef struct _adc16_config {
     adc16_reference_voltage_source_t referenceVoltageSource; /*!< Select the reference voltage source. */
     adc16_clock_source_t clockSource;                        /*!< Select the input clock source to converter. */
     bool enableAsynchronousClock;                            /*!< Enable the asynchronous clock output. */
@@ -221,8 +209,7 @@ typedef struct _adc16_config
 /*!
  * @brief ADC16 Hardware compare configuration.
  */
-typedef struct _adc16_hardware_compare_config
-{
+typedef struct _adc16_hardware_compare_config {
     adc16_hardware_compare_mode_t hardwareCompareMode; /*!< Select the hardware compare mode.
                                                             See "adc16_hardware_compare_mode_t". */
     int16_t value1;                                    /*!< Setting value1 for hardware compare mode. */
@@ -232,8 +219,7 @@ typedef struct _adc16_hardware_compare_config
 /*!
  * @brief ADC16 channel conversion configuration.
  */
-typedef struct _adc16_channel_config
-{
+typedef struct _adc16_channel_config {
     uint32_t channelNumber;                    /*!< Setting the conversion channel number. The available range is 0-31.
                                                     See channel connection information for each chip in Reference
                                                     Manual document. */
@@ -247,8 +233,7 @@ typedef struct _adc16_channel_config
 /*!
  * @brief ADC16 programmable gain amplifier configuration.
  */
-typedef struct _adc16_pga_config
-{
+typedef struct _adc16_pga_config {
     adc16_pga_gain_t pgaGain;   /*!< Setting PGA gain. */
     bool enableRunInNormalMode; /*!< Enable PGA working in normal mode, or low power mode by default. */
 #if defined(FSL_FEATURE_ADC16_HAS_PGA_CHOPPING) && FSL_FEATURE_ADC16_HAS_PGA_CHOPPING
@@ -363,12 +348,9 @@ static inline void ADC16_SetOffsetValue(ADC_Type *base, int16_t value)
  */
 static inline void ADC16_EnableDMA(ADC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->SC2 |= ADC_SC2_DMAEN_MASK;
-    }
-    else
-    {
+    } else {
         base->SC2 &= ~ADC_SC2_DMAEN_MASK;
     }
 }
@@ -382,12 +364,9 @@ static inline void ADC16_EnableDMA(ADC_Type *base, bool enable)
  */
 static inline void ADC16_EnableHardwareTrigger(ADC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->SC2 |= ADC_SC2_ADTRG_MASK;
-    }
-    else
-    {
+    } else {
         base->SC2 &= ~ADC_SC2_ADTRG_MASK;
     }
 }

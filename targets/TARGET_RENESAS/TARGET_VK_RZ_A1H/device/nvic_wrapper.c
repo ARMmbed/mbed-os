@@ -90,10 +90,10 @@ void NVIC_DisableIRQ(IRQn_Type IRQn)
 uint32_t NVIC_GetPendingIRQ(IRQn_Type IRQn)
 {
     uint32_t pending;
-    
+
     pending = GIC_GetIRQStatus(IRQn);
     pending = (pending & 0x00000001);
-    
+
     return pending;
 }
 
@@ -113,10 +113,10 @@ void NVIC_ClearPendingIRQ(IRQn_Type IRQn)
 uint32_t NVIC_GetActive(IRQn_Type IRQn)
 {
     uint32_t active;
-    
+
     active = GIC_GetIRQStatus(IRQn);
     active = ((active >> 1) & 0x00000001);
-    
+
     return active;
 }
 
@@ -130,14 +130,14 @@ void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
 uint32_t NVIC_GetPriority(IRQn_Type IRQn)
 {
     uint32_t priority_field;
-    
+
     priority_field = GIC_GetPriority(IRQn);
     priority_field = (priority_field >> 3);
     return priority_field;
 }
 
 
-uint32_t NVIC_EncodePriority (uint32_t PriorityGroup, uint32_t PreemptPriority, uint32_t SubPriority)
+uint32_t NVIC_EncodePriority(uint32_t PriorityGroup, uint32_t PreemptPriority, uint32_t SubPriority)
 {
     uint32_t PriorityGroupTmp = (PriorityGroup & 0x07);          /* only values 0..7 are used          */
     uint32_t PreemptPriorityBits;
@@ -147,13 +147,13 @@ uint32_t NVIC_EncodePriority (uint32_t PriorityGroup, uint32_t PreemptPriority, 
     SubPriorityBits     = ((PriorityGroupTmp + PRIO_BITS) < 7) ? 0 : PriorityGroupTmp - 7 + PRIO_BITS;
 
     return (
-             ((PreemptPriority & ((1 << (PreemptPriorityBits)) - 1)) << SubPriorityBits) |
-             ((SubPriority     & ((1 << (SubPriorityBits    )) - 1)))
+               ((PreemptPriority & ((1 << (PreemptPriorityBits)) - 1)) << SubPriorityBits) |
+               ((SubPriority     & ((1 << (SubPriorityBits)) - 1)))
            );
 }
 
 
-void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGroup, uint32_t* pPreemptPriority, uint32_t* pSubPriority)
+void NVIC_DecodePriority(uint32_t Priority, uint32_t PriorityGroup, uint32_t *pPreemptPriority, uint32_t *pSubPriority)
 {
     uint32_t PriorityGroupTmp = (PriorityGroup & 0x07);          /* only values 0..7 are used          */
     uint32_t PreemptPriorityBits;
@@ -163,7 +163,7 @@ void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGroup, uint32_t* p
     SubPriorityBits     = ((PriorityGroupTmp + PRIO_BITS) < 7) ? 0 : PriorityGroupTmp - 7 + PRIO_BITS;
 
     *pPreemptPriority = (Priority >> SubPriorityBits) & ((1 << (PreemptPriorityBits)) - 1);
-    *pSubPriority     = (Priority                   ) & ((1 << (SubPriorityBits    )) - 1);
+    *pSubPriority     = (Priority) & ((1 << (SubPriorityBits)) - 1);
 }
 
 void NVIC_SystemReset(void)
@@ -171,16 +171,16 @@ void NVIC_SystemReset(void)
     uint16_t reg;
     uint8_t  dummy_read;
     /* Use Watch Dog Timer to system reset */
-    
+
     /* Set WT/IT bit of WTCSR to 1 = Watch Dog */
     /* CLK = 000, 1xP0phi(=33.3333MHz) = 7.7us */
     reg = (WDT_WTCSR_WRITE | 0x0058);
     WDTWTCSR = reg;
-    
+
     /* Clear Count reg */
     reg = (WDT_WTCNT_WRITE | 0x0000);
     WDTWTCNT = reg;
-    
+
     /* Clear WOVF flag */
     dummy_read = WDTWRCSR;
     reg = (WDT_WRCSR_WOVF_WRITE | (dummy_read & 0x0000));
@@ -188,12 +188,12 @@ void NVIC_SystemReset(void)
     /* Enable Internal Reset */
     reg = (WDT_WRCSR_RSTE_WRITE | 0x005F);
     WDTWRCSR = reg;
-    
+
     /* Watch Dog start */
     reg = (WDT_WTCSR_WRITE | 0x0078);
     WDTWTCSR = reg;
-    
-    while(1);                      /* wait Internal Reset */
+
+    while (1);                     /* wait Internal Reset */
 }
 
 /* ##################################    SysTick function  ############################################ */
@@ -206,7 +206,7 @@ uint32_t SysTick_Config(uint32_t ticks)
 
 
 /* ##################################### Debug In/Output function ########################################### */
-uint32_t ITM_SendChar (uint32_t ch)
+uint32_t ITM_SendChar(uint32_t ch)
 {
     /* Not support this function */
     /* Use mbed Serial */
@@ -214,14 +214,16 @@ uint32_t ITM_SendChar (uint32_t ch)
 }
 
 
-int32_t ITM_ReceiveChar (void) {
+int32_t ITM_ReceiveChar(void)
+{
     /* Not support this function */
     /* Use mbed Serial */
     return (-1);    /* no character available */
 }
 
 
-int32_t ITM_CheckChar (void) {
+int32_t ITM_CheckChar(void)
+{
     /* Not support this function */
     /* Use mbed Serial */
     return (0);                                 /* no character available */

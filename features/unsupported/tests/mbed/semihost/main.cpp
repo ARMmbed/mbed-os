@@ -5,7 +5,8 @@
 #define MAC_VENDOR_ARM_1    0x02
 #define MAC_VENDOR_ARM_2    0xF7
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(10);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(Semihost);
@@ -19,8 +20,7 @@ int main() {
     const int ret = mbed_interface_uid(uid);
     if (ret == 0) {
         printf("UID: %s\r\n", uid);
-    }
-    else {
+    } else {
         result = false;
     }
 
@@ -29,8 +29,8 @@ int main() {
     printf("MAC Address: %02X:%02X:%02X:%02X:%02X:%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     if (mac[0] == MAC_VENDOR_ARM_0 &&
-        mac[1] == MAC_VENDOR_ARM_1 &&
-        mac[2] == MAC_VENDOR_ARM_2) {
+            mac[1] == MAC_VENDOR_ARM_1 &&
+            mac[2] == MAC_VENDOR_ARM_2) {
         printf("MAC Address Prefix: 00:02:F7, Vendor: ARM\r\n");
     }
 

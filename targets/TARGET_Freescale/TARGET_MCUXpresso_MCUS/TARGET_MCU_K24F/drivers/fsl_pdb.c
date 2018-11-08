@@ -58,10 +58,8 @@ static uint32_t PDB_GetInstance(PDB_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_pdbBases); instance++)
-    {
-        if (s_pdbBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_pdbBases); instance++) {
+        if (s_pdbBases[instance] == base) {
             break;
         }
     }
@@ -89,8 +87,7 @@ void PDB_Init(PDB_Type *base, const pdb_config_t *config)
 
     tmp32 |= PDB_SC_LDMOD(config->loadValueMode) | PDB_SC_PRESCALER(config->prescalerDivider) |
              PDB_SC_TRGSEL(config->triggerInputSource) | PDB_SC_MULT(config->dividerMultiplicationFactor);
-    if (config->enableContinuousMode)
-    {
+    if (config->enableContinuousMode) {
         tmp32 |= PDB_SC_CONT_MASK;
     }
     base->SC = tmp32;
@@ -128,12 +125,10 @@ void PDB_SetDACTriggerConfig(PDB_Type *base, uint32_t channel, pdb_dac_trigger_c
     uint32_t tmp32 = 0U;
 
     /* PDBx_DACINTC. */
-    if (config->enableExternalTriggerInput)
-    {
+    if (config->enableExternalTriggerInput) {
         tmp32 |= PDB_INTC_EXT_MASK;
     }
-    if (config->enableIntervalTrigger)
-    {
+    if (config->enableIntervalTrigger) {
         tmp32 |= PDB_INTC_TOE_MASK;
     }
     base->DAC[channel].INTC = tmp32;

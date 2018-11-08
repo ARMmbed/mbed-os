@@ -19,12 +19,10 @@
 
 TEST_GROUP(coap_message_handler)
 {
-    void setup()
-    {
+    void setup() {
     }
 
-    void teardown()
-    {
+    void teardown() {
     }
 };
 

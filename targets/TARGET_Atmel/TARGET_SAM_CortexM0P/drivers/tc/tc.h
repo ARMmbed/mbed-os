@@ -877,14 +877,14 @@ struct tc_config {
     enum tc_reload_action reload_action;
 
     /** Specifies which channel(s) to invert the waveform on.
-    	For SAML21/C20/C21, it's also used to invert IO input pin. */
+        For SAML21/C20/C21, it's also used to invert IO input pin. */
     uint8_t waveform_invert_output;
 
     /** Specifies which channel(s) to enable channel capture
      *  operation on.
      */
     bool enable_capture_on_channel[NUMBER_OF_COMPARE_CAPTURE_CHANNELS];
-#ifdef 	FEATURE_TC_IO_CAPTURE
+#ifdef  FEATURE_TC_IO_CAPTURE
     /** Specifies which channel(s) to enable I/O capture
      *  operation on.
      */
@@ -1059,7 +1059,7 @@ static inline void tc_get_config_defaults(
     config->waveform_invert_output     = TC_WAVEFORM_INVERT_OUTPUT_NONE;
     config->enable_capture_on_channel[TC_COMPARE_CAPTURE_CHANNEL_0] = false;
     config->enable_capture_on_channel[TC_COMPARE_CAPTURE_CHANNEL_1] = false;
-#ifdef 	FEATURE_TC_IO_CAPTURE
+#ifdef  FEATURE_TC_IO_CAPTURE
     config->enable_capture_on_IO[TC_COMPARE_CAPTURE_CHANNEL_0] = false;
     config->enable_capture_on_IO[TC_COMPARE_CAPTURE_CHANNEL_1] = false;
 #endif
@@ -1638,30 +1638,30 @@ static inline void tc_clear_status(
  * The table below presents the acronyms used in this module:
  *
  * <table>
- *	<tr>
- *		<th>Acronym</th>
- *		<th>Description</th>
- *	</tr>
-  *	<tr>
- *		<td>DMA</td>
- *		<td>Direct Memory Access</td>
- *	</tr>
- *	<tr>
- *		<td>TC</td>
- *		<td>Timer Counter</td>
- *	</tr>
- *	<tr>
- *		<td>PWM</td>
- *		<td>Pulse Width Modulation</td>
- *	</tr>
- *	<tr>
- *		<td>PWP</td>
- *		<td>Pulse Width Period</td>
- *	</tr>
- *	<tr>
- *		<td>PPW</td>
- *		<td>Period Pulse Width</td>
- *	</tr>
+ *  <tr>
+ *      <th>Acronym</th>
+ *      <th>Description</th>
+ *  </tr>
+  * <tr>
+ *      <td>DMA</td>
+ *      <td>Direct Memory Access</td>
+ *  </tr>
+ *  <tr>
+ *      <td>TC</td>
+ *      <td>Timer Counter</td>
+ *  </tr>
+ *  <tr>
+ *      <td>PWM</td>
+ *      <td>Pulse Width Modulation</td>
+ *  </tr>
+ *  <tr>
+ *      <td>PWP</td>
+ *      <td>Pulse Width Period</td>
+ *  </tr>
+ *  <tr>
+ *      <td>PPW</td>
+ *      <td>Period Pulse Width</td>
+ *  </tr>
  * </table>
  *
  *
@@ -1682,23 +1682,23 @@ static inline void tc_clear_status(
  * the table.
  *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
- *	<tr>
+ *  <tr>
+ *      <th>Changelog</th>
+ *  </tr>
+ *  <tr>
  *    <td>Added support for SAMD21 and do some modifications as below:
  *          \li Clean up in the configuration structure, the counter size
  *              setting specific registers is accessed through the counter_8_bit,
  *              counter_16_bit and counter_32_bit structures
  *          \li All event related settings moved into the tc_event structure </td>
- *	</tr>
- *	<tr>
- *		<td>Added automatic digital clock interface enable for the slave TC
+ *  </tr>
+ *  <tr>
+ *      <td>Added automatic digital clock interface enable for the slave TC
  *          module when a timer is initialized in 32-bit mode</td>
- *	</tr>
- *	<tr>
- *		<td>Initial Release</td>
- *	</tr>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial Release</td>
+ *  </tr>
  * </table>
  */
 
@@ -1722,42 +1722,42 @@ static inline void tc_clear_status(
  * \page asfdoc_sam0_tc_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
- *	<tr>
- *		<td>F</td>
- *		<td>12/2014</td>
- *		<td>Added support for SAMC21.</td>
- *	</tr>
- *	<tr>
- *		<td>E</td>
- *		<td>04/2015</td>
- *		<td>Added support for SAML21 and SAMDAx.</td>
- *	</tr>
- *	<tr>
- *		<td>D</td>
- *		<td>12/2014</td>
- *		<td>Added timer use case.
- *		    Added support for SAMR21 and SAMD10/D11.</td>
- *	</tr>
- *	<tr>
- *		<td>C</td>
- *		<td>01/2014</td>
- *		<td>Added support for SAMD21.</td>
- *	</tr>
- *	<tr>
- *		<td>B</td>
- *		<td>06/2013</td>
- *		<td>Corrected documentation typos.</td>
- *	</tr>
- *	<tr>
- *		<td>A</td>
- *		<td>06/2013</td>
- *		<td>Initial release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
+ *  <tr>
+ *      <td>F</td>
+ *      <td>12/2014</td>
+ *      <td>Added support for SAMC21.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>E</td>
+ *      <td>04/2015</td>
+ *      <td>Added support for SAML21 and SAMDAx.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>D</td>
+ *      <td>12/2014</td>
+ *      <td>Added timer use case.
+ *          Added support for SAMR21 and SAMD10/D11.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>C</td>
+ *      <td>01/2014</td>
+ *      <td>Added support for SAMD21.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>B</td>
+ *      <td>06/2013</td>
+ *      <td>Corrected documentation typos.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>A</td>
+ *      <td>06/2013</td>
+ *      <td>Initial release</td>
+ *  </tr>
  * </table>
  */
 

@@ -29,7 +29,7 @@
 #include <sys/time.h>
 #endif
 
-// Operating System 
+// Operating System
 #define NO_SYS                      0
 
 #if MBED_CONF_LWIP_IPV4_ENABLED
@@ -319,7 +319,7 @@
 
 #define TCP_SND_BUF                     (3 * 536)
 #define TCP_WND                         (2 * 536)
-#define PPP_THREAD_PRIO					0
+#define PPP_THREAD_PRIO                 0
 
 // Broadcast
 #define IP_SOF_BROADCAST               0

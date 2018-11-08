@@ -88,7 +88,7 @@ void SYS_LockReg(void)
   */
 void SYS_UnlockReg(void)
 {
-    while(SYS->REGLCTL != SYS_REGLCTL_REGLCTL_Msk) {
+    while (SYS->REGLCTL != SYS_REGLCTL_REGLCTL_Msk) {
         SYS->REGLCTL = 0x59;
         SYS->REGLCTL = 0x16;
         SYS->REGLCTL = 0x88;
@@ -178,8 +178,8 @@ void SYS_ResetCPU(void)
   */
 void SYS_ResetModule(uint32_t u32ModuleIndex)
 {
-    *(volatile uint32_t *)((uint32_t)&(SYS->IPRST0) + (u32ModuleIndex>>24)) |= 1<<(u32ModuleIndex & 0x00ffffff);
-    *(volatile uint32_t *)((uint32_t)&(SYS->IPRST0) + (u32ModuleIndex>>24)) &= ~(1<<(u32ModuleIndex & 0x00ffffff));
+    *(volatile uint32_t *)((uint32_t) & (SYS->IPRST0) + (u32ModuleIndex >> 24)) |= 1 << (u32ModuleIndex & 0x00ffffff);
+    *(volatile uint32_t *)((uint32_t) & (SYS->IPRST0) + (u32ModuleIndex >> 24)) &= ~(1 << (u32ModuleIndex & 0x00ffffff));
 }
 
 /**
@@ -199,8 +199,8 @@ void SYS_ResetModule(uint32_t u32ModuleIndex)
   */
 void SYS_EnableBOD(int32_t i32Mode, uint32_t u32BODLevel)
 {
-    SYS->BODCTL &= ~(SYS_BODCTL_BODVL_Msk|SYS_BODCTL_BODRSTEN_Msk);
-    SYS->BODCTL |=(i32Mode|u32BODLevel|SYS_BODCTL_BODEN_Msk);
+    SYS->BODCTL &= ~(SYS_BODCTL_BODVL_Msk | SYS_BODCTL_BODRSTEN_Msk);
+    SYS->BODCTL |= (i32Mode | u32BODLevel | SYS_BODCTL_BODEN_Msk);
 }
 
 /**

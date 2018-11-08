@@ -26,7 +26,7 @@ extern "C" {
 #include <stdio.h>
 #endif
 
-    /* eFLASH Address Map */
+/* eFLASH Address Map */
 #define SYS_EFLASH_BASE 0x40009000
 #define SYS_EFLASH_IRQ_SET_STATUS (SYS_EFLASH_BASE + 0x008)
 #define SYS_EFLASH_IRQ_CLR_STATUS (SYS_EFLASH_BASE + 0x008)
@@ -40,32 +40,32 @@ extern "C" {
 #define SYS_EFLASH_PIDR1 (SYS_EFLASH_BASE + 0xFE4)
 #define SYS_EFLASH_PIDR2 (SYS_EFLASH_BASE + 0xFE8)
 
-    /* SYS_EFLASH_CTRL (RW): Flash Control Register */
+/* SYS_EFLASH_CTRL (RW): Flash Control Register */
 #define EFLASH_WRITE        1           /* Write one word on eFlash */
 #define EFLASH_ROW_WRITE    (1 << 1)    /* Write a row of eFlash */
 #define EFLASH_ERASE        (1 << 2)    /* Erase one page of eFlash */
 #define EFLASH_MASS_ERASE   (1 << 3)    /* Erases all pages of the eFlash*/
 #define EFLASH_STOP         (1 << 4)    /* Stop any write erase operation */
 
-    /* SYS_EFLASH_STATUS (RO): Status Register */
+/* SYS_EFLASH_STATUS (RO): Status Register */
 #define EFLASH_BUSY_MASK    1           /* EFlash Busy Mask */
 #define EFLASH_BUSY         1           /* EFlash Busy */
 #define EFLASH_LOCK_MASK    (1 << 1)    /* EFlash Lock Mask */
 #define EFLASH_LOCK         (1 << 1)    /* EFlash Lock */
 
-    /* SYS_EFLASH_HWPARAMS0 (RO): HW parameters */
+/* SYS_EFLASH_HWPARAMS0 (RO): HW parameters */
 #define EFLASH_FLASHSIZE    0x1F    /* Flash Size */
 
-    /* SYS_EFLASH_PIDR2 (RO): Flash Memory Information */
+/* SYS_EFLASH_PIDR2 (RO): Flash Memory Information */
 #define EFLASH_DES_1    0x7     /* JEP106 Id Mask */
 #define EFLASH_JEDEC    0x8     /* JEDEC assigned val Mask */
 #define EFLASH_REVISION 0xF0    /* Revision number */
 
-    /* Macros */
+/* Macros */
 #define EFlash_Readl(reg) *(volatile unsigned int *)reg
 #define EFlash_Writel(reg, val)  *(volatile unsigned int *)reg = val;
 
-    /* peripheral and component ID values */
+/* peripheral and component ID values */
 #define FLS_PID4  0x14
 #define FLS_PID5  0x00
 #define FLS_PID6  0x00
@@ -109,12 +109,12 @@ void EFlash_Write(unsigned int waddr, unsigned int data);
 /*
  * EFlash_WritePage: Write Page function
  * Parameters:
- *	waddr - address in flash
- *	page_size - data to be written
- *	buf - buffer containing the data
+ *  waddr - address in flash
+ *  page_size - data to be written
+ *  buf - buffer containing the data
  */
 int EFlash_WritePage(unsigned int waddr,
-        unsigned int page_size, unsigned char *buf);
+                     unsigned int page_size, unsigned char *buf);
 /*
  * EFlash_Read: Read function
  * Parameters:
@@ -133,7 +133,7 @@ unsigned int EFlash_Read(unsigned int waddr);
  *  (waddr+page_size) - OK or Failed Address
  */
 unsigned int EFlash_Verify(unsigned int waddr,
-        unsigned int page_size, unsigned char *buf);
+                           unsigned int page_size, unsigned char *buf);
 /*
  * EFlash_BlankCheck: Verifies if there is any Blank Block in eFlash
  * Parameters:
@@ -144,7 +144,7 @@ unsigned int EFlash_Verify(unsigned int waddr,
  *  0 - OK or 1- Failed
  */
 int EFlash_BlankCheck(unsigned int waddr,
-        unsigned int page_size, unsigned char pat);
+                      unsigned int page_size, unsigned char pat);
 
 /* EFlash_Delay function */
 void EFlash_Delay(unsigned int period);

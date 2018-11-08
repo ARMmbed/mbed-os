@@ -61,11 +61,12 @@
  * @enum RAIL_BLE_Coding_t
  * @brief The variant of the BLE Coded PHY
  */
-RAIL_ENUM(RAIL_BLE_Coding_t) {
-  RAIL_BLE_Coding_125kbps = 0,
-  RAIL_BLE_Coding_125kbps_DSA = 1,
-  RAIL_BLE_Coding_500kbps = 2,
-  RAIL_BLE_Coding_500kbps_DSA = 3,
+RAIL_ENUM(RAIL_BLE_Coding_t)
+{
+    RAIL_BLE_Coding_125kbps = 0,
+    RAIL_BLE_Coding_125kbps_DSA = 1,
+    RAIL_BLE_Coding_500kbps = 2,
+    RAIL_BLE_Coding_500kbps_DSA = 3,
 };
 
 /**
@@ -77,10 +78,10 @@ RAIL_ENUM(RAIL_BLE_Coding_t) {
  * in read-only memory or on the call stack.
  */
 typedef struct RAIL_BLE_State {
-  uint32_t crcInit; /**< The value used for CRC initialization. */
-  uint32_t accessAddress; /**< The access address used for the connection. */
-  uint16_t channel; /**< The logical channel used. */
-  bool disableWhitening; /**< Whether the whitening engine should be off. */
+    uint32_t crcInit; /**< The value used for CRC initialization. */
+    uint32_t accessAddress; /**< The access address used for the connection. */
+    uint16_t channel; /**< The logical channel used. */
+    bool disableWhitening; /**< Whether the whitening engine should be off. */
 } RAIL_BLE_State_t;
 
 /**

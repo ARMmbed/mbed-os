@@ -167,7 +167,7 @@ extern "C" {
  * frequency.
  */
 static uint32_t usart_set_sync_master_baudrate(Usart *p_usart,
-        uint32_t baudrate, uint32_t ul_mck)
+                                               uint32_t baudrate, uint32_t ul_mck)
 {
     uint32_t cd;
 
@@ -214,7 +214,7 @@ static void usart_set_sync_slave_baudrate(Usart *p_usart)
  * frequency.
  */
 static uint32_t usart_set_spi_master_baudrate(Usart *p_usart,
-        uint32_t baudrate, uint32_t ul_mck)
+                                              uint32_t baudrate, uint32_t ul_mck)
 {
     uint32_t cd;
 
@@ -292,7 +292,7 @@ uint32_t usart_init_rs232(Usart *p_usart,
     ul_reg_val = 0;
     /* Check whether the input values are legal. */
     if (!p_usart_opt || usart_set_async_baudrate(p_usart,
-            p_usart_opt->baudrate, ul_mck)) {
+                                                 p_usart_opt->baudrate, ul_mck)) {
         return 1;
     }
 
@@ -404,7 +404,7 @@ uint32_t usart_init_sync_master(Usart *p_usart,
     ul_reg_val = 0;
     /* Check whether the input values are legal. */
     if (!p_usart_opt || usart_set_sync_master_baudrate(p_usart,
-            p_usart_opt->baudrate, ul_mck)) {
+                                                       p_usart_opt->baudrate, ul_mck)) {
         return 1;
     }
 
@@ -853,7 +853,7 @@ uint32_t usart_init_spi_slave(Usart *p_usart,
  * \retval 0 on success.
  * \retval 1 on failure.
  */
-uint32_t usart_init_lin_master(Usart *p_usart,uint32_t ul_baudrate,
+uint32_t usart_init_lin_master(Usart *p_usart, uint32_t ul_baudrate,
                                uint32_t ul_mck)
 {
     /* Reset the USART and shut down TX and RX. */
@@ -1173,7 +1173,7 @@ uint8_t usart_lin_tx_complete(Usart *usart)
  * \retval 0 on success.
  * \retval 1 on failure.
  */
-uint32_t usart_init_lon(Usart *p_usart,uint32_t ul_baudrate,
+uint32_t usart_init_lon(Usart *p_usart, uint32_t ul_baudrate,
                         uint32_t ul_mck)
 {
     /* Reset the USART and shut down TX and RX. */
@@ -1808,7 +1808,7 @@ uint32_t usart_getchar(Usart *p_usart, uint32_t *c)
  */
 uint32_t *usart_get_tx_access(Usart *p_usart)
 {
-    return (uint32_t *)&(p_usart->US_THR);
+    return (uint32_t *) & (p_usart->US_THR);
 }
 
 /**
@@ -1820,7 +1820,7 @@ uint32_t *usart_get_tx_access(Usart *p_usart)
  */
 uint32_t *usart_get_rx_access(Usart *p_usart)
 {
-    return (uint32_t *)&(p_usart->US_RHR);
+    return (uint32_t *) & (p_usart->US_RHR);
 }
 #endif
 
@@ -2087,7 +2087,7 @@ void usart_set_sleepwalking(Usart *p_uart, uint8_t ul_low_value,
 
     temp |= US_CMPR_VAL2(ul_high_value);
 
-    p_uart->US_CMPR= temp;
+    p_uart->US_CMPR = temp;
 }
 #endif
 

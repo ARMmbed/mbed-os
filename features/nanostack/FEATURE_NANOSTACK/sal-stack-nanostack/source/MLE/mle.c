@@ -87,12 +87,12 @@ static bool mle_table_timer_start(void)
     if (!mle_class_timer_storage) {
 
         arm_event_s event = {
-                .receiver = mle_tasklet_id,
-                .sender = 0,
-                .event_id = 0,
-                .data_ptr = NULL,
-                .event_type = ARM_MLE_TTL_TIMER,
-                .priority = ARM_LIB_LOW_PRIORITY_EVENT,
+            .receiver = mle_tasklet_id,
+            .sender = 0,
+            .event_id = 0,
+            .data_ptr = NULL,
+            .event_type = ARM_MLE_TTL_TIMER,
+            .priority = ARM_LIB_LOW_PRIORITY_EVENT,
         };
 
         mle_class_timer_storage  = eventOS_event_timer_request_every(&event, eventOS_event_timer_ms_to_ticks(MLE_TIMER_TICKS_MS));
@@ -129,7 +129,8 @@ static void mle_table_remove_free_indirect_table(int8_t interface_id, mle_neigh_
     lowpan_adaptation_indirect_free_messages_from_queues_by_address(cur_interface, entry_ptr->mac64, ADDR_802_15_4_LONG);
 }
 
-static void mle_table_class_list_free(mle_table_class_t *mle_table_class) {
+static void mle_table_class_list_free(mle_table_class_t *mle_table_class)
+{
 
     ns_list_foreach_safe(mle_neigh_table_entry_t, cur, &mle_table_class->mle_table) {
         ns_list_remove(&mle_table_class->mle_table, cur);
@@ -166,25 +167,25 @@ static int8_t mle_table_class_table_buffer_allocate(mle_table_class_t *mle_class
     mle_class->allocated_buffer = list_buffer; //Save storaged
     ns_list_init(&mle_class->free_enty_list);
     ns_list_init(&mle_class->mle_table);
-    for (uint8_t i = 0; i< list_size; i++) {
+    for (uint8_t i = 0; i < list_size; i++) {
         memset(list_buffer, 0, sizeof(mle_neigh_table_entry_t));
 
         list_buffer->attribute_index = i;
         //Add to list
-        ns_list_add_to_end(&mle_class->free_enty_list,list_buffer);
+        ns_list_add_to_end(&mle_class->free_enty_list, list_buffer);
         list_buffer++;
     }
     return 0;
 }
 
 
-static mle_table_class_t * mle_table_class_allocate(int8_t interfaceId, uint8_t list_size)
+static mle_table_class_t *mle_table_class_allocate(int8_t interfaceId, uint8_t list_size)
 {
     mle_table_class_t *newClass = ns_dyn_mem_alloc(sizeof(mle_table_class_t));
 
     if (newClass) {
         memset(newClass, 0, sizeof(mle_table_class_t));
-        if (mle_table_class_table_buffer_allocate(newClass,list_size) != 0) {
+        if (mle_table_class_table_buffer_allocate(newClass, list_size) != 0) {
             ns_dyn_mem_free(newClass);
             return NULL;
         }
@@ -194,7 +195,8 @@ static mle_table_class_t * mle_table_class_allocate(int8_t interfaceId, uint8_t 
     return newClass;
 }
 
-static mle_table_class_t * mle_table_class_discover(int8_t interface_id) {
+static mle_table_class_t *mle_table_class_discover(int8_t interface_id)
+{
     ns_list_foreach(mle_table_class_t, cur_mle_class, &mle_table_calss_list) {
         if (cur_mle_class->interfaceId == interface_id) {
             return cur_mle_class;
@@ -203,7 +205,8 @@ static mle_table_class_t * mle_table_class_discover(int8_t interface_id) {
     return NULL;
 }
 
-static int8_t mle_class_event_handler_init(void) {
+static int8_t mle_class_event_handler_init(void)
+{
     if (mle_tasklet_id == -1) {
         //GENERATE TASKLET
         mle_tasklet_id = eventOS_event_handler_create(&mle_event_handler, ARM_MLE_INIT);
@@ -228,7 +231,7 @@ int8_t mle_class_init(int8_t interface_id, uint8_t table_size, mle_entry_user_en
             ns_dyn_mem_free(mle_class_ptr->allocated_buffer);
             mle_class_ptr->allocated_buffer = NULL;
             //Reallocate
-            if (mle_table_class_table_buffer_allocate(mle_class_ptr,table_size) != 0) {
+            if (mle_table_class_table_buffer_allocate(mle_class_ptr, table_size) != 0) {
                 ns_list_remove(&mle_table_calss_list, mle_class_ptr);
                 ns_dyn_mem_free(mle_class_ptr);
                 return -2;
@@ -262,7 +265,7 @@ int8_t mle_class_init(int8_t interface_id, uint8_t table_size, mle_entry_user_en
 
 }
 
-int8_t mle_class_router_challenge(int8_t interface_id,mle_entry_link_keep_alive *challenge_cb)
+int8_t mle_class_router_challenge(int8_t interface_id, mle_entry_link_keep_alive *challenge_cb)
 {
     mle_table_class_t *mle_class_ptr = mle_table_class_discover(interface_id);
     //Clean list and set function pointer call backs
@@ -273,7 +276,8 @@ int8_t mle_class_router_challenge(int8_t interface_id,mle_entry_link_keep_alive 
     return 0;
 }
 
-bool mle_class_exists_for_interface(int8_t interface_id) {
+bool mle_class_exists_for_interface(int8_t interface_id)
+{
 
     if (mle_table_class_discover(interface_id)) {
         return true;
@@ -310,7 +314,7 @@ int8_t mle_class_list_clean(int8_t interface_id)
 
 }
 
-int8_t mle_class_mode_set(int8_t interface_id,mle_class_user_mode mode)
+int8_t mle_class_mode_set(int8_t interface_id, mle_class_user_mode mode)
 {
     mle_table_class_t *mle_class_ptr = mle_table_class_discover(interface_id);
     //Clean list and set function pointer call backs
@@ -391,11 +395,11 @@ mle_neigh_table_entry_t *mle_class_get_entry_by_ll64(int8_t interface_id, uint8_
 
     // Check it really is LL64 (not LL16)
 
-    if (memcmp(ipv6Address, ADDR_LINK_LOCAL_PREFIX , 8) != 0) {
+    if (memcmp(ipv6Address, ADDR_LINK_LOCAL_PREFIX, 8) != 0) {
         return NULL;    //Mot Link Local Address
     }
 
-    if (memcmp((ipv6Address + 8), ADDR_SHORT_ADR_SUFFIC , 6) == 0) {
+    if (memcmp((ipv6Address + 8), ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
         return NULL;
     }
     // map
@@ -403,7 +407,7 @@ mle_neigh_table_entry_t *mle_class_get_entry_by_ll64(int8_t interface_id, uint8_
     memcpy(temporary_mac64, (ipv6Address + 8), 8);
     temporary_mac64[0] ^= 2;
 
-    return mle_class_get_entry_by_mac64(interface_id, linkMargin, temporary_mac64,allocateNew);
+    return mle_class_get_entry_by_mac64(interface_id, linkMargin, temporary_mac64, allocateNew);
 }
 
 
@@ -412,11 +416,11 @@ mle_neigh_table_entry_t *mle_class_discover_entry_by_ll64(int8_t interface_id, c
 
     // Check it really is LL64 (not LL16)
 
-    if (memcmp(ipv6Address, ADDR_LINK_LOCAL_PREFIX , 8) != 0) {
+    if (memcmp(ipv6Address, ADDR_LINK_LOCAL_PREFIX, 8) != 0) {
         return NULL;    //Mot Link Local Address
     }
 
-    if (memcmp((ipv6Address + 8), ADDR_SHORT_ADR_SUFFIC , 6) == 0) {
+    if (memcmp((ipv6Address + 8), ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
         return NULL;
     }
     // map
@@ -595,7 +599,7 @@ int8_t mle_class_remove_neighbour(int8_t interface_id, const uint8_t *address, a
         return -1;
     }
 
-    mle_neigh_table_entry_t * entry = mle_class_get_by_link_address(interface_id, address, type);
+    mle_neigh_table_entry_t *entry = mle_class_get_by_link_address(interface_id, address, type);
     if (!entry) {
         return -2;
     }
@@ -608,8 +612,8 @@ int8_t mle_class_remove_neighbour(int8_t interface_id, const uint8_t *address, a
 
     topo_trace(TOPOLOGY_MLE, entry->ext64, TOPO_REMOVE);
 
-     //Removes ETX neighbor
-     etx_neighbor_remove(interface_id, entry);
+    //Removes ETX neighbor
+    etx_neighbor_remove(interface_id, entry);
     //Add to free list
     ns_list_add_to_start(&mle_class_ptr->free_enty_list, entry);
 
@@ -836,7 +840,7 @@ static void mle_refresh_entry(mle_neigh_table_entry_t *neig_info, bool dataPollC
 
 mle_neigh_table_entry_t *mle_refresh_entry_timeout(int8_t interfaceId, const uint8_t *addressPtr, addrtype_t addressType, bool dataPollConfirmation)
 {
-    mle_neigh_table_entry_t * neigh_info =  mle_class_get_by_link_address(interfaceId, addressPtr, addressType);
+    mle_neigh_table_entry_t *neigh_info =  mle_class_get_by_link_address(interfaceId, addressPtr, addressType);
     mle_refresh_entry(neigh_info, dataPollConfirmation);
     return neigh_info;
 }

@@ -256,7 +256,8 @@ int8_t socket_shutdown(int8_t socket, uint8_t how)
 #endif
 }
 
-int8_t socket_getsockname(int8_t socket, ns_address_t *address) {
+int8_t socket_getsockname(int8_t socket, ns_address_t *address)
+{
 
     const socket_t *socket_ptr = socket_pointer_get(socket);
     if (!socket_ptr || !socket_is_ipv6(socket_ptr)) {
@@ -369,7 +370,7 @@ static uint_fast16_t socket_copy_queue_to_user(sockbuf_t *sb, ns_msghdr_t *msg, 
     return retVal;
 }
 
-static uint8_t * socket_cmsg_ipv6_header_set(ns_cmsghdr_t *cmsg, uint8_t type, uint16_t length)
+static uint8_t *socket_cmsg_ipv6_header_set(ns_cmsghdr_t *cmsg, uint8_t type, uint16_t length)
 {
     cmsg->cmsg_level = SOCKET_IPPROTO_IPV6;
     cmsg->cmsg_type = type;
@@ -407,14 +408,14 @@ int16_t socket_recvfrom(int8_t socket, void *buffer, uint16_t length, int flags,
     return socket_recvmsg(socket, &msghdr, flags);
 }
 
-static uint_fast16_t copy_ancillary_to_user(ns_msghdr_t *msg, uint_fast16_t written_data, uint8_t type, void * data_ptr, uint16_t length)
+static uint_fast16_t copy_ancillary_to_user(ns_msghdr_t *msg, uint_fast16_t written_data, uint8_t type, void *data_ptr, uint16_t length)
 {
     if (!msg->msg_control || msg->msg_controllen < (written_data + NS_CMSG_SPACE(length))) {
         msg->msg_flags |= NS_MSG_CTRUNC;
         return written_data;
     }
     uint8_t *msg_start = msg->msg_control;
-    uint8_t *data_start = socket_cmsg_ipv6_header_set((ns_cmsghdr_t*) (msg_start + written_data) , type, length);
+    uint8_t *data_start = socket_cmsg_ipv6_header_set((ns_cmsghdr_t *)(msg_start + written_data), type, length);
     memcpy(data_start, data_ptr, length);
 
     return (written_data + NS_CMSG_SPACE(length));
@@ -545,7 +546,7 @@ int8_t socket_connect(int8_t socket, ns_address_t *address, uint8_t randomly_tak
         return -3;
     }
 
-    if (socket_ptr->flags & (SOCKET_FLAG_CONNECTED|SOCKET_FLAG_CONNECTING)) {
+    if (socket_ptr->flags & (SOCKET_FLAG_CONNECTED | SOCKET_FLAG_CONNECTING)) {
         return -4;
     }
 
@@ -568,7 +569,7 @@ int8_t socket_connect(int8_t socket, ns_address_t *address, uint8_t randomly_tak
 
     // Choose local address if not already bound
     int8_t status = socket_bind2addrsel(socket, address);
-    switch(status) {
+    switch (status) {
         case 0: //OK
         case -3: // already bound
             break;
@@ -641,8 +642,7 @@ int8_t socket_bind(int8_t socket, const ns_address_t *address)
         }
         if (socket_port_validate(address->identifier, inet_pcb->protocol) == eOK) {
             inet_pcb->local_port = address->identifier;
-        }
-        else {
+        } else {
             return -2;
         }
     }
@@ -980,7 +980,7 @@ int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const v
                 return -3;
             }
             sockbuf_t *sb = opt_name == SOCKET_SO_SNDBUF ? &socket_ptr->sndq
-                                                         : &socket_ptr->rcvq;
+                            : &socket_ptr->rcvq;
             return sockbuf_reserve(sb, value) ? 0 : -3;
         }
         case SOCKET_SO_SNDLOWAT: {
@@ -1020,19 +1020,19 @@ static int8_t ipv6_getsockopt(const socket_t *socket_ptr, uint8_t opt_name, cons
         case SOCKET_INTERFACE_SELECT: {
             const int8_t *p = &socket_ptr->default_interface_id;
             *value = p;
-            *len = sizeof *p;
+            *len = sizeof * p;
             break;
         }
         case SOCKET_LINK_LAYER_SECURITY: {
             const int8_t *p = &inet_pcb->link_layer_security;
             *value = p;
-            *len = sizeof *p;
+            *len = sizeof * p;
             break;
         }
         case SOCKET_BROADCAST_PAN: {
             const int8_t *p = &socket_ptr->broadcast_pan;
             *value = p;
-            *len = sizeof *p;
+            *len = sizeof * p;
             break;
         }
         case SOCKET_IPV6_TCLASS: {
@@ -1089,14 +1089,14 @@ static int8_t ipv6_getsockopt(const socket_t *socket_ptr, uint8_t opt_name, cons
         case SOCKET_IPV6_ADDR_PREFERENCES: {
             const uint32_t *p = &inet_pcb->addr_preferences;
             *value = p;
-            *len = sizeof *p;
+            *len = sizeof * p;
             break;
         }
 #ifndef NO_IPV6_PMTUD
         case SOCKET_IPV6_USE_MIN_MTU: {
             const int8_t *p = &inet_pcb->use_min_mtu;
             *value = p;
-            *len = sizeof *p;
+            *len = sizeof * p;
             break;
         }
 #endif
@@ -1104,7 +1104,7 @@ static int8_t ipv6_getsockopt(const socket_t *socket_ptr, uint8_t opt_name, cons
         case SOCKET_IPV6_DONTFRAG: {
             const int8_t *p = &inet_pcb->dontfrag;
             *value = p;
-            *len = sizeof *p;
+            *len = sizeof * p;
             break;
         }
 #endif
@@ -1184,9 +1184,9 @@ ns_cmsghdr_t *NS_CMSG_NXTHDR(const ns_msghdr_t *msgh, const ns_cmsghdr_t *cmsg)
     if (!cmsg) {
         return NS_CMSG_FIRSTHDR(msgh);
     }
-    uint8_t *start_of_next_header = (uint8_t *) (cmsg) + NS_ALIGN_SIZE(cmsg->cmsg_len, CMSG_HEADER_ALIGN);
+    uint8_t *start_of_next_header = (uint8_t *)(cmsg) + NS_ALIGN_SIZE(cmsg->cmsg_len, CMSG_HEADER_ALIGN);
     uint8_t *end_of_next_header = start_of_next_header + NS_ALIGN_SIZE(sizeof(ns_cmsghdr_t), CMSG_DATA_ALIGN);
-    if (end_of_next_header > (uint8_t *) (msgh)->msg_control + (msgh)->msg_controllen) {
+    if (end_of_next_header > (uint8_t *)(msgh)->msg_control + (msgh)->msg_controllen) {
         return NULL;
     }
     return (ns_cmsghdr_t *) start_of_next_header;

@@ -89,14 +89,16 @@ Case cases[] = {
 #endif /* MBEDTLS_SELF_TEST */
 };
 
-utest::v1::status_t test_setup(const size_t num_cases) {
+utest::v1::status_t test_setup(const size_t num_cases)
+{
     GREENTEA_SETUP(120, "default_auto");
     return verbose_test_setup_handler(num_cases);
 }
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
 

@@ -46,7 +46,7 @@
 #include "mxc_lock.h"
 #include "mxc_sys.h"
 #include "uart.h"
- 
+
 /**
  * @ingroup uart_comm
  * @{
@@ -78,8 +78,8 @@ static uart_req_t *tx_states[MXC_CFG_UART_INSTANCES];
 
 /* **** Functions **** */
 static void UART_WriteHandler(mxc_uart_regs_t *uart, uart_req_t *req, int uart_num);
-static void UART_ReadHandler(mxc_uart_regs_t *uart, uart_req_t *req, int uart_num, 
-    uint32_t flags);
+static void UART_ReadHandler(mxc_uart_regs_t *uart, uart_req_t *req, int uart_num,
+                             uint32_t flags);
 
 /* ************************************************************************* */
 int UART_Init(mxc_uart_regs_t *uart, const uart_cfg_t *cfg, const sys_cfg_uart_t *sys_cfg)
@@ -97,7 +97,7 @@ int UART_Init(mxc_uart_regs_t *uart, const uart_cfg_t *cfg, const sys_cfg_uart_t
     MXC_ASSERT(uart_num >= 0);
 
     // Set system level configurations
-    if(sys_cfg != NULL) {
+    if (sys_cfg != NULL) {
         if ((err = SYS_UART_Init(uart, cfg, sys_cfg)) != E_NO_ERROR) {
             return err;
         }
@@ -110,7 +110,7 @@ int UART_Init(mxc_uart_regs_t *uart, const uart_cfg_t *cfg, const sys_cfg_uart_t
     // Drain FIFOs and enable UART
     uart->ctrl = 0;
     uart->ctrl = (MXC_F_UART_CTRL_UART_EN | MXC_F_UART_CTRL_TX_FIFO_EN |
-                  MXC_F_UART_CTRL_RX_FIFO_EN | 
+                  MXC_F_UART_CTRL_RX_FIFO_EN |
                   (UART_RXFIFO_USABLE <<  MXC_F_UART_CTRL_RTS_LEVEL_POS));
 
     // Configure data size, stop bit, parity, cts, and rts
@@ -128,13 +128,13 @@ int UART_Init(mxc_uart_regs_t *uart, const uart_cfg_t *cfg, const sys_cfg_uart_t
     baud_div = (uart_clk / (cfg->baud * 4));
 
     // Can not support higher frequencies
-    if(!baud_div) {
+    if (!baud_div) {
         return E_NOT_SUPPORTED;
     }
 
     // Decrease the divisor if baud_div is overflowing
-    while(baud_div > 0xFF) {
-        if(baud_shift == 0) {
+    while (baud_div > 0xFF) {
+        if (baud_shift == 0) {
             return E_NOT_SUPPORTED;
         }
         baud_shift--;
@@ -142,34 +142,34 @@ int UART_Init(mxc_uart_regs_t *uart, const uart_cfg_t *cfg, const sys_cfg_uart_t
     }
 
     // Adjust baud_div so we don't overflow with the calculations below
-    if(baud_div == 0xFF) {
+    if (baud_div == 0xFF) {
         baud_div = 0xFE;
     }
-    if(baud_div == 0) {
+    if (baud_div == 0) {
         baud_div = 1;
     }
 
     // Figure out if the truncation increased the error
     baud = (uart_clk / (baud_div * (16 >> baud_shift)));
-    baud_1 = (uart_clk / ((baud_div+1) * (16 >> baud_shift)));
+    baud_1 = (uart_clk / ((baud_div + 1) * (16 >> baud_shift)));
 
-    if(cfg->baud > baud) {
+    if (cfg->baud > baud) {
         diff_baud = cfg->baud - baud;
     } else {
         diff_baud = baud - cfg->baud;
     }
 
-    if(cfg->baud > baud_1) {
+    if (cfg->baud > baud_1) {
         diff_baud_1 = cfg->baud - baud_1;
     } else {
         diff_baud_1 = baud_1 - cfg->baud;
     }
 
-    if(diff_baud < diff_baud_1) {
+    if (diff_baud < diff_baud_1) {
         uart->baud = ((baud_div & MXC_F_UART_BAUD_BAUD_DIVISOR) |
                       (baud_shift << MXC_F_UART_BAUD_BAUD_MODE_POS));
     } else {
-        uart->baud = (((baud_div+1) & MXC_F_UART_BAUD_BAUD_DIVISOR) |
+        uart->baud = (((baud_div + 1) & MXC_F_UART_BAUD_BAUD_DIVISOR) |
                       (baud_shift << MXC_F_UART_BAUD_BAUD_MODE_POS));
     }
 
@@ -194,30 +194,30 @@ int UART_Shutdown(mxc_uart_regs_t *uart)
                     MXC_F_UART_CTRL_RX_FIFO_EN);
 
     // Call all of the pending callbacks for this UART
-    if(rx_states[uart_num] != NULL) {
+    if (rx_states[uart_num] != NULL) {
 
         // Save the request
         temp_req = rx_states[uart_num];
 
         // Unlock this UART to read
-        mxc_free_lock((uint32_t*)&rx_states[uart_num]);
+        mxc_free_lock((uint32_t *)&rx_states[uart_num]);
 
         // Callback if not NULL
-        if(temp_req->callback != NULL) {
+        if (temp_req->callback != NULL) {
             temp_req->callback(temp_req, E_SHUTDOWN);
         }
     }
 
-    if(tx_states[uart_num] != NULL) {
+    if (tx_states[uart_num] != NULL) {
 
         // Save the request
         temp_req = tx_states[uart_num];
 
         // Unlock this UART to write
-        mxc_free_lock((uint32_t*)&tx_states[uart_num]);
+        mxc_free_lock((uint32_t *)&tx_states[uart_num]);
 
         // Callback if not NULL
-        if(temp_req->callback != NULL) {
+        if (temp_req->callback != NULL) {
             temp_req->callback(temp_req, E_SHUTDOWN);
         }
     }
@@ -231,7 +231,7 @@ int UART_Shutdown(mxc_uart_regs_t *uart)
 }
 
 /* ************************************************************************* */
-int UART_Write(mxc_uart_regs_t *uart, uint8_t* data, int len)
+int UART_Write(mxc_uart_regs_t *uart, uint8_t *data, int len)
 {
     int num, uart_num;
     mxc_uart_fifo_regs_t *fifo;
@@ -239,31 +239,31 @@ int UART_Write(mxc_uart_regs_t *uart, uint8_t* data, int len)
     uart_num = MXC_UART_GET_IDX(uart);
     MXC_ASSERT(uart_num >= 0);
 
-    if(data == NULL) {
+    if (data == NULL) {
         return E_NULL_PTR;
     }
 
     // Make sure the UART has been initialized
-    if(!(uart->ctrl & MXC_F_UART_CTRL_UART_EN)) {
+    if (!(uart->ctrl & MXC_F_UART_CTRL_UART_EN)) {
         return E_UNINITIALIZED;
     }
 
-    if(!(len > 0)) {
+    if (!(len > 0)) {
         return E_NO_ERROR;
     }
 
     // Lock this UART from writing
-    while(mxc_get_lock((uint32_t*)&tx_states[uart_num], 1) != E_NO_ERROR) {}
+    while (mxc_get_lock((uint32_t *)&tx_states[uart_num], 1) != E_NO_ERROR) {}
 
     // Get the FIFO for this UART
     fifo = MXC_UART_GET_FIFO(uart_num);
 
     num = 0;
 
-    while(num < len) {
+    while (num < len) {
 
         // Wait for TXFIFO to not be full
-        while((uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY) ==
+        while ((uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY) ==
                 MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY) {}
 
         // Write the data to the FIFO
@@ -274,88 +274,88 @@ int UART_Write(mxc_uart_regs_t *uart, uint8_t* data, int len)
     }
 
     // Unlock this UART to write
-    mxc_free_lock((uint32_t*)&tx_states[uart_num]);
+    mxc_free_lock((uint32_t *)&tx_states[uart_num]);
 
     return num;
 }
 
 /* ************************************************************************* */
-int UART_Read(mxc_uart_regs_t *uart, uint8_t* data, int len, int *num)
+int UART_Read(mxc_uart_regs_t *uart, uint8_t *data, int len, int *num)
 {
     int num_local, remain, uart_num;
     mxc_uart_fifo_regs_t *fifo;
 
     uart_num = MXC_UART_GET_IDX(uart);
     MXC_ASSERT(uart_num >= 0);
-    
-    if(data == NULL) {
+
+    if (data == NULL) {
         return E_NULL_PTR;
     }
 
     // Make sure the UART has been initialized
-    if(!(uart->ctrl & MXC_F_UART_CTRL_UART_EN)) {
+    if (!(uart->ctrl & MXC_F_UART_CTRL_UART_EN)) {
         return E_UNINITIALIZED;
     }
 
-    if(!(len > 0)) {
+    if (!(len > 0)) {
         return E_NO_ERROR;
     }
 
     // Lock this UART from reading
-    while(mxc_get_lock((uint32_t*)&rx_states[uart_num], 1) != E_NO_ERROR) {}
+    while (mxc_get_lock((uint32_t *)&rx_states[uart_num], 1) != E_NO_ERROR) {}
 
     // Get the FIFO for this UART
     fifo = MXC_UART_GET_FIFO(uart_num);
 
     num_local = 0;
     remain = len;
-    while(remain) {
+    while (remain) {
 
         // Save the data in the FIFO
-        while((uart->rx_fifo_ctrl & MXC_F_UART_RX_FIFO_CTRL_FIFO_ENTRY) && remain) {
+        while ((uart->rx_fifo_ctrl & MXC_F_UART_RX_FIFO_CTRL_FIFO_ENTRY) && remain) {
             data[num_local] = fifo->rx;
             num_local++;
             remain--;
         }
 
         // Break if there is an error
-        if(uart->intfl & UART_ERRORS) {
+        if (uart->intfl & UART_ERRORS) {
             break;
         }
     }
 
     // Save the number of bytes read if pointer is valid
-    if(num != NULL) {
+    if (num != NULL) {
         *num = num_local;
     }
 
     // Check for errors
-    if(uart->intfl & MXC_F_UART_INTFL_RX_FIFO_OVERFLOW) {
+    if (uart->intfl & MXC_F_UART_INTFL_RX_FIFO_OVERFLOW) {
 
         // Clear errors and return error code
         uart->intfl = UART_ERRORS;
 
 
         // Unlock this UART to read
-        mxc_free_lock((uint32_t*)&rx_states[uart_num]);
+        mxc_free_lock((uint32_t *)&rx_states[uart_num]);
 
         return E_OVERFLOW;
 
-    } else if(uart->intfl & (MXC_F_UART_INTFL_RX_FRAMING_ERR |
-                             MXC_F_UART_INTFL_RX_PARITY_ERR)) {
+    } else if (uart->intfl & (MXC_F_UART_INTFL_RX_FRAMING_ERR |
+                              MXC_F_UART_INTFL_RX_PARITY_ERR)) {
 
         // Clear errors and return error code
         uart->intfl = UART_ERRORS;
 
 
         // Unlock this UART to read
-        mxc_free_lock((uint32_t*)&rx_states[uart_num]);
+        mxc_free_lock((uint32_t *)&rx_states[uart_num]);
 
         return E_COMM_ERR;
     }
 
     // Unlock this UART to read
-    mxc_free_lock((uint32_t*)&rx_states[uart_num]);
+    mxc_free_lock((uint32_t *)&rx_states[uart_num]);
 
     return num_local;
 }
@@ -367,21 +367,21 @@ int UART_WriteAsync(mxc_uart_regs_t *uart, uart_req_t *req)
     MXC_ASSERT(uart_num >= 0);
 
     // Check the input parameters
-    if(req->data == NULL) {
+    if (req->data == NULL) {
         return E_NULL_PTR;
     }
 
     // Make sure the UART has been initialized
-    if(!(uart->ctrl & MXC_F_UART_CTRL_UART_EN)) {
+    if (!(uart->ctrl & MXC_F_UART_CTRL_UART_EN)) {
         return E_UNINITIALIZED;
     }
 
-    if(!(req->len > 0)) {
+    if (!(req->len > 0)) {
         return E_NO_ERROR;
     }
 
     // Attempt to register this write request
-    if(mxc_get_lock((uint32_t*)&tx_states[uart_num], (uint32_t)req) != E_NO_ERROR) {
+    if (mxc_get_lock((uint32_t *)&tx_states[uart_num], (uint32_t)req) != E_NO_ERROR) {
         return E_BUSY;
     }
 
@@ -399,25 +399,25 @@ int UART_ReadAsync(mxc_uart_regs_t *uart, uart_req_t *req)
 {
     int uart_num;
     uint32_t flags;
-    
+
     uart_num = MXC_UART_GET_IDX(uart);
     MXC_ASSERT(uart_num >= 0);
 
-    if(req->data == NULL) {
+    if (req->data == NULL) {
         return E_NULL_PTR;
     }
 
     // Make sure the UART has been initialized
-    if(!(uart->ctrl & MXC_F_UART_CTRL_UART_EN)) {
+    if (!(uart->ctrl & MXC_F_UART_CTRL_UART_EN)) {
         return E_UNINITIALIZED;
     }
 
-    if(!(req->len > 0)) {
+    if (!(req->len > 0)) {
         return E_NO_ERROR;
     }
 
     // Attempt to register this write request
-    if(mxc_get_lock((uint32_t*)&rx_states[uart_num], (uint32_t)req) != E_NO_ERROR) {
+    if (mxc_get_lock((uint32_t *)&rx_states[uart_num], (uint32_t)req) != E_NO_ERROR) {
         return E_BUSY;
     }
 
@@ -436,37 +436,37 @@ int UART_ReadAsync(mxc_uart_regs_t *uart, uart_req_t *req)
 int UART_AbortAsync(uart_req_t *req)
 {
     int uart_num;
-    
+
     // Figure out if this was a read or write request, find the request, set to NULL
-    for(uart_num = 0; uart_num < MXC_CFG_UART_INSTANCES; uart_num++) {
-        if(req == rx_states[uart_num]) {
+    for (uart_num = 0; uart_num < MXC_CFG_UART_INSTANCES; uart_num++) {
+        if (req == rx_states[uart_num]) {
 
             // Disable read interrupts, clear flags.
             MXC_UART_GET_UART(uart_num)->inten &= ~UART_READ_INTS;
             MXC_UART_GET_UART(uart_num)->intfl = UART_READ_INTS;
 
             // Unlock this UART to read
-            mxc_free_lock((uint32_t*)&rx_states[uart_num]);
+            mxc_free_lock((uint32_t *)&rx_states[uart_num]);
 
             // Callback if not NULL
-            if(req->callback != NULL) {
+            if (req->callback != NULL) {
                 req->callback(req, E_ABORT);
             }
 
             return E_NO_ERROR;
         }
 
-        if(req == tx_states[uart_num]) {
+        if (req == tx_states[uart_num]) {
 
             // Disable write interrupts, clear flags.
             MXC_UART_GET_UART(uart_num)->inten &= ~(UART_WRITE_INTS);
             MXC_UART_GET_UART(uart_num)->intfl = UART_WRITE_INTS;
 
             // Unlock this UART to write
-            mxc_free_lock((uint32_t*)&tx_states[uart_num]);
+            mxc_free_lock((uint32_t *)&tx_states[uart_num]);
 
             // Callback if not NULL
-            if(req->callback != NULL) {
+            if (req->callback != NULL) {
                 req->callback(req, E_ABORT);
             }
 
@@ -490,12 +490,12 @@ void UART_Handler(mxc_uart_regs_t *uart)
     uart->intfl = flags;
 
     // Figure out if this UART has an active Read request
-    if((rx_states[uart_num] != NULL) && (flags & UART_READ_INTS)) {
+    if ((rx_states[uart_num] != NULL) && (flags & UART_READ_INTS)) {
         UART_ReadHandler(uart, rx_states[uart_num], uart_num, flags);
     }
 
     // Figure out if this UART has an active Write request
-    if((tx_states[uart_num] != NULL) && (flags & (UART_WRITE_INTS))) {
+    if ((tx_states[uart_num] != NULL) && (flags & (UART_WRITE_INTS))) {
 
         UART_WriteHandler(uart, tx_states[uart_num], uart_num);
     }
@@ -507,7 +507,7 @@ int UART_Busy(mxc_uart_regs_t *uart)
     MXC_ASSERT(uart_num >= 0);
 
     // Check to see if there are any ongoing transactions or if the UART is disabled
-    if(((tx_states[uart_num] == NULL) &&
+    if (((tx_states[uart_num] == NULL) &&
             !(uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY) &&
 #if(MXC_UART_REV == 0)
             (uart->intfl & MXC_F_UART_INTFL_TX_DONE)) ||
@@ -525,13 +525,13 @@ int UART_Busy(mxc_uart_regs_t *uart)
 /* ************************************************************************* */
 int UART_PrepForSleep(mxc_uart_regs_t *uart)
 {
-    if(UART_Busy(uart) != E_NO_ERROR) {
+    if (UART_Busy(uart) != E_NO_ERROR) {
         return E_BUSY;
     }
 
     // Leave read interrupts enabled, if already enabled
     uart->inten &= UART_READ_INTS;
-    
+
     return E_NO_ERROR;
 }
 
@@ -551,7 +551,7 @@ static void UART_WriteHandler(mxc_uart_regs_t *uart, uart_req_t *req, int uart_n
     avail = UART_NumWriteAvail(uart);
     remain = req->len - req->num;
 
-    while(avail && remain) {
+    while (avail && remain) {
 
         // Write the data to the FIFO
 #if(MXC_UART_REV == 0)
@@ -563,12 +563,12 @@ static void UART_WriteHandler(mxc_uart_regs_t *uart, uart_req_t *req, int uart_n
     }
 
     // All of the bytes have been written to the FIFO
-    if(!remain) {
+    if (!remain) {
 
         // Unlock this UART to write
-        mxc_free_lock((uint32_t*)&tx_states[uart_num]);
+        mxc_free_lock((uint32_t *)&tx_states[uart_num]);
 
-        if(req->callback != NULL) {
+        if (req->callback != NULL) {
             req->callback(req, E_NO_ERROR);
         }
 
@@ -584,7 +584,7 @@ static void UART_WriteHandler(mxc_uart_regs_t *uart, uart_req_t *req, int uart_n
 
 /* ************************************************************************* */
 static void UART_ReadHandler(mxc_uart_regs_t *uart, uart_req_t *req, int uart_num,
-    uint32_t flags)
+                             uint32_t flags)
 {
     int avail, remain;
     mxc_uart_fifo_regs_t *fifo;
@@ -598,32 +598,32 @@ static void UART_ReadHandler(mxc_uart_regs_t *uart, uart_req_t *req, int uart_nu
     // Save the data in the FIFO while we still need data
     avail = UART_NumReadAvail(uart);
     remain = req->len - req->num;
-    while(avail && remain) {
+    while (avail && remain) {
         req->data[req->num++] = fifo->rx;
         remain--;
         avail--;
     }
 
     // Check for errors
-    if(flags & MXC_F_UART_INTFL_RX_FIFO_OVERFLOW) {
+    if (flags & MXC_F_UART_INTFL_RX_FIFO_OVERFLOW) {
 
         // Unlock this UART to read
-        mxc_free_lock((uint32_t*)&rx_states[uart_num]);
+        mxc_free_lock((uint32_t *)&rx_states[uart_num]);
 
-        if(req->callback != NULL) {
+        if (req->callback != NULL) {
             req->callback(req, E_OVERFLOW);
         }
 
         return;
     }
 
-    if(flags & (MXC_F_UART_INTFL_RX_FRAMING_ERR |
-                MXC_F_UART_INTFL_RX_PARITY_ERR)) {
+    if (flags & (MXC_F_UART_INTFL_RX_FRAMING_ERR |
+                 MXC_F_UART_INTFL_RX_PARITY_ERR)) {
 
         // Unlock this UART to read
-        mxc_free_lock((uint32_t*)&rx_states[uart_num]);
+        mxc_free_lock((uint32_t *)&rx_states[uart_num]);
 
-        if(req->callback != NULL)         {
+        if (req->callback != NULL)         {
             req->callback(req, E_COMM_ERR);
         }
 
@@ -631,29 +631,29 @@ static void UART_ReadHandler(mxc_uart_regs_t *uart, uart_req_t *req, int uart_nu
     }
 
     // Check to see if we're done receiving
-    if(remain == 0) {
+    if (remain == 0) {
 
         // Unlock this UART to read
-        mxc_free_lock((uint32_t*)&rx_states[uart_num]);
+        mxc_free_lock((uint32_t *)&rx_states[uart_num]);
 
-        if(req->callback != NULL) {
+        if (req->callback != NULL) {
             req->callback(req, E_NO_ERROR);
         }
 
         return;
     }
 
-    if(remain == 1) {
+    if (remain == 1) {
         uart->inten |= (MXC_F_UART_INTEN_RX_FIFO_NOT_EMPTY | UART_ERRORS);
 
     } else {
         // Set the RX FIFO AF threshold
-        if(remain < UART_RXFIFO_USABLE) {
-            uart->rx_fifo_ctrl = ((remain - 1) << 
-                MXC_F_UART_RX_FIFO_CTRL_FIFO_AF_LVL_POS);
+        if (remain < UART_RXFIFO_USABLE) {
+            uart->rx_fifo_ctrl = ((remain - 1) <<
+                                  MXC_F_UART_RX_FIFO_CTRL_FIFO_AF_LVL_POS);
         } else {
             uart->rx_fifo_ctrl = (UART_RXFIFO_USABLE <<
-                MXC_F_UART_RX_FIFO_CTRL_FIFO_AF_LVL_POS);
+                                  MXC_F_UART_RX_FIFO_CTRL_FIFO_AF_LVL_POS);
         }
         uart->inten |= (MXC_F_UART_INTEN_RX_FIFO_AF | UART_ERRORS);
     }

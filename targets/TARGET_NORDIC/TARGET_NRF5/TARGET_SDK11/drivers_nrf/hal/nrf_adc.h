@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2014 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -61,13 +61,11 @@
 /**
  * @brief ADC interrupts.
  */
-typedef enum
-{
+typedef enum {
     NRF_ADC_INT_END_MASK  = ADC_INTENSET_END_Msk,   /**< ADC interrupt on END event. */
 } nrf_adc_int_mask_t;
 
-typedef enum
-{
+typedef enum {
     NRF_ADC_CONFIG_RES_8BIT  = ADC_CONFIG_RES_8bit,  /**< 8 bit resolution. */
     NRF_ADC_CONFIG_RES_9BIT  = ADC_CONFIG_RES_9bit,  /**< 9 bit resolution. */
     NRF_ADC_CONFIG_RES_10BIT = ADC_CONFIG_RES_10bit, /**< 10 bit resolution. */
@@ -78,8 +76,7 @@ typedef enum
  * @enum nrf_adc_config_scaling_t
  * @brief Scaling factor of the analog-to-digital conversion.
  */
-typedef enum
-{
+typedef enum {
     NRF_ADC_CONFIG_SCALING_INPUT_FULL_SCALE  = ADC_CONFIG_INPSEL_AnalogInputNoPrescaling,        /**< Full scale input. */
     NRF_ADC_CONFIG_SCALING_INPUT_TWO_THIRDS  = ADC_CONFIG_INPSEL_AnalogInputTwoThirdsPrescaling, /**< 2/3 scale input. */
     NRF_ADC_CONFIG_SCALING_INPUT_ONE_THIRD   = ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling,  /**< 1/3 scale input. */
@@ -91,15 +88,14 @@ typedef enum
  * @enum nrf_adc_config_reference_t
  * @brief Reference selection of the analog-to-digital converter.
  */
-typedef enum
-{
+typedef enum {
     NRF_ADC_CONFIG_REF_VBG              = ADC_CONFIG_REFSEL_VBG,                      /**< 1.2 V reference. */
     NRF_ADC_CONFIG_REF_SUPPLY_ONE_HALF  = ADC_CONFIG_REFSEL_SupplyOneHalfPrescaling,  /**< 1/2 of power supply. */
     NRF_ADC_CONFIG_REF_SUPPLY_ONE_THIRD = ADC_CONFIG_REFSEL_SupplyOneThirdPrescaling, /**< 1/3 of power supply. */
     NRF_ADC_CONFIG_REF_EXT_REF0         = ADC_CONFIG_REFSEL_External |
                                           ADC_CONFIG_EXTREFSEL_AnalogReference0 <<
-    ADC_CONFIG_EXTREFSEL_Pos, /**< External reference 0. */
-        NRF_ADC_CONFIG_REF_EXT_REF1 = ADC_CONFIG_REFSEL_External |
+                                          ADC_CONFIG_EXTREFSEL_Pos, /**< External reference 0. */
+    NRF_ADC_CONFIG_REF_EXT_REF1 = ADC_CONFIG_REFSEL_External |
                                   ADC_CONFIG_EXTREFSEL_AnalogReference1 << ADC_CONFIG_EXTREFSEL_Pos, /**< External reference 0. */
 } nrf_adc_config_reference_t;
 
@@ -107,8 +103,7 @@ typedef enum
  * @enum nrf_adc_config_input_t
  * @brief Input selection of the analog-to-digital converter.
  */
-typedef enum
-{
+typedef enum {
     NRF_ADC_CONFIG_INPUT_DISABLED = ADC_CONFIG_PSEL_Disabled,     /**< No input selected. */
     NRF_ADC_CONFIG_INPUT_0        = ADC_CONFIG_PSEL_AnalogInput0, /**< Input 0. */
     NRF_ADC_CONFIG_INPUT_1        = ADC_CONFIG_PSEL_AnalogInput1, /**< Input 1. */
@@ -124,12 +119,11 @@ typedef enum
  * @enum nrf_adc_task_t
  * @brief Analog-to-digital converter tasks.
  */
-typedef enum
-{
+typedef enum {
     /*lint -save -e30*/
     NRF_ADC_TASK_START = offsetof(NRF_ADC_Type, TASKS_START), /**< ADC start sampling task. */
     NRF_ADC_TASK_STOP  = offsetof(NRF_ADC_Type, TASKS_STOP)   /**< ADC stop sampling task. */
-    /*lint -restore*/
+                         /*lint -restore*/
 } nrf_adc_task_t;
 
 /**
@@ -140,12 +134,11 @@ typedef enum /*lint -save -e30 -esym(628,__INTADDR__) */
 {
     /*lint -save -e30*/
     NRF_ADC_EVENT_END = offsetof(NRF_ADC_Type, EVENTS_END) /**< End of conversion event. */
-    /*lint -restore*/
+                        /*lint -restore*/
 } nrf_adc_event_t;
 
 /**@brief Analog-to-digital converter configuration. */
-typedef struct
-{
+typedef struct {
     nrf_adc_config_resolution_t resolution; /**< ADC resolution. */
     nrf_adc_config_scaling_t    scaling;    /**< ADC scaling factor. */
     nrf_adc_config_reference_t  reference;  /**< ADC reference. */
@@ -159,13 +152,13 @@ typedef struct
 /**
  * @brief Function for configuring ADC.
  *
- * This function powers on the analog-to-digital converter and configures it. 
+ * This function powers on the analog-to-digital converter and configures it.
  * After the configuration, the ADC is in DISABLE state and must be
  * enabled before using it.
  *
  * @param[in] config Configuration parameters.
  */
-void nrf_adc_configure(nrf_adc_config_t * config);
+void nrf_adc_configure(nrf_adc_config_t *config);
 
 /**
  * @brief Blocking function for executing a single ADC conversion.
@@ -195,12 +188,9 @@ __STATIC_INLINE void nrf_adc_input_select(nrf_adc_config_input_t input)
     NRF_ADC->CONFIG =
         ((uint32_t)input << ADC_CONFIG_PSEL_Pos) | (NRF_ADC->CONFIG & ~ADC_CONFIG_PSEL_Msk);
 
-    if (input != NRF_ADC_CONFIG_INPUT_DISABLED)
-    {
+    if (input != NRF_ADC_CONFIG_INPUT_DISABLED) {
         NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled << ADC_ENABLE_ENABLE_Pos;
-    }
-    else
-    {
+    } else {
         NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Disabled << ADC_ENABLE_ENABLE_Pos;
     }
 }
@@ -229,7 +219,7 @@ __STATIC_INLINE int32_t nrf_adc_result_get(void)
  */
 __STATIC_INLINE bool nrf_adc_is_busy(void)
 {
-    return ( (NRF_ADC->BUSY & ADC_BUSY_BUSY_Msk) == ADC_BUSY_BUSY_Msk);
+    return ((NRF_ADC->BUSY & ADC_BUSY_BUSY_Msk) == ADC_BUSY_BUSY_Msk);
 }
 
 /**
@@ -261,7 +251,7 @@ __STATIC_INLINE void nrf_adc_start(void)
 
 
 /**
- * @brief Function for stopping conversion. 
+ * @brief Function for stopping conversion.
  *
  * If the analog-to-digital converter is in inactive state, power consumption is reduced.
  *
@@ -402,7 +392,7 @@ __STATIC_INLINE void nrf_adc_event_clear(nrf_adc_event_t event)
 
 __STATIC_INLINE bool nrf_adc_event_check(nrf_adc_event_t event)
 {
-    return (bool)*(volatile uint32_t *)((uint8_t *)NRF_ADC + (uint32_t)event);
+    return (bool) * (volatile uint32_t *)((uint8_t *)NRF_ADC + (uint32_t)event);
 }
 
 __STATIC_INLINE void nrf_adc_int_enable(uint32_t int_mask)

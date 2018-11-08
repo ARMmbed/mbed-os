@@ -28,123 +28,126 @@ typedef struct {
 #ifdef MAX_PERI
 static const PinFunc PIPC_0_tbl[] = {
 //   pin      func     pm
-    {P4_0   , 2      , -1}, /* TIOC0A */
-    {P5_0   , 6      , -1}, /* TIOC0A */
-    {P7_0   , 7      , -1}, /* TIOC0A */
-    {P4_1   , 2      , -1}, /* TIOC0B */
-    {P5_1   , 6      , -1}, /* TIOC0B */
-    {P7_1   , 7      , -1}, /* TIOC0B */
-    {P4_2   , 2      , -1}, /* TIOC0C */
-    {P5_5   , 6      , -1}, /* TIOC0C */
-    {P7_2   , 7      , -1}, /* TIOC0C */
-    {P4_3   , 2      , -1}, /* TIOC0D */
-    {P5_7   , 6      , -1}, /* TIOC0D */
-    {P7_3   , 7      , -1}, /* TIOC0D */
-    {P2_11  , 5      , -1}, /* TIOC1A */
-    {P6_0   , 5      , -1}, /* TIOC1A */
-    {P7_4   , 7      , -1}, /* TIOC1A */
-    {P8_8   , 5      , -1}, /* TIOC1A */
-    {P9_7   , 4      , -1}, /* TIOC1A */
-    {P2_12  , 8      , -1}, /* TIOC1B */
-    {P5_2   , 6      , -1}, /* TIOC1B */
-    {P6_1   , 5      , -1}, /* TIOC1B */
-    {P7_5   , 7      , -1}, /* TIOC1B */
-    {P8_9   , 5      , -1}, /* TIOC1B */
-    {P2_1   , 6      , -1}, /* TIOC2A */
-    {P6_2   , 6      , -1}, /* TIOC2A */
-    {P7_6   , 7      , -1}, /* TIOC2A */
-    {P8_14  , 4      , -1}, /* TIOC2A */
-    {P2_2   , 6      , -1}, /* TIOC2B */
-    {P6_3   , 6      , -1}, /* TIOC2B */
-    {P7_7   , 7      , -1}, /* TIOC2B */
-    {P8_15  , 4      , -1}, /* TIOC2B */
-    {P3_4   , 6      , -1}, /* TIOC3A */
-    {P7_8   , 7      , -1}, /* TIOC3A */
-    {P8_10  , 4      , -1}, /* TIOC3A */
-    {P3_5   , 6      , -1}, /* TIOC3B */
-    {P7_9   , 7      , -1}, /* TIOC3B */
-    {P8_11  , 4      , -1}, /* TIOC3B */
-    {P3_6   , 6      , -1}, /* TIOC3C */
-    {P5_3   , 6      , -1}, /* TIOC3C */
-    {P7_10  , 7      , -1}, /* TIOC3C */
-    {P8_12  , 4      , -1}, /* TIOC3C */
-    {P3_7   , 6      , -1}, /* TIOC3D */
-    {P5_4   , 6      , -1}, /* TIOC3D */
-    {P7_11  , 7      , -1}, /* TIOC3D */
-    {P8_13  , 4      , -1}, /* TIOC3D */
-    {P3_8   , 6      , -1}, /* TIOC4A */
-    {P4_4   , 3      , -1}, /* TIOC4A */
-    {P7_12  , 7      , -1}, /* TIOC4A */
-    {P3_9   , 6      , -1}, /* TIOC4B */
-    {P4_5   , 3      , -1}, /* TIOC4B */
-    {P7_13  , 7      , -1}, /* TIOC4B */
-    {P3_10  , 6      , -1}, /* TIOC4C */
-    {P4_6   , 3      , -1}, /* TIOC4C */
-    {P7_14  , 7      , -1}, /* TIOC4C */
-    {P3_11  , 6      , -1}, /* TIOC4D */
-    {P4_7   , 3      , -1}, /* TIOC4D */
-    {P7_15  , 7      , -1}, /* TIOC4D */
-    {P5_7   , 1      , 1 }, /* TXOUT0M   */
-    {P5_6   , 1      , 1 }, /* TXOUT0P   */
-    {P5_5   , 1      , 1 }, /* TXOUT1M   */
-    {P5_4   , 1      , 1 }, /* TXOUT1P   */
-    {P5_3   , 1      , 1 }, /* TXOUT2M   */
-    {P5_2   , 1      , 1 }, /* TXOUT2P   */
-    {P5_1   , 1      , 1 }, /* TXCLKOUTM */
-    {P5_0   , 1      , 1 }, /* TXCLKOUTP */
-    {P2_11  , 4      , 0 }, /* SSITxD0 */
-    {P4_7   , 5      , 0 }, /* SSITxD0 */
-    {P7_4   , 6      , 0 }, /* SSITxD1 */
-    {P4_15  , 6      , 0 }, /* SSITxD3 */
-    {P7_11  , 2      , 0 }, /* SSITxD3 */
-    {P2_7   , 4      , 0 }, /* SSITxD5 */
-    {P4_11  , 5      , 0 }, /* SSITxD5 */
-    {P8_10  , 8      , 0 }, /* SSITxD5 */
-    {P3_7   , 8      , 0 }, /* WDTOVF */
-    {NC     , 0      , -1}
+    {P4_0, 2, -1},          /* TIOC0A */
+    {P5_0, 6, -1},          /* TIOC0A */
+    {P7_0, 7, -1},          /* TIOC0A */
+    {P4_1, 2, -1},          /* TIOC0B */
+    {P5_1, 6, -1},          /* TIOC0B */
+    {P7_1, 7, -1},          /* TIOC0B */
+    {P4_2, 2, -1},          /* TIOC0C */
+    {P5_5, 6, -1},          /* TIOC0C */
+    {P7_2, 7, -1},          /* TIOC0C */
+    {P4_3, 2, -1},          /* TIOC0D */
+    {P5_7, 6, -1},          /* TIOC0D */
+    {P7_3, 7, -1},          /* TIOC0D */
+    {P2_11, 5, -1},         /* TIOC1A */
+    {P6_0, 5, -1},          /* TIOC1A */
+    {P7_4, 7, -1},          /* TIOC1A */
+    {P8_8, 5, -1},          /* TIOC1A */
+    {P9_7, 4, -1},          /* TIOC1A */
+    {P2_12, 8, -1},         /* TIOC1B */
+    {P5_2, 6, -1},          /* TIOC1B */
+    {P6_1, 5, -1},          /* TIOC1B */
+    {P7_5, 7, -1},          /* TIOC1B */
+    {P8_9, 5, -1},          /* TIOC1B */
+    {P2_1, 6, -1},          /* TIOC2A */
+    {P6_2, 6, -1},          /* TIOC2A */
+    {P7_6, 7, -1},          /* TIOC2A */
+    {P8_14, 4, -1},         /* TIOC2A */
+    {P2_2, 6, -1},          /* TIOC2B */
+    {P6_3, 6, -1},          /* TIOC2B */
+    {P7_7, 7, -1},          /* TIOC2B */
+    {P8_15, 4, -1},         /* TIOC2B */
+    {P3_4, 6, -1},          /* TIOC3A */
+    {P7_8, 7, -1},          /* TIOC3A */
+    {P8_10, 4, -1},         /* TIOC3A */
+    {P3_5, 6, -1},          /* TIOC3B */
+    {P7_9, 7, -1},          /* TIOC3B */
+    {P8_11, 4, -1},         /* TIOC3B */
+    {P3_6, 6, -1},          /* TIOC3C */
+    {P5_3, 6, -1},          /* TIOC3C */
+    {P7_10, 7, -1},         /* TIOC3C */
+    {P8_12, 4, -1},         /* TIOC3C */
+    {P3_7, 6, -1},          /* TIOC3D */
+    {P5_4, 6, -1},          /* TIOC3D */
+    {P7_11, 7, -1},         /* TIOC3D */
+    {P8_13, 4, -1},         /* TIOC3D */
+    {P3_8, 6, -1},          /* TIOC4A */
+    {P4_4, 3, -1},          /* TIOC4A */
+    {P7_12, 7, -1},         /* TIOC4A */
+    {P3_9, 6, -1},          /* TIOC4B */
+    {P4_5, 3, -1},          /* TIOC4B */
+    {P7_13, 7, -1},         /* TIOC4B */
+    {P3_10, 6, -1},         /* TIOC4C */
+    {P4_6, 3, -1},          /* TIOC4C */
+    {P7_14, 7, -1},         /* TIOC4C */
+    {P3_11, 6, -1},         /* TIOC4D */
+    {P4_7, 3, -1},          /* TIOC4D */
+    {P7_15, 7, -1},         /* TIOC4D */
+    {P5_7, 1, 1 },          /* TXOUT0M   */
+    {P5_6, 1, 1 },          /* TXOUT0P   */
+    {P5_5, 1, 1 },          /* TXOUT1M   */
+    {P5_4, 1, 1 },          /* TXOUT1P   */
+    {P5_3, 1, 1 },          /* TXOUT2M   */
+    {P5_2, 1, 1 },          /* TXOUT2P   */
+    {P5_1, 1, 1 },          /* TXCLKOUTM */
+    {P5_0, 1, 1 },          /* TXCLKOUTP */
+    {P2_11, 4, 0 },         /* SSITxD0 */
+    {P4_7, 5, 0 },          /* SSITxD0 */
+    {P7_4, 6, 0 },          /* SSITxD1 */
+    {P4_15, 6, 0 },         /* SSITxD3 */
+    {P7_11, 2, 0 },         /* SSITxD3 */
+    {P2_7, 4, 0 },          /* SSITxD5 */
+    {P4_11, 5, 0 },         /* SSITxD5 */
+    {P8_10, 8, 0 },         /* SSITxD5 */
+    {P3_7, 8, 0 },          /* WDTOVF */
+    {NC, 0, -1}
 };
 #else
 static const PinFunc PIPC_0_tbl[] = {
     //   pin      func     pm
-    {P4_0   , 2      , -1}, // TIOC0A
-    {P5_0   , 6      , -1}, // TIOC0A
-    {P4_2   , 2      , -1}, // TIOC0C
-    {P5_5   , 6      , -1}, // TIOC0C
+    {P4_0, 2, -1},          // TIOC0A
+    {P5_0, 6, -1},          // TIOC0A
+    {P4_2, 2, -1},          // TIOC0C
+    {P5_5, 6, -1},          // TIOC0C
     //
-    {P8_14  , 4      , -1}, // TIOC2A
+    {P8_14, 4, -1},         // TIOC2A
     //
-    {P8_10  , 4      , -1}, // TIOC3A
-    {P5_3   , 6      , -1}, // TIOC3C
-    {P8_12  , 4      , -1}, // TIOC3C
+    {P8_10, 4, -1},         // TIOC3A
+    {P5_3, 6, -1},          // TIOC3C
+    {P8_12, 4, -1},         // TIOC3C
     //
-    {P3_8   , 6      , -1}, // TIOC4A
-    {P4_4   , 3      , -1}, // TIOC4A
-    {P3_10  , 6      , -1}, // TIOC4C
-    {P4_6   , 3      , -1}, // TIOC4C
+    {P3_8, 6, -1},          // TIOC4A
+    {P4_4, 3, -1},          // TIOC4A
+    {P3_10, 6, -1},         // TIOC4C
+    {P4_6, 3, -1},          // TIOC4C
     //
-    {P5_7   , 1      , 1 }, // TXOUT0M
-    {P5_6   , 1      , 1 }, // TXOUT0P
-    {P5_5   , 1      , 1 }, // TXOUT1M
-    {P5_4   , 1      , 1 }, // TXOUT1P
-    {P5_3   , 1      , 1 }, // TXOUT2M
-    {P5_2   , 1      , 1 }, // TXOUT2P
-    {P5_1   , 1      , 1 }, // TXCLKOUTM
-    {P5_0   , 1      , 1 }, // TXCLKOUTP
-    {P4_7   , 5      , 0 }, // SSITxD0
-    {P8_10  , 8      , 0 }, // SSITxD5
-    {P3_7   , 8      , 0 }, // WDTOVF
-    {NC     , 0      , -1}
+    {P5_7, 1, 1 },          // TXOUT0M
+    {P5_6, 1, 1 },          // TXOUT0P
+    {P5_5, 1, 1 },          // TXOUT1M
+    {P5_4, 1, 1 },          // TXOUT1P
+    {P5_3, 1, 1 },          // TXOUT2M
+    {P5_2, 1, 1 },          // TXOUT2P
+    {P5_1, 1, 1 },          // TXCLKOUTM
+    {P5_0, 1, 1 },          // TXCLKOUTP
+    {P4_7, 5, 0 },          // SSITxD0
+    {P8_10, 8, 0 },         // SSITxD5
+    {P3_7, 8, 0 },          // WDTOVF
+    {NC, 0, -1}
 };
 #endif
 
-void pin_function(PinName pin, int function) {
-    if (pin == (PinName)NC) return;
-    
+void pin_function(PinName pin, int function)
+{
+    if (pin == (PinName)NC) {
+        return;
+    }
+
     int n = pin >> 4;
-    int bitmask = 1<<(pin  & 0xf);
-    const PinFunc * Pipc_0_func = PIPC_0_tbl;
+    int bitmask = 1 << (pin  & 0xf);
+    const PinFunc *Pipc_0_func = PIPC_0_tbl;
     int pipc_data = 1;
-    
+
     if (gpio_multi_guard != pin) {
         if (function == 0) {
             // means GPIO mode
@@ -153,9 +156,21 @@ void pin_function(PinName pin, int function) {
             // alt-function mode
             --function;
 
-            if (function & (1 << 2)) { *PFCAE(n) |= bitmask;}else  { *PFCAE(n) &= ~bitmask;}
-            if (function & (1 << 1)) { *PFCE(n) |= bitmask;}else  { *PFCE(n) &= ~bitmask;}
-            if (function & (1 << 0)) { *PFC(n) |= bitmask;}else  { *PFC(n) &= ~bitmask;}
+            if (function & (1 << 2)) {
+                *PFCAE(n) |= bitmask;
+            } else  {
+                *PFCAE(n) &= ~bitmask;
+            }
+            if (function & (1 << 1)) {
+                *PFCE(n) |= bitmask;
+            } else  {
+                *PFCE(n) &= ~bitmask;
+            }
+            if (function & (1 << 0)) {
+                *PFC(n) |= bitmask;
+            } else  {
+                *PFC(n) &= ~bitmask;
+            }
 
             while (Pipc_0_func->pin != NC) {
                 if ((Pipc_0_func->pin == pin) && ((Pipc_0_func->function - 1) == function)) {
@@ -172,7 +187,7 @@ void pin_function(PinName pin, int function) {
                 Pipc_0_func++;
             }
             if (pipc_data == 1) {
-            *PIPC(n) |= bitmask;
+                *PIPC(n) |= bitmask;
             } else {
                 *PIPC(n) &= ~bitmask;
             }
@@ -187,6 +202,7 @@ void pin_function(PinName pin, int function) {
     }
 }
 
-void pin_mode(PinName pin, PinMode mode) {
+void pin_mode(PinName pin, PinMode mode)
+{
 //    if (pin == (PinName)NC) { return; }
 }

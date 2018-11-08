@@ -46,13 +46,13 @@ typedef enum {
     P0_15 = 15,
     P0_16 = 16,
     P0_17 = 17,
-    
+
     D0 = P0_0,
     D1 = P0_4,
     D2 = P0_6,
     D3 = P0_8,
     D4 = P0_9,
-    
+
     D7 = P0_7,
     D8 = P0_17,
     D9 = P0_16,
@@ -62,24 +62,24 @@ typedef enum {
     D13 = P0_12,
     D14 = P0_10,
     D15 = P0_11,
-    
+
     A4 = P0_10,
     A5 = P0_11,
-    
+
     // Elektor CoCO-ri-Co board
     LED_RED = P0_11,
     LED_GREEN = P0_10,
-    
+
     // mbed original LED naming
     LED1 = LED_RED,
     LED2 = LED_GREEN,
     LED3 = LED_RED,
     LED4 = LED_GREEN,
-    
+
     // Serial to USB pins
     USBTX = P0_6,
     USBRX = P0_1,
-    
+
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;

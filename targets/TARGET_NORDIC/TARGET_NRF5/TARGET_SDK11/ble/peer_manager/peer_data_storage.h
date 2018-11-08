@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -60,8 +60,7 @@
 
 #define PDS_PREPARE_TOKEN_INVALID   0  /**< Invalid value for prepare token. */
 
-enum
-{
+enum {
     PEER_ID_TO_FILE_ID         = 0xC000,
     FILE_ID_TO_PEER_ID         = -PEER_ID_TO_FILE_ID,
     PEER_DATA_ID_TO_RECORD_KEY = 0xC000,
@@ -71,8 +70,7 @@ enum
 
 /**@brief The types of events that can come from the peer_data_storage module.
  */
-typedef enum
-{
+typedef enum {
     PDS_EVT_STORED,                 /**< The specified data has been successfully stored. */
     PDS_EVT_UPDATED,                /**< The specified data has been successfully updated. */
     PDS_EVT_CLEARED,                /**< The specified data has been successfully cleared. */
@@ -88,8 +86,7 @@ typedef enum
 
 /**@brief Events that can come from the peer_data_storage module.
  */
-typedef struct
-{
+typedef struct {
     pds_evt_id_t      evt_id;      /**< The type of event. */
     pm_peer_id_t      peer_id;     /**< The peer the event pertains to. */
     pm_peer_data_id_t data_id;     /**< The data the event pertains to. */
@@ -104,7 +101,7 @@ typedef struct
  * @param[in]  peer_id  The id of the peer the event pertains to.
  * @param[in]  flags    The data the event pertains to.
  */
-typedef void (*pds_evt_handler_t)(pds_evt_t const * p_event);
+typedef void (*pds_evt_handler_t)(pds_evt_t const *p_event);
 
 
 /**@brief Function for registering for events from the peer database.
@@ -136,8 +133,8 @@ ret_code_t pds_register(pds_evt_handler_t evt_handler);
  */
 ret_code_t pds_peer_data_read_ptr_get(pm_peer_id_t            peer_id,
                                       pm_peer_data_id_t       data_id,
-                                      pm_peer_data_flash_t  * p_data,
-                                      pm_store_token_t      * p_token);
+                                      pm_peer_data_flash_t   *p_data,
+                                      pm_store_token_t       *p_token);
 
 
 #if 0
@@ -183,8 +180,8 @@ ret_code_t  pds_peer_data_verify(pm_store_token_t store_token);
  */
 ret_code_t pds_peer_data_read(pm_peer_id_t          peer_id,
                               pm_peer_data_id_t     data_id,
-                              pm_peer_data_t      * p_data,
-                              uint16_t            * p_len_words);
+                              pm_peer_data_t       *p_data,
+                              uint16_t             *p_len_words);
 
 
 /**@brief Function for preparing persistent storage for a write.
@@ -206,8 +203,8 @@ ret_code_t pds_peer_data_read(pm_peer_id_t          peer_id,
  * @retval NRF_ERROR_INVALID_STATE   Module is not initialized.
  * @retval NRF_ERROR_INTERNAL        Internal error.
  */
-ret_code_t pds_peer_data_write_prepare(pm_peer_data_const_t const * p_peer_data,
-                                       pm_prepare_token_t         * p_prepare_token);
+ret_code_t pds_peer_data_write_prepare(pm_peer_data_const_t const *p_peer_data,
+                                       pm_prepare_token_t          *p_prepare_token);
 
 
 /**@brief Function for undoing a previous call to @ref pds_peer_data_write_prepare.
@@ -247,9 +244,9 @@ ret_code_t pds_peer_data_write_prepare_cancel(pm_prepare_token_t prepare_token);
  * @retval NRF_ERROR_INTERNAL        Internal error.
  */
 ret_code_t pds_peer_data_write_prepared(pm_peer_id_t                    peer_id,
-                                        pm_peer_data_const_t    const * p_peer_data,
+                                        pm_peer_data_const_t    const *p_peer_data,
                                         pm_prepare_token_t              prepare_token,
-                                        pm_store_token_t              * p_store_token);
+                                        pm_store_token_t               *p_store_token);
 
 
 /**@brief Function for writing peer data to persistent storage.
@@ -272,8 +269,8 @@ ret_code_t pds_peer_data_write_prepared(pm_peer_id_t                    peer_id,
  * @retval NRF_ERROR_INTERNAL        Internal error.
  */
 ret_code_t pds_peer_data_write(pm_peer_id_t                 peer_id,
-                               pm_peer_data_const_t const * p_peer_data,
-                               pm_store_token_t           * p_store_token);
+                               pm_peer_data_const_t const *p_peer_data,
+                               pm_store_token_t            *p_store_token);
 
 
 /**@brief Function for updating currently stored peer data to a new version
@@ -296,9 +293,9 @@ ret_code_t pds_peer_data_write(pm_peer_id_t                 peer_id,
  * @retval NRF_ERROR_INTERNAL       Internal error.
  */
 ret_code_t pds_peer_data_update(pm_peer_id_t                 peer_id,
-                                pm_peer_data_const_t const * p_peer_data,
+                                pm_peer_data_const_t const *p_peer_data,
                                 pm_store_token_t             old_token,
-                                pm_store_token_t           * p_store_token);
+                                pm_store_token_t            *p_store_token);
 
 
 /**@brief Function for clearing peer data from persistent storage.

@@ -54,72 +54,72 @@
 
 /* CW compiler. */
 #if (defined(FNET_CFG_COMP_CW) && FNET_CFG_COMP_CW)
-    #define FNET_COMP_STR       "CW"
-    /* IAR compiler. */
+#define FNET_COMP_STR       "CW"
+/* IAR compiler. */
 #elif (defined(FNET_CFG_COMP_IAR) && FNET_CFG_COMP_IAR)
-    #define FNET_COMP_STR       "IAR"
-    /* GHS compiler. */
+#define FNET_COMP_STR       "IAR"
+/* GHS compiler. */
 #elif (defined(FNET_CFG_COMP_GHS) && FNET_CFG_COMP_GHS)
-    #define FNET_COMP_STR       "GHS"
-    /* Keil uVision compiler. */
+#define FNET_COMP_STR       "GHS"
+/* Keil uVision compiler. */
 #elif (defined(FNET_CFG_COMP_UV) && FNET_CFG_COMP_UV)
-    #define FNET_COMP_STR       "UV"
-    /* GNU GCC */
+#define FNET_COMP_STR       "UV"
+/* GNU GCC */
 #elif (defined(FNET_CFG_COMP_GNUC) && FNET_CFG_COMP_GNUC)
-    #define FNET_COMP_STR       "GCC"
-    /* Diab DCC */
+#define FNET_COMP_STR       "GCC"
+/* Diab DCC */
 #elif (defined(FNET_CFG_COMP_DCC) && FNET_CFG_COMP_DCC)
-    #define FNET_COMP_STR       "DCC"
+#define FNET_COMP_STR       "DCC"
 #endif
 
 #if !defined(FNET_COMP_STR)
-    /* CW compiler. */
-    #if (defined(__MWERKS__) || defined(__CODEWARRIOR__))
-        #define FNET_CFG_COMP_CW    (1)
-        #define FNET_COMP_STR       "CW"
-        /* IAR compiler. */
-    #elif defined(__IAR_SYSTEMS_ICC__) || defined(__IAR_SYSTEMS_ASM__) || defined(__ICCARM__)
-        #define FNET_CFG_COMP_IAR   (1)
-        #define FNET_COMP_STR       "IAR"
-        /* GHS compiler. */
-    #elif defined(__ghs__)
-        #define FNET_CFG_COMP_GHS   (1)
-        #define FNET_COMP_STR       "GHS"
-        /* Keil uVision compiler. */
-    #elif defined(__CC_ARM)
-        #define FNET_CFG_COMP_UV    (1)
-        #define FNET_COMP_STR       "UV"
-        /* GNU GCC */
-    #elif defined(__GNUC__)
-        #define FNET_CFG_COMP_GNUC  (1)
-        #define FNET_COMP_STR       "GCC"
-        /* Diab DCC */
-    #elif defined(__DCC__)
-        #define FNET_CFG_COMP_DCC   (1)
-        #define FNET_COMP_STR       "DCC"
-    #else
-        #error "It is not possible to detect the compiler. Please set a FNET_CFG_COMP_XXXX parameter."
-    #endif
+/* CW compiler. */
+#if (defined(__MWERKS__) || defined(__CODEWARRIOR__))
+#define FNET_CFG_COMP_CW    (1)
+#define FNET_COMP_STR       "CW"
+/* IAR compiler. */
+#elif defined(__IAR_SYSTEMS_ICC__) || defined(__IAR_SYSTEMS_ASM__) || defined(__ICCARM__)
+#define FNET_CFG_COMP_IAR   (1)
+#define FNET_COMP_STR       "IAR"
+/* GHS compiler. */
+#elif defined(__ghs__)
+#define FNET_CFG_COMP_GHS   (1)
+#define FNET_COMP_STR       "GHS"
+/* Keil uVision compiler. */
+#elif defined(__CC_ARM)
+#define FNET_CFG_COMP_UV    (1)
+#define FNET_COMP_STR       "UV"
+/* GNU GCC */
+#elif defined(__GNUC__)
+#define FNET_CFG_COMP_GNUC  (1)
+#define FNET_COMP_STR       "GCC"
+/* Diab DCC */
+#elif defined(__DCC__)
+#define FNET_CFG_COMP_DCC   (1)
+#define FNET_COMP_STR       "DCC"
+#else
+#error "It is not possible to detect the compiler. Please set a FNET_CFG_COMP_XXXX parameter."
+#endif
 #endif
 
 /* Set default value */
 #ifndef FNET_CFG_COMP_IAR
-    #define FNET_CFG_COMP_IAR   (0)
+#define FNET_CFG_COMP_IAR   (0)
 #endif
 #ifndef FNET_CFG_COMP_CW
-    #define FNET_CFG_COMP_CW    (0)
+#define FNET_CFG_COMP_CW    (0)
 #endif
 #ifndef FNET_CFG_COMP_UV
-    #define FNET_CFG_COMP_UV    (0)
+#define FNET_CFG_COMP_UV    (0)
 #endif
 #ifndef FNET_CFG_COMP_GNUC
-    #define FNET_CFG_COMP_GNUC  (0)
+#define FNET_CFG_COMP_GNUC  (0)
 #endif
 #ifndef FNET_CFG_COMP_GHS
-    #define FNET_CFG_COMP_GHS   (0)
+#define FNET_CFG_COMP_GHS   (0)
 #endif
 #ifndef FNET_CFG_COMP_DCC
-    #define FNET_CFG_COMP_DCC   (0)
+#define FNET_CFG_COMP_DCC   (0)
 #endif
 
 /*! @} */

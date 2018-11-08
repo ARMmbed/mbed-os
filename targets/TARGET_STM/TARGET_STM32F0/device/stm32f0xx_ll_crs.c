@@ -71,10 +71,10 @@
   */
 ErrorStatus LL_CRS_DeInit(void)
 {
-  LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_CRS);
-  LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_CRS);
+    LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_CRS);
+    LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_CRS);
 
-  return  SUCCESS;
+    return  SUCCESS;
 }
 
 
@@ -96,7 +96,7 @@ ErrorStatus LL_CRS_DeInit(void)
 /**
   * @}
   */
-  
+
 #endif /* USE_FULL_LL_DRIVER */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

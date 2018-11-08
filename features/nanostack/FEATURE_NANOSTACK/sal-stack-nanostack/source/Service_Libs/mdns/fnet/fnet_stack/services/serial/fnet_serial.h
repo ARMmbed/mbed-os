@@ -61,7 +61,7 @@
 #define FNET_COLOR_BLUE     4
 #define FNET_COLOR_MAGENTA  5
 #define FNET_COLOR_CYAN     6
-#define	FNET_COLOR_WHITE    7
+#define FNET_COLOR_WHITE    7
 
 /* Foreground color.*/
 #define FNET_SERIAL_ESC_FG_BLACK    "\33[30m"
@@ -71,7 +71,7 @@
 #define FNET_SERIAL_ESC_FG_BLUE     "\33[34m"
 #define FNET_SERIAL_ESC_FG_MAGENTA  "\33[35m"
 #define FNET_SERIAL_ESC_FG_CYAN     "\33[36m"
-#define	FNET_SERIAL_ESC_FG_WHITE    "\33[37m"
+#define FNET_SERIAL_ESC_FG_WHITE    "\33[37m"
 
 /* Background color.*/
 #define FNET_SERIAL_ESC_BG_BLACK    "\33[40m"
@@ -81,7 +81,7 @@
 #define FNET_SERIAL_ESC_BG_BLUE     "\33[44m"
 #define FNET_SERIAL_ESC_BG_MAGENTA  "\33[45m"
 #define FNET_SERIAL_ESC_BG_CYAN     "\33[46m"
-#define	FNET_SERIAL_ESC_BG_WHITE    "\33[47m"
+#define FNET_SERIAL_ESC_BG_WHITE    "\33[47m"
 
 /* SGR -- Select Graphic Rendition.*/
 #define FNET_SERIAL_ESC_ATTR_RESET     "\33[0m"
@@ -99,8 +99,7 @@
  *
  * @see fnet_serial_stream_t
  ******************************************************************************/
-struct fnet_serial_stream
-{
+struct fnet_serial_stream {
     fnet_index_t id;            /**< @brief  The @c id parameter provides a way for a stream
                                  * driver to identify a particular device. @n
                                  * For example it can be used as serial port number
@@ -182,21 +181,21 @@ extern const struct fnet_serial_stream fnet_serial_stream_port5;
  * (usually the serial port 0).
  ******************************************************************************/
 #if (FNET_CFG_CPU_SERIAL_PORT_DEFAULT == 0u)
-    #define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT0
+#define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT0
 #elif (FNET_CFG_CPU_SERIAL_PORT_DEFAULT == 1u)
-    #define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT1
+#define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT1
 #elif (FNET_CFG_CPU_SERIAL_PORT_DEFAULT == 2u)
-    #define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT2
+#define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT2
 #elif (FNET_CFG_CPU_SERIAL_PORT_DEFAULT == 3u)
-    #define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT3
+#define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT3
 #elif (FNET_CFG_CPU_SERIAL_PORT_DEFAULT == 4u)
-    #define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT4
+#define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT4
 #elif (FNET_CFG_CPU_SERIAL_PORT_DEFAULT == 5u)
-    #define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT5
+#define FNET_SERIAL_STREAM_DEFAULT     FNET_SERIAL_STREAM_PORT5
 #else
-    /* Serial port is not used, skip error message to keep cppcheck happy
-     * #error "The serial library defines only 6 ports."
-     */
+/* Serial port is not used, skip error message to keep cppcheck happy
+ * #error "The serial library defines only 6 ports."
+ */
 #endif
 
 #if defined(__cplusplus)
@@ -340,13 +339,13 @@ fnet_int32_t fnet_getchar(void);
  * @note
  * To save some bytes from all the hard coded strings the fnet_(s)printf() functions will
  * expand all line feeds ("\n") inside the format string to CR LF ("\r\n").
- * So do not use "\r\n" in	the format string - it will be expanded to
+ * So do not use "\r\n" in  the format string - it will be expanded to
  * "\r\r\n". It is save to add it via a parameter though, e.g.
  * fnet_printf("%s", "\r\n");@n
  * This feature can be disable/enabled by the @ref FNET_CFG_SERIAL_PRINTF_N_TO_RN
  * configuration parameter.
  ******************************************************************************/
-fnet_size_t fnet_serial_printf(fnet_serial_stream_t stream, const fnet_char_t *format, ... );
+fnet_size_t fnet_serial_printf(fnet_serial_stream_t stream, const fnet_char_t *format, ...);
 
 /***************************************************************************/ /*!
  *
@@ -396,13 +395,13 @@ fnet_size_t fnet_serial_printf(fnet_serial_stream_t stream, const fnet_char_t *f
  * @note
  * To save some bytes from all the hard coded strings the fnet_(s)printf() functions will
  * expand all line feeds ("\n") inside the format string to CR LF ("\r\n").
- * So do not use "\r\n" in	the format string - it will be expanded to
+ * So do not use "\r\n" in  the format string - it will be expanded to
  * "\r\r\n". It is save to add it via a parameter though, e.g.
  * fnet_printf("%s", "\r\n");@n
  * This feature can be disable/enabled by the @ref FNET_CFG_SERIAL_PRINTF_N_TO_RN
  * configuration parameter.
  ******************************************************************************/
-fnet_size_t fnet_serial_vprintf(fnet_serial_stream_t stream, const fnet_char_t *format, va_list arg );
+fnet_size_t fnet_serial_vprintf(fnet_serial_stream_t stream, const fnet_char_t *format, va_list arg);
 
 /***************************************************************************/ /*!
  *
@@ -450,13 +449,13 @@ fnet_size_t fnet_serial_vprintf(fnet_serial_stream_t stream, const fnet_char_t *
  * @note
  * To save some bytes from all the hard coded strings the fnet_(s)printf() functions will
  * expand all line feeds ("\n") inside the format string to CR LF ("\r\n").
- * So do not use "\r\n" in	the format string - it will be expanded to
+ * So do not use "\r\n" in  the format string - it will be expanded to
  * "\r\r\n". It is save to add it via a parameter though, e.g.
  * fnet_printf("%s", "\r\n"); @n
  * This feature can be disable/enabled by the @ref FNET_CFG_SERIAL_PRINTF_N_TO_RN
  * configuration parameter.
  ******************************************************************************/
-fnet_size_t fnet_printf( const fnet_char_t *format, ... );
+fnet_size_t fnet_printf(const fnet_char_t *format, ...);
 
 
 /***************************************************************************/ /*!
@@ -506,13 +505,13 @@ fnet_size_t fnet_printf( const fnet_char_t *format, ... );
  * @note
  * To save some bytes from all the hard coded strings the fnet_(s)printf() functions will
  * expand all line feeds ("\n") inside the format string to CR LF ("\r\n").
- * So do not use "\r\n" in	the format string - it will be expanded to
+ * So do not use "\r\n" in  the format string - it will be expanded to
  * "\r\r\n". It is save to add it via a parameter though, e.g.
  * fnet_printf("%s", "\r\n"); @n
  * This feature can be disable/enabled by the @ref FNET_CFG_SERIAL_PRINTF_N_TO_RN
  * configuration parameter.
  ******************************************************************************/
-fnet_size_t fnet_println(const fnet_char_t *format, ... );
+fnet_size_t fnet_println(const fnet_char_t *format, ...);
 
 /***************************************************************************/ /*!
  * @brief    Prints formatted text to the buffer.
@@ -564,13 +563,13 @@ fnet_size_t fnet_println(const fnet_char_t *format, ... );
  * @note
  * To save some bytes from all the hard coded strings the fnet_(s)printf() functions will
  * expand all line feeds ("\n") inside the format string to CR LF ("\r\n").
- * So do not use "\r\n" in	the format string - it will be expanded to
+ * So do not use "\r\n" in  the format string - it will be expanded to
  * "\r\r\n". It is save to add it via a parameter though, e.g.
  * fnet_printf("%s", "\r\n");@n
  * This feature can be disable/enabled by the @ref FNET_CFG_SERIAL_PRINTF_N_TO_RN
  * configuration parameter.
  ******************************************************************************/
-fnet_size_t fnet_sprintf( fnet_char_t *str, const fnet_char_t *format, ... );
+fnet_size_t fnet_sprintf(fnet_char_t *str, const fnet_char_t *format, ...);
 
 /***************************************************************************/ /*!
  *
@@ -624,13 +623,13 @@ fnet_size_t fnet_sprintf( fnet_char_t *str, const fnet_char_t *format, ... );
  * @note
  * To save some bytes from all the hard coded strings the fnet_(s)printf() functions will
  * expand all line feeds ("\n") inside the format string to CR LF ("\r\n").
- * So do not use "\r\n" in	the format string - it will be expanded to
+ * So do not use "\r\n" in  the format string - it will be expanded to
  * "\r\r\n". It is save to add it via a parameter though, e.g.
  * fnet_printf("%s", "\r\n");@n
  * This feature can be disable/enabled by the @ref FNET_CFG_SERIAL_PRINTF_N_TO_RN
  * configuration parameter.
  ******************************************************************************/
-fnet_size_t fnet_snprintf( fnet_char_t *str, fnet_size_t size, const fnet_char_t *format, ... );
+fnet_size_t fnet_snprintf(fnet_char_t *str, fnet_size_t size, const fnet_char_t *format, ...);
 
 #if defined(__cplusplus)
 }

@@ -50,33 +50,33 @@ typedef struct {
     __IO uint32_t FDIV;
     union {
         struct {
-            __IO uint32_t ENABLE :1; /**< SPI port enable: 0 = disable , 1 = enable */
-            __IO uint32_t SAMPLING_EDGE :1; /**< SDI sampling edge: 0 = opposite to SDO edge / 1 = same as SDO edge */
-            __IO uint32_t ENDIAN :1; /**< Bits endianness: 0 = LSB first (little-endian) / 1 = MSB first (big-endian) */
-            __IO uint32_t CPHA :1; /**< Clock phase: 0 = SDO set before first SCLK edge / 1 = SDO set after first SCLK edge */
-            __IO uint32_t CPOL :1; /**< Clock polarity: 0 = active high / 1 = active low */
-            __IO uint32_t MODE :1; /**< Device mode: 0 = slave mode / 1 = master mode */
-            __IO uint32_t WORD_WIDTH :2; /**< Word width: 0 = 8b / 1 = 16b / 2 = 32b / 3 = reserved */
+            __IO uint32_t ENABLE : 1; /**< SPI port enable: 0 = disable , 1 = enable */
+            __IO uint32_t SAMPLING_EDGE : 1; /**< SDI sampling edge: 0 = opposite to SDO edge / 1 = same as SDO edge */
+            __IO uint32_t ENDIAN : 1; /**< Bits endianness: 0 = LSB first (little-endian) / 1 = MSB first (big-endian) */
+            __IO uint32_t CPHA : 1; /**< Clock phase: 0 = SDO set before first SCLK edge / 1 = SDO set after first SCLK edge */
+            __IO uint32_t CPOL : 1; /**< Clock polarity: 0 = active high / 1 = active low */
+            __IO uint32_t MODE : 1; /**< Device mode: 0 = slave mode / 1 = master mode */
+            __IO uint32_t WORD_WIDTH : 2; /**< Word width: 0 = 8b / 1 = 16b / 2 = 32b / 3 = reserved */
         } BITS;
         __IO uint32_t WORD;
     } CONTROL;
     union {
         struct {
-            __I uint32_t XFER_IP :1; /**< Transfer in progress: 0 = No transfer in progress / 1 = transfer in progress */
-            __I uint32_t XFER_ERROR :1;/**< Transfer error: 0 = no error / 1 = SPI Overflow or Underflow */
-            __I uint32_t TX_EMPTY :1; /**< Transmit FIFO/buffer empty flag: 0 = not empty / 1 = empty */
-            __I uint32_t TX_HALF :1; /**< Transmit FIFO/buffer "half full" flag: 0 = (< half full) / 1 = (>= half full) */
-            __I uint32_t TX_FULL :1; /**< Transmit FIFO/buffer full flag: 0 = not full / 1 = full */
-            __I uint32_t RX_EMPTY :1; /**< Receive FIFO/buffer empty flag: 0 = not empty / 1 = empty */
-            __I uint32_t RX_HALF :1; /**< Receive FIFO/buffer "half full" flag: 0 = (< half full) / 1 = (>= half full) */
-            __I uint32_t RX_FULL :1; /**< Receive FIFO/buffer full flag: 0 = not full / 1 = full */
+            __I uint32_t XFER_IP : 1; /**< Transfer in progress: 0 = No transfer in progress / 1 = transfer in progress */
+            __I uint32_t XFER_ERROR : 1; /**< Transfer error: 0 = no error / 1 = SPI Overflow or Underflow */
+            __I uint32_t TX_EMPTY : 1; /**< Transmit FIFO/buffer empty flag: 0 = not empty / 1 = empty */
+            __I uint32_t TX_HALF : 1; /**< Transmit FIFO/buffer "half full" flag: 0 = (< half full) / 1 = (>= half full) */
+            __I uint32_t TX_FULL : 1; /**< Transmit FIFO/buffer full flag: 0 = not full / 1 = full */
+            __I uint32_t RX_EMPTY : 1; /**< Receive FIFO/buffer empty flag: 0 = not empty / 1 = empty */
+            __I uint32_t RX_HALF : 1; /**< Receive FIFO/buffer "half full" flag: 0 = (< half full) / 1 = (>= half full) */
+            __I uint32_t RX_FULL : 1; /**< Receive FIFO/buffer full flag: 0 = not full / 1 = full */
         } BITS;
         __I uint32_t WORD;
     } STATUS;
     union {
         struct {
-            __IO uint32_t SS_ENABLE :4; /**< Slave Select (x4): 0 = disable / 1 = enable */
-            __IO uint32_t SS_BURST :1; /**< Slave Select burst mode (maintain SS active if TXFIFO not empty) */
+            __IO uint32_t SS_ENABLE : 4; /**< Slave Select (x4): 0 = disable / 1 = enable */
+            __IO uint32_t SS_BURST : 1; /**< Slave Select burst mode (maintain SS active if TXFIFO not empty) */
         } BITS;
         __IO uint32_t WORD;
     } SLAVE_SELECT;

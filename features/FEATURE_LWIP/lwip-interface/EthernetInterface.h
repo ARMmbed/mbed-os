@@ -28,8 +28,7 @@ class NetworkStack;
 /** EthernetInterface class
  *  Implementation of the NetworkStack for LWIP
  */
-class EthernetInterface : public EthInterface
-{
+class EthernetInterface : public EthInterface {
 public:
     /** EthernetInterface lifetime
      */
@@ -47,7 +46,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_network(
-            const char *ip_address, const char *netmask, const char *gateway);
+        const char *ip_address, const char *netmask, const char *gateway);
 
     /** Enable or disable DHCP on the network
      *
@@ -73,7 +72,7 @@ public:
      *  Provided MAC address is intended for info or debug purposes and
      *  may not be provided if the underlying network interface does not
      *  provide a MAC address
-     *  
+     *
      *  @return         Null-terminated representation of the local MAC address
      *                  or null if no MAC address is available
      */
@@ -88,7 +87,7 @@ public:
 
     /** Get the local network mask
      *
-     *  @return         Null-terminated representation of the local network mask 
+     *  @return         Null-terminated representation of the local network mask
      *                  or null if no network mask has been recieved
      */
     virtual const char *get_netmask();
@@ -103,7 +102,7 @@ public:
 protected:
     /** Provide access to the underlying stack
      *
-     *  @return The underlying network stack 
+     *  @return The underlying network stack
      */
     virtual NetworkStack *get_stack();
 

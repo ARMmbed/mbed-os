@@ -28,7 +28,7 @@ extern "C" {
                             SPI##n,
 
 #define _SERCOM_PAD_NAME(n, pad) \
-				SERCOM##n##_PAD##pad = ((n & 0xF) | ((pad & 0xF) << 4)),
+                SERCOM##n##_PAD##pad = ((n & 0xF) | ((pad & 0xF) << 4)),
 
 #define _SERCOM_I2C_NAME(n, unused) \
                             I2C##n,

@@ -30,8 +30,8 @@
 #define SCIM_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_scim
-{                                                          /* SCIM             */
+struct st_scim {
+    /* SCIM             */
     volatile uint8_t   SMR;                                    /*  SMR             */
     volatile uint8_t   BRR;                                    /*  BRR             */
     volatile uint8_t   SCR;                                    /*  SCR             */

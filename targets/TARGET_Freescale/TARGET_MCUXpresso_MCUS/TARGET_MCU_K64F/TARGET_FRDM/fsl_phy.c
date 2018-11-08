@@ -73,32 +73,25 @@ status_t PHY_Init(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz)
 
     /* Reset PHY. */
     result = PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG, PHY_BCTL_RESET_MASK);
-    if (result == kStatus_Success)
-    {
+    if (result == kStatus_Success) {
         /* Set the negotiation. */
         result = PHY_Write(base, phyAddr, PHY_AUTONEG_ADVERTISE_REG,
                            (PHY_100BASETX_FULLDUPLEX_MASK | PHY_100BASETX_HALFDUPLEX_MASK |
                             PHY_10BASETX_FULLDUPLEX_MASK | PHY_10BASETX_HALFDUPLEX_MASK | 0x1U));
-        if (result == kStatus_Success)
-        {
+        if (result == kStatus_Success) {
             result = PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG,
                                (PHY_BCTL_AUTONEG_MASK | PHY_BCTL_RESTART_AUTONEG_MASK));
-            if (result == kStatus_Success)
-            {
+            if (result == kStatus_Success) {
                 /* Check auto negotiation complete. */
-                while (counter --)
-                {
+                while (counter --) {
                     result = PHY_Read(base, phyAddr, PHY_BASICSTATUS_REG, &bssReg);
-                    if ( result == kStatus_Success)
-                    {
-                        if ((bssReg & PHY_BSTATUS_AUTONEGCOMP_MASK) != 0)
-                        {
+                    if (result == kStatus_Success) {
+                        if ((bssReg & PHY_BSTATUS_AUTONEGCOMP_MASK) != 0) {
                             break;
                         }
                     }
 
-                    if (!counter)
-                    {
+                    if (!counter) {
                         return kStatus_PHY_AutoNegotiateFail;
                     }
                 }
@@ -120,17 +113,14 @@ status_t PHY_Write(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t 
     ENET_StartSMIWrite(base, phyAddr, phyReg, kENET_MiiWriteValidFrame, data);
 
     /* Wait for SMI complete. */
-    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--)
-    {
-        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK)
-        {
+    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--) {
+        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK) {
             break;
         }
     }
 
     /* Check for timeout. */
-    if (!counter)
-    {
+    if (!counter) {
         return kStatus_PHY_SMIVisitTimeout;
     }
 
@@ -153,17 +143,14 @@ status_t PHY_Read(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t *
     ENET_StartSMIRead(base, phyAddr, phyReg, kENET_MiiReadValidFrame);
 
     /* Wait for MII complete. */
-    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--)
-    {
-        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK)
-        {
+    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--) {
+        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK) {
             break;
         }
     }
 
     /* Check for timeout. */
-    if (!counter)
-    {
+    if (!counter) {
         return kStatus_PHY_SMIVisitTimeout;
     }
 
@@ -182,45 +169,32 @@ status_t PHY_EnableLoopback(ENET_Type *base, uint32_t phyAddr, phy_loop_t mode, 
     uint32_t data = 0;
 
     /* Set the loop mode. */
-    if (enable)
-    {
-        if (mode == kPHY_LocalLoop)
-        {
+    if (enable) {
+        if (mode == kPHY_LocalLoop) {
             /* First read the current status in control register. */
             result = PHY_Read(base, phyAddr, PHY_BASICCONTROL_REG, &data);
-            if (result == kStatus_Success)
-            {
+            if (result == kStatus_Success) {
                 return PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG, (data | PHY_BCTL_LOOP_MASK));
             }
-        }
-        else
-        {
+        } else {
             /* First read the current status in control register. */
             result = PHY_Read(base, phyAddr, PHY_CONTROL2_REG, &data);
-            if (result == kStatus_Success)
-            {
+            if (result == kStatus_Success) {
                 return PHY_Write(base, phyAddr, PHY_CONTROL2_REG, (data | PHY_CTL2_REMOTELOOP_MASK));
             }
         }
-    }
-    else
-    {
+    } else {
         /* Disable the loop mode. */
-        if (mode == kPHY_LocalLoop)
-        {
+        if (mode == kPHY_LocalLoop) {
             /* First read the current status in the basic control register. */
             result = PHY_Read(base, phyAddr, PHY_BASICCONTROL_REG, &data);
-            if (result == kStatus_Success)
-            {
+            if (result == kStatus_Success) {
                 return PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG, (data & ~PHY_BCTL_LOOP_MASK));
             }
-        }
-        else
-        {
+        } else {
             /* First read the current status in control one register. */
             result = PHY_Read(base, phyAddr, PHY_CONTROL2_REG, &data);
-            if (result == kStatus_Success)
-            {
+            if (result == kStatus_Success) {
                 return PHY_Write(base, phyAddr, PHY_CONTROL2_REG, (data & ~PHY_CTL2_REMOTELOOP_MASK));
             }
         }
@@ -237,15 +211,11 @@ status_t PHY_GetLinkStatus(ENET_Type *base, uint32_t phyAddr, bool *status)
 
     /* Read the basic status register. */
     result = PHY_Read(base, phyAddr, PHY_BASICSTATUS_REG, &data);
-    if (result == kStatus_Success)
-    {
-        if (!(PHY_BSTATUS_LINKSTATUS_MASK & data))
-        {
+    if (result == kStatus_Success) {
+        if (!(PHY_BSTATUS_LINKSTATUS_MASK & data)) {
             /* link down. */
             *status = false;
-        }
-        else
-        {
+        } else {
             /* link up. */
             *status = true;
         }
@@ -262,28 +232,22 @@ status_t PHY_GetLinkSpeedDuplex(ENET_Type *base, uint32_t phyAddr, phy_speed_t *
 
     /* Read the control two register. */
     result = PHY_Read(base, phyAddr, PHY_CONTROL1_REG, &ctlReg);
-    if (result == kStatus_Success)
-    {
+    if (result == kStatus_Success) {
         data = ctlReg & PHY_CTL1_SPEEDUPLX_MASK;
-        if ((PHY_CTL1_10FULLDUPLEX_MASK == data) || (PHY_CTL1_100FULLDUPLEX_MASK == data))
-        {
+        if ((PHY_CTL1_10FULLDUPLEX_MASK == data) || (PHY_CTL1_100FULLDUPLEX_MASK == data)) {
             /* Full duplex. */
             *duplex = kPHY_FullDuplex;
-        }
-        else
-        {
+        } else {
             /* Half duplex. */
             *duplex = kPHY_HalfDuplex;
         }
 
         data = ctlReg & PHY_CTL1_SPEEDUPLX_MASK;
-        if ((PHY_CTL1_100HALFDUPLEX_MASK == data) || (PHY_CTL1_100FULLDUPLEX_MASK == data))
-        {
+        if ((PHY_CTL1_100HALFDUPLEX_MASK == data) || (PHY_CTL1_100FULLDUPLEX_MASK == data)) {
             /* 100M speed. */
             *speed = kPHY_Speed100M;
-        }
-        else
-        { /* 10M speed. */
+        } else {
+            /* 10M speed. */
             *speed = kPHY_Speed10M;
         }
     }

@@ -10,7 +10,8 @@ It is declared in \cpputest\src\Platforms\armcc\UtestPlatform.cpp
 */
 Serial mbed_cpputest_console(STDIO_UART_TX, STDIO_UART_RX);
 
-int main(int ac, char** av) {
+int main(int ac, char **av)
+{
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(Unit test);
@@ -20,7 +21,7 @@ int main(int ac, char** av) {
     {
         // Some compilers may not pass ac, av so we need to supply them ourselves
         int ac = 2;
-        char* av[] = {__FILE__, "-v"};
+        char *av[] = {__FILE__, "-v"};
         failureCount = CommandLineTestRunner::RunAllTests(ac, av);
     }
 

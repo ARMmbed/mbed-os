@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -63,8 +63,7 @@ extern "C" {
 
 /**@brief Events that can come from the peer_database module.
  */
-typedef enum
-{
+typedef enum {
     PDB_EVT_WRITE_BUF_STORED,   /**< A @ref pdb_write_buf_store operation has completed successfully. */
     PDB_EVT_RAW_STORED,         /**< A @ref pdb_raw_store operation has completed successfully. */
     PDB_EVT_RAW_STORE_FAILED,   /**< A @ref pdb_raw_store operation has failed. */
@@ -79,36 +78,28 @@ typedef enum
 
 /**@brief Events that can come from the peer_database module.
  */
-typedef struct
-{
+typedef struct {
     pdb_evt_id_t      evt_id;  /**< The event that has happened. */
     pm_peer_id_t      peer_id; /**< The id of the peer the event pertains to. */
     pm_peer_data_id_t data_id; /**< The data the event pertains to. */
-    union
-    {
-        struct
-        {
+    union {
+        struct {
             bool update;                   /**< If true, an existing value was overwritten. */
         } write_buf_stored_evt;            /**< Additional information pertaining to the @ref PDB_EVT_WRITE_BUF_STORED event. */
-        struct
-        {
+        struct {
             pm_store_token_t store_token;  /**< A token identifying the store operation this event pertains to. */
         } raw_stored_evt;                  /**< Additional information pertaining to the @ref PDB_EVT_RAW_STORED event. */
-        struct
-        {
+        struct {
             pm_store_token_t store_token;  /**< A token identifying the store operation this event pertains to. */
             ret_code_t       err_code;     /**< Error code specifying what went wrong. */
         } error_raw_store_evt;             /**< Additional information pertaining to the @ref PDB_EVT_RAW_STORE_FAILED event. */
-        struct
-        {
+        struct {
             ret_code_t err_code;           /**< The error that occurred. */
         } clear_failed_evt;                /**< Additional information pertaining to the @ref PDB_EVT_CLEAR_FAILED event. */
-        struct
-        {
+        struct {
             ret_code_t err_code;           /**< The error that occurred. */
         } peer_free_failed_evt;            /**< Additional information pertaining to the @ref PDB_EVT_PEER_FREE_FAILED event. */
-        struct
-        {
+        struct {
             ret_code_t err_code;           /**< The unexpected error that occurred. */
         } error_unexpected;                /**< Additional information pertaining to the @ref PDB_EVT_ERROR_UNEXPECTED event. */
     } params;
@@ -118,7 +109,7 @@ typedef struct
  *
  * @param[in]  p_event   The event that has happened.
  */
-typedef void (*pdb_evt_handler_t)(pdb_evt_t const * p_event);
+typedef void (*pdb_evt_handler_t)(pdb_evt_t const *p_event);
 
 
 /**@brief Function for initializing the module.
@@ -166,7 +157,7 @@ ret_code_t pdb_peer_free(pm_peer_id_t peer_id);
  */
 ret_code_t pdb_peer_data_ptr_get(pm_peer_id_t                 peer_id,
                                  pm_peer_data_id_t            data_id,
-                                 pm_peer_data_flash_t * const p_peer_data);
+                                 pm_peer_data_flash_t *const p_peer_data);
 
 
 /**@brief Function for retrieving pointers to a write buffer for peer data.
@@ -201,7 +192,7 @@ ret_code_t pdb_peer_data_ptr_get(pm_peer_id_t                 peer_id,
 ret_code_t pdb_write_buf_get(pm_peer_id_t      peer_id,
                              pm_peer_data_id_t data_id,
                              uint32_t          n_bufs,
-                             pm_peer_data_t  * p_peer_data);
+                             pm_peer_data_t   *p_peer_data);
 
 
 /**@brief Function for freeing a write buffer allocated with @ref pdb_write_buf_get.
@@ -338,7 +329,7 @@ pm_peer_id_t pdb_next_deleted_peer_id_get(pm_peer_id_t prev_peer_id);
  */
 ret_code_t pdb_peer_data_update(pm_peer_data_const_t        peer_data,
                                 pm_store_token_t            old_token,
-                                pm_store_token_t          * p_store_token);
+                                pm_store_token_t           *p_store_token);
 
 
 /**@brief Function for copy peer data from flash into a provided buffer.
@@ -358,7 +349,7 @@ ret_code_t pdb_peer_data_update(pm_peer_data_const_t        peer_data,
  */
 ret_code_t pdb_peer_data_load(pm_peer_id_t              peer_id,
                               pm_peer_data_id_t         data_id,
-                              pm_peer_data_t    * const p_peer_data);
+                              pm_peer_data_t     *const p_peer_data);
 
 
 /**@brief Function for writing data directly to persistent storage from external memory.
@@ -376,8 +367,8 @@ ret_code_t pdb_peer_data_load(pm_peer_id_t              peer_id,
  * @retval NRF_ERROR_BUSY            Unable to perform operation at this time.
  */
 ret_code_t pdb_raw_store(pm_peer_id_t           peer_id,
-                         pm_peer_data_const_t * p_peer_data,
-                         pm_store_token_t     * p_store_token);
+                         pm_peer_data_const_t *p_peer_data,
+                         pm_store_token_t      *p_store_token);
 
 /** @}
  * @endcond

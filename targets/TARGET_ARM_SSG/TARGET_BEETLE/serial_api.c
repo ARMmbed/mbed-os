@@ -57,7 +57,8 @@ struct serial_global_data_s {
 
 static struct serial_global_data_s uart_data[UART_NUM];
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
     int is_stdio_uart = 0;
 
     // determine the UART to use
@@ -71,28 +72,26 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart = (CMSDK_UART_TypeDef *)uart;
     //set baud rate and enable Uart in normarl mode (RX and TX enabled)
     switch (uart) {
-        case UART_0:
-            {
-                CMSDK_UART0->CTRL = 0; // Disable UART when changing configuration
-                if ((int)tx != NC) {
-                    CMSDK_UART0->CTRL = 0x1; // TX enable
-                }
-                if ((int)rx != NC) {
-                    CMSDK_UART0->CTRL |= 0x2; // RX enable
-                }
+        case UART_0: {
+            CMSDK_UART0->CTRL = 0; // Disable UART when changing configuration
+            if ((int)tx != NC) {
+                CMSDK_UART0->CTRL = 0x1; // TX enable
             }
-            break;
-        case UART_1:
-            {
-                CMSDK_UART1->CTRL = 0; // Disable UART when changing configuration
-                if((int)tx != NC) {
-                    CMSDK_UART1->CTRL = 0x1; // TX enable
-                }
-                if((int)rx != NC) {
-                    CMSDK_UART1->CTRL |= 0x2; // RX enable
-                }
+            if ((int)rx != NC) {
+                CMSDK_UART0->CTRL |= 0x2; // RX enable
             }
-            break;
+        }
+        break;
+        case UART_1: {
+            CMSDK_UART1->CTRL = 0; // Disable UART when changing configuration
+            if ((int)tx != NC) {
+                CMSDK_UART1->CTRL = 0x1; // TX enable
+            }
+            if ((int)rx != NC) {
+                CMSDK_UART1->CTRL |= 0x2; // RX enable
+            }
+        }
+        break;
     }
 
     // set default baud rate and format
@@ -122,13 +121,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
 }
 
-void serial_free(serial_t *obj) {
+void serial_free(serial_t *obj)
+{
     uart_data[obj->index].serial_irq_id = 0;
 }
 
 // serial_baud
 // set the baud rate, taking in to account the current SystemFrequency
-void serial_baud(serial_t *obj, int baudrate) {
+void serial_baud(serial_t *obj, int baudrate)
+{
     // BEETLE has a simple divider to control the baud rate. The formula is:
     //
     // Baudrate = PCLK / BAUDDIV
@@ -159,29 +160,30 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits,
-        SerialParity parity, int stop_bits) {
+                   SerialParity parity, int stop_bits)
+{
 }
 
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
 static inline void uart_irq(uint32_t intstatus, uint32_t index,
-        CMSDK_UART_TypeDef *puart) {
+                            CMSDK_UART_TypeDef *puart)
+{
     SerialIrq irq_type;
     switch (intstatus) {
-        case 1:
-            {
-                irq_type = TxIrq;
-            }
-            break;
+        case 1: {
+            irq_type = TxIrq;
+        }
+        break;
 
-        case 2:
-            {
-                irq_type = RxIrq;
-            }
-            break;
+        case 2: {
+            irq_type = RxIrq;
+        }
+        break;
 
-        default: return;
+        default:
+            return;
     }   /* End of Switch */
 
     if ((irq_type == RxIrq) && (NC != uart_data[index].sw_rts.pin)) {
@@ -200,7 +202,7 @@ static inline void uart_irq(uint32_t intstatus, uint32_t index,
         }
     }
 
-    if( irq_type == TxIrq ) {
+    if (irq_type == TxIrq) {
         /* Clear the TX interrupt Flag */
         puart->INTCLEAR |= 0x01;
     } else {
@@ -209,22 +211,26 @@ static inline void uart_irq(uint32_t intstatus, uint32_t index,
     }
 }
 
-void uart0_irq() {
+void uart0_irq()
+{
     uart_irq(CMSDK_UART0->INTSTATUS & 0x3, 0,
-        (CMSDK_UART_TypeDef*)CMSDK_UART0);
+             (CMSDK_UART_TypeDef *)CMSDK_UART0);
 }
 
-void uart1_irq() {
+void uart1_irq()
+{
     uart_irq(CMSDK_UART1->INTSTATUS & 0x3, 1,
-        (CMSDK_UART_TypeDef*)CMSDK_UART1);
+             (CMSDK_UART_TypeDef *)CMSDK_UART1);
 }
 
-void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
+void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
+{
     irq_handler = handler;
     uart_data[obj->index].serial_irq_id = id;
 }
 
-static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enable) {
+static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enable)
+{
     /* Declare a variable of type IRQn, initialise to 0 */
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
@@ -233,22 +239,20 @@ static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enabl
         /*********************************************************************
          *                  BEETLE SOC BOARD                                 *
          *********************************************************************/
-        case UART_0:
-            {
-                irq_n = UART0_IRQn;
-                vector = (uint32_t)&uart0_irq;
-            }
-            break;
-        case UART_1:
-            {
-                irq_n = UART1_IRQn;
-                vector = (uint32_t)&uart1_irq;
-            }
-            break;
+        case UART_0: {
+            irq_n = UART0_IRQn;
+            vector = (uint32_t)&uart0_irq;
+        }
+        break;
+        case UART_1: {
+            irq_n = UART1_IRQn;
+            vector = (uint32_t)&uart1_irq;
+        }
+        break;
     }
 
     if (enable) {
-        if(irq == TxIrq) {
+        if (irq == TxIrq) {
             /* Transmit IRQ, set appripriate enable */
 
             /* set TX interrupt enable in CTRL REG */
@@ -261,7 +265,7 @@ static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enabl
         NVIC_EnableIRQ(irq_n);
 
     } else if ((irq == TxIrq) || (uart_data[obj->index].rx_irq_set_api
-                    + uart_data[obj->index].rx_irq_set_flow == 0)) {
+                                  + uart_data[obj->index].rx_irq_set_flow == 0)) {
         /*      Disable   IRQ   */
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
@@ -276,22 +280,26 @@ static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enabl
     }
 }
 
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
-    if (RxIrq == irq)
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
+{
+    if (RxIrq == irq) {
         uart_data[obj->index].rx_irq_set_api = enable;
+    }
     serial_irq_set_internal(obj, irq, enable);
 }
 
 /******************************************************************************
  * READ/WRITE
  ******************************************************************************/
-int serial_getc(serial_t *obj) {
+int serial_getc(serial_t *obj)
+{
     while (serial_readable(obj) == 0);
     int data = obj->uart->DATA;
     return data;
 }
 
-void serial_putc(serial_t *obj, int c) {
+void serial_putc(serial_t *obj, int c)
+{
 #ifdef SERIAL_TEST
     // Add CR to LF
     if (c == 0x0A) {
@@ -304,27 +312,34 @@ void serial_putc(serial_t *obj, int c) {
     obj->uart->DATA = c;
 }
 
-int serial_readable(serial_t *obj) {
+int serial_readable(serial_t *obj)
+{
     return obj->uart->STATE & 2;
 }
 
-int serial_writable(serial_t *obj) {
+int serial_writable(serial_t *obj)
+{
     return obj->uart->STATE & 1;
 }
 
-void serial_clear(serial_t *obj) {
+void serial_clear(serial_t *obj)
+{
     obj->uart->DATA = 0x00;
 }
 
-void serial_pinout_tx(PinName tx) {
+void serial_pinout_tx(PinName tx)
+{
     pinmap_pinout(tx, PinMap_UART_TX);
 }
 
-void serial_break_set(serial_t *obj) {
+void serial_break_set(serial_t *obj)
+{
 }
 
-void serial_break_clear(serial_t *obj) {
+void serial_break_clear(serial_t *obj)
+{
 }
 void serial_set_flow_control(serial_t *obj, FlowControl type,
-        PinName rxflow, PinName txflow) {
+                             PinName rxflow, PinName txflow)
+{
 }

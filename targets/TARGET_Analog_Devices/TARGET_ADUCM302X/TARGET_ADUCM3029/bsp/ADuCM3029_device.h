@@ -67,109 +67,107 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* The generated header. */
 #include <sys/ADuCM302x_device.h>
 
-typedef struct _ADI_UART_TypeDef
-{
+typedef struct _ADI_UART_TypeDef {
     union {
-    __I __C  uint16_t RX;                            /*!< Receive Buffer Register */
-    __I __C  uint16_t COMRX;
-    __O      uint16_t TX;                            /*!< Transmit Holding Register */
-    __O      uint16_t COMTX;
+        __I __C  uint16_t RX;                            /*!< Receive Buffer Register */
+        __I __C  uint16_t COMRX;
+        __O      uint16_t TX;                            /*!< Transmit Holding Register */
+        __O      uint16_t COMTX;
     };
     __I __C  uint8_t  RESERVED0[2];
     union {
-    __IO     uint16_t IEN;                           /*!< Interrupt Enable */
-    __IO     uint16_t COMIEN;
+        __IO     uint16_t IEN;                           /*!< Interrupt Enable */
+        __IO     uint16_t COMIEN;
     };
     __I __C  uint8_t  RESERVED1[2];
     union {
-    __I __C  uint16_t IIR;                           /*!< Interrupt ID */
-    __I __C  uint16_t COMIIR;
+        __I __C  uint16_t IIR;                           /*!< Interrupt ID */
+        __I __C  uint16_t COMIIR;
     };
     __I __C  uint8_t  RESERVED2[2];
     union {
-    __IO     uint16_t LCR;                           /*!< Line Control */
-    __IO     uint16_t COMLCR;
+        __IO     uint16_t LCR;                           /*!< Line Control */
+        __IO     uint16_t COMLCR;
     };
     __I __C  uint8_t  RESERVED3[2];
     union {
-    __IO     uint16_t MCR;                           /*!< Modem Control */
-    __IO     uint16_t COMMCR;
+        __IO     uint16_t MCR;                           /*!< Modem Control */
+        __IO     uint16_t COMMCR;
     };
     __I __C  uint8_t  RESERVED4[2];
     union {
-    __I __C  uint16_t LSR;                           /*!< Line Status */
-    __I __C  uint16_t COMLSR;
+        __I __C  uint16_t LSR;                           /*!< Line Status */
+        __I __C  uint16_t COMLSR;
     };
     __I __C  uint8_t  RESERVED5[2];
     union {
-    __I __C  uint16_t MSR;                           /*!< Modem Status */
-    __I __C  uint16_t COMMSR;
+        __I __C  uint16_t MSR;                           /*!< Modem Status */
+        __I __C  uint16_t COMMSR;
     };
     __I __C  uint8_t  RESERVED6[2];
     union {
-    __IO     uint16_t SCR;                           /*!< Scratch buffer */
-    __IO     uint16_t COMSCR;
+        __IO     uint16_t SCR;                           /*!< Scratch buffer */
+        __IO     uint16_t COMSCR;
     };
     __I __C  uint8_t  RESERVED7[2];
     union {
-    __IO     uint16_t FCR;                           /*!< FIFO Control */
-    __IO     uint16_t COMFCR;
+        __IO     uint16_t FCR;                           /*!< FIFO Control */
+        __IO     uint16_t COMFCR;
     };
     __I __C  uint8_t  RESERVED8[2];
     union {
-    __IO     uint16_t FBR;                           /*!< Fractional Baud Rate */
-    __IO     uint16_t COMFBR;
+        __IO     uint16_t FBR;                           /*!< Fractional Baud Rate */
+        __IO     uint16_t COMFBR;
     };
     __I __C  uint8_t  RESERVED9[2];
     union {
-    __IO     uint16_t DIV;                           /*!< Baudrate divider */
-    __IO     uint16_t COMDIV;
+        __IO     uint16_t DIV;                           /*!< Baudrate divider */
+        __IO     uint16_t COMDIV;
     };
     __I __C  uint8_t  RESERVED10[2];
     union {
-    __IO     uint16_t LCR2;                          /*!< second Line Control */
-    __IO     uint16_t COMLCR2;
+        __IO     uint16_t LCR2;                          /*!< second Line Control */
+        __IO     uint16_t COMLCR2;
     };
     __I __C  uint8_t  RESERVED11[2];
     union {
-    __IO     uint16_t CTL;                           /*!< UART control register */
-    __IO     uint16_t COMCTL;
+        __IO     uint16_t CTL;                           /*!< UART control register */
+        __IO     uint16_t COMCTL;
     };
     __I __C  uint8_t  RESERVED12[2];
     union {
-    __I __C  uint16_t RFC;                           /*!< RX FIFO byte count */
-    __I __C  uint16_t COMRFC;
+        __I __C  uint16_t RFC;                           /*!< RX FIFO byte count */
+        __I __C  uint16_t COMRFC;
     };
     __I __C  uint8_t  RESERVED13[2];
     union {
-    __I __C  uint16_t TFC;                           /*!< TX FIFO byte count */
-    __I __C  uint16_t COMTFC;
+        __I __C  uint16_t TFC;                           /*!< TX FIFO byte count */
+        __I __C  uint16_t COMTFC;
     };
     __I __C  uint8_t  RESERVED14[2];
     union {
-    __IO     uint16_t RSC;                           /*!< RS485 half-duplex Control */
-    __IO     uint16_t COMRSC;
+        __IO     uint16_t RSC;                           /*!< RS485 half-duplex Control */
+        __IO     uint16_t COMRSC;
     };
     __I __C  uint8_t  RESERVED15[2];
     union {
-    __IO     uint16_t ACR;                           /*!< Auto Baud Control */
-    __IO     uint16_t COMACR;
+        __IO     uint16_t ACR;                           /*!< Auto Baud Control */
+        __IO     uint16_t COMACR;
     };
     __I __C  uint8_t  RESERVED16[2];
     union {
-    __I __C  uint16_t ASRL;                          /*!< Auto Baud Status (Low) */
-    __I __C  uint16_t COMASRL;
+        __I __C  uint16_t ASRL;                          /*!< Auto Baud Status (Low) */
+        __I __C  uint16_t COMASRL;
     };
     __I __C  uint8_t  RESERVED17[2];
     union {
-    __I __C  uint16_t ASRH;                          /*!< Auto Baud Status (High) */
-    __I __C  uint16_t COMASRH;
+        __I __C  uint16_t ASRH;                          /*!< Auto Baud Status (High) */
+        __I __C  uint16_t COMASRH;
     };
 } ADI_UART_TypeDef;
 
 
-typedef struct _ADI_RTC_TypeDef
-{
+typedef struct _ADI_RTC_TypeDef {
     __IO     uint16_t   CR0;                           /*!< RTC Control 0 */
     __I __C  uint8_t  RESERVED0[2];
     __IO     uint16_t   SR0;                           /*!< RTC Status 0 */
@@ -209,23 +207,23 @@ typedef struct _ADI_RTC_TypeDef
     __IO     uint16_t   CR2IC;                         /*!< RTC Control 2 for Configuring Input Capture Channels */
     __I __C  uint8_t  RESERVED18[2];
     union {
-    __IO     uint16_t   CR3SS;                         /*!< RTC Control 3 for Configuring SensorStrobe Channel */
-    __IO     uint16_t   CR3OC;
+        __IO     uint16_t   CR3SS;                         /*!< RTC Control 3 for Configuring SensorStrobe Channel */
+        __IO     uint16_t   CR3OC;
     };
     __I __C  uint8_t  RESERVED19[2];
     union {
-    __IO     uint16_t   CR4SS;                         /*!< RTC Control 4 for Configuring SensorStrobe Channel */
-    __IO     uint16_t   CR4OC;
+        __IO     uint16_t   CR4SS;                         /*!< RTC Control 4 for Configuring SensorStrobe Channel */
+        __IO     uint16_t   CR4OC;
     };
     __I __C  uint8_t  RESERVED20[2];
     union {
-    __IO     uint16_t   SSMSK;                         /*!< RTC Mask for SensorStrobe Channel */
-    __IO     uint16_t   OCMSK;
+        __IO     uint16_t   SSMSK;                         /*!< RTC Mask for SensorStrobe Channel */
+        __IO     uint16_t   OCMSK;
     };
     __I __C  uint8_t  RESERVED21[2];
     union {
-    __IO     uint16_t   SS1ARL;                        /*!< RTC Auto-Reload for SensorStrobe Channel 1 */
-    __IO     uint16_t   OC1ARL;
+        __IO     uint16_t   SS1ARL;                        /*!< RTC Auto-Reload for SensorStrobe Channel 1 */
+        __IO     uint16_t   OC1ARL;
     };
     __I __C  uint8_t  RESERVED22[6];
     __I __C  uint16_t   IC2;                           /*!< RTC Input Capture Channel 2 */
@@ -235,8 +233,8 @@ typedef struct _ADI_RTC_TypeDef
     __I __C  uint16_t   IC4;                           /*!< RTC Input Capture Channel 4 */
     __I __C  uint8_t  RESERVED25[2];
     union {
-    __IO     uint16_t   SS1;                           /*!< RTC SensorStrobe Channel 1 */
-    __IO     uint16_t   OC1;
+        __IO     uint16_t   SS1;                           /*!< RTC SensorStrobe Channel 1 */
+        __IO     uint16_t   OC1;
     };
     __I __C  uint8_t  RESERVED26[14];
     __I __C  uint16_t   SR4;                           /*!< RTC Status 4 */
@@ -246,8 +244,8 @@ typedef struct _ADI_RTC_TypeDef
     __I __C  uint16_t   SR6;                           /*!< RTC Status 6 */
     __I __C  uint8_t  RESERVED29[2];
     union {
-    __I __C  uint16_t   SS1TGT;                        /*!< RTC SensorStrobe Channel 1 Target */
-    __I __C  uint16_t   OC1TGT;
+        __I __C  uint16_t   SS1TGT;                        /*!< RTC SensorStrobe Channel 1 Target */
+        __I __C  uint16_t   OC1TGT;
     };
     __I __C  uint8_t  RESERVED30[2];
     __I __C  uint16_t   FRZCNT;                        /*!< RTC Freeze Count */

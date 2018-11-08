@@ -54,8 +54,7 @@
 #define PMUX_SHIFT 20U
 
 /*! @brief INPUTMUX connections type */
-typedef enum _inputmux_connection_t
-{
+typedef enum _inputmux_connection_t {
     /*!< SCT INMUX. */
     kINPUTMUX_SctGpi0ToSct0 = 0U + (SCT0_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_SctGpi1ToSct0 = 1U + (SCT0_PMUX_ID << PMUX_SHIFT),

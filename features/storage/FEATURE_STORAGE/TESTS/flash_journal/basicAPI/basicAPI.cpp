@@ -167,11 +167,11 @@ control_t test_resetAndInitialize(const size_t call_count)
             }
             TEST_ASSERT_EQUAL(1, rc); /* synchronous completion of reset() is expected to return 1 */
 
-            /* fall through */
+        /* fall through */
         case NEEDS_INITIALIZE_FOLLOWING_RESET:
             /* ensure that the journal has been re-initialized */
             TEST_ASSERT_EQUAL(0, sequentialJournal->nextSequenceNumber);
-            TEST_ASSERT_EQUAL((uint32_t)-1, sequentialJournal->currentBlobIndex);
+            TEST_ASSERT_EQUAL((uint32_t) -1, sequentialJournal->currentBlobIndex);
             TEST_ASSERT_EQUAL(SEQUENTIAL_JOURNAL_STATE_INITIALIZED, sequentialJournal->state);
 
             rc = FlashJournal_getInfo(&journal, &info);
@@ -190,12 +190,12 @@ control_t test_resetAndInitialize(const size_t call_count)
             }
             TEST_ASSERT_EQUAL(1, rc); /* synchronous completion of initialize() is expected to return 1 */
 
-            /* fall through */
+        /* fall through */
         case NEEDS_VERIFICATION_FOLLOWING_INITIALIZE:
         default:
             //printf("test_resetAndInitialize: verification\n");
             TEST_ASSERT_EQUAL(0, sequentialJournal->nextSequenceNumber);
-            TEST_ASSERT_EQUAL((uint32_t)-1, sequentialJournal->currentBlobIndex);
+            TEST_ASSERT_EQUAL((uint32_t) -1, sequentialJournal->currentBlobIndex);
             TEST_ASSERT_EQUAL(SEQUENTIAL_JOURNAL_STATE_INITIALIZED, sequentialJournal->state);
 
             rc = FlashJournal_getInfo(&journal, &info);
@@ -272,7 +272,7 @@ control_t test_logSmallWithoutCommit(const size_t call_count)
                 TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
                 return CaseTimeout(500) + CaseRepeatAll;
             }
-            /* else, fall through to synchronous verification */
+        /* else, fall through to synchronous verification */
 
         default:
             rc = FlashJournal_read(&journal, buffer, SIZEOF_SMALL_WRITE);
@@ -297,7 +297,7 @@ control_t test_logSmallAndCommit(const size_t call_count)
                 TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
                 return CaseTimeout(500) + CaseRepeatAll;
             }
-            /* else, fall through to synchronous verification */
+        /* else, fall through to synchronous verification */
 
         case 2:
             rc = FlashJournal_commit(&journal);
@@ -306,25 +306,24 @@ control_t test_logSmallAndCommit(const size_t call_count)
                 TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
                 return CaseTimeout(500) + CaseRepeatAll;
             }
-            /* else, fall through to synchronous verification */
+        /* else, fall through to synchronous verification */
 
-        case 3:
-            {
-                FlashJournal_Info_t info;
-                rc = FlashJournal_getInfo(&journal, &info);
-                TEST_ASSERT_EQUAL(JOURNAL_STATUS_OK, rc);
-                TEST_ASSERT_EQUAL(SIZEOF_SMALL_WRITE, info.sizeofJournaledBlob);
-            }
+        case 3: {
+            FlashJournal_Info_t info;
+            rc = FlashJournal_getInfo(&journal, &info);
+            TEST_ASSERT_EQUAL(JOURNAL_STATUS_OK, rc);
+            TEST_ASSERT_EQUAL(SIZEOF_SMALL_WRITE, info.sizeofJournaledBlob);
+        }
 
-            rc = FlashJournal_read(&journal, buffer, SIZEOF_SMALL_WRITE);
-            TEST_ASSERT(rc >= JOURNAL_STATUS_OK);
-            if (rc == JOURNAL_STATUS_OK) {
-                TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
-                return CaseTimeout(500) + CaseRepeatAll;
-            }
+        rc = FlashJournal_read(&journal, buffer, SIZEOF_SMALL_WRITE);
+        TEST_ASSERT(rc >= JOURNAL_STATUS_OK);
+        if (rc == JOURNAL_STATUS_OK) {
+            TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
+            return CaseTimeout(500) + CaseRepeatAll;
+        }
 
-            TEST_ASSERT_EQUAL(SIZEOF_SMALL_WRITE, rc);
-            /* intentional fall-through */
+        TEST_ASSERT_EQUAL(SIZEOF_SMALL_WRITE, rc);
+        /* intentional fall-through */
 
         default:
             for (unsigned i = 0; i < SIZEOF_SMALL_WRITE; i++) {
@@ -384,7 +383,7 @@ control_t test_logLargeWithoutCommit(const size_t call_count)
                 TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
                 return CaseTimeout(5000) + CaseRepeatAll;
             }
-            /* intentional fall-through */
+        /* intentional fall-through */
 
         case 3:
         default:
@@ -410,7 +409,7 @@ control_t test_logLargeAndCommit(const size_t call_count)
                 TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
                 return CaseTimeout(500) + CaseRepeatAll;
             }
-            /* intentional fall-through */
+        /* intentional fall-through */
 
         case 2:
             rc = FlashJournal_commit(&journal);
@@ -419,25 +418,24 @@ control_t test_logLargeAndCommit(const size_t call_count)
                 TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
                 return CaseTimeout(500) + CaseRepeatAll;
             }
-            /* intentional fall-through */
+        /* intentional fall-through */
 
-        case 3:
-            {
-                FlashJournal_Info_t info;
-                rc = FlashJournal_getInfo(&journal, &info);
-                TEST_ASSERT_EQUAL(JOURNAL_STATUS_OK, rc);
-                TEST_ASSERT_EQUAL(SIZEOF_LARGE_WRITE, info.sizeofJournaledBlob);
-            }
+        case 3: {
+            FlashJournal_Info_t info;
+            rc = FlashJournal_getInfo(&journal, &info);
+            TEST_ASSERT_EQUAL(JOURNAL_STATUS_OK, rc);
+            TEST_ASSERT_EQUAL(SIZEOF_LARGE_WRITE, info.sizeofJournaledBlob);
+        }
 
-            rc = FlashJournal_read(&journal, buffer, SIZEOF_LARGE_WRITE);
-            TEST_ASSERT(rc >= JOURNAL_STATUS_OK);
-            if (rc == JOURNAL_STATUS_OK) {
-                TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
-                return CaseTimeout(500) + CaseRepeatAll;
-            }
+        rc = FlashJournal_read(&journal, buffer, SIZEOF_LARGE_WRITE);
+        TEST_ASSERT(rc >= JOURNAL_STATUS_OK);
+        if (rc == JOURNAL_STATUS_OK) {
+            TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
+            return CaseTimeout(500) + CaseRepeatAll;
+        }
 
-            TEST_ASSERT_EQUAL(SIZEOF_LARGE_WRITE, rc);
-            /* intentional fall-through */
+        TEST_ASSERT_EQUAL(SIZEOF_LARGE_WRITE, rc);
+        /* intentional fall-through */
 
         default:
             for (unsigned i = 0; i < SIZEOF_LARGE_WRITE; i++) {
@@ -491,7 +489,7 @@ control_t test_logLargeAndReadSmallChunks(const size_t call_count)
                 TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
                 return CaseTimeout(500) + CaseRepeatAll;
             }
-            /* intentional fall-through */
+        /* intentional fall-through */
 
         case 2:
             rc = FlashJournal_commit(&journal);
@@ -500,16 +498,15 @@ control_t test_logLargeAndReadSmallChunks(const size_t call_count)
                 TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
                 return CaseTimeout(500) + CaseRepeatAll;
             }
-            /* intentional fall-through */
+        /* intentional fall-through */
 
-        case 3:
-            {
-                FlashJournal_Info_t info;
-                rc = FlashJournal_getInfo(&journal, &info);
-                TEST_ASSERT_EQUAL(JOURNAL_STATUS_OK, rc);
-                TEST_ASSERT_EQUAL(SIZEOF_LARGE_WRITE, info.sizeofJournaledBlob);
-            }
-            /* intentional fall-through */
+        case 3: {
+            FlashJournal_Info_t info;
+            rc = FlashJournal_getInfo(&journal, &info);
+            TEST_ASSERT_EQUAL(JOURNAL_STATUS_OK, rc);
+            TEST_ASSERT_EQUAL(SIZEOF_LARGE_WRITE, info.sizeofJournaledBlob);
+        }
+        /* intentional fall-through */
 
         default:
             break;
@@ -624,15 +621,14 @@ control_t test_logPattern(size_t call_count)
             /* intentional fall-through */
             call_count = 3;
 
-        case 3:
-            {
-                FlashJournal_Info_t info;
-                rc = FlashJournal_getInfo(&journal, &info);
-                TEST_ASSERT_EQUAL(JOURNAL_STATUS_OK, rc);
-                TEST_ASSERT_EQUAL(SIZEOF_LARGE_WRITE, info.sizeofJournaledBlob);
-            }
+        case 3: {
+            FlashJournal_Info_t info;
+            rc = FlashJournal_getInfo(&journal, &info);
+            TEST_ASSERT_EQUAL(JOURNAL_STATUS_OK, rc);
+            TEST_ASSERT_EQUAL(SIZEOF_LARGE_WRITE, info.sizeofJournaledBlob);
+        }
             /* intentional fall-through */
-            call_count = 4;
+        call_count = 4;
 
         case 4:
             TEST_ASSERT_EQUAL(1, callbackStatus);
@@ -1030,25 +1026,40 @@ control_t test_failedSmallWriteFollowedByPaddedWrite(const size_t call_count)
 void test_crc32()
 {
     const unsigned char dummyMsg[] = "ahello world";
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0xe8b7be43, flashJournalCrcCummulative(dummyMsg, 1));
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0x7e56a173, flashJournalCrcCummulative(dummyMsg, 2));
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0x26a80c7d, flashJournalCrcCummulative(dummyMsg, 3));
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0xb8946773, flashJournalCrcCummulative(dummyMsg, 4));
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0x5fb2761f, flashJournalCrcCummulative(dummyMsg, 5));
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0x82582cc7, flashJournalCrcCummulative(dummyMsg, 6));
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0xeceec07a, flashJournalCrcCummulative(dummyMsg, 7));
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0xac5f7df0, flashJournalCrcCummulative(dummyMsg, 8));
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0xb21e3e25, flashJournalCrcCummulative(dummyMsg, 9));
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0x27bf35e4, flashJournalCrcCummulative(dummyMsg, 10));
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0x31465baa, flashJournalCrcCummulative(dummyMsg, 11));
-    flashJournalCrcReset(); TEST_ASSERT_EQUAL(0xaeef4661, flashJournalCrcCummulative(dummyMsg, 12));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0xe8b7be43, flashJournalCrcCummulative(dummyMsg, 1));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0x7e56a173, flashJournalCrcCummulative(dummyMsg, 2));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0x26a80c7d, flashJournalCrcCummulative(dummyMsg, 3));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0xb8946773, flashJournalCrcCummulative(dummyMsg, 4));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0x5fb2761f, flashJournalCrcCummulative(dummyMsg, 5));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0x82582cc7, flashJournalCrcCummulative(dummyMsg, 6));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0xeceec07a, flashJournalCrcCummulative(dummyMsg, 7));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0xac5f7df0, flashJournalCrcCummulative(dummyMsg, 8));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0xb21e3e25, flashJournalCrcCummulative(dummyMsg, 9));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0x27bf35e4, flashJournalCrcCummulative(dummyMsg, 10));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0x31465baa, flashJournalCrcCummulative(dummyMsg, 11));
+    flashJournalCrcReset();
+    TEST_ASSERT_EQUAL(0xaeef4661, flashJournalCrcCummulative(dummyMsg, 12));
 
     /* check for composability */
     uint32_t crc;
     for (unsigned msgLen = 1; msgLen < strlen((const char *)dummyMsg); msgLen++) {
         for (unsigned partitionIndex = 1; partitionIndex < msgLen; partitionIndex++) {
-            flashJournalCrcReset(); crc = flashJournalCrcCummulative(dummyMsg, partitionIndex); crc = flashJournalCrcCummulative(dummyMsg + partitionIndex, msgLen - partitionIndex);
-            flashJournalCrcReset(); TEST_ASSERT_EQUAL(flashJournalCrcCummulative(dummyMsg, msgLen), crc);
+            flashJournalCrcReset();
+            crc = flashJournalCrcCummulative(dummyMsg, partitionIndex);
+            crc = flashJournalCrcCummulative(dummyMsg + partitionIndex, msgLen - partitionIndex);
+            flashJournalCrcReset();
+            TEST_ASSERT_EQUAL(flashJournalCrcCummulative(dummyMsg, msgLen), crc);
         }
     }
 }
@@ -1113,7 +1124,7 @@ Case cases[] = {
     Case("reset and initialize5",                       test_resetAndInitialize),
 
     Case("log large item and read smaller chunks",      test_logLargeAndReadSmallChunks<0xAA>),
-    Case("read large item in small, odd-sized chunks1", test_readLargeInSmallOddChunks<0xAA, ((BUFFER_SIZE / 2) - 1)>),
+    Case("read large item in small, odd-sized chunks1", test_readLargeInSmallOddChunks < 0xAA, ((BUFFER_SIZE / 2) - 1) >),
     Case("read large item in small, odd-sized chunks2", test_readLargeInSmallOddChunks<0xAA, 255>),
     Case("read large item in small, odd-sized chunks3", test_readLargeInSmallOddChunks<0xAA, 1021>),
     Case("read large item in small, odd-sized chunks4", test_readLargeInSmallOddChunks<0xAA, 2401>),
@@ -1121,7 +1132,7 @@ Case cases[] = {
     Case("log pattern",                                 test_logPattern<0x55>),
     Case("readFrom",                                    test_readFromInReverse<0x55, 255>),
     Case("readFrom",                                    test_readFromInReverse<0x55, 512>),
-    Case("readFrom",                                    test_readFromInReverse<0x55, ((BUFFER_SIZE / 2) - 1)>),
+    Case("readFrom",                                    test_readFromInReverse < 0x55, ((BUFFER_SIZE / 2) - 1) >),
     Case("readFrom",                                    test_readFromInReverse<0x55, BUFFER_SIZE>),
     Case("readFrom followed by sequential reads",       test_readFromFollowedByReads<0x55, 255>),
     Case("readFrom followed by sequential reads",       test_readFromFollowedByReads<0x55, 511>),
@@ -1136,7 +1147,7 @@ Case cases[] = {
     Case("log odd-sized chunk",                         test_logSeveralOddSizedChunks<1217, 4>),
     Case("log odd-sized chunk",                         test_logSeveralOddSizedChunks<2402, 5>),
     Case("log odd-sized chunk",                         test_logSeveralOddSizedChunks<4803, 3>),
-    Case("log odd-sized chunk",                         test_logSeveralOddSizedChunks<(BUFFER_SIZE-1), 7>),
+    Case("log odd-sized chunk",                         test_logSeveralOddSizedChunks < (BUFFER_SIZE - 1), 7 >),
 
     Case("initialize4",                                 test_initialize),
     Case("multiple writes, commit, multiple reads",     test_multipleWritesFollowedByCommitFollowedByMultipleReads),
@@ -1155,7 +1166,7 @@ Specification specification(greentea_setup, cases);
 Specification specification(default_setup, cases);
 #endif
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // Run the test specification
     Harness::run(specification);

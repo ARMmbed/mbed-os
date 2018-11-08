@@ -224,7 +224,9 @@ extern uint32_t g_usbd_Configured;
   */
 static __INLINE void USBD_MemCopy(uint8_t *u8Dst, uint8_t *u8Src, int32_t i32Size)
 {
-    while (i32Size--) *u8Dst++ = *u8Src++;
+    while (i32Size--) {
+        *u8Dst++ = *u8Src++;
+    }
 }
 
 /**
@@ -251,8 +253,8 @@ static __INLINE void USBD_SetEpBufAddr(uint32_t u32Ep, uint32_t u32Base, uint32_
         USBD->CEPBUFSTART = u32Base;
         USBD->CEPBUFEND   = u32Base + u32Len - 1;
     } else {
-        *((__IO uint32_t *) ((uint32_t)&USBD->EPABUFSTART + (uint32_t)(u32Ep*0x28))) = u32Base;
-        *((__IO uint32_t *) ((uint32_t)&USBD->EPABUFEND + (uint32_t)(u32Ep*0x28))) = u32Base + u32Len - 1;
+        *((__IO uint32_t *)((uint32_t)&USBD->EPABUFSTART + (uint32_t)(u32Ep * 0x28))) = u32Base;
+        *((__IO uint32_t *)((uint32_t)&USBD->EPABUFEND + (uint32_t)(u32Ep * 0x28))) = u32Base + u32Len - 1;
     }
 }
 
@@ -266,14 +268,15 @@ static __INLINE void USBD_SetEpBufAddr(uint32_t u32Ep, uint32_t u32Base, uint32_
   */
 static __INLINE void USBD_ConfigEp(uint32_t u32Ep, uint32_t u32EpNum, uint32_t u32EpType, uint32_t u32EpDir)
 {
-    if (u32EpType == USB_EP_CFG_TYPE_BULK)
-        *((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(u32Ep*0x28)))=(USB_EP_RSPCTL_FLUSH|USB_EP_RSPCTL_MODE_AUTO);
-    else if (u32EpType == USB_EP_CFG_TYPE_INT)
-        *((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(u32Ep*0x28)))=(USB_EP_RSPCTL_FLUSH|USB_EP_RSPCTL_MODE_MANUAL);
-    else if (u32EpType == USB_EP_CFG_TYPE_ISO)
-        *((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(u32Ep*0x28)))=(USB_EP_RSPCTL_FLUSH|USB_EP_RSPCTL_MODE_FLY);
+    if (u32EpType == USB_EP_CFG_TYPE_BULK) {
+        *((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL + (uint32_t)(u32Ep * 0x28))) = (USB_EP_RSPCTL_FLUSH | USB_EP_RSPCTL_MODE_AUTO);
+    } else if (u32EpType == USB_EP_CFG_TYPE_INT) {
+        *((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL + (uint32_t)(u32Ep * 0x28))) = (USB_EP_RSPCTL_FLUSH | USB_EP_RSPCTL_MODE_MANUAL);
+    } else if (u32EpType == USB_EP_CFG_TYPE_ISO) {
+        *((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL + (uint32_t)(u32Ep * 0x28))) = (USB_EP_RSPCTL_FLUSH | USB_EP_RSPCTL_MODE_FLY);
+    }
 
-    *((__IO uint32_t *)((uint32_t)&USBD->EPACFG+(uint32_t)(u32Ep*0x28)))=(u32EpType|u32EpDir|USB_EP_CFG_VALID|(u32EpNum << 4));
+    *((__IO uint32_t *)((uint32_t)&USBD->EPACFG + (uint32_t)(u32Ep * 0x28))) = (u32EpType | u32EpDir | USB_EP_CFG_VALID | (u32EpNum << 4));
 }
 
 /**
@@ -290,18 +293,17 @@ static __INLINE void USBD_SetStall(uint32_t u32Ep)
     uint32_t u32Cfg;
     int i;
 
-    if (u32Ep == 0)
+    if (u32Ep == 0) {
         USBD_SET_CEP_STATE(USB_CEPCTL_STALL);
-    else {
-        for (i=0; i<USBD_MAX_EP; i++) {
+    } else {
+        for (i = 0; i < USBD_MAX_EP; i++) {
             u32CfgAddr = (uint32_t)&USBD->EPACFG + (uint32_t)(i * 0x28);
-            u32Cfg = *((__IO uint32_t *) (u32CfgAddr));
+            u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
-            if (((u32Cfg & 0xf0) >> 4) == u32Ep)
-            {
+            if (((u32Cfg & 0xf0) >> 4) == u32Ep) {
                 u32CfgAddr = (uint32_t)&USBD->EPARSPCTL + (uint32_t)(i * 0x28);
-                u32Cfg = *((__IO uint32_t *) (u32CfgAddr)) & 0xf7;  /* avoid clear TOGGLE bit */
-                *((__IO uint32_t *) (u32CfgAddr)) = (u32Cfg | USB_EP_RSPCTL_HALT);
+                u32Cfg = *((__IO uint32_t *)(u32CfgAddr)) & 0xf7;   /* avoid clear TOGGLE bit */
+                *((__IO uint32_t *)(u32CfgAddr)) = (u32Cfg | USB_EP_RSPCTL_HALT);
             }
         }
     }
@@ -321,14 +323,13 @@ static __INLINE void USBD_ClearStall(uint32_t u32Ep)
     uint32_t u32Cfg;
     int i;
 
-    for (i=0; i<USBD_MAX_EP; i++) {
+    for (i = 0; i < USBD_MAX_EP; i++) {
         u32CfgAddr = (uint32_t)&USBD->EPACFG + (uint32_t)(i * 0x28);
-        u32Cfg = *((__IO uint32_t *) (u32CfgAddr));
+        u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
-        if (((u32Cfg & 0xf0) >> 4) == u32Ep)
-        {
+        if (((u32Cfg & 0xf0) >> 4) == u32Ep) {
             u32CfgAddr = (uint32_t)&USBD->EPARSPCTL + (uint32_t)(i * 0x28);
-            *((__IO uint32_t *) (u32CfgAddr)) = USB_EP_RSPCTL_TOGGLE;
+            *((__IO uint32_t *)(u32CfgAddr)) = USB_EP_RSPCTL_TOGGLE;
         }
     }
 }
@@ -348,14 +349,13 @@ static __INLINE uint32_t USBD_GetStall(uint32_t u32Ep)
     uint32_t u32Cfg;
     int i;
 
-    for (i=0; i<USBD_MAX_EP; i++) {
+    for (i = 0; i < USBD_MAX_EP; i++) {
         u32CfgAddr = (uint32_t)&USBD->EPACFG + (uint32_t)(i * 0x28);
-        u32Cfg = *((__IO uint32_t *) (u32CfgAddr));
+        u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
-        if (((u32Cfg & 0xf0) >> 4) == u32Ep)
-        {
+        if (((u32Cfg & 0xf0) >> 4) == u32Ep) {
             u32CfgAddr = (uint32_t)&USBD->EPARSPCTL + (uint32_t)(i * 0x28);
-            return ((*((__IO uint32_t *) (u32CfgAddr))) & USB_EP_RSPCTL_HALT);
+            return ((*((__IO uint32_t *)(u32CfgAddr))) & USB_EP_RSPCTL_HALT);
         }
     }
     return 0;

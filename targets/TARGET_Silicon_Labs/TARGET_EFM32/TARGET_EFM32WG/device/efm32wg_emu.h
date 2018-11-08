@@ -38,30 +38,29 @@
  * @{
  * @brief EFM32WG_EMU Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;          /**< Control Register  */
+typedef struct {
+    __IOM uint32_t CTRL;          /**< Control Register  */
 
-  uint32_t       RESERVED0[1];  /**< Reserved for future use **/
-  __IOM uint32_t LOCK;          /**< Configuration Lock Register  */
+    uint32_t       RESERVED0[1];  /**< Reserved for future use **/
+    __IOM uint32_t LOCK;          /**< Configuration Lock Register  */
 
-  uint32_t       RESERVED1[6];  /**< Reserved for future use **/
-  __IOM uint32_t AUXCTRL;       /**< Auxiliary Control Register  */
+    uint32_t       RESERVED1[6];  /**< Reserved for future use **/
+    __IOM uint32_t AUXCTRL;       /**< Auxiliary Control Register  */
 
-  uint32_t       RESERVED2[1];  /**< Reserved for future use **/
-  __IOM uint32_t EM4CONF;       /**< Energy mode 4 configuration register  */
-  __IOM uint32_t BUCTRL;        /**< Backup Power configuration register  */
-  __IOM uint32_t PWRCONF;       /**< Power connection configuration register  */
-  __IOM uint32_t BUINACT;       /**< Backup mode inactive configuration register  */
-  __IOM uint32_t BUACT;         /**< Backup mode active configuration register  */
-  __IM uint32_t  STATUS;        /**< Status register  */
-  __IOM uint32_t ROUTE;         /**< I/O Routing Register  */
-  __IM uint32_t  IF;            /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
-  __IOM uint32_t BUBODBUVINCAL; /**< BU_VIN Backup BOD calibration  */
-  __IOM uint32_t BUBODUNREGCAL; /**< Unregulated power Backup BOD calibration  */
+    uint32_t       RESERVED2[1];  /**< Reserved for future use **/
+    __IOM uint32_t EM4CONF;       /**< Energy mode 4 configuration register  */
+    __IOM uint32_t BUCTRL;        /**< Backup Power configuration register  */
+    __IOM uint32_t PWRCONF;       /**< Power connection configuration register  */
+    __IOM uint32_t BUINACT;       /**< Backup mode inactive configuration register  */
+    __IOM uint32_t BUACT;         /**< Backup mode active configuration register  */
+    __IM uint32_t  STATUS;        /**< Status register  */
+    __IOM uint32_t ROUTE;         /**< I/O Routing Register  */
+    __IM uint32_t  IF;            /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
+    __IOM uint32_t BUBODBUVINCAL; /**< BU_VIN Backup BOD calibration  */
+    __IOM uint32_t BUBODUNREGCAL; /**< Unregulated power Backup BOD calibration  */
 } EMU_TypeDef;                  /** @} */
 
 /**************************************************************************//**

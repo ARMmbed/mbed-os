@@ -36,25 +36,25 @@ static uint32_t I2S_GetSourceClockFreq(I2S_T *i2s)
     u32ClkSrcSel = CLK->CLKSEL3 & CLK_CLKSEL3_I2S0SEL_Msk;
 
     switch (u32ClkSrcSel) {
-    case CLK_CLKSEL3_I2S0SEL_HXT:
-        u32Freq = __HXT;
-        break;
+        case CLK_CLKSEL3_I2S0SEL_HXT:
+            u32Freq = __HXT;
+            break;
 
-    case CLK_CLKSEL3_I2S0SEL_PLL:
-        u32Freq = CLK_GetPLLClockFreq();
-        break;
+        case CLK_CLKSEL3_I2S0SEL_PLL:
+            u32Freq = CLK_GetPLLClockFreq();
+            break;
 
-    case CLK_CLKSEL3_I2S0SEL_HIRC:
-        u32Freq = __HIRC;
-        break;
+        case CLK_CLKSEL3_I2S0SEL_HIRC:
+            u32Freq = __HIRC;
+            break;
 
-    case CLK_CLKSEL3_I2S0SEL_PCLK0:
-        u32Freq = (uint32_t)CLK_GetPCLK0Freq();
-        break;
+        case CLK_CLKSEL3_I2S0SEL_PCLK0:
+            u32Freq = (uint32_t)CLK_GetPCLK0Freq();
+            break;
 
-    default:
-        u32Freq = __HIRC;
-        break;
+        default:
+            u32Freq = __HIRC;
+            break;
     }
 
     return u32Freq;
@@ -98,13 +98,13 @@ uint32_t I2S_Open(I2S_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate, u
 
     u32SrcClk = I2S_GetSourceClockFreq(i2s);
 
-    u32BitRate = u32SampleRate * (((u32WordWidth>>4U) & 0x3U) + 1U) * 16U;
-    u16Divider = (uint16_t)((u32SrcClk/u32BitRate) >> 1U) - 1U;
+    u32BitRate = u32SampleRate * (((u32WordWidth >> 4U) & 0x3U) + 1U) * 16U;
+    u16Divider = (uint16_t)((u32SrcClk / u32BitRate) >> 1U) - 1U;
     i2s->CLKDIV = (i2s->CLKDIV & ~I2S_CLKDIV_BCLKDIV_Msk) | ((uint32_t)u16Divider << 8U);
 
     /* calculate real sample rate */
-    u32BitRate = u32SrcClk / (2U*((uint32_t)u16Divider+1U));
-    u32SampleRate = u32BitRate / ((((u32WordWidth>>4U) & 0x3U) + 1U) * 16U);
+    u32BitRate = u32SrcClk / (2U * ((uint32_t)u16Divider + 1U));
+    u32SampleRate = u32BitRate / ((((u32WordWidth >> 4U) & 0x3U) + 1U) * 16U);
 
     i2s->CTL0 |= I2S_CTL0_I2SEN_Msk;
 
@@ -160,7 +160,7 @@ uint32_t I2S_EnableMCLK(I2S_T *i2s, uint32_t u32BusClock)
     if (u32BusClock == u32SrcClk) {
         u8Divider = 0U;
     } else {
-        u8Divider = (uint8_t)(u32SrcClk/u32BusClock) >> 1U;
+        u8Divider = (uint8_t)(u32SrcClk / u32BusClock) >> 1U;
     }
 
     i2s->CLKDIV = (i2s->CLKDIV & ~I2S_CLKDIV_MCLKDIV_Msk) | u8Divider;

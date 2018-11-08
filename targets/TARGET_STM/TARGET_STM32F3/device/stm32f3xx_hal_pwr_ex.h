@@ -40,7 +40,7 @@
 #define __STM32F3xx_HAL_PWR_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -63,23 +63,22 @@
     defined(STM32F302xC) || defined(STM32F303xC) || \
     defined(STM32F303x8) || defined(STM32F334x8) || \
     defined(STM32F301x8) || defined(STM32F302x8) || \
-    defined(STM32F373xC) 
+    defined(STM32F373xC)
 /**
   * @brief  PWR PVD configuration structure definition
   */
-typedef struct
-{
-  uint32_t PVDLevel;   /*!< PVDLevel: Specifies the PVD detection level
+typedef struct {
+    uint32_t PVDLevel;   /*!< PVDLevel: Specifies the PVD detection level
                             This parameter can be a value of @ref PWREx_PVD_detection_level */
 
-  uint32_t Mode;       /*!< Mode: Specifies the operating mode for the selected pins.
+    uint32_t Mode;       /*!< Mode: Specifies the operating mode for the selected pins.
                             This parameter can be a value of @ref PWREx_PVD_Mode */
-}PWR_PVDTypeDef;
+} PWR_PVDTypeDef;
 #endif /* STM32F302xE || STM32F303xE || */
-       /* STM32F302xC || STM32F303xC || */
-       /* STM32F303x8 || STM32F334x8 || */
-       /* STM32F301x8 || STM32F302x8 || */
-       /* STM32F373xC                   */
+/* STM32F302xC || STM32F303xC || */
+/* STM32F303x8 || STM32F334x8 || */
+/* STM32F301x8 || STM32F302x8 || */
+/* STM32F373xC                   */
 
 /**
   * @}
@@ -95,17 +94,17 @@ typedef struct
     defined(STM32F303x8) || defined(STM32F334x8) || \
     defined(STM32F301x8) || defined(STM32F302x8) || \
     defined(STM32F373xC)
-    
+
 /** @defgroup PWREx_PVD_detection_level PWR Extended PVD detection level
   * @{
   */
-#define PWR_PVDLEVEL_0                  PWR_CR_PLS_LEV0    /*!< PVD threshold around 2.2 V */                                    
-#define PWR_PVDLEVEL_1                  PWR_CR_PLS_LEV1    /*!< PVD threshold around 2.3 V */                                    
-#define PWR_PVDLEVEL_2                  PWR_CR_PLS_LEV2    /*!< PVD threshold around 2.4 V */                                    
-#define PWR_PVDLEVEL_3                  PWR_CR_PLS_LEV3    /*!< PVD threshold around 2.5 V */                                    
-#define PWR_PVDLEVEL_4                  PWR_CR_PLS_LEV4    /*!< PVD threshold around 2.6 V */                                    
-#define PWR_PVDLEVEL_5                  PWR_CR_PLS_LEV5    /*!< PVD threshold around 2.7 V */                                    
-#define PWR_PVDLEVEL_6                  PWR_CR_PLS_LEV6    /*!< PVD threshold around 2.8 V */                                    
+#define PWR_PVDLEVEL_0                  PWR_CR_PLS_LEV0    /*!< PVD threshold around 2.2 V */
+#define PWR_PVDLEVEL_1                  PWR_CR_PLS_LEV1    /*!< PVD threshold around 2.3 V */
+#define PWR_PVDLEVEL_2                  PWR_CR_PLS_LEV2    /*!< PVD threshold around 2.4 V */
+#define PWR_PVDLEVEL_3                  PWR_CR_PLS_LEV3    /*!< PVD threshold around 2.5 V */
+#define PWR_PVDLEVEL_4                  PWR_CR_PLS_LEV4    /*!< PVD threshold around 2.6 V */
+#define PWR_PVDLEVEL_5                  PWR_CR_PLS_LEV5    /*!< PVD threshold around 2.7 V */
+#define PWR_PVDLEVEL_6                  PWR_CR_PLS_LEV6    /*!< PVD threshold around 2.8 V */
 #define PWR_PVDLEVEL_7                  PWR_CR_PLS_LEV7    /*!< PVD threshold around 2.9 V */
 /**
   * @}
@@ -128,16 +127,16 @@ typedef struct
 #define PWR_EXTI_LINE_PVD  EXTI_IMR_MR16  /*!< External interrupt line 16 Connected to the PVD EXTI Line */
 
 #endif /* STM32F302xE || STM32F303xE || */
-       /* STM32F302xC || STM32F303xC || */
-       /* STM32F303x8 || STM32F334x8 || */
-       /* STM32F301x8 || STM32F302x8 || */
-       /* STM32F373xC                   */
+/* STM32F302xC || STM32F303xC || */
+/* STM32F303x8 || STM32F334x8 || */
+/* STM32F301x8 || STM32F302x8 || */
+/* STM32F373xC                   */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /** @defgroup PWREx_SDADC_ANALOGx PWR Extended SDADC ANALOGx
   * @{
   */
-#define PWR_SDADC_ANALOG1              ((uint32_t)PWR_CR_ENSD1)   /*!< Enable SDADC1 */ 
+#define PWR_SDADC_ANALOG1              ((uint32_t)PWR_CR_ENSD1)   /*!< Enable SDADC1 */
 #define PWR_SDADC_ANALOG2              ((uint32_t)PWR_CR_ENSD2)   /*!< Enable SDADC2 */
 #define PWR_SDADC_ANALOG3              ((uint32_t)PWR_CR_ENSD3)   /*!< Enable SDADC3 */
 /**
@@ -159,7 +158,7 @@ typedef struct
     defined(STM32F303x8) || defined(STM32F334x8) || \
     defined(STM32F301x8) || defined(STM32F302x8) || \
     defined(STM32F373xC)
-    
+
 /**
   * @brief Enable interrupt on PVD Exti Line 16.
   * @retval None.
@@ -239,15 +238,15 @@ typedef struct
 #define __HAL_PWR_PVD_EXTI_CLEAR_FLAG()     (EXTI->PR = (PWR_EXTI_LINE_PVD))
 
 #endif /* STM32F302xE || STM32F303xE || */
-       /* STM32F302xC || STM32F303xC || */
-       /* STM32F303x8 || STM32F334x8 || */
-       /* STM32F301x8 || STM32F302x8 || */
-       /* STM32F373xC                   */
+/* STM32F302xC || STM32F303xC || */
+/* STM32F303x8 || STM32F334x8 || */
+/* STM32F301x8 || STM32F302x8 || */
+/* STM32F373xC                   */
 
 /**
   * @}
   */
-  
+
 /* Private macros --------------------------------------------------------*/
 /** @addtogroup  PWREx_Private_Macros   PWR Extended Private Macros
   * @{
@@ -268,10 +267,10 @@ typedef struct
                               ((MODE) == PWR_PVD_MODE_EVENT_FALLING) || ((MODE) == PWR_PVD_MODE_EVENT_RISING_FALLING) || \
                               ((MODE) == PWR_PVD_MODE_NORMAL))
 #endif /* STM32F302xE || STM32F303xE || */
-       /* STM32F302xC || STM32F303xC || */
-       /* STM32F303x8 || STM32F334x8 || */
-       /* STM32F301x8 || STM32F302x8 || */
-       /* STM32F373xC                   */
+/* STM32F302xC || STM32F303xC || */
+/* STM32F303x8 || STM32F334x8 || */
+/* STM32F301x8 || STM32F302x8 || */
+/* STM32F373xC                   */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 #define IS_PWR_SDADC_ANALOG(SDADC) (((SDADC) == PWR_SDADC_ANALOG1) || \
@@ -282,7 +281,7 @@ typedef struct
 
 /**
   * @}
-  */    
+  */
 
 /* Exported functions --------------------------------------------------------*/
 
@@ -305,10 +304,10 @@ void HAL_PWR_DisablePVD(void);
 void HAL_PWR_PVD_IRQHandler(void);
 void HAL_PWR_PVDCallback(void);
 #endif /* STM32F302xE || STM32F303xE || */
-       /* STM32F302xC || STM32F303xC || */
-       /* STM32F303x8 || STM32F334x8 || */
-       /* STM32F301x8 || STM32F302x8 || */
-       /* STM32F373xC                   */
+/* STM32F302xC || STM32F303xC || */
+/* STM32F303x8 || STM32F334x8 || */
+/* STM32F301x8 || STM32F302x8 || */
+/* STM32F373xC                   */
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 void HAL_PWREx_EnableSDADC(uint32_t Analogx);

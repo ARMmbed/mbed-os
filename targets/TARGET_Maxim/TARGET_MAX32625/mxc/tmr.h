@@ -244,10 +244,11 @@ __STATIC_INLINE void TMR32_Stop(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE void TMR16_Stop(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         tmr->ctrl &= ~MXC_F_TMR_CTRL_ENABLE1;
-    else
+    } else {
         tmr->ctrl &= ~MXC_F_TMR_CTRL_ENABLE0;
+    }
 }
 
 /**
@@ -272,10 +273,11 @@ __STATIC_INLINE uint32_t TMR32_IsActive(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE uint32_t TMR16_IsActive(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         return (tmr->ctrl & MXC_F_TMR_CTRL_ENABLE1);
-    else
+    } else {
         return (tmr->ctrl & MXC_F_TMR_CTRL_ENABLE0);
+    }
 }
 
 /**
@@ -298,10 +300,11 @@ __STATIC_INLINE void TMR32_EnableINT(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE void TMR16_EnableINT(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         tmr->inten |= MXC_F_TMR_INTEN_TIMER1;
-    else
+    } else {
         tmr->inten |= MXC_F_TMR_INTEN_TIMER0;
+    }
 }
 
 /**
@@ -324,10 +327,11 @@ __STATIC_INLINE void TMR32_DisableINT(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE void TMR16_DisableINT(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         tmr->inten &= ~MXC_F_TMR_INTEN_TIMER1;
-    else
+    } else {
         tmr->inten &= ~MXC_F_TMR_INTEN_TIMER0;
+    }
 }
 
 /**
@@ -352,10 +356,11 @@ __STATIC_INLINE uint32_t TMR32_GetFlag(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE uint32_t TMR16_GetFlag(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         return (tmr->intfl & MXC_F_TMR_INTFL_TIMER1);
-    else
+    } else {
         return (tmr->intfl & MXC_F_TMR_INTFL_TIMER0);
+    }
 }
 
 /**
@@ -378,10 +383,11 @@ __STATIC_INLINE void TMR32_ClearFlag(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE void TMR16_ClearFlag(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         tmr->intfl = MXC_F_TMR_INTFL_TIMER1;
-    else
+    } else {
         tmr->intfl = MXC_F_TMR_INTFL_TIMER0;
+    }
 }
 
 /**
@@ -406,10 +412,11 @@ __STATIC_INLINE void TMR32_SetCount(mxc_tmr_regs_t *tmr, uint32_t count)
  */
 __STATIC_INLINE void TMR16_SetCount(mxc_tmr_regs_t *tmr, uint8_t index, uint16_t count)
 {
-    if (index)
+    if (index) {
         tmr->count16_1 = count;
-    else
+    } else {
         tmr->count16_0 = count;
+    }
 }
 
 /**
@@ -434,10 +441,11 @@ __STATIC_INLINE uint32_t TMR32_GetCount(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE uint32_t TMR16_GetCount(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         return tmr->count16_1;
-    else
+    } else {
         return tmr->count16_0;
+    }
 }
 
 /**
@@ -490,10 +498,11 @@ __STATIC_INLINE uint32_t TMR32_GetCompare(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE void TMR16_SetCompare(mxc_tmr_regs_t *tmr, uint8_t index, uint16_t count)
 {
-    if (index)
+    if (index) {
         tmr->term_cnt16_1 = count;
-    else
+    } else {
         tmr->term_cnt16_0 = count;
+    }
 }
 
 /**
@@ -505,8 +514,9 @@ __STATIC_INLINE void TMR16_SetCompare(mxc_tmr_regs_t *tmr, uint8_t index, uint16
  */
 __STATIC_INLINE uint32_t TMR16_GetCompare(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if (index)
+    if (index) {
         return tmr->term_cnt16_1;
+    }
     return tmr->term_cnt16_0;
 }
 

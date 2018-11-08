@@ -40,7 +40,7 @@
 #define __STM32L1xx_HAL_PWR_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -89,18 +89,18 @@
 /**
   * @}
   */
-  
+
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 
 /** @defgroup PWREx_Exported_Functions PWREx Exported Functions
  *  @{
  */
- 
+
 /** @addtogroup PWREx_Exported_Functions_Group1
   * @{
   */
-  
+
 /* Peripheral Control methods  ************************************************/
 uint32_t HAL_PWREx_GetVoltageRange(void);
 void HAL_PWREx_EnableFastWakeUp(void);

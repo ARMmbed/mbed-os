@@ -1,14 +1,14 @@
 /*******************************************************************************************************************************************************
- * Copyright ¨Ï 2016 <WIZnet Co.,Ltd.> 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the ¡°Software¡±), 
- * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+ * Copyright ¨Ï 2016 <WIZnet Co.,Ltd.>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the ¡°Software¡±),
+ * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
- * THE SOFTWARE IS PROVIDED ¡°AS IS¡±, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+ * THE SOFTWARE IS PROVIDED ¡°AS IS¡±, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *********************************************************************************************************************************************************/
 /**
@@ -17,7 +17,7 @@
   * @author  IOP Team
   * @version V1.0.0
   * @date    01-May-2015
-  * @brief   This file contains all the functions prototypes for the UART 
+  * @brief   This file contains all the functions prototypes for the UART
   *          firmware library.
   ******************************************************************************
   *
@@ -29,7 +29,7 @@
 #define __W7500X_UART_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -42,15 +42,14 @@
 
 /** @addtogroup UART
   * @{
-  */ 
-  
-  
-/** 
-  * @brief  UART Init Structure definition  
-  */ 
-  
-typedef struct
-{
+  */
+
+
+/**
+  * @brief  UART Init Structure definition
+  */
+
+typedef struct {
     uint32_t UART_BaudRate;
     uint16_t UART_WordLength;
     uint16_t UART_StopBits;
@@ -64,12 +63,12 @@ typedef struct
   */
 
 
-/** @defgroup UART_Exported_Constants 
+/** @defgroup UART_Exported_Constants
   * @{
   */
 
 #define IS_UART_01_PERIPH(PERIPH)   (((PERIPH) == UART0) || ((PERIPH) == UART1))
-#define IS_UART_2_PERIPH(PERIPH)    ((PERIPH) == UART2)                                    
+#define IS_UART_2_PERIPH(PERIPH)    ((PERIPH) == UART2)
 
 /**
   * @}
@@ -181,7 +180,7 @@ typedef struct
 #define UART_RECV_STATUS_PE    ((uint16_t)0x01UL << 1) /*!< Parity error   */
 #define UART_RECV_STATUS_FE    ((uint16_t)0x01UL << 0) /*!< Framing error  */
 #define IS_UART_RECV_STATUS(FLAG)  (((FLAG) == UART_RECV_STATUS_OE) || ((FLAG) == UART_RECV_STATUS_BE) || \
-                                    ((FLAG) == UART_RECV_STATUS_PE) || ((FLAG) == UART_RECV_STATUS_FE)) 
+                                    ((FLAG) == UART_RECV_STATUS_PE) || ((FLAG) == UART_RECV_STATUS_FE))
 /**
   * @}
   */
@@ -236,7 +235,7 @@ typedef struct
 /**
   * @}
   */
-/** @addtogroup UART_FIFO_Level Select 
+/** @addtogroup UART_FIFO_Level Select
   * @{
   */
 
@@ -282,13 +281,13 @@ typedef struct
 #define S_UART_CTRL_TXOI        ((uint16_t)0x01UL << 4) /*!< TX overrun interrupt   */
 #define S_UART_CTRL_RXI         ((uint16_t)0x01UL << 3) /*!< RX interrupt           */
 #define S_UART_CTRL_TXI         ((uint16_t)0x01UL << 2) /*!< TX interrupt           */
-#define S_UART_CTRL_RX          ((uint16_t)0x01UL << 1) /*!< RX 			         */
-#define S_UART_CTRL_TX          ((uint16_t)0x01UL << 0) /*!< TX            		 */
+#define S_UART_CTRL_RX          ((uint16_t)0x01UL << 1) /*!< RX                      */
+#define S_UART_CTRL_TX          ((uint16_t)0x01UL << 0) /*!< TX                  */
 
 
 #define IS_S_UART_CTRL_FLAG(FLAG)   (((FLAG) == S_UART_CTRL_FLAG_RXOI)  || ((FLAG) == S_UART_CTRL_FLAG_TXOI) || \
                                      ((FLAG) == S_UART_CTRL_FLAG_RXI)   || ((FLAG) == S_UART_CTRL_FLAG_TXI) || \
-									 ((FLAG) == S_UART_CTRL_FLAG_RX)    || ((FLAG) == S_UART_CTRL_FLAG_TX))
+                                     ((FLAG) == S_UART_CTRL_FLAG_RX)    || ((FLAG) == S_UART_CTRL_FLAG_TX))
 /**
   * @}
   */
@@ -303,47 +302,47 @@ typedef struct
 #define S_UART_INTSTATUS_RXI         ((uint16_t)0x01UL << 1) /*!< RX interrupt           */
 #define S_UART_INTSTATUS_TXI         ((uint16_t)0x01UL << 0) /*!< TX interrupt           */
 #define IS_S_UART_INTSTATUS(FLAG)   (((FLAG) == S_UART_INTSTATUS_RXOI)  || ((FLAG) == S_UART_INTSTATUS_TXOI) || \
-									 ((FLAG) == S_UART_INTSTATUS_RXI)   || ((FLAG) == S_UART_INTSTATUS_TXI))
+                                     ((FLAG) == S_UART_INTSTATUS_RXI)   || ((FLAG) == S_UART_INTSTATUS_TXI))
 /**
   * @}
   */
 
 
-void        UART_StructInit         (UART_InitTypeDef* UART_InitStruct);
+void        UART_StructInit(UART_InitTypeDef *UART_InitStruct);
 
-uint32_t    UART_Init               (UART_TypeDef *UARTx, UART_InitTypeDef* UART_InitStruct);
-void        UART_FIFO_Enable        (UART_TypeDef *UARTx, uint16_t rx_fifo_level, uint16_t tx_fifo_level);
-void        UART_FIFO_Disable       (UART_TypeDef *UARTx);
-void        UART_SendData           (UART_TypeDef* UARTx, uint16_t Data);
-uint16_t    UART_ReceiveData        (UART_TypeDef* UARTx);
-void        UART_SendBreak          (UART_TypeDef* UARTx);
-void        UART_ClearRecvStatus    (UART_TypeDef* UARTx, uint16_t UART_RECV_STATUS);
-FlagStatus  UART_GetFlagStatus      (UART_TypeDef* UARTx, uint16_t UART_FLAG);
-void        UART_ITConfig           (UART_TypeDef* UARTx, uint16_t UART_IT, FunctionalState NewState);
-ITStatus    UART_GetITStatus        (UART_TypeDef* UARTx, uint16_t UART_IT);
-void        UART_ClearITPendingBit  (UART_TypeDef* UARTx, uint16_t UART_IT);
-void        UART_DMA_Config(UART_TypeDef* UARTx, uint16_t UART_DMA_CONTROL);
+uint32_t    UART_Init(UART_TypeDef *UARTx, UART_InitTypeDef *UART_InitStruct);
+void        UART_FIFO_Enable(UART_TypeDef *UARTx, uint16_t rx_fifo_level, uint16_t tx_fifo_level);
+void        UART_FIFO_Disable(UART_TypeDef *UARTx);
+void        UART_SendData(UART_TypeDef *UARTx, uint16_t Data);
+uint16_t    UART_ReceiveData(UART_TypeDef *UARTx);
+void        UART_SendBreak(UART_TypeDef *UARTx);
+void        UART_ClearRecvStatus(UART_TypeDef *UARTx, uint16_t UART_RECV_STATUS);
+FlagStatus  UART_GetFlagStatus(UART_TypeDef *UARTx, uint16_t UART_FLAG);
+void        UART_ITConfig(UART_TypeDef *UARTx, uint16_t UART_IT, FunctionalState NewState);
+ITStatus    UART_GetITStatus(UART_TypeDef *UARTx, uint16_t UART_IT);
+void        UART_ClearITPendingBit(UART_TypeDef *UARTx, uint16_t UART_IT);
+void        UART_DMA_Config(UART_TypeDef *UARTx, uint16_t UART_DMA_CONTROL);
 
-uint8_t     UartPutc                (UART_TypeDef* UARTx, uint8_t ch);
-void        UartPuts                (UART_TypeDef* UARTx, uint8_t *str);
-uint8_t     UartGetc                (UART_TypeDef* UARTx);
+uint8_t     UartPutc(UART_TypeDef *UARTx, uint8_t ch);
+void        UartPuts(UART_TypeDef *UARTx, uint8_t *str);
+uint8_t     UartGetc(UART_TypeDef *UARTx);
 
-void 		S_UART_DeInit	(void);
-uint32_t 	S_UART_Init		(uint32_t baud);
-void 		S_UART_SetBaud	(uint32_t baud);
-void		S_UART_SetCTRL	(uint16_t S_UART_CTRL, FunctionalState NewState);
-void 		S_UART_SendData	(uint16_t Data);
-uint16_t 	S_UART_ReceiveData(void);
+void        S_UART_DeInit(void);
+uint32_t    S_UART_Init(uint32_t baud);
+void        S_UART_SetBaud(uint32_t baud);
+void        S_UART_SetCTRL(uint16_t S_UART_CTRL, FunctionalState NewState);
+void        S_UART_SendData(uint16_t Data);
+uint16_t    S_UART_ReceiveData(void);
 
-uint8_t 	S_UartPutc	(uint8_t ch);
-void 		S_UartPuts	(uint8_t *str);
-uint8_t 	S_UartGetc	(void);
+uint8_t     S_UartPutc(uint8_t ch);
+void        S_UartPuts(uint8_t *str);
+uint8_t     S_UartGetc(void);
 
-FlagStatus	S_UART_GetFlagStatus	(uint16_t S_UART_STATE);
-void		S_UART_ITConfig			(uint16_t S_UART_CTRL, FunctionalState NewState);
+FlagStatus  S_UART_GetFlagStatus(uint16_t S_UART_STATE);
+void        S_UART_ITConfig(uint16_t S_UART_CTRL, FunctionalState NewState);
 
-ITStatus 	S_UART_GetITStatus		(uint16_t S_UART_IT);
-void 		S_UART_ClearITPendingBit(uint16_t S_UART_IT);
+ITStatus    S_UART_GetITStatus(uint16_t S_UART_IT);
+void        S_UART_ClearITPendingBit(uint16_t S_UART_IT);
 
 
 #ifdef __cplusplus

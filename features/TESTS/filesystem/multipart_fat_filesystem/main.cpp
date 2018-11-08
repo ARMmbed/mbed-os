@@ -27,22 +27,23 @@
 using namespace utest::v1;
 
 #ifndef MBED_EXTENDED_TESTS
-    #error [NOT_SUPPORTED] Filesystem tests not supported by default
+#error [NOT_SUPPORTED] Filesystem tests not supported by default
 #endif
 
 // Test block device
 #define BLOCK_SIZE 512
 #define BLOCK_COUNT 512
-HeapBlockDevice bd(BLOCK_COUNT*BLOCK_SIZE, BLOCK_SIZE);
+HeapBlockDevice bd(BLOCK_COUNT *BLOCK_SIZE, BLOCK_SIZE);
 
 
 // Test formatting and partitioning
-void test_format() {
+void test_format()
+{
     // Create two partitions splitting device in ~half
-    int err = MBRBlockDevice::partition(&bd, 1, 0x83, 0, (BLOCK_COUNT/2)*BLOCK_SIZE);
+    int err = MBRBlockDevice::partition(&bd, 1, 0x83, 0, (BLOCK_COUNT / 2) * BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
-    err = MBRBlockDevice::partition(&bd, 2, 0x83, -(BLOCK_COUNT/2)*BLOCK_SIZE);
+    err = MBRBlockDevice::partition(&bd, 2, 0x83, -(BLOCK_COUNT / 2) * BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
     // Load both partitions
@@ -72,7 +73,8 @@ void test_format() {
 
 // Simple multipartition test for reading/writing files
 template <ssize_t TEST_SIZE>
-void test_read_write() {
+void test_read_write()
+{
     // Load both partitions
     MBRBlockDevice part1(&bd, 1);
     int err = part1.init();
@@ -97,7 +99,7 @@ void test_read_write() {
 
     uint8_t *buffer2 = (uint8_t *)malloc(TEST_SIZE);
     TEST_ASSERT(buffer2);
-    
+
     // Fill with random sequence
     srand(1);
 
@@ -165,19 +167,21 @@ void test_read_write() {
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(10, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
 Case cases[] = {
     Case("Testing formating", test_format),
-    Case("Testing read write < block", test_read_write<BLOCK_SIZE/2>),
-    Case("Testing read write > block", test_read_write<2*BLOCK_SIZE>),
+    Case("Testing read write < block", test_read_write < BLOCK_SIZE / 2 >),
+    Case("Testing read write > block", test_read_write<2 * BLOCK_SIZE>),
 };
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

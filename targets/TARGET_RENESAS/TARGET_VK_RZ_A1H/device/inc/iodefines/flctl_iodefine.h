@@ -30,8 +30,8 @@
 #define FLCTL_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_flctl
-{                                                          /* FLCTL            */
+struct st_flctl {
+    /* FLCTL            */
     volatile uint32_t  FLCMNCR;                                /*  FLCMNCR         */
     volatile uint32_t  FLCMDCR;                                /*  FLCMDCR         */
     volatile uint32_t  FLCMCDR;                                /*  FLCMCDR         */

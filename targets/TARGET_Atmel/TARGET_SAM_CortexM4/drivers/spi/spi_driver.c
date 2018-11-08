@@ -245,9 +245,9 @@ spi_status_t spi_read(Spi *p_spi, uint16_t *us_data, uint8_t *p_pcs)
 
     reg_value = p_spi->SPI_RDR;
     if (spi_get_peripheral_select_mode(p_spi)) {
-        *p_pcs = (uint8_t) ((reg_value & SPI_RDR_PCS_Msk) >> SPI_RDR_PCS_Pos);
+        *p_pcs = (uint8_t)((reg_value & SPI_RDR_PCS_Msk) >> SPI_RDR_PCS_Pos);
     }
-    *us_data = (uint16_t) (reg_value & SPI_RDR_RD_Msk);
+    *us_data = (uint16_t)(reg_value & SPI_RDR_RD_Msk);
 
     return SPI_OK;
 }

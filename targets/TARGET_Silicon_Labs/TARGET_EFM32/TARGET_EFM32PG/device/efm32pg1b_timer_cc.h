@@ -36,12 +36,11 @@
 /**************************************************************************//**
  * @brief TIMER_CC EFM32PG1B TIMER CC
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL; /**< CC Channel Control Register  */
-  __IOM uint32_t CCV;  /**< CC Channel Value Register  */
-  __IM uint32_t  CCVP; /**< CC Channel Value Peek Register  */
-  __IOM uint32_t CCVB; /**< CC Channel Buffer Register  */
+typedef struct {
+    __IOM uint32_t CTRL; /**< CC Channel Control Register  */
+    __IOM uint32_t CCV;  /**< CC Channel Value Register  */
+    __IM uint32_t  CCVP; /**< CC Channel Value Peek Register  */
+    __IOM uint32_t CCVB; /**< CC Channel Buffer Register  */
 } TIMER_CC_TypeDef;
 
 /** @} End of group Parts */

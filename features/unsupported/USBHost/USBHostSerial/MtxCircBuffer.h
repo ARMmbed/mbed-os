@@ -25,31 +25,36 @@ template<typename T, int size>
 class MtxCircBuffer {
 public:
 
-    MtxCircBuffer() {
+    MtxCircBuffer()
+    {
         write = 0;
         read = 0;
     }
 
-    bool isFull() {
+    bool isFull()
+    {
         mtx.lock();
         bool r = (((write + 1) % size) == read);
         mtx.unlock();
         return r;
     }
 
-    bool isEmpty() {
+    bool isEmpty()
+    {
         mtx.lock();
         bool r = (read == write);
         mtx.unlock();
         return r;
     }
 
-    void flush() {
+    void flush()
+    {
         write = 0;
         read = 0;
     }
 
-    void queue(T k) {
+    void queue(T k)
+    {
         mtx.lock();
         while (((write + 1) % size) == read) {
             mtx.unlock();
@@ -61,14 +66,16 @@ public:
         mtx.unlock();
     }
 
-    uint16_t available() {
+    uint16_t available()
+    {
         mtx.lock();
         uint16_t a = (write >= read) ? (write - read) : (size - read + write);
         mtx.unlock();
         return a;
     }
 
-    bool dequeue(T * c) {
+    bool dequeue(T *c)
+    {
         mtx.lock();
         bool empty = (read == write);
         if (!empty) {

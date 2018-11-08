@@ -29,8 +29,8 @@
 #ifndef WDT_IODEFINE_H
 #define WDT_IODEFINE_H
 
-struct st_wdt
-{                                                          /* WDT              */
+struct st_wdt {
+    /* WDT              */
     volatile uint16_t WTCSR;                                  /*  WTCSR           */
     volatile uint16_t WTCNT;                                  /*  WTCNT           */
     volatile uint16_t WRCSR;                                  /*  WRCSR           */

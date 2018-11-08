@@ -105,7 +105,7 @@ typedef enum {
     PD_13 = 0x3D,
     PD_14 = 0x3E,
     PD_15 = 0x3F,
-  
+
     PE_0  = 0x40,
     PE_1  = 0x41,
     PE_2  = 0x42,
@@ -122,7 +122,7 @@ typedef enum {
     PE_13 = 0x4D,
     PE_14 = 0x4E,
     PE_15 = 0x4F,
-  
+
     PF_0  = 0x50,
     PF_1  = 0x51,
     PF_2  = 0x52,
@@ -207,11 +207,11 @@ typedef enum {
     USER_BUTTON = PA_0,
     // Standardized button names
     BUTTON1 = USER_BUTTON,
-    SERIAL_TX   = PA_2,	/* USART2 */
+    SERIAL_TX   = PA_2, /* USART2 */
     SERIAL_RX   = PA_3,
-    USBTX       = PA_2,	/* USART2 */
+    USBTX       = PA_2, /* USART2 */
     USBRX       = PA_3,
-    I2C_SCL     = PB_8,	/* I2C1 */
+    I2C_SCL     = PB_8, /* I2C1 */
     I2C_SDA     = PB_9,
     SPI_MOSI    = PA_7,
     SPI_MISO    = PA_6,

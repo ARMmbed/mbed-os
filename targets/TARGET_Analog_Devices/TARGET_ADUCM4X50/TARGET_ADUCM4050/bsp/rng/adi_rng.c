@@ -49,7 +49,7 @@ POSSIBILITY OF SUCH DAMAGE.
  *  @{
  */
 
- /*! \cond PRIVATE */
+/*! \cond PRIVATE */
 
 #include <stdlib.h>  /* for 'NULL' definition */
 #include <assert.h>
@@ -93,9 +93,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #pragma diag_suppress=Pm140
 #endif
 
-static ADI_RNG_DEV_TYPE gRNG_Device[NUM_RNG_DEVICES] =
-{
-  {(ADI_RNG_TypeDef*)pADI_RNG0,NULL} /* RNG0 */
+static ADI_RNG_DEV_TYPE gRNG_Device[NUM_RNG_DEVICES] = {
+    {(ADI_RNG_TypeDef *)pADI_RNG0, NULL} /* RNG0 */
 };
 #ifdef __ICCARM__
 #pragma diag_default=Pm140
@@ -138,11 +137,11 @@ void RNG_Int_Handler(void);
     @sa    adi_rng_Close().
 */
 ADI_RNG_RESULT adi_rng_Open(
-                            uint32_t             const  nDeviceNum,
-                            void*                const  pMemory,
-                            uint32_t             const  MemorySize,
-                            ADI_RNG_HANDLE*      const  phDevice
-                            )
+    uint32_t             const  nDeviceNum,
+    void                *const  pMemory,
+    uint32_t             const  MemorySize,
+    ADI_RNG_HANDLE      *const  phDevice
+)
 {
     ADI_RNG_DEV_TYPE *pDevice;
 
@@ -150,24 +149,21 @@ ADI_RNG_RESULT adi_rng_Open(
     *phDevice = (ADI_RNG_HANDLE) NULL;
 
 #ifdef ADI_DEBUG
-    if (nDeviceNum >= NUM_RNG_DEVICES)
-    {
+    if (nDeviceNum >= NUM_RNG_DEVICES) {
         return ADI_RNG_BAD_DEVICE_NUM;
     }
 
-    if ((NULL == pMemory) || ( MemorySize < (uint32_t) ADI_RNG_MEMORY_SIZE))
-    {
+    if ((NULL == pMemory) || (MemorySize < (uint32_t) ADI_RNG_MEMORY_SIZE)) {
         return ADI_RNG_INVALID_PARAM;
     }
-    assert (ADI_RNG_MEMORY_SIZE == sizeof(ADI_RNG_DEV_DATA_TYPE));
+    assert(ADI_RNG_MEMORY_SIZE == sizeof(ADI_RNG_DEV_DATA_TYPE));
 #endif
 
     /* local pointer to instance data */
     pDevice = &gRNG_Device[nDeviceNum];
 
 #ifdef ADI_DEBUG
-    if (NULL != pDevice->pData)
-    {
+    if (NULL != pDevice->pData) {
         return ADI_RNG_ALREADY_INITIALIZED;
     }
 #endif
@@ -185,11 +181,11 @@ ADI_RNG_RESULT adi_rng_Open(
     /* Set the RNG register based on static configuration */
     pDevice->pRNG->CTL = (uint16_t)RNG0_CFG_ONLY_8_BIT << BITP_RNG_CTL_SINGLE;
     pDevice->pRNG->LEN = (RNG0_CFG_LENGTH_RELOAD << BITP_RNG_LEN_RELOAD)
-                       | (RNG0_CFG_LENGTH_PRESCALER << BITP_RNG_LEN_PRESCALE);
+                         | (RNG0_CFG_LENGTH_PRESCALER << BITP_RNG_LEN_PRESCALE);
 
-   /* The interrupt handler only gets used in the case of callback mode so its
-    * enabling only happens in the adi_rng_RegisterCallBack API.
-    */
+    /* The interrupt handler only gets used in the case of callback mode so its
+     * enabling only happens in the adi_rng_RegisterCallBack API.
+     */
     NVIC_ClearPendingIRQ(pDevice->pData->IRQn);
 
     /* store handle at application handle pointer */
@@ -215,10 +211,10 @@ ADI_RNG_RESULT adi_rng_Open(
  */
 ADI_RNG_RESULT adi_rng_Close(ADI_RNG_HANDLE hDevice)
 {
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)hDevice;
 
 #ifdef ADI_DEBUG
-    if (ADI_RNG_INVALID_HANDLE(pDevice)){
+    if (ADI_RNG_INVALID_HANDLE(pDevice)) {
         return ADI_RNG_BAD_DEV_HANDLE;
     }
 
@@ -248,9 +244,9 @@ ADI_RNG_RESULT adi_rng_Close(ADI_RNG_HANDLE hDevice)
  * @sa        adi_rng_Open().
  * @sa        adi_rng_RegisterCallback().
  */
-ADI_RNG_RESULT adi_rng_Enable (ADI_RNG_HANDLE const hDevice, bool const bFlag)
+ADI_RNG_RESULT adi_rng_Enable(ADI_RNG_HANDLE const hDevice, bool const bFlag)
 {
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)hDevice;
     ADI_INT_STATUS_ALLOC();
 
 #ifdef ADI_DEBUG
@@ -291,9 +287,9 @@ ADI_RNG_RESULT adi_rng_Enable (ADI_RNG_HANDLE const hDevice, bool const bFlag)
  * @sa        adi_rng_RegisterCallback().
  * @sa        adi_rng_GetRngData().
  */
-ADI_RNG_RESULT adi_rng_EnableBuffering (ADI_RNG_HANDLE const hDevice, bool const bFlag)
+ADI_RNG_RESULT adi_rng_EnableBuffering(ADI_RNG_HANDLE const hDevice, bool const bFlag)
 {
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)hDevice;
     ADI_INT_STATUS_ALLOC();
 
 #ifdef ADI_DEBUG
@@ -333,17 +329,17 @@ ADI_RNG_RESULT adi_rng_EnableBuffering (ADI_RNG_HANDLE const hDevice, bool const
  * @sa        adi_rng_Open().
  * @sa        adi_rng_RegisterCallback().
  */
-ADI_RNG_RESULT adi_rng_SetSampleLen (
-                                     ADI_RNG_HANDLE const hDevice,
-                                     uint16_t       const nLenPrescaler,
-                                     uint16_t       const nLenReload
-                                     )
+ADI_RNG_RESULT adi_rng_SetSampleLen(
+    ADI_RNG_HANDLE const hDevice,
+    uint16_t       const nLenPrescaler,
+    uint16_t       const nLenReload
+)
 {
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)hDevice;
     ADI_INT_STATUS_ALLOC();
 
 #ifdef ADI_DEBUG
-    if (ADI_RNG_INVALID_HANDLE(pDevice)){
+    if (ADI_RNG_INVALID_HANDLE(pDevice)) {
         return ADI_RNG_BAD_DEV_HANDLE;
     }
 
@@ -351,16 +347,16 @@ ADI_RNG_RESULT adi_rng_SetSampleLen (
         return ADI_RNG_NOT_INITIALIZED;
     }
 
-    if (   (nLenPrescaler > 10u)
-        || ((0u == nLenPrescaler) && (0u == nLenReload))
-        || (nLenReload > 4095u)) {
+    if ((nLenPrescaler > 10u)
+            || ((0u == nLenPrescaler) && (0u == nLenReload))
+            || (nLenReload > 4095u)) {
         return ADI_RNG_INVALID_PARAM;
     }
 #endif
 
     ADI_ENTER_CRITICAL_REGION();
     /* Set the sample reload and prescaler value */
-    pDevice->pRNG->LEN =   (uint16_t)((uint16_t)(nLenReload    << BITP_RNG_LEN_RELOAD)   & BITM_RNG_LEN_RELOAD)
+    pDevice->pRNG->LEN = (uint16_t)((uint16_t)(nLenReload    << BITP_RNG_LEN_RELOAD)   & BITM_RNG_LEN_RELOAD)
                          | (uint16_t)((uint16_t)(nLenPrescaler << BITP_RNG_LEN_PRESCALE) & BITM_RNG_LEN_PRESCALE);
     ADI_EXIT_CRITICAL_REGION();
 
@@ -389,12 +385,12 @@ ADI_RNG_RESULT adi_rng_SetSampleLen (
  * @sa        adi_rng_GetRngData().
  * @sa        adi_rng_RegisterCallback().
  */
-ADI_RNG_RESULT adi_rng_GetRdyStatus (ADI_RNG_HANDLE const hDevice, bool* const pbFlag)
+ADI_RNG_RESULT adi_rng_GetRdyStatus(ADI_RNG_HANDLE const hDevice, bool *const pbFlag)
 {
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)hDevice;
 
 #ifdef ADI_DEBUG
-    if (ADI_RNG_INVALID_HANDLE(pDevice)){
+    if (ADI_RNG_INVALID_HANDLE(pDevice)) {
         return ADI_RNG_BAD_DEV_HANDLE;
     }
 
@@ -408,12 +404,9 @@ ADI_RNG_RESULT adi_rng_GetRdyStatus (ADI_RNG_HANDLE const hDevice, bool* const p
 #endif
 
     /* Get the RNG Ready status bit */
-    if ((pDevice->pRNG->STAT & BITM_RNG_STAT_RNRDY) != 0u)
-    {
+    if ((pDevice->pRNG->STAT & BITM_RNG_STAT_RNRDY) != 0u) {
         *pbFlag = true;
-    }
-    else
-    {
+    } else {
         *pbFlag = false;
     }
 
@@ -438,15 +431,15 @@ ADI_RNG_RESULT adi_rng_GetRdyStatus (ADI_RNG_HANDLE const hDevice, bool* const p
  * @sa        adi_rng_GetRngData().
  * @sa        adi_rng_RegisterCallback().
  */
-ADI_RNG_RESULT adi_rng_GetStuckStatus (
-                                       ADI_RNG_HANDLE const hDevice,
-                                       bool* const pbFlag
-                                       )
+ADI_RNG_RESULT adi_rng_GetStuckStatus(
+    ADI_RNG_HANDLE const hDevice,
+    bool *const pbFlag
+)
 {
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)hDevice;
 
 #ifdef ADI_DEBUG
-    if (ADI_RNG_INVALID_HANDLE(pDevice)){
+    if (ADI_RNG_INVALID_HANDLE(pDevice)) {
         return ADI_RNG_BAD_DEV_HANDLE;
     }
 
@@ -460,12 +453,9 @@ ADI_RNG_RESULT adi_rng_GetStuckStatus (
 #endif
 
     /* Get the stuck status bit */
-    if ((pDevice->pRNG->STAT & BITM_RNG_STAT_STUCK) != 0u)
-    {
+    if ((pDevice->pRNG->STAT & BITM_RNG_STAT_STUCK) != 0u) {
         *pbFlag = true;
-    }
-    else
-    {
+    } else {
         *pbFlag = false;
     }
 
@@ -494,12 +484,12 @@ ADI_RNG_RESULT adi_rng_GetStuckStatus (
  * @sa        adi_rng_GetRdyStatus().
  * @sa        adi_rng_RegisterCallback().
  */
-ADI_RNG_RESULT adi_rng_GetRngData (ADI_RNG_HANDLE const hDevice, uint32_t* const pRegData)
+ADI_RNG_RESULT adi_rng_GetRngData(ADI_RNG_HANDLE const hDevice, uint32_t *const pRegData)
 {
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)hDevice;
 
 #ifdef ADI_DEBUG
-    if (ADI_RNG_INVALID_HANDLE(pDevice)){
+    if (ADI_RNG_INVALID_HANDLE(pDevice)) {
         return ADI_RNG_BAD_DEV_HANDLE;
     }
 
@@ -539,12 +529,12 @@ ADI_RNG_RESULT adi_rng_GetRngData (ADI_RNG_HANDLE const hDevice, uint32_t* const
  * @sa        adi_rng_Open().
  * @sa        adi_rng_RegisterCallback().
  */
-ADI_RNG_RESULT adi_rng_GetOscCount (ADI_RNG_HANDLE const hDevice, uint32_t* const pOscCount)
+ADI_RNG_RESULT adi_rng_GetOscCount(ADI_RNG_HANDLE const hDevice, uint32_t *const pOscCount)
 {
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)hDevice;
 
 #ifdef ADI_DEBUG
-   if (ADI_RNG_INVALID_HANDLE(pDevice)){
+    if (ADI_RNG_INVALID_HANDLE(pDevice)) {
         return ADI_RNG_BAD_DEV_HANDLE;
     }
 
@@ -585,16 +575,16 @@ ADI_RNG_RESULT adi_rng_GetOscCount (ADI_RNG_HANDLE const hDevice, uint32_t* cons
  * @sa        adi_rng_Open().
  * @sa        adi_Rng_RegisterCallback().
  */
-ADI_RNG_RESULT adi_rng_GetOscDiff (
-                                   ADI_RNG_HANDLE const hDevice,
-                                   uint32_t       const nIndex,
-                                   uint8_t*       const pOscDiff
-                                   )
+ADI_RNG_RESULT adi_rng_GetOscDiff(
+    ADI_RNG_HANDLE const hDevice,
+    uint32_t       const nIndex,
+    uint8_t       *const pOscDiff
+)
 {
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)hDevice;
 
 #ifdef ADI_DEBUG
-   if (ADI_RNG_INVALID_HANDLE(pDevice)){
+    if (ADI_RNG_INVALID_HANDLE(pDevice)) {
         return ADI_RNG_BAD_DEV_HANDLE;
     }
 
@@ -603,7 +593,7 @@ ADI_RNG_RESULT adi_rng_GetOscDiff (
     }
 
     if ((NULL == pOscDiff) || (nIndex > 3u)) {
-        return( ADI_RNG_INVALID_PARAM );
+        return (ADI_RNG_INVALID_PARAM);
     }
 
     if ((pDevice->pRNG->STAT & BITM_RNG_STAT_RNRDY) == 0u) {
@@ -634,16 +624,16 @@ ADI_RNG_RESULT adi_rng_GetOscDiff (
  * @sa        adi_rng_Open().
  * @sa        adi_rng_RegisterCallback().
  */
-ADI_RNG_RESULT adi_rng_GetSampleLen (
-                                     ADI_RNG_HANDLE const hDevice,
-                                     uint16_t*      const pLenPrescaler,
-                                     uint16_t*      const pLenReload
-                                     )
+ADI_RNG_RESULT adi_rng_GetSampleLen(
+    ADI_RNG_HANDLE const hDevice,
+    uint16_t      *const pLenPrescaler,
+    uint16_t      *const pLenReload
+)
 {
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)hDevice;
 
 #ifdef ADI_DEBUG
-   if (ADI_RNG_INVALID_HANDLE(pDevice)){
+    if (ADI_RNG_INVALID_HANDLE(pDevice)) {
         return ADI_RNG_BAD_DEV_HANDLE;
     }
 
@@ -707,15 +697,15 @@ ADI_RNG_RESULT adi_rng_GetSampleLen (
 
     @sa    adi_rng_Open().
 */
-ADI_RNG_RESULT adi_rng_RegisterCallback (
-                                         ADI_RNG_HANDLE  hDevice,
-                                         ADI_CALLBACK    cbFunc,
-                                         void           *pCBParam)
+ADI_RNG_RESULT adi_rng_RegisterCallback(
+    ADI_RNG_HANDLE  hDevice,
+    ADI_CALLBACK    cbFunc,
+    void           *pCBParam)
 {
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)hDevice;
 
 #ifdef ADI_DEBUG
-   if (ADI_RNG_INVALID_HANDLE(pDevice)){
+    if (ADI_RNG_INVALID_HANDLE(pDevice)) {
         return ADI_RNG_BAD_DEV_HANDLE;
     }
 
@@ -747,11 +737,9 @@ void RNG_Int_Handler(void)
     register uint16_t candidate;
 
     /* if we have an initialized driver... */
-    if (NULL != pDevice->pData)
-    {
+    if (NULL != pDevice->pData) {
         /* if we have a registered callback */
-        if (NULL != pDevice->pData->CBFunc)
-        {
+        if (NULL != pDevice->pData->CBFunc) {
             ADI_INT_STATUS_ALLOC();
 
             ADI_ENTER_CRITICAL_REGION();
@@ -775,11 +763,11 @@ void RNG_Int_Handler(void)
                     break;
                 }
 
-                pDevice->pData->CBFunc (
-                                        pDevice->pData->pCBParam,
-                                        nEvent,
-                                        NULL
-                                        );
+                pDevice->pData->CBFunc(
+                    pDevice->pData->pCBParam,
+                    nEvent,
+                    NULL
+                );
             }
 
             pDevice->pRNG->STAT = BITM_RNG_STAT_RNRDY | BITM_RNG_STAT_STUCK;

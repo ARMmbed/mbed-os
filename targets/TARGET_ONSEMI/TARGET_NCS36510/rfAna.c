@@ -77,29 +77,29 @@
 
 /** This rf LUT is built for high side injection, using low side injection
  * would requiere to change this LUT. */
-const uint32_t rfLut[16][4] =  {{0x50,0x00D4A7,0x4B,0x00A000},
-    {0x50,0x017F52,0x4B,0x014001},
-    {0x51,0xFE29FB,0x4B,0x01E001},
-    {0x51,0xFED4A6,0x4C,0xFE7FFF},
-    {0x51,0xFF7F51,0x4C,0xFF1FFF},
-    {0x51,0x0029FC,0x4C,0xFFC000},
-    {0x51,0x00D4A7,0x4C,0x006000},
-    {0x51,0x017F52,0x4C,0x010001},
-    {0x52,0xFE29FB,0x4C,0x01A001},
-    {0x52,0xFED4A6,0x4D,0xFE3FFF},
-    {0x52,0xFF7F51,0x4D,0xFEDFFF},
-    {0x52,0x0029FC,0x4D,0xFF8000},
-    {0x52,0x00D4A7,0x4D,0x002000},
-    {0x52,0x017F52,0x4D,0x00C001},
-    {0x53,0xFE29FB,0x4D,0x016001},
-    {0x53,0xFED4A6,0x4E,0xFDFFFE}
+const uint32_t rfLut[16][4] =  {{0x50, 0x00D4A7, 0x4B, 0x00A000},
+    {0x50, 0x017F52, 0x4B, 0x014001},
+    {0x51, 0xFE29FB, 0x4B, 0x01E001},
+    {0x51, 0xFED4A6, 0x4C, 0xFE7FFF},
+    {0x51, 0xFF7F51, 0x4C, 0xFF1FFF},
+    {0x51, 0x0029FC, 0x4C, 0xFFC000},
+    {0x51, 0x00D4A7, 0x4C, 0x006000},
+    {0x51, 0x017F52, 0x4C, 0x010001},
+    {0x52, 0xFE29FB, 0x4C, 0x01A001},
+    {0x52, 0xFED4A6, 0x4D, 0xFE3FFF},
+    {0x52, 0xFF7F51, 0x4D, 0xFEDFFF},
+    {0x52, 0x0029FC, 0x4D, 0xFF8000},
+    {0x52, 0x00D4A7, 0x4D, 0x002000},
+    {0x52, 0x017F52, 0x4D, 0x00C001},
+    {0x53, 0xFE29FB, 0x4D, 0x016001},
+    {0x53, 0xFED4A6, 0x4E, 0xFDFFFE}
 };
 
-const uint8_t txPowerLut[43]  =  {0,0,0, // -32dBm to -30dBm
-                                  0,0,0,0,0,0,0,0,0,0, // -29dBm to -20dBm
-                                  0,0,0,0,0,0,0,0,1,2, // -19dBm to -10dBm
-                                  3,4,5,6,7,8,9,10,11,12, // -9dBm to 0dBm
-                                  13,14,15,16,17,18,19,20,20,20
+const uint8_t txPowerLut[43]  =  {0, 0, 0, // -32dBm to -30dBm
+                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // -29dBm to -20dBm
+                                  0, 0, 0, 0, 0, 0, 0, 0, 1, 2, // -19dBm to -10dBm
+                                  3, 4, 5, 6, 7, 8, 9, 10, 11, 12, // -9dBm to 0dBm
+                                  13, 14, 15, 16, 17, 18, 19, 20, 20, 20
                                  }; // +1dBm to +10 dBm
 
 /*************************************************************************************************
@@ -122,16 +122,16 @@ void fRfAnaInit()
     RFANAREG->RX_CONTROL.BITS.ADC_DITHER_MODE = 0x0; // Dither mode disabled
 }
 
-boolean fRfAnaIoctl (uint32_t request, void *argument)
+boolean fRfAnaIoctl(uint32_t request, void *argument)
 {
     uint8_t channel, txPower;
 
     // Enable rfana clock (in case fRfAnaIoctl is used before call of fRfAnaInit)
     CLOCK_ENABLE(CLOCK_RFANA);
 
-    switch(request) {
+    switch (request) {
         case SET_RF_CHANNEL:
-            channel = *(uint8_t*)argument;
+            channel = *(uint8_t *)argument;
 
             // Set tx/rx integer/fractional divide portions
             RFANAREG->TX_LO_CONTROL.BITS.FRACT_WORD = rfLut[channel - 11][3];
@@ -151,7 +151,7 @@ boolean fRfAnaIoctl (uint32_t request, void *argument)
             }
             break;
         case SET_TX_POWER:
-            txPower = *(uint8_t*)argument;
+            txPower = *(uint8_t *)argument;
 
             // Set tx power register
             if ((txPower & 0x20) == 0) {

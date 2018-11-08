@@ -196,8 +196,8 @@ extern "C"
 #define CLK_SC1_CLK_DIVIDER(x)      (((x-1)<< CLK_CLKDIV1_SC1_N_Pos ) & CLK_CLKDIV1_SC1_N_Msk)   /*!< CLKDIV1 Setting for SmartCard1 clock divider. It could be 1~16 */
 
 /********************* Bit definition of SysTick register **********************/
-#define CLK_CLKSEL0_STCLKSEL_HCLK         (1)     /*!< Setting systick clock source as external HCLK */ 
-#define CLK_CLKSEL0_STCLKSEL_HCLK_DIV8    (2)     /*!< Setting systick clock source as external HCLK/8 */ 
+#define CLK_CLKSEL0_STCLKSEL_HCLK         (1)     /*!< Setting systick clock source as external HCLK */
+#define CLK_CLKSEL0_STCLKSEL_HCLK_DIV8    (2)     /*!< Setting systick clock source as external HCLK/8 */
 
 /********************* Bit definition of PLLCTL register **********************/
 #define CLK_PLLCTL_OUT_DV         (0x1UL<<CLK_PLLCTL_OUT_DV_Pos)     /*!<PLL Output Divider Control */
@@ -236,33 +236,33 @@ extern "C"
 #define CLK_WK_INTSTS_IS      (0x1UL<<CLK_WK_INTSTS_PD_WK_IS_Pos)     /*!<Wake-up Interrupt Status in chip Power-down Mode */
 
 /********************* Bit definition of MCLKO register **********************/
-#define CLK_MCLKO_MCLK_SEL_ISP_CLK 	(0x00<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output ISP_CLK */
-#define CLK_MCLKO_MCLK_SEL_HIRC			(0x01<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output HIRC clock */
-#define CLK_MCLKO_MCLK_SEL_HXT			(0x02<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output HXT clock */
-#define CLK_MCLKO_MCLK_SEL_LXT			(0x03<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output LXT clock */
-#define CLK_MCLKO_MCLK_SEL_LIRC			(0x04<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output LIRC clock */
-#define CLK_MCLKO_MCLK_SEL_PLLO			(0x05<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PLL input */
-#define CLK_MCLKO_MCLK_SEL_PLLI			(0x06<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PLL input */
-#define CLK_MCLKO_MCLK_SEL_SYSTICK	(0x07<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output system tick */
-#define CLK_MCLKO_MCLK_SEL_HCLK			(0x08<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output HCLK clock */
-#define CLK_MCLKO_MCLK_SEL_PCLK			(0x0A<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PCLK clock */
-#define CLK_MCLKO_MCLK_SEL_TMR0			(0x20<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output TMR0 clock */
-#define CLK_MCLKO_MCLK_SEL_TMR1			(0x21<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output TMR1 clock */
-#define CLK_MCLKO_MCLK_SEL_UART0		(0x22<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output UART0 clock */
-#define CLK_MCLKO_MCLK_SEL_USB			(0x23<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output USB clock */
-#define CLK_MCLKO_MCLK_SEL_ADC 			(0x24<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output ADC clock */
-#define CLK_MCLKO_MCLK_SEL_WDT 			(0x25<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output WDT clock */
-#define CLK_MCLKO_MCLK_SEL_PWM0CH01	(0x26<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PWM0CH01 clock */
-#define CLK_MCLKO_MCLK_SEL_PWM0CH23	(0x27<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PWM0CH23 clock */
-#define CLK_MCLKO_MCLK_SEL_LCD			(0x29<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output LCD clock */
-#define CLK_MCLKO_MCLK_SEL_TMR2			(0x38<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output TMR2 clock */
-#define CLK_MCLKO_MCLK_SEL_TMR3			(0x39<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output TMR3 clock */
-#define CLK_MCLKO_MCLK_SEL_UART1		(0x3A<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output UART1 clock */
-#define CLK_MCLKO_MCLK_SEL_PWM1CH01	(0x3B<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PWM1CH01 clock */
-#define CLK_MCLKO_MCLK_SEL_PWM1CH23	(0x3C<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PWM1CH23 clock */
-#define CLK_MCLKO_MCLK_SEL_I2S			(0x3D<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output I2S clock */
-#define CLK_MCLKO_MCLK_SEL_SC0			(0x3E<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output SC0 clock */
-#define CLK_MCLKO_MCLK_SEL_SC1			(0x3F<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output SC1 clock */
+#define CLK_MCLKO_MCLK_SEL_ISP_CLK  (0x00<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output ISP_CLK */
+#define CLK_MCLKO_MCLK_SEL_HIRC         (0x01<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output HIRC clock */
+#define CLK_MCLKO_MCLK_SEL_HXT          (0x02<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output HXT clock */
+#define CLK_MCLKO_MCLK_SEL_LXT          (0x03<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output LXT clock */
+#define CLK_MCLKO_MCLK_SEL_LIRC         (0x04<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output LIRC clock */
+#define CLK_MCLKO_MCLK_SEL_PLLO         (0x05<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PLL input */
+#define CLK_MCLKO_MCLK_SEL_PLLI         (0x06<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PLL input */
+#define CLK_MCLKO_MCLK_SEL_SYSTICK  (0x07<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output system tick */
+#define CLK_MCLKO_MCLK_SEL_HCLK         (0x08<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output HCLK clock */
+#define CLK_MCLKO_MCLK_SEL_PCLK         (0x0A<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PCLK clock */
+#define CLK_MCLKO_MCLK_SEL_TMR0         (0x20<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output TMR0 clock */
+#define CLK_MCLKO_MCLK_SEL_TMR1         (0x21<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output TMR1 clock */
+#define CLK_MCLKO_MCLK_SEL_UART0        (0x22<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output UART0 clock */
+#define CLK_MCLKO_MCLK_SEL_USB          (0x23<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output USB clock */
+#define CLK_MCLKO_MCLK_SEL_ADC          (0x24<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output ADC clock */
+#define CLK_MCLKO_MCLK_SEL_WDT          (0x25<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output WDT clock */
+#define CLK_MCLKO_MCLK_SEL_PWM0CH01 (0x26<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PWM0CH01 clock */
+#define CLK_MCLKO_MCLK_SEL_PWM0CH23 (0x27<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PWM0CH23 clock */
+#define CLK_MCLKO_MCLK_SEL_LCD          (0x29<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output LCD clock */
+#define CLK_MCLKO_MCLK_SEL_TMR2         (0x38<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output TMR2 clock */
+#define CLK_MCLKO_MCLK_SEL_TMR3         (0x39<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output TMR3 clock */
+#define CLK_MCLKO_MCLK_SEL_UART1        (0x3A<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output UART1 clock */
+#define CLK_MCLKO_MCLK_SEL_PWM1CH01 (0x3B<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PWM1CH01 clock */
+#define CLK_MCLKO_MCLK_SEL_PWM1CH23 (0x3C<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output PWM1CH23 clock */
+#define CLK_MCLKO_MCLK_SEL_I2S          (0x3D<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output I2S clock */
+#define CLK_MCLKO_MCLK_SEL_SC0          (0x3E<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output SC0 clock */
+#define CLK_MCLKO_MCLK_SEL_SC1          (0x3F<<CLK_MCLKO_MCLK_SEL_Pos) /*!<Select MCLK clock output SC1 clock */
 
 
 /*---------------------------------------------------------------------------------------------------------*/

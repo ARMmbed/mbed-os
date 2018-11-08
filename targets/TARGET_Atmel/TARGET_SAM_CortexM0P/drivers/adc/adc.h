@@ -172,27 +172,27 @@
  *
  * \anchor asfdoc_sam0_adc_module_conversion_rate
  * <table>
- *	<caption>Effective ADC Conversion Speed Using Oversampling</caption>
- *	<tr>
- *		<th>Resolution</th>
- *		<th>Effective conversion rate</th>
- *	</tr>
- *	<tr>
- *		<td>13-bit</td>
- *		<td>Conversion rate divided by 4</td>
- *	</tr>
- *	<tr>
- *		<td>14-bit</td>
- *		<td>Conversion rate divided by 16</td>
- *	</tr>
- *	<tr>
- *		<td>15-bit</td>
- *		<td>Conversion rate divided by 64</td>
- *	</tr>
- *	<tr>
- *		<td>16-bit</td>
- *		<td>Conversion rate divided by 256</td>
- *	</tr>
+ *  <caption>Effective ADC Conversion Speed Using Oversampling</caption>
+ *  <tr>
+ *      <th>Resolution</th>
+ *      <th>Effective conversion rate</th>
+ *  </tr>
+ *  <tr>
+ *      <td>13-bit</td>
+ *      <td>Conversion rate divided by 4</td>
+ *  </tr>
+ *  <tr>
+ *      <td>14-bit</td>
+ *      <td>Conversion rate divided by 16</td>
+ *  </tr>
+ *  <tr>
+ *      <td>15-bit</td>
+ *      <td>Conversion rate divided by 64</td>
+ *  </tr>
+ *  <tr>
+ *      <td>16-bit</td>
+ *      <td>Conversion rate divided by 256</td>
+ *  </tr>
  * </table>
  *
  * \subsection asfdoc_sam0_adc_module_overview_conversion Conversion Modes
@@ -441,7 +441,7 @@ extern "C" {
 #if ADC_CALLBACK_MODE == true
 #   if (ADC_INST_NUM > 1)
 #       define _ADC_INTERRUPT_VECT_NUM(n, unused) \
-			SYSTEM_INTERRUPT_MODULE_ADC##n,
+            SYSTEM_INTERRUPT_MODULE_ADC##n,
 /**
  * \internal Get the interrupt vector for the given device instance
  *
@@ -606,7 +606,7 @@ static inline enum status_code adc_enable(
                                 _adc_get_inst_index(adc_module)));
 #   elif (SAMC20)
     system_interrupt_enable(SYSTEM_INTERRUPT_MODULE_ADC0);
-#	else
+#   else
     system_interrupt_enable(SYSTEM_INTERRUPT_MODULE_ADC);
 #   endif
 #endif
@@ -640,7 +640,7 @@ static inline enum status_code adc_disable(
                                  _adc_get_inst_index(adc_module)));
 #   elif (SAMC20)
     system_interrupt_disable(SYSTEM_INTERRUPT_MODULE_ADC0);
-#	else
+#   else
     system_interrupt_disable(SYSTEM_INTERRUPT_MODULE_ADC);
 #   endif
 #endif
@@ -979,7 +979,7 @@ static inline void adc_enable_interrupt(struct adc_module *const module_inst,
  * \param[in] interrupt Interrupt to disable
  */
 static inline void adc_disable_interrupt(struct adc_module *const module_inst,
-        enum adc_interrupt_flag interrupt)
+                                         enum adc_interrupt_flag interrupt)
 {
     /* Sanity check arguments */
     Assert(module_inst);
@@ -1008,30 +1008,30 @@ static inline void adc_disable_interrupt(struct adc_module *const module_inst,
  * intended meanings.
  *
  * <table>
- *	<tr>
- *		<th>Acronym</th>
- *		<th>Description</th>
- *	</tr>
  *  <tr>
- *		<td>ADC</td>
- *		<td>Analog-to-Digital Converter</td>
- *	</tr>
+ *      <th>Acronym</th>
+ *      <th>Description</th>
+ *  </tr>
  *  <tr>
- *		<td>DAC</td>
- *		<td>Digital-to-Analog Converter</td>
- *	</tr>
- *	<tr>
- *		<td>LSB</td>
- *		<td>Least Significant Bit</td>
- *	</tr>
- *	<tr>
- *		<td>MSB</td>
- *		<td>Most Significant Bit</td>
- *	</tr>
- *	<tr>
- *		<td>DMA</td>
- *		<td>Direct Memory Access</td>
- *	</tr>
+ *      <td>ADC</td>
+ *      <td>Analog-to-Digital Converter</td>
+ *  </tr>
+ *  <tr>
+ *      <td>DAC</td>
+ *      <td>Digital-to-Analog Converter</td>
+ *  </tr>
+ *  <tr>
+ *      <td>LSB</td>
+ *      <td>Least Significant Bit</td>
+ *  </tr>
+ *  <tr>
+ *      <td>MSB</td>
+ *      <td>Most Significant Bit</td>
+ *  </tr>
+ *  <tr>
+ *      <td>DMA</td>
+ *      <td>Direct Memory Access</td>
+ *  </tr>
  * </table>
  *
  *
@@ -1052,27 +1052,27 @@ static inline void adc_disable_interrupt(struct adc_module *const module_inst,
  * the table.
  *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
+ *  <tr>
+ *      <th>Changelog</th>
+ *  </tr>
  * \if DEVICE_SAML21_SUPPORT
  *  <tr>
- *		<td>Initial Release</td>
+ *      <td>Initial Release</td>
  * </tr>
  * \else
- *	<tr>
- *		<td>Added support for SAMR21</td>
- *	</tr>
- *	<tr>
- *		<td>Added support for SAMD21 and new DMA quick start guide</td>
- *	</tr>
- *	<tr>
- *		<td>Added ADC calibration constant loading from the device signature
+ *  <tr>
+ *      <td>Added support for SAMR21</td>
+ *  </tr>
+ *  <tr>
+ *      <td>Added support for SAMD21 and new DMA quick start guide</td>
+ *  </tr>
+ *  <tr>
+ *      <td>Added ADC calibration constant loading from the device signature
  *          row when the module is initialized</td>
- *	</tr>
- *	<tr>
- *		<td>Initial Release</td>
- *	</tr>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial Release</td>
+ *  </tr>
  * \endif
  * </table>
  */
@@ -1095,11 +1095,11 @@ static inline void adc_disable_interrupt(struct adc_module *const module_inst,
  * \page asfdoc_sam0_adc_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
  * \if DEVICE_SAML21_SUPPORT
  *  <tr>
  *      <td>42451A</td>
@@ -1107,32 +1107,32 @@ static inline void adc_disable_interrupt(struct adc_module *const module_inst,
  *      <td>Initial document release</td>
  * </tr>
  * \else
- *	<tr>
- *		<td>42109E</td>
- *		<td>04/2015</td>
- *		<td>Added support for SAMDAx.</td>
- *	</tr>
- *	<tr>
- *		<td>42109D</td>
- *		<td>12/2014</td>
- *		<td>Added support for SAMR21 and SAMD10/D11</td>
- *	</tr>
- *	<tr>
- *		<td>42109C</td>
- *		<td>01/2014</td>
- *		<td>Added support for SAMD21</td>
- *	</tr>
- *	<tr>
- *		<td>42109B</td>
- *		<td>06/2013</td>
- *		<td>Added additional documentation on the event system. Corrected
+ *  <tr>
+ *      <td>42109E</td>
+ *      <td>04/2015</td>
+ *      <td>Added support for SAMDAx.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42109D</td>
+ *      <td>12/2014</td>
+ *      <td>Added support for SAMR21 and SAMD10/D11</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42109C</td>
+ *      <td>01/2014</td>
+ *      <td>Added support for SAMD21</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42109B</td>
+ *      <td>06/2013</td>
+ *      <td>Added additional documentation on the event system. Corrected
  *          documentation typos.</td>
- *	</tr>
- *	<tr>
- *		<td>42109A</td>
- *		<td>06/2013</td>
- *		<td>Initial release</td>
- *	</tr>
+ *  </tr>
+ *  <tr>
+ *      <td>42109A</td>
+ *      <td>06/2013</td>
+ *      <td>Initial release</td>
+ *  </tr>
  * \endif
  * </table>
  */

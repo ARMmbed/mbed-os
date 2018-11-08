@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2014 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**@file
@@ -63,8 +63,7 @@ extern "C" {
 #endif
 
 /**@brief Struct for WDT initialization. */
-typedef struct
-{
+typedef struct {
     nrf_wdt_behaviour_t    behaviour;          /**< WDT behaviour when CPU in sleep/halt mode. */
     uint32_t               reload_value;       /**< WDT reload value in ms. */
     uint8_t                interrupt_priority; /**< WDT interrupt priority */
@@ -92,7 +91,7 @@ typedef nrf_wdt_rr_register_t nrf_drv_wdt_channel_id;
  *
  * @return    NRF_SUCCESS on success, otherwise an error code.
  */
-ret_code_t nrf_drv_wdt_init(nrf_drv_wdt_config_t const * p_config,
+ret_code_t nrf_drv_wdt_init(nrf_drv_wdt_config_t const *p_config,
                             nrf_wdt_event_handler_t     wdt_event_handler);
 
 /**
@@ -104,7 +103,7 @@ ret_code_t nrf_drv_wdt_init(nrf_drv_wdt_config_t const * p_config,
  *
  * @return    NRF_SUCCESS on success, otherwise an error code.
  */
-ret_code_t nrf_drv_wdt_channel_alloc(nrf_drv_wdt_channel_id * p_channel_id);
+ret_code_t nrf_drv_wdt_channel_alloc(nrf_drv_wdt_channel_id *p_channel_id);
 
 /**
  * @brief This function starts watchdog.

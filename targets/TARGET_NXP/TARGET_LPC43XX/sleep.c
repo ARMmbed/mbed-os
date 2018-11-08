@@ -19,11 +19,12 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 
-void hal_sleep(void) {
-    
+void hal_sleep(void)
+{
+
     // SRC[SLEEPDEEP] set to 0 = sleep
     SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
-    
+
     // wait for interrupt
     __WFI();
 }
@@ -31,6 +32,7 @@ void hal_sleep(void) {
 /*
  *  ToDo: Implement deepsleep()
  */
-void hal_deepsleep(void) {
+void hal_deepsleep(void)
+{
     hal_sleep();
 }

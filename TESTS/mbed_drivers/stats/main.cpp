@@ -23,7 +23,7 @@
 #include <stdio.h>
 
 #if !defined(MBED_HEAP_STATS_ENABLED)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 using namespace utest::v1;
@@ -33,12 +33,12 @@ using namespace utest::v1;
 #define ALLOCATION_SIZE_LARGE   700
 #define ALLOCATION_SIZE_FAIL   (1024 * 1024 *1024)
 
-typedef void* (*malloc_cb_t) (uint32_t size);
+typedef void *(*malloc_cb_t)(uint32_t size);
 
-static void* thunk_malloc(uint32_t size);
-static void* thunk_calloc_1(uint32_t size);
-static void* thunk_calloc_4(uint32_t size);
-static void* thunk_realloc(uint32_t size);
+static void *thunk_malloc(uint32_t size);
+static void *thunk_calloc_1(uint32_t size);
+static void *thunk_calloc_4(uint32_t size);
+static void *thunk_realloc(uint32_t size);
 
 malloc_cb_t malloc_thunk_array[] = {
     thunk_malloc,
@@ -124,23 +124,23 @@ void test_case_allocate_fail()
     }
 }
 
-static void* thunk_malloc(uint32_t size)
+static void *thunk_malloc(uint32_t size)
 {
     return malloc(size);
 }
 
-static void* thunk_calloc_1(uint32_t size)
+static void *thunk_calloc_1(uint32_t size)
 {
     return calloc(size / 1, 1);
 }
 
-static void* thunk_calloc_4(uint32_t size)
+static void *thunk_calloc_4(uint32_t size)
 {
     return calloc(size / 4, 4);
 }
 
 
-static void* thunk_realloc(uint32_t size)
+static void *thunk_realloc(uint32_t size)
 {
     return realloc(NULL, size);
 }

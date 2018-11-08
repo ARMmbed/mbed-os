@@ -56,8 +56,7 @@ typedef void (*lpuart_dma_transfer_callback_t)(LPUART_Type *base,
 /*!
 * @brief LPUART DMA handle
 */
-struct _lpuart_dma_handle
-{
+struct _lpuart_dma_handle {
     lpuart_dma_transfer_callback_t callback; /*!< Callback function. */
     void *userData;                          /*!< LPUART callback function parameter.*/
     size_t rxDataSizeAll;                    /*!< Size of the data to receive. */
@@ -93,11 +92,11 @@ extern "C" {
  * @param rxDmaHandle User-requested DMA handle for RX DMA transfer.
  */
 void LPUART_TransferCreateHandleDMA(LPUART_Type *base,
-                            lpuart_dma_handle_t *handle,
-                            lpuart_dma_transfer_callback_t callback,
-                            void *userData,
-                            dma_handle_t *txDmaHandle,
-                            dma_handle_t *rxDmaHandle);
+                                    lpuart_dma_handle_t *handle,
+                                    lpuart_dma_transfer_callback_t callback,
+                                    void *userData,
+                                    dma_handle_t *txDmaHandle,
+                                    dma_handle_t *rxDmaHandle);
 
 /*!
  * @brief Sends data using DMA.

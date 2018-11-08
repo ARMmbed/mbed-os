@@ -45,7 +45,9 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 {
     (void)obj;
 
-    if(TRNG_GetRandomData(TRNG0, output, length) != kStatus_Success) return -1;
+    if (TRNG_GetRandomData(TRNG0, output, length) != kStatus_Success) {
+        return -1;
+    }
     *output_length = length;
 
     return 0;

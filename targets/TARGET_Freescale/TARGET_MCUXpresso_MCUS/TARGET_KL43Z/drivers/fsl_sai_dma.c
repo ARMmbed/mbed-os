@@ -34,14 +34,12 @@
 * Definitions
 ******************************************************************************/
 /*<! Structure definition for sai_dma_private_handle_t. The structure is private. */
-typedef struct _sai_dma_private_handle
-{
+typedef struct _sai_dma_private_handle {
     I2S_Type *base;
     sai_dma_handle_t *handle;
 } sai_dma_private_handle_t;
 
-enum _sai_dma_states
-{
+enum _sai_dma_states {
     kSAI_Idle = 0x0U,
     kSAI_Busy = 0x1U,
 };
@@ -88,14 +86,12 @@ static void SAI_TxDMACallback(dma_handle_t *handle, void *userData)
     saiHandle->queueDriver = (saiHandle->queueDriver + 1) % SAI_XFER_QUEUE_SIZE;
 
     /* Call callback function */
-    if (saiHandle->callback)
-    {
+    if (saiHandle->callback) {
         (saiHandle->callback)(privHandle->base, saiHandle, kStatus_SAI_TxIdle, saiHandle->userData);
     }
 
     /* If all data finished, just stop the transfer */
-    if (saiHandle->saiQueue[saiHandle->queueDriver].data == NULL)
-    {
+    if (saiHandle->saiQueue[saiHandle->queueDriver].data == NULL) {
         SAI_TransferAbortSendDMA(privHandle->base, saiHandle);
     }
 }
@@ -110,14 +106,12 @@ static void SAI_RxDMACallback(dma_handle_t *handle, void *userData)
     saiHandle->queueDriver = (saiHandle->queueDriver + 1) % SAI_XFER_QUEUE_SIZE;
 
     /* Call callback function */
-    if (saiHandle->callback)
-    {
+    if (saiHandle->callback) {
         (saiHandle->callback)(privHandle->base, saiHandle, kStatus_SAI_RxIdle, saiHandle->userData);
     }
 
     /* If all data finished, just stop the transfer */
-    if (saiHandle->saiQueue[saiHandle->queueDriver].data == NULL)
-    {
+    if (saiHandle->saiQueue[saiHandle->queueDriver].data == NULL) {
         SAI_TransferAbortReceiveDMA(privHandle->base, saiHandle);
     }
 }
@@ -140,7 +134,7 @@ void SAI_TransferTxCreateHandleDMA(
     s_dmaPrivateHandle[instance][0].base = base;
     s_dmaPrivateHandle[instance][0].handle = handle;
 
-/* Use FIFO error continue nstead of using interrupt to handle error */
+    /* Use FIFO error continue nstead of using interrupt to handle error */
 #if defined(FSL_FEATURE_SAI_HAS_FIFO_FUNCTION_AFTER_ERROR) && (FSL_FEATURE_SAI_HAS_FIFO_FUNCTION_AFTER_ERROR)
     base->TCR4 |= I2S_TCR4_FCONT_MASK;
 #endif
@@ -167,7 +161,7 @@ void SAI_TransferRxCreateHandleDMA(
     s_dmaPrivateHandle[instance][1].base = base;
     s_dmaPrivateHandle[instance][1].handle = handle;
 
-/* Use FIFO error continue nstead of using interrupt to handle error */
+    /* Use FIFO error continue nstead of using interrupt to handle error */
 #if defined(FSL_FEATURE_SAI_HAS_FIFO_FUNCTION_AFTER_ERROR) && (FSL_FEATURE_SAI_HAS_FIFO_FUNCTION_AFTER_ERROR)
     base->RCR4 |= I2S_RCR4_FCONT_MASK;
 #endif
@@ -196,8 +190,7 @@ void SAI_TransferTxSetFormatDMA(I2S_Type *base,
     config.destAddr = SAI_TxGetDataRegisterAddress(base, format->channel);
     config.enableDestIncrement = false;
     config.enableSrcIncrement = true;
-    switch (format->bitWidth)
-    {
+    switch (format->bitWidth) {
         case 8:
             config.srcSize = kDMA_Transfersize8bits;
             config.destSize = kDMA_Transfersize8bits;
@@ -237,8 +230,7 @@ void SAI_TransferRxSetFormatDMA(I2S_Type *base,
     config.srcAddr = SAI_RxGetDataRegisterAddress(base, format->channel);
     config.enableDestIncrement = true;
     config.enableSrcIncrement = false;
-    switch (format->bitWidth)
-    {
+    switch (format->bitWidth) {
         case 8:
             config.srcSize = kDMA_Transfersize8bits;
             config.destSize = kDMA_Transfersize8bits;
@@ -265,13 +257,11 @@ status_t SAI_TransferSendDMA(I2S_Type *base, sai_dma_handle_t *handle, sai_trans
     assert(handle && xfer);
 
     /* Check if input parameter invalid */
-    if ((xfer->data == NULL) || (xfer->dataSize == 0U))
-    {
+    if ((xfer->data == NULL) || (xfer->dataSize == 0U)) {
         return kStatus_InvalidArgument;
     }
 
-    if (handle->saiQueue[handle->queueUser].data)
-    {
+    if (handle->saiQueue[handle->queueUser].data) {
         return kStatus_SAI_QueueFull;
     }
 
@@ -292,7 +282,7 @@ status_t SAI_TransferSendDMA(I2S_Type *base, sai_dma_handle_t *handle, sai_trans
     /* Start DMA transfer */
     DMA_StartTransfer(handle->dmaHandle);
 
-/* Enable DMA request and start SAI */
+    /* Enable DMA request and start SAI */
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
     SAI_TxEnableDMA(base, kSAI_FIFORequestDMAEnable, true);
 #else
@@ -308,13 +298,11 @@ status_t SAI_TransferReceiveDMA(I2S_Type *base, sai_dma_handle_t *handle, sai_tr
     assert(handle && xfer);
 
     /* Check if input parameter invalid */
-    if ((xfer->data == NULL) || (xfer->dataSize == 0U))
-    {
+    if ((xfer->data == NULL) || (xfer->dataSize == 0U)) {
         return kStatus_InvalidArgument;
     }
 
-    if (handle->saiQueue[handle->queueUser].data)
-    {
+    if (handle->saiQueue[handle->queueUser].data) {
         return kStatus_SAI_QueueFull;
     }
 
@@ -336,7 +324,7 @@ status_t SAI_TransferReceiveDMA(I2S_Type *base, sai_dma_handle_t *handle, sai_tr
     /* Start DMA transfer */
     DMA_StartTransfer(handle->dmaHandle);
 
-/* Enable DMA request and start SAI */
+    /* Enable DMA request and start SAI */
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
     SAI_RxEnableDMA(base, kSAI_FIFORequestDMAEnable, true);
 #else
@@ -354,7 +342,7 @@ void SAI_TransferAbortSendDMA(I2S_Type *base, sai_dma_handle_t *handle)
     /* Disable dma */
     DMA_AbortTransfer(handle->dmaHandle);
 
-/* Disable DMA enable bit */
+    /* Disable DMA enable bit */
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
     SAI_TxEnableDMA(base, kSAI_FIFORequestDMAEnable, false);
 #else
@@ -377,7 +365,7 @@ void SAI_TransferAbortReceiveDMA(I2S_Type *base, sai_dma_handle_t *handle)
     /* Disable dma */
     DMA_AbortTransfer(handle->dmaHandle);
 
-/* Disable DMA enable bit */
+    /* Disable DMA enable bit */
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
     SAI_RxEnableDMA(base, kSAI_FIFORequestDMAEnable, false);
 #else
@@ -398,12 +386,9 @@ status_t SAI_TransferGetSendCountDMA(I2S_Type *base, sai_dma_handle_t *handle, s
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kSAI_Busy)
-    {
+    if (handle->state != kSAI_Busy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = handle->transferSize[handle->queueDriver] -
                  DMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel);
     }
@@ -417,12 +402,9 @@ status_t SAI_TransferGetReceiveCountDMA(I2S_Type *base, sai_dma_handle_t *handle
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kSAI_Busy)
-    {
+    if (handle->state != kSAI_Busy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = handle->transferSize[handle->queueDriver] -
                  DMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel);
     }

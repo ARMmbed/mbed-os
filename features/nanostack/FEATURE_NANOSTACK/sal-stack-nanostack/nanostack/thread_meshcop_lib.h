@@ -303,7 +303,7 @@ bool thread_meshcop_tlv_list_present(const uint8_t *ptr, uint16_t length, const 
  *
  * \return amount of TLVs present in the buffer.
  */
-uint16_t thread_meshcop_tlv_list_generate(const uint8_t *ptr, uint16_t length,uint8_t *result_ptr, uint16_t *result_len);
+uint16_t thread_meshcop_tlv_list_generate(const uint8_t *ptr, uint16_t length, uint8_t *result_ptr, uint16_t *result_len);
 
 /**
  * Remove TLV from list of TLVs.
@@ -338,7 +338,7 @@ bool thread_meshcop_tlv_list_type_available(const uint8_t *list_ptr, uint16_t li
  *
  * \return The length of the TLV data found and found_tlv updated to point beginning of value field. 0 if TLV is not found.
  */
-uint16_t thread_meshcop_tlv_find_next(uint8_t* tlv_ba, uint16_t tlv_ba_length, uint8_t tlv_id, uint8_t** found_tlv);
+uint16_t thread_meshcop_tlv_find_next(uint8_t *tlv_ba, uint16_t tlv_ba_length, uint8_t tlv_id, uint8_t **found_tlv);
 
 /**
  * Read 1 byte length TLV.

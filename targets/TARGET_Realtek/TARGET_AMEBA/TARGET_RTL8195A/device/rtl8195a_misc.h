@@ -17,9 +17,9 @@
 #define MBED_RTL8195A_MISC_H
 
 // Interface to ROM functions
-extern __longcall void *_memset( void *s, int c, size_t n);
-extern __longcall void *_memcpy( void *s1, const void *s2, size_t n );
-extern __longcall int _memcmp( const void *av, const void *bv, size_t len);
+extern __longcall void *_memset(void *s, int c, size_t n);
+extern __longcall void *_memcpy(void *s1, const void *s2, size_t n);
+extern __longcall int _memcmp(const void *av, const void *bv, size_t len);
 extern __longcall size_t _strlen(const char *s);
 extern __longcall int _strcmp(const char *cs, const char *ct);
 

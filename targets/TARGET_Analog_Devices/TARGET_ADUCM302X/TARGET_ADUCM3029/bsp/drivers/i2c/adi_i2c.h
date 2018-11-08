@@ -46,7 +46,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef ADI_I2C_H
 #define ADI_I2C_H
 
- /*! \cond PRIVATE */
+/*! \cond PRIVATE */
 #include <adi_processor.h>
 #include <rtos_map/adi_rtos_map.h>  /* for ADI_SEM_SIZE */
 /*! \endcond */
@@ -83,8 +83,7 @@ extern "C" {
  * #ADI_I2C_RESULT.
  *
  *****************************************************************************/
-typedef enum
-{
+typedef enum {
     ADI_I2C_SUCCESS = 0,                         /*!< The API call succeeded.                                  */
     ADI_I2C_BAD_BITRATE,                         /*!< The bit rate is invalid.                                 */
     ADI_I2C_BAD_DEVICE_HANDLE,                   /*!< The device handle is invalid.                            */
@@ -112,8 +111,7 @@ typedef enum
  * return result value is #ADI_I2C_HW_ERROR_DETECTED.
  *
  *****************************************************************************/
-typedef enum
-{
+typedef enum {
     ADI_I2C_HW_ERROR_NONE             = 0,         /*!< No hardware error.                                       */
     ADI_I2C_HW_ERROR_NACK_ADDR        = 0x0001,    /*!< A no-acknowledgement occurred for the address.           */
     ADI_I2C_HW_ERROR_NACK_DATA        = 0x0002,    /*!< A no-acknowledgement occurred for the data.              */
@@ -124,7 +122,7 @@ typedef enum
 
 
 /*! A device handle used in all API functions to identify the I2C device. */
-typedef struct __ADI_I2C_DEV_DATA_TYPE* ADI_I2C_HANDLE;
+typedef struct __ADI_I2C_DEV_DATA_TYPE *ADI_I2C_HANDLE;
 
 /*! Use macro "ADI_I2C_MEMORY_SIZE" to know how much memory to
    provide the i2c driver during the "adi_i2c_Open()" driver
@@ -212,22 +210,22 @@ typedef struct {
 /***************************************************************
  * Eliminable user API that may be optimized out by the linker *
  ***************************************************************/
-ADI_I2C_RESULT  adi_i2c_Open               (uint32_t const DeviceNum, void* const pMemory, uint32_t const MemorySize, ADI_I2C_HANDLE* const phDevice);
-ADI_I2C_RESULT  adi_i2c_Close              (ADI_I2C_HANDLE const hDevice);
+ADI_I2C_RESULT  adi_i2c_Open(uint32_t const DeviceNum, void *const pMemory, uint32_t const MemorySize, ADI_I2C_HANDLE *const phDevice);
+ADI_I2C_RESULT  adi_i2c_Close(ADI_I2C_HANDLE const hDevice);
 
 /* blocking calls... */
-ADI_I2C_RESULT  adi_i2c_ReadWrite          (ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION* const pTransaction, uint32_t* const pHwErrors);
+ADI_I2C_RESULT  adi_i2c_ReadWrite(ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION *const pTransaction, uint32_t *const pHwErrors);
 
 /* non-blocking calls... */
-ADI_I2C_RESULT  adi_i2c_SubmitBuffer       (ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION* const pTransaction);
-ADI_I2C_RESULT  adi_i2c_IsBufferAvailable  (ADI_I2C_HANDLE const hDevice, bool* const pbCompletionState);
-ADI_I2C_RESULT  adi_i2c_GetBuffer          (ADI_I2C_HANDLE const hDevice, uint32_t* const pHwErrors);
+ADI_I2C_RESULT  adi_i2c_SubmitBuffer(ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION *const pTransaction);
+ADI_I2C_RESULT  adi_i2c_IsBufferAvailable(ADI_I2C_HANDLE const hDevice, bool *const pbCompletionState);
+ADI_I2C_RESULT  adi_i2c_GetBuffer(ADI_I2C_HANDLE const hDevice, uint32_t *const pHwErrors);
 
 /* other (blocking) calls... */
-ADI_I2C_RESULT  adi_i2c_Reset              (ADI_I2C_HANDLE const hDevice);
-ADI_I2C_RESULT  adi_i2c_SetBitRate         (ADI_I2C_HANDLE const hDevice, uint32_t const requestedBitRate32);
-ADI_I2C_RESULT  adi_i2c_SetSlaveAddress    (ADI_I2C_HANDLE const hDevice, uint16_t const SlaveAddress);
-ADI_I2C_RESULT  adi_i2c_IssueGeneralCall   (ADI_I2C_HANDLE const hDevice, uint8_t* const pData, uint8_t const nDataSize, uint32_t* const pHwErrors);
+ADI_I2C_RESULT  adi_i2c_Reset(ADI_I2C_HANDLE const hDevice);
+ADI_I2C_RESULT  adi_i2c_SetBitRate(ADI_I2C_HANDLE const hDevice, uint32_t const requestedBitRate32);
+ADI_I2C_RESULT  adi_i2c_SetSlaveAddress(ADI_I2C_HANDLE const hDevice, uint16_t const SlaveAddress);
+ADI_I2C_RESULT  adi_i2c_IssueGeneralCall(ADI_I2C_HANDLE const hDevice, uint8_t *const pData, uint8_t const nDataSize, uint32_t *const pHwErrors);
 
 
 #if defined (__ICCARM__)

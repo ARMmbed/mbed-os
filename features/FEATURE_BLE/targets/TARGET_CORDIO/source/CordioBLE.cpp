@@ -47,10 +47,10 @@ bool isEventsSignaled = false;
  * A runtime error is generated if the user does not define any
  * ble_cordio_get_hci_driver.
  */
-MBED_WEAK ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver()
+MBED_WEAK ble::vendor::cordio::CordioHCIDriver &ble_cordio_get_hci_driver()
 {
     error("Please provide an implementation for the HCI driver");
-    ble::vendor::cordio::CordioHCIDriver* bad_instance = NULL;
+    ble::vendor::cordio::CordioHCIDriver *bad_instance = NULL;
     return *bad_instance;
 }
 
@@ -67,9 +67,9 @@ extern "C" void hci_mbed_os_start_reset_sequence(void)
     ble_cordio_get_hci_driver().start_reset_sequence();
 }
 
-extern "C" void hci_mbed_os_handle_reset_sequence(uint8_t* msg)
+extern "C" void hci_mbed_os_handle_reset_sequence(uint8_t *msg)
 {
-     ble_cordio_get_hci_driver().handle_reset_sequence(msg);
+    ble_cordio_get_hci_driver().handle_reset_sequence(msg);
 }
 
 /*
@@ -78,7 +78,7 @@ extern "C" void hci_mbed_os_handle_reset_sequence(uint8_t* msg)
  */
 extern "C" void wsf_mbed_ble_signal_event(void)
 {
-    if(isEventsSignaled == false) {
+    if (isEventsSignaled == false) {
         isEventsSignaled = true;
         ble::vendor::cordio::BLE::deviceInstance().signalEventsToProcess(::BLE::DEFAULT_INSTANCE);
     }
@@ -97,7 +97,7 @@ namespace ble {
 namespace vendor {
 namespace cordio {
 
-BLE::BLE(CordioHCIDriver& hci_driver) :
+BLE::BLE(CordioHCIDriver &hci_driver) :
     initialization_status(NOT_INITIALIZED),
     instanceID(::BLE::DEFAULT_INSTANCE)
 {
@@ -110,7 +110,7 @@ BLE::~BLE() { }
 /**
  * The singleton which represents the BLE transport for the BLE.
  */
-BLE& BLE::deviceInstance()
+BLE &BLE::deviceInstance()
 {
     static BLE instance(
         ble_cordio_get_hci_driver()
@@ -161,33 +161,33 @@ ble_error_t BLE::shutdown()
     return BLE_ERROR_NONE;
 }
 
-const char* BLE::getVersion()
+const char *BLE::getVersion()
 {
     static const char version[] = "generic-cordio";
     return version;
 }
 
-Gap& BLE::getGap()
+Gap &BLE::getGap()
 {
     return cordio::Gap::getInstance();
 }
 
-const Gap& BLE::getGap() const
+const Gap &BLE::getGap() const
 {
     return cordio::Gap::getInstance();
 }
 
-GattServer& BLE::getGattServer()
+GattServer &BLE::getGattServer()
 {
     return cordio::GattServer::getInstance();
 }
 
-const GattServer& BLE::getGattServer() const
+const GattServer &BLE::getGattServer() const
 {
     return cordio::GattServer::getInstance();
 }
 
-::GattClient& BLE::getGattClient()
+::GattClient &BLE::getGattClient()
 {
     static pal::AttClientToGattClientAdapter pal_client(
         pal::vendor::cordio::CordioAttClient::get_client()
@@ -197,12 +197,12 @@ const GattServer& BLE::getGattServer() const
     return client;
 }
 
-SecurityManager& BLE::getSecurityManager()
+SecurityManager &BLE::getSecurityManager()
 {
     return cordio::SecurityManager::getInstance();
 }
 
-const SecurityManager& BLE::getSecurityManager() const
+const SecurityManager &BLE::getSecurityManager() const
 {
     return cordio::SecurityManager::getInstance();
 }
@@ -227,18 +227,18 @@ void BLE::waitForEvent()
 void BLE::processEvents()
 {
     if (isEventsSignaled) {
-         isEventsSignaled = false;
-         callDispatcher();
-     }
- }
+        isEventsSignaled = false;
+        callDispatcher();
+    }
+}
 
- void BLE::stack_handler(wsfEventMask_t event, wsfMsgHdr_t* msg)
- {
+void BLE::stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg)
+{
     if (msg == NULL) {
         return;
     }
 
-    switch(msg->event) {
+    switch (msg->event) {
         case DM_RESET_CMPL_IND: {
             ::BLE::InitializationCompleteCallbackContext context = {
                 ::BLE::Instance(::BLE::DEFAULT_INSTANCE),
@@ -248,7 +248,8 @@ void BLE::processEvents()
             deviceInstance().getGap().initialize();
             deviceInstance().initialization_status = INITIALIZED;
             _init_callback.call(&context);
-        }   break;
+        }
+        break;
 
         case DM_ADV_START_IND:
             break;
@@ -258,7 +259,7 @@ void BLE::processEvents()
             break;
 
         case DM_SCAN_REPORT_IND: {
-            hciLeAdvReportEvt_t *scan_report = (hciLeAdvReportEvt_t*) msg;
+            hciLeAdvReportEvt_t *scan_report = (hciLeAdvReportEvt_t *) msg;
             Gap::getInstance().processAdvertisementReport(
                 scan_report->addr,
                 scan_report->rssi,
@@ -267,10 +268,11 @@ void BLE::processEvents()
                 scan_report->len,
                 scan_report->pData
             );
-        }   break;
+        }
+        break;
 
         case DM_CONN_OPEN_IND: {
-            hciLeConnCmplEvt_t* conn_evt = (hciLeConnCmplEvt_t*) msg;
+            hciLeConnCmplEvt_t *conn_evt = (hciLeConnCmplEvt_t *) msg;
             dmConnId_t connection_id = conn_evt->hdr.param;
             Gap::getInstance().setConnectionHandle(connection_id);
             Gap::AddressType_t own_addr_type;
@@ -293,23 +295,25 @@ void BLE::processEvents()
                 own_addr,
                 &params
             );
-        }   break;
+        }
+        break;
 
         case DM_CONN_CLOSE_IND: {
-            dmEvt_t *disconnect_evt = (dmEvt_t*) msg;
+            dmEvt_t *disconnect_evt = (dmEvt_t *) msg;
             Gap::getInstance().setConnectionHandle(DM_CONN_ID_NONE);
             Gap::getInstance().processDisconnectionEvent(
                 disconnect_evt->hdr.param,
                 (Gap::DisconnectionReason_t) disconnect_evt->connClose.reason
             );
-        }   break;
+        }
+        break;
 
         default:
             break;
     }
 }
 
-void BLE::device_manager_cb(dmEvt_t* dm_event)
+void BLE::device_manager_cb(dmEvt_t *dm_event)
 {
     BLE::deviceInstance().stack_handler(0, &dm_event->hdr);
 }
@@ -319,8 +323,8 @@ void BLE::device_manager_cb(dmEvt_t* dm_event)
  * the CCC Table of the ATT Server when a remote peer requests to Open
  * or Close the connection.
  */
- void BLE::connection_handler(dmEvt_t* dm_event)
- {
+void BLE::connection_handler(dmEvt_t *dm_event)
+{
     dmConnId_t connId = (dmConnId_t)dm_event->hdr.param;
 
     switch (dm_event->hdr.event) {
@@ -352,9 +356,9 @@ void BLE::stack_setup()
 
     // Initialize buffers with the ones provided by the HCI driver
     uint16_t bytes_used = WsfBufInit(
-        buf_pool_desc.buffer_size, buf_pool_desc.buffer_memory,
-        buf_pool_desc.pool_count, buf_pool_desc.pool_description
-    );
+                              buf_pool_desc.buffer_size, buf_pool_desc.buffer_memory,
+                              buf_pool_desc.pool_count, buf_pool_desc.pool_description
+                          );
 
     MBED_ASSERT(bytes_used != 0);
 
@@ -436,16 +440,16 @@ void BLE::callDispatcher()
         static Timeout nextTimeout;
         // setup an mbed timer for the next Cordio timeout
         bool_t pTimerRunning;
-        timestamp_t nextTimestamp = (timestamp_t) (WsfTimerNextExpiration(&pTimerRunning) * WSF_MS_PER_TICK) * 1000;
+        timestamp_t nextTimestamp = (timestamp_t)(WsfTimerNextExpiration(&pTimerRunning) * WSF_MS_PER_TICK) * 1000;
         if (pTimerRunning) {
             nextTimeout.attach_us(timeoutCallback, nextTimestamp);
         }
     }
 }
 
-CordioHCIDriver* BLE::_hci_driver = NULL;
+CordioHCIDriver *BLE::_hci_driver = NULL;
 
-FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext*> BLE::_init_callback;
+FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext *> BLE::_init_callback;
 
 } // namespace cordio
 } // namespace vendor

@@ -30,7 +30,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -38,7 +38,7 @@
 #define __STM32F0xx_HAL_PWR_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,7 +52,7 @@
   * @{
   */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 
 /** @defgroup PWREx_Exported_Types PWREx Exported Types
  *  @{
@@ -65,18 +65,17 @@
 /**
   * @brief  PWR PVD configuration structure definition
   */
-typedef struct
-{
-  uint32_t PVDLevel;   /*!< PVDLevel: Specifies the PVD detection level
+typedef struct {
+    uint32_t PVDLevel;   /*!< PVDLevel: Specifies the PVD detection level
                             This parameter can be a value of @ref PWREx_PVD_detection_level */
 
-  uint32_t Mode;       /*!< Mode: Specifies the operating mode for the selected pins.
+    uint32_t Mode;       /*!< Mode: Specifies the operating mode for the selected pins.
                             This parameter can be a value of @ref PWREx_PVD_Mode */
-}PWR_PVDTypeDef;
+} PWR_PVDTypeDef;
 
 #endif /* defined (STM32F031x6) || defined (STM32F042x6) || defined (STM32F051x8) || */
-       /* defined (STM32F071xB) || defined (STM32F072xB) || */
-       /* defined (STM32F091xC) */
+/* defined (STM32F071xB) || defined (STM32F072xB) || */
+/* defined (STM32F091xC) */
 /**
   * @}
   */
@@ -162,9 +161,9 @@ typedef struct
 #define PWR_EXTI_LINE_PVD                   ((uint32_t)EXTI_IMR_MR16)  /*!< External interrupt line 16 Connected to the PVD EXTI Line */
 
 #endif /* defined (STM32F031x6) || defined (STM32F042x6) || defined (STM32F051x8) || */
-       /* defined (STM32F071xB) || defined (STM32F072xB) || */
-       /* defined (STM32F091xC) */
-      
+/* defined (STM32F071xB) || defined (STM32F072xB) || */
+/* defined (STM32F091xC) */
+
 #if defined (STM32F042x6) || defined (STM32F048xx) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
     defined (STM32F091xC) || defined (STM32F098xx)
@@ -219,8 +218,8 @@ typedef struct
   * @}
   */
 #endif /* defined (STM32F031x6) || defined (STM32F042x6) || defined (STM32F051x8) || */
-       /* defined (STM32F071xB) || defined (STM32F072xB) || */
-       /* defined (STM32F091xC) */
+/* defined (STM32F071xB) || defined (STM32F072xB) || */
+/* defined (STM32F091xC) */
 
 /** @defgroup PWREx_Flag PWREx Flag
   * @{
@@ -242,16 +241,16 @@ typedef struct
 #define PWR_FLAG_SB                         PWR_CSR_SBF
 
 #endif /* defined (STM32F031x6) || defined (STM32F042x6) || defined (STM32F051x8) || */
-       /* defined (STM32F071xB) || defined (STM32F072xB) || */
-       /* defined (STM32F091xC) */
+/* defined (STM32F071xB) || defined (STM32F072xB) || */
+/* defined (STM32F091xC) */
 /**
   * @}
   */
 
 /**
   * @}
-  */ 
-  
+  */
+
 /* Exported macro ------------------------------------------------------------*/
 /** @defgroup PWREx_Exported_Macros PWREx Exported Macros
   * @{
@@ -339,8 +338,8 @@ typedef struct
 #define __HAL_PWR_PVD_EXTI_GENERATE_SWIT()  (EXTI->SWIER |= (PWR_EXTI_LINE_PVD))
 
 #endif /* defined (STM32F031x6) || defined (STM32F042x6) || defined (STM32F051x8) || */
-       /* defined (STM32F071xB) || defined (STM32F072xB) || */
-       /* defined (STM32F091xC) */
+/* defined (STM32F071xB) || defined (STM32F072xB) || */
+/* defined (STM32F091xC) */
 
 
 #if defined (STM32F042x6) || defined (STM32F048xx) || \
@@ -367,7 +366,7 @@ typedef struct
                             EXTI->FTSR &= ~(PWR_EXTI_LINE_VDDIO2);   \
                             EXTI->RTSR &= ~(PWR_EXTI_LINE_VDDIO2);   \
                           } while(0)
-                    
+
 /**
   * @brief  Vddio2 Monitor EXTI line configuration: set falling edge trigger.
   * @retval None.
@@ -417,8 +416,8 @@ typedef struct
 void HAL_PWR_PVD_IRQHandler(void);
 void HAL_PWR_PVDCallback(void);
 #endif /* defined (STM32F031x6) || defined (STM32F042x6) || defined (STM32F051x8) || */
-       /* defined (STM32F071xB) || defined (STM32F072xB) || */
-       /* defined (STM32F091xC) */
+/* defined (STM32F071xB) || defined (STM32F072xB) || */
+/* defined (STM32F091xC) */
 
 #if defined (STM32F042x6) || defined (STM32F048xx) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
@@ -437,9 +436,9 @@ void HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD);
 void HAL_PWR_EnablePVD(void);
 void HAL_PWR_DisablePVD(void);
 #endif /* defined (STM32F031x6) || defined (STM32F042x6) || defined (STM32F051x8) || */
-       /* defined (STM32F071xB) || defined (STM32F072xB) || */
-       /* defined (STM32F091xC) */
-       
+/* defined (STM32F071xB) || defined (STM32F072xB) || */
+/* defined (STM32F091xC) */
+
 #if defined (STM32F042x6) || defined (STM32F048xx) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
     defined (STM32F091xC) || defined (STM32F098xx)

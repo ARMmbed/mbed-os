@@ -85,7 +85,7 @@ typedef enum {
     ADI_ADC_INVALID_OPERATION,                /*!< API call is an invalid operation */
     ADI_ADC_INVALID_BUFFER,                   /*!< Buffer passed to the application is invalid */
     ADI_ADC_BUFFER_OVERFLOW,                  /*!< Buffer overflow occurred */
-    ADI_ADC_DMA_ERROR,			      /*!< DMA Error occurred */
+    ADI_ADC_DMA_ERROR,                /*!< DMA Error occurred */
     ADI_ADC_BAD_SYS_CLOCK,                    /*!< Could not retrieve core clock value. */
 } ADI_ADC_RESULT;
 
@@ -136,8 +136,8 @@ typedef uint32_t ADI_ADC_CHANNEL;
  */
 typedef enum {
     ADI_ADC_EVENT_CALIBRATION_DONE,         /*!< Calibration done event.   arg to the callback function will be NULL. */
-    ADI_ADC_EVENT_ADC_READY,	            /*!< ADC Ready event.          arg to the callback function will be null */
-    ADI_ADC_EVENT_OVERFLOW,                 /*!< Overflow event occurred.  The channel(#ADI_ADC_CHANNEL) for which the overflow occurred will be passed as arg to the callback function. */	
+    ADI_ADC_EVENT_ADC_READY,                /*!< ADC Ready event.          arg to the callback function will be null */
+    ADI_ADC_EVENT_OVERFLOW,                 /*!< Overflow event occurred.  The channel(#ADI_ADC_CHANNEL) for which the overflow occurred will be passed as arg to the callback function. */
     ADI_ADC_EVENT_HIGH_LIMIT_CROSSED,       /*!< High Limit crossed event. The channel(#ADI_ADC_CHANNEL) for which the limit is crossed will be passed as arg to the callback function. */
     ADI_ADC_EVENT_LOW_LIMIT_CROSSED,        /*!< Low Limit crossed event.  The channel(#ADI_ADC_CHANNEL) for which the limit is crossed will be passed as arg to the callback function.  */
 } ADI_ADC_EVENT;
@@ -145,7 +145,7 @@ typedef enum {
 /*! Structure which hold the details of the buffer and sampling details */
 typedef struct __ADI_ADC_BUFFER {
     uint32_t  nChannels;                    /*!<    Channels to sample. Should be an ORed value of #ADI_ADC_CHANNEL enum */
-    void*     pDataBuffer;                  /*!<    Pointer to the Buffer to read the sample value into. If single channel(say Channel 0) is selected
+    void     *pDataBuffer;                  /*!<    Pointer to the Buffer to read the sample value into. If single channel(say Channel 0) is selected
                                                     then the format of buffer will be <Chan0 conversion 0><Chan0 conversion 1><Chan0 conversion 2>.... but if
                                                     multiple channels (say Channel 1 and Channel2) are selected then the format of buffer will be
                                                     <Chan1 conversion 0><Chan2 conversion 0><Chan1 conversion 1><Chan2 conversion 1><Chan1 conversion 2><Chan2 conversion 2>....
@@ -160,24 +160,24 @@ typedef struct __ADI_ADC_BUFFER {
 } ADI_ADC_BUFFER;
 
 /* Type def for the ADC Handle. */
-typedef struct __ADI_ADC_DEVICE* ADI_ADC_HANDLE;  /*!< ADC Device Handler */
+typedef struct __ADI_ADC_DEVICE *ADI_ADC_HANDLE;  /*!< ADC Device Handler */
 
 
 /*=============  A P I   F U N C T I O N S    P R O T O T Y P E S  =============*/
 
 /* Opens an ADC device instance. */
-ADI_ADC_RESULT adi_adc_Open (
-        uint32_t        nDeviceNum,
-        void*           pMemory,
-        uint32_t        nMemorySize,
-        ADI_ADC_HANDLE* phDevice
+ADI_ADC_RESULT adi_adc_Open(
+    uint32_t        nDeviceNum,
+    void           *pMemory,
+    uint32_t        nMemorySize,
+    ADI_ADC_HANDLE *phDevice
 );
 
 /*  Close the given device instance */
 ADI_ADC_RESULT adi_adc_Close(ADI_ADC_HANDLE hDevice);
 
 /* Power up or power down the ADC */
-ADI_ADC_RESULT adi_adc_PowerUp (ADI_ADC_HANDLE hDevice, bool bPowerUp);
+ADI_ADC_RESULT adi_adc_PowerUp(ADI_ADC_HANDLE hDevice, bool bPowerUp);
 
 /* Register the callback */
 ADI_ADC_RESULT adi_adc_RegisterCallback(
@@ -187,38 +187,38 @@ ADI_ADC_RESULT adi_adc_RegisterCallback(
 );
 
 /* Enables/Disables the ADC Subsystem */
- ADI_ADC_RESULT adi_adc_EnableADCSubSystem (
+ADI_ADC_RESULT adi_adc_EnableADCSubSystem(
     ADI_ADC_HANDLE  hDevice,
     bool            bEnable
 );
 
 /* Returns whether the ADC subsytem is ready */
-ADI_ADC_RESULT adi_adc_IsReady (
-     ADI_ADC_HANDLE  hDevice,
-     bool           *pbReady
+ADI_ADC_RESULT adi_adc_IsReady(
+    ADI_ADC_HANDLE  hDevice,
+    bool           *pbReady
 );
 
 /* Set the voltage reference source */
-ADI_ADC_RESULT adi_adc_SetVrefSource (
+ADI_ADC_RESULT adi_adc_SetVrefSource(
     ADI_ADC_HANDLE    hDevice,
     ADI_ADC_VREF_SRC  eVrefSrc
 );
 
 /* Enable/Disable current sink */
-ADI_ADC_RESULT adi_adc_SinkEnable (
+ADI_ADC_RESULT adi_adc_SinkEnable(
     ADI_ADC_HANDLE   hDevice,
     bool             bEnable
 );
 
 /* Start the ADC Calibration */
-ADI_ADC_RESULT adi_adc_StartCalibration (
+ADI_ADC_RESULT adi_adc_StartCalibration(
     ADI_ADC_HANDLE hDevice
 );
 
- ADI_ADC_RESULT adi_adc_IsCalibrationDone (
-     ADI_ADC_HANDLE hDevice,
-     bool*          pbCalibrationDone
- );
+ADI_ADC_RESULT adi_adc_IsCalibrationDone(
+    ADI_ADC_HANDLE hDevice,
+    bool          *pbCalibrationDone
+);
 
 
 /* Set the acquisition time of ADC in ADC clock cycles */
@@ -234,19 +234,19 @@ ADI_ADC_RESULT adi_adc_SetDelayTime(
 );
 
 /* set the resolution of ADC. The default resolution of ADC is 12-bit and the ADC increases the resolution by oversampling */
-ADI_ADC_RESULT adi_adc_SetResolution (
-   ADI_ADC_HANDLE      hDevice,
-   ADI_ADC_RESOLUTION  eResolution
+ADI_ADC_RESULT adi_adc_SetResolution(
+    ADI_ADC_HANDLE      hDevice,
+    ADI_ADC_RESOLUTION  eResolution
 );
 
 /* Enable Averaging for all ADC channels */
-ADI_ADC_RESULT adi_adc_EnableAveraging (
+ADI_ADC_RESULT adi_adc_EnableAveraging(
     ADI_ADC_HANDLE  hDevice,
     uint16_t        nAveragingSamples
 );
 
 /* Configure low limit for an ADC channel when it's used as a digital comparator. */
-ADI_ADC_RESULT adi_adc_SetLowLimit (
+ADI_ADC_RESULT adi_adc_SetLowLimit(
     ADI_ADC_HANDLE   hDevice,
     ADI_ADC_CHANNEL  eChannel,
     bool             bEnable,
@@ -254,7 +254,7 @@ ADI_ADC_RESULT adi_adc_SetLowLimit (
 );
 
 /* Configure high limit for an ADC channel when it's used as a digital comparator. */
-ADI_ADC_RESULT adi_adc_SetHighLimit (
+ADI_ADC_RESULT adi_adc_SetHighLimit(
     ADI_ADC_HANDLE   hDevice,
     ADI_ADC_CHANNEL  eChannel,
     bool             bEnable,
@@ -278,25 +278,25 @@ ADI_ADC_RESULT adi_adc_SetNumMonitorCycles(
 );
 
 /*  Enable/Disable digital comparator for the given channel(s) */
-ADI_ADC_RESULT adi_adc_EnableDigitalComparator (
+ADI_ADC_RESULT adi_adc_EnableDigitalComparator(
     ADI_ADC_HANDLE   hDevice,
     bool             bEnableComparator
 );
 
 /* Submit buffer for sampling */
-ADI_ADC_RESULT adi_adc_SubmitBuffer (
+ADI_ADC_RESULT adi_adc_SubmitBuffer(
     ADI_ADC_HANDLE      hDevice,
-    ADI_ADC_BUFFER*     pBuffer
+    ADI_ADC_BUFFER     *pBuffer
 );
 
 /* Get a completed buffer from the driver */
 ADI_ADC_RESULT adi_adc_GetBuffer(
     ADI_ADC_HANDLE      hDevice,
-    ADI_ADC_BUFFER**    ppBuffer
+    ADI_ADC_BUFFER    **ppBuffer
 );
 
 /* Enable/Disable buffer processing */
-ADI_ADC_RESULT adi_adc_Enable (
+ADI_ADC_RESULT adi_adc_Enable(
     ADI_ADC_HANDLE  hDevice,
     bool            bEnable
 );
@@ -304,37 +304,37 @@ ADI_ADC_RESULT adi_adc_Enable (
 /* Check whether a completed buffer is available in the driver */
 ADI_ADC_RESULT adi_adc_IsBufferAvailable(
     ADI_ADC_HANDLE      hDevice,
-    bool*               pbIsBufferAvailable
+    bool               *pbIsBufferAvailable
 );
 
 /* Read the given channels. This will only return once the given amount of samples are collected */
-ADI_ADC_RESULT adi_adc_ReadChannels (
+ADI_ADC_RESULT adi_adc_ReadChannels(
     ADI_ADC_HANDLE   hDevice,
     uint32_t         nChannels,
     uint32_t         nNumConversionPasses,
-    void*            pBuffer,
+    void            *pBuffer,
     uint32_t         nBuffLength
 );
 
 /* Get Battery Voltage */
-ADI_ADC_RESULT adi_adc_GetBatteryVoltage (
+ADI_ADC_RESULT adi_adc_GetBatteryVoltage(
     ADI_ADC_HANDLE  hDevice,
     uint32_t        nRefVoltage,
-    uint32_t*       pnBatVoltage
+    uint32_t       *pnBatVoltage
 );
 
 /* Enable/Disable Temperature Sensor */
-ADI_ADC_RESULT adi_adc_EnableTemperatureSensor (
+ADI_ADC_RESULT adi_adc_EnableTemperatureSensor(
     ADI_ADC_HANDLE hDevice,
     bool           bEnable
-    );
+);
 
 /* Get the Temperature Value */
-ADI_ADC_RESULT adi_adc_GetTemperature (
+ADI_ADC_RESULT adi_adc_GetTemperature(
     ADI_ADC_HANDLE  hDevice,
     uint32_t        nRefVoltage,
-    int32_t*        pnTemperature
-    );
+    int32_t        *pnTemperature
+);
 
 #ifdef __cplusplus
 }

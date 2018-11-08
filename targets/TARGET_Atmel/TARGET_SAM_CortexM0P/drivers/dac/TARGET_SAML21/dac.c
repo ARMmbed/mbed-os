@@ -271,11 +271,11 @@ void dac_enable(
         system_voltage_reference_enable(SYSTEM_VOLTAGE_REFERENCE_OUTPUT);
     }
 
-    if(dac_module->DACCTRL[DAC_CHANNEL_0].reg & DAC_DACCTRL_ENABLE) {
-        while(! (dac_module->STATUS.reg & DAC_STATUS_READY(DAC_CHANNEL_0 + 1))) {
+    if (dac_module->DACCTRL[DAC_CHANNEL_0].reg & DAC_DACCTRL_ENABLE) {
+        while (!(dac_module->STATUS.reg & DAC_STATUS_READY(DAC_CHANNEL_0 + 1))) {
         };
-    } else if(dac_module->DACCTRL[DAC_CHANNEL_1].reg & DAC_DACCTRL_ENABLE) {
-        while(! (dac_module->STATUS.reg & DAC_STATUS_READY(DAC_CHANNEL_1 + 1))) {
+    } else if (dac_module->DACCTRL[DAC_CHANNEL_1].reg & DAC_DACCTRL_ENABLE) {
+        while (!(dac_module->STATUS.reg & DAC_STATUS_READY(DAC_CHANNEL_1 + 1))) {
         };
     }
 }
@@ -458,11 +458,11 @@ void dac_chan_set_config(
     pin_conf.direction    = SYSTEM_PINMUX_PIN_DIR_INPUT;
     pin_conf.input_pull   = SYSTEM_PINMUX_PIN_PULL_NONE;
 
-    if(channel == DAC_CHANNEL_0) {
+    if (channel == DAC_CHANNEL_0) {
         /* Set up the DAC VOUT0 pin */
         pin_conf.mux_position = MUX_PA02B_DAC_VOUT0;
         system_pinmux_pin_set_config(PIN_PA02B_DAC_VOUT0, &pin_conf);
-    } else if(channel == DAC_CHANNEL_1) {
+    } else if (channel == DAC_CHANNEL_1) {
         /* Set up the DAC VOUT1 pin */
         pin_conf.mux_position = MUX_PA05B_DAC_VOUT1;
         system_pinmux_pin_set_config(PIN_PA05B_DAC_VOUT1, &pin_conf);
@@ -653,13 +653,13 @@ enum status_code dac_chan_write_buffer_wait(
 
         /* Wait until Transmit is complete or timeout */
         for (uint32_t i = 0; i <= DAC_TIMEOUT; i++) {
-            if(channel == DAC_CHANNEL_0) {
+            if (channel == DAC_CHANNEL_0) {
                 if (dac_module->INTFLAG.reg & DAC_INTFLAG_EMPTY0) {
                     break;
                 } else if (i == DAC_TIMEOUT) {
                     return STATUS_ERR_TIMEOUT;
                 }
-            } else if(channel == DAC_CHANNEL_1) {
+            } else if (channel == DAC_CHANNEL_1) {
                 if (dac_module->INTFLAG.reg & DAC_INTFLAG_EMPTY1) {
                     break;
                 } else if (i == DAC_TIMEOUT) {
@@ -694,7 +694,7 @@ bool dac_chan_is_end_of_conversion(
 
     Dac *const dac_module = module_inst->hw;
 
-    if(dac_module->STATUS.reg & DAC_STATUS_EOC(channel + 1)) {
+    if (dac_module->STATUS.reg & DAC_STATUS_EOC(channel + 1)) {
         return true;
     } else {
         return false;

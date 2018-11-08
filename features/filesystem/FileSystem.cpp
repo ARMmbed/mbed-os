@@ -134,7 +134,8 @@ size_t FileSystem::dir_size(fs_dir_t dir)
 template <typename F>
 class Managed : public F {
 public:
-    virtual int close() {
+    virtual int close()
+    {
         int err = F::close();
         delete this;
         return err;
@@ -154,7 +155,8 @@ int FileSystem::open(FileHandle **file, const char *path, int flags)
     return 0;
 }
 
-int FileSystem::open(DirHandle **dir, const char *path) {
+int FileSystem::open(DirHandle **dir, const char *path)
+{
     Dir *d = new Managed<Dir>;
     int err = d->open(this, path);
     if (err) {

@@ -107,11 +107,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
 
     // Set the obj pointer to the proper uart
-    obj->uart = (mxc_uart_regs_t*)uart;
+    obj->uart = (mxc_uart_regs_t *)uart;
 
     // Set the uart index
     obj->index = MXC_UART_GET_IDX(obj->uart);
-    obj->fifo = (mxc_uart_fifo_regs_t*)MXC_UART_GET_BASE_FIFO(obj->index);
+    obj->fifo = (mxc_uart_fifo_regs_t *)MXC_UART_GET_BASE_FIFO(obj->index);
 
     // Configure the pins
     pinmap_pinout(tx, PinMap_UART_TX);
@@ -147,7 +147,7 @@ void serial_baud(serial_t *obj, int baudrate)
     MBED_ASSERT(MXC_CLKMAN->sys_clk_ctrl_8_uart > MXC_S_CLKMAN_CLK_SCALE_DISABLED);
 
     // Calculate the integer and decimal portions
-    baud_setting = SystemCoreClock / (1<<(MXC_CLKMAN->sys_clk_ctrl_8_uart-1));
+    baud_setting = SystemCoreClock / (1 << (MXC_CLKMAN->sys_clk_ctrl_8_uart - 1));
     baud_setting = baud_setting / (baudrate * 16);
 
     // If the result doesn't fit in the register
@@ -204,7 +204,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 }
 
 //******************************************************************************
-void uart_handler(mxc_uart_regs_t* uart, int id)
+void uart_handler(mxc_uart_regs_t *uart, int id)
 {
     // Check for errors or RX Threshold
     if (uart->intfl & (MXC_F_UART_INTFL_RX_FIFO_NOT_EMPTY | UART_ERRORS)) {
@@ -223,10 +223,22 @@ void uart_handler(mxc_uart_regs_t* uart, int id)
     }
 }
 
-void uart0_handler(void) { uart_handler(MXC_UART0, 0); }
-void uart1_handler(void) { uart_handler(MXC_UART1, 1); }
-void uart2_handler(void) { uart_handler(MXC_UART2, 2); }
-void uart3_handler(void) { uart_handler(MXC_UART3, 3); }
+void uart0_handler(void)
+{
+    uart_handler(MXC_UART0, 0);
+}
+void uart1_handler(void)
+{
+    uart_handler(MXC_UART1, 1);
+}
+void uart2_handler(void)
+{
+    uart_handler(MXC_UART2, 2);
+}
+void uart3_handler(void)
+{
+    uart_handler(MXC_UART3, 3);
+}
 
 //******************************************************************************
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
@@ -310,9 +322,9 @@ int serial_getc(serial_t *obj)
 void serial_putc(serial_t *obj, int c)
 {
     // Wait for TXFIFO to not be full
-    while ( ((obj->uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY)
+    while (((obj->uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY)
             >> MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY_POS)
-            >= MXC_UART_FIFO_DEPTH );
+            >= MXC_UART_FIFO_DEPTH);
 
     // Must clear before every write to the buffer to know that the fifo
     // is empty when the TX DONE bit is set
@@ -329,9 +341,9 @@ int serial_readable(serial_t *obj)
 //******************************************************************************
 int serial_writable(serial_t *obj)
 {
-    return ( ((obj->uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY) 
+    return (((obj->uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY)
              >> MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY_POS)
-             < MXC_UART_FIFO_DEPTH );
+            < MXC_UART_FIFO_DEPTH);
 }
 
 //******************************************************************************
@@ -347,7 +359,7 @@ void serial_clear(serial_t *obj)
 void serial_break_set(serial_t *obj)
 {
     // Make sure that nothing is being sent
-    while ( ((obj->uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY)
+    while (((obj->uart->tx_fifo_ctrl & MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY)
             >> MXC_F_UART_TX_FIFO_CTRL_FIFO_ENTRY_POS) > 0);
     while (!(obj->uart->intfl & MXC_F_UART_INTFL_TX_DONE));
 

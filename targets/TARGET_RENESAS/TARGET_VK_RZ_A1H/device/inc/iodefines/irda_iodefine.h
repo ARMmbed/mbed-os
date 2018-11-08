@@ -29,8 +29,8 @@
 #ifndef IRDA_IODEFINE_H
 #define IRDA_IODEFINE_H
 
-struct st_irda
-{                                                          /* IRDA             */
+struct st_irda {
+    /* IRDA             */
     volatile uint8_t   IRCR;                                   /*  IRCR            */
 };
 

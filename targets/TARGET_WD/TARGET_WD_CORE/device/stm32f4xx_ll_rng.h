@@ -141,7 +141,7 @@ extern "C" {
   */
 __STATIC_INLINE void LL_RNG_Enable(RNG_TypeDef *RNGx)
 {
-  SET_BIT(RNGx->CR, RNG_CR_RNGEN);
+    SET_BIT(RNGx->CR, RNG_CR_RNGEN);
 }
 
 /**
@@ -152,7 +152,7 @@ __STATIC_INLINE void LL_RNG_Enable(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE void LL_RNG_Disable(RNG_TypeDef *RNGx)
 {
-  CLEAR_BIT(RNGx->CR, RNG_CR_RNGEN);
+    CLEAR_BIT(RNGx->CR, RNG_CR_RNGEN);
 }
 
 /**
@@ -163,7 +163,7 @@ __STATIC_INLINE void LL_RNG_Disable(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE uint32_t LL_RNG_IsEnabled(RNG_TypeDef *RNGx)
 {
-  return (READ_BIT(RNGx->CR, RNG_CR_RNGEN) == (RNG_CR_RNGEN));
+    return (READ_BIT(RNGx->CR, RNG_CR_RNGEN) == (RNG_CR_RNGEN));
 }
 
 /**
@@ -182,7 +182,7 @@ __STATIC_INLINE uint32_t LL_RNG_IsEnabled(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE uint32_t LL_RNG_IsActiveFlag_DRDY(RNG_TypeDef *RNGx)
 {
-  return (READ_BIT(RNGx->SR, RNG_SR_DRDY) == (RNG_SR_DRDY));
+    return (READ_BIT(RNGx->SR, RNG_SR_DRDY) == (RNG_SR_DRDY));
 }
 
 /**
@@ -193,7 +193,7 @@ __STATIC_INLINE uint32_t LL_RNG_IsActiveFlag_DRDY(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE uint32_t LL_RNG_IsActiveFlag_CECS(RNG_TypeDef *RNGx)
 {
-  return (READ_BIT(RNGx->SR, RNG_SR_CECS) == (RNG_SR_CECS));
+    return (READ_BIT(RNGx->SR, RNG_SR_CECS) == (RNG_SR_CECS));
 }
 
 /**
@@ -204,7 +204,7 @@ __STATIC_INLINE uint32_t LL_RNG_IsActiveFlag_CECS(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE uint32_t LL_RNG_IsActiveFlag_SECS(RNG_TypeDef *RNGx)
 {
-  return (READ_BIT(RNGx->SR, RNG_SR_SECS) == (RNG_SR_SECS));
+    return (READ_BIT(RNGx->SR, RNG_SR_SECS) == (RNG_SR_SECS));
 }
 
 /**
@@ -215,7 +215,7 @@ __STATIC_INLINE uint32_t LL_RNG_IsActiveFlag_SECS(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE uint32_t LL_RNG_IsActiveFlag_CEIS(RNG_TypeDef *RNGx)
 {
-  return (READ_BIT(RNGx->SR, RNG_SR_CEIS) == (RNG_SR_CEIS));
+    return (READ_BIT(RNGx->SR, RNG_SR_CEIS) == (RNG_SR_CEIS));
 }
 
 /**
@@ -226,7 +226,7 @@ __STATIC_INLINE uint32_t LL_RNG_IsActiveFlag_CEIS(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE uint32_t LL_RNG_IsActiveFlag_SEIS(RNG_TypeDef *RNGx)
 {
-  return (READ_BIT(RNGx->SR, RNG_SR_SEIS) == (RNG_SR_SEIS));
+    return (READ_BIT(RNGx->SR, RNG_SR_SEIS) == (RNG_SR_SEIS));
 }
 
 /**
@@ -237,7 +237,7 @@ __STATIC_INLINE uint32_t LL_RNG_IsActiveFlag_SEIS(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE void LL_RNG_ClearFlag_CEIS(RNG_TypeDef *RNGx)
 {
-  WRITE_REG(RNGx->SR, ~RNG_SR_CEIS);
+    WRITE_REG(RNGx->SR, ~RNG_SR_CEIS);
 }
 
 /**
@@ -248,7 +248,7 @@ __STATIC_INLINE void LL_RNG_ClearFlag_CEIS(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE void LL_RNG_ClearFlag_SEIS(RNG_TypeDef *RNGx)
 {
-  WRITE_REG(RNGx->SR, ~RNG_SR_SEIS);
+    WRITE_REG(RNGx->SR, ~RNG_SR_SEIS);
 }
 
 /**
@@ -268,7 +268,7 @@ __STATIC_INLINE void LL_RNG_ClearFlag_SEIS(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE void LL_RNG_EnableIT(RNG_TypeDef *RNGx)
 {
-  SET_BIT(RNGx->CR, RNG_CR_IE);
+    SET_BIT(RNGx->CR, RNG_CR_IE);
 }
 
 /**
@@ -280,7 +280,7 @@ __STATIC_INLINE void LL_RNG_EnableIT(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE void LL_RNG_DisableIT(RNG_TypeDef *RNGx)
 {
-  CLEAR_BIT(RNGx->CR, RNG_CR_IE);
+    CLEAR_BIT(RNGx->CR, RNG_CR_IE);
 }
 
 /**
@@ -292,7 +292,7 @@ __STATIC_INLINE void LL_RNG_DisableIT(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE uint32_t LL_RNG_IsEnabledIT(RNG_TypeDef *RNGx)
 {
-  return (READ_BIT(RNGx->CR, RNG_CR_IE) == (RNG_CR_IE));
+    return (READ_BIT(RNGx->CR, RNG_CR_IE) == (RNG_CR_IE));
 }
 
 /**
@@ -311,7 +311,7 @@ __STATIC_INLINE uint32_t LL_RNG_IsEnabledIT(RNG_TypeDef *RNGx)
   */
 __STATIC_INLINE uint32_t LL_RNG_ReadRandData32(RNG_TypeDef *RNGx)
 {
-  return (uint32_t)(READ_REG(RNGx->DR));
+    return (uint32_t)(READ_REG(RNGx->DR));
 }
 
 /**

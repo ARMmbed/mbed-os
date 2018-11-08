@@ -50,8 +50,7 @@ typedef struct _qspi_edma_handle qspi_edma_handle_t;
 typedef void (*qspi_edma_callback_t)(QuadSPI_Type *base, qspi_edma_handle_t *handle, status_t status, void *userData);
 
 /*! @brief QSPI DMA transfer handle, users should not touch the content of the handle.*/
-struct _qspi_edma_handle
-{
+struct _qspi_edma_handle {
     edma_handle_t *dmaHandle;      /*!< eDMA handler for QSPI send */
     size_t transferSize;           /*!< Bytes need to transfer. */
     uint8_t count;                 /*!< The transfer data count in a DMA request */

@@ -22,28 +22,28 @@ extern "C" {
 
 // All the timing information for state transitions
 typedef struct StateTimings {
-  int32_t rxChainDelayNs;
+    int32_t rxChainDelayNs;
 #if (_SILICON_LABS_32B_SERIES_1_CONFIG == 1) \
   || (_SILICON_LABS_32B_SERIES_1_CONFIG == 4)
-  // On Dumbo the RX2TX time is based on the RXDONE time, which is stable enough
-  // for our purposes. However, the timestamp is still based on FRAMEDET, so we
-  // need two delays, one for the chain delay (FRAMEDET delay), and the second
-  // for the RXDONE delay, which we use for RX2TX transitions only.
+    // On Dumbo the RX2TX time is based on the RXDONE time, which is stable enough
+    // for our purposes. However, the timestamp is still based on FRAMEDET, so we
+    // need two delays, one for the chain delay (FRAMEDET delay), and the second
+    // for the RXDONE delay, which we use for RX2TX transitions only.
 
-  // On Nixi the RX2TX time and the timestamp are based on RXDONE. The chain
-  // delay for RX only calculates how long we need to stay in RX to get SYNC,
-  // which does not need to be precise. (And hard to measure.)
-  int32_t rxDoneDelayNs;
+    // On Nixi the RX2TX time and the timestamp are based on RXDONE. The chain
+    // delay for RX only calculates how long we need to stay in RX to get SYNC,
+    // which does not need to be precise. (And hard to measure.)
+    int32_t rxDoneDelayNs;
 #endif
-  int32_t txChainDelayNs;
-  uint16_t rxSearch;
-  uint16_t txToRxSearch;
-  uint16_t rxWarm;
-  uint16_t rxToTx;
-  uint16_t rxFrameToTx;
-  uint16_t txWarm;
-  uint16_t txToRx;
-  uint16_t txToTx;
+    int32_t txChainDelayNs;
+    uint16_t rxSearch;
+    uint16_t txToRxSearch;
+    uint16_t rxWarm;
+    uint16_t rxToTx;
+    uint16_t rxFrameToTx;
+    uint16_t txWarm;
+    uint16_t txToRx;
+    uint16_t txToTx;
 } StateTimings_t;
 
 /** @} (end addtogroup TIMING) */

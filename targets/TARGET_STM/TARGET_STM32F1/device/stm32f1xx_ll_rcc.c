@@ -39,9 +39,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_ll_rcc.h"
 #ifdef  USE_FULL_ASSERT
-  #include "stm32_assert.h"
+#include "stm32_assert.h"
 #else
-  #define assert_param(expr) ((void)0U)
+#define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */
 /** @addtogroup STM32F1xx_LL_Driver
   * @{
@@ -106,7 +106,7 @@ uint32_t RCC_PLL2_GetFreqClockFreq(void);
   * @brief  Reset the RCC clock configuration to the default reset state.
   * @note   The default reset state of the clock configuration is given below:
   *         - HSI ON and used as system clock source
-  *         - HSE PLL, PLL2, PLL3 OFF 
+  *         - HSE PLL, PLL2, PLL3 OFF
   *         - AHB, APB1 and APB2 prescaler set to 1.
   *         - CSS, MCO OFF
   *         - All interrupts disabled
@@ -119,74 +119,74 @@ uint32_t RCC_PLL2_GetFreqClockFreq(void);
   */
 ErrorStatus LL_RCC_DeInit(void)
 {
-  uint32_t vl_mask = 0U;
+    uint32_t vl_mask = 0U;
 
-  /* Set HSION bit */
-  LL_RCC_HSI_Enable();
+    /* Set HSION bit */
+    LL_RCC_HSI_Enable();
 
-  /* Reset SW, HPRE, PPRE, MCOSEL, PLLXTPRE, PLLSRC and ADCPRE bits */
-  vl_mask = 0xFFFFFFFFU;
-  CLEAR_BIT(vl_mask, (RCC_CFGR_SW | RCC_CFGR_HPRE | RCC_CFGR_PPRE1 | RCC_CFGR_PPRE2 | RCC_CFGR_MCOSEL |\
-            RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLSRC | RCC_CFGR_ADCPRE));
+    /* Reset SW, HPRE, PPRE, MCOSEL, PLLXTPRE, PLLSRC and ADCPRE bits */
+    vl_mask = 0xFFFFFFFFU;
+    CLEAR_BIT(vl_mask, (RCC_CFGR_SW | RCC_CFGR_HPRE | RCC_CFGR_PPRE1 | RCC_CFGR_PPRE2 | RCC_CFGR_MCOSEL | \
+                        RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLSRC | RCC_CFGR_ADCPRE));
 
 #if defined(USB)
-  /* Reset USBPRE bit */
-  CLEAR_BIT(vl_mask, RCC_CFGR_USBPRE);
+    /* Reset USBPRE bit */
+    CLEAR_BIT(vl_mask, RCC_CFGR_USBPRE);
 #elif defined(USB_OTG_FS)
-  /* Reset OTGFSPRE bit */
-  CLEAR_BIT(vl_mask, RCC_CFGR_OTGFSPRE);
+    /* Reset OTGFSPRE bit */
+    CLEAR_BIT(vl_mask, RCC_CFGR_OTGFSPRE);
 #endif /* USB */
 
 #if defined(RCC_CFGR_PLLMULL2)
-  /* Set PLL multiplication factor to 2 */
-  vl_mask |= RCC_CFGR_PLLMULL2;
+    /* Set PLL multiplication factor to 2 */
+    vl_mask |= RCC_CFGR_PLLMULL2;
 #else
-  /* Set PLL multiplication factor to 4 */
-  vl_mask |= RCC_CFGR_PLLMULL4;
+    /* Set PLL multiplication factor to 4 */
+    vl_mask |= RCC_CFGR_PLLMULL4;
 #endif /* RCC_CFGR_PLLMULL2 */
 
-  LL_RCC_WriteReg(CFGR, vl_mask);
+    LL_RCC_WriteReg(CFGR, vl_mask);
 
-  /* Reset HSEON, HSEBYP, CSSON, PLLON bits */
-  vl_mask = 0xFFFFFFFFU;
-  CLEAR_BIT(vl_mask, (RCC_CR_PLLON | RCC_CR_CSSON | RCC_CR_HSEON | RCC_CR_HSEBYP));
+    /* Reset HSEON, HSEBYP, CSSON, PLLON bits */
+    vl_mask = 0xFFFFFFFFU;
+    CLEAR_BIT(vl_mask, (RCC_CR_PLLON | RCC_CR_CSSON | RCC_CR_HSEON | RCC_CR_HSEBYP));
 
 #if defined(RCC_CR_PLL2ON)
-  /* Reset PLL2ON bit */
-  CLEAR_BIT(vl_mask, RCC_CR_PLL2ON);
+    /* Reset PLL2ON bit */
+    CLEAR_BIT(vl_mask, RCC_CR_PLL2ON);
 #endif /* RCC_CR_PLL2ON */
 
 #if defined(RCC_CR_PLL3ON)
-  /* Reset PLL3ON bit */
-  CLEAR_BIT(vl_mask, RCC_CR_PLL3ON);
+    /* Reset PLL3ON bit */
+    CLEAR_BIT(vl_mask, RCC_CR_PLL3ON);
 #endif /* RCC_CR_PLL3ON */
 
-  LL_RCC_WriteReg(CR, vl_mask);
+    LL_RCC_WriteReg(CR, vl_mask);
 
-  /* Set HSITRIM bits to the reset value */
-  LL_RCC_HSI_SetCalibTrimming(0x10U);
+    /* Set HSITRIM bits to the reset value */
+    LL_RCC_HSI_SetCalibTrimming(0x10U);
 
 #if defined(RCC_CFGR2_PREDIV1)
-  /* Reset CFGR2 register */
-  vl_mask = 0x00000000U;
+    /* Reset CFGR2 register */
+    vl_mask = 0x00000000U;
 
 #if defined(RCC_PLL2_SUPPORT)
-  /* Set PLL2 multiplication factor to 8 */
-  vl_mask |= RCC_CFGR2_PLL2MUL8;
+    /* Set PLL2 multiplication factor to 8 */
+    vl_mask |= RCC_CFGR2_PLL2MUL8;
 #endif /* RCC_PLL2_SUPPORT */
 
 #if defined(RCC_PLLI2S_SUPPORT)
-  /* Set PLL3 multiplication factor to 8 */
-  vl_mask |= RCC_CFGR2_PLL3MUL8;
+    /* Set PLL3 multiplication factor to 8 */
+    vl_mask |= RCC_CFGR2_PLL3MUL8;
 #endif /* RCC_PLLI2S_SUPPORT */
 
-  LL_RCC_WriteReg(CFGR2, vl_mask);
+    LL_RCC_WriteReg(CFGR2, vl_mask);
 #endif /* RCC_CFGR2_PREDIV1 */
 
-  /* Disable all interrupts */
-  LL_RCC_WriteReg(CIR, 0x00000000U);
+    /* Disable all interrupts */
+    LL_RCC_WriteReg(CIR, 0x00000000U);
 
-  return SUCCESS;
+    return SUCCESS;
 }
 
 /**
@@ -198,9 +198,9 @@ ErrorStatus LL_RCC_DeInit(void)
   *         and different peripheral clocks available on the device.
   * @note   If SYSCLK source is HSI, function returns values based on HSI_VALUE(**)
   * @note   If SYSCLK source is HSE, function returns values based on HSE_VALUE(***)
-  * @note   If SYSCLK source is PLL, function returns values based on 
+  * @note   If SYSCLK source is PLL, function returns values based on
   *         HSI_VALUE(**) or HSE_VALUE(***) multiplied/divided by the PLL factors.
-  * @note   (**) HSI_VALUE is a defined constant but the real value may vary 
+  * @note   (**) HSI_VALUE is a defined constant but the real value may vary
   *              depending on the variations in voltage and temperature.
   * @note   (***) HSE_VALUE is a defined constant, user has to ensure that
   *               HSE_VALUE is same as the real frequency of the crystal used.
@@ -222,17 +222,17 @@ ErrorStatus LL_RCC_DeInit(void)
   */
 void LL_RCC_GetSystemClocksFreq(LL_RCC_ClocksTypeDef *RCC_Clocks)
 {
-  /* Get SYSCLK frequency */
-  RCC_Clocks->SYSCLK_Frequency = RCC_GetSystemClockFreq();
+    /* Get SYSCLK frequency */
+    RCC_Clocks->SYSCLK_Frequency = RCC_GetSystemClockFreq();
 
-  /* HCLK clock frequency */
-  RCC_Clocks->HCLK_Frequency   = RCC_GetHCLKClockFreq(RCC_Clocks->SYSCLK_Frequency);
+    /* HCLK clock frequency */
+    RCC_Clocks->HCLK_Frequency   = RCC_GetHCLKClockFreq(RCC_Clocks->SYSCLK_Frequency);
 
-  /* PCLK1 clock frequency */
-  RCC_Clocks->PCLK1_Frequency  = RCC_GetPCLK1ClockFreq(RCC_Clocks->HCLK_Frequency);
+    /* PCLK1 clock frequency */
+    RCC_Clocks->PCLK1_Frequency  = RCC_GetPCLK1ClockFreq(RCC_Clocks->HCLK_Frequency);
 
-  /* PCLK2 clock frequency */
-  RCC_Clocks->PCLK2_Frequency  = RCC_GetPCLK2ClockFreq(RCC_Clocks->HCLK_Frequency);
+    /* PCLK2 clock frequency */
+    RCC_Clocks->PCLK2_Frequency  = RCC_GetPCLK2ClockFreq(RCC_Clocks->HCLK_Frequency);
 }
 
 #if defined(RCC_CFGR2_I2S2SRC)
@@ -245,27 +245,26 @@ void LL_RCC_GetSystemClocksFreq(LL_RCC_ClocksTypeDef *RCC_Clocks)
   */
 uint32_t LL_RCC_GetI2SClockFreq(uint32_t I2SxSource)
 {
-  uint32_t i2s_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t i2s_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_I2S_CLKSOURCE(I2SxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_I2S_CLKSOURCE(I2SxSource));
 
-  /* I2S1CLK clock frequency */
-  switch (LL_RCC_GetI2SClockSource(I2SxSource))
-  {
-    case LL_RCC_I2S2_CLKSOURCE_SYSCLK:        /*!< System clock selected as I2S clock source */
-    case LL_RCC_I2S3_CLKSOURCE_SYSCLK:
-      i2s_frequency = RCC_GetSystemClockFreq();
-      break;
+    /* I2S1CLK clock frequency */
+    switch (LL_RCC_GetI2SClockSource(I2SxSource)) {
+        case LL_RCC_I2S2_CLKSOURCE_SYSCLK:        /*!< System clock selected as I2S clock source */
+        case LL_RCC_I2S3_CLKSOURCE_SYSCLK:
+            i2s_frequency = RCC_GetSystemClockFreq();
+            break;
 
-    case LL_RCC_I2S2_CLKSOURCE_PLLI2S_VCO:    /*!< PLLI2S oscillator clock selected as I2S clock source */
-    case LL_RCC_I2S3_CLKSOURCE_PLLI2S_VCO:
-    default:
-      i2s_frequency = RCC_PLLI2S_GetFreqDomain_I2S() * 2U;
-      break;
-  }
+        case LL_RCC_I2S2_CLKSOURCE_PLLI2S_VCO:    /*!< PLLI2S oscillator clock selected as I2S clock source */
+        case LL_RCC_I2S3_CLKSOURCE_PLLI2S_VCO:
+        default:
+            i2s_frequency = RCC_PLLI2S_GetFreqDomain_I2S() * 2U;
+            break;
+    }
 
-  return i2s_frequency;
+    return i2s_frequency;
 }
 #endif /* RCC_CFGR2_I2S2SRC */
 
@@ -279,54 +278,49 @@ uint32_t LL_RCC_GetI2SClockFreq(uint32_t I2SxSource)
   */
 uint32_t LL_RCC_GetUSBClockFreq(uint32_t USBxSource)
 {
-  uint32_t usb_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t usb_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_USB_CLKSOURCE(USBxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_USB_CLKSOURCE(USBxSource));
 
-  /* USBCLK clock frequency */
-  switch (LL_RCC_GetUSBClockSource(USBxSource))
-  {
-#if defined(RCC_CFGR_USBPRE)  
-    case LL_RCC_USB_CLKSOURCE_PLL:        /* PLL clock used as USB clock source */
-      if (LL_RCC_PLL_IsReady())
-      {
-        usb_frequency = RCC_PLL_GetFreqDomain_SYS();
-      }
-      break;
+    /* USBCLK clock frequency */
+    switch (LL_RCC_GetUSBClockSource(USBxSource)) {
+#if defined(RCC_CFGR_USBPRE)
+        case LL_RCC_USB_CLKSOURCE_PLL:        /* PLL clock used as USB clock source */
+            if (LL_RCC_PLL_IsReady()) {
+                usb_frequency = RCC_PLL_GetFreqDomain_SYS();
+            }
+            break;
 
-    case LL_RCC_USB_CLKSOURCE_PLL_DIV_1_5:        /* PLL clock divided by 1.5 used as USB clock source */
-    default:
-      if (LL_RCC_PLL_IsReady())
-      {
-        usb_frequency = (RCC_PLL_GetFreqDomain_SYS() * 3U) / 2U;
-      }
-      break;
+        case LL_RCC_USB_CLKSOURCE_PLL_DIV_1_5:        /* PLL clock divided by 1.5 used as USB clock source */
+        default:
+            if (LL_RCC_PLL_IsReady()) {
+                usb_frequency = (RCC_PLL_GetFreqDomain_SYS() * 3U) / 2U;
+            }
+            break;
 #endif /* RCC_CFGR_USBPRE */
 #if defined(RCC_CFGR_OTGFSPRE)
-    /* USBCLK = PLLVCO/2 
-              = (2 x PLLCLK) / 2 
-              = PLLCLK */
-    case LL_RCC_USB_CLKSOURCE_PLL_DIV_2:        /* PLL clock used as USB clock source */
-      if (LL_RCC_PLL_IsReady())
-      {
-        usb_frequency = RCC_PLL_GetFreqDomain_SYS();
-      }
-      break;
+        /* USBCLK = PLLVCO/2
+                  = (2 x PLLCLK) / 2
+                  = PLLCLK */
+        case LL_RCC_USB_CLKSOURCE_PLL_DIV_2:        /* PLL clock used as USB clock source */
+            if (LL_RCC_PLL_IsReady()) {
+                usb_frequency = RCC_PLL_GetFreqDomain_SYS();
+            }
+            break;
 
-    /* USBCLK = PLLVCO/3 
-              = (2 x PLLCLK) / 3 */
-    case LL_RCC_USB_CLKSOURCE_PLL_DIV_3:        /* PLL clock divided by 3 used as USB clock source */
-    default:
-      if (LL_RCC_PLL_IsReady())
-      {
-        usb_frequency = (RCC_PLL_GetFreqDomain_SYS() * 2U) / 3U;
-      }
-      break;
+        /* USBCLK = PLLVCO/3
+                  = (2 x PLLCLK) / 3 */
+        case LL_RCC_USB_CLKSOURCE_PLL_DIV_3:        /* PLL clock divided by 3 used as USB clock source */
+        default:
+            if (LL_RCC_PLL_IsReady()) {
+                usb_frequency = (RCC_PLL_GetFreqDomain_SYS() * 2U) / 3U;
+            }
+            break;
 #endif /* RCC_CFGR_OTGFSPRE */
-  }
+    }
 
-  return usb_frequency;
+    return usb_frequency;
 }
 #endif /* USB */
 
@@ -338,20 +332,20 @@ uint32_t LL_RCC_GetUSBClockFreq(uint32_t USBxSource)
   */
 uint32_t LL_RCC_GetADCClockFreq(uint32_t ADCxSource)
 {
-  uint32_t adc_prescaler = 0U;
-  uint32_t adc_frequency = 0U;
+    uint32_t adc_prescaler = 0U;
+    uint32_t adc_frequency = 0U;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_ADC_CLKSOURCE(ADCxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_ADC_CLKSOURCE(ADCxSource));
 
-  /* Get ADC prescaler */
-  adc_prescaler = LL_RCC_GetADCClockSource(ADCxSource);
+    /* Get ADC prescaler */
+    adc_prescaler = LL_RCC_GetADCClockSource(ADCxSource);
 
-  /* ADC frequency = PCLK2 frequency / ADC prescaler (2, 4, 6 or 8) */
-  adc_frequency = RCC_GetPCLK2ClockFreq(RCC_GetHCLKClockFreq(RCC_GetSystemClockFreq()))
-                  / (((adc_prescaler >> POSITION_VAL(ADCxSource)) + 1U) * 2U);
+    /* ADC frequency = PCLK2 frequency / ADC prescaler (2, 4, 6 or 8) */
+    adc_frequency = RCC_GetPCLK2ClockFreq(RCC_GetHCLKClockFreq(RCC_GetSystemClockFreq()))
+                    / (((adc_prescaler >> POSITION_VAL(ADCxSource)) + 1U) * 2U);
 
-  return adc_frequency;
+    return adc_frequency;
 }
 
 /**
@@ -372,29 +366,28 @@ uint32_t LL_RCC_GetADCClockFreq(uint32_t ADCxSource)
   */
 uint32_t RCC_GetSystemClockFreq(void)
 {
-  uint32_t frequency = 0U;
+    uint32_t frequency = 0U;
 
-  /* Get SYSCLK source -------------------------------------------------------*/
-  switch (LL_RCC_GetSysClkSource())
-  {
-    case LL_RCC_SYS_CLKSOURCE_STATUS_HSI:  /* HSI used as system clock  source */
-      frequency = HSI_VALUE;
-      break;
+    /* Get SYSCLK source -------------------------------------------------------*/
+    switch (LL_RCC_GetSysClkSource()) {
+        case LL_RCC_SYS_CLKSOURCE_STATUS_HSI:  /* HSI used as system clock  source */
+            frequency = HSI_VALUE;
+            break;
 
-    case LL_RCC_SYS_CLKSOURCE_STATUS_HSE:  /* HSE used as system clock  source */
-      frequency = HSE_VALUE;
-      break;
+        case LL_RCC_SYS_CLKSOURCE_STATUS_HSE:  /* HSE used as system clock  source */
+            frequency = HSE_VALUE;
+            break;
 
-    case LL_RCC_SYS_CLKSOURCE_STATUS_PLL:  /* PLL used as system clock  source */
-      frequency = RCC_PLL_GetFreqDomain_SYS();
-      break;
+        case LL_RCC_SYS_CLKSOURCE_STATUS_PLL:  /* PLL used as system clock  source */
+            frequency = RCC_PLL_GetFreqDomain_SYS();
+            break;
 
-    default:
-      frequency = HSI_VALUE;
-      break;
-  }
+        default:
+            frequency = HSI_VALUE;
+            break;
+    }
 
-  return frequency;
+    return frequency;
 }
 
 /**
@@ -404,8 +397,8 @@ uint32_t RCC_GetSystemClockFreq(void)
   */
 uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency)
 {
-  /* HCLK clock frequency */
-  return __LL_RCC_CALC_HCLK_FREQ(SYSCLK_Frequency, LL_RCC_GetAHBPrescaler());
+    /* HCLK clock frequency */
+    return __LL_RCC_CALC_HCLK_FREQ(SYSCLK_Frequency, LL_RCC_GetAHBPrescaler());
 }
 
 /**
@@ -415,8 +408,8 @@ uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency)
   */
 uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency)
 {
-  /* PCLK1 clock frequency */
-  return __LL_RCC_CALC_PCLK1_FREQ(HCLK_Frequency, LL_RCC_GetAPB1Prescaler());
+    /* PCLK1 clock frequency */
+    return __LL_RCC_CALC_PCLK1_FREQ(HCLK_Frequency, LL_RCC_GetAPB1Prescaler());
 }
 
 /**
@@ -426,8 +419,8 @@ uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency)
   */
 uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency)
 {
-  /* PCLK2 clock frequency */
-  return __LL_RCC_CALC_PCLK2_FREQ(HCLK_Frequency, LL_RCC_GetAPB2Prescaler());
+    /* PCLK2 clock frequency */
+    return __LL_RCC_CALC_PCLK2_FREQ(HCLK_Frequency, LL_RCC_GetAPB2Prescaler());
 }
 
 /**
@@ -436,34 +429,33 @@ uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency)
   */
 uint32_t RCC_PLL_GetFreqDomain_SYS(void)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U;
+    uint32_t pllinputfreq = 0U, pllsource = 0U;
 
-  /* PLL_VCO = (HSE_VALUE, HSI_VALUE or PLL2 / PLL Predivider) * PLL Multiplicator */
+    /* PLL_VCO = (HSE_VALUE, HSI_VALUE or PLL2 / PLL Predivider) * PLL Multiplicator */
 
-  /* Get PLL source */
-  pllsource = LL_RCC_PLL_GetMainSource();
+    /* Get PLL source */
+    pllsource = LL_RCC_PLL_GetMainSource();
 
-  switch (pllsource)
-  {
-    case LL_RCC_PLLSOURCE_HSI_DIV_2: /* HSI used as PLL clock source */
-      pllinputfreq = HSI_VALUE / 2U;
-      break;
+    switch (pllsource) {
+        case LL_RCC_PLLSOURCE_HSI_DIV_2: /* HSI used as PLL clock source */
+            pllinputfreq = HSI_VALUE / 2U;
+            break;
 
-    case LL_RCC_PLLSOURCE_HSE:       /* HSE used as PLL clock source */
-      pllinputfreq = HSE_VALUE / (LL_RCC_PLL_GetPrediv() + 1U);
-      break;
+        case LL_RCC_PLLSOURCE_HSE:       /* HSE used as PLL clock source */
+            pllinputfreq = HSE_VALUE / (LL_RCC_PLL_GetPrediv() + 1U);
+            break;
 
 #if defined(RCC_PLL2_SUPPORT)
-    case LL_RCC_PLLSOURCE_PLL2:       /* PLL2 used as PLL clock source */
-      pllinputfreq = RCC_PLL2_GetFreqClockFreq() / (LL_RCC_PLL_GetPrediv() + 1U);
-      break;
+        case LL_RCC_PLLSOURCE_PLL2:       /* PLL2 used as PLL clock source */
+            pllinputfreq = RCC_PLL2_GetFreqClockFreq() / (LL_RCC_PLL_GetPrediv() + 1U);
+            break;
 #endif /* RCC_PLL2_SUPPORT */
 
-    default:
-      pllinputfreq = HSI_VALUE / 2U;
-      break;
-  }
-  return __LL_RCC_CALC_PLLCLK_FREQ(pllinputfreq, LL_RCC_PLL_GetMultiplicator());
+        default:
+            pllinputfreq = HSI_VALUE / 2U;
+            break;
+    }
+    return __LL_RCC_CALC_PLLCLK_FREQ(pllinputfreq, LL_RCC_PLL_GetMultiplicator());
 }
 
 #if defined(RCC_PLL2_SUPPORT)
@@ -473,7 +465,7 @@ uint32_t RCC_PLL_GetFreqDomain_SYS(void)
   */
 uint32_t RCC_PLL2_GetFreqClockFreq(void)
 {
-  return __LL_RCC_CALC_PLL2CLK_FREQ(HSE_VALUE, LL_RCC_PLL2_GetMultiplicator(), LL_RCC_HSE_GetPrediv2());
+    return __LL_RCC_CALC_PLL2CLK_FREQ(HSE_VALUE, LL_RCC_PLL2_GetMultiplicator(), LL_RCC_HSE_GetPrediv2());
 }
 #endif /* RCC_PLL2_SUPPORT */
 
@@ -484,7 +476,7 @@ uint32_t RCC_PLL2_GetFreqClockFreq(void)
   */
 uint32_t RCC_PLLI2S_GetFreqDomain_I2S(void)
 {
-  return __LL_RCC_CALC_PLLI2SCLK_FREQ(HSE_VALUE, LL_RCC_PLLI2S_GetMultiplicator(), LL_RCC_HSE_GetPrediv2());
+    return __LL_RCC_CALC_PLLI2SCLK_FREQ(HSE_VALUE, LL_RCC_PLLI2S_GetMultiplicator(), LL_RCC_HSE_GetPrediv2());
 }
 #endif /* RCC_PLLI2S_SUPPORT */
 

@@ -34,13 +34,13 @@ uint32_t I2C_Open(I2C_T *i2c, uint32_t u32BusClock)
 {
     uint32_t u32Div;
 
-    u32Div = (uint32_t) (((SystemCoreClock * 10)/(u32BusClock * 4) + 5) / 10 - 1); /* Compute proper divider for I2C clock */
+    u32Div = (uint32_t)(((SystemCoreClock * 10) / (u32BusClock * 4) + 5) / 10 - 1); /* Compute proper divider for I2C clock */
     i2c->DIV = u32Div;
 
     /* Enable I2C */
     i2c->CON |= I2C_CON_IPEN_Msk;
 
-    return ( SystemCoreClock / ((u32Div+1)<<2) );
+    return (SystemCoreClock / ((u32Div + 1) << 2));
 }
 
 /**
@@ -51,7 +51,7 @@ uint32_t I2C_Open(I2C_T *i2c, uint32_t u32BusClock)
 void I2C_Close(I2C_T *i2c)
 {
     /* Reset I2C */
-    if((uint32_t)i2c == I2C0_BASE) {
+    if ((uint32_t)i2c == I2C0_BASE) {
         SYS->IPRST_CTL2 |= SYS_IPRST_CTL2_I2C0_RST_Msk;
         SYS->IPRST_CTL2 &= ~SYS_IPRST_CTL2_I2C0_RST_Msk;
     } else {
@@ -87,14 +87,18 @@ void I2C_Trigger(I2C_T *i2c, uint8_t u8Start, uint8_t u8Stop, uint8_t u8Si, uint
     uint32_t u32Reg = 0;
     uint32_t u32Val = i2c->CON & ~(I2C_STA | I2C_STO | I2C_AA);
 
-    if (u8Start)
+    if (u8Start) {
         u32Reg |= I2C_STA;
-    if (u8Stop)
+    }
+    if (u8Stop) {
         u32Reg |= I2C_STO;
-    if (u8Si)
+    }
+    if (u8Si) {
         u32Reg |= I2C_SI;
-    if (u8Ack)
+    }
+    if (u8Ack) {
         u32Reg |= I2C_AA;
+    }
 
     i2c->CON = u32Val | u32Reg;
 }
@@ -128,7 +132,7 @@ uint32_t I2C_GetBusClockFreq(I2C_T *i2c)
 {
     uint32_t u32Divider = i2c->DIV;
 
-    return ( SystemCoreClock / ((u32Divider+1)<<2) );
+    return (SystemCoreClock / ((u32Divider + 1) << 2));
 }
 
 /**
@@ -141,10 +145,10 @@ uint32_t I2C_SetBusClockFreq(I2C_T *i2c, uint32_t u32BusClock)
 {
     uint32_t u32Div;
 
-    u32Div = (uint32_t) (((SystemCoreClock * 10)/(u32BusClock * 4) + 5) / 10 - 1); /* Compute proper divider for I2C clock */
+    u32Div = (uint32_t)(((SystemCoreClock * 10) / (u32BusClock * 4) + 5) / 10 - 1); /* Compute proper divider for I2C clock */
     i2c->DIV = u32Div;
 
-    return ( SystemCoreClock / ((u32Div+1)<<2) );
+    return (SystemCoreClock / ((u32Div + 1) << 2));
 }
 
 /**
@@ -156,7 +160,7 @@ uint32_t I2C_SetBusClockFreq(I2C_T *i2c, uint32_t u32BusClock)
   */
 uint32_t I2C_GetIntFlag(I2C_T *i2c)
 {
-    return ( (i2c->INTSTS & I2C_INTSTS_INTSTS_Msk) == I2C_INTSTS_INTSTS_Msk ? 1:0 );
+    return ((i2c->INTSTS & I2C_INTSTS_INTSTS_Msk) == I2C_INTSTS_INTSTS_Msk ? 1 : 0);
 }
 
 /**
@@ -176,7 +180,7 @@ void I2C_ClearIntFlag(I2C_T *i2c)
   */
 uint32_t I2C_GetStatus(I2C_T *i2c)
 {
-    return ( i2c->STATUS );
+    return (i2c->STATUS);
 }
 
 /**
@@ -186,7 +190,7 @@ uint32_t I2C_GetStatus(I2C_T *i2c)
   */
 uint32_t I2C_GetData(I2C_T *i2c)
 {
-    return ( i2c->DATA );
+    return (i2c->DATA);
 }
 
 /**
@@ -213,12 +217,12 @@ void I2C_SetData(I2C_T *i2c, uint8_t u8Data)
 void I2C_SetSlaveAddr(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddr, uint8_t u8GCMode)
 {
     switch (u8SlaveNo) {
-    case 0:
-        i2c->SADDR0  = (u8SlaveAddr << 1) | u8GCMode;
-        break;
-    case 1:
-        i2c->SADDR1  = (u8SlaveAddr << 1) | u8GCMode;
-        break;
+        case 0:
+            i2c->SADDR0  = (u8SlaveAddr << 1) | u8GCMode;
+            break;
+        case 1:
+            i2c->SADDR1  = (u8SlaveAddr << 1) | u8GCMode;
+            break;
     }
 }
 
@@ -232,12 +236,12 @@ void I2C_SetSlaveAddr(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddr, uint8_
 void I2C_SetSlaveAddrMask(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddrMask)
 {
     switch (u8SlaveNo) {
-    case 0:
-        i2c->SAMASK0  = u8SlaveAddrMask << 1;
-        break;
-    case 1:
-        i2c->SAMASK1  = u8SlaveAddrMask << 1;
-        break;
+        case 0:
+            i2c->SAMASK0  = u8SlaveAddrMask << 1;
+            break;
+        case 1:
+            i2c->SAMASK1  = u8SlaveAddrMask << 1;
+            break;
     }
 }
 
@@ -249,10 +253,11 @@ void I2C_SetSlaveAddrMask(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddrMask
   */
 void I2C_EnableTimeout(I2C_T *i2c, uint8_t u8LongTimeout)
 {
-    if(u8LongTimeout)
+    if (u8LongTimeout) {
         i2c->TOUT |= I2C_TOUT_DIV4_Msk;
-    else
+    } else {
         i2c->TOUT &= ~I2C_TOUT_DIV4_Msk;
+    }
 
     i2c->TOUT |= I2C_TOUT_TOUTEN_Msk;
 }

@@ -27,9 +27,9 @@
 #define NU_MAX_PIN_PER_PORT     16
 
 struct nu_gpio_irq_var {
-    gpio_irq_t *    obj_arr[NU_MAX_PIN_PER_PORT];
+    gpio_irq_t     *obj_arr[NU_MAX_PIN_PER_PORT];
     IRQn_Type       irq_n;
-    void            (*vec)(void);
+    void (*vec)(void);
     uint32_t        port_index;
 };
 
@@ -111,7 +111,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         GPIO_DISABLE_DEBOUNCE(gpio_base, 1 << pin_index);
 
         PinName *debounce_pos = gpio_irq_debounce_arr;
-        PinName *debounce_end = gpio_irq_debounce_arr + sizeof (gpio_irq_debounce_arr) / sizeof (gpio_irq_debounce_arr[0]);
+        PinName *debounce_end = gpio_irq_debounce_arr + sizeof(gpio_irq_debounce_arr) / sizeof(gpio_irq_debounce_arr[0]);
         for (; debounce_pos != debounce_end && *debounce_pos != NC; debounce_pos ++) {
             uint32_t pin_index_debunce = NU_PINNAME_TO_PIN(*debounce_pos);
             uint32_t port_index_debounce = NU_PINNAME_TO_PORT(*debounce_pos);
@@ -157,25 +157,25 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
 
     switch (event) {
-    case IRQ_RISE:
-        if (enable) {
-            GPIO_EnableInt(gpio_base, pin_index, GPIO_INT_RISING);
-        } else {
-            gpio_base->INTEN &= ~(GPIO_INT_RISING << pin_index);
-        }
-        break;
+        case IRQ_RISE:
+            if (enable) {
+                GPIO_EnableInt(gpio_base, pin_index, GPIO_INT_RISING);
+            } else {
+                gpio_base->INTEN &= ~(GPIO_INT_RISING << pin_index);
+            }
+            break;
 
-    case IRQ_FALL:
-        if (enable) {
-            GPIO_EnableInt(gpio_base, pin_index, GPIO_INT_FALLING);
-        } else {
-            gpio_base->INTEN &= ~(GPIO_INT_FALLING << pin_index);
-        }
-        break;
+        case IRQ_FALL:
+            if (enable) {
+                GPIO_EnableInt(gpio_base, pin_index, GPIO_INT_FALLING);
+            } else {
+                gpio_base->INTEN &= ~(GPIO_INT_FALLING << pin_index);
+            }
+            break;
 
-    case IRQ_NONE:
-    default:
-        break;
+        case IRQ_NONE:
+        default:
+            break;
     }
 }
 

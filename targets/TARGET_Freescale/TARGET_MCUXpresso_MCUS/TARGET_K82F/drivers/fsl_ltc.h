@@ -70,8 +70,7 @@
 #define LTC_AES_IV_SIZE 16
 
 /*! @brief Type of AES key for ECB and CBC decrypt operations. */
-typedef enum _ltc_aes_key_t
-{
+typedef enum _ltc_aes_key_t {
     kLTC_EncryptKey = 0U, /*!< Input key is an encrypt key */
     kLTC_DecryptKey = 1U, /*!< Input key is a decrypt key */
 } ltc_aes_key_t;
@@ -106,8 +105,7 @@ typedef enum _ltc_aes_key_t
  * @{
  */
 /*! Supported cryptographic block cipher functions for HASH creation */
-typedef enum _ltc_hash_algo_t
-{
+typedef enum _ltc_hash_algo_t {
     kLTC_XcbcMac = 0, /*!< XCBC-MAC (AES engine) */
     kLTC_Cmac,        /*!< CMAC (AES engine) */
 #if defined(FSL_FEATURE_LTC_HAS_SHA) && FSL_FEATURE_LTC_HAS_SHA
@@ -138,29 +136,25 @@ typedef uint32_t ltc_hash_ctx_t[LTC_HASH_CTX_SIZE];
  * @{
  */
 /*! PKHA ECC point structure */
-typedef struct _ltc_pkha_ecc_point_t
-{
+typedef struct _ltc_pkha_ecc_point_t {
     uint8_t *X; /*!< X coordinate (affine) */
     uint8_t *Y; /*!< Y coordinate (affine) */
 } ltc_pkha_ecc_point_t;
 
 /*! @brief Use of timing equalized version of a PKHA function. */
-typedef enum _ltc_pkha_timing_t
-{
+typedef enum _ltc_pkha_timing_t {
     kLTC_PKHA_NoTimingEqualized = 0U, /*!< Normal version of a PKHA operation */
     kLTC_PKHA_TimingEqualized = 1U    /*!< Timing-equalized version of a PKHA operation  */
 } ltc_pkha_timing_t;
 
 /*! @brief Integer vs binary polynomial arithmetic selection. */
-typedef enum _ltc_pkha_f2m_t
-{
+typedef enum _ltc_pkha_f2m_t {
     kLTC_PKHA_IntegerArith = 0U, /*!< Use integer arithmetic */
     kLTC_PKHA_F2mArith = 1U      /*!< Use binary polynomial arithmetic */
 } ltc_pkha_f2m_t;
 
 /*! @brief Montgomery or normal PKHA input format. */
-typedef enum _ltc_pkha_montgomery_form_t
-{
+typedef enum _ltc_pkha_montgomery_form_t {
     kLTC_PKHA_NormalValue = 0U,     /*!< PKHA number is normal integer */
     kLTC_PKHA_MontgomeryFormat = 1U /*!< PKHA number is in montgomery format */
 } ltc_pkha_montgomery_form_t;

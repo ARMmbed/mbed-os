@@ -7,7 +7,7 @@
   * @brief   Header file of IRDA HAL Extension module.
   ******************************************************************************
   * @attention
-  *                               
+  *
   * <h2><center>&copy; COPYRIGHT(c) 2013 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
@@ -32,7 +32,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -40,7 +40,7 @@
 #define __STM32L0xx_HAL_IRDA_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,14 +52,14 @@
 
 /** @defgroup IRDAEx IRDAEx
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup IRDAEx_Extended_Exported_Constants IRDAEx Exported Constants
   * @{
   */
-  
+
 /** @defgroup IRDAEx_Word_Length IRDAEx Word length
   * @{
   */
@@ -72,12 +72,12 @@
 /**
   * @}
   */
-  
-  
+
+
 /**
   * @}
-  */  
-  
+  */
+
 /* Exported macro ------------------------------------------------------------*/
 
 /** @defgroup IRDAEx_Extended_Exported_Macros IRDAEx Exported Macros
@@ -85,7 +85,7 @@
   */
 /** @brief  Reports the IRDA clock source.
   * @param  __HANDLE__: specifies the UART Handle
-  * @param  __CLOCKSOURCE__ : output variable   
+  * @param  __CLOCKSOURCE__ : output variable
   * @retval IRDA clocking source, written in __CLOCKSOURCE__.
   */
 #if defined (STM32L031xx) || defined (STM32L041xx) || defined (STM32L011xx) || defined (STM32L021xx)
@@ -199,12 +199,12 @@
     }                                                         \
   } while(0)
 #endif /* (STM32L031xx) || (STM32L041xx) || (STM32L011xx) || (STM32L021xx) */
-    
+
 /** @brief  Reports the mask to apply to retrieve the received data
   *         according to the word length and to the parity bits activation.
   * @param  __HANDLE__: specifies the IRDA Handle
   * @retval mask to apply to USART RDR register value.
-  */    
+  */
 #define IRDA_MASK_COMPUTATION(__HANDLE__)                       \
   do {                                                                \
   if ((__HANDLE__)->Init.WordLength == IRDA_WORDLENGTH_9B)            \
@@ -244,7 +244,7 @@
 /**
   * @}
   */
-  
+
 /* Exported functions --------------------------------------------------------*/
 /* Initialization/de-initialization methods  **********************************/
 /* IO operation methods *******************************************************/
@@ -253,12 +253,12 @@
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
-  
+  */
+
 #ifdef __cplusplus
 }
 #endif

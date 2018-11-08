@@ -1,7 +1,7 @@
 /*!
  *****************************************************************************
  * @file:    common.h
- * @brief:   Common include file for all example 
+ * @brief:   Common include file for all example
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2016 Analog Devices, Inc.
@@ -80,7 +80,7 @@ extern "C" {
 /* Enable REDIRECT_OUTPUT_TO_UART to send the output to UART terminal. */
 /* #define REDIRECT_OUTPUT_TO_UART */
 
-extern char aDebugString[150]; 
+extern char aDebugString[150];
 
 #ifdef __ICCARM__
 /*

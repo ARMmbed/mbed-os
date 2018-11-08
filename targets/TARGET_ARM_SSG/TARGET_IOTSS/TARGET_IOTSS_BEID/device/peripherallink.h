@@ -37,9 +37,9 @@
 #define __DEVICE_H
 
 #if defined CMSDK_BEID
-  #include "CMSDK_BEID.h"                         /* device specific header file */
+#include "CMSDK_BEID.h"                         /* device specific header file */
 #else
-  #warning "no appropriate header file found!"
+#warning "no appropriate header file found!"
 #endif
 
 #endif /* __DEVICE_H */

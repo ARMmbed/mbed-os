@@ -30,8 +30,8 @@
 #define DVDEC_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_dvdec
-{                                                          /* DVDEC            */
+struct st_dvdec {
+    /* DVDEC            */
     volatile uint16_t ADCCR1;                                 /*  ADCCR1          */
     volatile uint8_t   dummy1[4];                              /*                  */
 #define DVDEC_TGCRn_COUNT 3

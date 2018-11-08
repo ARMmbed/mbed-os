@@ -36,7 +36,7 @@
 #if ((OS_DYNAMIC_MEM_SIZE & 7) != 0)
 #error "Invalid Dynamic Memory size!"
 #endif
-static uint64_t os_mem[OS_DYNAMIC_MEM_SIZE/8] \
+static uint64_t os_mem[OS_DYNAMIC_MEM_SIZE / 8] \
 __attribute__((section(".bss.os")));
 #endif
 
@@ -78,7 +78,7 @@ __attribute__((section(".bss.os.thread.cb")));
 
 // Thread Default Stack
 #if (OS_THREAD_DEF_STACK_NUM != 0)
-static uint64_t os_thread_def_stack[OS_THREAD_DEF_STACK_NUM*(OS_STACK_SIZE/8)] \
+static uint64_t os_thread_def_stack[OS_THREAD_DEF_STACK_NUM * (OS_STACK_SIZE / 8)] \
 __attribute__((section(".bss.os.thread.stack")));
 #endif
 
@@ -96,7 +96,7 @@ __attribute__((section(".data.os.thread.mpi"))) =
 
 // Memory Pool for Thread Stack
 #if (OS_THREAD_USER_STACK_SIZE != 0)
-static uint64_t os_thread_stack[OS_THREAD_USER_STACK_SIZE/8] \
+static uint64_t os_thread_stack[OS_THREAD_USER_STACK_SIZE / 8] \
 __attribute__((section(".bss.os.thread.stack")));
 #endif
 
@@ -106,8 +106,8 @@ __attribute__((section(".bss.os.thread.stack")));
 // Stack overrun checking
 #if (OS_STACK_CHECK == 0)
 // Override library function
-void osRtxThreadStackCheck (void);
-void osRtxThreadStackCheck (void) {}
+void osRtxThreadStackCheck(void);
+void osRtxThreadStackCheck(void) {}
 #endif
 
 
@@ -116,19 +116,19 @@ static osRtxThread_t os_idle_thread_cb \
 __attribute__((section(".bss.os.thread.cb")));
 
 // Idle Thread Stack
-static uint64_t os_idle_thread_stack[OS_IDLE_THREAD_STACK_SIZE/8] \
+static uint64_t os_idle_thread_stack[OS_IDLE_THREAD_STACK_SIZE / 8] \
 __attribute__((section(".bss.os.thread.stack")));
 
 // Idle Thread Attributes
 static const osThreadAttr_t os_idle_thread_attr = {
-  NULL,
-  osThreadDetached,
-  &os_idle_thread_cb,
-  (uint32_t)sizeof(os_idle_thread_cb),
-  &os_idle_thread_stack,
-  (uint32_t)sizeof(os_idle_thread_stack),
-  osPriorityIdle,
-  0U, 0U
+    NULL,
+    osThreadDetached,
+    &os_idle_thread_cb,
+    (uint32_t)sizeof(os_idle_thread_cb),
+    &os_idle_thread_stack,
+    (uint32_t)sizeof(os_idle_thread_stack),
+    osPriorityIdle,
+    0U, 0U
 };
 
 
@@ -164,19 +164,19 @@ static osRtxThread_t os_timer_thread_cb \
 __attribute__((section(".bss.os.thread.cb")));
 
 // Timer Thread Stack
-static uint64_t os_timer_thread_stack[OS_TIMER_THREAD_STACK_SIZE/8] \
+static uint64_t os_timer_thread_stack[OS_TIMER_THREAD_STACK_SIZE / 8] \
 __attribute__((section(".bss.os.thread.stack")));
 
 // Timer Thread Attributes
 static const osThreadAttr_t os_timer_thread_attr = {
-  NULL,
-  osThreadDetached,
-  &os_timer_thread_cb,
-  (uint32_t)sizeof(os_timer_thread_cb),
-  &os_timer_thread_stack,
-  (uint32_t)sizeof(os_timer_thread_stack),
-  (osPriority_t)OS_TIMER_THREAD_PRIO,
-  0U, 0U
+    NULL,
+    osThreadDetached,
+    &os_timer_thread_cb,
+    (uint32_t)sizeof(os_timer_thread_cb),
+    &os_timer_thread_stack,
+    (uint32_t)sizeof(os_timer_thread_stack),
+    (osPriority_t)OS_TIMER_THREAD_PRIO,
+    0U, 0U
 };
 
 // Timer Message Queue Control Block
@@ -184,23 +184,23 @@ static osRtxMessageQueue_t os_timer_mq_cb \
 __attribute__((section(".bss.os.msgqueue.cb")));
 
 // Timer Message Queue Data
-static uint32_t os_timer_mq_data[osRtxMessageQueueMemSize(OS_TIMER_CB_QUEUE,8)/4] \
+static uint32_t os_timer_mq_data[osRtxMessageQueueMemSize(OS_TIMER_CB_QUEUE, 8) / 4] \
 __attribute__((section(".bss.os.msgqueue.mem")));
 
 // Timer Message Queue Attributes
 static const osMessageQueueAttr_t os_timer_mq_attr = {
-  NULL,
-  0U,
-  &os_timer_mq_cb,
-  (uint32_t)sizeof(os_timer_mq_cb),
-  &os_timer_mq_data,
-  (uint32_t)sizeof(os_timer_mq_data)
+    NULL,
+    0U,
+    &os_timer_mq_cb,
+    (uint32_t)sizeof(os_timer_mq_cb),
+    &os_timer_mq_data,
+    (uint32_t)sizeof(os_timer_mq_data)
 };
 
 #else
 
-extern void osRtxTimerThread (void *argument);
-       void osRtxTimerThread (void *argument) {}
+extern void osRtxTimerThread(void *argument);
+void osRtxTimerThread(void *argument) {}
 
 #endif  // ((OS_TIMER_THREAD_STACK_SIZE != 0) && (OS_TIMER_CB_QUEUE != 0))
 
@@ -291,7 +291,7 @@ __attribute__((section(".data.os.mempool.mpi"))) =
 #if ((OS_MEMPOOL_DATA_SIZE & 7) != 0)
 #error "Invalid Data Memory size for Memory Pools!"
 #endif
-static uint64_t os_mp_data[OS_MEMPOOL_DATA_SIZE/8] \
+static uint64_t os_mp_data[OS_MEMPOOL_DATA_SIZE / 8] \
 __attribute__((section(".bss.os.mempool.mem")));
 #endif
 
@@ -321,7 +321,7 @@ __attribute__((section(".data.os.msgqueue.mpi"))) =
 #if ((OS_MSGQUEUE_DATA_SIZE & 7) != 0)
 #error "Invalid Data Memory size for Message Queues!"
 #endif
-static uint64_t os_mq_data[OS_MSGQUEUE_DATA_SIZE/8] \
+static uint64_t os_mq_data[OS_MSGQUEUE_DATA_SIZE / 8] \
 __attribute__((section(".bss.os.msgqueue.mem")));
 #endif
 
@@ -334,101 +334,101 @@ __attribute__((section(".bss.os.msgqueue.mem")));
 __USED
 __attribute__((section(".rodata")))
 const osRtxConfig_t osRtxConfig = {
-  0U   // Flags
+    0U   // Flags
 #if (OS_PRIVILEGE_MODE != 0)
-  | osRtxConfigPrivilegedMode
+    | osRtxConfigPrivilegedMode
 #endif
 #if (OS_STACK_CHECK != 0)
-  | osRtxConfigStackCheck
+    | osRtxConfigStackCheck
 #endif
 #if (OS_STACK_WATERMARK != 0)
-  | osRtxConfigStackWatermark
+    | osRtxConfigStackWatermark
 #endif
-  ,
-  (uint32_t)OS_TICK_FREQ,
+    ,
+    (uint32_t)OS_TICK_FREQ,
 #if (OS_ROBIN_ENABLE != 0)
-  (uint32_t)OS_ROBIN_TIMEOUT,
+    (uint32_t)OS_ROBIN_TIMEOUT,
 #else
-  0U,
+    0U,
 #endif
-  { &os_isr_queue[0], sizeof(os_isr_queue)/sizeof(void *), 0U },
-  { 
-    // Memory Pools (Variable Block Size)
+    { &os_isr_queue[0], sizeof(os_isr_queue) / sizeof(void *), 0U },
+    {
+        // Memory Pools (Variable Block Size)
 #if ((OS_THREAD_OBJ_MEM != 0) && (OS_THREAD_USER_STACK_SIZE != 0))
-    &os_thread_stack, (uint32_t)OS_THREAD_USER_STACK_SIZE,
+        &os_thread_stack, (uint32_t)OS_THREAD_USER_STACK_SIZE,
 #else
-    NULL, 0U,
+        NULL, 0U,
 #endif
 #if ((OS_MEMPOOL_OBJ_MEM != 0) && (OS_MEMPOOL_DATA_SIZE != 0))
-    &os_mp_data, (uint32_t)OS_MEMPOOL_DATA_SIZE,
+        &os_mp_data, (uint32_t)OS_MEMPOOL_DATA_SIZE,
 #else
-    NULL, 0U,
+        NULL, 0U,
 #endif
 #if ((OS_MSGQUEUE_OBJ_MEM != 0) && (OS_MSGQUEUE_DATA_SIZE != 0))
-    &os_mq_data, (uint32_t)OS_MSGQUEUE_DATA_SIZE,
+        &os_mq_data, (uint32_t)OS_MSGQUEUE_DATA_SIZE,
 #else
-    NULL, 0U,
+        NULL, 0U,
 #endif
 #if (OS_DYNAMIC_MEM_SIZE != 0)
-    &os_mem, (uint32_t)OS_DYNAMIC_MEM_SIZE,
+        &os_mem, (uint32_t)OS_DYNAMIC_MEM_SIZE,
 #else
-    NULL, 0U
+        NULL, 0U
 #endif
-  },
-  {
-    // Memory Pools (Fixed Block Size)
+    },
+    {
+        // Memory Pools (Fixed Block Size)
 #if (OS_THREAD_OBJ_MEM != 0)
 #if (OS_THREAD_DEF_STACK_NUM != 0)
-    &os_mpi_def_stack,
+        &os_mpi_def_stack,
 #else
-    NULL,
+        NULL,
 #endif
-    &os_mpi_thread,
+        &os_mpi_thread,
 #else
-    NULL, 
-    NULL,
+        NULL,
+        NULL,
 #endif
 #if (OS_TIMER_OBJ_MEM != 0)
-    &os_mpi_timer,
+        &os_mpi_timer,
 #else
-    NULL,
+        NULL,
 #endif
 #if (OS_EVFLAGS_OBJ_MEM != 0)
-    &os_mpi_ef,
+        &os_mpi_ef,
 #else
-    NULL,
+        NULL,
 #endif
 #if (OS_MUTEX_OBJ_MEM != 0)
-    &os_mpi_mutex,
+        &os_mpi_mutex,
 #else
-    NULL,
+        NULL,
 #endif
 #if (OS_SEMAPHORE_OBJ_MEM != 0)
-    &os_mpi_semaphore,
+        &os_mpi_semaphore,
 #else
-    NULL,
+        NULL,
 #endif
 #if (OS_MEMPOOL_OBJ_MEM != 0)
-    &os_mpi_mp,
+        &os_mpi_mp,
 #else
-    NULL,
+        NULL,
 #endif
 #if (OS_MSGQUEUE_OBJ_MEM != 0)
-    &os_mpi_mq,
+        &os_mpi_mq,
+#else
+        NULL,
+#endif
+    },
+    (uint32_t)OS_STACK_SIZE,
+    &os_idle_thread_attr,
+#if ((OS_TIMER_THREAD_STACK_SIZE != 0) && (OS_TIMER_CB_QUEUE != 0))
+    &os_timer_thread_attr,
+    &os_timer_mq_attr,
+    (uint32_t)OS_TIMER_CB_QUEUE
 #else
     NULL,
-#endif
-  },
-  (uint32_t)OS_STACK_SIZE,
-  &os_idle_thread_attr,
-#if ((OS_TIMER_THREAD_STACK_SIZE != 0) && (OS_TIMER_CB_QUEUE != 0))
-  &os_timer_thread_attr,
-  &os_timer_mq_attr,
-  (uint32_t)OS_TIMER_CB_QUEUE
-#else
-  NULL,
-  NULL,
-  0U
+    NULL,
+    0U
 #endif
 };
 
@@ -436,32 +436,32 @@ const osRtxConfig_t osRtxConfig = {
 // Non weak reference to library irq module
 extern       uint8_t  irqRtxLib;
 extern const uint8_t *irqRtxLibRef;
-       const uint8_t *irqRtxLibRef = &irqRtxLib;
+const uint8_t *irqRtxLibRef = &irqRtxLib;
 
 // Default User SVC Table
-extern void * const osRtxUserSVC[];
-__WEAK void * const osRtxUserSVC[1] = { (void *)0 };
+extern void *const osRtxUserSVC[];
+__WEAK void *const osRtxUserSVC[1] = { (void *)0 };
 
 
 // OS Sections
 // ===========
 
 #if (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-__asm (
-  ".weakref __os_thread_cb_start__,    .bss.os.thread.cb$$Base\n\t"
-  ".weakref __os_thread_cb_end__,      .bss.os.thread.cb$$Limit\n\t"
-  ".weakref __os_timer_cb_start__,     .bss.os.timer.cb$$Base\n\t"
-  ".weakref __os_timer_cb_end__,       .bss.os.timer.cb$$Limit\n\t"
-  ".weakref __os_evflags_cb_start__,   .bss.os.evflags.cb$$Base\n\t"
-  ".weakref __os_evflags_cb_end__,     .bss.os.evflags.cb$$Limit\n\t"
-  ".weakref __os_mutex_cb_start__,     .bss.os.mutex.cb$$Base\n\t"
-  ".weakref __os_mutex_cb_end__,       .bss.os.mutex.cb$$Limit\n\t"
-  ".weakref __os_semaphore_cb_start__, .bss.os.semaphore.cb$$Base\n\t"
-  ".weakref __os_semaphore_cb_end__,   .bss.os.semaphore.cb$$Limit\n\t"
-  ".weakref __os_mempool_cb_start__,   .bss.os.mempool.cb$$Base\n\t"
-  ".weakref __os_mempool_cb_end__,     .bss.os.mempool.cb$$Limit\n\t"
-  ".weakref __os_msgqueue_cb_start__,  .bss.os.msgqueue.cb$$Base\n\t"
-  ".weakref __os_msgqueue_cb_end__,    .bss.os.msgqueue.cb$$Limit\n\t"
+__asm(
+    ".weakref __os_thread_cb_start__,    .bss.os.thread.cb$$Base\n\t"
+    ".weakref __os_thread_cb_end__,      .bss.os.thread.cb$$Limit\n\t"
+    ".weakref __os_timer_cb_start__,     .bss.os.timer.cb$$Base\n\t"
+    ".weakref __os_timer_cb_end__,       .bss.os.timer.cb$$Limit\n\t"
+    ".weakref __os_evflags_cb_start__,   .bss.os.evflags.cb$$Base\n\t"
+    ".weakref __os_evflags_cb_end__,     .bss.os.evflags.cb$$Limit\n\t"
+    ".weakref __os_mutex_cb_start__,     .bss.os.mutex.cb$$Base\n\t"
+    ".weakref __os_mutex_cb_end__,       .bss.os.mutex.cb$$Limit\n\t"
+    ".weakref __os_semaphore_cb_start__, .bss.os.semaphore.cb$$Base\n\t"
+    ".weakref __os_semaphore_cb_end__,   .bss.os.semaphore.cb$$Limit\n\t"
+    ".weakref __os_mempool_cb_start__,   .bss.os.mempool.cb$$Base\n\t"
+    ".weakref __os_mempool_cb_end__,     .bss.os.mempool.cb$$Limit\n\t"
+    ".weakref __os_msgqueue_cb_start__,  .bss.os.msgqueue.cb$$Base\n\t"
+    ".weakref __os_msgqueue_cb_end__,    .bss.os.msgqueue.cb$$Limit\n\t"
 );
 #endif
 
@@ -483,26 +483,26 @@ extern __attribute__((weak)) uint32_t __os_mempool_cb_end__;
 extern __attribute__((weak)) uint32_t __os_msgqueue_cb_start__;
 extern __attribute__((weak)) uint32_t __os_msgqueue_cb_end__;
 
-__asm (".global os_cb_sections");
+__asm(".global os_cb_sections");
 
 extern const uint32_t os_cb_sections[];
 
 __attribute__((section(".rodata")))
 const uint32_t os_cb_sections[] = {
-  (uint32_t)&__os_thread_cb_start__,
-  (uint32_t)&__os_thread_cb_end__,
-  (uint32_t)&__os_timer_cb_start__,
-  (uint32_t)&__os_timer_cb_end__,
-  (uint32_t)&__os_evflags_cb_start__,
-  (uint32_t)&__os_evflags_cb_end__,
-  (uint32_t)&__os_mutex_cb_start__,
-  (uint32_t)&__os_mutex_cb_end__,
-  (uint32_t)&__os_semaphore_cb_start__,
-  (uint32_t)&__os_semaphore_cb_end__,
-  (uint32_t)&__os_mempool_cb_start__,
-  (uint32_t)&__os_mempool_cb_end__,
-  (uint32_t)&__os_msgqueue_cb_start__,
-  (uint32_t)&__os_msgqueue_cb_end__
+    (uint32_t) &__os_thread_cb_start__,
+    (uint32_t) &__os_thread_cb_end__,
+    (uint32_t) &__os_timer_cb_start__,
+    (uint32_t) &__os_timer_cb_end__,
+    (uint32_t) &__os_evflags_cb_start__,
+    (uint32_t) &__os_evflags_cb_end__,
+    (uint32_t) &__os_mutex_cb_start__,
+    (uint32_t) &__os_mutex_cb_end__,
+    (uint32_t) &__os_semaphore_cb_start__,
+    (uint32_t) &__os_semaphore_cb_end__,
+    (uint32_t) &__os_mempool_cb_start__,
+    (uint32_t) &__os_mempool_cb_end__,
+    (uint32_t) &__os_msgqueue_cb_start__,
+    (uint32_t) &__os_msgqueue_cb_end__
 };
 
 #endif
@@ -515,17 +515,19 @@ const uint32_t os_cb_sections[] = {
     (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
 #ifndef __MICROLIB
-extern void _platform_post_stackheap_init (void);
-__WEAK void _platform_post_stackheap_init (void) {
-  osKernelInitialize();
+extern void _platform_post_stackheap_init(void);
+__WEAK void _platform_post_stackheap_init(void)
+{
+    osKernelInitialize();
 }
 #endif
 
 #elif defined(__GNUC__)
 
-extern void software_init_hook (void);
-__WEAK void software_init_hook (void) {
-  osKernelInitialize();
+extern void software_init_hook(void);
+__WEAK void software_init_hook(void)
+{
+    osKernelInitialize();
 }
 
 #endif
@@ -541,7 +543,7 @@ __WEAK void software_init_hook (void) {
 #define LIBSPACE_SIZE 96
 
 // Memory for libspace
-static uint32_t os_libspace[OS_THREAD_LIBSPACE_NUM+1][LIBSPACE_SIZE/sizeof(uint32_t)] \
+static uint32_t os_libspace[OS_THREAD_LIBSPACE_NUM + 1][LIBSPACE_SIZE / sizeof(uint32_t)] \
 __attribute__((section(".bss.os")));
 
 // Thread IDs for libspace
@@ -549,46 +551,48 @@ static osThreadId_t os_libspace_id[OS_THREAD_LIBSPACE_NUM] \
 __attribute__((section(".bss.os")));
 
 // Check if Kernel has been started
-static uint32_t os_kernel_is_active (void) {
-  static uint8_t os_kernel_active = 0U;
+static uint32_t os_kernel_is_active(void)
+{
+    static uint8_t os_kernel_active = 0U;
 
-  if (os_kernel_active == 0U) {
-    if (osKernelGetState() > osKernelReady) {
-      os_kernel_active = 1U;
-      return 1U;
+    if (os_kernel_active == 0U) {
+        if (osKernelGetState() > osKernelReady) {
+            os_kernel_active = 1U;
+            return 1U;
+        }
+        return 0U;
+    } else {
+        return 1U;
     }
-    return 0U;
-  } else {
-    return 1U;
-  }
 }
 
 // Provide libspace for current thread
-void *__user_perthread_libspace (void);
-void *__user_perthread_libspace (void) {
-  osThreadId_t id;
-  uint32_t     n;
+void *__user_perthread_libspace(void);
+void *__user_perthread_libspace(void)
+{
+    osThreadId_t id;
+    uint32_t     n;
 
-  if (!os_kernel_is_active()) {
-    return (void *)&os_libspace[OS_THREAD_LIBSPACE_NUM][0];
-  }
-
-  id = osThreadGetId();
-  for (n = 0U; n < OS_THREAD_LIBSPACE_NUM; n++) {
-    if (os_libspace_id[n] == NULL) {
-      os_libspace_id[n] = id;
-      return (void *)&os_libspace[n][0];
+    if (!os_kernel_is_active()) {
+        return (void *)&os_libspace[OS_THREAD_LIBSPACE_NUM][0];
     }
-    if (os_libspace_id[n] == id) {
-      return (void *)&os_libspace[n][0];
+
+    id = osThreadGetId();
+    for (n = 0U; n < OS_THREAD_LIBSPACE_NUM; n++) {
+        if (os_libspace_id[n] == NULL) {
+            os_libspace_id[n] = id;
+            return (void *)&os_libspace[n][0];
+        }
+        if (os_libspace_id[n] == id) {
+            return (void *)&os_libspace[n][0];
+        }
     }
-  }
 
-  if (n == OS_THREAD_LIBSPACE_NUM) {
-    osRtxErrorNotify(osRtxErrorClibSpace, id);
-  }
+    if (n == OS_THREAD_LIBSPACE_NUM) {
+        osRtxErrorNotify(osRtxErrorClibSpace, id);
+    }
 
-  return (void *)&os_libspace[n][0];
+    return (void *)&os_libspace[n][0];
 }
 
 // Mutex identifier
@@ -599,13 +603,14 @@ typedef void *mutex;
 __USED
 #endif
 int _mutex_initialize(mutex *m);
-__WEAK int _mutex_initialize(mutex *m) {
-  *m = osMutexNew(NULL);
-  if (*m == NULL) {
-    osRtxErrorNotify(osRtxErrorClibMutex, m);
-    return 0;
-  }
-  return 1;
+__WEAK int _mutex_initialize(mutex *m)
+{
+    *m = osMutexNew(NULL);
+    if (*m == NULL) {
+        osRtxErrorNotify(osRtxErrorClibMutex, m);
+        return 0;
+    }
+    return 1;
 }
 
 // Acquire mutex
@@ -613,10 +618,11 @@ __WEAK int _mutex_initialize(mutex *m) {
 __USED
 #endif
 void _mutex_acquire(mutex *m);
-__WEAK void _mutex_acquire(mutex *m) {
-  if (os_kernel_is_active()) {
-    osMutexAcquire(*m, osWaitForever);
-  }
+__WEAK void _mutex_acquire(mutex *m)
+{
+    if (os_kernel_is_active()) {
+        osMutexAcquire(*m, osWaitForever);
+    }
 }
 
 // Release mutex
@@ -624,10 +630,11 @@ __WEAK void _mutex_acquire(mutex *m) {
 __USED
 #endif
 void _mutex_release(mutex *m);
-__WEAK void _mutex_release(mutex *m) {
-  if (os_kernel_is_active()) {
-    osMutexRelease(*m);
-  }
+__WEAK void _mutex_release(mutex *m)
+{
+    if (os_kernel_is_active()) {
+        osMutexRelease(*m);
+    }
 }
 
 // Free mutex
@@ -635,8 +642,9 @@ __WEAK void _mutex_release(mutex *m) {
 __USED
 #endif
 void _mutex_free(mutex *m);
-__WEAK void _mutex_free(mutex *m) {
-  osMutexDelete(*m);
+__WEAK void _mutex_free(mutex *m)
+{
+    osMutexDelete(*m);
 }
 
 #endif

@@ -51,10 +51,9 @@ static void trng_get_byte(unsigned char *byte)
     size_t bit;
 
     /* 34.5 Steps 3-4-5: poll SR and read from OR when ready */
-    for( bit = 0; bit < 8; bit++ )
-    {
-        while( ( RNG->SR & RNG_SR_OREG_LVL_MASK ) == 0 );
-        *byte |= ( RNG->OR & 1 ) << bit;
+    for (bit = 0; bit < 8; bit++) {
+        while ((RNG->SR & RNG_SR_OREG_LVL_MASK) == 0);
+        *byte |= (RNG->OR & 1) << bit;
     }
 }
 

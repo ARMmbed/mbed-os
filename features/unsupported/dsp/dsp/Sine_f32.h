@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 #ifndef SINE_F32_H
-#define SINE_F32_H 
+#define SINE_F32_H
 
 #include <stdint.h>
 #include "arm_math.h"
@@ -29,12 +29,12 @@ namespace dsp {
 
 class Sine_f32 {
 public:
-    Sine_f32(uint32_t frequency, uint32_t sample_rate=48000, float32_t amplitude=1.f, float32_t phase=0.0, uint32_t block_size=32);
-    
+    Sine_f32(uint32_t frequency, uint32_t sample_rate = 48000, float32_t amplitude = 1.f, float32_t phase = 0.0, uint32_t block_size = 32);
+
     void process(float32_t *sgn_in, float32_t *sgn_out);
-    
+
     void generate(float32_t *sgn);
-    
+
     void reset(void);
 
 private:

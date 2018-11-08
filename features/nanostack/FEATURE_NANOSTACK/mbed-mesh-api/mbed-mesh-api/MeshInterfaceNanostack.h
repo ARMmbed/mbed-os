@@ -66,7 +66,7 @@ protected:
     MeshInterfaceNanostack();
     MeshInterfaceNanostack(NanostackPhy *phy);
     nsapi_error_t register_phy();
-    virtual NetworkStack * get_stack(void);
+    virtual NetworkStack *get_stack(void);
 
     /**
      * \brief Read own global IP address

@@ -230,7 +230,7 @@ private:
 private:
     /* Disallow copy constructor. */
     GapScanningParams(const GapScanningParams &);
-    GapScanningParams& operator =(const GapScanningParams &in);
+    GapScanningParams &operator =(const GapScanningParams &in);
 };
 
 /**

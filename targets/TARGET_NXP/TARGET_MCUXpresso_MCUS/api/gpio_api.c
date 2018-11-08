@@ -29,8 +29,9 @@ uint32_t gpio_set(PinName pin)
 void gpio_init(gpio_t *obj, PinName pin)
 {
     obj->pin = pin;
-    if (pin == (PinName)NC)
+    if (pin == (PinName)NC) {
         return;
+    }
 
     pin_function(pin, 0);
 }

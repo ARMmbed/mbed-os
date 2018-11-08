@@ -371,7 +371,7 @@ static __INLINE void I2C_STOP(I2C_T *i2c)
 {
 
     (i2c)->CTL |= (I2C_CTL_SI_Msk | I2C_CTL_STO_Msk);
-    while(i2c->CTL & I2C_CTL_STO_Msk);
+    while (i2c->CTL & I2C_CTL_STO_Msk);
 }
 
 void I2C_ClearTimeoutFlag(I2C_T *i2c);

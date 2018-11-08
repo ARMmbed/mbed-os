@@ -25,11 +25,10 @@ const struct nu_modinit_s *get_modinit(uint32_t modname, const struct nu_modinit
     while (modprop_ind->modname != NC) {
         if ((int) modname == modprop_ind->modname) {
             return modprop_ind;
-        }
-        else {
+        } else {
             modprop_ind ++;
         }
     }
-    
+
     return NULL;
 }

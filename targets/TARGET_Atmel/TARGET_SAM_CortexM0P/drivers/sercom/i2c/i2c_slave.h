@@ -732,7 +732,7 @@ static inline uint8_t i2c_slave_dma_read_interrupt_status(struct i2c_slave_modul
  *
  */
 static inline void i2c_slave_dma_write_interrupt_status(struct i2c_slave_module *const module,
-        uint8_t flag)
+                                                        uint8_t flag)
 {
     module->hw->I2CS.INTFLAG.reg = flag;
 }

@@ -60,11 +60,11 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint8_t  ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint8_t  :4;               /*!< bit:  2.. 5  Reserved                           */
-        uint8_t  RUNSTDBY:1;       /*!< bit:      6  Run during Standby                 */
-        uint8_t  ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
+        uint8_t  SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint8_t  ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint8_t  : 4;              /*!< bit:  2.. 5  Reserved                           */
+        uint8_t  RUNSTDBY: 1;      /*!< bit:      6  Run during Standby                 */
+        uint8_t  ONDEMAND: 1;      /*!< bit:      7  On Demand Control                  */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_CTRLA_Type;
@@ -87,8 +87,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PRESCALER:3;      /*!< bit:  0.. 2  Prescaler Configuration            */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  PRESCALER: 3;     /*!< bit:  0.. 2  Prescaler Configuration            */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_CTRLB_Type;
@@ -122,9 +122,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  REFSEL:4;         /*!< bit:  0.. 3  Reference Selection                */
-        uint8_t  :3;               /*!< bit:  4.. 6  Reserved                           */
-        uint8_t  REFCOMP:1;        /*!< bit:      7  Reference Buffer Offset Compensation Enable */
+        uint8_t  REFSEL: 4;        /*!< bit:  0.. 3  Reference Selection                */
+        uint8_t  : 3;              /*!< bit:  4.. 6  Reserved                           */
+        uint8_t  REFCOMP: 1;       /*!< bit:      7  Reference Buffer Offset Compensation Enable */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_REFCTRL_Type;
@@ -156,13 +156,13 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  FLUSHEI:1;        /*!< bit:      0  Flush Event Input Enable           */
-        uint8_t  STARTEI:1;        /*!< bit:      1  Start Conversion Event Input Enable */
-        uint8_t  FLUSHINV:1;       /*!< bit:      2  Flush Event Invert Enable          */
-        uint8_t  STARTINV:1;       /*!< bit:      3  Satrt Event Invert Enable          */
-        uint8_t  RESRDYEO:1;       /*!< bit:      4  Result Ready Event Out             */
-        uint8_t  WINMONEO:1;       /*!< bit:      5  Window Monitor Event Out           */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  FLUSHEI: 1;       /*!< bit:      0  Flush Event Input Enable           */
+        uint8_t  STARTEI: 1;       /*!< bit:      1  Start Conversion Event Input Enable */
+        uint8_t  FLUSHINV: 1;      /*!< bit:      2  Flush Event Invert Enable          */
+        uint8_t  STARTINV: 1;      /*!< bit:      3  Satrt Event Invert Enable          */
+        uint8_t  RESRDYEO: 1;      /*!< bit:      4  Result Ready Event Out             */
+        uint8_t  WINMONEO: 1;      /*!< bit:      5  Window Monitor Event Out           */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_EVCTRL_Type;
@@ -189,10 +189,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  RESRDY:1;         /*!< bit:      0  Result Ready Interrupt Disable     */
-        uint8_t  OVERRUN:1;        /*!< bit:      1  Overrun Interrupt Disable          */
-        uint8_t  WINMON:1;         /*!< bit:      2  Window Monitor Interrupt Disable   */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  RESRDY: 1;        /*!< bit:      0  Result Ready Interrupt Disable     */
+        uint8_t  OVERRUN: 1;       /*!< bit:      1  Overrun Interrupt Disable          */
+        uint8_t  WINMON: 1;        /*!< bit:      2  Window Monitor Interrupt Disable   */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_INTENCLR_Type;
@@ -213,10 +213,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  RESRDY:1;         /*!< bit:      0  Result Ready Interrupt Enable      */
-        uint8_t  OVERRUN:1;        /*!< bit:      1  Overrun Interrupt Enable           */
-        uint8_t  WINMON:1;         /*!< bit:      2  Window Monitor Interrupt Enable    */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  RESRDY: 1;        /*!< bit:      0  Result Ready Interrupt Enable      */
+        uint8_t  OVERRUN: 1;       /*!< bit:      1  Overrun Interrupt Enable           */
+        uint8_t  WINMON: 1;        /*!< bit:      2  Window Monitor Interrupt Enable    */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_INTENSET_Type;
@@ -237,10 +237,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  RESRDY:1;         /*!< bit:      0  Result Ready Interrupt Flag        */
-        uint8_t  OVERRUN:1;        /*!< bit:      1  Overrun Interrupt Flag             */
-        uint8_t  WINMON:1;         /*!< bit:      2  Window Monitor Interrupt Flag      */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  RESRDY: 1;        /*!< bit:      0  Result Ready Interrupt Flag        */
+        uint8_t  OVERRUN: 1;       /*!< bit:      1  Overrun Interrupt Flag             */
+        uint8_t  WINMON: 1;        /*!< bit:      2  Window Monitor Interrupt Flag      */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_INTFLAG_Type;
@@ -261,9 +261,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SEQSTATE:5;       /*!< bit:  0.. 4  Sequence State                     */
-        uint8_t  :2;               /*!< bit:  5.. 6  Reserved                           */
-        uint8_t  SEQBUSY:1;        /*!< bit:      7  Sequence Busy                      */
+        uint8_t  SEQSTATE: 5;      /*!< bit:  0.. 4  Sequence State                     */
+        uint8_t  : 2;              /*!< bit:  5.. 6  Reserved                           */
+        uint8_t  SEQBUSY: 1;       /*!< bit:      7  Sequence Busy                      */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_SEQSTATUS_Type;
@@ -283,10 +283,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t MUXPOS:5;         /*!< bit:  0.. 4  Positive Mux Input Selection       */
-        uint16_t :3;               /*!< bit:  5.. 7  Reserved                           */
-        uint16_t MUXNEG:5;         /*!< bit:  8..12  Negative Mux Input Selection       */
-        uint16_t :3;               /*!< bit: 13..15  Reserved                           */
+        uint16_t MUXPOS: 5;        /*!< bit:  0.. 4  Positive Mux Input Selection       */
+        uint16_t : 3;              /*!< bit:  5.. 7  Reserved                           */
+        uint16_t MUXNEG: 5;        /*!< bit:  8..12  Negative Mux Input Selection       */
+        uint16_t : 3;              /*!< bit: 13..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } ADC_INPUTCTRL_Type;
@@ -387,14 +387,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t DIFFMODE:1;       /*!< bit:      0  Differential Mode                  */
-        uint16_t LEFTADJ:1;        /*!< bit:      1  Left-Adjusted Result               */
-        uint16_t FREERUN:1;        /*!< bit:      2  Free Running Mode                  */
-        uint16_t CORREN:1;         /*!< bit:      3  Digital Correction Logic Enable    */
-        uint16_t RESSEL:2;         /*!< bit:  4.. 5  Conversion Result Resolution       */
-        uint16_t :2;               /*!< bit:  6.. 7  Reserved                           */
-        uint16_t WINMODE:3;        /*!< bit:  8..10  Window Monitor Mode                */
-        uint16_t :5;               /*!< bit: 11..15  Reserved                           */
+        uint16_t DIFFMODE: 1;      /*!< bit:      0  Differential Mode                  */
+        uint16_t LEFTADJ: 1;       /*!< bit:      1  Left-Adjusted Result               */
+        uint16_t FREERUN: 1;       /*!< bit:      2  Free Running Mode                  */
+        uint16_t CORREN: 1;        /*!< bit:      3  Digital Correction Logic Enable    */
+        uint16_t RESSEL: 2;        /*!< bit:  4.. 5  Conversion Result Resolution       */
+        uint16_t : 2;              /*!< bit:  6.. 7  Reserved                           */
+        uint16_t WINMODE: 3;       /*!< bit:  8..10  Window Monitor Mode                */
+        uint16_t : 5;              /*!< bit: 11..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } ADC_CTRLC_Type;
@@ -441,9 +441,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SAMPLENUM:4;      /*!< bit:  0.. 3  Number of Samples to be Collected  */
-        uint8_t  ADJRES:3;         /*!< bit:  4.. 6  Adjusting Result / Division Coefficient */
-        uint8_t  :1;               /*!< bit:      7  Reserved                           */
+        uint8_t  SAMPLENUM: 4;     /*!< bit:  0.. 3  Number of Samples to be Collected  */
+        uint8_t  ADJRES: 3;        /*!< bit:  4.. 6  Adjusting Result / Division Coefficient */
+        uint8_t  : 1;              /*!< bit:      7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_AVGCTRL_Type;
@@ -486,9 +486,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SAMPLEN:6;        /*!< bit:  0.. 5  Sampling Time Length               */
-        uint8_t  :1;               /*!< bit:      6  Reserved                           */
-        uint8_t  OFFCOMP:1;        /*!< bit:      7  Comparator Offset Compensation Enable */
+        uint8_t  SAMPLEN: 6;       /*!< bit:  0.. 5  Sampling Time Length               */
+        uint8_t  : 1;              /*!< bit:      6  Reserved                           */
+        uint8_t  OFFCOMP: 1;       /*!< bit:      7  Comparator Offset Compensation Enable */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_SAMPCTRL_Type;
@@ -508,7 +508,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t WINLT:16;         /*!< bit:  0..15  Window Lower Threshold             */
+        uint16_t WINLT: 16;        /*!< bit:  0..15  Window Lower Threshold             */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } ADC_WINLT_Type;
@@ -526,7 +526,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t WINUT:16;         /*!< bit:  0..15  Window Upper Threshold             */
+        uint16_t WINUT: 16;        /*!< bit:  0..15  Window Upper Threshold             */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } ADC_WINUT_Type;
@@ -544,8 +544,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t GAINCORR:12;      /*!< bit:  0..11  Gain Correction Value              */
-        uint16_t :4;               /*!< bit: 12..15  Reserved                           */
+        uint16_t GAINCORR: 12;     /*!< bit:  0..11  Gain Correction Value              */
+        uint16_t : 4;              /*!< bit: 12..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } ADC_GAINCORR_Type;
@@ -563,8 +563,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t OFFSETCORR:12;    /*!< bit:  0..11  Offset Correction Value            */
-        uint16_t :4;               /*!< bit: 12..15  Reserved                           */
+        uint16_t OFFSETCORR: 12;   /*!< bit:  0..11  Offset Correction Value            */
+        uint16_t : 4;              /*!< bit: 12..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } ADC_OFFSETCORR_Type;
@@ -582,9 +582,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  FLUSH:1;          /*!< bit:      0  ADC Flush                          */
-        uint8_t  START:1;          /*!< bit:      1  Start ADC Conversion               */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  FLUSH: 1;         /*!< bit:      0  ADC Flush                          */
+        uint8_t  START: 1;         /*!< bit:      1  Start ADC Conversion               */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_SWTRIG_Type;
@@ -603,8 +603,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DBGRUN:1;         /*!< bit:      0  Debug Run                          */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  DBGRUN: 1;        /*!< bit:      0  Debug Run                          */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } ADC_DBGCTRL_Type;
@@ -621,18 +621,18 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t SWRST:1;          /*!< bit:      0  SWRST Synchronization Busy         */
-        uint16_t ENABLE:1;         /*!< bit:      1  ENABLE Synchronization Busy        */
-        uint16_t INPUTCTRL:1;      /*!< bit:      2  INPUTCTRL Synchronization Busy     */
-        uint16_t CTRLC:1;          /*!< bit:      3  CTRLC Synchronization Busy         */
-        uint16_t AVGCTRL:1;        /*!< bit:      4  AVGCTRL Synchronization Busy       */
-        uint16_t SAMPCTRL:1;       /*!< bit:      5  SAMPCTRL Synchronization Busy      */
-        uint16_t WINLT:1;          /*!< bit:      6  WINLT Synchronization Busy         */
-        uint16_t WINUT:1;          /*!< bit:      7  WINUT Synchronization Busy         */
-        uint16_t GAINCORR:1;       /*!< bit:      8  GAINCORR Synchronization Busy      */
-        uint16_t OFFSETCORR:1;     /*!< bit:      9  OFFSETCTRL Synchronization Busy    */
-        uint16_t SWTRIG:1;         /*!< bit:     10  SWTRG Synchronization Busy         */
-        uint16_t :5;               /*!< bit: 11..15  Reserved                           */
+        uint16_t SWRST: 1;         /*!< bit:      0  SWRST Synchronization Busy         */
+        uint16_t ENABLE: 1;        /*!< bit:      1  ENABLE Synchronization Busy        */
+        uint16_t INPUTCTRL: 1;     /*!< bit:      2  INPUTCTRL Synchronization Busy     */
+        uint16_t CTRLC: 1;         /*!< bit:      3  CTRLC Synchronization Busy         */
+        uint16_t AVGCTRL: 1;       /*!< bit:      4  AVGCTRL Synchronization Busy       */
+        uint16_t SAMPCTRL: 1;      /*!< bit:      5  SAMPCTRL Synchronization Busy      */
+        uint16_t WINLT: 1;         /*!< bit:      6  WINLT Synchronization Busy         */
+        uint16_t WINUT: 1;         /*!< bit:      7  WINUT Synchronization Busy         */
+        uint16_t GAINCORR: 1;      /*!< bit:      8  GAINCORR Synchronization Busy      */
+        uint16_t OFFSETCORR: 1;    /*!< bit:      9  OFFSETCTRL Synchronization Busy    */
+        uint16_t SWTRIG: 1;        /*!< bit:     10  SWTRG Synchronization Busy         */
+        uint16_t : 5;              /*!< bit: 11..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } ADC_SYNCBUSY_Type;
@@ -669,7 +669,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t RESULT:16;        /*!< bit:  0..15  Result Value                       */
+        uint16_t RESULT: 16;       /*!< bit:  0..15  Result Value                       */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } ADC_RESULT_Type;
@@ -687,7 +687,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SEQEN:32;         /*!< bit:  0..31  Enable Positive Input in the Sequence */
+        uint32_t SEQEN: 32;        /*!< bit:  0..31  Enable Positive Input in the Sequence */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } ADC_SEQCTRL_Type;
@@ -705,10 +705,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t BIASCOMP:3;       /*!< bit:  0.. 2  Bias Comparator Scaling            */
-        uint16_t :5;               /*!< bit:  3.. 7  Reserved                           */
-        uint16_t BIASREFBUF:3;     /*!< bit:  8..10  Bias  Reference Buffer Scaling     */
-        uint16_t :5;               /*!< bit: 11..15  Reserved                           */
+        uint16_t BIASCOMP: 3;      /*!< bit:  0.. 2  Bias Comparator Scaling            */
+        uint16_t : 5;              /*!< bit:  3.. 7  Reserved                           */
+        uint16_t BIASREFBUF: 3;    /*!< bit:  8..10  Bias  Reference Buffer Scaling     */
+        uint16_t : 5;              /*!< bit: 11..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } ADC_CALIB_Type;

@@ -78,7 +78,7 @@ public:
      * @param pin rx pin
      * @param int ID, the Bus ID of the servo 1-255
      */
-    AX12(PinName tx, PinName rx, int ID, int baud=1000000);
+    AX12(PinName tx, PinName rx, int ID, int baud = 1000000);
 
     /** Set the mode of the servo
      * @param mode
@@ -175,8 +175,8 @@ public:
      */
     float GetVolts(void);
 
-    int read(int ID, int start, int length, char* data);
-    int write(int ID, int start, int length, char* data, int flag=0);
+    int read(int ID, int start, int length, char *data);
+    int write(int ID, int start, int length, char *data, int flag = 0);
 
 private :
 

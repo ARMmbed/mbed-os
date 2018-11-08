@@ -35,7 +35,7 @@ extern "C" {
 /*************************************************************************************************/
 /*!
  *  \fn     DmHandlerInit
- *        
+ *
  *  \brief  DM handler init function called during system initialization.
  *
  *  \param  handlerID  WSF handler ID for DM.
@@ -49,7 +49,7 @@ void DmHandlerInit(wsfHandlerId_t handlerId);
 /*************************************************************************************************/
 /*!
  *  \fn     DmHandler
- *        
+ *
  *  \brief  WSF event handler for DM.
  *
  *  \param  event   WSF event mask.

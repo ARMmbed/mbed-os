@@ -24,8 +24,9 @@
 #define ADC_10BIT_RANGE             0x3FF
 #define ADC_12BIT_RANGE             0xFFF
 
-static inline int div_round_up(int x, int y) {
-  return (x + (y - 1)) / y;
+static inline int div_round_up(int x, int y)
+{
+    return (x + (y - 1)) / y;
 }
 
 static const PinMap PinMap_ADC[] = {
@@ -37,7 +38,7 @@ static const PinMap PinMap_ADC[] = {
     {P0_16, ADC0_5, 0x01},
     {P0_22, ADC0_6, 0x01},
     {P0_23, ADC0_7, 0x01},
-    {NC   , NC    , 0   }
+    {NC, NC, 0   }
 };
 
 #define LPC_IOCON0_BASE (LPC_IOCON_BASE)
@@ -45,16 +46,17 @@ static const PinMap PinMap_ADC[] = {
 
 #define ADC_RANGE    ADC_10BIT_RANGE
 
-void analogin_init(analogin_t *obj, PinName pin) {
+void analogin_init(analogin_t *obj, PinName pin)
+{
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
-    
+
     // Power up ADC
-    LPC_SYSCON->PDRUNCFG &= ~ (1 << 4);
+    LPC_SYSCON->PDRUNCFG &= ~(1 << 4);
     LPC_SYSCON->SYSAHBCLKCTRL |= ((uint32_t)1 << 13);
 
     uint32_t pin_number = (uint32_t)pin;
-    __IO uint32_t *reg = (pin_number < 32) ? (__IO uint32_t*)(LPC_IOCON0_BASE + 4 * pin_number) : (__IO uint32_t*)(LPC_IOCON1_BASE + 4 * (pin_number - 32));
+    __IO uint32_t *reg = (pin_number < 32) ? (__IO uint32_t *)(LPC_IOCON0_BASE + 4 * pin_number) : (__IO uint32_t *)(LPC_IOCON1_BASE + 4 * (pin_number - 32));
 
     // set pin to ADC mode
     *reg &= ~(1 << 7); // set ADMODE = 0 (analog mode)
@@ -64,32 +66,34 @@ void analogin_init(analogin_t *obj, PinName pin) {
     uint32_t clkdiv = div_round_up(PCLK, MAX_ADC_CLK) - 1;
 
     LPC_ADC->CR = (0 << 0)      // no channels selected
-                | (clkdiv << 8) // max of 4.5MHz
-                | (0 << 16)     // BURST = 0, software controlled
-                | ( 0 << 17 );  // CLKS = 0, not applicable
-    
+                  | (clkdiv << 8) // max of 4.5MHz
+                  | (0 << 16)     // BURST = 0, software controlled
+                  | (0 << 17);    // CLKS = 0, not applicable
+
     pinmap_pinout(pin, PinMap_ADC);
 }
 
-static inline uint32_t adc_read(analogin_t *obj) {
+static inline uint32_t adc_read(analogin_t *obj)
+{
     // Select the appropriate channel and start conversion
     LPC_ADC->CR &= ~0xFF;
     LPC_ADC->CR |= 1 << (int)obj->adc;
     LPC_ADC->CR |= 1 << 24;
-    
+
     // Repeatedly get the sample data until DONE bit
     unsigned int data;
     do {
         data = LPC_ADC->GDR;
     } while ((data & ((unsigned int)1 << 31)) == 0);
-    
+
     // Stop conversion
     LPC_ADC->CR &= ~(1 << 24);
-    
+
     return (data >> 6) & ADC_RANGE; // 10 bit
 }
 
-static inline void order(uint32_t *a, uint32_t *b) {
+static inline void order(uint32_t *a, uint32_t *b)
+{
     if (*a > *b) {
         uint32_t t = *a;
         *a = *b;
@@ -97,7 +101,8 @@ static inline void order(uint32_t *a, uint32_t *b) {
     }
 }
 
-static inline uint32_t adc_read_u32(analogin_t *obj) {
+static inline uint32_t adc_read_u32(analogin_t *obj)
+{
     uint32_t value;
 #if ANALOGIN_MEDIAN_FILTER
     uint32_t v1 = adc_read(obj);
@@ -113,13 +118,15 @@ static inline uint32_t adc_read_u32(analogin_t *obj) {
     return value;
 }
 
-uint16_t analogin_read_u16(analogin_t *obj) {
+uint16_t analogin_read_u16(analogin_t *obj)
+{
     uint32_t value = adc_read_u32(obj);
-    
+
     return (value << 6) | ((value >> 4) & 0x003F); // 10 bit
 }
 
-float analogin_read(analogin_t *obj) {
+float analogin_read(analogin_t *obj)
+{
     uint32_t value = adc_read_u32(obj);
     return (float)value * (1.0f / (float)ADC_RANGE);
 }

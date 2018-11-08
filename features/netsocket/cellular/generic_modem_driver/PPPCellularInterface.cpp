@@ -92,7 +92,7 @@ static bool get_MEID(ATCmdParser *at)
 {
     // Mobile equipment identifier
     bool success = at->send("AT+GSN")
-            && at->recv("%18[^\n]\nOK\n", dev_info.meid);
+                   && at->recv("%18[^\n]\nOK\n", dev_info.meid);
     tr_debug("DevInfo: MEID=%s", dev_info.meid);
     return success;
 }
@@ -157,10 +157,12 @@ static nsapi_error_t do_sim_pin_check(ATCmdParser *at, const char *pin)
         success = at->send("AT+CLCK=\"SC\",1,\"%s\"", pin) && at->recv("OK");
     } else {
         /* use the SIM unlocked */
-        success = at->send("AT+CLCK=\"SC\",0,\"%s\"",pin) && at->recv("OK");
+        success = at->send("AT+CLCK=\"SC\",0,\"%s\"", pin) && at->recv("OK");
     }
 
-    if (success) return NSAPI_ERROR_OK;
+    if (success) {
+        return NSAPI_ERROR_OK;
+    }
 
     return NSAPI_ERROR_AUTH_FAILURE;
 }
@@ -171,12 +173,12 @@ static nsapi_error_t do_sim_pin_check(ATCmdParser *at, const char *pin)
 static nsapi_error_t do_change_sim_pin(ATCmdParser *at, const char *old_pin, const char *new_pin)
 {
     /* changes the SIM pin */
-       bool success = at->send("AT+CPWD=\"SC\",\"%s\",\"%s\"", old_pin, new_pin) && at->recv("OK");
-       if (success) {
-           return NSAPI_ERROR_OK;
-       }
+    bool success = at->send("AT+CPWD=\"SC\",\"%s\",\"%s\"", old_pin, new_pin) && at->recv("OK");
+    if (success) {
+        return NSAPI_ERROR_OK;
+    }
 
-       return NSAPI_ERROR_AUTH_FAILURE;
+    return NSAPI_ERROR_AUTH_FAILURE;
 }
 
 static void set_nwk_reg_status_csd(unsigned int status)
@@ -241,15 +243,15 @@ static void set_nwk_reg_status_psd(unsigned int status)
 
 static bool is_registered_csd()
 {
-  return (dev_info.reg_status_csd == CSD_REGISTERED) ||
-          (dev_info.reg_status_csd == CSD_REGISTERED_ROAMING) ||
-          (dev_info.reg_status_csd == CSD_CSFB_NOT_PREFERRED);
+    return (dev_info.reg_status_csd == CSD_REGISTERED) ||
+           (dev_info.reg_status_csd == CSD_REGISTERED_ROAMING) ||
+           (dev_info.reg_status_csd == CSD_CSFB_NOT_PREFERRED);
 }
 
 static bool is_registered_psd()
 {
     return (dev_info.reg_status_psd == PSD_REGISTERED) ||
-            (dev_info.reg_status_psd == PSD_REGISTERED_ROAMING);
+           (dev_info.reg_status_psd == PSD_REGISTERED_ROAMING);
 }
 
 PPPCellularInterface::PPPCellularInterface(FileHandle *fh, bool debug)
@@ -330,70 +332,70 @@ void PPPCellularInterface::set_new_sim_pin(const char *new_pin)
 bool PPPCellularInterface::nwk_registration(uint8_t nwk_type)
 {
     bool success = false;
-     bool registered = false;
+    bool registered = false;
 
-     char str[35];
-     int retcode;
-     int retry_counter = 0;
-     unsigned int reg_status;
+    char str[35];
+    int retcode;
+    int retry_counter = 0;
+    unsigned int reg_status;
 
-     success = nwk_type == PACKET_SWITCHED ?
-                     _at->send("AT+CGREG=0") :
-                     _at->send("AT+CREG=0") && _at->recv("OK\n");
+    success = nwk_type == PACKET_SWITCHED ?
+              _at->send("AT+CGREG=0") :
+              _at->send("AT+CREG=0") && _at->recv("OK\n");
 
-     success = _at->send("AT+COPS=0") //initiate auto-registration
-                    && _at->recv("OK");
-     if (!success) {
-         tr_error("Modem not responding.");
-         return false;
-     }
+    success = _at->send("AT+COPS=0") //initiate auto-registration
+              && _at->recv("OK");
+    if (!success) {
+        tr_error("Modem not responding.");
+        return false;
+    }
 
-     //Network search
-     //If not registered after 60 attempts, i.e., 30 seconds wait, give up
-     tr_debug("Searching Network ...");
+    //Network search
+    //If not registered after 60 attempts, i.e., 30 seconds wait, give up
+    tr_debug("Searching Network ...");
 
-     while (!registered) {
+    while (!registered) {
 
-         if (retry_counter > 60) {
-             success = false;
-             goto give_up;
-         }
+        if (retry_counter > 60) {
+            success = false;
+            goto give_up;
+        }
 
-         success = nwk_type == PACKET_SWITCHED ?
-                         _at->send("AT+CGREG?")
-                         && _at->recv("+CGREG: %34[^\n]\n", str)
-                         && _at->recv("OK\n") :
-                         _at->send("AT+CREG?")
-                         && _at->recv("+CREG: %34[^\n]\n", str)
-                         && _at->recv("OK\n");
+        success = nwk_type == PACKET_SWITCHED ?
+                  _at->send("AT+CGREG?")
+                  && _at->recv("+CGREG: %34[^\n]\n", str)
+                  && _at->recv("OK\n") :
+                  _at->send("AT+CREG?")
+                  && _at->recv("+CREG: %34[^\n]\n", str)
+                  && _at->recv("OK\n");
 
-         retcode = sscanf(str, "%*u,%u", &reg_status);
+        retcode = sscanf(str, "%*u,%u", &reg_status);
 
-         if (retcode >= 1) {
-             if (nwk_type == PACKET_SWITCHED) {
-                 set_nwk_reg_status_psd(reg_status);
-                 if (is_registered_psd()) {
-                     registered = true;
-                 }
-             } else if (nwk_type == CIRCUIT_SWITCHED) {
-                 set_nwk_reg_status_csd(reg_status);
-                 if (is_registered_csd()) {
-                     registered = true;
-                 }
-             }
-         }
+        if (retcode >= 1) {
+            if (nwk_type == PACKET_SWITCHED) {
+                set_nwk_reg_status_psd(reg_status);
+                if (is_registered_psd()) {
+                    registered = true;
+                }
+            } else if (nwk_type == CIRCUIT_SWITCHED) {
+                set_nwk_reg_status_csd(reg_status);
+                if (is_registered_csd()) {
+                    registered = true;
+                }
+            }
+        }
 
-         if (registered) {
-             break;
-         } else {
-             wait_ms(500);
-         }
+        if (registered) {
+            break;
+        } else {
+            wait_ms(500);
+        }
 
-         retry_counter++;
-     }
+        retry_counter++;
+    }
 
- give_up:
-     return registered;
+give_up:
+    return registered;
 }
 
 bool PPPCellularInterface::is_connected()
@@ -439,7 +441,8 @@ nsapi_error_t PPPCellularInterface::initialize_sim_card()
     return nsapi_error;
 }
 
-void PPPCellularInterface::set_sim_pin(const char *pin) {
+void PPPCellularInterface::set_sim_pin(const char *pin)
+{
     /* overwrite the default pin by user provided pin */
     _pin = pin;
 }
@@ -468,11 +471,11 @@ nsapi_error_t PPPCellularInterface::setup_context_and_credentials()
 retry_without_dual_stack:
 #endif
     success = _at->send("AT"
-                          "+FCLASS=0;" // set to connection (ATD) to data mode
-                          "+CGDCONT=" CTX ",\"%s\",\"%s%s\"",
-                          pdp_type, auth, _apn
-                         )
-                   && _at->recv("OK");
+                        "+FCLASS=0;" // set to connection (ATD) to data mode
+                        "+CGDCONT=" CTX ",\"%s\",\"%s%s\"",
+                        pdp_type, auth, _apn
+                       )
+              && _at->recv("OK");
 
 #if NSAPI_PPP_IPV4_AVAILABLE && NSAPI_PPP_IPV6_AVAILABLE
     if (_stack == IPV4V6_STACK) {
@@ -494,7 +497,7 @@ retry_without_dual_stack:
 }
 
 void  PPPCellularInterface::set_credentials(const char *apn, const char *uname,
-                                                               const char *pwd)
+                                            const char *pwd)
 {
     _apn = apn;
     _uname = uname;
@@ -511,7 +514,7 @@ void PPPCellularInterface::setup_at_parser()
     }
 
     _at = new ATCmdParser(_fh, OUTPUT_ENTER_KEY, AT_PARSER_BUFFER_SIZE, AT_PARSER_TIMEOUT,
-                         _debug_trace_on ? true : false);
+                          _debug_trace_on ? true : false);
 
     /* Error cases, out of band handling  */
     _at->oob("ERROR", callback(parser_abort, _at));
@@ -565,7 +568,7 @@ nsapi_error_t PPPCellularInterface::connect()
     }
 
     do {
-        retry_init:
+retry_init:
 
         /* setup AT parser */
         setup_at_parser();
@@ -587,12 +590,12 @@ nsapi_error_t PPPCellularInterface::connect()
             }
 
             success = nwk_registration(PACKET_SWITCHED) //perform network registration
-            && get_CCID(_at)//get integrated circuit ID of the SIM
-            && get_IMSI(_at)//get international mobile subscriber information
-            && get_IMEI(_at)//get international mobile equipment identifier
-            && get_MEID(_at)//its same as IMEI
-            && set_CMGF(_at)//set message format for SMS
-            && set_CNMI(_at);//set new SMS indication
+                      && get_CCID(_at)//get integrated circuit ID of the SIM
+                      && get_IMSI(_at)//get international mobile subscriber information
+                      && get_IMEI(_at)//get international mobile equipment identifier
+                      && get_MEID(_at)//its same as IMEI
+                      && set_CMGF(_at)//set message format for SMS
+                      && set_CNMI(_at);//set new SMS indication
 
             if (!success) {
                 return NSAPI_ERROR_NO_CONNECTION;
@@ -686,7 +689,7 @@ nsapi_error_t PPPCellularInterface::connect()
             dev_info.ppp_connection_up = true;
         }
 
-    }while(!dev_info.ppp_connection_up && apn_config && *apn_config);
+    } while (!dev_info.ppp_connection_up && apn_config && *apn_config);
 
     return retcode;
 }

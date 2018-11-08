@@ -31,8 +31,8 @@
 /* ->QAC 0639 : Over 127 members (C90) */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_intc
-{                                                          /* INTC             */
+struct st_intc {
+    /* INTC             */
     volatile uint32_t  ICDDCR;                                 /*  ICDDCR          */
     volatile uint32_t  ICDICTR;                                /*  ICDICTR         */
     volatile uint32_t  ICDIIDR;                                /*  ICDIIDR         */

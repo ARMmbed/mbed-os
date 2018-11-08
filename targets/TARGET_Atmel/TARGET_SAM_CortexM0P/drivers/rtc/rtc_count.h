@@ -435,7 +435,7 @@ enum rtc_count_compare {
     /** Compare channel 2. */
     RTC_COUNT_COMPARE_2 = 2,
 #endif
-#if (RTC_NUM_OF_COMP16 > 3)	|| defined(__DOXYGEN__)
+#if (RTC_NUM_OF_COMP16 > 3) || defined(__DOXYGEN__)
     /** Compare channel 3. */
     RTC_COUNT_COMPARE_3 = 3,
 #endif
@@ -892,7 +892,7 @@ static inline void rtc_count_clear_overflow(struct rtc_module *const module)
  * \retval false  RTC periodic interval interrupt dosen't occurs
  */
 static inline bool rtc_count_is_periodic_interval(struct rtc_module *const module,
-        enum rtc_count_periodic_interval n)
+                                                  enum rtc_count_periodic_interval n)
 {
     /* Sanity check arguments */
     Assert(module);
@@ -914,7 +914,7 @@ static inline bool rtc_count_is_periodic_interval(struct rtc_module *const modul
  * \param[in]  n  RTC periodic interval interrupt
  */
 static inline void rtc_count_clear_periodic_interval(struct rtc_module *const module,
-        enum rtc_count_periodic_interval n)
+                                                     enum rtc_count_periodic_interval n)
 {
     /* Sanity check arguments */
     Assert(module);
@@ -1104,22 +1104,22 @@ static inline uint32_t rtc_read_general_purpose_reg(
  * intended meanings.
  *
  * <table>
- *	<tr>
- *		<th>Acronym</td>
- *		<th>Description</td>
- *	</tr>
- *	<tr>
- *		<td>RTC</td>
- *		<td>Real Time Counter</td>
- *	</tr>
- *	<tr>
- *		<td>PPM</td>
- *		<td>Part Per Million</td>
- *	</tr>
- *	<tr>
- *		<td>RC</td>
- *		<td>Resistor/Capacitor</td>
- *	</tr>
+ *  <tr>
+ *      <th>Acronym</td>
+ *      <th>Description</td>
+ *  </tr>
+ *  <tr>
+ *      <td>RTC</td>
+ *      <td>Real Time Counter</td>
+ *  </tr>
+ *  <tr>
+ *      <td>PPM</td>
+ *      <td>Part Per Million</td>
+ *  </tr>
+ *  <tr>
+ *      <td>RC</td>
+ *      <td>Resistor/Capacitor</td>
+ *  </tr>
  * </table>
  *
  *
@@ -1140,28 +1140,28 @@ static inline uint32_t rtc_read_general_purpose_reg(
  * the table.
  *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
- *	<tr>
- *		<td>Added support for SAMC21</td>
- *	</tr>
- *	<tr>
- *		<td>Added support for SAML21</td>
- *	</tr>
- *	<tr>
- *		<td>
+ *  <tr>
+ *      <th>Changelog</th>
+ *  </tr>
+ *  <tr>
+ *      <td>Added support for SAMC21</td>
+ *  </tr>
+ *  <tr>
+ *      <td>Added support for SAML21</td>
+ *  </tr>
+ *  <tr>
+ *      <td>
  *          Added support for SAMD21 and added driver instance parameter to all
  *          API function calls, except get_config_defaults
  *      </td>
- *	</tr>
- *	<tr>
- *		<td>Updated initialization function to also enable the digital interface
+ *  </tr>
+ *  <tr>
+ *      <td>Updated initialization function to also enable the digital interface
  *          clock to the module if it is disabled</td>
- *	</tr>
- *	<tr>
- *		<td>Initial Release</td>
- *	</tr>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial Release</td>
+ *  </tr>
  * </table>
  */
 
@@ -1182,37 +1182,37 @@ static inline uint32_t rtc_read_general_purpose_reg(
  * \page asfdoc_sam0_rtc_count_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
- *	<tr>
- *		<td>E</td>
- *		<td>06/2015</td>
- *		<td>Added support for SAML21, SAMC21, and SAMDAx.</td>
- *	</tr>
- *	<tr>
- *		<td>D</td>
- *		<td>12/2014</td>
- *		<td>Added support for SAMR21 and SAMD10/D11.</td>
- *	</tr>
- *	<tr>
- *		<td>C</td>
- *		<td>01/2014</td>
- *		<td>Added support for SAMD21.</td>
- *	</tr>
- *	<tr>
- *		<td>B</td>
- *		<td>06/2013</td>
- *		<td>Added additional documentation on the event system. Corrected
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
+ *  <tr>
+ *      <td>E</td>
+ *      <td>06/2015</td>
+ *      <td>Added support for SAML21, SAMC21, and SAMDAx.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>D</td>
+ *      <td>12/2014</td>
+ *      <td>Added support for SAMR21 and SAMD10/D11.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>C</td>
+ *      <td>01/2014</td>
+ *      <td>Added support for SAMD21.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>B</td>
+ *      <td>06/2013</td>
+ *      <td>Added additional documentation on the event system. Corrected
  *          documentation typos.</td>
- *	</tr>
- *	<tr>
- *		<td>A</td>
- *		<td>06/2013</td>
- *		<td>Initial release</td>
- *	</tr>
+ *  </tr>
+ *  <tr>
+ *      <td>A</td>
+ *      <td>06/2013</td>
+ *      <td>Initial release</td>
+ *  </tr>
  * </table>
  */
 

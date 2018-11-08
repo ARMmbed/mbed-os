@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2017 VNG IoT Lab, Vietnam
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /*
@@ -124,7 +124,7 @@ typedef enum {
     P0_29 = p29,
     P0_30 = p30,
     P0_31 = p31,
-    
+
     //only for mbed test suite
     LED1    = p12,
     LED2    = p18,
@@ -163,18 +163,18 @@ typedef enum {
 
     I2C_SDA = p26,
     I2C_SCL = p27,
-    
+
     I2C_SDA0 = p26,
     I2C_SCL0 = p27,
-    
+
     I2C_SDA1 = p30,
     I2C_SCL1 = p31,
-    
+
     RESET = p21,
-    
+
     NFC1 = p9,
     NFC2 = p10,
-    
+
     //Adruino interface pins
     D0 = p8,
     D1 = p6,
@@ -198,23 +198,23 @@ typedef enum {
     D17 = p29,
     D18 = p30,
     D19 = p31,
-    
+
     D20 = p26,
     D21 = p27,
-    
+
     D22 = p12,
     D23 = p17,
-    
+
     D24 = p5,
     D25 = p7,
-    
+
     A0 = D14,
     A1 = D15,
     A2 = D16,
     A3 = D17,
     A4 = D18,
     A5 = D19,
-    
+
     SS = D10,
     MOSI = D11,
     MISO = D12,
@@ -234,7 +234,7 @@ typedef enum {
 
     LED = D22,                    //not on Header
     BUT = D23,                    //not on Header
-        
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

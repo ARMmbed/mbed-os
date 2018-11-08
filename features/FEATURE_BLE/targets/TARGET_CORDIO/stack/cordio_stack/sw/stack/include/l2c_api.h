@@ -58,12 +58,11 @@ extern "C" {
 
 /*! Connection oriented channel callback events */
 #define L2C_COC_CBACK_START               0x70      /*! L2C callback event starting value */
-enum
-{
-  L2C_COC_CONNECT_IND = L2C_COC_CBACK_START,        /*! Channel connect indication */
-  L2C_COC_DISCONNECT_IND,                           /*! Channel disconnect indication */
-  L2C_COC_DATA_IND,                                 /*! Received data indication */
-  L2C_COC_DATA_CNF                                  /*! Transmit data confirm */
+enum {
+    L2C_COC_CONNECT_IND = L2C_COC_CBACK_START,        /*! Channel connect indication */
+    L2C_COC_DISCONNECT_IND,                           /*! Channel disconnect indication */
+    L2C_COC_DATA_IND,                                 /*! Received data indication */
+    L2C_COC_DATA_CNF                                  /*! Transmit data confirm */
 };
 
 #define L2C_COC_CBACK_CBACK_END           L2C_COC_DATA_CNF  /*! L2C callback event ending value */
@@ -76,48 +75,43 @@ enum
 typedef uint16_t l2cCocRegId_t;
 
 /*! Connection oriented channel registration structure */
-typedef struct
-{
-  uint16_t        psm;                    /*! Protocol service multiplexer */
-  uint16_t        mps;                    /*! Maximum receive PDU fragment size */
-  uint16_t        mtu;                    /*! Maximum receive data packet size */
-  uint16_t        credits;                /*! Data packet receive credits for this channel */
-  bool_t          authoriz;               /*! TRUE if authorization is required */
-  uint8_t         secLevel;               /*! Channel minimum security level requirements */
-  uint8_t         role;                   /*! Channel initiator/acceptor role */
+typedef struct {
+    uint16_t        psm;                    /*! Protocol service multiplexer */
+    uint16_t        mps;                    /*! Maximum receive PDU fragment size */
+    uint16_t        mtu;                    /*! Maximum receive data packet size */
+    uint16_t        credits;                /*! Data packet receive credits for this channel */
+    bool_t          authoriz;               /*! TRUE if authorization is required */
+    uint8_t         secLevel;               /*! Channel minimum security level requirements */
+    uint8_t         role;                   /*! Channel initiator/acceptor role */
 } l2cCocReg_t;
 
 /* Connection oriented channel connect indication structure */
-typedef struct
-{
-  wsfMsgHdr_t           hdr;              /*! Header structure */
-  uint16_t              cid;              /*! Local channel ID */
-  uint16_t              peerMtu;          /*! Data packet MTU peer can receive */
-  uint16_t              psm;              /*! Connected PSM */
+typedef struct {
+    wsfMsgHdr_t           hdr;              /*! Header structure */
+    uint16_t              cid;              /*! Local channel ID */
+    uint16_t              peerMtu;          /*! Data packet MTU peer can receive */
+    uint16_t              psm;              /*! Connected PSM */
 } l2cCocConnectInd_t;
 
 /* Connection oriented channel disconnect indication structure */
-typedef struct
-{
-  wsfMsgHdr_t           hdr;              /*! Header structure */
-  uint16_t              cid;              /*! Local channel ID */
-  uint16_t              result;           /*! Connection failure result code */
+typedef struct {
+    wsfMsgHdr_t           hdr;              /*! Header structure */
+    uint16_t              cid;              /*! Local channel ID */
+    uint16_t              result;           /*! Connection failure result code */
 } l2cCocDisconnectInd_t;
 
 /* Connection oriented channel data indication structure */
-typedef struct
-{
-  wsfMsgHdr_t           hdr;              /*! Header structure */
-  uint16_t              cid;              /*! Local channel ID */
-  uint8_t               *pData;           /*! Pointer to packet data */
-  uint16_t              dataLen;          /*! packet data length */
+typedef struct {
+    wsfMsgHdr_t           hdr;              /*! Header structure */
+    uint16_t              cid;              /*! Local channel ID */
+    uint8_t               *pData;           /*! Pointer to packet data */
+    uint16_t              dataLen;          /*! packet data length */
 } l2cCocDataInd_t;
 
 /* Connection oriented channel disconnect indication structure */
-typedef struct
-{
-  wsfMsgHdr_t           hdr;              /*! Header structure */
-  uint16_t              cid;              /*! Local channel ID */
+typedef struct {
+    wsfMsgHdr_t           hdr;              /*! Header structure */
+    uint16_t              cid;              /*! Local channel ID */
 } l2cCocDataCnf_t;
 
 /*!
@@ -129,19 +123,17 @@ typedef struct
  * \param hdr.param     DM connection ID
  * \param hdr.status    Event status (L2C_COC_DATA_CNF only)
  */
-typedef union
-{
-  wsfMsgHdr_t           hdr;              /*! Header structure */
-  l2cCocConnectInd_t    connectInd;       /*! Channel connect indication */
-  l2cCocDisconnectInd_t disconnectInd;    /*! Channel disconnect indication */
-  l2cCocDataInd_t       dataInd;          /*! Received data indication */
-  l2cCocDataCnf_t       dataCnf;          /*! Transmit data confirm */
+typedef union {
+    wsfMsgHdr_t           hdr;              /*! Header structure */
+    l2cCocConnectInd_t    connectInd;       /*! Channel connect indication */
+    l2cCocDisconnectInd_t disconnectInd;    /*! Channel disconnect indication */
+    l2cCocDataInd_t       dataInd;          /*! Received data indication */
+    l2cCocDataCnf_t       dataCnf;          /*! Transmit data confirm */
 } l2cCocEvt_t;
 
 /*! Configurable parameters */
-typedef struct
-{
-  uint16_t            reqTimeout;         /*! Request timeout in seconds */
+typedef struct {
+    uint16_t            reqTimeout;         /*! Request timeout in seconds */
 } l2cCfg_t;
 
 /**************************************************************************************************

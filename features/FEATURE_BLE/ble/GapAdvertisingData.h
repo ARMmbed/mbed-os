@@ -110,8 +110,7 @@
  * errors such as adding an exclusive AD field twice in the advertising
  * or scan response payload.
  */
-class GapAdvertisingData
-{
+class GapAdvertisingData {
 public:
     /*!
      * List of standard Advertising Data types.
@@ -537,7 +536,8 @@ public:
     GapAdvertisingData(void) :
         _payload(),
         _payloadLen(0),
-        _appearance(GENERIC_TAG) {
+        _appearance(GENERIC_TAG)
+    {
     }
 
     /**
@@ -563,7 +563,7 @@ public:
     ble_error_t addData(DataType_t advDataType, const uint8_t *payload, uint8_t len)
     {
         /* Find field */
-        uint8_t* field = findField(advDataType);
+        uint8_t *field = findField(advDataType);
 
         if (field) {
             /* Field type already exists, either add to field or replace */
@@ -589,7 +589,7 @@ public:
     ble_error_t updateData(DataType_t advDataType, const uint8_t *payload, uint8_t len)
     {
         /* Find field */
-        uint8_t* field = findField(advDataType);
+        uint8_t *field = findField(advDataType);
 
         if (field) {
             /* Field type already exists, replace field contents */
@@ -706,10 +706,10 @@ public:
      * element being the length of the field followed by the value of the field.
      * @return NULL if the field is not present in the payload.
      */
-    const uint8_t* findField(DataType_t type) const
+    const uint8_t *findField(DataType_t type) const
     {
         /* Scan through advertisement data */
-        for (uint8_t idx = 0; idx < _payloadLen; ) {
+        for (uint8_t idx = 0; idx < _payloadLen;) {
             uint8_t fieldType = _payload[idx + 1];
 
             if (fieldType == type) {
@@ -768,11 +768,11 @@ private:
      * element being the length of the field followed by the value of the field.
      * @return NULL if the field is not present in the payload.
      */
-    uint8_t* findField(DataType_t type)
+    uint8_t *findField(DataType_t type)
     {
-        return const_cast<uint8_t*>(
-            static_cast<const GapAdvertisingData*>(this)->findField(type)
-        );
+        return const_cast<uint8_t *>(
+                   static_cast<const GapAdvertisingData *>(this)->findField(type)
+               );
     }
 
     /**
@@ -798,11 +798,12 @@ private:
         DataType_t advDataType,
         const uint8_t *payload,
         uint8_t len,
-        uint8_t* field
-    ) {
+        uint8_t *field
+    )
+    {
         ble_error_t result = BLE_ERROR_BUFFER_OVERFLOW;
 
-        switch(advDataType) {
+        switch (advDataType) {
             /* These fields have the new data appended if there is sufficient space. */
             case INCOMPLETE_LIST_16BIT_SERVICE_IDS:
             case COMPLETE_LIST_16BIT_SERVICE_IDS:
@@ -818,7 +819,7 @@ private:
                      * advertisement payload "to the right" starting after the
                      * TYPE field.
                      */
-                    uint8_t* end = &_payload[_payloadLen];
+                    uint8_t *end = &_payload[_payloadLen];
 
                     while (&field[1] < end) {
                         end[len] = *end;
@@ -866,8 +867,9 @@ private:
         DataType_t advDataType,
         const uint8_t *payload,
         uint8_t len,
-        uint8_t* field
-    ) {
+        uint8_t *field
+    )
+    {
         ble_error_t result = BLE_ERROR_BUFFER_OVERFLOW;
         uint8_t dataLength = field[0] - 1;
 

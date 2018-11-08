@@ -72,7 +72,7 @@ uint32_t SystemCoreClock = __HFOSC; /*!< System Clock Frequency (Core Clock)    
  * @brief  Updates the variable SystemCoreClock and must be called whenever
  *         the core clock is changed during program execution.
  */
-void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
+void SystemCoreClockUpdate(void)             /* Get Core Clock Frequency      */
 {
     uint32_t    val;
     uint16_t    div2;
@@ -82,60 +82,56 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
     /* "lfclock" is only used during debug checks... */
     /* LF clock is always 32k, whether osc or xtal */
     lfClock = __LFCLK;  /* for beep, wdt and lcd */
-    if( lfClock == 0 )
-    {
-      while( 1 );
+    if (lfClock == 0) {
+        while (1);
     }
 #endif
 
     /* Update Core Clock sources */
     /* update the HF clock */
-    switch( pADI_CLKG0_CLK->CTL0 & BITM_CLKG_CLK_CTL0_CLKMUX ) {
+    switch (pADI_CLKG0_CLK->CTL0 & BITM_CLKG_CLK_CTL0_CLKMUX) {
 
         case HFMUX_INTERNAL_OSC_VAL:
-          hfClock = __HFOSC;
-          break;
+            hfClock = __HFOSC;
+            break;
 
         case HFMUX_EXTERNAL_XTAL_VAL:
-          hfClock = __HFXTAL;
-          break;
+            hfClock = __HFXTAL;
+            break;
 
         case HFMUX_SYSTEM_SPLL_VAL:
             /* Calculate System PLL output frequency */
-            if( pADI_CLKG0_CLK->CTL0 & BITM_CLKG_CLK_CTL0_SPLLIPSEL )
-            {
+            if (pADI_CLKG0_CLK->CTL0 & BITM_CLKG_CLK_CTL0_SPLLIPSEL) {
                 /* PLL input from HFXTAL */
                 val = __HFXTAL;
-            }
-            else
-            {
+            } else {
                 /* PLL input from HFOSC */
                 val = __HFOSC;
             }
 
             /* PLL NSEL multiplier */
-            nMulfactor = ( ( pADI_CLKG0_CLK->CTL3 &BITM_CLKG_CLK_CTL3_SPLLNSEL ) >> BITP_CLKG_CLK_CTL3_SPLLNSEL );
+            nMulfactor = ((pADI_CLKG0_CLK->CTL3 & BITM_CLKG_CLK_CTL3_SPLLNSEL) >> BITP_CLKG_CLK_CTL3_SPLLNSEL);
 
             /* PLL MSEL divider */
-            nDivisor = ( ( pADI_CLKG0_CLK->CTL3 & BITM_CLKG_CLK_CTL3_SPLLMSEL ) >> BITP_CLKG_CLK_CTL3_SPLLMSEL );
+            nDivisor = ((pADI_CLKG0_CLK->CTL3 & BITM_CLKG_CLK_CTL3_SPLLMSEL) >> BITP_CLKG_CLK_CTL3_SPLLMSEL);
 
             /* PLL NSEL multiplier */
-            div2 = ( ( pADI_CLKG0_CLK->CTL3 & BITM_CLKG_CLK_CTL3_SPLLDIV2 ) >> BITP_CLKG_CLK_CTL3_SPLLDIV2 );
+            div2 = ((pADI_CLKG0_CLK->CTL3 & BITM_CLKG_CLK_CTL3_SPLLDIV2) >> BITP_CLKG_CLK_CTL3_SPLLDIV2);
 
             /* PLL MSEL divider */
-            mul2 = ( ( pADI_CLKG0_CLK->CTL3 & BITM_CLKG_CLK_CTL3_SPLLMUL2 ) >> BITP_CLKG_CLK_CTL3_SPLLMUL2 );
+            mul2 = ((pADI_CLKG0_CLK->CTL3 & BITM_CLKG_CLK_CTL3_SPLLMUL2) >> BITP_CLKG_CLK_CTL3_SPLLMUL2);
 
-            val = ( ( (uint32_t)( ( nMulfactor * ( mul2 + 1.0 ) * (float) val ) / nDivisor ) ) >> div2 );
+            val = (((uint32_t)((nMulfactor * (mul2 + 1.0) * (float) val) / nDivisor)) >> div2);
 
             hfClock = val;
             break;
 
         case HFMUX_GPIO_VAL:
-          hfClock = gpioClock;
-          break;
+            hfClock = gpioClock;
+            break;
 
         default:
-          return;
+            return;
     } /* end switch */
 
     SystemCoreClock = hfClock;
@@ -170,7 +166,7 @@ void SramInit(void)
  * @brief  Setup the microcontroller system.
  *         Initialize the System and update the relocate vector table.
  */
-void SystemInit (void)
+void SystemInit(void)
 {
     uint32_t IntStatus;
 
@@ -194,12 +190,12 @@ void SystemInit (void)
                  SCB_SHCSR_BUSFAULTENA_Msk |
                  SCB_SHCSR_MEMFAULTENA_Msk ;
     adi_pwr_Init();
-    adi_pwr_SetClockDivider(ADI_CLOCK_HCLK,1);
-    adi_pwr_SetClockDivider(ADI_CLOCK_PCLK,1);
+    adi_pwr_SetClockDivider(ADI_CLOCK_HCLK, 1);
+    adi_pwr_SetClockDivider(ADI_CLOCK_PCLK, 1);
 
     /* Set up the LF clock source */
     adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFXTAL);
-    adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFXTAL,true);
+    adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFXTAL, true);
 
     __set_PRIMASK(IntStatus);
 }
@@ -217,12 +213,9 @@ void SystemInit (void)
 void adi_system_EnableCache(bool bEnable)
 {
     pADI_FLCC0_CACHE->KEY = CACHE_CONTROLLER_KEY;
-    if(bEnable)
-    {
+    if (bEnable) {
         pADI_FLCC0_CACHE->SETUP |= BITM_FLCC_CACHE_SETUP_ICEN;
-    }
-    else
-    {
+    } else {
         pADI_FLCC0_CACHE->SETUP &= ~BITM_FLCC_CACHE_SETUP_ICEN;
     }
 }
@@ -241,12 +234,9 @@ void adi_system_EnableCache(bool bEnable)
 void adi_system_EnableISRAM(bool bEnable)
 {
 
-    if(bEnable)
-    {
+    if (bEnable) {
         pADI_PMG0_TST->SRAM_CTL |= BITM_PMG_TST_SRAM_CTL_INSTREN;
-    }
-    else
-    {
+    } else {
         pADI_PMG0_TST->SRAM_CTL &= ~BITM_PMG_TST_SRAM_CTL_INSTREN;
     }
 }
@@ -264,21 +254,17 @@ void adi_system_EnableISRAM(bool bEnable)
  * @note: Please note that respective linker file need to support the configuration. Only BANK-1 and
           BANK-2 of SRAM is valid.
  */
-uint32_t adi_system_EnableRetention(ADI_SRAM_BANK eBank,bool bEnable)
+uint32_t adi_system_EnableRetention(ADI_SRAM_BANK eBank, bool bEnable)
 {
 #ifdef ADI_DEBUG
-    if((eBank != ADI_SRAM_BANK_1) && (eBank != ADI_SRAM_BANK_2))
-    {
+    if ((eBank != ADI_SRAM_BANK_1) && (eBank != ADI_SRAM_BANK_2)) {
         return FAILURE;
     }
 #endif
     pADI_PMG0->PWRKEY = PWRKEY_VALUE_KEY;
-    if(bEnable)
-    {
-        pADI_PMG0->SRAMRET |= (uint32_t)eBank>>1;
-    }
-    else
-    {
+    if (bEnable) {
+        pADI_PMG0->SRAMRET |= (uint32_t)eBank >> 1;
+    } else {
         pADI_PMG0->SRAMRET &= ~((uint32_t)eBank >> 1);
     }
 

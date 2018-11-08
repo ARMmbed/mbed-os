@@ -50,8 +50,7 @@
 /*@}*/
 
 /*! @brief INTMUX channel logic mode. */
-typedef enum _intmux_channel_logic_mode
-{
+typedef enum _intmux_channel_logic_mode {
     kINTMUX_ChannelLogicOR = 0x0U, /*!< Logic OR all enabled interrupt inputs */
     kINTMUX_ChannelLogicAND,       /*!< Logic AND all enabled interrupt inputs */
 } intmux_channel_logic_mode_t;

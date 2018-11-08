@@ -32,15 +32,15 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
-  */ 
+  ******************************************************************************
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_HAL_UART_EX_H
 #define __STM32L0xx_HAL_UART_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -58,27 +58,26 @@
 /* Exported types ------------------------------------------------------------*/
 /******************************************************************************/
 
-   /** @defgroup UARTEx_Exported_Types UARTEx Exported Types
-  * @{
-  */
+/** @defgroup UARTEx_Exported_Types UARTEx Exported Types
+* @{
+*/
 
 /** @defgroup UARTEx_Init_Configuration Extended  initialization configuration structure
   * @{
   */
-/** 
+/**
   * @brief  UART wake up from stop mode parameters
   */
-typedef struct
-{
-  uint32_t WakeUpEvent;        /*!< Specifies which event will activat the Wakeup from Stop mode flag (WUF).
+typedef struct {
+    uint32_t WakeUpEvent;        /*!< Specifies which event will activat the Wakeup from Stop mode flag (WUF).
                                     This parameter can be a value of @ref UART_WakeUp_from_Stop_Selection.
                                     If set to UART_WAKEUP_ON_ADDRESS, the two other fields below must
                                     be filled up. */
-  
-  uint16_t AddressLength;      /*!< Specifies whether the address is 4 or 7-bit long.
+
+    uint16_t AddressLength;      /*!< Specifies whether the address is 4 or 7-bit long.
                                     This parameter can be a value of @ref UARTEx_WakeUp_Address_Length  */
 
-  uint8_t Address;             /*!< UART/USART node address (7-bit long max) */
+    uint8_t Address;             /*!< UART/USART node address (7-bit long max) */
 } UART_WakeUpTypeDef;
 
 /**
@@ -92,7 +91,7 @@ typedef struct
 /** @defgroup UARTEx_Extended_Exported_Constants UARTEx Exported Constants
   * @{
   */
-  
+
 /** @defgroup UARTEx_Word_Length  Word length definition
   * @{
   */
@@ -119,8 +118,8 @@ typedef struct
                                                     ((MODE) == UART_ADVFEATURE_AUTOBAUDRATE_ON0X55FRAME))
 /**
   * @}
-  */  
-  
+  */
+
 /** @defgroup UARTEx_WakeUp_Address_Length WakeUp address length definition
   * @{
   */
@@ -130,9 +129,9 @@ typedef struct
                                                ((ADDRESS) == UART_ADDRESS_DETECT_7B))
 /**
   * @}
-  */  
+  */
 
-  
+
 /** @defgroup UARTEx_WakeUp_Methods Wakeup methods definition
   * @{
   */
@@ -143,20 +142,20 @@ typedef struct
 /**
   * @}
   */
-  
+
 /**
   * @}
-  */  
-  
+  */
+
 /* Exported macro ------------------------------------------------------------*/
 
 /** @defgroup UARTEx_Extended_Exported_Macros UARTEx Exported Macros
   * @{
   */
-           
+
 /** @brief  Reports the UART clock source.
   * @param  __HANDLE__: specifies the UART Handle
-  * @param  __CLOCKSOURCE__ : output variable   
+  * @param  __CLOCKSOURCE__ : output variable
   * @retval UART clocking source, written in __CLOCKSOURCE__.
   */
 #if defined (STM32L031xx) || defined (STM32L041xx) || defined (STM32L011xx) || defined (STM32L021xx)
@@ -276,7 +275,7 @@ typedef struct
   *         If PCE = 1, the parity bit is not included in the data extracted
   *         by the reception API().
   *         This masking operation is not carried out in the case of
-  *         DMA transfers.        
+  *         DMA transfers.
   * @param  __HANDLE__: specifies the UART Handle
   * @retval mask to apply to UART RDR register value.
   */
@@ -369,12 +368,12 @@ HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *hua
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
-  
+  */
+
 #ifdef __cplusplus
 }
 #endif

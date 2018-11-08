@@ -28,22 +28,24 @@ nRF5xGattClient::launchServiceDiscovery(Gap::Handle_t                           
 }
 
 ble_error_t nRF5xGattClient::discoverCharacteristicDescriptors(
-    const DiscoveredCharacteristic& characteristic,
-    const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
-    const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback)
+    const DiscoveredCharacteristic &characteristic,
+    const CharacteristicDescriptorDiscovery::DiscoveryCallback_t &discoveryCallback,
+    const CharacteristicDescriptorDiscovery::TerminationCallback_t &terminationCallback)
 {
     return _characteristicDescriptorDiscoverer.launch(
-        characteristic, 
-        discoveryCallback, 
-        terminationCallback
-    );
+               characteristic,
+               discoveryCallback,
+               terminationCallback
+           );
 }
 
-bool nRF5xGattClient::isCharacteristicDescriptorsDiscoveryActive(const DiscoveredCharacteristic& characteristic) const {
-    return _characteristicDescriptorDiscoverer.isActive(characteristic);   
+bool nRF5xGattClient::isCharacteristicDescriptorsDiscoveryActive(const DiscoveredCharacteristic &characteristic) const
+{
+    return _characteristicDescriptorDiscoverer.isActive(characteristic);
 }
 
-void nRF5xGattClient::terminateCharacteristicDescriptorsDiscovery(const DiscoveredCharacteristic& characteristic) { 
+void nRF5xGattClient::terminateCharacteristicDescriptorsDiscovery(const DiscoveredCharacteristic &characteristic)
+{
     return _characteristicDescriptorDiscoverer.requestTerminate(characteristic);
 }
 

@@ -24,13 +24,13 @@
 #include "tc_interrupt.h"
 
 #if (SAMD21) || (SAMR21)
-#define TICKER_COUNTER_uS		TC4
-#define TICKER_COUNTER_IRQn		TC4_IRQn
-#define TICKER_COUNTER_Handlr	TC4_Handler
+#define TICKER_COUNTER_uS       TC4
+#define TICKER_COUNTER_IRQn     TC4_IRQn
+#define TICKER_COUNTER_Handlr   TC4_Handler
 #elif (SAML21) /*SAML21 TCC4 does not support 32 bit counter operations*/
-#define TICKER_COUNTER_uS		TC0
-#define TICKER_COUNTER_IRQn		TC0_IRQn
-#define TICKER_COUNTER_Handlr	TC0_Handler
+#define TICKER_COUNTER_uS       TC0
+#define TICKER_COUNTER_IRQn     TC0_IRQn
+#define TICKER_COUNTER_Handlr   TC0_Handler
 #endif
 
 static int us_ticker_inited = 0;
@@ -56,7 +56,7 @@ static inline void tc_clear_interrupt(
     }
 }
 
-void us_ticker_irq_handler_internal(struct tc_module* us_tc_module)
+void us_ticker_irq_handler_internal(struct tc_module *us_tc_module)
 {
     uint32_t status_flags;
 
@@ -69,11 +69,13 @@ void us_ticker_irq_handler_internal(struct tc_module* us_tc_module)
 
 void us_ticker_init(void)
 {
-    uint32_t			cycles_per_us;
-    uint32_t			prescaler = 0;
-    struct tc_config	config_tc;
+    uint32_t            cycles_per_us;
+    uint32_t            prescaler = 0;
+    struct tc_config    config_tc;
 
-    if (us_ticker_inited) return;
+    if (us_ticker_inited) {
+        return;
+    }
     us_ticker_inited = 1;
 
     if (g_sys_init == 0) {
@@ -86,10 +88,10 @@ void us_ticker_init(void)
     cycles_per_us = system_gclk_gen_get_hz(config_tc.clock_source) / 1000000;
     MBED_ASSERT(cycles_per_us > 0);
     /*while((cycles_per_us & 1) == 0 && prescaler <= 10) {
-    	cycles_per_us = cycles_per_us >> 1;
-    	prescaler++;
+        cycles_per_us = cycles_per_us >> 1;
+        prescaler++;
     }*/
-    while((cycles_per_us > 1) && (prescaler <= 10)) {
+    while ((cycles_per_us > 1) && (prescaler <= 10)) {
         cycles_per_us = cycles_per_us >> 1;
         prescaler++;
     }
@@ -119,8 +121,9 @@ void us_ticker_init(void)
 
 uint32_t us_ticker_read()
 {
-    if (!us_ticker_inited)
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     return tc_get_count_value(&us_ticker_module);
 }

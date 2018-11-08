@@ -13,17 +13,20 @@
 
 namespace mbed {
 
-SPIHalfDuplex::SPIHalfDuplex(PinName mosi, PinName miso, PinName sclk) : SPI(mosi, miso, sclk) {
+SPIHalfDuplex::SPIHalfDuplex(PinName mosi, PinName miso, PinName sclk) : SPI(mosi, miso, sclk)
+{
     _mosi = mosi;
     _miso = miso;
     _sbits = _bits;
 }
 
-void SPIHalfDuplex::slave_format(int sbits) {
+void SPIHalfDuplex::slave_format(int sbits)
+{
     _sbits = sbits;
 }
 
-int SPIHalfDuplex::write(int value) {
+int SPIHalfDuplex::write(int value)
+{
     int t_bits = _bits;
     pin_function(_mosi, SPI_MODE);
     int ret_val = SPI::write(value);

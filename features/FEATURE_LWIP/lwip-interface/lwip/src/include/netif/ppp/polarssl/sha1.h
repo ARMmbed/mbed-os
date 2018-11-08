@@ -10,7 +10,7 @@
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
  *  are met:
- *  
+ *
  *    * Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above copyright
@@ -19,7 +19,7 @@
  *    * Neither the names of PolarSSL or XySSL nor the names of its contributors
  *      may be used to endorse or promote products derived from this software
  *      without specific prior written permission.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -42,8 +42,7 @@
 /**
  * \brief          SHA-1 context structure
  */
-typedef struct
-{
+typedef struct {
     unsigned long total[2];     /*!< number of bytes processed  */
     unsigned long state[5];     /*!< intermediate digest state  */
     unsigned char buffer[64];   /*!< data block being processed */
@@ -59,7 +58,7 @@ extern "C" {
  *
  * \param ctx      context to be initialized
  */
-void sha1_starts( sha1_context *ctx );
+void sha1_starts(sha1_context *ctx);
 
 /**
  * \brief          SHA-1 process buffer
@@ -68,7 +67,7 @@ void sha1_starts( sha1_context *ctx );
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-void sha1_update( sha1_context *ctx, const unsigned char *input, int ilen );
+void sha1_update(sha1_context *ctx, const unsigned char *input, int ilen);
 
 /**
  * \brief          SHA-1 final digest
@@ -76,7 +75,7 @@ void sha1_update( sha1_context *ctx, const unsigned char *input, int ilen );
  * \param ctx      SHA-1 context
  * \param output   SHA-1 checksum result
  */
-void sha1_finish( sha1_context *ctx, unsigned char output[20] );
+void sha1_finish(sha1_context *ctx, unsigned char output[20]);
 
 /**
  * \brief          Output = SHA-1( input buffer )
@@ -85,7 +84,7 @@ void sha1_finish( sha1_context *ctx, unsigned char output[20] );
  * \param ilen     length of the input data
  * \param output   SHA-1 checksum result
  */
-void sha1( unsigned char *input, int ilen, unsigned char output[20] );
+void sha1(unsigned char *input, int ilen, unsigned char output[20]);
 
 #ifdef __cplusplus
 }

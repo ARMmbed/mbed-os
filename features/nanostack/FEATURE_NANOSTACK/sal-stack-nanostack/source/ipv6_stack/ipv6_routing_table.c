@@ -82,9 +82,9 @@ static uint16_t dcache_gc_timer;
 
 static uint16_t cache_long_term(bool is_destination)
 {
-    uint16_t value = current_max_cache/8;
+    uint16_t value = current_max_cache / 8;
     if (is_destination) {
-        value*=2;
+        value *= 2;
     }
     if (value < 4) {
         value = 4;
@@ -94,7 +94,7 @@ static uint16_t cache_long_term(bool is_destination)
 
 static uint16_t cache_short_term(bool is_destination)
 {
-    uint16_t value = current_max_cache/2;
+    uint16_t value = current_max_cache / 2;
     if (value < cache_long_term(is_destination)) {
         return cache_long_term(is_destination);
     }
@@ -617,7 +617,7 @@ void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache, route_print
         sprint_array(addr_str, cur->ll_address, addr_len_from_type(cur->ll_type));
         print_fn("LL Addr: (%s %"PRIu32") %s", state_names[cur->state], cur->timer, addr_str);
         if (cache->recv_addr_reg && memcmp(ipv6_neighbour_eui64(cache, cur), ADDR_EUI64_ZERO, 8)) {
-            sprint_array( addr_str, ipv6_neighbour_eui64(cache, cur), 8);
+            sprint_array(addr_str, ipv6_neighbour_eui64(cache, cur), 8);
             print_fn("EUI-64:  (%s %"PRIu32") %s", type_names[cur->type], cur->lifetime, addr_str);
         } else if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
             print_fn("         (%s %"PRIu32") [no EUI-64]", type_names[cur->type], cur->lifetime);
@@ -1020,7 +1020,7 @@ static void ipv6_destination_cache_gc_periodic(void)
                     entry->pmtu = 0xffff;
                 }
                 if (entry->pmtu != old_mtu) {
-                //   socket_pmtu_changed(entry->destination, entry->interface_id, old_mtu, entry->pmtu);
+                    //   socket_pmtu_changed(entry->destination, entry->interface_id, old_mtu, entry->pmtu);
                 }
             } else {
                 entry->pmtu_lifetime -= DCACHE_GC_PERIOD;
@@ -1131,14 +1131,14 @@ static void ipv6_route_print(const ipv6_route_t *route, route_print_fn_t *print_
     ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
     if (route->lifetime != 0xFFFFFFFF) {
         print_fn(" %24s/%-3u if:%u src:'%s' id:%d lifetime:%"PRIu32,
-               ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, route->info.interface_id,
-               route_src_names[route->info.source], route->info.source_id, route->lifetime
-              );
+                 ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, route->info.interface_id,
+                 route_src_names[route->info.source], route->info.source_id, route->lifetime
+                );
     } else {
         print_fn(" %24s/%-3u if:%u src:'%s' id:%d lifetime:infinite",
-               ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, route->info.interface_id,
-               route_src_names[route->info.source], route->info.source_id
-              );
+                 ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, route->info.interface_id,
+                 route_src_names[route->info.source], route->info.source_id
+                );
     }
     if (route->on_link) {
         print_fn("     On-link (met %d)", total_metric(route));
@@ -1465,7 +1465,7 @@ ipv6_route_t *ipv6_route_lookup_with_info(const uint8_t *prefix, uint8_t prefix_
 
 uint8_t ipv6_route_pref_to_metric(int_fast8_t pref)
 {
-    if (pref <-1 || pref > +1) {
+    if (pref < -1 || pref > +1) {
         pref = 0;
     }
     return PREF_TO_METRIC(pref);

@@ -616,7 +616,7 @@ public:
      * @see Gap::startScan().
      */
     typedef FunctionPointerWithContext<const AdvertisementCallbackParams_t *>
-        AdvertisementReportCallback_t;
+    AdvertisementReportCallback_t;
 
     /**
      * Connection events.
@@ -764,7 +764,7 @@ public:
      * @see Gap::onTimeout().
      */
     typedef CallChainOfFunctionPointersWithContext<TimeoutSource_t>
-        TimeoutEventCallbackChain_t;
+    TimeoutEventCallbackChain_t;
 
     /**
      * Connection event handler.
@@ -772,7 +772,7 @@ public:
      * @see Gap::onConnection().
      */
     typedef FunctionPointerWithContext<const ConnectionCallbackParams_t *>
-        ConnectionEventCallback_t;
+    ConnectionEventCallback_t;
 
     /**
      * Callchain of connection event handlers.
@@ -780,23 +780,23 @@ public:
      * @see Gap::onConnection().
      */
     typedef CallChainOfFunctionPointersWithContext<const ConnectionCallbackParams_t *>
-        ConnectionEventCallbackChain_t;
+    ConnectionEventCallbackChain_t;
 
     /**
      * Disconnection event handler.
      *
      * @see Gap::onDisconnection().
      */
-    typedef FunctionPointerWithContext<const DisconnectionCallbackParams_t*>
-        DisconnectionEventCallback_t;
+    typedef FunctionPointerWithContext<const DisconnectionCallbackParams_t *>
+    DisconnectionEventCallback_t;
 
     /**
      * Callchain of disconnection event handlers.
      *
      * @see Gap::onDisconnection().
      */
-    typedef CallChainOfFunctionPointersWithContext<const DisconnectionCallbackParams_t*>
-        DisconnectionEventCallbackChain_t;
+    typedef CallChainOfFunctionPointersWithContext<const DisconnectionCallbackParams_t *>
+    DisconnectionEventCallbackChain_t;
 
     /**
      * Radio notification event handler.
@@ -818,7 +818,7 @@ public:
      * @see Gap::onShutdown().
      */
     typedef CallChainOfFunctionPointersWithContext<const Gap *>
-        GapShutdownCallbackChain_t;
+    GapShutdownCallbackChain_t;
 
     /*
      * The following functions are meant to be overridden in the platform-specific subclass.
@@ -844,7 +844,8 @@ public:
     virtual ble_error_t setAddress(
         BLEProtocol::AddressType_t type,
         const BLEProtocol::AddressBytes_t address
-    ) {
+    )
+    {
         /* avoid compiler warnings about unused variables */
         (void)type;
         (void)address;
@@ -865,7 +866,8 @@ public:
     virtual ble_error_t getAddress(
         BLEProtocol::AddressType_t *typeP,
         BLEProtocol::AddressBytes_t address
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)typeP;
         (void)address;
@@ -964,7 +966,8 @@ public:
         BLEProtocol::AddressType_t peerAddrType,
         const ConnectionParams_t *connectionParams,
         const GapScanningParams *scanParams
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)peerAddr;
         (void)peerAddrType;
@@ -996,14 +999,15 @@ public:
         DeprecatedAddressType_t peerAddrType,
         const ConnectionParams_t *connectionParams,
         const GapScanningParams *scanParams
-    ) {
+    )
+    {
         return connect(
-            peerAddr,
-            (BLEProtocol::AddressType_t)
-            peerAddrType,
-            connectionParams,
-            scanParams
-        );
+                   peerAddr,
+                   (BLEProtocol::AddressType_t)
+                   peerAddrType,
+                   connectionParams,
+                   scanParams
+               );
     }
 
     /**
@@ -1021,7 +1025,8 @@ public:
      */
     virtual ble_error_t disconnect(
         Handle_t connectionHandle, DisconnectionReason_t reason
-    ) {
+    )
+    {
         /* avoid compiler warnings about unused variables */
         (void)connectionHandle;
         (void)reason;
@@ -1044,7 +1049,8 @@ public:
      * @return BLE_ERROR_NONE if disconnection was successful.
      */
     MBED_DEPRECATED("Use disconnect(Handle_t, DisconnectionReason_t) instead.")
-    virtual ble_error_t disconnect(DisconnectionReason_t reason) {
+    virtual ble_error_t disconnect(DisconnectionReason_t reason)
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)reason;
 
@@ -1087,7 +1093,8 @@ public:
      */
     virtual ble_error_t setPreferredConnectionParams(
         const ConnectionParams_t *params
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)params;
 
@@ -1111,7 +1118,8 @@ public:
     virtual ble_error_t updateConnectionParams(
         Handle_t handle,
         const ConnectionParams_t *params
-    ) {
+    )
+    {
         /* avoid compiler warnings about unused variables */
         (void)handle;
         (void)params;
@@ -1130,7 +1138,8 @@ public:
      *
      * @return BLE_ERROR_NONE if the device name was set correctly.
      */
-    virtual ble_error_t setDeviceName(const uint8_t *deviceName) {
+    virtual ble_error_t setDeviceName(const uint8_t *deviceName)
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)deviceName;
 
@@ -1233,7 +1242,8 @@ public:
      */
     virtual void getPermittedTxPowerValues(
         const int8_t **valueArrayPP, size_t *countP
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)valueArrayPP;
         (void)countP;
@@ -1605,7 +1615,8 @@ public:
      */
     ble_error_t accumulateAdvertisingPayload(
         GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len
-    ) {
+    )
+    {
         GapAdvertisingData advPayloadCopy = _advPayload;
         ble_error_t rc;
         if ((rc = advPayloadCopy.addData(type, data, len)) != BLE_ERROR_NONE) {
@@ -1646,7 +1657,8 @@ public:
      */
     ble_error_t updateAdvertisingPayload(
         GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len
-    ) {
+    )
+    {
         GapAdvertisingData advPayloadCopy = _advPayload;
         ble_error_t rc;
         if ((rc = advPayloadCopy.updateData(type, data, len)) != BLE_ERROR_NONE) {
@@ -1702,7 +1714,8 @@ public:
      */
     ble_error_t accumulateScanResponse(
         GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len
-    ) {
+    )
+    {
         GapAdvertisingData scanResponseCopy = _scanResponse;
         ble_error_t rc;
         if ((rc = scanResponseCopy.addData(type, data, len)) != BLE_ERROR_NONE) {
@@ -1723,7 +1736,8 @@ public:
      * @note This should be followed by a call to Gap::setAdvertisingPayload()
      * or Gap::startAdvertising() before the update takes effect.
      */
-    void clearScanResponse(void) {
+    void clearScanResponse(void)
+    {
         _scanResponse.clear();
         setAdvertisingData(_advPayload, _scanResponse);
     }
@@ -1765,11 +1779,12 @@ public:
         uint16_t window = GapScanningParams::SCAN_WINDOW_MAX,
         uint16_t timeout = 0,
         bool activeScanning = false
-    ) {
+    )
+    {
         ble_error_t rc;
         if (((rc = _scanningParams.setInterval(interval)) == BLE_ERROR_NONE) &&
-            ((rc = _scanningParams.setWindow(window))     == BLE_ERROR_NONE) &&
-            ((rc = _scanningParams.setTimeout(timeout))   == BLE_ERROR_NONE)) {
+                ((rc = _scanningParams.setWindow(window))     == BLE_ERROR_NONE) &&
+                ((rc = _scanningParams.setTimeout(timeout))   == BLE_ERROR_NONE)) {
             _scanningParams.setActiveScanning(activeScanning);
             return BLE_ERROR_NONE;
         }
@@ -1883,7 +1898,8 @@ public:
      */
     ble_error_t startScan(
         void (*callback)(const AdvertisementCallbackParams_t *params)
-    ) {
+    )
+    {
         ble_error_t err = BLE_ERROR_NONE;
         if (callback) {
             if ((err = startRadioScan(_scanningParams)) == BLE_ERROR_NONE) {
@@ -1916,7 +1932,8 @@ public:
     ble_error_t startScan(
         T *object,
         void (T::*callbackMember)(const AdvertisementCallbackParams_t *params)
-    ) {
+    )
+    {
         ble_error_t err = BLE_ERROR_NONE;
         if (object && callbackMember) {
             if ((err = startRadioScan(_scanningParams)) == BLE_ERROR_NONE) {
@@ -2034,7 +2051,7 @@ public:
      *
      * @return A reference to the timeout event callbacks chain.
      */
-    TimeoutEventCallbackChain_t& onTimeout()
+    TimeoutEventCallbackChain_t &onTimeout()
     {
         return timeoutCallbackChain;
     }
@@ -2060,7 +2077,7 @@ public:
      * @note A callback may be unregistered using onConnection().detach(callback).
      */
     template<typename T>
-    void onConnection(T *tptr, void (T::*mptr)(const ConnectionCallbackParams_t*))
+    void onConnection(T *tptr, void (T::*mptr)(const ConnectionCallbackParams_t *))
     {
         connectionCallChain.add(tptr, mptr);
     }
@@ -2074,7 +2091,7 @@ public:
      *
      * @return A reference to the connection event callbacks chain.
      */
-    ConnectionEventCallbackChain_t& onConnection()
+    ConnectionEventCallbackChain_t &onConnection()
     {
         return connectionCallChain;
     }
@@ -2100,7 +2117,7 @@ public:
      * @note A callback may be unregistered using onDisconnection().detach(callback).
      */
     template<typename T>
-    void onDisconnection(T *tptr, void (T::*mptr)(const DisconnectionCallbackParams_t*))
+    void onDisconnection(T *tptr, void (T::*mptr)(const DisconnectionCallbackParams_t *))
     {
         disconnectionCallChain.add(tptr, mptr);
     }
@@ -2114,7 +2131,7 @@ public:
      *
      * @return A reference to the disconnection event callbacks chain.
      */
-    DisconnectionEventCallbackChain_t& onDisconnection()
+    DisconnectionEventCallbackChain_t &onDisconnection()
     {
         return disconnectionCallChain;
     }
@@ -2165,7 +2182,7 @@ public:
      * @note To unregister a shutdown event handler, use
      * onShutdown().detach(callback).
      */
-    void onShutdown(const GapShutdownCallback_t& callback)
+    void onShutdown(const GapShutdownCallback_t &callback)
     {
         shutdownCallChain.add(callback);
     }
@@ -2191,7 +2208,7 @@ public:
      *
      * @return A reference to the shutdown event callback chain.
      */
-    GapShutdownCallbackChain_t& onShutdown()
+    GapShutdownCallbackChain_t &onShutdown()
     {
         return shutdownCallChain;
     }
@@ -2259,7 +2276,8 @@ protected:
         radioNotificationCallback(),
         onAdvertisementReport(),
         connectionCallChain(),
-        disconnectionCallChain() {
+        disconnectionCallChain()
+    {
         _advPayload.clear();
         _scanResponse.clear();
     }
@@ -2289,7 +2307,8 @@ public:
         BLEProtocol::AddressType_t ownAddrType,
         const BLEProtocol::AddressBytes_t ownAddr,
         const ConnectionParams_t *connectionParams
-    ) {
+    )
+    {
         /* Update Gap state */
         state.advertising = 0;
         state.connected   = 1;
@@ -2350,7 +2369,8 @@ public:
         GapAdvertisingParams::AdvertisingType_t type,
         uint8_t advertisingDataLen,
         const uint8_t *advertisingData
-    ) {
+    )
+    {
         AdvertisementCallbackParams_t params;
         memcpy(params.peerAddr, peerAddr, ADDR_LEN);
         params.rssi = rssi;
@@ -2457,7 +2477,7 @@ private:
 private:
     /* Disallow copy and assignment. */
     Gap(const Gap &);
-    Gap& operator=(const Gap &);
+    Gap &operator=(const Gap &);
 };
 
 /**

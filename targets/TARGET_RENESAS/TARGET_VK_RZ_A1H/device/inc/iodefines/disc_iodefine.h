@@ -30,8 +30,8 @@
 #define DISC_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_disc
-{                                                          /* DISC             */
+struct st_disc {
+    /* DISC             */
     volatile uint32_t  DOCMCR;                                 /*  DOCMCR          */
     volatile uint32_t  DOCMSTR;                                /*  DOCMSTR         */
     volatile uint32_t  DOCMCLSTR;                              /*  DOCMCLSTR       */

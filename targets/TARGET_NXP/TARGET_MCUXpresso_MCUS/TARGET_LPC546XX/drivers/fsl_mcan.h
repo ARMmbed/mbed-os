@@ -48,8 +48,7 @@
 /*@}*/
 
 /*! @brief MCAN transfer status. */
-enum _mcan_status
-{
+enum _mcan_status {
     kStatus_MCAN_TxBusy = MAKE_STATUS(kStatusGroup_MCAN, 0),            /*!< Tx Buffer is Busy. */
     kStatus_MCAN_TxIdle = MAKE_STATUS(kStatusGroup_MCAN, 1),            /*!< Tx Buffer is Idle. */
     kStatus_MCAN_RxBusy = MAKE_STATUS(kStatusGroup_MCAN, 2),            /*!< Rx Buffer is Busy. */
@@ -78,8 +77,7 @@ enum _mcan_status
  * read MCAN_ErrorFlag and distinguish which error is occur using
  * @ref _mcan_error_flags enumerations.
  */
-enum _mcan_flags
-{
+enum _mcan_flags {
     kMCAN_AccesstoRsvdFlag = CAN_IR_ARA_MASK,    /*!< CAN Synchronization Status. */
     kMCAN_ProtocolErrDIntFlag = CAN_IR_PED_MASK, /*!< Tx Warning Interrupt Flag. */
     kMCAN_ProtocolErrAIntFlag = CAN_IR_PEA_MASK, /*!< Rx Warning Interrupt Flag. */
@@ -94,8 +92,7 @@ enum _mcan_flags
  * The MCAN Rx FIFO Status enumerations are used to determine the status of the
  * Rx FIFO.
  */
-enum _mcan_rx_fifo_flags
-{
+enum _mcan_rx_fifo_flags {
     kMCAN_RxFifo0NewFlag = CAN_IR_RF0N_MASK,       /*!< Rx FIFO 0 new message flag. */
     kMCAN_RxFifo0WatermarkFlag = CAN_IR_RF0W_MASK, /*!< Rx FIFO 0 watermark reached flag. */
     kMCAN_RxFifo0FullFlag = CAN_IR_RF0F_MASK,      /*!< Rx FIFO 0 full flag. */
@@ -112,8 +109,7 @@ enum _mcan_rx_fifo_flags
  * The MCAN Tx Status enumerations are used to determine the status of the
  * Tx Buffer/Event FIFO.
  */
-enum _mcan_tx_flags
-{
+enum _mcan_tx_flags {
     kMCAN_TxTransmitCompleteFlag = CAN_IR_TC_MASK,      /*!< Transmission completed flag. */
     kMCAN_TxTransmitCancelFinishFlag = CAN_IR_TCF_MASK, /*!< Transmission cancellation finished flag. */
     kMCAN_TxEventFifoLostFlag = CAN_IR_TEFL_MASK,       /*!< Tx Event FIFO element lost. */
@@ -128,30 +124,26 @@ enum _mcan_tx_flags
  *
  * This structure contains the settings for all of the MCAN Module interrupt configurations.
  */
-enum _mcan_interrupt_enable
-{
+enum _mcan_interrupt_enable {
     kMCAN_BusOffInterruptEnable = CAN_IE_BOE_MASK,  /*!< Bus Off interrupt. */
     kMCAN_ErrorInterruptEnable = CAN_IE_EPE_MASK,   /*!< Error interrupt. */
     kMCAN_WarningInterruptEnable = CAN_IE_EWE_MASK, /*!< Rx Warning interrupt. */
 };
 
 /*! @brief MCAN frame format. */
-typedef enum _mcan_frame_idformat
-{
+typedef enum _mcan_frame_idformat {
     kMCAN_FrameIDStandard = 0x0U, /*!< Standard frame format attribute. */
     kMCAN_FrameIDExtend = 0x1U,   /*!< Extend frame format attribute. */
 } mcan_frame_idformat_t;
 
 /*! @brief MCAN frame type. */
-typedef enum _mcan_frame_type
-{
+typedef enum _mcan_frame_type {
     kMCAN_FrameTypeData = 0x0U,   /*!< Data frame type attribute. */
     kMCAN_FrameTypeRemote = 0x1U, /*!< Remote frame type attribute. */
 } mcan_frame_type_t;
 
 /*! @brief MCAN frame datafield size. */
-typedef enum _mcan_bytes_in_datafield
-{
+typedef enum _mcan_bytes_in_datafield {
     kMCAN_8ByteDatafield = 0x0U,  /*!< 8 byte data field. */
     kMCAN_12ByteDatafield = 0x1U, /*!< 12 byte data field. */
     kMCAN_16ByteDatafield = 0x2U, /*!< 16 byte data field. */
@@ -166,17 +158,14 @@ typedef enum _mcan_bytes_in_datafield
 #pragma anon_unions
 #endif
 /*! @brief MCAN Tx Buffer structure. */
-typedef struct _mcan_tx_buffer_frame
-{
-    struct
-    {
+typedef struct _mcan_tx_buffer_frame {
+    struct {
         uint32_t id : 29; /*!< CAN Frame Identifier. */
         uint32_t rtr : 1; /*!< CAN Frame Type(DATA or REMOTE). */
         uint32_t xtd : 1; /*!< CAN Frame Type(STD or EXT). */
         uint32_t esi : 1; /*!< CAN Frame Error State Indicator. */
     };
-    struct
-    {
+    struct {
         uint32_t : 16;
         uint32_t dlc : 4; /*!< Data Length Code. */
         uint32_t brs : 1; /*!< Bit Rate Switch. */
@@ -190,17 +179,14 @@ typedef struct _mcan_tx_buffer_frame
 } mcan_tx_buffer_frame_t;
 
 /*! @brief MCAN Rx FIFO/Buffer structure. */
-typedef struct _mcan_rx_buffer_frame
-{
-    struct
-    {
+typedef struct _mcan_rx_buffer_frame {
+    struct {
         uint32_t id : 29; /*!< CAN Frame Identifier. */
         uint32_t rtr : 1; /*!< CAN Frame Type(DATA or REMOTE). */
         uint32_t xtd : 1; /*!< CAN Frame Type(STD or EXT). */
         uint32_t esi : 1; /*!< CAN Frame Error State Indicator. */
     };
-    struct
-    {
+    struct {
         uint32_t rxts : 16; /*!< Rx Timestamp. */
         uint32_t dlc : 4;   /*!< Data Length Code. */
         uint32_t brs : 1;   /*!< Bit Rate Switch. */
@@ -214,36 +200,31 @@ typedef struct _mcan_rx_buffer_frame
 } mcan_rx_buffer_frame_t;
 
 /*! @brief MCAN Rx FIFO block number. */
-typedef enum _mcan_fifo_type
-{
+typedef enum _mcan_fifo_type {
     kMCAN_Fifo0 = 0x0U, /*!< CAN Rx FIFO 0. */
     kMCAN_Fifo1 = 0x1U, /*!< CAN Rx FIFO 1. */
 } mcan_fifo_type_t;
 
 /*! @brief MCAN FIFO Operation Mode. */
-typedef enum _mcan_fifo_opmode_config
-{
+typedef enum _mcan_fifo_opmode_config {
     kMCAN_FifoBlocking = 0,  /*!< FIFO blocking mode. */
     kMCAN_FifoOverwrite = 1, /*!< FIFO overwrite mode. */
 } mcan_fifo_opmode_config_t;
 
 /*! @brief MCAN Tx FIFO/Queue Mode. */
-typedef enum _mcan_txmode_config
-{
+typedef enum _mcan_txmode_config {
     kMCAN_txFifo = 0,  /*!< Tx FIFO operation. */
     kMCAN_txQueue = 1, /*!< Tx Queue operation. */
 } mcan_txmode_config_t;
 
 /*! @brief MCAN remote frames treatment. */
-typedef enum _mcan_remote_frame_config
-{
+typedef enum _mcan_remote_frame_config {
     kMCAN_filterFrame = 0, /*!< Filter remote frames. */
     kMCAN_rejectFrame = 1, /*!< Reject all remote frames. */
 } mcan_remote_frame_config_t;
 
 /*! @brief MCAN non-masking frames treatment. */
-typedef enum _mcan_nonmasking_frame_config
-{
+typedef enum _mcan_nonmasking_frame_config {
     kMCAN_acceptinFifo0 = 0, /*!< Accept non-masking frames in Rx FIFO 0. */
     kMCAN_acceptinFifo1 = 1, /*!< Accept non-masking frames in Rx FIFO 1. */
     kMCAN_reject0 = 2,       /*!< Reject non-masking frames. */
@@ -251,8 +232,7 @@ typedef enum _mcan_nonmasking_frame_config
 } mcan_nonmasking_frame_config_t;
 
 /*! @brief MCAN Filter Element Configuration. */
-typedef enum _mcan_fec_config
-{
+typedef enum _mcan_fec_config {
     kMCAN_disable = 0,       /*!< Disable filter element. */
     kMCAN_storeinFifo0 = 1,  /*!< Store in Rx FIFO 0 if filter matches. */
     kMCAN_storeinFifo1 = 2,  /*!< Store in Rx FIFO 1 if filter matches. */
@@ -264,8 +244,7 @@ typedef enum _mcan_fec_config
 } mcan_fec_config_t;
 
 /*! @brief MCAN Rx FIFO configuration. */
-typedef struct _mcan_rx_fifo_config
-{
+typedef struct _mcan_rx_fifo_config {
     uint32_t address;                        /*!< FIFOn start address. */
     uint32_t elementSize;                    /*!< FIFOn element number. */
     uint32_t watermark;                      /*!< FIFOn watermark level. */
@@ -274,23 +253,20 @@ typedef struct _mcan_rx_fifo_config
 } mcan_rx_fifo_config_t;
 
 /*! @brief MCAN Rx Buffer configuration. */
-typedef struct _mcan_rx_buffer_config
-{
+typedef struct _mcan_rx_buffer_config {
     uint32_t address;                        /*!< Rx Buffer start address. */
     mcan_bytes_in_datafield_t datafieldSize; /*!< Data field size per frame, size>8 is for CANFD. */
 } mcan_rx_buffer_config_t;
 
 /*! @brief MCAN Tx Event FIFO configuration. */
-typedef struct _mcan_tx_fifo_config
-{
+typedef struct _mcan_tx_fifo_config {
     uint32_t address;     /*!< Event fifo start address. */
     uint32_t elementSize; /*!< FIFOn element number. */
     uint32_t watermark;   /*!< FIFOn watermark level. */
 } mcan_tx_fifo_config_t;
 
 /*! @brief MCAN Tx Buffer configuration. */
-typedef struct _mcan_tx_buffer_config
-{
+typedef struct _mcan_tx_buffer_config {
     uint32_t address;                        /*!< Tx Buffers Start Address. */
     uint32_t dedicatedSize;                  /*!< Number of Dedicated Transmit Buffers. */
     uint32_t fqSize;                         /*!< Transmit FIFO/Queue Size. */
@@ -299,8 +275,7 @@ typedef struct _mcan_tx_buffer_config
 } mcan_tx_buffer_config_t;
 
 /*! @brief MCAN Filter Type. */
-typedef enum _mcan_std_filter_type
-{
+typedef enum _mcan_std_filter_type {
     kMCAN_range = 0,           /*!< Range filter from SFID1 to SFID2. */
     kMCAN_dual = 1,            /*!< Dual ID filter for SFID1 or SFID2. */
     kMCAN_classic = 2,         /*!< Classic filter: SFID1 = filter, SFID2 = mask. */
@@ -309,8 +284,7 @@ typedef enum _mcan_std_filter_type
 } mcan_filter_type_t;
 
 /*! @brief MCAN Standard Message ID Filter Element. */
-typedef struct _mcan_std_filter_element_config
-{
+typedef struct _mcan_std_filter_element_config {
     uint32_t sfid2 : 11;        /*!< Standard Filter ID 2. */
     uint32_t : 5;               /*!< Reserved. */
     uint32_t sfid1 : 11;        /*!< Standard Filter ID 1. */
@@ -319,8 +293,7 @@ typedef struct _mcan_std_filter_element_config
 } mcan_std_filter_element_config_t;
 
 /*! @brief MCAN Extended Message ID Filter Element. */
-typedef struct _mcan_ext_filter_element_config
-{
+typedef struct _mcan_ext_filter_element_config {
     uint32_t efid1 : 29;        /*!< Extended Filter ID 1. */
     mcan_fec_config_t efec : 3; /*!< Extended Filter Element Configuration. */
     uint32_t efid2 : 29;        /*!< Extended Filter ID 2. */
@@ -329,8 +302,7 @@ typedef struct _mcan_ext_filter_element_config
 } mcan_ext_filter_element_config_t;
 
 /*! @brief MCAN Rx filter configuration. */
-typedef struct _mcan_frame_filter_config
-{
+typedef struct _mcan_frame_filter_config {
     uint32_t address;                       /*!< Filter start address. */
     uint32_t listSize;                      /*!< Filter list size. */
     mcan_frame_idformat_t idFormat;         /*!< Frame format. */
@@ -339,8 +311,7 @@ typedef struct _mcan_frame_filter_config
 } mcan_frame_filter_config_t;
 
 /*! @brief MCAN module configuration structure. */
-typedef struct _mcan_config
-{
+typedef struct _mcan_config {
     uint32_t baudRateA;     /*!< Baud rate of Arbitration phase in bps. */
     uint32_t baudRateD;     /*!< Baud rate of Data phase in bps. */
     bool enableCanfdNormal; /*!< Enable or Disable CANFD normal. */
@@ -351,8 +322,7 @@ typedef struct _mcan_config
 } mcan_config_t;
 
 /*! @brief MCAN protocol timing characteristic configuration structure. */
-typedef struct _mcan_timing_config
-{
+typedef struct _mcan_timing_config {
     uint16_t preDivider; /*!< Clock Pre-scaler Division Factor. */
     uint8_t rJumpwidth;  /*!< Re-sync Jump Width. */
     uint8_t seg1;        /*!< Data Time Segment 1. */
@@ -360,15 +330,13 @@ typedef struct _mcan_timing_config
 } mcan_timing_config_t;
 
 /*! @brief MCAN Buffer transfer. */
-typedef struct _mcan_buffer_transfer
-{
+typedef struct _mcan_buffer_transfer {
     mcan_tx_buffer_frame_t *frame; /*!< The buffer of CAN Message to be transfer. */
     uint8_t bufferIdx;             /*!< The index of Message buffer used to transfer Message. */
 } mcan_buffer_transfer_t;
 
 /*! @brief MCAN Rx FIFO transfer. */
-typedef struct _mcan_fifo_transfer
-{
+typedef struct _mcan_fifo_transfer {
     mcan_rx_buffer_frame_t *frame; /*!< The buffer of CAN Message to be received from Rx FIFO. */
 } mcan_fifo_transfer_t;
 
@@ -389,8 +357,7 @@ typedef void (*mcan_transfer_callback_t)(
     CAN_Type *base, mcan_handle_t *handle, status_t status, uint32_t result, void *userData);
 
 /*! @brief MCAN handle structure. */
-struct _mcan_handle
-{
+struct _mcan_handle {
     mcan_transfer_callback_t callback;                   /*!< Callback function. */
     void *userData;                                      /*!< MCAN callback function parameter.*/
     mcan_tx_buffer_frame_t *volatile bufferFrameBuf[64]; /*!< The buffer for received data from Buffers. */
@@ -678,12 +645,9 @@ static inline bool MCAN_GetRxBufferStatusFlag(CAN_Type *base, uint8_t idx)
 {
     assert(idx <= 63U);
 
-    if (idx <= 31U)
-    {
+    if (idx <= 31U) {
         return (bool)(base->NDAT1 & (1U << idx));
-    }
-    else
-    {
+    } else {
         return (bool)(base->NDAT2 & (1U << (idx - 31U)));
     }
 }
@@ -700,12 +664,9 @@ static inline void MCAN_ClearRxBufferStatusFlag(CAN_Type *base, uint8_t idx)
 {
     assert(idx <= 63U);
 
-    if (idx <= 31U)
-    {
+    if (idx <= 31U) {
         base->NDAT1 &= ~(1U << idx);
-    }
-    else
-    {
+    } else {
         base->NDAT2 &= ~(1U << (idx - 31U));
     }
 }
@@ -730,12 +691,9 @@ static inline void MCAN_ClearRxBufferStatusFlag(CAN_Type *base, uint8_t idx)
 static inline void MCAN_EnableInterrupts(CAN_Type *base, uint32_t line, uint32_t mask)
 {
     base->ILE |= (1U << line);
-    if (0 == line)
-    {
+    if (0 == line) {
         base->ILS &= ~mask;
-    }
-    else
-    {
+    } else {
         base->ILS |= mask;
     }
     base->IE |= mask;

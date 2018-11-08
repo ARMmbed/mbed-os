@@ -16,7 +16,7 @@
  * Component: Main for WiFi-driver and BT stack
  * File     : cb_main.h
  *
- * Description : 
+ * Description :
  *-------------------------------------------------------------------------*/
 
 #ifndef _CB_MAIN_H_
@@ -35,8 +35,7 @@
 /*===========================================================================
  * TYPES
  *=========================================================================*/
-typedef struct
-{
+typedef struct {
     TBdAddr         address;                    /** Bluetooth address that shall be assigned to controller. Pass invalidBdAddress to use controller default address*/
     cbBM_LeRole     leRole;                     /** Bluetooth low energy role */
     cb_int8         maxOutputPower;             /** Maximum output power. */
@@ -46,11 +45,10 @@ typedef struct
 
 typedef void(*cbMAIN_ErrorHandler)(
     cb_int32            errorCode,
-    const cb_char*      filename,
+    const cb_char      *filename,
     cb_uint32           line);
 
-typedef struct
-{
+typedef struct {
     cbWLAN_MACAddress      mac;                 /**< MAC of WLAN interface, set to all zeros if hardware programmed address should be used. */
     cbWM_TxPowerSettings   txPowerSettings;     /**< Transmission power settings. */
 } cbMAIN_WlanStartParams;
@@ -119,7 +117,7 @@ extern void cbMAIN_startOS(void);
 * Use cbMAIN_dispatchEventQueue to trigger the driver to call the queued up functions.
 * @return EventQueue     Pointer to the event queue where function calls can be enqueued.
 */
-extern EventQueue* cbMAIN_getEventQueue(void);
+extern EventQueue *cbMAIN_getEventQueue(void);
 
 /**
 * Lock driver from usage. This must be used if a C API function is used outside of the driver thread context.

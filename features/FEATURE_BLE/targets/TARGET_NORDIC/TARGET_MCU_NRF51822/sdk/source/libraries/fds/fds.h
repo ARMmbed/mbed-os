@@ -41,7 +41,7 @@
  *
  * @details Flash Data Storage (FDS) is a minimalistic filesystem for the on-chip flash.
  *          It can be used to manipulate @e records, which consist of a piece of data, made up
- *          of one or more chunks, and an associated key pair. 
+ *          of one or more chunks, and an associated key pair.
  */
 
 #include <stdint.h>
@@ -69,8 +69,7 @@ typedef uint16_t fds_checksum_t;
 
 /**@brief A piece of a record metadata, keeping information about one of its keys (type) and its
  *        lenght, expressed in 4 byte words. */
-typedef struct 
-{
+typedef struct {
     fds_type_id_t type;           /**< The record type ID. */
     fds_length_t  length_words;   /**< Length of the record's data, in 4 byte words. */
 } fds_tl_t;
@@ -78,16 +77,14 @@ typedef struct
 
 /**@brief A piece of a record metadata, keeping information about one of its keys (instance) and
  *        its checksum. */
-typedef struct
-{
+typedef struct {
     fds_instance_id_t instance;       /**< The record instance ID. */
     fds_checksum_t    checksum;       /**< Checksum of the entire record, including the metadata. */
 } fds_ic_t;
 
 
 /**@brief The record metadata. */
-typedef struct
-{
+typedef struct {
     fds_tl_t        tl;     /**< See @ref fds_tl_t. */
     fds_ic_t        ic;     /**< See @ref fds_ic_t. */
     fds_record_id_t id;     /**< The unique record ID (32 bits). */
@@ -102,10 +99,9 @@ typedef fds_header_t fds_record_header_t;
  * @note    This structure does not need special initialization.
  * @warning Do not reuse the same descriptor for different records. If you do, be sure to set
  *          its fields to zero. */
-typedef struct
-{
+typedef struct {
     uint32_t         record_id;     /**< The unique record ID. */
-    uint32_t const * p_rec;         /**< The last known record address in flash. */
+    uint32_t const *p_rec;          /**< The last known record address in flash. */
     uint16_t         vpage_id;      /**< The virtual page ID in which the record is stored. */
     uint16_t         gc_magic;      /**< Number of times the GC algorithm has been run. */
     uint16_t         ptr_magic;     /**< Used to verify the validity of p_rec. */
@@ -114,19 +110,17 @@ typedef struct
 
 /**@brief The record key, used to lookup records.
  * @note  The uniqueness of either field is not enforced by the system. */
-typedef struct
-{
+typedef struct {
     uint16_t type;
     uint16_t instance;
 } fds_record_key_t;
 
 
 /**@brief Structure used for reading a record back from flash memory. */
-typedef struct
-{
+typedef struct {
     // TODO: the header should be a pointer.
     fds_header_t         header;        /**< The record header (metadata), as stored in flash. */
-    uint32_t     const * p_data;        /**< The record data. */
+    uint32_t     const *p_data;         /**< The record data. */
 } fds_record_t;
 
 
@@ -134,9 +128,8 @@ typedef struct
  *
  * @note  p_data must be aligned on a (4 bytes) word boundary.
  */
-typedef struct
-{
-    void         const * p_data;           /**< Pointer to the data to store. Must be word aligned. */
+typedef struct {
+    void         const *p_data;            /**< Pointer to the data to store. Must be word aligned. */
     fds_length_t         length_words;     /**< Length of data pointed by p_data, in 4 byte words. */
 } fds_record_chunk_t;
 
@@ -145,8 +138,7 @@ typedef struct
  *        Use @ref fds_write_reserved to write the record in the reserved space,
  *        or @ref fds_reserve_cancel to cancel the reservation.
  */
-typedef struct
-{
+typedef struct {
     uint16_t            vpage_id;       /**< The virtual ID of the page where space was reserved. */
     fds_length_t        length_words;   /**< The amount of space reserved, in 4 byte words. */
 } fds_write_token_t;
@@ -159,16 +151,14 @@ typedef struct
  * @note  The token does not need special initialization.
  * @warning Do not reuse the same token to search for different records. If you do, be sure to set
  *          its fields to zero. */
-typedef struct
-{
-    uint32_t const * p_addr;
+typedef struct {
+    uint32_t const *p_addr;
     uint32_t         magic;
     uint16_t         vpage_id;
 } fds_find_token_t;
 
 
-typedef enum
-{
+typedef enum {
     FDS_CMD_NONE,       /**< No command. */
     FDS_CMD_INIT,       /**< Module initialization commnad. Used in @ref fds_init */
     FDS_CMD_WRITE,      /**< Write command. Used in @ref fds_write and @ref fds_write_reserved. */
@@ -178,7 +168,7 @@ typedef enum
     FDS_CMD_GC          /**< Garbage collection. Used in @ref fds_gc. */
 } fds_cmd_id_t;
 
- 
+
 /**@brief Flash data storage callback function.
  *
  * @param result     Result of the command.
@@ -195,7 +185,7 @@ typedef void (*fds_cb_t)(ret_code_t       result,
 /**@brief       Function to register a callback for the module events.
  * @details     The maximum amount of callback which can be registered can be configured by
  *              changing the FDS_MAX_USERS macro in fds_config.h.
- * 
+ *
  * @param[in]   cb The callback function.
  *
  *
@@ -228,7 +218,7 @@ ret_code_t fds_init(void);
  *          multiple chunks and is supplied to the function as an array of fds_record_chunk_t
  *          structures. The maximum lenght of a record data may not exceed the size of one flash
  *          page minus FDS_HEADER_SIZE words.
- *            
+ *
  * @note This function is asynchronous, therefore, completion is reported with a callback
  *       through the registered event handler.
  *
@@ -249,7 +239,7 @@ ret_code_t fds_init(void);
  * @retval NRF_ERROR_BUSY            Error. Insufficient internal resources to queue the operation.
  * @retval NRF_ERROR_NO_MEM          Error. No flash space available to store the record.
  */
-ret_code_t fds_write(fds_record_desc_t * const p_desc,
+ret_code_t fds_write(fds_record_desc_t *const p_desc,
                      fds_record_key_t          key,
                      uint8_t                   num_chunks,
                      fds_record_chunk_t        chunks[]);
@@ -270,7 +260,7 @@ ret_code_t fds_write(fds_record_desc_t * const p_desc,
  * @retval  NRF_ERROR_INVALID_STATE Error. The module is not initialized.
  * @retval  NRF_ERROR_NO_MEM        Error. Insufficient space.
  */
-ret_code_t fds_reserve(fds_write_token_t * const p_tok, uint16_t length_words);
+ret_code_t fds_reserve(fds_write_token_t *const p_tok, uint16_t length_words);
 
 
 /**@brief Function to cancel a space reservation.
@@ -282,7 +272,7 @@ ret_code_t fds_reserve(fds_write_token_t * const p_tok, uint16_t length_words);
  * @retval NRF_ERROR_NULL          Error. p_tok is NULL.
  * @retval NRF_ERROR_INVALID_DATA  Error. p_tok contains invalid data.
  */
-ret_code_t fds_reserve_cancel(fds_write_token_t * const p_tok);
+ret_code_t fds_reserve_cancel(fds_write_token_t *const p_tok);
 
 
 /**@brief Function to write a record to flash, the space for which has been previously reserved
@@ -311,8 +301,8 @@ ret_code_t fds_reserve_cancel(fds_write_token_t * const p_tok);
  * @retval NRF_ERROR_INVALID_LENGTH  Error. The record length exceeds the maximum lenght.
  * @retval NRF_ERROR_BUSY            Error. Insufficient internal resources to queue the operation.
  */
-ret_code_t fds_write_reserved(fds_write_token_t  const * const p_tok,
-                              fds_record_desc_t        * const p_desc,
+ret_code_t fds_write_reserved(fds_write_token_t  const *const p_tok,
+                              fds_record_desc_t         *const p_desc,
                               fds_record_key_t                 key,
                               uint8_t                          num_chunks,
                               fds_record_chunk_t               chunks[]);
@@ -336,7 +326,7 @@ ret_code_t fds_write_reserved(fds_write_token_t  const * const p_tok,
  * @retval NRF_ERROR_NULL          Error. p_desc is NULL.
  * @retval NRF_ERROR_BUSY          Error. Insufficient internal resources to queue the operation.
  */
-ret_code_t fds_clear(fds_record_desc_t * const p_desc);
+ret_code_t fds_clear(fds_record_desc_t *const p_desc);
 
 
 /**@brief Function to clear all records with a given instance.
@@ -372,11 +362,11 @@ ret_code_t fds_clear_by_instance(fds_instance_id_t instance);
  *       through the registered event handler. Two callbacks will be issued, one to signal that
  *       the updated record has been written down, and another to signal that the old one has been
  *       cleared.
- *       
+ *
  * @note The record data must be aligned on a 4 byte boundary, and because it is not buffered
  *       internally, it must be kept in memory by the application until the callback for the
  *       command has been received, i.e., the command completed.
- * 
+ *
  * @param[in, out] p_desc The descriptor of the record to update. The descriptor of the updated
  *                        record, after the function has returned with NRF_SUCCESS.
  * @param[in] key         The record new key pair.
@@ -391,7 +381,7 @@ ret_code_t fds_clear_by_instance(fds_instance_id_t instance);
  * @retval NRF_ERROR_BUSY            Error. Insufficient internal resources to queue the operation.
  * @retval NRF_ERROR_NO_MEM          Error. No flash space available to store the record.
  */
-ret_code_t fds_update(fds_record_desc_t  * const p_desc,
+ret_code_t fds_update(fds_record_desc_t   *const p_desc,
                       fds_record_key_t           key,
                       uint8_t                    num_chunks,
                       fds_record_chunk_t         chunks[]);
@@ -413,10 +403,10 @@ ret_code_t fds_update(fds_record_desc_t  * const p_desc,
  * @retval NRF_ERROR_NULL          Error. Either p_desc or p_token are NULL.
  * @retval NRF_ERROR_NOT_FOUND     Error. No record with the given key pair was found.
  */
-ret_code_t fds_find(fds_type_id_t             type, 
-                    fds_instance_id_t         instance, 
-                    fds_record_desc_t * const p_desc,
-                    fds_find_token_t  * const p_token);
+ret_code_t fds_find(fds_type_id_t             type,
+                    fds_instance_id_t         instance,
+                    fds_record_desc_t *const p_desc,
+                    fds_find_token_t   *const p_token);
 
 
 /**@brief Function to search for records with a given type.
@@ -434,9 +424,9 @@ ret_code_t fds_find(fds_type_id_t             type,
  * @retval NRF_ERROR_NULL          Error. Either p_desc or p_token are NULL.
  * @retval NRF_ERROR_NOT_FOUND     Error. No record with the given type was found.
  */
- ret_code_t fds_find_by_type(fds_type_id_t             type,
-                             fds_record_desc_t * const p_desc,
-                             fds_find_token_t  * const p_token);
+ret_code_t fds_find_by_type(fds_type_id_t             type,
+                            fds_record_desc_t *const p_desc,
+                            fds_find_token_t   *const p_token);
 
 
 /**@brief Function to search for records with a given instance.
@@ -455,8 +445,8 @@ ret_code_t fds_find(fds_type_id_t             type,
  * @retval NRF_ERROR_NOT_FOUND     Error. No record with the given instance was found.
  */
 ret_code_t fds_find_by_instance(fds_instance_id_t         instance,
-                                fds_record_desc_t * const p_desc,
-                                fds_find_token_t  * const p_token);
+                                fds_record_desc_t *const p_desc,
+                                fds_find_token_t   *const p_token);
 
 
 /**@brief Function to open a record for reading.
@@ -481,8 +471,8 @@ ret_code_t fds_find_by_instance(fds_instance_id_t         instance,
  * @retval NRF_ERROR_INVALID_DATA Error. The descriptor contains invalid data.
  * @retval NRF_ERROR_NULL         Error. Either p_desc or p_record are NULL.
  */
-ret_code_t fds_open(fds_record_desc_t * const p_desc,
-                    fds_record_t      * const p_record);
+ret_code_t fds_open(fds_record_desc_t *const p_desc,
+                    fds_record_t       *const p_record);
 
 
 /**@brief Function to close a record, after its contents have been read.
@@ -499,7 +489,7 @@ ret_code_t fds_open(fds_record_desc_t * const p_desc,
  * @retval NRF_ERROR_NULL         Error. p_desc is NULL.
  * @retval NRF_ERROR_INVALID_DATA Error. The descriptor contains invalid data.
  */
-ret_code_t fds_close(fds_record_desc_t const * const p_desc);
+ret_code_t fds_close(fds_record_desc_t const *const p_desc);
 
 
 /**@brief Function to perform a garbage collection.
@@ -521,8 +511,8 @@ ret_code_t fds_gc(void);
  * @retval true  If the descriptors identify the same record.
  * @retval false Otherwise.
  */
-bool fds_descriptor_match(fds_record_desc_t const * const p_desc_one,
-                          fds_record_desc_t const * const p_desc_two);
+bool fds_descriptor_match(fds_record_desc_t const *const p_desc_one,
+                          fds_record_desc_t const *const p_desc_two);
 
 
 /**@brief Function to obtain a descriptor from a record ID.
@@ -540,7 +530,7 @@ bool fds_descriptor_match(fds_record_desc_t const * const p_desc_one,
  * @retval NRF_SUCCESS         Success.
  * @retval NRF_ERROR_NULL      Error. p_desc is NULL.
  */
-ret_code_t fds_descriptor_from_rec_id(fds_record_desc_t * const p_desc,
+ret_code_t fds_descriptor_from_rec_id(fds_record_desc_t *const p_desc,
                                       fds_record_id_t           record_id);
 
 /**@brief Function to obtain a record ID from a record descriptor.
@@ -558,9 +548,9 @@ ret_code_t fds_descriptor_from_rec_id(fds_record_desc_t * const p_desc,
  * @retval NRF_SUCCESS    Success.
  * @retval NRF_ERROR_NULL Error. Either p_desc is NULL or p_record_id is NULL.
  */
-ret_code_t fds_record_id_from_desc(fds_record_desc_t const * const p_desc,
-                                   fds_record_id_t         * const p_record_id);
+ret_code_t fds_record_id_from_desc(fds_record_desc_t const *const p_desc,
+                                   fds_record_id_t          *const p_record_id);
 
 /** @} */
-                                         
+
 #endif // FDS_H__

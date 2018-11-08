@@ -37,7 +37,8 @@ static const uint32_t PWM_mr_offset[7] = {
 #define TCR_PWM_EN       0x00000008
 static unsigned int pwm_clock_mhz;
 
-void pwmout_init(pwmout_t* obj, PinName pin) {
+void pwmout_init(pwmout_t *obj, PinName pin)
+{
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(pwm != (PWMName)NC);
@@ -46,8 +47,8 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     obj->pwm = LPC_PWM0;
 
     if (obj->channel > 6) { // PWM1 is used if pwm > 6
-      obj->channel -= 6;
-      obj->pwm = LPC_PWM1;
+        obj->channel -= 6;
+        obj->pwm = LPC_PWM1;
     }
 
     obj->MR = (__IO uint32_t *)((uint32_t)obj->pwm + PWM_mr_offset[obj->channel]);
@@ -71,17 +72,19 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
-    pwmout_write    (obj, 0);
+    pwmout_write(obj, 0);
 
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);
 }
 
-void pwmout_free(pwmout_t* obj) {
+void pwmout_free(pwmout_t *obj)
+{
     // [TODO]
 }
 
-void pwmout_write(pwmout_t* obj, float value) {
+void pwmout_write(pwmout_t *obj, float value)
+{
     if (value < 0.0f) {
         value = 0.0;
     } else if (value > 1.0f) {
@@ -102,21 +105,25 @@ void pwmout_write(pwmout_t* obj, float value) {
     obj->pwm->LER |= 1 << obj->channel;
 }
 
-float pwmout_read(pwmout_t* obj) {
+float pwmout_read(pwmout_t *obj)
+{
     float v = (float)(*obj->MR) / (float)(obj->pwm->MR0);
     return (v > 1.0f) ? (1.0f) : (v);
 }
 
-void pwmout_period(pwmout_t* obj, float seconds) {
+void pwmout_period(pwmout_t *obj, float seconds)
+{
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms) {
+void pwmout_period_ms(pwmout_t *obj, int ms)
+{
     pwmout_period_us(obj, ms * 1000);
 }
 
 // Set the PWM period, keeping the duty cycle the same.
-void pwmout_period_us(pwmout_t* obj, int us) {
+void pwmout_period_us(pwmout_t *obj, int us)
+{
     // calculate number of ticks
     uint32_t ticks = pwm_clock_mhz * us;
 
@@ -138,15 +145,18 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     obj->pwm->TCR = TCR_CNT_EN | TCR_PWM_EN;
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
+{
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
+{
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
+{
     // calculate number of ticks
     uint32_t v = pwm_clock_mhz * us;
 

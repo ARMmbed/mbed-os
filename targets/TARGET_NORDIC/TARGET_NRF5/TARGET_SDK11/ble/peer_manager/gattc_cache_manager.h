@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -60,15 +60,13 @@
 
 /**@brief Events that can come from the GATT Cache Manager module.
  */
-typedef enum
-{
+typedef enum {
     GCCM_EVT_REMOTE_DB_UPDATED,  /**< Values for the specified data has been updated in persistent storage. */
     GCCM_EVT_REMOTE_DB_STORED,   /**< New values for the specified data has been written in persistent storage. */
 } gccm_evt_id_t;
 
 
-typedef struct
-{
+typedef struct {
     gccm_evt_id_t  evt_id;
     pm_peer_id_t   peer_id;
 } gccm_evt_t;
@@ -79,7 +77,7 @@ typedef struct
  * @param[in]  peer    The id of the peer the event pertains to.
  * @param[in]  flags   The data the event pertains to.
  */
-typedef void (*gccm_evt_handler_t)(gccm_evt_t const * p_event);
+typedef void (*gccm_evt_handler_t)(gccm_evt_t const *p_event);
 
 
 /**@brief Function for initializing the GATT Client Cache Manager module.
@@ -103,7 +101,7 @@ ret_code_t gccm_init(gccm_evt_handler_t evt_handler);
  * @retval NRF_ERROR_INVALID_STATE  Module is not initialized.
  */
 ret_code_t gccm_remote_db_store(pm_peer_id_t        peer_id,
-                                ble_gatt_db_srv_t * p_remote_db,
+                                ble_gatt_db_srv_t *p_remote_db,
                                 uint32_t            n_services);
 
 
@@ -121,8 +119,8 @@ ret_code_t gccm_remote_db_store(pm_peer_id_t        peer_id,
  * @retval NRF_ERROR_INVALID_STATE  Module is not initialized.
  */
 ret_code_t gccm_remote_db_retrieve(pm_peer_id_t        peer_id,
-                                   ble_gatt_db_srv_t * p_remote_db,
-                                   uint32_t          * p_n_services);
+                                   ble_gatt_db_srv_t *p_remote_db,
+                                   uint32_t           *p_n_services);
 
 
 /** @}

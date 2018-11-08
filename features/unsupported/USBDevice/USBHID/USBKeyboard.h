@@ -108,7 +108,8 @@ public:
     *
     */
     USBKeyboard(uint16_t vendor_id = 0x1235, uint16_t product_id = 0x0050, uint16_t product_release = 0x0001):
-            USBHID(0, 0, vendor_id, product_id, product_release, false) {
+        USBHID(0, 0, vendor_id, product_id, product_release, false)
+    {
         lock_status = 0;
         connect();
     };
@@ -148,7 +149,7 @@ public:
     *
     * @returns pointer to the report descriptor
     */
-    virtual uint8_t * reportDesc();
+    virtual uint8_t *reportDesc();
 
     /*
     * Called when a data is received on the OUT endpoint. Useful to switch on LED of LOCK keys
@@ -173,11 +174,12 @@ protected:
     *
     * @returns pointer to the configuration descriptor
     */
-    virtual uint8_t * configurationDesc();
+    virtual uint8_t *configurationDesc();
 
 private:
     //dummy otherwise it doesn,t compile (we must define all methods of an abstract class)
-    virtual int _getc() {
+    virtual int _getc()
+    {
         return -1;
     };
 

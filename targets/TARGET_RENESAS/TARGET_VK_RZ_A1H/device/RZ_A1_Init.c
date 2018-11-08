@@ -537,7 +537,7 @@ static void CS2_PORTInit(void)
     /* Port mode : Multiplex mode                     */
     /* Port function setting : 1st multiplex function */
     /* I/O control mode : Peripheral function         */
-	RZA_IO_RegWrite_16(&GPIO.PFCAE8, 0, GPIO_PFCAE8_PFCAE87_SHIFT, GPIO_PFCAE8_PFCAE87);
+    RZA_IO_RegWrite_16(&GPIO.PFCAE8, 0, GPIO_PFCAE8_PFCAE87_SHIFT, GPIO_PFCAE8_PFCAE87);
     RZA_IO_RegWrite_16(&GPIO.PFCE8,  0, GPIO_PFCE8_PFCE87_SHIFT,   GPIO_PFCE8_PFCE87);
     RZA_IO_RegWrite_16(&GPIO.PFC8,   0, GPIO_PFC8_PFC87_SHIFT,     GPIO_PFC8_PFC87);
     RZA_IO_RegWrite_16(&GPIO.PM8,    0, GPIO_PM8_PM87_SHIFT,       GPIO_PM8_PM87);
@@ -551,7 +551,7 @@ static void CS2_PORTInit(void)
 * Description  : This is the user-defined function called by the R_BSC_Init
 *              : function. The setting for initialization of the BSC in the CS2
 *              : space is required. In this sample code, the setting to use
-*              : the SDRAM in the CS2 space is executed. Sets the BSC to 
+*              : the SDRAM in the CS2 space is executed. Sets the BSC to
 *              : connect the ISSI IS42S16320B-75 to the CS2 space with 16-bit
 *              : bus width.
 * Arguments    : none
@@ -559,7 +559,7 @@ static void CS2_PORTInit(void)
 ******************************************************************************/
 static void CS2_BSC_Init(void)
 {
-       /* ==== CS2BCR settings ==== */
+    /* ==== CS2BCR settings ==== */
     /* Idle Cycles between Write-read Cycles  */
     /* and Write-write Cycles : 0 idle cycles */
     /* Memory type :SDRAM                     */
@@ -689,9 +689,9 @@ void RZ_A1_InitBus(void)
     /* If need Pin Setting before run program, the setting will be wrote here*/
     /*************************************************************************/
 #if defined(CS2_SDRAM)
-   PORT_Init();
-   CS2_PORTInit();
-   CS2_BSC_Init();
+    PORT_Init();
+    CS2_PORTInit();
+    CS2_BSC_Init();
 #else
     return;
 #endif

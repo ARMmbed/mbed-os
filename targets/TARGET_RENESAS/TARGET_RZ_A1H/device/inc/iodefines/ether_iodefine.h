@@ -201,9 +201,8 @@
 #define ETHERTSU_ADRL31 (ETHER.TSU_ADRL31)
 
 
-typedef struct st_ether
-{
-                                                           /* ETHER            */
+typedef struct st_ether {
+    /* ETHER            */
     volatile uint32_t  EDSR0;                                  /*  EDSR0           */
     volatile uint8_t   dummy207[12];                           /*                  */
     volatile uint32_t  TDLAR0;                                 /*  TDLAR0          */
@@ -290,203 +289,202 @@ typedef struct st_ether
     volatile uint32_t  RXALCR0;                                /*  RXALCR0         */
     volatile uint8_t   dummy240[112];                          /*                  */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH0;                              /*  TSU_ADRH0       */
     volatile uint32_t  TSU_ADRL0;                              /*  TSU_ADRL0       */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH1;                              /*  TSU_ADRH1       */
     volatile uint32_t  TSU_ADRL1;                              /*  TSU_ADRL1       */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH2;                              /*  TSU_ADRH2       */
     volatile uint32_t  TSU_ADRL2;                              /*  TSU_ADRL2       */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH3;                              /*  TSU_ADRH3       */
     volatile uint32_t  TSU_ADRL3;                              /*  TSU_ADRL3       */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH4;                              /*  TSU_ADRH4       */
     volatile uint32_t  TSU_ADRL4;                              /*  TSU_ADRL4       */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH5;                              /*  TSU_ADRH5       */
     volatile uint32_t  TSU_ADRL5;                              /*  TSU_ADRL5       */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH6;                              /*  TSU_ADRH6       */
     volatile uint32_t  TSU_ADRL6;                              /*  TSU_ADRL6       */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH7;                              /*  TSU_ADRH7       */
     volatile uint32_t  TSU_ADRL7;                              /*  TSU_ADRL7       */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH8;                              /*  TSU_ADRH8       */
     volatile uint32_t  TSU_ADRL8;                              /*  TSU_ADRL8       */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH9;                              /*  TSU_ADRH9       */
     volatile uint32_t  TSU_ADRL9;                              /*  TSU_ADRL9       */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH10;                             /*  TSU_ADRH10      */
     volatile uint32_t  TSU_ADRL10;                             /*  TSU_ADRL10      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH11;                             /*  TSU_ADRH11      */
     volatile uint32_t  TSU_ADRL11;                             /*  TSU_ADRL11      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH12;                             /*  TSU_ADRH12      */
     volatile uint32_t  TSU_ADRL12;                             /*  TSU_ADRL12      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH13;                             /*  TSU_ADRH13      */
     volatile uint32_t  TSU_ADRL13;                             /*  TSU_ADRL13      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH14;                             /*  TSU_ADRH14      */
     volatile uint32_t  TSU_ADRL14;                             /*  TSU_ADRL14      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH15;                             /*  TSU_ADRH15      */
     volatile uint32_t  TSU_ADRL15;                             /*  TSU_ADRL15      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH16;                             /*  TSU_ADRH16      */
     volatile uint32_t  TSU_ADRL16;                             /*  TSU_ADRL16      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH17;                             /*  TSU_ADRH17      */
     volatile uint32_t  TSU_ADRL17;                             /*  TSU_ADRL17      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH18;                             /*  TSU_ADRH18      */
     volatile uint32_t  TSU_ADRL18;                             /*  TSU_ADRL18      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH19;                             /*  TSU_ADRH19      */
     volatile uint32_t  TSU_ADRL19;                             /*  TSU_ADRL19      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH20;                             /*  TSU_ADRH20      */
     volatile uint32_t  TSU_ADRL20;                             /*  TSU_ADRL20      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH21;                             /*  TSU_ADRH21      */
     volatile uint32_t  TSU_ADRL21;                             /*  TSU_ADRL21      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH22;                             /*  TSU_ADRH22      */
     volatile uint32_t  TSU_ADRL22;                             /*  TSU_ADRL22      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH23;                             /*  TSU_ADRH23      */
     volatile uint32_t  TSU_ADRL23;                             /*  TSU_ADRL23      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH24;                             /*  TSU_ADRH24      */
     volatile uint32_t  TSU_ADRL24;                             /*  TSU_ADRL24      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH25;                             /*  TSU_ADRH25      */
     volatile uint32_t  TSU_ADRL25;                             /*  TSU_ADRL25      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH26;                             /*  TSU_ADRH26      */
     volatile uint32_t  TSU_ADRL26;                             /*  TSU_ADRL26      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH27;                             /*  TSU_ADRH27      */
     volatile uint32_t  TSU_ADRL27;                             /*  TSU_ADRL27      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH28;                             /*  TSU_ADRH28      */
     volatile uint32_t  TSU_ADRL28;                             /*  TSU_ADRL28      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH29;                             /*  TSU_ADRH29      */
     volatile uint32_t  TSU_ADRL29;                             /*  TSU_ADRL29      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH30;                             /*  TSU_ADRH30      */
     volatile uint32_t  TSU_ADRL30;                             /*  TSU_ADRL30      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 
-/* start of struct st_ether_from_tsu_adrh0 */
+    /* start of struct st_ether_from_tsu_adrh0 */
     volatile uint32_t  TSU_ADRH31;                             /*  TSU_ADRH31      */
     volatile uint32_t  TSU_ADRL31;                             /*  TSU_ADRL31      */
 
-/* end of struct st_ether_from_tsu_adrh0 */
+    /* end of struct st_ether_from_tsu_adrh0 */
 } r_io_ether_t;
 
 
-typedef struct st_ether_from_tsu_adrh0
-{
- 
+typedef struct st_ether_from_tsu_adrh0 {
+
     volatile uint32_t  TSU_ADRH0;                              /*  TSU_ADRH0       */
     volatile uint32_t  TSU_ADRL0;                              /*  TSU_ADRL0       */
 } r_io_ether_from_tsu_adrh0_t;
@@ -494,10 +492,10 @@ typedef struct st_ether_from_tsu_adrh0
 
 /* Channel array defines of ETHER (2)*/
 #ifdef  DECLARE_ETHER_FROM_TSU_ADRH0_ARRAY_CHANNELS
-volatile struct st_ether_from_tsu_adrh0*  ETHER_FROM_TSU_ADRH0_ARRAY[ ETHER_FROM_TSU_ADRH0_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    ETHER_FROM_TSU_ADRH0_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_ether_from_tsu_adrh0  *ETHER_FROM_TSU_ADRH0_ARRAY[ ETHER_FROM_TSU_ADRH0_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        ETHER_FROM_TSU_ADRH0_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_ETHER_FROM_TSU_ADRH0_ARRAY_CHANNELS */
 /* End of channel array defines of ETHER (2)*/
 

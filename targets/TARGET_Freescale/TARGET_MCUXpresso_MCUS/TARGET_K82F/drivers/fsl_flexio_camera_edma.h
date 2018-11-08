@@ -55,8 +55,7 @@ typedef void (*flexio_camera_edma_transfer_callback_t)(FLEXIO_CAMERA_Type *base,
 /*!
 * @brief Camera eDMA handle
 */
-struct _flexio_camera_edma_handle
-{
+struct _flexio_camera_edma_handle {
     flexio_camera_edma_transfer_callback_t callback; /*!< Callback function. */
     void *userData;                                  /*!< Camera callback function parameter.*/
     size_t rxSize;                                   /*!< Total bytes to be received. */

@@ -87,78 +87,78 @@
 #define NUMBER_OF_INT_VECTORS 73                 /**< Number of interrupts in the Vector table */
 
 typedef enum IRQn {
-  /* Auxiliary constants */
-  NotAvail_IRQn                = -128,             /**< Not available device specific interrupt */
+    /* Auxiliary constants */
+    NotAvail_IRQn                = -128,             /**< Not available device specific interrupt */
 
-  /* Core interrupts */
-  NonMaskableInt_IRQn          = -14,              /**< Non Maskable Interrupt */
-  HardFault_IRQn               = -13,              /**< Cortex-M4 SV Hard Fault Interrupt */
-  MemoryManagement_IRQn        = -12,              /**< Cortex-M4 Memory Management Interrupt */
-  BusFault_IRQn                = -11,              /**< Cortex-M4 Bus Fault Interrupt */
-  UsageFault_IRQn              = -10,              /**< Cortex-M4 Usage Fault Interrupt */
-  SVCall_IRQn                  = -5,               /**< Cortex-M4 SV Call Interrupt */
-  DebugMonitor_IRQn            = -4,               /**< Cortex-M4 Debug Monitor Interrupt */
-  PendSV_IRQn                  = -2,               /**< Cortex-M4 Pend SV Interrupt */
-  SysTick_IRQn                 = -1,               /**< Cortex-M4 System Tick Interrupt */
+    /* Core interrupts */
+    NonMaskableInt_IRQn          = -14,              /**< Non Maskable Interrupt */
+    HardFault_IRQn               = -13,              /**< Cortex-M4 SV Hard Fault Interrupt */
+    MemoryManagement_IRQn        = -12,              /**< Cortex-M4 Memory Management Interrupt */
+    BusFault_IRQn                = -11,              /**< Cortex-M4 Bus Fault Interrupt */
+    UsageFault_IRQn              = -10,              /**< Cortex-M4 Usage Fault Interrupt */
+    SVCall_IRQn                  = -5,               /**< Cortex-M4 SV Call Interrupt */
+    DebugMonitor_IRQn            = -4,               /**< Cortex-M4 Debug Monitor Interrupt */
+    PendSV_IRQn                  = -2,               /**< Cortex-M4 Pend SV Interrupt */
+    SysTick_IRQn                 = -1,               /**< Cortex-M4 System Tick Interrupt */
 
-  /* Device specific interrupts */
-  WDT_BOD_IRQn                 = 0,                /**< Windowed watchdog timer, Brownout detect */
-  DMA0_IRQn                    = 1,                /**< DMA controller */
-  GINT0_IRQn                   = 2,                /**< GPIO group 0 */
-  GINT1_IRQn                   = 3,                /**< GPIO group 1 */
-  PIN_INT0_IRQn                = 4,                /**< Pin interrupt 0 or pattern match engine slice 0 */
-  PIN_INT1_IRQn                = 5,                /**< Pin interrupt 1or pattern match engine slice 1 */
-  PIN_INT2_IRQn                = 6,                /**< Pin interrupt 2 or pattern match engine slice 2 */
-  PIN_INT3_IRQn                = 7,                /**< Pin interrupt 3 or pattern match engine slice 3 */
-  UTICK0_IRQn                  = 8,                /**< Micro-tick Timer */
-  MRT0_IRQn                    = 9,                /**< Multi-rate timer */
-  CTIMER0_IRQn                 = 10,               /**< Standard counter/timer CTIMER0 */
-  CTIMER1_IRQn                 = 11,               /**< Standard counter/timer CTIMER1 */
-  SCT0_IRQn                    = 12,               /**< SCTimer/PWM */
-  CTIMER3_IRQn                 = 13,               /**< Standard counter/timer CTIMER3 */
-  FLEXCOMM0_IRQn               = 14,               /**< Flexcomm Interface 0 (USART, SPI, I2C, FLEXCOMM) */
-  FLEXCOMM1_IRQn               = 15,               /**< Flexcomm Interface 1 (USART, SPI, I2C, FLEXCOMM) */
-  FLEXCOMM2_IRQn               = 16,               /**< Flexcomm Interface 2 (USART, SPI, I2C, FLEXCOMM) */
-  FLEXCOMM3_IRQn               = 17,               /**< Flexcomm Interface 3 (USART, SPI, I2C, FLEXCOMM) */
-  FLEXCOMM4_IRQn               = 18,               /**< Flexcomm Interface 4 (USART, SPI, I2C, FLEXCOMM) */
-  FLEXCOMM5_IRQn               = 19,               /**< Flexcomm Interface 5 (USART, SPI, I2C,, FLEXCOMM) */
-  FLEXCOMM6_IRQn               = 20,               /**< Flexcomm Interface 6 (USART, SPI, I2C, I2S,, FLEXCOMM) */
-  FLEXCOMM7_IRQn               = 21,               /**< Flexcomm Interface 7 (USART, SPI, I2C, I2S,, FLEXCOMM) */
-  ADC0_SEQA_IRQn               = 22,               /**< ADC0 sequence A completion. */
-  ADC0_SEQB_IRQn               = 23,               /**< ADC0 sequence B completion. */
-  ADC0_THCMP_IRQn              = 24,               /**< ADC0 threshold compare and error. */
-  DMIC0_IRQn                   = 25,               /**< Digital microphone and DMIC subsystem */
-  HWVAD0_IRQn                  = 26,               /**< Hardware Voice Activity Detector */
-  USB0_NEEDCLK_IRQn            = 27,               /**< USB Activity Wake-up Interrupt */
-  USB0_IRQn                    = 28,               /**< USB device */
-  RTC_IRQn                     = 29,               /**< RTC alarm and wake-up interrupts */
-  Reserved46_IRQn              = 30,               /**< Reserved interrupt */
-  Reserved47_IRQn              = 31,               /**< Reserved interrupt */
-  PIN_INT4_IRQn                = 32,               /**< Pin interrupt 4 or pattern match engine slice 4 int */
-  PIN_INT5_IRQn                = 33,               /**< Pin interrupt 5 or pattern match engine slice 5 int */
-  PIN_INT6_IRQn                = 34,               /**< Pin interrupt 6 or pattern match engine slice 6 int */
-  PIN_INT7_IRQn                = 35,               /**< Pin interrupt 7 or pattern match engine slice 7 int */
-  CTIMER2_IRQn                 = 36,               /**< Standard counter/timer CTIMER2 */
-  CTIMER4_IRQn                 = 37,               /**< Standard counter/timer CTIMER4 */
-  RIT_IRQn                     = 38,               /**< Repetitive Interrupt Timer */
-  SPIFI0_IRQn                  = 39,               /**< SPI flash interface */
-  FLEXCOMM8_IRQn               = 40,               /**< Flexcomm Interface 8 (USART, SPI, I2C, FLEXCOMM) */
-  FLEXCOMM9_IRQn               = 41,               /**< Flexcomm Interface 9 (USART, SPI, I2C, FLEXCOMM) */
-  SDIO_IRQn                    = 42,               /**< SD/MMC  */
-  CAN0_IRQ0_IRQn               = 43,               /**< CAN0 interrupt0 */
-  CAN0_IRQ1_IRQn               = 44,               /**< CAN0 interrupt1 */
-  CAN1_IRQ0_IRQn               = 45,               /**< CAN1 interrupt0 */
-  CAN1_IRQ1_IRQn               = 46,               /**< CAN1 interrupt1 */
-  USB1_IRQn                    = 47,               /**< USB1 interrupt */
-  USB1_NEEDCLK_IRQn            = 48,               /**< USB1 activity */
-  ETHERNET_IRQn                = 49,               /**< Ethernet */
-  ETHERNET_PMT_IRQn            = 50,               /**< Ethernet power management interrupt */
-  ETHERNET_MACLP_IRQn          = 51,               /**< Ethernet MAC interrupt */
-  EEPROM_IRQn                  = 52,               /**< EEPROM interrupt */
-  LCD_IRQn                     = 53,               /**< LCD interrupt */
-  SHA_IRQn                     = 54,               /**< SHA interrupt */
-  SMARTCARD0_IRQn              = 55,               /**< Smart card 0 interrupt */
-  SMARTCARD1_IRQn              = 56                /**< Smart card 1 interrupt */
+    /* Device specific interrupts */
+    WDT_BOD_IRQn                 = 0,                /**< Windowed watchdog timer, Brownout detect */
+    DMA0_IRQn                    = 1,                /**< DMA controller */
+    GINT0_IRQn                   = 2,                /**< GPIO group 0 */
+    GINT1_IRQn                   = 3,                /**< GPIO group 1 */
+    PIN_INT0_IRQn                = 4,                /**< Pin interrupt 0 or pattern match engine slice 0 */
+    PIN_INT1_IRQn                = 5,                /**< Pin interrupt 1or pattern match engine slice 1 */
+    PIN_INT2_IRQn                = 6,                /**< Pin interrupt 2 or pattern match engine slice 2 */
+    PIN_INT3_IRQn                = 7,                /**< Pin interrupt 3 or pattern match engine slice 3 */
+    UTICK0_IRQn                  = 8,                /**< Micro-tick Timer */
+    MRT0_IRQn                    = 9,                /**< Multi-rate timer */
+    CTIMER0_IRQn                 = 10,               /**< Standard counter/timer CTIMER0 */
+    CTIMER1_IRQn                 = 11,               /**< Standard counter/timer CTIMER1 */
+    SCT0_IRQn                    = 12,               /**< SCTimer/PWM */
+    CTIMER3_IRQn                 = 13,               /**< Standard counter/timer CTIMER3 */
+    FLEXCOMM0_IRQn               = 14,               /**< Flexcomm Interface 0 (USART, SPI, I2C, FLEXCOMM) */
+    FLEXCOMM1_IRQn               = 15,               /**< Flexcomm Interface 1 (USART, SPI, I2C, FLEXCOMM) */
+    FLEXCOMM2_IRQn               = 16,               /**< Flexcomm Interface 2 (USART, SPI, I2C, FLEXCOMM) */
+    FLEXCOMM3_IRQn               = 17,               /**< Flexcomm Interface 3 (USART, SPI, I2C, FLEXCOMM) */
+    FLEXCOMM4_IRQn               = 18,               /**< Flexcomm Interface 4 (USART, SPI, I2C, FLEXCOMM) */
+    FLEXCOMM5_IRQn               = 19,               /**< Flexcomm Interface 5 (USART, SPI, I2C,, FLEXCOMM) */
+    FLEXCOMM6_IRQn               = 20,               /**< Flexcomm Interface 6 (USART, SPI, I2C, I2S,, FLEXCOMM) */
+    FLEXCOMM7_IRQn               = 21,               /**< Flexcomm Interface 7 (USART, SPI, I2C, I2S,, FLEXCOMM) */
+    ADC0_SEQA_IRQn               = 22,               /**< ADC0 sequence A completion. */
+    ADC0_SEQB_IRQn               = 23,               /**< ADC0 sequence B completion. */
+    ADC0_THCMP_IRQn              = 24,               /**< ADC0 threshold compare and error. */
+    DMIC0_IRQn                   = 25,               /**< Digital microphone and DMIC subsystem */
+    HWVAD0_IRQn                  = 26,               /**< Hardware Voice Activity Detector */
+    USB0_NEEDCLK_IRQn            = 27,               /**< USB Activity Wake-up Interrupt */
+    USB0_IRQn                    = 28,               /**< USB device */
+    RTC_IRQn                     = 29,               /**< RTC alarm and wake-up interrupts */
+    Reserved46_IRQn              = 30,               /**< Reserved interrupt */
+    Reserved47_IRQn              = 31,               /**< Reserved interrupt */
+    PIN_INT4_IRQn                = 32,               /**< Pin interrupt 4 or pattern match engine slice 4 int */
+    PIN_INT5_IRQn                = 33,               /**< Pin interrupt 5 or pattern match engine slice 5 int */
+    PIN_INT6_IRQn                = 34,               /**< Pin interrupt 6 or pattern match engine slice 6 int */
+    PIN_INT7_IRQn                = 35,               /**< Pin interrupt 7 or pattern match engine slice 7 int */
+    CTIMER2_IRQn                 = 36,               /**< Standard counter/timer CTIMER2 */
+    CTIMER4_IRQn                 = 37,               /**< Standard counter/timer CTIMER4 */
+    RIT_IRQn                     = 38,               /**< Repetitive Interrupt Timer */
+    SPIFI0_IRQn                  = 39,               /**< SPI flash interface */
+    FLEXCOMM8_IRQn               = 40,               /**< Flexcomm Interface 8 (USART, SPI, I2C, FLEXCOMM) */
+    FLEXCOMM9_IRQn               = 41,               /**< Flexcomm Interface 9 (USART, SPI, I2C, FLEXCOMM) */
+    SDIO_IRQn                    = 42,               /**< SD/MMC  */
+    CAN0_IRQ0_IRQn               = 43,               /**< CAN0 interrupt0 */
+    CAN0_IRQ1_IRQn               = 44,               /**< CAN0 interrupt1 */
+    CAN1_IRQ0_IRQn               = 45,               /**< CAN1 interrupt0 */
+    CAN1_IRQ1_IRQn               = 46,               /**< CAN1 interrupt1 */
+    USB1_IRQn                    = 47,               /**< USB1 interrupt */
+    USB1_NEEDCLK_IRQn            = 48,               /**< USB1 activity */
+    ETHERNET_IRQn                = 49,               /**< Ethernet */
+    ETHERNET_PMT_IRQn            = 50,               /**< Ethernet power management interrupt */
+    ETHERNET_MACLP_IRQn          = 51,               /**< Ethernet MAC interrupt */
+    EEPROM_IRQn                  = 52,               /**< EEPROM interrupt */
+    LCD_IRQn                     = 53,               /**< LCD interrupt */
+    SHA_IRQn                     = 54,               /**< SHA interrupt */
+    SMARTCARD0_IRQn              = 55,               /**< Smart card 0 interrupt */
+    SMARTCARD1_IRQn              = 56                /**< Smart card 1 interrupt */
 } IRQn_Type;
 
 /*!
@@ -219,14 +219,14 @@ typedef enum IRQn {
 */
 
 #if defined(__ARMCC_VERSION)
-  #pragma push
-  #pragma anon_unions
+#pragma push
+#pragma anon_unions
 #elif defined(__GNUC__)
-  /* anonymous unions are enabled by default */
+/* anonymous unions are enabled by default */
 #elif defined(__IAR_SYSTEMS_ICC__)
-  #pragma language=extended
+#pragma language=extended
 #else
-  #error Not supported compiler type
+#error Not supported compiler type
 #endif
 
 /* ----------------------------------------------------------------------------
@@ -240,21 +240,21 @@ typedef enum IRQn {
 
 /** ADC - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t CTRL;                              /**< ADC Control register. Contains the clock divide value, resolution selection, sampling time selection, and mode controls., offset: 0x0 */
-  __IO uint32_t INSEL;                             /**< Input Select. Allows selection of the temperature sensor as an alternate input to ADC channel 0., offset: 0x4 */
-  __IO uint32_t SEQ_CTRL[2];                       /**< ADC Conversion Sequence-n control register: Controls triggering and channel selection for conversion sequence-n. Also specifies interrupt mode for sequence-n., array offset: 0x8, array step: 0x4 */
-  __I  uint32_t SEQ_GDAT[2];                       /**< ADC Sequence-n Global Data register. This register contains the result of the most recent ADC conversion performed under sequence-n., array offset: 0x10, array step: 0x4 */
-       uint8_t RESERVED_0[8];
-  __I  uint32_t DAT[12];                           /**< ADC Channel 0 Data register. This register contains the result of the most recent conversion completed on channel 0., array offset: 0x20, array step: 0x4 */
-  __IO uint32_t THR0_LOW;                          /**< ADC Low Compare Threshold register 0: Contains the lower threshold level for automatic threshold comparison for any channels linked to threshold pair 0., offset: 0x50 */
-  __IO uint32_t THR1_LOW;                          /**< ADC Low Compare Threshold register 1: Contains the lower threshold level for automatic threshold comparison for any channels linked to threshold pair 1., offset: 0x54 */
-  __IO uint32_t THR0_HIGH;                         /**< ADC High Compare Threshold register 0: Contains the upper threshold level for automatic threshold comparison for any channels linked to threshold pair 0., offset: 0x58 */
-  __IO uint32_t THR1_HIGH;                         /**< ADC High Compare Threshold register 1: Contains the upper threshold level for automatic threshold comparison for any channels linked to threshold pair 1., offset: 0x5C */
-  __IO uint32_t CHAN_THRSEL;                       /**< ADC Channel-Threshold Select register. Specifies which set of threshold compare registers are to be used for each channel, offset: 0x60 */
-  __IO uint32_t INTEN;                             /**< ADC Interrupt Enable register. This register contains enable bits that enable the sequence-A, sequence-B, threshold compare and data overrun interrupts to be generated., offset: 0x64 */
-  __IO uint32_t FLAGS;                             /**< ADC Flags register. Contains the four interrupt/DMA trigger flags and the individual component overrun and threshold-compare flags. (The overrun bits replicate information stored in the result registers)., offset: 0x68 */
-  __IO uint32_t STARTUP;                           /**< ADC Startup register., offset: 0x6C */
-  __IO uint32_t CALIB;                             /**< ADC Calibration register., offset: 0x70 */
+    __IO uint32_t CTRL;                              /**< ADC Control register. Contains the clock divide value, resolution selection, sampling time selection, and mode controls., offset: 0x0 */
+    __IO uint32_t INSEL;                             /**< Input Select. Allows selection of the temperature sensor as an alternate input to ADC channel 0., offset: 0x4 */
+    __IO uint32_t SEQ_CTRL[2];                       /**< ADC Conversion Sequence-n control register: Controls triggering and channel selection for conversion sequence-n. Also specifies interrupt mode for sequence-n., array offset: 0x8, array step: 0x4 */
+    __I  uint32_t SEQ_GDAT[2];                       /**< ADC Sequence-n Global Data register. This register contains the result of the most recent ADC conversion performed under sequence-n., array offset: 0x10, array step: 0x4 */
+    uint8_t RESERVED_0[8];
+    __I  uint32_t DAT[12];                           /**< ADC Channel 0 Data register. This register contains the result of the most recent conversion completed on channel 0., array offset: 0x20, array step: 0x4 */
+    __IO uint32_t THR0_LOW;                          /**< ADC Low Compare Threshold register 0: Contains the lower threshold level for automatic threshold comparison for any channels linked to threshold pair 0., offset: 0x50 */
+    __IO uint32_t THR1_LOW;                          /**< ADC Low Compare Threshold register 1: Contains the lower threshold level for automatic threshold comparison for any channels linked to threshold pair 1., offset: 0x54 */
+    __IO uint32_t THR0_HIGH;                         /**< ADC High Compare Threshold register 0: Contains the upper threshold level for automatic threshold comparison for any channels linked to threshold pair 0., offset: 0x58 */
+    __IO uint32_t THR1_HIGH;                         /**< ADC High Compare Threshold register 1: Contains the upper threshold level for automatic threshold comparison for any channels linked to threshold pair 1., offset: 0x5C */
+    __IO uint32_t CHAN_THRSEL;                       /**< ADC Channel-Threshold Select register. Specifies which set of threshold compare registers are to be used for each channel, offset: 0x60 */
+    __IO uint32_t INTEN;                             /**< ADC Interrupt Enable register. This register contains enable bits that enable the sequence-A, sequence-B, threshold compare and data overrun interrupts to be generated., offset: 0x64 */
+    __IO uint32_t FLAGS;                             /**< ADC Flags register. Contains the four interrupt/DMA trigger flags and the individual component overrun and threshold-compare flags. (The overrun bits replicate information stored in the result registers)., offset: 0x68 */
+    __IO uint32_t STARTUP;                           /**< ADC Startup register., offset: 0x6C */
+    __IO uint32_t CALIB;                             /**< ADC Calibration register., offset: 0x70 */
 } ADC_Type;
 
 /* ----------------------------------------------------------------------------
@@ -620,15 +620,15 @@ typedef struct {
 
 /** ASYNC_SYSCON - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t ASYNCPRESETCTRL;                   /**< Async peripheral reset control, offset: 0x0 */
-  __O  uint32_t ASYNCPRESETCTRLSET;                /**< Set bits in ASYNCPRESETCTRL, offset: 0x4 */
-  __O  uint32_t ASYNCPRESETCTRLCLR;                /**< Clear bits in ASYNCPRESETCTRL, offset: 0x8 */
-       uint8_t RESERVED_0[4];
-  __IO uint32_t ASYNCAPBCLKCTRL;                   /**< Async peripheral clock control, offset: 0x10 */
-  __O  uint32_t ASYNCAPBCLKCTRLSET;                /**< Set bits in ASYNCAPBCLKCTRL, offset: 0x14 */
-  __O  uint32_t ASYNCAPBCLKCTRLCLR;                /**< Clear bits in ASYNCAPBCLKCTRL, offset: 0x18 */
-       uint8_t RESERVED_1[4];
-  __IO uint32_t ASYNCAPBCLKSELA;                   /**< Async APB clock source select A, offset: 0x20 */
+    __IO uint32_t ASYNCPRESETCTRL;                   /**< Async peripheral reset control, offset: 0x0 */
+    __O  uint32_t ASYNCPRESETCTRLSET;                /**< Set bits in ASYNCPRESETCTRL, offset: 0x4 */
+    __O  uint32_t ASYNCPRESETCTRLCLR;                /**< Clear bits in ASYNCPRESETCTRL, offset: 0x8 */
+    uint8_t RESERVED_0[4];
+    __IO uint32_t ASYNCAPBCLKCTRL;                   /**< Async peripheral clock control, offset: 0x10 */
+    __O  uint32_t ASYNCAPBCLKCTRLSET;                /**< Set bits in ASYNCAPBCLKCTRL, offset: 0x14 */
+    __O  uint32_t ASYNCAPBCLKCTRLCLR;                /**< Clear bits in ASYNCAPBCLKCTRL, offset: 0x18 */
+    uint8_t RESERVED_1[4];
+    __IO uint32_t ASYNCAPBCLKSELA;                   /**< Async APB clock source select A, offset: 0x20 */
 } ASYNC_SYSCON_Type;
 
 /* ----------------------------------------------------------------------------
@@ -713,62 +713,62 @@ typedef struct {
 
 /** CAN - Register Layout Typedef */
 typedef struct {
-       uint8_t RESERVED_0[12];
-  __IO uint32_t DBTP;                              /**< Data Bit Timing Prescaler Register, offset: 0xC */
-  __IO uint32_t TEST;                              /**< Test Register, offset: 0x10 */
-       uint8_t RESERVED_1[4];
-  __IO uint32_t CCCR;                              /**< CC Control Register, offset: 0x18 */
-  __IO uint32_t NBTP;                              /**< Nominal Bit Timing and Prescaler Register, offset: 0x1C */
-  __IO uint32_t TSCC;                              /**< Timestamp Counter Configuration, offset: 0x20 */
-  __IO uint32_t TSCV;                              /**< Timestamp Counter Value, offset: 0x24 */
-  __IO uint32_t TOCC;                              /**< Timeout Counter Configuration, offset: 0x28 */
-  __I  uint32_t TOCV;                              /**< Timeout Counter Value, offset: 0x2C */
-       uint8_t RESERVED_2[16];
-  __I  uint32_t ECR;                               /**< Error Counter Register, offset: 0x40 */
-  __I  uint32_t PSR;                               /**< Protocol Status Register, offset: 0x44 */
-  __IO uint32_t TDCR;                              /**< Transmitter Delay Compensator Register, offset: 0x48 */
-       uint8_t RESERVED_3[4];
-  __IO uint32_t IR;                                /**< Interrupt Register, offset: 0x50 */
-  __IO uint32_t IE;                                /**< Interrupt Enable, offset: 0x54 */
-  __IO uint32_t ILS;                               /**< Interrupt Line Select, offset: 0x58 */
-  __IO uint32_t ILE;                               /**< Interrupt Line Enable, offset: 0x5C */
-       uint8_t RESERVED_4[32];
-  __IO uint32_t GFC;                               /**< Global Filter Configuration, offset: 0x80 */
-  __IO uint32_t SIDFC;                             /**< Standard ID Filter Configuration, offset: 0x84 */
-  __IO uint32_t XIDFC;                             /**< Extended ID Filter Configuration, offset: 0x88 */
-       uint8_t RESERVED_5[4];
-  __IO uint32_t XIDAM;                             /**< Extended ID AND Mask, offset: 0x90 */
-  __I  uint32_t HPMS;                              /**< High Priority Message Status, offset: 0x94 */
-  __IO uint32_t NDAT1;                             /**< New Data 1, offset: 0x98 */
-  __IO uint32_t NDAT2;                             /**< New Data 2, offset: 0x9C */
-  __IO uint32_t RXF0C;                             /**< Rx FIFO 0 Configuration, offset: 0xA0 */
-  __IO uint32_t RXF0S;                             /**< Rx FIFO 0 Status, offset: 0xA4 */
-  __IO uint32_t RXF0A;                             /**< Rx FIFO 0 Acknowledge, offset: 0xA8 */
-  __IO uint32_t RXBC;                              /**< Rx Buffer Configuration, offset: 0xAC */
-  __IO uint32_t RXF1C;                             /**< Rx FIFO 1 Configuration, offset: 0xB0 */
-  __I  uint32_t RXF1S;                             /**< Rx FIFO 1 Status, offset: 0xB4 */
-  __IO uint32_t RXF1A;                             /**< Rx FIFO 1 Acknowledge, offset: 0xB8 */
-  __IO uint32_t RXESC;                             /**< Rx Buffer and FIFO Element Size Configuration, offset: 0xBC */
-  __IO uint32_t TXBC;                              /**< Tx Buffer Configuration, offset: 0xC0 */
-  __IO uint32_t TXFQS;                             /**< Tx FIFO/Queue Status, offset: 0xC4 */
-  __IO uint32_t TXESC;                             /**< Tx Buffer Element Size Configuration, offset: 0xC8 */
-  __IO uint32_t TXBRP;                             /**< Tx Buffer Request Pending, offset: 0xCC */
-  __IO uint32_t TXBAR;                             /**< Tx Buffer Add Request, offset: 0xD0 */
-  __IO uint32_t TXBCR;                             /**< Tx Buffer Cancellation Request, offset: 0xD4 */
-  __IO uint32_t TXBTO;                             /**< Tx Buffer Transmission Occurred, offset: 0xD8 */
-  __IO uint32_t TXBCF;                             /**< Tx Buffer Cancellation Finished, offset: 0xDC */
-  __IO uint32_t TXBTIE;                            /**< Tx Buffer Transmission Interrupt Enable, offset: 0xE0 */
-  __IO uint32_t TXBCIE;                            /**< Tx Buffer Cancellation Finished Interrupt Enable, offset: 0xE4 */
-       uint8_t RESERVED_6[8];
-  __IO uint32_t TXEFC;                             /**< Tx Event FIFO Configuration, offset: 0xF0 */
-  __I  uint32_t TXEFS;                             /**< Tx Event FIFO Status, offset: 0xF4 */
-  __IO uint32_t TXEFA;                             /**< Tx Event FIFO Acknowledge, offset: 0xF8 */
-       uint8_t RESERVED_7[260];
-  __IO uint32_t MRBA;                              /**< CAN Message RAM Base Address, offset: 0x200 */
-       uint8_t RESERVED_8[508];
-  __IO uint32_t ETSCC;                             /**< External Timestamp Counter Configuration, offset: 0x400 */
-       uint8_t RESERVED_9[508];
-  __IO uint32_t ETSCV;                             /**< External Timestamp Counter Value, offset: 0x600 */
+    uint8_t RESERVED_0[12];
+    __IO uint32_t DBTP;                              /**< Data Bit Timing Prescaler Register, offset: 0xC */
+    __IO uint32_t TEST;                              /**< Test Register, offset: 0x10 */
+    uint8_t RESERVED_1[4];
+    __IO uint32_t CCCR;                              /**< CC Control Register, offset: 0x18 */
+    __IO uint32_t NBTP;                              /**< Nominal Bit Timing and Prescaler Register, offset: 0x1C */
+    __IO uint32_t TSCC;                              /**< Timestamp Counter Configuration, offset: 0x20 */
+    __IO uint32_t TSCV;                              /**< Timestamp Counter Value, offset: 0x24 */
+    __IO uint32_t TOCC;                              /**< Timeout Counter Configuration, offset: 0x28 */
+    __I  uint32_t TOCV;                              /**< Timeout Counter Value, offset: 0x2C */
+    uint8_t RESERVED_2[16];
+    __I  uint32_t ECR;                               /**< Error Counter Register, offset: 0x40 */
+    __I  uint32_t PSR;                               /**< Protocol Status Register, offset: 0x44 */
+    __IO uint32_t TDCR;                              /**< Transmitter Delay Compensator Register, offset: 0x48 */
+    uint8_t RESERVED_3[4];
+    __IO uint32_t IR;                                /**< Interrupt Register, offset: 0x50 */
+    __IO uint32_t IE;                                /**< Interrupt Enable, offset: 0x54 */
+    __IO uint32_t ILS;                               /**< Interrupt Line Select, offset: 0x58 */
+    __IO uint32_t ILE;                               /**< Interrupt Line Enable, offset: 0x5C */
+    uint8_t RESERVED_4[32];
+    __IO uint32_t GFC;                               /**< Global Filter Configuration, offset: 0x80 */
+    __IO uint32_t SIDFC;                             /**< Standard ID Filter Configuration, offset: 0x84 */
+    __IO uint32_t XIDFC;                             /**< Extended ID Filter Configuration, offset: 0x88 */
+    uint8_t RESERVED_5[4];
+    __IO uint32_t XIDAM;                             /**< Extended ID AND Mask, offset: 0x90 */
+    __I  uint32_t HPMS;                              /**< High Priority Message Status, offset: 0x94 */
+    __IO uint32_t NDAT1;                             /**< New Data 1, offset: 0x98 */
+    __IO uint32_t NDAT2;                             /**< New Data 2, offset: 0x9C */
+    __IO uint32_t RXF0C;                             /**< Rx FIFO 0 Configuration, offset: 0xA0 */
+    __IO uint32_t RXF0S;                             /**< Rx FIFO 0 Status, offset: 0xA4 */
+    __IO uint32_t RXF0A;                             /**< Rx FIFO 0 Acknowledge, offset: 0xA8 */
+    __IO uint32_t RXBC;                              /**< Rx Buffer Configuration, offset: 0xAC */
+    __IO uint32_t RXF1C;                             /**< Rx FIFO 1 Configuration, offset: 0xB0 */
+    __I  uint32_t RXF1S;                             /**< Rx FIFO 1 Status, offset: 0xB4 */
+    __IO uint32_t RXF1A;                             /**< Rx FIFO 1 Acknowledge, offset: 0xB8 */
+    __IO uint32_t RXESC;                             /**< Rx Buffer and FIFO Element Size Configuration, offset: 0xBC */
+    __IO uint32_t TXBC;                              /**< Tx Buffer Configuration, offset: 0xC0 */
+    __IO uint32_t TXFQS;                             /**< Tx FIFO/Queue Status, offset: 0xC4 */
+    __IO uint32_t TXESC;                             /**< Tx Buffer Element Size Configuration, offset: 0xC8 */
+    __IO uint32_t TXBRP;                             /**< Tx Buffer Request Pending, offset: 0xCC */
+    __IO uint32_t TXBAR;                             /**< Tx Buffer Add Request, offset: 0xD0 */
+    __IO uint32_t TXBCR;                             /**< Tx Buffer Cancellation Request, offset: 0xD4 */
+    __IO uint32_t TXBTO;                             /**< Tx Buffer Transmission Occurred, offset: 0xD8 */
+    __IO uint32_t TXBCF;                             /**< Tx Buffer Cancellation Finished, offset: 0xDC */
+    __IO uint32_t TXBTIE;                            /**< Tx Buffer Transmission Interrupt Enable, offset: 0xE0 */
+    __IO uint32_t TXBCIE;                            /**< Tx Buffer Cancellation Finished Interrupt Enable, offset: 0xE4 */
+    uint8_t RESERVED_6[8];
+    __IO uint32_t TXEFC;                             /**< Tx Event FIFO Configuration, offset: 0xF0 */
+    __I  uint32_t TXEFS;                             /**< Tx Event FIFO Status, offset: 0xF4 */
+    __IO uint32_t TXEFA;                             /**< Tx Event FIFO Acknowledge, offset: 0xF8 */
+    uint8_t RESERVED_7[260];
+    __IO uint32_t MRBA;                              /**< CAN Message RAM Base Address, offset: 0x200 */
+    uint8_t RESERVED_8[508];
+    __IO uint32_t ETSCC;                             /**< External Timestamp Counter Configuration, offset: 0x400 */
+    uint8_t RESERVED_9[508];
+    __IO uint32_t ETSCV;                             /**< External Timestamp Counter Value, offset: 0x600 */
 } CAN_Type;
 
 /* ----------------------------------------------------------------------------
@@ -1537,12 +1537,12 @@ typedef struct {
 
 /** CRC - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t MODE;                              /**< CRC mode register, offset: 0x0 */
-  __IO uint32_t SEED;                              /**< CRC seed register, offset: 0x4 */
-  union {                                          /* offset: 0x8 */
-    __I  uint32_t SUM;                               /**< CRC checksum register, offset: 0x8 */
-    __O  uint32_t WR_DATA;                           /**< CRC data register, offset: 0x8 */
-  };
+    __IO uint32_t MODE;                              /**< CRC mode register, offset: 0x0 */
+    __IO uint32_t SEED;                              /**< CRC seed register, offset: 0x4 */
+    union {                                          /* offset: 0x8 */
+        __I  uint32_t SUM;                               /**< CRC checksum register, offset: 0x8 */
+        __O  uint32_t WR_DATA;                           /**< CRC data register, offset: 0x8 */
+    };
 } CRC_Type;
 
 /* ----------------------------------------------------------------------------
@@ -1618,20 +1618,20 @@ typedef struct {
 
 /** CTIMER - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t IR;                                /**< Interrupt Register. The IR can be written to clear interrupts. The IR can be read to identify which of eight possible interrupt sources are pending., offset: 0x0 */
-  __IO uint32_t TCR;                               /**< Timer Control Register. The TCR is used to control the Timer Counter functions. The Timer Counter can be disabled or reset through the TCR., offset: 0x4 */
-  __IO uint32_t TC;                                /**< Timer Counter, offset: 0x8 */
-  __IO uint32_t PR;                                /**< Prescale Register, offset: 0xC */
-  __IO uint32_t PC;                                /**< Prescale Counter, offset: 0x10 */
-  __IO uint32_t MCR;                               /**< Match Control Register, offset: 0x14 */
-  __IO uint32_t MR[4];                             /**< Match Register . MR can be enabled through the MCR to reset the TC, stop both the TC and PC, and/or generate an interrupt every time MR matches the TC., array offset: 0x18, array step: 0x4 */
-  __IO uint32_t CCR;                               /**< Capture Control Register. The CCR controls which edges of the capture inputs are used to load the Capture Registers and whether or not an interrupt is generated when a capture takes place., offset: 0x28 */
-  __I  uint32_t CR[4];                             /**< Capture Register . CR is loaded with the value of TC when there is an event on the CAPn. input., array offset: 0x2C, array step: 0x4 */
-  __IO uint32_t EMR;                               /**< External Match Register. The EMR controls the match function and the external match pins., offset: 0x3C */
-       uint8_t RESERVED_0[48];
-  __IO uint32_t CTCR;                              /**< Count Control Register. The CTCR selects between Timer and Counter mode, and in Counter mode selects the signal and edge(s) for counting., offset: 0x70 */
-  __IO uint32_t PWMC;                              /**< PWM Control Register. The PWMCON enables PWM mode for the external match pins., offset: 0x74 */
-  __IO uint32_t MSR[4];                            /**< Match Shadow Register, array offset: 0x78, array step: 0x4 */
+    __IO uint32_t IR;                                /**< Interrupt Register. The IR can be written to clear interrupts. The IR can be read to identify which of eight possible interrupt sources are pending., offset: 0x0 */
+    __IO uint32_t TCR;                               /**< Timer Control Register. The TCR is used to control the Timer Counter functions. The Timer Counter can be disabled or reset through the TCR., offset: 0x4 */
+    __IO uint32_t TC;                                /**< Timer Counter, offset: 0x8 */
+    __IO uint32_t PR;                                /**< Prescale Register, offset: 0xC */
+    __IO uint32_t PC;                                /**< Prescale Counter, offset: 0x10 */
+    __IO uint32_t MCR;                               /**< Match Control Register, offset: 0x14 */
+    __IO uint32_t MR[4];                             /**< Match Register . MR can be enabled through the MCR to reset the TC, stop both the TC and PC, and/or generate an interrupt every time MR matches the TC., array offset: 0x18, array step: 0x4 */
+    __IO uint32_t CCR;                               /**< Capture Control Register. The CCR controls which edges of the capture inputs are used to load the Capture Registers and whether or not an interrupt is generated when a capture takes place., offset: 0x28 */
+    __I  uint32_t CR[4];                             /**< Capture Register . CR is loaded with the value of TC when there is an event on the CAPn. input., array offset: 0x2C, array step: 0x4 */
+    __IO uint32_t EMR;                               /**< External Match Register. The EMR controls the match function and the external match pins., offset: 0x3C */
+    uint8_t RESERVED_0[48];
+    __IO uint32_t CTCR;                              /**< Count Control Register. The CTCR selects between Timer and Counter mode, and in Counter mode selects the signal and edge(s) for counting., offset: 0x70 */
+    __IO uint32_t PWMC;                              /**< PWM Control Register. The PWMCON enables PWM mode for the external match pins., offset: 0x74 */
+    __IO uint32_t MSR[4];                            /**< Match Shadow Register, array offset: 0x78, array step: 0x4 */
 } CTIMER_Type;
 
 /* ----------------------------------------------------------------------------
@@ -1908,42 +1908,42 @@ typedef struct {
 
 /** DMA - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t CTRL;                              /**< DMA control., offset: 0x0 */
-  __I  uint32_t INTSTAT;                           /**< Interrupt status., offset: 0x4 */
-  __IO uint32_t SRAMBASE;                          /**< SRAM address of the channel configuration table., offset: 0x8 */
-       uint8_t RESERVED_0[20];
-  struct {                                         /* offset: 0x20, array step: 0x5C */
-    __IO uint32_t ENABLESET;                         /**< Channel Enable read and Set for all DMA channels., array offset: 0x20, array step: 0x5C */
-         uint8_t RESERVED_0[4];
-    __O  uint32_t ENABLECLR;                         /**< Channel Enable Clear for all DMA channels., array offset: 0x28, array step: 0x5C */
-         uint8_t RESERVED_1[4];
-    __I  uint32_t ACTIVE;                            /**< Channel Active status for all DMA channels., array offset: 0x30, array step: 0x5C */
-         uint8_t RESERVED_2[4];
-    __I  uint32_t BUSY;                              /**< Channel Busy status for all DMA channels., array offset: 0x38, array step: 0x5C */
-         uint8_t RESERVED_3[4];
-    __IO uint32_t ERRINT;                            /**< Error Interrupt status for all DMA channels., array offset: 0x40, array step: 0x5C */
-         uint8_t RESERVED_4[4];
-    __IO uint32_t INTENSET;                          /**< Interrupt Enable read and Set for all DMA channels., array offset: 0x48, array step: 0x5C */
-         uint8_t RESERVED_5[4];
-    __O  uint32_t INTENCLR;                          /**< Interrupt Enable Clear for all DMA channels., array offset: 0x50, array step: 0x5C */
-         uint8_t RESERVED_6[4];
-    __IO uint32_t INTA;                              /**< Interrupt A status for all DMA channels., array offset: 0x58, array step: 0x5C */
-         uint8_t RESERVED_7[4];
-    __IO uint32_t INTB;                              /**< Interrupt B status for all DMA channels., array offset: 0x60, array step: 0x5C */
-         uint8_t RESERVED_8[4];
-    __O  uint32_t SETVALID;                          /**< Set ValidPending control bits for all DMA channels., array offset: 0x68, array step: 0x5C */
-         uint8_t RESERVED_9[4];
-    __O  uint32_t SETTRIG;                           /**< Set Trigger control bits for all DMA channels., array offset: 0x70, array step: 0x5C */
-         uint8_t RESERVED_10[4];
-    __O  uint32_t ABORT;                             /**< Channel Abort control for all DMA channels., array offset: 0x78, array step: 0x5C */
-  } COMMON[1];
-       uint8_t RESERVED_1[900];
-  struct {                                         /* offset: 0x400, array step: 0x10 */
-    __IO uint32_t CFG;                               /**< Configuration register for DMA channel ., array offset: 0x400, array step: 0x10 */
-    __I  uint32_t CTLSTAT;                           /**< Control and status register for DMA channel ., array offset: 0x404, array step: 0x10 */
-    __IO uint32_t XFERCFG;                           /**< Transfer configuration register for DMA channel ., array offset: 0x408, array step: 0x10 */
-         uint8_t RESERVED_0[4];
-  } CHANNEL[30];
+    __IO uint32_t CTRL;                              /**< DMA control., offset: 0x0 */
+    __I  uint32_t INTSTAT;                           /**< Interrupt status., offset: 0x4 */
+    __IO uint32_t SRAMBASE;                          /**< SRAM address of the channel configuration table., offset: 0x8 */
+    uint8_t RESERVED_0[20];
+    struct {                                         /* offset: 0x20, array step: 0x5C */
+        __IO uint32_t ENABLESET;                         /**< Channel Enable read and Set for all DMA channels., array offset: 0x20, array step: 0x5C */
+        uint8_t RESERVED_0[4];
+        __O  uint32_t ENABLECLR;                         /**< Channel Enable Clear for all DMA channels., array offset: 0x28, array step: 0x5C */
+        uint8_t RESERVED_1[4];
+        __I  uint32_t ACTIVE;                            /**< Channel Active status for all DMA channels., array offset: 0x30, array step: 0x5C */
+        uint8_t RESERVED_2[4];
+        __I  uint32_t BUSY;                              /**< Channel Busy status for all DMA channels., array offset: 0x38, array step: 0x5C */
+        uint8_t RESERVED_3[4];
+        __IO uint32_t ERRINT;                            /**< Error Interrupt status for all DMA channels., array offset: 0x40, array step: 0x5C */
+        uint8_t RESERVED_4[4];
+        __IO uint32_t INTENSET;                          /**< Interrupt Enable read and Set for all DMA channels., array offset: 0x48, array step: 0x5C */
+        uint8_t RESERVED_5[4];
+        __O  uint32_t INTENCLR;                          /**< Interrupt Enable Clear for all DMA channels., array offset: 0x50, array step: 0x5C */
+        uint8_t RESERVED_6[4];
+        __IO uint32_t INTA;                              /**< Interrupt A status for all DMA channels., array offset: 0x58, array step: 0x5C */
+        uint8_t RESERVED_7[4];
+        __IO uint32_t INTB;                              /**< Interrupt B status for all DMA channels., array offset: 0x60, array step: 0x5C */
+        uint8_t RESERVED_8[4];
+        __O  uint32_t SETVALID;                          /**< Set ValidPending control bits for all DMA channels., array offset: 0x68, array step: 0x5C */
+        uint8_t RESERVED_9[4];
+        __O  uint32_t SETTRIG;                           /**< Set Trigger control bits for all DMA channels., array offset: 0x70, array step: 0x5C */
+        uint8_t RESERVED_10[4];
+        __O  uint32_t ABORT;                             /**< Channel Abort control for all DMA channels., array offset: 0x78, array step: 0x5C */
+    } COMMON[1];
+    uint8_t RESERVED_1[900];
+    struct {                                         /* offset: 0x400, array step: 0x10 */
+        __IO uint32_t CFG;                               /**< Configuration register for DMA channel ., array offset: 0x400, array step: 0x10 */
+        __I  uint32_t CTLSTAT;                           /**< Control and status register for DMA channel ., array offset: 0x404, array step: 0x10 */
+        __IO uint32_t XFERCFG;                           /**< Transfer configuration register for DMA channel ., array offset: 0x408, array step: 0x10 */
+        uint8_t RESERVED_0[4];
+    } CHANNEL[30];
 } DMA_Type;
 
 /* ----------------------------------------------------------------------------
@@ -2181,35 +2181,35 @@ typedef struct {
 
 /** DMIC - Register Layout Typedef */
 typedef struct {
-  struct {                                         /* offset: 0x0, array step: 0x100 */
-    __IO uint32_t OSR;                               /**< Oversample Rate register 0, array offset: 0x0, array step: 0x100 */
-    __IO uint32_t DIVHFCLK;                          /**< DMIC Clock Register 0, array offset: 0x4, array step: 0x100 */
-    __IO uint32_t PREAC2FSCOEF;                      /**< Pre-Emphasis Filter Coefficient for 2 FS register, array offset: 0x8, array step: 0x100 */
-    __IO uint32_t PREAC4FSCOEF;                      /**< Pre-Emphasis Filter Coefficient for 4 FS register, array offset: 0xC, array step: 0x100 */
-    __IO uint32_t GAINSHIFT;                         /**< Decimator Gain Shift register, array offset: 0x10, array step: 0x100 */
-         uint8_t RESERVED_0[108];
-    __IO uint32_t FIFO_CTRL;                         /**< FIFO Control register 0, array offset: 0x80, array step: 0x100 */
-    __IO uint32_t FIFO_STATUS;                       /**< FIFO Status register 0, array offset: 0x84, array step: 0x100 */
-    __IO uint32_t FIFO_DATA;                         /**< FIFO Data Register 0, array offset: 0x88, array step: 0x100 */
-    __IO uint32_t PHY_CTRL;                          /**< PDM Source Configuration register 0, array offset: 0x8C, array step: 0x100 */
-    __IO uint32_t DC_CTRL;                           /**< DC Control register 0, array offset: 0x90, array step: 0x100 */
-         uint8_t RESERVED_1[108];
-  } CHANNEL[2];
-       uint8_t RESERVED_0[3328];
-  __IO uint32_t CHANEN;                            /**< Channel Enable register, offset: 0xF00 */
-       uint8_t RESERVED_1[8];
-  __IO uint32_t IOCFG;                             /**< I/O Configuration register, offset: 0xF0C */
-  __IO uint32_t USE2FS;                            /**< Use 2FS register, offset: 0xF10 */
-       uint8_t RESERVED_2[108];
-  __IO uint32_t HWVADGAIN;                         /**< HWVAD input gain register, offset: 0xF80 */
-  __IO uint32_t HWVADHPFS;                         /**< HWVAD filter control register, offset: 0xF84 */
-  __IO uint32_t HWVADST10;                         /**< HWVAD control register, offset: 0xF88 */
-  __IO uint32_t HWVADRSTT;                         /**< HWVAD filter reset register, offset: 0xF8C */
-  __IO uint32_t HWVADTHGN;                         /**< HWVAD noise estimator gain register, offset: 0xF90 */
-  __IO uint32_t HWVADTHGS;                         /**< HWVAD signal estimator gain register, offset: 0xF94 */
-  __I  uint32_t HWVADLOWZ;                         /**< HWVAD noise envelope estimator register, offset: 0xF98 */
-       uint8_t RESERVED_3[96];
-  __I  uint32_t ID;                                /**< Module Identification register, offset: 0xFFC */
+    struct {                                         /* offset: 0x0, array step: 0x100 */
+        __IO uint32_t OSR;                               /**< Oversample Rate register 0, array offset: 0x0, array step: 0x100 */
+        __IO uint32_t DIVHFCLK;                          /**< DMIC Clock Register 0, array offset: 0x4, array step: 0x100 */
+        __IO uint32_t PREAC2FSCOEF;                      /**< Pre-Emphasis Filter Coefficient for 2 FS register, array offset: 0x8, array step: 0x100 */
+        __IO uint32_t PREAC4FSCOEF;                      /**< Pre-Emphasis Filter Coefficient for 4 FS register, array offset: 0xC, array step: 0x100 */
+        __IO uint32_t GAINSHIFT;                         /**< Decimator Gain Shift register, array offset: 0x10, array step: 0x100 */
+        uint8_t RESERVED_0[108];
+        __IO uint32_t FIFO_CTRL;                         /**< FIFO Control register 0, array offset: 0x80, array step: 0x100 */
+        __IO uint32_t FIFO_STATUS;                       /**< FIFO Status register 0, array offset: 0x84, array step: 0x100 */
+        __IO uint32_t FIFO_DATA;                         /**< FIFO Data Register 0, array offset: 0x88, array step: 0x100 */
+        __IO uint32_t PHY_CTRL;                          /**< PDM Source Configuration register 0, array offset: 0x8C, array step: 0x100 */
+        __IO uint32_t DC_CTRL;                           /**< DC Control register 0, array offset: 0x90, array step: 0x100 */
+        uint8_t RESERVED_1[108];
+    } CHANNEL[2];
+    uint8_t RESERVED_0[3328];
+    __IO uint32_t CHANEN;                            /**< Channel Enable register, offset: 0xF00 */
+    uint8_t RESERVED_1[8];
+    __IO uint32_t IOCFG;                             /**< I/O Configuration register, offset: 0xF0C */
+    __IO uint32_t USE2FS;                            /**< Use 2FS register, offset: 0xF10 */
+    uint8_t RESERVED_2[108];
+    __IO uint32_t HWVADGAIN;                         /**< HWVAD input gain register, offset: 0xF80 */
+    __IO uint32_t HWVADHPFS;                         /**< HWVAD filter control register, offset: 0xF84 */
+    __IO uint32_t HWVADST10;                         /**< HWVAD control register, offset: 0xF88 */
+    __IO uint32_t HWVADRSTT;                         /**< HWVAD filter reset register, offset: 0xF8C */
+    __IO uint32_t HWVADTHGN;                         /**< HWVAD noise estimator gain register, offset: 0xF90 */
+    __IO uint32_t HWVADTHGS;                         /**< HWVAD signal estimator gain register, offset: 0xF94 */
+    __I  uint32_t HWVADLOWZ;                         /**< HWVAD noise envelope estimator register, offset: 0xF98 */
+    uint8_t RESERVED_3[96];
+    __I  uint32_t ID;                                /**< Module Identification register, offset: 0xFFC */
 } DMIC_Type;
 
 /* ----------------------------------------------------------------------------
@@ -2427,20 +2427,20 @@ typedef struct {
 
 /** EEPROM - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t CMD;                               /**< EEPROM command register, offset: 0x0 */
-       uint8_t RESERVED_0[4];
-  __IO uint32_t RWSTATE;                           /**< EEPROM read wait state register, offset: 0x8 */
-  __IO uint32_t AUTOPROG;                          /**< EEPROM auto programming register, offset: 0xC */
-  __IO uint32_t WSTATE;                            /**< EEPROM wait state register, offset: 0x10 */
-  __IO uint32_t CLKDIV;                            /**< EEPROM clock divider register, offset: 0x14 */
-  __IO uint32_t PWRDWN;                            /**< EEPROM power-down register, offset: 0x18 */
-       uint8_t RESERVED_1[4028];
-  __O  uint32_t INTENCLR;                          /**< EEPROM interrupt enable clear, offset: 0xFD8 */
-  __O  uint32_t INTENSET;                          /**< EEPROM interrupt enable set, offset: 0xFDC */
-  __I  uint32_t INTSTAT;                           /**< EEPROM interrupt status, offset: 0xFE0 */
-  __I  uint32_t INTEN;                             /**< EEPROM interrupt enable, offset: 0xFE4 */
-  __O  uint32_t INTSTATCLR;                        /**< EEPROM interrupt status clear, offset: 0xFE8 */
-  __O  uint32_t INTSTATSET;                        /**< EEPROM interrupt status set, offset: 0xFEC */
+    __IO uint32_t CMD;                               /**< EEPROM command register, offset: 0x0 */
+    uint8_t RESERVED_0[4];
+    __IO uint32_t RWSTATE;                           /**< EEPROM read wait state register, offset: 0x8 */
+    __IO uint32_t AUTOPROG;                          /**< EEPROM auto programming register, offset: 0xC */
+    __IO uint32_t WSTATE;                            /**< EEPROM wait state register, offset: 0x10 */
+    __IO uint32_t CLKDIV;                            /**< EEPROM clock divider register, offset: 0x14 */
+    __IO uint32_t PWRDWN;                            /**< EEPROM power-down register, offset: 0x18 */
+    uint8_t RESERVED_1[4028];
+    __O  uint32_t INTENCLR;                          /**< EEPROM interrupt enable clear, offset: 0xFD8 */
+    __O  uint32_t INTENSET;                          /**< EEPROM interrupt enable set, offset: 0xFDC */
+    __I  uint32_t INTSTAT;                           /**< EEPROM interrupt status, offset: 0xFE0 */
+    __I  uint32_t INTEN;                             /**< EEPROM interrupt enable, offset: 0xFE4 */
+    __O  uint32_t INTSTATCLR;                        /**< EEPROM interrupt status clear, offset: 0xFE8 */
+    __O  uint32_t INTSTATSET;                        /**< EEPROM interrupt status set, offset: 0xFEC */
 } EEPROM_Type;
 
 /* ----------------------------------------------------------------------------
@@ -2558,44 +2558,44 @@ typedef struct {
 
 /** EMC - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t CONTROL;                           /**< Controls operation of the memory controller, offset: 0x0 */
-  __I  uint32_t STATUS;                            /**< Provides EMC status information, offset: 0x4 */
-  __IO uint32_t CONFIG;                            /**< Configures operation of the memory controller, offset: 0x8 */
-       uint8_t RESERVED_0[20];
-  __IO uint32_t DYNAMICCONTROL;                    /**< Controls dynamic memory operation, offset: 0x20 */
-  __IO uint32_t DYNAMICREFRESH;                    /**< Configures dynamic memory refresh, offset: 0x24 */
-  __IO uint32_t DYNAMICREADCONFIG;                 /**< Configures dynamic memory read strategy, offset: 0x28 */
-       uint8_t RESERVED_1[4];
-  __IO uint32_t DYNAMICRP;                         /**< Precharge command period, offset: 0x30 */
-  __IO uint32_t DYNAMICRAS;                        /**< Active to precharge command period, offset: 0x34 */
-  __IO uint32_t DYNAMICSREX;                       /**< Self-refresh exit time, offset: 0x38 */
-  __IO uint32_t DYNAMICAPR;                        /**< Last-data-out to active command time, offset: 0x3C */
-  __IO uint32_t DYNAMICDAL;                        /**< Data-in to active command time, offset: 0x40 */
-  __IO uint32_t DYNAMICWR;                         /**< Write recovery time, offset: 0x44 */
-  __IO uint32_t DYNAMICRC;                         /**< Selects the active to active command period, offset: 0x48 */
-  __IO uint32_t DYNAMICRFC;                        /**< Selects the auto-refresh period, offset: 0x4C */
-  __IO uint32_t DYNAMICXSR;                        /**< Time for exit self-refresh to active command, offset: 0x50 */
-  __IO uint32_t DYNAMICRRD;                        /**< Latency for active bank A to active bank B, offset: 0x54 */
-  __IO uint32_t DYNAMICMRD;                        /**< Time for load mode register to active command, offset: 0x58 */
-       uint8_t RESERVED_2[36];
-  __IO uint32_t STATICEXTENDEDWAIT;                /**< Time for long static memory read and write transfers, offset: 0x80 */
-       uint8_t RESERVED_3[124];
-  struct {                                         /* offset: 0x100, array step: 0x20 */
-    __IO uint32_t DYNAMICCONFIG;                     /**< Configuration information for EMC_DYCSx, array offset: 0x100, array step: 0x20 */
-    __IO uint32_t DYNAMICRASCAS;                     /**< RAS and CAS latencies for EMC_DYCSx, array offset: 0x104, array step: 0x20 */
-         uint8_t RESERVED_0[24];
-  } DYNAMIC[4];
-       uint8_t RESERVED_4[128];
-  struct {                                         /* offset: 0x200, array step: 0x20 */
-    __IO uint32_t STATICCONFIG;                      /**< Configuration for EMC_CSx, array offset: 0x200, array step: 0x20 */
-    __IO uint32_t STATICWAITWEN;                     /**< Delay from EMC_CSx to write enable, array offset: 0x204, array step: 0x20 */
-    __IO uint32_t STATICWAITOEN;                     /**< Delay from EMC_CSx or address change, whichever is later, to output enable, array offset: 0x208, array step: 0x20 */
-    __IO uint32_t STATICWAITRD;                      /**< Delay from EMC_CSx to a read access, array offset: 0x20C, array step: 0x20 */
-    __IO uint32_t STATICWAITPAGE;                    /**< Delay for asynchronous page mode sequential accesses for EMC_CSx, array offset: 0x210, array step: 0x20 */
-    __IO uint32_t STATICWAITWR;                      /**< Delay from EMC_CSx to a write access, array offset: 0x214, array step: 0x20 */
-    __IO uint32_t STATICWAITTURN;                    /**< Number of bus turnaround cycles EMC_CSx, array offset: 0x218, array step: 0x20 */
-         uint8_t RESERVED_0[4];
-  } STATIC[4];
+    __IO uint32_t CONTROL;                           /**< Controls operation of the memory controller, offset: 0x0 */
+    __I  uint32_t STATUS;                            /**< Provides EMC status information, offset: 0x4 */
+    __IO uint32_t CONFIG;                            /**< Configures operation of the memory controller, offset: 0x8 */
+    uint8_t RESERVED_0[20];
+    __IO uint32_t DYNAMICCONTROL;                    /**< Controls dynamic memory operation, offset: 0x20 */
+    __IO uint32_t DYNAMICREFRESH;                    /**< Configures dynamic memory refresh, offset: 0x24 */
+    __IO uint32_t DYNAMICREADCONFIG;                 /**< Configures dynamic memory read strategy, offset: 0x28 */
+    uint8_t RESERVED_1[4];
+    __IO uint32_t DYNAMICRP;                         /**< Precharge command period, offset: 0x30 */
+    __IO uint32_t DYNAMICRAS;                        /**< Active to precharge command period, offset: 0x34 */
+    __IO uint32_t DYNAMICSREX;                       /**< Self-refresh exit time, offset: 0x38 */
+    __IO uint32_t DYNAMICAPR;                        /**< Last-data-out to active command time, offset: 0x3C */
+    __IO uint32_t DYNAMICDAL;                        /**< Data-in to active command time, offset: 0x40 */
+    __IO uint32_t DYNAMICWR;                         /**< Write recovery time, offset: 0x44 */
+    __IO uint32_t DYNAMICRC;                         /**< Selects the active to active command period, offset: 0x48 */
+    __IO uint32_t DYNAMICRFC;                        /**< Selects the auto-refresh period, offset: 0x4C */
+    __IO uint32_t DYNAMICXSR;                        /**< Time for exit self-refresh to active command, offset: 0x50 */
+    __IO uint32_t DYNAMICRRD;                        /**< Latency for active bank A to active bank B, offset: 0x54 */
+    __IO uint32_t DYNAMICMRD;                        /**< Time for load mode register to active command, offset: 0x58 */
+    uint8_t RESERVED_2[36];
+    __IO uint32_t STATICEXTENDEDWAIT;                /**< Time for long static memory read and write transfers, offset: 0x80 */
+    uint8_t RESERVED_3[124];
+    struct {                                         /* offset: 0x100, array step: 0x20 */
+        __IO uint32_t DYNAMICCONFIG;                     /**< Configuration information for EMC_DYCSx, array offset: 0x100, array step: 0x20 */
+        __IO uint32_t DYNAMICRASCAS;                     /**< RAS and CAS latencies for EMC_DYCSx, array offset: 0x104, array step: 0x20 */
+        uint8_t RESERVED_0[24];
+    } DYNAMIC[4];
+    uint8_t RESERVED_4[128];
+    struct {                                         /* offset: 0x200, array step: 0x20 */
+        __IO uint32_t STATICCONFIG;                      /**< Configuration for EMC_CSx, array offset: 0x200, array step: 0x20 */
+        __IO uint32_t STATICWAITWEN;                     /**< Delay from EMC_CSx to write enable, array offset: 0x204, array step: 0x20 */
+        __IO uint32_t STATICWAITOEN;                     /**< Delay from EMC_CSx or address change, whichever is later, to output enable, array offset: 0x208, array step: 0x20 */
+        __IO uint32_t STATICWAITRD;                      /**< Delay from EMC_CSx to a read access, array offset: 0x20C, array step: 0x20 */
+        __IO uint32_t STATICWAITPAGE;                    /**< Delay for asynchronous page mode sequential accesses for EMC_CSx, array offset: 0x210, array step: 0x20 */
+        __IO uint32_t STATICWAITWR;                      /**< Delay from EMC_CSx to a write access, array offset: 0x214, array step: 0x20 */
+        __IO uint32_t STATICWAITTURN;                    /**< Number of bus turnaround cycles EMC_CSx, array offset: 0x218, array step: 0x20 */
+        uint8_t RESERVED_0[4];
+    } STATIC[4];
 } EMC_Type;
 
 /* ----------------------------------------------------------------------------
@@ -2861,117 +2861,117 @@ typedef struct {
 
 /** ENET - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t MAC_CONFIG;                        /**< MAC configuration register, offset: 0x0 */
-  __IO uint32_t MAC_EXT_CONFIG;                    /**< , offset: 0x4 */
-  __IO uint32_t MAC_FRAME_FILTER;                  /**< MAC frame filter register, offset: 0x8 */
-  __IO uint32_t MAC_WD_TIMEROUT;                   /**< MAC watchdog Timeout register, offset: 0xC */
-       uint8_t RESERVED_0[64];
-  __IO uint32_t MAC_VLAN_TAG;                      /**< MAC vlan tag register, offset: 0x50 */
-       uint8_t RESERVED_1[28];
-  __IO uint32_t MAC_TX_FLOW_CTRL_Q[2];             /**< Transmit flow control register, array offset: 0x70, array step: 0x4 */
-       uint8_t RESERVED_2[24];
-  __IO uint32_t MAC_RX_FLOW_CTRL;                  /**< Receive flow control register, offset: 0x90 */
-       uint8_t RESERVED_3[4];
-  __IO uint32_t MAC_TXQ_PRIO_MAP;                  /**< , offset: 0x98 */
-       uint8_t RESERVED_4[4];
-  __IO uint32_t MAC_RXQ_CTRL[3];                   /**< Receive Queue Control 0 register 0x0000, array offset: 0xA0, array step: 0x4 */
-       uint8_t RESERVED_5[4];
-  __I  uint32_t MAC_INTR_STAT;                     /**< Interrupt status register 0x0000, offset: 0xB0 */
-  __IO uint32_t MAC_INTR_EN;                       /**< Interrupt enable register 0x0000, offset: 0xB4 */
-  __I  uint32_t MAC_RXTX_STAT;                     /**< Receive Transmit Status register, offset: 0xB8 */
-       uint8_t RESERVED_6[4];
-  __IO uint32_t MAC_PMT_CRTL_STAT;                 /**< , offset: 0xC0 */
-  __IO uint32_t MAC_RWAKE_FRFLT;                   /**< Remote wake-up frame filter, offset: 0xC4 */
-       uint8_t RESERVED_7[8];
-  __IO uint32_t MAC_LPI_CTRL_STAT;                 /**< LPI Control and Status Register, offset: 0xD0 */
-  __IO uint32_t MAC_LPI_TIMER_CTRL;                /**< LPI Timers Control register, offset: 0xD4 */
-  __IO uint32_t MAC_LPI_ENTR_TIMR;                 /**< LPI entry Timer register, offset: 0xD8 */
-  __IO uint32_t MAC_1US_TIC_COUNTR;                /**< , offset: 0xDC */
-       uint8_t RESERVED_8[48];
-  __IO uint32_t MAC_VERSION;                       /**< MAC version register, offset: 0x110 */
-  __I  uint32_t MAC_DBG;                           /**< MAC debug register, offset: 0x114 */
-       uint8_t RESERVED_9[4];
-  __IO uint32_t MAC_HW_FEAT[3];                    /**< MAC hardware feature register 0x0201, array offset: 0x11C, array step: 0x4 */
-       uint8_t RESERVED_10[216];
-  __IO uint32_t MAC_MDIO_ADDR;                     /**< MIDO address Register, offset: 0x200 */
-  __IO uint32_t MAC_MDIO_DATA;                     /**< MDIO Data register, offset: 0x204 */
-       uint8_t RESERVED_11[248];
-  __IO uint32_t MAC_ADDR_HIGH;                     /**< MAC address0 high register, offset: 0x300 */
-  __IO uint32_t MAC_ADDR_LOW;                      /**< MAC address0 low register, offset: 0x304 */
-       uint8_t RESERVED_12[2040];
-  __IO uint32_t MAC_TIMESTAMP_CTRL;                /**< Time stamp control register, offset: 0xB00 */
-  __IO uint32_t MAC_SUB_SCND_INCR;                 /**< Sub-second increment register, offset: 0xB04 */
-  __I  uint32_t MAC_SYS_TIME_SCND;                 /**< System time seconds register, offset: 0xB08 */
-  __I  uint32_t MAC_SYS_TIME_NSCND;                /**< System time nanoseconds register, offset: 0xB0C */
-  __IO uint32_t MAC_SYS_TIME_SCND_UPD;             /**< , offset: 0xB10 */
-  __IO uint32_t MAC_SYS_TIME_NSCND_UPD;            /**< , offset: 0xB14 */
-  __IO uint32_t MAC_SYS_TIMESTMP_ADDEND;           /**< Time stamp addend register, offset: 0xB18 */
-  __IO uint32_t MAC_SYS_TIME_HWORD_SCND;           /**< , offset: 0xB1C */
-  __I  uint32_t MAC_SYS_TIMESTMP_STAT;             /**< Time stamp status register, offset: 0xB20 */
-       uint8_t RESERVED_13[12];
-  __I  uint32_t MAC_TX_TIMESTAMP_STATUS_NANOSECONDS; /**< Tx timestamp status nanoseconds, offset: 0xB30 */
-  __I  uint32_t MAC_TX_TIMESTAMP_STATUS_SECONDS;   /**< Tx timestamp status seconds, offset: 0xB34 */
-       uint8_t RESERVED_14[32];
-  __IO uint32_t MAC_TIMESTAMP_INGRESS_CORR_NANOSECOND; /**< Timestamp ingress correction, offset: 0xB58 */
-  __IO uint32_t MAC_TIMESTAMP_EGRESS_CORR_NANOSECOND; /**< Timestamp egress correction, offset: 0xB5C */
-       uint8_t RESERVED_15[160];
-  __IO uint32_t MTL_OP_MODE;                       /**< MTL Operation Mode Register, offset: 0xC00 */
-       uint8_t RESERVED_16[28];
-  __I  uint32_t MTL_INTR_STAT;                     /**< MTL Interrupt Status register, offset: 0xC20 */
-       uint8_t RESERVED_17[12];
-  __IO uint32_t MTL_RXQ_DMA_MAP;                   /**< MTL Receive Queue and DMA Channel Mapping register, offset: 0xC30 */
-       uint8_t RESERVED_18[204];
-  struct {                                         /* offset: 0xD00, array step: 0x40 */
-    __IO uint32_t MTL_TXQX_OP_MODE;                  /**< MTL TxQx Operation Mode register, array offset: 0xD00, array step: 0x40 */
-    __I  uint32_t MTL_TXQX_UNDRFLW;                  /**< MTL TxQx Underflow register, array offset: 0xD04, array step: 0x40 */
-    __I  uint32_t MTL_TXQX_DBG;                      /**< MTL TxQx Debug register, array offset: 0xD08, array step: 0x40 */
-         uint8_t RESERVED_0[4];
-    __IO uint32_t MTL_TXQX_ETS_CTRL;                 /**< MTL TxQx ETS control register, only TxQ1 support, array offset: 0xD10, array step: 0x40 */
-    __IO uint32_t MTL_TXQX_ETS_STAT;                 /**< MTL TxQx ETS Status register, array offset: 0xD14, array step: 0x40 */
-    __IO uint32_t MTL_TXQX_QNTM_WGHT;                /**< , array offset: 0xD18, array step: 0x40 */
-    __IO uint32_t MTL_TXQX_SNDSLP_CRDT;              /**< MTL TxQx SendSlopCredit register, only TxQ1 support, array offset: 0xD1C, array step: 0x40 */
-    __IO uint32_t MTL_TXQX_HI_CRDT;                  /**< MTL TxQx hiCredit register, only TxQ1 support, array offset: 0xD20, array step: 0x40 */
-    __IO uint32_t MTL_TXQX_LO_CRDT;                  /**< MTL TxQx loCredit register, only TxQ1 support, array offset: 0xD24, array step: 0x40 */
-         uint8_t RESERVED_1[4];
-    __IO uint32_t MTL_TXQX_INTCTRL_STAT;             /**< , array offset: 0xD2C, array step: 0x40 */
-    __IO uint32_t MTL_RXQX_OP_MODE;                  /**< MTL RxQx Operation Mode register, array offset: 0xD30, array step: 0x40 */
-    __IO uint32_t MTL_RXQX_MISSPKT_OVRFLW_CNT;       /**< MTL RxQx Missed Packet Overflow Counter register, array offset: 0xD34, array step: 0x40 */
-    __IO uint32_t MTL_RXQX_DBG;                      /**< MTL RxQx Debug register, array offset: 0xD38, array step: 0x40 */
-    __IO uint32_t MTL_RXQX_CTRL;                     /**< MTL RxQx Control register, array offset: 0xD3C, array step: 0x40 */
-  } MTL_QUEUE[2];
-       uint8_t RESERVED_19[640];
-  __IO uint32_t DMA_MODE;                          /**< DMA mode register, offset: 0x1000 */
-  __IO uint32_t DMA_SYSBUS_MODE;                   /**< DMA System Bus mode, offset: 0x1004 */
-  __IO uint32_t DMA_INTR_STAT;                     /**< DMA Interrupt status, offset: 0x1008 */
-  __IO uint32_t DMA_DBG_STAT;                      /**< DMA Debug Status, offset: 0x100C */
-       uint8_t RESERVED_20[240];
-  struct {                                         /* offset: 0x1100, array step: 0x80 */
-    __IO uint32_t DMA_CHX_CTRL;                      /**< DMA Channelx Control, array offset: 0x1100, array step: 0x80 */
-    __IO uint32_t DMA_CHX_TX_CTRL;                   /**< DMA Channelx Transmit Control, array offset: 0x1104, array step: 0x80 */
-    __IO uint32_t DMA_CHX_RX_CTRL;                   /**< DMA Channelx Receive Control, array offset: 0x1108, array step: 0x80 */
-         uint8_t RESERVED_0[8];
-    __IO uint32_t DMA_CHX_TXDESC_LIST_ADDR;          /**< , array offset: 0x1114, array step: 0x80 */
-         uint8_t RESERVED_1[4];
-    __IO uint32_t DMA_CHX_RXDESC_LIST_ADDR;          /**< , array offset: 0x111C, array step: 0x80 */
-    __IO uint32_t DMA_CHX_TXDESC_TAIL_PTR;           /**< , array offset: 0x1120, array step: 0x80 */
-         uint8_t RESERVED_2[4];
-    __IO uint32_t DMA_CHX_RXDESC_TAIL_PTR;           /**< , array offset: 0x1128, array step: 0x80 */
-    __IO uint32_t DMA_CHX_TXDESC_RING_LENGTH;        /**< , array offset: 0x112C, array step: 0x80 */
-    __IO uint32_t DMA_CHX_RXDESC_RING_LENGTH;        /**< Channelx Rx descriptor Ring Length, array offset: 0x1130, array step: 0x80 */
-    __IO uint32_t DMA_CHX_INT_EN;                    /**< Channelx Interrupt Enable, array offset: 0x1134, array step: 0x80 */
-    __IO uint32_t DMA_CHX_RX_INT_WDTIMER;            /**< Receive Interrupt Watchdog Timer, array offset: 0x1138, array step: 0x80 */
-    __IO uint32_t DMA_CHX_SLOT_FUNC_CTRL_STAT;       /**< Slot Function Control and Status, array offset: 0x113C, array step: 0x80 */
-         uint8_t RESERVED_3[4];
-    __I  uint32_t DMA_CHX_CUR_HST_TXDESC;            /**< Channelx Current Host Transmit descriptor, array offset: 0x1144, array step: 0x80 */
-         uint8_t RESERVED_4[4];
-    __I  uint32_t DMA_CHX_CUR_HST_RXDESC;            /**< , array offset: 0x114C, array step: 0x80 */
-         uint8_t RESERVED_5[4];
-    __I  uint32_t DMA_CHX_CUR_HST_TXBUF;             /**< , array offset: 0x1154, array step: 0x80 */
-         uint8_t RESERVED_6[4];
-    __I  uint32_t DMA_CHX_CUR_HST_RXBUF;             /**< Channelx Current Application Receive Buffer Address, array offset: 0x115C, array step: 0x80 */
-    __IO uint32_t DMA_CHX_STAT;                      /**< Channelx DMA status register, array offset: 0x1160, array step: 0x80 */
-         uint8_t RESERVED_7[28];
-  } DMA_CH[2];
+    __IO uint32_t MAC_CONFIG;                        /**< MAC configuration register, offset: 0x0 */
+    __IO uint32_t MAC_EXT_CONFIG;                    /**< , offset: 0x4 */
+    __IO uint32_t MAC_FRAME_FILTER;                  /**< MAC frame filter register, offset: 0x8 */
+    __IO uint32_t MAC_WD_TIMEROUT;                   /**< MAC watchdog Timeout register, offset: 0xC */
+    uint8_t RESERVED_0[64];
+    __IO uint32_t MAC_VLAN_TAG;                      /**< MAC vlan tag register, offset: 0x50 */
+    uint8_t RESERVED_1[28];
+    __IO uint32_t MAC_TX_FLOW_CTRL_Q[2];             /**< Transmit flow control register, array offset: 0x70, array step: 0x4 */
+    uint8_t RESERVED_2[24];
+    __IO uint32_t MAC_RX_FLOW_CTRL;                  /**< Receive flow control register, offset: 0x90 */
+    uint8_t RESERVED_3[4];
+    __IO uint32_t MAC_TXQ_PRIO_MAP;                  /**< , offset: 0x98 */
+    uint8_t RESERVED_4[4];
+    __IO uint32_t MAC_RXQ_CTRL[3];                   /**< Receive Queue Control 0 register 0x0000, array offset: 0xA0, array step: 0x4 */
+    uint8_t RESERVED_5[4];
+    __I  uint32_t MAC_INTR_STAT;                     /**< Interrupt status register 0x0000, offset: 0xB0 */
+    __IO uint32_t MAC_INTR_EN;                       /**< Interrupt enable register 0x0000, offset: 0xB4 */
+    __I  uint32_t MAC_RXTX_STAT;                     /**< Receive Transmit Status register, offset: 0xB8 */
+    uint8_t RESERVED_6[4];
+    __IO uint32_t MAC_PMT_CRTL_STAT;                 /**< , offset: 0xC0 */
+    __IO uint32_t MAC_RWAKE_FRFLT;                   /**< Remote wake-up frame filter, offset: 0xC4 */
+    uint8_t RESERVED_7[8];
+    __IO uint32_t MAC_LPI_CTRL_STAT;                 /**< LPI Control and Status Register, offset: 0xD0 */
+    __IO uint32_t MAC_LPI_TIMER_CTRL;                /**< LPI Timers Control register, offset: 0xD4 */
+    __IO uint32_t MAC_LPI_ENTR_TIMR;                 /**< LPI entry Timer register, offset: 0xD8 */
+    __IO uint32_t MAC_1US_TIC_COUNTR;                /**< , offset: 0xDC */
+    uint8_t RESERVED_8[48];
+    __IO uint32_t MAC_VERSION;                       /**< MAC version register, offset: 0x110 */
+    __I  uint32_t MAC_DBG;                           /**< MAC debug register, offset: 0x114 */
+    uint8_t RESERVED_9[4];
+    __IO uint32_t MAC_HW_FEAT[3];                    /**< MAC hardware feature register 0x0201, array offset: 0x11C, array step: 0x4 */
+    uint8_t RESERVED_10[216];
+    __IO uint32_t MAC_MDIO_ADDR;                     /**< MIDO address Register, offset: 0x200 */
+    __IO uint32_t MAC_MDIO_DATA;                     /**< MDIO Data register, offset: 0x204 */
+    uint8_t RESERVED_11[248];
+    __IO uint32_t MAC_ADDR_HIGH;                     /**< MAC address0 high register, offset: 0x300 */
+    __IO uint32_t MAC_ADDR_LOW;                      /**< MAC address0 low register, offset: 0x304 */
+    uint8_t RESERVED_12[2040];
+    __IO uint32_t MAC_TIMESTAMP_CTRL;                /**< Time stamp control register, offset: 0xB00 */
+    __IO uint32_t MAC_SUB_SCND_INCR;                 /**< Sub-second increment register, offset: 0xB04 */
+    __I  uint32_t MAC_SYS_TIME_SCND;                 /**< System time seconds register, offset: 0xB08 */
+    __I  uint32_t MAC_SYS_TIME_NSCND;                /**< System time nanoseconds register, offset: 0xB0C */
+    __IO uint32_t MAC_SYS_TIME_SCND_UPD;             /**< , offset: 0xB10 */
+    __IO uint32_t MAC_SYS_TIME_NSCND_UPD;            /**< , offset: 0xB14 */
+    __IO uint32_t MAC_SYS_TIMESTMP_ADDEND;           /**< Time stamp addend register, offset: 0xB18 */
+    __IO uint32_t MAC_SYS_TIME_HWORD_SCND;           /**< , offset: 0xB1C */
+    __I  uint32_t MAC_SYS_TIMESTMP_STAT;             /**< Time stamp status register, offset: 0xB20 */
+    uint8_t RESERVED_13[12];
+    __I  uint32_t MAC_TX_TIMESTAMP_STATUS_NANOSECONDS; /**< Tx timestamp status nanoseconds, offset: 0xB30 */
+    __I  uint32_t MAC_TX_TIMESTAMP_STATUS_SECONDS;   /**< Tx timestamp status seconds, offset: 0xB34 */
+    uint8_t RESERVED_14[32];
+    __IO uint32_t MAC_TIMESTAMP_INGRESS_CORR_NANOSECOND; /**< Timestamp ingress correction, offset: 0xB58 */
+    __IO uint32_t MAC_TIMESTAMP_EGRESS_CORR_NANOSECOND; /**< Timestamp egress correction, offset: 0xB5C */
+    uint8_t RESERVED_15[160];
+    __IO uint32_t MTL_OP_MODE;                       /**< MTL Operation Mode Register, offset: 0xC00 */
+    uint8_t RESERVED_16[28];
+    __I  uint32_t MTL_INTR_STAT;                     /**< MTL Interrupt Status register, offset: 0xC20 */
+    uint8_t RESERVED_17[12];
+    __IO uint32_t MTL_RXQ_DMA_MAP;                   /**< MTL Receive Queue and DMA Channel Mapping register, offset: 0xC30 */
+    uint8_t RESERVED_18[204];
+    struct {                                         /* offset: 0xD00, array step: 0x40 */
+        __IO uint32_t MTL_TXQX_OP_MODE;                  /**< MTL TxQx Operation Mode register, array offset: 0xD00, array step: 0x40 */
+        __I  uint32_t MTL_TXQX_UNDRFLW;                  /**< MTL TxQx Underflow register, array offset: 0xD04, array step: 0x40 */
+        __I  uint32_t MTL_TXQX_DBG;                      /**< MTL TxQx Debug register, array offset: 0xD08, array step: 0x40 */
+        uint8_t RESERVED_0[4];
+        __IO uint32_t MTL_TXQX_ETS_CTRL;                 /**< MTL TxQx ETS control register, only TxQ1 support, array offset: 0xD10, array step: 0x40 */
+        __IO uint32_t MTL_TXQX_ETS_STAT;                 /**< MTL TxQx ETS Status register, array offset: 0xD14, array step: 0x40 */
+        __IO uint32_t MTL_TXQX_QNTM_WGHT;                /**< , array offset: 0xD18, array step: 0x40 */
+        __IO uint32_t MTL_TXQX_SNDSLP_CRDT;              /**< MTL TxQx SendSlopCredit register, only TxQ1 support, array offset: 0xD1C, array step: 0x40 */
+        __IO uint32_t MTL_TXQX_HI_CRDT;                  /**< MTL TxQx hiCredit register, only TxQ1 support, array offset: 0xD20, array step: 0x40 */
+        __IO uint32_t MTL_TXQX_LO_CRDT;                  /**< MTL TxQx loCredit register, only TxQ1 support, array offset: 0xD24, array step: 0x40 */
+        uint8_t RESERVED_1[4];
+        __IO uint32_t MTL_TXQX_INTCTRL_STAT;             /**< , array offset: 0xD2C, array step: 0x40 */
+        __IO uint32_t MTL_RXQX_OP_MODE;                  /**< MTL RxQx Operation Mode register, array offset: 0xD30, array step: 0x40 */
+        __IO uint32_t MTL_RXQX_MISSPKT_OVRFLW_CNT;       /**< MTL RxQx Missed Packet Overflow Counter register, array offset: 0xD34, array step: 0x40 */
+        __IO uint32_t MTL_RXQX_DBG;                      /**< MTL RxQx Debug register, array offset: 0xD38, array step: 0x40 */
+        __IO uint32_t MTL_RXQX_CTRL;                     /**< MTL RxQx Control register, array offset: 0xD3C, array step: 0x40 */
+    } MTL_QUEUE[2];
+    uint8_t RESERVED_19[640];
+    __IO uint32_t DMA_MODE;                          /**< DMA mode register, offset: 0x1000 */
+    __IO uint32_t DMA_SYSBUS_MODE;                   /**< DMA System Bus mode, offset: 0x1004 */
+    __IO uint32_t DMA_INTR_STAT;                     /**< DMA Interrupt status, offset: 0x1008 */
+    __IO uint32_t DMA_DBG_STAT;                      /**< DMA Debug Status, offset: 0x100C */
+    uint8_t RESERVED_20[240];
+    struct {                                         /* offset: 0x1100, array step: 0x80 */
+        __IO uint32_t DMA_CHX_CTRL;                      /**< DMA Channelx Control, array offset: 0x1100, array step: 0x80 */
+        __IO uint32_t DMA_CHX_TX_CTRL;                   /**< DMA Channelx Transmit Control, array offset: 0x1104, array step: 0x80 */
+        __IO uint32_t DMA_CHX_RX_CTRL;                   /**< DMA Channelx Receive Control, array offset: 0x1108, array step: 0x80 */
+        uint8_t RESERVED_0[8];
+        __IO uint32_t DMA_CHX_TXDESC_LIST_ADDR;          /**< , array offset: 0x1114, array step: 0x80 */
+        uint8_t RESERVED_1[4];
+        __IO uint32_t DMA_CHX_RXDESC_LIST_ADDR;          /**< , array offset: 0x111C, array step: 0x80 */
+        __IO uint32_t DMA_CHX_TXDESC_TAIL_PTR;           /**< , array offset: 0x1120, array step: 0x80 */
+        uint8_t RESERVED_2[4];
+        __IO uint32_t DMA_CHX_RXDESC_TAIL_PTR;           /**< , array offset: 0x1128, array step: 0x80 */
+        __IO uint32_t DMA_CHX_TXDESC_RING_LENGTH;        /**< , array offset: 0x112C, array step: 0x80 */
+        __IO uint32_t DMA_CHX_RXDESC_RING_LENGTH;        /**< Channelx Rx descriptor Ring Length, array offset: 0x1130, array step: 0x80 */
+        __IO uint32_t DMA_CHX_INT_EN;                    /**< Channelx Interrupt Enable, array offset: 0x1134, array step: 0x80 */
+        __IO uint32_t DMA_CHX_RX_INT_WDTIMER;            /**< Receive Interrupt Watchdog Timer, array offset: 0x1138, array step: 0x80 */
+        __IO uint32_t DMA_CHX_SLOT_FUNC_CTRL_STAT;       /**< Slot Function Control and Status, array offset: 0x113C, array step: 0x80 */
+        uint8_t RESERVED_3[4];
+        __I  uint32_t DMA_CHX_CUR_HST_TXDESC;            /**< Channelx Current Host Transmit descriptor, array offset: 0x1144, array step: 0x80 */
+        uint8_t RESERVED_4[4];
+        __I  uint32_t DMA_CHX_CUR_HST_RXDESC;            /**< , array offset: 0x114C, array step: 0x80 */
+        uint8_t RESERVED_5[4];
+        __I  uint32_t DMA_CHX_CUR_HST_TXBUF;             /**< , array offset: 0x1154, array step: 0x80 */
+        uint8_t RESERVED_6[4];
+        __I  uint32_t DMA_CHX_CUR_HST_RXBUF;             /**< Channelx Current Application Receive Buffer Address, array offset: 0x115C, array step: 0x80 */
+        __IO uint32_t DMA_CHX_STAT;                      /**< Channelx DMA status register, array offset: 0x1160, array step: 0x80 */
+        uint8_t RESERVED_7[28];
+    } DMA_CH[2];
 } ENET_Type;
 
 /* ----------------------------------------------------------------------------
@@ -4230,9 +4230,9 @@ typedef struct {
 
 /** FLEXCOMM - Register Layout Typedef */
 typedef struct {
-       uint8_t RESERVED_0[4088];
-  __IO uint32_t PSELID;                            /**< Peripheral Select and Flexcomm ID register., offset: 0xFF8 */
-  __IO uint32_t PID;                               /**< Peripheral identification register., offset: 0xFFC */
+    uint8_t RESERVED_0[4088];
+    __IO uint32_t PSELID;                            /**< Peripheral Select and Flexcomm ID register., offset: 0xFF8 */
+    __IO uint32_t PID;                               /**< Peripheral identification register., offset: 0xFFC */
 } FLEXCOMM_Type;
 
 /* ----------------------------------------------------------------------------
@@ -4348,18 +4348,18 @@ typedef struct {
 
 /** FMC - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t FCTR;                              /**< Control register, offset: 0x0 */
-       uint8_t RESERVED_0[12];
-  __IO uint32_t FBWST;                             /**< Wait state register, offset: 0x10 */
-       uint8_t RESERVED_1[12];
-  __IO uint32_t FMSSTART;                          /**< Signature start address register, offset: 0x20 */
-  __IO uint32_t FMSSTOP;                           /**< Signature stop-address register, offset: 0x24 */
-       uint8_t RESERVED_2[4];
-  __I  uint32_t FMSW[4];                           /**< Words of 128-bit signature word, array offset: 0x2C, array step: 0x4 */
-       uint8_t RESERVED_3[4004];
-  __I  uint32_t FMSTAT;                            /**< Signature generation status register, offset: 0xFE0 */
-       uint8_t RESERVED_4[4];
-  __O  uint32_t FMSTATCLR;                         /**< Signature generation status clear register, offset: 0xFE8 */
+    __IO uint32_t FCTR;                              /**< Control register, offset: 0x0 */
+    uint8_t RESERVED_0[12];
+    __IO uint32_t FBWST;                             /**< Wait state register, offset: 0x10 */
+    uint8_t RESERVED_1[12];
+    __IO uint32_t FMSSTART;                          /**< Signature start address register, offset: 0x20 */
+    __IO uint32_t FMSSTOP;                           /**< Signature stop-address register, offset: 0x24 */
+    uint8_t RESERVED_2[4];
+    __I  uint32_t FMSW[4];                           /**< Words of 128-bit signature word, array offset: 0x2C, array step: 0x4 */
+    uint8_t RESERVED_3[4004];
+    __I  uint32_t FMSTAT;                            /**< Signature generation status register, offset: 0xFE0 */
+    uint8_t RESERVED_4[4];
+    __O  uint32_t FMSTATCLR;                         /**< Signature generation status clear register, offset: 0xFE8 */
 } FMC_Type;
 
 /* ----------------------------------------------------------------------------
@@ -4447,11 +4447,11 @@ typedef struct {
 
 /** GINT - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t CTRL;                              /**< GPIO grouped interrupt control register, offset: 0x0 */
-       uint8_t RESERVED_0[28];
-  __IO uint32_t PORT_POL[2];                       /**< GPIO grouped interrupt port 0 polarity register, array offset: 0x20, array step: 0x4 */
-       uint8_t RESERVED_1[24];
-  __IO uint32_t PORT_ENA[2];                       /**< GPIO grouped interrupt port 0 enable register, array offset: 0x40, array step: 0x4 */
+    __IO uint32_t CTRL;                              /**< GPIO grouped interrupt control register, offset: 0x0 */
+    uint8_t RESERVED_0[28];
+    __IO uint32_t PORT_POL[2];                       /**< GPIO grouped interrupt port 0 polarity register, array offset: 0x20, array step: 0x4 */
+    uint8_t RESERVED_1[24];
+    __IO uint32_t PORT_ENA[2];                       /**< GPIO grouped interrupt port 0 enable register, array offset: 0x40, array step: 0x4 */
 } GINT_Type;
 
 /* ----------------------------------------------------------------------------
@@ -4528,29 +4528,29 @@ typedef struct {
 
 /** GPIO - Register Layout Typedef */
 typedef struct {
-  __IO uint8_t B[6][32];                           /**< Byte pin registers for all port 0 and 1 GPIO pins, array offset: 0x0, array step: index*0x20, index2*0x1 */
-       uint8_t RESERVED_0[3904];
-  __IO uint32_t W[6][32];                          /**< Word pin registers for all port 0 and 1 GPIO pins, array offset: 0x1000, array step: index*0x80, index2*0x4 */
-       uint8_t RESERVED_1[3328];
-  __IO uint32_t DIR[6];                            /**< Direction registers, array offset: 0x2000, array step: 0x4 */
-       uint8_t RESERVED_2[104];
-  __IO uint32_t MASK[6];                           /**< Mask register, array offset: 0x2080, array step: 0x4 */
-       uint8_t RESERVED_3[104];
-  __IO uint32_t PIN[6];                            /**< Port pin register, array offset: 0x2100, array step: 0x4 */
-       uint8_t RESERVED_4[104];
-  __IO uint32_t MPIN[6];                           /**< Masked port register, array offset: 0x2180, array step: 0x4 */
-       uint8_t RESERVED_5[104];
-  __IO uint32_t SET[6];                            /**< Write: Set register for port Read: output bits for port, array offset: 0x2200, array step: 0x4 */
-       uint8_t RESERVED_6[104];
-  __O  uint32_t CLR[6];                            /**< Clear port, array offset: 0x2280, array step: 0x4 */
-       uint8_t RESERVED_7[104];
-  __O  uint32_t NOT[6];                            /**< Toggle port, array offset: 0x2300, array step: 0x4 */
-       uint8_t RESERVED_8[104];
-  __O  uint32_t DIRSET[6];                         /**< Set pin direction bits for port, array offset: 0x2380, array step: 0x4 */
-       uint8_t RESERVED_9[104];
-  __O  uint32_t DIRCLR[6];                         /**< Clear pin direction bits for port, array offset: 0x2400, array step: 0x4 */
-       uint8_t RESERVED_10[104];
-  __O  uint32_t DIRNOT[6];                         /**< Toggle pin direction bits for port, array offset: 0x2480, array step: 0x4 */
+    __IO uint8_t B[6][32];                           /**< Byte pin registers for all port 0 and 1 GPIO pins, array offset: 0x0, array step: index*0x20, index2*0x1 */
+    uint8_t RESERVED_0[3904];
+    __IO uint32_t W[6][32];                          /**< Word pin registers for all port 0 and 1 GPIO pins, array offset: 0x1000, array step: index*0x80, index2*0x4 */
+    uint8_t RESERVED_1[3328];
+    __IO uint32_t DIR[6];                            /**< Direction registers, array offset: 0x2000, array step: 0x4 */
+    uint8_t RESERVED_2[104];
+    __IO uint32_t MASK[6];                           /**< Mask register, array offset: 0x2080, array step: 0x4 */
+    uint8_t RESERVED_3[104];
+    __IO uint32_t PIN[6];                            /**< Port pin register, array offset: 0x2100, array step: 0x4 */
+    uint8_t RESERVED_4[104];
+    __IO uint32_t MPIN[6];                           /**< Masked port register, array offset: 0x2180, array step: 0x4 */
+    uint8_t RESERVED_5[104];
+    __IO uint32_t SET[6];                            /**< Write: Set register for port Read: output bits for port, array offset: 0x2200, array step: 0x4 */
+    uint8_t RESERVED_6[104];
+    __O  uint32_t CLR[6];                            /**< Clear port, array offset: 0x2280, array step: 0x4 */
+    uint8_t RESERVED_7[104];
+    __O  uint32_t NOT[6];                            /**< Toggle port, array offset: 0x2300, array step: 0x4 */
+    uint8_t RESERVED_8[104];
+    __O  uint32_t DIRSET[6];                         /**< Set pin direction bits for port, array offset: 0x2380, array step: 0x4 */
+    uint8_t RESERVED_9[104];
+    __O  uint32_t DIRCLR[6];                         /**< Clear pin direction bits for port, array offset: 0x2400, array step: 0x4 */
+    uint8_t RESERVED_10[104];
+    __O  uint32_t DIRNOT[6];                         /**< Toggle pin direction bits for port, array offset: 0x2480, array step: 0x4 */
 } GPIO_Type;
 
 /* ----------------------------------------------------------------------------
@@ -4696,27 +4696,27 @@ typedef struct {
 
 /** I2C - Register Layout Typedef */
 typedef struct {
-       uint8_t RESERVED_0[2048];
-  __IO uint32_t CFG;                               /**< Configuration for shared functions., offset: 0x800 */
-  __IO uint32_t STAT;                              /**< Status register for Master, Slave, and Monitor functions., offset: 0x804 */
-  __IO uint32_t INTENSET;                          /**< Interrupt Enable Set and read register., offset: 0x808 */
-  __O  uint32_t INTENCLR;                          /**< Interrupt Enable Clear register., offset: 0x80C */
-  __IO uint32_t TIMEOUT;                           /**< Time-out value register., offset: 0x810 */
-  __IO uint32_t CLKDIV;                            /**< Clock pre-divider for the entire I2C interface. This determines what time increments are used for the MSTTIME register, and controls some timing of the Slave function., offset: 0x814 */
-  __I  uint32_t INTSTAT;                           /**< Interrupt Status register for Master, Slave, and Monitor functions., offset: 0x818 */
-       uint8_t RESERVED_1[4];
-  __IO uint32_t MSTCTL;                            /**< Master control register., offset: 0x820 */
-  __IO uint32_t MSTTIME;                           /**< Master timing configuration., offset: 0x824 */
-  __IO uint32_t MSTDAT;                            /**< Combined Master receiver and transmitter data register., offset: 0x828 */
-       uint8_t RESERVED_2[20];
-  __IO uint32_t SLVCTL;                            /**< Slave control register., offset: 0x840 */
-  __IO uint32_t SLVDAT;                            /**< Combined Slave receiver and transmitter data register., offset: 0x844 */
-  __IO uint32_t SLVADR[4];                         /**< Slave address register., array offset: 0x848, array step: 0x4 */
-  __IO uint32_t SLVQUAL0;                          /**< Slave Qualification for address 0., offset: 0x858 */
-       uint8_t RESERVED_3[36];
-  __I  uint32_t MONRXDAT;                          /**< Monitor receiver data register., offset: 0x880 */
-       uint8_t RESERVED_4[1912];
-  __I  uint32_t ID;                                /**< Peripheral identification register., offset: 0xFFC */
+    uint8_t RESERVED_0[2048];
+    __IO uint32_t CFG;                               /**< Configuration for shared functions., offset: 0x800 */
+    __IO uint32_t STAT;                              /**< Status register for Master, Slave, and Monitor functions., offset: 0x804 */
+    __IO uint32_t INTENSET;                          /**< Interrupt Enable Set and read register., offset: 0x808 */
+    __O  uint32_t INTENCLR;                          /**< Interrupt Enable Clear register., offset: 0x80C */
+    __IO uint32_t TIMEOUT;                           /**< Time-out value register., offset: 0x810 */
+    __IO uint32_t CLKDIV;                            /**< Clock pre-divider for the entire I2C interface. This determines what time increments are used for the MSTTIME register, and controls some timing of the Slave function., offset: 0x814 */
+    __I  uint32_t INTSTAT;                           /**< Interrupt Status register for Master, Slave, and Monitor functions., offset: 0x818 */
+    uint8_t RESERVED_1[4];
+    __IO uint32_t MSTCTL;                            /**< Master control register., offset: 0x820 */
+    __IO uint32_t MSTTIME;                           /**< Master timing configuration., offset: 0x824 */
+    __IO uint32_t MSTDAT;                            /**< Combined Master receiver and transmitter data register., offset: 0x828 */
+    uint8_t RESERVED_2[20];
+    __IO uint32_t SLVCTL;                            /**< Slave control register., offset: 0x840 */
+    __IO uint32_t SLVDAT;                            /**< Combined Slave receiver and transmitter data register., offset: 0x844 */
+    __IO uint32_t SLVADR[4];                         /**< Slave address register., array offset: 0x848, array step: 0x4 */
+    __IO uint32_t SLVQUAL0;                          /**< Slave Qualification for address 0., offset: 0x858 */
+    uint8_t RESERVED_3[36];
+    __I  uint32_t MONRXDAT;                          /**< Monitor receiver data register., offset: 0x880 */
+    uint8_t RESERVED_4[1912];
+    __I  uint32_t ID;                                /**< Peripheral identification register., offset: 0xFFC */
 } I2C_Type;
 
 /* ----------------------------------------------------------------------------
@@ -5085,38 +5085,38 @@ typedef struct {
 
 /** I2S - Register Layout Typedef */
 typedef struct {
-       uint8_t RESERVED_0[32];
-  struct {                                         /* offset: 0x20, array step: 0x20 */
-    __IO uint32_t PCFG1;                             /**< Configuration register 1 for channel pair, array offset: 0x20, array step: 0x20 */
-    __IO uint32_t PCFG2;                             /**< Configuration register 2 for channel pair, array offset: 0x24, array step: 0x20 */
-    __IO uint32_t PSTAT;                             /**< Status register for channel pair, array offset: 0x28, array step: 0x20 */
-         uint8_t RESERVED_0[20];
-  } SECCHANNEL[3];
-       uint8_t RESERVED_1[2944];
-  __IO uint32_t CFG1;                              /**< Configuration register 1 for the primary channel pair., offset: 0xC00 */
-  __IO uint32_t CFG2;                              /**< Configuration register 2 for the primary channel pair., offset: 0xC04 */
-  __IO uint32_t STAT;                              /**< Status register for the primary channel pair., offset: 0xC08 */
-       uint8_t RESERVED_2[16];
-  __IO uint32_t DIV;                               /**< Clock divider, used by all channel pairs., offset: 0xC1C */
-       uint8_t RESERVED_3[480];
-  __IO uint32_t FIFOCFG;                           /**< FIFO configuration and enable register., offset: 0xE00 */
-  __IO uint32_t FIFOSTAT;                          /**< FIFO status register., offset: 0xE04 */
-  __IO uint32_t FIFOTRIG;                          /**< FIFO trigger settings for interrupt and DMA request., offset: 0xE08 */
-       uint8_t RESERVED_4[4];
-  __IO uint32_t FIFOINTENSET;                      /**< FIFO interrupt enable set (enable) and read register., offset: 0xE10 */
-  __IO uint32_t FIFOINTENCLR;                      /**< FIFO interrupt enable clear (disable) and read register., offset: 0xE14 */
-  __I  uint32_t FIFOINTSTAT;                       /**< FIFO interrupt status register., offset: 0xE18 */
-       uint8_t RESERVED_5[4];
-  __O  uint32_t FIFOWR;                            /**< FIFO write data., offset: 0xE20 */
-  __O  uint32_t FIFOWR48H;                         /**< FIFO write data for upper data bits. May only be used if the I2S is configured for 2x 24-bit data and not using DMA., offset: 0xE24 */
-       uint8_t RESERVED_6[8];
-  __I  uint32_t FIFORD;                            /**< FIFO read data., offset: 0xE30 */
-  __I  uint32_t FIFORD48H;                         /**< FIFO read data for upper data bits. May only be used if the I2S is configured for 2x 24-bit data and not using DMA., offset: 0xE34 */
-       uint8_t RESERVED_7[8];
-  __I  uint32_t FIFORDNOPOP;                       /**< FIFO data read with no FIFO pop., offset: 0xE40 */
-  __I  uint32_t FIFORD48HNOPOP;                    /**< FIFO data read for upper data bits with no FIFO pop. May only be used if the I2S is configured for 2x 24-bit data and not using DMA., offset: 0xE44 */
-       uint8_t RESERVED_8[4020];
-  __I  uint32_t ID;                                /**< I2S Module identification, offset: 0x1DFC */
+    uint8_t RESERVED_0[32];
+    struct {                                         /* offset: 0x20, array step: 0x20 */
+        __IO uint32_t PCFG1;                             /**< Configuration register 1 for channel pair, array offset: 0x20, array step: 0x20 */
+        __IO uint32_t PCFG2;                             /**< Configuration register 2 for channel pair, array offset: 0x24, array step: 0x20 */
+        __IO uint32_t PSTAT;                             /**< Status register for channel pair, array offset: 0x28, array step: 0x20 */
+        uint8_t RESERVED_0[20];
+    } SECCHANNEL[3];
+    uint8_t RESERVED_1[2944];
+    __IO uint32_t CFG1;                              /**< Configuration register 1 for the primary channel pair., offset: 0xC00 */
+    __IO uint32_t CFG2;                              /**< Configuration register 2 for the primary channel pair., offset: 0xC04 */
+    __IO uint32_t STAT;                              /**< Status register for the primary channel pair., offset: 0xC08 */
+    uint8_t RESERVED_2[16];
+    __IO uint32_t DIV;                               /**< Clock divider, used by all channel pairs., offset: 0xC1C */
+    uint8_t RESERVED_3[480];
+    __IO uint32_t FIFOCFG;                           /**< FIFO configuration and enable register., offset: 0xE00 */
+    __IO uint32_t FIFOSTAT;                          /**< FIFO status register., offset: 0xE04 */
+    __IO uint32_t FIFOTRIG;                          /**< FIFO trigger settings for interrupt and DMA request., offset: 0xE08 */
+    uint8_t RESERVED_4[4];
+    __IO uint32_t FIFOINTENSET;                      /**< FIFO interrupt enable set (enable) and read register., offset: 0xE10 */
+    __IO uint32_t FIFOINTENCLR;                      /**< FIFO interrupt enable clear (disable) and read register., offset: 0xE14 */
+    __I  uint32_t FIFOINTSTAT;                       /**< FIFO interrupt status register., offset: 0xE18 */
+    uint8_t RESERVED_5[4];
+    __O  uint32_t FIFOWR;                            /**< FIFO write data., offset: 0xE20 */
+    __O  uint32_t FIFOWR48H;                         /**< FIFO write data for upper data bits. May only be used if the I2S is configured for 2x 24-bit data and not using DMA., offset: 0xE24 */
+    uint8_t RESERVED_6[8];
+    __I  uint32_t FIFORD;                            /**< FIFO read data., offset: 0xE30 */
+    __I  uint32_t FIFORD48H;                         /**< FIFO read data for upper data bits. May only be used if the I2S is configured for 2x 24-bit data and not using DMA., offset: 0xE34 */
+    uint8_t RESERVED_7[8];
+    __I  uint32_t FIFORDNOPOP;                       /**< FIFO data read with no FIFO pop., offset: 0xE40 */
+    __I  uint32_t FIFORD48HNOPOP;                    /**< FIFO data read for upper data bits with no FIFO pop. May only be used if the I2S is configured for 2x 24-bit data and not using DMA., offset: 0xE44 */
+    uint8_t RESERVED_8[4020];
+    __I  uint32_t ID;                                /**< I2S Module identification, offset: 0x1DFC */
 } I2S_Type;
 
 /* ----------------------------------------------------------------------------
@@ -5437,15 +5437,15 @@ typedef struct {
 
 /** INPUTMUX - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t SCT0_INMUX[7];                     /**< Trigger select register for DMA channel, array offset: 0x0, array step: 0x4 */
-       uint8_t RESERVED_0[164];
-  __IO uint32_t PINTSEL[8];                        /**< Pin interrupt select register, array offset: 0xC0, array step: 0x4 */
-  __IO uint32_t DMA_ITRIG_INMUX[30];               /**< Trigger select register for DMA channel, array offset: 0xE0, array step: 0x4 */
-       uint8_t RESERVED_1[8];
-  __IO uint32_t DMA_OTRIG_INMUX[4];                /**< DMA output trigger selection to become DMA trigger, array offset: 0x160, array step: 0x4 */
-       uint8_t RESERVED_2[16];
-  __IO uint32_t FREQMEAS_REF;                      /**< Selection for frequency measurement reference clock, offset: 0x180 */
-  __IO uint32_t FREQMEAS_TARGET;                   /**< Selection for frequency measurement target clock, offset: 0x184 */
+    __IO uint32_t SCT0_INMUX[7];                     /**< Trigger select register for DMA channel, array offset: 0x0, array step: 0x4 */
+    uint8_t RESERVED_0[164];
+    __IO uint32_t PINTSEL[8];                        /**< Pin interrupt select register, array offset: 0xC0, array step: 0x4 */
+    __IO uint32_t DMA_ITRIG_INMUX[30];               /**< Trigger select register for DMA channel, array offset: 0xE0, array step: 0x4 */
+    uint8_t RESERVED_1[8];
+    __IO uint32_t DMA_OTRIG_INMUX[4];                /**< DMA output trigger selection to become DMA trigger, array offset: 0x160, array step: 0x4 */
+    uint8_t RESERVED_2[16];
+    __IO uint32_t FREQMEAS_REF;                      /**< Selection for frequency measurement reference clock, offset: 0x180 */
+    __IO uint32_t FREQMEAS_TARGET;                   /**< Selection for frequency measurement target clock, offset: 0x184 */
 } INPUTMUX_Type;
 
 /* ----------------------------------------------------------------------------
@@ -5531,7 +5531,7 @@ typedef struct {
 
 /** IOCON - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t PIO[6][32];                        /**< Digital I/O control for port 0 pins PIO0_0..Digital I/O control for port 5 pins PIO5_31, array offset: 0x0, array step: index*0x80, index2*0x4 */
+    __IO uint32_t PIO[6][32];                        /**< Digital I/O control for port 0 pins PIO0_0..Digital I/O control for port 5 pins PIO5_31, array offset: 0x0, array step: index*0x80, index2*0x4 */
 } IOCON_Type;
 
 /* ----------------------------------------------------------------------------
@@ -5613,34 +5613,34 @@ typedef struct {
 
 /** LCD - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t TIMH;                              /**< Horizontal Timing Control register, offset: 0x0 */
-  __IO uint32_t TIMV;                              /**< Vertical Timing Control register, offset: 0x4 */
-  __IO uint32_t POL;                               /**< Clock and Signal Polarity Control register, offset: 0x8 */
-  __IO uint32_t LE;                                /**< Line End Control register, offset: 0xC */
-  __IO uint32_t UPBASE;                            /**< Upper Panel Frame Base Address register, offset: 0x10 */
-  __IO uint32_t LPBASE;                            /**< Lower Panel Frame Base Address register, offset: 0x14 */
-  __IO uint32_t CTRL;                              /**< LCD Control register, offset: 0x18 */
-  __IO uint32_t INTMSK;                            /**< Interrupt Mask register, offset: 0x1C */
-  __I  uint32_t INTRAW;                            /**< Raw Interrupt Status register, offset: 0x20 */
-  __I  uint32_t INTSTAT;                           /**< Masked Interrupt Status register, offset: 0x24 */
-  __IO uint32_t INTCLR;                            /**< Interrupt Clear register, offset: 0x28 */
-  __I  uint32_t UPCURR;                            /**< Upper Panel Current Address Value register, offset: 0x2C */
-  __I  uint32_t LPCURR;                            /**< Lower Panel Current Address Value register, offset: 0x30 */
-       uint8_t RESERVED_0[460];
-  __IO uint32_t PAL[128];                          /**< 256x16-bit Color Palette registers, array offset: 0x200, array step: 0x4 */
-       uint8_t RESERVED_1[1024];
-  __IO uint32_t CRSR_IMG[256];                     /**< Cursor Image registers, array offset: 0x800, array step: 0x4 */
-  __IO uint32_t CRSR_CTRL;                         /**< Cursor Control register, offset: 0xC00 */
-  __IO uint32_t CRSR_CFG;                          /**< Cursor Configuration register, offset: 0xC04 */
-  __IO uint32_t CRSR_PAL0;                         /**< Cursor Palette register 0, offset: 0xC08 */
-  __IO uint32_t CRSR_PAL1;                         /**< Cursor Palette register 1, offset: 0xC0C */
-  __IO uint32_t CRSR_XY;                           /**< Cursor XY Position register, offset: 0xC10 */
-  __IO uint32_t CRSR_CLIP;                         /**< Cursor Clip Position register, offset: 0xC14 */
-       uint8_t RESERVED_2[8];
-  __IO uint32_t CRSR_INTMSK;                       /**< Cursor Interrupt Mask register, offset: 0xC20 */
-  __O  uint32_t CRSR_INTCLR;                       /**< Cursor Interrupt Clear register, offset: 0xC24 */
-  __I  uint32_t CRSR_INTRAW;                       /**< Cursor Raw Interrupt Status register, offset: 0xC28 */
-  __I  uint32_t CRSR_INTSTAT;                      /**< Cursor Masked Interrupt Status register, offset: 0xC2C */
+    __IO uint32_t TIMH;                              /**< Horizontal Timing Control register, offset: 0x0 */
+    __IO uint32_t TIMV;                              /**< Vertical Timing Control register, offset: 0x4 */
+    __IO uint32_t POL;                               /**< Clock and Signal Polarity Control register, offset: 0x8 */
+    __IO uint32_t LE;                                /**< Line End Control register, offset: 0xC */
+    __IO uint32_t UPBASE;                            /**< Upper Panel Frame Base Address register, offset: 0x10 */
+    __IO uint32_t LPBASE;                            /**< Lower Panel Frame Base Address register, offset: 0x14 */
+    __IO uint32_t CTRL;                              /**< LCD Control register, offset: 0x18 */
+    __IO uint32_t INTMSK;                            /**< Interrupt Mask register, offset: 0x1C */
+    __I  uint32_t INTRAW;                            /**< Raw Interrupt Status register, offset: 0x20 */
+    __I  uint32_t INTSTAT;                           /**< Masked Interrupt Status register, offset: 0x24 */
+    __IO uint32_t INTCLR;                            /**< Interrupt Clear register, offset: 0x28 */
+    __I  uint32_t UPCURR;                            /**< Upper Panel Current Address Value register, offset: 0x2C */
+    __I  uint32_t LPCURR;                            /**< Lower Panel Current Address Value register, offset: 0x30 */
+    uint8_t RESERVED_0[460];
+    __IO uint32_t PAL[128];                          /**< 256x16-bit Color Palette registers, array offset: 0x200, array step: 0x4 */
+    uint8_t RESERVED_1[1024];
+    __IO uint32_t CRSR_IMG[256];                     /**< Cursor Image registers, array offset: 0x800, array step: 0x4 */
+    __IO uint32_t CRSR_CTRL;                         /**< Cursor Control register, offset: 0xC00 */
+    __IO uint32_t CRSR_CFG;                          /**< Cursor Configuration register, offset: 0xC04 */
+    __IO uint32_t CRSR_PAL0;                         /**< Cursor Palette register 0, offset: 0xC08 */
+    __IO uint32_t CRSR_PAL1;                         /**< Cursor Palette register 1, offset: 0xC0C */
+    __IO uint32_t CRSR_XY;                           /**< Cursor XY Position register, offset: 0xC10 */
+    __IO uint32_t CRSR_CLIP;                         /**< Cursor Clip Position register, offset: 0xC14 */
+    uint8_t RESERVED_2[8];
+    __IO uint32_t CRSR_INTMSK;                       /**< Cursor Interrupt Mask register, offset: 0xC20 */
+    __O  uint32_t CRSR_INTCLR;                       /**< Cursor Interrupt Clear register, offset: 0xC24 */
+    __I  uint32_t CRSR_INTRAW;                       /**< Cursor Raw Interrupt Status register, offset: 0xC28 */
+    __I  uint32_t CRSR_INTSTAT;                      /**< Cursor Masked Interrupt Status register, offset: 0xC2C */
 } LCD_Type;
 
 /* ----------------------------------------------------------------------------
@@ -5976,16 +5976,16 @@ typedef struct {
 
 /** MRT - Register Layout Typedef */
 typedef struct {
-  struct {                                         /* offset: 0x0, array step: 0x10 */
-    __IO uint32_t INTVAL;                            /**< MRT Time interval value register. This value is loaded into the TIMER register., array offset: 0x0, array step: 0x10 */
-    __I  uint32_t TIMER;                             /**< MRT Timer register. This register reads the value of the down-counter., array offset: 0x4, array step: 0x10 */
-    __IO uint32_t CTRL;                              /**< MRT Control register. This register controls the MRT modes., array offset: 0x8, array step: 0x10 */
-    __IO uint32_t STAT;                              /**< MRT Status register., array offset: 0xC, array step: 0x10 */
-  } CHANNEL[4];
-       uint8_t RESERVED_0[176];
-  __IO uint32_t MODCFG;                            /**< Module Configuration register. This register provides information about this particular MRT instance, and allows choosing an overall mode for the idle channel feature., offset: 0xF0 */
-  __I  uint32_t IDLE_CH;                           /**< Idle channel register. This register returns the number of the first idle channel., offset: 0xF4 */
-  __IO uint32_t IRQ_FLAG;                          /**< Global interrupt flag register, offset: 0xF8 */
+    struct {                                         /* offset: 0x0, array step: 0x10 */
+        __IO uint32_t INTVAL;                            /**< MRT Time interval value register. This value is loaded into the TIMER register., array offset: 0x0, array step: 0x10 */
+        __I  uint32_t TIMER;                             /**< MRT Timer register. This register reads the value of the down-counter., array offset: 0x4, array step: 0x10 */
+        __IO uint32_t CTRL;                              /**< MRT Control register. This register controls the MRT modes., array offset: 0x8, array step: 0x10 */
+        __IO uint32_t STAT;                              /**< MRT Status register., array offset: 0xC, array step: 0x10 */
+    } CHANNEL[4];
+    uint8_t RESERVED_0[176];
+    __IO uint32_t MODCFG;                            /**< Module Configuration register. This register provides information about this particular MRT instance, and allows choosing an overall mode for the idle channel feature., offset: 0xF0 */
+    __I  uint32_t IDLE_CH;                           /**< Idle channel register. This register returns the number of the first idle channel., offset: 0xF4 */
+    __IO uint32_t IRQ_FLAG;                          /**< Global interrupt flag register, offset: 0xF8 */
 } MRT_Type;
 
 /* ----------------------------------------------------------------------------
@@ -6105,12 +6105,12 @@ typedef struct {
 
 /** OTPC - Register Layout Typedef */
 typedef struct {
-       uint8_t RESERVED_0[16];
-  __I  uint32_t AESKEY[8];                         /**< Register for reading the AES key., array offset: 0x10, array step: 0x4 */
-  __I  uint32_t ECRP;                              /**< ECRP options., offset: 0x30 */
-       uint8_t RESERVED_1[4];
-  __I  uint32_t USER0;                             /**< User application specific options., offset: 0x38 */
-  __I  uint32_t USER1;                             /**< User application specific options., offset: 0x3C */
+    uint8_t RESERVED_0[16];
+    __I  uint32_t AESKEY[8];                         /**< Register for reading the AES key., array offset: 0x10, array step: 0x4 */
+    __I  uint32_t ECRP;                              /**< ECRP options., offset: 0x30 */
+    uint8_t RESERVED_1[4];
+    __I  uint32_t USER0;                             /**< User application specific options., offset: 0x38 */
+    __I  uint32_t USER1;                             /**< User application specific options., offset: 0x3C */
 } OTPC_Type;
 
 /* ----------------------------------------------------------------------------
@@ -6192,19 +6192,19 @@ typedef struct {
 
 /** PINT - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t ISEL;                              /**< Pin Interrupt Mode register, offset: 0x0 */
-  __IO uint32_t IENR;                              /**< Pin interrupt level or rising edge interrupt enable register, offset: 0x4 */
-  __O  uint32_t SIENR;                             /**< Pin interrupt level or rising edge interrupt set register, offset: 0x8 */
-  __O  uint32_t CIENR;                             /**< Pin interrupt level (rising edge interrupt) clear register, offset: 0xC */
-  __IO uint32_t IENF;                              /**< Pin interrupt active level or falling edge interrupt enable register, offset: 0x10 */
-  __O  uint32_t SIENF;                             /**< Pin interrupt active level or falling edge interrupt set register, offset: 0x14 */
-  __O  uint32_t CIENF;                             /**< Pin interrupt active level or falling edge interrupt clear register, offset: 0x18 */
-  __IO uint32_t RISE;                              /**< Pin interrupt rising edge register, offset: 0x1C */
-  __IO uint32_t FALL;                              /**< Pin interrupt falling edge register, offset: 0x20 */
-  __IO uint32_t IST;                               /**< Pin interrupt status register, offset: 0x24 */
-  __IO uint32_t PMCTRL;                            /**< Pattern match interrupt control register, offset: 0x28 */
-  __IO uint32_t PMSRC;                             /**< Pattern match interrupt bit-slice source register, offset: 0x2C */
-  __IO uint32_t PMCFG;                             /**< Pattern match interrupt bit slice configuration register, offset: 0x30 */
+    __IO uint32_t ISEL;                              /**< Pin Interrupt Mode register, offset: 0x0 */
+    __IO uint32_t IENR;                              /**< Pin interrupt level or rising edge interrupt enable register, offset: 0x4 */
+    __O  uint32_t SIENR;                             /**< Pin interrupt level or rising edge interrupt set register, offset: 0x8 */
+    __O  uint32_t CIENR;                             /**< Pin interrupt level (rising edge interrupt) clear register, offset: 0xC */
+    __IO uint32_t IENF;                              /**< Pin interrupt active level or falling edge interrupt enable register, offset: 0x10 */
+    __O  uint32_t SIENF;                             /**< Pin interrupt active level or falling edge interrupt set register, offset: 0x14 */
+    __O  uint32_t CIENF;                             /**< Pin interrupt active level or falling edge interrupt clear register, offset: 0x18 */
+    __IO uint32_t RISE;                              /**< Pin interrupt rising edge register, offset: 0x1C */
+    __IO uint32_t FALL;                              /**< Pin interrupt falling edge register, offset: 0x20 */
+    __IO uint32_t IST;                               /**< Pin interrupt status register, offset: 0x24 */
+    __IO uint32_t PMCTRL;                            /**< Pattern match interrupt control register, offset: 0x28 */
+    __IO uint32_t PMSRC;                             /**< Pattern match interrupt bit-slice source register, offset: 0x2C */
+    __IO uint32_t PMCFG;                             /**< Pattern match interrupt bit slice configuration register, offset: 0x30 */
 } PINT_Type;
 
 /* ----------------------------------------------------------------------------
@@ -6384,14 +6384,14 @@ typedef struct {
 
 /** RIT - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t COMPVAL;                           /**< Compare value LSB register, offset: 0x0 */
-  __IO uint32_t MASK;                              /**< Mask LSB register, offset: 0x4 */
-  __IO uint32_t CTRL;                              /**< Control register, offset: 0x8 */
-  __IO uint32_t COUNTER;                           /**< Counter LSB register, offset: 0xC */
-  __IO uint32_t COMPVAL_H;                         /**< Compare value MSB register, offset: 0x10 */
-  __IO uint32_t MASK_H;                            /**< Mask MSB register, offset: 0x14 */
-       uint8_t RESERVED_0[4];
-  __IO uint32_t COUNTER_H;                         /**< Counter MSB register, offset: 0x1C */
+    __IO uint32_t COMPVAL;                           /**< Compare value LSB register, offset: 0x0 */
+    __IO uint32_t MASK;                              /**< Mask LSB register, offset: 0x4 */
+    __IO uint32_t CTRL;                              /**< Control register, offset: 0x8 */
+    __IO uint32_t COUNTER;                           /**< Counter LSB register, offset: 0xC */
+    __IO uint32_t COMPVAL_H;                         /**< Compare value MSB register, offset: 0x10 */
+    __IO uint32_t MASK_H;                            /**< Mask MSB register, offset: 0x14 */
+    uint8_t RESERVED_0[4];
+    __IO uint32_t COUNTER_H;                         /**< Counter MSB register, offset: 0x1C */
 } RIT_Type;
 
 /* ----------------------------------------------------------------------------
@@ -6481,12 +6481,12 @@ typedef struct {
 
 /** RTC - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t CTRL;                              /**< RTC control register, offset: 0x0 */
-  __IO uint32_t MATCH;                             /**< RTC match register, offset: 0x4 */
-  __IO uint32_t COUNT;                             /**< RTC counter register, offset: 0x8 */
-  __IO uint32_t WAKE;                              /**< High-resolution/wake-up timer control register, offset: 0xC */
-       uint8_t RESERVED_0[48];
-  __IO uint32_t GPREG[8];                          /**< General Purpose register, array offset: 0x40, array step: 0x4 */
+    __IO uint32_t CTRL;                              /**< RTC control register, offset: 0x0 */
+    __IO uint32_t MATCH;                             /**< RTC match register, offset: 0x4 */
+    __IO uint32_t COUNT;                             /**< RTC counter register, offset: 0x8 */
+    __IO uint32_t WAKE;                              /**< High-resolution/wake-up timer control register, offset: 0xC */
+    uint8_t RESERVED_0[48];
+    __IO uint32_t GPREG[8];                          /**< General Purpose register, array offset: 0x40, array step: 0x4 */
 } RTC_Type;
 
 /* ----------------------------------------------------------------------------
@@ -6581,46 +6581,46 @@ typedef struct {
 
 /** SCT - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t CONFIG;                            /**< SCT configuration register, offset: 0x0 */
-  __IO uint32_t CTRL;                              /**< SCT control register, offset: 0x4 */
-  __IO uint32_t LIMIT;                             /**< SCT limit event select register, offset: 0x8 */
-  __IO uint32_t HALT;                              /**< SCT halt event select register, offset: 0xC */
-  __IO uint32_t STOP;                              /**< SCT stop event select register, offset: 0x10 */
-  __IO uint32_t START;                             /**< SCT start event select register, offset: 0x14 */
-       uint8_t RESERVED_0[40];
-  __IO uint32_t COUNT;                             /**< SCT counter register, offset: 0x40 */
-  __IO uint32_t STATE;                             /**< SCT state register, offset: 0x44 */
-  __I  uint32_t INPUT;                             /**< SCT input register, offset: 0x48 */
-  __IO uint32_t REGMODE;                           /**< SCT match/capture mode register, offset: 0x4C */
-  __IO uint32_t OUTPUT;                            /**< SCT output register, offset: 0x50 */
-  __IO uint32_t OUTPUTDIRCTRL;                     /**< SCT output counter direction control register, offset: 0x54 */
-  __IO uint32_t RES;                               /**< SCT conflict resolution register, offset: 0x58 */
-  __IO uint32_t DMA0REQUEST;                       /**< SCT DMA request 0 register, offset: 0x5C */
-  __IO uint32_t DMA1REQUEST;                       /**< SCT DMA request 1 register, offset: 0x60 */
-       uint8_t RESERVED_1[140];
-  __IO uint32_t EVEN;                              /**< SCT event interrupt enable register, offset: 0xF0 */
-  __IO uint32_t EVFLAG;                            /**< SCT event flag register, offset: 0xF4 */
-  __IO uint32_t CONEN;                             /**< SCT conflict interrupt enable register, offset: 0xF8 */
-  __IO uint32_t CONFLAG;                           /**< SCT conflict flag register, offset: 0xFC */
-  union {                                          /* offset: 0x100 */
-    __IO uint32_t SCTCAP[10];                        /**< SCT capture register of capture channel, array offset: 0x100, array step: 0x4 */
-    __IO uint32_t SCTMATCH[10];                      /**< SCT match value register of match channels, array offset: 0x100, array step: 0x4 */
-  };
-       uint8_t RESERVED_2[216];
-  union {                                          /* offset: 0x200 */
-    __IO uint32_t SCTCAPCTRL[10];                    /**< SCT capture control register, array offset: 0x200, array step: 0x4 */
-    __IO uint32_t SCTMATCHREL[10];                   /**< SCT match reload value register, array offset: 0x200, array step: 0x4 */
-  };
-       uint8_t RESERVED_3[216];
-  struct {                                         /* offset: 0x300, array step: 0x8 */
-    __IO uint32_t STATE;                             /**< SCT event state register 0, array offset: 0x300, array step: 0x8 */
-    __IO uint32_t CTRL;                              /**< SCT event control register 0, array offset: 0x304, array step: 0x8 */
-  } EVENT[10];
-       uint8_t RESERVED_4[432];
-  struct {                                         /* offset: 0x500, array step: 0x8 */
-    __IO uint32_t SET;                               /**< SCT output 0 set register, array offset: 0x500, array step: 0x8 */
-    __IO uint32_t CLR;                               /**< SCT output 0 clear register, array offset: 0x504, array step: 0x8 */
-  } OUT[10];
+    __IO uint32_t CONFIG;                            /**< SCT configuration register, offset: 0x0 */
+    __IO uint32_t CTRL;                              /**< SCT control register, offset: 0x4 */
+    __IO uint32_t LIMIT;                             /**< SCT limit event select register, offset: 0x8 */
+    __IO uint32_t HALT;                              /**< SCT halt event select register, offset: 0xC */
+    __IO uint32_t STOP;                              /**< SCT stop event select register, offset: 0x10 */
+    __IO uint32_t START;                             /**< SCT start event select register, offset: 0x14 */
+    uint8_t RESERVED_0[40];
+    __IO uint32_t COUNT;                             /**< SCT counter register, offset: 0x40 */
+    __IO uint32_t STATE;                             /**< SCT state register, offset: 0x44 */
+    __I  uint32_t INPUT;                             /**< SCT input register, offset: 0x48 */
+    __IO uint32_t REGMODE;                           /**< SCT match/capture mode register, offset: 0x4C */
+    __IO uint32_t OUTPUT;                            /**< SCT output register, offset: 0x50 */
+    __IO uint32_t OUTPUTDIRCTRL;                     /**< SCT output counter direction control register, offset: 0x54 */
+    __IO uint32_t RES;                               /**< SCT conflict resolution register, offset: 0x58 */
+    __IO uint32_t DMA0REQUEST;                       /**< SCT DMA request 0 register, offset: 0x5C */
+    __IO uint32_t DMA1REQUEST;                       /**< SCT DMA request 1 register, offset: 0x60 */
+    uint8_t RESERVED_1[140];
+    __IO uint32_t EVEN;                              /**< SCT event interrupt enable register, offset: 0xF0 */
+    __IO uint32_t EVFLAG;                            /**< SCT event flag register, offset: 0xF4 */
+    __IO uint32_t CONEN;                             /**< SCT conflict interrupt enable register, offset: 0xF8 */
+    __IO uint32_t CONFLAG;                           /**< SCT conflict flag register, offset: 0xFC */
+    union {                                          /* offset: 0x100 */
+        __IO uint32_t SCTCAP[10];                        /**< SCT capture register of capture channel, array offset: 0x100, array step: 0x4 */
+        __IO uint32_t SCTMATCH[10];                      /**< SCT match value register of match channels, array offset: 0x100, array step: 0x4 */
+    };
+    uint8_t RESERVED_2[216];
+    union {                                          /* offset: 0x200 */
+        __IO uint32_t SCTCAPCTRL[10];                    /**< SCT capture control register, array offset: 0x200, array step: 0x4 */
+        __IO uint32_t SCTMATCHREL[10];                   /**< SCT match reload value register, array offset: 0x200, array step: 0x4 */
+    };
+    uint8_t RESERVED_3[216];
+    struct {                                         /* offset: 0x300, array step: 0x8 */
+        __IO uint32_t STATE;                             /**< SCT event state register 0, array offset: 0x300, array step: 0x8 */
+        __IO uint32_t CTRL;                              /**< SCT event control register 0, array offset: 0x304, array step: 0x8 */
+    } EVENT[10];
+    uint8_t RESERVED_4[432];
+    struct {                                         /* offset: 0x500, array step: 0x8 */
+        __IO uint32_t SET;                               /**< SCT output 0 set register, array offset: 0x500, array step: 0x8 */
+        __IO uint32_t CLR;                               /**< SCT output 0 clear register, array offset: 0x504, array step: 0x8 */
+    } OUT[10];
 } SCT_Type;
 
 /* ----------------------------------------------------------------------------
@@ -7140,44 +7140,44 @@ typedef struct {
 
 /** SDIF - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t CTRL;                              /**< Control register, offset: 0x0 */
-  __IO uint32_t PWREN;                             /**< Power Enable register, offset: 0x4 */
-  __IO uint32_t CLKDIV;                            /**< Clock Divider register, offset: 0x8 */
-       uint8_t RESERVED_0[4];
-  __IO uint32_t CLKENA;                            /**< Clock Enable register, offset: 0x10 */
-  __IO uint32_t TMOUT;                             /**< Time-out register, offset: 0x14 */
-  __IO uint32_t CTYPE;                             /**< Card Type register, offset: 0x18 */
-  __IO uint32_t BLKSIZ;                            /**< Block Size register, offset: 0x1C */
-  __IO uint32_t BYTCNT;                            /**< Byte Count register, offset: 0x20 */
-  __IO uint32_t INTMASK;                           /**< Interrupt Mask register, offset: 0x24 */
-  __IO uint32_t CMDARG;                            /**< Command Argument register, offset: 0x28 */
-  __IO uint32_t CMD;                               /**< Command register, offset: 0x2C */
-  __IO uint32_t RESP[4];                           /**< Response register, array offset: 0x30, array step: 0x4 */
-  __IO uint32_t MINTSTS;                           /**< Masked Interrupt Status register, offset: 0x40 */
-  __IO uint32_t RINTSTS;                           /**< Raw Interrupt Status register, offset: 0x44 */
-  __IO uint32_t STATUS;                            /**< Status register, offset: 0x48 */
-  __IO uint32_t FIFOTH;                            /**< FIFO Threshold Watermark register, offset: 0x4C */
-  __IO uint32_t CDETECT;                           /**< Card Detect register, offset: 0x50 */
-  __IO uint32_t WRTPRT;                            /**< Write Protect register, offset: 0x54 */
-       uint8_t RESERVED_1[4];
-  __IO uint32_t TCBCNT;                            /**< Transferred CIU Card Byte Count register, offset: 0x5C */
-  __IO uint32_t TBBCNT;                            /**< Transferred Host to BIU-FIFO Byte Count register, offset: 0x60 */
-  __IO uint32_t DEBNCE;                            /**< Debounce Count register, offset: 0x64 */
-       uint8_t RESERVED_2[16];
-  __IO uint32_t RST_N;                             /**< Hardware Reset, offset: 0x78 */
-       uint8_t RESERVED_3[4];
-  __IO uint32_t BMOD;                              /**< Bus Mode register, offset: 0x80 */
-  __IO uint32_t PLDMND;                            /**< Poll Demand register, offset: 0x84 */
-  __IO uint32_t DBADDR;                            /**< Descriptor List Base Address register, offset: 0x88 */
-  __IO uint32_t IDSTS;                             /**< Internal DMAC Status register, offset: 0x8C */
-  __IO uint32_t IDINTEN;                           /**< Internal DMAC Interrupt Enable register, offset: 0x90 */
-  __IO uint32_t DSCADDR;                           /**< Current Host Descriptor Address register, offset: 0x94 */
-  __IO uint32_t BUFADDR;                           /**< Current Buffer Descriptor Address register, offset: 0x98 */
-       uint8_t RESERVED_4[100];
-  __IO uint32_t CARDTHRCTL;                        /**< Card Threshold Control, offset: 0x100 */
-  __IO uint32_t BACKENDPWR;                        /**< Power control, offset: 0x104 */
-       uint8_t RESERVED_5[248];
-  __IO uint32_t FIFO[64];                          /**< SDIF FIFO, array offset: 0x200, array step: 0x4 */
+    __IO uint32_t CTRL;                              /**< Control register, offset: 0x0 */
+    __IO uint32_t PWREN;                             /**< Power Enable register, offset: 0x4 */
+    __IO uint32_t CLKDIV;                            /**< Clock Divider register, offset: 0x8 */
+    uint8_t RESERVED_0[4];
+    __IO uint32_t CLKENA;                            /**< Clock Enable register, offset: 0x10 */
+    __IO uint32_t TMOUT;                             /**< Time-out register, offset: 0x14 */
+    __IO uint32_t CTYPE;                             /**< Card Type register, offset: 0x18 */
+    __IO uint32_t BLKSIZ;                            /**< Block Size register, offset: 0x1C */
+    __IO uint32_t BYTCNT;                            /**< Byte Count register, offset: 0x20 */
+    __IO uint32_t INTMASK;                           /**< Interrupt Mask register, offset: 0x24 */
+    __IO uint32_t CMDARG;                            /**< Command Argument register, offset: 0x28 */
+    __IO uint32_t CMD;                               /**< Command register, offset: 0x2C */
+    __IO uint32_t RESP[4];                           /**< Response register, array offset: 0x30, array step: 0x4 */
+    __IO uint32_t MINTSTS;                           /**< Masked Interrupt Status register, offset: 0x40 */
+    __IO uint32_t RINTSTS;                           /**< Raw Interrupt Status register, offset: 0x44 */
+    __IO uint32_t STATUS;                            /**< Status register, offset: 0x48 */
+    __IO uint32_t FIFOTH;                            /**< FIFO Threshold Watermark register, offset: 0x4C */
+    __IO uint32_t CDETECT;                           /**< Card Detect register, offset: 0x50 */
+    __IO uint32_t WRTPRT;                            /**< Write Protect register, offset: 0x54 */
+    uint8_t RESERVED_1[4];
+    __IO uint32_t TCBCNT;                            /**< Transferred CIU Card Byte Count register, offset: 0x5C */
+    __IO uint32_t TBBCNT;                            /**< Transferred Host to BIU-FIFO Byte Count register, offset: 0x60 */
+    __IO uint32_t DEBNCE;                            /**< Debounce Count register, offset: 0x64 */
+    uint8_t RESERVED_2[16];
+    __IO uint32_t RST_N;                             /**< Hardware Reset, offset: 0x78 */
+    uint8_t RESERVED_3[4];
+    __IO uint32_t BMOD;                              /**< Bus Mode register, offset: 0x80 */
+    __IO uint32_t PLDMND;                            /**< Poll Demand register, offset: 0x84 */
+    __IO uint32_t DBADDR;                            /**< Descriptor List Base Address register, offset: 0x88 */
+    __IO uint32_t IDSTS;                             /**< Internal DMAC Status register, offset: 0x8C */
+    __IO uint32_t IDINTEN;                           /**< Internal DMAC Interrupt Enable register, offset: 0x90 */
+    __IO uint32_t DSCADDR;                           /**< Current Host Descriptor Address register, offset: 0x94 */
+    __IO uint32_t BUFADDR;                           /**< Current Buffer Descriptor Address register, offset: 0x98 */
+    uint8_t RESERVED_4[100];
+    __IO uint32_t CARDTHRCTL;                        /**< Card Threshold Control, offset: 0x100 */
+    __IO uint32_t BACKENDPWR;                        /**< Power control, offset: 0x104 */
+    uint8_t RESERVED_5[248];
+    __IO uint32_t FIFO[64];                          /**< SDIF FIFO, array offset: 0x200, array step: 0x4 */
 } SDIF_Type;
 
 /* ----------------------------------------------------------------------------
@@ -7740,28 +7740,28 @@ typedef struct {
 
 /** SMARTCARD - Register Layout Typedef */
 typedef struct {
-  union {                                          /* offset: 0x0 */
-    __IO uint32_t DLL;                               /**< Divisor Latch LSB, offset: 0x0 */
-    __I  uint32_t RBR;                               /**< Receiver Buffer Register, offset: 0x0 */
-    __O  uint32_t THR;                               /**< Transmit Holding Register, offset: 0x0 */
-  };
-  union {                                          /* offset: 0x4 */
-    __IO uint32_t DLM;                               /**< Divisor Latch MSB, offset: 0x4 */
-    __IO uint32_t IER;                               /**< Interrupt Enable Register, offset: 0x4 */
-  };
-  union {                                          /* offset: 0x8 */
-    __O  uint32_t FCR;                               /**< FIFO Control Register, offset: 0x8 */
-    __I  uint32_t IIR;                               /**< Interrupt ID Register, offset: 0x8 */
-  };
-  __IO uint32_t LCR;                               /**< Line Control Register, offset: 0xC */
-       uint8_t RESERVED_0[4];
-  __I  uint32_t LSR;                               /**< Line Status Register, offset: 0x14 */
-       uint8_t RESERVED_1[4];
-  __IO uint32_t SCR;                               /**< Scratch Pad Register, offset: 0x1C */
-       uint8_t RESERVED_2[12];
-  __IO uint32_t OSR;                               /**< Oversampling register, offset: 0x2C */
-       uint8_t RESERVED_3[24];
-  __IO uint32_t SCICTRL;                           /**< Smart Card Interface control register, offset: 0x48 */
+    union {                                          /* offset: 0x0 */
+        __IO uint32_t DLL;                               /**< Divisor Latch LSB, offset: 0x0 */
+        __I  uint32_t RBR;                               /**< Receiver Buffer Register, offset: 0x0 */
+        __O  uint32_t THR;                               /**< Transmit Holding Register, offset: 0x0 */
+    };
+    union {                                          /* offset: 0x4 */
+        __IO uint32_t DLM;                               /**< Divisor Latch MSB, offset: 0x4 */
+        __IO uint32_t IER;                               /**< Interrupt Enable Register, offset: 0x4 */
+    };
+    union {                                          /* offset: 0x8 */
+        __O  uint32_t FCR;                               /**< FIFO Control Register, offset: 0x8 */
+        __I  uint32_t IIR;                               /**< Interrupt ID Register, offset: 0x8 */
+    };
+    __IO uint32_t LCR;                               /**< Line Control Register, offset: 0xC */
+    uint8_t RESERVED_0[4];
+    __I  uint32_t LSR;                               /**< Line Status Register, offset: 0x14 */
+    uint8_t RESERVED_1[4];
+    __IO uint32_t SCR;                               /**< Scratch Pad Register, offset: 0x1C */
+    uint8_t RESERVED_2[12];
+    __IO uint32_t OSR;                               /**< Oversampling register, offset: 0x2C */
+    uint8_t RESERVED_3[24];
+    __IO uint32_t SCICTRL;                           /**< Smart Card Interface control register, offset: 0x48 */
 } SMARTCARD_Type;
 
 /* ----------------------------------------------------------------------------
@@ -7943,31 +7943,31 @@ typedef struct {
 
 /** SPI - Register Layout Typedef */
 typedef struct {
-       uint8_t RESERVED_0[1024];
-  __IO uint32_t CFG;                               /**< SPI Configuration register, offset: 0x400 */
-  __IO uint32_t DLY;                               /**< SPI Delay register, offset: 0x404 */
-  __IO uint32_t STAT;                              /**< SPI Status. Some status flags can be cleared by writing a 1 to that bit position., offset: 0x408 */
-  __IO uint32_t INTENSET;                          /**< SPI Interrupt Enable read and Set. A complete value may be read from this register. Writing a 1 to any implemented bit position causes that bit to be set., offset: 0x40C */
-  __O  uint32_t INTENCLR;                          /**< SPI Interrupt Enable Clear. Writing a 1 to any implemented bit position causes the corresponding bit in INTENSET to be cleared., offset: 0x410 */
-       uint8_t RESERVED_1[16];
-  __IO uint32_t DIV;                               /**< SPI clock Divider, offset: 0x424 */
-  __I  uint32_t INTSTAT;                           /**< SPI Interrupt Status, offset: 0x428 */
-       uint8_t RESERVED_2[2516];
-  __IO uint32_t FIFOCFG;                           /**< FIFO configuration and enable register., offset: 0xE00 */
-  __IO uint32_t FIFOSTAT;                          /**< FIFO status register., offset: 0xE04 */
-  __IO uint32_t FIFOTRIG;                          /**< FIFO trigger settings for interrupt and DMA request., offset: 0xE08 */
-       uint8_t RESERVED_3[4];
-  __IO uint32_t FIFOINTENSET;                      /**< FIFO interrupt enable set (enable) and read register., offset: 0xE10 */
-  __IO uint32_t FIFOINTENCLR;                      /**< FIFO interrupt enable clear (disable) and read register., offset: 0xE14 */
-  __I  uint32_t FIFOINTSTAT;                       /**< FIFO interrupt status register., offset: 0xE18 */
-       uint8_t RESERVED_4[4];
-  __IO uint32_t FIFOWR;                            /**< FIFO write data., offset: 0xE20 */
-       uint8_t RESERVED_5[12];
-  __I  uint32_t FIFORD;                            /**< FIFO read data., offset: 0xE30 */
-       uint8_t RESERVED_6[12];
-  __I  uint32_t FIFORDNOPOP;                       /**< FIFO data read with no FIFO pop., offset: 0xE40 */
-       uint8_t RESERVED_7[440];
-  __I  uint32_t ID;                                /**< Peripheral identification register., offset: 0xFFC */
+    uint8_t RESERVED_0[1024];
+    __IO uint32_t CFG;                               /**< SPI Configuration register, offset: 0x400 */
+    __IO uint32_t DLY;                               /**< SPI Delay register, offset: 0x404 */
+    __IO uint32_t STAT;                              /**< SPI Status. Some status flags can be cleared by writing a 1 to that bit position., offset: 0x408 */
+    __IO uint32_t INTENSET;                          /**< SPI Interrupt Enable read and Set. A complete value may be read from this register. Writing a 1 to any implemented bit position causes that bit to be set., offset: 0x40C */
+    __O  uint32_t INTENCLR;                          /**< SPI Interrupt Enable Clear. Writing a 1 to any implemented bit position causes the corresponding bit in INTENSET to be cleared., offset: 0x410 */
+    uint8_t RESERVED_1[16];
+    __IO uint32_t DIV;                               /**< SPI clock Divider, offset: 0x424 */
+    __I  uint32_t INTSTAT;                           /**< SPI Interrupt Status, offset: 0x428 */
+    uint8_t RESERVED_2[2516];
+    __IO uint32_t FIFOCFG;                           /**< FIFO configuration and enable register., offset: 0xE00 */
+    __IO uint32_t FIFOSTAT;                          /**< FIFO status register., offset: 0xE04 */
+    __IO uint32_t FIFOTRIG;                          /**< FIFO trigger settings for interrupt and DMA request., offset: 0xE08 */
+    uint8_t RESERVED_3[4];
+    __IO uint32_t FIFOINTENSET;                      /**< FIFO interrupt enable set (enable) and read register., offset: 0xE10 */
+    __IO uint32_t FIFOINTENCLR;                      /**< FIFO interrupt enable clear (disable) and read register., offset: 0xE14 */
+    __I  uint32_t FIFOINTSTAT;                       /**< FIFO interrupt status register., offset: 0xE18 */
+    uint8_t RESERVED_4[4];
+    __IO uint32_t FIFOWR;                            /**< FIFO write data., offset: 0xE20 */
+    uint8_t RESERVED_5[12];
+    __I  uint32_t FIFORD;                            /**< FIFO read data., offset: 0xE30 */
+    uint8_t RESERVED_6[12];
+    __I  uint32_t FIFORDNOPOP;                       /**< FIFO data read with no FIFO pop., offset: 0xE40 */
+    uint8_t RESERVED_7[440];
+    __I  uint32_t ID;                                /**< Peripheral identification register., offset: 0xFFC */
 } SPI_Type;
 
 /* ----------------------------------------------------------------------------
@@ -8353,14 +8353,14 @@ typedef struct {
 
 /** SPIFI - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t CTRL;                              /**< SPIFI control register, offset: 0x0 */
-  __IO uint32_t CMD;                               /**< SPIFI command register, offset: 0x4 */
-  __IO uint32_t ADDR;                              /**< SPIFI address register, offset: 0x8 */
-  __IO uint32_t IDATA;                             /**< SPIFI intermediate data register, offset: 0xC */
-  __IO uint32_t CLIMIT;                            /**< SPIFI limit register, offset: 0x10 */
-  __IO uint32_t DATA;                              /**< SPIFI data register, offset: 0x14 */
-  __IO uint32_t MCMD;                              /**< SPIFI memory command register, offset: 0x18 */
-  __IO uint32_t STAT;                              /**< SPIFI status register, offset: 0x1C */
+    __IO uint32_t CTRL;                              /**< SPIFI control register, offset: 0x0 */
+    __IO uint32_t CMD;                               /**< SPIFI command register, offset: 0x4 */
+    __IO uint32_t ADDR;                              /**< SPIFI address register, offset: 0x8 */
+    __IO uint32_t IDATA;                             /**< SPIFI intermediate data register, offset: 0xC */
+    __IO uint32_t CLIMIT;                            /**< SPIFI limit register, offset: 0x10 */
+    __IO uint32_t DATA;                              /**< SPIFI data register, offset: 0x14 */
+    __IO uint32_t MCMD;                              /**< SPIFI memory command register, offset: 0x18 */
+    __IO uint32_t STAT;                              /**< SPIFI status register, offset: 0x1C */
 } SPIFI_Type;
 
 /* ----------------------------------------------------------------------------
@@ -8515,141 +8515,141 @@ typedef struct {
 
 /** SYSCON - Register Layout Typedef */
 typedef struct {
-       uint8_t RESERVED_0[16];
-  __IO uint32_t AHBMATPRIO;                        /**< AHB multilayer matrix priority control, offset: 0x10 */
-       uint8_t RESERVED_1[44];
-  __IO uint32_t SYSTCKCAL;                         /**< System tick counter calibration, offset: 0x40 */
-       uint8_t RESERVED_2[4];
-  __IO uint32_t NMISRC;                            /**< NMI Source Select, offset: 0x48 */
-  __IO uint32_t ASYNCAPBCTRL;                      /**< Asynchronous APB Control, offset: 0x4C */
-       uint8_t RESERVED_3[112];
-  __I  uint32_t PIOPORCAP[2];                      /**< POR captured value of port n, array offset: 0xC0, array step: 0x4 */
-       uint8_t RESERVED_4[8];
-  __I  uint32_t PIORESCAP[2];                      /**< Reset captured value of port n, array offset: 0xD0, array step: 0x4 */
-       uint8_t RESERVED_5[40];
-  __IO uint32_t PRESETCTRL[3];                     /**< Peripheral reset control n, array offset: 0x100, array step: 0x4 */
-       uint8_t RESERVED_6[20];
-  __O  uint32_t PRESETCTRLSET[3];                  /**< Set bits in PRESETCTRLn, array offset: 0x120, array step: 0x4 */
-       uint8_t RESERVED_7[20];
-  __O  uint32_t PRESETCTRLCLR[3];                  /**< Clear bits in PRESETCTRLn, array offset: 0x140, array step: 0x4 */
-       uint8_t RESERVED_8[164];
-  __IO uint32_t SYSRSTSTAT;                        /**< System reset status register, offset: 0x1F0 */
-       uint8_t RESERVED_9[12];
-  __IO uint32_t AHBCLKCTRL[3];                     /**< AHB Clock control n, array offset: 0x200, array step: 0x4 */
-       uint8_t RESERVED_10[20];
-  __O  uint32_t AHBCLKCTRLSET[3];                  /**< Set bits in AHBCLKCTRLn, array offset: 0x220, array step: 0x4 */
-       uint8_t RESERVED_11[20];
-  __O  uint32_t AHBCLKCTRLCLR[3];                  /**< Clear bits in AHBCLKCTRLn, array offset: 0x240, array step: 0x4 */
-       uint8_t RESERVED_12[52];
-  __IO uint32_t MAINCLKSELA;                       /**< Main clock source select A, offset: 0x280 */
-  __IO uint32_t MAINCLKSELB;                       /**< Main clock source select B, offset: 0x284 */
-  __IO uint32_t CLKOUTSELA;                        /**< CLKOUT clock source select A, offset: 0x288 */
-       uint8_t RESERVED_13[4];
-  __IO uint32_t SYSPLLCLKSEL;                      /**< PLL clock source select, offset: 0x290 */
-       uint8_t RESERVED_14[4];
-  __IO uint32_t AUDPLLCLKSEL;                      /**< Audio PLL clock source select, offset: 0x298 */
-       uint8_t RESERVED_15[4];
-  __IO uint32_t SPIFICLKSEL;                       /**< SPIFI clock source select, offset: 0x2A0 */
-  __IO uint32_t ADCCLKSEL;                         /**< ADC clock source select, offset: 0x2A4 */
-  __IO uint32_t USB0CLKSEL;                        /**< USB0 clock source select, offset: 0x2A8 */
-  __IO uint32_t USB1CLKSEL;                        /**< USB1 clock source select, offset: 0x2AC */
-  __IO uint32_t FCLKSEL[10];                       /**< Flexcomm 0 clock source select, array offset: 0x2B0, array step: 0x4 */
-       uint8_t RESERVED_16[8];
-  __IO uint32_t MCLKCLKSEL;                        /**< MCLK clock source select, offset: 0x2E0 */
-       uint8_t RESERVED_17[4];
-  __IO uint32_t FRGCLKSEL;                         /**< Fractional Rate Generator clock source select, offset: 0x2E8 */
-  __IO uint32_t DMICCLKSEL;                        /**< Digital microphone (DMIC) subsystem clock select, offset: 0x2EC */
-  __IO uint32_t SCTCLKSEL;                         /**< SCTimer/PWM clock source select, offset: 0x2F0 */
-  __IO uint32_t LCDCLKSEL;                         /**< LCD clock source select, offset: 0x2F4 */
-  __IO uint32_t SDIOCLKSEL;                        /**< SDIO clock source select, offset: 0x2F8 */
-       uint8_t RESERVED_18[4];
-  __IO uint32_t SYSTICKCLKDIV;                     /**< SYSTICK clock divider, offset: 0x300 */
-  __IO uint32_t ARMTRACECLKDIV;                    /**< ARM Trace clock divider, offset: 0x304 */
-  __IO uint32_t CAN0CLKDIV;                        /**< MCAN0 clock divider, offset: 0x308 */
-  __IO uint32_t CAN1CLKDIV;                        /**< MCAN1 clock divider, offset: 0x30C */
-  __IO uint32_t SC0CLKDIV;                         /**< Smartcard0 clock divider, offset: 0x310 */
-  __IO uint32_t SC1CLKDIV;                         /**< Smartcard1 clock divider, offset: 0x314 */
-       uint8_t RESERVED_19[104];
-  __IO uint32_t AHBCLKDIV;                         /**< AHB clock divider, offset: 0x380 */
-  __IO uint32_t CLKOUTDIV;                         /**< CLKOUT clock divider, offset: 0x384 */
-  __IO uint32_t FROHFCLKDIV;                       /**< FROHF clock divider, offset: 0x388 */
-       uint8_t RESERVED_20[4];
-  __IO uint32_t SPIFICLKDIV;                       /**< SPIFI clock divider, offset: 0x390 */
-  __IO uint32_t ADCCLKDIV;                         /**< ADC clock divider, offset: 0x394 */
-  __IO uint32_t USB0CLKDIV;                        /**< USB0 clock divider, offset: 0x398 */
-  __IO uint32_t USB1CLKDIV;                        /**< USB1 clock divider, offset: 0x39C */
-  __IO uint32_t FRGCTRL;                           /**< Fractional rate divider, offset: 0x3A0 */
-       uint8_t RESERVED_21[4];
-  __IO uint32_t DMICCLKDIV;                        /**< DMIC clock divider, offset: 0x3A8 */
-  __IO uint32_t MCLKDIV;                           /**< I2S MCLK clock divider, offset: 0x3AC */
-  __IO uint32_t LCDCLKDIV;                         /**< LCD clock divider, offset: 0x3B0 */
-  __IO uint32_t SCTCLKDIV;                         /**< SCT/PWM clock divider, offset: 0x3B4 */
-  __IO uint32_t EMCCLKDIV;                         /**< EMC clock divider, offset: 0x3B8 */
-  __IO uint32_t SDIOCLKDIV;                        /**< SDIO clock divider, offset: 0x3BC */
-       uint8_t RESERVED_22[64];
-  __IO uint32_t FLASHCFG;                          /**< Flash wait states configuration, offset: 0x400 */
-       uint8_t RESERVED_23[8];
-  __IO uint32_t USB0CLKCTRL;                       /**< USB0 clock control, offset: 0x40C */
-  __IO uint32_t USB0CLKSTAT;                       /**< USB0 clock status, offset: 0x410 */
-       uint8_t RESERVED_24[4];
-  __IO uint32_t FREQMECTRL;                        /**< Frequency measure register, offset: 0x418 */
-       uint8_t RESERVED_25[4];
-  __IO uint32_t MCLKIO;                            /**< MCLK input/output control, offset: 0x420 */
-  __IO uint32_t USB1CLKCTRL;                       /**< USB1 clock control, offset: 0x424 */
-  __IO uint32_t USB1CLKSTAT;                       /**< USB1 clock status, offset: 0x428 */
-       uint8_t RESERVED_26[24];
-  __IO uint32_t EMCSYSCTRL;                        /**< EMC system control, offset: 0x444 */
-  __IO uint32_t EMCDLYCTRL;                        /**< EMC clock delay control, offset: 0x448 */
-  __IO uint32_t EMCDLYCAL;                         /**< EMC delay chain calibration control, offset: 0x44C */
-  __IO uint32_t ETHPHYSEL;                         /**< Ethernet PHY Selection, offset: 0x450 */
-  __IO uint32_t ETHSBDCTRL;                        /**< Ethernet SBD flow control, offset: 0x454 */
-       uint8_t RESERVED_27[8];
-  __IO uint32_t SDIOCLKCTRL;                       /**< SDIO CCLKIN phase and delay control, offset: 0x460 */
-       uint8_t RESERVED_28[156];
-  __IO uint32_t FROCTRL;                           /**< FRO oscillator control, offset: 0x500 */
-  __IO uint32_t SYSOSCCTRL;                        /**< System oscillator control, offset: 0x504 */
-  __IO uint32_t WDTOSCCTRL;                        /**< Watchdog oscillator control, offset: 0x508 */
-  __IO uint32_t RTCOSCCTRL;                        /**< RTC oscillator 32 kHz output control, offset: 0x50C */
-       uint8_t RESERVED_29[12];
-  __IO uint32_t USBPLLCTRL;                        /**< USB PLL control, offset: 0x51C */
-  __IO uint32_t USBPLLSTAT;                        /**< USB PLL status, offset: 0x520 */
-       uint8_t RESERVED_30[92];
-  __IO uint32_t SYSPLLCTRL;                        /**< System PLL control, offset: 0x580 */
-  __IO uint32_t SYSPLLSTAT;                        /**< PLL status, offset: 0x584 */
-  __IO uint32_t SYSPLLNDEC;                        /**< PLL N divider, offset: 0x588 */
-  __IO uint32_t SYSPLLPDEC;                        /**< PLL P divider, offset: 0x58C */
-  __IO uint32_t SYSPLLMDEC;                        /**< System PLL M divider, offset: 0x590 */
-       uint8_t RESERVED_31[12];
-  __IO uint32_t AUDPLLCTRL;                        /**< Audio PLL control, offset: 0x5A0 */
-  __IO uint32_t AUDPLLSTAT;                        /**< Audio PLL status, offset: 0x5A4 */
-  __IO uint32_t AUDPLLNDEC;                        /**< Audio PLL N divider, offset: 0x5A8 */
-  __IO uint32_t AUDPLLPDEC;                        /**< Audio PLL P divider, offset: 0x5AC */
-  __IO uint32_t AUDPLLMDEC;                        /**< Audio PLL M divider, offset: 0x5B0 */
-  __IO uint32_t AUDPLLFRAC;                        /**< Audio PLL fractional divider control, offset: 0x5B4 */
-       uint8_t RESERVED_32[72];
-  __IO uint32_t PDSLEEPCFG[2];                     /**< Power configuration register 0, array offset: 0x600, array step: 0x4 */
-       uint8_t RESERVED_33[8];
-  __IO uint32_t PDRUNCFG[2];                       /**< Power configuration register 0, array offset: 0x610, array step: 0x4 */
-       uint8_t RESERVED_34[8];
-  __IO uint32_t PDRUNCFGSET[2];                    /**< Set bits in PDRUNCFG0, array offset: 0x620, array step: 0x4 */
-       uint8_t RESERVED_35[8];
-  __IO uint32_t PDRUNCFGCLR[2];                    /**< Clear bits in PDRUNCFG0, array offset: 0x630, array step: 0x4 */
-       uint8_t RESERVED_36[72];
-  __IO uint32_t STARTER[2];                        /**< Start logic 0 wake-up enable register, array offset: 0x680, array step: 0x4 */
-       uint8_t RESERVED_37[24];
-  __O  uint32_t STARTERSET[2];                     /**< Set bits in STARTER, array offset: 0x6A0, array step: 0x4 */
-       uint8_t RESERVED_38[24];
-  __O  uint32_t STARTERCLR[2];                     /**< Clear bits in STARTER0, array offset: 0x6C0, array step: 0x4 */
-       uint8_t RESERVED_39[184];
-  __IO uint32_t HWWAKE;                            /**< Configures special cases of hardware wake-up, offset: 0x780 */
-       uint8_t RESERVED_40[1664];
-  __IO uint32_t AUTOCGOR;                          /**< Auto Clock-Gate Override Register, offset: 0xE04 */
-       uint8_t RESERVED_41[492];
-  __I  uint32_t JTAGIDCODE;                        /**< JTAG ID code register, offset: 0xFF4 */
-  __I  uint32_t DEVICE_ID0;                        /**< Part ID register, offset: 0xFF8 */
-  __I  uint32_t DEVICE_ID1;                        /**< Boot ROM and die revision register, offset: 0xFFC */
-       uint8_t RESERVED_42[127044];
-  __IO uint32_t BODCTRL;                           /**< Brown-Out Detect control, offset: 0x20044 */
+    uint8_t RESERVED_0[16];
+    __IO uint32_t AHBMATPRIO;                        /**< AHB multilayer matrix priority control, offset: 0x10 */
+    uint8_t RESERVED_1[44];
+    __IO uint32_t SYSTCKCAL;                         /**< System tick counter calibration, offset: 0x40 */
+    uint8_t RESERVED_2[4];
+    __IO uint32_t NMISRC;                            /**< NMI Source Select, offset: 0x48 */
+    __IO uint32_t ASYNCAPBCTRL;                      /**< Asynchronous APB Control, offset: 0x4C */
+    uint8_t RESERVED_3[112];
+    __I  uint32_t PIOPORCAP[2];                      /**< POR captured value of port n, array offset: 0xC0, array step: 0x4 */
+    uint8_t RESERVED_4[8];
+    __I  uint32_t PIORESCAP[2];                      /**< Reset captured value of port n, array offset: 0xD0, array step: 0x4 */
+    uint8_t RESERVED_5[40];
+    __IO uint32_t PRESETCTRL[3];                     /**< Peripheral reset control n, array offset: 0x100, array step: 0x4 */
+    uint8_t RESERVED_6[20];
+    __O  uint32_t PRESETCTRLSET[3];                  /**< Set bits in PRESETCTRLn, array offset: 0x120, array step: 0x4 */
+    uint8_t RESERVED_7[20];
+    __O  uint32_t PRESETCTRLCLR[3];                  /**< Clear bits in PRESETCTRLn, array offset: 0x140, array step: 0x4 */
+    uint8_t RESERVED_8[164];
+    __IO uint32_t SYSRSTSTAT;                        /**< System reset status register, offset: 0x1F0 */
+    uint8_t RESERVED_9[12];
+    __IO uint32_t AHBCLKCTRL[3];                     /**< AHB Clock control n, array offset: 0x200, array step: 0x4 */
+    uint8_t RESERVED_10[20];
+    __O  uint32_t AHBCLKCTRLSET[3];                  /**< Set bits in AHBCLKCTRLn, array offset: 0x220, array step: 0x4 */
+    uint8_t RESERVED_11[20];
+    __O  uint32_t AHBCLKCTRLCLR[3];                  /**< Clear bits in AHBCLKCTRLn, array offset: 0x240, array step: 0x4 */
+    uint8_t RESERVED_12[52];
+    __IO uint32_t MAINCLKSELA;                       /**< Main clock source select A, offset: 0x280 */
+    __IO uint32_t MAINCLKSELB;                       /**< Main clock source select B, offset: 0x284 */
+    __IO uint32_t CLKOUTSELA;                        /**< CLKOUT clock source select A, offset: 0x288 */
+    uint8_t RESERVED_13[4];
+    __IO uint32_t SYSPLLCLKSEL;                      /**< PLL clock source select, offset: 0x290 */
+    uint8_t RESERVED_14[4];
+    __IO uint32_t AUDPLLCLKSEL;                      /**< Audio PLL clock source select, offset: 0x298 */
+    uint8_t RESERVED_15[4];
+    __IO uint32_t SPIFICLKSEL;                       /**< SPIFI clock source select, offset: 0x2A0 */
+    __IO uint32_t ADCCLKSEL;                         /**< ADC clock source select, offset: 0x2A4 */
+    __IO uint32_t USB0CLKSEL;                        /**< USB0 clock source select, offset: 0x2A8 */
+    __IO uint32_t USB1CLKSEL;                        /**< USB1 clock source select, offset: 0x2AC */
+    __IO uint32_t FCLKSEL[10];                       /**< Flexcomm 0 clock source select, array offset: 0x2B0, array step: 0x4 */
+    uint8_t RESERVED_16[8];
+    __IO uint32_t MCLKCLKSEL;                        /**< MCLK clock source select, offset: 0x2E0 */
+    uint8_t RESERVED_17[4];
+    __IO uint32_t FRGCLKSEL;                         /**< Fractional Rate Generator clock source select, offset: 0x2E8 */
+    __IO uint32_t DMICCLKSEL;                        /**< Digital microphone (DMIC) subsystem clock select, offset: 0x2EC */
+    __IO uint32_t SCTCLKSEL;                         /**< SCTimer/PWM clock source select, offset: 0x2F0 */
+    __IO uint32_t LCDCLKSEL;                         /**< LCD clock source select, offset: 0x2F4 */
+    __IO uint32_t SDIOCLKSEL;                        /**< SDIO clock source select, offset: 0x2F8 */
+    uint8_t RESERVED_18[4];
+    __IO uint32_t SYSTICKCLKDIV;                     /**< SYSTICK clock divider, offset: 0x300 */
+    __IO uint32_t ARMTRACECLKDIV;                    /**< ARM Trace clock divider, offset: 0x304 */
+    __IO uint32_t CAN0CLKDIV;                        /**< MCAN0 clock divider, offset: 0x308 */
+    __IO uint32_t CAN1CLKDIV;                        /**< MCAN1 clock divider, offset: 0x30C */
+    __IO uint32_t SC0CLKDIV;                         /**< Smartcard0 clock divider, offset: 0x310 */
+    __IO uint32_t SC1CLKDIV;                         /**< Smartcard1 clock divider, offset: 0x314 */
+    uint8_t RESERVED_19[104];
+    __IO uint32_t AHBCLKDIV;                         /**< AHB clock divider, offset: 0x380 */
+    __IO uint32_t CLKOUTDIV;                         /**< CLKOUT clock divider, offset: 0x384 */
+    __IO uint32_t FROHFCLKDIV;                       /**< FROHF clock divider, offset: 0x388 */
+    uint8_t RESERVED_20[4];
+    __IO uint32_t SPIFICLKDIV;                       /**< SPIFI clock divider, offset: 0x390 */
+    __IO uint32_t ADCCLKDIV;                         /**< ADC clock divider, offset: 0x394 */
+    __IO uint32_t USB0CLKDIV;                        /**< USB0 clock divider, offset: 0x398 */
+    __IO uint32_t USB1CLKDIV;                        /**< USB1 clock divider, offset: 0x39C */
+    __IO uint32_t FRGCTRL;                           /**< Fractional rate divider, offset: 0x3A0 */
+    uint8_t RESERVED_21[4];
+    __IO uint32_t DMICCLKDIV;                        /**< DMIC clock divider, offset: 0x3A8 */
+    __IO uint32_t MCLKDIV;                           /**< I2S MCLK clock divider, offset: 0x3AC */
+    __IO uint32_t LCDCLKDIV;                         /**< LCD clock divider, offset: 0x3B0 */
+    __IO uint32_t SCTCLKDIV;                         /**< SCT/PWM clock divider, offset: 0x3B4 */
+    __IO uint32_t EMCCLKDIV;                         /**< EMC clock divider, offset: 0x3B8 */
+    __IO uint32_t SDIOCLKDIV;                        /**< SDIO clock divider, offset: 0x3BC */
+    uint8_t RESERVED_22[64];
+    __IO uint32_t FLASHCFG;                          /**< Flash wait states configuration, offset: 0x400 */
+    uint8_t RESERVED_23[8];
+    __IO uint32_t USB0CLKCTRL;                       /**< USB0 clock control, offset: 0x40C */
+    __IO uint32_t USB0CLKSTAT;                       /**< USB0 clock status, offset: 0x410 */
+    uint8_t RESERVED_24[4];
+    __IO uint32_t FREQMECTRL;                        /**< Frequency measure register, offset: 0x418 */
+    uint8_t RESERVED_25[4];
+    __IO uint32_t MCLKIO;                            /**< MCLK input/output control, offset: 0x420 */
+    __IO uint32_t USB1CLKCTRL;                       /**< USB1 clock control, offset: 0x424 */
+    __IO uint32_t USB1CLKSTAT;                       /**< USB1 clock status, offset: 0x428 */
+    uint8_t RESERVED_26[24];
+    __IO uint32_t EMCSYSCTRL;                        /**< EMC system control, offset: 0x444 */
+    __IO uint32_t EMCDLYCTRL;                        /**< EMC clock delay control, offset: 0x448 */
+    __IO uint32_t EMCDLYCAL;                         /**< EMC delay chain calibration control, offset: 0x44C */
+    __IO uint32_t ETHPHYSEL;                         /**< Ethernet PHY Selection, offset: 0x450 */
+    __IO uint32_t ETHSBDCTRL;                        /**< Ethernet SBD flow control, offset: 0x454 */
+    uint8_t RESERVED_27[8];
+    __IO uint32_t SDIOCLKCTRL;                       /**< SDIO CCLKIN phase and delay control, offset: 0x460 */
+    uint8_t RESERVED_28[156];
+    __IO uint32_t FROCTRL;                           /**< FRO oscillator control, offset: 0x500 */
+    __IO uint32_t SYSOSCCTRL;                        /**< System oscillator control, offset: 0x504 */
+    __IO uint32_t WDTOSCCTRL;                        /**< Watchdog oscillator control, offset: 0x508 */
+    __IO uint32_t RTCOSCCTRL;                        /**< RTC oscillator 32 kHz output control, offset: 0x50C */
+    uint8_t RESERVED_29[12];
+    __IO uint32_t USBPLLCTRL;                        /**< USB PLL control, offset: 0x51C */
+    __IO uint32_t USBPLLSTAT;                        /**< USB PLL status, offset: 0x520 */
+    uint8_t RESERVED_30[92];
+    __IO uint32_t SYSPLLCTRL;                        /**< System PLL control, offset: 0x580 */
+    __IO uint32_t SYSPLLSTAT;                        /**< PLL status, offset: 0x584 */
+    __IO uint32_t SYSPLLNDEC;                        /**< PLL N divider, offset: 0x588 */
+    __IO uint32_t SYSPLLPDEC;                        /**< PLL P divider, offset: 0x58C */
+    __IO uint32_t SYSPLLMDEC;                        /**< System PLL M divider, offset: 0x590 */
+    uint8_t RESERVED_31[12];
+    __IO uint32_t AUDPLLCTRL;                        /**< Audio PLL control, offset: 0x5A0 */
+    __IO uint32_t AUDPLLSTAT;                        /**< Audio PLL status, offset: 0x5A4 */
+    __IO uint32_t AUDPLLNDEC;                        /**< Audio PLL N divider, offset: 0x5A8 */
+    __IO uint32_t AUDPLLPDEC;                        /**< Audio PLL P divider, offset: 0x5AC */
+    __IO uint32_t AUDPLLMDEC;                        /**< Audio PLL M divider, offset: 0x5B0 */
+    __IO uint32_t AUDPLLFRAC;                        /**< Audio PLL fractional divider control, offset: 0x5B4 */
+    uint8_t RESERVED_32[72];
+    __IO uint32_t PDSLEEPCFG[2];                     /**< Power configuration register 0, array offset: 0x600, array step: 0x4 */
+    uint8_t RESERVED_33[8];
+    __IO uint32_t PDRUNCFG[2];                       /**< Power configuration register 0, array offset: 0x610, array step: 0x4 */
+    uint8_t RESERVED_34[8];
+    __IO uint32_t PDRUNCFGSET[2];                    /**< Set bits in PDRUNCFG0, array offset: 0x620, array step: 0x4 */
+    uint8_t RESERVED_35[8];
+    __IO uint32_t PDRUNCFGCLR[2];                    /**< Clear bits in PDRUNCFG0, array offset: 0x630, array step: 0x4 */
+    uint8_t RESERVED_36[72];
+    __IO uint32_t STARTER[2];                        /**< Start logic 0 wake-up enable register, array offset: 0x680, array step: 0x4 */
+    uint8_t RESERVED_37[24];
+    __O  uint32_t STARTERSET[2];                     /**< Set bits in STARTER, array offset: 0x6A0, array step: 0x4 */
+    uint8_t RESERVED_38[24];
+    __O  uint32_t STARTERCLR[2];                     /**< Clear bits in STARTER0, array offset: 0x6C0, array step: 0x4 */
+    uint8_t RESERVED_39[184];
+    __IO uint32_t HWWAKE;                            /**< Configures special cases of hardware wake-up, offset: 0x780 */
+    uint8_t RESERVED_40[1664];
+    __IO uint32_t AUTOCGOR;                          /**< Auto Clock-Gate Override Register, offset: 0xE04 */
+    uint8_t RESERVED_41[492];
+    __I  uint32_t JTAGIDCODE;                        /**< JTAG ID code register, offset: 0xFF4 */
+    __I  uint32_t DEVICE_ID0;                        /**< Part ID register, offset: 0xFF8 */
+    __I  uint32_t DEVICE_ID1;                        /**< Boot ROM and die revision register, offset: 0xFFC */
+    uint8_t RESERVED_42[127044];
+    __IO uint32_t BODCTRL;                           /**< Brown-Out Detect control, offset: 0x20044 */
 } SYSCON_Type;
 
 /* ----------------------------------------------------------------------------
@@ -10404,32 +10404,32 @@ typedef struct {
 
 /** USART - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t CFG;                               /**< USART Configuration register. Basic USART configuration settings that typically are not changed during operation., offset: 0x0 */
-  __IO uint32_t CTL;                               /**< USART Control register. USART control settings that are more likely to change during operation., offset: 0x4 */
-  __IO uint32_t STAT;                              /**< USART Status register. The complete status value can be read here. Writing ones clears some bits in the register. Some bits can be cleared by writing a 1 to them., offset: 0x8 */
-  __IO uint32_t INTENSET;                          /**< Interrupt Enable read and Set register for USART (not FIFO) status. Contains individual interrupt enable bits for each potential USART interrupt. A complete value may be read from this register. Writing a 1 to any implemented bit position causes that bit to be set., offset: 0xC */
-  __O  uint32_t INTENCLR;                          /**< Interrupt Enable Clear register. Allows clearing any combination of bits in the INTENSET register. Writing a 1 to any implemented bit position causes the corresponding bit to be cleared., offset: 0x10 */
-       uint8_t RESERVED_0[12];
-  __IO uint32_t BRG;                               /**< Baud Rate Generator register. 16-bit integer baud rate divisor value., offset: 0x20 */
-  __I  uint32_t INTSTAT;                           /**< Interrupt status register. Reflects interrupts that are currently enabled., offset: 0x24 */
-  __IO uint32_t OSR;                               /**< Oversample selection register for asynchronous communication., offset: 0x28 */
-  __IO uint32_t ADDR;                              /**< Address register for automatic address matching., offset: 0x2C */
-       uint8_t RESERVED_1[3536];
-  __IO uint32_t FIFOCFG;                           /**< FIFO configuration and enable register., offset: 0xE00 */
-  __IO uint32_t FIFOSTAT;                          /**< FIFO status register., offset: 0xE04 */
-  __IO uint32_t FIFOTRIG;                          /**< FIFO trigger settings for interrupt and DMA request., offset: 0xE08 */
-       uint8_t RESERVED_2[4];
-  __IO uint32_t FIFOINTENSET;                      /**< FIFO interrupt enable set (enable) and read register., offset: 0xE10 */
-  __IO uint32_t FIFOINTENCLR;                      /**< FIFO interrupt enable clear (disable) and read register., offset: 0xE14 */
-  __I  uint32_t FIFOINTSTAT;                       /**< FIFO interrupt status register., offset: 0xE18 */
-       uint8_t RESERVED_3[4];
-  __IO uint32_t FIFOWR;                            /**< FIFO write data., offset: 0xE20 */
-       uint8_t RESERVED_4[12];
-  __I  uint32_t FIFORD;                            /**< FIFO read data., offset: 0xE30 */
-       uint8_t RESERVED_5[12];
-  __I  uint32_t FIFORDNOPOP;                       /**< FIFO data read with no FIFO pop., offset: 0xE40 */
-       uint8_t RESERVED_6[440];
-  __I  uint32_t ID;                                /**< Peripheral identification register., offset: 0xFFC */
+    __IO uint32_t CFG;                               /**< USART Configuration register. Basic USART configuration settings that typically are not changed during operation., offset: 0x0 */
+    __IO uint32_t CTL;                               /**< USART Control register. USART control settings that are more likely to change during operation., offset: 0x4 */
+    __IO uint32_t STAT;                              /**< USART Status register. The complete status value can be read here. Writing ones clears some bits in the register. Some bits can be cleared by writing a 1 to them., offset: 0x8 */
+    __IO uint32_t INTENSET;                          /**< Interrupt Enable read and Set register for USART (not FIFO) status. Contains individual interrupt enable bits for each potential USART interrupt. A complete value may be read from this register. Writing a 1 to any implemented bit position causes that bit to be set., offset: 0xC */
+    __O  uint32_t INTENCLR;                          /**< Interrupt Enable Clear register. Allows clearing any combination of bits in the INTENSET register. Writing a 1 to any implemented bit position causes the corresponding bit to be cleared., offset: 0x10 */
+    uint8_t RESERVED_0[12];
+    __IO uint32_t BRG;                               /**< Baud Rate Generator register. 16-bit integer baud rate divisor value., offset: 0x20 */
+    __I  uint32_t INTSTAT;                           /**< Interrupt status register. Reflects interrupts that are currently enabled., offset: 0x24 */
+    __IO uint32_t OSR;                               /**< Oversample selection register for asynchronous communication., offset: 0x28 */
+    __IO uint32_t ADDR;                              /**< Address register for automatic address matching., offset: 0x2C */
+    uint8_t RESERVED_1[3536];
+    __IO uint32_t FIFOCFG;                           /**< FIFO configuration and enable register., offset: 0xE00 */
+    __IO uint32_t FIFOSTAT;                          /**< FIFO status register., offset: 0xE04 */
+    __IO uint32_t FIFOTRIG;                          /**< FIFO trigger settings for interrupt and DMA request., offset: 0xE08 */
+    uint8_t RESERVED_2[4];
+    __IO uint32_t FIFOINTENSET;                      /**< FIFO interrupt enable set (enable) and read register., offset: 0xE10 */
+    __IO uint32_t FIFOINTENCLR;                      /**< FIFO interrupt enable clear (disable) and read register., offset: 0xE14 */
+    __I  uint32_t FIFOINTSTAT;                       /**< FIFO interrupt status register., offset: 0xE18 */
+    uint8_t RESERVED_3[4];
+    __IO uint32_t FIFOWR;                            /**< FIFO write data., offset: 0xE20 */
+    uint8_t RESERVED_4[12];
+    __I  uint32_t FIFORD;                            /**< FIFO read data., offset: 0xE30 */
+    uint8_t RESERVED_5[12];
+    __I  uint32_t FIFORDNOPOP;                       /**< FIFO data read with no FIFO pop., offset: 0xE40 */
+    uint8_t RESERVED_6[440];
+    __I  uint32_t ID;                                /**< Peripheral identification register., offset: 0xFFC */
 } USART_Type;
 
 /* ----------------------------------------------------------------------------
@@ -10891,19 +10891,19 @@ typedef struct {
 
 /** USB - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t DEVCMDSTAT;                        /**< USB Device Command/Status register, offset: 0x0 */
-  __IO uint32_t INFO;                              /**< USB Info register, offset: 0x4 */
-  __IO uint32_t EPLISTSTART;                       /**< USB EP Command/Status List start address, offset: 0x8 */
-  __IO uint32_t DATABUFSTART;                      /**< USB Data buffer start address, offset: 0xC */
-  __IO uint32_t LPM;                               /**< USB Link Power Management register, offset: 0x10 */
-  __IO uint32_t EPSKIP;                            /**< USB Endpoint skip, offset: 0x14 */
-  __IO uint32_t EPINUSE;                           /**< USB Endpoint Buffer in use, offset: 0x18 */
-  __IO uint32_t EPBUFCFG;                          /**< USB Endpoint Buffer Configuration register, offset: 0x1C */
-  __IO uint32_t INTSTAT;                           /**< USB interrupt status register, offset: 0x20 */
-  __IO uint32_t INTEN;                             /**< USB interrupt enable register, offset: 0x24 */
-  __IO uint32_t INTSETSTAT;                        /**< USB set interrupt status register, offset: 0x28 */
-       uint8_t RESERVED_0[8];
-  __IO uint32_t EPTOGGLE;                          /**< USB Endpoint toggle register, offset: 0x34 */
+    __IO uint32_t DEVCMDSTAT;                        /**< USB Device Command/Status register, offset: 0x0 */
+    __IO uint32_t INFO;                              /**< USB Info register, offset: 0x4 */
+    __IO uint32_t EPLISTSTART;                       /**< USB EP Command/Status List start address, offset: 0x8 */
+    __IO uint32_t DATABUFSTART;                      /**< USB Data buffer start address, offset: 0xC */
+    __IO uint32_t LPM;                               /**< USB Link Power Management register, offset: 0x10 */
+    __IO uint32_t EPSKIP;                            /**< USB Endpoint skip, offset: 0x14 */
+    __IO uint32_t EPINUSE;                           /**< USB Endpoint Buffer in use, offset: 0x18 */
+    __IO uint32_t EPBUFCFG;                          /**< USB Endpoint Buffer Configuration register, offset: 0x1C */
+    __IO uint32_t INTSTAT;                           /**< USB interrupt status register, offset: 0x20 */
+    __IO uint32_t INTEN;                             /**< USB interrupt enable register, offset: 0x24 */
+    __IO uint32_t INTSETSTAT;                        /**< USB set interrupt status register, offset: 0x28 */
+    uint8_t RESERVED_0[8];
+    __IO uint32_t EPTOGGLE;                          /**< USB Endpoint toggle register, offset: 0x34 */
 } USB_Type;
 
 /* ----------------------------------------------------------------------------
@@ -11118,30 +11118,30 @@ typedef struct {
 
 /** USBFSH - Register Layout Typedef */
 typedef struct {
-  __I  uint32_t HCREVISION;                        /**< BCD representation of the version of the HCI specification that is implemented by the Host Controller (HC), offset: 0x0 */
-  __IO uint32_t HCCONTROL;                         /**< Defines the operating modes of the HC, offset: 0x4 */
-  __IO uint32_t HCCOMMANDSTATUS;                   /**< This register is used to receive the commands from the Host Controller Driver (HCD), offset: 0x8 */
-  __IO uint32_t HCINTERRUPTSTATUS;                 /**< Indicates the status on various events that cause hardware interrupts by setting the appropriate bits, offset: 0xC */
-  __IO uint32_t HCINTERRUPTENABLE;                 /**< Controls the bits in the HcInterruptStatus register and indicates which events will generate a hardware interrupt, offset: 0x10 */
-  __IO uint32_t HCINTERRUPTDISABLE;                /**< The bits in this register are used to disable corresponding bits in the HCInterruptStatus register and in turn disable that event leading to hardware interrupt, offset: 0x14 */
-  __IO uint32_t HCHCCA;                            /**< Contains the physical address of the host controller communication area, offset: 0x18 */
-  __IO uint32_t HCPERIODCURRENTED;                 /**< Contains the physical address of the current isochronous or interrupt endpoint descriptor, offset: 0x1C */
-  __IO uint32_t HCCONTROLHEADED;                   /**< Contains the physical address of the first endpoint descriptor of the control list, offset: 0x20 */
-  __IO uint32_t HCCONTROLCURRENTED;                /**< Contains the physical address of the current endpoint descriptor of the control list, offset: 0x24 */
-  __IO uint32_t HCBULKHEADED;                      /**< Contains the physical address of the first endpoint descriptor of the bulk list, offset: 0x28 */
-  __IO uint32_t HCBULKCURRENTED;                   /**< Contains the physical address of the current endpoint descriptor of the bulk list, offset: 0x2C */
-  __IO uint32_t HCDONEHEAD;                        /**< Contains the physical address of the last transfer descriptor added to the 'Done' queue, offset: 0x30 */
-  __IO uint32_t HCFMINTERVAL;                      /**< Defines the bit time interval in a frame and the full speed maximum packet size which would not cause an overrun, offset: 0x34 */
-  __IO uint32_t HCFMREMAINING;                     /**< A 14-bit counter showing the bit time remaining in the current frame, offset: 0x38 */
-  __IO uint32_t HCFMNUMBER;                        /**< Contains a 16-bit counter and provides the timing reference among events happening in the HC and the HCD, offset: 0x3C */
-  __IO uint32_t HCPERIODICSTART;                   /**< Contains a programmable 14-bit value which determines the earliest time HC should start processing a periodic list, offset: 0x40 */
-  __IO uint32_t HCLSTHRESHOLD;                     /**< Contains 11-bit value which is used by the HC to determine whether to commit to transfer a maximum of 8-byte LS packet before EOF, offset: 0x44 */
-  __IO uint32_t HCRHDESCRIPTORA;                   /**< First of the two registers which describes the characteristics of the root hub, offset: 0x48 */
-  __IO uint32_t HCRHDESCRIPTORB;                   /**< Second of the two registers which describes the characteristics of the Root Hub, offset: 0x4C */
-  __IO uint32_t HCRHSTATUS;                        /**< This register is divided into two parts, offset: 0x50 */
-  __IO uint32_t HCRHPORTSTATUS;                    /**< Controls and reports the port events on a per-port basis, offset: 0x54 */
-       uint8_t RESERVED_0[4];
-  __IO uint32_t PORTMODE;                          /**< Controls the port if it is attached to the host block or the device block, offset: 0x5C */
+    __I  uint32_t HCREVISION;                        /**< BCD representation of the version of the HCI specification that is implemented by the Host Controller (HC), offset: 0x0 */
+    __IO uint32_t HCCONTROL;                         /**< Defines the operating modes of the HC, offset: 0x4 */
+    __IO uint32_t HCCOMMANDSTATUS;                   /**< This register is used to receive the commands from the Host Controller Driver (HCD), offset: 0x8 */
+    __IO uint32_t HCINTERRUPTSTATUS;                 /**< Indicates the status on various events that cause hardware interrupts by setting the appropriate bits, offset: 0xC */
+    __IO uint32_t HCINTERRUPTENABLE;                 /**< Controls the bits in the HcInterruptStatus register and indicates which events will generate a hardware interrupt, offset: 0x10 */
+    __IO uint32_t HCINTERRUPTDISABLE;                /**< The bits in this register are used to disable corresponding bits in the HCInterruptStatus register and in turn disable that event leading to hardware interrupt, offset: 0x14 */
+    __IO uint32_t HCHCCA;                            /**< Contains the physical address of the host controller communication area, offset: 0x18 */
+    __IO uint32_t HCPERIODCURRENTED;                 /**< Contains the physical address of the current isochronous or interrupt endpoint descriptor, offset: 0x1C */
+    __IO uint32_t HCCONTROLHEADED;                   /**< Contains the physical address of the first endpoint descriptor of the control list, offset: 0x20 */
+    __IO uint32_t HCCONTROLCURRENTED;                /**< Contains the physical address of the current endpoint descriptor of the control list, offset: 0x24 */
+    __IO uint32_t HCBULKHEADED;                      /**< Contains the physical address of the first endpoint descriptor of the bulk list, offset: 0x28 */
+    __IO uint32_t HCBULKCURRENTED;                   /**< Contains the physical address of the current endpoint descriptor of the bulk list, offset: 0x2C */
+    __IO uint32_t HCDONEHEAD;                        /**< Contains the physical address of the last transfer descriptor added to the 'Done' queue, offset: 0x30 */
+    __IO uint32_t HCFMINTERVAL;                      /**< Defines the bit time interval in a frame and the full speed maximum packet size which would not cause an overrun, offset: 0x34 */
+    __IO uint32_t HCFMREMAINING;                     /**< A 14-bit counter showing the bit time remaining in the current frame, offset: 0x38 */
+    __IO uint32_t HCFMNUMBER;                        /**< Contains a 16-bit counter and provides the timing reference among events happening in the HC and the HCD, offset: 0x3C */
+    __IO uint32_t HCPERIODICSTART;                   /**< Contains a programmable 14-bit value which determines the earliest time HC should start processing a periodic list, offset: 0x40 */
+    __IO uint32_t HCLSTHRESHOLD;                     /**< Contains 11-bit value which is used by the HC to determine whether to commit to transfer a maximum of 8-byte LS packet before EOF, offset: 0x44 */
+    __IO uint32_t HCRHDESCRIPTORA;                   /**< First of the two registers which describes the characteristics of the root hub, offset: 0x48 */
+    __IO uint32_t HCRHDESCRIPTORB;                   /**< Second of the two registers which describes the characteristics of the Root Hub, offset: 0x4C */
+    __IO uint32_t HCRHSTATUS;                        /**< This register is divided into two parts, offset: 0x50 */
+    __IO uint32_t HCRHPORTSTATUS;                    /**< Controls and reports the port events on a per-port basis, offset: 0x54 */
+    uint8_t RESERVED_0[4];
+    __IO uint32_t PORTMODE;                          /**< Controls the port if it is attached to the host block or the device block, offset: 0x5C */
 } USBFSH_Type;
 
 /* ----------------------------------------------------------------------------
@@ -11492,21 +11492,21 @@ typedef struct {
 
 /** USBHSD - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t DEVCMDSTAT;                        /**< USB Device Command/Status register, offset: 0x0 */
-  __I  uint32_t INFO;                              /**< USB Info register, offset: 0x4 */
-  __IO uint32_t EPLISTSTART;                       /**< USB EP Command/Status List start address, offset: 0x8 */
-  __I  uint32_t DATABUFSTART;                      /**< USB Data buffer start address, offset: 0xC */
-  __IO uint32_t LPM;                               /**< USB Link Power Management register, offset: 0x10 */
-  __IO uint32_t EPSKIP;                            /**< USB Endpoint skip, offset: 0x14 */
-  __IO uint32_t EPINUSE;                           /**< USB Endpoint Buffer in use, offset: 0x18 */
-  __IO uint32_t EPBUFCFG;                          /**< USB Endpoint Buffer Configuration register, offset: 0x1C */
-  __IO uint32_t INTSTAT;                           /**< USB interrupt status register, offset: 0x20 */
-  __IO uint32_t INTEN;                             /**< USB interrupt enable register, offset: 0x24 */
-  __IO uint32_t INTSETSTAT;                        /**< USB set interrupt status register, offset: 0x28 */
-       uint8_t RESERVED_0[8];
-  __I  uint32_t EPTOGGLE;                          /**< USB Endpoint toggle register, offset: 0x34 */
-       uint8_t RESERVED_1[4];
-  __IO uint32_t ULPIDEBUG;                         /**< UTMI/ULPI debug register, offset: 0x3C */
+    __IO uint32_t DEVCMDSTAT;                        /**< USB Device Command/Status register, offset: 0x0 */
+    __I  uint32_t INFO;                              /**< USB Info register, offset: 0x4 */
+    __IO uint32_t EPLISTSTART;                       /**< USB EP Command/Status List start address, offset: 0x8 */
+    __I  uint32_t DATABUFSTART;                      /**< USB Data buffer start address, offset: 0xC */
+    __IO uint32_t LPM;                               /**< USB Link Power Management register, offset: 0x10 */
+    __IO uint32_t EPSKIP;                            /**< USB Endpoint skip, offset: 0x14 */
+    __IO uint32_t EPINUSE;                           /**< USB Endpoint Buffer in use, offset: 0x18 */
+    __IO uint32_t EPBUFCFG;                          /**< USB Endpoint Buffer Configuration register, offset: 0x1C */
+    __IO uint32_t INTSTAT;                           /**< USB interrupt status register, offset: 0x20 */
+    __IO uint32_t INTEN;                             /**< USB interrupt enable register, offset: 0x24 */
+    __IO uint32_t INTSETSTAT;                        /**< USB set interrupt status register, offset: 0x28 */
+    uint8_t RESERVED_0[8];
+    __I  uint32_t EPTOGGLE;                          /**< USB Endpoint toggle register, offset: 0x34 */
+    uint8_t RESERVED_1[4];
+    __IO uint32_t ULPIDEBUG;                         /**< UTMI/ULPI debug register, offset: 0x3C */
 } USBHSD_Type;
 
 /* ----------------------------------------------------------------------------
@@ -11759,27 +11759,27 @@ typedef struct {
 
 /** USBHSH - Register Layout Typedef */
 typedef struct {
-  __I  uint32_t CAPLENGTH_CHIPID;                  /**< This register contains the offset value towards the start of the operational register space and the version number of the IP block, offset: 0x0 */
-  __I  uint32_t HCSPARAMS;                         /**< Host Controller Structural Parameters, offset: 0x4 */
-  __I  uint32_t HCCPARAMS;                         /**< Host Controller Capability Parameters, offset: 0x8 */
-  __IO uint32_t FLADJ_FRINDEX;                     /**< Frame Length Adjustment, offset: 0xC */
-  __IO uint32_t ATL_PTD_BASE_ADDR;                 /**< Memory base address where ATL PTD0 is stored, offset: 0x10 */
-  __IO uint32_t ISO_PTD_BASE_ADDR;                 /**< Memory base address where ISO PTD0 is stored, offset: 0x14 */
-  __IO uint32_t INT_PTD_BASE_ADDR;                 /**< Memory base address where INT PTD0 is stored, offset: 0x18 */
-  __IO uint32_t DATA_PAYLOAD_BASE_ADDR;            /**< Memory base address that indicates the start of the data payload buffers, offset: 0x1C */
-  __IO uint32_t USBCMD;                            /**< USB Command register, offset: 0x20 */
-  __IO uint32_t USBSTS;                            /**< USB Interrupt Status register, offset: 0x24 */
-  __IO uint32_t USBINTR;                           /**< USB Interrupt Enable register, offset: 0x28 */
-  __IO uint32_t PORTSC1;                           /**< Port Status and Control register, offset: 0x2C */
-  __IO uint32_t ATL_PTD_DONE_MAP;                  /**< Done map for each ATL PTD, offset: 0x30 */
-  __IO uint32_t ATL_PTD_SKIP_MAP;                  /**< Skip map for each ATL PTD, offset: 0x34 */
-  __IO uint32_t ISO_PTD_DONE_MAP;                  /**< Done map for each ISO PTD, offset: 0x38 */
-  __IO uint32_t ISO_PTD_SKIP_MAP;                  /**< Skip map for each ISO PTD, offset: 0x3C */
-  __IO uint32_t INT_PTD_DONE_MAP;                  /**< Done map for each INT PTD, offset: 0x40 */
-  __IO uint32_t INT_PTD_SKIP_MAP;                  /**< Skip map for each INT PTD, offset: 0x44 */
-  __IO uint32_t LAST_PTD_INUSE;                    /**< Marks the last PTD in the list for ISO, INT and ATL, offset: 0x48 */
-  __IO uint32_t UTMIPLUS_ULPI_DEBUG;               /**< Register to read/write registers in the attached USB PHY, offset: 0x4C */
-  __IO uint32_t PORTMODE;                          /**< Controls the port if it is attached to the host block or the device block, offset: 0x50 */
+    __I  uint32_t CAPLENGTH_CHIPID;                  /**< This register contains the offset value towards the start of the operational register space and the version number of the IP block, offset: 0x0 */
+    __I  uint32_t HCSPARAMS;                         /**< Host Controller Structural Parameters, offset: 0x4 */
+    __I  uint32_t HCCPARAMS;                         /**< Host Controller Capability Parameters, offset: 0x8 */
+    __IO uint32_t FLADJ_FRINDEX;                     /**< Frame Length Adjustment, offset: 0xC */
+    __IO uint32_t ATL_PTD_BASE_ADDR;                 /**< Memory base address where ATL PTD0 is stored, offset: 0x10 */
+    __IO uint32_t ISO_PTD_BASE_ADDR;                 /**< Memory base address where ISO PTD0 is stored, offset: 0x14 */
+    __IO uint32_t INT_PTD_BASE_ADDR;                 /**< Memory base address where INT PTD0 is stored, offset: 0x18 */
+    __IO uint32_t DATA_PAYLOAD_BASE_ADDR;            /**< Memory base address that indicates the start of the data payload buffers, offset: 0x1C */
+    __IO uint32_t USBCMD;                            /**< USB Command register, offset: 0x20 */
+    __IO uint32_t USBSTS;                            /**< USB Interrupt Status register, offset: 0x24 */
+    __IO uint32_t USBINTR;                           /**< USB Interrupt Enable register, offset: 0x28 */
+    __IO uint32_t PORTSC1;                           /**< Port Status and Control register, offset: 0x2C */
+    __IO uint32_t ATL_PTD_DONE_MAP;                  /**< Done map for each ATL PTD, offset: 0x30 */
+    __IO uint32_t ATL_PTD_SKIP_MAP;                  /**< Skip map for each ATL PTD, offset: 0x34 */
+    __IO uint32_t ISO_PTD_DONE_MAP;                  /**< Done map for each ISO PTD, offset: 0x38 */
+    __IO uint32_t ISO_PTD_SKIP_MAP;                  /**< Skip map for each ISO PTD, offset: 0x3C */
+    __IO uint32_t INT_PTD_DONE_MAP;                  /**< Done map for each INT PTD, offset: 0x40 */
+    __IO uint32_t INT_PTD_SKIP_MAP;                  /**< Skip map for each INT PTD, offset: 0x44 */
+    __IO uint32_t LAST_PTD_INUSE;                    /**< Marks the last PTD in the list for ISO, INT and ATL, offset: 0x48 */
+    __IO uint32_t UTMIPLUS_ULPI_DEBUG;               /**< Register to read/write registers in the attached USB PHY, offset: 0x4C */
+    __IO uint32_t PORTMODE;                          /**< Controls the port if it is attached to the host block or the device block, offset: 0x50 */
 } USBHSH_Type;
 
 /* ----------------------------------------------------------------------------
@@ -12090,11 +12090,11 @@ typedef struct {
 
 /** UTICK - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t CTRL;                              /**< Control register., offset: 0x0 */
-  __IO uint32_t STAT;                              /**< Status register., offset: 0x4 */
-  __IO uint32_t CFG;                               /**< Capture configuration register., offset: 0x8 */
-  __O  uint32_t CAPCLR;                            /**< Capture clear register., offset: 0xC */
-  __I  uint32_t CAP[4];                            /**< Capture register ., array offset: 0x10, array step: 0x4 */
+    __IO uint32_t CTRL;                              /**< Control register., offset: 0x0 */
+    __IO uint32_t STAT;                              /**< Status register., offset: 0x4 */
+    __IO uint32_t CFG;                               /**< Capture configuration register., offset: 0x8 */
+    __O  uint32_t CAPCLR;                            /**< Capture clear register., offset: 0xC */
+    __I  uint32_t CAP[4];                            /**< Capture register ., array offset: 0x10, array step: 0x4 */
 } UTICK_Type;
 
 /* ----------------------------------------------------------------------------
@@ -12207,13 +12207,13 @@ typedef struct {
 
 /** WWDT - Register Layout Typedef */
 typedef struct {
-  __IO uint32_t MOD;                               /**< Watchdog mode register. This register contains the basic mode and status of the Watchdog Timer., offset: 0x0 */
-  __IO uint32_t TC;                                /**< Watchdog timer constant register. This 24-bit register determines the time-out value., offset: 0x4 */
-  __O  uint32_t FEED;                              /**< Watchdog feed sequence register. Writing 0xAA followed by 0x55 to this register reloads the Watchdog timer with the value contained in TC., offset: 0x8 */
-  __I  uint32_t TV;                                /**< Watchdog timer value register. This 24-bit register reads out the current value of the Watchdog timer., offset: 0xC */
-       uint8_t RESERVED_0[4];
-  __IO uint32_t WARNINT;                           /**< Watchdog Warning Interrupt compare value., offset: 0x14 */
-  __IO uint32_t WINDOW;                            /**< Watchdog Window compare value., offset: 0x18 */
+    __IO uint32_t MOD;                               /**< Watchdog mode register. This register contains the basic mode and status of the Watchdog Timer., offset: 0x0 */
+    __IO uint32_t TC;                                /**< Watchdog timer constant register. This 24-bit register determines the time-out value., offset: 0x4 */
+    __O  uint32_t FEED;                              /**< Watchdog feed sequence register. Writing 0xAA followed by 0x55 to this register reloads the Watchdog timer with the value contained in TC., offset: 0x8 */
+    __I  uint32_t TV;                                /**< Watchdog timer value register. This 24-bit register reads out the current value of the Watchdog timer., offset: 0xC */
+    uint8_t RESERVED_0[4];
+    __IO uint32_t WARNINT;                           /**< Watchdog Warning Interrupt compare value., offset: 0x14 */
+    __IO uint32_t WINDOW;                            /**< Watchdog Window compare value., offset: 0x18 */
 } WWDT_Type;
 
 /* ----------------------------------------------------------------------------
@@ -12298,13 +12298,13 @@ typedef struct {
 */
 
 #if defined(__ARMCC_VERSION)
-  #pragma pop
+#pragma pop
 #elif defined(__GNUC__)
-  /* leave anonymous unions enabled */
+/* leave anonymous unions enabled */
 #elif defined(__IAR_SYSTEMS_ICC__)
-  #pragma language=default
+#pragma language=default
 #else
-  #error Not supported compiler type
+#error Not supported compiler type
 #endif
 
 /*!
@@ -12322,11 +12322,11 @@ typedef struct {
  */
 
 #if defined(__ARMCC_VERSION)
-  #if (__ARMCC_VERSION >= 6010050)
-    #pragma clang system_header
-  #endif
+#if (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header
+#endif
 #elif defined(__IAR_SYSTEMS_ICC__)
-  #pragma system_include
+#pragma system_include
 #endif
 
 /**
@@ -12372,26 +12372,26 @@ typedef struct {
 
 /** OTP API */
 typedef struct {
-  uint32_t (*otpInit)(void);                                    /** Initializes OTP controller */
-  uint32_t (*otpEnableBankWriteMask)(uint32_t bankMask);        /** Unlock one or more OTP banks for write access */
-  uint32_t (*otpDisableBankWriteMask)(uint32_t bankMask);       /** Lock one or more OTP banks for write access */
-  uint32_t (*otpEnableBankWriteLock)(uint32_t bankIndex, uint32_t regEnableMask, uint32_t regDisableMask,
-                                          uint32_t lockWrite);  /** Locks or unlocks write access to a register of an OTP bank and the write lock */
-  uint32_t (*otpEnableBankReadLock)(uint32_t bankIndex, uint32_t regEnableMask, uint32_t regDisableMask,
-                                         uint32_t lockWrite);   /** Locks or unlocks read access to a register of an OTP bank and the write lock */
-  uint32_t (*otpProgramReg)(uint32_t bankIndex, uint32_t regIndex, uint32_t value);  /** Program a single register in an OTP bank */
-  uint32_t RESERVED_0[5];
-  uint32_t (*rngRead)(void);                                    /** Returns 32-bit number from hardware random number generator */
-  uint32_t (*otpGetDriverVersion)(void);                        /** Returns the version of the OTP driver in ROM */
+    uint32_t (*otpInit)(void);                                    /** Initializes OTP controller */
+    uint32_t (*otpEnableBankWriteMask)(uint32_t bankMask);        /** Unlock one or more OTP banks for write access */
+    uint32_t (*otpDisableBankWriteMask)(uint32_t bankMask);       /** Lock one or more OTP banks for write access */
+    uint32_t (*otpEnableBankWriteLock)(uint32_t bankIndex, uint32_t regEnableMask, uint32_t regDisableMask,
+                                       uint32_t lockWrite);  /** Locks or unlocks write access to a register of an OTP bank and the write lock */
+    uint32_t (*otpEnableBankReadLock)(uint32_t bankIndex, uint32_t regEnableMask, uint32_t regDisableMask,
+                                      uint32_t lockWrite);   /** Locks or unlocks read access to a register of an OTP bank and the write lock */
+    uint32_t (*otpProgramReg)(uint32_t bankIndex, uint32_t regIndex, uint32_t value);  /** Program a single register in an OTP bank */
+    uint32_t RESERVED_0[5];
+    uint32_t (*rngRead)(void);                                    /** Returns 32-bit number from hardware random number generator */
+    uint32_t (*otpGetDriverVersion)(void);                        /** Returns the version of the OTP driver in ROM */
 } OTP_API_Type;
 
 /** ROM API */
 typedef struct {
-  __I uint32_t usbdApiBase;                      /** USB API Base */
-      uint32_t RESERVED_0[13];
-  __I OTP_API_Type *otpApiBase;                  /** OTP API Base */
-  __I uint32_t aesApiBase;                       /** AES API Base */
-  __I uint32_t secureApiBase;                    /** Secure API Base */
+    __I uint32_t usbdApiBase;                      /** USB API Base */
+    uint32_t RESERVED_0[13];
+    __I OTP_API_Type *otpApiBase;                  /** OTP API Base */
+    __I uint32_t aesApiBase;                       /** AES API Base */
+    __I uint32_t secureApiBase;                    /** Secure API Base */
 } ROM_API_Type;
 
 /** ROM API base address */

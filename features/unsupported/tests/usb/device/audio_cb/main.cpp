@@ -21,31 +21,35 @@ int filled;
 int ready = 2;
 
 /*  buffer 4 packets to avoid  */
-int buf[4][LENGTH_AUDIO_PACKET_SPK/sizeof(int)];
+int buf[4][LENGTH_AUDIO_PACKET_SPK / sizeof(int)];
 void tx_audio(void)
 {
     /*  used some buffer in advance  */
-    ready = (filled+2)&0x3;
+    ready = (filled + 2) & 0x3;
     audio.writeSync((uint8_t *)buf[ready]);
 }
 
 
 void rx_audio(void)
 {
-    int size=0;
-    int next = (filled + 1)&0x3; 
+    int size = 0;
+    int next = (filled + 1) & 0x3;
     size = audio.readSync((uint8_t *)buf[next]);
-    if (size ) filled = next;
-    if ((size) && (size!=LENGTH_AUDIO_PACKET_MIC)) printf("%d\n",size);
+    if (size) {
+        filled = next;
+    }
+    if ((size) && (size != LENGTH_AUDIO_PACKET_MIC)) {
+        printf("%d\n", size);
+    }
 }
 
 int main()
 {
     filled = 0;
-    memset(&buf[0][0], 0, sizeof (buf));
+    memset(&buf[0][0], 0, sizeof(buf));
     audio.attachTx(tx_audio);
     audio.attachRx(rx_audio);
     /*  start the tx with a silent packet */
     audio.write((uint8_t *)buf[2]);
-    while(1);
+    while (1);
 }

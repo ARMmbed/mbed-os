@@ -94,7 +94,7 @@ static inline uint32_t divide_by_48(uint32_t x)
 {
     uint32_t x1 = ((x >> 16) * 1365) >> 16;
     uint32_t x1r = ((x & 0xFFFF0000) - ((x1 * 48) << 16));
-             x1r = (x1r  * 1365) >> 16;
+    x1r = (x1r  * 1365) >> 16;
     uint32_t x2 = ((x & 0xFFFF) * 1365) >> 16;
 
     return (x1 << 16) + x1r + x2;
@@ -191,7 +191,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     core_util_critical_section_enter();
 
     /* Establish how far we're being asked to move */
-    timeDelta = (int32_t) ((uint32_t) timestamp - us_ticker_read());
+    timeDelta = (int32_t)((uint32_t) timestamp - us_ticker_read());
 
     if (timeDelta <= 0) {
         /* Make delta positive if it's not, it will expire pretty quickly */

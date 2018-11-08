@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   att_defs.h
- *        
+ *
  *  \brief  Attribute protocol constants and definitions from the Bluetooth specification.
  *
  *          $Date: 2012-09-11 16:18:57 -0700 (Tue, 11 Sep 2012) $
  *          $Revision: 349 $
- *  
+ *
  *  Copyright (c) 2009-2016 ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: LicenseRef-PBL

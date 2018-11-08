@@ -57,8 +57,7 @@
 #endif /* CRC_DRIVER_USE_CRC16_CCIT_FALSE_AS_DEFAULT */
 
 /*! @brief CRC type of transpose of read write data */
-typedef enum _crc_transpose_type
-{
+typedef enum _crc_transpose_type {
     kCrcTransposeNone = 0U,         /*! No transpose  */
     kCrcTransposeBits = 1U,         /*! Tranpose bits in bytes  */
     kCrcTransposeBitsAndBytes = 2U, /*! Transpose bytes and bits in bytes */
@@ -70,8 +69,7 @@ typedef enum _crc_transpose_type
 *
 * This structure holds the configuration for the CRC module.
 */
-typedef struct _crc_module_config
-{
+typedef struct _crc_module_config {
     uint32_t polynomial;                 /*!< CRC Polynomial, MSBit first.@n
                                               Example polynomial: 0x1021 = 1_0000_0010_0001 = x^12+x^5+1 */
     uint32_t seed;                       /*!< Starting checksum value */
@@ -199,12 +197,9 @@ void CRC_Init(CRC_Type *base, const crc_config_t *config)
     CLOCK_EnableClock(kCLOCK_Crc0);
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
     /* configure CRC module and write the seed */
-    if (config->crcResult == kCrcFinalChecksum)
-    {
+    if (config->crcResult == kCrcFinalChecksum) {
         CRC_SetProtocolConfig(base, config);
-    }
-    else
-    {
+    } else {
         CRC_SetRawProtocolConfig(base, config);
     }
 }
@@ -226,8 +221,7 @@ void CRC_WriteData(CRC_Type *base, const uint8_t *data, size_t dataSize)
     const uint32_t *data32;
 
     /* 8-bit reads and writes till source address is aligned 4 bytes */
-    while ((dataSize) && ((uint32_t)data & 3U))
-    {
+    while ((dataSize) && ((uint32_t)data & 3U)) {
         base->ACCESS8BIT.DATALL = *data;
         data++;
         dataSize--;
@@ -235,8 +229,7 @@ void CRC_WriteData(CRC_Type *base, const uint8_t *data, size_t dataSize)
 
     /* use 32-bit reads and writes as long as possible */
     data32 = (const uint32_t *)data;
-    while (dataSize >= sizeof(uint32_t))
-    {
+    while (dataSize >= sizeof(uint32_t)) {
         base->DATA = *data32;
         data32++;
         dataSize -= sizeof(uint32_t);
@@ -245,8 +238,7 @@ void CRC_WriteData(CRC_Type *base, const uint8_t *data, size_t dataSize)
     data = (const uint8_t *)data32;
 
     /* 8-bit reads and writes till end of data buffer */
-    while (dataSize)
-    {
+    while (dataSize) {
         base->ACCESS8BIT.DATALL = *data;
         data++;
         dataSize--;
@@ -267,14 +259,11 @@ uint16_t CRC_Get16bitResult(CRC_Type *base)
     totr = (base->CTRL & CRC_CTRL_TOTR_MASK) >> CRC_CTRL_TOTR_SHIFT;
 
     /* check transpose type to get 16-bit out of 32-bit register */
-    if (totr >= 2U)
-    {
+    if (totr >= 2U) {
         /* transpose of bytes for read is set, the result CRC is in CRC_DATA[HU:HL] */
         retval &= 0xFFFF0000U;
         retval = retval >> 16U;
-    }
-    else
-    {
+    } else {
         /* no transpose of bytes for read, the result CRC is in CRC_DATA[LU:LL] */
         retval &= 0x0000FFFFU;
     }

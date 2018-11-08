@@ -30,30 +30,29 @@ THE SOFTWARE.
 /*!
 The SRF08 is an Ultrasonic range finder, with an I2C interface that allows the measurement to be read directly in centimetres
 */
-class SRF08
-{
+class SRF08 {
 public:
-  //!Creates an instance of the class.
-  /*!
-  Connect module at I2C address addr using I2C port pins sda and scl.
-  SRF08
-  */
-  SRF08(PinName sda, PinName scl, int addr);
+    //!Creates an instance of the class.
+    /*!
+    Connect module at I2C address addr using I2C port pins sda and scl.
+    SRF08
+    */
+    SRF08(PinName sda, PinName scl, int addr);
 
-  /*!
-  Destroys instance.
-  */
-  ~SRF08();
+    /*!
+    Destroys instance.
+    */
+    ~SRF08();
 
-  //!Reads the current temperature.
-  /*!
-  Reads the temperature register of the TMP102 and converts it to a useable value.
-  */
-  float read();
+    //!Reads the current temperature.
+    /*!
+    Reads the temperature register of the TMP102 and converts it to a useable value.
+    */
+    float read();
 
 private:
-  I2C m_i2c;
-  int m_addr;
+    I2C m_i2c;
+    int m_addr;
 
 };
 

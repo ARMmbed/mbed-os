@@ -108,42 +108,42 @@ static inline void usart_serial_init(usart_if p_usart,
     usart_settings.baudrate = opt->baudrate;
     usart_settings.char_length = opt->charlength;
     usart_settings.parity_type = opt->paritytype;
-    usart_settings.stop_bits= opt->stopbits;
-    usart_settings.channel_mode= US_MR_CHMODE_NORMAL;
+    usart_settings.stop_bits = opt->stopbits;
+    usart_settings.channel_mode = US_MR_CHMODE_NORMAL;
 
 #ifdef UART
-    if (UART == (Uart*)p_usart) {
+    if (UART == (Uart *)p_usart) {
         sysclk_enable_peripheral_clock(ID_UART);
         /* Configure UART */
-        uart_init((Uart*)p_usart, &uart_settings);
+        uart_init((Uart *)p_usart, &uart_settings);
     }
 #else
 # ifdef UART0
-    if (UART0 == (Uart*)p_usart) {
+    if (UART0 == (Uart *)p_usart) {
         sysclk_enable_peripheral_clock(ID_UART0);
         /* Configure UART */
-        uart_init((Uart*)p_usart, &uart_settings);
+        uart_init((Uart *)p_usart, &uart_settings);
     }
 # endif
 # ifdef UART1
-    if (UART1 == (Uart*)p_usart) {
+    if (UART1 == (Uart *)p_usart) {
         sysclk_enable_peripheral_clock(ID_UART1);
         /* Configure UART */
-        uart_init((Uart*)p_usart, &uart_settings);
+        uart_init((Uart *)p_usart, &uart_settings);
     }
 # endif
 # ifdef UART2
-    if (UART2 == (Uart*)p_usart) {
+    if (UART2 == (Uart *)p_usart) {
         sysclk_enable_peripheral_clock(ID_UART2);
         /* Configure UART */
-        uart_init((Uart*)p_usart, &uart_settings);
+        uart_init((Uart *)p_usart, &uart_settings);
     }
 # endif
 # ifdef UART3
-    if (UART3 == (Uart*)p_usart) {
+    if (UART3 == (Uart *)p_usart) {
         sysclk_enable_peripheral_clock(ID_UART3);
         /* Configure UART */
-        uart_init((Uart*)p_usart, &uart_settings);
+        uart_init((Uart *)p_usart, &uart_settings);
     }
 # endif
 #endif /* ifdef UART */
@@ -379,32 +379,32 @@ static inline void usart_serial_init(usart_if p_usart,
 static inline int usart_serial_putchar(usart_if p_usart, const uint8_t c)
 {
 #ifdef UART
-    if (UART == (Uart*)p_usart) {
-        while (uart_write((Uart*)p_usart, c)!=0);
+    if (UART == (Uart *)p_usart) {
+        while (uart_write((Uart *)p_usart, c) != 0);
         return 1;
     }
 #else
 # ifdef UART0
-    if (UART0 == (Uart*)p_usart) {
-        while (uart_write((Uart*)p_usart, c)!=0);
+    if (UART0 == (Uart *)p_usart) {
+        while (uart_write((Uart *)p_usart, c) != 0);
         return 1;
     }
 # endif
 # ifdef UART1
-    if (UART1 == (Uart*)p_usart) {
-        while (uart_write((Uart*)p_usart, c)!=0);
+    if (UART1 == (Uart *)p_usart) {
+        while (uart_write((Uart *)p_usart, c) != 0);
         return 1;
     }
 # endif
 # ifdef UART2
-    if (UART2 == (Uart*)p_usart) {
-        while (uart_write((Uart*)p_usart, c)!=0);
+    if (UART2 == (Uart *)p_usart) {
+        while (uart_write((Uart *)p_usart, c) != 0);
         return 1;
     }
 # endif
 # ifdef UART3
-    if (UART3 == (Uart*)p_usart) {
-        while (uart_write((Uart*)p_usart, c)!=0);
+    if (UART3 == (Uart *)p_usart) {
+        while (uart_write((Uart *)p_usart, c) != 0);
         return 1;
     }
 # endif
@@ -413,55 +413,55 @@ static inline int usart_serial_putchar(usart_if p_usart, const uint8_t c)
 
 #ifdef USART
     if (USART == p_usart) {
-        while (usart_write(p_usart, c)!=0);
+        while (usart_write(p_usart, c) != 0);
         return 1;
     }
 #else
 # ifdef USART0
     if (USART0 == p_usart) {
-        while (usart_write(p_usart, c)!=0);
+        while (usart_write(p_usart, c) != 0);
         return 1;
     }
 # endif
 # ifdef USART1
     if (USART1 == p_usart) {
-        while (usart_write(p_usart, c)!=0);
+        while (usart_write(p_usart, c) != 0);
         return 1;
     }
 # endif
 # ifdef USART2
     if (USART2 == p_usart) {
-        while (usart_write(p_usart, c)!=0);
+        while (usart_write(p_usart, c) != 0);
         return 1;
     }
 # endif
 # ifdef USART3
     if (USART3 == p_usart) {
-        while (usart_write(p_usart, c)!=0);
+        while (usart_write(p_usart, c) != 0);
         return 1;
     }
 # endif
 # ifdef USART4
     if (USART4 == p_usart) {
-        while (usart_write(p_usart, c)!=0);
+        while (usart_write(p_usart, c) != 0);
         return 1;
     }
 # endif
 # ifdef USART5
     if (USART5 == p_usart) {
-        while (usart_write(p_usart, c)!=0);
+        while (usart_write(p_usart, c) != 0);
         return 1;
     }
 # endif
 # ifdef USART6
     if (USART6 == p_usart) {
-        while (usart_write(p_usart, c)!=0);
+        while (usart_write(p_usart, c) != 0);
         return 1;
     }
 # endif
 # ifdef USART7
     if (USART7 == p_usart) {
-        while (usart_write(p_usart, c)!=0);
+        while (usart_write(p_usart, c) != 0);
         return 1;
     }
 # endif
@@ -484,28 +484,28 @@ static inline void usart_serial_getchar(usart_if p_usart, uint8_t *data)
     UNUSED(val);
 
 #ifdef UART
-    if (UART == (Uart*)p_usart) {
-        while (uart_read((Uart*)p_usart, data));
+    if (UART == (Uart *)p_usart) {
+        while (uart_read((Uart *)p_usart, data));
     }
 #else
 # ifdef UART0
-    if (UART0 == (Uart*)p_usart) {
-        while (uart_read((Uart*)p_usart, data));
+    if (UART0 == (Uart *)p_usart) {
+        while (uart_read((Uart *)p_usart, data));
     }
 # endif
 # ifdef UART1
-    if (UART1 == (Uart*)p_usart) {
-        while (uart_read((Uart*)p_usart, data));
+    if (UART1 == (Uart *)p_usart) {
+        while (uart_read((Uart *)p_usart, data));
     }
 # endif
 # ifdef UART2
-    if (UART2 == (Uart*)p_usart) {
-        while (uart_read((Uart*)p_usart, data));
+    if (UART2 == (Uart *)p_usart) {
+        while (uart_read((Uart *)p_usart, data));
     }
 # endif
 # ifdef UART3
-    if (UART3 == (Uart*)p_usart) {
-        while (uart_read((Uart*)p_usart, data));
+    if (UART3 == (Uart *)p_usart) {
+        while (uart_read((Uart *)p_usart, data));
     }
 # endif
 #endif /* ifdef UART */
@@ -580,28 +580,28 @@ static inline void usart_serial_getchar(usart_if p_usart, uint8_t *data)
 static inline uint32_t usart_serial_is_rx_ready(usart_if p_usart)
 {
 #ifdef UART
-    if (UART == (Uart*)p_usart) {
-        return uart_is_rx_ready((Uart*)p_usart);
+    if (UART == (Uart *)p_usart) {
+        return uart_is_rx_ready((Uart *)p_usart);
     }
 #else
 # ifdef UART0
-    if (UART0 == (Uart*)p_usart) {
-        return uart_is_rx_ready((Uart*)p_usart);
+    if (UART0 == (Uart *)p_usart) {
+        return uart_is_rx_ready((Uart *)p_usart);
     }
 # endif
 # ifdef UART1
-    if (UART1 == (Uart*)p_usart) {
-        return uart_is_rx_ready((Uart*)p_usart);
+    if (UART1 == (Uart *)p_usart) {
+        return uart_is_rx_ready((Uart *)p_usart);
     }
 # endif
 # ifdef UART2
-    if (UART2 == (Uart*)p_usart) {
-        return uart_is_rx_ready((Uart*)p_usart);
+    if (UART2 == (Uart *)p_usart) {
+        return uart_is_rx_ready((Uart *)p_usart);
     }
 # endif
 # ifdef UART3
-    if (UART3 == (Uart*)p_usart) {
-        return uart_is_rx_ready((Uart*)p_usart);
+    if (UART3 == (Uart *)p_usart) {
+        return uart_is_rx_ready((Uart *)p_usart);
     }
 # endif
 #endif /* ifdef UART */

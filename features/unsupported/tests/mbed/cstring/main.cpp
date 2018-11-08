@@ -68,11 +68,11 @@ int main()
 
     {
         CLEAN_BUFFER(buffer);
-        char str[] ="- This, a sample string.";
-        char * pch = strtok (str," ,.-");
+        char str[] = "- This, a sample string.";
+        char *pch = strtok(str, " ,.-");
         while (pch != NULL) {
             strcat(buffer, pch);
-            pch = strtok (NULL, " ,.-");
+            pch = strtok(NULL, " ,.-");
         }
         cmp_result = TESTENV_STRCMP(buffer, "Thisasamplestring");
         printf("[%s] %s\r\n", cmp_result ? "OK" : "FAIL", buffer);
@@ -84,11 +84,10 @@ int main()
         char str[] = "This is a sample string";
         char key[] = "aeiou";
         char *pch = strpbrk(str, key);
-        while (pch != NULL)
-        {
+        while (pch != NULL) {
             char buf[2] = {*pch, '\0'};
             strcat(buffer, buf);
-            pch = strpbrk(pch + 1,key);
+            pch = strpbrk(pch + 1, key);
         }
         cmp_result = TESTENV_STRCMP(buffer, "iiaaei");
         printf("[%s] %s\r\n", cmp_result ? "OK" : "FAIL", buffer);

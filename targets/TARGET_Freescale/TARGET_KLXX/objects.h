@@ -30,7 +30,7 @@ extern "C" {
 #elif defined(TARGET_KL43Z)
 #define UARTLP_Type LPUART_Type
 #elif defined(TARGET_KL26Z)
-	#define UARTLP_Type UART0_Type
+#define UARTLP_Type UART0_Type
 #endif
 
 struct gpio_irq_s {

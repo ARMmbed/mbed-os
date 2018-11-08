@@ -65,8 +65,7 @@
 #define I2C_STAT_SLVST_TX (2)
 
 /*! @brief I2C status return codes. */
-enum _i2c_status
-{
+enum _i2c_status {
     kStatus_I2C_Busy = MAKE_STATUS(kStatusGroup_FLEXCOMM_I2C, 0), /*!< The master is already performing a transfer. */
     kStatus_I2C_Idle = MAKE_STATUS(kStatusGroup_FLEXCOMM_I2C, 1), /*!< The slave driver is idle. */
     kStatus_I2C_Nak =
@@ -94,16 +93,14 @@ enum _i2c_status
  *
  * @note These enums are meant to be OR'd together to form a bit mask.
  */
-enum _i2c_master_flags
-{
+enum _i2c_master_flags {
     kI2C_MasterPendingFlag = I2C_STAT_MSTPENDING_MASK, /*!< The I2C module is waiting for software interaction. */
     kI2C_MasterArbitrationLostFlag = I2C_STAT_MSTARBLOSS_MASK, /*!< The arbitration of the bus was lost. There was collision on the bus */
     kI2C_MasterStartStopErrorFlag = I2C_STAT_MSTSTSTPERR_MASK /*!< There was an error during start or stop phase of the transaction. */
 };
 
 /*! @brief Direction of master and slave transfers. */
-typedef enum _i2c_direction
-{
+typedef enum _i2c_direction {
     kI2C_Write = 0U, /*!< Master transmit. */
     kI2C_Read = 1U   /*!< Master receive. */
 } i2c_direction_t;
@@ -117,8 +114,7 @@ typedef enum _i2c_direction
  *
  * The configuration structure can be made constant so it resides in flash.
  */
-typedef struct _i2c_master_config
-{
+typedef struct _i2c_master_config {
     bool enableMaster;     /*!< Whether to enable master mode. */
     uint32_t baudRate_Bps; /*!< Desired baud rate in bits per second. */
     bool enableTimeout;    /*!< Enable internal timeout function. */
@@ -152,8 +148,7 @@ typedef void (*i2c_master_transfer_callback_t)(I2C_Type *base,
  * @note These enumerations are intended to be OR'd together to form a bit mask of options for
  * the #_i2c_master_transfer::flags field.
  */
-enum _i2c_master_transfer_flags
-{
+enum _i2c_master_transfer_flags {
     kI2C_TransferDefaultFlag = 0x00U,       /*!< Transfer starts with a start signal, stops with a stop signal. */
     kI2C_TransferNoStartFlag = 0x01U,       /*!< Don't send a start condition, address, and sub address */
     kI2C_TransferRepeatedStartFlag = 0x02U, /*!< Send a repeated start condition */
@@ -161,8 +156,7 @@ enum _i2c_master_transfer_flags
 };
 
 /*! @brief States for the state machine used by transactional APIs. */
-enum _i2c_transfer_states
-{
+enum _i2c_transfer_states {
     kIdleState = 0,
     kTransmitSubaddrState,
     kTransmitDataState,
@@ -178,8 +172,7 @@ enum _i2c_transfer_states
  *
  * This structure is used to pass transaction parameters to the I2C_MasterTransferNonBlocking() API.
  */
-struct _i2c_master_transfer
-{
+struct _i2c_master_transfer {
     uint32_t flags; /*!< Bit mask of options for the transfer. See enumeration #_i2c_master_transfer_flags for available
                        options. Set to 0 or #kI2C_TransferDefaultFlag for normal transfers. */
     uint16_t slaveAddress;     /*!< The 7-bit slave address. */
@@ -194,8 +187,7 @@ struct _i2c_master_transfer
  * @brief Driver handle for master non-blocking APIs.
  * @note The contents of this structure are private and subject to change.
  */
-struct _i2c_master_handle
-{
+struct _i2c_master_handle {
     uint8_t state;           /*!< Transfer state machine current state. */
     uint32_t transferCount;  /*!< Indicates progress of the transfer */
     uint32_t remainingBytes; /*!< Remaining byte count in current state. */
@@ -214,22 +206,20 @@ struct _i2c_master_handle
  * @{
  */
 
- /*!
- * @brief I2C slave peripheral flags.
- *
- * @note These enums are meant to be OR'd together to form a bit mask.
- */
-enum _i2c_slave_flags
-{
+/*!
+* @brief I2C slave peripheral flags.
+*
+* @note These enums are meant to be OR'd together to form a bit mask.
+*/
+enum _i2c_slave_flags {
     kI2C_SlavePendingFlag = I2C_STAT_SLVPENDING_MASK, /*!< The I2C module is waiting for software interaction. */
     kI2C_SlaveNotStretching = I2C_STAT_SLVNOTSTR_MASK, /*!< Indicates whether the slave is currently stretching clock (0 = yes, 1 = no). */
     kI2C_SlaveSelected = I2C_STAT_SLVSEL_MASK, /*!< Indicates whether the slave is selected by an address match. */
     kI2C_SaveDeselected = I2C_STAT_SLVDESEL_MASK /*!< Indicates that slave was previously deselected (deselect event took place, w1c). */
 };
- 
+
 /*! @brief I2C slave address register. */
-typedef enum _i2c_slave_address_register
-{
+typedef enum _i2c_slave_address_register {
     kI2C_SlaveAddressRegister0 = 0U, /*!< Slave Address 0 register. */
     kI2C_SlaveAddressRegister1 = 1U, /*!< Slave Address 1 register. */
     kI2C_SlaveAddressRegister2 = 2U, /*!< Slave Address 2 register. */
@@ -237,23 +227,20 @@ typedef enum _i2c_slave_address_register
 } i2c_slave_address_register_t;
 
 /*! @brief Data structure with 7-bit Slave address and Slave address disable. */
-typedef struct _i2c_slave_address
-{
+typedef struct _i2c_slave_address {
     uint8_t address;     /*!< 7-bit Slave address SLVADR. */
     bool addressDisable; /*!< Slave address disable SADISABLE. */
 } i2c_slave_address_t;
 
 /*! @brief I2C slave address match options. */
-typedef enum _i2c_slave_address_qual_mode
-{
+typedef enum _i2c_slave_address_qual_mode {
     kI2C_QualModeMask = 0U, /*!< The SLVQUAL0 field (qualAddress) is used as a logical mask for matching address0. */
     kI2C_QualModeExtend =
         1U, /*!< The SLVQUAL0 (qualAddress) field is used to extend address 0 matching in a range of addresses. */
 } i2c_slave_address_qual_mode_t;
 
 /*! @brief I2C slave bus speed options. */
-typedef enum _i2c_slave_bus_speed
-{
+typedef enum _i2c_slave_bus_speed {
     kI2C_SlaveStandardMode = 0U,
     kI2C_SlaveFastMode = 1U,
     kI2C_SlaveFastModePlus = 2U,
@@ -269,8 +256,7 @@ typedef enum _i2c_slave_bus_speed
  *
  * The configuration structure can be made constant so it resides in flash.
  */
-typedef struct _i2c_slave_config
-{
+typedef struct _i2c_slave_config {
     i2c_slave_address_t address0;           /*!< Slave's 7-bit address and disable. */
     i2c_slave_address_t address1;           /*!< Alternate slave 7-bit address and disable. */
     i2c_slave_address_t address2;           /*!< Alternate slave 7-bit address and disable. */
@@ -278,7 +264,7 @@ typedef struct _i2c_slave_config
     i2c_slave_address_qual_mode_t qualMode; /*!< Qualify mode for slave address 0. */
     uint8_t qualAddress;                    /*!< Slave address qualifier for address 0. */
     i2c_slave_bus_speed_t
-        busSpeed; /*!< Slave bus speed mode. If the slave function stretches SCL to allow for software response, it must
+    busSpeed; /*!< Slave bus speed mode. If the slave function stretches SCL to allow for software response, it must
                        provide sufficient data setup time to the master before releasing the stretched clock.
                        This is accomplished by inserting one clock time of CLKDIV at that point.
                        The #busSpeed value is used to configure CLKDIV
@@ -299,8 +285,7 @@ typedef struct _i2c_slave_config
  *
  * @note These enumerations are meant to be OR'd together to form a bit mask of events.
  */
-typedef enum _i2c_slave_transfer_event
-{
+typedef enum _i2c_slave_transfer_event {
     kI2C_SlaveAddressMatchEvent = 0x01U, /*!< Received the slave address after a start or repeated start. */
     kI2C_SlaveTransmitEvent = 0x02U,     /*!< Callback is requested to provide data to transmit
                                                 (slave-transmitter role). */
@@ -319,8 +304,7 @@ typedef enum _i2c_slave_transfer_event
 typedef struct _i2c_slave_handle i2c_slave_handle_t;
 
 /*! @brief I2C slave transfer structure */
-typedef struct _i2c_slave_transfer
-{
+typedef struct _i2c_slave_transfer {
     i2c_slave_handle_t *handle;       /*!< Pointer to handle that contains this transfer. */
     i2c_slave_transfer_event_t event; /*!< Reason the callback is being invoked. */
     uint8_t receivedAddress;          /*!< Matching address send by master. 7-bits plus R/nW bit0 */
@@ -349,8 +333,7 @@ typedef void (*i2c_slave_transfer_callback_t)(I2C_Type *base, volatile i2c_slave
 /*!
  * @brief I2C slave software finite state machine states.
  */
-typedef enum _i2c_slave_fsm
-{
+typedef enum _i2c_slave_fsm {
     kI2C_SlaveFsmAddressMatch = 0u,
     kI2C_SlaveFsmReceive = 2u,
     kI2C_SlaveFsmTransmit = 3u,
@@ -360,8 +343,7 @@ typedef enum _i2c_slave_fsm
  * @brief I2C slave handle structure.
  * @note The contents of this structure are private and subject to change.
  */
-struct _i2c_slave_handle
-{
+struct _i2c_slave_handle {
     volatile i2c_slave_transfer_t transfer; /*!< I2C slave transfer. */
     volatile bool isBusy;                   /*!< Whether transfer is busy. */
     volatile i2c_slave_fsm_t slaveFsm;      /*!< slave transfer state machine. */
@@ -448,12 +430,9 @@ static inline void I2C_MasterReset(I2C_Type *base)
  */
 static inline void I2C_MasterEnable(I2C_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CFG = (base->CFG & I2C_CFG_MASK) | I2C_CFG_MSTEN_MASK;
-    }
-    else
-    {
+    } else {
         base->CFG = (base->CFG & I2C_CFG_MASK) & ~I2C_CFG_MSTEN_MASK;
     }
 }

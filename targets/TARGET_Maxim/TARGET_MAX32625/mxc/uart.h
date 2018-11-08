@@ -89,7 +89,7 @@ typedef struct uart_req uart_req_t;
  * @param   uart_req_t*     Pointer to the transaction request.
  * @param   error_code      Return code for the UART request. @see mxc_errors.h.
  */
-typedef void (*uart_async_callback)(uart_req_t*, int);
+typedef void (*uart_async_callback)(uart_req_t *, int);
 
 /// @brief UART Transaction request, must remain allocated until callback has completed.
 struct uart_req {
@@ -128,7 +128,7 @@ int UART_Shutdown(mxc_uart_regs_t *uart);
  * @note    Will return once data has been put into FIFO, not necessarily transmitted.
  * @returns Number of bytes written if successful, error if unsuccessful.
  */
-int UART_Write(mxc_uart_regs_t *uart, uint8_t* data, int len);
+int UART_Write(mxc_uart_regs_t *uart, uint8_t *data, int len);
 
 /**
  * @brief   Read UART data. Will block until transaction is complete.
@@ -139,7 +139,7 @@ int UART_Write(mxc_uart_regs_t *uart, uint8_t* data, int len);
  *                  Pass NULL if undesired.
  * @returns Number of bytes read is successful, error if unsuccessful.
  */
-int UART_Read(mxc_uart_regs_t *uart, uint8_t* data, int len, int *num);
+int UART_Read(mxc_uart_regs_t *uart, uint8_t *data, int len, int *num);
 
 /**
  * @brief   Asynchronously Write UART data.

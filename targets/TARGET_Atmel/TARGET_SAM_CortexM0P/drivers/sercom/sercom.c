@@ -151,24 +151,24 @@ enum status_code _sercom_get_async_baud_val(
         return STATUS_ERR_BAUDRATE_UNAVAILABLE;
     }
 
-    if(mode == SERCOM_ASYNC_OPERATION_MODE_ARITHMETIC) {
+    if (mode == SERCOM_ASYNC_OPERATION_MODE_ARITHMETIC) {
         /* Calculate the BAUD value */
         temp1 = ((sample_num * (uint64_t)baudrate) << SHIFT);
         ratio = long_division(temp1, peripheral_clock);
         scale = ((uint64_t)1 << SHIFT) - ratio;
         baud_calculated = (65536 * scale) >> SHIFT;
-    } else if(mode == SERCOM_ASYNC_OPERATION_MODE_FRACTIONAL) {
-        for(baud_fp = 0; baud_fp < BAUD_FP_MAX; baud_fp++) {
+    } else if (mode == SERCOM_ASYNC_OPERATION_MODE_FRACTIONAL) {
+        for (baud_fp = 0; baud_fp < BAUD_FP_MAX; baud_fp++) {
             temp1 = BAUD_FP_MAX * (uint64_t)peripheral_clock;
             temp2 = ((uint64_t)baudrate * sample_num);
             baud_int = long_division(temp1, temp2);
             baud_int -= baud_fp;
             baud_int = baud_int / BAUD_FP_MAX;
-            if(baud_int < BAUD_INT_MAX) {
+            if (baud_int < BAUD_INT_MAX) {
                 break;
             }
         }
-        if(baud_fp == BAUD_FP_MAX) {
+        if (baud_fp == BAUD_FP_MAX) {
             return STATUS_ERR_BAUDRATE_UNAVAILABLE;
         }
         baud_calculated = baud_int | (baud_fp << 13);
@@ -231,18 +231,18 @@ enum status_code sercom_set_gclk_generator(
  * index to the default SERCOM pad MUX setting.
  */
 #define _SERCOM_PAD_DEFAULTS_CASE(n, pad) \
-		case (uintptr_t)SERCOM##n: \
-			switch (pad) { \
-				case 0: \
-					return SERCOM##n##_PAD0_DEFAULT; \
-				case 1: \
-					return SERCOM##n##_PAD1_DEFAULT; \
-				case 2: \
-					return SERCOM##n##_PAD2_DEFAULT; \
-				case 3: \
-					return SERCOM##n##_PAD3_DEFAULT; \
-			} \
-			break;
+        case (uintptr_t)SERCOM##n: \
+            switch (pad) { \
+                case 0: \
+                    return SERCOM##n##_PAD0_DEFAULT; \
+                case 1: \
+                    return SERCOM##n##_PAD1_DEFAULT; \
+                case 2: \
+                    return SERCOM##n##_PAD2_DEFAULT; \
+                case 3: \
+                    return SERCOM##n##_PAD3_DEFAULT; \
+            } \
+            break;
 
 /**
  * \internal Gets the default PAD pinout for a given SERCOM.

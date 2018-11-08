@@ -324,8 +324,8 @@ void dac_enable(
         system_voltage_reference_enable(SYSTEM_VOLTAGE_REFERENCE_OUTPUT);
     }
 
-    if(dac_module->CTRLA.reg & DAC_CTRLA_ENABLE) {
-        while(! (dac_module->STATUS.reg & DAC_STATUS_READY)) {
+    if (dac_module->CTRLA.reg & DAC_CTRLA_ENABLE) {
+        while (!(dac_module->STATUS.reg & DAC_STATUS_READY)) {
         };
     }
 #else

@@ -36,9 +36,8 @@
 /**************************************************************************//**
  * @brief LESENSE_BUF EFM32LG LESENSE BUF
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t DATA; /**< Scan results  */
+typedef struct {
+    __IOM uint32_t DATA; /**< Scan results  */
 } LESENSE_BUF_TypeDef;
 
 /** @} End of group Parts */

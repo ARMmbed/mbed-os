@@ -16,19 +16,21 @@
 #endif
 
 namespace {
-    const int MMA8451_I2C_ADDRESS = 0x1D << 1;          // I2C bus address
-    const float MMA8451_DIGITAL_SENSITIVITY = 4096.0;   // Counts/g
+const int MMA8451_I2C_ADDRESS = 0x1D << 1;          // I2C bus address
+const float MMA8451_DIGITAL_SENSITIVITY = 4096.0;   // Counts/g
 }
 
-float calc_3d_vector_len(float x, float y, float z) {
-    return sqrt(x*x + y*y + z*z);
+float calc_3d_vector_len(float x, float y, float z)
+{
+    return sqrt(x * x + y * y + z * z);
 }
 
 #define TEST_ITERATIONS                 25
 #define TEST_ITERATIONS_SKIP            5
 #define MEASURE_DEVIATION_TOLERANCE     0.025   // 2.5%
 
-int main(void) {
+int main(void)
+{
     MBED_HOSTTEST_TIMEOUT(15);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(MMA8451Q accelerometer);

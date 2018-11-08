@@ -56,13 +56,13 @@ void EBI_Open(uint32_t u32Bank, uint32_t u32DataWidth, uint32_t u32TimingClass, 
     volatile uint32_t *pu32EBICTL  = (uint32_t *)((uint32_t)&EBI->CTL0 + (u32Bank * 0x10));
     volatile uint32_t *pu32EBITCTL = (uint32_t *)((uint32_t)&EBI->TCTL0 + (u32Bank * 0x10));
 
-    if(u32DataWidth == EBI_BUSWIDTH_8BIT)
+    if (u32DataWidth == EBI_BUSWIDTH_8BIT) {
         *pu32EBICTL &= ~EBI_CTL0_DW16_Msk;
-    else
+    } else {
         *pu32EBICTL |= EBI_CTL0_DW16_Msk;
+    }
 
-    switch(u32TimingClass)
-    {
+    switch (u32TimingClass) {
         case EBI_TIMING_FASTEST:
             *pu32EBICTL = (*pu32EBICTL & ~(EBI_CTL0_MCLKDIV_Msk | EBI_CTL0_TALE_Msk)) |
                           (EBI_MCLKDIV_1 << EBI_CTL0_MCLKDIV_Pos) |

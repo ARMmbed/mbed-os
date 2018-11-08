@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**
@@ -70,8 +70,7 @@ extern "C" {
 /**
  * @brief SPIS tasks.
  */
-typedef enum
-{
+typedef enum {
     /*lint -save -e30*/
     NRF_SPIS_TASK_ACQUIRE = offsetof(NRF_SPIS_Type, TASKS_ACQUIRE), ///< Acquire SPI semaphore.
     NRF_SPIS_TASK_RELEASE = offsetof(NRF_SPIS_Type, TASKS_RELEASE), ///< Release SPI semaphore, enabling the SPI slave to acquire it.
@@ -81,27 +80,24 @@ typedef enum
 /**
  * @brief SPIS events.
  */
-typedef enum
-{
+typedef enum {
     /*lint -save -e30*/
     NRF_SPIS_EVENT_END      = offsetof(NRF_SPIS_Type, EVENTS_END),     ///< Granted transaction completed.
     NRF_SPIS_EVENT_ACQUIRED = offsetof(NRF_SPIS_Type, EVENTS_ACQUIRED) ///< Semaphore acquired.
-    /*lint -restore*/
+                              /*lint -restore*/
 } nrf_spis_event_t;
 
 /**
  * @brief SPIS shortcuts.
  */
-typedef enum
-{
+typedef enum {
     NRF_SPIS_SHORT_END_ACQUIRE = SPIS_SHORTS_END_ACQUIRE_Msk ///< Shortcut between END event and ACQUIRE task.
 } nrf_spis_short_mask_t;
 
 /**
  * @brief SPIS interrupts.
  */
-typedef enum
-{
+typedef enum {
     NRF_SPIS_INT_END_MASK      = SPIS_INTENSET_END_Msk,     ///< Interrupt on END event.
     NRF_SPIS_INT_ACQUIRED_MASK = SPIS_INTENSET_ACQUIRED_Msk ///< Interrupt on ACQUIRED event.
 } nrf_spis_int_mask_t;
@@ -109,8 +105,7 @@ typedef enum
 /**
  * @brief SPI modes.
  */
-typedef enum
-{
+typedef enum {
     NRF_SPIS_MODE_0, ///< SCK active high, sample on leading edge of clock.
     NRF_SPIS_MODE_1, ///< SCK active high, sample on trailing edge of clock.
     NRF_SPIS_MODE_2, ///< SCK active low, sample on leading edge of clock.
@@ -120,8 +115,7 @@ typedef enum
 /**
  * @brief SPI bit orders.
  */
-typedef enum
-{
+typedef enum {
     NRF_SPIS_BIT_ORDER_MSB_FIRST = SPIS_CONFIG_ORDER_MsbFirst, ///< Most significant bit shifted out first.
     NRF_SPIS_BIT_ORDER_LSB_FIRST = SPIS_CONFIG_ORDER_LsbFirst  ///< Least significant bit shifted out first.
 } nrf_spis_bit_order_t;
@@ -129,8 +123,7 @@ typedef enum
 /**
  * @brief SPI semaphore status.
  */
-typedef enum
-{
+typedef enum {
     NRF_SPIS_SEMSTAT_FREE       = 0, ///< Semaphore is free.
     NRF_SPIS_SEMSTAT_CPU        = 1, ///< Semaphore is assigned to the CPU.
     NRF_SPIS_SEMSTAT_SPIS       = 2, ///< Semaphore is assigned to the SPI slave.
@@ -140,8 +133,7 @@ typedef enum
 /**
  * @brief SPIS status.
  */
-typedef enum
-{
+typedef enum {
     NRF_SPIS_STATUS_OVERREAD = SPIS_STATUS_OVERREAD_Msk, ///< TX buffer over-read detected and prevented.
     NRF_SPIS_STATUS_OVERFLOW = SPIS_STATUS_OVERFLOW_Msk  ///< RX buffer overflow detected and prevented.
 } nrf_spis_status_mask_t;
@@ -152,7 +144,7 @@ typedef enum
  * @param[in] p_reg     Pointer to the peripheral registers structure.
  * @param[in] spis_task Task to activate.
  */
-__STATIC_INLINE void nrf_spis_task_trigger(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_task_trigger(NRF_SPIS_Type *p_reg,
                                            nrf_spis_task_t spis_task);
 
 /**
@@ -163,7 +155,7 @@ __STATIC_INLINE void nrf_spis_task_trigger(NRF_SPIS_Type * p_reg,
  *
  * @return Address of the specified task register.
  */
-__STATIC_INLINE uint32_t nrf_spis_task_address_get(NRF_SPIS_Type const * p_reg,
+__STATIC_INLINE uint32_t nrf_spis_task_address_get(NRF_SPIS_Type const *p_reg,
                                                    nrf_spis_task_t spis_task);
 
 /**
@@ -172,7 +164,7 @@ __STATIC_INLINE uint32_t nrf_spis_task_address_get(NRF_SPIS_Type const * p_reg,
  * @param[in] p_reg      Pointer to the peripheral registers structure.
  * @param[in] spis_event Event to clear.
  */
-__STATIC_INLINE void nrf_spis_event_clear(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_event_clear(NRF_SPIS_Type *p_reg,
                                           nrf_spis_event_t spis_event);
 
 /**
@@ -184,7 +176,7 @@ __STATIC_INLINE void nrf_spis_event_clear(NRF_SPIS_Type * p_reg,
  * @retval true  If the event is set.
  * @retval false If the event is not set.
  */
-__STATIC_INLINE bool nrf_spis_event_check(NRF_SPIS_Type const * p_reg,
+__STATIC_INLINE bool nrf_spis_event_check(NRF_SPIS_Type const *p_reg,
                                           nrf_spis_event_t spis_event);
 
 /**
@@ -195,7 +187,7 @@ __STATIC_INLINE bool nrf_spis_event_check(NRF_SPIS_Type const * p_reg,
  *
  * @return Address of the specified event register.
  */
-__STATIC_INLINE uint32_t nrf_spis_event_address_get(NRF_SPIS_Type const * p_reg,
+__STATIC_INLINE uint32_t nrf_spis_event_address_get(NRF_SPIS_Type const *p_reg,
                                                     nrf_spis_event_t spis_event);
 
 /**
@@ -204,7 +196,7 @@ __STATIC_INLINE uint32_t nrf_spis_event_address_get(NRF_SPIS_Type const * p_reg,
  * @param[in] p_reg            Pointer to the peripheral registers structure.
  * @param[in] spis_shorts_mask Shortcuts to enable.
  */
-__STATIC_INLINE void nrf_spis_shorts_enable(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_shorts_enable(NRF_SPIS_Type *p_reg,
                                             uint32_t spis_shorts_mask);
 
 /**
@@ -213,7 +205,7 @@ __STATIC_INLINE void nrf_spis_shorts_enable(NRF_SPIS_Type * p_reg,
  * @param[in] p_reg            Pointer to the peripheral registers structure.
  * @param[in] spis_shorts_mask Shortcuts to disable.
  */
-__STATIC_INLINE void nrf_spis_shorts_disable(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_shorts_disable(NRF_SPIS_Type *p_reg,
                                              uint32_t spis_shorts_mask);
 
 /**
@@ -222,7 +214,7 @@ __STATIC_INLINE void nrf_spis_shorts_disable(NRF_SPIS_Type * p_reg,
  * @param[in] p_reg         Pointer to the peripheral registers structure.
  * @param[in] spis_int_mask Interrupts to enable.
  */
-__STATIC_INLINE void nrf_spis_int_enable(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_int_enable(NRF_SPIS_Type *p_reg,
                                          uint32_t spis_int_mask);
 
 /**
@@ -231,7 +223,7 @@ __STATIC_INLINE void nrf_spis_int_enable(NRF_SPIS_Type * p_reg,
  * @param[in] p_reg         Pointer to the peripheral registers structure.
  * @param[in] spis_int_mask Interrupts to disable.
  */
-__STATIC_INLINE void nrf_spis_int_disable(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_int_disable(NRF_SPIS_Type *p_reg,
                                           uint32_t spis_int_mask);
 
 /**
@@ -243,7 +235,7 @@ __STATIC_INLINE void nrf_spis_int_disable(NRF_SPIS_Type * p_reg,
  * @retval true  If the interrupt is enabled.
  * @retval false If the interrupt is not enabled.
  */
-__STATIC_INLINE bool nrf_spis_int_enable_check(NRF_SPIS_Type const * p_reg,
+__STATIC_INLINE bool nrf_spis_int_enable_check(NRF_SPIS_Type const *p_reg,
                                                nrf_spis_int_mask_t spis_int);
 
 /**
@@ -251,14 +243,14 @@ __STATIC_INLINE bool nrf_spis_int_enable_check(NRF_SPIS_Type const * p_reg,
  *
  * @param[in] p_reg  Pointer to the peripheral registers structure.
  */
-__STATIC_INLINE void nrf_spis_enable(NRF_SPIS_Type * p_reg);
+__STATIC_INLINE void nrf_spis_enable(NRF_SPIS_Type *p_reg);
 
 /**
  * @brief Function for disabling the SPIS peripheral.
  *
  * @param[in] p_reg  Pointer to the peripheral registers structure.
  */
-__STATIC_INLINE void nrf_spis_disable(NRF_SPIS_Type * p_reg);
+__STATIC_INLINE void nrf_spis_disable(NRF_SPIS_Type *p_reg);
 
 /**
  * @brief Function for retrieving the SPIS semaphore status.
@@ -267,7 +259,7 @@ __STATIC_INLINE void nrf_spis_disable(NRF_SPIS_Type * p_reg);
  *
  * @returns Current semaphore status.
  */
-__STATIC_INLINE nrf_spis_semstat_t nrf_spis_semaphore_status_get(NRF_SPIS_Type * p_reg);
+__STATIC_INLINE nrf_spis_semstat_t nrf_spis_semaphore_status_get(NRF_SPIS_Type *p_reg);
 
 /**
  * @brief Function for retrieving the SPIS status.
@@ -276,7 +268,7 @@ __STATIC_INLINE nrf_spis_semstat_t nrf_spis_semaphore_status_get(NRF_SPIS_Type *
  *
  * @returns Current SPIS status.
  */
-__STATIC_INLINE nrf_spis_status_mask_t nrf_spis_status_get(NRF_SPIS_Type * p_reg);
+__STATIC_INLINE nrf_spis_status_mask_t nrf_spis_status_get(NRF_SPIS_Type *p_reg);
 
 /**
  * @brief Function for configuring SPIS pins.
@@ -290,7 +282,7 @@ __STATIC_INLINE nrf_spis_status_mask_t nrf_spis_status_get(NRF_SPIS_Type * p_reg
  * @param[in] miso_pin  MISO pin number.
  * @param[in] csn_pin   CSN pin number.
  */
-__STATIC_INLINE void nrf_spis_pins_set(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_pins_set(NRF_SPIS_Type *p_reg,
                                        uint32_t sck_pin,
                                        uint32_t mosi_pin,
                                        uint32_t miso_pin,
@@ -303,8 +295,8 @@ __STATIC_INLINE void nrf_spis_pins_set(NRF_SPIS_Type * p_reg,
  * @param[in]  p_buffer Pointer to the buffer that contains the data to send.
  * @param[in]  length   Maximum number of data bytes to transmit.
  */
-__STATIC_INLINE void nrf_spis_tx_buffer_set(NRF_SPIS_Type * p_reg,
-                                            uint8_t const * p_buffer,
+__STATIC_INLINE void nrf_spis_tx_buffer_set(NRF_SPIS_Type *p_reg,
+                                            uint8_t const *p_buffer,
                                             uint8_t         length);
 
 /**
@@ -314,8 +306,8 @@ __STATIC_INLINE void nrf_spis_tx_buffer_set(NRF_SPIS_Type * p_reg,
  * @param[in] p_buffer Pointer to the buffer for received data.
  * @param[in] length   Maximum number of data bytes to receive.
  */
-__STATIC_INLINE void nrf_spis_rx_buffer_set(NRF_SPIS_Type * p_reg,
-                                            uint8_t * p_buffer,
+__STATIC_INLINE void nrf_spis_rx_buffer_set(NRF_SPIS_Type *p_reg,
+                                            uint8_t *p_buffer,
                                             uint8_t   length);
 
 /**
@@ -326,7 +318,7 @@ __STATIC_INLINE void nrf_spis_rx_buffer_set(NRF_SPIS_Type * p_reg,
  *
  * @returns Number of bytes transmitted.
  */
-__STATIC_INLINE uint8_t nrf_spis_tx_amount_get(NRF_SPIS_Type const * p_reg);
+__STATIC_INLINE uint8_t nrf_spis_tx_amount_get(NRF_SPIS_Type const *p_reg);
 
 /**
  * @brief Function for getting the number of bytes received
@@ -336,7 +328,7 @@ __STATIC_INLINE uint8_t nrf_spis_tx_amount_get(NRF_SPIS_Type const * p_reg);
  *
  * @returns Number of bytes received.
  */
-__STATIC_INLINE uint8_t nrf_spis_rx_amount_get(NRF_SPIS_Type const * p_reg);
+__STATIC_INLINE uint8_t nrf_spis_rx_amount_get(NRF_SPIS_Type const *p_reg);
 
 /**
  * @brief Function for setting the SPI configuration.
@@ -345,7 +337,7 @@ __STATIC_INLINE uint8_t nrf_spis_rx_amount_get(NRF_SPIS_Type const * p_reg);
  * @param[in] spi_mode      SPI mode.
  * @param[in] spi_bit_order SPI bit order.
  */
-__STATIC_INLINE void nrf_spis_configure(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_configure(NRF_SPIS_Type *p_reg,
                                         nrf_spis_mode_t spi_mode,
                                         nrf_spis_bit_order_t spi_bit_order);
 
@@ -356,7 +348,7 @@ __STATIC_INLINE void nrf_spis_configure(NRF_SPIS_Type * p_reg,
  * @param[in] def    Default character that is clocked out in case of
  *                   an overflow of the RXD buffer.
  */
-__STATIC_INLINE void nrf_spis_def_set(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_def_set(NRF_SPIS_Type *p_reg,
                                       uint8_t def);
 
 /**
@@ -366,25 +358,25 @@ __STATIC_INLINE void nrf_spis_def_set(NRF_SPIS_Type * p_reg,
  * @param[in] orc    Over-read character that is clocked out in case of
  *                   an over-read of the TXD buffer.
  */
-__STATIC_INLINE void nrf_spis_orc_set(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_orc_set(NRF_SPIS_Type *p_reg,
                                       uint8_t orc);
 
 
 #ifndef SUPPRESS_INLINE_IMPLEMENTATION
 
-__STATIC_INLINE void nrf_spis_task_trigger(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_task_trigger(NRF_SPIS_Type *p_reg,
                                            nrf_spis_task_t spis_task)
 {
     *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)spis_task)) = 0x1UL;
 }
 
-__STATIC_INLINE uint32_t nrf_spis_task_address_get(NRF_SPIS_Type const * p_reg,
+__STATIC_INLINE uint32_t nrf_spis_task_address_get(NRF_SPIS_Type const *p_reg,
                                                    nrf_spis_task_t spis_task)
 {
     return (uint32_t)p_reg + (uint32_t)spis_task;
 }
 
-__STATIC_INLINE void nrf_spis_event_clear(NRF_SPIS_Type *  p_reg,
+__STATIC_INLINE void nrf_spis_event_clear(NRF_SPIS_Type   *p_reg,
                                           nrf_spis_event_t spis_event)
 {
     *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)spis_event)) = 0x0UL;
@@ -394,70 +386,70 @@ __STATIC_INLINE void nrf_spis_event_clear(NRF_SPIS_Type *  p_reg,
 #endif
 }
 
-__STATIC_INLINE bool nrf_spis_event_check(NRF_SPIS_Type const * p_reg,
+__STATIC_INLINE bool nrf_spis_event_check(NRF_SPIS_Type const *p_reg,
                                           nrf_spis_event_t spis_event)
 {
-    return (bool)*(volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)spis_event);
+    return (bool) * (volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)spis_event);
 }
 
-__STATIC_INLINE uint32_t nrf_spis_event_address_get(NRF_SPIS_Type const * p_reg,
+__STATIC_INLINE uint32_t nrf_spis_event_address_get(NRF_SPIS_Type const *p_reg,
                                                     nrf_spis_event_t spis_event)
 {
     return (uint32_t)p_reg + (uint32_t)spis_event;
 }
 
-__STATIC_INLINE void nrf_spis_shorts_enable(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_shorts_enable(NRF_SPIS_Type *p_reg,
                                             uint32_t spis_shorts_mask)
 {
     p_reg->SHORTS |= spis_shorts_mask;
 }
 
-__STATIC_INLINE void nrf_spis_shorts_disable(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_shorts_disable(NRF_SPIS_Type *p_reg,
                                              uint32_t spis_shorts_mask)
 {
     p_reg->SHORTS &= ~(spis_shorts_mask);
 }
 
-__STATIC_INLINE void nrf_spis_int_enable(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_int_enable(NRF_SPIS_Type *p_reg,
                                          uint32_t spis_int_mask)
 {
     p_reg->INTENSET = spis_int_mask;
 }
 
-__STATIC_INLINE void nrf_spis_int_disable(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_int_disable(NRF_SPIS_Type *p_reg,
                                           uint32_t spis_int_mask)
 {
     p_reg->INTENCLR = spis_int_mask;
 }
 
-__STATIC_INLINE bool nrf_spis_int_enable_check(NRF_SPIS_Type const * p_reg,
+__STATIC_INLINE bool nrf_spis_int_enable_check(NRF_SPIS_Type const *p_reg,
                                                nrf_spis_int_mask_t spis_int)
 {
     return (bool)(p_reg->INTENSET & spis_int);
 }
 
-__STATIC_INLINE void nrf_spis_enable(NRF_SPIS_Type * p_reg)
+__STATIC_INLINE void nrf_spis_enable(NRF_SPIS_Type *p_reg)
 {
     p_reg->ENABLE = (SPIS_ENABLE_ENABLE_Enabled << SPIS_ENABLE_ENABLE_Pos);
 }
 
-__STATIC_INLINE void nrf_spis_disable(NRF_SPIS_Type * p_reg)
+__STATIC_INLINE void nrf_spis_disable(NRF_SPIS_Type *p_reg)
 {
     p_reg->ENABLE = (SPIS_ENABLE_ENABLE_Disabled << SPIS_ENABLE_ENABLE_Pos);
 }
 
-__STATIC_INLINE nrf_spis_semstat_t nrf_spis_semaphore_status_get(NRF_SPIS_Type * p_reg)
+__STATIC_INLINE nrf_spis_semstat_t nrf_spis_semaphore_status_get(NRF_SPIS_Type *p_reg)
 {
-    return (nrf_spis_semstat_t) ((p_reg->SEMSTAT & SPIS_SEMSTAT_SEMSTAT_Msk)
-                                 >> SPIS_SEMSTAT_SEMSTAT_Pos);
+    return (nrf_spis_semstat_t)((p_reg->SEMSTAT & SPIS_SEMSTAT_SEMSTAT_Msk)
+                                >> SPIS_SEMSTAT_SEMSTAT_Pos);
 }
 
-__STATIC_INLINE nrf_spis_status_mask_t nrf_spis_status_get(NRF_SPIS_Type * p_reg)
+__STATIC_INLINE nrf_spis_status_mask_t nrf_spis_status_get(NRF_SPIS_Type *p_reg)
 {
     return (nrf_spis_status_mask_t) p_reg->STATUS;
 }
 
-__STATIC_INLINE void nrf_spis_pins_set(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_pins_set(NRF_SPIS_Type *p_reg,
                                        uint32_t sck_pin,
                                        uint32_t mosi_pin,
                                        uint32_t miso_pin,
@@ -469,72 +461,71 @@ __STATIC_INLINE void nrf_spis_pins_set(NRF_SPIS_Type * p_reg,
     p_reg->PSELCSN  = csn_pin;
 }
 
-__STATIC_INLINE void nrf_spis_tx_buffer_set(NRF_SPIS_Type * p_reg,
-                                            uint8_t const * p_buffer,
+__STATIC_INLINE void nrf_spis_tx_buffer_set(NRF_SPIS_Type *p_reg,
+                                            uint8_t const *p_buffer,
                                             uint8_t         length)
 {
     p_reg->TXDPTR = (uint32_t)p_buffer;
     p_reg->MAXTX  = length;
 }
 
-__STATIC_INLINE void nrf_spis_rx_buffer_set(NRF_SPIS_Type * p_reg,
-                                            uint8_t * p_buffer,
+__STATIC_INLINE void nrf_spis_rx_buffer_set(NRF_SPIS_Type *p_reg,
+                                            uint8_t *p_buffer,
                                             uint8_t   length)
 {
     p_reg->RXDPTR = (uint32_t)p_buffer;
     p_reg->MAXRX  = length;
 }
 
-__STATIC_INLINE uint8_t nrf_spis_tx_amount_get(NRF_SPIS_Type const * p_reg)
+__STATIC_INLINE uint8_t nrf_spis_tx_amount_get(NRF_SPIS_Type const *p_reg)
 {
     return (uint8_t) p_reg->AMOUNTTX;
 }
 
-__STATIC_INLINE uint8_t nrf_spis_rx_amount_get(NRF_SPIS_Type const * p_reg)
+__STATIC_INLINE uint8_t nrf_spis_rx_amount_get(NRF_SPIS_Type const *p_reg)
 {
     return (uint8_t) p_reg->AMOUNTRX;
 }
 
-__STATIC_INLINE void nrf_spis_configure(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_configure(NRF_SPIS_Type *p_reg,
                                         nrf_spis_mode_t spi_mode,
                                         nrf_spis_bit_order_t spi_bit_order)
 {
     uint32_t config = (spi_bit_order == NRF_SPIS_BIT_ORDER_MSB_FIRST ?
-        SPIS_CONFIG_ORDER_MsbFirst : SPIS_CONFIG_ORDER_LsbFirst);
+                       SPIS_CONFIG_ORDER_MsbFirst : SPIS_CONFIG_ORDER_LsbFirst);
 
-    switch (spi_mode)
-    {
-    default:
-    case NRF_SPIS_MODE_0:
-        config |= (SPIS_CONFIG_CPOL_ActiveHigh << SPIS_CONFIG_CPOL_Pos) |
-                  (SPIS_CONFIG_CPHA_Leading    << SPIS_CONFIG_CPHA_Pos);
-        break;
+    switch (spi_mode) {
+        default:
+        case NRF_SPIS_MODE_0:
+            config |= (SPIS_CONFIG_CPOL_ActiveHigh << SPIS_CONFIG_CPOL_Pos) |
+                      (SPIS_CONFIG_CPHA_Leading    << SPIS_CONFIG_CPHA_Pos);
+            break;
 
-    case NRF_SPIS_MODE_1:
-        config |= (SPIS_CONFIG_CPOL_ActiveHigh << SPIS_CONFIG_CPOL_Pos) |
-                  (SPIS_CONFIG_CPHA_Trailing   << SPIS_CONFIG_CPHA_Pos);
-        break;
+        case NRF_SPIS_MODE_1:
+            config |= (SPIS_CONFIG_CPOL_ActiveHigh << SPIS_CONFIG_CPOL_Pos) |
+                      (SPIS_CONFIG_CPHA_Trailing   << SPIS_CONFIG_CPHA_Pos);
+            break;
 
-    case NRF_SPIS_MODE_2:
-        config |= (SPIS_CONFIG_CPOL_ActiveLow  << SPIS_CONFIG_CPOL_Pos) |
-                  (SPIS_CONFIG_CPHA_Leading    << SPIS_CONFIG_CPHA_Pos);
-        break;
+        case NRF_SPIS_MODE_2:
+            config |= (SPIS_CONFIG_CPOL_ActiveLow  << SPIS_CONFIG_CPOL_Pos) |
+                      (SPIS_CONFIG_CPHA_Leading    << SPIS_CONFIG_CPHA_Pos);
+            break;
 
-    case NRF_SPIS_MODE_3:
-        config |= (SPIS_CONFIG_CPOL_ActiveLow  << SPIS_CONFIG_CPOL_Pos) |
-                  (SPIS_CONFIG_CPHA_Trailing   << SPIS_CONFIG_CPHA_Pos);
-        break;
+        case NRF_SPIS_MODE_3:
+            config |= (SPIS_CONFIG_CPOL_ActiveLow  << SPIS_CONFIG_CPOL_Pos) |
+                      (SPIS_CONFIG_CPHA_Trailing   << SPIS_CONFIG_CPHA_Pos);
+            break;
     }
     p_reg->CONFIG = config;
 }
 
-__STATIC_INLINE void nrf_spis_orc_set(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_orc_set(NRF_SPIS_Type *p_reg,
                                       uint8_t orc)
 {
     p_reg->ORC = orc;
 }
 
-__STATIC_INLINE void nrf_spis_def_set(NRF_SPIS_Type * p_reg,
+__STATIC_INLINE void nrf_spis_def_set(NRF_SPIS_Type *p_reg,
                                       uint8_t def)
 {
     p_reg->DEF = def;

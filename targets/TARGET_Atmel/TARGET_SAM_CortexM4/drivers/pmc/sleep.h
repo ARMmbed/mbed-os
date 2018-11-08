@@ -76,10 +76,10 @@ extern "C" {
 #endif
 /* SAM3 and SAM4 series */
 #if (SAM3S || SAM3N || SAM3XA || SAM3U || SAM4S || SAM4E || SAM4N || SAM4C || \
-		SAM4CM || SAM4CP || SAMG || SAMV71 || SAME70)
+        SAM4CM || SAM4CP || SAMG || SAMV71 || SAME70)
 
 #if (SAM3S || SAM3N || SAM3XA || SAM3U || SAM4S || SAM4E || SAM4N || SAM4C || \
-		SAM4CM || SAM4CP || SAMG55 || SAMV71 || SAME70)
+        SAM4CM || SAM4CP || SAMG55 || SAMV71 || SAME70)
 # define  SAM_PM_SMODE_ACTIVE     0 /**< Active */
 # define  SAM_PM_SMODE_SLEEP_WFE  1 /**< Wait for Events */
 # define  SAM_PM_SMODE_SLEEP_WFI  2 /**< Wait for Interrupts */
@@ -100,7 +100,7 @@ extern "C" {
  * Registered by routine pmc_wait_wakeup_clocks_restore()
  * Callback called when all clocks are restored.
  */
-typedef void (*pmc_callback_wakeup_clocks_restored_t) (void);
+typedef void (*pmc_callback_wakeup_clocks_restored_t)(void);
 
 /**
  * Enter sleep mode

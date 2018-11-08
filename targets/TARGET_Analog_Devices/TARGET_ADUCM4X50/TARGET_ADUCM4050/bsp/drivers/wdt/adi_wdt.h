@@ -52,8 +52,7 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 
 /*! \enum ADI_WDT_RESULT Watchdog Device Error Codes. */
-typedef enum
-{
+typedef enum {
     /*! Generic success. */
     ADI_WDT_SUCCESS,
     /*! Timer is locked. */
@@ -67,9 +66,9 @@ typedef enum
  * 2.) Ordered by designed function call sequence
  *****************************************************************************/
 
-ADI_WDT_RESULT adi_wdt_Enable  (bool const bEnable, ADI_CALLBACK const pfCallback);
-void           adi_wdt_Kick    (void);
-void           adi_wdt_GetCount(uint16_t * const pCurCount);
+ADI_WDT_RESULT adi_wdt_Enable(bool const bEnable, ADI_CALLBACK const pfCallback);
+void           adi_wdt_Kick(void);
+void           adi_wdt_GetCount(uint16_t *const pCurCount);
 
 
 /*! @} */

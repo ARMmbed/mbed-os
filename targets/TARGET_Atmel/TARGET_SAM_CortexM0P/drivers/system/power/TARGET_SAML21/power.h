@@ -163,10 +163,10 @@ enum system_voltage_regulator_sel {
  */
 enum system_voltage_regulator_low_power_efficiency {
     /** The voltage regulator in Low power mode has the default efficiency and
-    	support the whole VDD range (1.62V to 3.6V) */
+        support the whole VDD range (1.62V to 3.6V) */
     SYSTEM_VOLTAGE_REGULATOR_LOW_POWER_EFFICIENCY_DEFAULT,
     /** The voltage regulator in Low power mode has the highest efficiency and
-    	support the limited VDD range (2.5V to 3.6V) */
+        support the limited VDD range (2.5V to 3.6V) */
     SYSTEM_VOLTAGE_REGULATOR_LOW_POWER_EFFICIENCY_HIGHTEST,
 };
 
@@ -300,7 +300,7 @@ struct system_voltage_references_config {
  */
 struct system_battery_backup_power_switch_config {
     /** Enable device wake up when BBPS switches from
-    	battery backup power to main power */
+        battery backup power to main power */
     bool wake_enabled;
     /** Battery backup power switch configuration */
     enum system_battery_power_switch battery_power_switch;
@@ -351,7 +351,7 @@ static inline void system_voltage_regulator_set_config(
     SUPC->VREG.bit.RUNSTDBY = config->run_in_standby;
     SUPC->VREG.bit.SEL      = config->regulator_sel;
     SUPC->VREG.bit.LPEFF    = config->low_power_efficiency;
-    while(!(SUPC->STATUS.reg & SUPC_STATUS_VREGRDY)) {
+    while (!(SUPC->STATUS.reg & SUPC_STATUS_VREGRDY)) {
         ;
     }
 }
@@ -509,7 +509,7 @@ static inline void system_battery_backup_power_switch_set_config(
     Assert(config);
     uint32_t new_config = SUPC->BBPS.reg & SUPC_BBPS_PSOKEN;
 
-    if(config->wake_enabled) {
+    if (config->wake_enabled) {
         new_config |= SUPC_BBPS_WAKEEN;
     }
 
@@ -694,7 +694,7 @@ static inline void system_set_sleepmode(
     const enum system_sleepmode sleep_mode)
 {
     PM->SLEEPCFG.reg = sleep_mode;
-    while(PM->SLEEPCFG.reg != sleep_mode) ;
+    while (PM->SLEEPCFG.reg != sleep_mode) ;
 }
 
 /**

@@ -29,11 +29,11 @@ typedef enum {
 } UARTName;
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX
-#define STDIO_UART        UART_0 
+#define STDIO_UART        UART_0
 
 typedef enum {
     I2C_0 = (int)I2C0_BASE,
-    I2C_1 = (int)I2C1_BASE, 
+    I2C_1 = (int)I2C1_BASE,
 } I2CName;
 
 #define TPM_SHIFT   8
@@ -60,11 +60,11 @@ typedef enum {
     ADC0_SE12 = 12,
     ADC0_SE13 = 13,
     ADC0_SE14 = 14,
-    ADC0_SE15 = 15,    
-    ADC1_SE4b = 16, 
+    ADC0_SE15 = 15,
+    ADC1_SE4b = 16,
     ADC1_SE5b = 17,
     ADC1_SE6b = 18,
-    ADC1_SE7b = 19,   
+    ADC1_SE7b = 19,
 } ADCName;
 
 typedef enum {

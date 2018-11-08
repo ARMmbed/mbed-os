@@ -68,7 +68,7 @@ public:
      *  @note
      *    Either tx or rx may be specified as NC if unused
      */
-    Serial(PinName tx, PinName rx, const char *name=NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
+    Serial(PinName tx, PinName rx, const char *name = NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 
 
     /** Create a Serial port, connected to the specified transmit and receive pins, with the specified baud

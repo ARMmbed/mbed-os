@@ -78,27 +78,27 @@ extern "C" {
 
 /** Mode selection. */
 typedef enum {
-  /** Disable pulse counter. */
-  pcntModeDisable   = _PCNT_CTRL_MODE_DISABLE,
+    /** Disable pulse counter. */
+    pcntModeDisable   = _PCNT_CTRL_MODE_DISABLE,
 
-  /** Single input LFACLK oversampling mode (available in EM0-EM2). */
-  pcntModeOvsSingle = _PCNT_CTRL_MODE_OVSSINGLE,
+    /** Single input LFACLK oversampling mode (available in EM0-EM2). */
+    pcntModeOvsSingle = _PCNT_CTRL_MODE_OVSSINGLE,
 
-  /** Externally clocked single input counter mode (available in EM0-EM3). */
-  pcntModeExtSingle = _PCNT_CTRL_MODE_EXTCLKSINGLE,
+    /** Externally clocked single input counter mode (available in EM0-EM3). */
+    pcntModeExtSingle = _PCNT_CTRL_MODE_EXTCLKSINGLE,
 
-  /** Externally clocked quadrature decoder mode (available in EM0-EM3). */
-  pcntModeExtQuad   = _PCNT_CTRL_MODE_EXTCLKQUAD,
+    /** Externally clocked quadrature decoder mode (available in EM0-EM3). */
+    pcntModeExtQuad   = _PCNT_CTRL_MODE_EXTCLKQUAD,
 
 #if defined(_PCNT_CTRL_MODE_OVSQUAD1X)
-  /** LFACLK oversampling quadrature decoder 1X mode (available in EM0-EM2). */
-  pcntModeOvsQuad1  = _PCNT_CTRL_MODE_OVSQUAD1X,
+    /** LFACLK oversampling quadrature decoder 1X mode (available in EM0-EM2). */
+    pcntModeOvsQuad1  = _PCNT_CTRL_MODE_OVSQUAD1X,
 
-  /** LFACLK oversampling quadrature decoder 2X mode (available in EM0-EM2). */
-  pcntModeOvsQuad2  = _PCNT_CTRL_MODE_OVSQUAD2X,
+    /** LFACLK oversampling quadrature decoder 2X mode (available in EM0-EM2). */
+    pcntModeOvsQuad2  = _PCNT_CTRL_MODE_OVSQUAD2X,
 
-  /** LFACLK oversampling quadrature decoder 4X mode (available in EM0-EM2). */
-  pcntModeOvsQuad4  = _PCNT_CTRL_MODE_OVSQUAD4X,
+    /** LFACLK oversampling quadrature decoder 4X mode (available in EM0-EM2). */
+    pcntModeOvsQuad4  = _PCNT_CTRL_MODE_OVSQUAD4X,
 #endif
 } PCNT_Mode_TypeDef;
 
@@ -107,57 +107,57 @@ typedef enum {
  *  Note: unshifted values are being used for enumeration because multiple
  *  configuration structure members use this type definition. */
 typedef enum {
-  /** Counts up on up-count and down on down-count events. */
-  pcntCntEventBoth = _PCNT_CTRL_CNTEV_BOTH,
+    /** Counts up on up-count and down on down-count events. */
+    pcntCntEventBoth = _PCNT_CTRL_CNTEV_BOTH,
 
-  /** Only counts up on up-count events. */
-  pcntCntEventUp   = _PCNT_CTRL_CNTEV_UP,
+    /** Only counts up on up-count events. */
+    pcntCntEventUp   = _PCNT_CTRL_CNTEV_UP,
 
-  /** Only counts down on down-count events. */
-  pcntCntEventDown = _PCNT_CTRL_CNTEV_DOWN,
+    /** Only counts down on down-count events. */
+    pcntCntEventDown = _PCNT_CTRL_CNTEV_DOWN,
 
-  /** Never counts. */
-  pcntCntEventNone = _PCNT_CTRL_CNTEV_NONE
+    /** Never counts. */
+    pcntCntEventNone = _PCNT_CTRL_CNTEV_NONE
 } PCNT_CntEvent_TypeDef;
 #endif
 
 #if defined(_PCNT_INPUT_MASK)
 /** PRS sources for @p s0PRS and @p s1PRS. */
 typedef enum {
-  pcntPRSCh0 = 0,     /**< PRS channel 0. */
-  pcntPRSCh1 = 1,     /**< PRS channel 1. */
-  pcntPRSCh2 = 2,     /**< PRS channel 2. */
-  pcntPRSCh3 = 3,     /**< PRS channel 3. */
+    pcntPRSCh0 = 0,     /**< PRS channel 0. */
+    pcntPRSCh1 = 1,     /**< PRS channel 1. */
+    pcntPRSCh2 = 2,     /**< PRS channel 2. */
+    pcntPRSCh3 = 3,     /**< PRS channel 3. */
 #if defined(PCNT_INPUT_S0PRSSEL_PRSCH4)
-  pcntPRSCh4 = 4,     /**< PRS channel 4. */
+    pcntPRSCh4 = 4,     /**< PRS channel 4. */
 #endif
 #if defined(PCNT_INPUT_S0PRSSEL_PRSCH5)
-  pcntPRSCh5 = 5,     /**< PRS channel 5. */
+    pcntPRSCh5 = 5,     /**< PRS channel 5. */
 #endif
 #if defined(PCNT_INPUT_S0PRSSEL_PRSCH6)
-  pcntPRSCh6 = 6,     /**< PRS channel 6. */
+    pcntPRSCh6 = 6,     /**< PRS channel 6. */
 #endif
 #if defined(PCNT_INPUT_S0PRSSEL_PRSCH7)
-  pcntPRSCh7 = 7,     /**< PRS channel 7. */
+    pcntPRSCh7 = 7,     /**< PRS channel 7. */
 #endif
 #if defined(PCNT_INPUT_S0PRSSEL_PRSCH8)
-  pcntPRSCh8 = 8,     /**< PRS channel 8. */
+    pcntPRSCh8 = 8,     /**< PRS channel 8. */
 #endif
 #if defined(PCNT_INPUT_S0PRSSEL_PRSCH9)
-  pcntPRSCh9 = 9,     /**< PRS channel 9. */
+    pcntPRSCh9 = 9,     /**< PRS channel 9. */
 #endif
 #if defined(PCNT_INPUT_S0PRSSEL_PRSCH10)
-  pcntPRSCh10 = 10,   /**< PRS channel 10. */
+    pcntPRSCh10 = 10,   /**< PRS channel 10. */
 #endif
 #if defined(PCNT_INPUT_S0PRSSEL_PRSCH11)
-  pcntPRSCh11 = 11    /**< PRS channel 11. */
+    pcntPRSCh11 = 11    /**< PRS channel 11. */
 #endif
 } PCNT_PRSSel_TypeDef;
 
 /** PRS inputs of PCNT. */
 typedef enum {
-  pcntPRSInputS0 = 0, /** PRS input 0. */
-  pcntPRSInputS1 = 1  /** PRS input 1. */
+    pcntPRSInputS0 = 0, /** PRS input 0. */
+    pcntPRSInputS1 = 1  /** PRS input 1. */
 } PCNT_PRSInput_TypeDef;
 #endif
 
@@ -167,58 +167,58 @@ typedef enum {
 
 /** Init structure. */
 typedef struct {
-  /** Mode to operate in. */
-  PCNT_Mode_TypeDef     mode;
+    /** Mode to operate in. */
+    PCNT_Mode_TypeDef     mode;
 
-  /** Initial counter value (refer to reference manual for max value allowed).
-   * Only used for #pcntModeOvsSingle (and possibly #pcntModeDisable) modes.
-   * If using #pcntModeExtSingle or #pcntModeExtQuad modes, the counter
-   * value is reset to HW reset value. */
-  uint32_t              counter;
+    /** Initial counter value (refer to reference manual for max value allowed).
+     * Only used for #pcntModeOvsSingle (and possibly #pcntModeDisable) modes.
+     * If using #pcntModeExtSingle or #pcntModeExtQuad modes, the counter
+     * value is reset to HW reset value. */
+    uint32_t              counter;
 
-  /** Initial top value (refer to reference manual for max value allowed).
-   * Only used for #pcntModeOvsSingle (and possibly #pcntModeDisable) modes.
-   * If using #pcntModeExtSingle or #pcntModeExtQuad modes, the top
-   * value is reset to HW reset value. */
-  uint32_t              top;
+    /** Initial top value (refer to reference manual for max value allowed).
+     * Only used for #pcntModeOvsSingle (and possibly #pcntModeDisable) modes.
+     * If using #pcntModeExtSingle or #pcntModeExtQuad modes, the top
+     * value is reset to HW reset value. */
+    uint32_t              top;
 
-  /** Polarity of incoming edge.
-   * @li #pcntModeExtSingle mode - if false, positive edges are counted,
-   *   otherwise negative edges.
-   * @li #pcntModeExtQuad mode - if true, counting direction is inverted. */
-  bool                  negEdge;
+    /** Polarity of incoming edge.
+     * @li #pcntModeExtSingle mode - if false, positive edges are counted,
+     *   otherwise negative edges.
+     * @li #pcntModeExtQuad mode - if true, counting direction is inverted. */
+    bool                  negEdge;
 
-  /** Counting direction, only applicable for #pcntModeOvsSingle and
-   * #pcntModeExtSingle modes. */
-  bool                  countDown;
+    /** Counting direction, only applicable for #pcntModeOvsSingle and
+     * #pcntModeExtSingle modes. */
+    bool                  countDown;
 
-  /** Enable filter, only available in #pcntModeOvs* modes. */
-  bool                  filter;
+    /** Enable filter, only available in #pcntModeOvs* modes. */
+    bool                  filter;
 
 #if defined(PCNT_CTRL_HYST)
-  /** Set to true to enable hysteresis. When its enabled, the PCNT will always
-   *  overflow and underflow to TOP/2. */
-  bool                  hyst;
+    /** Set to true to enable hysteresis. When its enabled, the PCNT will always
+     *  overflow and underflow to TOP/2. */
+    bool                  hyst;
 
-  /** Set to true to enable S1 to determine the direction of counting in
-   *  OVSSINGLE or EXTCLKSINGLE modes. @n
-   *  When S1 is high, the count direction is given by CNTDIR, and when S1 is
-   *  low, the count direction is the opposite. */
-  bool                  s1CntDir;
+    /** Set to true to enable S1 to determine the direction of counting in
+     *  OVSSINGLE or EXTCLKSINGLE modes. @n
+     *  When S1 is high, the count direction is given by CNTDIR, and when S1 is
+     *  low, the count direction is the opposite. */
+    bool                  s1CntDir;
 
-  /** Selects whether the regular counter responds to up-count events,
-   *  down-count events, both or none. */
-  PCNT_CntEvent_TypeDef cntEvent;
+    /** Selects whether the regular counter responds to up-count events,
+     *  down-count events, both or none. */
+    PCNT_CntEvent_TypeDef cntEvent;
 
-  /** Selects whether the auxiliary counter responds to up-count events,
-   *  down-count events, both or none. */
-  PCNT_CntEvent_TypeDef auxCntEvent;
+    /** Selects whether the auxiliary counter responds to up-count events,
+     *  down-count events, both or none. */
+    PCNT_CntEvent_TypeDef auxCntEvent;
 
-  /** Select PRS channel as input to S0IN in PCNTx_INPUT register. */
-  PCNT_PRSSel_TypeDef   s0PRS;
+    /** Select PRS channel as input to S0IN in PCNTx_INPUT register. */
+    PCNT_PRSSel_TypeDef   s0PRS;
 
-  /** Select PRS channel as input to S1IN in PCNTx_INPUT register. */
-  PCNT_PRSSel_TypeDef   s1PRS;
+    /** Select PRS channel as input to S1IN in PCNTx_INPUT register. */
+    PCNT_PRSSel_TypeDef   s1PRS;
 #endif
 } PCNT_Init_TypeDef;
 
@@ -255,13 +255,13 @@ typedef struct {
 #if defined(PCNT_OVSCFG_FILTLEN_DEFAULT)
 /** Filter initialization structure */
 typedef struct {
-  /** Used only in OVSINGLE and OVSQUAD1X-4X modes. To use this, enable the filter through
-   *  setting filter to true during PCNT_Init(). Filter length = (filtLen + 5) LFACLK cycles. */
-  uint8_t               filtLen;
+    /** Used only in OVSINGLE and OVSQUAD1X-4X modes. To use this, enable the filter through
+     *  setting filter to true during PCNT_Init(). Filter length = (filtLen + 5) LFACLK cycles. */
+    uint8_t               filtLen;
 
-  /** When set, removes flutter from Quaddecoder inputs S0IN and S1IN.
-   *  Available only in OVSQUAD1X-4X modes. */
-  bool                  flutterrm;
+    /** When set, removes flutter from Quaddecoder inputs S0IN and S1IN.
+     *  Available only in OVSQUAD1X-4X modes. */
+    bool                  flutterrm;
 } PCNT_Filter_TypeDef;
 #endif
 
@@ -278,66 +278,66 @@ typedef struct {
 
 /** Modes for Triggered Compare and Clear module */
 typedef enum {
-  /** Triggered compare and clear not enabled. */
-  tccModeDisabled       = _PCNT_CTRL_TCCMODE_DISABLED,
+    /** Triggered compare and clear not enabled. */
+    tccModeDisabled       = _PCNT_CTRL_TCCMODE_DISABLED,
 
-  /** Compare and clear performed on each (optionally prescaled) LFA clock cycle. */
-  tccModeLFA            = _PCNT_CTRL_TCCMODE_LFA,
+    /** Compare and clear performed on each (optionally prescaled) LFA clock cycle. */
+    tccModeLFA            = _PCNT_CTRL_TCCMODE_LFA,
 
-  /** Compare and clear performed on PRS edges. Polarity defined by prsPolarity. */
-  tccModePRS            = _PCNT_CTRL_TCCMODE_PRS
+    /** Compare and clear performed on PRS edges. Polarity defined by prsPolarity. */
+    tccModePRS            = _PCNT_CTRL_TCCMODE_PRS
 } PCNT_TCCMode_TypeDef;
 
 /** Prescaler values for LFA compare and clear events. Only has effect when TCC mode is LFA. */
 typedef enum {
-  /** Compare and clear event each LFA cycle. */
-  tccPrescDiv1          = _PCNT_CTRL_TCCPRESC_DIV1,
+    /** Compare and clear event each LFA cycle. */
+    tccPrescDiv1          = _PCNT_CTRL_TCCPRESC_DIV1,
 
-  /** Compare and clear event every other LFA cycle. */
-  tccPrescDiv2          = _PCNT_CTRL_TCCPRESC_DIV2,
+    /** Compare and clear event every other LFA cycle. */
+    tccPrescDiv2          = _PCNT_CTRL_TCCPRESC_DIV2,
 
-  /** Compare and clear event every 4th LFA cycle. */
-  tccPrescDiv4          = _PCNT_CTRL_TCCPRESC_DIV4,
+    /** Compare and clear event every 4th LFA cycle. */
+    tccPrescDiv4          = _PCNT_CTRL_TCCPRESC_DIV4,
 
-  /** Compare and clear event every 8th LFA cycle. */
-  tccPrescDiv8          = _PCNT_CTRL_TCCPRESC_DIV8
+    /** Compare and clear event every 8th LFA cycle. */
+    tccPrescDiv8          = _PCNT_CTRL_TCCPRESC_DIV8
 } PCNT_TCCPresc_Typedef;
 
 /** Compare modes for TCC module */
 typedef enum {
-  /** Compare match if PCNT_CNT is less than, or equal to PCNT_TOP. */
-  tccCompLTOE           = _PCNT_CTRL_TCCCOMP_LTOE,
+    /** Compare match if PCNT_CNT is less than, or equal to PCNT_TOP. */
+    tccCompLTOE           = _PCNT_CTRL_TCCCOMP_LTOE,
 
-  /** Compare match if PCNT_CNT is greater than or equal to PCNT_TOP. */
-  tccCompGTOE           = _PCNT_CTRL_TCCCOMP_GTOE,
+    /** Compare match if PCNT_CNT is greater than or equal to PCNT_TOP. */
+    tccCompGTOE           = _PCNT_CTRL_TCCCOMP_GTOE,
 
-  /** Compare match if PCNT_CNT is less than, or equal to PCNT_TOP[15:8]], and greater
-   *  than, or equal to PCNT_TOP[7:0]. */
-  tccCompRange          = _PCNT_CTRL_TCCCOMP_RANGE
+    /** Compare match if PCNT_CNT is less than, or equal to PCNT_TOP[15:8]], and greater
+     *  than, or equal to PCNT_TOP[7:0]. */
+    tccCompRange          = _PCNT_CTRL_TCCCOMP_RANGE
 } PCNT_TCCComp_Typedef;
 
 /** TCC initialization structure */
 typedef struct {
-  /** Mode to operate in. */
-  PCNT_TCCMode_TypeDef      mode;
+    /** Mode to operate in. */
+    PCNT_TCCMode_TypeDef      mode;
 
-  /** Prescaler value for LFACLK in LFA mode */
-  PCNT_TCCPresc_Typedef     prescaler;
+    /** Prescaler value for LFACLK in LFA mode */
+    PCNT_TCCPresc_Typedef     prescaler;
 
-  /** Choose the event that will trigger a clear */
-  PCNT_TCCComp_Typedef      compare;
+    /** Choose the event that will trigger a clear */
+    PCNT_TCCComp_Typedef      compare;
 
-  /** PRS input to TCC module, either for gating the PCNT clock, triggering the TCC comparison, or both. */
-  PCNT_PRSSel_TypeDef       tccPRS;
+    /** PRS input to TCC module, either for gating the PCNT clock, triggering the TCC comparison, or both. */
+    PCNT_PRSSel_TypeDef       tccPRS;
 
-  /** TCC PRS input polarity. @n
-   *  False = Rising edge for comparison trigger, and PCNT clock gated when the PRS signal is high. @n
-   *  True = Falling edge for comparison trigger, and PCNT clock gated when the PRS signal is low. */
-  bool                      prsPolarity;
+    /** TCC PRS input polarity. @n
+     *  False = Rising edge for comparison trigger, and PCNT clock gated when the PRS signal is high. @n
+     *  True = Falling edge for comparison trigger, and PCNT clock gated when the PRS signal is low. */
+    bool                      prsPolarity;
 
-  /** Enable gating PCNT input clock through TCC PRS signal.
-   *  Polarity selection is done through prsPolarity. */
-  bool                      prsGateEnable;
+    /** Enable gating PCNT input clock through TCC PRS signal.
+     *  Polarity selection is done through prsPolarity. */
+    bool                      prsGateEnable;
 } PCNT_TCC_TypeDef;
 
 #define PCNT_TCC_DEFAULT                                                                           \
@@ -369,7 +369,7 @@ typedef struct {
  ******************************************************************************/
 __STATIC_INLINE uint32_t PCNT_CounterGet(PCNT_TypeDef *pcnt)
 {
-  return pcnt->CNT;
+    return pcnt->CNT;
 }
 
 #if defined(_PCNT_AUXCNT_MASK)
@@ -385,7 +385,7 @@ __STATIC_INLINE uint32_t PCNT_CounterGet(PCNT_TypeDef *pcnt)
  ******************************************************************************/
 __STATIC_INLINE uint32_t PCNT_AuxCounterGet(PCNT_TypeDef *pcnt)
 {
-  return pcnt->AUXCNT;
+    return pcnt->AUXCNT;
 }
 #endif
 
@@ -415,7 +415,7 @@ void PCNT_CounterTopSet(PCNT_TypeDef *pcnt, uint32_t count, uint32_t top);
  ******************************************************************************/
 __STATIC_INLINE void PCNT_CounterSet(PCNT_TypeDef *pcnt, uint32_t count)
 {
-  PCNT_CounterTopSet(pcnt, count, pcnt->TOP);
+    PCNT_CounterTopSet(pcnt, count, pcnt->TOP);
 }
 
 void PCNT_Enable(PCNT_TypeDef *pcnt, PCNT_Mode_TypeDef mode);
@@ -448,7 +448,7 @@ void PCNT_TCCConfiguration(PCNT_TypeDef *pcnt, const PCNT_TCC_TypeDef *config);
  ******************************************************************************/
 __STATIC_INLINE void PCNT_IntClear(PCNT_TypeDef *pcnt, uint32_t flags)
 {
-  pcnt->IFC = flags;
+    pcnt->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -464,7 +464,7 @@ __STATIC_INLINE void PCNT_IntClear(PCNT_TypeDef *pcnt, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void PCNT_IntDisable(PCNT_TypeDef *pcnt, uint32_t flags)
 {
-  pcnt->IEN &= ~flags;
+    pcnt->IEN &= ~flags;
 }
 
 /***************************************************************************//**
@@ -485,7 +485,7 @@ __STATIC_INLINE void PCNT_IntDisable(PCNT_TypeDef *pcnt, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void PCNT_IntEnable(PCNT_TypeDef *pcnt, uint32_t flags)
 {
-  pcnt->IEN |= flags;
+    pcnt->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -504,7 +504,7 @@ __STATIC_INLINE void PCNT_IntEnable(PCNT_TypeDef *pcnt, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t PCNT_IntGet(PCNT_TypeDef *pcnt)
 {
-  return pcnt->IF;
+    return pcnt->IF;
 }
 
 /***************************************************************************//**
@@ -530,14 +530,14 @@ __STATIC_INLINE uint32_t PCNT_IntGet(PCNT_TypeDef *pcnt)
  ******************************************************************************/
 __STATIC_INLINE uint32_t PCNT_IntGetEnabled(PCNT_TypeDef *pcnt)
 {
-  uint32_t ien;
+    uint32_t ien;
 
-  /* Store pcnt->IEN in temporary variable in order to define explicit order
-   * of volatile accesses. */
-  ien = pcnt->IEN;
+    /* Store pcnt->IEN in temporary variable in order to define explicit order
+     * of volatile accesses. */
+    ien = pcnt->IEN;
 
-  /* Bitwise AND of pending and enabled interrupts */
-  return pcnt->IF & ien;
+    /* Bitwise AND of pending and enabled interrupts */
+    return pcnt->IF & ien;
 }
 
 /***************************************************************************//**
@@ -553,7 +553,7 @@ __STATIC_INLINE uint32_t PCNT_IntGetEnabled(PCNT_TypeDef *pcnt)
  ******************************************************************************/
 __STATIC_INLINE void PCNT_IntSet(PCNT_TypeDef *pcnt, uint32_t flags)
 {
-  pcnt->IFS = flags;
+    pcnt->IFS = flags;
 }
 
 void PCNT_Reset(PCNT_TypeDef *pcnt);
@@ -570,7 +570,7 @@ void PCNT_Reset(PCNT_TypeDef *pcnt);
  ******************************************************************************/
 __STATIC_INLINE uint32_t PCNT_TopBufferGet(PCNT_TypeDef *pcnt)
 {
-  return pcnt->TOPB;
+    return pcnt->TOPB;
 }
 
 void PCNT_TopBufferSet(PCNT_TypeDef *pcnt, uint32_t val);
@@ -587,7 +587,7 @@ void PCNT_TopBufferSet(PCNT_TypeDef *pcnt, uint32_t val);
  ******************************************************************************/
 __STATIC_INLINE uint32_t PCNT_TopGet(PCNT_TypeDef *pcnt)
 {
-  return pcnt->TOP;
+    return pcnt->TOP;
 }
 
 void PCNT_TopSet(PCNT_TypeDef *pcnt, uint32_t val);

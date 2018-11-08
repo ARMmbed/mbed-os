@@ -51,8 +51,7 @@
 /*!
  * @brief Defines port size for FlexBus peripheral.
  */
-typedef enum _flexbus_port_size
-{
+typedef enum _flexbus_port_size {
     kFLEXBUS_4Bytes = 0x00U, /*!< 32-bit port size */
     kFLEXBUS_1Byte = 0x01U,  /*!< 8-bit port size */
     kFLEXBUS_2Bytes = 0x02U  /*!< 16-bit port size */
@@ -61,8 +60,7 @@ typedef enum _flexbus_port_size
 /*!
  * @brief Defines number of cycles to hold address and attributes for FlexBus peripheral.
  */
-typedef enum _flexbus_write_address_hold
-{
+typedef enum _flexbus_write_address_hold {
     kFLEXBUS_Hold1Cycle = 0x00U,  /*!< Hold address and attributes one cycles after FB_CSn negates on writes */
     kFLEXBUS_Hold2Cycles = 0x01U, /*!< Hold address and attributes two cycles after FB_CSn negates on writes */
     kFLEXBUS_Hold3Cycles = 0x02U, /*!< Hold address and attributes three cycles after FB_CSn negates on writes */
@@ -72,8 +70,7 @@ typedef enum _flexbus_write_address_hold
 /*!
  * @brief Defines number of cycles to hold address and attributes for FlexBus peripheral.
  */
-typedef enum _flexbus_read_address_hold
-{
+typedef enum _flexbus_read_address_hold {
     kFLEXBUS_Hold1Or0Cycles = 0x00U, /*!< Hold address and attributes 1 or 0 cycles on reads */
     kFLEXBUS_Hold2Or1Cycles = 0x01U, /*!< Hold address and attributes 2 or 1 cycles on reads */
     kFLEXBUS_Hold3Or2Cycle = 0x02U,  /*!< Hold address and attributes 3 or 2 cycles on reads */
@@ -83,8 +80,7 @@ typedef enum _flexbus_read_address_hold
 /*!
  * @brief Address setup for FlexBus peripheral.
  */
-typedef enum _flexbus_address_setup
-{
+typedef enum _flexbus_address_setup {
     kFLEXBUS_FirstRisingEdge = 0x00U,  /*!< Assert FB_CSn on first rising clock edge after address is asserted */
     kFLEXBUS_SecondRisingEdge = 0x01U, /*!< Assert FB_CSn on second rising clock edge after address is asserted */
     kFLEXBUS_ThirdRisingEdge = 0x02U,  /*!< Assert FB_CSn on third rising clock edge after address is asserted */
@@ -94,8 +90,7 @@ typedef enum _flexbus_address_setup
 /*!
  * @brief Defines byte-lane shift for FlexBus peripheral.
  */
-typedef enum _flexbus_bytelane_shift
-{
+typedef enum _flexbus_bytelane_shift {
     kFLEXBUS_NotShifted = 0x00U, /*!< Not shifted. Data is left-justified on FB_AD */
     kFLEXBUS_Shifted = 0x01U,    /*!< Shifted. Data is right justified on FB_AD */
 } flexbus_bytelane_shift_t;
@@ -103,8 +98,7 @@ typedef enum _flexbus_bytelane_shift
 /*!
  * @brief Defines multiplex group1 valid signals.
  */
-typedef enum _flexbus_multiplex_group1_signal
-{
+typedef enum _flexbus_multiplex_group1_signal {
     kFLEXBUS_MultiplexGroup1_FB_ALE = 0x00U, /*!< FB_ALE */
     kFLEXBUS_MultiplexGroup1_FB_CS1 = 0x01U, /*!< FB_CS1 */
     kFLEXBUS_MultiplexGroup1_FB_TS = 0x02U,  /*!< FB_TS */
@@ -113,8 +107,7 @@ typedef enum _flexbus_multiplex_group1_signal
 /*!
  * @brief Defines multiplex group2 valid signals.
  */
-typedef enum _flexbus_multiplex_group2_signal
-{
+typedef enum _flexbus_multiplex_group2_signal {
     kFLEXBUS_MultiplexGroup2_FB_CS4 = 0x00U,      /*!< FB_CS4 */
     kFLEXBUS_MultiplexGroup2_FB_TSIZ0 = 0x01U,    /*!< FB_TSIZ0 */
     kFLEXBUS_MultiplexGroup2_FB_BE_31_24 = 0x02U, /*!< FB_BE_31_24 */
@@ -123,8 +116,7 @@ typedef enum _flexbus_multiplex_group2_signal
 /*!
  * @brief Defines multiplex group3 valid signals.
  */
-typedef enum _flexbus_multiplex_group3_signal
-{
+typedef enum _flexbus_multiplex_group3_signal {
     kFLEXBUS_MultiplexGroup3_FB_CS5 = 0x00U,      /*!< FB_CS5 */
     kFLEXBUS_MultiplexGroup3_FB_TSIZ1 = 0x01U,    /*!< FB_TSIZ1 */
     kFLEXBUS_MultiplexGroup3_FB_BE_23_16 = 0x02U, /*!< FB_BE_23_16 */
@@ -133,8 +125,7 @@ typedef enum _flexbus_multiplex_group3_signal
 /*!
  * @brief Defines multiplex group4 valid signals.
  */
-typedef enum _flexbus_multiplex_group4_signal
-{
+typedef enum _flexbus_multiplex_group4_signal {
     kFLEXBUS_MultiplexGroup4_FB_TBST = 0x00U,    /*!< FB_TBST */
     kFLEXBUS_MultiplexGroup4_FB_CS2 = 0x01U,     /*!< FB_CS2 */
     kFLEXBUS_MultiplexGroup4_FB_BE_15_8 = 0x02U, /*!< FB_BE_15_8 */
@@ -143,8 +134,7 @@ typedef enum _flexbus_multiplex_group4_signal
 /*!
  * @brief Defines multiplex group5 valid signals.
  */
-typedef enum _flexbus_multiplex_group5_signal
-{
+typedef enum _flexbus_multiplex_group5_signal {
     kFLEXBUS_MultiplexGroup5_FB_TA = 0x00U,     /*!< FB_TA */
     kFLEXBUS_MultiplexGroup5_FB_CS3 = 0x01U,    /*!< FB_CS3 */
     kFLEXBUS_MultiplexGroup5_FB_BE_7_0 = 0x02U, /*!< FB_BE_7_0 */
@@ -153,8 +143,7 @@ typedef enum _flexbus_multiplex_group5_signal
 /*!
  * @brief Configuration structure that the user needs to set.
  */
-typedef struct _flexbus_config
-{
+typedef struct _flexbus_config {
     uint8_t chip;                                      /*!< Chip FlexBus for validation */
     uint8_t waitStates;                                /*!< Value of wait states */
     uint32_t chipBaseAddress;                          /*!< Chip base address for using FlexBus */

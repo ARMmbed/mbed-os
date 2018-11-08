@@ -138,8 +138,7 @@
 #endif /* ENET_PTP1588FEATURE_REQUIRED */
 
 /*! @brief Defines the status return codes for transaction. */
-enum _enet_status
-{
+enum _enet_status {
     kStatus_ENET_RxFrameError = MAKE_STATUS(kStatusGroup_ENET, 0U),  /*!< A frame received but data error happen. */
     kStatus_ENET_RxFrameFail = MAKE_STATUS(kStatusGroup_ENET, 1U),   /*!< Failed to receive a frame. */
     kStatus_ENET_RxFrameEmpty = MAKE_STATUS(kStatusGroup_ENET, 2U),  /*!< No frame arrive. */
@@ -310,8 +309,7 @@ typedef enum _enet_ptp_event_type {
  *  Use the read-format region mask bits in the descriptor initialization
  *  Use the write-back format region mask bits in the receive data process.
  */
-typedef struct _enet_rx_bd_struct
-{
+typedef struct _enet_rx_bd_struct {
     __IO uint32_t buff1Addr; /*!< Buffer 1 address */
     __IO uint32_t reserved;  /*!< Reserved */
     __IO uint32_t buff2Addr; /*!< Buffer 2 or next descriptor address */
@@ -325,8 +323,7 @@ typedef struct _enet_rx_bd_struct
  *  Use the read-format region mask bits in the descriptor initialization
  *  Use the write-back format region mask bits in the transmit data process.
  */
-typedef struct _enet_tx_bd_struct
-{
+typedef struct _enet_tx_bd_struct {
     __IO uint32_t buff1Addr;   /*!< Buffer 1 address */
     __IO uint32_t buff2Addr;   /*!< Buffer 2 address */
     __IO uint32_t buffLen;     /*!< Buffer 1/2 byte counts */
@@ -335,15 +332,13 @@ typedef struct _enet_tx_bd_struct
 
 #ifdef ENET_PTP1588FEATURE_REQUIRED
 /*! @brief Defines the ENET PTP time stamp structure. */
-typedef struct _enet_ptp_time
-{
+typedef struct _enet_ptp_time {
     uint64_t second;     /*!< Second. */
     uint32_t nanosecond; /*!< Nanosecond. */
 } enet_ptp_time_t;
 
 /*! @brief Defines the structure for the ENET PTP message data and timestamp data.*/
-typedef struct _enet_ptp_time_data
-{
+typedef struct _enet_ptp_time_data {
     uint8_t version;                             /*!< PTP version. */
     uint8_t sourcePortId[kENET_PtpSrcPortIdLen]; /*!< PTP source port ID. */
     uint16_t sequenceId;                         /*!< PTP sequence ID. */
@@ -352,8 +347,7 @@ typedef struct _enet_ptp_time_data
 } enet_ptp_time_data_t;
 
 /*! @brief Defines the ENET PTP ring buffer structure for the PTP message timestamp store.*/
-typedef struct _enet_ptp_time_data_ring
-{
+typedef struct _enet_ptp_time_data_ring {
     uint32_t front;                  /*!< The first index of the ring. */
     uint32_t end;                    /*!< The end index of the ring. */
     uint32_t size;                   /*!< The size of the ring. */
@@ -361,8 +355,7 @@ typedef struct _enet_ptp_time_data_ring
 } enet_ptp_time_data_ring_t;
 
 /*! @brief Defines the ENET PTP configuration structure. */
-typedef struct _enet_ptp_config
-{
+typedef struct _enet_ptp_config {
     bool fineUpdateEnable;            /*!< Use the fine update. */
     bool ptp1588V2Enable;             /*!< ptp 1588 version 2 is used. */
     enet_ts_rollover_type tsRollover; /*!< 1588 time nanosecond rollover. */
@@ -386,8 +379,7 @@ typedef struct _enet_ptp_config
  *    the second buffer in the first descriptor. so please make sure the rxBufferStartAddr is the
  *    address of a rxRingLen or 2*rxRingLen array.
  */
-typedef struct _enet_buffer_config
-{
+typedef struct _enet_buffer_config {
     uint8_t rxRingLen;                         /*!< The length of receive buffer descriptor ring. */
     uint8_t txRingLen;                         /*!< The length of transmit buffer descriptor ring. */
     enet_tx_bd_struct_t *txDescStartAddrAlign; /*!< Aligned transmit descriptor start address. */
@@ -405,8 +397,7 @@ typedef struct _enet_buffer_config
 } enet_buffer_config_t;
 
 /*! @brief Defines the configuration when multi-queue is used. */
-typedef struct enet_multiqueue_config
-{
+typedef struct enet_multiqueue_config {
     /***********************DMA block*******************************/
     enet_dma_tx_sche dmaTxSche;                /*!< Transmit arbitation. */
     enet_dma_burstlen burstLen;                /*!< Burset len for the queue 1. */
@@ -429,8 +420,7 @@ typedef struct enet_multiqueue_config
  *  queues are required. If multiple queue is enabled, please make sure the
  *  buffer configuration for all are prepared also.
  */
-typedef struct _enet_config
-{
+typedef struct _enet_config {
     uint16_t specialControl;                 /*!< The logicl or of enet_special_config_t */
     enet_multiqueue_config_t *multiqueueCfg; /*!< Use both tx/rx queue(dma channel) 0 and 1. */
     /* -----------------MAC block-------------------------------*/
@@ -438,7 +428,7 @@ typedef struct _enet_config
     enet_mii_speed_t miiSpeed;   /*!< MII Speed. */
     enet_mii_duplex_t miiDuplex; /*!< MII duplex. */
     uint16_t pauseDuration; /*!< Used in the tx flow control frame, only valid when kENET_FlowControlEnable is set. */
-/* -----------------Timestamp -------------------------------*/
+    /* -----------------Timestamp -------------------------------*/
 #ifdef ENET_PTP1588FEATURE_REQUIRED
     enet_ptp_config_t *ptpConfig; /*!< PTP 1588 feature configuration */
 #endif                            /* ENET_PTP1588FEATURE_REQUIRED */
@@ -452,8 +442,7 @@ typedef void (*enet_callback_t)(
     ENET_Type *base, enet_handle_t *handle, enet_event_t event, uint8_t channel, void *userData);
 
 /*! @brief Defines the ENET transmit buffer descriptor ring/queue structure. */
-typedef struct _enet_tx_bd_ring
-{
+typedef struct _enet_tx_bd_ring {
     enet_tx_bd_struct_t *txBdBase; /*!< Buffer descriptor base address pointer. */
     uint16_t txGenIdx;             /*!< tx generate index. */
     uint16_t txConsumIdx;          /*!< tx consum index. */
@@ -465,8 +454,7 @@ typedef struct _enet_tx_bd_ring
 } enet_tx_bd_ring_t;
 
 /*! @brief Defines the ENET receive buffer descriptor ring/queue structure. */
-typedef struct _enet_rx_bd_ring
-{
+typedef struct _enet_rx_bd_ring {
     enet_rx_bd_struct_t *rxBdBase; /*!< Buffer descriptor base address pointer. */
     uint16_t rxGenIdx;             /*!< The current available receive buffer descriptor pointer. */
     uint16_t rxRingLen;            /*!< Receive ring length. */
@@ -477,8 +465,7 @@ typedef struct _enet_rx_bd_ring
 } enet_rx_bd_ring_t;
 
 /*! @brief Defines the ENET handler structure. */
-struct _enet_handle
-{
+struct _enet_handle {
     bool multiQueEnable;                           /*!< Enable multi-queue. */
     bool doubleBuffEnable;                         /*!< The double buffer is used in the descriptor. */
     bool rxintEnable;                              /*!< Rx interrup enabled. */
@@ -548,8 +535,8 @@ void ENET_Deinit(ENET_Type *base);
 /*!
  * @brief Initialize for all ENET descriptors.
  *
- * @note This function is do all tx/rx descriptors initialization. Because this API 
- *  read all interrupt registers first and then set the interrupt flag for all descriptos, 
+ * @note This function is do all tx/rx descriptors initialization. Because this API
+ *  read all interrupt registers first and then set the interrupt flag for all descriptos,
  * if the interrupt register is set. so the descriptor initialization should be called
  * after ENET_Init(), ENET_EnableInterrupts() and ENET_CreateHandle()(if transactional APIs
  * are used).
@@ -733,7 +720,7 @@ static inline void ENET_ExitPowerDown(ENET_Type *base)
  * @endcode
  *
  * @param base  ENET peripheral base address.
- * @param mask  ENET interrupts to enable. This is a logical OR of both 
+ * @param mask  ENET interrupts to enable. This is a logical OR of both
  *             enumeration :: enet_dma_interrupt_enable_t and enet_mac_interrupt_enable_t.
  */
 void ENET_EnableInterrupts(ENET_Type *base, uint32_t mask);
@@ -749,11 +736,11 @@ void ENET_EnableInterrupts(ENET_Type *base, uint32_t mask);
  * @endcode
  *
  * @param base  ENET peripheral base address.
- * @param mask  ENET interrupts to disables. This is a logical OR of both 
+ * @param mask  ENET interrupts to disables. This is a logical OR of both
  *             enumeration :: enet_dma_interrupt_enable_t and enet_mac_interrupt_enable_t.
  */
 void ENET_DisableInterrupts(ENET_Type *base, uint32_t mask);
-    
+
 /*!
  * @brief Gets the ENET DMA interrupt status flag.
  *
@@ -785,9 +772,9 @@ static inline void ENET_ClearDmaInterruptStatus(ENET_Type *base, uint8_t channel
  * @brief Gets the ENET MAC interrupt status flag.
  *
  * @param base  ENET peripheral base address.
- * @return The event status of the interrupt source. 
+ * @return The event status of the interrupt source.
  *       Use the enum in enet_mac_interrupt_enable_t and right shift
- *       ENET_MACINT_ENUM_OFFSET to mask the returned value to get the 
+ *       ENET_MACINT_ENUM_OFFSET to mask the returned value to get the
  *       exact interrupt status.
  */
 static inline uint32_t ENET_GetMacInterruptStatus(ENET_Type *base)
@@ -940,17 +927,17 @@ void ENET_UpdateRxDescriptor(
  */
 
 /*!
- * @brief Create ENET Handler 
+ * @brief Create ENET Handler
  *
  * This is a transactional API and it's provided to store all datas which are needed
  * during the whole transactional process. This API should not be used when you use
- * functional APIs to do data tx/rx. This is funtion will store many data/flag for 
+ * functional APIs to do data tx/rx. This is funtion will store many data/flag for
  * transactional use, so all configure API such as ENET_Init(), ENET_DescriptorInit(),
  * ENET_EnableInterrupts() etc.
  *
  * @note as our transactional transmit API use the zero-copy transmit buffer.
  * so there are two thing we emphasize here:
- *  1. tx buffer free/requeue for application should be done in the tx 
+ *  1. tx buffer free/requeue for application should be done in the tx
  *  interrupt handler. Please set callback: kENET_TxIntEvent with tx buffer free/requeue
  *  process APIs.
  *  2. the tx interrupt is forced to open.

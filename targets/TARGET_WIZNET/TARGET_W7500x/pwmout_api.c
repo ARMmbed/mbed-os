@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -39,7 +39,7 @@
 
 static PWM_TimerModeInitTypeDef TimerModeStructure;
 
-void pwmout_init(pwmout_t* obj, PinName pin)
+void pwmout_init(pwmout_t *obj, PinName pin)
 {
     // Get the peripheral name from the pin and assign it to the object
     obj->PWM_CHx = (PWM_CHn_TypeDef *)pinmap_peripheral(pin, PinMap_PWM);
@@ -50,21 +50,21 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);
-    
+
     GetSystemClock();
 
     obj->pin = pin;
-    
+
     pwmout_period_us(obj, 20000); // 20 ms per default
 }
 
-void pwmout_free(pwmout_t* obj)
+void pwmout_free(pwmout_t *obj)
 {
     // Configure GPIO
     pin_function(obj->pin, WIZ_PIN_DATA(WIZ_MODE_AF, WIZ_GPIO_NOPULL, Px_AFSR_AF0));
 }
 
-void pwmout_write(pwmout_t* obj, float value)
+void pwmout_write(pwmout_t *obj, float value)
 {
     if (value < (float)0.0) {
         value = 0.0;
@@ -73,21 +73,21 @@ void pwmout_write(pwmout_t* obj, float value)
     }
 
     obj->pulse = (uint32_t)((float)obj->period * value);
-    
+
     PWM_CHn_Stop(obj->PWM_CHx);
 
     TimerModeStructure.PWM_CHn_PR = obj->PrescalerValue - 1;
     TimerModeStructure.PWM_CHn_MR = obj->pulse;
-    TimerModeStructure.PWM_CHn_LR = obj->period; 
+    TimerModeStructure.PWM_CHn_LR = obj->period;
     TimerModeStructure.PWM_CHn_UDMR = PWM_CHn_UDMR_UpCount;
     TimerModeStructure.PWM_CHn_PDMR = PWM_CHn_PDMR_Periodic;
-    
+
     PWM_TimerModeInit(obj->PWM_CHx, &TimerModeStructure);
-    
+
     PWM_CHn_Start(obj->PWM_CHx);
 }
 
-float pwmout_read(pwmout_t* obj)
+float pwmout_read(pwmout_t *obj)
 {
     float value = 0;
     if (obj->period > 0) {
@@ -96,17 +96,17 @@ float pwmout_read(pwmout_t* obj)
     return ((value > (float)1.0) ? (float)(1.0) : (value));
 }
 
-void pwmout_period(pwmout_t* obj, float seconds)
+void pwmout_period(pwmout_t *obj, float seconds)
 {
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms)
+void pwmout_period_ms(pwmout_t *obj, int ms)
 {
     pwmout_period_us(obj, ms * 1000);
 }
 
-void pwmout_period_us(pwmout_t* obj, int us)
+void pwmout_period_us(pwmout_t *obj, int us)
 {
     PWM_CHn_Stop(obj->PWM_CHx);
     // Update the SystemCoreClock variable
@@ -114,29 +114,29 @@ void pwmout_period_us(pwmout_t* obj, int us)
 
     obj->period = (us * 2) - 1;
     obj->pulse = us / 2;
-    
+
     obj->PrescalerValue = (SystemCoreClock / 1000000) / 2;
     TimerModeStructure.PWM_CHn_PR = obj->PrescalerValue - 1;
     TimerModeStructure.PWM_CHn_MR = obj->pulse;
-    TimerModeStructure.PWM_CHn_LR = obj->period; 
+    TimerModeStructure.PWM_CHn_LR = obj->period;
     TimerModeStructure.PWM_CHn_UDMR = PWM_CHn_UDMR_UpCount;
     TimerModeStructure.PWM_CHn_PDMR = PWM_CHn_PDMR_Periodic;
-    
+
     PWM_TimerModeInit(obj->PWM_CHx, &TimerModeStructure);
     PWM_CtrlPWMOutputEnable(obj->PWM_CHx);
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds)
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us)
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
     float value = (float)(2 * us) / (float)obj->period;
     pwmout_write(obj, value);

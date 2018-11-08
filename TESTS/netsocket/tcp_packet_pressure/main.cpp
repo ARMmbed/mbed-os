@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
- #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-     #error [NOT_SUPPORTED] No network configuration found for this target.
- #endif
+#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#error [NOT_SUPPORTED] No network configuration found for this target.
+#endif
 
 #ifndef MBED_EXTENDED_TESTS
-    #error [NOT_SUPPORTED] Pressure tests are not supported by default
+#error [NOT_SUPPORTED] Pressure tests are not supported by default
 #endif
 
 #include "mbed.h"
@@ -63,23 +63,26 @@ private:
     static const int C = 11;
 
 public:
-    RandSeq(uint32_t seed=MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_SEED)
+    RandSeq(uint32_t seed = MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_SEED)
         : x(seed), y(seed) {}
 
-    uint32_t next(void) {
+    uint32_t next(void)
+    {
         x ^= x << A;
         x ^= x >> B;
         x ^= y ^ (y >> C);
         return x + y;
     }
 
-    void skip(size_t size) {
+    void skip(size_t size)
+    {
         for (size_t i = 0; i < size; i++) {
             next();
         }
     }
 
-    void buffer(uint8_t *buffer, size_t size) {
+    void buffer(uint8_t *buffer, size_t size)
+    {
         RandSeq lookahead = *this;
 
         for (size_t i = 0; i < size; i++) {
@@ -87,7 +90,8 @@ public:
         }
     }
 
-    int cmp(uint8_t *buffer, size_t size) {
+    int cmp(uint8_t *buffer, size_t size)
+    {
         RandSeq lookahead = *this;
 
         for (size_t i = 0; i < size; i++) {
@@ -107,7 +111,8 @@ size_t buffer_size;
 // Tries to get the biggest buffer possible on the device. Exponentially
 // grows a buffer until heap runs out of space, and uses half to leave
 // space for the rest of the program
-void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max) {
+void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max)
+{
     size_t i = min;
     while (i < max) {
         void *b = malloc(i);
@@ -128,13 +133,14 @@ void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max) {
 }
 
 
-void test_tcp_packet_pressure() {
+void test_tcp_packet_pressure()
+{
     generate_buffer(&buffer, &buffer_size,
-        MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN,
-        MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX);
+                    MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN,
+                    MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX);
     printf("MBED: Generated buffer %d\r\n", buffer_size);
 
-    NetworkInterface* net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+    NetworkInterface *net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
     TEST_ASSERT_EQUAL(0, err);
 
@@ -148,14 +154,14 @@ void test_tcp_packet_pressure() {
 
     // Tests exponentially growing sequences
     for (size_t size = MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN;
-         size < MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX;
-         size *= 2) {
+            size < MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX;
+            size *= 2) {
         err = sock.open(net);
         TEST_ASSERT_EQUAL(0, err);
         err = sock.connect(tcp_addr);
         TEST_ASSERT_EQUAL(0, err);
         printf("TCP: %s:%d streaming %d bytes\r\n",
-            tcp_addr.get_ip_address(), tcp_addr.get_port(), size);
+               tcp_addr.get_ip_address(), tcp_addr.get_port(), size);
 
         //recv connection prefix message
         sock.recv(buffer, sizeof(MBED_CONF_APP_TCP_ECHO_PREFIX));
@@ -225,15 +231,16 @@ void test_tcp_packet_pressure() {
     timer.stop();
     printf("MBED: Time taken: %fs\r\n", timer.read());
     printf("MBED: Speed: %.3fkb/s\r\n",
-            8*(2*MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX -
-            MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN) / (1000*timer.read()));
+           8 * (2 * MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX -
+                MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN) / (1000 * timer.read()));
 
     net->disconnect();
 }
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(120, "tcp_echo");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -244,6 +251,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

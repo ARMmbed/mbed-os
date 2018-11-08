@@ -56,13 +56,13 @@ const int ethernet_MTU_SIZE  = 0x300;
 #define ETHERNET_ADDR_SIZE 6
 
 /*  Descriptors Fields bits       */
-#define TRDES_OWN_BIT		(1U<<31)	/*  Own bit in RDES0 & TDES0              */
-#define RX_END_RING		(1<<15)		/*  Receive End of Ring bit in RDES1      */
-#define RX_NXTDESC_FLAG		(1<<14)		/*  Second Address Chained bit in RDES1   */
-#define TX_LAST_SEGM		(1<<29)		/*  Last Segment bit in TDES0             */
-#define TX_FIRST_SEGM		(1<<28)		/*  First Segment bit in TDES0            */
-#define TX_END_RING		(1<<21)		/*  Transmit End of Ring bit in TDES0     */
-#define TX_NXTDESC_FLAG		(1<<20)		/*  Second Address Chained bit in TDES0   */
+#define TRDES_OWN_BIT       (1U<<31)    /*  Own bit in RDES0 & TDES0              */
+#define RX_END_RING     (1<<15)     /*  Receive End of Ring bit in RDES1      */
+#define RX_NXTDESC_FLAG     (1<<14)     /*  Second Address Chained bit in RDES1   */
+#define TX_LAST_SEGM        (1<<29)     /*  Last Segment bit in TDES0             */
+#define TX_FIRST_SEGM       (1<<28)     /*  First Segment bit in TDES0            */
+#define TX_END_RING     (1<<21)     /*  Transmit End of Ring bit in TDES0     */
+#define TX_NXTDESC_FLAG     (1<<20)     /*  Second Address Chained bit in TDES0   */
 
 PACKED struct RX_DESC_TypeDef {                        /* RX Descriptor struct              */
     unsigned int Status;
@@ -81,42 +81,42 @@ PACKED struct TX_DESC_TypeDef {                        /* TX Descriptor struct  
 typedef struct TX_DESC_TypeDef TX_DESC_TypeDef;
 
 /* ETHMODE RMII SELECT */
-#define RMII_SELECT			0x04
+#define RMII_SELECT         0x04
 /* define to tell PHY about write operation */
-#define MII_WRITE		(1 << 1)
+#define MII_WRITE       (1 << 1)
 /* define to tell PHY about read operation */
-#define MII_READ		(0 << 1)
+#define MII_READ        (0 << 1)
 /* define to enable duplex mode */
 #define MAC_DUPLEX_MODE (1 << 11)
 
 /* MAC_FRAME_FILTER register bit defines */
-#define MAC_FRAME_FILTER_PR      (1 << 0)		/* Promiscuous Mode */
-#define MAC_FRAME_FILTER_RA      (1UL << 31)	/* Receive all */
+#define MAC_FRAME_FILTER_PR      (1 << 0)       /* Promiscuous Mode */
+#define MAC_FRAME_FILTER_RA      (1UL << 31)    /* Receive all */
 
 /* MAC_CONFIG register bit defines */
-#define MAC_CONFIG_RE     (1 << 2)		/* Receiver enable */
-#define MAC_CONFIG_TE     (1 << 3)		/* Transmitter Enable */
+#define MAC_CONFIG_RE     (1 << 2)      /* Receiver enable */
+#define MAC_CONFIG_TE     (1 << 3)      /* Transmitter Enable */
 
 /* DMA_OP_MODE register bit defines */
-#define DMA_OP_MODE_SSR      (1 << 1)		/* Start/stop receive */
-#define DMA_OP_MODE_SST      (1 << 13)	/* Start/Stop Transmission Command */
+#define DMA_OP_MODE_SSR      (1 << 1)       /* Start/stop receive */
+#define DMA_OP_MODE_SST      (1 << 13)  /* Start/Stop Transmission Command */
 
 /* DMA_INT_EN register bit defines */
-#define DMA_INT_EN_TIE     (1 << 0)		/* Transmit interrupt enable */
-#define DMA_INT_EN_TSE     (1 << 1)		/* Transmit stopped enable */
-#define DMA_INT_EN_TUE     (1 << 2)		/* Transmit buffer unavailable enable */
-#define DMA_INT_EN_TJE     (1 << 3)		/* Transmit jabber timeout enable */
-#define DMA_INT_EN_OVE     (1 << 4)		/* Overflow interrupt enable */
-#define DMA_INT_EN_UNE     (1 << 5)		/* Underflow interrupt enable */
-#define DMA_INT_EN_RIE     (1 << 6)		/* Receive interrupt enable */
-#define DMA_INT_EN_RUE     (1 << 7)		/* Receive buffer unavailable enable */
-#define DMA_INT_EN_RSE     (1 << 8)		/* Received stopped enable */
-#define DMA_INT_EN_RWE     (1 << 9)		/* Receive watchdog timeout enable */
-#define DMA_INT_EN_ETE     (1 << 10)	/* Early transmit interrupt enable */
-#define DMA_INT_EN_FBE     (1 << 13)	/* Fatal bus error enable */
-#define DMA_INT_EN_ERE     (1 << 14)	/* Early receive interrupt enable */
-#define DMA_INT_EN_AIE     (1 << 15)	/* Abnormal interrupt summary enable */
-#define DMA_INT_EN_NIE     (1 << 16)	/* Normal interrupt summary enable */
+#define DMA_INT_EN_TIE     (1 << 0)     /* Transmit interrupt enable */
+#define DMA_INT_EN_TSE     (1 << 1)     /* Transmit stopped enable */
+#define DMA_INT_EN_TUE     (1 << 2)     /* Transmit buffer unavailable enable */
+#define DMA_INT_EN_TJE     (1 << 3)     /* Transmit jabber timeout enable */
+#define DMA_INT_EN_OVE     (1 << 4)     /* Overflow interrupt enable */
+#define DMA_INT_EN_UNE     (1 << 5)     /* Underflow interrupt enable */
+#define DMA_INT_EN_RIE     (1 << 6)     /* Receive interrupt enable */
+#define DMA_INT_EN_RUE     (1 << 7)     /* Receive buffer unavailable enable */
+#define DMA_INT_EN_RSE     (1 << 8)     /* Received stopped enable */
+#define DMA_INT_EN_RWE     (1 << 9)     /* Receive watchdog timeout enable */
+#define DMA_INT_EN_ETE     (1 << 10)    /* Early transmit interrupt enable */
+#define DMA_INT_EN_FBE     (1 << 13)    /* Fatal bus error enable */
+#define DMA_INT_EN_ERE     (1 << 14)    /* Early receive interrupt enable */
+#define DMA_INT_EN_AIE     (1 << 15)    /* Abnormal interrupt summary enable */
+#define DMA_INT_EN_NIE     (1 << 16)    /* Normal interrupt summary enable */
 
 
 
@@ -226,21 +226,21 @@ int ethernet_init()
     int regv, tout;
     char mac[ETHERNET_ADDR_SIZE];
 
-    pin_function(PC_0, (SCU_MODE_INACT | FUNC3)); 	/* Enable ENET RX CLK */
-    pin_function(P1_19, (SCU_MODE_INACT | FUNC0)); 	/* Enable ENET TX CLK */
+    pin_function(PC_0, (SCU_MODE_INACT | FUNC3));   /* Enable ENET RX CLK */
+    pin_function(P1_19, (SCU_MODE_INACT | FUNC0));  /* Enable ENET TX CLK */
 
-    /* Ethernet pinmuxing	*/
-    pin_function(P2_0, SCU_PINIO_FAST | FUNC7); 	/* ENET_MDC */
-    pin_function(P1_17, SCU_PINIO_FAST | FUNC3); 	/* ENET_MDIO */
-    pin_function(P1_18, SCU_PINIO_FAST | FUNC3); 	/* ENET_TXD0 */
-    pin_function(P1_20, SCU_PINIO_FAST | FUNC3); 	/* ENET_TXD1 */
-    pin_function(P1_19, SCU_PINIO_FAST | FUNC0); 	/* ENET_REF */
-    pin_function(P0_1, SCU_PINIO_FAST | FUNC6); 	/* ENET_TX_EN */
-    pin_function(P1_15, SCU_PINIO_FAST | FUNC3); 	/* ENET_RXD0 */
-    pin_function(P0_0, SCU_PINIO_FAST | FUNC2); 	/* ENET_RXD1 */
-    pin_function(P1_16, SCU_PINIO_FAST | FUNC3); 	/* ENET_CRS */
-    pin_function(PC_9, SCU_PINIO_FAST | FUNC3); 	/* ENET_RX_ER */
-    pin_function(P1_16, SCU_PINIO_FAST | FUNC7); 	/* ENET_RXDV */
+    /* Ethernet pinmuxing   */
+    pin_function(P2_0, SCU_PINIO_FAST | FUNC7);     /* ENET_MDC */
+    pin_function(P1_17, SCU_PINIO_FAST | FUNC3);    /* ENET_MDIO */
+    pin_function(P1_18, SCU_PINIO_FAST | FUNC3);    /* ENET_TXD0 */
+    pin_function(P1_20, SCU_PINIO_FAST | FUNC3);    /* ENET_TXD1 */
+    pin_function(P1_19, SCU_PINIO_FAST | FUNC0);    /* ENET_REF */
+    pin_function(P0_1, SCU_PINIO_FAST | FUNC6);     /* ENET_TX_EN */
+    pin_function(P1_15, SCU_PINIO_FAST | FUNC3);    /* ENET_RXD0 */
+    pin_function(P0_0, SCU_PINIO_FAST | FUNC2);     /* ENET_RXD1 */
+    pin_function(P1_16, SCU_PINIO_FAST | FUNC3);    /* ENET_CRS */
+    pin_function(PC_9, SCU_PINIO_FAST | FUNC3);     /* ENET_RX_ER */
+    pin_function(P1_16, SCU_PINIO_FAST | FUNC7);    /* ENET_RXDV */
 
     LPC_CREG->CREG6 |= RMII_SELECT;
 
@@ -249,28 +249,29 @@ int ethernet_init()
     LPC_RGU->RESET_CTRL0 = 0;
 
     /* Wait until reset is performed */
-    while(1) {
-        if (LPC_RGU->RESET_ACTIVE_STATUS0 & (1 << 22))
+    while (1) {
+        if (LPC_RGU->RESET_ACTIVE_STATUS0 & (1 << 22)) {
             break;
+        }
     }
 
     /* Reset MAC DMA Controller */
     LPC_ETHERNET->DMA_BUS_MODE |= 0x01;
-    while(LPC_ETHERNET->DMA_BUS_MODE & 0x01);
+    while (LPC_ETHERNET->DMA_BUS_MODE & 0x01);
 
     phy_write(PHY_REG_BMCR, PHY_BMCR_RESET);           /* perform PHY reset */
 
-    for(tout = 0x20000; ; tout--) {                    /* Wait for hardware reset to end. */
+    for (tout = 0x20000; ; tout--) {                   /* Wait for hardware reset to end. */
         regv = phy_read(PHY_REG_BMCR);
-        if(regv < 0 || tout == 0) {
+        if (regv < 0 || tout == 0) {
             return -1;                                    /* Error */
         }
-        if(!(regv & PHY_BMCR_RESET)) {
+        if (!(regv & PHY_BMCR_RESET)) {
             break;                                        /* Reset complete. */
         }
     }
 
-    phy_id =  (phy_read(PHY_REG_IDR1) << 16);
+    phy_id = (phy_read(PHY_REG_IDR1) << 16);
     phy_id |= (phy_read(PHY_REG_IDR2) & 0XFFF0);
 
     if (phy_id != DP83848C_ID && phy_id != LAN8720_ID) {
@@ -282,7 +283,7 @@ int ethernet_init()
     /* Set the Ethernet MAC Address registers */
     ethernet_address(mac);
     LPC_ETHERNET->MAC_ADDR0_HIGH = (mac[5] << 8) | mac[4];
-    LPC_ETHERNET->MAC_ADDR0_LOW =	(mac[3] << 24) | (mac[2] << 16) | (mac[1] << 8) | mac[0];
+    LPC_ETHERNET->MAC_ADDR0_LOW = (mac[3] << 24) | (mac[2] << 16) | (mac[1] << 8) | mac[0];
 
     txdscr_init();                                      /* initialize DMA TX Descriptor */
     rxdscr_init();                                      /* initialize DMA RX Descriptor */
@@ -293,7 +294,7 @@ int ethernet_init()
     /* Enable Receiver and Transmitter */
     LPC_ETHERNET->MAC_CONFIG |= (MAC_CONFIG_RE | MAC_CONFIG_TE);
 
-    //LPC_ETHERNET->DMA_INT_EN =  DMA_INT_EN_NIE | DMA_INT_EN_RIE | DMA_INT_EN_TJE;	/* Enable EMAC interrupts. */
+    //LPC_ETHERNET->DMA_INT_EN =  DMA_INT_EN_NIE | DMA_INT_EN_RIE | DMA_INT_EN_TJE; /* Enable EMAC interrupts. */
 
     /* Start Transmission & Receive processes   */
     LPC_ETHERNET->DMA_OP_MODE |= (DMA_OP_MODE_SST | DMA_OP_MODE_SSR);
@@ -313,8 +314,9 @@ void ethernet_free()
  *----------------------------------------------------------------------------*/
 int ethernet_write(const char *data, int slen)
 {
-    if (slen > ETH_FRAG_SIZE)
+    if (slen > ETH_FRAG_SIZE) {
         return -1;
+    }
 
     txdesc[TxDescIndex].Ctrl = slen;
     memcpy((void *)txdesc[TxDescIndex].BufAddr1, data, slen);
@@ -330,8 +332,9 @@ int ethernet_send()
     txdesc[TxDescIndex].Status |= TRDES_OWN_BIT;
     LPC_ETHERNET->DMA_TRANS_POLL_DEMAND = 1;   //  Wake Up the DMA if it's in Suspended Mode
     TxDescIndex++;
-    if (TxDescIndex == NUM_TX_FRAG)
+    if (TxDescIndex == NUM_TX_FRAG) {
         TxDescIndex = 0;
+    }
 
     return s;
 }
@@ -343,10 +346,11 @@ int ethernet_receive()
 {
     int i, slen = 0;
     for (i = RxDescIndex;; i++) {
-        if (rxdesc[i].Status & TRDES_OWN_BIT)
+        if (rxdesc[i].Status & TRDES_OWN_BIT) {
             return (slen - RxOffset);
-        else
+        } else {
             slen += (rxdesc[i].Status >> 16) & 0x03FFF;
+        }
     }
     return 0;
 }
@@ -360,16 +364,18 @@ int ethernet_read(char *data, int dlen)
     int copylen;
     uint32_t *pSrc = (uint32_t *)rxdesc[RxDescIndex].BufAddr1;
     copylen = (rxdesc[RxDescIndex].Status >> 16) & 0x03FFF;
-    if (rxdesc[RxDescIndex].Status & TRDES_OWN_BIT || (dlen + RxOffset) > copylen)
+    if (rxdesc[RxDescIndex].Status & TRDES_OWN_BIT || (dlen + RxOffset) > copylen) {
         return -1;
+    }
 
     if ((dlen + RxOffset) == copylen) {
         memcpy(&pSrc[RxOffset], data, copylen);
         rxdesc[RxDescIndex].Status = TRDES_OWN_BIT;
         RxDescIndex++;
         RxOffset = 0;
-        if (RxDescIndex == NUM_RX_FRAG)
+        if (RxDescIndex == NUM_RX_FRAG) {
             RxDescIndex = 0;
+        }
     } else if ((dlen + RxOffset) < copylen) {
         copylen = dlen;
         memcpy(&pSrc[RxOffset], data, copylen);
@@ -392,10 +398,10 @@ static int phy_write(unsigned int PhyReg, unsigned short Data)
 {
     unsigned int timeOut;
 
-    while(LPC_ETHERNET->MAC_MII_ADDR & MIND_BUSY);
-    LPC_ETHERNET->MAC_MII_ADDR = (DP83848C_DEF_ADR<<11) | (PhyReg<<6) | MII_WRITE;
+    while (LPC_ETHERNET->MAC_MII_ADDR & MIND_BUSY);
+    LPC_ETHERNET->MAC_MII_ADDR = (DP83848C_DEF_ADR << 11) | (PhyReg << 6) | MII_WRITE;
     LPC_ETHERNET->MAC_MII_DATA = Data;
-    LPC_ETHERNET->MAC_MII_ADDR |= MIND_BUSY;				// Start PHY Write Cycle
+    LPC_ETHERNET->MAC_MII_ADDR |= MIND_BUSY;                // Start PHY Write Cycle
 
     /* Wait utill operation completed */
     for (timeOut = 0; timeOut < MII_WR_TOUT; timeOut++) {
@@ -411,12 +417,12 @@ static int phy_read(unsigned int PhyReg)
 {
     unsigned int timeOut;
 
-    while(LPC_ETHERNET->MAC_MII_ADDR & MIND_BUSY);
-    LPC_ETHERNET->MAC_MII_ADDR = (DP83848C_DEF_ADR<<11) | (PhyReg<<6) | MII_READ;
+    while (LPC_ETHERNET->MAC_MII_ADDR & MIND_BUSY);
+    LPC_ETHERNET->MAC_MII_ADDR = (DP83848C_DEF_ADR << 11) | (PhyReg << 6) | MII_READ;
     LPC_ETHERNET->MAC_MII_ADDR |= MIND_BUSY;
 
-    for(timeOut = 0; timeOut < MII_RD_TOUT; timeOut++) {     /* Wait until operation completed */
-        if((LPC_ETHERNET->MAC_MII_ADDR & MIND_BUSY) == 0) {
+    for (timeOut = 0; timeOut < MII_RD_TOUT; timeOut++) {    /* Wait until operation completed */
+        if ((LPC_ETHERNET->MAC_MII_ADDR & MIND_BUSY) == 0) {
             return LPC_ETHERNET->MAC_MII_DATA;               /* Return a 16-bit value. */
         }
     }
@@ -428,7 +434,7 @@ static void txdscr_init()
 {
     int i;
 
-    for(i = 0; i < NUM_TX_FRAG; i++) {
+    for (i = 0; i < NUM_TX_FRAG; i++) {
         txdesc[i].Status = TX_LAST_SEGM | TX_FIRST_SEGM;;
         txdesc[i].Ctrl   = 0;
         txdesc[i].BufAddr1   = (uint32_t)&txbuf[i];
@@ -445,7 +451,7 @@ static void rxdscr_init()
 {
     int i;
 
-    for(i = 0; i < NUM_RX_FRAG; i++) {
+    for (i = 0; i < NUM_RX_FRAG; i++) {
         rxdesc[i].Status  = TRDES_OWN_BIT;
         rxdesc[i].Ctrl    = ETH_FRAG_SIZE;
         rxdesc[i].BufAddr1  = (uint32_t)&rxbuf[i];
@@ -467,7 +473,7 @@ void ethernet_set_link(int speed, int duplex)
     volatile unsigned short phy_data;
     int tout;
 
-    if((speed < 0) || (speed > 1)) {
+    if ((speed < 0) || (speed > 1)) {
 
         phy_data = PHY_AUTO_NEG;
 
@@ -479,23 +485,23 @@ void ethernet_set_link(int speed, int duplex)
 
     phy_write(PHY_REG_BMCR, phy_data);
 
-    for(tout = 100; tout; tout--) {
+    for (tout = 100; tout; tout--) {
         __NOP();    /* A short delay */
     }
 
-    switch(phy_id) {
+    switch (phy_id) {
         case DP83848C_ID:
 
             phy_data = phy_read(PHY_REG_STS);
 
-            if(phy_data & PHY_STS_DUPLEX) {
+            if (phy_data & PHY_STS_DUPLEX) {
                 /* Full duplex is enabled. */
                 LPC_ETHERNET->MAC_CONFIG |= MAC_DUPLEX_MODE;
             } else {
                 LPC_ETHERNET->MAC_CONFIG &= ~MAC_DUPLEX_MODE;
             }
 
-            if(phy_data & PHY_STS_SPEED) {
+            if (phy_data & PHY_STS_SPEED) {
                 LPC_ETHERNET->MAC_CONFIG &= ~SUPP_SPEED;
             } else {
                 LPC_ETHERNET->MAC_CONFIG |= SUPP_SPEED;
@@ -504,10 +510,11 @@ void ethernet_set_link(int speed, int duplex)
 
         case LAN8720_ID:
 
-            for(tout = 100; tout; tout--) {
+            for (tout = 100; tout; tout--) {
                 phy_data = phy_read(PHY_REG_BMSR);
-                if (phy_data & PHY_STS_DUPLEX)
+                if (phy_data & PHY_STS_DUPLEX) {
                     break;
+                }
             }
 
             if (phy_data & PHY_STS_DUPLEX) {
@@ -517,7 +524,7 @@ void ethernet_set_link(int speed, int duplex)
                 LPC_ETHERNET->MAC_CONFIG &= ~MAC_DUPLEX_MODE;
             }
 
-            if(phy_data & PHY_STS_SPEED) {
+            if (phy_data & PHY_STS_SPEED) {
                 LPC_ETHERNET->MAC_CONFIG &= ~SUPP_SPEED;
             } else {
                 LPC_ETHERNET->MAC_CONFIG |= SUPP_SPEED;

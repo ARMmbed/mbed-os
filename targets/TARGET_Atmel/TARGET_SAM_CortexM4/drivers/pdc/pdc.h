@@ -249,12 +249,12 @@ extern "C" {
  * the table.
  *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
- *	<tr>
- *		<td>Initial document release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Changelog</th>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial document release</td>
+ *  </tr>
  * </table>
  *
  *
@@ -301,21 +301,21 @@ extern "C" {
  * \page asfdoc_sam_drivers_pdc_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
- *	<tr>
- *		<td>42316B</td>
- *		<td>07/2015</td>
- *		<td>Updated title of application note and added list of supported devices</td>
- *	</tr>
- *	<tr>
- *		<td>42316A</td>
- *		<td>05/2014</td>
- *		<td>Initial document release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42316B</td>
+ *      <td>07/2015</td>
+ *      <td>Updated title of application note and added list of supported devices</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42316A</td>
+ *      <td>05/2014</td>
+ *      <td>Initial document release</td>
+ *  </tr>
  * </table>
  *
  */

@@ -77,15 +77,15 @@ __STATIC_INLINE void BUS_RamBitWrite(volatile uint32_t *addr,
                                      unsigned int val)
 {
 #if defined(BITBAND_RAM_BASE)
-  uint32_t aliasAddr =
-    BITBAND_RAM_BASE + (((uint32_t)addr - SRAM_BASE) * 32) + (bit * 4);
+    uint32_t aliasAddr =
+        BITBAND_RAM_BASE + (((uint32_t)addr - SRAM_BASE) * 32) + (bit * 4);
 
-  *(volatile uint32_t *)aliasAddr = (uint32_t)val;
+    *(volatile uint32_t *)aliasAddr = (uint32_t)val;
 #else
-  uint32_t tmp = *addr;
+    uint32_t tmp = *addr;
 
-  /* Make sure val is not more than 1, because we only want to set one bit. */
-  *addr = (tmp & ~(1 << bit)) | ((val & 1) << bit);
+    /* Make sure val is not more than 1, because we only want to set one bit. */
+    *addr = (tmp & ~(1 << bit)) | ((val & 1) << bit);
 #endif
 }
 
@@ -114,12 +114,12 @@ __STATIC_INLINE unsigned int BUS_RamBitRead(volatile const uint32_t *addr,
                                             unsigned int bit)
 {
 #if defined(BITBAND_RAM_BASE)
-  uint32_t aliasAddr =
-    BITBAND_RAM_BASE + (((uint32_t)addr - SRAM_BASE) * 32) + (bit * 4);
+    uint32_t aliasAddr =
+        BITBAND_RAM_BASE + (((uint32_t)addr - SRAM_BASE) * 32) + (bit * 4);
 
-  return *(volatile uint32_t *)aliasAddr;
+    return *(volatile uint32_t *)aliasAddr;
 #else
-  return ((*addr) >> bit) & 1;
+    return ((*addr) >> bit) & 1;
 #endif
 }
 
@@ -148,15 +148,15 @@ __STATIC_INLINE void BUS_RegBitWrite(volatile uint32_t *addr,
                                      unsigned int val)
 {
 #if defined(BITBAND_PER_BASE)
-  uint32_t aliasAddr =
-    BITBAND_PER_BASE + (((uint32_t)addr - PER_MEM_BASE) * 32) + (bit * 4);
+    uint32_t aliasAddr =
+        BITBAND_PER_BASE + (((uint32_t)addr - PER_MEM_BASE) * 32) + (bit * 4);
 
-  *(volatile uint32_t *)aliasAddr = (uint32_t)val;
+    *(volatile uint32_t *)aliasAddr = (uint32_t)val;
 #else
-  uint32_t tmp = *addr;
+    uint32_t tmp = *addr;
 
-  /* Make sure val is not more than 1, because we only want to set one bit. */
-  *addr = (tmp & ~(1 << bit)) | ((val & 1) << bit);
+    /* Make sure val is not more than 1, because we only want to set one bit. */
+    *addr = (tmp & ~(1 << bit)) | ((val & 1) << bit);
 #endif
 }
 
@@ -185,12 +185,12 @@ __STATIC_INLINE unsigned int BUS_RegBitRead(volatile const uint32_t *addr,
                                             unsigned int bit)
 {
 #if defined(BITBAND_PER_BASE)
-  uint32_t aliasAddr =
-    BITBAND_PER_BASE + (((uint32_t)addr - PER_MEM_BASE) * 32) + (bit * 4);
+    uint32_t aliasAddr =
+        BITBAND_PER_BASE + (((uint32_t)addr - PER_MEM_BASE) * 32) + (bit * 4);
 
-  return *(volatile uint32_t *)aliasAddr;
+    return *(volatile uint32_t *)aliasAddr;
 #else
-  return ((*addr) >> bit) & 1;
+    return ((*addr) >> bit) & 1;
 #endif
 }
 
@@ -218,10 +218,10 @@ __STATIC_INLINE void BUS_RegMaskedSet(volatile uint32_t *addr,
                                       uint32_t mask)
 {
 #if defined(PER_BITSET_MEM_BASE)
-  uint32_t aliasAddr = PER_BITSET_MEM_BASE + ((uint32_t)addr - PER_MEM_BASE);
-  *(volatile uint32_t *)aliasAddr = mask;
+    uint32_t aliasAddr = PER_BITSET_MEM_BASE + ((uint32_t)addr - PER_MEM_BASE);
+    *(volatile uint32_t *)aliasAddr = mask;
 #else
-  *addr |= mask;
+    *addr |= mask;
 #endif
 }
 
@@ -249,10 +249,10 @@ __STATIC_INLINE void BUS_RegMaskedClear(volatile uint32_t *addr,
                                         uint32_t mask)
 {
 #if defined(PER_BITCLR_MEM_BASE)
-  uint32_t aliasAddr = PER_BITCLR_MEM_BASE + ((uint32_t)addr - PER_MEM_BASE);
-  *(volatile uint32_t *)aliasAddr = mask;
+    uint32_t aliasAddr = PER_BITCLR_MEM_BASE + ((uint32_t)addr - PER_MEM_BASE);
+    *(volatile uint32_t *)aliasAddr = mask;
 #else
-  *addr &= ~mask;
+    *addr &= ~mask;
 #endif
 }
 
@@ -284,10 +284,10 @@ __STATIC_INLINE void BUS_RegMaskedWrite(volatile uint32_t *addr,
                                         uint32_t val)
 {
 #if defined(PER_BITCLR_MEM_BASE)
-  BUS_RegMaskedClear(addr, mask);
-  BUS_RegMaskedSet(addr, val);
+    BUS_RegMaskedClear(addr, mask);
+    BUS_RegMaskedSet(addr, val);
 #else
-  *addr = (*addr & ~mask) | val;
+    *addr = (*addr & ~mask) | val;
 #endif
 }
 
@@ -311,7 +311,7 @@ __STATIC_INLINE void BUS_RegMaskedWrite(volatile uint32_t *addr,
 __STATIC_INLINE uint32_t BUS_RegMaskedRead(volatile const uint32_t *addr,
                                            uint32_t mask)
 {
-  return *addr & mask;
+    return *addr & mask;
 }
 
 /** @} (end addtogroup BUS) */

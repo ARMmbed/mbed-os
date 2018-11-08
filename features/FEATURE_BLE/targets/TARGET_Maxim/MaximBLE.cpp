@@ -58,13 +58,12 @@
 static uint8_t mainBufMem[1040];
 
 /*! Default pool descriptor. */
-static wsfBufPoolDesc_t mainPoolDesc[WSF_BUF_POOLS] =
-{
-  {  16,  8 },
-  {  32,  4 },
-  {  64,  2 },
-  { 128,  2 },
-  { 272,  1 }
+static wsfBufPoolDesc_t mainPoolDesc[WSF_BUF_POOLS] = {
+    {  16,  8 },
+    {  32,  4 },
+    {  64,  2 },
+    { 128,  2 },
+    { 272,  1 }
 };
 
 /* Store the Event signalling */
@@ -95,17 +94,17 @@ static MaximBLE deviceInstance;
 
 extern "C" {
 
-/*
- * This function will signal to the user code by calling signalEventsToProcess.
- * It is registered and called into the Wsf Stack.
- */
-void wsf_mbed_ble_signal_event(void)
-{
-    if (isEventsSignaled == false) {
-        isEventsSignaled = true;
-        deviceInstance.signalEventsToProcess(::BLE::DEFAULT_INSTANCE);
+    /*
+     * This function will signal to the user code by calling signalEventsToProcess.
+     * It is registered and called into the Wsf Stack.
+     */
+    void wsf_mbed_ble_signal_event(void)
+    {
+        if (isEventsSignaled == false) {
+            isEventsSignaled = true;
+            deviceInstance.signalEventsToProcess(::BLE::DEFAULT_INSTANCE);
+        }
     }
-}
 
 }
 
@@ -139,8 +138,7 @@ static void DmCback(dmEvt_t *pDmEvt)
 {
     dmEvt_t *pMsg;
 
-    if ((pMsg = (dmEvt_t*)WsfMsgAlloc(sizeof(dmEvt_t))) != NULL)
-    {
+    if ((pMsg = (dmEvt_t *)WsfMsgAlloc(sizeof(dmEvt_t))) != NULL) {
         memcpy(pMsg, pDmEvt, sizeof(dmEvt_t));
         WsfMsgSend(maximHandlerId, pMsg);
     }
@@ -148,10 +146,8 @@ static void DmCback(dmEvt_t *pDmEvt)
 
 static void maximHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
 {
-    if (pMsg != NULL)
-    {
-        switch(pMsg->event)
-        {
+    if (pMsg != NULL) {
+        switch (pMsg->event) {
             case DM_RESET_CMPL_IND:
                 reset_complete = 1;
                 break;
@@ -160,47 +156,43 @@ static void maximHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
             case DM_ADV_STOP_IND:
                 MaximGap::getInstance().advertisingStopped();
                 break;
-            case DM_SCAN_REPORT_IND:
-                {
-                    hciLeAdvReportEvt_t *scanReport = (hciLeAdvReportEvt_t*)pMsg;
-                    MaximGap::getInstance().processAdvertisementReport( scanReport->addr,
-                                                                        scanReport->rssi,
-                                                                        (scanReport->eventType == DM_ADV_SCAN_RESPONSE) ? true : false,
-                                                                        (GapAdvertisingParams::AdvertisingType_t)scanReport->eventType,
-                                                                        scanReport->len,
-                                                                        scanReport->pData);
-                }
-                break;
-            case DM_CONN_OPEN_IND:
-                {
-                    hciLeConnCmplEvt_t *connOpen = (hciLeConnCmplEvt_t*)pMsg;
-                    MaximGap::getInstance().setConnectionHandle(connOpen->handle);
-                    Gap::ConnectionParams_t params = { connOpen->connInterval, connOpen->connInterval, connOpen->connLatency, connOpen->supTimeout };
-                    Gap::AddressType_t ownAddrType;
-                    Gap::Address_t ownAddr;
-                    MaximGap::getInstance().getAddress(&ownAddrType, ownAddr);
-                    MaximGap::getInstance().processConnectionEvent(connOpen->handle,
-                                                                   Gap::PERIPHERAL,
-                                                                   (Gap::AddressType_t)connOpen->addrType,
-                                                                   connOpen->peerAddr,
-                                                                   ownAddrType,
-                                                                   ownAddr,
-                                                                   &params);
-                }
-                break;
-            case DM_CONN_CLOSE_IND:
-                {
-                    hciDisconnectCmplEvt_t *connClose = (hciDisconnectCmplEvt_t*)pMsg;
-                    MaximGap::getInstance().setConnectionHandle(DM_CONN_ID_NONE);
-                    MaximGap::getInstance().processDisconnectionEvent(connClose->handle, (Gap::DisconnectionReason_t)connClose->reason);
-                }
-                break;
-            case DM_HW_ERROR_IND:
-                {
-                    hciHwErrorEvt_t *error = (hciHwErrorEvt_t*)pMsg;
-                    printf("HCI Hardware Error 0x%02x occurred\n", error->code);
-                }
-                break;
+            case DM_SCAN_REPORT_IND: {
+                hciLeAdvReportEvt_t *scanReport = (hciLeAdvReportEvt_t *)pMsg;
+                MaximGap::getInstance().processAdvertisementReport(scanReport->addr,
+                                                                   scanReport->rssi,
+                                                                   (scanReport->eventType == DM_ADV_SCAN_RESPONSE) ? true : false,
+                                                                   (GapAdvertisingParams::AdvertisingType_t)scanReport->eventType,
+                                                                   scanReport->len,
+                                                                   scanReport->pData);
+            }
+            break;
+            case DM_CONN_OPEN_IND: {
+                hciLeConnCmplEvt_t *connOpen = (hciLeConnCmplEvt_t *)pMsg;
+                MaximGap::getInstance().setConnectionHandle(connOpen->handle);
+                Gap::ConnectionParams_t params = { connOpen->connInterval, connOpen->connInterval, connOpen->connLatency, connOpen->supTimeout };
+                Gap::AddressType_t ownAddrType;
+                Gap::Address_t ownAddr;
+                MaximGap::getInstance().getAddress(&ownAddrType, ownAddr);
+                MaximGap::getInstance().processConnectionEvent(connOpen->handle,
+                                                               Gap::PERIPHERAL,
+                                                               (Gap::AddressType_t)connOpen->addrType,
+                                                               connOpen->peerAddr,
+                                                               ownAddrType,
+                                                               ownAddr,
+                                                               &params);
+            }
+            break;
+            case DM_CONN_CLOSE_IND: {
+                hciDisconnectCmplEvt_t *connClose = (hciDisconnectCmplEvt_t *)pMsg;
+                MaximGap::getInstance().setConnectionHandle(DM_CONN_ID_NONE);
+                MaximGap::getInstance().processDisconnectionEvent(connClose->handle, (Gap::DisconnectionReason_t)connClose->reason);
+            }
+            break;
+            case DM_HW_ERROR_IND: {
+                hciHwErrorEvt_t *error = (hciHwErrorEvt_t *)pMsg;
+                printf("HCI Hardware Error 0x%02x occurred\n", error->code);
+            }
+            break;
             default:
                 break;
         }
@@ -209,21 +201,20 @@ static void maximHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
 
 static void AppServerConnCback(dmEvt_t *pDmEvt)
 {
-  dmConnId_t connId = (dmConnId_t)pDmEvt->hdr.param;
+    dmConnId_t connId = (dmConnId_t)pDmEvt->hdr.param;
 
-  switch (pDmEvt->hdr.event)
-  {
-    case DM_CONN_OPEN_IND:
-      /* set up CCC table with uninitialized (all zero) values */
-      AttsCccInitTable(connId, NULL);
-      break;
-    case DM_CONN_CLOSE_IND:
-      /* clear CCC table on connection close */
-      AttsCccClearTable(connId);
-      break;
-    default:
-      break;
-  }
+    switch (pDmEvt->hdr.event) {
+        case DM_CONN_OPEN_IND:
+            /* set up CCC table with uninitialized (all zero) values */
+            AttsCccInitTable(connId, NULL);
+            break;
+        case DM_CONN_CLOSE_IND:
+            /* clear CCC table on connection close */
+            AttsCccClearTable(connId);
+            break;
+        default:
+            break;
+    }
 }
 
 ble_error_t MaximBLE::init(BLE::InstanceID_t instanceID, FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext *> initCallback)
@@ -281,7 +272,7 @@ ble_error_t MaximBLE::init(BLE::InstanceID_t instanceID, FunctionPointerWithCont
     DmRegister(DmCback);
     DmConnRegister(DM_CLIENT_ID_APP, DmCback);
     AttConnRegister(AppServerConnCback);
-    
+
     /* Reset the device */
     reset_complete = 0;
     DmDevReset();
@@ -324,8 +315,7 @@ void MaximBLE::waitForEvent(void)
             // go to deep sleep
             deepsleep();
             hciDrvResume();
-        }
-        else {
+        } else {
             sleep();
         }
     }

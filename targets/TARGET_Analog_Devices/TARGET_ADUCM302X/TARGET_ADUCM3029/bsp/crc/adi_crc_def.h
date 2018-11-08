@@ -55,11 +55,10 @@ POSSIBILITY OF SUCH DAMAGE.
 /*! \cond PRIVATE */
 
 typedef struct __ADI_CRC_DEVICE ADI_CRC_DEVICE;
-typedef ADI_CRC_RESULT (*CRC_BUFFER_SUBMIT) (ADI_CRC_DEVICE *pDevice, void *pBuffer, uint32_t NumBytes, uint32_t NumBits);
+typedef ADI_CRC_RESULT(*CRC_BUFFER_SUBMIT)(ADI_CRC_DEVICE *pDevice, void *pBuffer, uint32_t NumBytes, uint32_t NumBits);
 
 /* Enumeration of CRC operation status */
-typedef enum
-{
+typedef enum {
     ADI_CRC_OP_IDLE             = 0u,           /* CRC idle */
     ADI_CRC_OP_IN_PROGRESS      = 0x01u,        /* CRC operation in progress */
 } ADI_CRC_OP_STATUS;
@@ -68,8 +67,7 @@ typedef enum
 #pragma pack()
 
 /* Structure to handle CRC Peripheral instance */
-struct __ADI_CRC_DEVICE
-{
+struct __ADI_CRC_DEVICE {
     volatile ADI_CRC_TypeDef    *pReg;
     CRC_BUFFER_SUBMIT           pfSubmitBuffer;         /* Function for submitting CRC data buffer for calculation */
     ADI_CALLBACK                pfCallback;             /* Client supplied callback function */
@@ -81,8 +79,7 @@ struct __ADI_CRC_DEVICE
 };
 
 /* Structure to hold CRC device specific information */
-typedef struct
-{
+typedef struct {
     volatile ADI_CRC_TypeDef    *pReg;        /* CRC peripheral Registers */
     ADI_CRC_HANDLE              hDevice;      /* CRC device handle */
 } ADI_CRC_INFO;

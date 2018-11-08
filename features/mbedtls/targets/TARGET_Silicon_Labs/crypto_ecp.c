@@ -81,21 +81,18 @@ typedef uint32_t ecc_bigint_t[ECC_BIGINT_SIZE_IN_32BIT_WORDS];
  * @brief
  *   Convert an mpi number representation to a 32bit word array used by crypto.
  ******************************************************************************/
-__STATIC_INLINE void mpitobigint( ecc_bigint_t bigint, const mbedtls_mpi* mpi )
+__STATIC_INLINE void mpitobigint(ecc_bigint_t bigint, const mbedtls_mpi *mpi)
 {
-    uint32_t* bi = bigint;
+    uint32_t *bi = bigint;
 
-    if ( mpi->n < ECC_BIGINT_SIZE_IN_32BIT_WORDS )
-    {
-      memcpy(bigint, mpi->p, mpi->n * sizeof(uint32_t));
-      memset(&bi[mpi->n],
-             0,
-             ECC_BIGINT_SIZE_IN_BYTES - ( mpi->n * sizeof(uint32_t) ) );
-    }
-    else
-    {
-      /* mpi has more room than bigint, so only store up to sizeof(bigint) */
-      memcpy(bigint, mpi->p, ECC_BIGINT_SIZE_IN_BYTES);
+    if (mpi->n < ECC_BIGINT_SIZE_IN_32BIT_WORDS) {
+        memcpy(bigint, mpi->p, mpi->n * sizeof(uint32_t));
+        memset(&bi[mpi->n],
+               0,
+               ECC_BIGINT_SIZE_IN_BYTES - (mpi->n * sizeof(uint32_t)));
+    } else {
+        /* mpi has more room than bigint, so only store up to sizeof(bigint) */
+        memcpy(bigint, mpi->p, ECC_BIGINT_SIZE_IN_BYTES);
     }
 }
 
@@ -103,23 +100,23 @@ __STATIC_INLINE void mpitobigint( ecc_bigint_t bigint, const mbedtls_mpi* mpi )
  * @brief
  *   Returns true if the value of the DDATA0 register is equal to zero.
  ******************************************************************************/
-__STATIC_INLINE bool crypto_ddata0_is_zero(CRYPTO_TypeDef* crypto,
-                                           uint32_t*       status_reg)
+__STATIC_INLINE bool crypto_ddata0_is_zero(CRYPTO_TypeDef *crypto,
+                                           uint32_t       *status_reg)
 {
-  CORE_DECLARE_IRQ_STATE;
-  CORE_ENTER_CRITICAL();
-  CRYPTO_EXECUTE_3(crypto,
-                   CRYPTO_CMD_INSTR_CCLR,
-                   CRYPTO_CMD_INSTR_DEC,  /* Decrement by one which will set
+    CORE_DECLARE_IRQ_STATE;
+    CORE_ENTER_CRITICAL();
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_CCLR,
+                     CRYPTO_CMD_INSTR_DEC,  /* Decrement by one which will set
                                              carry bit if DDATA0 is zero. */
-                   CRYPTO_CMD_INSTR_INC   /* Increment in order to restore
+                     CRYPTO_CMD_INSTR_INC   /* Increment in order to restore
                                              original value. */
-                   );
+                    );
 
-  *status_reg = crypto->DSTATUS;
-  CORE_EXIT_CRITICAL();
+    *status_reg = crypto->DSTATUS;
+    CORE_EXIT_CRITICAL();
 
-  return (*status_reg & CRYPTO_DSTATUS_CARRY) == CRYPTO_DSTATUS_CARRY;
+    return (*status_reg & CRYPTO_DSTATUS_CARRY) == CRYPTO_DSTATUS_CARRY;
 }
 
 /***************************************************************************//**
@@ -169,7 +166,7 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
     */
 
     EC_BIGINT_COPY(D, N);             /* D will hold the modulus (n) initially */
-    D[8]=0;                           /* Set MSWord of D to 0. */
+    D[8] = 0;                         /* Set MSWord of D to 0. */
 
     CORE_ENTER_CRITICAL();
     CRYPTO_DDataWrite(&crypto->DDATA1, Y);  /* Set C to Y (divisor) initially */
@@ -188,23 +185,18 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
     /******************* Run main loop while 'C' is non-zero ********************/
 
     /* while (C != 1024'd0)  */
-    while ( !crypto_ddata0_is_zero(crypto, &status_reg) )
-    {
+    while (!crypto_ddata0_is_zero(crypto, &status_reg)) {
 
         lsb_C = (status_reg & _CRYPTO_DSTATUS_DDATA0LSBS_MASK) >> _CRYPTO_DSTATUS_DDATA0LSBS_SHIFT;
-        if ((lsb_C & 0x1) == 0)
-        {
+        if ((lsb_C & 0x1) == 0) {
             CRYPTO_EXECUTE_3(crypto,
                              CRYPTO_CMD_INSTR_SELDDATA1DDATA1,
                              CRYPTO_CMD_INSTR_SHRA,
                              CRYPTO_CMD_INSTR_DDATA0TODDATA1
-                             );
-            t = t-1;
-        }
-        else
-        {
-            if (t<0)
-            {
+                            );
+            t = t - 1;
+        } else {
+            if (t < 0) {
                 CRYPTO_EXECUTE_6(crypto,
                                  CRYPTO_CMD_INSTR_DDATA2TODDATA0,
                                  CRYPTO_CMD_INSTR_DDATA4TODDATA2,
@@ -226,10 +218,11 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
 
             rdata = CRYPTO_DData0_4LSBitsRead(crypto);
 
-            if((rdata & 0x3) != 0x0)
-              k = -1;
-            else
-              t = t-1;
+            if ((rdata & 0x3) != 0x0) {
+                k = -1;
+            } else {
+                t = t - 1;
+            }
 
             /*  R1 = C >> 1  */
             crypto->CMD = CRYPTO_CMD_INSTR_DDATA1TODDATA0; /* to get the lsb of C */
@@ -248,10 +241,8 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
                              CRYPTO_CMD_INSTR_SELDDATA3DDATA3,
                              CRYPTO_CMD_INSTR_SHRA);
 
-            if(k == 1)
-            {
-                if (((lsb_C & 0x1)==0x1) && ((lsb_D & 0x1)==0x1))
-                {
+            if (k == 1) {
+                if (((lsb_C & 0x1) == 0x1) && ((lsb_D & 0x1) == 0x1)) {
                     CRYPTO_EXECUTE_7(crypto,
                                      /*  C = R1+R3+1  */
                                      CRYPTO_CMD_INSTR_SELDDATA0DDATA1,
@@ -262,10 +253,8 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
                                      CRYPTO_CMD_INSTR_SELDDATA2DDATA4,
                                      CRYPTO_CMD_INSTR_MADD,
                                      CRYPTO_CMD_INSTR_DDATA0TODDATA2
-                                     );
-                }
-                else
-                {
+                                    );
+                } else {
                     CRYPTO_EXECUTE_6(crypto,
                                      /*  C = R1+R3  */
                                      CRYPTO_CMD_INSTR_SELDDATA0DDATA1,
@@ -275,15 +264,11 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
                                      CRYPTO_CMD_INSTR_SELDDATA2DDATA4,
                                      CRYPTO_CMD_INSTR_MADD,
                                      CRYPTO_CMD_INSTR_DDATA0TODDATA2
-                                     );
+                                    );
                 }
-            }
-            else
-            {
-                if (k == -1)
-                {
-                    if (((lsb_C & 0x1)==0x0) && ((lsb_D & 0x1)==0x1))
-                    {
+            } else {
+                if (k == -1) {
+                    if (((lsb_C & 0x1) == 0x0) && ((lsb_D & 0x1) == 0x1)) {
                         CRYPTO_EXECUTE_8(crypto,
                                          /*  C = R1-R3-1  */
                                          CRYPTO_CMD_INSTR_DDATA0TODDATA3,
@@ -295,10 +280,8 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
                                          CRYPTO_CMD_INSTR_SELDDATA2DDATA4,
                                          CRYPTO_CMD_INSTR_MSUB,
                                          CRYPTO_CMD_INSTR_DDATA0TODDATA2
-                                         );
-                    }
-                    else
-                    {
+                                        );
+                    } else {
                         CRYPTO_EXECUTE_7(crypto,
                                          /*  C = R1+R3  */
                                          CRYPTO_CMD_INSTR_DDATA0TODDATA3,
@@ -309,7 +292,7 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
                                          CRYPTO_CMD_INSTR_SELDDATA2DDATA4,
                                          CRYPTO_CMD_INSTR_MSUB,
                                          CRYPTO_CMD_INSTR_DDATA0TODDATA2
-                                         );
+                                        );
                     }
 
                     CRYPTO_DDATA0_260_BITS_WRITE(crypto, D);
@@ -324,27 +307,24 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
         lsb_U = CRYPTO_DData0_4LSBitsRead(crypto);
 
         /* if ((U[31:0] & 0x1) == 0x1) */
-        if((lsb_U & 0x1) == 0x1)
-        {
-            CRYPTO_EXECUTE_3( crypto,
-                              CRYPTO_CMD_INSTR_SELDDATA2DDATA2,
-                              CRYPTO_CMD_INSTR_SHRA,
-                              CRYPTO_CMD_INSTR_DDATA0TODDATA2);
+        if ((lsb_U & 0x1) == 0x1) {
+            CRYPTO_EXECUTE_3(crypto,
+                             CRYPTO_CMD_INSTR_SELDDATA2DDATA2,
+                             CRYPTO_CMD_INSTR_SHRA,
+                             CRYPTO_CMD_INSTR_DDATA0TODDATA2);
 
             CORE_ENTER_CRITICAL();
             CRYPTO_DDataWrite(&crypto->DDATA0, N);
             CORE_EXIT_CRITICAL();
 
-            CRYPTO_EXECUTE_6( crypto,
-                              CRYPTO_CMD_INSTR_SELDDATA0DDATA0,
-                              CRYPTO_CMD_INSTR_SHR,
-                              CRYPTO_CMD_INSTR_SELDDATA0DDATA2,
-                              CRYPTO_CMD_INSTR_CSET,
-                              CRYPTO_CMD_INSTR_ADDC,
-                              CRYPTO_CMD_INSTR_DDATA0TODDATA2);
-        }
-        else
-        {
+            CRYPTO_EXECUTE_6(crypto,
+                             CRYPTO_CMD_INSTR_SELDDATA0DDATA0,
+                             CRYPTO_CMD_INSTR_SHR,
+                             CRYPTO_CMD_INSTR_SELDDATA0DDATA2,
+                             CRYPTO_CMD_INSTR_CSET,
+                             CRYPTO_CMD_INSTR_ADDC,
+                             CRYPTO_CMD_INSTR_DDATA0TODDATA2);
+        } else {
             CRYPTO_EXECUTE_3(crypto,
                              CRYPTO_CMD_INSTR_SELDDATA2DDATA2,
                              CRYPTO_CMD_INSTR_SHRA,
@@ -362,14 +342,11 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
                      CRYPTO_CMD_INSTR_DDATA3TODDATA0,
                      CRYPTO_CMD_INSTR_DEC);
 
-    if (crypto_ddata0_is_zero(crypto, &status_reg))
-    {
+    if (crypto_ddata0_is_zero(crypto, &status_reg)) {
         CORE_ENTER_CRITICAL();
         CRYPTO_DDataRead(&crypto->DDATA4, R);
         CORE_EXIT_CRITICAL();
-    }
-    else
-    {
+    } else {
         CORE_ENTER_CRITICAL();
         CRYPTO_DDataWrite(&crypto->DDATA0, N);
         CORE_EXIT_CRITICAL();
@@ -377,7 +354,7 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
         CRYPTO_EXECUTE_2(crypto,
                          CRYPTO_CMD_INSTR_SELDDATA0DDATA4,
                          CRYPTO_CMD_INSTR_SUB
-                         );
+                        );
 
         CORE_ENTER_CRITICAL();
         CRYPTO_DDataRead(&crypto->DDATA0, R);
@@ -391,7 +368,7 @@ static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
  * @brief
  *   Enable CRYPTO by setting up control registers for given ecc curve.
  ******************************************************************************/
-static int crypto_device_init( CRYPTO_TypeDef *device, const mbedtls_ecp_group *grp)
+static int crypto_device_init(CRYPTO_TypeDef *device, const mbedtls_ecp_group *grp)
 {
     int             ret = 0;
 
@@ -400,38 +377,37 @@ static int crypto_device_init( CRYPTO_TypeDef *device, const mbedtls_ecp_group *
     device->SEQCTRL  = CRYPTO_SEQCTRL_BLOCKSIZE_32BYTES | 32;
     device->SEQCTRLB = 0;
 
-    switch( grp->id )
-    {
+    switch (grp->id) {
 #if defined(MBEDTLS_ECP_DP_SECP192R1_ENABLED)
         case MBEDTLS_ECP_DP_SECP192R1:
-            CRYPTO_ModulusSet( device, cryptoModulusEccP192 );
-            CRYPTO_MulOperandWidthSet( device, cryptoMulOperandModulusBits );
-            CRYPTO_ResultWidthSet( device, cryptoResult256Bits );
-        break;
+            CRYPTO_ModulusSet(device, cryptoModulusEccP192);
+            CRYPTO_MulOperandWidthSet(device, cryptoMulOperandModulusBits);
+            CRYPTO_ResultWidthSet(device, cryptoResult256Bits);
+            break;
 #endif /* MBEDTLS_ECP_DP_SECP192R1_ENABLED */
 
 #if defined(MBEDTLS_ECP_DP_SECP224R1_ENABLED)
         case MBEDTLS_ECP_DP_SECP224R1:
-            CRYPTO_ModulusSet( device, cryptoModulusEccP224 );
-            CRYPTO_MulOperandWidthSet( device, cryptoMulOperandModulusBits );
-            CRYPTO_ResultWidthSet( device, cryptoResult256Bits );
-        break;
+            CRYPTO_ModulusSet(device, cryptoModulusEccP224);
+            CRYPTO_MulOperandWidthSet(device, cryptoMulOperandModulusBits);
+            CRYPTO_ResultWidthSet(device, cryptoResult256Bits);
+            break;
 #endif /* MBEDTLS_ECP_DP_SECP224R1_ENABLED */
 
 #if defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED)
         case MBEDTLS_ECP_DP_SECP256R1:
-            CRYPTO_ModulusSet( device, cryptoModulusEccP256 );
-            CRYPTO_MulOperandWidthSet( device, cryptoMulOperandModulusBits );
-            CRYPTO_ResultWidthSet( device, cryptoResult260Bits );
-        break;
+            CRYPTO_ModulusSet(device, cryptoModulusEccP256);
+            CRYPTO_MulOperandWidthSet(device, cryptoMulOperandModulusBits);
+            CRYPTO_ResultWidthSet(device, cryptoResult260Bits);
+            break;
 #endif /* MBEDTLS_ECP_DP_SECP256R1_ENABLED */
 
         default:
             ret = MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE;
-        break;
+            break;
     }
 
-    return( ret );
+    return (ret);
 }
 
 /***************************************************************************//**
@@ -446,66 +422,64 @@ static int crypto_device_init( CRYPTO_TypeDef *device, const mbedtls_ecp_group *
  *  @param[in]  val        Value of the data to write to the DDATA register.
  ******************************************************************************/
 __STATIC_INLINE void ecp_crypto_ddata_write(CRYPTO_DDataReg_TypeDef  ddataReg,
-                                            const mbedtls_mpi*       mpi)
+                                            const mbedtls_mpi       *mpi)
 {
-  uint32_t volatile* regPtr = (volatile uint32_t *) ddataReg;
-  uint32_t* pVal = mpi->p;
-  register uint32_t v0;
-  register uint32_t v1;
-  register uint32_t v2;
-  register uint32_t v3;
-  int      i;
+    uint32_t volatile *regPtr = (volatile uint32_t *) ddataReg;
+    uint32_t *pVal = mpi->p;
+    register uint32_t v0;
+    register uint32_t v1;
+    register uint32_t v2;
+    register uint32_t v3;
+    int      i;
 
-  if (mpi->n <4)
-  {
-    /* Non optimal write of data. */
-    for (i=0; i<(int)mpi->n; i++)
-      *regPtr = *pVal++;
-    for (; i<8; i++)
-      *regPtr = 0;
-  }
-  else
-  {
-    if (mpi->n < 8)
-    {
-      /* Optimal write of first 4 words. */
-      v0 = *pVal++;
-      v1 = *pVal++;
-      v2 = *pVal++;
-      v3 = *pVal++;
-      *regPtr = v0;
-      *regPtr = v1;
-      *regPtr = v2;
-      *regPtr = v3;
+    if (mpi->n < 4) {
+        /* Non optimal write of data. */
+        for (i = 0; i < (int)mpi->n; i++) {
+            *regPtr = *pVal++;
+        }
+        for (; i < 8; i++) {
+            *regPtr = 0;
+        }
+    } else {
+        if (mpi->n < 8) {
+            /* Optimal write of first 4 words. */
+            v0 = *pVal++;
+            v1 = *pVal++;
+            v2 = *pVal++;
+            v3 = *pVal++;
+            *regPtr = v0;
+            *regPtr = v1;
+            *regPtr = v2;
+            *regPtr = v3;
 
-      /* Non optimal write of remaining words */
-      for (i=4; i<(int)mpi->n; i++)
-        *regPtr = *pVal++;
-      for (; i<8; i++)
-        *regPtr = 0;
+            /* Non optimal write of remaining words */
+            for (i = 4; i < (int)mpi->n; i++) {
+                *regPtr = *pVal++;
+            }
+            for (; i < 8; i++) {
+                *regPtr = 0;
+            }
+        } else {
+            /* Optimal write of all data. */
+            v0 = *pVal++;
+            v1 = *pVal++;
+            v2 = *pVal++;
+            v3 = *pVal++;
+            *regPtr = v0;
+            *regPtr = v1;
+            *regPtr = v2;
+            *regPtr = v3;
+
+            v0 = *pVal++;
+            v1 = *pVal++;
+            v2 = *pVal++;
+            v3 = *pVal++;
+            *regPtr = v0;
+            *regPtr = v1;
+            *regPtr = v2;
+            *regPtr = v3;
+        }
     }
-    else
-    {
-      /* Optimal write of all data. */
-      v0 = *pVal++;
-      v1 = *pVal++;
-      v2 = *pVal++;
-      v3 = *pVal++;
-      *regPtr = v0;
-      *regPtr = v1;
-      *regPtr = v2;
-      *regPtr = v3;
-
-      v0 = *pVal++;
-      v1 = *pVal++;
-      v2 = *pVal++;
-      v3 = *pVal++;
-      *regPtr = v0;
-      *regPtr = v1;
-      *regPtr = v2;
-      *regPtr = v3;
-    }
-  }
 }
 
 /***************************************************************************//**
@@ -521,54 +495,45 @@ __STATIC_INLINE void ecp_crypto_ddata_write(CRYPTO_DDataReg_TypeDef  ddataReg,
  ******************************************************************************/
 
 __STATIC_INLINE int ecp_crypto_ddata_read(CRYPTO_DDataReg_TypeDef  ddataReg,
-                                          mbedtls_mpi*             mpi)
+                                          mbedtls_mpi             *mpi)
 {
-  CRYPTO_DData_TypeDef  ddata;
-  uint32_t              val32;
-  int                   i;
-  int                   used;
-  int                   ret = 0;
-  CORE_DECLARE_IRQ_STATE;
+    CRYPTO_DData_TypeDef  ddata;
+    uint32_t              val32;
+    int                   i;
+    int                   used;
+    int                   ret = 0;
+    CORE_DECLARE_IRQ_STATE;
 
-  if (mpi->n == 8)
-  {
-    CORE_ENTER_CRITICAL();
-    CRYPTO_DDataRead(ddataReg, mpi->p);
-    CORE_EXIT_CRITICAL();
-  }
-  else
-  {
-    if (mpi->n > 8)
-    {
-      CORE_ENTER_CRITICAL();
-      CRYPTO_DDataRead(ddataReg, mpi->p);
-      CORE_EXIT_CRITICAL();
-      memset(&mpi->p[8], 0, sizeof(uint32_t)*(mpi->n-8));
+    if (mpi->n == 8) {
+        CORE_ENTER_CRITICAL();
+        CRYPTO_DDataRead(ddataReg, mpi->p);
+        CORE_EXIT_CRITICAL();
+    } else {
+        if (mpi->n > 8) {
+            CORE_ENTER_CRITICAL();
+            CRYPTO_DDataRead(ddataReg, mpi->p);
+            CORE_EXIT_CRITICAL();
+            memset(&mpi->p[8], 0, sizeof(uint32_t) * (mpi->n - 8));
+        } else {
+            uint32_t volatile *regPtr = (volatile uint32_t *) ddataReg;
+            used = 0;
+            for (i = 0; i < 8; i++) {
+                ddata[i] = val32 = *regPtr;
+                if (val32) {
+                    used = i + 1;
+                }
+            }
+            if (used > (int)mpi->n) {
+                SLCL_ECP_CHK(mbedtls_mpi_grow(mpi, used));
+                memcpy(mpi->p, ddata, used * sizeof(uint32_t));
+                mpi->s = 1;
+            } else {
+                memcpy(mpi->p, ddata, mpi->n * sizeof(uint32_t));
+            }
+        }
     }
-    else
-    {
-      uint32_t volatile* regPtr = (volatile uint32_t*) ddataReg;
-      used = 0;
-      for (i=0; i<8; i++)
-      {
-        ddata[i] = val32 = *regPtr;
-        if (val32)
-          used = i+1;
-      }
-      if (used > (int)mpi->n)
-      {
-        SLCL_ECP_CHK( mbedtls_mpi_grow(mpi, used) );
-        memcpy(mpi->p, ddata, used*sizeof(uint32_t));
-        mpi->s = 1;
-      }
-      else
-      {
-        memcpy(mpi->p, ddata, mpi->n*sizeof(uint32_t));
-      }
-    }
-  }
- cleanup:
-  return( ret );
+cleanup:
+    return (ret);
 }
 
 /**
@@ -580,27 +545,26 @@ __STATIC_INLINE int ecp_crypto_ddata_read(CRYPTO_DDataReg_TypeDef  ddataReg,
  *
  * \return          Non-zero if successful.
  */
-unsigned char mbedtls_internal_ecp_grp_capable( const mbedtls_ecp_group *grp )
+unsigned char mbedtls_internal_ecp_grp_capable(const mbedtls_ecp_group *grp)
 {
-    switch( grp->id )
-    {
+    switch (grp->id) {
 #if defined(MBEDTLS_ECP_DP_SECP192R1_ENABLED)
         case MBEDTLS_ECP_DP_SECP192R1:
-            return( true );
+            return (true);
 #endif /* MBEDTLS_ECP_DP_SECP192R1_ENABLED */
 
 #if defined(MBEDTLS_ECP_DP_SECP224R1_ENABLED)
         case MBEDTLS_ECP_DP_SECP224R1:
-            return( true );
+            return (true);
 #endif /* MBEDTLS_ECP_DP_SECP224R1_ENABLED */
 
 #if defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED)
         case MBEDTLS_ECP_DP_SECP256R1:
-            return( true );
+            return (true);
 #endif /* MBEDTLS_ECP_DP_SECP256R1_ENABLED */
 
         default:
-            return( false );
+            return (false);
     }
 }
 
@@ -619,7 +583,7 @@ unsigned char mbedtls_internal_ecp_grp_capable( const mbedtls_ecp_group *grp )
  *
  * \return          0 if successful.
  */
-int mbedtls_internal_ecp_init( const mbedtls_ecp_group *grp )
+int mbedtls_internal_ecp_init(const mbedtls_ecp_group *grp)
 {
     /* Crypto operations are atomic, so no need to setup any context here */
     (void) grp;
@@ -632,7 +596,7 @@ int mbedtls_internal_ecp_init( const mbedtls_ecp_group *grp )
  *
  * \param grp       The pointer to the group the module was initialised for.
  */
-void mbedtls_internal_ecp_free( const mbedtls_ecp_group *grp )
+void mbedtls_internal_ecp_free(const mbedtls_ecp_group *grp)
 {
     /* Crypto operations are atomic, so no need to free any context here */
     (void) grp;
@@ -654,10 +618,10 @@ void mbedtls_internal_ecp_free( const mbedtls_ecp_group *grp )
  *
  * \return          0 if successful.
  */
-int mbedtls_internal_ecp_randomize_jac( const mbedtls_ecp_group *grp,
-                                        mbedtls_ecp_point *pt,
-                                        int (*f_rng)(void *, unsigned char *, size_t),
-                                        void *p_rng )
+int mbedtls_internal_ecp_randomize_jac(const mbedtls_ecp_group *grp,
+                                       mbedtls_ecp_point *pt,
+                                       int (*f_rng)(void *, unsigned char *, size_t),
+                                       void *p_rng)
 {
     int ret;
     ecc_bigint_t l;
@@ -676,8 +640,8 @@ int mbedtls_internal_ecp_randomize_jac( const mbedtls_ecp_group *grp,
     /* Acquire entropy before grabbing crypto, since the entropy function might use crypto */
     /* Generate l such that 1 < l < p */
     ret = f_rng(p_rng, (unsigned char *)l, sizeof(l));
-    if ( ret != 0 ) {
-        return( ret );
+    if (ret != 0) {
+        return (ret);
     }
 
     crypto = crypto_management_acquire();
@@ -691,39 +655,39 @@ int mbedtls_internal_ecp_randomize_jac( const mbedtls_ecp_group *grp,
     CORE_EXIT_CRITICAL();
 
     /* Z = l * Z */
-    CRYPTO_EXECUTE_2 (  crypto,
-                        CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
-                        CRYPTO_CMD_INSTR_MMUL );
+    CRYPTO_EXECUTE_2(crypto,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
+                     CRYPTO_CMD_INSTR_MMUL);
     CRYPTO_InstructionSequenceWait(crypto);
 
-    MBEDTLS_MPI_CHK( ecp_crypto_ddata_read(&crypto->DDATA0, &pt->Z) );
+    MBEDTLS_MPI_CHK(ecp_crypto_ddata_read(&crypto->DDATA0, &pt->Z));
 
     /* X = l^2 * X */
-    CRYPTO_EXECUTE_6 (  crypto,
-                        CRYPTO_CMD_INSTR_DDATA1TODDATA4,
-                        CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
-                        CRYPTO_CMD_INSTR_MMUL,
-                        CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                        CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                        CRYPTO_CMD_INSTR_MMUL );
+    CRYPTO_EXECUTE_6(crypto,
+                     CRYPTO_CMD_INSTR_DDATA1TODDATA4,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                     CRYPTO_CMD_INSTR_MMUL);
     CRYPTO_InstructionSequenceWait(crypto);
 
-    MBEDTLS_MPI_CHK( ecp_crypto_ddata_read(&crypto->DDATA0, &pt->X) );
+    MBEDTLS_MPI_CHK(ecp_crypto_ddata_read(&crypto->DDATA0, &pt->X));
 
     /* Y = l^3 * Y */
-    CRYPTO_EXECUTE_5 (  crypto,
-                        CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
-                        CRYPTO_CMD_INSTR_MMUL,
-                        CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                        CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
-                        CRYPTO_CMD_INSTR_MMUL );
+    CRYPTO_EXECUTE_5(crypto,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
+                     CRYPTO_CMD_INSTR_MMUL);
     CRYPTO_InstructionSequenceWait(crypto);
 
-    MBEDTLS_MPI_CHK( ecp_crypto_ddata_read(&crypto->DDATA0, &pt->Y) );
+    MBEDTLS_MPI_CHK(ecp_crypto_ddata_read(&crypto->DDATA0, &pt->Y));
 
 cleanup:
-    crypto_management_release( crypto );
-    return( ret );
+    crypto_management_release(crypto);
+    return (ret);
 }
 #endif
 
@@ -767,10 +731,10 @@ cleanup:
  *
  * \return          0 if successful.
  */
-int mbedtls_internal_ecp_add_mixed( const mbedtls_ecp_group *grp,
-                                    mbedtls_ecp_point *R,
-                                    const mbedtls_ecp_point *P,
-                                    const mbedtls_ecp_point *Q )
+int mbedtls_internal_ecp_add_mixed(const mbedtls_ecp_group *grp,
+                                   mbedtls_ecp_point *R,
+                                   const mbedtls_ecp_point *P,
+                                   const mbedtls_ecp_point *Q)
 {
     int             ret;
     CORE_DECLARE_IRQ_STATE;
@@ -830,38 +794,38 @@ int mbedtls_internal_ecp_add_mixed( const mbedtls_ecp_group *grp,
     CORE_EXIT_CRITICAL();
 
     CRYPTO_EXECUTE_5(crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA4,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1);
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA4,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1);
     CRYPTO_InstructionSequenceWait(crypto);
 
     CORE_ENTER_CRITICAL();
     ecp_crypto_ddata_write(&crypto->DDATA0, &Q->X);
     CORE_EXIT_CRITICAL();
 
-    CRYPTO_EXECUTE_4 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA3,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA3);
+    CRYPTO_EXECUTE_4(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA3,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA3);
     CRYPTO_InstructionSequenceWait(crypto);
-    CRYPTO_EXECUTE_3 (crypto,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1);
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1);
     CRYPTO_InstructionSequenceWait(crypto);
 
     CORE_ENTER_CRITICAL();
     ecp_crypto_ddata_write(&crypto->DDATA0, &Q->Y);
     CORE_EXIT_CRITICAL();
 
-    CRYPTO_EXECUTE_3 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA2,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                      CRYPTO_CMD_INSTR_MMUL
-                      );
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA2,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                     CRYPTO_CMD_INSTR_MMUL
+                    );
     CRYPTO_InstructionSequenceWait(crypto);
 
     /*
@@ -916,31 +880,33 @@ int mbedtls_internal_ecp_add_mixed( const mbedtls_ecp_group *grp,
     ecp_crypto_ddata_write(&crypto->DDATA1, &P->Y);
     CORE_EXIT_CRITICAL();
 
-    CRYPTO_EXECUTE_3 (crypto,
-                      CRYPTO_CMD_INSTR_SELDDATA0DDATA1,
-                      CRYPTO_CMD_INSTR_MSUB,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA2); /* R2 = D */
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_SELDDATA0DDATA1,
+                     CRYPTO_CMD_INSTR_MSUB,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA2); /* R2 = D */
     CRYPTO_InstructionSequenceWait(crypto);
 
     CORE_ENTER_CRITICAL();
     ecp_crypto_ddata_write(&crypto->DDATA0, &P->X);
     CORE_EXIT_CRITICAL();
 
-    CRYPTO_EXECUTE_7 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA3TODDATA1,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA3,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
-                      CRYPTO_CMD_INSTR_MSUB,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1,  /* R1 = C */
+    CRYPTO_EXECUTE_7(crypto,
+                     CRYPTO_CMD_INSTR_DDATA3TODDATA1,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA3,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
+                     CRYPTO_CMD_INSTR_MSUB,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,  /* R1 = C */
 
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
-                      CRYPTO_CMD_INSTR_MMUL
-                      );
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
+                     CRYPTO_CMD_INSTR_MMUL
+                    );
     CRYPTO_InstructionSequenceWait(crypto);
 
     ret = ecp_crypto_ddata_read(&crypto->DDATA0, &R->Z);
 
-    if (ret != 0) goto cleanup;
+    if (ret != 0) {
+        goto cleanup;
+    }
 
     /*
       STEP 3:
@@ -984,31 +950,31 @@ int mbedtls_internal_ecp_add_mixed( const mbedtls_ecp_group *grp,
 
       STEP 3:
     */
-    CRYPTO_EXECUTE_3 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA1TODDATA4,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
-                      CRYPTO_CMD_INSTR_MMUL);
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_DDATA1TODDATA4,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
+                     CRYPTO_CMD_INSTR_MMUL);
     CRYPTO_InstructionSequenceWait(crypto);
 
-    CRYPTO_EXECUTE_3 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA4);
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA4);
     CRYPTO_InstructionSequenceWait(crypto);
 
-    CRYPTO_EXECUTE_3 (crypto,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA3);
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA3);
     CRYPTO_InstructionSequenceWait(crypto);
 
-    CRYPTO_EXECUTE_5 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA2TODDATA1,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_SELDDATA0DDATA4,
-                      CRYPTO_CMD_INSTR_MSUB
-                      );
+    CRYPTO_EXECUTE_5(crypto,
+                     CRYPTO_CMD_INSTR_DDATA2TODDATA1,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_SELDDATA0DDATA4,
+                     CRYPTO_CMD_INSTR_MSUB
+                    );
     CRYPTO_InstructionSequenceWait(crypto);
 
     /*
@@ -1061,47 +1027,51 @@ int mbedtls_internal_ecp_add_mixed( const mbedtls_ecp_group *grp,
       STEP 4:
     */
 
-    CRYPTO_EXECUTE_3 (crypto,
-                      CRYPTO_CMD_INSTR_SELDDATA0DDATA3,
-                      CRYPTO_CMD_INSTR_MSUB,
-                      CRYPTO_CMD_INSTR_MSUB);
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_SELDDATA0DDATA3,
+                     CRYPTO_CMD_INSTR_MSUB,
+                     CRYPTO_CMD_INSTR_MSUB);
     CRYPTO_InstructionSequenceWait(crypto);
 
     ret = ecp_crypto_ddata_read(&crypto->DDATA0, &R->X);
-    if ( ret != 0 ) goto cleanup;
+    if (ret != 0) {
+        goto cleanup;
+    }
 
-    CRYPTO_EXECUTE_7 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+    CRYPTO_EXECUTE_7(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
 
-                      CRYPTO_CMD_INSTR_SELDDATA3DDATA1,
-                      CRYPTO_CMD_INSTR_MSUB,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA2);
+                     CRYPTO_CMD_INSTR_SELDDATA3DDATA1,
+                     CRYPTO_CMD_INSTR_MSUB,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA2);
     CRYPTO_InstructionSequenceWait(crypto);
 
     CORE_ENTER_CRITICAL();
     ecp_crypto_ddata_write(&crypto->DDATA0, &P->Y);
     CORE_EXIT_CRITICAL();
 
-    CRYPTO_EXECUTE_6 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA4,
+    CRYPTO_EXECUTE_6(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA4,
 
-                      CRYPTO_CMD_INSTR_SELDDATA2DDATA4,
-                      CRYPTO_CMD_INSTR_MSUB
-                      );
+                     CRYPTO_CMD_INSTR_SELDDATA2DDATA4,
+                     CRYPTO_CMD_INSTR_MSUB
+                    );
     CRYPTO_InstructionSequenceWait(crypto);
 
     ret = ecp_crypto_ddata_read(&crypto->DDATA0, &R->Y);
-    if ( ret != 0 ) goto cleanup;
+    if (ret != 0) {
+        goto cleanup;
+    }
 
- cleanup:
-    crypto_management_release( crypto );
-    return ( ret );
+cleanup:
+    crypto_management_release(crypto);
+    return (ret);
 }
 #endif
 
@@ -1125,9 +1095,9 @@ int mbedtls_internal_ecp_add_mixed( const mbedtls_ecp_group *grp,
  * \return          0 if successful.
  */
 #if defined(MBEDTLS_ECP_DOUBLE_JAC_ALT)
-int mbedtls_internal_ecp_double_jac( const mbedtls_ecp_group *grp,
-                                     mbedtls_ecp_point *R,
-                                     const mbedtls_ecp_point *P )
+int mbedtls_internal_ecp_double_jac(const mbedtls_ecp_group *grp,
+                                    mbedtls_ecp_point *R,
+                                    const mbedtls_ecp_point *P)
 {
     int             ret;
     CORE_DECLARE_IRQ_STATE;
@@ -1191,35 +1161,37 @@ int mbedtls_internal_ecp_double_jac( const mbedtls_ecp_group *grp,
     ecp_crypto_ddata_write(&crypto->DDATA0, &P->Z);
     CORE_EXIT_CRITICAL();
 
-    CRYPTO_EXECUTE_5 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA2,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA3);
+    CRYPTO_EXECUTE_5(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA2,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA3);
     CRYPTO_InstructionSequenceWait(crypto);
 
     CORE_ENTER_CRITICAL();
     ecp_crypto_ddata_write(&crypto->DDATA0, &P->Y);
     CORE_EXIT_CRITICAL();
 
-    CRYPTO_EXECUTE_4 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA2,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_SELDDATA0DDATA0,
-                      CRYPTO_CMD_INSTR_MADD);
+    CRYPTO_EXECUTE_4(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA2,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_SELDDATA0DDATA0,
+                     CRYPTO_CMD_INSTR_MADD);
     CRYPTO_InstructionSequenceWait(crypto);
 
     ret = ecp_crypto_ddata_read(&crypto->DDATA0, &R->Z);
-    if ( ret != 0 ) goto cleanup;
+    if (ret != 0) {
+        goto cleanup;
+    }
 
-    CRYPTO_EXECUTE_5 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA2TODDATA1,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_SELDDATA0DDATA0,
-                      CRYPTO_CMD_INSTR_MADD
-                      );
+    CRYPTO_EXECUTE_5(crypto,
+                     CRYPTO_CMD_INSTR_DDATA2TODDATA1,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_SELDDATA0DDATA0,
+                     CRYPTO_CMD_INSTR_MADD
+                    );
     CRYPTO_InstructionSequenceWait(crypto);
 
     CORE_ENTER_CRITICAL();
@@ -1287,15 +1259,15 @@ int mbedtls_internal_ecp_double_jac( const mbedtls_ecp_group *grp,
                       CRYPTO_CMD_INSTR_MSUB,
                       CRYPTO_CMD_INSTR_DDATA0TODDATA4);
     CRYPTO_InstructionSequenceWait(crypto);
-    CRYPTO_EXECUTE_7 (crypto,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                      CRYPTO_CMD_INSTR_SELDDATA0DDATA1,
-                      CRYPTO_CMD_INSTR_MADD,
-                      CRYPTO_CMD_INSTR_MADD,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1
-                      );
+    CRYPTO_EXECUTE_7(crypto,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                     CRYPTO_CMD_INSTR_SELDDATA0DDATA1,
+                     CRYPTO_CMD_INSTR_MADD,
+                     CRYPTO_CMD_INSTR_MADD,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1
+                    );
     CRYPTO_InstructionSequenceWait(crypto);
     /*
       STEP 3:
@@ -1339,32 +1311,34 @@ int mbedtls_internal_ecp_double_jac( const mbedtls_ecp_group *grp,
       STEP 3:
     */
 
-    CRYPTO_EXECUTE_8 (crypto,
-                      CRYPTO_CMD_INSTR_SELDDATA2DDATA2,
-                      CRYPTO_CMD_INSTR_MADD,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA4,
+    CRYPTO_EXECUTE_8(crypto,
+                     CRYPTO_CMD_INSTR_SELDDATA2DDATA2,
+                     CRYPTO_CMD_INSTR_MADD,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA4,
 
-                      CRYPTO_CMD_INSTR_DDATA1TODDATA3,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
-                      CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA1TODDATA3,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
+                     CRYPTO_CMD_INSTR_MMUL,
 
-                      CRYPTO_CMD_INSTR_SELDDATA0DDATA4,
-                      CRYPTO_CMD_INSTR_MSUB);
+                     CRYPTO_CMD_INSTR_SELDDATA0DDATA4,
+                     CRYPTO_CMD_INSTR_MSUB);
     CRYPTO_InstructionSequenceWait(crypto);
 
     ret = ecp_crypto_ddata_read(&crypto->DDATA0, &R->X);
-    if ( ret != 0 ) goto cleanup;
+    if (ret != 0) {
+        goto cleanup;
+    }
 
-    CRYPTO_EXECUTE_7 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA4,
+    CRYPTO_EXECUTE_7(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA4,
 
-                      CRYPTO_CMD_INSTR_SELDDATA2DDATA4,
-                      CRYPTO_CMD_INSTR_MSUB,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA2,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                      CRYPTO_CMD_INSTR_MMUL,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA3
-                      );
+                     CRYPTO_CMD_INSTR_SELDDATA2DDATA4,
+                     CRYPTO_CMD_INSTR_MSUB,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA2,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                     CRYPTO_CMD_INSTR_MMUL,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA3
+                    );
     CRYPTO_InstructionSequenceWait(crypto);
 
 
@@ -1411,28 +1385,30 @@ int mbedtls_internal_ecp_double_jac( const mbedtls_ecp_group *grp,
     CRYPTO_DDataWrite(&crypto->DDATA0, _2YY);
     CORE_EXIT_CRITICAL();
 
-    CRYPTO_EXECUTE_9 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA2,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                      CRYPTO_CMD_INSTR_MMUL,
+    CRYPTO_EXECUTE_9(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA2,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                     CRYPTO_CMD_INSTR_MMUL,
 
-                      CRYPTO_CMD_INSTR_SELDDATA0DDATA0,
-                      CRYPTO_CMD_INSTR_MADD,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA2,
+                     CRYPTO_CMD_INSTR_SELDDATA0DDATA0,
+                     CRYPTO_CMD_INSTR_MADD,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA2,
 
-                      CRYPTO_CMD_INSTR_SELDDATA3DDATA2,
-                      CRYPTO_CMD_INSTR_MSUB
-                      );
+                     CRYPTO_CMD_INSTR_SELDDATA3DDATA2,
+                     CRYPTO_CMD_INSTR_MSUB
+                    );
     CRYPTO_InstructionSequenceWait(crypto);
 
     ret = ecp_crypto_ddata_read(&crypto->DDATA0, &R->Y);
-    if ( ret != 0 ) goto cleanup;
+    if (ret != 0) {
+        goto cleanup;
+    }
 
- cleanup:
-    crypto_management_release( crypto );
+cleanup:
+    crypto_management_release(crypto);
 
-    return ( ret );
+    return (ret);
 }
 #endif
 
@@ -1462,37 +1438,38 @@ int mbedtls_internal_ecp_double_jac( const mbedtls_ecp_group *grp,
  *                      an error if one of the points is zero.
  */
 #if defined(MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT)
-int mbedtls_internal_ecp_normalize_jac_many( const mbedtls_ecp_group *grp,
-                                             mbedtls_ecp_point *T[],
-                                             size_t t_len )
+int mbedtls_internal_ecp_normalize_jac_many(const mbedtls_ecp_group *grp,
+                                            mbedtls_ecp_point *T[],
+                                            size_t t_len)
 {
     int ret = 0;
     size_t i;
-    ecc_bigint_t*   cc;
+    ecc_bigint_t   *cc;
     ecc_bigint_t    uu;
     ecc_bigint_t    one;
     ecc_bigint_t    modulus;
     CORE_DECLARE_IRQ_STATE;
 
-    if( t_len < 2 )
-        return( mbedtls_internal_ecp_normalize_jac( grp, *T ) );
+    if (t_len < 2) {
+        return (mbedtls_internal_ecp_normalize_jac(grp, *T));
+    }
 
-    if( ( cc = mbedtls_calloc( t_len, sizeof( ecc_bigint_t ) ) ) == NULL )
-        return( MBEDTLS_ERR_ECP_ALLOC_FAILED );
+    if ((cc = mbedtls_calloc(t_len, sizeof(ecc_bigint_t))) == NULL) {
+        return (MBEDTLS_ERR_ECP_ALLOC_FAILED);
+    }
 
     /*
      * c[i] = Z_0 * ... * Z_i
      */
-    MPI_TO_BIGINT( cc[0], &T[0]->Z );
+    MPI_TO_BIGINT(cc[0], &T[0]->Z);
 
     CRYPTO_TypeDef *crypto = crypto_management_acquire();
     crypto_device_init(crypto, grp);
 
-    for( i = 1; i < t_len; i++ )
-    {
+    for (i = 1; i < t_len; i++) {
         CORE_ENTER_CRITICAL();
-        ecp_crypto_ddata_write( &crypto->DDATA1, &T[i]->Z );
-        CRYPTO_DDataWrite( &crypto->DDATA2, cc[i-1] );
+        ecp_crypto_ddata_write(&crypto->DDATA1, &T[i]->Z);
+        CRYPTO_DDataWrite(&crypto->DDATA2, cc[i - 1]);
         CORE_EXIT_CRITICAL();
 
         CRYPTO_EXECUTE_2(crypto,
@@ -1501,40 +1478,36 @@ int mbedtls_internal_ecp_normalize_jac_many( const mbedtls_ecp_group *grp,
         CRYPTO_InstructionSequenceWait(crypto);
 
         CORE_ENTER_CRITICAL();
-        CRYPTO_DDataRead( &crypto->DDATA0, cc[i] );
+        CRYPTO_DDataRead(&crypto->DDATA0, cc[i]);
         CORE_EXIT_CRITICAL();
     }
 
     memset(one, 0, sizeof(one));
-    one[0]=1;
-    MPI_TO_BIGINT( modulus, &grp->P );
+    one[0] = 1;
+    MPI_TO_BIGINT(modulus, &grp->P);
 
     /*
      * u = 1 / (Z_0 * ... * Z_n) mod P
      */
-    crypto_mpi_div_mod(crypto, one, cc[t_len-1], modulus, uu);
+    crypto_mpi_div_mod(crypto, one, cc[t_len - 1], modulus, uu);
 
-    for( i = t_len - 1; ; i-- )
-    {
+    for (i = t_len - 1; ; i--) {
         /*
          * Zi = 1 / Z_i mod p
          * u = 1 / (Z_0 * ... * Z_i) mod P
          */
-        if( i == 0 )
-        {
+        if (i == 0) {
             /* Z_inv (DDATA2) = uu */
             CORE_ENTER_CRITICAL();
             CRYPTO_DDataWrite(&crypto->DDATA2, uu);
             CORE_EXIT_CRITICAL();
-        }
-        else
-        {
+        } else {
             /* Z_inv (DDATA1) = uu x cc[i-1] modulo p */
             /* uu = uu x T[i]->Z modulo p */
             CORE_ENTER_CRITICAL();
             CRYPTO_DDataWrite(&crypto->DDATA1, uu);
-            CRYPTO_DDataWrite(&crypto->DDATA2, cc[i-1]);
-            ecp_crypto_ddata_write( &crypto->DDATA3, &T[i]->Z );
+            CRYPTO_DDataWrite(&crypto->DDATA2, cc[i - 1]);
+            ecp_crypto_ddata_write(&crypto->DDATA3, &T[i]->Z);
             CORE_EXIT_CRITICAL();
 
             CRYPTO_EXECUTE_3(crypto,
@@ -1561,25 +1534,25 @@ int mbedtls_internal_ecp_normalize_jac_many( const mbedtls_ecp_group *grp,
         CORE_EXIT_CRITICAL();
 
         /* Z_inv  already in DDATA2 */
-        CRYPTO_EXECUTE_3 (crypto,
-                          CRYPTO_CMD_INSTR_DDATA2TODDATA1,
-                          CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                          CRYPTO_CMD_INSTR_MMUL);
+        CRYPTO_EXECUTE_3(crypto,
+                         CRYPTO_CMD_INSTR_DDATA2TODDATA1,
+                         CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                         CRYPTO_CMD_INSTR_MMUL);
         CRYPTO_InstructionSequenceWait(crypto);
-        CRYPTO_EXECUTE_3 (crypto,
-                          CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                          CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
-                          CRYPTO_CMD_INSTR_MMUL);
+        CRYPTO_EXECUTE_3(crypto,
+                         CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                         CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
+                         CRYPTO_CMD_INSTR_MMUL);
         CRYPTO_InstructionSequenceWait(crypto);
-        CRYPTO_EXECUTE_3 (crypto,
-                          CRYPTO_CMD_INSTR_DDATA0TODDATA3,
-                          CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                          CRYPTO_CMD_INSTR_MMUL);
+        CRYPTO_EXECUTE_3(crypto,
+                         CRYPTO_CMD_INSTR_DDATA0TODDATA3,
+                         CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                         CRYPTO_CMD_INSTR_MMUL);
         CRYPTO_InstructionSequenceWait(crypto);
-        CRYPTO_EXECUTE_3 (crypto,
-                          CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                          CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
-                          CRYPTO_CMD_INSTR_MMUL);
+        CRYPTO_EXECUTE_3(crypto,
+                         CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                         CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
+                         CRYPTO_CMD_INSTR_MMUL);
         CRYPTO_InstructionSequenceWait(crypto);
 
         ecp_crypto_ddata_read(&crypto->DDATA0, &T[i]->Y);
@@ -1591,19 +1564,20 @@ int mbedtls_internal_ecp_normalize_jac_many( const mbedtls_ecp_group *grp,
          * - shrinking other coordinates, but still keeping the same number of
          *   limbs as P, as otherwise it will too likely be regrown too fast.
          */
-        SLCL_ECP_CHK( mbedtls_mpi_shrink( &T[i]->X, grp->P.n ) );
-        SLCL_ECP_CHK( mbedtls_mpi_shrink( &T[i]->Y, grp->P.n ) );
-        mbedtls_mpi_free( &T[i]->Z );
+        SLCL_ECP_CHK(mbedtls_mpi_shrink(&T[i]->X, grp->P.n));
+        SLCL_ECP_CHK(mbedtls_mpi_shrink(&T[i]->Y, grp->P.n));
+        mbedtls_mpi_free(&T[i]->Z);
 
-        if( i == 0 )
+        if (i == 0) {
             break;
+        }
     }
 
- cleanup:
-    crypto_management_release( crypto );
-    mbedtls_free( cc );
+cleanup:
+    crypto_management_release(crypto);
+    mbedtls_free(cc);
 
-    return( ret );
+    return (ret);
 }
 #endif
 
@@ -1621,8 +1595,8 @@ int mbedtls_internal_ecp_normalize_jac_many( const mbedtls_ecp_group *grp,
  * \return          0 if successful.
  */
 #if defined(MBEDTLS_ECP_NORMALIZE_JAC_ALT)
-int mbedtls_internal_ecp_normalize_jac( const mbedtls_ecp_group *grp,
-                                        mbedtls_ecp_point *pt )
+int mbedtls_internal_ecp_normalize_jac(const mbedtls_ecp_group *grp,
+                                       mbedtls_ecp_point *pt)
 {
     int             ret      = 0;
     CORE_DECLARE_IRQ_STATE;
@@ -1636,10 +1610,10 @@ int mbedtls_internal_ecp_normalize_jac( const mbedtls_ecp_group *grp,
     ecc_bigint_t    Z_inv;
 
     memset(one, 0, sizeof(one));
-    one[0]=1;
+    one[0] = 1;
 
-    MPI_TO_BIGINT( Z, &pt->Z );
-    MPI_TO_BIGINT( modulus, &grp->P );
+    MPI_TO_BIGINT(Z, &pt->Z);
+    MPI_TO_BIGINT(modulus, &grp->P);
 
     crypto_mpi_div_mod(crypto, one, Z, modulus, Z_inv);
 
@@ -1682,39 +1656,39 @@ int mbedtls_internal_ecp_normalize_jac( const mbedtls_ecp_group *grp,
     ecp_crypto_ddata_write(&crypto->DDATA4, &pt->Y);
     CORE_EXIT_CRITICAL();
 
-    CRYPTO_EXECUTE_3 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA1TODDATA2,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                      CRYPTO_CMD_INSTR_MMUL);
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_DDATA1TODDATA2,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                     CRYPTO_CMD_INSTR_MMUL);
     CRYPTO_InstructionSequenceWait(crypto);
-    CRYPTO_EXECUTE_3 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
-                      CRYPTO_CMD_INSTR_MMUL);
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA3,
+                     CRYPTO_CMD_INSTR_MMUL);
     CRYPTO_InstructionSequenceWait(crypto);
-    CRYPTO_EXECUTE_3 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA3,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
-                      CRYPTO_CMD_INSTR_MMUL);
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA3,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA2,
+                     CRYPTO_CMD_INSTR_MMUL);
     CRYPTO_InstructionSequenceWait(crypto);
-    CRYPTO_EXECUTE_3 (crypto,
-                      CRYPTO_CMD_INSTR_DDATA0TODDATA1,
-                      CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
-                      CRYPTO_CMD_INSTR_MMUL);
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_DDATA0TODDATA1,
+                     CRYPTO_CMD_INSTR_SELDDATA1DDATA4,
+                     CRYPTO_CMD_INSTR_MMUL);
     CRYPTO_InstructionSequenceWait(crypto);
 
     ecp_crypto_ddata_read(&crypto->DDATA0, &pt->Y);
     ecp_crypto_ddata_read(&crypto->DDATA3, &pt->X);
 
-    crypto_management_release( crypto );
+    crypto_management_release(crypto);
 
     /*
      * Z = 1
      */
-    SLCL_ECP_CHK( mbedtls_mpi_lset( &pt->Z, 1 ) );
+    SLCL_ECP_CHK(mbedtls_mpi_lset(&pt->Z, 1));
 
- cleanup:
-    return( ret );
+cleanup:
+    return (ret);
 }
 #endif
 

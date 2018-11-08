@@ -40,9 +40,9 @@
 #include "stm32f3xx_ll_comp.h"
 
 #ifdef  USE_FULL_ASSERT
-  #include "stm32_assert.h"
+#include "stm32_assert.h"
 #else
-  #define assert_param(expr) ((void)0U)
+#define assert_param(expr) ((void)0U)
 #endif
 
 /** @addtogroup STM32F3xx_LL_Driver
@@ -618,26 +618,23 @@
   */
 ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
 {
-  ErrorStatus status = SUCCESS;
-  
-  /* Check the parameters */
-  assert_param(IS_COMP_ALL_INSTANCE(COMPx));
-  
-  /* Note: Hardware constraint (refer to description of this function):       */
-  /*       COMP instance must not be locked.                                  */
-  if(LL_COMP_IsLocked(COMPx) == 0U)
-  {
-    LL_COMP_WriteReg(COMPx, CSR, 0x00000000U);
-  }
-  else
-  {
-    /* Comparator instance is locked: de-initialization by software is         */
-    /* not possible.                                                           */
-    /* The only way to unlock the comparator is a device hardware reset.       */
-    status = ERROR;
-  }
-  
-  return status;
+    ErrorStatus status = SUCCESS;
+
+    /* Check the parameters */
+    assert_param(IS_COMP_ALL_INSTANCE(COMPx));
+
+    /* Note: Hardware constraint (refer to description of this function):       */
+    /*       COMP instance must not be locked.                                  */
+    if (LL_COMP_IsLocked(COMPx) == 0U) {
+        LL_COMP_WriteReg(COMPx, CSR, 0x00000000U);
+    } else {
+        /* Comparator instance is locked: de-initialization by software is         */
+        /* not possible.                                                           */
+        /* The only way to unlock the comparator is a device hardware reset.       */
+        status = ERROR;
+    }
+
+    return status;
 }
 
 /**
@@ -654,70 +651,67 @@ ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
   */
 ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStruct)
 {
-  ErrorStatus status = SUCCESS;
-  
-  /* Check the parameters */
-  assert_param(IS_COMP_ALL_INSTANCE(COMPx));
-  assert_param(IS_LL_COMP_POWER_MODE(COMP_InitStruct->PowerMode));
-  assert_param(IS_LL_COMP_INPUT_PLUS(COMPx, COMP_InitStruct->InputPlus));
-  assert_param(IS_LL_COMP_INPUT_MINUS(COMPx, COMP_InitStruct->InputMinus));
-  assert_param(IS_LL_COMP_INPUT_HYSTERESIS(COMP_InitStruct->InputHysteresis));
-  assert_param(IS_LL_COMP_OUTPUT_SELECTION(COMPx, COMP_InitStruct->OutputSelection));
-  assert_param(IS_LL_COMP_OUTPUT_POLARITY(COMP_InitStruct->OutputPolarity));
-  assert_param(IS_LL_COMP_OUTPUT_BLANKING_SOURCE(COMPx, COMP_InitStruct->OutputBlankingSource));
-  
-  /* Note: Hardware constraint (refer to description of this function)        */
-  /*       COMP instance must not be locked.                                  */
-  if(LL_COMP_IsLocked(COMPx) == 0U)
-  {
-    /* Configuration of comparator instance :                                 */
-    /*  - PowerMode                                                           */
-    /*  - InputPlus                                                           */
-    /*  - InputMinus                                                          */
-    /*  - InputHysteresis                                                     */
-    /*  - OutputSelection                                                     */
-    /*  - OutputPolarity                                                      */
-    /*  - OutputBlankingSource                                                */
-    MODIFY_REG(COMPx->CSR,
-                 ((uint32_t)0x00000000U)
-#if defined(COMP_CSR_COMPxMODE)
-               | COMP_CSR_COMPxMODE
-#endif
-#if defined(COMP_CSR_COMPxNONINSEL)
-               | COMP_CSR_COMPxNONINSEL
-#endif
-               | COMP_CSR_COMPxINSEL
-#if defined(COMP_CSR_COMPxHYST)
-               | COMP_CSR_COMPxHYST
-#endif
-               | COMP_CSR_COMPxOUTSEL
-               | COMP_CSR_COMPxPOL
-               | COMP_CSR_COMPxBLANKING
-              ,
-                 ((uint32_t)0x00000000U)
-#if defined(COMP_CSR_COMPxMODE)
-               | COMP_InitStruct->PowerMode
-#endif
-#if defined(COMP_CSR_COMPxNONINSEL)
-               | COMP_InitStruct->InputPlus
-#endif
-               | COMP_InitStruct->InputMinus
-#if defined(COMP_CSR_COMPxHYST)
-               | COMP_InitStruct->InputHysteresis
-#endif
-               | COMP_InitStruct->OutputSelection
-               | COMP_InitStruct->OutputPolarity
-               | COMP_InitStruct->OutputBlankingSource
-              );
+    ErrorStatus status = SUCCESS;
 
-  }
-  else
-  {
-    /* Initialization error: COMP instance is locked.                         */
-    status = ERROR;
-  }
-  
-  return status;
+    /* Check the parameters */
+    assert_param(IS_COMP_ALL_INSTANCE(COMPx));
+    assert_param(IS_LL_COMP_POWER_MODE(COMP_InitStruct->PowerMode));
+    assert_param(IS_LL_COMP_INPUT_PLUS(COMPx, COMP_InitStruct->InputPlus));
+    assert_param(IS_LL_COMP_INPUT_MINUS(COMPx, COMP_InitStruct->InputMinus));
+    assert_param(IS_LL_COMP_INPUT_HYSTERESIS(COMP_InitStruct->InputHysteresis));
+    assert_param(IS_LL_COMP_OUTPUT_SELECTION(COMPx, COMP_InitStruct->OutputSelection));
+    assert_param(IS_LL_COMP_OUTPUT_POLARITY(COMP_InitStruct->OutputPolarity));
+    assert_param(IS_LL_COMP_OUTPUT_BLANKING_SOURCE(COMPx, COMP_InitStruct->OutputBlankingSource));
+
+    /* Note: Hardware constraint (refer to description of this function)        */
+    /*       COMP instance must not be locked.                                  */
+    if (LL_COMP_IsLocked(COMPx) == 0U) {
+        /* Configuration of comparator instance :                                 */
+        /*  - PowerMode                                                           */
+        /*  - InputPlus                                                           */
+        /*  - InputMinus                                                          */
+        /*  - InputHysteresis                                                     */
+        /*  - OutputSelection                                                     */
+        /*  - OutputPolarity                                                      */
+        /*  - OutputBlankingSource                                                */
+        MODIFY_REG(COMPx->CSR,
+                   ((uint32_t)0x00000000U)
+#if defined(COMP_CSR_COMPxMODE)
+                   | COMP_CSR_COMPxMODE
+#endif
+#if defined(COMP_CSR_COMPxNONINSEL)
+                   | COMP_CSR_COMPxNONINSEL
+#endif
+                   | COMP_CSR_COMPxINSEL
+#if defined(COMP_CSR_COMPxHYST)
+                   | COMP_CSR_COMPxHYST
+#endif
+                   | COMP_CSR_COMPxOUTSEL
+                   | COMP_CSR_COMPxPOL
+                   | COMP_CSR_COMPxBLANKING
+                   ,
+                   ((uint32_t)0x00000000U)
+#if defined(COMP_CSR_COMPxMODE)
+                   | COMP_InitStruct->PowerMode
+#endif
+#if defined(COMP_CSR_COMPxNONINSEL)
+                   | COMP_InitStruct->InputPlus
+#endif
+                   | COMP_InitStruct->InputMinus
+#if defined(COMP_CSR_COMPxHYST)
+                   | COMP_InitStruct->InputHysteresis
+#endif
+                   | COMP_InitStruct->OutputSelection
+                   | COMP_InitStruct->OutputPolarity
+                   | COMP_InitStruct->OutputBlankingSource
+                  );
+
+    } else {
+        /* Initialization error: COMP instance is locked.                         */
+        status = ERROR;
+    }
+
+    return status;
 }
 
 /**
@@ -728,16 +722,16 @@ ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStru
   */
 void LL_COMP_StructInit(LL_COMP_InitTypeDef *COMP_InitStruct)
 {
-  /* Set COMP_InitStruct fields to default values */
-  /* Note: Comparator power mode "high speed" is the only mode                */
-  /*       available on all STMF3 devices.                                    */
-  COMP_InitStruct->PowerMode            = LL_COMP_POWERMODE_HIGHSPEED;
-  COMP_InitStruct->InputPlus            = LL_COMP_INPUT_PLUS_IO1;
-  COMP_InitStruct->InputMinus           = LL_COMP_INPUT_MINUS_VREFINT;
-  COMP_InitStruct->InputHysteresis      = LL_COMP_HYSTERESIS_NONE;
-  COMP_InitStruct->OutputSelection      = LL_COMP_OUTPUT_NONE;
-  COMP_InitStruct->OutputPolarity       = LL_COMP_OUTPUTPOL_NONINVERTED;
-  COMP_InitStruct->OutputBlankingSource = LL_COMP_BLANKINGSRC_NONE;
+    /* Set COMP_InitStruct fields to default values */
+    /* Note: Comparator power mode "high speed" is the only mode                */
+    /*       available on all STMF3 devices.                                    */
+    COMP_InitStruct->PowerMode            = LL_COMP_POWERMODE_HIGHSPEED;
+    COMP_InitStruct->InputPlus            = LL_COMP_INPUT_PLUS_IO1;
+    COMP_InitStruct->InputMinus           = LL_COMP_INPUT_MINUS_VREFINT;
+    COMP_InitStruct->InputHysteresis      = LL_COMP_HYSTERESIS_NONE;
+    COMP_InitStruct->OutputSelection      = LL_COMP_OUTPUT_NONE;
+    COMP_InitStruct->OutputPolarity       = LL_COMP_OUTPUTPOL_NONINVERTED;
+    COMP_InitStruct->OutputBlankingSource = LL_COMP_BLANKINGSRC_NONE;
 }
 
 /**
@@ -871,54 +865,48 @@ void LL_COMP_StructInit(LL_COMP_InitTypeDef *COMP_InitStruct)
   */
 ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
 {
-  ErrorStatus status = SUCCESS;
-  
-  /* Check the parameters */
-  assert_param(IS_COMP_ALL_INSTANCE(COMPx));
-  
-  /* Note: Hardware constraint (refer to description of this function):       */
-  /*       COMP instance must not be locked.                                  */
-  if(LL_COMP_IsLocked(COMPx) == 0U)
-  {
-    /* Note: Connection switch is applicable only to COMP instance COMP1,     */
-    /*       therefore is COMP2 is selected the equivalent bit is             */
-    /*       kept unmodified.                                                 */
-    if(COMPx == COMP1)
-    {
-      CLEAR_BIT(COMP->CSR,
-                (  COMP_CSR_COMP1MODE
-                 | COMP_CSR_COMP1INSEL
-                 | COMP_CSR_COMP1SW1
-                 | COMP_CSR_COMP1OUTSEL
-                 | COMP_CSR_COMP1HYST
-                 | COMP_CSR_COMP1POL
-                 | COMP_CSR_COMP1EN
-                ) << __COMP_BITOFFSET_INSTANCE(COMPx)
-               );
+    ErrorStatus status = SUCCESS;
+
+    /* Check the parameters */
+    assert_param(IS_COMP_ALL_INSTANCE(COMPx));
+
+    /* Note: Hardware constraint (refer to description of this function):       */
+    /*       COMP instance must not be locked.                                  */
+    if (LL_COMP_IsLocked(COMPx) == 0U) {
+        /* Note: Connection switch is applicable only to COMP instance COMP1,     */
+        /*       therefore is COMP2 is selected the equivalent bit is             */
+        /*       kept unmodified.                                                 */
+        if (COMPx == COMP1) {
+            CLEAR_BIT(COMP->CSR,
+                      (COMP_CSR_COMP1MODE
+                       | COMP_CSR_COMP1INSEL
+                       | COMP_CSR_COMP1SW1
+                       | COMP_CSR_COMP1OUTSEL
+                       | COMP_CSR_COMP1HYST
+                       | COMP_CSR_COMP1POL
+                       | COMP_CSR_COMP1EN
+                      ) << __COMP_BITOFFSET_INSTANCE(COMPx)
+                     );
+        } else {
+            CLEAR_BIT(COMP->CSR,
+                      (COMP_CSR_COMP1MODE
+                       | COMP_CSR_COMP1INSEL
+                       | COMP_CSR_COMP1OUTSEL
+                       | COMP_CSR_COMP1HYST
+                       | COMP_CSR_COMP1POL
+                       | COMP_CSR_COMP1EN
+                      ) << __COMP_BITOFFSET_INSTANCE(COMPx)
+                     );
+        }
+
+    } else {
+        /* Comparator instance is locked: de-initialization by software is         */
+        /* not possible.                                                           */
+        /* The only way to unlock the comparator is a device hardware reset.       */
+        status = ERROR;
     }
-    else
-    {
-      CLEAR_BIT(COMP->CSR,
-                (  COMP_CSR_COMP1MODE
-                 | COMP_CSR_COMP1INSEL
-                 | COMP_CSR_COMP1OUTSEL
-                 | COMP_CSR_COMP1HYST
-                 | COMP_CSR_COMP1POL
-                 | COMP_CSR_COMP1EN
-                ) << __COMP_BITOFFSET_INSTANCE(COMPx)
-               );
-    }
-    
-  }
-  else
-  {
-    /* Comparator instance is locked: de-initialization by software is         */
-    /* not possible.                                                           */
-    /* The only way to unlock the comparator is a device hardware reset.       */
-    status = ERROR;
-  }
-  
-  return status;
+
+    return status;
 }
 
 /**
@@ -935,79 +923,73 @@ ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
   */
 ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStruct)
 {
-  ErrorStatus status = SUCCESS;
-  
-  /* Check the parameters */
-  assert_param(IS_COMP_ALL_INSTANCE(COMPx));
-  assert_param(IS_LL_COMP_POWER_MODE(COMP_InitStruct->PowerMode));
-  assert_param(IS_LL_COMP_INPUT_PLUS(COMPx, COMP_InitStruct->InputPlus));
-  assert_param(IS_LL_COMP_INPUT_MINUS(COMPx, COMP_InitStruct->InputMinus));
-  assert_param(IS_LL_COMP_INPUT_HYSTERESIS(COMP_InitStruct->InputHysteresis));
-  assert_param(IS_LL_COMP_OUTPUT_SELECTION(COMP_InitStruct->OutputSelection));
-  assert_param(IS_LL_COMP_OUTPUT_POLARITY(COMP_InitStruct->OutputPolarity));
-  
-  /* Note: Hardware constraint (refer to description of this function)        */
-  /*       COMP instance must not be locked.                                  */
-  if(LL_COMP_IsLocked(COMPx) == 0U)
-  {
-    /* Configuration of comparator instance :                                 */
-    /*  - PowerMode                                                           */
-    /*  - InputPlus                                                           */
-    /*  - InputMinus                                                          */
-    /*  - InputHysteresis                                                     */
-    /*  - OutputSelection                                                     */
-    /*  - OutputPolarity                                                      */
-    /* Note: Connection switch is applicable only to COMP instance COMP1,     */
-    /*       therefore is COMP2 is selected the equivalent bit is             */
-    /*       kept unmodified.                                                 */
-    if(COMPx == COMP1)
-    {
-      MODIFY_REG(COMP->CSR,
-                 (  COMP_CSR_COMP1MODE
-                  | COMP_CSR_COMP1INSEL
-                  | COMP_CSR_COMP1SW1
-                  | COMP_CSR_COMP1OUTSEL
-                  | COMP_CSR_COMP1HYST
-                  | COMP_CSR_COMP1POL
-                 ) << __COMP_BITOFFSET_INSTANCE(COMPx)
-                ,
-                 (  COMP_InitStruct->PowerMode
-                  | COMP_InitStruct->InputPlus
-                  | COMP_InitStruct->InputMinus
-                  | COMP_InitStruct->InputHysteresis
-                  | COMP_InitStruct->OutputSelection
-                  | COMP_InitStruct->OutputPolarity
-                 ) << __COMP_BITOFFSET_INSTANCE(COMPx)
-                );
+    ErrorStatus status = SUCCESS;
+
+    /* Check the parameters */
+    assert_param(IS_COMP_ALL_INSTANCE(COMPx));
+    assert_param(IS_LL_COMP_POWER_MODE(COMP_InitStruct->PowerMode));
+    assert_param(IS_LL_COMP_INPUT_PLUS(COMPx, COMP_InitStruct->InputPlus));
+    assert_param(IS_LL_COMP_INPUT_MINUS(COMPx, COMP_InitStruct->InputMinus));
+    assert_param(IS_LL_COMP_INPUT_HYSTERESIS(COMP_InitStruct->InputHysteresis));
+    assert_param(IS_LL_COMP_OUTPUT_SELECTION(COMP_InitStruct->OutputSelection));
+    assert_param(IS_LL_COMP_OUTPUT_POLARITY(COMP_InitStruct->OutputPolarity));
+
+    /* Note: Hardware constraint (refer to description of this function)        */
+    /*       COMP instance must not be locked.                                  */
+    if (LL_COMP_IsLocked(COMPx) == 0U) {
+        /* Configuration of comparator instance :                                 */
+        /*  - PowerMode                                                           */
+        /*  - InputPlus                                                           */
+        /*  - InputMinus                                                          */
+        /*  - InputHysteresis                                                     */
+        /*  - OutputSelection                                                     */
+        /*  - OutputPolarity                                                      */
+        /* Note: Connection switch is applicable only to COMP instance COMP1,     */
+        /*       therefore is COMP2 is selected the equivalent bit is             */
+        /*       kept unmodified.                                                 */
+        if (COMPx == COMP1) {
+            MODIFY_REG(COMP->CSR,
+                       (COMP_CSR_COMP1MODE
+                        | COMP_CSR_COMP1INSEL
+                        | COMP_CSR_COMP1SW1
+                        | COMP_CSR_COMP1OUTSEL
+                        | COMP_CSR_COMP1HYST
+                        | COMP_CSR_COMP1POL
+                       ) << __COMP_BITOFFSET_INSTANCE(COMPx)
+                       ,
+                       (COMP_InitStruct->PowerMode
+                        | COMP_InitStruct->InputPlus
+                        | COMP_InitStruct->InputMinus
+                        | COMP_InitStruct->InputHysteresis
+                        | COMP_InitStruct->OutputSelection
+                        | COMP_InitStruct->OutputPolarity
+                       ) << __COMP_BITOFFSET_INSTANCE(COMPx)
+                      );
+        } else {
+            MODIFY_REG(COMP->CSR,
+                       (COMP_CSR_COMP1MODE
+                        | COMP_CSR_COMP1INSEL
+                        | COMP_CSR_COMP1OUTSEL
+                        | COMP_CSR_COMP1HYST
+                        | COMP_CSR_COMP1POL
+                       ) << __COMP_BITOFFSET_INSTANCE(COMPx)
+                       ,
+                       (COMP_InitStruct->PowerMode
+                        | COMP_InitStruct->InputPlus
+                        | COMP_InitStruct->InputMinus
+                        | COMP_InitStruct->InputHysteresis
+                        | COMP_InitStruct->OutputSelection
+                        | COMP_InitStruct->OutputPolarity
+                       ) << __COMP_BITOFFSET_INSTANCE(COMPx)
+                      );
+        }
+
+    } else {
+        /* Initialization error: COMP instance is locked.                         */
+        status = ERROR;
     }
-    else
-    {
-      MODIFY_REG(COMP->CSR,
-                 (  COMP_CSR_COMP1MODE
-                  | COMP_CSR_COMP1INSEL
-                  | COMP_CSR_COMP1OUTSEL
-                  | COMP_CSR_COMP1HYST
-                  | COMP_CSR_COMP1POL
-                 ) << __COMP_BITOFFSET_INSTANCE(COMPx)
-                ,
-                 (  COMP_InitStruct->PowerMode
-                  | COMP_InitStruct->InputPlus
-                  | COMP_InitStruct->InputMinus
-                  | COMP_InitStruct->InputHysteresis
-                  | COMP_InitStruct->OutputSelection
-                  | COMP_InitStruct->OutputPolarity
-                 ) << __COMP_BITOFFSET_INSTANCE(COMPx)
-                );
-    }
-    
-  }
-  else
-  {
-    /* Initialization error: COMP instance is locked.                         */
-    status = ERROR;
-  }
-  
-  return status;
+
+    return status;
 }
 
 /**
@@ -1018,13 +1000,13 @@ ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStru
   */
 void LL_COMP_StructInit(LL_COMP_InitTypeDef *COMP_InitStruct)
 {
-  /* Set COMP_InitStruct fields to default values */
-  COMP_InitStruct->PowerMode            = LL_COMP_POWERMODE_ULTRALOWPOWER;
-  COMP_InitStruct->InputPlus            = LL_COMP_INPUT_PLUS_IO1;
-  COMP_InitStruct->InputMinus           = LL_COMP_INPUT_MINUS_VREFINT;
-  COMP_InitStruct->InputHysteresis      = LL_COMP_HYSTERESIS_NONE;
-  COMP_InitStruct->OutputSelection      = LL_COMP_OUTPUT_NONE;
-  COMP_InitStruct->OutputPolarity       = LL_COMP_OUTPUTPOL_NONINVERTED;
+    /* Set COMP_InitStruct fields to default values */
+    COMP_InitStruct->PowerMode            = LL_COMP_POWERMODE_ULTRALOWPOWER;
+    COMP_InitStruct->InputPlus            = LL_COMP_INPUT_PLUS_IO1;
+    COMP_InitStruct->InputMinus           = LL_COMP_INPUT_MINUS_VREFINT;
+    COMP_InitStruct->InputHysteresis      = LL_COMP_HYSTERESIS_NONE;
+    COMP_InitStruct->OutputSelection      = LL_COMP_OUTPUT_NONE;
+    COMP_InitStruct->OutputPolarity       = LL_COMP_OUTPUTPOL_NONINVERTED;
 }
 
 /**

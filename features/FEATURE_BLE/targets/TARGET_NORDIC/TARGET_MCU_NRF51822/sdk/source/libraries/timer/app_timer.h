@@ -52,7 +52,7 @@
  *          the scheduler.
  *
  * @details Use the USE_SCHEDULER parameter of the APP_TIMER_INIT() macro to select if the
- *          @ref app_scheduler should be used or not. Even if the scheduler is 
+ *          @ref app_scheduler should be used or not. Even if the scheduler is
  *          not used, app_timer.h will include app_scheduler.h, so when
  *          compiling, app_scheduler.h must be available in one of the compiler include paths.
  */
@@ -96,8 +96,8 @@
  *
  * This macro uses 64-bit integer arithmetic, but as long as the macro parameters are
  *       constants (i.e. defines), the computation will be done by the preprocessor.
- * 
- * When using this macro, ensure that the 
+ *
+ * When using this macro, ensure that the
  *         values provided as input result in an output value that is supported by the
  *         @ref app_timer_start function. For example, when the ticks for 1 ms is needed, the
  *         maximum possible value of PRESCALER must be 6, when @ref APP_TIMER_CLOCK_FREQ is 32768.
@@ -106,18 +106,20 @@
  *
  * @param[in]  MS          Milliseconds.
  * @param[in]  PRESCALER   Value of the RTC1 PRESCALER register (must be the same value that was
- *                         passed to APP_TIMER_INIT()). 
+ *                         passed to APP_TIMER_INIT()).
  *
  * @return     Number of timer ticks.
  */
 #define APP_TIMER_TICKS(MS, PRESCALER)\
             ((uint32_t)ROUNDED_DIV((MS) * (uint64_t)APP_TIMER_CLOCK_FREQ, ((PRESCALER) + 1) * 1000))
 
-typedef struct app_timer_t { uint32_t data[CEIL_DIV(APP_TIMER_NODE_SIZE, sizeof(uint32_t))]; } app_timer_t;
+typedef struct app_timer_t {
+    uint32_t data[CEIL_DIV(APP_TIMER_NODE_SIZE, sizeof(uint32_t))];
+} app_timer_t;
 
 /**@brief Timer ID type.
  * Never declare a variable of this type, but use the macro @ref APP_TIMER_DEF instead.*/
-typedef app_timer_t * app_timer_id_t;
+typedef app_timer_t *app_timer_id_t;
 
 /**
  * @brief Create a timer identifier and statically allocate memory for the timer.
@@ -130,15 +132,14 @@ typedef app_timer_t * app_timer_id_t;
 
 
 /**@brief Application time-out handler type. */
-typedef void (*app_timer_timeout_handler_t)(void * p_context);
+typedef void (*app_timer_timeout_handler_t)(void *p_context);
 
 /**@brief Type of function for passing events from the timer module to the scheduler. */
-typedef uint32_t (*app_timer_evt_schedule_func_t) (app_timer_timeout_handler_t timeout_handler,
-                                                   void *                      p_context);
+typedef uint32_t (*app_timer_evt_schedule_func_t)(app_timer_timeout_handler_t timeout_handler,
+                                                  void                       *p_context);
 
 /**@brief Timer modes. */
-typedef enum
-{
+typedef enum {
     APP_TIMER_MODE_SINGLE_SHOT,                 /**< The timer will expire only once. */
     APP_TIMER_MODE_REPEATED                     /**< The timer will restart each time it expires. */
 } app_timer_mode_t;
@@ -149,11 +150,11 @@ typedef enum
  *          making sure that the buffer is correctly aligned. It will also connect the timer module
  *          to the scheduler (if specified).
  *
- * @note    This module assumes that the LFCLK is already running. If it is not, the module will 
- *          be non-functional, since the RTC will not run. If you do not use a SoftDevice, you 
- *          must start the LFCLK manually. See the rtc_example's lfclk_config() function 
- *          for an example of how to do this. If you use a SoftDevice, the LFCLK is started on 
- *          SoftDevice init. 
+ * @note    This module assumes that the LFCLK is already running. If it is not, the module will
+ *          be non-functional, since the RTC will not run. If you do not use a SoftDevice, you
+ *          must start the LFCLK manually. See the rtc_example's lfclk_config() function
+ *          for an example of how to do this. If you use a SoftDevice, the LFCLK is started on
+ *          SoftDevice init.
  *
  *
  * @param[in]  PRESCALER        Value of the RTC1 PRESCALER register. This will decide the
@@ -202,9 +203,9 @@ typedef enum
  * @retval     NRF_ERROR_INVALID_PARAM   If a parameter was invalid (buffer not aligned to a 4 byte
  *                                       boundary or NULL).
  */
-uint32_t app_timer_init(uint32_t                      prescaler, 
+uint32_t app_timer_init(uint32_t                      prescaler,
                         uint8_t                       op_queues_size,
-                        void *                        p_buffer,
+                        void                         *p_buffer,
                         app_timer_evt_schedule_func_t evt_schedule_func);
 
 /**@brief Function for creating a timer instance.
@@ -226,7 +227,7 @@ uint32_t app_timer_init(uint32_t                      prescaler,
  * @attention The FreeRTOS and RTX app_timer implementation does not allow app_timer_create to
  *       be called on the previously initialized instance.
  */
-uint32_t app_timer_create(app_timer_id_t const *      p_timer_id,
+uint32_t app_timer_create(app_timer_id_t const       *p_timer_id,
                           app_timer_mode_t            mode,
                           app_timer_timeout_handler_t timeout_handler);
 
@@ -250,7 +251,7 @@ uint32_t app_timer_create(app_timer_id_t const *      p_timer_id,
  * @note When calling this method on a timer that is already running, the second start operation
  *       is ignored.
  */
-uint32_t app_timer_start(app_timer_id_t timer_id, uint32_t timeout_ticks, void * p_context);
+uint32_t app_timer_start(app_timer_id_t timer_id, uint32_t timeout_ticks, void *p_context);
 
 /**@brief Function for stopping the specified timer.
  *
@@ -278,7 +279,7 @@ uint32_t app_timer_stop_all(void);
  *
  * @retval     NRF_SUCCESS   If the counter was successfully read.
  */
-uint32_t app_timer_cnt_get(uint32_t * p_ticks);
+uint32_t app_timer_cnt_get(uint32_t *p_ticks);
 
 /**@brief Function for computing the difference between two RTC1 counter values.
  *
@@ -290,7 +291,7 @@ uint32_t app_timer_cnt_get(uint32_t * p_ticks);
  */
 uint32_t app_timer_cnt_diff_compute(uint32_t   ticks_to,
                                     uint32_t   ticks_from,
-                                    uint32_t * p_ticks_diff);
+                                    uint32_t *p_ticks_diff);
 
 #endif // APP_TIMER_H__
 

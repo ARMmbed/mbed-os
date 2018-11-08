@@ -26,7 +26,7 @@ namespace mbed {
 
 class Arguments {
 public:
-    Arguments(const char* rqs);
+    Arguments(const char *rqs);
 
     template<typename Arg>
     Arg   getArg(void);
@@ -35,19 +35,19 @@ public:
     char *method_name;
 
     int   argc;
-    char* argv[RPC_MAX_ARGS];
+    char *argv[RPC_MAX_ARGS];
 
 private:
     // This copy can be removed if we can assume the request string is
     // persistent and writable for the duration of the call
     char  request[RPC_MAX_STRING];
     int index;
-    char* search_arg(char **arg, char *p, char next_sep);
+    char *search_arg(char **arg, char *p, char next_sep);
 };
 
 class Reply {
 public:
-    Reply(char* r);
+    Reply(char *r);
 
     template<typename Data>
     void putData(Data d);
@@ -55,7 +55,7 @@ public:
 private:
     void separator(void);
     bool first;
-    char* reply;
+    char *reply;
 };
 
 

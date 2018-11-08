@@ -1,11 +1,11 @@
 /**********************************************************************
-* $Id$		lpc_phy_dp83848.c			2011-11-20
+* $Id$      lpc_phy_dp83848.c           2011-11-20
 *//**
-* @file		lpc_phy_dp83848.c
-* @brief	DP83848C PHY status and control.
-* @version	1.0
-* @date		20 Nov. 2011
-* @author	NXP MCU SW Application Team
+* @file     lpc_phy_dp83848.c
+* @brief    DP83848C PHY status and control.
+* @version  1.0
+* @date     20 Nov. 2011
+* @author   NXP MCU SW Application Team
 *
 * Copyright(C) 2011, NXP Semiconductor
 * All rights reserved.
@@ -33,7 +33,7 @@
 
 #if LWIP_ARP || LWIP_ETHERNET
 
-/** @defgroup dp83848_phy	PHY status and control for the DP83848.
+/** @defgroup dp83848_phy   PHY status and control for the DP83848.
  * @ingroup lwip_phy
  *
  * Various functions for controlling and monitoring the status of the
@@ -102,7 +102,7 @@
 #define PHY_SCSR_DUPLEX     0x0010    /**< PHY Duplex Mask             */
 
 /** \brief Link status bits */
-#define LNK_STAT_VALID       0x01 
+#define LNK_STAT_VALID       0x01
 #define LNK_STAT_FULLDUPLEX  0x02
 #define LNK_STAT_SPEED10MPS  0x04
 
@@ -113,9 +113,9 @@
 /** \brief PHY status structure used to indicate current status of PHY.
  */
 typedef struct {
-	u32_t     phy_speed_100mbs:1; /**< 10/100 MBS connection speed flag. */
-	u32_t     phy_full_duplex:1;  /**< Half/full duplex connection speed flag. */
-	u32_t     phy_link_active:1;  /**< Phy link active flag. */
+    u32_t     phy_speed_100mbs: 1; /**< 10/100 MBS connection speed flag. */
+    u32_t     phy_full_duplex: 1; /**< Half/full duplex connection speed flag. */
+    u32_t     phy_link_active: 1; /**< Phy link active flag. */
 } PHY_STATUS_TYPE;
 
 /** \brief  PHY update flags */
@@ -136,87 +136,89 @@ static u32_t phy_lan7420_sts_tmp;
 /* Write a value via the MII link (non-blocking) */
 void lpc_mii_write_noblock(u32_t PhyReg, u32_t Value)
 {
-	/* Write value at PHY address and register */
-	LPC_EMAC->MADR = (LPC_PHYDEF_PHYADDR << 8) | PhyReg;
-	LPC_EMAC->MWTD = Value;
+    /* Write value at PHY address and register */
+    LPC_EMAC->MADR = (LPC_PHYDEF_PHYADDR << 8) | PhyReg;
+    LPC_EMAC->MWTD = Value;
 }
 
 /* Write a value via the MII link (blocking) */
 err_t lpc_mii_write(u32_t PhyReg, u32_t Value)
 {
-	u32_t mst = 250;
-	err_t sts = ERR_OK;
+    u32_t mst = 250;
+    err_t sts = ERR_OK;
 
-	/* Write value at PHY address and register */
-	lpc_mii_write_noblock(PhyReg, Value);
+    /* Write value at PHY address and register */
+    lpc_mii_write_noblock(PhyReg, Value);
 
-	/* Wait for unbusy status */
-	while (mst > 0) {
-		sts = LPC_EMAC->MIND;
-		if ((sts & EMAC_MIND_BUSY) == 0)
-			mst = 0;
-		else {
-			mst--;
-			osDelay(1);
-		}
-	}
+    /* Wait for unbusy status */
+    while (mst > 0) {
+        sts = LPC_EMAC->MIND;
+        if ((sts & EMAC_MIND_BUSY) == 0) {
+            mst = 0;
+        } else {
+            mst--;
+            osDelay(1);
+        }
+    }
 
-	if (sts != 0)
-		sts = ERR_TIMEOUT;
+    if (sts != 0) {
+        sts = ERR_TIMEOUT;
+    }
 
-	return sts;
+    return sts;
 }
 
 /* Reads current MII link busy status */
 u32_t lpc_mii_is_busy(void)
 {
-	return (u32_t) (LPC_EMAC->MIND & EMAC_MIND_BUSY);
+    return (u32_t)(LPC_EMAC->MIND & EMAC_MIND_BUSY);
 }
 
 /* Starts a read operation via the MII link (non-blocking) */
 u32_t lpc_mii_read_data(void)
 {
-	u32_t data = LPC_EMAC->MRDD;
-	LPC_EMAC->MCMD = 0;
+    u32_t data = LPC_EMAC->MRDD;
+    LPC_EMAC->MCMD = 0;
 
-	return data;
+    return data;
 }
 
 /* Starts a read operation via the MII link (non-blocking) */
 void lpc_mii_read_noblock(u32_t PhyReg)
 {
-	/* Read value at PHY address and register */
-	LPC_EMAC->MADR = (LPC_PHYDEF_PHYADDR << 8) | PhyReg;
-	LPC_EMAC->MCMD = EMAC_MCMD_READ;
+    /* Read value at PHY address and register */
+    LPC_EMAC->MADR = (LPC_PHYDEF_PHYADDR << 8) | PhyReg;
+    LPC_EMAC->MCMD = EMAC_MCMD_READ;
 }
 
 /* Read a value via the MII link (blocking) */
 err_t lpc_mii_read(u32_t PhyReg, u32_t *data)
 {
-	u32_t mst = 250;
-	err_t sts = ERR_OK;
+    u32_t mst = 250;
+    err_t sts = ERR_OK;
 
-	/* Read value at PHY address and register */
-	lpc_mii_read_noblock(PhyReg);
+    /* Read value at PHY address and register */
+    lpc_mii_read_noblock(PhyReg);
 
-	/* Wait for unbusy status */
-	while (mst > 0) {
-		sts = LPC_EMAC->MIND & ~EMAC_MIND_MII_LINK_FAIL;
-		if ((sts & EMAC_MIND_BUSY) == 0) {
-			mst = 0;
-			*data = LPC_EMAC->MRDD;
-		} else {
-			mst--;
-			osDelay(1);
-		}
-	}
+    /* Wait for unbusy status */
+    while (mst > 0) {
+        sts = LPC_EMAC->MIND & ~EMAC_MIND_MII_LINK_FAIL;
+        if ((sts & EMAC_MIND_BUSY) == 0) {
+            mst = 0;
+            *data = LPC_EMAC->MRDD;
+        } else {
+            mst--;
+            osDelay(1);
+        }
+    }
 
-	LPC_EMAC->MCMD = 0;
+    LPC_EMAC->MCMD = 0;
 
-	if (sts != 0)
-		sts = ERR_TIMEOUT;
+    if (sts != 0) {
+        sts = ERR_TIMEOUT;
+    }
 
-	return sts;
+    return sts;
 }
 
 
@@ -233,74 +235,78 @@ err_t lpc_mii_read(u32_t PhyReg, u32_t *data)
  */
 static s32_t lpc_update_phy_sts(struct netif *netif, u32_t linksts)
 {
-	s32_t changed = 0;
+    s32_t changed = 0;
 
-	/* Update link active status */
-	if (linksts & LNK_STAT_VALID)
-		physts.phy_link_active = 1;
-	else
-		physts.phy_link_active = 0;
+    /* Update link active status */
+    if (linksts & LNK_STAT_VALID) {
+        physts.phy_link_active = 1;
+    } else {
+        physts.phy_link_active = 0;
+    }
 
-	/* Full or half duplex */
-	if (linksts & LNK_STAT_FULLDUPLEX)
-		physts.phy_full_duplex = 1;
-	else
-		physts.phy_full_duplex = 0;
+    /* Full or half duplex */
+    if (linksts & LNK_STAT_FULLDUPLEX) {
+        physts.phy_full_duplex = 1;
+    } else {
+        physts.phy_full_duplex = 0;
+    }
 
-	/* Configure 100MBit/10MBit mode. */
-	if (linksts & LNK_STAT_SPEED10MPS)
-		physts.phy_speed_100mbs = 0;
-	else
-		physts.phy_speed_100mbs = 1;
+    /* Configure 100MBit/10MBit mode. */
+    if (linksts & LNK_STAT_SPEED10MPS) {
+        physts.phy_speed_100mbs = 0;
+    } else {
+        physts.phy_speed_100mbs = 1;
+    }
 
-	if (physts.phy_speed_100mbs != olddphysts.phy_speed_100mbs) {
-		changed = 1;
-		if (physts.phy_speed_100mbs) {
-			/* 100MBit mode. */
-			lpc_emac_set_speed(1);
+    if (physts.phy_speed_100mbs != olddphysts.phy_speed_100mbs) {
+        changed = 1;
+        if (physts.phy_speed_100mbs) {
+            /* 100MBit mode. */
+            lpc_emac_set_speed(1);
 
-			NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, 100000000);
-		}
-		else {
-			/* 10MBit mode. */
-			lpc_emac_set_speed(0);
+            NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, 100000000);
+        } else {
+            /* 10MBit mode. */
+            lpc_emac_set_speed(0);
 
-			NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, 10000000);
-		}
+            NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, 10000000);
+        }
 
-		olddphysts.phy_speed_100mbs = physts.phy_speed_100mbs;
-	}
+        olddphysts.phy_speed_100mbs = physts.phy_speed_100mbs;
+    }
 
-	if (physts.phy_full_duplex != olddphysts.phy_full_duplex) {
-		changed = 1;
-		if (physts.phy_full_duplex)
-			lpc_emac_set_duplex(1);
-		else
-			lpc_emac_set_duplex(0);
+    if (physts.phy_full_duplex != olddphysts.phy_full_duplex) {
+        changed = 1;
+        if (physts.phy_full_duplex) {
+            lpc_emac_set_duplex(1);
+        } else {
+            lpc_emac_set_duplex(0);
+        }
 
-		olddphysts.phy_full_duplex = physts.phy_full_duplex;
-	}
+        olddphysts.phy_full_duplex = physts.phy_full_duplex;
+    }
 
-	if (physts.phy_link_active != olddphysts.phy_link_active) {
-		changed = 1;
+    if (physts.phy_link_active != olddphysts.phy_link_active) {
+        changed = 1;
 #if NO_SYS == 1
-		if (physts.phy_link_active)
-			netif_set_link_up(netif);
-		else
-			netif_set_link_down(netif);
+        if (physts.phy_link_active) {
+            netif_set_link_up(netif);
+        } else {
+            netif_set_link_down(netif);
+        }
 #else
         if (physts.phy_link_active)
             tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_up,
-                (void*) netif, 1);
-         else
+                                      (void *) netif, 1);
+        else
             tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_down,
-                (void*) netif, 1);
+                                      (void *) netif, 1);
 #endif
 
-		olddphysts.phy_link_active = physts.phy_link_active;
-	}
+        olddphysts.phy_link_active = physts.phy_link_active;
+    }
 
-	return changed;
+    return changed;
 }
 
 /** \brief  Initialize the DP83848 PHY.
@@ -316,121 +322,124 @@ static s32_t lpc_update_phy_sts(struct netif *netif, u32_t linksts)
  */
 err_t lpc_phy_init(struct netif *netif, int rmii)
 {
-	u32_t tmp;
-	s32_t i;
+    u32_t tmp;
+    s32_t i;
 
-	physts.phy_speed_100mbs = olddphysts.phy_speed_100mbs = 0;
-	physts.phy_full_duplex = olddphysts.phy_full_duplex = 0;
-	physts.phy_link_active = olddphysts.phy_link_active = 0;
-	phyustate = 0;
+    physts.phy_speed_100mbs = olddphysts.phy_speed_100mbs = 0;
+    physts.phy_full_duplex = olddphysts.phy_full_duplex = 0;
+    physts.phy_link_active = olddphysts.phy_link_active = 0;
+    phyustate = 0;
 
-	/* Only first read and write are checked for failure */
-	/* Put the DP83848C in reset mode and wait for completion */
-	if (lpc_mii_write(DP8_BMCR_REG, DP8_RESET) != 0)
-		return ERR_TIMEOUT;
-	i = 400;
-	while (i > 0) {
-	    osDelay(1);   /* 1 ms */
-		if (lpc_mii_read(DP8_BMCR_REG, &tmp) != 0)
-			return ERR_TIMEOUT;
+    /* Only first read and write are checked for failure */
+    /* Put the DP83848C in reset mode and wait for completion */
+    if (lpc_mii_write(DP8_BMCR_REG, DP8_RESET) != 0) {
+        return ERR_TIMEOUT;
+    }
+    i = 400;
+    while (i > 0) {
+        osDelay(1);   /* 1 ms */
+        if (lpc_mii_read(DP8_BMCR_REG, &tmp) != 0) {
+            return ERR_TIMEOUT;
+        }
 
-		if (!(tmp & (DP8_RESET | DP8_POWER_DOWN)))
-			i = -1;
-		else
-			i--;
-	}
-	/* Timeout? */
-	if (i == 0)
-		return ERR_TIMEOUT;
+        if (!(tmp & (DP8_RESET | DP8_POWER_DOWN))) {
+            i = -1;
+        } else {
+            i--;
+        }
+    }
+    /* Timeout? */
+    if (i == 0) {
+        return ERR_TIMEOUT;
+    }
 
-	// read PHY ID
-	lpc_mii_read(DP8_IDR1_REG, &tmp);
-	phy_id = (tmp << 16);
-	lpc_mii_read(DP8_IDR2_REG, &tmp);    
-	phy_id |= (tmp & 0XFFF0);    
+    // read PHY ID
+    lpc_mii_read(DP8_IDR1_REG, &tmp);
+    phy_id = (tmp << 16);
+    lpc_mii_read(DP8_IDR2_REG, &tmp);
+    phy_id |= (tmp & 0XFFF0);
 
-	/* Setup link based on configuration options */
+    /* Setup link based on configuration options */
 #if PHY_USE_AUTONEG==1
-	tmp = DP8_AUTONEG;
+    tmp = DP8_AUTONEG;
 #else
-	tmp = 0;
+    tmp = 0;
 #endif
 #if PHY_USE_100MBS==1
-	tmp |= DP8_SPEED_SELECT;
+    tmp |= DP8_SPEED_SELECT;
 #endif
 #if PHY_USE_FULL_DUPLEX==1
-	tmp |= DP8_DUPLEX_MODE;
+    tmp |= DP8_DUPLEX_MODE;
 #endif
-	lpc_mii_write(DP8_BMCR_REG, tmp);
+    lpc_mii_write(DP8_BMCR_REG, tmp);
 
     /* Enable RMII mode for PHY */
-    if (rmii)
+    if (rmii) {
         lpc_mii_write(DP8_PHY_RBR_REG, DP8_RBR_RMII_MODE);
+    }
 
-	/* The link is not set active at this point, but will be detected
+    /* The link is not set active at this point, but will be detected
        later */
 
-	return ERR_OK;
+    return ERR_OK;
 }
 
 /* Phy status update state machine */
 s32_t lpc_phy_sts_sm(struct netif *netif)
 {
-	s32_t changed = 0;
-	u32_t data = 0;
-	u32_t tmp;
+    s32_t changed = 0;
+    u32_t data = 0;
+    u32_t tmp;
 
-	switch (phyustate) {
-		default:
-		case 0:
-			if (phy_id == DP83848C_ID) {    
-				lpc_mii_read_noblock(DP8_PHY_STAT_REG);
-				phyustate = 2;
-			}
-			else if (phy_id == LAN8720_ID) {
-				lpc_mii_read_noblock(DP8_PHY_SCSR_REG);
-				phyustate = 1;        
-			}
-			break;
+    switch (phyustate) {
+        default:
+        case 0:
+            if (phy_id == DP83848C_ID) {
+                lpc_mii_read_noblock(DP8_PHY_STAT_REG);
+                phyustate = 2;
+            } else if (phy_id == LAN8720_ID) {
+                lpc_mii_read_noblock(DP8_PHY_SCSR_REG);
+                phyustate = 1;
+            }
+            break;
 
-		case 1:
-			if (phy_id == LAN8720_ID) {
-				tmp = lpc_mii_read_data();
-				// we get speed and duplex here. 
-				phy_lan7420_sts_tmp =  (tmp & PHY_SCSR_DUPLEX)  ? LNK_STAT_FULLDUPLEX : 0;
-				phy_lan7420_sts_tmp |= (tmp & PHY_SCSR_100MBIT) ? 0 : LNK_STAT_SPEED10MPS;
+        case 1:
+            if (phy_id == LAN8720_ID) {
+                tmp = lpc_mii_read_data();
+                // we get speed and duplex here.
+                phy_lan7420_sts_tmp = (tmp & PHY_SCSR_DUPLEX)  ? LNK_STAT_FULLDUPLEX : 0;
+                phy_lan7420_sts_tmp |= (tmp & PHY_SCSR_100MBIT) ? 0 : LNK_STAT_SPEED10MPS;
 
-				//read the status register to get link status 
-				lpc_mii_read_noblock(DP8_BMSR_REG);
-				phyustate = 2;        
-			}
-			break;
+                //read the status register to get link status
+                lpc_mii_read_noblock(DP8_BMSR_REG);
+                phyustate = 2;
+            }
+            break;
 
-		case 2:
-			/* Wait for read status state */
-			if (!lpc_mii_is_busy()) {
-				/* Update PHY status */
-				tmp = lpc_mii_read_data();
+        case 2:
+            /* Wait for read status state */
+            if (!lpc_mii_is_busy()) {
+                /* Update PHY status */
+                tmp = lpc_mii_read_data();
 
-				if (phy_id == DP83848C_ID) {
-					// STS register contains all needed status bits
-					data  = (tmp & DP8_VALID_LINK) ? LNK_STAT_VALID : 0;
-					data |= (tmp & DP8_FULLDUPLEX) ? LNK_STAT_FULLDUPLEX : 0;
-					data |= (tmp & DP8_SPEED10MBPS) ? LNK_STAT_SPEED10MPS : 0;
-				}
-				else if (phy_id == LAN8720_ID) {    
-					// we only get the link status here.
-					phy_lan7420_sts_tmp |= (tmp & DP8_LINK_STATUS) ? LNK_STAT_VALID : 0;
-					data = phy_lan7420_sts_tmp;          
-				}
+                if (phy_id == DP83848C_ID) {
+                    // STS register contains all needed status bits
+                    data  = (tmp & DP8_VALID_LINK) ? LNK_STAT_VALID : 0;
+                    data |= (tmp & DP8_FULLDUPLEX) ? LNK_STAT_FULLDUPLEX : 0;
+                    data |= (tmp & DP8_SPEED10MBPS) ? LNK_STAT_SPEED10MPS : 0;
+                } else if (phy_id == LAN8720_ID) {
+                    // we only get the link status here.
+                    phy_lan7420_sts_tmp |= (tmp & DP8_LINK_STATUS) ? LNK_STAT_VALID : 0;
+                    data = phy_lan7420_sts_tmp;
+                }
 
-				changed = lpc_update_phy_sts(netif, data);        
-				phyustate = 0;                
-			}
-			break;
-	}
+                changed = lpc_update_phy_sts(netif, data);
+                phyustate = 0;
+            }
+            break;
+    }
 
-	return changed;
+    return changed;
 }
 
 #endif /* LWIP_ARP || LWIP_ETHERNET */

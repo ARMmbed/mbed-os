@@ -146,7 +146,7 @@
 typedef uint32_t UvisorBoxAcl;
 
 typedef struct {
-    void * param1;
+    void *param1;
     uint32_t param2;
     UvisorBoxAcl acl;
 } UVISOR_PACKED UvisorBoxAclItem;
@@ -189,10 +189,10 @@ typedef struct {
 
     /* Opaque-to-uVisor data that potentially contains uvisor-lib-specific or
      * OS-specific per-box configuration */
-    const void * const lib_config;
+    const void *const lib_config;
 
-    const char * const box_namespace;
-    const UvisorBoxAclItem * const acl_list;
+    const char *const box_namespace;
+    const UvisorBoxAclItem *const acl_list;
     const uint32_t acl_count;
 } UVISOR_PACKED UvisorBoxConfig;
 
@@ -206,7 +206,7 @@ typedef struct {
      * for loops to scan the pointers to all the SRAM sections and access them
      * individually. */
     union {
-        void * pointers[UVISOR_BSS_SECTIONS_COUNT];
+        void *pointers[UVISOR_BSS_SECTIONS_COUNT];
         UvisorBssSections address_of;
     } bss;
 
@@ -215,13 +215,13 @@ typedef struct {
     /* Pointer to the currently active heap.
      * This is set to `NULL` by uVisor, signalling to the user lib that the
      * box heap needs to be initialized before use! */
-    void * active_heap;
+    void *active_heap;
 
     /* Box ID */
     int box_id_self;
 
     /* Pointer to the box config */
-    const UvisorBoxConfig * config;
+    const UvisorBoxConfig *config;
 } UVISOR_PACKED UvisorBoxIndex;
 
 /*
@@ -243,7 +243,7 @@ typedef struct {
 static UVISOR_FORCEINLINE int vmpu_bits(uint32_t size)
 {
     /* If size is 0, the result of __builtin_clz is undefined */
-    return (0 == size) ? 0: 32 - __builtin_clz(size);
+    return (0 == size) ? 0 : 32 - __builtin_clz(size);
 }
 #endif /* defined(UVISOR_PRESENT) && UVISOR_PRESENT == 1 */
 

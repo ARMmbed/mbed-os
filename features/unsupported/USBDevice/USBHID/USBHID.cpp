@@ -25,7 +25,7 @@ USBHID::USBHID(uint8_t output_report_length, uint8_t input_report_length, uint16
 {
     output_length = output_report_length;
     input_length = input_report_length;
-    if(connect) {
+    if (connect) {
         USBDevice::connect();
     }
 }
@@ -47,8 +47,9 @@ bool USBHID::read(HID_REPORT *report)
     uint32_t bytesRead = 0;
     bool result;
     result = USBDevice::readEP(EPINT_OUT, report->data, &bytesRead, MAX_HID_REPORT_SIZE);
-    if(!readStart(EPINT_OUT, MAX_HID_REPORT_SIZE))
+    if (!readStart(EPINT_OUT, MAX_HID_REPORT_SIZE)) {
         return false;
+    }
     report->length = bytesRead;
     return result;
 }
@@ -60,16 +61,19 @@ bool USBHID::readNB(HID_REPORT *report)
     bool result;
     result = USBDevice::readEP_NB(EPINT_OUT, report->data, &bytesRead, MAX_HID_REPORT_SIZE);
     // if readEP_NB did not succeed, does not issue a readStart
-    if (!result)
+    if (!result) {
         return false;
+    }
     report->length = bytesRead;
-    if(!readStart(EPINT_OUT, MAX_HID_REPORT_SIZE))
+    if (!readStart(EPINT_OUT, MAX_HID_REPORT_SIZE)) {
         return false;
+    }
     return result;
 }
 
 
-uint16_t USBHID::reportDescLength() {
+uint16_t USBHID::reportDescLength()
+{
     reportDesc();
     return reportLength;
 }
@@ -86,24 +90,21 @@ uint16_t USBHID::reportDescLength() {
 // This is used to handle extensions to standard requests
 // and class specific requests
 // Return true if class handles this request
-bool USBHID::USBCallback_request() {
+bool USBHID::USBCallback_request()
+{
     bool success = false;
-    CONTROL_TRANSFER * transfer = getTransferPtr();
+    CONTROL_TRANSFER *transfer = getTransferPtr();
     uint8_t *hidDescriptor;
 
     // Process additional standard requests
 
-    if ((transfer->setup.bmRequestType.Type == STANDARD_TYPE))
-    {
-        switch (transfer->setup.bRequest)
-        {
+    if ((transfer->setup.bmRequestType.Type == STANDARD_TYPE)) {
+        switch (transfer->setup.bRequest) {
             case GET_DESCRIPTOR:
-                switch (DESCRIPTOR_TYPE(transfer->setup.wValue))
-                {
+                switch (DESCRIPTOR_TYPE(transfer->setup.wValue)) {
                     case REPORT_DESCRIPTOR:
                         if ((reportDesc() != NULL) \
-                            && (reportDescLength() != 0))
-                        {
+                                && (reportDescLength() != 0)) {
                             transfer->remaining = reportDescLength();
                             transfer->ptr = reportDesc();
                             transfer->direction = DEVICE_TO_HOST;
@@ -111,16 +112,15 @@ bool USBHID::USBCallback_request() {
                         }
                         break;
                     case HID_DESCRIPTOR:
-                            // Find the HID descriptor, after the configuration descriptor
-                            hidDescriptor = findDescriptor(HID_DESCRIPTOR);
-                            if (hidDescriptor != NULL)
-                            {
-                                transfer->remaining = HID_DESCRIPTOR_LENGTH;
-                                transfer->ptr = hidDescriptor;
-                                transfer->direction = DEVICE_TO_HOST;
-                                success = true;
-                            }
-                            break;
+                        // Find the HID descriptor, after the configuration descriptor
+                        hidDescriptor = findDescriptor(HID_DESCRIPTOR);
+                        if (hidDescriptor != NULL) {
+                            transfer->remaining = HID_DESCRIPTOR_LENGTH;
+                            transfer->ptr = hidDescriptor;
+                            transfer->direction = DEVICE_TO_HOST;
+                            success = true;
+                        }
+                        break;
 
                     default:
                         break;
@@ -133,11 +133,9 @@ bool USBHID::USBCallback_request() {
 
     // Process class-specific requests
 
-    if (transfer->setup.bmRequestType.Type == CLASS_TYPE)
-    {
-        switch (transfer->setup.bRequest)
-        {
-             case SET_REPORT:
+    if (transfer->setup.bmRequestType.Type == CLASS_TYPE) {
+        switch (transfer->setup.bRequest) {
+            case SET_REPORT:
                 // First byte will be used for report ID
                 outputReport.data[0] = transfer->setup.wValue & 0xff;
                 outputReport.length = transfer->setup.wLength + 1;
@@ -162,7 +160,8 @@ bool USBHID::USBCallback_request() {
 // Called in ISR context
 // Set configuration. Return false if the
 // configuration is not supported
-bool USBHID::USBCallback_setConfiguration(uint8_t configuration) {
+bool USBHID::USBCallback_setConfiguration(uint8_t configuration)
+{
     if (configuration != DEFAULT_CONFIGURATION) {
         return false;
     }
@@ -177,27 +176,30 @@ bool USBHID::USBCallback_setConfiguration(uint8_t configuration) {
 }
 
 
-uint8_t * USBHID::stringIinterfaceDesc() {
+uint8_t *USBHID::stringIinterfaceDesc()
+{
     static uint8_t stringIinterfaceDescriptor[] = {
         0x08,               //bLength
         STRING_DESCRIPTOR,  //bDescriptorType 0x03
-        'H',0,'I',0,'D',0,  //bString iInterface - HID
+        'H', 0, 'I', 0, 'D', 0, //bString iInterface - HID
     };
     return stringIinterfaceDescriptor;
 }
 
-uint8_t * USBHID::stringIproductDesc() {
+uint8_t *USBHID::stringIproductDesc()
+{
     static uint8_t stringIproductDescriptor[] = {
         0x16,                                                       //bLength
         STRING_DESCRIPTOR,                                          //bDescriptorType 0x03
-        'H',0,'I',0,'D',0,' ',0,'D',0,'E',0,'V',0,'I',0,'C',0,'E',0 //bString iProduct - HID device
+        'H', 0, 'I', 0, 'D', 0, ' ', 0, 'D', 0, 'E', 0, 'V', 0, 'I', 0, 'C', 0, 'E', 0 //bString iProduct - HID device
     };
     return stringIproductDescriptor;
 }
 
 
 
-uint8_t * USBHID::reportDesc() {
+uint8_t *USBHID::reportDesc()
+{
     static uint8_t reportDescriptor[] = {
         USAGE_PAGE(2), LSB(0xFFAB), MSB(0xFFAB),
         USAGE(2), LSB(0x0200), MSB(0x0200),
@@ -227,7 +229,8 @@ uint8_t * USBHID::reportDesc() {
                                + (1 * HID_DESCRIPTOR_LENGTH) \
                                + (2 * ENDPOINT_DESCRIPTOR_LENGTH))
 
-uint8_t * USBHID::configurationDesc() {
+uint8_t *USBHID::configurationDesc()
+{
     static uint8_t configurationDescriptor[] = {
         CONFIGURATION_DESCRIPTOR_LENGTH,    // bLength
         CONFIGURATION_DESCRIPTOR,           // bDescriptorType

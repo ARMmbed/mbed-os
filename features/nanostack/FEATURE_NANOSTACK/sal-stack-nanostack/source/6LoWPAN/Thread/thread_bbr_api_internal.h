@@ -78,7 +78,7 @@ int thread_bbr_commissioner_proxy_service_update(int8_t interface_id);
  *
  * \param interface_id current interface id
  */
-int thread_bbr_proxy_state_update(int8_t caller_interface_id , int8_t handler_interface_id, bool status);
+int thread_bbr_proxy_state_update(int8_t caller_interface_id, int8_t handler_interface_id, bool status);
 
 /**
  * \brief Test if border router routing is enabled

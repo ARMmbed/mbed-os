@@ -44,8 +44,7 @@ void SMC_GetParam(SMC_Type *base, smc_param_t *param)
 
 void SMC_PreEnterStopModes(void)
 {
-    flash_prefetch_speculation_status_t speculationStatus =
-    {
+    flash_prefetch_speculation_status_t speculationStatus = {
         kFLASH_prefetchSpeculationOptionDisable, /* Disable instruction speculation.*/
         kFLASH_prefetchSpeculationOptionDisable, /* Disable data speculation.*/
     };
@@ -63,8 +62,7 @@ void SMC_PreEnterStopModes(void)
 
 void SMC_PostExitStopModes(void)
 {
-    flash_prefetch_speculation_status_t speculationStatus =
-    {
+    flash_prefetch_speculation_status_t speculationStatus = {
         kFLASH_prefetchSpeculationOptionEnable, /* Enable instruction speculation.*/
         kFLASH_prefetchSpeculationOptionEnable, /* Enable data speculation.*/
     };
@@ -142,12 +140,9 @@ status_t SMC_SetPowerModeStop(SMC_Type *base, smc_partial_stop_option_t option)
     __ISB();
 
     /* check whether the power mode enter Stop mode succeed */
-    if (base->PMCTRL & SMC_PMCTRL_STOPA_MASK)
-    {
+    if (base->PMCTRL & SMC_PMCTRL_STOPA_MASK) {
         return kStatus_SMC_StopAbort;
-    }
-    else
-    {
+    } else {
         return kStatus_Success;
     }
 }
@@ -157,20 +152,17 @@ status_t SMC_SetPowerModeVlpr(SMC_Type *base
                               ,
                               bool wakeupMode
 #endif
-                              )
+                             )
 {
     uint8_t reg;
 
     reg = base->PMCTRL;
 #if (defined(FSL_FEATURE_SMC_HAS_LPWUI) && FSL_FEATURE_SMC_HAS_LPWUI)
     /* configure whether the system remains in VLP mode on an interrupt */
-    if (wakeupMode)
-    {
+    if (wakeupMode) {
         /* exits to RUN mode on an interrupt */
         reg |= SMC_PMCTRL_LPWUI_MASK;
-    }
-    else
-    {
+    } else {
         /* remains in VLP mode on an interrupt */
         reg &= ~SMC_PMCTRL_LPWUI_MASK;
     }
@@ -216,12 +208,9 @@ status_t SMC_SetPowerModeVlps(SMC_Type *base)
     __ISB();
 
     /* check whether the power mode enter VLPS mode succeed */
-    if (base->PMCTRL & SMC_PMCTRL_STOPA_MASK)
-    {
+    if (base->PMCTRL & SMC_PMCTRL_STOPA_MASK) {
         return kStatus_SMC_StopAbort;
-    }
-    else
-    {
+    } else {
         return kStatus_Success;
     }
 }
@@ -233,7 +222,7 @@ status_t SMC_SetPowerModeLls(SMC_Type *base
                              ,
                              const smc_power_mode_lls_config_t *config
 #endif
-                             )
+                            )
 {
     uint8_t reg;
 
@@ -243,7 +232,7 @@ status_t SMC_SetPowerModeLls(SMC_Type *base
     reg |= (kSMC_StopLls << SMC_PMCTRL_STOPM_SHIFT);
     base->PMCTRL = reg;
 
-/* configure LLS sub-mode*/
+    /* configure LLS sub-mode*/
 #if (defined(FSL_FEATURE_SMC_HAS_LLS_SUBMODE) && FSL_FEATURE_SMC_HAS_LLS_SUBMODE)
     reg = base->STOPCTRL;
     reg &= ~SMC_STOPCTRL_LLSM_MASK;
@@ -252,12 +241,9 @@ status_t SMC_SetPowerModeLls(SMC_Type *base
 #endif /* FSL_FEATURE_SMC_HAS_LLS_SUBMODE */
 
 #if (defined(FSL_FEATURE_SMC_HAS_LPOPO) && FSL_FEATURE_SMC_HAS_LPOPO)
-    if (config->enableLpoClock)
-    {
+    if (config->enableLpoClock) {
         base->STOPCTRL &= ~SMC_STOPCTRL_LPOPO_MASK;
-    }
-    else
-    {
+    } else {
         base->STOPCTRL |= SMC_STOPCTRL_LPOPO_MASK;
     }
 #endif /* FSL_FEATURE_SMC_HAS_LPOPO */
@@ -272,12 +258,9 @@ status_t SMC_SetPowerModeLls(SMC_Type *base
     __ISB();
 
     /* check whether the power mode enter LLS mode succeed */
-    if (base->PMCTRL & SMC_PMCTRL_STOPA_MASK)
-    {
+    if (base->PMCTRL & SMC_PMCTRL_STOPA_MASK) {
         return kStatus_SMC_StopAbort;
-    }
-    else
-    {
+    } else {
         return kStatus_Success;
     }
 }
@@ -296,16 +279,13 @@ status_t SMC_SetPowerModeVlls(SMC_Type *base, const smc_power_mode_vlls_config_t
 #endif
     {
         /* configure whether the Por Detect work in Vlls0 mode */
-        if (config->enablePorDetectInVlls0)
-        {
+        if (config->enablePorDetectInVlls0) {
 #if (defined(FSL_FEATURE_SMC_USE_VLLSCTRL_REG) && FSL_FEATURE_SMC_USE_VLLSCTRL_REG)
             base->VLLSCTRL &= ~SMC_VLLSCTRL_PORPO_MASK;
 #else
             base->STOPCTRL &= ~SMC_STOPCTRL_PORPO_MASK;
 #endif
-        }
-        else
-        {
+        } else {
 #if (defined(FSL_FEATURE_SMC_USE_VLLSCTRL_REG) && FSL_FEATURE_SMC_USE_VLLSCTRL_REG)
             base->VLLSCTRL |= SMC_VLLSCTRL_PORPO_MASK;
 #else
@@ -316,28 +296,22 @@ status_t SMC_SetPowerModeVlls(SMC_Type *base, const smc_power_mode_vlls_config_t
 #endif /* FSL_FEATURE_SMC_HAS_PORPO */
 
 #if (defined(FSL_FEATURE_SMC_HAS_RAM2_POWER_OPTION) && FSL_FEATURE_SMC_HAS_RAM2_POWER_OPTION)
-    else if (config->subMode == kSMC_StopSub2)
-    {
+    else if (config->subMode == kSMC_StopSub2) {
         /* configure whether the Por Detect work in Vlls0 mode */
-        if (config->enableRam2InVlls2)
-        {
+        if (config->enableRam2InVlls2) {
 #if (defined(FSL_FEATURE_SMC_USE_VLLSCTRL_REG) && FSL_FEATURE_SMC_USE_VLLSCTRL_REG)
             base->VLLSCTRL |= SMC_VLLSCTRL_RAM2PO_MASK;
 #else
             base->STOPCTRL |= SMC_STOPCTRL_RAM2PO_MASK;
 #endif
-        }
-        else
-        {
+        } else {
 #if (defined(FSL_FEATURE_SMC_USE_VLLSCTRL_REG) && FSL_FEATURE_SMC_USE_VLLSCTRL_REG)
             base->VLLSCTRL &= ~SMC_VLLSCTRL_RAM2PO_MASK;
 #else
             base->STOPCTRL &= ~SMC_STOPCTRL_RAM2PO_MASK;
 #endif
         }
-    }
-    else
-    {
+    } else {
     }
 #endif /* FSL_FEATURE_SMC_HAS_RAM2_POWER_OPTION */
 
@@ -347,7 +321,7 @@ status_t SMC_SetPowerModeVlls(SMC_Type *base, const smc_power_mode_vlls_config_t
     reg |= (kSMC_StopVlls << SMC_PMCTRL_STOPM_SHIFT);
     base->PMCTRL = reg;
 
-/* configure the VLLS sub-mode */
+    /* configure the VLLS sub-mode */
 #if (defined(FSL_FEATURE_SMC_USE_VLLSCTRL_REG) && FSL_FEATURE_SMC_USE_VLLSCTRL_REG)
     reg = base->VLLSCTRL;
     reg &= ~SMC_VLLSCTRL_VLLSM_MASK;
@@ -368,12 +342,9 @@ status_t SMC_SetPowerModeVlls(SMC_Type *base, const smc_power_mode_vlls_config_t
 #endif
 
 #if (defined(FSL_FEATURE_SMC_HAS_LPOPO) && FSL_FEATURE_SMC_HAS_LPOPO)
-    if (config->enableLpoClock)
-    {
+    if (config->enableLpoClock) {
         base->STOPCTRL &= ~SMC_STOPCTRL_LPOPO_MASK;
-    }
-    else
-    {
+    } else {
         base->STOPCTRL |= SMC_STOPCTRL_LPOPO_MASK;
     }
 #endif /* FSL_FEATURE_SMC_HAS_LPOPO */
@@ -388,12 +359,9 @@ status_t SMC_SetPowerModeVlls(SMC_Type *base, const smc_power_mode_vlls_config_t
     __ISB();
 
     /* check whether the power mode enter LLS mode succeed */
-    if (base->PMCTRL & SMC_PMCTRL_STOPA_MASK)
-    {
+    if (base->PMCTRL & SMC_PMCTRL_STOPA_MASK) {
         return kStatus_SMC_StopAbort;
-    }
-    else
-    {
+    } else {
         return kStatus_Success;
     }
 }

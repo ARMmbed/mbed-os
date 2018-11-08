@@ -56,18 +56,18 @@ uint32_t TPWM_ConfigOutputFreqAndDuty(TIMER_T *timer, uint32_t u32Frequency, uin
     uint32_t u32PWMClockFreq, u32TargetFreq;
     uint32_t u32Prescaler = 0x1000UL, u32Period, u32CMP;
 
-    if((timer == TIMER0) || (timer == TIMER1)) {
+    if ((timer == TIMER0) || (timer == TIMER1)) {
         u32PWMClockFreq = CLK_GetPCLK0Freq();
     } else {
         u32PWMClockFreq = CLK_GetPCLK1Freq();
     }
 
     /* Calculate u16PERIOD and u16PSC */
-    for(u32Prescaler = 1UL; u32Prescaler <= 0x1000UL; u32Prescaler++) {
+    for (u32Prescaler = 1UL; u32Prescaler <= 0x1000UL; u32Prescaler++) {
         u32Period = (u32PWMClockFreq / u32Prescaler) / u32Frequency;
 
         /* If target u32Period is larger than 0x10000, need to use a larger prescaler */
-        if(u32Period <= 0x10000UL) {
+        if (u32Period <= 0x10000UL) {
             break;
         }
     }
@@ -84,7 +84,7 @@ uint32_t TPWM_ConfigOutputFreqAndDuty(TIMER_T *timer, uint32_t u32Frequency, uin
     TPWM_SET_PRESCALER(timer, (u32Prescaler - 1UL));
 
     TPWM_SET_PERIOD(timer, (u32Period - 1UL));
-    if(u32DutyCycle) {
+    if (u32DutyCycle) {
         u32CMP = (u32DutyCycle * u32Period) / 100UL;
     } else {
         u32CMP = 0UL;
@@ -298,7 +298,7 @@ void TPWM_DisableFaultBrakeInt(TIMER_T *timer, uint32_t u32IntSource)
   */
 uint32_t TPWM_GetFaultBrakeIntFlag(TIMER_T *timer, uint32_t u32IntSource)
 {
-    return ((timer->PWMINTSTS1 & (0x3UL << u32IntSource))? 1UL : 0UL);
+    return ((timer->PWMINTSTS1 & (0x3UL << u32IntSource)) ? 1UL : 0UL);
 }
 
 /**

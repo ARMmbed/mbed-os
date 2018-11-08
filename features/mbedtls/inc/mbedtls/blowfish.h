@@ -53,8 +53,7 @@ extern "C" {
 /**
  * \brief          Blowfish context structure
  */
-typedef struct
-{
+typedef struct {
     uint32_t P[MBEDTLS_BLOWFISH_ROUNDS + 2];    /*!<  Blowfish round keys    */
     uint32_t S[4][256];                 /*!<  key dependent S-boxes  */
 }
@@ -65,14 +64,14 @@ mbedtls_blowfish_context;
  *
  * \param ctx      Blowfish context to be initialized
  */
-void mbedtls_blowfish_init( mbedtls_blowfish_context *ctx );
+void mbedtls_blowfish_init(mbedtls_blowfish_context *ctx);
 
 /**
  * \brief          Clear Blowfish context
  *
  * \param ctx      Blowfish context to be cleared
  */
-void mbedtls_blowfish_free( mbedtls_blowfish_context *ctx );
+void mbedtls_blowfish_free(mbedtls_blowfish_context *ctx);
 
 /**
  * \brief          Blowfish key schedule
@@ -83,8 +82,8 @@ void mbedtls_blowfish_free( mbedtls_blowfish_context *ctx );
  *
  * \return         0 if successful, or MBEDTLS_ERR_BLOWFISH_INVALID_KEY_LENGTH
  */
-int mbedtls_blowfish_setkey( mbedtls_blowfish_context *ctx, const unsigned char *key,
-                     unsigned int keybits );
+int mbedtls_blowfish_setkey(mbedtls_blowfish_context *ctx, const unsigned char *key,
+                            unsigned int keybits);
 
 /**
  * \brief          Blowfish-ECB block encryption/decryption
@@ -96,10 +95,10 @@ int mbedtls_blowfish_setkey( mbedtls_blowfish_context *ctx, const unsigned char 
  *
  * \return         0 if successful
  */
-int mbedtls_blowfish_crypt_ecb( mbedtls_blowfish_context *ctx,
-                        int mode,
-                        const unsigned char input[MBEDTLS_BLOWFISH_BLOCKSIZE],
-                        unsigned char output[MBEDTLS_BLOWFISH_BLOCKSIZE] );
+int mbedtls_blowfish_crypt_ecb(mbedtls_blowfish_context *ctx,
+                               int mode,
+                               const unsigned char input[MBEDTLS_BLOWFISH_BLOCKSIZE],
+                               unsigned char output[MBEDTLS_BLOWFISH_BLOCKSIZE]);
 
 #if defined(MBEDTLS_CIPHER_MODE_CBC)
 /**
@@ -125,12 +124,12 @@ int mbedtls_blowfish_crypt_ecb( mbedtls_blowfish_context *ctx,
  * \return         0 if successful, or
  *                 MBEDTLS_ERR_BLOWFISH_INVALID_INPUT_LENGTH
  */
-int mbedtls_blowfish_crypt_cbc( mbedtls_blowfish_context *ctx,
-                        int mode,
-                        size_t length,
-                        unsigned char iv[MBEDTLS_BLOWFISH_BLOCKSIZE],
-                        const unsigned char *input,
-                        unsigned char *output );
+int mbedtls_blowfish_crypt_cbc(mbedtls_blowfish_context *ctx,
+                               int mode,
+                               size_t length,
+                               unsigned char iv[MBEDTLS_BLOWFISH_BLOCKSIZE],
+                               const unsigned char *input,
+                               unsigned char *output);
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
 
 #if defined(MBEDTLS_CIPHER_MODE_CFB)
@@ -155,13 +154,13 @@ int mbedtls_blowfish_crypt_cbc( mbedtls_blowfish_context *ctx,
  *
  * \return         0 if successful
  */
-int mbedtls_blowfish_crypt_cfb64( mbedtls_blowfish_context *ctx,
-                          int mode,
-                          size_t length,
-                          size_t *iv_off,
-                          unsigned char iv[MBEDTLS_BLOWFISH_BLOCKSIZE],
-                          const unsigned char *input,
-                          unsigned char *output );
+int mbedtls_blowfish_crypt_cfb64(mbedtls_blowfish_context *ctx,
+                                 int mode,
+                                 size_t length,
+                                 size_t *iv_off,
+                                 unsigned char iv[MBEDTLS_BLOWFISH_BLOCKSIZE],
+                                 const unsigned char *input,
+                                 unsigned char *output);
 #endif /*MBEDTLS_CIPHER_MODE_CFB */
 
 #if defined(MBEDTLS_CIPHER_MODE_CTR)
@@ -183,13 +182,13 @@ int mbedtls_blowfish_crypt_cfb64( mbedtls_blowfish_context *ctx,
  *
  * \return         0 if successful
  */
-int mbedtls_blowfish_crypt_ctr( mbedtls_blowfish_context *ctx,
-                        size_t length,
-                        size_t *nc_off,
-                        unsigned char nonce_counter[MBEDTLS_BLOWFISH_BLOCKSIZE],
-                        unsigned char stream_block[MBEDTLS_BLOWFISH_BLOCKSIZE],
-                        const unsigned char *input,
-                        unsigned char *output );
+int mbedtls_blowfish_crypt_ctr(mbedtls_blowfish_context *ctx,
+                               size_t length,
+                               size_t *nc_off,
+                               unsigned char nonce_counter[MBEDTLS_BLOWFISH_BLOCKSIZE],
+                               unsigned char stream_block[MBEDTLS_BLOWFISH_BLOCKSIZE],
+                               const unsigned char *input,
+                               unsigned char *output);
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
 
 #ifdef __cplusplus

@@ -172,8 +172,8 @@ typedef enum sn_coap_status_ {
  */
 typedef struct sn_coap_options_list_ {
     uint8_t         etag_len;           /**< 1-8 bytes. Repeatable */
-    unsigned int    use_size1:1;
-    unsigned int    use_size2:1;
+    unsigned int    use_size1: 1;
+    unsigned int    use_size2: 1;
 
     uint16_t    proxy_uri_len;      /**< 1-1034 bytes. */
     uint16_t    uri_host_len;       /**< 1-255 bytes. */

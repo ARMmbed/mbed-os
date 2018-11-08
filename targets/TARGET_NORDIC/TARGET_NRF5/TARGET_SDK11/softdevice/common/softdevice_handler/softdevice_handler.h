@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -67,7 +67,7 @@
 #include "ble_stack_handler_types.h"
 #include "ant_stack_handler_types.h"
 #if defined(BLE_STACK_SUPPORT_REQD)
-    #include "nrf_ble.h"
+#include "nrf_ble.h"
 #endif
 #include "app_ram_base.h"
 #define SOFTDEVICE_SCHED_EVT_SIZE       0                                                 /**< Size of button events being passed through the scheduler (is to be used for computing the maximum size of scheduler events). For SoftDevice events, this size is 0, since the events are being pulled in the event handler. */
@@ -94,10 +94,10 @@
 uint32_t sd_check_ram_start(uint32_t sd_req_ram_start);
 
 /**@brief Type of function for passing events from the stack handler module to the scheduler. */
-typedef uint32_t (*softdevice_evt_schedule_func_t) (void);
+typedef uint32_t (*softdevice_evt_schedule_func_t)(void);
 
 /**@brief Application System (SOC) event handler type. */
-typedef void (*sys_evt_handler_t) (uint32_t evt_id);
+typedef void (*sys_evt_handler_t)(uint32_t evt_id);
 
 
 /**@brief     Macro for initializing the stack event handler.
@@ -164,8 +164,8 @@ bool softdevice_handler_isEnabled(void);
  * @retval     NRF_ERROR_INVALID_PARAM   Invalid parameter (buffer not aligned to a 4 byte
  *                                       boundary) or NULL.
  */
-uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *              p_clock_lf_cfg,
-                                 void *                            p_ble_evt_buffer,
+uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t               *p_clock_lf_cfg,
+                                 void                             *p_ble_evt_buffer,
                                  uint16_t                          ble_evt_buffer_size,
                                  softdevice_evt_schedule_func_t    evt_schedule_func);
 
@@ -211,7 +211,7 @@ uint32_t softdevice_sys_evt_handler_set(sys_evt_handler_t sys_evt_handler);
  */
 uint32_t softdevice_enable_get_default_config(uint8_t central_links_count,
                                               uint8_t periph_links_count,
-                                              ble_enable_params_t * p_ble_enable_params);
+                                              ble_enable_params_t *p_ble_enable_params);
 
 /**@brief     Function for enabling the SoftDevice.
  *
@@ -226,7 +226,7 @@ uint32_t softdevice_enable_get_default_config(uint8_t central_links_count,
  *
  * @retval    NRF_SUCCESS     If the operation was successful.
  */
-uint32_t softdevice_enable(ble_enable_params_t * p_ble_enable_params);
+uint32_t softdevice_enable(ble_enable_params_t *p_ble_enable_params);
 #endif //BLE_STACK_SUPPORT_REQD
 // Functions for connecting the Stack Event Handler to the scheduler:
 /**@cond NO_DOXYGEN */

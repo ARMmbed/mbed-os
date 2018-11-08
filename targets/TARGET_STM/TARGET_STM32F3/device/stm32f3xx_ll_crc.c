@@ -79,38 +79,35 @@
   */
 ErrorStatus LL_CRC_DeInit(CRC_TypeDef *CRCx)
 {
-  ErrorStatus status = SUCCESS;
+    ErrorStatus status = SUCCESS;
 
-  /* Check the parameters */
-  assert_param(IS_CRC_ALL_INSTANCE(CRCx));
+    /* Check the parameters */
+    assert_param(IS_CRC_ALL_INSTANCE(CRCx));
 
-  if (CRCx == CRC)
-  {
-    /* Set programmable polynomial size in CR register to reset value (32 bits)*/
-    LL_CRC_SetPolynomialSize(CRCx, LL_CRC_POLYLENGTH_32B);
+    if (CRCx == CRC) {
+        /* Set programmable polynomial size in CR register to reset value (32 bits)*/
+        LL_CRC_SetPolynomialSize(CRCx, LL_CRC_POLYLENGTH_32B);
 
-    /* Set programmable polynomial in POL register to reset value */
-    LL_CRC_SetPolynomialCoef(CRCx, LL_CRC_DEFAULT_CRC32_POLY);
+        /* Set programmable polynomial in POL register to reset value */
+        LL_CRC_SetPolynomialCoef(CRCx, LL_CRC_DEFAULT_CRC32_POLY);
 
-    /* Set INIT register to reset value */
-    LL_CRC_SetInitialData(CRCx, LL_CRC_DEFAULT_CRC_INITVALUE);
+        /* Set INIT register to reset value */
+        LL_CRC_SetInitialData(CRCx, LL_CRC_DEFAULT_CRC_INITVALUE);
 
-    /* Set Reversibility options on I/O data values in CR register to reset value */
-    LL_CRC_SetInputDataReverseMode(CRCx, LL_CRC_INDATA_REVERSE_NONE);
-    LL_CRC_SetOutputDataReverseMode(CRCx, LL_CRC_OUTDATA_REVERSE_NONE);
+        /* Set Reversibility options on I/O data values in CR register to reset value */
+        LL_CRC_SetInputDataReverseMode(CRCx, LL_CRC_INDATA_REVERSE_NONE);
+        LL_CRC_SetOutputDataReverseMode(CRCx, LL_CRC_OUTDATA_REVERSE_NONE);
 
-    /* Reset the CRC calculation unit */
-    LL_CRC_ResetCRCCalculationUnit(CRCx);
+        /* Reset the CRC calculation unit */
+        LL_CRC_ResetCRCCalculationUnit(CRCx);
 
-    /* Reset IDR register */
-    LL_CRC_Write_IDR(CRCx, 0x00U);
-  }
-  else
-  {
-    status = ERROR;
-  }
+        /* Reset IDR register */
+        LL_CRC_Write_IDR(CRCx, 0x00U);
+    } else {
+        status = ERROR;
+    }
 
-  return (status);
+    return (status);
 }
 
 /**

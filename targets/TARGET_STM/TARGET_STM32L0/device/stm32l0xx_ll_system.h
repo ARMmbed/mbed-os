@@ -304,7 +304,7 @@ extern "C" {
   */
 __STATIC_INLINE void LL_SYSCFG_SetRemapMemory(uint32_t Memory)
 {
-  MODIFY_REG(SYSCFG->CFGR1, SYSCFG_CFGR1_MEM_MODE, Memory);
+    MODIFY_REG(SYSCFG->CFGR1, SYSCFG_CFGR1_MEM_MODE, Memory);
 }
 
 /**
@@ -317,7 +317,7 @@ __STATIC_INLINE void LL_SYSCFG_SetRemapMemory(uint32_t Memory)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_GetRemapMemory(void)
 {
-  return (uint32_t)(READ_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_MEM_MODE));
+    return (uint32_t)(READ_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_MEM_MODE));
 }
 
 #if defined(SYSCFG_CFGR1_UFB)
@@ -331,7 +331,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetRemapMemory(void)
   */
 __STATIC_INLINE void LL_SYSCFG_SetFlashBankMode(uint32_t Bank)
 {
-  MODIFY_REG(SYSCFG->CFGR1, SYSCFG_CFGR1_UFB, Bank);
+    MODIFY_REG(SYSCFG->CFGR1, SYSCFG_CFGR1_UFB, Bank);
 }
 
 /**
@@ -343,7 +343,7 @@ __STATIC_INLINE void LL_SYSCFG_SetFlashBankMode(uint32_t Bank)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_GetFlashBankMode(void)
 {
-  return (uint32_t)(READ_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_UFB));
+    return (uint32_t)(READ_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_UFB));
 }
 #endif /* SYSCFG_CFGR1_UFB */
 
@@ -361,7 +361,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetFlashBankMode(void)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_GetBootMode(void)
 {
-  return (uint32_t)(READ_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_BOOT_MODE));
+    return (uint32_t)(READ_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_BOOT_MODE));
 }
 
 /**
@@ -371,7 +371,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetBootMode(void)
   */
 __STATIC_INLINE void LL_SYSCFG_EnableFirewall(void)
 {
-  CLEAR_BIT(SYSCFG->CFGR2, SYSCFG_CFGR2_FWDISEN);
+    CLEAR_BIT(SYSCFG->CFGR2, SYSCFG_CFGR2_FWDISEN);
 }
 
 /**
@@ -381,7 +381,7 @@ __STATIC_INLINE void LL_SYSCFG_EnableFirewall(void)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_IsEnabledFirewall(void)
 {
-  return !(READ_BIT(SYSCFG->CFGR2, SYSCFG_CFGR2_FWDISEN) == SYSCFG_CFGR2_FWDISEN);
+    return !(READ_BIT(SYSCFG->CFGR2, SYSCFG_CFGR2_FWDISEN) == SYSCFG_CFGR2_FWDISEN);
 }
 
 #if defined(SYSCFG_CFGR2_CAPA)
@@ -405,7 +405,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_IsEnabledFirewall(void)
   */
 __STATIC_INLINE void LL_SYSCFG_SetVLCDRailConnection(uint32_t IoPinConnect)
 {
-  MODIFY_REG(SYSCFG->CFGR2, SYSCFG_CFGR2_CAPA, IoPinConnect);
+    MODIFY_REG(SYSCFG->CFGR2, SYSCFG_CFGR2_CAPA, IoPinConnect);
 }
 
 
@@ -428,7 +428,7 @@ __STATIC_INLINE void LL_SYSCFG_SetVLCDRailConnection(uint32_t IoPinConnect)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_GetVLCDRailConnection(void)
 {
-  return (uint32_t)(READ_BIT(SYSCFG->CFGR2, SYSCFG_CFGR2_CAPA));
+    return (uint32_t)(READ_BIT(SYSCFG->CFGR2, SYSCFG_CFGR2_CAPA));
 }
 #endif
 
@@ -450,7 +450,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetVLCDRailConnection(void)
   */
 __STATIC_INLINE void LL_SYSCFG_EnableFastModePlus(uint32_t ConfigFastModePlus)
 {
-  SET_BIT(SYSCFG->CFGR2, ConfigFastModePlus);
+    SET_BIT(SYSCFG->CFGR2, ConfigFastModePlus);
 }
 
 /**
@@ -471,7 +471,7 @@ __STATIC_INLINE void LL_SYSCFG_EnableFastModePlus(uint32_t ConfigFastModePlus)
   */
 __STATIC_INLINE void LL_SYSCFG_DisableFastModePlus(uint32_t ConfigFastModePlus)
 {
-  CLEAR_BIT(SYSCFG->CFGR2, ConfigFastModePlus);
+    CLEAR_BIT(SYSCFG->CFGR2, ConfigFastModePlus);
 }
 
 /**
@@ -486,7 +486,7 @@ __STATIC_INLINE void LL_SYSCFG_DisableFastModePlus(uint32_t ConfigFastModePlus)
   */
 __STATIC_INLINE void LL_SYSCFG_VREFINT_SetConnection(uint32_t IoPinConnect)
 {
-  MODIFY_REG(SYSCFG->CFGR3, SYSCFG_CFGR3_VREF_OUT, IoPinConnect);
+    MODIFY_REG(SYSCFG->CFGR3, SYSCFG_CFGR3_VREF_OUT, IoPinConnect);
 }
 
 /**
@@ -500,7 +500,7 @@ __STATIC_INLINE void LL_SYSCFG_VREFINT_SetConnection(uint32_t IoPinConnect)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_VREFINT_GetConnection(void)
 {
-  return (uint32_t)(READ_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_VREF_OUT));
+    return (uint32_t)(READ_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_VREF_OUT));
 }
 
 /**
@@ -513,7 +513,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_VREFINT_GetConnection(void)
   */
 __STATIC_INLINE void LL_SYSCFG_VREFINT_EnableADC(void)
 {
-  SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_VREFINT_ADC);
+    SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_VREFINT_ADC);
 }
 
 /**
@@ -523,7 +523,7 @@ __STATIC_INLINE void LL_SYSCFG_VREFINT_EnableADC(void)
   */
 __STATIC_INLINE void LL_SYSCFG_VREFINT_DisableADC(void)
 {
-  CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_VREFINT_ADC);
+    CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_VREFINT_ADC);
 }
 
 /**
@@ -533,7 +533,7 @@ __STATIC_INLINE void LL_SYSCFG_VREFINT_DisableADC(void)
   */
 __STATIC_INLINE void LL_SYSCFG_TEMPSENSOR_Enable(void)
 {
-  SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_SENSOR_ADC);
+    SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_SENSOR_ADC);
 }
 
 /**
@@ -543,7 +543,7 @@ __STATIC_INLINE void LL_SYSCFG_TEMPSENSOR_Enable(void)
   */
 __STATIC_INLINE void LL_SYSCFG_TEMPSENSOR_Disable(void)
 {
-  CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_SENSOR_ADC);
+    CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUF_SENSOR_ADC);
 }
 
 /**
@@ -553,7 +553,7 @@ __STATIC_INLINE void LL_SYSCFG_TEMPSENSOR_Disable(void)
   */
 __STATIC_INLINE void LL_SYSCFG_VREFINT_EnableCOMP(void)
 {
-  SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP);
+    SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP);
 }
 
 /**
@@ -563,7 +563,7 @@ __STATIC_INLINE void LL_SYSCFG_VREFINT_EnableCOMP(void)
   */
 __STATIC_INLINE void LL_SYSCFG_VREFINT_DisableCOMP(void)
 {
-  CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP);
+    CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENBUFLP_VREFINT_COMP);
 }
 
 #if defined (RCC_HSI48_SUPPORT)
@@ -574,7 +574,7 @@ __STATIC_INLINE void LL_SYSCFG_VREFINT_DisableCOMP(void)
   */
 __STATIC_INLINE void LL_SYSCFG_VREFINT_EnableHSI48(void)
 {
-  SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENREF_HSI48);
+    SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENREF_HSI48);
 }
 
 /**
@@ -584,7 +584,7 @@ __STATIC_INLINE void LL_SYSCFG_VREFINT_EnableHSI48(void)
   */
 __STATIC_INLINE void LL_SYSCFG_VREFINT_DisableHSI48(void)
 {
-  CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENREF_HSI48);
+    CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENREF_HSI48);
 }
 #endif
 
@@ -596,7 +596,7 @@ __STATIC_INLINE void LL_SYSCFG_VREFINT_DisableHSI48(void)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_VREFINT_IsReady(void)
 {
-  return (READ_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_VREFINT_RDYF) == SYSCFG_CFGR3_VREFINT_RDYF);
+    return (READ_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_VREFINT_RDYF) == SYSCFG_CFGR3_VREFINT_RDYF);
 }
 
 /**
@@ -608,7 +608,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_VREFINT_IsReady(void)
   */
 __STATIC_INLINE void LL_SYSCFG_VREFINT_Lock(void)
 {
-  SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_REF_LOCK);
+    SET_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_REF_LOCK);
 }
 
 /**
@@ -619,7 +619,7 @@ __STATIC_INLINE void LL_SYSCFG_VREFINT_Lock(void)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_VREFINT_IsLocked(void)
 {
-  return (READ_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_REF_LOCK) == SYSCFG_CFGR3_REF_LOCK);
+    return (READ_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_REF_LOCK) == SYSCFG_CFGR3_REF_LOCK);
 }
 
 /**
@@ -670,7 +670,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_VREFINT_IsLocked(void)
   */
 __STATIC_INLINE void LL_SYSCFG_SetEXTISource(uint32_t Port, uint32_t Line)
 {
-  MODIFY_REG(SYSCFG->EXTICR[Line & 0xFFU], SYSCFG_EXTICR1_EXTI0 << (Line >> 16U), Port << (Line >> 16U));
+    MODIFY_REG(SYSCFG->EXTICR[Line & 0xFFU], SYSCFG_EXTICR1_EXTI0 << (Line >> 16U), Port << (Line >> 16U));
 }
 
 /**
@@ -720,7 +720,7 @@ __STATIC_INLINE void LL_SYSCFG_SetEXTISource(uint32_t Port, uint32_t Line)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_GetEXTISource(uint32_t Line)
 {
-  return (uint32_t)(READ_BIT(SYSCFG->EXTICR[Line & 0xFFU], (SYSCFG_EXTICR1_EXTI0 << (Line >> 16U))) >> (Line >> 16U));
+    return (uint32_t)(READ_BIT(SYSCFG->EXTICR[Line & 0xFFU], (SYSCFG_EXTICR1_EXTI0 << (Line >> 16U))) >> (Line >> 16U));
 }
 
 
@@ -740,7 +740,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetEXTISource(uint32_t Line)
   */
 __STATIC_INLINE uint32_t LL_DBGMCU_GetDeviceID(void)
 {
-  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_DEV_ID));
+    return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_DEV_ID));
 }
 
 /**
@@ -751,7 +751,7 @@ __STATIC_INLINE uint32_t LL_DBGMCU_GetDeviceID(void)
   */
 __STATIC_INLINE uint32_t LL_DBGMCU_GetRevisionID(void)
 {
-  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_REVID_POSITION);
+    return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_REVID_POSITION);
 }
 
 /**
@@ -761,7 +761,7 @@ __STATIC_INLINE uint32_t LL_DBGMCU_GetRevisionID(void)
   */
 __STATIC_INLINE void LL_DBGMCU_EnableDBGSleepMode(void)
 {
-  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
+    SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
 }
 
 /**
@@ -771,7 +771,7 @@ __STATIC_INLINE void LL_DBGMCU_EnableDBGSleepMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_DisableDBGSleepMode(void)
 {
-  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
+    CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
 }
 
 /**
@@ -781,7 +781,7 @@ __STATIC_INLINE void LL_DBGMCU_DisableDBGSleepMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_EnableDBGStopMode(void)
 {
-  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
+    SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
 }
 
 /**
@@ -791,7 +791,7 @@ __STATIC_INLINE void LL_DBGMCU_EnableDBGStopMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_DisableDBGStopMode(void)
 {
-  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
+    CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
 }
 
 /**
@@ -801,7 +801,7 @@ __STATIC_INLINE void LL_DBGMCU_DisableDBGStopMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_EnableDBGStandbyMode(void)
 {
-  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
+    SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
 }
 
 /**
@@ -811,7 +811,7 @@ __STATIC_INLINE void LL_DBGMCU_EnableDBGStandbyMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_DisableDBGStandbyMode(void)
 {
-  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
+    CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
 }
 
 /**
@@ -845,7 +845,7 @@ __STATIC_INLINE void LL_DBGMCU_DisableDBGStandbyMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_ABP1_GRP1_FreezePeriph(uint32_t Periphs)
 {
-  SET_BIT(DBGMCU->APB1FZ, Periphs);
+    SET_BIT(DBGMCU->APB1FZ, Periphs);
 }
 
 /**
@@ -879,7 +879,7 @@ __STATIC_INLINE void LL_DBGMCU_ABP1_GRP1_FreezePeriph(uint32_t Periphs)
   */
 __STATIC_INLINE void LL_DBGMCU_ABP1_GRP1_UnFreezePeriph(uint32_t Periphs)
 {
-  CLEAR_BIT(DBGMCU->APB1FZ, Periphs);
+    CLEAR_BIT(DBGMCU->APB1FZ, Periphs);
 }
 
 /**
@@ -895,7 +895,7 @@ __STATIC_INLINE void LL_DBGMCU_ABP1_GRP1_UnFreezePeriph(uint32_t Periphs)
   */
 __STATIC_INLINE void LL_DBGMCU_ABP2_GRP1_FreezePeriph(uint32_t Periphs)
 {
-  SET_BIT(DBGMCU->APB2FZ, Periphs);
+    SET_BIT(DBGMCU->APB2FZ, Periphs);
 }
 
 /**
@@ -911,7 +911,7 @@ __STATIC_INLINE void LL_DBGMCU_ABP2_GRP1_FreezePeriph(uint32_t Periphs)
   */
 __STATIC_INLINE void LL_DBGMCU_ABP2_GRP1_UnFreezePeriph(uint32_t Periphs)
 {
-  CLEAR_BIT(DBGMCU->APB2FZ, Periphs);
+    CLEAR_BIT(DBGMCU->APB2FZ, Periphs);
 }
 
 /**
@@ -932,7 +932,7 @@ __STATIC_INLINE void LL_DBGMCU_ABP2_GRP1_UnFreezePeriph(uint32_t Periphs)
   */
 __STATIC_INLINE void LL_FLASH_SetLatency(uint32_t Latency)
 {
-  MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, Latency);
+    MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, Latency);
 }
 
 /**
@@ -944,7 +944,7 @@ __STATIC_INLINE void LL_FLASH_SetLatency(uint32_t Latency)
   */
 __STATIC_INLINE uint32_t LL_FLASH_GetLatency(void)
 {
-  return (uint32_t)(READ_BIT(FLASH->ACR, FLASH_ACR_LATENCY));
+    return (uint32_t)(READ_BIT(FLASH->ACR, FLASH_ACR_LATENCY));
 }
 
 /**
@@ -954,7 +954,7 @@ __STATIC_INLINE uint32_t LL_FLASH_GetLatency(void)
   */
 __STATIC_INLINE void LL_FLASH_EnablePrefetch(void)
 {
-  SET_BIT(FLASH->ACR, FLASH_ACR_PRFTEN);
+    SET_BIT(FLASH->ACR, FLASH_ACR_PRFTEN);
 }
 
 /**
@@ -964,7 +964,7 @@ __STATIC_INLINE void LL_FLASH_EnablePrefetch(void)
   */
 __STATIC_INLINE void LL_FLASH_DisablePrefetch(void)
 {
-  CLEAR_BIT(FLASH->ACR, FLASH_ACR_PRFTEN);
+    CLEAR_BIT(FLASH->ACR, FLASH_ACR_PRFTEN);
 }
 
 /**
@@ -974,7 +974,7 @@ __STATIC_INLINE void LL_FLASH_DisablePrefetch(void)
   */
 __STATIC_INLINE uint32_t LL_FLASH_IsPrefetchEnabled(void)
 {
-  return (READ_BIT(FLASH->ACR, FLASH_ACR_PRFTEN) == (FLASH_ACR_PRFTEN));
+    return (READ_BIT(FLASH->ACR, FLASH_ACR_PRFTEN) == (FLASH_ACR_PRFTEN));
 }
 
 
@@ -992,11 +992,11 @@ __STATIC_INLINE uint32_t LL_FLASH_IsPrefetchEnabled(void)
   */
 __STATIC_INLINE void LL_FLASH_EnableRunPowerDown(void)
 {
-  /* Following values must be written consecutively to unlock the RUN_PD bit in
-     FLASH_ACR */
-  WRITE_REG(FLASH->PDKEYR, FLASH_PDKEY1);
-  WRITE_REG(FLASH->PDKEYR, FLASH_PDKEY2);
-  SET_BIT(FLASH->ACR, FLASH_ACR_RUN_PD);
+    /* Following values must be written consecutively to unlock the RUN_PD bit in
+       FLASH_ACR */
+    WRITE_REG(FLASH->PDKEYR, FLASH_PDKEY1);
+    WRITE_REG(FLASH->PDKEYR, FLASH_PDKEY2);
+    SET_BIT(FLASH->ACR, FLASH_ACR_RUN_PD);
 }
 
 /**
@@ -1008,11 +1008,11 @@ __STATIC_INLINE void LL_FLASH_EnableRunPowerDown(void)
   */
 __STATIC_INLINE void LL_FLASH_DisableRunPowerDown(void)
 {
-  /* Following values must be written consecutively to unlock the RUN_PD bit in
-     FLASH_ACR */
-  WRITE_REG(FLASH->PDKEYR, FLASH_PDKEY1);
-  WRITE_REG(FLASH->PDKEYR, FLASH_PDKEY2);
-  CLEAR_BIT(FLASH->ACR, FLASH_ACR_RUN_PD);
+    /* Following values must be written consecutively to unlock the RUN_PD bit in
+       FLASH_ACR */
+    WRITE_REG(FLASH->PDKEYR, FLASH_PDKEY1);
+    WRITE_REG(FLASH->PDKEYR, FLASH_PDKEY2);
+    CLEAR_BIT(FLASH->ACR, FLASH_ACR_RUN_PD);
 }
 
 /**
@@ -1024,7 +1024,7 @@ __STATIC_INLINE void LL_FLASH_DisableRunPowerDown(void)
   */
 __STATIC_INLINE void LL_FLASH_EnableSleepPowerDown(void)
 {
-  SET_BIT(FLASH->ACR, FLASH_ACR_SLEEP_PD);
+    SET_BIT(FLASH->ACR, FLASH_ACR_SLEEP_PD);
 }
 
 /**
@@ -1034,7 +1034,7 @@ __STATIC_INLINE void LL_FLASH_EnableSleepPowerDown(void)
   */
 __STATIC_INLINE void LL_FLASH_DisableSleepPowerDown(void)
 {
-  CLEAR_BIT(FLASH->ACR, FLASH_ACR_SLEEP_PD);
+    CLEAR_BIT(FLASH->ACR, FLASH_ACR_SLEEP_PD);
 }
 
 /**
@@ -1044,7 +1044,7 @@ __STATIC_INLINE void LL_FLASH_DisableSleepPowerDown(void)
   */
 __STATIC_INLINE void LL_FLASH_EnableBuffers(void)
 {
-  CLEAR_BIT(FLASH->ACR, FLASH_ACR_DISAB_BUF);
+    CLEAR_BIT(FLASH->ACR, FLASH_ACR_DISAB_BUF);
 }
 
 /**
@@ -1056,7 +1056,7 @@ __STATIC_INLINE void LL_FLASH_EnableBuffers(void)
   */
 __STATIC_INLINE void LL_FLASH_DisableBuffers(void)
 {
-  SET_BIT(FLASH->ACR, FLASH_ACR_DISAB_BUF);
+    SET_BIT(FLASH->ACR, FLASH_ACR_DISAB_BUF);
 }
 
 /**
@@ -1070,7 +1070,7 @@ __STATIC_INLINE void LL_FLASH_DisableBuffers(void)
   */
 __STATIC_INLINE void LL_FLASH_EnablePreRead(void)
 {
-  SET_BIT(FLASH->ACR, FLASH_ACR_PRE_READ);
+    SET_BIT(FLASH->ACR, FLASH_ACR_PRE_READ);
 }
 
 /**
@@ -1080,7 +1080,7 @@ __STATIC_INLINE void LL_FLASH_EnablePreRead(void)
   */
 __STATIC_INLINE void LL_FLASH_DisablePreRead(void)
 {
-  CLEAR_BIT(FLASH->ACR, FLASH_ACR_PRE_READ);
+    CLEAR_BIT(FLASH->ACR, FLASH_ACR_PRE_READ);
 }
 
 /**

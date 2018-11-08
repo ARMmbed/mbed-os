@@ -63,15 +63,13 @@
 #endif /* UART 5 */
 
 /*<! Structure definition for uart_dma_handle_t. The structure is private. */
-typedef struct _uart_dma_private_handle
-{
+typedef struct _uart_dma_private_handle {
     UART_Type *base;
     uart_dma_handle_t *handle;
 } uart_dma_private_handle_t;
 
 /* UART DMA transfer handle. */
-enum _uart_dma_tansfer_states
-{
+enum _uart_dma_tansfer_states {
     kUART_TxIdle, /* TX idle. */
     kUART_TxBusy, /* TX busy. */
     kUART_RxIdle, /* RX idle. */
@@ -135,8 +133,7 @@ static void UART_TransferSendDMACallback(dma_handle_t *handle, void *param)
 
     uartPrivateHandle->handle->txState = kUART_TxIdle;
 
-    if (uartPrivateHandle->handle->callback)
-    {
+    if (uartPrivateHandle->handle->callback) {
         uartPrivateHandle->handle->callback(uartPrivateHandle->base, uartPrivateHandle->handle, kStatus_UART_TxIdle,
                                             uartPrivateHandle->handle->userData);
     }
@@ -154,19 +151,18 @@ static void UART_TransferReceiveDMACallback(dma_handle_t *handle, void *param)
 
     uartPrivateHandle->handle->rxState = kUART_RxIdle;
 
-    if (uartPrivateHandle->handle->callback)
-    {
+    if (uartPrivateHandle->handle->callback) {
         uartPrivateHandle->handle->callback(uartPrivateHandle->base, uartPrivateHandle->handle, kStatus_UART_RxIdle,
                                             uartPrivateHandle->handle->userData);
     }
 }
 
 void UART_TransferCreateHandleDMA(UART_Type *base,
-                          uart_dma_handle_t *handle,
-                          uart_dma_transfer_callback_t callback,
-                          void *userData,
-                          dma_handle_t *txDmaHandle,
-                          dma_handle_t *rxDmaHandle)
+                                  uart_dma_handle_t *handle,
+                                  uart_dma_transfer_callback_t callback,
+                                  void *userData,
+                                  dma_handle_t *txDmaHandle,
+                                  dma_handle_t *rxDmaHandle)
 {
     assert(handle);
 
@@ -192,8 +188,7 @@ void UART_TransferCreateHandleDMA(UART_Type *base,
        5 bytes are received. the last byte will be saved in FIFO but not trigger
        DMA transfer because the water mark is 2.
      */
-    if (rxDmaHandle)
-    {
+    if (rxDmaHandle) {
         base->RWFIFO = 1U;
     }
 #endif
@@ -202,14 +197,12 @@ void UART_TransferCreateHandleDMA(UART_Type *base,
     handle->txDmaHandle = txDmaHandle;
 
     /* Configure TX. */
-    if (txDmaHandle)
-    {
+    if (txDmaHandle) {
         DMA_SetCallback(txDmaHandle, UART_TransferSendDMACallback, &s_dmaPrivateHandle[instance]);
     }
 
     /* Configure RX. */
-    if (rxDmaHandle)
-    {
+    if (rxDmaHandle) {
         DMA_SetCallback(rxDmaHandle, UART_TransferReceiveDMACallback, &s_dmaPrivateHandle[instance]);
     }
 }
@@ -222,18 +215,14 @@ status_t UART_TransferSendDMA(UART_Type *base, uart_dma_handle_t *handle, uart_t
     status_t status;
 
     /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
+    if ((0U == xfer->dataSize) || (NULL == xfer->data)) {
         return kStatus_InvalidArgument;
     }
 
     /* If previous TX not finished. */
-    if (kUART_TxBusy == handle->txState)
-    {
+    if (kUART_TxBusy == handle->txState) {
         status = kStatus_UART_TxBusy;
-    }
-    else
-    {
+    } else {
         handle->txState = kUART_TxBusy;
         handle->txDataSizeAll = xfer->dataSize;
 
@@ -262,18 +251,14 @@ status_t UART_TransferReceiveDMA(UART_Type *base, uart_dma_handle_t *handle, uar
     status_t status;
 
     /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
+    if ((0U == xfer->dataSize) || (NULL == xfer->data)) {
         return kStatus_InvalidArgument;
     }
 
     /* If previous RX not finished. */
-    if (kUART_RxBusy == handle->rxState)
-    {
+    if (kUART_RxBusy == handle->rxState) {
         status = kStatus_UART_RxBusy;
-    }
-    else
-    {
+    } else {
         handle->rxState = kUART_RxBusy;
         handle->rxDataSizeAll = xfer->dataSize;
 
@@ -330,13 +315,11 @@ status_t UART_TransferGetSendCountDMA(UART_Type *base, uart_dma_handle_t *handle
 {
     assert(handle->txDmaHandle);
 
-    if (kUART_TxIdle == handle->txState)
-    {
+    if (kUART_TxIdle == handle->txState) {
         return kStatus_NoTransferInProgress;
     }
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
@@ -349,13 +332,11 @@ status_t UART_TransferGetReceiveCountDMA(UART_Type *base, uart_dma_handle_t *han
 {
     assert(handle->rxDmaHandle);
 
-    if (kUART_RxIdle == handle->rxState)
-    {
+    if (kUART_RxIdle == handle->rxState) {
         return kStatus_NoTransferInProgress;
     }
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 

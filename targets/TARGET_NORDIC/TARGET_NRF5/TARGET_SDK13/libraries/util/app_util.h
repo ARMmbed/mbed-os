@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2012 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /** @file
@@ -76,8 +76,7 @@ extern uint32_t __StackLimit;
 #endif
 //lint -restore
 
-enum
-{
+enum {
     UNIT_0_625_MS = 625,                                /**< Number of microseconds in 0.625 milliseconds. */
     UNIT_1_25_MS  = 1250,                               /**< Number of microseconds in 1.25 milliseconds. */
     UNIT_10_MS    = 10000                               /**< Number of microseconds in 10 milliseconds. */
@@ -132,12 +131,12 @@ enum
 */
 #if defined(__COUNTER__)
 
-    #define STATIC_ASSERT_MSG(EXPR, MSG) \
+#define STATIC_ASSERT_MSG(EXPR, MSG) \
         ;enum { STRING_CONCATENATE(MSG, __COUNTER__) = 1 / (!!(EXPR)) }
 
 #else
 
-    #define STATIC_ASSERT_MSG(EXPR, MSG) \
+#define STATIC_ASSERT_MSG(EXPR, MSG) \
         ;enum { STRING_CONCATENATE(MSG, __LINE__) = 1 / (!!(EXPR)) }
 
 #endif
@@ -213,10 +212,9 @@ typedef uint8_t uint16_le_t[2];
 typedef uint8_t uint32_le_t[4];
 
 /**@brief Byte array type. */
-typedef struct
-{
+typedef struct {
     uint16_t  size;                 /**< Number of array entries. */
-    uint8_t * p_data;               /**< Pointer to array entries. */
+    uint8_t *p_data;                /**< Pointer to array entries. */
 } uint8_array_t;
 
 
@@ -757,10 +755,10 @@ static __INLINE uint64_t value_rescale(uint32_t value, uint32_t old_unit_reversa
  *
  * @return      Number of bytes written.
  */
-static __INLINE uint8_t uint16_encode(uint16_t value, uint8_t * p_encoded_data)
+static __INLINE uint8_t uint16_encode(uint16_t value, uint8_t *p_encoded_data)
 {
-    p_encoded_data[0] = (uint8_t) ((value & 0x00FF) >> 0);
-    p_encoded_data[1] = (uint8_t) ((value & 0xFF00) >> 8);
+    p_encoded_data[0] = (uint8_t)((value & 0x00FF) >> 0);
+    p_encoded_data[1] = (uint8_t)((value & 0xFF00) >> 8);
     return sizeof(uint16_t);
 }
 
@@ -771,11 +769,11 @@ static __INLINE uint8_t uint16_encode(uint16_t value, uint8_t * p_encoded_data)
  *
  * @return      Number of bytes written.
  */
-static __INLINE uint8_t uint24_encode(uint32_t value, uint8_t * p_encoded_data)
+static __INLINE uint8_t uint24_encode(uint32_t value, uint8_t *p_encoded_data)
 {
-    p_encoded_data[0] = (uint8_t) ((value & 0x000000FF) >> 0);
-    p_encoded_data[1] = (uint8_t) ((value & 0x0000FF00) >> 8);
-    p_encoded_data[2] = (uint8_t) ((value & 0x00FF0000) >> 16);
+    p_encoded_data[0] = (uint8_t)((value & 0x000000FF) >> 0);
+    p_encoded_data[1] = (uint8_t)((value & 0x0000FF00) >> 8);
+    p_encoded_data[2] = (uint8_t)((value & 0x00FF0000) >> 16);
     return 3;
 }
 
@@ -786,12 +784,12 @@ static __INLINE uint8_t uint24_encode(uint32_t value, uint8_t * p_encoded_data)
  *
  * @return      Number of bytes written.
  */
-static __INLINE uint8_t uint32_encode(uint32_t value, uint8_t * p_encoded_data)
+static __INLINE uint8_t uint32_encode(uint32_t value, uint8_t *p_encoded_data)
 {
-    p_encoded_data[0] = (uint8_t) ((value & 0x000000FF) >> 0);
-    p_encoded_data[1] = (uint8_t) ((value & 0x0000FF00) >> 8);
-    p_encoded_data[2] = (uint8_t) ((value & 0x00FF0000) >> 16);
-    p_encoded_data[3] = (uint8_t) ((value & 0xFF000000) >> 24);
+    p_encoded_data[0] = (uint8_t)((value & 0x000000FF) >> 0);
+    p_encoded_data[1] = (uint8_t)((value & 0x0000FF00) >> 8);
+    p_encoded_data[2] = (uint8_t)((value & 0x00FF0000) >> 16);
+    p_encoded_data[3] = (uint8_t)((value & 0xFF000000) >> 24);
     return sizeof(uint32_t);
 }
 
@@ -802,14 +800,14 @@ static __INLINE uint8_t uint32_encode(uint32_t value, uint8_t * p_encoded_data)
  *
  * @return      Number of bytes written.
  */
-static __INLINE uint8_t uint48_encode(uint64_t value, uint8_t * p_encoded_data)
+static __INLINE uint8_t uint48_encode(uint64_t value, uint8_t *p_encoded_data)
 {
-    p_encoded_data[0] = (uint8_t) ((value & 0x0000000000FF) >> 0);
-    p_encoded_data[1] = (uint8_t) ((value & 0x00000000FF00) >> 8);
-    p_encoded_data[2] = (uint8_t) ((value & 0x000000FF0000) >> 16);
-    p_encoded_data[3] = (uint8_t) ((value & 0x0000FF000000) >> 24);
-    p_encoded_data[4] = (uint8_t) ((value & 0x00FF00000000) >> 32);
-    p_encoded_data[5] = (uint8_t) ((value & 0xFF0000000000) >> 40);
+    p_encoded_data[0] = (uint8_t)((value & 0x0000000000FF) >> 0);
+    p_encoded_data[1] = (uint8_t)((value & 0x00000000FF00) >> 8);
+    p_encoded_data[2] = (uint8_t)((value & 0x000000FF0000) >> 16);
+    p_encoded_data[3] = (uint8_t)((value & 0x0000FF000000) >> 24);
+    p_encoded_data[4] = (uint8_t)((value & 0x00FF00000000) >> 32);
+    p_encoded_data[5] = (uint8_t)((value & 0xFF0000000000) >> 40);
     return 6;
 }
 
@@ -819,10 +817,10 @@ static __INLINE uint8_t uint48_encode(uint64_t value, uint8_t * p_encoded_data)
  *
  * @return      Decoded value.
  */
-static __INLINE uint16_t uint16_decode(const uint8_t * p_encoded_data)
+static __INLINE uint16_t uint16_decode(const uint8_t *p_encoded_data)
 {
-        return ( (((uint16_t)((uint8_t *)p_encoded_data)[0])) |
-                 (((uint16_t)((uint8_t *)p_encoded_data)[1]) << 8 ));
+    return ((((uint16_t)((uint8_t *)p_encoded_data)[0])) |
+            (((uint16_t)((uint8_t *)p_encoded_data)[1]) << 8));
 }
 
 /**@brief Function for decoding a uint16 value in big-endian format.
@@ -831,10 +829,10 @@ static __INLINE uint16_t uint16_decode(const uint8_t * p_encoded_data)
  *
  * @return      Decoded value.
  */
-static __INLINE uint16_t uint16_big_decode(const uint8_t * p_encoded_data)
+static __INLINE uint16_t uint16_big_decode(const uint8_t *p_encoded_data)
 {
-        return ( (((uint16_t)((uint8_t *)p_encoded_data)[0]) << 8 ) |
-                 (((uint16_t)((uint8_t *)p_encoded_data)[1])) );
+    return ((((uint16_t)((uint8_t *)p_encoded_data)[0]) << 8) |
+            (((uint16_t)((uint8_t *)p_encoded_data)[1])));
 }
 
 /**@brief Function for decoding a three-byte value.
@@ -843,11 +841,11 @@ static __INLINE uint16_t uint16_big_decode(const uint8_t * p_encoded_data)
  *
  * @return      Decoded value (uint32_t).
  */
-static __INLINE uint32_t uint24_decode(const uint8_t * p_encoded_data)
+static __INLINE uint32_t uint24_decode(const uint8_t *p_encoded_data)
 {
-    return ( (((uint32_t)((uint8_t *)p_encoded_data)[0]) << 0)  |
-             (((uint32_t)((uint8_t *)p_encoded_data)[1]) << 8)  |
-             (((uint32_t)((uint8_t *)p_encoded_data)[2]) << 16));
+    return ((((uint32_t)((uint8_t *)p_encoded_data)[0]) << 0)  |
+            (((uint32_t)((uint8_t *)p_encoded_data)[1]) << 8)  |
+            (((uint32_t)((uint8_t *)p_encoded_data)[2]) << 16));
 }
 
 /**@brief Function for decoding a uint32 value.
@@ -856,12 +854,12 @@ static __INLINE uint32_t uint24_decode(const uint8_t * p_encoded_data)
  *
  * @return      Decoded value.
  */
-static __INLINE uint32_t uint32_decode(const uint8_t * p_encoded_data)
+static __INLINE uint32_t uint32_decode(const uint8_t *p_encoded_data)
 {
-    return ( (((uint32_t)((uint8_t *)p_encoded_data)[0]) << 0)  |
-             (((uint32_t)((uint8_t *)p_encoded_data)[1]) << 8)  |
-             (((uint32_t)((uint8_t *)p_encoded_data)[2]) << 16) |
-             (((uint32_t)((uint8_t *)p_encoded_data)[3]) << 24 ));
+    return ((((uint32_t)((uint8_t *)p_encoded_data)[0]) << 0)  |
+            (((uint32_t)((uint8_t *)p_encoded_data)[1]) << 8)  |
+            (((uint32_t)((uint8_t *)p_encoded_data)[2]) << 16) |
+            (((uint32_t)((uint8_t *)p_encoded_data)[3]) << 24));
 }
 
 /**@brief Function for decoding a uint32 value in big-endian format.
@@ -870,12 +868,12 @@ static __INLINE uint32_t uint32_decode(const uint8_t * p_encoded_data)
  *
  * @return      Decoded value.
  */
-static __INLINE uint32_t uint32_big_decode(const uint8_t * p_encoded_data)
+static __INLINE uint32_t uint32_big_decode(const uint8_t *p_encoded_data)
 {
-    return ( (((uint32_t)((uint8_t *)p_encoded_data)[0]) << 24) |
-             (((uint32_t)((uint8_t *)p_encoded_data)[1]) << 16) |
-             (((uint32_t)((uint8_t *)p_encoded_data)[2]) << 8)  |
-             (((uint32_t)((uint8_t *)p_encoded_data)[3]) << 0) );
+    return ((((uint32_t)((uint8_t *)p_encoded_data)[0]) << 24) |
+            (((uint32_t)((uint8_t *)p_encoded_data)[1]) << 16) |
+            (((uint32_t)((uint8_t *)p_encoded_data)[2]) << 8)  |
+            (((uint32_t)((uint8_t *)p_encoded_data)[3]) << 0));
 }
 
 /**
@@ -886,10 +884,10 @@ static __INLINE uint32_t uint32_big_decode(const uint8_t * p_encoded_data)
  *
  * @return      Number of bytes written.
  */
-static __INLINE uint8_t uint16_big_encode(uint16_t value, uint8_t * p_encoded_data)
+static __INLINE uint8_t uint16_big_encode(uint16_t value, uint8_t *p_encoded_data)
 {
-    p_encoded_data[0] = (uint8_t) (value >> 8);
-    p_encoded_data[1] = (uint8_t) (value & 0xFF);
+    p_encoded_data[0] = (uint8_t)(value >> 8);
+    p_encoded_data[1] = (uint8_t)(value & 0xFF);
 
     return sizeof(uint16_t);
 }
@@ -901,7 +899,7 @@ static __INLINE uint8_t uint16_big_encode(uint16_t value, uint8_t * p_encoded_da
  *
  * @return      Number of bytes written.
  */
-static __INLINE uint8_t uint32_big_encode(uint32_t value, uint8_t * p_encoded_data)
+static __INLINE uint8_t uint32_big_encode(uint32_t value, uint8_t *p_encoded_data)
 {
     *(uint32_t *)p_encoded_data = __REV(value);
     return sizeof(uint32_t);
@@ -913,14 +911,14 @@ static __INLINE uint8_t uint32_big_encode(uint32_t value, uint8_t * p_encoded_da
  *
  * @return      Decoded value. (uint64_t)
  */
-static __INLINE uint64_t uint48_decode(const uint8_t * p_encoded_data)
+static __INLINE uint64_t uint48_decode(const uint8_t *p_encoded_data)
 {
-    return ( (((uint64_t)((uint8_t *)p_encoded_data)[0]) << 0)  |
-             (((uint64_t)((uint8_t *)p_encoded_data)[1]) << 8)  |
-             (((uint64_t)((uint8_t *)p_encoded_data)[2]) << 16) |
-             (((uint64_t)((uint8_t *)p_encoded_data)[3]) << 24) |
-             (((uint64_t)((uint8_t *)p_encoded_data)[4]) << 32) |
-             (((uint64_t)((uint8_t *)p_encoded_data)[5]) << 40 ));
+    return ((((uint64_t)((uint8_t *)p_encoded_data)[0]) << 0)  |
+            (((uint64_t)((uint8_t *)p_encoded_data)[1]) << 8)  |
+            (((uint64_t)((uint8_t *)p_encoded_data)[2]) << 16) |
+            (((uint64_t)((uint8_t *)p_encoded_data)[3]) << 24) |
+            (((uint64_t)((uint8_t *)p_encoded_data)[4]) << 32) |
+            (((uint64_t)((uint8_t *)p_encoded_data)[5]) << 40));
 }
 
 /** @brief Function for converting the input voltage (in milli volts) into percentage of 3.0 Volts.
@@ -947,28 +945,17 @@ static __INLINE uint8_t battery_level_in_percent(const uint16_t mvolts)
 {
     uint8_t battery_level;
 
-    if (mvolts >= 3000)
-    {
+    if (mvolts >= 3000) {
         battery_level = 100;
-    }
-    else if (mvolts > 2900)
-    {
+    } else if (mvolts > 2900) {
         battery_level = 100 - ((3000 - mvolts) * 58) / 100;
-    }
-    else if (mvolts > 2740)
-    {
+    } else if (mvolts > 2740) {
         battery_level = 42 - ((2900 - mvolts) * 24) / 160;
-    }
-    else if (mvolts > 2440)
-    {
+    } else if (mvolts > 2440) {
         battery_level = 18 - ((2740 - mvolts) * 12) / 300;
-    }
-    else if (mvolts > 2100)
-    {
+    } else if (mvolts > 2100) {
         battery_level = 6 - ((2440 - mvolts) * 6) / 340;
-    }
-    else
-    {
+    } else {
         battery_level = 0;
     }
 
@@ -981,7 +968,7 @@ static __INLINE uint8_t battery_level_in_percent(const uint16_t mvolts)
  *
  * @return      TRUE if pointer is aligned to a 4 byte boundary, FALSE otherwise.
  */
-static __INLINE bool is_word_aligned(void const* p)
+static __INLINE bool is_word_aligned(void const *p)
 {
     return (((uintptr_t)p & 0x03) == 0);
 }
@@ -993,15 +980,12 @@ static __INLINE bool is_word_aligned(void const* p)
  *
  * @return      true if address is in stack space, false otherwise.
  */
-static __INLINE bool is_address_from_stack(void * ptr)
+static __INLINE bool is_address_from_stack(void *ptr)
 {
     if (((uint32_t)ptr >= (uint32_t)STACK_BASE) &&
-        ((uint32_t)ptr <  (uint32_t)STACK_TOP) )
-    {
+            ((uint32_t)ptr < (uint32_t)STACK_TOP)) {
         return true;
-    }
-    else
-    {
+    } else {
         return false;
     }
 }

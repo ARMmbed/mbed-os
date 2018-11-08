@@ -26,8 +26,8 @@
 #define ADC_RANGE    0xFFF
 
 static const PinMap PinMap_ADC[] = {
-    {P0_7 , ADC_0, 0},
-    {P0_6 , ADC_1, 0},
+    {P0_7, ADC_0, 0},
+    {P0_6, ADC_1, 0},
     {P0_14, ADC_2, 0},
     {P0_23, ADC_3, 0},
     {P0_22, ADC_4, 0},
@@ -36,8 +36,8 @@ static const PinMap PinMap_ADC[] = {
     {P0_19, ADC_7, 0},
     {P0_18, ADC_8, 0},
     {P0_17, ADC_9, 0},
-    {P0_13, ADC_10,0},
-    {P0_4 , ADC_11,0},
+    {P0_13, ADC_10, 0},
+    {P0_4, ADC_11, 0},
 };
 
 void analogin_init(analogin_t *obj, PinName pin)

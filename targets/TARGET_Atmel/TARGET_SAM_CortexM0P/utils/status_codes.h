@@ -99,7 +99,7 @@ enum status_code_wireless {
      * \note Drivers should never return this status code to any
      * callers. It is strictly for internal use.
      */
-    OPERATION_IN_PROGRESS	= -128,
+    OPERATION_IN_PROGRESS   = -128,
 };
 
 typedef enum status_code_wireless status_code_t;

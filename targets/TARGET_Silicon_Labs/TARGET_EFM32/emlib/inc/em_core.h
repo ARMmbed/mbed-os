@@ -221,7 +221,7 @@ typedef uint32_t CORE_irqState_t;
 
 /** Storage for NVIC interrupt masks. */
 typedef struct {
-  uint32_t a[CORE_NVIC_REG_WORDS];    /*!< Array of NVIC mask words. */
+    uint32_t a[CORE_NVIC_REG_WORDS];    /*!< Array of NVIC mask words. */
 } CORE_nvicMask_t;
 
 /*******************************************************************************

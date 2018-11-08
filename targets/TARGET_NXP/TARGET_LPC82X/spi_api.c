@@ -48,9 +48,10 @@ static unsigned char spi_used = 0;
 static int get_available_spi(void)
 {
     int i;
-    for (i=0; i<2; i++) {
-        if ((spi_used & (1 << i)) == 0)
+    for (i = 0; i < 2; i++) {
+        if ((spi_used & (1 << i)) == 0) {
             return i;
+        }
     }
     return -1;
 }
@@ -75,33 +76,33 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (sclk != (PinName)NC) {
         swm = &SWM_SPI_SCLK[obj->spi_n];
         regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-        LPC_SWM->PINASSIGN[swm->n] = regVal |  ((sclk >> PIN_SHIFT) << swm->offset);
+        LPC_SWM->PINASSIGN[swm->n] = regVal | ((sclk >> PIN_SHIFT) << swm->offset);
     }
 
     if (mosi != (PinName)NC) {
         swm = &SWM_SPI_MOSI[obj->spi_n];
         regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-        LPC_SWM->PINASSIGN[swm->n] = regVal |  ((mosi >> PIN_SHIFT) << swm->offset);
+        LPC_SWM->PINASSIGN[swm->n] = regVal | ((mosi >> PIN_SHIFT) << swm->offset);
     }
 
     if (miso != (PinName)NC) {
         swm = &SWM_SPI_MISO[obj->spi_n];
         regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-        LPC_SWM->PINASSIGN[swm->n] = regVal |  ((miso >> PIN_SHIFT) << swm->offset);
+        LPC_SWM->PINASSIGN[swm->n] = regVal | ((miso >> PIN_SHIFT) << swm->offset);
     }
 
     if (ssel != (PinName)NC) {
         swm = &SWM_SPI_SSEL[obj->spi_n];
         regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-        LPC_SWM->PINASSIGN[swm->n] = regVal |  ((ssel >> PIN_SHIFT) << swm->offset);
+        LPC_SWM->PINASSIGN[swm->n] = regVal | ((ssel >> PIN_SHIFT) << swm->offset);
     }
 
     // clear interrupts
     obj->spi->INTENCLR = 0x3f;
 
-    LPC_SYSCON->SYSAHBCLKCTRL |=  (1 << (11 + obj->spi_n));
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << (11 + obj->spi_n));
     LPC_SYSCON->PRESETCTRL    &= ~(1 << obj->spi_n);
-    LPC_SYSCON->PRESETCTRL    |=  (1 << obj->spi_n);
+    LPC_SYSCON->PRESETCTRL    |= (1 << obj->spi_n);
 
     obj->spi->DLY = 2;             // 2 SPI clock times pre-delay
 }
@@ -116,10 +117,10 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     spi_disable(obj);
 
     obj->spi->CFG &= ~((0x3 << 4) | (1 << 2));
-    obj->spi->CFG |=  ((mode & 0x3) << 4) | ((slave ? 0 : 1) << 2);
+    obj->spi->CFG |= ((mode & 0x3) << 4) | ((slave ? 0 : 1) << 2);
 
-    obj->spi->TXCTL &= ~( 0xF << 24);
-    obj->spi->TXCTL |=  ((bits - 1) << 24);
+    obj->spi->TXCTL &= ~(0xF << 24);
+    obj->spi->TXCTL |= ((bits - 1) << 24);
 
     spi_enable(obj);
 }
@@ -129,7 +130,7 @@ void spi_frequency(spi_t *obj, int hz)
     spi_disable(obj);
 
     // rise DIV value if it cannot be divided
-    obj->spi->DIV = (SystemCoreClock + (hz - 1))/hz - 1;
+    obj->spi->DIV = (SystemCoreClock + (hz - 1)) / hz - 1;
 
     spi_enable(obj);
 }
@@ -175,7 +176,8 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {

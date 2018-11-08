@@ -172,10 +172,10 @@ extern "C" {
 #define DM_GAP_ADV_SLOW_INT_MIN           1600    /*! Minimum advertising interval when background advertising */
 #define DM_GAP_ADV_SLOW_INT_MAX           1920    /*! Maximum advertising interval when background advertising */
 
- /*!
- * Advertising, scanning, and connection parameters defined in the GAP specification for the LE Coded PHY.
- * In units of 625 microseconds.
- */
+/*!
+* Advertising, scanning, and connection parameters defined in the GAP specification for the LE Coded PHY.
+* In units of 625 microseconds.
+*/
 #define DM_GAP_SCAN_CODED_FAST_INT_MIN    144     /*! Minimum scan interval when user initiated on LE Coded PHY */
 #define DM_GAP_SCAN_CODED_FAST_INT_MAX    288     /*! Maximum scan interval when user initiated on LE Coded PHY */
 #define DM_GAP_SCAN_CODED_FAST_WINDOW     144     /*! Scan window when user initiated on LE Coded PHY */
@@ -281,60 +281,59 @@ extern "C" {
 
 /*! DM callback events */
 #define DM_CBACK_START              0x20  /*! DM callback event starting value */
-enum
-{
-  DM_RESET_CMPL_IND = DM_CBACK_START,     /*! Reset complete */
-  DM_ADV_START_IND,                       /*! Advertising started */
-  DM_ADV_STOP_IND,                        /*! Advertising stopped */
-  DM_ADV_NEW_ADDR_IND,                    /*! New resolvable address has been generated */
-  DM_SCAN_START_IND,                      /*! Scanning started */
-  DM_SCAN_STOP_IND,                       /*! Scanning stopped */
-  DM_SCAN_REPORT_IND,                     /*! Scan data received from peer device */
-  DM_CONN_OPEN_IND,                       /*! Connection opened */
-  DM_CONN_CLOSE_IND,                      /*! Connection closed */
-  DM_CONN_UPDATE_IND,                     /*! Connection update complete */
-  DM_SEC_PAIR_CMPL_IND,                   /*! Pairing completed successfully */
-  DM_SEC_PAIR_FAIL_IND,                   /*! Pairing failed or other security failure */
-  DM_SEC_ENCRYPT_IND,                     /*! Connection encrypted */
-  DM_SEC_ENCRYPT_FAIL_IND,                /*! Encryption failed */
-  DM_SEC_AUTH_REQ_IND,                    /*! PIN or OOB data requested for pairing */
-  DM_SEC_KEY_IND,                         /*! Security key indication */
-  DM_SEC_LTK_REQ_IND,                     /*! LTK requested for encyption */
-  DM_SEC_PAIR_IND,                        /*! Incoming pairing request from master */
-  DM_SEC_SLAVE_REQ_IND,                   /*! Incoming security request from slave */
-  DM_SEC_CALC_OOB_IND,                    /*! Result of OOB Confirm Calculation Generation */
-  DM_SEC_ECC_KEY_IND,                     /*! Result of ECC Key Generation */
-  DM_SEC_COMPARE_IND,                     /*! Result of Just Works/Numeric Comparison Compare Value Calculation */
-  DM_SEC_KEYPRESS_IND,                    /*! Keypress indication from peer in passkey security */
-  DM_PRIV_RESOLVED_ADDR_IND,              /*! Private address resolved */
-  DM_CONN_READ_RSSI_IND,                  /*! Connection RSSI read */
-  DM_PRIV_ADD_DEV_TO_RES_LIST_IND,        /*! Device added to resolving list */
-  DM_PRIV_REM_DEV_FROM_RES_LIST_IND,      /*! Device removed from resolving list */
-  DM_PRIV_CLEAR_RES_LIST_IND,             /*! Resolving list cleared */
-  DM_PRIV_READ_PEER_RES_ADDR_IND,         /*! Peer resolving address read */
-  DM_PRIV_READ_LOCAL_RES_ADDR_IND,        /*! Local resolving address read */
-  DM_PRIV_SET_ADDR_RES_ENABLE_IND,        /*! Address resolving enable set */
-  DM_REM_CONN_PARAM_REQ_IND,              /*! Remote connection parameter requested */
-  DM_CONN_DATA_LEN_CHANGE_IND,            /*! Data length changed */
-  DM_CONN_WRITE_AUTH_TO_IND,              /*! Write authenticated payload complete */
-  DM_CONN_AUTH_TO_EXPIRED_IND,            /*! Authenticated payload timeout expired */
-  DM_PHY_READ_IND,                        /*! Read PHY */
-  DM_PHY_SET_DEF_IND,                     /*! Set default PHY */
-  DM_PHY_UPDATE_IND,                      /*! PHY update */
-  DM_ADV_SET_START_IND,                   /*! Advertising set(s) started */
-  DM_ADV_SET_STOP_IND,                    /*! Advertising set(s) stopped */
-  DM_SCAN_REQ_RCVD_IND,                   /*! Scan request received */
-  DM_EXT_SCAN_START_IND,                  /*! Extended scanning started */
-  DM_EXT_SCAN_STOP_IND,                   /*! Extended scanning stopped */
-  DM_EXT_SCAN_REPORT_IND,                 /*! Extended scan data received from peer device */
-  DM_PER_ADV_SET_START_IND,               /*! Periodic advertising set started */
-  DM_PER_ADV_SET_STOP_IND,                /*! Periodic advertising set stopped */
-  DM_PER_ADV_SYNC_EST_IND,                /*! Periodic advertising sync established */
-  DM_PER_ADV_SYNC_LOST_IND,               /*! Periodic advertising sync lost */
-  DM_PER_ADV_REPORT_IND,                  /*! Periodic advertising data received from peer device */
-  DM_REMOTE_FEATURES_IND,                 /*! Remote features from peer device */
-  DM_ERROR_IND,                           /*! General error */
-  DM_VENDOR_SPEC_IND,                     /*! Vendor specific event */
+enum {
+    DM_RESET_CMPL_IND = DM_CBACK_START,     /*! Reset complete */
+    DM_ADV_START_IND,                       /*! Advertising started */
+    DM_ADV_STOP_IND,                        /*! Advertising stopped */
+    DM_ADV_NEW_ADDR_IND,                    /*! New resolvable address has been generated */
+    DM_SCAN_START_IND,                      /*! Scanning started */
+    DM_SCAN_STOP_IND,                       /*! Scanning stopped */
+    DM_SCAN_REPORT_IND,                     /*! Scan data received from peer device */
+    DM_CONN_OPEN_IND,                       /*! Connection opened */
+    DM_CONN_CLOSE_IND,                      /*! Connection closed */
+    DM_CONN_UPDATE_IND,                     /*! Connection update complete */
+    DM_SEC_PAIR_CMPL_IND,                   /*! Pairing completed successfully */
+    DM_SEC_PAIR_FAIL_IND,                   /*! Pairing failed or other security failure */
+    DM_SEC_ENCRYPT_IND,                     /*! Connection encrypted */
+    DM_SEC_ENCRYPT_FAIL_IND,                /*! Encryption failed */
+    DM_SEC_AUTH_REQ_IND,                    /*! PIN or OOB data requested for pairing */
+    DM_SEC_KEY_IND,                         /*! Security key indication */
+    DM_SEC_LTK_REQ_IND,                     /*! LTK requested for encyption */
+    DM_SEC_PAIR_IND,                        /*! Incoming pairing request from master */
+    DM_SEC_SLAVE_REQ_IND,                   /*! Incoming security request from slave */
+    DM_SEC_CALC_OOB_IND,                    /*! Result of OOB Confirm Calculation Generation */
+    DM_SEC_ECC_KEY_IND,                     /*! Result of ECC Key Generation */
+    DM_SEC_COMPARE_IND,                     /*! Result of Just Works/Numeric Comparison Compare Value Calculation */
+    DM_SEC_KEYPRESS_IND,                    /*! Keypress indication from peer in passkey security */
+    DM_PRIV_RESOLVED_ADDR_IND,              /*! Private address resolved */
+    DM_CONN_READ_RSSI_IND,                  /*! Connection RSSI read */
+    DM_PRIV_ADD_DEV_TO_RES_LIST_IND,        /*! Device added to resolving list */
+    DM_PRIV_REM_DEV_FROM_RES_LIST_IND,      /*! Device removed from resolving list */
+    DM_PRIV_CLEAR_RES_LIST_IND,             /*! Resolving list cleared */
+    DM_PRIV_READ_PEER_RES_ADDR_IND,         /*! Peer resolving address read */
+    DM_PRIV_READ_LOCAL_RES_ADDR_IND,        /*! Local resolving address read */
+    DM_PRIV_SET_ADDR_RES_ENABLE_IND,        /*! Address resolving enable set */
+    DM_REM_CONN_PARAM_REQ_IND,              /*! Remote connection parameter requested */
+    DM_CONN_DATA_LEN_CHANGE_IND,            /*! Data length changed */
+    DM_CONN_WRITE_AUTH_TO_IND,              /*! Write authenticated payload complete */
+    DM_CONN_AUTH_TO_EXPIRED_IND,            /*! Authenticated payload timeout expired */
+    DM_PHY_READ_IND,                        /*! Read PHY */
+    DM_PHY_SET_DEF_IND,                     /*! Set default PHY */
+    DM_PHY_UPDATE_IND,                      /*! PHY update */
+    DM_ADV_SET_START_IND,                   /*! Advertising set(s) started */
+    DM_ADV_SET_STOP_IND,                    /*! Advertising set(s) stopped */
+    DM_SCAN_REQ_RCVD_IND,                   /*! Scan request received */
+    DM_EXT_SCAN_START_IND,                  /*! Extended scanning started */
+    DM_EXT_SCAN_STOP_IND,                   /*! Extended scanning stopped */
+    DM_EXT_SCAN_REPORT_IND,                 /*! Extended scan data received from peer device */
+    DM_PER_ADV_SET_START_IND,               /*! Periodic advertising set started */
+    DM_PER_ADV_SET_STOP_IND,                /*! Periodic advertising set stopped */
+    DM_PER_ADV_SYNC_EST_IND,                /*! Periodic advertising sync established */
+    DM_PER_ADV_SYNC_LOST_IND,               /*! Periodic advertising sync lost */
+    DM_PER_ADV_REPORT_IND,                  /*! Periodic advertising data received from peer device */
+    DM_REMOTE_FEATURES_IND,                 /*! Remote features from peer device */
+    DM_ERROR_IND,                           /*! General error */
+    DM_VENDOR_SPEC_IND,                     /*! Vendor specific event */
 };
 
 #define DM_CBACK_END                DM_VENDOR_SPEC_IND  /*! DM callback event ending value */
@@ -347,206 +346,186 @@ enum
 typedef uint8_t dmConnId_t;
 
 /*! Configuration structure */
-typedef struct
-{
-  uint8_t dummy;
+typedef struct {
+    uint8_t dummy;
 } dmCfg_t;
 
 /*! LTK data type */
-typedef struct
-{
-  uint8_t                   key[SMP_KEY_LEN];
-  uint8_t                   rand[SMP_RAND8_LEN];
-  uint16_t                  ediv;
+typedef struct {
+    uint8_t                   key[SMP_KEY_LEN];
+    uint8_t                   rand[SMP_RAND8_LEN];
+    uint16_t                  ediv;
 } dmSecLtk_t;
 
 /*! IRK data type */
-typedef struct
-{
-  uint8_t                   key[SMP_KEY_LEN];
-  bdAddr_t                  bdAddr;
-  uint8_t                   addrType;
+typedef struct {
+    uint8_t                   key[SMP_KEY_LEN];
+    bdAddr_t                  bdAddr;
+    uint8_t                   addrType;
 } dmSecIrk_t;
 
 /*! CSRK data type */
-typedef struct
-{
-  uint8_t                   key[SMP_KEY_LEN];
+typedef struct {
+    uint8_t                   key[SMP_KEY_LEN];
 } dmSecCsrk_t;
 
 /*! union of key types */
-typedef union
-{
-  dmSecLtk_t                ltk;
-  dmSecIrk_t                irk;
-  dmSecCsrk_t               csrk;
+typedef union {
+    dmSecLtk_t                ltk;
+    dmSecIrk_t                irk;
+    dmSecCsrk_t               csrk;
 } dmSecKey_t;
 
 /*! Data type for DM_SEC_PAIR_CMPL_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  uint8_t                   auth;         /*! Authentication and bonding flags */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    uint8_t                   auth;         /*! Authentication and bonding flags */
 } dmSecPairCmplIndEvt_t;
 
 /*! Data type for DM_SEC_ENCRYPT_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  bool_t                    usingLtk;     /*! TRUE if connection encrypted with LTK */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    bool_t                    usingLtk;     /*! TRUE if connection encrypted with LTK */
 } dmSecEncryptIndEvt_t;
 
 /*! Data type for DM_SEC_AUTH_REQ_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  bool_t                    oob;          /*! Out-of-band data requested */
-  bool_t                    display;      /*! TRUE if pin is to be displayed */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    bool_t                    oob;          /*! Out-of-band data requested */
+    bool_t                    display;      /*! TRUE if pin is to be displayed */
 } dmSecAuthReqIndEvt_t;
 
 /*! Data type for DM_SEC_PAIR_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  uint8_t                   auth;         /*! Authentication and bonding flags */
-  bool_t                    oob;          /*! Out-of-band pairing data present or not present */
-  uint8_t                   iKeyDist;     /*! Initiator key distribution flags */
-  uint8_t                   rKeyDist;     /*! Responder key distribution flags */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    uint8_t                   auth;         /*! Authentication and bonding flags */
+    bool_t                    oob;          /*! Out-of-band pairing data present or not present */
+    uint8_t                   iKeyDist;     /*! Initiator key distribution flags */
+    uint8_t                   rKeyDist;     /*! Responder key distribution flags */
 } dmSecPairIndEvt_t;
 
 /*! Data type for DM_SEC_SLAVE_REQ_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  uint8_t                   auth;         /*! Authentication and bonding flags */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    uint8_t                   auth;         /*! Authentication and bonding flags */
 } dmSecSlaveIndEvt_t;
 
 /*! Data type for DM_SEC_KEY_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;          /*! Header */
-  dmSecKey_t                keyData;      /*! Key data */
-  uint8_t                   type;         /*! Key type */
-  uint8_t                   secLevel;     /*! Security level of pairing when key was exchanged */
-  uint8_t                   encKeyLen;    /*! Length of encryption key used when data was transferred */
+typedef struct {
+    wsfMsgHdr_t               hdr;          /*! Header */
+    dmSecKey_t                keyData;      /*! Key data */
+    uint8_t                   type;         /*! Key type */
+    uint8_t                   secLevel;     /*! Security level of pairing when key was exchanged */
+    uint8_t                   encKeyLen;    /*! Length of encryption key used when data was transferred */
 } dmSecKeyIndEvt_t;
 
 /*! Data type for DM_SEC_COMPARE_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;                       /*! Header */
-  uint8_t                   confirm[SMP_CONFIRM_LEN];  /*! Confirm value */
+typedef struct {
+    wsfMsgHdr_t               hdr;                       /*! Header */
+    uint8_t                   confirm[SMP_CONFIRM_LEN];  /*! Confirm value */
 } dmSecCnfIndEvt_t;
 
 /*! Data type for DM_SEC_KEYPRESS_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;                       /*! Header */
-  uint8_t                   notificationType;          /*! Type of keypress notification */
+typedef struct {
+    wsfMsgHdr_t               hdr;                       /*! Header */
+    uint8_t                   notificationType;          /*! Type of keypress notification */
 } dmSecKeypressIndEvt_t;
 
-typedef struct
-{
-  wsfMsgHdr_t               hdr;                       /*! Header */
-  uint8_t                   confirm[SMP_CONFIRM_LEN];  /*! Local confirm value */
-  uint8_t                   random[SMP_RAND_LEN];      /*! Local random value */
+typedef struct {
+    wsfMsgHdr_t               hdr;                       /*! Header */
+    uint8_t                   confirm[SMP_CONFIRM_LEN];  /*! Local confirm value */
+    uint8_t                   random[SMP_RAND_LEN];      /*! Local random value */
 } dmSecOobCalcIndEvt_t;
 
 /*! Data type for DM_ADV_NEW_ADDR_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;                       /*! Header */
-  bdAddr_t                  addr;                      /*! New resolvable private address */
-  bool_t                    firstTime;                 /*! TRUE when address is generated for the first time */
+typedef struct {
+    wsfMsgHdr_t               hdr;                       /*! Header */
+    bdAddr_t                  addr;                      /*! New resolvable private address */
+    bool_t                    firstTime;                 /*! TRUE when address is generated for the first time */
 } dmAdvNewAddrIndEvt_t;
 
 /* Data structure for DM_ADV_SET_START_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;                       /*! Header */
-  uint8_t                   numSets;                   /*! Number of advertising sets */
-  uint8_t                   advHandle[DM_NUM_ADV_SETS];/*! Advertising handle array */
+typedef struct {
+    wsfMsgHdr_t               hdr;                       /*! Header */
+    uint8_t                   numSets;                   /*! Number of advertising sets */
+    uint8_t                   advHandle[DM_NUM_ADV_SETS];/*! Advertising handle array */
 } dmAdvSetStartEvt_t;
 
 /* Data structure for DM_PER_ADV_SET_START_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;                       /*! Header */
-  uint8_t                   advHandle;                 /*! Advertising handle */
+typedef struct {
+    wsfMsgHdr_t               hdr;                       /*! Header */
+    uint8_t                   advHandle;                 /*! Advertising handle */
 } dmPerAdvSetStartEvt_t;
 
 /* Data structure for DM_PER_ADV_SET_STOP_IND */
-typedef struct
-{
-  wsfMsgHdr_t               hdr;                       /*! Header */
-  uint8_t                   advHandle;                 /*! Advertising handle */
+typedef struct {
+    wsfMsgHdr_t               hdr;                       /*! Header */
+    uint8_t                   advHandle;                 /*! Advertising handle */
 } dmPerAdvSetStopEvt_t;
 
 /*! Union of DM callback event data types */
-typedef union
-{
-  wsfMsgHdr_t                        hdr;              /*! Common header */
-  /*! common header used by                                DM_RESET_CMPL_IND */
-  /*! common header used by                                DM_ADV_START_IND */
-  /*! common header used by                                DM_ADV_STOP_IND */
-  dmAdvNewAddrIndEvt_t               advNewAddr;       /*! DM_ADV_NEW_ADDR_IND */
-  /*! common header used by                                DM_SCAN_START_IND */
-  /*! common header used by                                DM_SCAN_STOP_IND */
-  hciLeAdvReportEvt_t                scanReport;       /*! DM_SCAN_REPORT_IND */
-  hciLeConnCmplEvt_t                 connOpen;         /*! DM_CONN_OPEN_IND */
-  hciDisconnectCmplEvt_t             connClose;        /*! DM_CONN_CLOSE_IND */
-  hciLeConnUpdateCmplEvt_t           connUpdate;       /*! DM_CONN_UPDATE_IND */
-  dmSecPairCmplIndEvt_t              pairCmpl;         /*! DM_SEC_PAIR_CMPL_IND */
-  /*! common header used by                                DM_SEC_PAIR_FAIL_IND */
-  dmSecEncryptIndEvt_t               encryptInd;       /*! DM_SEC_ENCRYPT_IND */
-  /*! common header used by                                DM_SEC_ENCRYPT_FAIL_IND */
-  dmSecAuthReqIndEvt_t               authReq;          /*! DM_SEC_AUTH_REQ_IND */
-  dmSecKeyIndEvt_t                   keyInd;           /*! DM_SEC_KEY_IND */
-  hciLeLtkReqEvt_t                   ltkReqInd;        /*! DM_SEC_LTK_REQ_IND */
-  dmSecPairIndEvt_t                  pairInd;          /*! DM_SEC_PAIR_IND */
-  dmSecSlaveIndEvt_t                 slaveInd;         /*! DM_SEC_SLAVE_REQ_IND */
-  dmSecOobCalcIndEvt_t               oobCalcInd;       /*! DM_SEC_CALC_OOB_IND */
-  secEccMsg_t                        eccMsg;           /*! DM_SEC_ECC_KEY_IND */
-  dmSecCnfIndEvt_t                   cnfInd;           /*! DM_SEC_COMPARE_IND */
-  dmSecKeypressIndEvt_t              keypressInd;      /*! DM_SEC_KEYPRESS_IND */
-  /*! common header used by                                DM_PRIV_RESOLVED_ADDR_IND */
-  hciReadRssiCmdCmplEvt_t            readRssi;         /*! DM_CONN_READ_RSSI_IND */
-  hciLeAddDevToResListCmdCmplEvt_t   addDevToResList;  /*! DM_PRIV_ADD_DEV_TO_RES_LIST_IND */
-  hciLeRemDevFromResListCmdCmplEvt_t remDevFromResList;/*! DM_PRIV_REM_DEV_FROM_RES_LIST_IND */
-  hciLeClearResListCmdCmplEvt_t      clearResList;     /*! DM_PRIV_CLEAR_RES_LIST_IND */
-  hciLeReadPeerResAddrCmdCmplEvt_t   readPeerResAddr;  /*! DM_PRIV_READ_PEER_RES_ADDR_IND */
-  hciLeReadLocalResAddrCmdCmplEvt_t  readLocalResAddr; /*! DM_PRIV_READ_LOCAL_RES_ADDR_IND */
-  hciLeSetAddrResEnableCmdCmplEvt_t  setAddrResEnable; /*! DM_PRIV_SET_ADDR_RES_ENABLE_IND */
-  hciLeRemConnParamReqEvt_t          remConnParamReq;  /*! DM_REM_CONN_PARAM_REQ_IND */
-  hciLeDataLenChangeEvt_t            dataLenChange;    /*! DM_CONN_DATA_LEN_CHANGE_IND */
-  hciWriteAuthPayloadToCmdCmplEvt_t  writeAuthTo;      /*! DM_CONN_WRITE_AUTH_TO_IND */
-  hciAuthPayloadToExpiredEvt_t       authToExpired;    /*! DM_CONN_AUTH_TO_EXPIRED_IND */
-  hciLeReadPhyCmdCmplEvt_t           readPhy;          /*! DM_PHY_READ_IND */
-  hciLeSetDefPhyCmdCmplEvt_t         setDefPhy;        /*! DM_PHY_SET_DEF_IND */
-  hciLePhyUpdateEvt_t                phyUpdate;        /*! DM_PHY_UPDATE_IND */
-  dmAdvSetStartEvt_t                 advSetStart;      /*! DM_ADV_SET_START_IND */
-  hciLeAdvSetTermEvt_t               advSetStop;       /*! DM_ADV_SET_STOP_IND */
-  hciLeScanReqRcvdEvt_t              scanReqRcvd;      /*! DM_SCAN_REQ_RCVD_IND */
-  /*! common header used by                                DM_EXT_SCAN_START_IND */
-  /*! common header used by                                DM_EXT_SCAN_STOP_IND */
-  hciLeExtAdvReportEvt_t             extScanReport;    /*! DM_EXT_SCAN_REPORT_IND */
-  dmPerAdvSetStartEvt_t              perAdvSetStart;   /*! DM_PER_ADV_SET_START_IND */
-  dmPerAdvSetStopEvt_t               perAdvSetStop;    /*! DM_PER_ADV_SET_STOP_IND */
-  hciLePerAdvSyncEstEvt_t            perAdvSyncEst;    /*! DM_PER_ADV_SYNC_EST_IND */
-  hciLePerAdvSyncLostEvt_t           perAdvSyncLost;   /*! DM_PER_ADV_SYNC_LOST_IND */
-  hciLePerAdvReportEvt_t             perAdvReport;     /*! DM_PER_ADV_REPORT_IND */
-  hciLeReadRemoteFeatCmplEvt_t       readRemoteFeat;   /*! DM_REMOTE_FEATURES_IND */
-  /*! common header used by                                DM_ERROR_IND */
-  hciVendorSpecEvt_t                 vendorSpec;       /*! DM_VENDOR_SPEC_IND */
+typedef union {
+    wsfMsgHdr_t                        hdr;              /*! Common header */
+    /*! common header used by                                DM_RESET_CMPL_IND */
+    /*! common header used by                                DM_ADV_START_IND */
+    /*! common header used by                                DM_ADV_STOP_IND */
+    dmAdvNewAddrIndEvt_t               advNewAddr;       /*! DM_ADV_NEW_ADDR_IND */
+    /*! common header used by                                DM_SCAN_START_IND */
+    /*! common header used by                                DM_SCAN_STOP_IND */
+    hciLeAdvReportEvt_t                scanReport;       /*! DM_SCAN_REPORT_IND */
+    hciLeConnCmplEvt_t                 connOpen;         /*! DM_CONN_OPEN_IND */
+    hciDisconnectCmplEvt_t             connClose;        /*! DM_CONN_CLOSE_IND */
+    hciLeConnUpdateCmplEvt_t           connUpdate;       /*! DM_CONN_UPDATE_IND */
+    dmSecPairCmplIndEvt_t              pairCmpl;         /*! DM_SEC_PAIR_CMPL_IND */
+    /*! common header used by                                DM_SEC_PAIR_FAIL_IND */
+    dmSecEncryptIndEvt_t               encryptInd;       /*! DM_SEC_ENCRYPT_IND */
+    /*! common header used by                                DM_SEC_ENCRYPT_FAIL_IND */
+    dmSecAuthReqIndEvt_t               authReq;          /*! DM_SEC_AUTH_REQ_IND */
+    dmSecKeyIndEvt_t                   keyInd;           /*! DM_SEC_KEY_IND */
+    hciLeLtkReqEvt_t                   ltkReqInd;        /*! DM_SEC_LTK_REQ_IND */
+    dmSecPairIndEvt_t                  pairInd;          /*! DM_SEC_PAIR_IND */
+    dmSecSlaveIndEvt_t                 slaveInd;         /*! DM_SEC_SLAVE_REQ_IND */
+    dmSecOobCalcIndEvt_t               oobCalcInd;       /*! DM_SEC_CALC_OOB_IND */
+    secEccMsg_t                        eccMsg;           /*! DM_SEC_ECC_KEY_IND */
+    dmSecCnfIndEvt_t                   cnfInd;           /*! DM_SEC_COMPARE_IND */
+    dmSecKeypressIndEvt_t              keypressInd;      /*! DM_SEC_KEYPRESS_IND */
+    /*! common header used by                                DM_PRIV_RESOLVED_ADDR_IND */
+    hciReadRssiCmdCmplEvt_t            readRssi;         /*! DM_CONN_READ_RSSI_IND */
+    hciLeAddDevToResListCmdCmplEvt_t   addDevToResList;  /*! DM_PRIV_ADD_DEV_TO_RES_LIST_IND */
+    hciLeRemDevFromResListCmdCmplEvt_t remDevFromResList;/*! DM_PRIV_REM_DEV_FROM_RES_LIST_IND */
+    hciLeClearResListCmdCmplEvt_t      clearResList;     /*! DM_PRIV_CLEAR_RES_LIST_IND */
+    hciLeReadPeerResAddrCmdCmplEvt_t   readPeerResAddr;  /*! DM_PRIV_READ_PEER_RES_ADDR_IND */
+    hciLeReadLocalResAddrCmdCmplEvt_t  readLocalResAddr; /*! DM_PRIV_READ_LOCAL_RES_ADDR_IND */
+    hciLeSetAddrResEnableCmdCmplEvt_t  setAddrResEnable; /*! DM_PRIV_SET_ADDR_RES_ENABLE_IND */
+    hciLeRemConnParamReqEvt_t          remConnParamReq;  /*! DM_REM_CONN_PARAM_REQ_IND */
+    hciLeDataLenChangeEvt_t            dataLenChange;    /*! DM_CONN_DATA_LEN_CHANGE_IND */
+    hciWriteAuthPayloadToCmdCmplEvt_t  writeAuthTo;      /*! DM_CONN_WRITE_AUTH_TO_IND */
+    hciAuthPayloadToExpiredEvt_t       authToExpired;    /*! DM_CONN_AUTH_TO_EXPIRED_IND */
+    hciLeReadPhyCmdCmplEvt_t           readPhy;          /*! DM_PHY_READ_IND */
+    hciLeSetDefPhyCmdCmplEvt_t         setDefPhy;        /*! DM_PHY_SET_DEF_IND */
+    hciLePhyUpdateEvt_t                phyUpdate;        /*! DM_PHY_UPDATE_IND */
+    dmAdvSetStartEvt_t                 advSetStart;      /*! DM_ADV_SET_START_IND */
+    hciLeAdvSetTermEvt_t               advSetStop;       /*! DM_ADV_SET_STOP_IND */
+    hciLeScanReqRcvdEvt_t              scanReqRcvd;      /*! DM_SCAN_REQ_RCVD_IND */
+    /*! common header used by                                DM_EXT_SCAN_START_IND */
+    /*! common header used by                                DM_EXT_SCAN_STOP_IND */
+    hciLeExtAdvReportEvt_t             extScanReport;    /*! DM_EXT_SCAN_REPORT_IND */
+    dmPerAdvSetStartEvt_t              perAdvSetStart;   /*! DM_PER_ADV_SET_START_IND */
+    dmPerAdvSetStopEvt_t               perAdvSetStop;    /*! DM_PER_ADV_SET_STOP_IND */
+    hciLePerAdvSyncEstEvt_t            perAdvSyncEst;    /*! DM_PER_ADV_SYNC_EST_IND */
+    hciLePerAdvSyncLostEvt_t           perAdvSyncLost;   /*! DM_PER_ADV_SYNC_LOST_IND */
+    hciLePerAdvReportEvt_t             perAdvReport;     /*! DM_PER_ADV_REPORT_IND */
+    hciLeReadRemoteFeatCmplEvt_t       readRemoteFeat;   /*! DM_REMOTE_FEATURES_IND */
+    /*! common header used by                                DM_ERROR_IND */
+    hciVendorSpecEvt_t                 vendorSpec;       /*! DM_VENDOR_SPEC_IND */
 } dmEvt_t;
 
 /*! Data type for DmSecSetOob */
-typedef struct
-{
-  uint8_t localRandom[SMP_RAND_LEN];      /*! Random value of the local device */
-  uint8_t localConfirm[SMP_CONFIRM_LEN];  /*! Confirm value of the local device */
-  uint8_t peerRandom[SMP_RAND_LEN];       /*! Random value of the peer device */
-  uint8_t peerConfirm[SMP_CONFIRM_LEN];   /*! Confirm value of the peer device */
+typedef struct {
+    uint8_t localRandom[SMP_RAND_LEN];      /*! Random value of the local device */
+    uint8_t localConfirm[SMP_CONFIRM_LEN];  /*! Confirm value of the local device */
+    uint8_t peerRandom[SMP_RAND_LEN];       /*! Random value of the peer device */
+    uint8_t peerConfirm[SMP_CONFIRM_LEN];   /*! Confirm value of the peer device */
 } dmSecLescOobCfg_t;
 
 /*! Callback type */
@@ -1092,7 +1071,7 @@ bool_t DmScanModeExt(void);
  *
  *  \return None.
  */
- /*************************************************************************************************/
+/*************************************************************************************************/
 void DmScanStart(uint8_t scanPhys, uint8_t mode, const uint8_t *pScanType, bool_t filterDup,
                  uint16_t duration, uint16_t period);
 

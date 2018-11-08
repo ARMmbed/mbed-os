@@ -72,14 +72,13 @@ nsapi_error_t NetworkStack::getsockopt(void *handle, int level, int optname, voi
 
 
 // NetworkStackWrapper class for encapsulating the raw nsapi_stack structure
-class NetworkStackWrapper : public NetworkStack
-{
+class NetworkStackWrapper : public NetworkStack {
 private:
     inline nsapi_stack_t *_stack()
     {
         return reinterpret_cast<nsapi_stack_t *>(
-                reinterpret_cast<uint8_t *>(this)
-                - offsetof(nsapi_stack_t, _stack_buffer));
+                   reinterpret_cast<uint8_t *>(this)
+                   - offsetof(nsapi_stack_t, _stack_buffer));
     }
 
     inline const nsapi_stack_api_t *_stack_api()
@@ -282,7 +281,7 @@ protected:
 NetworkStack *nsapi_create_stack(nsapi_stack_t *stack)
 {
     MBED_STATIC_ASSERT(sizeof stack->_stack_buffer >= sizeof(NetworkStackWrapper),
-            "The nsapi_stack_t stack buffer must fit a NetworkStackWrapper");
+                       "The nsapi_stack_t stack buffer must fit a NetworkStackWrapper");
     return new (stack->_stack_buffer) NetworkStackWrapper;
 }
 

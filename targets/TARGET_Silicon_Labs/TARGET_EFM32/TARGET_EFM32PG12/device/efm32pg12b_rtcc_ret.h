@@ -36,9 +36,8 @@
 /**************************************************************************//**
  * @brief RTCC_RET EFM32PG12B RTCC RET
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t REG; /**< Retention register  */
+typedef struct {
+    __IOM uint32_t REG; /**< Retention register  */
 } RTCC_RET_TypeDef;
 
 /** @} End of group Parts */

@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_FLASH_RAMFUNC_H
 #define __STM32L0xx_FLASH_RAMFUNC_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,7 +52,7 @@
 
 /** @defgroup FLASH_RAMFUNC FLASH Ram Function
   * @{
-  */ 
+  */
 
 /* Exported functions --------------------------------------------------------*/
 
@@ -65,27 +65,27 @@
   *         These functions are defined inside the "stm32l0xx_hal_flash_ramfunc.c"
   *         file.
   */
-  
+
 /** @defgroup FLASH_RAMFUNC_Exported_Functions_Group1 FLASH RAM peripheral features functions
   * @{
   */
-__RAM_FUNC  HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer);
+__RAM_FUNC  HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t *pBuffer);
 __RAM_FUNC  HAL_FLASHEx_EnableRunPowerDown(void);
 __RAM_FUNC  HAL_FLASHEx_DisableRunPowerDown(void);
-__RAM_FUNC  HAL_FLASHRAM_GetError(uint32_t * error);
+__RAM_FUNC  HAL_FLASHRAM_GetError(uint32_t *error);
 /**
   * @}
-  */ 
+  */
 
 #if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 /** @defgroup FLASH_RAMFUNC_Exported_Functions_Group2 FLASH RAM programming and erasing operation functions
   * @{
   */
 __RAM_FUNC HAL_FLASHEx_EraseParallelPage(uint32_t Page_Address1, uint32_t Page_Address2);
-__RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuffer1, uint32_t Address2, uint32_t* pBuffer2);
+__RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t *pBuffer1, uint32_t Address2, uint32_t *pBuffer2);
 /**
   * @}
-  */ 
+  */
 #endif /* STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
 
 /**
@@ -104,7 +104,7 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}

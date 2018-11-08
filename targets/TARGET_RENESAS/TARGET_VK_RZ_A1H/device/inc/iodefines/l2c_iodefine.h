@@ -30,8 +30,8 @@
 #define L2C_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_l2c
-{                                                          /* L2C              */
+struct st_l2c {
+    /* L2C              */
     volatile uint32_t  REG0_CACHE_ID;                          /*  REG0_CACHE_ID   */
     volatile uint32_t  REG0_CACHE_TYPE;                        /*  REG0_CACHE_TYPE */
     volatile uint8_t   dummy8[248];                            /*                  */
@@ -66,38 +66,38 @@ struct st_l2c
     volatile uint32_t  REG7_CLEAN_INV_INDEX;                   /*  REG7_CLEAN_INV_INDEX */
     volatile uint32_t  REG7_CLEAN_INV_WAY;                     /*  REG7_CLEAN_INV_WAY */
     volatile uint8_t   dummy17[256];                           /*                  */
-/* start of struct st_l2c_from_reg9_d_lockdown0 */
+    /* start of struct st_l2c_from_reg9_d_lockdown0 */
     volatile uint32_t  REG9_D_LOCKDOWN0;                       /*  REG9_D_LOCKDOWN0 */
     volatile uint32_t  REG9_I_LOCKDOWN0;                       /*  REG9_I_LOCKDOWN0 */
-/* end of struct st_l2c_from_reg9_d_lockdown0 */
-/* start of struct st_l2c_from_reg9_d_lockdown0 */
+    /* end of struct st_l2c_from_reg9_d_lockdown0 */
+    /* start of struct st_l2c_from_reg9_d_lockdown0 */
     volatile uint32_t  REG9_D_LOCKDOWN1;                       /*  REG9_D_LOCKDOWN1 */
     volatile uint32_t  REG9_I_LOCKDOWN1;                       /*  REG9_I_LOCKDOWN1 */
-/* end of struct st_l2c_from_reg9_d_lockdown0 */
-/* start of struct st_l2c_from_reg9_d_lockdown0 */
+    /* end of struct st_l2c_from_reg9_d_lockdown0 */
+    /* start of struct st_l2c_from_reg9_d_lockdown0 */
     volatile uint32_t  REG9_D_LOCKDOWN2;                       /*  REG9_D_LOCKDOWN2 */
     volatile uint32_t  REG9_I_LOCKDOWN2;                       /*  REG9_I_LOCKDOWN2 */
-/* end of struct st_l2c_from_reg9_d_lockdown0 */
-/* start of struct st_l2c_from_reg9_d_lockdown0 */
+    /* end of struct st_l2c_from_reg9_d_lockdown0 */
+    /* start of struct st_l2c_from_reg9_d_lockdown0 */
     volatile uint32_t  REG9_D_LOCKDOWN3;                       /*  REG9_D_LOCKDOWN3 */
     volatile uint32_t  REG9_I_LOCKDOWN3;                       /*  REG9_I_LOCKDOWN3 */
-/* end of struct st_l2c_from_reg9_d_lockdown0 */
-/* start of struct st_l2c_from_reg9_d_lockdown0 */
+    /* end of struct st_l2c_from_reg9_d_lockdown0 */
+    /* start of struct st_l2c_from_reg9_d_lockdown0 */
     volatile uint32_t  REG9_D_LOCKDOWN4;                       /*  REG9_D_LOCKDOWN4 */
     volatile uint32_t  REG9_I_LOCKDOWN4;                       /*  REG9_I_LOCKDOWN4 */
-/* end of struct st_l2c_from_reg9_d_lockdown0 */
-/* start of struct st_l2c_from_reg9_d_lockdown0 */
+    /* end of struct st_l2c_from_reg9_d_lockdown0 */
+    /* start of struct st_l2c_from_reg9_d_lockdown0 */
     volatile uint32_t  REG9_D_LOCKDOWN5;                       /*  REG9_D_LOCKDOWN5 */
     volatile uint32_t  REG9_I_LOCKDOWN5;                       /*  REG9_I_LOCKDOWN5 */
-/* end of struct st_l2c_from_reg9_d_lockdown0 */
-/* start of struct st_l2c_from_reg9_d_lockdown0 */
+    /* end of struct st_l2c_from_reg9_d_lockdown0 */
+    /* start of struct st_l2c_from_reg9_d_lockdown0 */
     volatile uint32_t  REG9_D_LOCKDOWN6;                       /*  REG9_D_LOCKDOWN6 */
     volatile uint32_t  REG9_I_LOCKDOWN6;                       /*  REG9_I_LOCKDOWN6 */
-/* end of struct st_l2c_from_reg9_d_lockdown0 */
-/* start of struct st_l2c_from_reg9_d_lockdown0 */
+    /* end of struct st_l2c_from_reg9_d_lockdown0 */
+    /* start of struct st_l2c_from_reg9_d_lockdown0 */
     volatile uint32_t  REG9_D_LOCKDOWN7;                       /*  REG9_D_LOCKDOWN7 */
     volatile uint32_t  REG9_I_LOCKDOWN7;                       /*  REG9_I_LOCKDOWN7 */
-/* end of struct st_l2c_from_reg9_d_lockdown0 */
+    /* end of struct st_l2c_from_reg9_d_lockdown0 */
     volatile uint8_t   dummy18[16];                            /*                  */
     volatile uint32_t  REG9_LOCK_LINE_EN;                      /*  REG9_LOCK_LINE_EN */
     volatile uint32_t  REG9_UNLOCK_WAY;                        /*  REG9_UNLOCK_WAY */
@@ -113,8 +113,7 @@ struct st_l2c
 };
 
 
-struct st_l2c_from_reg9_d_lockdown0
-{
+struct st_l2c_from_reg9_d_lockdown0 {
     volatile uint32_t  REG9_D_LOCKDOWN0;                       /*  REG9_D_LOCKDOWN0 */
     volatile uint32_t  REG9_I_LOCKDOWN0;                       /*  REG9_I_LOCKDOWN0 */
 };

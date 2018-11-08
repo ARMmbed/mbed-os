@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -27,8 +27,8 @@
 typedef struct _HAL_UART_DMA_MULTIBLK_ {
     volatile GDMA_CH_LLI_ELE GdmaChLli[UART_DMA_MBLK_NUM];
     struct GDMA_CH_LLI Lli[UART_DMA_MBLK_NUM];
-    struct BLOCK_SIZE_LIST BlockSizeList[UART_DMA_MBLK_NUM];   
-}UART_DMA_MULTIBLK, *PUART_DMA_MULTIBLK;
+    struct BLOCK_SIZE_LIST BlockSizeList[UART_DMA_MBLK_NUM];
+} UART_DMA_MULTIBLK, *PUART_DMA_MULTIBLK;
 
 typedef struct _UART_DMA_CONFIG_ {
     u8 TxDmaEnable;
@@ -46,7 +46,7 @@ typedef struct _UART_DMA_CONFIG_ {
     u8 TxDmaMBChnl;     // is using DMA multiple block channel
     u8 RxDmaMBChnl;     // is using DMA multiple block channel
 #endif
-}UART_DMA_CONFIG, *PUART_DMA_CONFIG;
+} UART_DMA_CONFIG, *PUART_DMA_CONFIG;
 
 typedef struct _HAL_RUART_ADAPTER_ {
     u32 BaudRate;
@@ -98,7 +98,7 @@ typedef struct _HAL_RUART_ADAPTER_ {
     u16 *pDefOvsrAdjTbl_8;       // point to the table of OVSR-Adj for pre-defined baud rate
     PUART_DMA_MULTIBLK pTxDMAMBlk;  // point to the Link List Table of the DMA Multiple Block
     PUART_DMA_MULTIBLK pRxDMAMBlk;  // point to the Link List Table of the DMA Multiple Block
-    u32 BaudRateUsing;             // Current using Baud-Rate    
+    u32 BaudRateUsing;             // Current using Baud-Rate
     u8 WordLenUsing;             // Current using Word Length
     u8 ParityUsing;             // Current using Parity check
     u8 RTSCtrl;               // Software RTS Control
@@ -115,34 +115,34 @@ typedef struct _HAL_RUART_ADAPTER_ {
     VOID *TaskYieldPara;   // the agrument (pointer) for TaskYield
 #endif    // #if CONFIG_CHIP_E_CUT
 #endif
-}HAL_RUART_ADAPTER, *PHAL_RUART_ADAPTER;
+} HAL_RUART_ADAPTER, *PHAL_RUART_ADAPTER;
 
 typedef struct _HAL_RUART_OP_ {
     VOID (*HalRuartAdapterLoadDef)(VOID *pAdp, u8 UartIdx);    // Load UART adapter default setting
     VOID (*HalRuartTxGdmaLoadDef)(VOID *pAdp, VOID *pCfg);     // Load TX GDMA default setting
     VOID (*HalRuartRxGdmaLoadDef)(VOID *pAdp, VOID *pCfg);     // Load RX GDMA default setting
-    HAL_Status (*HalRuartResetRxFifo)(VOID *Data);
-    HAL_Status (*HalRuartInit)(VOID *Data);
+    HAL_Status(*HalRuartResetRxFifo)(VOID *Data);
+    HAL_Status(*HalRuartInit)(VOID *Data);
     VOID (*HalRuartDeInit)(VOID *Data);
-    HAL_Status (*HalRuartPutC)(VOID *Data, u8 TxData);
-    u32  (*HalRuartSend)(VOID *Data, u8 *pTxData, u32 Length, u32 Timeout);
-    HAL_Status  (*HalRuartIntSend)(VOID *Data, u8 *pTxData, u32 Length);
-    HAL_Status  (*HalRuartDmaSend)(VOID *Data, u8 *pTxData, u32 Length);
-    HAL_Status  (*HalRuartStopSend)(VOID *Data);
-    HAL_Status (*HalRuartGetC)(VOID *Data, u8 *pRxByte);
-    u32  (*HalRuartRecv)(VOID *Data, u8  *pRxData, u32 Length, u32 Timeout);
-    HAL_Status  (*HalRuartIntRecv)(VOID *Data, u8  *pRxData, u32 Length);
-    HAL_Status  (*HalRuartDmaRecv)(VOID *Data, u8  *pRxData, u32 Length);
-    HAL_Status  (*HalRuartStopRecv)(VOID *Data);
-    u8   (*HalRuartGetIMR)(VOID *Data);
+    HAL_Status(*HalRuartPutC)(VOID *Data, u8 TxData);
+    u32(*HalRuartSend)(VOID *Data, u8 *pTxData, u32 Length, u32 Timeout);
+    HAL_Status(*HalRuartIntSend)(VOID *Data, u8 *pTxData, u32 Length);
+    HAL_Status(*HalRuartDmaSend)(VOID *Data, u8 *pTxData, u32 Length);
+    HAL_Status(*HalRuartStopSend)(VOID *Data);
+    HAL_Status(*HalRuartGetC)(VOID *Data, u8 *pRxByte);
+    u32(*HalRuartRecv)(VOID *Data, u8  *pRxData, u32 Length, u32 Timeout);
+    HAL_Status(*HalRuartIntRecv)(VOID *Data, u8  *pRxData, u32 Length);
+    HAL_Status(*HalRuartDmaRecv)(VOID *Data, u8  *pRxData, u32 Length);
+    HAL_Status(*HalRuartStopRecv)(VOID *Data);
+    u8(*HalRuartGetIMR)(VOID *Data);
     VOID (*HalRuartSetIMR)(VOID *Data);
-    u32  (*HalRuartGetDebugValue)(VOID *Data, u32 DbgSel);
+    u32(*HalRuartGetDebugValue)(VOID *Data, u32 DbgSel);
     VOID (*HalRuartDmaInit)(VOID *Data);
     VOID (*HalRuartRTSCtrl)(VOID *Data, BOOLEAN RtsCtrl);
     VOID (*HalRuartRegIrq)(VOID *Data);
     VOID (*HalRuartIntEnable)(VOID *Data);
     VOID (*HalRuartIntDisable)(VOID *Data);
-}HAL_RUART_OP, *PHAL_RUART_OP;
+} HAL_RUART_OP, *PHAL_RUART_OP;
 
 typedef struct _RUART_DATA_ {
     PHAL_RUART_ADAPTER pHalRuartAdapter;
@@ -150,24 +150,24 @@ typedef struct _RUART_DATA_ {
     u8   BinaryData;
     u8   SendBuffer;
     u8   RecvBuffer;
-}RUART_DATA, *PRUART_DATA;
+} RUART_DATA, *PRUART_DATA;
 
 typedef struct _RUART_ADAPTER_ {
     PHAL_RUART_OP      pHalRuartOp;
     PHAL_RUART_ADAPTER pHalRuartAdapter;
     PUART_DMA_CONFIG   pHalRuartDmaCfg;
-}RUART_ADAPTER, *PRUART_ADAPTER;
+} RUART_ADAPTER, *PRUART_ADAPTER;
 
 extern VOID
 HalRuartOpInit(
-        IN VOID *Data
+    IN VOID *Data
 );
 
 extern HAL_Status
 HalRuartTxGdmaInit(
     PHAL_RUART_ADAPTER pHalRuartAdapter,
     PUART_DMA_CONFIG pUartGdmaConfig,
-    u8 IsMultiBlk    
+    u8 IsMultiBlk
 );
 
 extern VOID
@@ -179,7 +179,7 @@ extern HAL_Status
 HalRuartRxGdmaInit(
     PHAL_RUART_ADAPTER pHalRuartAdapter,
     PUART_DMA_CONFIG pUartGdmaConfig,
-    u8 IsMultiBlk    
+    u8 IsMultiBlk
 );
 
 extern VOID
@@ -202,12 +202,12 @@ HalRuartResetTRxFifo(
     IN VOID *Data
 );
 
-extern HAL_Status 
+extern HAL_Status
 HalRuartSetBaudRate(
-        IN VOID *Data
+    IN VOID *Data
 );
 
-extern HAL_Status 
+extern HAL_Status
 HalRuartInit(
     IN VOID *Data
 );
@@ -217,17 +217,17 @@ HalRuartDeInit(
     IN VOID *Data
 );
 
-extern HAL_Status 
+extern HAL_Status
 HalRuartDisable(
     IN VOID *Data
 );
 
-extern HAL_Status 
+extern HAL_Status
 HalRuartEnable(
     IN VOID *Data
 );
 
-HAL_Status 
+HAL_Status
 HalRuartFlowCtrl(
     IN VOID *Data
 );
@@ -257,8 +257,8 @@ HalRuartDmaRecv(
 );
 
 extern const HAL_RUART_OP _HalRuartOp;
-extern HAL_Status RuartLock (PHAL_RUART_ADAPTER pHalRuartAdapter);
-extern VOID RuartUnLock (PHAL_RUART_ADAPTER pHalRuartAdapter);
+extern HAL_Status RuartLock(PHAL_RUART_ADAPTER pHalRuartAdapter);
+extern VOID RuartUnLock(PHAL_RUART_ADAPTER pHalRuartAdapter);
 
 #endif
 

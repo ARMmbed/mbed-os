@@ -27,21 +27,23 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */ 
+ */
 #include "cmsis_nvic.h"
 
 #define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Vectors positioned at start of RAM
 #define NVIC_FLASH_VECTOR_ADDRESS (0x00000000)  // Initial vector position in flash
 
 
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
+{
     static volatile uint32_t *vectors = (uint32_t *)NVIC_RAM_VECTOR_ADDRESS;
 
     vectors[IRQn + 16] = vector;
 }
 
-uint32_t NVIC_GetVector(IRQn_Type IRQn) {
-    uint32_t *vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+uint32_t NVIC_GetVector(IRQn_Type IRQn)
+{
+    uint32_t *vectors = (uint32_t *)NVIC_RAM_VECTOR_ADDRESS;
     // Return the vector
     return vectors[IRQn + 16];
 }

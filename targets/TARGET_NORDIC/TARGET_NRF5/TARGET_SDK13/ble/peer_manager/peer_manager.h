@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -51,7 +51,7 @@
  *          device and functions for manipulating the stored data.
  *
  *          This module uses Flash Data Storage (FDS) to interface with persistent storage. The
- *          Peer Manager needs exclusive use of certain FDS file IDs and record keys. See 
+ *          Peer Manager needs exclusive use of certain FDS file IDs and record keys. See
  *          @ref lib_fds_functionality_keys for more information.
  */
 
@@ -75,8 +75,7 @@ extern "C" {
 
 /**@brief Security status of a connection.
  */
-typedef struct
-{
+typedef struct {
     uint8_t connected      : 1; /**< @brief The connection is active (not disconnected). */
     uint8_t encrypted      : 1; /**< @brief Communication on this link is encrypted. */
     uint8_t mitm_protected : 1; /**< @brief The encrypted communication is also protected against man-in-the-middle attacks. */
@@ -86,8 +85,7 @@ typedef struct
 
 /**@brief Types of events that can come from the @ref peer_manager module.
  */
-typedef enum
-{
+typedef enum {
     PM_EVT_BONDED_PEER_CONNECTED,           /**< @brief A connected peer has been identified as one with which we have a bond. When performing bonding with a peer for the first time, this event will not be sent until a new connection is established with the peer. When we are central, this event is always sent when the Peer Manager receives the @ref BLE_GAP_EVT_CONNECTED event. When we are peripheral, this event might in rare cases arrive later. */
     PM_EVT_CONN_SEC_START,                  /**< @brief A security procedure has started on a link, initiated either locally or remotely. The security procedure is using the last parameters provided via @ref pm_sec_params_set. This event is always followed by either a @ref PM_EVT_CONN_SEC_SUCCEEDED or a @ref PM_EVT_CONN_SEC_FAILED event. This is an informational event; no action is needed for the procedure to proceed. */
     PM_EVT_CONN_SEC_SUCCEEDED,              /**< @brief A link has been encrypted, either as a result of a call to @ref pm_conn_secure or a result of an action by the peer. The event structure contains more information about the circumstances. This event might contain a peer ID with the value @ref PM_PEER_ID_INVALID, which means that the peer (central) used an address that could not be identified, but it used an encryption key (LTK) that is present in the database. */
@@ -110,16 +108,14 @@ typedef enum
 
 /**@brief Parameters specific to the @ref PM_EVT_CONN_SEC_SUCCEEDED event.
  */
-typedef struct
-{
+typedef struct {
     pm_conn_sec_procedure_t procedure; /**< @brief The procedure that led to securing the link. */
 } pm_conn_secured_evt_t;
 
 
 /**@brief Parameters specific to the @ref PM_EVT_CONN_SEC_FAILED event.
  */
-typedef struct
-{
+typedef struct {
     pm_conn_sec_procedure_t  procedure; /**< @brief The procedure that failed. */
     pm_sec_error_code_t error;          /**< @brief An error code that describes the failure. */
     uint8_t             error_src;      /**< @brief The party that raised the error, see @ref BLE_GAP_SEC_STATUS_SOURCES. */
@@ -128,8 +124,7 @@ typedef struct
 
 /**@brief Actions that can be performed to peer data in persistent storage.
  */
-typedef enum
-{
+typedef enum {
     PM_PEER_DATA_OP_UPDATE, /**< @brief Writing or overwriting the data. */
     PM_PEER_DATA_OP_DELETE, /**< @brief Removing the data. */
 } pm_peer_data_op_t;
@@ -137,8 +132,7 @@ typedef enum
 
 /**@brief Parameters specific to the @ref PM_EVT_PEER_DATA_UPDATE_SUCCEEDED event.
  */
-typedef struct
-{
+typedef struct {
     pm_peer_data_id_t data_id;           /**< @brief The type of the data that was changed. */
     pm_peer_data_op_t action;            /**< @brief What happened to the data. */
     uint8_t           flash_changed : 1; /**< @brief If this is false, no operation was done in flash, because the value was already what it should be. Please note that in certain scenarios, this flag will be true even if the new value is the same as the old. */
@@ -148,8 +142,7 @@ typedef struct
 
 /**@brief Parameters specific to the @ref PM_EVT_PEER_DATA_UPDATE_FAILED event.
  */
-typedef struct
-{
+typedef struct {
     pm_peer_data_id_t data_id; /**< @brief The type of the data that was supposed to be changed. */
     pm_peer_data_op_t action;  /**< @brief The action that failed. */
     pm_store_token_t  token;   /**< @brief Token that identifies the operation. For @ref PM_PEER_DATA_OP_DELETE actions, this token can be disregarded. For @ref PM_PEER_DATA_OP_UPDATE actions, compare this token with the token that is received from a call to a @ref PM_PEER_DATA_FUNCTIONS function. */
@@ -159,8 +152,7 @@ typedef struct
 
 /**@brief Standard parameters for failure events.
  */
-typedef struct
-{
+typedef struct {
     ret_code_t error; /**< @brief The error that occurred. */
 } pm_failure_evt_t;
 
@@ -169,13 +161,11 @@ typedef struct
  *
  * @details The structure contains both standard parameters and parameters that are specific to some events.
  */
-typedef struct
-{
+typedef struct {
     pm_evt_id_t  evt_id;      /**< @brief The type of the event. */
     uint16_t     conn_handle; /**< @brief The connection that this event pertains to, or @ref BLE_CONN_HANDLE_INVALID. */
     pm_peer_id_t peer_id;     /**< @brief The bonded peer that this event pertains to, or @ref PM_PEER_ID_INVALID. */
-    union
-    {
+    union {
         pm_conn_secured_evt_t               conn_sec_succeeded;         /**< @brief Parameters specific to the @ref PM_EVT_CONN_SEC_SUCCEEDED event. */
         pm_conn_secure_failed_evt_t         conn_sec_failed;            /**< @brief Parameters specific to the @ref PM_EVT_CONN_SEC_FAILED event. */
         pm_peer_data_update_succeeded_evt_t peer_data_update_succeeded; /**< @brief Parameters specific to the @ref PM_EVT_PEER_DATA_UPDATE_SUCCEEDED event. */
@@ -193,7 +183,7 @@ typedef struct
  *
  * @param[in]  p_event  The event that has occurred.
  */
-typedef void (*pm_evt_handler_t)(pm_evt_t const * p_event);
+typedef void (*pm_evt_handler_t)(pm_evt_t const *p_event);
 
 
 /**@brief Function for initializing the Peer Manager.
@@ -236,7 +226,7 @@ ret_code_t pm_register(pm_evt_handler_t event_handler);
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
  * @retval NRF_ERROR_INTERNAL       If an internal error occurred.
  */
-ret_code_t pm_sec_params_set(ble_gap_sec_params_t * p_sec_params);
+ret_code_t pm_sec_params_set(ble_gap_sec_params_t *p_sec_params);
 
 
 /**@brief Function for passing BLE events to the Peer Manager.
@@ -249,7 +239,7 @@ ret_code_t pm_sec_params_set(ble_gap_sec_params_t * p_sec_params);
  *
  * @param[in]  p_ble_evt  BLE stack event that is dispatched to the function.
  */
-void pm_on_ble_evt(ble_evt_t * p_ble_evt);
+void pm_on_ble_evt(ble_evt_t *p_ble_evt);
 
 
 /**@brief Function for establishing encryption on a connection, and optionally establishing a bond.
@@ -304,7 +294,7 @@ ret_code_t pm_conn_secure(uint16_t conn_handle, bool force_repairing);
  * @param[in]  conn_handle        The connection to set the configuration for.
  * @param[in]  p_conn_sec_config  The configuration.
  */
-void pm_conn_sec_config_reply(uint16_t conn_handle, pm_conn_sec_config_t * p_conn_sec_config);
+void pm_conn_sec_config_reply(uint16_t conn_handle, pm_conn_sec_config_t *p_conn_sec_config);
 
 
 /**@brief Function for manually informing that the local database has changed.
@@ -332,7 +322,7 @@ void pm_local_database_has_changed(void);
  * @retval NRF_ERROR_NULL                 If @p p_conn_sec_status was NULL.
  * @retval NRF_ERROR_INVALID_STATE        If the Peer Manager is not initialized.
  */
-ret_code_t pm_conn_sec_status_get(uint16_t conn_handle, pm_conn_sec_status_t * p_conn_sec_status);
+ret_code_t pm_conn_sec_status_get(uint16_t conn_handle, pm_conn_sec_status_t *p_conn_sec_status);
 
 
 /**@brief Experimental function for specifying the public key to use for LESC operations.
@@ -348,7 +338,7 @@ ret_code_t pm_conn_sec_status_get(uint16_t conn_handle, pm_conn_sec_status_t * p
  * @retval NRF_SUCCESS                    If pairing was initiated successfully.
  * @retval NRF_ERROR_INVALID_STATE        If the Peer Manager is not initialized.
  */
-ret_code_t pm_lesc_public_key_set(ble_gap_lesc_p256_pk_t * p_public_key);
+ret_code_t pm_lesc_public_key_set(ble_gap_lesc_p256_pk_t *p_public_key);
 
 
 /**@brief Function for setting or clearing the whitelist.
@@ -373,7 +363,7 @@ ret_code_t pm_lesc_public_key_set(ble_gap_lesc_p256_pk_t * p_public_key);
  *                                          @ref BLE_GAP_WHITELIST_ADDR_MAX_COUNT.
  * @retval NRF_ERROR_INVALID_STATE          If the Peer Manager is not initialized.
  */
-ret_code_t pm_whitelist_set(pm_peer_id_t const * p_peers,
+ret_code_t pm_whitelist_set(pm_peer_id_t const *p_peers,
                             uint32_t             peer_cnt);
 
 
@@ -408,10 +398,10 @@ ret_code_t pm_whitelist_set(pm_peer_id_t const * p_peers,
  *                                          cannot be found. It might have been deleted.
  * @retval NRF_ERROR_INVALID_STATE          If the Peer Manager is not initialized.
  */
-ret_code_t pm_whitelist_get(ble_gap_addr_t * p_addrs,
-                            uint32_t       * p_addr_cnt,
-                            ble_gap_irk_t  * p_irks,
-                            uint32_t       * p_irk_cnt);
+ret_code_t pm_whitelist_get(ble_gap_addr_t *p_addrs,
+                            uint32_t        *p_addr_cnt,
+                            ble_gap_irk_t   *p_irks,
+                            uint32_t        *p_irk_cnt);
 
 
 /**@brief Function for setting and clearing the device identities list.
@@ -432,7 +422,7 @@ ret_code_t pm_whitelist_get(ble_gap_addr_t * p_addrs,
  * @retval NRF_ERROR_NOT_SUPPORTED                  If using a SoftDevice that does not support
  *                                                  device identities, e.g. S130 v2.0.
  */
-ret_code_t pm_device_identities_list_set(pm_peer_id_t const * p_peers,
+ret_code_t pm_device_identities_list_set(pm_peer_id_t const *p_peers,
                                          uint32_t             peer_cnt);
 
 
@@ -468,7 +458,7 @@ ret_code_t pm_device_identities_list_set(pm_peer_id_t const * p_peers,
  *                                         was called while advertising, scanning, or while connected.
  * @retval NRF_ERROR_INTERNAL              If an internal error occurred.
  */
-ret_code_t pm_id_addr_set(ble_gap_addr_t const * p_addr);
+ret_code_t pm_id_addr_set(ble_gap_addr_t const *p_addr);
 
 
 /**@brief Function for retrieving the local <em>Bluetooth</em> identity address.
@@ -483,7 +473,7 @@ ret_code_t pm_id_addr_set(ble_gap_addr_t const * p_addr);
  * @retval NRF_ERROR_NULL          If @p p_addr is NULL.
  * @retval NRF_ERROR_INVALID_STATE If the Peer Manager is not initialized.
  */
-ret_code_t pm_id_addr_get(ble_gap_addr_t * p_addr);
+ret_code_t pm_id_addr_get(ble_gap_addr_t *p_addr);
 
 
 /**@brief Function for configuring privacy settings.
@@ -505,7 +495,7 @@ ret_code_t pm_id_addr_get(ble_gap_addr_t * p_addr);
  *                                         privacy are enabled.
  * @retval NRF_ERROR_INVALID_STATE         If the Peer Manager is not initialized.
  */
-ret_code_t pm_privacy_set(pm_privacy_params_t const * p_privacy_params);
+ret_code_t pm_privacy_set(pm_privacy_params_t const *p_privacy_params);
 
 
 /**@brief Function for retrieving privacy settings.
@@ -519,7 +509,7 @@ ret_code_t pm_privacy_set(pm_privacy_params_t const * p_privacy_params);
  *                                  NULL.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
  */
-ret_code_t pm_privacy_get(pm_privacy_params_t * p_privacy_params);
+ret_code_t pm_privacy_get(pm_privacy_params_t *p_privacy_params);
 
 
 /**@brief Function for getting the connection handle of the connection with a bonded peer.
@@ -532,7 +522,7 @@ ret_code_t pm_privacy_get(pm_privacy_params_t * p_privacy_params);
  * @retval NRF_ERROR_NULL           If @p p_conn_handle was NULL.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
  */
-ret_code_t pm_conn_handle_get(pm_peer_id_t peer_id, uint16_t * p_conn_handle);
+ret_code_t pm_conn_handle_get(pm_peer_id_t peer_id, uint16_t *p_conn_handle);
 
 
 /**@brief Function for retrieving the ID of a peer, given its connection handle.
@@ -545,7 +535,7 @@ ret_code_t pm_conn_handle_get(pm_peer_id_t peer_id, uint16_t * p_conn_handle);
  * @retval NRF_ERROR_NULL           If @p p_peer_id was NULL.
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
  */
-ret_code_t pm_peer_id_get(uint16_t conn_handle, pm_peer_id_t * p_peer_id);
+ret_code_t pm_peer_id_get(uint16_t conn_handle, pm_peer_id_t *p_peer_id);
 
 
 /**@brief Function for getting the next peer ID in the sequence of all used peer IDs.
@@ -614,25 +604,25 @@ uint32_t pm_peer_count(void);
  */
 ret_code_t pm_peer_data_load(pm_peer_id_t      peer_id,
                              pm_peer_data_id_t data_id,
-                             void            * p_data,
-                             uint16_t        * p_len);
+                             void             *p_data,
+                             uint16_t         *p_len);
 
 /**@brief Function for reading a peer's bonding data (@ref PM_PEER_DATA_ID_BONDING).
  * @details See @ref pm_peer_data_load for parameters and return values. */
 ret_code_t pm_peer_data_bonding_load(pm_peer_id_t             peer_id,
-                                     pm_peer_data_bonding_t * p_data);
+                                     pm_peer_data_bonding_t *p_data);
 
 /**@brief Function for reading a peer's remote DB values. (@ref PM_PEER_DATA_ID_GATT_REMOTE).
  * @details See @ref pm_peer_data_load for parameters and return values. */
 ret_code_t pm_peer_data_remote_db_load(pm_peer_id_t        peer_id,
-                                       ble_gatt_db_srv_t * p_data,
-                                       uint16_t          * p_len);
+                                       ble_gatt_db_srv_t *p_data,
+                                       uint16_t           *p_len);
 
 /**@brief Function for reading a peer's application data. (@ref PM_PEER_DATA_ID_APPLICATION).
  * @details See @ref pm_peer_data_load for parameters and return values. */
 ret_code_t pm_peer_data_app_data_load(pm_peer_id_t peer_id,
-                                      uint8_t    * p_data,
-                                      uint16_t   * p_len);
+                                      uint8_t     *p_data,
+                                      uint16_t    *p_len);
 /** @}*/
 
 
@@ -666,29 +656,29 @@ ret_code_t pm_peer_data_app_data_load(pm_peer_id_t peer_id,
  */
 ret_code_t pm_peer_data_store(pm_peer_id_t       peer_id,
                               pm_peer_data_id_t  data_id,
-                              void       const * p_data,
+                              void       const *p_data,
                               uint16_t           len,
-                              pm_store_token_t * p_token);
+                              pm_store_token_t *p_token);
 
 /**@brief Function for setting or updating a peer's bonding data (@ref PM_PEER_DATA_ID_BONDING).
  * @details See @ref pm_peer_data_store for parameters and return values. */
 ret_code_t pm_peer_data_bonding_store(pm_peer_id_t                   peer_id,
-                                      pm_peer_data_bonding_t const * p_data,
-                                      pm_store_token_t             * p_token);
+                                      pm_peer_data_bonding_t const *p_data,
+                                      pm_store_token_t              *p_token);
 
 /**@brief Function for setting or updating a peer's remote DB values. (@ref PM_PEER_DATA_ID_GATT_REMOTE).
  * @details See @ref pm_peer_data_store for parameters and return values. */
 ret_code_t pm_peer_data_remote_db_store(pm_peer_id_t              peer_id,
-                                        ble_gatt_db_srv_t const * p_data,
+                                        ble_gatt_db_srv_t const *p_data,
                                         uint16_t                  len,
-                                        pm_store_token_t        * p_token);
+                                        pm_store_token_t         *p_token);
 
 /**@brief Function for setting or updating a peer's application data. (@ref PM_PEER_DATA_ID_APPLICATION).
  * @details See @ref pm_peer_data_store for parameters and return values. */
 ret_code_t pm_peer_data_app_data_store(pm_peer_id_t       peer_id,
-                                       uint8_t    const * p_data,
+                                       uint8_t    const *p_data,
                                        uint16_t           len,
-                                       pm_store_token_t * p_token);
+                                       pm_store_token_t *p_token);
 /** @}*/
 
 
@@ -741,9 +731,9 @@ ret_code_t pm_peer_data_delete(pm_peer_id_t peer_id, pm_peer_data_id_t data_id);
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
  * @retval NRF_ERROR_INTERNAL       If an internal error occurred.
  */
-ret_code_t pm_peer_new(pm_peer_id_t           * p_new_peer_id,
-                       pm_peer_data_bonding_t * p_bonding_data,
-                       pm_store_token_t       * p_token);
+ret_code_t pm_peer_new(pm_peer_id_t            *p_new_peer_id,
+                       pm_peer_data_bonding_t *p_bonding_data,
+                       pm_store_token_t        *p_token);
 
 
 /**@brief Function for freeing persistent storage for a peer.
@@ -813,10 +803,10 @@ ret_code_t pm_peers_delete(void);
  * @retval NRF_ERROR_INVALID_STATE  If the Peer Manager is not initialized.
  * @retval NRF_ERROR_INTERNAL       If an internal error occurred.
  */
-ret_code_t pm_peer_ranks_get(pm_peer_id_t * p_highest_ranked_peer,
-                             uint32_t     * p_highest_rank,
-                             pm_peer_id_t * p_lowest_ranked_peer,
-                             uint32_t     * p_lowest_rank);
+ret_code_t pm_peer_ranks_get(pm_peer_id_t *p_highest_ranked_peer,
+                             uint32_t      *p_highest_rank,
+                             pm_peer_id_t *p_lowest_ranked_peer,
+                             uint32_t      *p_lowest_rank);
 
 
 /**@brief Function for updating the rank of a peer to be highest among all stored peers.

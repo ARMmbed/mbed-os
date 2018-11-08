@@ -54,7 +54,8 @@ int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
     UARTName uart = UART_0;
     obj->uart = (NRF_UART_Type *)uart;
 
@@ -69,7 +70,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
 
     // set default baud rate and format
-    serial_baud  (obj, 9600);
+    serial_baud(obj, 9600);
     serial_format(obj, 8, ParityNone, 1);
 
     obj->uart->ENABLE        = (UART_ENABLE_ENABLE_Enabled << UART_ENABLE_ENABLE_Pos);
@@ -84,7 +85,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     while (obj->uart->EVENTS_TXDRDY != 1);
 
     obj->index = 0;
-    
+
     obj->uart->PSELRTS = RTS_PIN_NUMBER;
     obj->uart->PSELTXD = tx; //TX_PIN_NUMBER;
     obj->uart->PSELCTS = CTS_PIN_NUMBER;
@@ -113,13 +114,13 @@ void serial_free(serial_t *obj)
 // set the baud rate, taking in to account the current SystemFrequency
 void serial_baud(serial_t *obj, int baudrate)
 {
-    if (baudrate<=1200) {
+    if (baudrate <= 1200) {
         obj->uart->BAUDRATE = UART_BAUDRATE_BAUDRATE_Baud1200;
         return;
     }
 
-    for (int i = 1; i<17; i++) {
-        if (baudrate<acceptedSpeeds[i][0]) {
+    for (int i = 1; i < 17; i++) {
+        if (baudrate < acceptedSpeeds[i][0]) {
             obj->uart->BAUDRATE = acceptedSpeeds[i - 1][1];
             return;
         }
@@ -172,9 +173,9 @@ void UART0_IRQHandler()
 {
     uint32_t irtype = 0;
 
-    if((NRF_UART0->INTENSET & 0x80) && NRF_UART0->EVENTS_TXDRDY) {
+    if ((NRF_UART0->INTENSET & 0x80) && NRF_UART0->EVENTS_TXDRDY) {
         irtype = 1;
-    } else if((NRF_UART0->INTENSET & 0x04) && NRF_UART0->EVENTS_RXDRDY) {
+    } else if ((NRF_UART0->INTENSET & 0x04) && NRF_UART0->EVENTS_RXDRDY) {
         irtype = 2;
     }
     uart_irq(irtype, 0);
@@ -218,11 +219,11 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         switch (irq) {
             case RxIrq:
                 obj->uart->INTENCLR = (UART_INTENCLR_RXDRDY_Msk);
-                all_disabled        =  (obj->uart->INTENCLR & (UART_INTENCLR_TXDRDY_Msk)) == 0;
+                all_disabled        = (obj->uart->INTENCLR & (UART_INTENCLR_TXDRDY_Msk)) == 0;
                 break;
             case TxIrq:
                 obj->uart->INTENCLR = (UART_INTENCLR_TXDRDY_Msk);
-                all_disabled        =  (obj->uart->INTENCLR & (UART_INTENCLR_RXDRDY_Msk)) == 0;
+                all_disabled        = (obj->uart->INTENCLR & (UART_INTENCLR_RXDRDY_Msk)) == 0;
                 break;
         }
 
@@ -279,7 +280,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 {
 
     if (type == FlowControlRTSCTS || type == FlowControlRTS) {
-        NRF_GPIO->DIR |= (1<<rxflow);
+        NRF_GPIO->DIR |= (1 << rxflow);
         pin_mode(rxflow, PullUp);
         obj->uart->PSELRTS = rxflow;
 
@@ -287,7 +288,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     }
 
     if (type == FlowControlRTSCTS || type == FlowControlCTS) {
-        NRF_GPIO->DIR &= ~(1<<txflow);
+        NRF_GPIO->DIR &= ~(1 << txflow);
         pin_mode(txflow, PullUp);
         obj->uart->PSELCTS = txflow;
 
@@ -302,5 +303,6 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     }
 }
 
-void serial_clear(serial_t *obj) {
+void serial_clear(serial_t *obj)
+{
 }

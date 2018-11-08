@@ -52,8 +52,7 @@
 /*!
 * @brief Interrupt enable/disable mask.
 */
-enum _cmp_interrupt_enable
-{
+enum _cmp_interrupt_enable {
     kCMP_OutputRisingInterruptEnable = CMP_SCR_IER_MASK,  /*!< Comparator interrupt enable rising. */
     kCMP_OutputFallingInterruptEnable = CMP_SCR_IEF_MASK, /*!< Comparator interrupt enable falling. */
 };
@@ -61,8 +60,7 @@ enum _cmp_interrupt_enable
 /*!
  * @brief Status flags' mask.
  */
-enum _cmp_status_flags
-{
+enum _cmp_status_flags {
     kCMP_OutputRisingEventFlag = CMP_SCR_CFR_MASK,  /*!< Rising-edge on compare output has occurred. */
     kCMP_OutputFallingEventFlag = CMP_SCR_CFF_MASK, /*!< Falling-edge on compare output has occurred. */
     kCMP_OutputAssertEventFlag = CMP_SCR_COUT_MASK, /*!< Return the current value of the analog comparator output. */
@@ -71,8 +69,7 @@ enum _cmp_status_flags
 /*!
  * @brief CMP Hysteresis mode.
  */
-typedef enum _cmp_hysteresis_mode
-{
+typedef enum _cmp_hysteresis_mode {
     kCMP_HysteresisLevel0 = 0U, /*!< Hysteresis level 0. */
     kCMP_HysteresisLevel1 = 1U, /*!< Hysteresis level 1. */
     kCMP_HysteresisLevel2 = 2U, /*!< Hysteresis level 2. */
@@ -82,8 +79,7 @@ typedef enum _cmp_hysteresis_mode
 /*!
  * @brief CMP Voltage Reference source.
  */
-typedef enum _cmp_reference_voltage_source
-{
+typedef enum _cmp_reference_voltage_source {
     kCMP_VrefSourceVin1 = 0U, /*!< Vin1 is selected as resistor ladder network supply reference Vin. */
     kCMP_VrefSourceVin2 = 1U, /*!< Vin2 is selected as resistor ladder network supply reference Vin. */
 } cmp_reference_voltage_source_t;
@@ -91,8 +87,7 @@ typedef enum _cmp_reference_voltage_source
 /*!
  * @brief Configuration for the comparator.
  */
-typedef struct _cmp_config
-{
+typedef struct _cmp_config {
     bool enableCmp;                       /*!< Enable the CMP module. */
     cmp_hysteresis_mode_t hysteresisMode; /*!< CMP Hysteresis mode. */
     bool enableHighSpeed;                 /*!< Enable High-speed comparison mode. */
@@ -107,8 +102,7 @@ typedef struct _cmp_config
 /*!
  * @brief Configuration for the filter.
  */
-typedef struct _cmp_filter_config
-{
+typedef struct _cmp_filter_config {
 #if defined(FSL_FEATURE_CMP_HAS_EXTERNAL_SAMPLE_SUPPORT) && FSL_FEATURE_CMP_HAS_EXTERNAL_SAMPLE_SUPPORT
     bool enableSample;    /*!< Using external SAMPLE as sampling clock input, or using divided bus clock. */
 #endif                    /* FSL_FEATURE_CMP_HAS_EXTERNAL_SAMPLE_SUPPORT */
@@ -119,8 +113,7 @@ typedef struct _cmp_filter_config
 /*!
  * @brief Configuration for the internal DAC.
  */
-typedef struct _cmp_dac_config
-{
+typedef struct _cmp_dac_config {
     cmp_reference_voltage_source_t referenceVoltageSource; /*!< Supply voltage reference source. */
     uint8_t DACValue;                                      /*!< Value for DAC Output Voltage. Available range is 0-63.*/
 } cmp_dac_config_t;
@@ -176,12 +169,9 @@ void CMP_Deinit(CMP_Type *base);
  */
 static inline void CMP_Enable(CMP_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CR1 |= CMP_CR1_EN_MASK;
-    }
-    else
-    {
+    } else {
         base->CR1 &= ~CMP_CR1_EN_MASK;
     }
 }
@@ -248,12 +238,9 @@ void CMP_EnableDMA(CMP_Type *base, bool enable);
  */
 static inline void CMP_EnableWindowMode(CMP_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CR1 |= CMP_CR1_WE_MASK;
-    }
-    else
-    {
+    } else {
         base->CR1 &= ~CMP_CR1_WE_MASK;
     }
 }
@@ -268,12 +255,9 @@ static inline void CMP_EnableWindowMode(CMP_Type *base, bool enable)
  */
 static inline void CMP_EnablePassThroughMode(CMP_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->MUXCR |= CMP_MUXCR_PSTM_MASK;
-    }
-    else
-    {
+    } else {
         base->MUXCR &= ~CMP_MUXCR_PSTM_MASK;
     }
 }

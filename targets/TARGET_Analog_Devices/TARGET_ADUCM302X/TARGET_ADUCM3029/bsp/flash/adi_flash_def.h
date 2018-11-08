@@ -108,7 +108,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #error Flash driver is not ported to this processor
 #endif
 
-#define FEE_PAGE_SHIFT     (11u)                               /* 2kB page size */ 
+#define FEE_PAGE_SHIFT     (11u)                               /* 2kB page size */
 #define FEE_MAX_NUM_PAGES  (FEE_FLASH_SIZE >> FEE_PAGE_SHIFT)  /* max number of pages */
 #define FEE_MAX_NUM_BLOCKS (FEE_FLASH_SIZE >> FEE_BLOCK_SHIFT) /* max number of blocks (32) */
 
@@ -120,20 +120,20 @@ POSSIBILITY OF SUCH DAMAGE.
 /* INTERNAL DRIVER STATIC FUNCTION PROTOTYPES */
 
 /* Send a command to the flash controller, but does no pend on it... */
-static ADI_FEE_RESULT SendCommand (ADI_FEE_HANDLE const hDevice, uint32_t const cmd);
+static ADI_FEE_RESULT SendCommand(ADI_FEE_HANDLE const hDevice, uint32_t const cmd);
 
 /* generic transfer initiator... dispatches to InitiatePioTransfer() or InitiateDmaTransfer() */
-static ADI_FEE_RESULT InitiateTransfer (ADI_FEE_HANDLE const hDevice);
+static ADI_FEE_RESULT InitiateTransfer(ADI_FEE_HANDLE const hDevice);
 
 /* PIO initiator */
-static ADI_FEE_RESULT InitiatePioTransfer (ADI_FEE_HANDLE const hDevice);
+static ADI_FEE_RESULT InitiatePioTransfer(ADI_FEE_HANDLE const hDevice);
 
 /* DMA initiator */
-static ADI_FEE_RESULT InitiateDmaTransfer (ADI_FEE_HANDLE const hDevice);
+static ADI_FEE_RESULT InitiateDmaTransfer(ADI_FEE_HANDLE const hDevice);
 
 /* interrupt handlers */
 void Flash0_Int_Handler(void);
-void DMA_FLASH0_Int_Handler (void);
+void DMA_FLASH0_Int_Handler(void);
 
 /* INTERNAL DRIVER DATATYPES */
 
@@ -142,24 +142,24 @@ void DMA_FLASH0_Int_Handler (void);
  * FEE Configuration structure.
  *****************************************************************************/
 typedef struct __ADI_FEE_CONFIG {
-    uint32_t eccIrqEnables;     	/* ECC interrupt enables.                      */
-    uint32_t param0;            	/* TIME_PARAM0 register.                       */
-    uint32_t param1;            	/* TIME_PARAM1 register.                       */
-    uint32_t abortEnableLo;     	/* Lower interrupt abort enables (IRQs 0-31).  */
-    uint32_t abortEnableHi;     	/* Upper interrupt abort enables (IRQs 32-63.) */
-    uint32_t eccConfig;         	/* ECC_CFG register.                           */
+    uint32_t eccIrqEnables;         /* ECC interrupt enables.                      */
+    uint32_t param0;                /* TIME_PARAM0 register.                       */
+    uint32_t param1;                /* TIME_PARAM1 register.                       */
+    uint32_t abortEnableLo;         /* Lower interrupt abort enables (IRQs 0-31).  */
+    uint32_t abortEnableHi;         /* Upper interrupt abort enables (IRQs 32-63.) */
+    uint32_t eccConfig;             /* ECC_CFG register.                           */
 } ADI_FEE_CONFIG;
 
 
 /* Flash physical device instance data */
 typedef struct __ADI_FEE_DEVICE_INFO {
 
-   ADI_FLCC_TypeDef *pDev;       	/* Pointer to the physical controller.         */
-   IRQn_Type         pioIrqNum;  	/* The flash controller PIO interrupt number.  */
-   IRQn_Type         dmaIrqNum;  	/* The flash controller DMA interrupt number.  */
-   DMA_CHANn_TypeDef dmaChanNum;	/* The flash controller DMA channel number.    */
-   ADI_FEE_CONFIG   *pConfig;    	/* Pointer to user config info.                */
-   ADI_FEE_HANDLE    hDevice;    	/* Pointer the device memory (supplied by the application). */
+    ADI_FLCC_TypeDef *pDev;          /* Pointer to the physical controller.         */
+    IRQn_Type         pioIrqNum;     /* The flash controller PIO interrupt number.  */
+    IRQn_Type         dmaIrqNum;     /* The flash controller DMA interrupt number.  */
+    DMA_CHANn_TypeDef dmaChanNum;    /* The flash controller DMA channel number.    */
+    ADI_FEE_CONFIG   *pConfig;       /* Pointer to user config info.                */
+    ADI_FEE_HANDLE    hDevice;       /* Pointer the device memory (supplied by the application). */
 
 } ADI_FEE_DEVICE_INFO;
 
@@ -172,20 +172,20 @@ typedef struct __ADI_FEE_DEV_DATA_TYPE {
     /* NOTE: "volatile" storage class on all interrupt-modified valuables */
 
     /* device attributes */
-    ADI_FLCC_TypeDef           *pDev;					/* Pointer top physical flash controller.        */
-    ADI_FEE_DEVICE_INFO        *pDevInfo;				/* Pointer to hardware device attributes.        */
+    ADI_FLCC_TypeDef           *pDev;                   /* Pointer top physical flash controller.        */
+    ADI_FEE_DEVICE_INFO        *pDevInfo;               /* Pointer to hardware device attributes.        */
 
     /* callback info */
-    ADI_CALLBACK                pfCallback;				/* Registered callback function address.         */
-    void                       *pCBParam;				/* Registered callback user parameter.           */
+    ADI_CALLBACK                pfCallback;             /* Registered callback function address.         */
+    void                       *pCBParam;               /* Registered callback user parameter.           */
 
     /* internal driver state variables */
-    bool                        bUseDma;				/* DMA control flag (from user).                 */
-    bool                        bSubmitCalled;			/* Flag to identify if a buffer was "submitted". */
-    volatile uint32_t           FlashStatusCopy;		/* Clop of latest flash status register.         */
-    volatile uint32_t           feeError;				/* Flash error collector.                        */
-    volatile ADI_FEE_RESULT     dmaError;				/* DMA error collector.                          */
-    volatile bool               bTransferInProgress;	/* Flag indicating if a transfer is in progress. */
+    bool                        bUseDma;                /* DMA control flag (from user).                 */
+    bool                        bSubmitCalled;          /* Flag to identify if a buffer was "submitted". */
+    volatile uint32_t           FlashStatusCopy;        /* Clop of latest flash status register.         */
+    volatile uint32_t           feeError;               /* Flash error collector.                        */
+    volatile ADI_FEE_RESULT     dmaError;               /* DMA error collector.                          */
+    volatile bool               bTransferInProgress;    /* Flag indicating if a transfer is in progress. */
 
     /* data info */
     volatile uint32_t          *pNextWriteAddress;      /* Pointer to next write data in flash space.    */

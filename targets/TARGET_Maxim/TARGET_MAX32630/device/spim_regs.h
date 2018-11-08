@@ -1,5 +1,5 @@
 /**
- * @file    
+ * @file
  * @brief   Registers, Bit Masks and Bit Positions for the SPIM Peripheral Module.
  */
 
@@ -95,13 +95,13 @@ typedef struct {
 /**
  * @ingroup spim_registers
  * @defgroup spim_fifos SPIM TX and RX FIFOs
- * @brief TX and RX FIFO access for reads and writes using 8-bit, 16-bit and 32-bit data types. 
+ * @brief TX and RX FIFO access for reads and writes using 8-bit, 16-bit and 32-bit data types.
  * @{
  */
 /**
- * Structure type for the SPIM Transmit and Receive FIFOs. 
+ * Structure type for the SPIM Transmit and Receive FIFOs.
  */
- typedef struct {
+typedef struct {
     union {                                             /*  0x0000-0x07FC   SPI Master FIFO Write Space for Transaction Setup                            */
         __IO uint8_t  trans_8[2048];                    /**< 8-bit access to Transmit FIFO */
         __IO uint16_t trans_16[1024];                   /**< 16-bit access to Transmit FIFO */
@@ -123,7 +123,7 @@ typedef struct {
 /**
  * @ingroup    spim_registers
  * @defgroup   SPIM_Register_Offsets Register Offsets
- * @brief      SPI Master Register Offsets from the SPIM[n] Base Peripheral Address, where  \c n \c = SPIM Instance Number. 
+ * @brief      SPI Master Register Offsets from the SPIM[n] Base Peripheral Address, where  \c n \c = SPIM Instance Number.
  * @{
  */
 #define MXC_R_SPIM_OFFS_MSTR_CFG                            ((uint32_t)0x00000000UL)    /**< Offset from SPIM[n] Base Address: <tt>\b 0x0000</tt>*/
@@ -138,7 +138,7 @@ typedef struct {
 /**
  * @ingroup    spim_registers
  * @defgroup   SPIM_FIFO_Offsets FIFO Offsets
- * @brief      SPI Master FIFO Offsets from the SPIM[n] Base FIFO Address, where  \c n \c = SPIM Instance Number. 
+ * @brief      SPI Master FIFO Offsets from the SPIM[n] Base FIFO Address, where  \c n \c = SPIM Instance Number.
  * @{
  */
 #define MXC_R_SPIM_FIFO_OFFS_TRANS                          ((uint32_t)0x00000000UL)    /**< Offset from SPIM[n] Base FIFO Address: <tt>\b 0x0000</tt>*/
@@ -155,23 +155,23 @@ typedef struct {
  * @{
  */
 #define MXC_F_SPIM_MSTR_CFG_SLAVE_SEL_POS                   0                                                                           /**< SLAVE_SEL Position */
-#define MXC_F_SPIM_MSTR_CFG_SLAVE_SEL                       ((uint32_t)(0x00000007UL << MXC_F_SPIM_MSTR_CFG_SLAVE_SEL_POS))             /**< SLAVE_SEL Mask */                           
+#define MXC_F_SPIM_MSTR_CFG_SLAVE_SEL                       ((uint32_t)(0x00000007UL << MXC_F_SPIM_MSTR_CFG_SLAVE_SEL_POS))             /**< SLAVE_SEL Mask */
 #define MXC_F_SPIM_MSTR_CFG_THREE_WIRE_MODE_POS             3                                                                           /**< THREE_WIRE_MODE Position */
-#define MXC_F_SPIM_MSTR_CFG_THREE_WIRE_MODE                 ((uint32_t)(0x00000001UL << MXC_F_SPIM_MSTR_CFG_THREE_WIRE_MODE_POS))       /**< THREE_WIRE_MODE Mask */                           
+#define MXC_F_SPIM_MSTR_CFG_THREE_WIRE_MODE                 ((uint32_t)(0x00000001UL << MXC_F_SPIM_MSTR_CFG_THREE_WIRE_MODE_POS))       /**< THREE_WIRE_MODE Mask */
 #define MXC_F_SPIM_MSTR_CFG_SPI_MODE_POS                    4                                                                           /**< SPI_MODE Position */
-#define MXC_F_SPIM_MSTR_CFG_SPI_MODE                        ((uint32_t)(0x00000003UL << MXC_F_SPIM_MSTR_CFG_SPI_MODE_POS))              /**< SPI_MODE Mask */                           
+#define MXC_F_SPIM_MSTR_CFG_SPI_MODE                        ((uint32_t)(0x00000003UL << MXC_F_SPIM_MSTR_CFG_SPI_MODE_POS))              /**< SPI_MODE Mask */
 #define MXC_F_SPIM_MSTR_CFG_PAGE_SIZE_POS                   6                                                                           /**< PAGE_SIZE Position */
-#define MXC_F_SPIM_MSTR_CFG_PAGE_SIZE                       ((uint32_t)(0x00000003UL << MXC_F_SPIM_MSTR_CFG_PAGE_SIZE_POS))             /**< PAGE_SIZE Mask */                           
+#define MXC_F_SPIM_MSTR_CFG_PAGE_SIZE                       ((uint32_t)(0x00000003UL << MXC_F_SPIM_MSTR_CFG_PAGE_SIZE_POS))             /**< PAGE_SIZE Mask */
 #define MXC_F_SPIM_MSTR_CFG_SCK_HI_CLK_POS                  8                                                                           /**< SCK_HI_CLK Position */
-#define MXC_F_SPIM_MSTR_CFG_SCK_HI_CLK                      ((uint32_t)(0x0000000FUL << MXC_F_SPIM_MSTR_CFG_SCK_HI_CLK_POS))            /**< SCK_HI_CLK Mask */                           
+#define MXC_F_SPIM_MSTR_CFG_SCK_HI_CLK                      ((uint32_t)(0x0000000FUL << MXC_F_SPIM_MSTR_CFG_SCK_HI_CLK_POS))            /**< SCK_HI_CLK Mask */
 #define MXC_F_SPIM_MSTR_CFG_SCK_LO_CLK_POS                  12                                                                          /**< SCK_LO_CLK  Position */
-#define MXC_F_SPIM_MSTR_CFG_SCK_LO_CLK                      ((uint32_t)(0x0000000FUL << MXC_F_SPIM_MSTR_CFG_SCK_LO_CLK_POS))            /**< SCK_LO_CLK Mask */                           
+#define MXC_F_SPIM_MSTR_CFG_SCK_LO_CLK                      ((uint32_t)(0x0000000FUL << MXC_F_SPIM_MSTR_CFG_SCK_LO_CLK_POS))            /**< SCK_LO_CLK Mask */
 #define MXC_F_SPIM_MSTR_CFG_ACT_DELAY_POS                   16                                                                          /**< ACT_DELAY Position */
-#define MXC_F_SPIM_MSTR_CFG_ACT_DELAY                       ((uint32_t)(0x00000003UL << MXC_F_SPIM_MSTR_CFG_ACT_DELAY_POS))             /**< ACT_DELAY Mask */                           
+#define MXC_F_SPIM_MSTR_CFG_ACT_DELAY                       ((uint32_t)(0x00000003UL << MXC_F_SPIM_MSTR_CFG_ACT_DELAY_POS))             /**< ACT_DELAY Mask */
 #define MXC_F_SPIM_MSTR_CFG_INACT_DELAY_POS                 18                                                                          /**< INACT_DELAY Position */
-#define MXC_F_SPIM_MSTR_CFG_INACT_DELAY                     ((uint32_t)(0x00000003UL << MXC_F_SPIM_MSTR_CFG_INACT_DELAY_POS))           /**< INACT_DELAY Mask */                           
+#define MXC_F_SPIM_MSTR_CFG_INACT_DELAY                     ((uint32_t)(0x00000003UL << MXC_F_SPIM_MSTR_CFG_INACT_DELAY_POS))           /**< INACT_DELAY Mask */
 #define MXC_F_SPIM_MSTR_CFG_SDIO_SAMPLE_POINT_POS           20                                                                          /**< SDIO_SAMPLE_POINT Position */
-#define MXC_F_SPIM_MSTR_CFG_SDIO_SAMPLE_POINT               ((uint32_t)(0x0000000FUL << MXC_F_SPIM_MSTR_CFG_SDIO_SAMPLE_POINT_POS))     /**< SDIO_SAMPLE_POINT Mask */                           
+#define MXC_F_SPIM_MSTR_CFG_SDIO_SAMPLE_POINT               ((uint32_t)(0x0000000FUL << MXC_F_SPIM_MSTR_CFG_SDIO_SAMPLE_POINT_POS))     /**< SDIO_SAMPLE_POINT Mask */
 
 #define MXC_V_SPIM_MSTR_CFG_PAGE_SIZE_4B                    ((uint32_t)0x00000000UL)                                                    /**< PAGE_SIZE_4B Field Value */
 #define MXC_V_SPIM_MSTR_CFG_PAGE_SIZE_8B                    ((uint32_t)0x00000001UL)                                                    /**< PAGE_SIZE_8B Field Value */
@@ -190,9 +190,9 @@ typedef struct {
  * @{
  */
 #define MXC_F_SPIM_SS_SR_POLARITY_SS_POLARITY_POS           0                                                                           /**< SS_POLARITY Position */
-#define MXC_F_SPIM_SS_SR_POLARITY_SS_POLARITY               ((uint32_t)(0x000000FFUL << MXC_F_SPIM_SS_SR_POLARITY_SS_POLARITY_POS))     /**< SS_POLARITY Mask */                           
+#define MXC_F_SPIM_SS_SR_POLARITY_SS_POLARITY               ((uint32_t)(0x000000FFUL << MXC_F_SPIM_SS_SR_POLARITY_SS_POLARITY_POS))     /**< SS_POLARITY Mask */
 #define MXC_F_SPIM_SS_SR_POLARITY_FC_POLARITY_POS           8                                                                           /**< FC_POLARITY Position */
-#define MXC_F_SPIM_SS_SR_POLARITY_FC_POLARITY               ((uint32_t)(0x000000FFUL << MXC_F_SPIM_SS_SR_POLARITY_FC_POLARITY_POS))     /**< FC_POLARITY Mask */                           
+#define MXC_F_SPIM_SS_SR_POLARITY_FC_POLARITY               ((uint32_t)(0x000000FFUL << MXC_F_SPIM_SS_SR_POLARITY_FC_POLARITY_POS))     /**< FC_POLARITY Mask */
 /**@} end of group SPIM_SS_SR_POLARITY*/
 /**
  * @ingroup  spim_registers
@@ -201,76 +201,76 @@ typedef struct {
  * @{
  */
 #define MXC_F_SPIM_GEN_CTRL_SPI_MSTR_EN_POS                 0                                                                           /**< SPI_MSTR_EN Position */
-#define MXC_F_SPIM_GEN_CTRL_SPI_MSTR_EN                     ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_SPI_MSTR_EN_POS))           /**< SPI_MSTR_EN Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_SPI_MSTR_EN                     ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_SPI_MSTR_EN_POS))           /**< SPI_MSTR_EN Mask */
 #define MXC_F_SPIM_GEN_CTRL_TX_FIFO_EN_POS                  1                                                                           /**< TX_FIFO_EN Position */
-#define MXC_F_SPIM_GEN_CTRL_TX_FIFO_EN                      ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_TX_FIFO_EN_POS))            /**< TX_FIFO_EN Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_TX_FIFO_EN                      ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_TX_FIFO_EN_POS))            /**< TX_FIFO_EN Mask */
 #define MXC_F_SPIM_GEN_CTRL_RX_FIFO_EN_POS                  2                                                                           /**< RX_FIFO_EN Position */
-#define MXC_F_SPIM_GEN_CTRL_RX_FIFO_EN                      ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_RX_FIFO_EN_POS))            /**< RX_FIFO_EN Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_RX_FIFO_EN                      ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_RX_FIFO_EN_POS))            /**< RX_FIFO_EN Mask */
 #define MXC_F_SPIM_GEN_CTRL_BIT_BANG_MODE_POS               3                                                                           /**< BIT_BANG_MODE Position */
-#define MXC_F_SPIM_GEN_CTRL_BIT_BANG_MODE                   ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_BIT_BANG_MODE_POS))         /**< BIT_BANG_MODE Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_BIT_BANG_MODE                   ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_BIT_BANG_MODE_POS))         /**< BIT_BANG_MODE Mask */
 #define MXC_F_SPIM_GEN_CTRL_BB_SS_IN_OUT_POS                4                                                                           /**< BB_SS_IN_OUT Position */
-#define MXC_F_SPIM_GEN_CTRL_BB_SS_IN_OUT                    ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_BB_SS_IN_OUT_POS))          /**< BB_SS_IN_OUT Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_BB_SS_IN_OUT                    ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_BB_SS_IN_OUT_POS))          /**< BB_SS_IN_OUT Mask */
 #define MXC_F_SPIM_GEN_CTRL_BB_SR_IN_POS                    5                                                                           /**< BB_SR_IN Position */
-#define MXC_F_SPIM_GEN_CTRL_BB_SR_IN                        ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_BB_SR_IN_POS))              /**< BB_SR_IN Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_BB_SR_IN                        ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_BB_SR_IN_POS))              /**< BB_SR_IN Mask */
 #define MXC_F_SPIM_GEN_CTRL_BB_SCK_IN_OUT_POS               6                                                                           /**< BB_SCK_IN_OUT Position */
-#define MXC_F_SPIM_GEN_CTRL_BB_SCK_IN_OUT                   ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_BB_SCK_IN_OUT_POS))         /**< BB_SCK_IN_OUT Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_BB_SCK_IN_OUT                   ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_BB_SCK_IN_OUT_POS))         /**< BB_SCK_IN_OUT Mask */
 #define MXC_F_SPIM_GEN_CTRL_BB_SDIO_IN_POS                  8                                                                           /**< BB_SDIO_IN osition */
-#define MXC_F_SPIM_GEN_CTRL_BB_SDIO_IN                      ((uint32_t)(0x0000000FUL << MXC_F_SPIM_GEN_CTRL_BB_SDIO_IN_POS))            /**< BB_SDIO_IN Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_BB_SDIO_IN                      ((uint32_t)(0x0000000FUL << MXC_F_SPIM_GEN_CTRL_BB_SDIO_IN_POS))            /**< BB_SDIO_IN Mask */
 #define MXC_F_SPIM_GEN_CTRL_BB_SDIO_OUT_POS                 12                                                                          /**< BB_SDIO_OUT Position */
-#define MXC_F_SPIM_GEN_CTRL_BB_SDIO_OUT                     ((uint32_t)(0x0000000FUL << MXC_F_SPIM_GEN_CTRL_BB_SDIO_OUT_POS))           /**< BB_SDIO_OUT Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_BB_SDIO_OUT                     ((uint32_t)(0x0000000FUL << MXC_F_SPIM_GEN_CTRL_BB_SDIO_OUT_POS))           /**< BB_SDIO_OUT Mask */
 #define MXC_F_SPIM_GEN_CTRL_BB_SDIO_DR_EN_POS               16                                                                          /**< BB_SDIO_DR_EN Position */
-#define MXC_F_SPIM_GEN_CTRL_BB_SDIO_DR_EN                   ((uint32_t)(0x0000000FUL << MXC_F_SPIM_GEN_CTRL_BB_SDIO_DR_EN_POS))         /**< BB_SDIO_DR_EN Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_BB_SDIO_DR_EN                   ((uint32_t)(0x0000000FUL << MXC_F_SPIM_GEN_CTRL_BB_SDIO_DR_EN_POS))         /**< BB_SDIO_DR_EN Mask */
 #define MXC_F_SPIM_GEN_CTRL_SIMPLE_MODE_POS                 20                                                                          /**< SIMPLE_MODE Position */
-#define MXC_F_SPIM_GEN_CTRL_SIMPLE_MODE                     ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_SIMPLE_MODE_POS))           /**< SIMPLE_MODE Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_SIMPLE_MODE                     ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_SIMPLE_MODE_POS))           /**< SIMPLE_MODE Mask */
 #define MXC_F_SPIM_GEN_CTRL_START_RX_ONLY_POS               21                                                                          /**< START_RX_ONLY Position */
-#define MXC_F_SPIM_GEN_CTRL_START_RX_ONLY                   ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_START_RX_ONLY_POS))         /**< START_RX_ONLY Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_START_RX_ONLY                   ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_START_RX_ONLY_POS))         /**< START_RX_ONLY Mask */
 #define MXC_F_SPIM_GEN_CTRL_DEASSERT_ACT_SS_POS             22                                                                          /**< DEASSERT_ACT_SS Position */
-#define MXC_F_SPIM_GEN_CTRL_DEASSERT_ACT_SS                 ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_DEASSERT_ACT_SS_POS))       /**< DEASSERT_ACT_SS Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_DEASSERT_ACT_SS                 ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_DEASSERT_ACT_SS_POS))       /**< DEASSERT_ACT_SS Mask */
 #define MXC_F_SPIM_GEN_CTRL_ENABLE_SCK_FB_MODE_POS          24                                                                          /**< ENABLE_SCK_FB_MOD Position */
-#define MXC_F_SPIM_GEN_CTRL_ENABLE_SCK_FB_MODE              ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_ENABLE_SCK_FB_MODE_POS))    /**< ENABLE_SCK_FB_MOD Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_ENABLE_SCK_FB_MODE              ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_ENABLE_SCK_FB_MODE_POS))    /**< ENABLE_SCK_FB_MOD Mask */
 #define MXC_F_SPIM_GEN_CTRL_INVERT_SCK_FB_CLK_POS           25                                                                          /**< INVERT_SCK_FB_CLK Position */
-#define MXC_F_SPIM_GEN_CTRL_INVERT_SCK_FB_CLK               ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_INVERT_SCK_FB_CLK_POS))     /**< INVERT_SCK_FB_CLK Mask */                           
+#define MXC_F_SPIM_GEN_CTRL_INVERT_SCK_FB_CLK               ((uint32_t)(0x00000001UL << MXC_F_SPIM_GEN_CTRL_INVERT_SCK_FB_CLK_POS))     /**< INVERT_SCK_FB_CLK Mask */
 /**@} end of group SPIM_GEN_CTRL*/
 /**
  * @ingroup  spim_registers
  * @defgroup SPIM_FIFO_CTRL_Register SPIM_FIFO_CTRL
  * @brief    Field Positions and Bit Masks for the SPIM_FIFO_CTRL register
  * @{
- */    
+ */
 #define MXC_F_SPIM_FIFO_CTRL_TX_FIFO_AE_LVL_POS             0                                                                           /**< TX_FIFO_AE_LVL Position */
-#define MXC_F_SPIM_FIFO_CTRL_TX_FIFO_AE_LVL                 ((uint32_t)(0x0000000FUL << MXC_F_SPIM_FIFO_CTRL_TX_FIFO_AE_LVL_POS))       /**< TX_FIFO_AE_LVL Mask */                           
+#define MXC_F_SPIM_FIFO_CTRL_TX_FIFO_AE_LVL                 ((uint32_t)(0x0000000FUL << MXC_F_SPIM_FIFO_CTRL_TX_FIFO_AE_LVL_POS))       /**< TX_FIFO_AE_LVL Mask */
 #define MXC_F_SPIM_FIFO_CTRL_TX_FIFO_USED_POS               8                                                                           /**< TX_FIFO_USED Position */
-#define MXC_F_SPIM_FIFO_CTRL_TX_FIFO_USED                   ((uint32_t)(0x0000001FUL << MXC_F_SPIM_FIFO_CTRL_TX_FIFO_USED_POS))         /**< TX_FIFO_USED Mask */                           
+#define MXC_F_SPIM_FIFO_CTRL_TX_FIFO_USED                   ((uint32_t)(0x0000001FUL << MXC_F_SPIM_FIFO_CTRL_TX_FIFO_USED_POS))         /**< TX_FIFO_USED Mask */
 #define MXC_F_SPIM_FIFO_CTRL_RX_FIFO_AF_LVL_POS             16                                                                          /**< RX_FIFO_AF_LVL Position */
-#define MXC_F_SPIM_FIFO_CTRL_RX_FIFO_AF_LVL                 ((uint32_t)(0x0000001FUL << MXC_F_SPIM_FIFO_CTRL_RX_FIFO_AF_LVL_POS))       /**< RX_FIFO_AF_LVL Mask */                           
+#define MXC_F_SPIM_FIFO_CTRL_RX_FIFO_AF_LVL                 ((uint32_t)(0x0000001FUL << MXC_F_SPIM_FIFO_CTRL_RX_FIFO_AF_LVL_POS))       /**< RX_FIFO_AF_LVL Mask */
 #define MXC_F_SPIM_FIFO_CTRL_RX_FIFO_USED_POS               24                                                                          /**< RX_FIFO_USED Position */
-#define MXC_F_SPIM_FIFO_CTRL_RX_FIFO_USED                   ((uint32_t)(0x0000003FUL << MXC_F_SPIM_FIFO_CTRL_RX_FIFO_USED_POS))         /**< RX_FIFO_USED Mask */                           
+#define MXC_F_SPIM_FIFO_CTRL_RX_FIFO_USED                   ((uint32_t)(0x0000003FUL << MXC_F_SPIM_FIFO_CTRL_RX_FIFO_USED_POS))         /**< RX_FIFO_USED Mask */
 /**@} end of group SPIM_FIFO_CTRL*/
 /**
  * @ingroup  spim_registers
  * @defgroup SPIM_SPCL_CTRL_Register SPIM_SPCL_CTRL
  * @brief    Field Positions and Bit Masks for the SPIM_SPCL_CTRL register
  * @{
- */    
+ */
 #define MXC_F_SPIM_SPCL_CTRL_SS_SAMPLE_MODE_POS             0                                                                           /**< SS_SAMPLE_MODE Position */
-#define MXC_F_SPIM_SPCL_CTRL_SS_SAMPLE_MODE                 ((uint32_t)(0x00000001UL << MXC_F_SPIM_SPCL_CTRL_SS_SAMPLE_MODE_POS))       /**< SS_SAMPLE_MODE Mask */                           
+#define MXC_F_SPIM_SPCL_CTRL_SS_SAMPLE_MODE                 ((uint32_t)(0x00000001UL << MXC_F_SPIM_SPCL_CTRL_SS_SAMPLE_MODE_POS))       /**< SS_SAMPLE_MODE Mask */
 #define MXC_F_SPIM_SPCL_CTRL_MISO_FC_EN_POS                 1                                                                           /**< MISO_FC_EN Position */
-#define MXC_F_SPIM_SPCL_CTRL_MISO_FC_EN                     ((uint32_t)(0x00000001UL << MXC_F_SPIM_SPCL_CTRL_MISO_FC_EN_POS))           /**< MISO_FC_EN Mask */                           
+#define MXC_F_SPIM_SPCL_CTRL_MISO_FC_EN                     ((uint32_t)(0x00000001UL << MXC_F_SPIM_SPCL_CTRL_MISO_FC_EN_POS))           /**< MISO_FC_EN Mask */
 #define MXC_F_SPIM_SPCL_CTRL_SS_SA_SDIO_OUT_POS             4                                                                           /**< SS_SA_SDIO_OUT Position */
-#define MXC_F_SPIM_SPCL_CTRL_SS_SA_SDIO_OUT                 ((uint32_t)(0x0000000FUL << MXC_F_SPIM_SPCL_CTRL_SS_SA_SDIO_OUT_POS))       /**< SS_SA_SDIO_OUT Mask */                           
+#define MXC_F_SPIM_SPCL_CTRL_SS_SA_SDIO_OUT                 ((uint32_t)(0x0000000FUL << MXC_F_SPIM_SPCL_CTRL_SS_SA_SDIO_OUT_POS))       /**< SS_SA_SDIO_OUT Mask */
 #define MXC_F_SPIM_SPCL_CTRL_SS_SA_SDIO_DR_EN_POS           8                                                                           /**< SS_SA_SDIO_DR_EN Position */
-#define MXC_F_SPIM_SPCL_CTRL_SS_SA_SDIO_DR_EN               ((uint32_t)(0x0000000FUL << MXC_F_SPIM_SPCL_CTRL_SS_SA_SDIO_DR_EN_POS))     /**< SS_SA_SDIO_DR_EN Mask */                           
+#define MXC_F_SPIM_SPCL_CTRL_SS_SA_SDIO_DR_EN               ((uint32_t)(0x0000000FUL << MXC_F_SPIM_SPCL_CTRL_SS_SA_SDIO_DR_EN_POS))     /**< SS_SA_SDIO_DR_EN Mask */
 
 #if (MXC_SPIM_REV == 0)
 #define MXC_F_SPIM_SPCL_CTRL_SPECIAL_MODE_3_EN_POS          16                                                                          /**< SPECIAL_MODE_3_EN Position */
-#define MXC_F_SPIM_SPCL_CTRL_SPECIAL_MODE_3_EN              ((uint32_t)(0x00000001UL << MXC_F_SPIM_SPCL_CTRL_SPECIAL_MODE_3_EN_POS))    /**< SPECIAL_MODE_3_EN Mask */                           
+#define MXC_F_SPIM_SPCL_CTRL_SPECIAL_MODE_3_EN              ((uint32_t)(0x00000001UL << MXC_F_SPIM_SPCL_CTRL_SPECIAL_MODE_3_EN_POS))    /**< SPECIAL_MODE_3_EN Mask */
 #else
 #define MXC_F_SPIM_SPCL_CTRL_RX_FIFO_MARGIN_POS             12                                                                          /**< RX_FIFO_MARGIN Position */
-#define MXC_F_SPIM_SPCL_CTRL_RX_FIFO_MARGIN                 ((uint32_t)(0x00000007UL << MXC_F_SPIM_SPCL_CTRL_RX_FIFO_MARGIN_POS))       /**< RX_FIFO_MARGIN Mask */                           
+#define MXC_F_SPIM_SPCL_CTRL_RX_FIFO_MARGIN                 ((uint32_t)(0x00000007UL << MXC_F_SPIM_SPCL_CTRL_RX_FIFO_MARGIN_POS))       /**< RX_FIFO_MARGIN Mask */
 #define MXC_F_SPIM_SPCL_CTRL_SCK_FB_DELAY_POS               16                                                                          /**< SCK_FB_DELAY Position */
-#define MXC_F_SPIM_SPCL_CTRL_SCK_FB_DELAY                   ((uint32_t)(0x0000000FUL << MXC_F_SPIM_SPCL_CTRL_SCK_FB_DELAY_POS))         /**< SCK_FB_DELAY Mask */                           
+#define MXC_F_SPIM_SPCL_CTRL_SCK_FB_DELAY                   ((uint32_t)(0x0000000FUL << MXC_F_SPIM_SPCL_CTRL_SCK_FB_DELAY_POS))         /**< SCK_FB_DELAY Mask */
 #define MXC_F_SPIM_SPCL_CTRL_SPARE_RESERVED_POS             20                                                                          /**< SPARE_RESERVED Position */
-#define MXC_F_SPIM_SPCL_CTRL_SPARE_RESERVED                 ((uint32_t)(0x00000FFFUL << MXC_F_SPIM_SPCL_CTRL_SPARE_RESERVED_POS))       /**< SPARE_RESERVED Mask */                           
+#define MXC_F_SPIM_SPCL_CTRL_SPARE_RESERVED                 ((uint32_t)(0x00000FFFUL << MXC_F_SPIM_SPCL_CTRL_SPARE_RESERVED_POS))       /**< SPARE_RESERVED Mask */
 #endif
 /**@} end of group SPIM_SPCL_CTRL*/
 /**
@@ -278,49 +278,49 @@ typedef struct {
  * @defgroup SPIM_INTFL_Register SPIM_INTFL
  * @brief    Field Positions and Bit Masks for the SPIM_INTFL register
  * @{
- */ 
+ */
 #define MXC_F_SPIM_INTFL_TX_STALLED_POS                     0                                                                   /**< TX_STALLED Position */
-#define MXC_F_SPIM_INTFL_TX_STALLED                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_TX_STALLED_POS))       /**< TX_STALLED Mask */                           
+#define MXC_F_SPIM_INTFL_TX_STALLED                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_TX_STALLED_POS))       /**< TX_STALLED Mask */
 #define MXC_F_SPIM_INTFL_RX_STALLED_POS                     1                                                                   /**< RX_STALLED Position */
-#define MXC_F_SPIM_INTFL_RX_STALLED                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_RX_STALLED_POS))       /**< RX_STALLED Mask */                           
-#define MXC_F_SPIM_INTFL_TX_READY_POS                       2                                                                   /**< TX_READY Position */   
-#define MXC_F_SPIM_INTFL_TX_READY                           ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_TX_READY_POS))         /**< TX_READY Mask */                           
-#define MXC_F_SPIM_INTFL_RX_DONE_POS                        3                                                                   /**< RX_DONE Position */   
-#define MXC_F_SPIM_INTFL_RX_DONE                            ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_RX_DONE_POS))          /**< RX_DONE Mask */                           
+#define MXC_F_SPIM_INTFL_RX_STALLED                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_RX_STALLED_POS))       /**< RX_STALLED Mask */
+#define MXC_F_SPIM_INTFL_TX_READY_POS                       2                                                                   /**< TX_READY Position */
+#define MXC_F_SPIM_INTFL_TX_READY                           ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_TX_READY_POS))         /**< TX_READY Mask */
+#define MXC_F_SPIM_INTFL_RX_DONE_POS                        3                                                                   /**< RX_DONE Position */
+#define MXC_F_SPIM_INTFL_RX_DONE                            ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_RX_DONE_POS))          /**< RX_DONE Mask */
 #define MXC_F_SPIM_INTFL_TX_FIFO_AE_POS                     4                                                                   /**< TX_FIFO_AE Position */
-#define MXC_F_SPIM_INTFL_TX_FIFO_AE                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_TX_FIFO_AE_POS))       /**< TX_FIFO_AE Mask */                           
+#define MXC_F_SPIM_INTFL_TX_FIFO_AE                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_TX_FIFO_AE_POS))       /**< TX_FIFO_AE Mask */
 #define MXC_F_SPIM_INTFL_RX_FIFO_AF_POS                     5                                                                   /**< RX_FIFO_AF Position */
-#define MXC_F_SPIM_INTFL_RX_FIFO_AF                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_RX_FIFO_AF_POS))       /**< RX_FIFO_AF Mask */                           
+#define MXC_F_SPIM_INTFL_RX_FIFO_AF                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTFL_RX_FIFO_AF_POS))       /**< RX_FIFO_AF Mask */
 /**@} end of group SPIM_INTFL*/
 /**
  * @ingroup  spim_registers
  * @defgroup SPIM_INTEN_Register SPIM_INTEN
  * @brief    Field Positions and Bit Masks for the SPIM_INTEN register
  * @{
- */ 
+ */
 #define MXC_F_SPIM_INTEN_TX_STALLED_POS                     0                                                                /**< TX_STALLED Position */
-#define MXC_F_SPIM_INTEN_TX_STALLED                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_TX_STALLED_POS))    /**< TX_STALLED Mask */                           
+#define MXC_F_SPIM_INTEN_TX_STALLED                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_TX_STALLED_POS))    /**< TX_STALLED Mask */
 #define MXC_F_SPIM_INTEN_RX_STALLED_POS                     1                                                                /**< RX_STALLED Position */
-#define MXC_F_SPIM_INTEN_RX_STALLED                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_RX_STALLED_POS))    /**< RX_STALLED Mask */                           
-#define MXC_F_SPIM_INTEN_TX_READY_POS                       2                                                                /**< TX_READY Position */   
-#define MXC_F_SPIM_INTEN_TX_READY                           ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_TX_READY_POS))      /**< TX_READY Mask */                           
-#define MXC_F_SPIM_INTEN_RX_DONE_POS                        3                                                                /**< RX_DONE Position */   
-#define MXC_F_SPIM_INTEN_RX_DONE                            ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_RX_DONE_POS))       /**< RX_DONE Mask */                           
+#define MXC_F_SPIM_INTEN_RX_STALLED                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_RX_STALLED_POS))    /**< RX_STALLED Mask */
+#define MXC_F_SPIM_INTEN_TX_READY_POS                       2                                                                /**< TX_READY Position */
+#define MXC_F_SPIM_INTEN_TX_READY                           ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_TX_READY_POS))      /**< TX_READY Mask */
+#define MXC_F_SPIM_INTEN_RX_DONE_POS                        3                                                                /**< RX_DONE Position */
+#define MXC_F_SPIM_INTEN_RX_DONE                            ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_RX_DONE_POS))       /**< RX_DONE Mask */
 #define MXC_F_SPIM_INTEN_TX_FIFO_AE_POS                     4                                                                /**< TX_FIFO_AE Position */
-#define MXC_F_SPIM_INTEN_TX_FIFO_AE                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_TX_FIFO_AE_POS))    /**< TX_FIFO_AE Mask */                           
+#define MXC_F_SPIM_INTEN_TX_FIFO_AE                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_TX_FIFO_AE_POS))    /**< TX_FIFO_AE Mask */
 #define MXC_F_SPIM_INTEN_RX_FIFO_AF_POS                     5                                                                /**< RX_FIFO_AF Position */
-#define MXC_F_SPIM_INTEN_RX_FIFO_AF                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_RX_FIFO_AF_POS))    /**< RX_FIFO_AF Mask */                           
+#define MXC_F_SPIM_INTEN_RX_FIFO_AF                         ((uint32_t)(0x00000001UL << MXC_F_SPIM_INTEN_RX_FIFO_AF_POS))    /**< RX_FIFO_AF Mask */
 /**@} end of group SPIM_INTEN*/
 /**
  * @ingroup  spim_registers
  * @defgroup SPIM_SIMPLE_HEADERS_Register SPIM_SIMPLE_HEADERS
  * @brief    Field Positions and Bit Masks for the SPIM_SIMPLE_HEADERS register
  * @{
- */ 
+ */
 #define MXC_F_SPIM_SIMPLE_HEADERS_TX_BIDIR_HEADER_POS       0                                                                           /**< TX_BIDIR_HEADER Position */
-#define MXC_F_SPIM_SIMPLE_HEADERS_TX_BIDIR_HEADER           ((uint32_t)(0x00003FFFUL << MXC_F_SPIM_SIMPLE_HEADERS_TX_BIDIR_HEADER_POS)) /**< TX_BIDIR_HEADER Mask */                           
+#define MXC_F_SPIM_SIMPLE_HEADERS_TX_BIDIR_HEADER           ((uint32_t)(0x00003FFFUL << MXC_F_SPIM_SIMPLE_HEADERS_TX_BIDIR_HEADER_POS)) /**< TX_BIDIR_HEADER Mask */
 #define MXC_F_SPIM_SIMPLE_HEADERS_RX_ONLY_HEADER_POS        16                                                                          /**< RX_ONLY_HEADER Position */
-#define MXC_F_SPIM_SIMPLE_HEADERS_RX_ONLY_HEADER            ((uint32_t)(0x00003FFFUL << MXC_F_SPIM_SIMPLE_HEADERS_RX_ONLY_HEADER_POS))  /**< RX_ONLY_HEADER Mask */                           
+#define MXC_F_SPIM_SIMPLE_HEADERS_RX_ONLY_HEADER            ((uint32_t)(0x00003FFFUL << MXC_F_SPIM_SIMPLE_HEADERS_RX_ONLY_HEADER_POS))  /**< RX_ONLY_HEADER Mask */
 /**@} end of group SPIM_SIMPLE_HEADERS*/
 
 

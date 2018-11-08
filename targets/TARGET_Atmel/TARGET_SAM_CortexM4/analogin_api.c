@@ -32,7 +32,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
     obj->channel = (enum adc_channel_num)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->channel != NC);
-    if(!adc_inited) { /*ADC hardare to be initialised only once*/
+    if (!adc_inited) { /*ADC hardare to be initialised only once*/
         adc_enable();
 #if SAMG55
         adc_select_clock_source_mck(ADC);

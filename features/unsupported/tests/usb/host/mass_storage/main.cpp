@@ -13,10 +13,10 @@ void msd_task(void const *)
     FATFileSystem fs("usb");
     int err;
     printf("wait for usb memory stick insertion\n");
-    while(1) {
+    while (1) {
 
         // try to connect a MSD device
-        while(!msd.connect()) {
+        while (!msd.connect()) {
             Thread::wait(500);
         }
         if (fs.mount(&msd) != 0) {
@@ -25,7 +25,7 @@ void msd_task(void const *)
             printf("file system mounted\n");
         }
 
-        if  (!msd.connect()) {
+        if (!msd.connect()) {
             continue;
         }
 
@@ -34,14 +34,14 @@ void msd_task(void const *)
 
         // append a file
         File file;
-        err = file.open(&fs, "test1.txt", O_WRONLY | O_CREAT |O_APPEND);
+        err = file.open(&fs, "test1.txt", O_WRONLY | O_CREAT | O_APPEND);
 
         if (err == 0) {
             char tmp[100];
-            sprintf(tmp,"Hello fun USB stick  World: %d!\r\n", i++);
-            file.write(tmp,strlen(tmp));
-            sprintf(tmp,"Goodbye World!\r\n");
-            file.write(tmp,strlen(tmp));
+            sprintf(tmp, "Hello fun USB stick  World: %d!\r\n", i++);
+            file.write(tmp, strlen(tmp));
+            sprintf(tmp, "Goodbye World!\r\n");
+            file.write(tmp, strlen(tmp));
             file.close();
         } else {
             printf("FILE == NULL\r\n");
@@ -63,8 +63,8 @@ int main()
 {
     Thread msdTask(msd_task, NULL, osPriorityNormal, 1024 * 4);
 
-    while(1) {
-        led=!led;
+    while (1) {
+        led = !led;
         Thread::wait(500);
     }
 }

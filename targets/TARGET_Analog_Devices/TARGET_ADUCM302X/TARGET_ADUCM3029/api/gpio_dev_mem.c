@@ -44,7 +44,7 @@
    guarantee 4 byte alignmnet.
  *******************************************************************************/
 // ADI GPIO device driver state memory. Only one state memory is required globally.
-uint32_t gpioMemory[(ADI_GPIO_MEMORY_SIZE + 3)/4];
+uint32_t gpioMemory[(ADI_GPIO_MEMORY_SIZE + 3) / 4];
 
 // Flag to indicate whether the GPIO driver has been initialized
 uint8_t  gpio_initialized = 0;

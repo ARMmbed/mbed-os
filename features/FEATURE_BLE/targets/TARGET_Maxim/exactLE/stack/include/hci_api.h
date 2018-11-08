@@ -64,231 +64,208 @@ extern "C" {
 **************************************************************************************************/
 
 /*! Connection specification type */
-typedef struct
-{
-  uint16_t            connIntervalMin;
-  uint16_t            connIntervalMax;
-  uint16_t            connLatency;
-  uint16_t            supTimeout;
-  uint16_t            minCeLen;
-  uint16_t            maxCeLen;
+typedef struct {
+    uint16_t            connIntervalMin;
+    uint16_t            connIntervalMax;
+    uint16_t            connLatency;
+    uint16_t            supTimeout;
+    uint16_t            minCeLen;
+    uint16_t            maxCeLen;
 } hciConnSpec_t;
 
 /*! LE connection complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             role;
-  uint8_t             addrType;
-  bdAddr_t            peerAddr;
-  uint16_t            connInterval;
-  uint16_t            connLatency;
-  uint16_t            supTimeout;
-  uint8_t             clockAccuracy;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             role;
+    uint8_t             addrType;
+    bdAddr_t            peerAddr;
+    uint16_t            connInterval;
+    uint16_t            connLatency;
+    uint16_t            supTimeout;
+    uint8_t             clockAccuracy;
 } hciLeConnCmplEvt_t;
 
 /*! Disconnect complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             reason;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             reason;
 } hciDisconnectCmplEvt_t;
 
 /*! LE connection update complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint16_t            connInterval;
-  uint16_t            connLatency;
-  uint16_t            supTimeout;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint16_t            connInterval;
+    uint16_t            connLatency;
+    uint16_t            supTimeout;
 } hciLeConnUpdateCmplEvt_t;
 
 /*! LE create connection cancel command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
 } hciLeCreateConnCancelCmdCmplEvt_t;
 
 /*! LE advertising report event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             *pData;
-  uint8_t             len;
-  int8_t              rssi;
-  uint8_t             eventType;
-  uint8_t             addrType;
-  bdAddr_t            addr;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             *pData;
+    uint8_t             len;
+    int8_t              rssi;
+    uint8_t             eventType;
+    uint8_t             addrType;
+    bdAddr_t            addr;
 } hciLeAdvReportEvt_t;
 
 /*! Read RSSI command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint8_t             handle;
-  int8_t              rssi;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint8_t             handle;
+    int8_t              rssi;
 } hciReadRssiCmdCmplEvt_t;
 
 /*! LE Read channel map command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             chanMap[HCI_CHAN_MAP_LEN];
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             chanMap[HCI_CHAN_MAP_LEN];
 } hciReadChanMapCmdCmplEvt_t;
 
 /*! Read transmit power level command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint8_t             handle;
-  int8_t              pwrLvl;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint8_t             handle;
+    int8_t              pwrLvl;
 } hciReadTxPwrLvlCmdCmplEvt_t;
 
 /*! Read remote version information complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             version;
-  uint16_t            mfrName;
-  uint16_t            subversion; 
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             version;
+    uint16_t            mfrName;
+    uint16_t            subversion;
 } hciReadRemoteVerInfoCmplEvt_t;
 
 /*! LE read remote features complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             features[HCI_FEAT_LEN];
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             features[HCI_FEAT_LEN];
 } hciLeReadRemoteFeatCmplEvt_t;
 
 /*! LE LTK request reply command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
 } hciLeLtkReqReplCmdCmplEvt_t;
 
 /*! LE LTK request negative reply command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
 } hciLeLtkReqNegReplCmdCmplEvt_t;
 
 /*! Encryption key refresh complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
 } hciEncKeyRefreshCmpl_t;
 
 /*! Encryption change event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             enabled;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             enabled;
 } hciEncChangeEvt_t;
 
 /*! LE LTK request event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint16_t            handle;
-  uint8_t             randNum[HCI_RAND_LEN];
-  uint16_t            encDiversifier;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint16_t            handle;
+    uint8_t             randNum[HCI_RAND_LEN];
+    uint16_t            encDiversifier;
 } hciLeLtkReqEvt_t;
 
 /*! Vendor specific command status event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint16_t           opcode;
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint16_t           opcode;
 } hciVendorSpecCmdStatusEvt_t;
 
 /*! Vendor specific command complete event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint16_t           opcode;
-  uint8_t            param[1];
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint16_t           opcode;
+    uint8_t            param[1];
 } hciVendorSpecCmdCmplEvt_t;
 
 /*! Vendor specific event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint8_t            param[1];
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint8_t            param[1];
 } hciVendorSpecEvt_t;
 
 /*! Hardware error event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint8_t            code;
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint8_t            code;
 } hciHwErrorEvt_t;
 
 /*! LE encrypt command complete event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint8_t            status;
-  uint8_t            data[HCI_ENCRYPT_DATA_LEN];
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint8_t            status;
+    uint8_t            data[HCI_ENCRYPT_DATA_LEN];
 } hciLeEncryptCmdCmplEvt_t;
 
 /*! LE rand command complete event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint8_t            status;
-  uint8_t            randNum[HCI_RAND_LEN];
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint8_t            status;
+    uint8_t            randNum[HCI_RAND_LEN];
 } hciLeRandCmdCmplEvt_t;
 
 
 /*! Union of all event types */
-typedef union
-{
-  wsfMsgHdr_t                       hdr;
-  wsfMsgHdr_t                       resetSeqCmpl;
-  hciLeConnCmplEvt_t                leConnCmpl;
-  hciDisconnectCmplEvt_t            disconnectCmpl;
-  hciLeConnUpdateCmplEvt_t          leConnUpdateCmpl;
-  hciLeCreateConnCancelCmdCmplEvt_t leCreateConnCancelCmdCmpl;
-  hciLeAdvReportEvt_t               leAdvReport;
-  hciReadRssiCmdCmplEvt_t           readRssiCmdCmpl;
-  hciReadChanMapCmdCmplEvt_t        readChanMapCmdCmpl;    
-  hciReadTxPwrLvlCmdCmplEvt_t       readTxPwrLvlCmdCmpl;   
-  hciReadRemoteVerInfoCmplEvt_t     readRemoteVerInfoCmpl;  
-  hciLeReadRemoteFeatCmplEvt_t      leReadRemoteFeatCmpl;  
-  hciLeLtkReqReplCmdCmplEvt_t       leLtkReqReplCmdCmpl;   
-  hciLeLtkReqNegReplCmdCmplEvt_t    leLtkReqNegReplCmdCmpl;
-  hciEncKeyRefreshCmpl_t            encKeyRefreshCmpl;       
-  hciEncChangeEvt_t                 encChange;             
-  hciLeLtkReqEvt_t                  leLtkReq;                 
-  hciVendorSpecCmdStatusEvt_t       vendorSpecCmdStatus;   
-  hciVendorSpecCmdCmplEvt_t         vendorSpecCmdCmpl;     
-  hciVendorSpecEvt_t                vendorSpec;            
-  hciHwErrorEvt_t                   hwError;
-  hciLeEncryptCmdCmplEvt_t          leEncryptCmdCmpl;
-  hciLeRandCmdCmplEvt_t             leRandCmdCmpl;
+typedef union {
+    wsfMsgHdr_t                       hdr;
+    wsfMsgHdr_t                       resetSeqCmpl;
+    hciLeConnCmplEvt_t                leConnCmpl;
+    hciDisconnectCmplEvt_t            disconnectCmpl;
+    hciLeConnUpdateCmplEvt_t          leConnUpdateCmpl;
+    hciLeCreateConnCancelCmdCmplEvt_t leCreateConnCancelCmdCmpl;
+    hciLeAdvReportEvt_t               leAdvReport;
+    hciReadRssiCmdCmplEvt_t           readRssiCmdCmpl;
+    hciReadChanMapCmdCmplEvt_t        readChanMapCmdCmpl;
+    hciReadTxPwrLvlCmdCmplEvt_t       readTxPwrLvlCmdCmpl;
+    hciReadRemoteVerInfoCmplEvt_t     readRemoteVerInfoCmpl;
+    hciLeReadRemoteFeatCmplEvt_t      leReadRemoteFeatCmpl;
+    hciLeLtkReqReplCmdCmplEvt_t       leLtkReqReplCmdCmpl;
+    hciLeLtkReqNegReplCmdCmplEvt_t    leLtkReqNegReplCmdCmpl;
+    hciEncKeyRefreshCmpl_t            encKeyRefreshCmpl;
+    hciEncChangeEvt_t                 encChange;
+    hciLeLtkReqEvt_t                  leLtkReq;
+    hciVendorSpecCmdStatusEvt_t       vendorSpecCmdStatus;
+    hciVendorSpecCmdCmplEvt_t         vendorSpecCmdCmpl;
+    hciVendorSpecEvt_t                vendorSpec;
+    hciHwErrorEvt_t                   hwError;
+    hciLeEncryptCmdCmplEvt_t          leEncryptCmdCmpl;
+    hciLeRandCmdCmplEvt_t             leRandCmdCmpl;
 } hciEvt_t;
 
 /**************************************************************************************************

@@ -38,7 +38,7 @@
 #define __STM32F4xx_HAL_DSI_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined(DSI)
@@ -58,272 +58,263 @@
 /**
   * @brief  DSI Init Structure definition
   */
-typedef struct
-{
-  uint32_t AutomaticClockLaneControl;    /*!< Automatic clock lane control
+typedef struct {
+    uint32_t AutomaticClockLaneControl;    /*!< Automatic clock lane control
                                               This parameter can be any value of @ref DSI_Automatic_Clk_Lane_Control */
 
-  uint32_t TXEscapeCkdiv;                /*!< TX Escape clock division
+    uint32_t TXEscapeCkdiv;                /*!< TX Escape clock division
                                               The values 0 and 1 stop the TX_ESC clock generation                    */
 
-  uint32_t NumberOfLanes;                /*!< Number of lanes
+    uint32_t NumberOfLanes;                /*!< Number of lanes
                                               This parameter can be any value of @ref DSI_Number_Of_Lanes            */
 
-}DSI_InitTypeDef;
+} DSI_InitTypeDef;
 
 /**
   * @brief  DSI PLL Clock structure definition
   */
-typedef struct
-{
-  uint32_t PLLNDIV;                      /*!< PLL Loop Division Factor
+typedef struct {
+    uint32_t PLLNDIV;                      /*!< PLL Loop Division Factor
                                               This parameter must be a value between 10 and 125   */
 
-  uint32_t PLLIDF;                       /*!< PLL Input Division Factor
+    uint32_t PLLIDF;                       /*!< PLL Input Division Factor
                                               This parameter can be any value of @ref DSI_PLL_IDF */
 
-  uint32_t PLLODF;                       /*!< PLL Output Division Factor
+    uint32_t PLLODF;                       /*!< PLL Output Division Factor
                                               This parameter can be any value of @ref DSI_PLL_ODF */
 
-}DSI_PLLInitTypeDef;
+} DSI_PLLInitTypeDef;
 
 /**
   * @brief  DSI Video mode configuration
   */
-typedef struct
-{
-  uint32_t VirtualChannelID;             /*!< Virtual channel ID                                                 */
+typedef struct {
+    uint32_t VirtualChannelID;             /*!< Virtual channel ID                                                 */
 
-  uint32_t ColorCoding;                  /*!< Color coding for LTDC interface
+    uint32_t ColorCoding;                  /*!< Color coding for LTDC interface
                                               This parameter can be any value of @ref DSI_Color_Coding           */
 
-  uint32_t LooselyPacked;                /*!< Enable or disable loosely packed stream (needed only when using
+    uint32_t LooselyPacked;                /*!< Enable or disable loosely packed stream (needed only when using
                                               18-bit configuration).
                                               This parameter can be any value of @ref DSI_LooselyPacked          */
 
-  uint32_t Mode;                         /*!< Video mode type
+    uint32_t Mode;                         /*!< Video mode type
                                               This parameter can be any value of @ref DSI_Video_Mode_Type        */
 
-  uint32_t PacketSize;                   /*!< Video packet size                                                  */
+    uint32_t PacketSize;                   /*!< Video packet size                                                  */
 
-  uint32_t NumberOfChunks;               /*!< Number of chunks                                                   */
+    uint32_t NumberOfChunks;               /*!< Number of chunks                                                   */
 
-  uint32_t NullPacketSize;               /*!< Null packet size                                                   */
+    uint32_t NullPacketSize;               /*!< Null packet size                                                   */
 
-  uint32_t HSPolarity;                   /*!< HSYNC pin polarity
+    uint32_t HSPolarity;                   /*!< HSYNC pin polarity
                                               This parameter can be any value of @ref DSI_HSYNC_Polarity         */
 
-  uint32_t VSPolarity;                   /*!< VSYNC pin polarity
+    uint32_t VSPolarity;                   /*!< VSYNC pin polarity
                                               This parameter can be any value of @ref DSI_VSYNC_Active_Polarity  */
 
-  uint32_t DEPolarity;                   /*!< Data Enable pin polarity
+    uint32_t DEPolarity;                   /*!< Data Enable pin polarity
                                               This parameter can be any value of @ref DSI_DATA_ENABLE_Polarity   */
 
-  uint32_t HorizontalSyncActive;         /*!< Horizontal synchronism active duration (in lane byte clock cycles) */
+    uint32_t HorizontalSyncActive;         /*!< Horizontal synchronism active duration (in lane byte clock cycles) */
 
-  uint32_t HorizontalBackPorch;          /*!< Horizontal back-porch duration (in lane byte clock cycles)         */
+    uint32_t HorizontalBackPorch;          /*!< Horizontal back-porch duration (in lane byte clock cycles)         */
 
-  uint32_t HorizontalLine;               /*!< Horizontal line duration (in lane byte clock cycles)               */
+    uint32_t HorizontalLine;               /*!< Horizontal line duration (in lane byte clock cycles)               */
 
-  uint32_t VerticalSyncActive;           /*!< Vertical synchronism active duration                               */
+    uint32_t VerticalSyncActive;           /*!< Vertical synchronism active duration                               */
 
-  uint32_t VerticalBackPorch;            /*!< Vertical back-porch duration                                       */
+    uint32_t VerticalBackPorch;            /*!< Vertical back-porch duration                                       */
 
-  uint32_t VerticalFrontPorch;           /*!< Vertical front-porch duration                                      */
+    uint32_t VerticalFrontPorch;           /*!< Vertical front-porch duration                                      */
 
-  uint32_t VerticalActive;               /*!< Vertical active duration                                           */
+    uint32_t VerticalActive;               /*!< Vertical active duration                                           */
 
-  uint32_t LPCommandEnable;              /*!< Low-power command enable
+    uint32_t LPCommandEnable;              /*!< Low-power command enable
                                               This parameter can be any value of @ref DSI_LP_Command             */
 
-  uint32_t LPLargestPacketSize;          /*!< The size, in bytes, of the low power largest packet that
+    uint32_t LPLargestPacketSize;          /*!< The size, in bytes, of the low power largest packet that
                                               can fit in a line during VSA, VBP and VFP regions                  */
 
-  uint32_t LPVACTLargestPacketSize;      /*!< The size, in bytes, of the low power largest packet that
+    uint32_t LPVACTLargestPacketSize;      /*!< The size, in bytes, of the low power largest packet that
                                               can fit in a line during VACT region                               */
 
-  uint32_t LPHorizontalFrontPorchEnable; /*!< Low-power horizontal front-porch enable
+    uint32_t LPHorizontalFrontPorchEnable; /*!< Low-power horizontal front-porch enable
                                               This parameter can be any value of @ref DSI_LP_HFP                 */
 
-  uint32_t LPHorizontalBackPorchEnable;  /*!< Low-power horizontal back-porch enable
+    uint32_t LPHorizontalBackPorchEnable;  /*!< Low-power horizontal back-porch enable
                                               This parameter can be any value of @ref DSI_LP_HBP                 */
 
-  uint32_t LPVerticalActiveEnable;       /*!< Low-power vertical active enable
+    uint32_t LPVerticalActiveEnable;       /*!< Low-power vertical active enable
                                               This parameter can be any value of @ref DSI_LP_VACT                */
 
-  uint32_t LPVerticalFrontPorchEnable;   /*!< Low-power vertical front-porch enable
+    uint32_t LPVerticalFrontPorchEnable;   /*!< Low-power vertical front-porch enable
                                               This parameter can be any value of @ref DSI_LP_VFP                 */
 
-  uint32_t LPVerticalBackPorchEnable;    /*!< Low-power vertical back-porch enable
+    uint32_t LPVerticalBackPorchEnable;    /*!< Low-power vertical back-porch enable
                                               This parameter can be any value of @ref DSI_LP_VBP                 */
 
-  uint32_t LPVerticalSyncActiveEnable;   /*!< Low-power vertical sync active enable
+    uint32_t LPVerticalSyncActiveEnable;   /*!< Low-power vertical sync active enable
                                               This parameter can be any value of @ref DSI_LP_VSYNC               */
 
-  uint32_t FrameBTAAcknowledgeEnable;    /*!< Frame bus-turn-around acknowledge enable
+    uint32_t FrameBTAAcknowledgeEnable;    /*!< Frame bus-turn-around acknowledge enable
                                               This parameter can be any value of @ref DSI_FBTA_acknowledge       */
 
-}DSI_VidCfgTypeDef;
+} DSI_VidCfgTypeDef;
 
 /**
   * @brief  DSI Adapted command mode configuration
   */
-typedef struct
-{
-  uint32_t VirtualChannelID;             /*!< Virtual channel ID                                                */
+typedef struct {
+    uint32_t VirtualChannelID;             /*!< Virtual channel ID                                                */
 
-  uint32_t ColorCoding;                  /*!< Color coding for LTDC interface
+    uint32_t ColorCoding;                  /*!< Color coding for LTDC interface
                                               This parameter can be any value of @ref DSI_Color_Coding          */
 
-  uint32_t CommandSize;                  /*!< Maximum allowed size for an LTDC write memory command, measured in
+    uint32_t CommandSize;                  /*!< Maximum allowed size for an LTDC write memory command, measured in
                                               pixels. This parameter can be any value between 0x00 and 0xFFFFU   */
 
-  uint32_t TearingEffectSource;          /*!< Tearing effect source
+    uint32_t TearingEffectSource;          /*!< Tearing effect source
                                               This parameter can be any value of @ref DSI_TearingEffectSource   */
 
-  uint32_t TearingEffectPolarity;        /*!< Tearing effect pin polarity
+    uint32_t TearingEffectPolarity;        /*!< Tearing effect pin polarity
                                               This parameter can be any value of @ref DSI_TearingEffectPolarity */
 
-  uint32_t HSPolarity;                   /*!< HSYNC pin polarity
+    uint32_t HSPolarity;                   /*!< HSYNC pin polarity
                                               This parameter can be any value of @ref DSI_HSYNC_Polarity        */
 
-  uint32_t VSPolarity;                   /*!< VSYNC pin polarity
+    uint32_t VSPolarity;                   /*!< VSYNC pin polarity
                                               This parameter can be any value of @ref DSI_VSYNC_Active_Polarity */
 
-  uint32_t DEPolarity;                   /*!< Data Enable pin polarity
+    uint32_t DEPolarity;                   /*!< Data Enable pin polarity
                                               This parameter can be any value of @ref DSI_DATA_ENABLE_Polarity  */
 
-  uint32_t VSyncPol;                     /*!< VSync edge on which the LTDC is halted
+    uint32_t VSyncPol;                     /*!< VSync edge on which the LTDC is halted
                                               This parameter can be any value of @ref DSI_Vsync_Polarity        */
 
-  uint32_t AutomaticRefresh;             /*!< Automatic refresh mode
+    uint32_t AutomaticRefresh;             /*!< Automatic refresh mode
                                               This parameter can be any value of @ref DSI_AutomaticRefresh      */
 
-  uint32_t TEAcknowledgeRequest;         /*!< Tearing Effect Acknowledge Request Enable
+    uint32_t TEAcknowledgeRequest;         /*!< Tearing Effect Acknowledge Request Enable
                                               This parameter can be any value of @ref DSI_TE_AcknowledgeRequest */
 
-}DSI_CmdCfgTypeDef;
+} DSI_CmdCfgTypeDef;
 
 /**
   * @brief  DSI command transmission mode configuration
   */
-typedef struct
-{
-  uint32_t LPGenShortWriteNoP;           /*!< Generic Short Write Zero parameters Transmission
+typedef struct {
+    uint32_t LPGenShortWriteNoP;           /*!< Generic Short Write Zero parameters Transmission
                                               This parameter can be any value of @ref DSI_LP_LPGenShortWriteNoP  */
 
-  uint32_t LPGenShortWriteOneP;          /*!< Generic Short Write One parameter Transmission
+    uint32_t LPGenShortWriteOneP;          /*!< Generic Short Write One parameter Transmission
                                               This parameter can be any value of @ref DSI_LP_LPGenShortWriteOneP */
 
-  uint32_t LPGenShortWriteTwoP;          /*!< Generic Short Write Two parameters Transmission
+    uint32_t LPGenShortWriteTwoP;          /*!< Generic Short Write Two parameters Transmission
                                               This parameter can be any value of @ref DSI_LP_LPGenShortWriteTwoP */
 
-  uint32_t LPGenShortReadNoP;            /*!< Generic Short Read Zero parameters Transmission
+    uint32_t LPGenShortReadNoP;            /*!< Generic Short Read Zero parameters Transmission
                                               This parameter can be any value of @ref DSI_LP_LPGenShortReadNoP   */
 
-  uint32_t LPGenShortReadOneP;           /*!< Generic Short Read One parameter Transmission
+    uint32_t LPGenShortReadOneP;           /*!< Generic Short Read One parameter Transmission
                                               This parameter can be any value of @ref DSI_LP_LPGenShortReadOneP  */
 
-  uint32_t LPGenShortReadTwoP;           /*!< Generic Short Read Two parameters Transmission
+    uint32_t LPGenShortReadTwoP;           /*!< Generic Short Read Two parameters Transmission
                                               This parameter can be any value of @ref DSI_LP_LPGenShortReadTwoP  */
 
-  uint32_t LPGenLongWrite;               /*!< Generic Long Write Transmission
+    uint32_t LPGenLongWrite;               /*!< Generic Long Write Transmission
                                               This parameter can be any value of @ref DSI_LP_LPGenLongWrite      */
 
-  uint32_t LPDcsShortWriteNoP;           /*!< DCS Short Write Zero parameters Transmission
+    uint32_t LPDcsShortWriteNoP;           /*!< DCS Short Write Zero parameters Transmission
                                               This parameter can be any value of @ref DSI_LP_LPDcsShortWriteNoP  */
 
-  uint32_t LPDcsShortWriteOneP;          /*!< DCS Short Write One parameter Transmission
+    uint32_t LPDcsShortWriteOneP;          /*!< DCS Short Write One parameter Transmission
                                               This parameter can be any value of @ref DSI_LP_LPDcsShortWriteOneP */
 
-  uint32_t LPDcsShortReadNoP;            /*!< DCS Short Read Zero parameters Transmission
+    uint32_t LPDcsShortReadNoP;            /*!< DCS Short Read Zero parameters Transmission
                                               This parameter can be any value of @ref DSI_LP_LPDcsShortReadNoP   */
 
-  uint32_t LPDcsLongWrite;               /*!< DCS Long Write Transmission
+    uint32_t LPDcsLongWrite;               /*!< DCS Long Write Transmission
                                               This parameter can be any value of @ref DSI_LP_LPDcsLongWrite      */
 
-  uint32_t LPMaxReadPacket;              /*!< Maximum Read Packet Size Transmission
+    uint32_t LPMaxReadPacket;              /*!< Maximum Read Packet Size Transmission
                                               This parameter can be any value of @ref DSI_LP_LPMaxReadPacket     */
 
-  uint32_t AcknowledgeRequest;           /*!< Acknowledge Request Enable
+    uint32_t AcknowledgeRequest;           /*!< Acknowledge Request Enable
                                               This parameter can be any value of @ref DSI_AcknowledgeRequest     */
 
-}DSI_LPCmdTypeDef;
+} DSI_LPCmdTypeDef;
 
 /**
   * @brief  DSI PHY Timings definition
   */
-typedef struct
-{
-  uint32_t ClockLaneHS2LPTime;           /*!< The maximum time that the D-PHY clock lane takes to go from high-speed
+typedef struct {
+    uint32_t ClockLaneHS2LPTime;           /*!< The maximum time that the D-PHY clock lane takes to go from high-speed
                                               to low-power transmission                                              */
 
-  uint32_t ClockLaneLP2HSTime;           /*!< The maximum time that the D-PHY clock lane takes to go from low-power
+    uint32_t ClockLaneLP2HSTime;           /*!< The maximum time that the D-PHY clock lane takes to go from low-power
                                               to high-speed transmission                                             */
 
-  uint32_t DataLaneHS2LPTime;            /*!< The maximum time that the D-PHY data lanes takes to go from high-speed
+    uint32_t DataLaneHS2LPTime;            /*!< The maximum time that the D-PHY data lanes takes to go from high-speed
                                               to low-power transmission                                              */
 
-  uint32_t DataLaneLP2HSTime;            /*!< The maximum time that the D-PHY data lanes takes to go from low-power
+    uint32_t DataLaneLP2HSTime;            /*!< The maximum time that the D-PHY data lanes takes to go from low-power
                                               to high-speed transmission                                             */
 
-  uint32_t DataLaneMaxReadTime;          /*!< The maximum time required to perform a read command */
+    uint32_t DataLaneMaxReadTime;          /*!< The maximum time required to perform a read command */
 
-  uint32_t StopWaitTime;                 /*!< The minimum wait period to request a High-Speed transmission after the
+    uint32_t StopWaitTime;                 /*!< The minimum wait period to request a High-Speed transmission after the
                                               Stop state                                                             */
 
-}DSI_PHY_TimerTypeDef;
+} DSI_PHY_TimerTypeDef;
 
 /**
   * @brief  DSI HOST Timeouts definition
   */
-typedef struct
-{
-  uint32_t TimeoutCkdiv;                 /*!< Time-out clock division                                  */
+typedef struct {
+    uint32_t TimeoutCkdiv;                 /*!< Time-out clock division                                  */
 
-  uint32_t HighSpeedTransmissionTimeout; /*!< High-speed transmission time-out                         */
+    uint32_t HighSpeedTransmissionTimeout; /*!< High-speed transmission time-out                         */
 
-  uint32_t LowPowerReceptionTimeout;     /*!< Low-power reception time-out                             */
+    uint32_t LowPowerReceptionTimeout;     /*!< Low-power reception time-out                             */
 
-  uint32_t HighSpeedReadTimeout;         /*!< High-speed read time-out                                 */
+    uint32_t HighSpeedReadTimeout;         /*!< High-speed read time-out                                 */
 
-  uint32_t LowPowerReadTimeout;          /*!< Low-power read time-out                                  */
+    uint32_t LowPowerReadTimeout;          /*!< Low-power read time-out                                  */
 
-  uint32_t HighSpeedWriteTimeout;        /*!< High-speed write time-out                                */
+    uint32_t HighSpeedWriteTimeout;        /*!< High-speed write time-out                                */
 
-  uint32_t HighSpeedWritePrespMode;      /*!< High-speed write presp mode
+    uint32_t HighSpeedWritePrespMode;      /*!< High-speed write presp mode
                                               This parameter can be any value of @ref DSI_HS_PrespMode */
 
-  uint32_t LowPowerWriteTimeout;         /*!< Low-speed write time-out                                 */
+    uint32_t LowPowerWriteTimeout;         /*!< Low-speed write time-out                                 */
 
-  uint32_t BTATimeout;                   /*!< BTA time-out                                             */
+    uint32_t BTATimeout;                   /*!< BTA time-out                                             */
 
-}DSI_HOST_TimeoutTypeDef;
+} DSI_HOST_TimeoutTypeDef;
 
 /**
   * @brief  DSI States Structure definition
   */
-typedef enum
-{
-  HAL_DSI_STATE_RESET   = 0x00U,
-  HAL_DSI_STATE_READY   = 0x01U,
-  HAL_DSI_STATE_ERROR   = 0x02U,
-  HAL_DSI_STATE_BUSY    = 0x03U,
-  HAL_DSI_STATE_TIMEOUT = 0x04U
-}HAL_DSI_StateTypeDef;
+typedef enum {
+    HAL_DSI_STATE_RESET   = 0x00U,
+    HAL_DSI_STATE_READY   = 0x01U,
+    HAL_DSI_STATE_ERROR   = 0x02U,
+    HAL_DSI_STATE_BUSY    = 0x03U,
+    HAL_DSI_STATE_TIMEOUT = 0x04U
+} HAL_DSI_StateTypeDef;
 
 /**
   * @brief  DSI Handle Structure definition
   */
-typedef struct
-{
-  DSI_TypeDef               *Instance;    /*!< Register base address      */
-  DSI_InitTypeDef           Init;         /*!< DSI required parameters    */
-  HAL_LockTypeDef           Lock;         /*!< DSI peripheral status      */
-  __IO HAL_DSI_StateTypeDef State;        /*!< DSI communication state    */
-  __IO uint32_t             ErrorCode;    /*!< DSI Error code             */
-  uint32_t                  ErrorMsk;     /*!< DSI Error monitoring mask  */
-}DSI_HandleTypeDef;
+typedef struct {
+    DSI_TypeDef               *Instance;    /*!< Register base address      */
+    DSI_InitTypeDef           Init;         /*!< DSI required parameters    */
+    HAL_LockTypeDef           Lock;         /*!< DSI peripheral status      */
+    __IO HAL_DSI_StateTypeDef State;        /*!< DSI communication state    */
+    __IO uint32_t             ErrorCode;    /*!< DSI Error code             */
+    uint32_t                  ErrorMsk;     /*!< DSI Error monitoring mask  */
+} DSI_HandleTypeDef;
 
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup DSI_DCS_Command DSI DCS Command
@@ -1098,14 +1089,14 @@ HAL_StatusTypeDef HAL_DSI_LongWrite(DSI_HandleTypeDef *hdsi,
                                     uint32_t Mode,
                                     uint32_t NbParams,
                                     uint32_t Param1,
-                                    uint8_t* ParametersTable);
+                                    uint8_t *ParametersTable);
 HAL_StatusTypeDef HAL_DSI_Read(DSI_HandleTypeDef *hdsi,
                                uint32_t ChannelNbr,
-                               uint8_t* Array,
+                               uint8_t *Array,
                                uint32_t Size,
                                uint32_t Mode,
                                uint32_t DCSCmd,
-                               uint8_t* ParametersTable);
+                               uint8_t *ParametersTable);
 HAL_StatusTypeDef HAL_DSI_EnterULPMData(DSI_HandleTypeDef *hdsi);
 HAL_StatusTypeDef HAL_DSI_ExitULPMData(DSI_HandleTypeDef *hdsi);
 HAL_StatusTypeDef HAL_DSI_EnterULPM(DSI_HandleTypeDef *hdsi);

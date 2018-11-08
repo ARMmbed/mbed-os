@@ -145,12 +145,11 @@
     FLEXCAN_RX_FIFO_EXT_MASK_TYPE_C_LOW(id) /*!< Extend Rx FIFO Filter helper macro Type C lower part helper macro. */
 
 /*! @brief FlexCAN transfer status. */
-enum _flexcan_status
-{
+enum _flexcan_status {
     kStatus_FLEXCAN_TxBusy = MAKE_STATUS(kStatusGroup_FLEXCAN, 0), /*!< Tx Message Buffer is Busy. */
     kStatus_FLEXCAN_TxIdle = MAKE_STATUS(kStatusGroup_FLEXCAN, 1), /*!< Tx Message Buffer is Idle. */
     kStatus_FLEXCAN_TxSwitchToRx = MAKE_STATUS(
-        kStatusGroup_FLEXCAN, 2), /*!< Remote Message is send out and Message buffer changed to Receive one. */
+                                       kStatusGroup_FLEXCAN, 2), /*!< Remote Message is send out and Message buffer changed to Receive one. */
     kStatus_FLEXCAN_RxBusy = MAKE_STATUS(kStatusGroup_FLEXCAN, 3),         /*!< Rx Message Buffer is Busy. */
     kStatus_FLEXCAN_RxIdle = MAKE_STATUS(kStatusGroup_FLEXCAN, 4),         /*!< Rx Message Buffer is Idle. */
     kStatus_FLEXCAN_RxOverflow = MAKE_STATUS(kStatusGroup_FLEXCAN, 5),     /*!< Rx Message Buffer is Overflowed. */
@@ -163,29 +162,25 @@ enum _flexcan_status
 };
 
 /*! @brief FlexCAN frame format. */
-typedef enum _flexcan_frame_format
-{
+typedef enum _flexcan_frame_format {
     kFLEXCAN_FrameFormatStandard = 0x0U, /*!< Standard frame format attribute. */
     kFLEXCAN_FrameFormatExtend = 0x1U,   /*!< Extend frame format attribute. */
 } flexcan_frame_format_t;
 
 /*! @brief FlexCAN frame type. */
-typedef enum _flexcan_frame_type
-{
+typedef enum _flexcan_frame_type {
     kFLEXCAN_FrameTypeData = 0x0U,   /*!< Data frame type attribute. */
     kFLEXCAN_FrameTypeRemote = 0x1U, /*!< Remote frame type attribute. */
 } flexcan_frame_type_t;
 
 /*! @brief FlexCAN clock source. */
-typedef enum _flexcan_clock_source
-{
+typedef enum _flexcan_clock_source {
     kFLEXCAN_ClkSrcOsc = 0x0U,  /*!< FlexCAN Protocol Engine clock from Oscillator. */
     kFLEXCAN_ClkSrcPeri = 0x1U, /*!< FlexCAN Protocol Engine clock from Peripheral Clock. */
 } flexcan_clock_source_t;
 
 /*! @brief FlexCAN Rx Fifo Filter type. */
-typedef enum _flexcan_rx_fifo_filter_type
-{
+typedef enum _flexcan_rx_fifo_filter_type {
     kFLEXCAN_RxFifoFilterTypeA = 0x0U, /*!< One full ID (standard and extended) per ID Filter element. */
     kFLEXCAN_RxFifoFilterTypeB =
         0x1U, /*!< Two full standard IDs or two partial 14-bit ID slices per ID Filter Table element. */
@@ -201,8 +196,7 @@ typedef enum _flexcan_rx_fifo_filter_type
  * If no MB(or Rx FIFO filter) is satisfied, the matching process goes on with
  * the Rx FIFO(or Rx MB) with lower priority.
  */
-typedef enum _flexcan_rx_fifo_priority
-{
+typedef enum _flexcan_rx_fifo_priority {
     kFLEXCAN_RxFifoPrioLow = 0x0U,  /*!< Matching process start from Rx Message Buffer first*/
     kFLEXCAN_RxFifoPrioHigh = 0x1U, /*!< Matching process start from Rx FIFO first*/
 } flexcan_rx_fifo_priority_t;
@@ -213,8 +207,7 @@ typedef enum _flexcan_rx_fifo_priority
  * This structure contains the settings for all of the FlexCAN Module interrupt configurations.
  * Note: FlexCAN Message Buffers and Rx FIFO have their own interrupts.
  */
-enum _flexcan_interrupt_enable
-{
+enum _flexcan_interrupt_enable {
     kFLEXCAN_BusOffInterruptEnable = CAN_CTRL1_BOFFMSK_MASK,    /*!< Bus Off interrupt. */
     kFLEXCAN_ErrorInterruptEnable = CAN_CTRL1_ERRMSK_MASK,      /*!< Error interrupt. */
     kFLEXCAN_RxWarningInterruptEnable = CAN_CTRL1_RWRNMSK_MASK, /*!< Rx Warning interrupt. */
@@ -230,8 +223,7 @@ enum _flexcan_interrupt_enable
  * read FlEXCAN_ErrorFlag and distinguish which error is occur using
  * @ref _flexcan_error_flags enumerations.
  */
-enum _flexcan_flags
-{
+enum _flexcan_flags {
     kFLEXCAN_SynchFlag = CAN_ESR1_SYNCH_MASK,              /*!< CAN Synchronization Status. */
     kFLEXCAN_TxWarningIntFlag = CAN_ESR1_TWRNINT_MASK,     /*!< Tx Warning Interrupt Flag. */
     kFLEXCAN_RxWarningIntFlag = CAN_ESR1_RWRNINT_MASK,     /*!< Rx Warning Interrupt Flag. */
@@ -256,8 +248,7 @@ enum _flexcan_flags
  * This enumerations should be used with KFLEXCAN_ErrorFlag in @ref _flexcan_flags enumerations
  * to ditermine which error is generated.
  */
-enum _flexcan_error_flags
-{
+enum _flexcan_error_flags {
     kFLEXCAN_StuffingError = CAN_ESR1_STFERR_MASK, /*!< Stuffing Error. */
     kFLEXCAN_FormError = CAN_ESR1_FRMERR_MASK,     /*!< Form Error. */
     kFLEXCAN_CrcError = CAN_ESR1_CRCERR_MASK,      /*!< Cyclic Redundancy Check Error. */
@@ -274,8 +265,7 @@ enum _flexcan_error_flags
  * more Message Buffer space), Rx FIFO status flags are mapped to the corresponding
  * Message Buffer status flags.
  */
-enum _flexcan_rx_fifo_flags
-{
+enum _flexcan_rx_fifo_flags {
     kFLEXCAN_RxFifoOverflowFlag = CAN_IFLAG1_BUF7I_MASK, /*!< Rx FIFO overflow flag. */
     kFLEXCAN_RxFifoWarningFlag = CAN_IFLAG1_BUF6I_MASK,  /*!< Rx FIFO almost full flag. */
     kFLEXCAN_RxFifoFrameAvlFlag = CAN_IFLAG1_BUF5I_MASK, /*!< Frames available in Rx FIFO flag. */
@@ -285,10 +275,8 @@ enum _flexcan_rx_fifo_flags
 #pragma anon_unions
 #endif
 /*! @brief FlexCAN message frame structure. */
-typedef struct _flexcan_frame
-{
-    struct
-    {
+typedef struct _flexcan_frame {
+    struct {
         uint32_t timestamp : 16; /*!< FlexCAN internal Free-Running Counter Time Stamp. */
         uint32_t length : 4;     /*!< CAN frame payload length in bytes(Range: 0~8). */
         uint32_t type : 1;       /*!< CAN Frame Type(DATA or REMOTE). */
@@ -296,20 +284,16 @@ typedef struct _flexcan_frame
         uint32_t : 1;            /*!< Reserved. */
         uint32_t idhit : 9;      /*!< CAN Rx FIFO filter hit id(This value is only used in Rx FIFO receive mode). */
     };
-    struct
-    {
+    struct {
         uint32_t id : 29; /*!< CAN Frame Identifier, should be set using FLEXCAN_ID_EXT() or FLEXCAN_ID_STD() macro. */
         uint32_t : 3;     /*!< Reserved. */
     };
-    union
-    {
-        struct
-        {
+    union {
+        struct {
             uint32_t dataWord0; /*!< CAN Frame payload word0. */
             uint32_t dataWord1; /*!< CAN Frame payload word1. */
         };
-        struct
-        {
+        struct {
             uint8_t dataByte3; /*!< CAN Frame payload byte3. */
             uint8_t dataByte2; /*!< CAN Frame payload byte2. */
             uint8_t dataByte1; /*!< CAN Frame payload byte1. */
@@ -323,8 +307,7 @@ typedef struct _flexcan_frame
 } flexcan_frame_t;
 
 /*! @brief FlexCAN module configuration structure. */
-typedef struct _flexcan_config
-{
+typedef struct _flexcan_config {
     uint32_t baudRate;             /*!< FlexCAN baud rate in bps. */
     flexcan_clock_source_t clkSrc; /*!< Clock source for FlexCAN Protocol Engine. */
     uint8_t maxMbNum;              /*!< The maximum number of Message Buffers used by user. */
@@ -337,8 +320,7 @@ typedef struct _flexcan_config
 } flexcan_config_t;
 
 /*! @brief FlexCAN protocol timing characteristic configuration structure. */
-typedef struct _flexcan_timing_config
-{
+typedef struct _flexcan_timing_config {
     uint8_t preDivider; /*!< Clock Pre-scaler Division Factor. */
     uint8_t rJumpwidth; /*!< Re-sync Jump Width. */
     uint8_t phaseSeg1;  /*!< Phase Segment 1. */
@@ -355,8 +337,7 @@ typedef struct _flexcan_timing_config
  * Message Buffer and activate the Rx Message Buffer using given Message Buffer
  * setting.
  */
-typedef struct _flexcan_rx_mb_config
-{
+typedef struct _flexcan_rx_mb_config {
     uint32_t id;                   /*!< CAN Message Buffer Frame Identifier, should be set using
                                         FLEXCAN_ID_EXT() or FLEXCAN_ID_STD() macro. */
     flexcan_frame_format_t format; /*!< CAN Frame Identifier format(Standard of Extend). */
@@ -364,8 +345,7 @@ typedef struct _flexcan_rx_mb_config
 } flexcan_rx_mb_config_t;
 
 /*! @brief FlexCAN Rx FIFO configuration structure. */
-typedef struct _flexcan_rx_fifo_config
-{
+typedef struct _flexcan_rx_fifo_config {
     uint32_t *idFilterTable;                    /*!< Pointer to the FlexCAN Rx FIFO identifier filter table. */
     uint8_t idFilterNum;                        /*!< The quantity of filter elements. */
     flexcan_rx_fifo_filter_type_t idFilterType; /*!< The FlexCAN Rx FIFO Filter type. */
@@ -373,15 +353,13 @@ typedef struct _flexcan_rx_fifo_config
 } flexcan_rx_fifo_config_t;
 
 /*! @brief FlexCAN Message Buffer transfer. */
-typedef struct _flexcan_mb_transfer
-{
+typedef struct _flexcan_mb_transfer {
     flexcan_frame_t *frame; /*!< The buffer of CAN Message to be transfer. */
     uint8_t mbIdx;          /*!< The index of Message buffer used to transfer Message. */
 } flexcan_mb_transfer_t;
 
 /*! @brief FlexCAN Rx FIFO transfer. */
-typedef struct _flexcan_fifo_transfer
-{
+typedef struct _flexcan_fifo_transfer {
     flexcan_frame_t *frame; /*!< The buffer of CAN Message to be received from Rx FIFO. */
 } flexcan_fifo_transfer_t;
 
@@ -402,8 +380,7 @@ typedef void (*flexcan_transfer_callback_t)(
     CAN_Type *base, flexcan_handle_t *handle, status_t status, uint32_t result, void *userData);
 
 /*! @brief FlexCAN handle structure. */
-struct _flexcan_handle
-{
+struct _flexcan_handle {
     flexcan_transfer_callback_t callback; /*!< Callback function. */
     void *userData;                       /*!< FlexCAN callback function parameter.*/
     flexcan_frame_t *volatile mbFrameBuf[CAN_WORD1_COUNT];
@@ -628,13 +605,11 @@ static inline void FLEXCAN_ClearStatusFlags(CAN_Type *base, uint32_t mask)
  */
 static inline void FLEXCAN_GetBusErrCount(CAN_Type *base, uint8_t *txErrBuf, uint8_t *rxErrBuf)
 {
-    if (txErrBuf)
-    {
+    if (txErrBuf) {
         *txErrBuf = (uint8_t)((base->ECR & CAN_ECR_TXERRCNT_MASK) >> CAN_ECR_TXERRCNT_SHIFT);
     }
 
-    if (rxErrBuf)
-    {
+    if (rxErrBuf) {
         *rxErrBuf = (uint8_t)((base->ECR & CAN_ECR_RXERRCNT_MASK) >> CAN_ECR_RXERRCNT_SHIFT);
     }
 }
@@ -702,8 +677,7 @@ static inline void FLEXCAN_ClearMbStatusFlags(CAN_Type *base, uint32_t mask)
 static inline void FLEXCAN_EnableInterrupts(CAN_Type *base, uint32_t mask)
 {
     /* Solve Wake Up Interrupt. */
-    if (mask & kFLEXCAN_WakeUpInterruptEnable)
-    {
+    if (mask & kFLEXCAN_WakeUpInterruptEnable) {
         base->MCR |= CAN_MCR_WAKMSK_MASK;
     }
 
@@ -723,8 +697,7 @@ static inline void FLEXCAN_EnableInterrupts(CAN_Type *base, uint32_t mask)
 static inline void FLEXCAN_DisableInterrupts(CAN_Type *base, uint32_t mask)
 {
     /* Solve Wake Up Interrupt. */
-    if (mask & kFLEXCAN_WakeUpInterruptEnable)
-    {
+    if (mask & kFLEXCAN_WakeUpInterruptEnable) {
         base->MCR &= ~CAN_MCR_WAKMSK_MASK;
     }
 
@@ -825,22 +798,17 @@ static inline uint32_t FLEXCAN_GetRxFifoHeadAddr(CAN_Type *base)
  */
 static inline void FLEXCAN_Enable(CAN_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->MCR &= ~CAN_MCR_MDIS_MASK;
 
         /* Wait FlexCAN exit from low-power mode. */
-        while (base->MCR & CAN_MCR_LPMACK_MASK)
-        {
+        while (base->MCR & CAN_MCR_LPMACK_MASK) {
         }
-    }
-    else
-    {
+    } else {
         base->MCR |= CAN_MCR_MDIS_MASK;
 
         /* Wait FlexCAN enter low-power mode. */
-        while (!(base->MCR & CAN_MCR_LPMACK_MASK))
-        {
+        while (!(base->MCR & CAN_MCR_LPMACK_MASK)) {
         }
     }
 }

@@ -53,7 +53,7 @@ typedef struct {
 
     uint8_t     post_idx;
     uint8_t     fetch_idx;
-    void*       queue[MB_SIZE];
+    void       *queue[MB_SIZE];
 } sys_mbox_t;
 
 #define SYS_MBOX_FETCH_EVENT 0x1
@@ -77,7 +77,7 @@ typedef struct {
     osThreadAttr_t             attr;
     mbed_rtos_storage_thread_t data;
 } sys_thread_data_t;
-typedef sys_thread_data_t* sys_thread_t;
+typedef sys_thread_data_t *sys_thread_t;
 
 #define SYS_THREAD_POOL_N                   6
 #define SYS_DEFAULT_THREAD_STACK_DEPTH      OS_STACK_SIZE

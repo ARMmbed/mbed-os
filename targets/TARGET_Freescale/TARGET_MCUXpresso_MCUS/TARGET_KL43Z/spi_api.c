@@ -95,7 +95,7 @@ void spi_frequency(spi_t *obj, int hz)
     SPI_MasterSetBaudRate(spi_address[obj->instance], (uint32_t)hz, CLOCK_GetFreq(spi_clocks[obj->instance]));
 }
 
-static inline int spi_readable(spi_t * obj)
+static inline int spi_readable(spi_t *obj)
 {
     return (SPI_GetStatusFlags(spi_address[obj->instance]) & kSPI_RxBufferFullFlag);
 }
@@ -116,7 +116,8 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {

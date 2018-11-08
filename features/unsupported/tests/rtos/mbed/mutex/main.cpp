@@ -3,7 +3,7 @@
 #include "rtos.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #define THREAD_DELAY     50
@@ -15,30 +15,31 @@
  * and for ARM_MICRO 512. Because of reduce RAM size some targets need a reduced stacksize.
  */
 #if defined(TARGET_STM32F334R8) && defined(TOOLCHAIN_IAR)
-    #define STACK_SIZE DEFAULT_STACK_SIZE/4
+#define STACK_SIZE DEFAULT_STACK_SIZE/4
 #elif (defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB))
-    #define STACK_SIZE DEFAULT_STACK_SIZE/2
+#define STACK_SIZE DEFAULT_STACK_SIZE/2
 #elif defined(TARGET_STM32F302R8) && defined(TOOLCHAIN_IAR)
-    #define STACK_SIZE DEFAULT_STACK_SIZE/2
+#define STACK_SIZE DEFAULT_STACK_SIZE/2
 #elif defined(TARGET_STM32F303K8) && defined(TOOLCHAIN_IAR)
-    #define STACK_SIZE DEFAULT_STACK_SIZE/2
+#define STACK_SIZE DEFAULT_STACK_SIZE/2
 #elif defined(TARGET_STM32F334C8)
-    #define STACK_SIZE DEFAULT_STACK_SIZE/2
+#define STACK_SIZE DEFAULT_STACK_SIZE/2
 #elif defined(TARGET_STM32L073RZ)
-    #define STACK_SIZE DEFAULT_STACK_SIZE/2
+#define STACK_SIZE DEFAULT_STACK_SIZE/2
 #elif (defined(TARGET_EFM32HG_STK3400)) && !defined(TOOLCHAIN_ARM_MICRO)
-    #define STACK_SIZE 512
+#define STACK_SIZE 512
 #elif (defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32PG_STK3401)) && !defined(TOOLCHAIN_ARM_MICRO)
-    #define STACK_SIZE 768
+#define STACK_SIZE 768
 #elif (defined(TARGET_EFM32GG_STK3700)) && !defined(TOOLCHAIN_ARM_MICRO)
-    #define STACK_SIZE 1536
+#define STACK_SIZE 1536
 #elif defined(TARGET_MCU_NRF51822)
-    #define STACK_SIZE 768
+#define STACK_SIZE 768
 #else
-    #define STACK_SIZE DEFAULT_STACK_SIZE
+#define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
 
-void print_char(char c = '*') {
+void print_char(char c = '*')
+{
     printf("%c", c);
     fflush(stdout);
 }
@@ -50,7 +51,8 @@ volatile int change_counter = 0;
 volatile bool changing_counter = false;
 volatile bool mutex_defect = false;
 
-bool manipulate_protected_zone(const int thread_delay) {
+bool manipulate_protected_zone(const int thread_delay)
+{
     bool result = true;
 
     stdio_mutex.lock(); // LOCK
@@ -73,14 +75,16 @@ bool manipulate_protected_zone(const int thread_delay) {
     return result;
 }
 
-void test_thread(void const *args) {
+void test_thread(void const *args)
+{
     const int thread_delay = int(args);
     while (true) {
         manipulate_protected_zone(thread_delay);
     }
 }
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(default);
     MBED_HOSTTEST_DESCRIPTION(Mutex resource lock);

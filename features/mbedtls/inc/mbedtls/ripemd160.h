@@ -43,8 +43,7 @@ extern "C" {
 /**
  * \brief          RIPEMD-160 context structure
  */
-typedef struct
-{
+typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */
     uint32_t state[5];          /*!< intermediate digest state  */
     unsigned char buffer[64];   /*!< data block being processed */
@@ -56,14 +55,14 @@ mbedtls_ripemd160_context;
  *
  * \param ctx      RIPEMD-160 context to be initialized
  */
-void mbedtls_ripemd160_init( mbedtls_ripemd160_context *ctx );
+void mbedtls_ripemd160_init(mbedtls_ripemd160_context *ctx);
 
 /**
  * \brief          Clear RIPEMD-160 context
  *
  * \param ctx      RIPEMD-160 context to be cleared
  */
-void mbedtls_ripemd160_free( mbedtls_ripemd160_context *ctx );
+void mbedtls_ripemd160_free(mbedtls_ripemd160_context *ctx);
 
 /**
  * \brief          Clone (the state of) an RIPEMD-160 context
@@ -71,15 +70,15 @@ void mbedtls_ripemd160_free( mbedtls_ripemd160_context *ctx );
  * \param dst      The destination context
  * \param src      The context to be cloned
  */
-void mbedtls_ripemd160_clone( mbedtls_ripemd160_context *dst,
-                        const mbedtls_ripemd160_context *src );
+void mbedtls_ripemd160_clone(mbedtls_ripemd160_context *dst,
+                             const mbedtls_ripemd160_context *src);
 
 /**
  * \brief          RIPEMD-160 context setup
  *
  * \param ctx      context to be initialized
  */
-void mbedtls_ripemd160_starts( mbedtls_ripemd160_context *ctx );
+void mbedtls_ripemd160_starts(mbedtls_ripemd160_context *ctx);
 
 /**
  * \brief          RIPEMD-160 process buffer
@@ -88,8 +87,8 @@ void mbedtls_ripemd160_starts( mbedtls_ripemd160_context *ctx );
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-void mbedtls_ripemd160_update( mbedtls_ripemd160_context *ctx,
-                       const unsigned char *input, size_t ilen );
+void mbedtls_ripemd160_update(mbedtls_ripemd160_context *ctx,
+                              const unsigned char *input, size_t ilen);
 
 /**
  * \brief          RIPEMD-160 final digest
@@ -97,10 +96,10 @@ void mbedtls_ripemd160_update( mbedtls_ripemd160_context *ctx,
  * \param ctx      RIPEMD-160 context
  * \param output   RIPEMD-160 checksum result
  */
-void mbedtls_ripemd160_finish( mbedtls_ripemd160_context *ctx, unsigned char output[20] );
+void mbedtls_ripemd160_finish(mbedtls_ripemd160_context *ctx, unsigned char output[20]);
 
 /* Internal use */
-void mbedtls_ripemd160_process( mbedtls_ripemd160_context *ctx, const unsigned char data[64] );
+void mbedtls_ripemd160_process(mbedtls_ripemd160_context *ctx, const unsigned char data[64]);
 
 #ifdef __cplusplus
 }
@@ -121,15 +120,15 @@ extern "C" {
  * \param ilen     length of the input data
  * \param output   RIPEMD-160 checksum result
  */
-void mbedtls_ripemd160( const unsigned char *input, size_t ilen,
-                unsigned char output[20] );
+void mbedtls_ripemd160(const unsigned char *input, size_t ilen,
+                       unsigned char output[20]);
 
 /**
  * \brief          Checkup routine
  *
  * \return         0 if successful, or 1 if the test failed
  */
-int mbedtls_ripemd160_self_test( int verbose );
+int mbedtls_ripemd160_self_test(int verbose);
 
 #ifdef __cplusplus
 }

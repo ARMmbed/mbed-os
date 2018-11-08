@@ -60,7 +60,7 @@ static void ccm_generate_A0(uint8_t *ptr);
 static void ccm_auth_generate_B0(uint8_t *ptr, uint16_t len);
 static void ccm_auth_calc_Xi(uint8_t X[static 16], uint8_t Blen, const uint8_t B[static Blen]);
 static uint8_t ccm_mic_len_calc(uint8_t sec_level);
-static void ccm_encode(uint16_t len , uint8_t *ptr);
+static void ccm_encode(uint16_t len, uint8_t *ptr);
 static int8_t ccm_calc_auth_MIC(const uint8_t *data_ptr, uint16_t data_len, const uint8_t *adata_ptr, uint16_t adata_len);
 
 /**
@@ -163,7 +163,7 @@ END:
 /* Counter-mode encryption/decryption
  *  Ci := E(Key, Ai) ^ Mi
  */
-static void ccm_encode(uint16_t len , uint8_t *ptr)
+static void ccm_encode(uint16_t len, uint8_t *ptr)
 {
     if (!ccm_key_ptr || ccm_sec_level < AES_SECURITY_LEVEL_ENC) {
         return;

@@ -28,9 +28,9 @@
 #include "rtc_api.h"
 #include "em_rtc.h"
 
-#define RTC_CLOCKDIV 		cmuClkDiv_8
-#define RTC_CLOCKDIV_INT	8
-#define RTC_FREQ_SHIFT 		12
+#define RTC_CLOCKDIV        cmuClkDiv_8
+#define RTC_CLOCKDIV_INT    8
+#define RTC_FREQ_SHIFT      12
 
 
 #define RTC_INIT_LPTIMER (1 << 1)

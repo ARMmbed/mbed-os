@@ -34,25 +34,25 @@ typedef enum {
     P0_3 = 3,
     P0_4 = 4,
     P0_5 = 5,
-    
+
     dp1 = P0_5,
     dp2 = P0_4,
     dp3 = P0_3,
     dp4 = P0_2,
     dp5 = P0_1,
     dp8 = P0_0,
-    
+
     // mbed original LED naming
     LED1 = P0_2,
     LED2 = P0_2,
     LED3 = P0_2,
     LED4 = P0_2,
     LED_RED = P0_2,
-    
+
     // Serial to USB pins
     USBTX = P0_4,
     USBRX = P0_0,
-    
+
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;

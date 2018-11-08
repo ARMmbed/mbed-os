@@ -120,30 +120,30 @@ extern "C" {
 
 #define IS_ADC_CMP_VALUE(param)         ((param) <= (uint16_t)0x03ff)
 
-    typedef enum {
-        ADC_NO_OVERRUN = 0U,
-        ADC_OVERRUN = 1U
-    } ADC_OverrunState;
+typedef enum {
+    ADC_NO_OVERRUN = 0U,
+    ADC_OVERRUN = 1U
+} ADC_OverrunState;
 
-    typedef enum {
-        ADC_SCAN_4CH = 0U,
-        ADC_SCAN_8CH = 1U
-    } ADC_ChannelScanMode;
+typedef enum {
+    ADC_SCAN_4CH = 0U,
+    ADC_SCAN_8CH = 1U
+} ADC_ChannelScanMode;
 #define IS_ADC_CH_SCAN_MODE(param)      (((param) == ADC_SCAN_4CH) || \
                                          ((param) == ADC_SCAN_8CH))
 
-    typedef enum {
-        ADC_COMPARISON_SMALLER = 0U,
-        ADC_COMPARISON_LARGER = 1U
-    } ADC_ComparisonState;
+typedef enum {
+    ADC_COMPARISON_SMALLER = 0U,
+    ADC_COMPARISON_LARGER = 1U
+} ADC_ComparisonState;
 #define IS_ADC_CMP_INT(param)           (((param) == ADC_COMPARISON_SMALLER) || \
                                          ((param) == ADC_COMPARISON_LARGER))
 
-    typedef struct {
-        WorkState ADCResultStored;      /*!< ADC result storage flag    */
-        ADC_OverrunState ADCOverrunState;       /*!< ADC overrun flag           */
-        uint16_t ADCResultValue;        /*!< ADC result value           */
-    } ADC_ResultTypeDef;
+typedef struct {
+    WorkState ADCResultStored;      /*!< ADC result storage flag    */
+    ADC_OverrunState ADCOverrunState;       /*!< ADC overrun flag           */
+    uint16_t ADCResultValue;        /*!< ADC result value           */
+} ADC_ResultTypeDef;
 
 #define ADC_DMA_REQ_NORMAL              ((uint8_t)0x00)
 #define ADC_DMA_REQ_TOP                 ((uint8_t)0x01)
@@ -151,16 +151,16 @@ extern "C" {
 #define ADC_DMA_REQ_MONITOR2            ((uint8_t)0x03)
 #define IS_ADC_DMA_REQ(param)           ((param) <= ADC_DMA_REQ_MONITOR2)
 
-    typedef union {
-        uint32_t All;
-        struct {
-            uint32_t NormalBusy:1;      /*!< bit0, Normal A/D conversion busy flag (MOD0<ADBFN>) */
-            uint32_t NormalComplete:1;  /*!< bit1, Normal AD conversion complete flag (MOD0<EOCFN>) */
-            uint32_t TopBusy:1; /*!< bit2, Top-priority A/D conversion busy flag (MOD2<ADBFHP>) */
-            uint32_t TopComplete:1;     /*!< bit3, Top-priority AD conversion complete flag (MOD2<EOCFHP>) */
-            uint32_t Reserved:28;       /*!< bit4 to bit 31, reserved */
-        } Bit;
-    } ADC_State;
+typedef union {
+    uint32_t All;
+    struct {
+        uint32_t NormalBusy: 1;     /*!< bit0, Normal A/D conversion busy flag (MOD0<ADBFN>) */
+        uint32_t NormalComplete: 1; /*!< bit1, Normal AD conversion complete flag (MOD0<EOCFN>) */
+        uint32_t TopBusy: 1; /*!< bit2, Top-priority A/D conversion busy flag (MOD2<ADBFHP>) */
+        uint32_t TopComplete: 1;    /*!< bit3, Top-priority AD conversion complete flag (MOD2<EOCFHP>) */
+        uint32_t Reserved: 28;      /*!< bit4 to bit 31, reserved */
+    } Bit;
+} ADC_State;
 
 /** @} */
 /* End of group ADC_Exported_Types */
@@ -168,27 +168,27 @@ extern "C" {
 /** @defgroup ADC_Exported_FunctionPrototypes
   * @{
   */
-    void ADC_SWReset(void);
-    void ADC_SetClk(uint32_t Conversion_Time, uint32_t Prescaler_Output);
-    void ADC_Start(void);
-    void ADC_SetScanMode(FunctionalState NewState);
-    void ADC_SetRepeatMode(FunctionalState NewState);
-    void ADC_SetINTMode(uint32_t INTMode);
-    ADC_State ADC_GetConvertState(void);
-    void ADC_SetInputChannel(uint32_t InputChannel);
-    void ADC_SetChannelScanMode(ADC_ChannelScanMode ScanMode);
-    void ADC_SetIdleMode(FunctionalState NewState);
-    void ADC_SetVref(FunctionalState NewState);
-    void ADC_SetInputChannelTop(uint32_t TopInputChannel);
-    void ADC_StartTopConvert(void);
-    void ADC_SetMonitor(uint8_t ADCMPx, FunctionalState NewState);
-    void ADC_SetResultCmpReg(uint8_t ADCMPx, uint32_t ResultComparison);
-    void ADC_SetMonitorINT(uint8_t ADCMPx, ADC_ComparisonState NewState);
-    void ADC_SetHWTrg(uint32_t HwSource, FunctionalState NewState);
-    void ADC_SetHWTrgTop(uint32_t HwSource, FunctionalState NewState);
-    ADC_ResultTypeDef ADC_GetConvertResult(uint32_t ADREGx);
-    void ADC_SetCmpValue(uint8_t ADCMPx, uint16_t value);
-    void ADC_SetDMAReq(uint8_t DMAReq, FunctionalState NewState);
+void ADC_SWReset(void);
+void ADC_SetClk(uint32_t Conversion_Time, uint32_t Prescaler_Output);
+void ADC_Start(void);
+void ADC_SetScanMode(FunctionalState NewState);
+void ADC_SetRepeatMode(FunctionalState NewState);
+void ADC_SetINTMode(uint32_t INTMode);
+ADC_State ADC_GetConvertState(void);
+void ADC_SetInputChannel(uint32_t InputChannel);
+void ADC_SetChannelScanMode(ADC_ChannelScanMode ScanMode);
+void ADC_SetIdleMode(FunctionalState NewState);
+void ADC_SetVref(FunctionalState NewState);
+void ADC_SetInputChannelTop(uint32_t TopInputChannel);
+void ADC_StartTopConvert(void);
+void ADC_SetMonitor(uint8_t ADCMPx, FunctionalState NewState);
+void ADC_SetResultCmpReg(uint8_t ADCMPx, uint32_t ResultComparison);
+void ADC_SetMonitorINT(uint8_t ADCMPx, ADC_ComparisonState NewState);
+void ADC_SetHWTrg(uint32_t HwSource, FunctionalState NewState);
+void ADC_SetHWTrgTop(uint32_t HwSource, FunctionalState NewState);
+ADC_ResultTypeDef ADC_GetConvertResult(uint32_t ADREGx);
+void ADC_SetCmpValue(uint8_t ADCMPx, uint16_t value);
+void ADC_SetDMAReq(uint8_t DMAReq, FunctionalState NewState);
 
 /** @} */
 /* End of group ADC_Exported_FunctionPrototypes */

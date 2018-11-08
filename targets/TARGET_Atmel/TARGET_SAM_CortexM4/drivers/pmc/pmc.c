@@ -426,7 +426,7 @@ uint32_t pmc_osc_is_ready_fastrc(void)
 void pmc_osc_enable_main_xtal(uint32_t ul_xtal_startup_time)
 {
     uint32_t mor = PMC->CKGR_MOR;
-    mor &= ~(CKGR_MOR_MOSCXTBY|CKGR_MOR_MOSCXTEN);
+    mor &= ~(CKGR_MOR_MOSCXTBY | CKGR_MOR_MOSCXTEN);
     mor |= CKGR_MOR_KEY_PASSWD | CKGR_MOR_MOSCXTEN |
            CKGR_MOR_MOSCXTST(ul_xtal_startup_time);
     PMC->CKGR_MOR = mor;
@@ -440,7 +440,7 @@ void pmc_osc_enable_main_xtal(uint32_t ul_xtal_startup_time)
 void pmc_osc_bypass_main_xtal(void)
 {
     uint32_t mor = PMC->CKGR_MOR;
-    mor &= ~(CKGR_MOR_MOSCXTBY|CKGR_MOR_MOSCXTEN);
+    mor &= ~(CKGR_MOR_MOSCXTBY | CKGR_MOR_MOSCXTEN);
     mor |= CKGR_MOR_KEY_PASSWD | CKGR_MOR_MOSCXTBY;
     /* Enable Crystal oscillator but DO NOT switch now. Keep MOSCSEL to 0 */
     PMC->CKGR_MOR = mor;
@@ -453,7 +453,7 @@ void pmc_osc_bypass_main_xtal(void)
 void pmc_osc_disable_main_xtal(void)
 {
     uint32_t mor = PMC->CKGR_MOR;
-    mor &= ~(CKGR_MOR_MOSCXTBY|CKGR_MOR_MOSCXTEN);
+    mor &= ~(CKGR_MOR_MOSCXTBY | CKGR_MOR_MOSCXTEN);
     PMC->CKGR_MOR = CKGR_MOR_KEY_PASSWD | mor;
 }
 
@@ -732,7 +732,7 @@ uint32_t pmc_disable_periph_clk(uint32_t ul_id)
             PMC->PMC_PCDR0 = 1 << ul_id;
         }
 #if (SAM3S || SAM3XA || SAM4S || SAM4E || SAM4C || SAM4CM || SAM4CP || SAMG55 || SAMV71 \
-		|| SAMV70 || SAME70 || SAMS70)
+        || SAMV70 || SAME70 || SAMS70)
     } else {
         ul_id -= 32;
         if ((PMC->PMC_PCSR1 & (1u << ul_id)) == (1u << ul_id)) {
@@ -752,7 +752,7 @@ void pmc_enable_all_periph_clk(void)
     while ((PMC->PMC_PCSR0 & PMC_MASK_STATUS0) != PMC_MASK_STATUS0);
 
 #if (SAM3S || SAM3XA || SAM4S || SAM4E || SAM4C || SAM4CM || SAM4CP || SAMV71  \
-		|| SAMV70 || SAME70 || SAMS70)
+        || SAMV70 || SAME70 || SAMS70)
     PMC->PMC_PCER1 = PMC_MASK_STATUS1;
     while ((PMC->PMC_PCSR1 & PMC_MASK_STATUS1) != PMC_MASK_STATUS1);
 #endif
@@ -767,7 +767,7 @@ void pmc_disable_all_periph_clk(void)
     while ((PMC->PMC_PCSR0 & PMC_MASK_STATUS0) != 0);
 
 #if (SAM3S || SAM3XA || SAM4S || SAM4E || SAM4C || SAM4CM || SAM4CP || SAMV71 \
-		|| SAMV70 || SAME70 || SAMS70)
+        || SAMV70 || SAME70 || SAMS70)
     PMC->PMC_PCDR1 = PMC_MASK_STATUS1;
     while ((PMC->PMC_PCSR1 & PMC_MASK_STATUS1) != 0);
 #endif
@@ -790,7 +790,7 @@ uint32_t pmc_is_periph_clk_enabled(uint32_t ul_id)
     }
 
 #if (SAM3S || SAM3XA || SAM4S || SAM4E || SAM4C || SAM4CM || SAM4CP || SAMV71 \
-		|| SAMV70 || SAME70 || SAMS70)
+        || SAMV70 || SAME70 || SAMS70)
     if (ul_id < 32) {
 #endif
         if ((PMC->PMC_PCSR0 & (1u << ul_id))) {
@@ -799,7 +799,7 @@ uint32_t pmc_is_periph_clk_enabled(uint32_t ul_id)
             return 0;
         }
 #if (SAM3S || SAM3XA || SAM4S || SAM4E || SAM4C || SAM4CM || SAM4CP || SAMV71 \
-		|| SAMV70 || SAME70 || SAMS70)
+        || SAMV70 || SAME70 || SAMS70)
     } else {
         ul_id -= 32;
         if ((PMC->PMC_PCSR1 & (1u << ul_id))) {
@@ -1067,7 +1067,7 @@ void pmc_disable_cpck(void)
  */
 bool pmc_is_cpck_enabled(void)
 {
-    if(PMC->PMC_SCSR & PMC_SCSR_CPCK) {
+    if (PMC->PMC_SCSR & PMC_SCSR_CPCK) {
         return 1;
     } else {
         return 0;
@@ -1098,7 +1098,7 @@ void pmc_disable_cpbmck(void)
  */
 bool pmc_is_cpbmck_enabled(void)
 {
-    if(PMC->PMC_SCSR & PMC_SCSR_CPBMCK) {
+    if (PMC->PMC_SCSR & PMC_SCSR_CPBMCK) {
         return 1;
     } else {
         return 0;
@@ -1525,9 +1525,9 @@ uint32_t pmc_enable_sleepwalking(uint32_t ul_id)
 {
     uint32_t temp;
 #if (SAMG55 || SAMV71 || SAMV70 || SAME70 || SAMS70)
-    if ((7 <= ul_id) && (ul_id<= 29)) {
+    if ((7 <= ul_id) && (ul_id <= 29)) {
 #else
-    if ((8 <= ul_id) && (ul_id<= 29)) {
+    if ((8 <= ul_id) && (ul_id <= 29)) {
 #endif
         temp = pmc_get_active_status0();
         if (temp & (1 << ul_id)) {
@@ -1542,7 +1542,7 @@ uint32_t pmc_enable_sleepwalking(uint32_t ul_id)
         return 0;
     }
 #if (SAMV71 || SAMV70 || SAME70 || SAMS70)
-    else if ((32 <= ul_id) && (ul_id<= 60)) {
+    else if ((32 <= ul_id) && (ul_id <= 60)) {
         ul_id -= 32;
         temp = pmc_get_active_status1();
         if (temp & (1 << ul_id)) {
@@ -1575,15 +1575,15 @@ uint32_t pmc_enable_sleepwalking(uint32_t ul_id)
 uint32_t pmc_disable_sleepwalking(uint32_t ul_id)
 {
 #if (SAMG55 || SAMV71 || SAMV70 || SAME70 || SAMS70)
-    if ((7 <= ul_id) && (ul_id<= 29)) {
+    if ((7 <= ul_id) && (ul_id <= 29)) {
 #else
-    if ((8 <= ul_id) && (ul_id<= 29)) {
+    if ((8 <= ul_id) && (ul_id <= 29)) {
 #endif
         PMC->PMC_SLPWK_DR0 = 1 << ul_id;
         return 0;
     }
 #if (SAMV71 || SAMV70 || SAME70 || SAMS70)
-    else if ((32 <= ul_id) && (ul_id<= 60)) {
+    else if ((32 <= ul_id) && (ul_id <= 60)) {
         ul_id -= 32;
         PMC->PMC_SLPWK_DR1 = 1 << ul_id;
         return 0;

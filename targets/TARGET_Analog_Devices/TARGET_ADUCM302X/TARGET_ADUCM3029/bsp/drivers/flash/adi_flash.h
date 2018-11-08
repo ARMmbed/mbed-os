@@ -51,7 +51,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef ADI_FLASH_H
 #define ADI_FLASH_H
 
- /*! \cond PRIVATE */
+/*! \cond PRIVATE */
 #include <adi_processor.h>
 #include <adi_callback.h>
 #include <rtos_map/adi_rtos_map.h>  /* for ADI_SEM_SIZE */
@@ -65,7 +65,7 @@ extern "C" {
  * \enum ADI_FEE_RESULT
  * Flash Controller return codes.
  */
- typedef enum {
+typedef enum {
     ADI_FEE_SUCCESS = 0,                /*!< The function completed successfully.               */
     ADI_FEE_ERR_ALIGNMENT,              /*!< The flash write source data pointer is misaligned. */
     ADI_FEE_ERR_ALREADY_INITIALIZED,    /*!< The flash device driver is already initialized.    */
@@ -84,11 +84,11 @@ extern "C" {
     ADI_FEE_ERR_TRANSFER_IN_PROGRESS,   /*!< Operation already in progress.                     */
     ADI_FEE_ERR_UNMATCHED_SUBMIT_QUERY, /*!< Unmatched read/write vs. submit/get API call.      */
     ADI_FEE_ERR_SEMAPHORE_FAILED,       /*!< An semaphore operation failed.                     */
- } ADI_FEE_RESULT;
+} ADI_FEE_RESULT;
 
 
 /*! A device handle used in all API functions to identify the flash device. */
-typedef struct __ADI_FEE_DEV_DATA_TYPE* ADI_FEE_HANDLE;
+typedef struct __ADI_FEE_DEV_DATA_TYPE *ADI_FEE_HANDLE;
 
 
 /*! Applications use the "ADI_FEE_MEMORY_SIZE" macro to allocate
@@ -104,8 +104,8 @@ typedef struct __ADI_FEE_DEV_DATA_TYPE* ADI_FEE_HANDLE;
  * Enum for the callback events.
  */
 typedef enum {
-     ADI_FEE_CALLBACK_EVENT_BUFFER_PROCESSED,    /*!< Buffer processed successfully event. */
-     ADI_FEE_CALLBACK_EVENT_DEVICE_ERROR,        /*!< Device error(s) detected during command. */
+    ADI_FEE_CALLBACK_EVENT_BUFFER_PROCESSED,    /*!< Buffer processed successfully event. */
+    ADI_FEE_CALLBACK_EVENT_DEVICE_ERROR,        /*!< Device error(s) detected during command. */
 } ADI_FEE_CALLBACK_EVENT;
 
 /*!
@@ -143,34 +143,34 @@ typedef struct {
 /*================ E X T E R N A L S ==================*/
 /* Flash Controller API */
 
-ADI_FEE_RESULT adi_fee_Open              (uint32_t const nDeviceNum, void* const pMemory, uint32_t const nMemorySize, ADI_FEE_HANDLE* const phDevice);
-ADI_FEE_RESULT adi_fee_Close             (ADI_FEE_HANDLE const hDevice);
-ADI_FEE_RESULT adi_fee_RegisterCallback  (ADI_FEE_HANDLE const hDevice, ADI_CALLBACK const pfCallback, void* const pCBParam);
+ADI_FEE_RESULT adi_fee_Open(uint32_t const nDeviceNum, void *const pMemory, uint32_t const nMemorySize, ADI_FEE_HANDLE *const phDevice);
+ADI_FEE_RESULT adi_fee_Close(ADI_FEE_HANDLE const hDevice);
+ADI_FEE_RESULT adi_fee_RegisterCallback(ADI_FEE_HANDLE const hDevice, ADI_CALLBACK const pfCallback, void *const pCBParam);
 
-ADI_FEE_RESULT adi_fee_PageErase         (ADI_FEE_HANDLE const hDevice, uint32_t const nPageNumStart, uint32_t const nPageNumEnd, uint32_t* const pHwErrors);
-ADI_FEE_RESULT adi_fee_MassErase         (ADI_FEE_HANDLE const hDevice, uint32_t* const pHwErrors);
+ADI_FEE_RESULT adi_fee_PageErase(ADI_FEE_HANDLE const hDevice, uint32_t const nPageNumStart, uint32_t const nPageNumEnd, uint32_t *const pHwErrors);
+ADI_FEE_RESULT adi_fee_MassErase(ADI_FEE_HANDLE const hDevice, uint32_t *const pHwErrors);
 
-ADI_FEE_RESULT adi_fee_Write             (ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANSACTION* const pTransaction, uint32_t* const pHwErrors);
-ADI_FEE_RESULT adi_fee_SubmitBuffer      (ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANSACTION* const pTransaction);
+ADI_FEE_RESULT adi_fee_Write(ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANSACTION *const pTransaction, uint32_t *const pHwErrors);
+ADI_FEE_RESULT adi_fee_SubmitBuffer(ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANSACTION *const pTransaction);
 
-ADI_FEE_RESULT adi_fee_IsBufferAvailable (ADI_FEE_HANDLE const hDevice, bool* const pbCompletionState);
-ADI_FEE_RESULT adi_fee_GetBuffer         (ADI_FEE_HANDLE const hDevice, uint32_t* const pHwErrors);
+ADI_FEE_RESULT adi_fee_IsBufferAvailable(ADI_FEE_HANDLE const hDevice, bool *const pbCompletionState);
+ADI_FEE_RESULT adi_fee_GetBuffer(ADI_FEE_HANDLE const hDevice, uint32_t *const pHwErrors);
 
-ADI_FEE_RESULT adi_fee_GetPageNumber     (ADI_FEE_HANDLE const hDevice, uint32_t const nAddress, uint32_t* const pnPageNum);
-ADI_FEE_RESULT adi_fee_GetBlockNumber    (ADI_FEE_HANDLE const hDevice, uint32_t const nAddress, uint32_t* const pnBlockNum);
+ADI_FEE_RESULT adi_fee_GetPageNumber(ADI_FEE_HANDLE const hDevice, uint32_t const nAddress, uint32_t *const pnPageNum);
+ADI_FEE_RESULT adi_fee_GetBlockNumber(ADI_FEE_HANDLE const hDevice, uint32_t const nAddress, uint32_t *const pnBlockNum);
 
-ADI_FEE_RESULT adi_fee_VerifySignature   (ADI_FEE_HANDLE const hDevice, uint32_t const nStartPage, uint32_t const nEndPage, uint32_t* const pSigResult, uint32_t* const pHwErrors);
-ADI_FEE_RESULT adi_fee_WriteProtectBlock (ADI_FEE_HANDLE const hDevice, uint32_t const  nBlockNum);
+ADI_FEE_RESULT adi_fee_VerifySignature(ADI_FEE_HANDLE const hDevice, uint32_t const nStartPage, uint32_t const nEndPage, uint32_t *const pSigResult, uint32_t *const pHwErrors);
+ADI_FEE_RESULT adi_fee_WriteProtectBlock(ADI_FEE_HANDLE const hDevice, uint32_t const  nBlockNum);
 
-ADI_FEE_RESULT adi_fee_Sleep             (ADI_FEE_HANDLE const hDevice, bool const bSleep);
-ADI_FEE_RESULT adi_fee_Abort             (ADI_FEE_HANDLE const hDevice);
-ADI_FEE_RESULT adi_fee_GetAbortAddr      (ADI_FEE_HANDLE const hDevice, uint32_t* const pnAddress);
+ADI_FEE_RESULT adi_fee_Sleep(ADI_FEE_HANDLE const hDevice, bool const bSleep);
+ADI_FEE_RESULT adi_fee_Abort(ADI_FEE_HANDLE const hDevice);
+ADI_FEE_RESULT adi_fee_GetAbortAddr(ADI_FEE_HANDLE const hDevice, uint32_t *const pnAddress);
 
-ADI_FEE_RESULT adi_fee_ConfigECC         (ADI_FEE_HANDLE const hDevice, uint32_t const nStartPage, bool const bInfoECCEnable);
-ADI_FEE_RESULT adi_fee_EnableECC         (ADI_FEE_HANDLE const hDevice, bool const bEnable);
-ADI_FEE_RESULT adi_fee_ConfigECCEvents   (ADI_FEE_HANDLE const hDevice, ADI_FEE_ECC_EVENT_TYPE const eEvent, ADI_FEE_ECC_RESPONSE const eResponse);
-ADI_FEE_RESULT adi_fee_GetECCErrAddr     (ADI_FEE_HANDLE const hDevice, uint32_t* const pnAddress);
-ADI_FEE_RESULT adi_fee_GetECCCorrections (ADI_FEE_HANDLE const hDevice, uint32_t* const pnNumCorrections);
+ADI_FEE_RESULT adi_fee_ConfigECC(ADI_FEE_HANDLE const hDevice, uint32_t const nStartPage, bool const bInfoECCEnable);
+ADI_FEE_RESULT adi_fee_EnableECC(ADI_FEE_HANDLE const hDevice, bool const bEnable);
+ADI_FEE_RESULT adi_fee_ConfigECCEvents(ADI_FEE_HANDLE const hDevice, ADI_FEE_ECC_EVENT_TYPE const eEvent, ADI_FEE_ECC_RESPONSE const eResponse);
+ADI_FEE_RESULT adi_fee_GetECCErrAddr(ADI_FEE_HANDLE const hDevice, uint32_t *const pnAddress);
+ADI_FEE_RESULT adi_fee_GetECCCorrections(ADI_FEE_HANDLE const hDevice, uint32_t *const pnNumCorrections);
 
 #ifdef __cplusplus
 }

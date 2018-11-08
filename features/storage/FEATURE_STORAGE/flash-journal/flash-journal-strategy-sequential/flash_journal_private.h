@@ -24,10 +24,12 @@ extern "C" {
 
 #include "flash-journal/flash_journal.h"
 
-static inline uint32_t roundUp_uint32(uint32_t N, uint32_t BOUNDARY) {
+static inline uint32_t roundUp_uint32(uint32_t N, uint32_t BOUNDARY)
+{
     return ((((N) + (BOUNDARY) - 1) / (BOUNDARY)) * (BOUNDARY));
 }
-static inline uint32_t roundDown_uint32(uint32_t N, uint32_t BOUNDARY) {
+static inline uint32_t roundDown_uint32(uint32_t N, uint32_t BOUNDARY)
+{
     return (((N) / (BOUNDARY)) * (BOUNDARY));
 }
 
@@ -164,7 +166,7 @@ typedef struct _SequentialFlashJournal_t {
  * FlashJournal_t. The caller will only allocate a FlashJournal_t and expect the
  * Sequential Strategy to reuse that space for a SequentialFlashJournal_t.
  */
-typedef char AssertSequentialJournalSizeLessThanOrEqualToGenericJournal[sizeof(SequentialFlashJournal_t)<=sizeof(FlashJournal_t)?1:-1];
+typedef char AssertSequentialJournalSizeLessThanOrEqualToGenericJournal[sizeof(SequentialFlashJournal_t) <= sizeof(FlashJournal_t) ? 1 : -1];
 
 #define SLOT_ADDRESS(JOURNAL, INDEX) ((JOURNAL)->mtdStartOffset + (JOURNAL)->firstSlotOffset + ((INDEX) * (JOURNAL)->sizeofSlot))
 

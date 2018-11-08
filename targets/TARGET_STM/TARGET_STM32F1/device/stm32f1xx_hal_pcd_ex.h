@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F1xx_HAL_PCD_EX_H
 #define __STM32F1xx_HAL_PCD_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined(STM32F102x6) || defined(STM32F102xB) || \
@@ -75,10 +75,10 @@ HAL_StatusTypeDef HAL_PCDEx_SetRxFiFo(PCD_HandleTypeDef *hpcd, uint16_t size);
 #endif /* USB_OTG_FS */
 
 #if defined (USB)
-HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, 
-                                     uint16_t ep_addr,
-                                     uint16_t ep_kind,
-                                     uint32_t pmaadress);
+HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
+                                      uint16_t ep_addr,
+                                      uint16_t ep_kind,
+                                      uint32_t pmaadress);
 #endif /* USB */
 /**
   * @}
@@ -96,15 +96,15 @@ void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state);
   */
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
   */
 #endif /* STM32F102x6 || STM32F102xB || */
-       /* STM32F103x6 || STM32F103xB || */
-       /* STM32F103xE || STM32F103xG || */
-       /* STM32F105xC || STM32F107xC    */
+/* STM32F103x6 || STM32F103xB || */
+/* STM32F103xE || STM32F103xG || */
+/* STM32F105xC || STM32F107xC    */
 
 #ifdef __cplusplus
 }

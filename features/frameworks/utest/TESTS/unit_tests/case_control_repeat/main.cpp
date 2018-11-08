@@ -28,7 +28,7 @@ utest::v1::status_t repeat_all_case_setup(const Case *const source, const size_t
 {
     static int repeat_counter(0);
     TEST_ASSERT_EQUAL(0, index_of_case);
-    TEST_ASSERT_EQUAL(repeat_counter*3, call_counter++);
+    TEST_ASSERT_EQUAL(repeat_counter * 3, call_counter++);
     repeat_counter++;
     return greentea_case_setup_handler(source, index_of_case);
 }
@@ -36,14 +36,14 @@ control_t repeat_all_case(const size_t call_count)
 {
     static int repeat_counter(1);
     TEST_ASSERT_EQUAL(repeat_counter++, call_count);
-    TEST_ASSERT_EQUAL((call_count-1)*3 + 1, call_counter++);
+    TEST_ASSERT_EQUAL((call_count - 1) * 3 + 1, call_counter++);
     return (call_count < 10) ? CaseRepeatAll : CaseNoRepeat;
 }
 utest::v1::status_t repeat_all_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     static int repeat_counter(0);
-    TEST_ASSERT_EQUAL(repeat_counter*3 + 2, call_counter++);
-    TEST_ASSERT_EQUAL(repeat_counter+1, passed);
+    TEST_ASSERT_EQUAL(repeat_counter * 3 + 2, call_counter++);
+    TEST_ASSERT_EQUAL(repeat_counter + 1, passed);
     TEST_ASSERT_EQUAL(0, failed);
     TEST_ASSERT_EQUAL(REASON_NONE, failure.reason);
     TEST_ASSERT_EQUAL(LOCATION_NONE, failure.location);
@@ -62,7 +62,7 @@ control_t repeat_handler_case(const size_t call_count)
 {
     static int repeat_counter(1);
     TEST_ASSERT_EQUAL(repeat_counter++, call_count);
-    TEST_ASSERT_EQUAL((call_count-1) + 31, call_counter++);
+    TEST_ASSERT_EQUAL((call_count - 1) + 31, call_counter++);
     return (call_count < 10) ? CaseRepeatHandler : CaseNoRepeat;
 }
 utest::v1::status_t repeat_handler_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)

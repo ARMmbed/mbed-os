@@ -83,10 +83,10 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         return -1;
     }
 
-  /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
-     you have to make sure that these data are rewritten before they are accessed during code
-     execution. If this cannot be done safely, it is recommended to flush the caches by setting the
-     DCRST and ICRST bits in the FLASH_CR register. */
+    /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
+       you have to make sure that these data are rewritten before they are accessed during code
+       execution. If this cannot be done safely, it is recommended to flush the caches by setting the
+       DCRST and ICRST bits in the FLASH_CR register. */
     __HAL_FLASH_ART_DISABLE();
     __HAL_FLASH_ART_RESET();
     __HAL_FLASH_ART_ENABLE();
@@ -105,7 +105,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     /* On targets that support dynamic single or dual bank configuration
      * Check that we're in SINGLE Bank mode, only supported mode now.
      */
-    if((OBInit.USERConfig & OB_NDBANK_SINGLE_BANK) != OB_NDBANK_SINGLE_BANK) {
+    if ((OBInit.USERConfig & OB_NDBANK_SINGLE_BANK) != OB_NDBANK_SINGLE_BANK) {
         /*  We don't support the DUAL BANK MODE for now, so return error */
         return -1;
     }
@@ -117,7 +117,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     EraseInitStruct.Sector = SectorId;
     EraseInitStruct.NbSectors = 1;
 
-    if(HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK){
+    if (HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK) {
         status = -1;
     }
 
@@ -127,7 +127,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 }
 
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
-        uint32_t size)
+                           uint32_t size)
 {
     int32_t status = 0;
 
@@ -139,17 +139,17 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
         return -1;
     }
 
-  /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
-     you have to make sure that these data are rewritten before they are accessed during code
-     execution. If this cannot be done safely, it is recommended to flush the caches by setting the
-     DCRST and ICRST bits in the FLASH_CR register. */
+    /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
+       you have to make sure that these data are rewritten before they are accessed during code
+       execution. If this cannot be done safely, it is recommended to flush the caches by setting the
+       DCRST and ICRST bits in the FLASH_CR register. */
     __HAL_FLASH_ART_DISABLE();
     __HAL_FLASH_ART_RESET();
     __HAL_FLASH_ART_ENABLE();
 
     while ((size > 0) && (status == 0)) {
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE,
-                    address, (uint64_t)*data) != HAL_OK) {
+                              address, (uint64_t)*data) != HAL_OK) {
             status = -1;
         } else {
             size--;
@@ -199,12 +199,12 @@ static uint32_t GetSector(uint32_t address)
 
     if (address < ADDR_FLASH_SECTOR_4) {
         // 32k sectorsize
-        sector += tmp >>15;
+        sector += tmp >> 15;
     } else if (address < ADDR_FLASH_SECTOR_5) {
         //64k sector size
         sector += FLASH_SECTOR_4;
     } else {
-        sector += 4 + (tmp >>18);
+        sector += 4 + (tmp >> 18);
     }
 
     return sector;
@@ -218,13 +218,13 @@ static uint32_t GetSector(uint32_t address)
 static uint32_t GetSectorSize(uint32_t Sector)
 {
     uint32_t sectorsize = 0x00;
-    if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) ||\
-        (Sector == FLASH_SECTOR_2) || (Sector == FLASH_SECTOR_3)) {
-            sectorsize = 32 * 1024;
+    if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || \
+            (Sector == FLASH_SECTOR_2) || (Sector == FLASH_SECTOR_3)) {
+        sectorsize = 32 * 1024;
     } else if (Sector == FLASH_SECTOR_4) {
-            sectorsize = 128 * 1024;
+        sectorsize = 128 * 1024;
     } else {
-            sectorsize = 256 * 1024;
+        sectorsize = 256 * 1024;
     }
 
     return sectorsize;

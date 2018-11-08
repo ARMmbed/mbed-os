@@ -24,7 +24,7 @@ uint8_t g_sys_init = 0;
 //TODO: To be implemented by adding system init and board init
 void mbed_sdk_init()
 {
-    if(g_sys_init == 0) {
+    if (g_sys_init == 0) {
         sysclk_init();
         system_board_init();
         g_sys_init = 1;

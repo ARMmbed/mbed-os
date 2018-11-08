@@ -55,7 +55,7 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @param  None
   * @retval None
   */
-void SystemInit (void)
+void SystemInit(void)
 {
     /*!< Set MSION bit */
     RCC->CR |= (uint32_t)0x00000100U;
@@ -112,7 +112,7 @@ void SetSysClock(void)
             if (SetSysClock_PLL_HSI() == 0)
 #endif
             {
-                while(1) {
+                while (1) {
                     MBED_ASSERT(1);
                 }
             }

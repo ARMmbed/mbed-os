@@ -40,7 +40,7 @@
 #define __STM32L1xx_HAL_PWR_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -58,19 +58,18 @@
 
 /** @defgroup PWR_Exported_Types PWR Exported Types
   * @{
-  */ 
+  */
 
 /**
   * @brief  PWR PVD configuration structure definition
   */
-typedef struct
-{
-  uint32_t PVDLevel;   /*!< PVDLevel: Specifies the PVD detection level.
+typedef struct {
+    uint32_t PVDLevel;   /*!< PVDLevel: Specifies the PVD detection level.
                             This parameter can be a value of @ref PWR_PVD_detection_level */
 
-  uint32_t Mode;      /*!< Mode: Specifies the operating mode for the selected pins.
+    uint32_t Mode;      /*!< Mode: Specifies the operating mode for the selected pins.
                            This parameter can be a value of @ref PWR_PVD_Mode */
-}PWR_PVDTypeDef;
+} PWR_PVDTypeDef;
 
 /**
   * @}
@@ -80,7 +79,7 @@ typedef struct
 
 /** @addtogroup PWR_Private_Constants
   * @{
-  */ 
+  */
 #define PWR_EXTI_LINE_PVD  ((uint32_t)0x00010000)  /*!< External interrupt line 16 Connected to the PVD EXTI Line */
 
 /**
@@ -88,12 +87,12 @@ typedef struct
   */
 
 
-  
+
 /* Exported constants --------------------------------------------------------*/
 
 /** @defgroup PWR_Exported_Constants PWR Exported Constants
   * @{
-  */ 
+  */
 
 /** @defgroup PWR_register_alias_address PWR Register alias address
   * @{
@@ -107,10 +106,10 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup PWR_CR_register_alias PWR CR Register alias address
   * @{
-  */  
+  */
 /* --- CR Register ---*/
 /* Alias word address of LPSDSR bit */
 #define LPSDSR_BIT_NUMBER        POSITION_VAL(PWR_CR_LPSDSR)
@@ -149,7 +148,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup PWR_PVD_detection_level PWR PVD detection level
   * @{
   */
@@ -178,9 +177,9 @@ typedef struct
 #define PWR_PVD_MODE_EVENT_FALLING          ((uint32_t)0x00020002)   /*!< Event Mode with Falling edge trigger detection */
 #define PWR_PVD_MODE_EVENT_RISING_FALLING   ((uint32_t)0x00020003)   /*!< Event Mode with Rising/Falling edge trigger detection */
 
- /**
- * @}
-  */
+/**
+* @}
+ */
 
 /** @defgroup PWR_Regulator_state_in_SLEEP_STOP_mode PWR Regulator state in SLEEP/STOP mode
   * @{
@@ -273,7 +272,7 @@ typedef struct
   *                  (by setting the EWUP bit) when the WKUP pin level is already high.
   *            @arg PWR_FLAG_SB: StandBy flag. This flag indicates that the system was
   *                  resumed from StandBy mode.
-  *            @arg PWR_FLAG_PVDO: PVD Output. This flag is valid only if PVD is enabled 
+  *            @arg PWR_FLAG_PVDO: PVD Output. This flag is valid only if PVD is enabled
   *                  by the HAL_PWR_EnablePVD() function. The PVD is stopped by Standby mode
   *                  For this reason, this bit is equal to 0 after Standby or reset
   *                  until the PVDE bit is set.
@@ -358,8 +357,8 @@ typedef struct
   do {                                                   \
     __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();             \
     __HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();            \
-  } while(0)  
-  
+  } while(0)
+
 /**
   * @brief Disable the PVD Extended Interrupt Rising & Falling Trigger.
   * @retval None.
@@ -368,7 +367,7 @@ typedef struct
   do {                                                    \
     __HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE();             \
     __HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE();            \
-  } while(0)  
+  } while(0)
 
 
 
@@ -437,8 +436,8 @@ typedef struct
 /** @addtogroup PWR_Exported_Functions PWR Exported Functions
   * @{
   */
-  
-/** @addtogroup PWR_Exported_Functions_Group1 Initialization and de-initialization functions 
+
+/** @addtogroup PWR_Exported_Functions_Group1 Initialization and de-initialization functions
   * @{
   */
 
@@ -451,7 +450,7 @@ void HAL_PWR_DisableBkUpAccess(void);
   * @}
   */
 
-/** @addtogroup PWR_Exported_Functions_Group2 Peripheral Control functions 
+/** @addtogroup PWR_Exported_Functions_Group2 Peripheral Control functions
   * @{
   */
 
@@ -489,7 +488,7 @@ void HAL_PWR_PVDCallback(void);
 /**
   * @}
   */
-  
+
 /**
   * @}
   */

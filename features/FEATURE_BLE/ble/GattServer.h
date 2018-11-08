@@ -100,7 +100,7 @@ public:
      * @see onDataSent().
      */
     typedef CallChainOfFunctionPointersWithContext<unsigned>
-        DataSentCallbackChain_t;
+    DataSentCallbackChain_t;
 
     /**
      * Event handler invoked when the client has written an attribute of the
@@ -108,32 +108,32 @@ public:
      *
      * @see onDataWritten().
      */
-    typedef FunctionPointerWithContext<const GattWriteCallbackParams*>
-        DataWrittenCallback_t;
+    typedef FunctionPointerWithContext<const GattWriteCallbackParams *>
+    DataWrittenCallback_t;
 
     /**
      * Callchain of DataWrittenCallback_t objects.
      *
      * @see onDataWritten().
      */
-    typedef CallChainOfFunctionPointersWithContext<const GattWriteCallbackParams*>
-        DataWrittenCallbackChain_t;
+    typedef CallChainOfFunctionPointersWithContext<const GattWriteCallbackParams *>
+    DataWrittenCallbackChain_t;
 
     /**
      * Event handler invoked when the client has read an attribute of the server.
      *
      * @see onDataRead().
      */
-    typedef FunctionPointerWithContext<const GattReadCallbackParams*>
-        DataReadCallback_t;
+    typedef FunctionPointerWithContext<const GattReadCallbackParams *>
+    DataReadCallback_t;
 
     /**
      * Callchain of DataReadCallback_t.
      *
      * @see onDataRead().
      */
-    typedef CallChainOfFunctionPointersWithContext<const GattReadCallbackParams*>
-        DataReadCallbackChain_t;
+    typedef CallChainOfFunctionPointersWithContext<const GattReadCallbackParams *>
+    DataReadCallbackChain_t;
 
     /**
      * Event handler invoked when the GattServer is reset.
@@ -141,15 +141,15 @@ public:
      * @see onShutdown() reset()
      */
     typedef FunctionPointerWithContext<const GattServer *>
-        GattServerShutdownCallback_t;
+    GattServerShutdownCallback_t;
 
     /**
      * Callchain of GattServerShutdownCallback_t.
      *
      * @see onShutdown() reset()
      */
-    typedef CallChainOfFunctionPointersWithContext<const GattServer*>
-        GattServerShutdownCallbackChain_t;
+    typedef CallChainOfFunctionPointersWithContext<const GattServer *>
+    GattServerShutdownCallbackChain_t;
 
     /**
      * Event handler that handles subscription to characteristic updates,
@@ -171,7 +171,8 @@ protected:
         dataReadCallChain(),
         updatesEnabledCallback(NULL),
         updatesDisabledCallback(NULL),
-        confirmationReceivedCallback(NULL) {
+        confirmationReceivedCallback(NULL)
+    {
     }
 
     /*
@@ -235,7 +236,8 @@ public:
         GattAttribute::Handle_t attributeHandle,
         uint8_t buffer[],
         uint16_t *lengthP
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)attributeHandle;
         (void)buffer;
@@ -269,7 +271,8 @@ public:
         GattAttribute::Handle_t attributeHandle,
         uint8_t *buffer,
         uint16_t *lengthP
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)attributeHandle;
@@ -301,7 +304,8 @@ public:
         const uint8_t *value,
         uint16_t size,
         bool localOnly = false
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)attributeHandle;
         (void)value;
@@ -340,7 +344,8 @@ public:
         const uint8_t *value,
         uint16_t size,
         bool localOnly = false
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)attributeHandle;
@@ -367,7 +372,8 @@ public:
     virtual ble_error_t areUpdatesEnabled(
         const GattCharacteristic &characteristic,
         bool *enabledP
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)characteristic;
         (void)enabledP;
@@ -394,7 +400,8 @@ public:
         Gap::Handle_t connectionHandle,
         const GattCharacteristic &characteristic,
         bool *enabledP
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)characteristic;
@@ -491,7 +498,8 @@ public:
     void onDataWritten(
         T *objPtr,
         void (T::*memberPtr)(const GattWriteCallbackParams *context)
-    ) {
+    )
+    {
         dataWrittenCallChain.add(objPtr, memberPtr);
     }
 
@@ -551,7 +559,8 @@ public:
     ble_error_t onDataRead(
         T *objPtr,
         void (T::*memberPtr)(const GattReadCallbackParams *context)
-    ) {
+    )
+    {
         if (!isOnDataReadAvailable()) {
             return BLE_ERROR_NOT_IMPLEMENTED;
         }
@@ -622,7 +631,7 @@ public:
      * @note It is possible to unregister callbacks using
      * onShutdown().detach(callback).
      */
-    GattServerShutdownCallbackChain_t& onShutdown()
+    GattServerShutdownCallbackChain_t &onShutdown()
     {
         return shutdownCallChain;
     }
@@ -709,7 +718,8 @@ protected:
     void handleEvent(
         GattServerEvents::gattEvent_e type,
         GattAttribute::Handle_t attributeHandle
-    ) {
+    )
+    {
         switch (type) {
             case GattServerEvents::GATT_EVENT_UPDATES_ENABLED:
                 if (updatesEnabledCallback) {
@@ -831,7 +841,7 @@ private:
 private:
     /* Disallow copy and assignment. */
     GattServer(const GattServer &);
-    GattServer& operator=(const GattServer &);
+    GattServer &operator=(const GattServer &);
 };
 
 /**

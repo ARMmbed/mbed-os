@@ -78,10 +78,10 @@ void analogin_init(analogin_t *obj, PinName pin)
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
     /* Initialize the ADC SPI */
-    if(analogin_spi_dev.analog_spi_inited == 0){
+    if (analogin_spi_dev.analog_spi_inited == 0) {
         /* Initialize SPI for ADC */
         spi_init(&(analogin_spi_dev.analogin_spi), ADC_SPI_MOSI,
-                ADC_SPI_MISO, ADC_SPI_SCK, ADC_SPI_nCS);
+                 ADC_SPI_MISO, ADC_SPI_SCK, ADC_SPI_nCS);
         spi_format(&(analogin_spi_dev.analogin_spi), 16, 3, 0);
         /* Set SPI to MAX Freq */
         spi_frequency(&(analogin_spi_dev.analogin_spi), 0);
@@ -94,8 +94,8 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     /* If pin is valid assign it to the ADC data structure */
     obj->pin = pin;
-    obj->pin_number = pin-600;
-    obj->address = (0x0000 | (pin-600));
+    obj->pin_number = pin - 600;
+    obj->address = (0x0000 | (pin - 600));
 
     /* Configure the pinout */
     pinmap_pinout(pin, PinMap_ADC);
@@ -118,7 +118,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     gpio_write(&(analogin_spi_dev.adc_spi_cs_gpio), 1);
     /* Do the first read */
     (void)spi_master_write(&(analogin_spi_dev.analogin_spi),
-        ((obj->pin_number) << ADC_SPI_ADDRESS));
+                           ((obj->pin_number) << ADC_SPI_ADDRESS));
     /* CS = 0 */
     gpio_write(&(analogin_spi_dev.adc_spi_cs_gpio), 0);
     /* Wait 50 us */
@@ -127,7 +127,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     gpio_write(&(analogin_spi_dev.adc_spi_cs_gpio), 1);
     /* The second read provides the result */
     result = spi_master_write(&(analogin_spi_dev.analogin_spi),
-        ((obj->pin_number) << ADC_SPI_ADDRESS));
+                              ((obj->pin_number) << ADC_SPI_ADDRESS));
     /* CS = 0 */
     gpio_write(&(analogin_spi_dev.adc_spi_cs_gpio), 0);
 

@@ -6,11 +6,12 @@
 
 
 namespace {
-    const int BUFFER_SIZE = 48;
-    char buffer[BUFFER_SIZE] = {0};
+const int BUFFER_SIZE = 48;
+char buffer[BUFFER_SIZE] = {0};
 }
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(echo);
     MBED_HOSTTEST_DESCRIPTION(Serial Echo at 115200);

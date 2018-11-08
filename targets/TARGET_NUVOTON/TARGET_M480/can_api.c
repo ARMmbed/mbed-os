@@ -68,16 +68,17 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
 
-    if(obj->can == CAN_1) {
+    if (obj->can == CAN_1) {
         obj->index = 1;
-    } else
+    } else {
         obj->index = 0;
+    }
 
     pinmap_pinout(td, PinMap_CAN_TD);
     pinmap_pinout(rd, PinMap_CAN_RD);
 #if 0
     /* TBD: For M487 mbed Board Transmitter Setting (RS Pin) */
-    GPIO_SetMode(PA, BIT2| BIT3, GPIO_MODE_OUTPUT);
+    GPIO_SetMode(PA, BIT2 | BIT3, GPIO_MODE_OUTPUT);
     PA2 = 0x00;
     PA3 = 0x00;
 #endif
@@ -120,59 +121,65 @@ static void can_irq(CANName name, int id)
 
     u8IIDRstatus = can->IIDR;
 
-    if(u8IIDRstatus == 0x00008000) {      /* Check Status Interrupt Flag (Error status Int and Status change Int) */
+    if (u8IIDRstatus == 0x00008000) {     /* Check Status Interrupt Flag (Error status Int and Status change Int) */
         /**************************/
         /* Status Change interrupt*/
         /**************************/
-        if(can->STATUS & CAN_STATUS_RXOK_Msk) {
+        if (can->STATUS & CAN_STATUS_RXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_RXOK_Msk;   /* Clear Rx Ok status*/
-            if(id)
+            if (id) {
                 can1_irq_handler(can_irq_ids[id], IRQ_RX);
-            else
+            } else {
                 can0_irq_handler(can_irq_ids[id], IRQ_RX);
+            }
         }
 
-        if(can->STATUS & CAN_STATUS_TXOK_Msk) {
+        if (can->STATUS & CAN_STATUS_TXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_TXOK_Msk;    /* Clear Tx Ok status*/
-            if(id)
+            if (id) {
                 can1_irq_handler(can_irq_ids[id], IRQ_TX);
-            else
+            } else {
                 can0_irq_handler(can_irq_ids[id], IRQ_TX);
+            }
 
         }
 
         /**************************/
         /* Error Status interrupt */
         /**************************/
-        if(can->STATUS & CAN_STATUS_EWARN_Msk) {
-            if(id)
+        if (can->STATUS & CAN_STATUS_EWARN_Msk) {
+            if (id) {
                 can1_irq_handler(can_irq_ids[id], IRQ_ERROR);
-            else
+            } else {
                 can0_irq_handler(can_irq_ids[id], IRQ_ERROR);
+            }
         }
 
-        if(can->STATUS & CAN_STATUS_BOFF_Msk) {
-            if(id)
+        if (can->STATUS & CAN_STATUS_BOFF_Msk) {
+            if (id) {
                 can1_irq_handler(can_irq_ids[id], IRQ_BUS);
-            else
+            } else {
                 can0_irq_handler(can_irq_ids[id], IRQ_BUS);
+            }
         }
-    } else if (u8IIDRstatus!=0) {
+    } else if (u8IIDRstatus != 0) {
 
-        if(id)
+        if (id) {
             can1_irq_handler(can_irq_ids[id], IRQ_OVERRUN);
-        else
+        } else {
             can0_irq_handler(can_irq_ids[id], IRQ_OVERRUN);
+        }
 
-        CAN_CLR_INT_PENDING_BIT(can, ((can->IIDR) -1));      /* Clear Interrupt Pending */
+        CAN_CLR_INT_PENDING_BIT(can, ((can->IIDR) - 1));     /* Clear Interrupt Pending */
 
-    } else if(can->WU_STATUS == 1) {
+    } else if (can->WU_STATUS == 1) {
 
         can->WU_STATUS = 0;                       /* Write '0' to clear */
-        if(id)
+        if (id) {
             can1_irq_handler(can_irq_ids[id], IRQ_WAKEUP);
-        else
+        } else {
             can0_irq_handler(can_irq_ids[id], IRQ_WAKEUP);
+        }
     }
 }
 
@@ -188,24 +195,26 @@ void CAN1_IRQHandler(void)
 
 void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
 {
-    if(obj->index)
+    if (obj->index) {
         can1_irq_handler = handler;
-    else
+    } else {
         can0_irq_handler = handler;
+    }
     can_irq_ids[obj->index] = id;
 
 }
 
 void can_irq_free(can_t *obj)
 {
-    CAN_DisableInt((CAN_T *)NU_MODBASE(obj->can), (CAN_CON_IE_Msk|CAN_CON_SIE_Msk|CAN_CON_EIE_Msk));
+    CAN_DisableInt((CAN_T *)NU_MODBASE(obj->can), (CAN_CON_IE_Msk | CAN_CON_SIE_Msk | CAN_CON_EIE_Msk));
 
     can_irq_ids[obj->index] = 0;
 
-    if(!obj->index)
+    if (!obj->index) {
         NVIC_DisableIRQ(CAN0_IRQn);
-    else
+    } else {
         NVIC_DisableIRQ(CAN1_IRQn);
+    }
 
 
 }
@@ -214,31 +223,31 @@ void can_irq_set(can_t *obj, CanIrqType irq, uint32_t enable)
 {
     uint8_t u8Mask;
 
-    u8Mask = ((enable != 0 )? CAN_CON_IE_Msk :0);
+    u8Mask = ((enable != 0) ? CAN_CON_IE_Msk : 0);
 
     switch (irq) {
-    case IRQ_ERROR:
-    case IRQ_BUS:
-    case IRQ_PASSIVE:
-        u8Mask = u8Mask | CAN_CON_EIE_Msk | CAN_CON_SIE_Msk;
-        break;
+        case IRQ_ERROR:
+        case IRQ_BUS:
+        case IRQ_PASSIVE:
+            u8Mask = u8Mask | CAN_CON_EIE_Msk | CAN_CON_SIE_Msk;
+            break;
 
-    case IRQ_RX:
-    case IRQ_TX:
-    case IRQ_OVERRUN:
-    case IRQ_WAKEUP:
-        u8Mask = u8Mask | CAN_CON_SIE_Msk;
-        break;
+        case IRQ_RX:
+        case IRQ_TX:
+        case IRQ_OVERRUN:
+        case IRQ_WAKEUP:
+            u8Mask = u8Mask | CAN_CON_SIE_Msk;
+            break;
 
-    default:
-        break;
+        default:
+            break;
 
     }
-    CAN_EnterInitMode((CAN_T*)NU_MODBASE(obj->can), u8Mask);
+    CAN_EnterInitMode((CAN_T *)NU_MODBASE(obj->can), u8Mask);
 
-    CAN_LeaveInitMode((CAN_T*)NU_MODBASE(obj->can));
+    CAN_LeaveInitMode((CAN_T *)NU_MODBASE(obj->can));
 
-    if(!obj->index) {
+    if (!obj->index) {
         NVIC_SetVector(CAN0_IRQn, (uint32_t)&CAN0_IRQHandler);
         NVIC_EnableIRQ(CAN0_IRQn);
     } else {
@@ -256,7 +265,7 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
     CMsg.FrameType = (uint32_t)!msg.type;
     CMsg.Id = msg.id;
     CMsg.DLC = msg.len;
-    memcpy((void *)&CMsg.Data[0],(const void *)&msg.data[0], (unsigned int)8);
+    memcpy((void *)&CMsg.Data[0], (const void *)&msg.data[0], (unsigned int)8);
 
     return CAN_Transmit((CAN_T *)(NU_MODBASE(obj->can)), cc, &CMsg);
 }
@@ -265,8 +274,9 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
 {
     STR_CANMSG_T CMsg;
 
-    if(!CAN_Receive((CAN_T *)(NU_MODBASE(obj->can)), handle, &CMsg))
+    if (!CAN_Receive((CAN_T *)(NU_MODBASE(obj->can)), handle, &CMsg)) {
         return 0;
+    }
 
     msg->format = (CANFormat)CMsg.IdType;
     msg->type = (CANType)!CMsg.FrameType;
@@ -281,35 +291,35 @@ int can_mode(can_t *obj, CanMode mode)
 {
     int success = 0;
     switch (mode) {
-    case MODE_RESET:
-        CAN_LeaveTestMode((CAN_T*)NU_MODBASE(obj->can));
-        success = 1;
-        break;
+        case MODE_RESET:
+            CAN_LeaveTestMode((CAN_T *)NU_MODBASE(obj->can));
+            success = 1;
+            break;
 
-    case MODE_NORMAL:
-        CAN_EnterTestMode((CAN_T*)NU_MODBASE(obj->can), CAN_TEST_BASIC_Msk);
-        success = 1;
-        break;
+        case MODE_NORMAL:
+            CAN_EnterTestMode((CAN_T *)NU_MODBASE(obj->can), CAN_TEST_BASIC_Msk);
+            success = 1;
+            break;
 
-    case MODE_SILENT:
-        CAN_EnterTestMode((CAN_T*)NU_MODBASE(obj->can), CAN_TEST_SILENT_Msk);
-        success = 1;
-        break;
+        case MODE_SILENT:
+            CAN_EnterTestMode((CAN_T *)NU_MODBASE(obj->can), CAN_TEST_SILENT_Msk);
+            success = 1;
+            break;
 
-    case MODE_TEST_LOCAL:
-    case MODE_TEST_GLOBAL:
-        CAN_EnterTestMode((CAN_T*)NU_MODBASE(obj->can), CAN_TEST_LBACK_Msk);
-        success = 1;
-        break;
+        case MODE_TEST_LOCAL:
+        case MODE_TEST_GLOBAL:
+            CAN_EnterTestMode((CAN_T *)NU_MODBASE(obj->can), CAN_TEST_LBACK_Msk);
+            success = 1;
+            break;
 
-    case MODE_TEST_SILENT:
-        CAN_EnterTestMode((CAN_T*)NU_MODBASE(obj->can), CAN_TEST_SILENT_Msk | CAN_TEST_LBACK_Msk);
-        success = 1;
-        break;
+        case MODE_TEST_SILENT:
+            CAN_EnterTestMode((CAN_T *)NU_MODBASE(obj->can), CAN_TEST_SILENT_Msk | CAN_TEST_LBACK_Msk);
+            success = 1;
+            break;
 
-    default:
-        success = 0;
-        break;
+        default:
+            success = 0;
+            break;
 
     }
 
@@ -338,13 +348,13 @@ void can_reset(can_t *obj)
 unsigned char can_rderror(can_t *obj)
 {
     CAN_T *can = (CAN_T *)NU_MODBASE(obj->can);
-    return ((can->ERR>>8)&0xFF);
+    return ((can->ERR >> 8) & 0xFF);
 }
 
 unsigned char can_tderror(can_t *obj)
 {
     CAN_T *can = (CAN_T *)NU_MODBASE(obj->can);
-    return ((can->ERR)&0xFF);
+    return ((can->ERR) & 0xFF);
 }
 
 void can_monitor(can_t *obj, int silent)

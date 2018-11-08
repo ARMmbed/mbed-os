@@ -39,13 +39,10 @@ void SystemCoreClockUpdate(void)             /* Get Core Clock Frequency      */
 
     u32ClkSrc = CLK->CLKSEL0 & CLK_CLKSEL0_HCLKSEL_Msk;
 
-    if(u32ClkSrc == CLK_CLKSEL0_HCLKSEL_PLL)
-    {
+    if (u32ClkSrc == CLK_CLKSEL0_HCLKSEL_PLL) {
         /* Use PLL clock */
         u32Freq = PllClock;
-    }
-    else
-    {
+    } else {
         /* Use the clock sources directly */
         u32Freq = gau32ClkSrcTbl[u32ClkSrc];
     }
@@ -77,12 +74,11 @@ void SystemInit(void)
     /* ToDo: add code to initialize the system
              do not use global variables because this function is called before
              reaching pre-main. RW section maybe overwritten afterwards.          */
-    
+
     SYS_UnlockReg();
     /* One-time POR18 */
-    if((SYS->PDID >> 12) == 0x945)
-    {
-        M32(GCR_BASE+0x14) |= BIT7;
+    if ((SYS->PDID >> 12) == 0x945) {
+        M32(GCR_BASE + 0x14) |= BIT7;
     }
     /* Force to use INV type with HXT */
     CLK->PWRCTL &= ~CLK_PWRCTL_HXTSELTYP_Msk;

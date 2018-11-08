@@ -43,7 +43,7 @@ uint32_t SystemCoreClock = __SYSTEM_CLOCK;/*!< System Clock Frequency (Core Cloc
 /*----------------------------------------------------------------------------
   Clock functions
  *----------------------------------------------------------------------------*/
-void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
+void SystemCoreClockUpdate(void)             /* Get Core Clock Frequency      */
 {
     /*Function not implimented */
     SystemCoreClock = __SYSTEM_CLOCK;
@@ -58,7 +58,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
  * @brief  Setup the microcontroller system.
  *         Initialize the System.
  */
-void SystemInit (void)
+void SystemInit(void)
 {
 
     SystemCoreClock = __SYSTEM_CLOCK;

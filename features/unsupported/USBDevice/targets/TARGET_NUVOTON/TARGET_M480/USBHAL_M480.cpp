@@ -25,7 +25,7 @@
  * EPX: BSP defined endpoint, e.g. CEP, EPA, EPB, EPC.
  */
 
-USBHAL * USBHAL::instance;
+USBHAL *USBHAL::instance;
 
 #if (MBED_CONF_TARGET_USB_DEVICE_HSUSBD == 0)
 
@@ -55,7 +55,7 @@ USBHAL::USBHAL(void)
 
     s_ep_buf_ind = 8;
 
-    memset(epCallback, 0x00, sizeof (epCallback));
+    memset(epCallback, 0x00, sizeof(epCallback));
     epCallback[0] = &USBHAL::EP1_OUT_callback;
     epCallback[1] = &USBHAL::EP2_IN_callback;
     epCallback[2] = &USBHAL::EP3_OUT_callback;
@@ -73,7 +73,7 @@ USBHAL::USBHAL(void)
 
     /* Configure USB to Device mode */
     SYS->USBPHY = (SYS->USBPHY & ~SYS_USBPHY_USBROLE_Msk) | SYS_USBPHY_USBROLE_STD_USBD;
-    
+
     /* Enable USB PHY */
     SYS->USBPHY |= SYS_USBPHY_USBEN_Msk | SYS_USBPHY_SBO_Msk;
 
@@ -88,7 +88,7 @@ USBHAL::USBHAL(void)
     pin_function(PA_13, SYS_GPA_MFPH_PA13MFP_USB_D_N);
     pin_function(PA_14, SYS_GPA_MFPH_PA14MFP_USB_D_P);
     pin_function(PA_15, (int) SYS_GPA_MFPH_PA15MFP_USB_OTG_ID);
-    
+
     /* Initial USB engine */
     USBD->ATTR = 0x7D0;
 
@@ -175,15 +175,17 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t opti
     uint32_t ep_logic_index = NU_EP2EPL(endpoint);
     uint32_t ep_dir = (NU_EP_DIR(endpoint) == NU_EP_DIR_IN) ? USBD_CFG_EPMODE_IN : USBD_CFG_EPMODE_OUT;
 
-    if(ep_logic_index == 3 || ep_logic_index == 4)
+    if (ep_logic_index == 3 || ep_logic_index == 4) {
         ep_type = USBD_CFG_TYPE_ISO;
+    }
 
     USBD_CONFIG_EP(ep_hw_index, ep_dir | ep_type | ep_logic_index);
     /* Buffer range */
     USBD_SET_EP_BUF_ADDR(ep_hw_index, s_ep_buf_ind);
 
-    if(ep_dir == USBD_CFG_EPMODE_OUT)
+    if (ep_dir == USBD_CFG_EPMODE_OUT) {
         USBD_SET_PAYLOAD_LEN(ep_hw_index, maxPacket);
+    }
 
     s_ep_mxp[ep_logic_index] = maxPacket;
 
@@ -208,7 +210,7 @@ void USBHAL::EP0readStage(void)
 {
     // N/A
 
-    USBD_PrepareCtrlOut(0,0);
+    USBD_PrepareCtrlOut(0, 0);
 }
 
 uint32_t USBHAL::EP0getReadResult(uint8_t *buffer)
@@ -216,8 +218,9 @@ uint32_t USBHAL::EP0getReadResult(uint8_t *buffer)
     uint32_t i;
     uint8_t *buf = (uint8_t *)(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP1));
     uint32_t ceprxcnt = USBD_GET_PAYLOAD_LEN(EP1);
-    for (i = 0; i < ceprxcnt; i ++)
+    for (i = 0; i < ceprxcnt; i ++) {
         buffer[i] = buf[i];
+    }
     USBD_SET_PAYLOAD_LEN(EP1, MAX_PACKET_SIZE_EP0);
     return ceprxcnt;
 }
@@ -225,21 +228,23 @@ uint32_t USBHAL::EP0getReadResult(uint8_t *buffer)
 void USBHAL::EP0write(uint8_t *buffer, uint32_t size)
 {
     if (buffer && size) {
-        if(s_ep_data_bit[0] & 1)
+        if (s_ep_data_bit[0] & 1) {
             USBD_SET_DATA1(EP0);
-        else
+        } else {
             USBD_SET_DATA0(EP0);
+        }
         s_ep_data_bit[0]++;
 
         USBD_MemCopy((uint8_t *)USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0), buffer, size);
         USBD_SET_PAYLOAD_LEN(EP0, size);
-        if(size < MAX_PACKET_SIZE_EP0)
+        if (size < MAX_PACKET_SIZE_EP0) {
             s_ep_data_bit[0] = 1;
+        }
 
     } else {
-        if(g_usbd_SetupPacket[0] & 0x80) {	//Device to Host
+        if (g_usbd_SetupPacket[0] & 0x80) { //Device to Host
             // Status stage
-            //			USBD_PrepareCtrlOut(0,0);
+            //          USBD_PrepareCtrlOut(0,0);
         } else {
             USBD_SET_DATA1(EP0);
             USBD_SET_PAYLOAD_LEN(EP0, 0);
@@ -262,9 +267,9 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize)
     return EP_PENDING;
 }
 
-EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_t *bytesRead) //spcheng
+EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *buffer, uint32_t *bytesRead)  //spcheng
 {
-    if(endpoint == EP0OUT) {
+    if (endpoint == EP0OUT) {
         USBD_MemCopy(g_usbd_SetupPacket, (uint8_t *)USBD_BUF_BASE, 8);
         if (buffer) {
             USBD_MemCopy(buffer, g_usbd_SetupPacket, 8);
@@ -274,12 +279,13 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
         uint32_t i;
         uint8_t *buf = (uint8_t *)(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(NU_EP2EPH(endpoint)));
         uint32_t eprxcnt = USBD_GET_PAYLOAD_LEN(NU_EP2EPH(endpoint));
-        for (i = 0; i < eprxcnt; i ++)
+        for (i = 0; i < eprxcnt; i ++) {
             buffer[i] = buf[i];
+        }
 
         *bytesRead = eprxcnt;
 
-        USBD_SET_PAYLOAD_LEN(NU_EP2EPH(endpoint),s_ep_mxp[NU_EPH2EPL(NU_EP2EPL(endpoint))]);
+        USBD_SET_PAYLOAD_LEN(NU_EP2EPH(endpoint), s_ep_mxp[NU_EPH2EPL(NU_EP2EPL(endpoint))]);
     }
     return EP_COMPLETED;
 }
@@ -293,16 +299,17 @@ uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer)
 EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
 {
     uint32_t ep_logic_index = NU_EP2EPL(endpoint);
-    if(ep_logic_index == 0)
+    if (ep_logic_index == 0) {
         return EP_INVALID;
-    else {
+    } else {
         uint8_t *buf;
-        uint32_t i=0;
+        uint32_t i = 0;
         uint32_t ep_hw_index = NU_EP2EPH(endpoint);
         s_ep_compl |= (1 << ep_logic_index);
         buf = (uint8_t *)(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(ep_hw_index));
-        for(i=0; i<size; i++)
+        for (i = 0; i < size; i++) {
             buf[i] = data[i];
+        }
 
         /* Set transfer length and trigger IN transfer */
         USBD_SET_PAYLOAD_LEN(ep_hw_index, size);
@@ -313,16 +320,18 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
 
 EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint)
 {
-    if (!(s_ep_compl & (1 << NU_EP2EPL(endpoint))))
+    if (!(s_ep_compl & (1 << NU_EP2EPL(endpoint)))) {
         return EP_COMPLETED;
+    }
     return EP_PENDING;
 }
 
 void USBHAL::stallEndpoint(uint8_t endpoint)
 {
     uint32_t ep_hw_index = NU_EP2EPH(endpoint);
-    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS)
+    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS) {
         return;
+    }
 
     USBD_SetStall(NU_EPH2EPL(ep_hw_index));
 
@@ -331,16 +340,18 @@ void USBHAL::stallEndpoint(uint8_t endpoint)
 void USBHAL::unstallEndpoint(uint8_t endpoint)
 {
     uint32_t ep_hw_index = NU_EP2EPH(endpoint);
-    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS)
+    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS) {
         return;
+    }
     USBD_ClearStall(NU_EPH2EPL(ep_hw_index));
 }
 
 bool USBHAL::getEndpointStallState(uint8_t endpoint)
 {
     uint32_t ep_hw_index = NU_EP2EPH(endpoint);
-    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS)
+    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS) {
         return false;
+    }
 
     return USBD_GetStall(NU_EPH2EPL(ep_hw_index)) ? 1 : 0;
 }
@@ -357,11 +368,11 @@ void USBHAL::usbisr(void)
     uint32_t u32State = USBD_GET_BUS_STATE();
 
 //------------------------------------------------------------------
-    if(u32IntSts & USBD_INTSTS_VBDETIF_Msk) {
+    if (u32IntSts & USBD_INTSTS_VBDETIF_Msk) {
         // Floating detect
         USBD_CLR_INT_FLAG(USBD_INTSTS_VBDETIF_Msk);
 
-        if(USBD_IS_ATTACHED()) {
+        if (USBD_IS_ATTACHED()) {
             /* USB Plug In */
             USBD_ENABLE_USB();
         } else {
@@ -371,28 +382,28 @@ void USBHAL::usbisr(void)
     }
 
 //------------------------------------------------------------------
-    if(u32IntSts & USBD_INTSTS_BUSIF_Msk) {
+    if (u32IntSts & USBD_INTSTS_BUSIF_Msk) {
         /* Clear event flag */
         USBD_CLR_INT_FLAG(USBD_INTSTS_BUSIF_Msk);
 
-        if(u32State & USBD_ATTR_USBRST_Msk) {
+        if (u32State & USBD_ATTR_USBRST_Msk) {
             /* Bus reset */
             USBD_ENABLE_USB();
             USBD_SwReset();
         }
-        if(u32State & USBD_ATTR_SUSPEND_Msk) {
+        if (u32State & USBD_ATTR_SUSPEND_Msk) {
             /* Enable USB but disable PHY */
             USBD_DISABLE_PHY();
         }
-        if(u32State & USBD_ATTR_RESUME_Msk) {
+        if (u32State & USBD_ATTR_RESUME_Msk) {
             /* Enable USB and enable PHY */
             USBD_ENABLE_USB();
         }
     }
 
-    if(u32IntSts & USBD_INTSTS_USBIF_Msk) {
+    if (u32IntSts & USBD_INTSTS_USBIF_Msk) {
         // USB event
-        if(u32IntSts & USBD_INTSTS_SETUP_Msk) {
+        if (u32IntSts & USBD_INTSTS_SETUP_Msk) {
             // Setup packet
             /* Clear event flag */
             USBD_CLR_INT_FLAG(USBD_INTSTS_SETUP_Msk);
@@ -404,20 +415,20 @@ void USBHAL::usbisr(void)
         }
 
         // EP events
-        if(u32IntSts & USBD_INTSTS_EP0) {
+        if (u32IntSts & USBD_INTSTS_EP0) {
             /* Clear event flag */
             USBD_CLR_INT_FLAG(USBD_INTSTS_EP0);
             // control IN
             EP0in();
 
             // In ACK for Set address
-            if((g_usbd_SetupPacket[0] == REQ_STANDARD) && (g_usbd_SetupPacket[1] == USBD_SET_ADDRESS)) {
-                if((USBD_GET_ADDR() != s_usb_addr) && (USBD_GET_ADDR() == 0)) {
+            if ((g_usbd_SetupPacket[0] == REQ_STANDARD) && (g_usbd_SetupPacket[1] == USBD_SET_ADDRESS)) {
+                if ((USBD_GET_ADDR() != s_usb_addr) && (USBD_GET_ADDR() == 0)) {
                     USBD_SET_ADDR(s_usb_addr);
                 }
             }
         }
-        if(u32IntSts & USBD_INTSTS_EP1) {
+        if (u32IntSts & USBD_INTSTS_EP1) {
             /* Clear event flag */
             USBD_CLR_INT_FLAG(USBD_INTSTS_EP1);
 
@@ -428,21 +439,22 @@ void USBHAL::usbisr(void)
         uint32_t gintsts_epx = (u32IntSts >> 18) & 0x3F;
         uint32_t ep_hw_index = 2;
         while (gintsts_epx) {
-            if(gintsts_epx & 0x01) {
+            if (gintsts_epx & 0x01) {
                 uint32_t ep_status = (USBD_GET_EP_FLAG() >> (ep_hw_index * 3 + 8)) & 0x7;
                 /* Clear event flag */
                 USBD_CLR_INT_FLAG(1 << (ep_hw_index + 16));
 
-                if(ep_status == 0x02 || ep_status == 0x06 || (ep_status == 0x07 && NU_EPH2EPL(ep_hw_index) == 3)) {	//RX
-                    if(ep_status == 0x07)
+                if (ep_status == 0x02 || ep_status == 0x06 || (ep_status == 0x07 && NU_EPH2EPL(ep_hw_index) == 3)) { //RX
+                    if (ep_status == 0x07) {
                         SOF(frame_cnt++);
-                    if ((instance->*(epCallback[ep_hw_index-2]))()) {
+                    }
+                    if ((instance->*(epCallback[ep_hw_index - 2]))()) {
 
                     }
-                    USBD_SET_PAYLOAD_LEN(ep_hw_index,s_ep_mxp[NU_EPH2EPL(ep_hw_index)]);
-                } else if(ep_status == 0x00 || ep_status == 0x07) {	//TX
+                    USBD_SET_PAYLOAD_LEN(ep_hw_index, s_ep_mxp[NU_EPH2EPL(ep_hw_index)]);
+                } else if (ep_status == 0x00 || ep_status == 0x07) { //TX
                     s_ep_compl &= ~(1 << (NU_EPH2EPL(ep_hw_index)));
-                    if ((instance->*(epCallback[ep_hw_index-2]))()) {
+                    if ((instance->*(epCallback[ep_hw_index - 2]))()) {
                     }
                 }
             }
@@ -472,20 +484,23 @@ void HSUSBD_CtrlInput(void)
     uint32_t volatile count;
 
     // Process remained data
-    if(g_usbd_CtrlInSize >= g_usbd_CtrlMaxPktSize) {
+    if (g_usbd_CtrlInSize >= g_usbd_CtrlMaxPktSize) {
         // Data size > MXPLD
-        for (i=0; i<(g_usbd_CtrlMaxPktSize >> 2); i++, g_usbd_CtrlInPointer+=4)
+        for (i = 0; i < (g_usbd_CtrlMaxPktSize >> 2); i++, g_usbd_CtrlInPointer += 4) {
             HSUSBD->CEPDAT = *(uint32_t *)g_usbd_CtrlInPointer;
+        }
         HSUSBD_START_CEP_IN(g_usbd_CtrlMaxPktSize);
         g_usbd_CtrlInSize -= g_usbd_CtrlMaxPktSize;
     } else {
         // Data size <= MXPLD
-        for (i=0; i<(g_usbd_CtrlInSize >> 2); i++, g_usbd_CtrlInPointer+=4)
+        for (i = 0; i < (g_usbd_CtrlInSize >> 2); i++, g_usbd_CtrlInPointer += 4) {
             HSUSBD->CEPDAT = *(uint32_t *)g_usbd_CtrlInPointer;
+        }
 
         count = g_usbd_CtrlInSize % 4;
-        for (i=0; i<count; i++)
+        for (i = 0; i < count; i++) {
             HSUSBD->CEPDAT_BYTE = *(uint8_t *)(g_usbd_CtrlInPointer + i);
+        }
 
         HSUSBD_START_CEP_IN(g_usbd_CtrlInSize);
         g_usbd_CtrlInPointer = 0;
@@ -499,7 +514,7 @@ USBHAL::USBHAL(void)
 
     s_ep_buf_ind = 0;
 
-    memset(epCallback, 0x00, sizeof (epCallback));
+    memset(epCallback, 0x00, sizeof(epCallback));
     epCallback[0] = &USBHAL::EP1_OUT_callback;
     epCallback[1] = &USBHAL::EP2_IN_callback;
     epCallback[2] = &USBHAL::EP3_OUT_callback;
@@ -530,8 +545,9 @@ USBHAL::USBHAL(void)
     HSUSBD_ENABLE_PHY();
     while (1) {
         HSUSBD->EP[0].EPMPS = 0x20;
-        if (HSUSBD->EP[0].EPMPS == 0x20)
+        if (HSUSBD->EP[0].EPMPS == 0x20) {
             break;
+        }
     }
 
     /* Force to full-speed */
@@ -568,7 +584,7 @@ void USBHAL::connect(void)
 
     /* Enable USB/CEP interrupt */
     HSUSBD_ENABLE_USB_INT(HSUSBD_GINTEN_USBIEN_Msk | HSUSBD_GINTEN_CEPIEN_Msk);
-    HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_SETUPPKIEN_Msk|HSUSBD_CEPINTEN_STSDONEIEN_Msk);
+    HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_SETUPPKIEN_Msk | HSUSBD_CEPINTEN_STSDONEIEN_Msk);
 
     /* Enable BUS interrupt */
     HSUSBD_ENABLE_BUS_INT(
@@ -626,18 +642,18 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t opti
     HSUSBD_SET_MAX_PAYLOAD(ep_hw_index, maxPacket);
 
     switch (NU_EP2EPL(endpoint)) {
-    case 1:
-    case 2:
-        ep_type = HSUSBD_EP_CFG_TYPE_INT;
-        break;
+        case 1:
+        case 2:
+            ep_type = HSUSBD_EP_CFG_TYPE_INT;
+            break;
 
-    case 3:
-    case 4:
-        ep_type = HSUSBD_EP_CFG_TYPE_ISO;
-        break;
+        case 3:
+        case 4:
+            ep_type = HSUSBD_EP_CFG_TYPE_ISO;
+            break;
 
-    default:
-        ep_type = HSUSBD_EP_CFG_TYPE_BULK;
+        default:
+            ep_type = HSUSBD_EP_CFG_TYPE_BULK;
     }
     uint32_t ep_dir = (NU_EP_DIR(endpoint) == NU_EP_DIR_IN) ? HSUSBD_EP_CFG_DIR_IN : HSUSBD_EP_CFG_DIR_OUT;
     HSUSBD_ConfigEp(ep_hw_index, NU_EP2EPL(endpoint), ep_type, ep_dir);
@@ -648,10 +664,11 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t opti
                           HSUSBD_GINTEN_CEPIEN_Msk |
                           1 << (ep_hw_index + HSUSBD_GINTEN_EPAIEN_Pos));  // Added USB/EPX interrupt
 
-    if (ep_dir == 0)
+    if (ep_dir == 0) {
         HSUSBD_ENABLE_EP_INT(ep_hw_index, HSUSBD_EPINTEN_RXPKIEN_Msk);
-    else
+    } else {
         HSUSBD_ENABLE_EP_INT(ep_hw_index, HSUSBD_EPINTEN_TXPKIEN_Msk);
+    }
     return true;
 }
 
@@ -663,7 +680,7 @@ void USBHAL::EP0setup(uint8_t *buffer)
 
 void USBHAL::EP0read(void)
 {
-    if (s_setup.wLength && ! (s_setup.bmRequestType & 0x80)) {
+    if (s_setup.wLength && !(s_setup.bmRequestType & 0x80)) {
         // Control OUT
         HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_SETUPPKIEN_Msk | HSUSBD_CEPINTEN_RXPKIEN_Msk);
     } else {
@@ -683,8 +700,9 @@ uint32_t USBHAL::EP0getReadResult(uint8_t *buffer)
 {
     uint32_t i;
     uint32_t ceprxcnt = HSUSBD->CEPRXCNT;
-    for (i = 0; i < ceprxcnt; i ++)
+    for (i = 0; i < ceprxcnt; i ++) {
         *buffer ++ = HSUSBD->CEPDAT_BYTE;
+    }
     return ceprxcnt;
 }
 
@@ -719,31 +737,32 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize)
     return EP_PENDING;
 }
 
-EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_t *bytesRead) //spcheng
+EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *buffer, uint32_t *bytesRead)  //spcheng
 {
-    if(endpoint == EP0OUT) {
+    if (endpoint == EP0OUT) {
         if (buffer) {
-            *((uint16_t *) (buffer + 0)) = (uint16_t) HSUSBD->SETUP1_0;
-            *((uint16_t *) (buffer + 2)) = (uint16_t) HSUSBD->SETUP3_2;
-            *((uint16_t *) (buffer + 4)) = (uint16_t) HSUSBD->SETUP5_4;
-            *((uint16_t *) (buffer + 6)) = (uint16_t) HSUSBD->SETUP7_6;
+            *((uint16_t *)(buffer + 0)) = (uint16_t) HSUSBD->SETUP1_0;
+            *((uint16_t *)(buffer + 2)) = (uint16_t) HSUSBD->SETUP3_2;
+            *((uint16_t *)(buffer + 4)) = (uint16_t) HSUSBD->SETUP5_4;
+            *((uint16_t *)(buffer + 6)) = (uint16_t) HSUSBD->SETUP7_6;
         }
 
-        s_setup.bmRequestType = (uint8_t) (HSUSBD->SETUP1_0 & 0xff);
-        s_setup.bRequest = (int8_t) (HSUSBD->SETUP1_0 >> 8) & 0xff;
+        s_setup.bmRequestType = (uint8_t)(HSUSBD->SETUP1_0 & 0xff);
+        s_setup.bRequest = (int8_t)(HSUSBD->SETUP1_0 >> 8) & 0xff;
         s_setup.wValue = (uint16_t) HSUSBD->SETUP3_2;
         s_setup.wIndex = (uint16_t) HSUSBD->SETUP5_4;
         s_setup.wLength = (uint16_t) HSUSBD->SETUP7_6;
     } else {
         if (!(s_ep_compl & (1 << NU_EP2EPL(endpoint)))) {
-            while(1) {
-                if (!(HSUSBD->DMACTL & HSUSBD_DMACTL_DMAEN_Msk))
+            while (1) {
+                if (!(HSUSBD->DMACTL & HSUSBD_DMACTL_DMAEN_Msk)) {
                     break;
-                else if (!HSUSBD_IS_ATTACHED())
+                } else if (!HSUSBD_IS_ATTACHED()) {
                     break;
+                }
             }
             gEpReadCnt = HSUSBD_GET_EP_DATA_COUNT(NU_EP2EPH(endpoint));
-            if(gEpReadCnt == 0) {
+            if (gEpReadCnt == 0) {
                 *bytesRead = 0;
                 return EP_COMPLETED;
             }
@@ -755,8 +774,9 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
             return EP_PENDING;;
 
         } else {
-            if ((HSUSBD->DMACTL & HSUSBD_DMACTL_DMAEN_Msk))
-                return EP_PENDING;;
+            if ((HSUSBD->DMACTL & HSUSBD_DMACTL_DMAEN_Msk)) {
+                return EP_PENDING;
+            };
 
             HSUSBD_CLR_BUS_INT_FLAG(HSUSBD_BUSINTSTS_DMADONEIF_Msk);
             s_ep_compl &= ~(1 << NU_EP2EPL(endpoint));
@@ -775,24 +795,26 @@ uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer)
 EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
 {
     uint32_t ep_logic_index = NU_EP2EPL(endpoint);
-    if(ep_logic_index == 0)
+    if (ep_logic_index == 0) {
         return EP_INVALID;
-    else {
+    } else {
         uint32_t ep_hw_index = NU_EP2EPH(endpoint);
         uint32_t mps = HSUSBD_GET_EP_MAX_PAYLOAD(ep_hw_index);
         if (size > mps) {
             return EP_INVALID;
         }
-        if(size < mps)
+        if (size < mps) {
             g_usbd_ShortPacket = 1;
+        }
         if (!(s_ep_compl & (1 << NU_EP2EPL(endpoint)))) {
             s_ep_compl |= (1 << ep_logic_index);
 
-            while(1) {
-                if (!(HSUSBD->DMACTL & HSUSBD_DMACTL_DMAEN_Msk))
+            while (1) {
+                if (!(HSUSBD->DMACTL & HSUSBD_DMACTL_DMAEN_Msk)) {
                     break;
-                else if (!HSUSBD_IS_ATTACHED())
+                } else if (!HSUSBD_IS_ATTACHED()) {
                     break;
+                }
             }
             HSUSBD_SET_DMA_LEN(size);
             HSUSBD_SET_DMA_ADDR((uint32_t)data);
@@ -805,10 +827,10 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
 
 EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint)
 {
-    if (!(s_ep_compl & (1 << NU_EP2EPL(endpoint))))
+    if (!(s_ep_compl & (1 << NU_EP2EPL(endpoint)))) {
         return EP_COMPLETED;
-    else {
-        if((HSUSBD_GET_EP_DATA_COUNT(NU_EP2EPH(endpoint))) == 0 && !(HSUSBD->DMACTL & HSUSBD_DMACTL_DMAEN_Msk)) {
+    } else {
+        if ((HSUSBD_GET_EP_DATA_COUNT(NU_EP2EPH(endpoint))) == 0 && !(HSUSBD->DMACTL & HSUSBD_DMACTL_DMAEN_Msk)) {
             s_ep_compl &= ~(s_ep_compl & (1 << NU_EP2EPL(endpoint)));
             return EP_COMPLETED;
         }
@@ -819,24 +841,27 @@ EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint)
 void USBHAL::stallEndpoint(uint8_t endpoint)
 {
     uint32_t ep_hw_index = NU_EP2EPH(endpoint);
-    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS)
+    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS) {
         return;
+    }
     HSUSBD_SetStall(ep_hw_index);
 }
 
 void USBHAL::unstallEndpoint(uint8_t endpoint)
 {
     uint32_t ep_hw_index = NU_EP2EPH(endpoint);
-    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS)
+    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS) {
         return;
+    }
     HSUSBD_ClearStall(ep_hw_index);
 }
 
 bool USBHAL::getEndpointStallState(uint8_t endpoint)
 {
     uint32_t ep_hw_index = NU_EP2EPH(endpoint);
-    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS)
+    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS) {
         return false;
+    }
     return HSUSBD_GetStall(ep_hw_index) ? 1 : 0;
 }
 
@@ -849,8 +874,9 @@ void USBHAL::_usbisr(void)
 void USBHAL::usbisr(void)
 {
     uint32_t gintsts = HSUSBD->GINTSTS & HSUSBD->GINTEN;
-    if (! gintsts)
+    if (! gintsts) {
         return;
+    }
 
     if (gintsts & HSUSBD_GINTSTS_USBIF_Msk) {
         uint32_t busintsts = HSUSBD->BUSINTSTS & HSUSBD->BUSINTEN;
@@ -871,13 +897,13 @@ void USBHAL::usbisr(void)
 
         /* Resume */
         if (busintsts & HSUSBD_BUSINTSTS_RESUMEIF_Msk) {
-            HSUSBD_ENABLE_BUS_INT(HSUSBD_BUSINTEN_RSTIEN_Msk|HSUSBD_BUSINTEN_SUSPENDIEN_Msk | HSUSBD_BUSINTEN_SOFIEN_Msk | HSUSBD_BUSINTEN_SOFIEN_Msk);
+            HSUSBD_ENABLE_BUS_INT(HSUSBD_BUSINTEN_RSTIEN_Msk | HSUSBD_BUSINTEN_SUSPENDIEN_Msk | HSUSBD_BUSINTEN_SOFIEN_Msk | HSUSBD_BUSINTEN_SOFIEN_Msk);
             HSUSBD_CLR_BUS_INT_FLAG(HSUSBD_BUSINTSTS_RESUMEIF_Msk);
         }
 
         /* Suspend */
         if (busintsts & HSUSBD_BUSINTSTS_SUSPENDIF_Msk) {
-            HSUSBD_ENABLE_BUS_INT(HSUSBD_BUSINTEN_RSTIEN_Msk | HSUSBD_BUSINTEN_RESUMEIEN_Msk |HSUSBD_BUSINTEN_SOFIEN_Msk);
+            HSUSBD_ENABLE_BUS_INT(HSUSBD_BUSINTEN_RSTIEN_Msk | HSUSBD_BUSINTEN_RESUMEIEN_Msk | HSUSBD_BUSINTEN_SOFIEN_Msk);
             HSUSBD_CLR_BUS_INT_FLAG(HSUSBD_BUSINTSTS_SUSPENDIF_Msk);
         }
 
@@ -889,8 +915,8 @@ void USBHAL::usbisr(void)
 
         /* DMA */
         if (busintsts & HSUSBD_BUSINTSTS_DMADONEIF_Msk) {
-            if(HSUSBD->DMACTL & 0x10) {	/* IN - Read */
-                if(g_usbd_ShortPacket) {
+            if (HSUSBD->DMACTL & 0x10) { /* IN - Read */
+                if (g_usbd_ShortPacket) {
                     uint32_t ep_hw_index = NU_EPL2EPH((HSUSBD->DMACTL & 0xF));
                     HSUSBD_SET_EP_SHORT_PACKET(ep_hw_index);
                     g_usbd_ShortPacket = 0;
@@ -950,7 +976,7 @@ void USBHAL::usbisr(void)
                 HSUSBD_CtrlInput();
             } else {
                 HSUSBD_CLR_CEP_INT_FLAG(HSUSBD_CEPINTSTS_TXPKIF_Msk);
-                HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_TXPKIEN_Msk|HSUSBD_CEPINTEN_STSDONEIEN_Msk);
+                HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_TXPKIEN_Msk | HSUSBD_CEPINTEN_STSDONEIEN_Msk);
             }
             return;
         }
@@ -1020,7 +1046,7 @@ void USBHAL::usbisr(void)
     uint32_t gintsts_epx = gintsts >> 2;
     uint32_t ep_hw_index = 0;
     while (gintsts_epx) {
-        if(gintsts_epx & 0x01) {
+        if (gintsts_epx & 0x01) {
             uint32_t epxintsts = HSUSBD_GET_EP_INT_FLAG(ep_hw_index) & HSUSBD_GET_EP_INT_EN(ep_hw_index);
 
             HSUSBD_CLR_EP_INT_FLAG(ep_hw_index, epxintsts);

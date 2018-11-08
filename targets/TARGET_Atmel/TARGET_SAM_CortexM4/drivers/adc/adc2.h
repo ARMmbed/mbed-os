@@ -320,7 +320,7 @@ static inline void adc_ch_sanity_check(Adc *const adc,
     if (adc == ADC) {
         Assert((channel < NB_CH_ADC)
 #ifdef TEMP_SENSOR
-               ||(channel == ADC_TEMPERATURE_SENSOR)
+               || (channel == ADC_TEMPERATURE_SENSOR)
 #endif
               );
     }
@@ -454,8 +454,8 @@ static inline enum adc_cmp_mode adc_get_comparison_mode(Adc *const adc)
  * \param us_high_threshold High threshold of compare window.
  */
 static inline void adc_set_comparison_window(Adc *const adc,
-        const uint16_t us_low_threshold,
-        const uint16_t us_high_threshold)
+                                             const uint16_t us_low_threshold,
+                                             const uint16_t us_high_threshold)
 {
     adc->ADC_CWR = ADC_CWR_LOWTHRES(us_low_threshold) |
                    ADC_CWR_HIGHTHRES(us_high_threshold);
@@ -589,7 +589,7 @@ static inline void adc_channel_disable(Adc *const adc,
  * \retval 0 if channel is disabled.
  */
 static inline uint32_t adc_channel_get_status(Adc *const adc,
-        const enum adc_channel_num adc_ch)
+                                              const enum adc_channel_num adc_ch)
 {
     adc_ch_sanity_check(adc, adc_ch);
 
@@ -605,7 +605,7 @@ static inline uint32_t adc_channel_get_status(Adc *const adc,
  * \return ADC converted value of the selected channel.
  */
 static inline uint32_t adc_channel_get_value(Adc *const adc,
-        enum adc_channel_num adc_ch)
+                                             enum adc_channel_num adc_ch)
 {
     adc_ch_sanity_check(adc, adc_ch);
 
@@ -772,11 +772,11 @@ static inline void adc_ref_vol_sel(Adc *const adc,
  * \subsection adc_basic_use_case_setup_code Example code
  * Add to application C-file:
  * \code
-	adc_enable();
-	adc_get_config_defaults(&adc_cfg);
-	adc_init(ADC, &adc_cfg);
-	adc_set_trigger(ADC, ADC_TRIG_SW);
-	adc_channel_enable(ADC, ADC_CHANNEL_1);
+    adc_enable();
+    adc_get_config_defaults(&adc_cfg);
+    adc_init(ADC, &adc_cfg);
+    adc_set_trigger(ADC, ADC_TRIG_SW);
+    adc_channel_enable(ADC, ADC_CHANNEL_1);
 \endcode
  *
  * \subsection adc_basic_use_case_setup_flow Workflow
@@ -795,9 +795,9 @@ static inline void adc_ref_vol_sel(Adc *const adc,
  * \subsection adc_basic_use_case_usage_code Example code
  * Add to, e.g., main loop in application C-file:
  * \code
-	adc_start_software_conversion(ADC);
-	while (adc_get_interrupt_status(ADC) & (1 << ADC_CHANNEL_1));
-	uint32_t result = adc_channel_get_value(ADC, ADC_CHANNEL_1);
+    adc_start_software_conversion(ADC);
+    while (adc_get_interrupt_status(ADC) & (1 << ADC_CHANNEL_1));
+    uint32_t result = adc_channel_get_value(ADC, ADC_CHANNEL_1);
 \endcode
  *
  * \subsection adc_basic_use_case_usage_flow Workflow

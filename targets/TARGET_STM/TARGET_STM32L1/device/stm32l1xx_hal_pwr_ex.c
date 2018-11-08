@@ -9,7 +9,7 @@
   *          functionalities of the Power Controller (PWR) peripheral:
   *           + Extended Initialization and de-initialization functions
   *           + Extended Peripheral Control functions
-  *         
+  *
   ******************************************************************************
   * @attention
   *
@@ -78,26 +78,26 @@
   */
 
 /**
-  * @brief Return Voltage Scaling Range.   
+  * @brief Return Voltage Scaling Range.
   * @retval VOS bit field (PWR_REGULATOR_VOLTAGE_SCALE1, PWR_REGULATOR_VOLTAGE_SCALE2 or PWR_REGULATOR_VOLTAGE_SCALE3)
-  */  
+  */
 uint32_t HAL_PWREx_GetVoltageRange(void)
 {
-  return  (PWR->CR & PWR_CR_VOS);
+    return (PWR->CR & PWR_CR_VOS);
 }
 
 
 /**
   * @brief  Enables the Fast WakeUp from Ultra Low Power mode.
-  * @note   This bit works in conjunction with ULP bit. 
-  *         Means, when ULP = 1 and FWU = 1 :VREFINT startup time is ignored when 
+  * @note   This bit works in conjunction with ULP bit.
+  *         Means, when ULP = 1 and FWU = 1 :VREFINT startup time is ignored when
   *         exiting from low power mode.
   * @retval None
   */
 void HAL_PWREx_EnableFastWakeUp(void)
 {
-  /* Enable the fast wake up */
-  *(__IO uint32_t *) CR_FWU_BB = (uint32_t)ENABLE;
+    /* Enable the fast wake up */
+    *(__IO uint32_t *) CR_FWU_BB = (uint32_t)ENABLE;
 }
 
 /**
@@ -106,8 +106,8 @@ void HAL_PWREx_EnableFastWakeUp(void)
   */
 void HAL_PWREx_DisableFastWakeUp(void)
 {
-  /* Disable the fast wake up */
-  *(__IO uint32_t *) CR_FWU_BB = (uint32_t)DISABLE;
+    /* Disable the fast wake up */
+    *(__IO uint32_t *) CR_FWU_BB = (uint32_t)DISABLE;
 }
 
 /**
@@ -116,8 +116,8 @@ void HAL_PWREx_DisableFastWakeUp(void)
   */
 void HAL_PWREx_EnableUltraLowPower(void)
 {
-  /* Enable the Ultra Low Power mode */
-  *(__IO uint32_t *) CR_ULP_BB = (uint32_t)ENABLE;
+    /* Enable the Ultra Low Power mode */
+    *(__IO uint32_t *) CR_ULP_BB = (uint32_t)ENABLE;
 }
 
 /**
@@ -126,8 +126,8 @@ void HAL_PWREx_EnableUltraLowPower(void)
   */
 void HAL_PWREx_DisableUltraLowPower(void)
 {
-  /* Disable the Ultra Low Power mode */
-  *(__IO uint32_t *) CR_ULP_BB = (uint32_t)DISABLE;
+    /* Disable the Ultra Low Power mode */
+    *(__IO uint32_t *) CR_ULP_BB = (uint32_t)DISABLE;
 }
 
 /**
@@ -135,16 +135,16 @@ void HAL_PWREx_DisableUltraLowPower(void)
   * @note   Low power run mode can only be entered when VCORE is in range 2.
   *         In addition, the dynamic voltage scaling must not be used when Low
   *         power run mode is selected. Only Stop and Sleep modes with regulator
-  *         configured in Low power mode is allowed when Low power run mode is 
+  *         configured in Low power mode is allowed when Low power run mode is
   *         selected.
   * @note   In Low power run mode, all I/O pins keep the same state as in Run mode.
   * @retval None
   */
 void HAL_PWREx_EnableLowPowerRunMode(void)
 {
-  /* Enters the Low Power Run mode */
-  *(__IO uint32_t *) CR_LPSDSR_BB = (uint32_t)ENABLE;
-  *(__IO uint32_t *) CR_LPRUN_BB  = (uint32_t)ENABLE;
+    /* Enters the Low Power Run mode */
+    *(__IO uint32_t *) CR_LPSDSR_BB = (uint32_t)ENABLE;
+    *(__IO uint32_t *) CR_LPRUN_BB  = (uint32_t)ENABLE;
 }
 
 /**
@@ -153,10 +153,10 @@ void HAL_PWREx_EnableLowPowerRunMode(void)
   */
 HAL_StatusTypeDef HAL_PWREx_DisableLowPowerRunMode(void)
 {
-  /* Exits the Low Power Run mode */
-  *(__IO uint32_t *) CR_LPRUN_BB  = (uint32_t)DISABLE;
-  *(__IO uint32_t *) CR_LPSDSR_BB = (uint32_t)DISABLE;
-  return HAL_OK;
+    /* Exits the Low Power Run mode */
+    *(__IO uint32_t *) CR_LPRUN_BB  = (uint32_t)DISABLE;
+    *(__IO uint32_t *) CR_LPSDSR_BB = (uint32_t)DISABLE;
+    return HAL_OK;
 }
 
 /**

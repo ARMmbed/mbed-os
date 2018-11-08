@@ -17,7 +17,7 @@
  * Component   : GATT
  * File        : cb_gatt.h
  *
- * Description : Definitions and types for GATT(Generic Attribute Profile) 
+ * Description : Definitions and types for GATT(Generic Attribute Profile)
  *               that are in common for both client and server.
  *
  *-------------------------------------------------------------------------*/
@@ -25,7 +25,7 @@
 /**
  * @file cb_gatt.h
  *
- * @brief Definitions and types for GATT(Generic Attribute Profile) 
+ * @brief Definitions and types for GATT(Generic Attribute Profile)
  * that are in common for both client and server.
  */
 
@@ -218,16 +218,14 @@ extern "C" {
  *==============================================================================
  */
 
-typedef enum
-{
+typedef enum {
     cbGATT_WRITE_METHOD_WITH_RSP,
     cbGATT_WRITE_METHOD_NO_RSP,
     cbGATT_WRITE_METHOD_SIGN,
     cbGATT_WRITE_METHOD_RELIABLE_PREPARE,
 } cbGATT_WriteMethod;
 
-typedef enum
-{
+typedef enum {
     cbGATT_UNIT_UNITLESS                                                  = 0x2700,
     cbGATT_UNIT_LENGTH_METRE                                              = 0x2701,
     cbGATT_UNIT_MASS_KILOGRAM                                             = 0x2702,
@@ -337,8 +335,7 @@ typedef enum
     cbGATT_UNIT_TIME_MONTH                                                = 0x27B4,
 } cbGATT_Unit;
 
-typedef enum
-{
+typedef enum {
 
     // Note, check http://developer.bluetooth.org/gatt/descriptors/Pages/DescriptorViewer.aspx?u=org.bluetooth.descriptor.cbGATT.characteristic_presentation_format.xml
     // for any changes
@@ -371,26 +368,22 @@ typedef enum
     cbGATT_FORMAT_TYPE_STRUCT  =  0x1B,
 } cbGATT_FormatType;
 
-typedef enum
-{
+typedef enum {
     // This should map to ATT_TRole
     cbGATT_ROLE_CLIENT = 0,
     cbGATT_ROLE_SERVER = 1,
     cbGATT_ROLE_BOTH   = 2
 } cbGATT_Role;
 
-typedef enum
-{
+typedef enum {
     cbGATT_NAMESPACE_BT_SIG = 0x01,
 } cbGATT_Namespace;
 
-typedef enum
-{
+typedef enum {
     cbGATT_NAMESPACE_DESC_UNKNOWN = 0x0000,
 } cbGATT_NamespaceDesc;
 
-typedef struct  
-{
+typedef struct {
     cbGATT_FormatType    format;
     cb_uint8             exponent;
     cbGATT_Unit          unit;
@@ -400,8 +393,7 @@ typedef struct
 
 // This enum must match ATT_TErrorCode for the first two parts
 // (not the GATT specific)
-typedef enum
-{
+typedef enum {
     cbGATT_ERROR_CODE_OK                               = 0x00,
     cbGATT_ERROR_CODE_INVALID_HANDLE                   = 0x01,
     cbGATT_ERROR_CODE_READ_NOT_PERMITTED               = 0x02,
@@ -425,7 +417,7 @@ typedef enum
     cbGATT_ERROR_CODE_PROCEDURE_ALREADY_IN_PROGRESS    = 0xFE,
     cbGATT_ERROR_CODE_IMPROPER_CLIENT_CHAR_CFG         = 0xFD,
 
-    // Special error codes not according to BT spec. 
+    // Special error codes not according to BT spec.
     // Will never be sent over the air.
     cbGATT_ERROR_CODE_TRANSACTION_TIMEOUT              = 0x80,
     cbGATT_ERROR_CODE_DISCONNECTED                     = 0x81,
@@ -434,25 +426,21 @@ typedef enum
 } cbGATT_ErrorCode;
 
 
-typedef enum
-{
+typedef enum {
     // This must map to ATT_TUuidFormat
     cbGATT_UUID_16  = 0x01,
     cbGATT_UUID_128 = 0x02
 } cbGATT_UuidFormat;
 
-typedef enum
-{
+typedef enum {
     cbGATT_FINAL_DATA  = 0x00,
     cbGATT_MORE_DATA   = 0x01,
     cbGATT_CANCEL_DATA = 0x02
 } cbGATT_WriteLongCharFlag;
 
-typedef struct
-{
+typedef struct {
     // This must map to ATT_TUuid
-    union
-    {
+    union {
         cb_uint16 uuid16;
         cb_uint8  uuid128[16];
     };
@@ -472,22 +460,22 @@ typedef struct
  * @return  None
  */
 typedef void (*cbGATT_ConnComplEvt)(
-    TConnHandle         handle, 
-    TErrorCode          errorCode, 
-    cb_uint8            role, 
-    TBdAddr             peerBdAddress, 
+    TConnHandle         handle,
+    TErrorCode          errorCode,
+    cb_uint8            role,
+    TBdAddr             peerBdAddress,
     cb_uint16           connInterval,
     cb_uint16           connLatency,
     cb_uint16           connTmo,
-    cb_uint8            masterClkAccuracy);  
-/** 
+    cb_uint8            masterClkAccuracy);
+/**
  * Called when ACL connection is lost.
  * @param   handle      Connection handle
  * @param   errorCode   Disconnect error code
  * @return  None
  */
 typedef void (*cbGATT_DisconnectEvt)(
-    TConnHandle         handle, 
+    TConnHandle         handle,
     TErrorCode          errorCode);
 
 

@@ -28,14 +28,14 @@
 
 #include "btle.h"
 
-class nRF5xn : public BLEInstanceBase
-{
+class nRF5xn : public BLEInstanceBase {
 public:
     nRF5xn(void);
     virtual ~nRF5xn(void);
 
     virtual ble_error_t init(BLE::InstanceID_t instanceID, FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext *> callback);
-    virtual bool        hasInitialized(void) const {
+    virtual bool        hasInitialized(void) const
+    {
         return initialized;
     }
     virtual ble_error_t shutdown(void);
@@ -52,7 +52,8 @@ public:
      *        always needed in a BLE application. Therefore it is allocated
      *        statically.
      */
-    virtual Gap &getGap() {
+    virtual Gap &getGap()
+    {
         return gapInstance;
     };
 
@@ -63,7 +64,8 @@ public:
      *
      * @return  A reference to GattServer.
      */
-    virtual GattServer &getGattServer() {
+    virtual GattServer &getGattServer()
+    {
         if (gattServerInstance == NULL) {
             gattServerInstance = new nRF5xGattServer();
         }
@@ -77,7 +79,8 @@ public:
      *
      * @return  A reference to GattClient.
      */
-    virtual GattClient &getGattClient() {
+    virtual GattClient &getGattClient()
+    {
         return gattClient;
     }
 
@@ -88,7 +91,8 @@ public:
      *
      * @return  A reference to GattServer.
      */
-    virtual nRF5xSecurityManager &getSecurityManager() {
+    virtual nRF5xSecurityManager &getSecurityManager()
+    {
         if (securityManagerInstance == NULL) {
             securityManagerInstance = new nRF5xSecurityManager();
         }
@@ -109,7 +113,8 @@ public:
      * @note  The accessor is able to modify the object's state because the
      *        internal pointer has been declared mutable.
      */
-    virtual const nRF5xGap &getGap() const  {
+    virtual const nRF5xGap &getGap() const
+    {
         return gapInstance;
     };
 
@@ -123,7 +128,8 @@ public:
      * @note  The accessor is able to modify the object's state because the
      *        internal pointer has been declared mutable.
      */
-    virtual const nRF5xGattServer &getGattServer() const {
+    virtual const nRF5xGattServer &getGattServer() const
+    {
         if (gattServerInstance == NULL) {
             gattServerInstance = new nRF5xGattServer();
         }
@@ -140,7 +146,8 @@ public:
      * @note  The accessor is able to modify the object's state because the
      *        internal pointer has been declared mutable.
      */
-    virtual const nRF5xSecurityManager &getSecurityManager() const {
+    virtual const nRF5xSecurityManager &getSecurityManager() const
+    {
         if (securityManagerInstance == NULL) {
             securityManagerInstance = new nRF5xSecurityManager();
         }
@@ -152,7 +159,7 @@ public:
     virtual void processEvents();
 
 public:
-    static nRF5xn& Instance(BLE::InstanceID_t instanceId);
+    static nRF5xn &Instance(BLE::InstanceID_t instanceId);
 
 private:
     bool              initialized;

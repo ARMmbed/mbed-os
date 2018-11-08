@@ -52,11 +52,13 @@ int RTC_Init(const rtc_cfg_t *cfg)
     int i = 0;
 
     //init function -> validate configuration pointer is not NULL
-    if (cfg == NULL)
+    if (cfg == NULL) {
         return E_NULL_PTR;
+    }
     //check to make sure that the passed in parameters, prescaler mask and snooze, are valid
-    if ((cfg->prescalerMask > ((rtc_prescale_t)cfg->prescaler)) || (cfg->snoozeCount > MXC_F_RTC_SNZ_VAL_VALUE))
+    if ((cfg->prescalerMask > ((rtc_prescale_t)cfg->prescaler)) || (cfg->snoozeCount > MXC_F_RTC_SNZ_VAL_VALUE)) {
         return E_INVALID;
+    }
 
     // Set system level configurations
     if ((err = SYS_RTC_Init()) != E_NO_ERROR) {
@@ -76,8 +78,9 @@ int RTC_Init(const rtc_cfg_t *cfg)
     MXC_RTCTMR->timer = 0;
 
     //set the compare registers to the values passed in
-    for(i = 0; i < RTC_NUM_COMPARE; i++)
+    for (i = 0; i < RTC_NUM_COMPARE; i++) {
         MXC_RTCTMR->comp[i] = cfg->compareCount[i];
+    }
 
     // set the prescaler
     MXC_RTCTMR->prescale = cfg->prescaler;
@@ -92,7 +95,7 @@ int RTC_Init(const rtc_cfg_t *cfg)
     MXC_RTCTMR->snz_val = (cfg->snoozeCount << MXC_F_RTC_SNZ_VAL_VALUE_POS) & MXC_F_RTC_SNZ_VAL_VALUE;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 
     //reset trim to defaults, trim disabled, trim faster override disabled
     MXC_RTCTMR->trim_ctrl &= ~(MXC_F_RTC_TRIM_CTRL_TRIM_ENABLE_R | MXC_F_RTC_TRIM_CTRL_TRIM_FASTER_OVR_R);
@@ -107,13 +110,14 @@ int RTC_Init(const rtc_cfg_t *cfg)
 int RTC_SetCompare(uint8_t compareIndex, uint32_t counts)
 {
     //check for invalid index
-    if (compareIndex >= RTC_NUM_COMPARE)
+    if (compareIndex >= RTC_NUM_COMPARE) {
         return E_INVALID;
+    }
 
     MXC_RTCTMR->comp[compareIndex] = counts;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 
     return E_NO_ERROR;
 }
@@ -124,8 +128,9 @@ uint32_t RTC_GetCompare(uint8_t compareIndex)
     //Debug Assert for Invalid Index
     MXC_ASSERT(compareIndex < RTC_NUM_COMPARE);
     //check for invalid index
-    if (compareIndex >= RTC_NUM_COMPARE)
-        return (uint32_t)(E_BAD_PARAM); /* Unsigned int, so if out of bounds we return 0xFFFFFFFD (-3) */
+    if (compareIndex >= RTC_NUM_COMPARE) {
+        return (uint32_t)(E_BAD_PARAM);    /* Unsigned int, so if out of bounds we return 0xFFFFFFFD (-3) */
+    }
 
     return MXC_RTCTMR->comp[compareIndex];
 }
@@ -134,25 +139,28 @@ uint32_t RTC_GetCompare(uint8_t compareIndex)
 int RTC_SetTrim(uint32_t trim, uint8_t trimSlow)
 {
     // make sure rtc is disabled
-    if(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_ENABLE)
-        return E_BAD_STATE; // RTC is active, bad state
+    if (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_ENABLE) {
+        return E_BAD_STATE;    // RTC is active, bad state
+    }
 
     // Can check against this because it starts at bit 0 in the register
     // Need to check because too large of a value messes with the upper bits in
     // the trim register.
-    if (trim > MXC_F_RTC_TRIM_VALUE_TRIM_VALUE)
+    if (trim > MXC_F_RTC_TRIM_VALUE_TRIM_VALUE) {
         return E_INVALID;
+    }
 
     // write the trim to the hardware trim_value register
     MXC_RTCTMR->trim_value = (trim << MXC_F_RTC_TRIM_VALUE_TRIM_VALUE_POS) & MXC_F_RTC_TRIM_VALUE_TRIM_VALUE;
 
-    if(trimSlow)
+    if (trimSlow) {
         MXC_RTCTMR->trim_value |= MXC_F_RTC_TRIM_VALUE_TRIM_SLOWER_CONTROL;
-    else
+    } else {
         MXC_RTCTMR->trim_value &= ~MXC_F_RTC_TRIM_VALUE_TRIM_SLOWER_CONTROL;
+    }
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 
     return E_NO_ERROR;
 }
@@ -167,13 +175,14 @@ uint32_t RTC_GetTrim()
 int RTC_TrimEnable(void)
 {
     // make sure rtc is disabled
-    if(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_ENABLE)
-        return E_BAD_STATE; // RTC is active, bad state
+    if (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_ENABLE) {
+        return E_BAD_STATE;    // RTC is active, bad state
+    }
 
     MXC_RTCTMR->trim_ctrl = MXC_F_RTC_TRIM_CTRL_TRIM_ENABLE_R;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 
     return E_NO_ERROR;
 }
@@ -185,7 +194,7 @@ void RTC_TrimDisable(void)
     MXC_RTCTMR->trim_ctrl &= ~MXC_F_RTC_TRIM_CTRL_TRIM_ENABLE_R;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 
     return;
 }

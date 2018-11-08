@@ -4,14 +4,16 @@ volatile unsigned int ticks = 0;
 
 DigitalOut led(LED_BLUE);
 
-extern "C" void lptmr_isr(void) {
+extern "C" void lptmr_isr(void)
+{
     // write 1 to TCF to clear the LPT timer compare flag
     LPTMR0->CSR |= LPTMR_CSR_TCF_MASK;
 
     ticks++;
 }
 
-int main() {
+int main()
+{
     /* Clock the timer */
     SIM->SCGC5 |= SIM_SCGC5_LPTMR_MASK;
 

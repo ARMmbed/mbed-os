@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F3xx_HAL_I2S_EX_H
 #define __STM32F3xx_HAL_I2S_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
@@ -49,7 +49,7 @@
     defined(STM32F373xC) || defined(STM32F378xx)
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f3xx_hal_def.h"  
+#include "stm32f3xx_hal_def.h"
 
 /** @addtogroup STM32F3xx_HAL_Driver
   * @{
@@ -57,11 +57,11 @@
 
 /** @addtogroup I2SEx I2SEx
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
-/* Exported constants --------------------------------------------------------*/  
-/* Exported macros ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/
+/* Exported macros ------------------------------------------------------------*/
 /** @defgroup I2SEx_Exported_Macros I2S Extended Exported Macros
   * @{
   */
@@ -69,7 +69,7 @@
 #define I2SxEXT(__INSTANCE__) ((__INSTANCE__) == (SPI2)? (SPI_TypeDef *)(I2S2ext_BASE): (SPI_TypeDef *)(I2S3ext_BASE))
 
 /** @brief  Enable or disable the specified I2SExt peripheral.
-  * @param  __HANDLE__: specifies the I2S Handle. 
+  * @param  __HANDLE__: specifies the I2S Handle.
   * @retval None
   */
 #define __HAL_I2SEXT_ENABLE(__HANDLE__) (I2SxEXT((__HANDLE__)->Instance)->I2SCFGR |= SPI_I2SCFGR_I2SE)
@@ -83,7 +83,7 @@
   *            @arg I2S_IT_RXNE: RX buffer not empty interrupt enable
   *            @arg I2S_IT_ERR: Error interrupt enable
   * @retval None
-  */  
+  */
 #define __HAL_I2SEXT_ENABLE_IT(__HANDLE__, __INTERRUPT__) (I2SxEXT((__HANDLE__)->Instance)->CR2 |= (__INTERRUPT__))
 #define __HAL_I2SEXT_DISABLE_IT(__HANDLE__, __INTERRUPT__) (I2SxEXT((__HANDLE__)->Instance)->CR2 &= ~(__INTERRUPT__))
 
@@ -117,18 +117,18 @@
 /** @brief Clears the I2SExt OVR pending flag.
   * @param  __HANDLE__: specifies the I2S Handle.
   * @retval None
-  */                                                                                                   
+  */
 #define __HAL_I2SEXT_CLEAR_OVRFLAG(__HANDLE__) do{(I2SxEXT((__HANDLE__)->Instance)->DR;\
                                                   (I2SxEXT((__HANDLE__)->Instance)->SR;}while(0U)
 /** @brief Clears the I2SExt UDR pending flag.
   * @param  __HANDLE__: specifies the I2S Handle.
   * @retval None
-  */                                                                                                   
-#define __HAL_I2SEXT_CLEAR_UDRFLAG(__HANDLE__)(I2SxEXT((__HANDLE__)->Instance)->SR)    
-#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
- /**
-  * @}
   */
+#define __HAL_I2SEXT_CLEAR_UDRFLAG(__HANDLE__)(I2SxEXT((__HANDLE__)->Instance)->SR)
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
+/**
+ * @}
+ */
 
 
 /* Exported functions --------------------------------------------------------*/
@@ -138,12 +138,12 @@
   */
 
 #if defined(SPI_I2S_FULLDUPLEX_SUPPORT)
-/** @addtogroup I2SEx_Exported_Functions_Group1 I2S Extended Features Functions 
+/** @addtogroup I2SEx_Exported_Functions_Group1 I2S Extended Features Functions
   * @{
   */
 
 /* Extended features functions ************************************************/
- /* Blocking mode: Polling */
+/* Blocking mode: Polling */
 HAL_StatusTypeDef HAL_I2SEx_TransmitReceive(I2S_HandleTypeDef *hi2s, uint16_t *pTxData, uint16_t *pRxData, uint16_t Size, uint32_t Timeout);
 /* Non-Blocking mode: Interrupt */
 HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pTxData, uint16_t *pRxData, uint16_t Size);
@@ -164,7 +164,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_DMA(I2S_HandleTypeDef *hi2s, uint16_
 
 /** @addtogroup I2S I2S
   * @{
-  */ 
+  */
 
 /** @addtogroup I2S_Exported_Functions I2S Exported Functions
   * @{
@@ -191,7 +191,7 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
@@ -199,15 +199,15 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
   */
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
-       /* STM32F373xC || STM32F378xx                   */
+/* STM32F302xC || STM32F303xC || STM32F358xx || */
+/* STM32F301x8 || STM32F302x8 || STM32F318xx || */
+/* STM32F373xC || STM32F378xx                   */
 
 #ifdef __cplusplus
 }

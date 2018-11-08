@@ -13,9 +13,9 @@ typedef struct uvisor_semaphore_internal {
 
 UVISOR_STATIC_ASSERT(UVISOR_SEMAPHORE_INTERNAL_SIZE >= sizeof(UvisorSemaphore), semaphore_size_too_small);
 
-int __uvisor_semaphore_init(UvisorSemaphore * s, uint32_t max_count, uint32_t initial_count)
+int __uvisor_semaphore_init(UvisorSemaphore *s, uint32_t max_count, uint32_t initial_count)
 {
-    uvisor_semaphore_internal_t * semaphore = (uvisor_semaphore_internal_t *) s;
+    uvisor_semaphore_internal_t *semaphore = (uvisor_semaphore_internal_t *) s;
 
     memset(&semaphore->data, 0, sizeof(semaphore->data));
     memset(&semaphore->attr, 0, sizeof(semaphore->attr));
@@ -28,9 +28,9 @@ int __uvisor_semaphore_init(UvisorSemaphore * s, uint32_t max_count, uint32_t in
     return semaphore->id == NULL ? UVISOR_ERROR_OUT_OF_STRUCTURES : 0;
 }
 
-int __uvisor_semaphore_pend(UvisorSemaphore * s, uint32_t timeout_ms)
+int __uvisor_semaphore_pend(UvisorSemaphore *s, uint32_t timeout_ms)
 {
-    uvisor_semaphore_internal_t * semaphore = (uvisor_semaphore_internal_t *) s;
+    uvisor_semaphore_internal_t *semaphore = (uvisor_semaphore_internal_t *) s;
 
     osStatus_t status = osSemaphoreAcquire(semaphore->id, timeout_ms);
 
@@ -45,7 +45,8 @@ int __uvisor_semaphore_pend(UvisorSemaphore * s, uint32_t timeout_ms)
     return 0;
 }
 
-int __uvisor_semaphore_post(UvisorSemaphore * s) {
-    uvisor_semaphore_internal_t * semaphore = (uvisor_semaphore_internal_t *) s;
+int __uvisor_semaphore_post(UvisorSemaphore *s)
+{
+    uvisor_semaphore_internal_t *semaphore = (uvisor_semaphore_internal_t *) s;
     return osSemaphoreRelease(semaphore->id);
 }

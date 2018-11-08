@@ -29,7 +29,7 @@ extern u32 ConfigDebugErr;
 extern u32 ConfigDebuginfo;
 
 
-void analogin_init (analogin_t *obj, PinName pin)
+void analogin_init(analogin_t *obj, PinName pin)
 {
     uint32_t adc_idx;
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
@@ -39,23 +39,23 @@ void analogin_init (analogin_t *obj, PinName pin)
     HAL_ADC_INIT_DAT        HalADCInitDataTmp;
     PHAL_ADC_INIT_DAT       pHalADCInitDataTmp = &HalADCInitDataTmp;
     /* To backup user config first */
-    
+
     _memset(&(obj->HalADCInitData), 0, sizeof(HAL_ADC_INIT_DAT));
     _memcpy(pHalADCInitDataTmp, &(obj->HalADCInitData), sizeof(HAL_ADC_INIT_DAT));
     _memset(obj, 0x00, sizeof(analogin_t));
-    
-    ConfigDebugErr &= (~(_DBG_ADC_|_DBG_GDMA_));
-    ConfigDebugInfo&= (~(_DBG_ADC_|_DBG_GDMA_));
+
+    ConfigDebugErr &= (~(_DBG_ADC_ | _DBG_GDMA_));
+    ConfigDebugInfo &= (~(_DBG_ADC_ | _DBG_GDMA_));
 
     adc_idx = pin & 0x0F;
-    
+
     /* Get I2C device handler */
     pSalADCMngtAdpt     = &(obj->SalADCMngtAdpt);
-    pSalADCUserCBAdpt   = (PSAL_ADC_USERCB_ADPT)&(obj->SalADCUserCBAdpt);   
+    pSalADCUserCBAdpt   = (PSAL_ADC_USERCB_ADPT) & (obj->SalADCUserCBAdpt);
 
     /*To assign the rest pointers*/
     pSalADCMngtAdpt->pSalHndPriv    = &(obj->SalADCHndPriv);
-    pSalADCMngtAdpt->pSalHndPriv->ppSalADCHnd = (void**)&(pSalADCMngtAdpt->pSalHndPriv);
+    pSalADCMngtAdpt->pSalHndPriv->ppSalADCHnd = (void **) & (pSalADCMngtAdpt->pSalHndPriv);
 
     /* To assign the default (ROM) HAL OP initialization function */
     pSalADCMngtAdpt->pHalOpInit         = &HalADCOpInit;
@@ -71,7 +71,7 @@ void analogin_init (analogin_t *obj, PinName pin)
 
     /* To backup user config first */
     //_memcpy(pHalADCInitDataTmp, &(obj->HalADCInitData), sizeof(HAL_ADC_INIT_DAT));
-    
+
     pSalADCMngtAdpt->pHalInitDat        = &(obj->HalADCInitData);
     pSalADCMngtAdpt->pHalOp             = &(obj->HalADCOp);
     pSalADCMngtAdpt->pIrqHnd            = &(obj->ADCIrqHandleDat);
@@ -79,7 +79,7 @@ void analogin_init (analogin_t *obj, PinName pin)
     pSalADCMngtAdpt->pHalGdmaOp         = &(obj->HalADCGdmaOp);
     pSalADCMngtAdpt->pIrqGdmaHnd        = &(obj->ADCGdmaIrqHandleDat);
     pSalADCMngtAdpt->pUserCB            = &(obj->SalADCUserCB);
-    
+
     /* Assign the private SAL handle to public SAL handle */
     pSalADCHND      = &(pSalADCMngtAdpt->pSalHndPriv->SalADCHndPriv);
 
@@ -91,16 +91,16 @@ void analogin_init (analogin_t *obj, PinName pin)
 
     /*To assign user callback pointers*/
     pSalADCMngtAdpt->pUserCB->pTXCB     = pSalADCUserCBAdpt;
-    pSalADCMngtAdpt->pUserCB->pTXCCB    = (pSalADCUserCBAdpt+1);
-    pSalADCMngtAdpt->pUserCB->pRXCB     = (pSalADCUserCBAdpt+2);
-    pSalADCMngtAdpt->pUserCB->pRXCCB    = (pSalADCUserCBAdpt+3);
-    pSalADCMngtAdpt->pUserCB->pRDREQCB  = (pSalADCUserCBAdpt+4);
-    pSalADCMngtAdpt->pUserCB->pERRCB    = (pSalADCUserCBAdpt+5);
-    pSalADCMngtAdpt->pUserCB->pDMATXCB  = (pSalADCUserCBAdpt+6);
-    pSalADCMngtAdpt->pUserCB->pDMATXCCB = (pSalADCUserCBAdpt+7);
-    pSalADCMngtAdpt->pUserCB->pDMARXCB  = (pSalADCUserCBAdpt+8);
-    pSalADCMngtAdpt->pUserCB->pDMARXCCB = (pSalADCUserCBAdpt+9);
-        
+    pSalADCMngtAdpt->pUserCB->pTXCCB    = (pSalADCUserCBAdpt + 1);
+    pSalADCMngtAdpt->pUserCB->pRXCB     = (pSalADCUserCBAdpt + 2);
+    pSalADCMngtAdpt->pUserCB->pRXCCB    = (pSalADCUserCBAdpt + 3);
+    pSalADCMngtAdpt->pUserCB->pRDREQCB  = (pSalADCUserCBAdpt + 4);
+    pSalADCMngtAdpt->pUserCB->pERRCB    = (pSalADCUserCBAdpt + 5);
+    pSalADCMngtAdpt->pUserCB->pDMATXCB  = (pSalADCUserCBAdpt + 6);
+    pSalADCMngtAdpt->pUserCB->pDMATXCCB = (pSalADCUserCBAdpt + 7);
+    pSalADCMngtAdpt->pUserCB->pDMARXCB  = (pSalADCUserCBAdpt + 8);
+    pSalADCMngtAdpt->pUserCB->pDMARXCCB = (pSalADCUserCBAdpt + 9);
+
     /* Set ADC Device Number */
     pSalADCHND->DevNum = adc_idx;
 
@@ -115,21 +115,21 @@ void analogin_init (analogin_t *obj, PinName pin)
     if ((pHalADCInitDataTmp->ADCEndian == ADC_DATA_ENDIAN_LITTLE) || (pHalADCInitDataTmp->ADCEndian == ADC_DATA_ENDIAN_BIG)) {
         pSalADCHND->pInitDat->ADCEndian = pHalADCInitDataTmp->ADCEndian;
     }
-    
+
     if ((pHalADCInitDataTmp->ADCAudioEn != ADC_FEATURE_DISABLED) && (pHalADCInitDataTmp->ADCAudioEn < 2)) {
         pSalADCHND->pInitDat->ADCAudioEn = pHalADCInitDataTmp->ADCAudioEn;
     }
-    
+
     /* Init ADC now */
     pSalADCHND->pInitDat->ADCBurstSz       =   8;
     pSalADCHND->pInitDat->ADCOneShotTD     =   8;
-    RtkADCInit(pSalADCHND); 
+    RtkADCInit(pSalADCHND);
 }
 
 float analogin_read(analogin_t *obj)
 {
     float value;
-    uint32_t AnaloginTmp[2]      = {0,0};
+    uint32_t AnaloginTmp[2]      = {0, 0};
     uint32_t AnaloginDatMsk      = 0xFFFF;
     uint8_t  AnaloginIdx         = 0;
     uint32_t AnalogDat           = 0;
@@ -140,16 +140,16 @@ float analogin_read(analogin_t *obj)
 
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
     PSAL_ADC_HND            pSalADCHND          = NULL;
-    
+
     pSalADCMngtAdpt         = &(obj->SalADCMngtAdpt);
     pSalADCHND              = &(pSalADCMngtAdpt->pSalHndPriv->SalADCHndPriv);
     AnaloginIdx             = pSalADCHND->DevNum;
-    RtkADCReceiveBuf(pSalADCHND,&AnaloginTmp[0]);
-    
-    AnaloginDatMsk = (u32)(AnaloginDatMsk<<((u32)(16*(AnaloginIdx&0x01))));
-    AnalogDat = AnaloginTmp[(AnaloginIdx/2)];
-    AnalogDat = (AnalogDat & AnaloginDatMsk);    
-    AnalogDat = (AnalogDat>>((u32)(16*(AnaloginIdx&0x01))));
+    RtkADCReceiveBuf(pSalADCHND, &AnaloginTmp[0]);
+
+    AnaloginDatMsk = (u32)(AnaloginDatMsk << ((u32)(16 * (AnaloginIdx & 0x01))));
+    AnalogDat = AnaloginTmp[(AnaloginIdx / 2)];
+    AnalogDat = (AnalogDat & AnaloginDatMsk);
+    AnalogDat = (AnalogDat >> ((u32)(16 * (AnaloginIdx & 0x01))));
     AnalogDat -= Offset;
 
     value = (float)(AnalogDat) / (float)(AnalogDatFull);
@@ -158,23 +158,23 @@ float analogin_read(analogin_t *obj)
 
 uint16_t analogin_read_u16(analogin_t *obj)
 {
-    uint32_t AnaloginTmp[2]      = {0,0};
+    uint32_t AnaloginTmp[2]      = {0, 0};
     uint32_t AnaloginDatMsk      = 0xFFFF;
     uint8_t  AnaloginIdx         = 0;
     uint32_t AnalogDat           = 0;
-    
+
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
     PSAL_ADC_HND            pSalADCHND          = NULL;
 
     pSalADCMngtAdpt         = &(obj->SalADCMngtAdpt);
     pSalADCHND              = &(pSalADCMngtAdpt->pSalHndPriv->SalADCHndPriv);
     AnaloginIdx             = pSalADCHND->DevNum;
-    RtkADCRxManualRotate(pSalADCHND,&AnaloginTmp[0]);
-    
-    AnaloginDatMsk = (u32)(AnaloginDatMsk<<((u32)(16*(AnaloginIdx&0x01))));
-    AnalogDat = AnaloginTmp[(AnaloginIdx/2)];
-    AnalogDat = (AnalogDat & AnaloginDatMsk);    
-    AnalogDat = (AnalogDat>>((u32)(16*(AnaloginIdx&0x01))));
+    RtkADCRxManualRotate(pSalADCHND, &AnaloginTmp[0]);
+
+    AnaloginDatMsk = (u32)(AnaloginDatMsk << ((u32)(16 * (AnaloginIdx & 0x01))));
+    AnalogDat = AnaloginTmp[(AnaloginIdx / 2)];
+    AnalogDat = (AnalogDat & AnaloginDatMsk);
+    AnalogDat = (AnalogDat >> ((u32)(16 * (AnaloginIdx & 0x01))));
 
     return (uint16_t)AnalogDat;
 }
@@ -184,11 +184,11 @@ void  analogin_deinit(analogin_t *obj)
 {
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
     PSAL_ADC_HND            pSalADCHND          = NULL;
-    
+
     pSalADCMngtAdpt         = &(obj->SalADCMngtAdpt);
     pSalADCHND              = &(pSalADCMngtAdpt->pSalHndPriv->SalADCHndPriv);
 
     /* To deinit analogin */
-    RtkADCDeInit(pSalADCHND);    
+    RtkADCDeInit(pSalADCHND);
 }
 #endif

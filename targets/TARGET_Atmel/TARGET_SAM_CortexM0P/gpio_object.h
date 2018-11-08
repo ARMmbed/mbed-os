@@ -38,19 +38,21 @@ typedef struct {
 static inline void gpio_write(gpio_t *obj, int value)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
-    if (value)
+    if (value) {
         *obj->OUTSET = obj->mask;
-    else
+    } else {
         *obj->OUTCLR = obj->mask;
+    }
 }
 
 static inline int gpio_read(gpio_t *obj)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
-    if (obj->direction  == PIN_INPUT)
+    if (obj->direction  == PIN_INPUT) {
         return ((*obj->IN & obj->mask) ? 1 : 0);
-    else
+    } else {
         return ((*obj->OUT & obj->mask) ? 1 : 0);
+    }
 }
 
 static inline int gpio_is_connected(const gpio_t *obj)

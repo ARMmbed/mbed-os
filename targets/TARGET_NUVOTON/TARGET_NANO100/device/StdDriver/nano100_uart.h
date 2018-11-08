@@ -306,7 +306,7 @@ extern "C"
  *    @param[in]    uart        The base address of UART module
  *    @return    None
  */
-__INLINE void UART_CLEAR_RTS(UART_T* uart)
+__INLINE void UART_CLEAR_RTS(UART_T *uart)
 {
     uart->MCSR |= UART_MCSR_LEV_RTS_Msk;
 }
@@ -317,7 +317,7 @@ __INLINE void UART_CLEAR_RTS(UART_T* uart)
  *    @param[in]    uart        The base address of UART module
  *    @return    None
  */
-__INLINE void UART_SET_RTS(UART_T* uart)
+__INLINE void UART_SET_RTS(UART_T *uart)
 {
     uart->MCSR &= ~UART_MCSR_LEV_RTS_Msk;
 }
@@ -340,20 +340,20 @@ __INLINE void UART_SET_RTS(UART_T* uart)
 #define UART_RS485_GET_ADDR_FLAG(uart)    ((uart->TRSR  & UART_TRSR_RS485_ADDET_F_Msk) >> UART_TRSR_RS485_ADDET_F_Pos)
 
 
-void UART_ClearIntFlag(UART_T* uart , uint32_t u32InterruptFlag);
-void UART_Close(UART_T* uart );
-void UART_DisableFlowCtrl(UART_T* uart );
-void UART_DisableInt(UART_T*  uart, uint32_t u32InterruptFlag );
-void UART_EnableFlowCtrl(UART_T* uart );
-void UART_EnableInt(UART_T*  uart, uint32_t u32InterruptFlag );
-void UART_Open(UART_T* uart, uint32_t u32baudrate);
-uint32_t UART_Read(UART_T* uart, uint8_t *pu8RxBuf, uint32_t u32ReadBytes);
-void UART_SetLine_Config(UART_T* uart, uint32_t u32baudrate, uint32_t u32data_width, uint32_t u32parity, uint32_t  u32stop_bits);
-void UART_SetTimeoutCnt(UART_T* uart, uint32_t u32TOC);
-void UART_SelectIrDAMode(UART_T* uart, uint32_t u32Buadrate, uint32_t u32Direction);
-void UART_SelectRS485Mode(UART_T* uart, uint32_t u32Mode, uint32_t u32Addr);
-void UART_SelectLINMode(UART_T* uart, uint32_t u32Mode, uint32_t u32BreakLength);
-uint32_t UART_Write(UART_T* uart,uint8_t *pu8TxBuf, uint32_t u32WriteBytes);
+void UART_ClearIntFlag(UART_T *uart, uint32_t u32InterruptFlag);
+void UART_Close(UART_T *uart);
+void UART_DisableFlowCtrl(UART_T *uart);
+void UART_DisableInt(UART_T  *uart, uint32_t u32InterruptFlag);
+void UART_EnableFlowCtrl(UART_T *uart);
+void UART_EnableInt(UART_T  *uart, uint32_t u32InterruptFlag);
+void UART_Open(UART_T *uart, uint32_t u32baudrate);
+uint32_t UART_Read(UART_T *uart, uint8_t *pu8RxBuf, uint32_t u32ReadBytes);
+void UART_SetLine_Config(UART_T *uart, uint32_t u32baudrate, uint32_t u32data_width, uint32_t u32parity, uint32_t  u32stop_bits);
+void UART_SetTimeoutCnt(UART_T *uart, uint32_t u32TOC);
+void UART_SelectIrDAMode(UART_T *uart, uint32_t u32Buadrate, uint32_t u32Direction);
+void UART_SelectRS485Mode(UART_T *uart, uint32_t u32Mode, uint32_t u32Addr);
+void UART_SelectLINMode(UART_T *uart, uint32_t u32Mode, uint32_t u32BreakLength);
+uint32_t UART_Write(UART_T *uart, uint8_t *pu8TxBuf, uint32_t u32WriteBytes);
 
 
 /*@}*/ /* end of group NANO100_UART_EXPORTED_FUNCTIONS */

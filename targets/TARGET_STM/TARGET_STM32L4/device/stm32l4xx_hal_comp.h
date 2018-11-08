@@ -32,7 +32,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -40,7 +40,7 @@
 #define __STM32L4xx_HAL_COMP_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -54,70 +54,67 @@
   * @{
   */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /** @defgroup COMP_Exported_Types COMP Exported Types
   * @{
   */
 
-/** 
-  * @brief  COMP Init structure definition  
+/**
+  * @brief  COMP Init structure definition
   */
-typedef struct
-{
+typedef struct {
 
-  uint32_t WindowMode;         /*!< Set window mode of a pair of comparators instances
+    uint32_t WindowMode;         /*!< Set window mode of a pair of comparators instances
                                     (2 consecutive instances odd and even COMP<x> and COMP<x+1>).
                                     Note: HAL COMP driver allows to set window mode from any COMP instance of the pair of COMP instances composing window mode.
                                     This parameter can be a value of @ref COMP_WindowMode */
 
-  uint32_t Mode;               /*!< Set comparator operating mode to adjust power and speed.
+    uint32_t Mode;               /*!< Set comparator operating mode to adjust power and speed.
                                     Note: For the characteritics of comparator power modes
                                           (propagation delay and power consumption), refer to device datasheet.
                                     This parameter can be a value of @ref COMP_PowerMode */
 
-  uint32_t NonInvertingInput;  /*!< Set comparator input plus (non-inverting input).
+    uint32_t NonInvertingInput;  /*!< Set comparator input plus (non-inverting input).
                                     This parameter can be a value of @ref COMP_InputPlus */
 
-  uint32_t InvertingInput;     /*!< Set comparator input minus (inverting input).
+    uint32_t InvertingInput;     /*!< Set comparator input minus (inverting input).
                                     This parameter can be a value of @ref COMP_InputMinus */
 
-  uint32_t Hysteresis;         /*!< Set comparator hysteresis mode of the input minus.
+    uint32_t Hysteresis;         /*!< Set comparator hysteresis mode of the input minus.
                                     This parameter can be a value of @ref COMP_Hysteresis */
 
-  uint32_t OutputPol;          /*!< Set comparator output polarity.
+    uint32_t OutputPol;          /*!< Set comparator output polarity.
                                     This parameter can be a value of @ref COMP_OutputPolarity */
 
-  uint32_t BlankingSrce;       /*!< Set comparator blanking source.
+    uint32_t BlankingSrce;       /*!< Set comparator blanking source.
                                     This parameter can be a value of @ref COMP_BlankingSrce */
 
-  uint32_t TriggerMode;        /*!< Set the comparator output triggering External Interrupt Line (EXTI).
+    uint32_t TriggerMode;        /*!< Set the comparator output triggering External Interrupt Line (EXTI).
                                     This parameter can be a value of @ref COMP_EXTI_TriggerMode */
 
-}COMP_InitTypeDef;
+} COMP_InitTypeDef;
 
 /**
   * @brief  HAL COMP state machine: HAL COMP states definition
   */
 #define COMP_STATE_BITFIELD_LOCK  ((uint32_t)0x10)
-typedef enum
-{
-  HAL_COMP_STATE_RESET             = 0x00,                                              /*!< COMP not yet initialized                             */
-  HAL_COMP_STATE_RESET_LOCKED      = (HAL_COMP_STATE_RESET | COMP_STATE_BITFIELD_LOCK), /*!< COMP not yet initialized and configuration is locked */
-  HAL_COMP_STATE_READY             = 0x01,                                              /*!< COMP initialized and ready for use                   */
-  HAL_COMP_STATE_READY_LOCKED      = (HAL_COMP_STATE_READY | COMP_STATE_BITFIELD_LOCK), /*!< COMP initialized but configuration is locked         */
-  HAL_COMP_STATE_BUSY              = 0x02,                                              /*!< COMP is running                                      */
-  HAL_COMP_STATE_BUSY_LOCKED       = (HAL_COMP_STATE_BUSY | COMP_STATE_BITFIELD_LOCK)   /*!< COMP is running and configuration is locked          */
-}HAL_COMP_StateTypeDef;
+typedef enum {
+    HAL_COMP_STATE_RESET             = 0x00,                                              /*!< COMP not yet initialized                             */
+    HAL_COMP_STATE_RESET_LOCKED      = (HAL_COMP_STATE_RESET | COMP_STATE_BITFIELD_LOCK), /*!< COMP not yet initialized and configuration is locked */
+    HAL_COMP_STATE_READY             = 0x01,                                              /*!< COMP initialized and ready for use                   */
+    HAL_COMP_STATE_READY_LOCKED      = (HAL_COMP_STATE_READY | COMP_STATE_BITFIELD_LOCK), /*!< COMP initialized but configuration is locked         */
+    HAL_COMP_STATE_BUSY              = 0x02,                                              /*!< COMP is running                                      */
+    HAL_COMP_STATE_BUSY_LOCKED       = (HAL_COMP_STATE_BUSY | COMP_STATE_BITFIELD_LOCK)   /*!< COMP is running and configuration is locked          */
+} HAL_COMP_StateTypeDef;
 
-/** 
+/**
   * @brief  COMP Handle Structure definition
   */
-typedef struct
-{
-  COMP_TypeDef       *Instance;       /*!< Register base address    */
-  COMP_InitTypeDef   Init;            /*!< COMP required parameters */
-  HAL_LockTypeDef    Lock;            /*!< Locking object           */
-  __IO HAL_COMP_StateTypeDef  State;  /*!< COMP communication state */
+typedef struct {
+    COMP_TypeDef       *Instance;       /*!< Register base address    */
+    COMP_InitTypeDef   Init;            /*!< COMP required parameters */
+    HAL_LockTypeDef    Lock;            /*!< Locking object           */
+    __IO HAL_COMP_StateTypeDef  State;  /*!< COMP communication state */
 } COMP_HandleTypeDef;
 
 /**
@@ -221,8 +218,8 @@ typedef struct
     defined(STM32L496xx) || defined(STM32L4A6xx)
 #define COMP_BLANKINGSRC_TIM3_OC3_COMP1          (COMP_CSR_BLANKING_2)  /*!< Blanking source for COMP1: TIM3 OC3 selected as blanking source for comparator */
 #endif /* STM32L451xx || STM32L452xx || STM32L462xx */
-       /* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx */
-       /* STM32L496xx || STM32L4A6xx */
+/* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx */
+/* STM32L496xx || STM32L4A6xx */
 
 /* Blanking sources for COMP instance: COMP2 */
 #if defined(STM32L451xx) || defined(STM32L452xx) || defined(STM32L462xx) || \
@@ -230,13 +227,13 @@ typedef struct
     defined(STM32L496xx) || defined(STM32L4A6xx)
 #define COMP_BLANKINGSRC_TIM3_OC4_COMP2          (COMP_CSR_BLANKING_0)  /*!< Blanking source for COMP2: TIM3 OC4 selected as blanking source for comparator */
 #endif /* STM32L451xx || STM32L452xx || STM32L462xx */
-       /* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx */
-       /* STM32L496xx || STM32L4A6xx */
+/* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx */
+/* STM32L496xx || STM32L4A6xx */
 #if defined(STM32L471xx) || defined(STM32L475xx) || defined(STM32L476xx) || defined(STM32L485xx) || defined(STM32L486xx) || \
     defined(STM32L496xx) || defined(STM32L4A6xx)
 #define COMP_BLANKINGSRC_TIM8_OC5_COMP2          (COMP_CSR_BLANKING_1)  /*!< Blanking source for COMP2: TIM8 OC5 selected as blanking source for comparator */
 #endif /* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx */
-       /* STM32L496xx || STM32L4A6xx */       
+/* STM32L496xx || STM32L4A6xx */
 #define COMP_BLANKINGSRC_TIM15_OC1_COMP2         (COMP_CSR_BLANKING_2)  /*!< Blanking source for COMP2: TIM15 OC1 selected as blanking source for comparator */
 /**
   * @}
@@ -368,7 +365,7 @@ typedef struct
 /**
   * @brief  Disable the COMP1 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP1_EXTI_DISABLE_RISING_FALLING_EDGE()  do { \
                                                                __HAL_COMP_COMP1_EXTI_DISABLE_RISING_EDGE(); \
                                                                __HAL_COMP_COMP1_EXTI_DISABLE_FALLING_EDGE(); \
@@ -419,31 +416,31 @@ typedef struct
 /**
   * @brief  Enable the COMP2 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR1, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief  Disable the COMP2 EXTI line rising edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR1, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief  Enable the COMP2 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR1, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief  Disable the COMP2 EXTI line falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR1, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief  Enable the COMP2 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
                                                                __HAL_COMP_COMP2_EXTI_ENABLE_RISING_EDGE(); \
                                                                __HAL_COMP_COMP2_EXTI_ENABLE_FALLING_EDGE(); \
@@ -452,7 +449,7 @@ typedef struct
 /**
   * @brief  Disable the COMP2 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP2_EXTI_DISABLE_RISING_FALLING_EDGE()   do { \
                                                                __HAL_COMP_COMP2_EXTI_DISABLE_RISING_EDGE(); \
                                                                __HAL_COMP_COMP2_EXTI_DISABLE_FALLING_EDGE(); \
@@ -543,7 +540,7 @@ typedef struct
   * @{
   */
 
-/** @defgroup COMP_GET_EXTI_LINE COMP private macros to get EXTI line associated with comparators 
+/** @defgroup COMP_GET_EXTI_LINE COMP private macros to get EXTI line associated with comparators
   * @{
   */
 /**
@@ -697,7 +694,7 @@ typedef struct
       ((__BLANKINGSRCE__) == COMP_BLANKINGSRC_TIM15_OC1_COMP2))))
 
 #endif /* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx */
-       /* STM32L496xx || STM32L4A6xx */
+/* STM32L496xx || STM32L4A6xx */
 
 #define IS_COMP_TRIGGERMODE(__MODE__)       (((__MODE__) == COMP_TRIGGERMODE_NONE)                 || \
                                              ((__MODE__) == COMP_TRIGGERMODE_IT_RISING)            || \
@@ -730,7 +727,7 @@ typedef struct
 
 /* Initialization and de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp);
-HAL_StatusTypeDef HAL_COMP_DeInit (COMP_HandleTypeDef *hcomp);
+HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp);
 void              HAL_COMP_MspInit(COMP_HandleTypeDef *hcomp);
 void              HAL_COMP_MspDeInit(COMP_HandleTypeDef *hcomp);
 /**

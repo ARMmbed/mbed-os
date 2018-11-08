@@ -84,253 +84,253 @@ extern "C" {
 
 /** Comparator Mode. Selects the operation of the digital comparator. */
 typedef enum {
-  /** Comparator is disabled. */
-  csenCmpModeDisabled    = 0,
+    /** Comparator is disabled. */
+    csenCmpModeDisabled    = 0,
 
-  /** Comparator trips when the result is greater than the threshold. */
-  csenCmpModeGreater     = CSEN_CTRL_CMPEN | CSEN_CTRL_CMPPOL_GT,
+    /** Comparator trips when the result is greater than the threshold. */
+    csenCmpModeGreater     = CSEN_CTRL_CMPEN | CSEN_CTRL_CMPPOL_GT,
 
-  /** Comparator trips when the result is less or equal to the threshold. */
-  csenCmpModeLessOrEqual = CSEN_CTRL_CMPEN | CSEN_CTRL_CMPPOL_LTE,
+    /** Comparator trips when the result is less or equal to the threshold. */
+    csenCmpModeLessOrEqual = CSEN_CTRL_CMPEN | CSEN_CTRL_CMPPOL_LTE,
 
-  /** Comparator trips when the EMA is within the threshold window. */
-  csenCmpModeEMAWindow   = CSEN_CTRL_EMACMPEN,
+    /** Comparator trips when the EMA is within the threshold window. */
+    csenCmpModeEMAWindow   = CSEN_CTRL_EMACMPEN,
 } CSEN_CmpMode_TypeDef;
 
 /** Converter Select. Determines the converter operational mode. */
 typedef enum {
-  /** Successive Approximation (SAR) converter. */
-  csenConvSelSAR     = CSEN_CTRL_CONVSEL_SAR,
+    /** Successive Approximation (SAR) converter. */
+    csenConvSelSAR     = CSEN_CTRL_CONVSEL_SAR,
 
-  /** Successive Approximation (SAR) converter with low freq attenuation. */
-  csenConvSelSARChop = CSEN_CTRL_CONVSEL_SAR | CSEN_CTRL_CHOPEN_ENABLE,
+    /** Successive Approximation (SAR) converter with low freq attenuation. */
+    csenConvSelSARChop = CSEN_CTRL_CONVSEL_SAR | CSEN_CTRL_CHOPEN_ENABLE,
 
-  /** Delta Modulation (DM) converter. */
-  csenConvSelDM      = CSEN_CTRL_CONVSEL_DM,
+    /** Delta Modulation (DM) converter. */
+    csenConvSelDM      = CSEN_CTRL_CONVSEL_DM,
 
-  /** Delta Modulation (DM) converter with low frequency attenuation. */
-  csenConvSelDMChop  = CSEN_CTRL_CONVSEL_DM | CSEN_CTRL_CHOPEN_ENABLE,
+    /** Delta Modulation (DM) converter with low frequency attenuation. */
+    csenConvSelDMChop  = CSEN_CTRL_CONVSEL_DM | CSEN_CTRL_CHOPEN_ENABLE,
 } CSEN_ConvSel_TypeDef;
 
 /** Sample Mode. Determines how inputs are sampled for a conversion. */
 typedef enum {
-  /** Convert multiple inputs shorted together and stop. */
-  csenSampleModeBonded     = CSEN_CTRL_CM_SGL | CSEN_CTRL_MCEN_ENABLE,
+    /** Convert multiple inputs shorted together and stop. */
+    csenSampleModeBonded     = CSEN_CTRL_CM_SGL | CSEN_CTRL_MCEN_ENABLE,
 
-  /** Convert one input and stop. */
-  csenSampleModeSingle     = CSEN_CTRL_CM_SGL,
+    /** Convert one input and stop. */
+    csenSampleModeSingle     = CSEN_CTRL_CM_SGL,
 
-  /** Convert multiple inputs one at a time and stop. */
-  csenSampleModeScan       = CSEN_CTRL_CM_SCAN,
+    /** Convert multiple inputs one at a time and stop. */
+    csenSampleModeScan       = CSEN_CTRL_CM_SCAN,
 
-  /** Continuously convert multiple inputs shorted together. */
-  csenSampleModeContBonded = CSEN_CTRL_CM_CONTSGL | CSEN_CTRL_MCEN_ENABLE,
+    /** Continuously convert multiple inputs shorted together. */
+    csenSampleModeContBonded = CSEN_CTRL_CM_CONTSGL | CSEN_CTRL_MCEN_ENABLE,
 
-  /** Continuously convert one input. */
-  csenSampleModeContSingle = CSEN_CTRL_CM_CONTSGL,
+    /** Continuously convert one input. */
+    csenSampleModeContSingle = CSEN_CTRL_CM_CONTSGL,
 
-  /** Continuously convert multiple inputs one at a time. */
-  csenSampleModeContScan   = CSEN_CTRL_CM_CONTSCAN,
+    /** Continuously convert multiple inputs one at a time. */
+    csenSampleModeContScan   = CSEN_CTRL_CM_CONTSCAN,
 } CSEN_SampleMode_TypeDef;
 
 /** Start Trigger Select. */
 typedef enum {
-  csenTrigSelPRS   = _CSEN_CTRL_STM_PRS,   /**< PRS system. */
-  csenTrigSelTimer = _CSEN_CTRL_STM_TIMER, /**< CSEN PC timer. */
-  csenTrigSelStart = _CSEN_CTRL_STM_START, /**< Start bit. */
+    csenTrigSelPRS   = _CSEN_CTRL_STM_PRS,   /**< PRS system. */
+    csenTrigSelTimer = _CSEN_CTRL_STM_TIMER, /**< CSEN PC timer. */
+    csenTrigSelStart = _CSEN_CTRL_STM_START, /**< Start bit. */
 } CSEN_TrigSel_TypeDef;
 
 /** Accumulator Mode Select. */
 typedef enum {
-  csenAccMode1  = _CSEN_CTRL_ACU_ACC1,  /**< Accumulate 1 sample. */
-  csenAccMode2  = _CSEN_CTRL_ACU_ACC2,  /**< Accumulate 2 samples. */
-  csenAccMode4  = _CSEN_CTRL_ACU_ACC4,  /**< Accumulate 4 samples. */
-  csenAccMode8  = _CSEN_CTRL_ACU_ACC8,  /**< Accumulate 8 samples. */
-  csenAccMode16 = _CSEN_CTRL_ACU_ACC16, /**< Accumulate 16 samples. */
-  csenAccMode32 = _CSEN_CTRL_ACU_ACC32, /**< Accumulate 32 samples. */
-  csenAccMode64 = _CSEN_CTRL_ACU_ACC64, /**< Accumulate 64 samples. */
+    csenAccMode1  = _CSEN_CTRL_ACU_ACC1,  /**< Accumulate 1 sample. */
+    csenAccMode2  = _CSEN_CTRL_ACU_ACC2,  /**< Accumulate 2 samples. */
+    csenAccMode4  = _CSEN_CTRL_ACU_ACC4,  /**< Accumulate 4 samples. */
+    csenAccMode8  = _CSEN_CTRL_ACU_ACC8,  /**< Accumulate 8 samples. */
+    csenAccMode16 = _CSEN_CTRL_ACU_ACC16, /**< Accumulate 16 samples. */
+    csenAccMode32 = _CSEN_CTRL_ACU_ACC32, /**< Accumulate 32 samples. */
+    csenAccMode64 = _CSEN_CTRL_ACU_ACC64, /**< Accumulate 64 samples. */
 } CSEN_AccMode_TypeDef;
 
 /** Successive Approximation (SAR) Conversion Resolution. */
 typedef enum {
-  csenSARRes10 = _CSEN_CTRL_SARCR_CLK10, /**< 10-bit resolution. */
-  csenSARRes12 = _CSEN_CTRL_SARCR_CLK12, /**< 12-bit resolution. */
-  csenSARRes14 = _CSEN_CTRL_SARCR_CLK14, /**< 14-bit resolution. */
-  csenSARRes16 = _CSEN_CTRL_SARCR_CLK16, /**< 16-bit resolution. */
+    csenSARRes10 = _CSEN_CTRL_SARCR_CLK10, /**< 10-bit resolution. */
+    csenSARRes12 = _CSEN_CTRL_SARCR_CLK12, /**< 12-bit resolution. */
+    csenSARRes14 = _CSEN_CTRL_SARCR_CLK14, /**< 14-bit resolution. */
+    csenSARRes16 = _CSEN_CTRL_SARCR_CLK16, /**< 16-bit resolution. */
 } CSEN_SARRes_TypeDef;
 
 /** Delta Modulator (DM) Conversion Resolution. */
 typedef enum {
-  csenDMRes10 = _CSEN_DMCFG_CRMODE_DM10, /**< 10-bit resolution. */
-  csenDMRes12 = _CSEN_DMCFG_CRMODE_DM12, /**< 12-bit resolution. */
-  csenDMRes14 = _CSEN_DMCFG_CRMODE_DM14, /**< 14-bit resolution. */
-  csenDMRes16 = _CSEN_DMCFG_CRMODE_DM16, /**< 16-bit resolution. */
+    csenDMRes10 = _CSEN_DMCFG_CRMODE_DM10, /**< 10-bit resolution. */
+    csenDMRes12 = _CSEN_DMCFG_CRMODE_DM12, /**< 12-bit resolution. */
+    csenDMRes14 = _CSEN_DMCFG_CRMODE_DM14, /**< 14-bit resolution. */
+    csenDMRes16 = _CSEN_DMCFG_CRMODE_DM16, /**< 16-bit resolution. */
 } CSEN_DMRes_TypeDef;
 
 /** Period counter clock pre-scaler. See the reference manual for source clock
  *  information. */
 typedef enum {
-  csenPCPrescaleDiv1   = _CSEN_TIMCTRL_PCPRESC_DIV1,   /**< Divide by 1. */
-  csenPCPrescaleDiv2   = _CSEN_TIMCTRL_PCPRESC_DIV2,   /**< Divide by 2. */
-  csenPCPrescaleDiv4   = _CSEN_TIMCTRL_PCPRESC_DIV4,   /**< Divide by 4. */
-  csenPCPrescaleDiv8   = _CSEN_TIMCTRL_PCPRESC_DIV8,   /**< Divide by 8. */
-  csenPCPrescaleDiv16  = _CSEN_TIMCTRL_PCPRESC_DIV16,  /**< Divide by 16. */
-  csenPCPrescaleDiv32  = _CSEN_TIMCTRL_PCPRESC_DIV32,  /**< Divide by 32. */
-  csenPCPrescaleDiv64  = _CSEN_TIMCTRL_PCPRESC_DIV64,  /**< Divide by 64. */
-  csenPCPrescaleDiv128 = _CSEN_TIMCTRL_PCPRESC_DIV128, /**< Divide by 128. */
+    csenPCPrescaleDiv1   = _CSEN_TIMCTRL_PCPRESC_DIV1,   /**< Divide by 1. */
+    csenPCPrescaleDiv2   = _CSEN_TIMCTRL_PCPRESC_DIV2,   /**< Divide by 2. */
+    csenPCPrescaleDiv4   = _CSEN_TIMCTRL_PCPRESC_DIV4,   /**< Divide by 4. */
+    csenPCPrescaleDiv8   = _CSEN_TIMCTRL_PCPRESC_DIV8,   /**< Divide by 8. */
+    csenPCPrescaleDiv16  = _CSEN_TIMCTRL_PCPRESC_DIV16,  /**< Divide by 16. */
+    csenPCPrescaleDiv32  = _CSEN_TIMCTRL_PCPRESC_DIV32,  /**< Divide by 32. */
+    csenPCPrescaleDiv64  = _CSEN_TIMCTRL_PCPRESC_DIV64,  /**< Divide by 64. */
+    csenPCPrescaleDiv128 = _CSEN_TIMCTRL_PCPRESC_DIV128, /**< Divide by 128. */
 } CSEN_PCPrescale_TypeDef;
 
 /** Exponential Moving Average sample weight. */
 typedef enum {
-  csenEMASampleW1  = _CSEN_EMACTRL_EMASAMPLE_W1,  /**< Weight 1. */
-  csenEMASampleW2  = _CSEN_EMACTRL_EMASAMPLE_W2,  /**< Weight 2. */
-  csenEMASampleW4  = _CSEN_EMACTRL_EMASAMPLE_W4,  /**< Weight 4. */
-  csenEMASampleW8  = _CSEN_EMACTRL_EMASAMPLE_W8,  /**< Weight 8. */
-  csenEMASampleW16 = _CSEN_EMACTRL_EMASAMPLE_W16, /**< Weight 16. */
-  csenEMASampleW32 = _CSEN_EMACTRL_EMASAMPLE_W32, /**< Weight 32. */
-  csenEMASampleW64 = _CSEN_EMACTRL_EMASAMPLE_W64, /**< Weight 64. */
+    csenEMASampleW1  = _CSEN_EMACTRL_EMASAMPLE_W1,  /**< Weight 1. */
+    csenEMASampleW2  = _CSEN_EMACTRL_EMASAMPLE_W2,  /**< Weight 2. */
+    csenEMASampleW4  = _CSEN_EMACTRL_EMASAMPLE_W4,  /**< Weight 4. */
+    csenEMASampleW8  = _CSEN_EMACTRL_EMASAMPLE_W8,  /**< Weight 8. */
+    csenEMASampleW16 = _CSEN_EMACTRL_EMASAMPLE_W16, /**< Weight 16. */
+    csenEMASampleW32 = _CSEN_EMACTRL_EMASAMPLE_W32, /**< Weight 32. */
+    csenEMASampleW64 = _CSEN_EMACTRL_EMASAMPLE_W64, /**< Weight 64. */
 } CSEN_EMASample_TypeDef;
 
 /** Reset Phase Timing Select (units are microseconds). */
 typedef enum {
-  csenResetPhaseSel0 = 0,  /**< Reset phase time = 0.75 usec. */
-  csenResetPhaseSel1 = 1,  /**< Reset phase time = 1.00 usec. */
-  csenResetPhaseSel2 = 2,  /**< Reset phase time = 1.20 usec. */
-  csenResetPhaseSel3 = 3,  /**< Reset phase time = 1.50 usec. */
-  csenResetPhaseSel4 = 4,  /**< Reset phase time = 2.00 usec. */
-  csenResetPhaseSel5 = 5,  /**< Reset phase time = 3.00 usec. */
-  csenResetPhaseSel6 = 6,  /**< Reset phase time = 6.00 usec. */
-  csenResetPhaseSel7 = 7,  /**< Reset phase time = 12.0 usec. */
+    csenResetPhaseSel0 = 0,  /**< Reset phase time = 0.75 usec. */
+    csenResetPhaseSel1 = 1,  /**< Reset phase time = 1.00 usec. */
+    csenResetPhaseSel2 = 2,  /**< Reset phase time = 1.20 usec. */
+    csenResetPhaseSel3 = 3,  /**< Reset phase time = 1.50 usec. */
+    csenResetPhaseSel4 = 4,  /**< Reset phase time = 2.00 usec. */
+    csenResetPhaseSel5 = 5,  /**< Reset phase time = 3.00 usec. */
+    csenResetPhaseSel6 = 6,  /**< Reset phase time = 6.00 usec. */
+    csenResetPhaseSel7 = 7,  /**< Reset phase time = 12.0 usec. */
 } CSEN_ResetPhaseSel_TypeDef;
 
 /** Drive Strength Select. Scales the output current. */
 typedef enum {
-  csenDriveSelFull = 0,  /**< Drive strength = fully on. */
-  csenDriveSel1 = 1,     /**< Drive strength = 1/8 full scale. */
-  csenDriveSel2 = 2,     /**< Drive strength = 1/4 full scale. */
-  csenDriveSel3 = 3,     /**< Drive strength = 3/8 full scale. */
-  csenDriveSel4 = 4,     /**< Drive strength = 1/2 full scale. */
-  csenDriveSel5 = 5,     /**< Drive strength = 5/8 full scale. */
-  csenDriveSel6 = 6,     /**< Drive strength = 3/4 full scale. */
-  csenDriveSel7 = 7,     /**< Drive strength = 7/8 full scale. */
+    csenDriveSelFull = 0,  /**< Drive strength = fully on. */
+    csenDriveSel1 = 1,     /**< Drive strength = 1/8 full scale. */
+    csenDriveSel2 = 2,     /**< Drive strength = 1/4 full scale. */
+    csenDriveSel3 = 3,     /**< Drive strength = 3/8 full scale. */
+    csenDriveSel4 = 4,     /**< Drive strength = 1/2 full scale. */
+    csenDriveSel5 = 5,     /**< Drive strength = 5/8 full scale. */
+    csenDriveSel6 = 6,     /**< Drive strength = 3/4 full scale. */
+    csenDriveSel7 = 7,     /**< Drive strength = 7/8 full scale. */
 } CSEN_DriveSel_TypeDef;
 
 /** Gain Select. See reference manual for information on each setting. */
 typedef enum {
-  csenGainSel1X = 0,  /**< Gain = 1x. */
-  csenGainSel2X = 1,  /**< Gain = 2x. */
-  csenGainSel3X = 2,  /**< Gain = 3x. */
-  csenGainSel4X = 3,  /**< Gain = 4x. */
-  csenGainSel5X = 4,  /**< Gain = 5x. */
-  csenGainSel6X = 5,  /**< Gain = 6x. */
-  csenGainSel7X = 6,  /**< Gain = 7x. */
-  csenGainSel8X = 7,  /**< Gain = 8x. */
+    csenGainSel1X = 0,  /**< Gain = 1x. */
+    csenGainSel2X = 1,  /**< Gain = 2x. */
+    csenGainSel3X = 2,  /**< Gain = 3x. */
+    csenGainSel4X = 3,  /**< Gain = 4x. */
+    csenGainSel5X = 4,  /**< Gain = 5x. */
+    csenGainSel6X = 5,  /**< Gain = 6x. */
+    csenGainSel7X = 6,  /**< Gain = 7x. */
+    csenGainSel8X = 7,  /**< Gain = 8x. */
 } CSEN_GainSel_TypeDef;
 
 /** Peripheral Reflex System signal used to trigger conversion. */
 typedef enum {
-  csenPRSSELCh0  = _CSEN_PRSSEL_PRSSEL_PRSCH0,  /**< PRS channel 0. */
-  csenPRSSELCh1  = _CSEN_PRSSEL_PRSSEL_PRSCH1,  /**< PRS channel 1. */
-  csenPRSSELCh2  = _CSEN_PRSSEL_PRSSEL_PRSCH2,  /**< PRS channel 2. */
-  csenPRSSELCh3  = _CSEN_PRSSEL_PRSSEL_PRSCH3,  /**< PRS channel 3. */
-  csenPRSSELCh4  = _CSEN_PRSSEL_PRSSEL_PRSCH4,  /**< PRS channel 4. */
-  csenPRSSELCh5  = _CSEN_PRSSEL_PRSSEL_PRSCH5,  /**< PRS channel 5. */
-  csenPRSSELCh6  = _CSEN_PRSSEL_PRSSEL_PRSCH6,  /**< PRS channel 6. */
-  csenPRSSELCh7  = _CSEN_PRSSEL_PRSSEL_PRSCH7,  /**< PRS channel 7. */
+    csenPRSSELCh0  = _CSEN_PRSSEL_PRSSEL_PRSCH0,  /**< PRS channel 0. */
+    csenPRSSELCh1  = _CSEN_PRSSEL_PRSSEL_PRSCH1,  /**< PRS channel 1. */
+    csenPRSSELCh2  = _CSEN_PRSSEL_PRSSEL_PRSCH2,  /**< PRS channel 2. */
+    csenPRSSELCh3  = _CSEN_PRSSEL_PRSSEL_PRSCH3,  /**< PRS channel 3. */
+    csenPRSSELCh4  = _CSEN_PRSSEL_PRSSEL_PRSCH4,  /**< PRS channel 4. */
+    csenPRSSELCh5  = _CSEN_PRSSEL_PRSSEL_PRSCH5,  /**< PRS channel 5. */
+    csenPRSSELCh6  = _CSEN_PRSSEL_PRSSEL_PRSCH6,  /**< PRS channel 6. */
+    csenPRSSELCh7  = _CSEN_PRSSEL_PRSSEL_PRSCH7,  /**< PRS channel 7. */
 #if defined(_CSEN_PRSSEL_PRSSEL_PRSCH8)
-  csenPRSSELCh8  = _CSEN_PRSSEL_PRSSEL_PRSCH8,  /**< PRS channel 8. */
+    csenPRSSELCh8  = _CSEN_PRSSEL_PRSSEL_PRSCH8,  /**< PRS channel 8. */
 #endif
 #if defined(_CSEN_PRSSEL_PRSSEL_PRSCH9)
-  csenPRSSELCh9  = _CSEN_PRSSEL_PRSSEL_PRSCH9,  /**< PRS channel 9. */
+    csenPRSSELCh9  = _CSEN_PRSSEL_PRSSEL_PRSCH9,  /**< PRS channel 9. */
 #endif
 #if defined(_CSEN_PRSSEL_PRSSEL_PRSCH10)
-  csenPRSSELCh10 = _CSEN_PRSSEL_PRSSEL_PRSCH10, /**< PRS channel 10. */
+    csenPRSSELCh10 = _CSEN_PRSSEL_PRSSEL_PRSCH10, /**< PRS channel 10. */
 #endif
 #if defined(_CSEN_PRSSEL_PRSSEL_PRSCH11)
-  csenPRSSELCh11 = _CSEN_PRSSEL_PRSSEL_PRSCH11, /**< PRS channel 11. */
+    csenPRSSELCh11 = _CSEN_PRSSEL_PRSSEL_PRSCH11, /**< PRS channel 11. */
 #endif
 } CSEN_PRSSel_TypeDef;
 
 /** APORT channel to CSEN input selection. */
 typedef enum {
-  csenInputSelDefault        = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_DEFAULT,
-  csenInputSelAPORT1CH0TO7   = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT1CH0TO7,
-  csenInputSelAPORT1CH8TO15  = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT1CH8TO15,
-  csenInputSelAPORT1CH16TO23 = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT1CH16TO23,
-  csenInputSelAPORT1CH24TO31 = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT1CH24TO31,
-  csenInputSelAPORT3CH0TO7   = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT3CH0TO7,
-  csenInputSelAPORT3CH8TO15  = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT3CH8TO15,
-  csenInputSelAPORT3CH16TO23 = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT3CH16TO23,
-  csenInputSelAPORT3CH24TO31 = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT3CH24TO31,
+    csenInputSelDefault        = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_DEFAULT,
+    csenInputSelAPORT1CH0TO7   = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT1CH0TO7,
+    csenInputSelAPORT1CH8TO15  = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT1CH8TO15,
+    csenInputSelAPORT1CH16TO23 = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT1CH16TO23,
+    csenInputSelAPORT1CH24TO31 = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT1CH24TO31,
+    csenInputSelAPORT3CH0TO7   = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT3CH0TO7,
+    csenInputSelAPORT3CH8TO15  = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT3CH8TO15,
+    csenInputSelAPORT3CH16TO23 = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT3CH16TO23,
+    csenInputSelAPORT3CH24TO31 = _CSEN_SCANINPUTSEL0_INPUT0TO7SEL_APORT3CH24TO31,
 } CSEN_InputSel_TypeDef;
 
 /** APORT channel to CSEN single input selection. */
 typedef enum {
-  csenSingleSelDefault     = _CSEN_SINGLECTRL_SINGLESEL_DEFAULT,
-  csenSingleSelAPORT1XCH0  = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH0,
-  csenSingleSelAPORT1YCH1  = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH1,
-  csenSingleSelAPORT1XCH2  = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH2,
-  csenSingleSelAPORT1YCH3  = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH3,
-  csenSingleSelAPORT1XCH4  = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH4,
-  csenSingleSelAPORT1YCH5  = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH5,
-  csenSingleSelAPORT1XCH6  = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH6,
-  csenSingleSelAPORT1YCH7  = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH7,
-  csenSingleSelAPORT1XCH8  = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH8,
-  csenSingleSelAPORT1YCH9  = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH9,
-  csenSingleSelAPORT1XCH10 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH10,
-  csenSingleSelAPORT1YCH11 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH11,
-  csenSingleSelAPORT1XCH12 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH12,
-  csenSingleSelAPORT1YCH13 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH13,
-  csenSingleSelAPORT1XCH14 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH14,
-  csenSingleSelAPORT1YCH15 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH15,
-  csenSingleSelAPORT1XCH16 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH16,
-  csenSingleSelAPORT1YCH17 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH17,
-  csenSingleSelAPORT1XCH18 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH18,
-  csenSingleSelAPORT1YCH19 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH19,
-  csenSingleSelAPORT1XCH20 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH20,
-  csenSingleSelAPORT1YCH21 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH21,
-  csenSingleSelAPORT1XCH22 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH22,
-  csenSingleSelAPORT1YCH23 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH23,
-  csenSingleSelAPORT1XCH24 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH24,
-  csenSingleSelAPORT1YCH25 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH25,
-  csenSingleSelAPORT1XCH26 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH26,
-  csenSingleSelAPORT1YCH27 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH27,
-  csenSingleSelAPORT1XCH28 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH28,
-  csenSingleSelAPORT1YCH29 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH29,
-  csenSingleSelAPORT1XCH30 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH30,
-  csenSingleSelAPORT1YCH31 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH31,
-  csenSingleSelAPORT3XCH0  = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH0,
-  csenSingleSelAPORT3YCH1  = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH1,
-  csenSingleSelAPORT3XCH2  = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH2,
-  csenSingleSelAPORT3YCH3  = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH3,
-  csenSingleSelAPORT3XCH4  = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH4,
-  csenSingleSelAPORT3YCH5  = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH5,
-  csenSingleSelAPORT3XCH6  = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH6,
-  csenSingleSelAPORT3YCH7  = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH7,
-  csenSingleSelAPORT3XCH8  = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH8,
-  csenSingleSelAPORT3YCH9  = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH9,
-  csenSingleSelAPORT3XCH10 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH10,
-  csenSingleSelAPORT3YCH11 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH11,
-  csenSingleSelAPORT3XCH12 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH12,
-  csenSingleSelAPORT3YCH13 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH13,
-  csenSingleSelAPORT3XCH14 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH14,
-  csenSingleSelAPORT3YCH15 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH15,
-  csenSingleSelAPORT3XCH16 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH16,
-  csenSingleSelAPORT3YCH17 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH17,
-  csenSingleSelAPORT3XCH18 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH18,
-  csenSingleSelAPORT3YCH19 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH19,
-  csenSingleSelAPORT3XCH20 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH20,
-  csenSingleSelAPORT3YCH21 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH21,
-  csenSingleSelAPORT3XCH22 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH22,
-  csenSingleSelAPORT3YCH23 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH23,
-  csenSingleSelAPORT3XCH24 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH24,
-  csenSingleSelAPORT3YCH25 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH25,
-  csenSingleSelAPORT3XCH26 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH26,
-  csenSingleSelAPORT3YCH27 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH27,
-  csenSingleSelAPORT3XCH28 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH28,
-  csenSingleSelAPORT3YCH29 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH29,
-  csenSingleSelAPORT3XCH30 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH30,
-  csenSingleSelAPORT3YCH31 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH31,
+    csenSingleSelDefault     = _CSEN_SINGLECTRL_SINGLESEL_DEFAULT,
+    csenSingleSelAPORT1XCH0  = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH0,
+    csenSingleSelAPORT1YCH1  = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH1,
+    csenSingleSelAPORT1XCH2  = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH2,
+    csenSingleSelAPORT1YCH3  = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH3,
+    csenSingleSelAPORT1XCH4  = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH4,
+    csenSingleSelAPORT1YCH5  = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH5,
+    csenSingleSelAPORT1XCH6  = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH6,
+    csenSingleSelAPORT1YCH7  = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH7,
+    csenSingleSelAPORT1XCH8  = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH8,
+    csenSingleSelAPORT1YCH9  = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH9,
+    csenSingleSelAPORT1XCH10 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH10,
+    csenSingleSelAPORT1YCH11 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH11,
+    csenSingleSelAPORT1XCH12 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH12,
+    csenSingleSelAPORT1YCH13 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH13,
+    csenSingleSelAPORT1XCH14 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH14,
+    csenSingleSelAPORT1YCH15 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH15,
+    csenSingleSelAPORT1XCH16 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH16,
+    csenSingleSelAPORT1YCH17 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH17,
+    csenSingleSelAPORT1XCH18 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH18,
+    csenSingleSelAPORT1YCH19 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH19,
+    csenSingleSelAPORT1XCH20 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH20,
+    csenSingleSelAPORT1YCH21 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH21,
+    csenSingleSelAPORT1XCH22 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH22,
+    csenSingleSelAPORT1YCH23 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH23,
+    csenSingleSelAPORT1XCH24 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH24,
+    csenSingleSelAPORT1YCH25 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH25,
+    csenSingleSelAPORT1XCH26 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH26,
+    csenSingleSelAPORT1YCH27 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH27,
+    csenSingleSelAPORT1XCH28 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH28,
+    csenSingleSelAPORT1YCH29 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH29,
+    csenSingleSelAPORT1XCH30 = _CSEN_SINGLECTRL_SINGLESEL_APORT1XCH30,
+    csenSingleSelAPORT1YCH31 = _CSEN_SINGLECTRL_SINGLESEL_APORT1YCH31,
+    csenSingleSelAPORT3XCH0  = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH0,
+    csenSingleSelAPORT3YCH1  = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH1,
+    csenSingleSelAPORT3XCH2  = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH2,
+    csenSingleSelAPORT3YCH3  = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH3,
+    csenSingleSelAPORT3XCH4  = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH4,
+    csenSingleSelAPORT3YCH5  = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH5,
+    csenSingleSelAPORT3XCH6  = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH6,
+    csenSingleSelAPORT3YCH7  = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH7,
+    csenSingleSelAPORT3XCH8  = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH8,
+    csenSingleSelAPORT3YCH9  = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH9,
+    csenSingleSelAPORT3XCH10 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH10,
+    csenSingleSelAPORT3YCH11 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH11,
+    csenSingleSelAPORT3XCH12 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH12,
+    csenSingleSelAPORT3YCH13 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH13,
+    csenSingleSelAPORT3XCH14 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH14,
+    csenSingleSelAPORT3YCH15 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH15,
+    csenSingleSelAPORT3XCH16 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH16,
+    csenSingleSelAPORT3YCH17 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH17,
+    csenSingleSelAPORT3XCH18 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH18,
+    csenSingleSelAPORT3YCH19 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH19,
+    csenSingleSelAPORT3XCH20 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH20,
+    csenSingleSelAPORT3YCH21 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH21,
+    csenSingleSelAPORT3XCH22 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH22,
+    csenSingleSelAPORT3YCH23 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH23,
+    csenSingleSelAPORT3XCH24 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH24,
+    csenSingleSelAPORT3YCH25 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH25,
+    csenSingleSelAPORT3XCH26 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH26,
+    csenSingleSelAPORT3YCH27 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH27,
+    csenSingleSelAPORT3XCH28 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH28,
+    csenSingleSelAPORT3YCH29 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH29,
+    csenSingleSelAPORT3XCH30 = _CSEN_SINGLECTRL_SINGLESEL_APORT3XCH30,
+    csenSingleSelAPORT3YCH31 = _CSEN_SINGLECTRL_SINGLESEL_APORT3YCH31,
 } CSEN_SingleSel_TypeDef;
 
 /*******************************************************************************
@@ -339,36 +339,36 @@ typedef enum {
 
 /** CSEN init structure, common for all measurement modes. */
 typedef struct {
-  /** Requests system charge pump high accuracy mode. */
-  bool                          cpAccuracyHi;
+    /** Requests system charge pump high accuracy mode. */
+    bool                          cpAccuracyHi;
 
-  /** Disables external kelvin connection and senses capacitor locally. */
-  bool                          localSense;
+    /** Disables external kelvin connection and senses capacitor locally. */
+    bool                          localSense;
 
-  /** Keeps the converter warm allowing continuous conversions. */
-  bool                          keepWarm;
+    /** Keeps the converter warm allowing continuous conversions. */
+    bool                          keepWarm;
 
-  /** Converter warmup time is warmUpCount + 3 converter clock cycles. */
-  uint8_t                       warmUpCount;
+    /** Converter warmup time is warmUpCount + 3 converter clock cycles. */
+    uint8_t                       warmUpCount;
 
-  /** Period counter reload value. */
-  uint8_t                       pcReload;
+    /** Period counter reload value. */
+    uint8_t                       pcReload;
 
-  /** Period counter pre-scaler. */
-  CSEN_PCPrescale_TypeDef       pcPrescale;
+    /** Period counter pre-scaler. */
+    CSEN_PCPrescale_TypeDef       pcPrescale;
 
-  /** Peripheral reflex system trigger selection. */
-  CSEN_PRSSel_TypeDef           prsSel;
+    /** Peripheral reflex system trigger selection. */
+    CSEN_PRSSel_TypeDef           prsSel;
 
-  /** CSEN input to APORT channel mapping. */
-  CSEN_InputSel_TypeDef         input0To7;
-  CSEN_InputSel_TypeDef         input8To15;
-  CSEN_InputSel_TypeDef         input16To23;
-  CSEN_InputSel_TypeDef         input24To31;
-  CSEN_InputSel_TypeDef         input32To39;
-  CSEN_InputSel_TypeDef         input40To47;
-  CSEN_InputSel_TypeDef         input48To55;
-  CSEN_InputSel_TypeDef         input56To63;
+    /** CSEN input to APORT channel mapping. */
+    CSEN_InputSel_TypeDef         input0To7;
+    CSEN_InputSel_TypeDef         input8To15;
+    CSEN_InputSel_TypeDef         input16To23;
+    CSEN_InputSel_TypeDef         input24To31;
+    CSEN_InputSel_TypeDef         input32To39;
+    CSEN_InputSel_TypeDef         input40To47;
+    CSEN_InputSel_TypeDef         input48To55;
+    CSEN_InputSel_TypeDef         input56To63;
 } CSEN_Init_TypeDef;
 
 #define CSEN_INIT_DEFAULT                                             \
@@ -392,83 +392,83 @@ typedef struct {
 
 /** Measurement mode init structure. */
 typedef struct {
-  /** Selects the conversion sample mode. */
-  CSEN_SampleMode_TypeDef       sampleMode;
+    /** Selects the conversion sample mode. */
+    CSEN_SampleMode_TypeDef       sampleMode;
 
-  /** Selects the conversion trigger source. */
-  CSEN_TrigSel_TypeDef          trigSel;
+    /** Selects the conversion trigger source. */
+    CSEN_TrigSel_TypeDef          trigSel;
 
-  /** Enables DMA operation. */
-  bool                          enableDma;
+    /** Enables DMA operation. */
+    bool                          enableDma;
 
-  /** Disables dividing the accumulated result. */
-  bool                          sumOnly;
+    /** Disables dividing the accumulated result. */
+    bool                          sumOnly;
 
-  /** Selects the number of samples to accumulate per conversion. */
-  CSEN_AccMode_TypeDef          accMode;
+    /** Selects the number of samples to accumulate per conversion. */
+    CSEN_AccMode_TypeDef          accMode;
 
-  /** Selects the Exponential Moving Average sample weighting. */
-  CSEN_EMASample_TypeDef        emaSample;
+    /** Selects the Exponential Moving Average sample weighting. */
+    CSEN_EMASample_TypeDef        emaSample;
 
-  /** Enables the comparator and selects the comparison type. */
-  CSEN_CmpMode_TypeDef          cmpMode;
+    /** Enables the comparator and selects the comparison type. */
+    CSEN_CmpMode_TypeDef          cmpMode;
 
-  /** Comparator threshold value. Meaning depends on @p cmpMode. */
-  uint16_t                      cmpThr;
+    /** Comparator threshold value. Meaning depends on @p cmpMode. */
+    uint16_t                      cmpThr;
 
-  /** Selects an APORT channel for a single conversion. */
-  CSEN_SingleSel_TypeDef        singleSel;
+    /** Selects an APORT channel for a single conversion. */
+    CSEN_SingleSel_TypeDef        singleSel;
 
-  /**
-   * Mask selects inputs 0 to 31. Effect depends on @p sampleMode. If sample
-   * mode is bonded, then mask selects inputs to short together. If sample
-   * mode is scan, then mask selects which inputs will be scanned. If sample
-   * mode is single and auto-ground is on (@p autoGnd is true), mask selects
-   * which pins are grounded.
-   */
-  uint32_t                      inputMask0;
+    /**
+     * Mask selects inputs 0 to 31. Effect depends on @p sampleMode. If sample
+     * mode is bonded, then mask selects inputs to short together. If sample
+     * mode is scan, then mask selects which inputs will be scanned. If sample
+     * mode is single and auto-ground is on (@p autoGnd is true), mask selects
+     * which pins are grounded.
+     */
+    uint32_t                      inputMask0;
 
-  /** Mask selects inputs 32 to 63. See @p inputMask0 for more information. */
-  uint32_t                      inputMask1;
+    /** Mask selects inputs 32 to 63. See @p inputMask0 for more information. */
+    uint32_t                      inputMask1;
 
-  /** Ground inactive inputs during a conversion. */
-  bool                          autoGnd;
+    /** Ground inactive inputs during a conversion. */
+    bool                          autoGnd;
 
-  /** Selects the converter type. */
-  CSEN_ConvSel_TypeDef          convSel;
+    /** Selects the converter type. */
+    CSEN_ConvSel_TypeDef          convSel;
 
-  /** Selects the Successive Approximation (SAR) converter resolution. */
-  CSEN_SARRes_TypeDef           sarRes;
+    /** Selects the Successive Approximation (SAR) converter resolution. */
+    CSEN_SARRes_TypeDef           sarRes;
 
-  /** Selects the Delta Modulation (DM) converter resolution. */
-  CSEN_DMRes_TypeDef            dmRes;
+    /** Selects the Delta Modulation (DM) converter resolution. */
+    CSEN_DMRes_TypeDef            dmRes;
 
-  /** Sets the number of DM iterations (comparisons) per cycle. Only applies
-   *  to the Delta Modulation converter. */
-  uint8_t                       dmIterPerCycle;
+    /** Sets the number of DM iterations (comparisons) per cycle. Only applies
+     *  to the Delta Modulation converter. */
+    uint8_t                       dmIterPerCycle;
 
-  /** Sets number of DM converter cycles. Only applies to the
-   *  Delta Modulation converter. */
-  uint8_t                       dmCycles;
+    /** Sets number of DM converter cycles. Only applies to the
+     *  Delta Modulation converter. */
+    uint8_t                       dmCycles;
 
-  /** Sets the DM converter initial delta value. Only applies to the
-   *  Delta Modulation converter. */
-  uint8_t                       dmDelta;
+    /** Sets the DM converter initial delta value. Only applies to the
+     *  Delta Modulation converter. */
+    uint8_t                       dmDelta;
 
-  /** Disable DM automatic delta size reduction per cycle. Only applies to the
-   *  Delta Modulation converter. */
-  bool                          dmFixedDelta;
+    /** Disable DM automatic delta size reduction per cycle. Only applies to the
+     *  Delta Modulation converter. */
+    bool                          dmFixedDelta;
 
-  /** Selects the reset phase timing. Most measurements should use the default
-   *  value. See reference manual for details on when to adjust. */
-  CSEN_ResetPhaseSel_TypeDef    resetPhase;
+    /** Selects the reset phase timing. Most measurements should use the default
+     *  value. See reference manual for details on when to adjust. */
+    CSEN_ResetPhaseSel_TypeDef    resetPhase;
 
-  /** Selects the output drive strength.  Most measurements should use the
-  *  default value. See reference manual for details on when to adjust. */
-  CSEN_DriveSel_TypeDef         driveSel;
+    /** Selects the output drive strength.  Most measurements should use the
+    *  default value. See reference manual for details on when to adjust. */
+    CSEN_DriveSel_TypeDef         driveSel;
 
-  /** Selects the converter gain. */
-  CSEN_GainSel_TypeDef          gainSel;
+    /** Selects the converter gain. */
+    CSEN_GainSel_TypeDef          gainSel;
 } CSEN_InitMode_TypeDef;
 
 #define CSEN_INITMODE_DEFAULT                                          \
@@ -518,7 +518,7 @@ typedef struct {
  ******************************************************************************/
 __STATIC_INLINE uint32_t CSEN_DataGet(CSEN_TypeDef *csen)
 {
-  return csen->DATA;
+    return csen->DATA;
 }
 
 /***************************************************************************//**
@@ -536,7 +536,7 @@ __STATIC_INLINE uint32_t CSEN_DataGet(CSEN_TypeDef *csen)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CSEN_EMAGet(CSEN_TypeDef *csen)
 {
-  return (csen->EMA & _CSEN_EMA_EMA_MASK);
+    return (csen->EMA & _CSEN_EMA_EMA_MASK);
 }
 
 /***************************************************************************//**
@@ -554,7 +554,7 @@ __STATIC_INLINE uint32_t CSEN_EMAGet(CSEN_TypeDef *csen)
  ******************************************************************************/
 __STATIC_INLINE void CSEN_EMASet(CSEN_TypeDef *csen, uint32_t ema)
 {
-  csen->EMA = ema & _CSEN_EMA_EMA_MASK;
+    csen->EMA = ema & _CSEN_EMA_EMA_MASK;
 }
 
 /***************************************************************************//**
@@ -566,7 +566,7 @@ __STATIC_INLINE void CSEN_EMASet(CSEN_TypeDef *csen, uint32_t ema)
  ******************************************************************************/
 __STATIC_INLINE void CSEN_Disable(CSEN_TypeDef *csen)
 {
-  BUS_RegBitWrite(&csen->CTRL, _CSEN_CTRL_EN_SHIFT, 0);
+    BUS_RegBitWrite(&csen->CTRL, _CSEN_CTRL_EN_SHIFT, 0);
 }
 
 /***************************************************************************//**
@@ -578,7 +578,7 @@ __STATIC_INLINE void CSEN_Disable(CSEN_TypeDef *csen)
  ******************************************************************************/
 __STATIC_INLINE void CSEN_Enable(CSEN_TypeDef *csen)
 {
-  BUS_RegBitWrite(&csen->CTRL, _CSEN_CTRL_EN_SHIFT, 1);
+    BUS_RegBitWrite(&csen->CTRL, _CSEN_CTRL_EN_SHIFT, 1);
 }
 
 void CSEN_DMBaselineSet(CSEN_TypeDef *csen, uint32_t up, uint32_t down);
@@ -599,7 +599,7 @@ void CSEN_Reset(CSEN_TypeDef *csen);
  ******************************************************************************/
 __STATIC_INLINE void CSEN_IntClear(CSEN_TypeDef *csen, uint32_t flags)
 {
-  csen->IFC = flags;
+    csen->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -615,7 +615,7 @@ __STATIC_INLINE void CSEN_IntClear(CSEN_TypeDef *csen, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CSEN_IntDisable(CSEN_TypeDef *csen, uint32_t flags)
 {
-  csen->IEN &= ~flags;
+    csen->IEN &= ~flags;
 }
 
 /***************************************************************************//**
@@ -636,7 +636,7 @@ __STATIC_INLINE void CSEN_IntDisable(CSEN_TypeDef *csen, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CSEN_IntEnable(CSEN_TypeDef *csen, uint32_t flags)
 {
-  csen->IEN |= flags;
+    csen->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -655,7 +655,7 @@ __STATIC_INLINE void CSEN_IntEnable(CSEN_TypeDef *csen, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CSEN_IntGet(CSEN_TypeDef *csen)
 {
-  return csen->IF;
+    return csen->IF;
 }
 
 /***************************************************************************//**
@@ -679,14 +679,14 @@ __STATIC_INLINE uint32_t CSEN_IntGet(CSEN_TypeDef *csen)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CSEN_IntGetEnabled(CSEN_TypeDef *csen)
 {
-  uint32_t ien;
+    uint32_t ien;
 
-  /* Store CSENx->IEN in temporary variable in order to define explicit order
-   * of volatile accesses. */
-  ien = csen->IEN;
+    /* Store CSENx->IEN in temporary variable in order to define explicit order
+     * of volatile accesses. */
+    ien = csen->IEN;
 
-  /* Bitwise AND of pending and enabled interrupts */
-  return csen->IF & ien;
+    /* Bitwise AND of pending and enabled interrupts */
+    return csen->IF & ien;
 }
 
 /***************************************************************************//**
@@ -702,7 +702,7 @@ __STATIC_INLINE uint32_t CSEN_IntGetEnabled(CSEN_TypeDef *csen)
  ******************************************************************************/
 __STATIC_INLINE void CSEN_IntSet(CSEN_TypeDef *csen, uint32_t flags)
 {
-  csen->IFS = flags;
+    csen->IFS = flags;
 }
 
 /***************************************************************************//**
@@ -717,7 +717,7 @@ __STATIC_INLINE void CSEN_IntSet(CSEN_TypeDef *csen, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE bool CSEN_IsBusy(CSEN_TypeDef *csen)
 {
-  return (bool)(csen->STATUS & _CSEN_STATUS_CSENBUSY_MASK);
+    return (bool)(csen->STATUS & _CSEN_STATUS_CSENBUSY_MASK);
 }
 
 /***************************************************************************//**
@@ -729,7 +729,7 @@ __STATIC_INLINE bool CSEN_IsBusy(CSEN_TypeDef *csen)
  ******************************************************************************/
 __STATIC_INLINE void CSEN_Start(CSEN_TypeDef *csen)
 {
-  csen->CMD = CSEN_CMD_START;
+    csen->CMD = CSEN_CMD_START;
 }
 
 /** @} (end addtogroup CSEN) */

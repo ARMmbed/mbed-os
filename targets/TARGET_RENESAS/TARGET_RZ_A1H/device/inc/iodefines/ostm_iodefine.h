@@ -64,9 +64,8 @@
 #define OSTM1CTL (OSTM1.OSTMnCTL)
 
 
-typedef struct st_ostm
-{
-                                                           /* OSTM             */
+typedef struct st_ostm {
+    /* OSTM             */
     volatile uint32_t  OSTMnCMP;                               /*  OSTMnCMP        */
     volatile uint32_t  OSTMnCNT;                               /*  OSTMnCNT        */
     volatile uint8_t   dummy1[8];                              /*                  */
@@ -82,10 +81,10 @@ typedef struct st_ostm
 
 /* Channel array defines of OSTM (2)*/
 #ifdef  DECLARE_OSTM_CHANNELS
-volatile struct st_ostm*  OSTM[ OSTM_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    OSTM_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_ostm  *OSTM[ OSTM_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        OSTM_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_OSTM_CHANNELS */
 /* End of channel array defines of OSTM (2)*/
 

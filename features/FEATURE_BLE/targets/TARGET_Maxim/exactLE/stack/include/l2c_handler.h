@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   l2c_handler.h
- *        
+ *
  *  \brief  L2CAP handler interface.
  *
  *          $Date $
  *          $Revision $
- *  
+ *
  *  Copyright (c) 2009-2016 ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: LicenseRef-PBL
@@ -35,7 +35,7 @@ extern "C" {
 /*************************************************************************************************/
 /*!
  *  \fn     L2cSlaveHandlerInit
- *        
+ *
  *  \brief  Event handler initialization function for L2C when operating as a slave.
  *
  *  \param  handlerId  ID for this event handler.
@@ -48,7 +48,7 @@ void L2cSlaveHandlerInit(wsfHandlerId_t handlerId);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cSlaveHandler
- *        
+ *
  *  \brief  The WSF event handler for L2C when operating as a slave.
  *
  *  \param  event   Event mask.

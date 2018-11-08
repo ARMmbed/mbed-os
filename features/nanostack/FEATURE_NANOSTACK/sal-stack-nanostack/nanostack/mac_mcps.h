@@ -31,15 +31,15 @@
  * See IEEE standard 802.15.4-2006 (table 41) for more details
  */
 typedef struct mcps_data_req_s {
-    unsigned SrcAddrMode:2;         /**< Source address mode */
-    unsigned DstAddrMode:2;         /**< Destination address mode */
+    unsigned SrcAddrMode: 2;        /**< Source address mode */
+    unsigned DstAddrMode: 2;        /**< Destination address mode */
     uint16_t DstPANId;              /**< Destination PAN ID */
     uint8_t DstAddr[8];             /**< Destination address */
     uint16_t msduLength;            /**< Service data unit length */
     uint8_t *msdu;                  /**< Service data unit */
     uint8_t msduHandle;             /**< Handle associated with MSDU */
     bool TxAckReq: 1;               /**< Specifies whether ACK is needed or not */
-    bool InDirectTx:1;              /**< Specifies whether indirect or direct transmission is used */
+    bool InDirectTx: 1;             /**< Specifies whether indirect or direct transmission is used */
     bool PendingBit: 1;             /**< Specifies whether more fragments are to be sent or not */
     mlme_security_t Key;            /**< Security key */
 } mcps_data_req_t;
@@ -64,10 +64,10 @@ typedef struct mcps_data_conf_s {
  * See IEEE standard 802.15.4-2006 (table 43) for more details
  */
 typedef struct mcps_data_ind_s {
-    unsigned SrcAddrMode:2;     /**< 0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
+    unsigned SrcAddrMode: 2;    /**< 0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
     uint16_t SrcPANId;          /**< Source PAN ID */
     uint8_t SrcAddr[8];         /**< Source address */
-    unsigned DstAddrMode:2;     /**< Destination address mode */
+    unsigned DstAddrMode: 2;    /**< Destination address mode */
     uint16_t DstPANId;          /**< Destination PAN ID */
     uint8_t DstAddr[8];         /**< Destination address */
     uint8_t mpduLinkQuality;    /**< LQI value measured during reception of the MPDU */

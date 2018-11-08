@@ -25,7 +25,8 @@ using namespace utest::v1;
 
 void no_test() {}
 
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(5, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -36,6 +37,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

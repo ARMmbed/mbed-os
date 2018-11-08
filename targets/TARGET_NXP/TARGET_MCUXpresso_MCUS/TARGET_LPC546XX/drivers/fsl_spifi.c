@@ -66,10 +66,8 @@ uint32_t SPIFI_GetInstance(SPIFI_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_spifiBases); instance++)
-    {
-        if (s_spifiBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_spifiBases); instance++) {
+        if (s_spifiBases[instance] == base) {
             break;
         }
     }
@@ -121,24 +119,21 @@ void SPIFI_Deinit(SPIFI_Type *base)
 void SPIFI_SetCommand(SPIFI_Type *base, spifi_command_t *cmd)
 {
     /* Wait for the CMD and MCINT flag all be 0 */
-    while (SPIFI_GetStatusFlag(base) & (SPIFI_STAT_MCINIT_MASK | SPIFI_STAT_CMD_MASK))
-    {
+    while (SPIFI_GetStatusFlag(base) & (SPIFI_STAT_MCINIT_MASK | SPIFI_STAT_CMD_MASK)) {
     }
     base->CMD = SPIFI_CMD_DATALEN(cmd->dataLen) | SPIFI_CMD_POLL(cmd->isPollMode) | SPIFI_CMD_DOUT(cmd->direction) |
                 SPIFI_CMD_INTLEN(cmd->intermediateBytes) | SPIFI_CMD_FIELDFORM(cmd->format) |
                 SPIFI_CMD_FRAMEFORM(cmd->type) | SPIFI_CMD_OPCODE(cmd->opcode);
 
     /* Wait for the command written */
-    while ((base->STAT & SPIFI_STAT_CMD_MASK) == 0U)
-    {
+    while ((base->STAT & SPIFI_STAT_CMD_MASK) == 0U) {
     }
 }
 
 void SPIFI_SetMemoryCommand(SPIFI_Type *base, spifi_command_t *cmd)
 {
     /* Wait for the CMD and MCINT flag all be 0 */
-    while (SPIFI_GetStatusFlag(base) & (SPIFI_STAT_MCINIT_MASK | SPIFI_STAT_CMD_MASK))
-    {
+    while (SPIFI_GetStatusFlag(base) & (SPIFI_STAT_MCINIT_MASK | SPIFI_STAT_CMD_MASK)) {
     }
 
     base->MCMD = SPIFI_MCMD_POLL(0U) | SPIFI_MCMD_DOUT(0U) | SPIFI_MCMD_INTLEN(cmd->intermediateBytes) |

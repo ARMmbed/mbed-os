@@ -67,167 +67,167 @@ void __libc_init_array(void);
 void Dummy_Handler(void);
 
 /* Cortex-M0+ core handlers */
-void NMI_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void HardFault_Handler       ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SVC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void PendSV_Handler          ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SysTick_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void NMI_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void HardFault_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void SVC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void PendSV_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void SysTick_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 
 /* Peripherals handlers */
-void SYSTEM_Handler          ( void ) __attribute__ ((weak, alias("Dummy_Handler"))); /* MCLK, OSCCTRL, OSC32KCTRL, PAC, PM, SUPC, TAL */
-void WDT_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void RTC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void EIC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void NVMCTRL_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void DMAC_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void SYSTEM_Handler(void) __attribute__((weak, alias("Dummy_Handler")));              /* MCLK, OSCCTRL, OSC32KCTRL, PAC, PM, SUPC, TAL */
+void WDT_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void RTC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void EIC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void NVMCTRL_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void DMAC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #ifdef ID_USB
-void USB_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void USB_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
-void EVSYS_Handler           ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SERCOM0_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SERCOM1_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SERCOM2_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SERCOM3_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void EVSYS_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void SERCOM0_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void SERCOM1_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void SERCOM2_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void SERCOM3_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #ifdef ID_SERCOM4
-void SERCOM4_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void SERCOM4_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
 #ifdef ID_SERCOM5
-void SERCOM5_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void SERCOM5_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
-void TCC0_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void TCC1_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void TCC2_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void TC0_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void TC1_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void TCC0_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void TCC1_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void TCC2_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void TC0_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void TC1_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #ifdef ID_TC2
-void TC2_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void TC2_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
 #ifdef ID_TC3
-void TC3_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void TC3_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
-void TC4_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void TC4_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #ifdef ID_ADC
-void ADC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void ADC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
 #ifdef ID_AC
-void AC_Handler              ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void AC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
 #ifdef ID_DAC
-void DAC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void DAC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
 #ifdef ID_PTC
-void PTC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void PTC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
 #ifdef ID_AES
-void AES_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void AES_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
 #ifdef ID_TRNG
-void TRNG_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void TRNG_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
 #ifdef ID_PICOP
-void PICOP_Handler           ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void PICOP_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
 
 /* Exception Table */
-__attribute__ ((section(".vectors")))
+__attribute__((section(".vectors")))
 const DeviceVectors exception_table = {
 
     /* Configure Initial Stack Pointer, using linker-generated symbols */
-    (void*) (&_estack),
+    (void *)(&_estack),
 
-    (void*) Reset_Handler,
-    (void*) NMI_Handler,
-    (void*) HardFault_Handler,
-    (void*) (0UL), /* Reserved */
-    (void*) (0UL), /* Reserved */
-    (void*) (0UL), /* Reserved */
-    (void*) (0UL), /* Reserved */
-    (void*) (0UL), /* Reserved */
-    (void*) (0UL), /* Reserved */
-    (void*) (0UL), /* Reserved */
-    (void*) SVC_Handler,
-    (void*) (0UL), /* Reserved */
-    (void*) (0UL), /* Reserved */
-    (void*) PendSV_Handler,
-    (void*) SysTick_Handler,
+    (void *) Reset_Handler,
+    (void *) NMI_Handler,
+    (void *) HardFault_Handler,
+    (void *)(0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
+    (void *) SVC_Handler,
+    (void *)(0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
+    (void *) PendSV_Handler,
+    (void *) SysTick_Handler,
 
     /* Configurable interrupts */
-    (void*) SYSTEM_Handler,         /*  0 Main Clock, Oscillators Control, 32k Oscillators Control, Peripheral Access Controller, Power Manager, Supply Controller, Trigger Allocator */
-    (void*) WDT_Handler,            /*  1 Watchdog Timer */
-    (void*) RTC_Handler,            /*  2 Real-Time Counter */
-    (void*) EIC_Handler,            /*  3 External Interrupt Controller */
-    (void*) NVMCTRL_Handler,        /*  4 Non-Volatile Memory Controller */
-    (void*) DMAC_Handler,           /*  5 Direct Memory Access Controller */
+    (void *) SYSTEM_Handler,        /*  0 Main Clock, Oscillators Control, 32k Oscillators Control, Peripheral Access Controller, Power Manager, Supply Controller, Trigger Allocator */
+    (void *) WDT_Handler,           /*  1 Watchdog Timer */
+    (void *) RTC_Handler,           /*  2 Real-Time Counter */
+    (void *) EIC_Handler,           /*  3 External Interrupt Controller */
+    (void *) NVMCTRL_Handler,       /*  4 Non-Volatile Memory Controller */
+    (void *) DMAC_Handler,          /*  5 Direct Memory Access Controller */
 #ifdef ID_USB
-    (void*) USB_Handler,            /*  6 Universal Serial Bus */
+    (void *) USB_Handler,           /*  6 Universal Serial Bus */
 #else
-    (void*) (0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
 #endif
-    (void*) EVSYS_Handler,          /*  7 Event System Interface */
-    (void*) SERCOM0_Handler,        /*  8 Serial Communication Interface 0 */
-    (void*) SERCOM1_Handler,        /*  9 Serial Communication Interface 1 */
-    (void*) SERCOM2_Handler,        /* 10 Serial Communication Interface 2 */
-    (void*) SERCOM3_Handler,        /* 11 Serial Communication Interface 3 */
+    (void *) EVSYS_Handler,         /*  7 Event System Interface */
+    (void *) SERCOM0_Handler,       /*  8 Serial Communication Interface 0 */
+    (void *) SERCOM1_Handler,       /*  9 Serial Communication Interface 1 */
+    (void *) SERCOM2_Handler,       /* 10 Serial Communication Interface 2 */
+    (void *) SERCOM3_Handler,       /* 11 Serial Communication Interface 3 */
 #ifdef ID_SERCOM4
-    (void*) SERCOM4_Handler,        /* 12 Serial Communication Interface 4 */
+    (void *) SERCOM4_Handler,       /* 12 Serial Communication Interface 4 */
 #else
-    (void*) (0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
 #endif
 #ifdef ID_SERCOM5
-    (void*) SERCOM5_Handler,        /* 13 Serial Communication Interface 5 */
+    (void *) SERCOM5_Handler,       /* 13 Serial Communication Interface 5 */
 #else
-    (void*) (0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
 #endif
-    (void*) TCC0_Handler,           /* 14 Timer Counter Control 0 */
-    (void*) TCC1_Handler,           /* 15 Timer Counter Control 1 */
-    (void*) TCC2_Handler,           /* 16 Timer Counter Control 2 */
-    (void*) TC0_Handler,            /* 17 Basic Timer Counter 0 */
-    (void*) TC1_Handler,            /* 18 Basic Timer Counter 1 */
+    (void *) TCC0_Handler,          /* 14 Timer Counter Control 0 */
+    (void *) TCC1_Handler,          /* 15 Timer Counter Control 1 */
+    (void *) TCC2_Handler,          /* 16 Timer Counter Control 2 */
+    (void *) TC0_Handler,           /* 17 Basic Timer Counter 0 */
+    (void *) TC1_Handler,           /* 18 Basic Timer Counter 1 */
 #ifdef ID_TC2
-    (void*) TC2_Handler,            /* 19 Basic Timer Counter 2 */
+    (void *) TC2_Handler,           /* 19 Basic Timer Counter 2 */
 #else
-    (void*) (0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
 #endif
 #ifdef ID_TC3
-    (void*) TC3_Handler,            /* 20 Basic Timer Counter 3 */
+    (void *) TC3_Handler,           /* 20 Basic Timer Counter 3 */
 #else
-    (void*) (0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
 #endif
-    (void*) TC4_Handler,            /* 21 Basic Timer Counter 4 */
+    (void *) TC4_Handler,           /* 21 Basic Timer Counter 4 */
 #ifdef ID_ADC
-    (void*) ADC_Handler,            /* 22 Analog Digital Converter */
+    (void *) ADC_Handler,           /* 22 Analog Digital Converter */
 #else
-    (void*) (0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
 #endif
 #ifdef ID_AC
-    (void*) AC_Handler,             /* 23 Analog Comparators */
+    (void *) AC_Handler,            /* 23 Analog Comparators */
 #else
-    (void*) (0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
 #endif
 #ifdef ID_DAC
-    (void*) DAC_Handler,            /* 24 Digital-to-Analog Converter */
+    (void *) DAC_Handler,           /* 24 Digital-to-Analog Converter */
 #else
-    (void*) (0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
 #endif
 #ifdef ID_PTC
-    (void*) PTC_Handler,            /* 25 Peripheral Touch Controller */
+    (void *) PTC_Handler,           /* 25 Peripheral Touch Controller */
 #else
-    (void*) (0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
 #endif
 #ifdef ID_AES
-    (void*) AES_Handler,            /* 26 Advanced Encryption Standard */
+    (void *) AES_Handler,           /* 26 Advanced Encryption Standard */
 #else
-    (void*) (0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
 #endif
 #ifdef ID_TRNG
-    (void*) TRNG_Handler,           /* 27 True Random Generator */
+    (void *) TRNG_Handler,          /* 27 True Random Generator */
 #else
-    (void*) (0UL), /* Reserved */
+    (void *)(0UL), /* Reserved */
 #endif
 #ifdef ID_PICOP
-    (void*) PICOP_Handler           /* 28 PicoProcessor */
+    (void *) PICOP_Handler          /* 28 PicoProcessor */
 #else
-    (void*) (0UL)  /* Reserved */
+    (void *)(0UL)  /* Reserved */
 #endif
 };
 

@@ -58,17 +58,17 @@ typedef struct {
     __IO uint32_t CLK_TEST_MODE;
     union {
         struct {
-            __IO uint32_t PAD0:1;
-            __IO uint32_t PAD1:1;
-            __IO uint32_t FORCE_SOURCE:1;
-            __IO uint32_t FORCE_SINK:1;
-            __IO uint32_t PD_CONTROL:3;
-            __IO uint32_t PAD3:1;
-            __IO uint32_t BYPASS_PLL_REG:1;
-            __IO uint32_t PAD4:4;
-            __IO uint32_t DITHER_MODE:1;
-            __IO uint32_t PLL_MODE:1;
-            __IO uint32_t FORCE_LOCK:1;
+            __IO uint32_t PAD0: 1;
+            __IO uint32_t PAD1: 1;
+            __IO uint32_t FORCE_SOURCE: 1;
+            __IO uint32_t FORCE_SINK: 1;
+            __IO uint32_t PD_CONTROL: 3;
+            __IO uint32_t PAD3: 1;
+            __IO uint32_t BYPASS_PLL_REG: 1;
+            __IO uint32_t PAD4: 4;
+            __IO uint32_t DITHER_MODE: 1;
+            __IO uint32_t PLL_MODE: 1;
+            __IO uint32_t FORCE_LOCK: 1;
         } BITS;
         __IO uint32_t WORD;
     } PLL_TEST_MODE;
@@ -82,27 +82,27 @@ typedef struct {
 typedef struct {
     union {
         struct {
-            __IO uint32_t PAD0 :4; /**<   */
-            __IO uint32_t DIO4 :4; /**< DIO4 Test Mux Control */
-            __IO uint32_t DIO5 :4; /**< DIO5 Test Mux Control */
-            __IO uint32_t DIO6 :4; /**< DIO6 Test Mux Control */
-            __IO uint32_t DIO7 :4; /**< DIO7 Test Mux Control */
-            __IO uint32_t DIO8 :4; /**< DIO8 Test Mux Control */
-            __IO uint32_t DIO9 :4; /**< DIO9 Test Mux Control */
-            __IO uint32_t DIO10 :4; /**< DIO10 Test Mux Control */
+            __IO uint32_t PAD0 : 4; /**<   */
+            __IO uint32_t DIO4 : 4; /**< DIO4 Test Mux Control */
+            __IO uint32_t DIO5 : 4; /**< DIO5 Test Mux Control */
+            __IO uint32_t DIO6 : 4; /**< DIO6 Test Mux Control */
+            __IO uint32_t DIO7 : 4; /**< DIO7 Test Mux Control */
+            __IO uint32_t DIO8 : 4; /**< DIO8 Test Mux Control */
+            __IO uint32_t DIO9 : 4; /**< DIO9 Test Mux Control */
+            __IO uint32_t DIO10 : 4; /**< DIO10 Test Mux Control */
         } BITS;
         __IO uint32_t WORD;
     } DIG_TEST_MUX;
     __IO uint32_t DIG_TEST_MODE;
     union {
         struct {
-            __IO uint32_t PAD0 :12; /**<   */
-            __IO uint32_t DIO5 :3; /**< DIO5 Input Test Mux Control */
-            __IO uint32_t DIO6 :3; /**< DIO6 Input Test Mux Control */
-            __IO uint32_t DIO7 :3; /**< DIO7 Input Test Mux Control */
-            __IO uint32_t DIO8 :3; /**< DIO8 Input Test Mux Control */
-            __IO uint32_t DIO9 :3; /**< DIO9 Input Test Mux Control */
-            __IO uint32_t DIO10 :3; /**< DIO10 Input Test Mux Control */
+            __IO uint32_t PAD0 : 12; /**<   */
+            __IO uint32_t DIO5 : 3; /**< DIO5 Input Test Mux Control */
+            __IO uint32_t DIO6 : 3; /**< DIO6 Input Test Mux Control */
+            __IO uint32_t DIO7 : 3; /**< DIO7 Input Test Mux Control */
+            __IO uint32_t DIO8 : 3; /**< DIO8 Input Test Mux Control */
+            __IO uint32_t DIO9 : 3; /**< DIO9 Input Test Mux Control */
+            __IO uint32_t DIO10 : 3; /**< DIO10 Input Test Mux Control */
         } BITS;
         __IO uint32_t WORD;
     } DIG_IN_TEST_MUX;

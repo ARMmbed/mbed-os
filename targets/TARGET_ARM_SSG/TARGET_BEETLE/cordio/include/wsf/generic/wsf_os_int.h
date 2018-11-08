@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   wsf_os_int.h
- *        
+ *
  *  \brief  Software foundation OS platform-specific interface file.
  *
  *          $Date: 2012-10-01 13:53:07 -0700 (Mon, 01 Oct 2012) $
  *          $Revision: 357 $
- *  
+ *
  *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
  *  Wicentric confidential and proprietary.
  *
@@ -64,7 +64,7 @@ typedef uint8_t wsfTaskEvent_t;
 /*************************************************************************************************/
 /*!
  *  \fn     wsfOsReadyToSleep
- *        
+ *
  *  \brief  Check if WSF is ready to sleep.
  *
  *  \param  None.
@@ -77,7 +77,7 @@ bool_t wsfOsReadyToSleep(void);
 /*************************************************************************************************/
 /*!
  *  \fn     wsfOsDispatcher
- *        
+ *
  *  \brief  Event dispatched.  Designed to be called repeatedly from infinite loop.
  *
  *  \param  None.
@@ -90,7 +90,7 @@ void wsfOsDispatcher(void);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfOsShutdown
- *        
+ *
  *  \brief  Shutdown OS.
  *
  *  \return None.

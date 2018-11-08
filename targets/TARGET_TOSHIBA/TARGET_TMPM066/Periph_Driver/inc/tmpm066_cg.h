@@ -33,20 +33,20 @@ extern "C" {
   * @{
   */
 
-    typedef enum {
-        CG_DIVIDE_1 = 0U,
-        CG_DIVIDE_2 = 1U,
-        CG_DIVIDE_4 = 2U,
-        CG_DIVIDE_8 = 3U,
-        CG_DIVIDE_16 = 4U,
-        CG_DIVIDE_32 = 5U,
-        CG_DIVIDE_64 = 6U,
-        CG_DIVIDE_128 = 7U,
-        CG_DIVIDE_256 = 8U,
-        CG_DIVIDE_512 = 9U,
-        CG_DIVIDE_UNKNOWN = 10U,
-        CG_DIVIDE_MAX = 16U
-    } CG_DivideLevel;
+typedef enum {
+    CG_DIVIDE_1 = 0U,
+    CG_DIVIDE_2 = 1U,
+    CG_DIVIDE_4 = 2U,
+    CG_DIVIDE_8 = 3U,
+    CG_DIVIDE_16 = 4U,
+    CG_DIVIDE_32 = 5U,
+    CG_DIVIDE_64 = 6U,
+    CG_DIVIDE_128 = 7U,
+    CG_DIVIDE_256 = 8U,
+    CG_DIVIDE_512 = 9U,
+    CG_DIVIDE_UNKNOWN = 10U,
+    CG_DIVIDE_MAX = 16U
+} CG_DivideLevel;
 #define IS_CG_GEAR_DIVIDE_LEVEL(param)  (((param) == CG_DIVIDE_1) || \
                                          ((param) == CG_DIVIDE_2) || \
                                          ((param) == CG_DIVIDE_4) || \
@@ -64,11 +64,11 @@ extern "C" {
                                          ((param) == CG_DIVIDE_256) || \
                                          ((param) == CG_DIVIDE_512))
 
-    typedef enum {
-        CG_FOSC_OSC_INT = 0U,
-        CG_FOSC_OSC_EXT = 1U,
-        CG_FOSC_CLKIN_EXT = 2U
-    } CG_FoscSrc;
+typedef enum {
+    CG_FOSC_OSC_INT = 0U,
+    CG_FOSC_OSC_EXT = 1U,
+    CG_FOSC_CLKIN_EXT = 2U
+} CG_FoscSrc;
 #define IS_CG_FOSC_SRC(param)           (((param) == CG_FOSC_OSC_EXT) || \
                                          ((param) == CG_FOSC_OSC_INT) || \
                                          ((param) == CG_FOSC_CLKIN_EXT))
@@ -76,17 +76,17 @@ extern "C" {
 #define IS_CG_FOSC_STATE(param)         (((param) == CG_FOSC_OSC_EXT) || \
                                          ((param) == CG_FOSC_OSC_INT) )
 
-    typedef enum {
-        CG_WARM_UP_SRC_OSC_INT_HIGH = 0U,
-        CG_WARM_UP_SRC_OSC_EXT_HIGH = 1U,
-    } CG_WarmUpSrc;
+typedef enum {
+    CG_WARM_UP_SRC_OSC_INT_HIGH = 0U,
+    CG_WARM_UP_SRC_OSC_EXT_HIGH = 1U,
+} CG_WarmUpSrc;
 #define IS_CG_WARM_UP_SRC(param)        (((param) == CG_WARM_UP_SRC_OSC_INT_HIGH) || \
                                          ((param) == CG_WARM_UP_SRC_OSC_EXT_HIGH))
 
-    typedef enum {
-        CG_FC_SRC_FOSC = 0U,
-        CG_FC_SRC_FPLL = 1U
-    } CG_FcSrc;
+typedef enum {
+    CG_FC_SRC_FOSC = 0U,
+    CG_FC_SRC_FPLL = 1U
+} CG_FcSrc;
 #define IS_CG_FC_SRC(param)    (((param) == CG_FC_SRC_FOSC) || \
                                 ((param) == CG_FC_SRC_FPLL))
 
@@ -99,12 +99,12 @@ extern "C" {
                                         ((param) == CG_10M_MUL_8_FPLL) || \
                                         ((param) == CG_12M_MUL_8_FPLL) || \
                                         ((param) == CG_16M_MUL_6_FPLL))
-    typedef enum {
-        CG_STBY_MODE_IDLE = 0U,
-        CG_STBY_MODE_STOP1 = 1U,
-        CG_STBY_MODE_UNKNOWN = 2U,
-        CG_STBY_MODE_MAX = 4U
-    } CG_STBYMode;
+typedef enum {
+    CG_STBY_MODE_IDLE = 0U,
+    CG_STBY_MODE_STOP1 = 1U,
+    CG_STBY_MODE_UNKNOWN = 2U,
+    CG_STBY_MODE_MAX = 4U
+} CG_STBYMode;
 #define IS_CG_STBY_MODE(param)         (((param) == CG_STBY_MODE_STOP1) || \
                                         ((param) == CG_STBY_MODE_IDLE))
 #define CG_FC_PERIPH_PORTH          (0x00000001U << 7U)
@@ -142,28 +142,28 @@ extern "C" {
 /** @defgroup CG_Exported_FunctionPrototypes
   * @{
   */
-    void CG_SetFgearLevel(CG_DivideLevel DivideFgearFromFc);
-    CG_DivideLevel CG_GetFgearLevel(void);
-    Result CG_SetPhiT0Level(CG_DivideLevel DividePhiT0FromFc);
-    CG_DivideLevel CG_GetPhiT0Level(void);
-    void CG_SetWarmUpTime(CG_WarmUpSrc Source, uint16_t Time);
-    void CG_StartWarmUp(void);
-    WorkState CG_GetWarmUpState(void);
-    Result CG_SetFPLLValue(uint32_t NewValue);
-    uint32_t CG_GetFPLLValue(void);
-    Result CG_SetPLL(FunctionalState NewState);
-    FunctionalState CG_GetPLLState(void);
-    void CG_SetFoscSrc(CG_FoscSrc Source);
-    CG_FoscSrc CG_GetFoscSrc(void);
-    void CG_SetSTBYMode(CG_STBYMode Mode);
-    CG_STBYMode CG_GetSTBYMode(void);
-    void CG_SetFcSrc(CG_FcSrc Source);
-    CG_FcSrc CG_GetFcSrc(void);
-    void CG_SetProtectCtrl(FunctionalState NewState);
-    void CG_SetFcPeriphA(uint32_t Periph, FunctionalState NewState);
-    void CG_SetFcPeriphB(uint32_t Periph, FunctionalState NewState);
-    void CG_SetFcOptional(uint32_t Periph, FunctionalState NewState);
-    void CG_SetADCClkSupply(FunctionalState NewState);
+void CG_SetFgearLevel(CG_DivideLevel DivideFgearFromFc);
+CG_DivideLevel CG_GetFgearLevel(void);
+Result CG_SetPhiT0Level(CG_DivideLevel DividePhiT0FromFc);
+CG_DivideLevel CG_GetPhiT0Level(void);
+void CG_SetWarmUpTime(CG_WarmUpSrc Source, uint16_t Time);
+void CG_StartWarmUp(void);
+WorkState CG_GetWarmUpState(void);
+Result CG_SetFPLLValue(uint32_t NewValue);
+uint32_t CG_GetFPLLValue(void);
+Result CG_SetPLL(FunctionalState NewState);
+FunctionalState CG_GetPLLState(void);
+void CG_SetFoscSrc(CG_FoscSrc Source);
+CG_FoscSrc CG_GetFoscSrc(void);
+void CG_SetSTBYMode(CG_STBYMode Mode);
+CG_STBYMode CG_GetSTBYMode(void);
+void CG_SetFcSrc(CG_FcSrc Source);
+CG_FcSrc CG_GetFcSrc(void);
+void CG_SetProtectCtrl(FunctionalState NewState);
+void CG_SetFcPeriphA(uint32_t Periph, FunctionalState NewState);
+void CG_SetFcPeriphB(uint32_t Periph, FunctionalState NewState);
+void CG_SetFcOptional(uint32_t Periph, FunctionalState NewState);
+void CG_SetADCClkSupply(FunctionalState NewState);
 
 /** @} */
 /* End of group CG_Exported_FunctionPrototype */

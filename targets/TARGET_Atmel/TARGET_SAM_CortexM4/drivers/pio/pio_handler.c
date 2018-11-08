@@ -64,7 +64,7 @@ struct s_interrupt_source {
     uint32_t attr;
 
     /* Interrupt handler. */
-    void (*handler) (const uint32_t, const uint32_t);
+    void (*handler)(const uint32_t, const uint32_t);
 };
 
 
@@ -140,12 +140,13 @@ void pio_handler_process(Pio *p_pio, uint32_t ul_id)
  * \return 0 if successful, 1 if the maximum number of sources has been defined.
  */
 uint32_t pio_handler_set(Pio *p_pio, uint32_t ul_id, uint32_t ul_mask,
-                         uint32_t ul_attr, void (*p_handler) (uint32_t, uint32_t))
+                         uint32_t ul_attr, void (*p_handler)(uint32_t, uint32_t))
 {
     struct s_interrupt_source *pSource;
 
-    if (gs_ul_nb_sources >= MAX_INTERRUPT_SOURCES)
+    if (gs_ul_nb_sources >= MAX_INTERRUPT_SOURCES) {
         return 1;
+    }
 
     /* Define new source */
     pSource = &(gs_interrupt_sources[gs_ul_nb_sources]);
@@ -190,7 +191,7 @@ void pio_capture_handler_set(void (*p_handler)(Pio *))
  * \return 0 if successful, 1 if the maximum number of sources has been defined.
  */
 uint32_t pio_handler_set_pin(uint32_t ul_pin, uint32_t ul_flag,
-                             void (*p_handler) (uint32_t, uint32_t))
+                             void (*p_handler)(uint32_t, uint32_t))
 {
     Pio *p_pio = pio_get_pin_group(ul_pin);
     uint32_t group_id =  pio_get_pin_group_id(ul_pin);

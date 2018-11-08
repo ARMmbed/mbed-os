@@ -131,7 +131,7 @@ int serial_readable(serial_t *obj)
     /*  To avoid a target blocking case, let's check for
      *  possible OVERRUN error and discard it
      */
-    if(__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE)) {
+    if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE)) {
         __HAL_UART_CLEAR_OREFLAG(huart);
     }
     // Check if data is received

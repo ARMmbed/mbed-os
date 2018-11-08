@@ -66,7 +66,7 @@
 #pragma section=".flashprog"
 #endif
 #if defined ( __GNUC__ )
-__attribute__ ((section(".flashprog")))
+__attribute__((section(".flashprog")))
 #endif
 /**
  * @brief      Return the status of the busy state of the flash controller.
@@ -86,7 +86,7 @@ __STATIC_INLINE int FLC_Busy(void)
 #pragma section=".flashprog"
 #endif
 #if defined ( __GNUC__ )
-__attribute__ ((section(".flashprog")))
+__attribute__((section(".flashprog")))
 #endif
 int FLC_Init(void)
 {
@@ -113,7 +113,7 @@ int FLC_Init(void)
 #pragma section=".flashprog"
 #endif
 #if defined ( __GNUC__ )
-__attribute__ ((section(".flashprog")))
+__attribute__((section(".flashprog")))
 #endif
 int FLC_PageErase(uint32_t address, uint8_t erase_code, uint8_t unlock_key)
 {
@@ -159,11 +159,11 @@ int FLC_PageErase(uint32_t address, uint8_t erase_code, uint8_t unlock_key)
 #pragma section=".flashprog"
 #endif
 #if defined ( __GNUC__ )
-__attribute__ ((section(".flashprog")))
+__attribute__((section(".flashprog")))
 #endif
 int FLC_Write(uint32_t address, const void *data, uint32_t length, uint8_t unlock_key)
 {
-    uint32_t *ptr = (uint32_t*)data;
+    uint32_t *ptr = (uint32_t *)data;
 
     /* Can only write in full word units */
     if ((address & 3) || (length & 3)) {
@@ -218,7 +218,7 @@ int FLC_Write(uint32_t address, const void *data, uint32_t length, uint8_t unloc
 #pragma section=".flashprog"
 #endif
 #if defined ( __GNUC__ )
-__attribute__ ((section(".flashprog")))
+__attribute__((section(".flashprog")))
 #endif
 int FLC_MassErase(uint8_t erase_code, uint8_t unlock_key)
 {

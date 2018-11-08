@@ -812,10 +812,10 @@ Example 1: If user want to set PA.0 as SC0_CLK in initial function,
 
 /**
   * @brief      Get reset source is from LVR Reset
-  * @param      None     
+  * @param      None
   * @retval     0   Previous reset source is not from Low-Voltage-Reset
   * @retval     >=1 Previous reset source is from Low-Voltage-Reset
-  * @details    This macro get previous reset source is from Low-Voltage-Reset.   
+  * @details    This macro get previous reset source is from Low-Voltage-Reset.
   */
 #define SYS_IS_LVR_RST()                (SYS->RSTSTS & SYS_RSTSTS_LVRF_Msk)
 
@@ -922,13 +922,11 @@ Example 1: If user want to set PA.0 as SC0_CLK in initial function,
   */
 __STATIC_INLINE void SYS_UnlockReg(void)
 {
-    do
-    {
+    do {
         SYS->REGLCTL = 0x59;
         SYS->REGLCTL = 0x16;
         SYS->REGLCTL = 0x88;
-    }
-    while(SYS->REGLCTL == 0);
+    } while (SYS->REGLCTL == 0);
 }
 
 /**

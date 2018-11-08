@@ -111,11 +111,13 @@ static void DSPI_MasterTransferPrepare(SPI_Type *base, dspi_master_handle_t *han
 /* Defines constant value arrays for the baud rate pre-scalar and scalar divider values.*/
 static const uint32_t s_baudratePrescaler[] = {2, 3, 5, 7};
 static const uint32_t s_baudrateScaler[] = {2,   4,   6,    8,    16,   32,   64,    128,
-                                            256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+                                            256, 512, 1024, 2048, 4096, 8192, 16384, 32768
+                                           };
 
 static const uint32_t s_delayPrescaler[] = {1, 3, 5, 7};
 static const uint32_t s_delayScaler[] = {2,   4,    8,    16,   32,   64,    128,   256,
-                                         512, 1024, 2048, 4096, 8192, 16384, 32768, 65536};
+                                         512, 1024, 2048, 4096, 8192, 16384, 32768, 65536
+                                        };
 
 /*! @brief Pointers to dspi bases for each instance. */
 static SPI_Type *const s_dspiBases[] = SPI_BASE_PTRS;
@@ -147,10 +149,8 @@ uint32_t DSPI_GetInstance(SPI_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_dspiBases); instance++)
-    {
-        if (s_dspiBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_dspiBases); instance++) {
+        if (s_dspiBases[instance] == base) {
             break;
         }
     }
@@ -191,8 +191,7 @@ void DSPI_MasterInit(SPI_Type *base, const dspi_master_config_t *masterConfig, u
 
     DSPI_SetOnePcsPolarity(base, masterConfig->whichPcs, masterConfig->pcsActiveHighOrLow);
 
-    if (0 == DSPI_MasterSetBaudRate(base, masterConfig->whichCtar, masterConfig->ctarConfig.baudRate, srcClock_Hz))
-    {
+    if (0 == DSPI_MasterSetBaudRate(base, masterConfig->whichCtar, masterConfig->ctarConfig.baudRate, srcClock_Hz)) {
         assert(false);
     }
 
@@ -308,12 +307,9 @@ static void DSPI_SetOnePcsPolarity(SPI_Type *base, dspi_which_pcs_t pcs, dspi_pc
 
     temp = base->MCR;
 
-    if (activeLowOrHigh == kDSPI_PcsActiveLow)
-    {
+    if (activeLowOrHigh == kDSPI_PcsActiveLow) {
         temp |= SPI_MCR_PCSIS(pcs);
-    }
-    else
-    {
+    } else {
         temp &= ~SPI_MCR_PCSIS(pcs);
     }
 
@@ -326,8 +322,7 @@ uint32_t DSPI_MasterSetBaudRate(SPI_Type *base,
                                 uint32_t srcClock_Hz)
 {
     /* for master mode configuration, if slave mode detected, return 0*/
-    if (!DSPI_IsMaster(base))
-    {
+    if (!DSPI_IsMaster(base)) {
         return 0;
     }
     uint32_t temp;
@@ -346,22 +341,17 @@ uint32_t DSPI_MasterSetBaudRate(SPI_Type *base,
     bestBaudrate = 0; /* required to avoid compilation warning */
 
     /* In all for loops, if min_diff = 0, the exit for loop*/
-    for (prescaler = 0; (prescaler < 4) && min_diff; prescaler++)
-    {
-        for (scaler = 0; (scaler < 16) && min_diff; scaler++)
-        {
-            for (dbr = 1; (dbr < 3) && min_diff; dbr++)
-            {
+    for (prescaler = 0; (prescaler < 4) && min_diff; prescaler++) {
+        for (scaler = 0; (scaler < 16) && min_diff; scaler++) {
+            for (dbr = 1; (dbr < 3) && min_diff; dbr++) {
                 realBaudrate = ((srcClock_Hz * dbr) / (s_baudratePrescaler[prescaler] * (s_baudrateScaler[scaler])));
 
                 /* calculate the baud rate difference based on the conditional statement that states that the calculated
                 * baud rate must not exceed the desired baud rate.
                 */
-                if (baudrate >= realBaudrate)
-                {
+                if (baudrate >= realBaudrate) {
                     diff = baudrate - realBaudrate;
-                    if (min_diff > diff)
-                    {
+                    if (min_diff > diff) {
                         /* a better match found */
                         min_diff = diff;
                         bestPrescaler = prescaler;
@@ -388,10 +378,8 @@ void DSPI_MasterSetDelayScaler(
     SPI_Type *base, dspi_ctar_selection_t whichCtar, uint32_t prescaler, uint32_t scaler, dspi_delay_type_t whichDelay)
 {
     /* these settings are only relevant in master mode */
-    if (DSPI_IsMaster(base))
-    {
-        switch (whichDelay)
-        {
+    if (DSPI_IsMaster(base)) {
+        switch (whichDelay) {
             case kDSPI_PcsToSck:
                 base->CTAR[whichCtar] = (base->CTAR[whichCtar] & (~SPI_CTAR_PCSSCK_MASK) & (~SPI_CTAR_CSSCK_MASK)) |
                                         SPI_CTAR_PCSSCK(prescaler) | SPI_CTAR_CSSCK(scaler);
@@ -417,8 +405,7 @@ uint32_t DSPI_MasterSetDelayTimes(SPI_Type *base,
                                   uint32_t delayTimeInNanoSec)
 {
     /* for master mode configuration, if slave mode detected, return 0 */
-    if (!DSPI_IsMaster(base))
-    {
+    if (!DSPI_IsMaster(base)) {
         return 0;
     }
 
@@ -444,27 +431,22 @@ uint32_t DSPI_MasterSetDelayTimes(SPI_Type *base,
     * set the delays to their initial value (0) and return the delay. In other words,
     * there is no way to decrease the delay value further.
     */
-    if (initialDelayNanoSec >= delayTimeInNanoSec)
-    {
+    if (initialDelayNanoSec >= delayTimeInNanoSec) {
         DSPI_MasterSetDelayScaler(base, whichCtar, 0, 0, whichDelay);
         return initialDelayNanoSec;
     }
 
     /* In all for loops, if min_diff = 0, the exit for loop */
-    for (prescaler = 0; (prescaler < 4) && min_diff; prescaler++)
-    {
-        for (scaler = 0; (scaler < 16) && min_diff; scaler++)
-        {
+    for (prescaler = 0; (prescaler < 4) && min_diff; prescaler++) {
+        for (scaler = 0; (scaler < 16) && min_diff; scaler++) {
             realDelay = ((4000000000U / srcClock_Hz) * s_delayPrescaler[prescaler] * s_delayScaler[scaler]) / 4;
 
             /* calculate the delay difference based on the conditional statement
             * that states that the calculated delay must not be less then the desired delay
             */
-            if (realDelay >= delayTimeInNanoSec)
-            {
+            if (realDelay >= delayTimeInNanoSec) {
                 diff = realDelay - delayTimeInNanoSec;
-                if (min_diff > diff)
-                {
+                if (min_diff > diff) {
                     /* a better match found */
                     min_diff = diff;
                     bestPrescaler = prescaler;
@@ -500,8 +482,7 @@ void DSPI_MasterWriteDataBlocking(SPI_Type *base, dspi_command_data_config_t *co
     /* First, clear Transmit Complete Flag (TCF) */
     DSPI_ClearStatusFlags(base, kDSPI_TxCompleteFlag);
 
-    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag))
-    {
+    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag)) {
         DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
     }
 
@@ -511,8 +492,7 @@ void DSPI_MasterWriteDataBlocking(SPI_Type *base, dspi_command_data_config_t *co
     DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
 
     /* Wait till TCF sets */
-    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxCompleteFlag))
-    {
+    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxCompleteFlag)) {
     }
 }
 
@@ -521,8 +501,7 @@ void DSPI_MasterWriteCommandDataBlocking(SPI_Type *base, uint32_t data)
     /* First, clear Transmit Complete Flag (TCF) */
     DSPI_ClearStatusFlags(base, kDSPI_TxCompleteFlag);
 
-    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag))
-    {
+    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag)) {
         DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
     }
 
@@ -531,8 +510,7 @@ void DSPI_MasterWriteCommandDataBlocking(SPI_Type *base, uint32_t data)
     DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
 
     /* Wait till TCF sets */
-    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxCompleteFlag))
-    {
+    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxCompleteFlag)) {
     }
 }
 
@@ -541,8 +519,7 @@ void DSPI_SlaveWriteDataBlocking(SPI_Type *base, uint32_t data)
     /* First, clear Transmit Complete Flag (TCF) */
     DSPI_ClearStatusFlags(base, kDSPI_TxCompleteFlag);
 
-    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag))
-    {
+    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag)) {
         DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
     }
 
@@ -551,19 +528,16 @@ void DSPI_SlaveWriteDataBlocking(SPI_Type *base, uint32_t data)
     DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
 
     /* Wait till TCF sets */
-    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxCompleteFlag))
-    {
+    while (!(DSPI_GetStatusFlags(base) & kDSPI_TxCompleteFlag)) {
     }
 }
 
 void DSPI_EnableInterrupts(SPI_Type *base, uint32_t mask)
 {
-    if (mask & SPI_RSER_TFFF_RE_MASK)
-    {
+    if (mask & SPI_RSER_TFFF_RE_MASK) {
         base->RSER &= ~SPI_RSER_TFFF_DIRS_MASK;
     }
-    if (mask & SPI_RSER_RFDF_RE_MASK)
-    {
+    if (mask & SPI_RSER_RFDF_RE_MASK) {
         base->RSER &= ~SPI_RSER_RFDF_DIRS_MASK;
     }
     base->RSER |= mask;
@@ -608,8 +582,7 @@ status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer)
     dspi_command_data_config_t commandStruct;
 
     /* If the transfer count is zero, then return immediately.*/
-    if (transfer->dataSize == 0)
-    {
+    if (transfer->dataSize == 0) {
         return kStatus_InvalidArgument;
     }
 
@@ -641,52 +614,37 @@ status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer)
     remainingSendByteCount = transfer->dataSize;
     remainingReceiveByteCount = transfer->dataSize;
 
-    if ((base->MCR & SPI_MCR_DIS_RXF_MASK) || (base->MCR & SPI_MCR_DIS_TXF_MASK))
-    {
+    if ((base->MCR & SPI_MCR_DIS_RXF_MASK) || (base->MCR & SPI_MCR_DIS_TXF_MASK)) {
         fifoSize = 1;
-    }
-    else
-    {
+    } else {
         fifoSize = FSL_FEATURE_DSPI_FIFO_SIZEn(base);
     }
 
     DSPI_StartTransfer(base);
 
-    if (bitsPerFrame <= 8)
-    {
-        while (remainingSendByteCount > 0)
-        {
-            if (remainingSendByteCount == 1)
-            {
-                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag))
-                {
+    if (bitsPerFrame <= 8) {
+        while (remainingSendByteCount > 0) {
+            if (remainingSendByteCount == 1) {
+                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag)) {
                     DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
                 }
 
-                if (txData != NULL)
-                {
+                if (txData != NULL) {
                     base->PUSHR = (*txData) | (lastCommand);
                     txData++;
-                }
-                else
-                {
+                } else {
                     base->PUSHR = (lastCommand) | (dummyData);
                 }
                 DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
                 remainingSendByteCount--;
 
-                while (remainingReceiveByteCount > 0)
-                {
-                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag)
-                    {
-                        if (rxData != NULL)
-                        {
+                while (remainingReceiveByteCount > 0) {
+                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag) {
+                        if (rxData != NULL) {
                             /* Read data from POPR*/
                             *(rxData) = DSPI_ReadData(base);
                             rxData++;
-                        }
-                        else
-                        {
+                        } else {
                             DSPI_ReadData(base);
                         }
                         remainingReceiveByteCount--;
@@ -694,38 +652,27 @@ status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer)
                         DSPI_ClearStatusFlags(base, kDSPI_RxFifoDrainRequestFlag);
                     }
                 }
-            }
-            else
-            {
+            } else {
                 /*Wait until Tx Fifo is not full*/
-                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag))
-                {
+                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag)) {
                     DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
                 }
-                if (txData != NULL)
-                {
+                if (txData != NULL) {
                     base->PUSHR = command | (uint16_t)(*txData);
                     txData++;
-                }
-                else
-                {
+                } else {
                     base->PUSHR = command | dummyData;
                 }
                 remainingSendByteCount--;
 
                 DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
 
-                while ((remainingReceiveByteCount - remainingSendByteCount) >= fifoSize)
-                {
-                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag)
-                    {
-                        if (rxData != NULL)
-                        {
+                while ((remainingReceiveByteCount - remainingSendByteCount) >= fifoSize) {
+                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag) {
+                        if (rxData != NULL) {
                             *(rxData) = DSPI_ReadData(base);
                             rxData++;
-                        }
-                        else
-                        {
+                        } else {
                             DSPI_ReadData(base);
                         }
                         remainingReceiveByteCount--;
@@ -735,31 +682,22 @@ status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer)
                 }
             }
         }
-    }
-    else
-    {
-        while (remainingSendByteCount > 0)
-        {
-            if (remainingSendByteCount <= 2)
-            {
-                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag))
-                {
+    } else {
+        while (remainingSendByteCount > 0) {
+            if (remainingSendByteCount <= 2) {
+                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag)) {
                     DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
                 }
 
-                if (txData != NULL)
-                {
+                if (txData != NULL) {
                     wordToSend = *(txData);
                     ++txData;
 
-                    if (remainingSendByteCount > 1)
-                    {
+                    if (remainingSendByteCount > 1) {
                         wordToSend |= (unsigned)(*(txData)) << 8U;
                         ++txData;
                     }
-                }
-                else
-                {
+                } else {
                     wordToSend = dummyData;
                 }
 
@@ -768,27 +706,20 @@ status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer)
                 DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
                 remainingSendByteCount = 0;
 
-                while (remainingReceiveByteCount > 0)
-                {
-                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag)
-                    {
+                while (remainingReceiveByteCount > 0) {
+                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag) {
                         wordReceived = DSPI_ReadData(base);
 
-                        if (remainingReceiveByteCount != 1)
-                        {
-                            if (rxData != NULL)
-                            {
+                        if (remainingReceiveByteCount != 1) {
+                            if (rxData != NULL) {
                                 *(rxData) = wordReceived;
                                 ++rxData;
                                 *(rxData) = wordReceived >> 8;
                                 ++rxData;
                             }
                             remainingReceiveByteCount -= 2;
-                        }
-                        else
-                        {
-                            if (rxData != NULL)
-                            {
+                        } else {
+                            if (rxData != NULL) {
                                 *(rxData) = wordReceived;
                                 ++rxData;
                             }
@@ -797,24 +728,18 @@ status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer)
                         DSPI_ClearStatusFlags(base, kDSPI_RxFifoDrainRequestFlag);
                     }
                 }
-            }
-            else
-            {
+            } else {
                 /*Wait until Tx Fifo is not full*/
-                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag))
-                {
+                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag)) {
                     DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
                 }
 
-                if (txData != NULL)
-                {
+                if (txData != NULL) {
                     wordToSend = *(txData);
                     ++txData;
                     wordToSend |= (unsigned)(*(txData)) << 8U;
                     ++txData;
-                }
-                else
-                {
+                } else {
                     wordToSend = dummyData;
                 }
                 base->PUSHR = command | wordToSend;
@@ -822,14 +747,11 @@ status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer)
 
                 DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
 
-                while (((remainingReceiveByteCount - remainingSendByteCount) / 2) >= fifoSize)
-                {
-                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag)
-                    {
+                while (((remainingReceiveByteCount - remainingSendByteCount) / 2) >= fifoSize) {
+                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag) {
                         wordReceived = DSPI_ReadData(base);
 
-                        if (rxData != NULL)
-                        {
+                        if (rxData != NULL) {
                             *rxData = wordReceived;
                             ++rxData;
                             *rxData = wordReceived >> 8;
@@ -873,12 +795,9 @@ static void DSPI_MasterTransferPrepare(SPI_Type *base, dspi_master_handle_t *han
 
     handle->bitsPerFrame = ((base->CTAR[commandStruct.whichCtar] & SPI_CTAR_FMSZ_MASK) >> SPI_CTAR_FMSZ_SHIFT) + 1;
 
-    if ((base->MCR & SPI_MCR_DIS_RXF_MASK) || (base->MCR & SPI_MCR_DIS_TXF_MASK))
-    {
+    if ((base->MCR & SPI_MCR_DIS_RXF_MASK) || (base->MCR & SPI_MCR_DIS_TXF_MASK)) {
         handle->fifoSize = 1;
-    }
-    else
-    {
+    } else {
         handle->fifoSize = FSL_FEATURE_DSPI_FIFO_SIZEn(base);
     }
     handle->txData = transfer->txData;
@@ -894,14 +813,12 @@ status_t DSPI_MasterTransferNonBlocking(SPI_Type *base, dspi_master_handle_t *ha
     assert(transfer);
 
     /* If the transfer count is zero, then return immediately.*/
-    if (transfer->dataSize == 0)
-    {
+    if (transfer->dataSize == 0) {
         return kStatus_InvalidArgument;
     }
 
     /* Check that we're not busy.*/
-    if (handle->state == kDSPI_Busy)
-    {
+    if (handle->state == kDSPI_Busy) {
         return kStatus_DSPI_Busy;
     }
 
@@ -930,14 +847,12 @@ status_t DSPI_MasterTransferGetCount(SPI_Type *base, dspi_master_handle_t *handl
 {
     assert(handle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
     /* Catch when there is not an active transfer. */
-    if (handle->state != kDSPI_Busy)
-    {
+    if (handle->state != kDSPI_Busy) {
         *count = 0;
         return kStatus_NoTransferInProgress;
     }
@@ -954,19 +869,15 @@ static void DSPI_MasterTransferComplete(SPI_Type *base, dspi_master_handle_t *ha
     DSPI_DisableInterrupts(base, kDSPI_RxFifoDrainRequestInterruptEnable | kDSPI_TxFifoFillRequestInterruptEnable);
 
     status_t status = 0;
-    if (handle->state == kDSPI_Error)
-    {
+    if (handle->state == kDSPI_Error) {
         status = kStatus_DSPI_Error;
-    }
-    else
-    {
+    } else {
         status = kStatus_Success;
     }
 
     handle->state = kDSPI_Idle;
 
-    if (handle->callback)
-    {
+    if (handle->callback) {
         handle->callback(base, handle, status, handle->userData);
     }
 }
@@ -979,8 +890,7 @@ static void DSPI_MasterTransferFillUpTxFifo(SPI_Type *base, dspi_master_handle_t
     uint8_t dummyData = s_dummyData[DSPI_GetInstance(base)];
 
     /* If bits/frame is greater than one byte */
-    if (handle->bitsPerFrame > 8)
-    {
+    if (handle->bitsPerFrame > 8) {
         /* Fill the fifo until it is full or until the send word count is 0 or until the difference
         * between the remainingReceiveByteCount and remainingSendByteCount equals the FIFO depth.
         * The reason for checking the difference is to ensure we only send as much as the
@@ -991,42 +901,30 @@ static void DSPI_MasterTransferFillUpTxFifo(SPI_Type *base, dspi_master_handle_t
         * 16-bit (2 byte) value.
         */
         while ((DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag) &&
-               ((handle->remainingReceiveByteCount - handle->remainingSendByteCount) / 2 < handle->fifoSize))
-        {
-            if (handle->remainingSendByteCount <= 2)
-            {
-                if (handle->txData)
-                {
-                    if (handle->remainingSendByteCount == 1)
-                    {
+                ((handle->remainingReceiveByteCount - handle->remainingSendByteCount) / 2 < handle->fifoSize)) {
+            if (handle->remainingSendByteCount <= 2) {
+                if (handle->txData) {
+                    if (handle->remainingSendByteCount == 1) {
                         wordToSend = *(handle->txData);
-                    }
-                    else
-                    {
+                    } else {
                         wordToSend = *(handle->txData);
                         ++handle->txData; /* increment to next data byte */
                         wordToSend |= (unsigned)(*(handle->txData)) << 8U;
                     }
-                }
-                else
-                {
+                } else {
                     wordToSend = dummyData;
                 }
                 handle->remainingSendByteCount = 0;
                 base->PUSHR = handle->lastCommand | wordToSend;
             }
             /* For all words except the last word */
-            else
-            {
-                if (handle->txData)
-                {
+            else {
+                if (handle->txData) {
                     wordToSend = *(handle->txData);
                     ++handle->txData; /* increment to next data byte */
                     wordToSend |= (unsigned)(*(handle->txData)) << 8U;
                     ++handle->txData; /* increment to next data byte */
-                }
-                else
-                {
+                } else {
                     wordToSend = dummyData;
                 }
                 handle->remainingSendByteCount -= 2; /* decrement remainingSendByteCount by 2 */
@@ -1037,39 +935,30 @@ static void DSPI_MasterTransferFillUpTxFifo(SPI_Type *base, dspi_master_handle_t
             DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
 
             /* exit loop if send count is zero, else update local variables for next loop */
-            if (handle->remainingSendByteCount == 0)
-            {
+            if (handle->remainingSendByteCount == 0) {
                 break;
             }
         } /* End of TX FIFO fill while loop */
     }
     /* Optimized for bits/frame less than or equal to one byte. */
-    else
-    {
+    else {
         /* Fill the fifo until it is full or until the send word count is 0 or until the difference
         * between the remainingReceiveByteCount and remainingSendByteCount equals the FIFO depth.
         * The reason for checking the difference is to ensure we only send as much as the
         * RX FIFO can receive.
         */
         while ((DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag) &&
-               ((handle->remainingReceiveByteCount - handle->remainingSendByteCount) < handle->fifoSize))
-        {
-            if (handle->txData)
-            {
+                ((handle->remainingReceiveByteCount - handle->remainingSendByteCount) < handle->fifoSize)) {
+            if (handle->txData) {
                 wordToSend = *(handle->txData);
                 ++handle->txData;
-            }
-            else
-            {
+            } else {
                 wordToSend = dummyData;
             }
 
-            if (handle->remainingSendByteCount == 1)
-            {
+            if (handle->remainingSendByteCount == 1) {
                 base->PUSHR = handle->lastCommand | wordToSend;
-            }
-            else
-            {
+            } else {
                 base->PUSHR = handle->command | wordToSend;
             }
 
@@ -1079,8 +968,7 @@ static void DSPI_MasterTransferFillUpTxFifo(SPI_Type *base, dspi_master_handle_t
             --handle->remainingSendByteCount;
 
             /* exit loop if send count is zero, else update local variables for next loop */
-            if (handle->remainingSendByteCount == 0)
-            {
+            if (handle->remainingSendByteCount == 0) {
                 break;
             }
         }
@@ -1104,16 +992,13 @@ void DSPI_MasterTransferHandleIRQ(SPI_Type *base, dspi_master_handle_t *handle)
     assert(handle);
 
     /* RECEIVE IRQ handler: Check read buffer only if there are remaining bytes to read. */
-    if (handle->remainingReceiveByteCount)
-    {
+    if (handle->remainingReceiveByteCount) {
         /* Check read buffer.*/
         uint16_t wordReceived; /* Maximum supported data bit length in master mode is 16-bits */
 
         /* If bits/frame is greater than one byte */
-        if (handle->bitsPerFrame > 8)
-        {
-            while (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag)
-            {
+        if (handle->bitsPerFrame > 8) {
+            while (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag) {
                 wordReceived = DSPI_ReadData(base);
                 /* clear the rx fifo drain request, needed for non-DMA applications as this flag
                 * will remain set even if the rx fifo is empty. By manually clearing this flag, it
@@ -1123,47 +1008,35 @@ void DSPI_MasterTransferHandleIRQ(SPI_Type *base, dspi_master_handle_t *handle)
                 DSPI_ClearStatusFlags(base, kDSPI_RxFifoDrainRequestFlag);
 
                 /* Store read bytes into rx buffer only if a buffer pointer was provided */
-                if (handle->rxData)
-                {
+                if (handle->rxData) {
                     /* For the last word received, if there is an extra byte due to the odd transfer
                     * byte count, only save the the last byte and discard the upper byte
                     */
-                    if (handle->remainingReceiveByteCount == 1)
-                    {
+                    if (handle->remainingReceiveByteCount == 1) {
                         *handle->rxData = wordReceived; /* Write first data byte */
                         --handle->remainingReceiveByteCount;
-                    }
-                    else
-                    {
+                    } else {
                         *handle->rxData = wordReceived;      /* Write first data byte */
                         ++handle->rxData;                    /* increment to next data byte */
                         *handle->rxData = wordReceived >> 8; /* Write second data byte */
                         ++handle->rxData;                    /* increment to next data byte */
                         handle->remainingReceiveByteCount -= 2;
                     }
-                }
-                else
-                {
-                    if (handle->remainingReceiveByteCount == 1)
-                    {
+                } else {
+                    if (handle->remainingReceiveByteCount == 1) {
                         --handle->remainingReceiveByteCount;
-                    }
-                    else
-                    {
+                    } else {
                         handle->remainingReceiveByteCount -= 2;
                     }
                 }
-                if (handle->remainingReceiveByteCount == 0)
-                {
+                if (handle->remainingReceiveByteCount == 0) {
                     break;
                 }
             } /* End of RX FIFO drain while loop */
         }
         /* Optimized for bits/frame less than or equal to one byte. */
-        else
-        {
-            while (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag)
-            {
+        else {
+            while (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag) {
                 wordReceived = DSPI_ReadData(base);
                 /* clear the rx fifo drain request, needed for non-DMA applications as this flag
                 * will remain set even if the rx fifo is empty. By manually clearing this flag, it
@@ -1173,16 +1046,14 @@ void DSPI_MasterTransferHandleIRQ(SPI_Type *base, dspi_master_handle_t *handle)
                 DSPI_ClearStatusFlags(base, kDSPI_RxFifoDrainRequestFlag);
 
                 /* Store read bytes into rx buffer only if a buffer pointer was provided */
-                if (handle->rxData)
-                {
+                if (handle->rxData) {
                     *handle->rxData = wordReceived;
                     ++handle->rxData;
                 }
 
                 --handle->remainingReceiveByteCount;
 
-                if (handle->remainingReceiveByteCount == 0)
-                {
+                if (handle->remainingReceiveByteCount == 0) {
                     break;
                 }
             } /* End of RX FIFO drain while loop */
@@ -1192,14 +1063,12 @@ void DSPI_MasterTransferHandleIRQ(SPI_Type *base, dspi_master_handle_t *handle)
     /* Check write buffer. We always have to send a word in order to keep the transfer
     * moving. So if the caller didn't provide a send buffer, we just send a zero.
     */
-    if (handle->remainingSendByteCount)
-    {
+    if (handle->remainingSendByteCount) {
         DSPI_MasterTransferFillUpTxFifo(base, handle);
     }
 
     /* Check if we're done with this transfer.*/
-    if ((handle->remainingSendByteCount == 0) && (handle->remainingReceiveByteCount == 0))
-    {
+    if ((handle->remainingSendByteCount == 0) && (handle->remainingReceiveByteCount == 0)) {
         /* Complete the transfer and disable the interrupts */
         DSPI_MasterTransferComplete(base, handle);
     }
@@ -1228,20 +1097,17 @@ status_t DSPI_SlaveTransferNonBlocking(SPI_Type *base, dspi_slave_handle_t *hand
     assert(transfer);
 
     /* If receive length is zero */
-    if (transfer->dataSize == 0)
-    {
+    if (transfer->dataSize == 0) {
         return kStatus_InvalidArgument;
     }
 
     /* If both send buffer and receive buffer is null */
-    if ((!(transfer->txData)) && (!(transfer->rxData)))
-    {
+    if ((!(transfer->txData)) && (!(transfer->rxData))) {
         return kStatus_InvalidArgument;
     }
 
     /* Check that we're not busy.*/
-    if (handle->state == kDSPI_Busy)
-    {
+    if (handle->state == kDSPI_Busy) {
         return kStatus_DSPI_Busy;
     }
     handle->state = kDSPI_Busy;
@@ -1272,13 +1138,11 @@ status_t DSPI_SlaveTransferNonBlocking(SPI_Type *base, dspi_slave_handle_t *hand
     /* Enable RX FIFO drain request, the slave only use this interrupt */
     DSPI_EnableInterrupts(base, kDSPI_RxFifoDrainRequestInterruptEnable);
 
-    if (handle->rxData)
-    {
+    if (handle->rxData) {
         /* RX FIFO overflow request enable */
         DSPI_EnableInterrupts(base, kDSPI_RxFifoOverflowInterruptEnable);
     }
-    if (handle->txData)
-    {
+    if (handle->txData) {
         /* TX FIFO underflow request enable */
         DSPI_EnableInterrupts(base, kDSPI_TxFifoUnderflowInterruptEnable);
     }
@@ -1295,14 +1159,12 @@ status_t DSPI_SlaveTransferGetCount(SPI_Type *base, dspi_slave_handle_t *handle,
 {
     assert(handle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
     /* Catch when there is not an active transfer. */
-    if (handle->state != kDSPI_Busy)
-    {
+    if (handle->state != kDSPI_Busy) {
         *count = 0;
         return kStatus_NoTransferInProgress;
     }
@@ -1321,23 +1183,17 @@ static void DSPI_SlaveTransferFillUpTxFifo(SPI_Type *base, dspi_slave_handle_t *
     /* Service the transmitter, if transmit buffer provided, transmit the data,
     * else transmit dummy pattern
     */
-    while (DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag)
-    {
+    while (DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag) {
         /* Transmit data */
-        if (handle->remainingSendByteCount > 0)
-        {
+        if (handle->remainingSendByteCount > 0) {
             /* Have data to transmit, update the transmit data and push to FIFO */
-            if (handle->bitsPerFrame <= 8)
-            {
+            if (handle->bitsPerFrame <= 8) {
                 /* bits/frame is 1 byte */
-                if (handle->txData)
-                {
+                if (handle->txData) {
                     /* Update transmit data and transmit pointer */
                     transmitData = *handle->txData;
                     handle->txData++;
-                }
-                else
-                {
+                } else {
                     transmitData = dummyPattern;
                 }
 
@@ -1345,49 +1201,37 @@ static void DSPI_SlaveTransferFillUpTxFifo(SPI_Type *base, dspi_slave_handle_t *
                 --handle->remainingSendByteCount;
             }
             /* bits/frame is 2 bytes */
-            else
-            {
+            else {
                 /* With multibytes per frame transmission, the transmit frame contains data from
                 * transmit buffer until sent dataSize matches user request. Other bytes will set to
                 * dummy pattern value.
                 */
-                if (handle->txData)
-                {
+                if (handle->txData) {
                     /* Update first byte of transmit data and transmit pointer */
                     transmitData = *handle->txData;
                     handle->txData++;
 
-                    if (handle->remainingSendByteCount == 1)
-                    {
+                    if (handle->remainingSendByteCount == 1) {
                         /* Decrease remaining dataSize */
                         --handle->remainingSendByteCount;
                         /* Update second byte of transmit data to second byte of dummy pattern */
                         transmitData = transmitData | (uint16_t)(((uint16_t)dummyPattern) << 8);
-                    }
-                    else
-                    {
+                    } else {
                         /* Update second byte of transmit data and transmit pointer */
                         transmitData = transmitData | (uint16_t)((uint16_t)(*handle->txData) << 8);
                         handle->txData++;
                         handle->remainingSendByteCount -= 2;
                     }
-                }
-                else
-                {
-                    if (handle->remainingSendByteCount == 1)
-                    {
+                } else {
+                    if (handle->remainingSendByteCount == 1) {
                         --handle->remainingSendByteCount;
-                    }
-                    else
-                    {
+                    } else {
                         handle->remainingSendByteCount -= 2;
                     }
                     transmitData = (uint16_t)((uint16_t)(dummyPattern) << 8) | dummyPattern;
                 }
             }
-        }
-        else
-        {
+        } else {
             break;
         }
 
@@ -1405,7 +1249,7 @@ static void DSPI_SlaveTransferComplete(SPI_Type *base, dspi_slave_handle_t *hand
 
     /* Disable interrupt requests */
     DSPI_DisableInterrupts(base, kDSPI_TxFifoUnderflowInterruptEnable | kDSPI_TxFifoFillRequestInterruptEnable |
-                                     kDSPI_RxFifoOverflowInterruptEnable | kDSPI_RxFifoDrainRequestInterruptEnable);
+                           kDSPI_RxFifoOverflowInterruptEnable | kDSPI_RxFifoDrainRequestInterruptEnable);
 
     /* The transfer is complete. */
     handle->txData = NULL;
@@ -1414,19 +1258,15 @@ static void DSPI_SlaveTransferComplete(SPI_Type *base, dspi_slave_handle_t *hand
     handle->remainingSendByteCount = 0;
 
     status_t status = 0;
-    if (handle->state == kDSPI_Error)
-    {
+    if (handle->state == kDSPI_Error) {
         status = kStatus_DSPI_Error;
-    }
-    else
-    {
+    } else {
         status = kStatus_Success;
     }
 
     handle->state = kDSPI_Idle;
 
-    if (handle->callback)
-    {
+    if (handle->callback) {
         handle->callback(base, handle, status, handle->userData);
     }
 }
@@ -1439,7 +1279,7 @@ void DSPI_SlaveTransferAbort(SPI_Type *base, dspi_slave_handle_t *handle)
 
     /* Disable interrupt requests */
     DSPI_DisableInterrupts(base, kDSPI_TxFifoUnderflowInterruptEnable | kDSPI_TxFifoFillRequestInterruptEnable |
-                                     kDSPI_RxFifoOverflowInterruptEnable | kDSPI_RxFifoDrainRequestInterruptEnable);
+                           kDSPI_RxFifoOverflowInterruptEnable | kDSPI_RxFifoDrainRequestInterruptEnable);
 
     handle->state = kDSPI_Idle;
     handle->remainingSendByteCount = 0;
@@ -1458,10 +1298,8 @@ void DSPI_SlaveTransferHandleIRQ(SPI_Type *base, dspi_slave_handle_t *handle)
     * master is the actual number of bytes that the slave transmitted to the master. So we only
     * monitor the received dataSize to know when the transfer is complete.
     */
-    if (handle->remainingReceiveByteCount > 0)
-    {
-        while (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag)
-        {
+    if (handle->remainingReceiveByteCount > 0) {
+        while (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag) {
             /* Have received data in the buffer. */
             dataReceived = base->POPR;
             /*Clear the rx fifo drain request, needed for non-DMA applications as this flag
@@ -1472,10 +1310,8 @@ void DSPI_SlaveTransferHandleIRQ(SPI_Type *base, dspi_slave_handle_t *handle)
             DSPI_ClearStatusFlags(base, kDSPI_RxFifoDrainRequestFlag);
 
             /* If bits/frame is one byte */
-            if (handle->bitsPerFrame <= 8)
-            {
-                if (handle->rxData)
-                {
+            if (handle->bitsPerFrame <= 8) {
+                if (handle->rxData) {
                     /* Receive buffer is not null, store data into it */
                     *handle->rxData = dataReceived;
                     ++handle->rxData;
@@ -1483,15 +1319,11 @@ void DSPI_SlaveTransferHandleIRQ(SPI_Type *base, dspi_slave_handle_t *handle)
                 /* Descrease remaining receive byte count */
                 --handle->remainingReceiveByteCount;
 
-                if (handle->remainingSendByteCount > 0)
-                {
-                    if (handle->txData)
-                    {
+                if (handle->remainingSendByteCount > 0) {
+                    if (handle->txData) {
                         dataSend = *handle->txData;
                         ++handle->txData;
-                    }
-                    else
-                    {
+                    } else {
                         dataSend = dummyPattern;
                     }
 
@@ -1499,25 +1331,19 @@ void DSPI_SlaveTransferHandleIRQ(SPI_Type *base, dspi_slave_handle_t *handle)
                     /* Write the data to the DSPI data register */
                     base->PUSHR_SLAVE = dataSend;
                 }
-            }
-            else /* If bits/frame is 2 bytes */
-            {
+            } else { /* If bits/frame is 2 bytes */
                 /* With multibytes frame receiving, we only receive till the received dataSize
                 * matches user request. Other bytes will be ignored.
                 */
-                if (handle->rxData)
-                {
+                if (handle->rxData) {
                     /* Receive buffer is not null, store first byte into it */
                     *handle->rxData = dataReceived;
                     ++handle->rxData;
 
-                    if (handle->remainingReceiveByteCount == 1)
-                    {
+                    if (handle->remainingReceiveByteCount == 1) {
                         /* Decrease remaining receive byte count */
                         --handle->remainingReceiveByteCount;
-                    }
-                    else
-                    {
+                    } else {
                         /* Receive buffer is not null, store second byte into it */
                         *handle->rxData = dataReceived >> 8;
                         ++handle->rxData;
@@ -1525,47 +1351,34 @@ void DSPI_SlaveTransferHandleIRQ(SPI_Type *base, dspi_slave_handle_t *handle)
                     }
                 }
                 /* If no handle->rxData*/
-                else
-                {
-                    if (handle->remainingReceiveByteCount == 1)
-                    {
+                else {
+                    if (handle->remainingReceiveByteCount == 1) {
                         /* Decrease remaining receive byte count */
                         --handle->remainingReceiveByteCount;
-                    }
-                    else
-                    {
+                    } else {
                         handle->remainingReceiveByteCount -= 2;
                     }
                 }
 
-                if (handle->remainingSendByteCount > 0)
-                {
-                    if (handle->txData)
-                    {
+                if (handle->remainingSendByteCount > 0) {
+                    if (handle->txData) {
                         dataSend = *handle->txData;
                         ++handle->txData;
 
-                        if (handle->remainingSendByteCount == 1)
-                        {
+                        if (handle->remainingSendByteCount == 1) {
                             --handle->remainingSendByteCount;
                             dataSend |= (uint16_t)((uint16_t)(dummyPattern) << 8);
-                        }
-                        else
-                        {
+                        } else {
                             dataSend |= (uint32_t)(*handle->txData) << 8;
                             ++handle->txData;
                             handle->remainingSendByteCount -= 2;
                         }
                     }
                     /* If no handle->txData*/
-                    else
-                    {
-                        if (handle->remainingSendByteCount == 1)
-                        {
+                    else {
+                        if (handle->remainingSendByteCount == 1) {
                             --handle->remainingSendByteCount;
-                        }
-                        else
-                        {
+                        } else {
                             handle->remainingSendByteCount -= 2;
                         }
                         dataSend = (uint16_t)((uint16_t)(dummyPattern) << 8) | dummyPattern;
@@ -1577,38 +1390,32 @@ void DSPI_SlaveTransferHandleIRQ(SPI_Type *base, dspi_slave_handle_t *handle)
             /* Try to clear TFFF by writing a one to it; it will not clear if TX FIFO not full */
             DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
 
-            if (handle->remainingReceiveByteCount == 0)
-            {
+            if (handle->remainingReceiveByteCount == 0) {
                 break;
             }
         }
     }
     /* Check if remaining receive byte count matches user request */
-    if ((handle->remainingReceiveByteCount == 0) || (handle->state == kDSPI_Error))
-    {
+    if ((handle->remainingReceiveByteCount == 0) || (handle->state == kDSPI_Error)) {
         /* Other cases, stop the transfer. */
         DSPI_SlaveTransferComplete(base, handle);
         return;
     }
 
     /* Catch tx fifo underflow conditions, service only if tx under flow interrupt enabled */
-    if ((DSPI_GetStatusFlags(base) & kDSPI_TxFifoUnderflowFlag) && (base->RSER & SPI_RSER_TFUF_RE_MASK))
-    {
+    if ((DSPI_GetStatusFlags(base) & kDSPI_TxFifoUnderflowFlag) && (base->RSER & SPI_RSER_TFUF_RE_MASK)) {
         DSPI_ClearStatusFlags(base, kDSPI_TxFifoUnderflowFlag);
         /* Change state to error and clear flag */
-        if (handle->txData)
-        {
+        if (handle->txData) {
             handle->state = kDSPI_Error;
         }
         handle->errorCount++;
     }
     /* Catch rx fifo overflow conditions, service only if rx over flow interrupt enabled */
-    if ((DSPI_GetStatusFlags(base) & kDSPI_RxFifoOverflowFlag) && (base->RSER & SPI_RSER_RFOF_RE_MASK))
-    {
+    if ((DSPI_GetStatusFlags(base) & kDSPI_RxFifoOverflowFlag) && (base->RSER & SPI_RSER_RFOF_RE_MASK)) {
         DSPI_ClearStatusFlags(base, kDSPI_RxFifoOverflowFlag);
         /* Change state to error and clear flag */
-        if (handle->txData)
-        {
+        if (handle->txData) {
             handle->state = kDSPI_Error;
         }
         handle->errorCount++;
@@ -1617,12 +1424,9 @@ void DSPI_SlaveTransferHandleIRQ(SPI_Type *base, dspi_slave_handle_t *handle)
 
 static void DSPI_CommonIRQHandler(SPI_Type *base, void *param)
 {
-    if (DSPI_IsMaster(base))
-    {
+    if (DSPI_IsMaster(base)) {
         s_dspiMasterIsr(base, (dspi_master_handle_t *)param);
-    }
-    else
-    {
+    } else {
         s_dspiSlaveIsr(base, (dspi_slave_handle_t *)param);
     }
 }

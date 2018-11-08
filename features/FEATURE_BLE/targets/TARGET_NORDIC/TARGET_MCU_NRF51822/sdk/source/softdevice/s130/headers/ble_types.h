@@ -176,14 +176,12 @@
  * @{ */
 
 /** @brief 128 bit UUID values. */
-typedef struct
-{ 
+typedef struct {
     unsigned char uuid128[16]; /**< Little-Endian UUID bytes. */
 } ble_uuid128_t;
 
 /** @brief  Bluetooth Low Energy UUID type, encapsulates both 16-bit and 128-bit UUIDs. */
-typedef struct
-{
+typedef struct {
     uint16_t    uuid; /**< 16-bit UUID value or octets 12-13 of 128-bit UUID. */
     uint8_t     type; /**< UUID type, see @ref BLE_UUID_TYPES. If type is @ref BLE_UUID_TYPE_UNKNOWN, the value of uuid is undefined. */
 } ble_uuid_t;

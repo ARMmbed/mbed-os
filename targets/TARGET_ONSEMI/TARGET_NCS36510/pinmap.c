@@ -37,7 +37,7 @@ void pin_function(PinName pin, int function)
 void pin_mode(PinName pin, PinMode mode)
 {
     /** - Get PAD IO register address for the PAD number */
-    PadReg_t *padRegOffset = (PadReg_t*)(PADREG_BASE + (pin * PAD_REG_ADRS_BYTE_SIZE));
+    PadReg_t *padRegOffset = (PadReg_t *)(PADREG_BASE + (pin * PAD_REG_ADRS_BYTE_SIZE));
 
     /** - Enable the clock for PAD peripheral device */
     CLOCK_ENABLE(CLOCK_PAD);

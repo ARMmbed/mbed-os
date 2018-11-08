@@ -454,7 +454,7 @@ enum dma_transfer_trigger_action {
  */
 enum dma_callback_type {
     /** Callback for any of transfer errors. A transfer error is flagged
-     *	if a bus error is detected during an AHB access or when the DMAC
+     *  if a bus error is detected during an AHB access or when the DMAC
      *  fetches an invalid descriptor. */
     DMA_CALLBACK_TRANSFER_ERROR,
     /** Callback for transfer complete. */
@@ -547,7 +547,7 @@ struct dma_resource {
     /** Transferred data size. */
     uint32_t transfered_size;
     /** DMA transfer descriptor. */
-    DmacDescriptor* descriptor;
+    DmacDescriptor *descriptor;
 };
 
 /**
@@ -628,7 +628,7 @@ static inline void dma_disable_callback(struct dma_resource *resource,
  *
  */
 static inline void dma_register_callback(struct dma_resource *resource,
-        dma_callback_t callback, enum dma_callback_type type)
+                                         dma_callback_t callback, enum dma_callback_type type)
 {
     Assert(resource);
 
@@ -651,7 +651,7 @@ static inline void dma_register_callback(struct dma_resource *resource,
  *
  */
 static inline void dma_unregister_callback(struct dma_resource *resource,
-        enum dma_callback_type type)
+                                           enum dma_callback_type type)
 {
     Assert(resource);
 
@@ -735,7 +735,7 @@ static inline void dma_descriptor_get_config_defaults(struct dma_descriptor_conf
  *
  */
 static inline void dma_update_descriptor(struct dma_resource *resource,
-        DmacDescriptor* descriptor)
+                                         DmacDescriptor *descriptor)
 {
     Assert(resource);
 
@@ -763,10 +763,10 @@ enum status_code dma_start_transfer_job(struct dma_resource *resource);
 void dma_abort_job(struct dma_resource *resource);
 void dma_suspend_job(struct dma_resource *resource);
 void dma_resume_job(struct dma_resource *resource);
-void dma_descriptor_create(DmacDescriptor* descriptor,
+void dma_descriptor_create(DmacDescriptor *descriptor,
                            struct dma_descriptor_config *config);
 enum status_code dma_add_descriptor(struct dma_resource *resource,
-                                    DmacDescriptor* descriptor);
+                                    DmacDescriptor *descriptor);
 
 /** @} */
 

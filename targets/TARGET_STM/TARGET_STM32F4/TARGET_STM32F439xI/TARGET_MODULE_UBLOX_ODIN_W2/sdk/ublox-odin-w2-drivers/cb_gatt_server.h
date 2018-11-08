@@ -79,15 +79,14 @@ extern "C" {
  * @param pAttrHandle       Pointer where to write the attribute handle in case it's needed by the app.
  *                          If not needed, pass NULL. Will be written after the service has been added.
  */
-typedef struct
-{
-    void*               pUuid;
+typedef struct {
+    void               *pUuid;
     cbGATT_UuidFormat   uuidFormat;
     cb_uint8            properties;
     cb_uint8            security;
-    void*               pvValue1;
-    void*               pvValue2;
-    cb_uint16*          pAttrHandle;
+    void               *pvValue1;
+    void               *pvValue2;
+    cb_uint16          *pAttrHandle;
 } cbGATT_Attribute;
 
 /**
@@ -116,7 +115,7 @@ typedef void (*cbGATT_CharacteristicValueNotificationCnf)(
  * @param commit            TRUE = commit, FALSE = cancel
  * @return cbGATT_ERROR_CODE_OK if accepted or some cbGATT_ERROR_CODE_* code when failed.
  */
-typedef cbGATT_ErrorCode (*cbGATT_CharacteristicWriteLongCommitEvt)(
+typedef cbGATT_ErrorCode(*cbGATT_CharacteristicWriteLongCommitEvt)(
     TConnHandle         connHandle,
     cb_boolean          commit);
 
@@ -133,12 +132,12 @@ typedef cbGATT_ErrorCode (*cbGATT_CharacteristicWriteLongCommitEvt)(
  * @param offset            The offset of the read data
  * @return cbGATT_ERROR_CODE_OK if accepted or some cbGATT_ERROR_CODE_* code when failed.
  */
-typedef cbGATT_ErrorCode (*cbGATT_ServerReadAttr)(
+typedef cbGATT_ErrorCode(*cbGATT_ServerReadAttr)(
     TConnHandle         connHandle,
     cb_uint16           attrHandle,
-    cbGATT_Attribute*   pAttr,
-    cb_uint8*           pAttrValue,
-    cb_uint16*          pLength,
+    cbGATT_Attribute   *pAttr,
+    cb_uint8           *pAttrValue,
+    cb_uint16          *pLength,
     cb_uint16           maxLength,
     cb_uint16           offset);
 
@@ -157,11 +156,11 @@ typedef cbGATT_ErrorCode (*cbGATT_ServerReadAttr)(
  * @param offset            The offset of the written data
  * @return cbGATT_ERROR_CODE_OK if accepted or some cbGATT_ERROR_CODE_* code when failed.
  */
-typedef cbGATT_ErrorCode (*cbGATT_ServerWriteAttr)(
+typedef cbGATT_ErrorCode(*cbGATT_ServerWriteAttr)(
     TConnHandle         connHandle,
     cb_uint16           attrHandle,
-    cbGATT_Attribute*   pAttr,
-    cb_uint8*           pAttrValue,
+    cbGATT_Attribute   *pAttr,
+    cb_uint8           *pAttrValue,
     cb_uint16           length,
     cbGATT_WriteMethod  writeMethod,
     cb_uint16           offset);
@@ -173,10 +172,10 @@ typedef cbGATT_ErrorCode (*cbGATT_ServerWriteAttr)(
  * @param pConfig           Pointer where to write the config
  * @return cbGATT_ERROR_CODE_OK if accepted or some cbGATT_ERROR_CODE_* code when failed.
  */
-typedef cbGATT_ErrorCode (*cbGATT_ServerReadClientConfig)(
+typedef cbGATT_ErrorCode(*cbGATT_ServerReadClientConfig)(
     TConnHandle         connHandle,
     cb_uint16           attrHandle,
-    cb_uint16*          pConfig);
+    cb_uint16          *pConfig);
 
 /**
  * Callback is called when the client is writing the client config
@@ -187,7 +186,7 @@ typedef cbGATT_ErrorCode (*cbGATT_ServerReadClientConfig)(
  *                          This depends on the properties in the attribute table.
  * @return cbGATT_ERROR_CODE_OK if accepted or some cbGATT_ERROR_CODE_* code when failed.
  */
-typedef cbGATT_ErrorCode (*cbGATT_ServerWriteClientConfig)(
+typedef cbGATT_ErrorCode(*cbGATT_ServerWriteClientConfig)(
     TConnHandle         connHandle,
     cb_uint16           attrHandle,
     cb_uint16           config,
@@ -200,10 +199,10 @@ typedef cbGATT_ErrorCode (*cbGATT_ServerWriteClientConfig)(
  * @param pConfig           Pointer where to write the config
  * @return cbGATT_ERROR_CODE_OK if accepted or some cbGATT_ERROR_CODE_* code when failed.
  */
-typedef cbGATT_ErrorCode (*cbGATT_ServerReadServerConfig)(
+typedef cbGATT_ErrorCode(*cbGATT_ServerReadServerConfig)(
     TConnHandle         connHandle,
     cb_uint16           attrHandle,
-    cb_uint16*          pConfig);
+    cb_uint16          *pConfig);
 
 /**
  * Callback is called when the client is writing the server config
@@ -214,14 +213,13 @@ typedef cbGATT_ErrorCode (*cbGATT_ServerReadServerConfig)(
  *                          This depends on the properties in the attribute table.
  * @return cbGATT_ERROR_CODE_OK if accepted or some cbGATT_ERROR_CODE_* code when failed.
  */
-typedef cbGATT_ErrorCode (*cbGATT_ServerWriteServerConfig)(
+typedef cbGATT_ErrorCode(*cbGATT_ServerWriteServerConfig)(
     TConnHandle         connHandle,
     cb_uint16           attrHandle,
     cb_uint16           config,
     cbGATT_WriteMethod  writeMethod);
 
-typedef struct
-{
+typedef struct {
     cbGATT_ConnComplEvt connComplEvt;
     cbGATT_DisconnectEvt disconnectEvt;
     cbGATT_CharacteristicValueIndicationCnf characteristicValueIndicationCnf;
@@ -242,8 +240,8 @@ typedef struct
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_registerServer(
-    const cbGATT_ServerCallBack* pCallBack, 
-    cb_uint8*       pAppHandle);
+    const cbGATT_ServerCallBack *pCallBack,
+    cb_uint8       *pAppHandle);
 
 /**
  * Deregister all server callbacks
@@ -266,7 +264,7 @@ cb_int32 cbGATT_deregisterAllServers(void);
 cb_int32 cbGATT_notification(
     TConnHandle     connHandle,
     cb_uint16       attrHandle,
-    cb_uint8*       pData,
+    cb_uint8       *pData,
     cb_uint16       length,
     cb_uint8        appHandle);
 
@@ -285,7 +283,7 @@ cb_int32 cbGATT_notification(
 cb_int32 cbGATT_indication(
     TConnHandle     connHandle,
     cb_uint16       attrHandle,
-    cb_uint8*       pData,
+    cb_uint8       *pData,
     cb_uint16       length,
     cb_uint8        appHandle);
 
@@ -298,7 +296,7 @@ cb_int32 cbGATT_indication(
  */
 cb_int32 cbGATT_writeRsp(
     TConnHandle     connHandle,
-    cb_uint16       attrHandle, 
+    cb_uint16       attrHandle,
     cb_uint8        errorCode); // For delayed write responses
 
 /**
@@ -311,8 +309,8 @@ cb_int32 cbGATT_writeRsp(
  * @return cbGATT_OK if succeeded or some cbGATT_ERROR* when failed.
  */
 cb_int32 cbGATT_addService(
-    const cbGATT_Attribute* pAttrList, 
-    cb_uint16 attrListSize, 
+    const cbGATT_Attribute *pAttrList,
+    cb_uint16 attrListSize,
     cb_uint16 startHandle);
 
 /**

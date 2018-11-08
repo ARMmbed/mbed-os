@@ -52,19 +52,18 @@
 (BOARD_AT30TSE_DEVICE_ADDR & 0x04))
 #endif
 
-class AT30TSE75X
-{
+class AT30TSE75X {
 public:
-  AT30TSE75X(PinName sda, PinName scl);
-  ~AT30TSE75X();
+    AT30TSE75X(PinName sda, PinName scl);
+    ~AT30TSE75X();
 
-  float read_temp();
-  uint8_t read_eeprom(uint8_t *data, uint8_t length, uint8_t word_addr, uint8_t page);
-  uint8_t write_eeprom(uint8_t *data, uint8_t length, uint8_t word_addr, uint8_t page);
-  
-  I2C at30tse75x_i2c;
+    float read_temp();
+    uint8_t read_eeprom(uint8_t *data, uint8_t length, uint8_t word_addr, uint8_t page);
+    uint8_t write_eeprom(uint8_t *data, uint8_t length, uint8_t word_addr, uint8_t page);
+
+    I2C at30tse75x_i2c;
 private:
-  uint8_t resolution = AT30TSE_CONFIG_RES_9_bit;
+    uint8_t resolution = AT30TSE_CONFIG_RES_9_bit;
 
 };
 

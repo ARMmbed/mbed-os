@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2000 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**
@@ -58,17 +58,15 @@ extern "C" {
  * @{ */
 
 /**@brief L2CAP API SVC numbers. */
-enum BLE_L2CAP_SVCS
-{
-  SD_BLE_L2CAP_CID_REGISTER = BLE_L2CAP_SVC_BASE,  /**< Register a CID. */
-  SD_BLE_L2CAP_CID_UNREGISTER,                     /**< Unregister a CID. */
-  SD_BLE_L2CAP_TX                                  /**< Transmit a packet. */
+enum BLE_L2CAP_SVCS {
+    SD_BLE_L2CAP_CID_REGISTER = BLE_L2CAP_SVC_BASE,  /**< Register a CID. */
+    SD_BLE_L2CAP_CID_UNREGISTER,                     /**< Unregister a CID. */
+    SD_BLE_L2CAP_TX                                  /**< Transmit a packet. */
 };
 
 /**@brief L2CAP Event IDs. */
-enum BLE_L2CAP_EVTS
-{
-  BLE_L2CAP_EVT_RX  = BLE_L2CAP_EVT_BASE          /**< L2CAP packet received. */
+enum BLE_L2CAP_EVTS {
+    BLE_L2CAP_EVT_RX  = BLE_L2CAP_EVT_BASE          /**< L2CAP packet received. */
 };
 
 /** @} */
@@ -99,30 +97,26 @@ enum BLE_L2CAP_EVTS
  * @{ */
 
 /**@brief Packet header format for L2CAP transmission. */
-typedef struct
-{
-  uint16_t   len;                                 /**< Length of valid info in data member. */
-  uint16_t   cid;                                 /**< Channel ID on which packet is transmitted. */
+typedef struct {
+    uint16_t   len;                                 /**< Length of valid info in data member. */
+    uint16_t   cid;                                 /**< Channel ID on which packet is transmitted. */
 } ble_l2cap_header_t;
 
 
 /**@brief L2CAP Received packet event report. */
-typedef struct
-{
-  ble_l2cap_header_t header;                      /**< L2CAP packet header. */
-  uint8_t    data[1];                             /**< Packet data. @note This is a variable length array. The size of 1 indicated is only a placeholder for compilation.
+typedef struct {
+    ble_l2cap_header_t header;                      /**< L2CAP packet header. */
+    uint8_t    data[1];                             /**< Packet data. @note This is a variable length array. The size of 1 indicated is only a placeholder for compilation.
                                                        See @ref sd_ble_evt_get for more information on how to use event structures with variable length array members. */
 } ble_l2cap_evt_rx_t;
 
 
 /**@brief L2CAP event callback event structure. */
-typedef struct
-{
-  uint16_t conn_handle;                           /**< Connection Handle on which event occured. */
-  union
-  {
-    ble_l2cap_evt_rx_t rx;                        /**< RX Event parameters. */
-  } params;                                       /**< Event Parameters. */
+typedef struct {
+    uint16_t conn_handle;                           /**< Connection Handle on which event occured. */
+    union {
+        ble_l2cap_evt_rx_t rx;                        /**< RX Event parameters. */
+    } params;                                       /**< Event Parameters. */
 } ble_l2cap_evt_t;
 
 /** @} */

@@ -60,8 +60,8 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :1;               /*!< bit:      0  Reserved                           */
-        uint32_t WP:31;            /*!< bit:  1..31  Write Protection Clear             */
+        uint32_t : 1;              /*!< bit:      0  Reserved                           */
+        uint32_t WP: 31;           /*!< bit:  1..31  Write Protection Clear             */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } PAC_WPCLR_Type;
@@ -79,8 +79,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :1;               /*!< bit:      0  Reserved                           */
-        uint32_t WP:31;            /*!< bit:  1..31  Write Protection Set               */
+        uint32_t : 1;              /*!< bit:      0  Reserved                           */
+        uint32_t WP: 31;           /*!< bit:  1..31  Write Protection Set               */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } PAC_WPSET_Type;

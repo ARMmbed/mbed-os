@@ -1,42 +1,42 @@
 /**
- * @file  
+ * @file
  * @brief Real-Time Clock data types, definitions and function prototypes.
  */
- /* ****************************************************************************
- * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
- * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * Except as contained in this notice, the name of Maxim Integrated
- * Products, Inc. shall not be used except as stated in the Maxim Integrated
- * Products, Inc. Branding Policy.
- *
- * The mere transfer of this software does not imply any licenses
- * of trade secrets, proprietary technology, copyrights, patents,
- * trademarks, maskwork rights, or any other form of intellectual
- * property whatsoever. Maxim Integrated Products, Inc. retains all
- * ownership rights.
- *
- * $Date: 2016-10-10 19:28:26 -0500 (Mon, 10 Oct 2016) $
- * $Revision: 24670 $
- *
- **************************************************************************** */
+/* ****************************************************************************
+* Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a
+* copy of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
+* and/or sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included
+* in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
+* OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+*
+* Except as contained in this notice, the name of Maxim Integrated
+* Products, Inc. shall not be used except as stated in the Maxim Integrated
+* Products, Inc. Branding Policy.
+*
+* The mere transfer of this software does not imply any licenses
+* of trade secrets, proprietary technology, copyrights, patents,
+* trademarks, maskwork rights, or any other form of intellectual
+* property whatsoever. Maxim Integrated Products, Inc. retains all
+* ownership rights.
+*
+* $Date: 2016-10-10 19:28:26 -0500 (Mon, 10 Oct 2016) $
+* $Revision: 24670 $
+*
+**************************************************************************** */
 
 /* Define to prevent redundant inclusion */
 #ifndef _RTC_H_
@@ -59,7 +59,7 @@ extern "C" {
 
 /* **** Definitions **** */
 /**
- * Enumeration type for scaling down the 4096Hz input clock to the RTC. 
+ * Enumeration type for scaling down the 4096Hz input clock to the RTC.
  */
 typedef enum {
     RTC_PRESCALE_DIV_2_0 = MXC_V_RTC_PRESCALE_DIV_2_0,      /**< \f$ f_{RTC} = \frac {4096} {2^{0}} = 4096Hz \f$ */
@@ -97,7 +97,7 @@ typedef enum {
                                         MXC_F_RTC_CTRL_ACTIVE_TRANS_0)
 
 /**
- * Mask used to clear all RTC interrupt flags, see \ref RTC_FLAGS_Register Register. 
+ * Mask used to clear all RTC interrupt flags, see \ref RTC_FLAGS_Register Register.
  */
 #define RTC_FLAGS_CLEAR_ALL            (MXC_F_RTC_FLAGS_COMP0  | \
                                         MXC_F_RTC_FLAGS_COMP1| \
@@ -105,16 +105,16 @@ typedef enum {
                                         MXC_F_RTC_FLAGS_OVERFLOW | \
                                         MXC_F_RTC_FLAGS_TRIM)
 /**
- * Enumeration type to select the type of RTC Snooze Mode for an alarm condition. 
+ * Enumeration type to select the type of RTC Snooze Mode for an alarm condition.
  */
 typedef enum {
     RTC_SNOOZE_DISABLE = MXC_V_RTC_CTRL_SNOOZE_DISABLE,       /**< Snooze Mode Disabled */
     RTC_SNOOZE_MODE_A  = MXC_V_RTC_CTRL_SNOOZE_MODE_A,        /**< \f$ COMP1 = COMP1 + RTC\_SNZ\_VALUE \f$ when snooze flag is set */
     RTC_SNOOZE_MODE_B  = MXC_V_RTC_CTRL_SNOOZE_MODE_B,        /**< \f$ COMP1 = RTC\_TIMER + RTC\_SNZ\_VALUE \f$ when snooze flag is set */
-} rtc_snooze_t; 
+} rtc_snooze_t;
 
 /**
- * Number of RTC Compare registers for this peripheral instance. 
+ * Number of RTC Compare registers for this peripheral instance.
  */
 #define RTC_NUM_COMPARE 2
 
@@ -151,18 +151,18 @@ __STATIC_INLINE void RTC_Start(void)
     MXC_RTCTMR->ctrl |= MXC_F_RTC_CTRL_ENABLE;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
- * @brief    Disable and stop the real-time clock counting. 
+ * @brief    Disable and stop the real-time clock counting.
  */
 __STATIC_INLINE void RTC_Stop(void)
 {
     MXC_RTCTMR->ctrl &= ~(MXC_F_RTC_CTRL_ENABLE);
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
@@ -186,7 +186,7 @@ __STATIC_INLINE void RTC_SetCount(uint32_t count)
     MXC_RTCTMR->timer = count;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
@@ -225,7 +225,7 @@ uint32_t RTC_GetCompare(uint8_t compareIndex);
 /**
  * @brief   Set the prescale reload value for the real-time clock.
  * @details The prescale reload value determines the number of 4kHz ticks
- *          that will occur before the timer is incremented. 
+ *          that will occur before the timer is incremented.
  *          <table>
  *          <caption id="prescaler_val">Prescaler Settings and Corresponding RTC Resolutions</caption>
  *          <tr><th>PRESCALE <th>Prescale Reload <th>4kHz ticks in LSB <th>Min Timer Value (sec) <th> Max Timer Value (sec) <th>Max Timer Value (Days) <th> Max Timer Value (Years)
@@ -251,7 +251,7 @@ __STATIC_INLINE void RTC_SetPrescaler(rtc_prescale_t prescaler)
     MXC_RTCTMR->prescale = prescaler;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
@@ -279,14 +279,13 @@ __STATIC_INLINE rtc_prescale_t RTC_GetPrescaler(void)
  */
 __STATIC_INLINE int RTC_SetPrescalerMask(rtc_prescale_t mask)
 {
-    if (mask > ((rtc_prescale_t)(MXC_RTCTMR->prescale)))
-    {
+    if (mask > ((rtc_prescale_t)(MXC_RTCTMR->prescale))) {
         return E_INVALID;
     }
     MXC_RTCTMR->prescale_mask = mask;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
     return E_NO_ERROR;
 }
 
@@ -303,13 +302,14 @@ __STATIC_INLINE int RTC_SetPrescalerMask(rtc_prescale_t mask)
 __STATIC_INLINE int RTC_SetSnoozeCount(uint32_t count)
 {
     // Check to make sure max value is not being exceeded
-    if (count > MXC_F_RTC_SNZ_VAL_VALUE)
+    if (count > MXC_F_RTC_SNZ_VAL_VALUE) {
         return E_INVALID;
+    }
 
     MXC_RTCTMR->snz_val = count;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
     return E_NO_ERROR;
 }
 
@@ -329,7 +329,7 @@ __STATIC_INLINE uint32_t RTC_GetSnoozeCount(void)
 /**
  * @brief       Activates snooze mode.
  * @details     Begins a snooze of the RTC. When this function is called
- *              the snooze time period is determined based on the snooze mode and the count. 
+ *              the snooze time period is determined based on the snooze mode and the count.
  *              See RTC_GetCount() and RTC_SetSnoozeMode()
  */
 __STATIC_INLINE void RTC_Snooze(void)
@@ -337,7 +337,7 @@ __STATIC_INLINE void RTC_Snooze(void)
     MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_SNOOZE_A | MXC_F_RTC_FLAGS_SNOOZE_B;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
@@ -345,14 +345,14 @@ __STATIC_INLINE void RTC_Snooze(void)
  * @details    <table> <caption id="snoozeModesTable">Snooze Modes</caption>
  *             <tr><th>Mode<th>Snooze Time Calculation
  *             <tr><td>RTC_SNOOZE_DISABLE<td>Snooze Disabled
- *             <tr><td>RTC_SNOOZE_MODE_A<td>\f$ compare1 = compare1 + snoozeCount \f$ 
+ *             <tr><td>RTC_SNOOZE_MODE_A<td>\f$ compare1 = compare1 + snoozeCount \f$
  *             <tr><td>RTC_SNOOZE_MODE_B<td>\f$ compare1 = count + snoozeCount \f$
- *             </table> 
- * @note       @a count is the value of the RTC counter when RTC_Snooze() 
+ *             </table>
+ * @note       @a count is the value of the RTC counter when RTC_Snooze()
  *             is called to start a snooze cycle and @a snoozeCount is the value set by the RTC_SetSnoozeCount(uint32_t count) function.
- *             
+ *
  * @param      mode Specifies the desired snooze mode, see #rtc_snooze_t.
- * 
+ *
  */
 __STATIC_INLINE void RTC_SetSnoozeMode(rtc_snooze_t mode)
 {
@@ -363,7 +363,7 @@ __STATIC_INLINE void RTC_SetSnoozeMode(rtc_snooze_t mode)
     MXC_RTCTMR->ctrl = (ctrl | (mode << MXC_F_RTC_CTRL_SNOOZE_ENABLE_POS));
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
@@ -377,7 +377,7 @@ __STATIC_INLINE void RTC_SetSnoozeMode(rtc_snooze_t mode)
  *          <tr><td>RTC Count Overflow<td>#MXC_F_RTC_INTEN_OVERFLOW
  *          <tr><td>Trim<td>#MXC_F_RTC_INTEN_TRIM
  *          </table>
- * @param    mask  A mask of the RTC interrupts to enable, 1 = Enable. See 
+ * @param    mask  A mask of the RTC interrupts to enable, 1 = Enable. See
  *                 @ref RTC_FLAGS_Register Register for the RTC interrupt enable bit masks and positions.
  */
 __STATIC_INLINE void RTC_EnableINT(uint32_t mask)
@@ -386,10 +386,10 @@ __STATIC_INLINE void RTC_EnableINT(uint32_t mask)
 }
 
 /**
- * @brief      Disable the interrupts specified for the RTC. See the 
+ * @brief      Disable the interrupts specified for the RTC. See the
  *             @ref RTC_INTEN_Register Register for the RTC interrupt enable bit masks and positions.
  *
- * @param      mask  A mask of the RTC interrupts to disable, 1 = Disable. 
+ * @param      mask  A mask of the RTC interrupts to disable, 1 = Disable.
  */
 __STATIC_INLINE void RTC_DisableINT(uint32_t mask)
 {
@@ -419,11 +419,11 @@ __STATIC_INLINE void RTC_ClearFlags(uint32_t mask)
     MXC_RTCTMR->flags = mask;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
- * @brief    Gets the active transaction flags, see @ref RTC_CTRL_Register Register for the list of ACTIVE flags. 
+ * @brief    Gets the active transaction flags, see @ref RTC_CTRL_Register Register for the list of ACTIVE flags.
  *
  * @retval   0      No active transactions.
  * @retval  nonzero A mask of active transaction bits.

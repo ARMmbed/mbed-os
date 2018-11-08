@@ -50,9 +50,8 @@
 #define FLCTLFLDTFIFO (FLCTL.FLDTFIFO)
 
 
-typedef struct st_flctl
-{
-                                                           /* FLCTL            */
+typedef struct st_flctl {
+    /* FLCTL            */
     volatile uint32_t  FLCMNCR;                                /*  FLCMNCR         */
     volatile uint32_t  FLCMDCR;                                /*  FLCMDCR         */
     volatile uint32_t  FLCMCDR;                                /*  FLCMCDR         */

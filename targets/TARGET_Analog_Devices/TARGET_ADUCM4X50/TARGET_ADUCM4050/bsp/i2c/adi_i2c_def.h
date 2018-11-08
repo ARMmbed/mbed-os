@@ -53,16 +53,16 @@ POSSIBILITY OF SUCH DAMAGE.
                                   | (1u << BITP_I2C_MSTAT_ALOST)    )
 
 /* Internal Actions */
-static void           submitTransaction  (ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION* const pTransaction);
-static void           commenceTransmit   (ADI_I2C_HANDLE const hDevice);
-static void           commenceReceive    (ADI_I2C_HANDLE const hDevice);
-static ADI_I2C_RESULT i2cReset           (ADI_I2C_HANDLE const hDevice);
+static void           submitTransaction(ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION *const pTransaction);
+static void           commenceTransmit(ADI_I2C_HANDLE const hDevice);
+static void           commenceReceive(ADI_I2C_HANDLE const hDevice);
+static ADI_I2C_RESULT i2cReset(ADI_I2C_HANDLE const hDevice);
 
 /* interrupt event handlers */
-static void           transmitHandler    (ADI_I2C_HANDLE const hDevice);
-static void           receiveHandler     (ADI_I2C_HANDLE const hDevice);
-static void           completeHandler    (ADI_I2C_HANDLE const hDevice);
-static void           errorHandler       (ADI_I2C_HANDLE const hDevice);
+static void           transmitHandler(ADI_I2C_HANDLE const hDevice);
+static void           receiveHandler(ADI_I2C_HANDLE const hDevice);
+static void           completeHandler(ADI_I2C_HANDLE const hDevice);
+static void           errorHandler(ADI_I2C_HANDLE const hDevice);
 
 
 /*

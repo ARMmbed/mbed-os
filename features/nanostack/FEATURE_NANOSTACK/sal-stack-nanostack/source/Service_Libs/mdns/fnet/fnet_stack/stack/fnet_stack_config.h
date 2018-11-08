@@ -52,7 +52,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_IP6
-    #define FNET_CFG_IP6                        (0)
+#define FNET_CFG_IP6                        (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -65,7 +65,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_ND6_NEIGHBOR_CACHE_SIZE
-    #define FNET_CFG_ND6_NEIGHBOR_CACHE_SIZE     (5u)
+#define FNET_CFG_ND6_NEIGHBOR_CACHE_SIZE     (5u)
 #endif
 
 /**************************************************************************/ /*!
@@ -74,7 +74,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_ND6_PREFIX_LIST_SIZE
-    #define FNET_CFG_ND6_PREFIX_LIST_SIZE       (4u)
+#define FNET_CFG_ND6_PREFIX_LIST_SIZE       (4u)
 #endif
 
 /**************************************************************************/ /*!
@@ -86,7 +86,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_ND6_ROUTER_LIST_SIZE
-    #define FNET_CFG_ND6_ROUTER_LIST_SIZE       (2u)
+#define FNET_CFG_ND6_ROUTER_LIST_SIZE       (2u)
 #endif
 
 /**************************************************************************/ /*!
@@ -101,7 +101,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_ND6_DAD_TRANSMITS
-    #define FNET_CFG_ND6_DAD_TRANSMITS          (1u)
+#define FNET_CFG_ND6_DAD_TRANSMITS          (1u)
 #endif
 
 /**************************************************************************/ /*!
@@ -114,7 +114,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_ND6_RDNSS
-    #define FNET_CFG_ND6_RDNSS                  (1)
+#define FNET_CFG_ND6_RDNSS                  (1)
 #endif
 
 /**************************************************************************/ /*!
@@ -127,7 +127,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_ND6_RDNSS_LIST_SIZE
-    #define FNET_CFG_ND6_RDNSS_LIST_SIZE        (3u)
+#define FNET_CFG_ND6_RDNSS_LIST_SIZE        (3u)
 #endif
 
 /**************************************************************************/ /*!
@@ -141,7 +141,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_IP6_FRAGMENTATION
-    #define FNET_CFG_IP6_FRAGMENTATION          (1)
+#define FNET_CFG_IP6_FRAGMENTATION          (1)
 #endif
 
 /**************************************************************************/ /*!
@@ -152,7 +152,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_IP6_PMTU_DISCOVERY
-    #define FNET_CFG_IP6_PMTU_DISCOVERY         (1)
+#define FNET_CFG_IP6_PMTU_DISCOVERY         (1)
 #endif
 
 /**************************************************************************/ /*!
@@ -161,7 +161,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_NETIF_IP6_ADDR_MAX
-    #define FNET_CFG_NETIF_IP6_ADDR_MAX         (5u)
+#define FNET_CFG_NETIF_IP6_ADDR_MAX         (5u)
 #endif
 
 /**************************************************************************/ /*!
@@ -174,7 +174,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_MLD
-    #define FNET_CFG_MLD                        (0)
+#define FNET_CFG_MLD                        (0)
 #endif
 
 
@@ -193,7 +193,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_IP4
-    #define FNET_CFG_IP4                        (1)
+#define FNET_CFG_IP4                        (1)
 #endif
 
 /**************************************************************************/ /*!
@@ -207,7 +207,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_IP4_FRAGMENTATION
-    #define FNET_CFG_IP4_FRAGMENTATION          (0)
+#define FNET_CFG_IP4_FRAGMENTATION          (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -218,7 +218,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_LOOPBACK_IP4_ADDR
-    #define FNET_CFG_LOOPBACK_IP4_ADDR   (FNET_IP4_ADDR_INIT(127U, 0U, 0U, 1U))
+#define FNET_CFG_LOOPBACK_IP4_ADDR   (FNET_IP4_ADDR_INIT(127U, 0U, 0U, 1U))
 #endif
 
 /**************************************************************************/ /*!
@@ -230,7 +230,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_IGMP
-    #define FNET_CFG_IGMP                   (0)
+#define FNET_CFG_IGMP                   (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -242,7 +242,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_IGMP_VERSION
-    #define FNET_CFG_IGMP_VERSION           (2)
+#define FNET_CFG_IGMP_VERSION           (2)
 #endif
 
 /*! @} */
@@ -260,12 +260,12 @@
  *               - @c 1 = is enabled.
  *               - @b @c 0 = is disabled (Default value).@n
  *           @n
- *           Asserts check that the given condition is true, otherwise it prints error message 
+ *           Asserts check that the given condition is true, otherwise it prints error message
  *           and stops the program execution. By default, it is disabled.
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_ASSET
-    #define FNET_CFG_ASSET                  (0)
+#define FNET_CFG_ASSET                  (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -279,7 +279,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_TCP
-    #define FNET_CFG_TCP                    (1)
+#define FNET_CFG_TCP                    (1)
 #endif
 
 /**************************************************************************/ /*!
@@ -290,7 +290,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_LOOPBACK
-    #define FNET_CFG_LOOPBACK              (0)
+#define FNET_CFG_LOOPBACK              (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -299,7 +299,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_LOOPBACK_NAME
-    #define FNET_CFG_LOOPBACK_NAME            "loop"
+#define FNET_CFG_LOOPBACK_NAME            "loop"
 #endif
 
 /**************************************************************************/ /*!
@@ -314,7 +314,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_LOOPBACK_MULTICAST
-    #define FNET_CFG_LOOPBACK_MULTICAST     (0)
+#define FNET_CFG_LOOPBACK_MULTICAST     (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -329,7 +329,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_LOOPBACK_BROADCAST
-    #define FNET_CFG_LOOPBACK_BROADCAST     (0)
+#define FNET_CFG_LOOPBACK_BROADCAST     (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -339,7 +339,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_LOOPBACK_MTU
-    #define FNET_CFG_LOOPBACK_MTU           (1576U)
+#define FNET_CFG_LOOPBACK_MTU           (1576U)
 #endif
 
 /**************************************************************************/ /*!
@@ -352,7 +352,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_MULTICAST
-    #define FNET_CFG_MULTICAST              (1)
+#define FNET_CFG_MULTICAST              (1)
 #endif
 
 /**************************************************************************/ /*!
@@ -364,7 +364,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_MULTICAST_MAX
-    #define FNET_CFG_MULTICAST_MAX          (5u)
+#define FNET_CFG_MULTICAST_MAX          (5u)
 #endif
 
 /**************************************************************************/ /*!
@@ -375,7 +375,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_MULTICAST_SOCKET_MAX
-    #define FNET_CFG_MULTICAST_SOCKET_MAX   (1u)
+#define FNET_CFG_MULTICAST_SOCKET_MAX   (1u)
 #endif
 
 /**************************************************************************/ /*!
@@ -386,7 +386,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_DNS
-    #define FNET_CFG_DNS                    (0)
+#define FNET_CFG_DNS                    (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -395,7 +395,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_ARP_TABLE_SIZE
-    #define FNET_CFG_ARP_TABLE_SIZE         (10U)
+#define FNET_CFG_ARP_TABLE_SIZE         (10U)
 #endif
 
 
@@ -407,7 +407,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_ARP_EXPIRE_TIMEOUT
-    #define FNET_CFG_ARP_EXPIRE_TIMEOUT     (1200U)
+#define FNET_CFG_ARP_EXPIRE_TIMEOUT     (1200U)
 #endif
 
 /**************************************************************************/ /*!
@@ -420,7 +420,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_TCP_DISCARD_OUT_OF_ORDER
-    #define FNET_CFG_TCP_DISCARD_OUT_OF_ORDER   (0)
+#define FNET_CFG_TCP_DISCARD_OUT_OF_ORDER   (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -432,7 +432,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_TCP_URGENT
-    #define FNET_CFG_TCP_URGENT                 (0)
+#define FNET_CFG_TCP_URGENT                 (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -446,7 +446,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_UDP
-    #define FNET_CFG_UDP                        (1)
+#define FNET_CFG_UDP                        (1)
 #endif
 
 /**************************************************************************/ /*!
@@ -462,7 +462,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_UDP_CHECKSUM
-    #define FNET_CFG_UDP_CHECKSUM               (1)
+#define FNET_CFG_UDP_CHECKSUM               (1)
 #endif
 
 /**************************************************************************/ /*!
@@ -473,12 +473,12 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_RAW
-    #define FNET_CFG_RAW                        (1)
+#define FNET_CFG_RAW                        (1)
 #endif
 
 
 /*****************************************************************************
-* 	TCP/IP stack parameters.
+*   TCP/IP stack parameters.
 ******************************************************************************/
 
 /**************************************************************************/ /*!
@@ -492,7 +492,7 @@
  * @see fnet_mutex_api_t
  ******************************************************************************/
 #ifndef FNET_CFG_MULTITHREADING
-    #define FNET_CFG_MULTITHREADING             (0)
+#define FNET_CFG_MULTITHREADING             (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -501,7 +501,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_SOCKET_MAX
-    #define FNET_CFG_SOCKET_MAX                 (10U)
+#define FNET_CFG_SOCKET_MAX                 (10U)
 #endif
 
 /**************************************************************************/ /*!
@@ -512,7 +512,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_SOCKET_BSD_NAMES
-    #define FNET_CFG_SOCKET_BSD_NAMES           (1)
+#define FNET_CFG_SOCKET_BSD_NAMES           (1)
 #endif
 
 /**************************************************************************/ /*!
@@ -527,7 +527,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_SOCKET_CALLBACK_ON_RX
-    #define FNET_CFG_SOCKET_CALLBACK_ON_RX         (0U)
+#define FNET_CFG_SOCKET_CALLBACK_ON_RX         (0U)
 #endif
 
 /**************************************************************************/ /*!
@@ -556,7 +556,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_SOCKET_TCP_MSS
-    #define FNET_CFG_SOCKET_TCP_MSS             (0u)
+#define FNET_CFG_SOCKET_TCP_MSS             (0u)
 #endif
 
 /**************************************************************************/ /*!
@@ -567,7 +567,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_SOCKET_TCP_TX_BUF_SIZE
-    #define FNET_CFG_SOCKET_TCP_TX_BUF_SIZE     (2U * 1024U)
+#define FNET_CFG_SOCKET_TCP_TX_BUF_SIZE     (2U * 1024U)
 #endif
 
 /**************************************************************************/ /*!
@@ -578,7 +578,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_SOCKET_TCP_RX_BUF_SIZE
-    #define FNET_CFG_SOCKET_TCP_RX_BUF_SIZE     (2U * 1024U)
+#define FNET_CFG_SOCKET_TCP_RX_BUF_SIZE     (2U * 1024U)
 #endif
 
 /**************************************************************************/ /*!
@@ -589,7 +589,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_SOCKET_UDP_TX_BUF_SIZE
-    #define FNET_CFG_SOCKET_UDP_TX_BUF_SIZE     (2U * 1024U)
+#define FNET_CFG_SOCKET_UDP_TX_BUF_SIZE     (2U * 1024U)
 #endif
 
 /**************************************************************************/ /*!
@@ -600,7 +600,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_SOCKET_UDP_RX_BUF_SIZE
-    #define FNET_CFG_SOCKET_UDP_RX_BUF_SIZE     (2U * 1024U)
+#define FNET_CFG_SOCKET_UDP_RX_BUF_SIZE     (2U * 1024U)
 #endif
 
 /**************************************************************************/ /*!
@@ -611,7 +611,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_SOCKET_RAW_TX_BUF_SIZE
-    #define FNET_CFG_SOCKET_RAW_TX_BUF_SIZE     (2U * 1024U)
+#define FNET_CFG_SOCKET_RAW_TX_BUF_SIZE     (2U * 1024U)
 #endif
 
 /**************************************************************************/ /*!
@@ -622,7 +622,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_SOCKET_RAW_RX_BUF_SIZE
-    #define FNET_CFG_SOCKET_RAW_RX_BUF_SIZE     (2U * 1024U)
+#define FNET_CFG_SOCKET_RAW_RX_BUF_SIZE     (2U * 1024U)
 #endif
 
 /**************************************************************************/ /*!
@@ -633,14 +633,14 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_IP_MAX_PACKET
-    #define FNET_CFG_IP_MAX_PACKET              (10U*1024U)
+#define FNET_CFG_IP_MAX_PACKET              (10U*1024U)
 #endif
 
 /*****************************************************************************
  * Function Overload
  *****************************************************************************/
 #ifndef FNET_CFG_OVERLOAD_CHECKSUM_LOW
-    #define FNET_CFG_OVERLOAD_CHECKSUM_LOW      (0)
+#define FNET_CFG_OVERLOAD_CHECKSUM_LOW      (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -656,12 +656,12 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_OVERLOAD_MEMCPY
-    #define FNET_CFG_OVERLOAD_MEMCPY            (0)
+#define FNET_CFG_OVERLOAD_MEMCPY            (0)
 #endif
 
 /* IPv4 and/or IPv6 must enaqbled.*/
 #if !FNET_CFG_IP4 && !FNET_CFG_IP6
-    #error "Please enable IPv4 or/and IPv6, by FNET_CFG_IP4 or/and FNET_CFG_IP6."
+#error "Please enable IPv4 or/and IPv6, by FNET_CFG_IP4 or/and FNET_CFG_IP6."
 #endif
 
 /*****************************************************************************
@@ -676,111 +676,111 @@
  * @internal
  ******************************************************************************/
 #ifndef FNET_CFG_DEBUG
-    #define FNET_CFG_DEBUG              (0)
+#define FNET_CFG_DEBUG              (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_AUTOIP
-    #define FNET_CFG_DEBUG_AUTOIP       (0)
+#define FNET_CFG_DEBUG_AUTOIP       (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TIMER  /* It will be printed to the UART '!' sign every second. */
-    #define FNET_CFG_DEBUG_TIMER        (0)
+#define FNET_CFG_DEBUG_TIMER        (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_HTTP
-    #define FNET_CFG_DEBUG_HTTP         (0)
+#define FNET_CFG_DEBUG_HTTP         (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_DHCP
-    #define FNET_CFG_DEBUG_DHCP         (0)
+#define FNET_CFG_DEBUG_DHCP         (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_ARP
-    #define FNET_CFG_DEBUG_ARP          (0)
+#define FNET_CFG_DEBUG_ARP          (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_MEMPOOL
-    #define FNET_CFG_DEBUG_MEMPOOL      (0)
+#define FNET_CFG_DEBUG_MEMPOOL      (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TFTP_CLN
-    #define FNET_CFG_DEBUG_TFTP_CLN     (0)
+#define FNET_CFG_DEBUG_TFTP_CLN     (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TFTP_SRV
-    #define FNET_CFG_DEBUG_TFTP_SRV     (0)
+#define FNET_CFG_DEBUG_TFTP_SRV     (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_STACK
-    #define FNET_CFG_DEBUG_STACK        (0)
+#define FNET_CFG_DEBUG_STACK        (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TELNET
-    #define FNET_CFG_DEBUG_TELNET       (0)
+#define FNET_CFG_DEBUG_TELNET       (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_SHELL
-    #define FNET_CFG_DEBUG_SHELL        (0)
+#define FNET_CFG_DEBUG_SHELL        (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_DNS
-    #define FNET_CFG_DEBUG_DNS          (0)
+#define FNET_CFG_DEBUG_DNS          (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_STARTUP_MS
-    #define FNET_CFG_DEBUG_STARTUP_MS   (0)
+#define FNET_CFG_DEBUG_STARTUP_MS   (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_IP6
-    #define FNET_CFG_DEBUG_IP6          (0)
+#define FNET_CFG_DEBUG_IP6          (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_LINK
-    #define FNET_CFG_DEBUG_LINK         (0)
+#define FNET_CFG_DEBUG_LINK         (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_LLMNR
-    #define FNET_CFG_DEBUG_LLMNR        (0)
+#define FNET_CFG_DEBUG_LLMNR        (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_MDNS
-    #define FNET_CFG_DEBUG_MDNS        (0)
+#define FNET_CFG_DEBUG_MDNS        (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_PING
-    #define FNET_CFG_DEBUG_PING         (0)
+#define FNET_CFG_DEBUG_PING         (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TRACE
-    #define FNET_CFG_DEBUG_TRACE        (0)
+#define FNET_CFG_DEBUG_TRACE        (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TRACE_IP
-    #define FNET_CFG_DEBUG_TRACE_IP     (0)
+#define FNET_CFG_DEBUG_TRACE_IP     (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TRACE_ICMP
-    #define FNET_CFG_DEBUG_TRACE_ICMP   (0)
+#define FNET_CFG_DEBUG_TRACE_ICMP   (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TRACE_IGMP
-    #define FNET_CFG_DEBUG_TRACE_IGMP   (0)
+#define FNET_CFG_DEBUG_TRACE_IGMP   (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TRACE_ETH
-    #define FNET_CFG_DEBUG_TRACE_ETH    (0)
+#define FNET_CFG_DEBUG_TRACE_ETH    (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TRACE_ARP
-    #define FNET_CFG_DEBUG_TRACE_ARP    (0)
+#define FNET_CFG_DEBUG_TRACE_ARP    (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TRACE_UDP
-    #define FNET_CFG_DEBUG_TRACE_UDP    (0)
+#define FNET_CFG_DEBUG_TRACE_UDP    (0)
 #endif
 
 #ifndef FNET_CFG_DEBUG_TRACE_TCP
-    #define FNET_CFG_DEBUG_TRACE_TCP    (0)
+#define FNET_CFG_DEBUG_TRACE_TCP    (0)
 #endif
 
 
@@ -788,58 +788,58 @@
  * Obsolete configuration parameters
  ******************************************************************************/
 #ifdef FNET_CFG_ETH_IP4_ADDR
-    #error "FNET_CFG_ETH_IP4_ADDR parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH_IP4_ADDR parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH_IP4_MASK
-    #error "FNET_CFG_ETH_IP4_MASK parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH_IP4_MASK parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH_IP4_GW
-    #error "FNET_CFG_ETH_IP4_GW parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH_IP4_GW parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH_IP4_DNS
-    #error "FNET_CFG_ETH_IP4_DNS parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH_IP4_DNS parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH_MAC_ADDR
-    #error "FNET_CFG_ETH_MAC_ADDR parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH_MAC_ADDR parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH
-    #error "FNET_CFG_ETH parameter is obsolete."
+#error "FNET_CFG_ETH parameter is obsolete."
 #endif
 #ifdef FNET_CFG_ETH_MTU
-    #error "FNET_CFG_ETH_MTU parameter is obsolete."
+#error "FNET_CFG_ETH_MTU parameter is obsolete."
 #endif
 
 
 
 #ifdef FNET_CFG_ETH0_IP4_ADDR
-    #error "FNET_CFG_ETH0_IP4_ADDR parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH0_IP4_ADDR parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH0_IP4_MASK
-    #error "FNET_CFG_ETH0_IP4_MASK parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH0_IP4_MASK parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH0_IP4_GW
-    #error "FNET_CFG_ETH0_IP4_GW parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH0_IP4_GW parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH0_IP4_DNS
-    #error "FNET_CFG_ETH0_IP4_DNS parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH0_IP4_DNS parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH1_IP4_ADDR
-    #error "FNET_CFG_ETH1_IP4_ADDR parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH1_IP4_ADDR parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH1_IP4_MASK
-    #error "FNET_CFG_ETH1_IP4_MASK parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH1_IP4_MASK parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH1_IP4_GW
-    #error "FNET_CFG_ETH1_IP4_GW parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH1_IP4_GW parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_ETH1_IP4_DNS
-    #error "FNET_CFG_ETH1_IP4_DNS parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_ETH1_IP4_DNS parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FNET_CFG_DEFAULT_IF
-    #error "FNET_CFG_DEFAULT_IF parameter is obsolete. It is user application parameter now."
+#error "FNET_CFG_DEFAULT_IF parameter is obsolete. It is user application parameter now."
 #endif
 #ifdef FAPP_CFG_HEAP_SIZE
-    #error "FAPP_CFG_HEAP_SIZE parameter is obsolete. It is user application parameter now."
+#error "FAPP_CFG_HEAP_SIZE parameter is obsolete. It is user application parameter now."
 #endif
 
 

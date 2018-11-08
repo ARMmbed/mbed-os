@@ -128,7 +128,7 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
 
 void UDPSocket::event()
 {
-    _event_flag.set(READ_FLAG|WRITE_FLAG);
+    _event_flag.set(READ_FLAG | WRITE_FLAG);
 
     _pending += 1;
     if (_callback && _pending == 1) {

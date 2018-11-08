@@ -58,9 +58,9 @@ extern "C" {
 
 /** RTC initialization structure. */
 typedef struct {
-  bool enable;   /**< Start counting when init completed. */
-  bool debugRun; /**< Counter shall keep running during debug halt. */
-  bool comp0Top; /**< Use compare register 0 as max count value. */
+    bool enable;   /**< Start counting when init completed. */
+    bool debugRun; /**< Counter shall keep running during debug halt. */
+    bool comp0Top; /**< Use compare register 0 as max count value. */
 } RTC_Init_TypeDef;
 
 /** Suggested default config for RTC init structure. */
@@ -87,7 +87,7 @@ void RTC_CompareSet(unsigned int comp, uint32_t value);
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTC_CounterGet(void)
 {
-  return RTC->CNT;
+    return RTC->CNT;
 }
 
 #if !defined(_EFM32_GECKO_FAMILY)
@@ -100,7 +100,7 @@ __STATIC_INLINE uint32_t RTC_CounterGet(void)
  ******************************************************************************/
 __STATIC_INLINE void RTC_CounterSet(uint32_t value)
 {
-  RTC->CNT = value;
+    RTC->CNT = value;
 }
 #endif
 
@@ -122,7 +122,7 @@ void RTC_Init(const RTC_Init_TypeDef *init);
  ******************************************************************************/
 __STATIC_INLINE void RTC_IntClear(uint32_t flags)
 {
-  RTC->IFC = flags;
+    RTC->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -136,7 +136,7 @@ __STATIC_INLINE void RTC_IntClear(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void RTC_IntDisable(uint32_t flags)
 {
-  RTC->IEN &= ~flags;
+    RTC->IEN &= ~flags;
 }
 
 /***************************************************************************//**
@@ -155,7 +155,7 @@ __STATIC_INLINE void RTC_IntDisable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void RTC_IntEnable(uint32_t flags)
 {
-  RTC->IEN |= flags;
+    RTC->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -171,7 +171,7 @@ __STATIC_INLINE void RTC_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTC_IntGet(void)
 {
-  return RTC->IF;
+    return RTC->IF;
 }
 
 /***************************************************************************//**
@@ -190,10 +190,10 @@ __STATIC_INLINE uint32_t RTC_IntGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTC_IntGetEnabled(void)
 {
-  uint32_t ien;
+    uint32_t ien;
 
-  ien = RTC->IEN;
-  return RTC->IF & ien;
+    ien = RTC->IEN;
+    return RTC->IF & ien;
 }
 
 /***************************************************************************//**
@@ -207,7 +207,7 @@ __STATIC_INLINE uint32_t RTC_IntGetEnabled(void)
  ******************************************************************************/
 __STATIC_INLINE void RTC_IntSet(uint32_t flags)
 {
-  RTC->IFS = flags;
+    RTC->IFS = flags;
 }
 
 void RTC_Reset(void);

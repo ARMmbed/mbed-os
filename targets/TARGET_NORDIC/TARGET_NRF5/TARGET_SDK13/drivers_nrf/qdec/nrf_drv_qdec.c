@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #include "sdk_common.h"
@@ -74,10 +74,9 @@ static nrf_drv_state_t m_state = NRF_DRV_STATE_UNINITIALIZED;
 void QDEC_IRQHandler(void)
 {
     nrf_drv_qdec_event_t event;
-    if ( nrf_qdec_event_check(NRF_QDEC_EVENT_SAMPLERDY) &&
-         nrf_qdec_int_enable_check(NRF_QDEC_INT_SAMPLERDY_MASK) )
-    {
-        nrf_qdec_event_clear(NRF_QDEC_EVENT_SAMPLERDY); 
+    if (nrf_qdec_event_check(NRF_QDEC_EVENT_SAMPLERDY) &&
+            nrf_qdec_int_enable_check(NRF_QDEC_INT_SAMPLERDY_MASK)) {
+        nrf_qdec_event_clear(NRF_QDEC_EVENT_SAMPLERDY);
         NRF_LOG_DEBUG("Event: %s.\r\n", (uint32_t)EVT_TO_STR(NRF_QDEC_EVENT_SAMPLERDY));
 
         event.type = NRF_QDEC_EVENT_SAMPLERDY;
@@ -85,9 +84,8 @@ void QDEC_IRQHandler(void)
         m_qdec_event_handler(event);
     }
 
-    if ( nrf_qdec_event_check(NRF_QDEC_EVENT_REPORTRDY) &&
-         nrf_qdec_int_enable_check(NRF_QDEC_INT_REPORTRDY_MASK) )
-    {
+    if (nrf_qdec_event_check(NRF_QDEC_EVENT_REPORTRDY) &&
+            nrf_qdec_int_enable_check(NRF_QDEC_INT_REPORTRDY_MASK)) {
         nrf_qdec_event_clear(NRF_QDEC_EVENT_REPORTRDY);
         NRF_LOG_DEBUG("Event: %s.\r\n", (uint32_t)EVT_TO_STR(NRF_QDEC_INT_REPORTRDY_MASK));
 
@@ -98,9 +96,8 @@ void QDEC_IRQHandler(void)
         m_qdec_event_handler(event);
     }
 
-    if ( nrf_qdec_event_check(NRF_QDEC_EVENT_ACCOF) &&
-         nrf_qdec_int_enable_check(NRF_QDEC_INT_ACCOF_MASK) )
-    {
+    if (nrf_qdec_event_check(NRF_QDEC_EVENT_ACCOF) &&
+            nrf_qdec_int_enable_check(NRF_QDEC_INT_ACCOF_MASK)) {
         nrf_qdec_event_clear(NRF_QDEC_EVENT_ACCOF);
         NRF_LOG_DEBUG("Event: %s.\r\n", (uint32_t)EVT_TO_STR(NRF_QDEC_EVENT_ACCOF));
 
@@ -110,29 +107,24 @@ void QDEC_IRQHandler(void)
 }
 
 
-ret_code_t nrf_drv_qdec_init(const nrf_drv_qdec_config_t * p_config,
+ret_code_t nrf_drv_qdec_init(const nrf_drv_qdec_config_t *p_config,
                              qdec_event_handler_t event_handler)
 {
     ret_code_t err_code;
 
-    if (m_state != NRF_DRV_STATE_UNINITIALIZED)
-    {
+    if (m_state != NRF_DRV_STATE_UNINITIALIZED) {
         err_code = NRF_ERROR_INVALID_STATE;
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
         return err_code;
     }
 
-    if (p_config == NULL)
-    {
+    if (p_config == NULL) {
         p_config = &m_default_config;
     }
 
-    if (event_handler)
-    {
+    if (event_handler) {
         m_qdec_event_handler = event_handler;
-    }
-    else
-    {
+    } else {
         err_code = NRF_ERROR_INVALID_PARAM;
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
         return err_code;
@@ -142,30 +134,25 @@ ret_code_t nrf_drv_qdec_init(const nrf_drv_qdec_config_t * p_config,
     nrf_gpio_cfg_input(p_config->pselled, NRF_GPIO_PIN_NOPULL);
     nrf_gpio_cfg_input(p_config->psela, NRF_GPIO_PIN_NOPULL);
     nrf_gpio_cfg_input(p_config->pselb, NRF_GPIO_PIN_NOPULL);
-    nrf_qdec_pio_assign( p_config->psela, p_config->pselb, p_config->pselled);
+    nrf_qdec_pio_assign(p_config->psela, p_config->pselb, p_config->pselled);
     nrf_qdec_ledpre_set(p_config->ledpre);
     nrf_qdec_ledpol_set(p_config->ledpol);
     nrf_qdec_shorts_enable(NRF_QDEC_SHORT_REPORTRDY_READCLRACC_MASK);
 
-    if (p_config->dbfen)
-    {
+    if (p_config->dbfen) {
         nrf_qdec_dbfen_enable();
-    }
-    else
-    {
+    } else {
         nrf_qdec_dbfen_disable();
     }
 
     uint32_t int_mask = NRF_QDEC_INT_ACCOF_MASK;
 
-    if (p_config->reportper != NRF_QDEC_REPORTPER_DISABLED)
-    {
+    if (p_config->reportper != NRF_QDEC_REPORTPER_DISABLED) {
         nrf_qdec_reportper_set(p_config->reportper);
         int_mask |= NRF_QDEC_INT_REPORTRDY_MASK;
     }
 
-    if (p_config->sample_inten)
-    {
+    if (p_config->sample_inten) {
         int_mask |= NRF_QDEC_INT_SAMPLERDY_MASK;
     }
 
@@ -206,7 +193,7 @@ void nrf_drv_qdec_disable(void)
     NRF_LOG_INFO("Disabled.\r\n");
 }
 
-void nrf_drv_qdec_accumulators_read(int16_t * p_acc, int16_t * p_accdbl)
+void nrf_drv_qdec_accumulators_read(int16_t *p_acc, int16_t *p_accdbl)
 {
     ASSERT(m_state == NRF_DRV_STATE_POWERED_ON);
     nrf_qdec_task_trigger(NRF_QDEC_TASK_READCLRACC);
@@ -220,12 +207,12 @@ void nrf_drv_qdec_accumulators_read(int16_t * p_acc, int16_t * p_accdbl)
     NRF_LOG_HEXDUMP_DEBUG((uint8_t *)p_accdbl, sizeof(p_accdbl));
 }
 
-void nrf_drv_qdec_task_address_get(nrf_qdec_task_t task, uint32_t * p_task)
+void nrf_drv_qdec_task_address_get(nrf_qdec_task_t task, uint32_t *p_task)
 {
     *p_task = (uint32_t)nrf_qdec_task_address_get(task);
 }
 
-void nrf_drv_qdec_event_address_get(nrf_qdec_event_t event, uint32_t * p_event)
+void nrf_drv_qdec_event_address_get(nrf_qdec_event_t event, uint32_t *p_event)
 {
     *p_event = (uint32_t)nrf_qdec_event_address_get(event);
 }

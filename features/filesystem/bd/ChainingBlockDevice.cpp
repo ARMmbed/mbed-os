@@ -87,7 +87,7 @@ int ChainingBlockDevice::deinit()
 int ChainingBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_read(addr, size));
-    uint8_t *buffer = static_cast<uint8_t*>(b);
+    uint8_t *buffer = static_cast<uint8_t *>(b);
 
     // Find block devices containing blocks, may span multiple block devices
     for (size_t i = 0; i < _bd_count && size > 0; i++) {
@@ -118,7 +118,7 @@ int ChainingBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 int ChainingBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_program(addr, size));
-    const uint8_t *buffer = static_cast<const uint8_t*>(b);
+    const uint8_t *buffer = static_cast<const uint8_t *>(b);
 
     // Find block devices containing blocks, may span multiple block devices
     for (size_t i = 0; i < _bd_count && size > 0; i++) {

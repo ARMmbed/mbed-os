@@ -123,7 +123,7 @@ void pwmout_free(pwmout_t *obj)
 {
     // Stops and clear count operation
     TMRB_SetRunState(obj->channel, TMRB_STOP);
-    pwmout_write(obj,0);
+    pwmout_write(obj, 0);
     obj->pin = NC;
     obj->channel = NULL;
     obj->trailing_timing = 0;

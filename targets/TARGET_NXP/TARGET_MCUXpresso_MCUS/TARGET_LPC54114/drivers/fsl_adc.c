@@ -39,10 +39,8 @@ static uint32_t ADC_GetInstance(ADC_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_ADC_COUNT; instance++)
-    {
-        if (s_adcBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_ADC_COUNT; instance++) {
+        if (s_adcBases[instance] == base) {
             break;
         }
     }
@@ -68,8 +66,7 @@ void ADC_Init(ADC_Type *base, const adc_config_t *config)
     tmp32 = ADC_CTRL_CLKDIV(config->clockDividerNumber);
 
     /* Async or Sync clock mode. */
-    switch (config->clockMode)
-    {
+    switch (config->clockMode) {
         case kADC_ClockAsynchronousMode:
             tmp32 |= ADC_CTRL_ASYNMODE_MASK;
             break;
@@ -81,8 +78,7 @@ void ADC_Init(ADC_Type *base, const adc_config_t *config)
     tmp32 |= ADC_CTRL_RESOL(config->resolution);
 
     /* Bypass calibration. */
-    if (config->enableBypassCalibration)
-    {
+    if (config->enableBypassCalibration) {
         tmp32 |= ADC_CTRL_BYPASSCAL_MASK;
     }
 
@@ -115,27 +111,22 @@ bool ADC_DoSelfCalibration(ADC_Type *base)
     /* This bit acn only be set 1 by software. It is cleared automatically whenever the ADC is powered down.
        This bit should be set after at least 10 ms after the ADC is powered on. */
     base->STARTUP = ADC_STARTUP_ADC_ENA_MASK;
-    for (i = 0U; i < 0x10; i++) /* Wait a few clocks to startup up. */
-    {
+    for (i = 0U; i < 0x10; i++) { /* Wait a few clocks to startup up. */
         __ASM("NOP");
     }
-    if (!(base->STARTUP & ADC_STARTUP_ADC_ENA_MASK))
-    {
+    if (!(base->STARTUP & ADC_STARTUP_ADC_ENA_MASK)) {
         return false; /* ADC is not powered up. */
     }
 
     /* If not in by-pass mode, do the calibration. */
     if ((ADC_CALIB_CALREQD_MASK == (base->CALIB & ADC_CALIB_CALREQD_MASK)) &&
-        (0U == (base->CTRL & ADC_CTRL_BYPASSCAL_MASK)))
-    {
+            (0U == (base->CTRL & ADC_CTRL_BYPASSCAL_MASK))) {
         /* Calibration is needed, do it now. */
         base->CALIB = ADC_CALIB_CALIB_MASK;
         i = 0xF0000;
-        while ((ADC_CALIB_CALIB_MASK == (base->CALIB & ADC_CALIB_CALIB_MASK)) && (--i))
-        {
+        while ((ADC_CALIB_CALIB_MASK == (base->CALIB & ADC_CALIB_CALIB_MASK)) && (--i)) {
         }
-        if (i == 0U)
-        {
+        if (i == 0U) {
             return false; /* Calibration timeout. */
         }
     }
@@ -143,11 +134,9 @@ bool ADC_DoSelfCalibration(ADC_Type *base)
     /* A dummy conversion cycle will be performed. */
     base->STARTUP |= ADC_STARTUP_ADC_INIT_MASK;
     i = 0x7FFFF;
-    while ((ADC_STARTUP_ADC_INIT_MASK == (base->STARTUP & ADC_STARTUP_ADC_INIT_MASK)) && (--i))
-    {
+    while ((ADC_STARTUP_ADC_INIT_MASK == (base->STARTUP & ADC_STARTUP_ADC_INIT_MASK)) && (--i)) {
     }
-    if (i == 0U)
-    {
+    if (i == 0U) {
         return false;
     }
 
@@ -164,8 +153,7 @@ void ADC_SetConvSeqAConfig(ADC_Type *base, const adc_conv_seq_config_t *config)
             | ADC_SEQ_CTRL_TRIGGER(config->triggerMask); /* Trigger mask. */
 
     /* Polarity for tirgger signal. */
-    switch (config->triggerPolarity)
-    {
+    switch (config->triggerPolarity) {
         case kADC_TriggerPolarityPositiveEdge:
             tmp32 |= ADC_SEQ_CTRL_TRIGPOL_MASK;
             break;
@@ -174,14 +162,12 @@ void ADC_SetConvSeqAConfig(ADC_Type *base, const adc_conv_seq_config_t *config)
     }
 
     /* Bypass the clock Sync. */
-    if (config->enableSyncBypass)
-    {
+    if (config->enableSyncBypass) {
         tmp32 |= ADC_SEQ_CTRL_SYNCBYPASS_MASK;
     }
 
     /* Interrupt point. */
-    switch (config->interruptMode)
-    {
+    switch (config->interruptMode) {
         case kADC_InterruptForEachSequence:
             tmp32 |= ADC_SEQ_CTRL_MODE_MASK;
             break;
@@ -190,8 +176,7 @@ void ADC_SetConvSeqAConfig(ADC_Type *base, const adc_conv_seq_config_t *config)
     }
 
     /* One trigger for a conversion, or for a sequence. */
-    if (config->enableSingleStep)
-    {
+    if (config->enableSingleStep) {
         tmp32 |= ADC_SEQ_CTRL_SINGLESTEP_MASK;
     }
 
@@ -208,8 +193,7 @@ void ADC_SetConvSeqBConfig(ADC_Type *base, const adc_conv_seq_config_t *config)
             | ADC_SEQ_CTRL_TRIGGER(config->triggerMask); /* Trigger mask. */
 
     /* Polarity for tirgger signal. */
-    switch (config->triggerPolarity)
-    {
+    switch (config->triggerPolarity) {
         case kADC_TriggerPolarityPositiveEdge:
             tmp32 |= ADC_SEQ_CTRL_TRIGPOL_MASK;
             break;
@@ -218,14 +202,12 @@ void ADC_SetConvSeqBConfig(ADC_Type *base, const adc_conv_seq_config_t *config)
     }
 
     /* Bypass the clock Sync. */
-    if (config->enableSyncBypass)
-    {
+    if (config->enableSyncBypass) {
         tmp32 |= ADC_SEQ_CTRL_SYNCBYPASS_MASK;
     }
 
     /* Interrupt point. */
-    switch (config->interruptMode)
-    {
+    switch (config->interruptMode) {
         case kADC_InterruptForEachSequence:
             tmp32 |= ADC_SEQ_CTRL_MODE_MASK;
             break;
@@ -234,8 +216,7 @@ void ADC_SetConvSeqBConfig(ADC_Type *base, const adc_conv_seq_config_t *config)
     }
 
     /* One trigger for a conversion, or for a sequence. */
-    if (config->enableSingleStep)
-    {
+    if (config->enableSingleStep) {
         tmp32 |= ADC_SEQ_CTRL_SINGLESTEP_MASK;
     }
 
@@ -248,8 +229,7 @@ bool ADC_GetConvSeqAGlobalConversionResult(ADC_Type *base, adc_result_info_t *in
 
     uint32_t tmp32 = base->SEQ_GDAT[0]; /* Read to clear the status. */
 
-    if (0U == (ADC_SEQ_GDAT_DATAVALID_MASK & tmp32))
-    {
+    if (0U == (ADC_SEQ_GDAT_DATAVALID_MASK & tmp32)) {
         return false;
     }
 
@@ -270,8 +250,7 @@ bool ADC_GetConvSeqBGlobalConversionResult(ADC_Type *base, adc_result_info_t *in
 
     uint32_t tmp32 = base->SEQ_GDAT[1]; /* Read to clear the status. */
 
-    if (0U == (ADC_SEQ_GDAT_DATAVALID_MASK & tmp32))
-    {
+    if (0U == (ADC_SEQ_GDAT_DATAVALID_MASK & tmp32)) {
         return false;
     }
 
@@ -293,8 +272,7 @@ bool ADC_GetChannelConversionResult(ADC_Type *base, uint32_t channel, adc_result
 
     uint32_t tmp32 = base->DAT[channel]; /* Read to clear the status. */
 
-    if (0U == (ADC_DAT_DATAVALID_MASK & tmp32))
-    {
+    if (0U == (ADC_DAT_DATAVALID_MASK & tmp32)) {
         return false;
     }
 

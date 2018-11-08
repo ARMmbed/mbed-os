@@ -51,8 +51,7 @@
 
 /**@brief Events that can come from the peer_database module.
  */
-typedef enum
-{
+typedef enum {
     PDB_EVT_WRITE_BUF_STORED,   /**< A pdb_write_buf_store operation has completed successfully. */
     PDB_EVT_RAW_STORED,         /**< A pdb_raw_store operation has completed successfully. */
     PDB_EVT_RAW_STORE_FAILED,   /**< A pdb_raw_store operation has failed. */
@@ -65,19 +64,15 @@ typedef enum
 
 /**@brief Events that can come from the peer_database module.
  */
-typedef struct
-{
+typedef struct {
     pdb_evt_id_t      evt_id;  /**< The event that has happened. */
     pm_peer_id_t      peer_id; /**< The id of the peer the event pertains to. */
     pm_peer_data_id_t data_id; /**< The data the event pertains to. */
-    union
-    {
-        struct
-        {
+    union {
+        struct {
             pm_store_token_t store_token;  /**< A token identifying the store operation this event pertains to. */
         } raw_stored_evt;
-        struct
-        {
+        struct {
             pm_store_token_t store_token;  /**< A token identifying the store operation this event pertains to. */
         } error_raw_store_evt;
     } params;
@@ -87,7 +82,7 @@ typedef struct
  *
  * @param[in]  p_event   The event that has happened.
  */
-typedef void (*pdb_evt_handler_t)(pdb_evt_t const * p_event);
+typedef void (*pdb_evt_handler_t)(pdb_evt_t const *p_event);
 
 
 /**@brief Function for registering for events from the peer database.
@@ -148,8 +143,8 @@ ret_code_t pdb_peer_free(pm_peer_id_t peer_id);
  */
 ret_code_t pdb_read_buf_get(pm_peer_id_t           peer_id,
                             pm_peer_data_id_t      data_id,
-                            pm_peer_data_flash_t * p_peer_data,
-                            pm_store_token_t     * p_token);
+                            pm_peer_data_flash_t *p_peer_data,
+                            pm_store_token_t      *p_token);
 
 
 /**@brief Function for retrieving pointers to a write buffer for peer data.
@@ -184,7 +179,7 @@ ret_code_t pdb_read_buf_get(pm_peer_id_t           peer_id,
 ret_code_t pdb_write_buf_get(pm_peer_id_t      peer_id,
                              pm_peer_data_id_t data_id,
                              uint32_t          n_bufs,
-                             pm_peer_data_t  * p_peer_data);
+                             pm_peer_data_t   *p_peer_data);
 
 
 /**@brief Function for freeing a write buffer allocated with @ref pdb_write_buf_get.
@@ -286,10 +281,10 @@ pm_peer_id_t pdb_next_peer_id_get(pm_peer_id_t prev_peer_id);
 
 /**@brief Function for updating currently stored peer data to a new version
  *
- * @details Updating happens asynchronously. 
+ * @details Updating happens asynchronously.
  *          Expect a @ref PDS_EVT_STORED or @ref PDS_EVT_ERROR_STORE for the store token
- *          and a @ref PDS_EVT_ERROR_CLEAR or @ref PDS_EVT_ERROR_CLEAR for the old token 
- *      
+ *          and a @ref PDS_EVT_ERROR_CLEAR or @ref PDS_EVT_ERROR_CLEAR for the old token
+ *
  * @param[in]   peer_data           New data
  * @param[in]   old_token           Store token for the old data
  * @param[out]  p_store_token       Store token for the new data
@@ -298,13 +293,13 @@ pm_peer_id_t pdb_next_peer_id_get(pm_peer_id_t prev_peer_id);
  * @retval NRF_ERROR_NOT_FOUND      The old store token was invalid.
  * @retval NRF_ERROR_NULL           Data contained a NULL pointer.
  * @retval NRF_ERROR_NO_MEM         No space available in persistent storage.
- * @retval NRF_ERROR_BUSY           FDS or underlying modules are busy and can't take any 
+ * @retval NRF_ERROR_BUSY           FDS or underlying modules are busy and can't take any
  *                                  more requests
  * @retval NRF_ERROR_INVALID_STATE  Module is not initialized.
  */
 ret_code_t pdb_peer_data_update(pm_peer_data_const_t        peer_data,
                                 pm_store_token_t            old_token,
-                                pm_store_token_t          * p_store_token);
+                                pm_store_token_t           *p_store_token);
 
 
 /**@brief Function for reading data directly from persistent storage to external memory.
@@ -325,7 +320,7 @@ ret_code_t pdb_peer_data_update(pm_peer_data_const_t        peer_data,
  */
 ret_code_t pdb_raw_read(pm_peer_id_t      peer_id,
                         pm_peer_data_id_t data_id,
-                        pm_peer_data_t  * p_peer_data);
+                        pm_peer_data_t   *p_peer_data);
 
 
 /**@brief Function for writing data directly to persistent storage from external memory.
@@ -343,8 +338,8 @@ ret_code_t pdb_raw_read(pm_peer_id_t      peer_id,
  * @retval NRF_ERROR_INVALID_STATE   Module is not initialized.
  */
 ret_code_t pdb_raw_store(pm_peer_id_t           peer_id,
-                         pm_peer_data_const_t * p_peer_data,
-                         pm_store_token_t     * p_store_token);
+                         pm_peer_data_const_t *p_peer_data,
+                         pm_store_token_t      *p_store_token);
 
 
 /** @} */

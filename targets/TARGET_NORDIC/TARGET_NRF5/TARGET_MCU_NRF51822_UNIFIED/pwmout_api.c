@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #include "mbed_assert.h"
@@ -53,10 +53,9 @@
 #define PWM_DEFAULT_PERIOD_US       20000
 #define PWM_PERIOD_MIN              3
 
-typedef struct
-{
-    const app_pwm_t * const instance;
-    NRF_TIMER_Type * const  timer_reg;
+typedef struct {
+    const app_pwm_t *const instance;
+    NRF_TIMER_Type *const  timer_reg;
     uint8_t                 channels_allocated;
     uint32_t                pins[PWM_CHANNELS_PER_INSTANCE];
     uint16_t                period_us;
@@ -69,17 +68,17 @@ APP_PWM_INSTANCE(m_pwm_instance_1, 2);   //PWM1: Timer 2
 
 
 static pwm_t m_pwm[] = {
-                    {.instance = &m_pwm_instance_0, .timer_reg = NRF_TIMER1, .channels_allocated = 0},
-                    {.instance = &m_pwm_instance_1, .timer_reg = NRF_TIMER2, .channels_allocated = 0}
-                };
+    {.instance = &m_pwm_instance_0, .timer_reg = NRF_TIMER1, .channels_allocated = 0},
+    {.instance = &m_pwm_instance_1, .timer_reg = NRF_TIMER2, .channels_allocated = 0}
+};
 
-static inline void pwm_ticks_set(pwm_t* pwm, uint8_t channel, uint16_t ticks)
+static inline void pwm_ticks_set(pwm_t *pwm, uint8_t channel, uint16_t ticks)
 {
     pwm->duty_ticks[channel] = ticks;
     while (app_pwm_channel_duty_ticks_set(pwm->instance, channel, ticks) != NRF_SUCCESS);
 }
 
-static void pwm_reinit(pwm_t * pwm)
+static void pwm_reinit(pwm_t *pwm)
 {
     app_pwm_uninit(pwm->instance);
     app_pwm_config_t pwm_cfg = APP_PWM_DEFAULT_CONFIG_2CH(pwm->period_us,
@@ -87,7 +86,7 @@ static void pwm_reinit(pwm_t * pwm)
                                                           pwm->pins[1]);
     app_pwm_init(pwm->instance, &pwm_cfg, NULL);
     app_pwm_enable(pwm->instance);
-    
+
     for (uint8_t channel = 0; channel < PWM_CHANNELS_PER_INSTANCE; ++channel) {
         if ((pwm->channels_allocated & (1 << channel)) && (pwm->pins[channel] != APP_PWM_NOPIN)) {
             app_pwm_channel_duty_ticks_set(pwm->instance, channel, pwm->duty_ticks[channel]);
@@ -100,8 +99,7 @@ void GPIOTE_IRQHandler(void);// exported from nrf_drv_gpiote.c
 void TIMER1_IRQHandler(void);
 void TIMER2_IRQHandler(void);
 
-static const peripheral_handler_desc_t timer_handlers[] =
-{
+static const peripheral_handler_desc_t timer_handlers[] = {
     {
         TIMER1_IRQn,
         (uint32_t)TIMER1_IRQHandler
@@ -117,7 +115,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     if (pin == NC) {
         error("PwmOut init failed. Invalid pin name.");
     }
-    
+
     // Check if pin is already initialized and find the next free channel.
     uint8_t free_instance = 0xFF;
     uint8_t free_channel  = 0xFF;
@@ -130,16 +128,14 @@ void pwmout_init(pwmout_t *obj, PinName pin)
                         error("PwmOut init failed. Pin is already in use.");
                         return;
                     }
-                }
-                else {
+                } else {
                     if (free_instance == 0xFF) {
                         free_instance = inst;
                         free_channel  = channel;
                     }
                 }
             }
-        }
-        else {
+        } else {
             if (free_instance == 0xFF) {
                 free_instance = inst;
                 free_channel  = 0;
@@ -147,8 +143,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
         }
     }
 
-    if (free_instance == 0xFF)
-    {
+    if (free_instance == 0xFF) {
         error("PwmOut init failed. All available PWM channels are in use.");
         return;
     }
@@ -161,7 +156,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
         NVIC_SetVector(GPIOTE_IRQn, (uint32_t) GPIOTE_IRQHandler);
 
         NVIC_SetVector(timer_handlers[free_instance].IRQn, timer_handlers[free_instance].vector);
-        
+
         m_pwm[free_instance].period_us = PWM_DEFAULT_PERIOD_US;
         for (uint8_t channel = 1; channel < PWM_CHANNELS_PER_INSTANCE; ++channel) {
             m_pwm[free_instance].pins[channel] = APP_PWM_NOPIN;
@@ -170,8 +165,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
         app_pwm_config_t pwm_cfg = APP_PWM_DEFAULT_CONFIG_1CH(PWM_DEFAULT_PERIOD_US, pin);
         app_pwm_init(m_pwm[free_instance].instance, &pwm_cfg, NULL);
         app_pwm_enable(m_pwm[free_instance].instance);
-    }
-    else {
+    } else {
         pwm_reinit(&m_pwm[free_instance]);
     }
     m_pwm[free_instance].channels_allocated |= (1 << free_channel);
@@ -186,7 +180,7 @@ void pwmout_free(pwmout_t *obj)
     MBED_ASSERT(obj->pwm_name != (PWMName)NC);
     MBED_ASSERT(obj->pwm_channel < PWM_CHANNELS_PER_INSTANCE);
 
-    pwm_t * pwm = (pwm_t *) obj->pwm_struct;
+    pwm_t *pwm = (pwm_t *) obj->pwm_struct;
     pwm->channels_allocated &= ~(1 << obj->pwm_channel);
     pwm->pins[obj->pwm_channel] = APP_PWM_NOPIN;
     pwm->duty_ticks[obj->pwm_channel] = 0;
@@ -196,22 +190,22 @@ void pwmout_free(pwmout_t *obj)
         pwm_reinit(pwm);
     }
 
-    obj->pwm_struct = NULL;    
+    obj->pwm_struct = NULL;
 }
 
 void pwmout_write(pwmout_t *obj, float value)
 {
-    pwm_t * pwm = (pwm_t *) obj->pwm_struct;
+    pwm_t *pwm = (pwm_t *) obj->pwm_struct;
     if (value > 1.0f) {
         value = 1.0f;
     }
 
-    app_pwm_channel_duty_set(pwm->instance, obj->pwm_channel, (app_pwm_duty_t)(value * 100.0f) );
+    app_pwm_channel_duty_set(pwm->instance, obj->pwm_channel, (app_pwm_duty_t)(value * 100.0f));
 }
 
 float pwmout_read(pwmout_t *obj)
 {
-    pwm_t * pwm = (pwm_t *) obj->pwm_struct;
+    pwm_t *pwm = (pwm_t *) obj->pwm_struct;
     MBED_ASSERT(pwm != NULL);
     return ((float)pwm->duty_ticks[obj->pwm_channel] / (float)app_pwm_cycle_ticks_get(pwm->instance));
 }
@@ -228,7 +222,7 @@ void pwmout_period_ms(pwmout_t *obj, int ms)
 
 void pwmout_period_us(pwmout_t *obj, int us)
 {
-    pwm_t * pwm = (pwm_t *) obj->pwm_struct;
+    pwm_t *pwm = (pwm_t *) obj->pwm_struct;
     MBED_ASSERT(pwm != NULL);
     if (us < PWM_PERIOD_MIN) {
         us = PWM_PERIOD_MIN;
@@ -249,9 +243,9 @@ void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 
 void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
-    pwm_t * pwm = (pwm_t *) obj->pwm_struct;
+    pwm_t *pwm = (pwm_t *) obj->pwm_struct;
     MBED_ASSERT(pwm);
-    
+
     uint16_t ticks = nrf_timer_us_to_ticks((uint32_t)us, nrf_timer_frequency_get(pwm->timer_reg));
     pwm_ticks_set(pwm, obj->pwm_channel, ticks);
 }

@@ -49,8 +49,7 @@
 /*@}*/
 
 /*! @brief UTICK timer operational mode. */
-typedef enum _utick_mode
-{
+typedef enum _utick_mode {
     kUTICK_Onetime = 0x0U, /*!< Trigger once*/
     kUTICK_Repeat = 0x1U,  /*!< Trigger repeatedly */
 } utick_mode_t;

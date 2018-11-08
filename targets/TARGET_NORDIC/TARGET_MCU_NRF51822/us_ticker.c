@@ -189,8 +189,9 @@ void us_ticker_handler(void)
     if (NRF_RTC1->EVENTS_COMPARE[0]) {
         NRF_RTC1->EVENTS_COMPARE[0] = 0;
         NRF_RTC1->EVTENCLR          = RTC_EVTEN_COMPARE0_Msk;
-        if (us_ticker_callbackPending && ((int)(us_ticker_callbackTimestamp - rtc1_getCounter()) <= 0))
+        if (us_ticker_callbackPending && ((int)(us_ticker_callbackTimestamp - rtc1_getCounter()) <= 0)) {
             invokeCallback();
+        }
     }
 }
 
@@ -332,16 +333,16 @@ __asm void RTC1_IRQHandler(void)
        }
      * \endcode
      */
-    ldr r0,=0x40011144
-    ldr r1, [r0, #0]
-    cmp r1, #0
-    beq US_TICKER_HANDLER
-    bl OS_Tick_Handler
-US_TICKER_HANDLER
-    push {r3, lr}
-    bl us_ticker_handler
-    pop {r3, pc}
-    nop /* padding */
+    ldr r0, = 0x40011144
+              ldr r1, [r0, #0]
+              cmp r1, #0
+              beq US_TICKER_HANDLER
+              bl OS_Tick_Handler
+              US_TICKER_HANDLER
+              push {r3, lr}
+              bl us_ticker_handler
+              pop {r3, pc}
+              nop /* padding */
 }
 
 #elif defined (__GNUC__)        /* GNU Compiler */
@@ -368,18 +369,18 @@ __attribute__((naked)) void RTC1_IRQHandler(void)
        }
      * \endcode
      */
-    __asm__ (
+    __asm__(
         "ldr r0,=0x40011144\n"
-    	"ldr r1, [r0, #0]\n"
-    	"cmp r1, #0\n"
-    	"beq US_TICKER_HANDLER\n"
-    	"bl OS_Tick_Handler\n"
-	"US_TICKER_HANDLER:\n"
-    	"push {r3, lr}\n"
-    	"bl us_ticker_handler\n"
-    	"pop {r3, pc}\n"
+        "ldr r1, [r0, #0]\n"
+        "cmp r1, #0\n"
+        "beq US_TICKER_HANDLER\n"
+        "bl OS_Tick_Handler\n"
+        "US_TICKER_HANDLER:\n"
+        "push {r3, lr}\n"
+        "bl us_ticker_handler\n"
+        "pop {r3, pc}\n"
         "nop"
-	);
+    );
 }
 
 #else
@@ -414,7 +415,8 @@ __attribute__((naked)) void RTC1_IRQHandler(void)
  * Return the next number of clock cycle needed for the next tick.
  * @note This function has been carrefuly optimized for a systick occuring every 1000us.
  */
-static uint32_t get_next_tick_cc_delta() {
+static uint32_t get_next_tick_cc_delta()
+{
     uint32_t delta = 0;
 
     if (os_clockrate != 1000) {
@@ -450,7 +452,8 @@ static uint32_t get_next_tick_cc_delta() {
     return delta;
 }
 
-static inline void clear_tick_interrupt() {
+static inline void clear_tick_interrupt()
+{
     NRF_RTC1->EVENTS_COMPARE[1] = 0;
     NRF_RTC1->EVTENCLR = (1 << 17);
 }
@@ -462,7 +465,8 @@ static inline void clear_tick_interrupt() {
  * @param  val   value to check
  * @return       true if the value is included in the range and false otherwise.
  */
-static inline bool is_in_wrapped_range(uint32_t begin, uint32_t end, uint32_t val) {
+static inline bool is_in_wrapped_range(uint32_t begin, uint32_t end, uint32_t val)
+{
     // regular case, begin < end
     // return true if  begin <= val < end
     if (begin < end) {
@@ -486,7 +490,8 @@ static inline bool is_in_wrapped_range(uint32_t begin, uint32_t end, uint32_t va
 /**
  * Register the next tick.
  */
-static void register_next_tick() {
+static void register_next_tick()
+{
     previous_tick_cc_value = NRF_RTC1->CC[1];
     uint32_t delta = get_next_tick_cc_delta();
     uint32_t new_compare_value = (previous_tick_cc_value + delta) & MAX_RTC_COUNTER_VAL;
@@ -518,7 +523,7 @@ static void register_next_tick() {
  * @note this function shouldn't be called directly.
  * @return  IRQ number of the alternative hardware timer
  */
-int os_tick_init (void)
+int os_tick_init(void)
 {
     // their is no need to start the LF clock, it is already started by SystemInit.
     NVIC_SetPriority(RTC1_IRQn, RTC1_IRQ_PRI);
@@ -553,7 +558,8 @@ void os_tick_irqack(void)
  * @note This function is exposed by RTX kernel.
  * @return 1 if the timer has overflowed and 0 otherwise.
  */
-uint32_t os_tick_ovf(void) {
+uint32_t os_tick_ovf(void)
+{
     uint32_t current_counter = NRF_RTC1->COUNTER;
     uint32_t next_tick_cc_value = NRF_RTC1->CC[1];
 
@@ -569,15 +575,16 @@ uint32_t os_tick_ovf(void) {
  * descending order, even if the internal counter used is an ascending one.
  * @return the value of the alternative hardware timer.
  */
-uint32_t os_tick_val(void) {
+uint32_t os_tick_val(void)
+{
     uint32_t current_counter = NRF_RTC1->COUNTER;
     uint32_t next_tick_cc_value = NRF_RTC1->CC[1];
 
     // do not use os_tick_ovf because its counter value can be different
-    if(is_in_wrapped_range(previous_tick_cc_value, next_tick_cc_value, current_counter)) {
+    if (is_in_wrapped_range(previous_tick_cc_value, next_tick_cc_value, current_counter)) {
         if (next_tick_cc_value > previous_tick_cc_value) {
             return next_tick_cc_value - current_counter;
-        } else if(current_counter <= next_tick_cc_value) {
+        } else if (current_counter <= next_tick_cc_value) {
             return next_tick_cc_value - current_counter;
         } else {
             return next_tick_cc_value + (MAX_RTC_COUNTER_VAL - current_counter);

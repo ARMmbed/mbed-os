@@ -66,18 +66,17 @@ extern "C" {
 #ifdef LDMA_PRESENT
 typedef void (*LDMAx_CBFunc_t)(unsigned int channel, bool primary, void *user);
 
-typedef struct
-{
+typedef struct {
     LDMAx_CBFunc_t cbFunc;
     void *userPtr;
 } LDMAx_Callback_t;
 
-void LDMAx_StartTransfer(  int ch,
-                           LDMA_TransferCfg_t *transfer,
-                           LDMA_Descriptor_t  *descriptor,
-                           LDMAx_CBFunc_t cbFunc,
-                           void *userData );
-bool LDMAx_ChannelEnabled( int ch );
+void LDMAx_StartTransfer(int ch,
+                         LDMA_TransferCfg_t *transfer,
+                         LDMA_Descriptor_t  *descriptor,
+                         LDMAx_CBFunc_t cbFunc,
+                         void *userData);
+bool LDMAx_ChannelEnabled(int ch);
 #endif
 
 typedef struct {

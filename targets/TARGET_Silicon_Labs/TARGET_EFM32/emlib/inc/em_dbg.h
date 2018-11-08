@@ -71,7 +71,7 @@ extern "C" {
  ******************************************************************************/
 __STATIC_INLINE bool DBG_Connected(void)
 {
-  return (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk) ? true : false;
+    return (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk) ? true : false;
 }
 #endif
 

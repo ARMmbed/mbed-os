@@ -83,20 +83,19 @@ extern "C" {
 /*!
  * Handle for managing the UART device typedef.
  */
-typedef struct _ADI_UART_DEVICE* ADI_UART_HANDLE;
+typedef struct _ADI_UART_DEVICE *ADI_UART_HANDLE;
 
 /*!
  * Handle for managing the UART device typedef 'const' version.
  */
-typedef const struct _ADI_UART_DEVICE* ADI_UART_CONST_HANDLE;
+typedef const struct _ADI_UART_DEVICE *ADI_UART_CONST_HANDLE;
 
 /*!
  *****************************************************************************
  *  \enum ADI_UART_DIRECTION
  *   Enumeration for the UART direction.
  *****************************************************************************/
-typedef enum
-{
+typedef enum {
     ADI_UART_DIR_TRANSMIT,                              /*!< UART is only transmitting.   */
 
     ADI_UART_DIR_RECEIVE,                               /*!< UART is only receiving.      */
@@ -111,8 +110,7 @@ typedef enum
  *  \enum ADI_UART_EVENT
  *   Enumeration of events notified in the application provided callback.
  *****************************************************************************/
- typedef enum
-{
+typedef enum {
     ADI_UART_EVENT_RX_BUFFER_PROCESSED,                 /*!< Rx buffer is processed.                                   */
 
     ADI_UART_EVENT_TX_BUFFER_PROCESSED,                 /*!< Tx buffer is processed.                                   */
@@ -122,10 +120,10 @@ typedef enum
     ADI_UART_EVENT_AUTOBAUD_COMPLETE,                   /*!< Autobaud is complete.                                     */
 
     ADI_UART_EVENT_HW_ERROR_DETECTED,                   /*!< Hardware error detected.                                  */
-    
+
     ADI_UART_EVENT_AUTOBAUD_ERROR_DETECTED              /*!< Autobaud error detected.                                  */
-    
-}ADI_UART_EVENT;
+
+} ADI_UART_EVENT;
 
 
 /*!
@@ -135,8 +133,7 @@ typedef enum
  *   The return value of all UART APIs returning #ADI_UART_RESULT
  *   should always be tested at the application level for success or failure.
  *****************************************************************************/
- typedef enum
-{
+typedef enum {
 
     ADI_UART_SUCCESS,                           /*!< Generic success.                                               */
 
@@ -170,9 +167,9 @@ typedef enum
     ADI_UART_HW_ERROR_DETECTED,                 /*!< Hardware error detected.                                       */
 
     ADI_UART_AUTOBAUD_ERROR_DETECTED,           /*!< Autobaud error detected.                                       */
-      
+
     ADI_UART_ERR_DMA_REGISTER,                  /*!< Error while registering the DMA callback.                      */
-      
+
     ADI_UART_INVALID_DATA_SIZE                  /*!< Invalid transfer size. Must be less than 1025 bytes            */
 
 } ADI_UART_RESULT;
@@ -184,8 +181,7 @@ typedef enum
  *   either callback or interrupt mode, they are mapped to #ADI_UART_HW_ERRORS.
  *   Interpretation of the break condition is application specific.
  *****************************************************************************/
-typedef enum
-{
+typedef enum {
     ADI_UART_NO_HW_ERROR                     = 0x00,   /*!< No hardware error.                                             */
 
     ADI_UART_HW_ERR_FRAMING                  = 0x10,   /*!< Rx framing error.                                              */
@@ -193,22 +189,22 @@ typedef enum
     ADI_UART_HW_ERR_PARITY                   = 0x20,   /*!< Rx parity error.                                               */
 
     ADI_UART_HW_ERR_OVERRUN                  = 0x40,   /*!< Receive overrun.                                               */
- 
+
     ADI_UART_BREAK_INTERRUPT                 = 0x80,   /*!< Break condition.                                               */
-      
+
     ADI_UART_HW_ERR_RX_CHAN_DMA_BUS_FAULT     = 0x100,  /*!< Rx DMA channel bus fault detected.                             */
-    
+
     ADI_UART_HW_ERR_TX_CHAN_DMA_BUS_FAULT     = 0x200,  /*!< Tx DMA channel bus fault detected.                             */
-   
+
     ADI_UART_HW_ERR_RX_CHAN_DMA_INVALID_DESCR = 0x400,  /*!< Rx DMA channel invalid descriptor detected.                    */
-    
+
     ADI_UART_HW_ERR_TX_CHAN_DMA_INVALID_DESCR = 0x800,  /*!< Tx DMA channel invalid descriptor detected.                    */
-    
+
     ADI_UART_HW_ERR_RX_CHAN_DMA_UNKNOWN_ERROR = 0x1000, /*!< Rx DMA channel unknown error detected.                         */
-  
+
     ADI_UART_HW_ERR_TX_CHAN_DMA_UNKNOWN_ERROR = 0x2000, /*!< Tx DMA channel unknown error detected.                         */
 
-}ADI_UART_HW_ERRORS;
+} ADI_UART_HW_ERRORS;
 
 /*!
  *****************************************************************************
@@ -216,8 +212,7 @@ typedef enum
  *   Enumeration for UART autobaud errors. If autobaud related error(s) occur
  *   they are mapped to #ADI_UART_AUTOBAUD_ERRORS.
  *****************************************************************************/
-typedef enum
-{
+typedef enum {
     ADI_UART_AUTOBAUD_NO_ERROR              = 0x000,  /*!< No autobaud error.                                           */
 
     ADI_UART_AUTOBAUD_TIMEOUT_NO_START_EDGE = 0x100,  /*!< Timeout due to no valid start edge found during autobaud.    */
@@ -226,33 +221,31 @@ typedef enum
 
     ADI_UART_AUTOBAUD_TIMEOUT_NO_END_EDGE   = 0x400   /*!< Timeout due to no valid end edge found during autobaud.      */
 
-}ADI_UART_AUTOBAUD_ERRORS;
+} ADI_UART_AUTOBAUD_ERRORS;
 
 /*!
  *****************************************************************************
  *  \enum ADI_UART_TRIG_LEVEL
  *   Enumeration for the FIFO trigger level.
  *****************************************************************************/
-typedef enum
-{
+typedef enum {
 
     ADI_UART_RX_FIFO_TRIG_LEVEL_1BYTE   =  0 << BITP_UART_FCR_RFTRIG,  /*!< 1-byte to trigger RX interrupt.  */
 
     ADI_UART_RX_FIFO_TRIG_LEVEL_4BYTE   =  1 << BITP_UART_FCR_RFTRIG,  /*!< 4-byte to trigger RX interrupt.  */
-    
+
     ADI_UART_RX_FIFO_TRIG_LEVEL_8BYTE   =  2 << BITP_UART_FCR_RFTRIG,  /*!< 8-byte to trigger RX interrupt.  */
-    
+
     ADI_UART_RX_FIFO_TRIG_LEVEL_14BYTE  =  3 << BITP_UART_FCR_RFTRIG   /*!< 14-byte to trigger RX interrupt. */
 
-}ADI_UART_TRIG_LEVEL;
+} ADI_UART_TRIG_LEVEL;
 
 /*!
  *****************************************************************************
  *  \enum ADI_UART_WORDLEN
- *   Enumeration for data width. 
+ *   Enumeration for data width.
  *****************************************************************************/
-typedef enum
-{
+typedef enum {
     ADI_UART_WORDLEN_5BITS,             /*!< 5 bits wide. */
 
     ADI_UART_WORDLEN_6BITS,             /*!< 6 bits wide. */
@@ -268,8 +261,7 @@ typedef enum
  *  \enum ADI_UART_PARITY
  *   Enumeration for parity check.
  *****************************************************************************/
-typedef enum
-{
+typedef enum {
     ADI_UART_NO_PARITY          =  0x0,  /*!< No parity.          */
 
     ADI_UART_ODD_PARITY         =  0x8,  /*!< Odd parity.         */
@@ -279,7 +271,7 @@ typedef enum
     ADI_UART_ODD_PARITY_STICKY  =  0x28, /*!< Sticky odd parity.  */
 
     ADI_UART_EVEN_PARITY_STICKY =  0x38  /*!< Sticky even parity. */
-      
+
 } ADI_UART_PARITY;
 
 /*!
@@ -287,14 +279,13 @@ typedef enum
  *  \enum ADI_UART_STOPBITS
  *   Enumeration for the number of stop bits.
  *****************************************************************************/
-typedef enum
-{
-    
+typedef enum {
+
     ADI_UART_ONE_STOPBIT               = 0x00,          /*! One stop bit regardless of the word length                           */
-   
-    ADI_UART_ONE_AND_HALF_TWO_STOPBITS = 0x04           /*! Number of stop bits based on word length. 1.5 stop bits 
+
+    ADI_UART_ONE_AND_HALF_TWO_STOPBITS = 0x04           /*! Number of stop bits based on word length. 1.5 stop bits
                                                             for word length of 5 bits and 2 for rest( 6,7,8 bit word length)     */
-      
+
 } ADI_UART_STOPBITS;
 
 /*!
@@ -302,14 +293,13 @@ typedef enum
  * \enum  ADI_UART_TRANSFER_MODE
  *  Enumeration for data transfer mode.
  *****************************************************************************/
-typedef enum
-{
-    
-    ADI_UART_DATA_TRANSFER_MODE_NONE,       /*! Mode of data transfer is not selected.                             */ 
-    
-    ADI_UART_DATA_TRANSFER_MODE_BLOCKING,   /*! Blocking mode. Only calls to adi_uart_Read or adi_uart_write  
+typedef enum {
+
+    ADI_UART_DATA_TRANSFER_MODE_NONE,       /*! Mode of data transfer is not selected.                             */
+
+    ADI_UART_DATA_TRANSFER_MODE_BLOCKING,   /*! Blocking mode. Only calls to adi_uart_Read or adi_uart_write
                                                 are allowed for sending or receiving data.                         */
-    
+
     ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING /*! Non-Blocking mode. Only calls to adi_uart_SubmitRxBuffer or
                                                 adi_uart_SubmitTxBuffer are allowed for sending or receiving data. */
 
@@ -324,15 +314,15 @@ typedef enum
  * Device initialization and uninitialization interfaces.
 */
 ADI_UART_RESULT adi_uart_Open(
-                uint32_t           const nDeviceNum,
-                ADI_UART_DIRECTION const eDirection,
-                void                    *pMemory,
-                uint32_t           const nMemSize,
-                ADI_UART_HANDLE   *const phDevice
+    uint32_t           const nDeviceNum,
+    ADI_UART_DIRECTION const eDirection,
+    void                    *pMemory,
+    uint32_t           const nMemSize,
+    ADI_UART_HANDLE   *const phDevice
 );
 
 ADI_UART_RESULT adi_uart_Close(
-                ADI_UART_HANDLE  const   hDevice
+    ADI_UART_HANDLE  const   hDevice
 );
 
 
@@ -345,38 +335,38 @@ ADI_UART_RESULT adi_uart_Close(
 */
 
 ADI_UART_RESULT adi_uart_SubmitTxBuffer(
-                ADI_UART_HANDLE const    hDevice,
-                void           *const    pBuffer,
-                uint32_t        const    nBufSize,
-                bool            const    bDMA
+    ADI_UART_HANDLE const    hDevice,
+    void           *const    pBuffer,
+    uint32_t        const    nBufSize,
+    bool            const    bDMA
 );
 
 ADI_UART_RESULT adi_uart_SubmitRxBuffer(
-                ADI_UART_HANDLE const    hDevice,
-                void           *const    pBuffer,
-                uint32_t        const    nBufSize,
-                bool            const    bDMA
+    ADI_UART_HANDLE const    hDevice,
+    void           *const    pBuffer,
+    uint32_t        const    nBufSize,
+    bool            const    bDMA
 );
 
 ADI_UART_RESULT adi_uart_GetTxBuffer(
-                ADI_UART_HANDLE const    hDevice,
-                void          **const    ppBuffer,
-                uint32_t                *pHwError
+    ADI_UART_HANDLE const    hDevice,
+    void          **const    ppBuffer,
+    uint32_t                *pHwError
 );
 
 ADI_UART_RESULT adi_uart_GetRxBuffer(
-                ADI_UART_HANDLE const    hDevice,
-                void          **const    ppBuffer,
-                uint32_t                *pHwError
+    ADI_UART_HANDLE const    hDevice,
+    void          **const    ppBuffer,
+    uint32_t                *pHwError
 );
 ADI_UART_RESULT adi_uart_IsTxBufferAvailable(
-                ADI_UART_HANDLE const    hDevice,
-                bool           *const    pbAvailable
+    ADI_UART_HANDLE const    hDevice,
+    bool           *const    pbAvailable
 );
 
 ADI_UART_RESULT adi_uart_IsRxBufferAvailable(
-                ADI_UART_HANDLE const    hDevice,
-                bool           *const    pbAvailable
+    ADI_UART_HANDLE const    hDevice,
+    bool           *const    pbAvailable
 );
 
 /*
@@ -384,19 +374,19 @@ ADI_UART_RESULT adi_uart_IsRxBufferAvailable(
 */
 
 ADI_UART_RESULT adi_uart_Write(
-                ADI_UART_HANDLE const    hDevice,
-                void           *const    pBuffer,
-                uint32_t        const    nBufSize,
-                bool            const    bDMA,
-                uint32_t                *pHwError
+    ADI_UART_HANDLE const    hDevice,
+    void           *const    pBuffer,
+    uint32_t        const    nBufSize,
+    bool            const    bDMA,
+    uint32_t                *pHwError
 );
 
 ADI_UART_RESULT adi_uart_Read(
-                ADI_UART_HANDLE const    hDevice,
-                void           *const    pBuffer,
-                uint32_t        const    nBufSize,
-                bool            const    bDMA,
-                uint32_t                *pHwError
+    ADI_UART_HANDLE const    hDevice,
+    void           *const    pBuffer,
+    uint32_t        const    nBufSize,
+    bool            const    bDMA,
+    uint32_t                *pHwError
 );
 
 
@@ -405,50 +395,50 @@ ADI_UART_RESULT adi_uart_Read(
 */
 
 ADI_UART_RESULT adi_uart_EnableLoopBack(
-                ADI_UART_HANDLE const     hDevice,
-                bool            const     bEnable
+    ADI_UART_HANDLE const     hDevice,
+    bool            const     bEnable
 );
 
 ADI_UART_RESULT adi_uart_EnableAutobaud(
-                ADI_UART_HANDLE const     hDevice,
-                bool            const     bEnable,
-                bool            const     bAutobaudCallbackMode
+    ADI_UART_HANDLE const     hDevice,
+    bool            const     bEnable,
+    bool            const     bAutobaudCallbackMode
 );
 
 ADI_UART_RESULT adi_uart_SetRxFifoTriggerLevel(
-                ADI_UART_CONST_HANDLE     const hDevice,
-                ADI_UART_TRIG_LEVEL       const eTriglevel
+    ADI_UART_CONST_HANDLE     const hDevice,
+    ADI_UART_TRIG_LEVEL       const eTriglevel
 );
 
 ADI_UART_RESULT adi_uart_EnableFifo(
-                ADI_UART_HANDLE const     hDevice,
-                bool            const     bEnable
+    ADI_UART_HANDLE const     hDevice,
+    bool            const     bEnable
 );
 
 ADI_UART_RESULT adi_uart_GetBaudRate(
-                ADI_UART_HANDLE const     hDevice,
-                uint32_t                 *pnBaudRate,
-                uint32_t                 *pAutobaudError
+    ADI_UART_HANDLE const     hDevice,
+    uint32_t                 *pnBaudRate,
+    uint32_t                 *pAutobaudError
 );
 
 ADI_UART_RESULT adi_uart_ForceTxBreak(
-                ADI_UART_HANDLE const     hDevice,
-                bool            const     bEnable
+    ADI_UART_HANDLE const     hDevice,
+    bool            const     bEnable
 );
 
 ADI_UART_RESULT adi_uart_SetConfiguration(
-                ADI_UART_HANDLE   const  hDevice,
-                ADI_UART_PARITY   const  eParity,
-                ADI_UART_STOPBITS const  eStopBits,
-                ADI_UART_WORDLEN  const  eWordLength
+    ADI_UART_HANDLE   const  hDevice,
+    ADI_UART_PARITY   const  eParity,
+    ADI_UART_STOPBITS const  eStopBits,
+    ADI_UART_WORDLEN  const  eWordLength
 );
 
 ADI_UART_RESULT adi_uart_ConfigBaudRate(
-                ADI_UART_HANDLE   const hDevice,
-                uint16_t          const nDivC,
-                uint8_t           const nDivM,
-                uint16_t          const nDivN,
-                uint8_t           const nOSR  
+    ADI_UART_HANDLE   const hDevice,
+    uint16_t          const nDivC,
+    uint8_t           const nDivM,
+    uint16_t          const nDivN,
+    uint8_t           const nOSR
 );
 
 /*
@@ -456,25 +446,25 @@ ADI_UART_RESULT adi_uart_ConfigBaudRate(
 */
 
 ADI_UART_RESULT adi_uart_FlushTxFifo(
-                ADI_UART_CONST_HANDLE const  hDevice
+    ADI_UART_CONST_HANDLE const  hDevice
 );
 
 ADI_UART_RESULT adi_uart_FlushRxFifo(
-                ADI_UART_CONST_HANDLE const  hDevice
+    ADI_UART_CONST_HANDLE const  hDevice
 );
 
 ADI_UART_RESULT adi_uart_FlushRxChannel(
-                ADI_UART_CONST_HANDLE const  hDevice
+    ADI_UART_CONST_HANDLE const  hDevice
 );
 
 
 ADI_UART_RESULT adi_uart_FlushTxChannel(
-                ADI_UART_CONST_HANDLE const  hDevice
+    ADI_UART_CONST_HANDLE const  hDevice
 );
 
 ADI_UART_RESULT adi_uart_IsTxComplete(
-                ADI_UART_HANDLE const hDevice,
-                bool           *const pbComplete
+    ADI_UART_HANDLE const hDevice,
+    bool           *const pbComplete
 );
 
 /*
@@ -482,9 +472,9 @@ ADI_UART_RESULT adi_uart_IsTxComplete(
 */
 
 ADI_UART_RESULT adi_uart_RegisterCallback(
-                ADI_UART_HANDLE const    hDevice,
-                const ADI_CALLBACK       pfCallback,
-                void           *const    pCBParam
+    ADI_UART_HANDLE const    hDevice,
+    const ADI_CALLBACK       pfCallback,
+    void           *const    pCBParam
 );
 
 #ifdef __cplusplus

@@ -75,7 +75,7 @@
 #define CANTEST_SILENT                 (1 << 3)           // Silent mode
 #define CANTEST_LBACK                  (1 << 4)           // Loop back mode
 #define CANTEST_TX_MASK                0x0060             // Control of CAN_TXD pins
-#define CANTEST_TX_SHIFT               5                 
+#define CANTEST_TX_SHIFT               5
 #define CANTEST_RX                     (1 << 7)           // Monitors the actual value of the CAN_RXD pin.
 
 static uint32_t can_irq_id = 0;
@@ -91,38 +91,41 @@ static can_irq_handler irq_handler;
 #define IRQ_ENABLE_ANY (IRQ_ENABLE_STATUS | IRQ_ENABLE_ERROR)
 static uint32_t enabled_irqs = 0;
 
-static inline void can_disable(can_t *obj) {
+static inline void can_disable(can_t *obj)
+{
     LPC_C_CAN0->CANCNTL |= 0x1;
 }
 
-static inline void can_enable(can_t *obj) {
+static inline void can_enable(can_t *obj)
+{
     if (LPC_C_CAN0->CANCNTL & 0x1) {
         LPC_C_CAN0->CANCNTL &= ~(0x1);
     }
 }
 
-int can_mode(can_t *obj, CanMode mode) {
+int can_mode(can_t *obj, CanMode mode)
+{
     int success = 0;
     switch (mode) {
         case MODE_RESET:
-            LPC_C_CAN0->CANCNTL &=~CANCNTL_TEST;
+            LPC_C_CAN0->CANCNTL &= ~CANCNTL_TEST;
             can_disable(obj);
             success = 1;
             break;
         case MODE_NORMAL:
-            LPC_C_CAN0->CANCNTL &=~CANCNTL_TEST;
+            LPC_C_CAN0->CANCNTL &= ~CANCNTL_TEST;
             can_enable(obj);
             success = 1;
             break;
         case MODE_SILENT:
             LPC_C_CAN0->CANCNTL |= CANCNTL_TEST;
             LPC_C_CAN0->CANTEST |= CANTEST_SILENT;
-            LPC_C_CAN0->CANTEST &=~ CANTEST_LBACK;
+            LPC_C_CAN0->CANTEST &= ~ CANTEST_LBACK;
             success = 1;
             break;
         case MODE_TEST_LOCAL:
             LPC_C_CAN0->CANCNTL |= CANCNTL_TEST;
-            LPC_C_CAN0->CANTEST &=~CANTEST_SILENT;
+            LPC_C_CAN0->CANTEST &= ~CANTEST_SILENT;
             LPC_C_CAN0->CANTEST |= CANTEST_LBACK;
             success = 1;
             break;
@@ -136,11 +139,12 @@ int can_mode(can_t *obj, CanMode mode) {
             success = 0;
             break;
     }
-    
+
     return success;
 }
 
-int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) {
+int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle)
+{
     uint16_t i;
 
     // Find first free message object
@@ -150,7 +154,7 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
         // Find first free messagebox
         for (i = 0; i < 32; i++) {
             if ((msgval & (1 << i)) == 0) {
-                handle = i+1;
+                handle = i + 1;
                 break;
             }
         }
@@ -179,13 +183,14 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
         LPC_C_CAN0->CANIF1_CMDREQ = (handle & 0x3F);
 
         // Wait until transfer to message ram complete - TODO: maybe not block??
-        while ( LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY );
+        while (LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY);
     }
 
     return handle;
 }
 
-static inline void can_irq() {
+static inline void can_irq()
+{
     uint32_t intid = LPC_C_CAN0->CANINT & 0xFFFF;
 
     if (intid == 0x8000) {
@@ -224,41 +229,44 @@ static inline void can_irq() {
 }
 
 // Register CAN object's irq handler
-void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id) {
+void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
+{
     irq_handler = handler;
     can_irq_id = id;
 }
 
 // Unregister CAN object's irq handler
-void can_irq_free(can_t *obj) {
+void can_irq_free(can_t *obj)
+{
     LPC_C_CAN0->CANCNTL &= ~(1UL << 1); // Disable Interrupts :)
     can_irq_id = 0;
     NVIC_DisableIRQ(C_CAN0_IRQn);
 }
 
 // Clear or set a irq
-void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable) {
+void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
+{
     uint32_t mask_enable;
     switch (type) {
-       case IRQ_RX:
-           mask_enable = IRQ_ENABLE_RX;
-           break;
-       case IRQ_TX:
-           mask_enable = IRQ_ENABLE_TX;
-           break;
-       case IRQ_BUS:
-           mask_enable = IRQ_ENABLE_BE;
-           break;
-       case IRQ_PASSIVE:
-           mask_enable = IRQ_ENABLE_EP;
-           break;
-       case IRQ_ERROR:
-           mask_enable = IRQ_ENABLE_EW;
-           break;
-       default:
-           return;
+        case IRQ_RX:
+            mask_enable = IRQ_ENABLE_RX;
+            break;
+        case IRQ_TX:
+            mask_enable = IRQ_ENABLE_TX;
+            break;
+        case IRQ_BUS:
+            mask_enable = IRQ_ENABLE_BE;
+            break;
+        case IRQ_PASSIVE:
+            mask_enable = IRQ_ENABLE_EP;
+            break;
+        case IRQ_ERROR:
+            mask_enable = IRQ_ENABLE_EW;
+            break;
+        default:
+            return;
     }
-    
+
     if (enable) {
         enabled_irqs = enabled_irqs | mask_enable;
     } else {
@@ -282,9 +290,9 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable) {
             LPC_C_CAN0->CANCNTL |= 1UL << 3;
         } else {
             LPC_C_CAN0->CANCNTL &= ~(1UL << 3);
-        } 
+        }
     }
-    
+
     // Take it out of reset...
     can_enable(obj);
 
@@ -321,7 +329,8 @@ static const int timing_pts[23][2] = {
     {0xF, 0x7},      // 24, 67%
 };
 
-static unsigned int can_speed(unsigned int sclk, unsigned int cclk, unsigned char psjw) {
+static unsigned int can_speed(unsigned int sclk, unsigned int cclk, unsigned char psjw)
+{
     uint32_t    btr;
     uint32_t    clkdiv = 1;
     uint16_t    brp = 0;
@@ -348,9 +357,9 @@ static unsigned int can_speed(unsigned int sclk, unsigned int cclk, unsigned cha
 
     if (hit) {
         btr = (timing_pts[bits][1] & 0x7) << 12
-            | (timing_pts[bits][0] & 0xf) << 8
-            | (psjw & 0x3) << 6
-            | (brp & 0x3F);
+              | (timing_pts[bits][0] & 0xf) << 8
+              | (psjw & 0x3) << 6
+              | (brp & 0x3F);
         btr = btr | (clkdiv << 16);
     } else {
         btr = 0;
@@ -360,18 +369,19 @@ static unsigned int can_speed(unsigned int sclk, unsigned int cclk, unsigned cha
 }
 
 
-int can_config_rxmsgobj(can_t *obj) {
+int can_config_rxmsgobj(can_t *obj)
+{
     uint16_t i = 0;
 
     // Make sure the interface is available
-    while ( LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY );
+    while (LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY);
 
     // Mark message valid, Direction = RX, Don't care about anything else
     LPC_C_CAN0->CANIF1_ARB1 = 0;
     LPC_C_CAN0->CANIF1_ARB2 = 0;
     LPC_C_CAN0->CANIF1_MCTRL = 0;
 
-    for ( i = 1; i <= RX_MSG_OBJ_COUNT; i++ ) {
+    for (i = 1; i <= RX_MSG_OBJ_COUNT; i++) {
         // Transfer arb and control fields to message object
         LPC_C_CAN0->CANIF1_CMDMSK_W = CANIFn_CMDMSK_WR | CANIFn_CMDMSK_ARB | CANIFn_CMDMSK_CTRL;
 
@@ -379,7 +389,7 @@ int can_config_rxmsgobj(can_t *obj) {
         LPC_C_CAN0->CANIF1_CMDREQ = (i & 0x3F);
 
         // Wait until transfer to message ram complete - TODO: maybe not block??
-        while ( LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY );
+        while (LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY);
     }
 
     // Accept all messages
@@ -388,19 +398,19 @@ int can_config_rxmsgobj(can_t *obj) {
     return 1;
 }
 
-int can_config_txmsgobj(can_t *obj) {
+int can_config_txmsgobj(can_t *obj)
+{
     uint16_t i = 0;
 
     // Make sure the interface is available
-    while ( LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY );
+    while (LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY);
 
     // Mark message valid, Direction = TX, Don't care about anything else
     LPC_C_CAN0->CANIF1_ARB1 = 0;
     LPC_C_CAN0->CANIF1_ARB2 = CANIFn_ARB2_DIR;
     LPC_C_CAN0->CANIF1_MCTRL = 0;
 
-    for ( i = RX_MSG_OBJ_COUNT + 1; i <= (TX_MSG_OBJ_COUNT + RX_MSG_OBJ_COUNT); i++ )
-    {
+    for (i = RX_MSG_OBJ_COUNT + 1; i <= (TX_MSG_OBJ_COUNT + RX_MSG_OBJ_COUNT); i++) {
         // Transfer arb and control fields to message object
         LPC_C_CAN0->CANIF1_CMDMSK_W = CANIFn_CMDMSK_WR | CANIFn_CMDMSK_ARB | CANIFn_CMDMSK_CTRL;
         // In a union with CANIF1_CMDMSK_R
@@ -409,13 +419,14 @@ int can_config_txmsgobj(can_t *obj) {
         LPC_C_CAN0->CANIF1_CMDREQ = i & 0x3F;
 
         // Wait until transfer to message ram complete - TODO: maybe not block??
-        while( LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY );
+        while (LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY);
     }
 
     return 1;
 }
 
-void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
+{
     // Enable power and clock
     LPC_SYSCON->SYSAHBCLKCTRL1 |= (1UL << 7);
     LPC_SYSCON->PRESETCTRL1    |= (1UL << 7);
@@ -433,7 +444,7 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
 
     // Resume operation
     LPC_C_CAN0->CANCNTL &= ~(1UL << 0);
-    while ( LPC_C_CAN0->CANCNTL & (1UL << 0) );
+    while (LPC_C_CAN0->CANCNTL & (1UL << 0));
 
     // Initialize RX message object
     can_config_rxmsgobj(obj);
@@ -441,16 +452,19 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
     can_config_txmsgobj(obj);
 }
 
-void can_init(can_t *obj, PinName rd, PinName td) {
+void can_init(can_t *obj, PinName rd, PinName td)
+{
     can_init_freq(obj, rd, td, 100000);
 }
 
-void can_free(can_t *obj) {
+void can_free(can_t *obj)
+{
     LPC_SYSCON->SYSAHBCLKCTRL1 &= ~(1UL << 7);
     LPC_SYSCON->PRESETCTRL1    &= ~(1UL << 7);
 }
 
-int can_frequency(can_t *obj, int f) {
+int can_frequency(can_t *obj, int f)
+{
     int btr = can_speed(SystemCoreClock, (unsigned int)f, 1);
     int clkdiv = (btr >> 16) & 0x0F;
     btr = btr & 0xFFFF;
@@ -467,7 +481,8 @@ int can_frequency(can_t *obj, int f) {
     return 0;
 }
 
-int can_write(can_t *obj, CAN_Message msg, int cc) {
+int can_write(can_t *obj, CAN_Message msg, int cc)
+{
 
     // Make sure controller is enabled
     can_enable(obj);
@@ -476,9 +491,9 @@ int can_write(can_t *obj, CAN_Message msg, int cc) {
     uint16_t msgnum = 0;
     uint32_t txPending = (LPC_C_CAN0->CANTXREQ1 & 0xFF) | (LPC_C_CAN0->CANTXREQ2 << 16);
     uint16_t i = 0;
-    for(i = RX_MSG_OBJ_COUNT; i < 32; i++) {
+    for (i = RX_MSG_OBJ_COUNT; i < 32; i++) {
         if ((txPending & (1 << i)) == 0) {
-            msgnum = i+1;
+            msgnum = i + 1;
             break;
         }
     }
@@ -489,7 +504,7 @@ int can_write(can_t *obj, CAN_Message msg, int cc) {
     }
 
     // Make sure the interface is available
-    while ( LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY );
+    while (LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY);
 
     // Set the direction bit based on the message type
     uint32_t direction = 0;
@@ -524,7 +539,7 @@ int can_write(can_t *obj, CAN_Message msg, int cc) {
     LPC_C_CAN0->CANIF1_CMDREQ = (msgnum & 0x3F);
 
     // Wait until transfer to message ram complete - TODO: maybe not block??
-    while ( LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY);
+    while (LPC_C_CAN0->CANIF1_CMDREQ & CANIFn_CMDREQ_BUSY);
 
     // Wait until TXOK is set, then clear it - TODO: maybe not block
     //while ( !(LPC_C_CAN0->STAT & CANSTAT_TXOK) );
@@ -533,7 +548,8 @@ int can_write(can_t *obj, CAN_Message msg, int cc) {
     return 1;
 }
 
-int can_read(can_t *obj, CAN_Message *msg, int handle) {
+int can_read(can_t *obj, CAN_Message *msg, int handle)
+{
     uint16_t i;
 
     // Make sure controller is enabled
@@ -545,7 +561,7 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
         // Find first free messagebox
         for (i = 0; i < RX_MSG_OBJ_COUNT; i++) {
             if (newdata & (1 << i)) {
-                handle = i+1;
+                handle = i + 1;
                 break;
             }
         }
@@ -553,7 +569,7 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
 
     if (handle > 0 && handle <= 32) {
         // Wait until message interface is free
-        while ( LPC_C_CAN0->CANIF2_CMDREQ & CANIFn_CMDREQ_BUSY );
+        while (LPC_C_CAN0->CANIF2_CMDREQ & CANIFn_CMDREQ_BUSY);
 
         // Transfer all fields to message object
         LPC_C_CAN0->CANIF2_CMDMSK_W = CANIFn_CMDMSK_RD | CANIFn_CMDMSK_MASK | CANIFn_CMDMSK_ARB | CANIFn_CMDMSK_CTRL | CANIFn_CMDMSK_CLRINTPND | CANIFn_CMDMSK_TXRQST | CANIFn_CMDMSK_DATA_A | CANIFn_CMDMSK_DATA_B;
@@ -562,7 +578,7 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
         LPC_C_CAN0->CANIF2_CMDREQ = (handle & 0x3F);
 
         // Wait until transfer to message ram complete
-        while ( LPC_C_CAN0->CANIF2_CMDREQ & CANIFn_CMDREQ_BUSY );
+        while (LPC_C_CAN0->CANIF2_CMDREQ & CANIFn_CMDREQ_BUSY);
 
         if (LPC_C_CAN0->CANIF2_ARB2 & CANIFn_ARB2_XTD) {
             msg->format = CANExtended;
@@ -573,10 +589,9 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
             msg->id = (LPC_C_CAN0->CANIF2_ARB2 & 0x1FFF) >> 2;
         }
 
-       if (LPC_C_CAN0->CANIF2_ARB2 & CANIFn_ARB2_DIR) {
+        if (LPC_C_CAN0->CANIF2_ARB2 & CANIFn_ARB2_DIR) {
             msg->type   = CANRemote;
-        }
-        else {
+        } else {
             msg->type   = CANData;
         }
 
@@ -596,24 +611,28 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
     return 0;
 }
 
-void can_reset(can_t *obj) {
+void can_reset(can_t *obj)
+{
     LPC_SYSCON->PRESETCTRL1 &= ~(1UL << 7);
     LPC_C_CAN0->CANSTAT = 0;
     can_config_rxmsgobj(obj);
     can_config_txmsgobj(obj);
-    
+
     can_enable(obj);  // clears a bus-off condition if necessary
 }
 
-unsigned char can_rderror(can_t *obj) {
+unsigned char can_rderror(can_t *obj)
+{
     return ((LPC_C_CAN0->CANEC >> 8) & 0x7F);
 }
 
-unsigned char can_tderror(can_t *obj) {
+unsigned char can_tderror(can_t *obj)
+{
     return (LPC_C_CAN0->CANEC & 0xFF);
 }
 
-void can_monitor(can_t *obj, int silent) {
+void can_monitor(can_t *obj, int silent)
+{
     if (silent) {
         LPC_C_CAN0->CANCNTL |= (1UL << 7);
         LPC_C_CAN0->CANTEST |= (1UL << 3);

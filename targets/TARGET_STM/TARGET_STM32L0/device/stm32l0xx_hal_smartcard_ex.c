@@ -6,7 +6,7 @@
   * @date    31-May-2016
   * @brief   SMARTCARD HAL module driver.
   *
-  *          This file provides extended firmware functions to manage the following 
+  *          This file provides extended firmware functions to manage the following
   *          functionalities of the SmartCard.
   *           + Initialization and de-initialization functions
   *           + Peripheral Control functions
@@ -17,8 +17,8 @@
     [..]
     The Extended SMARTCARD HAL driver can be used as follow:
 
-    (#) After having configured the SMARTCARD basic features with HAL_SMARTCARD_Init(), 
-        then if required, program SMARTCARD advanced features (TX/RX pins swap, TimeOut, 
+    (#) After having configured the SMARTCARD basic features with HAL_SMARTCARD_Init(),
+        then if required, program SMARTCARD advanced features (TX/RX pins swap, TimeOut,
         auto-retry counter,...) in the hsc AdvancedInit structure.
 
   @endverbatim
@@ -81,14 +81,14 @@
 /** @addtogroup SMARTCARDEx_Exported_Functions_Group1
   * @brief    Extended control functions
   *
-@verbatim   
+@verbatim
  ===============================================================================
                       ##### Peripheral Control functions #####
  ===============================================================================
     [..]
     This subsection provides a set of functions allowing to initialize the SMARTCARD.
-     (+) HAL_SMARTCARDEx_BlockLength_Config() API allows to configure the Block Length on the fly 
-     (+) HAL_SMARTCARDEx_TimeOut_Config() API allows to configure the receiver timeout value on the fly  
+     (+) HAL_SMARTCARDEx_BlockLength_Config() API allows to configure the Block Length on the fly
+     (+) HAL_SMARTCARDEx_TimeOut_Config() API allows to configure the receiver timeout value on the fly
      (+) HAL_SMARTCARDEx_EnableReceiverTimeOut() API enables the receiver timeout feature
      (+) HAL_SMARTCARDEx_DisableReceiverTimeOut() API disables the receiver timeout feature
 
@@ -99,25 +99,25 @@
 /**
   * @brief Update on the fly the SMARTCARD block length in RTOR register
   * @param hsc: SMARTCARD handle
-  * @param BlockLength: SMARTCARD block length (8-bit long at most)  
+  * @param BlockLength: SMARTCARD block length (8-bit long at most)
   * @retval None
   */
 void HAL_SMARTCARDEx_BlockLength_Config(SMARTCARD_HandleTypeDef *hsc, uint8_t BlockLength)
 {
-  MODIFY_REG(hsc->Instance->RTOR, USART_RTOR_BLEN, ((uint32_t)BlockLength << SMARTCARD_RTOR_BLEN_LSB_POS));
+    MODIFY_REG(hsc->Instance->RTOR, USART_RTOR_BLEN, ((uint32_t)BlockLength << SMARTCARD_RTOR_BLEN_LSB_POS));
 }
 
 /**
   * @brief Update on the fly the receiver timeout value in RTOR register
   * @param hsc: SMARTCARD handle
   * @param TimeOutValue: receiver timeout value in number of baud blocks. The timeout
-  *                     value must be less or equal to 0x0FFFFFFFF. 
+  *                     value must be less or equal to 0x0FFFFFFFF.
   * @retval None
   */
 void HAL_SMARTCARDEx_TimeOut_Config(SMARTCARD_HandleTypeDef *hsc, uint32_t TimeOutValue)
 {
-  assert_param(IS_SMARTCARD_TIMEOUT_VALUE(hsc->Init.TimeOutValue));
-  MODIFY_REG(hsc->Instance->RTOR, USART_RTOR_RTO, TimeOutValue); 
+    assert_param(IS_SMARTCARD_TIMEOUT_VALUE(hsc->Init.TimeOutValue));
+    MODIFY_REG(hsc->Instance->RTOR, USART_RTOR_RTO, TimeOutValue);
 }
 
 /**
@@ -127,20 +127,20 @@ void HAL_SMARTCARDEx_TimeOut_Config(SMARTCARD_HandleTypeDef *hsc, uint32_t TimeO
   */
 HAL_StatusTypeDef HAL_SMARTCARDEx_EnableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsc)
 {
-  /* Process Locked */
-  __HAL_LOCK(hsc);
+    /* Process Locked */
+    __HAL_LOCK(hsc);
 
-  hsc->State = HAL_SMARTCARD_STATE_BUSY;
+    hsc->State = HAL_SMARTCARD_STATE_BUSY;
 
-  /* Set the USART RTOEN bit */
-  hsc->Instance->CR2 |= USART_CR2_RTOEN;
+    /* Set the USART RTOEN bit */
+    hsc->Instance->CR2 |= USART_CR2_RTOEN;
 
-  hsc->State = HAL_SMARTCARD_STATE_READY;
+    hsc->State = HAL_SMARTCARD_STATE_READY;
 
-  /* Process Unlocked */
-  __HAL_UNLOCK(hsc);
+    /* Process Unlocked */
+    __HAL_UNLOCK(hsc);
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 /**
@@ -150,20 +150,20 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_EnableReceiverTimeOut(SMARTCARD_HandleTypeDef 
   */
 HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsc)
 {
-  /* Process Locked */
-  __HAL_LOCK(hsc);
+    /* Process Locked */
+    __HAL_LOCK(hsc);
 
-  hsc->State = HAL_SMARTCARD_STATE_BUSY;
+    hsc->State = HAL_SMARTCARD_STATE_BUSY;
 
-  /* Clear the USART RTOEN bit */
-  hsc->Instance->CR2 &= ~(USART_CR2_RTOEN);
+    /* Clear the USART RTOEN bit */
+    hsc->Instance->CR2 &= ~(USART_CR2_RTOEN);
 
-  hsc->State = HAL_SMARTCARD_STATE_READY;
+    hsc->State = HAL_SMARTCARD_STATE_READY;
 
-  /* Process Unlocked */
-  __HAL_UNLOCK(hsc);
+    /* Process Unlocked */
+    __HAL_UNLOCK(hsc);
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 /**

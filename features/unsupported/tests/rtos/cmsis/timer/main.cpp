@@ -2,14 +2,15 @@
 #include "cmsis_os.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 DigitalOut LEDs[4] = {
     DigitalOut(LED1), DigitalOut(LED2), DigitalOut(LED3), DigitalOut(LED4)
 };
 
-void blink(void const *n) {
+void blink(void const *n)
+{
     LEDs[(int)n] = !LEDs[(int)n];
 }
 
@@ -18,7 +19,8 @@ osTimerDef(blink_1, blink);
 osTimerDef(blink_2, blink);
 osTimerDef(blink_3, blink);
 
-int main(void) {
+int main(void)
+{
     osTimerId timer_0 = osTimerCreate(osTimer(blink_0), osTimerPeriodic, (void *)0);
     osTimerId timer_1 = osTimerCreate(osTimer(blink_1), osTimerPeriodic, (void *)1);
     osTimerId timer_2 = osTimerCreate(osTimer(blink_2), osTimerPeriodic, (void *)2);

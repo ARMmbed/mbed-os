@@ -86,16 +86,14 @@
 
 
 /*! @brief Describes the number of SYSMPU regions. */
-typedef enum _sysmpu_region_total_num
-{
+typedef enum _sysmpu_region_total_num {
     kSYSMPU_8Regions = 0x0U,  /*!< SYSMPU supports 8 regions.  */
     kSYSMPU_12Regions = 0x1U, /*!< SYSMPU supports 12 regions. */
     kSYSMPU_16Regions = 0x2U  /*!< SYSMPU supports 16 regions. */
 } sysmpu_region_total_num_t;
 
 /*! @brief SYSMPU slave port number. */
-typedef enum _sysmpu_slave
-{
+typedef enum _sysmpu_slave {
     kSYSMPU_Slave0 = 0U, /*!< SYSMPU slave port 0. */
     kSYSMPU_Slave1 = 1U, /*!< SYSMPU slave port 1. */
     kSYSMPU_Slave2 = 2U, /*!< SYSMPU slave port 2. */
@@ -113,23 +111,20 @@ typedef enum _sysmpu_slave
 } sysmpu_slave_t;
 
 /*! @brief SYSMPU error access control detail. */
-typedef enum _sysmpu_err_access_control
-{
+typedef enum _sysmpu_err_access_control {
     kSYSMPU_NoRegionHit = 0U,        /*!< No region hit error. */
     kSYSMPU_NoneOverlappRegion = 1U, /*!< Access single region error. */
     kSYSMPU_OverlappRegion = 2U      /*!< Access overlapping region error. */
 } sysmpu_err_access_control_t;
 
 /*! @brief SYSMPU error access type. */
-typedef enum _sysmpu_err_access_type
-{
+typedef enum _sysmpu_err_access_type {
     kSYSMPU_ErrTypeRead = 0U, /*!< SYSMPU error access type --- read.  */
     kSYSMPU_ErrTypeWrite = 1U /*!< SYSMPU error access type --- write. */
 } sysmpu_err_access_type_t;
 
 /*! @brief SYSMPU access error attributes.*/
-typedef enum _sysmpu_err_attributes
-{
+typedef enum _sysmpu_err_attributes {
     kSYSMPU_InstructionAccessInUserMode = 0U,       /*!< Access instruction error in user mode. */
     kSYSMPU_DataAccessInUserMode = 1U,              /*!< Access data error in user mode. */
     kSYSMPU_InstructionAccessInSupervisorMode = 2U, /*!< Access instruction error in supervisor mode. */
@@ -137,8 +132,7 @@ typedef enum _sysmpu_err_attributes
 } sysmpu_err_attributes_t;
 
 /*! @brief SYSMPU access rights in supervisor mode for bus master 0 ~ 3. */
-typedef enum _sysmpu_supervisor_access_rights
-{
+typedef enum _sysmpu_supervisor_access_rights {
     kSYSMPU_SupervisorReadWriteExecute = 0U, /*!< Read write and execute operations are allowed in supervisor mode. */
     kSYSMPU_SupervisorReadExecute = 1U,      /*!< Read and execute operations are allowed in supervisor mode. */
     kSYSMPU_SupervisorReadWrite = 2U,        /*!< Read write operations are allowed in supervisor mode. */
@@ -146,8 +140,7 @@ typedef enum _sysmpu_supervisor_access_rights
 } sysmpu_supervisor_access_rights_t;
 
 /*! @brief SYSMPU access rights in user mode for bus master 0 ~ 3. */
-typedef enum _sysmpu_user_access_rights
-{
+typedef enum _sysmpu_user_access_rights {
     kSYSMPU_UserNoAccessRights = 0U,  /*!< No access allowed in user mode.  */
     kSYSMPU_UserExecute = 1U,         /*!< Execute operation is allowed in user mode. */
     kSYSMPU_UserWrite = 2U,           /*!< Write operation is allowed in user mode. */
@@ -159,16 +152,14 @@ typedef enum _sysmpu_user_access_rights
 } sysmpu_user_access_rights_t;
 
 /*! @brief SYSMPU hardware basic information. */
-typedef struct _sysmpu_hardware_info
-{
+typedef struct _sysmpu_hardware_info {
     uint8_t hardwareRevisionLevel;         /*!< Specifies the SYSMPU's hardware and definition reversion level. */
     uint8_t slavePortsNumbers;             /*!< Specifies the number of slave ports connected to SYSMPU. */
     sysmpu_region_total_num_t regionsNumbers; /*!< Indicates the number of region descriptors implemented. */
 } sysmpu_hardware_info_t;
 
 /*! @brief SYSMPU detail error access information. */
-typedef struct _sysmpu_access_err_info
-{
+typedef struct _sysmpu_access_err_info {
     uint32_t master;                        /*!< Access error master. */
     sysmpu_err_attributes_t attributes;        /*!< Access error attributes. */
     sysmpu_err_access_type_t accessType;       /*!< Access error type. */
@@ -180,8 +171,7 @@ typedef struct _sysmpu_access_err_info
 } sysmpu_access_err_info_t;
 
 /*! @brief SYSMPU read/write/execute rights control for bus master 0 ~ 3. */
-typedef struct _sysmpu_rwxrights_master_access_control
-{
+typedef struct _sysmpu_rwxrights_master_access_control {
     sysmpu_supervisor_access_rights_t superAccessRights; /*!< Master access rights in supervisor mode. */
     sysmpu_user_access_rights_t userAccessRights;        /*!< Master access rights in user mode. */
 #if FSL_FEATURE_SYSMPU_HAS_PROCESS_IDENTIFIER
@@ -190,8 +180,7 @@ typedef struct _sysmpu_rwxrights_master_access_control
 } sysmpu_rwxrights_master_access_control_t;
 
 /*! @brief SYSMPU read/write access control for bus master 4 ~ 7. */
-typedef struct _sysmpu_rwrights_master_access_control
-{
+typedef struct _sysmpu_rwrights_master_access_control {
     bool writeEnable; /*!< Enables or disables write permission. */
     bool readEnable;  /*!< Enables or disables read permission.  */
 } sysmpu_rwrights_master_access_control_t;
@@ -214,8 +203,7 @@ typedef struct _sysmpu_rwrights_master_access_control
  * be changed by the core or any other bus master. Prepare
  * the region configuration when regionNum is 0.
  */
-typedef struct _sysmpu_region_config
-{
+typedef struct _sysmpu_region_config {
     uint32_t regionNum;    /*!< SYSMPU region number, range form 0 ~ FSL_FEATURE_SYSMPU_DESCRIPTOR_COUNT - 1. */
     uint32_t startAddress; /*!< Memory region start address. Note: bit0 ~ bit4 always be marked as 0 by SYSMPU. The actual
                               start address is 0-modulo-32 byte address.  */
@@ -226,7 +214,7 @@ typedef struct _sysmpu_region_config
 #if FSL_FEATURE_SYSMPU_HAS_PROCESS_IDENTIFIER
     uint8_t processIdentifier; /*!< Process identifier used when "processIdentifierEnable" set with true. */
     uint8_t
-        processIdMask; /*!< Process identifier mask. The setting bit will ignore the same bit in process identifier. */
+    processIdMask; /*!< Process identifier mask. The setting bit will ignore the same bit in process identifier. */
 #endif                 /* FSL_FEATURE_SYSMPU_HAS_PROCESS_IDENTIFIER */
 } sysmpu_region_config_t;
 
@@ -235,8 +223,7 @@ typedef struct _sysmpu_region_config
  *
  * This structure is used when calling the SYSMPU_Init function.
  */
-typedef struct _sysmpu_config
-{
+typedef struct _sysmpu_config {
     sysmpu_region_config_t regionConfig; /*!< Region access permission. */
     struct _sysmpu_config *next;         /*!< Pointer to the next structure. */
 } sysmpu_config_t;
@@ -288,13 +275,11 @@ void SYSMPU_Deinit(SYSMPU_Type *base);
  */
 static inline void SYSMPU_Enable(SYSMPU_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         /* Enable the SYSMPU globally. */
         base->CESR |= SYSMPU_CESR_VLD_MASK;
-    }
-    else
-    { /* Disable the SYSMPU globally. */
+    } else {
+        /* Disable the SYSMPU globally. */
         base->CESR &= ~SYSMPU_CESR_VLD_MASK;
     }
 }
@@ -311,13 +296,11 @@ static inline void SYSMPU_Enable(SYSMPU_Type *base, bool enable)
  */
 static inline void SYSMPU_RegionEnable(SYSMPU_Type *base, uint32_t number, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         /* Enable the #number region SYSMPU. */
         base->WORD[number][3] |= SYSMPU_WORD_VLD_MASK;
-    }
-    else
-    { /* Disable the #number region SYSMPU. */
+    } else {
+        /* Disable the #number region SYSMPU. */
         base->WORD[number][3] &= ~SYSMPU_WORD_VLD_MASK;
     }
 }
@@ -381,9 +364,9 @@ void SYSMPU_SetRegionAddr(SYSMPU_Type *base, uint32_t regionNum, uint32_t startA
  * @param accessRights  The pointer to the SYSMPU access rights configuration. See "sysmpu_rwxrights_master_access_control_t".
  */
 void SYSMPU_SetRegionRwxMasterAccessRights(SYSMPU_Type *base,
-                                        uint32_t regionNum,
-                                        uint32_t masterNum,
-                                        const sysmpu_rwxrights_master_access_control_t *accessRights);
+                                           uint32_t regionNum,
+                                           uint32_t masterNum,
+                                           const sysmpu_rwxrights_master_access_control_t *accessRights);
 #if FSL_FEATURE_SYSMPU_MASTER_COUNT > 4
 /*!
  * @brief Sets the SYSMPU region access rights for masters with read and write rights.
@@ -400,9 +383,9 @@ void SYSMPU_SetRegionRwxMasterAccessRights(SYSMPU_Type *base,
  * @param accessRights  The pointer to the SYSMPU access rights configuration. See "sysmpu_rwrights_master_access_control_t".
  */
 void SYSMPU_SetRegionRwMasterAccessRights(SYSMPU_Type *base,
-                                       uint32_t regionNum,
-                                       uint32_t masterNum,
-                                       const sysmpu_rwrights_master_access_control_t *accessRights);
+                                          uint32_t regionNum,
+                                          uint32_t masterNum,
+                                          const sysmpu_rwrights_master_access_control_t *accessRights);
 #endif  /* FSL_FEATURE_SYSMPU_MASTER_COUNT > 4 */
 /*!
  * @brief Gets the numbers of slave ports where errors occur.

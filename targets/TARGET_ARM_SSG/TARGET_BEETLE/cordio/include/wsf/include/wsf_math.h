@@ -49,10 +49,9 @@ extern "C" {
 typedef void (*WsfMathEccServiceCback_t)(uint8_t op);
 
 /*! \brief      ECC operations. */
-enum
-{
-  WSF_MATH_ECC_OP_GENERATE_P256_KEY_PAIR,   /*!< Generate P-256 key pair. */
-  WSF_MATH_ECC_OP_GENERATE_DH_KEY           /*!< Generate Diffie-Hellman key. */
+enum {
+    WSF_MATH_ECC_OP_GENERATE_P256_KEY_PAIR,   /*!< Generate P-256 key pair. */
+    WSF_MATH_ECC_OP_GENERATE_DH_KEY           /*!< Generate Diffie-Hellman key. */
 };
 
 

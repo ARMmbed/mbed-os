@@ -150,49 +150,46 @@
   */
 ErrorStatus LL_SPI_DeInit(SPI_TypeDef *SPIx)
 {
-  ErrorStatus status = ERROR;
+    ErrorStatus status = ERROR;
 
-  /* Check the parameters */
-  assert_param(IS_SPI_ALL_INSTANCE(SPIx));
+    /* Check the parameters */
+    assert_param(IS_SPI_ALL_INSTANCE(SPIx));
 
 #if defined(SPI1)
-  if (SPIx == SPI1)
-  {
-    /* Force reset of SPI clock */
-    LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_SPI1);
+    if (SPIx == SPI1) {
+        /* Force reset of SPI clock */
+        LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_SPI1);
 
-    /* Release reset of SPI clock */
-    LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_SPI1);
+        /* Release reset of SPI clock */
+        LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_SPI1);
 
-    status = SUCCESS;
-  }
+        status = SUCCESS;
+    }
 #endif /* SPI1 */
 #if defined(SPI2)
-  if (SPIx == SPI2)
-  {
-    /* Force reset of SPI clock */
-    LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_SPI2);
+    if (SPIx == SPI2) {
+        /* Force reset of SPI clock */
+        LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_SPI2);
 
-    /* Release reset of SPI clock */
-    LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_SPI2);
+        /* Release reset of SPI clock */
+        LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_SPI2);
 
-    status = SUCCESS;
-  }
+        status = SUCCESS;
+    }
 #endif /* SPI2 */
 #if defined(SPI3)
-  if (SPIx == SPI3)
-  {
-    /* Force reset of SPI clock */
-    LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_SPI3);
+    if (SPIx == SPI3) {
+        /* Force reset of SPI clock */
+        LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_SPI3);
 
-    /* Release reset of SPI clock */
-    LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_SPI3);
+        /* Release reset of SPI clock */
+        LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_SPI3);
 
-    status = SUCCESS;
-  }
+        status = SUCCESS;
+    }
 #endif /* SPI3 */
 
-  return status;
+    return status;
 }
 
 /**
@@ -205,64 +202,62 @@ ErrorStatus LL_SPI_DeInit(SPI_TypeDef *SPIx)
   */
 ErrorStatus LL_SPI_Init(SPI_TypeDef *SPIx, LL_SPI_InitTypeDef *SPI_InitStruct)
 {
-  ErrorStatus status = ERROR;
+    ErrorStatus status = ERROR;
 
-  /* Check the SPI Instance SPIx*/
-  assert_param(IS_SPI_ALL_INSTANCE(SPIx));
+    /* Check the SPI Instance SPIx*/
+    assert_param(IS_SPI_ALL_INSTANCE(SPIx));
 
-  /* Check the SPI parameters from SPI_InitStruct*/
-  assert_param(IS_LL_SPI_TRANSFER_DIRECTION(SPI_InitStruct->TransferDirection));
-  assert_param(IS_LL_SPI_MODE(SPI_InitStruct->Mode));
-  assert_param(IS_LL_SPI_DATAWIDTH(SPI_InitStruct->DataWidth));
-  assert_param(IS_LL_SPI_POLARITY(SPI_InitStruct->ClockPolarity));
-  assert_param(IS_LL_SPI_PHASE(SPI_InitStruct->ClockPhase));
-  assert_param(IS_LL_SPI_NSS(SPI_InitStruct->NSS));
-  assert_param(IS_LL_SPI_BAUDRATE(SPI_InitStruct->BaudRate));
-  assert_param(IS_LL_SPI_BITORDER(SPI_InitStruct->BitOrder));
-  assert_param(IS_LL_SPI_CRCCALCULATION(SPI_InitStruct->CRCCalculation));
+    /* Check the SPI parameters from SPI_InitStruct*/
+    assert_param(IS_LL_SPI_TRANSFER_DIRECTION(SPI_InitStruct->TransferDirection));
+    assert_param(IS_LL_SPI_MODE(SPI_InitStruct->Mode));
+    assert_param(IS_LL_SPI_DATAWIDTH(SPI_InitStruct->DataWidth));
+    assert_param(IS_LL_SPI_POLARITY(SPI_InitStruct->ClockPolarity));
+    assert_param(IS_LL_SPI_PHASE(SPI_InitStruct->ClockPhase));
+    assert_param(IS_LL_SPI_NSS(SPI_InitStruct->NSS));
+    assert_param(IS_LL_SPI_BAUDRATE(SPI_InitStruct->BaudRate));
+    assert_param(IS_LL_SPI_BITORDER(SPI_InitStruct->BitOrder));
+    assert_param(IS_LL_SPI_CRCCALCULATION(SPI_InitStruct->CRCCalculation));
 
-  if (LL_SPI_IsEnabled(SPIx) == 0x00000000U)
-  {
-    /*---------------------------- SPIx CR1 Configuration ------------------------
-     * Configure SPIx CR1 with parameters:
-     * - TransferDirection:  SPI_CR1_BIDIMODE, SPI_CR1_BIDIOE and SPI_CR1_RXONLY bits
-     * - Master/Slave Mode:  SPI_CR1_MSTR bit
-     * - ClockPolarity:      SPI_CR1_CPOL bit
-     * - ClockPhase:         SPI_CR1_CPHA bit
-     * - NSS management:     SPI_CR1_SSM bit
-     * - BaudRate prescaler: SPI_CR1_BR[2:0] bits
-     * - BitOrder:           SPI_CR1_LSBFIRST bit
-     * - CRCCalculation:     SPI_CR1_CRCEN bit
-     */
-    MODIFY_REG(SPIx->CR1,
-               SPI_CR1_CLEAR_MASK,
-               SPI_InitStruct->TransferDirection | SPI_InitStruct->Mode |
-               SPI_InitStruct->ClockPolarity | SPI_InitStruct->ClockPhase |
-               SPI_InitStruct->NSS | SPI_InitStruct->BaudRate |
-               SPI_InitStruct->BitOrder | SPI_InitStruct->CRCCalculation);
+    if (LL_SPI_IsEnabled(SPIx) == 0x00000000U) {
+        /*---------------------------- SPIx CR1 Configuration ------------------------
+         * Configure SPIx CR1 with parameters:
+         * - TransferDirection:  SPI_CR1_BIDIMODE, SPI_CR1_BIDIOE and SPI_CR1_RXONLY bits
+         * - Master/Slave Mode:  SPI_CR1_MSTR bit
+         * - ClockPolarity:      SPI_CR1_CPOL bit
+         * - ClockPhase:         SPI_CR1_CPHA bit
+         * - NSS management:     SPI_CR1_SSM bit
+         * - BaudRate prescaler: SPI_CR1_BR[2:0] bits
+         * - BitOrder:           SPI_CR1_LSBFIRST bit
+         * - CRCCalculation:     SPI_CR1_CRCEN bit
+         */
+        MODIFY_REG(SPIx->CR1,
+                   SPI_CR1_CLEAR_MASK,
+                   SPI_InitStruct->TransferDirection | SPI_InitStruct->Mode |
+                   SPI_InitStruct->ClockPolarity | SPI_InitStruct->ClockPhase |
+                   SPI_InitStruct->NSS | SPI_InitStruct->BaudRate |
+                   SPI_InitStruct->BitOrder | SPI_InitStruct->CRCCalculation);
 
-    /*---------------------------- SPIx CR2 Configuration ------------------------
-     * Configure SPIx CR2 with parameters:
-     * - DataWidth:          DS[3:0] bits
-     * - NSS management:     SSOE bit
-     */
-    MODIFY_REG(SPIx->CR2,
-               SPI_CR2_DS | SPI_CR2_SSOE,
-               SPI_InitStruct->DataWidth | (SPI_InitStruct->NSS >> 16U));
+        /*---------------------------- SPIx CR2 Configuration ------------------------
+         * Configure SPIx CR2 with parameters:
+         * - DataWidth:          DS[3:0] bits
+         * - NSS management:     SSOE bit
+         */
+        MODIFY_REG(SPIx->CR2,
+                   SPI_CR2_DS | SPI_CR2_SSOE,
+                   SPI_InitStruct->DataWidth | (SPI_InitStruct->NSS >> 16U));
 
-    /*---------------------------- SPIx CRCPR Configuration ----------------------
-     * Configure SPIx CRCPR with parameters:
-     * - CRCPoly:            CRCPOLY[15:0] bits
-     */
-    if (SPI_InitStruct->CRCCalculation == LL_SPI_CRCCALCULATION_ENABLE)
-    {
-      assert_param(IS_LL_SPI_CRC_POLYNOMIAL(SPI_InitStruct->CRCPoly));
-      LL_SPI_SetCRCPolynomial(SPIx, SPI_InitStruct->CRCPoly);
+        /*---------------------------- SPIx CRCPR Configuration ----------------------
+         * Configure SPIx CRCPR with parameters:
+         * - CRCPoly:            CRCPOLY[15:0] bits
+         */
+        if (SPI_InitStruct->CRCCalculation == LL_SPI_CRCCALCULATION_ENABLE) {
+            assert_param(IS_LL_SPI_CRC_POLYNOMIAL(SPI_InitStruct->CRCPoly));
+            LL_SPI_SetCRCPolynomial(SPIx, SPI_InitStruct->CRCPoly);
+        }
+        status = SUCCESS;
     }
-    status = SUCCESS;
-  }
 
-  return status;
+    return status;
 }
 
 /**
@@ -273,17 +268,17 @@ ErrorStatus LL_SPI_Init(SPI_TypeDef *SPIx, LL_SPI_InitTypeDef *SPI_InitStruct)
   */
 void LL_SPI_StructInit(LL_SPI_InitTypeDef *SPI_InitStruct)
 {
-  /* Set SPI_InitStruct fields to default values */
-  SPI_InitStruct->TransferDirection = LL_SPI_FULL_DUPLEX;
-  SPI_InitStruct->Mode              = LL_SPI_MODE_SLAVE;
-  SPI_InitStruct->DataWidth         = LL_SPI_DATAWIDTH_8BIT;
-  SPI_InitStruct->ClockPolarity     = LL_SPI_POLARITY_LOW;
-  SPI_InitStruct->ClockPhase        = LL_SPI_PHASE_1EDGE;
-  SPI_InitStruct->NSS               = LL_SPI_NSS_HARD_INPUT;
-  SPI_InitStruct->BaudRate          = LL_SPI_BAUDRATEPRESCALER_DIV2;
-  SPI_InitStruct->BitOrder          = LL_SPI_MSB_FIRST;
-  SPI_InitStruct->CRCCalculation    = LL_SPI_CRCCALCULATION_DISABLE;
-  SPI_InitStruct->CRCPoly           = 7U;
+    /* Set SPI_InitStruct fields to default values */
+    SPI_InitStruct->TransferDirection = LL_SPI_FULL_DUPLEX;
+    SPI_InitStruct->Mode              = LL_SPI_MODE_SLAVE;
+    SPI_InitStruct->DataWidth         = LL_SPI_DATAWIDTH_8BIT;
+    SPI_InitStruct->ClockPolarity     = LL_SPI_POLARITY_LOW;
+    SPI_InitStruct->ClockPhase        = LL_SPI_PHASE_1EDGE;
+    SPI_InitStruct->NSS               = LL_SPI_NSS_HARD_INPUT;
+    SPI_InitStruct->BaudRate          = LL_SPI_BAUDRATEPRESCALER_DIV2;
+    SPI_InitStruct->BitOrder          = LL_SPI_MSB_FIRST;
+    SPI_InitStruct->CRCCalculation    = LL_SPI_CRCCALCULATION_DISABLE;
+    SPI_InitStruct->CRCPoly           = 7U;
 }
 
 /**

@@ -41,8 +41,9 @@ void analogin_init(analogin_t *obj, PinName pin)
     bus_clock = CLOCK_GetFreq(kCLOCK_BusClk);
     uint32_t clkdiv;
     for (clkdiv = 0; clkdiv < 4; clkdiv++) {
-        if ((bus_clock >> clkdiv) <= MAX_FADC)
+        if ((bus_clock >> clkdiv) <= MAX_FADC) {
             break;
+        }
     }
     if (clkdiv == 4) {
         clkdiv = 0x3; //Set max div
@@ -71,7 +72,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
 #endif
 
     ADC16_SetChannelMuxMode(adc_addrs[instance],
-        obj->adc & (1 << ADC_B_CHANNEL_SHIFT) ? kADC16_ChannelMuxB : kADC16_ChannelMuxA);
+                            obj->adc & (1 << ADC_B_CHANNEL_SHIFT) ? kADC16_ChannelMuxB : kADC16_ChannelMuxA);
 
     /*
      * When in software trigger mode, each conversion would be launched once calling the "ADC16_ChannelConfigure()"
@@ -79,8 +80,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
      */
     ADC16_SetChannelConfig(adc_addrs[instance], 0, &adc16_channel_config);
     while (0U == (kADC16_ChannelConversionDoneFlag &
-                      ADC16_GetChannelStatusFlags(adc_addrs[instance], 0)))
-    {
+                  ADC16_GetChannelStatusFlags(adc_addrs[instance], 0))) {
     }
     return ADC16_GetChannelConversionValue(adc_addrs[instance], 0);
 }

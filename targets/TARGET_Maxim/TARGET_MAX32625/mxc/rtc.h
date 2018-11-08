@@ -69,20 +69,20 @@ typedef enum {
 } rtc_prescale_t;
 
 /// @def RTC_CTRL_ACTIVE_TRANS Active Transaction Flags for the RTC
-#define RTC_CTRL_ACTIVE_TRANS           (MXC_F_RTC_CTRL_RTC_ENABLE_ACTIVE 		| \
-                                        MXC_F_RTC_CTRL_OSC_GOTO_LOW_ACTIVE		| \
-                                        MXC_F_RTC_CTRL_OSC_FRCE_SM_EN_ACTIVE	| \
-                                        MXC_F_RTC_CTRL_OSC_FRCE_ST_ACTIVE 		| \
-                                        MXC_F_RTC_CTRL_RTC_SET_ACTIVE 			| \
-                                        MXC_F_RTC_CTRL_RTC_CLR_ACTIVE 			| \
-                                        MXC_F_RTC_CTRL_ROLLOVER_CLR_ACTIVE 		| \
-                                        MXC_F_RTC_CTRL_PRESCALE_CMPR0_ACTIVE	| \
-                                        MXC_F_RTC_CTRL_PRESCALE_UPDATE_ACTIVE 	| \
-                                        MXC_F_RTC_CTRL_CMPR1_CLR_ACTIVE 		| \
-                                        MXC_F_RTC_CTRL_CMPR0_CLR_ACTIVE 		| \
-                                        MXC_F_RTC_CTRL_TRIM_ENABLE_ACTIVE 		| \
-                                        MXC_F_RTC_CTRL_TRIM_SLOWER_ACTIVE 		| \
-                                        MXC_F_RTC_CTRL_TRIM_CLR_ACTIVE 			| \
+#define RTC_CTRL_ACTIVE_TRANS           (MXC_F_RTC_CTRL_RTC_ENABLE_ACTIVE       | \
+                                        MXC_F_RTC_CTRL_OSC_GOTO_LOW_ACTIVE      | \
+                                        MXC_F_RTC_CTRL_OSC_FRCE_SM_EN_ACTIVE    | \
+                                        MXC_F_RTC_CTRL_OSC_FRCE_ST_ACTIVE       | \
+                                        MXC_F_RTC_CTRL_RTC_SET_ACTIVE           | \
+                                        MXC_F_RTC_CTRL_RTC_CLR_ACTIVE           | \
+                                        MXC_F_RTC_CTRL_ROLLOVER_CLR_ACTIVE      | \
+                                        MXC_F_RTC_CTRL_PRESCALE_CMPR0_ACTIVE    | \
+                                        MXC_F_RTC_CTRL_PRESCALE_UPDATE_ACTIVE   | \
+                                        MXC_F_RTC_CTRL_CMPR1_CLR_ACTIVE         | \
+                                        MXC_F_RTC_CTRL_CMPR0_CLR_ACTIVE         | \
+                                        MXC_F_RTC_CTRL_TRIM_ENABLE_ACTIVE       | \
+                                        MXC_F_RTC_CTRL_TRIM_SLOWER_ACTIVE       | \
+                                        MXC_F_RTC_CTRL_TRIM_CLR_ACTIVE          | \
                                         MXC_F_RTC_CTRL_ACTIVE_TRANS_0)
 
 /// @def RTC_FLAGS_CLEAR_ALL Number of RTC compare registers
@@ -93,7 +93,7 @@ typedef enum {
                                         MXC_F_RTC_FLAGS_TRIM)
 /// @enum rtc_snooze_t Defines the snooze modes
 typedef enum {
-    RTC_SNOOZE_DISABLE = MXC_V_RTC_CTRL_SNOOZE_DISABLE,	      ///< Snooze Mode Disabled
+    RTC_SNOOZE_DISABLE = MXC_V_RTC_CTRL_SNOOZE_DISABLE,       ///< Snooze Mode Disabled
     RTC_SNOOZE_MODE_A  = MXC_V_RTC_CTRL_SNOOZE_MODE_A,        ///< COMP1 = COMP1 + RTC_SNZ_VALUE when snooze flag is set
     RTC_SNOOZE_MODE_B  = MXC_V_RTC_CTRL_SNOOZE_MODE_B,        ///< COMP1 = RTC_TIMER + RTC_SNZ_VALUE when snooze flag is set
 } rtc_snooze_t; /// Defines the snooze modes
@@ -131,7 +131,7 @@ __STATIC_INLINE void RTC_Start(void)
     MXC_RTCTMR->ctrl |= MXC_F_RTC_CTRL_ENABLE;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
@@ -142,7 +142,7 @@ __STATIC_INLINE void RTC_Stop(void)
     MXC_RTCTMR->ctrl &= ~(MXC_F_RTC_CTRL_ENABLE);
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
@@ -165,7 +165,7 @@ __STATIC_INLINE void RTC_SetCount(uint32_t count)
     MXC_RTCTMR->timer = count;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
@@ -231,7 +231,7 @@ __STATIC_INLINE void RTC_SetPrescaler(rtc_prescale_t prescaler)
     MXC_RTCTMR->prescale = prescaler;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
@@ -265,7 +265,7 @@ __STATIC_INLINE int RTC_SetPrescalerMask(rtc_prescale_t mask)
     MXC_RTCTMR->prescale_mask = mask;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
     return E_NO_ERROR;
 }
 
@@ -280,13 +280,14 @@ __STATIC_INLINE int RTC_SetPrescalerMask(rtc_prescale_t mask)
 __STATIC_INLINE int RTC_SetSnoozeCount(uint32_t count)
 {
     // Check to make sure max value is not being exceeded
-    if (count > MXC_F_RTC_SNZ_VAL_VALUE)
+    if (count > MXC_F_RTC_SNZ_VAL_VALUE) {
         return E_INVALID;
+    }
 
     MXC_RTCTMR->snz_val = count;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
     return E_NO_ERROR;
 }
 
@@ -313,7 +314,7 @@ __STATIC_INLINE void RTC_Snooze(void)
     MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_SNOOZE_A | MXC_F_RTC_FLAGS_SNOOZE_B;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
@@ -336,7 +337,7 @@ __STATIC_INLINE void RTC_SetSnoozeMode(rtc_snooze_t mode)
     MXC_RTCTMR->ctrl = (ctrl | (mode << MXC_F_RTC_CTRL_SNOOZE_ENABLE_POS));
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**
@@ -387,7 +388,7 @@ __STATIC_INLINE void RTC_ClearFlags(uint32_t mask)
     MXC_RTCTMR->flags = mask;
 
     //wait for pending actions to complete
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 /**

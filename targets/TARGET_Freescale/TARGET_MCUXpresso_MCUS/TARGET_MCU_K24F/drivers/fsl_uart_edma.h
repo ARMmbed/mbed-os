@@ -55,8 +55,7 @@ typedef void (*uart_edma_transfer_callback_t)(UART_Type *base,
 /*!
 * @brief UART eDMA handle
 */
-struct _uart_edma_handle
-{
+struct _uart_edma_handle {
     uart_edma_transfer_callback_t callback; /*!< Callback function. */
     void *userData;                         /*!< UART callback function parameter.*/
     size_t rxDataSizeAll;                   /*!< Size of the data to receive. */

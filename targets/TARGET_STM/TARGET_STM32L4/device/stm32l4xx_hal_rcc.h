@@ -40,7 +40,7 @@
 #define __STM32L4xx_HAL_RCC_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -62,93 +62,90 @@
 /**
   * @brief  RCC PLL configuration structure definition
   */
-typedef struct
-{
-  uint32_t PLLState;   /*!< The new state of the PLL.
+typedef struct {
+    uint32_t PLLState;   /*!< The new state of the PLL.
                             This parameter can be a value of @ref RCC_PLL_Config                      */
 
-  uint32_t PLLSource;  /*!< RCC_PLLSource: PLL entry clock source.
+    uint32_t PLLSource;  /*!< RCC_PLLSource: PLL entry clock source.
                             This parameter must be a value of @ref RCC_PLL_Clock_Source               */
 
-  uint32_t PLLM;       /*!< PLLM: Division factor for PLL VCO input clock.
+    uint32_t PLLM;       /*!< PLLM: Division factor for PLL VCO input clock.
                             This parameter must be a number between Min_Data = 1 and Max_Data = 8     */
 
-  uint32_t PLLN;       /*!< PLLN: Multiplication factor for PLL VCO output clock.
+    uint32_t PLLN;       /*!< PLLN: Multiplication factor for PLL VCO output clock.
                             This parameter must be a number between Min_Data = 8 and Max_Data = 86    */
 
-  uint32_t PLLP;       /*!< PLLP: Division factor for SAI clock.
+    uint32_t PLLP;       /*!< PLLP: Division factor for SAI clock.
                             This parameter must be a value of @ref RCC_PLLP_Clock_Divider             */
 
-  uint32_t PLLQ;       /*!< PLLQ: Division factor for SDMMC1, RNG and USB clocks.
+    uint32_t PLLQ;       /*!< PLLQ: Division factor for SDMMC1, RNG and USB clocks.
                             This parameter must be a value of @ref RCC_PLLQ_Clock_Divider             */
 
-  uint32_t PLLR;       /*!< PLLR: Division for the main system clock.
+    uint32_t PLLR;       /*!< PLLR: Division for the main system clock.
                             User have to set the PLLR parameter correctly to not exceed max frequency 80MHZ.
                             This parameter must be a value of @ref RCC_PLLR_Clock_Divider             */
 
-}RCC_PLLInitTypeDef;
+} RCC_PLLInitTypeDef;
 
 /**
   * @brief  RCC Internal/External Oscillator (HSE, HSI, MSI, LSE and LSI) configuration structure definition
   */
-typedef struct
-{
-  uint32_t OscillatorType;       /*!< The oscillators to be configured.
+typedef struct {
+    uint32_t OscillatorType;       /*!< The oscillators to be configured.
                                       This parameter can be a value of @ref RCC_Oscillator_Type                   */
 
-  uint32_t HSEState;             /*!< The new state of the HSE.
+    uint32_t HSEState;             /*!< The new state of the HSE.
                                       This parameter can be a value of @ref RCC_HSE_Config                        */
 
-  uint32_t LSEState;             /*!< The new state of the LSE.
+    uint32_t LSEState;             /*!< The new state of the LSE.
                                       This parameter can be a value of @ref RCC_LSE_Config                        */
 
-  uint32_t HSIState;             /*!< The new state of the HSI.
+    uint32_t HSIState;             /*!< The new state of the HSI.
                                       This parameter can be a value of @ref RCC_HSI_Config                        */
 
-  uint32_t HSICalibrationValue;  /*!< The calibration trimming value (default is RCC_HSICALIBRATION_DEFAULT).
+    uint32_t HSICalibrationValue;  /*!< The calibration trimming value (default is RCC_HSICALIBRATION_DEFAULT).
                                       This parameter must be a number between Min_Data = 0x00 and Max_Data = 0x1F on STM32L43x/STM32L44x/STM32L47x/STM32L48x devices.
                                       This parameter must be a number between Min_Data = 0x00 and Max_Data = 0x7F on the other devices */
 
-  uint32_t LSIState;             /*!< The new state of the LSI.
+    uint32_t LSIState;             /*!< The new state of the LSI.
                                       This parameter can be a value of @ref RCC_LSI_Config                        */
 
-  uint32_t MSIState;             /*!< The new state of the MSI.
+    uint32_t MSIState;             /*!< The new state of the MSI.
                                       This parameter can be a value of @ref RCC_MSI_Config */
 
-  uint32_t MSICalibrationValue;  /*!< The calibration trimming value (default is RCC_MSICALIBRATION_DEFAULT).
+    uint32_t MSICalibrationValue;  /*!< The calibration trimming value (default is RCC_MSICALIBRATION_DEFAULT).
                                       This parameter must be a number between Min_Data = 0x00 and Max_Data = 0xFF */
 
-  uint32_t MSIClockRange;        /*!< The MSI frequency range.
+    uint32_t MSIClockRange;        /*!< The MSI frequency range.
                                       This parameter can be a value of @ref RCC_MSI_Clock_Range  */
 
-  uint32_t HSI48State;             /*!< The new state of the HSI48 (only applicable to STM32L43x/STM32L44x/STM32L45x/STM32L46x/STM32L49x/STM32L4Ax devices).
+    uint32_t HSI48State;             /*!< The new state of the HSI48 (only applicable to STM32L43x/STM32L44x/STM32L45x/STM32L46x/STM32L49x/STM32L4Ax devices).
                                         This parameter can be a value of @ref RCC_HSI48_Config */
 
-  RCC_PLLInitTypeDef PLL;        /*!< Main PLL structure parameters                                               */
+    RCC_PLLInitTypeDef PLL;        /*!< Main PLL structure parameters                                               */
 
-}RCC_OscInitTypeDef;
+} RCC_OscInitTypeDef;
 
 /**
   * @brief  RCC System, AHB and APB busses clock configuration structure definition
   */
-typedef struct
-{
-  uint32_t ClockType;             /*!< The clock to be configured.
+typedef struct {
+    uint32_t ClockType;             /*!< The clock to be configured.
                                        This parameter can be a value of @ref RCC_System_Clock_Type      */
 
-  uint32_t SYSCLKSource;          /*!< The clock source used as system clock (SYSCLK).
+    uint32_t SYSCLKSource;          /*!< The clock source used as system clock (SYSCLK).
                                        This parameter can be a value of @ref RCC_System_Clock_Source    */
 
-  uint32_t AHBCLKDivider;         /*!< The AHB clock (HCLK) divider. This clock is derived from the system clock (SYSCLK).
+    uint32_t AHBCLKDivider;         /*!< The AHB clock (HCLK) divider. This clock is derived from the system clock (SYSCLK).
                                        This parameter can be a value of @ref RCC_AHB_Clock_Source       */
 
-  uint32_t APB1CLKDivider;        /*!< The APB1 clock (PCLK1) divider. This clock is derived from the AHB clock (HCLK).
+    uint32_t APB1CLKDivider;        /*!< The APB1 clock (PCLK1) divider. This clock is derived from the AHB clock (HCLK).
                                        This parameter can be a value of @ref RCC_APB1_APB2_Clock_Source */
 
-  uint32_t APB2CLKDivider;        /*!< The APB2 clock (PCLK2) divider. This clock is derived from the AHB clock (HCLK).
+    uint32_t APB2CLKDivider;        /*!< The APB2 clock (PCLK2) divider. This clock is derived from the AHB clock (HCLK).
                                        This parameter can be a value of @ref RCC_APB1_APB2_Clock_Source */
 
-}RCC_ClkInitTypeDef;
+} RCC_ClkInitTypeDef;
 
 /**
   * @}
@@ -216,7 +213,7 @@ typedef struct
 #else
 #define RCC_HSICALIBRATION_DEFAULT     ((uint32_t)0x40U)      /* Default HSI calibration trimming value */
 #endif /* STM32L431xx || STM32L432xx || STM32L433xx || STM32L442xx || STM32L443xx || */
-       /* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx    */
+/* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx    */
 /**
   * @}
   */
@@ -503,7 +500,7 @@ typedef struct
 /** @defgroup RCC_MCOx_Clock_Prescaler MCO1 Clock Prescaler
   * @{
   */
-#define RCC_MCODIV_1                   RCC_CFGR_MCOPRE_DIV1     /*!< MCO not divided  */      
+#define RCC_MCODIV_1                   RCC_CFGR_MCOPRE_DIV1     /*!< MCO not divided  */
 #define RCC_MCODIV_2                   RCC_CFGR_MCOPRE_DIV2     /*!< MCO divided by 2 */
 #define RCC_MCODIV_4                   RCC_CFGR_MCOPRE_DIV4     /*!< MCO divided by 4 */
 #define RCC_MCODIV_8                   RCC_CFGR_MCOPRE_DIV8     /*!< MCO divided by 8 */
@@ -583,13 +580,13 @@ typedef struct
   */
 #define RCC_LSEDRIVE_LOW                 ((uint32_t)0x00000000U) /*!< LSE low drive capability */
 #define RCC_LSEDRIVE_MEDIUMLOW           RCC_BDCR_LSEDRV_0      /*!< LSE medium low drive capability */
-#define RCC_LSEDRIVE_MEDIUMHIGH          RCC_BDCR_LSEDRV_1      /*!< LSE medium high drive capability */ 
+#define RCC_LSEDRIVE_MEDIUMHIGH          RCC_BDCR_LSEDRV_1      /*!< LSE medium high drive capability */
 #define RCC_LSEDRIVE_HIGH                RCC_BDCR_LSEDRV        /*!< LSE high drive capability */
 /**
   * @}
   */
 
-/** @defgroup RCC_Stop_WakeUpClock Wake-Up from STOP Clock 
+/** @defgroup RCC_Stop_WakeUpClock Wake-Up from STOP Clock
   * @{
   */
 #define RCC_STOP_WAKEUPCLOCK_MSI       ((uint32_t)0x00000000U)  /*!< MSI selection after wake-up from STOP */
@@ -655,7 +652,7 @@ typedef struct
                                                  tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_TSCEN); \
                                                  UNUSED(tmpreg); \
                                                } while(0)
-                                               
+
 #if defined(DMA2D)
 #define __HAL_RCC_DMA2D_CLK_ENABLE()           do { \
                                                  __IO uint32_t tmpreg; \
@@ -664,7 +661,7 @@ typedef struct
                                                  tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_DMA2DEN); \
                                                  UNUSED(tmpreg); \
                                                } while(0)
-#endif /* DMA2D */                                               
+#endif /* DMA2D */
 
 
 #define __HAL_RCC_DMA1_CLK_DISABLE()           CLEAR_BIT(RCC->AHB1ENR, RCC_AHB1ENR_DMA1EN)
@@ -679,7 +676,7 @@ typedef struct
 
 #if defined(DMA2D)
 #define __HAL_RCC_DMA2D_CLK_DISABLE()          CLEAR_BIT(RCC->AHB1ENR, RCC_AHB1ENR_DMA2DEN)
-#endif /* DMA2D */   
+#endif /* DMA2D */
 
 /**
   * @}
@@ -800,7 +797,7 @@ typedef struct
                                                  /* Delay after an RCC peripheral clock enabling */ \
                                                  tmpreg = READ_BIT(RCC->AHB2ENR, RCC_AHB2ENR_DCMIEN); \
                                                  UNUSED(tmpreg); \
-                                               } while(0)    
+                                               } while(0)
 #endif /* DCMI */
 
 #if defined(AES)
@@ -820,7 +817,7 @@ typedef struct
                                                  /* Delay after an RCC peripheral clock enabling */ \
                                                  tmpreg = READ_BIT(RCC->AHB2ENR, RCC_AHB2ENR_HASHEN); \
                                                  UNUSED(tmpreg); \
-                                               } while(0) 
+                                               } while(0)
 #endif /* HASH */
 
 #define __HAL_RCC_RNG_CLK_ENABLE()             do { \
@@ -1123,7 +1120,7 @@ typedef struct
                                                  tmpreg = READ_BIT(RCC->APB1ENR1, RCC_APB1ENR1_CAN1EN); \
                                                  UNUSED(tmpreg); \
                                                } while(0)
-                                               
+
 #if defined(CAN2)
 #define __HAL_RCC_CAN2_CLK_ENABLE()            do { \
                                                  __IO uint32_t tmpreg; \
@@ -3282,8 +3279,8 @@ typedef struct
   */
 
 /** @defgroup RCC_Backup_Domain_Reset RCC Backup Domain Reset
-  * @{   
-  */ 
+  * @{
+  */
 
 /** @brief  Macros to force or release the Backup domain reset.
   * @note   This function resets the RTC peripheral (including the backup registers)
@@ -3300,8 +3297,8 @@ typedef struct
   */
 
 /** @defgroup RCC_RTC_Clock_Configuration RCC RTC Clock Configuration
-  * @{   
-  */ 
+  * @{
+  */
 
 /** @brief  Macros to enable or disable the RTC clock.
   * @note   As the RTC is in the Backup domain and write access is denied to
@@ -3532,8 +3529,8 @@ typedef struct
 /**
   * @brief  Macro to configure the External Low Speed oscillator (LSE).
   * @note   Transitions LSE Bypass to LSE On and LSE On to LSE Bypass are not
-  *         supported by this macro. User should request a transition to LSE Off 
-  *         first and then LSE On or LSE Bypass.  
+  *         supported by this macro. User should request a transition to LSE Off
+  *         first and then LSE On or LSE Bypass.
   * @note   As the LSE is in the Backup domain and write access is denied to
   *         this domain after reset, you have to enable write access using
   *         HAL_PWR_EnableBkUpAccess() function before to configure the LSE
@@ -3641,7 +3638,7 @@ typedef struct
   *            @arg @ref RCC_PLLSOURCE_HSE  HSE oscillator clock selected as PLL clock entry
   * @note   This clock source is common for the main PLL and audio PLL (PLLSAI1 and PLLSAI2).
   * @retval None
-  *      
+  *
   */
 #define __HAL_RCC_PLL_PLLSOURCE_CONFIG(__PLLSOURCE__) \
                   MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, (__PLLSOURCE__))
@@ -3654,7 +3651,7 @@ typedef struct
   *         frequency ranges from 4 to 16 MHz. It is recommended to select a frequency
   *         of 16 MHz to limit PLL jitter.
   * @retval None
-  *      
+  *
   */
 #define __HAL_RCC_PLL_PLLM_CONFIG(__PLLM__) \
                   MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLM, ((__PLLM__) - 1) << 4U)
@@ -3703,9 +3700,9 @@ typedef struct
                   (RCC->PLLCFGR = (uint32_t)(((__PLLM__) - 1U) << 4U) | (uint32_t)((__PLLN__) << 8U) | \
                    (uint32_t)(__PLLSOURCE__) | (uint32_t)((((__PLLQ__) >> 1U) - 1U) << 21U) | (uint32_t)((((__PLLR__) >> 1U) - 1U) << 25U) | \
                    (uint32_t)((__PLLP__) << 27U))
-                    
+
 #else
-                    
+
 #define __HAL_RCC_PLL_CONFIG(__PLLSOURCE__, __PLLM__, __PLLN__, __PLLP__, __PLLQ__,__PLLR__ ) \
                   (RCC->PLLCFGR = (uint32_t)(((__PLLM__) - 1U) << 4U) | (uint32_t)((__PLLN__) << 8U) | (uint32_t)(((__PLLP__) >> 4U ) << 17U) | \
                    (uint32_t)(__PLLSOURCE__) | (uint32_t)((((__PLLQ__) >> 1U) - 1U) << 21U) | (uint32_t)((((__PLLR__) >> 1U) - 1U) << 25U))
@@ -3724,8 +3721,8 @@ typedef struct
 
 /**
   * @brief  Enable or disable each clock output (RCC_PLL_SYSCLK, RCC_PLL_48M1CLK, RCC_PLL_SAI3CLK)
-  * @note   Enabling/disabling clock outputs RCC_PLL_SAI3CLK and RCC_PLL_48M1CLK can be done at anytime 
-  *         without the need to stop the PLL in order to save power. But RCC_PLL_SYSCLK cannot  
+  * @note   Enabling/disabling clock outputs RCC_PLL_SAI3CLK and RCC_PLL_48M1CLK can be done at anytime
+  *         without the need to stop the PLL in order to save power. But RCC_PLL_SYSCLK cannot
   *         be stopped if used as System Clock.
   * @param  __PLLCLOCKOUT__: specifies the PLL clock to be output.
   *          This parameter can be one or a combination of the following values:
@@ -4007,7 +4004,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /* Private constants ---------------------------------------------------------*/
 /** @defgroup RCC_Private_Constants RCC Private Constants
   * @{
@@ -4099,7 +4096,7 @@ typedef struct
 #if defined(RCC_PLLSAI2_SUPPORT)
 #define IS_RCC_PLLSAI2CLOCKOUT_VALUE(__VALUE__) (((((__VALUE__) & RCC_PLLSAI2_SAI2CLK) == RCC_PLLSAI2_SAI2CLK)  || \
                                                   (((__VALUE__) & RCC_PLLSAI2_ADC2CLK) == RCC_PLLSAI2_ADC2CLK)) && \
-                                                 (((__VALUE__) & ~(RCC_PLLSAI2_SAI2CLK|RCC_PLLSAI2_ADC2CLK)) == 0U))   
+                                                 (((__VALUE__) & ~(RCC_PLLSAI2_SAI2CLK|RCC_PLLSAI2_ADC2CLK)) == 0U))
 #endif /* RCC_PLLSAI2_SUPPORT */
 
 #define IS_RCC_MSI_CLOCK_RANGE(__RANGE__) (((__RANGE__) == RCC_MSIRANGE_0)  || \

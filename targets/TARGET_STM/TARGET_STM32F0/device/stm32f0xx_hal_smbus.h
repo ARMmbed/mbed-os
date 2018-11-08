@@ -61,42 +61,41 @@ extern "C" {
   * @brief  SMBUS Configuration Structure definition
   * @{
   */
-typedef struct
-{
-  uint32_t Timing;                 /*!< Specifies the SMBUS_TIMINGR_register value.
+typedef struct {
+    uint32_t Timing;                 /*!< Specifies the SMBUS_TIMINGR_register value.
                                      This parameter calculated by referring to SMBUS initialization
                                             section in Reference manual */
-  uint32_t AnalogFilter;           /*!< Specifies if Analog Filter is enable or not.
+    uint32_t AnalogFilter;           /*!< Specifies if Analog Filter is enable or not.
                                      This parameter can be a value of @ref SMBUS_Analog_Filter */
 
-  uint32_t OwnAddress1;            /*!< Specifies the first device own address.
+    uint32_t OwnAddress1;            /*!< Specifies the first device own address.
                                      This parameter can be a 7-bit or 10-bit address. */
 
-  uint32_t AddressingMode;         /*!< Specifies if 7-bit or 10-bit addressing mode for master is selected.
+    uint32_t AddressingMode;         /*!< Specifies if 7-bit or 10-bit addressing mode for master is selected.
                                      This parameter can be a value of @ref SMBUS_addressing_mode */
 
-  uint32_t DualAddressMode;        /*!< Specifies if dual addressing mode is selected.
+    uint32_t DualAddressMode;        /*!< Specifies if dual addressing mode is selected.
                                      This parameter can be a value of @ref SMBUS_dual_addressing_mode */
 
-  uint32_t OwnAddress2;            /*!< Specifies the second device own address if dual addressing mode is selected
+    uint32_t OwnAddress2;            /*!< Specifies the second device own address if dual addressing mode is selected
                                      This parameter can be a 7-bit address. */
 
-  uint32_t OwnAddress2Masks;       /*!< Specifies the acknoledge mask address second device own address if dual addressing mode is selected
+    uint32_t OwnAddress2Masks;       /*!< Specifies the acknoledge mask address second device own address if dual addressing mode is selected
                                      This parameter can be a value of @ref SMBUS_own_address2_masks. */
 
-  uint32_t GeneralCallMode;        /*!< Specifies if general call mode is selected.
+    uint32_t GeneralCallMode;        /*!< Specifies if general call mode is selected.
                                      This parameter can be a value of @ref SMBUS_general_call_addressing_mode. */
 
-  uint32_t NoStretchMode;          /*!< Specifies if nostretch mode is selected.
+    uint32_t NoStretchMode;          /*!< Specifies if nostretch mode is selected.
                                      This parameter can be a value of @ref SMBUS_nostretch_mode */
 
-  uint32_t PacketErrorCheckMode;   /*!< Specifies if Packet Error Check mode is selected.
+    uint32_t PacketErrorCheckMode;   /*!< Specifies if Packet Error Check mode is selected.
                                      This parameter can be a value of @ref SMBUS_packet_error_check_mode */
 
-  uint32_t PeripheralMode;         /*!< Specifies which mode of Periphal is selected.
+    uint32_t PeripheralMode;         /*!< Specifies which mode of Periphal is selected.
                                      This parameter can be a value of @ref SMBUS_peripheral_mode */
 
-  uint32_t SMBusTimeout;           /*!< Specifies the content of the 32 Bits SMBUS_TIMEOUT_register value.
+    uint32_t SMBusTimeout;           /*!< Specifies the content of the 32 Bits SMBUS_TIMEOUT_register value.
                                       (Enable bits and different timeout values)
                                      This parameter calculated by referring to SMBUS initialization
                                          section in Reference manual */
@@ -144,27 +143,26 @@ typedef struct
   * @brief  SMBUS handle Structure definition
   * @{
   */
-typedef struct
-{
-  I2C_TypeDef                  *Instance;       /*!< SMBUS registers base address       */
+typedef struct {
+    I2C_TypeDef                  *Instance;       /*!< SMBUS registers base address       */
 
-  SMBUS_InitTypeDef            Init;            /*!< SMBUS communication parameters     */
+    SMBUS_InitTypeDef            Init;            /*!< SMBUS communication parameters     */
 
-  uint8_t                      *pBuffPtr;       /*!< Pointer to SMBUS transfer buffer   */
+    uint8_t                      *pBuffPtr;       /*!< Pointer to SMBUS transfer buffer   */
 
-  uint16_t                     XferSize;        /*!< SMBUS transfer size                */
+    uint16_t                     XferSize;        /*!< SMBUS transfer size                */
 
-  __IO uint16_t                XferCount;       /*!< SMBUS transfer counter             */
+    __IO uint16_t                XferCount;       /*!< SMBUS transfer counter             */
 
-  __IO uint32_t                XferOptions;     /*!< SMBUS transfer options             */
+    __IO uint32_t                XferOptions;     /*!< SMBUS transfer options             */
 
-  __IO uint32_t                PreviousState;   /*!< SMBUS communication Previous state */
+    __IO uint32_t                PreviousState;   /*!< SMBUS communication Previous state */
 
-  HAL_LockTypeDef              Lock;            /*!< SMBUS locking object               */
+    HAL_LockTypeDef              Lock;            /*!< SMBUS locking object               */
 
-  __IO uint32_t                State;           /*!< SMBUS communication state          */
+    __IO uint32_t                State;           /*!< SMBUS communication state          */
 
-  __IO uint32_t                ErrorCode;       /*!< SMBUS Error code                   */
+    __IO uint32_t                ErrorCode;       /*!< SMBUS Error code                   */
 
 } SMBUS_HandleTypeDef;
 /**

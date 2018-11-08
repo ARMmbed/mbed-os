@@ -6,7 +6,8 @@
  * In the past we had an issue where the stdio retargeting was not linked in.
  */
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(stdio_auto);
     MBED_HOSTTEST_DESCRIPTION(stdio);
@@ -16,11 +17,11 @@ int main() {
     DigitalOut led2(LED2);
 
     int value_int;
-    
+
 
     notify_start(); // Just to sync with host test supervisor
 
-    const char* PRINT_PATTERN = "MBED: Your value was: %d\r\n";
+    const char *PRINT_PATTERN = "MBED: Your value was: %d\r\n";
 
     while (true) {
         // SCANF PRINTF family

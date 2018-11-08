@@ -136,18 +136,18 @@ uint32_t SystemHfrcoFreq = EFR32_HFRCO_STARTUP_FREQ;
  ******************************************************************************/
 uint32_t SystemCoreClockGet(void)
 {
-  uint32_t ret;
-  uint32_t presc;
+    uint32_t ret;
+    uint32_t presc;
 
-  ret   = SystemHFClockGet();
-  presc = (CMU->HFCOREPRESC & _CMU_HFCOREPRESC_PRESC_MASK) >>
-          _CMU_HFCOREPRESC_PRESC_SHIFT;
-  ret  /= (presc + 1);
+    ret   = SystemHFClockGet();
+    presc = (CMU->HFCOREPRESC & _CMU_HFCOREPRESC_PRESC_MASK) >>
+            _CMU_HFCOREPRESC_PRESC_SHIFT;
+    ret  /= (presc + 1);
 
-  /* Keep CMSIS system clock variable up-to-date */
-  SystemCoreClock = ret;
+    /* Keep CMSIS system clock variable up-to-date */
+    SystemCoreClock = ret;
 
-  return ret;
+    return ret;
 }
 
 
@@ -163,8 +163,8 @@ uint32_t SystemCoreClockGet(void)
  ******************************************************************************/
 uint32_t SystemMaxCoreClockGet(void)
 {
-  return (EFR32_HFRCO_MAX_FREQ > EFR32_HFXO_FREQ ? \
-          EFR32_HFRCO_MAX_FREQ : EFR32_HFXO_FREQ);
+    return (EFR32_HFRCO_MAX_FREQ > EFR32_HFXO_FREQ ? \
+            EFR32_HFRCO_MAX_FREQ : EFR32_HFXO_FREQ);
 }
 
 
@@ -180,41 +180,40 @@ uint32_t SystemMaxCoreClockGet(void)
  ******************************************************************************/
 uint32_t SystemHFClockGet(void)
 {
-  uint32_t ret;
+    uint32_t ret;
 
-  switch (CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK)
-  {
-    case CMU_HFCLKSTATUS_SELECTED_LFXO:
+    switch (CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK) {
+        case CMU_HFCLKSTATUS_SELECTED_LFXO:
 #if (EFR32_LFXO_FREQ > 0)
-      ret = SystemLFXOClock;
+            ret = SystemLFXOClock;
 #else
-      /* We should not get here, since core should not be clocked. May */
-      /* be caused by a misconfiguration though. */
-      ret = 0;
+            /* We should not get here, since core should not be clocked. May */
+            /* be caused by a misconfiguration though. */
+            ret = 0;
 #endif
-      break;
+            break;
 
-    case CMU_HFCLKSTATUS_SELECTED_LFRCO:
-      ret = EFR32_LFRCO_FREQ;
-      break;
+        case CMU_HFCLKSTATUS_SELECTED_LFRCO:
+            ret = EFR32_LFRCO_FREQ;
+            break;
 
-    case CMU_HFCLKSTATUS_SELECTED_HFXO:
+        case CMU_HFCLKSTATUS_SELECTED_HFXO:
 #if (EFR32_HFXO_FREQ > 0)
-      ret = SystemHFXOClock;
+            ret = SystemHFXOClock;
 #else
-      /* We should not get here, since core should not be clocked. May */
-      /* be caused by a misconfiguration though. */
-      ret = 0;
+            /* We should not get here, since core should not be clocked. May */
+            /* be caused by a misconfiguration though. */
+            ret = 0;
 #endif
-      break;
+            break;
 
-    default: /* CMU_HFCLKSTATUS_SELECTED_HFRCO */
-      ret = SystemHfrcoFreq;
-      break;
-  }
+        default: /* CMU_HFCLKSTATUS_SELECTED_HFRCO */
+            ret = SystemHfrcoFreq;
+            break;
+    }
 
-  return ret / (1U + ((CMU->HFPRESC & _CMU_HFPRESC_PRESC_MASK)
-                      >> _CMU_HFPRESC_PRESC_SHIFT));
+    return ret / (1U + ((CMU->HFPRESC & _CMU_HFPRESC_PRESC_MASK)
+                        >> _CMU_HFPRESC_PRESC_SHIFT));
 }
 
 
@@ -230,11 +229,11 @@ uint32_t SystemHFClockGet(void)
  *****************************************************************************/
 uint32_t SystemHFXOClockGet(void)
 {
-  /* External crystal oscillator present? */
+    /* External crystal oscillator present? */
 #if (EFR32_HFXO_FREQ > 0)
-  return SystemHFXOClock;
+    return SystemHFXOClock;
 #else
-  return 0;
+    return 0;
 #endif
 }
 
@@ -256,18 +255,17 @@ uint32_t SystemHFXOClockGet(void)
  *****************************************************************************/
 void SystemHFXOClockSet(uint32_t freq)
 {
-  /* External crystal oscillator present? */
+    /* External crystal oscillator present? */
 #if (EFR32_HFXO_FREQ > 0)
-  SystemHFXOClock = freq;
+    SystemHFXOClock = freq;
 
-  /* Update core clock frequency if HFXO is used to clock core */
-  if ((CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK) == CMU_HFCLKSTATUS_SELECTED_HFXO)
-  {
-    /* The function will update the global variable */
-    SystemCoreClockGet();
-  }
+    /* Update core clock frequency if HFXO is used to clock core */
+    if ((CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK) == CMU_HFCLKSTATUS_SELECTED_HFXO) {
+        /* The function will update the global variable */
+        SystemCoreClockGet();
+    }
 #else
-  (void)freq; /* Unused parameter */
+    (void)freq; /* Unused parameter */
 #endif
 }
 
@@ -287,9 +285,9 @@ void SystemHFXOClockSet(uint32_t freq)
 void SystemInit(void)
 {
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
-  /* Set floating point coprosessor access mode. */
-  SCB->CPACR |= ((3UL << 10*2) |                    /* set CP10 Full Access */
-                 (3UL << 11*2)  );                  /* set CP11 Full Access */
+    /* Set floating point coprosessor access mode. */
+    SCB->CPACR |= ((3UL << 10 * 2) |                  /* set CP10 Full Access */
+                   (3UL << 11 * 2));                  /* set CP11 Full Access */
 #endif
 }
 
@@ -306,10 +304,10 @@ void SystemInit(void)
  *****************************************************************************/
 uint32_t SystemLFRCOClockGet(void)
 {
-  /* Currently we assume that this frequency is properly tuned during */
-  /* manufacturing and is not changed after reset. If future requirements */
-  /* for re-tuning by user, we can add support for that. */
-  return EFR32_LFRCO_FREQ;
+    /* Currently we assume that this frequency is properly tuned during */
+    /* manufacturing and is not changed after reset. If future requirements */
+    /* for re-tuning by user, we can add support for that. */
+    return EFR32_LFRCO_FREQ;
 }
 
 
@@ -325,8 +323,8 @@ uint32_t SystemLFRCOClockGet(void)
  *****************************************************************************/
 uint32_t SystemULFRCOClockGet(void)
 {
-  /* The ULFRCO frequency is not tuned, and can be very inaccurate */
-  return EFR32_ULFRCO_FREQ;
+    /* The ULFRCO frequency is not tuned, and can be very inaccurate */
+    return EFR32_ULFRCO_FREQ;
 }
 
 
@@ -342,11 +340,11 @@ uint32_t SystemULFRCOClockGet(void)
  *****************************************************************************/
 uint32_t SystemLFXOClockGet(void)
 {
-  /* External crystal oscillator present? */
+    /* External crystal oscillator present? */
 #if (EFR32_LFXO_FREQ > 0)
-  return SystemLFXOClock;
+    return SystemLFXOClock;
 #else
-  return 0;
+    return 0;
 #endif
 }
 
@@ -368,17 +366,16 @@ uint32_t SystemLFXOClockGet(void)
  *****************************************************************************/
 void SystemLFXOClockSet(uint32_t freq)
 {
-  /* External crystal oscillator present? */
+    /* External crystal oscillator present? */
 #if (EFR32_LFXO_FREQ > 0)
-  SystemLFXOClock = freq;
+    SystemLFXOClock = freq;
 
-  /* Update core clock frequency if LFXO is used to clock core */
-  if ((CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK) == CMU_HFCLKSTATUS_SELECTED_LFXO)
-  {
-    /* The function will update the global variable */
-    SystemCoreClockGet();
-  }
+    /* Update core clock frequency if LFXO is used to clock core */
+    if ((CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK) == CMU_HFCLKSTATUS_SELECTED_LFXO) {
+        /* The function will update the global variable */
+        SystemCoreClockGet();
+    }
 #else
-  (void)freq; /* Unused parameter */
+    (void)freq; /* Unused parameter */
 #endif
 }

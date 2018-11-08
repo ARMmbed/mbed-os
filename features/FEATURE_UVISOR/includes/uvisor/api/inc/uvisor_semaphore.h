@@ -21,13 +21,13 @@
 
 /* Initialize a semaphore with the specified initial count. This function is
  * not safe to call from interrupt context. */
-UVISOR_EXTERN int __uvisor_semaphore_init(UvisorSemaphore * semaphore, uint32_t initial_count, uint32_t max_count);
+UVISOR_EXTERN int __uvisor_semaphore_init(UvisorSemaphore *semaphore, uint32_t initial_count, uint32_t max_count);
 
 /* This function is not safe to call from interrupt context, even if the
  * timeout is zero. */
-UVISOR_EXTERN int __uvisor_semaphore_pend(UvisorSemaphore * semaphore, uint32_t timeout_ms);
+UVISOR_EXTERN int __uvisor_semaphore_pend(UvisorSemaphore *semaphore, uint32_t timeout_ms);
 
 /* This function is safe to call from interrupt context. */
-UVISOR_EXTERN int __uvisor_semaphore_post(UvisorSemaphore * semaphore);
+UVISOR_EXTERN int __uvisor_semaphore_post(UvisorSemaphore *semaphore);
 
 #endif

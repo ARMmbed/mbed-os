@@ -61,7 +61,7 @@ POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************
  *  \enum ADI_TMR_RESULT
  *   Enumeration for result code returned from the timer device driver functions.
- *   The return value of all timer APIs returning #ADI_TMR_RESULT should always 
+ *   The return value of all timer APIs returning #ADI_TMR_RESULT should always
  *   be tested at the application level for success or failure.
  *****************************************************************************/
 typedef enum {
@@ -109,10 +109,10 @@ typedef enum {
  *   Enumeration of events notified in the application provided callback.
  *****************************************************************************/
 typedef enum {
-  /*! Timeout event occurred */
-  ADI_TMR_EVENT_TIMEOUT = 0x01,  
-  /*! Event capture event occurred */
-  ADI_TMR_EVENT_CAPTURE = 0x02,
+    /*! Timeout event occurred */
+    ADI_TMR_EVENT_TIMEOUT = 0x01,
+    /*! Event capture event occurred */
+    ADI_TMR_EVENT_CAPTURE = 0x02,
 } ADI_TMR_EVENT;
 
 /*!
@@ -124,7 +124,7 @@ typedef enum {
     /*! Count every 1 source clock periods */
     ADI_TMR_PRESCALER_1   = 0u,
     /*! Count every 16 source clock periods */
-    ADI_TMR_PRESCALER_16  = 1u, 
+    ADI_TMR_PRESCALER_16  = 1u,
     /*! Count every 64 source clock periods */
     ADI_TMR_PRESCALER_64  = 2u,
     /*! Count every 256 source clock periods */
@@ -138,11 +138,11 @@ typedef enum {
  *****************************************************************************/
 typedef enum {
     /*! Use periphreal clock (PCLK) */
-    ADI_TMR_CLOCK_PCLK  = 0u, 
+    ADI_TMR_CLOCK_PCLK  = 0u,
     /*! Use internal high frequency clock (HFOSC) */
-    ADI_TMR_CLOCK_HFOSC = 1u, 
+    ADI_TMR_CLOCK_HFOSC = 1u,
     /*! Use internal low frequency clock (LFOSC) */
-    ADI_TMR_CLOCK_LFOSC = 2u, 
+    ADI_TMR_CLOCK_LFOSC = 2u,
     /*! Use external low frequency clock (LFXTAL) */
     ADI_TMR_CLOCK_LFXTAL = 3u,
 } ADI_TMR_CLOCK_SOURCE;
@@ -151,7 +151,7 @@ typedef enum {
  *****************************************************************************
  *  \enum ADI_TMR_PWM_OUTPUT
  *   RGB PWM outputs, used to specify which PWM output to configure. For the GP
- *   timers only #ADI_TMR_PWM_OUTPUT_0 is allowed. The RGB timer has all three 
+ *   timers only #ADI_TMR_PWM_OUTPUT_0 is allowed. The RGB timer has all three
  *   outputs.
  *****************************************************************************/
 typedef enum {
@@ -168,7 +168,7 @@ typedef enum {
 /*!
  *****************************************************************************
  *  \struct ADI_TMR_CONFIG
- *   Configuration structure to fill and pass to #adi_tmr_ConfigTimer when  
+ *   Configuration structure to fill and pass to #adi_tmr_ConfigTimer when
  *   configuring the GP or RGB timer
  *****************************************************************************/
 typedef struct {
@@ -193,7 +193,7 @@ typedef struct {
 /*!
  *****************************************************************************
  *  \struct ADI_TMR_EVENT_CONFIG
- *   Configuration structure to fill and pass to #adi_tmr_ConfigEvent when  
+ *   Configuration structure to fill and pass to #adi_tmr_ConfigEvent when
  *   configuring event capture
  *****************************************************************************/
 typedef struct {
@@ -208,7 +208,7 @@ typedef struct {
 /*!
  *****************************************************************************
  *  \struct ADI_TMR_PWM_CONFIG
- *   Configuration structure to fill and pass to #adi_tmr_ConfigPwm when  
+ *   Configuration structure to fill and pass to #adi_tmr_ConfigPwm when
  *   configuring pulse width modulation output
  *****************************************************************************/
 typedef struct {
@@ -229,22 +229,22 @@ typedef struct {
  *****************************************************************************/
 
 /* Initialize timer driver */
-ADI_TMR_RESULT adi_tmr_Init            (ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfCallback, void * const pCBParam, bool bEnableInt);
+ADI_TMR_RESULT adi_tmr_Init(ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfCallback, void *const pCBParam, bool bEnableInt);
 
 /* Configuration interface functions */
-ADI_TMR_RESULT adi_tmr_ConfigTimer     (ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG       timerConfig);
-ADI_TMR_RESULT adi_tmr_ConfigEvent     (ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_CONFIG eventConfig);
-ADI_TMR_RESULT adi_tmr_ConfigPwm       (ADI_TMR_DEVICE const eDevice, ADI_TMR_PWM_CONFIG   pwmConfig  );
+ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG       timerConfig);
+ADI_TMR_RESULT adi_tmr_ConfigEvent(ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_CONFIG eventConfig);
+ADI_TMR_RESULT adi_tmr_ConfigPwm(ADI_TMR_DEVICE const eDevice, ADI_TMR_PWM_CONFIG   pwmConfig);
 
 /* Timer start and stop */
-ADI_TMR_RESULT adi_tmr_Enable          (ADI_TMR_DEVICE const eDevice, bool bEnable);
+ADI_TMR_RESULT adi_tmr_Enable(ADI_TMR_DEVICE const eDevice, bool bEnable);
 
 /* Read functions */
-ADI_TMR_RESULT adi_tmr_GetCurrentCount (ADI_TMR_DEVICE const eDevice, uint16_t *pCount);
-ADI_TMR_RESULT adi_tmr_GetCaptureCount (ADI_TMR_DEVICE const eDevice, uint16_t *pCount);
+ADI_TMR_RESULT adi_tmr_GetCurrentCount(ADI_TMR_DEVICE const eDevice, uint16_t *pCount);
+ADI_TMR_RESULT adi_tmr_GetCaptureCount(ADI_TMR_DEVICE const eDevice, uint16_t *pCount);
 
 /* Reload function */
-ADI_TMR_RESULT adi_tmr_Reload          (ADI_TMR_DEVICE const eDevice);
+ADI_TMR_RESULT adi_tmr_Reload(ADI_TMR_DEVICE const eDevice);
 
 
 /*! @} */

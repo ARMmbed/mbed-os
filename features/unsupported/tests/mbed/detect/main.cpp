@@ -1,7 +1,8 @@
 #include "mbed.h"
 #include "test_env.h"
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(10);
     MBED_HOSTTEST_SELECT(detect_auto);
     MBED_HOSTTEST_DESCRIPTION(Simple detect test);

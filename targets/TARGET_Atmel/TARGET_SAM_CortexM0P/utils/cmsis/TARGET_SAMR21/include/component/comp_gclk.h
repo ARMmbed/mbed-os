@@ -57,8 +57,8 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } GCLK_CTRL_Type;
@@ -75,8 +75,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  :7;               /*!< bit:  0.. 6  Reserved                           */
-        uint8_t  SYNCBUSY:1;       /*!< bit:      7  Synchronization Busy Status        */
+        uint8_t  : 7;              /*!< bit:  0.. 6  Reserved                           */
+        uint8_t  SYNCBUSY: 1;      /*!< bit:      7  Synchronization Busy Status        */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } GCLK_STATUS_Type;
@@ -93,12 +93,12 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t ID:6;             /*!< bit:  0.. 5  Generic Clock Selection ID         */
-        uint16_t :2;               /*!< bit:  6.. 7  Reserved                           */
-        uint16_t GEN:4;            /*!< bit:  8..11  Generic Clock Generator            */
-        uint16_t :2;               /*!< bit: 12..13  Reserved                           */
-        uint16_t CLKEN:1;          /*!< bit:     14  Clock Enable                       */
-        uint16_t WRTLOCK:1;        /*!< bit:     15  Write Lock                         */
+        uint16_t ID: 6;            /*!< bit:  0.. 5  Generic Clock Selection ID         */
+        uint16_t : 2;              /*!< bit:  6.. 7  Reserved                           */
+        uint16_t GEN: 4;           /*!< bit:  8..11  Generic Clock Generator            */
+        uint16_t : 2;              /*!< bit: 12..13  Reserved                           */
+        uint16_t CLKEN: 1;         /*!< bit:     14  Clock Enable                       */
+        uint16_t WRTLOCK: 1;       /*!< bit:     15  Write Lock                         */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } GCLK_CLKCTRL_Type;
@@ -213,17 +213,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t ID:4;             /*!< bit:  0.. 3  Generic Clock Generator Selection  */
-        uint32_t :4;               /*!< bit:  4.. 7  Reserved                           */
-        uint32_t SRC:5;            /*!< bit:  8..12  Source Select                      */
-        uint32_t :3;               /*!< bit: 13..15  Reserved                           */
-        uint32_t GENEN:1;          /*!< bit:     16  Generic Clock Generator Enable     */
-        uint32_t IDC:1;            /*!< bit:     17  Improve Duty Cycle                 */
-        uint32_t OOV:1;            /*!< bit:     18  Output Off Value                   */
-        uint32_t OE:1;             /*!< bit:     19  Output Enable                      */
-        uint32_t DIVSEL:1;         /*!< bit:     20  Divide Selection                   */
-        uint32_t RUNSTDBY:1;       /*!< bit:     21  Run in Standby                     */
-        uint32_t :10;              /*!< bit: 22..31  Reserved                           */
+        uint32_t ID: 4;            /*!< bit:  0.. 3  Generic Clock Generator Selection  */
+        uint32_t : 4;              /*!< bit:  4.. 7  Reserved                           */
+        uint32_t SRC: 5;           /*!< bit:  8..12  Source Select                      */
+        uint32_t : 3;              /*!< bit: 13..15  Reserved                           */
+        uint32_t GENEN: 1;         /*!< bit:     16  Generic Clock Generator Enable     */
+        uint32_t IDC: 1;           /*!< bit:     17  Improve Duty Cycle                 */
+        uint32_t OOV: 1;           /*!< bit:     18  Output Off Value                   */
+        uint32_t OE: 1;            /*!< bit:     19  Output Enable                      */
+        uint32_t DIVSEL: 1;        /*!< bit:     20  Divide Selection                   */
+        uint32_t RUNSTDBY: 1;      /*!< bit:     21  Run in Standby                     */
+        uint32_t : 10;             /*!< bit: 22..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } GCLK_GENCTRL_Type;
@@ -274,10 +274,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t ID:4;             /*!< bit:  0.. 3  Generic Clock Generator Selection  */
-        uint32_t :4;               /*!< bit:  4.. 7  Reserved                           */
-        uint32_t DIV:16;           /*!< bit:  8..23  Division Factor                    */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t ID: 4;            /*!< bit:  0.. 3  Generic Clock Generator Selection  */
+        uint32_t : 4;              /*!< bit:  4.. 7  Reserved                           */
+        uint32_t DIV: 16;          /*!< bit:  8..23  Division Factor                    */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } GCLK_GENDIV_Type;

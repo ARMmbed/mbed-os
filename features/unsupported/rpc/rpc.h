@@ -25,7 +25,7 @@ namespace mbed {
 
 struct rpc_function {
     const char *name;
-    void (*function_caller)(Arguments*, Reply*);
+    void (*function_caller)(Arguments *, Reply *);
 };
 
 struct rpc_class {
@@ -97,42 +97,48 @@ public:
      *  are defined by that class' get_rpc_class() static method).
      */
     template<class C>
-    static void add_rpc_class() {
+    static void add_rpc_class()
+    {
         rpc_class *c = C::get_rpc_class();
         c->next = _classes;
         _classes = c;
     }
 
     template<class C>
-    static const char *construct() {
+    static const char *construct()
+    {
         RPC *p = new C();
         p->_from_construct = true;
         return p->_name;
     }
 
     template<class C, typename A1>
-    static const char *construct(A1 arg1) {
+    static const char *construct(A1 arg1)
+    {
         RPC *p = new C(arg1);
         p->_from_construct = true;
         return p->_name;
     }
 
     template<class C, typename A1, typename A2>
-    static const char *construct(A1 arg1, A2 arg2) {
+    static const char *construct(A1 arg1, A2 arg2)
+    {
         RPC *p = new C(arg1, arg2);
         p->_from_construct = true;
         return p->_name;
     }
 
     template<class C, typename A1, typename A2, typename A3>
-    static const char *construct(A1 arg1, A2 arg2, A3 arg3) {
+    static const char *construct(A1 arg1, A2 arg2, A3 arg3)
+    {
         RPC *p = new C(arg1, arg2, arg3);
         p->_from_construct = true;
         return p->_name;
     }
 
     template<class C, typename A1, typename A2, typename A3, typename A4>
-    static const char *construct(A1 arg1, A2 arg2, A3 arg3, A4 arg4) {
+    static const char *construct(A1 arg1, A2 arg2, A3 arg3, A4 arg4)
+    {
         RPC *p = new C(arg1, arg2, arg3, arg4);
         p->_from_construct = true;
         return p->_name;
@@ -155,92 +161,102 @@ public:
 /* Function rpc_method_caller
  */
 template<class T, void(T::*member)(const char *, char *)>
-void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result) {
-    (static_cast<T*>(this_ptr)->*member)(arguments, result);
+void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result)
+{
+    (static_cast<T *>(this_ptr)->*member)(arguments, result);
 }
 
 /* Function rpc_method_caller
  */
 template<class T, void(T::*member)()>
-void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result) {
-    (static_cast<T*>(this_ptr)->*member)();
+void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result)
+{
+    (static_cast<T *>(this_ptr)->*member)();
 }
 
 /* Function rpc_method_caller
  */
 template<class T, typename A1, void(T::*member)(A1)>
-void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result) {
+void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result)
+{
     A1 arg1 = arguments->getArg<A1>();
 
-    (static_cast<T*>(this_ptr)->*member)(arg1);
+    (static_cast<T *>(this_ptr)->*member)(arg1);
 }
 
 /* Function rpc_method_caller
  */
 template<class T, typename A1, typename A2, void(T::*member)(A1, A2)>
-void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result) {
+void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result)
+{
     A1 arg1 = arguments->getArg<A1>();
     A2 arg2 = arguments->getArg<A2>();
 
-    (static_cast<T*>(this_ptr)->*member)(arg1, arg2);
+    (static_cast<T *>(this_ptr)->*member)(arg1, arg2);
 }
 
 /* Function rpc_method_caller
  */
 template<class T, typename A1, typename A2, typename A3, void(T::*member)(A1, A2, A3)>
-void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result) {
+void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result)
+{
     A1 arg1 = arguments->getArg<A1>();
     A2 arg2 = arguments->getArg<A2>();
     A3 arg3 = arguments->getArg<A3>();
 
-    (static_cast<T*>(this_ptr)->*member)(arg1, arg2, arg3);
+    (static_cast<T *>(this_ptr)->*member)(arg1, arg2, arg3);
 }
 
 /* Function rpc_method_caller
  */
 template<typename R, class T, R(T::*member)()>
-void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result) {
-    R res = (static_cast<T*>(this_ptr)->*member)();
+void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result)
+{
+    R res = (static_cast<T *>(this_ptr)->*member)();
     result->putData<R>(res);
 }
 
 /* Function rpc_method_caller
  */
 template<typename R, class T, typename A1, R(T::*member)(A1)>
-void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result) {
+void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result)
+{
     A1 arg1 = arguments->getArg<A1>();
 
-    R res = (static_cast<T*>(this_ptr)->*member)(arg1);
+    R res = (static_cast<T *>(this_ptr)->*member)(arg1);
     result->putData<R>(res);
 }
 
 /* Function rpc_method_caller
  */
 template<typename R, class T, typename A1, typename A2, R(T::*member)(A1, A2)>
-void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result) {
+void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result)
+{
     A1 arg1 = arguments->getArg<A1>();
     A2 arg2 = arguments->getArg<A2>();
 
-    R res = (static_cast<T*>(this_ptr)->*member)(arg1, arg2);
+    R res = (static_cast<T *>(this_ptr)->*member)(arg1, arg2);
     result->putData<R>(res);
 }
 
 /* Function rpc_method_caller
  */
 template<typename R, class T, typename A1, typename A2, typename A3, R(T::*member)(A1, A2, A3)>
-void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result) {
+void rpc_method_caller(RPC *this_ptr, Arguments *arguments, Reply *result)
+{
     A1 arg1 = arguments->getArg<A1>();
     A2 arg2 = arguments->getArg<A2>();
     A3 arg3 = arguments->getArg<A3>();
 
-    R res = (static_cast<T*>(this_ptr)->*member)(arg1, arg2, arg3);
+    R res = (static_cast<T *>(this_ptr)->*member)(arg1, arg2, arg3);
     result->putData<R>(res);
 }
 
 /* Function rpc_function caller
  */
 template<typename R, R(*func)()>
-void rpc_function_caller(Arguments *arguments, Reply *result) {
+void rpc_function_caller(Arguments *arguments, Reply *result)
+{
     R res = (*func)();
     result->putData<R>(res);
 }
@@ -248,7 +264,8 @@ void rpc_function_caller(Arguments *arguments, Reply *result) {
 /* Function rpc_function caller
  */
 template<typename R, typename A1, R(*func)(A1)>
-void rpc_function_caller(Arguments *arguments, Reply *result) {
+void rpc_function_caller(Arguments *arguments, Reply *result)
+{
     A1 arg1 = arguments->getArg<A1>();
     R res = (*func)(arg1);
     result->putData<R>(res);
@@ -257,7 +274,8 @@ void rpc_function_caller(Arguments *arguments, Reply *result) {
 /* Function rpc_function caller
  */
 template<typename R, typename A1, typename A2, R(*func)(A1, A2)>
-void rpc_function_caller(Arguments *arguments, Reply *result) {
+void rpc_function_caller(Arguments *arguments, Reply *result)
+{
     A1 arg1 = arguments->getArg<A1>();
     A2 arg2 = arguments->getArg<A2>();
 
@@ -268,7 +286,8 @@ void rpc_function_caller(Arguments *arguments, Reply *result) {
 /* Function rpc_function caller
  */
 template<typename R, typename A1, typename A2, typename A3, R(*func)(A1, A2, A3)>
-void rpc_function_caller(Arguments *arguments, Reply *result) {
+void rpc_function_caller(Arguments *arguments, Reply *result)
+{
     A1 arg1 = arguments->getArg<A1>();
     A2 arg2 = arguments->getArg<A2>();
     A3 arg3 = arguments->getArg<A3>();
@@ -280,7 +299,8 @@ void rpc_function_caller(Arguments *arguments, Reply *result) {
 /* Function rpc_function caller
  */
 template<typename R, typename A1, typename A2, typename A3, typename A4, R(*func)(A1, A2, A3, A4)>
-void rpc_function_caller(Arguments *arguments, Reply *result) {
+void rpc_function_caller(Arguments *arguments, Reply *result)
+{
     A1 arg1 = arguments->getArg<A1>();
     A2 arg2 = arguments->getArg<A2>();
     A3 arg3 = arguments->getArg<A3>();
@@ -292,8 +312,8 @@ void rpc_function_caller(Arguments *arguments, Reply *result) {
 
 struct rpc_method {
     const char *name;
-    typedef void (*method_caller_t)(RPC*, Arguments*, Reply*);
-    typedef const struct rpc_method *(*super_t)(RPC*);
+    typedef void (*method_caller_t)(RPC *, Arguments *, Reply *);
+    typedef const struct rpc_method *(*super_t)(RPC *);
     union {
         method_caller_t method_caller;
         super_t super;
@@ -301,8 +321,9 @@ struct rpc_method {
 };
 
 template<class C>
-const struct rpc_method *rpc_super(RPC *this_ptr) {
-    return static_cast<C*>(this_ptr)->C::get_rpc_methods();
+const struct rpc_method *rpc_super(RPC *this_ptr)
+{
+    return static_cast<C *>(this_ptr)->C::get_rpc_methods();
 }
 
 #define RPC_METHOD_END      { NULL, NULL }

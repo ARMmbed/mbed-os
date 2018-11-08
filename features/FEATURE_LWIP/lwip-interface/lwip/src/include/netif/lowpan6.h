@@ -60,14 +60,14 @@ extern "C" {
 
 void lowpan6_tmr(void);
 
-err_t lowpan6_set_context(u8_t index, const ip6_addr_t * context);
+err_t lowpan6_set_context(u8_t index, const ip6_addr_t *context);
 err_t lowpan6_set_short_addr(u8_t addr_high, u8_t addr_low);
 
 #if LWIP_IPV4
 err_t lowpan4_output(struct netif *netif, struct pbuf *q, const ip4_addr_t *ipaddr);
 #endif /* LWIP_IPV4 */
 err_t lowpan6_output(struct netif *netif, struct pbuf *q, const ip6_addr_t *ip6addr);
-err_t lowpan6_input(struct pbuf * p, struct netif *netif);
+err_t lowpan6_input(struct pbuf *p, struct netif *netif);
 err_t lowpan6_if_init(struct netif *netif);
 
 /* pan_id in network byte order. */

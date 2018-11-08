@@ -30,7 +30,8 @@ volatile uint32_t PreviousVal = 0;
 void us_ticker_irq_handler(void);
 
 #if defined(TARGET_STM32F0)
-void timer_update_irq_handler(void) {
+void timer_update_irq_handler(void)
+{
 #else
 void timer_irq_handler(void)
 {
@@ -58,11 +59,11 @@ void timer_oc_irq_handler(void)
         if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
             __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
 
-                if (oc_int_part > 0) {
-                    oc_int_part--;
-                } else {
-                   us_ticker_irq_handler();
-                }
+            if (oc_int_part > 0) {
+                oc_int_part--;
+            } else {
+                us_ticker_irq_handler();
+            }
         }
     }
 

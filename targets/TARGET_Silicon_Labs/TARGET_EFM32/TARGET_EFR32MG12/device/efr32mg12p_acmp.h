@@ -38,25 +38,24 @@
  * @{
  * @brief EFR32MG12P_ACMP Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;          /**< Control Register  */
-  __IOM uint32_t INPUTSEL;      /**< Input Selection Register  */
-  __IM uint32_t  STATUS;        /**< Status Register  */
-  __IM uint32_t  IF;            /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
-  uint32_t       RESERVED0[1];  /**< Reserved for future use **/
-  __IM uint32_t  APORTREQ;      /**< APORT Request Status Register  */
-  __IM uint32_t  APORTCONFLICT; /**< APORT Conflict Status Register  */
-  __IOM uint32_t HYSTERESIS0;   /**< Hysteresis 0 Register  */
-  __IOM uint32_t HYSTERESIS1;   /**< Hysteresis 1 Register  */
+typedef struct {
+    __IOM uint32_t CTRL;          /**< Control Register  */
+    __IOM uint32_t INPUTSEL;      /**< Input Selection Register  */
+    __IM uint32_t  STATUS;        /**< Status Register  */
+    __IM uint32_t  IF;            /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
+    uint32_t       RESERVED0[1];  /**< Reserved for future use **/
+    __IM uint32_t  APORTREQ;      /**< APORT Request Status Register  */
+    __IM uint32_t  APORTCONFLICT; /**< APORT Conflict Status Register  */
+    __IOM uint32_t HYSTERESIS0;   /**< Hysteresis 0 Register  */
+    __IOM uint32_t HYSTERESIS1;   /**< Hysteresis 1 Register  */
 
-  uint32_t       RESERVED1[4];  /**< Reserved for future use **/
-  __IOM uint32_t ROUTEPEN;      /**< I/O Routing Pine Enable Register  */
-  __IOM uint32_t ROUTELOC0;     /**< I/O Routing Location Register  */
-  __IOM uint32_t EXTIFCTRL;     /**< External override interface control  */
+    uint32_t       RESERVED1[4];  /**< Reserved for future use **/
+    __IOM uint32_t ROUTEPEN;      /**< I/O Routing Pine Enable Register  */
+    __IOM uint32_t ROUTELOC0;     /**< I/O Routing Location Register  */
+    __IOM uint32_t EXTIFCTRL;     /**< External override interface control  */
 } ACMP_TypeDef;                 /** @} */
 
 /**************************************************************************//**

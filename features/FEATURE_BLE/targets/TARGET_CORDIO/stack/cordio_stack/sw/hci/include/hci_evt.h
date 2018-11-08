@@ -34,20 +34,19 @@ extern "C" {
 **************************************************************************************************/
 
 /* HCI event statistics */
-typedef struct
-{
-  uint16_t numDiscCmplEvt;
-  uint16_t numEncChangeEvt;
-  uint16_t numReadRemoteVerInfoCmpEvt;
-  uint16_t numCmdCmplEvt;
-  uint16_t numCmdStatusEvt;
-  uint16_t numHwErrorEvt;
-  uint16_t numCmplPktsEvt;
-  uint16_t numDataBufOverflowEvt;
-  uint16_t numEncKeyRefreshCmplEvt;
-  uint16_t numLeMetaEvt;
-  uint16_t numVendorSpecEvt;
-  uint16_t numAuthToEvt;
+typedef struct {
+    uint16_t numDiscCmplEvt;
+    uint16_t numEncChangeEvt;
+    uint16_t numReadRemoteVerInfoCmpEvt;
+    uint16_t numCmdCmplEvt;
+    uint16_t numCmdStatusEvt;
+    uint16_t numHwErrorEvt;
+    uint16_t numCmplPktsEvt;
+    uint16_t numDataBufOverflowEvt;
+    uint16_t numEncKeyRefreshCmplEvt;
+    uint16_t numLeMetaEvt;
+    uint16_t numVendorSpecEvt;
+    uint16_t numAuthToEvt;
 } hciEvtStats_t;
 
 /**************************************************************************************************

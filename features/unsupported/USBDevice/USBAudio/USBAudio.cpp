@@ -22,7 +22,8 @@
 
 
 
-USBAudio::USBAudio(uint32_t frequency_in, uint8_t channel_nb_in, uint32_t frequency_out, uint8_t channel_nb_out, uint16_t vendor_id, uint16_t product_id, uint16_t product_release): USBDevice(vendor_id, product_id, product_release) {
+USBAudio::USBAudio(uint32_t frequency_in, uint8_t channel_nb_in, uint32_t frequency_out, uint8_t channel_nb_out, uint16_t vendor_id, uint16_t product_id, uint16_t product_release): USBDevice(vendor_id, product_id, product_release)
+{
     mute = 0;
     volCur = 0x0080;
     volMin = 0x0000;
@@ -60,7 +61,8 @@ USBAudio::USBAudio(uint32_t frequency_in, uint8_t channel_nb_in, uint32_t freque
     USBDevice::connect();
 }
 
-bool USBAudio::read(uint8_t * buf) {
+bool USBAudio::read(uint8_t *buf)
+{
     buf_stream_in = buf;
     SOF_handler = false;
     while (!available || !SOF_handler);
@@ -68,7 +70,8 @@ bool USBAudio::read(uint8_t * buf) {
     return true;
 }
 
-bool USBAudio::readNB(uint8_t * buf) {
+bool USBAudio::readNB(uint8_t *buf)
+{
     buf_stream_in = buf;
     SOF_handler = false;
     while (!SOF_handler);
@@ -80,7 +83,8 @@ bool USBAudio::readNB(uint8_t * buf) {
     return false;
 }
 
-bool USBAudio::readWrite(uint8_t * buf_read, uint8_t * buf_write) {
+bool USBAudio::readWrite(uint8_t *buf_read, uint8_t *buf_write)
+{
     buf_stream_in = buf_read;
     SOF_handler = false;
     writeIN = false;
@@ -98,7 +102,8 @@ bool USBAudio::readWrite(uint8_t * buf_read, uint8_t * buf_write) {
 }
 
 
-bool USBAudio::write(uint8_t * buf) {
+bool USBAudio::write(uint8_t *buf)
+{
     writeIN = false;
     SOF_handler = false;
     if (interruptIN) {
@@ -119,7 +124,7 @@ void USBAudio::writeSync(uint8_t *buf, AudioSampleCorrectType jitter_nb)
         jitter_nb = NoCorrection;
     }
     /* each sample is 2 bytes */
-    USBDevice::writeNB(EPISO_IN, buf, PACKET_SIZE_ISO_OUT + jitter_nb *(this->channel_nb_out*2), PACKET_SIZE_ISO_OUT+this->channel_nb_out*2);
+    USBDevice::writeNB(EPISO_IN, buf, PACKET_SIZE_ISO_OUT + jitter_nb * (this->channel_nb_out * 2), PACKET_SIZE_ISO_OUT + this->channel_nb_out * 2);
 }
 
 uint32_t USBAudio::readSync(uint8_t *buf)
@@ -129,40 +134,45 @@ uint32_t USBAudio::readSync(uint8_t *buf)
     return size;
 }
 
-float USBAudio::getVolume() {
+float USBAudio::getVolume()
+{
     return (mute) ? 0.0 : volume;
 }
 
 
-bool USBAudio::EPISO_OUT_callback() {
+bool USBAudio::EPISO_OUT_callback()
+{
     uint32_t size = 0;
     interruptOUT = true;
     if (buf_stream_in != NULL) {
         readEP(EPISO_OUT, (uint8_t *)buf_stream_in, &size, PACKET_SIZE_ISO_IN);
         available = true;
         buf_stream_in = NULL;
-    }
-    else  {
-        if (rxDone)
+    } else  {
+        if (rxDone) {
             rxDone.call();
+        }
     }
     readStart(EPISO_OUT, PACKET_SIZE_ISO_IN);
     return false;
 }
 
 
-bool USBAudio::EPISO_IN_callback() {
+bool USBAudio::EPISO_IN_callback()
+{
     interruptIN = true;
     writeIN = true;
-    if (txDone) 
+    if (txDone) {
         txDone.call();
+    }
     return true;
 }
 
 
 
 // Called in ISR context on each start of frame
-void USBAudio::SOF(int frameNumber) {
+void USBAudio::SOF(int frameNumber)
+{
     uint32_t size = 0;
 
     if (!interruptOUT) {
@@ -192,14 +202,15 @@ void USBAudio::SOF(int frameNumber) {
 
 // Called in ISR context
 // Set configuration. Return false if the configuration is not supported.
-bool USBAudio::USBCallback_setConfiguration(uint8_t configuration) {
+bool USBAudio::USBCallback_setConfiguration(uint8_t configuration)
+{
     if (configuration != DEFAULT_CONFIGURATION) {
         return false;
     }
 
     // Configure isochronous endpoint
     realiseEndpoint(EPISO_OUT, PACKET_SIZE_ISO_IN, ISOCHRONOUS);
-    realiseEndpoint(EPISO_IN, PACKET_SIZE_ISO_OUT+this->channel_nb_out*2, ISOCHRONOUS);
+    realiseEndpoint(EPISO_IN, PACKET_SIZE_ISO_OUT + this->channel_nb_out * 2, ISOCHRONOUS);
 
     // activate readings on this endpoint
     readStart(EPISO_OUT, PACKET_SIZE_ISO_IN);
@@ -209,7 +220,8 @@ bool USBAudio::USBCallback_setConfiguration(uint8_t configuration) {
 
 // Called in ISR context
 // Set alternate setting. Return false if the alternate setting is not supported
-bool USBAudio::USBCallback_setInterface(uint16_t interface, uint8_t alternate) {
+bool USBAudio::USBCallback_setInterface(uint16_t interface, uint8_t alternate)
+{
     if (interface == 0 && alternate == 0) {
         return true;
     }
@@ -228,9 +240,10 @@ bool USBAudio::USBCallback_setInterface(uint16_t interface, uint8_t alternate) {
 // Called by USBDevice on Endpoint0 request
 // This is used to handle extensions to standard requests and class specific requests.
 // Return true if class handles this request
-bool USBAudio::USBCallback_request() {
+bool USBAudio::USBCallback_request()
+{
     bool success = false;
-    CONTROL_TRANSFER * transfer = getTransferPtr();
+    CONTROL_TRANSFER *transfer = getTransferPtr();
 
     // Process class-specific requests
     if (transfer->setup.bmRequestType.Type == CLASS_TYPE) {
@@ -325,17 +338,19 @@ bool USBAudio::USBCallback_request() {
 
 
 // Called in ISR context when a data OUT stage has been performed
-void USBAudio::USBCallback_requestCompleted(uint8_t * buf, uint32_t length) {
+void USBAudio::USBCallback_requestCompleted(uint8_t *buf, uint32_t length)
+{
     if ((length == 1) || (length == 2)) {
         uint16_t data = (length == 1) ? *buf : *((uint16_t *)buf);
-        CONTROL_TRANSFER * transfer = getTransferPtr();
+        CONTROL_TRANSFER *transfer = getTransferPtr();
         switch (transfer->setup.wValue >> 8) {
             case MUTE_CONTROL:
                 switch (transfer->setup.bRequest) {
                     case REQUEST_SET_CUR:
                         mute = data & 0xff;
-                        if (updateVol)
+                        if (updateVol) {
                             updateVol.call();
+                        }
                         break;
                     default:
                         break;
@@ -345,9 +360,10 @@ void USBAudio::USBCallback_requestCompleted(uint8_t * buf, uint32_t length) {
                 switch (transfer->setup.bRequest) {
                     case REQUEST_SET_CUR:
                         volCur = data;
-                        volume = (float)volCur/(float)volMax;
-                        if (updateVol)
+                        volume = (float)volCur / (float)volMax;
+                        if (updateVol) {
                             updateVol.call();
+                        }
                         break;
                     default:
                         break;
@@ -377,7 +393,8 @@ void USBAudio::USBCallback_requestCompleted(uint8_t * buf, uint32_t length) {
                                       FEATURE_UNIT_DESCRIPTOR_LENGTH    + \
                                       2*OUTPUT_TERMINAL_DESCRIPTOR_LENGTH)
 
-uint8_t * USBAudio::configurationDesc() {
+uint8_t *USBAudio::configurationDesc()
+{
     static uint8_t configDescriptor[] = {
         // Configuration 1
         CONFIGURATION_DESCRIPTOR_LENGTH,        // bLength
@@ -601,8 +618,8 @@ uint8_t * USBAudio::configurationDesc() {
         ENDPOINT_DESCRIPTOR,                    // bDescriptorType
         PHY_TO_DESC(EPISO_IN),                  // bEndpointAddress
         E_ISOCHRONOUS,                          // bmAttributes
-        (uint8_t)(LSB(PACKET_SIZE_ISO_OUT+channel_nb_out*2)),                   // wMaxPacketSize
-        (uint8_t)(MSB(PACKET_SIZE_ISO_OUT+channel_nb_out*2)),                   // wMaxPacketSize
+        (uint8_t)(LSB(PACKET_SIZE_ISO_OUT + channel_nb_out * 2)),               // wMaxPacketSize
+        (uint8_t)(MSB(PACKET_SIZE_ISO_OUT + channel_nb_out * 2)),               // wMaxPacketSize
         0x01,                                   // bInterval
         0x00,                                   // bRefresh
         0x00,                                   // bSynchAddress
@@ -622,20 +639,22 @@ uint8_t * USBAudio::configurationDesc() {
     return configDescriptor;
 }
 
-uint8_t * USBAudio::stringIinterfaceDesc() {
+uint8_t *USBAudio::stringIinterfaceDesc()
+{
     static uint8_t stringIinterfaceDescriptor[] = {
         0x0c,                           //bLength
         STRING_DESCRIPTOR,              //bDescriptorType 0x03
-        'A',0,'u',0,'d',0,'i',0,'o',0   //bString iInterface - Audio
+        'A', 0, 'u', 0, 'd', 0, 'i', 0, 'o', 0 //bString iInterface - Audio
     };
     return stringIinterfaceDescriptor;
 }
 
-uint8_t * USBAudio::stringIproductDesc() {
+uint8_t *USBAudio::stringIproductDesc()
+{
     static uint8_t stringIproductDescriptor[] = {
         0x16,                                                       //bLength
         STRING_DESCRIPTOR,                                          //bDescriptorType 0x03
-        'M',0,'b',0,'e',0,'d',0,' ',0,'A',0,'u',0,'d',0,'i',0,'o',0 //bString iProduct - Mbed Audio
+        'M', 0, 'b', 0, 'e', 0, 'd', 0, ' ', 0, 'A', 0, 'u', 0, 'd', 0, 'i', 0, 'o', 0 //bString iProduct - Mbed Audio
     };
     return stringIproductDescriptor;
 }

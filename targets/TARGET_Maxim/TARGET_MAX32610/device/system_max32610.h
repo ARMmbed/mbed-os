@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #ifndef SYSTEM_MAX32610_H_
 #define SYSTEM_MAX32610_H_
 
@@ -42,9 +42,9 @@ extern "C" {
 
 extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  */
 
-extern void SystemInit (void);
+extern void SystemInit(void);
 
-extern void SystemCoreClockUpdate (void);
+extern void SystemCoreClockUpdate(void);
 
 #ifdef __cplusplus
 }

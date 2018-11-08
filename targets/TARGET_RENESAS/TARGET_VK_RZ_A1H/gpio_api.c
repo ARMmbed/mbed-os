@@ -18,20 +18,26 @@
 #include "gpio_addrdefine.h"
 
 
-uint32_t gpio_set(PinName pin) {
+uint32_t gpio_set(PinName pin)
+{
     pin_function(pin, 0);
     return (1 << PINNO(pin));
 }
 
-void gpio_init(gpio_t *obj, PinName pin) {
+void gpio_init(gpio_t *obj, PinName pin)
+{
     int group ;
     obj->pin = pin;
-    if(pin == NC) return;
-    
+    if (pin == NC) {
+        return;
+    }
+
     obj->mask = gpio_set(pin);
 
     group = PINGROUP(pin);
-    if (group > 9) return;
+    if (group > 9) {
+        return;
+    }
 
     obj->reg_set = (volatile uint32_t *) PSR(group);
     obj->reg_in  = (volatile uint32_t *) PPR(group);
@@ -39,11 +45,13 @@ void gpio_init(gpio_t *obj, PinName pin) {
     obj->reg_buf = (volatile uint32_t *)PIBC(group);
 }
 
-void gpio_mode(gpio_t *obj, PinMode mode) {
-/* Pull up and Pull down settings aren't supported because RZ/A1H doesn't have pull up/down for pins(signals). */
+void gpio_mode(gpio_t *obj, PinMode mode)
+{
+    /* Pull up and Pull down settings aren't supported because RZ/A1H doesn't have pull up/down for pins(signals). */
 }
 
-void gpio_dir(gpio_t *obj, PinDirection direction) {
+void gpio_dir(gpio_t *obj, PinDirection direction)
+{
     switch (direction) {
         case PIN_INPUT :
             *obj->reg_dir = (obj->mask << 16) | obj->mask;

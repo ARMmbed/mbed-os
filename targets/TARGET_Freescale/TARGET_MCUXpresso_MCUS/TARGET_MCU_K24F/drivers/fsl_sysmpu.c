@@ -53,8 +53,7 @@ void SYSMPU_Init(SYSMPU_Type *base, const sysmpu_config_t *config)
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
     /* Initializes the regions. */
-    for (count = 1; count < FSL_FEATURE_SYSMPU_DESCRIPTOR_COUNT; count++)
-    {
+    for (count = 1; count < FSL_FEATURE_SYSMPU_DESCRIPTOR_COUNT; count++) {
         base->WORD[count][3] = 0; /* VLD/VID+PID. */
         base->WORD[count][0] = 0; /* Start address. */
         base->WORD[count][1] = 0; /* End address. */
@@ -63,8 +62,7 @@ void SYSMPU_Init(SYSMPU_Type *base, const sysmpu_config_t *config)
     }
 
     /* SYSMPU configure. */
-    while (config)
-    {
+    while (config) {
         SYSMPU_SetRegionConfig(base, &(config->regionConfig));
         config = config->next;
     }
@@ -108,11 +106,10 @@ void SYSMPU_SetRegionConfig(SYSMPU_Type *base, const sysmpu_region_config_t *reg
     base->WORD[regNumber][1] = regionConfig->endAddress;
 
     /* Set the privilege rights for master 0 ~ master 3. */
-    for (msPortNum = 0; msPortNum < SYSMPU_MASTER_RWATTRIBUTE_START_PORT; msPortNum++)
-    {
+    for (msPortNum = 0; msPortNum < SYSMPU_MASTER_RWATTRIBUTE_START_PORT; msPortNum++) {
         wordReg |= SYSMPU_REGION_RWXRIGHTS_MASTER(
-            msPortNum, (((uint32_t)regionConfig->accessRights1[msPortNum].superAccessRights << 3U) |
-                        (uint32_t)regionConfig->accessRights1[msPortNum].userAccessRights));
+                       msPortNum, (((uint32_t)regionConfig->accessRights1[msPortNum].superAccessRights << 3U) |
+                                   (uint32_t)regionConfig->accessRights1[msPortNum].userAccessRights));
 
 #if FSL_FEATURE_SYSMPU_HAS_PROCESS_IDENTIFIER
         wordReg |=
@@ -123,11 +120,10 @@ void SYSMPU_SetRegionConfig(SYSMPU_Type *base, const sysmpu_region_config_t *reg
 #if FSL_FEATURE_SYSMPU_MASTER_COUNT > SYSMPU_MASTER_RWATTRIBUTE_START_PORT
     /* Set the normal read write rights for master 4 ~ master 7. */
     for (msPortNum = SYSMPU_MASTER_RWATTRIBUTE_START_PORT; msPortNum < FSL_FEATURE_SYSMPU_MASTER_COUNT;
-         msPortNum++)
-    {
+            msPortNum++) {
         wordReg |= SYSMPU_REGION_RWRIGHTS_MASTER(msPortNum,
-            ((uint32_t)regionConfig->accessRights2[msPortNum - SYSMPU_MASTER_RWATTRIBUTE_START_PORT].readEnable << 1U |
-            (uint32_t)regionConfig->accessRights2[msPortNum - SYSMPU_MASTER_RWATTRIBUTE_START_PORT].writeEnable));
+                                                 ((uint32_t)regionConfig->accessRights2[msPortNum - SYSMPU_MASTER_RWATTRIBUTE_START_PORT].readEnable << 1U |
+                                                  (uint32_t)regionConfig->accessRights2[msPortNum - SYSMPU_MASTER_RWATTRIBUTE_START_PORT].writeEnable));
     }
 #endif /* FSL_FEATURE_SYSMPU_MASTER_COUNT > SYSMPU_MASTER_RWATTRIBUTE_START_PORT */
 
@@ -151,9 +147,9 @@ void SYSMPU_SetRegionAddr(SYSMPU_Type *base, uint32_t regionNum, uint32_t startA
 }
 
 void SYSMPU_SetRegionRwxMasterAccessRights(SYSMPU_Type *base,
-                                        uint32_t regionNum,
-                                        uint32_t masterNum,
-                                        const sysmpu_rwxrights_master_access_control_t *accessRights)
+                                           uint32_t regionNum,
+                                           uint32_t masterNum,
+                                           const sysmpu_rwxrights_master_access_control_t *accessRights)
 {
     assert(accessRights);
     assert(regionNum < FSL_FEATURE_SYSMPU_DESCRIPTOR_COUNT);
@@ -169,7 +165,7 @@ void SYSMPU_SetRegionRwxMasterAccessRights(SYSMPU_Type *base,
     /* Build rights control value. */
     right &= ~mask;
     right |= SYSMPU_REGION_RWXRIGHTS_MASTER(
-        masterNum, ((uint32_t)(accessRights->superAccessRights << 3U) | accessRights->userAccessRights));
+                 masterNum, ((uint32_t)(accessRights->superAccessRights << 3U) | accessRights->userAccessRights));
 #if FSL_FEATURE_SYSMPU_HAS_PROCESS_IDENTIFIER
     right |= SYSMPU_REGION_RWXRIGHTS_MASTER_PE(masterNum, accessRights->processIdentifierEnable);
 #endif /* FSL_FEATURE_SYSMPU_HAS_PROCESS_IDENTIFIER */
@@ -180,9 +176,9 @@ void SYSMPU_SetRegionRwxMasterAccessRights(SYSMPU_Type *base,
 
 #if FSL_FEATURE_SYSMPU_MASTER_COUNT > 4
 void SYSMPU_SetRegionRwMasterAccessRights(SYSMPU_Type *base,
-                                       uint32_t regionNum,
-                                       uint32_t masterNum,
-                                       const sysmpu_rwrights_master_access_control_t *accessRights)
+                                          uint32_t regionNum,
+                                          uint32_t masterNum,
+                                          const sysmpu_rwrights_master_access_control_t *accessRights)
 {
     assert(accessRights);
     assert(regionNum < FSL_FEATURE_SYSMPU_DESCRIPTOR_COUNT);
@@ -222,16 +218,11 @@ void SYSMPU_GetDetailErrorAccessInfo(SYSMPU_Type *base, sysmpu_slave_t slaveNum,
 
     /* Error detail information. */
     value = (base->SP[slaveNum].EDR & SYSMPU_EDR_EACD_MASK) >> SYSMPU_EDR_EACD_SHIFT;
-    if (!value)
-    {
+    if (!value) {
         errInform->accessControl = kSYSMPU_NoRegionHit;
-    }
-    else if (!(value & (uint16_t)(value - 1)))
-    {
+    } else if (!(value & (uint16_t)(value - 1))) {
         errInform->accessControl = kSYSMPU_NoneOverlappRegion;
-    }
-    else
-    {
+    } else {
         errInform->accessControl = kSYSMPU_OverlappRegion;
     }
 

@@ -39,47 +39,40 @@ void TSI_Init(TSI_Type *base, const tsi_config_t *config)
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     CLOCK_EnableClock(kCLOCK_Tsi0);
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
-    if (base->GENCS & TSI_GENCS_TSIEN_MASK)
-    {
+    if (base->GENCS & TSI_GENCS_TSIEN_MASK) {
         is_module_enabled = true;
         TSI_EnableModule(base, false);
     }
-    if (base->GENCS & TSI_GENCS_TSIIEN_MASK)
-    {
+    if (base->GENCS & TSI_GENCS_TSIIEN_MASK) {
         is_int_enabled = true;
         TSI_DisableInterrupts(base, kTSI_GlobalInterruptEnable);
     }
-    
-    if(config->mode == kTSI_AnalogModeSel_Capacitive)
-    {
-      TSI_SetHighThreshold(base, config->thresh);
-      TSI_SetLowThreshold(base, config->thresl);
-      TSI_SetElectrodeOSCPrescaler(base, config->prescaler);
-      TSI_SetReferenceChargeCurrent(base, config->refchrg);
-      TSI_SetElectrodeChargeCurrent(base, config->extchrg);
-      TSI_SetNumberOfScans(base, config->nscn);
-      TSI_SetAnalogMode(base, config->mode);
-      TSI_SetOscVoltageRails(base, config->dvolt);   
+
+    if (config->mode == kTSI_AnalogModeSel_Capacitive) {
+        TSI_SetHighThreshold(base, config->thresh);
+        TSI_SetLowThreshold(base, config->thresl);
+        TSI_SetElectrodeOSCPrescaler(base, config->prescaler);
+        TSI_SetReferenceChargeCurrent(base, config->refchrg);
+        TSI_SetElectrodeChargeCurrent(base, config->extchrg);
+        TSI_SetNumberOfScans(base, config->nscn);
+        TSI_SetAnalogMode(base, config->mode);
+        TSI_SetOscVoltageRails(base, config->dvolt);
+    } else { /* For noise modes */
+        TSI_SetHighThreshold(base, config->thresh);
+        TSI_SetLowThreshold(base, config->thresl);
+        TSI_SetElectrodeOSCPrescaler(base, config->prescaler);
+        TSI_SetReferenceChargeCurrent(base, config->refchrg);
+        TSI_SetNumberOfScans(base, config->nscn);
+        TSI_SetAnalogMode(base, config->mode);
+        TSI_SetOscVoltageRails(base, config->dvolt);
+        TSI_SetElectrodeSeriesResistor(base, config->resistor);
+        TSI_SetFilterBits(base, config->filter);
     }
-    else /* For noise modes */
-    {  
-      TSI_SetHighThreshold(base, config->thresh);
-      TSI_SetLowThreshold(base, config->thresl);
-      TSI_SetElectrodeOSCPrescaler(base, config->prescaler);
-      TSI_SetReferenceChargeCurrent(base, config->refchrg);
-      TSI_SetNumberOfScans(base, config->nscn);
-      TSI_SetAnalogMode(base, config->mode);
-      TSI_SetOscVoltageRails(base, config->dvolt);
-      TSI_SetElectrodeSeriesResistor(base, config->resistor);
-      TSI_SetFilterBits(base, config->filter);  
-    }
-     
-    if (is_module_enabled)
-    {
+
+    if (is_module_enabled) {
         TSI_EnableModule(base, true);
     }
-    if (is_int_enabled)
-    {
+    if (is_int_enabled) {
         TSI_EnableInterrupts(base, kTSI_GlobalInterruptEnable);
     }
 }
@@ -125,23 +118,19 @@ void TSI_Calibrate(TSI_Type *base, tsi_calibration_data_t *calBuff)
     uint8_t i = 0U;
     bool is_int_enabled = false;
 
-    if (base->GENCS & TSI_GENCS_TSIIEN_MASK)
-    {
+    if (base->GENCS & TSI_GENCS_TSIIEN_MASK) {
         is_int_enabled = true;
         TSI_DisableInterrupts(base, kTSI_GlobalInterruptEnable);
     }
-    for (i = 0U; i < FSL_FEATURE_TSI_CHANNEL_COUNT; i++)
-    {
+    for (i = 0U; i < FSL_FEATURE_TSI_CHANNEL_COUNT; i++) {
         TSI_SetMeasuredChannelNumber(base, i);
         TSI_StartSoftwareTrigger(base);
-        while (!(TSI_GetStatusFlags(base) & kTSI_EndOfScanFlag))
-        {
+        while (!(TSI_GetStatusFlags(base) & kTSI_EndOfScanFlag)) {
         }
         calBuff->calibratedData[i] = TSI_GetCounter(base);
         TSI_ClearStatusFlags(base, kTSI_EndOfScanFlag);
     }
-    if (is_int_enabled)
-    {
+    if (is_int_enabled) {
         TSI_EnableInterrupts(base, kTSI_GlobalInterruptEnable);
     }
 }
@@ -150,16 +139,13 @@ void TSI_EnableInterrupts(TSI_Type *base, uint32_t mask)
 {
     uint32_t regValue = base->GENCS & (~ALL_FLAGS_MASK);
 
-    if (mask & kTSI_GlobalInterruptEnable)
-    {
+    if (mask & kTSI_GlobalInterruptEnable) {
         regValue |= TSI_GENCS_TSIIEN_MASK;
     }
-    if (mask & kTSI_OutOfRangeInterruptEnable)
-    {
+    if (mask & kTSI_OutOfRangeInterruptEnable) {
         regValue &= (~TSI_GENCS_ESOR_MASK);
     }
-    if (mask & kTSI_EndOfScanInterruptEnable)
-    {
+    if (mask & kTSI_EndOfScanInterruptEnable) {
         regValue |= TSI_GENCS_ESOR_MASK;
     }
 
@@ -170,16 +156,13 @@ void TSI_DisableInterrupts(TSI_Type *base, uint32_t mask)
 {
     uint32_t regValue = base->GENCS & (~ALL_FLAGS_MASK);
 
-    if (mask & kTSI_GlobalInterruptEnable)
-    {
+    if (mask & kTSI_GlobalInterruptEnable) {
         regValue &= (~TSI_GENCS_TSIIEN_MASK);
     }
-    if (mask & kTSI_OutOfRangeInterruptEnable)
-    {
+    if (mask & kTSI_OutOfRangeInterruptEnable) {
         regValue |= TSI_GENCS_ESOR_MASK;
     }
-    if (mask & kTSI_EndOfScanInterruptEnable)
-    {
+    if (mask & kTSI_EndOfScanInterruptEnable) {
         regValue &= (~TSI_GENCS_ESOR_MASK);
     }
 
@@ -190,12 +173,10 @@ void TSI_ClearStatusFlags(TSI_Type *base, uint32_t mask)
 {
     uint32_t regValue = base->GENCS & (~ALL_FLAGS_MASK);
 
-    if (mask & kTSI_EndOfScanFlag)
-    {
+    if (mask & kTSI_EndOfScanFlag) {
         regValue |= TSI_GENCS_EOSF_MASK;
     }
-    if (mask & kTSI_OutOfRangeFlag)
-    {
+    if (mask & kTSI_OutOfRangeFlag) {
         regValue |= TSI_GENCS_OUTRGF_MASK;
     }
 

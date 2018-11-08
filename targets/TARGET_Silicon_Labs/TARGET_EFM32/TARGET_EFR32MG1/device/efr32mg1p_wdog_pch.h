@@ -36,9 +36,8 @@
 /**************************************************************************//**
  * @brief WDOG_PCH EFR32MG1P WDOG PCH
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t PRSCTRL; /**< PRS Control Register  */
+typedef struct {
+    __IOM uint32_t PRSCTRL; /**< PRS Control Register  */
 } WDOG_PCH_TypeDef;
 
 /** @} End of group Parts */

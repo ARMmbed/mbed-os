@@ -60,9 +60,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint8_t  ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint8_t  ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_CTRLA_Type;
@@ -92,9 +92,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  ENABLE:1;         /*!< bit:      0  Enable BRK Pin                     */
-        uint8_t  INV:1;            /*!< bit:      1  Invert BRK Pin                     */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  ENABLE: 1;        /*!< bit:      0  Enable BRK Pin                     */
+        uint8_t  INV: 1;           /*!< bit:      1  Invert BRK Pin                     */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_EXTCTRL_Type;
@@ -113,9 +113,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  BRKEI:1;          /*!< bit:      0  Break Input Event Enable           */
-        uint8_t  BRKEO:1;          /*!< bit:      1  Break Output Event Enable          */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  BRKEI: 1;         /*!< bit:      0  Break Input Event Enable           */
+        uint8_t  BRKEO: 1;         /*!< bit:      1  Break Output Event Enable          */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_EVCTRL_Type;
@@ -134,8 +134,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  BRK:1;            /*!< bit:      0  Break Interrupt Enable             */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  BRK: 1;           /*!< bit:      0  Break Interrupt Enable             */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_INTENCLR_Type;
@@ -152,8 +152,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  BRK:1;            /*!< bit:      0  Break Interrupt Enable             */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  BRK: 1;           /*!< bit:      0  Break Interrupt Enable             */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_INTENSET_Type;
@@ -170,8 +170,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  BRK:1;            /*!< bit:      0  Break                              */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  BRK: 1;           /*!< bit:      0  Break                              */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_INTFLAG_Type;
@@ -188,11 +188,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  CM0P:1;           /*!< bit:      0  CM0P Break Master                  */
-        uint8_t  PPP:1;            /*!< bit:      1  PPP Break Master                   */
-        uint8_t  :4;               /*!< bit:  2.. 5  Reserved                           */
-        uint8_t  EVBRK:1;          /*!< bit:      6  Event Break Master                 */
-        uint8_t  EXTBRK:1;         /*!< bit:      7  External Break Master              */
+        uint8_t  CM0P: 1;          /*!< bit:      0  CM0P Break Master                  */
+        uint8_t  PPP: 1;           /*!< bit:      1  PPP Break Master                   */
+        uint8_t  : 4;              /*!< bit:  2.. 5  Reserved                           */
+        uint8_t  EVBRK: 1;         /*!< bit:      6  Event Break Master                 */
+        uint8_t  EXTBRK: 1;        /*!< bit:      7  External Break Master              */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_GLOBMASK_Type;
@@ -215,11 +215,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  CM0P:1;           /*!< bit:      0  CM0P Break Master                  */
-        uint8_t  PPP:1;            /*!< bit:      1  PPP Break Master                   */
-        uint8_t  :4;               /*!< bit:  2.. 5  Reserved                           */
-        uint8_t  EVBRK:1;          /*!< bit:      6  Event Break Master                 */
-        uint8_t  EXTBRK:1;         /*!< bit:      7  External Break Master              */
+        uint8_t  CM0P: 1;          /*!< bit:      0  CM0P Break Master                  */
+        uint8_t  PPP: 1;           /*!< bit:      1  PPP Break Master                   */
+        uint8_t  : 4;              /*!< bit:  2.. 5  Reserved                           */
+        uint8_t  EVBRK: 1;         /*!< bit:      6  Event Break Master                 */
+        uint8_t  EXTBRK: 1;        /*!< bit:      7  External Break Master              */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_HALT_Type;
@@ -242,10 +242,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  CM0P:1;           /*!< bit:      0  CM0P Break Master                  */
-        uint8_t  PPP:1;            /*!< bit:      1  PPP Break Master                   */
-        uint8_t  :5;               /*!< bit:  2.. 6  Reserved                           */
-        uint8_t  EXTBRK:1;         /*!< bit:      7  External Break Master              */
+        uint8_t  CM0P: 1;          /*!< bit:      0  CM0P Break Master                  */
+        uint8_t  PPP: 1;           /*!< bit:      1  PPP Break Master                   */
+        uint8_t  : 5;              /*!< bit:  2.. 6  Reserved                           */
+        uint8_t  EXTBRK: 1;        /*!< bit:      7  External Break Master              */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_RESTART_Type;
@@ -266,11 +266,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t CM0P:2;           /*!< bit:  0.. 1  CM0P Break Request                 */
-        uint16_t PPP:2;            /*!< bit:  2.. 3  PPP Break Request                  */
-        uint16_t :8;               /*!< bit:  4..11  Reserved                           */
-        uint16_t EVBRK:2;          /*!< bit: 12..13  Event Break Request                */
-        uint16_t EXTBRK:2;         /*!< bit: 14..15  External Break Request             */
+        uint16_t CM0P: 2;          /*!< bit:  0.. 1  CM0P Break Request                 */
+        uint16_t PPP: 2;           /*!< bit:  2.. 3  PPP Break Request                  */
+        uint16_t : 8;              /*!< bit:  4..11  Reserved                           */
+        uint16_t EVBRK: 2;         /*!< bit: 12..13  Event Break Request                */
+        uint16_t EXTBRK: 2;        /*!< bit: 14..15  External Break Request             */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } TAL_BRKSTATUS_Type;
@@ -297,9 +297,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  ACTION:2;         /*!< bit:  0.. 1  Action when global break issued    */
-        uint8_t  RESTART:1;        /*!< bit:      2  Action when global restart issued  */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  ACTION: 2;        /*!< bit:  0.. 1  Action when global break issued    */
+        uint8_t  RESTART: 1;       /*!< bit:      2  Action when global restart issued  */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_CTICTRLA_Type;
@@ -325,11 +325,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  CM0P:1;           /*!< bit:      0  CM0P Break Master                  */
-        uint8_t  PPP:1;            /*!< bit:      1  PPP Break Master                   */
-        uint8_t  :4;               /*!< bit:  2.. 5  Reserved                           */
-        uint8_t  EVBRK:1;          /*!< bit:      6  Event Break Master                 */
-        uint8_t  EXTBRK:1;         /*!< bit:      7  External Break Master              */
+        uint8_t  CM0P: 1;          /*!< bit:      0  CM0P Break Master                  */
+        uint8_t  PPP: 1;           /*!< bit:      1  PPP Break Master                   */
+        uint8_t  : 4;              /*!< bit:  2.. 5  Reserved                           */
+        uint8_t  EVBRK: 1;         /*!< bit:      6  Event Break Master                 */
+        uint8_t  EXTBRK: 1;        /*!< bit:      7  External Break Master              */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_CTIMASK_Type;
@@ -352,17 +352,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  IRQ0:1;           /*!< bit:      0  Interrupt Status for Interrupt Request 0 within Interrupt n */
-        uint8_t  IRQ1:1;           /*!< bit:      1  Interrupt Status for Interrupt Request 1 within Interrupt n */
-        uint8_t  IRQ2:1;           /*!< bit:      2  Interrupt Status for Interrupt Request 2 within Interrupt n */
-        uint8_t  IRQ3:1;           /*!< bit:      3  Interrupt Status for Interrupt Request 3 within Interrupt n */
-        uint8_t  IRQ4:1;           /*!< bit:      4  Interrupt Status for Interrupt Request 4 within Interrupt n */
-        uint8_t  IRQ5:1;           /*!< bit:      5  Interrupt Status for Interrupt Request 5 within Interrupt n */
-        uint8_t  IRQ6:1;           /*!< bit:      6  Interrupt Status for Interrupt Request 6 within Interrupt n */
-        uint8_t  IRQ7:1;           /*!< bit:      7  Interrupt Status for Interrupt Request 7 within Interrupt n */
+        uint8_t  IRQ0: 1;          /*!< bit:      0  Interrupt Status for Interrupt Request 0 within Interrupt n */
+        uint8_t  IRQ1: 1;          /*!< bit:      1  Interrupt Status for Interrupt Request 1 within Interrupt n */
+        uint8_t  IRQ2: 1;          /*!< bit:      2  Interrupt Status for Interrupt Request 2 within Interrupt n */
+        uint8_t  IRQ3: 1;          /*!< bit:      3  Interrupt Status for Interrupt Request 3 within Interrupt n */
+        uint8_t  IRQ4: 1;          /*!< bit:      4  Interrupt Status for Interrupt Request 4 within Interrupt n */
+        uint8_t  IRQ5: 1;          /*!< bit:      5  Interrupt Status for Interrupt Request 5 within Interrupt n */
+        uint8_t  IRQ6: 1;          /*!< bit:      6  Interrupt Status for Interrupt Request 6 within Interrupt n */
+        uint8_t  IRQ7: 1;          /*!< bit:      7  Interrupt Status for Interrupt Request 7 within Interrupt n */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  IRQ:8;            /*!< bit:  0.. 7  Interrupt Status for Interrupt Request x within Interrupt n */
+        uint8_t  IRQ: 8;           /*!< bit:  0.. 7  Interrupt Status for Interrupt Request x within Interrupt n */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TAL_INTSTATUS_Type;
@@ -396,38 +396,38 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t CH0:1;            /*!< bit:      0  DMA Channel 0 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:      1  Reserved                           */
-        uint32_t CH1:1;            /*!< bit:      2  DMA Channel 1 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:      3  Reserved                           */
-        uint32_t CH2:1;            /*!< bit:      4  DMA Channel 2 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:      5  Reserved                           */
-        uint32_t CH3:1;            /*!< bit:      6  DMA Channel 3 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:      7  Reserved                           */
-        uint32_t CH4:1;            /*!< bit:      8  DMA Channel 4 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:      9  Reserved                           */
-        uint32_t CH5:1;            /*!< bit:     10  DMA Channel 5 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     11  Reserved                           */
-        uint32_t CH6:1;            /*!< bit:     12  DMA Channel 6 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     13  Reserved                           */
-        uint32_t CH7:1;            /*!< bit:     14  DMA Channel 7 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     15  Reserved                           */
-        uint32_t CH8:1;            /*!< bit:     16  DMA Channel 8 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     17  Reserved                           */
-        uint32_t CH9:1;            /*!< bit:     18  DMA Channel 9 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     19  Reserved                           */
-        uint32_t CH10:1;           /*!< bit:     20  DMA Channel 10 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     21  Reserved                           */
-        uint32_t CH11:1;           /*!< bit:     22  DMA Channel 11 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     23  Reserved                           */
-        uint32_t CH12:1;           /*!< bit:     24  DMA Channel 12 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     25  Reserved                           */
-        uint32_t CH13:1;           /*!< bit:     26  DMA Channel 13 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     27  Reserved                           */
-        uint32_t CH14:1;           /*!< bit:     28  DMA Channel 14 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     29  Reserved                           */
-        uint32_t CH15:1;           /*!< bit:     30  DMA Channel 15 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     31  Reserved                           */
+        uint32_t CH0: 1;           /*!< bit:      0  DMA Channel 0 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:      1  Reserved                           */
+        uint32_t CH1: 1;           /*!< bit:      2  DMA Channel 1 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:      3  Reserved                           */
+        uint32_t CH2: 1;           /*!< bit:      4  DMA Channel 2 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:      5  Reserved                           */
+        uint32_t CH3: 1;           /*!< bit:      6  DMA Channel 3 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:      7  Reserved                           */
+        uint32_t CH4: 1;           /*!< bit:      8  DMA Channel 4 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:      9  Reserved                           */
+        uint32_t CH5: 1;           /*!< bit:     10  DMA Channel 5 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     11  Reserved                           */
+        uint32_t CH6: 1;           /*!< bit:     12  DMA Channel 6 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     13  Reserved                           */
+        uint32_t CH7: 1;           /*!< bit:     14  DMA Channel 7 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     15  Reserved                           */
+        uint32_t CH8: 1;           /*!< bit:     16  DMA Channel 8 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     17  Reserved                           */
+        uint32_t CH9: 1;           /*!< bit:     18  DMA Channel 9 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     19  Reserved                           */
+        uint32_t CH10: 1;          /*!< bit:     20  DMA Channel 10 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     21  Reserved                           */
+        uint32_t CH11: 1;          /*!< bit:     22  DMA Channel 11 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     23  Reserved                           */
+        uint32_t CH12: 1;          /*!< bit:     24  DMA Channel 12 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     25  Reserved                           */
+        uint32_t CH13: 1;          /*!< bit:     26  DMA Channel 13 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     27  Reserved                           */
+        uint32_t CH14: 1;          /*!< bit:     28  DMA Channel 14 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     29  Reserved                           */
+        uint32_t CH15: 1;          /*!< bit:     30  DMA Channel 15 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TAL_DMACPUSEL0_Type;
@@ -490,30 +490,30 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t CH0:1;            /*!< bit:      0  Event Channel 0 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:      1  Reserved                           */
-        uint32_t CH1:1;            /*!< bit:      2  Event Channel 1 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:      3  Reserved                           */
-        uint32_t CH2:1;            /*!< bit:      4  Event Channel 2 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:      5  Reserved                           */
-        uint32_t CH3:1;            /*!< bit:      6  Event Channel 3 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:      7  Reserved                           */
-        uint32_t CH4:1;            /*!< bit:      8  Event Channel 4 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:      9  Reserved                           */
-        uint32_t CH5:1;            /*!< bit:     10  Event Channel 5 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     11  Reserved                           */
-        uint32_t CH6:1;            /*!< bit:     12  Event Channel 6 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     13  Reserved                           */
-        uint32_t CH7:1;            /*!< bit:     14  Event Channel 7 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     15  Reserved                           */
-        uint32_t CH8:1;            /*!< bit:     16  Event Channel 8 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     17  Reserved                           */
-        uint32_t CH9:1;            /*!< bit:     18  Event Channel 9 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     19  Reserved                           */
-        uint32_t CH10:1;           /*!< bit:     20  Event Channel 10 Interrupt CPU Select */
-        uint32_t :1;               /*!< bit:     21  Reserved                           */
-        uint32_t CH11:1;           /*!< bit:     22  Event Channel 11 Interrupt CPU Select */
-        uint32_t :9;               /*!< bit: 23..31  Reserved                           */
+        uint32_t CH0: 1;           /*!< bit:      0  Event Channel 0 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:      1  Reserved                           */
+        uint32_t CH1: 1;           /*!< bit:      2  Event Channel 1 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:      3  Reserved                           */
+        uint32_t CH2: 1;           /*!< bit:      4  Event Channel 2 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:      5  Reserved                           */
+        uint32_t CH3: 1;           /*!< bit:      6  Event Channel 3 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:      7  Reserved                           */
+        uint32_t CH4: 1;           /*!< bit:      8  Event Channel 4 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:      9  Reserved                           */
+        uint32_t CH5: 1;           /*!< bit:     10  Event Channel 5 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     11  Reserved                           */
+        uint32_t CH6: 1;           /*!< bit:     12  Event Channel 6 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     13  Reserved                           */
+        uint32_t CH7: 1;           /*!< bit:     14  Event Channel 7 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     15  Reserved                           */
+        uint32_t CH8: 1;           /*!< bit:     16  Event Channel 8 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     17  Reserved                           */
+        uint32_t CH9: 1;           /*!< bit:     18  Event Channel 9 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     19  Reserved                           */
+        uint32_t CH10: 1;          /*!< bit:     20  Event Channel 10 Interrupt CPU Select */
+        uint32_t : 1;              /*!< bit:     21  Reserved                           */
+        uint32_t CH11: 1;          /*!< bit:     22  Event Channel 11 Interrupt CPU Select */
+        uint32_t : 9;              /*!< bit: 23..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TAL_EVCPUSEL0_Type;
@@ -564,38 +564,38 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t EXTINT0:1;        /*!< bit:      0  External Interrupt 0 CPU Select    */
-        uint32_t :1;               /*!< bit:      1  Reserved                           */
-        uint32_t EXTINT1:1;        /*!< bit:      2  External Interrupt 1 CPU Select    */
-        uint32_t :1;               /*!< bit:      3  Reserved                           */
-        uint32_t EXTINT2:1;        /*!< bit:      4  External Interrupt 2 CPU Select    */
-        uint32_t :1;               /*!< bit:      5  Reserved                           */
-        uint32_t EXTINT3:1;        /*!< bit:      6  External Interrupt 3 CPU Select    */
-        uint32_t :1;               /*!< bit:      7  Reserved                           */
-        uint32_t EXTINT4:1;        /*!< bit:      8  External Interrupt 4 CPU Select    */
-        uint32_t :1;               /*!< bit:      9  Reserved                           */
-        uint32_t EXTINT5:1;        /*!< bit:     10  External Interrupt 5 CPU Select    */
-        uint32_t :1;               /*!< bit:     11  Reserved                           */
-        uint32_t EXTINT6:1;        /*!< bit:     12  External Interrupt 6 CPU Select    */
-        uint32_t :1;               /*!< bit:     13  Reserved                           */
-        uint32_t EXTINT7:1;        /*!< bit:     14  External Interrupt 7 CPU Select    */
-        uint32_t :1;               /*!< bit:     15  Reserved                           */
-        uint32_t EXTINT8:1;        /*!< bit:     16  External Interrupt 8 CPU Select    */
-        uint32_t :1;               /*!< bit:     17  Reserved                           */
-        uint32_t EXTINT9:1;        /*!< bit:     18  External Interrupt 9 CPU Select    */
-        uint32_t :1;               /*!< bit:     19  Reserved                           */
-        uint32_t EXTINT10:1;       /*!< bit:     20  External Interrupt 10 CPU Select   */
-        uint32_t :1;               /*!< bit:     21  Reserved                           */
-        uint32_t EXTINT11:1;       /*!< bit:     22  External Interrupt 11 CPU Select   */
-        uint32_t :1;               /*!< bit:     23  Reserved                           */
-        uint32_t EXTINT12:1;       /*!< bit:     24  External Interrupt 12 CPU Select   */
-        uint32_t :1;               /*!< bit:     25  Reserved                           */
-        uint32_t EXTINT13:1;       /*!< bit:     26  External Interrupt 13 CPU Select   */
-        uint32_t :1;               /*!< bit:     27  Reserved                           */
-        uint32_t EXTINT14:1;       /*!< bit:     28  External Interrupt 14 CPU Select   */
-        uint32_t :1;               /*!< bit:     29  Reserved                           */
-        uint32_t EXTINT15:1;       /*!< bit:     30  External Interrupt 15 CPU Select   */
-        uint32_t :1;               /*!< bit:     31  Reserved                           */
+        uint32_t EXTINT0: 1;       /*!< bit:      0  External Interrupt 0 CPU Select    */
+        uint32_t : 1;              /*!< bit:      1  Reserved                           */
+        uint32_t EXTINT1: 1;       /*!< bit:      2  External Interrupt 1 CPU Select    */
+        uint32_t : 1;              /*!< bit:      3  Reserved                           */
+        uint32_t EXTINT2: 1;       /*!< bit:      4  External Interrupt 2 CPU Select    */
+        uint32_t : 1;              /*!< bit:      5  Reserved                           */
+        uint32_t EXTINT3: 1;       /*!< bit:      6  External Interrupt 3 CPU Select    */
+        uint32_t : 1;              /*!< bit:      7  Reserved                           */
+        uint32_t EXTINT4: 1;       /*!< bit:      8  External Interrupt 4 CPU Select    */
+        uint32_t : 1;              /*!< bit:      9  Reserved                           */
+        uint32_t EXTINT5: 1;       /*!< bit:     10  External Interrupt 5 CPU Select    */
+        uint32_t : 1;              /*!< bit:     11  Reserved                           */
+        uint32_t EXTINT6: 1;       /*!< bit:     12  External Interrupt 6 CPU Select    */
+        uint32_t : 1;              /*!< bit:     13  Reserved                           */
+        uint32_t EXTINT7: 1;       /*!< bit:     14  External Interrupt 7 CPU Select    */
+        uint32_t : 1;              /*!< bit:     15  Reserved                           */
+        uint32_t EXTINT8: 1;       /*!< bit:     16  External Interrupt 8 CPU Select    */
+        uint32_t : 1;              /*!< bit:     17  Reserved                           */
+        uint32_t EXTINT9: 1;       /*!< bit:     18  External Interrupt 9 CPU Select    */
+        uint32_t : 1;              /*!< bit:     19  Reserved                           */
+        uint32_t EXTINT10: 1;      /*!< bit:     20  External Interrupt 10 CPU Select   */
+        uint32_t : 1;              /*!< bit:     21  Reserved                           */
+        uint32_t EXTINT11: 1;      /*!< bit:     22  External Interrupt 11 CPU Select   */
+        uint32_t : 1;              /*!< bit:     23  Reserved                           */
+        uint32_t EXTINT12: 1;      /*!< bit:     24  External Interrupt 12 CPU Select   */
+        uint32_t : 1;              /*!< bit:     25  Reserved                           */
+        uint32_t EXTINT13: 1;      /*!< bit:     26  External Interrupt 13 CPU Select   */
+        uint32_t : 1;              /*!< bit:     27  Reserved                           */
+        uint32_t EXTINT14: 1;      /*!< bit:     28  External Interrupt 14 CPU Select   */
+        uint32_t : 1;              /*!< bit:     29  Reserved                           */
+        uint32_t EXTINT15: 1;      /*!< bit:     30  External Interrupt 15 CPU Select   */
+        uint32_t : 1;              /*!< bit:     31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TAL_EICCPUSEL0_Type;
@@ -658,32 +658,32 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SYSTEM:1;         /*!< bit:      0  SYSTEM Interrupt CPU Select        */
-        uint32_t :1;               /*!< bit:      1  Reserved                           */
-        uint32_t WDT:1;            /*!< bit:      2  WDT Interrupt CPU Select           */
-        uint32_t :1;               /*!< bit:      3  Reserved                           */
-        uint32_t RTC:1;            /*!< bit:      4  RTC Interrupt CPU Select           */
-        uint32_t :3;               /*!< bit:  5.. 7  Reserved                           */
-        uint32_t NVMCTRL:1;        /*!< bit:      8  NVMCTRL Interrupt CPU Select       */
-        uint32_t :3;               /*!< bit:  9..11  Reserved                           */
-        uint32_t USB:1;            /*!< bit:     12  USB Interrupt CPU Select           */
-        uint32_t :3;               /*!< bit: 13..15  Reserved                           */
-        uint32_t SERCOM0:1;        /*!< bit:     16  SERCOM0 Interrupt CPU Select       */
-        uint32_t :1;               /*!< bit:     17  Reserved                           */
-        uint32_t SERCOM1:1;        /*!< bit:     18  SERCOM1 Interrupt CPU Select       */
-        uint32_t :1;               /*!< bit:     19  Reserved                           */
-        uint32_t SERCOM2:1;        /*!< bit:     20  SERCOM2 Interrupt CPU Select       */
-        uint32_t :1;               /*!< bit:     21  Reserved                           */
-        uint32_t SERCOM3:1;        /*!< bit:     22  SERCOM3 Interrupt CPU Select       */
-        uint32_t :1;               /*!< bit:     23  Reserved                           */
-        uint32_t SERCOM4:1;        /*!< bit:     24  SERCOM4 Interrupt CPU Select       */
-        uint32_t :1;               /*!< bit:     25  Reserved                           */
-        uint32_t SERCOM5:1;        /*!< bit:     26  SERCOM5 Interrupt CPU Select       */
-        uint32_t :1;               /*!< bit:     27  Reserved                           */
-        uint32_t TCC0:1;           /*!< bit:     28  TCC0 Interrupt CPU Select          */
-        uint32_t :1;               /*!< bit:     29  Reserved                           */
-        uint32_t TCC1:1;           /*!< bit:     30  TCC1 Interrupt CPU Select          */
-        uint32_t :1;               /*!< bit:     31  Reserved                           */
+        uint32_t SYSTEM: 1;        /*!< bit:      0  SYSTEM Interrupt CPU Select        */
+        uint32_t : 1;              /*!< bit:      1  Reserved                           */
+        uint32_t WDT: 1;           /*!< bit:      2  WDT Interrupt CPU Select           */
+        uint32_t : 1;              /*!< bit:      3  Reserved                           */
+        uint32_t RTC: 1;           /*!< bit:      4  RTC Interrupt CPU Select           */
+        uint32_t : 3;              /*!< bit:  5.. 7  Reserved                           */
+        uint32_t NVMCTRL: 1;       /*!< bit:      8  NVMCTRL Interrupt CPU Select       */
+        uint32_t : 3;              /*!< bit:  9..11  Reserved                           */
+        uint32_t USB: 1;           /*!< bit:     12  USB Interrupt CPU Select           */
+        uint32_t : 3;              /*!< bit: 13..15  Reserved                           */
+        uint32_t SERCOM0: 1;       /*!< bit:     16  SERCOM0 Interrupt CPU Select       */
+        uint32_t : 1;              /*!< bit:     17  Reserved                           */
+        uint32_t SERCOM1: 1;       /*!< bit:     18  SERCOM1 Interrupt CPU Select       */
+        uint32_t : 1;              /*!< bit:     19  Reserved                           */
+        uint32_t SERCOM2: 1;       /*!< bit:     20  SERCOM2 Interrupt CPU Select       */
+        uint32_t : 1;              /*!< bit:     21  Reserved                           */
+        uint32_t SERCOM3: 1;       /*!< bit:     22  SERCOM3 Interrupt CPU Select       */
+        uint32_t : 1;              /*!< bit:     23  Reserved                           */
+        uint32_t SERCOM4: 1;       /*!< bit:     24  SERCOM4 Interrupt CPU Select       */
+        uint32_t : 1;              /*!< bit:     25  Reserved                           */
+        uint32_t SERCOM5: 1;       /*!< bit:     26  SERCOM5 Interrupt CPU Select       */
+        uint32_t : 1;              /*!< bit:     27  Reserved                           */
+        uint32_t TCC0: 1;          /*!< bit:     28  TCC0 Interrupt CPU Select          */
+        uint32_t : 1;              /*!< bit:     29  Reserved                           */
+        uint32_t TCC1: 1;          /*!< bit:     30  TCC1 Interrupt CPU Select          */
+        uint32_t : 1;              /*!< bit:     31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TAL_INTCPUSEL0_Type;
@@ -737,32 +737,32 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t TCC2:1;           /*!< bit:      0  TCC2 Interrupt CPU Select          */
-        uint32_t :1;               /*!< bit:      1  Reserved                           */
-        uint32_t TC0:1;            /*!< bit:      2  TC0 Interrupt CPU Select           */
-        uint32_t :1;               /*!< bit:      3  Reserved                           */
-        uint32_t TC1:1;            /*!< bit:      4  TC1 Interrupt CPU Select           */
-        uint32_t :1;               /*!< bit:      5  Reserved                           */
-        uint32_t TC2:1;            /*!< bit:      6  TC2 Interrupt CPU Select           */
-        uint32_t :1;               /*!< bit:      7  Reserved                           */
-        uint32_t TC3:1;            /*!< bit:      8  TC3 Interrupt CPU Select           */
-        uint32_t :1;               /*!< bit:      9  Reserved                           */
-        uint32_t TC4:1;            /*!< bit:     10  TC4 Interrupt CPU Select           */
-        uint32_t :1;               /*!< bit:     11  Reserved                           */
-        uint32_t ADC:1;            /*!< bit:     12  ADC Interrupt CPU Select           */
-        uint32_t :1;               /*!< bit:     13  Reserved                           */
-        uint32_t AC:1;             /*!< bit:     14  AC Interrupt CPU Select            */
-        uint32_t :1;               /*!< bit:     15  Reserved                           */
-        uint32_t DAC:1;            /*!< bit:     16  DAC Interrupt CPU Select           */
-        uint32_t :1;               /*!< bit:     17  Reserved                           */
-        uint32_t PTC:1;            /*!< bit:     18  PTC Interrupt CPU Select           */
-        uint32_t :1;               /*!< bit:     19  Reserved                           */
-        uint32_t AES:1;            /*!< bit:     20  AES Interrupt CPU Select           */
-        uint32_t :1;               /*!< bit:     21  Reserved                           */
-        uint32_t TRNG:1;           /*!< bit:     22  TRNG Interrupt CPU Select          */
-        uint32_t :1;               /*!< bit:     23  Reserved                           */
-        uint32_t PICOP:1;          /*!< bit:     24  PICOP Interrupt CPU Select         */
-        uint32_t :7;               /*!< bit: 25..31  Reserved                           */
+        uint32_t TCC2: 1;          /*!< bit:      0  TCC2 Interrupt CPU Select          */
+        uint32_t : 1;              /*!< bit:      1  Reserved                           */
+        uint32_t TC0: 1;           /*!< bit:      2  TC0 Interrupt CPU Select           */
+        uint32_t : 1;              /*!< bit:      3  Reserved                           */
+        uint32_t TC1: 1;           /*!< bit:      4  TC1 Interrupt CPU Select           */
+        uint32_t : 1;              /*!< bit:      5  Reserved                           */
+        uint32_t TC2: 1;           /*!< bit:      6  TC2 Interrupt CPU Select           */
+        uint32_t : 1;              /*!< bit:      7  Reserved                           */
+        uint32_t TC3: 1;           /*!< bit:      8  TC3 Interrupt CPU Select           */
+        uint32_t : 1;              /*!< bit:      9  Reserved                           */
+        uint32_t TC4: 1;           /*!< bit:     10  TC4 Interrupt CPU Select           */
+        uint32_t : 1;              /*!< bit:     11  Reserved                           */
+        uint32_t ADC: 1;           /*!< bit:     12  ADC Interrupt CPU Select           */
+        uint32_t : 1;              /*!< bit:     13  Reserved                           */
+        uint32_t AC: 1;            /*!< bit:     14  AC Interrupt CPU Select            */
+        uint32_t : 1;              /*!< bit:     15  Reserved                           */
+        uint32_t DAC: 1;           /*!< bit:     16  DAC Interrupt CPU Select           */
+        uint32_t : 1;              /*!< bit:     17  Reserved                           */
+        uint32_t PTC: 1;           /*!< bit:     18  PTC Interrupt CPU Select           */
+        uint32_t : 1;              /*!< bit:     19  Reserved                           */
+        uint32_t AES: 1;           /*!< bit:     20  AES Interrupt CPU Select           */
+        uint32_t : 1;              /*!< bit:     21  Reserved                           */
+        uint32_t TRNG: 1;          /*!< bit:     22  TRNG Interrupt CPU Select          */
+        uint32_t : 1;              /*!< bit:     23  Reserved                           */
+        uint32_t PICOP: 1;         /*!< bit:     24  PICOP Interrupt CPU Select         */
+        uint32_t : 7;              /*!< bit: 25..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TAL_INTCPUSEL1_Type;
@@ -816,10 +816,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t ENABLE:1;         /*!< bit:      0  Trigger Enable                     */
-        uint16_t IRQNUM:5;         /*!< bit:  1.. 5  Interrupt Request Number           */
-        uint16_t :2;               /*!< bit:  6.. 7  Reserved                           */
-        uint16_t OVERRIDE:8;       /*!< bit:  8..15  Interrupt Request Override Value   */
+        uint16_t ENABLE: 1;        /*!< bit:      0  Trigger Enable                     */
+        uint16_t IRQNUM: 5;        /*!< bit:  1.. 5  Interrupt Request Number           */
+        uint16_t : 2;              /*!< bit:  6.. 7  Reserved                           */
+        uint16_t OVERRIDE: 8;      /*!< bit:  8..15  Interrupt Request Override Value   */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } TAL_IRQTRIG_Type;

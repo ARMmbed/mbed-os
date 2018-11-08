@@ -49,8 +49,7 @@
 /*@}*/
 
 /*! @brief List of Timer capture channels */
-typedef enum _ctimer_capture_channel
-{
+typedef enum _ctimer_capture_channel {
     kCTIMER_Capture_0 = 0U, /*!< Timer capture channel 0 */
     kCTIMER_Capture_1,      /*!< Timer capture channel 1 */
     kCTIMER_Capture_2,      /*!< Timer capture channel 2 */
@@ -58,16 +57,14 @@ typedef enum _ctimer_capture_channel
 } ctimer_capture_channel_t;
 
 /*! @brief List of capture edge options */
-typedef enum _ctimer_capture_edge
-{
+typedef enum _ctimer_capture_edge {
     kCTIMER_Capture_RiseEdge = 1U, /*!< Capture on rising edge */
     kCTIMER_Capture_FallEdge = 2U, /*!< Capture on falling edge */
     kCTIMER_Capture_BothEdge = 3U, /*!< Capture on rising and falling edge */
 } ctimer_capture_edge_t;
 
 /*! @brief List of Timer match registers */
-typedef enum _ctimer_match
-{
+typedef enum _ctimer_match {
     kCTIMER_Match_0 = 0U, /*!< Timer match register 0 */
     kCTIMER_Match_1,      /*!< Timer match register 1 */
     kCTIMER_Match_2,      /*!< Timer match register 2 */
@@ -75,8 +72,7 @@ typedef enum _ctimer_match
 } ctimer_match_t;
 
 /*! @brief List of output control options */
-typedef enum _ctimer_match_output_control
-{
+typedef enum _ctimer_match_output_control {
     kCTIMER_Output_NoAction = 0U, /*!< No action is taken */
     kCTIMER_Output_Clear,         /*!< Clear the EM bit/output to 0 */
     kCTIMER_Output_Set,           /*!< Set the EM bit/output to 1 */
@@ -84,8 +80,7 @@ typedef enum _ctimer_match_output_control
 } ctimer_match_output_control_t;
 
 /*! @brief List of Timer modes */
-typedef enum _ctimer_timer_mode
-{
+typedef enum _ctimer_timer_mode {
     kCTIMER_TimerMode = 0U,     /* TC is incremented every rising APB bus clock edge */
     kCTIMER_IncreaseOnRiseEdge, /* TC is incremented on rising edge of input signal */
     kCTIMER_IncreaseOnFallEdge, /* TC is incremented on falling edge of input signal */
@@ -93,8 +88,7 @@ typedef enum _ctimer_timer_mode
 } ctimer_timer_mode_t;
 
 /*! @brief List of Timer interrupts */
-typedef enum _ctimer_interrupt_enable
-{
+typedef enum _ctimer_interrupt_enable {
     kCTIMER_Match0InterruptEnable = CTIMER_MCR_MR0I_MASK,    /*!< Match 0 interrupt */
     kCTIMER_Match1InterruptEnable = CTIMER_MCR_MR1I_MASK,    /*!< Match 1 interrupt */
     kCTIMER_Match2InterruptEnable = CTIMER_MCR_MR2I_MASK,    /*!< Match 2 interrupt */
@@ -106,8 +100,7 @@ typedef enum _ctimer_interrupt_enable
 } ctimer_interrupt_enable_t;
 
 /*! @brief List of Timer flags */
-typedef enum _ctimer_status_flags
-{
+typedef enum _ctimer_status_flags {
     kCTIMER_Match0Flag = CTIMER_IR_MR0INT_MASK,   /*!< Match 0 interrupt flag */
     kCTIMER_Match1Flag = CTIMER_IR_MR1INT_MASK,   /*!< Match 1 interrupt flag */
     kCTIMER_Match2Flag = CTIMER_IR_MR2INT_MASK,   /*!< Match 2 interrupt flag */
@@ -124,11 +117,10 @@ typedef void (*ctimer_callback_t)(uint32_t flags);
  *         an array of function pointers is passed the size could be 1 or 8, the callback
  *         type will tell that.
  */
-typedef enum
-{
-    kCTIMER_SingleCallback,  /*!< Single Callback type where there is only one callback for the timer. 
+typedef enum {
+    kCTIMER_SingleCallback,  /*!< Single Callback type where there is only one callback for the timer.
                                  based on the status flags different channels needs to be handled differently */
-    kCTIMER_MultipleCallback /*!< Multiple Callback type where there can be 8 valid callbacks, one per channel. 
+    kCTIMER_MultipleCallback /*!< Multiple Callback type where there can be 8 valid callbacks, one per channel.
                                  for both match/capture */
 } ctimer_callback_type_t;
 
@@ -137,8 +129,7 @@ typedef enum
  *
  * This structure holds the configuration settings for each match register.
  */
-typedef struct _ctimer_match_config
-{
+typedef struct _ctimer_match_config {
     uint32_t matchValue;                      /*!< This is stored in the match register */
     bool enableCounterReset;                  /*!< true: Match will reset the counter
                                                    false: Match will not reser the counter */
@@ -160,8 +151,7 @@ typedef struct _ctimer_match_config
  *
  * The configuration structure can be made constant so as to reside in flash.
  */
-typedef struct _ctimer_config
-{
+typedef struct _ctimer_config {
     ctimer_timer_mode_t mode;       /*!< Timer mode */
     ctimer_capture_channel_t input; /*!< Input channel to increment the timer, used only in timer
                                         modes that rely on this input signal to increment TC */

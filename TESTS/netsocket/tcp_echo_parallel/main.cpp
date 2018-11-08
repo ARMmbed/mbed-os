@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
- #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-     #error [NOT_SUPPORTED] No network configuration found for this target.
- #endif
+#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#error [NOT_SUPPORTED] No network configuration found for this target.
+#endif
 
 #ifndef MBED_EXTENDED_TESTS
-    #error [NOT_SUPPORTED] Parallel tests are not supported by default
+#error [NOT_SUPPORTED] Parallel tests are not supported by default
 #endif
 
 #include "mbed.h"
@@ -45,12 +45,13 @@ using namespace utest::v1;
 #define STRINGIZE2(x) #x
 
 
-NetworkInterface* net;
+NetworkInterface *net;
 SocketAddress tcp_addr;
 Mutex iomutex;
 
-void prep_buffer(char *tx_buffer, size_t tx_size) {
-    for (size_t i=0; i<tx_size; ++i) {
+void prep_buffer(char *tx_buffer, size_t tx_size)
+{
+    for (size_t i = 0; i < tx_size; ++i) {
         tx_buffer[i] = (rand() % 10) + '0';
     }
 }
@@ -67,20 +68,24 @@ private:
 
 public:
     // Limiting stack size to 1k
-    Echo(): thread(osPriorityNormal, 1024) {
+    Echo(): thread(osPriorityNormal, 1024)
+    {
     }
 
-    void start() {
+    void start()
+    {
         osStatus status = thread.start(callback(this, &Echo::echo));
         TEST_ASSERT_EQUAL(osOK, status);
     }
 
-    void join() {
+    void join()
+    {
         osStatus status = thread.join();
         TEST_ASSERT_EQUAL(osOK, status);
     }
 
-    void echo() {
+    void echo()
+    {
         int err = sock.open(net);
         TEST_ASSERT_EQUAL(0, err);
 
@@ -93,7 +98,7 @@ public:
 
         iomutex.lock();
         printf("HTTP: Connected to %s:%d\r\n",
-                tcp_addr.get_ip_address(), tcp_addr.get_port());
+               tcp_addr.get_ip_address(), tcp_addr.get_port());
         printf("tx_buffer buffer size: %u\r\n", sizeof(tx_buffer));
         printf("rx_buffer buffer size: %u\r\n", sizeof(rx_buffer));
         iomutex.unlock();
@@ -115,7 +120,8 @@ public:
 Echo *echoers[MBED_CFG_TCP_CLIENT_ECHO_THREADS];
 
 
-void test_tcp_echo_parallel() {
+void test_tcp_echo_parallel()
+{
     net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
     TEST_ASSERT_EQUAL(0, err);
@@ -140,7 +146,8 @@ void test_tcp_echo_parallel() {
 }
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(120, "tcp_echo");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -151,6 +158,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

@@ -29,8 +29,8 @@
 #ifndef SPDIF_IODEFINE_H
 #define SPDIF_IODEFINE_H
 
-struct st_spdif
-{                                                          /* SPDIF            */
+struct st_spdif {
+    /* SPDIF            */
     volatile uint32_t  TLCA;                                   /*  TLCA            */
     volatile uint32_t  TRCA;                                   /*  TRCA            */
     volatile uint32_t  TLCS;                                   /*  TLCS            */

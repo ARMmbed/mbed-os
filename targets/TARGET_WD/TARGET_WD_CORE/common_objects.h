@@ -57,49 +57,49 @@ struct serial_s {
     PinName pin_cts;
 #endif
 };
-	
+
 #ifdef DEVICE_SPI
 struct spi_s {
-	SPI_HandleTypeDef handle;
-	IRQn_Type spiIRQ;
-	SPIName spi;
-	PinName pin_miso;
-	PinName pin_mosi;
-	PinName pin_sclk;
-	PinName pin_ssel;
+    SPI_HandleTypeDef handle;
+    IRQn_Type spiIRQ;
+    SPIName spi;
+    PinName pin_miso;
+    PinName pin_mosi;
+    PinName pin_sclk;
+    PinName pin_ssel;
 #ifdef DEVICE_SPI_ASYNCH
-	uint32_t event;
-	uint8_t transfer_type;
+    uint32_t event;
+    uint8_t transfer_type;
 #endif
 };
 #endif // DEVICE_SPI
 
 #ifdef DEVICE_I2C
 struct i2c_s {
-	/*  The 1st 2 members I2CName i2c
-		*  and I2C_HandleTypeDef handle should
-		*  be kept as the first members of this struct
-		*  to have get_i2c_obj() function work as expected
-		*/
-	I2CName  i2c;
-	I2C_HandleTypeDef handle;
-	uint8_t index;
-	int hz;
-	PinName sda;
-	PinName scl;
-	IRQn_Type event_i2cIRQ;
-	IRQn_Type error_i2cIRQ;
-	uint8_t XferOperation;
-	volatile uint8_t event;
+    /*  The 1st 2 members I2CName i2c
+        *  and I2C_HandleTypeDef handle should
+        *  be kept as the first members of this struct
+        *  to have get_i2c_obj() function work as expected
+        */
+    I2CName  i2c;
+    I2C_HandleTypeDef handle;
+    uint8_t index;
+    int hz;
+    PinName sda;
+    PinName scl;
+    IRQn_Type event_i2cIRQ;
+    IRQn_Type error_i2cIRQ;
+    uint8_t XferOperation;
+    volatile uint8_t event;
 #if DEVICE_I2CSLAVE
-	uint8_t slave;
-	volatile uint8_t pending_slave_tx_master_rx;
-	volatile uint8_t pending_slave_rx_maxter_tx;
+    uint8_t slave;
+    volatile uint8_t pending_slave_tx_master_rx;
+    volatile uint8_t pending_slave_rx_maxter_tx;
 #endif
 #if DEVICE_I2C_ASYNCH
-	uint32_t address;
-	uint8_t stop;
-	uint8_t available_events;
+    uint32_t address;
+    uint8_t stop;
+    uint8_t available_events;
 #endif
 };
 #endif // DEVICE_I2C

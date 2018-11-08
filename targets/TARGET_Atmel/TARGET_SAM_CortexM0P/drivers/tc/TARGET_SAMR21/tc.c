@@ -54,7 +54,7 @@
  * Converts a given TC index to its interrupt vector index.
  */
 #  define _TC_INTERRUPT_VECT_NUM(n, unused) \
-		SYSTEM_INTERRUPT_MODULE_TC##n,
+        SYSTEM_INTERRUPT_MODULE_TC##n,
 #endif
 
 #if !defined(__DOXYGEN__)
@@ -650,7 +650,7 @@ enum status_code tc_reset(
  * \retval STATUS_ERR_INVALID_ARG The configured TC module counter size in the
  *                                module instance is invalid
  */
-enum status_code tc_set_top_value (
+enum status_code tc_set_top_value(
     const struct tc_module *const module_inst,
     const uint32_t top_value)
 {

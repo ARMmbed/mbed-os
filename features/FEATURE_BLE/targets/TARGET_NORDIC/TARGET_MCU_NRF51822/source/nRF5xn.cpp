@@ -15,9 +15,9 @@
  */
 
 #ifdef YOTTA_CFG_MBED_OS
-    #include "mbed-drivers/mbed.h"
+#include "mbed-drivers/mbed.h"
 #else
-    #include "mbed.h"
+#include "mbed.h"
 #endif
 #include "nRF5xn.h"
 #include "ble/blecommon.h"
@@ -33,7 +33,8 @@ extern "C" {
 /**
  * The singleton which represents the nRF51822 transport for the BLE.
  */
-static nRF5xn& getDeviceInstance() {
+static nRF5xn &getDeviceInstance()
+{
     static nRF5xn deviceInstance;
     return deviceInstance;
 }
@@ -49,7 +50,7 @@ createBLEInstance(void)
     return &nRF5xn::Instance(BLE::DEFAULT_INSTANCE);
 }
 
-nRF5xn& nRF5xn::Instance(BLE::InstanceID_t instanceId)
+nRF5xn &nRF5xn::Instance(BLE::InstanceID_t instanceId)
 {
     return getDeviceInstance();
 }
@@ -213,7 +214,8 @@ nRF5xn::waitForEvent(void)
     sd_app_evt_wait();
 }
 
-void nRF5xn::processEvents() {
+void nRF5xn::processEvents()
+{
     if (isEventsSignaled) {
         isEventsSignaled = false;
         intern_softdevice_events_execute();

@@ -29,8 +29,8 @@
 #ifndef SDG_IODEFINE_H
 #define SDG_IODEFINE_H
 
-struct st_sdg
-{                                                          /* SDG              */
+struct st_sdg {
+    /* SDG              */
     volatile uint8_t   SGCR1;                                  /*  SGCR1           */
     volatile uint8_t   SGCSR;                                  /*  SGCSR           */
     volatile uint8_t   SGCR2;                                  /*  SGCR2           */

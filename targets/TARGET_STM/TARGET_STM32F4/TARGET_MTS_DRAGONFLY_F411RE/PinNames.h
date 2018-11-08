@@ -162,7 +162,7 @@ typedef enum {
 
     // I2C1 and I2C3 are available on Arduino pins
     I2C1_SCL    = D15,
-    I2C1_SDA    = D14,     
+    I2C1_SDA    = D14,
     I2C3_SCL    = D7,
     I2C3_SDA    = A5,
 

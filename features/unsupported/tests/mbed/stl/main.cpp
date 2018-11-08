@@ -16,17 +16,17 @@
 #define FLOATS_STR  "0.002","0.92430","15.91320","791.77368","6208.2","25719.4952","426815.982588","6429271.046","42468024.93","212006462.910"
 
 template <class T, class F>
-void BubbleSort(T& array, size_t array_size, F functor)
+void BubbleSort(T &array, size_t array_size, F functor)
 {
     bool flag = true;
     size_t numLength = array_size;
-    for(size_t i = 1; (i <= numLength) && flag; i++) {
+    for (size_t i = 1; (i <= numLength) && flag; i++) {
         flag = false;
         for (size_t j = 0; j < (numLength - 1); j++) {
-            if (functor(array[j+1], array[j])) {
+            if (functor(array[j + 1], array[j])) {
                 int temp = array[j];
                 array[j] = array[j + 1];
-                array[j+1] = temp;
+                array[j + 1] = temp;
                 flag = true;
             }
         }
@@ -34,25 +34,29 @@ void BubbleSort(T& array, size_t array_size, F functor)
 }
 
 struct printInt {
-    void operator()(int i) {
+    void operator()(int i)
+    {
         printf("%d ", i);
     }
 };
 
 struct printFloat {
-    void operator()(float f) {
+    void operator()(float f)
+    {
         printf("%f ", f);
     }
 };
 
 struct printString {
-    void operator()(char* s) {
+    void operator()(char *s)
+    {
         printf("%s ", s);
     }
 };
 
 struct greaterAbs {
-    bool operator()(int a, int b) {
+    bool operator()(int a, int b)
+    {
         return abs(a) > abs(b);
     }
 };
@@ -73,7 +77,7 @@ int main()
     }
 
     {
-        char* floats_str[] = {FLOATS_STR};
+        char *floats_str[] = {FLOATS_STR};
         float floats_transform[TABLE_SIZE(floats_str)] = {0.0};
         std::transform(floats_str, floats_str + TABLE_SIZE(floats_str), floats_transform, atof);
         bool equal_result = std::equal(floats_transform, floats_transform + TABLE_SIZE(floats_transform), floats);

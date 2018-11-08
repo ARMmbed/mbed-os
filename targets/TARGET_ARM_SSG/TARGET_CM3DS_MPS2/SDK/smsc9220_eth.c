@@ -70,7 +70,7 @@ static unsigned int smsc9220_mac_regread(unsigned char regoffset, unsigned int *
     int time_out = REG_WRITE_TIME_OUT;
 
     val = SMSC9220->MAC_CSR_CMD;
-    if(!(val & ((unsigned int)1 << 31))) {    /* Make sure there's no pending operation */
+    if (!(val & ((unsigned int)1 << 31))) {   /* Make sure there's no pending operation */
         maccmd |= regoffset;
         maccmd |= ((unsigned int)1 << 30);     /* Indicates read */
         maccmd |= ((unsigned int)1 << 31);     /* Start bit */
@@ -80,12 +80,11 @@ static unsigned int smsc9220_mac_regread(unsigned char regoffset, unsigned int *
             val = SMSC9220->BYTE_TEST;  /* A no-op read. */
             wait_ms(1);
             time_out--;
-        } while(time_out && (SMSC9220->MAC_CSR_CMD & ((unsigned int)1 << 31)));
+        } while (time_out && (SMSC9220->MAC_CSR_CMD & ((unsigned int)1 << 31)));
 
-        if(!time_out) {
+        if (!time_out) {
             return 1;
-        }
-        else {
+        } else {
             *data = SMSC9220->MAC_CSR_DATA;
         }
     } else {
@@ -109,7 +108,7 @@ static unsigned int smsc9220_mac_regwrite(unsigned char regoffset, unsigned int 
     int time_out = REG_WRITE_TIME_OUT;
 
     read = SMSC9220->MAC_CSR_CMD;
-    if(!(read & ((unsigned int)1 << 31))) { /* Make sure there's no pending operation */
+    if (!(read & ((unsigned int)1 << 31))) { /* Make sure there's no pending operation */
         SMSC9220->MAC_CSR_DATA = data;      /* Store data. */
         maccmd |= regoffset;
         maccmd &= ~((unsigned int)1 << 30); /* Clear indicates write */
@@ -120,13 +119,13 @@ static unsigned int smsc9220_mac_regwrite(unsigned char regoffset, unsigned int 
             read = SMSC9220->BYTE_TEST;     /* A no-op read. */
             wait_ms(1);
             time_out--;
-        } while(time_out && (SMSC9220->MAC_CSR_CMD & ((unsigned int)1 << 31)));
+        } while (time_out && (SMSC9220->MAC_CSR_CMD & ((unsigned int)1 << 31)));
 
-        if(!time_out) {
+        if (!time_out) {
             return 1;
         }
     } else {
-       printf("Error: SMSC9220 MAC CSR is busy. No data written.\n");
+        printf("Error: SMSC9220 MAC CSR is busy. No data written.\n");
     }
     return 0;
 }
@@ -149,7 +148,7 @@ static unsigned int smsc9220_phy_regread(unsigned char regoffset, unsigned int *
         return 1;
     }
 
-    if(!(val & 1)) {    /* Not busy */
+    if (!(val & 1)) {   /* Not busy */
         phycmd = 0;
         phycmd |= (1 << 11);                 /* 1 to [15:11] */
         phycmd |= ((regoffset & 0x1F) << 6); /* Put regoffset to [10:6] */
@@ -164,10 +163,10 @@ static unsigned int smsc9220_phy_regread(unsigned char regoffset, unsigned int *
         do {
             wait_ms(1);
             time_out--;
-            if (smsc9220_mac_regread(SMSC9220_MAC_MII_ACC,&val)) {
+            if (smsc9220_mac_regread(SMSC9220_MAC_MII_ACC, &val)) {
                 return 1;
             }
-        } while(time_out && (val & ((unsigned int)1 << 0)));
+        } while (time_out && (val & ((unsigned int)1 << 0)));
 
         if (!time_out) {
             return 1;
@@ -199,7 +198,7 @@ static unsigned int smsc9220_phy_regwrite(unsigned char regoffset, unsigned int 
         return 1;
     }
 
-    if(!(val & 1)) {    /* Not busy */
+    if (!(val & 1)) {   /* Not busy */
         /* Load the data */
         if (smsc9220_mac_regwrite(SMSC9220_MAC_MII_DATA, (data & 0xFFFF))) {
             return 1;
@@ -219,10 +218,10 @@ static unsigned int smsc9220_phy_regwrite(unsigned char regoffset, unsigned int 
         do {
             wait_ms(1);
             time_out--;
-            if (smsc9220_mac_regread(SMSC9220_MAC_MII_ACC, &phycmd)){
+            if (smsc9220_mac_regread(SMSC9220_MAC_MII_ACC, &phycmd)) {
                 return 1;
             }
-        } while(time_out && (phycmd & (1 << 0)));
+        } while (time_out && (phycmd & (1 << 0)));
 
         if (!time_out) {
             return 1;
@@ -259,7 +258,7 @@ static unsigned int smsc9220_soft_reset(void)
     do {
         wait_ms(1);
         time_out--;
-    } while(time_out && (SMSC9220->HW_CFG & 1));
+    } while (time_out && (SMSC9220->HW_CFG & 1));
 
     if (!time_out) {
         return 1;
@@ -278,8 +277,8 @@ static unsigned int smsc9220_soft_reset(void)
 static void smsc9220_set_txfifo(unsigned int val)
 {
     /* 2kb minimum, 14kb maximum */
-    if(val >= 2 && val <= 14) {
-      SMSC9220->HW_CFG = val << 16;
+    if (val >= 2 && val <= 14) {
+        SMSC9220->HW_CFG = val << 16;
     }
 }
 
@@ -295,7 +294,7 @@ static unsigned int smsc9220_wait_eeprom(void)
     do {
         wait_ms(1);
         time_out--;
-    } while(time_out && (SMSC9220->E2P_CMD & ((unsigned int) 1 << 31)));
+    } while (time_out && (SMSC9220->E2P_CMD & ((unsigned int) 1 << 31)));
 
     if (!time_out) {
         return 1;
@@ -323,10 +322,10 @@ static unsigned int smsc9220_check_phy(void)
 {
     unsigned int phyid1, phyid2;
 
-    if (smsc9220_phy_regread(SMSC9220_PHY_ID1,&phyid1)) {
+    if (smsc9220_phy_regread(SMSC9220_PHY_ID1, &phyid1)) {
         return 1;
     }
-    if (smsc9220_phy_regread(SMSC9220_PHY_ID2,&phyid2)) {
+    if (smsc9220_phy_regread(SMSC9220_PHY_ID2, &phyid2)) {
         return 1;
     }
     return ((phyid1 == 0xFFFF && phyid2 == 0xFFFF) ||
@@ -342,12 +341,12 @@ static unsigned int smsc9220_reset_phy(void)
 {
     unsigned int read;
 
-    if(smsc9220_phy_regread(SMSC9220_PHY_BCONTROL, &read)) {
+    if (smsc9220_phy_regread(SMSC9220_PHY_BCONTROL, &read)) {
         return 1;
     }
 
     read |= (1 << 15);
-    if(smsc9220_phy_regwrite(SMSC9220_PHY_BCONTROL, read)) {
+    if (smsc9220_phy_regwrite(SMSC9220_PHY_BCONTROL, read)) {
         return 1;
     }
     return 0;
@@ -412,10 +411,10 @@ static int smsc9220_check_id(void)
     unsigned int id = smsc9220_read_id();
 
     /* If bottom and top halves of the word are the same */
-    if(((id >> 16) & 0xFFFF) == (id & 0xFFFF)) {
+    if (((id >> 16) & 0xFFFF) == (id & 0xFFFF)) {
         return 1;
     }
-    switch(((id >> 16) & 0xFFFF)) {
+    switch (((id >> 16) & 0xFFFF)) {
         case 0x9220:
             break;
 
@@ -433,11 +432,11 @@ int smsc9220_init(void)
 {
     unsigned int phyreset = 0;
 
-    if(smsc9220_check_id()) {
+    if (smsc9220_check_id()) {
         return 1;
     }
 
-    if(smsc9220_soft_reset()) {
+    if (smsc9220_soft_reset()) {
         return 1;
     }
 
@@ -447,7 +446,7 @@ int smsc9220_init(void)
     /* threshold to defaults specified. */
     SMSC9220->AFC_CFG = 0x006E3740;
 
-    if(smsc9220_wait_eeprom()) {
+    if (smsc9220_wait_eeprom()) {
         return 1;
     }
 
@@ -458,11 +457,11 @@ int smsc9220_init(void)
 
     /* Configure MAC addresses here if needed. */
 
-    if(smsc9220_check_phy()) {
+    if (smsc9220_check_phy()) {
         return 1;
     }
 
-    if(smsc9220_reset_phy()) {
+    if (smsc9220_reset_phy()) {
         return 1;
     }
 
@@ -471,13 +470,13 @@ int smsc9220_init(void)
     if (smsc9220_phy_regread(SMSC9220_PHY_BCONTROL, &phyreset)) {
         return 1;
     }
-    if(phyreset & (1 << 15)) {
+    if (phyreset & (1 << 15)) {
         return 1;
     }
 
     smsc9220_advertise_cap();
     smsc9220_establish_link();      /* bit [12] of BCONTROL seems self-clearing. */
-                                    /* Although it's not so in the manual. */
+    /* Although it's not so in the manual. */
 
     /* Interrupt threshold */
     SMSC9220->FIFO_INT = 0xFF000000;
@@ -536,7 +535,7 @@ int smsc9220_read_mac_address(char *mac)
     unsigned int mac_low = 0;
     unsigned int mac_high = 0;
 
-    if( !mac ) {
+    if (!mac) {
         return 1;
     }
 
@@ -559,10 +558,10 @@ int smsc9220_read_mac_address(char *mac)
 
 unsigned int smsc9220_get_tx_data_fifo_size(void)
 {
-  const unsigned int tx_status_fifo_size = 512; /* fixed allocation in bytes */
-  unsigned int tx_fifo_size = SMSC9220->HW_CFG;
-  tx_fifo_size = (( tx_fifo_size >> 16 ) & 0x0F) * 1024; /* size is set in kbytes */
-  return (tx_fifo_size - tx_status_fifo_size);
+    const unsigned int tx_status_fifo_size = 512; /* fixed allocation in bytes */
+    unsigned int tx_fifo_size = SMSC9220->HW_CFG;
+    tx_fifo_size = ((tx_fifo_size >> 16) & 0x0F) * 1024;   /* size is set in kbytes */
+    return (tx_fifo_size - tx_status_fifo_size);
 }
 
 int smsc9220_send_by_chunks(unsigned int total_packet_length, int is_new_packet,
@@ -588,7 +587,7 @@ int smsc9220_send_by_chunks(unsigned int total_packet_length, int is_new_packet,
         ongoing_packet_length = total_packet_length;
         ongoing_packet_length_sent = 0;
     } else if (ongoing_packet_length != total_packet_length ||
-             ongoing_packet_length_sent >= total_packet_length) {
+               ongoing_packet_length_sent >= total_packet_length) {
         return -1; /* Invalid input parameter */
     }
 
@@ -617,7 +616,7 @@ int smsc9220_send_by_chunks(unsigned int total_packet_length, int is_new_packet,
     dwords_to_write = (current_size + 3) >> 2;
 
     /* PIO Copy to FIFO. Could replace this with DMA. */
-    while(dwords_to_write > 0) {
+    while (dwords_to_write > 0) {
         SMSC9220->TX_DATA_PORT = *pktptr;
         pktptr++;
         dwords_to_write--;
@@ -657,13 +656,12 @@ unsigned int smsc9220_receive_by_chunks(char *data, unsigned int dlen)
         /* after the data can be read in synchron. */
         rxfifo_inf = SMSC9220->RX_FIFO_INF;
 
-        if(rxfifo_inf & 0xFFFF) { /* If there's data */
+        if (rxfifo_inf & 0xFFFF) { /* If there's data */
             rxfifo_stat = SMSC9220->RX_STAT_PORT;
-            if(rxfifo_stat != 0) {   /* Fetch status of this packet */
-                if(rxfifo_stat & (1 << 15)) {
+            if (rxfifo_stat != 0) {  /* Fetch status of this packet */
+                if (rxfifo_stat & (1 << 15)) {
                     current_packet_size_words = 0; /* error */
-                }
-                else {
+                } else {
                     /* Ethernet controller is padding to 32bit aligned data */
                     current_packet_size_words = (((rxfifo_stat >> 16) & 0x3FFF) + 3) >> 2;
                 }
@@ -674,7 +672,7 @@ unsigned int smsc9220_receive_by_chunks(char *data, unsigned int dlen)
     read_length_word = (dlen_word < current_packet_size_words)  ? dlen_word : current_packet_size_words;
 
     for (i = 0; i < read_length_word; i++) {
-        ((unsigned int*)data)[i] =  SMSC9220->RX_DATA_PORT;
+        ((unsigned int *)data)[i] =  SMSC9220->RX_DATA_PORT;
         current_packet_size_words--;
     }
     return (current_packet_size_words * 4);
@@ -685,7 +683,7 @@ unsigned int smsc9220_peek_next_packet_size(void)
     unsigned int packet_size = 0;
     unsigned int rx_stat_peek = 0;
 
-    if(smsc9220_get_rxfifo_data_used_space()) {
+    if (smsc9220_get_rxfifo_data_used_space()) {
         rx_stat_peek = SMSC9220->RX_STAT_PEEK;
         packet_size = ((rx_stat_peek >> 16) & 0x3FFF);
     }

@@ -75,10 +75,10 @@ COMPILER_ALIGNED(16)
 static DmacDescriptor _write_back_section[CONF_MAX_USED_CHANNEL_NUM] SECTION_DMAC_DESCRIPTOR;
 
 /** Internal DMA resource pool. */
-static struct dma_resource* _dma_active_resource[CONF_MAX_USED_CHANNEL_NUM];
+static struct dma_resource *_dma_active_resource[CONF_MAX_USED_CHANNEL_NUM];
 
 /* DMA channel interrup flag. */
-uint8_t g_chan_interrupt_flag[CONF_MAX_USED_CHANNEL_NUM]= {0};
+uint8_t g_chan_interrupt_flag[CONF_MAX_USED_CHANNEL_NUM] = {0};
 
 /**
  * \brief Find a free channel for a DMA resource.
@@ -159,7 +159,7 @@ static void _dma_set_config(struct dma_resource *resource,
                        DMAC_CHCTRLB_TRIGACT(resource_config->trigger_action);
 
 
-    if(resource_config->event_config.input_action) {
+    if (resource_config->event_config.input_action) {
         temp_CHCTRLB_reg |= DMAC_CHCTRLB_EVIE | DMAC_CHCTRLB_EVACT(
                                 resource_config->event_config.input_action);
     }
@@ -182,7 +182,7 @@ static void _dma_set_config(struct dma_resource *resource,
  * \brief DMA interrupt service routine.
  *
  */
-void DMAC_Handler( void )
+void DMAC_Handler(void)
 {
     uint8_t active_channel;
     struct dma_resource *resource;
@@ -218,7 +218,7 @@ void DMAC_Handler( void )
         resource->job_status = STATUS_ERR_IO;
 
         /* Execute the callback function */
-        if ((resource->callback_enable & (1<<DMA_CALLBACK_TRANSFER_ERROR)) &&
+        if ((resource->callback_enable & (1 << DMA_CALLBACK_TRANSFER_ERROR)) &&
                 (resource->callback[DMA_CALLBACK_TRANSFER_ERROR])) {
             resource->callback[DMA_CALLBACK_TRANSFER_ERROR](resource);
         }
@@ -353,7 +353,7 @@ enum status_code dma_allocate(struct dma_resource *resource,
     DMAC->CHCTRLA.reg = DMAC_CHCTRLA_SWRST;
 
 #ifdef FEATURE_DMA_CHANNEL_STANDBY
-    if(config->run_in_standby) {
+    if (config->run_in_standby) {
         DMAC->CHCTRLA.reg |= DMAC_CHCTRLA_RUNSTDBY;
     }
 #endif
@@ -593,7 +593,7 @@ void dma_resume_job(struct dma_resource *resource)
  * \param[in] config Pointer to the descriptor configuration structure
  *
  */
-void dma_descriptor_create(DmacDescriptor* descriptor,
+void dma_descriptor_create(DmacDescriptor *descriptor,
                            struct dma_descriptor_config *config)
 {
     /* Set block transfer control */
@@ -629,9 +629,9 @@ void dma_descriptor_create(DmacDescriptor* descriptor,
  * \retval STATUS_BUSY The DMA resource was busy and the descriptor is not added
  */
 enum status_code dma_add_descriptor(struct dma_resource *resource,
-                                    DmacDescriptor* descriptor)
+                                    DmacDescriptor *descriptor)
 {
-    DmacDescriptor* desc = resource->descriptor;
+    DmacDescriptor *desc = resource->descriptor;
 
     if (resource->job_status == STATUS_BUSY) {
         return STATUS_BUSY;
@@ -642,8 +642,8 @@ enum status_code dma_add_descriptor(struct dma_resource *resource,
         resource->descriptor = descriptor;
     } else {
         /* Looking for end of descriptor link */
-        while(desc->DESCADDR.reg != 0) {
-            desc = (DmacDescriptor*)(desc->DESCADDR.reg);
+        while (desc->DESCADDR.reg != 0) {
+            desc = (DmacDescriptor *)(desc->DESCADDR.reg);
         }
 
         /* Set to the end of descriptor list */

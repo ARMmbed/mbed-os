@@ -121,12 +121,12 @@ extern int h_errno;
 
 struct hostent *lwip_gethostbyname(const char *name);
 int lwip_gethostbyname_r(const char *name, struct hostent *ret, char *buf,
-                size_t buflen, struct hostent **result, int *h_errnop);
+                         size_t buflen, struct hostent **result, int *h_errnop);
 void lwip_freeaddrinfo(struct addrinfo *ai);
 int lwip_getaddrinfo(const char *nodename,
-       const char *servname,
-       const struct addrinfo *hints,
-       struct addrinfo **res);
+                     const char *servname,
+                     const struct addrinfo *hints,
+                     struct addrinfo **res);
 
 #if LWIP_COMPAT_SOCKETS
 /** @ingroup netdbapi */

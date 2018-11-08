@@ -35,15 +35,13 @@
  ******************************************************************************/
 
 /*<! Structure definition for qspi_edma_private_handle_t. The structure is private. */
-typedef struct _qspi_edma_private_handle
-{
+typedef struct _qspi_edma_private_handle {
     QuadSPI_Type *base;
     qspi_edma_handle_t *handle;
 } qspi_edma_private_handle_t;
 
 /* QSPI EDMA transfer handle. */
-enum _qspi_edma_tansfer_states
-{
+enum _qspi_edma_tansfer_states {
     kQSPI_Idle,   /* TX idle. */
     kQSPI_BusBusy /* RX busy. */
 };
@@ -101,12 +99,10 @@ static void QSPI_SendEDMACallback(edma_handle_t *handle, void *param, bool trans
     handle = handle;
     tcds = tcds;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         QSPI_TransferAbortSendEDMA(qspiPrivateHandle->base, qspiPrivateHandle->handle);
 
-        if (qspiPrivateHandle->handle->callback)
-        {
+        if (qspiPrivateHandle->handle->callback) {
             qspiPrivateHandle->handle->callback(qspiPrivateHandle->base, qspiPrivateHandle->handle, kStatus_QSPI_Idle,
                                                 qspiPrivateHandle->handle->userData);
         }
@@ -121,13 +117,11 @@ static void QSPI_ReceiveEDMACallback(edma_handle_t *handle, void *param, bool tr
     handle = handle;
     tcds = tcds;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         /* Disable transfer. */
         QSPI_TransferAbortReceiveEDMA(qspiPrivateHandle->base, qspiPrivateHandle->handle);
 
-        if (qspiPrivateHandle->handle->callback)
-        {
+        if (qspiPrivateHandle->handle->callback) {
             qspiPrivateHandle->handle->callback(qspiPrivateHandle->base, qspiPrivateHandle->handle, kStatus_QSPI_Idle,
                                                 qspiPrivateHandle->handle->userData);
         }
@@ -198,12 +192,9 @@ status_t QSPI_TransferSendEDMA(QuadSPI_Type *base, qspi_edma_handle_t *handle, q
     status_t status;
 
     /* If previous TX not finished. */
-    if (kQSPI_BusBusy == handle->state)
-    {
+    if (kQSPI_BusBusy == handle->state) {
         status = kStatus_QSPI_Busy;
-    }
-    else
-    {
+    } else {
         handle->state = kQSPI_BusBusy;
 
         /* Prepare transfer. */
@@ -235,12 +226,9 @@ status_t QSPI_TransferReceiveEDMA(QuadSPI_Type *base, qspi_edma_handle_t *handle
     status_t status;
 
     /* If previous TX not finished. */
-    if (kQSPI_BusBusy == handle->state)
-    {
+    if (kQSPI_BusBusy == handle->state) {
         status = kStatus_QSPI_Busy;
-    }
-    else
-    {
+    } else {
         handle->state = kQSPI_BusBusy;
 
         /* Prepare transfer. */
@@ -296,15 +284,12 @@ status_t QSPI_TransferGetSendCountEDMA(QuadSPI_Type *base, qspi_edma_handle_t *h
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kQSPI_BusBusy)
-    {
+    if (handle->state != kQSPI_BusBusy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = (handle->transferSize -
                   (uint32_t)handle->nbytes *
-                      EDMA_GetRemainingMajorLoopCount(handle->dmaHandle->base, handle->dmaHandle->channel));
+                  EDMA_GetRemainingMajorLoopCount(handle->dmaHandle->base, handle->dmaHandle->channel));
     }
 
     return status;
@@ -316,15 +301,12 @@ status_t QSPI_TransferGetReceiveCountEDMA(QuadSPI_Type *base, qspi_edma_handle_t
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kQSPI_BusBusy)
-    {
+    if (handle->state != kQSPI_BusBusy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = (handle->transferSize -
                   (uint32_t)handle->nbytes *
-                      EDMA_GetRemainingMajorLoopCount(handle->dmaHandle->base, handle->dmaHandle->channel));
+                  EDMA_GetRemainingMajorLoopCount(handle->dmaHandle->base, handle->dmaHandle->channel));
     }
 
     return status;

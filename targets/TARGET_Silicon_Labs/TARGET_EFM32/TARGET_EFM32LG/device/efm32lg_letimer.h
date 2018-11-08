@@ -38,26 +38,25 @@
  * @{
  * @brief EFM32LG_LETIMER Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;         /**< Control Register  */
-  __IOM uint32_t CMD;          /**< Command Register  */
-  __IM uint32_t  STATUS;       /**< Status Register  */
-  __IOM uint32_t CNT;          /**< Counter Value Register  */
-  __IOM uint32_t COMP0;        /**< Compare Value Register 0  */
-  __IOM uint32_t COMP1;        /**< Compare Value Register 1  */
-  __IOM uint32_t REP0;         /**< Repeat Counter Register 0  */
-  __IOM uint32_t REP1;         /**< Repeat Counter Register 1  */
-  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
+typedef struct {
+    __IOM uint32_t CTRL;         /**< Control Register  */
+    __IOM uint32_t CMD;          /**< Command Register  */
+    __IM uint32_t  STATUS;       /**< Status Register  */
+    __IOM uint32_t CNT;          /**< Counter Value Register  */
+    __IOM uint32_t COMP0;        /**< Compare Value Register 0  */
+    __IOM uint32_t COMP1;        /**< Compare Value Register 1  */
+    __IOM uint32_t REP0;         /**< Repeat Counter Register 0  */
+    __IOM uint32_t REP1;         /**< Repeat Counter Register 1  */
+    __IM uint32_t  IF;           /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
 
-  __IOM uint32_t FREEZE;       /**< Freeze Register  */
-  __IM uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
+    __IOM uint32_t FREEZE;       /**< Freeze Register  */
+    __IM uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
 
-  uint32_t       RESERVED0[2]; /**< Reserved for future use **/
-  __IOM uint32_t ROUTE;        /**< I/O Routing Register  */
+    uint32_t       RESERVED0[2]; /**< Reserved for future use **/
+    __IOM uint32_t ROUTE;        /**< I/O Routing Register  */
 } LETIMER_TypeDef;             /** @} */
 
 /**************************************************************************//**

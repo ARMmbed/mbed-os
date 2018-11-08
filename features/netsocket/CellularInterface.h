@@ -25,8 +25,7 @@
  *  Common interface that is shared between ethernet hardware
  *  @addtogroup netsocket
  */
-class CellularInterface : public NetworkInterface
-{
+class CellularInterface : public NetworkInterface {
 public:
     /** CellularInterface lifetime
      */
@@ -40,7 +39,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_credentials(const char *apn,
-            const char *username = 0, const char *password = 0) = 0;
+                                          const char *username = 0, const char *password = 0) = 0;
 
     /** Start the interface
      *
@@ -50,7 +49,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t connect(const char *apn,
-            const char *username = 0, const char *password = 0) = 0;
+                                  const char *username = 0, const char *password = 0) = 0;
 
     /** Start the interface
      *

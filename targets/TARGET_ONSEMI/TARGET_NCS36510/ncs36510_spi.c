@@ -67,7 +67,7 @@ void fSpiInit(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     MBED_ASSERT((int)obj->membase != NC);
 
     /* Check device to be activated */
-    if(obj->membase == SPI1REG) {
+    if (obj->membase == SPI1REG) {
         /* SPI 1 selected */
         CLOCK_ENABLE(CLOCK_SPI);         /* Enable clock */
     } else {
@@ -91,15 +91,15 @@ void fSpiInit(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     pin_mode(mosi, PushPullPullDown);
 
     /* PAD drive strength */
-    PadReg_t *padRegOffset = (PadReg_t*)(PADREG_BASE + (sclk * PAD_REG_ADRS_BYTE_SIZE));
+    PadReg_t *padRegOffset = (PadReg_t *)(PADREG_BASE + (sclk * PAD_REG_ADRS_BYTE_SIZE));
     padRegOffset->PADIO0.BITS.POWER = True; /* sclk: Drive strength */
     padRegOffset->PADIO1.BITS.POWER = True; /* mosi: Drive strength */
-    if(miso != NC) {
+    if (miso != NC) {
         pinmap_pinout(miso, PinMap_SPI_MISO); /* Cross bar settings */
         pin_mode(miso, OpenDrainNoPull);      /* Pad setting */
         padRegOffset->PADIO2.BITS.POWER = True;  /* miso: Drive strength */
     }
-    if(ssel != NC) {
+    if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);         /* Cross bar settings */
         pin_mode(ssel, PushPullPullUp);               /* Pad setting */
         padRegOffset->PADIO3.BITS.POWER      = True;      /* ssel: Drive strength */
@@ -160,7 +160,7 @@ int fSpiWriteB(spi_t *obj, uint32_t const buf)
 {
     int byte;
 
-    while((obj->membase->STATUS.BITS.TX_FULL == True) && (obj->membase->STATUS.BITS.RX_FULL == True)); /* Wait till Tx/Rx status is full */
+    while ((obj->membase->STATUS.BITS.TX_FULL == True) && (obj->membase->STATUS.BITS.RX_FULL == True)); /* Wait till Tx/Rx status is full */
     obj->membase->TX_DATA = buf;
 
     while (obj->membase->STATUS.BITS.RX_EMPTY == True); /* Wait till Receive status is empty */

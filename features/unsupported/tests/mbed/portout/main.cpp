@@ -1,7 +1,7 @@
 #include "mbed.h"
 
 #if !DEVICE_PORTOUT
-  #error [NOT_SUPPORTED] PortOut is not supported
+#error [NOT_SUPPORTED] PortOut is not supported
 #endif
 
 # if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088) || defined(TARGET_LPC2460)
@@ -59,7 +59,7 @@
 #     define LED3       0
 #     define LED4       0
 # else
-  #error [NOT_SUPPORTED] This test can't be ran on this target
+#error [NOT_SUPPORTED] This test can't be ran on this target
 #endif
 
 
@@ -74,9 +74,10 @@ int mask[4] = {
 
 PortOut ledport(LED_PORT, LED_MASK);
 
-int main() {
+int main()
+{
     while (1) {
-        for (int i=0; i<4; i++) {
+        for (int i = 0; i < 4; i++) {
             ledport = mask[i];
             wait(1);
         }

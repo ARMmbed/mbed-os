@@ -60,23 +60,25 @@ static volatile uint16_t *ADCDR[] = {
     &ADCADDRH,
 };
 
-void analogin_init(analogin_t *obj, PinName pin) {
+void analogin_init(analogin_t *obj, PinName pin)
+{
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
     CPGSTBCR3 &= ~(1 << 1);
     CPGSTBCR6 &= ~(1 << 7);
 
-    // 15: ADF 14: ADIE 13: ADST, [12:9] TRGS..0 
-    //    [8:6] CKS 010 :: 340tclk 
-    //    [5:3] MDS 000 :: single mode 
-    //    [2:0] CH  000 :: AN0 
-    ADCADCSR = 0x0080; 
+    // 15: ADF 14: ADIE 13: ADST, [12:9] TRGS..0
+    //    [8:6] CKS 010 :: 340tclk
+    //    [5:3] MDS 000 :: single mode
+    //    [2:0] CH  000 :: AN0
+    ADCADCSR = 0x0080;
 
     pinmap_pinout(pin, PinMap_ADC);
 }
 
-static inline uint32_t adc_read(analogin_t *obj) {
+static inline uint32_t adc_read(analogin_t *obj)
+{
     volatile uint16_t data;
 
     // Select the appropriate channel and start conversion
@@ -95,7 +97,8 @@ static inline uint32_t adc_read(analogin_t *obj) {
 }
 
 #if ANALOGIN_MEDIAN_FILTER
-static inline void order(uint32_t *a, uint32_t *b) {
+static inline void order(uint32_t *a, uint32_t *b)
+{
     if (*a > *b) {
         uint32_t t = *a;
         *a = *b;
@@ -104,7 +107,8 @@ static inline void order(uint32_t *a, uint32_t *b) {
 }
 #endif
 
-static inline uint32_t adc_read_u32(analogin_t *obj) {
+static inline uint32_t adc_read_u32(analogin_t *obj)
+{
     uint32_t value;
 #if ANALOGIN_MEDIAN_FILTER
     uint32_t v1 = adc_read(obj);
@@ -120,13 +124,15 @@ static inline uint32_t adc_read_u32(analogin_t *obj) {
     return value;
 }
 
-uint16_t analogin_read_u16(analogin_t *obj) {
+uint16_t analogin_read_u16(analogin_t *obj)
+{
     uint32_t value = adc_read_u32(obj);
 
     return (value << 4) | ((value >> 8) & 0x000F); // 12-bit to 16-bit conversion
 }
 
-float analogin_read(analogin_t *obj) {
+float analogin_read(analogin_t *obj)
+{
     uint32_t value = adc_read_u32(obj);
 
     return (float)value * (1.0f / (float)0x0FFF);  // 12 bits range

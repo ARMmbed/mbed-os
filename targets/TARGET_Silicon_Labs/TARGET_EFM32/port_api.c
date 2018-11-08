@@ -34,7 +34,7 @@
 
 PinName port_pin(PortName port, int pin_n)
 {
-    return (PinName) (pin_n | port << 4); // Encode pin and port number in one uint32
+    return (PinName)(pin_n | port << 4);  // Encode pin and port number in one uint32
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
@@ -42,7 +42,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
     obj->mask = mask;
     obj->port = port;
     obj->dir = dir;
-    
+
     port_dir(obj, obj->dir);
 }
 
@@ -80,9 +80,9 @@ void port_write(port_t *obj, int value)
 int port_read(port_t *obj)
 {
     if (obj->dir == PIN_INPUT) {
-        return (int) (GPIO_PortInGet(obj->port) & obj->mask);
+        return (int)(GPIO_PortInGet(obj->port) & obj->mask);
     } else {
-        return (int) (GPIO_PortOutGet(obj->port) & obj->mask);
+        return (int)(GPIO_PortOutGet(obj->port) & obj->mask);
     }
 }
 

@@ -132,10 +132,11 @@ int ADC_GetData(uint16_t *outdata)
     }
 
     /* Read 32-bit value and truncate to 16-bit for output depending on data align bit*/
-    if((MXC_ADC->ctrl & MXC_F_ADC_CTRL_ADC_DATAALIGN) == 0)
-        *outdata = (uint16_t)(MXC_ADC->data); /* LSB justified */
-    else
-        *outdata = (uint16_t)(MXC_ADC->data >> 6); /* MSB justified */
+    if ((MXC_ADC->ctrl & MXC_F_ADC_CTRL_ADC_DATAALIGN) == 0) {
+        *outdata = (uint16_t)(MXC_ADC->data);    /* LSB justified */
+    } else {
+        *outdata = (uint16_t)(MXC_ADC->data >> 6);    /* MSB justified */
+    }
 
     /* Check for overflow */
     if (MXC_ADC->status & MXC_F_ADC_STATUS_ADC_OVERFLOW) {
@@ -151,8 +152,9 @@ int ADC_SetLimit(mxc_adc_limitsel_t unit, mxc_adc_chsel_t channel,
                  unsigned int high_enable, unsigned int high_limit)
 {
     /* Check args */
-    if ((unit >= ADC_LIMIT_MAX) || (channel >= ADC_CH_MAX))
+    if ((unit >= ADC_LIMIT_MAX) || (channel >= ADC_CH_MAX)) {
         return E_BAD_PARAM;
+    }
 
     /* set channel using the limit */
     MXC_ADC->limit[unit] = ((channel << MXC_F_ADC_LIMIT0_CH_SEL_POS) & MXC_F_ADC_LIMIT0_CH_SEL);

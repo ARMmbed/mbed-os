@@ -38,12 +38,11 @@
  * @{
  * @brief EFM32ZG_IDAC Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;       /**< Control Register  */
-  __IOM uint32_t CURPROG;    /**< Current Programming Register  */
-  __IOM uint32_t CAL;        /**< Calibration Register  */
-  __IOM uint32_t DUTYCONFIG; /**< Duty Cycle Configauration Register  */
+typedef struct {
+    __IOM uint32_t CTRL;       /**< Control Register  */
+    __IOM uint32_t CURPROG;    /**< Current Programming Register  */
+    __IOM uint32_t CAL;        /**< Calibration Register  */
+    __IOM uint32_t DUTYCONFIG; /**< Duty Cycle Configauration Register  */
 } IDAC_TypeDef;              /** @} */
 
 /**************************************************************************//**

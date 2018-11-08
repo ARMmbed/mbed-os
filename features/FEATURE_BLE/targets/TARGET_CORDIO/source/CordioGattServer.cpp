@@ -72,7 +72,7 @@ ble_error_t GattServer::addService(GattService &service)
     }
 
     // Create cordio attribute list
-    internal_service->attGroup->pAttr = (attsAttr_t*)alloc_block(attListLen * sizeof(attsAttr_t));
+    internal_service->attGroup->pAttr = (attsAttr_t *)alloc_block(attListLen * sizeof(attsAttr_t));
     if (internal_service->attGroup->pAttr == NULL) {
         return BLE_ERROR_BUFFER_OVERFLOW;
     }
@@ -89,7 +89,7 @@ ble_error_t GattServer::addService(GattService &service)
     } else {
         internal_service->uuidLen = sizeof(UUID::ShortUUIDBytes_t);
     }
-    currAtt->pValue = (uint8_t*)alloc_block(internal_service->uuidLen);
+    currAtt->pValue = (uint8_t *)alloc_block(internal_service->uuidLen);
     memcpy(currAtt->pValue, service.getUUID().getBaseUUID(), internal_service->uuidLen);
     currAtt->maxLen = internal_service->uuidLen;
     currAtt->pLen = &internal_service->uuidLen;
@@ -104,8 +104,8 @@ ble_error_t GattServer::addService(GattService &service)
 
         /* Skip any incompletely defined, read-only characteristics. */
         if ((p_char->getValueAttribute().getValuePtr() == NULL) &&
-            (p_char->getValueAttribute().getLength() == 0) &&
-            (p_char->getProperties() == GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)) {
+                (p_char->getValueAttribute().getLength() == 0) &&
+                (p_char->getProperties() == GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)) {
             continue;
         }
 
@@ -115,7 +115,7 @@ ble_error_t GattServer::addService(GattService &service)
 
         p_char->getValueAttribute().setHandle(currentHandle);
         internal_service->chars[i].descLen = 1 + sizeof(currentHandle) + p_char->getValueAttribute().getUUID().getLen();
-        currAtt->pValue = (uint8_t*) alloc_block(internal_service->chars[i].descLen);
+        currAtt->pValue = (uint8_t *) alloc_block(internal_service->chars[i].descLen);
         uint8_t *pValue = currAtt->pValue;
         *pValue++ = p_char->getProperties();
         memcpy(pValue, &currentHandle, sizeof(currentHandle));
@@ -131,9 +131,9 @@ ble_error_t GattServer::addService(GattService &service)
         // Create Value Attribute
         currAtt->pUuid = p_char->getValueAttribute().getUUID().getBaseUUID();
         currAtt->maxLen = p_char->getValueAttribute().getMaxLength();
-        currAtt->pLen = (uint16_t*) alloc_block(currAtt->maxLen + sizeof(uint16_t));
+        currAtt->pLen = (uint16_t *) alloc_block(currAtt->maxLen + sizeof(uint16_t));
         *currAtt->pLen = p_char->getValueAttribute().getLength();
-        currAtt->pValue = (uint8_t*) ((uint16_t*)currAtt->pLen + 1);
+        currAtt->pValue = (uint8_t *)((uint16_t *)currAtt->pLen + 1);
         memcpy(currAtt->pValue, p_char->getValueAttribute().getValuePtr(), *currAtt->pLen);
         memset(currAtt->pValue + *currAtt->pLen, 0, currAtt->maxLen - *currAtt->pLen);
 
@@ -146,8 +146,12 @@ ble_error_t GattServer::addService(GattService &service)
         }
 
         currAtt->permissions = 0;
-        if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)  { currAtt->permissions |= ATTS_PERMIT_READ; }
-        if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE) { currAtt->permissions |= ATTS_PERMIT_WRITE; }
+        if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)  {
+            currAtt->permissions |= ATTS_PERMIT_READ;
+        }
+        if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE) {
+            currAtt->permissions |= ATTS_PERMIT_WRITE;
+        }
         currAtt++;
 
         bool cccCreated = false;
@@ -161,9 +165,9 @@ ble_error_t GattServer::addService(GattService &service)
 
             currAtt->pUuid = p_att->getUUID().getBaseUUID();
             currAtt->maxLen = p_att->getMaxLength();
-            currAtt->pLen = (uint16_t*) alloc_block(currAtt->maxLen + sizeof(uint16_t));
+            currAtt->pLen = (uint16_t *) alloc_block(currAtt->maxLen + sizeof(uint16_t));
             *currAtt->pLen = p_att->getLength();
-            currAtt->pValue = (uint8_t*) ((uint16_t*)currAtt->pLen + 1);
+            currAtt->pValue = (uint8_t *)((uint16_t *)currAtt->pLen + 1);
             memcpy(currAtt->pValue, p_att->getValuePtr(), *currAtt->pLen);
             memset(currAtt->pValue + *currAtt->pLen, 0, currAtt->maxLen - *currAtt->pLen);
 
@@ -212,8 +216,8 @@ ble_error_t GattServer::addService(GattService &service)
             currentHandle++;
 
             currAtt->pUuid = cccUUID.getBaseUUID();
-            currAtt->pValue = (uint8_t*)&cccValues[cccCnt];
-            currAtt->pLen = (uint16_t*)&cccSize;
+            currAtt->pValue = (uint8_t *)&cccValues[cccCnt];
+            currAtt->pLen = (uint16_t *)&cccSize;
             currAtt->maxLen = sizeof(uint16_t);
             currAtt->settings = ATTS_SET_CCC;
             currAtt->permissions = (ATTS_PERMIT_READ | ATTS_PERMIT_WRITE);
@@ -240,17 +244,17 @@ ble_error_t GattServer::addService(GattService &service)
     internal_service->attGroup->startHandle = startHandle;
     internal_service->attGroup->endHandle = currentHandle;
     AttsAddGroup(internal_service->attGroup);
-    AttsCccRegister(cccCnt, (attsCccSet_t*)cccSet, cccCback);
+    AttsCccRegister(cccCnt, (attsCccSet_t *)cccSet, cccCback);
 
     service.setHandle(startHandle);
 
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t * lengthP)
+ble_error_t GattServer::read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
 {
     uint16_t attribute_length = 0;
-    uint8_t* attribute_value = NULL;
+    uint8_t *attribute_value = NULL;
 
     if (AttsGetAttr(attributeHandle, &attribute_length, &attribute_value) != ATT_SUCCESS) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
@@ -274,7 +278,7 @@ ble_error_t GattServer::read(Gap::Handle_t connectionHandle, GattAttribute::Hand
             if (connectionHandle == DM_CONN_ID_NONE) { // CCCDs are always 16 bits
                 return BLE_ERROR_PARAM_OUT_OF_RANGE;
             }
-            *((uint16_t*)buffer) = AttsCccGet(connectionHandle, idx);
+            *((uint16_t *)buffer) = AttsCccGet(connectionHandle, idx);
             *lengthP = 2;   // CCCDs are always 16 bits
             return BLE_ERROR_NONE;
         }
@@ -288,7 +292,7 @@ ble_error_t GattServer::write(GattAttribute::Handle_t attributeHandle, const uin
 {
     uint16_t connectionHandle = Gap::getInstance().getConnectionHandle();
 
-    if (AttsSetAttr(attributeHandle, len, (uint8_t*)buffer) != ATT_SUCCESS) {
+    if (AttsSetAttr(attributeHandle, len, (uint8_t *)buffer) != ATT_SUCCESS) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -306,10 +310,10 @@ ble_error_t GattServer::write(GattAttribute::Handle_t attributeHandle, const uin
                 // This characteristic has a CCCD attribute. Handle notifications and indications.
                 uint16_t cccEnabled = AttsCccEnabled(connectionHandle, idx);
                 if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
-                    AttsHandleValueNtf(connectionHandle, attributeHandle, len, (uint8_t*)buffer);
+                    AttsHandleValueNtf(connectionHandle, attributeHandle, len, (uint8_t *)buffer);
                 }
                 if (cccEnabled & ATT_CLIENT_CFG_INDICATE) {
-                    AttsHandleValueInd(connectionHandle, attributeHandle, len, (uint8_t*)buffer);
+                    AttsHandleValueInd(connectionHandle, attributeHandle, len, (uint8_t *)buffer);
                 }
             }
         }
@@ -327,7 +331,7 @@ ble_error_t GattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Han
             if ((connectionHandle == DM_CONN_ID_NONE) || (len != 2)) { // CCCDs are always 16 bits
                 return BLE_ERROR_PARAM_OUT_OF_RANGE;
             }
-            AttsCccSet(connectionHandle, idx, *((uint16_t*)buffer));
+            AttsCccSet(connectionHandle, idx, *((uint16_t *)buffer));
             return BLE_ERROR_NONE;
         }
     }
@@ -393,7 +397,7 @@ bool GattServer::isOnDataReadAvailable() const
     return params;
 }
 
-void GattServer::setPreferredConnectionParams(const ::Gap::ConnectionParams_t& params)
+void GattServer::setPreferredConnectionParams(const ::Gap::ConnectionParams_t &params)
 {
     memcpy(generic_access_service.ppcp, &params.minConnectionInterval, 2);
     memcpy(generic_access_service.ppcp + 2, &params.maxConnectionInterval, 2);
@@ -406,13 +410,13 @@ ble_error_t GattServer::setDeviceName(const uint8_t *deviceName)
     size_t length = 0;
 
     if (deviceName != NULL) {
-        length = strlen((const char*)deviceName);
+        length = strlen((const char *)deviceName);
     }
 
     if (length == 0) {
         free(generic_access_service.device_name_value());
     } else {
-        uint8_t* res = (uint8_t*) realloc(generic_access_service.device_name_value(), length);
+        uint8_t *res = (uint8_t *) realloc(generic_access_service.device_name_value(), length);
         if (res == NULL) {
             return BLE_ERROR_NO_MEM;
         }
@@ -426,7 +430,7 @@ ble_error_t GattServer::setDeviceName(const uint8_t *deviceName)
     return BLE_ERROR_NONE;
 }
 
-void GattServer::getDeviceName(const uint8_t*& name, uint16_t& length)
+void GattServer::getDeviceName(const uint8_t *&name, uint16_t &length)
 {
     length = generic_access_service.device_name_length;
     name = generic_access_service.device_name_value();
@@ -447,7 +451,7 @@ ble_error_t GattServer::reset(void)
     this->::GattServer::reset();
 
     while (registered_service) {
-        internal_service_t* s = registered_service;
+        internal_service_t *s = registered_service;
         registered_service = s->next;
         AttsRemoveGroup(s->attGroup->startHandle);
         delete s->attGroup;
@@ -456,7 +460,7 @@ ble_error_t GattServer::reset(void)
     }
 
     while (allocated_blocks) {
-        alloc_block_t* b = allocated_blocks;
+        alloc_block_t *b = allocated_blocks;
         allocated_blocks = b->next;
         free(b);
     }
@@ -468,7 +472,7 @@ ble_error_t GattServer::reset(void)
     currentHandle = 0;
     cccCnt = 0;
 
-    AttsCccRegister(cccCnt, (attsCccSet_t*)cccSet, cccCback);
+    AttsCccRegister(cccCnt, (attsCccSet_t *)cccSet, cccCback);
 
     return BLE_ERROR_NONE;
 }
@@ -560,11 +564,11 @@ void GattServer::add_generic_access_service()
     // bind attributes to the service
     generic_access_service.service.pAttr = generic_access_service.attributes;
 
-    attsAttr_t* current_attribute = generic_access_service.attributes;
+    attsAttr_t *current_attribute = generic_access_service.attributes;
 
     // service attribute
     current_attribute->pUuid = attPrimSvcUuid;
-    current_attribute->pValue = (uint8_t*) attGapSvcUuid;
+    current_attribute->pValue = (uint8_t *) attGapSvcUuid;
     current_attribute->maxLen = sizeof(attGapSvcUuid);
     current_attribute->pLen = &current_attribute->maxLen;
     current_attribute->settings = 0;
@@ -622,7 +626,7 @@ void GattServer::add_generic_access_service()
     current_attribute->pUuid = attApChUuid;
     current_attribute->maxLen = sizeof(generic_access_service.appearance);
     current_attribute->pLen = &current_attribute->maxLen;
-    current_attribute->pValue = (uint8_t*) &generic_access_service.appearance;
+    current_attribute->pValue = (uint8_t *) &generic_access_service.appearance;
     current_attribute->settings = 0;
     current_attribute->permissions = ATTS_PERMIT_READ;
 
@@ -676,11 +680,11 @@ void GattServer::add_generic_attribute_service()
     // bind attributes to the service
     generic_attribute_service.service.pAttr = generic_attribute_service.attributes;
 
-    attsAttr_t* current_attribute = generic_attribute_service.attributes;
+    attsAttr_t *current_attribute = generic_attribute_service.attributes;
 
     // service attribute
     current_attribute->pUuid = attPrimSvcUuid;
-    current_attribute->pValue = (uint8_t*) attGattSvcUuid;
+    current_attribute->pValue = (uint8_t *) attGattSvcUuid;
     current_attribute->maxLen = sizeof(attGattSvcUuid);
     current_attribute->pLen = &current_attribute->maxLen;
     current_attribute->settings = 0;
@@ -716,7 +720,7 @@ void GattServer::add_generic_attribute_service()
     // CCCD
     ++current_attribute;
     current_attribute->pUuid = attCliChCfgUuid;
-    current_attribute->pValue = (uint8_t*)&cccValues[cccCnt];
+    current_attribute->pValue = (uint8_t *)&cccValues[cccCnt];
     current_attribute->maxLen = 2;
     current_attribute->pLen = &current_attribute->maxLen;
     current_attribute->settings = ATTS_SET_CCC;
@@ -730,11 +734,12 @@ void GattServer::add_generic_attribute_service()
 
     generic_attribute_service.service.endHandle = currentHandle;
     AttsAddGroup(&generic_attribute_service.service);
-    AttsCccRegister(cccCnt, (attsCccSet_t*)cccSet, cccCback);
+    AttsCccRegister(cccCnt, (attsCccSet_t *)cccSet, cccCback);
 }
 
-void* GattServer::alloc_block(size_t block_size) {
-    alloc_block_t* block = (alloc_block_t*) malloc(sizeof(alloc_block_t) + block_size);
+void *GattServer::alloc_block(size_t block_size)
+{
+    alloc_block_t *block = (alloc_block_t *) malloc(sizeof(alloc_block_t) + block_size);
     if (block == NULL) {
         return NULL;
     }

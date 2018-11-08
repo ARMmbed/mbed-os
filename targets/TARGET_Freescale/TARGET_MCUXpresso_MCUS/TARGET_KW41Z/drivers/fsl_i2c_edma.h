@@ -54,14 +54,13 @@ typedef void (*i2c_master_edma_transfer_callback_t)(I2C_Type *base,
                                                     void *userData);
 
 /*! @brief I2C master eDMA transfer structure. */
-struct _i2c_master_edma_handle
-{
+struct _i2c_master_edma_handle {
     i2c_master_transfer_t transfer; /*!< I2C master transfer struct. */
     size_t transferSize;            /*!< Total bytes to be transferred. */
     uint8_t state;                  /*!< I2C master transfer status. */
     edma_handle_t *dmaHandle;       /*!< The eDMA handler used. */
     i2c_master_edma_transfer_callback_t
-        completionCallback; /*!< Callback function called after eDMA transfer finished. */
+    completionCallback; /*!< Callback function called after eDMA transfer finished. */
     void *userData;         /*!< Callback parameter passed to callback function. */
 };
 

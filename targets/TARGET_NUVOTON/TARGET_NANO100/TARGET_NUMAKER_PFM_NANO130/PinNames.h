@@ -58,18 +58,18 @@ typedef enum {
     PullNone = 0,
     PullDown,
     PullUp,
-    
+
     PushPull,
     OpenDrain,
     Quasi,
-    
+
     PullDefault = PullUp,
 } PinMode;
 
 typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF,
-    
+
     // Generic naming
     PA_0    = NU_PORT_N_PIN_TO_PINNAME(0, 0), PA_1, PA_2, PA_3, PA_4, PA_5, PA_6, PA_7, PA_8, PA_9, PA_10, PA_11, PA_12, PA_13, PA_14, PA_15,
     PB_0    = NU_PORT_N_PIN_TO_PINNAME(1, 0), PB_1, PB_2, PB_3, PB_4, PB_5, PB_6, PB_7, PB_8, PB_9, PB_10, PB_11, PB_12, PB_13, PB_14, PB_15,
@@ -77,7 +77,7 @@ typedef enum {
     PD_0    = NU_PORT_N_PIN_TO_PINNAME(3, 0), PD_1, PD_2, PD_3, PD_4, PD_5, PD_6, PD_7, PD_8, PD_9, PD_10, PD_11, PD_12, PD_13, PD_14, PD_15,
     PE_0    = NU_PORT_N_PIN_TO_PINNAME(4, 0), PE_1, PE_2, PE_3, PE_4, PE_5, PE_6, PE_7, PE_8, PE_9, PE_10, PE_11, PE_12, PE_13, PE_14, PE_15,
     PF_0    = NU_PORT_N_PIN_TO_PINNAME(5, 0), PF_1, PF_2, PF_3, PF_4, PF_5,
-    
+
     // Arduino UNO naming
     A0 = PA_0,
     A1 = PA_1,
@@ -102,7 +102,7 @@ typedef enum {
     D13 = PC_1,
     D14 = PC_8,
     D15 = PC_9,
-    
+
     // NOTE: other board-specific naming
     // UART naming
     USBTX = PB_1,
@@ -120,7 +120,7 @@ typedef enum {
     // Button naming
     SW1 = PE_5,
     SW2 = PE_6,
-    
+
 } PinName;
 
 #ifdef __cplusplus

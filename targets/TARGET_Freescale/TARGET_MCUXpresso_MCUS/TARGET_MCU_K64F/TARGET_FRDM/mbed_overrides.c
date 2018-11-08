@@ -55,7 +55,7 @@ void mbed_mac_address(char *mac)
 
     // generate three CRC16's using different slices of the UUID
     MAC[0] = crcSlow((const uint8_t *)UID, 8);  // most significant half-word
-    MAC[1] = crcSlow((const uint8_t *)UID, 12); 
+    MAC[1] = crcSlow((const uint8_t *)UID, 12);
     MAC[2] = crcSlow((const uint8_t *)UID, 16); // least significant half word
 
     // The network stack expects an array of 6 bytes

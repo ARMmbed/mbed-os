@@ -38,7 +38,7 @@ uint32_t I2C_Open(I2C_T *i2c, uint32_t u32BusClock)
     uint32_t u32Div;
     uint32_t u32Pclk;
 
-    if(i2c == I2C1) {
+    if (i2c == I2C1) {
         u32Pclk = CLK_GetPCLK1Freq();
     } else {
         u32Pclk = CLK_GetPCLK0Freq();
@@ -67,10 +67,10 @@ uint32_t I2C_Open(I2C_T *i2c, uint32_t u32BusClock)
 void I2C_Close(I2C_T *i2c)
 {
     /* Reset I2C Controller */
-    if((uint32_t)i2c == I2C0_BASE) {
+    if ((uint32_t)i2c == I2C0_BASE) {
         SYS->IPRST1 |= SYS_IPRST1_I2C0RST_Msk;
         SYS->IPRST1 &= ~SYS_IPRST1_I2C0RST_Msk;
-    } else if((uint32_t)i2c == I2C1_BASE) {
+    } else if ((uint32_t)i2c == I2C1_BASE) {
         SYS->IPRST1 |= SYS_IPRST1_I2C1RST_Msk;
         SYS->IPRST1 &= ~SYS_IPRST1_I2C1RST_Msk;
     }
@@ -112,19 +112,19 @@ void I2C_Trigger(I2C_T *i2c, uint8_t u8Start, uint8_t u8Stop, uint8_t u8Si, uint
 {
     uint32_t u32Reg = 0U;
 
-    if(u8Start) {
+    if (u8Start) {
         u32Reg |= I2C_CTL_STA;
     }
 
-    if(u8Stop) {
+    if (u8Stop) {
         u32Reg |= I2C_CTL_STO;
     }
 
-    if(u8Si) {
+    if (u8Si) {
         u32Reg |= I2C_CTL_SI;
     }
 
-    if(u8Ack) {
+    if (u8Ack) {
         u32Reg |= I2C_CTL_AA;
     }
 
@@ -175,7 +175,7 @@ uint32_t I2C_GetBusClockFreq(I2C_T *i2c)
     uint32_t u32Divider = i2c->CLKDIV;
     uint32_t u32Pclk;
 
-    if(i2c == I2C1) {
+    if (i2c == I2C1) {
         u32Pclk = CLK_GetPCLK1Freq();
     } else {
         u32Pclk = CLK_GetPCLK0Freq();
@@ -199,7 +199,7 @@ uint32_t I2C_SetBusClockFreq(I2C_T *i2c, uint32_t u32BusClock)
     uint32_t u32Div;
     uint32_t u32Pclk;
 
-    if(i2c == I2C1) {
+    if (i2c == I2C1) {
         u32Pclk = CLK_GetPCLK1Freq();
     } else {
         u32Pclk = CLK_GetPCLK0Freq();
@@ -224,7 +224,7 @@ uint32_t I2C_GetIntFlag(I2C_T *i2c)
 {
     uint32_t u32Value;
 
-    if((i2c->CTL0 & I2C_CTL0_SI_Msk) == I2C_CTL0_SI_Msk) {
+    if ((i2c->CTL0 & I2C_CTL0_SI_Msk) == I2C_CTL0_SI_Msk) {
         u32Value = 1U;
     } else {
         u32Value = 0U;
@@ -292,20 +292,20 @@ void I2C_SetData(I2C_T *i2c, uint8_t u8Data)
  */
 void I2C_SetSlaveAddr(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddr, uint8_t u8GCMode)
 {
-    switch(u8SlaveNo) {
-    case 1:
-        i2c->ADDR1  = ((uint32_t)u8SlaveAddr << 1U) | u8GCMode;
-        break;
-    case 2:
-        i2c->ADDR2  = ((uint32_t)u8SlaveAddr << 1U) | u8GCMode;
-        break;
-    case 3:
-        i2c->ADDR3  = ((uint32_t)u8SlaveAddr << 1U) | u8GCMode;
-        break;
-    case 0:
-    default:
-        i2c->ADDR0  = ((uint32_t)u8SlaveAddr << 1U) | u8GCMode;
-        break;
+    switch (u8SlaveNo) {
+        case 1:
+            i2c->ADDR1  = ((uint32_t)u8SlaveAddr << 1U) | u8GCMode;
+            break;
+        case 2:
+            i2c->ADDR2  = ((uint32_t)u8SlaveAddr << 1U) | u8GCMode;
+            break;
+        case 3:
+            i2c->ADDR3  = ((uint32_t)u8SlaveAddr << 1U) | u8GCMode;
+            break;
+        case 0:
+        default:
+            i2c->ADDR0  = ((uint32_t)u8SlaveAddr << 1U) | u8GCMode;
+            break;
     }
 }
 
@@ -323,20 +323,20 @@ void I2C_SetSlaveAddr(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddr, uint8_
  */
 void I2C_SetSlaveAddrMask(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddrMask)
 {
-    switch(u8SlaveNo) {
-    case 1:
-        i2c->ADDRMSK1  = (uint32_t)u8SlaveAddrMask << 1U;
-        break;
-    case 2:
-        i2c->ADDRMSK2  = (uint32_t)u8SlaveAddrMask << 1U;
-        break;
-    case 3:
-        i2c->ADDRMSK3  = (uint32_t)u8SlaveAddrMask << 1U;
-        break;
-    case 0:
-    default:
-        i2c->ADDRMSK0  = (uint32_t)u8SlaveAddrMask << 1U;
-        break;
+    switch (u8SlaveNo) {
+        case 1:
+            i2c->ADDRMSK1  = (uint32_t)u8SlaveAddrMask << 1U;
+            break;
+        case 2:
+            i2c->ADDRMSK2  = (uint32_t)u8SlaveAddrMask << 1U;
+            break;
+        case 3:
+            i2c->ADDRMSK3  = (uint32_t)u8SlaveAddrMask << 1U;
+            break;
+        case 0:
+        default:
+            i2c->ADDRMSK0  = (uint32_t)u8SlaveAddrMask << 1U;
+            break;
     }
 }
 
@@ -354,7 +354,7 @@ void I2C_SetSlaveAddrMask(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddrMask
  */
 void I2C_EnableTimeout(I2C_T *i2c, uint8_t u8LongTimeout)
 {
-    if(u8LongTimeout) {
+    if (u8LongTimeout) {
         i2c->TOCTL |= I2C_TOCTL_TOCDIV4_Msk;
     } else {
         i2c->TOCTL &= ~I2C_TOCTL_TOCDIV4_Msk;
@@ -472,7 +472,7 @@ void I2C_SMBusOpen(I2C_T *i2c, uint8_t u8HostDevice)
     i2c->BUSCTL &=  ~(I2C_BUSCTL_BMHEN_Msk | I2C_BUSCTL_BMDEN_Msk);
 
     /* Set SMBus Host/Device Mode, and enable Bus Management*/
-    if(u8HostDevice == (uint8_t)I2C_SMBH_ENABLE) {
+    if (u8HostDevice == (uint8_t)I2C_SMBH_ENABLE) {
         i2c->BUSCTL |= (I2C_BUSCTL_BMHEN_Msk | I2C_BUSCTL_BUSEN_Msk);
     } else {
         i2c->BUSCTL |= (I2C_BUSCTL_BMDEN_Msk | I2C_BUSCTL_BUSEN_Msk);
@@ -510,7 +510,7 @@ void I2C_SMBusPECTxEnable(I2C_T *i2c, uint8_t u8PECTxEn)
 {
     i2c->BUSCTL &= ~I2C_BUSCTL_PECTXEN_Msk;
 
-    if(u8PECTxEn) {
+    if (u8PECTxEn) {
         i2c->BUSCTL |= (I2C_BUSCTL_PECEN_Msk | I2C_BUSCTL_PECTXEN_Msk);
     } else {
         i2c->BUSCTL |= I2C_BUSCTL_PECEN_Msk;
@@ -552,7 +552,7 @@ void I2C_SMBusIdleTimeout(I2C_T *i2c, uint32_t us, uint32_t u32Hclk)
     i2c->BUSCTL |= I2C_BUSCTL_TIDLE_Msk;
     u32Hclk_kHz = u32Hclk / 1000U;
     u32Div = (((us * u32Hclk_kHz) / 1000U) >> 2U) - 1U;
-    if(u32Div > 255U) {
+    if (u32Div > 255U) {
         i2c->BUSTOUT = 0xFFU;
     } else {
         i2c->BUSTOUT = u32Div;
@@ -584,7 +584,7 @@ void I2C_SMBusTimeout(I2C_T *i2c, uint32_t ms, uint32_t u32Pclk)
     i2c->TOCTL &= ~I2C_TOCTL_TOCEN_Msk;
     u32Pclk_kHz = u32Pclk / 1000U;
     u32Div = ((ms * u32Pclk_kHz) / (16U * 1024U)) - 1U;
-    if(u32Div <= 0xFFU) {
+    if (u32Div <= 0xFFU) {
         i2c->BUSTOUT = u32Div;
     } else {
         /* DIV4 enabled */
@@ -617,7 +617,7 @@ void I2C_SMBusClockLoTimeout(I2C_T *i2c, uint32_t ms, uint32_t u32Pclk)
     i2c->TOCTL &= ~I2C_TOCTL_TOCEN_Msk;
     u32Pclk_kHz = u32Pclk / 1000U;
     u32Div = ((ms * u32Pclk_kHz) / (16U * 1024U)) - 1U;
-    if(u32Div <= 0xFFU) {
+    if (u32Div <= 0xFFU) {
         i2c->CLKTOUT = u32Div;
     } else {
         /* DIV4 enabled */

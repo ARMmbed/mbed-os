@@ -28,8 +28,7 @@
 
     @deprecated Do not use; it is not used by BLE API.
 */
-class GapEvents
-{
+class GapEvents {
 public:
     /*!
         \brief

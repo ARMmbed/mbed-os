@@ -48,8 +48,7 @@
 /*@}*/
 
 /*! @brief Error codes for the UART driver. */
-enum _uart_status
-{
+enum _uart_status {
     kStatus_UART_TxBusy = MAKE_STATUS(kStatusGroup_UART, 0),              /*!< Transmitter is busy. */
     kStatus_UART_RxBusy = MAKE_STATUS(kStatusGroup_UART, 1),              /*!< Receiver is busy. */
     kStatus_UART_TxIdle = MAKE_STATUS(kStatusGroup_UART, 2),              /*!< UART transmitter is idle. */
@@ -69,16 +68,14 @@ enum _uart_status
 };
 
 /*! @brief UART parity mode. */
-typedef enum _uart_parity_mode
-{
+typedef enum _uart_parity_mode {
     kUART_ParityDisabled = 0x0U, /*!< Parity disabled */
     kUART_ParityEven = 0x2U,     /*!< Parity enabled, type even, bit setting: PE|PT = 10 */
     kUART_ParityOdd = 0x3U,      /*!< Parity enabled, type odd,  bit setting: PE|PT = 11 */
 } uart_parity_mode_t;
 
 /*! @brief UART stop bit count. */
-typedef enum _uart_stop_bit_count
-{
+typedef enum _uart_stop_bit_count {
     kUART_OneStopBit = 0U, /*!< One stop bit */
     kUART_TwoStopBit = 1U, /*!< Two stop bits */
 } uart_stop_bit_count_t;
@@ -88,8 +85,7 @@ typedef enum _uart_stop_bit_count
  *
  * This structure contains the settings for all of the UART interrupt configurations.
  */
-enum _uart_interrupt_enable
-{
+enum _uart_interrupt_enable {
 #if defined(FSL_FEATURE_UART_HAS_LIN_BREAK_DETECT) && FSL_FEATURE_UART_HAS_LIN_BREAK_DETECT
     kUART_LinBreakInterruptEnable = (UART_BDH_LBKDIE_MASK), /*!< LIN break detect interrupt. */
 #endif
@@ -127,8 +123,7 @@ enum _uart_interrupt_enable
  *
  * This provides constants for the UART status flags for use in the UART functions.
  */
-enum _uart_flags
-{
+enum _uart_flags {
     kUART_TxDataRegEmptyFlag = (UART_S1_TDRE_MASK),     /*!< TX data register empty flag. */
     kUART_TransmissionCompleteFlag = (UART_S1_TC_MASK), /*!< Transmission complete flag. */
     kUART_RxDataRegFullFlag = (UART_S1_RDRF_MASK),      /*!< RX data register full flag. */
@@ -165,8 +160,7 @@ enum _uart_flags
 };
 
 /*! @brief UART configuration structure. */
-typedef struct _uart_config
-{
+typedef struct _uart_config {
     uint32_t baudRate_Bps;         /*!< UART baud rate  */
     uart_parity_mode_t parityMode; /*!< Parity mode, disabled (default), even, odd */
 #if defined(FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT) && FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
@@ -181,8 +175,7 @@ typedef struct _uart_config
 } uart_config_t;
 
 /*! @brief UART transfer structure. */
-typedef struct _uart_transfer
-{
+typedef struct _uart_transfer {
     uint8_t *data;   /*!< The buffer of data to be transfer.*/
     size_t dataSize; /*!< The byte count to be transfer. */
 } uart_transfer_t;
@@ -194,8 +187,7 @@ typedef struct _uart_handle uart_handle_t;
 typedef void (*uart_transfer_callback_t)(UART_Type *base, uart_handle_t *handle, status_t status, void *userData);
 
 /*! @brief UART handle structure. */
-struct _uart_handle
-{
+struct _uart_handle {
     uint8_t *volatile txData;   /*!< Address of remaining data to send. */
     volatile size_t txDataSize; /*!< Size of the remaining data to send. */
     size_t txDataSizeAll;       /*!< Size of the data to send out. */
@@ -431,17 +423,14 @@ static inline uint32_t UART_GetDataRegisterAddress(UART_Type *base)
  */
 static inline void UART_EnableTxDMA(UART_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
 #if (defined(FSL_FEATURE_UART_IS_SCI) && FSL_FEATURE_UART_IS_SCI)
         base->C4 |= UART_C4_TDMAS_MASK;
 #else
         base->C5 |= UART_C5_TDMAS_MASK;
 #endif
         base->C2 |= UART_C2_TIE_MASK;
-    }
-    else
-    {
+    } else {
 #if (defined(FSL_FEATURE_UART_IS_SCI) && FSL_FEATURE_UART_IS_SCI)
         base->C4 &= ~UART_C4_TDMAS_MASK;
 #else
@@ -461,17 +450,14 @@ static inline void UART_EnableTxDMA(UART_Type *base, bool enable)
  */
 static inline void UART_EnableRxDMA(UART_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
 #if (defined(FSL_FEATURE_UART_IS_SCI) && FSL_FEATURE_UART_IS_SCI)
         base->C4 |= UART_C4_RDMAS_MASK;
 #else
         base->C5 |= UART_C5_RDMAS_MASK;
 #endif
         base->C2 |= UART_C2_RIE_MASK;
-    }
-    else
-    {
+    } else {
 #if (defined(FSL_FEATURE_UART_IS_SCI) && FSL_FEATURE_UART_IS_SCI)
         base->C4 &= ~UART_C4_RDMAS_MASK;
 #else
@@ -499,12 +485,9 @@ static inline void UART_EnableRxDMA(UART_Type *base, bool enable)
  */
 static inline void UART_EnableTx(UART_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->C2 |= UART_C2_TE_MASK;
-    }
-    else
-    {
+    } else {
         base->C2 &= ~UART_C2_TE_MASK;
     }
 }
@@ -519,12 +502,9 @@ static inline void UART_EnableTx(UART_Type *base, bool enable)
  */
 static inline void UART_EnableRx(UART_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->C2 |= UART_C2_RE_MASK;
-    }
-    else
-    {
+    } else {
         base->C2 &= ~UART_C2_RE_MASK;
     }
 }

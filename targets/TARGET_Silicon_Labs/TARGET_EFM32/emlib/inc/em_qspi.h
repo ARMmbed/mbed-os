@@ -63,17 +63,17 @@ extern "C" {
 
 /** Transfer type. */
 typedef enum {
-  /** Single IO mode. DQ0 used for output and DQ1 as input. */
-  qspiTransferSingle = 0,
+    /** Single IO mode. DQ0 used for output and DQ1 as input. */
+    qspiTransferSingle = 0,
 
-  /** Dual I/O transfer. DQ0 and DQ1 are used as both inputs and outputs. */
-  qspiTransferDual   = 1,
+    /** Dual I/O transfer. DQ0 and DQ1 are used as both inputs and outputs. */
+    qspiTransferDual   = 1,
 
-  /** Quad I/O transfer. DQ0, DQ1, DQ2 and DQ3 are used as both inputs and outputs. */
-  qspiTransferQuad   = 2,
+    /** Quad I/O transfer. DQ0, DQ1, DQ2 and DQ3 are used as both inputs and outputs. */
+    qspiTransferQuad   = 2,
 
-  /** Octal I/O transfer. DQ[7:0] are used as both inputs and outputs. */
-  qspiTransferOctal  = 3
+    /** Octal I/O transfer. DQ[7:0] are used as both inputs and outputs. */
+    qspiTransferOctal  = 3
 } QSPI_TransferType_TypeDef;
 
 /*******************************************************************************
@@ -82,20 +82,20 @@ typedef enum {
 
 /** QSPI Device Read Instruction Configuration structure. */
 typedef struct {
-  /** Read opcode in non-xip mode. */
-  uint8_t                   opCode;
+    /** Read opcode in non-xip mode. */
+    uint8_t                   opCode;
 
-  /** Number of dummy read clock cycles. */
-  uint8_t                   dummyCycles;
+    /** Number of dummy read clock cycles. */
+    uint8_t                   dummyCycles;
 
-  /** Transfer type used for address. */
-  QSPI_TransferType_TypeDef addrTransfer;
+    /** Transfer type used for address. */
+    QSPI_TransferType_TypeDef addrTransfer;
 
-  /** Transfer type used for data. */
-  QSPI_TransferType_TypeDef dataTransfer;
+    /** Transfer type used for data. */
+    QSPI_TransferType_TypeDef dataTransfer;
 
-  /** Transfer type used for instruction. */
-  QSPI_TransferType_TypeDef instTransfer;
+    /** Transfer type used for instruction. */
+    QSPI_TransferType_TypeDef instTransfer;
 } QSPI_ReadConfig_TypeDef;
 
 /** Default read configuration structure. */
@@ -110,30 +110,30 @@ typedef struct {
 
 /** QSPI Device Write Instruction Configuration structure. */
 typedef struct {
-  /** Write opcode. */
-  uint8_t                   opCode;
+    /** Write opcode. */
+    uint8_t                   opCode;
 
-  /** Number of dummy read clock cycles. */
-  uint8_t                   dummyCycles;
+    /** Number of dummy read clock cycles. */
+    uint8_t                   dummyCycles;
 
-  /** Transfer type used for address. */
-  QSPI_TransferType_TypeDef addrTransfer;
+    /** Transfer type used for address. */
+    QSPI_TransferType_TypeDef addrTransfer;
 
-  /** Transfer type used for data. */
-  QSPI_TransferType_TypeDef dataTransfer;
+    /** Transfer type used for data. */
+    QSPI_TransferType_TypeDef dataTransfer;
 
-  /**
-   * @brief
-   *   Enable/disable automatic issuing of WEL (Write Enable Latch)
-   *   command before a write operation.
-   *
-   * @details
-   *   When writing to a flash device the write enable latch (WEL)
-   *   within the flash device itself must be high before a write sequence can be
-   *   issued. The QSPI peripheral can automatically issue the write enable latch
-   *   command before triggering a write sequence. The command used for enabling
-   *   the write enable latch is WREN (0x06) and is common between devices. */
-  bool                      autoWEL;
+    /**
+     * @brief
+     *   Enable/disable automatic issuing of WEL (Write Enable Latch)
+     *   command before a write operation.
+     *
+     * @details
+     *   When writing to a flash device the write enable latch (WEL)
+     *   within the flash device itself must be high before a write sequence can be
+     *   issued. The QSPI peripheral can automatically issue the write enable latch
+     *   command before triggering a write sequence. The command used for enabling
+     *   the write enable latch is WREN (0x06) and is common between devices. */
+    bool                      autoWEL;
 } QSPI_WriteConfig_TypeDef;
 
 /** Default write configuration structure. */
@@ -148,52 +148,52 @@ typedef struct {
 
 /** QSPI Device Delay Configuration structure. */
 typedef struct {
-  /** The minimal delay to keep the chip select line de-asserted between
-   *  two transactions. */
-  uint8_t deassert;
+    /** The minimal delay to keep the chip select line de-asserted between
+     *  two transactions. */
+    uint8_t deassert;
 
-  /** Delay between one chip select being de-activated and the
-   * activation of another. */
-  uint8_t deviceSwitch;
+    /** Delay between one chip select being de-activated and the
+     * activation of another. */
+    uint8_t deviceSwitch;
 
-  /** Delay between last bit and chip select de-assert. */
-  uint8_t lastBit;
+    /** Delay between last bit and chip select de-assert. */
+    uint8_t lastBit;
 
-  /** Delay chip select assert and first bit in a transaction. */
-  uint8_t firstBit;
+    /** Delay chip select assert and first bit in a transaction. */
+    uint8_t firstBit;
 } QSPI_DelayConfig_TypeDef;
 
 /** Defines command to be executed using STIG mechanism. */
 typedef struct {
-  /** command op-code */
-  uint8_t  cmdOpcode;
-  /** Number of Read Data Bytes */
-  uint16_t readDataSize;
-  /** Number of Address Bytes */
-  uint8_t  addrSize;
-  /** Number of Write Data Bytes */
-  uint8_t  writeDataSize;
-  /** Number of dummy cycles */
-  uint8_t  dummyCycles;
-  /** Mode Bit Configuration register are sent following the address bytes. */
-  bool     modeBitEnable;
-  /** flash command address */
-  uint32_t address;
-  /** buffer for read data */
-  void *   readBuffer;
-  /** buffer with data to write */
-  void *   writeBuffer;
+    /** command op-code */
+    uint8_t  cmdOpcode;
+    /** Number of Read Data Bytes */
+    uint16_t readDataSize;
+    /** Number of Address Bytes */
+    uint8_t  addrSize;
+    /** Number of Write Data Bytes */
+    uint8_t  writeDataSize;
+    /** Number of dummy cycles */
+    uint8_t  dummyCycles;
+    /** Mode Bit Configuration register are sent following the address bytes. */
+    bool     modeBitEnable;
+    /** flash command address */
+    uint32_t address;
+    /** buffer for read data */
+    void    *readBuffer;
+    /** buffer with data to write */
+    void    *writeBuffer;
 } QSPI_StigCmd_TypeDef;
 
 /** QSPI initialization structure. */
 typedef struct {
-  /** Enable/disable Quad SPI when initialization is completed. */
-  bool                       enable;
+    /** Enable/disable Quad SPI when initialization is completed. */
+    bool                       enable;
 
-  /**
-   * Master mode baude rate divisor. Values can be even numbers in the range
-   * [2-32] inclusive. */
-  uint8_t                    divisor;
+    /**
+     * Master mode baude rate divisor. Values can be even numbers in the range
+     * [2-32] inclusive. */
+    uint8_t                    divisor;
 } QSPI_Init_TypeDef;
 
 /** Default configuration for QSPI_Init_TypeDef structure. */
@@ -207,10 +207,10 @@ typedef struct {
  ******************************   PROTOTYPES   *********************************
  ******************************************************************************/
 
-void QSPI_Init(QSPI_TypeDef * qspi, const QSPI_Init_TypeDef * init);
-void QSPI_ReadConfig(QSPI_TypeDef * qspi, const QSPI_ReadConfig_TypeDef * config);
-void QSPI_WriteConfig(QSPI_TypeDef * qspi, const QSPI_WriteConfig_TypeDef * config);
-void QSPI_ExecStigCmd(QSPI_TypeDef * qspi, const QSPI_StigCmd_TypeDef * stigCmd);
+void QSPI_Init(QSPI_TypeDef *qspi, const QSPI_Init_TypeDef *init);
+void QSPI_ReadConfig(QSPI_TypeDef *qspi, const QSPI_ReadConfig_TypeDef *config);
+void QSPI_WriteConfig(QSPI_TypeDef *qspi, const QSPI_WriteConfig_TypeDef *config);
+void QSPI_ExecStigCmd(QSPI_TypeDef *qspi, const QSPI_StigCmd_TypeDef *stigCmd);
 
 /***************************************************************************//**
  * @brief
@@ -219,10 +219,10 @@ void QSPI_ExecStigCmd(QSPI_TypeDef * qspi, const QSPI_StigCmd_TypeDef * stigCmd)
  * @param[in] qspi
  *   Pointer to QSPI peripheral register block.
  ******************************************************************************/
-__STATIC_INLINE void QSPI_WaitForIdle(QSPI_TypeDef * qspi)
+__STATIC_INLINE void QSPI_WaitForIdle(QSPI_TypeDef *qspi)
 {
-  while ((qspi->CONFIG & _QSPI_CONFIG_IDLE_MASK) == 0)
-    ;
+    while ((qspi->CONFIG & _QSPI_CONFIG_IDLE_MASK) == 0)
+        ;
 }
 
 /***************************************************************************//**
@@ -236,10 +236,10 @@ __STATIC_INLINE void QSPI_WaitForIdle(QSPI_TypeDef * qspi)
  *   SRAM fill level of the write partition. The value is the number of 4 byte
  *   words in the write partition.
  ******************************************************************************/
-__STATIC_INLINE uint16_t QSPI_GetWriteLevel(QSPI_TypeDef * qspi)
+__STATIC_INLINE uint16_t QSPI_GetWriteLevel(QSPI_TypeDef *qspi)
 {
-  return (qspi->SRAMFILL & _QSPI_SRAMFILL_SRAMFILLINDACWRITE_MASK)
-         >> _QSPI_SRAMFILL_SRAMFILLINDACWRITE_SHIFT;
+    return (qspi->SRAMFILL & _QSPI_SRAMFILL_SRAMFILLINDACWRITE_MASK)
+           >> _QSPI_SRAMFILL_SRAMFILLINDACWRITE_SHIFT;
 }
 
 /***************************************************************************//**
@@ -253,10 +253,10 @@ __STATIC_INLINE uint16_t QSPI_GetWriteLevel(QSPI_TypeDef * qspi)
  *   SRAM fill level of the read partition. The value is the number of 4 byte
  *   words in the read partition.
  ******************************************************************************/
-__STATIC_INLINE uint16_t QSPI_GetReadLevel(QSPI_TypeDef * qspi)
+__STATIC_INLINE uint16_t QSPI_GetReadLevel(QSPI_TypeDef *qspi)
 {
-  return (qspi->SRAMFILL & _QSPI_SRAMFILL_SRAMFILLINDACREAD_MASK)
-         >> _QSPI_SRAMFILL_SRAMFILLINDACREAD_SHIFT;
+    return (qspi->SRAMFILL & _QSPI_SRAMFILL_SRAMFILLINDACREAD_MASK)
+           >> _QSPI_SRAMFILL_SRAMFILLINDACREAD_SHIFT;
 }
 
 /***************************************************************************//**
@@ -269,9 +269,9 @@ __STATIC_INLINE uint16_t QSPI_GetReadLevel(QSPI_TypeDef * qspi)
  * @param[in] enable
  *   true to enable quad spi, false to disable quad spi.
  ******************************************************************************/
-__STATIC_INLINE void QSPI_Enable(QSPI_TypeDef * qspi, bool enable)
+__STATIC_INLINE void QSPI_Enable(QSPI_TypeDef *qspi, bool enable)
 {
-  BUS_RegBitWrite(&qspi->CONFIG, _QSPI_CONFIG_ENBSPI_SHIFT, enable ? 1 : 0);
+    BUS_RegBitWrite(&qspi->CONFIG, _QSPI_CONFIG_ENBSPI_SHIFT, enable ? 1 : 0);
 }
 
 /***************************************************************************//**
@@ -284,9 +284,9 @@ __STATIC_INLINE void QSPI_Enable(QSPI_TypeDef * qspi, bool enable)
  * @return
  *   This functions returns the current interrupt flags that are set.
  ******************************************************************************/
-__STATIC_INLINE uint32_t QSPI_IntGet(QSPI_TypeDef * qspi)
+__STATIC_INLINE uint32_t QSPI_IntGet(QSPI_TypeDef *qspi)
 {
-  return qspi->IRQSTATUS;
+    return qspi->IRQSTATUS;
 }
 
 /***************************************************************************//**
@@ -299,9 +299,9 @@ __STATIC_INLINE uint32_t QSPI_IntGet(QSPI_TypeDef * qspi)
  * @param[in] flags
  *   The interrupt flags to clear.
  ******************************************************************************/
-__STATIC_INLINE void QSPI_IntClear(QSPI_TypeDef * qspi, uint32_t flags)
+__STATIC_INLINE void QSPI_IntClear(QSPI_TypeDef *qspi, uint32_t flags)
 {
-  qspi->IRQSTATUS = flags;
+    qspi->IRQSTATUS = flags;
 }
 
 /***************************************************************************//**
@@ -314,9 +314,9 @@ __STATIC_INLINE void QSPI_IntClear(QSPI_TypeDef * qspi, uint32_t flags)
  * @param[in] flags
  *   The interrupt flags to enable.
  ******************************************************************************/
-__STATIC_INLINE void QSPI_IntEnable(QSPI_TypeDef * qspi, uint32_t flags)
+__STATIC_INLINE void QSPI_IntEnable(QSPI_TypeDef *qspi, uint32_t flags)
 {
-  qspi->IRQMASK = flags & (~_QSPI_IRQMASK_MASK);
+    qspi->IRQMASK = flags & (~_QSPI_IRQMASK_MASK);
 }
 
 /***************************************************************************//**
@@ -329,9 +329,9 @@ __STATIC_INLINE void QSPI_IntEnable(QSPI_TypeDef * qspi, uint32_t flags)
  * @param[in] flags
  *   The interrupt flags to disable.
  ******************************************************************************/
-__STATIC_INLINE void QSPI_IntDisable(QSPI_TypeDef * qspi, uint32_t flags)
+__STATIC_INLINE void QSPI_IntDisable(QSPI_TypeDef *qspi, uint32_t flags)
 {
-  qspi->IRQMASK = ~flags & (~_QSPI_IRQMASK_MASK);
+    qspi->IRQMASK = ~flags & (~_QSPI_IRQMASK_MASK);
 }
 
 /** @} (end addtogroup QSPI) */

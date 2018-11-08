@@ -25,7 +25,7 @@ extern "C" {
 typedef enum {
     PIN_INPUT,
     PIN_OUTPUT,
-    PIN_INPUT_OUTPUT	//pin state can be set and read back
+    PIN_INPUT_OUTPUT    //pin state can be set and read back
 } PinDirection;
 
 typedef enum {

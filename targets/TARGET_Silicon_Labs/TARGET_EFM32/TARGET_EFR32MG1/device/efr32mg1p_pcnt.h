@@ -38,29 +38,28 @@
  * @{
  * @brief EFR32MG1P_PCNT Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;         /**< Control Register  */
-  __IOM uint32_t CMD;          /**< Command Register  */
-  __IM uint32_t  STATUS;       /**< Status Register  */
-  __IM uint32_t  CNT;          /**< Counter Value Register  */
-  __IM uint32_t  TOP;          /**< Top Value Register  */
-  __IOM uint32_t TOPB;         /**< Top Value Buffer Register  */
-  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
-  uint32_t       RESERVED0[1]; /**< Reserved for future use **/
-  __IOM uint32_t ROUTELOC0;    /**< I/O Routing Location Register  */
+typedef struct {
+    __IOM uint32_t CTRL;         /**< Control Register  */
+    __IOM uint32_t CMD;          /**< Command Register  */
+    __IM uint32_t  STATUS;       /**< Status Register  */
+    __IM uint32_t  CNT;          /**< Counter Value Register  */
+    __IM uint32_t  TOP;          /**< Top Value Register  */
+    __IOM uint32_t TOPB;         /**< Top Value Buffer Register  */
+    __IM uint32_t  IF;           /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
+    uint32_t       RESERVED0[1]; /**< Reserved for future use **/
+    __IOM uint32_t ROUTELOC0;    /**< I/O Routing Location Register  */
 
-  uint32_t       RESERVED1[4]; /**< Reserved for future use **/
-  __IOM uint32_t FREEZE;       /**< Freeze Register  */
-  __IM uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
+    uint32_t       RESERVED1[4]; /**< Reserved for future use **/
+    __IOM uint32_t FREEZE;       /**< Freeze Register  */
+    __IM uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
 
-  uint32_t       RESERVED2[7]; /**< Reserved for future use **/
-  __IM uint32_t  AUXCNT;       /**< Auxiliary Counter Value Register  */
-  __IOM uint32_t INPUT;        /**< PCNT Input Register  */
-  __IOM uint32_t OVSCFG;       /**< Oversampling Config Register  */
+    uint32_t       RESERVED2[7]; /**< Reserved for future use **/
+    __IM uint32_t  AUXCNT;       /**< Auxiliary Counter Value Register  */
+    __IOM uint32_t INPUT;        /**< PCNT Input Register  */
+    __IOM uint32_t OVSCFG;       /**< Oversampling Config Register  */
 } PCNT_TypeDef;                /** @} */
 
 /**************************************************************************//**

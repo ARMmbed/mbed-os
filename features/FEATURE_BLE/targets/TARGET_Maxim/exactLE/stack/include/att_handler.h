@@ -35,7 +35,7 @@ extern "C" {
 /*************************************************************************************************/
 /*!
  *  \fn     AttHandlerInit
- *        
+ *
  *  \brief  ATT handler init function called during system initialization.
  *
  *  \param  handlerID  WSF handler ID for ATT.
@@ -49,7 +49,7 @@ void AttHandlerInit(wsfHandlerId_t handlerId);
 /*************************************************************************************************/
 /*!
  *  \fn     AttHandler
- *        
+ *
  *  \brief  WSF event handler for ATT.
  *
  *  \param  event   WSF event mask.

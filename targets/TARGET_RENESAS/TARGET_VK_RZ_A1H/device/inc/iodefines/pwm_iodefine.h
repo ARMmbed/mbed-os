@@ -31,54 +31,52 @@
 /* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-union reg16_8_t
-{
+union reg16_8_t {
     volatile uint16_t  UINT16;                                  /*  16-bit Access   */
     volatile uint8_t   UINT8[2];                                /*  8-bit Access    */
 };
 
-struct st_pwm
-{                                                          /* PWM              */
+struct st_pwm {
+    /* PWM              */
     volatile uint8_t   dummy559[2];                            /*                  */
     union reg16_8_t  PWBTCR;                          /*  PWBTCR      */
-    
+
     volatile uint8_t   dummy560[216];                          /*                  */
-    
-/* start of struct st_pwm_common */
+
+    /* start of struct st_pwm_common */
     union reg16_8_t  PWCR_1;                          /*  PWCR_1      */
-    
+
     volatile uint8_t   dummy561[2];                            /*                  */
     union reg16_8_t  PWPR_1;                          /*  PWPR_1      */
-    
+
     volatile uint16_t PWCYR_1;                                /*  PWCYR_1         */
     volatile uint16_t PWBFR_1A;                               /*  PWBFR_1A        */
     volatile uint16_t PWBFR_1C;                               /*  PWBFR_1C        */
     volatile uint16_t PWBFR_1E;                               /*  PWBFR_1E        */
     volatile uint16_t PWBFR_1G;                               /*  PWBFR_1G        */
-/* end of struct st_pwm_common */
-    
-/* start of struct st_pwm_common */
+    /* end of struct st_pwm_common */
+
+    /* start of struct st_pwm_common */
     union reg16_8_t  PWCR_2;                          /*  PWCR_2      */
-    
+
     volatile uint8_t   dummy562[2];                            /*                  */
     union reg16_8_t  PWPR_2;                          /*  PWPR_2      */
-    
+
     volatile uint16_t PWCYR_2;                                /*  PWCYR_2         */
     volatile uint16_t PWBFR_2A;                               /*  PWBFR_2A        */
     volatile uint16_t PWBFR_2C;                               /*  PWBFR_2C        */
     volatile uint16_t PWBFR_2E;                               /*  PWBFR_2E        */
     volatile uint16_t PWBFR_2G;                               /*  PWBFR_2G        */
-/* end of struct st_pwm_common */
+    /* end of struct st_pwm_common */
 };
 
 
-struct st_pwm_common
-{
+struct st_pwm_common {
     union reg16_8_t  PWCR_1;                          /*  PWCR_1      */
-    
+
     volatile uint8_t   dummy572[2];                            /*                  */
     union reg16_8_t  PWPR_1;                          /*  PWPR_1      */
-    
+
     volatile uint16_t PWCYR_1;                                /*  PWCYR_1         */
     volatile uint16_t PWBFR_1A;                               /*  PWBFR_1A        */
     volatile uint16_t PWBFR_1C;                               /*  PWBFR_1C        */

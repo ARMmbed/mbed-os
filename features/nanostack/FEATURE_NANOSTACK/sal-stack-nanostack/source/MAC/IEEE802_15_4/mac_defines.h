@@ -92,7 +92,7 @@ typedef enum arm_nwk_mlme_event_type {
 typedef struct dev_driver_tx_buffer {
     uint8_t *buf;
     uint16_t len;
-    unsigned priority:2;
+    unsigned priority: 2;
 } dev_driver_tx_buffer_s;
 
 /*
@@ -145,34 +145,34 @@ typedef struct protocol_interface_rf_mac_setup {
     uint16_t coord_short_address;
     uint8_t coord_long_address[8];
     /* MAC Capability Information */
-    bool macCapRxOnIdle:1;
-    bool macCapCordinator:1;
-    bool macCapAssocationPermit:1;
-    bool macCapBatteryPowered:1;
-    bool macCapSecrutityCapability:1;
+    bool macCapRxOnIdle: 1;
+    bool macCapCordinator: 1;
+    bool macCapAssocationPermit: 1;
+    bool macCapBatteryPowered: 1;
+    bool macCapSecrutityCapability: 1;
 
-    bool macProminousMode:1;
-    bool macGTSPermit:1;
-    bool mac_security_enabled:1;
+    bool macProminousMode: 1;
+    bool macGTSPermit: 1;
+    bool mac_security_enabled: 1;
     /* Load balancing need this feature */
-    bool macAcceptAnyBeacon:1;
+    bool macAcceptAnyBeacon: 1;
 
     /* TX process Flag */
-    bool macTxProcessActive:1;
-    bool macTxRequestAck:1;
+    bool macTxProcessActive: 1;
+    bool macTxRequestAck: 1;
     /* Data Poll state's */
-    bool macDataPollReq:1;
-    bool macWaitingData:1;
-    bool macRxDataAtPoll:1;
+    bool macDataPollReq: 1;
+    bool macWaitingData: 1;
+    bool macRxDataAtPoll: 1;
     /* Radio State flags */
-    bool macRfRadioOn:1;
-    bool macRfRadioTxActive:1;
-    bool macBroadcastDisabled:1;
-    bool scan_active:1;
+    bool macRfRadioOn: 1;
+    bool macRfRadioTxActive: 1;
+    bool macBroadcastDisabled: 1;
+    bool scan_active: 1;
     /* CSMA Params */
-    unsigned macMinBE:4;
-    unsigned macMaxBE:4;
-    unsigned macCurrentBE:4;
+    unsigned macMinBE: 4;
+    unsigned macMaxBE: 4;
+    unsigned macCurrentBE: 4;
     uint8_t macMaxCSMABackoffs;
     uint8_t backoff_period_in_10us; // max 2550us - it's 320us for standard 250kbps
     /* MAC channel parameters */
@@ -240,7 +240,7 @@ typedef struct protocol_interface_rf_mac_setup {
     //Device driver and buffer
     struct arm_device_driver_list *dev_driver;
     dev_driver_tx_buffer_s dev_driver_tx_buffer;
-    struct arm_device_driver_list * tun_extension_rf_driver;
+    struct arm_device_driver_list *tun_extension_rf_driver;
     /* End of API Control */
     struct mlme_scan_conf_s *mac_mlme_scan_resp;
     //beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr;

@@ -1,12 +1,12 @@
 /**********************************************************************
-* $Id$		lpc_phy.h			2011-11-20
+* $Id$      lpc_phy.h           2011-11-20
 *//**
-* @file		lpc_phy.h
-* @brief	Common PHY definitions used with all PHYs
-* @version	1.0
-* @date		20 Nov. 2011
-* @author	NXP MCU SW Application Team
-* 
+* @file     lpc_phy.h
+* @brief    Common PHY definitions used with all PHYs
+* @version  1.0
+* @date     20 Nov. 2011
+* @author   NXP MCU SW Application Team
+*
 * Copyright(C) 2011, NXP Semiconductor
 * All rights reserved.
 *
@@ -119,7 +119,7 @@ err_t lpc_mii_read(u32_t PhyReg, u32_t *data);
  *
  *  This function will read a value on the MII link interface from a PHY
  *  or a connected device. The function will block until complete.
- * 
+ *
  *  \param[in]      PhyReg  PHY register to read from
  *  \param[in]      data    Pointer to where to save data read via MII
  *  \returns         0 if the read was successful, otherwise !0

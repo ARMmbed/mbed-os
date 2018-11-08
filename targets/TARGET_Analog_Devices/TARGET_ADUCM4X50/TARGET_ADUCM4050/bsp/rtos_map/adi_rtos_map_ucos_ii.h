@@ -4,7 +4,7 @@
  @brief:   uCOS-III RTOS API mapping file.
 
            This file maps the RTOS macros to uCOS-II APIs
-           
+
  -----------------------------------------------------------------------------
 Copyright (c) 2016 Analog Devices, Inc.
 
@@ -55,13 +55,13 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include <stddef.h>
 
-/*! Macro that declares the semaphore type that the drivers use. 
+/*! Macro that declares the semaphore type that the drivers use.
     The macro should be used within the device data structure.
     It should not be used to declare the semaphore as a global variable. */
 #define SEM_VAR_DECLR                                                                    \
-                            OS_EVENT  *hSemaphore;                      
+                            OS_EVENT  *hSemaphore;
 
-/*! Memory size required for semaphore in terms bytes. This size is used to compute 
+/*! Memory size required for semaphore in terms bytes. This size is used to compute
     the total memory required for the operation of the driver. In case of uCOS-II
     there is no requirement to provide the memory to create the semaphore, but
     memory is required to store the handle */
@@ -97,11 +97,11 @@ POSSIBILITY OF SUCH DAMAGE.
           OSSemPost((DEV)->hSemaphore );                                                 \
         } while (0)
 
-/*! Defines a local variable where interrupt status register value is stored. 
+/*! Defines a local variable where interrupt status register value is stored.
     This macro should be used within a function in which critical section
-    macros ADI_ENTER_CRITICAL_REGION and ADI_EXIT_CRITICAL_REGION are 
-    used. 
-    
+    macros ADI_ENTER_CRITICAL_REGION and ADI_EXIT_CRITICAL_REGION are
+    used.
+
     @sa ADI_ENTER_CRITICAL_REGION()
     @sa ADI_EXIT_CRITICAL_REGION()
     */
@@ -109,21 +109,21 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /*! Macro to enter critical section. To use this macro, the
     interrupt status variable should be defined (ADI_INT_STATUS_ALLOC)
-    in the same scope. 
-    
+    in the same scope.
+
     @sa ADI_INT_STATUS_ALLOC()
-*/ 
+*/
 #define ADI_ENTER_CRITICAL_REGION()  CPU_CRITICAL_ENTER()
 
 /*! Macro to exit critical section.To use this macro, the
     interrupt status variable should be defined (ADI_INT_STATUS_ALLOC)
-    in the same scope. 
+    in the same scope.
 
-    @sa  ADI_INT_STATUS_ALLOC()   
-*/  
+    @sa  ADI_INT_STATUS_ALLOC()
+*/
 #define ADI_EXIT_CRITICAL_REGION() CPU_CRITICAL_EXIT()
 
-/*! Code that uCOS requires to be run in the beginning of an interrupt handler. 
+/*! Code that uCOS requires to be run in the beginning of an interrupt handler.
     @sa ISR_EPILOG()
 */
 #define ISR_PROLOG()                                                                     \
@@ -134,11 +134,11 @@ POSSIBILITY OF SUCH DAMAGE.
                            CPU_CRITICAL_EXIT();                                          \
                        } while (0);
 
-/*! Code that uCOS requires to be run in the end of an interrupt handler. 
+/*! Code that uCOS requires to be run in the end of an interrupt handler.
     @sa ISR_PROLOG()
 */
-#define ISR_EPILOG() OSIntExit(); 
-     
+#define ISR_EPILOG() OSIntExit();
+
 #endif /* __STDC__ */
 
 #define PENDSV_HANDLER   OS_CPU_PendSVHandler

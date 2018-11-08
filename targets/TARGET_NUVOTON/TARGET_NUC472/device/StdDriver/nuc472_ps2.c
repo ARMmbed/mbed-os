@@ -122,48 +122,55 @@ int32_t PS2_Write(uint32_t *pu32Buf, uint32_t u32ByteCount)
 {
     uint32_t u32TxFIFO_Depth = 16;
     uint32_t u32delayno, txcnt, remainder;
-    uint8_t i=0;
+    uint8_t i = 0;
 
     txcnt = u32ByteCount / u32TxFIFO_Depth;
 
     remainder = u32ByteCount % u32TxFIFO_Depth;
-    if(remainder) txcnt++;
+    if (remainder) {
+        txcnt++;
+    }
 
     u32delayno = 0;
     while (!(PS2->STATUS & PS2_STATUS_TXEMPTY_Msk)) {
         u32delayno++;
-        if (u32delayno >= 0xF0000000)
-            return FALSE; // Time Out
+        if (u32delayno >= 0xF0000000) {
+            return FALSE;    // Time Out
+        }
     }
 
-    if(u32ByteCount >= u32TxFIFO_Depth)//Tx fifo is 16 bytes
+    if (u32ByteCount >= u32TxFIFO_Depth) { //Tx fifo is 16 bytes
         PS2_SET_TX_BYTE_CNT(u32TxFIFO_Depth);
+    }
 
     do {
         u32delayno = 0;
         while (!(PS2->STATUS & PS2_STATUS_TXEMPTY_Msk)) {
             u32delayno++;
-            if(u32delayno >= 0xF0000000)
-                return FALSE; // Time Out
+            if (u32delayno >= 0xF0000000) {
+                return FALSE;    // Time Out
+            }
         }
 
-        if((txcnt == 1) && (remainder != 0))
+        if ((txcnt == 1) && (remainder != 0)) {
             PS2_SET_TX_BYTE_CNT(u32ByteCount);
+        }
 
         PS2->TXDAT0 = pu32Buf[i];
-        PS2->TXDAT1 = pu32Buf[i+1];
-        PS2->TXDAT2 = pu32Buf[i+2];
-        PS2->TXDAT3 = pu32Buf[i+3];
+        PS2->TXDAT1 = pu32Buf[i + 1];
+        PS2->TXDAT2 = pu32Buf[i + 2];
+        PS2->TXDAT3 = pu32Buf[i + 3];
 
         i = i + 4;
 
-    } while(--txcnt);
+    } while (--txcnt);
 
     u32delayno = 0;
-    while(!(PS2->STATUS & PS2_STATUS_TXEMPTY_Msk)) {
+    while (!(PS2->STATUS & PS2_STATUS_TXEMPTY_Msk)) {
         u32delayno++;
-        if(u32delayno >= 0xF0000000)
-            return FALSE; // Time Out
+        if (u32delayno >= 0xF0000000) {
+            return FALSE;    // Time Out
+        }
     }
 
     return TRUE;

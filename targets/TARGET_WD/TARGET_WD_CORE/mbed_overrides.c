@@ -43,28 +43,29 @@ void mbed_sdk_init()
 }
 
 
-void mbed_die(void) {
-	
-	core_util_critical_section_enter();
-	
-	#if (DEVICE_ERROR_RED == 1)
+void mbed_die(void)
+{
 
-	gpio_t led_red; 
-	gpio_init_out(&led_red, LED_RED);
-	
-	for (int i=0; i<3; i++) {
-		gpio_write(&led_red, 1);
-		wait_ms(1000);
+    core_util_critical_section_enter();
 
-		gpio_write(&led_red, 0);
-		wait_ms(1000);
-	}
+#if (DEVICE_ERROR_RED == 1)
 
-	#endif
-	
-	resettrace_set_error_code(MBED_DIE);
-	NVIC_SystemReset();
-	
+    gpio_t led_red;
+    gpio_init_out(&led_red, LED_RED);
+
+    for (int i = 0; i < 3; i++) {
+        gpio_write(&led_red, 1);
+        wait_ms(1000);
+
+        gpio_write(&led_red, 0);
+        wait_ms(1000);
+    }
+
+#endif
+
+    resettrace_set_error_code(MBED_DIE);
+    NVIC_SystemReset();
+
 }
 
 /**

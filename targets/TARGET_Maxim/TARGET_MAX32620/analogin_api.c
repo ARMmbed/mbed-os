@@ -99,7 +99,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 float analogin_read(analogin_t *obj)
 {
     // Convert integer to float
-    return (((float)analogin_read_u16(obj)/(float)ADC_FULL_SCALE));
+    return (((float)analogin_read_u16(obj) / (float)ADC_FULL_SCALE));
 }
 
 //******************************************************************************

@@ -63,20 +63,13 @@ static const clock_ip_name_t s_flexcommClocks[] = FLEXCOMM_CLOCKS;
 /* check whether flexcomm supports peripheral type */
 static bool FLEXCOMM_PeripheralIsPresent(FLEXCOMM_Type *base, FLEXCOMM_PERIPH_T periph)
 {
-    if (periph == FLEXCOMM_PERIPH_NONE)
-    {
+    if (periph == FLEXCOMM_PERIPH_NONE) {
         return true;
-    }
-    else if ((periph >= FLEXCOMM_PERIPH_USART) && (periph <= FLEXCOMM_PERIPH_I2S_TX))
-    {
+    } else if ((periph >= FLEXCOMM_PERIPH_USART) && (periph <= FLEXCOMM_PERIPH_I2S_TX)) {
         return (base->PSELID & (uint32_t)(1 << ((uint32_t)periph + 3))) > 0 ? true : false;
-    }
-    else if (periph == FLEXCOMM_PERIPH_I2S_RX)
-    {
+    } else if (periph == FLEXCOMM_PERIPH_I2S_RX) {
         return (base->PSELID & (1 << 7)) > 0 ? true : false;
-    }
-    else
-    {
+    } else {
         return false;
     }
 }
@@ -86,10 +79,8 @@ uint32_t FLEXCOMM_GetInstance(void *base)
 {
     int i;
 
-    for (i = 0; i < FSL_FEATURE_SOC_FLEXCOMM_COUNT; i++)
-    {
-        if ((uint32_t)base == s_flexcommBaseAddrs[i])
-        {
+    for (i = 0; i < FSL_FEATURE_SOC_FLEXCOMM_COUNT; i++) {
+        if ((uint32_t)base == s_flexcommBaseAddrs[i]) {
             return i;
         }
     }
@@ -102,24 +93,19 @@ uint32_t FLEXCOMM_GetInstance(void *base)
 status_t FLEXCOMM_SetPeriph(FLEXCOMM_Type *base, FLEXCOMM_PERIPH_T periph, int lock)
 {
     /* Check whether peripheral type is present */
-    if (!FLEXCOMM_PeripheralIsPresent(base, periph))
-    {
+    if (!FLEXCOMM_PeripheralIsPresent(base, periph)) {
         return kStatus_OutOfRange;
     }
 
     /* Flexcomm is locked to different peripheral type than expected  */
-    if ((base->PSELID & FLEXCOMM_PSELID_LOCK_MASK) && ((base->PSELID & FLEXCOMM_PSELID_PERSEL_MASK) != periph))
-    {
+    if ((base->PSELID & FLEXCOMM_PSELID_LOCK_MASK) && ((base->PSELID & FLEXCOMM_PSELID_PERSEL_MASK) != periph)) {
         return kStatus_Fail;
     }
 
     /* Check if we are asked to lock */
-    if (lock)
-    {
+    if (lock) {
         base->PSELID = (uint32_t)periph | FLEXCOMM_PSELID_LOCK_MASK;
-    }
-    else
-    {
+    } else {
         base->PSELID = (uint32_t)periph;
     }
 
@@ -130,8 +116,7 @@ status_t FLEXCOMM_Init(void *base, FLEXCOMM_PERIPH_T periph)
 {
     int idx = FLEXCOMM_GetInstance(base);
 
-    if (idx < 0)
-    {
+    if (idx < 0) {
         return kStatus_InvalidArgument;
     }
 

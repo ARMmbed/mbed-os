@@ -65,10 +65,10 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->pin = pin;
     obj->pinFlag = 1;
     obj->ADC_Offset_Value = TRIMREG->ADC_OFFSET_TRIM;
-    
+
     switch (pin) {
         case A0:
-            adc_pin=0;
+            adc_pin = 0;
             break;
         case A1:
             adc_pin = 1;
@@ -104,7 +104,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         obj->adcConf->convCh = adc_pin;
 
         /* ADC register settings */
-        if((obj->adcConf->measurementType) == ADC_RELATIVE_MEAS) {
+        if ((obj->adcConf->measurementType) == ADC_RELATIVE_MEAS) {
             obj->adcReg->CONTROL.WORD = ((obj->adcConf->mode << ADC_CONTROL_MODE_BIT_POS) |
                                          (obj->adcConf->measurementType << ADC_CONTROL_MEASTYPE_BIT_POS) |
                                          (obj->adcConf->inputScale << ADC_CONTROL_INPUTSCALE_BIT_POS) |
@@ -142,7 +142,7 @@ float analogin_read(analogin_t *obj)
     float retVal = 0.0;
     uint16_t value = analogin_read_u16(obj);
     retVal = (float)value * (1.0f / (float)0x03FF);
-    return(retVal);
+    return (retVal);
 }
 
 /** Read the value from analogin pin, represented as an unsigned 16bit value
@@ -160,7 +160,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     if (obj->pinFlag) {
         switch (obj->pin) {
             case A0:
-                adc_pin=0;
+                adc_pin = 0;
                 break;
             case A1:
                 adc_pin = 1;
@@ -179,21 +179,21 @@ uint16_t analogin_read_u16(analogin_t *obj)
         obj->adcReg->CONTROL.BITS.CONV_CH = adc_pin;
     }
 
-    obj->adcReg->CONTROL.BITS.START_CONV=1;    /* Start The Conversion */
+    obj->adcReg->CONTROL.BITS.START_CONV = 1;  /* Start The Conversion */
 
-    while((uint32_t)(obj->adcReg->STATUS)!=(uint32_t)1) {
+    while ((uint32_t)(obj->adcReg->STATUS) != (uint32_t)1) {
     }
-    adcData =(uint16_t)(obj->adcReg->DATA);
-    
+    adcData = (uint16_t)(obj->adcReg->DATA);
+
     /* Offset the ADC data with trim value */
     if (obj->ADC_Offset_Value != 0xFFFFFFFF) {
-      
-        if(adcData >= obj->ADC_Offset_Value) {
+
+        if (adcData >= obj->ADC_Offset_Value) {
             adcData -= obj->ADC_Offset_Value;
         }
     }
 
-    return(adcData);
+    return (adcData);
 }
 
 #endif // DEVICE_ANALOGIN

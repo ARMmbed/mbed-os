@@ -90,8 +90,7 @@ extern "C"
 /**
   * @details    RTC define Time Data Struct
   */
-typedef struct
-{
+typedef struct {
     uint32_t u32Year;           /*!< Year value */
     uint32_t u32Month;          /*!< Month value */
     uint32_t u32Day;            /*!< Day value */
@@ -230,11 +229,11 @@ typedef struct
 static __INLINE void RTC_WaitAccessEnable(void)
 {
     /* To wait RWENF bit is cleared and enable RWENF bit (Access Enable bit) again */
-    while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == RTC_RWEN_RWENF_Msk);
+    while ((RTC->RWEN & RTC_RWEN_RWENF_Msk) == RTC_RWEN_RWENF_Msk);
     RTC->RWEN = RTC_WRITE_KEY;
 
     /* To wait RWENF bit is set and user can access the protected-register of RTC from now on */
-    while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == 0x0);
+    while ((RTC->RWEN & RTC_RWEN_RWENF_Msk) == 0x0);
 }
 
 void RTC_Open(S_RTC_TIME_DATA_T *sPt);

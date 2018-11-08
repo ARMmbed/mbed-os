@@ -16,7 +16,7 @@
  */
 
 #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-    #error [NOT_SUPPORTED] No network configuration found for this target.
+#error [NOT_SUPPORTED] No network configuration found for this target.
 #endif
 
 #include "mbed.h"
@@ -33,19 +33,21 @@ using namespace utest::v1;
 #endif
 
 namespace {
-    char tx_buffer[MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
-    char rx_buffer[MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
+char tx_buffer[MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
+char rx_buffer[MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
 }
 
-void prep_buffer(char *tx_buffer, size_t tx_size) {
-    for (size_t i=0; i<tx_size; ++i) {
+void prep_buffer(char *tx_buffer, size_t tx_size)
+{
+    for (size_t i = 0; i < tx_size; ++i) {
         tx_buffer[i] = (rand() % 10) + '0';
     }
 }
 
-void test_tcp_echo() {
+void test_tcp_echo()
+{
 
-    NetworkInterface* net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+    NetworkInterface *net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
 
     if (err) {
@@ -114,7 +116,8 @@ void test_tcp_echo() {
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(240, "tcp_echo");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -125,6 +128,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

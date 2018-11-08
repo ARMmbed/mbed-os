@@ -350,7 +350,7 @@ int LP_EnterLP1(void)
 
     /* Performance-measurement hook, may be defined as nothing */
     LP1_PRE_HOOK;
-    
+
     /* Freeze GPIO using MBUS so that it doesn't change while digital core is alseep */
     MXC_PWRSEQ->reg1 |= MXC_F_PWRSEQ_REG1_PWR_MBUS_GATE;
 
@@ -364,7 +364,7 @@ int LP_EnterLP1(void)
 
     /* Performance-measurement hook, may be defined as nothing */
     LP1_POST_HOOK;
-    
+
     /* Unfreeze the GPIO by clearing MBUS_GATE (always safe to do) */
     MXC_PWRSEQ->reg1 &= ~(MXC_F_PWRSEQ_REG1_PWR_MBUS_GATE);
 
@@ -400,7 +400,7 @@ void LP_EnterLP0(void)
 
     /* Performance-measurement hook, may be defined as nothing */
     LP0_PRE_HOOK;
-    
+
     /* Freeze GPIO using MBUS so that it doesn't change while digital core is alseep */
     MXC_PWRSEQ->reg1 |= MXC_F_PWRSEQ_REG1_PWR_MBUS_GATE;
 

@@ -40,7 +40,7 @@
 #define __STM32F7xx_HAL_SAI_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 
@@ -63,14 +63,13 @@
 /**
   * @brief  HAL State structures definition
   */
-typedef enum
-{
-  HAL_SAI_STATE_RESET    = 0x00U,  /*!< SAI not yet initialized or disabled                */
-  HAL_SAI_STATE_READY    = 0x01U,  /*!< SAI initialized and ready for use                  */
-  HAL_SAI_STATE_BUSY     = 0x02U,  /*!< SAI internal process is ongoing                    */
-  HAL_SAI_STATE_BUSY_TX  = 0x12U,  /*!< Data transmission process is ongoing               */
-  HAL_SAI_STATE_BUSY_RX  = 0x22U,  /*!< Data reception process is ongoing                  */
-}HAL_SAI_StateTypeDef;
+typedef enum {
+    HAL_SAI_STATE_RESET    = 0x00U,  /*!< SAI not yet initialized or disabled                */
+    HAL_SAI_STATE_READY    = 0x01U,  /*!< SAI initialized and ready for use                  */
+    HAL_SAI_STATE_BUSY     = 0x02U,  /*!< SAI internal process is ongoing                    */
+    HAL_SAI_STATE_BUSY_TX  = 0x12U,  /*!< Data transmission process is ongoing               */
+    HAL_SAI_STATE_BUSY_RX  = 0x22U,  /*!< Data reception process is ongoing                  */
+} HAL_SAI_StateTypeDef;
 
 /**
   * @brief  SAI Callback prototype
@@ -81,26 +80,25 @@ typedef void (*SAIcallback)(void);
   * @brief  SAI Init Structure definition
   * @{
   */
-typedef struct
-{
-  uint32_t AudioMode;           /*!< Specifies the SAI Block audio Mode.
+typedef struct {
+    uint32_t AudioMode;           /*!< Specifies the SAI Block audio Mode.
                                      This parameter can be a value of @ref SAI_Block_Mode */
 
-  uint32_t Synchro;             /*!< Specifies SAI Block synchronization
+    uint32_t Synchro;             /*!< Specifies SAI Block synchronization
                                      This parameter can be a value of @ref SAI_Block_Synchronization */
 
-  uint32_t SynchroExt;          /*!< Specifies SAI external output synchronization, this setup is common
+    uint32_t SynchroExt;          /*!< Specifies SAI external output synchronization, this setup is common
                                      for BlockA and BlockB
                                      This parameter can be a value of @ref SAI_Block_SyncExt
                                      @note: If both audio blocks of same SAI are used, this parameter has
                                             to be set to the same value for each audio block */
 
-  uint32_t OutputDrive;         /*!< Specifies when SAI Block outputs are driven.
+    uint32_t OutputDrive;         /*!< Specifies when SAI Block outputs are driven.
                                      This parameter can be a value of @ref SAI_Block_Output_Drive
                                      @note this value has to be set before enabling the audio block
                                      but after the audio block configuration. */
 
-  uint32_t NoDivider;           /*!< Specifies whether master clock will be divided or not.
+    uint32_t NoDivider;           /*!< Specifies whether master clock will be divided or not.
                                      This parameter can be a value of @ref SAI_Block_NoDivider
                                      @note: If bit NODIV in the SAI_xCR1 register is cleared, the frame length
                                             should be aligned to a number equal to a power of 2, from 8 to 256.
@@ -109,40 +107,40 @@ typedef struct
                                             the audio block should be equal to the bit clock.
                                             There is no MCLK_x clock which can be output. */
 
-  uint32_t FIFOThreshold;       /*!< Specifies SAI Block FIFO threshold.
+    uint32_t FIFOThreshold;       /*!< Specifies SAI Block FIFO threshold.
                                      This parameter can be a value of @ref SAI_Block_Fifo_Threshold */
 
-  uint32_t AudioFrequency;      /*!< Specifies the audio frequency sampling.
+    uint32_t AudioFrequency;      /*!< Specifies the audio frequency sampling.
                                      This parameter can be a value of @ref SAI_Audio_Frequency */
 
-  uint32_t Mckdiv;              /*!< Specifies the master clock divider, the parameter will be used if for
+    uint32_t Mckdiv;              /*!< Specifies the master clock divider, the parameter will be used if for
                                      AudioFrequency the user choice
                                      This parameter must be a number between Min_Data = 0 and Max_Data = 15 */
 
-  uint32_t MonoStereoMode;      /*!< Specifies if the mono or stereo mode is selected.
+    uint32_t MonoStereoMode;      /*!< Specifies if the mono or stereo mode is selected.
                                      This parameter can be a value of @ref SAI_Mono_Stereo_Mode */
 
-  uint32_t CompandingMode;      /*!< Specifies the companding mode type.
+    uint32_t CompandingMode;      /*!< Specifies the companding mode type.
                                      This parameter can be a value of @ref SAI_Block_Companding_Mode */
 
-  uint32_t TriState;            /*!< Specifies the companding mode type.
+    uint32_t TriState;            /*!< Specifies the companding mode type.
                                      This parameter can be a value of @ref SAI_TRIState_Management */
 
-  /* This part of the structure is automatically filled if your are using the high level initialisation
-     function HAL_SAI_InitProtocol */
+    /* This part of the structure is automatically filled if your are using the high level initialisation
+       function HAL_SAI_InitProtocol */
 
-  uint32_t Protocol;        /*!< Specifies the SAI Block protocol.
+    uint32_t Protocol;        /*!< Specifies the SAI Block protocol.
                                  This parameter can be a value of @ref SAI_Block_Protocol */
 
-  uint32_t DataSize;        /*!< Specifies the SAI Block data size.
+    uint32_t DataSize;        /*!< Specifies the SAI Block data size.
                                  This parameter can be a value of @ref SAI_Block_Data_Size */
 
-  uint32_t FirstBit;        /*!< Specifies whether data transfers start from MSB or LSB bit.
+    uint32_t FirstBit;        /*!< Specifies whether data transfers start from MSB or LSB bit.
                                  This parameter can be a value of @ref SAI_Block_MSB_LSB_transmission */
 
-  uint32_t ClockStrobing;   /*!< Specifies the SAI Block clock strobing edge sensitivity.
+    uint32_t ClockStrobing;   /*!< Specifies the SAI Block clock strobing edge sensitivity.
                                  This parameter can be a value of @ref SAI_Block_Clock_Strobing */
-}SAI_InitTypeDef;
+} SAI_InitTypeDef;
 /**
   * @}
   */
@@ -151,30 +149,29 @@ typedef struct
   * @brief  SAI Frame Init structure definition
   * @{
   */
-typedef struct
-{
+typedef struct {
 
-  uint32_t FrameLength;        /*!< Specifies the Frame length, the number of SCK clocks for each audio frame.
+    uint32_t FrameLength;        /*!< Specifies the Frame length, the number of SCK clocks for each audio frame.
                                     This parameter must be a number between Min_Data = 8 and Max_Data = 256.
                                     @note: If master clock MCLK_x pin is declared as an output, the frame length
                                            should be aligned to a number equal to power of 2 in order to keep
                                            in an audio frame, an integer number of MCLK pulses by bit Clock. */
 
-  uint32_t ActiveFrameLength;  /*!< Specifies the Frame synchronization active level length.
+    uint32_t ActiveFrameLength;  /*!< Specifies the Frame synchronization active level length.
                                     This Parameter specifies the length in number of bit clock (SCK + 1)
                                     of the active level of FS signal in audio frame.
                                     This parameter must be a number between Min_Data = 1 and Max_Data = 128 */
 
-  uint32_t FSDefinition;       /*!< Specifies the Frame synchronization definition.
+    uint32_t FSDefinition;       /*!< Specifies the Frame synchronization definition.
                                     This parameter can be a value of @ref SAI_Block_FS_Definition */
 
-  uint32_t FSPolarity;         /*!< Specifies the Frame synchronization Polarity.
+    uint32_t FSPolarity;         /*!< Specifies the Frame synchronization Polarity.
                                     This parameter can be a value of @ref SAI_Block_FS_Polarity */
 
-  uint32_t FSOffset;           /*!< Specifies the Frame synchronization Offset.
+    uint32_t FSOffset;           /*!< Specifies the Frame synchronization Offset.
                                     This parameter can be a value of @ref SAI_Block_FS_Offset */
 
-}SAI_FrameInitTypeDef;
+} SAI_FrameInitTypeDef;
 /**
   * @}
   */
@@ -183,20 +180,19 @@ typedef struct
   * @brief   SAI Block Slot Init Structure definition
   * @{
   */
-typedef struct
-{
-  uint32_t FirstBitOffset;  /*!< Specifies the position of first data transfer bit in the slot.
+typedef struct {
+    uint32_t FirstBitOffset;  /*!< Specifies the position of first data transfer bit in the slot.
                                  This parameter must be a number between Min_Data = 0 and Max_Data = 24 */
 
-  uint32_t SlotSize;        /*!< Specifies the Slot Size.
+    uint32_t SlotSize;        /*!< Specifies the Slot Size.
                                  This parameter can be a value of @ref SAI_Block_Slot_Size */
 
-  uint32_t SlotNumber;      /*!< Specifies the number of slot in the audio frame.
+    uint32_t SlotNumber;      /*!< Specifies the number of slot in the audio frame.
                                  This parameter must be a number between Min_Data = 1 and Max_Data = 16 */
 
-  uint32_t SlotActive;      /*!< Specifies the slots in audio frame that will be activated.
+    uint32_t SlotActive;      /*!< Specifies the slots in audio frame that will be activated.
                                  This parameter can be a value of @ref SAI_Block_Slot_Active */
-}SAI_SlotInitTypeDef;
+} SAI_SlotInitTypeDef;
 /**
   * @}
   */
@@ -205,36 +201,35 @@ typedef struct
   * @brief  SAI handle Structure definition
   * @{
   */
-typedef struct __SAI_HandleTypeDef
-{
-  SAI_Block_TypeDef         *Instance;    /*!< SAI Blockx registers base address */
+typedef struct __SAI_HandleTypeDef {
+    SAI_Block_TypeDef         *Instance;    /*!< SAI Blockx registers base address */
 
-  SAI_InitTypeDef           Init;         /*!< SAI communication parameters */
+    SAI_InitTypeDef           Init;         /*!< SAI communication parameters */
 
-  SAI_FrameInitTypeDef      FrameInit;    /*!< SAI Frame configuration parameters */
+    SAI_FrameInitTypeDef      FrameInit;    /*!< SAI Frame configuration parameters */
 
-  SAI_SlotInitTypeDef       SlotInit;     /*!< SAI Slot configuration parameters */
+    SAI_SlotInitTypeDef       SlotInit;     /*!< SAI Slot configuration parameters */
 
-  uint8_t                  *pBuffPtr;     /*!< Pointer to SAI transfer Buffer */
+    uint8_t                  *pBuffPtr;     /*!< Pointer to SAI transfer Buffer */
 
-  uint16_t                  XferSize;     /*!< SAI transfer size */
+    uint16_t                  XferSize;     /*!< SAI transfer size */
 
-  uint16_t                  XferCount;    /*!< SAI transfer counter */
+    uint16_t                  XferCount;    /*!< SAI transfer counter */
 
-  DMA_HandleTypeDef         *hdmatx;      /*!< SAI Tx DMA handle parameters */
+    DMA_HandleTypeDef         *hdmatx;      /*!< SAI Tx DMA handle parameters */
 
-  DMA_HandleTypeDef         *hdmarx;      /*!< SAI Rx DMA handle parameters */
+    DMA_HandleTypeDef         *hdmarx;      /*!< SAI Rx DMA handle parameters */
 
-  SAIcallback               mutecallback; /*!< SAI mute callback */
+    SAIcallback               mutecallback; /*!< SAI mute callback */
 
-  void (*InterruptServiceRoutine)(struct __SAI_HandleTypeDef *hsai); /* function pointer for IRQ handler */
+    void (*InterruptServiceRoutine)(struct __SAI_HandleTypeDef *hsai); /* function pointer for IRQ handler */
 
-  HAL_LockTypeDef           Lock;         /*!< SAI locking object */
+    HAL_LockTypeDef           Lock;         /*!< SAI locking object */
 
-  __IO HAL_SAI_StateTypeDef State;        /*!< SAI communication state */
+    __IO HAL_SAI_StateTypeDef State;        /*!< SAI communication state */
 
-  __IO uint32_t             ErrorCode;    /*!< SAI Error code */
-}SAI_HandleTypeDef;
+    __IO uint32_t             ErrorCode;    /*!< SAI Error code */
+} SAI_HandleTypeDef;
 /**
   * @}
   */
@@ -396,7 +391,7 @@ typedef struct __SAI_HandleTypeDef
 /**
   * @}
   */
-  
+
 
 /** @defgroup SAI_Block_FS_Definition SAI Block FS Definition
   * @{
@@ -424,11 +419,11 @@ typedef struct __SAI_HandleTypeDef
 /**
   * @}
   */
-  
 
-  /** @defgroup SAI_Block_Slot_Size SAI Block Slot Size
-  * @{
-  */
+
+/** @defgroup SAI_Block_Slot_Size SAI Block Slot Size
+* @{
+*/
 #define SAI_SLOTSIZE_DATASIZE             ((uint32_t)0x00000000U)
 #define SAI_SLOTSIZE_16B                  ((uint32_t)SAI_xSLOTR_SLOTSZ_0)
 #define SAI_SLOTSIZE_32B                  ((uint32_t)SAI_xSLOTR_SLOTSZ_1)
@@ -635,9 +630,9 @@ typedef struct __SAI_HandleTypeDef
 #define __HAL_SAI_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR1 |=  SAI_xCR1_SAIEN)
 #define __HAL_SAI_DISABLE(__HANDLE__) ((__HANDLE__)->Instance->CR1 &=  ~SAI_xCR1_SAIEN)
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 
 /* Exported functions --------------------------------------------------------*/
 
@@ -652,7 +647,7 @@ typedef struct __SAI_HandleTypeDef
   */
 HAL_StatusTypeDef HAL_SAI_InitProtocol(SAI_HandleTypeDef *hsai, uint32_t protocol, uint32_t datasize, uint32_t nbslot);
 HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai);
-HAL_StatusTypeDef HAL_SAI_DeInit (SAI_HandleTypeDef *hsai);
+HAL_StatusTypeDef HAL_SAI_DeInit(SAI_HandleTypeDef *hsai);
 void HAL_SAI_MspInit(SAI_HandleTypeDef *hsai);
 void HAL_SAI_MspDeInit(SAI_HandleTypeDef *hsai);
 

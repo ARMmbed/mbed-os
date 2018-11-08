@@ -47,7 +47,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  @{
  *  @brief DMA Driver
  *  @details This driver is intended to be used only by the device drivers and not by the application.
- *  @note The device drivers must include drivers/dma/adi_dma.h to use this driver     
+ *  @note The device drivers must include drivers/dma/adi_dma.h to use this driver
  */
 
 #ifndef ADI_DMA__H__
@@ -71,8 +71,7 @@ extern "C" {
 /*!
  * Dma Data Increments
  */
-typedef enum
-{
+typedef enum {
     ADI_DMA_INCR_1_BYTE    = 0x00u,     /*!< Byte increment */
     ADI_DMA_INCR_2_BYTE    = 0x01u,     /*!< Half word increment */
     ADI_DMA_INCR_4_BYTE    = 0x02u,     /*!< Word increment */
@@ -87,8 +86,7 @@ typedef enum
 /*!
  *  DMA Callback Events
  */
-typedef enum
-{
+typedef enum {
     ADI_DMA_EVENT_BUFFER_PROCESSED,          /*!< Buffer processed event */
     ADI_DMA_EVENT_ERR_BUS,                   /*!< Bus Error Occurred Event */
     ADI_DMA_EVENT_ERR_INVALID_DESCRIPTOR     /*!< Invalid Descriptor Event */
@@ -98,8 +96,7 @@ typedef enum
 /*!
  * Dma Data Widths
  */
-typedef enum
-{
+typedef enum {
     ADI_DMA_WIDTH_1_BYTE      = 0x0,      /*!<  8-bit */
     ADI_DMA_WIDTH_2_BYTE      = 0x1,      /*!< 16-bit */
     ADI_DMA_WIDTH_4_BYTE      = 0x2       /*!< 32-bit */
@@ -109,8 +106,7 @@ typedef enum
 /*!
  * Dma Rearbitration Intervals (chunk size between bus arbitrations)
  */
-typedef enum
-{
+typedef enum {
     ADI_DMA_RPOWER_1 = 0,                       /*!< Rearbitrate after    1 transfer */
     ADI_DMA_RPOWER_2,                           /*!< Rearbitrate after    2 transfers */
     ADI_DMA_RPOWER_4,                           /*!< Rearbitrate after    4 transfers */
@@ -128,8 +124,7 @@ typedef enum
 /*!
  * Dma Transfer Modes
  */
-typedef enum
-{
+typedef enum {
     ADI_DMA_MODE_BASIC,                         /*!< Basic mode */
     ADI_DMA_MODE_AUTO,                          /*!< Auto request mode */
     ADI_DMA_MODE_PING_PONG,                     /*!< Ping pong mode */
@@ -141,8 +136,7 @@ typedef enum
 /*!
  * Dma Channel Priority Settings (only HIGH or DEFAULT priority supported)
  */
-typedef enum
-{
+typedef enum {
     ADI_DMA_PRIORITY_DEFAULT = 0,                       /*!< Use DEFAULT channel priority */
     ADI_DMA_PRIORITY_HIGH                              /*!< Elevate channel to HIGH priority */
 } ADI_DMA_PRIORITY;
@@ -162,8 +156,7 @@ typedef enum {
  * \enum DMA_CHANn_TypeDef
  * DMA Channel Assignments
  */
-typedef enum
-{
+typedef enum {
     SPI2_TX_CHANn       =  0,  /*!< SPI2 Transmit DMA channel                */
     SPI2_RX_CHANn       =  1,  /*!< SPI2 Receive DMA channel                 */
     SPORT0A_CHANn       =  2,  /*!< SPORT0-A  DMA channel                    */
@@ -189,10 +182,10 @@ typedef enum
     SIP6_CHANn          = 22,  /*!< SIP-6 DMA channel                        */
     SIP7_CHANn          = 23,  /*!< SIP-7 DMA channel                        */
     ADC0_CHANn          = 24,  /*!< ADC0  DMA channel                        */
-#if defined(__ADUCM4x50__)    
+#if defined(__ADUCM4x50__)
     UART1_TX_CHANn      = 25,  /*!< UART1 Transmit DMA channel               */
     UART1_RX_CHANn      = 26,  /*!< UART1 Receive DMA channel                */
-#endif /* __ADUCM4x50__ */    
+#endif /* __ADUCM4x50__ */
     NUM_DMA_CHANNELSn   = 27   /*!< Total Number of DMA channels             */
 } DMA_CHANn_TypeDef;  /** typedef name for fixed DMA channel assignments */
 /*! \endcond */
@@ -201,12 +194,11 @@ typedef enum
  * \struct ADI_DCC_TypeDef
  * DMA Channel Control MMR Access Template
  */
-typedef struct
-{
+typedef struct {
     __IO uint32_t DMASRCEND;      /*!< Source End Pointer                    */
     __IO uint32_t DMADSTEND;      /*!< Destination End Pointer               */
     __IO uint32_t DMACDC;         /*!< Channel Data Configuration            */
-         uint32_t RESERVED;       /*!< Address gap filler                    */
+    uint32_t RESERVED;       /*!< Address gap filler                    */
 } ADI_DCC_TypeDef;
 
 
@@ -249,19 +241,19 @@ typedef struct
 #define DMA_TRANSFER_LIMIT      (1024u) /*!< Maximum number of transfers handled by the DMA in one request */
 
 /* pointer to the primary CCD array */
-extern ADI_DCC_TypeDef* const pPrimaryCCD;
+extern ADI_DCC_TypeDef *const pPrimaryCCD;
 /* pointer to the alternate CCD array */
-extern ADI_DCC_TypeDef* const pAlternateCCD;
+extern ADI_DCC_TypeDef *const pAlternateCCD;
 /*! \endcond  */
 /*==========  DMA API DECLARATIONS  ==========*/
 
 extern void adi_dma_Init(void);
 
-extern ADI_DMA_RESULT adi_dma_RegisterCallback (
+extern ADI_DMA_RESULT adi_dma_RegisterCallback(
     DMA_CHANn_TypeDef   const eChannelID,
     ADI_CALLBACK        const pfCallback,
-    void*               const pCBParam
-    );
+    void               *const pCBParam
+);
 
 #ifdef __cplusplus
 }

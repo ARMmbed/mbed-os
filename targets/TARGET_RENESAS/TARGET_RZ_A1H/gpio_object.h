@@ -32,15 +32,18 @@ typedef struct {
     __IO uint32_t *reg_buf;
 } gpio_t;
 
-static inline void gpio_write(gpio_t *obj, int value) {
+static inline void gpio_write(gpio_t *obj, int value)
+{
     *obj->reg_set = (obj->mask << 16) | ((value != 0) ? obj->mask : 0);
 }
 
-static inline int gpio_read(gpio_t *obj) {
+static inline int gpio_read(gpio_t *obj)
+{
     return ((*obj->reg_in & obj->mask) ? 1 : 0);
 }
 
-static inline int gpio_is_connected(const gpio_t *obj) {
+static inline int gpio_is_connected(const gpio_t *obj)
+{
     return obj->pin != (PinName)NC;
 }
 

@@ -21,7 +21,8 @@ GapScanningParams::GapScanningParams(uint16_t interval, uint16_t window, uint16_
     _interval(MSEC_TO_SCAN_DURATION_UNITS(interval)),
     _window(MSEC_TO_SCAN_DURATION_UNITS(window)),
     _timeout(timeout),
-    _activeScanning(activeScanning) {
+    _activeScanning(activeScanning)
+{
     /* stay within limits */
     if (_interval < SCAN_INTERVAL_MIN) {
         _interval = SCAN_INTERVAL_MIN;

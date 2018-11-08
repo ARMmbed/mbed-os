@@ -53,8 +53,7 @@
 /**
  * @brief Array of IOCON pin definitions passed to IOCON_SetPinMuxing() must be in this format
  */
-typedef struct _iocon_group
-{
+typedef struct _iocon_group {
     uint32_t port : 8;      /* Pin port */
     uint32_t pin : 8;       /* Pin number */
     uint32_t modefunc : 16; /* Function and mode */
@@ -123,8 +122,7 @@ __STATIC_INLINE void IOCON_SetPinMuxing(IOCON_Type *base, const iocon_group_t *p
 {
     uint32_t i;
 
-    for (i = 0; i < arrayLength; i++)
-    {
+    for (i = 0; i < arrayLength; i++) {
         IOCON_PinMuxSet(base, pinArray[i].port, pinArray[i].pin, pinArray[i].modefunc);
     }
 }

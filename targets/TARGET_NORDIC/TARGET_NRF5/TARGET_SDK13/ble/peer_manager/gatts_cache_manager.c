@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #include "sdk_common.h"
@@ -58,12 +58,11 @@
 
 
 // GATTS Cache Manager event handler in Peer Manager.
-extern void gcm_gscm_evt_handler(gscm_evt_t const * p_event);
+extern void gcm_gscm_evt_handler(gscm_evt_t const *p_event);
 
 // GATTS Cache Manager events' handlers.
 // The number of elements in this array is GSCM_EVENT_HANDLERS_CNT.
-static gscm_evt_handler_t m_evt_handler[] =
-{
+static gscm_evt_handler_t m_evt_handler[] = {
     gcm_gscm_evt_handler
 };
 
@@ -80,10 +79,9 @@ static void internal_state_reset()
 }
 
 
-static void evt_send(gscm_evt_t const * p_event)
+static void evt_send(gscm_evt_t const *p_event)
 {
-    for (uint32_t i = 0; i < GSCM_EVENT_HANDLERS_CNT; i++)
-    {
+    for (uint32_t i = 0; i < GSCM_EVENT_HANDLERS_CNT; i++) {
         m_evt_handler[i](p_event);
     }
 }
@@ -104,17 +102,15 @@ static void service_changed_pending_set(void)
     static const uint32_t service_changed_pending = true;
 
     //lint -save -e65 -e64
-    pm_peer_data_const_t peer_data =
-    {
+    pm_peer_data_const_t peer_data = {
         .data_id                   = PM_PEER_DATA_ID_SERVICE_CHANGED_PENDING,
         .length_words              = PM_SC_STATE_N_WORDS(),
-        .p_service_changed_pending = (bool*)&service_changed_pending,
+        .p_service_changed_pending = (bool *) &service_changed_pending,
     };
     //lint -restore
 
     err_code = pdb_raw_store(m_current_sc_store_peer_id, &peer_data, NULL);
-    while ((m_current_sc_store_peer_id != PM_PEER_ID_INVALID) && (err_code != NRF_ERROR_BUSY))
-    {
+    while ((m_current_sc_store_peer_id != PM_PEER_ID_INVALID) && (err_code != NRF_ERROR_BUSY)) {
         m_current_sc_store_peer_id = pdb_next_peer_id_get(m_current_sc_store_peer_id);
         err_code = pdb_raw_store(m_current_sc_store_peer_id, &peer_data, NULL);
     }
@@ -128,12 +124,10 @@ static void service_changed_pending_set(void)
  *
  * @param[in]  p_event The event that has happend with peer id and flags.
  */
-void gscm_pdb_evt_handler(pdb_evt_t const * p_event)
+void gscm_pdb_evt_handler(pdb_evt_t const *p_event)
 {
-    if (p_event->evt_id == PDB_EVT_RAW_STORED)
-    {
-        if (p_event->data_id == PM_PEER_DATA_ID_SERVICE_CHANGED_PENDING)
-        {
+    if (p_event->evt_id == PDB_EVT_RAW_STORED) {
+        if (p_event->data_id == PM_PEER_DATA_ID_SERVICE_CHANGED_PENDING) {
             ret_code_t           err_code;
             pm_peer_data_flash_t peer_data;
 
@@ -141,8 +135,7 @@ void gscm_pdb_evt_handler(pdb_evt_t const * p_event)
                                              PM_PEER_DATA_ID_SERVICE_CHANGED_PENDING,
                                              &peer_data);
 
-            if (err_code == NRF_SUCCESS)
-            {
+            if (err_code == NRF_SUCCESS) {
                 gscm_evt_t gscm_evt;
                 gscm_evt.evt_id = GSCM_EVT_SC_STATE_STORED;
                 gscm_evt.peer_id = p_event->peer_id;
@@ -153,8 +146,7 @@ void gscm_pdb_evt_handler(pdb_evt_t const * p_event)
         }
     }
 
-    if (m_current_sc_store_peer_id != PM_PEER_ID_INVALID)
-    {
+    if (m_current_sc_store_peer_id != PM_PEER_ID_INVALID) {
         service_changed_pending_set();
     }
 }
@@ -178,55 +170,41 @@ ret_code_t gscm_local_db_cache_update(uint16_t conn_handle)
     pm_peer_id_t peer_id = im_peer_id_get_by_conn_handle(conn_handle);
     ret_code_t   err_code;
 
-    if (peer_id == PM_PEER_ID_INVALID)
-    {
+    if (peer_id == PM_PEER_ID_INVALID) {
         return BLE_ERROR_INVALID_CONN_HANDLE;
-    }
-    else
-    {
+    } else {
         pm_peer_data_t peer_data;
         uint16_t       n_bufs = 1;
         bool           retry_with_bigger_buffer = false;
 
-        do
-        {
+        do {
             retry_with_bigger_buffer = false;
 
             err_code = pdb_write_buf_get(peer_id, PM_PEER_DATA_ID_GATT_LOCAL, n_bufs++, &peer_data);
-            if (err_code == NRF_SUCCESS)
-            {
-                pm_peer_data_local_gatt_db_t * p_local_gatt_db = peer_data.p_local_gatt_db;
+            if (err_code == NRF_SUCCESS) {
+                pm_peer_data_local_gatt_db_t *p_local_gatt_db = peer_data.p_local_gatt_db;
 
                 p_local_gatt_db->flags = SYS_ATTR_BOTH;
 
                 err_code = sd_ble_gatts_sys_attr_get(conn_handle, &p_local_gatt_db->data[0], &p_local_gatt_db->len, p_local_gatt_db->flags);
 
-                if (err_code == NRF_SUCCESS)
-                {
+                if (err_code == NRF_SUCCESS) {
                     err_code = pdb_write_buf_store(peer_id, PM_PEER_DATA_ID_GATT_LOCAL);
-                }
-                else
-                {
-                    if (err_code == NRF_ERROR_DATA_SIZE)
-                    {
+                } else {
+                    if (err_code == NRF_ERROR_DATA_SIZE) {
                         // The sys attributes are bigger than the requested write buffer.
                         retry_with_bigger_buffer = true;
-                    }
-                    else if (err_code == NRF_ERROR_NOT_FOUND)
-                    {
+                    } else if (err_code == NRF_ERROR_NOT_FOUND) {
                         // There are no sys attributes in the GATT db, so nothing needs to be stored.
                         err_code = NRF_SUCCESS;
                     }
 
                     ret_code_t err_code_release = pdb_write_buf_release(peer_id, PM_PEER_DATA_ID_GATT_LOCAL);
-                    if (err_code_release != NRF_SUCCESS)
-                    {
+                    if (err_code_release != NRF_SUCCESS) {
                         err_code = NRF_ERROR_INTERNAL;
                     }
                 }
-            }
-            else if (err_code == NRF_ERROR_INVALID_PARAM)
-            {
+            } else if (err_code == NRF_ERROR_INVALID_PARAM) {
                 // The sys attributes are bigger than the entire write buffer.
                 err_code = NRF_ERROR_DATA_SIZE;
             }
@@ -244,17 +222,15 @@ ret_code_t gscm_local_db_cache_apply(uint16_t conn_handle)
     pm_peer_id_t         peer_id = im_peer_id_get_by_conn_handle(conn_handle);
     ret_code_t           err_code;
     pm_peer_data_flash_t peer_data;
-    uint8_t      const * p_sys_attr_data = NULL;
+    uint8_t      const *p_sys_attr_data = NULL;
     uint16_t             sys_attr_len    = 0;
     uint32_t             sys_attr_flags  = (SYS_ATTR_BOTH);
     bool                 all_attributes_applied = true;
 
-    if (peer_id != PM_PEER_ID_INVALID)
-    {
+    if (peer_id != PM_PEER_ID_INVALID) {
         err_code = pdb_peer_data_ptr_get(peer_id, PM_PEER_DATA_ID_GATT_LOCAL, &peer_data);
-        if (err_code == NRF_SUCCESS)
-        {
-            pm_peer_data_local_gatt_db_t const * p_local_gatt_db;
+        if (err_code == NRF_SUCCESS) {
+            pm_peer_data_local_gatt_db_t const *p_local_gatt_db;
 
             p_local_gatt_db = peer_data.p_local_gatt_db;
             p_sys_attr_data = p_local_gatt_db->data;
@@ -263,43 +239,31 @@ ret_code_t gscm_local_db_cache_apply(uint16_t conn_handle)
         }
     }
 
-    do
-    {
+    do {
         err_code = sd_ble_gatts_sys_attr_set(conn_handle, p_sys_attr_data, sys_attr_len, sys_attr_flags);
 
-        if (err_code == NRF_ERROR_NO_MEM)
-        {
+        if (err_code == NRF_ERROR_NO_MEM) {
             err_code = NRF_ERROR_BUSY;
-        }
-        else if (err_code == NRF_ERROR_INVALID_STATE)
-        {
+        } else if (err_code == NRF_ERROR_INVALID_STATE) {
             err_code = NRF_SUCCESS;
-        }
-        else if (err_code == NRF_ERROR_INVALID_DATA)
-        {
+        } else if (err_code == NRF_ERROR_INVALID_DATA) {
             all_attributes_applied = false;
 
-            if (sys_attr_flags & SYS_ATTR_USR)
-            {
+            if (sys_attr_flags & SYS_ATTR_USR) {
                 // Try setting only system attributes.
                 sys_attr_flags = SYS_ATTR_SYS;
-            }
-            else if (p_sys_attr_data || sys_attr_len)
-            {
+            } else if (p_sys_attr_data || sys_attr_len) {
                 // Try reporting that none exist.
                 p_sys_attr_data = NULL;
                 sys_attr_len    = 0;
                 sys_attr_flags  = SYS_ATTR_BOTH;
-            }
-            else
-            {
+            } else {
                 err_code = NRF_ERROR_INTERNAL;
             }
         }
     } while (err_code == NRF_ERROR_INVALID_DATA);
 
-    if (!all_attributes_applied)
-    {
+    if (!all_attributes_applied) {
         err_code = NRF_ERROR_INVALID_DATA;
     }
 
@@ -307,7 +271,7 @@ ret_code_t gscm_local_db_cache_apply(uint16_t conn_handle)
 }
 
 
-ret_code_t gscm_local_db_cache_set(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t * p_local_db)
+ret_code_t gscm_local_db_cache_set(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t *p_local_db)
 {
     NRF_PM_DEBUG_CHECK(m_module_initialized);
 
@@ -337,8 +301,7 @@ bool gscm_service_changed_ind_needed(uint16_t conn_handle)
 
     err_code = pdb_peer_data_ptr_get(peer_id, PM_PEER_DATA_ID_SERVICE_CHANGED_PENDING, &peer_data);
 
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
         return false;
     }
 
@@ -352,11 +315,9 @@ ret_code_t gscm_service_changed_ind_send(uint16_t conn_handle)
     const  uint16_t end_handle   = 0xFFFF;
     ret_code_t err_code;
 
-    do
-    {
+    do {
         err_code = sd_ble_gatts_service_changed(conn_handle, start_handle, end_handle);
-        if (err_code == BLE_ERROR_INVALID_ATTR_HANDLE)
-        {
+        if (err_code == BLE_ERROR_INVALID_ATTR_HANDLE) {
             start_handle += 1;
         }
     } while (err_code == BLE_ERROR_INVALID_ATTR_HANDLE);
@@ -373,11 +334,10 @@ void gscm_db_change_notification_done(pm_peer_id_t peer_id)
     static const uint32_t service_changed_pending = false;
 
     //lint -save -e65 -e64
-    pm_peer_data_const_t peer_data =
-    {
+    pm_peer_data_const_t peer_data = {
         .data_id                   = PM_PEER_DATA_ID_SERVICE_CHANGED_PENDING,
         .length_words              = PM_SC_STATE_N_WORDS(),
-        .p_service_changed_pending = (bool*)&service_changed_pending,
+        .p_service_changed_pending = (bool *) &service_changed_pending,
     };
     //lint -restore
 

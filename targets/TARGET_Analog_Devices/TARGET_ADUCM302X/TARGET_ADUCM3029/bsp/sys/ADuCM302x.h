@@ -34,7 +34,7 @@
 /* do not add casts to literal constants in assembly code */
 #if defined(_LANGUAGE_ASM) || defined(__ASSEMBLER__)
 /* Use unsuffixed literals for BITM macros */
-#define _ADI_MSK_3( mask, smask, type ) (mask) 
+#define _ADI_MSK_3( mask, smask, type ) (mask)
 #else
 /* Use casted suffixed literals for BITM macros */
 #define _ADI_MSK_3( mask, smask, type ) ((type)(smask))
@@ -121,7 +121,7 @@
 #define REG_TMR2_PWMMATCH                    0x40000824            /*  TMR2 PWM Match Value */
 
 /* ============================================================================================================================
-        TMR Register BitMasks, Positions & Enumerations 
+        TMR Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           TMR_LOAD                             Pos/Masks         Description
@@ -295,7 +295,7 @@
 #define REG_RTC1_FRZCNT                      0x40001490            /*  RTC1 RTC Freeze Count */
 
 /* ============================================================================================================================
-        RTC Register BitMasks, Positions & Enumerations 
+        RTC Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           RTC_CR0                              Pos/Masks         Description
@@ -694,7 +694,7 @@
 #define REG_SYS_SWDEN                        0x40002040            /*  SYS Serial Wire Debug Enable */
 
 /* ============================================================================================================================
-        SYS Register BitMasks, Positions & Enumerations 
+        SYS Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           SYS_ADIID                            Pos/Masks         Description
@@ -731,7 +731,7 @@
 #define REG_WDT0_STAT                        0x40002C18            /*  WDT0 Status */
 
 /* ============================================================================================================================
-        WDT Register BitMasks, Positions & Enumerations 
+        WDT Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           WDT_LOAD                             Pos/Masks         Description
@@ -823,7 +823,7 @@
 #define REG_I2C0_ASTRETCH_SCL                0x40003058            /*  I2C0 Automatic Stretch SCL */
 
 /* ============================================================================================================================
-        I2C Register BitMasks, Positions & Enumerations 
+        I2C Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           I2C_MCTL                             Pos/Masks         Description
@@ -1150,7 +1150,7 @@
 #define REG_SPI2_CS_OVERRIDE                 0x40024034            /*  SPI2 Chip Select Override */
 
 /* ============================================================================================================================
-        SPI Register BitMasks, Positions & Enumerations 
+        SPI Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           SPI_STAT                             Pos/Masks         Description
@@ -1326,7 +1326,7 @@
 
 
 /* ============================================================================================================================
-        
+
    ============================================================================================================================ */
 
 /* ============================================================================================================================
@@ -1354,7 +1354,7 @@
 #define REG_UART0_ASRH                       0x40005048            /*  UART0 Auto Baud Status (High) */
 
 /* ============================================================================================================================
-        UART Register BitMasks, Positions & Enumerations 
+        UART Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           UART_RX                              Pos/Masks         Description
@@ -1599,7 +1599,7 @@
 #define REG_BEEP0_TONEB                      0x40005C0C            /*  BEEP0 Tone B Data */
 
 /* ============================================================================================================================
-        BEEP Register BitMasks, Positions & Enumerations 
+        BEEP Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           BEEP_CFG                             Pos/Masks         Description
@@ -1663,7 +1663,7 @@
 
 
 /* ============================================================================================================================
-        
+
    ============================================================================================================================ */
 
 /* ============================================================================================================================
@@ -1706,7 +1706,7 @@
 #define REG_ADC0_CFG1                        0x400070C0            /*  ADC0 Reference Buffer Low Power Mode */
 
 /* ============================================================================================================================
-        ADC Register BitMasks, Positions & Enumerations 
+        ADC Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           ADC_CFG                              Pos/Masks         Description
@@ -2089,7 +2089,7 @@
 #define REG_DMA0_REVID                       0x40010FE0            /*  DMA0 DMA Controller Revision ID */
 
 /* ============================================================================================================================
-        DMA Register BitMasks, Positions & Enumerations 
+        DMA Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           DMA_STAT                             Pos/Masks         Description
@@ -2262,7 +2262,7 @@
 #define REG_FLCC0_VOL_CFG                    0x40018054            /*  FLCC0 Volatile Flash Configuration */
 
 /* ============================================================================================================================
-        FLCC Register BitMasks, Positions & Enumerations 
+        FLCC Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           FLCC_STAT                            Pos/Masks         Description
@@ -2471,7 +2471,7 @@
 #define REG_FLCC0_CACHE_KEY                  0x40018060            /*  FLCC0_CACHE Cache Key */
 
 /* ============================================================================================================================
-        FLCC_CACHE Register BitMasks, Positions & Enumerations 
+        FLCC_CACHE Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           FLCC_CACHE_STAT                      Pos/Masks         Description
@@ -2493,7 +2493,7 @@
 
 
 /* ============================================================================================================================
-        
+
    ============================================================================================================================ */
 
 /* ============================================================================================================================
@@ -2551,7 +2551,7 @@
 #define REG_GPIO2_DS                         0x400200B4            /*  GPIO2 Port Drive Strength Select */
 
 /* ============================================================================================================================
-        GPIO Register BitMasks, Positions & Enumerations 
+        GPIO Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           GPIO_CFG                             Pos/Masks         Description
@@ -2693,7 +2693,7 @@
 #define REG_SPORT0_RX_B                      0x40038068            /*  SPORT0 Half SPORT 'B' Rx Buffer */
 
 /* ============================================================================================================================
-        SPORT Register BitMasks, Positions & Enumerations 
+        SPORT Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           SPORT_CTL_A                          Pos/Masks         Description
@@ -2976,7 +2976,7 @@
 #define REG_CRC0_IPBYTE                      0x40040010            /*  CRC0 Input Data Byte */
 
 /* ============================================================================================================================
-        CRC Register BitMasks, Positions & Enumerations 
+        CRC Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           CRC_CTL                              Pos/Masks         Description
@@ -3055,7 +3055,7 @@
 #define REG_RNG0_OSCDIFFn_COUNT              4
 
 /* ============================================================================================================================
-        RNG Register BitMasks, Positions & Enumerations 
+        RNG Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           RNG_CTL                              Pos/Masks         Description
@@ -3145,7 +3145,7 @@
 #define REG_CRYPT0_CCM_NUM_VALID_BYTES       0x40044074            /*  CRYPT0 NUM_VALID_BYTES */
 
 /* ============================================================================================================================
-        CRYPT Register BitMasks, Positions & Enumerations 
+        CRYPT Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           CRYPT_CFG                            Pos/Masks         Description
@@ -3403,7 +3403,7 @@
 #define REG_PMG0_CTL1                        0x4004C044            /*  PMG0 HP Buck Control */
 
 /* ============================================================================================================================
-        PMG Register BitMasks, Positions & Enumerations 
+        PMG Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           PMG_IEN                              Pos/Masks         Description
@@ -3526,7 +3526,7 @@
 #define REG_XINT0_NMICLR                     0x4004C094            /*  XINT0 Non-Maskable Interrupt Clear */
 
 /* ============================================================================================================================
-        XINT Register BitMasks, Positions & Enumerations 
+        XINT Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           XINT_CFG0                            Pos/Masks         Description
@@ -3598,7 +3598,7 @@
 #define REG_CLKG0_OSC_CTL                    0x4004C110            /*  CLKG0_OSC Oscillator Control */
 
 /* ============================================================================================================================
-        CLKG_OSC Register BitMasks, Positions & Enumerations 
+        CLKG_OSC Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           CLKG_OSC_KEY                         Pos/Masks         Description
@@ -3649,7 +3649,7 @@
 #define REG_PMG0_TST_SCRPAD_3V_RD            0x4004C270            /*  PMG0_TST Scratch Pad Saved in Battery Domain */
 
 /* ============================================================================================================================
-        PMG_TST Register BitMasks, Positions & Enumerations 
+        PMG_TST Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           PMG_TST_SRAM_CTL                     Pos/Masks         Description
@@ -3736,7 +3736,7 @@
 #define REG_CLKG0_CLK_STAT0                  0x4004C318            /*  CLKG0_CLK Clocking Status */
 
 /* ============================================================================================================================
-        CLKG_CLK Register BitMasks, Positions & Enumerations 
+        CLKG_CLK Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           CLKG_CLK_CTL0                        Pos/Masks         Description
@@ -3832,7 +3832,7 @@
 #define REG_BUSM0_ARBIT3                     0x4004C80C            /*  BUSM0 Arbitration Priority Configuration for APB16 priority for core and for DMA1 */
 
 /* ============================================================================================================================
-        BUSM Register BitMasks, Positions & Enumerations 
+        BUSM Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           BUSM_ARBIT0                          Pos/Masks         Description
@@ -3907,7 +3907,7 @@
 #define REG_PTI0_CTL                         0x4004CD08            /*  PTI0 Parallel Test Interface Control Register */
 
 /* ============================================================================================================================
-        PTI Register BitMasks, Positions & Enumerations 
+        PTI Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           PTI_RST_ISR_STARTADDR                Pos/Masks         Description
@@ -4005,7 +4005,7 @@
 #define REG_NVIC0_INTCID3                    0xE000EFFC            /*  NVIC0 Component Identification Bits24:31 */
 
 /* ============================================================================================================================
-        NVIC Register BitMasks, Positions & Enumerations 
+        NVIC Register BitMasks, Positions & Enumerations
    ============================================================================================================================ */
 /* -------------------------------------------------------------------------------------------------------------------------
           NVIC_INTNUM                          Pos/Masks         Description
@@ -4420,75 +4420,75 @@
 /* ====================================================================================================
  *    Interrupt Definitions
  * ==================================================================================================== */
-#define INTR_RESET                           (-15)		/* Cortex-M3 Reset */
-#define INTR_NonMaskableInt                  (-14)		/* Cortex-M3 Non-maskable Interrupt */
-#define INTR_HardFault                       (-13)		/* Cortex-M3 Hardware Fault */
-#define INTR_MemoryManagement                (-12)		/* Cortex-M3 Memory Management Interrupt */
-#define INTR_BusFault                        (-11)		/* Cortex-M3 Bus Fault */
-#define INTR_UsageFault                      (-10)		/* Cortex-M3 Usage Fault */
-#define INTR_SVCall                          ( -5)		/* Cortex-M3 SVCall Interrupt */
-#define INTR_DebugMonitor                    ( -4)		/* Cortex-M3 Debug Monitor */
-#define INTR_PendSV                          ( -2)		/* Cortex-M3 PendSV Interrupt */
-#define INTR_SysTick                         ( -1)		/* Cortex-M3 SysTick Interrupt */
-#define INTR_RTC1_EVT                          0		/* Event */
-#define INTR_XINT_EVT0                         1		/* External Wakeup Interrupt n */
-#define INTR_XINT_EVT1                         2		/* External Wakeup Interrupt n */
-#define INTR_XINT_EVT2                         3		/* External Wakeup Interrupt n */
-#define INTR_XINT_EVT3                         4		/* External Wakeup Interrupt n */
-#define INTR_WDT_EXP                           5		/* Expiration */
-#define INTR_PMG0_VREG_OVR                     6		/* Voltage Regulator (VREG) Overvoltage */
-#define INTR_PMG0_BATT_RANGE                   7		/* Battery Voltage (VBAT) Out of Range */
-#define INTR_RTC0_EVT                          8		/* Event */
-#define INTR_SYS_GPIO_INTA                     9		/* GPIO Interrupt A */
-#define INTR_SYS_GPIO_INTB                    10		/* GPIO Interrupt B */
-#define INTR_TMR0_EVT                         11		/* Event */
-#define INTR_TMR1_EVT                         12		/* Event */
-#define INTR_FLCC_EVT                         13		/* Event */
-#define INTR_UART_EVT                         14		/* Event */
-#define INTR_SPI0_EVT                         15		/* Event */
-#define INTR_SPI2_EVT                         16		/* Event */
-#define INTR_I2C_SLV_EVT                      17		/* Slave Event */
-#define INTR_I2C_MST_EVT                      18		/* Master Event */
-#define INTR_DMA_CHAN_ERR                     19		/* Channel Error */
-#define INTR_DMA0_CH0_DONE                    20		/* Channel 0 Done */
-#define INTR_DMA0_CH1_DONE                    21		/* Channel 1 Done */
-#define INTR_DMA0_CH2_DONE                    22		/* Channel 2 Done */
-#define INTR_DMA0_CH3_DONE                    23		/* Channel 3 Done */
-#define INTR_DMA0_CH4_DONE                    24		/* Channel 4 Done */
-#define INTR_DMA0_CH5_DONE                    25		/* Channel 5 Done */
-#define INTR_DMA0_CH6_DONE                    26		/* Channel 6 Done */
-#define INTR_DMA0_CH7_DONE                    27		/* Channel 7 Done */
-#define INTR_DMA0_CH8_DONE                    28		/* Channel 8 Done */
-#define INTR_DMA0_CH9_DONE                    29		/* Channel 9 Done */
-#define INTR_DMA0_CH10_DONE                   30		/* Channel 10 Done */
-#define INTR_DMA0_CH11_DONE                   31		/* Channel 11 Done */
-#define INTR_DMA0_CH12_DONE                   32		/* Channel 12 Done */
-#define INTR_DMA0_CH13_DONE                   33		/* Channel 13 Done */
-#define INTR_DMA0_CH14_DONE                   34		/* Channel 14 Done */
-#define INTR_DMA0_CH15_DONE                   35		/* Channel 15 Done */
-#define INTR_SPORT_A_EVT                      36		/* Channel A Event */
-#define INTR_SPORT_B_EVT                      37		/* Channel B Event */
-#define INTR_CRYPT_EVT                        38		/* Event */
-#define INTR_DMA0_CH24_DONE                   39		/* Channel 24 Done */
-#define INTR_TMR2_EVT                         40		/* Event */
-#define INTR_CLKG_XTAL_OSC_EVT                41		/* Crystal Oscillator Event */
-#define INTR_SPI1_EVT                         42		/* Event */
-#define INTR_CLKG_PLL_EVT                     43		/* PLL Event */
-#define INTR_RNG0_EVT                         44		/* Event */
-#define INTR_BEEP_EVT                         45		/* Event */
-#define INTR_ADC0_EVT                         46		/* Event */
-#define INTR_DMA0_CH16_DONE                   56		/* Channel 16 Done */
-#define INTR_DMA0_CH17_DONE                   57		/* Channel 17 Done */
-#define INTR_DMA0_CH18_DONE                   58		/* Channel 18 Done */
-#define INTR_DMA0_CH19_DONE                   59		/* Channel 19 Done */
-#define INTR_DMA0_CH20_DONE                   60		/* Channel 20 Done */
-#define INTR_DMA0_CH21_DONE                   61		/* Channel 21 Done */
-#define INTR_DMA0_CH22_DONE                   62		/* Channel 22 Done */
-#define INTR_DMA0_CH23_DONE                   63		/* Channel 23 Done */
+#define INTR_RESET                           (-15)      /* Cortex-M3 Reset */
+#define INTR_NonMaskableInt                  (-14)      /* Cortex-M3 Non-maskable Interrupt */
+#define INTR_HardFault                       (-13)      /* Cortex-M3 Hardware Fault */
+#define INTR_MemoryManagement                (-12)      /* Cortex-M3 Memory Management Interrupt */
+#define INTR_BusFault                        (-11)      /* Cortex-M3 Bus Fault */
+#define INTR_UsageFault                      (-10)      /* Cortex-M3 Usage Fault */
+#define INTR_SVCall                          ( -5)      /* Cortex-M3 SVCall Interrupt */
+#define INTR_DebugMonitor                    ( -4)      /* Cortex-M3 Debug Monitor */
+#define INTR_PendSV                          ( -2)      /* Cortex-M3 PendSV Interrupt */
+#define INTR_SysTick                         ( -1)      /* Cortex-M3 SysTick Interrupt */
+#define INTR_RTC1_EVT                          0        /* Event */
+#define INTR_XINT_EVT0                         1        /* External Wakeup Interrupt n */
+#define INTR_XINT_EVT1                         2        /* External Wakeup Interrupt n */
+#define INTR_XINT_EVT2                         3        /* External Wakeup Interrupt n */
+#define INTR_XINT_EVT3                         4        /* External Wakeup Interrupt n */
+#define INTR_WDT_EXP                           5        /* Expiration */
+#define INTR_PMG0_VREG_OVR                     6        /* Voltage Regulator (VREG) Overvoltage */
+#define INTR_PMG0_BATT_RANGE                   7        /* Battery Voltage (VBAT) Out of Range */
+#define INTR_RTC0_EVT                          8        /* Event */
+#define INTR_SYS_GPIO_INTA                     9        /* GPIO Interrupt A */
+#define INTR_SYS_GPIO_INTB                    10        /* GPIO Interrupt B */
+#define INTR_TMR0_EVT                         11        /* Event */
+#define INTR_TMR1_EVT                         12        /* Event */
+#define INTR_FLCC_EVT                         13        /* Event */
+#define INTR_UART_EVT                         14        /* Event */
+#define INTR_SPI0_EVT                         15        /* Event */
+#define INTR_SPI2_EVT                         16        /* Event */
+#define INTR_I2C_SLV_EVT                      17        /* Slave Event */
+#define INTR_I2C_MST_EVT                      18        /* Master Event */
+#define INTR_DMA_CHAN_ERR                     19        /* Channel Error */
+#define INTR_DMA0_CH0_DONE                    20        /* Channel 0 Done */
+#define INTR_DMA0_CH1_DONE                    21        /* Channel 1 Done */
+#define INTR_DMA0_CH2_DONE                    22        /* Channel 2 Done */
+#define INTR_DMA0_CH3_DONE                    23        /* Channel 3 Done */
+#define INTR_DMA0_CH4_DONE                    24        /* Channel 4 Done */
+#define INTR_DMA0_CH5_DONE                    25        /* Channel 5 Done */
+#define INTR_DMA0_CH6_DONE                    26        /* Channel 6 Done */
+#define INTR_DMA0_CH7_DONE                    27        /* Channel 7 Done */
+#define INTR_DMA0_CH8_DONE                    28        /* Channel 8 Done */
+#define INTR_DMA0_CH9_DONE                    29        /* Channel 9 Done */
+#define INTR_DMA0_CH10_DONE                   30        /* Channel 10 Done */
+#define INTR_DMA0_CH11_DONE                   31        /* Channel 11 Done */
+#define INTR_DMA0_CH12_DONE                   32        /* Channel 12 Done */
+#define INTR_DMA0_CH13_DONE                   33        /* Channel 13 Done */
+#define INTR_DMA0_CH14_DONE                   34        /* Channel 14 Done */
+#define INTR_DMA0_CH15_DONE                   35        /* Channel 15 Done */
+#define INTR_SPORT_A_EVT                      36        /* Channel A Event */
+#define INTR_SPORT_B_EVT                      37        /* Channel B Event */
+#define INTR_CRYPT_EVT                        38        /* Event */
+#define INTR_DMA0_CH24_DONE                   39        /* Channel 24 Done */
+#define INTR_TMR2_EVT                         40        /* Event */
+#define INTR_CLKG_XTAL_OSC_EVT                41        /* Crystal Oscillator Event */
+#define INTR_SPI1_EVT                         42        /* Event */
+#define INTR_CLKG_PLL_EVT                     43        /* PLL Event */
+#define INTR_RNG0_EVT                         44        /* Event */
+#define INTR_BEEP_EVT                         45        /* Event */
+#define INTR_ADC0_EVT                         46        /* Event */
+#define INTR_DMA0_CH16_DONE                   56        /* Channel 16 Done */
+#define INTR_DMA0_CH17_DONE                   57        /* Channel 17 Done */
+#define INTR_DMA0_CH18_DONE                   58        /* Channel 18 Done */
+#define INTR_DMA0_CH19_DONE                   59        /* Channel 19 Done */
+#define INTR_DMA0_CH20_DONE                   60        /* Channel 20 Done */
+#define INTR_DMA0_CH21_DONE                   61        /* Channel 21 Done */
+#define INTR_DMA0_CH22_DONE                   62        /* Channel 22 Done */
+#define INTR_DMA0_CH23_DONE                   63        /* Channel 23 Done */
 
 
 #if defined (_MISRA_RULES)
 #pragma diag(pop)
 #endif /* _MISRA_RULES */
 
-#endif	/* end ifndef _DEF_ADUCM302X_H */
+#endif  /* end ifndef _DEF_ADUCM302X_H */

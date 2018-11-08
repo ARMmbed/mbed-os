@@ -33,12 +33,12 @@
 
 struct nu_uart_var {
     uint32_t    ref_cnt;                // Reference count of the H/W module
-    serial_t *  obj;
+    serial_t   *obj;
     uint32_t    fifo_size_tx;
     uint32_t    fifo_size_rx;
-    void        (*vec)(void);
+    void (*vec)(void);
 #if DEVICE_SERIAL_ASYNCH
-    void        (*vec_async)(void);
+    void (*vec_async)(void);
     uint8_t     pdma_perp_tx;
     uint8_t     pdma_perp_rx;
 #endif
@@ -930,13 +930,13 @@ static int serial_write_async(serial_t *obj)
     int n_words = 0;
     while (obj->tx_buff.pos < obj->tx_buff.length && tx_fifo_free >= bytes_per_word) {
         switch (bytes_per_word) {
-        case 4:
-            UART_WRITE(((UART_T *) NU_MODBASE(obj->serial.uart)), *tx ++);
-            UART_WRITE(((UART_T *) NU_MODBASE(obj->serial.uart)), *tx ++);
-        case 2:
-            UART_WRITE(((UART_T *) NU_MODBASE(obj->serial.uart)), *tx ++);
-        case 1:
-            UART_WRITE(((UART_T *) NU_MODBASE(obj->serial.uart)), *tx ++);
+            case 4:
+                UART_WRITE(((UART_T *) NU_MODBASE(obj->serial.uart)), *tx ++);
+                UART_WRITE(((UART_T *) NU_MODBASE(obj->serial.uart)), *tx ++);
+            case 2:
+                UART_WRITE(((UART_T *) NU_MODBASE(obj->serial.uart)), *tx ++);
+            case 1:
+                UART_WRITE(((UART_T *) NU_MODBASE(obj->serial.uart)), *tx ++);
         }
 
         n_words ++;
@@ -968,13 +968,13 @@ static int serial_read_async(serial_t *obj)
     int n_words = 0;
     while (obj->rx_buff.pos < obj->rx_buff.length && rx_fifo_busy >= bytes_per_word) {
         switch (bytes_per_word) {
-        case 4:
-            *rx ++ = UART_READ(((UART_T *) NU_MODBASE(obj->serial.uart)));
-            *rx ++ = UART_READ(((UART_T *) NU_MODBASE(obj->serial.uart)));
-        case 2:
-            *rx ++ = UART_READ(((UART_T *) NU_MODBASE(obj->serial.uart)));
-        case 1:
-            *rx ++ = UART_READ(((UART_T *) NU_MODBASE(obj->serial.uart)));
+            case 4:
+                *rx ++ = UART_READ(((UART_T *) NU_MODBASE(obj->serial.uart)));
+                *rx ++ = UART_READ(((UART_T *) NU_MODBASE(obj->serial.uart)));
+            case 2:
+                *rx ++ = UART_READ(((UART_T *) NU_MODBASE(obj->serial.uart)));
+            case 1:
+                *rx ++ = UART_READ(((UART_T *) NU_MODBASE(obj->serial.uart)));
         }
 
         n_words ++;
@@ -985,12 +985,12 @@ static int serial_read_async(serial_t *obj)
                 obj->char_match != SERIAL_RESERVED_CHAR_MATCH) {
             uint8_t *rx_cmp = rx;
             switch (bytes_per_word) {
-            case 4:
-                rx_cmp -= 2;
-            case 2:
-                rx_cmp --;
-            case 1:
-                rx_cmp --;
+                case 4:
+                    rx_cmp -= 2;
+                case 2:
+                    rx_cmp --;
+                case 1:
+                    rx_cmp --;
             }
             if (*rx_cmp == obj->char_match) {
                 obj->char_found = 1;
@@ -1049,7 +1049,7 @@ static void serial_rx_enable_interrupt(serial_t *obj, uint32_t handler, uint8_t 
     struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
     // With our own async vector, tx/rx handlers can be different.
     obj->serial.vec = var->vec_async;
-    obj->serial.irq_handler_rx_async = (void (*) (void)) handler;
+    obj->serial.irq_handler_rx_async = (void (*)(void)) handler;
     serial_enable_interrupt(obj, RxIrq, enable);
 }
 
@@ -1069,26 +1069,26 @@ static void serial_enable_interrupt(serial_t *obj, SerialIrq irq, uint32_t enabl
         var->obj = obj;
 
         switch (irq) {
-        // NOTE: Setting inten_msk first to avoid race condition
-        case RxIrq:
-            obj->serial.inten_msk = obj->serial.inten_msk | (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk);
-            UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
-            break;
-        case TxIrq:
-            obj->serial.inten_msk = obj->serial.inten_msk | UART_INTEN_THREIEN_Msk;
-            UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_THREIEN_Msk);
-            break;
+            // NOTE: Setting inten_msk first to avoid race condition
+            case RxIrq:
+                obj->serial.inten_msk = obj->serial.inten_msk | (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk);
+                UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
+                break;
+            case TxIrq:
+                obj->serial.inten_msk = obj->serial.inten_msk | UART_INTEN_THREIEN_Msk;
+                UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_THREIEN_Msk);
+                break;
         }
     } else { // disable
         switch (irq) {
-        case RxIrq:
-            UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
-            obj->serial.inten_msk = obj->serial.inten_msk & ~(UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk);
-            break;
-        case TxIrq:
-            UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_THREIEN_Msk);
-            obj->serial.inten_msk = obj->serial.inten_msk & ~UART_INTEN_THREIEN_Msk;
-            break;
+            case RxIrq:
+                UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
+                obj->serial.inten_msk = obj->serial.inten_msk & ~(UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk);
+                break;
+            case TxIrq:
+                UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_THREIEN_Msk);
+                obj->serial.inten_msk = obj->serial.inten_msk & ~UART_INTEN_THREIEN_Msk;
+                break;
         }
     }
 }
@@ -1125,12 +1125,12 @@ static int serial_is_irq_en(serial_t *obj, SerialIrq irq)
     int inten_msk = 0;
 
     switch (irq) {
-    case RxIrq:
-        inten_msk = obj->serial.inten_msk & (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk);
-        break;
-    case TxIrq:
-        inten_msk = obj->serial.inten_msk & UART_INTEN_THREIEN_Msk;
-        break;
+        case RxIrq:
+            inten_msk = obj->serial.inten_msk & (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk);
+            break;
+        case TxIrq:
+            inten_msk = obj->serial.inten_msk & UART_INTEN_THREIEN_Msk;
+            break;
     }
 
     return !! inten_msk;

@@ -32,7 +32,7 @@ uint32_t lp_ticker_read()
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
     common_rtc_set_interrupt(timestamp,
-        LP_TICKER_CC_CHANNEL, LP_TICKER_INT_MASK);
+                             LP_TICKER_CC_CHANNEL, LP_TICKER_INT_MASK);
 }
 
 void lp_ticker_fire_interrupt(void)

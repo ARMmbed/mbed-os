@@ -129,7 +129,7 @@
   *   UART0,UART1.
   * @retval None
   */
-void UART_Enable(TSB_SC_TypeDef * UARTx)
+void UART_Enable(TSB_SC_TypeDef *UARTx)
 {
     /* Check the parameters */
     assert_param(IS_UART_PERIPH(UARTx));
@@ -144,7 +144,7 @@ void UART_Enable(TSB_SC_TypeDef * UARTx)
   *   UART0,UART1.
   * @retval None
   */
-void UART_Disable(TSB_SC_TypeDef * UARTx)
+void UART_Disable(TSB_SC_TypeDef *UARTx)
 {
     /* Check the parameters */
     assert_param(IS_UART_PERIPH(UARTx));
@@ -163,7 +163,7 @@ void UART_Disable(TSB_SC_TypeDef * UARTx)
   *   The value returned can be one of the followings:
   *   BUSY or DONE.
   */
-WorkState UART_GetBufState(TSB_SC_TypeDef * UARTx, uint32_t Direction)
+WorkState UART_GetBufState(TSB_SC_TypeDef *UARTx, uint32_t Direction)
 {
     uint8_t tmp = 0U;
     WorkState retval = BUSY;
@@ -172,26 +172,26 @@ WorkState UART_GetBufState(TSB_SC_TypeDef * UARTx, uint32_t Direction)
     assert_param(IS_UART_PERIPH(UARTx));
     assert_param(IS_UART_TRX(Direction));
 
-    tmp = ((uint8_t) (UARTx->MOD2 & MOD2_BUF_MASK));
+    tmp = ((uint8_t)(UARTx->MOD2 & MOD2_BUF_MASK));
     switch (Direction) {
-    case UART_TX:
-        if ((tmp & MOD2_TBEMP_FLAG) == MOD2_TBEMP_FLAG) {
-            /* Return Tx buffer empty if the flag is set */
-            retval = DONE;
-        } else {
-            /* Do nothing */
-        }
-        break;
-    case UART_RX:
-        if ((tmp & MOD2_RBFLL_FLAG) == MOD2_RBFLL_FLAG) {
-            /* Return Rx buffer full if the flag is set */
-            retval = DONE;
-        } else {
-            /* Do nothing */
-        }
-        break;
-    default:                   /* Do nothing */
-        break;
+        case UART_TX:
+            if ((tmp & MOD2_TBEMP_FLAG) == MOD2_TBEMP_FLAG) {
+                /* Return Tx buffer empty if the flag is set */
+                retval = DONE;
+            } else {
+                /* Do nothing */
+            }
+            break;
+        case UART_RX:
+            if ((tmp & MOD2_RBFLL_FLAG) == MOD2_RBFLL_FLAG) {
+                /* Return Rx buffer full if the flag is set */
+                retval = DONE;
+            } else {
+                /* Do nothing */
+            }
+            break;
+        default:                   /* Do nothing */
+            break;
     }
 
     return retval;
@@ -204,7 +204,7 @@ WorkState UART_GetBufState(TSB_SC_TypeDef * UARTx, uint32_t Direction)
   *   UART0,UART1.
   * @retval None
   */
-void UART_SWReset(TSB_SC_TypeDef * UARTx)
+void UART_SWReset(TSB_SC_TypeDef *UARTx)
 {
     uint32_t tmp = 0U;
     /* Check the parameters */
@@ -227,7 +227,7 @@ void UART_SWReset(TSB_SC_TypeDef * UARTx)
   * @retval None
   * @note UART_SetInputClock need to use before UART_Init.
   */
-void UART_Init(TSB_SC_TypeDef * UARTx, UART_InitTypeDef * InitStruct)
+void UART_Init(TSB_SC_TypeDef *UARTx, UART_InitTypeDef *InitStruct)
 {
     uint32_t T0 = 0U;
     uint32_t T = 0U;
@@ -327,18 +327,18 @@ void UART_Init(TSB_SC_TypeDef * UARTx, UART_InitTypeDef * InitStruct)
     tmp = UARTx->MOD1;
     /* Enable or disable transmission or reception */
     switch (InitStruct->Mode) {
-    case UART_ENABLE_RX:
-        UARTx->MOD0 |= InitStruct->Mode;
-        tmp &= MOD1_TXE_CLEAR;
-        break;
-    case UART_ENABLE_TX:
-        tmp |= InitStruct->Mode;
-        UARTx->MOD0 &= MOD0_RXE_CLEAR;
-        break;
-    default:
-        UARTx->MOD0 |= UART_ENABLE_RX;
-        tmp |= UART_ENABLE_TX;
-        break;
+        case UART_ENABLE_RX:
+            UARTx->MOD0 |= InitStruct->Mode;
+            tmp &= MOD1_TXE_CLEAR;
+            break;
+        case UART_ENABLE_TX:
+            tmp |= InitStruct->Mode;
+            UARTx->MOD0 &= MOD0_RXE_CLEAR;
+            break;
+        default:
+            UARTx->MOD0 |= UART_ENABLE_RX;
+            tmp |= UART_ENABLE_TX;
+            break;
     }
     tmp &= MOD1_CLEAR;
     UARTx->MOD1 = tmp;
@@ -351,7 +351,7 @@ void UART_Init(TSB_SC_TypeDef * UARTx, UART_InitTypeDef * InitStruct)
   *   UART0,UART1.
   * @retval The received data
   */
-uint32_t UART_GetRxData(TSB_SC_TypeDef * UARTx)
+uint32_t UART_GetRxData(TSB_SC_TypeDef *UARTx)
 {
     uint32_t retval = 0U;
     /* Check the parameters */
@@ -373,7 +373,7 @@ uint32_t UART_GetRxData(TSB_SC_TypeDef * UARTx)
   * @param  Data: the data to be sent.
   * @retval None
   */
-void UART_SetTxData(TSB_SC_TypeDef * UARTx, uint32_t Data)
+void UART_SetTxData(TSB_SC_TypeDef *UARTx, uint32_t Data)
 {
     uint32_t tmp = UARTx->MOD0 & 0x7FU;
 
@@ -395,7 +395,7 @@ void UART_SetTxData(TSB_SC_TypeDef * UARTx, uint32_t Data)
   *   UART0,UART1.
   * @retval None
   */
-void UART_DefaultConfig(TSB_SC_TypeDef * UARTx)
+void UART_DefaultConfig(TSB_SC_TypeDef *UARTx)
 {
     UART_InitTypeDef uartdefault;
     uartdefault.BaudRate = 115200U;
@@ -429,32 +429,32 @@ void UART_DefaultConfig(TSB_SC_TypeDef * UARTx)
   *   The value returned can be one of the followings:
   *   UART_NO_ERR, UART_OVERRUN, UART_PARITY_ERR, UART_FRAMING_ERR or UART_ERRS.
   */
-UART_Err UART_GetErrState(TSB_SC_TypeDef * UARTx)
+UART_Err UART_GetErrState(TSB_SC_TypeDef *UARTx)
 {
     uint8_t tmp = 0U;
     UART_Err retval = UART_NO_ERR;
     /* Check the parameters */
     assert_param(IS_UART_PERIPH(UARTx));
 
-    tmp = ((uint8_t) (UARTx->CR & CR_ERROR_MASK));
+    tmp = ((uint8_t)(UARTx->CR & CR_ERROR_MASK));
     switch (tmp) {
-    case CR_OERR_FLAG:         /* Check overrun flag */
-        retval = UART_OVERRUN;
-        break;
-    case CR_PERR_FLAG:         /* Check parity flag */
-        retval = UART_PARITY_ERR;
-        break;
-    case CR_FERR_FLAG:         /* Check framing flag */
-        retval = UART_FRAMING_ERR;
-        break;
-    default:
-        if (tmp != 0U) {
-            /* more than one error */
-            retval = UART_ERRS;
-        } else {
-            /* Do nothing */
-        }
-        break;
+        case CR_OERR_FLAG:         /* Check overrun flag */
+            retval = UART_OVERRUN;
+            break;
+        case CR_PERR_FLAG:         /* Check parity flag */
+            retval = UART_PARITY_ERR;
+            break;
+        case CR_FERR_FLAG:         /* Check framing flag */
+            retval = UART_FRAMING_ERR;
+            break;
+        default:
+            if (tmp != 0U) {
+                /* more than one error */
+                retval = UART_ERRS;
+            } else {
+                /* Do nothing */
+            }
+            break;
     }
     return retval;
 }
@@ -468,7 +468,7 @@ UART_Err UART_GetErrState(TSB_SC_TypeDef * UARTx)
   *   This parameter can be: ENABLE or DISABLE.
   * @retval None
   */
-void UART_SetWakeUpFunc(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
+void UART_SetWakeUpFunc(TSB_SC_TypeDef *UARTx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_UART_PERIPH(UARTx));
@@ -485,7 +485,7 @@ void UART_SetWakeUpFunc(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
 
 /**
   * @brief  Enable or disable the specified UART channel when system is in IDLE
-      mode. 
+      mode.
   * @param  UARTx: Select the UART channel.
   *   This parameter can be one of the following values:
   *   UART0,UART1.
@@ -493,7 +493,7 @@ void UART_SetWakeUpFunc(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
   *   This parameter can be: ENABLE or DISABLE.
   * @retval None
   */
-void UART_SetIdleMode(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
+void UART_SetIdleMode(TSB_SC_TypeDef *UARTx, FunctionalState NewState)
 {
     uint32_t tmp = 0U;
     /* Check the parameters */
@@ -518,13 +518,13 @@ void UART_SetIdleMode(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
   *   This parameter can be one of the following values:
   *   UART0,UART1.
   * @param  clock: Selects input clock for prescaler as PhiT0/2 or PhiT0.
-  *   This parameter can be: 
-  *         0: PhiT0/2 
+  *   This parameter can be:
+  *         0: PhiT0/2
   *         1: PhiT0
   * @retval None
   * @note UART_SetInputClock need to use before UART_Init.
   */
-void UART_SetInputClock(TSB_SC_TypeDef * UARTx, uint32_t clock)
+void UART_SetInputClock(TSB_SC_TypeDef *UARTx, uint32_t clock)
 {
     uint32_t tmp = 0U;
 
@@ -533,7 +533,7 @@ void UART_SetInputClock(TSB_SC_TypeDef * UARTx, uint32_t clock)
 
     tmp = UARTx->EN;
     tmp &= EN_BRCKSEL_MASK;
-    tmp |= (uint32_t) (clock << 1U);
+    tmp |= (uint32_t)(clock << 1U);
     UARTx->EN = tmp;
 }
 
@@ -546,7 +546,7 @@ void UART_SetInputClock(TSB_SC_TypeDef * UARTx, uint32_t clock)
   *   This parameter can be: ENABLE or DISABLE.
   * @retval None
   */
-void UART_FIFOConfig(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
+void UART_FIFOConfig(TSB_SC_TypeDef *UARTx, FunctionalState NewState)
 {
     uint32_t tmp = 0U;
 
@@ -575,7 +575,7 @@ void UART_FIFOConfig(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
   *   UART_TRANSFER_HALFDPX_TX or UART_TRANSFER_FULLDPX.
   * @retval None
   */
-void UART_SetFIFOTransferMode(TSB_SC_TypeDef * UARTx, uint32_t TransferMode)
+void UART_SetFIFOTransferMode(TSB_SC_TypeDef *UARTx, uint32_t TransferMode)
 {
     uint32_t tmp = 0U;
 
@@ -598,7 +598,7 @@ void UART_SetFIFOTransferMode(TSB_SC_TypeDef * UARTx, uint32_t TransferMode)
   *   This parameter can be: UART_RXTXCNT_NONE or UART_RXTXCNT_AUTODISABLE .
   * @retval None
   */
-void UART_TRxAutoDisable(TSB_SC_TypeDef * UARTx, UART_TRxDisable TRxAutoDisable)
+void UART_TRxAutoDisable(TSB_SC_TypeDef *UARTx, UART_TRxDisable TRxAutoDisable)
 {
     uint32_t tmp = 0U;
 
@@ -626,7 +626,7 @@ void UART_TRxAutoDisable(TSB_SC_TypeDef * UARTx, UART_TRxDisable TRxAutoDisable)
   *   This parameter can be: ENABLE or DISABLE.
   * @retval None
   */
-void UART_RxFIFOINTCtrl(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
+void UART_RxFIFOINTCtrl(TSB_SC_TypeDef *UARTx, FunctionalState NewState)
 {
     uint32_t tmp = 0U;
 
@@ -654,7 +654,7 @@ void UART_RxFIFOINTCtrl(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
   *   This parameter can be: ENABLE or DISABLE.
   * @retval None
   */
-void UART_TxFIFOINTCtrl(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
+void UART_TxFIFOINTCtrl(TSB_SC_TypeDef *UARTx, FunctionalState NewState)
 {
     uint32_t tmp = 0U;
 
@@ -682,7 +682,7 @@ void UART_TxFIFOINTCtrl(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
   *   This parameter can be: UART_RXFIFO_MAX or UART_RXFIFO_RXFLEVEL.
   * @retval None
   */
-void UART_RxFIFOByteSel(TSB_SC_TypeDef * UARTx, uint32_t BytesUsed)
+void UART_RxFIFOByteSel(TSB_SC_TypeDef *UARTx, uint32_t BytesUsed)
 {
     uint32_t tmp = 0U;
 
@@ -701,14 +701,14 @@ void UART_RxFIFOByteSel(TSB_SC_TypeDef * UARTx, uint32_t BytesUsed)
   * @brief  Receive FIFO fill level to generate receive interrupts.
   * @param  UARTx: Select the UART channel.
   *   This parameter can be one of the following values:
-  *   UART0,UART1. 
-  * @param  RxFIFOLevel: Receive FIFO fill level. 
+  *   UART0,UART1.
+  * @param  RxFIFOLevel: Receive FIFO fill level.
   *   This parameter can be one of the following values:
   *   UART_RXFIFO4B_FLEVLE_4_2B, UART_RXFIFO4B_FLEVLE_1_1B,
   *   UART_RXFIFO4B_FLEVLE_2_2B or UART_RXFIFO4B_FLEVLE_3_1B.
   * @retval None
   */
-void UART_RxFIFOFillLevel(TSB_SC_TypeDef * UARTx, uint32_t RxFIFOLevel)
+void UART_RxFIFOFillLevel(TSB_SC_TypeDef *UARTx, uint32_t RxFIFOLevel)
 {
     uint32_t tmp = 0U;
 
@@ -731,7 +731,7 @@ void UART_RxFIFOFillLevel(TSB_SC_TypeDef * UARTx, uint32_t RxFIFOLevel)
   *   This parameter can be: UART_RFIS_REACH_FLEVEL or UART_RFIS_REACH_EXCEED_FLEVEL.
   * @retval None
   */
-void UART_RxFIFOINTSel(TSB_SC_TypeDef * UARTx, uint32_t RxINTCondition)
+void UART_RxFIFOINTSel(TSB_SC_TypeDef *UARTx, uint32_t RxINTCondition)
 {
     uint32_t tmp = 0U;
 
@@ -752,7 +752,7 @@ void UART_RxFIFOINTSel(TSB_SC_TypeDef * UARTx, uint32_t RxINTCondition)
   *   UART0,UART1.
   * @retval None
   */
-void UART_RxFIFOClear(TSB_SC_TypeDef * UARTx)
+void UART_RxFIFOClear(TSB_SC_TypeDef *UARTx)
 {
     uint32_t tmp = 0U;
     /* Check the parameters */
@@ -774,7 +774,7 @@ void UART_RxFIFOClear(TSB_SC_TypeDef * UARTx)
   *   UART_TXFIFO4B_FLEVLE_2_0B or UART_TXFIFO4B_FLEVLE_3_1B.
   * @retval None
   */
-void UART_TxFIFOFillLevel(TSB_SC_TypeDef * UARTx, uint32_t TxFIFOLevel)
+void UART_TxFIFOFillLevel(TSB_SC_TypeDef *UARTx, uint32_t TxFIFOLevel)
 {
     uint32_t tmp = 0U;
 
@@ -798,7 +798,7 @@ void UART_TxFIFOFillLevel(TSB_SC_TypeDef * UARTx, uint32_t TxFIFOLevel)
   *   This parameter can be: UART_TFIS_REACH_FLEVEL or UART_TFIS_REACH_NOREACH_FLEVEL.
   * @retval None
   */
-void UART_TxFIFOINTSel(TSB_SC_TypeDef * UARTx, uint32_t TxINTCondition)
+void UART_TxFIFOINTSel(TSB_SC_TypeDef *UARTx, uint32_t TxINTCondition)
 {
     uint32_t tmp = 0U;
 
@@ -819,7 +819,7 @@ void UART_TxFIFOINTSel(TSB_SC_TypeDef * UARTx, uint32_t TxINTCondition)
   *   UART0,UART1.
   * @retval None
   */
-void UART_TxFIFOClear(TSB_SC_TypeDef * UARTx)
+void UART_TxFIFOClear(TSB_SC_TypeDef *UARTx)
 {
     uint32_t tmp = 0U;
     /* Check the parameters */
@@ -837,7 +837,7 @@ void UART_TxFIFOClear(TSB_SC_TypeDef * UARTx)
   *   UART0,UART1.
   * @retval None
   */
-void UART_TxBufferClear(TSB_SC_TypeDef * UARTx)
+void UART_TxBufferClear(TSB_SC_TypeDef *UARTx)
 {
     uint32_t tmp = 0U;
     /* Check the parameters */
@@ -855,7 +855,7 @@ void UART_TxBufferClear(TSB_SC_TypeDef * UARTx)
   *   UART0,UART1.
   * @retval Receive FIFO fill level status.
   */
-uint32_t UART_GetRxFIFOFillLevelStatus(TSB_SC_TypeDef * UARTx)
+uint32_t UART_GetRxFIFOFillLevelStatus(TSB_SC_TypeDef *UARTx)
 {
     uint32_t tmp = 0U;
     /* Check the parameters */
@@ -874,7 +874,7 @@ uint32_t UART_GetRxFIFOFillLevelStatus(TSB_SC_TypeDef * UARTx)
   *   UART0,UART1.
   * @retval Receive FIFO overrun status.
   */
-uint32_t UART_GetRxFIFOOverRunStatus(TSB_SC_TypeDef * UARTx)
+uint32_t UART_GetRxFIFOOverRunStatus(TSB_SC_TypeDef *UARTx)
 {
     uint32_t tmp = 0U;
     uint32_t regval = 0U;
@@ -898,7 +898,7 @@ uint32_t UART_GetRxFIFOOverRunStatus(TSB_SC_TypeDef * UARTx)
   *   UART0,UART1.
   * @retval Transmit FIFO fill level status.
   */
-uint32_t UART_GetTxFIFOFillLevelStatus(TSB_SC_TypeDef * UARTx)
+uint32_t UART_GetTxFIFOFillLevelStatus(TSB_SC_TypeDef *UARTx)
 {
     uint32_t tmp = 0U;
     /* Check the parameters */
@@ -917,7 +917,7 @@ uint32_t UART_GetTxFIFOFillLevelStatus(TSB_SC_TypeDef * UARTx)
   *   UART0,UART1.
   * @retval Transmit FIFO under run status.
   */
-uint32_t UART_GetTxFIFOUnderRunStatus(TSB_SC_TypeDef * UARTx)
+uint32_t UART_GetTxFIFOUnderRunStatus(TSB_SC_TypeDef *UARTx)
 {
     uint32_t tmp = 0U;
     uint32_t regval = 0U;
@@ -935,7 +935,7 @@ uint32_t UART_GetTxFIFOUnderRunStatus(TSB_SC_TypeDef * UARTx)
 }
 
 /**
-  * @brief  Enable or disable the specified UART channel DMA Request By 
+  * @brief  Enable or disable the specified UART channel DMA Request By
       receive interrupt INTRX
   * @param  UARTx: Select the UART channel.
   *   This parameter can be one of the following values:
@@ -944,7 +944,7 @@ uint32_t UART_GetTxFIFOUnderRunStatus(TSB_SC_TypeDef * UARTx)
   *   This parameter can be: ENABLE or DISABLE.
   * @retval None
   */
-void UART_SetRxDMAReq(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
+void UART_SetRxDMAReq(TSB_SC_TypeDef *UARTx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_UART_PERIPH(UARTx));
@@ -960,7 +960,7 @@ void UART_SetRxDMAReq(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
 }
 
 /**
-  * @brief  Enable or disable the specified UART channel DMA Request By 
+  * @brief  Enable or disable the specified UART channel DMA Request By
       receive interrupt INTTX
   * @param  UARTx: Select the UART channel.
   *   This parameter can be one of the following values:
@@ -969,7 +969,7 @@ void UART_SetRxDMAReq(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
   *   This parameter can be: ENABLE or DISABLE.
   * @retval None
   */
-void UART_SetTxDMAReq(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
+void UART_SetTxDMAReq(TSB_SC_TypeDef *UARTx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_UART_PERIPH(UARTx));
@@ -990,12 +990,12 @@ void UART_SetTxDMAReq(TSB_SC_TypeDef * UARTx, FunctionalState NewState)
   *   This parameter can be one of the following values:
   *   SIO0,SIO1.
   * @param  clock: Selects input clock for prescaler as PhiT0/2 or PhiT0.
-  *   This parameter can be: 
+  *   This parameter can be:
   *   SIO_CLOCK_T0_HALF (PhiT0/2)or SIO_CLOCK_T0(PhiT0)
   * @retval None
   * @note SIO_SetInputClock need to use before SIO_Init.
   */
-void SIO_SetInputClock(TSB_SC_TypeDef * SIOx, uint32_t Clock)
+void SIO_SetInputClock(TSB_SC_TypeDef *SIOx, uint32_t Clock)
 {
     uint32_t tmp = 0U;
     assert_param(IS_SIO_PERIPH(SIOx));
@@ -1014,7 +1014,7 @@ void SIO_SetInputClock(TSB_SC_TypeDef * SIOx, uint32_t Clock)
   *   SIO0,SIO1.
   * @retval None
   */
-void SIO_Enable(TSB_SC_TypeDef * SIOx)
+void SIO_Enable(TSB_SC_TypeDef *SIOx)
 {
     /* Check the parameters */
     assert_param(IS_SIO_PERIPH(SIOx));
@@ -1029,7 +1029,7 @@ void SIO_Enable(TSB_SC_TypeDef * SIOx)
   *   SIO0,SIO1.
   * @retval None
   */
-void SIO_Disable(TSB_SC_TypeDef * SIOx)
+void SIO_Disable(TSB_SC_TypeDef *SIOx)
 {
     /* Check the parameters */
     assert_param(IS_SIO_PERIPH(SIOx));
@@ -1044,7 +1044,7 @@ void SIO_Disable(TSB_SC_TypeDef * SIOx)
   *   SIO0,SIO1.
   * @retval The received data
   */
-uint8_t SIO_GetRxData(TSB_SC_TypeDef * SIOx)
+uint8_t SIO_GetRxData(TSB_SC_TypeDef *SIOx)
 {
     uint8_t retval = 0U;
     /* Check the parameters */
@@ -1065,7 +1065,7 @@ uint8_t SIO_GetRxData(TSB_SC_TypeDef * SIOx)
   * @param  Data: the data to be sent.
   * @retval None
   */
-void SIO_SetTxData(TSB_SC_TypeDef * SIOx, uint8_t Data)
+void SIO_SetTxData(TSB_SC_TypeDef *SIOx, uint8_t Data)
 {
     /* Check the parameters */
     assert_param(IS_SIO_PERIPH(SIOx));
@@ -1078,14 +1078,14 @@ void SIO_SetTxData(TSB_SC_TypeDef * SIOx, uint8_t Data)
   * @param  SIOx: Select the SIO channel.
   *   This parameter can be one of the following values:
   *   SIO0,SIO1.
-  * @param  IOClkSel: Selecting clock. 
-  *   This parameter can be one of the following values:  
-  *   SIO_CLK_SCLKOUTPUT or SIO_CLK_SCLKINPUT.  
-  * @param  InitStruct: The structure containing basic SIO configuration.  
+  * @param  IOClkSel: Selecting clock.
+  *   This parameter can be one of the following values:
+  *   SIO_CLK_SCLKOUTPUT or SIO_CLK_SCLKINPUT.
+  * @param  InitStruct: The structure containing basic SIO configuration.
   * @retval None
   * @note SIO_SetInputClock need to use before SIO_Init.
   */
-void SIO_Init(TSB_SC_TypeDef * SIOx, uint32_t IOClkSel, SIO_InitTypeDef * InitStruct)
+void SIO_Init(TSB_SC_TypeDef *SIOx, uint32_t IOClkSel, SIO_InitTypeDef *InitStruct)
 {
     uint32_t tmp = 0U;
 
@@ -1135,7 +1135,7 @@ void SIO_Init(TSB_SC_TypeDef * SIOx, uint32_t IOClkSel, SIO_InitTypeDef * InitSt
     tmp = SIOx->MOD1;
     tmp &= MOD1_FDPX_CLEAR;
     tmp |= InitStruct->TransferMode;
-    /* Set the interval time that valid only for SCLK output mode and double 
+    /* Set the interval time that valid only for SCLK output mode and double
        buffer is enabled */
     if ((IOClkSel == SIO_CLK_SCLKOUTPUT) && (InitStruct->DoubleBuffer == SIO_WBUF_ENABLE)) {
         tmp &= MOD1_SINT_MASK;
@@ -1169,18 +1169,18 @@ void SIO_Init(TSB_SC_TypeDef * SIOx, uint32_t IOClkSel, SIO_InitTypeDef * InitSt
     /* Enable or disable transmission or reception and both */
     tmp = SIOx->MOD1;
     switch (InitStruct->Mode) {
-    case SIO_ENABLE_RX:
-        SIOx->MOD0 |= InitStruct->Mode;
-        tmp &= MOD1_TXE_CLEAR;
-        break;
-    case SIO_ENABLE_TX:
-        tmp |= InitStruct->Mode;
-        SIOx->MOD0 &= MOD0_RXE_CLEAR;
-        break;
-    default:
-        SIOx->MOD0 |= SIO_ENABLE_RX;
-        tmp |= SIO_ENABLE_TX;
-        break;
+        case SIO_ENABLE_RX:
+            SIOx->MOD0 |= InitStruct->Mode;
+            tmp &= MOD1_TXE_CLEAR;
+            break;
+        case SIO_ENABLE_TX:
+            tmp |= InitStruct->Mode;
+            SIOx->MOD0 &= MOD0_RXE_CLEAR;
+            break;
+        default:
+            SIOx->MOD0 |= SIO_ENABLE_RX;
+            tmp |= SIO_ENABLE_TX;
+            break;
     }
     tmp &= MOD1_CLEAR;
     SIOx->MOD1 = tmp;

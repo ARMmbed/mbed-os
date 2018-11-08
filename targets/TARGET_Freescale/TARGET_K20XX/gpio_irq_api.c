@@ -29,7 +29,8 @@ static gpio_irq_handler irq_handler;
 #define IRQ_FALLING_EDGE    PORT_PCR_IRQC(10)
 #define IRQ_EITHER_EDGE     PORT_PCR_IRQC(11)
 
-static void handle_interrupt_in(PORT_Type *port, int ch_base) {
+static void handle_interrupt_in(PORT_Type *port, int ch_base)
+{
     uint32_t isfr;
     uint32_t pin;
 
@@ -63,7 +64,8 @@ static void handle_interrupt_in(PORT_Type *port, int ch_base) {
     }
 }
 
-void gpio_irqA(void) {
+void gpio_irqA(void)
+{
     handle_interrupt_in(PORTA, 0);
 }
 
@@ -88,9 +90,11 @@ void gpio_irqE(void)
 }
 
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
-    if (pin == NC)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+{
+    if (pin == NC) {
         return -1;
+    }
 
     irq_handler = handler;
 
@@ -117,7 +121,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
             break;
         case PortD:
             ch_base = 96;
-            irq_n = PORTD_IRQn; vector = (uint32_t)gpio_irqD;
+            irq_n = PORTD_IRQn;
+            vector = (uint32_t)gpio_irqD;
             break;
         case PortE:
             ch_base = 128;
@@ -138,27 +143,31 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     return 0;
 }
 
-void gpio_irq_free(gpio_irq_t *obj) {
+void gpio_irq_free(gpio_irq_t *obj)
+{
     channel_ids[obj->ch] = 0;
 }
 
-void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
+void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
+{
     PORT_Type *port = (PORT_Type *)(PORTA_BASE + 0x1000 * obj->port);
 
     uint32_t irq_settings = IRQ_DISABLED;
 
     switch (port->PCR[obj->pin] & PORT_PCR_IRQC_MASK) {
         case IRQ_DISABLED:
-            if (enable)
+            if (enable) {
                 irq_settings = (event == IRQ_RISE) ? (IRQ_RAISING_EDGE) : (IRQ_FALLING_EDGE);
+            }
             break;
 
         case IRQ_RAISING_EDGE:
             if (enable) {
                 irq_settings = (event == IRQ_RISE) ? (IRQ_RAISING_EDGE) : (IRQ_EITHER_EDGE);
             } else {
-                if (event == IRQ_FALL)
+                if (event == IRQ_FALL) {
                     irq_settings = IRQ_RAISING_EDGE;
+                }
             }
             break;
 
@@ -166,8 +175,9 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
             if (enable) {
                 irq_settings = (event == IRQ_FALL) ? (IRQ_FALLING_EDGE) : (IRQ_EITHER_EDGE);
             } else {
-                if (event == IRQ_RISE)
+                if (event == IRQ_RISE) {
                     irq_settings = IRQ_FALLING_EDGE;
+                }
             }
             break;
 
@@ -184,7 +194,8 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     port->PCR[obj->pin] = (port->PCR[obj->pin] & ~PORT_PCR_IRQC_MASK) | irq_settings | PORT_PCR_ISF_MASK;
 }
 
-void gpio_irq_enable(gpio_irq_t *obj) {
+void gpio_irq_enable(gpio_irq_t *obj)
+{
     switch (obj->port) {
         case PortA:
             NVIC_EnableIRQ(PORTA_IRQn);
@@ -204,7 +215,8 @@ void gpio_irq_enable(gpio_irq_t *obj) {
     }
 }
 
-void gpio_irq_disable(gpio_irq_t *obj) {
+void gpio_irq_disable(gpio_irq_t *obj)
+{
     switch (obj->port) {
         case PortA:
             NVIC_DisableIRQ(PORTA_IRQn);

@@ -49,8 +49,7 @@
 /*@}*/
 
 /*! @brief SDRAM controller auto-refresh timing. */
-typedef enum _sdramc_refresh_time
-{
+typedef enum _sdramc_refresh_time {
     kSDRAMC_RefreshThreeClocks = 0x0U, /*!< The refresh timing with three bus clocks. */
     kSDRAMC_RefreshSixClocks,          /*!< The refresh timing with six bus clocks. */
     kSDRAMC_RefreshNineClocks          /*!< The refresh timing with nine bus clocks. */
@@ -73,8 +72,7 @@ typedef enum _sdramc_refresh_time
  *    2       3 bus clock    3 bus clock   6 bus clocks   3 bus clock   1 bus clock   1 bus clock  \n
  *    3       3 bus clock    3 bus clock   6 bus clocks   3 bus clock   1 bus clock   1 bus clock  \n
  */
-typedef enum _sdramc_latency
-{
+typedef enum _sdramc_latency {
     kSDRAMC_LatencyZero = 0x0U, /*!< Latency  0. */
     kSDRAMC_LatencyOne,         /*!< Latency  1. */
     kSDRAMC_LatencyTwo,         /*!< Latency  2. */
@@ -82,8 +80,7 @@ typedef enum _sdramc_latency
 } sdramc_latency_t;
 
 /*! @brief SDRAM controller command bit location. */
-typedef enum _sdramc_command_bit_location
-{
+typedef enum _sdramc_command_bit_location {
     kSDRAMC_Commandbit17 = 0x0U, /*!< Command bit location is bit 17. */
     kSDRAMC_Commandbit18,        /*!< Command bit location is bit 18. */
     kSDRAMC_Commandbit19,        /*!< Command bit location is bit 19. */
@@ -95,8 +92,7 @@ typedef enum _sdramc_command_bit_location
 } sdramc_command_bit_location_t;
 
 /*! @brief SDRAM controller command. */
-typedef enum _sdramc_command
-{
+typedef enum _sdramc_command {
     kSDRAMC_ImrsCommand = 0x0U,        /*!< Initiate MRS command. */
     kSDRAMC_PrechargeCommand,          /*!< Initiate precharge command.  */
     kSDRAMC_SelfrefreshEnterCommand,   /*!< Enter self-refresh command. */
@@ -106,23 +102,20 @@ typedef enum _sdramc_command
 } sdramc_command_t;
 
 /*! @brief SDRAM port size. */
-typedef enum _sdramc_port_size
-{
+typedef enum _sdramc_port_size {
     kSDRAMC_PortSize32Bit = 0x0U, /*!< 32-Bit port size. */
     kSDRAMC_PortSize8Bit,         /*!< 8-Bit port size. */
     kSDRAMC_PortSize16Bit         /*!< 16-Bit port size. */
 } sdramc_port_size_t;
 
 /*! @brief SDRAM controller block selection. */
-typedef enum _sdramc_block_selection
-{
+typedef enum _sdramc_block_selection {
     kSDRAMC_Block0 = 0x0U, /*!< Select SDRAM block 0. */
     kSDRAMC_Block1,        /*!< Select SDRAM block 1. */
 } sdramc_block_selection_t;
 
 /*! @brief SDRAM controller block control configuration structure. */
-typedef struct _sdramc_blockctl_config
-{
+typedef struct _sdramc_blockctl_config {
     sdramc_block_selection_t block;         /*!< The block number. */
     sdramc_port_size_t portSize;            /*!< The port size of the associated SDRAM block. */
     sdramc_command_bit_location_t location; /*!< The command bit location. */
@@ -132,8 +125,7 @@ typedef struct _sdramc_blockctl_config
 } sdramc_blockctl_config_t;
 
 /*! @brief SDRAM controller refresh timing configuration structure. */
-typedef struct _sdramc_refresh_config
-{
+typedef struct _sdramc_refresh_config {
     sdramc_refresh_time_t refreshTime; /*!< Trc:The number of bus clocks inserted
                                             between a REF and next ACTIVE command. */
     uint32_t sdramRefreshRow;          /*!< The SDRAM refresh time each row: ns/row. */
@@ -146,8 +138,7 @@ typedef struct _sdramc_refresh_config
  * Defines a configure structure and uses the SDRAMC_Configure() function to make necessary
  * initializations.
  */
-typedef struct _sdramc_config_t
-{
+typedef struct _sdramc_config_t {
     sdramc_refresh_config_t *refreshConfig; /*!< Refresh timing configure structure pointer. */
     sdramc_blockctl_config_t *blockConfig;  /*!< Block configure structure pointer. If both SDRAM
                                                  blocks are used, use the two continuous blockConfig. */
@@ -244,12 +235,9 @@ void SDRAMC_SendCommand(SDRAM_Type *base, sdramc_block_selection_t block, sdramc
  */
 static inline void SDRAMC_EnableWriteProtect(SDRAM_Type *base, sdramc_block_selection_t block, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->BLOCK[block].CM |= SDRAM_CM_WP_MASK;
-    }
-    else
-    {
+    } else {
         base->BLOCK[block].CM &= ~SDRAM_CM_WP_MASK;
     }
 }
@@ -263,12 +251,9 @@ static inline void SDRAMC_EnableWriteProtect(SDRAM_Type *base, sdramc_block_sele
  */
 static inline void SDRAMC_EnableOperateValid(SDRAM_Type *base, sdramc_block_selection_t block, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->BLOCK[block].CM |= SDRAM_CM_V_MASK;
-    }
-    else
-    {
+    } else {
         base->BLOCK[block].CM &= ~SDRAM_CM_V_MASK;
     }
 }

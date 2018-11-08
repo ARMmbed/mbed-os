@@ -3,23 +3,28 @@
 DigitalOut status_led(LED_BLUE);
 DigitalOut error_led(LED_RED);
 
-extern "C" void RTC_IRQHandler(void) {
+extern "C" void RTC_IRQHandler(void)
+{
     error_led = 0;
 }
 
-extern "C" void RTC_Seconds_IRQHandler(void) {
+extern "C" void RTC_Seconds_IRQHandler(void)
+{
     error_led = 0;
 }
 
-extern "C" void HardFault_Handler(void) {
+extern "C" void HardFault_Handler(void)
+{
     error_led = 0;
 }
 
-extern "C" void NMI_Handler_Handler(void) {
+extern "C" void NMI_Handler_Handler(void)
+{
     error_led = 0;
 }
 
-void rtc_init(void) {
+void rtc_init(void)
+{
     // enable the clock to SRTC module register space
     SIM->SCGC6 |= SIM_SCGC6_RTC_MASK;
     SIM->SOPT1 = (SIM->SOPT1 & ~SIM_SOPT1_OSC32KSEL_MASK) | SIM_SOPT1_OSC32KSEL(0);
@@ -41,7 +46,7 @@ void rtc_init(void) {
     printf("LR: 0x%x\n", RTC->LR);
     printf("CR: 0x%x\n", RTC->CR);
     wait(1);
-    if (RTC->SR & RTC_SR_TIF_MASK){
+    if (RTC->SR & RTC_SR_TIF_MASK) {
         RTC->TSR = 0;
     }
     RTC->TCR = 0;
@@ -49,7 +54,7 @@ void rtc_init(void) {
     // After setting this bit, wait the oscillator startup time before enabling
     // the time counter to allow the clock time to stabilize
     RTC->CR |= RTC_CR_OSCE_MASK;
-    for (volatile int i=0; i<0x600000; i++);
+    for (volatile int i = 0; i < 0x600000; i++);
 
     //enable seconds interrupts
     RTC->IER |= RTC_IER_TSIE_MASK;
@@ -60,7 +65,8 @@ void rtc_init(void) {
 
 }
 
-int main() {
+int main()
+{
     error_led = 1;
     rtc_init();
 

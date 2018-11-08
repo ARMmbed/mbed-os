@@ -39,16 +39,16 @@ const uint32_t GPIO_Base[GPIO_NUM] = {
   * For example, if DATA = 0x7F, it mean the bit0 to bit6 of DATA register are avaiable;
 */
 const GPIO_RegTypeDef GPIO_SFRs[GPIO_NUM] = {
-/*        DATA    CR      FR1    FR2    OD     PUP    PDN    SEL    IE  */
-/* PA */ {0xFFU, 0xFFU, {0x80U, 0x00U}, 0xFFU, 0xFFU, 0xFFU, 0x00U, 0xFFU},
-/* PB */ {0x0FU, 0x0FU, {0x00U, 0x00U}, 0x0FU, 0x0FU, 0x0FU, 0x00U, 0x0FU},
-/* PC */ {0x3FU, 0x3FU, {0x3FU, 0x00U}, 0x3FU, 0x3FU, 0x3FU, 0x03U, 0x3FU},
-/* PD */ {0x3FU, 0x3FU, {0x1FU, 0x0FU}, 0x3FU, 0x3FU, 0x3FU, 0x30U, 0x3FU},
-/* PE */ {0x3FU, 0x3FU, {0x3FU, 0x02U}, 0x3FU, 0x3FU, 0x3FU, 0x00U, 0x3FU},
-/* PF */ {0xFFU, 0xFFU, {0x3FU, 0x01U}, 0xFFU, 0xFFU, 0xFFU, 0x00U, 0xFFU},
-/* PG */ {0x03U, 0x03U, {0x03U, 0x00U}, 0x03U, 0x03U, 0x03U, 0x03U, 0x03U},
-/* PH */ {0x0FU, 0x0FU, {0x0FU, 0x00U}, 0x0FU, 0x0FU, 0x0FU, 0x00U, 0x0FU},
-/* PJ */ {0x0FU, 0x0FU, {0x03U, 0x00U}, 0x0FU, 0x0FU, 0x0FU, 0x0FU, 0x0FU}
+    /*        DATA    CR      FR1    FR2    OD     PUP    PDN    SEL    IE  */
+    /* PA */ {0xFFU, 0xFFU, {0x80U, 0x00U}, 0xFFU, 0xFFU, 0xFFU, 0x00U, 0xFFU},
+    /* PB */ {0x0FU, 0x0FU, {0x00U, 0x00U}, 0x0FU, 0x0FU, 0x0FU, 0x00U, 0x0FU},
+    /* PC */ {0x3FU, 0x3FU, {0x3FU, 0x00U}, 0x3FU, 0x3FU, 0x3FU, 0x03U, 0x3FU},
+    /* PD */ {0x3FU, 0x3FU, {0x1FU, 0x0FU}, 0x3FU, 0x3FU, 0x3FU, 0x30U, 0x3FU},
+    /* PE */ {0x3FU, 0x3FU, {0x3FU, 0x02U}, 0x3FU, 0x3FU, 0x3FU, 0x00U, 0x3FU},
+    /* PF */ {0xFFU, 0xFFU, {0x3FU, 0x01U}, 0xFFU, 0xFFU, 0xFFU, 0x00U, 0xFFU},
+    /* PG */ {0x03U, 0x03U, {0x03U, 0x00U}, 0x03U, 0x03U, 0x03U, 0x03U, 0x03U},
+    /* PH */ {0x0FU, 0x0FU, {0x0FU, 0x00U}, 0x0FU, 0x0FU, 0x0FU, 0x00U, 0x0FU},
+    /* PJ */ {0x0FU, 0x0FU, {0x03U, 0x00U}, 0x0FU, 0x0FU, 0x0FU, 0x0FU, 0x0FU}
 };
 
 /** @defgroup GPIO_Exported_Functions
@@ -59,8 +59,8 @@ const GPIO_RegTypeDef GPIO_SFRs[GPIO_NUM] = {
   * @brief  Read GPIO Data register.
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
-  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG, 
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
+  *   GPIO_PH, GPIO_PJ.
   * @retval Data:The value of DATA register.
   */
 uint8_t GPIO_ReadData(GPIO_Port GPIO_x)
@@ -80,8 +80,8 @@ uint8_t GPIO_ReadData(GPIO_Port GPIO_x)
   * @brief  Read Bit of GPIO Data register.
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
-  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG, 
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
+  *   GPIO_PH, GPIO_PJ.
   * @param  Bit_x: Select GPIO pin.
   *   This parameter can be one of the following values:
   *   GPIO_BIT_0, GPIO_BIT_1, GPIO_BIT_2, GPIO_BIT_3,
@@ -104,7 +104,7 @@ uint8_t GPIO_ReadDataBit(GPIO_Port GPIO_x, uint8_t Bit_x)
 
     PORT = (TSB_Port_TypeDef *) GPIO_Base[GPIO_x];
     Data = (uint8_t) PORT->DATA;
-    tmp = (uint8_t) (Data & Bit_x);
+    tmp = (uint8_t)(Data & Bit_x);
     if (tmp) {
         BitValue = GPIO_BIT_VALUE_1;
     } else {
@@ -118,8 +118,8 @@ uint8_t GPIO_ReadDataBit(GPIO_Port GPIO_x, uint8_t Bit_x)
   * @brief  Write specified value to GPIO DATA register.
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
-  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG, 
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
+  *   GPIO_PH, GPIO_PJ.
   * @param  Data: specified value will be written to GPIO DATA register.
   * @retval None
   */
@@ -141,8 +141,8 @@ void GPIO_WriteData(GPIO_Port GPIO_x, uint8_t Data)
   * @brief  Write to specified Bit of GPIO DATA register.
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
-  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG, 
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
+  *   GPIO_PH, GPIO_PJ.
   * @param  Bit_x: Select GPIO pin,which can set as output.
   *   This parameter can be one of the following values:
   *   GPIO_BIT_0, GPIO_BIT_1, GPIO_BIT_2, GPIO_BIT_3,
@@ -185,8 +185,8 @@ void GPIO_WriteDataBit(GPIO_Port GPIO_x, uint8_t Bit_x, uint8_t BitValue)
   * @brief  Initialize the specified GPIO pin.
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
-  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG, 
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
+  *   GPIO_PH, GPIO_PJ.
   * @param  Bit_x: Select GPIO pin.
   *   This parameter can be one of the following values:
   *   GPIO_BIT_0, GPIO_BIT_1, GPIO_BIT_2, GPIO_BIT_3,
@@ -195,7 +195,7 @@ void GPIO_WriteDataBit(GPIO_Port GPIO_x, uint8_t Bit_x, uint8_t BitValue)
   * @param  GPIO_InitStruct: The structure containing basic GPIO configuration.
   * @retval None
   */
-void GPIO_Init(GPIO_Port GPIO_x, uint8_t Bit_x, GPIO_InitTypeDef * GPIO_InitStruct)
+void GPIO_Init(GPIO_Port GPIO_x, uint8_t Bit_x, GPIO_InitTypeDef *GPIO_InitStruct)
 {
     uint8_t tmp = 0U;
 
@@ -212,64 +212,64 @@ void GPIO_Init(GPIO_Port GPIO_x, uint8_t Bit_x, GPIO_InitTypeDef * GPIO_InitStru
     }
     tmp = GPIO_InitStruct->IOMode;
     switch (tmp) {
-    case GPIO_INPUT_MODE:
-        GPIO_SetInput(GPIO_x, Bit_x);
-        break;
-    case GPIO_OUTPUT_MODE:
-        GPIO_SetOutput(GPIO_x, Bit_x);
-        break;
-    default:
-        /* Do nothing */
-        break;
-    }
-    tmp = GPIO_InitStruct->PullUp;
-    switch (tmp) {
-    case GPIO_PULLUP_ENABLE:
-        GPIO_SetPullUp(GPIO_x, Bit_x, ENABLE);
-        break;
-    case GPIO_PULLUP_DISABLE:
-        GPIO_SetPullUp(GPIO_x, Bit_x, DISABLE);
-        break;
-    default:
-        /* Do nothing */
-        break;
-    }
-    tmp = GPIO_InitStruct->PullDown;
-    switch (tmp) {
-    case GPIO_PULLDOWN_ENABLE:
-        GPIO_SetPullDown(GPIO_x, Bit_x, ENABLE);
-        break;
-    case GPIO_PULLDOWN_DISABLE:
-        GPIO_SetPullDown(GPIO_x, Bit_x, DISABLE);
-        break;
-    default:
-        /* Do nothing */
-        break;
-    }
-    tmp = GPIO_InitStruct->OpenDrain;
-    switch (tmp) {
-    case GPIO_OPEN_DRAIN_ENABLE:
-        GPIO_SetOpenDrain(GPIO_x, Bit_x, ENABLE);
-        break;
-    case GPIO_OPEN_DRAIN_DISABLE:
-        GPIO_SetOpenDrain(GPIO_x, Bit_x, DISABLE);
-        break;
-    default:
-        /* Do nothing */
-        break;
-    }
-    if ((GPIO_x == GPIO_PC) || (GPIO_x == GPIO_PD) || (GPIO_x == GPIO_PG)) {
-        tmp = GPIO_InitStruct->InputVoltage;
-        switch (tmp) {
-        case GPIO_INPUT_VOLTAGE_3V:
-            GPIO_SetInputVoltage(GPIO_x, Bit_x, GPIO_BIT_VALUE_0);
+        case GPIO_INPUT_MODE:
+            GPIO_SetInput(GPIO_x, Bit_x);
             break;
-        case GPIO_INPUT_VOLTAGE_1V8:
-            GPIO_SetInputVoltage(GPIO_x, Bit_x, GPIO_BIT_VALUE_1);
+        case GPIO_OUTPUT_MODE:
+            GPIO_SetOutput(GPIO_x, Bit_x);
             break;
         default:
             /* Do nothing */
             break;
+    }
+    tmp = GPIO_InitStruct->PullUp;
+    switch (tmp) {
+        case GPIO_PULLUP_ENABLE:
+            GPIO_SetPullUp(GPIO_x, Bit_x, ENABLE);
+            break;
+        case GPIO_PULLUP_DISABLE:
+            GPIO_SetPullUp(GPIO_x, Bit_x, DISABLE);
+            break;
+        default:
+            /* Do nothing */
+            break;
+    }
+    tmp = GPIO_InitStruct->PullDown;
+    switch (tmp) {
+        case GPIO_PULLDOWN_ENABLE:
+            GPIO_SetPullDown(GPIO_x, Bit_x, ENABLE);
+            break;
+        case GPIO_PULLDOWN_DISABLE:
+            GPIO_SetPullDown(GPIO_x, Bit_x, DISABLE);
+            break;
+        default:
+            /* Do nothing */
+            break;
+    }
+    tmp = GPIO_InitStruct->OpenDrain;
+    switch (tmp) {
+        case GPIO_OPEN_DRAIN_ENABLE:
+            GPIO_SetOpenDrain(GPIO_x, Bit_x, ENABLE);
+            break;
+        case GPIO_OPEN_DRAIN_DISABLE:
+            GPIO_SetOpenDrain(GPIO_x, Bit_x, DISABLE);
+            break;
+        default:
+            /* Do nothing */
+            break;
+    }
+    if ((GPIO_x == GPIO_PC) || (GPIO_x == GPIO_PD) || (GPIO_x == GPIO_PG)) {
+        tmp = GPIO_InitStruct->InputVoltage;
+        switch (tmp) {
+            case GPIO_INPUT_VOLTAGE_3V:
+                GPIO_SetInputVoltage(GPIO_x, Bit_x, GPIO_BIT_VALUE_0);
+                break;
+            case GPIO_INPUT_VOLTAGE_1V8:
+                GPIO_SetInputVoltage(GPIO_x, Bit_x, GPIO_BIT_VALUE_1);
+                break;
+            default:
+                /* Do nothing */
+                break;
         }
     }
 }
@@ -278,8 +278,8 @@ void GPIO_Init(GPIO_Port GPIO_x, uint8_t Bit_x, GPIO_InitTypeDef * GPIO_InitStru
   * @brief  Set specified GPIO Pin as output port.
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
-  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG, 
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
+  *   GPIO_PH, GPIO_PJ.
   * @param  Bit_x: Select GPIO pin.
   *   This parameter can be one of the following values:
   *   GPIO_BIT_0, GPIO_BIT_1, GPIO_BIT_2, GPIO_BIT_3,
@@ -325,8 +325,8 @@ void GPIO_SetOutput(GPIO_Port GPIO_x, uint8_t Bit_x)
   * @brief  Set specified GPIO Pin as input port.
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
-  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG, 
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
+  *   GPIO_PH, GPIO_PJ.
   * @param  Bit_x: Select GPIO pin.
   *   This parameter can be one of the following values:
   *   GPIO_BIT_0, GPIO_BIT_1, GPIO_BIT_2, GPIO_BIT_3,
@@ -373,7 +373,7 @@ void GPIO_SetInput(GPIO_Port GPIO_x, uint8_t Bit_x)
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
   *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PH, GPIO_PJ.
   * @param  Bit_x: Select GPIO pin.
   *   This parameter can be one of the following values:
   *   GPIO_BIT_0, GPIO_BIT_1, GPIO_BIT_2, GPIO_BIT_3,
@@ -413,8 +413,8 @@ void GPIO_SetOutputEnableReg(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState Ne
   * @brief  Set or clear the bit setting in input control register.
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
-  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG, 
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
+  *   GPIO_PH, GPIO_PJ.
   * @param  Bit_x: Select GPIO pin.
   *   This parameter can be one of the following values:
   *   GPIO_BIT_0, GPIO_BIT_1, GPIO_BIT_2, GPIO_BIT_3,
@@ -454,8 +454,8 @@ void GPIO_SetInputEnableReg(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState New
   * @brief  Enable or Disable pull-up function of specified GPIO Pin.
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
-  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG, 
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
+  *   GPIO_PH, GPIO_PJ.
   * @param  Bit_x: Select GPIO pin.
   *   This parameter can be one of the following values:
   *   GPIO_BIT_0, GPIO_BIT_1, GPIO_BIT_2, GPIO_BIT_3,
@@ -495,8 +495,8 @@ void GPIO_SetPullUp(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState)
   * @brief  Enable or Disable pull-down function of specified GPIO Pin.
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
-  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG, 
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
+  *   GPIO_PH, GPIO_PJ.
   * @param  Bit_x: Select GPIO pin.
   *   This parameter can be one of the following values:
   *   GPIO_BIT_0, GPIO_BIT_1, GPIO_BIT_2, GPIO_BIT_3,
@@ -536,8 +536,8 @@ void GPIO_SetPullDown(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState)
   * @brief  Set specified GPIO Pin as open drain port or CMOS port.
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
-  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG, 
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
+  *   GPIO_PH, GPIO_PJ.
   * @param  Bit_x: Select GPIO pin.
   *   This parameter can be one of the following values:
   *   GPIO_BIT_0, GPIO_BIT_1, GPIO_BIT_2, GPIO_BIT_3,
@@ -619,7 +619,7 @@ void GPIO_SetInputVoltage(GPIO_Port GPIO_x, uint8_t Bit_x, uint8_t BitValue)
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
   *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PH, GPIO_PJ.
   * @param  FuncReg_x: Select Function register of GPIO.
   *   This parameter can be one of the following values:
   *   GPIO_FUNC_REG_1, GPIO_FUNC_REG_2.
@@ -655,7 +655,7 @@ void GPIO_EnableFuncReg(GPIO_Port GPIO_x, uint8_t FuncReg_x, uint8_t Bit_x)
   * @param  GPIO_x: Select GPIO port.
   *   This parameter can be one of the following values:
   *   GPIO_PA, GPIO_PB, GPIO_PC, GPIO_PD, GPIO_PE, GPIO_PF, GPIO_PG,
-  *   GPIO_PH, GPIO_PJ. 
+  *   GPIO_PH, GPIO_PJ.
   * @param  FuncReg_x: Select Function register of GPIO.
   *   This parameter can be one of the following values:
   *   GPIO_FUNC_REG_1, GPIO_FUNC_REG_2.

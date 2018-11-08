@@ -33,7 +33,7 @@ extern int32_t svcRtxKernelLock(void);
 
 UVISOR_SET_PRIV_SYS_HOOKS(SVC_Handler, PendSV_Handler, SysTick_Handler, svcRtxKernelLock, __uvisor_semaphore_post);
 
-extern RtxBoxIndex * const __uvisor_ps;
+extern RtxBoxIndex *const __uvisor_ps;
 
 void __uvisor_initialize_rpc_queues(void)
 {
@@ -42,13 +42,13 @@ void __uvisor_initialize_rpc_queues(void)
     return;
 #endif
 
-    UvisorBoxIndex * const index = &__uvisor_ps->index;
+    UvisorBoxIndex *const index = &__uvisor_ps->index;
 
     uvisor_pool_slot_t i;
 
-    uvisor_rpc_outgoing_message_queue_t * rpc_outgoing_msg_queue = &(uvisor_rpc(index)->outgoing_message_queue);
-    uvisor_rpc_incoming_message_queue_t * rpc_incoming_msg_queue = &(uvisor_rpc(index)->incoming_message_queue);
-    uvisor_rpc_fn_group_queue_t * rpc_fn_group_queue = &(uvisor_rpc(index)->fn_group_queue);
+    uvisor_rpc_outgoing_message_queue_t *rpc_outgoing_msg_queue = &(uvisor_rpc(index)->outgoing_message_queue);
+    uvisor_rpc_incoming_message_queue_t *rpc_incoming_msg_queue = &(uvisor_rpc(index)->incoming_message_queue);
+    uvisor_rpc_fn_group_queue_t *rpc_fn_group_queue = &(uvisor_rpc(index)->fn_group_queue);
 
     /* Initialize the outgoing RPC message queue. */
     if (uvisor_pool_queue_init(&rpc_outgoing_msg_queue->queue,
@@ -61,7 +61,7 @@ void __uvisor_initialize_rpc_queues(void)
 
     /* Initialize all the result semaphores. */
     for (i = 0; i < UVISOR_RPC_OUTGOING_MESSAGE_SLOTS; i++) {
-        UvisorSemaphore * semaphore = &rpc_outgoing_msg_queue->messages[i].semaphore;
+        UvisorSemaphore *semaphore = &rpc_outgoing_msg_queue->messages[i].semaphore;
         if (__uvisor_semaphore_init(semaphore, 1, 0)) {
             uvisor_error(USER_NOT_ALLOWED);
         }
@@ -96,7 +96,7 @@ void __uvisor_initialize_rpc_queues(void)
 
     /* Initialize all the function group semaphores. */
     for (i = 0; i < UVISOR_RPC_FN_GROUP_SLOTS; i++) {
-        UvisorSemaphore * semaphore = &rpc_fn_group_queue->fn_groups[i].semaphore;
+        UvisorSemaphore *semaphore = &rpc_fn_group_queue->fn_groups[i].semaphore;
         if (__uvisor_semaphore_init(semaphore, 1, 0)) {
             uvisor_error(USER_NOT_ALLOWED);
         }
@@ -105,10 +105,10 @@ void __uvisor_initialize_rpc_queues(void)
 
 /* This function is called by uVisor in unprivileged mode. On this OS, we
  * create box main threads for the box. */
-void __uvisor_lib_box_init(void * lib_config)
+void __uvisor_lib_box_init(void *lib_config)
 {
     osThreadId_t thread_id;
-    uvisor_box_main_t * box_main = lib_config;
+    uvisor_box_main_t *box_main = lib_config;
     osThreadAttr_t thread_attr = { 0 };
 
     __uvisor_initialize_rpc_queues();

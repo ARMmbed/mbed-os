@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
- 
+
 #ifndef MBED_PERIPHERALNAMES_H
 #define MBED_PERIPHERALNAMES_H
 
@@ -58,7 +58,7 @@ typedef enum {
     I2C_1 = (int)I2C1_BASE
 } I2CName;
 
-typedef enum {    
+typedef enum {
     PWM_0 = (int)PWM_CH0_BASE,
     PWM_1 = (int)PWM_CH1_BASE,
     PWM_2 = (int)PWM_CH2_BASE,

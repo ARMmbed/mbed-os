@@ -49,7 +49,7 @@ typedef enum {
     p17 = 17,
     p18 = 18,
     p19 = 19,
-    
+
     UART0_RX = p13,
     UART0_TX = p18,
     UART0_CTS = p12,
@@ -66,7 +66,7 @@ typedef enum {
     LED2 = p3,
     LED3 = p4,
     LED4 = p5,
-    
+
     // mBed interface Pins
     USBTX = UART0_TX,
     USBRX = UART0_RX,
@@ -92,7 +92,7 @@ typedef enum {
     P0_18 = p18,
     P0_19 = p19,
     NUM_PINS,
-    
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

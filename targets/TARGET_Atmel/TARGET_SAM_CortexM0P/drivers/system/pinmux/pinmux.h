@@ -341,7 +341,7 @@ void system_pinmux_group_set_config(
  *
  * \return Base address of the associated PORT module.
  */
-static inline PortGroup* system_pinmux_get_group_from_gpio_pin(
+static inline PortGroup *system_pinmux_get_group_from_gpio_pin(
     const uint8_t gpio_pin)
 {
     uint8_t port_index  = (gpio_pin / 128);
@@ -411,7 +411,7 @@ static inline void system_pinmux_pin_set_input_sample_mode(
     const uint8_t gpio_pin,
     const enum system_pinmux_pin_sample mode)
 {
-    PortGroup* const port = system_pinmux_get_group_from_gpio_pin(gpio_pin);
+    PortGroup *const port = system_pinmux_get_group_from_gpio_pin(gpio_pin);
     uint32_t pin_index = (gpio_pin % 32);
 
     if (mode == SYSTEM_PINMUX_PIN_SAMPLE_ONDEMAND) {
@@ -451,7 +451,7 @@ static inline void system_pinmux_pin_set_output_strength(
     const uint8_t gpio_pin,
     const enum system_pinmux_pin_strength mode)
 {
-    PortGroup* const port = system_pinmux_get_group_from_gpio_pin(gpio_pin);
+    PortGroup *const port = system_pinmux_get_group_from_gpio_pin(gpio_pin);
     uint32_t pin_index = (gpio_pin % 32);
 
     if (mode == SYSTEM_PINMUX_PIN_STRENGTH_HIGH) {
@@ -496,7 +496,7 @@ static inline void system_pinmux_pin_set_output_slew_rate(
     const uint8_t gpio_pin,
     const enum system_pinmux_pin_slew_rate mode)
 {
-    PortGroup* const port = system_pinmux_get_group_from_gpio_pin(gpio_pin);
+    PortGroup *const port = system_pinmux_get_group_from_gpio_pin(gpio_pin);
     uint32_t pin_index = (gpio_pin % 32);
 
     if (mode == SYSTEM_PINMUX_PIN_SLEW_RATE_LIMITED) {
@@ -539,7 +539,7 @@ static inline void system_pinmux_pin_set_output_drive(
     const uint8_t gpio_pin,
     const enum system_pinmux_pin_drive mode)
 {
-    PortGroup* const port = system_pinmux_get_group_from_gpio_pin(gpio_pin);
+    PortGroup *const port = system_pinmux_get_group_from_gpio_pin(gpio_pin);
     uint32_t pin_index = (gpio_pin % 32);
 
     if (mode == SYSTEM_PINMUX_PIN_DRIVE_OPEN_DRAIN) {
@@ -568,18 +568,18 @@ void system_pinmux_group_set_output_drive(
  * The table below presents the acronyms used in this module:
  *
  * <table>
- *	<tr>
- *		<th>Acronym</th>
- *		<th>Description</th>
- *	</tr>
- *	<tr>
- *		<td>GPIO</td>
- *		<td>General Purpose Input/Output</td>
- *	</tr>
- *	<tr>
- *		<td>MUX</td>
- *		<td>Multiplexer</td>
- *	</tr>
+ *  <tr>
+ *      <th>Acronym</th>
+ *      <th>Description</th>
+ *  </tr>
+ *  <tr>
+ *      <td>GPIO</td>
+ *      <td>General Purpose Input/Output</td>
+ *  </tr>
+ *  <tr>
+ *      <td>MUX</td>
+ *      <td>Multiplexer</td>
+ *  </tr>
  * </table>
  *
  *
@@ -600,23 +600,23 @@ void system_pinmux_group_set_output_drive(
  * the table.
  *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
- *	<tr>
- *		<td>Removed code of open drain, slew limit and drive strength
- *		features</td>
- *	</tr>
- *	<tr>
- *		<td>Fixed broken sampling mode function implementations, which wrote
- *		    corrupt configuration values to the device registers</td>
- *	</tr>
- *	<tr>
- *		<td>Added missing NULL pointer asserts to the PORT driver functions</td>
- *	</tr>
- *	<tr>
- *		<td>Initial Release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Changelog</th>
+ *  </tr>
+ *  <tr>
+ *      <td>Removed code of open drain, slew limit and drive strength
+ *      features</td>
+ *  </tr>
+ *  <tr>
+ *      <td>Fixed broken sampling mode function implementations, which wrote
+ *          corrupt configuration values to the device registers</td>
+ *  </tr>
+ *  <tr>
+ *      <td>Added missing NULL pointer asserts to the PORT driver functions</td>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial Release</td>
+ *  </tr>
  * </table>
  */
 
@@ -634,41 +634,41 @@ void system_pinmux_group_set_output_drive(
  * \page asfdoc_sam0_system_pinmux_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
- *	<tr>
- *		<td>F</td>
- *		<td>06/2015</td>
- *		<td>Add support for SAML21, SAMDAx, and SAMC20/C21.</td>
- *	</tr>
- *	<tr>
- *		<td>E</td>
- *		<td>12/2014</td>
- *		<td>Add support for SAMR21 and SAMD10/D11.</td>
- *	</tr>
- *	<tr>
- *		<td>D</td>
- *		<td>01/2014</td>
- *		<td>Add support for SAMD21.</td>
- *	</tr>
- *	<tr>
- *		<td>C</td>
- *		<td>09/2013</td>
- *		<td>Fixed incorrect documentation for the device pin sampling mode.</td>
- *	</tr>
- *	<tr>
- *		<td>B</td>
- *		<td>06/2013</td>
- *		<td>Corrected documentation typos.</td>
- *	</tr>
- *	<tr>
- *		<td>A</td>
- *		<td>06/2013</td>
- *		<td>Initial release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
+ *  <tr>
+ *      <td>F</td>
+ *      <td>06/2015</td>
+ *      <td>Add support for SAML21, SAMDAx, and SAMC20/C21.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>E</td>
+ *      <td>12/2014</td>
+ *      <td>Add support for SAMR21 and SAMD10/D11.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>D</td>
+ *      <td>01/2014</td>
+ *      <td>Add support for SAMD21.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>C</td>
+ *      <td>09/2013</td>
+ *      <td>Fixed incorrect documentation for the device pin sampling mode.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>B</td>
+ *      <td>06/2013</td>
+ *      <td>Corrected documentation typos.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>A</td>
+ *      <td>06/2013</td>
+ *      <td>Initial release</td>
+ *  </tr>
  * </table>
  */
 

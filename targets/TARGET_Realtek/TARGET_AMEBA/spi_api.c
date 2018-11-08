@@ -57,7 +57,7 @@ static const PinMap PinMap_SSI_MISO[] = {
 };
 
 
-void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     SSI_DBG_ENTRANCE("spi_init()\n");
 
@@ -66,7 +66,7 @@ void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName sse
     PHAL_SSI_ADAPTOR pHalSsiAdaptor;
     PHAL_SSI_OP pHalSsiOp;
 
-    _memset((void*)obj, 0, sizeof(spi_t));
+    _memset((void *)obj, 0, sizeof(spi_t));
     obj->state = 0;
     uint32_t SystemClock = SystemGetCpuClk();
     uint32_t MaxSsiFreq  = (SystemClock >> 2) >> 1;
@@ -96,7 +96,7 @@ void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName sse
     pHalSsiAdaptor->PinmuxSelect = ssi_pinmux;
     pHalSsiAdaptor->Role = SSI_MASTER;
 
-    HalSsiOpInit((VOID*)pHalSsiOp);
+    HalSsiOpInit((VOID *)pHalSsiOp);
 
     pHalSsiOp->HalSsiSetDeviceRole(pHalSsiAdaptor, pHalSsiAdaptor->Role);
 
@@ -106,30 +106,30 @@ void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName sse
     }
 
     if ((ssi_idx == 0) && (ssi_pinmux == SSI0_MUX_TO_GPIOE)) {
-            DBG_SSI_WARN(ANSI_COLOR_MAGENTA"SPI0 Pin may conflict with JTAG\r\n"ANSI_COLOR_RESET);        
+        DBG_SSI_WARN(ANSI_COLOR_MAGENTA"SPI0 Pin may conflict with JTAG\r\n"ANSI_COLOR_RESET);
     }
 
     //TODO: Implement default setting structure.
-    pHalSsiOp->HalSsiLoadSetting(pHalSsiAdaptor, (void*)&SpiDefaultSetting);
+    pHalSsiOp->HalSsiLoadSetting(pHalSsiAdaptor, (void *)&SpiDefaultSetting);
     pHalSsiAdaptor->DefaultRxThresholdLevel = SpiDefaultSetting.RxThresholdLevel;
 
-    if(HalSsiInit(pHalSsiAdaptor) != HAL_OK){
-        DBG_SSI_ERR(ANSI_COLOR_RED"spi_init(): SPI %x init fails.\n"ANSI_COLOR_RESET,pHalSsiAdaptor->Index);
-        return;        
+    if (HalSsiInit(pHalSsiAdaptor) != HAL_OK) {
+        DBG_SSI_ERR(ANSI_COLOR_RED"spi_init(): SPI %x init fails.\n"ANSI_COLOR_RESET, pHalSsiAdaptor->Index);
+        return;
     }
     osDelay(1);
 }
 
-void spi_free (spi_t *obj)
+void spi_free(spi_t *obj)
 {
-    PHAL_SSI_ADAPTOR pHalSsiAdaptor;    
+    PHAL_SSI_ADAPTOR pHalSsiAdaptor;
     pHalSsiAdaptor = &obj->spi_adp;
     HalSsiDeInit(pHalSsiAdaptor);
 
     SPI0_MULTI_CS_CTRL(OFF);
 }
 
-void spi_format (spi_t *obj, int bits, int mode, int slave)
+void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     PHAL_SSI_ADAPTOR pHalSsiAdaptor;
     PHAL_SSI_OP pHalSsiOp;
@@ -153,8 +153,7 @@ void spi_format (spi_t *obj, int bits, int mode, int slave)
      * SCPH_TOGGLES_IN_MIDDLE = 0,
      * SCPH_TOGGLES_AT_START  = 1
      */
-    switch (mode)
-    {
+    switch (mode) {
         case 0:
             pHalSsiAdaptor->SclkPolarity = SCPOL_INACTIVE_IS_LOW;
             pHalSsiAdaptor->SclkPhase    = SCPH_TOGGLES_IN_MIDDLE;
@@ -203,7 +202,7 @@ void spi_format (spi_t *obj, int bits, int mode, int slave)
     HalSsiSetFormat(pHalSsiAdaptor);
 }
 
-void spi_frequency (spi_t *obj, int hz)
+void spi_frequency(spi_t *obj, int hz)
 {
     PHAL_SSI_ADAPTOR pHalSsiAdaptor;
 
@@ -211,7 +210,7 @@ void spi_frequency (spi_t *obj, int hz)
     HalSsiSetSclk(pHalSsiAdaptor, (u32)hz);
 }
 
-static inline void ssi_write (spi_t *obj, int value)
+static inline void ssi_write(spi_t *obj, int value)
 {
     PHAL_SSI_ADAPTOR pHalSsiAdaptor;
     PHAL_SSI_OP pHalSsiOp;
@@ -220,7 +219,7 @@ static inline void ssi_write (spi_t *obj, int value)
     pHalSsiOp = &obj->spi_op;
 
     while (!pHalSsiOp->HalSsiWriteable(pHalSsiAdaptor));
-    pHalSsiOp->HalSsiWrite((VOID*)pHalSsiAdaptor, value);
+    pHalSsiOp->HalSsiWrite((VOID *)pHalSsiAdaptor, value);
 }
 
 static inline int ssi_read(spi_t *obj)
@@ -235,7 +234,7 @@ static inline int ssi_read(spi_t *obj)
     return (int)pHalSsiOp->HalSsiRead(pHalSsiAdaptor);
 }
 
-int spi_master_write (spi_t *obj, int value)
+int spi_master_write(spi_t *obj, int value)
 {
     ssi_write(obj, value);
     return ssi_read(obj);
@@ -257,7 +256,7 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     return total;
 }
 
-int spi_slave_receive (spi_t *obj)
+int spi_slave_receive(spi_t *obj)
 {
     PHAL_SSI_ADAPTOR pHalSsiAdaptor;
     PHAL_SSI_OP pHalSsiOp;
@@ -272,17 +271,17 @@ int spi_slave_receive (spi_t *obj)
     return ((Readable && !Busy) ? 1 : 0);
 }
 
-int spi_slave_read (spi_t *obj)
+int spi_slave_read(spi_t *obj)
 {
     return ssi_read(obj);
 }
 
-void spi_slave_write (spi_t *obj, int value)
+void spi_slave_write(spi_t *obj, int value)
 {
     ssi_write(obj, value);
 }
 
-int spi_busy (spi_t *obj)
+int spi_busy(spi_t *obj)
 {
     PHAL_SSI_ADAPTOR pHalSsiAdaptor;
     PHAL_SSI_OP pHalSsiOp;

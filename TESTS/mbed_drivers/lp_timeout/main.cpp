@@ -15,7 +15,7 @@
  */
 
 #if !DEVICE_LOWPOWERTIMER
-    #error [NOT_SUPPORTED] Low power timer not supported for this target
+#error [NOT_SUPPORTED] Low power timer not supported for this target
 #endif
 
 #include "utest/utest.h"
@@ -33,7 +33,8 @@ static LowPowerTimeout lpt;
 #define LONG_TIMEOUT (100000)
 #define SHORT_TIMEOUT (600)
 
-void cb_done() {
+void cb_done()
+{
     complete = true;
 }
 
@@ -124,7 +125,8 @@ void lp_timeout_500us(void)
 
 }
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }
@@ -140,13 +142,15 @@ Case cases[] = {
 #endif /* DEVICE_SLEEP */
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(20, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     Harness::run(specification);
 }

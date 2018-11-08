@@ -28,7 +28,7 @@ const PinMap PinMap_ADC[] = {
     {PTB2,  ADC0_SE3, 0},
     {PTB18, ADC0_SE4, 0},
     {PTA19, ADC0_SE5, 0},
-    {NC   , NC       , 0}
+    {NC, NC, 0}
 };
 
 /************DAC***************/
@@ -46,7 +46,7 @@ const PinMap PinMap_I2C_SDA[] = {
     {PTC7, I2C_1, 3},
     {PTC16, I2C_0, 3},
     {PTC18, I2C_1, 3},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
@@ -57,7 +57,7 @@ const PinMap PinMap_I2C_SCL[] = {
     {PTC6, I2C_1, 3},
     {PTC17, I2C_1, 3},
     {PTC19, I2C_0, 3},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 /************UART***************/
@@ -65,53 +65,53 @@ const PinMap PinMap_UART_TX[] = {
     {PTC3,  LPUART_0, 4},
     {PTC7,  LPUART_0, 4},
     {PTC18, LPUART_0, 4},
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
     {PTC2,  LPUART_0, 4},
     {PTC6,  LPUART_0, 4},
     {PTC17, LPUART_0, 4},
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_UART_CTS[] = {
     {PTC4,  LPUART_0, 4},
     {PTC19, LPUART_0, 4},
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_UART_RTS[] = {
     {PTC1,  LPUART_0, 4},
     {PTC5,  LPUART_0, 4},
     {PTC16, LPUART_0, 4},
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 /************SPI***************/
 const PinMap PinMap_SPI_SCLK[] = {
     {PTA18, SPI_1, 2},
     {PTC16,  SPI_0, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
     {PTA16, SPI_1, 2},
     {PTC17,  SPI_0, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
     {PTA17, SPI_1, 2},
     {PTC18,  SPI_0, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
     {PTA1,  SPI_1, 2},
     {PTA19, SPI_1, 2},
     {PTC19,  SPI_0, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 /************PWM***************/
@@ -139,5 +139,5 @@ const PinMap PinMap_PWM[] = {
     {PTB17, PWM_8, 5},
     {PTC6,  PWM_7, 5},
     {PTC7,  PWM_8, 5},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };

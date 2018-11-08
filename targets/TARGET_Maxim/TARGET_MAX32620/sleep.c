@@ -50,7 +50,7 @@ typedef struct {
     uint32_t ep[MXC_USB_NUM_EP];
 } usb_state_t;
 
-static mxc_uart_regs_t *stdio_uart = (mxc_uart_regs_t*)STDIO_UART;
+static mxc_uart_regs_t *stdio_uart = (mxc_uart_regs_t *)STDIO_UART;
 static int restore_usb;
 static usb_state_t usb_state;
 

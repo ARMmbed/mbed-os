@@ -51,134 +51,470 @@
 
 /************I2C***************/
 const PinMap PinMap_I2C_SDA[] = {
-    { P2_4,  I2C_0, (int)&((pin_function_t){&MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P2_6,  I2C_1, (int)&((pin_function_t){&MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P1_6,  I2C_0, (int)&((pin_function_t){&MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P2_2,  I2C_1, (int)&((pin_function_t){&MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P7_4,  I2C_0, (int)&((pin_function_t){&MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P7_6,  I2C_1, (int)&((pin_function_t){&MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P7_4,  I2C_0, (int)&((pin_function_t){&MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P7_6,  I2C_1, (int)&((pin_function_t){&MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P0_4,  I2C_0, (int)&((pin_function_t){&MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P0_6,  I2C_1, (int)&((pin_function_t){&MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
+    { P2_4,  I2C_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P2_6,  I2C_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P1_6,  I2C_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P2_2,  I2C_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P7_4,  I2C_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P7_6,  I2C_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P7_4,  I2C_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P7_6,  I2C_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P0_4,  I2C_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P0_6,  I2C_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
     { NC,    NC,    0 }
 };
 
 const PinMap PinMap_I2C_SCL[] = {
-    { P2_5,  I2C_0, (int)&((pin_function_t){&MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P2_7,  I2C_1, (int)&((pin_function_t){&MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P1_7,  I2C_0, (int)&((pin_function_t){&MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P2_3,  I2C_1, (int)&((pin_function_t){&MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P7_5,  I2C_0, (int)&((pin_function_t){&MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P7_7,  I2C_1, (int)&((pin_function_t){&MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P7_5,  I2C_0, (int)&((pin_function_t){&MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P7_7,  I2C_1, (int)&((pin_function_t){&MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P0_5,  I2C_0, (int)&((pin_function_t){&MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
-    { P0_7,  I2C_1, (int)&((pin_function_t){&MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)}) },
+    { P2_5,  I2C_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P2_7,  I2C_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P1_7,  I2C_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P2_3,  I2C_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P7_5,  I2C_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P7_7,  I2C_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P7_5,  I2C_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P7_7,  I2C_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P0_5,  I2C_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm0_req, &MXC_IOMAN->i2cm0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
+    { P0_7,  I2C_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->i2cm1_req, &MXC_IOMAN->i2cm1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_I2CM_CORE_IO), (MXC_F_IOMAN_I2CM_MAPPING | MXC_F_IOMAN_I2CM_CORE_IO)
+        })
+    },
     { NC,    NC,    0 }
 };
 
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
-    { P1_1, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P1_3, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P2_1, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P2_5, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P7_1, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P7_3, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P0_1, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P1_7, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
+    { P1_1, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P1_3, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P2_1, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P2_5, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P7_1, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P7_3, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P0_1, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P1_7, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
     { NC,   NC,     0 }
 };
 
 const PinMap PinMap_UART_RX[] = {
-    { P1_0, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P1_2, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P2_0, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P2_4, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P7_0, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P7_2, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P0_0, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
-    { P1_6, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)}) },
+    { P1_0, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P1_2, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P2_0, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P2_4, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P7_0, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P7_2, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P0_0, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
+    { P1_6, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_CORE_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CORE_IO)
+        })
+    },
     { NC,   NC,     0 }
 };
 
 const PinMap PinMap_UART_CTS[] = {
-    { P1_2, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)}) },
-    { P2_6, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)}) },
-    { P1_4, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)}) },
-    { P1_6, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)}) },
-    { P7_2, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)}) },
-    { P7_6, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)}) },
-    { P0_2, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)}) },
+    { P1_2, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)
+        })
+    },
+    { P2_6, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)
+        })
+    },
+    { P1_4, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)
+        })
+    },
+    { P1_6, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)
+        })
+    },
+    { P7_2, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)
+        })
+    },
+    { P7_6, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)
+        })
+    },
+    { P0_2, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_CTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_CTS_IO)
+        })
+    },
     { NC,   NC,     0 }
 };
 
 const PinMap PinMap_UART_RTS[] = {
-    { P1_3, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)}) },
-    { P2_7, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)}) },
-    { P1_5, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)}) },
-    { P1_7, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)}) },
-    { P7_3, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)}) },
-    { P7_7, UART_1, (int)&((pin_function_t){&MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)}) },
-    { P0_3, UART_0, (int)&((pin_function_t){&MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)}) },
+    { P1_3, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)
+        })
+    },
+    { P2_7, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)
+        })
+    },
+    { P1_5, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)
+        })
+    },
+    { P1_7, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)
+        })
+    },
+    { P7_3, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)
+        })
+    },
+    { P7_7, UART_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart1_req, &MXC_IOMAN->uart1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)
+        })
+    },
+    { P0_3, UART_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->uart0_req, &MXC_IOMAN->uart0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_D | MXC_F_IOMAN_UART_RTS_IO), (MXC_F_IOMAN_UART_MAPPING | MXC_F_IOMAN_UART_RTS_IO)
+        })
+    },
     { NC,   NC,     0 }
 };
 
 /************SPI***************/
 const PinMap PinMap_SPI_SCLK[] = {
-    { P0_0, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P0_4, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P2_0, SPI_2, (int)&((pin_function_t){&MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P1_0, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P2_4, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P2_0, SPI_2, (int)&((pin_function_t){&MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P6_0, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P6_4, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
+    { P0_0, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P0_4, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P2_0, SPI_2, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P1_0, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P2_4, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P2_0, SPI_2, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P6_0, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P6_4, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
     { NC,   NC,    0}
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
-    { P0_1, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P0_5, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P2_1, SPI_2, (int)&((pin_function_t){&MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P1_1, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P2_5, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P2_1, SPI_2, (int)&((pin_function_t){&MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P6_1, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P6_5, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
+    { P0_1, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P0_5, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P2_1, SPI_2, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P1_1, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P2_5, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P2_1, SPI_2, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P6_1, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P6_5, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
     { NC,   NC,    0}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
-    { P0_2, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P0_6, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P2_2, SPI_2, (int)&((pin_function_t){&MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P1_2, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P2_6, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P2_2, SPI_2, (int)&((pin_function_t){&MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P6_2, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
-    { P6_6, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)}) },
+    { P0_2, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P0_6, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P2_2, SPI_2, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P1_2, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P2_6, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P2_2, SPI_2, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P6_2, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
+    { P6_6, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_CORE_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_CORE_IO)
+        })
+    },
     { NC,   NC,    0}
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
 #if (defined(EM9301_CSN) && (EM9301_CSN == P0_3))
-    { P0_3, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_SS0_IO | MXC_F_IOMAN_SPI_SR0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO | MXC_F_IOMAN_SPI_SR0_IO)}) },
+    { P0_3, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_SS0_IO | MXC_F_IOMAN_SPI_SR0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO | MXC_F_IOMAN_SPI_SR0_IO)
+        })
+    },
 #else
-    { P0_3, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)}) },
+    { P0_3, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)
+        })
+    },
 #endif
-    { P0_7, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)}) },
-    { P2_3, SPI_2, (int)&((pin_function_t){&MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)}) },
-    { P1_3, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)}) },
-    { P2_7, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)}) },
+    { P0_7, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)
+        })
+    },
+    { P2_3, SPI_2, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)
+        })
+    },
+    { P1_3, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)
+        })
+    },
+    { P2_7, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)
+        })
+    },
 #if (defined(EM9301_CSN) && (EM9301_CSN == P2_3))
-    { P2_3, SPI_2, (int)&((pin_function_t){&MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_SS0_IO | MXC_F_IOMAN_SPI_SR0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO | MXC_F_IOMAN_SPI_SR0_IO)}) },
+    { P2_3, SPI_2, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_A | MXC_F_IOMAN_SPI_SS0_IO | MXC_F_IOMAN_SPI_SR0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO | MXC_F_IOMAN_SPI_SR0_IO)
+        })
+    },
 #else
-    { P2_3, SPI_2, (int)&((pin_function_t){&MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)}) },
+    { P2_3, SPI_2, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi2_req, &MXC_IOMAN->spi2_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_B | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)
+        })
+    },
 #endif
-    { P6_3, SPI_0, (int)&((pin_function_t){&MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)}) },
-    { P6_7, SPI_1, (int)&((pin_function_t){&MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)}) },
+    { P6_3, SPI_0, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi0_req, &MXC_IOMAN->spi0_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)
+        })
+    },
+    { P6_7, SPI_1, (int) &((pin_function_t)
+        {
+            &MXC_IOMAN->spi1_req, &MXC_IOMAN->spi1_ack, ((uint32_t)MXC_E_IOMAN_MAPPING_C | MXC_F_IOMAN_SPI_SS0_IO), (MXC_F_IOMAN_SPI_MAPPING | MXC_F_IOMAN_SPI_SS0_IO)
+        })
+    },
     { NC,   NC,    0}
 };
 
@@ -228,7 +564,7 @@ const PinMap PinMap_PWM[] = {
     {P7_5, PWM_5, 1}, {P7_5, PWM_6, 2}, {P7_5, PWM_2, 3},
     {P7_6, PWM_6, 1}, {P7_6, PWM_3, 2}, {P7_6, PWM_7, 3},
     {P7_7, PWM_7, 1}, {P7_7, PWM_7, 2}, {P7_7, PWM_3, 3},
-    
+
     {NC,   NC,    0}
 };
 
@@ -251,7 +587,7 @@ const PinMap PinMap_ADC[] = {
     {AIN_5N, ADC, 0},
     {AIN_6N, ADC, 0},
     {AIN_7N, ADC, 0},
-    
+
     {AIN_0D, ADC, 1},
     {AIN_1D, ADC, 1},
     {AIN_2D, ADC, 1},

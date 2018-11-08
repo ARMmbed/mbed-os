@@ -33,8 +33,7 @@
 
 */
 /**************************************************************************/
-class ArmGap : public Gap
-{
+class ArmGap : public Gap {
 public:
     static ArmGap &getInstance();
 
@@ -43,13 +42,22 @@ public:
     virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
     virtual ble_error_t setAdvertisingData(const GapAdvertisingData &, const GapAdvertisingData &);
 
-    #define BLE_GAP_ADV_INTERVAL_MIN        0x0020 /**< Minimum Advertising interval in 625 us units, i.e. 20 ms. */
-    #define BLE_GAP_ADV_NONCON_INTERVAL_MIN 0x00A0 /**< Minimum Advertising interval in 625 us units for non connectable mode, i.e. 100 ms. */
-    #define BLE_GAP_ADV_INTERVAL_MAX        0x4000 /**< Armum Advertising interval in 625 us units, i.e. 10.24 s. */
+#define BLE_GAP_ADV_INTERVAL_MIN        0x0020 /**< Minimum Advertising interval in 625 us units, i.e. 20 ms. */
+#define BLE_GAP_ADV_NONCON_INTERVAL_MIN 0x00A0 /**< Minimum Advertising interval in 625 us units for non connectable mode, i.e. 100 ms. */
+#define BLE_GAP_ADV_INTERVAL_MAX        0x4000 /**< Armum Advertising interval in 625 us units, i.e. 10.24 s. */
 
-    virtual uint16_t getMinAdvertisingInterval(void) const { return BLE_GAP_ADV_INTERVAL_MIN; }
-    virtual uint16_t getMinNonConnectableAdvertisingInterval(void) const { return BLE_GAP_ADV_NONCON_INTERVAL_MIN; }
-    virtual uint16_t getMaxAdvertisingInterval(void) const { return BLE_GAP_ADV_INTERVAL_MAX; }
+    virtual uint16_t getMinAdvertisingInterval(void) const
+    {
+        return BLE_GAP_ADV_INTERVAL_MIN;
+    }
+    virtual uint16_t getMinNonConnectableAdvertisingInterval(void) const
+    {
+        return BLE_GAP_ADV_NONCON_INTERVAL_MIN;
+    }
+    virtual uint16_t getMaxAdvertisingInterval(void) const
+    {
+        return BLE_GAP_ADV_INTERVAL_MAX;
+    }
 
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
@@ -79,7 +87,8 @@ public:
 private:
     uint16_t m_connectionHandle;
     addr_type_t m_type;
-    ArmGap() {
+    ArmGap()
+    {
         m_connectionHandle = DM_CONN_ID_NONE;
         m_type = BLEProtocol::AddressType::RANDOM_STATIC;
     }

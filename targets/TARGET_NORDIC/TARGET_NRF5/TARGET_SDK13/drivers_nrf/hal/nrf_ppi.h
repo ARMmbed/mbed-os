@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #ifndef NRF_PPI_H__
@@ -60,8 +60,7 @@ extern "C" {
  * @enum nrf_ppi_channel_t
  * @brief PPI channels.
  */
-typedef enum
-{
+typedef enum {
     NRF_PPI_CHANNEL0  = PPI_CHEN_CH0_Pos,  /**< Channel 0. */
     NRF_PPI_CHANNEL1  = PPI_CHEN_CH1_Pos,  /**< Channel 1. */
     NRF_PPI_CHANNEL2  = PPI_CHEN_CH2_Pos,  /**< Channel 2. */
@@ -102,8 +101,7 @@ typedef enum
  * @enum nrf_ppi_channel_group_t
  * @brief PPI channel groups.
  */
-typedef enum
-{
+typedef enum {
     NRF_PPI_CHANNEL_GROUP0 = 0, /**< Channel group 0. */
     NRF_PPI_CHANNEL_GROUP1 = 1, /**< Channel group 1. */
     NRF_PPI_CHANNEL_GROUP2 = 2, /**< Channel group 2. */
@@ -118,8 +116,7 @@ typedef enum
  * @enum nrf_ppi_channel_include_t
  * @brief Definition of which PPI channels belong to a group.
  */
-typedef enum
-{
+typedef enum {
     NRF_PPI_CHANNEL_EXCLUDE = PPI_CHG_CH0_Excluded, /**< Channel excluded from a group. */
     NRF_PPI_CHANNEL_INCLUDE = PPI_CHG_CH0_Included  /**< Channel included in a group. */
 } nrf_ppi_channel_include_t;
@@ -128,8 +125,7 @@ typedef enum
  * @enum nrf_ppi_channel_enable_t
  * @brief Definition if a PPI channel is enabled.
  */
-typedef enum
-{
+typedef enum {
     NRF_PPI_CHANNEL_DISABLED = PPI_CHEN_CH0_Disabled, /**< Channel disabled. */
     NRF_PPI_CHANNEL_ENABLED  = PPI_CHEN_CH0_Enabled   /**< Channel enabled. */
 } nrf_ppi_channel_enable_t;
@@ -138,8 +134,7 @@ typedef enum
  * @enum nrf_ppi_task_t
  * @brief PPI tasks.
  */
-typedef enum
-{
+typedef enum {
     /*lint -save -e30 -esym(628,__INTADDR__)*/
     NRF_PPI_TASK_CHG0_EN  = offsetof(NRF_PPI_Type, TASKS_CHG[0].EN),  /**< Task for enabling channel group 0 */
     NRF_PPI_TASK_CHG0_DIS = offsetof(NRF_PPI_Type, TASKS_CHG[0].DIS), /**< Task for disabling channel group 0 */
@@ -155,7 +150,7 @@ typedef enum
     NRF_PPI_TASK_CHG5_EN  = offsetof(NRF_PPI_Type, TASKS_CHG[5].EN),  /**< Task for enabling channel group 5 */
     NRF_PPI_TASK_CHG5_DIS = offsetof(NRF_PPI_Type, TASKS_CHG[5].DIS)  /**< Task for disabling channel group 5 */
 #endif
-    /*lint -restore*/
+                            /*lint -restore*/
 } nrf_ppi_task_t;
 
 /**
@@ -198,12 +193,9 @@ __STATIC_INLINE void nrf_ppi_channel_disable(nrf_ppi_channel_t channel)
  */
 __STATIC_INLINE nrf_ppi_channel_enable_t nrf_ppi_channel_enable_get(nrf_ppi_channel_t channel)
 {
-    if (NRF_PPI->CHEN & (PPI_CHEN_CH0_Msk << ((uint32_t) channel)))
-    {
+    if (NRF_PPI->CHEN & (PPI_CHEN_CH0_Msk << ((uint32_t) channel))) {
         return NRF_PPI_CHANNEL_ENABLED;
-    }
-    else
-    {
+    } else {
         return NRF_PPI_CHANNEL_DISABLED;
     }
 }
@@ -390,7 +382,7 @@ __STATIC_INLINE void nrf_ppi_group_disable(nrf_ppi_channel_group_t group)
  */
 __STATIC_INLINE void nrf_ppi_task_trigger(nrf_ppi_task_t ppi_task)
 {
-    *((volatile uint32_t *) ((uint8_t *) NRF_PPI_BASE + (uint32_t) ppi_task)) = NRF_PPI_TASK_SET;
+    *((volatile uint32_t *)((uint8_t *) NRF_PPI_BASE + (uint32_t) ppi_task)) = NRF_PPI_TASK_SET;
 }
 
 
@@ -399,9 +391,9 @@ __STATIC_INLINE void nrf_ppi_task_trigger(nrf_ppi_task_t ppi_task)
  *
  * @param[in] ppi_task PPI task.
  */
-__STATIC_INLINE uint32_t * nrf_ppi_task_address_get(nrf_ppi_task_t ppi_task)
+__STATIC_INLINE uint32_t *nrf_ppi_task_address_get(nrf_ppi_task_t ppi_task)
 {
-    return (uint32_t *) ((uint8_t *) NRF_PPI_BASE + (uint32_t) ppi_task);
+    return (uint32_t *)((uint8_t *) NRF_PPI_BASE + (uint32_t) ppi_task);
 }
 
 /**
@@ -409,7 +401,7 @@ __STATIC_INLINE uint32_t * nrf_ppi_task_address_get(nrf_ppi_task_t ppi_task)
  *
  * @param[in] group  PPI group.
  */
-__STATIC_INLINE uint32_t * nrf_ppi_task_group_enable_address_get(nrf_ppi_channel_group_t group)
+__STATIC_INLINE uint32_t *nrf_ppi_task_group_enable_address_get(nrf_ppi_channel_group_t group)
 {
     return (uint32_t *) &NRF_PPI->TASKS_CHG[(uint32_t) group].EN;
 }
@@ -419,7 +411,7 @@ __STATIC_INLINE uint32_t * nrf_ppi_task_group_enable_address_get(nrf_ppi_channel
  *
  * @param[in] group  PPI group.
  */
-__STATIC_INLINE uint32_t * nrf_ppi_task_group_disable_address_get(nrf_ppi_channel_group_t group)
+__STATIC_INLINE uint32_t *nrf_ppi_task_group_disable_address_get(nrf_ppi_channel_group_t group)
 {
     return (uint32_t *) &NRF_PPI->TASKS_CHG[(uint32_t) group].DIS;
 }

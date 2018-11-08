@@ -88,6 +88,6 @@ void PMC_ConfigureBandgapBuffer(PMC_Type *base, const pmc_bandgap_buffer_config_
 #if (defined(FSL_FEATURE_PMC_HAS_BGBDS) && FSL_FEATURE_PMC_HAS_BGBDS)
                    | ((uint32_t)config->drive << PMC_REGSC_BGBDS_SHIFT)
 #endif /* FSL_FEATURE_PMC_HAS_BGBDS */
-                       );
+                  );
 }
 #endif

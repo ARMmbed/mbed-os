@@ -103,7 +103,7 @@ static inline uint64_t event_diff(uint64_t current, uint64_t event)
 {
 
     // Check to see if the ticker will overflow before the event
-    if(current <= event) {
+    if (current <= event) {
         return (event - current);
     }
 
@@ -120,7 +120,7 @@ static void tmr_handler(void)
 
     inc_current_cnt(term_cnt32);
 
-    if (event_passed(current_cnt + US_TIMER->count32, event_cnt )) {
+    if (event_passed(current_cnt + US_TIMER->count32, event_cnt)) {
         // the timestamp has expired
         event_cnt = 0xFFFFFFFFFFFFFFFFULL;  // reset to max value
         us_ticker_irq_handler();
@@ -148,8 +148,9 @@ static void tmr_handler(void)
 //******************************************************************************
 void us_ticker_init(void)
 {
-    if (us_ticker_inited)
+    if (us_ticker_inited) {
         return;
+    }
     us_ticker_inited = 1;
 
     /* Ensure that the TIMER0 clock is enabled */
@@ -170,7 +171,7 @@ void us_ticker_init(void)
     ticks_per_us = SystemCoreClock / 1000000;
 
     // Set the tick window to 10ms
-    tick_win = SystemCoreClock/100;
+    tick_win = SystemCoreClock / 100;
 
     // Set timer overflow to the max
     US_TIMER->term_cnt32 = 0xFFFFFFFF;
@@ -202,8 +203,9 @@ uint32_t us_ticker_read(void)
     uint32_t term_cnt, tmr_cnt;
     uint32_t intfl1, intfl2;
 
-    if (!us_ticker_inited)
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     // Ensure coherency between current_cnt and US_TIMER->count32
     do {

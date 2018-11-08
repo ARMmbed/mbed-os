@@ -67,8 +67,7 @@ void CRC_Open(uint32_t u32Mode, uint32_t u32Attribute, uint32_t u32Seed, uint32_
   */
 uint32_t CRC_GetChecksum(void)
 {
-    switch(CRC->CTL & CRC_CTL_CRCMODE_Msk)
-    {
+    switch (CRC->CTL & CRC_CTL_CRCMODE_Msk) {
         case CRC_CCITT:
         case CRC_16:
             return (CRC->CHECKSUM & 0xFFFF);

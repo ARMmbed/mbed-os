@@ -104,16 +104,16 @@ typedef struct {
 /**
  * Structure type for the I2CM Transmit and Receive FIFOs.
  * The @c tx member is the write location for transmitting data and @c rx member is the read point for reading data.
- * 
+ *
  */
 typedef struct {
-    union {                                             
+    union {
         __IO uint16_t tx;                               /**< tx FIFO address */
         __IO uint8_t  tx_8[2048];                       /**< 8-bit access to TX FIFO */
         __IO uint16_t tx_16[1024];                      /**< 16-bit access to TX FIFO */
         __IO uint32_t tx_32[512];                       /**< 32-bit access to TX FIFO */
     };
-    union {                                             
+    union {
         __IO uint16_t rx;                               /**< RX FIFO address */
         __IO uint8_t  rx_8[2048];                       /**< 8-bit access to RX FIFO */
         __IO uint16_t rx_16[1024];                      /**< 16-bit access to RX FIFO */
@@ -128,7 +128,7 @@ typedef struct {
 /**
  * @ingroup    i2cm_registers
  * @defgroup   I2CM_Register_Offsets Register Offsets
- * @brief      I2C Master Register Offsets from the I2CM[n] Base Peripheral Address. 
+ * @brief      I2C Master Register Offsets from the I2CM[n] Base Peripheral Address.
  * @{
  */
 #define MXC_R_I2CM_OFFS_FS_CLK_DIV                          ((uint32_t)0x00000000UL)        /**< Offset from I2CM Base Address: <tt>\b 0x0000</tt> */
@@ -152,22 +152,22 @@ typedef struct {
  * @{
  */
 #define MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS         0                                                                           /**< FS_FILTER_CLK_DIV Position */
-#define MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV             ((uint32_t)(0x000000FFUL << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS))   /**< FS_FILTER_CLK_DIV Mask */         
+#define MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV             ((uint32_t)(0x000000FFUL << MXC_F_I2CM_FS_CLK_DIV_FS_FILTER_CLK_DIV_POS))   /**< FS_FILTER_CLK_DIV Mask */
 #define MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS             8                                                                           /**< FS_SCL_LO_CNT Position */
-#define MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT                 ((uint32_t)(0x00000FFFUL << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS))       /**< FS_SCL_LO_CNT Mask */     
+#define MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT                 ((uint32_t)(0x00000FFFUL << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_LO_CNT_POS))       /**< FS_SCL_LO_CNT Mask */
 #define MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS             20                                                                          /**< FS_SCL_HI_CNT Position */
-#define MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT                 ((uint32_t)(0x00000FFFUL << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS))       /**< FS_SCL_HI_CNT Mask */     
+#define MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT                 ((uint32_t)(0x00000FFFUL << MXC_F_I2CM_FS_CLK_DIV_FS_SCL_HI_CNT_POS))       /**< FS_SCL_HI_CNT Mask */
 /**@}*/
 /**
  * @ingroup  i2cm_registers
  * @defgroup I2CM_TIMEOUT_Register I2CM_TIMEOUT
  * @brief    Field Positions and Bit Masks for the I2CM_TIMEOUT register
  * @{
- */    
+ */
 #define MXC_F_I2CM_TIMEOUT_TX_TIMEOUT_POS                   16                                                                          /**< TX_TIMEOUT Position */
 #define MXC_F_I2CM_TIMEOUT_TX_TIMEOUT                       ((uint32_t)(0x000000FFUL << MXC_F_I2CM_TIMEOUT_TX_TIMEOUT_POS))             /**< TX_TIMEOUT Mask */
 #define MXC_F_I2CM_TIMEOUT_AUTO_STOP_EN_POS                 24                                                                          /**< AUTO_STOP_EN Position */
-#define MXC_F_I2CM_TIMEOUT_AUTO_STOP_EN                     ((uint32_t)(0x00000001UL << MXC_F_I2CM_TIMEOUT_AUTO_STOP_EN_POS))           /**< AUTO_STOP_EN Mask */ 
+#define MXC_F_I2CM_TIMEOUT_AUTO_STOP_EN                     ((uint32_t)(0x00000001UL << MXC_F_I2CM_TIMEOUT_AUTO_STOP_EN_POS))           /**< AUTO_STOP_EN Mask */
 /**@}*/
 /**
  * @ingroup  i2cm_registers
@@ -191,13 +191,13 @@ typedef struct {
 #define MXC_F_I2CM_TRANS_TX_START_POS                       0                                                                           /**< TX_START Position */
 #define MXC_F_I2CM_TRANS_TX_START                           ((uint32_t)(0x00000001UL << MXC_F_I2CM_TRANS_TX_START_POS))                 /**< TX_START Mask */
 #define MXC_F_I2CM_TRANS_TX_IN_PROGRESS_POS                 1                                                                           /**< TX_IN_PROGRESS Position */
-#define MXC_F_I2CM_TRANS_TX_IN_PROGRESS                     ((uint32_t)(0x00000001UL << MXC_F_I2CM_TRANS_TX_IN_PROGRESS_POS))           /**< TX_IN_PROGRESS Mask */ 
+#define MXC_F_I2CM_TRANS_TX_IN_PROGRESS                     ((uint32_t)(0x00000001UL << MXC_F_I2CM_TRANS_TX_IN_PROGRESS_POS))           /**< TX_IN_PROGRESS Mask */
 #define MXC_F_I2CM_TRANS_TX_DONE_POS                        2                                                                           /**< TX_DONE Position */
 #define MXC_F_I2CM_TRANS_TX_DONE                            ((uint32_t)(0x00000001UL << MXC_F_I2CM_TRANS_TX_DONE_POS))                  /**< TX_DONE Mask */
 #define MXC_F_I2CM_TRANS_TX_NACKED_POS                      3                                                                           /**< TX_NACKED Position */
 #define MXC_F_I2CM_TRANS_TX_NACKED                          ((uint32_t)(0x00000001UL << MXC_F_I2CM_TRANS_TX_NACKED_POS))                /**< TX_NACKED Mask */
 #define MXC_F_I2CM_TRANS_TX_LOST_ARBITR_POS                 4                                                                           /**< TX_LOST_ARBITR Position */
-#define MXC_F_I2CM_TRANS_TX_LOST_ARBITR                     ((uint32_t)(0x00000001UL << MXC_F_I2CM_TRANS_TX_LOST_ARBITR_POS))           /**< TX_LOST_ARBITR Mask */ 
+#define MXC_F_I2CM_TRANS_TX_LOST_ARBITR                     ((uint32_t)(0x00000001UL << MXC_F_I2CM_TRANS_TX_LOST_ARBITR_POS))           /**< TX_LOST_ARBITR Mask */
 #define MXC_F_I2CM_TRANS_TX_TIMEOUT_POS                     5                                                                           /**< TX_TIMEOUT Position */
 #define MXC_F_I2CM_TRANS_TX_TIMEOUT                         ((uint32_t)(0x00000001UL << MXC_F_I2CM_TRANS_TX_TIMEOUT_POS))               /**< TX_TIMEOUT Mask */
 /**@}*/
@@ -212,19 +212,19 @@ typedef struct {
 #define MXC_F_I2CM_INTFL_TX_NACKED_POS                      1                                                                           /**< TX_NACKED Position */
 #define MXC_F_I2CM_INTFL_TX_NACKED                          ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_TX_NACKED_POS))                /**< TX_NACKED Mask */
 #define MXC_F_I2CM_INTFL_TX_LOST_ARBITR_POS                 2                                                                           /**< TX_LOST_ARBITR Position */
-#define MXC_F_I2CM_INTFL_TX_LOST_ARBITR                     ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_TX_LOST_ARBITR_POS))           /**< TX_LOST_ARBITR Mask */ 
+#define MXC_F_I2CM_INTFL_TX_LOST_ARBITR                     ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_TX_LOST_ARBITR_POS))           /**< TX_LOST_ARBITR Mask */
 #define MXC_F_I2CM_INTFL_TX_TIMEOUT_POS                     3                                                                           /**< TX_TIMEOUT Position */
 #define MXC_F_I2CM_INTFL_TX_TIMEOUT                         ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_TX_TIMEOUT_POS))               /**< TX_TIMEOUT Mask */
 #define MXC_F_I2CM_INTFL_TX_FIFO_EMPTY_POS                  4                                                                           /**< TX_FIFO_EMPTY Position */
-#define MXC_F_I2CM_INTFL_TX_FIFO_EMPTY                      ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_TX_FIFO_EMPTY_POS))            /**< TX_FIFO_EMPTY Mask */ 
+#define MXC_F_I2CM_INTFL_TX_FIFO_EMPTY                      ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_TX_FIFO_EMPTY_POS))            /**< TX_FIFO_EMPTY Mask */
 #define MXC_F_I2CM_INTFL_TX_FIFO_3Q_EMPTY_POS               5                                                                           /**< TX_FIFO_3Q_EMPTY Position */
-#define MXC_F_I2CM_INTFL_TX_FIFO_3Q_EMPTY                   ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_TX_FIFO_3Q_EMPTY_POS))         /**< TX_FIFO_3Q_EMPTY Mask */ 
+#define MXC_F_I2CM_INTFL_TX_FIFO_3Q_EMPTY                   ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_TX_FIFO_3Q_EMPTY_POS))         /**< TX_FIFO_3Q_EMPTY Mask */
 #define MXC_F_I2CM_INTFL_RX_FIFO_NOT_EMPTY_POS              6                                                                           /**< RX_FIFO_NOT_EMPTY Position */
-#define MXC_F_I2CM_INTFL_RX_FIFO_NOT_EMPTY                  ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_RX_FIFO_NOT_EMPTY_POS))        /**< RX_FIFO_NOT_EMPTY Mask */     
+#define MXC_F_I2CM_INTFL_RX_FIFO_NOT_EMPTY                  ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_RX_FIFO_NOT_EMPTY_POS))        /**< RX_FIFO_NOT_EMPTY Mask */
 #define MXC_F_I2CM_INTFL_RX_FIFO_2Q_FULL_POS                7                                                                           /**< RX_FIFO_2Q_FULL Position */
-#define MXC_F_I2CM_INTFL_RX_FIFO_2Q_FULL                    ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_RX_FIFO_2Q_FULL_POS))          /**< RX_FIFO_2Q_FULL Mask */ 
+#define MXC_F_I2CM_INTFL_RX_FIFO_2Q_FULL                    ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_RX_FIFO_2Q_FULL_POS))          /**< RX_FIFO_2Q_FULL Mask */
 #define MXC_F_I2CM_INTFL_RX_FIFO_3Q_FULL_POS                8                                                                           /**< RX_FIFO_3Q_FULL Position */
-#define MXC_F_I2CM_INTFL_RX_FIFO_3Q_FULL                    ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_RX_FIFO_3Q_FULL_POS))          /**< RX_FIFO_3Q_FULL Mask */ 
+#define MXC_F_I2CM_INTFL_RX_FIFO_3Q_FULL                    ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_RX_FIFO_3Q_FULL_POS))          /**< RX_FIFO_3Q_FULL Mask */
 #define MXC_F_I2CM_INTFL_RX_FIFO_FULL_POS                   9                                                                           /**< RX_FIFO_FULL Position */
 #define MXC_F_I2CM_INTFL_RX_FIFO_FULL                       ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTFL_RX_FIFO_FULL_POS))             /**< RX_FIFO_FULL Mask */
 /**@}*/
@@ -239,19 +239,19 @@ typedef struct {
 #define MXC_F_I2CM_INTEN_TX_NACKED_POS                      1                                                                           /**< TX_NACKED Position */
 #define MXC_F_I2CM_INTEN_TX_NACKED                          ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_TX_NACKED_POS))                /**< TX_NACKED Mask */
 #define MXC_F_I2CM_INTEN_TX_LOST_ARBITR_POS                 2                                                                           /**< TX_LOST_ARBITR Position */
-#define MXC_F_I2CM_INTEN_TX_LOST_ARBITR                     ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_TX_LOST_ARBITR_POS))           /**< TX_LOST_ARBITR Mask */ 
+#define MXC_F_I2CM_INTEN_TX_LOST_ARBITR                     ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_TX_LOST_ARBITR_POS))           /**< TX_LOST_ARBITR Mask */
 #define MXC_F_I2CM_INTEN_TX_TIMEOUT_POS                     3                                                                           /**< TX_TIMEOUT Position */
 #define MXC_F_I2CM_INTEN_TX_TIMEOUT                         ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_TX_TIMEOUT_POS))               /**< TX_TIMEOUT Mask */
 #define MXC_F_I2CM_INTEN_TX_FIFO_EMPTY_POS                  4                                                                           /**< TX_FIFO_EMPTY Position */
-#define MXC_F_I2CM_INTEN_TX_FIFO_EMPTY                      ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_TX_FIFO_EMPTY_POS))            /**< TX_FIFO_EMPTY Mask */ 
+#define MXC_F_I2CM_INTEN_TX_FIFO_EMPTY                      ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_TX_FIFO_EMPTY_POS))            /**< TX_FIFO_EMPTY Mask */
 #define MXC_F_I2CM_INTEN_TX_FIFO_3Q_EMPTY_POS               5                                                                           /**< TX_FIFO_3Q_EMPTY Position */
-#define MXC_F_I2CM_INTEN_TX_FIFO_3Q_EMPTY                   ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_TX_FIFO_3Q_EMPTY_POS))         /**< TX_FIFO_3Q_EMPTY Mask */ 
+#define MXC_F_I2CM_INTEN_TX_FIFO_3Q_EMPTY                   ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_TX_FIFO_3Q_EMPTY_POS))         /**< TX_FIFO_3Q_EMPTY Mask */
 #define MXC_F_I2CM_INTEN_RX_FIFO_NOT_EMPTY_POS              6                                                                           /**< RX_FIFO_NOT_EMPTY Position */
-#define MXC_F_I2CM_INTEN_RX_FIFO_NOT_EMPTY                  ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_RX_FIFO_NOT_EMPTY_POS))        /**< RX_FIFO_NOT_EMPTY Mask */     
+#define MXC_F_I2CM_INTEN_RX_FIFO_NOT_EMPTY                  ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_RX_FIFO_NOT_EMPTY_POS))        /**< RX_FIFO_NOT_EMPTY Mask */
 #define MXC_F_I2CM_INTEN_RX_FIFO_2Q_FULL_POS                7                                                                           /**< RX_FIFO_2Q_FULL Position */
-#define MXC_F_I2CM_INTEN_RX_FIFO_2Q_FULL                    ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_RX_FIFO_2Q_FULL_POS))          /**< RX_FIFO_2Q_FULL Mask */ 
+#define MXC_F_I2CM_INTEN_RX_FIFO_2Q_FULL                    ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_RX_FIFO_2Q_FULL_POS))          /**< RX_FIFO_2Q_FULL Mask */
 #define MXC_F_I2CM_INTEN_RX_FIFO_3Q_FULL_POS                8                                                                           /**< RX_FIFO_3Q_FULL Position */
-#define MXC_F_I2CM_INTEN_RX_FIFO_3Q_FULL                    ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_RX_FIFO_3Q_FULL_POS))          /**< RX_FIFO_3Q_FULL Mask */ 
+#define MXC_F_I2CM_INTEN_RX_FIFO_3Q_FULL                    ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_RX_FIFO_3Q_FULL_POS))          /**< RX_FIFO_3Q_FULL Mask */
 #define MXC_F_I2CM_INTEN_RX_FIFO_FULL_POS                   9                                                                           /**< RX_FIFO_FULL Position */
 #define MXC_F_I2CM_INTEN_RX_FIFO_FULL                       ((uint32_t)(0x00000001UL << MXC_F_I2CM_INTEN_RX_FIFO_FULL_POS))             /**< RX_FIFO_FULL Mask */
 /**@}*/

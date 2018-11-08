@@ -322,12 +322,12 @@ static enum status_code _adc_set_config(
     if (config->pin_scan.inputs_to_scan != 0) {
         uint8_t offset = config->pin_scan.offset_start_scan;
         uint8_t start_pin =
-            offset +(uint8_t)config->positive_input;
+            offset + (uint8_t)config->positive_input;
         uint8_t end_pin =
             start_pin + config->pin_scan.inputs_to_scan;
 
         while (start_pin < end_pin) {
-            _adc_configure_ain_pin((offset % 16)+(uint8_t)config->positive_input);
+            _adc_configure_ain_pin((offset % 16) + (uint8_t)config->positive_input);
             start_pin++;
             offset++;
         }
@@ -375,7 +375,7 @@ static enum status_code _adc_set_config(
            The revisions before D have this issue.*/
         case ADC_RESOLUTION_15BIT:
             /* Increase resolution by 3 bit */
-            if(revision_num < REVISON_D_NUM) {
+            if (revision_num < REVISON_D_NUM) {
                 adjres = ADC_DIVIDE_RESULT_8;
             } else {
                 adjres = ADC_DIVIDE_RESULT_2;
@@ -386,7 +386,7 @@ static enum status_code _adc_set_config(
             break;
 
         case ADC_RESOLUTION_16BIT:
-            if(revision_num < REVISON_D_NUM) {
+            if (revision_num < REVISON_D_NUM) {
                 /* Increase resolution by 4 bit */
                 adjres = ADC_DIVIDE_RESULT_16;
             } else {

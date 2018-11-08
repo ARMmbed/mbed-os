@@ -39,22 +39,24 @@
  *
  *    @return None
  */
-void UART_ClearIntFlag(UART_T* uart , uint32_t u32InterruptFlag)
+void UART_ClearIntFlag(UART_T *uart, uint32_t u32InterruptFlag)
 {
-    if(u32InterruptFlag & UART_INTSTS_RLSINT_Msk) { /* clear Receive Line Status Interrupt */
+    if (u32InterruptFlag & UART_INTSTS_RLSINT_Msk) { /* clear Receive Line Status Interrupt */
         uart->FIFOSTS |= UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk;
         uart->FIFOSTS |= UART_FIFOSTS_ADDRDETF_Msk;
     }
 
-    if(u32InterruptFlag & UART_INTSTS_MODEMINT_Msk)  /* clear Modem Interrupt */
+    if (u32InterruptFlag & UART_INTSTS_MODEMINT_Msk) { /* clear Modem Interrupt */
         uart->MODEMSTS |= UART_MODEMSTS_CTSDETF_Msk;
+    }
 
-    if(u32InterruptFlag & UART_INTSTS_BUFERRINT_Msk) { /* clear Buffer Error Interrupt */
+    if (u32InterruptFlag & UART_INTSTS_BUFERRINT_Msk) { /* clear Buffer Error Interrupt */
         uart->FIFOSTS |= UART_FIFOSTS_RXOVIF_Msk | UART_FIFOSTS_TXOVIF_Msk;
     }
 
-    if(u32InterruptFlag & UART_INTSTS_RXTOINT_Msk)  /* clear Modem Interrupt */
+    if (u32InterruptFlag & UART_INTSTS_RXTOINT_Msk) { /* clear Modem Interrupt */
         uart->INTSTS |= UART_INTSTS_RXTOIF_Msk;
+    }
 
 }
 
@@ -66,7 +68,7 @@ void UART_ClearIntFlag(UART_T* uart , uint32_t u32InterruptFlag)
  *
  *  @return None
  */
-void UART_Close(UART_T* uart)
+void UART_Close(UART_T *uart)
 {
     uart->INTEN = 0;
 }
@@ -79,7 +81,7 @@ void UART_Close(UART_T* uart)
  *
  *  @return None
  */
-void UART_DisableFlowCtrl(UART_T* uart)
+void UART_DisableFlowCtrl(UART_T *uart)
 {
     uart->INTEN &= ~(UART_INTEN_ATORTSEN_Msk | UART_INTEN_ATOCTSEN_Msk);
 }
@@ -101,7 +103,7 @@ void UART_DisableFlowCtrl(UART_T* uart)
  *
  *    @return    None
  */
-void UART_DisableInt(UART_T*  uart, uint32_t u32InterruptFlag )
+void UART_DisableInt(UART_T  *uart, uint32_t u32InterruptFlag)
 {
     uart->INTEN &= ~ u32InterruptFlag;
 }
@@ -115,7 +117,7 @@ void UART_DisableInt(UART_T*  uart, uint32_t u32InterruptFlag )
  *
  *    @return   None
  */
-void UART_EnableFlowCtrl(UART_T* uart )
+void UART_EnableFlowCtrl(UART_T *uart)
 {
     uart->MODEM    |= UART_MODEM_RTSACTLV_Msk;
     uart->MODEM    &= ~UART_MODEM_RTS_Msk;
@@ -140,7 +142,7 @@ void UART_EnableFlowCtrl(UART_T* uart )
  *
  *    @return   None
  */
-void UART_EnableInt(UART_T*  uart, uint32_t u32InterruptFlag )
+void UART_EnableInt(UART_T  *uart, uint32_t u32InterruptFlag)
 {
     uart->INTEN |= u32InterruptFlag;
 }
@@ -154,7 +156,7 @@ void UART_EnableInt(UART_T*  uart, uint32_t u32InterruptFlag )
  *
  *    @return   None
  */
-void UART_Open(UART_T* uart, uint32_t u32baudrate)
+void UART_Open(UART_T *uart, uint32_t u32baudrate)
 {
     uint8_t u8UartClkSrcSel;
     uint32_t u32ClkTbl[4] = {__HXT, 0, __HIRC, __HIRC};
@@ -171,13 +173,14 @@ void UART_Open(UART_T* uart, uint32_t u32baudrate)
 
     u32Clk = (u32ClkTbl[u8UartClkSrcSel]) / (((CLK->CLKDIV0 & CLK_CLKDIV0_UARTDIV_Msk) >> CLK_CLKDIV0_UARTDIV_Pos) + 1);
 
-    if(u32baudrate != 0) {
+    if (u32baudrate != 0) {
         u32Baud_Div = UART_BAUD_MODE2_DIVIDER(u32Clk, u32baudrate);
 
-        if(u32Baud_Div > 0xFFFF)
+        if (u32Baud_Div > 0xFFFF) {
             uart->BAUD = (UART_BAUD_MODE0 | UART_BAUD_MODE0_DIVIDER(u32Clk, u32baudrate));
-        else
+        } else {
             uart->BAUD = (UART_BAUD_MODE2 | u32Baud_Div);
+        }
     }
 }
 
@@ -192,12 +195,12 @@ void UART_Open(UART_T* uart, uint32_t u32baudrate)
  *    @return   u32Count: Receive byte count
  *
  */
-uint32_t UART_Read(UART_T* uart, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
+uint32_t UART_Read(UART_T *uart, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
 {
     uint32_t  u32Count;
 
-    for(u32Count=0; u32Count < u32ReadBytes; u32Count++) {
-        if(uart->FIFOSTS & UART_FIFOSTS_RXEMPTY_Msk) { /* Check RX empty => failed */
+    for (u32Count = 0; u32Count < u32ReadBytes; u32Count++) {
+        if (uart->FIFOSTS & UART_FIFOSTS_RXEMPTY_Msk) { /* Check RX empty => failed */
             return u32Count;
         }
         pu8RxBuf[u32Count] = uart->DAT;    /* Get Data from UART RX  */
@@ -220,7 +223,7 @@ uint32_t UART_Read(UART_T* uart, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
  *
  *    @return   None
  */
-void UART_SetLine_Config(UART_T* uart, uint32_t u32baudrate, uint32_t u32data_width, uint32_t u32parity, uint32_t  u32stop_bits)
+void UART_SetLine_Config(UART_T *uart, uint32_t u32baudrate, uint32_t u32data_width, uint32_t u32parity, uint32_t  u32stop_bits)
 {
     uint8_t u8UartClkSrcSel;
     uint32_t u32ClkTbl[4] = {__HXT, 0, __HIRC, __HIRC};
@@ -233,13 +236,14 @@ void UART_SetLine_Config(UART_T* uart, uint32_t u32baudrate, uint32_t u32data_wi
 
     u32Clk = (u32ClkTbl[u8UartClkSrcSel]) / (((CLK->CLKDIV0 & CLK_CLKDIV0_UARTDIV_Msk) >> CLK_CLKDIV0_UARTDIV_Pos) + 1);
 
-    if(u32baudrate != 0) {
+    if (u32baudrate != 0) {
         u32Baud_Div = UART_BAUD_MODE2_DIVIDER(u32Clk, u32baudrate);
 
-        if(u32Baud_Div > 0xFFFF)
+        if (u32Baud_Div > 0xFFFF) {
             uart->BAUD = (UART_BAUD_MODE0 | UART_BAUD_MODE0_DIVIDER(u32Clk, u32baudrate));
-        else
+        } else {
             uart->BAUD = (UART_BAUD_MODE2 | u32Baud_Div);
+        }
     }
 
     uart->LINE = u32data_width | u32parity | u32stop_bits;
@@ -254,9 +258,9 @@ void UART_SetLine_Config(UART_T* uart, uint32_t u32baudrate, uint32_t u32data_wi
  *
  *    @return   None
  */
-void UART_SetTimeoutCnt(UART_T* uart, uint32_t u32TOC)
+void UART_SetTimeoutCnt(UART_T *uart, uint32_t u32TOC)
 {
-    uart->TOUT = (uart->TOUT & ~UART_TOUT_TOIC_Msk)| (u32TOC);
+    uart->TOUT = (uart->TOUT & ~UART_TOUT_TOIC_Msk) | (u32TOC);
     uart->INTEN |= UART_INTEN_TOCNTEN_Msk;
 }
 
@@ -270,7 +274,7 @@ void UART_SetTimeoutCnt(UART_T* uart, uint32_t u32TOC)
  *
  *    @return   None
  */
-void UART_SelectIrDAMode(UART_T* uart, uint32_t u32Buadrate, uint32_t u32Direction)
+void UART_SelectIrDAMode(UART_T *uart, uint32_t u32Buadrate, uint32_t u32Direction)
 {
     uint8_t u8UartClkSrcSel;
     uint32_t u32ClkTbl[4] = {__HXT, 0, __HIRC, __HIRC};
@@ -286,8 +290,8 @@ void UART_SelectIrDAMode(UART_T* uart, uint32_t u32Buadrate, uint32_t u32Directi
 
     uart->IRDA    &= ~UART_IRDA_TXINV_Msk;
     uart->IRDA    |=  UART_IRDA_RXINV_Msk;
-    uart->IRDA     =  u32Direction ? uart->IRDA | UART_IRDA_TXEN_Msk : uart->IRDA &~ UART_IRDA_TXEN_Msk;
-    uart->FUNCSEL  =  (0x2 << UART_FUNCSEL_FUNCSEL_Pos);
+    uart->IRDA     =  u32Direction ? uart->IRDA | UART_IRDA_TXEN_Msk : uart->IRDA & ~ UART_IRDA_TXEN_Msk;
+    uart->FUNCSEL  = (0x2 << UART_FUNCSEL_FUNCSEL_Pos);
 }
 
 
@@ -300,7 +304,7 @@ void UART_SelectIrDAMode(UART_T* uart, uint32_t u32Buadrate, uint32_t u32Directi
  *
  *    @return   None
  */
-void UART_SelectRS485Mode(UART_T* uart, uint32_t u32Mode, uint32_t u32Addr)
+void UART_SelectRS485Mode(UART_T *uart, uint32_t u32Mode, uint32_t u32Addr)
 {
     uart->FUNCSEL = UART_FUNCSEL_RS485;
     uart->ALTCTL  = 0;
@@ -317,12 +321,12 @@ void UART_SelectRS485Mode(UART_T* uart, uint32_t u32Mode, uint32_t u32Addr)
  *
  *    @return   u32Count: transfer byte count
  */
-uint32_t UART_Write(UART_T* uart,uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
+uint32_t UART_Write(UART_T *uart, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
 {
     uint32_t  u32Count;
 
-    for(u32Count=0; u32Count != u32WriteBytes; u32Count++) {
-        if(uart->FIFOSTS & UART_FIFOSTS_TXFULL_Msk) { /* Wait Tx empty and Time-out manner */
+    for (u32Count = 0; u32Count != u32WriteBytes; u32Count++) {
+        if (uart->FIFOSTS & UART_FIFOSTS_TXFULL_Msk) { /* Wait Tx empty and Time-out manner */
             return u32Count;
         }
         uart->DAT = pu8TxBuf[u32Count];    /* Send UART Data from buffer */

@@ -84,7 +84,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SFR:32;           /*!< bit:  0..31  Special Function Register          */
+        uint32_t SFR: 32;          /*!< bit:  0..31  Special Function Register          */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } HMATRIXB_SFR_Type;

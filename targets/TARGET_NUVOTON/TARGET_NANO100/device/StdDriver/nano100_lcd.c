@@ -64,64 +64,65 @@ static uint32_t g_LCDFrameRate; /* src:32768Hz, COM:4, FREQ Div:64, frame-rate 6
 void LCD_SetPixel(uint32_t u32Com, uint32_t u32Seg, uint32_t u32OnFlag)
 {
     int32_t memnum = u32Seg / 4;
-    int32_t seg_shift = 8*(u32Seg-(4*memnum));
+    int32_t seg_shift = 8 * (u32Seg - (4 * memnum));
 
-    if(u32OnFlag) {
-        if(memnum==0) {
-            LCD->MEM_0 |= (1<<u32Com)<<seg_shift;
-        } else if(memnum==1) {
-            LCD->MEM_1 |= (1<<u32Com)<<seg_shift;
-        } else if(memnum==2) {
-            LCD->MEM_2 |= (1<<u32Com)<<seg_shift;
-        } else if(memnum==3) {
-            LCD->MEM_3 |= (1<<u32Com)<<seg_shift;
-        } else if(memnum==4) {
-            LCD->MEM_4 |= (1<<u32Com)<<seg_shift;
-        } else if(memnum==5) {
-            LCD->MEM_5 |= (1<<u32Com)<<seg_shift;
-        } else if(memnum==6) {
-            LCD->MEM_6 |= (1<<u32Com)<<seg_shift;
-        } else if(memnum==7) {
-            LCD->MEM_7 |= (1<<u32Com)<<seg_shift;
-        } else if(memnum==8) {
-            LCD->MEM_8 |= (1<<u32Com)<<seg_shift;
-        } else if(memnum==9) {
-            LCD->MEM_9 |= (1<<u32Com)<<seg_shift;
+    if (u32OnFlag) {
+        if (memnum == 0) {
+            LCD->MEM_0 |= (1 << u32Com) << seg_shift;
+        } else if (memnum == 1) {
+            LCD->MEM_1 |= (1 << u32Com) << seg_shift;
+        } else if (memnum == 2) {
+            LCD->MEM_2 |= (1 << u32Com) << seg_shift;
+        } else if (memnum == 3) {
+            LCD->MEM_3 |= (1 << u32Com) << seg_shift;
+        } else if (memnum == 4) {
+            LCD->MEM_4 |= (1 << u32Com) << seg_shift;
+        } else if (memnum == 5) {
+            LCD->MEM_5 |= (1 << u32Com) << seg_shift;
+        } else if (memnum == 6) {
+            LCD->MEM_6 |= (1 << u32Com) << seg_shift;
+        } else if (memnum == 7) {
+            LCD->MEM_7 |= (1 << u32Com) << seg_shift;
+        } else if (memnum == 8) {
+            LCD->MEM_8 |= (1 << u32Com) << seg_shift;
+        } else if (memnum == 9) {
+            LCD->MEM_9 |= (1 << u32Com) << seg_shift;
         }
     } else {
-        if(memnum==0) {
-            LCD->MEM_0 &= ~((1<<u32Com)<<seg_shift);
-        } else if(memnum==1) {
-            LCD->MEM_1 &= ~((1<<u32Com)<<seg_shift);
-        } else if(memnum==2) {
-            LCD->MEM_2 &= ~((1<<u32Com)<<seg_shift);
-        } else if(memnum==3) {
-            LCD->MEM_3 &= ~((1<<u32Com)<<seg_shift);
-        } else if(memnum==4) {
-            LCD->MEM_4 &= ~((1<<u32Com)<<seg_shift);
-        } else if(memnum==5) {
-            LCD->MEM_5 &= ~((1<<u32Com)<<seg_shift);
-        } else if(memnum==6) {
-            LCD->MEM_6 &= ~((1<<u32Com)<<seg_shift);
-        } else if(memnum==7) {
-            LCD->MEM_7 &= ~((1<<u32Com)<<seg_shift);
-        } else if(memnum==8) {
-            LCD->MEM_8 &= ~((1<<u32Com)<<seg_shift);
-        } else if(memnum==9) {
-            LCD->MEM_9 &= ~((1<<u32Com)<<seg_shift);
+        if (memnum == 0) {
+            LCD->MEM_0 &= ~((1 << u32Com) << seg_shift);
+        } else if (memnum == 1) {
+            LCD->MEM_1 &= ~((1 << u32Com) << seg_shift);
+        } else if (memnum == 2) {
+            LCD->MEM_2 &= ~((1 << u32Com) << seg_shift);
+        } else if (memnum == 3) {
+            LCD->MEM_3 &= ~((1 << u32Com) << seg_shift);
+        } else if (memnum == 4) {
+            LCD->MEM_4 &= ~((1 << u32Com) << seg_shift);
+        } else if (memnum == 5) {
+            LCD->MEM_5 &= ~((1 << u32Com) << seg_shift);
+        } else if (memnum == 6) {
+            LCD->MEM_6 &= ~((1 << u32Com) << seg_shift);
+        } else if (memnum == 7) {
+            LCD->MEM_7 &= ~((1 << u32Com) << seg_shift);
+        } else if (memnum == 8) {
+            LCD->MEM_8 &= ~((1 << u32Com) << seg_shift);
+        } else if (memnum == 9) {
+            LCD->MEM_9 &= ~((1 << u32Com) << seg_shift);
         }
 
     }
 
-    if(CyclesPerUs > 0)
+    if (CyclesPerUs > 0) {
         SysTick->LOAD = 300 * CyclesPerUs;
-    else
+    } else {
         SysTick->LOAD = 15;
-    SysTick->VAL  =  (0x00);
+    }
+    SysTick->VAL  = (0x00);
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;
 
     /* Waiting for down-count to zero */
-    while((SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) == 0);
+    while ((SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) == 0);
 }
 
 /**
@@ -137,7 +138,7 @@ void LCD_SetAllPixels(uint32_t u32OnOff)
 {
     uint32_t u32SetValue;
 
-    if(u32OnOff) {
+    if (u32OnOff) {
         u32SetValue = 0xFFFFFFFF;
     } else {
         u32SetValue = 0x00000000;
@@ -153,15 +154,16 @@ void LCD_SetAllPixels(uint32_t u32OnOff)
     LCD->MEM_7 = u32SetValue;
     LCD->MEM_8 = u32SetValue;
 
-    if(CyclesPerUs > 0)
+    if (CyclesPerUs > 0) {
         SysTick->LOAD = 300 * CyclesPerUs;
-    else
+    } else {
         SysTick->LOAD = 15;
-    SysTick->VAL  =  (0x00);
+    }
+    SysTick->VAL  = (0x00);
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;
 
     /* Waiting for down-count to zero */
-    while((SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) == 0);
+    while ((SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) == 0);
 }
 
 
@@ -181,15 +183,17 @@ uint32_t LCD_EnableFrameCounter(uint32_t u32Count)
     LCD->FCR = 0x00;
     LCD->FCSTS |= LCD_FCSTS_FCSTS_Msk;  // clear fcsts flag
 
-    if(u32Count == 0) return 0;
+    if (u32Count == 0) {
+        return 0;
+    }
 
-    if(u32Count > 0x3F) { // top value max. 63 = 0x3F
-        div = u32Count/64;
+    if (u32Count > 0x3F) { // top value max. 63 = 0x3F
+        div = u32Count / 64;
 
-        if(div > 3) {
+        if (div > 3) {
             div = 8;
             LCD->FCR = LCD->FCR & ~LCD_FCR_PRESCL_Msk | LCD_FCPRESC_DIV8;
-        } else if(div > 1) {
+        } else if (div > 1) {
             div = 4;
             LCD->FCR = LCD->FCR & ~LCD_FCR_PRESCL_Msk | LCD_FCPRESC_DIV4;
         } else {
@@ -197,7 +201,7 @@ uint32_t LCD_EnableFrameCounter(uint32_t u32Count)
             LCD->FCR = LCD->FCR & ~LCD_FCR_PRESCL_Msk | LCD_FCPRESC_DIV2;
         }
 
-        u32Count = (u32Count+(div/2))/div;
+        u32Count = (u32Count + (div / 2)) / div;
     } else {
         div = 1;
         LCD->FCR = LCD->FCR & ~LCD_FCR_PRESCL_Msk | LCD_FCPRESC_DIV1;
@@ -205,7 +209,7 @@ uint32_t LCD_EnableFrameCounter(uint32_t u32Count)
 
     LCD->FCR = LCD->FCR & ~LCD_FCR_FCV_Msk | (u32Count << LCD_FCR_FCV_Pos);
 
-    u32Count = u32Count*div;
+    u32Count = u32Count * div;
 
     LCD->FCR |= LCD_FCR_FCEN_Msk;       // enable LCD frame count
 
@@ -224,8 +228,9 @@ void LCD_DisableFrameCounter(void)
 {
     LCD->FCR = 0x00;        // disable LCD frame count
 
-    if( LCD->FCSTS & LCD_FCSTS_FCSTS_Msk)   // clear status flag
+    if (LCD->FCSTS & LCD_FCSTS_FCSTS_Msk) { // clear status flag
         LCD->FCSTS = LCD_FCSTS_FCSTS_Msk;
+    }
 }
 
 
@@ -260,26 +265,26 @@ uint32_t LCD_Open(uint32_t u32DrivingType, uint32_t u32ComNum, uint32_t u32BiasL
     LCD_SetAllPixels(0);
 
 
-    switch(u32DrivingType) {
-    case LCD_C_TYPE:
-    case LCD_EXTERNAL_C_TYPE:
+    switch (u32DrivingType) {
+        case LCD_C_TYPE:
+        case LCD_EXTERNAL_C_TYPE:
 
-        LCD->DISPCTL &= ~LCD_DISPCTL_BV_SEL_Msk;        // internal source for charge pump
-        LCD->DISPCTL = LCD->DISPCTL & ~LCD_DISPCTL_CPUMP_FREQ_Msk | (LCD_CPUMP_DIV1);
-        LCD->DISPCTL = LCD->DISPCTL & ~LCD_DISPCTL_CPUMP_VOL_SET_Msk | (u32DrivingVol);
-        LCD->DISPCTL &= ~LCD_DISPCTL_IBRL_EN_Msk;
-        LCD->DISPCTL |= LCD_DISPCTL_CPUMP_EN_Msk;       // enable charge pump
+            LCD->DISPCTL &= ~LCD_DISPCTL_BV_SEL_Msk;        // internal source for charge pump
+            LCD->DISPCTL = LCD->DISPCTL & ~LCD_DISPCTL_CPUMP_FREQ_Msk | (LCD_CPUMP_DIV1);
+            LCD->DISPCTL = LCD->DISPCTL & ~LCD_DISPCTL_CPUMP_VOL_SET_Msk | (u32DrivingVol);
+            LCD->DISPCTL &= ~LCD_DISPCTL_IBRL_EN_Msk;
+            LCD->DISPCTL |= LCD_DISPCTL_CPUMP_EN_Msk;       // enable charge pump
 
-        break;
+            break;
 
-    case LCD_EXTERNAL_R_TYPE:
-    case LCD_INTERNAL_R_TYPE:
+        case LCD_EXTERNAL_R_TYPE:
+        case LCD_INTERNAL_R_TYPE:
 
-        LCD->DISPCTL &= ~LCD_DISPCTL_CPUMP_EN_Msk;
-        LCD->DISPCTL |= LCD_DISPCTL_BV_SEL_Msk;
-        LCD->DISPCTL &= ~LCD_DISPCTL_IBRL_EN_Msk;
-        LCD->DISPCTL |= (u32DrivingType == LCD_INTERNAL_R_TYPE)?LCD_DISPCTL_IBRL_EN_Msk:0;
-        break;
+            LCD->DISPCTL &= ~LCD_DISPCTL_CPUMP_EN_Msk;
+            LCD->DISPCTL |= LCD_DISPCTL_BV_SEL_Msk;
+            LCD->DISPCTL &= ~LCD_DISPCTL_IBRL_EN_Msk;
+            LCD->DISPCTL |= (u32DrivingType == LCD_INTERNAL_R_TYPE) ? LCD_DISPCTL_IBRL_EN_Msk : 0;
+            break;
 
     };
 
@@ -289,10 +294,11 @@ uint32_t LCD_Open(uint32_t u32DrivingType, uint32_t u32ComNum, uint32_t u32BiasL
     LCD->CTL = (LCD->CTL & ~LCD_CTL_MUX_Msk) | ((u32ComNum - 1) << LCD_CTL_MUX_Pos);
     LCD->DISPCTL = LCD->DISPCTL & ~LCD_DISPCTL_BIAS_SEL_Msk | u32BiasLevel;
 
-    if((CLK->CLKSEL1 & CLK_CLKSEL1_LCD_S_Msk) == 0)
+    if ((CLK->CLKSEL1 & CLK_CLKSEL1_LCD_S_Msk) == 0) {
         u32clk_src = 32 * 1024;
-    else
+    } else {
         u32clk_src = 10 * 1024;
+    }
 
     clkdiv = (LCD->CTL & LCD_CTL_FREQ_Msk) >> LCD_CTL_FREQ_Pos;
     muldiv = (LCD->CTL & LCD_CTL_MUX_Msk) >> LCD_CTL_MUX_Pos;
@@ -329,25 +335,33 @@ void LCD_Close(void)
  */
 uint32_t LCD_EnableBlink(uint32_t u32ms)
 {
-    uint32_t prescale=LCD_FCPRESC_DIV1, div=1;
+    uint32_t prescale = LCD_FCPRESC_DIV1, div = 1;
     uint32_t framecount;
 
-    if((1000/u32ms) > g_LCDFrameRate) u32ms = (1000/g_LCDFrameRate);
+    if ((1000 / u32ms) > g_LCDFrameRate) {
+        u32ms = (1000 / g_LCDFrameRate);
+    }
 
-    framecount = (uint32_t) (u32ms / (1000/g_LCDFrameRate)) ;
+    framecount = (uint32_t)(u32ms / (1000 / g_LCDFrameRate)) ;
 
-    if(framecount > 0x3F) {
-        for(div=2; div<=8; div*=2) {
-            framecount = (uint32_t) (u32ms / (1000/(g_LCDFrameRate/div)) );
+    if (framecount > 0x3F) {
+        for (div = 2; div <= 8; div *= 2) {
+            framecount = (uint32_t)(u32ms / (1000 / (g_LCDFrameRate / div)));
 
-            if( framecount <= 0x40 )
+            if (framecount <= 0x40) {
                 break;
+            }
         }
-        if(div==2) prescale = LCD_FCPRESC_DIV2;
-        else if(div==4) prescale = LCD_FCPRESC_DIV4;
-        else if(div==8) prescale = LCD_FCPRESC_DIV8;
-        else return 0;
-    } else if(framecount == 0) {
+        if (div == 2) {
+            prescale = LCD_FCPRESC_DIV2;
+        } else if (div == 4) {
+            prescale = LCD_FCPRESC_DIV4;
+        } else if (div == 8) {
+            prescale = LCD_FCPRESC_DIV8;
+        } else {
+            return 0;
+        }
+    } else if (framecount == 0) {
         framecount = 1;
     }
 
@@ -358,7 +372,7 @@ uint32_t LCD_EnableBlink(uint32_t u32ms)
     /* Enable Blink LCD */
     LCD->CTL |= LCD_CTL_BLINK_Msk;
 
-    return ( (framecount*1000)/(g_LCDFrameRate/div) );
+    return ((framecount * 1000) / (g_LCDFrameRate / div));
 }
 
 
@@ -378,8 +392,9 @@ void LCD_DisableBlink(void)
     /* Disable frame count */
     LCD->FCR = 0x00;        // disable LCD frame count
 
-    if( LCD->FCSTS & LCD_FCSTS_FCSTS_Msk)   // clear status flag
+    if (LCD->FCSTS & LCD_FCSTS_FCSTS_Msk) { // clear status flag
         LCD->FCSTS = LCD_FCSTS_FCSTS_Msk;
+    }
 
 }
 
@@ -393,11 +408,11 @@ void LCD_DisableBlink(void)
  */
 void LCD_EnableInt(uint32_t IntSrc)
 {
-    if((IntSrc & LCD_FRAMECOUNT_INT) == LCD_FRAMECOUNT_INT ) {
+    if ((IntSrc & LCD_FRAMECOUNT_INT) == LCD_FRAMECOUNT_INT) {
         LCD->FCR |= LCD_FCR_FCEN_Msk;
     }
 
-    if((IntSrc & LCD_POWERDOWN_INT) == LCD_POWERDOWN_INT ) {
+    if ((IntSrc & LCD_POWERDOWN_INT) == LCD_POWERDOWN_INT) {
         LCD->CTL |= LCD_CTL_PDINT_EN_Msk;
     }
 
@@ -413,12 +428,12 @@ void LCD_EnableInt(uint32_t IntSrc)
  */
 void LCD_DisableInt(uint32_t IntSrc)
 {
-    if((IntSrc & LCD_FRAMECOUNT_INT) == LCD_FRAMECOUNT_INT ) {
+    if ((IntSrc & LCD_FRAMECOUNT_INT) == LCD_FRAMECOUNT_INT) {
         LCD->FCR &= ~LCD_FCR_FCEN_Msk;
         LCD->FCSTS = LCD_FCSTS_FCSTS_Msk;
     }
 
-    if((IntSrc & LCD_POWERDOWN_INT) == LCD_POWERDOWN_INT ) {
+    if ((IntSrc & LCD_POWERDOWN_INT) == LCD_POWERDOWN_INT) {
         LCD->CTL &= ~LCD_CTL_PDINT_EN_Msk;
         LCD->FCSTS = LCD_FCSTS_PDSTS_Msk;
     }

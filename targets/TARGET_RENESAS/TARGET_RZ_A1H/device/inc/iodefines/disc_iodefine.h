@@ -76,9 +76,8 @@
 #define DISC1DOCMCRCIR (DISC1.DOCMCRCIR)
 
 
-typedef struct st_disc
-{
-                                                           /* DISC             */
+typedef struct st_disc {
+    /* DISC             */
     volatile uint32_t  DOCMCR;                                 /*  DOCMCR          */
     volatile uint32_t  DOCMSTR;                                /*  DOCMSTR         */
     volatile uint32_t  DOCMCLSTR;                              /*  DOCMCLSTR       */
@@ -97,10 +96,10 @@ typedef struct st_disc
 
 /* Channel array defines of DISC (2)*/
 #ifdef  DECLARE_DISC_CHANNELS
-volatile struct st_disc*  DISC[ DISC_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    DISC_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_disc  *DISC[ DISC_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        DISC_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_DISC_CHANNELS */
 /* End of channel array defines of DISC (2)*/
 

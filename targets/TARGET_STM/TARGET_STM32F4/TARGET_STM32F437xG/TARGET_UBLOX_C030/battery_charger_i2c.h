@@ -20,10 +20,10 @@
 #include "hal/i2c_api.h"
 
 #ifdef __cplusplus
-extern"C"{
+extern"C" {
 #endif
 
-class BatteryChargerI2c{
+class BatteryChargerI2c {
 
 public:
     BatteryChargerI2c(PinName sda, PinName scl);

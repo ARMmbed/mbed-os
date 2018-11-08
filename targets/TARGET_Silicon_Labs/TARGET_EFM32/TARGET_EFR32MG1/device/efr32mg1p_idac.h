@@ -38,23 +38,22 @@
  * @{
  * @brief EFR32MG1P_IDAC Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;          /**< Control Register  */
-  __IOM uint32_t CURPROG;       /**< Current Programming Register  */
-  uint32_t       RESERVED0[1];  /**< Reserved for future use **/
-  __IOM uint32_t DUTYCONFIG;    /**< Duty Cycle Configuration Register  */
+typedef struct {
+    __IOM uint32_t CTRL;          /**< Control Register  */
+    __IOM uint32_t CURPROG;       /**< Current Programming Register  */
+    uint32_t       RESERVED0[1];  /**< Reserved for future use **/
+    __IOM uint32_t DUTYCONFIG;    /**< Duty Cycle Configuration Register  */
 
-  uint32_t       RESERVED1[2];  /**< Reserved for future use **/
-  __IM uint32_t  STATUS;        /**< Status Register  */
-  uint32_t       RESERVED2[1];  /**< Reserved for future use **/
-  __IM uint32_t  IF;            /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
-  uint32_t       RESERVED3[1];  /**< Reserved for future use **/
-  __IM uint32_t  APORTREQ;      /**< APORT Request Status Register  */
-  __IM uint32_t  APORTCONFLICT; /**< APORT Request Status Register  */
+    uint32_t       RESERVED1[2];  /**< Reserved for future use **/
+    __IM uint32_t  STATUS;        /**< Status Register  */
+    uint32_t       RESERVED2[1];  /**< Reserved for future use **/
+    __IM uint32_t  IF;            /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
+    uint32_t       RESERVED3[1];  /**< Reserved for future use **/
+    __IM uint32_t  APORTREQ;      /**< APORT Request Status Register  */
+    __IM uint32_t  APORTCONFLICT; /**< APORT Request Status Register  */
 } IDAC_TypeDef;                 /** @} */
 
 /**************************************************************************//**

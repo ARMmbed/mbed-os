@@ -40,7 +40,7 @@
 #define __STM32L4xx_HAL_SWPMI_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined(STM32L431xx) || defined(STM32L432xx) || defined(STM32L433xx) || defined(STM32L442xx) || defined(STM32L443xx) || \
@@ -66,73 +66,70 @@
 /**
   * @brief SWPMI Init Structure definition
   */
-typedef struct
-{
-  uint32_t VoltageClass;             /*!< Specifies the SWP Voltage Class.
+typedef struct {
+    uint32_t VoltageClass;             /*!< Specifies the SWP Voltage Class.
                                           This parameter can be a value of @ref SWPMI_Voltage_Class */
 
-  uint32_t BitRate;                  /*!< Specifies the SWPMI Bitrate.
+    uint32_t BitRate;                  /*!< Specifies the SWPMI Bitrate.
                                           This parameter must be a number between 0 and 63.
                                           The Bitrate is computed using the following formula:
                                           SWPMI_freq = SWPMI_clk / (((BitRate) + 1)  * 4)
                                           */
 
-  uint32_t TxBufferingMode;          /*!< Specifies the transmission buffering mode.
+    uint32_t TxBufferingMode;          /*!< Specifies the transmission buffering mode.
                                           This parameter can be a value of @ref SWPMI_Tx_Buffering_Mode */
 
-  uint32_t RxBufferingMode;          /*!< Specifies the reception buffering mode.
+    uint32_t RxBufferingMode;          /*!< Specifies the reception buffering mode.
                                           This parameter can be a value of @ref SWPMI_Rx_Buffering_Mode */
 
-}SWPMI_InitTypeDef;
+} SWPMI_InitTypeDef;
 
 
 /**
   * @brief HAL SWPMI State structures definition
   */
-typedef enum
-{
-  HAL_SWPMI_STATE_RESET             = 0x00,    /*!< Peripheral Reset state                             */
-  HAL_SWPMI_STATE_READY             = 0x01,    /*!< Peripheral Initialized and ready for use           */
-  HAL_SWPMI_STATE_BUSY              = 0x02,    /*!< an internal process is ongoing                     */
-  HAL_SWPMI_STATE_BUSY_TX           = 0x12,    /*!< Data Transmission process is ongoing               */
-  HAL_SWPMI_STATE_BUSY_RX           = 0x22,    /*!< Data Reception process is ongoing                  */
-  HAL_SWPMI_STATE_BUSY_TX_RX        = 0x32,    /*!< Data Transmission and Reception process is ongoing */
-  HAL_SWPMI_STATE_TIMEOUT           = 0x03,    /*!< Timeout state                                      */
-  HAL_SWPMI_STATE_ERROR             = 0x04     /*!< Error                                              */
-}HAL_SWPMI_StateTypeDef;
+typedef enum {
+    HAL_SWPMI_STATE_RESET             = 0x00,    /*!< Peripheral Reset state                             */
+    HAL_SWPMI_STATE_READY             = 0x01,    /*!< Peripheral Initialized and ready for use           */
+    HAL_SWPMI_STATE_BUSY              = 0x02,    /*!< an internal process is ongoing                     */
+    HAL_SWPMI_STATE_BUSY_TX           = 0x12,    /*!< Data Transmission process is ongoing               */
+    HAL_SWPMI_STATE_BUSY_RX           = 0x22,    /*!< Data Reception process is ongoing                  */
+    HAL_SWPMI_STATE_BUSY_TX_RX        = 0x32,    /*!< Data Transmission and Reception process is ongoing */
+    HAL_SWPMI_STATE_TIMEOUT           = 0x03,    /*!< Timeout state                                      */
+    HAL_SWPMI_STATE_ERROR             = 0x04     /*!< Error                                              */
+} HAL_SWPMI_StateTypeDef;
 
 /**
   * @brief  SWPMI handle Structure definition
   */
-typedef struct
-{
-  SWPMI_TypeDef                  *Instance;     /* SWPMI registers base address         */
+typedef struct {
+    SWPMI_TypeDef                  *Instance;     /* SWPMI registers base address         */
 
-  SWPMI_InitTypeDef              Init;          /* SWMPI communication parameters       */
+    SWPMI_InitTypeDef              Init;          /* SWMPI communication parameters       */
 
-  uint32_t                       *pTxBuffPtr;   /* Pointer to SWPMI Tx transfer Buffer  */
+    uint32_t                       *pTxBuffPtr;   /* Pointer to SWPMI Tx transfer Buffer  */
 
-  uint32_t                       TxXferSize;    /* SWPMI Tx Transfer size               */
+    uint32_t                       TxXferSize;    /* SWPMI Tx Transfer size               */
 
-  uint32_t                       TxXferCount;   /* SWPMI Tx Transfer Counter            */
+    uint32_t                       TxXferCount;   /* SWPMI Tx Transfer Counter            */
 
-  uint32_t                       *pRxBuffPtr;   /* Pointer to SWPMI Rx transfer Buffer  */
+    uint32_t                       *pRxBuffPtr;   /* Pointer to SWPMI Rx transfer Buffer  */
 
-  uint32_t                       RxXferSize;    /* SWPMI Rx Transfer size               */
+    uint32_t                       RxXferSize;    /* SWPMI Rx Transfer size               */
 
-  uint32_t                       RxXferCount;   /* SWPMI Rx Transfer Counter            */
+    uint32_t                       RxXferCount;   /* SWPMI Rx Transfer Counter            */
 
-  DMA_HandleTypeDef              *hdmatx;       /* SWPMI Tx DMA Handle parameters       */
+    DMA_HandleTypeDef              *hdmatx;       /* SWPMI Tx DMA Handle parameters       */
 
-  DMA_HandleTypeDef              *hdmarx;       /* SWPMI Rx DMA Handle parameters       */
+    DMA_HandleTypeDef              *hdmarx;       /* SWPMI Rx DMA Handle parameters       */
 
-  HAL_LockTypeDef                Lock;          /* SWPMI object                         */
+    HAL_LockTypeDef                Lock;          /* SWPMI object                         */
 
-  __IO HAL_SWPMI_StateTypeDef    State;         /* SWPMI communication state            */
+    __IO HAL_SWPMI_StateTypeDef    State;         /* SWPMI communication state            */
 
-  __IO uint32_t                  ErrorCode;     /* SWPMI Error code                     */
+    __IO uint32_t                  ErrorCode;     /* SWPMI Error code                     */
 
-}SWPMI_HandleTypeDef;
+} SWPMI_HandleTypeDef;
 
 /**
   * @}
@@ -406,7 +403,7 @@ uint32_t               HAL_SWPMI_GetError(SWPMI_HandleTypeDef *hswpmi);
 /** @defgroup SWPMI_Private_Variables SWPMI Private Variables
   * @{
   */
-  
+
 /**
   * @}
   */
@@ -452,8 +449,8 @@ uint32_t               HAL_SWPMI_GetError(SWPMI_HandleTypeDef *hswpmi);
   */
 
 #endif /* STM32L431xx || STM32L432xx || STM32L433xx || STM32L442xx || STM32L443xx || */
-       /* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx || */
-       /* STM32L496xx || STM32L4A6xx */
+/* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx || */
+/* STM32L496xx || STM32L4A6xx */
 
 #ifdef __cplusplus
 }

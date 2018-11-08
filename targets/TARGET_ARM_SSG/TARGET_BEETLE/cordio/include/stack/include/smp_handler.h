@@ -35,7 +35,7 @@ extern "C" {
 /*************************************************************************************************/
 /*!
  *  \fn     SmpHandlerInit
- *        
+ *
  *  \brief  SMP handler init function called during system initialization.
  *
  *  \param  handlerID  WSF handler ID for SMP.
@@ -49,7 +49,7 @@ void SmpHandlerInit(wsfHandlerId_t handlerId);
 /*************************************************************************************************/
 /*!
  *  \fn     SmpHandler
- *        
+ *
  *  \brief  WSF event handler for SMP.
  *
  *  \param  event   WSF event mask.

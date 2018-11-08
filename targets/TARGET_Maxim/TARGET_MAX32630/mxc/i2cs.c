@@ -34,7 +34,7 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- * $Date: 2016-09-08 18:05:59 -0500 (Thu, 08 Sep 2016) $ 
+ * $Date: 2016-09-08 18:05:59 -0500 (Thu, 08 Sep 2016) $
  * $Revision: 24332 $
  *
  *************************************************************************** */
@@ -55,10 +55,10 @@
 /* **** Globals ***** */
 
 
-// No Doxygen documentation for the items between here and endcond. 
+// No Doxygen documentation for the items between here and endcond.
 /* Clock divider lookup table */
 static const uint32_t clk_div_table[2][8] = {
- /* I2CS_SPEED_100KHZ */
+    /* I2CS_SPEED_100KHZ */
     {
         // 12000000
         (6 << MXC_F_I2CS_CLK_DIV_FS_FILTER_CLOCK_DIV_POS),
@@ -104,15 +104,15 @@ static void (*callbacks[MXC_CFG_I2CS_INSTANCES][MXC_CFG_I2CS_BUFFER_SIZE])(uint8
 /* **** Functions **** */
 
 /* ************************************************************************* */
-int I2CS_Init(mxc_i2cs_regs_t *i2cs, const sys_cfg_i2cs_t *sys_cfg, i2cs_speed_t speed, 
-    uint16_t address, i2cs_addr_t addr_len)
+int I2CS_Init(mxc_i2cs_regs_t *i2cs, const sys_cfg_i2cs_t *sys_cfg, i2cs_speed_t speed,
+              uint16_t address, i2cs_addr_t addr_len)
 {
     int err, i, i2cs_index;
 
     i2cs_index = MXC_I2CS_GET_IDX(i2cs);
     MXC_ASSERT(i2cs_index >= 0);
 
-     // Set system level configurations
+    // Set system level configurations
     if ((err = SYS_I2CS_Init(i2cs, sys_cfg)) != E_NO_ERROR) {
         return err;
     }
@@ -130,14 +130,14 @@ int I2CS_Init(mxc_i2cs_regs_t *i2cs, const sys_cfg_i2cs_t *sys_cfg, i2cs_speed_t
     }
 
     // Clear the interrupt callbacks
-    for(i = 0; i < MXC_CFG_I2CS_BUFFER_SIZE; i++) {
+    for (i = 0; i < MXC_CFG_I2CS_BUFFER_SIZE; i++) {
         callbacks[i2cs_index][i] = NULL;
     }
 
     // Reset module
     i2cs->dev_id = MXC_F_I2CS_DEV_ID_SLAVE_RESET;
-    i2cs->dev_id = ((((address >> 0) << MXC_F_I2CS_DEV_ID_SLAVE_DEV_ID_POS) 
-        & MXC_F_I2CS_DEV_ID_SLAVE_DEV_ID) | addr_len);
+    i2cs->dev_id = ((((address >> 0) << MXC_F_I2CS_DEV_ID_SLAVE_DEV_ID_POS)
+                     & MXC_F_I2CS_DEV_ID_SLAVE_DEV_ID) | addr_len);
 
     return E_NO_ERROR;
 }
@@ -145,18 +145,18 @@ int I2CS_Init(mxc_i2cs_regs_t *i2cs, const sys_cfg_i2cs_t *sys_cfg, i2cs_speed_t
 /* ************************************************************************* */
 int I2CS_Shutdown(mxc_i2cs_regs_t *i2cs)
 {
-   int err;
+    int err;
 
-   // Disable and clear interrupts
-   i2cs->inten = 0;
-   i2cs->intfl = i2cs->intfl;
+    // Disable and clear interrupts
+    i2cs->inten = 0;
+    i2cs->intfl = i2cs->intfl;
 
-   // clears system level configurations
-   if ((err = SYS_I2CS_Shutdown(i2cs)) != E_NO_ERROR) {
-       return err;
-   }
+    // clears system level configurations
+    if ((err = SYS_I2CS_Shutdown(i2cs)) != E_NO_ERROR) {
+        return err;
+    }
 
-   return E_NO_ERROR;
+    return E_NO_ERROR;
 }
 
 /* ************************************************************************* */
@@ -171,9 +171,9 @@ void I2CS_Handler(mxc_i2cs_regs_t *i2cs)
     i2cs->intfl = intfl;
 
     // Process each interrupt
-    for(i = 0; i < 32; i++) {
-        if(intfl & (0x1 << i)) {
-            if(callbacks[i2cs_index][i] != NULL) {
+    for (i = 0; i < 32; i++) {
+        if (intfl & (0x1 << i)) {
+            if (callbacks[i2cs_index][i] != NULL) {
                 callbacks[i2cs_index][i](i);
             }
         }
@@ -189,7 +189,7 @@ void I2CS_RegisterCallback(mxc_i2cs_regs_t *i2cs, uint8_t addr, i2cs_callback_fn
     // Make sure we don't overflow
     MXC_ASSERT(addr < MXC_CFG_I2CS_BUFFER_SIZE);
 
-    if(callback != NULL) {
+    if (callback != NULL) {
         // Save the callback address
         callbacks[i2cs_index][addr] = callback;
 
@@ -206,4 +206,4 @@ void I2CS_RegisterCallback(mxc_i2cs_regs_t *i2cs, uint8_t addr, i2cs_callback_fn
     }
 }
 
-/**@} end of group i2cs*/    
+/**@} end of group i2cs*/

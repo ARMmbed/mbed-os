@@ -86,71 +86,71 @@ static control_t cfstore_find2_test_00(const size_t call_count)
 
 static control_t cfstore_find2_test_01(const size_t call_count)
 {
-	char keyBuffer[128] = "com.arm.mbed.manifest-manager.root.AQAAAAAAAAA-.manifest";
-	int32_t rc;
-	ARM_CFSTORE_HANDLE_INIT(hkey);
-	ARM_CFSTORE_HANDLE_INIT(prev);
+    char keyBuffer[128] = "com.arm.mbed.manifest-manager.root.AQAAAAAAAAA-.manifest";
+    int32_t rc;
+    ARM_CFSTORE_HANDLE_INIT(hkey);
+    ARM_CFSTORE_HANDLE_INIT(prev);
 
-	// Initialize the config store
-	(void) call_count;
-	cfstore_driver.Initialize(cfstore_find2_callback, NULL);
-	cfstore_driver.PowerControl(ARM_POWER_FULL);
+    // Initialize the config store
+    (void) call_count;
+    cfstore_driver.Initialize(cfstore_find2_callback, NULL);
+    cfstore_driver.PowerControl(ARM_POWER_FULL);
 
-	// Find the target key
-	rc = cfstore_driver.Find(keyBuffer, prev, hkey);
+    // Find the target key
+    rc = cfstore_driver.Find(keyBuffer, prev, hkey);
 
-	// If the target key was not found
-	if (rc == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
-		ARM_CFSTORE_KEYDESC kdesc = {
-			.acl = {
-				.perm_owner_read = 1,
-				.perm_owner_write = 1,
-				.perm_owner_execute = 0,
-				.perm_other_read = 1,
-				.perm_other_write = 0,
-				.perm_other_execute = 0,
-				/* added initialisers */
+    // If the target key was not found
+    if (rc == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
+        ARM_CFSTORE_KEYDESC kdesc = {
+            .acl = {
+                .perm_owner_read = 1,
+                .perm_owner_write = 1,
+                .perm_owner_execute = 0,
+                .perm_other_read = 1,
+                .perm_other_write = 0,
+                .perm_other_execute = 0,
+                /* added initialisers */
                 .reserved = 0
-			}, .drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE,
-			.security = {
-				.acls = 1,
-				.rollback_protection = 0,
-				.tamper_proof = 0,
-				.internal_flash = 0,
-				/* added initialisers */
+            }, .drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE,
+            .security = {
+                .acls = 1,
+                .rollback_protection = 0,
+                .tamper_proof = 0,
+                .internal_flash = 0,
+                /* added initialisers */
                 .reserved1 = 0,
                 .software_attacks = 0,
                 .board_level_attacks = 0,
                 .chip_level_attacks = 0,
                 .side_channel_attacks = 0,
                 .reserved2 = 0
-			},
-			.flags = {
-				.continuous = 0,
-				.lazy_flush = 1,
-				.flush_on_close = 1,
-				.read = 0,
-				.write = 1,
-				.execute = 0,
-				.storage_detect = 1,
+            },
+            .flags = {
+                .continuous = 0,
+                .lazy_flush = 1,
+                .flush_on_close = 1,
+                .read = 0,
+                .write = 1,
+                .execute = 0,
+                .storage_detect = 1,
                 /* added initialisers */
                 .reserved = 0
-			}
-		};
+            }
+        };
 
-		// Create the target key
-		rc = cfstore_driver.Create(keyBuffer, 191, &kdesc, hkey);
-	}
-	return CaseNext;
+        // Create the target key
+        rc = cfstore_driver.Create(keyBuffer, 191, &kdesc, hkey);
+    }
+    return CaseNext;
 }
 
 
 /* fixed version of brendans code */
 static control_t cfstore_find2_test_02(const size_t call_count)
 {
-	char keyBuffer[128] = "com.arm.mbed.manifest-manager.root.AQAAAAAAAAA-.manifest";
+    char keyBuffer[128] = "com.arm.mbed.manifest-manager.root.AQAAAAAAAAA-.manifest";
 
-	int32_t rc;
+    int32_t rc;
     ARM_CFSTORE_HANDLE_INIT(hkey);
     ARM_CFSTORE_HANDLE_INIT(prev);
     ARM_CFSTORE_SIZE length;
@@ -176,7 +176,7 @@ static control_t cfstore_find2_test_02(const size_t call_count)
                 .perm_other_write = 0,
                 .perm_other_execute = 0,
                 .reserved = 0
-            }, .drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE,	/* DATA_RETENTION_NVM not supported for MBED_V_0_1_x */
+            }, .drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE,    /* DATA_RETENTION_NVM not supported for MBED_V_0_1_x */
             .security = {
                 .acls = 0, /* protection against internal software attacks using ACLs not supported for MBED_V_0_1_x */
                 .rollback_protection = 0,
@@ -191,8 +191,8 @@ static control_t cfstore_find2_test_02(const size_t call_count)
             },
             .flags = {
                 .continuous = 0,
-                .lazy_flush = 0, 		/* lazy flush not supported for MBED_V_0_1_x */
-                .flush_on_close = 0,	/* flush on close not supported for MBED_V_0_1_x */
+                .lazy_flush = 0,        /* lazy flush not supported for MBED_V_0_1_x */
+                .flush_on_close = 0,    /* flush on close not supported for MBED_V_0_1_x */
                 .read = 0,
                 .write = 1,
                 .execute = 0,
@@ -209,12 +209,12 @@ static control_t cfstore_find2_test_02(const size_t call_count)
         TEST_ASSERT_MESSAGE(rc >= ARM_DRIVER_OK, cfstore_find2_utest_msg_g);
 
         strncpy(value, "MyValueData", CFSTORE_FIND2_TEST_02_VALUE_SIZE);
-		length = strlen(value);
-		rc = cfstore_driver.Write(hkey, value, &length);
+        length = strlen(value);
+        rc = cfstore_driver.Write(hkey, value, &length);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_find2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%sError: failed to write key\n", __func__);
         TEST_ASSERT_MESSAGE(rc >= ARM_DRIVER_OK, cfstore_find2_utest_msg_g);
         /* revert to CFSTORE_LOG if more trace required */
-		CFSTORE_DBGLOG("Success!%s", "\n");
+        CFSTORE_DBGLOG("Success!%s", "\n");
     }
     return CaseNext;
 }
@@ -227,11 +227,11 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("FIND2_test_00", cfstore_find2_test_00),
-        Case("FIND2_test_01", cfstore_find2_test_01),
-        Case("FIND2_test_02", cfstore_find2_test_02),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("FIND2_test_00", cfstore_find2_test_00),
+    Case("FIND2_test_01", cfstore_find2_test_01),
+    Case("FIND2_test_02", cfstore_find2_test_02),
 };
 
 

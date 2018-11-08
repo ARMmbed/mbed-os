@@ -23,7 +23,7 @@
 
 void HAL_MspInit(void)
 {
-	set_minimum_battery_voltage();
+    set_minimum_battery_voltage();
 }
 
 void set_minimum_battery_voltage()
@@ -32,16 +32,15 @@ void set_minimum_battery_voltage()
     char data_read;
     BatteryChargerI2c i2c_object(I2C_SDA_B, I2C_SCL_B);
 
-    if (i2c_object.write_to_i2c(BQ24295_I2C_ADDRESS,&data_write[0] , 1)){
+    if (i2c_object.write_to_i2c(BQ24295_I2C_ADDRESS, &data_write[0], 1)) {
         i2c_object.read_from_i2c(BQ24295_I2C_ADDRESS, &data_read, 1);
         data_read = data_read & MIN_BATTERY_VOLTAGE_MASK;
         data_write[0] = 0x0;
         data_write[1] = data_read;
-        if (i2c_object.write_to_i2c(BQ24295_I2C_ADDRESS,&data_write[0] , 2)){
+        if (i2c_object.write_to_i2c(BQ24295_I2C_ADDRESS, &data_write[0], 2)) {
             //Battery Voltage is set to 3880mV
-            }
         }
-    else{
+    } else {
         // Minimum battery voltage could not be set.  This is not a critical error, no need to stop execution
         // It simply means that longer cabling or USB ports with lower output voltages may cause problems.
     }

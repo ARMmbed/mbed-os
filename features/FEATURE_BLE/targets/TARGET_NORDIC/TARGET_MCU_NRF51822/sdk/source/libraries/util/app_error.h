@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
+
 /** @file
  *
  * @defgroup app_error Common application error handler
@@ -46,15 +46,15 @@
 #include <stdbool.h>
 #include "nrf_error.h"
 
-/**@brief Function for error handling, which is called when an error has occurred. 
+/**@brief Function for error handling, which is called when an error has occurred.
  *
  * @param[in] error_code  Error code supplied to the handler.
  * @param[in] line_num    Line number where the handler is called.
- * @param[in] p_file_name Pointer to the file name. 
+ * @param[in] p_file_name Pointer to the file name.
  */
-void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name);
+void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name);
 
-/**@brief Macro for calling error handler function. 
+/**@brief Macro for calling error handler function.
  *
  * @param[in] ERR_CODE Error code supplied to the error handler.
  */
@@ -71,10 +71,10 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
         app_error_handler((ERR_CODE), 0, 0);  \
     } while (0)
 #endif
-/**@brief Macro for calling error handler function if supplied error code any other than NRF_SUCCESS. 
+/**@brief Macro for calling error handler function if supplied error code any other than NRF_SUCCESS.
  *
  * @param[in] ERR_CODE Error code supplied to the error handler.
- */    
+ */
 #define APP_ERROR_CHECK(ERR_CODE)                           \
     do                                                      \
     {                                                       \
@@ -83,9 +83,9 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
         {                                                   \
             APP_ERROR_HANDLER(LOCAL_ERR_CODE);              \
         }                                                   \
-    } while (0)    
-    
-/**@brief Macro for calling error handler function if supplied boolean value is false. 
+    } while (0)
+
+/**@brief Macro for calling error handler function if supplied boolean value is false.
  *
  * @param[in] BOOLEAN_VALUE Boolean value to be evaluated.
  */
@@ -97,7 +97,7 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
         {                                                     \
             APP_ERROR_HANDLER(0);                             \
         }                                                     \
-    } while (0)        
+    } while (0)
 
 #endif // APP_ERROR_H__
 

@@ -119,7 +119,7 @@ static uint8_t *thread_management_server_border_router_nd_dnssl_option_read(thre
 {
     if (this->dns_search_list_option) {
         *resp_len = this->dns_search_list_option->option_length;
-        return (uint8_t*)&this->dns_search_list_option->option_data;
+        return (uint8_t *)&this->dns_search_list_option->option_data;
     } else {
         // TODO: Read DNSSL from stored ICMP RA messages.
         *resp_len = 0;
@@ -137,7 +137,7 @@ static uint8_t *thread_management_server_border_router_nd_rdnss_option_read(thre
 {
     if (this->recursive_dns_server_option) {
         *resp_len = this->recursive_dns_server_option->option_length;
-        return (uint8_t*)&this->recursive_dns_server_option->option_data;
+        return (uint8_t *)&this->recursive_dns_server_option->option_data;
     } else {
         // TODO: Read RDNSS from stored ICMP RA messages.
         *resp_len = 0;
@@ -213,7 +213,7 @@ static int thread_border_router_neighbor_discovery_data_req_cb(int8_t service_id
     }
 
 send_response:
-    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, return_code, COAP_CT_OCTET_STREAM, resp_payload_ptr, ptr-resp_payload_ptr);
+    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, return_code, COAP_CT_OCTET_STREAM, resp_payload_ptr, ptr - resp_payload_ptr);
     ns_dyn_mem_free(resp_payload_ptr);
     return 0;
 }
@@ -233,7 +233,7 @@ static bool thread_border_router_network_data_prefix_match(thread_network_data_c
 
         // check that prefix is hosted by this router
         if (!thread_nd_hosted_by_this_routerid(router_id, &nwk_prefix->routeList) &&
-            !thread_nd_hosted_by_this_routerid(router_id, &nwk_prefix->borderRouterList)) {
+                !thread_nd_hosted_by_this_routerid(router_id, &nwk_prefix->borderRouterList)) {
             return false;
         }
 
@@ -468,14 +468,14 @@ void thread_border_router_seconds_timer(int8_t interface_id, uint32_t seconds)
         if (this->nwk_data_resubmit_timer > seconds) {
             this->nwk_data_resubmit_timer -= seconds;
         } else {
-             protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-             this->nwk_data_resubmit_timer = 0;
-             if (cur) {
-                 if (!thread_border_router_local_srv_data_in_network_data_check(cur)) {
-                     tr_info("nwk data mismatch - resubmit");
-                     thread_border_router_publish(cur->id);
-                 }
-             }
+            protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+            this->nwk_data_resubmit_timer = 0;
+            if (cur) {
+                if (!thread_border_router_local_srv_data_in_network_data_check(cur)) {
+                    tr_info("nwk data mismatch - resubmit");
+                    thread_border_router_publish(cur->id);
+                }
+            }
         }
     }
 }
@@ -492,7 +492,7 @@ void thread_border_router_resubmit_timer_set(int8_t interface_id, int16_t second
         this->nwk_data_resubmit_timer = seconds;
     } else {
         // re-init network data resubmit timer to default value
-        this->nwk_data_resubmit_timer = THREAD_DATA_RESUBMIT_DELAY + randLIB_get_random_in_range(0, THREAD_DATA_RESUBMIT_DELAY/10);
+        this->nwk_data_resubmit_timer = THREAD_DATA_RESUBMIT_DELAY + randLIB_get_random_in_range(0, THREAD_DATA_RESUBMIT_DELAY / 10);
     }
 }
 
@@ -548,7 +548,7 @@ int thread_border_router_prefix_add(int8_t interface_id, uint8_t *prefix_ptr, ui
     if (!prefix_info_ptr || !prefix_ptr) {
         return -2;
     }
-    if(prefix_info_ptr->P_dhcp == true && prefix_info_ptr->P_slaac == true) {
+    if (prefix_info_ptr->P_dhcp == true && prefix_info_ptr->P_slaac == true) {
         return -3;// Can not configure both services on
     }
 
@@ -788,7 +788,7 @@ static void thread_tmf_client_network_data_set_cb(int8_t interface_id, int8_t st
     cur->thread_info->localServerDataBase.release_old_address = false;
     cur->thread_info->localServerDataBase.publish_active = false;
 
-    tr_debug("border router status %s, addr: %x",status?"Fail":"Ok", cur->thread_info->localServerDataBase.registered_rloc16);
+    tr_debug("border router status %s, addr: %x", status ? "Fail" : "Ok", cur->thread_info->localServerDataBase.registered_rloc16);
 
     if (cur->thread_info->localServerDataBase.publish_pending) {
         cur->thread_info->localServerDataBase.publish_pending = false;
@@ -843,7 +843,7 @@ int thread_border_router_publish(int8_t interface_id)
             cur->thread_info->localServerDataBase.registered_rloc16 != rloc16) {
         // Our address has changed so we must register our network with new address and remove the old address
         tr_debug("Border router Address changed remove old");
-        ptr = thread_tmfcop_tlv_data_write_uint16(ptr,TMFCOP_TLV_RLOC16,cur->thread_info->localServerDataBase.registered_rloc16);
+        ptr = thread_tmfcop_tlv_data_write_uint16(ptr, TMFCOP_TLV_RLOC16, cur->thread_info->localServerDataBase.registered_rloc16);
     }
     cur->thread_info->localServerDataBase.registered_rloc16 = rloc16;
     ret_val = thread_management_client_network_data_register(cur->id, payload_ptr, ptr - payload_ptr, thread_tmf_client_network_data_set_cb);
@@ -887,7 +887,7 @@ int thread_border_router_delete_all(int8_t interface_id)
 #endif
 }
 
-int thread_border_router_network_data_callback_register(int8_t interface_id, thread_network_data_tlv_cb* nwk_data_cb)
+int thread_border_router_network_data_callback_register(int8_t interface_id, thread_network_data_tlv_cb *nwk_data_cb)
 {
 #ifdef HAVE_THREAD
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -911,7 +911,7 @@ int thread_border_router_network_data_callback_register(int8_t interface_id, thr
 #endif
 }
 
-int thread_border_router_prefix_tlv_find(uint8_t* network_data_tlv, uint16_t network_data_tlv_length, uint8_t** prefix_tlv, bool *stable)
+int thread_border_router_prefix_tlv_find(uint8_t *network_data_tlv, uint16_t network_data_tlv_length, uint8_t **prefix_tlv, bool *stable)
 {
 #ifdef HAVE_THREAD
     uint16_t tlv_length;
@@ -920,7 +920,7 @@ int thread_border_router_prefix_tlv_find(uint8_t* network_data_tlv, uint16_t net
     }
     //tr_debug("thread_tlv_lib_prefix_find() len=%d, tlv=%s", network_data_tlv_length, trace_array(network_data_tlv, network_data_tlv_length));
     *stable = true;
-    tlv_length = thread_meshcop_tlv_find_next(network_data_tlv, network_data_tlv_length, THREAD_NWK_DATA_TYPE_PREFIX|THREAD_NWK_STABLE_DATA, prefix_tlv);
+    tlv_length = thread_meshcop_tlv_find_next(network_data_tlv, network_data_tlv_length, THREAD_NWK_DATA_TYPE_PREFIX | THREAD_NWK_STABLE_DATA, prefix_tlv);
     if (tlv_length == 0) {
         tlv_length = thread_meshcop_tlv_find_next(network_data_tlv, network_data_tlv_length, THREAD_NWK_DATA_TYPE_PREFIX, prefix_tlv);
         *stable = false;
@@ -935,7 +935,7 @@ int thread_border_router_prefix_tlv_find(uint8_t* network_data_tlv, uint16_t net
 #endif
 }
 
-int thread_border_router_tlv_find(uint8_t* prefix_tlv, uint16_t prefix_tlv_length, uint8_t** border_router_tlv, bool *stable)
+int thread_border_router_tlv_find(uint8_t *prefix_tlv, uint16_t prefix_tlv_length, uint8_t **border_router_tlv, bool *stable)
 {
 #ifdef HAVE_THREAD
     uint16_t tlv_length;
@@ -951,7 +951,7 @@ int thread_border_router_tlv_find(uint8_t* prefix_tlv, uint16_t prefix_tlv_lengt
 
     // find stable prefix first and if not found return unstable data
     *stable = true;
-    tlv_length = thread_meshcop_tlv_find_next(prefix_tlv, prefix_tlv_length, THREAD_NWK_DATA_TYPE_BORDER_ROUTER|THREAD_NWK_STABLE_DATA, border_router_tlv);
+    tlv_length = thread_meshcop_tlv_find_next(prefix_tlv, prefix_tlv_length, THREAD_NWK_DATA_TYPE_BORDER_ROUTER | THREAD_NWK_STABLE_DATA, border_router_tlv);
     if (tlv_length == 0) {
         tlv_length = thread_meshcop_tlv_find_next(prefix_tlv, prefix_tlv_length, THREAD_NWK_DATA_TYPE_BORDER_ROUTER, border_router_tlv);
         *stable = false;
@@ -998,7 +998,7 @@ int thread_border_router_prefix_context_id(uint8_t *prefix_tlv, uint16_t prefix_
 #endif
 }
 
-int thread_border_router_service_tlv_find(uint8_t* network_data_tlv, uint16_t network_data_tlv_length, uint8_t** service_tlv, bool* stable)
+int thread_border_router_service_tlv_find(uint8_t *network_data_tlv, uint16_t network_data_tlv_length, uint8_t **service_tlv, bool *stable)
 {
 #ifdef HAVE_THREAD
     uint16_t tlv_length;
@@ -1007,7 +1007,7 @@ int thread_border_router_service_tlv_find(uint8_t* network_data_tlv, uint16_t ne
     }
 
     *stable = true;
-    tlv_length = thread_meshcop_tlv_find_next(network_data_tlv, network_data_tlv_length, THREAD_NWK_DATA_TYPE_SERVICE_DATA|THREAD_NWK_STABLE_DATA, service_tlv);
+    tlv_length = thread_meshcop_tlv_find_next(network_data_tlv, network_data_tlv_length, THREAD_NWK_DATA_TYPE_SERVICE_DATA | THREAD_NWK_STABLE_DATA, service_tlv);
     if (tlv_length == 0) {
         tlv_length = thread_meshcop_tlv_find_next(network_data_tlv, network_data_tlv_length, THREAD_NWK_DATA_TYPE_SERVICE_DATA, service_tlv);
         *stable = false;
@@ -1022,7 +1022,7 @@ int thread_border_router_service_tlv_find(uint8_t* network_data_tlv, uint16_t ne
 #endif
 }
 
-int thread_border_router_server_tlv_find(uint8_t* service_tlv, uint16_t service_tlv_length, uint8_t** server_tlv, bool* stable)
+int thread_border_router_server_tlv_find(uint8_t *service_tlv, uint16_t service_tlv_length, uint8_t **server_tlv, bool *stable)
 {
 #ifdef HAVE_THREAD
     uint16_t tlv_length;
@@ -1043,7 +1043,7 @@ int thread_border_router_server_tlv_find(uint8_t* service_tlv, uint16_t service_
     service_tlv_length = service_tlv_length - service_data_len - 2;
 
     *stable = true;
-    tlv_length = thread_meshcop_tlv_find_next(service_tlv, service_tlv_length, THREAD_NWK_DATA_TYPE_SERVER_DATA|THREAD_NWK_STABLE_DATA, server_tlv);
+    tlv_length = thread_meshcop_tlv_find_next(service_tlv, service_tlv_length, THREAD_NWK_DATA_TYPE_SERVER_DATA | THREAD_NWK_STABLE_DATA, server_tlv);
     if (tlv_length == 0) {
         tlv_length = thread_meshcop_tlv_find_next(service_tlv, service_tlv_length, THREAD_NWK_DATA_TYPE_SERVER_DATA, server_tlv);
         *stable = false;

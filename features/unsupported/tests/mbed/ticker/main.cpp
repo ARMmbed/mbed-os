@@ -10,12 +10,15 @@ void print_char(char c = '*')
 Ticker flipper_1;
 DigitalOut led1(LED1);
 
-void flip_1() {
+void flip_1()
+{
     static int led1_state = 0;
     if (led1_state) {
-        led1 = 0; led1_state = 0;
+        led1 = 0;
+        led1_state = 0;
     } else {
-        led1 = 1; led1_state = 1;
+        led1 = 1;
+        led1_state = 1;
     }
     print_char();
 }
@@ -23,16 +26,20 @@ void flip_1() {
 Ticker flipper_2;
 DigitalOut led2(LED2);
 
-void flip_2() {
+void flip_2()
+{
     static int led2_state = 0;
     if (led2_state) {
-        led2 = 0; led2_state = 0;
+        led2 = 0;
+        led2_state = 0;
     } else {
-        led2 = 1; led2_state = 1;
+        led2 = 1;
+        led2_state = 1;
     }
 }
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(15);
     MBED_HOSTTEST_SELECT(wait_us_auto);
     MBED_HOSTTEST_DESCRIPTION(Ticker Int);

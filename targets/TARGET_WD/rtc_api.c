@@ -55,7 +55,7 @@ void rtc_init(void)
     }
 
 #if MBED_CONF_TARGET_LSE_AVAILABLE
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
@@ -78,7 +78,7 @@ void rtc_init(void)
     __HAL_RCC_BACKUPRESET_RELEASE();
 
     // Enable LSI clock
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
     RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
     RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
@@ -228,12 +228,12 @@ time_t rtc_read(void)
     timeinfo.tm_min  = timeStruct.Minutes;
     timeinfo.tm_sec  = timeStruct.Seconds;
     // Daylight Saving Time information is not available
-    timeinfo.tm_isdst = 
-		#if RTC_DAYLIGHTSAVING_NONE
-			RTC_DAYLIGHTSAVING_NONE;
-		#else
-			-1;	
-		#endif // RTC_DAYLIGHTSAVING_NONE
+    timeinfo.tm_isdst =
+#if RTC_DAYLIGHTSAVING_NONE
+        RTC_DAYLIGHTSAVING_NONE;
+#else
+        -1;
+#endif // RTC_DAYLIGHTSAVING_NONE
 
     // Convert to timestamp
     time_t t;
@@ -256,13 +256,13 @@ void rtc_write(time_t t)
     if (_rtc_localtime(t, &timeinfo, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
         return;
     }
-/* 
-		1. init: t = 0, 
-		2. timeinfo->tm_year = 70. 
-		3. in dateStruct.Year we can only store values in the range 0-99
-		4. we subtract a high value in order to gain more range but we CANT subtract 70,
-		   because RTC_ISR->INITS detects the initialization state based on year != 0
-	*/
+    /*
+            1. init: t = 0,
+            2. timeinfo->tm_year = 70.
+            3. in dateStruct.Year we can only store values in the range 0-99
+            4. we subtract a high value in order to gain more range but we CANT subtract 70,
+               because RTC_ISR->INITS detects the initialization state based on year != 0
+        */
 
     // Fill RTC structures
     if (timeinfo.tm_wday == 0) {
@@ -295,11 +295,11 @@ void rtc_write(time_t t)
 int rtc_isenabled(void)
 {
 #if !(TARGET_WD_ROUTING)
-    return ( 
-		((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) && 
-		((RTC->ISR & RTC_ISR_RSF) ==  RTC_ISR_RSF) &&
-		((RTC->DR & RTC_DR_YU_Msk) != 0 || (RTC->DR & RTC_DR_YT_Msk) != 0)
-	);
+    return (
+               ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) &&
+               ((RTC->ISR & RTC_ISR_RSF) ==  RTC_ISR_RSF) &&
+               ((RTC->DR & RTC_DR_YU_Msk) != 0 || (RTC->DR & RTC_DR_YT_Msk) != 0)
+           );
 #else /* TARGET_WD_ROUTING */
     return ((RTC->CRL & RTC_CRL_RSF) ==  RTC_CRL_RSF);
 #endif /* TARGET_WD_ROUTING */
@@ -349,7 +349,7 @@ void rtc_set_wake_up_timer(uint32_t delta)
     do {
         WakeUpCounter = delta / (ClockDiv[DivIndex] * 1000000 / RTC_CLOCK);
         DivIndex++;
-    } while ( (WakeUpCounter > 0xFFFF) && (DivIndex < 4) );
+    } while ((WakeUpCounter > 0xFFFF) && (DivIndex < 4));
 
     if (WakeUpCounter > 0xFFFF) {
         WakeUpCounter = delta / 1000000;
@@ -361,7 +361,7 @@ void rtc_set_wake_up_timer(uint32_t delta)
     NVIC_EnableIRQ(RTC_WKUP_IRQn);
 
     RtcHandle.Instance = RTC;
-    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, 0xFFFF & WakeUpCounter, WakeUpClock[DivIndex-1]) != HAL_OK) {
+    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, 0xFFFF & WakeUpCounter, WakeUpClock[DivIndex - 1]) != HAL_OK) {
         error("rtc_set_wake_up_timer init error (%d)\n", DivIndex);
     }
 }

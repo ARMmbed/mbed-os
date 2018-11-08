@@ -1,11 +1,11 @@
 #include "test_env.h"
 
 // Const strings used in test_end
-const char* TEST_ENV_START = "start";
-const char* TEST_ENV_SUCCESS = "success";
-const char* TEST_ENV_FAILURE = "failure";
-const char* TEST_ENV_MEASURE = "measure";
-const char* TEST_ENV_END = "end";
+const char *TEST_ENV_START = "start";
+const char *TEST_ENV_SUCCESS = "success";
+const char *TEST_ENV_FAILURE = "failure";
+const char *TEST_ENV_MEASURE = "measure";
+const char *TEST_ENV_END = "end";
 
 
 static void led_blink(PinName led, float delay)
@@ -17,7 +17,7 @@ static void led_blink(PinName led, float delay)
             wait(delay);
         }
     }
-    while(1);
+    while (1);
 }
 
 void notify_start()
@@ -25,17 +25,17 @@ void notify_start()
     printf("{{%s}}" NL, TEST_ENV_START);
 }
 
-void notify_performance_coefficient(const char* measurement_name, const int value)
+void notify_performance_coefficient(const char *measurement_name, const int value)
 {
     printf("{{%s;%s;%d}}" RCNL, TEST_ENV_MEASURE, measurement_name, value);
 }
 
-void notify_performance_coefficient(const char* measurement_name, const unsigned int value)
+void notify_performance_coefficient(const char *measurement_name, const unsigned int value)
 {
     printf("{{%s;%s;%u}}" RCNL, TEST_ENV_MEASURE, measurement_name, value);
 }
 
-void notify_performance_coefficient(const char* measurement_name, const double value)
+void notify_performance_coefficient(const char *measurement_name, const double value)
 {
     printf("{{%s;%s;%f}}" RCNL, TEST_ENV_MEASURE, measurement_name, value);
 }
@@ -46,7 +46,7 @@ void notify_completion(bool success)
     led_blink(LED1, success ? 1.0 : 0.1);
 }
 
-bool notify_completion_str(bool success, char* buffer)
+bool notify_completion_str(bool success, char *buffer)
 {
     bool result = false;
     if (buffer) {
@@ -57,23 +57,27 @@ bool notify_completion_str(bool success, char* buffer)
 }
 
 // Host test auto-detection API
-void notify_host_test_name(const char *host_test) {
+void notify_host_test_name(const char *host_test)
+{
     if (host_test) {
         printf("{{host_test_name;%s}}" NL, host_test);
     }
 }
 
-void notify_timeout(int timeout) {
+void notify_timeout(int timeout)
+{
     printf("{{timeout;%d}}" NL, timeout);
 }
 
-void notify_test_id(const char *test_id) {
+void notify_test_id(const char *test_id)
+{
     if (test_id) {
         printf("{{test_id;%s}}" NL, test_id);
     }
 }
 
-void notify_test_description(const char *description) {
+void notify_test_description(const char *description)
+{
     if (description) {
         printf("{{description;%s}}" NL, description);
     }

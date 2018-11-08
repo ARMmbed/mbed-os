@@ -42,11 +42,11 @@ typedef enum {
     UART_3 = (int)USART3_BASE,
     UART_4 = (int)UART4_BASE,
     UART_5 = (int)UART5_BASE
-} UARTName; 
+} UARTName;
 
 typedef enum {
-	DMA_1 = (int)DMA1_BASE,
-	DMA_2 = (int)DMA2_BASE
+    DMA_1 = (int)DMA1_BASE,
+    DMA_2 = (int)DMA2_BASE
 } DMAName;
 
 #define STDIO_UART_TX  PC_10
@@ -54,9 +54,9 @@ typedef enum {
 #define STDIO_UART     UART_4
 
 typedef enum {
-	SPI_1 = (int)SPI1_BASE,
-	SPI_2 = (int)SPI2_BASE,
-	SPI_3 = (int)SPI3_BASE,
+    SPI_1 = (int)SPI1_BASE,
+    SPI_2 = (int)SPI2_BASE,
+    SPI_3 = (int)SPI3_BASE,
 } SPIName;
 
 #ifdef __cplusplus

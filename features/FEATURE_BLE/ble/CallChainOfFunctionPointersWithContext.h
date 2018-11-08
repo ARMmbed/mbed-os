@@ -157,14 +157,14 @@ public:
         pFunctionPointerWithContext_t previous = NULL;
 
         while (current) {
-            if(*current == toDetach) {
-                if(previous == NULL) {
-                    if(currentCalled == current) {
+            if (*current == toDetach) {
+                if (previous == NULL) {
+                    if (currentCalled == current) {
                         currentCalled = NULL;
                     }
                     chainHead = current->getNext();
                 } else {
-                    if(currentCalled == current) {
+                    if (currentCalled == current) {
                         currentCalled = previous;
                     }
                     previous->chainAsNext(current->getNext());
@@ -212,7 +212,7 @@ public:
      */
     void call(ContextType context)
     {
-        ((const CallChainOfFunctionPointersWithContext*) this)->call(context);
+        ((const CallChainOfFunctionPointersWithContext *) this)->call(context);
     }
 
     /**
@@ -224,10 +224,10 @@ public:
     {
         currentCalled = chainHead;
 
-        while(currentCalled) {
+        while (currentCalled) {
             currentCalled->call(context);
             // if this was the head and the call removed the head
-            if(currentCalled == NULL) {
+            if (currentCalled == NULL) {
                 currentCalled = chainHead;
             } else {
                 currentCalled = currentCalled->getNext();
@@ -326,10 +326,10 @@ private:
     /* Disallow copy constructor and assignment operators. */
 private:
     CallChainOfFunctionPointersWithContext(
-        const CallChainOfFunctionPointersWithContext&
+        const CallChainOfFunctionPointersWithContext &
     );
     CallChainOfFunctionPointersWithContext &operator=(
-        const CallChainOfFunctionPointersWithContext&
+        const CallChainOfFunctionPointersWithContext &
     );
 };
 

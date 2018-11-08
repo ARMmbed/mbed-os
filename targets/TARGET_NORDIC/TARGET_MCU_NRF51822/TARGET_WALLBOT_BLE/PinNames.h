@@ -129,7 +129,7 @@ typedef enum {
 
     LED_CONNECT = P0_18,
     LED_MODE = P0_19,
-    OUT_LOW= P0_20,
+    OUT_LOW = P0_20,
     SW1 = P0_16,
     SW2 = P0_17,
 

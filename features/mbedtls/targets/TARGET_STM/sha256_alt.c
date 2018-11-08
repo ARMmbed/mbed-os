@@ -23,8 +23,12 @@
 #include "mbedtls/platform.h"
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize(void *v, size_t n)
+{
+    volatile unsigned char *p = v;
+    while (n--) {
+        *p++ = 0;
+    }
 }
 
 static int st_sha256_restore_hw_context(mbedtls_sha256_context *ctx)
@@ -41,7 +45,7 @@ static int st_sha256_restore_hw_context(mbedtls_sha256_context *ctx)
     }
     HASH->STR = ctx->ctx_save_str;
     HASH->CR = (ctx->ctx_save_cr | HASH_CR_INIT);
-    for (i=0;i<38;i++) {
+    for (i = 0; i < 38; i++) {
         HASH->CSR[i] = ctx->ctx_save_csr[i];
     }
     return 1;
@@ -61,34 +65,35 @@ static int st_sha256_save_hw_context(mbedtls_sha256_context *ctx)
     /* allow multi-instance of HASH use: restore context for HASH HW module CR */
     ctx->ctx_save_cr = HASH->CR;
     ctx->ctx_save_str = HASH->STR;
-    for (i=0;i<38;i++) {
+    for (i = 0; i < 38; i++) {
         ctx->ctx_save_csr[i] = HASH->CSR[i];
     }
     return 1;
 }
 
-void mbedtls_sha256_init( mbedtls_sha256_context *ctx )
+void mbedtls_sha256_init(mbedtls_sha256_context *ctx)
 {
-    mbedtls_zeroize( ctx, sizeof( mbedtls_sha256_context ) );
+    mbedtls_zeroize(ctx, sizeof(mbedtls_sha256_context));
 
     /* Enable HASH clock */
     __HAL_RCC_HASH_CLK_ENABLE();
 }
 
-void mbedtls_sha256_free( mbedtls_sha256_context *ctx )
+void mbedtls_sha256_free(mbedtls_sha256_context *ctx)
 {
-    if( ctx == NULL )
+    if (ctx == NULL) {
         return;
-    mbedtls_zeroize( ctx, sizeof( mbedtls_sha256_context ) );
+    }
+    mbedtls_zeroize(ctx, sizeof(mbedtls_sha256_context));
 }
 
-void mbedtls_sha256_clone( mbedtls_sha256_context *dst,
-                         const mbedtls_sha256_context *src )
+void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
+                          const mbedtls_sha256_context *src)
 {
     *dst = *src;
 }
 
-void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 )
+void mbedtls_sha256_starts(mbedtls_sha256_context *ctx, int is224)
 {
     /* HASH IP initialization */
     if (HAL_HASH_DeInit(&ctx->hhash_sha256) == HAL_ERROR) {
@@ -110,7 +115,7 @@ void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 )
     }
 }
 
-void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[ST_SHA256_BLOCK_SIZE] )
+void mbedtls_sha256_process(mbedtls_sha256_context *ctx, const unsigned char data[ST_SHA256_BLOCK_SIZE])
 {
     if (st_sha256_restore_hw_context(ctx) != 1) {
         return; // Return HASH_BUSY timout error here
@@ -130,7 +135,7 @@ void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char da
     }
 }
 
-void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *input, size_t ilen )
+void mbedtls_sha256_update(mbedtls_sha256_context *ctx, const unsigned char *input, size_t ilen)
 {
     size_t currentlen = ilen;
     if (st_sha256_restore_hw_context(ctx) != 1) {
@@ -139,7 +144,7 @@ void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *in
 
     // store mechanism to accumulate ST_SHA256_BLOCK_SIZE bytes (512 bits) in the HW
     if (currentlen == 0) { // only change HW status is size if 0
-        if(ctx->hhash_sha256.Phase == HAL_HASH_PHASE_READY) {
+        if (ctx->hhash_sha256.Phase == HAL_HASH_PHASE_READY) {
             /* Select the SHA256 or SHA224 mode and reset the HASH processor core, so that the HASH will be ready to compute
              the message digest of a new message */
             if (ctx->is224 == 0) {
@@ -160,20 +165,20 @@ void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *in
         mbedtls_sha256_process(ctx, ctx->sbuf);
         // Process every input as long as it is %64 bytes, ie 512 bits
         size_t iter = currentlen / ST_SHA256_BLOCK_SIZE;
-        if (iter !=0) {
+        if (iter != 0) {
             if (ctx->is224 == 0) {
-                if (HAL_HASHEx_SHA256_Accumulate(&ctx->hhash_sha256, (uint8_t *)(input + ST_SHA256_BLOCK_SIZE - ctx->sbuf_len),  (iter * ST_SHA256_BLOCK_SIZE)) != 0) {
+                if (HAL_HASHEx_SHA256_Accumulate(&ctx->hhash_sha256, (uint8_t *)(input + ST_SHA256_BLOCK_SIZE - ctx->sbuf_len), (iter * ST_SHA256_BLOCK_SIZE)) != 0) {
                     return; // Return error code here
                 }
             } else {
-                if (HAL_HASHEx_SHA224_Accumulate(&ctx->hhash_sha256, (uint8_t *)(input + ST_SHA256_BLOCK_SIZE - ctx->sbuf_len),  (iter * ST_SHA256_BLOCK_SIZE)) != 0) {
+                if (HAL_HASHEx_SHA224_Accumulate(&ctx->hhash_sha256, (uint8_t *)(input + ST_SHA256_BLOCK_SIZE - ctx->sbuf_len), (iter * ST_SHA256_BLOCK_SIZE)) != 0) {
                     return; // Return error code here
                 }
             }
         }
         // sbuf is completely accumulated, now copy up to 63 remaining bytes
         ctx->sbuf_len = currentlen % ST_SHA256_BLOCK_SIZE;
-        if (ctx->sbuf_len !=0) {
+        if (ctx->sbuf_len != 0) {
             memcpy(ctx->sbuf, input + ilen - ctx->sbuf_len, ctx->sbuf_len);
         }
     }
@@ -182,7 +187,7 @@ void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *in
     }
 }
 
-void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[32] )
+void mbedtls_sha256_finish(mbedtls_sha256_context *ctx, unsigned char output[32])
 {
     if (st_sha256_restore_hw_context(ctx) != 1) {
         return; // Return HASH_BUSY timout error here

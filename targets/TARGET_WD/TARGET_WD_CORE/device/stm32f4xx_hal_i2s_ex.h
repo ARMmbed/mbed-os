@@ -38,7 +38,7 @@
 #define __STM32F4xx_HAL_I2S_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/

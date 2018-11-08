@@ -33,8 +33,7 @@
  * @internal
  * @brief    netbuf flags.
  ******************************************************************************/
-typedef enum
-{
+typedef enum {
     FNET_NETBUF_FLAG_NONE                   = 0x00u,     /* None. */
     FNET_NETBUF_FLAG_BROADCAST              = 0x02u,     /* Send/received as link-level broadcast. */
     FNET_NETBUF_FLAG_MULTICAST              = 0x04u,     /* Send/received as link-level multicast. */
@@ -46,8 +45,7 @@ typedef enum
  * @internal
  * @brief    netbuf types.
  ******************************************************************************/
-typedef enum
-{
+typedef enum {
     FNET_NETBUF_TYPE_DATA    = 0,       /**< dynamic (data) allocation.*/
     FNET_NETBUF_TYPE_HEADER  = 1,
     FNET_NETBUF_TYPE_ADDRESS = 2,       /**< address of the message.*/
@@ -58,8 +56,7 @@ typedef enum
  * @internal
  * @brief    Header at beginning of each net_buf.
  ******************************************************************************/
-typedef struct fnet_netbuf
-{
+typedef struct fnet_netbuf {
     struct fnet_netbuf  *next;          /**< next buffer in chain */
     struct fnet_netbuf  *next_chain;    /**< next chain in queue/record */
     void                *data;          /**< pointer to the beginning of the data buffer */
@@ -76,41 +73,41 @@ extern "C" {
 #endif
 
 /* Memory management functions */
-fnet_return_t fnet_heap_init( void *heap_ptr, fnet_size_t heap_size );
-void fnet_free( void *ap );
-void *fnet_malloc( fnet_size_t nbytes );
-void *fnet_malloc_zero( fnet_size_t nbytes );
-fnet_size_t fnet_free_mem_status( void );
-fnet_size_t fnet_malloc_max( void );
-void fnet_mem_release( void );
+fnet_return_t fnet_heap_init(void *heap_ptr, fnet_size_t heap_size);
+void fnet_free(void *ap);
+void *fnet_malloc(fnet_size_t nbytes);
+void *fnet_malloc_zero(fnet_size_t nbytes);
+fnet_size_t fnet_free_mem_status(void);
+fnet_size_t fnet_malloc_max(void);
+void fnet_mem_release(void);
 
-void fnet_free_netbuf( void *ap );
-void *fnet_malloc_netbuf( fnet_size_t nbytes );
-fnet_size_t fnet_free_mem_status_netbuf( void );
-fnet_size_t fnet_malloc_max_netbuf( void );
-void fnet_mem_release_netbuf( void );
+void fnet_free_netbuf(void *ap);
+void *fnet_malloc_netbuf(fnet_size_t nbytes);
+fnet_size_t fnet_free_mem_status_netbuf(void);
+fnet_size_t fnet_malloc_max_netbuf(void);
+void fnet_mem_release_netbuf(void);
 
 /* Netbuf service routines */
-fnet_netbuf_t *fnet_netbuf_new( fnet_size_t len, fnet_bool_t drain );
-fnet_netbuf_t *fnet_netbuf_free( fnet_netbuf_t *nb );
-fnet_netbuf_t *fnet_netbuf_copy( fnet_netbuf_t *nb, fnet_size_t offset, fnet_size_t len, fnet_bool_t drain );
-fnet_netbuf_t *fnet_netbuf_from_buf( void *data_ptr, fnet_size_t len, fnet_bool_t drain );
-fnet_netbuf_t *fnet_netbuf_concat( fnet_netbuf_t *nb1, fnet_netbuf_t *nb2 );
-void fnet_netbuf_to_buf( fnet_netbuf_t *nb, fnet_size_t offset, fnet_size_t len, void *data_ptr );
-fnet_return_t fnet_netbuf_pullup( fnet_netbuf_t **nb_ptr, fnet_size_t len);
-void fnet_netbuf_trim( fnet_netbuf_t **nb_ptr, fnet_int32_t len );
-fnet_netbuf_t *fnet_netbuf_cut_center( fnet_netbuf_t **nb_ptr, fnet_size_t offset, fnet_size_t len);
-void fnet_netbuf_add_chain( fnet_netbuf_t **nb_ptr, fnet_netbuf_t *nb_chain );
-void fnet_netbuf_del_chain( fnet_netbuf_t **nb_ptr, fnet_netbuf_t *nb_chain );
-void fnet_netbuf_free_chain( fnet_netbuf_t *nb );
+fnet_netbuf_t *fnet_netbuf_new(fnet_size_t len, fnet_bool_t drain);
+fnet_netbuf_t *fnet_netbuf_free(fnet_netbuf_t *nb);
+fnet_netbuf_t *fnet_netbuf_copy(fnet_netbuf_t *nb, fnet_size_t offset, fnet_size_t len, fnet_bool_t drain);
+fnet_netbuf_t *fnet_netbuf_from_buf(void *data_ptr, fnet_size_t len, fnet_bool_t drain);
+fnet_netbuf_t *fnet_netbuf_concat(fnet_netbuf_t *nb1, fnet_netbuf_t *nb2);
+void fnet_netbuf_to_buf(fnet_netbuf_t *nb, fnet_size_t offset, fnet_size_t len, void *data_ptr);
+fnet_return_t fnet_netbuf_pullup(fnet_netbuf_t **nb_ptr, fnet_size_t len);
+void fnet_netbuf_trim(fnet_netbuf_t **nb_ptr, fnet_int32_t len);
+fnet_netbuf_t *fnet_netbuf_cut_center(fnet_netbuf_t **nb_ptr, fnet_size_t offset, fnet_size_t len);
+void fnet_netbuf_add_chain(fnet_netbuf_t **nb_ptr, fnet_netbuf_t *nb_chain);
+void fnet_netbuf_del_chain(fnet_netbuf_t **nb_ptr, fnet_netbuf_t *nb_chain);
+void fnet_netbuf_free_chain(fnet_netbuf_t *nb);
 
 #if 0 /* For Debug needs.*/
-fnet_return_t fnet_netbuf_mempool_check( void );
-void FNET_DEBUG_NETBUF_print_chain( fnet_netbuf_t *nb, fnet_uint8_t *str, fnrt_index_t max);
+fnet_return_t fnet_netbuf_mempool_check(void);
+void FNET_DEBUG_NETBUF_print_chain(fnet_netbuf_t *nb, fnet_uint8_t *str, fnrt_index_t max);
 #endif
 
 #if 0 /* For Debug needs.*/
-void fnet_free_netbuf_low( void *ap );
+void fnet_free_netbuf_low(void *ap);
 #define fnet_free_netbuf(ap )   do{ fnet_free_netbuf_low( ap ); \
         ap = (void *)0x0; \
     } while(0)

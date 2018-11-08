@@ -36,15 +36,13 @@
 #define DMIC_HANDLE_ARRAY_SIZE 1
 
 /*<! Structure definition for dmic_dma_handle_t. The structure is private. */
-typedef struct _dmic_dma_private_handle
-{
+typedef struct _dmic_dma_private_handle {
     DMIC_Type *base;
     dmic_dma_handle_t *handle;
 } dmic_dma_private_handle_t;
 
 /*! @brief DMIC transfer state, which is used for DMIC transactiaonl APIs' internal state. */
-enum _dmic_dma_states_t
-{
+enum _dmic_dma_states_t {
     kDMIC_Idle = 0x0, /*!< DMIC is idle state */
     kDMIC_Busy        /*!< DMIC is busy tranferring data. */
 };
@@ -76,8 +74,7 @@ static void DMIC_TransferReceiveDMACallback(dma_handle_t *handle, void *param, b
     dmic_dma_private_handle_t *dmicPrivateHandle = (dmic_dma_private_handle_t *)param;
     dmicPrivateHandle->handle->state = kDMIC_Idle;
 
-    if (dmicPrivateHandle->handle->callback)
-    {
+    if (dmicPrivateHandle->handle->callback) {
         dmicPrivateHandle->handle->callback(dmicPrivateHandle->base, dmicPrivateHandle->handle, kStatus_DMIC_Idle,
                                             dmicPrivateHandle->handle->userData);
     }
@@ -93,21 +90,18 @@ status_t DMIC_TransferCreateHandleDMA(DMIC_Type *base,
 
     /* check 'base' */
     assert(!(NULL == base));
-    if (NULL == base)
-    {
+    if (NULL == base) {
         return kStatus_InvalidArgument;
     }
     /* check 'handle' */
     assert(!(NULL == handle));
-    if (NULL == handle)
-    {
+    if (NULL == handle) {
         return kStatus_InvalidArgument;
     }
     /* check DMIC instance by 'base'*/
     instance = DMIC_GetInstance(base);
     assert(!(instance < 0));
-    if (instance < 0)
-    {
+    if (instance < 0) {
         return kStatus_InvalidArgument;
     }
 
@@ -124,8 +118,7 @@ status_t DMIC_TransferCreateHandleDMA(DMIC_Type *base,
     /* Set DMIC state to idle */
     handle->state = kDMIC_Idle;
     /* Configure RX. */
-    if (rxDmaHandle)
-    {
+    if (rxDmaHandle) {
         DMA_SetCallback(rxDmaHandle, DMIC_TransferReceiveDMACallback, &s_dmaPrivateHandle[instance]);
     }
 
@@ -147,12 +140,9 @@ status_t DMIC_TransferReceiveDMA(DMIC_Type *base,
     status_t status;
 
     /* Check if the device is busy. If previous RX not finished.*/
-    if (handle->state == kDMIC_Busy)
-    {
+    if (handle->state == kDMIC_Busy) {
         status = kStatus_DMIC_Busy;
-    }
-    else
-    {
+    } else {
         handle->state = kDMIC_Busy;
         handle->transferSize = xfer->dataSize;
 
@@ -186,8 +176,7 @@ status_t DMIC_TransferGetReceiveCountDMA(DMIC_Type *base, dmic_dma_handle_t *han
     assert(handle->rxDmaHandle);
     assert(count);
 
-    if (kDMIC_Idle == handle->state)
-    {
+    if (kDMIC_Idle == handle->state) {
         return kStatus_NoTransferInProgress;
     }
 

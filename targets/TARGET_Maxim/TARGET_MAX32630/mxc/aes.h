@@ -53,7 +53,7 @@ extern "C" {
 /**
  * @ingroup    periphlibs
  * @defgroup   aes Advanced Encryption Standard (AES)
- * @brief      High-level API for AES encryption engine 
+ * @brief      High-level API for AES encryption engine
  */
 
 /**
@@ -62,7 +62,7 @@ extern "C" {
  * @brief Advanced Encryption Standard API public include file.
  * @details
  * <b>Key/data format in memory</b>
- * The API functions require that key and plain/ciphertext will be stored as a 
+ * The API functions require that key and plain/ciphertext will be stored as a
  * byte array in LSB .. MSB format.
  * @par
  * As an example, given the key @a 0x139A35422F1D61DE3C91787FE0507AFD, the proper storage order is:
@@ -95,7 +95,7 @@ typedef enum {
 } mxc_aes_mode_t;
 
 /**
- * Enumeration type for specifying encryption/decrytion and asynchronous or blocking behavior.  
+ * Enumeration type for specifying encryption/decrytion and asynchronous or blocking behavior.
  */
 typedef enum {
     MXC_E_AES_ENCRYPT       = 0,                        /**< Encrypt (synchronous/blocking).         */
@@ -111,7 +111,7 @@ typedef enum {
  *
  * @param       key             128, 192, or 256 bit keying material
  * @param       mode            The key length, see #mxc_aes_mode_t for supported lengths.
- * 
+ *
  * @return      #E_BAD_PARAM    Specified @a mode is invalid, see #mxc_aes_mode_t.
  * @return      #E_NULL_PTR     Invalid/Null pointer for parameter @a key.
  * @return      #E_SUCCESS      Key and mode set up correctly.
@@ -121,13 +121,13 @@ int AES_SetKey(const uint8_t *key, mxc_aes_mode_t mode);
 
 /**
  * @brief       Encrypt/decrypt an input block with the loaded AES key.
- * @note        The parameters @a in and @a out must be 16 bytes. 
+ * @note        The parameters @a in and @a out must be 16 bytes.
  *
  * @param       in              Pointer to input array of 16 bytes.
  * @param       out             Pointer to output array of 16 bytes.
- * @param       mode            AES key size to use for the transaction, see #mxc_aes_mode_t for supported key sizes. 
+ * @param       mode            AES key size to use for the transaction, see #mxc_aes_mode_t for supported key sizes.
  * @param       dir             Operation to perform, see #mxc_aes_dir_t for supported operations.
- * 
+ *
  * @return      #E_SUCCESS      Operation completed successfully, output data is stored in @a *out.
  * @return      ErrorCode       An @ref MXC_Error_Codes "Error Code" if an error occured.
  */
@@ -138,7 +138,7 @@ int AES_ECBOp(const uint8_t *in, uint8_t *out, mxc_aes_mode_t mode, mxc_aes_dir_
  *             clears interrupt flag.
  * @note       The parameter @a out must always be 16 bytes.
  *
- * @param      out   Pointer to a 16-byte array to store the output from the AES operation. 
+ * @param      out   Pointer to a 16-byte array to store the output from the AES operation.
  *
  * @return     #E_SUCCESS      Output data was written to the location pointed
  *             to by @a *out.

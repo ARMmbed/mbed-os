@@ -55,7 +55,7 @@ extern "C" {
 #define ADC_DEV_NUM                (0u)
 
 /* Memory Required for adc driver */
-static uint32_t DeviceMemory[(ADI_ADC_MEMORY_SIZE+3)/4];
+static uint32_t DeviceMemory[(ADI_ADC_MEMORY_SIZE + 3) / 4];
 /* Active channel */
 static uint32_t adi_pin2channel(PinName pin);
 
@@ -79,8 +79,8 @@ void analogin_init(analogin_t *obj, PinName pin)
     ADCName peripheral;
     uint32_t function, channel;
 
-    memset(obj, 0, sizeof(analogin_t) );
-    memset( DeviceMemory, 0, sizeof( DeviceMemory ) );
+    memset(obj, 0, sizeof(analogin_t));
+    memset(DeviceMemory, 0, sizeof(DeviceMemory));
 
     peripheral = (ADCName)pinmap_peripheral(pin, &PinMap_ADC[0]);   // gives peripheral
     MBED_ASSERT(peripheral != (ADCName)NC);
@@ -98,7 +98,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->UserBuffer.nChannels = channel;
 
     /* Set ACLK to CCLK/16 */
-    adi_pwr_SetClockDivider(ADI_CLOCK_ACLK,16);
+    adi_pwr_SetClockDivider(ADI_CLOCK_ACLK, 16);
 
     /* Set default values for conversion and delay cycles. This sets up a sampling rate of
        16kHz. The sampling frequency is worked out from the following:
@@ -127,7 +127,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     adi_adc_EnableADCSubSystem(hDevice, true);
 
     /* Wait untilthe ADC is ready for sampling */
-    while(bReady == false) {
+    while (bReady == false) {
         adi_adc_IsReady(hDevice, &bReady);
     }
 
@@ -154,9 +154,9 @@ void analogin_init(analogin_t *obj, PinName pin)
  */
 float analogin_read(analogin_t *obj)
 {
-    float fl32 = (float)analogin_read_u16(obj)/(float)4095.0;
+    float fl32 = (float)analogin_read_u16(obj) / (float)4095.0;
 
-    return(fl32);
+    return (fl32);
 }
 
 /** Read the value from analogin pin, represented as an unsigned 16bit value
@@ -183,7 +183,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     adi_adc_GetBuffer(hDevice, &pAdcBuffer);
     MBED_ASSERT(pAdcBuffer == &obj->UserBuffer);
 
-    return( (uint16_t)( ((uint16_t *)pAdcBuffer->pDataBuffer)[(pAdcBuffer->nNumConversionPasses) - 1]) );
+    return ((uint16_t)(((uint16_t *)pAdcBuffer->pDataBuffer)[(pAdcBuffer->nNumConversionPasses) - 1]));
 }
 
 /* Retrieve the active channel corresponding to the input pin */
@@ -192,7 +192,7 @@ static uint32_t adi_pin2channel(PinName pin)
 
     uint32_t activech;
 
-    switch(pin) {
+    switch (pin) {
         case ADC_VIN0:
             activech = ADI_ADC_CHANNEL_0;
             break;

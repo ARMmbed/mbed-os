@@ -57,8 +57,7 @@ typedef status_t (*ltc_edma_state_machine_t)(LTC_Type *base, ltc_edma_handle_t *
 /*!
 * @brief LTC eDMA handle. It is defined only for private usage inside LTC eDMA driver.
 */
-struct _ltc_edma_handle
-{
+struct _ltc_edma_handle {
     ltc_edma_callback_t callback; /*!< Callback function. */
     void *userData;               /*!< LTC callback function parameter.*/
 
@@ -76,7 +75,7 @@ struct _ltc_edma_handle
     const uint8_t *key; /*!< Input key to use for forward AES cipher*/
     uint32_t keySize;   /*!< Size of the input key, in bytes. Must be 16, 24, or 32.*/
     uint8_t
-        *counterlast; /*!< Output cipher of last counter, for chained CTR calls. NULL can be passed if chained calls are
+    *counterlast; /*!< Output cipher of last counter, for chained CTR calls. NULL can be passed if chained calls are
                          not used.*/
     uint32_t *szLeft; /*!< Output number of bytes in left unused in counterlast block. NULL can be passed if chained
                          calls are not used.*/

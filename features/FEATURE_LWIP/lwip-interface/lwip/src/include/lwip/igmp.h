@@ -72,18 +72,18 @@ extern "C" {
  * from all the other groups
  */
 struct igmp_group {
-  /** next link */
-  struct igmp_group *next;
-  /** multicast address */
-  ip4_addr_t         group_address;
-  /** signifies we were the last person to report */
-  u8_t               last_reporter_flag;
-  /** current state of the group */
-  u8_t               group_state;
-  /** timer for reporting, negative is OFF */
-  u16_t              timer;
-  /** counter of simultaneous uses */
-  u8_t               use;
+    /** next link */
+    struct igmp_group *next;
+    /** multicast address */
+    ip4_addr_t         group_address;
+    /** signifies we were the last person to report */
+    u8_t               last_reporter_flag;
+    /** current state of the group */
+    u8_t               group_state;
+    /** timer for reporting, negative is OFF */
+    u16_t              timer;
+    /** counter of simultaneous uses */
+    u8_t               use;
 };
 
 /*  Prototypes */
@@ -99,7 +99,7 @@ err_t  igmp_leavegroup(const ip4_addr_t *ifaddr, const ip4_addr_t *groupaddr);
 err_t  igmp_leavegroup_netif(struct netif *netif, const ip4_addr_t *groupaddr);
 void   igmp_tmr(void);
 
-/** @ingroup igmp 
+/** @ingroup igmp
  * Get list head of IGMP groups for netif.
  * Note: The allsystems group IP is contained in the list as first entry.
  * @see @ref netif_set_igmp_mac_filter()

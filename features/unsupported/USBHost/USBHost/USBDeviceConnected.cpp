@@ -17,11 +17,13 @@
 #include "USBDeviceConnected.h"
 #include "dbg.h"
 
-USBDeviceConnected::USBDeviceConnected() {
+USBDeviceConnected::USBDeviceConnected()
+{
     init();
 }
 
-void USBDeviceConnected::init() {
+void USBDeviceConnected::init()
+{
     hub_nb = 0;
     port = 0;
     vid = 0;
@@ -47,17 +49,21 @@ void USBDeviceConnected::init() {
     nb_interf = 0;
 }
 
-INTERFACE * USBDeviceConnected::getInterface(uint8_t index) {
-    if (index >= MAX_INTF)
+INTERFACE *USBDeviceConnected::getInterface(uint8_t index)
+{
+    if (index >= MAX_INTF) {
         return NULL;
+    }
 
-    if (intf[index].in_use)
+    if (intf[index].in_use) {
         return &intf[index];
+    }
 
     return NULL;
 }
 
-bool USBDeviceConnected::addInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) {
+bool USBDeviceConnected::addInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol)
+{
     if ((intf_nb >= MAX_INTF) || (intf[intf_nb].in_use)) {
         return false;
     }
@@ -69,7 +75,8 @@ bool USBDeviceConnected::addInterface(uint8_t intf_nb, uint8_t intf_class, uint8
     return true;
 }
 
-bool USBDeviceConnected::addEndpoint(uint8_t intf_nb, USBEndpoint * ept) {
+bool USBDeviceConnected::addEndpoint(uint8_t intf_nb, USBEndpoint *ept)
+{
     if ((intf_nb >= MAX_INTF) || (intf[intf_nb].in_use == false) || (intf[intf_nb].nb_endpoint >= MAX_ENDPOINT_PER_INTERFACE)) {
         return false;
     }
@@ -84,7 +91,8 @@ bool USBDeviceConnected::addEndpoint(uint8_t intf_nb, USBEndpoint * ept) {
     return false;
 }
 
-void USBDeviceConnected::init(uint8_t hub_, uint8_t port_, bool lowSpeed_) {
+void USBDeviceConnected::init(uint8_t hub_, uint8_t port_, bool lowSpeed_)
+{
     USB_DBG("init dev: %p", this);
     init();
     hub_nb = hub_;
@@ -92,21 +100,25 @@ void USBDeviceConnected::init(uint8_t hub_, uint8_t port_, bool lowSpeed_) {
     speed = lowSpeed_;
 }
 
-void USBDeviceConnected::disconnect() {
-    for(int i = 0; i < MAX_INTF; i++) {
-        if (intf[i].detach) intf[i].detach.call();
+void USBDeviceConnected::disconnect()
+{
+    for (int i = 0; i < MAX_INTF; i++) {
+        if (intf[i].detach) {
+            intf[i].detach.call();
+        }
     }
     init();
 }
 
 
-USBEndpoint * USBDeviceConnected::getEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir, uint8_t index) {
+USBEndpoint *USBDeviceConnected::getEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir, uint8_t index)
+{
     if (intf_nb >= MAX_INTF) {
         return NULL;
     }
     for (int i = 0; i < MAX_ENDPOINT_PER_INTERFACE; i++) {
         if ((intf[intf_nb].ep[i]->getType() == type) && (intf[intf_nb].ep[i]->getDir() == dir)) {
-            if(index) {
+            if (index) {
                 index--;
             } else {
                 return intf[intf_nb].ep[i];
@@ -116,7 +128,8 @@ USBEndpoint * USBDeviceConnected::getEndpoint(uint8_t intf_nb, ENDPOINT_TYPE typ
     return NULL;
 }
 
-USBEndpoint * USBDeviceConnected::getEndpoint(uint8_t intf_nb, uint8_t index) {
+USBEndpoint *USBDeviceConnected::getEndpoint(uint8_t intf_nb, uint8_t index)
+{
     if ((intf_nb >= MAX_INTF) || (index >= MAX_ENDPOINT_PER_INTERFACE)) {
         return NULL;
     }

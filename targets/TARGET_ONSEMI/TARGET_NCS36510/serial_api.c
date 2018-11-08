@@ -98,11 +98,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     */
     /* Configure IOs to UART using cross bar, pad and GPIO settings */
 
-    if(obj->UARTREG == UART2REG) {
+    if (obj->UARTREG == UART2REG) {
         /* UART 2 */
         CLOCK_ENABLE(CLOCK_UART2);
         Irq = Uart2_IRQn;
-    } else if(obj->UARTREG == UART1REG) {
+    } else if (obj->UARTREG == UART1REG) {
         /* UART 1  */
         CLOCK_ENABLE(CLOCK_UART1);
 
@@ -118,18 +118,18 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     /*TODO: determine if tx and rx are used correctly in this case - this depends on the pin enum matching the position in the crossbar*/
 
     /* Configure tx pin as UART */
-    CbRegOffSet = (CrossbReg_t*)(CROSSBREG_BASE + (tx * CROSS_REG_ADRS_BYTE_SIZE));
+    CbRegOffSet = (CrossbReg_t *)(CROSSBREG_BASE + (tx * CROSS_REG_ADRS_BYTE_SIZE));
     CbRegOffSet->DIOCTRL0 = CONFIGURE_AS_UART; /* tx pin as UART */
 
     /* Configure rx pin as UART */
-    CbRegOffSet = (CrossbReg_t*)(CROSSBREG_BASE + (rx * CROSS_REG_ADRS_BYTE_SIZE));
+    CbRegOffSet = (CrossbReg_t *)(CROSSBREG_BASE + (rx * CROSS_REG_ADRS_BYTE_SIZE));
     CbRegOffSet->DIOCTRL0 = CONFIGURE_AS_UART; /* rx pin as UART */
 
     /** - Set pad parameters, output drive strength, pull piece control, output drive type */
-    PadRegOffset = (PadReg_t*)(PADREG_BASE + (tx * PAD_REG_ADRS_BYTE_SIZE));
+    PadRegOffset = (PadReg_t *)(PADREG_BASE + (tx * PAD_REG_ADRS_BYTE_SIZE));
     PadRegOffset->PADIO0.WORD = PAD_UART_TX; /* Pad setting for UART Tx */
 
-    PadRegOffset = (PadReg_t*)(PADREG_BASE + (rx * PAD_REG_ADRS_BYTE_SIZE));
+    PadRegOffset = (PadReg_t *)(PADREG_BASE + (rx * PAD_REG_ADRS_BYTE_SIZE));
     PadRegOffset->PADIO0.WORD = PAD_UART_RX;  /* Pad settings for UART Rx */
 
     GPIOREG->W_OUT  = (0x1 << tx); /* tx as OUT direction */
@@ -159,7 +159,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
      *   flow control state. */
     obj->UARTREG->SCR = obj->UARTREG->MSR.WORD;
 
-    if((int)obj->UARTREG == STDIO_UART) {
+    if ((int)obj->UARTREG == STDIO_UART) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
@@ -199,8 +199,8 @@ DataLen 00 – 5 bits; 01 – 6 bits; 10 – 7 bits; 11 – 8 bits
 */
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
 {
-    if(data_bits >= 5 && data_bits <= 8 && parity <= 7 && stop_bits >= 1 && stop_bits <= 2) {
-        if(parity == (SerialParity)0) {
+    if (data_bits >= 5 && data_bits <= 8 && parity <= 7 && stop_bits >= 1 && stop_bits <= 2) {
+        if (parity == (SerialParity)0) {
             parity  = (SerialParity)0;
         } else {
             parity = (SerialParity)(parity + parity - 1) ;
@@ -228,11 +228,11 @@ void Uart1_Irq()
     uint8_t active_irq = (uint8_t)(UART1REG->LSR.WORD) & 0xFF;
     uint8_t irq_mask = 0;
 
-    if(UART1REG->IER.WORD & UART_IER_TX_EMPTY_MASK) { /*check if TX interrupt is enabled*/
+    if (UART1REG->IER.WORD & UART_IER_TX_EMPTY_MASK) { /*check if TX interrupt is enabled*/
         irq_mask |= active_irq & UART_LSR_TX_EMPTY_MASK;
     }
 
-    if(UART1REG->IER.WORD & UART_IER_RX_DATA_READY_MASK) { /*check if RX interrupt is enabled*/
+    if (UART1REG->IER.WORD & UART_IER_RX_DATA_READY_MASK) { /*check if RX interrupt is enabled*/
         irq_mask |= active_irq & UART_LSR_RX_DATA_READY_MASK;
     }
 
@@ -245,11 +245,11 @@ void Uart2_Irq()
     uint8_t active_irq = (uint8_t)(UART2REG->LSR.WORD) & 0xFF;
     uint8_t irq_mask = 0;
 
-    if(UART2REG->IER.WORD & UART_IER_TX_EMPTY_MASK) { /*check if TX interrupt is enabled*/
+    if (UART2REG->IER.WORD & UART_IER_TX_EMPTY_MASK) { /*check if TX interrupt is enabled*/
         irq_mask |= active_irq & UART_LSR_TX_EMPTY_MASK;
     }
 
-    if(UART2REG->IER.WORD & UART_IER_RX_DATA_READY_MASK) { /*check if RX interrupt is enabled*/
+    if (UART2REG->IER.WORD & UART_IER_RX_DATA_READY_MASK) { /*check if RX interrupt is enabled*/
         irq_mask |= active_irq & UART_LSR_RX_DATA_READY_MASK;
     }
 
@@ -277,11 +277,11 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     uint32_t Vector = 0;
 
     /* Check UART number & assign irq handler */
-    if(obj->UARTREG == UART1REG) {
+    if (obj->UARTREG == UART1REG) {
         /* UART 2 */
         Vector = (uint32_t)&Uart1_Irq;
         irq_n = Uart1_IRQn;
-    } else if(obj->UARTREG == UART2REG) {
+    } else if (obj->UARTREG == UART2REG) {
         /* UART 1 */
         Vector = (uint32_t)&Uart2_Irq;
         irq_n = Uart2_IRQn;
@@ -290,13 +290,13 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     }
 
     /* Check IRQ type & enable/disable accordingly */
-    if(enable) {
+    if (enable) {
         /* Enable */
-        if(irq == RxIrq) {
+        if (irq == RxIrq) {
             /* Rx IRQ */
             obj->UARTREG->FCR.BITS.RX_FIFO_TRIG = 0x0;
             obj->UARTREG->IER.BITS.RX_DATA_INT = True;
-        } else if(irq == TxIrq) {
+        } else if (irq == TxIrq) {
             /* Tx IRQ */
             obj->UARTREG->IER.BITS.TX_HOLD_INT = True;
         } else {
@@ -307,10 +307,10 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     } else {
         /* Disable */
         NVIC_DisableIRQ(irq_n);
-        if(irq == RxIrq) {
+        if (irq == RxIrq) {
             /* Rx IRQ */
             obj->UARTREG->IER.BITS.RX_DATA_INT = False;
-        } else if(irq == TxIrq) {
+        } else if (irq == TxIrq) {
             /* Tx IRQ */
 
             obj->UARTREG->IER.BITS.TX_HOLD_INT = False;
@@ -324,7 +324,7 @@ int serial_getc(serial_t *obj)
 {
     uint8_t c;
 
-    while(!obj->UARTREG->LSR.BITS.READY);     /* Wait for received data is ready */
+    while (!obj->UARTREG->LSR.BITS.READY);    /* Wait for received data is ready */
     c = obj->UARTREG->RBR & 0xFF;             /* Get received character */
     return c;
 }
@@ -332,7 +332,7 @@ int serial_getc(serial_t *obj)
 void serial_putc(serial_t *obj, int c)
 {
 
-    while(!obj->UARTREG->LSR.BITS.TX_HOLD_EMPTY);/* Wait till THR is empty */
+    while (!obj->UARTREG->LSR.BITS.TX_HOLD_EMPTY); /* Wait till THR is empty */
     obj->UARTREG->THR = c; /* Transmit byte */
 
 }

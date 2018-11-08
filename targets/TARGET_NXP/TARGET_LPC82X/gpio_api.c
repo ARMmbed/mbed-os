@@ -28,13 +28,14 @@ static void gpio_enable(void)
 
     /* Peripheral reset control to GPIO and GPIO INT, a "1" bring it out of reset. */
     LPC_SYSCON->PRESETCTRL &= ~(1 << 10);
-    LPC_SYSCON->PRESETCTRL |=  (1 << 10);
+    LPC_SYSCON->PRESETCTRL |= (1 << 10);
 }
 
 uint32_t gpio_set(PinName pin)
 {
-    if (!gpio_enabled)
-         gpio_enable();
+    if (!gpio_enabled) {
+        gpio_enable();
+    }
 
     return (1 << ((int)pin >> PIN_SHIFT));
 }
@@ -42,8 +43,9 @@ uint32_t gpio_set(PinName pin)
 void gpio_init(gpio_t *obj, PinName pin)
 {
     obj->pin = pin;
-    if (pin == (PinName)NC)
+    if (pin == (PinName)NC) {
         return;
+    }
 
     obj->mask = gpio_set(pin);
 

@@ -241,7 +241,7 @@ static __INLINE void FMC_Write(uint32_t u32Addr, uint32_t u32Data)
 #if ISBEN
     __ISB();
 #endif
-    while(FMC->ISPTRG);
+    while (FMC->ISPTRG);
 }
 
 /**
@@ -267,7 +267,7 @@ static __INLINE void FMC_Write8(uint32_t u32Addr, uint32_t u32Data0, uint32_t u3
 #if ISBEN
     __ISB();
 #endif
-    while(FMC->ISPTRG);
+    while (FMC->ISPTRG);
 }
 
 
@@ -290,7 +290,7 @@ static __INLINE uint32_t FMC_Read(uint32_t u32Addr)
 #if ISBEN
     __ISB();
 #endif
-    while(FMC->ISPTRG);
+    while (FMC->ISPTRG);
 
     return FMC->ISPDAT;
 }
@@ -315,11 +315,10 @@ static __INLINE int32_t FMC_Erase(uint32_t u32Addr)
 #if ISBEN
     __ISB();
 #endif
-    while(FMC->ISPTRG);
+    while (FMC->ISPTRG);
 
     /* Check ISPFF flag to know whether erase OK or fail. */
-    if(FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk)
-    {
+    if (FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk) {
         FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
         return -1;
     }
@@ -345,7 +344,7 @@ static __INLINE uint32_t FMC_ReadUID(uint8_t u8Index)
 #if ISBEN
     __ISB();
 #endif
-    while(FMC->ISPTRG);
+    while (FMC->ISPTRG);
 
     return FMC->ISPDAT;
 }
@@ -368,7 +367,7 @@ static __INLINE uint32_t FMC_ReadCID(void)
 #if ISBEN
     __ISB();
 #endif                                    /* To make sure ISP/CPU be Synchronized */
-    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;  /* Waiting for ISP Done */
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ; /* Waiting for ISP Done */
 
     return FMC->ISPDAT;
 }
@@ -391,7 +390,7 @@ static __INLINE uint32_t FMC_ReadPID(void)
 #if ISBEN
     __ISB();
 #endif                                     /* To make sure ISP/CPU be Synchronized */
-    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk);  /* Waiting for ISP Done */
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk); /* Waiting for ISP Done */
 
     return FMC->ISPDAT;
 }
@@ -414,7 +413,7 @@ static __INLINE uint32_t FMC_ReadUCID(uint32_t u32Index)
 #if ISBEN
     __ISB();
 #endif                                     /* To make sure ISP/CPU be Synchronized */
-    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk);  /* Waiting for ISP Done */
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk); /* Waiting for ISP Done */
 
     return FMC->ISPDAT;
 }
@@ -440,7 +439,7 @@ static __INLINE void FMC_SetVectorPageAddr(uint32_t u32PageAddr)
 #if ISBEN
     __ISB();
 #endif                         /* To make sure ISP/CPU be Synchronized */
-    while(FMC->ISPTRG);              /* Waiting for ISP Done */
+    while (FMC->ISPTRG);             /* Waiting for ISP Done */
 }
 
 /**
@@ -481,11 +480,11 @@ static __INLINE uint32_t FMC_GetCheckSum(uint32_t u32Addr, int32_t i32Size)
 #if ISBEN
     __ISB();
 #endif
-    while(FMC->ISPTRG);
+    while (FMC->ISPTRG);
 
     FMC->ISPCMD = FMC_ISPCMD_CHECKSUM;
     FMC->ISPTRG = 0x1;
-    while(FMC->ISPTRG);
+    while (FMC->ISPTRG);
 
     return FMC->ISPDAT;
 }
@@ -530,14 +529,11 @@ retrigger:
     pu32IspData = &FMC->MPDAT0;
     idx += 4;
 
-    for(i = idx; i < 256 / 4; i += 4) // Max data length is 256 bytes (256/4 words)
-    {
+    for (i = idx; i < 256 / 4; i += 4) { // Max data length is 256 bytes (256/4 words)
 
         __set_PRIMASK(1); // Mask interrupt to avoid status check coherence error
-        do
-        {
-            if((FMC->MPSTS & FMC_MPSTS_MPBUSY_Msk) == 0)
-            {
+        do {
+            if ((FMC->MPSTS & FMC_MPSTS_MPBUSY_Msk) == 0) {
                 __set_PRIMASK(0);
                 //printf("%d %x\n", i, FMC->MPADDR);
                 FMC->ISPADDR = FMC->MPADDR & (~0xful);
@@ -545,17 +541,14 @@ retrigger:
                 //i32Err = -1;
                 goto retrigger;
             }
-        }
-        while(FMC->MPSTS & (3 << FMC_MPSTS_D0_Pos));
+        } while (FMC->MPSTS & (3 << FMC_MPSTS_D0_Pos));
 
         // Update new data for D0
         pu32IspData[0] = pu32Buf[i  ];
         pu32IspData[1] = pu32Buf[i + 1];
 
-        do
-        {
-            if((FMC->MPSTS & FMC_MPSTS_MPBUSY_Msk) == 0)
-            {
+        do {
+            if ((FMC->MPSTS & FMC_MPSTS_MPBUSY_Msk) == 0) {
                 __set_PRIMASK(0);
                 //printf("%d %x\n", i, FMC->MPADDR);
                 FMC->ISPADDR = FMC->MPADDR & (~0xful);
@@ -563,8 +556,7 @@ retrigger:
                 //i32Err = -1;
                 goto retrigger;
             }
-        }
-        while(FMC->MPSTS & (3 << FMC_MPSTS_D2_Pos));
+        } while (FMC->MPSTS & (3 << FMC_MPSTS_D2_Pos));
 
         // Update new data for D2
         pu32IspData[2] = pu32Buf[i + 2];
@@ -572,7 +564,7 @@ retrigger:
         __set_PRIMASK(0);
     }
 
-    while(FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk);
+    while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk);
 }
 
 void FMC_Open(void);

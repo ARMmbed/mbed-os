@@ -4,7 +4,7 @@
 #include "rtos.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 DigitalOut led2(LED2);
@@ -41,7 +41,7 @@ void sd_thread(void const *argument)
 
 #elif defined(TARGET_NUMAKER_PFM_M487)
     SDFileSystem sd(D11, D12, D13, D10, "sd");
-    
+
 #else
     SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif
@@ -56,8 +56,9 @@ void sd_thread(void const *argument)
                 data_written[i] = rand() % 0xff;
                 fprintf(f, "%c", data_written[i]);
                 printf("%02X ", data_written[i]);
-                if (i && ((i % 20) == 19))
+                if (i && ((i % 20) == 19)) {
                     printf(NL);
+                }
             }
             fclose(f);
             printf("MBED: Done" NL);
@@ -77,8 +78,9 @@ void sd_thread(void const *argument)
             for (int i = 0; i < SIZE; i++) {
                 data_read[i] = fgetc(f);
                 printf("%02X ", data_read[i]);
-                if (i && ((i % 20) == 19))
+                if (i && ((i % 20) == 19)) {
                     printf(NL);
+                }
             }
             fclose(f);
             printf("MBED: Done\r\n");
@@ -98,7 +100,8 @@ void sd_thread(void const *argument)
     MBED_HOSTTEST_RESULT(true);
 }
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(SD File write read);

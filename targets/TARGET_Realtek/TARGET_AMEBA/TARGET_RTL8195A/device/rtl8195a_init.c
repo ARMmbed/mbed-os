@@ -78,9 +78,9 @@ const RAM_START_FUNCTION gImage2EntryFun0 = {
 IMAGE2_VALID_PATTEN_SECTION
 const uint8_t IMAGE2_SIGNATURE[20] = {
     'R', 'T', 'K', 'W', 'i', 'n', 0x0, 0xff,
-    (FW_VERSION&0xff), ((FW_VERSION >> 8)&0xff),
-    (FW_SUBVERSION&0xff), ((FW_SUBVERSION >> 8)&0xff),
-    (FW_CHIP_ID&0xff), ((FW_CHIP_ID >> 8)&0xff),
+    (FW_VERSION & 0xff), ((FW_VERSION >> 8) & 0xff),
+    (FW_SUBVERSION & 0xff), ((FW_SUBVERSION >> 8) & 0xff),
+    (FW_CHIP_ID & 0xff), ((FW_CHIP_ID >> 8) & 0xff),
     (FW_CHIP_VER),
     (FW_BUS_TYPE),
     (FW_INFO_RSV1),
@@ -97,7 +97,7 @@ void TRAP_NMIHandler(void)
 
     // Check if this NMI is triggered by Watchdog Timer
     val = __RTK_READ32(VENDOR_REG_BASE, 0);
-    ctl = (WDG_REG*) &val;
+    ctl = (WDG_REG *) &val;
     if (ctl->WdgToISR) {
         INTR_WatchdogHandler();
     }
@@ -129,9 +129,9 @@ void __TRAP_HardFaultHandler_Patch(uint32_t addr)
              * Otherwise it will keep hitting MemMange Fault on the same assembly code.
              *
              * To step to next command, we need parse the assembly code to check if
-         * it is 16-bit or 32-bit command.
+            * it is 16-bit or 32-bit command.
              * Ref: ARM Architecture Reference Manual (ARMv7-A and ARMv7-R edition),
-         * Chapter A6 - Thumb Instruction Set Encoding
+            * Chapter A6 - Thumb Instruction Set Encoding
              *
              * However, the fault assembly code (Ex. LDR or ADR) is not actually executed,
              * So the register value is un-predictable.
@@ -165,7 +165,7 @@ void TRAP_HardFaultHandler_Patch(void)
 }
 #endif
 
-extern _LONG_CALL_ void * __rtl_memset_v1_00(void * m , int c , size_t n);
+extern _LONG_CALL_ void *__rtl_memset_v1_00(void *m, int c, size_t n);
 // Image2 Entry Function
 void PLAT_Init(void)
 {
@@ -197,7 +197,7 @@ void PLAT_Init(void)
     val &= 0xf0ffffff;
     val |= 0x6000000;
     __RTK_CTRL_WRITE32(REG_SYS_EFUSE_SYSCFG0, val);
-    
+
     // xtal buffer driving current
     val = __RTK_CTRL_READ32(REG_SYS_XTAL_CTRL1);
     val &= ~(BIT_MASK_SYS_XTAL_DRV_RF1 << BIT_SHIFT_SYS_XTAL_DRV_RF1);
@@ -255,15 +255,15 @@ void PLAT_Main(void)
 #elif defined (__ICCARM__)
     IAR_PLAT_Main();
 #else
-    __asm ("ldr  r0, =SystemInit   \n"
-           "blx  r0                \n"
+    __asm("ldr  r0, =SystemInit   \n"
+          "blx  r0                \n"
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
-           "ldr  r0, =__main \n"
+          "ldr  r0, =__main \n"
 #else
-           "ldr  r0, =_start       \n"
+          "ldr  r0, =_start       \n"
 #endif
-           "bx   r0                \n"
-    );
+          "bx   r0                \n"
+         );
 #endif
 
     // Never reached

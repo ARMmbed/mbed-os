@@ -30,48 +30,48 @@ extern "C" {
   */
 
 /** Interrupt Number Definition */
-    typedef enum IRQn {
-/******  Cortex-M0 Processor Exceptions Numbers ***************************************************************/
-        NonMaskableInt_IRQn = -14,      /*!< 2 Non Maskable Interrupt                                    */
-        HardFault_IRQn = -13,   /*!< 3 Cortex-M0 Hard Fault Interrupt                            */
-        SVCall_IRQn = -5,       /*!< 11 Cortex-M0 SV Call Interrupt                              */
-        PendSV_IRQn = -2,       /*!< 14 Cortex-M0 Pend SV Interrupt                              */
-        SysTick_IRQn = -1,      /*!< 15 Cortex-M0 System Tick Interrupt                          */
+typedef enum IRQn {
+    /******  Cortex-M0 Processor Exceptions Numbers ***************************************************************/
+    NonMaskableInt_IRQn = -14,      /*!< 2 Non Maskable Interrupt                                    */
+    HardFault_IRQn = -13,   /*!< 3 Cortex-M0 Hard Fault Interrupt                            */
+    SVCall_IRQn = -5,       /*!< 11 Cortex-M0 SV Call Interrupt                              */
+    PendSV_IRQn = -2,       /*!< 14 Cortex-M0 Pend SV Interrupt                              */
+    SysTick_IRQn = -1,      /*!< 15 Cortex-M0 System Tick Interrupt                          */
 
-/******  TMPM066 Specific Interrupt Numbers *******************************************************************/
-        INT0_IRQn = 0,          /*!< Interrupt Pin0                                              */
-        INT1_IRQn = 1,          /*!< Interrupt Pin1                                              */
-        INT2_IRQn = 2,          /*!< Interrupt Pin2                                              */
-        INT3_IRQn = 3,          /*!< Interrupt Pin3                                              */
-        INT4_IRQn = 4,          /*!< Interrupt Pin4                                              */
-        INT5_IRQn = 5,          /*!< Interrupt Pin5                                              */
-        INTRX0_IRQn = 6,        /*!< Serial reception interrupt(channel0)                        */
-        INTTX0_IRQn = 7,        /*!< Serial transmission interrupt(channel0)                     */
-        INTRX1_IRQn = 8,        /*!< Serial reception interrupt(channel1)                        */
-        INTTX1_IRQn = 9,        /*!< Serial transmission interrupt(channel1)                     */
-        INTSPIRX_IRQn = 10,     /*!< SPI serial reception interrupt                              */
-        INTSPITX_IRQn = 11,     /*!< SPI serial transmission interrupt                           */
-        INTSPIERR_IRQn = 12,    /*!< SPI serial error interrupt                                  */
-        INTI2C0_IRQn = 13,      /*!< Serial bus interface (channel.0)                            */
-        INTI2C1_IRQn = 14,      /*!< Serial bus interface (channel.1)                            */
-        INTDMA_IRQn = 15,       /*!< DMAC interrupt                                              */
-        INT16A0_IRQn = 16,      /*!< 16-bit TMR16A match detection (channel.0)                   */
-        INT16A1_IRQn = 17,      /*!< 16-bit TMR16A match detection (channel.1)                   */
-        INTTB0_IRQn = 18,       /*!< 16-bit TMRB interrupt(channel.0)                            */
-        INTTB1_IRQn = 19,       /*!< 16-bit TMRB interrupt(channel.1)                            */
-        INTTB2_IRQn = 20,       /*!< 16-bit TMRB interrupt(channel.2)                            */
-        INTTB3_IRQn = 21,       /*!< 16-bit TMRB interrupt(channel.3)                            */
-        INTTB4_IRQn = 22,       /*!< 16-bit TMRB interrupt(channel.4)                            */
-        INTTB5_IRQn = 23,       /*!< 16-bit TMRB interrupt(channel.5)                            */
-        INTTB6_IRQn = 24,       /*!< 16-bit TMRB interrupt(channel.6)                            */
-        INTTB7_IRQn = 25,       /*!< 16-bit TMRB interrupt(channel.7)                            */
-        INTI2CS_IRQn = 26,      /*!< Serial bus interface for Wakeup(channel.1)                  */
-        INTTMRD_IRQn = 27,      /*!< TMRD interrupt                                              */
-        INTUSB_IRQn = 28,       /*!< USB interrupt                                               */
-        INTUSBWKUP_IRQn = 29,   /*!< USB wakeup interrupt                                        */
-        INTADHP_IRQn = 30,      /*!< High Priority A/D conversion interrupt                      */
-        INTAD_IRQn = 31         /*!< Normal A/D conversion completion interrupt                  */
-    } IRQn_Type;
+    /******  TMPM066 Specific Interrupt Numbers *******************************************************************/
+    INT0_IRQn = 0,          /*!< Interrupt Pin0                                              */
+    INT1_IRQn = 1,          /*!< Interrupt Pin1                                              */
+    INT2_IRQn = 2,          /*!< Interrupt Pin2                                              */
+    INT3_IRQn = 3,          /*!< Interrupt Pin3                                              */
+    INT4_IRQn = 4,          /*!< Interrupt Pin4                                              */
+    INT5_IRQn = 5,          /*!< Interrupt Pin5                                              */
+    INTRX0_IRQn = 6,        /*!< Serial reception interrupt(channel0)                        */
+    INTTX0_IRQn = 7,        /*!< Serial transmission interrupt(channel0)                     */
+    INTRX1_IRQn = 8,        /*!< Serial reception interrupt(channel1)                        */
+    INTTX1_IRQn = 9,        /*!< Serial transmission interrupt(channel1)                     */
+    INTSPIRX_IRQn = 10,     /*!< SPI serial reception interrupt                              */
+    INTSPITX_IRQn = 11,     /*!< SPI serial transmission interrupt                           */
+    INTSPIERR_IRQn = 12,    /*!< SPI serial error interrupt                                  */
+    INTI2C0_IRQn = 13,      /*!< Serial bus interface (channel.0)                            */
+    INTI2C1_IRQn = 14,      /*!< Serial bus interface (channel.1)                            */
+    INTDMA_IRQn = 15,       /*!< DMAC interrupt                                              */
+    INT16A0_IRQn = 16,      /*!< 16-bit TMR16A match detection (channel.0)                   */
+    INT16A1_IRQn = 17,      /*!< 16-bit TMR16A match detection (channel.1)                   */
+    INTTB0_IRQn = 18,       /*!< 16-bit TMRB interrupt(channel.0)                            */
+    INTTB1_IRQn = 19,       /*!< 16-bit TMRB interrupt(channel.1)                            */
+    INTTB2_IRQn = 20,       /*!< 16-bit TMRB interrupt(channel.2)                            */
+    INTTB3_IRQn = 21,       /*!< 16-bit TMRB interrupt(channel.3)                            */
+    INTTB4_IRQn = 22,       /*!< 16-bit TMRB interrupt(channel.4)                            */
+    INTTB5_IRQn = 23,       /*!< 16-bit TMRB interrupt(channel.5)                            */
+    INTTB6_IRQn = 24,       /*!< 16-bit TMRB interrupt(channel.6)                            */
+    INTTB7_IRQn = 25,       /*!< 16-bit TMRB interrupt(channel.7)                            */
+    INTI2CS_IRQn = 26,      /*!< Serial bus interface for Wakeup(channel.1)                  */
+    INTTMRD_IRQn = 27,      /*!< TMRD interrupt                                              */
+    INTUSB_IRQn = 28,       /*!< USB interrupt                                               */
+    INTUSBWKUP_IRQn = 29,   /*!< USB wakeup interrupt                                        */
+    INTADHP_IRQn = 30,      /*!< High Priority A/D conversion interrupt                      */
+    INTAD_IRQn = 31         /*!< Normal A/D conversion completion interrupt                  */
+} IRQn_Type;
 
 /** Processor and Core Peripheral Section */
 
@@ -81,7 +81,7 @@ extern "C" {
 #define __NVIC_PRIO_BITS          2     /*!< Number of Bits used for Priority Levels           */
 #define __Vendor_SysTickConfig    0     /*!< Set to 1 if different SysTick Config is used      */
 
-    /** @} *//* End of group Configuration_of_CMSIS */
+/** @} *//* End of group Configuration_of_CMSIS */
 
 #include "core_cm0.h"           /* Cortex-M0 processor and core peripherals            */
 #include "system_TMPM066.h"     /* TMPM066 System                                      */
@@ -95,228 +95,228 @@ extern "C" {
 /**
   * @brief UDC2 AHB Bridge
   */
-    typedef struct {
-        __IO uint32_t INTSTS;   /*!< Interrupt Status Register                    */
-        __IO uint32_t INTENB;   /*!< Interrupt Enable Register                    */
-        __IO uint32_t MWTOUT;   /*!< Master Write Timeout Register                */
-        __IO uint32_t C2STSET;  /*!< UDC2 setting                                 */
-        __IO uint32_t MSTSET;   /*!< DMAC setting                                 */
-        __IO uint32_t DMACRDREQ;        /*!< DMAC Read request                            */
-        __I uint32_t DMACRDVL;  /*!< DMAC Read Value                              */
-        __IO uint32_t UDC2RDREQ;        /*!< UDC2 Read Request                            */
-        __I uint32_t UDC2RDVL;  /*!< UDC2 Read Value                              */
-        uint32_t RESERVED0[6];
-        __IO uint32_t ARBTSET;  /*!< Arbiter Setting                              */
-        __IO uint32_t MWSADR;   /*!< Master Write Start Address                   */
-        __IO uint32_t MWEADR;   /*!< Master Write End Address                     */
-        __I uint32_t MWCADR;    /*!< Master Write Current Address                 */
-        __I uint32_t MWAHBADR;  /*!< Master Write AHB Address                     */
-        __IO uint32_t MRSADR;   /*!< Master Read Start Address                    */
-        __IO uint32_t MREADR;   /*!< Master Read End Address                      */
-        __I uint32_t MRCADR;    /*!< Master Read Current Address                  */
-        __I uint32_t MRAHBADR;  /*!< Master Read AHB Address                      */
-        uint32_t RESERVED1[8];
-        __IO uint32_t PWCTL;    /*!< Power Detect Control                         */
-        __I uint32_t MSTSTS;    /*!< Master Status                                */
-        __I uint32_t TOUTCNT;   /*!< Timeout Count                                */
-    } TSB_UDFS_TypeDef;
+typedef struct {
+    __IO uint32_t INTSTS;   /*!< Interrupt Status Register                    */
+    __IO uint32_t INTENB;   /*!< Interrupt Enable Register                    */
+    __IO uint32_t MWTOUT;   /*!< Master Write Timeout Register                */
+    __IO uint32_t C2STSET;  /*!< UDC2 setting                                 */
+    __IO uint32_t MSTSET;   /*!< DMAC setting                                 */
+    __IO uint32_t DMACRDREQ;        /*!< DMAC Read request                            */
+    __I uint32_t DMACRDVL;  /*!< DMAC Read Value                              */
+    __IO uint32_t UDC2RDREQ;        /*!< UDC2 Read Request                            */
+    __I uint32_t UDC2RDVL;  /*!< UDC2 Read Value                              */
+    uint32_t RESERVED0[6];
+    __IO uint32_t ARBTSET;  /*!< Arbiter Setting                              */
+    __IO uint32_t MWSADR;   /*!< Master Write Start Address                   */
+    __IO uint32_t MWEADR;   /*!< Master Write End Address                     */
+    __I uint32_t MWCADR;    /*!< Master Write Current Address                 */
+    __I uint32_t MWAHBADR;  /*!< Master Write AHB Address                     */
+    __IO uint32_t MRSADR;   /*!< Master Read Start Address                    */
+    __IO uint32_t MREADR;   /*!< Master Read End Address                      */
+    __I uint32_t MRCADR;    /*!< Master Read Current Address                  */
+    __I uint32_t MRAHBADR;  /*!< Master Read AHB Address                      */
+    uint32_t RESERVED1[8];
+    __IO uint32_t PWCTL;    /*!< Power Detect Control                         */
+    __I uint32_t MSTSTS;    /*!< Master Status                                */
+    __I uint32_t TOUTCNT;   /*!< Timeout Count                                */
+} TSB_UDFS_TypeDef;
 
 /**
   * @brief UDC2(USB -Spec2.0 Device contoller)
   */
-    typedef struct {
-        __IO uint32_t ADR;      /*!< UDC2 Address State                           */
-        __IO uint32_t FRM;      /*!< UDC2 Frame                                   */
-        uint32_t RESERVED0;
-        __IO uint32_t CMD;      /*!< UDC2 Command                                 */
-        __I uint32_t BRQ;       /*!< UDC2 bRequest-bmRequest Type                 */
-        __I uint32_t WVL;       /*!< UDC2 wValue                                  */
-        __I uint32_t WIDX;      /*!< UDC2 wIndex                                  */
-        __I uint32_t WLGTH;     /*!< UDC2 wLength                                 */
-        __IO uint32_t INT;      /*!< UDC2 INT                                     */
-        __IO uint32_t INTEP;    /*!< UDC2 INT_EP                                  */
-        __IO uint32_t INTEPMSK; /*!< UDC2 INT_EP_MASK                             */
-        __IO uint32_t INTRX0;   /*!< UDC2 INT RX DATA0                            */
-        __IO uint32_t EP0MSZ;   /*!< UDC2 EP0 Max Packet Size                     */
-        __I uint32_t EP0STS;    /*!< UDC2 EP0 Status                              */
-        __I uint32_t EP0DSZ;    /*!< UDC2 EP0 Data Size                           */
-        __IO uint32_t EP0FIFO;  /*!< UDC2 EP0 FIFO                                */
-        __IO uint32_t EP1MSZ;   /*!< UDC2 EP1 Max Packet Size                     */
-        __IO uint32_t EP1STS;   /*!< UDC2 EP1 Status                              */
-        __I uint32_t EP1DSZ;    /*!< UDC2 EP1 Data Size                           */
-        __IO uint32_t EP1FIFO;  /*!< UDC2 EP1 FIFO                                */
-        __IO uint32_t EP2MSZ;   /*!< UDC2 EP2 Max Packet Size                     */
-        __IO uint32_t EP2STS;   /*!< UDC2 EP2 Status                              */
-        __I uint32_t EP2DSZ;    /*!< UDC2 EP2 Data Size                           */
-        __IO uint32_t EP2FIFO;  /*!< UDC2 EP2 FIFO                                */
-        __IO uint32_t EP3MSZ;   /*!< UDC2 EP3 Max Packet Size                     */
-        __IO uint32_t EP3STS;   /*!< UDC2 EP3 Status                              */
-        __I uint32_t EP3DSZ;    /*!< UDC2 EP3 Data Size                           */
-        __IO uint32_t EP3FIFO;  /*!< UDC2 EP3 FIFO                                */
-        __IO uint32_t EP4MSZ;   /*!< UDC2 EP4 Max Packet Size                     */
-        __IO uint32_t EP4STS;   /*!< UDC2 EP4 Status                              */
-        __I uint32_t EP4DSZ;    /*!< UDC2 EP4 Data Size                           */
-        __IO uint32_t EP4FIFO;  /*!< UDC2 EP4 FIFO                                */
-        uint32_t RESERVED1[44];
-        __IO uint32_t INTNAK;   /*!< UDC2 INT NAK                                 */
-        __IO uint32_t INTNAKMSK;        /*!< UDC2 INT NAK MASK                            */
-    } TSB_UDFS2_TypeDef;
+typedef struct {
+    __IO uint32_t ADR;      /*!< UDC2 Address State                           */
+    __IO uint32_t FRM;      /*!< UDC2 Frame                                   */
+    uint32_t RESERVED0;
+    __IO uint32_t CMD;      /*!< UDC2 Command                                 */
+    __I uint32_t BRQ;       /*!< UDC2 bRequest-bmRequest Type                 */
+    __I uint32_t WVL;       /*!< UDC2 wValue                                  */
+    __I uint32_t WIDX;      /*!< UDC2 wIndex                                  */
+    __I uint32_t WLGTH;     /*!< UDC2 wLength                                 */
+    __IO uint32_t INT;      /*!< UDC2 INT                                     */
+    __IO uint32_t INTEP;    /*!< UDC2 INT_EP                                  */
+    __IO uint32_t INTEPMSK; /*!< UDC2 INT_EP_MASK                             */
+    __IO uint32_t INTRX0;   /*!< UDC2 INT RX DATA0                            */
+    __IO uint32_t EP0MSZ;   /*!< UDC2 EP0 Max Packet Size                     */
+    __I uint32_t EP0STS;    /*!< UDC2 EP0 Status                              */
+    __I uint32_t EP0DSZ;    /*!< UDC2 EP0 Data Size                           */
+    __IO uint32_t EP0FIFO;  /*!< UDC2 EP0 FIFO                                */
+    __IO uint32_t EP1MSZ;   /*!< UDC2 EP1 Max Packet Size                     */
+    __IO uint32_t EP1STS;   /*!< UDC2 EP1 Status                              */
+    __I uint32_t EP1DSZ;    /*!< UDC2 EP1 Data Size                           */
+    __IO uint32_t EP1FIFO;  /*!< UDC2 EP1 FIFO                                */
+    __IO uint32_t EP2MSZ;   /*!< UDC2 EP2 Max Packet Size                     */
+    __IO uint32_t EP2STS;   /*!< UDC2 EP2 Status                              */
+    __I uint32_t EP2DSZ;    /*!< UDC2 EP2 Data Size                           */
+    __IO uint32_t EP2FIFO;  /*!< UDC2 EP2 FIFO                                */
+    __IO uint32_t EP3MSZ;   /*!< UDC2 EP3 Max Packet Size                     */
+    __IO uint32_t EP3STS;   /*!< UDC2 EP3 Status                              */
+    __I uint32_t EP3DSZ;    /*!< UDC2 EP3 Data Size                           */
+    __IO uint32_t EP3FIFO;  /*!< UDC2 EP3 FIFO                                */
+    __IO uint32_t EP4MSZ;   /*!< UDC2 EP4 Max Packet Size                     */
+    __IO uint32_t EP4STS;   /*!< UDC2 EP4 Status                              */
+    __I uint32_t EP4DSZ;    /*!< UDC2 EP4 Data Size                           */
+    __IO uint32_t EP4FIFO;  /*!< UDC2 EP4 FIFO                                */
+    uint32_t RESERVED1[44];
+    __IO uint32_t INTNAK;   /*!< UDC2 INT NAK                                 */
+    __IO uint32_t INTNAKMSK;        /*!< UDC2 INT NAK MASK                            */
+} TSB_UDFS2_TypeDef;
 
 /**
   * @brief AO Area register1
   */
-    typedef struct {
-        uint8_t RESERVED0[32];
-        __IO uint8_t STOP2INT_032;      /*!< STOP2INT I/F Control Register in AO Area     */
-        __IO uint8_t STOP2INT_033;      /*!< STOP2INT I/F Control Register in AO Area     */
-        __IO uint8_t STOP2INT_034;      /*!< STOP2INT I/F Control Register in AO Area     */
-        __IO uint8_t STOP2INT_035;      /*!< STOP2INT I/F Control Register in AO Area     */
-        __IO uint8_t STOP2INT_036;      /*!< STOP2INT I/F Control Register in AO Area     */
-        __IO uint8_t STOP2INT_037;      /*!< STOP2INT I/F Control Register in AO Area     */
-        __IO uint8_t STOP2INT_038;      /*!< STOP2INT I/F Control Register in AO Area     */
-        __IO uint8_t STOP2INT_039;      /*!< STOP2INT I/F Control Register in AO Area     */
-    } TSB_INTIFAO_TypeDef;
+typedef struct {
+    uint8_t RESERVED0[32];
+    __IO uint8_t STOP2INT_032;      /*!< STOP2INT I/F Control Register in AO Area     */
+    __IO uint8_t STOP2INT_033;      /*!< STOP2INT I/F Control Register in AO Area     */
+    __IO uint8_t STOP2INT_034;      /*!< STOP2INT I/F Control Register in AO Area     */
+    __IO uint8_t STOP2INT_035;      /*!< STOP2INT I/F Control Register in AO Area     */
+    __IO uint8_t STOP2INT_036;      /*!< STOP2INT I/F Control Register in AO Area     */
+    __IO uint8_t STOP2INT_037;      /*!< STOP2INT I/F Control Register in AO Area     */
+    __IO uint8_t STOP2INT_038;      /*!< STOP2INT I/F Control Register in AO Area     */
+    __IO uint8_t STOP2INT_039;      /*!< STOP2INT I/F Control Register in AO Area     */
+} TSB_INTIFAO_TypeDef;
 
 /**
   * @brief AO Area register2
   */
-    typedef struct {
-        uint8_t RESERVED0[2];
-        __IO uint8_t RSTFLG;    /*!< Reset Flag register                          */
-        __IO uint8_t RSTFLG1;   /*!< Reset Flag1 register                         */
-    } TSB_AOREG_TypeDef;
+typedef struct {
+    uint8_t RESERVED0[2];
+    __IO uint8_t RSTFLG;    /*!< Reset Flag register                          */
+    __IO uint8_t RSTFLG1;   /*!< Reset Flag1 register                         */
+} TSB_AOREG_TypeDef;
 
 /**
   * @brief I2C Wakeup I/F register
   */
-    typedef struct {
-        __IO uint8_t WUPCR1;    /*!< I2C Wakeup control register1                 */
-        __IO uint8_t WUPCR2;    /*!< I2C Wakeup control register2                 */
-        __IO uint8_t WUPCR3;    /*!< I2C Wakeup control register3                 */
-        __I uint8_t WUPSL;      /*!< I2C Wakeup Status register                   */
-    } TSB_I2CS_TypeDef;
+typedef struct {
+    __IO uint8_t WUPCR1;    /*!< I2C Wakeup control register1                 */
+    __IO uint8_t WUPCR2;    /*!< I2C Wakeup control register2                 */
+    __IO uint8_t WUPCR3;    /*!< I2C Wakeup control register3                 */
+    __I uint8_t WUPSL;      /*!< I2C Wakeup Status register                   */
+} TSB_I2CS_TypeDef;
 
 /**
   * @brief DMA Controller
   */
-    typedef struct {
-        __I uint32_t STATUS;    /*!< DMA Status Register                          */
-        __O uint32_t CFG;       /*!< DMA Configuration Register                   */
-        __IO uint32_t CTRLBASEPTR;      /*!< DMA Control Data Base Pointer Register       */
-        __I uint32_t ALTCTRLBASEPTR;    /*!< DMA Channel Alternate Control Data Base 
+typedef struct {
+    __I uint32_t STATUS;    /*!< DMA Status Register                          */
+    __O uint32_t CFG;       /*!< DMA Configuration Register                   */
+    __IO uint32_t CTRLBASEPTR;      /*!< DMA Control Data Base Pointer Register       */
+    __I uint32_t ALTCTRLBASEPTR;    /*!< DMA Channel Alternate Control Data Base
                                            Pointer Register */
-        uint32_t RESERVED0;
-        __O uint32_t CHNLSWREQUEST;     /*!< DMA Channel Software Request Register        */
-        __IO uint32_t CHNLUSEBURSTSET;  /*!< DMA Channel Useburst Set Register            */
-        __O uint32_t CHNLUSEBURSTCLR;   /*!< DMA Channel Useburst Clear Register          */
-        __IO uint32_t CHNLREQMASKSET;   /*!< DMA Channel Request Mask Set Register        */
-        __O uint32_t CHNLREQMASKCLR;    /*!< DMA Channel Request Mask Clear Register      */
-        __IO uint32_t CHNLENABLESET;    /*!< DMA Channel Enable Set Register              */
-        __O uint32_t CHNLENABLECLR;     /*!< DMA Channel Enable Clear Register            */
-        __IO uint32_t CHNLPRIALTSET;    /*!< DMA Channel Primary-Alternate Set Register   */
-        __O uint32_t CHNLPRIALTCLR;     /*!< DMA Channel Primary-Alternate Clear Register */
-        __IO uint32_t CHNLPRIORITYSET;  /*!< DMA Channel Priority Set Register            */
-        __O uint32_t CHNLPRIORITYCLR;   /*!< DMA Channel Priority Clear Register          */
-        uint32_t RESERVED1[3];
-        __IO uint32_t ERRCLR;   /*!< DMA Bus Error Clear Register                 */
-    } TSB_DMA_TypeDef;
+    uint32_t RESERVED0;
+    __O uint32_t CHNLSWREQUEST;     /*!< DMA Channel Software Request Register        */
+    __IO uint32_t CHNLUSEBURSTSET;  /*!< DMA Channel Useburst Set Register            */
+    __O uint32_t CHNLUSEBURSTCLR;   /*!< DMA Channel Useburst Clear Register          */
+    __IO uint32_t CHNLREQMASKSET;   /*!< DMA Channel Request Mask Set Register        */
+    __O uint32_t CHNLREQMASKCLR;    /*!< DMA Channel Request Mask Clear Register      */
+    __IO uint32_t CHNLENABLESET;    /*!< DMA Channel Enable Set Register              */
+    __O uint32_t CHNLENABLECLR;     /*!< DMA Channel Enable Clear Register            */
+    __IO uint32_t CHNLPRIALTSET;    /*!< DMA Channel Primary-Alternate Set Register   */
+    __O uint32_t CHNLPRIALTCLR;     /*!< DMA Channel Primary-Alternate Clear Register */
+    __IO uint32_t CHNLPRIORITYSET;  /*!< DMA Channel Priority Set Register            */
+    __O uint32_t CHNLPRIORITYCLR;   /*!< DMA Channel Priority Clear Register          */
+    uint32_t RESERVED1[3];
+    __IO uint32_t ERRCLR;   /*!< DMA Bus Error Clear Register                 */
+} TSB_DMA_TypeDef;
 
 /**
   * @brief Timer D (Unit0)
   */
-    typedef struct {
-        __O uint32_t RUN;       /*!< Timer Run Register (Unit0)                   */
-        __IO uint32_t CR;       /*!< Timer Control Register (Unit0)               */
-        __IO uint32_t MOD;      /*!< Timer Mode Register (Unit0)                  */
-        __IO uint32_t DMA;      /*!< DMA Request Enable Register (Unit0)          */
-        uint32_t RESERVED0;
-        __IO uint32_t RG0;      /*!< Timer Register0 (Unit0)                      */
-        __IO uint32_t RG1;      /*!< Timer Register1 (Unit0)                      */
-        __IO uint32_t RG2;      /*!< Timer Register2 (Unit0)                      */
-        __IO uint32_t RG3;      /*!< Timer Register3 (Unit0)                      */
-        __IO uint32_t RG4;      /*!< Timer Register4 (Unit0)                      */
-        __IO uint32_t RG5;      /*!< Timer Register5 (Unit0)                      */
-        uint32_t RESERVED1[13];
-        __IO uint32_t HSWB0;    /*!< H-SW Control Circuit Register Buffer0 (Unit0) */
-        __IO uint32_t HSWB1;    /*!< H-SW Control Circuit Register Buffer1 (Unit0) */
-        uint32_t RESERVED2[43];
-        __I uint32_t CP0;       /*!< Compare Register0 (Unit0)                    */
-        __I uint32_t CP1;       /*!< Compare Register1 (Unit0)                    */
-        __I uint32_t CP2;       /*!< Compare Register2 (Unit0)                    */
-        __I uint32_t CP3;       /*!< Compare Register3 (Unit0)                    */
-        __I uint32_t CP4;       /*!< Compare Register4 (Unit0)                    */
-        __I uint32_t CP5;       /*!< Compare Register5 (Unit0)                    */
-        uint32_t RESERVED3[13];
-        __I uint32_t HSW0;      /*!< H-SW Control Circuit Register (Unit0)        */
-        __I uint32_t HSW1;      /*!< H-SW Control Circuit Register (Unit0)        */
-    } TSB_TD0_TypeDef;
+typedef struct {
+    __O uint32_t RUN;       /*!< Timer Run Register (Unit0)                   */
+    __IO uint32_t CR;       /*!< Timer Control Register (Unit0)               */
+    __IO uint32_t MOD;      /*!< Timer Mode Register (Unit0)                  */
+    __IO uint32_t DMA;      /*!< DMA Request Enable Register (Unit0)          */
+    uint32_t RESERVED0;
+    __IO uint32_t RG0;      /*!< Timer Register0 (Unit0)                      */
+    __IO uint32_t RG1;      /*!< Timer Register1 (Unit0)                      */
+    __IO uint32_t RG2;      /*!< Timer Register2 (Unit0)                      */
+    __IO uint32_t RG3;      /*!< Timer Register3 (Unit0)                      */
+    __IO uint32_t RG4;      /*!< Timer Register4 (Unit0)                      */
+    __IO uint32_t RG5;      /*!< Timer Register5 (Unit0)                      */
+    uint32_t RESERVED1[13];
+    __IO uint32_t HSWB0;    /*!< H-SW Control Circuit Register Buffer0 (Unit0) */
+    __IO uint32_t HSWB1;    /*!< H-SW Control Circuit Register Buffer1 (Unit0) */
+    uint32_t RESERVED2[43];
+    __I uint32_t CP0;       /*!< Compare Register0 (Unit0)                    */
+    __I uint32_t CP1;       /*!< Compare Register1 (Unit0)                    */
+    __I uint32_t CP2;       /*!< Compare Register2 (Unit0)                    */
+    __I uint32_t CP3;       /*!< Compare Register3 (Unit0)                    */
+    __I uint32_t CP4;       /*!< Compare Register4 (Unit0)                    */
+    __I uint32_t CP5;       /*!< Compare Register5 (Unit0)                    */
+    uint32_t RESERVED3[13];
+    __I uint32_t HSW0;      /*!< H-SW Control Circuit Register (Unit0)        */
+    __I uint32_t HSW1;      /*!< H-SW Control Circuit Register (Unit0)        */
+} TSB_TD0_TypeDef;
 
 /**
   * @brief Timer D common
   */
-    typedef struct {
-        __IO uint32_t BCR;      /*!< Update Flag Setting Register                 */
-        uint32_t RESERVED0[3];
-        __IO uint32_t EN;       /*!< Timer Enable Register                        */
-        __IO uint32_t CONF;     /*!< Timer Configuration Register                 */
-    } TSB_TD_TypeDef;
+typedef struct {
+    __IO uint32_t BCR;      /*!< Update Flag Setting Register                 */
+    uint32_t RESERVED0[3];
+    __IO uint32_t EN;       /*!< Timer Enable Register                        */
+    __IO uint32_t CONF;     /*!< Timer Configuration Register                 */
+} TSB_TD_TypeDef;
 
 /**
   * @brief Timer D (Unit1)
   */
-    typedef struct {
-        __IO uint32_t RG0;      /*!< Timer Register0 (Unit1)                      */
-        __IO uint32_t RG1;      /*!< Timer Register1 (Unit1)                      */
-        __IO uint32_t RG2;      /*!< Timer Register2 (Unit1)                      */
-        __IO uint32_t RG3;      /*!< Timer Register3 (Unit1)                      */
-        __IO uint32_t RG4;      /*!< Timer Register4 (Unit1)                      */
-        uint32_t RESERVED0[10];
-        __IO uint32_t HSWB0;    /*!< H-SW Control Circuit Register Buffer0 (Unit1) */
-        __IO uint32_t HSWB1;    /*!< H-SW Control Circuit Register Buffer1 (Unit1) */
-        uint32_t RESERVED1[36];
-        __O uint32_t RUN;       /*!< Timer Run Register (Unit1)                   */
-        __IO uint32_t CR;       /*!< Timer Control Register (Unit1)               */
-        __IO uint32_t MOD;      /*!< Timer Mode Register (Unit1)                  */
-        __IO uint32_t DMA;      /*!< DMA Request Enable Register (Unit1)          */
-        uint32_t RESERVED2[7];
-        __I uint32_t CP0;       /*!< Compare Register0 (Unit1)                    */
-        __I uint32_t CP1;       /*!< Compare Register1 (Unit1)                    */
-        __I uint32_t CP2;       /*!< Compare Register2 (Unit1)                    */
-        __I uint32_t CP3;       /*!< Compare Register3 (Unit1)                    */
-        __I uint32_t CP4;       /*!< Compare Register4 (Unit1)                    */
-        uint32_t RESERVED3[10];
-        __I uint32_t HSW0;      /*!< H-SW Control Circuit Register (Unit1)        */
-        __I uint32_t HSW1;      /*!< H-SW Control Circuit Register (Unit1)        */
-    } TSB_TD1_TypeDef;
+typedef struct {
+    __IO uint32_t RG0;      /*!< Timer Register0 (Unit1)                      */
+    __IO uint32_t RG1;      /*!< Timer Register1 (Unit1)                      */
+    __IO uint32_t RG2;      /*!< Timer Register2 (Unit1)                      */
+    __IO uint32_t RG3;      /*!< Timer Register3 (Unit1)                      */
+    __IO uint32_t RG4;      /*!< Timer Register4 (Unit1)                      */
+    uint32_t RESERVED0[10];
+    __IO uint32_t HSWB0;    /*!< H-SW Control Circuit Register Buffer0 (Unit1) */
+    __IO uint32_t HSWB1;    /*!< H-SW Control Circuit Register Buffer1 (Unit1) */
+    uint32_t RESERVED1[36];
+    __O uint32_t RUN;       /*!< Timer Run Register (Unit1)                   */
+    __IO uint32_t CR;       /*!< Timer Control Register (Unit1)               */
+    __IO uint32_t MOD;      /*!< Timer Mode Register (Unit1)                  */
+    __IO uint32_t DMA;      /*!< DMA Request Enable Register (Unit1)          */
+    uint32_t RESERVED2[7];
+    __I uint32_t CP0;       /*!< Compare Register0 (Unit1)                    */
+    __I uint32_t CP1;       /*!< Compare Register1 (Unit1)                    */
+    __I uint32_t CP2;       /*!< Compare Register2 (Unit1)                    */
+    __I uint32_t CP3;       /*!< Compare Register3 (Unit1)                    */
+    __I uint32_t CP4;       /*!< Compare Register4 (Unit1)                    */
+    uint32_t RESERVED3[10];
+    __I uint32_t HSW0;      /*!< H-SW Control Circuit Register (Unit1)        */
+    __I uint32_t HSW1;      /*!< H-SW Control Circuit Register (Unit1)        */
+} TSB_TD1_TypeDef;
 
 /**
   * @brief 16-bit TimerA
   */
-    typedef struct {
-        __IO uint32_t EN;       /*!< Enable Register                              */
-        __IO uint32_t RUN;      /*!< RUN Register                                 */
-        __IO uint32_t CR;       /*!< Control Register                             */
-        __IO uint32_t RG;       /*!< Timer Register                               */
-        __I uint32_t CP;        /*!< Capture Register                             */
-    } TSB_T16A_TypeDef;
+typedef struct {
+    __IO uint32_t EN;       /*!< Enable Register                              */
+    __IO uint32_t RUN;      /*!< RUN Register                                 */
+    __IO uint32_t CR;       /*!< Control Register                             */
+    __IO uint32_t RG;       /*!< Timer Register                               */
+    __I uint32_t CP;        /*!< Capture Register                             */
+} TSB_T16A_TypeDef;
 
 /**
   * @brief Serial Interface (TSPI)
   */
-    typedef struct {
-        __IO uint32_t CR0;      /*!< TSPI Control Register 0                      */
-        __IO uint32_t CR1;      /*!< TSPI Control Register 1                      */
-        __IO uint32_t CR2;      /*!< TSPI Control Register 2                      */
-        __IO uint32_t CR3;      /*!< TSPI Control Register 3                      */
-        __IO uint32_t BR;       /*!< TSPI Baud Rate Generator Control Register    */
-        __IO uint32_t FMTR0;    /*!< TSPI Format Control Register 0               */
-        __IO uint32_t FMTR1;    /*!< TSPI Format Control Register 1               */
-        uint32_t RESERVED0[57];
-        __IO uint32_t DR;       /*!< TSPI Data Register                           */
-        uint32_t RESERVED1[63];
-        __IO uint32_t SR;       /*!< TSPI Status Register                         */
-        __IO uint32_t ERR;      /*!< TSPI Parity Error Flag Register              */
-    } TSB_TSPI_TypeDef;
+typedef struct {
+    __IO uint32_t CR0;      /*!< TSPI Control Register 0                      */
+    __IO uint32_t CR1;      /*!< TSPI Control Register 1                      */
+    __IO uint32_t CR2;      /*!< TSPI Control Register 2                      */
+    __IO uint32_t CR3;      /*!< TSPI Control Register 3                      */
+    __IO uint32_t BR;       /*!< TSPI Baud Rate Generator Control Register    */
+    __IO uint32_t FMTR0;    /*!< TSPI Format Control Register 0               */
+    __IO uint32_t FMTR1;    /*!< TSPI Format Control Register 1               */
+    uint32_t RESERVED0[57];
+    __IO uint32_t DR;       /*!< TSPI Data Register                           */
+    uint32_t RESERVED1[63];
+    __IO uint32_t SR;       /*!< TSPI Status Register                         */
+    __IO uint32_t ERR;      /*!< TSPI Parity Error Flag Register              */
+} TSB_TSPI_TypeDef;
 
 #if defined ( __CC_ARM   )      /* RealView Compiler */
 #pragma anon_unions
@@ -325,369 +325,369 @@ extern "C" {
 #endif
 
 /**
-  * @brief I2C 
+  * @brief I2C
   */
-    typedef struct {
-        __IO uint32_t CR1;      /*!< I2C Control Register 1                       */
-        __IO uint32_t DBR;      /*!< Data Buffer Register                         */
-        __IO uint32_t AR;       /*!< Bus address Register                         */
-        union {
-            __O uint32_t CR2;   /*!< Control Register 2                           */
-            __I uint32_t SR;    /*!< Status Register                              */
-        };
-        __IO uint32_t PRS;      /*!< Prescaler clcok setting Register             */
-        __IO uint32_t IE;       /*!< Interrupt Enable Register                    */
-        __IO uint32_t ST;       /*!< Interrupt Register                           */
-        __IO uint32_t OP;       /*!< Optiononal Function register                 */
-        __I uint32_t PM;        /*!< Bus Monitor register                         */
-        __IO uint32_t AR2;      /*!< Second Slave address register                */
-    } TSB_I2C_TypeDef;
+typedef struct {
+    __IO uint32_t CR1;      /*!< I2C Control Register 1                       */
+    __IO uint32_t DBR;      /*!< Data Buffer Register                         */
+    __IO uint32_t AR;       /*!< Bus address Register                         */
+    union {
+        __O uint32_t CR2;   /*!< Control Register 2                           */
+        __I uint32_t SR;    /*!< Status Register                              */
+    };
+    __IO uint32_t PRS;      /*!< Prescaler clcok setting Register             */
+    __IO uint32_t IE;       /*!< Interrupt Enable Register                    */
+    __IO uint32_t ST;       /*!< Interrupt Register                           */
+    __IO uint32_t OP;       /*!< Optiononal Function register                 */
+    __I uint32_t PM;        /*!< Bus Monitor register                         */
+    __IO uint32_t AR2;      /*!< Second Slave address register                */
+} TSB_I2C_TypeDef;
 
 /**
   * @brief Port A
   */
-    typedef struct {
-        __IO uint32_t DATA;     /*!< PA Data Register                             */
-        __IO uint32_t CR;       /*!< PA Control Register                          */
-        __IO uint32_t FR1;      /*!< PA Function Register 1                       */
-        uint32_t RESERVED0[7];
-        __IO uint32_t OD;       /*!< PA Open Drain Control Register               */
-        __IO uint32_t PUP;      /*!< PA Pull-up Control Register                  */
-        __IO uint32_t PDN;      /*!< PA Pull-Down Control Register                */
-        uint32_t RESERVED1;
-        __IO uint32_t IE;       /*!< PA Input Enable Control Register             */
-    } TSB_PA_TypeDef;
+typedef struct {
+    __IO uint32_t DATA;     /*!< PA Data Register                             */
+    __IO uint32_t CR;       /*!< PA Control Register                          */
+    __IO uint32_t FR1;      /*!< PA Function Register 1                       */
+    uint32_t RESERVED0[7];
+    __IO uint32_t OD;       /*!< PA Open Drain Control Register               */
+    __IO uint32_t PUP;      /*!< PA Pull-up Control Register                  */
+    __IO uint32_t PDN;      /*!< PA Pull-Down Control Register                */
+    uint32_t RESERVED1;
+    __IO uint32_t IE;       /*!< PA Input Enable Control Register             */
+} TSB_PA_TypeDef;
 
 /**
   * @brief Port B
   */
-    typedef struct {
-        __IO uint32_t DATA;     /*!< PB Data Register                             */
-        __IO uint32_t CR;       /*!< PB Control Register                          */
-        uint32_t RESERVED0[8];
-        __IO uint32_t OD;       /*!< PB Open Drain Control Register               */
-        __IO uint32_t PUP;      /*!< PB Pull-up Control Register                  */
-        __IO uint32_t PDN;      /*!< PB Pull-Down Control Register                */
-        uint32_t RESERVED1;
-        __IO uint32_t IE;       /*!< PB Input Enable Control Register             */
-    } TSB_PB_TypeDef;
+typedef struct {
+    __IO uint32_t DATA;     /*!< PB Data Register                             */
+    __IO uint32_t CR;       /*!< PB Control Register                          */
+    uint32_t RESERVED0[8];
+    __IO uint32_t OD;       /*!< PB Open Drain Control Register               */
+    __IO uint32_t PUP;      /*!< PB Pull-up Control Register                  */
+    __IO uint32_t PDN;      /*!< PB Pull-Down Control Register                */
+    uint32_t RESERVED1;
+    __IO uint32_t IE;       /*!< PB Input Enable Control Register             */
+} TSB_PB_TypeDef;
 
 /**
   * @brief Port C
   */
-    typedef struct {
-        __IO uint32_t DATA;     /*!< PC Data Register                             */
-        __IO uint32_t CR;       /*!< PC Control Register                          */
-        __IO uint32_t FR1;      /*!< PC Function Register 1                       */
-        uint32_t RESERVED0[7];
-        __IO uint32_t OD;       /*!< PC Open Drain Control Register               */
-        __IO uint32_t PUP;      /*!< PC Pull-up Control Register                  */
-        __IO uint32_t PDN;      /*!< PC Pull-Down Control Register                */
-        __IO uint32_t SEL;      /*!< PC input voltage selection Register          */
-        __IO uint32_t IE;       /*!< PC Input Enable Control Register             */
-    } TSB_PC_TypeDef;
+typedef struct {
+    __IO uint32_t DATA;     /*!< PC Data Register                             */
+    __IO uint32_t CR;       /*!< PC Control Register                          */
+    __IO uint32_t FR1;      /*!< PC Function Register 1                       */
+    uint32_t RESERVED0[7];
+    __IO uint32_t OD;       /*!< PC Open Drain Control Register               */
+    __IO uint32_t PUP;      /*!< PC Pull-up Control Register                  */
+    __IO uint32_t PDN;      /*!< PC Pull-Down Control Register                */
+    __IO uint32_t SEL;      /*!< PC input voltage selection Register          */
+    __IO uint32_t IE;       /*!< PC Input Enable Control Register             */
+} TSB_PC_TypeDef;
 
 /**
   * @brief Port D
   */
-    typedef struct {
-        __IO uint32_t DATA;     /*!< PD Data Register                             */
-        __IO uint32_t CR;       /*!< PD Control Register                          */
-        __IO uint32_t FR1;      /*!< PD Function Register 1                       */
-        __IO uint32_t FR2;      /*!< PD Function Register 2                       */
-        uint32_t RESERVED0[6];
-        __IO uint32_t OD;       /*!< PD Open Drain Control Register               */
-        __IO uint32_t PUP;      /*!< PD Pull-up Control Register                  */
-        __IO uint32_t PDN;      /*!< PD Pull-Down Control Register                */
-        __IO uint32_t SEL;      /*!< PD input voltage selection Register          */
-        __IO uint32_t IE;       /*!< PD Input Enable Control Register             */
-    } TSB_PD_TypeDef;
+typedef struct {
+    __IO uint32_t DATA;     /*!< PD Data Register                             */
+    __IO uint32_t CR;       /*!< PD Control Register                          */
+    __IO uint32_t FR1;      /*!< PD Function Register 1                       */
+    __IO uint32_t FR2;      /*!< PD Function Register 2                       */
+    uint32_t RESERVED0[6];
+    __IO uint32_t OD;       /*!< PD Open Drain Control Register               */
+    __IO uint32_t PUP;      /*!< PD Pull-up Control Register                  */
+    __IO uint32_t PDN;      /*!< PD Pull-Down Control Register                */
+    __IO uint32_t SEL;      /*!< PD input voltage selection Register          */
+    __IO uint32_t IE;       /*!< PD Input Enable Control Register             */
+} TSB_PD_TypeDef;
 
 /**
   * @brief Port E
   */
-    typedef struct {
-        __IO uint32_t DATA;     /*!< PE Data Register                             */
-        __IO uint32_t CR;       /*!< PE Control Register                          */
-        __IO uint32_t FR1;      /*!< PE Function Register 1                       */
-        __IO uint32_t FR2;      /*!< PE Function Register 2                       */
-        uint32_t RESERVED0[6];
-        __IO uint32_t OD;       /*!< PE Open Drain Control Register               */
-        __IO uint32_t PUP;      /*!< PE Pull-up Control Register                  */
-        __IO uint32_t PDN;      /*!< PE Pull-Down Control Register                */
-        uint32_t RESERVED1;
-        __IO uint32_t IE;       /*!< PE Input Enable Control Register             */
-    } TSB_PE_TypeDef;
+typedef struct {
+    __IO uint32_t DATA;     /*!< PE Data Register                             */
+    __IO uint32_t CR;       /*!< PE Control Register                          */
+    __IO uint32_t FR1;      /*!< PE Function Register 1                       */
+    __IO uint32_t FR2;      /*!< PE Function Register 2                       */
+    uint32_t RESERVED0[6];
+    __IO uint32_t OD;       /*!< PE Open Drain Control Register               */
+    __IO uint32_t PUP;      /*!< PE Pull-up Control Register                  */
+    __IO uint32_t PDN;      /*!< PE Pull-Down Control Register                */
+    uint32_t RESERVED1;
+    __IO uint32_t IE;       /*!< PE Input Enable Control Register             */
+} TSB_PE_TypeDef;
 
 /**
-  * @brief Port F 
+  * @brief Port F
   */
-    typedef struct {
-        __IO uint32_t DATA;     /*!< PF Data Register                             */
-        __IO uint32_t CR;       /*!< PF Control Register                          */
-        __IO uint32_t FR1;      /*!< PF Function Register 1                       */
-        __IO uint32_t FR2;      /*!< PF Function Register 2                       */
-        uint32_t RESERVED0[6];
-        __IO uint32_t OD;       /*!< PF Open Drain Control Register               */
-        __IO uint32_t PUP;      /*!< PF Pull-up Control Register                  */
-        __IO uint32_t PDN;      /*!< PF Pull-Down Control Register                */
-        uint32_t RESERVED1;
-        __IO uint32_t IE;       /*!< PF Input Enable Control Register             */
-    } TSB_PF_TypeDef;
+typedef struct {
+    __IO uint32_t DATA;     /*!< PF Data Register                             */
+    __IO uint32_t CR;       /*!< PF Control Register                          */
+    __IO uint32_t FR1;      /*!< PF Function Register 1                       */
+    __IO uint32_t FR2;      /*!< PF Function Register 2                       */
+    uint32_t RESERVED0[6];
+    __IO uint32_t OD;       /*!< PF Open Drain Control Register               */
+    __IO uint32_t PUP;      /*!< PF Pull-up Control Register                  */
+    __IO uint32_t PDN;      /*!< PF Pull-Down Control Register                */
+    uint32_t RESERVED1;
+    __IO uint32_t IE;       /*!< PF Input Enable Control Register             */
+} TSB_PF_TypeDef;
 
 /**
   * @brief Port G
   */
-    typedef struct {
-        __IO uint32_t DATA;     /*!< PG Data Register                             */
-        __IO uint32_t CR;       /*!< PG Control Register                          */
-        __IO uint32_t FR1;      /*!< PG Function Register 1                       */
-        uint32_t RESERVED0[7];
-        __IO uint32_t OD;       /*!< PG Open Drain Control Register               */
-        __IO uint32_t PUP;      /*!< PG Pull-up Control Register                  */
-        __IO uint32_t PDN;      /*!< PG Pull-Down Control Register                */
-        __IO uint32_t SEL;      /*!< PG input voltage selection Register          */
-        __IO uint32_t IE;       /*!< PG Input Enable Control Register             */
-    } TSB_PG_TypeDef;
+typedef struct {
+    __IO uint32_t DATA;     /*!< PG Data Register                             */
+    __IO uint32_t CR;       /*!< PG Control Register                          */
+    __IO uint32_t FR1;      /*!< PG Function Register 1                       */
+    uint32_t RESERVED0[7];
+    __IO uint32_t OD;       /*!< PG Open Drain Control Register               */
+    __IO uint32_t PUP;      /*!< PG Pull-up Control Register                  */
+    __IO uint32_t PDN;      /*!< PG Pull-Down Control Register                */
+    __IO uint32_t SEL;      /*!< PG input voltage selection Register          */
+    __IO uint32_t IE;       /*!< PG Input Enable Control Register             */
+} TSB_PG_TypeDef;
 
 /**
   * @brief Port H
   */
-    typedef struct {
-        __IO uint32_t DATA;     /*!< PH Data Register                             */
-        __IO uint32_t CR;       /*!< PH Control Register                          */
-        __IO uint32_t FR1;      /*!< PF Function Register 1                       */
-        uint32_t RESERVED0[7];
-        __IO uint32_t OD;       /*!< PH Open Drain Control Register               */
-        __IO uint32_t PUP;      /*!< PH Pull-up Control Register                  */
-        __IO uint32_t PDN;      /*!< PH Pull-Down Control Register                */
-        uint32_t RESERVED1;
-        __IO uint32_t IE;       /*!< PH Input Enable Control Register             */
-    } TSB_PH_TypeDef;
+typedef struct {
+    __IO uint32_t DATA;     /*!< PH Data Register                             */
+    __IO uint32_t CR;       /*!< PH Control Register                          */
+    __IO uint32_t FR1;      /*!< PF Function Register 1                       */
+    uint32_t RESERVED0[7];
+    __IO uint32_t OD;       /*!< PH Open Drain Control Register               */
+    __IO uint32_t PUP;      /*!< PH Pull-up Control Register                  */
+    __IO uint32_t PDN;      /*!< PH Pull-Down Control Register                */
+    uint32_t RESERVED1;
+    __IO uint32_t IE;       /*!< PH Input Enable Control Register             */
+} TSB_PH_TypeDef;
 
 /**
   * @brief Port J
   */
-    typedef struct {
-        __IO uint32_t DATA;     /*!< PJ Data Register                             */
-        __IO uint32_t CR;       /*!< PJ Control Register                          */
-        __IO uint32_t FR1;      /*!< PJ Function Register 1                       */
-        uint32_t RESERVED0[7];
-        __IO uint32_t OD;       /*!< PJ Open Drain Control Register               */
-        __IO uint32_t PUP;      /*!< PJ Pull-up Control Register                  */
-        __IO uint32_t PDN;      /*!< PJ Pull-Down Control Register                */
-        uint32_t RESERVED1;
-        __IO uint32_t IE;       /*!< PJ Input Enable Control Register             */
-    } TSB_PJ_TypeDef;
+typedef struct {
+    __IO uint32_t DATA;     /*!< PJ Data Register                             */
+    __IO uint32_t CR;       /*!< PJ Control Register                          */
+    __IO uint32_t FR1;      /*!< PJ Function Register 1                       */
+    uint32_t RESERVED0[7];
+    __IO uint32_t OD;       /*!< PJ Open Drain Control Register               */
+    __IO uint32_t PUP;      /*!< PJ Pull-up Control Register                  */
+    __IO uint32_t PDN;      /*!< PJ Pull-Down Control Register                */
+    uint32_t RESERVED1;
+    __IO uint32_t IE;       /*!< PJ Input Enable Control Register             */
+} TSB_PJ_TypeDef;
 
 /**
   * @brief 16-bit Timer/Event Counter (TB)
   */
-    typedef struct {
-        __IO uint32_t EN;       /*!< TB Enable Register                           */
-        __IO uint32_t RUN;      /*!< TB RUN Register                              */
-        __IO uint32_t CR;       /*!< TB Control Register                          */
-        __IO uint32_t MOD;      /*!< TB Mode Register                             */
-        __IO uint32_t FFCR;     /*!< TB Flip-Flop Control Register                */
-        __I uint32_t ST;        /*!< TB Status Register                           */
-        __IO uint32_t IM;       /*!< TB Interrupt Mask Register                   */
-        __I uint32_t UC;        /*!< TB Read Capture Register                     */
-        __IO uint32_t RG0;      /*!< TB RG0 Timer Register                        */
-        __IO uint32_t RG1;      /*!< TB RG1 Timer Register                        */
-        __I uint32_t CP0;       /*!< TB CP0 Capture Register                      */
-        __I uint32_t CP1;       /*!< TB CP1 Capture Register                      */
-        __IO uint32_t DMA;      /*!< TB DMA Enable Register                       */
-    } TSB_TB_TypeDef;
+typedef struct {
+    __IO uint32_t EN;       /*!< TB Enable Register                           */
+    __IO uint32_t RUN;      /*!< TB RUN Register                              */
+    __IO uint32_t CR;       /*!< TB Control Register                          */
+    __IO uint32_t MOD;      /*!< TB Mode Register                             */
+    __IO uint32_t FFCR;     /*!< TB Flip-Flop Control Register                */
+    __I uint32_t ST;        /*!< TB Status Register                           */
+    __IO uint32_t IM;       /*!< TB Interrupt Mask Register                   */
+    __I uint32_t UC;        /*!< TB Read Capture Register                     */
+    __IO uint32_t RG0;      /*!< TB RG0 Timer Register                        */
+    __IO uint32_t RG1;      /*!< TB RG1 Timer Register                        */
+    __I uint32_t CP0;       /*!< TB CP0 Capture Register                      */
+    __I uint32_t CP1;       /*!< TB CP1 Capture Register                      */
+    __IO uint32_t DMA;      /*!< TB DMA Enable Register                       */
+} TSB_TB_TypeDef;
 
 /**
   * @brief SC
   */
-    typedef struct {
-        __IO uint32_t EN;       /*!< SC Enable Register                           */
-        __IO uint32_t BUF;      /*!< SC Buffer Register                           */
-        __IO uint32_t CR;       /*!< SC Control Register                          */
-        __IO uint32_t MOD0;     /*!< SC Mode Control Register 0                   */
-        __IO uint32_t BRCR;     /*!< SC Baud Rate Generator Control Register      */
-        __IO uint32_t BRADD;    /*!< SC Baud Rate Generator Control Register 2    */
-        __IO uint32_t MOD1;     /*!< SC Mode Control Register 1                   */
-        __IO uint32_t MOD2;     /*!< SC Mode Control Register 2                   */
-        __IO uint32_t RFC;      /*!< SC RX FIFO Configuration Register            */
-        __IO uint32_t TFC;      /*!< SC TX FIFO Configuration Register            */
-        __I uint32_t RST;       /*!< SC RX FIFO Status Register                   */
-        __I uint32_t TST;       /*!< SC TX FIFO Status Register                   */
-        __IO uint32_t FCNF;     /*!< SC FIFO Configuration Register               */
-        __IO uint32_t DMA;      /*!< SC DMA Request Register                      */
-    } TSB_SC_TypeDef;
+typedef struct {
+    __IO uint32_t EN;       /*!< SC Enable Register                           */
+    __IO uint32_t BUF;      /*!< SC Buffer Register                           */
+    __IO uint32_t CR;       /*!< SC Control Register                          */
+    __IO uint32_t MOD0;     /*!< SC Mode Control Register 0                   */
+    __IO uint32_t BRCR;     /*!< SC Baud Rate Generator Control Register      */
+    __IO uint32_t BRADD;    /*!< SC Baud Rate Generator Control Register 2    */
+    __IO uint32_t MOD1;     /*!< SC Mode Control Register 1                   */
+    __IO uint32_t MOD2;     /*!< SC Mode Control Register 2                   */
+    __IO uint32_t RFC;      /*!< SC RX FIFO Configuration Register            */
+    __IO uint32_t TFC;      /*!< SC TX FIFO Configuration Register            */
+    __I uint32_t RST;       /*!< SC RX FIFO Status Register                   */
+    __I uint32_t TST;       /*!< SC TX FIFO Status Register                   */
+    __IO uint32_t FCNF;     /*!< SC FIFO Configuration Register               */
+    __IO uint32_t DMA;      /*!< SC DMA Request Register                      */
+} TSB_SC_TypeDef;
 
 /**
   * @brief WDT
   */
-    typedef struct {
-        __IO uint32_t MOD;      /*!< WD Mode Register                             */
-        __O uint32_t CR;        /*!< WD Control Register                          */
-        __I uint32_t FLG;       /*!< WD Flag Register                             */
-    } TSB_WD_TypeDef;
+typedef struct {
+    __IO uint32_t MOD;      /*!< WD Mode Register                             */
+    __O uint32_t CR;        /*!< WD Control Register                          */
+    __I uint32_t FLG;       /*!< WD Flag Register                             */
+} TSB_WD_TypeDef;
 
 /**
   * @brief CG
   */
-    typedef struct {
-        __IO uint32_t PROTECT;  /*!< Protect Register                             */
-        __IO uint32_t OSCCR;    /*!< Oscillation Control Register                 */
-        __IO uint32_t SYSCR;    /*!< System clock control register                */
-        __IO uint32_t STBYCR;   /*!< Standby Control Register                     */
-        uint32_t RESERVED0[4];
-        __IO uint32_t PLL0SEL;  /*!< PLL select register for fsys                 */
-        uint32_t RESERVED1[3];
-        __IO uint32_t WUPHCR;   /*!< Warmup register for HOSC                     */
-        uint32_t RESERVED2[7];
-        __IO uint32_t FSYSENA;  /*!< output control register A  for fsys clock    */
-        __O uint32_t FSYSENB;   /*!< output control register B  for fsys clock    */
-        uint32_t RESERVED3;
-        __IO uint32_t SPCLKEN;  /*!< Output control register for ADC and TRACE CLOCK */
-        __IO uint32_t EXTENDO0; /*!< Optional Function setting Register           */
-    } TSB_CG_TypeDef;
+typedef struct {
+    __IO uint32_t PROTECT;  /*!< Protect Register                             */
+    __IO uint32_t OSCCR;    /*!< Oscillation Control Register                 */
+    __IO uint32_t SYSCR;    /*!< System clock control register                */
+    __IO uint32_t STBYCR;   /*!< Standby Control Register                     */
+    uint32_t RESERVED0[4];
+    __IO uint32_t PLL0SEL;  /*!< PLL select register for fsys                 */
+    uint32_t RESERVED1[3];
+    __IO uint32_t WUPHCR;   /*!< Warmup register for HOSC                     */
+    uint32_t RESERVED2[7];
+    __IO uint32_t FSYSENA;  /*!< output control register A  for fsys clock    */
+    __O uint32_t FSYSENB;   /*!< output control register B  for fsys clock    */
+    uint32_t RESERVED3;
+    __IO uint32_t SPCLKEN;  /*!< Output control register for ADC and TRACE CLOCK */
+    __IO uint32_t EXTENDO0; /*!< Optional Function setting Register           */
+} TSB_CG_TypeDef;
 
 /**
   * @brief LVD
   */
-    typedef struct {
-        __IO uint32_t CR0;      /*!< LVD Control register0                        */
-        __IO uint32_t CR1;      /*!< LVD Control register1                        */
-    } TSB_LVD_TypeDef;
+typedef struct {
+    __IO uint32_t CR0;      /*!< LVD Control register0                        */
+    __IO uint32_t CR1;      /*!< LVD Control register1                        */
+} TSB_LVD_TypeDef;
 
 /**
   * @brief SD Area register1
   */
-    typedef struct {
-        uint8_t RESERVED0[16];
-        __IO uint8_t STOP1INT_016;      /*!< STOP1INT(NMI_LVD) I/F Control Register in SD Area */
-        __IO uint8_t STOP1INT_017;      /*!< STOP1INT(NMI_LVD) I/F Control Register in SD Area */
-        __IO uint8_t IDLEINT_018;       /*!< ILDEINT(NMI_WDT) I/F Control Register in SD Area */
-        uint8_t RESERVED1[77];
-        __IO uint8_t IDLEINT_096;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_097;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_098;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_099;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_100;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_101;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_102;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_103;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_104;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_105;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_106;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_107;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_108;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_109;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_110;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_111;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_112;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_113;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_114;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_115;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_116;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_117;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_118;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_119;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_120;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_121;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_122;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_123;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_124;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_125;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_126;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_127;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_128;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_129;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_130;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_131;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_132;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_133;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_134;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_135;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_136;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_137;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_138;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_139;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_140;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_141;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_142;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_143;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_144;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_145;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_146;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_147;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_148;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_149;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_150;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_151;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_152;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_153;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_154;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_155;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_156;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_157;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_158;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_159;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_160;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_161;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_162;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_163;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_164;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_165;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_166;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_167;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_168;       /*!< IDLEINT I/F Control Register in SD Area      */
-        __IO uint8_t IDLEINT_169;       /*!< IDLEINT I/F Control Register in SD Area      */
-        uint32_t RESERVED2[21];
-        __I uint32_t FLAG0;     /*!< NMI interrupt status flag register           */
-        __I uint32_t FLAG1;     /*!< interrupt status flag register1 for AO area  */
-        uint32_t RESERVED3;
-        __I uint32_t FLAG3;     /*!< interrupt status flag register3 for SD area  */
-        __I uint32_t FLAG4;     /*!< interrupt status flag register4 for SD area  */
-        __I uint32_t FLAG5;     /*!< interrupt status flag register5 for SD area  */
-    } TSB_INTIFSD_TypeDef;
+typedef struct {
+    uint8_t RESERVED0[16];
+    __IO uint8_t STOP1INT_016;      /*!< STOP1INT(NMI_LVD) I/F Control Register in SD Area */
+    __IO uint8_t STOP1INT_017;      /*!< STOP1INT(NMI_LVD) I/F Control Register in SD Area */
+    __IO uint8_t IDLEINT_018;       /*!< ILDEINT(NMI_WDT) I/F Control Register in SD Area */
+    uint8_t RESERVED1[77];
+    __IO uint8_t IDLEINT_096;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_097;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_098;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_099;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_100;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_101;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_102;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_103;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_104;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_105;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_106;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_107;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_108;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_109;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_110;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_111;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_112;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_113;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_114;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_115;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_116;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_117;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_118;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_119;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_120;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_121;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_122;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_123;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_124;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_125;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_126;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_127;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_128;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_129;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_130;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_131;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_132;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_133;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_134;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_135;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_136;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_137;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_138;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_139;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_140;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_141;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_142;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_143;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_144;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_145;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_146;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_147;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_148;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_149;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_150;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_151;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_152;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_153;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_154;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_155;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_156;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_157;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_158;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_159;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_160;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_161;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_162;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_163;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_164;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_165;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_166;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_167;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_168;       /*!< IDLEINT I/F Control Register in SD Area      */
+    __IO uint8_t IDLEINT_169;       /*!< IDLEINT I/F Control Register in SD Area      */
+    uint32_t RESERVED2[21];
+    __I uint32_t FLAG0;     /*!< NMI interrupt status flag register           */
+    __I uint32_t FLAG1;     /*!< interrupt status flag register1 for AO area  */
+    uint32_t RESERVED3;
+    __I uint32_t FLAG3;     /*!< interrupt status flag register3 for SD area  */
+    __I uint32_t FLAG4;     /*!< interrupt status flag register4 for SD area  */
+    __I uint32_t FLAG5;     /*!< interrupt status flag register5 for SD area  */
+} TSB_INTIFSD_TypeDef;
 
 /**
   * @brief ADC
   */
-    typedef struct {
-        __IO uint32_t CLK;      /*!< AD Conversion Clock Setting Register         */
-        __IO uint32_t MOD0;     /*!< AD Mode Control Register 0                   */
-        __IO uint32_t MOD1;     /*!< AD Mode Control Register 1                   */
-        __IO uint32_t MOD2;     /*!< AD Mode Control Register 2                   */
-        __IO uint32_t MOD3;     /*!< AD Mode Control Register 3                   */
-        __IO uint32_t MOD4;     /*!< AD Mode Control Register 4                   */
-        __IO uint32_t MOD5;     /*!< AD Mode Control Register 5                   */
-        __IO uint32_t MOD6;     /*!< AD Mode Control Register 6                   */
-        uint32_t RESERVED0[4];
-        __I uint32_t REG0;      /*!< AD Conversion Result Register 0              */
-        __I uint32_t REG1;      /*!< AD Conversion Result Register 1              */
-        __I uint32_t REG2;      /*!< AD Conversion Result Register 2              */
-        __I uint32_t REG3;      /*!< AD Conversion Result Register 3              */
-        __I uint32_t REG4;      /*!< AD Conversion Result Register 4              */
-        __I uint32_t REG5;      /*!< AD Conversion Result Register 5              */
-        __I uint32_t REG6;      /*!< AD Conversion Result Register 6              */
-        __I uint32_t REG7;      /*!< AD Conversion Result Register 7              */
-        uint32_t RESERVED1[4];
-        __I uint32_t REGSP;     /*!< AD Conversion Result Register SP             */
-        __IO uint32_t CMP0;     /*!< AD Conversion Result comparing register0     */
-        __IO uint32_t CMP1;     /*!< AD Conversion result comparing register1     */
-    } TSB_AD_TypeDef;
+typedef struct {
+    __IO uint32_t CLK;      /*!< AD Conversion Clock Setting Register         */
+    __IO uint32_t MOD0;     /*!< AD Mode Control Register 0                   */
+    __IO uint32_t MOD1;     /*!< AD Mode Control Register 1                   */
+    __IO uint32_t MOD2;     /*!< AD Mode Control Register 2                   */
+    __IO uint32_t MOD3;     /*!< AD Mode Control Register 3                   */
+    __IO uint32_t MOD4;     /*!< AD Mode Control Register 4                   */
+    __IO uint32_t MOD5;     /*!< AD Mode Control Register 5                   */
+    __IO uint32_t MOD6;     /*!< AD Mode Control Register 6                   */
+    uint32_t RESERVED0[4];
+    __I uint32_t REG0;      /*!< AD Conversion Result Register 0              */
+    __I uint32_t REG1;      /*!< AD Conversion Result Register 1              */
+    __I uint32_t REG2;      /*!< AD Conversion Result Register 2              */
+    __I uint32_t REG3;      /*!< AD Conversion Result Register 3              */
+    __I uint32_t REG4;      /*!< AD Conversion Result Register 4              */
+    __I uint32_t REG5;      /*!< AD Conversion Result Register 5              */
+    __I uint32_t REG6;      /*!< AD Conversion Result Register 6              */
+    __I uint32_t REG7;      /*!< AD Conversion Result Register 7              */
+    uint32_t RESERVED1[4];
+    __I uint32_t REGSP;     /*!< AD Conversion Result Register SP             */
+    __IO uint32_t CMP0;     /*!< AD Conversion Result comparing register0     */
+    __IO uint32_t CMP1;     /*!< AD Conversion result comparing register1     */
+} TSB_AD_TypeDef;
 
 /**
   * @brief FC
   */
-    typedef struct {
-        uint32_t RESERVED0[4];
-        __IO uint32_t SECBIT;   /*!< FC Security Bit Register                     */
-        uint32_t RESERVED1[3];
-        __I uint32_t SR;        /*!< FC Flash Status Register                     */
-        uint32_t RESERVED2[3];
-        __I uint32_t PSRA;      /*!< FC Protect status register                   */
-        uint32_t RESERVED3;
-        __IO uint32_t PMRA;     /*!< FC Protect Mask register                     */
-    } TSB_FC_TypeDef;
+typedef struct {
+    uint32_t RESERVED0[4];
+    __IO uint32_t SECBIT;   /*!< FC Security Bit Register                     */
+    uint32_t RESERVED1[3];
+    __I uint32_t SR;        /*!< FC Flash Status Register                     */
+    uint32_t RESERVED2[3];
+    __I uint32_t PSRA;      /*!< FC Protect status register                   */
+    uint32_t RESERVED3;
+    __IO uint32_t PMRA;     /*!< FC Protect Mask register                     */
+} TSB_FC_TypeDef;
 
 
 /* Memory map */
@@ -2276,7 +2276,7 @@ extern "C" {
 #define TSB_AD_MOD6_ADM0DMA                       (*((__IO uint32_t *)BITBAND_PERI(&TSB_AD->MOD6,2)))
 #define TSB_AD_MOD6_ADM1DMA                       (*((__IO uint32_t *)BITBAND_PERI(&TSB_AD->MOD6,3)))
 
-    /** @} *//* End of group Device_Peripheral_registers */
+/** @} *//* End of group Device_Peripheral_registers */
 
 #ifdef __cplusplus
 }

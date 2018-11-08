@@ -100,7 +100,7 @@ uint32_t OTA_UpateHeader(uint32_t base, imginfo_t *img)
     flash_ext_write_word(&flash_obj, base + OTA_TAG_OFS, img->tag);
     flash_ext_write_word(&flash_obj, base + OTA_VER_OFS, img->ver);
     flash_ext_write_word(&flash_obj, base + OTA_EPOCH_OFS, img->timestamp >> 32);
-    flash_ext_write_word(&flash_obj, base + OTA_EPOCH_OFS + 4, (img->timestamp << 32) >> 32); 
+    flash_ext_write_word(&flash_obj, base + OTA_EPOCH_OFS + 4, (img->timestamp << 32) >> 32);
 
     flash_ext_write_word(&flash_obj, base + OTA_SIZE_OFS, img->size);
     flash_ext_stream_write(&flash_obj, base + OTA_HASH_OFS, 32, img->hash);
@@ -120,8 +120,8 @@ uint32_t OTA_UpdateImage(uint32_t base, uint32_t offset, uint32_t len, uint8_t *
     end = start + len;
 
     if (data == NULL ||
-        base != OTA_REGION1_BASE || base != OTA_REGION2_BASE ||
-        start > FLASH_TOP || end > FLASH_TOP) {
+            base != OTA_REGION1_BASE || base != OTA_REGION2_BASE ||
+            start > FLASH_TOP || end > FLASH_TOP) {
         return 0;
     }
 
@@ -156,8 +156,8 @@ uint32_t OTA_ReadImage(uint32_t base, uint32_t offset, uint32_t len, uint8_t *da
     end = start + len;
 
     if (data == NULL ||
-        base != OTA_REGION1_BASE || base != OTA_REGION2_BASE ||
-        start > FLASH_TOP || end > FLASH_TOP) {
+            base != OTA_REGION1_BASE || base != OTA_REGION2_BASE ||
+            start > FLASH_TOP || end > FLASH_TOP) {
         return 0;
     }
 

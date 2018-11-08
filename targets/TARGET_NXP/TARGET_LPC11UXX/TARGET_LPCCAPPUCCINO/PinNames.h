@@ -96,7 +96,7 @@ typedef enum {
 
     // Other mbed Pin Names
     LED1 = P1_19,
-    LED2 = P1_19,	// Negative On
+    LED2 = P1_19,   // Negative On
     LED3 = P1_19,
     LED4 = P1_19,
 

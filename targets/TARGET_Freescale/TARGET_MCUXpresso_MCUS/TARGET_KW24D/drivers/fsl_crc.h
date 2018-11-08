@@ -62,15 +62,13 @@
 #endif
 
 /*! @brief CRC bit width */
-typedef enum _crc_bits
-{
+typedef enum _crc_bits {
     kCrcBits16 = 0U, /*!< Generate 16-bit CRC code  */
     kCrcBits32 = 1U  /*!< Generate 32-bit CRC code  */
 } crc_bits_t;
 
 /*! @brief CRC result type */
-typedef enum _crc_result
-{
+typedef enum _crc_result {
     kCrcFinalChecksum = 0U,       /*!< CRC data register read value is the final checksum.
                                       Reflect out and final xor protocol features are applied. */
     kCrcIntermediateChecksum = 1U /*!< CRC data register read value is intermediate checksum (raw value).
@@ -85,8 +83,7 @@ typedef enum _crc_result
 * This structure holds the configuration for the CRC protocol.
 *
 */
-typedef struct _crc_config
-{
+typedef struct _crc_config {
     uint32_t polynomial;     /*!< CRC Polynomial, MSBit first.
                                   Example polynomial: 0x1021 = 1_0000_0010_0001 = x^12+x^5+1 */
     uint32_t seed;           /*!< Starting checksum value */

@@ -30,9 +30,9 @@
 #define CEU_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_ceu
-{                                                          /* CEU              */
-/* start of struct st_ceu_n */
+struct st_ceu {
+    /* CEU              */
+    /* start of struct st_ceu_n */
     volatile uint32_t  CAPSR;                                  /*  CAPSR           */
     volatile uint32_t  CAPCR;                                  /*  CAPCR           */
     volatile uint32_t  CAMCR;                                  /*  CAMCR           */
@@ -67,9 +67,9 @@ struct st_ceu
     volatile uint32_t  CDACR2_A;                               /*  CDACR2_A        */
     volatile uint32_t  CDBYR2_A;                               /*  CDBYR2_A        */
     volatile uint32_t  CDBCR2_A;                               /*  CDBCR2_A        */
-/* end of struct st_ceu_n */
+    /* end of struct st_ceu_n */
     volatile uint8_t   dummy3110[3936];                        /*                  */
-/* start of struct st_ceu_n */
+    /* start of struct st_ceu_n */
     volatile uint8_t   dummy3111[4];                           /*                  */
     volatile uint8_t   dummy3112[4];                           /*                  */
     volatile uint8_t   dummy3113[4];                           /*                  */
@@ -104,9 +104,9 @@ struct st_ceu
     volatile uint32_t  CDACR2_B;                               /*  CDACR2_B        */
     volatile uint32_t  CDBYR2_B;                               /*  CDBYR2_B        */
     volatile uint32_t  CDBCR2_B;                               /*  CDBCR2_B        */
-/* end of struct st_ceu_n */
+    /* end of struct st_ceu_n */
     volatile uint8_t   dummy3150[3936];                        /*                  */
-/* start of struct st_ceu_n */
+    /* start of struct st_ceu_n */
     volatile uint8_t   dummy3151[4];                           /*                  */
     volatile uint8_t   dummy3152[4];                           /*                  */
     volatile uint8_t   dummy3153[4];                           /*                  */
@@ -141,12 +141,11 @@ struct st_ceu
     volatile uint32_t  CDACR2_M;                               /*  CDACR2_M        */
     volatile uint32_t  CDBYR2_M;                               /*  CDBYR2_M        */
     volatile uint32_t  CDBCR2_M;                               /*  CDBCR2_M        */
-/* end of struct st_ceu_n */
+    /* end of struct st_ceu_n */
 };
 
 
-struct st_ceu_n
-{
+struct st_ceu_n {
     volatile uint32_t  not_common1;                            /*                  */
     volatile uint32_t  not_common2;                            /*                  */
     volatile uint32_t  not_common3;                            /*                  */

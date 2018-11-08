@@ -23,8 +23,7 @@
 
 #include <stdint.h>                      /* standard types definitions                      */
 
-typedef struct beetle_i2c
-{
+typedef struct beetle_i2c {
     __IO uint32_t CONTROL;         /* RW Control register */
     __I  uint32_t STATUS;          /* RO Status register */
     __IO uint32_t ADDRESS;         /* RW I2C address register */
@@ -37,7 +36,7 @@ typedef struct beetle_i2c
     __O  uint32_t IRQ_ENABLE;      /* WO Interrupt enable register */
     __O  uint32_t IRQ_DISABLE;     /* WO Interrupt disable register */
 
-}I2C_TypeDef;
+} I2C_TypeDef;
 
 #define I2C0_BASE   (0x40007000ul)       /* Shield Header I2C Base Address */
 #define I2C1_BASE   (0x4000E000ul)       /* Onboard I2C Base Address */
@@ -60,15 +59,15 @@ typedef struct beetle_i2c
                                         * the CONTROL register
                                         */
 #define I2C_CTRL_DIVISOR_A_BIT_MASK 0x03
-                                       /*
-                                        * First part of the clock
-                                        * divisor in the CONTROL register
-                                        */
+/*
+ * First part of the clock
+ * divisor in the CONTROL register
+ */
 #define I2C_CTRL_DIVISOR_B_BIT_MASK 0x3F
-                                       /*
-                                        * Second part of the clock
-                                        * divisor in the CONTROL register
-                                        */
+/*
+ * Second part of the clock
+ * divisor in the CONTROL register
+ */
 
 /* Status Register Masks */
 #define I2C_STATUS_RXRW         0x0008 /* Mode of transmission from master */

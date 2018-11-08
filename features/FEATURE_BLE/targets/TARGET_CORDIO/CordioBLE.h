@@ -40,7 +40,7 @@ class BLE : public ::BLEInstanceBase {
     /**
      * Construction with an HCI driver.
      */
-    BLE(CordioHCIDriver& hci_driver);
+    BLE(CordioHCIDriver &hci_driver);
 
     /**
      * Destructor
@@ -53,14 +53,14 @@ public:
      * Access to the singleton containing the implementation of BLEInstanceBase
      * for the Cordio stack.
      */
-    static BLE& deviceInstance();
+    static BLE &deviceInstance();
 
     /**
     * @see BLEInstanceBase::init
     */
     virtual ble_error_t init(
         ::BLE::InstanceID_t instanceID,
-        FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext*> initCallback
+        FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext *> initCallback
     );
 
     /**
@@ -81,12 +81,12 @@ public:
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual Gap& getGap();
+    virtual Gap &getGap();
 
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual const Gap& getGap() const;
+    virtual const Gap &getGap() const;
 
     /**
      * @see BLEInstanceBase::getGattServer
@@ -124,17 +124,17 @@ public:
     virtual void processEvents();
 
 private:
-    static void stack_handler(wsfEventMask_t event, wsfMsgHdr_t* msg);
-    static void device_manager_cb(dmEvt_t* dm_event);
-    static void connection_handler(dmEvt_t* dm_event);
+    static void stack_handler(wsfEventMask_t event, wsfMsgHdr_t *msg);
+    static void device_manager_cb(dmEvt_t *dm_event);
+    static void connection_handler(dmEvt_t *dm_event);
     static void timeoutCallback();
 
     void stack_setup();
     void start_stack_reset();
     void callDispatcher();
 
-    static CordioHCIDriver* _hci_driver;
-    static FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext*> _init_callback;
+    static CordioHCIDriver *_hci_driver;
+    static FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext *> _init_callback;
 
     enum {
         NOT_INITIALIZED,

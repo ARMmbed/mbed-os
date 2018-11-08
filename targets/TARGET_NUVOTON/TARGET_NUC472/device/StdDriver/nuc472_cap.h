@@ -45,7 +45,7 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 #define CAP_PAR_INFMT_YUV422 (0ul<<CAP_PAR_INFMT_Pos)         /*!< CAP PAR setting for Sensor Input Data YUV422 Format   \hideinitializer */
 #define CAP_PAR_INFMT_RGB565 (1ul<<CAP_PAR_INFMT_Pos)         /*!< CAP PAR setting for Sensor Input Data RGB565 Format   \hideinitializer */
-                                                                       
+
 #define CAP_PAR_SENTYPE_CCIR601  (0ul<<CAP_PAR_SENTYPE_Pos)   /*!< CAP PAR setting for Sensor Input CCIR601 Type   \hideinitializer */
 #define CAP_PAR_SENTYPE_CCIR656  (1ul<<CAP_PAR_SENTYPE_Pos)   /*!< CAP PAR setting for Sensor Input CCIR656 Type   \hideinitializer */
 
@@ -106,7 +106,7 @@ static uint32_t u32EscapeFrame = 0;
  * @return   FALSE(Enable) or TRUE(Disable)
  *
  * @details   Check Image Capture Interface module Enable or Disable
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define CAP_IS_STOPPED()  ((ICAP->CTL & CAP_CTL_CAPEN_Msk)?0:1)
 
@@ -122,7 +122,7 @@ static uint32_t u32EscapeFrame = 0;
  * @return    TRUE(Enable) or FALSE(Disable)
  *
  * @details   Clear Image Capture Interface interrupt flag
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define CAP_CLR_INT_FLAG(u32IntMask) (CAP->CAPINT |=u32IntMask)
 
@@ -132,13 +132,13 @@ static uint32_t u32EscapeFrame = 0;
  * @return    TRUE(Enable) or FALSE(Disable)
  *
  * @details   Get Image Capture Interface interrupt status.
- * \hideinitializer 
+ * \hideinitializer
  */
 #define CAP_GET_INT_STS() (CAP->CAPINT)
 
 void CAP_Open(uint32_t u32InFormat, uint32_t u32OutFormet);
-void CAP_SetCroppingWindow(uint32_t u32VStart,uint32_t u32HStart, uint32_t u32Height, uint32_t u32Width);
-void CAP_SetPacketBuf(uint32_t  u32Address );
+void CAP_SetCroppingWindow(uint32_t u32VStart, uint32_t u32HStart, uint32_t u32Height, uint32_t u32Width);
+void CAP_SetPacketBuf(uint32_t  u32Address);
 void CAP_SetPlanarBuf(uint32_t u32YAddr, uint32_t u32UAddr, uint32_t u32VAddr);
 void CAP_Close(void);
 void CAP_EnableInt(uint32_t u32IntMask);
@@ -147,8 +147,8 @@ void CAP_Start(void);
 void CAP_Stop(uint32_t u32FrameComplete);
 void CAP_SetPacketScaling(uint32_t u32VNumerator, uint32_t u32VDenominator, uint32_t u32HNumerator, uint32_t u32HDenominator);
 void CAP_SetPlanarScaling(uint32_t u32VNumerator, uint32_t u32VDenominator, uint32_t u32HNumerator, uint32_t u32HDenominator);
-void CAP_SetPacketStride(uint32_t u32Stride );
-void CAP_SetPlanarStride(uint32_t u32Stride );
+void CAP_SetPacketStride(uint32_t u32Stride);
+void CAP_SetPlanarStride(uint32_t u32Stride);
 void CAP_EnableMotionDet(uint32_t u32Freq, uint32_t u32BlockSize, uint32_t u32Format, uint32_t u32Threshold,  uint32_t u32YDetAddr, uint32_t u32DetAddr);
 void CAP_DisableMotionDet(void);
 

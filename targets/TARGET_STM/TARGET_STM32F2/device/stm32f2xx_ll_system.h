@@ -259,7 +259,7 @@ extern "C" {
   */
 __STATIC_INLINE void LL_SYSCFG_SetRemapMemory(uint32_t Memory)
 {
-  MODIFY_REG(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE, Memory);
+    MODIFY_REG(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE, Memory);
 }
 
 /**
@@ -273,7 +273,7 @@ __STATIC_INLINE void LL_SYSCFG_SetRemapMemory(uint32_t Memory)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_GetRemapMemory(void)
 {
-  return (uint32_t)(READ_BIT(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE));
+    return (uint32_t)(READ_BIT(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE));
 }
 
 /**
@@ -285,7 +285,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetRemapMemory(void)
   */
 __STATIC_INLINE void LL_SYSCFG_EnableCompensationCell(void)
 {
-  SET_BIT(SYSCFG->CMPCR, SYSCFG_CMPCR_CMP_PD);
+    SET_BIT(SYSCFG->CMPCR, SYSCFG_CMPCR_CMP_PD);
 }
 
 /**
@@ -297,7 +297,7 @@ __STATIC_INLINE void LL_SYSCFG_EnableCompensationCell(void)
   */
 __STATIC_INLINE void LL_SYSCFG_DisableCompensationCell(void)
 {
-  CLEAR_BIT(SYSCFG->CMPCR, SYSCFG_CMPCR_CMP_PD);
+    CLEAR_BIT(SYSCFG->CMPCR, SYSCFG_CMPCR_CMP_PD);
 }
 
 /**
@@ -307,11 +307,11 @@ __STATIC_INLINE void LL_SYSCFG_DisableCompensationCell(void)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_IsActiveFlag_CMPCR(void)
 {
-  return (READ_BIT(SYSCFG->CMPCR, SYSCFG_CMPCR_READY) == (SYSCFG_CMPCR_READY));
+    return (READ_BIT(SYSCFG->CMPCR, SYSCFG_CMPCR_READY) == (SYSCFG_CMPCR_READY));
 }
 #if defined(SYSCFG_PMC_MII_RMII_SEL)
 /**
-  * @brief  Select Ethernet PHY interface 
+  * @brief  Select Ethernet PHY interface
   * @rmtoll SYSCFG_PMC MII_RMII_SEL       LL_SYSCFG_SetPHYInterface
   * @param  Interface This parameter can be one of the following values:
   *         @arg @ref LL_SYSCFG_PMC_ETHMII
@@ -320,11 +320,11 @@ __STATIC_INLINE uint32_t LL_SYSCFG_IsActiveFlag_CMPCR(void)
   */
 __STATIC_INLINE void LL_SYSCFG_SetPHYInterface(uint32_t Interface)
 {
-  MODIFY_REG(SYSCFG->PMC, SYSCFG_PMC_MII_RMII_SEL, Interface);
+    MODIFY_REG(SYSCFG->PMC, SYSCFG_PMC_MII_RMII_SEL, Interface);
 }
 
 /**
-  * @brief  Get Ethernet PHY interface 
+  * @brief  Get Ethernet PHY interface
   * @rmtoll SYSCFG_PMC MII_RMII_SEL       LL_SYSCFG_GetPHYInterface
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_SYSCFG_PMC_ETHMII
@@ -333,7 +333,7 @@ __STATIC_INLINE void LL_SYSCFG_SetPHYInterface(uint32_t Interface)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_GetPHYInterface(void)
 {
-  return (uint32_t)(READ_BIT(SYSCFG->PMC, SYSCFG_PMC_MII_RMII_SEL));
+    return (uint32_t)(READ_BIT(SYSCFG->PMC, SYSCFG_PMC_MII_RMII_SEL));
 }
 #endif /* SYSCFG_PMC_MII_RMII_SEL */
 
@@ -377,7 +377,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetPHYInterface(void)
   */
 __STATIC_INLINE void LL_SYSCFG_SetEXTISource(uint32_t Port, uint32_t Line)
 {
-  MODIFY_REG(SYSCFG->EXTICR[Line & 0xFF], (Line >> 16), Port << POSITION_VAL((Line >> 16)));
+    MODIFY_REG(SYSCFG->EXTICR[Line & 0xFF], (Line >> 16), Port << POSITION_VAL((Line >> 16)));
 }
 
 /**
@@ -416,7 +416,7 @@ __STATIC_INLINE void LL_SYSCFG_SetEXTISource(uint32_t Port, uint32_t Line)
   */
 __STATIC_INLINE uint32_t LL_SYSCFG_GetEXTISource(uint32_t Line)
 {
-  return (uint32_t)(READ_BIT(SYSCFG->EXTICR[Line & 0xFF], (Line >> 16)) >> POSITION_VAL(Line >> 16));
+    return (uint32_t)(READ_BIT(SYSCFG->EXTICR[Line & 0xFF], (Line >> 16)) >> POSITION_VAL(Line >> 16));
 }
 
 /**
@@ -436,7 +436,7 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetEXTISource(uint32_t Line)
   */
 __STATIC_INLINE uint32_t LL_DBGMCU_GetDeviceID(void)
 {
-  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_DEV_ID));
+    return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_DEV_ID));
 }
 
 /**
@@ -448,7 +448,7 @@ __STATIC_INLINE uint32_t LL_DBGMCU_GetDeviceID(void)
   */
 __STATIC_INLINE uint32_t LL_DBGMCU_GetRevisionID(void)
 {
-  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_IDCODE_REV_ID_Pos);
+    return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_IDCODE_REV_ID_Pos);
 }
 
 /**
@@ -458,7 +458,7 @@ __STATIC_INLINE uint32_t LL_DBGMCU_GetRevisionID(void)
   */
 __STATIC_INLINE void LL_DBGMCU_EnableDBGSleepMode(void)
 {
-  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
+    SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
 }
 
 /**
@@ -468,7 +468,7 @@ __STATIC_INLINE void LL_DBGMCU_EnableDBGSleepMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_DisableDBGSleepMode(void)
 {
-  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
+    CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
 }
 
 /**
@@ -478,7 +478,7 @@ __STATIC_INLINE void LL_DBGMCU_DisableDBGSleepMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_EnableDBGStopMode(void)
 {
-  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
+    SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
 }
 
 /**
@@ -488,7 +488,7 @@ __STATIC_INLINE void LL_DBGMCU_EnableDBGStopMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_DisableDBGStopMode(void)
 {
-  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
+    CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
 }
 
 /**
@@ -498,7 +498,7 @@ __STATIC_INLINE void LL_DBGMCU_DisableDBGStopMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_EnableDBGStandbyMode(void)
 {
-  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
+    SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
 }
 
 /**
@@ -508,7 +508,7 @@ __STATIC_INLINE void LL_DBGMCU_EnableDBGStandbyMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_DisableDBGStandbyMode(void)
 {
-  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
+    CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
 }
 
 /**
@@ -525,7 +525,7 @@ __STATIC_INLINE void LL_DBGMCU_DisableDBGStandbyMode(void)
   */
 __STATIC_INLINE void LL_DBGMCU_SetTracePinAssignment(uint32_t PinAssignment)
 {
-  MODIFY_REG(DBGMCU->CR, DBGMCU_CR_TRACE_IOEN | DBGMCU_CR_TRACE_MODE, PinAssignment);
+    MODIFY_REG(DBGMCU->CR, DBGMCU_CR_TRACE_IOEN | DBGMCU_CR_TRACE_MODE, PinAssignment);
 }
 
 /**
@@ -541,7 +541,7 @@ __STATIC_INLINE void LL_DBGMCU_SetTracePinAssignment(uint32_t PinAssignment)
   */
 __STATIC_INLINE uint32_t LL_DBGMCU_GetTracePinAssignment(void)
 {
-  return (uint32_t)(READ_BIT(DBGMCU->CR, DBGMCU_CR_TRACE_IOEN | DBGMCU_CR_TRACE_MODE));
+    return (uint32_t)(READ_BIT(DBGMCU->CR, DBGMCU_CR_TRACE_IOEN | DBGMCU_CR_TRACE_MODE));
 }
 
 /**
@@ -587,7 +587,7 @@ __STATIC_INLINE uint32_t LL_DBGMCU_GetTracePinAssignment(void)
   */
 __STATIC_INLINE void LL_DBGMCU_APB1_GRP1_FreezePeriph(uint32_t Periphs)
 {
-  SET_BIT(DBGMCU->APB1FZ, Periphs);
+    SET_BIT(DBGMCU->APB1FZ, Periphs);
 }
 
 /**
@@ -633,7 +633,7 @@ __STATIC_INLINE void LL_DBGMCU_APB1_GRP1_FreezePeriph(uint32_t Periphs)
   */
 __STATIC_INLINE void LL_DBGMCU_APB1_GRP1_UnFreezePeriph(uint32_t Periphs)
 {
-  CLEAR_BIT(DBGMCU->APB1FZ, Periphs);
+    CLEAR_BIT(DBGMCU->APB1FZ, Periphs);
 }
 
 /**
@@ -655,7 +655,7 @@ __STATIC_INLINE void LL_DBGMCU_APB1_GRP1_UnFreezePeriph(uint32_t Periphs)
   */
 __STATIC_INLINE void LL_DBGMCU_APB2_GRP1_FreezePeriph(uint32_t Periphs)
 {
-  SET_BIT(DBGMCU->APB2FZ, Periphs);
+    SET_BIT(DBGMCU->APB2FZ, Periphs);
 }
 
 /**
@@ -677,7 +677,7 @@ __STATIC_INLINE void LL_DBGMCU_APB2_GRP1_FreezePeriph(uint32_t Periphs)
   */
 __STATIC_INLINE void LL_DBGMCU_APB2_GRP1_UnFreezePeriph(uint32_t Periphs)
 {
-  CLEAR_BIT(DBGMCU->APB2FZ, Periphs);
+    CLEAR_BIT(DBGMCU->APB2FZ, Periphs);
 }
 /**
   * @}
@@ -703,7 +703,7 @@ __STATIC_INLINE void LL_DBGMCU_APB2_GRP1_UnFreezePeriph(uint32_t Periphs)
   */
 __STATIC_INLINE void LL_FLASH_SetLatency(uint32_t Latency)
 {
-  MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, Latency);
+    MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, Latency);
 }
 
 /**
@@ -721,7 +721,7 @@ __STATIC_INLINE void LL_FLASH_SetLatency(uint32_t Latency)
   */
 __STATIC_INLINE uint32_t LL_FLASH_GetLatency(void)
 {
-  return (uint32_t)(READ_BIT(FLASH->ACR, FLASH_ACR_LATENCY));
+    return (uint32_t)(READ_BIT(FLASH->ACR, FLASH_ACR_LATENCY));
 }
 
 /**
@@ -731,7 +731,7 @@ __STATIC_INLINE uint32_t LL_FLASH_GetLatency(void)
   */
 __STATIC_INLINE void LL_FLASH_EnablePrefetch(void)
 {
-  SET_BIT(FLASH->ACR, FLASH_ACR_PRFTEN);
+    SET_BIT(FLASH->ACR, FLASH_ACR_PRFTEN);
 }
 
 /**
@@ -741,7 +741,7 @@ __STATIC_INLINE void LL_FLASH_EnablePrefetch(void)
   */
 __STATIC_INLINE void LL_FLASH_DisablePrefetch(void)
 {
-  CLEAR_BIT(FLASH->ACR, FLASH_ACR_PRFTEN);
+    CLEAR_BIT(FLASH->ACR, FLASH_ACR_PRFTEN);
 }
 
 /**
@@ -751,7 +751,7 @@ __STATIC_INLINE void LL_FLASH_DisablePrefetch(void)
   */
 __STATIC_INLINE uint32_t LL_FLASH_IsPrefetchEnabled(void)
 {
-  return (READ_BIT(FLASH->ACR, FLASH_ACR_PRFTEN) == (FLASH_ACR_PRFTEN));
+    return (READ_BIT(FLASH->ACR, FLASH_ACR_PRFTEN) == (FLASH_ACR_PRFTEN));
 }
 
 /**
@@ -761,7 +761,7 @@ __STATIC_INLINE uint32_t LL_FLASH_IsPrefetchEnabled(void)
   */
 __STATIC_INLINE void LL_FLASH_EnableInstCache(void)
 {
-  SET_BIT(FLASH->ACR, FLASH_ACR_ICEN);
+    SET_BIT(FLASH->ACR, FLASH_ACR_ICEN);
 }
 
 /**
@@ -771,7 +771,7 @@ __STATIC_INLINE void LL_FLASH_EnableInstCache(void)
   */
 __STATIC_INLINE void LL_FLASH_DisableInstCache(void)
 {
-  CLEAR_BIT(FLASH->ACR, FLASH_ACR_ICEN);
+    CLEAR_BIT(FLASH->ACR, FLASH_ACR_ICEN);
 }
 
 /**
@@ -781,7 +781,7 @@ __STATIC_INLINE void LL_FLASH_DisableInstCache(void)
   */
 __STATIC_INLINE void LL_FLASH_EnableDataCache(void)
 {
-  SET_BIT(FLASH->ACR, FLASH_ACR_DCEN);
+    SET_BIT(FLASH->ACR, FLASH_ACR_DCEN);
 }
 
 /**
@@ -791,7 +791,7 @@ __STATIC_INLINE void LL_FLASH_EnableDataCache(void)
   */
 __STATIC_INLINE void LL_FLASH_DisableDataCache(void)
 {
-  CLEAR_BIT(FLASH->ACR, FLASH_ACR_DCEN);
+    CLEAR_BIT(FLASH->ACR, FLASH_ACR_DCEN);
 }
 
 /**
@@ -802,7 +802,7 @@ __STATIC_INLINE void LL_FLASH_DisableDataCache(void)
   */
 __STATIC_INLINE void LL_FLASH_EnableInstCacheReset(void)
 {
-  SET_BIT(FLASH->ACR, FLASH_ACR_ICRST);
+    SET_BIT(FLASH->ACR, FLASH_ACR_ICRST);
 }
 
 /**
@@ -812,7 +812,7 @@ __STATIC_INLINE void LL_FLASH_EnableInstCacheReset(void)
   */
 __STATIC_INLINE void LL_FLASH_DisableInstCacheReset(void)
 {
-  CLEAR_BIT(FLASH->ACR, FLASH_ACR_ICRST);
+    CLEAR_BIT(FLASH->ACR, FLASH_ACR_ICRST);
 }
 
 /**
@@ -823,7 +823,7 @@ __STATIC_INLINE void LL_FLASH_DisableInstCacheReset(void)
   */
 __STATIC_INLINE void LL_FLASH_EnableDataCacheReset(void)
 {
-  SET_BIT(FLASH->ACR, FLASH_ACR_DCRST);
+    SET_BIT(FLASH->ACR, FLASH_ACR_DCRST);
 }
 
 /**
@@ -833,7 +833,7 @@ __STATIC_INLINE void LL_FLASH_EnableDataCacheReset(void)
   */
 __STATIC_INLINE void LL_FLASH_DisableDataCacheReset(void)
 {
-  CLEAR_BIT(FLASH->ACR, FLASH_ACR_DCRST);
+    CLEAR_BIT(FLASH->ACR, FLASH_ACR_DCRST);
 }
 
 

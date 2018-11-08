@@ -30,8 +30,8 @@
 #define SSIF_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_ssif
-{                                                          /* SSIF             */
+struct st_ssif {
+    /* SSIF             */
     volatile uint32_t  SSICR;                                  /*  SSICR           */
     volatile uint32_t  SSISR;                                  /*  SSISR           */
     volatile uint8_t   dummy1[8];                              /*                  */

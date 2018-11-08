@@ -204,9 +204,9 @@ void thread_dynamic_storage_child_info_clear(int8_t interface_id, mle_neigh_tabl
 {
     thread_sync_child_info_t *child_info = thread_dynamic_storage_child_info_find(interface_id, child);
 
-    if (child_info){
+    if (child_info) {
         // Clear child information
-        memset (child_info,0,sizeof(thread_sync_child_info_t));
+        memset(child_info, 0, sizeof(thread_sync_child_info_t));
         tr_debug("Dynamic storage: cleared child; mac16=%04x", child->short_adr);
         return;
     }
@@ -313,7 +313,7 @@ void thread_dynamic_storage_pending_configuration_store(int8_t interface_id, voi
     if (!storeEntry->networ_dynamic_data_parameters.pending_configuration) {
         return;
     }
-    memcpy(storeEntry->networ_dynamic_data_parameters.pending_configuration, data,size);
+    memcpy(storeEntry->networ_dynamic_data_parameters.pending_configuration, data, size);
 
 }
 
@@ -333,7 +333,7 @@ void thread_dynamic_storage_pending_configuration_read(int8_t interface_id, void
         tr_debug("no pending config found in store");
         return;
     }
-    memcpy(data,storeEntry->networ_dynamic_data_parameters.pending_configuration, size);
+    memcpy(data, storeEntry->networ_dynamic_data_parameters.pending_configuration, size);
     return;
 }
 
@@ -341,7 +341,7 @@ int thread_pending_data_delete(int8_t interfaceId)
 {
     thread_network_dynamic_data_entry_t *newEntry = thread_network_synch_find(interfaceId);
     if (newEntry) {
-      //Free
+        //Free
         newEntry->networ_dynamic_data_parameters.pending_configuration = NULL;
         newEntry->networ_dynamic_data_parameters.pending_timestamp = 0;
         return 0;
@@ -356,8 +356,8 @@ void thread_dynamic_storage_device_configuration_read(int8_t interface_id, uint8
         tr_error("no device configuration in store");
         return;
     }
-    memcpy(mac_ptr,storeEntry->networ_dynamic_data_parameters.mac, 8);
-    memcpy(mleid_ptr,storeEntry->networ_dynamic_data_parameters.mleid, 8);
+    memcpy(mac_ptr, storeEntry->networ_dynamic_data_parameters.mac, 8);
+    memcpy(mleid_ptr, storeEntry->networ_dynamic_data_parameters.mleid, 8);
     return;
 }
 
@@ -372,7 +372,7 @@ void thread_dynamic_storage_device_configuration_store(int8_t interface_id, uint
     }
     tr_debug("store device configuration");
     memcpy(storeEntry->networ_dynamic_data_parameters.mac, mac_ptr, 8);
-    memcpy(storeEntry->networ_dynamic_data_parameters.mleid,mleid_ptr, 8);
+    memcpy(storeEntry->networ_dynamic_data_parameters.mleid, mleid_ptr, 8);
     return;
 }
 
@@ -382,7 +382,7 @@ static uint16_t short_addr = 0xffff;
 
 void thread_nvm_store_link_info_file_read()
 {
-    if (!memcmp(mac,ADDR_UNSPECIFIED,8) && short_addr == 0xffff) {
+    if (!memcmp(mac, ADDR_UNSPECIFIED, 8) && short_addr == 0xffff) {
         return;
     }
     // File exists at bootup
@@ -390,14 +390,14 @@ void thread_nvm_store_link_info_file_read()
 }
 bool thread_nvm_store_link_info_get(uint8_t *parent_mac64, uint16_t *my_short_address)
 {
-    if (!memcmp(mac,ADDR_UNSPECIFIED,8) && short_addr == 0xffff) {
+    if (!memcmp(mac, ADDR_UNSPECIFIED, 8) && short_addr == 0xffff) {
         return false;
     }
     if (!loaded) {
         return false;
     }
     if (parent_mac64) {
-        memcpy(parent_mac64,mac,8);
+        memcpy(parent_mac64, mac, 8);
     }
     if (my_short_address) {
         *my_short_address = short_addr;
@@ -409,7 +409,7 @@ bool thread_nvm_store_link_info_get(uint8_t *parent_mac64, uint16_t *my_short_ad
 
 void thread_nvm_store_link_info_clear()
 {
-    memset(mac,0,8);
+    memset(mac, 0, 8);
     short_addr = 0xffff;
     loaded = false;
     // synchronised settings were used and now are deleted
@@ -418,10 +418,10 @@ void thread_nvm_store_link_info_clear()
 
 void thread_nvm_store_link_info_file_write(protocol_interface_info_entry_t *cur)
 {
-    if(cur->thread_info->thread_endnode_parent) {
-        memcpy(mac,cur->thread_info->thread_endnode_parent->mac64,8);
+    if (cur->thread_info->thread_endnode_parent) {
+        memcpy(mac, cur->thread_info->thread_endnode_parent->mac64, 8);
     } else {
-        memset(mac,0,8);
+        memset(mac, 0, 8);
     }
     short_addr = mac_helper_mac16_address_get(cur);
     // Settings are changed, but values should not be saved yet only after certain

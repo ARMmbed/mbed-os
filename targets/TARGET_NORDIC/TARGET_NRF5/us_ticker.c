@@ -44,7 +44,7 @@
 #include "mbed_critical.h"
 
 #if defined(NRF52_ERRATA_20)
-    #include "softdevice_handler.h"
+#include "softdevice_handler.h"
 #endif
 
 //------------------------------------------------------------------------------
@@ -90,13 +90,11 @@ void COMMON_RTC_IRQ_HANDLER(void)
 __STATIC_INLINE void errata_20(void)
 {
 #if defined(NRF52_ERRATA_20)
-    if (!softdevice_handler_is_enabled())
-    {
+    if (!softdevice_handler_is_enabled()) {
         NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
         NRF_CLOCK->TASKS_LFCLKSTART    = 1;
 
-        while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0)
-        {
+        while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0) {
         }
     }
     NRF_RTC1->TASKS_STOP = 0;
@@ -114,7 +112,7 @@ void common_rtc_init(void)
     errata_20();
 
     NVIC_SetVector(RTC1_IRQn, (uint32_t)RTC1_IRQHandler);
-    
+
     // RTC is driven by the low frequency (32.768 kHz) clock, a proper request
     // must be made to have it running.
     // Currently this clock is started in 'SystemInit' (see "system_nrf51.c"
@@ -136,10 +134,10 @@ void common_rtc_init(void)
     // energy efficient).
     nrf_rtc_int_enable(COMMON_RTC_INSTANCE,
 #if DEVICE_LOWPOWERTIMER
-        LP_TICKER_INT_MASK |
+                       LP_TICKER_INT_MASK |
 #endif
-        US_TICKER_INT_MASK |
-        NRF_RTC_INT_OVERFLOW_MASK);
+                       US_TICKER_INT_MASK |
+                       NRF_RTC_INT_OVERFLOW_MASK);
 
     // This event is enabled permanently, since overflow indications are needed
     // continuously.
@@ -147,20 +145,20 @@ void common_rtc_init(void)
     // All other relevant events are initially disabled.
     nrf_rtc_event_disable(COMMON_RTC_INSTANCE,
 #if defined(TARGET_MCU_NRF51822)
-        OS_TICK_INT_MASK |
+                          OS_TICK_INT_MASK |
 #endif
 #if DEVICE_LOWPOWERTIMER
-        LP_TICKER_INT_MASK |
+                          LP_TICKER_INT_MASK |
 #endif
-        US_TICKER_INT_MASK);
+                          US_TICKER_INT_MASK);
 
     nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE),
 #ifdef NRF51
-        APP_IRQ_PRIORITY_LOW
+                              APP_IRQ_PRIORITY_LOW
 #elif defined(NRF52) || defined(NRF52840_XXAA)
-        APP_IRQ_PRIORITY_LOWEST
+                              APP_IRQ_PRIORITY_LOWEST
 #endif
-        );
+                             );
 
     nrf_rtc_task_trigger(COMMON_RTC_INSTANCE, NRF_RTC_TASK_START);
 
@@ -223,7 +221,7 @@ void common_rtc_set_interrupt(uint32_t us_timestamp, uint32_t cc_channel,
     uint64_t current_time64 = common_rtc_64bit_us_get();
     // [add upper 32 bits from the current time to the timestamp value]
     uint64_t timestamp64 = us_timestamp +
-        (current_time64 & ~(uint64_t)0xFFFFFFFF);
+                           (current_time64 & ~(uint64_t)0xFFFFFFFF);
     // [if the original timestamp value happens to be after the 32 bit counter
     //  of microsends overflows, correct the upper 32 bits accordingly]
     if (us_timestamp < (uint32_t)(current_time64 & 0xFFFFFFFF)) {
@@ -268,7 +266,7 @@ uint32_t us_ticker_read()
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     common_rtc_set_interrupt(timestamp,
-        US_TICKER_CC_CHANNEL, US_TICKER_INT_MASK);
+                             US_TICKER_CC_CHANNEL, US_TICKER_INT_MASK);
 }
 
 void us_ticker_fire_interrupt(void)
@@ -300,14 +298,14 @@ void us_ticker_clear_interrupt(void)
 #define MAX_RTC_COUNTER_VAL     ((1uL << RTC_COUNTER_BITS) - 1)
 
 #ifndef RTC1_CONFIG_FREQUENCY
-    #define RTC1_CONFIG_FREQUENCY    32678 // [Hz]
+#define RTC1_CONFIG_FREQUENCY    32678 // [Hz]
 #endif
 
 
 
 void COMMON_RTC_IRQ_HANDLER(void)
 {
-    if(!nrf_rtc_event_pending(COMMON_RTC_INSTANCE, OS_TICK_EVENT)) {
+    if (!nrf_rtc_event_pending(COMMON_RTC_INSTANCE, OS_TICK_EVENT)) {
         common_rtc_irq_handler();
     }
 }

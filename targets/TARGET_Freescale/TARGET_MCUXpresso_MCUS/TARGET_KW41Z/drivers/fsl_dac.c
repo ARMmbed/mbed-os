@@ -56,10 +56,8 @@ static uint32_t DAC_GetInstance(DAC_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_DAC_COUNT; instance++)
-    {
-        if (s_dacBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_DAC_COUNT; instance++) {
+        if (s_dacBases[instance] == base) {
             break;
         }
     }
@@ -81,12 +79,10 @@ void DAC_Init(DAC_Type *base, const dac_config_t *config)
     /* Configure. */
     /* DACx_C0. */
     tmp8 = base->C0 & ~(DAC_C0_DACRFS_MASK | DAC_C0_LPEN_MASK);
-    if (kDAC_ReferenceVoltageSourceVref2 == config->referenceVoltageSource)
-    {
+    if (kDAC_ReferenceVoltageSourceVref2 == config->referenceVoltageSource) {
         tmp8 |= DAC_C0_DACRFS_MASK;
     }
-    if (config->enableLowPowerMode)
-    {
+    if (config->enableLowPowerMode) {
         tmp8 |= DAC_C0_LPEN_MASK;
     }
     base->C0 = tmp8;
@@ -119,8 +115,7 @@ void DAC_SetBufferConfig(DAC_Type *base, const dac_buffer_config_t *config)
 
     /* DACx_C0. */
     tmp8 = base->C0 & ~(DAC_C0_DACTRGSEL_MASK);
-    if (kDAC_BufferTriggerBySoftwareMode == config->triggerMode)
-    {
+    if (kDAC_BufferTriggerBySoftwareMode == config->triggerMode) {
         tmp8 |= DAC_C0_DACTRGSEL_MASK;
     }
     base->C0 = tmp8;
@@ -178,9 +173,9 @@ void DAC_EnableBufferInterrupts(DAC_Type *base, uint32_t mask)
 {
     mask &= (
 #if defined(FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION) && FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION
-        DAC_C0_DACBWIEN_MASK |
+                DAC_C0_DACBWIEN_MASK |
 #endif /* FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION */
-        DAC_C0_DACBTIEN_MASK | DAC_C0_DACBBIEN_MASK);
+                DAC_C0_DACBTIEN_MASK | DAC_C0_DACBBIEN_MASK);
     base->C0 |= ((uint8_t)mask); /* Write 1 to enable. */
 }
 
@@ -188,9 +183,9 @@ void DAC_DisableBufferInterrupts(DAC_Type *base, uint32_t mask)
 {
     mask &= (
 #if defined(FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION) && FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION
-        DAC_C0_DACBWIEN_MASK |
+                DAC_C0_DACBWIEN_MASK |
 #endif /* FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION */
-        DAC_C0_DACBTIEN_MASK | DAC_C0_DACBBIEN_MASK);
+                DAC_C0_DACBTIEN_MASK | DAC_C0_DACBBIEN_MASK);
     base->C0 &= (uint8_t)(~((uint8_t)mask)); /* Write 0 to disable. */
 }
 
@@ -198,17 +193,17 @@ uint32_t DAC_GetBufferStatusFlags(DAC_Type *base)
 {
     return (uint32_t)(base->SR & (
 #if defined(FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION) && FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION
-                                     DAC_SR_DACBFWMF_MASK |
+                          DAC_SR_DACBFWMF_MASK |
 #endif /* FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION */
-                                     DAC_SR_DACBFRPTF_MASK | DAC_SR_DACBFRPBF_MASK));
+                          DAC_SR_DACBFRPTF_MASK | DAC_SR_DACBFRPBF_MASK));
 }
 
 void DAC_ClearBufferStatusFlags(DAC_Type *base, uint32_t mask)
 {
     mask &= (
 #if defined(FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION) && FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION
-        DAC_SR_DACBFWMF_MASK |
+                DAC_SR_DACBFWMF_MASK |
 #endif /* FSL_FEATURE_DAC_HAS_WATERMARK_DETECTION */
-        DAC_SR_DACBFRPTF_MASK | DAC_SR_DACBFRPBF_MASK);
+                DAC_SR_DACBFRPTF_MASK | DAC_SR_DACBFRPBF_MASK);
     base->SR &= (uint8_t)(~((uint8_t)mask)); /* Write 0 to clear flags. */
 }

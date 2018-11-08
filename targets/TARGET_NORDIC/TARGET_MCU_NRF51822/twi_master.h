@@ -1,14 +1,14 @@
- /* Copyright (c) 2009 Nordic Semiconductor. All Rights Reserved.
- *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
- *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
- *
- */
+/* Copyright (c) 2009 Nordic Semiconductor. All Rights Reserved.
+*
+* The information contained herein is property of Nordic Semiconductor ASA.
+* Terms and conditions of usage are described in detail in NORDIC
+* SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+*
+* Licensees are granted free, non-transferable use of the information. NO
+* WARRANTY of ANY KIND is provided. This heading must NOT be removed from
+* the file.
+*
+*/
 
 #ifndef TWI_MASTER_H
 #define TWI_MASTER_H
@@ -75,7 +75,7 @@ extern "C" {
  * @retval true TWI bus is clear for transfers.
  * @retval false TWI bus is stuck.
  */
-bool twi_master_init_and_clear(NRF_TWI_Type* twi);
+bool twi_master_init_and_clear(NRF_TWI_Type *twi);
 
 /**
  * @brief Function for transferring data over TWI bus.
@@ -98,7 +98,7 @@ bool twi_master_init_and_clear(NRF_TWI_Type* twi);
  * @retval true Data transfer succeeded without errors.
  * @retval false Data transfer failed.
  */
-bool twi_master_transfer(uint8_t address, uint8_t *data, uint8_t data_length, bool issue_stop_condition, NRF_TWI_Type* twi);
+bool twi_master_transfer(uint8_t address, uint8_t *data, uint8_t data_length, bool issue_stop_condition, NRF_TWI_Type *twi);
 
 /**
  *@}

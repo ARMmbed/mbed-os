@@ -88,7 +88,7 @@ typedef struct {
 
 
 /**
- * Structure type for the SPI Slave Transmit and Receive FIFOs. 
+ * Structure type for the SPI Slave Transmit and Receive FIFOs.
  */
 typedef struct {
     union {                                             /*  0x0000-0x07FC   SPI Slave FIFO TX Write Space                                                */
@@ -110,7 +110,7 @@ typedef struct {
 /**
  * @ingroup    spis_registers
  * @defgroup   SPIS_Register_Offsets Register Offsets
- * @brief      SPI Slave Register Offsets from the SPIS[n] Base Peripheral Address, where  \c n \c = SPIS Instance Number. 
+ * @brief      SPI Slave Register Offsets from the SPIS[n] Base Peripheral Address, where  \c n \c = SPIS Instance Number.
  * @{
  */
 #define MXC_R_SPIS_OFFS_GEN_CTRL                            ((uint32_t)0x00000000UL)        /**< /**< Offset from SPIS[n] Base Peripheral Address: <tt>\b 0x0000</tt>*/
@@ -122,7 +122,7 @@ typedef struct {
 /**
  * @ingroup    spis_registers
  * @defgroup   SPIS_FIFO_Offsets FIFO Offsets
- * @brief      SPI Slave FIFO Offsets from the SPIS[n] Base FIFO Address, where  \c n \c = SPIS Instance Number. 
+ * @brief      SPI Slave FIFO Offsets from the SPIS[n] Base FIFO Address, where  \c n \c = SPIS Instance Number.
  * @{
  */
 #define MXC_R_SPIS_FIFO_OFFS_TX                             ((uint32_t)0x00000000UL)    /**< Offset from SPIS[n] Base FIFO Address: <tt>\b 0x0000</tt> */
@@ -157,7 +157,7 @@ typedef struct {
  * @defgroup SPIS_FIFO_CTRL_Register SPIS_FIFO_CTRL
  * @brief    Field Positions and Bit Masks for the SPIS_FIFO_CTRL register
  * @{
- */ 
+ */
 #define MXC_F_SPIS_FIFO_CTRL_TX_FIFO_AE_LVL_POS             0                                                                       /**< TX_FIFO_AE_LVL Position */
 #define MXC_F_SPIS_FIFO_CTRL_TX_FIFO_AE_LVL                 ((uint32_t)(0x0000001FUL << MXC_F_SPIS_FIFO_CTRL_TX_FIFO_AE_LVL_POS))   /**< TX_FIFO_AE_LVL Mask */
 #define MXC_F_SPIS_FIFO_CTRL_RX_FIFO_AF_LVL_POS             8                                                                       /**< RX_FIFO_AF_LVL Position */
@@ -168,10 +168,10 @@ typedef struct {
  * @defgroup SPIS_FIFO_STAT_Register SPIS_FIFO_STAT
  * @brief    Field Positions and Bit Masks for the SPIS_FIFO_STAT register
  * @{
- */ 
-#define MXC_F_SPIS_FIFO_STAT_TX_FIFO_USED_POS               0                                                                       /**< TX_FIFO_USED Position */ 
+ */
+#define MXC_F_SPIS_FIFO_STAT_TX_FIFO_USED_POS               0                                                                       /**< TX_FIFO_USED Position */
 #define MXC_F_SPIS_FIFO_STAT_TX_FIFO_USED                   ((uint32_t)(0x0000003FUL << MXC_F_SPIS_FIFO_STAT_TX_FIFO_USED_POS))     /**< TX_FIFO_USED Mask */
-#define MXC_F_SPIS_FIFO_STAT_RX_FIFO_USED_POS               8                                                                       /**< RX_FIFO_USED Position */ 
+#define MXC_F_SPIS_FIFO_STAT_RX_FIFO_USED_POS               8                                                                       /**< RX_FIFO_USED Position */
 #define MXC_F_SPIS_FIFO_STAT_RX_FIFO_USED                   ((uint32_t)(0x0000003FUL << MXC_F_SPIS_FIFO_STAT_RX_FIFO_USED_POS))     /**< RX_FIFO_USED Mask */
 /**@} end of group SPIS_FIFO_STAT_Register*/
 /**
@@ -179,7 +179,7 @@ typedef struct {
  * @defgroup SPIS_INTFL_Register SPIS_INTFL
  * @brief    Field Positions and Bit Masks for the SPIS_INTFL register
  * @{
- */ 
+ */
 #define MXC_F_SPIS_INTFL_TX_FIFO_AE_POS                     0                                                                   /**< TX_FIFO_AE Position */
 #define MXC_F_SPIS_INTFL_TX_FIFO_AE                         ((uint32_t)(0x00000001UL << MXC_F_SPIS_INTFL_TX_FIFO_AE_POS))       /**< TX_FIFO_AE Mask */
 #define MXC_F_SPIS_INTFL_RX_FIFO_AF_POS                     1                                                                   /**< RX_FIFO_AF  Position */
@@ -200,7 +200,7 @@ typedef struct {
  * @defgroup SPIS_INTEN_Register SPIS_INTEN
  * @brief    Field Positions and Bit Masks for the SPIS_INTEN register
  * @{
- */ 
+ */
 #define MXC_F_SPIS_INTEN_TX_FIFO_AE_POS                     0                                                                   /**< TX_FIFO_AE Position */
 #define MXC_F_SPIS_INTEN_TX_FIFO_AE                         ((uint32_t)(0x00000001UL << MXC_F_SPIS_INTEN_TX_FIFO_AE_POS))       /**< TX_FIFO_AE Mask */
 #define MXC_F_SPIS_INTEN_RX_FIFO_AF_POS                     1                                                                   /**< RX_FIFO_AF  Position */

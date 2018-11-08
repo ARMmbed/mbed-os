@@ -95,16 +95,16 @@ void _sercom_set_handler(
  * Converts a given SERCOM index to its interrupt vector index.
  */
 #define _SERCOM_INTERRUPT_VECT_NUM(n, unused) \
-		SYSTEM_INTERRUPT_MODULE_SERCOM##n,
+        SYSTEM_INTERRUPT_MODULE_SERCOM##n,
 
 /** \internal
  * Generates a SERCOM interrupt handler function for a given SERCOM index.
  */
 #define _SERCOM_INTERRUPT_HANDLER(n, unused) \
-		void SERCOM##n##_Handler(void) \
-		{ \
-			_sercom_interrupt_handlers[n](n); \
-		}
+        void SERCOM##n##_Handler(void) \
+        { \
+            _sercom_interrupt_handlers[n](n); \
+        }
 
 /**
  * \internal

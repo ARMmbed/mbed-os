@@ -67,7 +67,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma diag_suppress=Pm073,Pm143,Pm140,Pm136,Pm152
 #endif /* __ICCARM__ */
 
-static inline void XIntCommonInterruptHandler  (const ADI_XINT_EVENT eEvent);
+static inline void XIntCommonInterruptHandler(const ADI_XINT_EVENT eEvent);
 void Ext_Int0_Handler(void);
 void Ext_Int1_Handler(void);
 void Ext_Int2_Handler(void);
@@ -104,28 +104,25 @@ static ADI_XINT_CALLBACK_INFO *gpCallbackTable;
 
     @sa         adi_xint_UnInit
 */
-ADI_XINT_RESULT adi_xint_Init(void*                const pMemory,
+ADI_XINT_RESULT adi_xint_Init(void                *const pMemory,
                               uint32_t             const MemorySize
-)
+                             )
 {
 
 #ifdef ADI_DEBUG
-        /* Verify the given memory pointer */
-        if(NULL == pMemory)
-        {
-            return ADI_XINT_NULL_PARAMETER;
-        }
-        /* Check if the memory size is sufficient to operate the driver */
-        if(MemorySize < ADI_XINT_MEMORY_SIZE)
-        {
-            return ADI_XINT_INVALID_MEMORY_SIZE;
-        }
-        assert(MemorySize == (sizeof(ADI_XINT_CALLBACK_INFO) * ADI_XINT_EVENT_MAX));
+    /* Verify the given memory pointer */
+    if (NULL == pMemory) {
+        return ADI_XINT_NULL_PARAMETER;
+    }
+    /* Check if the memory size is sufficient to operate the driver */
+    if (MemorySize < ADI_XINT_MEMORY_SIZE) {
+        return ADI_XINT_INVALID_MEMORY_SIZE;
+    }
+    assert(MemorySize == (sizeof(ADI_XINT_CALLBACK_INFO) * ADI_XINT_EVENT_MAX));
 #endif
 
     /* Only initialize on 1st init call, i.e., preserve callbacks on multiple inits */
-    if (gpCallbackTable == NULL)
-    {
+    if (gpCallbackTable == NULL) {
         /* Clear the memory passed by the application */
         memset(pMemory, 0, MemorySize);
 
@@ -151,8 +148,7 @@ ADI_XINT_RESULT adi_xint_UnInit(void)
 
 #ifdef ADI_DEBUG
     /* IF (not initialized) */
-    if (NULL == gpCallbackTable)
-    {
+    if (NULL == gpCallbackTable) {
         /* return error if not initialized */
         return (ADI_XINT_NOT_INITIALIZED);
     }
@@ -198,8 +194,7 @@ ADI_XINT_RESULT adi_xint_EnableIRQ(const ADI_XINT_EVENT eEvent, const ADI_XINT_I
 
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == gpCallbackTable)
-    {
+    if (NULL == gpCallbackTable) {
         return (ADI_XINT_NOT_INITIALIZED);
     }
 #endif
@@ -209,24 +204,21 @@ ADI_XINT_RESULT adi_xint_EnableIRQ(const ADI_XINT_EVENT eEvent, const ADI_XINT_I
 
     /* The Pattern has to be created differently for UART RX wakeup and other events as the
        mode and enable bits are flipped in case of UART RX */
-    
+
     /* Based on the event figure out the interrupt it is mapped to */
-    if(eEvent == ADI_XINT_EVENT_UART_RX)
-    {
+    if (eEvent == ADI_XINT_EVENT_UART_RX) {
         /* create the bit pattern we're going to write into the configuration register */
         Pattern = (BITM_XINT_CFG0_UART_RX_EN | ((uint32_t)eMode << BITP_XINT_CFG0_UART_RX_MDE));
-        
+
         XintIrq = XINT_EVT3_IRQn;
-    }
-    else
-    {
+    } else {
         /* create the bit pattern we're going to write into the configuration register */
         Pattern = (BITM_XINT_CFG0_IRQ0EN | eMode) << (ADI_XINT_CFG_BITS * (uint32_t)eEvent);
-        
+
         XintIrq = (IRQn_Type)((uint32_t)XINT_EVT0_IRQn + (uint32_t)eEvent);
     }
 
-    
+
     ADI_ENTER_CRITICAL_REGION();
 
     /* read/modify/write the appropriate bits in the register */
@@ -268,19 +260,15 @@ ADI_XINT_RESULT adi_xint_DisableIRQ(const ADI_XINT_EVENT eEvent)
 
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == gpCallbackTable)
-    {
+    if (NULL == gpCallbackTable) {
         return (ADI_XINT_NOT_INITIALIZED);
     }
 #endif
 
     /* Based on the event figure out the interrupt it is mapped to */
-    if(eEvent == ADI_XINT_EVENT_UART_RX)
-    {
+    if (eEvent == ADI_XINT_EVENT_UART_RX) {
         XintIrq = XINT_EVT3_IRQn;
-    }
-    else
-    {
+    } else {
         XintIrq = (IRQn_Type)((uint32_t)XINT_EVT0_IRQn + (uint32_t)eEvent);
     }
 
@@ -330,14 +318,13 @@ ADI_XINT_RESULT adi_xint_DisableIRQ(const ADI_XINT_EVENT eEvent)
     @sa         adi_xint_EnableIRQ
     @sa         adi_xint_DisableIRQ
 */
-ADI_XINT_RESULT  adi_xint_RegisterCallback (const ADI_XINT_EVENT eEvent, ADI_CALLBACK const pfCallback, void *const pCBParam )
+ADI_XINT_RESULT  adi_xint_RegisterCallback(const ADI_XINT_EVENT eEvent, ADI_CALLBACK const pfCallback, void *const pCBParam)
 {
     ADI_INT_STATUS_ALLOC();
 
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == gpCallbackTable)
-    {
+    if (NULL == gpCallbackTable) {
         return (ADI_XINT_NOT_INITIALIZED);
     }
 #endif
@@ -363,9 +350,8 @@ static inline void XIntCommonInterruptHandler(const ADI_XINT_EVENT eEvent)
     pADI_XINT0->CLR = (1u << (uint32_t)eEvent);
 
     /* params list is: application-registered cbParam, Event ID, and NULL */
-    if(gpCallbackTable[eEvent].pfCallback != NULL)
-    {
-        gpCallbackTable[eEvent].pfCallback (gpCallbackTable[eEvent].pCBParam, (uint32_t) eEvent, NULL);
+    if (gpCallbackTable[eEvent].pfCallback != NULL) {
+        gpCallbackTable[eEvent].pfCallback(gpCallbackTable[eEvent].pCBParam, (uint32_t) eEvent, NULL);
     }
 }
 
@@ -395,13 +381,10 @@ void Ext_Int2_Handler(void)
 void Ext_Int3_Handler(void)
 {
     ISR_PROLOG()
-    if((pADI_XINT0->EXT_STAT & BITM_XINT_EXT_STAT_STAT_UART_RXWKUP)==BITM_XINT_EXT_STAT_STAT_UART_RXWKUP)
-    {
-       XIntCommonInterruptHandler(ADI_XINT_EVENT_UART_RX);
-    }
-    else
-    {
-       XIntCommonInterruptHandler(ADI_XINT_EVENT_INT3);
+    if ((pADI_XINT0->EXT_STAT & BITM_XINT_EXT_STAT_STAT_UART_RXWKUP) == BITM_XINT_EXT_STAT_STAT_UART_RXWKUP) {
+        XIntCommonInterruptHandler(ADI_XINT_EVENT_UART_RX);
+    } else {
+        XIntCommonInterruptHandler(ADI_XINT_EVENT_INT3);
     }
     ISR_EPILOG()
 }

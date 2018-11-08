@@ -51,8 +51,7 @@
 /*!
  * @brief Power Modes Protection
  */
-typedef enum _smc_power_mode_protection
-{
+typedef enum _smc_power_mode_protection {
 #if (defined(FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE) && FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE)
     kSMC_AllowPowerModeVlls = SMC_PMPROT_AVLLS_MASK, /*!< Allow Very-Low-Leakage Stop Mode. */
 #endif
@@ -78,14 +77,13 @@ typedef enum _smc_power_mode_protection
                               |
                               kSMC_AllowPowerModeHsrun
 #endif                          /* FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE */
-                              ) /*!< Allow all power mode.              */
+                             ) /*!< Allow all power mode.              */
 } smc_power_mode_protection_t;
 
 /*!
  * @brief Power Modes in PMSTAT
  */
-typedef enum _smc_power_state
-{
+typedef enum _smc_power_state {
     kSMC_PowerStateRun = 0x01U << 0U,  /*!< 0000_0001 - Current power mode is RUN   */
     kSMC_PowerStateStop = 0x01U << 1U, /*!< 0000_0010 - Current power mode is STOP  */
     kSMC_PowerStateVlpr = 0x01U << 2U, /*!< 0000_0100 - Current power mode is VLPR  */
@@ -105,8 +103,7 @@ typedef enum _smc_power_state
 /*!
  * @brief Run mode definition
  */
-typedef enum _smc_run_mode
-{
+typedef enum _smc_run_mode {
     kSMC_RunNormal = 0U, /*!< normal RUN mode.             */
     kSMC_RunVlpr = 2U,   /*!< Very-Low-Power RUN mode.     */
 #if (defined(FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE) && FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE)
@@ -117,8 +114,7 @@ typedef enum _smc_run_mode
 /*!
  * @brief Stop mode definition
  */
-typedef enum _smc_stop_mode
-{
+typedef enum _smc_stop_mode {
     kSMC_StopNormal = 0U, /*!< Normal STOP mode.           */
     kSMC_StopVlps = 2U,   /*!< Very-Low-Power STOP mode.   */
 #if (defined(FSL_FEATURE_SMC_HAS_LOW_LEAKAGE_STOP_MODE) && FSL_FEATURE_SMC_HAS_LOW_LEAKAGE_STOP_MODE)
@@ -135,8 +131,7 @@ typedef enum _smc_stop_mode
 /*!
  * @brief VLLS/LLS stop sub mode definition
  */
-typedef enum _smc_stop_submode
-{
+typedef enum _smc_stop_submode {
     kSMC_StopSub0 = 0U, /*!< Stop submode 0, for VLLS0/LLS0. */
     kSMC_StopSub1 = 1U, /*!< Stop submode 1, for VLLS1/LLS1. */
     kSMC_StopSub2 = 2U, /*!< Stop submode 2, for VLLS2/LLS2. */
@@ -147,8 +142,7 @@ typedef enum _smc_stop_submode
 /*!
  * @brief Partial STOP option
  */
-typedef enum _smc_partial_stop_mode
-{
+typedef enum _smc_partial_stop_mode {
     kSMC_PartialStop = 0U,  /*!< STOP - Normal Stop mode*/
     kSMC_PartialStop1 = 1U, /*!< Partial Stop with both system and bus clocks disabled*/
     kSMC_PartialStop2 = 2U, /*!< Partial Stop with system clock disabled and bus clock enabled*/
@@ -157,8 +151,7 @@ typedef enum _smc_partial_stop_mode
 /*!
  * @brief SMC configuration status
  */
-enum _smc_status
-{
+enum _smc_status {
     kStatus_SMC_StopAbort = MAKE_STATUS(kStatusGroup_POWER, 0) /*!< Entering Stop mode is abort*/
 };
 
@@ -166,8 +159,7 @@ enum _smc_status
 /*!
  * @brief IP version ID definition.
  */
-typedef struct _smc_version_id
-{
+typedef struct _smc_version_id {
     uint16_t feature; /*!< Feature Specification Number. */
     uint8_t minor;    /*!< Minor version number.         */
     uint8_t major;    /*!< Major version number.         */
@@ -178,8 +170,7 @@ typedef struct _smc_version_id
 /*!
  * @brief IP parameter definition.
  */
-typedef struct _smc_param
-{
+typedef struct _smc_param {
     bool hsrunEnable; /*!< HSRUN mode enable. */
     bool llsEnable;   /*!< LLS mode enable.   */
     bool lls2Enable;  /*!< LLS2 mode enable.  */
@@ -192,8 +183,7 @@ typedef struct _smc_param
 /*!
  * @brief SMC Low-Leakage Stop power mode config
  */
-typedef struct _smc_power_mode_lls_config
-{
+typedef struct _smc_power_mode_lls_config {
 #if (defined(FSL_FEATURE_SMC_HAS_LLS_SUBMODE) && FSL_FEATURE_SMC_HAS_LLS_SUBMODE)
     smc_stop_submode_t subMode; /*!< Low-leakage Stop sub-mode */
 #endif
@@ -207,8 +197,7 @@ typedef struct _smc_power_mode_lls_config
 /*!
  * @brief SMC Very Low-Leakage Stop power mode config
  */
-typedef struct _smc_power_mode_vlls_config
-{
+typedef struct _smc_power_mode_vlls_config {
 #if (defined(FSL_FEATURE_SMC_USE_VLLSCTRL_REG) && FSL_FEATURE_SMC_USE_VLLSCTRL_REG) ||     \
     (defined(FSL_FEATURE_SMC_USE_STOPCTRL_VLLSM) && FSL_FEATURE_SMC_USE_STOPCTRL_VLLSM) || \
     (defined(FSL_FEATURE_SMC_HAS_LLS_SUBMODE) && FSL_FEATURE_SMC_HAS_LLS_SUBMODE)

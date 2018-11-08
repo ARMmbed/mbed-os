@@ -206,11 +206,9 @@ void RNGA_Deinit(RNG_Type *base)
 static uint32_t rnga_ReadEntropy(RNG_Type *base)
 {
     uint32_t data = 0;
-    if (RNGA_GetMode(base) == kRNGA_ModeNormal) /* Is in normal mode.*/
-    {
+    if (RNGA_GetMode(base) == kRNGA_ModeNormal) { /* Is in normal mode.*/
         /* Wait for valid random-data.*/
-        while (RNG_RD_SR_OREG_LVL(base) == 0)
-        {
+        while (RNG_RD_SR_OREG_LVL(base) == 0) {
         }
         data = RNG_RD_OR(base);
     }
@@ -228,34 +226,26 @@ status_t RNGA_GetRandomData(RNG_Type *base, void *data, size_t data_size)
     uint32_t i;
 
     /* Check input parameters.*/
-    if (base && data && data_size)
-    {
-        do
-        {
+    if (base && data && data_size) {
+        do {
             /* Read Entropy.*/
             random_32 = rnga_ReadEntropy(base);
 
             random_p = (uint8_t *)&random_32;
 
-            if (data_size < sizeof(random_32))
-            {
+            if (data_size < sizeof(random_32)) {
                 random_size = data_size;
-            }
-            else
-            {
+            } else {
                 random_size = sizeof(random_32);
             }
 
-            for (i = 0; i < random_size; i++)
-            {
+            for (i = 0; i < random_size; i++) {
                 *data_p++ = *random_p++;
             }
 
             data_size -= random_size;
         } while (data_size > 0);
-    }
-    else
-    {
+    } else {
         result = kStatus_InvalidArgument;
     }
 

@@ -24,9 +24,9 @@
 /**
  * @file cb_bt_man.h
  *
- * @brief General Bluetooth functionality. This includes initialization of 
- * the Bluetooth radio and stack, handling properties such as device 
- * name, scanning for other devices using inquiry or Bluetooth Low Energy 
+ * @brief General Bluetooth functionality. This includes initialization of
+ * the Bluetooth radio and stack, handling properties such as device
+ * name, scanning for other devices using inquiry or Bluetooth Low Energy
  * scan and more.
  */
 
@@ -57,20 +57,19 @@ extern "C" {
 
 extern const TBdAddr invalidBdAddress;
 
-typedef enum
-{
+typedef enum {
     cbBM_INQUIRY_GENERAL = 0,
     cbBM_INQUIRY_LIMITED = 1,
 } cbBM_InquiryType;
 
 typedef void (*cbBM_InquiryEventCallback)(
-     TBdAddr *pBdAddress,
-     TCod cod,
-     cb_uint16 clockOffset,
-     cb_int8 rssi,
-     cb_char *pName,
-     TExtInqRsp* pExtInqRsp,
-     cb_uint8 length);
+    TBdAddr *pBdAddress,
+    TCod cod,
+    cb_uint16 clockOffset,
+    cb_int8 rssi,
+    cb_char *pName,
+    TExtInqRsp *pExtInqRsp,
+    cb_uint8 length);
 
 typedef void (*cbBM_InquiryCompleteCallback)(
     cb_int32 status);
@@ -80,16 +79,14 @@ typedef void (*cbBM_RemoteNameCallback)(
     TName *pName,
     cb_int32 status);
 
-typedef enum
-{
+typedef enum {
     cbBM_DEVICE_DISCOVERY_LE_ALL = 0,
     cbBM_DEVICE_DISCOVERY_LE_GENERAL,
     cbBM_DEVICE_DISCOVERY_LE_LIMITED,
     cbBM_DEVICE_DISCOVERY_LE_ALL_NO_FILTERING
 } cbBM_DeviceDiscoveryTypeLe;
 
-typedef enum
-{
+typedef enum {
     cbBM_ACTIVE_SCAN = 0,
     cbBM_PASSIVE_SCAN = 1
 } cbBM_ScanTypeLe;
@@ -104,34 +101,29 @@ typedef void (*cbBM_DeviceDiscoveryLeEventCallback)(
 typedef void (*cbBM_DeviceDiscoveryLeCompleteCallback)(
     cb_int32 status);
 
-typedef enum
-{
+typedef enum {
     cbBM_DISCOVERABLE_MODE_NONE = 0,
     cbBM_DISCOVERABLE_MODE_LIMITED = 1,
     cbBM_DISCOVERABLE_MODE_GENERAL = 2,
 } cbBM_DiscoverableMode;
 
-typedef enum
-{
+typedef enum {
     cbBM_CONNECTABLE_MODE_NOT_CONNECTABLE = 0,
     cbBM_CONNECTABLE_MODE_CONNECTABLE
 } cbBM_ConnectableMode;
 
-typedef enum
-{
+typedef enum {
     cbBM_DISCOVERABLE_MODE_LE_NONE = 0,
     cbBM_DISCOVERABLE_MODE_LE_LIMITED = 1,
     cbBM_DISCOVERABLE_MODE_LE_GENERAL = 2,
 } cbBM_DiscoverableModeLe;
 
-typedef enum
-{
+typedef enum {
     cbBM_CONNECTABLE_MODE_LE_NOT_CONNECTABLE = 0,
     cbBM_CONNECTABLE_MODE_LE_CONNECTABLE
 } cbBM_ConnectableModeLe;
 
-typedef enum
-{
+typedef enum {
     cbBM_SET_CHANNEL_MAP_CNF_POS,
     cbBM_SET_CHANNEL_MAP_CNF_NEG,
 } cbBM_ChannelMapEvt;
@@ -143,15 +135,13 @@ typedef void (*cbBM_ChannelMapCallb)(
 typedef void (*cbBM_InitComplete)(void);
 typedef void(*cbBM_LocalAddressCb)(void);
 
-typedef enum
-{
+typedef enum {
     cbBM_LE_ROLE_DISABLED = 0,
     cbBM_LE_ROLE_CENTRAL = 1,
     cbBM_LE_ROLE_PERIPHERAL = 2,
 } cbBM_LeRole;
 
-typedef struct
-{
+typedef struct {
     cb_uint8  flags;
     cb_uint8  flowDirection;
     cb_uint8  serviceType;
@@ -161,11 +151,10 @@ typedef struct
     cb_uint32 latency;
 } cbBM_FlowSpecParams;
 
-/** 
+/**
  * Bluetooth Manager initialization parameters.
 */
-typedef struct
-{
+typedef struct {
     TBdAddr         address;                    /** Bluetooth address that shall be assigned to controller. Pass invalidBdAddress to use controller default address*/
     cbBM_LeRole     leRole;                     /** Bluetooth low energy role */
     cb_int8         maxOutputPower;             /** Maximum output power. */
@@ -181,14 +170,14 @@ typedef void(*cbBM_ServiceEnabled)(cb_uint8 serviceChannel);
  *=========================================================================*/
 
 /**
- * Initialize the Bluetooth Radio, the connectBlue Embedded Bluetooth 
+ * Initialize the Bluetooth Radio, the connectBlue Embedded Bluetooth
  * Stack and the Bluetooth Manager.
- * The init complete callback is used to notify when the initialization is 
+ * The init complete callback is used to notify when the initialization is
  * complete. During initialization default values are set for all properties.
  * The application shall set desired values for the main Bluetooth properties
- * such as local name after the initialization is complete. After init the device 
+ * such as local name after the initialization is complete. After init the device
  * is non discoverable and non connectable.
- * 
+ *
  * @param pInitParameters       Init parameters
  * @param initCompleteCallback  Callback used to notify when the initialization is complete.
  * @return None
@@ -238,7 +227,7 @@ extern cb_int32 cbBM_setFastDiscovery(
 */
 extern cb_boolean cbBM_getFastDiscovery(void);
 /**
- * This function sets all default parameters for LE. 
+ * This function sets all default parameters for LE.
  * This function needs to be called before the cbBM_init.
 */
 extern void cbBM_setDefaultValuesLeParams(void);
@@ -275,7 +264,7 @@ extern cb_int32 cbBM_getLocalAddress(TBdAddr *pAddress);
  * @param pName         The new local name.
  * @return If the operation is successful cbBM_OK is returned.
  */
-extern cb_int32 cbBM_setLocalName(cb_char* pName);
+extern cb_int32 cbBM_setLocalName(cb_char *pName);
 
 /**
  * Get local name.
@@ -300,7 +289,7 @@ extern cb_int32 cbBM_setCod(TCod cod);
  * @param pCod Pointer to return variable.
  * @return If the operation is successful cbBM_OK is returned.
  */
-extern cb_int32 cbBM_getCod(TCod* pCod);
+extern cb_int32 cbBM_getCod(TCod *pCod);
 
 /**
  * Set discoverable mode for Bluetooth Classic.
@@ -392,7 +381,7 @@ extern cb_int32 cbBM_inquiryCancel(void);
  * @param pAddress          Pointer to address of remote device.
  * @param clockOffset       Clock offset. Can be found in inquiry response.
  * @param pageTimeout       Page timeout in ms (Length of connection attempt).
- * @param remoteNameCallb   Callback used to notify the the completion of the 
+ * @param remoteNameCallb   Callback used to notify the the completion of the
  *                          name request.
  * @return If the operation is successfully initiated cbBM_OK is returned.
  */
@@ -410,14 +399,14 @@ extern cb_int32 cbBM_remoteName(
  * @param serviceChannel channel the service is started on.
  * @return If the operation is successful cbBM_OK is returned.
  */
-extern cb_int32 cbBM_addServiceClass(cb_uint16 uuid16, cbBM_ServiceEnabled pCallback,cb_uint8 serviceChannel);
+extern cb_int32 cbBM_addServiceClass(cb_uint16 uuid16, cbBM_ServiceEnabled pCallback, cb_uint8 serviceChannel);
 
 /**
- * Check if service class is already registered. 
+ * Check if service class is already registered.
  * @param uuid16 The UUID to check
  * @return TRUE If the ServiceClass is registered, FALSE otherwise.
  */
-cb_boolean cbBM_isServiceClassRegistered(cb_uint16 uuid16 );
+cb_boolean cbBM_isServiceClassRegistered(cb_uint16 uuid16);
 
 /**
  * Add service class to inquiry response data. Typically
@@ -427,7 +416,7 @@ cb_boolean cbBM_isServiceClassRegistered(cb_uint16 uuid16 );
  * @param serviceChannel channel the service is started on.
  * @return If the operation is successful cbBM_OK is returned.
  */
-extern cb_int32 cbBM_add128BitsServiceClass(cb_uint8* uuid128, cbBM_ServiceEnabled pCallback, cb_uint8 serviceChannel);
+extern cb_int32 cbBM_add128BitsServiceClass(cb_uint8 *uuid128, cbBM_ServiceEnabled pCallback, cb_uint8 serviceChannel);
 
 /**
  * Set maximum Bluetooth Classic ACL links the stack
@@ -441,13 +430,13 @@ extern cb_int32 cbBM_setMaxConnections(cb_uint32 maxConnections);
  * Get controller version string.
  * @return Pointer to NULL terminated version string.
  */
-extern cb_char* cbBM_getControllerVersionString(void);
+extern cb_char *cbBM_getControllerVersionString(void);
 
 /**
  * Get stack version string.
  * @return Pointer to NULL terminated version string.
  */
-extern cb_char* cbBM_getStackVersionString(void);
+extern cb_char *cbBM_getStackVersionString(void);
 
 /**
  * Get current Bluetooth Low Energy Role.
@@ -466,7 +455,7 @@ extern cb_int32 cbBM_setDiscoverableModeLe(
 
 /**
  * Get Bluetooth Low Energy discoverable mode.
- * @param   pDiscoverableMode  Pointer to return variable 
+ * @param   pDiscoverableMode  Pointer to return variable
  * @return  cbBM_OK is returned on success.
  */
 extern cb_int32 cbBM_getDiscoverableModeLe(
@@ -488,7 +477,7 @@ extern cb_int32 cbBM_setConnectableModeLe(
  * @return  cbBM_OK is returned on success.
  */
 extern cb_int32 cbBM_getConnectableModeLe(
-    cbBM_ConnectableModeLe* pConnectable);
+    cbBM_ConnectableModeLe *pConnectable);
 
 /**
  * Set custom advertising data.
@@ -497,7 +486,7 @@ extern cb_int32 cbBM_getConnectableModeLe(
  * @return  cbBM_OK is returned on success.
  */
 extern cb_int32 cbBM_setCustomAdvData(
-    TAdvData* pAdvData);
+    TAdvData *pAdvData);
 
 /**
  * Set custom scan response data.
@@ -506,7 +495,7 @@ extern cb_int32 cbBM_setCustomAdvData(
  * @return  cbBM_OK is returned on success.
  */
 extern cb_int32 cbBM_setCustomScanRspData(
-    TAdvData* pScanRspData);
+    TAdvData *pScanRspData);
 
 /**
  * Set current scan response data.
@@ -515,7 +504,7 @@ extern cb_int32 cbBM_setCustomScanRspData(
  * @return  cbBM_OK is returned on success.
  */
 extern cb_int32 cbBM_getAdvData(
-    TAdvData* pAdvData);
+    TAdvData *pAdvData);
 
 /**
  * Get current scan response data.
@@ -523,8 +512,8 @@ extern cb_int32 cbBM_getAdvData(
  * @param   pScanRspData    Pointer to scan response data.
  * @return  cbBM_OK is returned on success.
  */
- extern cb_int32 cbBM_getScanRspData(
-     TAdvData* pScanRspData);
+extern cb_int32 cbBM_getScanRspData(
+    TAdvData *pScanRspData);
 
 /**
  * Set default Bluetooth Low Energy connection parameters.
@@ -537,12 +526,12 @@ extern cb_int32 cbBM_getAdvData(
  * @param   linklossTmo        Default link loss timeout
  * @return  cbBM_OK is returned on success.
  */
- cb_int32 cbBM_setAutoConnectionParams(
-     cb_uint32 createConnectionTimeout,
-     cb_uint16 connIntervalMin,
-     cb_uint16 connIntervalMax,
-     cb_uint16 connLatency,
-     cb_uint16 linklossTmo);
+cb_int32 cbBM_setAutoConnectionParams(
+    cb_uint32 createConnectionTimeout,
+    cb_uint16 connIntervalMin,
+    cb_uint16 connIntervalMax,
+    cb_uint16 connLatency,
+    cb_uint16 linklossTmo);
 
 /**
  * Get default Bluetooth Low Energy connection parameters.
@@ -553,12 +542,12 @@ extern cb_int32 cbBM_getAdvData(
  * @param   pLinklossTmo        Default link loss timeout
  * @return  cbBM_OK is returned on success.
  */
- cb_int32 cbBM_getAutoConnectionParams(
-     cb_uint32 *pCreateConnectionTimeout,
-     cb_uint16 *pConnIntervalMin,
-     cb_uint16 *pConnIntervalMax,
-     cb_uint16 *pConnLatency,
-     cb_uint16 *pLinklossTmo);
+cb_int32 cbBM_getAutoConnectionParams(
+    cb_uint32 *pCreateConnectionTimeout,
+    cb_uint16 *pConnIntervalMin,
+    cb_uint16 *pConnIntervalMax,
+    cb_uint16 *pConnLatency,
+    cb_uint16 *pLinklossTmo);
 
 /**
  * Get Bluetooth Low Energy scan parameters.
@@ -611,7 +600,7 @@ extern cb_int32 cbBM_remoteNameLe(TBdAddr *pAddress,
  * @param uuid128 Pointer to 128bit UUID
  * @return If the operation is successfully initiated cbBM_OK is returned.
  */
-extern cb_int32 cbBM_add128BitsServiceClassLe(cb_uint8* uuid128);
+extern cb_int32 cbBM_add128BitsServiceClassLe(cb_uint8 *uuid128);
 
 /*
  * Read the used max tx power .
@@ -623,17 +612,17 @@ extern cb_int8 cbBM_getMaxTxPower(void);
 * Read the connection parameters for Bond.
 * @return cbCMLE_AclParamsLe pointer to values.
 */
-void cbBM_getBondParameters(TAclParamsLe* bondParams);
+void cbBM_getBondParameters(TAclParamsLe *bondParams);
 /*
 * Read the connection parameters for connection.
 * @return cbCMLE_AclParamsLe pointer to values.
 */
-void cbBM_getConnectParameters(TAclParamsLe* aclParams);
+void cbBM_getConnectParameters(TAclParamsLe *aclParams);
 /*
 * Read the connection parameters for remote name request.
 * @return cbCMLE_AclParamsLe pointer to values.
 */
-void cbBM_getRemoteNameReqParameters(TAclParamsLe* aclParams);
+void cbBM_getRemoteNameReqParameters(TAclParamsLe *aclParams);
 
 
 cb_int32 cbBM_setForceClassicNotSupportedInAdv(cb_boolean enforceDisable);

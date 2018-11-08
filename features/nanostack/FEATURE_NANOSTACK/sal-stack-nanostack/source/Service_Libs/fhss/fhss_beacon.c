@@ -31,7 +31,7 @@
 // This function should be called just prior actually sending a beacon packet
 // to get precise information. Especially the time variables are essential.
 int fhss_beacon_update_payload(fhss_structure_t *fhss_structure,
-        fhss_synchronization_beacon_payload_s *payload)
+                               fhss_synchronization_beacon_payload_s *payload)
 {
 
     int ret_val = 0;
@@ -67,7 +67,7 @@ int fhss_beacon_update_payload(fhss_structure_t *fhss_structure,
     return ret_val;
 }
 
-uint8_t* fhss_beacon_encode_raw(uint8_t* buffer, const fhss_synchronization_beacon_payload_s* source)
+uint8_t *fhss_beacon_encode_raw(uint8_t *buffer, const fhss_synchronization_beacon_payload_s *source)
 {
     *buffer++ = FHSS_DATA_START_DELIMETER;
     *buffer++ = source->channel_index;
@@ -92,18 +92,18 @@ uint8_t fhss_calculate_uc_index(uint8_t channel_index, uint16_t number_of_channe
     if (channel_index == 0) {
         return (number_of_channels - number_of_broadcast_channels - 1);
     }
-    uint16_t bc_channel_density = (number_of_channels/number_of_broadcast_channels);
-    return channel_index - (channel_index/bc_channel_density) - 1;
+    uint16_t bc_channel_density = (number_of_channels / number_of_broadcast_channels);
+    return channel_index - (channel_index / bc_channel_density) - 1;
 }
 
 
 uint32_t fhss_get_time_to_next_channel_change(uint16_t remaining_slots_to_next_superframe, uint8_t number_of_superframes,
-        uint8_t current_superframe, uint16_t superframe_length)
+                                              uint8_t current_superframe, uint16_t superframe_length)
 {
     return remaining_slots_to_next_superframe + ((uint32_t)((number_of_superframes - 1) - current_superframe) * superframe_length);
 }
 
-void fhss_beacon_decode_raw(fhss_synchronization_beacon_payload_s* dest, const uint8_t* buffer)
+void fhss_beacon_decode_raw(fhss_synchronization_beacon_payload_s *dest, const uint8_t *buffer)
 {
     dest->data_start_delimeter = *buffer++;
 
@@ -137,9 +137,9 @@ void fhss_beacon_decode_raw(fhss_synchronization_beacon_payload_s* dest, const u
 }
 
 // Decode the given raw byte buffer into a struct into dest struct and calculate
-// the new values for elapsed_time, channel_index, current_superframe and remaining_slots 
+// the new values for elapsed_time, channel_index, current_superframe and remaining_slots
 // from current state and given data.
-void fhss_beacon_decode(fhss_synchronization_beacon_payload_s* dest, const uint8_t* buffer, uint32_t elapsed_time, uint16_t number_of_channels)
+void fhss_beacon_decode(fhss_synchronization_beacon_payload_s *dest, const uint8_t *buffer, uint32_t elapsed_time, uint16_t number_of_channels)
 {
     fhss_beacon_decode_raw(dest, buffer);
 

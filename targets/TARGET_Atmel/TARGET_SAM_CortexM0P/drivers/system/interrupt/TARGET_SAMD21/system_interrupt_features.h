@@ -52,12 +52,12 @@
 /* Generates a interrupt vector table enum list entry for a given module type
    and index (e.g. "SYSTEM_INTERRUPT_MODULE_TC0 = TC0_IRQn,"). */
 #  define _MODULE_IRQn(n, module) \
-		SYSTEM_INTERRUPT_MODULE_##module##n = module##n##_IRQn,
+        SYSTEM_INTERRUPT_MODULE_##module##n = module##n##_IRQn,
 
 /* Generates interrupt vector table enum list entries for all instances of a
    given module type on the selected device. */
 #  define _SYSTEM_INTERRUPT_MODULES(name) \
-		MREPEAT(name##_INST_NUM, _MODULE_IRQn, name)
+        MREPEAT(name##_INST_NUM, _MODULE_IRQn, name)
 
 #  define _SYSTEM_INTERRUPT_IPSR_MASK              0x0000003f
 #  define _SYSTEM_INTERRUPT_PRIORITY_MASK          0x00000003

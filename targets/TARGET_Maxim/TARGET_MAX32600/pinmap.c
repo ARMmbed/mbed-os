@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #include "mbed_assert.h"
 #include "pinmap.h"
 #include "objects.h"
@@ -44,11 +44,11 @@ void pin_function(PinName name, int function)
     if ((function >= 0) && (function <= 0xF)) {
         unsigned int port = PINNAME_TO_PORT(name);
         unsigned int pin = PINNAME_TO_PIN(name);
-        uint32_t temp = MXC_GPIO->func_sel[port] & ~(0xF << (pin*4));
-        MXC_GPIO->func_sel[port] = temp | ((uint32_t)function << (pin*4));
+        uint32_t temp = MXC_GPIO->func_sel[port] & ~(0xF << (pin * 4));
+        MXC_GPIO->func_sel[port] = temp | ((uint32_t)function << (pin * 4));
     } else {
         /* Assume this is a pointer to a pin function object */
-        pin_function_t *obj = (pin_function_t*)function;
+        pin_function_t *obj = (pin_function_t *)function;
 
         if ((*obj->reg_ack & obj->ack_mask) != obj->req_val) {
             /* Request pin mapping */
@@ -70,7 +70,7 @@ void pin_mode(PinName name, PinMode mode)
 
     /* Get the current direction */
     uint32_t out_mode = MXC_GPIO->out_mode[port];
-    uint32_t curr_mode = (out_mode >> (pin*4)) & 0xF;
+    uint32_t curr_mode = (out_mode >> (pin * 4)) & 0xF;
     PinDirection dir = PIN_OUTPUT;
     if ((curr_mode == MXC_V_GPIO_OUT_MODE_HIGH_Z_WEAK_PULLUP) || (curr_mode == MXC_V_GPIO_OUT_MODE_HIGH_Z)) {
         dir = PIN_INPUT;
@@ -99,7 +99,7 @@ void pin_mode(PinName name, PinMode mode)
     }
 
     /* Set new mode */
-    out_mode &= ~(0xF << (pin*4));
-    out_mode |= (new_mode << (pin*4));
+    out_mode &= ~(0xF << (pin * 4));
+    out_mode |= (new_mode << (pin * 4));
     MXC_GPIO->out_mode[port] = out_mode;
 }

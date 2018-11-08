@@ -36,15 +36,13 @@
  ******************************************************************************/
 
 /*<! Structure definition for lpuart_edma_private_handle_t. The structure is private. */
-typedef struct _lpuart_edma_private_handle
-{
+typedef struct _lpuart_edma_private_handle {
     LPUART_Type *base;
     lpuart_edma_handle_t *handle;
 } lpuart_edma_private_handle_t;
 
 /* LPUART EDMA transfer handle. */
-enum _lpuart_edma_tansfer_states
-{
+enum _lpuart_edma_tansfer_states {
     kLPUART_TxIdle, /* TX idle. */
     kLPUART_TxBusy, /* TX busy. */
     kLPUART_RxIdle, /* RX idle. */
@@ -106,12 +104,10 @@ static void LPUART_SendEDMACallback(edma_handle_t *handle, void *param, bool tra
     handle = handle;
     tcds = tcds;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         LPUART_TransferAbortSendEDMA(lpuartPrivateHandle->base, lpuartPrivateHandle->handle);
 
-        if (lpuartPrivateHandle->handle->callback)
-        {
+        if (lpuartPrivateHandle->handle->callback) {
             lpuartPrivateHandle->handle->callback(lpuartPrivateHandle->base, lpuartPrivateHandle->handle,
                                                   kStatus_LPUART_TxIdle, lpuartPrivateHandle->handle->userData);
         }
@@ -128,13 +124,11 @@ static void LPUART_ReceiveEDMACallback(edma_handle_t *handle, void *param, bool 
     handle = handle;
     tcds = tcds;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         /* Disable transfer. */
         LPUART_TransferAbortReceiveEDMA(lpuartPrivateHandle->base, lpuartPrivateHandle->handle);
 
-        if (lpuartPrivateHandle->handle->callback)
-        {
+        if (lpuartPrivateHandle->handle->callback) {
             lpuartPrivateHandle->handle->callback(lpuartPrivateHandle->base, lpuartPrivateHandle->handle,
                                                   kStatus_LPUART_RxIdle, lpuartPrivateHandle->handle->userData);
         }
@@ -175,21 +169,18 @@ void LPUART_TransferCreateHandleEDMA(LPUART_Type *base,
        5 bytes are received. the last byte will be saved in FIFO but not trigger
        EDMA transfer because the water mark is 2.
      */
-    if (rxEdmaHandle)
-    {
+    if (rxEdmaHandle) {
         base->WATER &= (~LPUART_WATER_RXWATER_MASK);
     }
 #endif
 
     /* Configure TX. */
-    if (txEdmaHandle)
-    {
+    if (txEdmaHandle) {
         EDMA_SetCallback(handle->txEdmaHandle, LPUART_SendEDMACallback, &s_edmaPrivateHandle[instance]);
     }
 
     /* Configure RX. */
-    if (rxEdmaHandle)
-    {
+    if (rxEdmaHandle) {
         EDMA_SetCallback(handle->rxEdmaHandle, LPUART_ReceiveEDMACallback, &s_edmaPrivateHandle[instance]);
     }
 }
@@ -206,12 +197,9 @@ status_t LPUART_SendEDMA(LPUART_Type *base, lpuart_edma_handle_t *handle, lpuart
     status_t status;
 
     /* If previous TX not finished. */
-    if (kLPUART_TxBusy == handle->txState)
-    {
+    if (kLPUART_TxBusy == handle->txState) {
         status = kStatus_LPUART_TxBusy;
-    }
-    else
-    {
+    } else {
         handle->txState = kLPUART_TxBusy;
         handle->txDataSizeAll = xfer->dataSize;
 
@@ -247,12 +235,9 @@ status_t LPUART_ReceiveEDMA(LPUART_Type *base, lpuart_edma_handle_t *handle, lpu
     status_t status;
 
     /* If previous RX not finished. */
-    if (kLPUART_RxBusy == handle->rxState)
-    {
+    if (kLPUART_RxBusy == handle->rxState) {
         status = kStatus_LPUART_RxBusy;
-    }
-    else
-    {
+    } else {
         handle->rxState = kLPUART_RxBusy;
         handle->rxDataSizeAll = xfer->dataSize;
 
@@ -310,14 +295,13 @@ status_t LPUART_TransferGetReceiveCountEDMA(LPUART_Type *base, lpuart_edma_handl
     assert(handle->rxEdmaHandle);
     assert(count);
 
-    if (kLPUART_RxIdle == handle->rxState)
-    {
+    if (kLPUART_RxIdle == handle->rxState) {
         return kStatus_NoTransferInProgress;
     }
 
     *count = handle->rxDataSizeAll -
              (uint32_t)handle->nbytes *
-                 EDMA_GetRemainingMajorLoopCount(handle->rxEdmaHandle->base, handle->rxEdmaHandle->channel);
+             EDMA_GetRemainingMajorLoopCount(handle->rxEdmaHandle->base, handle->rxEdmaHandle->channel);
 
     return kStatus_Success;
 }
@@ -328,14 +312,13 @@ status_t LPUART_TransferGetSendCountEDMA(LPUART_Type *base, lpuart_edma_handle_t
     assert(handle->txEdmaHandle);
     assert(count);
 
-    if (kLPUART_TxIdle == handle->txState)
-    {
+    if (kLPUART_TxIdle == handle->txState) {
         return kStatus_NoTransferInProgress;
     }
 
     *count = handle->txDataSizeAll -
              (uint32_t)handle->nbytes *
-                 EDMA_GetRemainingMajorLoopCount(handle->txEdmaHandle->base, handle->txEdmaHandle->channel);
+             EDMA_GetRemainingMajorLoopCount(handle->txEdmaHandle->base, handle->txEdmaHandle->channel);
 
     return kStatus_Success;
 }

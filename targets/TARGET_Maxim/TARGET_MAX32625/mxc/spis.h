@@ -75,7 +75,7 @@ struct spis_req {
      * @param   spis_req_t*     Pointer to the transaction request.
      * @param   int             Error code.
      */
-    void (*callback)(spis_req_t*, int);
+    void (*callback)(spis_req_t *, int);
 };
 
 /***** Globals *****/
@@ -191,7 +191,7 @@ __STATIC_INLINE void SPIS_DrainTX(mxc_spis_regs_t *spis)
 __STATIC_INLINE unsigned SPIS_NumWriteAvail(mxc_spis_regs_t *spis)
 {
     return (MXC_CFG_SPIS_FIFO_DEPTH - ((spis->fifo_stat &
-            MXC_F_SPIS_FIFO_STAT_TX_FIFO_USED) >> MXC_F_SPIS_FIFO_STAT_TX_FIFO_USED_POS));
+                                        MXC_F_SPIS_FIFO_STAT_TX_FIFO_USED) >> MXC_F_SPIS_FIFO_STAT_TX_FIFO_USED_POS));
 }
 
 /**

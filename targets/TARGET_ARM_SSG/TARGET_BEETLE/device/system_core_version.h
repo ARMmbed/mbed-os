@@ -36,7 +36,7 @@ extern "C" {
 #define SYSTEM_CORE_TIME            __TIME__
 
 /* Get System Core Version */
-const char* SystemCoreGetVersion(void);
+const char *SystemCoreGetVersion(void);
 
 #ifdef __cplusplus
 }

@@ -49,46 +49,45 @@ extern "C" {
 /**
  * cbBSM_SECURITY_MODE_1_DISABLED
  * Security disabled
- * - Remote Device BT 2.1: Auto accept (No man-in-the-middle attack protection, encryption enabled) 
- * - Remote Device BT 2.0: Authentication and encryption disabled. 
- * - Bluetooth Low Energy: Auto accept (No man-in-the-middle attack protection, encryption enabled) 
- * 
+ * - Remote Device BT 2.1: Auto accept (No man-in-the-middle attack protection, encryption enabled)
+ * - Remote Device BT 2.0: Authentication and encryption disabled.
+ * - Bluetooth Low Energy: Auto accept (No man-in-the-middle attack protection, encryption enabled)
+ *
  * cbBSM_SECURITY_MODE_2_BT_2_0
- * - Enforce BT 2.0 (Service level authentication and encryption enabled) 
+ * - Enforce BT 2.0 (Service level authentication and encryption enabled)
  * Please note that the device is not BT 2.1 qualified for this setting. It is included for backward compatibility. Invalid for Bluetooth Low Energy.
- * 
+ *
  * cbBSM_SECURITY_MODE_3_FIXED_PIN
- * - Remote Device BT 2.1: Service level authentication and encryption enabled. 
- * - Remote Device BT 2.0: Service level authentication and encryption enabled. 
- * - Bluetooth Low Energy: Service level authentication and encryption enabled. 
- * Please note that this security mode will not work with a general BT 2.1 device. However, it will work between two connectBlue BT 2.1 Serial Port Adapters. Use security mode 4 to make the device work with a general BT 2.1 device. 
- * 
+ * - Remote Device BT 2.1: Service level authentication and encryption enabled.
+ * - Remote Device BT 2.0: Service level authentication and encryption enabled.
+ * - Bluetooth Low Energy: Service level authentication and encryption enabled.
+ * Please note that this security mode will not work with a general BT 2.1 device. However, it will work between two connectBlue BT 2.1 Serial Port Adapters. Use security mode 4 to make the device work with a general BT 2.1 device.
+ *
  * cbBSM_SECURITY_MODE_4_JUST_WORKS
- * - Remote Device BT 2.1: Auto accept (no man-in-the-middle attack protection, encryption enabled) 
- * - Remote Device BT 2.0: Service level authentication and encryption enabled. 
+ * - Remote Device BT 2.1: Auto accept (no man-in-the-middle attack protection, encryption enabled)
+ * - Remote Device BT 2.0: Service level authentication and encryption enabled.
  * - Bluetooth Low Energy: Auto accept (no man-in-the-middle attack protection, encryption enabled)
- * This security mode is intended for pairing in safe environments. When this mode is set, pairability (see AT*AGPM) is automatically disabled. In data mode, pairing can be enabled for 60 seconds by pressing the "External Connect" button for at least 5 seconds. When the module is pairable, the LED will blink. If the mode is changed from Just Works to another, pairability must be enabled again using the AT*AGPM command. 
- * 
- * cbBSM_SECURITY_MODE_5_DISPLAY_ONLY 
- * - Remote Device BT 2.1: Service level authentication and encryption enabled. User should be presented a passkey. 
- * - Remote Device BT 2.0: Service level authentication and encryption enabled. No user interaction required. 
+ * This security mode is intended for pairing in safe environments. When this mode is set, pairability (see AT*AGPM) is automatically disabled. In data mode, pairing can be enabled for 60 seconds by pressing the "External Connect" button for at least 5 seconds. When the module is pairable, the LED will blink. If the mode is changed from Just Works to another, pairability must be enabled again using the AT*AGPM command.
+ *
+ * cbBSM_SECURITY_MODE_5_DISPLAY_ONLY
+ * - Remote Device BT 2.1: Service level authentication and encryption enabled. User should be presented a passkey.
+ * - Remote Device BT 2.0: Service level authentication and encryption enabled. No user interaction required.
  * - Bluetooth Low Energy: Service level authentication and encryption enabled. User should be presented a passkey.
- * This security mode is used when the device has a display that can present a 6-digit value that the user shall enter on the remote device. 
- * 
- * cbBSM_SECURITY_MODE_6_DISPLAY_YES_NO 
- * - Remote Device BT 2.1: Service level authentication and encryption enabled. User should compare two values. 
- * - Remote Device BT 2.0: Service level authentication and encryption enabled. No user interaction required. 
- * This security mode is used when the device has a display that can present a 6-digit value that the user shall verify with yes or no to the remote device's presented value. 
+ * This security mode is used when the device has a display that can present a 6-digit value that the user shall enter on the remote device.
+ *
+ * cbBSM_SECURITY_MODE_6_DISPLAY_YES_NO
+ * - Remote Device BT 2.1: Service level authentication and encryption enabled. User should compare two values.
+ * - Remote Device BT 2.0: Service level authentication and encryption enabled. No user interaction required.
+ * This security mode is used when the device has a display that can present a 6-digit value that the user shall verify with yes or no to the remote device's presented value.
  * Invalid for Bluetooth Low Energy.
- * 
+ *
  * cbBSM_SECURITY_MODE_7_KEYBOARD_ONLY
- * - Remote Device BT 2.1: Service level authentication and encryption enabled. User should enter a passkey. 
- * - Remote Device BT 2.0: Service level authentication and encryption enabled. No user interaction required. 
+ * - Remote Device BT 2.1: Service level authentication and encryption enabled. User should enter a passkey.
+ * - Remote Device BT 2.0: Service level authentication and encryption enabled. No user interaction required.
  * - Bluetooth Low Energy: Service level authentication and encryption enabled. User should enter a passkey.
- * This security mode is used when the device only has a keyboard where the user can enter a 6-digit value that is presented on the remote device. 
+ * This security mode is used when the device only has a keyboard where the user can enter a 6-digit value that is presented on the remote device.
  */
-typedef enum
-{
+typedef enum {
     cbBSM_SECURITY_MODE_1_DISABLED = 1,
     cbBSM_SECURITY_MODE_2_BT_2_0,
     cbBSM_SECURITY_MODE_3_FIXED_PIN,
@@ -98,21 +97,18 @@ typedef enum
     cbBSM_SECURITY_MODE_7_KEYBOARD_ONLY
 } cbBSM_SecurityMode;
 
-typedef struct
-{
+typedef struct {
     TPinCode pin;
     cb_uint8   nBytes;
 } cbBSM_PinCode;
 
-typedef enum
-{
+typedef enum {
     cbBSM_BOND_TYPE_CLASSIC,
     cbBSM_BOND_TYPE_LE,
     cbBSM_BOND_TYPE_ALL,
 } cbBSM_BondTypes;
 
-typedef enum
-{
+typedef enum {
     cbBSM_BOND_STATUS_OK = 0,
     cbBSM_BOND_STATUS_ERR_PAGE_TMO,
     cbBSM_BOND_STATUS_ERR_AUTH_FAIL,
@@ -127,45 +123,45 @@ typedef enum
  */
 typedef void (*cbBSM_BondCnf)(
     cbBSM_BondStatus status,
-    TBdAddr* pBdAddress);
+    TBdAddr *pBdAddress);
 
 /**
  * Callback to indicate that a pin code is required from upper layer.
  * Respond the pin code request with cbBSM_rspFixedPin/cbBSM_rspNegFixedPin
- * This is only used when either local or remote side does not support 
+ * This is only used when either local or remote side does not support
  * BT 2.1 secure simple pairing.
  * @param   bdAddress Remote BD address
  * @return  None
  */
 typedef void (*cbBSM_RequestPinInd)(
-    TBdAddr* pBdAddress);
+    TBdAddr *pBdAddress);
 
 /**
  * Callback to indicate that user confirmation is required. The user should
- * compare numericValues on local and remote side and respond the confirmation 
- * request with cbBSM_rspUserConfirmation if values match and 
+ * compare numericValues on local and remote side and respond the confirmation
+ * request with cbBSM_rspUserConfirmation if values match and
  * cbBSM_rspNegUserConfirmation if they do not match or user wants to interrupt
  * the pairing attempt.
- * This is only used when both sides support BT 2.1 secure simple pairing and 
+ * This is only used when both sides support BT 2.1 secure simple pairing and
  * security mode cbBSM_SECURITY_MODE_6_DISPLAY_YES_NO is used.
  * @param   bdAddress Remote BD address
  * @param   numericValue The numeric value to be compared
  * @return  None
  */
 typedef void (*cbBSM_UserConfirmationInd)(
-    TBdAddr* pBdAddress,
+    TBdAddr *pBdAddress,
     cb_uint32 numericValue);
 
 /**
  * Callback to indicate that a passkey is required from upper layer.
  * Respond the passkey request with cbBSM_rspUserPasskey/cbBSM_rspNegUserPasskey.
- * This is only used when both sides support BT 2.1 secure simple pairing and 
+ * This is only used when both sides support BT 2.1 secure simple pairing and
  * security modes cbBSM_SECURITY_MODE_3_FIXED_PIN or cbBSM_SECURITY_MODE_7_KEYBOARD_ONLY is used
  * @param   bdAddress Remote BD address
  * @return  None
  */
 typedef void (*cbBSM_UserPasskeyInd)(
-    TBdAddr* pBdAddress);
+    TBdAddr *pBdAddress);
 
 /**
  * Callback to indicate that a passkey is used in the pairing procedure.
@@ -177,11 +173,10 @@ typedef void (*cbBSM_UserPasskeyInd)(
  * @return  None
  */
 typedef void (*cbBSM_UserPasskeyEvt)(
-    TBdAddr* pBdAddress,
+    TBdAddr *pBdAddress,
     cb_uint32 passkey);
 
-typedef struct  
-{
+typedef struct {
     cbBSM_RequestPinInd requestPinInd;
     cbBSM_UserConfirmationInd userConfirmationInd;
     cbBSM_UserPasskeyInd userPasskeyInd;
@@ -197,24 +192,24 @@ typedef struct
 /**
  * Initialization of BLuetooth security manager. Called during stack
  * initialization. Shall not be called by application.
- * 
+ *
  * @return  None
  */
 extern void cbBSM_init(void);
 
 /**
- * Register security callbacks. Callbacks in the struct that are not 
+ * Register security callbacks. Callbacks in the struct that are not
  * of any interest can be set to NULL.
  *
  * @param pPairingCallbacks Pointer to the security callback struct
  * @return If the operation is successful cbBSM_OK is returned.
  */
-extern cb_int32 cbBSM_registerCallbacks(cbBSM_Callbacks* pPairingCallbacks);
+extern cb_int32 cbBSM_registerCallbacks(cbBSM_Callbacks *pPairingCallbacks);
 
 /**
- * Set security mode. See comments on cbBSM_SecurityMode for 
+ * Set security mode. See comments on cbBSM_SecurityMode for
  * description of the different security modes.
- * 
+ *
  * @param securityMode Security mode. Default security is cbBSM_SECURITY_MODE_1_DISABLED
  * @param allowPairingInNonBondableMode Normally FALSE. Set to TRUE if pairing should be allowed when not bondable.
  *                                      No link keys will then be stored.
@@ -226,11 +221,11 @@ extern cb_int32 cbBSM_setSecurityMode(
 
 /**
  * Read current security mode.
- * 
+ *
  * @param pSecurityMode Security mode
  * @return If the operation is successful cbBSM_OK is returned.
  */
-extern cb_int32 cbBSM_getSecurityMode(cbBSM_SecurityMode* pSecurityMode);
+extern cb_int32 cbBSM_getSecurityMode(cbBSM_SecurityMode *pSecurityMode);
 
 /**
  * Sets the local device pairable mode.
@@ -242,11 +237,11 @@ extern cb_int32 cbBSM_setPairable(boolean pairable);
 
 /**
  * Gets the local device pairable mode.
- * 
+ *
  * @param pPairable Pointer to return value
  * @return If the operation is successful cbBSM_OK is returned.
  */
-extern cb_int32 cbBSM_getPairable(boolean* pPairable);
+extern cb_int32 cbBSM_getPairable(boolean *pPairable);
 
 /**
  * Performs bonding with a remote device. The cbBSM_BondCnf callback will
@@ -262,7 +257,7 @@ extern cb_int32 cbBSM_reqBond(
 
 /**
  * Responds on the cbBSM_RequestPinInd callback with a pin code
- * This is only used when either local or remote side does not support 
+ * This is only used when either local or remote side does not support
  * BT 2.1 secure simple pairing.
  *
  * @param pBdAddress Pointer to the remote BD address
@@ -271,20 +266,20 @@ extern cb_int32 cbBSM_reqBond(
  * @return If the operation is successful cbBSM_OK is returned.
  */
 extern cb_int32 cbBSM_rspFixedPin(
-    TBdAddr* pBdAddress,
+    TBdAddr *pBdAddress,
     cb_uint8 pinCodeLength,
     cb_uint8 *pPinCode);
 
 /**
  * Responds the cbBSM_RequestPinInd callback. Can be used to interrupt a
  * pairing attempt from the remote device.
- * This is only used when either local or remote side does not support 
+ * This is only used when either local or remote side does not support
  * BT 2.1 secure simple pairing.
  *
  * @param   pBdAddress Pointer to the remote BD address
  * @return  If the operation is successful cbBSM_OK is returned.
  */
-extern cb_int32 cbBSM_rspNegFixedPin(TBdAddr* pBdAddress);
+extern cb_int32 cbBSM_rspNegFixedPin(TBdAddr *pBdAddress);
 
 /**
  * Responds on the cbBSM_UserPasskeyInd callback.
@@ -315,7 +310,7 @@ extern cb_int32 cbBSM_rspNegUserPasskey(TBdAddr *pBdAddress);
  * @param   pBdAddress Pointer to the remote BD address
  * @return  If the operation is successful cbBSM_OK is returned.
  */
-extern cb_int32 cbBSM_rspUserConfirmation(TBdAddr* pBdAddress);
+extern cb_int32 cbBSM_rspUserConfirmation(TBdAddr *pBdAddress);
 
 /**
  * Responds on the cbBSM_UserConfirmationInd callback. Rejects the numeric value.
@@ -324,7 +319,7 @@ extern cb_int32 cbBSM_rspUserConfirmation(TBdAddr* pBdAddress);
  * @param   pBdAddress Pointer to the remote BD address
  * @return  If the operation is successful cbBSM_OK is returned.
  */
-extern cb_int32 cbBSM_rspNegUserConfirmation(TBdAddr* pBdAddress);
+extern cb_int32 cbBSM_rspNegUserConfirmation(TBdAddr *pBdAddress);
 
 /**
  * Get number of bonded devices.
@@ -335,7 +330,7 @@ extern cb_int32 cbBSM_rspNegUserConfirmation(TBdAddr* pBdAddress);
  */
 extern cb_int32 cbBSM_getAllNumberBondedDevices(
     cbBSM_BondTypes type,
-    uint32* pNo);
+    uint32 *pNo);
 
 /**
 * Get a bonded devices.
@@ -347,20 +342,20 @@ extern cb_int32 cbBSM_getAllNumberBondedDevices(
 */
 extern cb_int32 cbBSM_getBondedDevice(
     cb_int32 deviceIndex,
-    TBdAddr* pBdAddr,
+    TBdAddr *pBdAddr,
     cb_boolean pIsLe);
 
 /**
  * Delete a bonded device and its link keys.
- * 
+ *
  * @param pBdAddress to the address of the device which bond shall be deleted.
  * @return If the operation is successful cbBSM_OK is returned.
  */
-extern cb_int32 cbBSM_deleteBondedDevice(TBdAddr* pBdAddress); 
+extern cb_int32 cbBSM_deleteBondedDevice(TBdAddr *pBdAddress);
 
 /**
  * Delete all bonded devices and link keys.
- * 
+ *
  * @return If the operation is successful cbBSM_OK is returned.
  */
 extern cb_int32 cbBSM_deleteAllBondedDevices(void);

@@ -69,20 +69,20 @@ void RTC_Open(S_RTC_TIME_DATA_T *sPt)
 {
     RTC->INIT = RTC_INIT_KEY;
 
-    if(RTC->INIT != RTC_INIT_ACTIVE_Msk)
-    {
+    if (RTC->INIT != RTC_INIT_ACTIVE_Msk) {
         RTC->INIT = RTC_INIT_KEY;
-        while(RTC->INIT != RTC_INIT_ACTIVE_Msk);
+        while (RTC->INIT != RTC_INIT_ACTIVE_Msk);
     }
 
-    if(sPt == 0)
+    if (sPt == 0) {
         return ;
+    }
 
     /* Set RTC date and time */
     RTC_SetDateAndTime(sPt);
 
     /* Waiting for RTC settings stable */
-    while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == RTC_RWEN_RWENF_Msk);
+    while ((RTC->RWEN & RTC_RWEN_RWENF_Msk) == RTC_RWEN_RWENF_Msk);
 }
 
 /**
@@ -117,8 +117,7 @@ void RTC_32KCalibration(int32_t i32FrequencyX100)
     i32RegFra = (((i32FrequencyX100 % 100)) * 60) / 100;
 
     /* Judge Integer part is reasonable */
-    if((i32RegInt < 0) | (i32RegInt > 15))
-    {
+    if ((i32RegInt < 0) | (i32RegInt > 15)) {
         return ;
     }
 
@@ -181,19 +180,15 @@ void RTC_GetDateAndTime(S_RTC_TIME_DATA_T *sPt)
     sPt->u32Day =  u32Tmp  + g_u32loDay;
 
     /* Compute 12/24 hour */
-    if(sPt->u32TimeScale == RTC_CLOCK_12)
-    {
+    if (sPt->u32TimeScale == RTC_CLOCK_12) {
         u32Tmp = (g_u32hiHour * 10);
         u32Tmp += g_u32loHour;
         sPt->u32Hour = u32Tmp;          /* AM: 1~12. PM: 21~32. */
 
-        if(sPt->u32Hour >= 21)
-        {
+        if (sPt->u32Hour >= 21) {
             sPt->u32AmPm  = RTC_PM;
             sPt->u32Hour -= 20;
-        }
-        else
-        {
+        } else {
             sPt->u32AmPm = RTC_AM;
         }
 
@@ -204,9 +199,7 @@ void RTC_GetDateAndTime(S_RTC_TIME_DATA_T *sPt)
         u32Tmp  = (g_u32hiSec  * 10);
         u32Tmp += g_u32loSec;
         sPt->u32Second = u32Tmp;
-    }
-    else
-    {
+    } else {
         u32Tmp  = (g_u32hiHour * 10);
         u32Tmp += g_u32loHour;
         sPt->u32Hour = u32Tmp;
@@ -278,19 +271,15 @@ void RTC_GetAlarmDateAndTime(S_RTC_TIME_DATA_T *sPt)
     sPt->u32Day = u32Tmp + g_u32loDay;
 
     /* Compute 12/24 hour */
-    if(sPt->u32TimeScale == RTC_CLOCK_12)
-    {
+    if (sPt->u32TimeScale == RTC_CLOCK_12) {
         u32Tmp  = (g_u32hiHour * 10);
         u32Tmp += g_u32loHour;
         sPt->u32Hour = u32Tmp;          /* AM: 1~12. PM: 21~32. */
 
-        if(sPt->u32Hour >= 21)
-        {
+        if (sPt->u32Hour >= 21) {
             sPt->u32AmPm  = RTC_PM;
             sPt->u32Hour -= 20;
-        }
-        else
-        {
+        } else {
             sPt->u32AmPm = RTC_AM;
         }
 
@@ -302,9 +291,7 @@ void RTC_GetAlarmDateAndTime(S_RTC_TIME_DATA_T *sPt)
         u32Tmp += g_u32loSec;
         sPt->u32Second = u32Tmp;
 
-    }
-    else
-    {
+    } else {
         u32Tmp  = (g_u32hiHour * 10);
         u32Tmp +=  g_u32loHour;
         sPt->u32Hour = u32Tmp;
@@ -343,25 +330,24 @@ void RTC_SetDateAndTime(S_RTC_TIME_DATA_T *sPt)
 {
     uint32_t u32RegCAL, u32RegTIME;
 
-    if(sPt == 0)
+    if (sPt == 0) {
         return ;
+    }
 
     /*-----------------------------------------------------------------------------------------------------*/
     /* Set RTC 24/12 hour setting and Day of the Week                                                      */
     /*-----------------------------------------------------------------------------------------------------*/
     RTC_WaitAccessEnable();
-    if(sPt->u32TimeScale == RTC_CLOCK_12)
-    {
+    if (sPt->u32TimeScale == RTC_CLOCK_12) {
         RTC->CLKFMT &= ~RTC_CLKFMT_24HEN_Msk;
 
         /*-------------------------------------------------------------------------------------------------*/
         /* Important, range of 12-hour PM mode is 21 up to 32                                               */
         /*-------------------------------------------------------------------------------------------------*/
-        if(sPt->u32AmPm == RTC_PM)
+        if (sPt->u32AmPm == RTC_PM) {
             sPt->u32Hour += 20;
-    }
-    else
-    {
+        }
+    } else {
         RTC->CLKFMT |= RTC_CLKFMT_24HEN_Msk;
     }
 
@@ -417,25 +403,24 @@ void RTC_SetAlarmDateAndTime(S_RTC_TIME_DATA_T *sPt)
 {
     uint32_t u32RegCALM, u32RegTALM;
 
-    if(sPt == 0)
+    if (sPt == 0) {
         return ;
+    }
 
     /*-----------------------------------------------------------------------------------------------------*/
     /* Set RTC 24/12 hour setting and Day of the Week                                                      */
     /*-----------------------------------------------------------------------------------------------------*/
     RTC_WaitAccessEnable();
-    if(sPt->u32TimeScale == RTC_CLOCK_12)
-    {
+    if (sPt->u32TimeScale == RTC_CLOCK_12) {
         RTC->CLKFMT &= ~RTC_CLKFMT_24HEN_Msk;
 
         /*-------------------------------------------------------------------------------------------------*/
         /* Important, range of 12-hour PM mode is 21 up to 32                                               */
         /*-------------------------------------------------------------------------------------------------*/
-        if(sPt->u32AmPm == RTC_PM)
+        if (sPt->u32AmPm == RTC_PM) {
             sPt->u32Hour += 20;
-    }
-    else
-    {
+        }
+    } else {
         RTC->CLKFMT |= RTC_CLKFMT_24HEN_Msk;
     }
 
@@ -516,8 +501,9 @@ void RTC_SetTime(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, uint3
     uint32_t u32RegTIME;
 
     /* Important, range of 12-hour PM mode is 21 up to 32 */
-    if((u32TimeMode == RTC_CLOCK_12) && (u32AmPm == RTC_PM))
+    if ((u32TimeMode == RTC_CLOCK_12) && (u32AmPm == RTC_PM)) {
         u32Hour += 20;
+    }
 
     u32RegTIME  = ((u32Hour   / 10) << 20);
     u32RegTIME |= ((u32Hour   % 10) << 16);
@@ -530,12 +516,9 @@ void RTC_SetTime(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, uint3
     /* Set RTC 24/12 hour setting and Day of the Week                                                      */
     /*-----------------------------------------------------------------------------------------------------*/
     RTC_WaitAccessEnable();
-    if(u32TimeMode == RTC_CLOCK_12)
-    {
+    if (u32TimeMode == RTC_CLOCK_12) {
         RTC->CLKFMT &= ~RTC_CLKFMT_24HEN_Msk;
-    }
-    else
-    {
+    } else {
         RTC->CLKFMT |= RTC_CLKFMT_24HEN_Msk;
     }
 
@@ -588,8 +571,9 @@ void RTC_SetAlarmTime(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, 
     uint32_t u32RegTALM;
 
     /* Important, range of 12-hour PM mode is 21 up to 32 */
-    if((u32TimeMode == RTC_CLOCK_12) && (u32AmPm == RTC_PM))
+    if ((u32TimeMode == RTC_CLOCK_12) && (u32AmPm == RTC_PM)) {
         u32Hour += 20;
+    }
 
     u32RegTALM  = ((u32Hour   / 10) << 20);
     u32RegTALM |= ((u32Hour   % 10) << 16);
@@ -602,12 +586,9 @@ void RTC_SetAlarmTime(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, 
     /* Set RTC 24/12 hour setting and Day of the Week                                                      */
     /*-----------------------------------------------------------------------------------------------------*/
     RTC_WaitAccessEnable();
-    if(u32TimeMode == RTC_CLOCK_12)
-    {
+    if (u32TimeMode == RTC_CLOCK_12) {
         RTC->CLKFMT &= ~RTC_CLKFMT_24HEN_Msk;
-    }
-    else
-    {
+    } else {
         RTC->CLKFMT |= RTC_CLKFMT_24HEN_Msk;
     }
 
@@ -691,20 +672,17 @@ void RTC_EnableInt(uint32_t u32IntFlagMask)
   */
 void RTC_DisableInt(uint32_t u32IntFlagMask)
 {
-    if(u32IntFlagMask & RTC_INTEN_ALMIEN_Msk)
-    {
+    if (u32IntFlagMask & RTC_INTEN_ALMIEN_Msk) {
         RTC->INTEN  &= ~RTC_INTEN_ALMIEN_Msk;
         RTC->INTSTS = RTC_INTSTS_ALMIF_Msk;
     }
 
-    if(u32IntFlagMask & RTC_INTEN_TICKIEN_Msk)
-    {
+    if (u32IntFlagMask & RTC_INTEN_TICKIEN_Msk) {
         RTC->INTEN  &= ~RTC_INTEN_TICKIEN_Msk;
         RTC->INTSTS = RTC_INTSTS_TICKIF_Msk;
     }
 
-    if(u32IntFlagMask & RTC_INTEN_SNPDIEN_Msk)
-    {
+    if (u32IntFlagMask & RTC_INTEN_SNPDIEN_Msk) {
         RTC->INTEN  &= ~RTC_INTEN_SNPDIEN_Msk;
         RTC->INTSTS = RTC_INTSTS_SNPDIF_Msk;
     }
@@ -725,7 +703,7 @@ void RTC_EnableSpareAccess(void)
 
     RTC->SPRCTL |= RTC_SPRCTL_SPRRWEN_Msk;
 
-    while(!(RTC->SPRCTL & RTC_SPRCTL_SPRRWRDY_Msk));
+    while (!(RTC->SPRCTL & RTC_SPRCTL_SPRRWRDY_Msk));
 }
 
 /**

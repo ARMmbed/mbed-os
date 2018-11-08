@@ -16,7 +16,7 @@
  * Component   : WLAN
  * File        : cb_wlan.h
  *
- * Description : Main WLAN component, ties together WM, SUPPLICANT and 
+ * Description : Main WLAN component, ties together WM, SUPPLICANT and
  *               TARGET to one streamlined API.
  *-------------------------------------------------------------------------*/
 
@@ -173,7 +173,7 @@ typedef struct cbWLAN_CommonApParameters {
     cbWLAN_Ssid             ssid;       /**< SSID to connect to. */
     cbWLAN_Channel          channel;    /**< Active channel. */
     cbWLAN_RateMask         basicRates; /**< Basic rates. */
-}cbWLAN_CommonApParameters;
+} cbWLAN_CommonApParameters;
 
 
 /**
@@ -251,7 +251,7 @@ typedef enum {
     cbWLAN_STATUS_DISCONNECTED_UNKNOWN,
     cbWLAN_STATUS_DISCONNECTED_NO_BSSID_FOUND,
     cbWLAN_STATUS_DISCONNECTED_AUTH_TIMEOUT,
-    cbWLAN_STATUS_DISCONNECTED_MIC_FAILURE, 
+    cbWLAN_STATUS_DISCONNECTED_MIC_FAILURE,
 } cbWLAN_StatusDisconnectedInfo;
 
 /**
@@ -263,8 +263,8 @@ typedef enum {
     cbWLAN_IOCTL_FIRST,
     cbWLAN_IOCTL_SET_POWER_SAVE_MODE = cbWLAN_IOCTL_FIRST,       //!< Set power mode  @ref cbWLAN_IoctlPowerSaveMode
     cbWLAN_IOCTL_GET_POWER_SAVE_MODE,                            //!< Get power mode  @ref cbWLAN_IoctlPowerSaveMode
-    cbWLAN_IOCTL_SET_LISTEN_INTERVAL,                            //!< Set listen interval, integer value 0 - 16 
-    cbWLAN_IOCTL_GET_LISTEN_INTERVAL,                            //!< Get listen interval, integer value 0 - 16 
+    cbWLAN_IOCTL_SET_LISTEN_INTERVAL,                            //!< Set listen interval, integer value 0 - 16
+    cbWLAN_IOCTL_GET_LISTEN_INTERVAL,                            //!< Get listen interval, integer value 0 - 16
     cbWLAN_IOCTL_SET_DTIM_ENABLE,                                //!< Set DTIM enable 0, disable 1 enable
     cbWLAN_IOCTL_GET_DTIM_ENABLE,                                //!< Get DTIM enable 0, disable 1 enable
     cbWLAN_IOCTL_SET_SLEEP_TIMEOUT,                              //!< Set enter power save entry delay (in ms). Power save mode will be entered only if there no activity during this delay
@@ -288,7 +288,7 @@ typedef enum {
 } cbWLAN_IoctlPowerSaveMode;
 
 /**
- * Start parameters indicated from WLAN driver for status indication 
+ * Start parameters indicated from WLAN driver for status indication
  * @ref cbWLAN_STATUS_STARTED.
  *
  * @ingroup wlan
@@ -298,7 +298,7 @@ typedef struct cbWLAN_StatusStartedInfo {
 } cbWLAN_StatusStartedInfo;
 
 /**
- * Connected parameters indicated from WLAN driver for status indication 
+ * Connected parameters indicated from WLAN driver for status indication
  * @ref cbWLAN_STATUS_CONNECTED.
  *
  * @ingroup wlan
@@ -320,7 +320,7 @@ typedef struct cbWLAN_PacketIndicationInfo {
 } cbWLAN_PacketIndicationInfo;
 
 /**
- * Status updates from WLAN component. 
+ * Status updates from WLAN component.
  * @note The callback must not make any call back to WLAN.
  *
  * @param callbackContext Context pointer provided in @ref cbWLAN_registerStatusCallback.
@@ -375,7 +375,7 @@ cbRTSL_Status cbWLAN_stop(void);
  * Connection progress is reported as @ref cbWLAN_statusIndication callbacks.
  *
  * @param commonParams Connection parameters.
- * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR. 
+ * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
  */
 cbRTSL_Status cbWLAN_connectOpen(cbWLAN_CommonConnectParameters *commonParams);
 
@@ -385,7 +385,7 @@ cbRTSL_Status cbWLAN_connectOpen(cbWLAN_CommonConnectParameters *commonParams);
  *
  * @param commonParams Connection parameters.
  * @param wepParams WEP specific connection parameters.
- * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR. 
+ * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
  */
 cbRTSL_Status cbWLAN_connectWEP(cbWLAN_CommonConnectParameters *commonParams, cbWLAN_WEPConnectParameters *wepParams);
 
@@ -395,7 +395,7 @@ cbRTSL_Status cbWLAN_connectWEP(cbWLAN_CommonConnectParameters *commonParams, cb
  *
  * @param commonParams Connection parameters.
  * @param wpaParams WPA PSK specific connection parameters.
- * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR. 
+ * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
  */
 cbRTSL_Status cbWLAN_connectWPAPSK(cbWLAN_CommonConnectParameters *commonParams, cbWLAN_WPAPSKConnectParameters *wpaParams);
 
@@ -403,17 +403,17 @@ cbRTSL_Status cbWLAN_connectWPAPSK(cbWLAN_CommonConnectParameters *commonParams,
  * Disconnect from access point or stop ongoing connection attempt.
  * Disconnection progress is reported as @ref cbWLAN_statusIndication callback.
  *
- * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR. 
+ * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
  */
 cbRTSL_Status cbWLAN_disconnect(void);
 
 /**
  * Initiate BSS scan.
- * If specific channel is set in scan parameters, only that channel is 
+ * If specific channel is set in scan parameters, only that channel is
  * scanned. If SSID is specified, a directed probe request against that SSID
- * will be used. Scan results are reported in @ref cbWLAN_scanIndication 
+ * will be used. Scan results are reported in @ref cbWLAN_scanIndication
  * callbacks.
- * @note Depending on channel using DFS or not, passive scans may be used 
+ * @note Depending on channel using DFS or not, passive scans may be used
  * instead of active probe requests.
  *
  * @param params Scan parameters
@@ -439,7 +439,7 @@ cb_int16 cbWLAN_STA_getRSSI();
  * Connection progress is reported as @ref cbWLAN_statusIndication callbacks.
  *
  * @param commonParams Common Accesspoint parameters.
- * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR. 
+ * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
  */
 cbRTSL_Status cbWLAN_apStartOpen(cbWLAN_CommonApParameters *commonParams);
 
@@ -456,7 +456,7 @@ cbRTSL_Status cbWLAN_apStartWPAPSK(cbWLAN_CommonApParameters *commonParams, cbWL
 /**
  * Stop access point.
  *
- * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR. 
+ * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
  */
 cbRTSL_Status cbWLAN_apStop(void);
 
@@ -474,7 +474,7 @@ void cbWLAN_sendPacket(void *txData);
  *
  * @param statusIndication Callback function.
  * @param callbackContext Context pointer, will be sent back in callback.
- * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR. 
+ * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
  */
 cbRTSL_Status cbWLAN_registerStatusCallback(cbWLAN_statusIndication statusIndication, void *callbackContext);
 
@@ -484,7 +484,7 @@ cbRTSL_Status cbWLAN_registerStatusCallback(cbWLAN_statusIndication statusIndica
  *
  * @param packetIndication Callback function.
  * @param callbackContext Context pointer, will be sent back in callback.
- * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR. 
+ * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
  */
 cbRTSL_Status cbWLAN_registerPacketIndicationCallback(cbWLAN_packetIndication packetIndication, void *callbackContext);
 
@@ -493,7 +493,7 @@ cbRTSL_Status cbWLAN_registerPacketIndicationCallback(cbWLAN_packetIndication pa
  *
  * @param statusIndication Callback function.
  * @param callbackContext Context pointer, will be sent back in callback.
- * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR. 
+ * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
  */
 cbRTSL_Status cbWLAN_deregisterStatusCallback(cbWLAN_statusIndication statusIndication, void *callbackContext);
 
@@ -504,9 +504,9 @@ cbRTSL_Status cbWLAN_Util_PSKFromPWD(cb_char passphrase[cbWLAN_MAX_PASSPHRASE_LE
  * Set the channel list to be used for connection and scanning.
  * The list will be filtered according to the allowed channel list
  * set. The list can include both 2.4GHz and 5GHz channels.
- * If channel list parameter is NULL the default channel list is 
+ * If channel list parameter is NULL the default channel list is
  * restored.
- * 
+ *
  * @param channelList Pointer to channel list for the driver to use.
  *
  * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
@@ -524,18 +524,18 @@ cbRTSL_Status cbWLAN_getChannelList(cbWLAN_ChannelList *channelList);
 
 /**
  * Returns the channel list currently used. This channel list
- * depend on the channel list specified by the user and the 
+ * depend on the channel list specified by the user and the
  * current regulatory domain.
  *
  * @param channelList Pointer to channel list
- * 
+ *
  * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
  */
 cbRTSL_Status cbWLAN_getActiveChannelList(cbWLAN_ChannelList *channelList);
 
 /**
- * WLAN control settings. Both in and out parameters are supported. 
- * If an ioctl request is not supported cbSTATUS_ERROR is returned and 
+ * WLAN control settings. Both in and out parameters are supported.
+ * If an ioctl request is not supported cbSTATUS_ERROR is returned and
  * the value parameter shall be ignored.
  *
  * @param ioctl Parameter that shall be set. @ref cbWLAN_Ioctl lists all supported parameters.
@@ -543,7 +543,7 @@ cbRTSL_Status cbWLAN_getActiveChannelList(cbWLAN_ChannelList *channelList);
  *
  * @return @ref cbSTATUS_OK if call successful, otherwise cbSTATUS_ERROR.
  */
-cbRTSL_Status cbWLAN_ioctl(cbWLAN_Ioctl ioctl, void* value);
+cbRTSL_Status cbWLAN_ioctl(cbWLAN_Ioctl ioctl, void *value);
 
 #ifdef __cplusplus
 }

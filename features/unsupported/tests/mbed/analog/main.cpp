@@ -1,11 +1,11 @@
 #include "test_env.h"
 
 #if !DEVICE_ANALOGIN
-  #error [NOT_SUPPORTED] AnalogIn not supported
+#error [NOT_SUPPORTED] AnalogIn not supported
 #endif
 
 #if !DEVICE_ANALOGOUT
-  #error [NOT_SUPPORTED] AnalogOut not supported
+#error [NOT_SUPPORTED] AnalogOut not supported
 #endif
 
 #if defined(TARGET_K64F) || defined(TARGET_K66F) || defined (TARGET_K22F)
@@ -112,10 +112,11 @@ AnalogOut out(p18);
 
 #define ERROR_TOLLERANCE    0.05
 
-int main() {
+int main()
+{
     bool check = true;
 
-    for (float out_value=0.0; out_value<1.1; out_value+=0.1) {
+    for (float out_value = 0.0; out_value < 1.1; out_value += 0.1) {
         out.write(out_value);
         wait(0.1);
 

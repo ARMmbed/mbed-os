@@ -36,17 +36,16 @@
 /**************************************************************************//**
  * @brief GPIO_P EFM32LG GPIO P
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;     /**< Port Control Register  */
-  __IOM uint32_t MODEL;    /**< Port Pin Mode Low Register  */
-  __IOM uint32_t MODEH;    /**< Port Pin Mode High Register  */
-  __IOM uint32_t DOUT;     /**< Port Data Out Register  */
-  __OM uint32_t  DOUTSET;  /**< Port Data Out Set Register  */
-  __OM uint32_t  DOUTCLR;  /**< Port Data Out Clear Register  */
-  __OM uint32_t  DOUTTGL;  /**< Port Data Out Toggle Register  */
-  __IM uint32_t  DIN;      /**< Port Data In Register  */
-  __IOM uint32_t PINLOCKN; /**< Port Unlocked Pins Register  */
+typedef struct {
+    __IOM uint32_t CTRL;     /**< Port Control Register  */
+    __IOM uint32_t MODEL;    /**< Port Pin Mode Low Register  */
+    __IOM uint32_t MODEH;    /**< Port Pin Mode High Register  */
+    __IOM uint32_t DOUT;     /**< Port Data Out Register  */
+    __OM uint32_t  DOUTSET;  /**< Port Data Out Set Register  */
+    __OM uint32_t  DOUTCLR;  /**< Port Data Out Clear Register  */
+    __OM uint32_t  DOUTTGL;  /**< Port Data Out Toggle Register  */
+    __IM uint32_t  DIN;      /**< Port Data In Register  */
+    __IOM uint32_t PINLOCKN; /**< Port Unlocked Pins Register  */
 } GPIO_P_TypeDef;
 
 /** @} End of group Parts */

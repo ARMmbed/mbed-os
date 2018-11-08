@@ -50,8 +50,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define ADI_XINT_CFG_BITS       (4u)       /*!< number of bits for each external interrupt configuration */
 
 /*! Structure to hold callback function and parameter */
-typedef struct _ADI_XINT_CALLBACK_INFO
-{
+typedef struct _ADI_XINT_CALLBACK_INFO {
     ADI_CALLBACK         pfCallback;        /*!< Callback function pointer */
     void                 *pCBParam;         /*!< Callback parameter */
 } ADI_XINT_CALLBACK_INFO;

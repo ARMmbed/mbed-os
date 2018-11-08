@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2012 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 #include "softdevice_handler.h"
 #include <stdlib.h>
@@ -58,11 +58,11 @@
 #define NRF_LOG_MODULE_NAME "SDH"
 #include "nrf_log.h"
 #if defined(ANT_STACK_SUPPORT_REQD) && defined(BLE_STACK_SUPPORT_REQD)
-    #include "ant_interface.h"
+#include "ant_interface.h"
 #elif defined(ANT_STACK_SUPPORT_REQD)
-    #include "ant_interface.h"
+#include "ant_interface.h"
 #elif defined(BLE_STACK_SUPPORT_REQD)
-    #include "headers/nrf_ble.h"
+#include "headers/nrf_ble.h"
 #endif
 
 #define RAM_START_ADDRESS         0x20000000
@@ -85,7 +85,7 @@ static volatile bool                  m_softdevice_enabled = false;     /**< Var
 static volatile bool                  m_suspended;                      /**< Current state of the event handler. */
 #ifdef BLE_STACK_SUPPORT_REQD
 // The following three definitions is needed only if BLE events are needed to be pulled from the stack.
-static uint8_t                      * mp_ble_evt_buffer;                /**< Buffer for receiving BLE events from the SoftDevice. */
+static uint8_t                       *mp_ble_evt_buffer;                /**< Buffer for receiving BLE events from the SoftDevice. */
 static uint16_t                       m_ble_evt_buffer_size;            /**< Size of BLE event buffer. */
 static ble_evt_handler_t              m_ble_evt_handler;                /**< Application event handler for handling BLE events. */
 #endif
@@ -118,8 +118,7 @@ void softdevice_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 
 void intern_softdevice_events_execute(void)
 {
-    if (!m_softdevice_enabled)
-    {
+    if (!m_softdevice_enabled) {
         // SoftDevice not enabled. This can be possible if the SoftDevice was enabled by the
         // application without using this module's API (i.e softdevice_handler_init)
 
@@ -137,14 +136,11 @@ void intern_softdevice_events_execute(void)
     bool no_more_ant_evts = (m_ant_evt_handler == NULL);
 #endif
 
-    for (;;)
-    {
+    for (;;) {
         uint32_t err_code;
 
-        if (!no_more_soc_evts)
-        {
-            if (m_suspended)
-            {
+        if (!no_more_soc_evts) {
+            if (m_suspended) {
                 // Cancel pulling next event if event handler was suspended by user.
                 return;
             }
@@ -154,21 +150,15 @@ void intern_softdevice_events_execute(void)
             // Pull event from SOC.
             err_code = sd_evt_get(&evt_id);
 
-            if (err_code == NRF_ERROR_NOT_FOUND)
-            {
+            if (err_code == NRF_ERROR_NOT_FOUND) {
                 no_more_soc_evts = true;
-            }
-            else if (err_code != NRF_SUCCESS)
-            {
+            } else if (err_code != NRF_SUCCESS) {
                 APP_ERROR_HANDLER(err_code);
-            }
-            else
-            {
+            } else {
                 // Call application's SOC event handler.
 #if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
                 nrf_drv_clock_on_soc_event(evt_id);
-                if (m_sys_evt_handler)
-                {
+                if (m_sys_evt_handler) {
                     m_sys_evt_handler(evt_id);
                 }
 #else
@@ -179,10 +169,8 @@ void intern_softdevice_events_execute(void)
 
 #ifdef BLE_STACK_SUPPORT_REQD
         // Fetch BLE Events.
-        if (!no_more_ble_evts)
-        {
-            if (m_suspended)
-            {
+        if (!no_more_ble_evts) {
+            if (m_suspended) {
                 // Cancel pulling next event if event handler was suspended by user.
                 return;
             }
@@ -191,16 +179,11 @@ void intern_softdevice_events_execute(void)
             uint16_t evt_len = m_ble_evt_buffer_size;
 
             err_code = sd_ble_evt_get(mp_ble_evt_buffer, &evt_len);
-            if (err_code == NRF_ERROR_NOT_FOUND)
-            {
+            if (err_code == NRF_ERROR_NOT_FOUND) {
                 no_more_ble_evts = true;
-            }
-            else if (err_code != NRF_SUCCESS)
-            {
+            } else if (err_code != NRF_SUCCESS) {
                 APP_ERROR_HANDLER(err_code);
-            }
-            else
-            {
+            } else {
                 // Call application's BLE stack event handler.
                 m_ble_evt_handler((ble_evt_t *)mp_ble_evt_buffer);
             }
@@ -209,10 +192,8 @@ void intern_softdevice_events_execute(void)
 
 #ifdef ANT_STACK_SUPPORT_REQD
         // Fetch ANT Events.
-        if (!no_more_ant_evts)
-        {
-            if (m_suspended)
-            {
+        if (!no_more_ant_evts) {
+            if (m_suspended) {
                 // Cancel pulling next event if event handler was suspended by user.
                 return;
             }
@@ -221,41 +202,32 @@ void intern_softdevice_events_execute(void)
             err_code = sd_ant_event_get(&m_ant_evt_buffer.channel,
                                         &m_ant_evt_buffer.event,
                                         m_ant_evt_buffer.msg.evt_buffer);
-            if (err_code == NRF_ERROR_NOT_FOUND)
-            {
+            if (err_code == NRF_ERROR_NOT_FOUND) {
                 no_more_ant_evts = true;
-            }
-            else if (err_code != NRF_SUCCESS)
-            {
+            } else if (err_code != NRF_SUCCESS) {
                 APP_ERROR_HANDLER(err_code);
-            }
-            else
-            {
+            } else {
                 // Call application's ANT stack event handler.
                 m_ant_evt_handler(&m_ant_evt_buffer);
             }
         }
 #endif
 
-        if (no_more_soc_evts)
-        {
+        if (no_more_soc_evts) {
             // There are no remaining System (SOC) events to be fetched from the SoftDevice.
 #if defined(ANT_STACK_SUPPORT_REQD) && defined(BLE_STACK_SUPPORT_REQD)
             // Check if there are any remaining BLE and ANT events.
-            if (no_more_ble_evts && no_more_ant_evts)
-            {
+            if (no_more_ble_evts && no_more_ant_evts) {
                 break;
             }
 #elif defined(BLE_STACK_SUPPORT_REQD)
             // Check if there are any remaining BLE events.
-            if (no_more_ble_evts)
-            {
+            if (no_more_ble_evts) {
                 break;
             }
 #elif defined(ANT_STACK_SUPPORT_REQD)
             // Check if there are any remaining ANT events.
-            if (no_more_ant_evts)
-            {
+            if (no_more_ant_evts) {
                 break;
             }
 #else
@@ -272,8 +244,8 @@ bool softdevice_handler_is_enabled(void)
     return m_softdevice_enabled;
 }
 
-uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *           p_clock_lf_cfg,
-                                 void *                         p_ble_evt_buffer,
+uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t            *p_clock_lf_cfg,
+                                 void                          *p_ble_evt_buffer,
                                  uint16_t                       ble_evt_buffer_size,
                                  softdevice_evt_schedule_func_t evt_schedule_func)
 {
@@ -282,14 +254,12 @@ uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *           p_clock_lf_cfg,
     // Save configuration.
 #if defined (BLE_STACK_SUPPORT_REQD)
     // Check that buffer is not NULL.
-    if (p_ble_evt_buffer == NULL)
-    {
+    if (p_ble_evt_buffer == NULL) {
         return NRF_ERROR_INVALID_PARAM;
     }
 
     // Check that buffer is correctly aligned.
-    if (!is_word_aligned(p_ble_evt_buffer))
-    {
+    if (!is_word_aligned(p_ble_evt_buffer)) {
         return NRF_ERROR_INVALID_PARAM;
     }
 
@@ -307,16 +277,14 @@ uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *           p_clock_lf_cfg,
     // Initialize SoftDevice.
 #if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
     bool power_clock_isr_enabled = nrf_drv_common_irq_enable_check(POWER_CLOCK_IRQn);
-    if (power_clock_isr_enabled)
-    {
+    if (power_clock_isr_enabled) {
         NVIC_DisableIRQ(POWER_CLOCK_IRQn);
     }
 #endif
 
 #if (NRF_MODULE_ENABLED(RNG) && defined(SOFTDEVICE_PRESENT))
     bool rng_isr_enabled = nrf_drv_common_irq_enable_check(RNG_IRQn);
-    if (rng_isr_enabled)
-    {
+    if (rng_isr_enabled) {
         NVIC_DisableIRQ(RNG_IRQn);
     }
 #endif
@@ -326,17 +294,14 @@ uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *           p_clock_lf_cfg,
     err_code = sd_softdevice_enable(p_clock_lf_cfg, softdevice_fault_handler);
 #endif
 
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
 #if (NRF_MODULE_ENABLED(RNG) && defined(SOFTDEVICE_PRESENT))
-        if (rng_isr_enabled)
-        {
+        if (rng_isr_enabled) {
             NVIC_EnableIRQ(RNG_IRQn);
         }
 #endif
 #if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
-        if (power_clock_isr_enabled)
-        {
+        if (power_clock_isr_enabled) {
             NVIC_EnableIRQ(POWER_CLOCK_IRQn);
         }
 #endif
@@ -345,13 +310,13 @@ uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *           p_clock_lf_cfg,
 
     m_softdevice_enabled = true;
 #if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
-        nrf_drv_clock_on_sd_enable();
+    nrf_drv_clock_on_sd_enable();
 #endif
 
     // Enable BLE event interrupt (interrupt priority has already been set by the stack).
 #ifdef SOFTDEVICE_PRESENT
     err_code = sd_nvic_EnableIRQ((IRQn_Type)SOFTDEVICE_EVT_IRQ);
-		return err_code;
+    return err_code;
 
 #else
     //In case of Serialization NVIC must be accessed directly.
@@ -364,8 +329,7 @@ uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *           p_clock_lf_cfg,
 uint32_t softdevice_handler_sd_disable(void)
 {
     uint32_t err_code = sd_softdevice_disable();
-    if (err_code == NRF_SUCCESS)
-    {
+    if (err_code == NRF_SUCCESS) {
         m_softdevice_enabled = false;
 
 #if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
@@ -419,13 +383,10 @@ uint32_t softdevice_sys_evt_handler_set(sys_evt_handler_t sys_evt_handler)
  */
 void SOFTDEVICE_EVT_IRQHandler(void)
 {
-    if (m_evt_schedule_func != NULL)
-    {
+    if (m_evt_schedule_func != NULL) {
         uint32_t err_code = m_evt_schedule_func();
         APP_ERROR_CHECK(err_code);
-    }
-    else
-    {
+    } else {
         intern_softdevice_events_execute();
     }
 }
@@ -444,7 +405,9 @@ void softdevice_handler_suspend()
 
 void softdevice_handler_resume()
 {
-    if (!m_suspended) return;
+    if (!m_suspended) {
+        return;
+    }
     m_suspended = false;
 
 #ifdef SOFTDEVICE_PRESENT
@@ -472,7 +435,7 @@ bool softdevice_handler_is_suspended()
 #if defined(BLE_STACK_SUPPORT_REQD)
 uint32_t softdevice_enable_get_default_config(uint8_t central_links_count,
                                               uint8_t periph_links_count,
-                                              ble_enable_params_t * p_ble_enable_params)
+                                              ble_enable_params_t *p_ble_enable_params)
 {
     memset(p_ble_enable_params, 0, sizeof(ble_enable_params_t));
     p_ble_enable_params->common_enable_params.vs_uuid_count   = 1;
@@ -480,8 +443,7 @@ uint32_t softdevice_enable_get_default_config(uint8_t central_links_count,
     p_ble_enable_params->gatts_enable_params.service_changed  = SOFTDEVICE_GATTS_SRV_CHANGED;
     p_ble_enable_params->gap_enable_params.periph_conn_count  = periph_links_count;
     p_ble_enable_params->gap_enable_params.central_conn_count = central_links_count;
-    if (p_ble_enable_params->gap_enable_params.central_conn_count != 0)
-    {
+    if (p_ble_enable_params->gap_enable_params.central_conn_count != 0) {
         p_ble_enable_params->gap_enable_params.central_sec_count  = SOFTDEVICE_CENTRAL_SEC_COUNT;
     }
 
@@ -516,7 +478,7 @@ static inline uint32_t ram_end_address_get(void)
 /*lint -restore*/
 
 /*lint --e{10} --e{27} --e{40} --e{529} -save */
-uint32_t softdevice_enable(ble_enable_params_t * p_ble_enable_params)
+uint32_t softdevice_enable(ble_enable_params_t *p_ble_enable_params)
 {
 #if (defined(S130) || defined(S132) || defined(S332) || defined(S140))
     uint32_t err_code;
@@ -535,18 +497,15 @@ uint32_t softdevice_enable(ble_enable_params_t * p_ble_enable_params)
 
     app_ram_base = ram_start;
     NRF_LOG_DEBUG("sd_ble_enable: RAM start at 0x%x\r\n",
-                    app_ram_base);
+                  app_ram_base);
     err_code = sd_ble_enable(p_ble_enable_params, &app_ram_base);
 
-    if (app_ram_base != ram_start)
-    {
+    if (app_ram_base != ram_start) {
         NRF_LOG_WARNING("sd_ble_enable: RAM start should be adjusted to 0x%x\r\n",
-                app_ram_base);
+                        app_ram_base);
         NRF_LOG_WARNING("RAM size should be adjusted to 0x%x \r\n",
-                ram_end_address_get() - app_ram_base);
-    }
-    else if (err_code != NRF_SUCCESS)
-    {
+                        ram_end_address_get() - app_ram_base);
+    } else if (err_code != NRF_SUCCESS) {
         NRF_LOG_ERROR("sd_ble_enable: error 0x%x\r\n", err_code);
     }
     return err_code;

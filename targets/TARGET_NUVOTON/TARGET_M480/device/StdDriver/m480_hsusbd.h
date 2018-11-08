@@ -166,8 +166,7 @@ static __INLINE void HSUSBD_MemCopy(uint8_t u8Dst[], uint8_t u8Src[], uint32_t u
 {
     uint32_t i = 0ul;
 
-    while (u32Size--)
-    {
+    while (u32Size--) {
         u8Dst[i] = u8Src[i];
         i++;
     }
@@ -212,20 +211,15 @@ static __INLINE void HSUSBD_SetEpBufAddr(uint32_t u32Ep, uint32_t u32Base, uint3
   */
 static __INLINE void HSUSBD_ConfigEp(uint32_t u32Ep, uint32_t u32EpNum, uint32_t u32EpType, uint32_t u32EpDir)
 {
-    if (u32EpType == HSUSBD_EP_CFG_TYPE_BULK)
-    {
-        HSUSBD->EP[u32Ep].EPRSPCTL = (HSUSBD_EP_RSPCTL_FLUSH|HSUSBD_EP_RSPCTL_MODE_AUTO);
-    }
-    else if (u32EpType == HSUSBD_EP_CFG_TYPE_INT)
-    {
-        HSUSBD->EP[u32Ep].EPRSPCTL = (HSUSBD_EP_RSPCTL_FLUSH|HSUSBD_EP_RSPCTL_MODE_MANUAL);
-    }
-    else if (u32EpType == HSUSBD_EP_CFG_TYPE_ISO)
-    {
-        HSUSBD->EP[u32Ep].EPRSPCTL = (HSUSBD_EP_RSPCTL_FLUSH|HSUSBD_EP_RSPCTL_MODE_FLY);
+    if (u32EpType == HSUSBD_EP_CFG_TYPE_BULK) {
+        HSUSBD->EP[u32Ep].EPRSPCTL = (HSUSBD_EP_RSPCTL_FLUSH | HSUSBD_EP_RSPCTL_MODE_AUTO);
+    } else if (u32EpType == HSUSBD_EP_CFG_TYPE_INT) {
+        HSUSBD->EP[u32Ep].EPRSPCTL = (HSUSBD_EP_RSPCTL_FLUSH | HSUSBD_EP_RSPCTL_MODE_MANUAL);
+    } else if (u32EpType == HSUSBD_EP_CFG_TYPE_ISO) {
+        HSUSBD->EP[u32Ep].EPRSPCTL = (HSUSBD_EP_RSPCTL_FLUSH | HSUSBD_EP_RSPCTL_MODE_FLY);
     }
 
-    HSUSBD->EP[u32Ep].EPCFG = (u32EpType|u32EpDir|HSUSBD_EP_CFG_VALID|(u32EpNum << 4));
+    HSUSBD->EP[u32Ep].EPCFG = (u32EpType | u32EpDir | HSUSBD_EP_CFG_VALID | (u32EpNum << 4));
 }
 
 /**
@@ -236,12 +230,9 @@ static __INLINE void HSUSBD_ConfigEp(uint32_t u32Ep, uint32_t u32EpNum, uint32_t
   */
 static __INLINE void HSUSBD_SetEpStall(uint32_t u32Ep)
 {
-    if (u32Ep == CEP)
-    {
+    if (u32Ep == CEP) {
         HSUSBD_SET_CEP_STATE(HSUSBD_CEPCTL_STALL);
-    }
-    else
-    {
+    } else {
         HSUSBD->EP[u32Ep].EPRSPCTL = (HSUSBD->EP[u32Ep].EPRSPCTL & 0xf7ul) | HSUSBD_EP_RSPCTL_HALT;
     }
 }
@@ -258,16 +249,11 @@ static __INLINE void HSUSBD_SetStall(uint32_t u32EpNum)
 {
     uint32_t i;
 
-    if (u32EpNum == 0ul)
-    {
+    if (u32EpNum == 0ul) {
         HSUSBD_SET_CEP_STATE(HSUSBD_CEPCTL_STALL);
-    }
-    else
-    {
-        for (i=0ul; i<HSUSBD_MAX_EP; i++)
-        {
-            if (((HSUSBD->EP[i].EPCFG & 0xf0ul) >> 4) == u32EpNum)
-            {
+    } else {
+        for (i = 0ul; i < HSUSBD_MAX_EP; i++) {
+            if (((HSUSBD->EP[i].EPCFG & 0xf0ul) >> 4) == u32EpNum) {
                 HSUSBD->EP[i].EPRSPCTL = (HSUSBD->EP[i].EPRSPCTL & 0xf7ul) | HSUSBD_EP_RSPCTL_HALT;
             }
         }
@@ -297,10 +283,8 @@ static __INLINE void HSUSBD_ClearStall(uint32_t u32EpNum)
 {
     uint32_t i;
 
-    for (i=0ul; i<HSUSBD_MAX_EP; i++)
-    {
-        if (((HSUSBD->EP[i].EPCFG & 0xf0ul) >> 4) == u32EpNum)
-        {
+    for (i = 0ul; i < HSUSBD_MAX_EP; i++) {
+        if (((HSUSBD->EP[i].EPCFG & 0xf0ul) >> 4) == u32EpNum) {
             HSUSBD->EP[i].EPRSPCTL = HSUSBD_EP_RSPCTL_TOGGLE;
         }
     }
@@ -332,10 +316,8 @@ static __INLINE uint32_t HSUSBD_GetStall(uint32_t u32EpNum)
     uint32_t i;
     uint32_t val = 0ul;
 
-    for (i=0ul; i<HSUSBD_MAX_EP; i++)
-    {
-        if (((HSUSBD->EP[i].EPCFG & 0xf0ul) >> 4) == u32EpNum)
-        {
+    for (i = 0ul; i < HSUSBD_MAX_EP; i++) {
+        if (((HSUSBD->EP[i].EPCFG & 0xf0ul) >> 4) == u32EpNum) {
             val = (HSUSBD->EP[i].EPRSPCTL & HSUSBD_EP_RSPCTL_HALT);
             break;
         }

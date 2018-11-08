@@ -76,7 +76,7 @@
 #define ADI_RTC_TRIM_MASK (BITM_RTC_TRM_VALUE | BITM_RTC_TRM_ADD|BITM_RTC_TRM_IVL | BITM_RTC_TRM_IVL2EXPMIN )
 
 #if (ADI_RTC_CFG_ENABLE_SAFE_WRITE == 1)
-    /* pause on pending writes to CR to avoid data loss */
+/* pause on pending writes to CR to avoid data loss */
 
 #ifdef __ICCARM__
 /*
@@ -100,7 +100,7 @@
 #endif /* __ICCARM__ */
 
 #else
-    /* pause on pending writes to CR to avoid data loss */
+/* pause on pending writes to CR to avoid data loss */
 #define  PEND_BEFORE_WRITE(reg,mask)
 #define  SYNC_AFTER_WRITE(reg,mask)
 #endif
@@ -108,8 +108,7 @@
 /*
  * The following is used for static configuration
  */
-typedef struct
-{
+typedef struct {
     uint16_t    CR0;             /*!< CR0 16 bit control register-0 value */
     uint16_t    CR1;             /*!< CR1 16 bit control register-1 value */
     uint16_t    CNT0;            /*!< CNT0 16 bit count register value */
@@ -130,19 +129,17 @@ typedef struct
     uint16_t    CR7SSS;         /*!< Configure Sensor Strobe Channel GPIO Sampling Register */
     uint16_t    GPMUX0;         /*!< Control register for selecting a GPIO (pin) as data to be sampled by a Sensor Strobe  channel */
     uint16_t    GPMUX1;         /*!< Control register for selecting a GPIO (pin) as data to be sampled by a Sensor Strobe  channel */
-}ADI_RTC_CONFIG;
+} ADI_RTC_CONFIG;
 
 /* Device information structure */
-typedef struct _ADI_RTC_DEVICE_INFO
-{
+typedef struct _ADI_RTC_DEVICE_INFO {
     volatile ADI_RTC_TypeDef  *pRTCRegs;   /* Base address of the  SPORT registers */
     const IRQn_Type            eIRQn;      /* IRQn */
     ADI_RTC_HANDLE             hDevice;    /* RTC handle */
-}ADI_RTC_DEVICE_INFO;
+} ADI_RTC_DEVICE_INFO;
 
 /*! RTC driver instance data */
-typedef struct _ADI_RTC_DEVICE
-{
+typedef struct _ADI_RTC_DEVICE {
     volatile ADI_RTC_TypeDef *pRTCRegs;    /* Pointer to RTC Memory Mapped Registers */
 
     ADI_CALLBACK              pfCallback;  /*  Function pointer for callback function. */
@@ -155,10 +152,10 @@ typedef struct _ADI_RTC_DEVICE
 } ADI_RTC_DEVICE;
 
 
-static void rtc_init(ADI_RTC_DEVICE *pDevice,ADI_RTC_CONFIG *pConfig);
+static void rtc_init(ADI_RTC_DEVICE *pDevice, ADI_RTC_CONFIG *pConfig);
 
 #ifdef ADI_DEBUG
-static ADI_RTC_RESULT ValidateHandle( ADI_RTC_DEVICE *pInDevice);
+static ADI_RTC_RESULT ValidateHandle(ADI_RTC_DEVICE *pInDevice);
 #endif
 /*! \endcond */
 #endif /* ADI_RTC_DEF_H__ */

@@ -37,7 +37,8 @@ static uint32_t channel_ids[CHANNEL_MAX] = {0};
 static uint8_t channel = 0;
 static gpio_irq_handler irq_handler;
 
-static void handle_interrupt_in(void) {
+static void handle_interrupt_in(void)
+{
     uint32_t rise = LPC_GPIO_PIN_INT->RISE;
     uint32_t fall = LPC_GPIO_PIN_INT->FALL;
     uint32_t pmask;
@@ -64,10 +65,13 @@ static void handle_interrupt_in(void) {
     }
 }
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+{
     uint32_t portnum, pinnum; //, pmask;
 
-    if (pin == NC) return -1;
+    if (pin == NC) {
+        return -1;
+    }
 
     irq_handler = handler;
 
@@ -79,7 +83,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     channel_ids[channel] = id;
     obj->ch = channel;
 
-	  /* Clear rising and falling edge detection */
+    /* Clear rising and falling edge detection */
     //pmask = (1 << channel);
     //LPC_GPIO_PIN_INT->IST = pmask;
 
@@ -91,7 +95,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         LPC_SCU->PINTSEL1 &= ~(0xFF << ((portnum - 4) << 3));
         LPC_SCU->PINTSEL1 |= (((portnum << 5) | pinnum) << ((channel - 4) << 3));
     }
-	
+
 #if !defined(CORE_M0)
     NVIC_SetVector((IRQn_Type)(PIN_INT0_IRQn + channel), (uint32_t)handle_interrupt_in);
     NVIC_EnableIRQ((IRQn_Type)(PIN_INT0_IRQn + channel));
@@ -107,11 +111,13 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     return 0;
 }
 
-void gpio_irq_free(gpio_irq_t *obj) {
+void gpio_irq_free(gpio_irq_t *obj)
+{
     channel_ids[obj->ch] = 0;
 }
 
-void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
+void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
+{
     uint32_t pmask;
 
     /* Clear pending interrupts */
@@ -137,7 +143,8 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     }
 }
 
-void gpio_irq_enable(gpio_irq_t *obj) {
+void gpio_irq_enable(gpio_irq_t *obj)
+{
 #if !defined(CORE_M0)
     NVIC_EnableIRQ((IRQn_Type)(PIN_INT0_IRQn + obj->ch));
 #else
@@ -145,7 +152,8 @@ void gpio_irq_enable(gpio_irq_t *obj) {
 #endif
 }
 
-void gpio_irq_disable(gpio_irq_t *obj) {
+void gpio_irq_disable(gpio_irq_t *obj)
+{
 #if !defined(CORE_M0)
     NVIC_DisableIRQ((IRQn_Type)(PIN_INT0_IRQn + obj->ch));
 #else

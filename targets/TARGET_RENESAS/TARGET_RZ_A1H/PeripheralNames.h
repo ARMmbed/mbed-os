@@ -113,14 +113,14 @@ typedef enum {
 } PWMName;
 
 typedef enum {
-    AN0= 0,
-    AN1= 1,
-    AN2= 2,
-    AN3= 3,
-    AN4= 4,
-    AN5= 5,
-    AN6= 6,
-    AN7= 7,
+    AN0 = 0,
+    AN1 = 1,
+    AN2 = 2,
+    AN3 = 3,
+    AN4 = 4,
+    AN5 = 5,
+    AN6 = 6,
+    AN7 = 7,
 } ADCName;
 
 typedef enum {
@@ -134,14 +134,14 @@ typedef enum {
     I2C_0 = 0,
     I2C_1,
     I2C_2,
-    I2C_3 
+    I2C_3
 } I2CName;
 
 typedef enum {
     CAN_0 = 0,
     CAN_1,
     CAN_2,
-    CAN_3, 
+    CAN_3,
     CAN_4
 } CANName;
 

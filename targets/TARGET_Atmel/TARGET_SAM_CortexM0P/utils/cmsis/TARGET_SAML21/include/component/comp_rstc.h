@@ -60,14 +60,14 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  POR:1;            /*!< bit:      0  Power On Reset                     */
-        uint8_t  BOD12:1;          /*!< bit:      1  Brown Out 12 Detector Reset        */
-        uint8_t  BOD33:1;          /*!< bit:      2  Brown Out 33 Detector Reset        */
-        uint8_t  :1;               /*!< bit:      3  Reserved                           */
-        uint8_t  EXT:1;            /*!< bit:      4  External Reset                     */
-        uint8_t  WDT:1;            /*!< bit:      5  Watchdog Reset                     */
-        uint8_t  SYST:1;           /*!< bit:      6  System Reset Request               */
-        uint8_t  BACKUP:1;         /*!< bit:      7  Backup Reset                       */
+        uint8_t  POR: 1;           /*!< bit:      0  Power On Reset                     */
+        uint8_t  BOD12: 1;         /*!< bit:      1  Brown Out 12 Detector Reset        */
+        uint8_t  BOD33: 1;         /*!< bit:      2  Brown Out 33 Detector Reset        */
+        uint8_t  : 1;              /*!< bit:      3  Reserved                           */
+        uint8_t  EXT: 1;           /*!< bit:      4  External Reset                     */
+        uint8_t  WDT: 1;           /*!< bit:      5  Watchdog Reset                     */
+        uint8_t  SYST: 1;          /*!< bit:      6  System Reset Request               */
+        uint8_t  BACKUP: 1;        /*!< bit:      7  Backup Reset                       */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } RSTC_RCAUSE_Type;
@@ -95,10 +95,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  EXTWAKE:1;        /*!< bit:      0  External Wakeup                    */
-        uint8_t  RTC:1;            /*!< bit:      1  Real Timer Counter Interrupt       */
-        uint8_t  BBPS:1;           /*!< bit:      2  Battery Backup Power Switch        */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  EXTWAKE: 1;       /*!< bit:      0  External Wakeup                    */
+        uint8_t  RTC: 1;           /*!< bit:      1  Real Timer Counter Interrupt       */
+        uint8_t  BBPS: 1;          /*!< bit:      2  Battery Backup Power Switch        */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } RSTC_BKUPEXIT_Type;
@@ -118,8 +118,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  WKDBCNT:5;        /*!< bit:  0.. 4  Wakeup Debounce Counter            */
-        uint8_t  :3;               /*!< bit:  5.. 7  Reserved                           */
+        uint8_t  WKDBCNT: 5;       /*!< bit:  0.. 4  Wakeup Debounce Counter            */
+        uint8_t  : 3;              /*!< bit:  5.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } RSTC_WKDBCONF_Type;
@@ -151,8 +151,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t WKPOL:8;          /*!< bit:  0.. 7  Wakeup Polarity                    */
-        uint16_t :8;               /*!< bit:  8..15  Reserved                           */
+        uint16_t WKPOL: 8;         /*!< bit:  0.. 7  Wakeup Polarity                    */
+        uint16_t : 8;              /*!< bit:  8..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } RSTC_WKPOL_Type;
@@ -170,8 +170,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t WKEN:8;           /*!< bit:  0.. 7  Wakeup Enable                      */
-        uint16_t :8;               /*!< bit:  8..15  Reserved                           */
+        uint16_t WKEN: 8;          /*!< bit:  0.. 7  Wakeup Enable                      */
+        uint16_t : 8;              /*!< bit:  8..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } RSTC_WKEN_Type;
@@ -189,7 +189,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t WKCAUSE:16;       /*!< bit:  0..15  Wakeup Cause                       */
+        uint16_t WKCAUSE: 16;      /*!< bit:  0..15  Wakeup Cause                       */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } RSTC_WKCAUSE_Type;

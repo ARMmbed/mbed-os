@@ -73,12 +73,12 @@ uint32_t SYS_CPU_GetFreq(void)
 /******************************************************************************/
 int SYS_ADC_Init(void)
 {
-  /* Power up the ADC AFE, enable clocks */
-  MXC_PWRMAN->pwr_rst_ctrl |= MXC_F_PWRMAN_PWR_RST_CTRL_AFE_POWERED;
-  MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_ADC_CLOCK_ENABLE;
+    /* Power up the ADC AFE, enable clocks */
+    MXC_PWRMAN->pwr_rst_ctrl |= MXC_F_PWRMAN_PWR_RST_CTRL_AFE_POWERED;
+    MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_ADC_CLOCK_ENABLE;
 
-  return E_NO_ERROR;
-} 
+    return E_NO_ERROR;
+}
 
 /******************************************************************************/
 int SYS_AES_Init(void)
@@ -111,8 +111,9 @@ int SYS_UART_Init(mxc_uart_regs_t *uart, const uart_cfg_t *uart_cfg, const sys_c
     clkman_scale_t clk_scale;
     uint32_t min_baud;
 
-    if(sys_cfg == NULL)
+    if (sys_cfg == NULL) {
         return E_NULL_PTR;
+    }
 
     if (sys_cfg->clk_scale != CLKMAN_SCALE_AUTO) {
         CLKMAN_SetClkScale(CLKMAN_CLK_UART, sys_cfg->clk_scale);
@@ -130,8 +131,9 @@ int SYS_UART_Init(mxc_uart_regs_t *uart, const uart_cfg_t *uart_cfg, const sys_c
         } while (uart_cfg->baud < min_baud && clk_scale < CLKMAN_SCALE_AUTO);
 
         /* check if baud rate cannot be reached */
-        if(uart_cfg->baud < min_baud)
+        if (uart_cfg->baud < min_baud) {
             return E_BAD_STATE;
+        }
 
         CLKMAN_SetClkScale(CLKMAN_CLK_UART, clk_scale);
     }
@@ -173,8 +175,9 @@ int SYS_I2CM_Init(mxc_i2cm_regs_t *i2cm, const sys_cfg_i2cm_t *cfg)
 {
     int err;
 
-    if(cfg == NULL)
+    if (cfg == NULL) {
         return E_NULL_PTR;
+    }
 
     CLKMAN_SetClkScale(CLKMAN_CLK_I2CM, cfg->clk_scale);
     MXC_CLKMAN->i2c_timer_ctrl = 1;
@@ -193,8 +196,7 @@ int SYS_I2CM_Shutdown(mxc_i2cm_regs_t *i2cm)
     int idx = MXC_I2CM_GET_IDX(i2cm);
     ioman_cfg_t io_cfg;
 
-    switch(idx)
-    {
+    switch (idx) {
         case 0:
             io_cfg = (ioman_cfg_t)IOMAN_I2CM0(0, 0);
             break;
@@ -226,8 +228,9 @@ int SYS_I2CS_Init(mxc_i2cs_regs_t *i2cs, const sys_cfg_i2cs_t *cfg)
 {
     int err;
 
-    if(cfg == NULL)
+    if (cfg == NULL) {
         return E_NULL_PTR;
+    }
 
     CLKMAN_SetClkScale(CLKMAN_CLK_I2CS, cfg->clk_scale);
     MXC_CLKMAN->i2c_timer_ctrl = 1;
@@ -274,19 +277,20 @@ int SYS_SPIM_Init(mxc_spim_regs_t *spim, const spim_cfg_t *spim_cfg, const sys_c
     clkman_scale_t clk_scale;
     uint32_t max_baud;
 
-    if(sys_cfg == NULL)
+    if (sys_cfg == NULL) {
         return E_NULL_PTR;
+    }
 
     idx = MXC_SPIM_GET_IDX(spim);
 
     if (sys_cfg->clk_scale != CLKMAN_SCALE_AUTO) {
-        if(spim_cfg->baud > ((SystemCoreClock >> (sys_cfg->clk_scale - 1))/2)) {
+        if (spim_cfg->baud > ((SystemCoreClock >> (sys_cfg->clk_scale - 1)) / 2)) {
             return E_BAD_PARAM;
         }
         CLKMAN_SetClkScale((clkman_clk_t)(CLKMAN_CLK_SPIM0 + idx), sys_cfg->clk_scale);
     } else {
 
-        if(spim_cfg->baud > (SystemCoreClock/2)) {
+        if (spim_cfg->baud > (SystemCoreClock / 2)) {
             return E_BAD_PARAM;
         }
 
@@ -296,10 +300,10 @@ int SYS_SPIM_Init(mxc_spim_regs_t *spim, const spim_cfg_t *spim_cfg, const sys_c
             max_baud = ((SystemCoreClock >> clk_scale++) / 2);
         } while (spim_cfg->baud < max_baud && clk_scale < CLKMAN_SCALE_AUTO);
 
-        if(clk_scale == CLKMAN_SCALE_AUTO) {
+        if (clk_scale == CLKMAN_SCALE_AUTO) {
             clk_scale--;
         }
-        
+
         CLKMAN_SetClkScale((clkman_clk_t)(CLKMAN_CLK_SPIM0 + idx), clk_scale);
     }
 
@@ -317,8 +321,7 @@ int SYS_SPIM_Shutdown(mxc_spim_regs_t *spim)
     int idx = MXC_SPIM_GET_IDX(spim);
     ioman_cfg_t io_cfg;
 
-    switch(idx)
-    {
+    switch (idx) {
         case 0:
             io_cfg = (ioman_cfg_t)IOMAN_SPIM0(0, 0, 0, 0, 0, 0, 0, 0);
             break;
@@ -354,18 +357,19 @@ int SYS_SPIX_Init(const sys_cfg_spix_t *sys_cfg, uint32_t baud)
     uint32_t min_baud;
 
     if (sys_cfg->clk_scale != CLKMAN_SCALE_AUTO) {
-         CLKMAN_SetClkScale((clkman_clk_t)(CLKMAN_CLK_SPIX), sys_cfg->clk_scale);
+        CLKMAN_SetClkScale((clkman_clk_t)(CLKMAN_CLK_SPIX), sys_cfg->clk_scale);
     } else {
         /* Setup the clock divider for the given baud rate */
         clk_scale = CLKMAN_SCALE_DISABLED;
         do {
-            min_baud = ((SystemCoreClock >> clk_scale++) / (2 * 
-                (MXC_F_SPIX_MASTER_CFG_SCK_HI_CLK >> MXC_F_SPIX_MASTER_CFG_SCK_HI_CLK_POS)));
+            min_baud = ((SystemCoreClock >> clk_scale++) / (2 *
+                                                            (MXC_F_SPIX_MASTER_CFG_SCK_HI_CLK >> MXC_F_SPIX_MASTER_CFG_SCK_HI_CLK_POS)));
         } while (baud < min_baud && clk_scale < CLKMAN_SCALE_AUTO);
 
         /* check if baud rate cannot be reached */
-        if(baud < min_baud)
+        if (baud < min_baud) {
             return E_BAD_STATE;
+        }
 
         CLKMAN_SetClkScale((clkman_clk_t)(CLKMAN_CLK_SPIX), clk_scale);
     }
@@ -401,15 +405,13 @@ int SYS_OWM_Init(mxc_owm_regs_t *owm, const sys_cfg_owm_t *sys_cfg)
 {
     int err;
 
-    if(sys_cfg == NULL)
+    if (sys_cfg == NULL) {
         return E_NULL_PTR;
-
-    if (sys_cfg->clk_scale != CLKMAN_SCALE_AUTO)
-    {
-        CLKMAN_SetClkScale(CLKMAN_CLK_OWM, sys_cfg->clk_scale);
     }
-    else
-    {
+
+    if (sys_cfg->clk_scale != CLKMAN_SCALE_AUTO) {
+        CLKMAN_SetClkScale(CLKMAN_CLK_OWM, sys_cfg->clk_scale);
+    } else {
         CLKMAN_SetClkScale(CLKMAN_CLK_OWM, CLKMAN_SCALE_DIV_1);
     }
 
@@ -451,20 +453,18 @@ int SYS_TMR_Init(mxc_tmr_regs_t *tmr, const sys_cfg_tmr_t *cfg)
 {
     int pin, gpio_index, tmr_index;
 
-    if (cfg != NULL)
-    {
+    if (cfg != NULL) {
         /* Make sure the given GPIO mapps to the given TMR */
-        for (pin = 0; pin < MXC_GPIO_MAX_PINS_PER_PORT; pin++)
-        {
-            if(cfg->mask & (1 << pin))
-            {
+        for (pin = 0; pin < MXC_GPIO_MAX_PINS_PER_PORT; pin++) {
+            if (cfg->mask & (1 << pin)) {
                 gpio_index = (MXC_GPIO_MAX_PINS_PER_PORT * cfg->port) + pin;
                 tmr_index = gpio_index % MXC_CFG_TMR_INSTANCES;
 
-                if(tmr_index == MXC_TMR_GET_IDX(tmr))
+                if (tmr_index == MXC_TMR_GET_IDX(tmr)) {
                     return GPIO_Config(cfg);
-                else
+                } else {
                     return E_BAD_PARAM;
+                }
             }
         }
 
@@ -479,7 +479,7 @@ int SYS_TMR_Init(mxc_tmr_regs_t *tmr, const sys_cfg_tmr_t *cfg)
 uint32_t SYS_SysTick_GetFreq(void)
 {
     /* Determine is using internal (SystemCoreClock) or external (32768) clock */
-    if ( (SysTick->CTRL & SysTick_CTRL_CLKSOURCE_Msk) || !(SysTick->CTRL & SysTick_CTRL_ENABLE_Msk)) {
+    if ((SysTick->CTRL & SysTick_CTRL_CLKSOURCE_Msk) || !(SysTick->CTRL & SysTick_CTRL_ENABLE_Msk)) {
         return SystemCoreClock;
     } else {
         return SYS_RTC_CLK;
@@ -506,19 +506,19 @@ int SYS_PT_Config(mxc_pt_regs_t *pt, const sys_cfg_pt_t *cfg)
 
     /* Make sure the given GPIO mapps to the given PT */
     pt_index = MXC_PT_GET_IDX(pt);
-    if(pt_index < 0) {
+    if (pt_index < 0) {
         return E_NOT_SUPPORTED;
     }
 
     /* Even number port */
-    if(cfg->port%2 == 0) {
+    if (cfg->port % 2 == 0) {
         /* Pin number should match PT number */
-        if(!(cfg->mask & (0x1 << pt_index))) {
+        if (!(cfg->mask & (0x1 << pt_index))) {
             return E_NOT_SUPPORTED;
         }
     } else {
         /* Pin number+8 should match PT */
-        if(!((cfg->mask << 8) & (0x1 << pt_index))) {
+        if (!((cfg->mask << 8) & (0x1 << pt_index))) {
             return E_NOT_SUPPORTED;
         }
     }
@@ -532,7 +532,7 @@ void SYS_USB_Enable(uint8_t enable)
     /* Enable USB clock */
     CLKMAN_ClockGate(CLKMAN_USB_CLOCK, enable);
 
-    if(enable) {
+    if (enable) {
         /* Enable USB Power */
         MXC_PWRMAN->pwr_rst_ctrl |= MXC_F_PWRMAN_PWR_RST_CTRL_USB_POWERED;
     } else {
@@ -545,14 +545,16 @@ void SYS_USB_Enable(uint8_t enable)
 int SYS_SysTick_Config(uint32_t ticks, int clk_src)
 {
 
-    if(ticks == 0)
+    if (ticks == 0) {
         return E_BAD_PARAM;
+    }
 
     /* If SystemClock, call default CMSIS config and return */
     if (clk_src) {
         return SysTick_Config(ticks);
-    } else { /* External clock source requested
-                enable RTC clock in run mode*/
+    } else {
+        /* External clock source requested
+                    enable RTC clock in run mode*/
         MXC_PWRSEQ->reg0 |= (MXC_F_PWRSEQ_REG0_PWR_RTCEN_RUN);
 
         /* Disable SysTick Timer */
@@ -566,7 +568,7 @@ int SYS_SysTick_Config(uint32_t ticks, int clk_src)
         SysTick->LOAD  = ticks - 1;
 
         /* set Priority for Systick Interrupt */
-        NVIC_SetPriority(SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+        NVIC_SetPriority(SysTick_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
 
         /* Load the SysTick Counter Value */
         SysTick->VAL   = 0;
@@ -585,8 +587,9 @@ int SYS_SysTick_Delay(uint32_t ticks)
     uint32_t cur_ticks, num_full, num_remain, previous_ticks, num_subtract, i;
     uint32_t reload, value, ctrl; /* save/restore variables */
 
-    if(ticks == 0)
+    if (ticks == 0) {
         return E_BAD_PARAM;
+    }
 
     /* If SysTick is not enabled we can take it for our delay */
     if (!(SysTick->CTRL & SysTick_CTRL_ENABLE_Msk)) {
@@ -640,10 +643,11 @@ int SYS_SysTick_Delay(uint32_t ticks)
 
         return E_NO_ERROR;
 
-    } else { /* SysTick is enabled
-           When SysTick is enabled count flag can not be used
-           and the reload can not be changed.
-           Do not read the CTRL register -> clears count flag */
+    } else {
+        /* SysTick is enabled
+               When SysTick is enabled count flag can not be used
+               and the reload can not be changed.
+               Do not read the CTRL register -> clears count flag */
 
         /* Get the reload value for wrap/reload case */
         reload = SysTick->LOAD;
@@ -658,15 +662,17 @@ int SYS_SysTick_Delay(uint32_t ticks)
             if (cur_ticks > previous_ticks) {
                 /* subtract count to 0 (previous_ticks) and wrap (reload value - cur_ticks) */
                 num_subtract = (previous_ticks + (reload - cur_ticks));
-            } else { /* standard case (no wrap)
-                        subtract off the number of ticks since last pass */
+            } else {
+                /* standard case (no wrap)
+                            subtract off the number of ticks since last pass */
                 num_subtract = (previous_ticks - cur_ticks);
             }
             /* check to see if we are done. */
-            if (num_subtract >= ticks)
+            if (num_subtract >= ticks) {
                 return E_NO_ERROR;
-            else
+            } else {
                 ticks -= num_subtract;
+            }
             /* cur_ticks becomes previous_ticks for next timer read. */
             previous_ticks = cur_ticks;
         } while (ticks > 0);
@@ -708,18 +714,15 @@ void SYS_IOMAN_UseVDDIOH(const gpio_cfg_t *cfg)
 void SYS_WDT_Init(mxc_wdt_regs_t *wdt, const sys_cfg_wdt_t *cfg)
 {
 
-    if(cfg->clk == CLKMAN_WDT_SELECT_NANO_RING_OSCILLATOR)
-    {
+    if (cfg->clk == CLKMAN_WDT_SELECT_NANO_RING_OSCILLATOR) {
         /*enable nanoring in run mode */
         MXC_PWRSEQ->reg0 |= (MXC_F_PWRSEQ_REG0_PWR_NREN_RUN);
-    }
-    else if(cfg->clk == CLKMAN_WDT_SELECT_32KHZ_RTC_OSCILLATOR)
-    {
+    } else if (cfg->clk == CLKMAN_WDT_SELECT_32KHZ_RTC_OSCILLATOR) {
         /*enabled RTC in run mode */
         MXC_PWRSEQ->reg0 |= (MXC_F_PWRSEQ_REG0_PWR_RTCEN_RUN);
     }
 
-    if(wdt == MXC_WDT0) {
+    if (wdt == MXC_WDT0) {
         /*select clock source */
         CLKMAN_WdtClkSelect(0, cfg->clk);
 
@@ -780,8 +783,7 @@ uint32_t SYS_SRAM_GetSize(void)
     int SRAMtrim = (MXC_TRIM->reg10_mem_size & MXC_F_TRIM_REG10_MEM_SIZE_SRAM) >> MXC_F_TRIM_REG10_MEM_SIZE_SRAM_POS;
 
     /* Decode trim value into memory size in bytes */
-    switch(SRAMtrim)
-    {
+    switch (SRAMtrim) {
         case MXC_V_TRIM_REG10_MEM_SRAM_THREE_FOURTHS_SIZE:
             memSize = (MXC_SRAM_FULL_MEM_SIZE >> 2) * 3;
             break;
@@ -808,8 +810,7 @@ uint32_t SYS_FLASH_GetSize(void)
     int FLASHtrim = (MXC_TRIM->reg10_mem_size & MXC_F_TRIM_REG10_MEM_SIZE_FLASH) >> MXC_F_TRIM_REG10_MEM_SIZE_FLASH_POS;
 
     /* Decode trim value into memory size in bytes*/
-    switch(FLASHtrim)
-    {
+    switch (FLASHtrim) {
         case MXC_V_TRIM_REG10_MEM_FLASH_THREE_FOURTHS_SIZE:
             memSize = (MXC_FLASH_FULL_MEM_SIZE >> 2) * 3;
             break;

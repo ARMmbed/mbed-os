@@ -41,7 +41,7 @@
 /******************************************************************************/
 int IOMAN_Config(const ioman_cfg_t *cfg)
 {
-    if(cfg == NULL) {
+    if (cfg == NULL) {
         return E_NULL_PTR;
     }
 

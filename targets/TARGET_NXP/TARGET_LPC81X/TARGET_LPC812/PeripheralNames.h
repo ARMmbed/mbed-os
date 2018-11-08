@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 // Default peripherals
-#define MBED_SPI0         P0_14, P0_15, P0_12, P0_13 
+#define MBED_SPI0         P0_14, P0_15, P0_12, P0_13
 
 #define MBED_UART0        P0_4, P0_0
 #define MBED_UARTUSB      USBTX, USBRX

@@ -48,8 +48,7 @@ typedef struct _spifi_dma_handle spifi_dma_handle_t;
 typedef void (*spifi_dma_callback_t)(SPIFI_Type *base, spifi_dma_handle_t *handle, status_t status, void *userData);
 
 /*! @brief SPIFI DMA transfer handle, users should not touch the content of the handle.*/
-struct _spifi_dma_handle
-{
+struct _spifi_dma_handle {
     dma_handle_t *dmaHandle;       /*!< DMA handler for SPIFI send */
     size_t transferSize;           /*!< Bytes need to transfer. */
     uint32_t state;                /*!< Internal state for SPIFI DMA transfer */

@@ -67,7 +67,7 @@
 #if(MXC_SPIX_REV == 0)
 
 #if defined ( __GNUC__ )
-__attribute__ ((section(".spix_config"), noinline))
+__attribute__((section(".spix_config"), noinline))
 #endif /* __GNUC */
 
 #if IAR_SPIX_PRAGMA
@@ -82,44 +82,44 @@ static void SPIX_UpdateFBIgnore()
     uint8_t no_cmd_clocks = 0;
 
     // Adjust the clocks for the command
-    if((MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_CMD_WIDTH) ==
+    if ((MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_CMD_WIDTH) ==
             MXC_S_SPIX_FETCH_CTRL_CMD_WIDTH_QUAD_IO) {
 
-        clocks += CMD_CLOCKS/4;
-    } else if((MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_CMD_WIDTH) ==
-              MXC_S_SPIX_FETCH_CTRL_CMD_WIDTH_DUAL_IO) {
+        clocks += CMD_CLOCKS / 4;
+    } else if ((MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_CMD_WIDTH) ==
+               MXC_S_SPIX_FETCH_CTRL_CMD_WIDTH_DUAL_IO) {
 
-        clocks += CMD_CLOCKS/2;
+        clocks += CMD_CLOCKS / 2;
     } else {
 
         clocks += CMD_CLOCKS;
     }
 
     // Adjust the clocks for the address
-    if((MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_ADDR_WIDTH) ==
+    if ((MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_ADDR_WIDTH) ==
             MXC_S_SPIX_FETCH_CTRL_ADDR_WIDTH_QUAD_IO) {
 
-        if(MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_FOUR_BYTE_ADDR) {
-            clocks += ADDR_4BYTE_CLOCKS/4;
-            no_cmd_clocks += ADDR_4BYTE_CLOCKS/4;
+        if (MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_FOUR_BYTE_ADDR) {
+            clocks += ADDR_4BYTE_CLOCKS / 4;
+            no_cmd_clocks += ADDR_4BYTE_CLOCKS / 4;
         } else {
-            clocks += ADDR_3BYTE_CLOCKS/4;
-            no_cmd_clocks += ADDR_3BYTE_CLOCKS/4;
+            clocks += ADDR_3BYTE_CLOCKS / 4;
+            no_cmd_clocks += ADDR_3BYTE_CLOCKS / 4;
         }
 
-    } else if((MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_ADDR_WIDTH) ==
-              MXC_S_SPIX_FETCH_CTRL_ADDR_WIDTH_DUAL_IO) {
+    } else if ((MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_ADDR_WIDTH) ==
+               MXC_S_SPIX_FETCH_CTRL_ADDR_WIDTH_DUAL_IO) {
 
-        if(MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_FOUR_BYTE_ADDR) {
-            clocks += ADDR_4BYTE_CLOCKS/2;
-            no_cmd_clocks += ADDR_4BYTE_CLOCKS/2;
+        if (MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_FOUR_BYTE_ADDR) {
+            clocks += ADDR_4BYTE_CLOCKS / 2;
+            no_cmd_clocks += ADDR_4BYTE_CLOCKS / 2;
         } else {
-            clocks += ADDR_3BYTE_CLOCKS/2;
-            no_cmd_clocks += ADDR_3BYTE_CLOCKS/2;
+            clocks += ADDR_3BYTE_CLOCKS / 2;
+            no_cmd_clocks += ADDR_3BYTE_CLOCKS / 2;
         }
     } else {
 
-        if(MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_FOUR_BYTE_ADDR) {
+        if (MXC_SPIX->fetch_ctrl & MXC_F_SPIX_FETCH_CTRL_FOUR_BYTE_ADDR) {
             clocks += ADDR_4BYTE_CLOCKS;
             no_cmd_clocks += ADDR_4BYTE_CLOCKS;
         } else {
@@ -143,7 +143,7 @@ static void SPIX_UpdateFBIgnore()
 
 /******************************************************************************/
 #if defined ( __GNUC__ )
-__attribute__ ((section(".spix_config"), noinline))
+__attribute__((section(".spix_config"), noinline))
 #endif /* __GNUC */
 
 #if IAR_SPIX_PRAGMA
@@ -156,7 +156,7 @@ int SPIX_ConfigClock(const sys_cfg_spix_t *sys_cfg, uint32_t baud, uint8_t sampl
     uint32_t spix_clk, clocks;
 
     // Check the input parameters
-    if(sys_cfg == NULL) {
+    if (sys_cfg == NULL) {
         return E_NULL_PTR;
     }
 
@@ -167,13 +167,13 @@ int SPIX_ConfigClock(const sys_cfg_spix_t *sys_cfg, uint32_t baud, uint8_t sampl
 
     // Configure the mode and baud
     spix_clk = SYS_SPIX_GetFreq();
-    if(spix_clk <= 0) {
+    if (spix_clk <= 0) {
         return E_UNINITIALIZED;
     }
 
     // Make sure that we can generate this frequency
-    clocks = (spix_clk / (2*baud));
-    if((clocks <= 0) || (clocks >= 0x10)) {
+    clocks = (spix_clk / (2 * baud));
+    if ((clocks <= 0) || (clocks >= 0x10)) {
         return E_BAD_PARAM;
     }
 
@@ -183,7 +183,7 @@ int SPIX_ConfigClock(const sys_cfg_spix_t *sys_cfg, uint32_t baud, uint8_t sampl
                             (clocks << MXC_F_SPIX_MASTER_CFG_SCK_HI_CLK_POS) |
                             (clocks << MXC_F_SPIX_MASTER_CFG_SCK_LO_CLK_POS));
 
-    if(sample != 0) {
+    if (sample != 0) {
         // Use sample mode
         MXC_SPIX->master_cfg = ((MXC_SPIX->master_cfg & ~MXC_F_SPIX_MASTER_CFG_SDIO_SAMPLE_POINT) |
                                 (sample << MXC_F_SPIX_MASTER_CFG_SDIO_SAMPLE_POINT_POS));
@@ -208,7 +208,7 @@ int SPIX_ConfigClock(const sys_cfg_spix_t *sys_cfg, uint32_t baud, uint8_t sampl
 
 /******************************************************************************/
 #if defined ( __GNUC__ )
-__attribute__ ((section(".spix_config"), noinline))
+__attribute__((section(".spix_config"), noinline))
 #endif /* __GNUC */
 
 #if IAR_SPIX_PRAGMA
@@ -223,7 +223,7 @@ void SPIX_ConfigSlave(uint8_t ssel, uint8_t pol, uint8_t act_delay, uint8_t inac
     MXC_SPIX->master_cfg = ((MXC_SPIX->master_cfg & ~MXC_F_SPIX_MASTER_CFG_SLAVE_SEL) |
                             (ssel << MXC_F_SPIX_MASTER_CFG_SLAVE_SEL_POS));
 
-    if(pol != 0) {
+    if (pol != 0) {
         // Active high
         MXC_SPIX->master_cfg &= ~(MXC_F_SPIX_MASTER_CFG_SS_ACT_LO);
     } else {
@@ -233,14 +233,14 @@ void SPIX_ConfigSlave(uint8_t ssel, uint8_t pol, uint8_t act_delay, uint8_t inac
 
     // Set the delays
     MXC_SPIX->master_cfg = ((MXC_SPIX->master_cfg & ~(MXC_F_SPIX_MASTER_CFG_ACT_DELAY |
-                             MXC_F_SPIX_MASTER_CFG_INACT_DELAY)) |
+                                                      MXC_F_SPIX_MASTER_CFG_INACT_DELAY)) |
                             (act_delay << MXC_F_SPIX_MASTER_CFG_ACT_DELAY_POS) |
                             (inact_delay << MXC_F_SPIX_MASTER_CFG_INACT_DELAY_POS));
 }
 
 /******************************************************************************/
 #if defined ( __GNUC__ )
-__attribute__ ((section(".spix_config"), noinline))
+__attribute__((section(".spix_config"), noinline))
 #endif /* __GNUC */
 
 #if IAR_SPIX_PRAGMA
@@ -271,7 +271,7 @@ void SPIX_ConfigFetch(const spix_fetch_t *fetch)
 
 /******************************************************************************/
 #if defined ( __GNUC__ )
-__attribute__ ((section(".spix_config"), noinline))
+__attribute__((section(".spix_config"), noinline))
 #endif /* __GNUC */
 
 #if IAR_SPIX_PRAGMA

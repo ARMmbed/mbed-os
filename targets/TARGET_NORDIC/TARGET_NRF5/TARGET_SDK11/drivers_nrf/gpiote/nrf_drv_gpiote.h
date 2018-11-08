@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -58,8 +58,7 @@
 #include <stdbool.h>
 
 /**@brief Input pin configuration. */
-typedef struct
-{
+typedef struct {
     nrf_gpiote_polarity_t sense;      /**< Transition that triggers interrupt. */
     nrf_gpio_pin_pull_t   pull;       /**< Pulling mode. */
     bool                  is_watcher; /**< True when the input pin is tracking an output pin. */
@@ -97,8 +96,7 @@ typedef struct
     }
 
 /**@brief Output pin configuration. */
-typedef struct
-{
+typedef struct {
     nrf_gpiote_polarity_t action;    /**< Configuration of the pin task. */
     nrf_gpiote_outinit_t  init_state; /**< Initial state of the output pin. */
     bool                  task_pin;  /**< True if the pin is controlled by a GPIOTE task. */
@@ -151,7 +149,7 @@ typedef void (*nrf_drv_gpiote_evt_handler_t)(nrf_drv_gpiote_pin_t pin, nrf_gpiot
 /**
  * @brief Function for initializing the GPIOTE module.
  *
- * @details Only static configuration is supported to prevent the shared 
+ * @details Only static configuration is supported to prevent the shared
  * resource being customized by the initiator.
  *
  * @retval    NRF_SUCCESS If initialization was successful.
@@ -177,8 +175,8 @@ void nrf_drv_gpiote_uninit(void);
 
 /**
  * @brief Function for initializing a GPIOTE output pin.
- * @details The output pin can be controlled by the CPU or by PPI. The initial 
- * configuration specifies which mode is used. If PPI mode is used, the driver 
+ * @details The output pin can be controlled by the CPU or by PPI. The initial
+ * configuration specifies which mode is used. If PPI mode is used, the driver
  * attempts to allocate one of the available GPIOTE channels. If no channel is
  * available, an error is returned.
  *
@@ -190,102 +188,102 @@ void nrf_drv_gpiote_uninit(void);
  * @retval NRF_ERROR_NO_MEM        If no GPIOTE channel is available.
  */
 ret_code_t nrf_drv_gpiote_out_init(nrf_drv_gpiote_pin_t pin,
-                                   nrf_drv_gpiote_out_config_t const * p_config);
+                                   nrf_drv_gpiote_out_config_t const *p_config);
 
 /**
  * @brief Function for uninitializing a GPIOTE output pin.
  * @details The driver frees the GPIOTE channel if the output pin was using one.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  */
 void nrf_drv_gpiote_out_uninit(nrf_drv_gpiote_pin_t pin);
 
 /**
  * @brief Function for setting a GPIOTE output pin.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  */
 void nrf_drv_gpiote_out_set(nrf_drv_gpiote_pin_t pin);
 
 /**
  * @brief Function for clearing a GPIOTE output pin.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  */
 void nrf_drv_gpiote_out_clear(nrf_drv_gpiote_pin_t pin);
 
 /**
  * @brief Function for toggling a GPIOTE output pin.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  */
 void nrf_drv_gpiote_out_toggle(nrf_drv_gpiote_pin_t pin);
 
 /**
  * @brief Function for enabling a GPIOTE output pin task.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  */
 void nrf_drv_gpiote_out_task_enable(nrf_drv_gpiote_pin_t pin);
 
 /**
  * @brief Function for disabling a GPIOTE output pin task.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  */
 void nrf_drv_gpiote_out_task_disable(nrf_drv_gpiote_pin_t pin);
 
 /**
  * @brief Function for getting the address of a configurable GPIOTE task.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  */
 uint32_t nrf_drv_gpiote_out_task_addr_get(nrf_drv_gpiote_pin_t pin);
 
 /**
  * @brief Function for initializing a GPIOTE input pin.
- * @details The input pin can act in two ways: 
+ * @details The input pin can act in two ways:
  * - lower accuracy but low power (high frequency clock not needed)
  * - higher accuracy (high frequency clock required)
  *
  * The initial configuration specifies which mode is used.
- * If high-accuracy mode is used, the driver attempts to allocate one 
- * of the available GPIOTE channels. If no channel is 
+ * If high-accuracy mode is used, the driver attempts to allocate one
+ * of the available GPIOTE channels. If no channel is
  * available, an error is returned.
  * In low accuracy mode SENSE feature is used. In this case only one active pin
  * can be detected at a time. It can be worked around by setting all of the used
  * low accuracy pins to toggle mode.
  * For more information about SENSE functionality, refer to Product Specification.
  *
- * @param[in] pin       Pin. 
- * @param[in] p_config    Initial configuration. 
- * @param[in] evt_handler User function to be called when the configured transition occurs. 
+ * @param[in] pin       Pin.
+ * @param[in] p_config    Initial configuration.
+ * @param[in] evt_handler User function to be called when the configured transition occurs.
  *
  * @retval NRF_SUCCESS             If initialization was successful.
  * @retval NRF_ERROR_INVALID_STATE If the driver is not initialized or the pin is already used.
  * @retval NRF_ERROR_NO_MEM        If no GPIOTE channel is available.
  */
-ret_code_t nrf_drv_gpiote_in_init(nrf_drv_gpiote_pin_t pin, 
-                                  nrf_drv_gpiote_in_config_t const * p_config,
+ret_code_t nrf_drv_gpiote_in_init(nrf_drv_gpiote_pin_t pin,
+                                  nrf_drv_gpiote_in_config_t const *p_config,
                                   nrf_drv_gpiote_evt_handler_t evt_handler);
 
 /**
  * @brief Function for uninitializing a GPIOTE input pin.
  * @details The driver frees the GPIOTE channel if the input pin was using one.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  */
 void nrf_drv_gpiote_in_uninit(nrf_drv_gpiote_pin_t pin);
 
 /**
  * @brief Function for enabling sensing of a GPIOTE input pin.
  *
- * @details If the input pin is configured as high-accuracy pin, the function 
+ * @details If the input pin is configured as high-accuracy pin, the function
  * enables an IN_EVENT. Otherwise, the function enables the GPIO sense mechanism.
- * Note that a PORT event is shared between multiple pins, therefore the 
+ * Note that a PORT event is shared between multiple pins, therefore the
  * interrupt is always enabled.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  * @param[in] int_enable  True to enable the interrupt. Always valid for a high-accuracy pin.
  */
 void nrf_drv_gpiote_in_event_enable(nrf_drv_gpiote_pin_t pin, bool int_enable);
@@ -293,14 +291,14 @@ void nrf_drv_gpiote_in_event_enable(nrf_drv_gpiote_pin_t pin, bool int_enable);
 /**
  * @brief Function for disabling a GPIOTE input pin.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  */
 void nrf_drv_gpiote_in_event_disable(nrf_drv_gpiote_pin_t pin);
 
 /**
  * @brief Function for checking if a GPIOTE input pin is set.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  * @retval    true If the input pin is set.
  * @retval    false If the input pin is not set.
  */
@@ -310,14 +308,14 @@ bool nrf_drv_gpiote_in_is_set(nrf_drv_gpiote_pin_t pin);
  * @brief Function for getting the address of a GPIOTE input pin event.
  * @details If the pin is configured to use low-accuracy mode, the address of the PORT event is returned.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  */
 uint32_t nrf_drv_gpiote_in_event_addr_get(nrf_drv_gpiote_pin_t pin);
 
 /**
  * @brief Function for forcing a specific state on the pin configured as task.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  * @param[in] state     Pin state.
  */
 void nrf_drv_gpiote_out_task_force(nrf_drv_gpiote_pin_t pin, uint8_t state);
@@ -325,7 +323,7 @@ void nrf_drv_gpiote_out_task_force(nrf_drv_gpiote_pin_t pin, uint8_t state);
 /**
  * @brief Function for triggering the task manually.
  *
- * @param[in] pin       Pin. 
+ * @param[in] pin       Pin.
  */
 void nrf_drv_gpiote_out_task_trigger(nrf_drv_gpiote_pin_t pin);
 

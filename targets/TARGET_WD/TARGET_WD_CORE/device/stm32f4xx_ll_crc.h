@@ -113,7 +113,7 @@ extern "C" {
   */
 __STATIC_INLINE void LL_CRC_ResetCRCCalculationUnit(CRC_TypeDef *CRCx)
 {
-  WRITE_REG(CRCx->CR, CRC_CR_RESET);
+    WRITE_REG(CRCx->CR, CRC_CR_RESET);
 }
 
 /**
@@ -133,7 +133,7 @@ __STATIC_INLINE void LL_CRC_ResetCRCCalculationUnit(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE void LL_CRC_FeedData32(CRC_TypeDef *CRCx, uint32_t InData)
 {
-  WRITE_REG(CRCx->DR, InData);
+    WRITE_REG(CRCx->DR, InData);
 }
 
 /**
@@ -144,7 +144,7 @@ __STATIC_INLINE void LL_CRC_FeedData32(CRC_TypeDef *CRCx, uint32_t InData)
   */
 __STATIC_INLINE uint32_t LL_CRC_ReadData32(CRC_TypeDef *CRCx)
 {
-  return (uint32_t)(READ_REG(CRCx->DR));
+    return (uint32_t)(READ_REG(CRCx->DR));
 }
 
 /**
@@ -156,7 +156,7 @@ __STATIC_INLINE uint32_t LL_CRC_ReadData32(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE uint32_t LL_CRC_Read_IDR(CRC_TypeDef *CRCx)
 {
-  return (uint32_t)(READ_REG(CRCx->IDR));
+    return (uint32_t)(READ_REG(CRCx->IDR));
 }
 
 /**
@@ -169,7 +169,7 @@ __STATIC_INLINE uint32_t LL_CRC_Read_IDR(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE void LL_CRC_Write_IDR(CRC_TypeDef *CRCx, uint32_t InData)
 {
-  *((uint8_t __IO *)(&CRCx->IDR)) = (uint8_t) InData;
+    *((uint8_t __IO *)(&CRCx->IDR)) = (uint8_t) InData;
 }
 /**
   * @}

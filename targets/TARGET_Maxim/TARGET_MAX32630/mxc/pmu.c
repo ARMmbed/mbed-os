@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief   Peripheral Management Unit (PMU) Function Implementations. 
+ * @brief   Peripheral Management Unit (PMU) Function Implementations.
  */
 /* *****************************************************************************
  * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
@@ -45,16 +45,16 @@
 #include "mxc_assert.h"
 #include "pmu.h"
 /**
- * @ingroup pmuGroup 
+ * @ingroup pmuGroup
  * @{
- */ 
+ */
 
 #if (MXC_PMU_REV == 0)
 /* MAX32630 A1 & A2 Erratum #6: PMU only supports channels 0-4 -- workaround */
 #include "clkman_regs.h"
 /* Channel 5 infinite loop program */
 static const uint32_t pmu_0[] = {
-  PMU_JUMP(0, 0, (uint32_t)pmu_0)
+    PMU_JUMP(0, 0, (uint32_t)pmu_0)
 };
 #endif
 
@@ -90,8 +90,9 @@ void PMU_Handler(void)
 /* ************************************************************************* */
 int PMU_Start(unsigned int channel, const void *program_address, pmu_callback callback)
 {
-    if(channel >= MXC_CFG_PMU_CHANNELS)
+    if (channel >= MXC_CFG_PMU_CHANNELS) {
         return E_BAD_PARAM;
+    }
 
     mxc_pmu_regs_t *MXC_PMUn = &MXC_PMU0[channel];
     uint32_t cfg = MXC_PMUn->cfg;
@@ -104,8 +105,8 @@ int PMU_Start(unsigned int channel, const void *program_address, pmu_callback ca
 #if (MXC_PMU_REV == 0)
     /* MAX32630 A1 & A2 Erratum #6: PMU only supports channels 0-4 */
     if (channel == 5) {
-      /* Channel 5 is used for the work-around */
-      return E_BUSY;
+        /* Channel 5 is used for the work-around */
+        return E_BUSY;
     }
     /* Select always-ON clock for PMU */
     MXC_CLKMAN->clk_gate_ctrl0 |= MXC_F_CLKMAN_CLK_GATE_CTRL0_PMU_CLK_GATER;
@@ -160,11 +161,11 @@ void PMU_Stop(unsigned int channel)
     /* MAX32630 A1 & A2 Erratum #6: PMU only supports channels 0-4 */
     /* Check channels 0-4 for any running channels. If none found, stop channel 5 */
     if ((MXC_PMU0->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
-    (MXC_PMU1->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
-    (MXC_PMU2->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
-    (MXC_PMU3->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
-    (MXC_PMU4->cfg & MXC_F_PMU_CFG_ENABLE) == 0) {
-      MXC_PMU5->cfg &= ~MXC_F_PMU_CFG_ENABLE;
+            (MXC_PMU1->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
+            (MXC_PMU2->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
+            (MXC_PMU3->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
+            (MXC_PMU4->cfg & MXC_F_PMU_CFG_ENABLE) == 0) {
+        MXC_PMU5->cfg &= ~MXC_F_PMU_CFG_ENABLE;
     }
 #endif
 
@@ -173,8 +174,9 @@ void PMU_Stop(unsigned int channel)
 /* ************************************************************************* */
 int PMU_SetCounter(unsigned int channel, unsigned int counter, uint16_t value)
 {
-    if((channel >= MXC_CFG_PMU_CHANNELS) || counter > 1)
+    if ((channel >= MXC_CFG_PMU_CHANNELS) || counter > 1) {
         return E_BAD_PARAM;
+    }
 
     mxc_pmu_regs_t *MXC_PMUn = &MXC_PMU0[channel];
 
@@ -190,8 +192,9 @@ int PMU_SetCounter(unsigned int channel, unsigned int counter, uint16_t value)
 /* ************************************************************************* */
 int PMU_SetTimeout(unsigned int channel, pmu_ps_sel_t timeoutClkScale, pmu_to_sel_t timeoutTicks)
 {
-    if(channel >= MXC_CFG_PMU_CHANNELS)
+    if (channel >= MXC_CFG_PMU_CHANNELS) {
         return E_BAD_PARAM;
+    }
 
     mxc_pmu_regs_t *MXC_PMUn = &MXC_PMU0[channel];
     uint32_t cfg = MXC_PMUn->cfg;
@@ -217,7 +220,7 @@ uint32_t PMU_GetFlags(unsigned int channel)
 
     /* Mask off configuration bits leaving only flag bits */
     cfg &= ~(MXC_F_PMU_CFG_ENABLE | MXC_F_PMU_CFG_MANUAL | MXC_F_PMU_CFG_TO_SEL | MXC_F_PMU_CFG_PS_SEL |
-            MXC_F_PMU_CFG_INT_EN | MXC_F_PMU_CFG_BURST_SIZE);
+             MXC_F_PMU_CFG_INT_EN | MXC_F_PMU_CFG_BURST_SIZE);
 
     return cfg;
 }

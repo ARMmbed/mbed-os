@@ -35,13 +35,13 @@
 
 static volatile MBED_ALIGN(256) uint8_t usb_buf[TOTAL_SIZE];  // 256 bytes aligned!
 
-USBHALHost * USBHALHost::instHost;
+USBHALHost *USBHALHost::instHost;
 
 USBHALHost::USBHALHost()
 {
     instHost = this;
     memInit();
-    memset((void*)usb_hcca, 0, HCCA_SIZE);
+    memset((void *)usb_hcca, 0, HCCA_SIZE);
     for (int i = 0; i < MAX_ENDPOINT; i++) {
         edBufAlloc[i] = false;
     }
@@ -196,49 +196,49 @@ void USBHALHost::updateInterruptHeadED(uint32_t addr)
 
 void USBHALHost::enableList(ENDPOINT_TYPE type)
 {
-    switch(type) {
-    case CONTROL_ENDPOINT:
-        USBH->HcCommandStatus = OR_CMD_STATUS_CLF;
-        USBH->HcControl |= OR_CONTROL_CLE;
-        break;
-    case ISOCHRONOUS_ENDPOINT:
-        // FIXME
-        break;
-    case BULK_ENDPOINT:
-        USBH->HcCommandStatus = OR_CMD_STATUS_BLF;
-        USBH->HcControl |= OR_CONTROL_BLE;
-        break;
-    case INTERRUPT_ENDPOINT:
-        USBH->HcControl |= OR_CONTROL_PLE;
-        break;
+    switch (type) {
+        case CONTROL_ENDPOINT:
+            USBH->HcCommandStatus = OR_CMD_STATUS_CLF;
+            USBH->HcControl |= OR_CONTROL_CLE;
+            break;
+        case ISOCHRONOUS_ENDPOINT:
+            // FIXME
+            break;
+        case BULK_ENDPOINT:
+            USBH->HcCommandStatus = OR_CMD_STATUS_BLF;
+            USBH->HcControl |= OR_CONTROL_BLE;
+            break;
+        case INTERRUPT_ENDPOINT:
+            USBH->HcControl |= OR_CONTROL_PLE;
+            break;
     }
 }
 
 
 bool USBHALHost::disableList(ENDPOINT_TYPE type)
 {
-    switch(type) {
-    case CONTROL_ENDPOINT:
-        if(USBH->HcControl & OR_CONTROL_CLE) {
-            USBH->HcControl &= ~OR_CONTROL_CLE;
-            return true;
-        }
-        return false;
-    case ISOCHRONOUS_ENDPOINT:
-        // FIXME
-        return false;
-    case BULK_ENDPOINT:
-        if(USBH->HcControl & OR_CONTROL_BLE) {
-            USBH->HcControl &= ~OR_CONTROL_BLE;
-            return true;
-        }
-        return false;
-    case INTERRUPT_ENDPOINT:
-        if(USBH->HcControl & OR_CONTROL_PLE) {
-            USBH->HcControl &= ~OR_CONTROL_PLE;
-            return true;
-        }
-        return false;
+    switch (type) {
+        case CONTROL_ENDPOINT:
+            if (USBH->HcControl & OR_CONTROL_CLE) {
+                USBH->HcControl &= ~OR_CONTROL_CLE;
+                return true;
+            }
+            return false;
+        case ISOCHRONOUS_ENDPOINT:
+            // FIXME
+            return false;
+        case BULK_ENDPOINT:
+            if (USBH->HcControl & OR_CONTROL_BLE) {
+                USBH->HcControl &= ~OR_CONTROL_BLE;
+                return true;
+            }
+            return false;
+        case INTERRUPT_ENDPOINT:
+            if (USBH->HcControl & OR_CONTROL_PLE) {
+                USBH->HcControl &= ~OR_CONTROL_PLE;
+                return true;
+            }
+            return false;
     }
     return false;
 }
@@ -248,28 +248,28 @@ void USBHALHost::memInit()
 {
     usb_hcca = (volatile HCCA *)usb_buf;
     usb_edBuf = usb_buf + HCCA_SIZE;
-    usb_tdBuf = usb_buf + HCCA_SIZE + (MAX_ENDPOINT*ED_SIZE);
+    usb_tdBuf = usb_buf + HCCA_SIZE + (MAX_ENDPOINT * ED_SIZE);
 }
 
-volatile uint8_t * USBHALHost::getED()
+volatile uint8_t *USBHALHost::getED()
 {
     for (int i = 0; i < MAX_ENDPOINT; i++) {
-        if ( !edBufAlloc[i] ) {
+        if (!edBufAlloc[i]) {
             edBufAlloc[i] = true;
-            return (volatile uint8_t *)(usb_edBuf + i*ED_SIZE);
+            return (volatile uint8_t *)(usb_edBuf + i * ED_SIZE);
         }
     }
     perror("Could not allocate ED\r\n");
     return NULL; //Could not alloc ED
 }
 
-volatile uint8_t * USBHALHost::getTD()
+volatile uint8_t *USBHALHost::getTD()
 {
     int i;
     for (i = 0; i < MAX_TD; i++) {
-        if ( !tdBufAlloc[i] ) {
+        if (!tdBufAlloc[i]) {
             tdBufAlloc[i] = true;
-            return (volatile uint8_t *)(usb_tdBuf + i*TD_SIZE);
+            return (volatile uint8_t *)(usb_tdBuf + i * TD_SIZE);
         }
     }
     perror("Could not allocate TD\r\n");
@@ -277,14 +277,14 @@ volatile uint8_t * USBHALHost::getTD()
 }
 
 
-void USBHALHost::freeED(volatile uint8_t * ed)
+void USBHALHost::freeED(volatile uint8_t *ed)
 {
     int i;
     i = (ed - usb_edBuf) / ED_SIZE;
     edBufAlloc[i] = false;
 }
 
-void USBHALHost::freeTD(volatile uint8_t * td)
+void USBHALHost::freeTD(volatile uint8_t *td)
 {
     int i;
     i = (td - usb_tdBuf) / TD_SIZE;

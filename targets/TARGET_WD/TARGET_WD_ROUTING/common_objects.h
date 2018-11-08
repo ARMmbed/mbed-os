@@ -57,19 +57,19 @@ struct serial_s {
     PinName pin_cts;
 #endif
 };
-	
+
 #ifdef DEVICE_SPI
 struct spi_s {
-	SPI_HandleTypeDef handle;
-	IRQn_Type spiIRQ;
-	SPIName spi;
-	PinName pin_miso;
-	PinName pin_mosi;
-	PinName pin_sclk;
-	PinName pin_ssel;
+    SPI_HandleTypeDef handle;
+    IRQn_Type spiIRQ;
+    SPIName spi;
+    PinName pin_miso;
+    PinName pin_mosi;
+    PinName pin_sclk;
+    PinName pin_ssel;
 #ifdef DEVICE_SPI_ASYNCH
-	uint32_t event;
-	uint8_t transfer_type;
+    uint32_t event;
+    uint8_t transfer_type;
 #endif
 };
 #endif // DEVICE_SPI
@@ -79,7 +79,7 @@ struct spi_s {
 
 /* STM32F1 HAL doesn't provide this API called in rtc_api.c */
 #define __HAL_RCC_RTC_CLKPRESCALER(__RTCCLKSource__)
-	
+
 #ifdef __cplusplus
 }
 #endif

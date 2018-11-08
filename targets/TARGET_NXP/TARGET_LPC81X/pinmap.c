@@ -17,39 +17,42 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 
-__IO uint32_t* IOCON_REGISTERS[18] = {
-        &LPC_IOCON->PIO0_0 , &LPC_IOCON->PIO0_1 , &LPC_IOCON->PIO0_2 ,
-        &LPC_IOCON->PIO0_3 , &LPC_IOCON->PIO0_4 , &LPC_IOCON->PIO0_5 ,
-        &LPC_IOCON->PIO0_6 , &LPC_IOCON->PIO0_7 , &LPC_IOCON->PIO0_8 ,
-        &LPC_IOCON->PIO0_9 , &LPC_IOCON->PIO0_10, &LPC_IOCON->PIO0_11,
-        &LPC_IOCON->PIO0_12, &LPC_IOCON->PIO0_13, &LPC_IOCON->PIO0_14,
-        &LPC_IOCON->PIO0_15, &LPC_IOCON->PIO0_16, &LPC_IOCON->PIO0_17,
+__IO uint32_t *IOCON_REGISTERS[18] = {
+    &LPC_IOCON->PIO0_0, &LPC_IOCON->PIO0_1, &LPC_IOCON->PIO0_2,
+    &LPC_IOCON->PIO0_3, &LPC_IOCON->PIO0_4, &LPC_IOCON->PIO0_5,
+    &LPC_IOCON->PIO0_6, &LPC_IOCON->PIO0_7, &LPC_IOCON->PIO0_8,
+    &LPC_IOCON->PIO0_9, &LPC_IOCON->PIO0_10, &LPC_IOCON->PIO0_11,
+    &LPC_IOCON->PIO0_12, &LPC_IOCON->PIO0_13, &LPC_IOCON->PIO0_14,
+    &LPC_IOCON->PIO0_15, &LPC_IOCON->PIO0_16, &LPC_IOCON->PIO0_17,
 };
 
-void pin_function(PinName pin, int function) {
+void pin_function(PinName pin, int function)
+{
     if (function == 0) {
         // Disable initial fixed function for P0_2, P0_3 and P0_5
         uint32_t enable = 0;
-        if (pin == P0_2)
+        if (pin == P0_2) {
             enable = 1 << 3;
-        else if (pin == P0_3)
+        } else if (pin == P0_3) {
             enable = 1 << 2;
-        else if (pin == P0_5)
+        } else if (pin == P0_5) {
             enable = 1 << 6;
+        }
         LPC_SWM->PINENABLE0 |= enable;
     }
 }
 
-void pin_mode(PinName pin, PinMode mode) {
+void pin_mode(PinName pin, PinMode mode)
+{
     MBED_ASSERT(pin != (PinName)NC);
 
     if ((pin == 10) || (pin == 11)) {
         // True open-drain pins can be configured for different I2C-bus speeds
         return;
     }
-    
+
     __IO uint32_t *reg = IOCON_REGISTERS[pin];
-    
+
     if (mode == OpenDrain) {
         *reg |= (1 << 10);
     } else {

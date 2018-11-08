@@ -30,8 +30,8 @@ typedef enum {
 #define PORT_SHIFT  5
 
 typedef enum {
-/* BEETLE Pin Names */
-/* GPIO0 */
+    /* BEETLE Pin Names */
+    /* GPIO0 */
     P0_0 = 0,
     P0_1 = 1,
     P0_2 = 2,
@@ -49,7 +49,7 @@ typedef enum {
     P0_14 = 14,
     P0_15 = 15,
 
-/* GPIO1 */
+    /* GPIO1 */
     P1_0 = 16,
     P1_1 = 17,
     P1_2 = 18,
@@ -67,7 +67,7 @@ typedef enum {
     P1_14 = 30,
     P1_15 = 31,
 
-/* Arduino Connector Namings */
+    /* Arduino Connector Namings */
     A0 = 600,
     A1 = 601,
     A2 = 602,
@@ -91,14 +91,14 @@ typedef enum {
     D14 = P0_14,
     D15 = P0_15,
 
-/* TRACE Ports */
+    /* TRACE Ports */
     TRACECLK = P0_2,
     TRACED0 = P0_6,
     TRACED1 = P0_7,
     TRACED2 = P0_8,
     TRACED3 = P0_9,
 
-/* Other BEETLE Pin Names */
+    /* Other BEETLE Pin Names */
 
     //Shield SPI
     SHIELD_SPI_SCK = 320,

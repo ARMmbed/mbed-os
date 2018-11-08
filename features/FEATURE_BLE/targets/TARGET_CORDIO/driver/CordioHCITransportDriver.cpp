@@ -23,7 +23,7 @@ namespace ble {
 namespace vendor {
 namespace cordio {
 
-void CordioHCITransportDriver::on_data_received(uint8_t* data, uint16_t len)
+void CordioHCITransportDriver::on_data_received(uint8_t *data, uint16_t len)
 {
     hciTrSerialRxIncoming(data, len);
 }

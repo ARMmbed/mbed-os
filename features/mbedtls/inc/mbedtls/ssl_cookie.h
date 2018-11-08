@@ -49,8 +49,7 @@ extern "C" {
 /**
  * \brief          Context for the default cookie functions.
  */
-typedef struct
-{
+typedef struct {
     mbedtls_md_context_t    hmac_ctx;   /*!< context for the HMAC portion   */
 #if !defined(MBEDTLS_HAVE_TIME)
     unsigned long   serial;     /*!< serial number for expiration   */
@@ -66,14 +65,14 @@ typedef struct
 /**
  * \brief          Initialize cookie context
  */
-void mbedtls_ssl_cookie_init( mbedtls_ssl_cookie_ctx *ctx );
+void mbedtls_ssl_cookie_init(mbedtls_ssl_cookie_ctx *ctx);
 
 /**
  * \brief          Setup cookie context (generate keys)
  */
-int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
-                      int (*f_rng)(void *, unsigned char *, size_t),
-                      void *p_rng );
+int mbedtls_ssl_cookie_setup(mbedtls_ssl_cookie_ctx *ctx,
+                             int (*f_rng)(void *, unsigned char *, size_t),
+                             void *p_rng);
 
 /**
  * \brief          Set expiration delay for cookies
@@ -84,12 +83,12 @@ int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
  *                 issued in the meantime.
  *                 0 to disable expiration (NOT recommended)
  */
-void mbedtls_ssl_cookie_set_timeout( mbedtls_ssl_cookie_ctx *ctx, unsigned long delay );
+void mbedtls_ssl_cookie_set_timeout(mbedtls_ssl_cookie_ctx *ctx, unsigned long delay);
 
 /**
  * \brief          Free cookie context
  */
-void mbedtls_ssl_cookie_free( mbedtls_ssl_cookie_ctx *ctx );
+void mbedtls_ssl_cookie_free(mbedtls_ssl_cookie_ctx *ctx);
 
 /**
  * \brief          Generate cookie, see \c mbedtls_ssl_cookie_write_t

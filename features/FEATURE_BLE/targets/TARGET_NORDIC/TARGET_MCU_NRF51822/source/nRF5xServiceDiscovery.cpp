@@ -131,8 +131,8 @@ nRF5xServiceDiscovery::progressCharacteristicDiscovery(void)
         discoveredCharacteristic.setLastHandle(characteristics[0].getDeclHandle() - 1);
 
         if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
-            ((matchingCharacteristicUUID == discoveredCharacteristic.getUUID()) &&
-             (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
+                ((matchingCharacteristicUUID == discoveredCharacteristic.getUUID()) &&
+                 (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
             if (characteristicCallback) {
                 characteristicCallback(&discoveredCharacteristic);
             }
@@ -152,8 +152,8 @@ nRF5xServiceDiscovery::progressCharacteristicDiscovery(void)
         }
 
         if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
-            ((matchingCharacteristicUUID == characteristics[i].getUUID()) &&
-             (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
+                ((matchingCharacteristicUUID == characteristics[i].getUUID()) &&
+                 (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
             if (characteristicCallback) {
                 characteristicCallback(&characteristics[i]);
             }
@@ -187,7 +187,7 @@ nRF5xServiceDiscovery::progressServiceDiscovery(void)
     /* Iterate through the previously discovered services cached in services[]. */
     while ((state == SERVICE_DISCOVERY_ACTIVE) && (serviceIndex < numServices)) {
         if ((matchingServiceUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
-            (matchingServiceUUID == services[serviceIndex].getUUID())) {
+                (matchingServiceUUID == services[serviceIndex].getUUID())) {
 
             if (serviceCallback && (matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN))) {
                 serviceCallback(&services[serviceIndex]);

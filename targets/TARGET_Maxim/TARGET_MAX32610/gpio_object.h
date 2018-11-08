@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #ifndef MBED_GPIO_OBJECT_H
 #define MBED_GPIO_OBJECT_H
 
@@ -60,7 +60,8 @@ static inline int gpio_read(gpio_t *obj)
 
 void pin_dir(PinName name, PinDirection direction);
 
-static inline int gpio_is_connected(const gpio_t *obj) {
+static inline int gpio_is_connected(const gpio_t *obj)
+{
     return obj->name != (PinName)NC;
 }
 

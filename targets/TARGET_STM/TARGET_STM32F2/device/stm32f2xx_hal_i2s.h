@@ -33,18 +33,18 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F2xx_HAL_I2S_H
 #define __STM32F2xx_HAL_I2S_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f2xx_hal_def.h"  
+#include "stm32f2xx_hal_def.h"
 
 /** @addtogroup STM32F2xx_HAL_Driver
   * @{
@@ -52,89 +52,86 @@
 
 /** @addtogroup I2S
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 /** @defgroup I2S_Exported_Types I2S Exported Types
   * @{
   */
-  
-/** 
-  * @brief I2S Init structure definition  
+
+/**
+  * @brief I2S Init structure definition
   */
-typedef struct
-{
-  uint32_t Mode;         /*!< Specifies the I2S operating mode.
+typedef struct {
+    uint32_t Mode;         /*!< Specifies the I2S operating mode.
                               This parameter can be a value of @ref I2S_Mode */
 
-  uint32_t Standard;     /*!< Specifies the standard used for the I2S communication.
+    uint32_t Standard;     /*!< Specifies the standard used for the I2S communication.
                               This parameter can be a value of @ref I2S_Standard */
 
-  uint32_t DataFormat;   /*!< Specifies the data format for the I2S communication.
+    uint32_t DataFormat;   /*!< Specifies the data format for the I2S communication.
                               This parameter can be a value of @ref I2S_Data_Format */
 
-  uint32_t MCLKOutput;   /*!< Specifies whether the I2S MCLK output is enabled or not.
+    uint32_t MCLKOutput;   /*!< Specifies whether the I2S MCLK output is enabled or not.
                               This parameter can be a value of @ref I2S_MCLK_Output */
 
-  uint32_t AudioFreq;    /*!< Specifies the frequency selected for the I2S communication.
+    uint32_t AudioFreq;    /*!< Specifies the frequency selected for the I2S communication.
                               This parameter can be a value of @ref I2S_Audio_Frequency */
 
-  uint32_t CPOL;         /*!< Specifies the idle state of the I2S clock.
+    uint32_t CPOL;         /*!< Specifies the idle state of the I2S clock.
                               This parameter can be a value of @ref I2S_Clock_Polarity */
 
-  uint32_t ClockSource;  /*!< Specifies the I2S Clock Source.
+    uint32_t ClockSource;  /*!< Specifies the I2S Clock Source.
                               This parameter can be a value of @ref I2S_Clock_Source */
 
-}I2S_InitTypeDef;
+} I2S_InitTypeDef;
 
-/** 
+/**
   * @brief  HAL State structures definition
-  */ 
-typedef enum
-{
-  HAL_I2S_STATE_RESET      = 0x00U,  /*!< I2S not yet initialized or disabled                */
-  HAL_I2S_STATE_READY      = 0x01U,  /*!< I2S initialized and ready for use                  */
-  HAL_I2S_STATE_BUSY       = 0x02U,  /*!< I2S internal process is ongoing                    */
-  HAL_I2S_STATE_BUSY_TX    = 0x12U,  /*!< Data Transmission process is ongoing               */
-  HAL_I2S_STATE_BUSY_RX    = 0x22U,  /*!< Data Reception process is ongoing                  */
-  HAL_I2S_STATE_BUSY_TX_RX = 0x32U,  /*!< Data Transmission and Reception process is ongoing */
-  HAL_I2S_STATE_TIMEOUT    = 0x03U,  /*!< I2S timeout state                                  */
-  HAL_I2S_STATE_ERROR      = 0x04U   /*!< I2S error state                                    */
-
-}HAL_I2S_StateTypeDef;
-
-/** 
-  * @brief I2S handle Structure definition  
   */
-typedef struct
-{
-  SPI_TypeDef                *Instance;    /* I2S registers base address        */
+typedef enum {
+    HAL_I2S_STATE_RESET      = 0x00U,  /*!< I2S not yet initialized or disabled                */
+    HAL_I2S_STATE_READY      = 0x01U,  /*!< I2S initialized and ready for use                  */
+    HAL_I2S_STATE_BUSY       = 0x02U,  /*!< I2S internal process is ongoing                    */
+    HAL_I2S_STATE_BUSY_TX    = 0x12U,  /*!< Data Transmission process is ongoing               */
+    HAL_I2S_STATE_BUSY_RX    = 0x22U,  /*!< Data Reception process is ongoing                  */
+    HAL_I2S_STATE_BUSY_TX_RX = 0x32U,  /*!< Data Transmission and Reception process is ongoing */
+    HAL_I2S_STATE_TIMEOUT    = 0x03U,  /*!< I2S timeout state                                  */
+    HAL_I2S_STATE_ERROR      = 0x04U   /*!< I2S error state                                    */
 
-  I2S_InitTypeDef            Init;         /* I2S communication parameters      */
-  
-  uint16_t                   *pTxBuffPtr;  /* Pointer to I2S Tx transfer buffer */
-  
-  __IO uint16_t              TxXferSize;   /* I2S Tx transfer size              */
-  
-  __IO uint16_t              TxXferCount;  /* I2S Tx transfer Counter           */
-  
-  uint16_t                   *pRxBuffPtr;  /* Pointer to I2S Rx transfer buffer */
-  
-  __IO uint16_t              RxXferSize;   /* I2S Rx transfer size              */
-  
-  __IO uint16_t              RxXferCount;  /* I2S Rx transfer counter           */
+} HAL_I2S_StateTypeDef;
 
-  DMA_HandleTypeDef          *hdmatx;      /* I2S Tx DMA handle parameters      */
+/**
+  * @brief I2S handle Structure definition
+  */
+typedef struct {
+    SPI_TypeDef                *Instance;    /* I2S registers base address        */
 
-  DMA_HandleTypeDef          *hdmarx;      /* I2S Rx DMA handle parameters      */
-  
-  __IO HAL_LockTypeDef       Lock;         /* I2S locking object                */
-  
-  __IO HAL_I2S_StateTypeDef  State;        /* I2S communication state           */
-  
-  __IO uint32_t              ErrorCode;    /* I2S Error code                    */
-  
-}I2S_HandleTypeDef;
+    I2S_InitTypeDef            Init;         /* I2S communication parameters      */
+
+    uint16_t                   *pTxBuffPtr;  /* Pointer to I2S Tx transfer buffer */
+
+    __IO uint16_t              TxXferSize;   /* I2S Tx transfer size              */
+
+    __IO uint16_t              TxXferCount;  /* I2S Tx transfer Counter           */
+
+    uint16_t                   *pRxBuffPtr;  /* Pointer to I2S Rx transfer buffer */
+
+    __IO uint16_t              RxXferSize;   /* I2S Rx transfer size              */
+
+    __IO uint16_t              RxXferCount;  /* I2S Rx transfer counter           */
+
+    DMA_HandleTypeDef          *hdmatx;      /* I2S Tx DMA handle parameters      */
+
+    DMA_HandleTypeDef          *hdmarx;      /* I2S Rx DMA handle parameters      */
+
+    __IO HAL_LockTypeDef       Lock;         /* I2S locking object                */
+
+    __IO HAL_I2S_StateTypeDef  State;        /* I2S communication state           */
+
+    __IO uint32_t              ErrorCode;    /* I2S Error code                    */
+
+} I2S_HandleTypeDef;
 /**
   * @}
   */
@@ -145,9 +142,9 @@ typedef struct
   */
 
 /** @defgroup I2S_Error_Code I2S Error Code
-  * @brief    I2S Error Code 
+  * @brief    I2S Error Code
   * @{
-  */ 
+  */
 #define HAL_I2S_ERROR_NONE          0x00000000U    /*!< No error                    */
 #define HAL_I2S_ERROR_UDR           0x00000001U    /*!< I2S Underrun error          */
 #define HAL_I2S_ERROR_OVR           0x00000002U    /*!< I2S Overrun error           */
@@ -159,7 +156,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup I2S_Clock_Source I2S Clock Source 
+/** @defgroup I2S_Clock_Source I2S Clock Source
   * @{
   */
 #define I2S_CLOCK_PLL                     0x00000000U
@@ -168,7 +165,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup I2S_Mode I2S Mode 
+/** @defgroup I2S_Mode I2S Mode
   * @{
   */
 #define I2S_MODE_SLAVE_TX                0x00000000U
@@ -178,7 +175,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup I2S_Standard I2S Standard
   * @{
   */
@@ -190,7 +187,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup I2S_Data_Format I2S Data Format
   * @{
   */
@@ -211,7 +208,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup I2S_Audio_Frequency I2S Audio Frequency 
+/** @defgroup I2S_Audio_Frequency I2S Audio Frequency
   * @{
   */
 #define I2S_AUDIOFREQ_192K               192000U
@@ -265,7 +262,7 @@ typedef struct
 
 /**
   * @}
-  */ 
+  */
 
 /* Exported macro ------------------------------------------------------------*/
 /** @defgroup I2S_Exported_Macros I2S Exported Macros
@@ -279,7 +276,7 @@ typedef struct
 #define __HAL_I2S_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_I2S_STATE_RESET)
 
 /** @brief  Enable or disable the specified SPI peripheral (in I2S mode).
-  * @param  __HANDLE__: specifies the I2S Handle. 
+  * @param  __HANDLE__: specifies the I2S Handle.
   * @retval None
   */
 #define __HAL_I2S_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->I2SCFGR |= SPI_I2SCFGR_I2SE)
@@ -293,10 +290,10 @@ typedef struct
   *            @arg I2S_IT_RXNE: RX buffer not empty interrupt enable
   *            @arg I2S_IT_ERR: Error interrupt enable
   * @retval None
-  */  
+  */
 #define __HAL_I2S_ENABLE_IT(__HANDLE__, __INTERRUPT__) ((__HANDLE__)->Instance->CR2 |= (__INTERRUPT__))
 #define __HAL_I2S_DISABLE_IT(__HANDLE__, __INTERRUPT__) ((__HANDLE__)->Instance->CR2 &= ~(__INTERRUPT__))
- 
+
 /** @brief  Checks if the specified I2S interrupt source is enabled or disabled.
   * @param  __HANDLE__: specifies the I2S Handle.
   *         This parameter can be I2S where x: 1, 2, or 3 to select the I2S peripheral.
@@ -335,7 +332,7 @@ typedef struct
     tmpreg_ovr  = (__HANDLE__)->Instance->SR;        \
     UNUSED(tmpreg_ovr );                             \
   } while(0)
-    
+
 /** @brief Clears the I2S UDR pending flag.
   * @param  __HANDLE__: specifies the I2S Handle.
   * @retval None
@@ -349,7 +346,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup I2S_Exported_Functions
   * @{
@@ -360,7 +357,7 @@ typedef struct
   */
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s);
-HAL_StatusTypeDef HAL_I2S_DeInit (I2S_HandleTypeDef *hi2s);
+HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s);
 void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s);
 void HAL_I2S_MspDeInit(I2S_HandleTypeDef *hi2s);
 /**
@@ -375,7 +372,7 @@ void HAL_I2S_MspDeInit(I2S_HandleTypeDef *hi2s);
 HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout);
 
- /* Non-Blocking mode: Interrupt */
+/* Non-Blocking mode: Interrupt */
 HAL_StatusTypeDef HAL_I2S_Transmit_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_I2S_Receive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size);
 void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s);
@@ -400,7 +397,7 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s);
 void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s);
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
@@ -449,7 +446,7 @@ void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s);
 
 #define IS_I2S_CPOL(CPOL) (((CPOL) == I2S_CPOL_LOW) || \
                            ((CPOL) == I2S_CPOL_HIGH))
- 
+
 /**
   * @}
   */
@@ -464,11 +461,11 @@ void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */  
+  */
 
 #ifdef __cplusplus
 }

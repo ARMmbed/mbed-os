@@ -97,7 +97,7 @@ void mbedtls_sha1_hw_finish(crypto_sha_context *ctx, unsigned char output[20])
         mbedtls_sha1_sw_finish(&ctx_sw, output);
         mbedtls_sha1_sw_free(&ctx_sw);
     }
-    
+
     CRPT->SHA_CTL |= CRPT_SHA_CTL_STOP_Msk;
 }
 
@@ -132,7 +132,7 @@ void mbedtls_sha256_hw_free(crypto_sha_context *ctx)
     crypto_zeroize(ctx, sizeof(*ctx));
 }
 
-void mbedtls_sha256_hw_starts( crypto_sha_context *ctx, int is224)
+void mbedtls_sha256_hw_starts(crypto_sha_context *ctx, int is224)
 {
     // NOTE: mbedtls may call mbedtls_shaXXX_starts multiple times and then call the ending mbedtls_shaXXX_finish. Guard from it.
     CRPT->SHA_CTL |= CRPT_SHA_CTL_STOP_Msk;
@@ -171,7 +171,7 @@ void mbedtls_sha256_hw_finish(crypto_sha_context *ctx, unsigned char output[32])
         mbedtls_sha256_sw_finish(&ctx_sw, output);
         mbedtls_sha256_sw_free(&ctx_sw);
     }
-    
+
     CRPT->SHA_CTL |= CRPT_SHA_CTL_STOP_Msk;
 }
 
@@ -197,7 +197,7 @@ void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size
     ctx->total += (uint32_t) ilen;
 
     if (ctx->buffer_left && ilen >= fill) {
-        memcpy((void *) (ctx->buffer + ctx->buffer_left), input, fill);
+        memcpy((void *)(ctx->buffer + ctx->buffer_left), input, fill);
         input += fill;
         ilen  -= fill;
         ctx->buffer_left += fill;
@@ -214,7 +214,7 @@ void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size
     }
 
     if (ilen > 0) {
-        memcpy((void *) (ctx->buffer + ctx->buffer_left), input, ilen);
+        memcpy((void *)(ctx->buffer + ctx->buffer_left), input, ilen);
         ctx->buffer_left += ilen;
     }
 }
@@ -244,17 +244,17 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
                 CRPT->SHA_CTL = sha_ctl_start | CRPT_SHA_CTL_DMALAST_Msk;
             } else {
                 switch (sha_opmode) {
-                case SHA_MODE_SHA256:
-                    DGSTs[7] = CRPT->SHA_DGST7;
-                case SHA_MODE_SHA224:
-                    DGSTs[5] = CRPT->SHA_DGST5;
-                    DGSTs[6] = CRPT->SHA_DGST6;
-                case SHA_MODE_SHA1:
-                    DGSTs[0] = CRPT->SHA_DGST0;
-                    DGSTs[1] = CRPT->SHA_DGST1;
-                    DGSTs[2] = CRPT->SHA_DGST2;
-                    DGSTs[3] = CRPT->SHA_DGST3;
-                    DGSTs[4] = CRPT->SHA_DGST4;
+                    case SHA_MODE_SHA256:
+                        DGSTs[7] = CRPT->SHA_DGST7;
+                    case SHA_MODE_SHA224:
+                        DGSTs[5] = CRPT->SHA_DGST5;
+                        DGSTs[6] = CRPT->SHA_DGST6;
+                    case SHA_MODE_SHA1:
+                        DGSTs[0] = CRPT->SHA_DGST0;
+                        DGSTs[1] = CRPT->SHA_DGST1;
+                        DGSTs[2] = CRPT->SHA_DGST2;
+                        DGSTs[3] = CRPT->SHA_DGST3;
+                        DGSTs[4] = CRPT->SHA_DGST4;
                 }
 
                 CRPT->SHA_CTL = sha_ctl_start;
@@ -262,7 +262,7 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
         } else { // Non-last word of a complete block
             CRPT->SHA_CTL = sha_ctl_start;
         }
-        while (! (CRPT->SHA_STS & CRPT_SHA_STS_DATINREQ_Msk));
+        while (!(CRPT->SHA_STS & CRPT_SHA_STS_DATINREQ_Msk));
         CRPT->SHA_DATIN = data;
 
         in_pos += 4;
@@ -276,7 +276,7 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
          * Per designer, if the digest (SHA_DGSTx) code changes after the last word of the block is input,
          * this indicates the non-last block process has finished.
          *
-         * There is a rare case that two digest codes are the same for 
+         * There is a rare case that two digest codes are the same for
          * two non-last block processes in a row.
          * To address it, we use a count-down timer to detect it.
          * As the count-down timer expires, we see it as finished.
@@ -285,27 +285,27 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
         struct nu_countdown_ctx_s ctx;
 
         // Set up 2s timeout
-        nu_countdown_init(&ctx, 2000*1000);
+        nu_countdown_init(&ctx, 2000 * 1000);
         while (! isfinish) {
             switch (sha_opmode) {
-            case SHA_MODE_SHA256:
-                if (DGSTs[7] != CRPT->SHA_DGST7) {
-                    isfinish = 1;
-                    break;
-                }
-            case SHA_MODE_SHA224:
-                if (DGSTs[5] != CRPT->SHA_DGST5 || DGSTs[6] != CRPT->SHA_DGST6) {
-                    isfinish = 1;
-                    break;
-                }
-            case SHA_MODE_SHA1:
-                if (DGSTs[0] != CRPT->SHA_DGST0 || DGSTs[1] != CRPT->SHA_DGST1 || DGSTs[2] != CRPT->SHA_DGST2 ||
-                        DGSTs[3] != CRPT->SHA_DGST3 || DGSTs[4] != CRPT->SHA_DGST4) {
-                    isfinish = 1;
-                    break;
-                }
+                case SHA_MODE_SHA256:
+                    if (DGSTs[7] != CRPT->SHA_DGST7) {
+                        isfinish = 1;
+                        break;
+                    }
+                case SHA_MODE_SHA224:
+                    if (DGSTs[5] != CRPT->SHA_DGST5 || DGSTs[6] != CRPT->SHA_DGST6) {
+                        isfinish = 1;
+                        break;
+                    }
+                case SHA_MODE_SHA1:
+                    if (DGSTs[0] != CRPT->SHA_DGST0 || DGSTs[1] != CRPT->SHA_DGST1 || DGSTs[2] != CRPT->SHA_DGST2 ||
+                            DGSTs[3] != CRPT->SHA_DGST3 || DGSTs[4] != CRPT->SHA_DGST4) {
+                        isfinish = 1;
+                        break;
+                    }
             }
-            
+
             if (nu_countdown_expired(&ctx)) {
                 // We may meet a rare case that the current digest code and the previous one are the same.
                 isfinish = 1;
@@ -321,7 +321,7 @@ void crypto_sha_getinternstate(unsigned char output[], size_t olen)
     if (olen & 0x3) {
         error("Internal error in SHA alter. SHA internal state size requires to be a multiple of 4 bytes.");
     }
-    
+
     uint32_t *in_pos = (uint32_t *) &CRPT->SHA_DGST0;
     unsigned char *out_pos = output;
     uint32_t rmn = olen;

@@ -49,12 +49,13 @@ uint32_t SPI_Open(SPI_T *spi,
                   uint32_t u32DataWidth,
                   uint32_t u32BusClock)
 {
-    if(u32DataWidth == 32)
+    if (u32DataWidth == 32) {
         u32DataWidth = 0;
+    }
 
     spi->CTL = u32MasterSlave | (u32DataWidth << SPI_CTL_TX_BIT_LEN_Pos) | (u32SPIMode);
 
-    return ( SPI_SetBusClock(spi, u32BusClock) );
+    return (SPI_SetBusClock(spi, u32BusClock));
 }
 
 /**
@@ -65,10 +66,10 @@ uint32_t SPI_Open(SPI_T *spi,
 void SPI_Close(SPI_T *spi)
 {
     /* Reset SPI */
-    if(spi == SPI0) {
+    if (spi == SPI0) {
         SYS->IPRST_CTL2 |= SYS_IPRST_CTL2_SPI0_RST_Msk;
         SYS->IPRST_CTL2 &= ~SYS_IPRST_CTL2_SPI0_RST_Msk;
-    } else if(spi == SPI1) {
+    } else if (spi == SPI1) {
         SYS->IPRST_CTL2 |= SYS_IPRST_CTL2_SPI1_RST_Msk;
         SYS->IPRST_CTL2 &= ~SYS_IPRST_CTL2_SPI1_RST_Msk;
     } else {
@@ -133,36 +134,42 @@ uint32_t SPI_SetBusClock(SPI_T *spi, uint32_t u32BusClock)
 {
     uint32_t u32ClkSrc, u32Div = 0;
 
-    if(spi == SPI0) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0_S_Msk) == CLK_CLKSEL2_SPI0_S_HCLK)
+    if (spi == SPI0) {
+        if ((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0_S_Msk) == CLK_CLKSEL2_SPI0_S_HCLK) {
             u32ClkSrc = CLK_GetHCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
-    } else if(spi == SPI1) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1_S_Msk) == CLK_CLKSEL2_SPI1_S_HCLK)
+        }
+    } else if (spi == SPI1) {
+        if ((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1_S_Msk) == CLK_CLKSEL2_SPI1_S_HCLK) {
             u32ClkSrc = CLK_GetHCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
+        }
     } else {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2_S_Msk) == CLK_CLKSEL2_SPI2_S_HCLK)
+        if ((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2_S_Msk) == CLK_CLKSEL2_SPI2_S_HCLK) {
             u32ClkSrc = CLK_GetHCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
+        }
     }
 
-    if(u32BusClock > u32ClkSrc)
+    if (u32BusClock > u32ClkSrc) {
         u32BusClock = u32ClkSrc;
+    }
 
-    if(u32BusClock != 0 ) {
+    if (u32BusClock != 0) {
         u32Div = (u32ClkSrc / u32BusClock) - 1;
-        if(u32Div > SPI_CLKDIV_DIVIDER1_Msk)
+        if (u32Div > SPI_CLKDIV_DIVIDER1_Msk) {
             u32Div = SPI_CLKDIV_DIVIDER1_Msk;
-    } else
+        }
+    } else {
         u32Div = 0;
+    }
 
     spi->CLKDIV = (spi->CLKDIV & ~SPI_CLKDIV_DIVIDER1_Msk) | u32Div;
 
-    return ( u32ClkSrc / (u32Div+1) );
+    return (u32ClkSrc / (u32Div + 1));
 }
 
 /**
@@ -201,21 +208,24 @@ uint32_t SPI_GetBusClock(SPI_T *spi)
     uint32_t u32Div;
     uint32_t u32ClkSrc;
 
-    if(spi == SPI0) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0_S_Msk) == CLK_CLKSEL2_SPI0_S_HCLK)
+    if (spi == SPI0) {
+        if ((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0_S_Msk) == CLK_CLKSEL2_SPI0_S_HCLK) {
             u32ClkSrc = CLK_GetHCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
-    } else if(spi == SPI1) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1_S_Msk) == CLK_CLKSEL2_SPI1_S_HCLK)
+        }
+    } else if (spi == SPI1) {
+        if ((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1_S_Msk) == CLK_CLKSEL2_SPI1_S_HCLK) {
             u32ClkSrc = CLK_GetHCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
+        }
     } else {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2_S_Msk) == CLK_CLKSEL2_SPI2_S_HCLK)
+        if ((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2_S_Msk) == CLK_CLKSEL2_SPI2_S_HCLK) {
             u32ClkSrc = CLK_GetHCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
+        }
     }
 
     u32Div = spi->CLKDIV & SPI_CLKDIV_DIVIDER1_Msk;
@@ -238,23 +248,29 @@ uint32_t SPI_GetBusClock(SPI_T *spi)
   */
 void SPI_EnableInt(SPI_T *spi, uint32_t u32Mask)
 {
-    if((u32Mask & SPI_IE_MASK) == SPI_IE_MASK)
+    if ((u32Mask & SPI_IE_MASK) == SPI_IE_MASK) {
         spi->CTL |= SPI_CTL_INTEN_Msk;
+    }
 
-    if((u32Mask & SPI_SSTA_INTEN_MASK) == SPI_SSTA_INTEN_MASK)
+    if ((u32Mask & SPI_SSTA_INTEN_MASK) == SPI_SSTA_INTEN_MASK) {
         spi->SSR |= SPI_SSR_SSTA_INTEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_TX_INTEN_MASK) == SPI_FIFO_TX_INTEN_MASK)
+    if ((u32Mask & SPI_FIFO_TX_INTEN_MASK) == SPI_FIFO_TX_INTEN_MASK) {
         spi->FFCTL |= SPI_FFCTL_TX_INTEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_RX_INTEN_MASK) == SPI_FIFO_RX_INTEN_MASK)
+    if ((u32Mask & SPI_FIFO_RX_INTEN_MASK) == SPI_FIFO_RX_INTEN_MASK) {
         spi->FFCTL |= SPI_FFCTL_RX_INTEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_RXOVR_INTEN_MASK) == SPI_FIFO_RXOVR_INTEN_MASK)
+    if ((u32Mask & SPI_FIFO_RXOVR_INTEN_MASK) == SPI_FIFO_RXOVR_INTEN_MASK) {
         spi->FFCTL |= SPI_FFCTL_RXOVR_INTEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_TIMEOUT_INTEN_MASK) == SPI_FIFO_TIMEOUT_INTEN_MASK)
+    if ((u32Mask & SPI_FIFO_TIMEOUT_INTEN_MASK) == SPI_FIFO_TIMEOUT_INTEN_MASK) {
         spi->FFCTL |= SPI_FFCTL_TIMEOUT_EN_Msk;
+    }
 }
 
 /**
@@ -273,23 +289,29 @@ void SPI_EnableInt(SPI_T *spi, uint32_t u32Mask)
   */
 void SPI_DisableInt(SPI_T *spi, uint32_t u32Mask)
 {
-    if((u32Mask & SPI_IE_MASK) == SPI_IE_MASK)
+    if ((u32Mask & SPI_IE_MASK) == SPI_IE_MASK) {
         spi->CTL &= ~SPI_CTL_INTEN_Msk;
+    }
 
-    if((u32Mask & SPI_SSTA_INTEN_MASK) == SPI_SSTA_INTEN_MASK)
+    if ((u32Mask & SPI_SSTA_INTEN_MASK) == SPI_SSTA_INTEN_MASK) {
         spi->SSR &= ~SPI_SSR_SSTA_INTEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_TX_INTEN_MASK) == SPI_FIFO_TX_INTEN_MASK)
+    if ((u32Mask & SPI_FIFO_TX_INTEN_MASK) == SPI_FIFO_TX_INTEN_MASK) {
         spi->FFCTL &= ~SPI_FFCTL_TX_INTEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_RX_INTEN_MASK) == SPI_FIFO_RX_INTEN_MASK)
+    if ((u32Mask & SPI_FIFO_RX_INTEN_MASK) == SPI_FIFO_RX_INTEN_MASK) {
         spi->FFCTL &= ~SPI_FFCTL_RX_INTEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_RXOVR_INTEN_MASK) == SPI_FIFO_RXOVR_INTEN_MASK)
+    if ((u32Mask & SPI_FIFO_RXOVR_INTEN_MASK) == SPI_FIFO_RXOVR_INTEN_MASK) {
         spi->FFCTL &= ~SPI_FFCTL_RXOVR_INTEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_TIMEOUT_INTEN_MASK) == SPI_FIFO_TIMEOUT_INTEN_MASK)
+    if ((u32Mask & SPI_FIFO_TIMEOUT_INTEN_MASK) == SPI_FIFO_TIMEOUT_INTEN_MASK) {
         spi->FFCTL &= ~SPI_FFCTL_TIMEOUT_EN_Msk;
+    }
 }
 
 /**

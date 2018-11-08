@@ -75,18 +75,18 @@ void CRC_StartDMATransfer(uint32_t u32SrcAddr, uint32_t u32ByteCount)
 uint32_t CRC_GetChecksum(void)
 {
     switch (PDMACRC->CTL & DMA_CRC_CTL_CRC_MODE_Msk) {
-    case CRC_CCITT:
-    case CRC_16:
-        return (PDMACRC->CHECKSUM & 0xffff);
+        case CRC_CCITT:
+        case CRC_16:
+            return (PDMACRC->CHECKSUM & 0xffff);
 
-    case CRC_32:
-        return (PDMACRC->CHECKSUM);
+        case CRC_32:
+            return (PDMACRC->CHECKSUM);
 
-    case CRC_8:
-        return (PDMACRC->CHECKSUM & 0xff);
+        case CRC_8:
+            return (PDMACRC->CHECKSUM & 0xff);
 
-    default:
-        return 0;
+        default:
+            return 0;
     }
 }
 

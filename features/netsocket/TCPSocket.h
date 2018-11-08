@@ -57,10 +57,13 @@ public:
      */
     virtual ~TCPSocket();
 
-   /** Override multicast functions to return error for TCP
-    *
-    */
-    int join_multicast_group(const SocketAddress &address) { return NSAPI_ERROR_UNSUPPORTED; }
+    /** Override multicast functions to return error for TCP
+     *
+     */
+    int join_multicast_group(const SocketAddress &address)
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
 
     /** Connects TCP socket to a remote host
      *
@@ -82,7 +85,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t connect(const SocketAddress &address);
-    
+
     /** Send data over a TCP socket
      *
      *  The socket must be connected to a remote host. Returns the number of
@@ -98,7 +101,7 @@ public:
      *                  code on failure
      */
     nsapi_size_or_error_t send(const void *data, nsapi_size_t size);
-    
+
     /** Receive data over a TCP socket
      *
      *  The socket must be connected to a remote host. Returns the number of

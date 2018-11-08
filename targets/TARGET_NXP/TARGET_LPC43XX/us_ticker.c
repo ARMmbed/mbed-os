@@ -24,8 +24,11 @@
 
 int us_ticker_inited = 0;
 
-void us_ticker_init(void) {
-    if (us_ticker_inited) return;
+void us_ticker_init(void)
+{
+    if (us_ticker_inited) {
+        return;
+    }
     us_ticker_inited = 1;
 
     US_TICKER_TIMER->CTCR = 0x0; // timer mode
@@ -41,14 +44,17 @@ void us_ticker_init(void) {
     NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
-uint32_t us_ticker_read() {
-    if (!us_ticker_inited)
+uint32_t us_ticker_read()
+{
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     return US_TICKER_TIMER->TC;
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
     // set match value
     US_TICKER_TIMER->MR[0] = (uint32_t)timestamp;
     // enable match interrupt
@@ -60,10 +66,12 @@ void us_ticker_fire_interrupt(void)
     NVIC_SetPendingIRQ(US_TICKER_TIMER_IRQn);
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
     US_TICKER_TIMER->MCR &= ~1;
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
     US_TICKER_TIMER->IR = 1;
 }

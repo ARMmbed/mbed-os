@@ -43,7 +43,7 @@
  *
  * @note
  * This function is called when an assertion has triggered.
- * 
+ *
  *
  * @param line_num The line number where the assertion is called
  * @param file_name Pointer to the file name
@@ -51,7 +51,7 @@
 void assert_softdevice_callback(uint16_t line_num, const uint8_t *file_name);
 
 
-/*lint -emacro(506, ASSERT) */ /* Suppress "Constant value Boolean */ 
+/*lint -emacro(506, ASSERT) */ /* Suppress "Constant value Boolean */
 /*lint -emacro(774, ASSERT) */ /* Suppress "Boolean within 'if' always evaluates to True" */ \
 /** @brief Check intended for production code
  *

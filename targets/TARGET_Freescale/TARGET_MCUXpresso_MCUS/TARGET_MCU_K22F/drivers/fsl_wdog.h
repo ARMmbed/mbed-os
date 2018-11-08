@@ -62,15 +62,13 @@
 /*@}*/
 
 /*! @brief Describes WDOG clock source. */
-typedef enum _wdog_clock_source
-{
+typedef enum _wdog_clock_source {
     kWDOG_LpoClockSource = 0U,       /*!< WDOG clock sourced from LPO*/
     kWDOG_AlternateClockSource = 1U, /*!< WDOG clock sourced from alternate clock source*/
 } wdog_clock_source_t;
 
 /*! @brief Defines WDOG work mode. */
-typedef struct _wdog_work_mode
-{
+typedef struct _wdog_work_mode {
 #if defined(FSL_FEATURE_WDOG_HAS_WAITEN) && FSL_FEATURE_WDOG_HAS_WAITEN
     bool enableWait;  /*!< Enables or disables WDOG in wait mode  */
 #endif                /* FSL_FEATURE_WDOG_HAS_WAITEN */
@@ -79,8 +77,7 @@ typedef struct _wdog_work_mode
 } wdog_work_mode_t;
 
 /*! @brief Describes the selection of the clock prescaler. */
-typedef enum _wdog_clock_prescaler
-{
+typedef enum _wdog_clock_prescaler {
     kWDOG_ClockPrescalerDivide1 = 0x0U, /*!< Divided by 1 */
     kWDOG_ClockPrescalerDivide2 = 0x1U, /*!< Divided by 2 */
     kWDOG_ClockPrescalerDivide3 = 0x2U, /*!< Divided by 3 */
@@ -92,8 +89,7 @@ typedef enum _wdog_clock_prescaler
 } wdog_clock_prescaler_t;
 
 /*! @brief Describes WDOG configuration structure. */
-typedef struct _wdog_config
-{
+typedef struct _wdog_config {
     bool enableWdog;                  /*!< Enables or disables WDOG */
     wdog_clock_source_t clockSource;  /*!< Clock source select */
     wdog_clock_prescaler_t prescaler; /*!< Clock prescaler value */
@@ -106,15 +102,13 @@ typedef struct _wdog_config
 } wdog_config_t;
 
 /*! @brief Describes WDOG test mode. */
-typedef enum _wdog_test_mode
-{
+typedef enum _wdog_test_mode {
     kWDOG_QuickTest = 0U, /*!< Selects quick test */
     kWDOG_ByteTest = 1U,  /*!< Selects byte test */
 } wdog_test_mode_t;
 
 /*! @brief Describes WDOG tested byte selection in byte test mode. */
-typedef enum _wdog_tested_byte
-{
+typedef enum _wdog_tested_byte {
     kWDOG_TestByte0 = 0U, /*!< Byte 0 selected in byte test mode */
     kWDOG_TestByte1 = 1U, /*!< Byte 1 selected in byte test mode */
     kWDOG_TestByte2 = 2U, /*!< Byte 2 selected in byte test mode */
@@ -122,8 +116,7 @@ typedef enum _wdog_tested_byte
 } wdog_tested_byte_t;
 
 /*! @brief Describes WDOG test mode configuration structure. */
-typedef struct _wdog_test_config
-{
+typedef struct _wdog_test_config {
     wdog_test_mode_t testMode;     /*!< Selects test mode */
     wdog_tested_byte_t testedByte; /*!< Selects tested byte in byte test mode */
     uint32_t timeoutValue;         /*!< Timeout value */
@@ -134,8 +127,7 @@ typedef struct _wdog_test_config
  *
  * This structure contains the settings for all of the WDOG interrupt configurations.
  */
-enum _wdog_interrupt_enable_t
-{
+enum _wdog_interrupt_enable_t {
     kWDOG_InterruptEnable = WDOG_STCTRLH_IRQRSTEN_MASK, /*!< WDOG timeout will generate interrupt before reset*/
 };
 
@@ -144,8 +136,7 @@ enum _wdog_interrupt_enable_t
  *
  * This structure contains the WDOG status flags for use in the WDOG functions.
  */
-enum _wdog_status_flags_t
-{
+enum _wdog_status_flags_t {
     kWDOG_RunningFlag = WDOG_STCTRLH_WDOGEN_MASK, /*!< Running flag, set when WDOG is enabled*/
     kWDOG_TimeoutFlag = WDOG_STCTRLL_INTFLG_MASK, /*!< Interrupt flag, set when an exception occurs*/
 };
@@ -353,7 +344,7 @@ void WDOG_ClearStatusFlags(WDOG_Type *base, uint32_t mask);
 static inline void WDOG_SetTimeoutValue(WDOG_Type *base, uint32_t timeoutCount)
 {
     base->TOVALH = (uint16_t)((timeoutCount >> 16U) & 0xFFFFU);
-    base->TOVALL = (uint16_t)((timeoutCount)&0xFFFFU);
+    base->TOVALL = (uint16_t)((timeoutCount) & 0xFFFFU);
 }
 
 /*!
@@ -370,7 +361,7 @@ static inline void WDOG_SetTimeoutValue(WDOG_Type *base, uint32_t timeoutCount)
 static inline void WDOG_SetWindowValue(WDOG_Type *base, uint32_t windowValue)
 {
     base->WINH = (uint16_t)((windowValue >> 16U) & 0xFFFFU);
-    base->WINL = (uint16_t)((windowValue)&0xFFFFU);
+    base->WINL = (uint16_t)((windowValue) & 0xFFFFU);
 }
 
 /*!

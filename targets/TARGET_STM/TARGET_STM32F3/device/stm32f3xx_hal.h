@@ -4,7 +4,7 @@
   * @author  MCD Application Team
   * @version V1.4.0
   * @date    16-December-2016
-  * @brief   This file contains all the functions prototypes for the HAL 
+  * @brief   This file contains all the functions prototypes for the HAL
   *          module driver.
   ******************************************************************************
   * @attention
@@ -34,14 +34,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F3xx_HAL_H
 #define __STM32F3xx_HAL_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -53,7 +53,7 @@
 
 /** @addtogroup HAL
   * @{
-  */ 
+  */
 
 /* Private macros ------------------------------------------------------------*/
 /** @addtogroup HAL_Private_Macros
@@ -111,7 +111,7 @@
 #define HAL_REMAPDMA_TIM18_DAC2_CH1_DMA1_CH5 (0x00008000U) /*!< DAC2 channel1 DMA remap (STM32F303x4/6U/8 devices only)
                                                                          1: Remap (DAC2_CH1 DMA requests mapped on DMA1 channel 5U) */
 #if defined(SYSCFG_CFGR3_DMA_RMP)
-#if !defined(HAL_REMAP_CFGR3_MASK) 
+#if !defined(HAL_REMAP_CFGR3_MASK)
 #define HAL_REMAP_CFGR3_MASK                 (0x01000000U)
 #endif
 
@@ -197,7 +197,7 @@
                                                                         0: No remap
                                                                         1: Remap (TIM1_TRG3 = TIM17_OC) */
 #if defined(SYSCFG_CFGR3_TRIGGER_RMP)
-#if !defined(HAL_REMAP_CFGR3_MASK) 
+#if !defined(HAL_REMAP_CFGR3_MASK)
 #define HAL_REMAP_CFGR3_MASK               (0x01000000U)
 #endif
 #define HAL_REMAPTRIGGER_DAC1_TRIG3        (0x01010000U)  /*!< DAC1_CH1 / DAC1_CH2 Trigger remap
@@ -331,7 +331,7 @@
   */
 
 /** @brief  Fast-mode Plus driving capability on a specific GPIO
-  */  
+  */
 #if defined(SYSCFG_CFGR1_I2C_PB6_FMP)
 #define SYSCFG_FASTMODEPLUS_PB6    ((uint32_t)SYSCFG_CFGR1_I2C_PB6_FMP)  /*!< Enable Fast-mode Plus on PB6  */
 #endif /* SYSCFG_CFGR1_I2C_PB6_FMP */
@@ -384,7 +384,7 @@
 #define IS_HAL_SYSCFG_WP_PAGE(__PAGE__)        (((__PAGE__) > 0U) && ((__PAGE__) <= 0x00FFU))
 #else
 #define IS_HAL_SYSCFG_WP_PAGE(__PAGE__)        (((__PAGE__) > 0U) && ((__PAGE__) <= 0x000FU))
-#endif /* SYSCFG_RCR_PAGE8 */      
+#endif /* SYSCFG_RCR_PAGE8 */
 /**
   * @}
   */
@@ -410,10 +410,10 @@
 /**
   * @}
   */
-  
+
 /**
  * @}
- */ 
+ */
 
 /* Exported macros -----------------------------------------------------------*/
 /** @defgroup HAL_Exported_Macros HAL Exported Macros
@@ -510,7 +510,7 @@
 /**
  * @}
  */
- 
+
 /** @defgroup Debug_MCU_APB2_Freeze Freeze/Unfreeze APB2 Peripherals in Debug mode
   * @{
   */
@@ -590,7 +590,7 @@
 /**
  * @}
  */
- 
+
 /** @defgroup Encoder_Mode Encoder Mode
   * @{
   */
@@ -626,7 +626,7 @@
 /**
  * @}
  */
- 
+
 /** @defgroup DMA_Remap_Enable DMA Remap Enable
   * @{
   */
@@ -658,7 +658,7 @@
 /**
  * @}
  */
- 
+
 /** @defgroup FastModePlus_GPIO Fast-mode Plus on GPIO
   * @{
   */
@@ -693,11 +693,11 @@
 /**
  * @}
  */
- 
+
 #if defined(SYSCFG_CFGR1_USB_IT_RMP)
 /** @defgroup USB_Interrupt_Remap USB Interrupt Remap
   * @{
-  */ 
+  */
 /** @brief  USB interrupt remapping enable/disable macros
   */
 #define __HAL_REMAPINTERRUPT_USB_ENABLE()              (SYSCFG->CFGR1 |= (SYSCFG_CFGR1_USB_IT_RMP))
@@ -706,11 +706,11 @@
  * @}
  */
 #endif /* SYSCFG_CFGR1_USB_IT_RMP */
- 
+
 #if defined(SYSCFG_CFGR1_VBAT)
 /** @defgroup VBAT_Monitoring_Enable VBAT Monitoring Enable
   * @{
-  */  
+  */
 /** @brief  SYSCFG interrupt enable/disable macros
   */
 #define __HAL_SYSCFG_VBAT_MONITORING_ENABLE()          (SYSCFG->CFGR1 |= (SYSCFG_CFGR1_VBAT))
@@ -719,7 +719,7 @@
  * @}
  */
 #endif /* SYSCFG_CFGR1_VBAT */
- 
+
 #if defined(SYSCFG_CFGR2_LOCKUP_LOCK)
 /** @defgroup Cortex_Lockup_Enable Cortex Lockup Enable
   * @{
@@ -735,7 +735,7 @@
  * @}
  */
 #endif /* SYSCFG_CFGR2_LOCKUP_LOCK */
- 
+
 #if defined(SYSCFG_CFGR2_PVD_LOCK)
 /** @defgroup PVD_Lock_Enable PVD Lock
   * @{
@@ -767,7 +767,7 @@
  * @}
  */
 #endif /* SYSCFG_CFGR2_SRAM_PARITY_LOCK */
- 
+
 /** @defgroup Trigger_Remapping_Enable Trigger Remapping Enable
   * @{
   */
@@ -799,7 +799,7 @@
 /**
  * @}
  */
- 
+
 #if defined (STM32F302xE) || defined (STM32F303xE) || defined (STM32F398xx)
 /** @defgroup ADC_Trigger_Remapping_Enable ADC Trigger Remapping Enable
   * @{
@@ -817,7 +817,7 @@
  * @}
  */
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx */
-                                                           
+
 #if defined(SYSCFG_CFGR2_BYP_ADDR_PAR)
 /** @defgroup RAM_Parity_Check_Disable RAM Parity Check Disable
   * @{
@@ -832,7 +832,7 @@
  * @}
  */
 #endif /* SYSCFG_CFGR2_BYP_ADDR_PAR */
- 
+
 #if defined(SYSCFG_RCR_PAGE0)
 /** @defgroup CCM_RAM_Page_Write_Protection_Enable CCM RAM page write protection enable
   * @{
@@ -848,16 +848,16 @@
  * @}
  */
 #endif /* SYSCFG_RCR_PAGE0 */
- 
+
 /**
  * @}
- */ 
+ */
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup HAL_Exported_Functions HAL Exported Functions
   * @{
   */
 
-/** @addtogroup HAL_Exported_Functions_Group1 Initialization and de-initialization Functions 
+/** @addtogroup HAL_Exported_Functions_Group1 Initialization and de-initialization Functions
  *  @brief    Initialization and de-initialization functions
  * @{
  */
@@ -866,12 +866,12 @@ HAL_StatusTypeDef HAL_Init(void);
 HAL_StatusTypeDef HAL_DeInit(void);
 void HAL_MspInit(void);
 void HAL_MspDeInit(void);
-HAL_StatusTypeDef HAL_InitTick (uint32_t TickPriority);
+HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority);
 /**
  * @}
  */
- 
-/** @addtogroup HAL_Exported_Functions_Group2 HAL Control functions 
+
+/** @addtogroup HAL_Exported_Functions_Group2 HAL Control functions
  *  @brief    HAL Control functions
  * @{
  */
@@ -900,12 +900,12 @@ void     HAL_DBGMCU_DisableDBGStandbyMode(void);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
-  
+  */
+
 #ifdef __cplusplus
 }
 #endif

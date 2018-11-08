@@ -19,24 +19,24 @@ static C029_OTP_Header *increment(C029_OTP_Header *pTemp)
 {
     uint8_t len = 0;
     uint8_t id = 0;
-    uint8_t *p = (uint8_t*)pTemp;
+    uint8_t *p = (uint8_t *)pTemp;
 
-    memcpy((void*)&id, (void*)pTemp, 1);
+    memcpy((void *)&id, (void *)pTemp, 1);
 
-    if (id == 0xFF){
+    if (id == 0xFF) {
         p++;
     } else {
         p++;
-        memcpy((void*)&len, (void*)p++, 1);
+        memcpy((void *)&len, (void *)p++, 1);
         p += len;
     }
-    return (C029_OTP_Header*)p;
+    return (C029_OTP_Header *)p;
 }
 
 /**
  * Override HAL Eth Init function
  */
-void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
+void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     if (heth->Instance == ETH) {
@@ -90,7 +90,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
 /**
  * Override HAL Eth DeInit function
  */
-void HAL_ETH_MspDeInit(ETH_HandleTypeDef* heth)
+void HAL_ETH_MspDeInit(ETH_HandleTypeDef *heth)
 {
     if (heth->Instance == ETH) {
         /* Peripheral clock disable */
@@ -120,13 +120,13 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef* heth)
 uint8_t mbed_otp_mac_address(char *mac)
 {
     C029_OTP_Header *pFound = NULL;
-    C029_OTP_Header *pTemp = (C029_OTP_Header*)C029_OTP_START_ADDRESS;
+    C029_OTP_Header *pTemp = (C029_OTP_Header *)C029_OTP_START_ADDRESS;
     C029_OTP_Header temp;
 
     if (_macRetrieved == 0) {
-        while ((pTemp >= (C029_OTP_Header*)C029_OTP_START_ADDRESS) && (pTemp < (C029_OTP_Header*)C029_OTP_END_ADDRESS)){
-            memcpy((void*)&temp, (void*)pTemp, sizeof(temp));
-            if (temp.id == C029_MAC_ETHERNET_ID){
+        while ((pTemp >= (C029_OTP_Header *)C029_OTP_START_ADDRESS) && (pTemp < (C029_OTP_Header *)C029_OTP_END_ADDRESS)) {
+            memcpy((void *)&temp, (void *)pTemp, sizeof(temp));
+            if (temp.id == C029_MAC_ETHERNET_ID) {
                 pFound = pTemp;
                 break;
             }

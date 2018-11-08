@@ -517,7 +517,7 @@ void spi_set_transfer_delay(Spi *p_spi, uint32_t ul_pcs_ch, uint8_t uc_dlybs,
  */
 static inline Pdc *spi_get_pdc_base(Spi *p_spi)
 {
-    return (Pdc *)&(p_spi->SPI_RPR);
+    return (Pdc *) & (p_spi->SPI_RPR);
 }
 #endif
 
@@ -531,7 +531,7 @@ static inline Pdc *spi_get_pdc_base(Spi *p_spi)
  */
 static inline void *spi_get_tx_access(Spi *p_spi)
 {
-    return (void *)&(p_spi->SPI_TDR);
+    return (void *) & (p_spi->SPI_TDR);
 }
 
 /**
@@ -543,7 +543,7 @@ static inline void *spi_get_tx_access(Spi *p_spi)
  */
 static inline void *spi_get_rx_access(Spi *p_spi)
 {
-    return (void *)&(p_spi->SPI_RDR);
+    return (void *) & (p_spi->SPI_RDR);
 }
 #endif
 
@@ -581,44 +581,44 @@ uint32_t spi_get_writeprotect_status(Spi *p_spi);
  * \subsection spi_basic_use_case_setup_code Example code
  * Add to application C-file:
  * \code
-	   void spi_master_init(Spi *p_spi)
-	   {
-	       spi_enable_clock(p_spi);
-	       spi_reset(p_spi);
-	       spi_set_master_mode(p_spi);
-	       spi_disable_mode_fault_detect(p_spi);
-	       spi_disable_loopback(p_spi);
-	       spi_set_peripheral_chip_select_value(p_spi,
-	                                            spi_get_pcs(DEFAULT_CHIP_ID));
-	       spi_set_fixed_peripheral_select(p_spi);
-	       spi_disable_peripheral_select_decode(p_spi);
-	       spi_set_delay_between_chip_select(p_spi, CONFIG_SPI_MASTER_DELAY_BCS);
-	   }
-	   void spi_master_setup_device(Spi *p_spi, struct spi_device *device,
-	       spi_flags_t flags, uint32_t baud_rate, board_spi_select_id_t sel_id)
-	   {
-	       spi_set_transfer_delay(p_spi, device->id, CONFIG_SPI_MASTER_DELAY_BS,
-	                              CONFIG_SPI_MASTER_DELAY_BCT);
+       void spi_master_init(Spi *p_spi)
+       {
+           spi_enable_clock(p_spi);
+           spi_reset(p_spi);
+           spi_set_master_mode(p_spi);
+           spi_disable_mode_fault_detect(p_spi);
+           spi_disable_loopback(p_spi);
+           spi_set_peripheral_chip_select_value(p_spi,
+                                                spi_get_pcs(DEFAULT_CHIP_ID));
+           spi_set_fixed_peripheral_select(p_spi);
+           spi_disable_peripheral_select_decode(p_spi);
+           spi_set_delay_between_chip_select(p_spi, CONFIG_SPI_MASTER_DELAY_BCS);
+       }
+       void spi_master_setup_device(Spi *p_spi, struct spi_device *device,
+           spi_flags_t flags, uint32_t baud_rate, board_spi_select_id_t sel_id)
+       {
+           spi_set_transfer_delay(p_spi, device->id, CONFIG_SPI_MASTER_DELAY_BS,
+                                  CONFIG_SPI_MASTER_DELAY_BCT);
 
-	       spi_set_bits_per_transfer(p_spi, device->id, CONFIG_SPI_MASTER_BITS_PER_TRANSFER);
-	       spi_set_baudrate_div(p_spi, device->id,
-	                            spi_calc_baudrate_div(baud_rate, sysclk_get_cpu_hz()));
+           spi_set_bits_per_transfer(p_spi, device->id, CONFIG_SPI_MASTER_BITS_PER_TRANSFER);
+           spi_set_baudrate_div(p_spi, device->id,
+                                spi_calc_baudrate_div(baud_rate, sysclk_get_cpu_hz()));
 
-	       spi_configure_cs_behavior(p_spi, device->id, SPI_CS_KEEP_LOW);
+           spi_configure_cs_behavior(p_spi, device->id, SPI_CS_KEEP_LOW);
 
-	       spi_set_clock_polarity(p_spi, device->id, flags >> 1);
-	       spi_set_clock_phase(p_spi, device->id, ((flags & 0x1) ^ 0x1));
-	   }
+           spi_set_clock_polarity(p_spi, device->id, flags >> 1);
+           spi_set_clock_phase(p_spi, device->id, ((flags & 0x1) ^ 0x1));
+       }
 \endcode
  *
  * \subsection spi_basic_use_case_setup_flow Workflow
  * -# Initialize the SPI in master mode:
  *   - \code
-	void spi_master_init(SPI_EXAMPLE);
+    void spi_master_init(SPI_EXAMPLE);
 \endcode
  * -# Set up an SPI device:
  *   - \code void spi_master_setup_device(SPI_EXAMPLE, &SPI_DEVICE_EXAMPLE,
-	        SPI_MODE_0, SPI_EXAMPLE_BAUDRATE, 0); \endcode
+            SPI_MODE_0, SPI_EXAMPLE_BAUDRATE, 0); \endcode
  *   - \note The returned device descriptor structure must be passed to the driver
  *      whenever that device should be used as current slave device.
  * -# Enable SPI module:

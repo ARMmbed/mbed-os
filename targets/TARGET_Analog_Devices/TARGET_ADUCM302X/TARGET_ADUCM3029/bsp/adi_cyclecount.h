@@ -22,9 +22,9 @@
 #include <adi_cycle_counting_config.h>
 
 
- /** @addtogroup  cyclecount_logging Cycle Counting Framework
- *   @{
- */
+/** @addtogroup  cyclecount_logging Cycle Counting Framework
+*   @{
+*/
 
 /*!
  * 64-bit integer to record cycle counts.
@@ -89,17 +89,16 @@ typedef enum {
  *    Minimum number of cycle counts
  *    Average number of cycle counts
  */
-typedef struct
-{
-  adi_cyclecount_t max_cycles_adjusted;         /*!< Tracks the adjusted max cycle count */
-  adi_cyclecount_t min_cycles_adjusted;         /*!< Tracks the adjusted min cycle count */
-  adi_cyclecount_t average_cycles_adjusted;     /*!< Tracks the adjusted average cycle count */
+typedef struct {
+    adi_cyclecount_t max_cycles_adjusted;         /*!< Tracks the adjusted max cycle count */
+    adi_cyclecount_t min_cycles_adjusted;         /*!< Tracks the adjusted min cycle count */
+    adi_cyclecount_t average_cycles_adjusted;     /*!< Tracks the adjusted average cycle count */
 
-  adi_cyclecount_t max_cycles_unadjusted;       /*!< Tracks the unadjusted max cycle count */
-  adi_cyclecount_t min_cycles_unadjusted;       /*!< Tracks the unadjusted min cycle count */
-  adi_cyclecount_t average_cycles_unadjusted;   /*!< Tracks the unadjusted average cycle count */
+    adi_cyclecount_t max_cycles_unadjusted;       /*!< Tracks the unadjusted max cycle count */
+    adi_cyclecount_t min_cycles_unadjusted;       /*!< Tracks the unadjusted min cycle count */
+    adi_cyclecount_t average_cycles_unadjusted;   /*!< Tracks the unadjusted average cycle count */
 
-  uint32_t         sample_count;                /*!< Number of cycle count samples recorded, used to compute the average */
+    uint32_t         sample_count;                /*!< Number of cycle count samples recorded, used to compute the average */
 
 } ADI_CYCLECOUNT_LOG;
 
@@ -110,15 +109,15 @@ typedef struct
  */
 #if defined(ADI_CYCLECOUNT_ENABLED) && (ADI_CYCLECOUNT_ENABLED == 1u)
 
-  #define ADI_CYCLECOUNT_INITIALIZE()       adi_cyclecount_init()      /*!< Initialize the cycle counting data structures */
-  #define ADI_CYCLECOUNT_STORE(id)          adi_cyclecount_store(id)    /*!< Record the number of cycles for the specified ISR or API */
-  #define ADI_CYCLECOUNT_REPORT()           adi_cyclecount_report()     /*!< Generate a cycle counting report */
+#define ADI_CYCLECOUNT_INITIALIZE()       adi_cyclecount_init()      /*!< Initialize the cycle counting data structures */
+#define ADI_CYCLECOUNT_STORE(id)          adi_cyclecount_store(id)    /*!< Record the number of cycles for the specified ISR or API */
+#define ADI_CYCLECOUNT_REPORT()           adi_cyclecount_report()     /*!< Generate a cycle counting report */
 
 #else
 
-  #define ADI_CYCLECOUNT_INITIALIZE()       do{}while(0)      /*!< Initialize the cycle counting data structures */
-  #define ADI_CYCLECOUNT_STORE(id)          do{}while(0)      /*!< Record the number of cycles for the specified ISR or API */
-  #define ADI_CYCLECOUNT_REPORT()           do{}while(0)      /*!< Generate a cycle counting report */
+#define ADI_CYCLECOUNT_INITIALIZE()       do{}while(0)      /*!< Initialize the cycle counting data structures */
+#define ADI_CYCLECOUNT_STORE(id)          do{}while(0)      /*!< Record the number of cycles for the specified ISR or API */
+#define ADI_CYCLECOUNT_REPORT()           do{}while(0)      /*!< Generate a cycle counting report */
 #endif
 
 

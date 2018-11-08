@@ -33,7 +33,7 @@ extern volatile i2c_spi_peripheral_t i2c1_spi1_peripheral;
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     SPIName spi = SPI_0;
-    
+
     if (ssel == NC && i2c0_spi0_peripheral.usage == I2C_SPI_PERIPHERAL_FOR_SPI &&
             i2c0_spi0_peripheral.sda_mosi == (uint8_t)mosi &&
             i2c0_spi0_peripheral.scl_miso == (uint8_t)miso &&
@@ -42,9 +42,9 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         spi = SPI_0;
         obj->peripheral = 0x1;
     } else if (ssel == NC && i2c1_spi1_peripheral.usage == I2C_SPI_PERIPHERAL_FOR_SPI &&
-            i2c1_spi1_peripheral.sda_mosi == (uint8_t)mosi &&
-            i2c1_spi1_peripheral.scl_miso == (uint8_t)miso &&
-            i2c1_spi1_peripheral.sclk     == (uint8_t)sclk) {
+               i2c1_spi1_peripheral.sda_mosi == (uint8_t)mosi &&
+               i2c1_spi1_peripheral.scl_miso == (uint8_t)miso &&
+               i2c1_spi1_peripheral.sclk     == (uint8_t)sclk) {
         // The SPI with the same pins is already initialized
         spi = SPI_1;
         obj->peripheral = 0x2;
@@ -53,7 +53,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         i2c1_spi1_peripheral.sda_mosi = (uint8_t)mosi;
         i2c1_spi1_peripheral.scl_miso = (uint8_t)miso;
         i2c1_spi1_peripheral.sclk     = (uint8_t)sclk;
-        
+
         spi = SPI_1;
         obj->peripheral = 0x2;
     } else if (i2c0_spi0_peripheral.usage == 0) {
@@ -61,7 +61,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         i2c0_spi0_peripheral.sda_mosi = (uint8_t)mosi;
         i2c0_spi0_peripheral.scl_miso = (uint8_t)miso;
         i2c0_spi0_peripheral.sclk     = (uint8_t)sclk;
-        
+
         spi = SPI_0;
         obj->peripheral = 0x1;
     } else {
@@ -69,7 +69,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         error("No available SPI");
     }
 
-    if (ssel==NC) {
+    if (ssel == NC) {
         obj->spi  = (NRF_SPI_Type *)spi;
         obj->spis = (NRF_SPIS_Type *)NC;
     } else {
@@ -83,25 +83,25 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         obj->spis->POWER = 1;
 
         NRF_GPIO->PIN_CNF[mosi] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
-                                    | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
-                                    | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
-                                    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-                                    | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
+                                  | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                                  | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                                  | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                  | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
         NRF_GPIO->PIN_CNF[miso] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
-                                    | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
-                                    | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
-                                    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-                                    | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
+                                  | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                                  | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                                  | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                  | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
         NRF_GPIO->PIN_CNF[sclk] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
-                                    | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
-                                    | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
-                                    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-                                    | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
+                                  | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                                  | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                                  | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                  | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
         NRF_GPIO->PIN_CNF[ssel] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
-                                    | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
-                                    | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
-                                    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-                                    | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
+                                  | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                                  | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                                  | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                  | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
 
         obj->spis->PSELMOSI = mosi;
         obj->spis->PSELMISO = miso;
@@ -123,25 +123,25 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
         //NRF_GPIO->DIR |= (1<<mosi);
         NRF_GPIO->PIN_CNF[mosi] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
-                                    | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
-                                    | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
-                                    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-                                    | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+                                  | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                                  | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                                  | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                  | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
         obj->spi->PSELMOSI = mosi;
 
         NRF_GPIO->PIN_CNF[sclk] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
-                                    | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
-                                    | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
-                                    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-                                    | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+                                  | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                                  | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                                  | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                  | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
         obj->spi->PSELSCK = sclk;
 
         //NRF_GPIO->DIR &= ~(1<<miso);
         NRF_GPIO->PIN_CNF[miso] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
-                                    | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
-                                    | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
-                                    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-                                    | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
+                                  | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                                  | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                                  | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                  | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
 
         obj->spi->PSELMISO = miso;
 
@@ -212,22 +212,22 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
 void spi_frequency(spi_t *obj, int hz)
 {
-    if ((int)obj->spi==NC) {
+    if ((int)obj->spi == NC) {
         return;
     }
     spi_disable(obj, 0);
 
-    if (hz<250000) { //125Kbps
+    if (hz < 250000) { //125Kbps
         obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_K125;
-    } else if (hz<500000) { //250Kbps
+    } else if (hz < 500000) { //250Kbps
         obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_K250;
-    } else if (hz<1000000) { //500Kbps
+    } else if (hz < 1000000) { //500Kbps
         obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_K500;
-    } else if (hz<2000000) { //1Mbps
+    } else if (hz < 2000000) { //1Mbps
         obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_M1;
-    } else if (hz<4000000) { //2Mbps
+    } else if (hz < 4000000) { //2Mbps
         obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_M2;
-    } else if (hz<8000000) { //4Mbps
+    } else if (hz < 8000000) { //4Mbps
         obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_M4;
     } else { //8Mbps
         obj->spi->FREQUENCY = (uint32_t) SPI_FREQUENCY_FREQUENCY_M8;
@@ -264,7 +264,8 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {

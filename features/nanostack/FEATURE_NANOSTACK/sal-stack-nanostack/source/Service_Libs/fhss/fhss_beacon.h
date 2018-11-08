@@ -123,7 +123,7 @@ void fhss_beacon_build(fhss_structure_t *fhss_structure, uint8_t *dest);
  * @param source source synchronization data to be encoded
  * @return pointer to one byte after the encoded data
  */
-uint8_t* fhss_beacon_encode_raw(uint8_t *buffer, const fhss_synchronization_beacon_payload_s *source);
+uint8_t *fhss_beacon_encode_raw(uint8_t *buffer, const fhss_synchronization_beacon_payload_s *source);
 
 /**
  * Decode the given beacon syncronization structure from given buffer and process the data.
@@ -140,14 +140,14 @@ void fhss_beacon_decode(fhss_synchronization_beacon_payload_s *dest, const uint8
 
 /**
  * Decode the beacon data as-is to the given struct.
- * 
+ *
  * @param dest decoded data
  * @param buffer source buffer, must be at least FHSS_SYNC_BEACON_PAYLOAD_SIZE in size
  */
-void fhss_beacon_decode_raw(fhss_synchronization_beacon_payload_s* dest, const uint8_t* buffer);
+void fhss_beacon_decode_raw(fhss_synchronization_beacon_payload_s *dest, const uint8_t *buffer);
 
 int fhss_beacon_update_payload(fhss_structure_t *fhss_structure,
-                                fhss_synchronization_beacon_payload_s *payload);
+                               fhss_synchronization_beacon_payload_s *payload);
 
 void fhss_beacon_received(fhss_structure_t *fhss_structure, const uint8_t *synch_info, const uint32_t elapsed_time);
 

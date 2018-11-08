@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -65,45 +65,45 @@
 
 typedef struct _LOG_UART_ADAPTER_ {
     u32     BaudRate;
-    u32     FIFOControl; 
+    u32     FIFOControl;
     u32     IntEnReg;
     u8      Parity;
     u8      Stop;
     u8      DataLength;
-}LOG_UART_ADAPTER, *PLOG_UART_ADAPTER;
+} LOG_UART_ADAPTER, *PLOG_UART_ADAPTER;
 
 typedef struct _COMMAND_TABLE_ {
-    const   u8* cmd;
+    const   u8 *cmd;
     u16     ArgvCnt;
-    u32     (*func)(u16 argc, u8* argv[]);
-    const   u8* msg;
-}COMMAND_TABLE, *PCOMMAND_TABLE;
+    u32(*func)(u16 argc, u8 *argv[]);
+    const   u8 *msg;
+} COMMAND_TABLE, *PCOMMAND_TABLE;
 
 //VOID
 //HalLogUartHandle(void);
 
 
-extern _LONG_CALL_ROM_ u32 
+extern _LONG_CALL_ROM_ u32
 HalLogUartInit(
     IN  LOG_UART_ADAPTER    UartAdapter
-    );
+);
 
 
-extern _LONG_CALL_ROM_ VOID 
+extern _LONG_CALL_ROM_ VOID
 HalSerialPutcRtl8195a(
     IN  u8 c
-    );
+);
 
-extern _LONG_CALL_ROM_ u8 
+extern _LONG_CALL_ROM_ u8
 HalSerialGetcRtl8195a(
     IN  BOOL    PullMode
-    );
+);
 
 extern _LONG_CALL_ROM_ u32
 HalSerialGetIsrEnRegRtl8195a(VOID);
 
 extern _LONG_CALL_ROM_ VOID
-HalSerialSetIrqEnRegRtl8195a (
+HalSerialSetIrqEnRegRtl8195a(
     IN  u32 SetValue
 );
 

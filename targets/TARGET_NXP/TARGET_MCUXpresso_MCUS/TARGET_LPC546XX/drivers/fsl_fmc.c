@@ -101,8 +101,7 @@ void FMC_GenerateFlashSignature(FMC_Type *base,
     base->FMSSTOP |= FMC_FMSSTOP_SIG_START_MASK;
 
     /* Wait for signature done. */
-    while ((base->FMSTAT & kFMC_SignatureGenerationDoneFlag) != kFMC_SignatureGenerationDoneFlag)
-    {
+    while ((base->FMSTAT & kFMC_SignatureGenerationDoneFlag) != kFMC_SignatureGenerationDoneFlag) {
     }
 
     /* Clear generation done flag. */

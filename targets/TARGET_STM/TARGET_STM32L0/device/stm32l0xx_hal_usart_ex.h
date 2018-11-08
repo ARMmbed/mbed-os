@@ -7,7 +7,7 @@
   * @brief   Header file of USART HAL Extension module.
   ******************************************************************************
   * @attention
-  *                               
+  *
   * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
@@ -32,7 +32,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -40,7 +40,7 @@
 #define __STM32L0xx_HAL_USART_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -58,7 +58,7 @@
 /** @defgroup USARTEx_Exported_Constants USARTEx Exported Constants
   * @{
   */
-  
+
 /** @defgroup USARTEx_Word_Length Word length definition
   * @{
   */
@@ -67,14 +67,14 @@
 #define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
 #define IS_USART_WORD_LENGTH(LENGTH) (((LENGTH) == USART_WORDLENGTH_7B) || \
                                       ((LENGTH) == USART_WORDLENGTH_8B) || \
-                                      ((LENGTH) == USART_WORDLENGTH_9B))                                 
+                                      ((LENGTH) == USART_WORDLENGTH_9B))
 /**
   * @}
-  */  
-  
+  */
+
 /**
   * @}
-  */  
+  */
 /* Exported macro ------------------------------------------------------------*/
 
 /** @defgroup USARTEx_Extended_Exported_Macros USARTEx Exported Macros
@@ -83,7 +83,7 @@
 
 /** @brief  Reports the USART clock source.
   * @param  __HANDLE__: specifies the USART Handle
-  * @param  __CLOCKSOURCE__ : output variable   
+  * @param  __CLOCKSOURCE__ : output variable
   * @retval the USART clocking source, written in __CLOCKSOURCE__.
   */
 #if defined (STM32L031xx) || defined (STM32L041xx) || defined (STM32L011xx) || defined (STM32L021xx)
@@ -163,10 +163,10 @@
   *         If PCE = 1, the parity bit is not included in the data extracted
   *         by the reception API().
   *         This masking operation is not carried out in the case of
-  *         DMA transfers.    
+  *         DMA transfers.
   * @param  __HANDLE__: specifies the USART Handle
   * @retval mask to apply to USART RDR register value.
-  */  
+  */
 #define USART_MASK_COMPUTATION(__HANDLE__)                      \
   do {                                                                \
   if ((__HANDLE__)->Init.WordLength == USART_WORDLENGTH_9B)           \
@@ -206,7 +206,7 @@
 
 /**
   * @}
-  */   
+  */
 
 /* Exported functions --------------------------------------------------------*/
 /* Initialization/de-initialization methods  **********************************/
@@ -217,12 +217,12 @@
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
-  
+  */
+
 #ifdef __cplusplus
 }
 #endif

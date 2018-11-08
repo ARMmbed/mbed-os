@@ -114,7 +114,7 @@ void rtc_free(void)
         MXC_RTCTMR->ctrl &= ~MXC_F_RTC_CTRL_ENABLE;
 
         // Wait for pending transactions
-        while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+        while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
     }
 
     // Disable the clock to the RTC

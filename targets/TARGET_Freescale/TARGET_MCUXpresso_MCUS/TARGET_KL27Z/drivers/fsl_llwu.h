@@ -50,8 +50,7 @@
 /*!
  * @brief External input pin control modes
  */
-typedef enum _llwu_external_pin_mode
-{
+typedef enum _llwu_external_pin_mode {
     kLLWU_ExternalPinDisable = 0U,     /*!< Pin disabled as wakeup input.           */
     kLLWU_ExternalPinRisingEdge = 1U,  /*!< Pin enabled with rising edge detection. */
     kLLWU_ExternalPinFallingEdge = 2U, /*!< Pin enabled with falling edge detection.*/
@@ -61,8 +60,7 @@ typedef enum _llwu_external_pin_mode
 /*!
  * @brief Digital filter control modes
  */
-typedef enum _llwu_pin_filter_mode
-{
+typedef enum _llwu_pin_filter_mode {
     kLLWU_PinFilterDisable = 0U,     /*!< Filter disabled.               */
     kLLWU_PinFilterRisingEdge = 1U,  /*!< Filter positive edge detection.*/
     kLLWU_PinFilterFallingEdge = 2U, /*!< Filter negative edge detection.*/
@@ -73,8 +71,7 @@ typedef enum _llwu_pin_filter_mode
 /*!
  * @brief IP version ID definition.
  */
-typedef struct _llwu_version_id
-{
+typedef struct _llwu_version_id {
     uint16_t feature; /*!< Feature Specification Number. */
     uint8_t minor;    /*!< Minor version number.         */
     uint8_t major;    /*!< Major version number.         */
@@ -85,8 +82,7 @@ typedef struct _llwu_version_id
 /*!
  * @brief IP parameter definition.
  */
-typedef struct _llwu_param
-{
+typedef struct _llwu_param {
     uint8_t filters; /*!< Number of pin filter.      */
     uint8_t dmas;    /*!< Number of wakeup DMA.      */
     uint8_t modules; /*!< Number of wakeup module.   */
@@ -98,8 +94,7 @@ typedef struct _llwu_param
 /*!
  * @brief External input pin filter control structure
  */
-typedef struct _llwu_external_pin_filter_mode
-{
+typedef struct _llwu_external_pin_filter_mode {
     uint32_t pinIndex;                 /*!< Pin number  */
     llwu_pin_filter_mode_t filterMode; /*!< Filter mode */
 } llwu_external_pin_filter_mode_t;
@@ -199,12 +194,9 @@ void LLWU_ClearExternalWakeupPinFlag(LLWU_Type *base, uint32_t pinIndex);
  */
 static inline void LLWU_EnableInternalModuleInterruptWakup(LLWU_Type *base, uint32_t moduleIndex, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->ME |= 1U << moduleIndex;
-    }
-    else
-    {
+    } else {
         base->ME &= ~(1U << moduleIndex);
     }
 }
@@ -253,12 +245,9 @@ static inline bool LLWU_GetInternalWakeupModuleFlag(LLWU_Type *base, uint32_t mo
  */
 static inline void LLWU_EnableInternalModuleDmaRequestWakup(LLWU_Type *base, uint32_t moduleIndex, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->DE |= 1U << moduleIndex;
-    }
-    else
-    {
+    } else {
         base->DE &= ~(1U << moduleIndex);
     }
 }

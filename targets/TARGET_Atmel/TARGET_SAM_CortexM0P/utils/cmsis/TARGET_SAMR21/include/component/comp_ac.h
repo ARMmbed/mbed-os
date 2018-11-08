@@ -57,11 +57,11 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint8_t  ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint8_t  RUNSTDBY:1;       /*!< bit:      2  Run in Standby                     */
-        uint8_t  :4;               /*!< bit:  3.. 6  Reserved                           */
-        uint8_t  LPMUX:1;          /*!< bit:      7  Low-Power Mux                      */
+        uint8_t  SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint8_t  ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint8_t  RUNSTDBY: 1;      /*!< bit:      2  Run in Standby                     */
+        uint8_t  : 4;              /*!< bit:  3.. 6  Reserved                           */
+        uint8_t  LPMUX: 1;         /*!< bit:      7  Low-Power Mux                      */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AC_CTRLA_Type;
@@ -85,13 +85,13 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  START0:1;         /*!< bit:      0  Comparator 0 Start Comparison      */
-        uint8_t  START1:1;         /*!< bit:      1  Comparator 1 Start Comparison      */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  START0: 1;        /*!< bit:      0  Comparator 0 Start Comparison      */
+        uint8_t  START1: 1;        /*!< bit:      1  Comparator 1 Start Comparison      */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  START:2;          /*!< bit:  0.. 1  Comparator x Start Comparison      */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  START: 2;         /*!< bit:  0.. 1  Comparator x Start Comparison      */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AC_CTRLB_Type;
@@ -113,22 +113,22 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t COMPEO0:1;        /*!< bit:      0  Comparator 0 Event Output Enable   */
-        uint16_t COMPEO1:1;        /*!< bit:      1  Comparator 1 Event Output Enable   */
-        uint16_t :2;               /*!< bit:  2.. 3  Reserved                           */
-        uint16_t WINEO0:1;         /*!< bit:      4  Window 0 Event Output Enable       */
-        uint16_t :3;               /*!< bit:  5.. 7  Reserved                           */
-        uint16_t COMPEI0:1;        /*!< bit:      8  Comparator 0 Event Input           */
-        uint16_t COMPEI1:1;        /*!< bit:      9  Comparator 1 Event Input           */
-        uint16_t :6;               /*!< bit: 10..15  Reserved                           */
+        uint16_t COMPEO0: 1;       /*!< bit:      0  Comparator 0 Event Output Enable   */
+        uint16_t COMPEO1: 1;       /*!< bit:      1  Comparator 1 Event Output Enable   */
+        uint16_t : 2;              /*!< bit:  2.. 3  Reserved                           */
+        uint16_t WINEO0: 1;        /*!< bit:      4  Window 0 Event Output Enable       */
+        uint16_t : 3;              /*!< bit:  5.. 7  Reserved                           */
+        uint16_t COMPEI0: 1;       /*!< bit:      8  Comparator 0 Event Input           */
+        uint16_t COMPEI1: 1;       /*!< bit:      9  Comparator 1 Event Input           */
+        uint16_t : 6;              /*!< bit: 10..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint16_t COMPEO:2;         /*!< bit:  0.. 1  Comparator x Event Output Enable   */
-        uint16_t :2;               /*!< bit:  2.. 3  Reserved                           */
-        uint16_t WINEO:1;          /*!< bit:      4  Window x Event Output Enable       */
-        uint16_t :3;               /*!< bit:  5.. 7  Reserved                           */
-        uint16_t COMPEI:2;         /*!< bit:  8.. 9  Comparator x Event Input           */
-        uint16_t :6;               /*!< bit: 10..15  Reserved                           */
+        uint16_t COMPEO: 2;        /*!< bit:  0.. 1  Comparator x Event Output Enable   */
+        uint16_t : 2;              /*!< bit:  2.. 3  Reserved                           */
+        uint16_t WINEO: 1;         /*!< bit:      4  Window x Event Output Enable       */
+        uint16_t : 3;              /*!< bit:  5.. 7  Reserved                           */
+        uint16_t COMPEI: 2;        /*!< bit:  8.. 9  Comparator x Event Input           */
+        uint16_t : 6;              /*!< bit: 10..15  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } AC_EVCTRL_Type;
@@ -162,17 +162,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  COMP0:1;          /*!< bit:      0  Comparator 0 Interrupt Enable      */
-        uint8_t  COMP1:1;          /*!< bit:      1  Comparator 1 Interrupt Enable      */
-        uint8_t  :2;               /*!< bit:  2.. 3  Reserved                           */
-        uint8_t  WIN0:1;           /*!< bit:      4  Window 0 Interrupt Enable          */
-        uint8_t  :3;               /*!< bit:  5.. 7  Reserved                           */
+        uint8_t  COMP0: 1;         /*!< bit:      0  Comparator 0 Interrupt Enable      */
+        uint8_t  COMP1: 1;         /*!< bit:      1  Comparator 1 Interrupt Enable      */
+        uint8_t  : 2;              /*!< bit:  2.. 3  Reserved                           */
+        uint8_t  WIN0: 1;          /*!< bit:      4  Window 0 Interrupt Enable          */
+        uint8_t  : 3;              /*!< bit:  5.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  COMP:2;           /*!< bit:  0.. 1  Comparator x Interrupt Enable      */
-        uint8_t  :2;               /*!< bit:  2.. 3  Reserved                           */
-        uint8_t  WIN:1;            /*!< bit:      4  Window x Interrupt Enable          */
-        uint8_t  :3;               /*!< bit:  5.. 7  Reserved                           */
+        uint8_t  COMP: 2;          /*!< bit:  0.. 1  Comparator x Interrupt Enable      */
+        uint8_t  : 2;              /*!< bit:  2.. 3  Reserved                           */
+        uint8_t  WIN: 1;           /*!< bit:      4  Window x Interrupt Enable          */
+        uint8_t  : 3;              /*!< bit:  5.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AC_INTENCLR_Type;
@@ -199,17 +199,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  COMP0:1;          /*!< bit:      0  Comparator 0 Interrupt Enable      */
-        uint8_t  COMP1:1;          /*!< bit:      1  Comparator 1 Interrupt Enable      */
-        uint8_t  :2;               /*!< bit:  2.. 3  Reserved                           */
-        uint8_t  WIN0:1;           /*!< bit:      4  Window 0 Interrupt Enable          */
-        uint8_t  :3;               /*!< bit:  5.. 7  Reserved                           */
+        uint8_t  COMP0: 1;         /*!< bit:      0  Comparator 0 Interrupt Enable      */
+        uint8_t  COMP1: 1;         /*!< bit:      1  Comparator 1 Interrupt Enable      */
+        uint8_t  : 2;              /*!< bit:  2.. 3  Reserved                           */
+        uint8_t  WIN0: 1;          /*!< bit:      4  Window 0 Interrupt Enable          */
+        uint8_t  : 3;              /*!< bit:  5.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  COMP:2;           /*!< bit:  0.. 1  Comparator x Interrupt Enable      */
-        uint8_t  :2;               /*!< bit:  2.. 3  Reserved                           */
-        uint8_t  WIN:1;            /*!< bit:      4  Window x Interrupt Enable          */
-        uint8_t  :3;               /*!< bit:  5.. 7  Reserved                           */
+        uint8_t  COMP: 2;          /*!< bit:  0.. 1  Comparator x Interrupt Enable      */
+        uint8_t  : 2;              /*!< bit:  2.. 3  Reserved                           */
+        uint8_t  WIN: 1;           /*!< bit:      4  Window x Interrupt Enable          */
+        uint8_t  : 3;              /*!< bit:  5.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AC_INTENSET_Type;
@@ -236,17 +236,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union { // __I to avoid read-modify-write on write-to-clear register
     struct {
-        __I uint8_t  COMP0:1;          /*!< bit:      0  Comparator 0                       */
-        __I uint8_t  COMP1:1;          /*!< bit:      1  Comparator 1                       */
-        __I uint8_t  :2;               /*!< bit:  2.. 3  Reserved                           */
-        __I uint8_t  WIN0:1;           /*!< bit:      4  Window 0                           */
-        __I uint8_t  :3;               /*!< bit:  5.. 7  Reserved                           */
+        __I uint8_t  COMP0: 1;         /*!< bit:      0  Comparator 0                       */
+        __I uint8_t  COMP1: 1;         /*!< bit:      1  Comparator 1                       */
+        __I uint8_t  : 2;              /*!< bit:  2.. 3  Reserved                           */
+        __I uint8_t  WIN0: 1;          /*!< bit:      4  Window 0                           */
+        __I uint8_t  : 3;              /*!< bit:  5.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        __I uint8_t  COMP:2;           /*!< bit:  0.. 1  Comparator x                       */
-        __I uint8_t  :2;               /*!< bit:  2.. 3  Reserved                           */
-        __I uint8_t  WIN:1;            /*!< bit:      4  Window x                           */
-        __I uint8_t  :3;               /*!< bit:  5.. 7  Reserved                           */
+        __I uint8_t  COMP: 2;          /*!< bit:  0.. 1  Comparator x                       */
+        __I uint8_t  : 2;              /*!< bit:  2.. 3  Reserved                           */
+        __I uint8_t  WIN: 1;           /*!< bit:      4  Window x                           */
+        __I uint8_t  : 3;              /*!< bit:  5.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AC_INTFLAG_Type;
@@ -273,15 +273,15 @@ typedef union { // __I to avoid read-modify-write on write-to-clear register
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  STATE0:1;         /*!< bit:      0  Comparator 0 Current State         */
-        uint8_t  STATE1:1;         /*!< bit:      1  Comparator 1 Current State         */
-        uint8_t  :2;               /*!< bit:  2.. 3  Reserved                           */
-        uint8_t  WSTATE0:2;        /*!< bit:  4.. 5  Window 0 Current State             */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  STATE0: 1;        /*!< bit:      0  Comparator 0 Current State         */
+        uint8_t  STATE1: 1;        /*!< bit:      1  Comparator 1 Current State         */
+        uint8_t  : 2;              /*!< bit:  2.. 3  Reserved                           */
+        uint8_t  WSTATE0: 2;       /*!< bit:  4.. 5  Window 0 Current State             */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  STATE:2;          /*!< bit:  0.. 1  Comparator x Current State         */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  STATE: 2;         /*!< bit:  0.. 1  Comparator x Current State         */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AC_STATUSA_Type;
@@ -312,14 +312,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  READY0:1;         /*!< bit:      0  Comparator 0 Ready                 */
-        uint8_t  READY1:1;         /*!< bit:      1  Comparator 1 Ready                 */
-        uint8_t  :5;               /*!< bit:  2.. 6  Reserved                           */
-        uint8_t  SYNCBUSY:1;       /*!< bit:      7  Synchronization Busy               */
+        uint8_t  READY0: 1;        /*!< bit:      0  Comparator 0 Ready                 */
+        uint8_t  READY1: 1;        /*!< bit:      1  Comparator 1 Ready                 */
+        uint8_t  : 5;              /*!< bit:  2.. 6  Reserved                           */
+        uint8_t  SYNCBUSY: 1;      /*!< bit:      7  Synchronization Busy               */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  READY:2;          /*!< bit:  0.. 1  Comparator x Ready                 */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  READY: 2;         /*!< bit:  0.. 1  Comparator x Ready                 */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AC_STATUSB_Type;
@@ -343,15 +343,15 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  STATE0:1;         /*!< bit:      0  Comparator 0 Current State         */
-        uint8_t  STATE1:1;         /*!< bit:      1  Comparator 1 Current State         */
-        uint8_t  :2;               /*!< bit:  2.. 3  Reserved                           */
-        uint8_t  WSTATE0:2;        /*!< bit:  4.. 5  Window 0 Current State             */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  STATE0: 1;        /*!< bit:      0  Comparator 0 Current State         */
+        uint8_t  STATE1: 1;        /*!< bit:      1  Comparator 1 Current State         */
+        uint8_t  : 2;              /*!< bit:  2.. 3  Reserved                           */
+        uint8_t  WSTATE0: 2;       /*!< bit:  4.. 5  Window 0 Current State             */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  STATE:2;          /*!< bit:  0.. 1  Comparator x Current State         */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  STATE: 2;         /*!< bit:  0.. 1  Comparator x Current State         */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AC_STATUSC_Type;
@@ -382,9 +382,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  WEN0:1;           /*!< bit:      0  Window 0 Mode Enable               */
-        uint8_t  WINTSEL0:2;       /*!< bit:  1.. 2  Window 0 Interrupt Selection       */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  WEN0: 1;          /*!< bit:      0  Window 0 Mode Enable               */
+        uint8_t  WINTSEL0: 2;      /*!< bit:  1.. 2  Window 0 Interrupt Selection       */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AC_WINCTRL_Type;
@@ -412,23 +412,23 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t ENABLE:1;         /*!< bit:      0  Enable                             */
-        uint32_t SINGLE:1;         /*!< bit:      1  Single-Shot Mode                   */
-        uint32_t SPEED:2;          /*!< bit:  2.. 3  Speed Selection                    */
-        uint32_t :1;               /*!< bit:      4  Reserved                           */
-        uint32_t INTSEL:2;         /*!< bit:  5.. 6  Interrupt Selection                */
-        uint32_t :1;               /*!< bit:      7  Reserved                           */
-        uint32_t MUXNEG:3;         /*!< bit:  8..10  Negative Input Mux Selection       */
-        uint32_t :1;               /*!< bit:     11  Reserved                           */
-        uint32_t MUXPOS:2;         /*!< bit: 12..13  Positive Input Mux Selection       */
-        uint32_t :1;               /*!< bit:     14  Reserved                           */
-        uint32_t SWAP:1;           /*!< bit:     15  Swap Inputs and Invert             */
-        uint32_t OUT:2;            /*!< bit: 16..17  Output                             */
-        uint32_t :1;               /*!< bit:     18  Reserved                           */
-        uint32_t HYST:1;           /*!< bit:     19  Hysteresis Enable                  */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t FLEN:3;           /*!< bit: 24..26  Filter Length                      */
-        uint32_t :5;               /*!< bit: 27..31  Reserved                           */
+        uint32_t ENABLE: 1;        /*!< bit:      0  Enable                             */
+        uint32_t SINGLE: 1;        /*!< bit:      1  Single-Shot Mode                   */
+        uint32_t SPEED: 2;         /*!< bit:  2.. 3  Speed Selection                    */
+        uint32_t : 1;              /*!< bit:      4  Reserved                           */
+        uint32_t INTSEL: 2;        /*!< bit:  5.. 6  Interrupt Selection                */
+        uint32_t : 1;              /*!< bit:      7  Reserved                           */
+        uint32_t MUXNEG: 3;        /*!< bit:  8..10  Negative Input Mux Selection       */
+        uint32_t : 1;              /*!< bit:     11  Reserved                           */
+        uint32_t MUXPOS: 2;        /*!< bit: 12..13  Positive Input Mux Selection       */
+        uint32_t : 1;              /*!< bit:     14  Reserved                           */
+        uint32_t SWAP: 1;          /*!< bit:     15  Swap Inputs and Invert             */
+        uint32_t OUT: 2;           /*!< bit: 16..17  Output                             */
+        uint32_t : 1;              /*!< bit:     18  Reserved                           */
+        uint32_t HYST: 1;          /*!< bit:     19  Hysteresis Enable                  */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t FLEN: 3;          /*!< bit: 24..26  Filter Length                      */
+        uint32_t : 5;              /*!< bit: 27..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } AC_COMPCTRL_Type;
@@ -517,8 +517,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  VALUE:6;          /*!< bit:  0.. 5  Scaler Value                       */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  VALUE: 6;         /*!< bit:  0.. 5  Scaler Value                       */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AC_SCALER_Type;

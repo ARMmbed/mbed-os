@@ -37,7 +37,7 @@ public:
      * @brief   EnvironmentalService constructor.
      * @param   _ble Reference to BLE device.
      */
-    EnvironmentalService(BLE& _ble) :
+    EnvironmentalService(BLE &_ble) :
         ble(_ble),
         temperatureCharacteristic(GattCharacteristic::UUID_TEMPERATURE_CHAR, &temperature),
         humidityCharacteristic(GattCharacteristic::UUID_HUMIDITY_CHAR, &humidity),
@@ -50,7 +50,8 @@ public:
 
         GattCharacteristic *charTable[] = { &humidityCharacteristic,
                                             &pressureCharacteristic,
-                                            &temperatureCharacteristic };
+                                            &temperatureCharacteristic
+                                          };
 
         GattService environmentalService(GattService::UUID_ENVIRONMENTAL_SERVICE, charTable, sizeof(charTable) / sizeof(GattCharacteristic *));
 
@@ -64,7 +65,7 @@ public:
      */
     void updateHumidity(HumidityType_t newHumidityVal)
     {
-        humidity = (HumidityType_t) (newHumidityVal * 100);
+        humidity = (HumidityType_t)(newHumidityVal * 100);
         ble.gattServer().write(humidityCharacteristic.getValueHandle(), (uint8_t *) &humidity, sizeof(HumidityType_t));
     }
 
@@ -74,7 +75,7 @@ public:
      */
     void updatePressure(PressureType_t newPressureVal)
     {
-        pressure = (PressureType_t) (newPressureVal * 10);
+        pressure = (PressureType_t)(newPressureVal * 10);
         ble.gattServer().write(pressureCharacteristic.getValueHandle(), (uint8_t *) &pressure, sizeof(PressureType_t));
     }
 
@@ -84,12 +85,12 @@ public:
      */
     void updateTemperature(float newTemperatureVal)
     {
-        temperature = (TemperatureType_t) (newTemperatureVal * 100);
+        temperature = (TemperatureType_t)(newTemperatureVal * 100);
         ble.gattServer().write(temperatureCharacteristic.getValueHandle(), (uint8_t *) &temperature, sizeof(TemperatureType_t));
     }
 
 private:
-    BLE& ble;
+    BLE &ble;
 
     TemperatureType_t temperature;
     HumidityType_t    humidity;

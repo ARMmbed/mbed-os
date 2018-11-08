@@ -67,12 +67,11 @@
 #define BSC_TOSCORn_COUNT (6)
 
 
-typedef struct st_bsc
-{
-                                                           /* BSC              */
+typedef struct st_bsc {
+    /* BSC              */
     volatile uint32_t  CMNCR;                                  /*  CMNCR           */
 
-/* #define BSC_CSnBCR_COUNT (6) */
+    /* #define BSC_CSnBCR_COUNT (6) */
     volatile uint32_t  CS0BCR;                                 /*  CS0BCR          */
     volatile uint32_t  CS1BCR;                                 /*  CS1BCR          */
     volatile uint32_t  CS2BCR;                                 /*  CS2BCR          */
@@ -81,7 +80,7 @@ typedef struct st_bsc
     volatile uint32_t  CS5BCR;                                 /*  CS5BCR          */
     volatile uint8_t   dummy4[12];                             /*                  */
 
-/* #define BSC_CSnWCR_COUNT (6) */
+    /* #define BSC_CSnWCR_COUNT (6) */
     volatile uint32_t  CS0WCR;                                 /*  CS0WCR          */
     volatile uint32_t  CS1WCR;                                 /*  CS1WCR          */
     volatile uint32_t  CS2WCR;                                 /*  CS2WCR          */
@@ -95,7 +94,7 @@ typedef struct st_bsc
     volatile uint32_t  RTCOR;                                  /*  RTCOR           */
     volatile uint8_t   dummy6[4];                              /*                  */
 
-/* #define BSC_TOSCORn_COUNT (6) */
+    /* #define BSC_TOSCORn_COUNT (6) */
     volatile uint32_t  TOSCOR0;                                /*  TOSCOR0         */
     volatile uint32_t  TOSCOR1;                                /*  TOSCOR1         */
     volatile uint32_t  TOSCOR2;                                /*  TOSCOR2         */

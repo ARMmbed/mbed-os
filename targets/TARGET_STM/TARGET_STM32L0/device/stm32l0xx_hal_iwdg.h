@@ -40,7 +40,7 @@
 #define __STM32L0xx_HAL_IWDG_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -63,36 +63,34 @@
 /** @defgroup IWDG_State IWDG state definition
   * @{
   */
-/** 
+/**
   * @brief  IWDG HAL State Structure definition
   */
-typedef enum
-{
-  HAL_IWDG_STATE_RESET     = 0x00U,  /*!< IWDG not yet initialized or disabled */
-  HAL_IWDG_STATE_READY     = 0x01U,  /*!< IWDG initialized and ready for use   */
-  HAL_IWDG_STATE_BUSY      = 0x02U,  /*!< IWDG internal process is ongoing     */
-  HAL_IWDG_STATE_TIMEOUT   = 0x03U,  /*!< IWDG timeout state                   */
-  HAL_IWDG_STATE_ERROR     = 0x04U   /*!< IWDG error state                     */
+typedef enum {
+    HAL_IWDG_STATE_RESET     = 0x00U,  /*!< IWDG not yet initialized or disabled */
+    HAL_IWDG_STATE_READY     = 0x01U,  /*!< IWDG initialized and ready for use   */
+    HAL_IWDG_STATE_BUSY      = 0x02U,  /*!< IWDG internal process is ongoing     */
+    HAL_IWDG_STATE_TIMEOUT   = 0x03U,  /*!< IWDG timeout state                   */
+    HAL_IWDG_STATE_ERROR     = 0x04U   /*!< IWDG error state                     */
 
-}HAL_IWDG_StateTypeDef;
+} HAL_IWDG_StateTypeDef;
 /**
   * @}
   */
 /** @defgroup IWDG_Init IWDG init configuration structure
   * @{
   */
-/** 
+/**
   * @brief  IWDG Init structure definition
   */
-typedef struct
-{
-  uint32_t Prescaler;  /*!< Select the prescaler of the IWDG.
+typedef struct {
+    uint32_t Prescaler;  /*!< Select the prescaler of the IWDG.
                             This parameter can be a value of @ref IWDG_Prescaler */
 
-  uint32_t Reload;     /*!< Specifies the IWDG down-counter reload value.
+    uint32_t Reload;     /*!< Specifies the IWDG down-counter reload value.
                             This parameter must be a number between Min_Data = 0 and Max_Data = 0x0FFF */
 
-  uint32_t Window;     /*!< Specifies the window value to be compared to the down-counter.
+    uint32_t Window;     /*!< Specifies the window value to be compared to the down-counter.
                             This parameter must be a number between Min_Data = 0 and Max_Data = 0x0FFF */
 
 } IWDG_InitTypeDef;
@@ -103,20 +101,19 @@ typedef struct
 /** @defgroup IWDG_handle IWDG handler
   * @{
   */
-/** 
-  * @brief  IWDG Handle Structure definition  
+/**
+  * @brief  IWDG Handle Structure definition
   */
-typedef struct
-{
-  IWDG_TypeDef                 *Instance;  /*!< Register base address    */
+typedef struct {
+    IWDG_TypeDef                 *Instance;  /*!< Register base address    */
 
-  IWDG_InitTypeDef             Init;       /*!< IWDG required parameters */
+    IWDG_InitTypeDef             Init;       /*!< IWDG required parameters */
 
-  HAL_LockTypeDef              Lock;      /*!< IWDG Locking object      */
+    HAL_LockTypeDef              Lock;      /*!< IWDG Locking object      */
 
-  __IO HAL_IWDG_StateTypeDef   State;      /*!< IWDG communication state */
+    __IO HAL_IWDG_StateTypeDef   State;      /*!< IWDG communication state */
 
-}IWDG_HandleTypeDef;
+} IWDG_HandleTypeDef;
 
 /**
   * @}

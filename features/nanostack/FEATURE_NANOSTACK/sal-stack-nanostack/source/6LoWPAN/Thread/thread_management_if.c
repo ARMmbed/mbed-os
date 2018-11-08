@@ -84,8 +84,8 @@
 #ifdef HAVE_THREAD
 #define TRACE_GROUP "thrm"
 
-static const uint8_t thread_discovery_key[16] = {0x78, 0x58, 0x16, 0x86, 0xfd, 0xb4, 0x58,0x0f, 0xb0, 0x92, 0x54, 0x6a, 0xec, 0xbd, 0x15, 0x66};
-static const uint8_t thread_discovery_extented_address[8] = {0x35,0x06, 0xfe, 0xb8, 0x23, 0xd4, 0x87, 0x12};
+static const uint8_t thread_discovery_key[16] = {0x78, 0x58, 0x16, 0x86, 0xfd, 0xb4, 0x58, 0x0f, 0xb0, 0x92, 0x54, 0x6a, 0xec, 0xbd, 0x15, 0x66};
+static const uint8_t thread_discovery_extented_address[8] = {0x35, 0x06, 0xfe, 0xb8, 0x23, 0xd4, 0x87, 0x12};
 
 uint32_t thread_delay_timer_default = THREAD_DELAY_TIMER_DEFAULT_SECONDS;
 uint32_t thread_router_selection_jitter = THREAD_ROUTER_SELECTION_JITTER;
@@ -95,7 +95,8 @@ uint16_t thread_joiner_port = THREAD_DEFAULT_JOINER_PORT;
  * Prototypes
  */
 
-static void thread_discover_key_descriptor_set(struct mac_api_s *api, const uint8_t *key, uint8_t id, uint32_t key32_bit_src, uint8_t attribute_index) {
+static void thread_discover_key_descriptor_set(struct mac_api_s *api, const uint8_t *key, uint8_t id, uint32_t key32_bit_src, uint8_t attribute_index)
+{
     mlme_set_t set_req;
     mlme_key_id_lookup_descriptor_t lookup_description;
     mlme_key_descriptor_entry_t key_description;
@@ -143,10 +144,10 @@ static void thread_discover_device_descriptor_set(struct mac_api_s *api, const u
 
     set_req.attr = macDeviceTable;
     set_req.attr_index = attribute_index;
-    set_req.value_pointer = (void*)&device_desc;
+    set_req.value_pointer = (void *)&device_desc;
     set_req.value_size = sizeof(mlme_device_descriptor_t);
     tr_debug("Register Discovery device descriptor");
-    api->mlme_req(api,MLME_SET , &set_req);
+    api->mlme_req(api, MLME_SET, &set_req);
 }
 
 static void thread_discover_security_material_update(protocol_interface_info_entry_t *cur, const mlme_security_t *security_params)
@@ -166,7 +167,7 @@ static void thread_discover_security_material_update(protocol_interface_info_ent
     if (!cur->mac_api || !cur->mac_api->mac_storage_sizes_get || cur->mac_api->mac_storage_sizes_get(cur->mac_api, &buffer) != 0) {
         return;
     }
-    thread_discover_device_descriptor_set(cur->mac_api, thread_discovery_extented_address, buffer.device_decription_table_size -1);
+    thread_discover_device_descriptor_set(cur->mac_api, thread_discovery_extented_address, buffer.device_decription_table_size - 1);
 }
 
 static void thread_security_trig_pending_key(protocol_interface_info_entry_t *cur)
@@ -189,8 +190,8 @@ static void thread_mac_security_key_update_cb(protocol_interface_info_entry_t *c
     if (!cur->thread_info || !cur->mac_parameters) {
         return;
     }
-    if (cur->mac_parameters->mac_next_key_index && (security_params->KeyIndex == cur->mac_parameters->mac_next_key_index)){
-        if(cur->thread_info->masterSecretMaterial.keySwitchGuardTimer == 0) {
+    if (cur->mac_parameters->mac_next_key_index && (security_params->KeyIndex == cur->mac_parameters->mac_next_key_index)) {
+        if (cur->thread_info->masterSecretMaterial.keySwitchGuardTimer == 0) {
             tr_debug("Trig Next Key");
             thread_security_trig_pending_key(cur);
         }
@@ -271,9 +272,9 @@ int8_t thread_node_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootst
     cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_MLE;
     rpl_control_remove_domain_from_interface(cur);
     //SET MAC key id mode 2 key and device
-    thread_discover_key_descriptor_set(cur->mac_api, thread_discovery_key,THREAD_DISCOVERY_SECURITY_KEY_INDEX, THREAD_DISCOVERY_SECURITY_KEY_SOURCE,buffer.device_decription_table_size -1);
+    thread_discover_key_descriptor_set(cur->mac_api, thread_discovery_key, THREAD_DISCOVERY_SECURITY_KEY_INDEX, THREAD_DISCOVERY_SECURITY_KEY_SOURCE, buffer.device_decription_table_size - 1);
 
-    thread_discover_device_descriptor_set(cur->mac_api, thread_discovery_extented_address, buffer.device_decription_table_size -1);
+    thread_discover_device_descriptor_set(cur->mac_api, thread_discovery_extented_address, buffer.device_decription_table_size - 1);
 
     cur->mac_security_key_usage_update_cb = thread_mac_security_key_update_cb;
     return 0;
@@ -495,8 +496,8 @@ int thread_management_key_sets_calc(protocol_interface_info_entry_t *cur, link_c
         fast_data.mle_frame_counter = mle_service_security_get_frame_counter(cur->interface_mode);
         thread_nvm_store_fast_data_store(&fast_data);
         mac_helper_link_frame_counter_set(cur->id, 0);
-        thread_security_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
-        thread_security_next_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
+        thread_security_key_generate(cur, linkConfiguration->master_key, linkConfiguration->key_sequence);
+        thread_security_next_key_generate(cur, linkConfiguration->master_key, linkConfiguration->key_sequence);
         ret_val = 0;
     }
     return ret_val;
@@ -578,7 +579,8 @@ int thread_management_increment_key_sequence_counter(int8_t interface_id)
 }
 
 int thread_management_get_ml_prefix(int8_t interface_id, uint8_t *prefix_ptr)
-{// TODO get from static configuration
+{
+    // TODO get from static configuration
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !prefix_ptr) {
@@ -789,7 +791,7 @@ int thread_dhcpv6_server_delete(int8_t interface_id, uint8_t *prefix_ptr)
 }
 
 #ifdef HAVE_THREAD
-void thread_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t* status)
+void thread_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t *status)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(if_id);
     if (!cur) {
@@ -886,7 +888,7 @@ int thread_management_node_init(
         arm_nwk_ipv6_opaque_iid_enable(cur->id, true);
     }
     // Copy the channel list
-    memset(&cur->mac_parameters->mac_channel_list,0,sizeof(channel_list_s));
+    memset(&cur->mac_parameters->mac_channel_list, 0, sizeof(channel_list_s));
     if (channel_list) {
         // Application has given limited set of channels
         cur->mac_parameters->mac_channel_list = *channel_list;
@@ -896,7 +898,7 @@ int thread_management_node_init(
     }
 
     scan_params = &cur->mac_parameters->nwk_scan_params;
-    memset(&scan_params->stack_chan_list,0,sizeof(channel_list_s));
+    memset(&scan_params->stack_chan_list, 0, sizeof(channel_list_s));
     if (channel_list) {
         // Application has given limited set of channels
         scan_params->stack_chan_list = *channel_list;
@@ -919,9 +921,9 @@ int thread_management_node_init(
     cur->ip_forwarding = false;
 
     lowpan_adaptation_indirect_queue_params_set(cur,
-        THREAD_INDIRECT_BIG_PACKET_THRESHOLD,
-        THREAD_INDIRECT_BIG_PACKETS_TOTAL,
-        THREAD_INDIRECT_SMALL_PACKETS_PER_CHILD);
+                                                THREAD_INDIRECT_BIG_PACKET_THRESHOLD,
+                                                THREAD_INDIRECT_BIG_PACKETS_TOTAL,
+                                                THREAD_INDIRECT_SMALL_PACKETS_PER_CHILD);
 
     if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) {
         cur->thread_info->requestFullNetworkData = false;
@@ -954,17 +956,14 @@ int thread_management_device_type_set(int8_t interface_id, thread_device_type_e 
     if (device_type == THREAD_DEVICE_REED) {
         // Change mode to router
         cur->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER;
-    }
-    else if (device_type == THREAD_DEVICE_FED) {
+    } else if (device_type == THREAD_DEVICE_FED) {
         //FED devices makes links and makes address resolutions
         cur->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST;
         cur->thread_info->end_device_link_synch = true;
-    }
-    else if (device_type == THREAD_DEVICE_MED) {
+    } else if (device_type == THREAD_DEVICE_MED) {
         cur->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST;
         cur->thread_info->end_device_link_synch = false;
-    }
-    else if (device_type == THREAD_DEVICE_SED) {
+    } else if (device_type == THREAD_DEVICE_SED) {
         cur->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST;
         cur->thread_info->end_device_link_synch = false;
     }
@@ -1099,9 +1098,9 @@ int thread_management_get_leader_address(int8_t interface_id, uint8_t *address_b
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         if ((cur->thread_info) && (thread_attach_ready(cur) == 0)  &&
-            (cur->thread_info->threadPrivatePrefixInfo.ulaValid) ) {
-                thread_addr_write_mesh_local_16(address_buffer, thread_router_addr_from_id(cur->thread_info->thread_leader_data->leaderRouterId), cur->thread_info);
-                return 0;
+                (cur->thread_info->threadPrivatePrefixInfo.ulaValid)) {
+            thread_addr_write_mesh_local_16(address_buffer, thread_router_addr_from_id(cur->thread_info->thread_leader_data->leaderRouterId), cur->thread_info);
+            return 0;
         }
     }
     return -1;
@@ -1121,9 +1120,9 @@ int thread_management_get_leader_aloc(int8_t interface_id, uint8_t *address_buff
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         if ((cur->thread_info) && (thread_attach_ready(cur) == 0)  &&
-            (cur->thread_info->threadPrivatePrefixInfo.ulaValid)) {
-                thread_addr_write_mesh_local_16(address_buffer, 0xfc00, cur->thread_info);
-                return 0;
+                (cur->thread_info->threadPrivatePrefixInfo.ulaValid)) {
+            thread_addr_write_mesh_local_16(address_buffer, 0xfc00, cur->thread_info);
+            return 0;
         }
     }
     return -1;
@@ -1191,7 +1190,7 @@ int thread_management_get_parent_address(int8_t interface_id, uint8_t *address_p
     if (!cur || !cur->thread_info || !address_ptr) {
         return -1;
     }
-    memset(address_ptr,0,16);
+    memset(address_ptr, 0, 16);
     if (cur->thread_info->thread_endnode_parent) {
         memcpy(address_ptr, ADDR_LINK_LOCAL_PREFIX, 8);
         address_ptr += 8;
@@ -1213,14 +1212,14 @@ int thread_management_get_commissioner_address(int8_t interface_id, uint8_t *add
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (!cur || !cur->thread_info|| !address_ptr ) {
+    if (!cur || !cur->thread_info || !address_ptr) {
         return -1;
     }
 
     if (!cur->thread_info->registered_commissioner.commissioner_valid) {
         return -2;
     }
-    memcpy(address_ptr,cur->thread_info->threadPrivatePrefixInfo.ulaPrefix,8);
+    memcpy(address_ptr, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, 8);
     memcpy(address_ptr + 8, ADDR_SHORT_ADR_SUFFIC, 6);
     common_write_16_bit(0xfc30 + (cur->thread_info->registered_commissioner.session_id % 8), address_ptr + 14);
 
@@ -1239,7 +1238,7 @@ int thread_management_get_commissioner_address(int8_t interface_id, uint8_t *add
 int8_t thread_management_set_link_timeout(int8_t interface_id, uint32_t link_timeout)
 {
 #ifdef HAVE_THREAD
-   protocol_interface_info_entry_t *cur;
+    protocol_interface_info_entry_t *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
@@ -1267,7 +1266,7 @@ int8_t thread_management_get_link_timeout(int8_t interface_id, uint32_t *link_ti
 #ifdef HAVE_THREAD
     const protocol_interface_info_entry_t *cur;
 
-    if(!link_timeout) {
+    if (!link_timeout) {
         tr_warn("Invalid input ptr");
         return -3;
     }
@@ -1320,7 +1319,7 @@ int8_t thread_management_get_request_full_nwk_data(int8_t interface_id, bool *fu
 #ifdef HAVE_THREAD
     const protocol_interface_info_entry_t *cur;
 
-    if(!full_nwk_data) {
+    if (!full_nwk_data) {
         tr_warn("Invalid input ptr");
         return -3;
     }

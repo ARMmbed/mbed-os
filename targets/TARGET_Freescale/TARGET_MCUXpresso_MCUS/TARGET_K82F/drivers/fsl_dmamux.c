@@ -65,10 +65,8 @@ static uint32_t DMAMUX_GetInstance(DMAMUX_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_DMAMUX_COUNT; instance++)
-    {
-        if (s_dmamuxBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_DMAMUX_COUNT; instance++) {
+        if (s_dmamuxBases[instance] == base) {
             break;
         }
     }

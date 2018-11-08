@@ -56,8 +56,7 @@
 /*@}*/
 
 /*! @brief COP clock source selection. */
-typedef enum _cop_clock_source
-{
+typedef enum _cop_clock_source {
     kCOP_LpoClock = 0U, /*!< COP clock sourced from LPO */
 #if defined(FSL_FEATURE_COP_HAS_MORE_CLKSRC) && FSL_FEATURE_COP_HAS_MORE_CLKSRC
     kCOP_McgIrClock = 1U, /*!< COP clock sourced from MCGIRCLK */
@@ -67,8 +66,7 @@ typedef enum _cop_clock_source
 } cop_clock_source_t;
 
 /*! @brief Define the COP timeout cycles. */
-typedef enum _cop_timeout_cycles
-{
+typedef enum _cop_timeout_cycles {
     kCOP_2Power5CyclesOr2Power13Cycles = 1U,  /*!< 2^5 or 2^13 clock cycles */
     kCOP_2Power8CyclesOr2Power16Cycles = 2U,  /*!< 2^8 or 2^16 clock cycles */
     kCOP_2Power10CyclesOr2Power18Cycles = 3U, /*!< 2^10 or 2^18 clock cycles */
@@ -76,16 +74,14 @@ typedef enum _cop_timeout_cycles
 
 #if defined(FSL_FEATURE_COP_HAS_LONGTIME_MODE) && FSL_FEATURE_COP_HAS_LONGTIME_MODE
 /*! @breif Define the COP timeout mode. */
-typedef enum _cop_timeout_mode
-{
+typedef enum _cop_timeout_mode {
     kCOP_ShortTimeoutMode = 0U, /*!< COP selects long timeout */
     kCOP_LongTimeoutMode = 1U,  /*!< COP selects short timeout */
 } cop_timeout_mode_t;
 #endif /* FSL_FEATURE_COP_HAS_LONGTIME_MODE */
 
 /*! @brief Describes COP configuration structure. */
-typedef struct _cop_config
-{
+typedef struct _cop_config {
     bool enableWindowMode; /*!< COP run mode: window mode or normal mode */
 #if defined(FSL_FEATURE_COP_HAS_LONGTIME_MODE) && FSL_FEATURE_COP_HAS_LONGTIME_MODE
     cop_timeout_mode_t timeoutMode;     /*!< COP timeout mode: long timeout or short timeout */

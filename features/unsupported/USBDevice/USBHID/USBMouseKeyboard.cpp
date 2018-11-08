@@ -155,7 +155,7 @@ const KEYMAP keymap[KEYMAP_SIZE] = {
     {0x31, KEY_SHIFT},      /* | */
     {0x30, KEY_SHIFT},      /* } */
     {0x35, KEY_SHIFT},      /* ~ */
-    {0,0},              /* DEL */
+    {0, 0},             /* DEL */
 
     {0x3a, 0},          /* F1 */
     {0x3b, 0},          /* F2 */
@@ -316,7 +316,7 @@ const KEYMAP keymap[KEYMAP_SIZE] = {
     {0x64, KEY_SHIFT},      /* | */
     {0x30, KEY_SHIFT},      /* } */
     {0x32, KEY_SHIFT},      /* ~ */
-    {0,0},             /* DEL */
+    {0, 0},            /* DEL */
 
     {0x3a, 0},          /* F1 */
     {0x3b, 0},          /* F2 */
@@ -348,198 +348,199 @@ const KEYMAP keymap[KEYMAP_SIZE] = {
 #endif
 
 
-uint8_t * USBMouseKeyboard::reportDesc() {
+uint8_t *USBMouseKeyboard::reportDesc()
+{
     if (mouse_type == REL_MOUSE) {
         static uint8_t reportDescriptor[] = {
-                // Keyboard
-                USAGE_PAGE(1),      0x01,
-                USAGE(1),           0x06,
-                COLLECTION(1),      0x01,
-                REPORT_ID(1),       REPORT_ID_KEYBOARD,
-                USAGE_PAGE(1),      0x07,
-                USAGE_MINIMUM(1),       0xE0,
-                USAGE_MAXIMUM(1),       0xE7,
-                LOGICAL_MINIMUM(1),     0x00,
-                LOGICAL_MAXIMUM(1),     0x01,
-                REPORT_SIZE(1),     0x01,
-                REPORT_COUNT(1),    0x08,
-                INPUT(1),           0x02,
-                REPORT_COUNT(1),    0x01,
-                REPORT_SIZE(1),     0x08,
-                INPUT(1),           0x01,
-                REPORT_COUNT(1),    0x05,
-                REPORT_SIZE(1),     0x01,
-                USAGE_PAGE(1),      0x08,
-                USAGE_MINIMUM(1),       0x01,
-                USAGE_MAXIMUM(1),       0x05,
-                OUTPUT(1),          0x02,
-                REPORT_COUNT(1),    0x01,
-                REPORT_SIZE(1),     0x03,
-                OUTPUT(1),          0x01,
-                REPORT_COUNT(1),    0x06,
-                REPORT_SIZE(1),     0x08,
-                LOGICAL_MINIMUM(1),     0x00,
-                LOGICAL_MAXIMUM(2),     0xff, 0x00,
-                USAGE_PAGE(1),      0x07,
-                USAGE_MINIMUM(1),       0x00,
-                USAGE_MAXIMUM(2),       0xff, 0x00,
-                INPUT(1),           0x00,
-                END_COLLECTION(0),
+            // Keyboard
+            USAGE_PAGE(1),      0x01,
+            USAGE(1),           0x06,
+            COLLECTION(1),      0x01,
+            REPORT_ID(1),       REPORT_ID_KEYBOARD,
+            USAGE_PAGE(1),      0x07,
+            USAGE_MINIMUM(1),       0xE0,
+            USAGE_MAXIMUM(1),       0xE7,
+            LOGICAL_MINIMUM(1),     0x00,
+            LOGICAL_MAXIMUM(1),     0x01,
+            REPORT_SIZE(1),     0x01,
+            REPORT_COUNT(1),    0x08,
+            INPUT(1),           0x02,
+            REPORT_COUNT(1),    0x01,
+            REPORT_SIZE(1),     0x08,
+            INPUT(1),           0x01,
+            REPORT_COUNT(1),    0x05,
+            REPORT_SIZE(1),     0x01,
+            USAGE_PAGE(1),      0x08,
+            USAGE_MINIMUM(1),       0x01,
+            USAGE_MAXIMUM(1),       0x05,
+            OUTPUT(1),          0x02,
+            REPORT_COUNT(1),    0x01,
+            REPORT_SIZE(1),     0x03,
+            OUTPUT(1),          0x01,
+            REPORT_COUNT(1),    0x06,
+            REPORT_SIZE(1),     0x08,
+            LOGICAL_MINIMUM(1),     0x00,
+            LOGICAL_MAXIMUM(2),     0xff, 0x00,
+            USAGE_PAGE(1),      0x07,
+            USAGE_MINIMUM(1),       0x00,
+            USAGE_MAXIMUM(2),       0xff, 0x00,
+            INPUT(1),           0x00,
+            END_COLLECTION(0),
 
-                // Mouse
-                USAGE_PAGE(1),      0x01,           // Generic Desktop
-                USAGE(1),           0x02,           // Mouse
-                COLLECTION(1),      0x01,           // Application
-                USAGE(1),           0x01,           // Pointer
-                COLLECTION(1),      0x00,           // Physical
-                REPORT_ID(1),       REPORT_ID_MOUSE,
-                REPORT_COUNT(1),    0x03,
-                REPORT_SIZE(1),     0x01,
-                USAGE_PAGE(1),      0x09,           // Buttons
-                USAGE_MINIMUM(1),       0x1,
-                USAGE_MAXIMUM(1),       0x3,
-                LOGICAL_MINIMUM(1),     0x00,
-                LOGICAL_MAXIMUM(1),     0x01,
-                INPUT(1),           0x02,
-                REPORT_COUNT(1),    0x01,
-                REPORT_SIZE(1),     0x05,
-                INPUT(1),           0x01,
-                REPORT_COUNT(1),    0x03,
-                REPORT_SIZE(1),     0x08,
-                USAGE_PAGE(1),      0x01,
-                USAGE(1),           0x30,           // X
-                USAGE(1),           0x31,           // Y
-                USAGE(1),           0x38,           // scroll
-                LOGICAL_MINIMUM(1),     0x81,
-                LOGICAL_MAXIMUM(1),     0x7f,
-                INPUT(1),           0x06,
-                END_COLLECTION(0),
-                END_COLLECTION(0),
+            // Mouse
+            USAGE_PAGE(1),      0x01,           // Generic Desktop
+            USAGE(1),           0x02,           // Mouse
+            COLLECTION(1),      0x01,           // Application
+            USAGE(1),           0x01,           // Pointer
+            COLLECTION(1),      0x00,           // Physical
+            REPORT_ID(1),       REPORT_ID_MOUSE,
+            REPORT_COUNT(1),    0x03,
+            REPORT_SIZE(1),     0x01,
+            USAGE_PAGE(1),      0x09,           // Buttons
+            USAGE_MINIMUM(1),       0x1,
+            USAGE_MAXIMUM(1),       0x3,
+            LOGICAL_MINIMUM(1),     0x00,
+            LOGICAL_MAXIMUM(1),     0x01,
+            INPUT(1),           0x02,
+            REPORT_COUNT(1),    0x01,
+            REPORT_SIZE(1),     0x05,
+            INPUT(1),           0x01,
+            REPORT_COUNT(1),    0x03,
+            REPORT_SIZE(1),     0x08,
+            USAGE_PAGE(1),      0x01,
+            USAGE(1),           0x30,           // X
+            USAGE(1),           0x31,           // Y
+            USAGE(1),           0x38,           // scroll
+            LOGICAL_MINIMUM(1),     0x81,
+            LOGICAL_MAXIMUM(1),     0x7f,
+            INPUT(1),           0x06,
+            END_COLLECTION(0),
+            END_COLLECTION(0),
 
 
-                // Media Control
-                USAGE_PAGE(1), 0x0C,
-                USAGE(1), 0x01,
-                COLLECTION(1), 0x01,
-                REPORT_ID(1), REPORT_ID_VOLUME,
-                USAGE_PAGE(1), 0x0C,
-                LOGICAL_MINIMUM(1), 0x00,
-                LOGICAL_MAXIMUM(1), 0x01,
-                REPORT_SIZE(1), 0x01,
-                REPORT_COUNT(1), 0x07,
-                USAGE(1), 0xB5,             // Next Track
-                USAGE(1), 0xB6,             // Previous Track
-                USAGE(1), 0xB7,             // Stop
-                USAGE(1), 0xCD,             // Play / Pause
-                USAGE(1), 0xE2,             // Mute
-                USAGE(1), 0xE9,             // Volume Up
-                USAGE(1), 0xEA,             // Volume Down
-                INPUT(1), 0x02,             // Input (Data, Variable, Absolute)
-                REPORT_COUNT(1), 0x01,
-                INPUT(1), 0x01,
-                END_COLLECTION(0),
+            // Media Control
+            USAGE_PAGE(1), 0x0C,
+            USAGE(1), 0x01,
+            COLLECTION(1), 0x01,
+            REPORT_ID(1), REPORT_ID_VOLUME,
+            USAGE_PAGE(1), 0x0C,
+            LOGICAL_MINIMUM(1), 0x00,
+            LOGICAL_MAXIMUM(1), 0x01,
+            REPORT_SIZE(1), 0x01,
+            REPORT_COUNT(1), 0x07,
+            USAGE(1), 0xB5,             // Next Track
+            USAGE(1), 0xB6,             // Previous Track
+            USAGE(1), 0xB7,             // Stop
+            USAGE(1), 0xCD,             // Play / Pause
+            USAGE(1), 0xE2,             // Mute
+            USAGE(1), 0xE9,             // Volume Up
+            USAGE(1), 0xEA,             // Volume Down
+            INPUT(1), 0x02,             // Input (Data, Variable, Absolute)
+            REPORT_COUNT(1), 0x01,
+            INPUT(1), 0x01,
+            END_COLLECTION(0),
         };
         reportLength = sizeof(reportDescriptor);
         return reportDescriptor;
     } else if (mouse_type == ABS_MOUSE) {
         static uint8_t reportDescriptor[] = {
 
-                // Keyboard
-                USAGE_PAGE(1),      0x01,
-                USAGE(1),           0x06,
-                COLLECTION(1),      0x01,
-                REPORT_ID(1),       REPORT_ID_KEYBOARD,
-                USAGE_PAGE(1),      0x07,
-                USAGE_MINIMUM(1),       0xE0,
-                USAGE_MAXIMUM(1),       0xE7,
-                LOGICAL_MINIMUM(1),     0x00,
-                LOGICAL_MAXIMUM(1),     0x01,
-                REPORT_SIZE(1),     0x01,
-                REPORT_COUNT(1),    0x08,
-                INPUT(1),           0x02,
-                REPORT_COUNT(1),    0x01,
-                REPORT_SIZE(1),     0x08,
-                INPUT(1),           0x01,
-                REPORT_COUNT(1),    0x05,
-                REPORT_SIZE(1),     0x01,
-                USAGE_PAGE(1),      0x08,
-                USAGE_MINIMUM(1),       0x01,
-                USAGE_MAXIMUM(1),       0x05,
-                OUTPUT(1),          0x02,
-                REPORT_COUNT(1),    0x01,
-                REPORT_SIZE(1),     0x03,
-                OUTPUT(1),          0x01,
-                REPORT_COUNT(1),    0x06,
-                REPORT_SIZE(1),     0x08,
-                LOGICAL_MINIMUM(1),     0x00,
-                LOGICAL_MAXIMUM(2),     0xff, 0x00,
-                USAGE_PAGE(1),      0x07,
-                USAGE_MINIMUM(1),       0x00,
-                USAGE_MAXIMUM(2),       0xff, 0x00,
-                INPUT(1),           0x00,
-                END_COLLECTION(0),
+            // Keyboard
+            USAGE_PAGE(1),      0x01,
+            USAGE(1),           0x06,
+            COLLECTION(1),      0x01,
+            REPORT_ID(1),       REPORT_ID_KEYBOARD,
+            USAGE_PAGE(1),      0x07,
+            USAGE_MINIMUM(1),       0xE0,
+            USAGE_MAXIMUM(1),       0xE7,
+            LOGICAL_MINIMUM(1),     0x00,
+            LOGICAL_MAXIMUM(1),     0x01,
+            REPORT_SIZE(1),     0x01,
+            REPORT_COUNT(1),    0x08,
+            INPUT(1),           0x02,
+            REPORT_COUNT(1),    0x01,
+            REPORT_SIZE(1),     0x08,
+            INPUT(1),           0x01,
+            REPORT_COUNT(1),    0x05,
+            REPORT_SIZE(1),     0x01,
+            USAGE_PAGE(1),      0x08,
+            USAGE_MINIMUM(1),       0x01,
+            USAGE_MAXIMUM(1),       0x05,
+            OUTPUT(1),          0x02,
+            REPORT_COUNT(1),    0x01,
+            REPORT_SIZE(1),     0x03,
+            OUTPUT(1),          0x01,
+            REPORT_COUNT(1),    0x06,
+            REPORT_SIZE(1),     0x08,
+            LOGICAL_MINIMUM(1),     0x00,
+            LOGICAL_MAXIMUM(2),     0xff, 0x00,
+            USAGE_PAGE(1),      0x07,
+            USAGE_MINIMUM(1),       0x00,
+            USAGE_MAXIMUM(2),       0xff, 0x00,
+            INPUT(1),           0x00,
+            END_COLLECTION(0),
 
-                // Mouse
-                USAGE_PAGE(1), 0x01,               // Generic Desktop
-                USAGE(1), 0x02,                    // Mouse
-                COLLECTION(1), 0x01,               // Application
-                USAGE(1), 0x01,                    // Pointer
-                COLLECTION(1), 0x00,               // Physical
-                REPORT_ID(1),       REPORT_ID_MOUSE,
+            // Mouse
+            USAGE_PAGE(1), 0x01,               // Generic Desktop
+            USAGE(1), 0x02,                    // Mouse
+            COLLECTION(1), 0x01,               // Application
+            USAGE(1), 0x01,                    // Pointer
+            COLLECTION(1), 0x00,               // Physical
+            REPORT_ID(1),       REPORT_ID_MOUSE,
 
-                USAGE_PAGE(1), 0x01,                // Generic Desktop
-                USAGE(1), 0x30,                     // X
-                USAGE(1), 0x31,                     // Y
-                LOGICAL_MINIMUM(1), 0x00,           // 0
-                LOGICAL_MAXIMUM(2), 0xff, 0x7f,     // 32767
-                REPORT_SIZE(1), 0x10,
-                REPORT_COUNT(1), 0x02,
-                INPUT(1), 0x02,                     // Data, Variable, Absolute
+            USAGE_PAGE(1), 0x01,                // Generic Desktop
+            USAGE(1), 0x30,                     // X
+            USAGE(1), 0x31,                     // Y
+            LOGICAL_MINIMUM(1), 0x00,           // 0
+            LOGICAL_MAXIMUM(2), 0xff, 0x7f,     // 32767
+            REPORT_SIZE(1), 0x10,
+            REPORT_COUNT(1), 0x02,
+            INPUT(1), 0x02,                     // Data, Variable, Absolute
 
-                USAGE_PAGE(1), 0x01,                // Generic Desktop
-                USAGE(1), 0x38,                     // scroll
-                LOGICAL_MINIMUM(1), 0x81,           // -127
-                LOGICAL_MAXIMUM(1), 0x7f,           // 127
-                REPORT_SIZE(1), 0x08,
-                REPORT_COUNT(1), 0x01,
-                INPUT(1), 0x06,                     // Data, Variable, Relative
+            USAGE_PAGE(1), 0x01,                // Generic Desktop
+            USAGE(1), 0x38,                     // scroll
+            LOGICAL_MINIMUM(1), 0x81,           // -127
+            LOGICAL_MAXIMUM(1), 0x7f,           // 127
+            REPORT_SIZE(1), 0x08,
+            REPORT_COUNT(1), 0x01,
+            INPUT(1), 0x06,                     // Data, Variable, Relative
 
-                USAGE_PAGE(1), 0x09,                // Buttons
-                USAGE_MINIMUM(1), 0x01,
-                USAGE_MAXIMUM(1), 0x03,
-                LOGICAL_MINIMUM(1), 0x00,           // 0
-                LOGICAL_MAXIMUM(1), 0x01,           // 1
-                REPORT_COUNT(1), 0x03,
-                REPORT_SIZE(1), 0x01,
-                INPUT(1), 0x02,                     // Data, Variable, Absolute
-                REPORT_COUNT(1), 0x01,
-                REPORT_SIZE(1), 0x05,
-                INPUT(1), 0x01,                     // Constant
+            USAGE_PAGE(1), 0x09,                // Buttons
+            USAGE_MINIMUM(1), 0x01,
+            USAGE_MAXIMUM(1), 0x03,
+            LOGICAL_MINIMUM(1), 0x00,           // 0
+            LOGICAL_MAXIMUM(1), 0x01,           // 1
+            REPORT_COUNT(1), 0x03,
+            REPORT_SIZE(1), 0x01,
+            INPUT(1), 0x02,                     // Data, Variable, Absolute
+            REPORT_COUNT(1), 0x01,
+            REPORT_SIZE(1), 0x05,
+            INPUT(1), 0x01,                     // Constant
 
-                END_COLLECTION(0),
-                END_COLLECTION(0),
+            END_COLLECTION(0),
+            END_COLLECTION(0),
 
-                // Media Control
-                USAGE_PAGE(1), 0x0C,
-                USAGE(1), 0x01,
-                COLLECTION(1), 0x01,
-                REPORT_ID(1), REPORT_ID_VOLUME,
-                USAGE_PAGE(1), 0x0C,
-                LOGICAL_MINIMUM(1), 0x00,
-                LOGICAL_MAXIMUM(1), 0x01,
-                REPORT_SIZE(1), 0x01,
-                REPORT_COUNT(1), 0x07,
-                USAGE(1), 0xB5,             // Next Track
-                USAGE(1), 0xB6,             // Previous Track
-                USAGE(1), 0xB7,             // Stop
-                USAGE(1), 0xCD,             // Play / Pause
-                USAGE(1), 0xE2,             // Mute
-                USAGE(1), 0xE9,             // Volume Up
-                USAGE(1), 0xEA,             // Volume Down
-                INPUT(1), 0x02,             // Input (Data, Variable, Absolute)
-                REPORT_COUNT(1), 0x01,
-                INPUT(1), 0x01,
-                END_COLLECTION(0),
+            // Media Control
+            USAGE_PAGE(1), 0x0C,
+            USAGE(1), 0x01,
+            COLLECTION(1), 0x01,
+            REPORT_ID(1), REPORT_ID_VOLUME,
+            USAGE_PAGE(1), 0x0C,
+            LOGICAL_MINIMUM(1), 0x00,
+            LOGICAL_MAXIMUM(1), 0x01,
+            REPORT_SIZE(1), 0x01,
+            REPORT_COUNT(1), 0x07,
+            USAGE(1), 0xB5,             // Next Track
+            USAGE(1), 0xB6,             // Previous Track
+            USAGE(1), 0xB7,             // Stop
+            USAGE(1), 0xCD,             // Play / Pause
+            USAGE(1), 0xE2,             // Mute
+            USAGE(1), 0xE9,             // Volume Up
+            USAGE(1), 0xEA,             // Volume Down
+            INPUT(1), 0x02,             // Input (Data, Variable, Absolute)
+            REPORT_COUNT(1), 0x01,
+            INPUT(1), 0x01,
+            END_COLLECTION(0),
         };
         reportLength = sizeof(reportDescriptor);
         return reportDescriptor;
@@ -548,7 +549,8 @@ uint8_t * USBMouseKeyboard::reportDesc() {
     return NULL;
 }
 
-bool USBMouseKeyboard::EPINT_OUT_callback() {
+bool USBMouseKeyboard::EPINT_OUT_callback()
+{
     uint32_t bytesRead = 0;
     uint8_t led[65];
     USBDevice::readEP(EPINT_OUT, led, &bytesRead, MAX_HID_REPORT_SIZE);
@@ -557,55 +559,67 @@ bool USBMouseKeyboard::EPINT_OUT_callback() {
     lock_status = led[1] & 0x07;
 
     // We activate the endpoint to be able to recceive data
-    if (!readStart(EPINT_OUT, MAX_HID_REPORT_SIZE))
+    if (!readStart(EPINT_OUT, MAX_HID_REPORT_SIZE)) {
         return false;
+    }
     return true;
 }
 
-uint8_t USBMouseKeyboard::lockStatus() {
+uint8_t USBMouseKeyboard::lockStatus()
+{
     return lock_status;
 }
 
-bool USBMouseKeyboard::update(int16_t x, int16_t y, uint8_t button, int8_t z) {
+bool USBMouseKeyboard::update(int16_t x, int16_t y, uint8_t button, int8_t z)
+{
     switch (mouse_type) {
-    case REL_MOUSE:
-        while (x > 127) {
-            if (!mouseSend(127, 0, button, z)) return false;
-            x = x - 127;
-        }
-        while (x < -128) {
-            if (!mouseSend(-128, 0, button, z)) return false;
-            x = x + 128;
-        }
-        while (y > 127) {
-            if (!mouseSend(0, 127, button, z)) return false;
-            y = y - 127;
-        }
-        while (y < -128) {
-            if (!mouseSend(0, -128, button, z)) return false;
-            y = y + 128;
-        }
-        return mouseSend(x, y, button, z);
-    case ABS_MOUSE:
-        HID_REPORT report;
+        case REL_MOUSE:
+            while (x > 127) {
+                if (!mouseSend(127, 0, button, z)) {
+                    return false;
+                }
+                x = x - 127;
+            }
+            while (x < -128) {
+                if (!mouseSend(-128, 0, button, z)) {
+                    return false;
+                }
+                x = x + 128;
+            }
+            while (y > 127) {
+                if (!mouseSend(0, 127, button, z)) {
+                    return false;
+                }
+                y = y - 127;
+            }
+            while (y < -128) {
+                if (!mouseSend(0, -128, button, z)) {
+                    return false;
+                }
+                y = y + 128;
+            }
+            return mouseSend(x, y, button, z);
+        case ABS_MOUSE:
+            HID_REPORT report;
 
-        report.data[0] = REPORT_ID_MOUSE;
-        report.data[1] = x & 0xff;
-        report.data[2] = (x >> 8) & 0xff;
-        report.data[3] = y & 0xff;
-        report.data[4] = (y >> 8) & 0xff;
-        report.data[5] = -z;
-        report.data[6] = button & 0x07;
+            report.data[0] = REPORT_ID_MOUSE;
+            report.data[1] = x & 0xff;
+            report.data[2] = (x >> 8) & 0xff;
+            report.data[3] = y & 0xff;
+            report.data[4] = (y >> 8) & 0xff;
+            report.data[5] = -z;
+            report.data[6] = button & 0x07;
 
-        report.length = 7;
+            report.length = 7;
 
-        return send(&report);
-    default:
-        return false;
+            return send(&report);
+        default:
+            return false;
     }
 }
 
-bool USBMouseKeyboard::mouseSend(int8_t x, int8_t y, uint8_t buttons, int8_t z) {
+bool USBMouseKeyboard::mouseSend(int8_t x, int8_t y, uint8_t buttons, int8_t z)
+{
     HID_REPORT report;
     report.data[0] = REPORT_ID_MOUSE;
     report.data[1] = buttons & 0x07;
@@ -618,43 +632,53 @@ bool USBMouseKeyboard::mouseSend(int8_t x, int8_t y, uint8_t buttons, int8_t z) 
     return send(&report);
 }
 
-bool USBMouseKeyboard::move(int16_t x, int16_t y) {
+bool USBMouseKeyboard::move(int16_t x, int16_t y)
+{
     return update(x, y, button, 0);
 }
 
-bool USBMouseKeyboard::scroll(int8_t z) {
+bool USBMouseKeyboard::scroll(int8_t z)
+{
     return update(0, 0, button, z);
 }
 
-bool USBMouseKeyboard::doubleClick() {
-    if (!click(MOUSE_LEFT))
+bool USBMouseKeyboard::doubleClick()
+{
+    if (!click(MOUSE_LEFT)) {
         return false;
+    }
     wait(0.1);
     return click(MOUSE_LEFT);
 }
 
-bool USBMouseKeyboard::click(uint8_t button) {
-    if (!update(0, 0, button, 0))
+bool USBMouseKeyboard::click(uint8_t button)
+{
+    if (!update(0, 0, button, 0)) {
         return false;
+    }
     wait(0.01);
     return update(0, 0, 0, 0);
 }
 
-bool USBMouseKeyboard::press(uint8_t button_) {
+bool USBMouseKeyboard::press(uint8_t button_)
+{
     button = button_ & 0x07;
     return update(0, 0, button, 0);
 }
 
-bool USBMouseKeyboard::release(uint8_t button_) {
+bool USBMouseKeyboard::release(uint8_t button_)
+{
     button = (button & (~button_)) & 0x07;
     return update(0, 0, button, 0);
 }
 
-int USBMouseKeyboard::_putc(int c) {
+int USBMouseKeyboard::_putc(int c)
+{
     return keyCode(c, keymap[c].modifier);
 }
 
-bool USBMouseKeyboard::keyCode(uint8_t key, uint8_t modifier) {
+bool USBMouseKeyboard::keyCode(uint8_t key, uint8_t modifier)
+{
     // Send a simulated keyboard keypress. Returns true if successful.
 
     HID_REPORT report;
@@ -687,7 +711,8 @@ bool USBMouseKeyboard::keyCode(uint8_t key, uint8_t modifier) {
 }
 
 
-bool USBMouseKeyboard::mediaControl(MEDIA_KEY key) {
+bool USBMouseKeyboard::mediaControl(MEDIA_KEY key)
+{
     HID_REPORT report;
 
     report.data[0] = REPORT_ID_VOLUME;

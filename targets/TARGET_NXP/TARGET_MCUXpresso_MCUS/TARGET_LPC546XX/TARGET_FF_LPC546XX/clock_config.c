@@ -235,7 +235,8 @@ void BOARD_BootClockPLL180M(void)
         .pllndec = (SYSCON_SYSPLLNDEC_NDEC(770U)),
         .pllpdec = (SYSCON_SYSPLLPDEC_PDEC(98U)),
         .pllRate = 180000000U,
-        .flags = PLL_SETUPFLAG_WAITLOCK | PLL_SETUPFLAG_POWERUP};
+        .flags = PLL_SETUPFLAG_WAITLOCK | PLL_SETUPFLAG_POWERUP
+    };
     CLOCK_AttachClk(kEXT_CLK_to_SYS_PLL); /*!< Set sys pll clock source from external crystal */
     CLOCK_SetPLLFreq(&pllSetup);          /*!< Configure PLL to the desired value */
     POWER_SetVoltageForFreq(

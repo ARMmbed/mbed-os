@@ -39,9 +39,9 @@
 /* !! Do not change the order !! */
 
 #ifndef __DOXYGEN__
-    #include "fnet_user_config.h"               /* User configuration. Highest priority. */
+#include "fnet_user_config.h"               /* User configuration. Highest priority. */
 #else
-    #include "fnet_doxygen_user_config.h"       /* Configuration used during generation of documentation.*/
+#include "fnet_doxygen_user_config.h"       /* Configuration used during generation of documentation.*/
 #endif
 
 #include "port/compiler/fnet_comp_config.h"      /* Default compiler specific configuration. */

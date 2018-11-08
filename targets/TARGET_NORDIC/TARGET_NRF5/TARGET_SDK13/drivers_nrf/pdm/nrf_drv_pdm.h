@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**
@@ -70,8 +70,7 @@ extern "C" {
 /**
  * @brief PDM interface driver configuration structure.
  */
-typedef struct
-{
+typedef struct {
     nrf_pdm_mode_t mode;               ///< Interface operation mode.
     nrf_pdm_edge_t edge;               ///< Sampling mode.
     uint8_t        pin_clk;            ///< CLK pin.
@@ -81,8 +80,8 @@ typedef struct
     nrf_pdm_gain_t gain_r;             ///< Right channel gain.
     uint8_t        interrupt_priority; ///< Interrupt priority.
     uint16_t       buffer_length;      ///< Length of a single buffer (in 16-bit words).
-    int16_t *      buffer_a;           ///< Sample buffer A (filled first).
-    int16_t *      buffer_b;           ///< Sample buffer B (filled after buffer A).
+    int16_t       *buffer_a;           ///< Sample buffer A (filled first).
+    int16_t       *buffer_b;           ///< Sample buffer B (filled after buffer A).
 } nrf_drv_pdm_config_t;
 
 
@@ -120,7 +119,7 @@ typedef struct
  * @param[in] p_buffer Sample buffer pointer.
  * @param[in] length   Buffer length in 16-bit words.
  */
-typedef void (*nrf_drv_pdm_event_handler_t)(uint32_t * buffer, uint16_t length);
+typedef void (*nrf_drv_pdm_event_handler_t)(uint32_t *buffer, uint16_t length);
 
 
 /**
@@ -133,7 +132,7 @@ typedef void (*nrf_drv_pdm_event_handler_t)(uint32_t * buffer, uint16_t length);
  * @retval    NRF_ERROR_INVALID_STATE If the driver is already initialized.
  * @retval    NRF_ERROR_INVALID_PARAM If invalid parameters were specified.
  */
-ret_code_t nrf_drv_pdm_init(nrf_drv_pdm_config_t const * p_config,
+ret_code_t nrf_drv_pdm_init(nrf_drv_pdm_config_t const *p_config,
                             nrf_drv_pdm_event_handler_t event_handler);
 
 

@@ -33,14 +33,16 @@
  * The RTC may already be running, so we should set it up
  * without impacting if it is the case
  */
-void rtc_init(void) {
+void rtc_init(void)
+{
     LPC_SC->PCONP |= 0x200; // Ensure power is on
     LPC_RTC->CCR = 0x00;
-    
+
     LPC_RTC->CCR |= 1 << 0; // Ensure the RTC is enabled
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
     // [TODO]
 }
 
@@ -51,8 +53,9 @@ void rtc_free(void) {
  *  RTC_CCR[0] : 0 = Disabled, 1 = Enabled
  *
  */
-int rtc_isenabled(void) {
-    return(((LPC_RTC->CCR) & 0x01) != 0);
+int rtc_isenabled(void)
+{
+    return (((LPC_RTC->CCR) & 0x01) != 0);
 }
 
 /*
@@ -77,7 +80,8 @@ int rtc_isenabled(void) {
  *  tm_yday        days since January 1 0-365
  *  tm_isdst    Daylight Saving Time flag
  */
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
     // Setup a tm structure based on the RTC
     struct tm timeinfo;
     timeinfo.tm_sec = LPC_RTC->SEC;
@@ -86,17 +90,18 @@ time_t rtc_read(void) {
     timeinfo.tm_mday = LPC_RTC->DOM;
     timeinfo.tm_mon = LPC_RTC->MONTH - 1;
     timeinfo.tm_year = LPC_RTC->YEAR - 1900;
-    
+
     // Convert to timestamp
     time_t t;
     if (_rtc_maketime(&timeinfo, &t, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
         return 0;
     }
-    
+
     return t;
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     // Convert the time in to a tm
     struct tm timeinfo;
     if (_rtc_localtime(t, &timeinfo, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
@@ -105,7 +110,7 @@ void rtc_write(time_t t) {
 
     // Pause clock, and clear counter register (clears us count)
     LPC_RTC->CCR |= 2;
-    
+
     // Set the RTC
     LPC_RTC->SEC = timeinfo.tm_sec;
     LPC_RTC->MIN = timeinfo.tm_min;
@@ -113,7 +118,7 @@ void rtc_write(time_t t) {
     LPC_RTC->DOM = timeinfo.tm_mday;
     LPC_RTC->MONTH = timeinfo.tm_mon + 1;
     LPC_RTC->YEAR = timeinfo.tm_year + 1900;
-    
+
     // Restart clock
     LPC_RTC->CCR &= ~((uint32_t)2);
 }

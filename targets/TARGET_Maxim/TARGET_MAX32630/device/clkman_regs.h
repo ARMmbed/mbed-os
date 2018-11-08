@@ -115,7 +115,7 @@ typedef struct {
     __IO uint32_t clk_gate_ctrl1;                       /**< <tt>\b 0x0144:       </tt> CLKMAN_CLK_GATE_CTRL1 Register - Dynamic Clock Gating Control Register 1  */
     __IO uint32_t clk_gate_ctrl2;                       /**< <tt>\b 0x0148:       </tt> CLKMAN_CLK_GATE_CTRL2 Register - Dynamic Clock Gating Control Register 2  */
 } mxc_clkman_regs_t;
-/**@} end of clkman_registers */   
+/**@} end of clkman_registers */
 
 /*
    Register offsets for module CLKMAN.
@@ -123,7 +123,7 @@ typedef struct {
 /**
  * @ingroup    clkman_registers
  * @defgroup   CLKMAN_Register_Offsets Register Offsets
- * @brief      Clock Management Controller Register Offsets from the CLKMAN Base Peripheral Address. 
+ * @brief      Clock Management Controller Register Offsets from the CLKMAN Base Peripheral Address.
  * @{
  */
 #define MXC_R_CLKMAN_OFFS_CLK_CONFIG                        ((uint32_t)0x00000000UL)   /**< Offset from the CLKMAN Base Peripheral Address:<tt>\b 0x0000</tt> */
@@ -162,7 +162,7 @@ typedef struct {
 /**
  * @ingroup     clkman_registers
  * @defgroup    clkman_clk_config CLKMAN_CLK_CONFIG Register
- * @brief       Field Positions and Masks 
+ * @brief       Field Positions and Masks
  */
 #define MXC_F_CLKMAN_CLK_CONFIG_CRYPTO_ENABLE_POS           0                                                                                   /**< CRYPTO_ENABLE Position              */
 #define MXC_F_CLKMAN_CLK_CONFIG_CRYPTO_ENABLE               ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_CLK_CONFIG_CRYPTO_ENABLE_POS))             /**< CRYPTO_ENABLE Mask                  */
@@ -172,7 +172,7 @@ typedef struct {
 /**
  * @ingroup     clkman_registers
  * @defgroup   clkman_clk_ctrl CLKMAN_CLK_CTRL Register
- * @brief      Field Positions and Masks 
+ * @brief      Field Positions and Masks
  */
 #define MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT_POS      0                                                                                   /**< SYSTEM_SOURCE_SELECT Position         */
 #define MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT_POS))        /**< SYSTEM_SOURCE_SELECT Mask             */
@@ -200,7 +200,7 @@ typedef struct {
 /**
  * @ingroup     clkman_registers
  * @defgroup   clkman_int_flags CLKMAN_INTFL Register
- * @brief      Interrupt Flag Positions and Masks 
+ * @brief      Interrupt Flag Positions and Masks
  */
 #define MXC_F_CLKMAN_INTFL_CRYPTO_STABLE_POS                0                                                                                   /**< CRYPTO_STABLE Interrupt Flag Position    */
 #define MXC_F_CLKMAN_INTFL_CRYPTO_STABLE                    ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_INTFL_CRYPTO_STABLE_POS))                  /**< CRYPTO_STABLE Interrupt Flag Mask        */
@@ -210,7 +210,7 @@ typedef struct {
 /**
  * @ingroup     clkman_registers
  * @defgroup   clkman_int_enable CLKMAN_INTEN Register
- * @brief      Interrupt Enable Positions and Masks 
+ * @brief      Interrupt Enable Positions and Masks
  */
 #define MXC_F_CLKMAN_INTEN_CRYPTO_STABLE_POS                0                                                                                   /**< CRYPTO_STABLE Field Position         */
 #define MXC_F_CLKMAN_INTEN_CRYPTO_STABLE                    ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_INTEN_CRYPTO_STABLE_POS))                  /**< CRYPTO_STABLE Field Mask             */
@@ -220,23 +220,23 @@ typedef struct {
 /**
  * @ingroup     clkman_registers
  * @defgroup   clkman_trim_calc CLKMAN_TRIM_CALC Register
- * @brief      Field Positions and Masks 
+ * @brief      Field Positions and Masks
  */
 #define MXC_F_CLKMAN_TRIM_CALC_TRIM_CLK_SEL_POS             0                                                                                   /**< TRIM_CLK_SEL Field Position          */
-#define MXC_F_CLKMAN_TRIM_CALC_TRIM_CLK_SEL                 ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_TRIM_CALC_TRIM_CLK_SEL_POS))               /**< TRIM_CLK_SEL Field Mask              */    
+#define MXC_F_CLKMAN_TRIM_CALC_TRIM_CLK_SEL                 ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_TRIM_CALC_TRIM_CLK_SEL_POS))               /**< TRIM_CLK_SEL Field Mask              */
 #define MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_START_POS          1                                                                                   /**< TRIM_CALC_START Field Position       */
-#define MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_START              ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_START_POS))            /**< TRIM_CALC_START Field Mask           */        
+#define MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_START              ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_START_POS))            /**< TRIM_CALC_START Field Mask           */
 #define MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_COMPLETED_POS      2                                                                                   /**< TRIM_CALC_COMPLETED Field Position   */
-#define MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_COMPLETED          ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_COMPLETED_POS))        /**< TRIM_CALC_COMPLETED Field Mask       */            
+#define MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_COMPLETED          ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_COMPLETED_POS))        /**< TRIM_CALC_COMPLETED Field Mask       */
 #define MXC_F_CLKMAN_TRIM_CALC_TRIM_ENABLE_POS              3                                                                                   /**< TRIM_ENABLE Field Position           */
-#define MXC_F_CLKMAN_TRIM_CALC_TRIM_ENABLE                  ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_TRIM_CALC_TRIM_ENABLE_POS))                /**< TRIM_ENABLE Field Mask               */    
+#define MXC_F_CLKMAN_TRIM_CALC_TRIM_ENABLE                  ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_TRIM_CALC_TRIM_ENABLE_POS))                /**< TRIM_ENABLE Field Mask               */
 #define MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_RESULTS_POS        16                                                                                  /**< TRIM_CALC_RESULTS Field Position     */
-#define MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_RESULTS            ((uint32_t)(0x000003FFUL << MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_RESULTS_POS))          /**< TRIM_CALC_RESULTS Field Mask         */        
+#define MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_RESULTS            ((uint32_t)(0x000003FFUL << MXC_F_CLKMAN_TRIM_CALC_TRIM_CALC_RESULTS_POS))          /**< TRIM_CALC_RESULTS Field Mask         */
 /**@}*/
 /**
  * @ingroup     clkman_registers
  * @defgroup    clkman_i2c_1ms CLKMAN_I2C_TIMER_CTRL Register
- * @brief       Field Positions and Masks 
+ * @brief       Field Positions and Masks
  */
 #define MXC_F_CLKMAN_I2C_TIMER_CTRL_I2C_1MS_TIMER_EN_POS    0                                                                                   /**< I2C_1MS_TIMER_EN Position       */
 #define MXC_F_CLKMAN_I2C_TIMER_CTRL_I2C_1MS_TIMER_EN        ((uint32_t)(0x00000001UL << MXC_F_CLKMAN_I2C_TIMER_CTRL_I2C_1MS_TIMER_EN_POS))      /**< I2C_1MS_TIMER_EN Mask           */
@@ -244,7 +244,7 @@ typedef struct {
 /**
  * @ingroup     clkman_registers
  * @defgroup    clkman_cm4 CLKMAN_CM4 Register
- * @brief       Field Positions and Masks 
+ * @brief       Field Positions and Masks
  */
 #define MXC_F_CLKMAN_CM4_START_CLK_EN0_INTS_POS             0                                                                                   /**< CLK_EN0_INTS Position                */
 #define MXC_F_CLKMAN_CM4_START_CLK_EN0_INTS                 ((uint32_t)(0xFFFFFFFFUL << MXC_F_CLKMAN_CM4_START_CLK_EN0_INTS_POS))               /**< CLK_EN0_INTS Mask                    */
@@ -258,7 +258,7 @@ typedef struct {
 /**
  * @ingroup     clkman_registers
  * @defgroup    clkman_sysclk_ctrl CLKMAN_SYS_CLK_CTRL Register
- * @brief       Field Positions and Masks 
+ * @brief       Field Positions and Masks
  */
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_0_CM4_CM4_CLK_SCALE_POS   0                                                                                           /**< CM4_CM4_CLK_SCALE Position      */
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_0_CM4_CM4_CLK_SCALE       ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_SYS_CLK_CTRL_0_CM4_CM4_CLK_SCALE_POS))             /**< CM4_CM4_CLK_SCALE Mask          */
@@ -280,37 +280,37 @@ typedef struct {
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_8_UART_UART_CLK_SCALE     ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_SYS_CLK_CTRL_8_UART_UART_CLK_SCALE_POS))           /**< UART_UART_CLK_SCALE Mask        */
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_9_I2CM_I2CM_CLK_SCALE_POS  0                                                                                          /**< I2CM_I2CM_CLK_SCALE Position    */
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_9_I2CM_I2CM_CLK_SCALE     ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_SYS_CLK_CTRL_9_I2CM_I2CM_CLK_SCALE_POS))           /**< I2CM_I2CM_CLK_SCALE Mask        */
-#define MXC_F_CLKMAN_SYS_CLK_CTRL_10_I2CS_I2CS_CLK_SCALE_POS  0                                                                                         /**< I2CS_I2CS_CLK_SCALE Position  */                                                                                 
+#define MXC_F_CLKMAN_SYS_CLK_CTRL_10_I2CS_I2CS_CLK_SCALE_POS  0                                                                                         /**< I2CS_I2CS_CLK_SCALE Position  */
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_10_I2CS_I2CS_CLK_SCALE    ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_SYS_CLK_CTRL_10_I2CS_I2CS_CLK_SCALE_POS))          /**< I2CS_I2CS_CLK_SCALE Mask      */
-#define MXC_F_CLKMAN_SYS_CLK_CTRL_11_SPI0_SPI0_CLK_SCALE_POS  0                                                                                         /**< PI0_SPI0_CLK_SCALE Position   */                                                                                 
+#define MXC_F_CLKMAN_SYS_CLK_CTRL_11_SPI0_SPI0_CLK_SCALE_POS  0                                                                                         /**< PI0_SPI0_CLK_SCALE Position   */
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_11_SPI0_SPI0_CLK_SCALE    ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_SYS_CLK_CTRL_11_SPI0_SPI0_CLK_SCALE_POS))          /**< SPI0_SPI0_CLK_SCALE Mask      */
-#define MXC_F_CLKMAN_SYS_CLK_CTRL_12_SPI1_SPI1_CLK_SCALE_POS  0                                                                                         /**< SPI1_SPI1_CLK_SCALE Position  */                                                                                 
+#define MXC_F_CLKMAN_SYS_CLK_CTRL_12_SPI1_SPI1_CLK_SCALE_POS  0                                                                                         /**< SPI1_SPI1_CLK_SCALE Position  */
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_12_SPI1_SPI1_CLK_SCALE    ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_SYS_CLK_CTRL_12_SPI1_SPI1_CLK_SCALE_POS))          /**< SPI1_SPI1_CLK_SCALE Mask       */
-#define MXC_F_CLKMAN_SYS_CLK_CTRL_13_SPI2_SPI2_CLK_SCALE_POS  0                                                                                         /**< SPI2_SPI2_CLK_SCALE Position  */                                                                                 
+#define MXC_F_CLKMAN_SYS_CLK_CTRL_13_SPI2_SPI2_CLK_SCALE_POS  0                                                                                         /**< SPI2_SPI2_CLK_SCALE Position  */
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_13_SPI2_SPI2_CLK_SCALE    ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_SYS_CLK_CTRL_13_SPI2_SPI2_CLK_SCALE_POS))          /**< SPI2_SPI2_CLK_SCALE Mask     */
-#define MXC_F_CLKMAN_SYS_CLK_CTRL_14_SPIB_SPIB_CLK_SCALE_POS  0                                                                                         /**< SPIB_SPIB_CLK_SCALE Position  */                                                                                 
+#define MXC_F_CLKMAN_SYS_CLK_CTRL_14_SPIB_SPIB_CLK_SCALE_POS  0                                                                                         /**< SPIB_SPIB_CLK_SCALE Position  */
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_14_SPIB_SPIB_CLK_SCALE    ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_SYS_CLK_CTRL_14_SPIB_SPIB_CLK_SCALE_POS))          /**< SPIB_SPIB_CLK_SCALE Mask      */
-#define MXC_F_CLKMAN_SYS_CLK_CTRL_15_OWM_OWM_CLK_SCALE_POS  0                                                                                           /**< OWM_OWM_CLK_SCALE Position    */                                                                                   
+#define MXC_F_CLKMAN_SYS_CLK_CTRL_15_OWM_OWM_CLK_SCALE_POS  0                                                                                           /**< OWM_OWM_CLK_SCALE Position    */
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_15_OWM_OWM_CLK_SCALE      ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_SYS_CLK_CTRL_15_OWM_OWM_CLK_SCALE_POS))            /**< OWM_OWM_CLK_SCALE Mask        */
-#define MXC_F_CLKMAN_SYS_CLK_CTRL_16_SPIS_SPIS_CLK_SCALE_POS  0                                                                                         /**< PIS_SPIS_CLK_SCALE Position   */                                                                                 
+#define MXC_F_CLKMAN_SYS_CLK_CTRL_16_SPIS_SPIS_CLK_SCALE_POS  0                                                                                         /**< PIS_SPIS_CLK_SCALE Position   */
 #define MXC_F_CLKMAN_SYS_CLK_CTRL_16_SPIS_SPIS_CLK_SCALE    ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_SYS_CLK_CTRL_16_SPIS_SPIS_CLK_SCALE_POS))          /**< SPIS_SPIS_CLK_SCALE Mask      */
 /**@}*/
 /**
  * @ingroup     clkman_registers
  * @defgroup    clkman_crypt_clk_ctrl CLKMAN_CRYPT_CLK_CTRL Register
- * @brief       Field Positions and Masks 
+ * @brief       Field Positions and Masks
  */
-#define MXC_F_CLKMAN_CRYPT_CLK_CTRL_0_AES_AES_CLK_SCALE_POS  0                                                                                          /**< AES_AES_CLK_SCALE Position    */                                                                                  
+#define MXC_F_CLKMAN_CRYPT_CLK_CTRL_0_AES_AES_CLK_SCALE_POS  0                                                                                          /**< AES_AES_CLK_SCALE Position    */
 #define MXC_F_CLKMAN_CRYPT_CLK_CTRL_0_AES_AES_CLK_SCALE      ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_CRYPT_CLK_CTRL_0_AES_AES_CLK_SCALE_POS))          /**< AES_AES_CLK_SCALE Mask       */
-#define MXC_F_CLKMAN_CRYPT_CLK_CTRL_1_MAA_MAA_CLK_SCALE_POS  0                                                                                          /**< MAA_MAA_CLK_SCALE Position    */                                                                                  
+#define MXC_F_CLKMAN_CRYPT_CLK_CTRL_1_MAA_MAA_CLK_SCALE_POS  0                                                                                          /**< MAA_MAA_CLK_SCALE Position    */
 #define MXC_F_CLKMAN_CRYPT_CLK_CTRL_1_MAA_MAA_CLK_SCALE      ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_CRYPT_CLK_CTRL_1_MAA_MAA_CLK_SCALE_POS))          /**< MAA_MAA_CLK_SCALE Mask        */
-#define MXC_F_CLKMAN_CRYPT_CLK_CTRL_2_PRNG_PRNG_CLK_SCALE_POS  0                                                                                        /**< PRNG_PRNG_CLK_SCALE Position  */                                                                                    
+#define MXC_F_CLKMAN_CRYPT_CLK_CTRL_2_PRNG_PRNG_CLK_SCALE_POS  0                                                                                        /**< PRNG_PRNG_CLK_SCALE Position  */
 #define MXC_F_CLKMAN_CRYPT_CLK_CTRL_2_PRNG_PRNG_CLK_SCALE    ((uint32_t)(0x0000000FUL << MXC_F_CLKMAN_CRYPT_CLK_CTRL_2_PRNG_PRNG_CLK_SCALE_POS))        /**< PRNG_PRNG_CLK_SCALE Mask      */
 /**@}*/
 /**
  * @ingroup     clkman_registers
  * @defgroup    clkman_clk_gate_ctrl CLKMAN_CLK_GATE_CTRL Register
- * @brief       Peripheral Clock Gating Field Positions and Masks 
+ * @brief       Peripheral Clock Gating Field Positions and Masks
  */
 #define MXC_F_CLKMAN_CLK_GATE_CTRL0_CM4_CLK_GATER_POS       0                                                                                           /**< CM4_CLK_GATER Position          */
 #define MXC_F_CLKMAN_CLK_GATE_CTRL0_CM4_CLK_GATER           ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL0_CM4_CLK_GATER_POS))                 /**< CM4_CLK_GATER Mask              */
@@ -344,62 +344,62 @@ typedef struct {
 #define MXC_F_CLKMAN_CLK_GATE_CTRL0_TPU_CLK_GATER           ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL0_TPU_CLK_GATER_POS))                 /**< TPU_CLK_GATER Mask              */
 #define MXC_F_CLKMAN_CLK_GATE_CTRL0_WATCHDOG0_CLK_GATER_POS  30                                                                                         /**< WATCHDOG0_CLK_GATER Position    */
 #define MXC_F_CLKMAN_CLK_GATE_CTRL0_WATCHDOG0_CLK_GATER     ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL0_WATCHDOG0_CLK_GATER_POS))           /**< WATCHDOG0_CLK_GATER  Mask       */
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_WATCHDOG1_CLK_GATER_POS  0                                                                                          /**< WATCHDOG1_CLK_GATER Position    */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_WATCHDOG1_CLK_GATER     ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_WATCHDOG1_CLK_GATER_POS))           /**< WATCHDOG1_CLK_GATER Mask        */           
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_GPIO_CLK_GATER_POS      2                                                                                           /**< GPIO_CLK_GATER Position         */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_GPIO_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_GPIO_CLK_GATER_POS))                /**< GPIO_CLK_GATER Mask             */               
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER0_CLK_GATER_POS    4                                                                                           /**< TIMER0_CLK_GATER Position       */     
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER0_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER0_CLK_GATER_POS))              /**< TIMER0_CLK_GATER Mask           */              
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER1_CLK_GATER_POS    6                                                                                           /**< TIMER1_CLK_GATER Position       */     
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER1_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER1_CLK_GATER_POS))              /**< TIMER1_CLK_GATER Mask           */          
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER2_CLK_GATER_POS    8                                                                                           /**< TIMER2_CLK_GATER Position       */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER2_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER2_CLK_GATER_POS))              /**< TIMER2_CLK_GATER Mask           */          
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER3_CLK_GATER_POS    10                                                                                          /**< TIMER3_CLK_GATER Position       */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER3_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER3_CLK_GATER_POS))              /**< TIMER3_CLK_GATER Mask           */         
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER4_CLK_GATER_POS    12                                                                                          /**< TIMER4_CLK_GATER Position       */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER4_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER4_CLK_GATER_POS))              /**< TIMER4_CLK_GATER Mask           */          
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER5_CLK_GATER_POS    14                                                                                          /**< TIMER5_CLK_GATER Position       */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER5_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER5_CLK_GATER_POS))              /**< TIMER5_CLK_GATER Mask           */          
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_PULSETRAIN_CLK_GATER_POS  16                                                                                        /**< PULSETRAIN_CLK_GATER Position   */  
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_PULSETRAIN_CLK_GATER    ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_PULSETRAIN_CLK_GATER_POS))          /**< PULSETRAIN_CLK_GATER  Mask      */         
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART0_CLK_GATER_POS     18                                                                                          /**< UART0_CLK_GATER Position        */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART0_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_UART0_CLK_GATER_POS))               /**< UART0_CLK_GATER Mask            */           
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART1_CLK_GATER_POS     20                                                                                          /**< UART1_CLK_GATER Position        */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART1_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_UART1_CLK_GATER_POS))               /**< UART1_CLK_GATER Mask            */           
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART2_CLK_GATER_POS     22                                                                                          /**< UART2_CLK_GATER Position        */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART2_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_UART2_CLK_GATER_POS))               /**< UART2_CLK_GATER Mask            */           
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART3_CLK_GATER_POS     24                                                                                          /**< UART3_CLK_GATER Position        */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART3_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_UART3_CLK_GATER_POS))               /**< UART3_CLK_GATER Mask            */           
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM0_CLK_GATER_POS     26                                                                                          /**< I2CM0_CLK_GATER Position        */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM0_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM0_CLK_GATER_POS))               /**< I2CM0_CLK_GATER Mask            */           
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM1_CLK_GATER_POS     28                                                                                          /**< I2CM1_CLK_GATER Position        */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM1_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM1_CLK_GATER_POS))               /**< I2CM1_CLK_GATER Mask            */           
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM2_CLK_GATER_POS     30                                                                                          /**< I2CM2_CLK_GATER Position        */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM2_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM2_CLK_GATER_POS))               /**< I2CM2_CLK_GATER Mask            */           
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_I2CS_CLK_GATER_POS      0                                                                                           /**< I2CS_CLK_GATER Position         */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_I2CS_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_I2CS_CLK_GATER_POS))                /**< I2CS_CLK_GATER  Mask            */           
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI0_CLK_GATER_POS      2                                                                                           /**< SPI0_CLK_GATER Position         */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI0_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI0_CLK_GATER_POS))                /**< SPI0_CLK_GATER Mask             */            
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI1_CLK_GATER_POS      4                                                                                           /**< SPI1_CLK_GATER Position         */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI1_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI1_CLK_GATER_POS))                /**< SPI1_CLK_GATER Mask             */            
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI2_CLK_GATER_POS      6                                                                                           /**< SPI2_CLK_GATER Position         */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI2_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI2_CLK_GATER_POS))                /**< SPI2_CLK_GATER Mask             */           
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI_BRIDGE_CLK_GATER_POS  8                                                                                         /**< SPI_BRIDGE_CLK_GATER Position   */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI_BRIDGE_CLK_GATER    ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI_BRIDGE_CLK_GATER_POS))          /**< SPI_BRIDGE_CLK_GATER Mask       */          
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_OWM_CLK_GATER_POS       10                                                                                          /**< OWM_CLK_GATER Position          */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_OWM_CLK_GATER           ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_OWM_CLK_GATER_POS))                 /**< OWM_CLK_GATER Mask              */         
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_ADC_CLK_GATER_POS       12                                                                                          /**< ADC_CLK_GATER Position          */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_ADC_CLK_GATER           ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_ADC_CLK_GATER_POS))                 /**< ADC_CLK_GATER  Mask             */            
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPIS_CLK_GATER_POS      14                                                                                          /**< SPIS_CLK_GATER Position         */ 
-#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPIS_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_SPIS_CLK_GATER_POS))                /**< SPIS_CLK_GATER Mask             */            
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_WATCHDOG1_CLK_GATER_POS  0                                                                                          /**< WATCHDOG1_CLK_GATER Position    */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_WATCHDOG1_CLK_GATER     ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_WATCHDOG1_CLK_GATER_POS))           /**< WATCHDOG1_CLK_GATER Mask        */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_GPIO_CLK_GATER_POS      2                                                                                           /**< GPIO_CLK_GATER Position         */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_GPIO_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_GPIO_CLK_GATER_POS))                /**< GPIO_CLK_GATER Mask             */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER0_CLK_GATER_POS    4                                                                                           /**< TIMER0_CLK_GATER Position       */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER0_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER0_CLK_GATER_POS))              /**< TIMER0_CLK_GATER Mask           */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER1_CLK_GATER_POS    6                                                                                           /**< TIMER1_CLK_GATER Position       */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER1_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER1_CLK_GATER_POS))              /**< TIMER1_CLK_GATER Mask           */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER2_CLK_GATER_POS    8                                                                                           /**< TIMER2_CLK_GATER Position       */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER2_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER2_CLK_GATER_POS))              /**< TIMER2_CLK_GATER Mask           */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER3_CLK_GATER_POS    10                                                                                          /**< TIMER3_CLK_GATER Position       */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER3_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER3_CLK_GATER_POS))              /**< TIMER3_CLK_GATER Mask           */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER4_CLK_GATER_POS    12                                                                                          /**< TIMER4_CLK_GATER Position       */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER4_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER4_CLK_GATER_POS))              /**< TIMER4_CLK_GATER Mask           */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER5_CLK_GATER_POS    14                                                                                          /**< TIMER5_CLK_GATER Position       */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER5_CLK_GATER        ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_TIMER5_CLK_GATER_POS))              /**< TIMER5_CLK_GATER Mask           */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_PULSETRAIN_CLK_GATER_POS  16                                                                                        /**< PULSETRAIN_CLK_GATER Position   */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_PULSETRAIN_CLK_GATER    ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_PULSETRAIN_CLK_GATER_POS))          /**< PULSETRAIN_CLK_GATER  Mask      */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART0_CLK_GATER_POS     18                                                                                          /**< UART0_CLK_GATER Position        */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART0_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_UART0_CLK_GATER_POS))               /**< UART0_CLK_GATER Mask            */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART1_CLK_GATER_POS     20                                                                                          /**< UART1_CLK_GATER Position        */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART1_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_UART1_CLK_GATER_POS))               /**< UART1_CLK_GATER Mask            */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART2_CLK_GATER_POS     22                                                                                          /**< UART2_CLK_GATER Position        */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART2_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_UART2_CLK_GATER_POS))               /**< UART2_CLK_GATER Mask            */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART3_CLK_GATER_POS     24                                                                                          /**< UART3_CLK_GATER Position        */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_UART3_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_UART3_CLK_GATER_POS))               /**< UART3_CLK_GATER Mask            */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM0_CLK_GATER_POS     26                                                                                          /**< I2CM0_CLK_GATER Position        */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM0_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM0_CLK_GATER_POS))               /**< I2CM0_CLK_GATER Mask            */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM1_CLK_GATER_POS     28                                                                                          /**< I2CM1_CLK_GATER Position        */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM1_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM1_CLK_GATER_POS))               /**< I2CM1_CLK_GATER Mask            */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM2_CLK_GATER_POS     30                                                                                          /**< I2CM2_CLK_GATER Position        */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM2_CLK_GATER         ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL1_I2CM2_CLK_GATER_POS))               /**< I2CM2_CLK_GATER Mask            */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_I2CS_CLK_GATER_POS      0                                                                                           /**< I2CS_CLK_GATER Position         */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_I2CS_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_I2CS_CLK_GATER_POS))                /**< I2CS_CLK_GATER  Mask            */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI0_CLK_GATER_POS      2                                                                                           /**< SPI0_CLK_GATER Position         */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI0_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI0_CLK_GATER_POS))                /**< SPI0_CLK_GATER Mask             */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI1_CLK_GATER_POS      4                                                                                           /**< SPI1_CLK_GATER Position         */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI1_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI1_CLK_GATER_POS))                /**< SPI1_CLK_GATER Mask             */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI2_CLK_GATER_POS      6                                                                                           /**< SPI2_CLK_GATER Position         */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI2_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI2_CLK_GATER_POS))                /**< SPI2_CLK_GATER Mask             */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI_BRIDGE_CLK_GATER_POS  8                                                                                         /**< SPI_BRIDGE_CLK_GATER Position   */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI_BRIDGE_CLK_GATER    ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_SPI_BRIDGE_CLK_GATER_POS))          /**< SPI_BRIDGE_CLK_GATER Mask       */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_OWM_CLK_GATER_POS       10                                                                                          /**< OWM_CLK_GATER Position          */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_OWM_CLK_GATER           ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_OWM_CLK_GATER_POS))                 /**< OWM_CLK_GATER Mask              */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_ADC_CLK_GATER_POS       12                                                                                          /**< ADC_CLK_GATER Position          */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_ADC_CLK_GATER           ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_ADC_CLK_GATER_POS))                 /**< ADC_CLK_GATER  Mask             */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPIS_CLK_GATER_POS      14                                                                                          /**< SPIS_CLK_GATER Position         */
+#define MXC_F_CLKMAN_CLK_GATE_CTRL2_SPIS_CLK_GATER          ((uint32_t)(0x00000003UL << MXC_F_CLKMAN_CLK_GATE_CTRL2_SPIS_CLK_GATER_POS))                /**< SPIS_CLK_GATER Mask             */
 /**@}*/
 /**
  * @ingroup     clkman_clk_config
  * @defgroup    clkman_crypto_stability_count CRYPTO_STABILITY_COUNT Value Settings and Shifted Value Settings
- * @brief       Crypto Clock Stability Count Setting Values and Shifted Values  
+ * @brief       Crypto Clock Stability Count Setting Values and Shifted Values
  */
-#define MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_8_CLOCKS           ((uint32_t)(0x00000000UL))      /**< CRYPTO_STABILITY_COUNT Value = 2<SUP>8</SUP> */ 
-#define MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_9_CLOCKS           ((uint32_t)(0x00000001UL))      /**< CRYPTO_STABILITY_COUNT Value = 2<SUP>9</SUP> */ 
+#define MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_8_CLOCKS           ((uint32_t)(0x00000000UL))      /**< CRYPTO_STABILITY_COUNT Value = 2<SUP>8</SUP> */
+#define MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_9_CLOCKS           ((uint32_t)(0x00000001UL))      /**< CRYPTO_STABILITY_COUNT Value = 2<SUP>9</SUP> */
 #define MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_10_CLOCKS          ((uint32_t)(0x00000002UL))      /**< CRYPTO_STABILITY_COUNT Value = 2<SUP>10</SUP> */
 #define MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_11_CLOCKS          ((uint32_t)(0x00000003UL))      /**< CRYPTO_STABILITY_COUNT Value = 2<SUP>11</SUP> */
 #define MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_12_CLOCKS          ((uint32_t)(0x00000004UL))      /**< CRYPTO_STABILITY_COUNT Value = 2<SUP>12</SUP> */
@@ -415,8 +415,8 @@ typedef struct {
 #define MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_22_CLOCKS          ((uint32_t)(0x0000000EUL))      /**< CRYPTO_STABILITY_COUNT Value = 2<SUP>22</SUP> */
 #define MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_23_CLOCKS          ((uint32_t)(0x0000000FUL))      /**< CRYPTO_STABILITY_COUNT Value = 2<SUP>23</SUP> */
 
-#define MXC_S_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_8_CLOCKS           ((uint32_t)(MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_8_CLOCKS    << MXC_F_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_POS))  /**< CRYPTO_STABILITY_COUNT Shifted Value for 2<SUP>8</SUP>   */ 
-#define MXC_S_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_9_CLOCKS           ((uint32_t)(MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_9_CLOCKS    << MXC_F_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_POS))  /**< CRYPTO_STABILITY_COUNT Shifted Value for 2<SUP>9</SUP>   */ 
+#define MXC_S_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_8_CLOCKS           ((uint32_t)(MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_8_CLOCKS    << MXC_F_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_POS))  /**< CRYPTO_STABILITY_COUNT Shifted Value for 2<SUP>8</SUP>   */
+#define MXC_S_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_9_CLOCKS           ((uint32_t)(MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_9_CLOCKS    << MXC_F_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_POS))  /**< CRYPTO_STABILITY_COUNT Shifted Value for 2<SUP>9</SUP>   */
 #define MXC_S_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_10_CLOCKS          ((uint32_t)(MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_10_CLOCKS   << MXC_F_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_POS))  /**< CRYPTO_STABILITY_COUNT Shifted Value for 2<SUP>10</SUP>  */
 #define MXC_S_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_11_CLOCKS          ((uint32_t)(MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_11_CLOCKS   << MXC_F_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_POS))  /**< CRYPTO_STABILITY_COUNT Shifted Value for 2<SUP>11</SUP>  */
 #define MXC_S_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_12_CLOCKS          ((uint32_t)(MXC_V_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_2_EXP_12_CLOCKS   << MXC_F_CLKMAN_CLK_CONFIG_CRYPTO_STABILITY_COUNT_POS))  /**< CRYPTO_STABILITY_COUNT Shifted Value for 2<SUP>12</SUP>  */
@@ -437,7 +437,7 @@ typedef struct {
 /**
  * @ingroup clkman_clk_ctrl
  * @defgroup clkman_sysclock_select System Clock Select Values
- * @brief System Clock Selection Values and Shifted Values for selecting the system clock source 
+ * @brief System Clock Selection Values and Shifted Values for selecting the system clock source
  * @{
  */
 #define MXC_V_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT_96MHZ_RO_DIV_2               ((uint32_t)(0x00000000UL))                                                                                                  /**< Value Mask: SYSTEM_SOURCE_SELECT_96MHZ_RO_DIV_2                */

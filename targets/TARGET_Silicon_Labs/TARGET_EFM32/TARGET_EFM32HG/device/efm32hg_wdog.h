@@ -38,12 +38,11 @@
  * @{
  * @brief EFM32HG_WDOG Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;     /**< Control Register  */
-  __IOM uint32_t CMD;      /**< Command Register  */
+typedef struct {
+    __IOM uint32_t CTRL;     /**< Control Register  */
+    __IOM uint32_t CMD;      /**< Command Register  */
 
-  __IM uint32_t  SYNCBUSY; /**< Synchronization Busy Register  */
+    __IM uint32_t  SYNCBUSY; /**< Synchronization Busy Register  */
 } WDOG_TypeDef;            /** @} */
 
 /**************************************************************************//**

@@ -57,18 +57,18 @@ extern "C" {
  * @brief Watch Dog Timer High Level APIs.
  */
 /**
- * @ingroup wdttimers 
+ * @ingroup wdttimers
  * @defgroup wdt0 Watch Dog Timer 0/1
  * @brief WDT0/WDT1 configuration and control API.
  * @{
  */
 
 /**
- * Definition used for clearing all of the WDT instances flags for Timeout, Pre-Window and Reset Out. 
+ * Definition used for clearing all of the WDT instances flags for Timeout, Pre-Window and Reset Out.
  */
 #define WDT_FLAGS_CLEAR_ALL                 (MXC_F_WDT_FLAGS_TIMEOUT| MXC_F_WDT_FLAGS_PRE_WIN | MXC_F_WDT_FLAGS_RESET_OUT)
 /**
- * Enumeration type to define the Watchdog Timer's Period 
+ * Enumeration type to define the Watchdog Timer's Period
  */
 typedef enum {
     WDT_PERIOD_2_31_CLKS  = MXC_V_WDT_CTRL_INT_PERIOD_2_31_CLKS,    /**< \f$ 2^{31} \f$ WDT clocks. */

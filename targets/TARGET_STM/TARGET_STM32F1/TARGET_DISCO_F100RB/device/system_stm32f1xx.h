@@ -41,8 +41,8 @@
 
 /** @addtogroup stm32f10x_system
   * @{
-  */  
-  
+  */
+
 /**
   * @brief Define to prevent recursive inclusion
   */
@@ -50,8 +50,8 @@
 #define __SYSTEM_STM32F10X_H
 
 #ifdef __cplusplus
- extern "C" {
-#endif 
+extern "C" {
+#endif
 
 /** @addtogroup STM32F10x_System_Includes
   * @{
@@ -93,7 +93,7 @@ extern const uint8_t  APBPrescTable[8U];   /*!< APB prescalers table values */
 /** @addtogroup STM32F10x_System_Exported_Functions
   * @{
   */
-  
+
 extern void SystemInit(void);
 extern void SystemCoreClockUpdate(void);
 extern void SetSysClock(void);
@@ -111,8 +111,8 @@ extern void SetSysClock(void);
 /**
   * @}
   */
-  
+
 /**
   * @}
-  */  
+  */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

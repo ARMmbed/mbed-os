@@ -24,7 +24,7 @@
 #define SW_RTC_TIMER_ID        TIMER4
 
 static gtimer_t sw_rtc;
-static int sw_rtc_en=0;
+static int sw_rtc_en = 0;
 static time_t rtc_time;
 
 void sw_rtc_tick_handler(uint32_t id)
@@ -37,7 +37,7 @@ void rtc_init(void)
     // Initial a periodical timer
     gtimer_init(&sw_rtc, SW_RTC_TIMER_ID);
     // Tick every 1 sec
-    gtimer_start_periodical(&sw_rtc, 1000000, (void*)sw_rtc_tick_handler, (uint32_t)&sw_rtc);
+    gtimer_start_periodical(&sw_rtc, 1000000, (void *)sw_rtc_tick_handler, (uint32_t)&sw_rtc);
     sw_rtc_en = 1;
 }
 
@@ -50,7 +50,7 @@ void rtc_free(void)
 
 int rtc_isenabled(void)
 {
-    return(sw_rtc_en);
+    return (sw_rtc_en);
 }
 
 time_t rtc_read(void)
@@ -65,7 +65,7 @@ void rtc_write(time_t t)
     // Set the RTC
     rtc_time = t;
 
-    gtimer_start(&sw_rtc);    
+    gtimer_start(&sw_rtc);
 }
 
 #endif  // endof "#if DEVICE_RTC"

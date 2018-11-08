@@ -57,10 +57,8 @@ static uint32_t GPIO_GetInstance(GPIO_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_GPIO_COUNT; instance++)
-    {
-        if (s_gpioBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_GPIO_COUNT; instance++) {
+        if (s_gpioBases[instance] == base) {
             break;
         }
     }
@@ -74,12 +72,9 @@ void GPIO_PinInit(GPIO_Type *base, uint32_t pin, const gpio_pin_config_t *config
 {
     assert(config);
 
-    if (config->pinDirection == kGPIO_DigitalInput)
-    {
+    if (config->pinDirection == kGPIO_DigitalInput) {
         base->PDDR &= ~(1U << pin);
-    }
-    else
-    {
+    } else {
         GPIO_WritePinOutput(base, pin, config->outputLogic);
         base->PDDR |= (1U << pin);
     }
@@ -130,10 +125,8 @@ static uint32_t FGPIO_GetInstance(FGPIO_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_FGPIO_COUNT; instance++)
-    {
-        if (s_fgpioBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_FGPIO_COUNT; instance++) {
+        if (s_fgpioBases[instance] == base) {
             break;
         }
     }
@@ -147,12 +140,9 @@ void FGPIO_PinInit(FGPIO_Type *base, uint32_t pin, const gpio_pin_config_t *conf
 {
     assert(config);
 
-    if (config->pinDirection == kGPIO_DigitalInput)
-    {
+    if (config->pinDirection == kGPIO_DigitalInput) {
         base->PDDR &= ~(1U << pin);
-    }
-    else
-    {
+    } else {
         FGPIO_WritePinOutput(base, pin, config->outputLogic);
         base->PDDR |= (1U << pin);
     }

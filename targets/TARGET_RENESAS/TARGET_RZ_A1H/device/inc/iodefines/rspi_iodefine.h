@@ -177,15 +177,14 @@
 #define SPCMD_COUNT (4)
 
 
-typedef struct st_rspi
-{
-                                                           /* RSPI             */
+typedef struct st_rspi {
+    /* RSPI             */
     volatile uint8_t   SPCR;                                   /*  SPCR            */
     volatile uint8_t   SSLP;                                   /*  SSLP            */
     volatile uint8_t   SPPCR;                                  /*  SPPCR           */
     volatile uint8_t   SPSR;                                   /*  SPSR            */
     union iodefine_reg32_t  SPDR;                          /*  SPDR            */
-    
+
     volatile uint8_t   SPSCR;                                  /*  SPSCR           */
     volatile uint8_t   SPSSR;                                  /*  SPSSR           */
     volatile uint8_t   SPBR;                                   /*  SPBR            */
@@ -195,7 +194,7 @@ typedef struct st_rspi
     volatile uint8_t   SPND;                                   /*  SPND            */
     volatile uint8_t   dummy1[1];                              /*                  */
 
-/* #define SPCMD_COUNT (4) */
+    /* #define SPCMD_COUNT (4) */
     volatile uint16_t SPCMD0;                                 /*  SPCMD0          */
     volatile uint16_t SPCMD1;                                 /*  SPCMD1          */
     volatile uint16_t SPCMD2;                                 /*  SPCMD2          */
@@ -209,10 +208,10 @@ typedef struct st_rspi
 
 /* Channel array defines of RSPI (2)*/
 #ifdef  DECLARE_RSPI_CHANNELS
-volatile struct st_rspi*  RSPI[ RSPI_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    RSPI_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_rspi  *RSPI[ RSPI_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        RSPI_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_RSPI_CHANNELS */
 /* End of channel array defines of RSPI (2)*/
 

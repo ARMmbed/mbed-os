@@ -45,36 +45,36 @@ void crypto_sha_getinternstate(unsigned char output[], size_t olen);
 
 #if defined(MBEDTLS_SHA1_ALT)
 
-void mbedtls_sha1_hw_init( crypto_sha_context *ctx );
-void mbedtls_sha1_hw_free( crypto_sha_context *ctx );
-void mbedtls_sha1_hw_starts( crypto_sha_context *ctx );
-void mbedtls_sha1_hw_update( crypto_sha_context *ctx, const unsigned char *input, size_t ilen );
-void mbedtls_sha1_hw_finish( crypto_sha_context *ctx, unsigned char output[20] );
-void mbedtls_sha1_hw_process( crypto_sha_context *ctx, const unsigned char data[64] );
+void mbedtls_sha1_hw_init(crypto_sha_context *ctx);
+void mbedtls_sha1_hw_free(crypto_sha_context *ctx);
+void mbedtls_sha1_hw_starts(crypto_sha_context *ctx);
+void mbedtls_sha1_hw_update(crypto_sha_context *ctx, const unsigned char *input, size_t ilen);
+void mbedtls_sha1_hw_finish(crypto_sha_context *ctx, unsigned char output[20]);
+void mbedtls_sha1_hw_process(crypto_sha_context *ctx, const unsigned char data[64]);
 
 #endif /* MBEDTLS_SHA1_ALT */
 
 #if defined(MBEDTLS_SHA256_ALT)
 
-void mbedtls_sha256_hw_init( crypto_sha_context *ctx );
-void mbedtls_sha256_hw_free( crypto_sha_context *ctx );
-void mbedtls_sha256_hw_starts( crypto_sha_context *ctx, int is224 );
-void mbedtls_sha256_hw_update( crypto_sha_context *ctx, const unsigned char *input,
-                               size_t ilen );
-void mbedtls_sha256_hw_finish( crypto_sha_context *ctx, unsigned char output[32] );
-void mbedtls_sha256_hw_process( crypto_sha_context *ctx, const unsigned char data[64] );
+void mbedtls_sha256_hw_init(crypto_sha_context *ctx);
+void mbedtls_sha256_hw_free(crypto_sha_context *ctx);
+void mbedtls_sha256_hw_starts(crypto_sha_context *ctx, int is224);
+void mbedtls_sha256_hw_update(crypto_sha_context *ctx, const unsigned char *input,
+                              size_t ilen);
+void mbedtls_sha256_hw_finish(crypto_sha_context *ctx, unsigned char output[32]);
+void mbedtls_sha256_hw_process(crypto_sha_context *ctx, const unsigned char data[64]);
 
 #endif /* MBEDTLS_SHA256_ALT */
 
 #if defined(MBEDTLS_SHA512_ALT)
 
-void mbedtls_sha512_hw_init( crypto_sha_context *ctx );
-void mbedtls_sha512_hw_free( crypto_sha_context *ctx );
-void mbedtls_sha512_hw_starts( crypto_sha_context *ctx, int is384 );
-void mbedtls_sha512_hw_update( crypto_sha_context *ctx, const unsigned char *input,
-                               size_t ilen );
-void mbedtls_sha512_hw_finish( crypto_sha_context *ctx, unsigned char output[64] );
-void mbedtls_sha512_hw_process( crypto_sha_context *ctx, const unsigned char data[128] );
+void mbedtls_sha512_hw_init(crypto_sha_context *ctx);
+void mbedtls_sha512_hw_free(crypto_sha_context *ctx);
+void mbedtls_sha512_hw_starts(crypto_sha_context *ctx, int is384);
+void mbedtls_sha512_hw_update(crypto_sha_context *ctx, const unsigned char *input,
+                              size_t ilen);
+void mbedtls_sha512_hw_finish(crypto_sha_context *ctx, unsigned char output[64]);
+void mbedtls_sha512_hw_process(crypto_sha_context *ctx, const unsigned char data[128]);
 
 #endif /* MBEDTLS_SHA512_ALT */
 

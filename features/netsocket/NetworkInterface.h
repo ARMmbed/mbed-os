@@ -38,7 +38,7 @@ public:
      *  Provided MAC address is intended for info or debug purposes and
      *  may not be provided if the underlying network interface does not
      *  provide a MAC address
-     *  
+     *
      *  @return         Null-terminated representation of the local MAC address
      *                  or null if no MAC address is available
      */
@@ -53,7 +53,7 @@ public:
 
     /** Get the local network mask
      *
-     *  @return         Null-terminated representation of the local network mask 
+     *  @return         Null-terminated representation of the local network mask
      *                  or null if no network mask has been recieved
      */
     virtual const char *get_netmask();
@@ -77,7 +77,7 @@ public:
      *  @return           0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_network(
-            const char *ip_address, const char *netmask, const char *gateway);
+        const char *ip_address, const char *netmask, const char *gateway);
 
     /** Enable or disable DHCP on the network
      *
@@ -117,7 +117,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t gethostbyname(const char *host,
-            SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
+                                        SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
 
     /** Add a domain name server to list of servers to query
      *

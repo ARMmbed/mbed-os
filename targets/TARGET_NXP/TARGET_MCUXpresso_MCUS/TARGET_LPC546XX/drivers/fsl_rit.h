@@ -47,8 +47,7 @@
 /*@}*/
 
 /*! @brief List of RIT status flags */
-typedef enum _rit_status_flags
-{
+typedef enum _rit_status_flags {
     kRIT_TimerFlag = RIT_CTRL_RITINT_MASK, /*!< Timer flag */
 } rit_status_flags_t;
 
@@ -61,8 +60,7 @@ typedef enum _rit_status_flags
  *
  * The config struct can be made const so it resides in flash
  */
-typedef struct _rit_config
-{
+typedef struct _rit_config {
     bool enableRunInDebug; /*!< true: The timer is halted when the processor is halted for debugging.; false: Debug has
                               no effect on the timer operation. */
 } rit_config_t;
@@ -257,12 +255,9 @@ static inline void RIT_StopTimer(RIT_Type *base)
 
 static inline void RIT_ClearCounter(RIT_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CTRL |= RIT_CTRL_RITENCLR_MASK;
-    }
-    else
-    {
+    } else {
         base->CTRL &= ~RIT_CTRL_RITENCLR_MASK;
     }
 }

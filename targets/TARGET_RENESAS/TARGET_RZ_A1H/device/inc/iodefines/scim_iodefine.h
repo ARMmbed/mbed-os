@@ -72,9 +72,8 @@
 #define SECR1 (SCIM1.SECR)
 
 
-typedef struct st_scim
-{
-                                                           /* SCIM             */
+typedef struct st_scim {
+    /* SCIM             */
     volatile uint8_t   SMR;                                    /*  SMR             */
     volatile uint8_t   BRR;                                    /*  BRR             */
     volatile uint8_t   SCR;                                    /*  SCR             */
@@ -91,10 +90,10 @@ typedef struct st_scim
 
 /* Channel array defines of SCIM (2)*/
 #ifdef  DECLARE_SCIM_CHANNELS
-volatile struct st_scim*  SCIM[ SCIM_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    SCIM_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_scim  *SCIM[ SCIM_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        SCIM_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_SCIM_CHANNELS */
 /* End of channel array defines of SCIM (2)*/
 

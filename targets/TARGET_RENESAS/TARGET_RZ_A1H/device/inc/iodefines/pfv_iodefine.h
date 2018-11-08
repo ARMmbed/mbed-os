@@ -115,15 +115,14 @@
 #define PFVOD_COUNT (8)
 
 
-typedef struct st_pfv
-{
-                                                           /* PFV              */
+typedef struct st_pfv {
+    /* PFV              */
     volatile uint32_t  PFVCR;                                  /*  PFVCR           */
     volatile uint32_t  PFVICR;                                 /*  PFVICR          */
     volatile uint32_t  PFVISR;                                 /*  PFVISR          */
     volatile uint8_t   dummy1[20];                             /*                  */
 
-/* #define PFVID_COUNT (8) */
+    /* #define PFVID_COUNT (8) */
     volatile uint32_t  PFVID0;                                 /*  PFVID0          */
     volatile uint32_t  PFVID1;                                 /*  PFVID1          */
     volatile uint32_t  PFVID2;                                 /*  PFVID2          */
@@ -133,7 +132,7 @@ typedef struct st_pfv
     volatile uint32_t  PFVID6;                                 /*  PFVID6          */
     volatile uint32_t  PFVID7;                                 /*  PFVID7          */
 
-/* #define PFVOD_COUNT (8) */
+    /* #define PFVOD_COUNT (8) */
     volatile uint32_t  PFVOD0;                                 /*  PFVOD0          */
     volatile uint32_t  PFVOD1;                                 /*  PFVOD1          */
     volatile uint32_t  PFVOD2;                                 /*  PFVOD2          */
@@ -159,10 +158,10 @@ typedef struct st_pfv
 
 /* Channel array defines of PFV (2)*/
 #ifdef  DECLARE_PFV_CHANNELS
-volatile struct st_pfv*  PFV[ PFV_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    PFV_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_pfv  *PFV[ PFV_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        PFV_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_PFV_CHANNELS */
 /* End of channel array defines of PFV (2)*/
 

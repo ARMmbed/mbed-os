@@ -3,7 +3,8 @@
 
 Serial *pc = new Serial(USBTX, USBRX);
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(serial_complete_auto);
     MBED_HOSTTEST_DESCRIPTION(Serial Complete);

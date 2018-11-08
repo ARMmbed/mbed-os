@@ -20,24 +20,23 @@
  * @brief   This file provides the functions related to event handler mechanism.
  ******************************************************************************
  */
-  
+
 #ifndef _WIFI_INDICATE_H
 #define _WIFI_INDICATE_H
-#include "wifi_conf.h"  
+#include "wifi_conf.h"
 
-typedef void (*rtw_event_handler_t)(char *buf, int buf_len, int flags, void* handler_user_data );
+typedef void (*rtw_event_handler_t)(char *buf, int buf_len, int flags, void *handler_user_data);
 
-typedef struct
-{
-//	rtw_event_indicate_t	event_cmd;
-	rtw_event_handler_t	handler;
-	void*	handler_user_data;
+typedef struct {
+//  rtw_event_indicate_t    event_cmd;
+    rtw_event_handler_t handler;
+    void   *handler_user_data;
 } event_list_elem_t;
 
-/** 
+/**
  * @brief  Initialize the event callback list.
  * @warning  Please make sure this function has been invoked before
- *  	 using the event handler related mechanism. 
+ *       using the event handler related mechanism.
  * @param  None
  * @return  None
  */
@@ -50,34 +49,34 @@ void init_event_callback_list(void);
   * @param[in]  buf_len: The length of the buffer.
   * @param[in]  flags: Indicate some extra information, sometimes it is 0.
   * @retval None
-  * @note  If upper layer application triggers additional operations on receiving of wext_wlan_indicate, 
-  *			please strictly check current stack size usage (by using uxTaskGetStackHighWaterMark() ), 
-  *			and tries not to share the same stack with wlan driver if remaining stack space is not available
-  *			for the following operations. 
-  *			ex: using semaphore to notice another thread instead of handing event directly in wifi_indication().  
+  * @note  If upper layer application triggers additional operations on receiving of wext_wlan_indicate,
+  *         please strictly check current stack size usage (by using uxTaskGetStackHighWaterMark() ),
+  *         and tries not to share the same stack with wlan driver if remaining stack space is not available
+  *         for the following operations.
+  *         ex: using semaphore to notice another thread instead of handing event directly in wifi_indication().
   */
-extern void wifi_indication( rtw_event_indicate_t event, char *buf, int buf_len, int flags);
+extern void wifi_indication(rtw_event_indicate_t event, char *buf, int buf_len, int flags);
 
-/** 
+/**
  * @brief  Register the event listener.
  * @param[in] event_cmds : The event command number indicated.
- * @param[in] handler_func : the callback function which will 
- *  			  receive and process the event.
- * @param[in] handler_user_data : user specific data that will be 
- *  			   passed directly to the callback function.
+ * @param[in] handler_func : the callback function which will
+ *                receive and process the event.
+ * @param[in] handler_user_data : user specific data that will be
+ *                 passed directly to the callback function.
  * @return  RTW_SUCCESS : if successfully registers the event.
  * @return  RTW_ERROR : if an error occurred.
  * @note  Set the same event_cmds with empty handler_func will
- *  	 unregister the event_cmds.
+ *       unregister the event_cmds.
  */
 extern void wifi_reg_event_handler(unsigned int event_cmds, rtw_event_handler_t handler_func, void *handler_user_data);
 
 /**
  * @brief  Un-register the event listener.
  * @param[in] event_cmds : The event command number indicated.
- * @param[in] handler_func : the callback function which will 
- *  			  receive and process the event.
- *  
+ * @param[in] handler_func : the callback function which will
+ *                receive and process the event.
+ *
  * @return  RTW_SUCCESS : if successfully un-registers the event .
  * @return  RTW_ERROR : if an error occurred.
  */

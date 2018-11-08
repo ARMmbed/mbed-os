@@ -60,7 +60,7 @@
  */
 void assert_nrf_callback(uint16_t line_num, const uint8_t *file_name);
 
-/*lint -emacro(506, ASSERT) */ /* Suppress "Constant value Boolean */ 
+/*lint -emacro(506, ASSERT) */ /* Suppress "Constant value Boolean */
 /*lint -emacro(774, ASSERT) */ /* Suppress "Boolean within 'if' always evaluates to True" */ \
 
 /** @brief Function for checking intended for production code.

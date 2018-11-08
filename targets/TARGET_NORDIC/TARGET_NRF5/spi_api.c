@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -51,9 +51,9 @@
 #include "sdk_config.h"
 
 #if DEVICE_SPI_ASYNCH
-    #define SPI_IDX(obj)    ((obj)->spi.spi_idx)
+#define SPI_IDX(obj)    ((obj)->spi.spi_idx)
 #else
-    #define SPI_IDX(obj)    ((obj)->spi_idx)
+#define SPI_IDX(obj)    ((obj)->spi_idx)
 #endif
 #define SPI_INFO(obj)       (&m_spi_info[SPI_IDX(obj)])
 #define MASTER_INST(obj)    (&m_instances[SPI_IDX(obj)].master)
@@ -109,7 +109,7 @@ static const peripheral_handler_desc_t spi_handler_desc[SPI_COUNT] = {
         SPI2_IRQ,
         (uint32_t) SPIM2_SPIS2_SPI2_IRQHandler
     },
-#endif    
+#endif
 };
 
 
@@ -155,13 +155,13 @@ static void master_event_handler(uint8_t spi_idx,
         master_event_handler(SPI##idx##_INSTANCE_INDEX, p_event); \
     }
 #if SPI0_ENABLED
-    MASTER_EVENT_HANDLER(0)
+MASTER_EVENT_HANDLER(0)
 #endif
 #if SPI1_ENABLED
-    MASTER_EVENT_HANDLER(1)
+MASTER_EVENT_HANDLER(1)
 #endif
 #if SPI2_ENABLED
-    MASTER_EVENT_HANDLER(2)
+MASTER_EVENT_HANDLER(2)
 #endif
 
 static nrf_drv_spi_handler_t const m_master_event_handlers[SPI_COUNT] = {
@@ -191,8 +191,8 @@ static void slave_event_handler(uint8_t spi_idx,
         // now use the default one, until some new is set by 'spi_slave_write'.
         p_spi_info->tx_buf = SPIS_DEFAULT_ORC;
         nrf_drv_spis_buffers_set(&m_instances[spi_idx].slave,
-            (uint8_t const *)&p_spi_info->tx_buf, 1,
-            (uint8_t *)&p_spi_info->rx_buf, 1);
+                                 (uint8_t const *)&p_spi_info->tx_buf, 1,
+                                 (uint8_t *)&p_spi_info->rx_buf, 1);
     }
 }
 #define SLAVE_EVENT_HANDLER(idx) \
@@ -200,13 +200,13 @@ static void slave_event_handler(uint8_t spi_idx,
         slave_event_handler(SPIS##idx##_INSTANCE_INDEX, event); \
     }
 #if SPIS0_ENABLED
-    SLAVE_EVENT_HANDLER(0)
+SLAVE_EVENT_HANDLER(0)
 #endif
 #if SPIS1_ENABLED
-    SLAVE_EVENT_HANDLER(1)
+SLAVE_EVENT_HANDLER(1)
 #endif
 #if SPIS2_ENABLED
-    SLAVE_EVENT_HANDLER(2)
+SLAVE_EVENT_HANDLER(2)
 #endif
 
 static nrf_drv_spis_event_handler_t const m_slave_event_handlers[SPIS_COUNT] = {
@@ -265,10 +265,10 @@ void spi_init(spi_t *obj,
     for (i = 0; i < SPI_COUNT; ++i) {
         spi_info_t *p_spi_info = &m_spi_info[i];
         if (p_spi_info->initialized &&
-            p_spi_info->mosi_pin == (uint8_t)mosi &&
-            p_spi_info->miso_pin == (uint8_t)miso &&
-            p_spi_info->sck_pin  == (uint8_t)sclk &&
-            p_spi_info->ss_pin   == (uint8_t)ssel) {
+                p_spi_info->mosi_pin == (uint8_t)mosi &&
+                p_spi_info->miso_pin == (uint8_t)miso &&
+                p_spi_info->sck_pin  == (uint8_t)sclk &&
+                p_spi_info->ss_pin   == (uint8_t)ssel) {
             // Reuse the already allocated SPI instance (instead of allocating
             // a new one), if it appears to be initialized with exactly the same
             // pin assignments.
@@ -284,11 +284,11 @@ void spi_init(spi_t *obj,
 
             p_spi_info->sck_pin   = (uint8_t)sclk;
             p_spi_info->mosi_pin  = (mosi != NC) ?
-                (uint8_t)mosi : NRF_DRV_SPI_PIN_NOT_USED;
+                                    (uint8_t)mosi : NRF_DRV_SPI_PIN_NOT_USED;
             p_spi_info->miso_pin  = (miso != NC) ?
-                (uint8_t)miso : NRF_DRV_SPI_PIN_NOT_USED;
+                                    (uint8_t)miso : NRF_DRV_SPI_PIN_NOT_USED;
             p_spi_info->ss_pin    = (ssel != NC) ?
-                (uint8_t)ssel : NRF_DRV_SPI_PIN_NOT_USED;
+                                    (uint8_t)ssel : NRF_DRV_SPI_PIN_NOT_USED;
             p_spi_info->spi_mode  = (uint8_t)NRF_DRV_SPI_MODE_0;
             p_spi_info->frequency = NRF_DRV_SPI_FREQ_1M;
 
@@ -300,7 +300,7 @@ void spi_init(spi_t *obj,
 
             nrf_drv_spi_t const *p_spi = &m_instances[i].master;
             ret_code_t ret_code = nrf_drv_spi_init(p_spi,
-                &config, m_master_event_handlers[i]);
+                                                   &config, m_master_event_handlers[i]);
             if (ret_code == NRF_SUCCESS) {
                 p_spi_info->initialized = true;
                 p_spi_info->master      = true;
@@ -324,8 +324,7 @@ void spi_free(spi_t *obj)
     spi_info_t *p_spi_info = SPI_INFO(obj);
     if (p_spi_info->master) {
         nrf_drv_spi_uninit(MASTER_INST(obj));
-    }
-    else {
+    } else {
         nrf_drv_spis_uninit(SLAVE_INST(obj));
     }
     p_spi_info->initialized = false;
@@ -347,8 +346,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
     spi_info_t *p_spi_info = SPI_INFO(obj);
 
-    if (slave)
-    {
+    if (slave) {
         nrf_drv_spis_mode_t spi_modes[4] = {
             NRF_DRV_SPIS_MODE_0,
             NRF_DRV_SPIS_MODE_1,
@@ -366,8 +364,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         // re-initialized (there is no other way to change its configuration).
         else if (p_spi_info->spi_mode != (uint8_t)new_mode) {
             nrf_drv_spis_uninit(SLAVE_INST(obj));
-        }
-        else {
+        } else {
             return;
         }
 
@@ -379,16 +376,14 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         nrf_drv_spis_config_t config;
         prepare_slave_config(&config, p_spi_info);
         (void)nrf_drv_spis_init(SLAVE_INST(obj), &config,
-            m_slave_event_handlers[SPI_IDX(obj)]);
+                                m_slave_event_handlers[SPI_IDX(obj)]);
 
         // Prepare the slave for transfer.
         p_spi_info->tx_buf = SPIS_DEFAULT_ORC;
         nrf_drv_spis_buffers_set(SLAVE_INST(obj),
-            (uint8_t const *)&p_spi_info->tx_buf, 1,
-            (uint8_t *)&p_spi_info->rx_buf, 1);
-    }
-    else // master
-    {
+                                 (uint8_t const *)&p_spi_info->tx_buf, 1,
+                                 (uint8_t *)&p_spi_info->rx_buf, 1);
+    } else { // master
         nrf_drv_spi_mode_t spi_modes[4] = {
             NRF_DRV_SPI_MODE_0,
             NRF_DRV_SPI_MODE_1,
@@ -406,8 +401,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         // re-initialized (there is no other way to change its configuration).
         else if (p_spi_info->spi_mode != (uint8_t)new_mode) {
             nrf_drv_spi_uninit(MASTER_INST(obj));
-        }
-        else {
+        } else {
             return;
         }
 
@@ -419,24 +413,24 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         nrf_drv_spi_config_t config;
         prepare_master_config(&config, p_spi_info);
         (void)nrf_drv_spi_init(MASTER_INST(obj), &config,
-            m_master_event_handlers[SPI_IDX(obj)]);
+                               m_master_event_handlers[SPI_IDX(obj)]);
     }
 }
 
 static nrf_drv_spi_frequency_t freq_translate(int hz)
 {
     nrf_drv_spi_frequency_t frequency;
-    if (hz<250000) { //125Kbps
+    if (hz < 250000) { //125Kbps
         frequency = NRF_DRV_SPI_FREQ_125K;
-    } else if (hz<500000) { //250Kbps
+    } else if (hz < 500000) { //250Kbps
         frequency = NRF_DRV_SPI_FREQ_250K;
-    } else if (hz<1000000) { //500Kbps
+    } else if (hz < 1000000) { //500Kbps
         frequency = NRF_DRV_SPI_FREQ_500K;
-    } else if (hz<2000000) { //1Mbps
+    } else if (hz < 2000000) { //1Mbps
         frequency = NRF_DRV_SPI_FREQ_1M;
-    } else if (hz<4000000) { //2Mbps
+    } else if (hz < 4000000) { //2Mbps
         frequency = NRF_DRV_SPI_FREQ_2M;
-    } else if (hz<8000000) { //4Mbps
+    } else if (hz < 8000000) { //4Mbps
         frequency = NRF_DRV_SPI_FREQ_4M;
     } else { //8Mbps
         frequency = NRF_DRV_SPI_FREQ_8M;
@@ -449,8 +443,7 @@ void spi_frequency(spi_t *obj, int hz)
     spi_info_t *p_spi_info = SPI_INFO(obj);
     nrf_drv_spi_frequency_t new_frequency = freq_translate(hz);
 
-    if (p_spi_info->master)
-    {
+    if (p_spi_info->master) {
         if (p_spi_info->frequency != new_frequency) {
             p_spi_info->frequency = new_frequency;
 
@@ -460,7 +453,7 @@ void spi_frequency(spi_t *obj, int hz)
             nrf_drv_spi_t const *p_spi = MASTER_INST(obj);
             nrf_drv_spi_uninit(p_spi);
             (void)nrf_drv_spi_init(p_spi, &config,
-                m_master_event_handlers[SPI_IDX(obj)]);
+                                   m_master_event_handlers[SPI_IDX(obj)]);
         }
     }
     // There is no need to set anything in slaves when it comes to frequency,
@@ -479,8 +472,8 @@ int spi_master_write(spi_t *obj, int value)
     p_spi_info->tx_buf = value;
     p_spi_info->flag.busy = true;
     (void)nrf_drv_spi_transfer(MASTER_INST(obj),
-        (uint8_t const *)&p_spi_info->tx_buf, 1,
-        (uint8_t *)&p_spi_info->rx_buf, 1);
+                               (uint8_t const *)&p_spi_info->tx_buf, 1,
+                               (uint8_t *)&p_spi_info->rx_buf, 1);
     while (p_spi_info->flag.busy) {
     }
 
@@ -488,7 +481,8 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -507,7 +501,7 @@ int spi_slave_receive(spi_t *obj)
     spi_info_t *p_spi_info = SPI_INFO(obj);
     MBED_ASSERT(!p_spi_info->master);
     return p_spi_info->flag.readable;
-;
+    ;
 }
 
 int spi_slave_read(spi_t *obj)
@@ -545,8 +539,8 @@ void spi_master_transfer(spi_t *obj,
 
     p_spi_info->flag.busy = true;
     (void)nrf_drv_spi_transfer(MASTER_INST(obj),
-        (uint8_t const *)tx, tx_length,
-        (uint8_t *)rx, rx_length);
+                               (uint8_t const *)tx, tx_length,
+                               (uint8_t *)rx, rx_length);
 }
 
 uint32_t spi_irq_handler_asynch(spi_t *obj)

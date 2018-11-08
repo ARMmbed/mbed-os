@@ -51,8 +51,7 @@
 #define SDHC_MAX_BLOCK_COUNT (SDHC_BLKATTR_BLKCNT_MASK >> SDHC_BLKATTR_BLKCNT_SHIFT)
 
 /*! @brief SDHC status */
-enum _sdhc_status
-{
+enum _sdhc_status {
     kStatus_SDHC_BusyTransferring = MAKE_STATUS(kStatusGroup_SDHC, 0U),            /*!< Transfer is on-going */
     kStatus_SDHC_PrepareAdmaDescriptorFailed = MAKE_STATUS(kStatusGroup_SDHC, 1U), /*!< Set DMA descriptor failed */
     kStatus_SDHC_SendCommandFailed = MAKE_STATUS(kStatusGroup_SDHC, 2U),           /*!< Send command failed */
@@ -62,8 +61,7 @@ enum _sdhc_status
 };
 
 /*! @brief Host controller capabilities flag mask */
-enum _sdhc_capability_flag
-{
+enum _sdhc_capability_flag {
     kSDHC_SupportAdmaFlag = SDHC_HTCAPBLT_ADMAS_MASK,        /*!< Support ADMA */
     kSDHC_SupportHighSpeedFlag = SDHC_HTCAPBLT_HSS_MASK,     /*!< Support high-speed */
     kSDHC_SupportDmaFlag = SDHC_HTCAPBLT_DMAS_MASK,          /*!< Support DMA */
@@ -81,8 +79,7 @@ enum _sdhc_capability_flag
 };
 
 /*! @brief Wakeup event mask */
-enum _sdhc_wakeup_event
-{
+enum _sdhc_wakeup_event {
     kSDHC_WakeupEventOnCardInt = SDHC_PROCTL_WECINT_MASK,    /*!< Wakeup on card interrupt */
     kSDHC_WakeupEventOnCardInsert = SDHC_PROCTL_WECINS_MASK, /*!< Wakeup on card insertion */
     kSDHC_WakeupEventOnCardRemove = SDHC_PROCTL_WECRM_MASK,  /*!< Wakeup on card removal */
@@ -92,8 +89,7 @@ enum _sdhc_wakeup_event
 };
 
 /*! @brief Reset type mask */
-enum _sdhc_reset
-{
+enum _sdhc_reset {
     kSDHC_ResetAll = SDHC_SYSCTL_RSTA_MASK,     /*!< Reset all except card detection */
     kSDHC_ResetCommand = SDHC_SYSCTL_RSTC_MASK, /*!< Reset command line */
     kSDHC_ResetData = SDHC_SYSCTL_RSTD_MASK,    /*!< Reset data line */
@@ -102,8 +98,7 @@ enum _sdhc_reset
 };
 
 /*! @brief Transfer flag mask */
-enum _sdhc_transfer_flag
-{
+enum _sdhc_transfer_flag {
     kSDHC_EnableDmaFlag = SDHC_XFERTYP_DMAEN_MASK, /*!< Enable DMA */
 
     kSDHC_CommandTypeSuspendFlag = (SDHC_XFERTYP_CMDTYP(1U)), /*!< Suspend command */
@@ -125,8 +120,7 @@ enum _sdhc_transfer_flag
 };
 
 /*! @brief Present status flag mask */
-enum _sdhc_present_status_flag
-{
+enum _sdhc_present_status_flag {
     kSDHC_CommandInhibitFlag = SDHC_PRSSTAT_CIHB_MASK,     /*!< Command inhibit */
     kSDHC_DataInhibitFlag = SDHC_PRSSTAT_CDIHB_MASK,       /*!< Data inhibit */
     kSDHC_DataLineActiveFlag = SDHC_PRSSTAT_DLA_MASK,      /*!< Data line active */
@@ -148,8 +142,7 @@ enum _sdhc_present_status_flag
 };
 
 /*! @brief Interrupt status flag mask */
-enum _sdhc_interrupt_status_flag
-{
+enum _sdhc_interrupt_status_flag {
     kSDHC_CommandCompleteFlag = SDHC_IRQSTAT_CC_MASK,       /*!< Command complete */
     kSDHC_DataCompleteFlag = SDHC_IRQSTAT_TC_MASK,          /*!< Data complete */
     kSDHC_BlockGapEventFlag = SDHC_IRQSTAT_BGE_MASK,        /*!< Block gap event */
@@ -184,8 +177,7 @@ enum _sdhc_interrupt_status_flag
 };
 
 /*! @brief Auto CMD12 error status flag mask */
-enum _sdhc_auto_command12_error_status_flag
-{
+enum _sdhc_auto_command12_error_status_flag {
     kSDHC_AutoCommand12NotExecutedFlag = SDHC_AC12ERR_AC12NE_MASK,  /*!< Not executed error */
     kSDHC_AutoCommand12TimeoutFlag = SDHC_AC12ERR_AC12TOE_MASK,     /*!< Timeout error */
     kSDHC_AutoCommand12EndBitErrorFlag = SDHC_AC12ERR_AC12EBE_MASK, /*!< End bit error */
@@ -195,8 +187,7 @@ enum _sdhc_auto_command12_error_status_flag
 };
 
 /*! @brief ADMA error status flag mask */
-enum _sdhc_adma_error_status_flag
-{
+enum _sdhc_adma_error_status_flag {
     kSDHC_AdmaLenghMismatchFlag = SDHC_ADMAES_ADMALME_MASK,   /*!< Length mismatch error */
     kSDHC_AdmaDescriptorErrorFlag = SDHC_ADMAES_ADMADCE_MASK, /*!< Descriptor error */
 };
@@ -206,8 +197,7 @@ enum _sdhc_adma_error_status_flag
  *
  * This state is the detail state when ADMA error has occurred.
  */
-typedef enum _sdhc_adma_error_state
-{
+typedef enum _sdhc_adma_error_state {
     kSDHC_AdmaErrorStateStopDma = 0x00U,         /*!< Stop DMA */
     kSDHC_AdmaErrorStateFetchDescriptor = 0x01U, /*!< Fetch descriptor */
     kSDHC_AdmaErrorStateChangeAddress = 0x02U,   /*!< Change address */
@@ -215,8 +205,7 @@ typedef enum _sdhc_adma_error_state
 } sdhc_adma_error_state_t;
 
 /*! @brief Force event mask */
-enum _sdhc_force_event
-{
+enum _sdhc_force_event {
     kSDHC_ForceEventAutoCommand12NotExecuted = SDHC_FEVT_AC12NE_MASK,  /*!< Auto CMD12 not executed error */
     kSDHC_ForceEventAutoCommand12Timeout = SDHC_FEVT_AC12TOE_MASK,     /*!< Auto CMD12 timeout error */
     kSDHC_ForceEventAutoCommand12CrcError = SDHC_FEVT_AC12CE_MASK,     /*!< Auto CMD12 CRC error */
@@ -244,32 +233,28 @@ enum _sdhc_force_event
 };
 
 /*! @brief Data transfer width */
-typedef enum _sdhc_data_bus_width
-{
+typedef enum _sdhc_data_bus_width {
     kSDHC_DataBusWidth1Bit = 0U, /*!< 1-bit mode */
     kSDHC_DataBusWidth4Bit = 1U, /*!< 4-bit mode */
     kSDHC_DataBusWidth8Bit = 2U, /*!< 8-bit mode */
 } sdhc_data_bus_width_t;
 
 /*! @brief Endian mode */
-typedef enum _sdhc_endian_mode
-{
+typedef enum _sdhc_endian_mode {
     kSDHC_EndianModeBig = 0U,         /*!< Big endian mode */
     kSDHC_EndianModeHalfWordBig = 1U, /*!< Half word big endian mode */
     kSDHC_EndianModeLittle = 2U,      /*!< Little endian mode */
 } sdhc_endian_mode_t;
 
 /*! @brief DMA mode */
-typedef enum _sdhc_dma_mode
-{
+typedef enum _sdhc_dma_mode {
     kSDHC_DmaModeNo = 0U,    /*!< No DMA */
     kSDHC_DmaModeAdma1 = 1U, /*!< ADMA1 is selected */
     kSDHC_DmaModeAdma2 = 2U, /*!< ADMA2 is selected */
 } sdhc_dma_mode_t;
 
 /*! @brief SDIO control flag mask */
-enum _sdhc_sdio_control_flag
-{
+enum _sdhc_sdio_control_flag {
     kSDHC_StopAtBlockGapFlag = 0x01,       /*!< Stop at block gap */
     kSDHC_ReadWaitControlFlag = 0x02,      /*!< Read wait control */
     kSDHC_InterruptAtBlockGapFlag = 0x04,  /*!< Interrupt at block gap */
@@ -277,15 +262,13 @@ enum _sdhc_sdio_control_flag
 };
 
 /*! @brief MMC card boot mode */
-typedef enum _sdhc_boot_mode
-{
+typedef enum _sdhc_boot_mode {
     kSDHC_BootModeNormal = 0U,      /*!< Normal boot */
     kSDHC_BootModeAlternative = 1U, /*!< Alternative boot */
 } sdhc_boot_mode_t;
 
 /*! @brief The command type */
-typedef enum _sdhc_card_command_type
-{
+typedef enum _sdhc_card_command_type {
     kCARD_CommandTypeNormal = 0U,  /*!< Normal command */
     kCARD_CommandTypeSuspend = 1U, /*!< Suspend command */
     kCARD_CommandTypeResume = 2U,  /*!< Resume command */
@@ -297,8 +280,7 @@ typedef enum _sdhc_card_command_type
  *
  * Define the command response type from card to host controller.
  */
-typedef enum _sdhc_card_response_type
-{
+typedef enum _sdhc_card_response_type {
     kCARD_ResponseTypeNone = 0U, /*!< Response type: none */
     kCARD_ResponseTypeR1 = 1U,   /*!< Response type: R1 */
     kCARD_ResponseTypeR1b = 2U,  /*!< Response type: R1b */
@@ -354,8 +336,7 @@ typedef enum _sdhc_card_response_type
 #define SDHC_ADMA1_DESCRIPTOR_MAX_LENGTH_PER_ENTRY (SDHC_ADMA1_DESCRIPTOR_LENGTH_MASK + 1U)
 
 /*! @brief The mask for the control/status field in ADMA1 descriptor */
-enum _sdhc_adma1_descriptor_flag
-{
+enum _sdhc_adma1_descriptor_flag {
     kSDHC_Adma1DescriptorValidFlag = (1U << 0U),                     /*!< Valid flag */
     kSDHC_Adma1DescriptorEndFlag = (1U << 1U),                       /*!< End flag */
     kSDHC_Adma1DescriptorInterrupFlag = (1U << 2U),                  /*!< Interrupt flag */
@@ -399,8 +380,7 @@ enum _sdhc_adma1_descriptor_flag
 #define SDHC_ADMA2_DESCRIPTOR_MAX_LENGTH_PER_ENTRY (SDHC_ADMA2_DESCRIPTOR_LENGTH_MASK)
 
 /*! @brief ADMA1 descriptor control and status mask */
-enum _sdhc_adma2_descriptor_flag
-{
+enum _sdhc_adma2_descriptor_flag {
     kSDHC_Adma2DescriptorValidFlag = (1U << 0U),     /*!< Valid flag */
     kSDHC_Adma2DescriptorEndFlag = (1U << 1U),       /*!< End flag */
     kSDHC_Adma2DescriptorInterruptFlag = (1U << 2U), /*!< Interrupt flag */
@@ -420,8 +400,7 @@ enum _sdhc_adma2_descriptor_flag
 typedef uint32_t sdhc_adma1_descriptor_t;
 
 /*! @brief Defines the ADMA2 descriptor structure. */
-typedef struct _sdhc_adma2_descriptor
-{
+typedef struct _sdhc_adma2_descriptor {
     uint32_t attribute;      /*!< The control and status field */
     const uint32_t *address; /*!< The address field */
 } sdhc_adma2_descriptor_t;
@@ -431,8 +410,7 @@ typedef struct _sdhc_adma2_descriptor
  *
  * Defines a structure to save the capability information of SDHC.
  */
-typedef struct _sdhc_capability
-{
+typedef struct _sdhc_capability {
     uint32_t specVersion;    /*!< Specification version */
     uint32_t vendorVersion;  /*!< Vendor version */
     uint32_t maxBlockLength; /*!< Maximum block length united as byte */
@@ -445,8 +423,7 @@ typedef struct _sdhc_capability
  * Define structure to configure the transfer-related command index/argument/flags and data block
  * size/data block numbers. This structure needs to be filled each time a command is sent to the card.
  */
-typedef struct _sdhc_transfer_config
-{
+typedef struct _sdhc_transfer_config {
     size_t dataBlockSize;     /*!< Data block size */
     uint32_t dataBlockCount;  /*!< Data block count */
     uint32_t commandArgument; /*!< Command argument */
@@ -455,8 +432,7 @@ typedef struct _sdhc_transfer_config
 } sdhc_transfer_config_t;
 
 /*! @brief Data structure to configure the MMC boot feature */
-typedef struct _sdhc_boot_config
-{
+typedef struct _sdhc_boot_config {
     uint32_t ackTimeoutCount;      /*!< Timeout value for the boot ACK. The available range is 0 ~ 15. */
     sdhc_boot_mode_t bootMode;     /*!< Boot mode selection. */
     uint32_t blockCount;           /*!< Stop at block gap value of automatic mode. Available range is 0 ~ 65535. */
@@ -466,8 +442,7 @@ typedef struct _sdhc_boot_config
 } sdhc_boot_config_t;
 
 /*! @brief Data structure to initialize the SDHC */
-typedef struct _sdhc_config
-{
+typedef struct _sdhc_config {
     bool cardDetectDat3;           /*!< Enable DAT3 as card detection pin */
     sdhc_endian_mode_t endianMode; /*!< Endian mode */
     sdhc_dma_mode_t dmaMode;       /*!< DMA mode */
@@ -483,8 +458,7 @@ typedef struct _sdhc_config
  * want to ignore the error event to read/write all the data not to stop read/write immediately when error event
  * happen for example bus testing procedure for MMC card.
  */
-typedef struct _sdhc_data
-{
+typedef struct _sdhc_data {
     bool enableAutoCommand12; /*!< Enable auto CMD12 */
     bool enableIgnoreError;   /*!< Enable to ignore error event to read/write all the data */
     size_t blockSize;         /*!< Block size */
@@ -498,8 +472,7 @@ typedef struct _sdhc_data
  *
  * Define card command-related attribute.
  */
-typedef struct _sdhc_command
-{
+typedef struct _sdhc_command {
     uint32_t index;                         /*!< Command index */
     uint32_t argument;                      /*!< Command argument */
     sdhc_card_command_type_t type;          /*!< Command type */
@@ -510,8 +483,7 @@ typedef struct _sdhc_command
 } sdhc_command_t;
 
 /*! @brief Transfer state */
-typedef struct _sdhc_transfer
-{
+typedef struct _sdhc_transfer {
     sdhc_data_t *data;       /*!< Data to transfer */
     sdhc_command_t *command; /*!< Command to send */
 } sdhc_transfer_t;
@@ -520,8 +492,7 @@ typedef struct _sdhc_transfer
 typedef struct _sdhc_handle sdhc_handle_t;
 
 /*! @brief SDHC callback functions. */
-typedef struct _sdhc_transfer_callback
-{
+typedef struct _sdhc_transfer_callback {
     void (*CardInserted)(void);  /*!< Card inserted occurs when DAT3/CD pin is for card detect */
     void (*CardRemoved)(void);   /*!< Card removed occurs */
     void (*SdioInterrupt)(void); /*!< SDIO card interrupt occurs */
@@ -541,8 +512,7 @@ typedef struct _sdhc_transfer_callback
  *
  * @note All the fields except interruptFlags and transferredWords must be allocated by the user.
  */
-struct _sdhc_handle
-{
+struct _sdhc_handle {
     /* Transfer parameter */
     sdhc_data_t *volatile data;       /*!< Data to transfer */
     sdhc_command_t *volatile command; /*!< Command to send */
@@ -560,8 +530,7 @@ struct _sdhc_handle
 typedef status_t (*sdhc_transfer_function_t)(SDHC_Type *base, sdhc_transfer_t *content);
 
 /*! @brief SDHC host descriptor */
-typedef struct _sdhc_host
-{
+typedef struct _sdhc_host {
     SDHC_Type *base;                   /*!< SDHC peripheral base address */
     uint32_t sourceClock_Hz;           /*!< SDHC source clock frequency united in Hz */
     sdhc_config_t config;              /*!< SDHC configuration */
@@ -785,12 +754,9 @@ void SDHC_GetCapability(SDHC_Type *base, sdhc_capability_t *capability);
  */
 static inline void SDHC_EnableSdClock(SDHC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->SYSCTL |= SDHC_SYSCTL_SDCLKEN_MASK;
-    }
-    else
-    {
+    } else {
         base->SYSCTL &= ~SDHC_SYSCTL_SDCLKEN_MASK;
     }
 }
@@ -902,12 +868,9 @@ static inline uint32_t SDHC_ReadData(SDHC_Type *base)
  */
 static inline void SDHC_EnableWakeupEvent(SDHC_Type *base, uint32_t mask, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->PROCTL |= mask;
-    }
-    else
-    {
+    } else {
         base->PROCTL &= ~mask;
     }
 }
@@ -920,12 +883,9 @@ static inline void SDHC_EnableWakeupEvent(SDHC_Type *base, uint32_t mask, bool e
  */
 static inline void SDHC_EnableCardDetectTest(SDHC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->PROCTL |= SDHC_PROCTL_CDSS_MASK;
-    }
-    else
-    {
+    } else {
         base->PROCTL &= ~SDHC_PROCTL_CDSS_MASK;
     }
 }
@@ -943,12 +903,9 @@ static inline void SDHC_EnableCardDetectTest(SDHC_Type *base, bool enable)
  */
 static inline void SDHC_SetCardDetectTestLevel(SDHC_Type *base, bool high)
 {
-    if (high)
-    {
+    if (high) {
         base->PROCTL |= SDHC_PROCTL_CDTL_MASK;
-    }
-    else
-    {
+    } else {
         base->PROCTL &= ~SDHC_PROCTL_CDTL_MASK;
     }
 }

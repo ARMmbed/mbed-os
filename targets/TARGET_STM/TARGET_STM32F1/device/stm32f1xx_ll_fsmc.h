@@ -66,90 +66,88 @@ extern "C" {
 /**
   * @brief FSMC NORSRAM Configuration Structure definition
   */
-typedef struct
-{
-  uint32_t NSBank;                       /*!< Specifies the NORSRAM memory device that will be used.
+typedef struct {
+    uint32_t NSBank;                       /*!< Specifies the NORSRAM memory device that will be used.
                                               This parameter can be a value of @ref FSMC_NORSRAM_Bank                     */
 
-  uint32_t DataAddressMux;               /*!< Specifies whether the address and data values are
+    uint32_t DataAddressMux;               /*!< Specifies whether the address and data values are
                                               multiplexed on the data bus or not.
                                               This parameter can be a value of @ref FSMC_Data_Address_Bus_Multiplexing    */
 
-  uint32_t MemoryType;                   /*!< Specifies the type of external memory attached to
+    uint32_t MemoryType;                   /*!< Specifies the type of external memory attached to
                                               the corresponding memory device.
                                               This parameter can be a value of @ref FSMC_Memory_Type                      */
 
-  uint32_t MemoryDataWidth;              /*!< Specifies the external memory device width.
+    uint32_t MemoryDataWidth;              /*!< Specifies the external memory device width.
                                               This parameter can be a value of @ref FSMC_NORSRAM_Data_Width               */
 
-  uint32_t BurstAccessMode;              /*!< Enables or disables the burst access mode for Flash memory,
+    uint32_t BurstAccessMode;              /*!< Enables or disables the burst access mode for Flash memory,
                                               valid only with synchronous burst Flash memories.
                                               This parameter can be a value of @ref FSMC_Burst_Access_Mode                */
 
-  uint32_t WaitSignalPolarity;           /*!< Specifies the wait signal polarity, valid only when accessing
+    uint32_t WaitSignalPolarity;           /*!< Specifies the wait signal polarity, valid only when accessing
                                               the Flash memory in burst mode.
                                               This parameter can be a value of @ref FSMC_Wait_Signal_Polarity             */
 
-  uint32_t WrapMode;                     /*!< Enables or disables the Wrapped burst access mode for Flash
+    uint32_t WrapMode;                     /*!< Enables or disables the Wrapped burst access mode for Flash
                                               memory, valid only when accessing Flash memories in burst mode.
                                               This parameter can be a value of @ref FSMC_Wrap_Mode                        */
 
-  uint32_t WaitSignalActive;             /*!< Specifies if the wait signal is asserted by the memory one
+    uint32_t WaitSignalActive;             /*!< Specifies if the wait signal is asserted by the memory one
                                               clock cycle before the wait state or during the wait state,
                                               valid only when accessing memories in burst mode.
                                               This parameter can be a value of @ref FSMC_Wait_Timing                      */
 
-  uint32_t WriteOperation;               /*!< Enables or disables the write operation in the selected device by the FSMC.
+    uint32_t WriteOperation;               /*!< Enables or disables the write operation in the selected device by the FSMC.
                                               This parameter can be a value of @ref FSMC_Write_Operation                  */
 
-  uint32_t WaitSignal;                   /*!< Enables or disables the wait state insertion via wait
+    uint32_t WaitSignal;                   /*!< Enables or disables the wait state insertion via wait
                                               signal, valid for Flash memory access in burst mode.
                                               This parameter can be a value of @ref FSMC_Wait_Signal                      */
 
-  uint32_t ExtendedMode;                 /*!< Enables or disables the extended mode.
+    uint32_t ExtendedMode;                 /*!< Enables or disables the extended mode.
                                               This parameter can be a value of @ref FSMC_Extended_Mode                    */
 
-  uint32_t AsynchronousWait;             /*!< Enables or disables wait signal during asynchronous transfers,
+    uint32_t AsynchronousWait;             /*!< Enables or disables wait signal during asynchronous transfers,
                                               valid only with asynchronous Flash memories.
                                               This parameter can be a value of @ref FSMC_AsynchronousWait                 */
 
-  uint32_t WriteBurst;                   /*!< Enables or disables the write burst operation.
+    uint32_t WriteBurst;                   /*!< Enables or disables the write burst operation.
                                               This parameter can be a value of @ref FSMC_Write_Burst                      */
 
-}FSMC_NORSRAM_InitTypeDef;
+} FSMC_NORSRAM_InitTypeDef;
 
 /**
   * @brief FSMC NORSRAM Timing parameters structure definition
   */
-typedef struct
-{
-  uint32_t AddressSetupTime;             /*!< Defines the number of HCLK cycles to configure
+typedef struct {
+    uint32_t AddressSetupTime;             /*!< Defines the number of HCLK cycles to configure
                                               the duration of the address setup time.
                                               This parameter can be a value between Min_Data = 0 and Max_Data = 15.
                                               @note This parameter is not used with synchronous NOR Flash memories.      */
 
-  uint32_t AddressHoldTime;              /*!< Defines the number of HCLK cycles to configure
+    uint32_t AddressHoldTime;              /*!< Defines the number of HCLK cycles to configure
                                               the duration of the address hold time.
                                               This parameter can be a value between Min_Data = 1 and Max_Data = 15.
                                               @note This parameter is not used with synchronous NOR Flash memories.      */
 
-  uint32_t DataSetupTime;                /*!< Defines the number of HCLK cycles to configure
+    uint32_t DataSetupTime;                /*!< Defines the number of HCLK cycles to configure
                                               the duration of the data setup time.
                                               This parameter can be a value between Min_Data = 1 and Max_Data = 255.
                                               @note This parameter is used for SRAMs, ROMs and asynchronous multiplexed
                                               NOR Flash memories.                                                        */
 
-  uint32_t BusTurnAroundDuration;        /*!< Defines the number of HCLK cycles to configure
+    uint32_t BusTurnAroundDuration;        /*!< Defines the number of HCLK cycles to configure
                                               the duration of the bus turnaround.
                                               This parameter can be a value between Min_Data = 0 and Max_Data = 15.
                                               @note This parameter is only used for multiplexed NOR Flash memories.      */
 
-  uint32_t CLKDivision;                  /*!< Defines the period of CLK clock output signal, expressed in number of
+    uint32_t CLKDivision;                  /*!< Defines the period of CLK clock output signal, expressed in number of
                                               HCLK cycles. This parameter can be a value between Min_Data = 2 and Max_Data = 16.
                                               @note This parameter is not used for asynchronous NOR Flash, SRAM or ROM
                                               accesses.                                                                  */
 
-  uint32_t DataLatency;                  /*!< Defines the number of memory clock cycles to issue
+    uint32_t DataLatency;                  /*!< Defines the number of memory clock cycles to issue
                                               to the memory before getting the first data.
                                               The parameter value depends on the memory type as shown below:
                                               - It must be set to 0 in case of a CRAM
@@ -157,91 +155,88 @@ typedef struct
                                               - It may assume a value between Min_Data = 2 and Max_Data = 17 in NOR Flash memories
                                                 with synchronous burst mode enable                                       */
 
-  uint32_t AccessMode;                   /*!< Specifies the asynchronous access mode.
+    uint32_t AccessMode;                   /*!< Specifies the asynchronous access mode.
                                               This parameter can be a value of @ref FSMC_Access_Mode                     */
 
-}FSMC_NORSRAM_TimingTypeDef;
+} FSMC_NORSRAM_TimingTypeDef;
 
 #if (defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG) || defined(STM32F103xG))
 /**
   * @brief FSMC NAND Configuration Structure definition
   */
-typedef struct
-{
-  uint32_t NandBank;               /*!< Specifies the NAND memory device that will be used.
+typedef struct {
+    uint32_t NandBank;               /*!< Specifies the NAND memory device that will be used.
                                         This parameter can be a value of @ref FSMC_NAND_Bank                   */
 
-  uint32_t Waitfeature;            /*!< Enables or disables the Wait feature for the NAND Memory device.
+    uint32_t Waitfeature;            /*!< Enables or disables the Wait feature for the NAND Memory device.
                                         This parameter can be any value of @ref FSMC_Wait_feature              */
 
-  uint32_t MemoryDataWidth;        /*!< Specifies the external memory device width.
+    uint32_t MemoryDataWidth;        /*!< Specifies the external memory device width.
                                         This parameter can be any value of @ref FSMC_NAND_Data_Width           */
 
-  uint32_t EccComputation;         /*!< Enables or disables the ECC computation.
+    uint32_t EccComputation;         /*!< Enables or disables the ECC computation.
                                         This parameter can be any value of @ref FSMC_ECC                       */
 
-  uint32_t ECCPageSize;            /*!< Defines the page size for the extended ECC.
+    uint32_t ECCPageSize;            /*!< Defines the page size for the extended ECC.
                                         This parameter can be any value of @ref FSMC_ECC_Page_Size             */
 
-  uint32_t TCLRSetupTime;          /*!< Defines the number of HCLK cycles to configure the
+    uint32_t TCLRSetupTime;          /*!< Defines the number of HCLK cycles to configure the
                                         delay between CLE low and RE low.
                                         This parameter can be a value between Min_Data = 0 and Max_Data = 255  */
 
-  uint32_t TARSetupTime;           /*!< Defines the number of HCLK cycles to configure the
+    uint32_t TARSetupTime;           /*!< Defines the number of HCLK cycles to configure the
                                         delay between ALE low and RE low.
                                         This parameter can be a number between Min_Data = 0 and Max_Data = 255 */
 
-}FSMC_NAND_InitTypeDef;
+} FSMC_NAND_InitTypeDef;
 
 /**
   * @brief FSMC NAND/PCCARD Timing parameters structure definition
   */
-typedef struct
-{
-  uint32_t SetupTime;            /*!< Defines the number of HCLK cycles to setup address before
+typedef struct {
+    uint32_t SetupTime;            /*!< Defines the number of HCLK cycles to setup address before
                                       the command assertion for NAND-Flash read or write access
                                       to common/Attribute or I/O memory space (depending on
                                       the memory space timing to be configured).
                                       This parameter can be a value between Min_Data = 0 and Max_Data = 255    */
 
-  uint32_t WaitSetupTime;        /*!< Defines the minimum number of HCLK cycles to assert the
+    uint32_t WaitSetupTime;        /*!< Defines the minimum number of HCLK cycles to assert the
                                       command for NAND-Flash read or write access to
                                       common/Attribute or I/O memory space (depending on the
                                       memory space timing to be configured).
                                       This parameter can be a number between Min_Data = 0 and Max_Data = 255   */
 
-  uint32_t HoldSetupTime;        /*!< Defines the number of HCLK clock cycles to hold address
+    uint32_t HoldSetupTime;        /*!< Defines the number of HCLK clock cycles to hold address
                                       (and data for write access) after the command de-assertion
                                       for NAND-Flash read or write access to common/Attribute
                                       or I/O memory space (depending on the memory space timing
                                       to be configured).
                                       This parameter can be a number between Min_Data = 0 and Max_Data = 255   */
 
-  uint32_t HiZSetupTime;         /*!< Defines the number of HCLK clock cycles during which the
+    uint32_t HiZSetupTime;         /*!< Defines the number of HCLK clock cycles during which the
                                       data bus is kept in HiZ after the start of a NAND-Flash
                                       write access to common/Attribute or I/O memory space (depending
                                       on the memory space timing to be configured).
                                       This parameter can be a number between Min_Data = 0 and Max_Data = 255   */
 
-}FSMC_NAND_PCC_TimingTypeDef;
+} FSMC_NAND_PCC_TimingTypeDef;
 
 /**
   * @brief  FSMC NAND Configuration Structure definition
   */
-typedef struct
-{
-  uint32_t Waitfeature;            /*!< Enables or disables the Wait feature for the PCCARD Memory device.
+typedef struct {
+    uint32_t Waitfeature;            /*!< Enables or disables the Wait feature for the PCCARD Memory device.
                                         This parameter can be any value of @ref FSMC_Wait_feature              */
 
-  uint32_t TCLRSetupTime;          /*!< Defines the number of HCLK cycles to configure the
+    uint32_t TCLRSetupTime;          /*!< Defines the number of HCLK cycles to configure the
                                         delay between CLE low and RE low.
                                         This parameter can be a value between Min_Data = 0 and Max_Data = 255  */
 
-  uint32_t TARSetupTime;           /*!< Defines the number of HCLK cycles to configure the
+    uint32_t TARSetupTime;           /*!< Defines the number of HCLK cycles to configure the
                                         delay between ALE low and RE low.
                                         This parameter can be a number between Min_Data = 0 and Max_Data = 255 */
 
-}FSMC_PCCARD_InitTypeDef;
+} FSMC_PCCARD_InitTypeDef;
 #endif /* STM32F101xE || STM32F103xE || STM32F101xG || STM32F103xG */
 /**
   * @}
@@ -905,7 +900,7 @@ typedef struct
 /**
   * @}
   */
- 
+
 /** @defgroup FSMC_LL_Private_Constants FSMC Low Layer Private Constants
   * @{
   */
@@ -1047,7 +1042,7 @@ HAL_StatusTypeDef  FSMC_NAND_GetECC(FSMC_NAND_TypeDef *Device, uint32_t *ECCval,
 HAL_StatusTypeDef  FSMC_PCCARD_Init(FSMC_PCCARD_TypeDef *Device, FSMC_PCCARD_InitTypeDef *Init);
 HAL_StatusTypeDef  FSMC_PCCARD_CommonSpace_Timing_Init(FSMC_PCCARD_TypeDef *Device, FSMC_NAND_PCC_TimingTypeDef *Timing);
 HAL_StatusTypeDef  FSMC_PCCARD_AttributeSpace_Timing_Init(FSMC_PCCARD_TypeDef *Device, FSMC_NAND_PCC_TimingTypeDef *Timing);
-HAL_StatusTypeDef  FSMC_PCCARD_IOSpace_Timing_Init(FSMC_PCCARD_TypeDef *Device, FSMC_NAND_PCC_TimingTypeDef *Timing); 
+HAL_StatusTypeDef  FSMC_PCCARD_IOSpace_Timing_Init(FSMC_PCCARD_TypeDef *Device, FSMC_NAND_PCC_TimingTypeDef *Timing);
 HAL_StatusTypeDef  FSMC_PCCARD_DeInit(FSMC_PCCARD_TypeDef *Device);
 /**
   * @}

@@ -25,7 +25,7 @@ uint32_t gau32ClkSrcTbl[] = {__HXT, __LXT, 0UL, __LIRC, 0UL, 0UL, 0UL, __HIRC};
 /*----------------------------------------------------------------------------
   Clock functions
  *----------------------------------------------------------------------------*/
-void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
+void SystemCoreClockUpdate(void)             /* Get Core Clock Frequency      */
 {
     uint32_t u32Freq, u32ClkSrc;
     uint32_t u32HclkDiv;
@@ -35,7 +35,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
 
     u32ClkSrc = CLK->CLKSEL0 & CLK_CLKSEL0_HCLKSEL_Msk;
 
-    if(u32ClkSrc == CLK_CLKSEL0_HCLKSEL_PLL) {
+    if (u32ClkSrc == CLK_CLKSEL0_HCLKSEL_PLL) {
         /* Use PLL clock */
         u32Freq = PllClock;
     } else {
@@ -60,7 +60,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
  * @brief  Setup the micro controller system.
  *         Initialize the System.
  */
-void SystemInit (void)
+void SystemInit(void)
 {
     /* ToDo: add code to initialize the system
              do not use global variables because this function is called before
@@ -69,8 +69,8 @@ void SystemInit (void)
 
     /* FPU settings ------------------------------------------------------------*/
 #if (__FPU_PRESENT == 1U) && (__FPU_USED == 1U)
-    SCB->CPACR |= ((3UL << 10*2) |                 /* set CP10 Full Access */
-                   (3UL << 11*2)  );               /* set CP11 Full Access */
+    SCB->CPACR |= ((3UL << 10 * 2) |               /* set CP10 Full Access */
+                   (3UL << 11 * 2));               /* set CP11 Full Access */
 #endif
 
     /* Disable Flash Access Cycle Auto-tuning, set access cycle for CPU @ 192MHz */
@@ -84,7 +84,7 @@ void SystemInit (void)
     SPIM_DISABLE_CACHE();
     SPIM_ENABLE_CCM();
     while (! SPIM_IS_CCM_EN());
-    
+
 #ifndef MBED_CONF_TARGET_CTRL01_ENABLE
 #define MBED_CONF_TARGET_CTRL01_ENABLE 1
 #endif

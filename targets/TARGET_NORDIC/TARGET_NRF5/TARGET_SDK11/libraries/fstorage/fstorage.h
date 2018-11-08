@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -53,8 +53,7 @@
 
 
 /**@brief   fstorage return values. */
-typedef enum
-{
+typedef enum {
     FS_SUCCESS,
     FS_ERR_NOT_INITIALIZED,     //!< Error. The module is not initialized.
     FS_ERR_INVALID_CFG,         //!< Error. Invalid fstorage configuration.
@@ -69,35 +68,30 @@ typedef enum
 
 
 /**@brief   fstorage event IDs. */
-typedef enum
-{
+typedef enum {
     FS_EVT_STORE,   //!< Event for @ref fs_store.
     FS_EVT_ERASE    //!< Event for @ref fs_erase.
 } fs_evt_id_t;
 
 
 #if defined(__CC_ARM)
-  #pragma push
-  #pragma anon_unions
+#pragma push
+#pragma anon_unions
 #elif defined(__ICCARM__)
-  #pragma language=extended
+#pragma language=extended
 #elif defined(__GNUC__)
-  /* anonymous unions are enabled by default */
+/* anonymous unions are enabled by default */
 #endif
 
 /**@brief   An fstorage event. */
-typedef struct
-{
+typedef struct {
     fs_evt_id_t id;                         //!< The event ID.
-    union
-    {
-        struct
-        {
-            uint32_t const * p_data;        //!< Pointer to the data stored in flash.
+    union {
+        struct {
+            uint32_t const *p_data;         //!< Pointer to the data stored in flash.
             uint16_t         length_words;  //!< Length of the data, in 4-byte words.
         } store;
-        struct
-        {
+        struct {
             uint16_t first_page;            //!< First page erased.
             uint16_t last_page;             //!< Last page erased.
         } erase;
@@ -105,11 +99,11 @@ typedef struct
 } fs_evt_t;
 
 #if defined(__CC_ARM)
-  #pragma pop
+#pragma pop
 #elif defined(__ICCARM__)
-  /* leave anonymous unions enabled */
+/* leave anonymous unions enabled */
 #elif defined(__GNUC__)
-  /* anonymous unions are enabled by default */
+/* anonymous unions are enabled by default */
 #endif
 
 
@@ -118,7 +112,7 @@ typedef struct
  * @param[in]   evt     The event.
  * @param[in]   result  The result of the operation.
  */
-typedef void (*fs_cb_t)(fs_evt_t const * const evt, fs_ret_t result);
+typedef void (*fs_cb_t)(fs_evt_t const *const evt, fs_ret_t result);
 
 
 /**@brief   fstorage application-specific configuration.
@@ -132,17 +126,16 @@ typedef void (*fs_cb_t)(fs_evt_t const * const evt, fs_ret_t result);
  * @note    The fields @p p_start_addr and @p p_end_address are set by @ref fs_init, based on the
  *          value of the field @p priority.
  */
-typedef struct
-{
+typedef struct {
     /**@brief   The beginning of the flash space assigned to the application which registered this
      *          configuration. This field is set by @ref fs_init.
      */
-    uint32_t const * p_start_addr;
+    uint32_t const *p_start_addr;
 
     /**@brief   The end of the flash space assigned to the application which registered this
      *          configuration. This field is set by @ref fs_init.
      */
-    uint32_t const * p_end_addr;
+    uint32_t const *p_end_addr;
 
     fs_cb_t  const   callback;    //!< Callback to run when a flash operation has completed.
     uint8_t  const   num_pages;   //!< The number of flash pages requested.
@@ -205,9 +198,9 @@ fs_ret_t fs_init(void);
  * @retval  FS_ERR_UNALIGNED_ADDR   If @p p_dest or @p p_src are not aligned to a word boundary.
  * @retval  FS_ERR_QUEUE_FULL       If the internal operation queue is full.
  */
-fs_ret_t fs_store(fs_config_t const * const p_config,
-                  uint32_t    const * const p_dest,
-                  uint32_t    const * const p_src,
+fs_ret_t fs_store(fs_config_t const *const p_config,
+                  uint32_t    const *const p_dest,
+                  uint32_t    const *const p_src,
                   uint16_t                  length_words);
 
 
@@ -232,8 +225,8 @@ fs_ret_t fs_store(fs_config_t const * const p_config,
  * @retval  FS_ERR_UNALIGNED_ADDR   If @p p_page_addr is not aligned to a page boundary.
  * @retval  FS_ERR_QUEUE_FULL       If the internal operation queue is full.
  */
-fs_ret_t fs_erase(fs_config_t const * const p_config,
-                  uint32_t    const * const p_page_addr,
+fs_ret_t fs_erase(fs_config_t const *const p_config,
+                  uint32_t    const *const p_page_addr,
                   uint16_t                  num_pages);
 
 
@@ -244,7 +237,7 @@ fs_ret_t fs_erase(fs_config_t const * const p_config,
  * @retval  FS_SUCCESS          If the number of queued operations was retrieved successfully.
  * @retval  FS_ERR_NULL_ARG     If @p p_op_count is NULL.
  */
-fs_ret_t fs_queued_op_count_get(uint32_t * const p_op_count);
+fs_ret_t fs_queued_op_count_get(uint32_t *const p_op_count);
 
 
 /**@brief   Function for handling system events from the SoftDevice.

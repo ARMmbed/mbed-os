@@ -96,7 +96,7 @@ uint32_t DualTimer_Read_2(uint32_t timer);
  * mode: enable mode
  */
 void DualTimer_SetInterrupt_1(uint32_t timer, uint32_t time_us,
-            timerenable_t mode);
+                              timerenable_t mode);
 
 /*
  * DualTimer_SetInterrupt_2(): sets timer 2 Interrupt
@@ -105,7 +105,7 @@ void DualTimer_SetInterrupt_1(uint32_t timer, uint32_t time_us,
  * mode: enable mode
  */
 void DualTimer_SetInterrupt_2(uint32_t timer, uint32_t time_us,
-            timerenable_t mode);
+                              timerenable_t mode);
 
 /*
  * DualTimer_DisableInterrupt(): disables timer interrupts

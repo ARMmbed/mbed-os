@@ -49,55 +49,48 @@
 /*@}*/
 
 /*! @brief Internal resistor pull feature selection */
-enum _port_pull
-{
+enum _port_pull {
     kPORT_PullDisable = 0U, /*!< Internal pull-up/down resistor is disabled. */
     kPORT_PullDown = 2U,    /*!< Internal pull-down resistor is enabled. */
     kPORT_PullUp = 3U,      /*!< Internal pull-up resistor is enabled. */
 };
 
 /*! @brief Slew rate selection */
-enum _port_slew_rate
-{
+enum _port_slew_rate {
     kPORT_FastSlewRate = 0U, /*!< Fast slew rate is configured. */
     kPORT_SlowSlewRate = 1U, /*!< Slow slew rate is configured. */
 };
 
 #if defined(FSL_FEATURE_PORT_HAS_OPEN_DRAIN) && FSL_FEATURE_PORT_HAS_OPEN_DRAIN
 /*! @brief Internal resistor pull feature enable/disable */
-enum _port_open_drain_enable
-{
+enum _port_open_drain_enable {
     kPORT_OpenDrainDisable = 0U, /*!< Internal pull-down resistor is disabled. */
     kPORT_OpenDrainEnable = 1U,  /*!< Internal pull-up resistor is enabled. */
 };
 #endif /* FSL_FEATURE_PORT_HAS_OPEN_DRAIN */
 
 /*! @brief Passive filter feature enable/disable */
-enum _port_passive_filter_enable
-{
+enum _port_passive_filter_enable {
     kPORT_PassiveFilterDisable = 0U, /*!< Fast slew rate is configured. */
     kPORT_PassiveFilterEnable = 1U,  /*!< Slow slew rate is configured. */
 };
 
 /*! @brief Configures the drive strength. */
-enum _port_drive_strength
-{
+enum _port_drive_strength {
     kPORT_LowDriveStrength = 0U,  /*!< Low-drive strength is configured. */
     kPORT_HighDriveStrength = 1U, /*!< High-drive strength is configured. */
 };
 
 #if defined(FSL_FEATURE_PORT_HAS_PIN_CONTROL_LOCK) && FSL_FEATURE_PORT_HAS_PIN_CONTROL_LOCK
 /*! @brief Unlock/lock the pin control register field[15:0] */
-enum _port_lock_register
-{
+enum _port_lock_register {
     kPORT_UnlockRegister = 0U, /*!< Pin Control Register fields [15:0] are not locked. */
     kPORT_LockRegister = 1U,   /*!< Pin Control Register fields [15:0] are locked. */
 };
 #endif /* FSL_FEATURE_PORT_HAS_PIN_CONTROL_LOCK */
 
 /*! @brief Pin mux selection */
-typedef enum _port_mux
-{
+typedef enum _port_mux {
     kPORT_PinDisabledOrAnalog = 0U, /*!< Corresponding pin is disabled, but is used as an analog pin. */
     kPORT_MuxAsGpio = 1U,           /*!< Corresponding pin is configured as GPIO. */
     kPORT_MuxAlt2 = 2U,             /*!< Chip-specific */
@@ -109,8 +102,7 @@ typedef enum _port_mux
 } port_mux_t;
 
 /*! @brief Configures the interrupt generation condition. */
-typedef enum _port_interrupt
-{
+typedef enum _port_interrupt {
     kPORT_InterruptOrDMADisabled = 0x0U, /*!< Interrupt/DMA request is disabled. */
 #if defined(FSL_FEATURE_PORT_HAS_DMA_REQUEST) && FSL_FEATURE_PORT_HAS_DMA_REQUEST
     kPORT_DMARisingEdge = 0x1U,  /*!< DMA request on rising edge. */
@@ -135,23 +127,20 @@ typedef enum _port_interrupt
 
 #if defined(FSL_FEATURE_PORT_HAS_DIGITAL_FILTER) && FSL_FEATURE_PORT_HAS_DIGITAL_FILTER
 /*! @brief Digital filter clock source selection */
-typedef enum _port_digital_filter_clock_source
-{
+typedef enum _port_digital_filter_clock_source {
     kPORT_BusClock = 0U, /*!< Digital filters are clocked by the bus clock. */
     kPORT_LpoClock = 1U, /*!< Digital filters are clocked by the 1 kHz LPO clock. */
 } port_digital_filter_clock_source_t;
 
 /*! @brief PORT digital filter feature configuration definition */
-typedef struct _port_digital_filter_config
-{
+typedef struct _port_digital_filter_config {
     uint32_t digitalFilterWidth;                    /*!< Set digital filter width */
     port_digital_filter_clock_source_t clockSource; /*!< Set digital filter clockSource */
 } port_digital_filter_config_t;
 #endif /* FSL_FEATURE_PORT_HAS_DIGITAL_FILTER */
 
 /*! @brief PORT pin configuration structure */
-typedef struct _port_pin_config
-{
+typedef struct _port_pin_config {
     uint16_t pullSelect : 2; /*!< No-pull/pull-down/pull-up select */
     uint16_t slewRate : 1;   /*!< Fast/slow slew rate Configure */
     uint16_t : 1;
@@ -239,12 +228,10 @@ static inline void PORT_SetMultiplePinsConfig(PORT_Type *base, uint32_t mask, co
 
     uint16_t pcrl = *((const uint16_t *)config);
 
-    if (mask & 0xffffU)
-    {
+    if (mask & 0xffffU) {
         base->GPCLR = ((mask & 0xffffU) << 16) | pcrl;
     }
-    if (mask >> 16)
-    {
+    if (mask >> 16) {
         base->GPCHR = (mask & 0xffff0000U) | pcrl;
     }
 }
@@ -284,12 +271,9 @@ static inline void PORT_SetPinMux(PORT_Type *base, uint32_t pin, port_mux_t mux)
  */
 static inline void PORT_EnablePinsDigitalFilter(PORT_Type *base, uint32_t mask, bool enable)
 {
-    if (enable == true)
-    {
+    if (enable == true) {
         base->DFER |= mask;
-    }
-    else
-    {
+    } else {
         base->DFER &= ~mask;
     }
 }

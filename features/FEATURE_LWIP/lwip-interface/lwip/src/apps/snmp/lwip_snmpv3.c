@@ -49,7 +49,7 @@
 void
 snmpv3_engine_id_changed(void)
 {
-  snmpv3_set_engine_boots(0);
+    snmpv3_set_engine_boots(0);
 }
 
 /** According to RFC3414 2.2.2.
@@ -61,13 +61,13 @@ snmpv3_engine_id_changed(void)
 u32_t
 snmpv3_get_engine_boots_internal(void)
 {
-  if (snmpv3_get_engine_boots() == 0 ||
-      snmpv3_get_engine_boots() < SNMP_MAX_TIME_BOOT) {
-    return snmpv3_get_engine_boots();
-  }
+    if (snmpv3_get_engine_boots() == 0 ||
+            snmpv3_get_engine_boots() < SNMP_MAX_TIME_BOOT) {
+        return snmpv3_get_engine_boots();
+    }
 
-  snmpv3_set_engine_boots(SNMP_MAX_TIME_BOOT);
-  return snmpv3_get_engine_boots();
+    snmpv3_set_engine_boots(SNMP_MAX_TIME_BOOT);
+    return snmpv3_get_engine_boots();
 }
 
 /** RFC3414 2.2.2.
@@ -78,17 +78,17 @@ snmpv3_get_engine_boots_internal(void)
 u32_t
 snmpv3_get_engine_time_internal(void)
 {
-  if (snmpv3_get_engine_time() >= SNMP_MAX_TIME_BOOT) {
-    snmpv3_reset_engine_time();
+    if (snmpv3_get_engine_time() >= SNMP_MAX_TIME_BOOT) {
+        snmpv3_reset_engine_time();
 
-    if (snmpv3_get_engine_boots() < SNMP_MAX_TIME_BOOT - 1) {
-      snmpv3_set_engine_boots(snmpv3_get_engine_boots() + 1);
-    } else {
-      snmpv3_set_engine_boots(SNMP_MAX_TIME_BOOT);
+        if (snmpv3_get_engine_boots() < SNMP_MAX_TIME_BOOT - 1) {
+            snmpv3_set_engine_boots(snmpv3_get_engine_boots() + 1);
+        } else {
+            snmpv3_set_engine_boots(SNMP_MAX_TIME_BOOT);
+        }
     }
-  }
 
-  return snmpv3_get_engine_time();
+    return snmpv3_get_engine_time();
 }
 
 #if LWIP_SNMP_V3_CRYPTO
@@ -101,35 +101,35 @@ snmpv3_get_engine_time_internal(void)
  * @todo: This is a potential thread safety issue.
  */
 err_t
-snmpv3_build_priv_param(u8_t* priv_param)
+snmpv3_build_priv_param(u8_t *priv_param)
 {
 #ifdef LWIP_RAND /* Based on RFC3826 */
-  static u8_t init;
-  static u32_t priv1, priv2;
+    static u8_t init;
+    static u32_t priv1, priv2;
 
-  /* Lazy initialisation */
-  if (init == 0) {
-    init = 1;
-    priv1 = LWIP_RAND();
-    priv2 = LWIP_RAND();
-  }
+    /* Lazy initialisation */
+    if (init == 0) {
+        init = 1;
+        priv1 = LWIP_RAND();
+        priv2 = LWIP_RAND();
+    }
 
-  SMEMCPY(&priv_param[0], &priv1, sizeof(priv1));
-  SMEMCPY(&priv_param[4], &priv2, sizeof(priv2));
+    SMEMCPY(&priv_param[0], &priv1, sizeof(priv1));
+    SMEMCPY(&priv_param[4], &priv2, sizeof(priv2));
 
-  /* Emulate 64bit increment */
-  priv1++;
-  if (!priv1) { /* Overflow */
-    priv2++;
-  }
+    /* Emulate 64bit increment */
+    priv1++;
+    if (!priv1) { /* Overflow */
+        priv2++;
+    }
 #else /* Based on RFC3414 */
-  static u32_t ctr;
-  u32_t boots = LWIP_SNMPV3_GET_ENGINE_BOOTS();
-  SMEMCPY(&priv_param[0], &boots, 4);
-  SMEMCPY(&priv_param[4], &ctr, 4);
-  ctr++;
+    static u32_t ctr;
+    u32_t boots = LWIP_SNMPV3_GET_ENGINE_BOOTS();
+    SMEMCPY(&priv_param[0], &boots, 4);
+    SMEMCPY(&priv_param[4], &ctr, 4);
+    ctr++;
 #endif
-  return ERR_OK;
+    return ERR_OK;
 }
 #endif /* LWIP_SNMP_V3_CRYPTO */
 

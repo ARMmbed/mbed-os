@@ -28,13 +28,13 @@ void *__wrap__sbrk(int incr)
     static uint32_t heap_ind = (uint32_t) &__mbed_sbrk_start;
     uint32_t heap_ind_old = NU_ALIGN_UP(heap_ind, NU_HEAP_ALIGN);
     uint32_t heap_ind_new = NU_ALIGN_UP(heap_ind_old + incr, NU_HEAP_ALIGN);
-    
+
     if (heap_ind_new > &__mbed_krbs_start) {
         errno = ENOMEM;
         return (void *) -1;
-    } 
-    
+    }
+
     heap_ind = heap_ind_new;
-    
+
     return (void *) heap_ind_old;
 }

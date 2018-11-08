@@ -38,24 +38,23 @@
  * @{
  * @brief EFM32PG12B_VDAC Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t   CTRL;          /**< Control Register  */
-  __IM uint32_t    STATUS;        /**< Status Register  */
-  __IOM uint32_t   CH0CTRL;       /**< Channel 0 Control Register  */
-  __IOM uint32_t   CH1CTRL;       /**< Channel 1 Control Register  */
-  __IOM uint32_t   CMD;           /**< Command Register  */
-  __IM uint32_t    IF;            /**< Interrupt Flag Register  */
-  __IOM uint32_t   IFS;           /**< Interrupt Flag Set Register  */
-  __IOM uint32_t   IFC;           /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t   IEN;           /**< Interrupt Enable Register  */
-  __IOM uint32_t   CH0DATA;       /**< Channel 0 Data Register  */
-  __IOM uint32_t   CH1DATA;       /**< Channel 1 Data Register  */
-  __IOM uint32_t   COMBDATA;      /**< Combined Data Register  */
-  __IOM uint32_t   CAL;           /**< Calibration Register  */
+typedef struct {
+    __IOM uint32_t   CTRL;          /**< Control Register  */
+    __IM uint32_t    STATUS;        /**< Status Register  */
+    __IOM uint32_t   CH0CTRL;       /**< Channel 0 Control Register  */
+    __IOM uint32_t   CH1CTRL;       /**< Channel 1 Control Register  */
+    __IOM uint32_t   CMD;           /**< Command Register  */
+    __IM uint32_t    IF;            /**< Interrupt Flag Register  */
+    __IOM uint32_t   IFS;           /**< Interrupt Flag Set Register  */
+    __IOM uint32_t   IFC;           /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t   IEN;           /**< Interrupt Enable Register  */
+    __IOM uint32_t   CH0DATA;       /**< Channel 0 Data Register  */
+    __IOM uint32_t   CH1DATA;       /**< Channel 1 Data Register  */
+    __IOM uint32_t   COMBDATA;      /**< Combined Data Register  */
+    __IOM uint32_t   CAL;           /**< Calibration Register  */
 
-  uint32_t         RESERVED0[27]; /**< Reserved registers */
-  VDAC_OPA_TypeDef OPA[3];        /**< OPA Registers */
+    uint32_t         RESERVED0[27]; /**< Reserved registers */
+    VDAC_OPA_TypeDef OPA[3];        /**< OPA Registers */
 } VDAC_TypeDef;                   /** @} */
 
 /**************************************************************************//**

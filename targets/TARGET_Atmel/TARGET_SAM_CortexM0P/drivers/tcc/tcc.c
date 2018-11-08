@@ -54,11 +54,11 @@
  * Converts a given TCC index to its interrupt vector index.
  */
 #  define _TCC_INTERRUPT_VECT_NUM(n, unused) \
-		SYSTEM_INTERRUPT_MODULE_TCC##n,
+        SYSTEM_INTERRUPT_MODULE_TCC##n,
 #endif
 
 #define _SIZE_MAX(size) ((size==32u) ? 0xFFFFFFFF : ( \
-		(1u << size) - 1))
+        (1u << size) - 1))
 
 #define _SIZE_MAX_WITH_DITHER 0x03FFFFFF
 
@@ -200,14 +200,14 @@ void tcc_get_config_defaults(
 
     /* Match/Capture defaults */
 #  define _TCC_CHANNEL_MATCH_VALUE_INIT(n, value) \
-		config->compare.match[n] = value;
+        config->compare.match[n] = value;
     MREPEAT(TCC_NUM_CHANNELS,
             _TCC_CHANNEL_MATCH_VALUE_INIT, 0)
 #  undef _TCC_CHANNEL_MATCH_VALUE_INIT
 
     /* Wave polarity defaults */
 #  define _TCC_CHANNEL_WAVE_POLARITY_INIT(n, value) \
-		config->compare.wave_polarity[n] = value;
+        config->compare.wave_polarity[n] = value;
     MREPEAT(TCC_NUM_CHANNELS,
             _TCC_CHANNEL_WAVE_POLARITY_INIT, TCC_WAVE_POLARITY_0)
 #  undef _TCC_CHANNEL_WAVE_POLARITY_INIT
@@ -216,43 +216,43 @@ void tcc_get_config_defaults(
     config->compare.wave_ramp       = TCC_RAMP_RAMP1;
 
 #  define _TCC_CHANNEL_FUNCTION_INIT(n, value) \
-		config->compare.channel_function[n] = value;
+        config->compare.channel_function[n] = value;
     MREPEAT(TCC_NUM_CHANNELS,
             _TCC_CHANNEL_FUNCTION_INIT, TCC_CHANNEL_FUNCTION_COMPARE)
 #  undef _TCC_CHANNEL_FUNCTION_INIT
 
     /* Recoverable fault defaults */
 #  define _TCC_FAULT_FUNCTION_INIT(n, dummy) \
-		config->wave_ext.recoverable_fault[n].filter_value = 0;      \
-		config->wave_ext.recoverable_fault[n].blanking_cycles = 0;   \
-		config->wave_ext.recoverable_fault[n].restart = false;       \
-		config->wave_ext.recoverable_fault[n].keep = false;          \
-		config->wave_ext.recoverable_fault[n].qualification = false; \
-		config->wave_ext.recoverable_fault[n].source = TCC_FAULT_SOURCE_DISABLE;           \
-		config->wave_ext.recoverable_fault[n].blanking = TCC_FAULT_BLANKING_DISABLE;       \
-		config->wave_ext.recoverable_fault[n].halt_action = TCC_FAULT_HALT_ACTION_DISABLE; \
-		config->wave_ext.recoverable_fault[n].capture_action = TCC_FAULT_CAPTURE_DISABLE;  \
-		config->wave_ext.recoverable_fault[n].capture_channel = TCC_FAULT_CAPTURE_CHANNEL_0;
+        config->wave_ext.recoverable_fault[n].filter_value = 0;      \
+        config->wave_ext.recoverable_fault[n].blanking_cycles = 0;   \
+        config->wave_ext.recoverable_fault[n].restart = false;       \
+        config->wave_ext.recoverable_fault[n].keep = false;          \
+        config->wave_ext.recoverable_fault[n].qualification = false; \
+        config->wave_ext.recoverable_fault[n].source = TCC_FAULT_SOURCE_DISABLE;           \
+        config->wave_ext.recoverable_fault[n].blanking = TCC_FAULT_BLANKING_DISABLE;       \
+        config->wave_ext.recoverable_fault[n].halt_action = TCC_FAULT_HALT_ACTION_DISABLE; \
+        config->wave_ext.recoverable_fault[n].capture_action = TCC_FAULT_CAPTURE_DISABLE;  \
+        config->wave_ext.recoverable_fault[n].capture_channel = TCC_FAULT_CAPTURE_CHANNEL_0;
     MREPEAT(TCC_NUM_FAULTS, _TCC_FAULT_FUNCTION_INIT, 0)
 #  undef _TCC_FAULT_FUNCTION_INIT
 
     /* Non-recoverable fault defaults */
 #  define _TCC_NRF_FUNCTION_INIT(n, dummy) \
-		config->wave_ext.non_recoverable_fault[n].filter_value = 0; \
-		config->wave_ext.non_recoverable_fault[n].output = TCC_FAULT_STATE_OUTPUT_OFF;
+        config->wave_ext.non_recoverable_fault[n].filter_value = 0; \
+        config->wave_ext.non_recoverable_fault[n].output = TCC_FAULT_STATE_OUTPUT_OFF;
     MREPEAT(TCC_NUM_WAVE_OUTPUTS, _TCC_NRF_FUNCTION_INIT, 0)
 #  undef _TCC_NRF_FUNCTION_INIT
 
     /* Output inversion defaults */
 #  define _TCC_OUT_INVERT_INIT(n, value) \
-		config->wave_ext.invert[n] = value;
+        config->wave_ext.invert[n] = value;
     MREPEAT(TCC_NUM_WAVE_OUTPUTS, _TCC_OUT_INVERT_INIT, false)
 #  undef _TCC_OUT_INVERT_INIT
 
 #  define _TCC_CHANNEL_OUT_PIN_INIT(n, dummy) \
-		config->pins.enable_wave_out_pin[n]                = false;\
-		config->pins.wave_out_pin[TCC_WAVE_OUTPUT_##n]     = 0;    \
-		config->pins.wave_out_pin_mux[TCC_WAVE_OUTPUT_##n] = 0;
+        config->pins.enable_wave_out_pin[n]                = false;\
+        config->pins.wave_out_pin[TCC_WAVE_OUTPUT_##n]     = 0;    \
+        config->pins.wave_out_pin_mux[TCC_WAVE_OUTPUT_##n] = 0;
     MREPEAT(TCC_NUM_WAVE_OUTPUTS, _TCC_CHANNEL_OUT_PIN_INIT, 0)
 #  undef _TCC_CHANNEL_OUT_PIN_INIT
 
@@ -705,7 +705,7 @@ enum status_code tcc_enable_events(
     /* Setup event output action */
     if (events->output_config.modify_generation_selection) {
         evctrl &= ~ TCC_EVCTRL_CNTSEL_Msk;
-        switch(events->output_config.generation_selection) {
+        switch (events->output_config.generation_selection) {
             case TCC_EVENT_GENERATION_SELECTION_START:
                 evctrl |= TCC_EVCTRL_CNTSEL_START;
                 break;
@@ -733,7 +733,7 @@ enum status_code tcc_enable_events(
     }
     if (events->input_config[0].modify_action) {
         evctrl &= ~ TCC_EVCTRL_EVACT0_Msk;
-        switch(events->input_config[0].action) {
+        switch (events->input_config[0].action) {
             case TCC_EVENT0_ACTION_OFF:
                 evctrl |= TCC_EVCTRL_EVACT0_OFF;
                 break;
@@ -770,7 +770,7 @@ enum status_code tcc_enable_events(
     }
     if (events->input_config[1].modify_action) {
         evctrl &= ~ TCC_EVCTRL_EVACT1_Msk;
-        switch(events->input_config[1].action) {
+        switch (events->input_config[1].action) {
             case TCC_EVENT1_ACTION_OFF:
                 evctrl |= TCC_EVCTRL_EVACT1_OFF;
                 break;
@@ -804,7 +804,7 @@ enum status_code tcc_enable_events(
         }
     }
     uint32_t ch;
-    for(ch = 0; ch < TCC_NUM_CHANNELS; ch ++) {
+    for (ch = 0; ch < TCC_NUM_CHANNELS; ch ++) {
         if (events->generate_event_on_channel[ch]) {
             evctrl |= (TCC_EVCTRL_MCEO(1) << ch);
         }
@@ -857,7 +857,7 @@ void tcc_disable_events(
 
     uint32_t evctrl = 0;
     uint32_t ch;
-    for(ch = 0; ch < TCC_NUM_CHANNELS; ch ++) {
+    for (ch = 0; ch < TCC_NUM_CHANNELS; ch ++) {
         if (events->generate_event_on_channel[ch]) {
             evctrl |= (TCC_EVCTRL_MCEO(1) << ch);
         }
@@ -1003,7 +1003,7 @@ uint32_t tcc_get_capture_value(
     /* Get a pointer to the module's hardware instance */
     Tcc *const tcc_module = module_inst->hw;
 
-    while(tcc_module->SYNCBUSY.reg  & (TCC_SYNCBUSY_CC0 << channel_index)) {
+    while (tcc_module->SYNCBUSY.reg  & (TCC_SYNCBUSY_CC0 << channel_index)) {
         /* Sync wait */
     }
 
@@ -1059,14 +1059,14 @@ static enum status_code _tcc_set_compare_value(
 #if (SAML21) || (SAMC20) || (SAMC21)
         tcc_module->CCBUF[channel_index].reg = compare;
 #else
-        while(tcc_module->SYNCBUSY.reg  &
+        while (tcc_module->SYNCBUSY.reg  &
                 (TCC_SYNCBUSY_CCB0 << channel_index)) {
             /* Sync wait */
         }
         tcc_module->CCB[channel_index].reg = compare;
 #endif
     } else {
-        while(tcc_module->SYNCBUSY.reg  & (TCC_SYNCBUSY_CC0 << channel_index)) {
+        while (tcc_module->SYNCBUSY.reg  & (TCC_SYNCBUSY_CC0 << channel_index)) {
             /* Sync wait */
         }
         tcc_module->CC[channel_index].reg = compare;
@@ -1184,13 +1184,13 @@ static enum status_code _tcc_set_top_value(
 #if (SAML21) || (SAMC20) || (SAMC21)
         tcc_module->PERBUF.reg = top_value;
 #else
-        while(tcc_module->SYNCBUSY.reg  & TCC_SYNCBUSY_PERB) {
+        while (tcc_module->SYNCBUSY.reg  & TCC_SYNCBUSY_PERB) {
             /* Sync wait */
         }
         tcc_module->PERB.reg = top_value;
 #endif
     } else {
-        while(tcc_module->SYNCBUSY.reg  & TCC_SYNCBUSY_PER) {
+        while (tcc_module->SYNCBUSY.reg  & TCC_SYNCBUSY_PER) {
             /* Sync wait */
         }
         tcc_module->PER.reg = top_value;
@@ -1317,7 +1317,7 @@ enum status_code tcc_set_pattern(
 
     uint32_t patt_value;
 
-    while(tcc_module->SYNCBUSY.reg  & TCC_SYNCBUSY_PATT) {
+    while (tcc_module->SYNCBUSY.reg  & TCC_SYNCBUSY_PATT) {
         /* Sync wait */
     }
     patt_value = tcc_module->PATT.reg;
@@ -1325,16 +1325,16 @@ enum status_code tcc_set_pattern(
         patt_value &= ~(TCC_PATT_PGE0 << line_index);
     } else if (TCC_OUTPUT_PATTERN_0 == pattern) {
         patt_value &= ~(TCC_PATT_PGV0 << line_index);
-        patt_value |=  (TCC_PATT_PGE0 << line_index);
+        patt_value |= (TCC_PATT_PGE0 << line_index);
     } else {
-        patt_value |=  ((TCC_PATT_PGE0 | TCC_PATT_PGV0) << line_index);
+        patt_value |= ((TCC_PATT_PGE0 | TCC_PATT_PGV0) << line_index);
     }
 
     if (module_inst->double_buffering_enabled) {
 #if (SAML21) || (SAMC20) || (SAMC21)
         tcc_module->PATTBUF.reg = patt_value;
 #else
-        while(tcc_module->SYNCBUSY.reg  & TCC_SYNCBUSY_PATTB) {
+        while (tcc_module->SYNCBUSY.reg  & TCC_SYNCBUSY_PATTB) {
             /* Sync wait */
         }
         tcc_module->PATTB.reg = patt_value;
@@ -1550,7 +1550,7 @@ enum status_code tcc_enable_circular_buffer_compare(
         return STATUS_ERR_INVALID_ARG;
     }
 
-    tcc_module->WAVE.reg |=  (TCC_WAVE_CICCEN0 << channel_index);
+    tcc_module->WAVE.reg |= (TCC_WAVE_CICCEN0 << channel_index);
 
     return STATUS_OK;
 }

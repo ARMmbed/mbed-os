@@ -87,8 +87,8 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     if (status == kStatus_Success) {
         // Must use kFlashMargin_User, or kFlashMargin_Factory for verify program
         status = FLASH_VerifyProgram(&obj->flash_config, address, size,
-                              (uint32_t *)data, kFLASH_MarginValueUser,
-                              NULL, NULL);
+                                     (uint32_t *)data, kFLASH_MarginValueUser,
+                                     NULL, NULL);
     }
     core_util_critical_section_exit();
 

@@ -86,7 +86,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /*========  I N C L U D E  ========*/
 
- /*! \cond PRIVATE */
+/*! \cond PRIVATE */
 #include <adi_processor.h>
 #include <assert.h>
 #include <string.h>     /* for "memset" */
@@ -141,10 +141,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef ADI_DEBUG
 /* Validate Device Handle */
-static bool IsDeviceHandle (ADI_FEE_HANDLE const hDevice);
-static bool IsDeviceHandle (ADI_FEE_HANDLE const hDevice)
+static bool IsDeviceHandle(ADI_FEE_HANDLE const hDevice);
+static bool IsDeviceHandle(ADI_FEE_HANDLE const hDevice)
 {
-    if ( (fee_device_info[0].hDevice == (hDevice)) && ((hDevice)->pDevInfo->hDevice != NULL) ) {
+    if ((fee_device_info[0].hDevice == (hDevice)) && ((hDevice)->pDevInfo->hDevice != NULL)) {
         return true;
     } else {
         return false;
@@ -153,15 +153,16 @@ static bool IsDeviceHandle (ADI_FEE_HANDLE const hDevice)
 #endif
 
 /* Wait for specified flash status to be clear */
-static void BusyWait (ADI_FEE_HANDLE const hDevice, uint32_t const status);
-static void BusyWait (ADI_FEE_HANDLE const hDevice, uint32_t const status)
+static void BusyWait(ADI_FEE_HANDLE const hDevice, uint32_t const status);
+static void BusyWait(ADI_FEE_HANDLE const hDevice, uint32_t const status)
 {
     while ((hDevice->pDev->STAT & status) != 0u) {}
 }
 
 /* Internal DMA Callback for receiving DMA faults from common DMA error handler */
 static void dmaCallback(void *pCBParam, uint32_t Event, void *pArg);
-static void dmaCallback(void *pCBParam, uint32_t Event, void *pArg) {
+static void dmaCallback(void *pCBParam, uint32_t Event, void *pArg)
+{
 
     /* recover the device handle */
     ADI_FEE_HANDLE hDevice = (ADI_FEE_HANDLE)pCBParam;
@@ -184,7 +185,7 @@ static void dmaCallback(void *pCBParam, uint32_t Event, void *pArg) {
     SEM_POST(hDevice);
 
     if (0u != hDevice->pfCallback) {
-        hDevice->pfCallback (hDevice->pCBParam, (uint32_t)hDevice->dmaError, (void*)NULL);
+        hDevice->pfCallback(hDevice->pCBParam, (uint32_t)hDevice->dmaError, (void *)NULL);
     }
 }
 
@@ -227,7 +228,7 @@ static void dmaCallback(void *pCBParam, uint32_t Event, void *pArg) {
  *
  * @sa      adi_fee_Close().
  */
-ADI_FEE_RESULT adi_fee_Open (uint32_t const nDeviceNum, void* const pMemory, uint32_t const nMemorySize, ADI_FEE_HANDLE* const phDevice)
+ADI_FEE_RESULT adi_fee_Open(uint32_t const nDeviceNum, void *const pMemory, uint32_t const nMemorySize, ADI_FEE_HANDLE *const phDevice)
 {
     ADI_FEE_HANDLE hDevice = NULL;  /* initially */
 
@@ -249,7 +250,7 @@ ADI_FEE_RESULT adi_fee_Open (uint32_t const nDeviceNum, void* const pMemory, uin
         return ADI_FEE_ERR_INSUFFICIENT_MEM;
     }
 
-    assert (ADI_FEE_MEMORY_SIZE == sizeof(ADI_FEE_DEV_DATA_TYPE));
+    assert(ADI_FEE_MEMORY_SIZE == sizeof(ADI_FEE_DEV_DATA_TYPE));
 #endif
 
     /* store a bad handle in case of failure */
@@ -279,7 +280,7 @@ ADI_FEE_RESULT adi_fee_Open (uint32_t const nDeviceNum, void* const pMemory, uin
     hDevice->pDev = fee_device_info[nDeviceNum].pDev;
 
     /* store a pointer to user's static configuration settings for this device instance */
-    hDevice->pDevInfo->pConfig = (ADI_FEE_CONFIG*)&gConfigInfo[nDeviceNum];
+    hDevice->pDevInfo->pConfig = (ADI_FEE_CONFIG *)&gConfigInfo[nDeviceNum];
 
     /* create the semaphore */
     SEM_CREATE(hDevice, "fee_sem", ADI_FEE_ERR_SEMAPHORE_FAILED);
@@ -287,16 +288,16 @@ ADI_FEE_RESULT adi_fee_Open (uint32_t const nDeviceNum, void* const pMemory, uin
     /* grant keyed access */
     hDevice->pDev->KEY = ENUM_FLCC_KEY_USERKEY;
 
-        /* apply the static initializers */
-        hDevice->pDev->IEN         = hDevice->pDevInfo->pConfig->eccIrqEnables;
-        hDevice->pDev->TIME_PARAM0 = hDevice->pDevInfo->pConfig->param0;
-        hDevice->pDev->TIME_PARAM1 = hDevice->pDevInfo->pConfig->param1;
-        hDevice->pDev->ABORT_EN_LO = hDevice->pDevInfo->pConfig->abortEnableLo;
-        hDevice->pDev->ABORT_EN_HI = hDevice->pDevInfo->pConfig->abortEnableHi;
-        hDevice->pDev->ECC_CFG     = hDevice->pDevInfo->pConfig->eccConfig;
+    /* apply the static initializers */
+    hDevice->pDev->IEN         = hDevice->pDevInfo->pConfig->eccIrqEnables;
+    hDevice->pDev->TIME_PARAM0 = hDevice->pDevInfo->pConfig->param0;
+    hDevice->pDev->TIME_PARAM1 = hDevice->pDevInfo->pConfig->param1;
+    hDevice->pDev->ABORT_EN_LO = hDevice->pDevInfo->pConfig->abortEnableLo;
+    hDevice->pDev->ABORT_EN_HI = hDevice->pDevInfo->pConfig->abortEnableHi;
+    hDevice->pDev->ECC_CFG     = hDevice->pDevInfo->pConfig->eccConfig;
 
-        /* clear auto-increment and dma enable bits */
-        CLR_BITS (hDevice->pDev->UCFG, (BITM_FLCC_UCFG_AUTOINCEN | BITM_FLCC_UCFG_KHDMAEN));
+    /* clear auto-increment and dma enable bits */
+    CLR_BITS(hDevice->pDev->UCFG, (BITM_FLCC_UCFG_AUTOINCEN | BITM_FLCC_UCFG_KHDMAEN));
 
     /* close keyed access */
     hDevice->pDev->KEY = 0u;
@@ -307,7 +308,7 @@ ADI_FEE_RESULT adi_fee_Open (uint32_t const nDeviceNum, void* const pMemory, uin
     /* initialize DMA service */
     adi_dma_Init();
 
-    if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(hDevice->pDevInfo->dmaChanNum, dmaCallback, (void*)hDevice)) {
+    if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(hDevice->pDevInfo->dmaChanNum, dmaCallback, (void *)hDevice)) {
         /* uninitialize flash driver and fail */
         adi_fee_Close(hDevice);
         return  ADI_FEE_ERR_DMA_REGISTER;
@@ -339,7 +340,7 @@ ADI_FEE_RESULT adi_fee_Open (uint32_t const nDeviceNum, void* const pMemory, uin
  *
  * @sa  adi_fee_Open().
  */
-ADI_FEE_RESULT adi_fee_Close (ADI_FEE_HANDLE const hDevice)
+ADI_FEE_RESULT adi_fee_Close(ADI_FEE_HANDLE const hDevice)
 {
     uint32_t dev;
 
@@ -353,10 +354,8 @@ ADI_FEE_RESULT adi_fee_Close (ADI_FEE_HANDLE const hDevice)
     SEM_DELETE(hDevice, ADI_FEE_ERR_SEMAPHORE_FAILED);
 
     /* Remove the device handle from the list of possible device instances */
-    for (dev = 0u; dev < ADI_FEE_NUM_INSTANCES; dev++)
-    {
-        if (fee_device_info[dev].hDevice == hDevice)
-        {
+    for (dev = 0u; dev < ADI_FEE_NUM_INSTANCES; dev++) {
+        if (fee_device_info[dev].hDevice == hDevice) {
             fee_device_info[dev].hDevice = NULL;
             break;
         }
@@ -406,7 +405,7 @@ ADI_FEE_RESULT adi_fee_Close (ADI_FEE_HANDLE const hDevice)
  * @sa adi_fee_IsBufferAvailable().
  * @sa adi_fee_GetBuffer().
  */
-ADI_FEE_RESULT adi_fee_RegisterCallback (ADI_FEE_HANDLE const hDevice, ADI_CALLBACK const pfCallback, void* const pCBParam)
+ADI_FEE_RESULT adi_fee_RegisterCallback(ADI_FEE_HANDLE const hDevice, ADI_CALLBACK const pfCallback, void *const pCBParam)
 {
 #ifdef ADI_DEBUG
     if (true != IsDeviceHandle(hDevice)) {
@@ -455,7 +454,7 @@ ADI_FEE_RESULT adi_fee_RegisterCallback (ADI_FEE_HANDLE const hDevice, ADI_CALLB
  * @sa adi_fee_GetPageNumber().
  * @sa adi_fee_MassErase().
  */
-ADI_FEE_RESULT adi_fee_PageErase (ADI_FEE_HANDLE const hDevice, uint32_t const nPageNumStart, uint32_t const nPageNumEnd, uint32_t* const pHwErrors)
+ADI_FEE_RESULT adi_fee_PageErase(ADI_FEE_HANDLE const hDevice, uint32_t const nPageNumStart, uint32_t const nPageNumEnd, uint32_t *const pHwErrors)
 
 {
     ADI_FEE_RESULT result = ADI_FEE_SUCCESS;
@@ -476,16 +475,14 @@ ADI_FEE_RESULT adi_fee_PageErase (ADI_FEE_HANDLE const hDevice, uint32_t const n
     uint32_t nRelAddrStart = (nPageNumStart << FEE_PAGE_SHIFT);
     uint32_t nRelAddrStop  = (nPageNumEnd   << FEE_PAGE_SHIFT);
 
-    if (   (nPageNumStart > nPageNumEnd)
-        || (nRelAddrStart >= FEE_FLASH_SIZE)
-        || (nRelAddrStop  >= FEE_FLASH_SIZE))
-    {
+    if ((nPageNumStart > nPageNumEnd)
+            || (nRelAddrStart >= FEE_FLASH_SIZE)
+            || (nRelAddrStop  >= FEE_FLASH_SIZE)) {
         return ADI_FEE_ERR_INVALID_PARAM;
     }
 #endif /* defined (ADI_DEBUG) */
 
-    for (page = nPageNumStart; page <= nPageNumEnd; page++)
-    {
+    for (page = nPageNumStart; page <= nPageNumEnd; page++) {
         /* Wait until not busy */
         BusyWait(hDevice, (BITM_FLCC_STAT_CMDBUSY | BITM_FLCC_STAT_WRCLOSE));
 
@@ -493,7 +490,7 @@ ADI_FEE_RESULT adi_fee_PageErase (ADI_FEE_HANDLE const hDevice, uint32_t const n
         hDevice->pDev->PAGE_ADDR0 = (page << FEE_PAGE_SHIFT);
 
         /* Issue a page erase command */
-        result = SendCommand (hDevice, ENUM_FLCC_CMD_ERASEPAGE);
+        result = SendCommand(hDevice, ENUM_FLCC_CMD_ERASEPAGE);
 
         /* block on command */
         SEM_PEND(hDevice, ADI_FEE_ERR_SEMAPHORE_FAILED);
@@ -537,7 +534,7 @@ ADI_FEE_RESULT adi_fee_PageErase (ADI_FEE_HANDLE const hDevice, uint32_t const n
  *
  * @sa adi_fee_PageErase().
  */
-ADI_FEE_RESULT adi_fee_MassErase (ADI_FEE_HANDLE const hDevice, uint32_t* const pHwErrors)
+ADI_FEE_RESULT adi_fee_MassErase(ADI_FEE_HANDLE const hDevice, uint32_t *const pHwErrors)
 {
     ADI_FEE_RESULT result = ADI_FEE_SUCCESS;
 
@@ -553,7 +550,7 @@ ADI_FEE_RESULT adi_fee_MassErase (ADI_FEE_HANDLE const hDevice, uint32_t* const 
 #endif
 
     /* Call the mass erase command */
-    result = SendCommand (hDevice, ENUM_FLCC_CMD_MASSERASE);
+    result = SendCommand(hDevice, ENUM_FLCC_CMD_MASSERASE);
 
     /* block on command */
     SEM_PEND(hDevice, ADI_FEE_ERR_SEMAPHORE_FAILED);
@@ -603,7 +600,7 @@ ADI_FEE_RESULT adi_fee_MassErase (ADI_FEE_HANDLE const hDevice, uint32_t* const 
  * bit-map, documented in the Hardware Reference Manual (HRM).  Flash hardware errors are separate
  * and distinct from DMA errors, which have separate and distinct return codes, as described above.
  */
-ADI_FEE_RESULT adi_fee_Write (ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANSACTION* const pTransaction, uint32_t* const pHwErrors)
+ADI_FEE_RESULT adi_fee_Write(ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANSACTION *const pTransaction, uint32_t *const pHwErrors)
 {
     ADI_FEE_RESULT result = ADI_FEE_SUCCESS;
 
@@ -617,13 +614,12 @@ ADI_FEE_RESULT adi_fee_Write (ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANSACTION*
         return ADI_FEE_ERR_TRANSFER_IN_PROGRESS;
     }
 
-	/* check address is 64-bit aligned and data pointer is 32-bit aligned */
-    if ( (((uint32_t)pTransaction->pWriteAddr & 0x7u) != 0u) || ((((uint32_t)pTransaction->pWriteData) & 0x3u) != 0u) )
-    {
+    /* check address is 64-bit aligned and data pointer is 32-bit aligned */
+    if ((((uint32_t)pTransaction->pWriteAddr & 0x7u) != 0u) || ((((uint32_t)pTransaction->pWriteData) & 0x3u) != 0u)) {
         return ADI_FEE_ERR_ALIGNMENT;
     }
 
-	/* make sure size is a multiple of 8 */
+    /* make sure size is a multiple of 8 */
     if ((pTransaction->nSize & 0x7u) != 0u) {
         return ADI_FEE_ERR_INVALID_PARAM;
     }
@@ -646,7 +642,7 @@ ADI_FEE_RESULT adi_fee_Write (ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANSACTION*
     hDevice->bUseDma           = pTransaction->bUseDma;
 
     /* Initiate a transfer */
-    result = InitiateTransfer (hDevice);
+    result = InitiateTransfer(hDevice);
 
     /* Wait for the completed transfer */
     SEM_PEND(hDevice, ADI_FEE_ERR_SEMAPHORE_FAILED);
@@ -702,7 +698,7 @@ ADI_FEE_RESULT adi_fee_Write (ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANSACTION*
  * @sa adi_fee_IsBufferAvailable().
  * @sa adi_fee_GetBuffer().
  */
-ADI_FEE_RESULT adi_fee_SubmitBuffer (ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANSACTION* const pTransaction)
+ADI_FEE_RESULT adi_fee_SubmitBuffer(ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANSACTION *const pTransaction)
 {
     ADI_FEE_RESULT result = ADI_FEE_SUCCESS;
 
@@ -716,13 +712,12 @@ ADI_FEE_RESULT adi_fee_SubmitBuffer (ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANS
         return ADI_FEE_ERR_TRANSFER_IN_PROGRESS;
     }
 
-	/* check address is 64-bit aligned and data pointer is 32-bit aligned */
-    if ( (((uint32_t)pTransaction->pWriteAddr & 0x7u) != 0u) || ((((uint32_t)pTransaction->pWriteData) & 0x3u) != 0u) )
-    {
+    /* check address is 64-bit aligned and data pointer is 32-bit aligned */
+    if ((((uint32_t)pTransaction->pWriteAddr & 0x7u) != 0u) || ((((uint32_t)pTransaction->pWriteData) & 0x3u) != 0u)) {
         return ADI_FEE_ERR_ALIGNMENT;
     }
 
-	/* make sure size is a multiple of 8 */
+    /* make sure size is a multiple of 8 */
     if ((pTransaction->nSize & 0x7u) != 0u) {
         return ADI_FEE_ERR_INVALID_PARAM;
     }
@@ -745,7 +740,7 @@ ADI_FEE_RESULT adi_fee_SubmitBuffer (ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANS
     hDevice->bUseDma           = pTransaction->bUseDma;
 
     /* initiate a transfer */
-    result = InitiateTransfer (hDevice);
+    result = InitiateTransfer(hDevice);
 
     /* no pend here... just return */
 
@@ -770,7 +765,7 @@ ADI_FEE_RESULT adi_fee_SubmitBuffer (ADI_FEE_HANDLE const hDevice, ADI_FEE_TRANS
  * @sa adi_fee_SubmitBuffer().
  * @sa adi_fee_GetBuffer().
  */
-ADI_FEE_RESULT adi_fee_IsBufferAvailable (ADI_FEE_HANDLE const hDevice, bool* const pbCompletionState)
+ADI_FEE_RESULT adi_fee_IsBufferAvailable(ADI_FEE_HANDLE const hDevice, bool *const pbCompletionState)
 
 {
 #ifdef ADI_DEBUG
@@ -825,7 +820,7 @@ ADI_FEE_RESULT adi_fee_IsBufferAvailable (ADI_FEE_HANDLE const hDevice, bool* co
  * @sa adi_fee_SubmitBuffer().
  * @sa adi_fee_IsBufferAvailable().
  */
-ADI_FEE_RESULT adi_fee_GetBuffer (ADI_FEE_HANDLE const hDevice, uint32_t* const pHwErrors)
+ADI_FEE_RESULT adi_fee_GetBuffer(ADI_FEE_HANDLE const hDevice, uint32_t *const pHwErrors)
 
 {
 #ifdef ADI_DEBUG
@@ -884,7 +879,7 @@ ADI_FEE_RESULT adi_fee_GetBuffer (ADI_FEE_HANDLE const hDevice, uint32_t* const 
  * @sa adi_fee_GetBlockNumber().
  *
  */
-ADI_FEE_RESULT adi_fee_GetPageNumber (ADI_FEE_HANDLE const hDevice, uint32_t const nAddress, uint32_t* const pnPageNum)
+ADI_FEE_RESULT adi_fee_GetPageNumber(ADI_FEE_HANDLE const hDevice, uint32_t const nAddress, uint32_t *const pnPageNum)
 {
 #ifdef ADI_DEBUG
 
@@ -892,9 +887,8 @@ ADI_FEE_RESULT adi_fee_GetPageNumber (ADI_FEE_HANDLE const hDevice, uint32_t con
         return ADI_FEE_ERR_INVALID_HANDLE;
     }
 
-    if (   (pnPageNum == NULL)
-        || (nAddress >= FEE_FLASH_SIZE))
-    {
+    if ((pnPageNum == NULL)
+            || (nAddress >= FEE_FLASH_SIZE)) {
         return ADI_FEE_ERR_INVALID_PARAM;
     }
 #endif
@@ -924,7 +918,7 @@ ADI_FEE_RESULT adi_fee_GetPageNumber (ADI_FEE_HANDLE const hDevice, uint32_t con
  * @sa adi_fee_WriteProtectBlock().
  * @sa adi_fee_GetPageNumber().
  */
-ADI_FEE_RESULT adi_fee_GetBlockNumber (ADI_FEE_HANDLE const hDevice, uint32_t const nAddress, uint32_t* const pnBlockNum)
+ADI_FEE_RESULT adi_fee_GetBlockNumber(ADI_FEE_HANDLE const hDevice, uint32_t const nAddress, uint32_t *const pnBlockNum)
 {
 #ifdef ADI_DEBUG
 
@@ -932,9 +926,8 @@ ADI_FEE_RESULT adi_fee_GetBlockNumber (ADI_FEE_HANDLE const hDevice, uint32_t co
         return ADI_FEE_ERR_INVALID_HANDLE;
     }
 
-    if (   (pnBlockNum == NULL)
-        || (nAddress >= FEE_FLASH_SIZE))
-    {
+    if ((pnBlockNum == NULL)
+            || (nAddress >= FEE_FLASH_SIZE)) {
         return ADI_FEE_ERR_INVALID_PARAM;
     }
 #endif
@@ -976,7 +969,7 @@ ADI_FEE_RESULT adi_fee_GetBlockNumber (ADI_FEE_HANDLE const hDevice, uint32_t co
  *
  * @sa adi_fee_GetPageNumber().
  */
-ADI_FEE_RESULT adi_fee_VerifySignature (ADI_FEE_HANDLE const hDevice, uint32_t const nStartPage, uint32_t const nEndPage, uint32_t* const pSigResult, uint32_t* const pHwErrors)
+ADI_FEE_RESULT adi_fee_VerifySignature(ADI_FEE_HANDLE const hDevice, uint32_t const nStartPage, uint32_t const nEndPage, uint32_t *const pSigResult, uint32_t *const pHwErrors)
 
 {
     ADI_FEE_RESULT result = ADI_FEE_SUCCESS;
@@ -991,18 +984,17 @@ ADI_FEE_RESULT adi_fee_VerifySignature (ADI_FEE_HANDLE const hDevice, uint32_t c
         return ADI_FEE_ERR_TRANSFER_IN_PROGRESS;
     }
 
-    if (   (pSigResult == NULL)
-        || (nStartPage >  nEndPage)
-        || (nStartPage >= FEE_MAX_NUM_PAGES)
-        || (nEndPage >= FEE_MAX_NUM_PAGES)
-        )
-    {
+    if ((pSigResult == NULL)
+            || (nStartPage >  nEndPage)
+            || (nStartPage >= FEE_MAX_NUM_PAGES)
+            || (nEndPage >= FEE_MAX_NUM_PAGES)
+       ) {
         return ADI_FEE_ERR_INVALID_PARAM;
     }
 #endif
 
     /* Wait until not busy */
-    BusyWait (hDevice, (BITM_FLCC_STAT_CMDBUSY | BITM_FLCC_STAT_WRCLOSE));
+    BusyWait(hDevice, (BITM_FLCC_STAT_CMDBUSY | BITM_FLCC_STAT_WRCLOSE));
 
     /* Set the lower and upper page */
     hDevice->pDev->PAGE_ADDR0 = nStartPage << FEE_PAGE_SHIFT;
@@ -1061,7 +1053,7 @@ ADI_FEE_RESULT adi_fee_VerifySignature (ADI_FEE_HANDLE const hDevice, uint32_t c
  *
  * @sa adi_fee_GetBlockNumber().
  */
-ADI_FEE_RESULT adi_fee_WriteProtectBlock (ADI_FEE_HANDLE const hDevice, uint32_t const nBlockNum)
+ADI_FEE_RESULT adi_fee_WriteProtectBlock(ADI_FEE_HANDLE const hDevice, uint32_t const nBlockNum)
 
 {
 #ifdef ADI_DEBUG
@@ -1081,7 +1073,7 @@ ADI_FEE_RESULT adi_fee_WriteProtectBlock (ADI_FEE_HANDLE const hDevice, uint32_t
 
     /* Set the write protection (by clearing the bit) for the given block */
     hDevice->pDev->KEY = ENUM_FLCC_KEY_USERKEY;
-    CLR_BITS (hDevice->pDev->WRPROT, 1u << nBlockNum);
+    CLR_BITS(hDevice->pDev->WRPROT, 1u << nBlockNum);
     hDevice->pDev->KEY = 0u;
 
     return ADI_FEE_SUCCESS;
@@ -1106,7 +1098,7 @@ ADI_FEE_RESULT adi_fee_WriteProtectBlock (ADI_FEE_HANDLE const hDevice, uint32_t
  * Default wakeup time is approximately 5us, and is configurable with static configuration parameter
  * ADI_FEE_CFG_PARAM1_TWK in adi_flash_config.h file.
  */
-ADI_FEE_RESULT adi_fee_Sleep (ADI_FEE_HANDLE const hDevice, bool const bSleep)
+ADI_FEE_RESULT adi_fee_Sleep(ADI_FEE_HANDLE const hDevice, bool const bSleep)
 {
     ADI_FEE_RESULT result = ADI_FEE_SUCCESS;
 
@@ -1126,9 +1118,9 @@ ADI_FEE_RESULT adi_fee_Sleep (ADI_FEE_HANDLE const hDevice, bool const bSleep)
      */
 
     if (true == bSleep) {
-        result = SendCommand (hDevice, ENUM_FLCC_CMD_SLEEP);
+        result = SendCommand(hDevice, ENUM_FLCC_CMD_SLEEP);
     } else {
-        result = SendCommand (hDevice, ENUM_FLCC_CMD_IDLE);
+        result = SendCommand(hDevice, ENUM_FLCC_CMD_IDLE);
     }
 
     /* block on command */
@@ -1154,7 +1146,7 @@ ADI_FEE_RESULT adi_fee_Sleep (ADI_FEE_HANDLE const hDevice, bool const bSleep)
  *
  * @sa adi_fee_GetAbortAddr().
  */
-ADI_FEE_RESULT adi_fee_Abort (ADI_FEE_HANDLE const hDevice)
+ADI_FEE_RESULT adi_fee_Abort(ADI_FEE_HANDLE const hDevice)
 
 {
 #ifdef ADI_DEBUG
@@ -1191,7 +1183,7 @@ ADI_FEE_RESULT adi_fee_Abort (ADI_FEE_HANDLE const hDevice)
  *
  * @sa adi_fee_Abort().
  */
-ADI_FEE_RESULT adi_fee_GetAbortAddr (ADI_FEE_HANDLE const hDevice, uint32_t* const pnAddress)
+ADI_FEE_RESULT adi_fee_GetAbortAddr(ADI_FEE_HANDLE const hDevice, uint32_t *const pnAddress)
 {
 #ifdef ADI_DEBUG
     if (true != IsDeviceHandle(hDevice)) {
@@ -1237,7 +1229,7 @@ ADI_FEE_RESULT adi_fee_GetAbortAddr (ADI_FEE_HANDLE const hDevice, uint32_t* con
  * @sa adi_fee_GetECCErrAddr().
  * @sa adi_fee_GetECCCorrections().
  */
-ADI_FEE_RESULT adi_fee_ConfigECC (ADI_FEE_HANDLE const hDevice, uint32_t const nStartPage, bool const bInfoECCEnable)
+ADI_FEE_RESULT adi_fee_ConfigECC(ADI_FEE_HANDLE const hDevice, uint32_t const nStartPage, bool const bInfoECCEnable)
 {
     uint32_t nRelAddress = nStartPage << FEE_PAGE_SHIFT;
 
@@ -1257,14 +1249,14 @@ ADI_FEE_RESULT adi_fee_ConfigECC (ADI_FEE_HANDLE const hDevice, uint32_t const n
 #endif
 
     /* Clear the ECC config bits */
-    CLR_BITS (hDevice->pDev->ECC_CFG, (BITM_FLCC_ECC_CFG_PTR | BITM_FLCC_ECC_CFG_INFOEN));
+    CLR_BITS(hDevice->pDev->ECC_CFG, (BITM_FLCC_ECC_CFG_PTR | BITM_FLCC_ECC_CFG_INFOEN));
 
     /* Set the start page address in the ECC Cfg register */
     hDevice->pDev->ECC_CFG |= (nRelAddress & BITM_FLCC_ECC_CFG_PTR);
 
     /* enable ECC on info space... if requested */
     if (true == bInfoECCEnable) {
-        SET_BITS (hDevice->pDev->ECC_CFG, BITM_FLCC_ECC_CFG_INFOEN);
+        SET_BITS(hDevice->pDev->ECC_CFG, BITM_FLCC_ECC_CFG_INFOEN);
     }
 
     return ADI_FEE_SUCCESS;
@@ -1295,7 +1287,7 @@ ADI_FEE_RESULT adi_fee_ConfigECC (ADI_FEE_HANDLE const hDevice, uint32_t const n
  * @sa adi_fee_GetECCErrAddr().
  * @sa adi_fee_GetECCCorrections().
  */
-ADI_FEE_RESULT adi_fee_EnableECC (ADI_FEE_HANDLE const hDevice, bool const bEnable)
+ADI_FEE_RESULT adi_fee_EnableECC(ADI_FEE_HANDLE const hDevice, bool const bEnable)
 {
 #ifdef ADI_DEBUG
     if (true != IsDeviceHandle(hDevice)) {
@@ -1345,7 +1337,7 @@ ADI_FEE_RESULT adi_fee_EnableECC (ADI_FEE_HANDLE const hDevice, bool const bEnab
  * @sa adi_fee_GetECCErrAddr().
  * @sa adi_fee_GetECCCorrections().
  */
-ADI_FEE_RESULT adi_fee_ConfigECCEvents (ADI_FEE_HANDLE const hDevice, ADI_FEE_ECC_EVENT_TYPE const eEvent, ADI_FEE_ECC_RESPONSE const eResponse)
+ADI_FEE_RESULT adi_fee_ConfigECCEvents(ADI_FEE_HANDLE const hDevice, ADI_FEE_ECC_EVENT_TYPE const eEvent, ADI_FEE_ECC_RESPONSE const eResponse)
 
 {
     uint32_t nBitMask;
@@ -1362,14 +1354,13 @@ ADI_FEE_RESULT adi_fee_ConfigECCEvents (ADI_FEE_HANDLE const hDevice, ADI_FEE_EC
     }
 
     /* Check the function parameters */
-    if (   (   (eEvent != ADI_FEE_ECC_EVENT_TYPE_ERROR)
+    if (((eEvent != ADI_FEE_ECC_EVENT_TYPE_ERROR)
             && (eEvent != ADI_FEE_ECC_EVENT_TYPE_CORRECT))
 
-        || (   (eResponse != ADI_FEE_ECC_RESPONSE_NONE)
-            && (eResponse != ADI_FEE_ECC_RESPONSE_BUS_ERROR)
-            && (eResponse != ADI_FEE_ECC_RESPONSE_IRQ))
-        )
-    {
+            || ((eResponse != ADI_FEE_ECC_RESPONSE_NONE)
+                && (eResponse != ADI_FEE_ECC_RESPONSE_BUS_ERROR)
+                && (eResponse != ADI_FEE_ECC_RESPONSE_IRQ))
+       ) {
         return ADI_FEE_ERR_INVALID_PARAM;
     }
 #endif
@@ -1384,13 +1375,13 @@ ADI_FEE_RESULT adi_fee_ConfigECCEvents (ADI_FEE_HANDLE const hDevice, ADI_FEE_EC
         nBitMask = BITM_FLCC_IEN_ECC_CORRECT;
         nBitPos  = BITP_FLCC_IEN_ECC_CORRECT;
     }
-#endif    
+#endif
 
     /* clear the bits */
-    CLR_BITS (hDevice->pDev->IEN, nBitMask);
+    CLR_BITS(hDevice->pDev->IEN, nBitMask);
 
     /* set the response */
-    SET_BITS (hDevice->pDev->IEN, ((uint32_t)eResponse) << nBitPos);
+    SET_BITS(hDevice->pDev->IEN, ((uint32_t)eResponse) << nBitPos);
 
     return ADI_FEE_SUCCESS;
 }
@@ -1415,7 +1406,7 @@ ADI_FEE_RESULT adi_fee_ConfigECCEvents (ADI_FEE_HANDLE const hDevice, ADI_FEE_EC
  * @sa adi_fee_ConfigECCEvents().
  * @sa adi_fee_GetECCCorrections().
  */
-ADI_FEE_RESULT adi_fee_GetECCErrAddr (ADI_FEE_HANDLE const hDevice, uint32_t* const pnAddress)
+ADI_FEE_RESULT adi_fee_GetECCErrAddr(ADI_FEE_HANDLE const hDevice, uint32_t *const pnAddress)
 
 {
 #ifdef ADI_DEBUG
@@ -1453,7 +1444,7 @@ ADI_FEE_RESULT adi_fee_GetECCErrAddr (ADI_FEE_HANDLE const hDevice, uint32_t* co
  * @sa adi_fee_ConfigECCEvents().
  * @sa adi_fee_GetECCErrAddr().
  */
-ADI_FEE_RESULT adi_fee_GetECCCorrections (ADI_FEE_HANDLE const hDevice, uint32_t* const pnNumCorrections)
+ADI_FEE_RESULT adi_fee_GetECCCorrections(ADI_FEE_HANDLE const hDevice, uint32_t *const pnNumCorrections)
 {
 
 #ifdef ADI_DEBUG
@@ -1478,10 +1469,10 @@ ADI_FEE_RESULT adi_fee_GetECCCorrections (ADI_FEE_HANDLE const hDevice, uint32_t
 
 /* Send a command to the flash controller... bot don't block on it...
  */
-static ADI_FEE_RESULT SendCommand (ADI_FEE_HANDLE const hDevice, uint32_t const cmd)
+static ADI_FEE_RESULT SendCommand(ADI_FEE_HANDLE const hDevice, uint32_t const cmd)
 {
     /* Wait for the flash to be free */
-    BusyWait (hDevice, (BITM_FLCC_STAT_CMDBUSY | BITM_FLCC_STAT_WRCLOSE));
+    BusyWait(hDevice, (BITM_FLCC_STAT_CMDBUSY | BITM_FLCC_STAT_WRCLOSE));
 
     /* Clear the command completion status bit
      * by acknowledging it
@@ -1500,7 +1491,7 @@ static ADI_FEE_RESULT SendCommand (ADI_FEE_HANDLE const hDevice, uint32_t const 
 }
 
 
-static ADI_FEE_RESULT InitiatePioTransfer (ADI_FEE_HANDLE const hDevice)
+static ADI_FEE_RESULT InitiatePioTransfer(ADI_FEE_HANDLE const hDevice)
 {
 
     /* use PIO interrupt mode in non-burst-mode (burst-mode only spans 256-bytes).
@@ -1512,7 +1503,7 @@ static ADI_FEE_RESULT InitiatePioTransfer (ADI_FEE_HANDLE const hDevice)
     if (0u != hDevice->nRemainingBytes) {
 
         /* enable command interrupts */
-        SET_BITS (hDevice->pDev->IEN, (BITM_FLCC_IEN_WRALCMPLT | BITM_FLCC_IEN_CMDCMPLT | BITM_FLCC_IEN_CMDFAIL));
+        SET_BITS(hDevice->pDev->IEN, (BITM_FLCC_IEN_WRALCMPLT | BITM_FLCC_IEN_CMDCMPLT | BITM_FLCC_IEN_CMDFAIL));
 
         /* set initial write address*/
         hDevice->pDev->KH_ADDR = (uint32_t)hDevice->pNextWriteAddress;
@@ -1537,9 +1528,9 @@ static ADI_FEE_RESULT InitiatePioTransfer (ADI_FEE_HANDLE const hDevice)
 
 
 /* DMA Transfer to FIFO */
-static ADI_FEE_RESULT InitiateDmaTransfer (ADI_FEE_HANDLE const hDevice)
+static ADI_FEE_RESULT InitiateDmaTransfer(ADI_FEE_HANDLE const hDevice)
 {
-    ADI_DCC_TypeDef* pCCD = pPrimaryCCD;  /* pointer to primary DMA descriptor array */
+    ADI_DCC_TypeDef *pCCD = pPrimaryCCD;  /* pointer to primary DMA descriptor array */
 
     if (0u != hDevice->nRemainingBytes) {
 
@@ -1576,16 +1567,16 @@ static ADI_FEE_RESULT InitiateDmaTransfer (ADI_FEE_HANDLE const hDevice)
 
         /* set the DMA Control Data Configuration register */
         pCCD->DMACDC =
-            ( ((uint32_t)ADI_DMA_INCR_NONE                                << DMA_BITP_CTL_DST_INC)
-            | ((uint32_t)ADI_DMA_INCR_4_BYTE                              << DMA_BITP_CTL_SRC_INC)
-            | ((uint32_t)ADI_DMA_WIDTH_4_BYTE                             << DMA_BITP_CTL_SRC_SIZE)
-            | ((uint32_t)ADI_DMA_RPOWER_2                                 << DMA_BITP_CTL_R_POWER)
-            | (uint32_t)((hDevice->nRemainingBytes/sizeof(uint32_t) - 1u) << DMA_BITP_CTL_N_MINUS_1)
-            | ((uint32_t)DMA_ENUM_CTL_CYCLE_CTL_BASIC                     << DMA_BITP_CTL_CYCLE_CTL) );
+            (((uint32_t)ADI_DMA_INCR_NONE                                << DMA_BITP_CTL_DST_INC)
+             | ((uint32_t)ADI_DMA_INCR_4_BYTE                              << DMA_BITP_CTL_SRC_INC)
+             | ((uint32_t)ADI_DMA_WIDTH_4_BYTE                             << DMA_BITP_CTL_SRC_SIZE)
+             | ((uint32_t)ADI_DMA_RPOWER_2                                 << DMA_BITP_CTL_R_POWER)
+             | (uint32_t)((hDevice->nRemainingBytes / sizeof(uint32_t) - 1u) << DMA_BITP_CTL_N_MINUS_1)
+             | ((uint32_t)DMA_ENUM_CTL_CYCLE_CTL_BASIC                     << DMA_BITP_CTL_CYCLE_CTL));
 
         /* set auto-increment and DMA enable bits, launching transder */
         hDevice->pDev->KEY = ENUM_FLCC_KEY_USERKEY;
-        SET_BITS (hDevice->pDev->UCFG, (BITM_FLCC_UCFG_AUTOINCEN | BITM_FLCC_UCFG_KHDMAEN));
+        SET_BITS(hDevice->pDev->UCFG, (BITM_FLCC_UCFG_AUTOINCEN | BITM_FLCC_UCFG_KHDMAEN));
         hDevice->pDev->KEY = 0u;
 
     } else {
@@ -1597,20 +1588,19 @@ static ADI_FEE_RESULT InitiateDmaTransfer (ADI_FEE_HANDLE const hDevice)
 
 
 /* Initiate transfer */
-static ADI_FEE_RESULT InitiateTransfer (ADI_FEE_HANDLE const hDevice)
+static ADI_FEE_RESULT InitiateTransfer(ADI_FEE_HANDLE const hDevice)
 {
     ADI_FEE_RESULT result = ADI_FEE_SUCCESS;
 
     /* If a transfer is in progress or if the pending buffers are empty
      * the return as there is nothing to be done now
      */
-    if (true == hDevice->bTransferInProgress)
-    {
+    if (true == hDevice->bTransferInProgress) {
         return ADI_FEE_ERR_DEVICE_BUSY;
     }
 
     /* Wait for the flash to not be busy */
-    BusyWait (hDevice, BITM_FLCC_STAT_CMDBUSY);
+    BusyWait(hDevice, BITM_FLCC_STAT_CMDBUSY);
 
     /* clear internal errors */
     hDevice->feeError = 0u;
@@ -1620,14 +1610,14 @@ static ADI_FEE_RESULT InitiateTransfer (ADI_FEE_HANDLE const hDevice)
     hDevice->bTransferInProgress = true;
 
     /* clear any command interrupt enables */
-    CLR_BITS(hDevice->pDev->IEN,  (BITM_FLCC_IEN_WRALCMPLT | BITM_FLCC_IEN_CMDCMPLT | BITM_FLCC_IEN_CMDFAIL));
+    CLR_BITS(hDevice->pDev->IEN, (BITM_FLCC_IEN_WRALCMPLT | BITM_FLCC_IEN_CMDCMPLT | BITM_FLCC_IEN_CMDFAIL));
 
     /* clear any dangeling command-related status */
     hDevice->pDev->STAT = BITM_FLCC_STAT_WRALCOMP | BITM_FLCC_STAT_CMDCOMP | BITM_FLCC_STAT_CMDFAIL;
 
     /* clear auto-increment and dma enable bits */
     hDevice->pDev->KEY = ENUM_FLCC_KEY_USERKEY;
-    CLR_BITS (hDevice->pDev->UCFG, (BITM_FLCC_UCFG_AUTOINCEN | BITM_FLCC_UCFG_KHDMAEN));
+    CLR_BITS(hDevice->pDev->UCFG, (BITM_FLCC_UCFG_AUTOINCEN | BITM_FLCC_UCFG_KHDMAEN));
     hDevice->pDev->KEY = 0u;
 
     /* Call the corresponding Transfer functions */
@@ -1701,7 +1691,7 @@ void Flash0_Int_Handler(void)
 
                 /* no more data to write...
                    wait for current write-almost-complete status to transition to not busy */
-                BusyWait (hDevice, BITM_FLCC_STAT_CMDBUSY);
+                BusyWait(hDevice, BITM_FLCC_STAT_CMDBUSY);
 
                 /* set post flag */
                 bPost = true;
@@ -1728,11 +1718,11 @@ void Flash0_Int_Handler(void)
     if (true == bPost) {
 
         /* clear the command interrupt enables */
-        CLR_BITS(hDevice->pDev->IEN,  (BITM_FLCC_IEN_WRALCMPLT | BITM_FLCC_IEN_CMDCMPLT | BITM_FLCC_IEN_CMDFAIL));
+        CLR_BITS(hDevice->pDev->IEN, (BITM_FLCC_IEN_WRALCMPLT | BITM_FLCC_IEN_CMDCMPLT | BITM_FLCC_IEN_CMDFAIL));
 
         /* clear auto-increment and dma enable bits */
         hDevice->pDev->KEY = ENUM_FLCC_KEY_USERKEY;
-        CLR_BITS (hDevice->pDev->UCFG, (BITM_FLCC_UCFG_AUTOINCEN | BITM_FLCC_UCFG_KHDMAEN));
+        CLR_BITS(hDevice->pDev->UCFG, (BITM_FLCC_UCFG_AUTOINCEN | BITM_FLCC_UCFG_KHDMAEN));
         hDevice->pDev->KEY = 0u;
 
         /* mark transfer complete */
@@ -1742,10 +1732,10 @@ void Flash0_Int_Handler(void)
         if (0u != hDevice->pfCallback) {
             if (false == bError) {
                 /* no error, pass success flag to callback */
-                hDevice->pfCallback (hDevice->pCBParam, (uint32_t)ADI_FEE_CALLBACK_EVENT_BUFFER_PROCESSED, (void*)NULL);
+                hDevice->pfCallback(hDevice->pCBParam, (uint32_t)ADI_FEE_CALLBACK_EVENT_BUFFER_PROCESSED, (void *)NULL);
             } else {
                 /* error condition, pass error flag and error status to callback */
-                hDevice->pfCallback (hDevice->pCBParam, (uint32_t)ADI_FEE_CALLBACK_EVENT_DEVICE_ERROR, (void*)hDevice->feeError);
+                hDevice->pfCallback(hDevice->pCBParam, (uint32_t)ADI_FEE_CALLBACK_EVENT_DEVICE_ERROR, (void *)hDevice->feeError);
             }
         }
 
@@ -1758,11 +1748,11 @@ void Flash0_Int_Handler(void)
 
 
 /* Flash DMA interrupt handler */
-void DMA_FLASH0_Int_Handler (void)
+void DMA_FLASH0_Int_Handler(void)
 {
     /* rtos prologue */
     ISR_PROLOG()
-        ;
+    ;
 
     /* recover the driver handle */
     ADI_FEE_HANDLE hDevice = fee_device_info[0].hDevice;
@@ -1776,7 +1766,7 @@ void DMA_FLASH0_Int_Handler (void)
 
     /* clear auto-increment and dma enable bits */
     hDevice->pDev->KEY = ENUM_FLCC_KEY_USERKEY;
-    CLR_BITS (hDevice->pDev->UCFG, (BITM_FLCC_UCFG_AUTOINCEN | BITM_FLCC_UCFG_KHDMAEN));
+    CLR_BITS(hDevice->pDev->UCFG, (BITM_FLCC_UCFG_AUTOINCEN | BITM_FLCC_UCFG_KHDMAEN));
     hDevice->pDev->KEY = 0u;
 
     /* clear the remaining count, as it should all have gone in one swoop */
@@ -1790,16 +1780,16 @@ void DMA_FLASH0_Int_Handler (void)
 
         /* no errors, notify success */
         if ((0u == hDevice->feeError) && (0u == hDevice->dmaError)) {
-            hDevice->pfCallback (hDevice->pCBParam, (uint32_t)ADI_FEE_CALLBACK_EVENT_BUFFER_PROCESSED, (void*)NULL);
+            hDevice->pfCallback(hDevice->pCBParam, (uint32_t)ADI_FEE_CALLBACK_EVENT_BUFFER_PROCESSED, (void *)NULL);
 
-        /* flash hardware error */
+            /* flash hardware error */
         } else if (0u == hDevice->feeError) {
-            hDevice->pfCallback (hDevice->pCBParam, (uint32_t)ADI_FEE_CALLBACK_EVENT_DEVICE_ERROR, (void*)hDevice->feeError);
+            hDevice->pfCallback(hDevice->pCBParam, (uint32_t)ADI_FEE_CALLBACK_EVENT_DEVICE_ERROR, (void *)hDevice->feeError);
 
-        /* flash dma error */
+            /* flash dma error */
         } else if (0u == hDevice->dmaError) {
             /* DMA error */
-            hDevice->pfCallback (hDevice->pCBParam, (uint32_t)hDevice->dmaError, NULL);
+            hDevice->pfCallback(hDevice->pCBParam, (uint32_t)hDevice->dmaError, NULL);
         } else {
             /* no other cases... */
         }

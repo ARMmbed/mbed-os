@@ -79,8 +79,7 @@ typedef void (*dspi_slave_edma_transfer_callback_t)(SPI_Type *base,
                                                     void *userData);
 
 /*! @brief DSPI master eDMA transfer handle structure used for transactional API. */
-struct _dspi_master_edma_handle
-{
+struct _dspi_master_edma_handle {
     uint32_t bitsPerFrame;         /*!< Desired number of bits per frame. */
     volatile uint32_t command;     /*!< Desired data command. */
     volatile uint32_t lastCommand; /*!< Desired last data command. */
@@ -112,8 +111,7 @@ struct _dspi_master_edma_handle
 };
 
 /*! @brief DSPI slave eDMA transfer handle structure used for transactional API.*/
-struct _dspi_slave_edma_handle
-{
+struct _dspi_slave_edma_handle {
     uint32_t bitsPerFrame;          /*!< Desired number of bits per frame. */
     volatile bool isThereExtraByte; /*!< Is there extra byte.*/
 
@@ -276,8 +274,8 @@ status_t DSPI_SlaveTransferGetCountEDMA(SPI_Type *base, dspi_slave_edma_handle_t
 #if defined(__cplusplus)
 }
 #endif /*_cplusplus*/
-       /*!
-        *@}
-        */
+/*!
+ *@}
+ */
 
 #endif /*_FSL_DSPI_EDMA_H_*/

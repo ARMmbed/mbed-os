@@ -19,14 +19,17 @@
 #include "stdint.h"
 #include "USBSerial.h"
 
-int USBSerial::_putc(int c) {
-    if (!terminal_connected)
+int USBSerial::_putc(int c)
+{
+    if (!terminal_connected) {
         return 0;
+    }
     send((uint8_t *)&c, 1);
     return 1;
 }
 
-int USBSerial::_getc() {
+int USBSerial::_getc()
+{
     uint8_t c = 0;
     while (buf.isEmpty());
     buf.dequeue(&c);
@@ -34,11 +37,12 @@ int USBSerial::_getc() {
 }
 
 
-bool USBSerial::writeBlock(uint8_t * buf, uint16_t size) {
-    if(size > MAX_PACKET_SIZE_EPBULK) {
+bool USBSerial::writeBlock(uint8_t *buf, uint16_t size)
+{
+    if (size > MAX_PACKET_SIZE_EPBULK) {
         return false;
     }
-    if(!send(buf, size)) {
+    if (!send(buf, size)) {
         return false;
     }
     return true;
@@ -46,7 +50,8 @@ bool USBSerial::writeBlock(uint8_t * buf, uint16_t size) {
 
 
 
-bool USBSerial::EPBULK_OUT_callback() {
+bool USBSerial::EPBULK_OUT_callback()
+{
     uint8_t c[65];
     uint32_t size = 0;
 
@@ -57,16 +62,19 @@ bool USBSerial::EPBULK_OUT_callback() {
     }
 
     //call a potential handlenr
-    if (rx)
+    if (rx) {
         rx.call();
+    }
 
     return true;
 }
 
-uint8_t USBSerial::available() {
+uint8_t USBSerial::available()
+{
     return buf.available();
 }
 
-bool USBSerial::connected() {
+bool USBSerial::connected()
+{
     return terminal_connected;
 }

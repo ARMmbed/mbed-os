@@ -39,365 +39,385 @@ static IRQHandler_t IRQTable[IRQ_GIC_LINE_COUNT] = { 0U };
 static uint32_t   IRQ_ID0;
 
 /// Initialize interrupt controller.
-__WEAK int32_t IRQ_Initialize (void) {
-  uint32_t i;
+__WEAK int32_t IRQ_Initialize(void)
+{
+    uint32_t i;
 
-  for (i = 0U; i < IRQ_GIC_LINE_COUNT; i++) {
-    IRQTable[i] = (IRQHandler_t)NULL;
-  }
-  GIC_Enable();
-  return (0);
+    for (i = 0U; i < IRQ_GIC_LINE_COUNT; i++) {
+        IRQTable[i] = (IRQHandler_t)NULL;
+    }
+    GIC_Enable();
+    return (0);
 }
 
 
 /// Register interrupt handler.
-__WEAK int32_t IRQ_SetHandler (IRQn_ID_t irqn, IRQHandler_t handler) {
-  int32_t status;
+__WEAK int32_t IRQ_SetHandler(IRQn_ID_t irqn, IRQHandler_t handler)
+{
+    int32_t status;
 
-  if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    IRQTable[irqn] = handler;
-    status =  0;
-  } else {
-    status = -1;
-  }
+    if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        IRQTable[irqn] = handler;
+        status =  0;
+    } else {
+        status = -1;
+    }
 
-  return (status);
+    return (status);
 }
 
 
 /// Get the registered interrupt handler.
-__WEAK IRQHandler_t IRQ_GetHandler (IRQn_ID_t irqn) {
-  IRQHandler_t h;
+__WEAK IRQHandler_t IRQ_GetHandler(IRQn_ID_t irqn)
+{
+    IRQHandler_t h;
 
-  if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    h = IRQTable[irqn];
-  } else {
-    h = (IRQHandler_t)0;
-  }
+    if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        h = IRQTable[irqn];
+    } else {
+        h = (IRQHandler_t)0;
+    }
 
-  return (h);
+    return (h);
 }
 
 
 /// Enable interrupt.
-__WEAK int32_t IRQ_Enable (IRQn_ID_t irqn) {
-  int32_t status;
+__WEAK int32_t IRQ_Enable(IRQn_ID_t irqn)
+{
+    int32_t status;
 
-  if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    GIC_EnableIRQ ((IRQn_Type)irqn);
-    status = 0;
-  } else {
-    status = -1;
-  }
+    if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        GIC_EnableIRQ((IRQn_Type)irqn);
+        status = 0;
+    } else {
+        status = -1;
+    }
 
-  return (status);
+    return (status);
 }
 
 
 /// Disable interrupt.
-__WEAK int32_t IRQ_Disable (IRQn_ID_t irqn) {
-  int32_t status;
+__WEAK int32_t IRQ_Disable(IRQn_ID_t irqn)
+{
+    int32_t status;
 
-  if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    GIC_DisableIRQ ((IRQn_Type)irqn);
-    status = 0;
-  } else {
-    status = -1;
-  }
+    if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        GIC_DisableIRQ((IRQn_Type)irqn);
+        status = 0;
+    } else {
+        status = -1;
+    }
 
-  return (status);
+    return (status);
 }
 
 
 /// Get interrupt enable state.
-__WEAK uint32_t IRQ_GetEnableState (IRQn_ID_t irqn) {
-  uint32_t enable;
+__WEAK uint32_t IRQ_GetEnableState(IRQn_ID_t irqn)
+{
+    uint32_t enable;
 
-  if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    enable = GIC_GetEnableIRQ((IRQn_Type)irqn);
-  } else {
-    enable = 0U;
-  }
+    if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        enable = GIC_GetEnableIRQ((IRQn_Type)irqn);
+    } else {
+        enable = 0U;
+    }
 
-  return (enable);
+    return (enable);
 }
 
 
 /// Configure interrupt request mode.
-__WEAK int32_t IRQ_SetMode (IRQn_ID_t irqn, uint32_t mode) {
-  int32_t status;
-  uint32_t val;
-  uint8_t cfg;
-  uint8_t secure;
-  uint8_t cpu;
+__WEAK int32_t IRQ_SetMode(IRQn_ID_t irqn, uint32_t mode)
+{
+    int32_t status;
+    uint32_t val;
+    uint8_t cfg;
+    uint8_t secure;
+    uint8_t cpu;
 
-  status = 0;
+    status = 0;
 
-  if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    // Check triggering mode
-    val = (mode & IRQ_MODE_TRIG_Msk);
+    if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        // Check triggering mode
+        val = (mode & IRQ_MODE_TRIG_Msk);
 
-    if (val == IRQ_MODE_TRIG_LEVEL) {
-      cfg = 0x00U;
-    } else if (val == IRQ_MODE_TRIG_EDGE) {
-      cfg = 0x02U;
-    } else {
-      status = -1;
+        if (val == IRQ_MODE_TRIG_LEVEL) {
+            cfg = 0x00U;
+        } else if (val == IRQ_MODE_TRIG_EDGE) {
+            cfg = 0x02U;
+        } else {
+            status = -1;
+        }
+
+        // Check interrupt type
+        val = mode & IRQ_MODE_TYPE_Msk;
+
+        if (val != IRQ_MODE_TYPE_IRQ) {
+            status = -1;
+        }
+
+        // Check interrupt domain
+        val = mode & IRQ_MODE_DOMAIN_Msk;
+
+        if (val == IRQ_MODE_DOMAIN_NONSECURE) {
+            secure = 0;
+        } else {
+            // Check security extensions support
+            val = GIC_DistributorInfo() & (1UL << 10U);
+
+            if (val != 0U) {
+                // Security extensions are supported
+                secure = 1;
+            } else {
+                status = -1;
+            }
+        }
+
+        // Check interrupt CPU targets
+        val = mode & IRQ_MODE_CPU_Msk;
+
+        if (val == IRQ_MODE_CPU_ALL) {
+            cpu = 0xFF;
+        } else {
+            cpu = val >> IRQ_MODE_CPU_Pos;
+        }
+
+        // Apply configuration if no mode error
+        if (status == 0) {
+            GIC_SetConfiguration((IRQn_Type)irqn, cfg);
+            GIC_SetTarget((IRQn_Type)irqn, cpu);
+
+            if (secure != 0U) {
+                GIC_SetGroup((IRQn_Type)irqn, secure);
+            }
+        }
     }
 
-    // Check interrupt type
-    val = mode & IRQ_MODE_TYPE_Msk;
-
-    if (val != IRQ_MODE_TYPE_IRQ) {
-      status = -1;
-    }
-
-    // Check interrupt domain
-    val = mode & IRQ_MODE_DOMAIN_Msk;
-
-    if (val == IRQ_MODE_DOMAIN_NONSECURE) {
-      secure = 0;
-    } else {
-      // Check security extensions support
-      val = GIC_DistributorInfo() & (1UL << 10U);
-
-      if (val != 0U) {
-        // Security extensions are supported
-        secure = 1;
-      } else {
-        status = -1;
-      }
-    }
-
-    // Check interrupt CPU targets
-    val = mode & IRQ_MODE_CPU_Msk;
-
-    if (val == IRQ_MODE_CPU_ALL) {
-      cpu = 0xFF;
-    } else {
-      cpu = val >> IRQ_MODE_CPU_Pos;
-    }
-
-    // Apply configuration if no mode error
-    if (status == 0) {
-      GIC_SetConfiguration((IRQn_Type)irqn, cfg);
-      GIC_SetTarget       ((IRQn_Type)irqn, cpu);
-
-      if (secure != 0U) {
-        GIC_SetGroup ((IRQn_Type)irqn, secure);
-      }
-    }
-  }
-
-  return (status);
+    return (status);
 }
 
 
 /// Get interrupt mode configuration.
-__WEAK uint32_t IRQ_GetMode (IRQn_ID_t irqn) {
-  uint32_t mode;
-  uint32_t val;
+__WEAK uint32_t IRQ_GetMode(IRQn_ID_t irqn)
+{
+    uint32_t mode;
+    uint32_t val;
 
-  if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    mode = IRQ_MODE_TYPE_IRQ;
+    if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        mode = IRQ_MODE_TYPE_IRQ;
 
-    // Get trigger mode
-    val = GIC_GetConfiguration((IRQn_Type)irqn);
+        // Get trigger mode
+        val = GIC_GetConfiguration((IRQn_Type)irqn);
 
-    if ((val & 2U) != 0U) {
-      // Corresponding interrupt is edge triggered
-      mode |= IRQ_MODE_TRIG_EDGE;
+        if ((val & 2U) != 0U) {
+            // Corresponding interrupt is edge triggered
+            mode |= IRQ_MODE_TRIG_EDGE;
+        } else {
+            // Corresponding interrupt is level triggered
+            mode |= IRQ_MODE_TRIG_LEVEL;
+        }
+
+        // Get interrupt CPU targets
+        mode |= GIC_GetTarget((IRQn_Type)irqn) << IRQ_MODE_CPU_Pos;
+
     } else {
-      // Corresponding interrupt is level triggered
-      mode |= IRQ_MODE_TRIG_LEVEL;
+        mode = IRQ_MODE_ERROR;
     }
 
-    // Get interrupt CPU targets
-    mode |= GIC_GetTarget ((IRQn_Type)irqn) << IRQ_MODE_CPU_Pos;
-
-  } else {
-    mode = IRQ_MODE_ERROR;
-  }
-
-  return (mode);
+    return (mode);
 }
 
 
 /// Get ID number of current interrupt request (IRQ).
-__WEAK IRQn_ID_t IRQ_GetActiveIRQ (void) {
-  IRQn_ID_t irqn;
-  uint32_t prio;
+__WEAK IRQn_ID_t IRQ_GetActiveIRQ(void)
+{
+    IRQn_ID_t irqn;
+    uint32_t prio;
 
-  /* Dummy read to avoid GIC 390 errata 801120 */
-  GIC_GetHighPendingIRQ();
+    /* Dummy read to avoid GIC 390 errata 801120 */
+    GIC_GetHighPendingIRQ();
 
-  irqn = GIC_AcknowledgePending();
-
-  __DSB();
-
-  /* Workaround GIC 390 errata 733075 (GIC-390_Errata_Notice_v6.pdf, 09-Jul-2014)  */
-  /* The following workaround code is for a single-core system.  It would be       */
-  /* different in a multi-core system.                                             */
-  /* If the ID is 0 or 0x3FE or 0x3FF, then the GIC CPU interface may be locked-up */
-  /* so unlock it, otherwise service the interrupt as normal.                      */
-  /* Special IDs 1020=0x3FC and 1021=0x3FD are reserved values in GICv1 and GICv2  */
-  /* so will not occur here.                                                       */
-
-  if ((irqn == 0) || (irqn >= 0x3FE)) {
-    /* Unlock the CPU interface with a dummy write to Interrupt Priority Register */
-    prio = GIC_GetPriority((IRQn_Type)0);
-    GIC_SetPriority ((IRQn_Type)0, prio);
+    irqn = GIC_AcknowledgePending();
 
     __DSB();
 
-    if ((irqn == 0U) && ((GIC_GetIRQStatus ((IRQn_Type)irqn) & 1U) != 0U) && (IRQ_ID0 == 0U)) {
-      /* If the ID is 0, is active and has not been seen before */
-      IRQ_ID0 = 1U;
-    }
-    /* End of Workaround GIC 390 errata 733075 */
-  }
+    /* Workaround GIC 390 errata 733075 (GIC-390_Errata_Notice_v6.pdf, 09-Jul-2014)  */
+    /* The following workaround code is for a single-core system.  It would be       */
+    /* different in a multi-core system.                                             */
+    /* If the ID is 0 or 0x3FE or 0x3FF, then the GIC CPU interface may be locked-up */
+    /* so unlock it, otherwise service the interrupt as normal.                      */
+    /* Special IDs 1020=0x3FC and 1021=0x3FD are reserved values in GICv1 and GICv2  */
+    /* so will not occur here.                                                       */
 
-  return (irqn);
+    if ((irqn == 0) || (irqn >= 0x3FE)) {
+        /* Unlock the CPU interface with a dummy write to Interrupt Priority Register */
+        prio = GIC_GetPriority((IRQn_Type)0);
+        GIC_SetPriority((IRQn_Type)0, prio);
+
+        __DSB();
+
+        if ((irqn == 0U) && ((GIC_GetIRQStatus((IRQn_Type)irqn) & 1U) != 0U) && (IRQ_ID0 == 0U)) {
+            /* If the ID is 0, is active and has not been seen before */
+            IRQ_ID0 = 1U;
+        }
+        /* End of Workaround GIC 390 errata 733075 */
+    }
+
+    return (irqn);
 }
 
 
 /// Get ID number of current fast interrupt request (FIQ).
-__WEAK IRQn_ID_t IRQ_GetActiveFIQ (void) {
-  return ((IRQn_ID_t)-1);
+__WEAK IRQn_ID_t IRQ_GetActiveFIQ(void)
+{
+    return ((IRQn_ID_t) -1);
 }
 
 
 /// Signal end of interrupt processing.
-__WEAK int32_t IRQ_EndOfInterrupt (IRQn_ID_t irqn) {
-  int32_t status;
+__WEAK int32_t IRQ_EndOfInterrupt(IRQn_ID_t irqn)
+{
+    int32_t status;
 
-  if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    GIC_EndInterrupt ((IRQn_Type)irqn);
+    if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        GIC_EndInterrupt((IRQn_Type)irqn);
 
-    if (irqn == 0) {
-      IRQ_ID0 = 0U;
+        if (irqn == 0) {
+            IRQ_ID0 = 0U;
+        }
+
+        status = 0;
+    } else {
+        status = -1;
     }
 
-    status = 0;
-  } else {
-    status = -1;
-  }
-
-  return (status);
+    return (status);
 }
 
 
 /// Set interrupt pending flag.
-__WEAK int32_t IRQ_SetPending (IRQn_ID_t irqn) {
-  int32_t status;
+__WEAK int32_t IRQ_SetPending(IRQn_ID_t irqn)
+{
+    int32_t status;
 
-  if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    GIC_SetPendingIRQ ((IRQn_Type)irqn);
-    status = 0;
-  } else {
-    status = -1;
-  }
+    if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        GIC_SetPendingIRQ((IRQn_Type)irqn);
+        status = 0;
+    } else {
+        status = -1;
+    }
 
-  return (status);
+    return (status);
 }
 
 /// Get interrupt pending flag.
-__WEAK uint32_t IRQ_GetPending (IRQn_ID_t irqn) {
-  uint32_t pending;
+__WEAK uint32_t IRQ_GetPending(IRQn_ID_t irqn)
+{
+    uint32_t pending;
 
-  if ((irqn >= 16) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    pending = GIC_GetPendingIRQ ((IRQn_Type)irqn);
-  } else {
-    pending = 0U;
-  }
+    if ((irqn >= 16) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        pending = GIC_GetPendingIRQ((IRQn_Type)irqn);
+    } else {
+        pending = 0U;
+    }
 
-  return (pending & 1U);
+    return (pending & 1U);
 }
 
 
 /// Clear interrupt pending flag.
-__WEAK int32_t IRQ_ClearPending (IRQn_ID_t irqn) {
-  int32_t status;
+__WEAK int32_t IRQ_ClearPending(IRQn_ID_t irqn)
+{
+    int32_t status;
 
-  if ((irqn >= 16) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    GIC_ClearPendingIRQ ((IRQn_Type)irqn);
-    status = 0;
-  } else {
-    status = -1;
-  }
+    if ((irqn >= 16) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        GIC_ClearPendingIRQ((IRQn_Type)irqn);
+        status = 0;
+    } else {
+        status = -1;
+    }
 
-  return (status);
+    return (status);
 }
 
 
 /// Set interrupt priority value.
-__WEAK int32_t IRQ_SetPriority (IRQn_ID_t irqn, uint32_t priority) {
-  int32_t status;
+__WEAK int32_t IRQ_SetPriority(IRQn_ID_t irqn, uint32_t priority)
+{
+    int32_t status;
 
-  if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    GIC_SetPriority ((IRQn_Type)irqn, priority);
-    status = 0;
-  } else {
-    status = -1;
-  }
+    if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        GIC_SetPriority((IRQn_Type)irqn, priority);
+        status = 0;
+    } else {
+        status = -1;
+    }
 
-  return (status);
+    return (status);
 }
 
 
 /// Get interrupt priority.
-__WEAK uint32_t IRQ_GetPriority (IRQn_ID_t irqn) {
-  uint32_t priority;
+__WEAK uint32_t IRQ_GetPriority(IRQn_ID_t irqn)
+{
+    uint32_t priority;
 
-  if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    priority = GIC_GetPriority ((IRQn_Type)irqn);
-  } else {
-    priority = IRQ_PRIORITY_ERROR;
-  }
+    if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
+        priority = GIC_GetPriority((IRQn_Type)irqn);
+    } else {
+        priority = IRQ_PRIORITY_ERROR;
+    }
 
-  return (priority);
+    return (priority);
 }
 
 
 /// Set priority masking threshold.
-__WEAK int32_t IRQ_SetPriorityMask (uint32_t priority) {
-  GIC_SetInterfacePriorityMask (priority);
-  return (0);
+__WEAK int32_t IRQ_SetPriorityMask(uint32_t priority)
+{
+    GIC_SetInterfacePriorityMask(priority);
+    return (0);
 }
 
 
 /// Get priority masking threshold
-__WEAK uint32_t IRQ_GetPriorityMask (void) {
-  return GIC_GetInterfacePriorityMask();
+__WEAK uint32_t IRQ_GetPriorityMask(void)
+{
+    return GIC_GetInterfacePriorityMask();
 }
 
 
 /// Set priority grouping field split point
-__WEAK int32_t IRQ_SetPriorityGroupBits (uint32_t bits) {
-  int32_t status;
+__WEAK int32_t IRQ_SetPriorityGroupBits(uint32_t bits)
+{
+    int32_t status;
 
-  if (bits == IRQ_PRIORITY_Msk) {
-    bits = 7U;
-  }
+    if (bits == IRQ_PRIORITY_Msk) {
+        bits = 7U;
+    }
 
-  if (bits < 8U) {
-    GIC_SetBinaryPoint (7U - bits);
-    status = 0;
-  } else {
-    status = -1;
-  }
+    if (bits < 8U) {
+        GIC_SetBinaryPoint(7U - bits);
+        status = 0;
+    } else {
+        status = -1;
+    }
 
-  return (status);
+    return (status);
 }
 
 
 /// Get priority grouping field split point
-__WEAK uint32_t IRQ_GetPriorityGroupBits (void) {
-  uint32_t bp;
+__WEAK uint32_t IRQ_GetPriorityGroupBits(void)
+{
+    uint32_t bp;
 
-  bp = GIC_GetBinaryPoint() & 0x07U;
+    bp = GIC_GetBinaryPoint() & 0x07U;
 
-  return (7U - bp);
+    return (7U - bp);
 }
 
 #endif

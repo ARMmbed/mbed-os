@@ -36,15 +36,13 @@
  ******************************************************************************/
 
 /*<! Structure definition for camera_edma_private_handle_t. The structure is private. */
-typedef struct _flexio_camera_edma_private_handle
-{
+typedef struct _flexio_camera_edma_private_handle {
     FLEXIO_CAMERA_Type *base;
     flexio_camera_edma_handle_t *handle;
 } flexio_camera_edma_private_handle_t;
 
 /* CAMERA EDMA transfer handle. */
-enum _flexio_camera_edma_tansfer_states
-{
+enum _flexio_camera_edma_tansfer_states {
     kFLEXIO_CAMERA_RxIdle, /* RX idle. */
     kFLEXIO_CAMERA_RxBusy  /* RX busy. */
 };
@@ -91,12 +89,10 @@ static void FLEXIO_CAMERA_TransferReceiveEDMACallback(edma_handle_t *handle,
     handle = handle;
     tcds = tcds;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         FLEXIO_CAMERA_TransferAbortReceiveEDMA(cameraPrivateHandle->base, cameraPrivateHandle->handle);
 
-        if (cameraPrivateHandle->handle->callback)
-        {
+        if (cameraPrivateHandle->handle->callback) {
             cameraPrivateHandle->handle->callback(cameraPrivateHandle->base, cameraPrivateHandle->handle,
                                                   kStatus_FLEXIO_CAMERA_RxIdle, cameraPrivateHandle->handle->userData);
         }
@@ -113,18 +109,15 @@ status_t FLEXIO_CAMERA_TransferCreateHandleEDMA(FLEXIO_CAMERA_Type *base,
     uint8_t index = 0;
 
     /* Find the an empty handle pointer to store the handle. */
-    for (index = 0; index < FLEXIO_CAMERA_HANDLE_COUNT; index++)
-    {
-        if (s_edmaPrivateHandle[index].base == NULL)
-        {
+    for (index = 0; index < FLEXIO_CAMERA_HANDLE_COUNT; index++) {
+        if (s_edmaPrivateHandle[index].base == NULL) {
             s_edmaPrivateHandle[index].base = base;
             s_edmaPrivateHandle[index].handle = handle;
             break;
         }
     }
 
-    if (index == FLEXIO_CAMERA_HANDLE_COUNT)
-    {
+    if (index == FLEXIO_CAMERA_HANDLE_COUNT) {
         return kStatus_OutOfRange;
     }
 
@@ -140,8 +133,7 @@ status_t FLEXIO_CAMERA_TransferCreateHandleEDMA(FLEXIO_CAMERA_Type *base,
     handle->userData = userData;
 
     /* Configure RX. */
-    if (rxEdmaHandle)
-    {
+    if (rxEdmaHandle) {
         EDMA_SetCallback(handle->rxEdmaHandle, FLEXIO_CAMERA_TransferReceiveEDMACallback, &s_edmaPrivateHandle);
     }
 
@@ -158,12 +150,9 @@ status_t FLEXIO_CAMERA_TransferReceiveEDMA(FLEXIO_CAMERA_Type *base,
     status_t status;
 
     /* If previous RX not finished. */
-    if (kFLEXIO_CAMERA_RxBusy == handle->rxState)
-    {
+    if (kFLEXIO_CAMERA_RxBusy == handle->rxState) {
         status = kStatus_FLEXIO_CAMERA_RxBusy;
-    }
-    else
-    {
+    } else {
         handle->rxState = kFLEXIO_CAMERA_RxBusy;
 
         /* Prepare transfer. */
@@ -203,19 +192,15 @@ status_t FLEXIO_CAMERA_TransferGetReceiveCountEDMA(FLEXIO_CAMERA_Type *base,
 {
     assert(handle->rxEdmaHandle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
-    if (kFLEXIO_CAMERA_RxBusy == handle->rxState)
-    {
+    if (kFLEXIO_CAMERA_RxBusy == handle->rxState) {
         *count = (handle->rxSize -
                   (uint32_t)handle->nbytes *
-                      EDMA_GetRemainingMajorLoopCount(handle->rxEdmaHandle->base, handle->rxEdmaHandle->channel));
-    }
-    else
-    {
+                  EDMA_GetRemainingMajorLoopCount(handle->rxEdmaHandle->base, handle->rxEdmaHandle->channel));
+    } else {
         *count = handle->rxSize;
     }
 

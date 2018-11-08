@@ -38,10 +38,10 @@ extern "C" {
   * @brief TMR16A Flip-flop Structure definition
   */
 
-    typedef struct {
-        uint32_t TMR16AFlipflopCtrl;    /*!< Select TMR16A flip-flop output level */
-        uint32_t TMR16AFlipflopReverseTrg;      /*!< Specify TMR16A flip-flop reverse trigger */
-    } TMR16A_FFOutputTypeDef;
+typedef struct {
+    uint32_t TMR16AFlipflopCtrl;    /*!< Select TMR16A flip-flop output level */
+    uint32_t TMR16AFlipflopReverseTrg;      /*!< Specify TMR16A flip-flop reverse trigger */
+} TMR16A_FFOutputTypeDef;
 
 /** @} */
 /* End of group TMR16A_Exported_Types */
@@ -86,12 +86,12 @@ extern "C" {
 /** @defgroup TMR16A_Exported_FunctionPrototypes
   * @{
   */
-    void TMR16A_SetClkInCoreHalt(TSB_T16A_TypeDef * T16Ax, uint8_t ClkState);
-    void TMR16A_SetRunState(TSB_T16A_TypeDef * T16Ax, uint32_t Cmd);
-    void TMR16A_SetSrcClk(TSB_T16A_TypeDef * T16Ax, uint32_t SrcClk);
-    void TMR16A_SetFlipFlop(TSB_T16A_TypeDef * T16Ax, TMR16A_FFOutputTypeDef * FFStruct);
-    void TMR16A_ChangeCycle(TSB_T16A_TypeDef * T16Ax, uint32_t Cycle);
-    uint16_t TMR16A_GetCaptureValue(TSB_T16A_TypeDef * T16Ax);
+void TMR16A_SetClkInCoreHalt(TSB_T16A_TypeDef *T16Ax, uint8_t ClkState);
+void TMR16A_SetRunState(TSB_T16A_TypeDef *T16Ax, uint32_t Cmd);
+void TMR16A_SetSrcClk(TSB_T16A_TypeDef *T16Ax, uint32_t SrcClk);
+void TMR16A_SetFlipFlop(TSB_T16A_TypeDef *T16Ax, TMR16A_FFOutputTypeDef *FFStruct);
+void TMR16A_ChangeCycle(TSB_T16A_TypeDef *T16Ax, uint32_t Cycle);
+uint16_t TMR16A_GetCaptureValue(TSB_T16A_TypeDef *T16Ax);
 /** @} */
 /* End of group TMR16A_Exported_FunctionPrototypes */
 

@@ -379,67 +379,66 @@
 #define SCUX_SRCRSELnCIM_COUNT (4)
 
 
-typedef struct st_scux
-{
-                                                           /* SCUX             */
+typedef struct st_scux {
+    /* SCUX             */
 
-/* start of struct st_scux_from_ipcir_ipc0_n */
+    /* start of struct st_scux_from_ipcir_ipc0_n */
     volatile uint32_t  IPCIR_IPC0_0;                           /*  IPCIR_IPC0_0    */
     volatile uint32_t  IPSLR_IPC0_0;                           /*  IPSLR_IPC0_0    */
     volatile uint8_t   dummy259[248];                          /*                  */
 
-/* end of struct st_scux_from_ipcir_ipc0_n */
+    /* end of struct st_scux_from_ipcir_ipc0_n */
 
-/* start of struct st_scux_from_ipcir_ipc0_n */
+    /* start of struct st_scux_from_ipcir_ipc0_n */
     volatile uint32_t  IPCIR_IPC0_1;                           /*  IPCIR_IPC0_1    */
     volatile uint32_t  IPSLR_IPC0_1;                           /*  IPSLR_IPC0_1    */
     volatile uint8_t   dummy260[248];                          /*                  */
 
-/* end of struct st_scux_from_ipcir_ipc0_n */
+    /* end of struct st_scux_from_ipcir_ipc0_n */
 
-/* start of struct st_scux_from_ipcir_ipc0_n */
+    /* start of struct st_scux_from_ipcir_ipc0_n */
     volatile uint32_t  IPCIR_IPC0_2;                           /*  IPCIR_IPC0_2    */
     volatile uint32_t  IPSLR_IPC0_2;                           /*  IPSLR_IPC0_2    */
     volatile uint8_t   dummy261[248];                          /*                  */
 
-/* end of struct st_scux_from_ipcir_ipc0_n */
+    /* end of struct st_scux_from_ipcir_ipc0_n */
 
-/* start of struct st_scux_from_ipcir_ipc0_n */
+    /* start of struct st_scux_from_ipcir_ipc0_n */
     volatile uint32_t  IPCIR_IPC0_3;                           /*  IPCIR_IPC0_3    */
     volatile uint32_t  IPSLR_IPC0_3;                           /*  IPSLR_IPC0_3    */
     volatile uint8_t   dummy262[248];                          /*                  */
 
-/* end of struct st_scux_from_ipcir_ipc0_n */
+    /* end of struct st_scux_from_ipcir_ipc0_n */
 
-/* start of struct st_scux_from_opcir_opc0_n */
+    /* start of struct st_scux_from_opcir_opc0_n */
     volatile uint32_t  OPCIR_OPC0_0;                           /*  OPCIR_OPC0_0    */
     volatile uint32_t  OPSLR_OPC0_0;                           /*  OPSLR_OPC0_0    */
     volatile uint8_t   dummy263[248];                          /*                  */
 
-/* end of struct st_scux_from_opcir_opc0_n */
+    /* end of struct st_scux_from_opcir_opc0_n */
 
-/* start of struct st_scux_from_opcir_opc0_n */
+    /* start of struct st_scux_from_opcir_opc0_n */
     volatile uint32_t  OPCIR_OPC0_1;                           /*  OPCIR_OPC0_1    */
     volatile uint32_t  OPSLR_OPC0_1;                           /*  OPSLR_OPC0_1    */
     volatile uint8_t   dummy264[248];                          /*                  */
 
-/* end of struct st_scux_from_opcir_opc0_n */
+    /* end of struct st_scux_from_opcir_opc0_n */
 
-/* start of struct st_scux_from_opcir_opc0_n */
+    /* start of struct st_scux_from_opcir_opc0_n */
     volatile uint32_t  OPCIR_OPC0_2;                           /*  OPCIR_OPC0_2    */
     volatile uint32_t  OPSLR_OPC0_2;                           /*  OPSLR_OPC0_2    */
     volatile uint8_t   dummy265[248];                          /*                  */
 
-/* end of struct st_scux_from_opcir_opc0_n */
+    /* end of struct st_scux_from_opcir_opc0_n */
 
-/* start of struct st_scux_from_opcir_opc0_n */
+    /* start of struct st_scux_from_opcir_opc0_n */
     volatile uint32_t  OPCIR_OPC0_3;                           /*  OPCIR_OPC0_3    */
     volatile uint32_t  OPSLR_OPC0_3;                           /*  OPSLR_OPC0_3    */
     volatile uint8_t   dummy266[248];                          /*                  */
 
-/* end of struct st_scux_from_opcir_opc0_n */
+    /* end of struct st_scux_from_opcir_opc0_n */
 
-/* start of struct st_scux_from_ffdir_ffd0_n */
+    /* start of struct st_scux_from_ffdir_ffd0_n */
     volatile uint32_t  FFDIR_FFD0_0;                           /*  FFDIR_FFD0_0    */
     volatile uint32_t  FDAIR_FFD0_0;                           /*  FDAIR_FFD0_0    */
     volatile uint32_t  DRQSR_FFD0_0;                           /*  DRQSR_FFD0_0    */
@@ -449,10 +448,10 @@ typedef struct st_scux
     volatile uint8_t   dummy267[4];                            /*                  */
     volatile uint32_t  DEVCR_FFD0_0;                           /*  DEVCR_FFD0_0    */
 
-/* end of struct st_scux_from_ffdir_ffd0_n */
+    /* end of struct st_scux_from_ffdir_ffd0_n */
     volatile uint8_t   dummy268[224];                          /*                  */
 
-/* start of struct st_scux_from_ffdir_ffd0_n */
+    /* start of struct st_scux_from_ffdir_ffd0_n */
     volatile uint32_t  FFDIR_FFD0_1;                           /*  FFDIR_FFD0_1    */
     volatile uint32_t  FDAIR_FFD0_1;                           /*  FDAIR_FFD0_1    */
     volatile uint32_t  DRQSR_FFD0_1;                           /*  DRQSR_FFD0_1    */
@@ -462,10 +461,10 @@ typedef struct st_scux
     volatile uint8_t   dummy269[4];                            /*                  */
     volatile uint32_t  DEVCR_FFD0_1;                           /*  DEVCR_FFD0_1    */
 
-/* end of struct st_scux_from_ffdir_ffd0_n */
+    /* end of struct st_scux_from_ffdir_ffd0_n */
     volatile uint8_t   dummy270[224];                          /*                  */
 
-/* start of struct st_scux_from_ffdir_ffd0_n */
+    /* start of struct st_scux_from_ffdir_ffd0_n */
     volatile uint32_t  FFDIR_FFD0_2;                           /*  FFDIR_FFD0_2    */
     volatile uint32_t  FDAIR_FFD0_2;                           /*  FDAIR_FFD0_2    */
     volatile uint32_t  DRQSR_FFD0_2;                           /*  DRQSR_FFD0_2    */
@@ -475,10 +474,10 @@ typedef struct st_scux
     volatile uint8_t   dummy271[4];                            /*                  */
     volatile uint32_t  DEVCR_FFD0_2;                           /*  DEVCR_FFD0_2    */
 
-/* end of struct st_scux_from_ffdir_ffd0_n */
+    /* end of struct st_scux_from_ffdir_ffd0_n */
     volatile uint8_t   dummy272[224];                          /*                  */
 
-/* start of struct st_scux_from_ffdir_ffd0_n */
+    /* start of struct st_scux_from_ffdir_ffd0_n */
     volatile uint32_t  FFDIR_FFD0_3;                           /*  FFDIR_FFD0_3    */
     volatile uint32_t  FDAIR_FFD0_3;                           /*  FDAIR_FFD0_3    */
     volatile uint32_t  DRQSR_FFD0_3;                           /*  DRQSR_FFD0_3    */
@@ -488,10 +487,10 @@ typedef struct st_scux
     volatile uint8_t   dummy273[4];                            /*                  */
     volatile uint32_t  DEVCR_FFD0_3;                           /*  DEVCR_FFD0_3    */
 
-/* end of struct st_scux_from_ffdir_ffd0_n */
+    /* end of struct st_scux_from_ffdir_ffd0_n */
     volatile uint8_t   dummy274[224];                          /*                  */
 
-/* start of struct st_scux_from_ffuir_ffu0_n */
+    /* start of struct st_scux_from_ffuir_ffu0_n */
     volatile uint32_t  FFUIR_FFU0_0;                           /*  FFUIR_FFU0_0    */
     volatile uint32_t  FUAIR_FFU0_0;                           /*  FUAIR_FFU0_0    */
     volatile uint32_t  URQSR_FFU0_0;                           /*  URQSR_FFU0_0    */
@@ -500,10 +499,10 @@ typedef struct st_scux
     volatile uint8_t   dummy275[4];                            /*                  */
     volatile uint32_t  UEVCR_FFU0_0;                           /*  UEVCR_FFU0_0    */
 
-/* end of struct st_scux_from_ffuir_ffu0_n */
+    /* end of struct st_scux_from_ffuir_ffu0_n */
     volatile uint8_t   dummy276[228];                          /*                  */
 
-/* start of struct st_scux_from_ffuir_ffu0_n */
+    /* start of struct st_scux_from_ffuir_ffu0_n */
     volatile uint32_t  FFUIR_FFU0_1;                           /*  FFUIR_FFU0_1    */
     volatile uint32_t  FUAIR_FFU0_1;                           /*  FUAIR_FFU0_1    */
     volatile uint32_t  URQSR_FFU0_1;                           /*  URQSR_FFU0_1    */
@@ -512,10 +511,10 @@ typedef struct st_scux
     volatile uint8_t   dummy277[4];                            /*                  */
     volatile uint32_t  UEVCR_FFU0_1;                           /*  UEVCR_FFU0_1    */
 
-/* end of struct st_scux_from_ffuir_ffu0_n */
+    /* end of struct st_scux_from_ffuir_ffu0_n */
     volatile uint8_t   dummy278[228];                          /*                  */
 
-/* start of struct st_scux_from_ffuir_ffu0_n */
+    /* start of struct st_scux_from_ffuir_ffu0_n */
     volatile uint32_t  FFUIR_FFU0_2;                           /*  FFUIR_FFU0_2    */
     volatile uint32_t  FUAIR_FFU0_2;                           /*  FUAIR_FFU0_2    */
     volatile uint32_t  URQSR_FFU0_2;                           /*  URQSR_FFU0_2    */
@@ -524,10 +523,10 @@ typedef struct st_scux
     volatile uint8_t   dummy279[4];                            /*                  */
     volatile uint32_t  UEVCR_FFU0_2;                           /*  UEVCR_FFU0_2    */
 
-/* end of struct st_scux_from_ffuir_ffu0_n */
+    /* end of struct st_scux_from_ffuir_ffu0_n */
     volatile uint8_t   dummy280[228];                          /*                  */
 
-/* start of struct st_scux_from_ffuir_ffu0_n */
+    /* start of struct st_scux_from_ffuir_ffu0_n */
     volatile uint32_t  FFUIR_FFU0_3;                           /*  FFUIR_FFU0_3    */
     volatile uint32_t  FUAIR_FFU0_3;                           /*  FUAIR_FFU0_3    */
     volatile uint32_t  URQSR_FFU0_3;                           /*  URQSR_FFU0_3    */
@@ -536,10 +535,10 @@ typedef struct st_scux
     volatile uint8_t   dummy281[4];                            /*                  */
     volatile uint32_t  UEVCR_FFU0_3;                           /*  UEVCR_FFU0_3    */
 
-/* end of struct st_scux_from_ffuir_ffu0_n */
+    /* end of struct st_scux_from_ffuir_ffu0_n */
     volatile uint8_t   dummy282[228];                          /*                  */
 
-/* start of struct st_scux_from_srcir0_2src0_n */
+    /* start of struct st_scux_from_srcir0_2src0_n */
     volatile uint32_t  SRCIR0_2SRC0_0;                         /*  SRCIR0_2SRC0_0  */
     volatile uint32_t  SADIR0_2SRC0_0;                         /*  SADIR0_2SRC0_0  */
     volatile uint32_t  SRCBR0_2SRC0_0;                         /*  SRCBR0_2SRC0_0  */
@@ -568,10 +567,10 @@ typedef struct st_scux
     volatile uint32_t  SEVCR1_2SRC0_0;                         /*  SEVCR1_2SRC0_0  */
     volatile uint32_t  SRCIRR_2SRC0_0;                         /*  SRCIRR_2SRC0_0  */
 
-/* end of struct st_scux_from_srcir0_2src0_n */
+    /* end of struct st_scux_from_srcir0_2src0_n */
     volatile uint8_t   dummy285[148];                          /*                  */
 
-/* start of struct st_scux_from_srcir0_2src0_n */
+    /* start of struct st_scux_from_srcir0_2src0_n */
     volatile uint32_t  SRCIR0_2SRC0_1;                         /*  SRCIR0_2SRC0_1  */
     volatile uint32_t  SADIR0_2SRC0_1;                         /*  SADIR0_2SRC0_1  */
     volatile uint32_t  SRCBR0_2SRC0_1;                         /*  SRCBR0_2SRC0_1  */
@@ -600,10 +599,10 @@ typedef struct st_scux
     volatile uint32_t  SEVCR1_2SRC0_1;                         /*  SEVCR1_2SRC0_1  */
     volatile uint32_t  SRCIRR_2SRC0_1;                         /*  SRCIRR_2SRC0_1  */
 
-/* end of struct st_scux_from_srcir0_2src0_n */
+    /* end of struct st_scux_from_srcir0_2src0_n */
     volatile uint8_t   dummy288[148];                          /*                  */
 
-/* start of struct st_scux_from_dvuir_dvu0_n */
+    /* start of struct st_scux_from_dvuir_dvu0_n */
     volatile uint32_t  DVUIR_DVU0_0;                           /*  DVUIR_DVU0_0    */
     volatile uint32_t  VADIR_DVU0_0;                           /*  VADIR_DVU0_0    */
     volatile uint32_t  DVUBR_DVU0_0;                           /*  DVUBR_DVU0_0    */
@@ -627,10 +626,10 @@ typedef struct st_scux
     volatile uint8_t   dummy289[4];                            /*                  */
     volatile uint32_t  VEVCR_DVU0_0;                           /*  VEVCR_DVU0_0    */
 
-/* end of struct st_scux_from_dvuir_dvu0_n */
+    /* end of struct st_scux_from_dvuir_dvu0_n */
     volatile uint8_t   dummy290[168];                          /*                  */
 
-/* start of struct st_scux_from_dvuir_dvu0_n */
+    /* start of struct st_scux_from_dvuir_dvu0_n */
     volatile uint32_t  DVUIR_DVU0_1;                           /*  DVUIR_DVU0_1    */
     volatile uint32_t  VADIR_DVU0_1;                           /*  VADIR_DVU0_1    */
     volatile uint32_t  DVUBR_DVU0_1;                           /*  DVUBR_DVU0_1    */
@@ -654,10 +653,10 @@ typedef struct st_scux
     volatile uint8_t   dummy291[4];                            /*                  */
     volatile uint32_t  VEVCR_DVU0_1;                           /*  VEVCR_DVU0_1    */
 
-/* end of struct st_scux_from_dvuir_dvu0_n */
+    /* end of struct st_scux_from_dvuir_dvu0_n */
     volatile uint8_t   dummy292[168];                          /*                  */
 
-/* start of struct st_scux_from_dvuir_dvu0_n */
+    /* start of struct st_scux_from_dvuir_dvu0_n */
     volatile uint32_t  DVUIR_DVU0_2;                           /*  DVUIR_DVU0_2    */
     volatile uint32_t  VADIR_DVU0_2;                           /*  VADIR_DVU0_2    */
     volatile uint32_t  DVUBR_DVU0_2;                           /*  DVUBR_DVU0_2    */
@@ -681,10 +680,10 @@ typedef struct st_scux
     volatile uint8_t   dummy293[4];                            /*                  */
     volatile uint32_t  VEVCR_DVU0_2;                           /*  VEVCR_DVU0_2    */
 
-/* end of struct st_scux_from_dvuir_dvu0_n */
+    /* end of struct st_scux_from_dvuir_dvu0_n */
     volatile uint8_t   dummy294[168];                          /*                  */
 
-/* start of struct st_scux_from_dvuir_dvu0_n */
+    /* start of struct st_scux_from_dvuir_dvu0_n */
     volatile uint32_t  DVUIR_DVU0_3;                           /*  DVUIR_DVU0_3    */
     volatile uint32_t  VADIR_DVU0_3;                           /*  VADIR_DVU0_3    */
     volatile uint32_t  DVUBR_DVU0_3;                           /*  DVUBR_DVU0_3    */
@@ -708,7 +707,7 @@ typedef struct st_scux
     volatile uint8_t   dummy295[4];                            /*                  */
     volatile uint32_t  VEVCR_DVU0_3;                           /*  VEVCR_DVU0_3    */
 
-/* end of struct st_scux_from_dvuir_dvu0_n */
+    /* end of struct st_scux_from_dvuir_dvu0_n */
     volatile uint8_t   dummy296[168];                          /*                  */
     volatile uint32_t  MIXIR_MIX0_0;                           /*  MIXIR_MIX0_0    */
     volatile uint32_t  MADIR_MIX0_0;                           /*  MADIR_MIX0_0    */
@@ -725,28 +724,28 @@ typedef struct st_scux
     volatile uint32_t  SWRSR_CIM;                              /*  SWRSR_CIM       */
     volatile uint32_t  DMACR_CIM;                              /*  DMACR_CIM       */
 
-/* #define SCUX_DMATDnCIM_COUNT (4) */
+    /* #define SCUX_DMATDnCIM_COUNT (4) */
     union iodefine_reg32_16_t  DMATD0_CIM;                 /*  DMATD0_CIM      */
     union iodefine_reg32_16_t  DMATD1_CIM;                 /*  DMATD1_CIM      */
     union iodefine_reg32_16_t  DMATD2_CIM;                 /*  DMATD2_CIM      */
     union iodefine_reg32_16_t  DMATD3_CIM;                 /*  DMATD3_CIM      */
 
-/* #define SCUX_DMATUnCIM_COUNT (4) */
+    /* #define SCUX_DMATUnCIM_COUNT (4) */
     union iodefine_reg32_16_t  DMATU0_CIM;                 /*  DMATU0_CIM      */
     union iodefine_reg32_16_t  DMATU1_CIM;                 /*  DMATU1_CIM      */
     union iodefine_reg32_16_t  DMATU2_CIM;                 /*  DMATU2_CIM      */
     union iodefine_reg32_16_t  DMATU3_CIM;                 /*  DMATU3_CIM      */
-    
+
     volatile uint8_t   dummy298[16];                           /*                  */
     volatile uint32_t  SSIRSEL_CIM;                            /*  SSIRSEL_CIM     */
 
-/* #define SCUX_FDTSELnCIM_COUNT (4) */
+    /* #define SCUX_FDTSELnCIM_COUNT (4) */
     volatile uint32_t  FDTSEL0_CIM;                            /*  FDTSEL0_CIM     */
     volatile uint32_t  FDTSEL1_CIM;                            /*  FDTSEL1_CIM     */
     volatile uint32_t  FDTSEL2_CIM;                            /*  FDTSEL2_CIM     */
     volatile uint32_t  FDTSEL3_CIM;                            /*  FDTSEL3_CIM     */
 
-/* #define SCUX_FUTSELnCIM_COUNT (4) */
+    /* #define SCUX_FUTSELnCIM_COUNT (4) */
     volatile uint32_t  FUTSEL0_CIM;                            /*  FUTSEL0_CIM     */
     volatile uint32_t  FUTSEL1_CIM;                            /*  FUTSEL1_CIM     */
     volatile uint32_t  FUTSEL2_CIM;                            /*  FUTSEL2_CIM     */
@@ -754,7 +753,7 @@ typedef struct st_scux
     volatile uint32_t  SSIPMD_CIM;                             /*  SSIPMD_CIM      */
     volatile uint32_t  SSICTRL_CIM;                            /*  SSICTRL_CIM     */
 
-/* #define SCUX_SRCRSELnCIM_COUNT (4) */
+    /* #define SCUX_SRCRSELnCIM_COUNT (4) */
     volatile uint32_t  SRCRSEL0_CIM;                           /*  SRCRSEL0_CIM    */
     volatile uint32_t  SRCRSEL1_CIM;                           /*  SRCRSEL1_CIM    */
     volatile uint32_t  SRCRSEL2_CIM;                           /*  SRCRSEL2_CIM    */
@@ -763,27 +762,24 @@ typedef struct st_scux
 } r_io_scux_t;
 
 
-typedef struct st_scux_from_ipcir_ipc0_n
-{
- 
+typedef struct st_scux_from_ipcir_ipc0_n {
+
     volatile uint32_t  IPCIR_IPC0_0;                           /*  IPCIR_IPC0_0    */
     volatile uint32_t  IPSLR_IPC0_0;                           /*  IPSLR_IPC0_0    */
     volatile uint8_t   dummy1[248];                            /*                  */
 } r_io_scux_from_ipcir_ipc0_n_t;
 
 
-typedef struct st_scux_from_opcir_opc0_n
-{
- 
+typedef struct st_scux_from_opcir_opc0_n {
+
     volatile uint32_t  OPCIR_OPC0_0;                           /*  OPCIR_OPC0_0    */
     volatile uint32_t  OPSLR_OPC0_0;                           /*  OPSLR_OPC0_0    */
     volatile uint8_t   dummy1[248];                            /*                  */
 } r_io_scux_from_opcir_opc0_n_t;
 
 
-typedef struct st_scux_from_ffdir_ffd0_n
-{
- 
+typedef struct st_scux_from_ffdir_ffd0_n {
+
     volatile uint32_t  FFDIR_FFD0_0;                           /*  FFDIR_FFD0_0    */
     volatile uint32_t  FDAIR_FFD0_0;                           /*  FDAIR_FFD0_0    */
     volatile uint32_t  DRQSR_FFD0_0;                           /*  DRQSR_FFD0_0    */
@@ -795,9 +791,8 @@ typedef struct st_scux_from_ffdir_ffd0_n
 } r_io_scux_from_ffdir_ffd0_n_t;
 
 
-typedef struct st_scux_from_ffuir_ffu0_n
-{
- 
+typedef struct st_scux_from_ffuir_ffu0_n {
+
     volatile uint32_t  FFUIR_FFU0_0;                           /*  FFUIR_FFU0_0    */
     volatile uint32_t  FUAIR_FFU0_0;                           /*  FUAIR_FFU0_0    */
     volatile uint32_t  URQSR_FFU0_0;                           /*  URQSR_FFU0_0    */
@@ -808,9 +803,8 @@ typedef struct st_scux_from_ffuir_ffu0_n
 } r_io_scux_from_ffuir_ffu0_n_t;
 
 
-typedef struct st_scux_from_srcir0_2src0_n
-{
- 
+typedef struct st_scux_from_srcir0_2src0_n {
+
     volatile uint32_t  SRCIR0_2SRC0_0;                         /*  SRCIR0_2SRC0_0  */
     volatile uint32_t  SADIR0_2SRC0_0;                         /*  SADIR0_2SRC0_0  */
     volatile uint32_t  SRCBR0_2SRC0_0;                         /*  SRCBR0_2SRC0_0  */
@@ -841,9 +835,8 @@ typedef struct st_scux_from_srcir0_2src0_n
 } r_io_scux_from_srcir0_2src0_n_t;
 
 
-typedef struct st_scux_from_dvuir_dvu0_n
-{
- 
+typedef struct st_scux_from_dvuir_dvu0_n {
+
     volatile uint32_t  DVUIR_DVU0_0;                           /*  DVUIR_DVU0_0    */
     volatile uint32_t  VADIR_DVU0_0;                           /*  VADIR_DVU0_0    */
     volatile uint32_t  DVUBR_DVU0_0;                           /*  DVUBR_DVU0_0    */
@@ -871,45 +864,45 @@ typedef struct st_scux_from_dvuir_dvu0_n
 
 /* Channel array defines of SCUX (2)*/
 #ifdef  DECLARE_SCUX_FROM_DVUIR_DVU0_0_ARRAY_CHANNELS
-volatile struct st_scux_from_dvuir_dvu0_n*  SCUX_FROM_DVUIR_DVU0_0_ARRAY[ SCUX_FROM_DVUIR_DVU0_0_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    SCUX_FROM_DVUIR_DVU0_0_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_scux_from_dvuir_dvu0_n  *SCUX_FROM_DVUIR_DVU0_0_ARRAY[ SCUX_FROM_DVUIR_DVU0_0_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        SCUX_FROM_DVUIR_DVU0_0_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_SCUX_FROM_DVUIR_DVU0_0_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_SCUX_FROM_SRCIR0_2SRC0_0_ARRAY_CHANNELS
-volatile struct st_scux_from_srcir0_2src0_n*  SCUX_FROM_SRCIR0_2SRC0_0_ARRAY[ SCUX_FROM_SRCIR0_2SRC0_0_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    SCUX_FROM_SRCIR0_2SRC0_0_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_scux_from_srcir0_2src0_n  *SCUX_FROM_SRCIR0_2SRC0_0_ARRAY[ SCUX_FROM_SRCIR0_2SRC0_0_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        SCUX_FROM_SRCIR0_2SRC0_0_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_SCUX_FROM_SRCIR0_2SRC0_0_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_SCUX_FROM_FFUIR_FFU0_0_ARRAY_CHANNELS
-volatile struct st_scux_from_ffuir_ffu0_n*  SCUX_FROM_FFUIR_FFU0_0_ARRAY[ SCUX_FROM_FFUIR_FFU0_0_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    SCUX_FROM_FFUIR_FFU0_0_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_scux_from_ffuir_ffu0_n  *SCUX_FROM_FFUIR_FFU0_0_ARRAY[ SCUX_FROM_FFUIR_FFU0_0_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        SCUX_FROM_FFUIR_FFU0_0_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_SCUX_FROM_FFUIR_FFU0_0_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_SCUX_FROM_FFDIR_FFD0_0_ARRAY_CHANNELS
-volatile struct st_scux_from_ffdir_ffd0_n*  SCUX_FROM_FFDIR_FFD0_0_ARRAY[ SCUX_FROM_FFDIR_FFD0_0_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    SCUX_FROM_FFDIR_FFD0_0_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_scux_from_ffdir_ffd0_n  *SCUX_FROM_FFDIR_FFD0_0_ARRAY[ SCUX_FROM_FFDIR_FFD0_0_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        SCUX_FROM_FFDIR_FFD0_0_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_SCUX_FROM_FFDIR_FFD0_0_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_SCUX_FROM_OPCIR_OPC0_0_ARRAY_CHANNELS
-volatile struct st_scux_from_opcir_opc0_n*  SCUX_FROM_OPCIR_OPC0_0_ARRAY[ SCUX_FROM_OPCIR_OPC0_0_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    SCUX_FROM_OPCIR_OPC0_0_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_scux_from_opcir_opc0_n  *SCUX_FROM_OPCIR_OPC0_0_ARRAY[ SCUX_FROM_OPCIR_OPC0_0_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        SCUX_FROM_OPCIR_OPC0_0_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_SCUX_FROM_OPCIR_OPC0_0_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_SCUX_FROM_IPCIR_IPC0_0_ARRAY_CHANNELS
-volatile struct st_scux_from_ipcir_ipc0_n*  SCUX_FROM_IPCIR_IPC0_0_ARRAY[ SCUX_FROM_IPCIR_IPC0_0_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    SCUX_FROM_IPCIR_IPC0_0_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_scux_from_ipcir_ipc0_n  *SCUX_FROM_IPCIR_IPC0_0_ARRAY[ SCUX_FROM_IPCIR_IPC0_0_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        SCUX_FROM_IPCIR_IPC0_0_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_SCUX_FROM_IPCIR_IPC0_0_ARRAY_CHANNELS */
 /* End of channel array defines of SCUX (2)*/
 

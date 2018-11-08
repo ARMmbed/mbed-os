@@ -22,26 +22,26 @@
 #include "usart.h"
 #include "pinmap_function.h"
 
-#define USART_TX_INDEX		0
-#define USART_RX_INDEX		1
-#define USART_RXFLOW_INDEX	2
-#define USART_TXFLOW_INDEX	3
+#define USART_TX_INDEX      0
+#define USART_RX_INDEX      1
+#define USART_RXFLOW_INDEX  2
+#define USART_TXFLOW_INDEX  3
 
 
 #if DEVICE_SERIAL_ASYNCH
-#define pUSART_S(obj)			obj->serial.usart
-#define pSERIAL_S(obj)			((struct serial_s*)&(obj->serial))
+#define pUSART_S(obj)           obj->serial.usart
+#define pSERIAL_S(obj)          ((struct serial_s*)&(obj->serial))
 #else
-#define pUSART_S(obj)			obj->usart
-#define pSERIAL_S(obj)			((struct serial_s*)obj)
+#define pUSART_S(obj)           obj->usart
+#define pSERIAL_S(obj)          ((struct serial_s*)obj)
 #endif
-#define _USART(obj)			pUSART_S(obj)->USART
+#define _USART(obj)         pUSART_S(obj)->USART
 #define USART_NUM 6
 #define SUPPRESS_WARNING(a) (void)a
 
 uint8_t serial_get_index(serial_t *obj);
-IRQn_Type get_serial_irq_num (serial_t *obj);
-uint32_t get_serial_vector (serial_t *obj);
+IRQn_Type get_serial_irq_num(serial_t *obj);
+uint32_t get_serial_vector(serial_t *obj);
 void uart0_irq(void);
 void uart1_irq(void);
 void uart2_irq(void);
@@ -62,9 +62,9 @@ static inline void usart_syncing(serial_t *obj)
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 #ifdef FEATURE_USART_SYNC_SCHEME_V2
-    while(_USART(obj).SYNCBUSY.reg);
+    while (_USART(obj).SYNCBUSY.reg);
 #else
-    while(_USART(obj).SYNCBUSY.reg & SERCOM_USART_STATUS_SYNCBUSY);
+    while (_USART(obj).SYNCBUSY.reg & SERCOM_USART_STATUS_SYNCBUSY);
 #endif
 }
 
@@ -107,7 +107,7 @@ static inline void reset_usart(serial_t *obj)
     SUPPRESS_WARNING(reset_usart);
 }
 
-uint32_t serial_find_mux_settings (serial_t *obj)
+uint32_t serial_find_mux_settings(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -120,7 +120,7 @@ uint32_t serial_find_mux_settings (serial_t *obj)
         pinpad[i] = pinmap_pad_sercom(pSERIAL_S(obj)->pins[i], sercom_index);
     }
 
-    switch(pinpad[USART_RX_INDEX]) {
+    switch (pinpad[USART_RX_INDEX]) {
         case 0:
             mux_setting |= SERCOM_USART_CTRLA_RXPO(0);
             break;
@@ -138,12 +138,12 @@ uint32_t serial_find_mux_settings (serial_t *obj)
     if ((pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX] == NC) && (pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX] == NC)) {
         if (pinpad[USART_TX_INDEX] == 0) {
             mux_setting |= SERCOM_USART_CTRLA_TXPO(0);
-        } else if(pinpad[USART_TX_INDEX] == 2) {
+        } else if (pinpad[USART_TX_INDEX] == 2) {
             mux_setting |= SERCOM_USART_CTRLA_TXPO(1);
         } else {
         }
     } else { // for hardware flow control and uart // expecting the tx in pad 0, rts in pad2 and cts in pad 3
-        if((pinpad[USART_TX_INDEX] == 0) && (pinpad[USART_RXFLOW_INDEX]/*rts pin*/ == 2) && (pinpad[USART_TXFLOW_INDEX] /*cts pin*/ == 3)) {
+        if ((pinpad[USART_TX_INDEX] == 0) && (pinpad[USART_RXFLOW_INDEX]/*rts pin*/ == 2) && (pinpad[USART_TXFLOW_INDEX] /*cts pin*/ == 3)) {
             mux_setting |= SERCOM_USART_CTRLA_TXPO(2);
         }
     }
@@ -172,7 +172,7 @@ static enum status_code usart_set_config_default(serial_t *obj)
 
 
     /* Get baud value from mode and clock */
-    _sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate,system_gclk_chan_get_hz(gclk_index), &baud, mode, sample_num);  // for asynchronous transfer mode
+    _sercom_get_async_baud_val(pSERIAL_S(obj)->baudrate, system_gclk_chan_get_hz(gclk_index), &baud, mode, sample_num); // for asynchronous transfer mode
 
     /* Wait until synchronization is complete */
     usart_syncing(obj);
@@ -367,7 +367,7 @@ void serial_baud(serial_t *obj, int baudrate)
     MBED_ASSERT(obj);
     MBED_ASSERT((baudrate == 110) || (baudrate == 150) || (baudrate == 300) || (baudrate == 1200) ||
                 (baudrate == 2400) || (baudrate == 4800) || (baudrate == 9600) || (baudrate == 19200) || (baudrate == 38400) ||
-                (baudrate == 57600) || (baudrate == 115200) || (baudrate == 230400) || (baudrate == 460800) || (baudrate == 921600) );
+                (baudrate == 57600) || (baudrate == 115200) || (baudrate == 230400) || (baudrate == 460800) || (baudrate == 921600));
 
     struct system_gclk_chan_config gclk_chan_conf;
     uint32_t gclk_index;
@@ -541,21 +541,21 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
             }
         }
     }
-    if((FlowControlRTS == type) || (FlowControlRTSCTS== type))  {
+    if ((FlowControlRTS == type) || (FlowControlRTSCTS == type))  {
         if (pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX] != NC) {
             pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT; // setting for rxflow
             pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
-            pin_conf.mux_position = pinmap_function_sercom(pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX] , sercom_index);
+            pin_conf.mux_position = pinmap_function_sercom(pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX], sercom_index);
             if ((uint8_t)NC != pin_conf.mux_position) {
                 system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX], &pin_conf);
             }
         }
     }
-    if((FlowControlCTS == type) || (FlowControlRTSCTS== type)) {
+    if ((FlowControlCTS == type) || (FlowControlRTSCTS == type)) {
         if (pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX] != NC) {
             pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT; // setting for txflow
             pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
-            pin_conf.mux_position = pinmap_function_sercom(pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX] , sercom_index);
+            pin_conf.mux_position = pinmap_function_sercom(pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX], sercom_index);
             if ((uint8_t)NC != pin_conf.mux_position) {
                 system_pinmux_pin_set_config(pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX], &pin_conf);
             }
@@ -631,7 +631,7 @@ inline uint8_t serial_get_index(serial_t *obj)
 
 static inline void uart_irq(SercomUsart *const usart, uint32_t index)
 {
-    MBED_ASSERT(usart != (void*)0);
+    MBED_ASSERT(usart != (void *)0);
     uint16_t interrupt_status;
     interrupt_status = usart->INTFLAG.reg;
     interrupt_status &= usart->INTENSET.reg;
@@ -682,7 +682,7 @@ void uart5_irq()
     uart_irq((SercomUsart *)UART_5, 5);
 }
 
-uint32_t get_serial_vector (serial_t *obj)
+uint32_t get_serial_vector(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -718,7 +718,7 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
     serial_irq_ids[serial_get_index(obj)] = id;
 }
 
-IRQn_Type get_serial_irq_num (serial_t *obj)
+IRQn_Type get_serial_irq_num(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -824,19 +824,19 @@ int serial_writable(serial_t *obj)
 }
 
 /************************************************************************************
- * 			ASYNCHRONOUS HAL														*
+ *          ASYNCHRONOUS HAL                                                        *
  ************************************************************************************/
 
 #if DEVICE_SERIAL_ASYNCH
 
 /************************************
- * HELPER FUNCTIONS					*
+ * HELPER FUNCTIONS                 *
  ***********************************/
 void serial_tx_enable_event(serial_t *obj, int event, uint8_t enable)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    if(enable) {
+    if (enable) {
         pSERIAL_S(obj)->events |= event;
     } else {
         pSERIAL_S(obj)->events &= ~ event;
@@ -847,7 +847,7 @@ void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    if(enable) {
+    if (enable) {
         pSERIAL_S(obj)->events |= event;
     } else {
         pSERIAL_S(obj)->events &= ~ event;
@@ -858,11 +858,13 @@ void serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t width)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    MBED_ASSERT(tx != (void*)0);
+    MBED_ASSERT(tx != (void *)0);
     // We only support byte buffers for now
     MBED_ASSERT(width == 8);
 
-    if(serial_tx_active(obj)) return;
+    if (serial_tx_active(obj)) {
+        return;
+    }
 
     obj->tx_buff.buffer = tx;
     obj->tx_buff.length = tx_length;
@@ -875,11 +877,13 @@ void serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    MBED_ASSERT(rx != (void*)0);
+    MBED_ASSERT(rx != (void *)0);
     // We only support byte buffers for now
     MBED_ASSERT(width == 8);
 
-    if(serial_rx_active(obj)) return;
+    if (serial_rx_active(obj)) {
+        return;
+    }
 
     obj->rx_buff.buffer = rx;
     obj->rx_buff.length = rx_length;
@@ -898,14 +902,16 @@ void serial_set_char_match(serial_t *obj, uint8_t char_match)
 }
 
 /************************************
- * TRANSFER FUNCTIONS				*
+ * TRANSFER FUNCTIONS               *
  ***********************************/
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    MBED_ASSERT(tx != (void*)0);
-    if(tx_length == 0) return 0;
+    MBED_ASSERT(tx != (void *)0);
+    if (tx_length == 0) {
+        return 0;
+    }
 
     serial_tx_buffer_set(obj, (void *)tx, tx_length, tx_width);
     serial_tx_enable_event(obj, event, true);
@@ -926,7 +932,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    MBED_ASSERT(rx != (void*)0);
+    MBED_ASSERT(rx != (void *)0);
 
     serial_rx_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
     serial_rx_enable_event(obj, event, true);
@@ -973,7 +979,7 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
     MBED_ASSERT(obj);
     int event = 0;
     /* This interrupt handler is called from USART irq */
-    uint8_t *buf = (uint8_t*)obj->rx_buff.buffer;
+    uint8_t *buf = (uint8_t *)obj->rx_buff.buffer;
     uint8_t error_code = 0;
     uint16_t received_data = 0;
 
@@ -1009,9 +1015,9 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
     obj->rx_buff.pos++;
 
     /* Check if the last character have been received */
-    if(--(obj->rx_buff.length) == 0) {
+    if (--(obj->rx_buff.length) == 0) {
         event |= SERIAL_EVENT_RX_COMPLETE;
-        if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
+        if ((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
             event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
         }
         _USART(obj).INTFLAG.reg = SERCOM_USART_INTFLAG_RXC;
@@ -1020,12 +1026,12 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
     }
 
     /* Check for character match event */
-    if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
+    if ((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
         event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
     }
 
     /* Return to the call back if character match occured */
-    if(event != 0) {
+    if (event != 0) {
         serial_rx_abort_asynch(obj);
         return event & obj->serial.events;
     }
@@ -1045,12 +1051,12 @@ int serial_irq_handler_asynch(serial_t *obj)
     if (pUSART_S(obj)) {
         if (interrupt_status & SERCOM_USART_INTFLAG_DRE) {
             /* Interrupt has another TX source */
-            if(obj->tx_buff.pos >= obj->tx_buff.length) {
+            if (obj->tx_buff.pos >= obj->tx_buff.length) {
                 /* Transfer complete. Switch off interrupt and return event. */
                 _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_DRE;
                 _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_TXC;
             } else {
-                while((serial_writable(obj)) && (obj->tx_buff.pos <= (obj->tx_buff.length - 1))) {
+                while ((serial_writable(obj)) && (obj->tx_buff.pos <= (obj->tx_buff.length - 1))) {
                     _USART(obj).DATA.reg = buf[obj->tx_buff.pos];
                     obj->tx_buff.pos++;
                 }

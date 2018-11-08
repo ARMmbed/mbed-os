@@ -369,7 +369,7 @@ static inline void _adc_configure_ain_pin(uint8_t index, uint32_t pin)
 #   endif
     };
 
-    switch(index) {
+    switch (index) {
         case 0:
             pinmapping = pinmapping0;
             break;
@@ -437,8 +437,8 @@ static enum status_code _adc_set_config(
     _adc_configure_ain_pin(index, config->negative_input);
 
     /* Set pinmux for positive input sequence*/
-    for(uint8_t i=0; i <= _adc_extchannel_msb[index]; i++) {
-        if(config->positive_input_sequence_mask_enable & (1 << i)) {
+    for (uint8_t i = 0; i <= _adc_extchannel_msb[index]; i++) {
+        if (config->positive_input_sequence_mask_enable & (1 << i)) {
             _adc_configure_ain_pin(index, i);
         }
     }
@@ -643,7 +643,7 @@ static enum status_code _adc_set_config(
 
     /* Disable all interrupts */
     adc_module->INTENCLR.reg =
-        (1 << ADC_INTENCLR_WINMON_Pos) |(1 << ADC_INTENCLR_OVERRUN_Pos)
+        (1 << ADC_INTENCLR_WINMON_Pos) | (1 << ADC_INTENCLR_OVERRUN_Pos)
         | (1 << ADC_INTENCLR_RESRDY_Pos);
 
     if (config->correction.correction_enable) {

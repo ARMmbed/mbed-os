@@ -16,7 +16,7 @@
 
 static void event_loop_thread(void *arg);
 
-static uint64_t event_thread_stk[MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_THREAD_STACK_SIZE/8];
+static uint64_t event_thread_stk[MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_THREAD_STACK_SIZE / 8];
 static mbed_rtos_storage_thread_t event_thread_tcb;
 static const osThreadAttr_t event_thread_attr = {
     .name = "nanostack_event_thread",
@@ -29,10 +29,10 @@ static const osThreadAttr_t event_thread_attr = {
 static osThreadId_t event_thread_id;
 static mbed_rtos_storage_mutex_t event_mutex;
 static const osMutexAttr_t event_mutex_attr = {
-  .name = "nanostack_event_mutex",
-  .attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust,
-  .cb_mem = &event_mutex,
-  .cb_size = sizeof event_mutex,
+    .name = "nanostack_event_mutex",
+    .attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust,
+    .cb_mem = &event_mutex,
+    .cb_size = sizeof event_mutex,
 };
 static osMutexId_t event_mutex_id;
 static osThreadId_t event_mutex_owner_id = NULL;

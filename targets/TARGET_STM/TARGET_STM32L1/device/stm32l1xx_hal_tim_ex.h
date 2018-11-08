@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L1xx_HAL_TIM_EX_H
 #define __STM32L1xx_HAL_TIM_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,22 +52,22 @@
 
 /** @addtogroup TIMEx
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /** @defgroup TIMEx_Exported_Types TIMEx Exported Types
   * @{
   */
 
-/** 
-  * @brief  TIM Master configuration Structure definition  
-  */ 
+/**
+  * @brief  TIM Master configuration Structure definition
+  */
 typedef struct {
-  uint32_t  MasterOutputTrigger;   /*!< Trigger output (TRGO) selection 
-                                      This parameter can be a value of @ref TIM_Master_Mode_Selection */ 
-  uint32_t  MasterSlaveMode;       /*!< Master/slave mode selection 
+    uint32_t  MasterOutputTrigger;   /*!< Trigger output (TRGO) selection
+                                      This parameter can be a value of @ref TIM_Master_Mode_Selection */
+    uint32_t  MasterSlaveMode;       /*!< Master/slave mode selection
                                       This parameter can be a value of @ref TIM_Master_Slave_Mode */
-}TIM_MasterConfigTypeDef;
+} TIM_MasterConfigTypeDef;
 
 /**
   * @}
@@ -77,7 +77,7 @@ typedef struct {
 /** @defgroup TIMEx_Exported_Constants TIMEx Exported Constants
   * @{
   */
-    
+
 /** @defgroup TIMEx_Remap TIMEx Remap
   * @{
   */
@@ -139,34 +139,34 @@ typedef struct {
           (((INSTANCE) == TIM10) && (((TIM_REMAP) == TIM_TIM10_GPIO) || ((TIM_REMAP) == TIM_TIM10_LSI) || ((TIM_REMAP) == TIM_TIM10_LSE) || ((TIM_REMAP) == TIM_TIM10_RTC)))       || \
           (((INSTANCE) == TIM11) && (((TIM_REMAP) == TIM_TIM11_GPIO) || ((TIM_REMAP) == TIM_TIM11_MSI) || ((TIM_REMAP) == TIM_TIM11_HSE_RTC) || ((TIM_REMAP) == TIM_TIM11_GPIO1)))    \
         )
-#endif 
+#endif
 
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /* Exported macro ------------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup TIMEx_Exported_Functions
   * @{
-  */ 
+  */
 
 /** @addtogroup TIMEx_Exported_Functions_Group1
   * @{
   */
 /* Extension Control functions  ************************************************/
-HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim, TIM_MasterConfigTypeDef * sMasterConfig);
+HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim, TIM_MasterConfigTypeDef *sMasterConfig);
 HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap);
 /**
   * @}
   */
-  
+
 /* Extension Peripheral State functions  **************************************/
 /**
   * @}
@@ -178,12 +178,12 @@ HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap)
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
   */
-  
+
 #ifdef __cplusplus
 }
 #endif

@@ -33,8 +33,7 @@
 /*******************************************************************************
 * Definitations
 ******************************************************************************/
-enum _sai_transfer_state
-{
+enum _sai_transfer_state {
     kFLEXIO_I2S_Busy = 0x0U, /*!< FLEXIO_I2S is busy */
     kFLEXIO_I2S_Idle,        /*!< Transfer is done. */
 };
@@ -76,10 +75,8 @@ static void FLEXIO_I2S_WriteNonBlocking(FLEXIO_I2S_Type *base, uint8_t bitWidth,
     uint32_t data = 0;
     uint32_t temp = 0;
 
-    for (i = 0; i < size / bytesPerWord; i++)
-    {
-        for (j = 0; j < bytesPerWord; j++)
-        {
+    for (i = 0; i < size / bytesPerWord; i++) {
+        for (j = 0; j < bytesPerWord; j++) {
             temp = (uint32_t)(*txData);
             data |= (temp << (8U * j));
             txData++;
@@ -96,11 +93,9 @@ static void FLEXIO_I2S_ReadNonBlocking(FLEXIO_I2S_Type *base, uint8_t bitWidth, 
     uint8_t bytesPerWord = bitWidth / 8U;
     uint32_t data = 0;
 
-    for (i = 0; i < size / bytesPerWord; i++)
-    {
+    for (i = 0; i < size / bytesPerWord; i++) {
         data = base->flexioBase->SHIFTBUFBIS[base->rxShifterIndex];
-        for (j = 0; j < bytesPerWord; j++)
-        {
+        for (j = 0; j < bytesPerWord; j++) {
             *rxData = (data >> (8U * j)) & 0xFF;
             rxData++;
         }
@@ -128,12 +123,9 @@ void FLEXIO_I2S_Init(FLEXIO_I2S_Type *base, const flexio_i2s_config_t *config)
     shifterConfig.shifterMode = kFLEXIO_ShifterModeTransmit;
     shifterConfig.inputSource = kFLEXIO_ShifterInputFromPin;
     shifterConfig.shifterStop = kFLEXIO_ShifterStopBitDisable;
-    if (config->masterSlave == kFLEXIO_I2S_Master)
-    {
+    if (config->masterSlave == kFLEXIO_I2S_Master) {
         shifterConfig.shifterStart = kFLEXIO_ShifterStartBitDisabledLoadDataOnShift;
-    }
-    else
-    {
+    } else {
         shifterConfig.shifterStart = kFLEXIO_ShifterStartBitDisabledLoadDataOnEnable;
     }
 
@@ -153,8 +145,7 @@ void FLEXIO_I2S_Init(FLEXIO_I2S_Type *base, const flexio_i2s_config_t *config)
     FLEXIO_SetShifterConfig(base->flexioBase, base->rxShifterIndex, &shifterConfig);
 
     /* Set Timer to I2S frame sync */
-    if (config->masterSlave == kFLEXIO_I2S_Master)
-    {
+    if (config->masterSlave == kFLEXIO_I2S_Master) {
         timerConfig.triggerSelect = FLEXIO_TIMER_TRIGGER_SEL_TIMn(base->bclkTimerIndex);
         timerConfig.triggerPolarity = kFLEXIO_TimerTriggerPolarityActiveHigh;
         timerConfig.triggerSource = kFLEXIO_TimerTriggerSourceExternal;
@@ -169,9 +160,7 @@ void FLEXIO_I2S_Init(FLEXIO_I2S_Type *base, const flexio_i2s_config_t *config)
         timerConfig.timerEnable = kFLEXIO_TimerEnableOnPrevTimerEnable;
         timerConfig.timerStart = kFLEXIO_TimerStartBitDisabled;
         timerConfig.timerStop = kFLEXIO_TimerStopBitDisabled;
-    }
-    else
-    {
+    } else {
         timerConfig.triggerSelect = FLEXIO_TIMER_TRIGGER_SEL_PININPUT(base->bclkPinIndex);
         timerConfig.triggerPolarity = kFLEXIO_TimerTriggerPolarityActiveHigh;
         timerConfig.triggerSource = kFLEXIO_TimerTriggerSourceInternal;
@@ -190,8 +179,7 @@ void FLEXIO_I2S_Init(FLEXIO_I2S_Type *base, const flexio_i2s_config_t *config)
     FLEXIO_SetTimerConfig(base->flexioBase, base->fsTimerIndex, &timerConfig);
 
     /* Set Timer to I2S bit clock */
-    if (config->masterSlave == kFLEXIO_I2S_Master)
-    {
+    if (config->masterSlave == kFLEXIO_I2S_Master) {
         timerConfig.triggerSelect = FLEXIO_TIMER_TRIGGER_SEL_SHIFTnSTAT(base->txShifterIndex);
         timerConfig.triggerPolarity = kFLEXIO_TimerTriggerPolarityActiveLow;
         timerConfig.triggerSource = kFLEXIO_TimerTriggerSourceInternal;
@@ -206,9 +194,7 @@ void FLEXIO_I2S_Init(FLEXIO_I2S_Type *base, const flexio_i2s_config_t *config)
         timerConfig.timerEnable = kFLEXIO_TimerEnableOnTriggerHigh;
         timerConfig.timerStart = kFLEXIO_TimerStartBitEnabled;
         timerConfig.timerStop = kFLEXIO_TimerStopBitDisabled;
-    }
-    else
-    {
+    } else {
         timerConfig.triggerSelect = FLEXIO_TIMER_TRIGGER_SEL_TIMn(base->fsTimerIndex);
         timerConfig.triggerPolarity = kFLEXIO_TimerTriggerPolarityActiveHigh;
         timerConfig.triggerSource = kFLEXIO_TimerTriggerSourceInternal;
@@ -227,12 +213,9 @@ void FLEXIO_I2S_Init(FLEXIO_I2S_Type *base, const flexio_i2s_config_t *config)
     FLEXIO_SetTimerConfig(base->flexioBase, base->bclkTimerIndex, &timerConfig);
 
     /* If enable flexio I2S */
-    if (config->enableI2S)
-    {
+    if (config->enableI2S) {
         base->flexioBase->CTRL |= FLEXIO_CTRL_FLEXEN_MASK;
-    }
-    else
-    {
+    } else {
         base->flexioBase->CTRL &= ~FLEXIO_CTRL_FLEXEN_MASK;
     }
 }
@@ -254,12 +237,10 @@ void FLEXIO_I2S_Deinit(FLEXIO_I2S_Type *base)
 
 void FLEXIO_I2S_EnableInterrupts(FLEXIO_I2S_Type *base, uint32_t mask)
 {
-    if (mask & kFLEXIO_I2S_TxDataRegEmptyInterruptEnable)
-    {
+    if (mask & kFLEXIO_I2S_TxDataRegEmptyInterruptEnable) {
         FLEXIO_EnableShifterStatusInterrupts(base->flexioBase, 1U << base->txShifterIndex);
     }
-    if (mask & kFLEXIO_I2S_RxDataRegFullInterruptEnable)
-    {
+    if (mask & kFLEXIO_I2S_RxDataRegFullInterruptEnable) {
         FLEXIO_EnableShifterStatusInterrupts(base->flexioBase, 1U << base->rxShifterIndex);
     }
 }
@@ -276,12 +257,10 @@ uint32_t FLEXIO_I2S_GetStatusFlags(FLEXIO_I2S_Type *base)
 
 void FLEXIO_I2S_DisableInterrupts(FLEXIO_I2S_Type *base, uint32_t mask)
 {
-    if (mask & kFLEXIO_I2S_TxDataRegEmptyInterruptEnable)
-    {
+    if (mask & kFLEXIO_I2S_TxDataRegEmptyInterruptEnable) {
         FLEXIO_DisableShifterStatusInterrupts(base->flexioBase, 1U << base->txShifterIndex);
     }
-    if (mask & kFLEXIO_I2S_RxDataRegFullInterruptEnable)
-    {
+    if (mask & kFLEXIO_I2S_RxDataRegFullInterruptEnable) {
         FLEXIO_DisableShifterStatusInterrupts(base->flexioBase, 1U << base->rxShifterIndex);
     }
 }
@@ -313,11 +292,9 @@ void FLEXIO_I2S_WriteBlocking(FLEXIO_I2S_Type *base, uint8_t bitWidth, uint8_t *
     uint32_t i = 0;
     uint8_t bytesPerWord = bitWidth / 8U;
 
-    for (i = 0; i < size / bytesPerWord; i++)
-    {
+    for (i = 0; i < size / bytesPerWord; i++) {
         /* Wait until it can write data */
-        while ((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_TxDataRegEmptyFlag) == 0)
-        {
+        while ((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_TxDataRegEmptyFlag) == 0) {
         }
 
         FLEXIO_I2S_WriteNonBlocking(base, bitWidth, txData, bytesPerWord);
@@ -325,8 +302,7 @@ void FLEXIO_I2S_WriteBlocking(FLEXIO_I2S_Type *base, uint8_t bitWidth, uint8_t *
     }
 
     /* Wait until the last data is sent */
-    while ((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_TxDataRegEmptyFlag) == 0)
-    {
+    while ((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_TxDataRegEmptyFlag) == 0) {
     }
 }
 
@@ -335,11 +311,9 @@ void FLEXIO_I2S_ReadBlocking(FLEXIO_I2S_Type *base, uint8_t bitWidth, uint8_t *r
     uint32_t i = 0;
     uint8_t bytesPerWord = bitWidth / 8U;
 
-    for (i = 0; i < size / bytesPerWord; i++)
-    {
+    for (i = 0; i < size / bytesPerWord; i++) {
         /* Wait until data is received */
-        while (!(FLEXIO_GetShifterStatusFlags(base->flexioBase) & (1U << base->rxShifterIndex)))
-        {
+        while (!(FLEXIO_GetShifterStatusFlags(base->flexioBase) & (1U << base->rxShifterIndex))) {
         }
 
         FLEXIO_I2S_ReadNonBlocking(base, bitWidth, rxData, bytesPerWord);
@@ -410,13 +384,10 @@ void FLEXIO_I2S_TransferSetFormat(FLEXIO_I2S_Type *base,
     handle->bitWidth = format->bitWidth;
 
     /* Set sample rate */
-    if (srcClock_Hz != 0)
-    {
+    if (srcClock_Hz != 0) {
         /* It is master */
         FLEXIO_I2S_MasterSetFormat(base, format, srcClock_Hz);
-    }
-    else
-    {
+    } else {
         FLEXIO_I2S_SlaveSetFormat(base, format);
     }
 }
@@ -428,12 +399,10 @@ status_t FLEXIO_I2S_TransferSendNonBlocking(FLEXIO_I2S_Type *base,
     assert(handle);
 
     /* Check if the queue is full */
-    if (handle->queue[handle->queueUser].data)
-    {
+    if (handle->queue[handle->queueUser].data) {
         return kStatus_FLEXIO_I2S_QueueFull;
     }
-    if ((xfer->dataSize == 0) || (xfer->data == NULL))
-    {
+    if ((xfer->dataSize == 0) || (xfer->data == NULL)) {
         return kStatus_InvalidArgument;
     }
 
@@ -461,13 +430,11 @@ status_t FLEXIO_I2S_TransferReceiveNonBlocking(FLEXIO_I2S_Type *base,
     assert(handle);
 
     /* Check if the queue is full */
-    if (handle->queue[handle->queueUser].data)
-    {
+    if (handle->queue[handle->queueUser].data) {
         return kStatus_FLEXIO_I2S_QueueFull;
     }
 
-    if ((xfer->dataSize == 0) || (xfer->data == NULL))
-    {
+    if ((xfer->dataSize == 0) || (xfer->data == NULL)) {
         return kStatus_InvalidArgument;
     }
 
@@ -527,12 +494,9 @@ status_t FLEXIO_I2S_TransferGetSendCount(FLEXIO_I2S_Type *base, flexio_i2s_handl
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kFLEXIO_I2S_Busy)
-    {
+    if (handle->state != kFLEXIO_I2S_Busy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = (handle->transferSize[handle->queueDriver] - handle->queue[handle->queueDriver].dataSize);
     }
 
@@ -545,12 +509,9 @@ status_t FLEXIO_I2S_TransferGetReceiveCount(FLEXIO_I2S_Type *base, flexio_i2s_ha
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kFLEXIO_I2S_Busy)
-    {
+    if (handle->state != kFLEXIO_I2S_Busy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = (handle->transferSize[handle->queueDriver] - handle->queue[handle->queueDriver].dataSize);
     }
 
@@ -567,13 +528,11 @@ void FLEXIO_I2S_TransferTxHandleIRQ(void *i2sBase, void *i2sHandle)
     uint8_t dataSize = handle->bitWidth / 8U;
 
     /* Handle error */
-    if (FLEXIO_GetShifterErrorFlags(base->flexioBase) & (1U << base->txShifterIndex))
-    {
+    if (FLEXIO_GetShifterErrorFlags(base->flexioBase) & (1U << base->txShifterIndex)) {
         FLEXIO_ClearShifterErrorFlags(base->flexioBase, (1U << base->txShifterIndex));
     }
     /* Handle transfer */
-    if ((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_TxDataRegEmptyFlag) != 0)
-    {
+    if ((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_TxDataRegEmptyFlag) != 0) {
         FLEXIO_I2S_WriteNonBlocking(base, handle->bitWidth, buffer, dataSize);
 
         /* Update internal counter */
@@ -582,19 +541,16 @@ void FLEXIO_I2S_TransferTxHandleIRQ(void *i2sBase, void *i2sHandle)
     }
 
     /* If finished a blcok, call the callback function */
-    if (handle->queue[handle->queueDriver].dataSize == 0U)
-    {
+    if (handle->queue[handle->queueDriver].dataSize == 0U) {
         memset(&handle->queue[handle->queueDriver], 0, sizeof(flexio_i2s_transfer_t));
         handle->queueDriver = (handle->queueDriver + 1) % FLEXIO_I2S_XFER_QUEUE_SIZE;
-        if (handle->callback)
-        {
+        if (handle->callback) {
             (handle->callback)(base, handle, kStatus_Success, handle->userData);
         }
     }
 
     /* If all data finished, just stop the transfer */
-    if (handle->queue[handle->queueDriver].data == NULL)
-    {
+    if (handle->queue[handle->queueDriver].data == NULL) {
         FLEXIO_I2S_TransferAbortSend(base, handle);
     }
 }
@@ -609,8 +565,7 @@ void FLEXIO_I2S_TransferRxHandleIRQ(void *i2sBase, void *i2sHandle)
     uint8_t dataSize = handle->bitWidth / 8U;
 
     /* Handle transfer */
-    if ((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_RxDataRegFullFlag) != 0)
-    {
+    if ((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_RxDataRegFullFlag) != 0) {
         FLEXIO_I2S_ReadNonBlocking(base, handle->bitWidth, buffer, dataSize);
 
         /* Update internal state */
@@ -619,19 +574,16 @@ void FLEXIO_I2S_TransferRxHandleIRQ(void *i2sBase, void *i2sHandle)
     }
 
     /* If finished a blcok, call the callback function */
-    if (handle->queue[handle->queueDriver].dataSize == 0U)
-    {
+    if (handle->queue[handle->queueDriver].dataSize == 0U) {
         memset(&handle->queue[handle->queueDriver], 0, sizeof(flexio_i2s_transfer_t));
         handle->queueDriver = (handle->queueDriver + 1) % FLEXIO_I2S_XFER_QUEUE_SIZE;
-        if (handle->callback)
-        {
+        if (handle->callback) {
             (handle->callback)(base, handle, kStatus_Success, handle->userData);
         }
     }
 
     /* If all data finished, just stop the transfer */
-    if (handle->queue[handle->queueDriver].data == NULL)
-    {
+    if (handle->queue[handle->queueDriver].data == NULL) {
         FLEXIO_I2S_TransferAbortReceive(base, handle);
     }
 }

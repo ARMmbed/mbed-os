@@ -60,10 +60,10 @@
 
 
 /**@brief Macro for getting the end of the flash available for application.
- * 
- * @details    The result flash page number indicates the end boundary of the flash available 
- *             to the application. If a bootloader is used, the end will be the start of the 
- *             bootloader region. Otherwise, the end will be the size of the flash. 
+ *
+ * @details    The result flash page number indicates the end boundary of the flash available
+ *             to the application. If a bootloader is used, the end will be the start of the
+ *             bootloader region. Otherwise, the end will be the size of the flash.
  */
 #define BLE_FLASH_PAGE_END \
     ((NRF_UICR->BOOTLOADERADDR != BLE_FLASH_EMPTY_MASK) \
@@ -81,19 +81,19 @@
  *
  * @return     NRF_SUCCESS on successful flash write, otherwise an error code.
  */
-uint32_t ble_flash_page_write(uint8_t page_num, uint32_t * p_in_array, uint8_t word_count);
+uint32_t ble_flash_page_write(uint8_t page_num, uint32_t *p_in_array, uint8_t word_count);
 
 /**@brief Function for reading data from flash to RAM.
  *
  * @param[in]  page_num       Page number to read.
- * @param[out] p_out_array    Pointer to a RAM area where the found data will be written. 
+ * @param[out] p_out_array    Pointer to a RAM area where the found data will be written.
  *                            This area has to be 32 bits aligned.
  * @param[out] p_word_count   Number of 32 bits words read.
  *
  * @return     NRF_SUCCESS on successful upload, NRF_ERROR_NOT_FOUND if no valid data has been found
  *             in flash (first 32 bits not equal to the MAGIC_NUMBER+CRC).
  */
-uint32_t ble_flash_page_read(uint8_t page_num, uint32_t * p_out_array, uint8_t * p_word_count);
+uint32_t ble_flash_page_read(uint8_t page_num, uint32_t *p_out_array, uint8_t *p_word_count);
 
 /**@brief Function for erasing a flash page.
  *
@@ -114,7 +114,7 @@ uint32_t ble_flash_page_erase(uint8_t page_num);
  *
  * @return     NRF_SUCCESS.
  */
-uint32_t ble_flash_word_write(uint32_t * p_address, uint32_t value);
+uint32_t ble_flash_word_write(uint32_t *p_address, uint32_t value);
 
 /**@brief Function for writing a data block to flash.
  *
@@ -126,7 +126,7 @@ uint32_t ble_flash_word_write(uint32_t * p_address, uint32_t value);
  *
  * @return     NRF_SUCCESS.
  */
-uint32_t ble_flash_block_write(uint32_t * p_address, uint32_t * p_in_array, uint16_t word_count);
+uint32_t ble_flash_block_write(uint32_t *p_address, uint32_t *p_in_array, uint16_t word_count);
 
 /**@brief Function for computing pointer to start of specified flash page.
  *
@@ -135,17 +135,17 @@ uint32_t ble_flash_block_write(uint32_t * p_address, uint32_t * p_in_array, uint
  *
  * @return     NRF_SUCCESS.
  */
-uint32_t ble_flash_page_addr(uint8_t page_num, uint32_t ** pp_page_addr);
+uint32_t ble_flash_page_addr(uint8_t page_num, uint32_t **pp_page_addr);
 
 /**@brief Function for calculating a 16 bit CRC using the CRC-16-CCITT scheme.
- * 
+ *
  * @param[in]  p_data   Pointer to data on which the CRC is to be calulated.
  * @param[in]  size     Number of bytes on which the CRC is to be calulated.
  * @param[in]  p_crc    Initial CRC value (if NULL, a preset value is used as the initial value).
  *
  * @return     Calculated CRC.
  */
-uint16_t ble_flash_crc16_compute(uint8_t * p_data, uint16_t size, uint16_t * p_crc);
+uint16_t ble_flash_crc16_compute(uint8_t *p_data, uint16_t size, uint16_t *p_crc);
 
 /**@brief Function for handling flashing module Radio Notification event.
  *

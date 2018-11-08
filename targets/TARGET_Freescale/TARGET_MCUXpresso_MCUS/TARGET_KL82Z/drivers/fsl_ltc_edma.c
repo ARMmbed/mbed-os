@@ -35,8 +35,7 @@
  ******************************************************************************/
 
 /*<! Structure definition for ltc_edma_private_handle_t. The structure is private. */
-typedef struct _ltc_edma_private_handle
-{
+typedef struct _ltc_edma_private_handle {
     LTC_Type *base;
     ltc_edma_handle_t *handle;
 } ltc_edma_private_handle_t;
@@ -73,13 +72,11 @@ typedef uint32_t ltc_mode_t;
 #define LTC_MD_AS_FINALIZE (0x2U)     /*!< Bit field value for LTC_MD_AS: Finalize */
 #define LTC_MD_AS_INIT_FINAL (0x3U)   /*!< Bit field value for LTC_MD_AS: Initialize/Finalize */
 
-enum _ltc_md_dk_bit_shift
-{
+enum _ltc_md_dk_bit_shift {
     kLTC_ModeRegBitShiftDK = 12U,
 };
 
-typedef enum _ltc_algorithm
-{
+typedef enum _ltc_algorithm {
     kLTC_AlgorithmAES = LTC_MD_ALG_AES << LTC_MD_ALG_SHIFT,
 #if defined(FSL_FEATURE_LTC_HAS_DES) && FSL_FEATURE_LTC_HAS_DES
     kLTC_AlgorithmDES = LTC_MD_ALG_DES << LTC_MD_ALG_SHIFT,
@@ -87,8 +84,7 @@ typedef enum _ltc_algorithm
 #endif /* FSL_FEATURE_LTC_HAS_DES */
 } ltc_algorithm_t;
 
-typedef enum _ltc_mode_symmetric_alg
-{
+typedef enum _ltc_mode_symmetric_alg {
     kLTC_ModeCTR = 0x00U << LTC_MD_AAI_SHIFT,
     kLTC_ModeCBC = 0x10U << LTC_MD_AAI_SHIFT,
     kLTC_ModeECB = 0x20U << LTC_MD_AAI_SHIFT,
@@ -100,14 +96,12 @@ typedef enum _ltc_mode_symmetric_alg
     kLTC_ModeGCM = 0x90U << LTC_MD_AAI_SHIFT,
 } ltc_mode_symmetric_alg_t;
 
-typedef enum _ltc_mode_encrypt
-{
+typedef enum _ltc_mode_encrypt {
     kLTC_ModeDecrypt = LTC_MD_ENC_DECRYPT << LTC_MD_ENC_SHIFT,
     kLTC_ModeEncrypt = LTC_MD_ENC_ENCRYPT << LTC_MD_ENC_SHIFT,
 } ltc_mode_encrypt_t;
 
-typedef enum _ltc_mode_algorithm_state
-{
+typedef enum _ltc_mode_algorithm_state {
     kLTC_ModeUpdate = LTC_MD_AS_UPDATE << LTC_MD_AS_SHIFT,
     kLTC_ModeInit = LTC_MD_AS_INITIALIZE << LTC_MD_AS_SHIFT,
     kLTC_ModeFinalize = LTC_MD_AS_FINALIZE << LTC_MD_AS_SHIFT,
@@ -165,27 +159,20 @@ static status_t ltc_process_message_in_sessions_EDMA(LTC_Type *base, ltc_edma_ha
     handle->modeReg = base->MD;
     retval = kStatus_Success;
 
-    if ((!handle->inData) || (!handle->outData))
-    {
+    if ((!handle->inData) || (!handle->outData)) {
         handle->state = LTC_SM_STATE_FINISH; /* END */
         retval = kStatus_InvalidArgument;
     }
 
-    while (exit_sm == false)
-    {
-        switch (handle->state)
-        {
+    while (exit_sm == false) {
+        switch (handle->state) {
             case LTC_SM_STATE_START:
-                if (handle->size)
-                {
+                if (handle->size) {
                     uint32_t sz;
 
-                    if (handle->size <= LTC_FIFO_SZ_MAX_DOWN_ALGN)
-                    {
+                    if (handle->size <= LTC_FIFO_SZ_MAX_DOWN_ALGN) {
                         sz = handle->size;
-                    }
-                    else
-                    {
+                    } else {
                         sz = LTC_FIFO_SZ_MAX_DOWN_ALGN;
                     }
 
@@ -199,47 +186,34 @@ static status_t ltc_process_message_in_sessions_EDMA(LTC_Type *base, ltc_edma_ha
 
                         /* Split the inSize into full 16-byte chunks and last incomplete block due to LTC AES OFIFO
                          * errata */
-                        if (inSize <= 16u)
-                        {
+                        if (inSize <= 16u) {
                             lastSize = inSize;
                             inSize = 0;
-                        }
-                        else
-                        {
+                        } else {
                             /* Process all 16-byte data chunks. */
                             lastSize = inSize % 16u;
-                            if (lastSize == 0)
-                            {
+                            if (lastSize == 0) {
                                 lastSize = 16;
                                 inSize -= 16;
-                            }
-                            else
-                            {
+                            } else {
                                 inSize -=
                                     lastSize; /* inSize will be rounded down to 16 byte boundary. remaining bytes in
                                                  lastSize */
                             }
                         }
 
-                        if (inSize)
-                        {
+                        if (inSize) {
                             handle->size -= inSize;
                             ltc_symmetric_process_EDMA(base, inSize, &handle->inData, &handle->outData);
                             exit_sm = true;
-                        }
-                        else if (lastSize)
-                        {
+                        } else if (lastSize) {
                             ltc_symmetric_process(base, lastSize, &handle->inData, &handle->outData);
                             retval = ltc_wait(base);
                             handle->size -= lastSize;
-                        }
-                        else
-                        {
+                        } else {
                         }
                     }
-                }
-                else
-                {
+                } else {
                     handle->state = LTC_SM_STATE_FINISH;
                 }
                 break;
@@ -249,8 +223,7 @@ static status_t ltc_process_message_in_sessions_EDMA(LTC_Type *base, ltc_edma_ha
 
                 ltc_clear_all(base, false);
 
-                if (handle->callback)
-                {
+                if (handle->callback) {
                     handle->callback(base, handle, retval, handle->userData);
                 }
                 exit_sm = true;
@@ -277,27 +250,20 @@ static status_t ltc_process_message_in_sessions_ctr_EDMA(LTC_Type *base, ltc_edm
     handle->modeReg = base->MD;
     retval = kStatus_Success;
 
-    if ((!handle->inData) || (!handle->outData))
-    {
+    if ((!handle->inData) || (!handle->outData)) {
         handle->state = LTC_SM_STATE_FINISH;
         retval = kStatus_InvalidArgument;
     }
 
-    while (exit_sm == false)
-    {
-        switch (handle->state)
-        {
+    while (exit_sm == false) {
+        switch (handle->state) {
             case LTC_SM_STATE_START:
-                if (handle->size)
-                {
+                if (handle->size) {
                     uint32_t sz;
 
-                    if (handle->size <= LTC_FIFO_SZ_MAX_DOWN_ALGN)
-                    {
+                    if (handle->size <= LTC_FIFO_SZ_MAX_DOWN_ALGN) {
                         sz = handle->size;
-                    }
-                    else
-                    {
+                    } else {
                         sz = LTC_FIFO_SZ_MAX_DOWN_ALGN;
                     }
 
@@ -311,47 +277,34 @@ static status_t ltc_process_message_in_sessions_ctr_EDMA(LTC_Type *base, ltc_edm
 
                         /* Split the inSize into full 16-byte chunks and last incomplete block due to LTC AES OFIFO
                          * errata */
-                        if (inSize <= 16u)
-                        {
+                        if (inSize <= 16u) {
                             lastSize = inSize;
                             inSize = 0;
-                        }
-                        else
-                        {
+                        } else {
                             /* Process all 16-byte data chunks. */
                             lastSize = inSize % 16u;
-                            if (lastSize == 0)
-                            {
+                            if (lastSize == 0) {
                                 lastSize = 16;
                                 inSize -= 16;
-                            }
-                            else
-                            {
+                            } else {
                                 inSize -=
                                     lastSize; /* inSize will be rounded down to 16 byte boundary. remaining bytes in
                                                  lastSize */
                             }
                         }
 
-                        if (inSize)
-                        {
+                        if (inSize) {
                             handle->size -= inSize;
                             ltc_symmetric_process_EDMA(base, inSize, &handle->inData, &handle->outData);
                             exit_sm = true;
-                        }
-                        else if (lastSize)
-                        {
+                        } else if (lastSize) {
                             ltc_symmetric_process(base, lastSize, &handle->inData, &handle->outData);
                             retval = ltc_wait(base);
                             handle->size -= lastSize;
-                        }
-                        else
-                        {
+                        } else {
                         }
                     }
-                }
-                else
-                {
+                } else {
                     handle->state = LTC_SM_STATE_FINISH;
                 }
                 break;
@@ -360,13 +313,11 @@ static status_t ltc_process_message_in_sessions_ctr_EDMA(LTC_Type *base, ltc_edm
                 base->MD = handle->modeReg;
 
                 /* CTR final phase.*/
-                if (kStatus_Success == retval)
-                {
+                if (kStatus_Success == retval) {
                     const uint8_t *input = handle->inData;
                     uint8_t *output = handle->outData;
 
-                    if ((handle->counterlast != NULL) && (handle->lastSize))
-                    {
+                    if ((handle->counterlast != NULL) && (handle->lastSize)) {
                         uint8_t zeroes[16] = {0};
                         ltc_mode_t modeReg;
 
@@ -378,10 +329,8 @@ static status_t ltc_process_message_in_sessions_ctr_EDMA(LTC_Type *base, ltc_edm
 
                         /* Process data and return status. */
                         retval = ltc_symmetric_process_data(base, input, handle->lastSize, output);
-                        if (kStatus_Success == retval)
-                        {
-                            if (handle->szLeft)
-                            {
+                        if (kStatus_Success == retval) {
+                            if (handle->szLeft) {
                                 *handle->szLeft = 16U - handle->lastSize;
                             }
 
@@ -394,16 +343,14 @@ static status_t ltc_process_message_in_sessions_ctr_EDMA(LTC_Type *base, ltc_edm
                             retval = ltc_symmetric_process_data(base, zeroes, 16U, handle->counterlast);
                         }
                     }
-                    if (kStatus_Success == retval)
-                    {
+                    if (kStatus_Success == retval) {
                         ltc_get_context(base, &handle->counter[0], 16U, 4U);
 
                         ltc_clear_all(base, false);
                     }
                 }
 
-                if (handle->callback)
-                {
+                if (handle->callback) {
                     handle->callback(base, handle, retval, handle->userData);
                 }
 
@@ -430,10 +377,8 @@ status_t LTC_AES_EncryptEcbEDMA(LTC_Type *base,
     status_t retval;
 
     if ((ltc_check_key_size(keySize) == 0) || (size < 16u) ||
-        (size % 16u)) /* ECB mode, size must be 16-byte multiple */
-    {
-        if (handle->callback)
-        {
+            (size % 16u)) { /* ECB mode, size must be 16-byte multiple */
+        if (handle->callback) {
             handle->callback(base, handle, kStatus_InvalidArgument, handle->userData);
         }
 
@@ -465,10 +410,8 @@ status_t LTC_AES_DecryptEcbEDMA(LTC_Type *base,
     status_t status;
 
     if ((ltc_check_key_size(keySize) == 0) || (size < 16u) ||
-        (size % 16u)) /* ECB mode, size must be 16-byte multiple */
-    {
-        if (handle->callback)
-        {
+            (size % 16u)) { /* ECB mode, size must be 16-byte multiple */
+        if (handle->callback) {
             handle->callback(base, handle, kStatus_InvalidArgument, handle->userData);
         }
 
@@ -479,8 +422,7 @@ status_t LTC_AES_DecryptEcbEDMA(LTC_Type *base,
     ltc_symmetric_update(base, key, keySize, kLTC_AlgorithmAES, kLTC_ModeECB, kLTC_ModeDecrypt);
 
     /* set DK bit in the LTC Mode Register AAI field for directly loaded decrypt keys */
-    if (keyType == kLTC_DecryptKey)
-    {
+    if (keyType == kLTC_DecryptKey) {
         base->MD |= (1U << kLTC_ModeRegBitShiftDK);
     }
 
@@ -507,10 +449,8 @@ status_t LTC_AES_EncryptCbcEDMA(LTC_Type *base,
     status_t retval;
 
     if ((ltc_check_key_size(keySize) == 0) || (size < 16u) ||
-        (size % 16u)) /* CBC mode, size must be 16-byte multiple */
-    {
-        if (handle->callback)
-        {
+            (size % 16u)) { /* CBC mode, size must be 16-byte multiple */
+        if (handle->callback) {
             handle->callback(base, handle, kStatus_InvalidArgument, handle->userData);
         }
 
@@ -546,10 +486,8 @@ status_t LTC_AES_DecryptCbcEDMA(LTC_Type *base,
     status_t retval;
 
     if ((ltc_check_key_size(keySize) == 0) || (size < 16u) ||
-        (size % 16u)) /* CBC mode, size must be 16-byte multiple */
-    {
-        if (handle->callback)
-        {
+            (size % 16u)) { /* CBC mode, size must be 16-byte multiple */
+        if (handle->callback) {
             handle->callback(base, handle, kStatus_InvalidArgument, handle->userData);
         }
 
@@ -557,8 +495,7 @@ status_t LTC_AES_DecryptCbcEDMA(LTC_Type *base,
     }
 
     /* set DK bit in the LTC Mode Register AAI field for directly loaded decrypt keys */
-    if (keyType == kLTC_DecryptKey)
-    {
+    if (keyType == kLTC_DecryptKey) {
         base->MD |= (1U << kLTC_ModeRegBitShiftDK);
     }
 
@@ -592,35 +529,26 @@ status_t LTC_AES_CryptCtrEDMA(LTC_Type *base,
     status_t retval;
     uint32_t lastSize;
 
-    if (!ltc_check_key_size(keySize))
-    {
-        if (handle->callback)
-        {
+    if (!ltc_check_key_size(keySize)) {
+        if (handle->callback) {
             handle->callback(base, handle, kStatus_InvalidArgument, handle->userData);
         }
         return kStatus_InvalidArgument;
     }
 
     lastSize = 0U;
-    if (counterlast != NULL)
-    {
+    if (counterlast != NULL) {
         /* Split the size into full 16-byte chunks and last incomplete block due to LTC AES OFIFO errata */
-        if (size <= 16U)
-        {
+        if (size <= 16U) {
             lastSize = size;
             size = 0U;
-        }
-        else
-        {
+        } else {
             /* Process all 16-byte data chunks. */
             lastSize = size % 16U;
-            if (lastSize == 0U)
-            {
+            if (lastSize == 0U) {
                 lastSize = 16U;
                 size -= 16U;
-            }
-            else
-            {
+            } else {
                 size -= lastSize; /* size will be rounded down to 16 byte boundary. remaining bytes in lastSize */
             }
         }
@@ -668,10 +596,8 @@ static status_t ltc_des_process_EDMA(LTC_Type *base,
     status_t retval;
 
     /* all but OFB, size must be 8-byte multiple */
-    if ((modeAs != kLTC_ModeOFB) && ((size < 8u) || (size % 8u)))
-    {
-        if (handle->callback)
-        {
+    if ((modeAs != kLTC_ModeOFB) && ((size < 8u) || (size % 8u))) {
+        if (handle->callback) {
             handle->callback(base, handle, kStatus_InvalidArgument, handle->userData);
         }
         return kStatus_InvalidArgument;
@@ -680,8 +606,7 @@ static status_t ltc_des_process_EDMA(LTC_Type *base,
     /* Initialize algorithm state. */
     ltc_symmetric_update(base, &key[0], LTC_DES_KEY_SIZE, kLTC_AlgorithmDES, modeAs, modeEnc);
 
-    if ((modeAs != kLTC_ModeECB))
-    {
+    if ((modeAs != kLTC_ModeECB)) {
         ltc_set_context(base, iv, LTC_DES_IV_SIZE, 0);
     }
 
@@ -713,10 +638,8 @@ static status_t ltc_3des_process_EDMA(LTC_Type *base,
     uint8_t keySize = LTC_DES_KEY_SIZE * 2;
 
     retval = ltc_3des_check_input_args(modeAs, size, key1, key2);
-    if (kStatus_Success != retval)
-    {
-        if (handle->callback)
-        {
+    if (kStatus_Success != retval) {
+        if (handle->callback) {
             handle->callback(base, handle, kStatus_InvalidArgument, handle->userData);
         }
         return retval;
@@ -724,8 +647,7 @@ static status_t ltc_3des_process_EDMA(LTC_Type *base,
 
     ltc_memcpy(&key[0], &key1[0], LTC_DES_KEY_SIZE);
     ltc_memcpy(&key[LTC_DES_KEY_SIZE], &key2[0], LTC_DES_KEY_SIZE);
-    if (key3)
-    {
+    if (key3) {
         ltc_memcpy(&key[LTC_DES_KEY_SIZE * 2], &key3[0], LTC_DES_KEY_SIZE);
         keySize = sizeof(key);
     }
@@ -733,8 +655,7 @@ static status_t ltc_3des_process_EDMA(LTC_Type *base,
     /* Initialize algorithm state. */
     ltc_symmetric_update(base, &key[0], keySize, kLTC_Algorithm3DES, modeAs, modeEnc);
 
-    if ((modeAs != kLTC_ModeECB))
-    {
+    if ((modeAs != kLTC_ModeECB)) {
         ltc_set_context(base, iv, LTC_DES_IV_SIZE, 0);
     }
 
@@ -1057,10 +978,8 @@ static uint32_t LTC_GetInstance(LTC_Type *base)
     uint32_t instance = 0;
     uint32_t i;
 
-    for (i = 0; i < FSL_FEATURE_SOC_LTC_COUNT; i++)
-    {
-        if (s_ltcBase[instance] == base)
-        {
+    for (i = 0; i < FSL_FEATURE_SOC_LTC_COUNT; i++) {
+        if (s_ltcBase[instance] == base) {
             instance = i;
             break;
         }
@@ -1078,12 +997,9 @@ static uint32_t LTC_GetInstance(LTC_Type *base)
  */
 static inline void LTC_EnableInputFifoDMA(LTC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CTL |= LTC_CTL_IFE_MASK;
-    }
-    else
-    {
+    } else {
         base->CTL &= ~LTC_CTL_IFE_MASK;
     }
 }
@@ -1098,12 +1014,9 @@ static inline void LTC_EnableInputFifoDMA(LTC_Type *base, bool enable)
  */
 static inline void LTC_EnableOutputFifoDMA(LTC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CTL |= LTC_CTL_OFE_MASK;
-    }
-    else
-    {
+    } else {
         base->CTL &= ~LTC_CTL_OFE_MASK;
     }
 }
@@ -1116,8 +1029,7 @@ static void LTC_InputFifoEDMACallback(edma_handle_t *handle, void *param, bool t
     handle = handle;
     tcds = tcds;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         /* Stop DMA channel. */
         EDMA_StopTransfer(ltcPrivateHandle->handle->inputFifoEdmaHandle);
 
@@ -1134,16 +1046,14 @@ static void LTC_OutputFifoEDMACallback(edma_handle_t *handle, void *param, bool 
     handle = handle;
     tcds = tcds;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         /* Stop DMA channel. */
         EDMA_StopTransfer(ltcPrivateHandle->handle->outputFifoEdmaHandle);
 
         /* Disable Output Fifo DMA */
         LTC_EnableOutputFifoDMA(ltcPrivateHandle->base, false);
 
-        if (ltcPrivateHandle->handle->state_machine)
-        {
+        if (ltcPrivateHandle->handle->state_machine) {
             ltcPrivateHandle->handle->state_machine(ltcPrivateHandle->base, ltcPrivateHandle->handle);
         }
     }
@@ -1160,8 +1070,7 @@ static void ltc_symmetric_process_EDMA(LTC_Type *base, uint32_t inSize, const ui
     uint8_t *outputBuffer = *outData;
     edma_transfer_config_t config;
 
-    if (entry_number)
-    {
+    if (entry_number) {
         /* =========== Init Input FIFO DMA ======================*/
         memset(&config, 0, sizeof(config));
 

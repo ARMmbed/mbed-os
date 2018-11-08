@@ -23,7 +23,7 @@
 //#define LWIP_STATS_DISPLAY          1
 
 #define LWIP_TRANSPORT_ETHERNET     1
-#define LWIP_TRANSPORT_PPP			1
+#define LWIP_TRANSPORT_PPP          1
 
 /**
  * MEM_SIZE: the size of the heap memory. If the application will send
@@ -36,7 +36,7 @@
  * If the application sends a lot of data out of ROM (or other static memory),
  * this should be set high.
  */
-#define MEMP_NUM_PBUF				16
+#define MEMP_NUM_PBUF               16
 
 /**
  * MEMP_NUM_IGMP_GROUP: The number of multicast groups whose network interfaces
@@ -56,19 +56,19 @@
 /**
  * PBUF_POOL_SIZE: the number of buffers in the pbuf pool.
  */
-#define PBUF_POOL_SIZE				16
+#define PBUF_POOL_SIZE              16
 
 /**
  * MEMP_NUM_TCPIP_MSG_INPKT: the number of struct tcpip_msg, which are used
- * for incoming packets. 
+ * for incoming packets.
  * (only needed if you use tcpip.c)
  */
 #define MEMP_NUM_TCPIP_MSG_INPKT    16
 
-#define LWIP_PPP_API				    1
-#define PPP_NOTIFY_PHASE			    1
-#define ICMP_STATS					    0   // setting this to 1 collides with the LWIP_STATS 0
-#define CHECKSUM_GEN_ICMP			    0
+#define LWIP_PPP_API                    1
+#define PPP_NOTIFY_PHASE                1
+#define ICMP_STATS                      0   // setting this to 1 collides with the LWIP_STATS 0
+#define CHECKSUM_GEN_ICMP               0
 #define LWIP_CHECKSUM_CTRL_PER_NETIF    1
 
 #endif

@@ -40,7 +40,7 @@
 #define __STM32L4xx_HAL_LCD_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined(STM32L433xx) || defined(STM32L443xx) || defined(STM32L476xx) || defined(STM32L486xx) || defined(STM32L496xx) || defined(STM32L4A6xx)
@@ -65,62 +65,59 @@
   * @brief LCD Init structure definition
   */
 
-typedef struct
-{
-  uint32_t Prescaler;       /*!< Configures the LCD Prescaler.
+typedef struct {
+    uint32_t Prescaler;       /*!< Configures the LCD Prescaler.
                                  This parameter can be one value of @ref LCD_Prescaler */
-  uint32_t Divider;         /*!< Configures the LCD Divider.
+    uint32_t Divider;         /*!< Configures the LCD Divider.
                                  This parameter can be one value of @ref LCD_Divider */
-  uint32_t Duty;            /*!< Configures the LCD Duty.
+    uint32_t Duty;            /*!< Configures the LCD Duty.
                                  This parameter can be one value of @ref LCD_Duty */
-  uint32_t Bias;            /*!< Configures the LCD Bias.
+    uint32_t Bias;            /*!< Configures the LCD Bias.
                                  This parameter can be one value of @ref LCD_Bias */
-  uint32_t VoltageSource;   /*!< Selects the LCD Voltage source.
+    uint32_t VoltageSource;   /*!< Selects the LCD Voltage source.
                                  This parameter can be one value of @ref LCD_Voltage_Source */
-  uint32_t Contrast;        /*!< Configures the LCD Contrast.
+    uint32_t Contrast;        /*!< Configures the LCD Contrast.
                                  This parameter can be one value of @ref LCD_Contrast */
-  uint32_t DeadTime;        /*!< Configures the LCD Dead Time.
+    uint32_t DeadTime;        /*!< Configures the LCD Dead Time.
                                  This parameter can be one value of @ref LCD_DeadTime */
-  uint32_t PulseOnDuration; /*!< Configures the LCD Pulse On Duration.
+    uint32_t PulseOnDuration; /*!< Configures the LCD Pulse On Duration.
                                  This parameter can be one value of @ref LCD_PulseOnDuration */
-  uint32_t HighDrive;       /*!< Enable or disable the low resistance divider.
+    uint32_t HighDrive;       /*!< Enable or disable the low resistance divider.
                                  This parameter can be one value of @ref LCD_HighDrive */
-  uint32_t BlinkMode;       /*!< Configures the LCD Blink Mode.
+    uint32_t BlinkMode;       /*!< Configures the LCD Blink Mode.
                                  This parameter can be one value of @ref LCD_BlinkMode */
-  uint32_t BlinkFrequency;  /*!< Configures the LCD Blink frequency.
+    uint32_t BlinkFrequency;  /*!< Configures the LCD Blink frequency.
                                  This parameter can be one value of @ref LCD_BlinkFrequency */
-  uint32_t MuxSegment;      /*!< Enable or disable mux segment.
+    uint32_t MuxSegment;      /*!< Enable or disable mux segment.
                                  This parameter can be one value of @ref LCD_MuxSegment */
 } LCD_InitTypeDef;
 
 /**
   * @brief HAL LCD State structures definition
   */
-typedef enum
-{
-  HAL_LCD_STATE_RESET             = 0x00,    /*!< Peripheral is not yet Initialized */
-  HAL_LCD_STATE_READY             = 0x01,    /*!< Peripheral Initialized and ready for use */
-  HAL_LCD_STATE_BUSY              = 0x02,    /*!< an internal process is ongoing */
-  HAL_LCD_STATE_TIMEOUT           = 0x03,    /*!< Timeout state */
-  HAL_LCD_STATE_ERROR             = 0x04     /*!< Error */
+typedef enum {
+    HAL_LCD_STATE_RESET             = 0x00,    /*!< Peripheral is not yet Initialized */
+    HAL_LCD_STATE_READY             = 0x01,    /*!< Peripheral Initialized and ready for use */
+    HAL_LCD_STATE_BUSY              = 0x02,    /*!< an internal process is ongoing */
+    HAL_LCD_STATE_TIMEOUT           = 0x03,    /*!< Timeout state */
+    HAL_LCD_STATE_ERROR             = 0x04     /*!< Error */
 } HAL_LCD_StateTypeDef;
 
 /**
   * @brief  UART handle Structure definition
   */
-typedef struct
-{
-  LCD_TypeDef                   *Instance;  /* LCD registers base address */
+typedef struct {
+    LCD_TypeDef                   *Instance;  /* LCD registers base address */
 
-  LCD_InitTypeDef               Init;       /* LCD communication parameters */
+    LCD_InitTypeDef               Init;       /* LCD communication parameters */
 
-  HAL_LockTypeDef               Lock;       /* Locking object */
+    HAL_LockTypeDef               Lock;       /* Locking object */
 
-  __IO HAL_LCD_StateTypeDef     State;      /* LCD communication state */
+    __IO HAL_LCD_StateTypeDef     State;      /* LCD communication state */
 
-  __IO uint32_t                 ErrorCode;  /* LCD Error code */
+    __IO uint32_t                 ErrorCode;  /* LCD Error code */
 
-}LCD_HandleTypeDef;
+} LCD_HandleTypeDef;
 /**
   * @}
   */
@@ -132,7 +129,7 @@ typedef struct
 
 /** @defgroup  LCD_ErrorCode LCD Error Code
   * @{
-  */ 
+  */
 #define HAL_LCD_ERROR_NONE       ((uint32_t)0x00)    /*!< No error */
 #define HAL_LCD_ERROR_FCRSF      ((uint32_t)0x01)    /*!< Synchro flag timeout error */
 #define HAL_LCD_ERROR_UDR        ((uint32_t)0x02)    /*!< Update display request flag timeout error */
@@ -142,7 +139,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup LCD_Prescaler LCD Prescaler
   * @{
   */

@@ -59,53 +59,53 @@ typedef struct {
     __I uint32_t FVVDH_COMP_TH;         /**< 0x1FB4 */
     union {
         struct {
-            __I uint32_t CHANNEL11:4;
-            __I uint32_t CHANNEL12:4;
-            __I uint32_t CHANNEL13:4;
-            __I uint32_t CHANNEL14:4;
-            __I uint32_t CHANNEL15:4;
-            __I uint32_t CHANNEL16:4;
-            __I uint32_t CHANNEL17:4;
-            __I uint32_t CHANNEL18:4;
+            __I uint32_t CHANNEL11: 4;
+            __I uint32_t CHANNEL12: 4;
+            __I uint32_t CHANNEL13: 4;
+            __I uint32_t CHANNEL14: 4;
+            __I uint32_t CHANNEL15: 4;
+            __I uint32_t CHANNEL16: 4;
+            __I uint32_t CHANNEL17: 4;
+            __I uint32_t CHANNEL18: 4;
         } BITS;
         __I uint32_t WORD;
     } TX_VCO_LUT1;                        /**< 0x1FB8 */
     union {
         struct {
-            __I uint32_t CHANNEL19:4;
-            __I uint32_t CHANNEL20:4;
-            __I uint32_t CHANNEL21:4;
-            __I uint32_t CHANNEL22:4;
-            __I uint32_t CHANNEL23:4;
-            __I uint32_t CHANNEL24:4;
-            __I uint32_t CHANNEL25:4;
-            __I uint32_t CHANNEL26:4;
+            __I uint32_t CHANNEL19: 4;
+            __I uint32_t CHANNEL20: 4;
+            __I uint32_t CHANNEL21: 4;
+            __I uint32_t CHANNEL22: 4;
+            __I uint32_t CHANNEL23: 4;
+            __I uint32_t CHANNEL24: 4;
+            __I uint32_t CHANNEL25: 4;
+            __I uint32_t CHANNEL26: 4;
         } BITS;
         __I uint32_t WORD;
     } TX_VCO_LUT2;                        /**< 0x1FBC */
     union {
         struct {
-            __I uint32_t CHANNEL11:4;
-            __I uint32_t CHANNEL12:4;
-            __I uint32_t CHANNEL13:4;
-            __I uint32_t CHANNEL14:4;
-            __I uint32_t CHANNEL15:4;
-            __I uint32_t CHANNEL16:4;
-            __I uint32_t CHANNEL17:4;
-            __I uint32_t CHANNEL18:4;
+            __I uint32_t CHANNEL11: 4;
+            __I uint32_t CHANNEL12: 4;
+            __I uint32_t CHANNEL13: 4;
+            __I uint32_t CHANNEL14: 4;
+            __I uint32_t CHANNEL15: 4;
+            __I uint32_t CHANNEL16: 4;
+            __I uint32_t CHANNEL17: 4;
+            __I uint32_t CHANNEL18: 4;
         } BITS;
         __I uint32_t WORD;
     } RX_VCO_LUT1;                        /**< 0x1FC0 */
     union {
         struct {
-            __I uint32_t CHANNEL19:4;
-            __I uint32_t CHANNEL20:4;
-            __I uint32_t CHANNEL21:4;
-            __I uint32_t CHANNEL22:4;
-            __I uint32_t CHANNEL23:4;
-            __I uint32_t CHANNEL24:4;
-            __I uint32_t CHANNEL25:4;
-            __I uint32_t CHANNEL26:4;
+            __I uint32_t CHANNEL19: 4;
+            __I uint32_t CHANNEL20: 4;
+            __I uint32_t CHANNEL21: 4;
+            __I uint32_t CHANNEL22: 4;
+            __I uint32_t CHANNEL23: 4;
+            __I uint32_t CHANNEL24: 4;
+            __I uint32_t CHANNEL25: 4;
+            __I uint32_t CHANNEL26: 4;
         } BITS;
         __I uint32_t WORD;
     } RX_VCO_LUT2;                        /**< 0x1FC4 */
@@ -128,11 +128,11 @@ typedef struct {
 
 /** User defined trim register map */
 typedef struct {
-    __IO uint32_t MAC_ADDRESS_LOW;		/**< 0x2800     */
-    __IO uint32_t MAC_ADDRESS_HIGH;		/**< 0x2804     */
-    __IO uint32_t TRIM_32K_EXT;		        /**< 0x2808	*/
-    __IO uint32_t TRIM_32M_EXT;		        /**< 0x280C	*/
-    __IO uint32_t RSSI_OFFSET;		        /**< 0x2810	*/
-    __IO uint32_t TX_TRIM;		        /**< 0x2814	*/
+    __IO uint32_t MAC_ADDRESS_LOW;      /**< 0x2800     */
+    __IO uint32_t MAC_ADDRESS_HIGH;     /**< 0x2804     */
+    __IO uint32_t TRIM_32K_EXT;             /**< 0x2808 */
+    __IO uint32_t TRIM_32M_EXT;             /**< 0x280C */
+    __IO uint32_t RSSI_OFFSET;              /**< 0x2810 */
+    __IO uint32_t TX_TRIM;              /**< 0x2814 */
 } UserTrimReg_t, *UserTrimReg_pt;
 #endif /* TRIM_MAP_H_ */

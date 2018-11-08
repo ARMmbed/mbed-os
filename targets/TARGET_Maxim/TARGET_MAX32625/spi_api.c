@@ -118,8 +118,8 @@ void spi_frequency(spi_t *obj, int hz)
 
     // Figure out the divider ratio
     int clk_div = 1;
-    while(clk_div < 10) {
-        if(clocks < 0x10) {
+    while (clk_div < 10) {
+        if (clocks < 0x10) {
             break;
         }
         clk_div++;
@@ -127,11 +127,11 @@ void spi_frequency(spi_t *obj, int hz)
     }
 
     // Turn on the SPI clock
-    if(obj->index == 0) {
+    if (obj->index == 0) {
         MXC_CLKMAN->sys_clk_ctrl_11_spi0 = clk_div;
-    } else if(obj->index == 1) {
+    } else if (obj->index == 1) {
         MXC_CLKMAN->sys_clk_ctrl_12_spi1 = clk_div;
-    } else if(obj->index == 2) {
+    } else if (obj->index == 2) {
         MXC_CLKMAN->sys_clk_ctrl_13_spi2 = clk_div;
     } else {
         MBED_ASSERT(0);
@@ -168,7 +168,8 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {

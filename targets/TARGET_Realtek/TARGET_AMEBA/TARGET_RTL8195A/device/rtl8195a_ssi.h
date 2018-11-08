@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -519,38 +519,38 @@ VOID _SsiWriteInterruptRtl8195a(VOID *Adapter);
 HAL_Status HalSsiInitRtl8195a_Patch(VOID *Adaptor);
 HAL_Status HalSsiPinmuxEnableRtl8195a_Patch(VOID *Adaptor);
 HAL_Status HalSsiPinmuxDisableRtl8195a(VOID *Adaptor);
-HAL_Status HalSsiDeInitRtl8195a(VOID * Adapter);
-HAL_Status HalSsiClockOffRtl8195a(VOID * Adapter);
-HAL_Status HalSsiClockOnRtl8195a(VOID * Adapter);
+HAL_Status HalSsiDeInitRtl8195a(VOID *Adapter);
+HAL_Status HalSsiClockOffRtl8195a(VOID *Adapter);
+HAL_Status HalSsiClockOnRtl8195a(VOID *Adapter);
 VOID HalSsiSetSclkRtl8195a(VOID *Adapter, u32 ClkRate);
 HAL_Status HalSsiIntReadRtl8195a(VOID *Adapter, VOID *RxData, u32 Length);
 HAL_Status HalSsiIntWriteRtl8195a(VOID *Adapter, u8 *pTxData, u32 Length);
 VOID HalSsiTxFIFOThresholdRtl8195a(VOID *Adaptor, u32 txftl);
-HAL_Status HalSsiEnterCriticalRtl8195a(VOID * Data);
-HAL_Status HalSsiExitCriticalRtl8195a(VOID * Data);
+HAL_Status HalSsiEnterCriticalRtl8195a(VOID *Data);
+HAL_Status HalSsiExitCriticalRtl8195a(VOID *Data);
 HAL_Status HalSsiIsTimeoutRtl8195a(u32 StartCount, u32 TimeoutCnt);
-HAL_Status HalSsiStopRecvRtl8195a(VOID * Data);
+HAL_Status HalSsiStopRecvRtl8195a(VOID *Data);
 
 #if CONFIG_CHIP_E_CUT
 HAL_Status HalSsiPinmuxEnableRtl8195a_V04(VOID *Adaptor);
-HAL_Status HalSsiPinmuxDisableRtl8195a_V04(VOID * Adaptor);
+HAL_Status HalSsiPinmuxDisableRtl8195a_V04(VOID *Adaptor);
 VOID _SsiReadInterruptRtl8195a_V04(VOID *Adapter);
 VOID _SsiWriteInterruptRtl8195a_V04(VOID *Adapter);
 HAL_Status HalSsiInitRtl8195a_V04(VOID *Adaptor);
-HAL_Status HalSsiSetFormatRtl8195a_V04(VOID * Adaptor);
+HAL_Status HalSsiSetFormatRtl8195a_V04(VOID *Adaptor);
 HAL_Status HalSsiDeInitRtl8195a_V04(VOID *Adapter);
 HAL_Status HalSsiIntReadRtl8195a_V04(VOID *Adapter, VOID *RxData, u32 Length);
 HAL_Status HalSsiIntWriteRtl8195a_V04(VOID *Adapter, u8 *pTxData, u32 Length);
-HAL_Status HalSsiClockOffRtl8195a_V04(VOID * Adapter);
-HAL_Status HalSsiClockOnRtl8195a_V04(VOID * Adapter);
+HAL_Status HalSsiClockOffRtl8195a_V04(VOID *Adapter);
+HAL_Status HalSsiClockOnRtl8195a_V04(VOID *Adapter);
 VOID HalSsiSetSclkRtl8195a_V04(VOID *Adapter, u32 ClkRate);
-VOID HalSsiTxGdmaLoadDefRtl8195a_V04(IN VOID * Adapter);
-VOID HalSsiRxGdmaLoadDefRtl8195a_V04(IN VOID * Adapter);
+VOID HalSsiTxGdmaLoadDefRtl8195a_V04(IN VOID *Adapter);
+VOID HalSsiRxGdmaLoadDefRtl8195a_V04(IN VOID *Adapter);
 VOID HalSsiDmaInitRtl8195a_V04(VOID *Adapter);
-HAL_Status HalSsiDmaSendRtl8195a_V04(IN VOID * Adapter, IN u8 * pTxData, IN u32 Length);
-HAL_Status HalSsiDmaRecvRtl8195a_V04(IN VOID * Adapter, IN u8 * pRxData, IN u32 Length);
-HAL_Status HalSsiDmaSendMultiBlockRtl8195a_V04(VOID * Adapter, u8 * pTxData, u32 Length);
-HAL_Status HalSsiDmaRecvMultiBlockRtl8195a_V04(VOID * Adapter, u8 * pRxData, u32 Length);
+HAL_Status HalSsiDmaSendRtl8195a_V04(IN VOID *Adapter, IN u8 *pTxData, IN u32 Length);
+HAL_Status HalSsiDmaRecvRtl8195a_V04(IN VOID *Adapter, IN u8 *pRxData, IN u32 Length);
+HAL_Status HalSsiDmaSendMultiBlockRtl8195a_V04(VOID *Adapter, u8 *pTxData, u32 Length);
+HAL_Status HalSsiDmaRecvMultiBlockRtl8195a_V04(VOID *Adapter, u8 *pRxData, u32 Length);
 
 #endif
 
@@ -560,8 +560,8 @@ VOID HalSsiRxGdmaLoadDefRtl8195a(VOID *Adapter);
 VOID HalSsiDmaInitRtl8195a(VOID *Adapter);
 HAL_Status HalSsiDmaSendRtl8195a(VOID *Adapter, u8 *pTxData, u32 Length);
 HAL_Status HalSsiDmaRecvRtl8195a(VOID *Adapter, u8 *pRxData, u32 Length);
-HAL_Status HalSsiDmaSendMultiBlockRtl8195a(VOID * Adapter, u8 * pRxData, u32 Length);
-HAL_Status HalSsiDmaRecvMultiBlockRtl8195a(VOID * Adapter, u8 * pRxData, u32 Length);
+HAL_Status HalSsiDmaSendMultiBlockRtl8195a(VOID *Adapter, u8 *pRxData, u32 Length);
+HAL_Status HalSsiDmaRecvMultiBlockRtl8195a(VOID *Adapter, u8 *pRxData, u32 Length);
 
 #endif  // end of "#ifdef CONFIG_GDMA_EN"
 

@@ -42,17 +42,16 @@ struct wlan_scan_indication_s;
 /** OdinWiFiInterface class
  *  Implementation of the WiFiInterface for the ODIN-W2 module
  */
-class OdinWiFiInterface : public WiFiInterface
-{
+class OdinWiFiInterface : public WiFiInterface {
 public:
     /** OdinWiFiInterface lifetime
      */
     OdinWiFiInterface();
-    
+
     OdinWiFiInterface(bool debug);
 
     ~OdinWiFiInterface();
-    
+
     /** Set the WiFi network credentials
      *
      *  @param ssid      Name of the network to connect to
@@ -62,14 +61,14 @@ public:
      *  @return          0 on success, or error code on failure
      */
     virtual nsapi_error_t set_credentials(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE);
-    
+
     /** Set the WiFi network channel
      *
      *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
      *  @return          0 on success, or error code on failure
      */
     virtual nsapi_error_t set_channel(uint8_t channel);
-    
+
     /** Start the interface
      *
      *  Attempts to connect to a WiFi network.
@@ -106,7 +105,7 @@ public:
      *  Provided MAC address is intended for info or debug purposes and
      *  may not be provided if the underlying network interface does not
      *  provide a MAC address
-     *  
+     *
      *  @return         Null-terminated representation of the local MAC address
      *                  or null if no MAC address is available
      */
@@ -121,7 +120,7 @@ public:
 
     /** Get the local network mask
      *
-     *  @return         Null-terminated representation of the local network mask 
+     *  @return         Null-terminated representation of the local network mask
      *                  or null if no network mask has been received
      */
     virtual const char *get_netmask();
@@ -156,7 +155,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_dhcp(bool dhcp);
-    
+
     /** Gets the current radio signal strength for active connection
      *
      *  @return         Connection strength in dBm (negative value),
@@ -289,14 +288,14 @@ private:
     void init(bool debug);
     nsapi_error_t wlan_set_channel(uint8_t channel);
     nsapi_error_t wlan_connect(
-            const char          *ssid,
-            const char          *passwd,
-            nsapi_security_t    security);
+        const char          *ssid,
+        const char          *passwd,
+        nsapi_security_t    security);
     nsapi_error_t wlan_ap_start(
-            const char          *ssid,
-            const char          *pass,
-            nsapi_security_t    security,
-            uint8_t             channel);
+        const char          *ssid,
+        const char          *pass,
+        nsapi_security_t    security,
+        uint8_t             channel);
 
     void timeout_user_connect();
     void update_scan_list(cbWLAN_ScanIndicationInfo *scan_info);
@@ -305,7 +304,7 @@ private:
     void wlan_scan_indication(cbWLAN_ScanIndicationInfo *scan_info, cb_boolean is_last_result);
 
     static bool                 _wlan_initialized; // Controls that cbWLAN is initiated only once
-    static emac_interface_t*    _emac; // Not possible to remove added interfaces to the network stack => static and re-use
+    static emac_interface_t    *_emac; // Not possible to remove added interfaces to the network stack => static and re-use
     static int32_t              _target_id;
 
     OdinWifiState       _state;

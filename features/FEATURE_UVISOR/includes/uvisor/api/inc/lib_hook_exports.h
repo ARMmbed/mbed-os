@@ -28,9 +28,9 @@ typedef struct uvisor_semaphore UvisorSemaphore;
  * All functions that uVisor needs to call that are implemented in uvisor-lib.
  * These functions will be run by unprivileged code only. */
 typedef struct {
-    void (*box_init)(void * lib_config);
-    int (*semaphore_init)(UvisorSemaphore * semaphore, uint32_t initial_count, uint32_t max_count);
-    int (*semaphore_pend)(UvisorSemaphore * semaphore, uint32_t timeout_ms);
+    void (*box_init)(void *lib_config);
+    int (*semaphore_init)(UvisorSemaphore *semaphore, uint32_t initial_count, uint32_t max_count);
+    int (*semaphore_pend)(UvisorSemaphore *semaphore, uint32_t timeout_ms);
 } UvisorLibHooks;
 
 #endif

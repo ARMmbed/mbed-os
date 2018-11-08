@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -132,15 +132,15 @@
         SECTION(".cute.ram.data")
 
 //#define FWUROM_DATA_SECTION                    SECTION(".fwurom.data")
-    
+
 //#define FWUROM_RODATA_SECTION                  SECTION(".fwurom.rodata")
- 
+
 #define FWUROM_TEXT_SECTION                    \
         SECTION(".fwurom.text")
-    
+
 #define XMPORT_ROM_TEXT_SECTION                    \
         SECTION(".xmportrom.text")
-    
+
 #define XDMROM_TEXT_SECTION                    \
         SECTION(".xmodemrom.text")
 
@@ -230,7 +230,7 @@
 #define SRAM_BF_DATA_SECTION                        \
         SECTION(".bfsram.data")
 
-    
+
 #define START_RAM_FUN_SECTION                         \
         SECTION(".start.ram.data")
 
@@ -250,15 +250,15 @@
         SECTION(".start.ram.data.e")
 
 //Non-Flash Boot Section
-#define NON_FLASH_BOOT_DATA_SECTION					\
+#define NON_FLASH_BOOT_DATA_SECTION                 \
         SECTION(".nonflash.data")
-#define NON_FLASH_BOOT_HEAP_SECTION					\
+#define NON_FLASH_BOOT_HEAP_SECTION                 \
         SECTION(".nonflash.heap")
 
 // USB OTG Section
 #define OTG_ROM_BSS_SECTION                             \
         SECTION(".otg.rom.bss")
-        
+
 #if  defined(CONFIG_CHIP_E_CUT) || defined(CONFIG_USB_BOOT_SIM)
 #define OTG_ROM_TEXT_SECTION                            \
         SECTION(".otg.rom.text")
@@ -275,15 +275,15 @@
 #else
 #define OTG_ROM_TEXT_SECTION                            \
 //        SECTION(".otg.ram.text")
-        
+
 #define OTG_ROM_DATA_SECTION                      \
 //        SECTION(".otg.ram.rodata")
-        
+
 #define START_OTG_RAM_FUN_SECTION                       \
-//		SECTION(".ram.otg.data.a")
-	
+//      SECTION(".ram.otg.data.a")
+
 #define START_OTG_RAM_DATA_SECTION                      \
-//		SECTION(".ram.otg.data.b")
+//      SECTION(".ram.otg.data.b")
 #endif
 
 #if defined (__CC_ARM)
@@ -320,7 +320,7 @@
 
 #define LIBC_ROM_DATA_SECTION                      \
         SECTION(".libc.rom.rodata")
-        
+
 #define LIBC_RAM_BSS_SECTION                         \
         SECTION(".libc.ram.bss")
 

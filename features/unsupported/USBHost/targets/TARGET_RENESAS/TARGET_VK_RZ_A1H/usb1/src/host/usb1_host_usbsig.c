@@ -76,7 +76,7 @@ Private global variables and functions
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_InitModule (void)
+void usb1_host_InitModule(void)
 {
     uint16_t buf1;
     uint16_t buf2;
@@ -85,38 +85,37 @@ void usb1_host_InitModule (void)
     usb1_host_init_pipe_status();
 
     RZA_IO_RegWrite_16(&USB201.SYSCFG0,
-                        1,
-                        USB_SYSCFG_DCFM_SHIFT,
-                        USB_SYSCFG_DCFM);       /* HOST mode */
+                       1,
+                       USB_SYSCFG_DCFM_SHIFT,
+                       USB_SYSCFG_DCFM);       /* HOST mode */
     RZA_IO_RegWrite_16(&USB201.SYSCFG0,
-                        1,
-                        USB_SYSCFG_DRPD_SHIFT,
-                        USB_SYSCFG_DRPD);       /* PORT0 D+, D- setting */
+                       1,
+                       USB_SYSCFG_DRPD_SHIFT,
+                       USB_SYSCFG_DRPD);       /* PORT0 D+, D- setting */
 
-    do
-    {
+    do {
         buf1 = RZA_IO_RegRead_16(&USB201.SYSSTS0,
-                                USB_SYSSTS0_LNST_SHIFT,
-                                USB_SYSSTS0_LNST);
+                                 USB_SYSSTS0_LNST_SHIFT,
+                                 USB_SYSSTS0_LNST);
         Userdef_USB_usb1_host_delay_xms(50);
         buf2 = RZA_IO_RegRead_16(&USB201.SYSSTS0,
-                                USB_SYSSTS0_LNST_SHIFT,
-                                USB_SYSSTS0_LNST);
+                                 USB_SYSSTS0_LNST_SHIFT,
+                                 USB_SYSSTS0_LNST);
         Userdef_USB_usb1_host_delay_xms(50);
         buf3 = RZA_IO_RegRead_16(&USB201.SYSSTS0,
-                                USB_SYSSTS0_LNST_SHIFT,
-                                USB_SYSSTS0_LNST);
+                                 USB_SYSSTS0_LNST_SHIFT,
+                                 USB_SYSSTS0_LNST);
 
     } while ((buf1 != buf2) || (buf1 != buf3));
 
     RZA_IO_RegWrite_16(&USB201.SYSCFG0,
-                        1,
-                        USB_SYSCFG_USBE_SHIFT,
-                        USB_SYSCFG_USBE);
+                       1,
+                       USB_SYSCFG_USBE_SHIFT,
+                       USB_SYSCFG_USBE);
 
     USB201.CFIFOSEL  = (uint16_t)(USB_HOST_BITRCNT | USB_HOST_BITMBW_8 | USB_HOST_BITBYTE_LITTLE);
-    USB201.D0FIFOSEL = (uint16_t)(                   USB_HOST_BITMBW_8 | USB_HOST_BITBYTE_LITTLE);
-    USB201.D1FIFOSEL = (uint16_t)(                   USB_HOST_BITMBW_8 | USB_HOST_BITBYTE_LITTLE);
+    USB201.D0FIFOSEL = (uint16_t)(USB_HOST_BITMBW_8 | USB_HOST_BITBYTE_LITTLE);
+    USB201.D1FIFOSEL = (uint16_t)(USB_HOST_BITMBW_8 | USB_HOST_BITBYTE_LITTLE);
 }
 
 /*******************************************************************************
@@ -126,76 +125,60 @@ void usb1_host_InitModule (void)
 * Return Value : uint16_t ; USB_HOST_ATTACH : Attached
 *              :          ; USB_HOST_DETACH : not Attached
 *******************************************************************************/
-uint16_t usb1_host_CheckAttach (void)
+uint16_t usb1_host_CheckAttach(void)
 {
     uint16_t buf1;
     uint16_t buf2;
     uint16_t buf3;
     uint16_t rhst;
 
-    do
-    {
+    do {
         buf1 = RZA_IO_RegRead_16(&USB201.SYSSTS0,
-                                USB_SYSSTS0_LNST_SHIFT,
-                                USB_SYSSTS0_LNST);
+                                 USB_SYSSTS0_LNST_SHIFT,
+                                 USB_SYSSTS0_LNST);
         Userdef_USB_usb1_host_delay_xms(50);
         buf2 = RZA_IO_RegRead_16(&USB201.SYSSTS0,
-                                USB_SYSSTS0_LNST_SHIFT,
-                                USB_SYSSTS0_LNST);
+                                 USB_SYSSTS0_LNST_SHIFT,
+                                 USB_SYSSTS0_LNST);
         Userdef_USB_usb1_host_delay_xms(50);
         buf3 = RZA_IO_RegRead_16(&USB201.SYSSTS0,
-                                USB_SYSSTS0_LNST_SHIFT,
-                                USB_SYSSTS0_LNST);
+                                 USB_SYSSTS0_LNST_SHIFT,
+                                 USB_SYSSTS0_LNST);
 
     } while ((buf1 != buf2) || (buf1 != buf3));
 
     rhst = RZA_IO_RegRead_16(&USB201.DVSTCTR0,
-                                USB_DVSTCTR0_RHST_SHIFT,
-                                USB_DVSTCTR0_RHST);
-    if (rhst == USB_HOST_UNDECID)
-    {
-        if (buf1 == USB_HOST_FS_JSTS)
-        {
-            if (g_usb1_host_SupportUsbDeviceSpeed == USB_HOST_HIGH_SPEED)
-            {
+                             USB_DVSTCTR0_RHST_SHIFT,
+                             USB_DVSTCTR0_RHST);
+    if (rhst == USB_HOST_UNDECID) {
+        if (buf1 == USB_HOST_FS_JSTS) {
+            if (g_usb1_host_SupportUsbDeviceSpeed == USB_HOST_HIGH_SPEED) {
                 RZA_IO_RegWrite_16(&USB201.SYSCFG0,
-                                    1,
-                                    USB_SYSCFG_HSE_SHIFT,
-                                    USB_SYSCFG_HSE);
-            }
-            else
-            {
+                                   1,
+                                   USB_SYSCFG_HSE_SHIFT,
+                                   USB_SYSCFG_HSE);
+            } else {
                 RZA_IO_RegWrite_16(&USB201.SYSCFG0,
-                                    0,
-                                    USB_SYSCFG_HSE_SHIFT,
-                                    USB_SYSCFG_HSE);
+                                   0,
+                                   USB_SYSCFG_HSE_SHIFT,
+                                   USB_SYSCFG_HSE);
             }
             return USB_HOST_ATTACH;
-        }
-        else if (buf1 == USB_HOST_LS_JSTS)
-        {
+        } else if (buf1 == USB_HOST_LS_JSTS) {
             /* Low Speed Device */
             RZA_IO_RegWrite_16(&USB201.SYSCFG0,
-                                0,
-                                USB_SYSCFG_HSE_SHIFT,
-                                USB_SYSCFG_HSE);
+                               0,
+                               USB_SYSCFG_HSE_SHIFT,
+                               USB_SYSCFG_HSE);
             return USB_HOST_ATTACH;
-        }
-        else
-        {
+        } else {
             /* Do Nothing */
         }
-    }
-    else if ((rhst == USB_HOST_HSMODE) || (rhst == USB_HOST_FSMODE))
-    {
+    } else if ((rhst == USB_HOST_HSMODE) || (rhst == USB_HOST_FSMODE)) {
         return USB_HOST_ATTACH;
-    }
-    else if (rhst == USB_HOST_LSMODE)
-    {
+    } else if (rhst == USB_HOST_LSMODE) {
         return USB_HOST_ATTACH;
-    }
-    else
-    {
+    } else {
         /* Do Nothing */
     }
 
@@ -208,7 +191,7 @@ uint16_t usb1_host_CheckAttach (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_UsbAttach (void)
+void usb1_host_UsbAttach(void)
 {
     usb1_host_EnableINT_Module();
     usb1_host_Disable_BchgINT();
@@ -222,7 +205,7 @@ void usb1_host_UsbAttach (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_UsbDetach (void)
+void usb1_host_UsbDetach(void)
 {
     uint16_t pipe;
     uint16_t devadr;
@@ -231,23 +214,17 @@ void usb1_host_UsbDetach (void)
 
     /* Terminate all the pipes in which communications on port  */
     /* are currently carried out                                */
-    for (pipe = 0; pipe < (USB_HOST_MAX_PIPE_NO + 1); ++pipe)
-    {
-        if (g_usb1_host_pipe_status[pipe] != USB_HOST_PIPE_IDLE)
-        {
-            if (pipe == USB_HOST_PIPE0)
-            {
+    for (pipe = 0; pipe < (USB_HOST_MAX_PIPE_NO + 1); ++pipe) {
+        if (g_usb1_host_pipe_status[pipe] != USB_HOST_PIPE_IDLE) {
+            if (pipe == USB_HOST_PIPE0) {
                 devadr = RZA_IO_RegRead_16(&USB201.DCPMAXP,
-                                            USB_DCPMAXP_DEVSEL_SHIFT,
-                                            USB_DCPMAXP_DEVSEL);
-            }
-            else
-            {
+                                           USB_DCPMAXP_DEVSEL_SHIFT,
+                                           USB_DCPMAXP_DEVSEL);
+            } else {
                 devadr = RZA_IO_RegRead_16(&g_usb1_host_pipemaxp[pipe], USB_PIPEMAXP_DEVSEL_SHIFT, USB_PIPEMAXP_DEVSEL);
             }
 
-            if (devadr == g_usb1_host_UsbAddress)
-            {
+            if (devadr == g_usb1_host_UsbAddress) {
                 usb1_host_stop_transfer(pipe);
             }
 
@@ -268,7 +245,7 @@ void usb1_host_UsbDetach (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_UsbDetach2 (void)
+void usb1_host_UsbDetach2(void)
 {
     usb1_host_Disable_DetachINT();
     usb1_host_Disable_BchgINT();
@@ -281,19 +258,19 @@ void usb1_host_UsbDetach2 (void)
 * Arguments    : none
 * Return Value : uint16_t               ; RHST
 *******************************************************************************/
-uint16_t usb1_host_UsbBusReset (void)
+uint16_t usb1_host_UsbBusReset(void)
 {
     uint16_t buffer;
     uint16_t loop;
 
     RZA_IO_RegWrite_16(&USB201.DVSTCTR0,
-                        1,
-                        USB_DVSTCTR0_USBRST_SHIFT,
-                        USB_DVSTCTR0_USBRST);
+                       1,
+                       USB_DVSTCTR0_USBRST_SHIFT,
+                       USB_DVSTCTR0_USBRST);
     RZA_IO_RegWrite_16(&USB201.DVSTCTR0,
-                        0,
-                        USB_DVSTCTR0_UACT_SHIFT,
-                        USB_DVSTCTR0_UACT);
+                       0,
+                       USB_DVSTCTR0_UACT_SHIFT,
+                       USB_DVSTCTR0_UACT);
 
     Userdef_USB_usb1_host_delay_xms(50);
 
@@ -304,17 +281,13 @@ uint16_t usb1_host_UsbBusReset (void)
 
     Userdef_USB_usb1_host_delay_xms(20);
 
-    for (loop = 0, buffer = USB_HOST_HSPROC;  loop < 3; ++loop)
-    {
+    for (loop = 0, buffer = USB_HOST_HSPROC;  loop < 3; ++loop) {
         buffer = RZA_IO_RegRead_16(&USB201.DVSTCTR0,
-                                    USB_DVSTCTR0_RHST_SHIFT,
-                                    USB_DVSTCTR0_RHST);
-        if (buffer == USB_HOST_HSPROC)
-        {
+                                   USB_DVSTCTR0_RHST_SHIFT,
+                                   USB_DVSTCTR0_RHST);
+        if (buffer == USB_HOST_HSPROC) {
             Userdef_USB_usb1_host_delay_xms(10);
-        }
-        else
-        {
+        } else {
             break;
         }
     }
@@ -329,24 +302,23 @@ uint16_t usb1_host_UsbBusReset (void)
 * Return Value : int32_t            ; DEVDRV_SUCCESS
 *              :                    ; DEVDRV_ERROR
 *******************************************************************************/
-int32_t usb1_host_UsbResume (void)
+int32_t usb1_host_UsbResume(void)
 {
     uint16_t buf;
 
-    if ((g_usb1_host_driver_state & USB_HOST_DRV_SUSPEND) == 0)
-    {
+    if ((g_usb1_host_driver_state & USB_HOST_DRV_SUSPEND) == 0) {
         /* not SUSPEND */
         return DEVDRV_ERROR;
     }
 
     RZA_IO_RegWrite_16(&USB201.INTENB1,
-                        0,
-                        USB_INTENB1_BCHGE_SHIFT,
-                        USB_INTENB1_BCHGE);
+                       0,
+                       USB_INTENB1_BCHGE_SHIFT,
+                       USB_INTENB1_BCHGE);
     RZA_IO_RegWrite_16(&USB201.DVSTCTR0,
-                        1,
-                        USB_DVSTCTR0_RESUME_SHIFT,
-                        USB_DVSTCTR0_RESUME);
+                       1,
+                       USB_DVSTCTR0_RESUME_SHIFT,
+                       USB_DVSTCTR0_RESUME);
     Userdef_USB_usb1_host_delay_xms(20);
 
     buf  = USB201.DVSTCTR0;
@@ -366,32 +338,28 @@ int32_t usb1_host_UsbResume (void)
 * Return Value : int32_t            ; DEVDRV_SUCCESS   :not SUSPEND
 *              :                    ; DEVDRV_ERROR     :SUSPEND
 *******************************************************************************/
-int32_t usb1_host_UsbSuspend (void)
+int32_t usb1_host_UsbSuspend(void)
 {
     uint16_t buf;
 
-    if ((g_usb1_host_driver_state & USB_HOST_DRV_SUSPEND) != 0)
-    {
+    if ((g_usb1_host_driver_state & USB_HOST_DRV_SUSPEND) != 0) {
         /* SUSPEND */
         return DEVDRV_ERROR;
     }
 
     RZA_IO_RegWrite_16(&USB201.DVSTCTR0,
-                        0,
-                        USB_DVSTCTR0_UACT_SHIFT,
-                        USB_DVSTCTR0_UACT);
+                       0,
+                       USB_DVSTCTR0_UACT_SHIFT,
+                       USB_DVSTCTR0_UACT);
 
     Userdef_USB_usb1_host_delay_xms(5);
 
     buf = RZA_IO_RegRead_16(&USB201.SYSSTS0,
-                                USB_SYSSTS0_LNST_SHIFT,
-                                USB_SYSSTS0_LNST);
-    if ((buf != USB_HOST_FS_JSTS) && (buf != USB_HOST_LS_JSTS))
-    {
+                            USB_SYSSTS0_LNST_SHIFT,
+                            USB_SYSSTS0_LNST);
+    if ((buf != USB_HOST_FS_JSTS) && (buf != USB_HOST_LS_JSTS)) {
         usb1_host_UsbDetach();
-    }
-    else
-    {
+    } else {
         g_usb1_host_driver_state |= USB_HOST_DRV_SUSPEND;
     }
 
@@ -404,13 +372,13 @@ int32_t usb1_host_UsbSuspend (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_Enable_DetachINT (void)
+void usb1_host_Enable_DetachINT(void)
 {
     USB201.INTSTS1 = (uint16_t)(~(USB_HOST_BITDTCH));
     RZA_IO_RegWrite_16(&USB201.INTENB1,
-                        1,
-                        USB_INTENB1_DTCHE_SHIFT,
-                        USB_INTENB1_DTCHE);
+                       1,
+                       USB_INTENB1_DTCHE_SHIFT,
+                       USB_INTENB1_DTCHE);
 }
 
 /*******************************************************************************
@@ -419,13 +387,13 @@ void usb1_host_Enable_DetachINT (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_Disable_DetachINT (void)
+void usb1_host_Disable_DetachINT(void)
 {
     USB201.INTSTS1 = (uint16_t)(~(USB_HOST_BITDTCH));
     RZA_IO_RegWrite_16(&USB201.INTENB1,
-                        0,
-                        USB_INTENB1_DTCHE_SHIFT,
-                        USB_INTENB1_DTCHE);
+                       0,
+                       USB_INTENB1_DTCHE_SHIFT,
+                       USB_INTENB1_DTCHE);
 }
 
 /*******************************************************************************
@@ -434,13 +402,13 @@ void usb1_host_Disable_DetachINT (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_Enable_AttachINT (void)
+void usb1_host_Enable_AttachINT(void)
 {
     USB201.INTSTS1 = (uint16_t)(~(USB_HOST_BITATTCH));
     RZA_IO_RegWrite_16(&USB201.INTENB1,
-                        1,
-                        USB_INTENB1_ATTCHE_SHIFT,
-                        USB_INTENB1_ATTCHE);
+                       1,
+                       USB_INTENB1_ATTCHE_SHIFT,
+                       USB_INTENB1_ATTCHE);
 }
 
 /*******************************************************************************
@@ -449,13 +417,13 @@ void usb1_host_Enable_AttachINT (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_Disable_AttachINT (void)
+void usb1_host_Disable_AttachINT(void)
 {
     USB201.INTSTS1 = (uint16_t)(~(USB_HOST_BITATTCH));
     RZA_IO_RegWrite_16(&USB201.INTENB1,
-                        0,
-                        USB_INTENB1_ATTCHE_SHIFT,
-                        USB_INTENB1_ATTCHE);
+                       0,
+                       USB_INTENB1_ATTCHE_SHIFT,
+                       USB_INTENB1_ATTCHE);
 }
 
 /*******************************************************************************
@@ -464,13 +432,13 @@ void usb1_host_Disable_AttachINT (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_Disable_BchgINT (void)
+void usb1_host_Disable_BchgINT(void)
 {
     USB201.INTSTS1 = (uint16_t)(~(USB_HOST_BITBCHG));
     RZA_IO_RegWrite_16(&USB201.INTENB1,
-                        0,
-                        USB_INTENB1_BCHGE_SHIFT,
-                        USB_INTENB1_BCHGE);
+                       0,
+                       USB_INTENB1_BCHGE_SHIFT,
+                       USB_INTENB1_BCHGE);
 }
 
 /*******************************************************************************
@@ -480,64 +448,62 @@ void usb1_host_Disable_BchgINT (void)
 *              : uint16_t *devadd          : Set value
 * Return Value : none
 *******************************************************************************/
-void usb1_host_set_devadd (uint16_t addr, uint16_t * devadd)
+void usb1_host_set_devadd(uint16_t addr, uint16_t *devadd)
 {
-    uint16_t * ptr;
+    uint16_t *ptr;
     uint16_t ret_flag = DEVDRV_FLAG_ON;                             // avoid warning.
 
-    switch (addr)
-    {
+    switch (addr) {
         case USB_HOST_DEVICE_0:
             ptr = (uint16_t *)&USB201.DEVADD0;
-        break;
+            break;
 
         case USB_HOST_DEVICE_1:
             ptr = (uint16_t *)&USB201.DEVADD1;
-        break;
+            break;
 
         case USB_HOST_DEVICE_2:
             ptr = (uint16_t *)&USB201.DEVADD2;
-        break;
+            break;
 
         case USB_HOST_DEVICE_3:
             ptr = (uint16_t *)&USB201.DEVADD3;
-        break;
+            break;
 
         case USB_HOST_DEVICE_4:
             ptr = (uint16_t *)&USB201.DEVADD4;
-        break;
+            break;
 
         case USB_HOST_DEVICE_5:
             ptr = (uint16_t *)&USB201.DEVADD5;
-        break;
+            break;
 
         case USB_HOST_DEVICE_6:
             ptr = (uint16_t *)&USB201.DEVADD6;
-        break;
+            break;
 
         case USB_HOST_DEVICE_7:
             ptr = (uint16_t *)&USB201.DEVADD7;
-        break;
+            break;
 
         case USB_HOST_DEVICE_8:
             ptr = (uint16_t *)&USB201.DEVADD8;
-        break;
+            break;
 
         case USB_HOST_DEVICE_9:
             ptr = (uint16_t *)&USB201.DEVADD9;
-        break;
+            break;
 
         case USB_HOST_DEVICE_10:
             ptr = (uint16_t *)&USB201.DEVADDA;
-        break;
+            break;
 
         default:
             ret_flag = DEVDRV_FLAG_OFF;
-        break;
+            break;
     }
 
-    if (ret_flag == DEVDRV_FLAG_ON)
-    {
+    if (ret_flag == DEVDRV_FLAG_ON) {
         *ptr = (uint16_t)(*devadd & USB_HOST_DEVADD_MASK);
     }
 }
@@ -549,64 +515,62 @@ void usb1_host_set_devadd (uint16_t addr, uint16_t * devadd)
 *              : uint16_t *devadd   : USB_HOST_DEVADD register value
 * Return Value : none
 *******************************************************************************/
-void usb1_host_get_devadd (uint16_t addr, uint16_t * devadd)
+void usb1_host_get_devadd(uint16_t addr, uint16_t *devadd)
 {
-    uint16_t * ptr;
+    uint16_t *ptr;
     uint16_t ret_flag = DEVDRV_FLAG_ON;                             // avoid warning.
 
-    switch (addr)
-    {
+    switch (addr) {
         case USB_HOST_DEVICE_0:
             ptr = (uint16_t *)&USB201.DEVADD0;
-        break;
+            break;
 
         case USB_HOST_DEVICE_1:
             ptr = (uint16_t *)&USB201.DEVADD1;
-        break;
+            break;
 
         case USB_HOST_DEVICE_2:
             ptr = (uint16_t *)&USB201.DEVADD2;
-        break;
+            break;
 
         case USB_HOST_DEVICE_3:
             ptr = (uint16_t *)&USB201.DEVADD3;
-        break;
+            break;
 
         case USB_HOST_DEVICE_4:
             ptr = (uint16_t *)&USB201.DEVADD4;
-        break;
+            break;
 
         case USB_HOST_DEVICE_5:
             ptr = (uint16_t *)&USB201.DEVADD5;
-        break;
+            break;
 
         case USB_HOST_DEVICE_6:
             ptr = (uint16_t *)&USB201.DEVADD6;
-        break;
+            break;
 
         case USB_HOST_DEVICE_7:
             ptr = (uint16_t *)&USB201.DEVADD7;
-        break;
+            break;
 
         case USB_HOST_DEVICE_8:
             ptr = (uint16_t *)&USB201.DEVADD8;
-        break;
+            break;
 
         case USB_HOST_DEVICE_9:
             ptr = (uint16_t *)&USB201.DEVADD9;
-        break;
+            break;
 
         case USB_HOST_DEVICE_10:
             ptr = (uint16_t *)&USB201.DEVADDA;
-        break;
+            break;
 
         default:
             ret_flag = DEVDRV_FLAG_OFF;
-        break;
+            break;
     }
 
-    if (ret_flag == DEVDRV_FLAG_ON)
-    {
+    if (ret_flag == DEVDRV_FLAG_ON) {
         *devadd = *ptr;
     }
 }
@@ -618,7 +582,7 @@ void usb1_host_get_devadd (uint16_t addr, uint16_t * devadd)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_EnableINT_Module (void)
+void usb1_host_EnableINT_Module(void)
 {
     uint16_t buf;
 

@@ -89,7 +89,7 @@ struct Gap {
      * @return BLE_ERROR_NONE if the request has been successfully sent or the
      * appropriate error otherwise.
      */
-    virtual ble_error_t set_random_address(const address_t& address) = 0;
+    virtual ble_error_t set_random_address(const address_t &address) = 0;
 
     /**
      * Set the advertising parameters which will be used during the advertising
@@ -154,7 +154,7 @@ struct Gap {
         advertising_type_t advertising_type,
         own_address_type_t own_address_type,
         advertising_peer_address_type_t peer_address_type,
-        const address_t& peer_address,
+        const address_t &peer_address,
         advertising_channel_map_t advertising_channel_map,
         advertising_filter_policy_t advertising_filter_policy
     ) = 0;
@@ -178,7 +178,7 @@ struct Gap {
      */
     virtual ble_error_t set_advertising_data(
         uint8_t advertising_data_length,
-        const advertising_data_t& advertising_data
+        const advertising_data_t &advertising_data
     ) = 0;
 
     /**
@@ -200,7 +200,7 @@ struct Gap {
      */
     virtual ble_error_t set_scan_response_data(
         uint8_t scan_response_data_length,
-        const advertising_data_t& scan_response_data
+        const advertising_data_t &scan_response_data
     ) = 0;
 
     /**
@@ -382,7 +382,7 @@ struct Gap {
         uint16_t scan_window,
         initiator_policy_t initiator_policy,
         connection_peer_address_type_t peer_address_type,
-        const address_t& peer_address,
+        const address_t &peer_address,
         own_address_type_t own_address_type,
         uint16_t connection_interval_min,
         uint16_t connection_interval_max,
@@ -656,7 +656,7 @@ struct Gap {
      * LE subsystem.
      * It accept a single parameter in input: The event received.
      */
-    void when_gap_event_received(mbed::Callback<void(const GapEvent&)> cb)
+    void when_gap_event_received(mbed::Callback<void(const GapEvent &)> cb)
     {
         _gap_event_cb = cb;
     }
@@ -672,7 +672,7 @@ protected:
      *
      * @param gap_event The event to emit to higher layer.
      */
-    void emit_gap_event(const GapEvent& gap_event)
+    void emit_gap_event(const GapEvent &gap_event)
     {
         if (_gap_event_cb) {
             _gap_event_cb(gap_event);
@@ -683,11 +683,11 @@ private:
     /**
      * Callback called when an event is emitted by the LE subsystem.
      */
-    mbed::Callback<void(const GapEvent&)> _gap_event_cb;
+    mbed::Callback<void(const GapEvent &)> _gap_event_cb;
 
     // Disallow copy construction and copy assignment.
-    Gap(const Gap&);
-    Gap& operator=(const Gap&);
+    Gap(const Gap &);
+    Gap &operator=(const Gap &);
 };
 
 } // namespace pal

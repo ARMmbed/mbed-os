@@ -52,11 +52,11 @@
 typedef struct {
     union {
         struct {
-            __I uint32_t LOCKUP:1;         /**< 1:Core did lock up */
-            __I uint32_t WDOGRES:1;        /**< 1:Watchdog reset occurred */
-            __I uint32_t EXTRESET:1;       /**< 1:External reset occurred */
-            __I uint32_t SYSRESETREQ:1;    /**< 1:System reset occurred */
-            __I uint32_t POR:1;            /**< 1:POR reset occurred */
+            __I uint32_t LOCKUP: 1;        /**< 1:Core did lock up */
+            __I uint32_t WDOGRES: 1;       /**< 1:Watchdog reset occurred */
+            __I uint32_t EXTRESET: 1;      /**< 1:External reset occurred */
+            __I uint32_t SYSRESETREQ: 1;   /**< 1:System reset occurred */
+            __I uint32_t POR: 1;           /**< 1:POR reset occurred */
         } BITS;
         __I uint32_t WORD;
     } SOURCE;

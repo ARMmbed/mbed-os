@@ -50,7 +50,7 @@ void hci_mbed_os_start_reset_sequence(void);
  * @note stable wrapper of hciCoreResetSequence.
  * @note definition provided in mbed os.
  */
-void hci_mbed_os_handle_reset_sequence(uint8_t* msg);
+void hci_mbed_os_handle_reset_sequence(uint8_t *msg);
 
 /**
  * Signal to the stack that the reset sequence is done.

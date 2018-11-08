@@ -57,14 +57,12 @@
  * @brief fmc peripheral flag.
  *
  */
-enum _fmc_flags
-{
+enum _fmc_flags {
     kFMC_SignatureGenerationDoneFlag = FMC_FMSTAT_SIG_DONE_MASK, /*!< Flash signature generation done. */
 };
 
 /*! @brief Defines the generated 128-bit signature. */
-typedef struct _fmc_flash_signature
-{
+typedef struct _fmc_flash_signature {
     uint32_t word0; /* Signature bits [31:0]. */
     uint32_t word1; /* Signature bits [63:32]. */
     uint32_t word2; /* Signature bits [95:64]. */
@@ -72,8 +70,7 @@ typedef struct _fmc_flash_signature
 } fmc_flash_signature_t;
 
 /*! @brief fmc config structure. */
-typedef struct _fmc_config
-{
+typedef struct _fmc_config {
     uint8_t waitStates; /* flash timing value for flash signature generation. */
 } fmc_config_t;
 

@@ -69,10 +69,8 @@ static uint32_t smartcard_emvsim_GetInstance(EMVSIM_Type *base)
     uint32_t emvsimArrayCount = (sizeof(s_emvsimBases) / sizeof(s_emvsimBases[0]));
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < emvsimArrayCount; instance++)
-    {
-        if (s_emvsimBases[instance] == base)
-        {
+    for (instance = 0; instance < emvsimArrayCount; instance++) {
+        if (s_emvsimBases[instance] == base) {
             break;
         }
     }
@@ -96,8 +94,7 @@ static void smartcard_emvsim_CompleteSendData(EMVSIM_Type *base, smartcard_conte
     /* Disable the transmission complete interrupt */
     base->INT_MASK |= EMVSIM_INT_MASK_TC_IM_MASK;
     /* Wait for TC bit to set - last byte transmission has finished */
-    while ((!(base->TX_STATUS & EMVSIM_TX_STATUS_TCF_MASK)))
-    {
+    while ((!(base->TX_STATUS & EMVSIM_TX_STATUS_TCF_MASK))) {
     }
     /* Restore previous TX_GETU value */
     base->TX_GETU = context->cardParams.GTN;
@@ -113,8 +110,7 @@ static void smartcard_emvsim_CompleteSendData(EMVSIM_Type *base, smartcard_conte
     /* Clear txSize to avoid any spurious transmit from ISR */
     context->xSize = 0u;
     /* Invoke user call-back */
-    if (NULL != context->transferCallback)
-    {
+    if (NULL != context->transferCallback) {
         context->transferCallback(context, context->transferCallbackParam);
     }
 }
@@ -136,8 +132,7 @@ static void smartcard_emvsim_CompleteReceiveData(EMVSIM_Type *base, smartcard_co
     /* Update the information of the module driver context */
     context->xIsBusy = false;
     /* Invoke user call-back */
-    if (NULL != context->transferCallback)
-    {
+    if (NULL != context->transferCallback) {
         context->transferCallback(context, context->transferCallbackParam);
     }
 }
@@ -173,8 +168,7 @@ static void smartcard_emvsim_StartSendData(EMVSIM_Type *base, smartcard_context_
     /* Trigger the counter */
     base->CTRL |= EMVSIM_CTRL_RCV_EN_MASK;
     /* Wait until counter overflow event occur */
-    while ((!(base->TX_STATUS & EMVSIM_TX_STATUS_GPCNT1_TO_MASK)))
-    {
+    while ((!(base->TX_STATUS & EMVSIM_TX_STATUS_GPCNT1_TO_MASK))) {
     }
     /* Clear status flag and disable GPCNT1 clock */
     base->TX_STATUS = EMVSIM_TX_STATUS_GPCNT1_TO_MASK;
@@ -233,8 +227,7 @@ static void smartcard_emvsim_SetTransferType(EMVSIM_Type *base,
     uint32_t bwiVal = 0u;
     uint8_t tdt = 0u;
 
-    if (control == kSMARTCARD_SetupATRMode)
-    {
+    if (control == kSMARTCARD_SetupATRMode) {
         /* Disable all functionality at first */
         base->CTRL &= ~(EMVSIM_CTRL_RCVR_11_MASK | EMVSIM_CTRL_XMT_CRC_LRC_MASK | EMVSIM_CTRL_LRC_EN_MASK |
                         EMVSIM_CTRL_ANACK_MASK | EMVSIM_CTRL_ONACK_MASK | EMVSIM_CTRL_RCV_EN_MASK);
@@ -268,9 +261,7 @@ static void smartcard_emvsim_SetTransferType(EMVSIM_Type *base,
         base->INT_MASK &= ~EMVSIM_INT_MASK_TNACK_IM_MASK;
         /* Set transport type to T=0 in SMARTCARD context structure */
         context->tType = kSMARTCARD_T0Transport;
-    }
-    else if (control == kSMARTCARD_SetupT0Mode)
-    {
+    } else if (control == kSMARTCARD_SetupT0Mode) {
         /* Disable receiver at first if it's not, Disable T=0 mode counters 1st,
          * Setup for single wire ISO7816 mode (setup 12 etu mode).
          * Set transport protocol type to T=0, Disable initial character detection.*/
@@ -302,11 +293,10 @@ static void smartcard_emvsim_SetTransferType(EMVSIM_Type *base,
             (EMVSIM_CTRL_CWT_EN_MASK | EMVSIM_CTRL_BWT_EN_MASK | EMVSIM_CTRL_ANACK_MASK | EMVSIM_CTRL_ONACK_MASK);
         /* Set transport type to T=0 in SMARTCARD context structure */
         context->tType = kSMARTCARD_T0Transport;
-    }
-    else
-    { /* Disable T=1 mode counters 1st, Disable NACK on error interrupt, Disable NACK on overflow interrupt */
+    } else {
+        /* Disable T=1 mode counters 1st, Disable NACK on error interrupt, Disable NACK on overflow interrupt */
         base->CTRL &= ~(EMVSIM_CTRL_CWT_EN_MASK | EMVSIM_CTRL_BWT_EN_MASK | EMVSIM_CTRL_ANACK_MASK |
-                       EMVSIM_CTRL_ONACK_MASK | EMVSIM_CTRL_XMT_CRC_LRC_MASK | EMVSIM_CTRL_LRC_EN_MASK);
+                        EMVSIM_CTRL_ONACK_MASK | EMVSIM_CTRL_XMT_CRC_LRC_MASK | EMVSIM_CTRL_LRC_EN_MASK);
         /* Calculate and set Block Wait Timer (BWT) value
          * EMV expectation: BWT = 11 + (2^BWI x 960 x D) + (D x 960) = 11 + (2^BWI + 1) x 960 x D
          * EMVSIM formula: BWT = Same */
@@ -315,12 +305,9 @@ static void smartcard_emvsim_SetTransferType(EMVSIM_Type *base,
         /* Calculate and set Character Wait Timer (CWT) value
          * EMV expectation: CWT = ((2^CWI + 11) + 4)
          * EMVSIM formula: CWT = Same */
-        if (context->cardParams.currentD == 1u)
-        {
+        if (context->cardParams.currentD == 1u) {
             temp16 = (1u << context->cardParams.CWI) + 15u;
-        }
-        else
-        {
+        } else {
             temp16 = (1u << context->cardParams.CWI) + 15u + SMARTCARD_CWT_ADJUSTMENT;
         }
         /* EMV = 15, ISO = 11,
@@ -360,13 +347,12 @@ status_t SMARTCARD_EMVSIM_Init(EMVSIM_Type *base, smartcard_context_t *context, 
 {
     assert((NULL != base));
 
-    if ((NULL == context) || (srcClock_Hz == 0u))
-    {
+    if ((NULL == context) || (srcClock_Hz == 0u)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
     uint32_t instance = smartcard_emvsim_GetInstance(base);
-/* Set source clock for EMVSIM MCGPLLCLK */
+    /* Set source clock for EMVSIM MCGPLLCLK */
 #if !(defined(FSL_FEATURE_SOC_SCG_COUNT) && FSL_FEATURE_SOC_SCG_COUNT)
     CLOCK_SetEmvsimClock(1u);
 #endif
@@ -394,15 +380,12 @@ status_t SMARTCARD_EMVSIM_Init(EMVSIM_Type *base, smartcard_context_t *context, 
      * we'll equate txFifoEntryCount to 1. Also note that TDRE flag will set
      * only when the tx buffer is empty. */
     context->txFifoEntryCount = 1u;
-/* Enable EMVSIM interrupt on NVIC level. */
+    /* Enable EMVSIM interrupt on NVIC level. */
 #if defined(FSL_FEATURE_SOC_INTMUX_COUNT) && FSL_FEATURE_SOC_INTMUX_COUNT
-    if (s_emvsimIRQ[instance] >= FSL_FEATURE_INTMUX_IRQ_START_INDEX)
-    {
+    if (s_emvsimIRQ[instance] >= FSL_FEATURE_INTMUX_IRQ_START_INDEX) {
         INTMUX0->CHANNEL[0].CHn_IER_31_0 |= 1U << (s_emvsimIRQ[instance] - FSL_FEATURE_INTERRUPT_IRQ_MAX - 1U);
         NVIC_EnableIRQ(INTMUX0_0_IRQn);
-    }
-    else
-    {
+    } else {
         NVIC_EnableIRQ(s_emvsimIRQ[instance]);
     }
 #else
@@ -420,23 +403,19 @@ void SMARTCARD_EMVSIM_Deinit(EMVSIM_Type *base)
     /* In case there is still data in the TX FIFO or shift register that is
      * being transmitted wait till transmit is complete.
      * Wait until the data is completely shifted out of shift register */
-    while ((!(base->TX_STATUS & EMVSIM_TX_STATUS_TCF_MASK)))
-    {
+    while ((!(base->TX_STATUS & EMVSIM_TX_STATUS_TCF_MASK))) {
     }
     instance = smartcard_emvsim_GetInstance(base);
     /* Disable TX and RX */
     base->CTRL &= ~EMVSIM_CTRL_XMT_EN_MASK & ~EMVSIM_CTRL_RCV_EN_MASK;
     /* Gate EMVSIM module clock */
     CLOCK_DisableClock(s_emvsimClock[instance]);
-/* Disable emvsim interrupt in NVIC */
+    /* Disable emvsim interrupt in NVIC */
 #if defined(FSL_FEATURE_SOC_INTMUX_COUNT) && FSL_FEATURE_SOC_INTMUX_COUNT
-    if (s_emvsimIRQ[instance] >= FSL_FEATURE_INTMUX_IRQ_START_INDEX)
-    {
+    if (s_emvsimIRQ[instance] >= FSL_FEATURE_INTMUX_IRQ_START_INDEX) {
         INTMUX0->CHANNEL[0].CHn_IER_31_0 &= ~(1U << (s_emvsimIRQ[instance] - FSL_FEATURE_INTERRUPT_IRQ_MAX - 1U));
         NVIC_DisableIRQ(INTMUX0_0_IRQn);
-    }
-    else
-    {
+    } else {
         NVIC_DisableIRQ(s_emvsimIRQ[instance]);
     }
 #else
@@ -446,25 +425,19 @@ void SMARTCARD_EMVSIM_Deinit(EMVSIM_Type *base)
 
 status_t SMARTCARD_EMVSIM_TransferNonBlocking(EMVSIM_Type *base, smartcard_context_t *context, smartcard_xfer_t *xfer)
 {
-    if ((NULL == context) || (NULL == xfer) || (xfer->buff == NULL))
-    {
+    if ((NULL == context) || (NULL == xfer) || (xfer->buff == NULL)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
     /* Check input parameters */
-    if ((0u == xfer->size))
-    {
+    if ((0u == xfer->size)) {
         return kStatus_SMARTCARD_Success;
     }
     /* Check if some transfer is in progress */
-    if (0u != SMARTCARD_EMVSIM_GetTransferRemainingBytes(base, context))
-    {
-        if (kSMARTCARD_Receive == context->direction)
-        {
+    if (0u != SMARTCARD_EMVSIM_GetTransferRemainingBytes(base, context)) {
+        if (kSMARTCARD_Receive == context->direction) {
             return kStatus_SMARTCARD_RxBusy;
-        }
-        else
-        {
+        } else {
             return kStatus_SMARTCARD_TxBusy;
         }
     }
@@ -476,22 +449,17 @@ status_t SMARTCARD_EMVSIM_TransferNonBlocking(EMVSIM_Type *base, smartcard_conte
     context->xBuff = xfer->buff;
     context->xSize = xfer->size;
 
-    if (kSMARTCARD_Receive == xfer->direction)
-    {
+    if (kSMARTCARD_Receive == xfer->direction) {
         context->direction = xfer->direction;
         context->transferState = kSMARTCARD_ReceivingState;
         /* Start transfer */
         smartcard_emvsim_StartReceiveData(base, context);
-    }
-    else if (kSMARTCARD_Transmit == xfer->direction)
-    {
+    } else if (kSMARTCARD_Transmit == xfer->direction) {
         context->direction = xfer->direction;
         context->transferState = kSMARTCARD_TransmittingState;
         /* Start transfer */
         smartcard_emvsim_StartSendData(base, context);
-    }
-    else
-    {
+    } else {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
@@ -500,8 +468,7 @@ status_t SMARTCARD_EMVSIM_TransferNonBlocking(EMVSIM_Type *base, smartcard_conte
 
 int32_t SMARTCARD_EMVSIM_GetTransferRemainingBytes(EMVSIM_Type *base, smartcard_context_t *context)
 {
-    if ((NULL == context))
-    {
+    if ((NULL == context)) {
         return -1;
     }
 
@@ -509,8 +476,7 @@ int32_t SMARTCARD_EMVSIM_GetTransferRemainingBytes(EMVSIM_Type *base, smartcard_
     * or not the EMVSIM has a FIFO. If TX transfer and it does have a FIFO, we'll need to wait
     * until the FIFO is completely drained before indicating success in addition to xIsBusy = 0.
     * If there is no FIFO, then we need to only worry about xIsBusy. */
-    if (context->xIsBusy)
-    {
+    if (context->xIsBusy) {
         return context->xSize;
     }
 
@@ -519,27 +485,22 @@ int32_t SMARTCARD_EMVSIM_GetTransferRemainingBytes(EMVSIM_Type *base, smartcard_
 
 status_t SMARTCARD_EMVSIM_AbortTransfer(EMVSIM_Type *base, smartcard_context_t *context)
 {
-    if ((NULL == context))
-    {
+    if ((NULL == context)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
     /* Check if a transfer is running. */
-    if ((!context->xIsBusy))
-    {
+    if ((!context->xIsBusy)) {
         return kStatus_SMARTCARD_NoTransferInProgress;
     }
     /* Call transfer complete to abort transfer */
-    if (kSMARTCARD_Receive == context->direction)
-    { /* Stop the running transfer. */
+    if (kSMARTCARD_Receive == context->direction) {
+        /* Stop the running transfer. */
         smartcard_emvsim_CompleteReceiveData(base, context);
-    }
-    else if (kSMARTCARD_Transmit == context->direction)
-    { /* Stop the running transfer. */
+    } else if (kSMARTCARD_Transmit == context->direction) {
+        /* Stop the running transfer. */
         smartcard_emvsim_CompleteSendData(base, context);
-    }
-    else
-    {
+    } else {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
@@ -550,44 +511,40 @@ void SMARTCARD_EMVSIM_IRQHandler(EMVSIM_Type *base, smartcard_context_t *context
 {
     uint8_t temp8 = 0u;
 
-    if (NULL == context)
-    {
+    if (NULL == context) {
         return;
     }
 
     /* Check card insertion/removal interrupt occurs, only EMVSIM DIRECT interface driver using enables this interrupt
      * to occur */
-    if ((!(base->PCSR & EMVSIM_PCSR_SPDIM_MASK)) && (base->PCSR & EMVSIM_PCSR_SPDIF_MASK))
-    {
+    if ((!(base->PCSR & EMVSIM_PCSR_SPDIM_MASK)) && (base->PCSR & EMVSIM_PCSR_SPDIF_MASK)) {
         /* Clear card presence interrupt status */
         base->PCSR |= EMVSIM_PCSR_SPDIF_MASK;
         /* Set PD signal edge behaviour */
         if (((emvsim_presence_detect_edge_t)((base->PCSR & EMVSIM_PCSR_SPDES_MASK) >> EMVSIM_PCSR_SPDES_SHIFT) ==
-             kEMVSIM_DetectOnFallingEdge) &&
-            ((emvsim_presence_detect_status_t)((base->PCSR & EMVSIM_PCSR_SPDP_MASK) >> EMVSIM_PCSR_SPDP_SHIFT) ==
-             kEMVSIM_DetectPinIsLow))
-        { /* Set rising edge interrupt */
+                kEMVSIM_DetectOnFallingEdge) &&
+                ((emvsim_presence_detect_status_t)((base->PCSR & EMVSIM_PCSR_SPDP_MASK) >> EMVSIM_PCSR_SPDP_SHIFT) ==
+                 kEMVSIM_DetectPinIsLow)) {
+            /* Set rising edge interrupt */
             base->PCSR |= EMVSIM_PCSR_SPDES_MASK;
         }
         if (((emvsim_presence_detect_edge_t)((base->PCSR & EMVSIM_PCSR_SPDES_MASK) >> EMVSIM_PCSR_SPDES_SHIFT) ==
-             kEMVSIM_DetectOnRisingEdge) &&
-            ((emvsim_presence_detect_status_t)((base->PCSR & EMVSIM_PCSR_SPDP_MASK) >> EMVSIM_PCSR_SPDP_SHIFT) ==
-             kEMVSIM_DetectPinIsHigh))
-        { /* Set falling edge interrupt */
+                kEMVSIM_DetectOnRisingEdge) &&
+                ((emvsim_presence_detect_status_t)((base->PCSR & EMVSIM_PCSR_SPDP_MASK) >> EMVSIM_PCSR_SPDP_SHIFT) ==
+                 kEMVSIM_DetectPinIsHigh)) {
+            /* Set falling edge interrupt */
             base->PCSR &= ~EMVSIM_PCSR_SPDES_MASK;
         }
         /* Card presence(insertion)/removal detected */
         /* Invoke callback if there is one */
-        if (NULL != context->interfaceCallback)
-        {
+        if (NULL != context->interfaceCallback) {
             context->interfaceCallback(context, context->interfaceCallbackParam);
         }
         return;
     }
     /* Check if timer for initial character (TS) detection has expired */
     if (((base->INT_MASK & EMVSIM_INT_MASK_GPCNT0_IM_MASK) >> EMVSIM_INT_MASK_GPCNT0_IM_SHIFT == 0) &&
-        (base->TX_STATUS & EMVSIM_TX_STATUS_GPCNT0_TO_MASK))
-    {
+            (base->TX_STATUS & EMVSIM_TX_STATUS_GPCNT0_TO_MASK)) {
         /* Disable TS and ADT timers by clearing source clock to 0 */
         base->CLKCFG &= ~(EMVSIM_CLKCFG_GPCNT0_CLK_SEL_MASK | EMVSIM_CLKCFG_GPCNT1_CLK_SEL_MASK);
         context->timersState.initCharTimerExpired = true;
@@ -603,8 +560,8 @@ void SMARTCARD_EMVSIM_IRQHandler(EMVSIM_Type *base, smartcard_context_t *context
         return;
     }
     /* Check if timer for ATR duration timer has expired */
-    if ((!(base->INT_MASK & EMVSIM_INT_MASK_GPCNT1_IM_MASK)) && (base->TX_STATUS & EMVSIM_TX_STATUS_GPCNT1_TO_MASK))
-    { /* Disable clock counter by clearing source clock to 0 */
+    if ((!(base->INT_MASK & EMVSIM_INT_MASK_GPCNT1_IM_MASK)) && (base->TX_STATUS & EMVSIM_TX_STATUS_GPCNT1_TO_MASK)) {
+        /* Disable clock counter by clearing source clock to 0 */
         base->CLKCFG &= ~EMVSIM_CLKCFG_GPCNT1_CLK_SEL_MASK;
         /* Disable and clear GPCNT interrupt */
         base->INT_MASK |= EMVSIM_INT_MASK_GPCNT1_IM_MASK;
@@ -620,31 +577,28 @@ void SMARTCARD_EMVSIM_IRQHandler(EMVSIM_Type *base, smartcard_context_t *context
     * CTRL register and PEF bit will not be asserted. When ANACK is not set,
     * PEF will be asserted.
     */
-    if (base->RX_STATUS & EMVSIM_RX_STATUS_PEF_MASK)
-    {
+    if (base->RX_STATUS & EMVSIM_RX_STATUS_PEF_MASK) {
         context->parityError = true;
         /* Clear parity error indication */
         base->RX_STATUS = EMVSIM_RX_STATUS_PEF_MASK;
     }
     /* Check if transmit NACK generation threshold was reached */
-    if ((base->TX_STATUS & EMVSIM_TX_STATUS_TNTE_MASK))
-    {
+    if ((base->TX_STATUS & EMVSIM_TX_STATUS_TNTE_MASK)) {
         context->txtCrossed = true;
     }
     /* Check if receive NACK generation threshold was reached */
-    if (base->RX_STATUS & EMVSIM_RX_STATUS_RTE_MASK)
-    {
+    if (base->RX_STATUS & EMVSIM_RX_STATUS_RTE_MASK) {
         context->rxtCrossed = true;
         /* Clear receiver NACK threshold interrupt status */
         base->RX_STATUS = EMVSIM_RX_STATUS_RTE_MASK;
-        if (context->xIsBusy)
-        { /* Unblock the caller */
+        if (context->xIsBusy) {
+            /* Unblock the caller */
             smartcard_emvsim_CompleteReceiveData(base, context);
         }
     }
     /* Check if a Character Wait Timer expired */
-    if ((!(base->INT_MASK & EMVSIM_INT_MASK_CWT_ERR_IM_MASK)) && (base->RX_STATUS & EMVSIM_RX_STATUS_CWT_ERR_MASK))
-    { /* Disable Character Wait Timer interrupt */
+    if ((!(base->INT_MASK & EMVSIM_INT_MASK_CWT_ERR_IM_MASK)) && (base->RX_STATUS & EMVSIM_RX_STATUS_CWT_ERR_MASK)) {
+        /* Disable Character Wait Timer interrupt */
         base->INT_MASK |= EMVSIM_INT_MASK_CWT_ERR_IM_MASK;
         /* Reset the counter */
         base->CTRL &= ~EMVSIM_CTRL_CWT_EN_MASK;
@@ -654,22 +608,21 @@ void SMARTCARD_EMVSIM_IRQHandler(EMVSIM_Type *base, smartcard_context_t *context
         base->CTRL |= EMVSIM_CTRL_CWT_EN_MASK;
         context->transferState = kSMARTCARD_IdleState;
 
-        if (kSMARTCARD_T0Transport == context->tType)
-        { /* Indicate WWT expired */
+        if (kSMARTCARD_T0Transport == context->tType) {
+            /* Indicate WWT expired */
             context->timersState.wwtExpired = true;
-        }
-        else
-        { /* Indicate CWT expired */
+        } else {
+            /* Indicate CWT expired */
             context->timersState.cwtExpired = true;
         }
-        if (context->xIsBusy)
-        { /* Terminate and unblock any caller */
+        if (context->xIsBusy) {
+            /* Terminate and unblock any caller */
             smartcard_emvsim_CompleteReceiveData(base, context);
         }
     }
     /* Check if a Block Wait Timer expired */
-    if ((!(base->INT_MASK & EMVSIM_INT_MASK_BWT_ERR_IM_MASK)) && (base->RX_STATUS & EMVSIM_RX_STATUS_BWT_ERR_MASK))
-    { /* Disable Block Wait Timer interrupt */
+    if ((!(base->INT_MASK & EMVSIM_INT_MASK_BWT_ERR_IM_MASK)) && (base->RX_STATUS & EMVSIM_RX_STATUS_BWT_ERR_MASK)) {
+        /* Disable Block Wait Timer interrupt */
         base->INT_MASK |= EMVSIM_INT_MASK_BWT_ERR_IM_MASK;
         /* Clear interrupt status flag */
         base->CTRL &= ~EMVSIM_CTRL_BWT_EN_MASK;
@@ -678,51 +631,47 @@ void SMARTCARD_EMVSIM_IRQHandler(EMVSIM_Type *base, smartcard_context_t *context
         /* Enable BWT timer */
         base->CTRL |= EMVSIM_CTRL_BWT_EN_MASK;
 
-        if (kSMARTCARD_T0Transport == context->tType)
-        { /* Indicate WWT expired */
+        if (kSMARTCARD_T0Transport == context->tType) {
+            /* Indicate WWT expired */
             context->timersState.wwtExpired = true;
-        }
-        else
-        { /* Indicate BWT expired */
+        } else {
+            /* Indicate BWT expired */
             context->timersState.bwtExpired = true;
         }
         /* Check if Wait Time Extension(WTX) was requested */
-        if (context->wtxRequested)
-        { /* Reset WTX to default */
+        if (context->wtxRequested) {
+            /* Reset WTX to default */
             SMARTCARD_EMVSIM_Control(base, context, kSMARTCARD_ResetWaitTimeMultiplier, 1);
         }
-        if (context->xIsBusy)
-        { /* Terminate and unblock any caller */
+        if (context->xIsBusy) {
+            /* Terminate and unblock any caller */
             smartcard_emvsim_CompleteReceiveData(base, context);
         }
     }
     /* Handle receive data register full interrupt, if rx data register full
     * interrupt is enabled AND there is data available. */
-    if ((!(base->INT_MASK & EMVSIM_INT_MASK_RX_DATA_IM_MASK)) && (base->RX_STATUS & EMVSIM_RX_STATUS_RX_DATA_MASK))
-    {
-        if (kSMARTCARD_WaitingForTSState == context->transferState)
-        {
+    if ((!(base->INT_MASK & EMVSIM_INT_MASK_RX_DATA_IM_MASK)) && (base->RX_STATUS & EMVSIM_RX_STATUS_RX_DATA_MASK)) {
+        if (kSMARTCARD_WaitingForTSState == context->transferState) {
             temp8 = (uint8_t)(base->RX_BUF);
 
-            if (base->CTRL & EMVSIM_CTRL_ICM_MASK)
-            { /* ICM mode still enabled, this is due to parity error */
+            if (base->CTRL & EMVSIM_CTRL_ICM_MASK) {
+                /* ICM mode still enabled, this is due to parity error */
                 context->transferState = kSMARTCARD_InvalidTSDetecetedState;
-            }
-            else
-            { /* Received valid TS */
+            } else {
+                /* Received valid TS */
                 context->transferState = kSMARTCARD_ReceivingState;
                 /* Get Data Convention form by reading IC bit of EMVSIM_CTRL register */
                 context->cardParams.convention =
                     (smartcard_card_convention_t)((base->CTRL & EMVSIM_CTRL_IC_MASK) >> EMVSIM_CTRL_IC_SHIFT);
             }
-            if (kSMARTCARD_InvalidTSDetecetedState == context->transferState)
-            { /* Stop initial character (TS) detection timer, ADT timer and it's interrupt to occur */
+            if (kSMARTCARD_InvalidTSDetecetedState == context->transferState) {
+                /* Stop initial character (TS) detection timer, ADT timer and it's interrupt to occur */
                 base->CLKCFG &= ~(EMVSIM_CLKCFG_GPCNT0_CLK_SEL_MASK | EMVSIM_CLKCFG_GPCNT1_CLK_SEL_MASK);
                 base->INT_MASK |= EMVSIM_INT_MASK_GPCNT0_IM_MASK;
                 smartcard_emvsim_CompleteReceiveData(base, context);
             }
-            if (kSMARTCARD_ReceivingState == context->transferState)
-            { /* Stop initial character (TS) detection timer and disable ATR duration timer to reset it */
+            if (kSMARTCARD_ReceivingState == context->transferState) {
+                /* Stop initial character (TS) detection timer and disable ATR duration timer to reset it */
                 base->CLKCFG &= ~(EMVSIM_CLKCFG_GPCNT0_CLK_SEL_MASK | EMVSIM_CLKCFG_GPCNT1_CLK_SEL_MASK);
                 /* Start ATR duration counter (restart GPCNT) */
                 base->CLKCFG |= EMVSIM_CLKCFG_GPCNT1_CLK_SEL(kEMVSIM_GPCTxClock);
@@ -743,8 +692,7 @@ void SMARTCARD_EMVSIM_IRQHandler(EMVSIM_Type *base, smartcard_context_t *context
         --context->xSize;
 
         if ((context->tType == kSMARTCARD_T1Transport) && (context->xSize > 0u) &&
-            (!(base->INT_MASK & EMVSIM_INT_MASK_BWT_ERR_IM_MASK)))
-        {
+                (!(base->INT_MASK & EMVSIM_INT_MASK_BWT_ERR_IM_MASK))) {
             /* And, enable CWT interrupt */
             context->timersState.cwtExpired = false;
             /* Clear interrupt status */
@@ -754,18 +702,16 @@ void SMARTCARD_EMVSIM_IRQHandler(EMVSIM_Type *base, smartcard_context_t *context
             base->INT_MASK = (base->INT_MASK & ~EMVSIM_INT_MASK_CWT_ERR_IM_MASK) | EMVSIM_INT_MASK_BWT_ERR_IM_MASK;
         }
         /* Check and see if this was the last byte received */
-        if (0u == context->xSize)
-        {
+        if (0u == context->xSize) {
             smartcard_emvsim_CompleteReceiveData(base, context);
         }
     }
     /* Handle transmit data register empty interrupt and
      * last data was shifted out of IO line */
     if ((!(base->INT_MASK & EMVSIM_INT_MASK_TC_IM_MASK)) &&
-        (base->TX_STATUS & (EMVSIM_TX_STATUS_TFE_MASK | EMVSIM_TX_STATUS_TCF_MASK)))
-    {
-        if (context->txtCrossed)
-        { /* Disable and Clear TNTE interrupt */
+            (base->TX_STATUS & (EMVSIM_TX_STATUS_TFE_MASK | EMVSIM_TX_STATUS_TCF_MASK))) {
+        if (context->txtCrossed) {
+            /* Disable and Clear TNTE interrupt */
             base->INT_MASK |= EMVSIM_INT_MASK_TNACK_IM_MASK;
             base->TX_STATUS = EMVSIM_TX_STATUS_TNTE_MASK;
             /* Unblock the caller */
@@ -773,12 +719,10 @@ void SMARTCARD_EMVSIM_IRQHandler(EMVSIM_Type *base, smartcard_context_t *context
             return;
         }
         /* Check to see if there are any more bytes to send */
-        if (context->xSize > 0u)
-        {
+        if (context->xSize > 0u) {
             temp8 = context->txFifoEntryCount;
 
-            while (temp8--)
-            {
+            while (temp8--) {
                 /* Transmit data and update TX size/buff */
                 base->TX_BUF = *(context->xBuff);
                 /* Clear TCF interrupt */
@@ -787,8 +731,7 @@ void SMARTCARD_EMVSIM_IRQHandler(EMVSIM_Type *base, smartcard_context_t *context
                 ++context->xBuff;
                 --context->xSize;
 
-                if (!context->xSize)
-                {
+                if (!context->xSize) {
                     smartcard_emvsim_CompleteSendData(base, context);
                     break;
                 }
@@ -802,15 +745,13 @@ status_t SMARTCARD_EMVSIM_Control(EMVSIM_Type *base,
                                   smartcard_control_t control,
                                   uint32_t param)
 {
-    if ((NULL == context))
-    {
+    if ((NULL == context)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
     uint32_t temp32 = 0u;
 
-    switch (control)
-    {
+    switch (control) {
         case kSMARTCARD_EnableADT:
             /* Do nothing, ADT counter has been loaded and started after reset
              * and during starting TS delay counter only. This is because, once
@@ -938,12 +879,9 @@ status_t SMARTCARD_EMVSIM_Control(EMVSIM_Type *base,
                      (11u + (((1 << context->cardParams.BWI) + 1u) * 960u * context->cardParams.currentD));
             base->BWT_VAL = temp32;
             /* Set flag to SMARTCARD context accordingly */
-            if (param > 1u)
-            {
+            if (param > 1u) {
                 context->wtxRequested = true;
-            }
-            else
-            {
+            } else {
                 context->wtxRequested = false;
             }
             base->CTRL |= EMVSIM_CTRL_BWT_EN_MASK;

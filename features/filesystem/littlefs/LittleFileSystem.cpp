@@ -26,38 +26,52 @@ extern "C" {
 static int lfs_toerror(int err)
 {
     switch (err) {
-        case LFS_ERR_OK:        return 0;
-        case LFS_ERR_IO:        return -EIO;
-        case LFS_ERR_NOENT:     return -ENOENT;
-        case LFS_ERR_EXIST:     return -EEXIST;
-        case LFS_ERR_NOTDIR:    return -ENOTDIR;
-        case LFS_ERR_ISDIR:     return -EISDIR;
-        case LFS_ERR_INVAL:     return -EINVAL;
-        case LFS_ERR_NOSPC:     return -ENOSPC;
-        case LFS_ERR_NOMEM:     return -ENOMEM;
-        default:                return err;
+        case LFS_ERR_OK:
+            return 0;
+        case LFS_ERR_IO:
+            return -EIO;
+        case LFS_ERR_NOENT:
+            return -ENOENT;
+        case LFS_ERR_EXIST:
+            return -EEXIST;
+        case LFS_ERR_NOTDIR:
+            return -ENOTDIR;
+        case LFS_ERR_ISDIR:
+            return -EISDIR;
+        case LFS_ERR_INVAL:
+            return -EINVAL;
+        case LFS_ERR_NOSPC:
+            return -ENOSPC;
+        case LFS_ERR_NOMEM:
+            return -ENOMEM;
+        default:
+            return err;
     }
 }
 
 static int lfs_fromflags(int flags)
 {
     return (
-        (((flags & 3) == O_RDONLY) ? LFS_O_RDONLY : 0) |
-        (((flags & 3) == O_WRONLY) ? LFS_O_WRONLY : 0) |
-        (((flags & 3) == O_RDWR)   ? LFS_O_RDWR   : 0) |
-        ((flags & O_CREAT)  ? LFS_O_CREAT  : 0) |
-        ((flags & O_EXCL)   ? LFS_O_EXCL   : 0) |
-        ((flags & O_TRUNC)  ? LFS_O_TRUNC  : 0) |
-        ((flags & O_APPEND) ? LFS_O_APPEND : 0));
+               (((flags & 3) == O_RDONLY) ? LFS_O_RDONLY : 0) |
+               (((flags & 3) == O_WRONLY) ? LFS_O_WRONLY : 0) |
+               (((flags & 3) == O_RDWR)   ? LFS_O_RDWR   : 0) |
+               ((flags & O_CREAT)  ? LFS_O_CREAT  : 0) |
+               ((flags & O_EXCL)   ? LFS_O_EXCL   : 0) |
+               ((flags & O_TRUNC)  ? LFS_O_TRUNC  : 0) |
+               ((flags & O_APPEND) ? LFS_O_APPEND : 0));
 }
 
 static int lfs_fromwhence(int whence)
 {
     switch (whence) {
-        case SEEK_SET: return LFS_SEEK_SET;
-        case SEEK_CUR: return LFS_SEEK_CUR;
-        case SEEK_END: return LFS_SEEK_END;
-        default: return whence;
+        case SEEK_SET:
+            return LFS_SEEK_SET;
+        case SEEK_CUR:
+            return LFS_SEEK_CUR;
+        case SEEK_END:
+            return LFS_SEEK_END;
+        default:
+            return whence;
     }
 }
 
@@ -65,39 +79,47 @@ static int lfs_tomode(int type)
 {
     int mode = S_IRWXU | S_IRWXG | S_IRWXO;
     switch (type) {
-        case LFS_TYPE_DIR: return mode | S_IFDIR;
-        case LFS_TYPE_REG: return mode | S_IFREG;
-        default: return 0;
+        case LFS_TYPE_DIR:
+            return mode | S_IFDIR;
+        case LFS_TYPE_REG:
+            return mode | S_IFREG;
+        default:
+            return 0;
     }
 }
 
 static int lfs_totype(int type)
 {
     switch (type) {
-        case LFS_TYPE_DIR: return DT_DIR;
-        case LFS_TYPE_REG: return DT_REG;
-        default: return DT_UNKNOWN;
+        case LFS_TYPE_DIR:
+            return DT_DIR;
+        case LFS_TYPE_REG:
+            return DT_REG;
+        default:
+            return DT_UNKNOWN;
     }
 }
 
 
 ////// Block device operations //////
 static int lfs_bd_read(const struct lfs_config *c, lfs_block_t block,
-        lfs_off_t off, void *buffer, lfs_size_t size) {
+                       lfs_off_t off, void *buffer, lfs_size_t size)
+{
     BlockDevice *bd = (BlockDevice *)c->context;
-    return bd->read(buffer, block*c->block_size + off, size);
+    return bd->read(buffer, block * c->block_size + off, size);
 }
 
 static int lfs_bd_prog(const struct lfs_config *c, lfs_block_t block,
-        lfs_off_t off, const void *buffer, lfs_size_t size) {
+                       lfs_off_t off, const void *buffer, lfs_size_t size)
+{
     BlockDevice *bd = (BlockDevice *)c->context;
-    return bd->program(buffer, block*c->block_size + off, size);
+    return bd->program(buffer, block * c->block_size + off, size);
 }
 
 static int lfs_bd_erase(const struct lfs_config *c, lfs_block_t block)
 {
     BlockDevice *bd = (BlockDevice *)c->context;
-    return bd->erase(block*c->block_size, c->block_size);
+    return bd->erase(block * c->block_size, c->block_size);
 }
 
 static int lfs_bd_sync(const struct lfs_config *c)
@@ -110,19 +132,21 @@ static int lfs_bd_sync(const struct lfs_config *c)
 
 // Filesystem implementation (See LittleFileSystem.h)
 LittleFileSystem::LittleFileSystem(const char *name, BlockDevice *bd,
-        lfs_size_t read_size, lfs_size_t prog_size,
-        lfs_size_t block_size, lfs_size_t lookahead)
-        : FileSystem(name)
-        , _read_size(read_size)
-        , _prog_size(prog_size)
-        , _block_size(block_size)
-        , _lookahead(lookahead) {
+                                   lfs_size_t read_size, lfs_size_t prog_size,
+                                   lfs_size_t block_size, lfs_size_t lookahead)
+    : FileSystem(name)
+    , _read_size(read_size)
+    , _prog_size(prog_size)
+    , _block_size(block_size)
+    , _lookahead(lookahead)
+{
     if (bd) {
         mount(bd);
     }
 }
 
-LittleFileSystem::~LittleFileSystem() {
+LittleFileSystem::~LittleFileSystem()
+{
     // nop if unmounted
     unmount();
 }
@@ -158,7 +182,7 @@ int LittleFileSystem::mount(BlockDevice *bd)
         _config.block_size = _block_size;
     }
     _config.block_count = bd->size() / _config.block_size;
-    _config.lookahead = 32 * ((_config.block_count+31)/32);
+    _config.lookahead = 32 * ((_config.block_count + 31) / 32);
     if (_config.lookahead > _lookahead) {
         _config.lookahead = _lookahead;
     }
@@ -190,17 +214,18 @@ int LittleFileSystem::unmount()
 
         _bd = NULL;
     }
-    
+
     LFS_INFO("unmount -> %d", 0);
     _mutex.unlock();
     return 0;
 }
 
 int LittleFileSystem::format(BlockDevice *bd,
-        lfs_size_t read_size, lfs_size_t prog_size,
-        lfs_size_t block_size, lfs_size_t lookahead) {
+                             lfs_size_t read_size, lfs_size_t prog_size,
+                             lfs_size_t block_size, lfs_size_t lookahead)
+{
     LFS_INFO("format(%p, %ld, %ld, %ld, %ld)",
-            bd, read_size, prog_size, block_size, lookahead);
+             bd, read_size, prog_size, block_size, lookahead);
     int err = bd->init();
     if (err) {
         LFS_INFO("format -> %d", err);
@@ -209,7 +234,7 @@ int LittleFileSystem::format(BlockDevice *bd,
 
     lfs_t _lfs;
     struct lfs_config _config;
-    
+
     memset(&_config, 0, sizeof(_config));
     _config.context = bd;
     _config.read  = lfs_bd_read;
@@ -229,7 +254,7 @@ int LittleFileSystem::format(BlockDevice *bd,
         _config.block_size = block_size;
     }
     _config.block_count = bd->size() / _config.block_size;
-    _config.lookahead = 32 * ((_config.block_count+31)/32);
+    _config.lookahead = 32 * ((_config.block_count + 31) / 32);
     if (_config.lookahead > lookahead) {
         _config.lookahead = lookahead;
     }
@@ -274,7 +299,7 @@ int LittleFileSystem::reformat(BlockDevice *bd)
     }
 
     int err = LittleFileSystem::format(bd,
-            _read_size, _prog_size, _block_size, _lookahead);
+                                       _read_size, _prog_size, _block_size, _lookahead);
     if (err) {
         LFS_INFO("reformat -> %d", err);
         _mutex.unlock();

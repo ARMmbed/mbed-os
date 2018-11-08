@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -64,8 +64,7 @@ extern "C" {
 
 /**@brief Events that can come from the GATT Server Cache Manager module.
  */
-typedef enum
-{
+typedef enum {
     GSCM_EVT_LOCAL_DB_CACHE_STORED,  /**< The persistent cache for the local database has been updated with provided values, for one peer. */
     GSCM_EVT_LOCAL_DB_CACHE_UPDATED, /**< The persistent cache for the local database has been updated with values from the SoftDevice, for one peer. */
     GSCM_EVT_SC_STATE_STORED,        /**< The service changed pending flag in persistent storage has been updated, for one peer. */
@@ -74,18 +73,14 @@ typedef enum
 
 /**@brief Structure containing an event from the GSCM module.
  */
-typedef struct
-{
+typedef struct {
     gscm_evt_id_t evt_id;          /**< The type of event this is. */
     pm_peer_id_t  peer_id;         /**< The peer ID this event pertains to. */
-    union
-    {
-        struct
-        {
+    union {
+        struct {
             uint16_t conn_handle;  /**< The connection this event pertains to. */
         } local_db_cache_updated;
-        struct
-        {
+        struct {
             bool state;            /**< The newly stored state of the Service Changed pending flag. */
         } sc_state_stored;
     } params;                      /**< Event parameters specific to certain event types. */
@@ -97,7 +92,7 @@ typedef struct
  * @param[in]  peer  The id of the peer the event pertains to.
  * @param[in]  flags   The data the event pertains to.
  */
-typedef void (*gscm_evt_handler_t)(gscm_evt_t const * p_event);
+typedef void (*gscm_evt_handler_t)(gscm_evt_t const *p_event);
 
 
 /**@brief Function for initializing the GATT Server Cache Manager module.
@@ -160,7 +155,7 @@ ret_code_t gscm_local_db_cache_apply(uint16_t conn_handle);
  * @retval NRF_ERROR_INVALID_STATE  Module is not initialized.
  * @return An unexpected return value from an internal function call.
  */
-ret_code_t gscm_local_db_cache_set(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t * p_local_db);
+ret_code_t gscm_local_db_cache_set(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t *p_local_db);
 
 
 /**@brief Function for retrieving values in the local database cache.
@@ -175,7 +170,7 @@ ret_code_t gscm_local_db_cache_set(pm_peer_id_t peer_id, pm_peer_data_local_gatt
  * @retval NRF_ERROR_NULL           p_local_db was NULL.
  * @retval NRF_ERROR_INVALID_STATE  Module is not initialized.
  */
-ret_code_t gscm_local_db_cache_get(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t * p_local_db);
+ret_code_t gscm_local_db_cache_get(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t *p_local_db);
 
 
 /**@brief Function for storing the fact that the local database has changed, for all currently

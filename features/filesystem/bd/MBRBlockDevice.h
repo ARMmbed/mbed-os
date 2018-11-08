@@ -83,15 +83,14 @@ enum {
  *  FATFileSystem fat("fat", &part1);
  *  @endcode
  */
-class MBRBlockDevice : public BlockDevice
-{
+class MBRBlockDevice : public BlockDevice {
 public:
     /** Format the MBR to contain the following partition
      *
      *  @param bd       Block device to partition
      *  @param part     Partition to use, 1-4
      *  @param type     8-bit partition type to identitfy partition's contents
-     *  @param start    Start block address to map to block 0 of partition, 
+     *  @param start    Start block address to map to block 0 of partition,
      *                  negative addresses are calculated from the end of the
      *                  underlying block devices. Block 0 is implicitly ignored
      *                  from the range to store the MBR.
@@ -105,7 +104,7 @@ public:
      *  @param bd       Block device to partition
      *  @param part     Partition to use, 1-4
      *  @param type     8-bit partition type to identitfy partition's contents
-     *  @param start    Start block address to map to block 0 of partition, 
+     *  @param start    Start block address to map to block 0 of partition,
      *                  negative addresses are calculated from the end of the
      *                  underlying block devices. Block 0 is implicitly ignored
      *                  from the range to store the MBR.

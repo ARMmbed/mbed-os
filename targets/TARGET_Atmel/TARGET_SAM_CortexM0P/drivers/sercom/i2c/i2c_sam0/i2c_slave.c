@@ -426,7 +426,7 @@ enum status_code i2c_slave_write_packet_wait(
         }
 
         if (i2c_hw->STATUS.reg & SERCOM_I2CS_STATUS_RXNACK &&
-                length !=0) {
+                length != 0) {
             /* NACK from master, abort */
             /* Release line */
             i2c_hw->CTRLB.reg |= SERCOM_I2CS_CTRLB_CMD(0x02);

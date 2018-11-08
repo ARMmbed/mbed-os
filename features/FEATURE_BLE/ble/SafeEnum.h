@@ -111,7 +111,7 @@ struct SafeEnum {
     /**
      * Construction of an enumeration value.
      */
-	SafeEnum(LayoutType value) : _value(value) { }
+    SafeEnum(LayoutType value) : _value(value) { }
 
     /**
      * Equal to operator for SafeEnum instances.
@@ -122,9 +122,10 @@ struct SafeEnum {
      * @return true if the inner value of lhs and rhs are equal and false
      * otherwise.
      */
-	friend bool operator==(SafeEnum lhs, SafeEnum rhs) {
-		return lhs._value == rhs._value;
-	}
+    friend bool operator==(SafeEnum lhs, SafeEnum rhs)
+    {
+        return lhs._value == rhs._value;
+    }
 
     /**
      * Not equal to operator for SafeEnum instances.
@@ -135,19 +136,21 @@ struct SafeEnum {
      * @return true if the inner value of lhs and rhs are not equal and false
      * otherwise.
      */
-	friend bool operator!=(SafeEnum lhs, SafeEnum rhs) {
-		return !(lhs == rhs);
-	}
+    friend bool operator!=(SafeEnum lhs, SafeEnum rhs)
+    {
+        return !(lhs == rhs);
+    }
 
     /**
      * Explicit access to the inner value of the SafeEnum instance.
      */
-	LayoutType value() const {
-		return _value;
-	}
+    LayoutType value() const
+    {
+        return _value;
+    }
 
 private:
-	LayoutType _value;
+    LayoutType _value;
 };
 
 } // namespace ble

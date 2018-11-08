@@ -31,8 +31,7 @@ class USBEndpoint;
 /**
  * A class to use a USB Hub
  */
-class USBHostHub : public IUSBEnumerator
-{
+class USBHostHub : public IUSBEnumerator {
 public:
     /**
     * Constructor
@@ -52,7 +51,7 @@ public:
      * @param dev device to connect
      * @return true if connection was successful
      */
-    bool connect(USBDeviceConnected * dev);
+    bool connect(USBDeviceConnected *dev);
 
     /**
     * Automatically called by USBHost when a device
@@ -60,7 +59,7 @@ public:
     *
     * @param dev device connected
     */
-    void deviceConnected(USBDeviceConnected * dev);
+    void deviceConnected(USBDeviceConnected *dev);
 
     /**
     * Automatically called by USBHost when a device
@@ -68,7 +67,7 @@ public:
     *
     * @param dev device disconnected
     */
-    void deviceDisconnected(USBDeviceConnected * dev);
+    void deviceDisconnected(USBDeviceConnected *dev);
 
     /**
     * Rest a specific port
@@ -82,7 +81,7 @@ public:
     *
     * @param host host instance
     */
-    void setHost(USBHost * host);
+    void setHost(USBHost *host);
 
     /**
     * Called by USBhost when a hub has been disconnected
@@ -96,10 +95,10 @@ protected:
     virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
 
 private:
-    USBHost * host;
-    USBDeviceConnected * dev;
+    USBHost *host;
+    USBDeviceConnected *dev;
     bool dev_connected;
-    USBEndpoint * int_in;
+    USBEndpoint *int_in;
     uint8_t nb_port;
     uint8_t hub_characteristics;
 
@@ -114,7 +113,7 @@ private:
     void clearPortFeature(uint32_t feature, uint8_t port);
     uint32_t getPortStatus(uint8_t port);
 
-    USBDeviceConnected * device_children[MAX_HUB_PORT];
+    USBDeviceConnected *device_children[MAX_HUB_PORT];
 
     void init();
     void disconnect();

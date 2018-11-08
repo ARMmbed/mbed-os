@@ -76,11 +76,11 @@ void PRS_SourceSignalSet(unsigned int ch,
                          uint32_t signal,
                          PRS_Edge_TypeDef edge)
 {
-  EFM_ASSERT(ch < PRS_CHAN_COUNT);
+    EFM_ASSERT(ch < PRS_CHAN_COUNT);
 
-  PRS->CH[ch].CTRL = (source & _PRS_CH_CTRL_SOURCESEL_MASK)
-                     | (signal & _PRS_CH_CTRL_SIGSEL_MASK)
-                     | (uint32_t)edge;
+    PRS->CH[ch].CTRL = (source & _PRS_CH_CTRL_SOURCESEL_MASK)
+                       | (signal & _PRS_CH_CTRL_SIGSEL_MASK)
+                       | (uint32_t)edge;
 }
 
 #if defined(PRS_CH_CTRL_ASYNC)
@@ -116,12 +116,12 @@ void PRS_SourceAsyncSignalSet(unsigned int ch,
                               uint32_t source,
                               uint32_t signal)
 {
-  EFM_ASSERT(ch < PRS_CHAN_COUNT);
+    EFM_ASSERT(ch < PRS_CHAN_COUNT);
 
-  PRS->CH[ch].CTRL = PRS_CH_CTRL_ASYNC
-                     | (source & _PRS_CH_CTRL_SOURCESEL_MASK)
-                     | (signal & _PRS_CH_CTRL_SIGSEL_MASK)
-                     | PRS_CH_CTRL_EDSEL_OFF;
+    PRS->CH[ch].CTRL = PRS_CH_CTRL_ASYNC
+                       | (source & _PRS_CH_CTRL_SOURCESEL_MASK)
+                       | (signal & _PRS_CH_CTRL_SIGSEL_MASK)
+                       | PRS_CH_CTRL_EDSEL_OFF;
 }
 #endif
 

@@ -68,7 +68,7 @@
 *    if(fnet_init(&init_params) != FNET_ERR)
 *    {
 *        // Initialize Network Interfaces.
-	     ,,,
+         ,,,
 *        // Place your code here.
 *    }
 *    else
@@ -91,12 +91,11 @@ typedef void *fnet_mutex_t;
  * It should be defined by application if @ref FNET_CFG_MULTITHREADING is enabled.
  * @see FNET_CFG_MULTITHREADING, fnet_init()
  ******************************************************************************/
-typedef struct
-{
-    fnet_return_t (*mutex_init)( fnet_mutex_t * ); /**< @brief Create a new mutex. Parameter is pointer to the mutex to create. */
-    void (*mutex_free)( fnet_mutex_t * ); /**< @brief  Delete a mutex. Parameter is pointer to the mutex to delete. */
-    void (*mutex_lock)( fnet_mutex_t * ); /**< @brief  Lock a mutex. Parameter is the mutex to lock. */
-    void (*mutex_unlock)( fnet_mutex_t * ); /**< @brief Unlock a mutex. Parameter is the mutex to unlock.  */
+typedef struct {
+    fnet_return_t (*mutex_init)(fnet_mutex_t *);   /**< @brief Create a new mutex. Parameter is pointer to the mutex to create. */
+    void (*mutex_free)(fnet_mutex_t *);   /**< @brief  Delete a mutex. Parameter is pointer to the mutex to delete. */
+    void (*mutex_lock)(fnet_mutex_t *);   /**< @brief  Lock a mutex. Parameter is the mutex to lock. */
+    void (*mutex_unlock)(fnet_mutex_t *);   /**< @brief Unlock a mutex. Parameter is the mutex to unlock.  */
 } fnet_mutex_api_t;
 #endif /* FNET_CFG_MULTITHREADING */
 
@@ -104,8 +103,7 @@ typedef struct
 /**************************************************************************/ /*!
  * @brief Input parameters structure for @ref fnet_init()
  ******************************************************************************/
-struct fnet_init_params
-{
+struct fnet_init_params {
     void                        *netheap_ptr;   /**< @brief Pointer to the FNET heap buffer. @n
                                                 * @n
                                                 * The FNET uses this heap buffer for the internal
@@ -148,7 +146,7 @@ extern "C" {
  * functions and services.
  *
  ******************************************************************************/
-fnet_return_t fnet_init( struct fnet_init_params *init_params );
+fnet_return_t fnet_init(struct fnet_init_params *init_params);
 
 /***************************************************************************/ /*!
  *

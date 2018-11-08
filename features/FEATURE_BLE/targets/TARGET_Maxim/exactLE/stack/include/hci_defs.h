@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   hci_defs.h
- *        
+ *
  *  \brief  HCI constants and definitions from the Bluetooth specification.
  *
  *          $Date: 2012-06-26 21:53:53 -0700 (Tue, 26 Jun 2012) $
  *          $Revision: 337 $
- *  
+ *
  *  Copyright (c) 2009-2016 ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: LicenseRef-PBL

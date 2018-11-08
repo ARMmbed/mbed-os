@@ -62,49 +62,49 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
             break;
 
         case BLE_GATTC_EVT_READ_RSP: {
-                GattReadCallbackParams response = {
-                    /* .connHandle = */ p_ble_evt->evt.gattc_evt.conn_handle,
-                    /* .handle     = */ p_ble_evt->evt.gattc_evt.params.read_rsp.handle,
-                    /* .offset     = */ p_ble_evt->evt.gattc_evt.params.read_rsp.offset,
-                    /* .len        = */ p_ble_evt->evt.gattc_evt.params.read_rsp.len,
-                    /* .data       = */ p_ble_evt->evt.gattc_evt.params.read_rsp.data,
-                };
-                gattClient.processReadResponse(&response);
-            }
-            break;
+            GattReadCallbackParams response = {
+                /* .connHandle = */ p_ble_evt->evt.gattc_evt.conn_handle,
+                /* .handle     = */ p_ble_evt->evt.gattc_evt.params.read_rsp.handle,
+                /* .offset     = */ p_ble_evt->evt.gattc_evt.params.read_rsp.offset,
+                /* .len        = */ p_ble_evt->evt.gattc_evt.params.read_rsp.len,
+                /* .data       = */ p_ble_evt->evt.gattc_evt.params.read_rsp.data,
+            };
+            gattClient.processReadResponse(&response);
+        }
+        break;
 
         case BLE_GATTC_EVT_WRITE_RSP: {
-                GattWriteCallbackParams response = {
-                    /* .connHandle = */ p_ble_evt->evt.gattc_evt.conn_handle,
-                    /* .handle     = */ p_ble_evt->evt.gattc_evt.params.write_rsp.handle,
-                    /* .writeOp    = */ (GattWriteCallbackParams::WriteOp_t)(p_ble_evt->evt.gattc_evt.params.write_rsp.write_op),
-                    /* .offset     = */ p_ble_evt->evt.gattc_evt.params.write_rsp.offset,
-                    /* .len        = */ p_ble_evt->evt.gattc_evt.params.write_rsp.len,
-                    /* .data       = */ p_ble_evt->evt.gattc_evt.params.write_rsp.data,
-                };
-                gattClient.processWriteResponse(&response);
-            }
-            break;
+            GattWriteCallbackParams response = {
+                /* .connHandle = */ p_ble_evt->evt.gattc_evt.conn_handle,
+                /* .handle     = */ p_ble_evt->evt.gattc_evt.params.write_rsp.handle,
+                /* .writeOp    = */ (GattWriteCallbackParams::WriteOp_t)(p_ble_evt->evt.gattc_evt.params.write_rsp.write_op),
+                /* .offset     = */ p_ble_evt->evt.gattc_evt.params.write_rsp.offset,
+                /* .len        = */ p_ble_evt->evt.gattc_evt.params.write_rsp.len,
+                /* .data       = */ p_ble_evt->evt.gattc_evt.params.write_rsp.data,
+            };
+            gattClient.processWriteResponse(&response);
+        }
+        break;
 
         case BLE_GATTC_EVT_HVX: {
-                GattHVXCallbackParams params = {
-                    /* connHandle = */ p_ble_evt->evt.gattc_evt.conn_handle,
-                    /* handle     = */ p_ble_evt->evt.gattc_evt.params.hvx.handle,
-                    /* type       = */ static_cast<HVXType_t>(p_ble_evt->evt.gattc_evt.params.hvx.type),
-                    /* len        = */ p_ble_evt->evt.gattc_evt.params.hvx.len,
-                    /* data       = */ p_ble_evt->evt.gattc_evt.params.hvx.data
-                };
+            GattHVXCallbackParams params = {
+                /* connHandle = */ p_ble_evt->evt.gattc_evt.conn_handle,
+                /* handle     = */ p_ble_evt->evt.gattc_evt.params.hvx.handle,
+                /* type       = */ static_cast<HVXType_t>(p_ble_evt->evt.gattc_evt.params.hvx.type),
+                /* len        = */ p_ble_evt->evt.gattc_evt.params.hvx.len,
+                /* data       = */ p_ble_evt->evt.gattc_evt.params.hvx.data
+            };
 
-                gattClient.processHVXEvent(&params);
-            }
-            break;
+            gattClient.processHVXEvent(&params);
+        }
+        break;
 
         case BLE_GATTC_EVT_DESC_DISC_RSP: {
             uint16_t conn_handle = p_ble_evt->evt.gattc_evt.conn_handle;
             uint16_t status = p_ble_evt->evt.gattc_evt.gatt_status;
-            const ble_gattc_evt_desc_disc_rsp_t& discovered_descriptors = p_ble_evt->evt.gattc_evt.params.desc_disc_rsp;
+            const ble_gattc_evt_desc_disc_rsp_t &discovered_descriptors = p_ble_evt->evt.gattc_evt.params.desc_disc_rsp;
 
-            switch(status) {
+            switch (status) {
                 case BLE_GATT_STATUS_SUCCESS:
                     characteristicDescriptorDiscoverer.process(
                         conn_handle,
@@ -119,7 +119,8 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                     characteristicDescriptorDiscoverer.terminate(conn_handle, BLE_ERROR_UNSPECIFIED);
                     break;
             }
-        }   break;
+        }
+        break;
     }
 
     sdSingleton.progressCharacteristicDiscovery();

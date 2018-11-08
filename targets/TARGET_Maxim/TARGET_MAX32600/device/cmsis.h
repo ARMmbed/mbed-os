@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #ifndef MBED_CMSIS_H
 #define MBED_CMSIS_H
 

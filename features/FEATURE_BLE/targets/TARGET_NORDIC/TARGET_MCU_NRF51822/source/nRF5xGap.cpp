@@ -16,9 +16,9 @@
 
 #include "nRF5xn.h"
 #ifdef YOTTA_CFG_MBED_OS
-    #include "mbed-drivers/mbed.h"
+#include "mbed-drivers/mbed.h"
 #else
-    #include "mbed.h"
+#include "mbed.h"
 #endif
 #include "ble/BLE.h"
 
@@ -26,7 +26,8 @@
 #include "ble_advdata.h"
 #include "ble_hci.h"
 
-void radioNotificationStaticCallback(bool param) {
+void radioNotificationStaticCallback(bool param)
+{
     nRF5xGap &gap = (nRF5xGap &) nRF5xn::Instance(BLE::DEFAULT_INSTANCE).getGap();
     gap.processRadioNotificationEvent(param);
 }
@@ -97,16 +98,16 @@ ble_error_t nRF5xGap::setAdvertisingData(const GapAdvertisingData &advData, cons
 
     /* Send advertising data! */
     ASSERT_TRUE(ERROR_NONE ==
-           sd_ble_gap_adv_data_set(advData.getPayload(),
-                                   advData.getPayloadLen(),
-                                   scanResponse.getPayload(),
-                                   scanResponse.getPayloadLen()),
-           BLE_ERROR_PARAM_OUT_OF_RANGE);
+                sd_ble_gap_adv_data_set(advData.getPayload(),
+                                        advData.getPayloadLen(),
+                                        scanResponse.getPayload(),
+                                        scanResponse.getPayloadLen()),
+                BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     /* Make sure the GAP Service appearance value is aligned with the
      *appearance from GapAdvertisingData */
     ASSERT_TRUE(ERROR_NONE == sd_ble_gap_appearance_set(advData.getAppearance()),
-           BLE_ERROR_PARAM_OUT_OF_RANGE);
+                BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     /* ToDo: Perform some checks on the payload, for example the Scan Response can't */
     /* contains a flags AD type, etc. */
@@ -145,12 +146,12 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
     if (params.getAdvertisingType() == GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED) {
         /* Min delay is slightly longer for unconnectable devices */
         if ((params.getIntervalInADVUnits() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON) ||
-            (params.getIntervalInADVUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
+                (params.getIntervalInADVUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
     } else {
         if ((params.getIntervalInADVUnits() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN) ||
-            (params.getIntervalInADVUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
+                (params.getIntervalInADVUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
     }
@@ -164,7 +165,7 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 
     /* Check timeout for other advertising types */
     if ((params.getAdvertisingType() != GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) &&
-        (params.getTimeout() > GapAdvertisingParams::GAP_ADV_PARAMS_TIMEOUT_MAX)) {
+            (params.getTimeout() > GapAdvertisingParams::GAP_ADV_PARAMS_TIMEOUT_MAX)) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -239,7 +240,8 @@ ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xGap::stopScan(void) {
+ble_error_t nRF5xGap::stopScan(void)
+{
     if (sd_ble_gap_scan_stop() == NRF_SUCCESS) {
         return BLE_ERROR_NONE;
     }
@@ -388,8 +390,8 @@ ble_error_t nRF5xGap::disconnect(DisconnectionReason_t reason)
 ble_error_t nRF5xGap::getPreferredConnectionParams(ConnectionParams_t *params)
 {
     ASSERT_INT(NRF_SUCCESS,
-        sd_ble_gap_ppcp_get(reinterpret_cast<ble_gap_conn_params_t *>(params)),
-        BLE_ERROR_PARAM_OUT_OF_RANGE);
+               sd_ble_gap_ppcp_get(reinterpret_cast<ble_gap_conn_params_t *>(params)),
+               BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     return BLE_ERROR_NONE;
 }
@@ -397,8 +399,8 @@ ble_error_t nRF5xGap::getPreferredConnectionParams(ConnectionParams_t *params)
 ble_error_t nRF5xGap::setPreferredConnectionParams(const ConnectionParams_t *params)
 {
     ASSERT_INT(NRF_SUCCESS,
-        sd_ble_gap_ppcp_set(reinterpret_cast<const ble_gap_conn_params_t *>(params)),
-        BLE_ERROR_PARAM_OUT_OF_RANGE);
+               sd_ble_gap_ppcp_set(reinterpret_cast<const ble_gap_conn_params_t *>(params)),
+               BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     return BLE_ERROR_NONE;
 }
@@ -407,7 +409,7 @@ ble_error_t nRF5xGap::updateConnectionParams(Handle_t handle, const ConnectionPa
 {
     uint32_t rc;
 
-    rc = sd_ble_gap_conn_param_update(handle, reinterpret_cast<ble_gap_conn_params_t *>(const_cast<ConnectionParams_t*>(newParams)));
+    rc = sd_ble_gap_conn_param_update(handle, reinterpret_cast<ble_gap_conn_params_t *>(const_cast<ConnectionParams_t *>(newParams)));
     if (rc == NRF_SUCCESS) {
         return BLE_ERROR_NONE;
     } else {
@@ -490,18 +492,13 @@ ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
        When using Random Private addresses, the cycle mode must be Auto.
        In auto mode, the given address is ignored.
     */
-    if ((type == BLEProtocol::AddressType::PUBLIC) || (type == BLEProtocol::AddressType::RANDOM_STATIC))
-    {
+    if ((type == BLEProtocol::AddressType::PUBLIC) || (type == BLEProtocol::AddressType::RANDOM_STATIC)) {
         cycle_mode = BLE_GAP_ADDR_CYCLE_MODE_NONE;
         memcpy(dev_addr.addr, address, ADDR_LEN);
-    }
-    else if ((type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE) || (type == BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE))
-    {
+    } else if ((type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE) || (type == BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE)) {
         cycle_mode = BLE_GAP_ADDR_CYCLE_MODE_AUTO;
         // address is ignored when in auto mode
-    }
-    else
-    {
+    } else {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -587,7 +584,7 @@ void nRF5xGap::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *co
 {
     static const int8_t permittedTxValues[] = {
         -40, -30, -20, -16, -12, -8, -4, 0, 4
-    };
+        };
 
     *valueArrayPP = permittedTxValues;
     *countP = sizeof(permittedTxValues) / sizeof(int8_t);
@@ -865,7 +862,7 @@ ble_error_t nRF5xGap::generateStackWhitelist(ble_gap_whitelist_t &whitelist)
     ble_gap_addr_t      *addressPtr[1];
     ble_gap_irk_t       *irkPtr[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
 
-    nRF5xSecurityManager& securityManager = (nRF5xSecurityManager&) nRF5xn::Instance(0).getSecurityManager();
+    nRF5xSecurityManager &securityManager = (nRF5xSecurityManager &) nRF5xn::Instance(0).getSecurityManager();
 
     if (securityManager.hasInitialized()) {
         /* We do not care about the addresses, set the count to 0 */

@@ -49,8 +49,7 @@
 #define MAX_RESPONSE_LEN        7                                               /**< Maximum length (in bytes) of the response to a Control Point command. */
 #define MAX_NOTIF_BUFFER_LEN    MAX(MAX_PKTS_RCPT_NOTIF_LEN, MAX_RESPONSE_LEN)  /**< Maximum length (in bytes) of the buffer needed by DFU Service while sending notifications to peer. */
 
-enum
-{
+enum {
     OP_CODE_START_DFU          = 1,                                             /**< Value of the Op code field for 'Start DFU' command.*/
     OP_CODE_RECEIVE_INIT       = 2,                                             /**< Value of the Op code field for 'Initialize DFU parameters' command.*/
     OP_CODE_RECEIVE_FW         = 3,                                             /**< Value of the Op code field for 'Receive firmware image' command.*/
@@ -72,7 +71,7 @@ static uint8_t  m_notif_buffer[MAX_NOTIF_BUFFER_LEN];                           
  *
  * @return      NRF_SUCCESS on success. Otherwise an error code.
  */
-static uint32_t dfu_pkt_char_add(ble_dfu_t * const p_dfu)
+static uint32_t dfu_pkt_char_add(ble_dfu_t *const p_dfu)
 {
     ble_gatts_char_md_t char_md;
     ble_gatts_attr_t    attr_char_value;
@@ -123,7 +122,7 @@ static uint32_t dfu_pkt_char_add(ble_dfu_t * const p_dfu)
  *
  * @return      NRF_SUCCESS on success. Otherwise an error code.
  */
-static uint32_t dfu_rev_char_add(ble_dfu_t * const p_dfu, ble_dfu_init_t const * const p_dfu_init)
+static uint32_t dfu_rev_char_add(ble_dfu_t *const p_dfu, ble_dfu_init_t const *const p_dfu_init)
 {
     ble_gatts_char_md_t char_md;
     ble_gatts_attr_t    attr_char_value;
@@ -174,7 +173,7 @@ static uint32_t dfu_rev_char_add(ble_dfu_t * const p_dfu, ble_dfu_init_t const *
  *
  * @return      NRF_SUCCESS on success. Otherwise an error code.
  */
-static uint32_t dfu_ctrl_pt_add(ble_dfu_t * const p_dfu)
+static uint32_t dfu_ctrl_pt_add(ble_dfu_t *const p_dfu)
 {
     ble_gatts_char_md_t char_md;
     ble_gatts_attr_t    attr_char_value;
@@ -225,7 +224,7 @@ static uint32_t dfu_ctrl_pt_add(ble_dfu_t * const p_dfu)
  * @param[in] p_dfu     DFU Service Structure.
  * @param[in] p_ble_evt Pointer to the event received from BLE stack.
  */
-static void on_connect(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
+static void on_connect(ble_dfu_t *p_dfu, ble_evt_t *p_ble_evt)
 {
     p_dfu->conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
@@ -241,7 +240,7 @@ static void on_connect(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
  * @return    True if the CCCD of DFU Control Point characteristic is configured for Notification.
  *            False otherwise.
  */
-static bool is_cccd_configured(ble_dfu_t * p_dfu)
+static bool is_cccd_configured(ble_dfu_t *p_dfu)
 {
     // Check if the CCCDs are configured.
     uint8_t  cccd_val_buf[BLE_CCCD_VALUE_LEN];
@@ -258,10 +257,8 @@ static bool is_cccd_configured(ble_dfu_t * p_dfu)
     uint32_t err_code = sd_ble_gatts_value_get(p_dfu->conn_handle,
                                                p_dfu->dfu_ctrl_pt_handles.cccd_handle,
                                                &gatts_value);
-    if (err_code != NRF_SUCCESS)
-    {
-        if (p_dfu->error_handler != NULL)
-        {
+    if (err_code != NRF_SUCCESS) {
+        if (p_dfu->error_handler != NULL) {
             p_dfu->error_handler(err_code);
         }
         return false;
@@ -278,44 +275,38 @@ static bool is_cccd_configured(ble_dfu_t * p_dfu)
  *
  * @return    NRF_SUCCESS on successful processing of control point write. Otherwise an error code.
  */
-static uint32_t on_ctrl_pt_write(ble_dfu_t * p_dfu, ble_gatts_evt_write_t * p_ble_write_evt)
+static uint32_t on_ctrl_pt_write(ble_dfu_t *p_dfu, ble_gatts_evt_write_t *p_ble_write_evt)
 {
     ble_gatts_rw_authorize_reply_params_t write_authorize_reply;
 
     write_authorize_reply.type = BLE_GATTS_AUTHORIZE_TYPE_WRITE;
 
-    if (!is_cccd_configured(p_dfu))
-    {
+    if (!is_cccd_configured(p_dfu)) {
         // Send an error response to the peer indicating that the CCCD is improperly configured.
         write_authorize_reply.params.write.gatt_status =
             BLE_GATT_STATUS_ATTERR_CPS_CCCD_CONFIG_ERROR;
 
         return (sd_ble_gatts_rw_authorize_reply(p_dfu->conn_handle, &write_authorize_reply));
 
-    }
-    else
-    {
+    } else {
         uint32_t err_code;
 
         write_authorize_reply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
 
         err_code = (sd_ble_gatts_rw_authorize_reply(p_dfu->conn_handle, &write_authorize_reply));
 
-        if (err_code != NRF_SUCCESS)
-        {
+        if (err_code != NRF_SUCCESS) {
             return err_code;
         }
     }
 
     ble_dfu_evt_t ble_dfu_evt;
 
-    switch (p_ble_write_evt->data[0])
-    {
+    switch (p_ble_write_evt->data[0]) {
         case OP_CODE_START_DFU:
             ble_dfu_evt.ble_dfu_evt_type = BLE_DFU_START;
 
-            if (p_ble_write_evt->len < PKT_START_DFU_PARAM_LEN)
-            {
+            if (p_ble_write_evt->len < PKT_START_DFU_PARAM_LEN) {
                 return ble_dfu_response_send(p_dfu,
                                              (ble_dfu_procedure_t) p_ble_write_evt->data[0],
                                              BLE_DFU_RESP_VAL_OPER_FAILED);
@@ -330,13 +321,12 @@ static uint32_t on_ctrl_pt_write(ble_dfu_t * p_dfu, ble_gatts_evt_write_t * p_bl
         case OP_CODE_RECEIVE_INIT:
             ble_dfu_evt.ble_dfu_evt_type = BLE_DFU_RECEIVE_INIT_DATA;
 
-            if (p_ble_write_evt->len < PKT_INIT_DFU_PARAM_LEN)
-            {
+            if (p_ble_write_evt->len < PKT_INIT_DFU_PARAM_LEN) {
                 return ble_dfu_response_send(p_dfu,
                                              (ble_dfu_procedure_t) p_ble_write_evt->data[0],
                                              BLE_DFU_RESP_VAL_OPER_FAILED);
             }
-            
+
             ble_dfu_evt.evt.ble_dfu_pkt_write.len    = 1;
             ble_dfu_evt.evt.ble_dfu_pkt_write.p_data = &(p_ble_write_evt->data[1]);
 
@@ -368,8 +358,7 @@ static uint32_t on_ctrl_pt_write(ble_dfu_t * p_dfu, ble_gatts_evt_write_t * p_bl
             break;
 
         case OP_CODE_PKT_RCPT_NOTIF_REQ:
-            if (p_ble_write_evt->len < PKT_RCPT_NOTIF_REQ_LEN)
-            {
+            if (p_ble_write_evt->len < PKT_RCPT_NOTIF_REQ_LEN) {
                 return (ble_dfu_response_send(p_dfu,
                                               BLE_DFU_PKT_RCPT_REQ_PROCEDURE,
                                               BLE_DFU_RESP_VAL_NOT_SUPPORTED));
@@ -378,12 +367,9 @@ static uint32_t on_ctrl_pt_write(ble_dfu_t * p_dfu, ble_gatts_evt_write_t * p_bl
             ble_dfu_evt.evt.pkt_rcpt_notif_req.num_of_pkts =
                 uint16_decode(&(p_ble_write_evt->data[1]));
 
-            if (ble_dfu_evt.evt.pkt_rcpt_notif_req.num_of_pkts == 0)
-            {
+            if (ble_dfu_evt.evt.pkt_rcpt_notif_req.num_of_pkts == 0) {
                 ble_dfu_evt.ble_dfu_evt_type = BLE_DFU_PKT_RCPT_NOTIF_DISABLED;
-            }
-            else
-            {
+            } else {
                 ble_dfu_evt.ble_dfu_evt_type = BLE_DFU_PKT_RCPT_NOTIF_ENABLED;
             }
 
@@ -413,9 +399,9 @@ static uint32_t on_ctrl_pt_write(ble_dfu_t * p_dfu, ble_gatts_evt_write_t * p_bl
  * @param[in] p_dfu     DFU Service Structure.
  * @param[in] p_ble_evt Pointer to the event received from BLE stack.
  */
-static void on_rw_authorize_req(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
+static void on_rw_authorize_req(ble_dfu_t *p_dfu, ble_evt_t *p_ble_evt)
 {
-    ble_gatts_evt_rw_authorize_request_t * p_authorize_request;
+    ble_gatts_evt_rw_authorize_request_t *p_authorize_request;
 
     p_authorize_request = &(p_ble_evt->evt.gatts_evt.params.authorize_request);
 
@@ -423,20 +409,18 @@ static void on_rw_authorize_req(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
         (p_authorize_request->type == BLE_GATTS_AUTHORIZE_TYPE_WRITE)
         &&
         (p_authorize_request->request.write.handle == p_dfu->dfu_ctrl_pt_handles.value_handle)
-        && 
+        &&
         (p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.op != BLE_GATTS_OP_PREP_WRITE_REQ)
         &&
         (p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.op != BLE_GATTS_OP_EXEC_WRITE_REQ_NOW)
         &&
         (p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.op != BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL)
-       )
-    {
+    ) {
         uint32_t err_code;
 
         err_code = on_ctrl_pt_write(p_dfu, &(p_authorize_request->request.write));
 
-        if (err_code != NRF_SUCCESS && p_dfu->error_handler != NULL)
-        {
+        if (err_code != NRF_SUCCESS && p_dfu->error_handler != NULL) {
             p_dfu->error_handler(err_code);
         }
     }
@@ -448,10 +432,9 @@ static void on_rw_authorize_req(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
  * @param[in] p_dfu     DFU Service Structure.
  * @param[in] p_ble_evt Pointer to the event received from BLE stack.
  */
-static void on_write(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
+static void on_write(ble_dfu_t *p_dfu, ble_evt_t *p_ble_evt)
 {
-    if (p_ble_evt->evt.gatts_evt.params.write.handle == p_dfu->dfu_pkt_handles.value_handle)
-    {
+    if (p_ble_evt->evt.gatts_evt.params.write.handle == p_dfu->dfu_pkt_handles.value_handle) {
         // DFU Packet written
 
         ble_dfu_evt_t ble_dfu_evt;
@@ -470,16 +453,15 @@ static void on_write(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
  * @param[in] p_dfu     DFU Service Structure.
  * @param[in] p_ble_evt Pointer to the event received from BLE stack.
  */
-static void on_disconnect(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
+static void on_disconnect(ble_dfu_t *p_dfu, ble_evt_t *p_ble_evt)
 {
     p_dfu->conn_handle = BLE_CONN_HANDLE_INVALID;
 }
 
 
-uint32_t ble_dfu_init(ble_dfu_t * p_dfu, ble_dfu_init_t * p_dfu_init)
+uint32_t ble_dfu_init(ble_dfu_t *p_dfu, ble_dfu_init_t *p_dfu_init)
 {
-    if ((p_dfu == NULL) || (p_dfu_init == NULL) || (p_dfu_init->evt_handler == NULL))
-    {
+    if ((p_dfu == NULL) || (p_dfu_init == NULL) || (p_dfu_init->evt_handler == NULL)) {
         return NRF_ERROR_NULL;
     }
 
@@ -488,8 +470,7 @@ uint32_t ble_dfu_init(ble_dfu_t * p_dfu, ble_dfu_init_t * p_dfu_init)
     ble_uuid_t service_uuid;
     uint32_t   err_code;
 
-    const ble_uuid128_t base_uuid128 =
-    {
+    const ble_uuid128_t base_uuid128 = {
         {
             0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15,
             0xDE, 0xEF, 0x12, 0x12, 0x00, 0x00, 0x00, 0x00
@@ -499,43 +480,37 @@ uint32_t ble_dfu_init(ble_dfu_t * p_dfu, ble_dfu_init_t * p_dfu_init)
     service_uuid.uuid = BLE_DFU_SERVICE_UUID;
 
     err_code = sd_ble_uuid_vs_add(&base_uuid128, &(service_uuid.type));
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
         return err_code;
     }
 
     err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
                                         &service_uuid,
                                         &(p_dfu->service_handle));
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
         return err_code;
     }
 
     p_dfu->uuid_type = service_uuid.type;
 
     err_code = dfu_pkt_char_add(p_dfu);
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
         return err_code;
     }
 
     err_code = dfu_ctrl_pt_add(p_dfu);
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
         return err_code;
     }
 
     err_code = dfu_rev_char_add(p_dfu, p_dfu_init);
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
         return err_code;
     }
 
     p_dfu->evt_handler = p_dfu_init->evt_handler;
 
-    if (p_dfu_init->error_handler != NULL)
-    {
+    if (p_dfu_init->error_handler != NULL) {
         p_dfu->error_handler = p_dfu_init->error_handler;
     }
 
@@ -545,17 +520,14 @@ uint32_t ble_dfu_init(ble_dfu_t * p_dfu, ble_dfu_init_t * p_dfu_init)
 }
 
 
-void ble_dfu_on_ble_evt(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
+void ble_dfu_on_ble_evt(ble_dfu_t *p_dfu, ble_evt_t *p_ble_evt)
 {
-    if ((p_dfu == NULL) || (p_ble_evt == NULL))
-    {
+    if ((p_dfu == NULL) || (p_ble_evt == NULL)) {
         return;
     }
 
-    if (p_dfu->evt_handler != NULL)
-    {
-        switch (p_ble_evt->header.evt_id)
-        {
+    if (p_dfu->evt_handler != NULL) {
+        switch (p_ble_evt->header.evt_id) {
             case BLE_GAP_EVT_CONNECTED:
                 on_connect(p_dfu, p_ble_evt);
                 break;
@@ -580,15 +552,13 @@ void ble_dfu_on_ble_evt(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
 }
 
 
-uint32_t ble_dfu_bytes_rcvd_report(ble_dfu_t * p_dfu, uint32_t num_of_firmware_bytes_rcvd)
+uint32_t ble_dfu_bytes_rcvd_report(ble_dfu_t *p_dfu, uint32_t num_of_firmware_bytes_rcvd)
 {
-    if (p_dfu == NULL)
-    {
+    if (p_dfu == NULL) {
         return NRF_ERROR_NULL;
     }
 
-    if ((p_dfu->conn_handle == BLE_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized)
-    {
+    if ((p_dfu->conn_handle == BLE_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized) {
         return NRF_ERROR_INVALID_STATE;
     }
 
@@ -618,15 +588,13 @@ uint32_t ble_dfu_bytes_rcvd_report(ble_dfu_t * p_dfu, uint32_t num_of_firmware_b
 }
 
 
-uint32_t ble_dfu_pkts_rcpt_notify(ble_dfu_t * p_dfu, uint32_t num_of_firmware_bytes_rcvd)
+uint32_t ble_dfu_pkts_rcpt_notify(ble_dfu_t *p_dfu, uint32_t num_of_firmware_bytes_rcvd)
 {
-    if (p_dfu == NULL)
-    {
+    if (p_dfu == NULL) {
         return NRF_ERROR_NULL;
     }
 
-    if ((p_dfu->conn_handle == BLE_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized)
-    {
+    if ((p_dfu->conn_handle == BLE_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized) {
         return NRF_ERROR_INVALID_STATE;
     }
 
@@ -649,17 +617,15 @@ uint32_t ble_dfu_pkts_rcpt_notify(ble_dfu_t * p_dfu, uint32_t num_of_firmware_by
 }
 
 
-uint32_t ble_dfu_response_send(ble_dfu_t         * p_dfu,
+uint32_t ble_dfu_response_send(ble_dfu_t          *p_dfu,
                                ble_dfu_procedure_t dfu_proc,
                                ble_dfu_resp_val_t  resp_val)
 {
-    if (p_dfu == NULL)
-    {
+    if (p_dfu == NULL) {
         return NRF_ERROR_NULL;
     }
 
-    if ((p_dfu->conn_handle == BLE_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized)
-    {
+    if ((p_dfu->conn_handle == BLE_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized) {
         return NRF_ERROR_INVALID_STATE;
     }
 

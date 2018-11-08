@@ -17,11 +17,13 @@
 #include "pinmap.h"
 #include "gpio_api.h"
 
-PinName port_pin(PortName port, int pin_n) {
+PinName port_pin(PortName port, int pin_n)
+{
     return (PinName)((port << PORT_SHIFT) | (pin_n << 2));
 }
 
-void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
+void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
+{
     obj->port = port;
     obj->mask = mask;
 
@@ -33,8 +35,8 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
 
     uint32_t i;
     // The function is set per pin: reuse gpio logic
-    for (i=0; i<32; i++) {
-        if (obj->mask & (1<<i)) {
+    for (i = 0; i < 32; i++) {
+        if (obj->mask & (1 << i)) {
             gpio_set(port_pin(obj->port, i));
         }
     }
@@ -42,17 +44,19 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     port_dir(obj, dir);
 }
 
-void port_mode(port_t *obj, PinMode mode) {
+void port_mode(port_t *obj, PinMode mode)
+{
     uint32_t i;
     // The mode is set per pin: reuse pinmap logic
-    for (i=0; i<32; i++) {
-        if (obj->mask & (1<<i)) {
+    for (i = 0; i < 32; i++) {
+        if (obj->mask & (1 << i)) {
             pin_mode(port_pin(obj->port, i), mode);
         }
     }
 }
 
-void port_dir(port_t *obj, PinDirection dir) {
+void port_dir(port_t *obj, PinDirection dir)
+{
     switch (dir) {
         case PIN_INPUT :
             *obj->reg_dir &= ~obj->mask;
@@ -63,10 +67,12 @@ void port_dir(port_t *obj, PinDirection dir) {
     }
 }
 
-void port_write(port_t *obj, int value) {
+void port_write(port_t *obj, int value)
+{
     *obj->reg_out = (*obj->reg_in & ~obj->mask) | (value & obj->mask);
 }
 
-int port_read(port_t *obj) {
+int port_read(port_t *obj)
+{
     return (*obj->reg_in & obj->mask);
 }

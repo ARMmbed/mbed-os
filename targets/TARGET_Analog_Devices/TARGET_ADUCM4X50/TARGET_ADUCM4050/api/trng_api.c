@@ -50,30 +50,30 @@
 // Sampling counter values
 // Prescaler: 0 - 10
 // LenReload: 0 - 4095
-#define TRNG_CNT_VAL	4095
-#define TRNG_PRESCALER 	2
+#define TRNG_CNT_VAL    4095
+#define TRNG_PRESCALER  2
 
 /* Data buffers for Random numbers */
-static uint32_t RngDevMem[(ADI_RNG_MEMORY_SIZE + 3)/4];
+static uint32_t RngDevMem[(ADI_RNG_MEMORY_SIZE + 3) / 4];
 
 void trng_init(trng_t *obj)
 {
-	ADI_RNG_HANDLE RNGhDevice;
+    ADI_RNG_HANDLE RNGhDevice;
 
-	// Open the device
-    adi_rng_Open(0,RngDevMem,sizeof(RngDevMem),&RNGhDevice);
+    // Open the device
+    adi_rng_Open(0, RngDevMem, sizeof(RngDevMem), &RNGhDevice);
 
     // Set sample length for the H/W RN accumulator
     adi_rng_SetSampleLen(RNGhDevice, TRNG_PRESCALER, TRNG_CNT_VAL);
 
-	// Disable buffering - single byte generation only
-	adi_rng_EnableBuffering(RNGhDevice, false);
+    // Disable buffering - single byte generation only
+    adi_rng_EnableBuffering(RNGhDevice, false);
 
-	// Enable the TRNG
+    // Enable the TRNG
     adi_rng_Enable(RNGhDevice, true);
 
-	// Save device handle
-	obj->RNGhDevice = RNGhDevice;
+    // Save device handle
+    obj->RNGhDevice = RNGhDevice;
 }
 
 void trng_free(trng_t *obj)
@@ -91,7 +91,7 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     uint32_t i;
     volatile uint32_t nRandomNum;
     ADI_RNG_RESULT result;
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)RNGhDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)RNGhDevice;
 
     for (i = 0; i < length; i++) {
         // Loop until the device has data to be read
@@ -107,21 +107,21 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 
         // If the stuck bit is set, this means there may be a problem with RNG hardware,
         // exit with an error
-        if ( (result != ADI_RNG_SUCCESS) || ((result == ADI_RNG_SUCCESS) && (bStuck)) ) {
+        if ((result != ADI_RNG_SUCCESS) || ((result == ADI_RNG_SUCCESS) && (bStuck))) {
             // Clear the STUCK bit by writing a 1 to it
             pDevice->pRNG->STAT |= BITM_RNG_STAT_STUCK;
             return -1;
         }
 
         // Read the RNG
-        result = adi_rng_GetRngData(RNGhDevice, (uint32_t*)(&nRandomNum));
+        result = adi_rng_GetRngData(RNGhDevice, (uint32_t *)(&nRandomNum));
 
         if (result != ADI_RNG_SUCCESS) {
             return -1;
         }
 
         // Save the output
-		output[i] = (uint8_t)(nRandomNum & 0xFF);
+        output[i] = (uint8_t)(nRandomNum & 0xFF);
     }
 
     *output_length = length;

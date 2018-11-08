@@ -25,8 +25,7 @@ namespace ble {
 namespace vendor {
 namespace cordio {
 
-class SecurityManager : public ::SecurityManager
-{
+class SecurityManager : public ::SecurityManager {
 public:
     static SecurityManager &getInstance()
     {

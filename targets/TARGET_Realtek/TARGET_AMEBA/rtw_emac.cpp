@@ -56,25 +56,25 @@ static uint8_t wlan_get_hwaddr_size(emac_interface_t *emac)
 
 static void wlan_get_hwaddr(emac_interface_t *emac, uint8_t *addr)
 {
-    char mac[20];    
-    if(RTW_SUCCESS == wifi_get_mac_address(mac))
-    {
-        if (sscanf(mac, "%x:%x:%x:%x:%x:%x", &addr[0], &addr[1], &addr[2], &addr[3], &addr[4], &addr[5]) != 6)
+    char mac[20];
+    if (RTW_SUCCESS == wifi_get_mac_address(mac)) {
+        if (sscanf(mac, "%x:%x:%x:%x:%x:%x", &addr[0], &addr[1], &addr[2], &addr[3], &addr[4], &addr[5]) != 6) {
             printf("Get HW address failed\r\n");
-    }else{
-            printf("Get HW address failed\r\n");
+        }
+    } else {
+        printf("Get HW address failed\r\n");
     }
 }
 
 static void wlan_set_hwaddr(emac_interface_t *emac, uint8_t *addr)
 {
-    
+
 }
 
 
 static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
 {
-    struct eth_drv_sg * sg_list=0;
+    struct eth_drv_sg *sg_list = 0;
     int sg_len = 0;
     int tot_len;
     struct pbuf *p;
@@ -84,8 +84,8 @@ static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
         return false;
     }
 
-    sg_list = (struct eth_drv_sg *)malloc(sizeof(struct eth_drv_sg)*MAX_ETH_DRV_SG);
-    if(sg_list == 0){//malloc fail
+    sg_list = (struct eth_drv_sg *)malloc(sizeof(struct eth_drv_sg) * MAX_ETH_DRV_SG);
+    if (sg_list == 0) { //malloc fail
         return false;
     }
     emac_stack_mem_ref(emac, buf);
@@ -95,7 +95,7 @@ static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
     for (; p != NULL && sg_len < MAX_ETH_DRV_SG; p = p->next) {
         sg_list[sg_len].buf = (uint32_t) p->payload;
         sg_list[sg_len].len = p->len;
-    sg_len++;
+        sg_len++;
     }
 
     if (sg_len) {
@@ -151,7 +151,7 @@ void wlan_emac_recv(struct netif *netif, int len)
     buf = emac_stack_mem_alloc(NULL, len, 0);
     if (buf == NULL) {
         return;
-    }   
+    }
 
     p = (struct pbuf *)buf;
     for (; p != NULL && sg_len < MAX_ETH_DRV_SG; p = p->next) {
@@ -180,7 +180,8 @@ const emac_interface_ops_t wlan_emac_interface = {
     .set_link_state_cb = wlan_set_link_state_cb
 };
 
-void mbed_default_mac_address(char *mac) {
+void mbed_default_mac_address(char *mac)
+{
     unsigned char RTK_mac_addr[3] = {0x00, 0xE0, 0x4C}; // default Realtek mac address
 
     mac[0] = RTK_mac_addr[0];
@@ -195,12 +196,12 @@ void mbed_default_mac_address(char *mac) {
 
 void mbed_mac_address(char *mac)
 {
-    char hwaddr[20];    
-    if(RTW_SUCCESS == wifi_get_mac_address(hwaddr))
-    {
-        if (sscanf(hwaddr, "%x:%x:%x:%x:%x:%x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]) != 6)
+    char hwaddr[20];
+    if (RTW_SUCCESS == wifi_get_mac_address(hwaddr)) {
+        if (sscanf(hwaddr, "%x:%x:%x:%x:%x:%x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]) != 6) {
             printf("Get HW address failed\r\n");
-    }else{
+        }
+    } else {
         printf("Get HW address failed\r\n");
         mbed_default_mac_address(mac);
     }
@@ -217,10 +218,10 @@ emac_interface_t *wlan_emac_init_interface()
 {
 
     if (_emac == NULL) {
-        _emac = (emac_interface_t*) malloc(sizeof(emac_interface_t));
+        _emac = (emac_interface_t *) malloc(sizeof(emac_interface_t));
         MBED_ASSERT(_emac);
         _emac->hw = NULL;
-        memcpy((void*)&_emac->ops, &wlan_emac_interface, sizeof(wlan_emac_interface));
+        memcpy((void *)&_emac->ops, &wlan_emac_interface, sizeof(wlan_emac_interface));
     }
     return _emac;
 }

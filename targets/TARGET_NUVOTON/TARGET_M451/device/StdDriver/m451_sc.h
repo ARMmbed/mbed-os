@@ -215,8 +215,8 @@ extern "C"
   */
 __STATIC_INLINE void SC_SetTxRetry(SC_T *sc, uint32_t u32Count)
 {
-    while((sc)->CTL & SC_CTL_SYNC_Msk);
-    if(u32Count == 0) {       // disable Tx error retry
+    while ((sc)->CTL & SC_CTL_SYNC_Msk);
+    if (u32Count == 0) {      // disable Tx error retry
         (sc)->CTL &= ~(SC_CTL_TXRTY_Msk | SC_CTL_TXRTYEN_Msk);
     } else {
         (sc)->CTL = ((sc)->CTL & ~SC_CTL_TXRTY_Msk) | ((u32Count - 1) << SC_CTL_TXRTY_Pos) | SC_CTL_TXRTYEN_Msk;
@@ -232,8 +232,8 @@ __STATIC_INLINE void SC_SetTxRetry(SC_T *sc, uint32_t u32Count)
   */
 __STATIC_INLINE void  SC_SetRxRetry(SC_T *sc, uint32_t u32Count)
 {
-    while((sc)->CTL & SC_CTL_SYNC_Msk);
-    if(u32Count == 0) {       // disable Rx error retry
+    while ((sc)->CTL & SC_CTL_SYNC_Msk);
+    if (u32Count == 0) {      // disable Rx error retry
         (sc)->CTL &= ~(SC_CTL_RXRTY_Msk | SC_CTL_RXRTYEN_Msk);
     } else {
         (sc)->CTL = ((sc)->CTL & ~SC_CTL_RXRTY_Msk) | ((u32Count - 1) << SC_CTL_RXRTY_Pos) | SC_CTL_RXRTYEN_Msk;

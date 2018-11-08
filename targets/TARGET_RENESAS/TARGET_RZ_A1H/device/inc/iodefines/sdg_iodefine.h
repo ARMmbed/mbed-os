@@ -78,9 +78,8 @@
 #define SGSFR_3 (SDG3.SGSFR)
 
 
-typedef struct st_sdg
-{
-                                                           /* SDG              */
+typedef struct st_sdg {
+    /* SDG              */
     volatile uint8_t   SGCR1;                                  /*  SGCR1           */
     volatile uint8_t   SGCSR;                                  /*  SGCSR           */
     volatile uint8_t   SGCR2;                                  /*  SGCR2           */
@@ -92,10 +91,10 @@ typedef struct st_sdg
 
 /* Channel array defines of SDG (2)*/
 #ifdef  DECLARE_SDG_CHANNELS
-volatile struct st_sdg*  SDG[ SDG_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    SDG_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_sdg  *SDG[ SDG_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        SDG_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_SDG_CHANNELS */
 /* End of channel array defines of SDG (2)*/
 

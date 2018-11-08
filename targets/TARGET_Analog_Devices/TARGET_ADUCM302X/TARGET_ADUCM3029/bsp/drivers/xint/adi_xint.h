@@ -72,14 +72,13 @@ extern "C" {
 #define ADI_XINT_MEMORY_SIZE        (48u)
 
 /*! External Interrupt Driver API function return codes */
-typedef enum
-{
+typedef enum {
     ADI_XINT_SUCCESS = 0,                       /*!< API successfully returned. */
     ADI_XINT_FAILURE,                           /*!< The API call failed. */
     ADI_XINT_ALREADY_INITIALIZED,               /*!< External interrupt driver has already been initialized. */
     ADI_XINT_NOT_INITIALIZED,                   /*!< External interrupt driver has not yet been initialized. */
     ADI_XINT_NULL_PARAMETER,                    /*!< The given pointer is pointing to NULL. */
-    ADI_XINT_INVALID_MEMORY_SIZE,               /*!< The given memory is not sufficient to operate the driver. */   
+    ADI_XINT_INVALID_MEMORY_SIZE,               /*!< The given memory is not sufficient to operate the driver. */
     ADI_XINT_INVALID_INTERRUPT                  /*!< Invalid interrupt number. */
 } ADI_XINT_RESULT;
 
@@ -106,11 +105,11 @@ typedef enum {
 
 
 /* External Interrupt API functions */
-ADI_XINT_RESULT  adi_xint_Init                  (void* const pMemory, uint32_t const MemorySize);
-ADI_XINT_RESULT  adi_xint_UnInit                (void);
-ADI_XINT_RESULT  adi_xint_EnableIRQ             (const ADI_XINT_EVENT eEvent, const ADI_XINT_IRQ_MODE eMode);
-ADI_XINT_RESULT  adi_xint_DisableIRQ            (const ADI_XINT_EVENT eEvent); 
-ADI_XINT_RESULT  adi_xint_RegisterCallback      (const ADI_XINT_EVENT eEvent, ADI_CALLBACK const pfCallback, void *const pCBParam );
+ADI_XINT_RESULT  adi_xint_Init(void *const pMemory, uint32_t const MemorySize);
+ADI_XINT_RESULT  adi_xint_UnInit(void);
+ADI_XINT_RESULT  adi_xint_EnableIRQ(const ADI_XINT_EVENT eEvent, const ADI_XINT_IRQ_MODE eMode);
+ADI_XINT_RESULT  adi_xint_DisableIRQ(const ADI_XINT_EVENT eEvent);
+ADI_XINT_RESULT  adi_xint_RegisterCallback(const ADI_XINT_EVENT eEvent, ADI_CALLBACK const pfCallback, void *const pCBParam);
 
 #ifdef __cplusplus
 }

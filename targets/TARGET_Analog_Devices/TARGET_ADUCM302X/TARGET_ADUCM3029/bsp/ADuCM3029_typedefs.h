@@ -70,44 +70,43 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Redefine ADI_CRYPT_CFG_t with backward compatibility names. */
 
 typedef struct _ADI_CRYPT_CFG_t {
-  union {
-    struct {
-      unsigned int BLKEN      :  1;  /**< Enable BIT for the Crypto Block */
-      unsigned int ENCR       :  1;  /**< Encrypt or Decrypt */
-      unsigned int INDMAEN    :  1;  /**< Enable DMA for Input Buffer */
-      unsigned int OUTDMAEN   :  1;  /**< Enable DMA for Output Buffer */
-      unsigned int INFLUSH    :  1;  /**< Input Buffer Flush */
-      unsigned int OUTFLUSH   :  1;  /**< Output Buffer Flush */
-      union {
-        unsigned int AES_BYTESWAP :  1;  /**< Byte Swap 32 Bit AES Input Data */
-        unsigned int ENDIAN       :  1;
-      };
-      unsigned int reserved7    :  1;
-      union {
-        unsigned int AESKEYLEN    :  2;  /**< Select Key Length for AES Cipher */
-        unsigned int KEYLEN       :  2;  /**< Select Key Length for AES Cipher */
-      };
-      unsigned int reserved10   :  6;
-      unsigned int ECBEN        :  1;  /**< Enable ECB Mode Operation */
-      unsigned int CTREN        :  1;  /**< Enable CTR Mode Operation */
-      unsigned int CBCEN        :  1;  /**< Enable CBC Mode Operation */
-      unsigned int CCMEN        :  1;  /**< Enable CCM/CCM* Mode Operation */
-      unsigned int CMACEN       :  1;  /**< Enable CMAC Mode Operation */
-      unsigned int reserved21   :  1;
-      unsigned int RES          :  3;  /**< Reserved */
-      unsigned int SHA256EN     :  1;  /**< Enable SHA-256 Operation */
-      unsigned int SHAINIT      :  1;  /**< Restarts SHA Computation */
-      unsigned int reserved27   :  1;
-      unsigned int RevID        :  4;  /**< Rev ID for Crypto */
+    union {
+        struct {
+            unsigned int BLKEN      :  1;  /**< Enable BIT for the Crypto Block */
+            unsigned int ENCR       :  1;  /**< Encrypt or Decrypt */
+            unsigned int INDMAEN    :  1;  /**< Enable DMA for Input Buffer */
+            unsigned int OUTDMAEN   :  1;  /**< Enable DMA for Output Buffer */
+            unsigned int INFLUSH    :  1;  /**< Input Buffer Flush */
+            unsigned int OUTFLUSH   :  1;  /**< Output Buffer Flush */
+            union {
+                unsigned int AES_BYTESWAP :  1;  /**< Byte Swap 32 Bit AES Input Data */
+                unsigned int ENDIAN       :  1;
+            };
+            unsigned int reserved7    :  1;
+            union {
+                unsigned int AESKEYLEN    :  2;  /**< Select Key Length for AES Cipher */
+                unsigned int KEYLEN       :  2;  /**< Select Key Length for AES Cipher */
+            };
+            unsigned int reserved10   :  6;
+            unsigned int ECBEN        :  1;  /**< Enable ECB Mode Operation */
+            unsigned int CTREN        :  1;  /**< Enable CTR Mode Operation */
+            unsigned int CBCEN        :  1;  /**< Enable CBC Mode Operation */
+            unsigned int CCMEN        :  1;  /**< Enable CCM/CCM* Mode Operation */
+            unsigned int CMACEN       :  1;  /**< Enable CMAC Mode Operation */
+            unsigned int reserved21   :  1;
+            unsigned int RES          :  3;  /**< Reserved */
+            unsigned int SHA256EN     :  1;  /**< Enable SHA-256 Operation */
+            unsigned int SHAINIT      :  1;  /**< Restarts SHA Computation */
+            unsigned int reserved27   :  1;
+            unsigned int RevID        :  4;  /**< Rev ID for Crypto */
+        };
+        uint32_t VALUE32;
     };
-    uint32_t VALUE32;
-  };
 } ADI_CRYPT_CFG_t;
 
-typedef enum
-{
-  CRYPT_CFG_LITTLE_ENDIAN = 0,
-  CRYPT_CFG_BIG_ENDIAN    = 1
+typedef enum {
+    CRYPT_CFG_LITTLE_ENDIAN = 0,
+    CRYPT_CFG_BIG_ENDIAN    = 1
 } ADI_CRYPT_CFG_ENDIAN;
 
 

@@ -99,8 +99,7 @@ uint32_t FLEXIO_GetShifterBufferAddress(FLEXIO_Type *base, flexio_shifter_buffer
 
     uint32_t address = 0;
 
-    switch (type)
-    {
+    switch (type) {
         case kFLEXIO_ShifterBuffer:
             address = (uint32_t) & (base->SHIFTBUF[index]);
             break;
@@ -182,10 +181,8 @@ status_t FLEXIO_RegisterHandleIRQ(void *base, void *handle, flexio_isr_t isr)
     uint8_t index = 0;
 
     /* Find the an empty handle pointer to store the handle. */
-    for (index = 0; index < FLEXIO_HANDLE_COUNT; index++)
-    {
-        if (s_flexioHandle[index] == NULL)
-        {
+    for (index = 0; index < FLEXIO_HANDLE_COUNT; index++) {
+        if (s_flexioHandle[index] == NULL) {
             /* Register FLEXIO simulated driver base, handle and isr. */
             s_flexioType[index] = base;
             s_flexioHandle[index] = handle;
@@ -194,12 +191,9 @@ status_t FLEXIO_RegisterHandleIRQ(void *base, void *handle, flexio_isr_t isr)
         }
     }
 
-    if (index == FLEXIO_HANDLE_COUNT)
-    {
+    if (index == FLEXIO_HANDLE_COUNT) {
         return kStatus_OutOfRange;
-    }
-    else
-    {
+    } else {
         return kStatus_Success;
     }
 }
@@ -211,10 +205,8 @@ status_t FLEXIO_UnregisterHandleIRQ(void *base)
     uint8_t index = 0;
 
     /* Find the index from base address mappings. */
-    for (index = 0; index < FLEXIO_HANDLE_COUNT; index++)
-    {
-        if (s_flexioType[index] == base)
-        {
+    for (index = 0; index < FLEXIO_HANDLE_COUNT; index++) {
+        if (s_flexioType[index] == base) {
             /* Unregister FLEXIO simulated driver handle and isr. */
             s_flexioType[index] = NULL;
             s_flexioHandle[index] = NULL;
@@ -223,12 +215,9 @@ status_t FLEXIO_UnregisterHandleIRQ(void *base)
         }
     }
 
-    if (index == FLEXIO_HANDLE_COUNT)
-    {
+    if (index == FLEXIO_HANDLE_COUNT) {
         return kStatus_OutOfRange;
-    }
-    else
-    {
+    } else {
         return kStatus_Success;
     }
 }
@@ -237,10 +226,8 @@ void FLEXIO_CommonIRQHandler(void)
 {
     uint8_t index;
 
-    for (index = 0; index < FLEXIO_HANDLE_COUNT; index++)
-    {
-        if (s_flexioHandle[index])
-        {
+    for (index = 0; index < FLEXIO_HANDLE_COUNT; index++) {
+        if (s_flexioHandle[index]) {
             s_flexioIsr[index](s_flexioType[index], s_flexioHandle[index]);
         }
     }

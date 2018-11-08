@@ -76,7 +76,7 @@ void pin_function(PinName pin, int function)
     // clear the corresponding 2 bit field first before writing the function
     // bits
     mask = ~(3 << (pin * 2));
-    cfg_reg = cfg_reg & mask | (function << (pin*2));
+    cfg_reg = cfg_reg & mask | (function << (pin * 2));
     *pGPIO_CFG = cfg_reg;
 }
 
@@ -89,12 +89,12 @@ void pin_mode(PinName pin, PinMode mode)
 
     switch (mode) {
         case PullNone:
-            adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value,false);
+            adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value, false);
             break;
 
         case PullDown:
         case PullUp:
-            adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value,true);
+            adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value, true);
             break;
 
         default:

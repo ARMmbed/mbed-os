@@ -22,8 +22,12 @@
 #include "mbedtls/platform.h"
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize(void *v, size_t n)
+{
+    volatile unsigned char *p = (unsigned char *)v;
+    while (n--) {
+        *p++ = 0;
+    }
 }
 
 static int st_sha1_restore_hw_context(mbedtls_sha1_context *ctx)
@@ -40,7 +44,7 @@ static int st_sha1_restore_hw_context(mbedtls_sha1_context *ctx)
     }
     HASH->STR = ctx->ctx_save_str;
     HASH->CR = (ctx->ctx_save_cr | HASH_CR_INIT);
-    for (i=0;i<38;i++) {
+    for (i = 0; i < 38; i++) {
         HASH->CSR[i] = ctx->ctx_save_csr[i];
     }
     return 1;
@@ -60,35 +64,36 @@ static int st_sha1_save_hw_context(mbedtls_sha1_context *ctx)
     /* allow multi-instance of HASH use: restore context for HASH HW module CR */
     ctx->ctx_save_cr = HASH->CR;
     ctx->ctx_save_str = HASH->STR;
-    for (i=0;i<38;i++) {
+    for (i = 0; i < 38; i++) {
         ctx->ctx_save_csr[i] = HASH->CSR[i];
     }
     return 1;
 }
 
-void mbedtls_sha1_init( mbedtls_sha1_context *ctx )
+void mbedtls_sha1_init(mbedtls_sha1_context *ctx)
 {
-    mbedtls_zeroize( ctx, sizeof( mbedtls_sha1_context ) );
+    mbedtls_zeroize(ctx, sizeof(mbedtls_sha1_context));
 
     /* Enable HASH clock */
     __HAL_RCC_HASH_CLK_ENABLE();
 
 }
 
-void mbedtls_sha1_free( mbedtls_sha1_context *ctx )
+void mbedtls_sha1_free(mbedtls_sha1_context *ctx)
 {
-    if( ctx == NULL )
+    if (ctx == NULL) {
         return;
-    mbedtls_zeroize( ctx, sizeof( mbedtls_sha1_context ) );
+    }
+    mbedtls_zeroize(ctx, sizeof(mbedtls_sha1_context));
 }
 
-void mbedtls_sha1_clone( mbedtls_sha1_context *dst,
-                         const mbedtls_sha1_context *src )
+void mbedtls_sha1_clone(mbedtls_sha1_context *dst,
+                        const mbedtls_sha1_context *src)
 {
     *dst = *src;
 }
 
-void mbedtls_sha1_starts( mbedtls_sha1_context *ctx )
+void mbedtls_sha1_starts(mbedtls_sha1_context *ctx)
 {
     /* Deinitializes the HASH peripheral */
     if (HAL_HASH_DeInit(&ctx->hhash_sha1) == HAL_ERROR) {
@@ -109,13 +114,13 @@ void mbedtls_sha1_starts( mbedtls_sha1_context *ctx )
     }
 }
 
-void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[ST_SHA1_BLOCK_SIZE] )
+void mbedtls_sha1_process(mbedtls_sha1_context *ctx, const unsigned char data[ST_SHA1_BLOCK_SIZE])
 {
     if (st_sha1_restore_hw_context(ctx) != 1) {
         return; // Return HASH_BUSY timout error here
     }
     if (HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, (uint8_t *) data, ST_SHA1_BLOCK_SIZE) != 0) {
-            return; // Return error code
+        return; // Return error code
     }
 
     if (st_sha1_save_hw_context(ctx) != 1) {
@@ -123,7 +128,7 @@ void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[S
     }
 }
 
-void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen )
+void mbedtls_sha1_update(mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen)
 {
     size_t currentlen = ilen;
     if (st_sha1_restore_hw_context(ctx) != 1) {
@@ -131,11 +136,11 @@ void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input,
     }
 
     // store mechanism to accumulate ST_SHA1_BLOCK_SIZE bytes (512 bits) in the HW
-    if (currentlen == 0){ // only change HW status is size if 0
-        if(ctx->hhash_sha1.Phase == HAL_HASH_PHASE_READY) {
-          /* Select the SHA1 mode and reset the HASH processor core, so that the HASH will be ready to compute
-             the message digest of a new message */
-          HASH->CR |= HASH_ALGOSELECTION_SHA1 | HASH_CR_INIT;
+    if (currentlen == 0) { // only change HW status is size if 0
+        if (ctx->hhash_sha1.Phase == HAL_HASH_PHASE_READY) {
+            /* Select the SHA1 mode and reset the HASH processor core, so that the HASH will be ready to compute
+               the message digest of a new message */
+            HASH->CR |= HASH_ALGOSELECTION_SHA1 | HASH_CR_INIT;
         }
         ctx->hhash_sha1.Phase = HAL_HASH_PHASE_PROCESS;
     } else if (currentlen < (ST_SHA1_BLOCK_SIZE - ctx->sbuf_len)) {
@@ -154,7 +159,7 @@ void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input,
         }
         // sbuf is completely accumulated, now copy up to 63 remaining bytes
         ctx->sbuf_len = currentlen % ST_SHA1_BLOCK_SIZE;
-        if (ctx->sbuf_len !=0) {
+        if (ctx->sbuf_len != 0) {
             memcpy(ctx->sbuf, input + ilen - ctx->sbuf_len, ctx->sbuf_len);
         }
     }
@@ -163,7 +168,7 @@ void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input,
     }
 }
 
-void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] )
+void mbedtls_sha1_finish(mbedtls_sha1_context *ctx, unsigned char output[20])
 {
     if (st_sha1_restore_hw_context(ctx) != 1) {
         return; // Return HASH_BUSY timout error here
@@ -178,7 +183,7 @@ void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] )
     ctx->sbuf_len = 0;
     __HAL_HASH_START_DIGEST();
 
-    if (HAL_HASH_SHA1_Finish(&ctx->hhash_sha1, output, 10) != 0){
+    if (HAL_HASH_SHA1_Finish(&ctx->hhash_sha1, output, 10) != 0) {
         return; // error code to be returned
     }
     if (st_sha1_save_hw_context(ctx) != 1) {

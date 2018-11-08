@@ -69,12 +69,13 @@ int32_t FMC_Erase(uint32_t u32PageAddr)
   * @retval   0  Is boot from APROM.
   * @retval   1  Is boot from LDROM.
   */
-int32_t FMC_GetBootSource (void)
+int32_t FMC_GetBootSource(void)
 {
-    if (FMC->ISPCON & FMC_ISPCON_BS_Msk)
+    if (FMC->ISPCON & FMC_ISPCON_BS_Msk) {
         return 1;
-    else
+    } else {
         return 0;
+    }
 }
 
 
@@ -231,9 +232,10 @@ void FMC_Write(uint32_t u32Addr, uint32_t u32Data)
 int32_t FMC_ReadConfig(uint32_t *u32Config, uint32_t u32Count)
 {
     u32Config[0] = FMC_Read(FMC_CONFIG_BASE);
-    if (u32Count < 2)
+    if (u32Count < 2) {
         return -1;
-    u32Config[1] = FMC_Read(FMC_CONFIG_BASE+4);
+    }
+    u32Config[1] = FMC_Read(FMC_CONFIG_BASE + 4);
     return 0;
 }
 
@@ -252,7 +254,7 @@ int32_t FMC_WriteConfig(uint32_t *u32Config, uint32_t u32Count)
     FMC_ENABLE_CFG_UPDATE();
     FMC_Erase(FMC_CONFIG_BASE);
     FMC_Write(FMC_CONFIG_BASE, u32Config[0]);
-    FMC_Write(FMC_CONFIG_BASE+4, u32Config[1]);
+    FMC_Write(FMC_CONFIG_BASE + 4, u32Config[1]);
     FMC_DISABLE_CFG_UPDATE();
     return 0;
 }

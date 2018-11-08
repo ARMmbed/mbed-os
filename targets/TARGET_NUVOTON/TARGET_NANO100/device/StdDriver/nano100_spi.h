@@ -269,8 +269,9 @@ extern "C"
   */
 static __INLINE void SPI_SET_DATA_WIDTH(SPI_T *spi, uint32_t u32Width)
 {
-    if(u32Width == 32)
+    if (u32Width == 32) {
         u32Width = 0;
+    }
 
     spi->CTL = (spi->CTL & ~SPI_CTL_TX_BIT_LEN_Msk) | (u32Width << SPI_CTL_TX_BIT_LEN_Pos);
 }

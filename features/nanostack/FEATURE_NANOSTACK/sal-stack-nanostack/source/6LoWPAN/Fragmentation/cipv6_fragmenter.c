@@ -219,7 +219,7 @@ static void reassembly_entry_free(reassembly_interface_t *interface_ptr, reassem
     }
 }
 
-static void reassembly_list_free(reassembly_interface_t *interface_ptr )
+static void reassembly_list_free(reassembly_interface_t *interface_ptr)
 {
     ns_list_foreach_safe(reassembly_entry_t, reassembly_entry, &interface_ptr->rx_list) {
         reassembly_entry_free(interface_ptr, reassembly_entry);
@@ -303,7 +303,7 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
             goto resassembly_error;
         }
 
-        buffer_t *reassembly_buffer = buffer_get(1 + ((datagram_size+7) & ~7));
+        buffer_t *reassembly_buffer = buffer_get(1 + ((datagram_size + 7) & ~7));
         if (!reassembly_buffer) {
             //Put allocated back to free
             reassembly_entry_free(interface_ptr, frag_ptr);
@@ -509,14 +509,14 @@ int8_t reassembly_interface_init(int8_t interface_id, uint8_t reassembly_session
         return -1;
     }
 
-    memset(interface_ptr, 0 ,sizeof(reassembly_interface_t));
+    memset(interface_ptr, 0, sizeof(reassembly_interface_t));
     interface_ptr->interface_id = interface_id;
     interface_ptr->timeout = reassembly_timeout;
     interface_ptr->entry_pointer_buffer = reassemply_ptr;
     ns_list_init(&interface_ptr->free_list);
     ns_list_init(&interface_ptr->rx_list);
 
-    for (uint8_t i=0; i<reassembly_session_limit ; i++) {
+    for (uint8_t i = 0; i < reassembly_session_limit ; i++) {
         ns_list_add_to_end(&interface_ptr->free_list, reassemply_ptr);
         reassemply_ptr++;
     }

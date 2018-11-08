@@ -50,8 +50,9 @@ static uint32_t interruptEnable = 0;   //keeps track to interrupts to enable in 
 /* ************************************************************************* */
 int WDT_Init(mxc_wdt_regs_t *wdt, const sys_cfg_wdt_t *cfg, uint8_t unlock_key)
 {
-    if ((wdt == NULL) || (cfg == NULL))
+    if ((wdt == NULL) || (cfg == NULL)) {
         return E_NULL_PTR;
+    }
 
     //setup watchdog clock
     SYS_WDT_Init(wdt, cfg);
@@ -60,8 +61,9 @@ int WDT_Init(mxc_wdt_regs_t *wdt, const sys_cfg_wdt_t *cfg, uint8_t unlock_key)
     wdt->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (wdt->lock_ctrl & 0x01)
+    if (wdt->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //disable all interrupts
     interruptEnable = 0;
@@ -86,8 +88,9 @@ int WDT_EnableInt(mxc_wdt_regs_t *wdt, wdt_period_t int_period, uint8_t unlock_k
     wdt->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (wdt->lock_ctrl & 0x01)
+    if (wdt->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //stop timer and clear interval period
     wdt->ctrl &= ~(MXC_F_WDT_CTRL_INT_PERIOD | MXC_F_WDT_CTRL_EN_TIMER);
@@ -111,8 +114,9 @@ int WDT_DisableInt(mxc_wdt_regs_t *wdt, uint8_t unlock_key)
     wdt->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (wdt->lock_ctrl & 0x01)
+    if (wdt->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //disable timeout interrupt
     interruptEnable &= ~MXC_F_WDT_ENABLE_TIMEOUT;
@@ -128,15 +132,17 @@ int WDT_DisableInt(mxc_wdt_regs_t *wdt, uint8_t unlock_key)
 int WDT_EnableWait(mxc_wdt_regs_t *wdt, wdt_period_t wait_period, uint8_t unlock_key)
 {
     // Make sure wait_period is valid
-    if (wait_period >= WDT_PERIOD_MAX)
+    if (wait_period >= WDT_PERIOD_MAX) {
         return E_INVALID;
+    }
 
     //unlock ctrl to be writable
     wdt->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (wdt->lock_ctrl & 0x01)
+    if (wdt->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //stop timer and clear wait period
     wdt->ctrl &= ~(MXC_F_WDT_CTRL_WAIT_PERIOD | MXC_F_WDT_CTRL_EN_TIMER);
@@ -160,8 +166,9 @@ int WDT_DisableWait(mxc_wdt_regs_t *wdt, uint8_t unlock_key)
     wdt->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (wdt->lock_ctrl & 0x01)
+    if (wdt->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //disable wait interrupt
     interruptEnable &= ~MXC_F_WDT_ENABLE_PRE_WIN;
@@ -177,15 +184,17 @@ int WDT_DisableWait(mxc_wdt_regs_t *wdt, uint8_t unlock_key)
 int WDT_EnableReset(mxc_wdt_regs_t *wdt, wdt_period_t rst_period, uint8_t unlock_key)
 {
     // Make sure wait_period is valid
-    if (rst_period >= WDT_PERIOD_MAX)
+    if (rst_period >= WDT_PERIOD_MAX) {
         return E_INVALID;
+    }
 
     //unlock ctrl to be writable
     wdt->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (wdt->lock_ctrl & 0x01)
+    if (wdt->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //stop timer and clear reset period
     wdt->ctrl &= ~(MXC_F_WDT_CTRL_RST_PERIOD | MXC_F_WDT_CTRL_EN_TIMER);
@@ -209,8 +218,9 @@ int WDT_DisableReset(mxc_wdt_regs_t *wdt, uint8_t unlock_key)
     wdt->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (wdt->lock_ctrl & 0x01)
+    if (wdt->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //disable reset0
     interruptEnable &= ~MXC_F_WDT_ENABLE_RESET_OUT;
@@ -226,15 +236,17 @@ int WDT_DisableReset(mxc_wdt_regs_t *wdt, uint8_t unlock_key)
 int WDT_Start(mxc_wdt_regs_t *wdt, uint8_t unlock_key)
 {
     //check if watchdog is already running
-    if(WDT_IsActive(wdt))
+    if (WDT_IsActive(wdt)) {
         return E_BAD_STATE;
+    }
 
     //unlock ctrl to be writable
     wdt->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (wdt->lock_ctrl & 0x01)
+    if (wdt->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     WDT_Reset(wdt);
 
@@ -261,7 +273,7 @@ void WDT_Reset(mxc_wdt_regs_t *wdt)
     wdt->flags = WDT_FLAGS_CLEAR_ALL;
 
     //wait for all interrupts to clear
-    while(wdt->flags != 0) {
+    while (wdt->flags != 0) {
         wdt->flags = WDT_FLAGS_CLEAR_ALL;
     }
 
@@ -275,8 +287,9 @@ int WDT_Stop(mxc_wdt_regs_t *wdt, uint8_t unlock_key)
     wdt->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (wdt->lock_ctrl & 0x01)
+    if (wdt->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //disabled the timer and interrupts
     wdt->enable = 0;

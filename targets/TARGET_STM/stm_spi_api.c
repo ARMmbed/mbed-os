@@ -42,15 +42,15 @@
 #include "spi_device.h"
 
 #if DEVICE_SPI_ASYNCH
-    #define SPI_INST(obj)    ((SPI_TypeDef *)(obj->spi.spi))
+#define SPI_INST(obj)    ((SPI_TypeDef *)(obj->spi.spi))
 #else
-    #define SPI_INST(obj)    ((SPI_TypeDef *)(obj->spi))
+#define SPI_INST(obj)    ((SPI_TypeDef *)(obj->spi))
 #endif
 
 #if DEVICE_SPI_ASYNCH
-    #define SPI_S(obj)    (( struct spi_s *)(&(obj->spi)))
+#define SPI_S(obj)    (( struct spi_s *)(&(obj->spi)))
 #else
-    #define SPI_S(obj)    (( struct spi_s *)(obj))
+#define SPI_S(obj)    (( struct spi_s *)(obj))
 #endif
 
 #ifndef DEBUG_STDIO
@@ -171,7 +171,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (miso != NC) {
         handle->Init.Direction     = SPI_DIRECTION_2LINES;
     } else {
-       handle->Init.Direction      = SPI_DIRECTION_1LINE;
+        handle->Init.Direction      = SPI_DIRECTION_1LINE;
     }
 
     handle->Init.CLKPhase          = SPI_PHASE_1EDGE;
@@ -306,20 +306,22 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
  */
 extern int spi_get_clock_freq(spi_t *obj);
 
-static const uint16_t baudrate_prescaler_table[] =	{SPI_BAUDRATEPRESCALER_2,
-                                                    SPI_BAUDRATEPRESCALER_4,
-                                                    SPI_BAUDRATEPRESCALER_8,
-                                                    SPI_BAUDRATEPRESCALER_16,
-                                                    SPI_BAUDRATEPRESCALER_32,
-                                                    SPI_BAUDRATEPRESCALER_64,
-                                                    SPI_BAUDRATEPRESCALER_128,
-                                                    SPI_BAUDRATEPRESCALER_256};
+static const uint16_t baudrate_prescaler_table[] =  {SPI_BAUDRATEPRESCALER_2,
+                                                     SPI_BAUDRATEPRESCALER_4,
+                                                     SPI_BAUDRATEPRESCALER_8,
+                                                     SPI_BAUDRATEPRESCALER_16,
+                                                     SPI_BAUDRATEPRESCALER_32,
+                                                     SPI_BAUDRATEPRESCALER_64,
+                                                     SPI_BAUDRATEPRESCALER_128,
+                                                     SPI_BAUDRATEPRESCALER_256
+                                                    };
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     struct spi_s *spiobj = SPI_S(obj);
     int spi_hz = 0;
     uint8_t prescaler_rank = 0;
-    uint8_t last_index = (sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0])) - 1;
+    uint8_t last_index = (sizeof(baudrate_prescaler_table) / sizeof(baudrate_prescaler_table[0])) - 1;
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
     /* Calculate the spi clock for prescaler_rank 0: SPI_BAUDRATEPRESCALER_2 */
@@ -381,7 +383,7 @@ int spi_master_write(spi_t *obj, int value)
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
     if (handle->Init.Direction == SPI_DIRECTION_1LINE) {
-        return HAL_SPI_Transmit(handle, (uint8_t*)&value, 1, TIMEOUT_1_BYTE);
+        return HAL_SPI_Transmit(handle, (uint8_t *)&value, 1, TIMEOUT_1_BYTE);
     }
 
 #if defined(LL_SPI_RX_FIFO_TH_HALF)
@@ -436,13 +438,13 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     } else {
         /* In case of 1 WIRE only, first handle TX, then Rx */
         if (tx_length != 0) {
-            if (HAL_OK != HAL_SPI_Transmit(handle, (uint8_t*)tx_buffer, tx_length, tx_length*TIMEOUT_1_BYTE)) {
+            if (HAL_OK != HAL_SPI_Transmit(handle, (uint8_t *)tx_buffer, tx_length, tx_length * TIMEOUT_1_BYTE)) {
                 /*  report an error */
                 total = 0;
             }
         }
         if (rx_length != 0) {
-            if (HAL_OK != HAL_SPI_Receive(handle, (uint8_t*)rx_buffer, rx_length, rx_length*TIMEOUT_1_BYTE)) {
+            if (HAL_OK != HAL_SPI_Receive(handle, (uint8_t *)rx_buffer, rx_length, rx_length * TIMEOUT_1_BYTE)) {
                 /*  report an error */
                 total = 0;
             }
@@ -528,18 +530,18 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
 
     // enable the right hal transfer
     int rc = 0;
-    switch(transfer_type) {
+    switch (transfer_type) {
         case SPI_TRANSFER_TYPE_TXRX:
-            rc = HAL_SPI_TransmitReceive_IT(handle, (uint8_t*)tx, (uint8_t*)rx, words);
+            rc = HAL_SPI_TransmitReceive_IT(handle, (uint8_t *)tx, (uint8_t *)rx, words);
             break;
         case SPI_TRANSFER_TYPE_TX:
-            rc = HAL_SPI_Transmit_IT(handle, (uint8_t*)tx, words);
+            rc = HAL_SPI_Transmit_IT(handle, (uint8_t *)tx, words);
             break;
         case SPI_TRANSFER_TYPE_RX:
             // the receive function also "transmits" the receive buffer so in order
             // to guarantee that 0xff is on the line, we explicitly memset it here
             memset(rx, SPI_FILL_WORD, length);
-            rc = HAL_SPI_Receive_IT(handle, (uint8_t*)rx, words);
+            rc = HAL_SPI_Receive_IT(handle, (uint8_t *)rx, words);
             break;
         default:
             length = 0;
@@ -568,8 +570,9 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     bool is16bit = (handle->Init.DataSize == SPI_DATASIZE_16BIT);
 
     // don't do anything, if the buffers aren't valid
-    if (!use_tx && !use_rx)
+    if (!use_tx && !use_rx) {
         return;
+    }
 
     // copy the buffers to the SPI object
     obj->tx_buff.buffer = (void *) tx;
@@ -593,8 +596,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     // enable the right hal transfer
     if (use_tx && use_rx) {
         // we cannot manage different rx / tx sizes, let's use smaller one
-        size_t size = (tx_length < rx_length)? tx_length : rx_length;
-        if(tx_length != rx_length) {
+        size_t size = (tx_length < rx_length) ? tx_length : rx_length;
+        if (tx_length != rx_length) {
             DEBUG_PRINTF("SPI: Full duplex transfer only 1 size: %d\n", size);
             obj->tx_buff.length = size;
             obj->rx_buff.length = size;
@@ -617,7 +620,7 @@ inline uint32_t spi_irq_handler_asynch(spi_t *obj)
     if (obj->spi.handle.State == HAL_SPI_STATE_READY) {
         // When HAL SPI is back to READY state, check if there was an error
         int error = obj->spi.handle.ErrorCode;
-        if(error != HAL_SPI_ERROR_NONE) {
+        if (error != HAL_SPI_ERROR_NONE) {
             // something went wrong and the transfer has definitely completed
             event = SPI_EVENT_ERROR | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
 
@@ -628,10 +631,10 @@ inline uint32_t spi_irq_handler_asynch(spi_t *obj)
         } else {
             // else we're done
             event = SPI_EVENT_COMPLETE | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
-       }
-       // enable the interrupt
-       NVIC_DisableIRQ(obj->spi.spiIRQ);
-       NVIC_ClearPendingIRQ(obj->spi.spiIRQ);
+        }
+        // enable the interrupt
+        NVIC_DisableIRQ(obj->spi.spiIRQ);
+        NVIC_ClearPendingIRQ(obj->spi.spiIRQ);
     }
 
 
@@ -644,7 +647,7 @@ uint8_t spi_active(spi_t *obj)
     SPI_HandleTypeDef *handle = &(spiobj->handle);
     HAL_SPI_StateTypeDef state = HAL_SPI_GetState(handle);
 
-    switch(state) {
+    switch (state) {
         case HAL_SPI_STATE_RESET:
         case HAL_SPI_STATE_READY:
         case HAL_SPI_STATE_ERROR:

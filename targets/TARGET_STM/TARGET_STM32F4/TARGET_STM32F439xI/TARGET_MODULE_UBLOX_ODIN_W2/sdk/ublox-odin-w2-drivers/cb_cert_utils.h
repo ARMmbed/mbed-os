@@ -67,10 +67,10 @@ struct cbCERT_Stream_s {
  * CERT API
  *=========================================================================*/
 
-cbRTSL_Status cbCERT_Util_parseDERCert(cbCERT_Stream const * const certificate, cbCERT_Stream const * const outputStream);
-cbRTSL_Status cbCERT_Util_parseDERKey(cbCERT_Stream const * const key, cbCERT_Stream const * const outputStream);
-cbRTSL_Status cbCERT_Util_parsePEMCert(cbCERT_Stream const * const certificate, cbCERT_Stream const * const outputStream);
-cbRTSL_Status cbCERT_Util_parsePEMKey(cbCERT_Stream const * const certificate, cb_char const * const key, cb_uint32 keyLength, cbCERT_Stream const * const outputStream);
+cbRTSL_Status cbCERT_Util_parseDERCert(cbCERT_Stream const *const certificate, cbCERT_Stream const *const outputStream);
+cbRTSL_Status cbCERT_Util_parseDERKey(cbCERT_Stream const *const key, cbCERT_Stream const *const outputStream);
+cbRTSL_Status cbCERT_Util_parsePEMCert(cbCERT_Stream const *const certificate, cbCERT_Stream const *const outputStream);
+cbRTSL_Status cbCERT_Util_parsePEMKey(cbCERT_Stream const *const certificate, cb_char const *const key, cb_uint32 keyLength, cbCERT_Stream const *const outputStream);
 
 #ifdef __cplusplus
 }

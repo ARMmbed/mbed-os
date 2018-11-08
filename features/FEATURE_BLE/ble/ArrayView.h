@@ -69,8 +69,8 @@ struct ArrayView {
      * @post a call to size() will return array_size and data() will return
      * array_tpr.
      */
-    ArrayView(T* array_ptr, size_t array_size) :
-    	_array(array_ptr), _size(array_size) { }
+    ArrayView(T *array_ptr, size_t array_size) :
+        _array(array_ptr), _size(array_size) { }
 
     /**
      * Construct an array view from the reference to an array.
@@ -83,8 +83,8 @@ struct ArrayView {
      * a pointer to elements.
      */
     template<size_t Size>
-    ArrayView(T (&elements)[Size]):
-		_array(elements), _size(Size) { }
+    ArrayView(T(&elements)[Size]):
+        _array(elements), _size(Size) { }
 
     /**
      * Return the size of the array viewed.
@@ -93,7 +93,7 @@ struct ArrayView {
      */
     size_t size() const
     {
-    	return _size;
+        return _size;
     }
 
     /**
@@ -105,9 +105,9 @@ struct ArrayView {
      *
      * @pre index shall be less than size().
      */
-    T& operator[](size_t index)
+    T &operator[](size_t index)
     {
-    	return _array[index];
+        return _array[index];
     }
 
     /**
@@ -119,9 +119,9 @@ struct ArrayView {
      *
      * @pre index shall be less than size().
      */
-    const T& operator[](size_t index) const
+    const T &operator[](size_t index) const
     {
-    	return _array[index];
+        return _array[index];
     }
 
     /**
@@ -129,7 +129,7 @@ struct ArrayView {
      *
      * @return The raw pointer to the array.
      */
-    T* data()
+    T *data()
     {
         return _array;
     }
@@ -139,7 +139,7 @@ struct ArrayView {
      *
      * @return The raw pointer to the array.
      */
-    const T* data() const
+    const T *data() const
     {
         return _array;
     }
@@ -153,17 +153,17 @@ struct ArrayView {
      * @return True if arrays in input have the same size and the same content
      * and false otherwise.
      */
-    friend bool operator==(const ArrayView& lhs, const ArrayView& rhs)
+    friend bool operator==(const ArrayView &lhs, const ArrayView &rhs)
     {
-    	if (lhs.size() != rhs.size()) {
-    		return false;
-    	}
+        if (lhs.size() != rhs.size()) {
+            return false;
+        }
 
-    	if (lhs.data() == rhs.data()) {
-    		return true;
-    	}
+        if (lhs.data() == rhs.data()) {
+            return true;
+        }
 
-    	return memcmp(lhs.data(), rhs.data(), lhs.size()) == 0;
+        return memcmp(lhs.data(), rhs.data(), lhs.size()) == 0;
     }
 
     /**
@@ -175,13 +175,13 @@ struct ArrayView {
      * @return True if arrays in input do not have the same size or the same
      * content and false otherwise.
      */
-    friend bool operator!=(const ArrayView& lhs, const ArrayView& rhs)
+    friend bool operator!=(const ArrayView &lhs, const ArrayView &rhs)
     {
-    	return !(lhs == rhs);
+        return !(lhs == rhs);
     }
 
 private:
-    T* const _array;
+    T *const _array;
     const size_t _size;
 };
 
@@ -200,7 +200,7 @@ private:
  * created 'inline'.
  */
 template<typename T, size_t Size>
-ArrayView<T> make_ArrayView(T (&elements)[Size])
+ArrayView<T> make_ArrayView(T(&elements)[Size])
 {
     return ArrayView<T>(elements);
 }
@@ -219,7 +219,7 @@ ArrayView<T> make_ArrayView(T (&elements)[Size])
  * created 'inline'.
  */
 template<typename T>
-ArrayView<T> make_ArrayView(T* array_ptr, size_t array_size)
+ArrayView<T> make_ArrayView(T *array_ptr, size_t array_size)
 {
     return ArrayView<T>(array_ptr, array_size);
 }
@@ -237,7 +237,7 @@ ArrayView<T> make_ArrayView(T* array_ptr, size_t array_size)
  * created 'inline'.
  */
 template<typename T, size_t Size>
-ArrayView<const T> make_const_ArrayView(T (&elements)[Size])
+ArrayView<const T> make_const_ArrayView(T(&elements)[Size])
 {
     return ArrayView<const T>(elements);
 }
@@ -256,7 +256,7 @@ ArrayView<const T> make_const_ArrayView(T (&elements)[Size])
  * created 'inline'.
  */
 template<typename T>
-ArrayView<const T> make_const_ArrayView(T* array_ptr, size_t array_size)
+ArrayView<const T> make_const_ArrayView(T *array_ptr, size_t array_size)
 {
     return ArrayView<const T>(array_ptr, array_size);
 }

@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -322,16 +322,16 @@
 #define BIT_INVC_CFGX_UP_DEST_PER (~(BIT_MASK_CFGX_UP_DEST_PER << BIT_SHIFT_CFGX_UP_DEST_PER))
 
 enum _GDMA_CHANNEL_NUM_ {
-        GdmaNoCh    = 0x0000,
-        GdmaCh0     = 0x0101,
-        GdmaCh1     = 0x0202,
-        GdmaCh2     = 0x0404,
-        GdmaCh3     = 0x0808,
-        GdmaCh4     = 0x1010,
-        GdmaCh5     = 0x2020,
-        GdmaCh6     = 0x4040,
-        GdmaCh7     = 0x8080,
-        GdmaAllCh   = 0xffff
+    GdmaNoCh    = 0x0000,
+    GdmaCh0     = 0x0101,
+    GdmaCh1     = 0x0202,
+    GdmaCh2     = 0x0404,
+    GdmaCh3     = 0x0808,
+    GdmaCh4     = 0x1010,
+    GdmaCh5     = 0x2020,
+    GdmaCh6     = 0x4040,
+    GdmaCh7     = 0x8080,
+    GdmaAllCh   = 0xffff
 };
 typedef uint32_t GDMA_CHANNEL_NUM;
 typedef uint32_t *PGDMA_CHANNEL_NUM;
@@ -340,58 +340,58 @@ typedef uint32_t *PGDMA_CHANNEL_NUM;
 //3 CTL register struct
 
 enum _GDMA_CTL_TT_FC_TYPE_ {
-        TTFCMemToMem    = 0x00,
-        TTFCMemToPeri   = 0x01,
-        TTFCPeriToMem   = 0x02
+    TTFCMemToMem    = 0x00,
+    TTFCMemToPeri   = 0x01,
+    TTFCPeriToMem   = 0x02
 };
 typedef uint32_t GDMA_CTL_TT_FC_TYPE;
 typedef uint32_t *PGDMA_CTL_TT_FC_TYPE;
 
 //Max type = Bus Width
 enum _GDMA_CTL_TR_WIDTH_ {
-        TrWidthOneByte    = 0x00,
-        TrWidthTwoBytes   = 0x01,
-        TrWidthFourBytes  = 0x02
+    TrWidthOneByte    = 0x00,
+    TrWidthTwoBytes   = 0x01,
+    TrWidthFourBytes  = 0x02
 };
 typedef uint32_t GDMA_CTL_TR_WIDTH;
 typedef uint32_t *PGDMA_CTL_TR_WIDTH;
 
 enum _GDMA_CTL_MSIZE_ {
-        MsizeOne        = 0x00,
-        MsizeFour       = 0x01,
-        MsizeEight      = 0x02
+    MsizeOne        = 0x00,
+    MsizeFour       = 0x01,
+    MsizeEight      = 0x02
 };
 typedef uint32_t GDMA_CTL_MSIZE;
 typedef uint32_t *PGDMA_CTL_MSIZE;
 
 enum _GDMA_INC_TYPE_ {
-        IncType         = 0x00,
-        DecType         = 0x01,
-        NoChange        = 0x02
+    IncType         = 0x00,
+    DecType         = 0x01,
+    NoChange        = 0x02
 };
 typedef uint32_t GDMA_INC_TYPE;
 typedef uint32_t *PGDMA_INC_TYPE;
 
 
 typedef struct _GDMA_CTL_REG_ {
-        GDMA_CTL_TT_FC_TYPE     TtFc;
-        GDMA_CTL_TR_WIDTH       DstTrWidth;
-        GDMA_CTL_TR_WIDTH       SrcTrWidth;
-        GDMA_INC_TYPE           Dinc;
-        GDMA_INC_TYPE           Sinc;
-        GDMA_CTL_MSIZE          DestMsize;
-        GDMA_CTL_MSIZE          SrcMsize;
+    GDMA_CTL_TT_FC_TYPE     TtFc;
+    GDMA_CTL_TR_WIDTH       DstTrWidth;
+    GDMA_CTL_TR_WIDTH       SrcTrWidth;
+    GDMA_INC_TYPE           Dinc;
+    GDMA_INC_TYPE           Sinc;
+    GDMA_CTL_MSIZE          DestMsize;
+    GDMA_CTL_MSIZE          SrcMsize;
 
-        u8                      IntEn           :1; // Bit 0
-        u8                      SrcGatherEn     :1; // Bit 1
-        u8                      DstScatterEn    :1; // Bit 2
-        u8                      LlpDstEn        :1; // Bit 3
-        u8                      LlpSrcEn        :1; // Bit 4
-        u8                      Done            :1; // Bit 5
-        u8                      Rsvd6To7        :2; //Bit 6 -7
-        u16                     BlockSize;
-        
-}GDMA_CTL_REG, *PGDMA_CTL_REG;
+    u8                      IntEn           : 1; // Bit 0
+    u8                      SrcGatherEn     : 1; // Bit 1
+    u8                      DstScatterEn    : 1; // Bit 2
+    u8                      LlpDstEn        : 1; // Bit 3
+    u8                      LlpSrcEn        : 1; // Bit 4
+    u8                      Done            : 1; // Bit 5
+    u8                      Rsvd6To7        : 2; //Bit 6 -7
+    u16                     BlockSize;
+
+} GDMA_CTL_REG, *PGDMA_CTL_REG;
 
 
 //3 CFG Register Structure
@@ -420,26 +420,26 @@ typedef uint32_t *PGDMA_LOCK_LEVEL;
 
 typedef struct _GDMA_CFG_REG_ {
     GDMA_CH_PRIORITY        ChPrior;
-    GDMA_LOCK_LEVEL         LockBL;     
-    GDMA_LOCK_LEVEL         LockChL;     
+    GDMA_LOCK_LEVEL         LockBL;
+    GDMA_LOCK_LEVEL         LockChL;
     u16                     MaxAbrst;
     u8                      SrcPer;
     u8                      DestPer;
-    u16                     ChSusp      :1; //Bit 0
-    u16                     FifoEmpty   :1; //Bit 1
-    u16                     HsSelDst    :1; //Bit 2
-    u16                     HsSelSrc    :1; //Bit 3
-    u16                     LockCh      :1; //Bit 4
-    u16                     LockB       :1; //Bit 5
-    u16                     DstHsPol    :1; //Bit 6
-    u16                     SrcHsPol    :1; //Bit 7
-    u16                     ReloadSrc   :1; //Bit 8
-    u16                     ReloadDst   :1; //Bit 9
-    u16                     FifoMode    :1; //Bit 10
-    u16                     DsUpdEn     :1; //Bit 11
-    u16                     SsUpdEn     :1; //Bit 12
-    u16                     Rsvd13To15  :3;
-}GDMA_CFG_REG, *PGDMA_CFG_REG;
+    u16                     ChSusp      : 1; //Bit 0
+    u16                     FifoEmpty   : 1; //Bit 1
+    u16                     HsSelDst    : 1; //Bit 2
+    u16                     HsSelSrc    : 1; //Bit 3
+    u16                     LockCh      : 1; //Bit 4
+    u16                     LockB       : 1; //Bit 5
+    u16                     DstHsPol    : 1; //Bit 6
+    u16                     SrcHsPol    : 1; //Bit 7
+    u16                     ReloadSrc   : 1; //Bit 8
+    u16                     ReloadDst   : 1; //Bit 9
+    u16                     FifoMode    : 1; //Bit 10
+    u16                     DsUpdEn     : 1; //Bit 11
+    u16                     SsUpdEn     : 1; //Bit 12
+    u16                     Rsvd13To15  : 3;
+} GDMA_CFG_REG, *PGDMA_CFG_REG;
 
 enum _GDMA_ISR_TYPE_ {
     TransferType        = 0x1,
@@ -453,7 +453,7 @@ typedef uint32_t *PGDMA_ISR_TYPE;
 
 
 VOID
-HalGdmaOnOffRtl8195a (
+HalGdmaOnOffRtl8195a(
     IN  VOID              *Data
 );
 
@@ -478,34 +478,34 @@ HalGdmaChBlockSetingRtl8195a_Patch(
 );
 
 VOID
-HalGdmaChDisRtl8195a (
+HalGdmaChDisRtl8195a(
     IN  VOID              *Data
 );
 
 VOID
-HalGdmaChEnRtl8195a (
+HalGdmaChEnRtl8195a(
     IN  VOID              *Data
 );
 
 VOID
-HalGdmaChIsrEnAndDisRtl8195a (
+HalGdmaChIsrEnAndDisRtl8195a(
     IN  VOID              *Data
 );
 
 u8
-HalGdmaChIsrCleanRtl8195a (
+HalGdmaChIsrCleanRtl8195a(
     IN  VOID              *Data
 );
 
 VOID
-HalGdmaChCleanAutoSrcRtl8195a (
+HalGdmaChCleanAutoSrcRtl8195a(
     IN  VOID              *Data
 );
 
 VOID
-HalGdmaChCleanAutoDstRtl8195a (
+HalGdmaChCleanAutoDstRtl8195a(
     IN  VOID              *Data
-); 
+);
 
 u32
 HalGdmaQueryDArRtl8195a(
@@ -518,7 +518,7 @@ HalGdmaQuerySArRtl8195a(
 );
 
 BOOL
-HalGdmaQueryChEnRtl8195a (
+HalGdmaQueryChEnRtl8195a(
     IN  VOID              *Data
 );
 
@@ -539,7 +539,7 @@ HalGdmaQuerySArRtl8195a_V04(
 );
 
 _LONG_CALL_ BOOL
-HalGdmaQueryChEnRtl8195a_V04 (
+HalGdmaQueryChEnRtl8195a_V04(
     IN  VOID      *Data
 );
 

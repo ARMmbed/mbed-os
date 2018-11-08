@@ -91,7 +91,7 @@
  ******************************************************************************/
 __STATIC_INLINE unsigned int PCNT_Map(PCNT_TypeDef *pcnt)
 {
-  return ((uint32_t)pcnt - PCNT0_BASE) / 0x400;
+    return ((uint32_t)pcnt - PCNT0_BASE) / 0x400;
 }
 
 /***************************************************************************//**
@@ -107,16 +107,16 @@ __STATIC_INLINE unsigned int PCNT_Map(PCNT_TypeDef *pcnt)
  ******************************************************************************/
 __STATIC_INLINE void PCNT_Sync(PCNT_TypeDef *pcnt, uint32_t mask)
 {
-  /* Avoid deadlock if modifying the same register twice when freeze mode is
-   * activated. */
-  if (pcnt->FREEZE & PCNT_FREEZE_REGFREEZE) {
-    return;
-  }
+    /* Avoid deadlock if modifying the same register twice when freeze mode is
+     * activated. */
+    if (pcnt->FREEZE & PCNT_FREEZE_REGFREEZE) {
+        return;
+    }
 
-  /* Wait for any pending previous write operation to have been completed in low
-   * frequency domain. */
-  while (pcnt->SYNCBUSY & mask)
-    ;
+    /* Wait for any pending previous write operation to have been completed in low
+     * frequency domain. */
+    while (pcnt->SYNCBUSY & mask)
+        ;
 }
 
 /** @endcond */
@@ -141,13 +141,13 @@ __STATIC_INLINE void PCNT_Sync(PCNT_TypeDef *pcnt, uint32_t mask)
  ******************************************************************************/
 void PCNT_CounterReset(PCNT_TypeDef *pcnt)
 {
-  EFM_ASSERT(PCNT_REF_VALID(pcnt));
+    EFM_ASSERT(PCNT_REF_VALID(pcnt));
 
-  /* Enable reset of CNT and TOP register */
-  BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 1);
+    /* Enable reset of CNT and TOP register */
+    BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 1);
 
-  /* Disable reset of CNT and TOP register */
-  BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 0);
+    /* Disable reset of CNT and TOP register */
+    BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 0);
 }
 
 /***************************************************************************//**
@@ -176,75 +176,75 @@ void PCNT_CounterReset(PCNT_TypeDef *pcnt)
  ******************************************************************************/
 void PCNT_CounterTopSet(PCNT_TypeDef *pcnt, uint32_t count, uint32_t top)
 {
-  uint32_t ctrl;
+    uint32_t ctrl;
 
-  EFM_ASSERT(PCNT_REF_VALID(pcnt));
+    EFM_ASSERT(PCNT_REF_VALID(pcnt));
 
 #ifdef PCNT0
-  if (PCNT0 == pcnt) {
-    EFM_ASSERT((1 << PCNT0_CNT_SIZE) > count);
-    EFM_ASSERT((1 << PCNT0_CNT_SIZE) > top);
-  }
+    if (PCNT0 == pcnt) {
+        EFM_ASSERT((1 << PCNT0_CNT_SIZE) > count);
+        EFM_ASSERT((1 << PCNT0_CNT_SIZE) > top);
+    }
 #endif
 
 #ifdef PCNT1
-  if (PCNT1 == pcnt) {
-    EFM_ASSERT((1 << PCNT1_CNT_SIZE) > count);
-    EFM_ASSERT((1 << PCNT1_CNT_SIZE) > top);
-  }
+    if (PCNT1 == pcnt) {
+        EFM_ASSERT((1 << PCNT1_CNT_SIZE) > count);
+        EFM_ASSERT((1 << PCNT1_CNT_SIZE) > top);
+    }
 #endif
 
 #ifdef PCNT2
-  if (PCNT2 == pcnt) {
-    EFM_ASSERT((1 << PCNT2_CNT_SIZE) > count);
-    EFM_ASSERT((1 << PCNT2_CNT_SIZE) > top);
-  }
+    if (PCNT2 == pcnt) {
+        EFM_ASSERT((1 << PCNT2_CNT_SIZE) > count);
+        EFM_ASSERT((1 << PCNT2_CNT_SIZE) > top);
+    }
 #endif
 
-  /* Keep current control setting, must be restored */
-  ctrl = pcnt->CTRL;
+    /* Keep current control setting, must be restored */
+    ctrl = pcnt->CTRL;
 
-  /* If enabled, disable pulse counter before changing values */
-  if ((ctrl & _PCNT_CTRL_MODE_MASK) != PCNT_CTRL_MODE_DISABLE) {
-    PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
-    pcnt->CTRL = (ctrl & ~_PCNT_CTRL_MODE_MASK) | PCNT_CTRL_MODE_DISABLE;
-  }
+    /* If enabled, disable pulse counter before changing values */
+    if ((ctrl & _PCNT_CTRL_MODE_MASK) != PCNT_CTRL_MODE_DISABLE) {
+        PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
+        pcnt->CTRL = (ctrl & ~_PCNT_CTRL_MODE_MASK) | PCNT_CTRL_MODE_DISABLE;
+    }
 
-  /* Load into TOPB */
-  PCNT_Sync(pcnt, PCNT_SYNCBUSY_TOPB);
-  pcnt->TOPB = count;
-
-  /* Load TOPB value into TOP */
-  PCNT_Sync(pcnt, PCNT_SYNCBUSY_TOPB | PCNT_SYNCBUSY_CMD);
-
-  /* This bit has no effect on rev. C and onwards parts - for compatibility */
-  pcnt->CMD = PCNT_CMD_LTOPBIM;
-  PCNT_Sync(pcnt, PCNT_SYNCBUSY_CMD);
-
-  /* Load TOP into CNT */
-  pcnt->CMD = PCNT_CMD_LCNTIM;
-
-  /* Restore TOP? ('count' setting has been loaded into pcnt->TOP, better
-   * to use 'top' than pcnt->TOP in compare, since latter may in theory not
-   * be visible yet.) */
-  if (top != count) {
-    /* Wait for command to sync LCNTIM before setting TOPB */
-    PCNT_Sync(pcnt, PCNT_SYNCBUSY_CMD);
-
-    /* Load into TOPB, we don't need to check for TOPB sync complete here,
-     * it has been ensured above. */
-    pcnt->TOPB = top;
+    /* Load into TOPB */
+    PCNT_Sync(pcnt, PCNT_SYNCBUSY_TOPB);
+    pcnt->TOPB = count;
 
     /* Load TOPB value into TOP */
     PCNT_Sync(pcnt, PCNT_SYNCBUSY_TOPB | PCNT_SYNCBUSY_CMD);
-    pcnt->CMD = PCNT_CMD_LTOPBIM;
-  }
 
-  /* Reenable if it was enabled */
-  if ((ctrl & _PCNT_CTRL_MODE_MASK) != PCNT_CTRL_MODE_DISABLE) {
-    PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL | PCNT_SYNCBUSY_CMD);
-    pcnt->CTRL = ctrl;
-  }
+    /* This bit has no effect on rev. C and onwards parts - for compatibility */
+    pcnt->CMD = PCNT_CMD_LTOPBIM;
+    PCNT_Sync(pcnt, PCNT_SYNCBUSY_CMD);
+
+    /* Load TOP into CNT */
+    pcnt->CMD = PCNT_CMD_LCNTIM;
+
+    /* Restore TOP? ('count' setting has been loaded into pcnt->TOP, better
+     * to use 'top' than pcnt->TOP in compare, since latter may in theory not
+     * be visible yet.) */
+    if (top != count) {
+        /* Wait for command to sync LCNTIM before setting TOPB */
+        PCNT_Sync(pcnt, PCNT_SYNCBUSY_CMD);
+
+        /* Load into TOPB, we don't need to check for TOPB sync complete here,
+         * it has been ensured above. */
+        pcnt->TOPB = top;
+
+        /* Load TOPB value into TOP */
+        PCNT_Sync(pcnt, PCNT_SYNCBUSY_TOPB | PCNT_SYNCBUSY_CMD);
+        pcnt->CMD = PCNT_CMD_LTOPBIM;
+    }
+
+    /* Reenable if it was enabled */
+    if ((ctrl & _PCNT_CTRL_MODE_MASK) != PCNT_CTRL_MODE_DISABLE) {
+        PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL | PCNT_SYNCBUSY_CMD);
+        pcnt->CTRL = ctrl;
+    }
 }
 
 /***************************************************************************//**
@@ -271,17 +271,17 @@ void PCNT_CounterTopSet(PCNT_TypeDef *pcnt, uint32_t count, uint32_t top)
  ******************************************************************************/
 void PCNT_Enable(PCNT_TypeDef *pcnt, PCNT_Mode_TypeDef mode)
 {
-  uint32_t tmp;
+    uint32_t tmp;
 
-  EFM_ASSERT(PCNT_REF_VALID(pcnt));
+    EFM_ASSERT(PCNT_REF_VALID(pcnt));
 
-  /* Set as specified */
-  tmp  = pcnt->CTRL & ~_PCNT_CTRL_MODE_MASK;
-  tmp |= (uint32_t)mode << _PCNT_CTRL_MODE_SHIFT;
+    /* Set as specified */
+    tmp  = pcnt->CTRL & ~_PCNT_CTRL_MODE_MASK;
+    tmp |= (uint32_t)mode << _PCNT_CTRL_MODE_SHIFT;
 
-  /* LF register about to be modified require sync. busy check */
-  PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
-  pcnt->CTRL = tmp;
+    /* LF register about to be modified require sync. busy check */
+    PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
+    pcnt->CTRL = tmp;
 }
 
 #if defined(_PCNT_INPUT_MASK)
@@ -305,25 +305,25 @@ void PCNT_PRSInputEnable(PCNT_TypeDef *pcnt,
                          PCNT_PRSInput_TypeDef prsInput,
                          bool enable)
 {
-  EFM_ASSERT(PCNT_REF_VALID(pcnt));
+    EFM_ASSERT(PCNT_REF_VALID(pcnt));
 
-  /* Enable/disable the selected PRS input on the selected PCNT module. */
-  switch (prsInput) {
-    /* Enable/disable PRS input S0. */
-    case pcntPRSInputS0:
-      BUS_RegBitWrite(&(pcnt->INPUT), _PCNT_INPUT_S0PRSEN_SHIFT, enable);
-      break;
+    /* Enable/disable the selected PRS input on the selected PCNT module. */
+    switch (prsInput) {
+        /* Enable/disable PRS input S0. */
+        case pcntPRSInputS0:
+            BUS_RegBitWrite(&(pcnt->INPUT), _PCNT_INPUT_S0PRSEN_SHIFT, enable);
+            break;
 
-    /* Enable/disable PRS input S1. */
-    case pcntPRSInputS1:
-      BUS_RegBitWrite(&(pcnt->INPUT), _PCNT_INPUT_S1PRSEN_SHIFT, enable);
-      break;
+        /* Enable/disable PRS input S1. */
+        case pcntPRSInputS1:
+            BUS_RegBitWrite(&(pcnt->INPUT), _PCNT_INPUT_S1PRSEN_SHIFT, enable);
+            break;
 
-    /* Invalid parameter, asserted. */
-    default:
-      EFM_ASSERT(0);
-      break;
-  }
+        /* Invalid parameter, asserted. */
+        default:
+            EFM_ASSERT(0);
+            break;
+    }
 }
 #endif
 
@@ -356,23 +356,23 @@ void PCNT_PRSInputEnable(PCNT_TypeDef *pcnt,
  ******************************************************************************/
 void PCNT_FreezeEnable(PCNT_TypeDef *pcnt, bool enable)
 {
-  EFM_ASSERT(PCNT_REF_VALID(pcnt));
+    EFM_ASSERT(PCNT_REF_VALID(pcnt));
 
-  if (enable) {
-    /* Wait for any ongoing LF synchronization to complete. This is just to
-     * protect against the rare case when a user:
-     * - modifies a register requiring LF sync
-     * - then enables freeze before LF sync completed
-     * - then modifies the same register again
-     * since modifying a register while it is in sync progress should be
-     * avoided. */
-    while (pcnt->SYNCBUSY)
-      ;
+    if (enable) {
+        /* Wait for any ongoing LF synchronization to complete. This is just to
+         * protect against the rare case when a user:
+         * - modifies a register requiring LF sync
+         * - then enables freeze before LF sync completed
+         * - then modifies the same register again
+         * since modifying a register while it is in sync progress should be
+         * avoided. */
+        while (pcnt->SYNCBUSY)
+            ;
 
-    pcnt->FREEZE = PCNT_FREEZE_REGFREEZE;
-  } else {
-    pcnt->FREEZE = 0;
-  }
+        pcnt->FREEZE = PCNT_FREEZE_REGFREEZE;
+    } else {
+        pcnt->FREEZE = 0;
+    }
 }
 
 /***************************************************************************//**
@@ -416,182 +416,182 @@ void PCNT_FreezeEnable(PCNT_TypeDef *pcnt, bool enable)
  ******************************************************************************/
 void PCNT_Init(PCNT_TypeDef *pcnt, const PCNT_Init_TypeDef *init)
 {
-  unsigned int inst;
-  uint32_t     tmp;
+    unsigned int inst;
+    uint32_t     tmp;
 
-  EFM_ASSERT(PCNT_REF_VALID(pcnt));
+    EFM_ASSERT(PCNT_REF_VALID(pcnt));
 
 #ifdef PCNT0
-  if (PCNT0 == pcnt) {
-    EFM_ASSERT((1 << PCNT0_CNT_SIZE) > init->counter);
-    EFM_ASSERT((1 << PCNT0_CNT_SIZE) > init->top);
-  }
+    if (PCNT0 == pcnt) {
+        EFM_ASSERT((1 << PCNT0_CNT_SIZE) > init->counter);
+        EFM_ASSERT((1 << PCNT0_CNT_SIZE) > init->top);
+    }
 #endif
 
 #ifdef PCNT1
-  if (PCNT1 == pcnt) {
-    EFM_ASSERT((1 << PCNT1_CNT_SIZE) > init->counter);
-    EFM_ASSERT((1 << PCNT1_CNT_SIZE) > init->top);
-  }
+    if (PCNT1 == pcnt) {
+        EFM_ASSERT((1 << PCNT1_CNT_SIZE) > init->counter);
+        EFM_ASSERT((1 << PCNT1_CNT_SIZE) > init->top);
+    }
 #endif
 
 #ifdef PCNT2
-  if (PCNT2 == pcnt) {
-    EFM_ASSERT((1 << PCNT2_CNT_SIZE) > init->counter);
-    EFM_ASSERT((1 << PCNT2_CNT_SIZE) > init->top);
-  }
+    if (PCNT2 == pcnt) {
+        EFM_ASSERT((1 << PCNT2_CNT_SIZE) > init->counter);
+        EFM_ASSERT((1 << PCNT2_CNT_SIZE) > init->top);
+    }
 #endif
 
-  /* Map pointer to instance */
-  inst = PCNT_Map(pcnt);
+    /* Map pointer to instance */
+    inst = PCNT_Map(pcnt);
 
 #if defined(_PCNT_INPUT_MASK)
-  /* Selecting the PRS channels for the PRS input sources of the PCNT. These are
-   * written with a Read-Modify-Write sequence in order to keep the value of the
-   * input enable bits which can be modified using PCNT_PRSInputEnable(). */
-  tmp = pcnt->INPUT & ~(_PCNT_INPUT_S0PRSSEL_MASK | _PCNT_INPUT_S1PRSSEL_MASK);
-  tmp |= ((uint32_t)init->s0PRS << _PCNT_INPUT_S0PRSSEL_SHIFT)
-         | ((uint32_t)init->s1PRS << _PCNT_INPUT_S1PRSSEL_SHIFT);
-  pcnt->INPUT = tmp;
+    /* Selecting the PRS channels for the PRS input sources of the PCNT. These are
+     * written with a Read-Modify-Write sequence in order to keep the value of the
+     * input enable bits which can be modified using PCNT_PRSInputEnable(). */
+    tmp = pcnt->INPUT & ~(_PCNT_INPUT_S0PRSSEL_MASK | _PCNT_INPUT_S1PRSSEL_MASK);
+    tmp |= ((uint32_t)init->s0PRS << _PCNT_INPUT_S0PRSSEL_SHIFT)
+           | ((uint32_t)init->s1PRS << _PCNT_INPUT_S1PRSSEL_SHIFT);
+    pcnt->INPUT = tmp;
 #endif
 
-  /* Build CTRL setting, except for mode */
-  tmp = 0;
-  if (init->negEdge) {
-    tmp |= PCNT_CTRL_EDGE_NEG;
-  }
+    /* Build CTRL setting, except for mode */
+    tmp = 0;
+    if (init->negEdge) {
+        tmp |= PCNT_CTRL_EDGE_NEG;
+    }
 
-  if (init->countDown) {
-    tmp |= PCNT_CTRL_CNTDIR_DOWN;
-  }
+    if (init->countDown) {
+        tmp |= PCNT_CTRL_CNTDIR_DOWN;
+    }
 
-  if (init->filter) {
-    tmp |= PCNT_CTRL_FILT;
-  }
+    if (init->filter) {
+        tmp |= PCNT_CTRL_FILT;
+    }
 
 #if defined(PCNT_CTRL_HYST)
-  if (init->hyst) {
-    tmp |= PCNT_CTRL_HYST;
-  }
+    if (init->hyst) {
+        tmp |= PCNT_CTRL_HYST;
+    }
 #endif
 
 #if defined(PCNT_CTRL_S1CDIR)
-  if (init->s1CntDir) {
-    tmp |= PCNT_CTRL_S1CDIR;
-  }
+    if (init->s1CntDir) {
+        tmp |= PCNT_CTRL_S1CDIR;
+    }
 #endif
 
-  /* Configure counter events for regular and auxiliary counter. */
+    /* Configure counter events for regular and auxiliary counter. */
 #if defined(_PCNT_CTRL_CNTEV_SHIFT)
-  tmp |= init->cntEvent << _PCNT_CTRL_CNTEV_SHIFT;
+    tmp |= init->cntEvent << _PCNT_CTRL_CNTEV_SHIFT;
 #endif
 
 #if defined(_PCNT_CTRL_AUXCNTEV_SHIFT)
-  {
-    /* Modify the auxCntEvent value before writing to the AUXCNTEV field in
-       the CTRL register because the AUXCNTEV field values are different from
-       the CNTEV field values, and cntEvent and auxCntEvent are of the same type
-       PCNT_CntEvent_TypeDef.
-     */
-    uint32_t auxCntEventField = 0; /* Get rid of compiler warning. */
-    switch (init->auxCntEvent) {
-      case pcntCntEventBoth:
-        auxCntEventField = pcntCntEventNone;
-        break;
-      case pcntCntEventNone:
-        auxCntEventField = pcntCntEventBoth;
-        break;
-      case pcntCntEventUp:
-      case pcntCntEventDown:
-        auxCntEventField = init->auxCntEvent;
-        break;
-      default:
-        /* Invalid parameter, asserted. */
-        EFM_ASSERT(0);
-        break;
+    {
+        /* Modify the auxCntEvent value before writing to the AUXCNTEV field in
+           the CTRL register because the AUXCNTEV field values are different from
+           the CNTEV field values, and cntEvent and auxCntEvent are of the same type
+           PCNT_CntEvent_TypeDef.
+         */
+        uint32_t auxCntEventField = 0; /* Get rid of compiler warning. */
+        switch (init->auxCntEvent) {
+            case pcntCntEventBoth:
+                auxCntEventField = pcntCntEventNone;
+                break;
+            case pcntCntEventNone:
+                auxCntEventField = pcntCntEventBoth;
+                break;
+            case pcntCntEventUp:
+            case pcntCntEventDown:
+                auxCntEventField = init->auxCntEvent;
+                break;
+            default:
+                /* Invalid parameter, asserted. */
+                EFM_ASSERT(0);
+                break;
+        }
+        tmp |= auxCntEventField << _PCNT_CTRL_AUXCNTEV_SHIFT;
     }
-    tmp |= auxCntEventField << _PCNT_CTRL_AUXCNTEV_SHIFT;
-  }
 #endif
 
-  /* Reset pulse counter while changing clock source. The reset bit */
-  /* is asynchronous, we don't have to check for SYNCBUSY. */
-  BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 1);
+    /* Reset pulse counter while changing clock source. The reset bit */
+    /* is asynchronous, we don't have to check for SYNCBUSY. */
+    BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 1);
 
-  /* Select LFACLK to clock in control setting */
-  CMU_PCNTClockExternalSet(inst, false);
+    /* Select LFACLK to clock in control setting */
+    CMU_PCNTClockExternalSet(inst, false);
 
-  /* Handling depends on whether using external clock or not. */
-  switch (init->mode) {
-    case pcntModeExtSingle:
-    case pcntModeExtQuad:
-      tmp |= init->mode << _PCNT_CTRL_MODE_SHIFT;
+    /* Handling depends on whether using external clock or not. */
+    switch (init->mode) {
+        case pcntModeExtSingle:
+        case pcntModeExtQuad:
+            tmp |= init->mode << _PCNT_CTRL_MODE_SHIFT;
 
-      /* In most cases, the SYNCBUSY bit is set due to reset bit set, and waiting
-       * for asynchronous reset bit is strictly not necessary.
-       * But in theory, other operations on CTRL register may have been done
-       * outside this function, so wait. */
-      PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
+            /* In most cases, the SYNCBUSY bit is set due to reset bit set, and waiting
+             * for asynchronous reset bit is strictly not necessary.
+             * But in theory, other operations on CTRL register may have been done
+             * outside this function, so wait. */
+            PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
 
-      /* Enable PCNT Clock Domain Reset. The PCNT must be in reset before changing
-       * the clock source to an external clock */
-      pcnt->CTRL = PCNT_CTRL_RSTEN;
+            /* Enable PCNT Clock Domain Reset. The PCNT must be in reset before changing
+             * the clock source to an external clock */
+            pcnt->CTRL = PCNT_CTRL_RSTEN;
 
-      /* Wait until CTRL write synchronized into LF domain. */
-      PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
+            /* Wait until CTRL write synchronized into LF domain. */
+            PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
 
-      /* Change to external clock BEFORE disabling reset */
-      CMU_PCNTClockExternalSet(inst, true);
+            /* Change to external clock BEFORE disabling reset */
+            CMU_PCNTClockExternalSet(inst, true);
 
-      /* Write to TOPB. If using external clock TOPB will sync to TOP at the same
-       * time as the mode. This will insure that if the user chooses to count
-       * down, the first "countable" pulse will make CNT go to TOP and not 0xFF
-       * (default TOP value). */
-      pcnt->TOPB = init->top;
+            /* Write to TOPB. If using external clock TOPB will sync to TOP at the same
+             * time as the mode. This will insure that if the user chooses to count
+             * down, the first "countable" pulse will make CNT go to TOP and not 0xFF
+             * (default TOP value). */
+            pcnt->TOPB = init->top;
 
-      /* This bit has no effect on rev. C and onwards parts - for compatibility */
-      pcnt->CMD = PCNT_CMD_LTOPBIM;
+            /* This bit has no effect on rev. C and onwards parts - for compatibility */
+            pcnt->CMD = PCNT_CMD_LTOPBIM;
 
-      /* Write the CTRL register with the configurations.
-       * This should be written after TOPB in the eventuality of a pulse between
-       * these two writes that would cause the CTRL register to be synced one
-       * clock cycle earlier than the TOPB. */
-      pcnt->CTRL = tmp;
+            /* Write the CTRL register with the configurations.
+             * This should be written after TOPB in the eventuality of a pulse between
+             * these two writes that would cause the CTRL register to be synced one
+             * clock cycle earlier than the TOPB. */
+            pcnt->CTRL = tmp;
 
-      /* There are no syncs for TOP, CMD or CTRL because the clock rate is unknown
-       * and the program could stall
-       * These will be synced within 3 clock cycles of the external clock  /
-       * For the same reason CNT cannot be written here. */
-      break;
+            /* There are no syncs for TOP, CMD or CTRL because the clock rate is unknown
+             * and the program could stall
+             * These will be synced within 3 clock cycles of the external clock  /
+             * For the same reason CNT cannot be written here. */
+            break;
 
-    /* pcntModeDisable */
-    /* pcntModeOvsSingle */
-    default:
-      /* No need to set disabled mode if already disabled. */
-      if ((pcnt->CTRL & _PCNT_CTRL_MODE_MASK) != PCNT_CTRL_MODE_DISABLE) {
-        /* Set control to disabled mode, leave reset on until ensured disabled.
-         * We don't need to wait for CTRL SYNCBUSY completion here, it was
-         * triggered by reset bit above, which is asynchronous. */
-        pcnt->CTRL = tmp | PCNT_CTRL_MODE_DISABLE | PCNT_CTRL_RSTEN;
+        /* pcntModeDisable */
+        /* pcntModeOvsSingle */
+        default:
+            /* No need to set disabled mode if already disabled. */
+            if ((pcnt->CTRL & _PCNT_CTRL_MODE_MASK) != PCNT_CTRL_MODE_DISABLE) {
+                /* Set control to disabled mode, leave reset on until ensured disabled.
+                 * We don't need to wait for CTRL SYNCBUSY completion here, it was
+                 * triggered by reset bit above, which is asynchronous. */
+                pcnt->CTRL = tmp | PCNT_CTRL_MODE_DISABLE | PCNT_CTRL_RSTEN;
 
-        /* Wait until CTRL write synchronized into LF domain before proceeding
-         * to disable reset. */
-        PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
-      }
+                /* Wait until CTRL write synchronized into LF domain before proceeding
+                 * to disable reset. */
+                PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
+            }
 
-      /* Disable reset bit, counter should now be in disabled mode. */
-      BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 0);
+            /* Disable reset bit, counter should now be in disabled mode. */
+            BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 0);
 
-      /* Set counter and top values as specified. */
-      PCNT_CounterTopSet(pcnt, init->counter, init->top);
+            /* Set counter and top values as specified. */
+            PCNT_CounterTopSet(pcnt, init->counter, init->top);
 
-      /* Enter oversampling mode if selected. */
-      if (init->mode == pcntModeOvsSingle) {
-        PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
-        pcnt->CTRL = tmp | (init->mode << _PCNT_CTRL_MODE_SHIFT);
-      }
-      break;
-  }
+            /* Enter oversampling mode if selected. */
+            if (init->mode == pcntModeOvsSingle) {
+                PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
+                pcnt->CTRL = tmp | (init->mode << _PCNT_CTRL_MODE_SHIFT);
+            }
+            break;
+    }
 }
 
 /***************************************************************************//**
@@ -612,38 +612,38 @@ void PCNT_Init(PCNT_TypeDef *pcnt, const PCNT_Init_TypeDef *init)
  ******************************************************************************/
 void PCNT_Reset(PCNT_TypeDef *pcnt)
 {
-  unsigned int inst;
+    unsigned int inst;
 
-  EFM_ASSERT(PCNT_REF_VALID(pcnt));
+    EFM_ASSERT(PCNT_REF_VALID(pcnt));
 
-  /* Map pointer to instance and clock info */
-  inst = PCNT_Map(pcnt);
+    /* Map pointer to instance and clock info */
+    inst = PCNT_Map(pcnt);
 
-  pcnt->IEN = _PCNT_IEN_RESETVALUE;
+    pcnt->IEN = _PCNT_IEN_RESETVALUE;
 
-  /* Notice that special SYNCBUSY handling is not applicable for the RSTEN
-   * bit of the control register, so we don't need to wait for it when only
-   * modifying RSTEN. The SYNCBUSY bit will be set, leading to a
-   * synchronization in the LF domain, with in reality no changes to LF domain.
-   * Enable reset of CNT and TOP register. */
-  BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 1);
+    /* Notice that special SYNCBUSY handling is not applicable for the RSTEN
+     * bit of the control register, so we don't need to wait for it when only
+     * modifying RSTEN. The SYNCBUSY bit will be set, leading to a
+     * synchronization in the LF domain, with in reality no changes to LF domain.
+     * Enable reset of CNT and TOP register. */
+    BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 1);
 
-  /* Select LFACLK as default */
-  CMU_PCNTClockExternalSet(inst, false);
+    /* Select LFACLK as default */
+    CMU_PCNTClockExternalSet(inst, false);
 
-  PCNT_TopBufferSet(pcnt, _PCNT_TOPB_RESETVALUE);
+    PCNT_TopBufferSet(pcnt, _PCNT_TOPB_RESETVALUE);
 
-  /* Reset CTRL leaving RSTEN set */
-  pcnt->CTRL = _PCNT_CTRL_RESETVALUE | PCNT_CTRL_RSTEN;
+    /* Reset CTRL leaving RSTEN set */
+    pcnt->CTRL = _PCNT_CTRL_RESETVALUE | PCNT_CTRL_RSTEN;
 
-  /* Disable reset after CTRL reg has been synchronized */
-  PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
-  BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 0);
+    /* Disable reset after CTRL reg has been synchronized */
+    PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
+    BUS_RegBitWrite(&(pcnt->CTRL), _PCNT_CTRL_RSTEN_SHIFT, 0);
 
-  /* Clear pending interrupts */
-  pcnt->IFC = _PCNT_IFC_MASK;
+    /* Clear pending interrupts */
+    pcnt->IFC = _PCNT_IFC_MASK;
 
-  /* Do not reset route register, setting should be done independently */
+    /* Do not reset route register, setting should be done independently */
 }
 
 #if defined(PCNT_OVSCFG_FILTLEN_DEFAULT)
@@ -666,25 +666,25 @@ void PCNT_Reset(PCNT_TypeDef *pcnt)
  ******************************************************************************/
 void PCNT_FilterConfiguration(PCNT_TypeDef *pcnt, const PCNT_Filter_TypeDef *config, bool enable)
 {
-  uint32_t ovscfg = 0;
+    uint32_t ovscfg = 0;
 
-  EFM_ASSERT(PCNT_REF_VALID(pcnt));
+    EFM_ASSERT(PCNT_REF_VALID(pcnt));
 
-  /* Construct new filter setting value */
-  ovscfg  = ((config->filtLen & _PCNT_OVSCFG_FILTLEN_MASK) << _PCNT_OVSCFG_FILTLEN_SHIFT)
-            | ((config->flutterrm & 0x1) << _PCNT_OVSCFG_FLUTTERRM_SHIFT);
+    /* Construct new filter setting value */
+    ovscfg  = ((config->filtLen & _PCNT_OVSCFG_FILTLEN_MASK) << _PCNT_OVSCFG_FILTLEN_SHIFT)
+              | ((config->flutterrm & 0x1) << _PCNT_OVSCFG_FLUTTERRM_SHIFT);
 
-  /* Set new configuration. LF register requires sync check before writing. */
-  PCNT_Sync(pcnt, PCNT_SYNCBUSY_OVSCFG);
-  pcnt->OVSCFG = ovscfg;
+    /* Set new configuration. LF register requires sync check before writing. */
+    PCNT_Sync(pcnt, PCNT_SYNCBUSY_OVSCFG);
+    pcnt->OVSCFG = ovscfg;
 
-  /* Set new state of filter. LF register requires sync check before writing. */
-  PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
-  if (enable) {
-    pcnt->CTRL |= PCNT_CTRL_FILT;
-  } else {
-    pcnt->CTRL &= ~PCNT_CTRL_FILT;
-  }
+    /* Set new state of filter. LF register requires sync check before writing. */
+    PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
+    if (enable) {
+        pcnt->CTRL |= PCNT_CTRL_FILT;
+    } else {
+        pcnt->CTRL &= ~PCNT_CTRL_FILT;
+    }
 }
 #endif
 
@@ -712,27 +712,27 @@ void PCNT_FilterConfiguration(PCNT_TypeDef *pcnt, const PCNT_Filter_TypeDef *con
  ******************************************************************************/
 void PCNT_TCCConfiguration(PCNT_TypeDef *pcnt, const PCNT_TCC_TypeDef *config)
 {
-  uint32_t ctrl = 0;
-  uint32_t mask = _PCNT_CTRL_TCCMODE_MASK
-                  | _PCNT_CTRL_TCCPRESC_MASK
-                  | _PCNT_CTRL_TCCCOMP_MASK
-                  | _PCNT_CTRL_PRSGATEEN_MASK
-                  | _PCNT_CTRL_TCCPRSPOL_MASK
-                  | _PCNT_CTRL_TCCPRSSEL_MASK;
+    uint32_t ctrl = 0;
+    uint32_t mask = _PCNT_CTRL_TCCMODE_MASK
+                    | _PCNT_CTRL_TCCPRESC_MASK
+                    | _PCNT_CTRL_TCCCOMP_MASK
+                    | _PCNT_CTRL_PRSGATEEN_MASK
+                    | _PCNT_CTRL_TCCPRSPOL_MASK
+                    | _PCNT_CTRL_TCCPRSSEL_MASK;
 
-  EFM_ASSERT(PCNT_REF_VALID(pcnt));
+    EFM_ASSERT(PCNT_REF_VALID(pcnt));
 
-  /* construct TCC part of configuration register */
-  ctrl |= (config->mode          << _PCNT_CTRL_TCCMODE_SHIFT)   & _PCNT_CTRL_TCCMODE_MASK;
-  ctrl |= (config->prescaler     << _PCNT_CTRL_TCCPRESC_SHIFT)  & _PCNT_CTRL_TCCPRESC_MASK;
-  ctrl |= (config->compare       << _PCNT_CTRL_TCCCOMP_SHIFT)   & _PCNT_CTRL_TCCCOMP_MASK;
-  ctrl |= (config->tccPRS        << _PCNT_CTRL_TCCPRSSEL_SHIFT) & _PCNT_CTRL_TCCPRSSEL_MASK;
-  ctrl |= (config->prsPolarity   << _PCNT_CTRL_TCCPRSPOL_SHIFT) & _PCNT_CTRL_TCCPRSPOL_MASK;
-  ctrl |= (config->prsGateEnable << _PCNT_CTRL_PRSGATEEN_SHIFT) & _PCNT_CTRL_PRSGATEEN_MASK;
+    /* construct TCC part of configuration register */
+    ctrl |= (config->mode          << _PCNT_CTRL_TCCMODE_SHIFT)   & _PCNT_CTRL_TCCMODE_MASK;
+    ctrl |= (config->prescaler     << _PCNT_CTRL_TCCPRESC_SHIFT)  & _PCNT_CTRL_TCCPRESC_MASK;
+    ctrl |= (config->compare       << _PCNT_CTRL_TCCCOMP_SHIFT)   & _PCNT_CTRL_TCCCOMP_MASK;
+    ctrl |= (config->tccPRS        << _PCNT_CTRL_TCCPRSSEL_SHIFT) & _PCNT_CTRL_TCCPRSSEL_MASK;
+    ctrl |= (config->prsPolarity   << _PCNT_CTRL_TCCPRSPOL_SHIFT) & _PCNT_CTRL_TCCPRSPOL_MASK;
+    ctrl |= (config->prsGateEnable << _PCNT_CTRL_PRSGATEEN_SHIFT) & _PCNT_CTRL_PRSGATEEN_MASK;
 
-  /* Load new TCC config to PCNT. LF register requires sync check before write. */
-  PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
-  pcnt->CTRL = (pcnt->CTRL & (~mask)) | ctrl;
+    /* Load new TCC config to PCNT. LF register requires sync check before write. */
+    PCNT_Sync(pcnt, PCNT_SYNCBUSY_CTRL);
+    pcnt->CTRL = (pcnt->CTRL & (~mask)) | ctrl;
 }
 #endif
 
@@ -754,11 +754,11 @@ void PCNT_TCCConfiguration(PCNT_TypeDef *pcnt, const PCNT_TCC_TypeDef *config)
  ******************************************************************************/
 void PCNT_TopBufferSet(PCNT_TypeDef *pcnt, uint32_t val)
 {
-  EFM_ASSERT(PCNT_REF_VALID(pcnt));
+    EFM_ASSERT(PCNT_REF_VALID(pcnt));
 
-  /* LF register about to be modified require sync. busy check */
-  PCNT_Sync(pcnt, PCNT_SYNCBUSY_TOPB);
-  pcnt->TOPB = val;
+    /* LF register about to be modified require sync. busy check */
+    PCNT_Sync(pcnt, PCNT_SYNCBUSY_TOPB);
+    pcnt->TOPB = val;
 }
 
 /***************************************************************************//**
@@ -779,35 +779,35 @@ void PCNT_TopBufferSet(PCNT_TypeDef *pcnt, uint32_t val)
  ******************************************************************************/
 void PCNT_TopSet(PCNT_TypeDef *pcnt, uint32_t val)
 {
-  EFM_ASSERT(PCNT_REF_VALID(pcnt));
+    EFM_ASSERT(PCNT_REF_VALID(pcnt));
 
 #ifdef PCNT0
-  if (PCNT0 == pcnt) {
-    EFM_ASSERT((1 << PCNT0_CNT_SIZE) > val);
-  }
+    if (PCNT0 == pcnt) {
+        EFM_ASSERT((1 << PCNT0_CNT_SIZE) > val);
+    }
 #endif
 
 #ifdef PCNT1
-  if (PCNT1 == pcnt) {
-    EFM_ASSERT((1 << PCNT1_CNT_SIZE) > val);
-  }
+    if (PCNT1 == pcnt) {
+        EFM_ASSERT((1 << PCNT1_CNT_SIZE) > val);
+    }
 #endif
 
 #ifdef PCNT2
-  if (PCNT2 == pcnt) {
-    EFM_ASSERT((1 << PCNT2_CNT_SIZE) > val);
-  }
+    if (PCNT2 == pcnt) {
+        EFM_ASSERT((1 << PCNT2_CNT_SIZE) > val);
+    }
 #endif
 
-  /* LF register about to be modified require sync. busy check */
+    /* LF register about to be modified require sync. busy check */
 
-  /* Load into TOPB */
-  PCNT_Sync(pcnt, PCNT_SYNCBUSY_TOPB);
-  pcnt->TOPB = val;
+    /* Load into TOPB */
+    PCNT_Sync(pcnt, PCNT_SYNCBUSY_TOPB);
+    pcnt->TOPB = val;
 
-  /* Load TOPB value into TOP */
-  PCNT_Sync(pcnt, PCNT_SYNCBUSY_TOPB | PCNT_SYNCBUSY_CMD);
-  pcnt->CMD = PCNT_CMD_LTOPBIM;
+    /* Load TOPB value into TOP */
+    PCNT_Sync(pcnt, PCNT_SYNCBUSY_TOPB | PCNT_SYNCBUSY_CMD);
+    pcnt->CMD = PCNT_CMD_LTOPBIM;
 }
 
 /** @} (end addtogroup PCNT) */

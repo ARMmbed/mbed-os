@@ -80,7 +80,7 @@ Private global variables and functions
 *              :  USB_HOST_ATTACH
 *              :  USB_HOST_DETACH
 *******************************************************************************/
-uint16_t usb0_api_host_init (uint8_t int_level, uint16_t mode, uint16_t clockmode)
+uint16_t usb0_api_host_init(uint8_t int_level, uint16_t mode, uint16_t clockmode)
 {
     uint16_t         connect;
     volatile uint8_t dummy_buf;
@@ -104,12 +104,9 @@ uint16_t usb0_api_host_init (uint8_t int_level, uint16_t mode, uint16_t clockmod
 
     connect = usb0_host_CheckAttach();
 
-    if (connect == USB_HOST_ATTACH)
-    {
+    if (connect == USB_HOST_ATTACH) {
         g_usb0_host_attach_flag = USB_HOST_YES;
-    }
-    else
-    {
+    } else {
         usb0_host_UsbDetach2();
     }
 
@@ -128,51 +125,38 @@ uint16_t usb0_api_host_init (uint8_t int_level, uint16_t mode, uint16_t clockmod
 *              : DEVDRV_SUCCESS               : device enumeration success
 *              : DEVDRV_ERROR                 : device enumeration error
 *******************************************************************************/
-int32_t usb0_api_host_enumeration (uint16_t devadr)
+int32_t usb0_api_host_enumeration(uint16_t devadr)
 {
     int32_t  ret;
     uint16_t driver_sts;
 
     g_usb0_host_setUsbAddress = devadr;
 
-    while (1)
-    {
+    while (1) {
         driver_sts = usb0_api_host_GetUsbDeviceState();
 
-        if (driver_sts == USB_HOST_DRV_DETACHED)
-        {
+        if (driver_sts == USB_HOST_DRV_DETACHED) {
             ret = DEVDRV_USBH_DETACH_ERR;
             break;
-        }
-        else if (driver_sts == USB_HOST_DRV_CONFIGURED)
-        {
+        } else if (driver_sts == USB_HOST_DRV_CONFIGURED) {
             ret = DEVDRV_SUCCESS;
             break;
-        }
-        else if (driver_sts == USB_HOST_DRV_STALL)
-        {
+        } else if (driver_sts == USB_HOST_DRV_STALL) {
             ret = DEVDRV_ERROR;
             break;
-        }
-        else if (driver_sts == USB_HOST_DRV_NORES)
-        {
+        } else if (driver_sts == USB_HOST_DRV_NORES) {
             ret = DEVDRV_ERROR;
             break;
-        }
-        else
-        {
+        } else {
             /* Do Nothing */
         }
     }
 
-    if (driver_sts == USB_HOST_DRV_NORES)
-    {
-        while (1)
-        {
+    if (driver_sts == USB_HOST_DRV_NORES) {
+        while (1) {
             driver_sts = usb0_api_host_GetUsbDeviceState();
 
-            if (driver_sts == USB_HOST_DRV_DETACHED)
-            {
+            if (driver_sts == USB_HOST_DRV_DETACHED) {
                 break;
             }
         }
@@ -189,49 +173,36 @@ int32_t usb0_api_host_enumeration (uint16_t devadr)
 *              : USB_HOST_ATTACH : USB attach
 *              : DEVDRV_ERROR    : error
 *******************************************************************************/
-int32_t usb0_api_host_detach (void)
+int32_t usb0_api_host_detach(void)
 {
     int32_t  ret;
     uint16_t driver_sts;
 
-    while (1)
-    {
+    while (1) {
         driver_sts = usb0_api_host_GetUsbDeviceState();
 
-        if (driver_sts == USB_HOST_DRV_DETACHED)
-        {
+        if (driver_sts == USB_HOST_DRV_DETACHED) {
             ret = USB_HOST_DETACH;
             break;
-        }
-        else if (driver_sts == USB_HOST_DRV_CONFIGURED)
-        {
+        } else if (driver_sts == USB_HOST_DRV_CONFIGURED) {
             ret = USB_HOST_ATTACH;
             break;
-        }
-        else if (driver_sts == USB_HOST_DRV_STALL)
-        {
+        } else if (driver_sts == USB_HOST_DRV_STALL) {
             ret = DEVDRV_ERROR;
             break;
-        }
-        else if (driver_sts == USB_HOST_DRV_NORES)
-        {
+        } else if (driver_sts == USB_HOST_DRV_NORES) {
             ret = DEVDRV_ERROR;
             break;
-        }
-        else
-        {
+        } else {
             /* Do Nothing */
         }
     }
 
-    if (driver_sts == USB_HOST_DRV_NORES)
-    {
-        while (1)
-        {
+    if (driver_sts == USB_HOST_DRV_NORES) {
+        while (1) {
             driver_sts = usb0_api_host_GetUsbDeviceState();
 
-            if (driver_sts == USB_HOST_DRV_DETACHED)
-            {
+            if (driver_sts == USB_HOST_DRV_DETACHED) {
                 break;
             }
         }
@@ -250,71 +221,60 @@ int32_t usb0_api_host_detach (void)
 * Return Value : DEVDRV_SUCCESS       ; success
 *              : DEVDRV_ERROR         ; error
 *******************************************************************************/
-int32_t usb0_api_host_data_in (uint16_t devadr, uint16_t Pipe, uint32_t Size, uint8_t * data_buf)
+int32_t usb0_api_host_data_in(uint16_t devadr, uint16_t Pipe, uint32_t Size, uint8_t *data_buf)
 {
     int32_t ret;
 
-    if (Pipe == USB_HOST_PIPE0)
-    {
+    if (Pipe == USB_HOST_PIPE0) {
         return DEVDRV_ERROR;
     }
 
-    if (RZA_IO_RegRead_16(&g_usb0_host_pipemaxp[Pipe], USB_PIPEMAXP_DEVSEL_SHIFT, USB_PIPEMAXP_DEVSEL) != devadr)
-    {
+    if (RZA_IO_RegRead_16(&g_usb0_host_pipemaxp[Pipe], USB_PIPEMAXP_DEVSEL_SHIFT, USB_PIPEMAXP_DEVSEL) != devadr) {
         return DEVDRV_ERROR;
     }
 
-    if (RZA_IO_RegRead_16(&g_usb0_host_pipecfg[Pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 1)
-    {
+    if (RZA_IO_RegRead_16(&g_usb0_host_pipecfg[Pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 1) {
         return DEVDRV_ERROR;
     }
 
-    if (g_usb0_host_pipe_status[Pipe] == USB_HOST_PIPE_IDLE)
-    {
+    if (g_usb0_host_pipe_status[Pipe] == USB_HOST_PIPE_IDLE) {
         usb0_host_start_receive_transfer(Pipe, Size, data_buf);
-    }
-    else
-    {
+    } else {
         return DEVDRV_ERROR;              /* Now pipe is busy */
     }
 
     /* waiting for completing routine           */
-    do
-    {
-        if (g_usb0_host_detach_flag == USB_HOST_YES)
-        {
+    do {
+        if (g_usb0_host_detach_flag == USB_HOST_YES) {
             break;
         }
 
-        if ((g_usb0_host_pipe_status[Pipe] != USB_HOST_PIPE_IDLE) && (g_usb0_host_pipe_status[Pipe] != USB_HOST_PIPE_WAIT))
-        {
+        if ((g_usb0_host_pipe_status[Pipe] != USB_HOST_PIPE_IDLE) && (g_usb0_host_pipe_status[Pipe] != USB_HOST_PIPE_WAIT)) {
             break;
         }
 
     } while (1);
 
-    if (g_usb0_host_detach_flag == USB_HOST_YES)
-    {
+    if (g_usb0_host_detach_flag == USB_HOST_YES) {
         return DEVDRV_USBH_DETACH_ERR;
     }
 
-    switch (g_usb0_host_pipe_status[Pipe])
-    {
+    switch (g_usb0_host_pipe_status[Pipe]) {
         case USB_HOST_PIPE_DONE:
             ret = DEVDRV_SUCCESS;
-        break;
+            break;
 
         case USB_HOST_PIPE_STALL:
             ret = DEVDRV_USBH_STALL;
-        break;
+            break;
 
         case USB_HOST_PIPE_NORES:
             ret = DEVDRV_USBH_COM_ERR;
-        break;
+            break;
 
         default:
             ret = DEVDRV_ERROR;
-        break;
+            break;
     }
 
     usb0_host_stop_transfer(Pipe);
@@ -334,71 +294,60 @@ int32_t usb0_api_host_data_in (uint16_t devadr, uint16_t Pipe, uint32_t Size, ui
 * Return Value : DEVDRV_SUCCESS       ; success
 *              : DEVDRV_ERROR         ; error
 *******************************************************************************/
-int32_t usb0_api_host_data_out (uint16_t devadr, uint16_t Pipe, uint32_t Size, uint8_t * data_buf)
+int32_t usb0_api_host_data_out(uint16_t devadr, uint16_t Pipe, uint32_t Size, uint8_t *data_buf)
 {
     int32_t ret;
 
-    if (Pipe == USB_HOST_PIPE0)
-    {
+    if (Pipe == USB_HOST_PIPE0) {
         return DEVDRV_ERROR;
     }
 
-    if (RZA_IO_RegRead_16(&g_usb0_host_pipemaxp[Pipe], USB_PIPEMAXP_DEVSEL_SHIFT, USB_PIPEMAXP_DEVSEL) != devadr)
-    {
+    if (RZA_IO_RegRead_16(&g_usb0_host_pipemaxp[Pipe], USB_PIPEMAXP_DEVSEL_SHIFT, USB_PIPEMAXP_DEVSEL) != devadr) {
         return DEVDRV_ERROR;
     }
 
-    if (RZA_IO_RegRead_16(&g_usb0_host_pipecfg[Pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0)
-    {
+    if (RZA_IO_RegRead_16(&g_usb0_host_pipecfg[Pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
         return DEVDRV_ERROR;
     }
 
-    if (g_usb0_host_pipe_status[Pipe] == USB_HOST_PIPE_IDLE)
-    {
+    if (g_usb0_host_pipe_status[Pipe] == USB_HOST_PIPE_IDLE) {
         usb0_host_start_send_transfer(Pipe, Size, data_buf);
-    }
-    else
-    {
+    } else {
         return DEVDRV_ERROR;              /* Now pipe is busy */
     }
 
     /* waiting for completing routine           */
-    do
-    {
-        if (g_usb0_host_detach_flag == USB_HOST_YES)
-        {
+    do {
+        if (g_usb0_host_detach_flag == USB_HOST_YES) {
             break;
         }
 
-        if ((g_usb0_host_pipe_status[Pipe] != USB_HOST_PIPE_IDLE) && (g_usb0_host_pipe_status[Pipe] != USB_HOST_PIPE_WAIT))
-        {
+        if ((g_usb0_host_pipe_status[Pipe] != USB_HOST_PIPE_IDLE) && (g_usb0_host_pipe_status[Pipe] != USB_HOST_PIPE_WAIT)) {
             break;
         }
 
     } while (1);
 
-    if (g_usb0_host_detach_flag == USB_HOST_YES)
-    {
+    if (g_usb0_host_detach_flag == USB_HOST_YES) {
         return DEVDRV_USBH_DETACH_ERR;
     }
 
-    switch (g_usb0_host_pipe_status[Pipe])
-    {
+    switch (g_usb0_host_pipe_status[Pipe]) {
         case USB_HOST_PIPE_DONE:
             ret = DEVDRV_SUCCESS;
-        break;
+            break;
 
         case USB_HOST_PIPE_STALL:
             ret = DEVDRV_USBH_STALL;
-        break;
+            break;
 
         case USB_HOST_PIPE_NORES:
             ret = DEVDRV_USBH_COM_ERR;
-        break;
+            break;
 
         default:
             ret = DEVDRV_ERROR;
-        break;
+            break;
     }
 
     usb0_host_stop_transfer(Pipe);
@@ -423,56 +372,48 @@ int32_t usb0_api_host_data_out (uint16_t devadr, uint16_t Pipe, uint32_t Size, u
 *              : DEVDRV_USBH_STALL        ; STALL
 *              : DEVDRV_ERROR             ; error
 *******************************************************************************/
-int32_t usb0_api_host_control_transfer (uint16_t devadr, uint16_t Req, uint16_t Val, uint16_t Indx,
-                                                     uint16_t Len, uint8_t * Buf)
+int32_t usb0_api_host_control_transfer(uint16_t devadr, uint16_t Req, uint16_t Val, uint16_t Indx,
+                                       uint16_t Len, uint8_t *Buf)
 {
     int32_t  ret;
 
-    do
-    {
+    do {
         ret = usb0_host_CtrlTransStart(devadr, Req, Val, Indx, Len, Buf);
 
-        if (ret == DEVDRV_SUCCESS)
-        {
-            if (g_usb0_host_detach_flag == USB_HOST_YES)
-            {
+        if (ret == DEVDRV_SUCCESS) {
+            if (g_usb0_host_detach_flag == USB_HOST_YES) {
                 break;
             }
 
             if ((g_usb0_host_pipe_status[USB_HOST_PIPE0] != USB_HOST_PIPE_IDLE)
-                && (g_usb0_host_pipe_status[USB_HOST_PIPE0] != USB_HOST_PIPE_WAIT))
-            {
+                    && (g_usb0_host_pipe_status[USB_HOST_PIPE0] != USB_HOST_PIPE_WAIT)) {
                 break;
             }
-        }
-        else
-        {
+        } else {
             return DEVDRV_ERROR;
         }
     } while (1);
 
-    if (g_usb0_host_detach_flag == USB_HOST_YES)
-    {
+    if (g_usb0_host_detach_flag == USB_HOST_YES) {
         return DEVDRV_USBH_DETACH_ERR;
     }
 
-    switch (g_usb0_host_pipe_status[USB_HOST_PIPE0])
-    {
+    switch (g_usb0_host_pipe_status[USB_HOST_PIPE0]) {
         case USB_HOST_PIPE_DONE:
             ret = DEVDRV_SUCCESS;
-        break;
+            break;
 
         case USB_HOST_PIPE_STALL:
             ret = DEVDRV_USBH_STALL;
-        break;
+            break;
 
         case USB_HOST_PIPE_NORES:
             ret = DEVDRV_USBH_CTRL_COM_ERR;
-        break;
+            break;
 
         default:
             ret = DEVDRV_ERROR;
-        break;
+            break;
     }
 
     g_usb0_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_IDLE;
@@ -489,34 +430,30 @@ int32_t usb0_api_host_control_transfer (uint16_t devadr, uint16_t Req, uint16_t 
 * Return Value : DEVDRV_SUCCESS       ; success
 *              : DEVDRV_ERROR         ; error
 *******************************************************************************/
-int32_t usb0_api_host_set_endpoint (uint16_t devadr, USB_HOST_CFG_PIPETBL_t * user_table, uint8_t * configdescriptor)
+int32_t usb0_api_host_set_endpoint(uint16_t devadr, USB_HOST_CFG_PIPETBL_t *user_table, uint8_t *configdescriptor)
 {
     uint16_t                ret;
     uint32_t                end_point;
     uint32_t                offset;
     uint32_t                totalLength;
-    USB_HOST_CFG_PIPETBL_t * pipe_table;
+    USB_HOST_CFG_PIPETBL_t *pipe_table;
 
     /*  End Point Search */
     end_point   = 0;
     offset      = configdescriptor[0];
     totalLength = (uint16_t)(configdescriptor[2] + ((uint16_t)configdescriptor[3] << 8));
 
-    do
-    {
-        if (configdescriptor[offset + 1] == USB_HOST_ENDPOINT_DESC)
-        {
+    do {
+        if (configdescriptor[offset + 1] == USB_HOST_ENDPOINT_DESC) {
             pipe_table = &user_table[end_point];
 
-            if (pipe_table->pipe_number == 0xffff)
-            {
+            if (pipe_table->pipe_number == 0xffff) {
                 break;
             }
 
             ret = usb0_api_host_SetEndpointTable(devadr, pipe_table, (uint8_t *)&configdescriptor[offset]);
 
-            if ((ret != USB_HOST_PIPE_IN) && (ret != USB_HOST_PIPE_OUT))
-            {
+            if ((ret != USB_HOST_PIPE_IN) && (ret != USB_HOST_PIPE_OUT)) {
                 return DEVDRV_ERROR;
             }
 
@@ -538,14 +475,12 @@ int32_t usb0_api_host_set_endpoint (uint16_t devadr, USB_HOST_CFG_PIPETBL_t * us
 * Return Value : DEVDRV_SUCCESS       ; success
 *              : DEVDRV_ERROR         ; error
 *******************************************************************************/
-int32_t usb0_api_host_clear_endpoint (USB_HOST_CFG_PIPETBL_t * user_table)
+int32_t usb0_api_host_clear_endpoint(USB_HOST_CFG_PIPETBL_t *user_table)
 {
     uint16_t pipe;
 
-    for (pipe = USB_HOST_PIPE0; pipe <= USB_HOST_MAX_PIPE_NO; ++pipe)
-    {
-        if (user_table->pipe_number == 0xffff)
-        {
+    for (pipe = USB_HOST_PIPE0; pipe <= USB_HOST_MAX_PIPE_NO; ++pipe) {
+        if (user_table->pipe_number == 0xffff) {
             break;
         }
         user_table->pipe_cfg         &= (USB_HOST_DBLBFIELD | USB_HOST_CNTMDFIELD);
@@ -566,19 +501,16 @@ int32_t usb0_api_host_clear_endpoint (USB_HOST_CFG_PIPETBL_t * user_table)
 * Return Value : DEVDRV_SUCCESS       ; success
 *              : DEVDRV_ERROR         ; error
 *******************************************************************************/
-int32_t usb0_api_host_clear_endpoint_pipe (uint16_t pipe_sel, USB_HOST_CFG_PIPETBL_t * user_table)
+int32_t usb0_api_host_clear_endpoint_pipe(uint16_t pipe_sel, USB_HOST_CFG_PIPETBL_t *user_table)
 {
     uint16_t pipe;
 
-    for (pipe = USB_HOST_PIPE0; pipe <= USB_HOST_MAX_PIPE_NO; ++pipe)
-    {
-        if (user_table->pipe_number == 0xffff)
-        {
+    for (pipe = USB_HOST_PIPE0; pipe <= USB_HOST_MAX_PIPE_NO; ++pipe) {
+        if (user_table->pipe_number == 0xffff) {
             break;
         }
 
-        if (user_table->pipe_number == pipe_sel)
-        {
+        if (user_table->pipe_number == pipe_sel) {
             user_table->pipe_cfg         &= (USB_HOST_DBLBFIELD | USB_HOST_CNTMDFIELD);
             user_table->pipe_max_pktsize  = 0;
             user_table->pipe_cycle        = 0;
@@ -602,7 +534,7 @@ int32_t usb0_api_host_clear_endpoint_pipe (uint16_t pipe_sel, USB_HOST_CFG_PIPET
 *              : USB_HOST_DIR_H_OUT          ; OUT endpoint
 *              : USB_END_POINT_ERROR         ; error
 *******************************************************************************/
-uint16_t usb0_api_host_SetEndpointTable (uint16_t devadr, USB_HOST_CFG_PIPETBL_t * user_table, uint8_t * Table)
+uint16_t usb0_api_host_SetEndpointTable(uint16_t devadr, USB_HOST_CFG_PIPETBL_t *user_table, uint8_t *Table)
 {
     uint16_t PipeCfg;
     uint16_t PipeMaxp;
@@ -612,94 +544,81 @@ uint16_t usb0_api_host_SetEndpointTable (uint16_t devadr, USB_HOST_CFG_PIPETBL_t
 
     pipe_number = user_table->pipe_number;
 
-    if (Table[1] != USB_HOST_ENDPOINT_DESC)
-    {
+    if (Table[1] != USB_HOST_ENDPOINT_DESC) {
         return USB_END_POINT_ERROR;
     }
 
-    switch (Table[3] & USB_HOST_EP_TYPE)
-    {
+    switch (Table[3] & USB_HOST_EP_TYPE) {
         case USB_HOST_EP_CNTRL:
             ret_flag =  USB_END_POINT_ERROR;
-        break;
+            break;
 
         case USB_HOST_EP_ISO:
-            if ((pipe_number != USB_HOST_PIPE1) && (pipe_number != USB_HOST_PIPE2))
-            {
+            if ((pipe_number != USB_HOST_PIPE1) && (pipe_number != USB_HOST_PIPE2)) {
                 return USB_END_POINT_ERROR;
             }
 
             PipeCfg = USB_HOST_ISO;
-        break;
+            break;
 
         case USB_HOST_EP_BULK:
-            if ((pipe_number < USB_HOST_PIPE1) || (pipe_number > USB_HOST_PIPE5))
-            {
+            if ((pipe_number < USB_HOST_PIPE1) || (pipe_number > USB_HOST_PIPE5)) {
                 return USB_END_POINT_ERROR;
             }
 
             PipeCfg = USB_HOST_BULK;
-        break;
+            break;
 
         case USB_HOST_EP_INT:
-            if ((pipe_number < USB_HOST_PIPE6) || (pipe_number > USB_HOST_PIPE9))
-            {
+            if ((pipe_number < USB_HOST_PIPE6) || (pipe_number > USB_HOST_PIPE9)) {
                 return USB_END_POINT_ERROR;
             }
 
             PipeCfg = USB_HOST_INTERRUPT;
-        break;
+            break;
 
         default:
             ret_flag = USB_END_POINT_ERROR;
-        break;
+            break;
     }
 
-    if (ret_flag == USB_END_POINT_ERROR)
-    {
+    if (ret_flag == USB_END_POINT_ERROR) {
         return ret_flag;
     }
 
     /* Set pipe configuration table */
-    if ((Table[2] & USB_HOST_EP_DIR_MASK) == USB_HOST_EP_IN)        /* IN(receive) */
-    {
-        if (PipeCfg == USB_HOST_ISO)
-        {
+    if ((Table[2] & USB_HOST_EP_DIR_MASK) == USB_HOST_EP_IN) {      /* IN(receive) */
+        if (PipeCfg == USB_HOST_ISO) {
             /* Transfer Type is ISO*/
             PipeCfg |= USB_HOST_DIR_H_IN;
 
-            switch (user_table->fifo_port)
-            {
+            switch (user_table->fifo_port) {
                 case USB_HOST_CUSE:
                 case USB_HOST_D0USE:
                 case USB_HOST_D1USE:
                 case USB_HOST_D0DMA:
                 case USB_HOST_D1DMA:
                     PipeCfg |= (uint16_t)(user_table->pipe_cfg & USB_HOST_DBLBFIELD);
-                break;
+                    break;
 
                 default:
                     ret_flag = USB_END_POINT_ERROR;
-                break;
+                    break;
             }
 
-            if (ret_flag == USB_END_POINT_ERROR)
-            {
+            if (ret_flag == USB_END_POINT_ERROR) {
                 return ret_flag;
             }
-        }
-        else
-        {
+        } else {
             /* Transfer Type is BULK or INT */
             PipeCfg |= (USB_HOST_SHTNAKON | USB_HOST_DIR_H_IN);             /* Compulsory SHTNAK */
 
-            switch (user_table->fifo_port)
-            {
+            switch (user_table->fifo_port) {
                 case USB_HOST_CUSE:
                 case USB_HOST_D0USE:
                 case USB_HOST_D1USE:
                     PipeCfg |= (uint16_t)(user_table->pipe_cfg & (USB_HOST_DBLBFIELD | USB_HOST_CNTMDFIELD));
-                break;
+                    break;
 
                 case USB_HOST_D0DMA:
                 case USB_HOST_D1DMA:
@@ -708,29 +627,23 @@ uint16_t usb0_api_host_SetEndpointTable (uint16_t devadr, USB_HOST_CFG_PIPETBL_t
                     /* this routine cannnot be perfomred if read operation is executed in buffer size */
                     PipeCfg |= USB_HOST_BFREON;
 #endif
-                break;
+                    break;
 
                 default:
                     ret_flag = USB_END_POINT_ERROR;
-                break;
+                    break;
             }
 
-            if (ret_flag == USB_END_POINT_ERROR)
-            {
+            if (ret_flag == USB_END_POINT_ERROR) {
                 return ret_flag;
             }
         }
         ret = USB_HOST_PIPE_IN;
-    }
-    else                                                            /* OUT(send)    */
-    {
-        if (PipeCfg == USB_HOST_ISO)
-        {
+    } else {                                                        /* OUT(send)    */
+        if (PipeCfg == USB_HOST_ISO) {
             /* Transfer Type is ISO*/
             PipeCfg |= (uint16_t)(user_table->pipe_cfg & USB_HOST_DBLBFIELD);
-        }
-        else
-        {
+        } else {
             /* Transfer Type is BULK or INT */
             PipeCfg |= (uint16_t)(user_table->pipe_cfg & (USB_HOST_DBLBFIELD | USB_HOST_CNTMDFIELD));
         }
@@ -738,35 +651,33 @@ uint16_t usb0_api_host_SetEndpointTable (uint16_t devadr, USB_HOST_CFG_PIPETBL_t
         ret = USB_HOST_PIPE_OUT;
     }
 
-    switch (user_table->fifo_port)
-    {
+    switch (user_table->fifo_port) {
         case USB_HOST_CUSE:
             g_usb0_host_PipeTbl[pipe_number] = (uint16_t)USB_HOST_CFIFO_USE;
-        break;
+            break;
 
         case USB_HOST_D0USE:
             g_usb0_host_PipeTbl[pipe_number] = (uint16_t)USB_HOST_D0FIFO_USE;
-        break;
+            break;
 
         case USB_HOST_D1USE:
             g_usb0_host_PipeTbl[pipe_number] = (uint16_t)USB_HOST_D1FIFO_USE;
-        break;
+            break;
 
         case USB_HOST_D0DMA:
             g_usb0_host_PipeTbl[pipe_number] = (uint16_t)USB_HOST_D0FIFO_DMA;
-        break;
+            break;
 
         case USB_HOST_D1DMA:
             g_usb0_host_PipeTbl[pipe_number] = (uint16_t)USB_HOST_D1FIFO_DMA;
-        break;
+            break;
 
         default:
             ret_flag = USB_END_POINT_ERROR;
-        break;
+            break;
     }
 
-    if (ret_flag == USB_END_POINT_ERROR)
-    {
+    if (ret_flag == USB_END_POINT_ERROR) {
         return ret_flag;
     }
 
@@ -777,8 +688,7 @@ uint16_t usb0_api_host_SetEndpointTable (uint16_t devadr, USB_HOST_CFG_PIPETBL_t
     /* Max packet size set              */
     PipeMaxp  = (uint16_t)((uint16_t)Table[4] | (uint16_t)((uint16_t)Table[5] << 8));
 
-    if (PipeMaxp == 0u)
-    {
+    if (PipeMaxp == 0u) {
         return USB_END_POINT_ERROR;
     }
 
@@ -799,7 +709,7 @@ uint16_t usb0_api_host_SetEndpointTable (uint16_t devadr, USB_HOST_CFG_PIPETBL_t
 * Arguments    : USB_HOST_CFG_PIPETBL_t *tbl : pipe table
 * Return Value : none
 *******************************************************************************/
-static void usb0_host_resetEP (USB_HOST_CFG_PIPETBL_t * tbl)
+static void usb0_host_resetEP(USB_HOST_CFG_PIPETBL_t *tbl)
 {
 
     uint16_t pipe;
@@ -811,23 +721,20 @@ static void usb0_host_resetEP (USB_HOST_CFG_PIPETBL_t * tbl)
     /* FIFO port access pipe is set to initial value */
     /* The connection with FIFO should be cut before setting the pipe */
     if (RZA_IO_RegRead_16(&USB200.CFIFOSEL,
-                            USB_CFIFOSEL_CURPIPE_SHIFT,
-                            USB_CFIFOSEL_CURPIPE) == pipe)
-    {
+                          USB_CFIFOSEL_CURPIPE_SHIFT,
+                          USB_CFIFOSEL_CURPIPE) == pipe) {
         usb0_host_change_fifo_port(USB_HOST_PIPE0, USB_HOST_CUSE, USB_HOST_NO, USB_HOST_BITMBW_16);
     }
 
     if (RZA_IO_RegRead_16(&USB200.D0FIFOSEL,
-                            USB_DnFIFOSEL_CURPIPE_SHIFT,
-                            USB_DnFIFOSEL_CURPIPE) == pipe)
-    {
+                          USB_DnFIFOSEL_CURPIPE_SHIFT,
+                          USB_DnFIFOSEL_CURPIPE) == pipe) {
         usb0_host_change_fifo_port(USB_HOST_PIPE0, USB_HOST_D0USE, USB_HOST_NO, USB_HOST_BITMBW_16);
     }
 
     if (RZA_IO_RegRead_16(&USB200.D1FIFOSEL,
-                            USB_DnFIFOSEL_CURPIPE_SHIFT,
-                            USB_DnFIFOSEL_CURPIPE) == pipe)
-    {
+                          USB_DnFIFOSEL_CURPIPE_SHIFT,
+                          USB_DnFIFOSEL_CURPIPE) == pipe) {
         usb0_host_change_fifo_port(USB_HOST_PIPE0, USB_HOST_D1USE, USB_HOST_NO, USB_HOST_BITMBW_16);
     }
 
@@ -873,10 +780,9 @@ static void usb0_host_resetEP (USB_HOST_CFG_PIPETBL_t * tbl)
 * Return Value : DEVDRV_SUCCESS    ; success
 *              : DEVDRV_ERROR      ; error
 *******************************************************************************/
-int32_t usb0_api_host_data_count (uint16_t pipe, uint32_t * data_count)
+int32_t usb0_api_host_data_count(uint16_t pipe, uint32_t *data_count)
 {
-    if (pipe > USB_HOST_MAX_PIPE_NO)
-    {
+    if (pipe > USB_HOST_MAX_PIPE_NO) {
         return DEVDRV_ERROR;
     }
 

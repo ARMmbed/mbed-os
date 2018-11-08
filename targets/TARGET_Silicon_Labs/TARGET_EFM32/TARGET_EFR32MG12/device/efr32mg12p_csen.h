@@ -38,33 +38,32 @@
  * @{
  * @brief EFR32MG12P_CSEN Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;          /**< Control Register  */
-  __IOM uint32_t TIMCTRL;       /**< Timing Control Register  */
-  __IOM uint32_t CMD;           /**< Command Register  */
-  __IM uint32_t  STATUS;        /**< Status Register  */
-  __IOM uint32_t PRSSEL;        /**< Control Register  */
-  __IOM uint32_t DATA;          /**< Control Register  */
-  __IOM uint32_t SCANMASK0;     /**< CSEN Channel Scan Mask  */
-  __IOM uint32_t SCANINPUTSEL0; /**< Input Channel Configuration register for Scan mode  */
-  __IOM uint32_t SCANMASK1;     /**< CSEN Channel Scan Mask  */
-  __IOM uint32_t SCANINPUTSEL1; /**< Input Channel Configuration register for Scan mode  */
-  __IM uint32_t  APORTREQ;      /**< APORT Request Status Register  */
-  __IM uint32_t  APORTCONFLICT; /**< APORT Request Status Register  */
-  __IOM uint32_t CMPTHR;        /**< CSEN Comparator Threshold  */
-  __IOM uint32_t EMA;           /**< Exponential Moving Average  */
-  __IOM uint32_t EMACTRL;       /**< Exponential Moving Average  */
-  __IOM uint32_t SINGLECTRL;    /**< CSEN Single Conversion Control Register  */
-  __IOM uint32_t DMBASELINE;    /**< Control Register  */
-  __IOM uint32_t DMCFG;         /**< Control Register  */
-  __IOM uint32_t ANACTRL;       /**< Analog Control Register  */
+typedef struct {
+    __IOM uint32_t CTRL;          /**< Control Register  */
+    __IOM uint32_t TIMCTRL;       /**< Timing Control Register  */
+    __IOM uint32_t CMD;           /**< Command Register  */
+    __IM uint32_t  STATUS;        /**< Status Register  */
+    __IOM uint32_t PRSSEL;        /**< Control Register  */
+    __IOM uint32_t DATA;          /**< Control Register  */
+    __IOM uint32_t SCANMASK0;     /**< CSEN Channel Scan Mask  */
+    __IOM uint32_t SCANINPUTSEL0; /**< Input Channel Configuration register for Scan mode  */
+    __IOM uint32_t SCANMASK1;     /**< CSEN Channel Scan Mask  */
+    __IOM uint32_t SCANINPUTSEL1; /**< Input Channel Configuration register for Scan mode  */
+    __IM uint32_t  APORTREQ;      /**< APORT Request Status Register  */
+    __IM uint32_t  APORTCONFLICT; /**< APORT Request Status Register  */
+    __IOM uint32_t CMPTHR;        /**< CSEN Comparator Threshold  */
+    __IOM uint32_t EMA;           /**< Exponential Moving Average  */
+    __IOM uint32_t EMACTRL;       /**< Exponential Moving Average  */
+    __IOM uint32_t SINGLECTRL;    /**< CSEN Single Conversion Control Register  */
+    __IOM uint32_t DMBASELINE;    /**< Control Register  */
+    __IOM uint32_t DMCFG;         /**< Control Register  */
+    __IOM uint32_t ANACTRL;       /**< Analog Control Register  */
 
-  uint32_t       RESERVED0[2];  /**< Reserved for future use **/
-  __IM uint32_t  IF;            /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
+    uint32_t       RESERVED0[2];  /**< Reserved for future use **/
+    __IM uint32_t  IF;            /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
 } CSEN_TypeDef;                 /** @} */
 
 /**************************************************************************//**

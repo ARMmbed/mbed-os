@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -24,7 +24,7 @@
 #define isxdigit(c)          (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
 #define islower(c)           in_range(c, 'a', 'z')
 #define isspace(c)           (c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v' || c == ',')
-#endif  
+#endif
 
 
 extern _LONG_CALL_ROM_ char *_strncpy(char *dest, const char *src, size_t count);
@@ -69,18 +69,18 @@ prvStrCmp(
     IN  const   u8  *string2
 );
 
-extern _LONG_CALL_ROM_ u8*
+extern _LONG_CALL_ROM_ u8 *
 StrUpr(
     IN  u8  *string
 );
 
 extern _LONG_CALL_ROM_ int prvAtoi(
-	IN const char * s
+    IN const char *s
 );
 
-extern _LONG_CALL_ROM_ const char * prvStrStr(
-	IN const char * str1, 
-	IN const char * str2
+extern _LONG_CALL_ROM_ const char *prvStrStr(
+    IN const char *str1,
+    IN const char *str2
 );
 
 

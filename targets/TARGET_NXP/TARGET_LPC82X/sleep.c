@@ -33,7 +33,7 @@ void hal_sleep(void)
 }
 
 // Deepsleep/powerdown modes assume the device is configured to use its internal RC oscillator directly
- 
+
 void hal_deepsleep(void)
 {
     //Deep sleep in PCON
@@ -56,7 +56,7 @@ void hal_deepsleep(void)
     LPC_SYSCON->STARTERP1 = 0xFFFF;
 
     //Deep sleep for ARM core:
-    SCB->SCR = 1<<2;
+    SCB->SCR = 1 << 2;
 
     __WFI();
 }

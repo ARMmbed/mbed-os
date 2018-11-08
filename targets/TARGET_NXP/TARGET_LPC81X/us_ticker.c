@@ -27,17 +27,19 @@ int MRT_Clock_MHz;
 
 #define US_TICKER_TIMER_IRQn     MRT_IRQn
 
-void us_ticker_init(void) {
-    
-    if (us_ticker_inited)
+void us_ticker_init(void)
+{
+
+    if (us_ticker_inited) {
         return;
+    }
 
     us_ticker_inited = 1;
-    
+
     // Calculate MRT clock value (MRT has no prescaler)
     MRT_Clock_MHz = (SystemCoreClock / 1000000);
-    // Calculate fullcounter value in us (MRT has 31 bits and clock is 30 MHz) 
-    ticker_fullcount_us = 0x80000000UL/MRT_Clock_MHz;
+    // Calculate fullcounter value in us (MRT has 31 bits and clock is 30 MHz)
+    ticker_fullcount_us = 0x80000000UL / MRT_Clock_MHz;
 
     // Enable the MRT clock
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 10);
@@ -45,21 +47,23 @@ void us_ticker_init(void) {
     // Clear peripheral reset the MRT
     LPC_SYSCON->PRESETCTRL |= (1 << 7);
 
-    // Force load interval value (Bit 0-30 is interval value, Bit 31 is Force Load bit)     
+    // Force load interval value (Bit 0-30 is interval value, Bit 31 is Force Load bit)
     LPC_MRT->INTVAL0 = 0xFFFFFFFFUL;
     // Enable Ch0 interrupt, Mode 0 is Repeat Interrupt
     LPC_MRT->CTRL0 = (0x0 << 1) | (0x1 << 0);
 
-    // Force load interval value (Bit 0-30 is interval value, Bit 31 is Force Load bit)     
+    // Force load interval value (Bit 0-30 is interval value, Bit 31 is Force Load bit)
     LPC_MRT->INTVAL1 = 0x80000000UL;
     // Disable ch1 interrupt, Mode 0 is Repeat Interrupt
     LPC_MRT->CTRL1 = (0x0 << 1) | (0x0 << 0);
 }
 
-void us_ticker_interrupt_init(void) {
+void us_ticker_interrupt_init(void)
+{
 
-    if (us_ticker_interrupt_inited)
+    if (us_ticker_interrupt_inited) {
         return;
+    }
 
     us_ticker_interrupt_inited = 1;
 
@@ -69,14 +73,16 @@ void us_ticker_interrupt_init(void) {
 }
 
 //TIMER0 is used for us ticker and timers (Timer, wait(), wait_us() etc)
-uint32_t us_ticker_read() {
-    
-    if (!us_ticker_inited)
+uint32_t us_ticker_read()
+{
+
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     // Generate ticker value
     // MRT source clock is SystemCoreClock (30MHz) and MRT is a 31-bit countdown timer
-    // Calculate expected value using current count and number of expired times to mimic a 32bit timer @ 1 MHz 
+    // Calculate expected value using current count and number of expired times to mimic a 32bit timer @ 1 MHz
     //
     // ticker_expired_count_us
     // The variable ticker_expired_count_us keeps track of the number of 31bits overflows (counted by TIMER0) and
@@ -87,26 +93,28 @@ uint32_t us_ticker_read() {
     // for 30 counts per us.
     //
     // Added up these 2 parts result in current us time returned as 32 bits.
-    return (0x7FFFFFFFUL - LPC_MRT->TIMER0)/MRT_Clock_MHz + ticker_expired_count_us;            
+    return (0x7FFFFFFFUL - LPC_MRT->TIMER0) / MRT_Clock_MHz + ticker_expired_count_us;
 }
 
 //TIMER1 is used for Timestamped interrupts (Ticker(), Timeout())
-void us_ticker_set_interrupt(timestamp_t timestamp) {
-    
-    if (!us_ticker_interrupt_inited)
-        us_ticker_interrupt_init();
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
 
-    // MRT source clock is SystemCoreClock (30MHz) and MRT is a 31-bit countdown timer    
+    if (!us_ticker_interrupt_inited) {
+        us_ticker_interrupt_init();
+    }
+
+    // MRT source clock is SystemCoreClock (30MHz) and MRT is a 31-bit countdown timer
     // Force load interval value (Bit 0-30 is interval value, Bit 31 is Force Load bit)
     // Note: The MRT has less counter headroom available than the typical mbed 32bit timer @ 1 MHz.
     //       The calculated counter interval until the next timestamp will be truncated and an
     //       'early' interrupt will be generated in case the max required count interval exceeds
-    //       the available 31 bits space. However, the mbed us_ticker interrupt handler will 
+    //       the available 31 bits space. However, the mbed us_ticker interrupt handler will
     //       check current time against the next scheduled timestamp and simply re-issue the
     //       same interrupt again when needed. The calculated counter interval will now be smaller.
     LPC_MRT->INTVAL1 = (((timestamp - us_ticker_read()) * MRT_Clock_MHz) | 0x80000000UL);
-    
-    // Enable interrupt 
+
+    // Enable interrupt
     LPC_MRT->CTRL1 |= 1;
 }
 
@@ -116,17 +124,20 @@ void us_ticker_fire_interrupt(void)
 }
 
 //Disable Timestamped interrupts triggered by TIMER1
-void us_ticker_disable_interrupt() {
-    //Timer1 for Timestamped interrupts (31 bits downcounter @ SystemCoreClock)    
+void us_ticker_disable_interrupt()
+{
+    //Timer1 for Timestamped interrupts (31 bits downcounter @ SystemCoreClock)
     LPC_MRT->CTRL1 &= ~1;
 }
 
-void us_ticker_clear_interrupt() {
-    
+void us_ticker_clear_interrupt()
+{
+
     //Timer1 for Timestamped interrupts (31 bits downcounter @ SystemCoreClock)
-    if (LPC_MRT->STAT1 & 1)
+    if (LPC_MRT->STAT1 & 1) {
         LPC_MRT->STAT1 = 1;
-    
+    }
+
     //Timer0 for us counter (31 bits downcounter @ SystemCoreClock)
     if (LPC_MRT->STAT0 & 1) {
         LPC_MRT->STAT0 = 1;

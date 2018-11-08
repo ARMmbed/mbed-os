@@ -4,7 +4,7 @@
   * @author  MCD Application Team
   * @version V1.2.0
   * @date    01-July-2016
-  * @brief   This file contains all the functions prototypes for the HAL 
+  * @brief   This file contains all the functions prototypes for the HAL
   *          module driver.
   ******************************************************************************
   * @attention
@@ -34,14 +34,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L1xx_HAL_H
 #define __STM32L1xx_HAL_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -53,17 +53,17 @@
 
 /** @addtogroup HAL
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup HAL_Exported_Constants HAL Exported Constants
   * @{
-  */ 
+  */
 
 /** @defgroup SYSCFG_Constants SYSCFG: SYStem ConFiG
   * @{
-  */ 
+  */
 
 /** @defgroup SYSCFG_BootMode Boot Mode
   * @{
@@ -78,19 +78,19 @@
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup RI_Constants RI: Routing Interface
   * @{
-  */ 
+  */
 
 /** @defgroup RI_InputCapture Input Capture
   * @{
-  */ 
+  */
 
 #define RI_INPUTCAPTURE_IC1  RI_ICR_IC1    /*!< Input Capture 1 */
 #define RI_INPUTCAPTURE_IC2  RI_ICR_IC2    /*!< Input Capture 2 */
@@ -99,12 +99,12 @@
 
 /**
   * @}
-  */ 
-  
+  */
+
 /** @defgroup TIM_Select TIM Select
   * @{
-  */ 
-  
+  */
+
 #define TIM_SELECT_NONE  (0x00000000U)    /*!< None selected */
 #define TIM_SELECT_TIM2  ((uint32_t)RI_ICR_TIM_0)  /*!< Timer 2 selected */
 #define TIM_SELECT_TIM3  ((uint32_t)RI_ICR_TIM_1)  /*!< Timer 3 selected */
@@ -117,12 +117,12 @@
 
 /**
   * @}
-  */ 
-  
+  */
+
 /** @defgroup RI_InputCaptureRouting Input Capture Routing
   * @{
-  */ 
-                                                          /* TIMx_IC1 TIMx_IC2  TIMx_IC3  TIMx_IC4 */  
+  */
+/* TIMx_IC1 TIMx_IC2  TIMx_IC3  TIMx_IC4 */
 #define RI_INPUTCAPTUREROUTING_0   (0x00000000U) /* PA0       PA1      PA2       PA3      */
 #define RI_INPUTCAPTUREROUTING_1   (0x00000001U) /* PA4       PA5      PA6       PA7      */
 #define RI_INPUTCAPTUREROUTING_2   (0x00000002U) /* PA8       PA9      PA10      PA11     */
@@ -159,11 +159,11 @@
 
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup RI_IOSwitch IO Switch
   * @{
-  */ 
+  */
 #define RI_ASCR1_REGISTER       (0x80000000U)
 /* ASCR1 I/O switch: bit 31 is set to '1' to indicate that the mask is in ASCR1 register */
 #define RI_IOSWITCH_CH0         ((uint32_t)RI_ASCR1_REGISTER | RI_ASCR1_CH_0)
@@ -199,7 +199,7 @@
 #define RI_IOSWITCH_CH31        ((uint32_t)RI_ASCR1_REGISTER | RI_ASCR1_CH_31)
 #endif /* RI_ASCR2_CH1b */
 
-/* ASCR2 IO switch: bit 31 is set to '0' to indicate that the mask is in ASCR2 register */  
+/* ASCR2 IO switch: bit 31 is set to '0' to indicate that the mask is in ASCR2 register */
 #define RI_IOSWITCH_GR10_1      ((uint32_t)RI_ASCR2_GR10_1)
 #define RI_IOSWITCH_GR10_2      ((uint32_t)RI_ASCR2_GR10_2)
 #define RI_IOSWITCH_GR10_3      ((uint32_t)RI_ASCR2_GR10_3)
@@ -340,7 +340,7 @@
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
@@ -360,21 +360,21 @@
   * @{
   */
 
-/** @defgroup DBGMCU_Freeze_Unfreeze Freeze Unfreeze Peripherals in Debug mode 
-  * @brief   Freeze/Unfreeze Peripherals in Debug mode 
+/** @defgroup DBGMCU_Freeze_Unfreeze Freeze Unfreeze Peripherals in Debug mode
+  * @brief   Freeze/Unfreeze Peripherals in Debug mode
   * @{
   */
-  
+
 /**
-  * @brief  TIM2 Peripherals Debug mode 
-  */  
+  * @brief  TIM2 Peripherals Debug mode
+  */
 #if defined (DBGMCU_APB1_FZ_DBG_TIM2_STOP)
 #define __HAL_DBGMCU_FREEZE_TIM2()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM2_STOP)
 #define __HAL_DBGMCU_UNFREEZE_TIM2()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM2_STOP)
 #endif
 
 /**
-  * @brief  TIM3 Peripherals Debug mode 
+  * @brief  TIM3 Peripherals Debug mode
   */
 #if defined (DBGMCU_APB1_FZ_DBG_TIM3_STOP)
 #define __HAL_DBGMCU_FREEZE_TIM3()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM3_STOP)
@@ -382,7 +382,7 @@
 #endif
 
 /**
-  * @brief  TIM4 Peripherals Debug mode 
+  * @brief  TIM4 Peripherals Debug mode
   */
 #if defined (DBGMCU_APB1_FZ_DBG_TIM4_STOP)
 #define __HAL_DBGMCU_FREEZE_TIM4()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM4_STOP)
@@ -390,7 +390,7 @@
 #endif
 
 /**
-  * @brief  TIM5 Peripherals Debug mode 
+  * @brief  TIM5 Peripherals Debug mode
   */
 #if defined (DBGMCU_APB1_FZ_DBG_TIM5_STOP)
 #define __HAL_DBGMCU_FREEZE_TIM5()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM5_STOP)
@@ -398,7 +398,7 @@
 #endif
 
 /**
-  * @brief  TIM6 Peripherals Debug mode 
+  * @brief  TIM6 Peripherals Debug mode
   */
 #if defined (DBGMCU_APB1_FZ_DBG_TIM6_STOP)
 #define __HAL_DBGMCU_FREEZE_TIM6()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM6_STOP)
@@ -406,7 +406,7 @@
 #endif
 
 /**
-  * @brief  TIM7 Peripherals Debug mode 
+  * @brief  TIM7 Peripherals Debug mode
   */
 #if defined (DBGMCU_APB1_FZ_DBG_TIM7_STOP)
 #define __HAL_DBGMCU_FREEZE_TIM7()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM7_STOP)
@@ -414,7 +414,7 @@
 #endif
 
 /**
-  * @brief  RTC Peripherals Debug mode 
+  * @brief  RTC Peripherals Debug mode
   */
 #if defined (DBGMCU_APB1_FZ_DBG_RTC_STOP)
 #define __HAL_DBGMCU_FREEZE_RTC()             SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_RTC_STOP)
@@ -422,7 +422,7 @@
 #endif
 
 /**
-  * @brief  WWDG Peripherals Debug mode 
+  * @brief  WWDG Peripherals Debug mode
   */
 #if defined (DBGMCU_APB1_FZ_DBG_WWDG_STOP)
 #define __HAL_DBGMCU_FREEZE_WWDG()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_WWDG_STOP)
@@ -430,7 +430,7 @@
 #endif
 
 /**
-  * @brief  IWDG Peripherals Debug mode 
+  * @brief  IWDG Peripherals Debug mode
   */
 #if defined (DBGMCU_APB1_FZ_DBG_IWDG_STOP)
 #define __HAL_DBGMCU_FREEZE_IWDG()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_IWDG_STOP)
@@ -438,7 +438,7 @@
 #endif
 
 /**
-  * @brief  I2C1 Peripherals Debug mode 
+  * @brief  I2C1 Peripherals Debug mode
   */
 #if defined (DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT)
 #define __HAL_DBGMCU_FREEZE_I2C1_TIMEOUT()    SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT)
@@ -446,7 +446,7 @@
 #endif
 
 /**
-  * @brief  I2C2 Peripherals Debug mode 
+  * @brief  I2C2 Peripherals Debug mode
   */
 #if defined (DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT)
 #define __HAL_DBGMCU_FREEZE_I2C2_TIMEOUT()    SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT)
@@ -454,7 +454,7 @@
 #endif
 
 /**
-  * @brief  TIM9 Peripherals Debug mode 
+  * @brief  TIM9 Peripherals Debug mode
   */
 #if defined (DBGMCU_APB2_FZ_DBG_TIM9_STOP)
 #define __HAL_DBGMCU_FREEZE_TIM9()            SET_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM9_STOP)
@@ -462,7 +462,7 @@
 #endif
 
 /**
-  * @brief  TIM10 Peripherals Debug mode 
+  * @brief  TIM10 Peripherals Debug mode
   */
 #if defined (DBGMCU_APB2_FZ_DBG_TIM10_STOP)
 #define __HAL_DBGMCU_FREEZE_TIM10()           SET_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM10_STOP)
@@ -470,7 +470,7 @@
 #endif
 
 /**
-  * @brief  TIM11 Peripherals Debug mode 
+  * @brief  TIM11 Peripherals Debug mode
   */
 #if defined (DBGMCU_APB2_FZ_DBG_TIM11_STOP)
 #define __HAL_DBGMCU_FREEZE_TIM11()           SET_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM11_STOP)
@@ -495,18 +495,18 @@
   */
 
 /**
-  * @brief  Enables or disables the output of internal reference voltage 
+  * @brief  Enables or disables the output of internal reference voltage
   *         (VREFINT) on I/O pin.
   *         The VREFINT output can be routed to any I/O in group 3:
   *          - For Cat.1 and Cat.2 devices: CH8 (PB0) or CH9 (PB1).
   *          - For Cat.3 devices: CH8 (PB0), CH9 (PB1) or CH0b (PB2).
-  *          - For Cat.4 and Cat.5 devices: CH8 (PB0), CH9 (PB1), CH0b (PB2), 
+  *          - For Cat.4 and Cat.5 devices: CH8 (PB0), CH9 (PB1), CH0b (PB2),
   *            CH1b (PF11) or CH2b (PF12).
   *         Note: Comparator peripheral clock must be preliminarility enabled,
-  *               either in COMP user function "HAL_COMP_MspInit()" (should be 
+  *               either in COMP user function "HAL_COMP_MspInit()" (should be
   *               done if comparators are used) or by direct clock enable:
   *               Refer to macro "__HAL_RCC_COMP_CLK_ENABLE()".
-  *         Note: In addition with this macro, Vrefint output buffer must be 
+  *         Note: In addition with this macro, Vrefint output buffer must be
   *               connected to the selected I/O pin. Refer to macro
   *               "__HAL_RI_IOSWITCH_CLOSE()".
   * @note  ENABLE: Internal reference voltage connected to I/O group 3
@@ -546,7 +546,7 @@
 
 /**
   * @brief  Returns the boot mode as configured by user.
-  * @retval The boot mode as configured by user. The returned value can be one 
+  * @retval The boot mode as configured by user. The returned value can be one
   *         of the following values:
   *           @arg SYSCFG_BOOT_MAINFLASH
   *           @arg SYSCFG_BOOT_SYSTEMFLASH
@@ -580,11 +580,11 @@
 
 /** @defgroup RI_Macris RI: Routing Interface
   * @{
-  */ 
+  */
 
 /** @defgroup RI_InputCaputureConfig Input Capture configuration
   * @{
-  */ 
+  */
 
 /**
   * @brief  Configures the routing interface to map Input Capture 1 of TIMx to a selected I/O pin.
@@ -599,7 +599,7 @@
   *     e.g.
   *       __HAL_RI_REMAP_INPUTCAPTURE1(TIM_SELECT_TIM2, RI_INPUTCAPTUREROUTING_1)
   *       allows routing of Input capture IC1 of TIM2 to PA4.
-  *       For details about correspondence between RI_INPUTCAPTUREROUTING_x 
+  *       For details about correspondence between RI_INPUTCAPTUREROUTING_x
   *       and I/O pins refer to the parameters' description in the header file
   *       or refer to the product reference manual.
   * @note Input capture selection bits are not reset by this function.
@@ -682,17 +682,17 @@
 
 /** @defgroup RI_SwitchControlConfig Switch Control configuration
   * @{
-  */ 
+  */
 
 /**
   * @brief  Enable or disable the switch control mode.
-  * @note  ENABLE: ADC analog switches closed if the corresponding 
+  * @note  ENABLE: ADC analog switches closed if the corresponding
   *                    I/O switch is also closed.
   *                    When using COMP1, switch control mode must be enabled.
   * @note  DISABLE: ADC analog switches open or controlled by the ADC interface.
-  *                    When using the ADC for acquisition, switch control mode 
+  *                    When using the ADC for acquisition, switch control mode
   *                    must be disabled.
-  * @note COMP1 comparator and ADC cannot be used at the same time since 
+  * @note COMP1 comparator and ADC cannot be used at the same time since
   *       they share the ADC switch matrix.
   * @retval None
   */
@@ -731,7 +731,7 @@
 #if defined (COMP_CSR_SW1)
 /**
   * @brief  Close or open the internal switch COMP1_SW1.
-  *         This switch connects I/O pin PC3 (can be used as ADC channel 13) 
+  *         This switch connects I/O pin PC3 (can be used as ADC channel 13)
   *         and OPAMP3 ouput to ADC switch matrix (ADC channel VCOMP, channel
   *         26) and COMP1 non-inverting input.
   *         Pin PC3 connection depends on another switch setting, refer to
@@ -749,13 +749,13 @@
 
 /** @defgroup RI_HystConfig Hysteresis Activation and Deactivation
   * @{
-  */ 
+  */
 
 /**
   * @brief  Enable or disable Hysteresis of the input schmitt triger of Ports A
-  *         When the I/Os are programmed in input mode by standard I/O port 
+  *         When the I/Os are programmed in input mode by standard I/O port
   *         registers, the Schmitt trigger and the hysteresis are enabled by default.
-  *         When hysteresis is disabled, it is possible to read the 
+  *         When hysteresis is disabled, it is possible to read the
   *         corresponding port with a trigger level of VDDIO/2.
   *  @param __IOPIN__ : Selects the pin(s) on which to enable or disable hysteresis.
   *   This parameter must be a value of @ref RI_Pin
@@ -771,9 +771,9 @@
 
 /**
   * @brief  Enable or disable Hysteresis of the input schmitt triger of Ports B
-  *         When the I/Os are programmed in input mode by standard I/O port 
+  *         When the I/Os are programmed in input mode by standard I/O port
   *         registers, the Schmitt trigger and the hysteresis are enabled by default.
-  *         When hysteresis is disabled, it is possible to read the 
+  *         When hysteresis is disabled, it is possible to read the
   *         corresponding port with a trigger level of VDDIO/2.
   *  @param __IOPIN__ : Selects the pin(s) on which to enable or disable hysteresis.
   *   This parameter must be a value of @ref RI_Pin
@@ -789,9 +789,9 @@
 
 /**
   * @brief  Enable or disable Hysteresis of the input schmitt triger of Ports C
-  *         When the I/Os are programmed in input mode by standard I/O port 
+  *         When the I/Os are programmed in input mode by standard I/O port
   *         registers, the Schmitt trigger and the hysteresis are enabled by default.
-  *         When hysteresis is disabled, it is possible to read the 
+  *         When hysteresis is disabled, it is possible to read the
   *         corresponding port with a trigger level of VDDIO/2.
   *  @param __IOPIN__ : Selects the pin(s) on which to enable or disable hysteresis.
   *   This parameter must be a value of @ref RI_Pin
@@ -807,9 +807,9 @@
 
 /**
   * @brief  Enable or disable Hysteresis of the input schmitt triger of Ports D
-  *         When the I/Os are programmed in input mode by standard I/O port 
+  *         When the I/Os are programmed in input mode by standard I/O port
   *         registers, the Schmitt trigger and the hysteresis are enabled by default.
-  *         When hysteresis is disabled, it is possible to read the 
+  *         When hysteresis is disabled, it is possible to read the
   *         corresponding port with a trigger level of VDDIO/2.
   *  @param __IOPIN__ : Selects the pin(s) on which to enable or disable hysteresis.
   *   This parameter must be a value of @ref RI_Pin
@@ -824,12 +824,12 @@
           } while(0)
 
 #if defined (GPIOE_BASE)
-    
+
 /**
   * @brief  Enable or disable Hysteresis of the input schmitt triger of Ports E
-  *         When the I/Os are programmed in input mode by standard I/O port 
+  *         When the I/Os are programmed in input mode by standard I/O port
   *         registers, the Schmitt trigger and the hysteresis are enabled by default.
-  *         When hysteresis is disabled, it is possible to read the 
+  *         When hysteresis is disabled, it is possible to read the
   *         corresponding port with a trigger level of VDDIO/2.
   *  @param __IOPIN__ : Selects the pin(s) on which to enable or disable hysteresis.
   *   This parameter must be a value of @ref RI_Pin
@@ -849,9 +849,9 @@
 
 /**
   * @brief  Enable or disable Hysteresis of the input schmitt triger of Ports F
-  *         When the I/Os are programmed in input mode by standard I/O port 
+  *         When the I/Os are programmed in input mode by standard I/O port
   *         registers, the Schmitt trigger and the hysteresis are enabled by default.
-  *         When hysteresis is disabled, it is possible to read the 
+  *         When hysteresis is disabled, it is possible to read the
   *         corresponding port with a trigger level of VDDIO/2.
   *  @param __IOPIN__ : Selects the pin(s) on which to enable or disable hysteresis.
   *   This parameter must be a value of @ref RI_Pin
@@ -867,9 +867,9 @@
 
 /**
   * @brief  Enable or disable Hysteresis of the input schmitt triger of Ports G
-  *         When the I/Os are programmed in input mode by standard I/O port 
+  *         When the I/Os are programmed in input mode by standard I/O port
   *         registers, the Schmitt trigger and the hysteresis are enabled by default.
-  *         When hysteresis is disabled, it is possible to read the 
+  *         When hysteresis is disabled, it is possible to read the
   *         corresponding port with a trigger level of VDDIO/2.
   *  @param __IOPIN__ : Selects the pin(s) on which to enable or disable hysteresis.
   *   This parameter must be a value of @ref RI_Pin
@@ -912,7 +912,7 @@ HAL_StatusTypeDef HAL_Init(void);
 HAL_StatusTypeDef HAL_DeInit(void);
 void              HAL_MspInit(void);
 void              HAL_MspDeInit(void);
-HAL_StatusTypeDef HAL_InitTick (uint32_t TickPriority);
+HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority);
 
 /**
   * @}
@@ -949,12 +949,12 @@ void              HAL_DBGMCU_DisableDBGStandbyMode(void);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
-  
+  */
+
 #ifdef __cplusplus
 }
 #endif

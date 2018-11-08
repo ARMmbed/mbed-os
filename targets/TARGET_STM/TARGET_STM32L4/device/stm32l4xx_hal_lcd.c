@@ -18,13 +18,13 @@
       [..] The LCD HAL driver can be used as follows:
 
       (#) Declare a LCD_HandleTypeDef handle structure.
-      
+
       -@- The frequency generator allows you to achieve various LCD frame rates
           starting from an LCD input clock frequency (LCDCLK) which can vary
-          from 32 kHz up to 1 MHz.      
-      
+          from 32 kHz up to 1 MHz.
+
       (#) Initialize the LCD low level resources by implementing the HAL_LCD_MspInit() API:
-                  
+
           (++) Enable the LCDCLK (same as RTCCLK): to configure the RTCCLK/LCDCLK, proceed as follows:
                (+++) Use RCC function HAL_RCCEx_PeriphCLKConfig in indicating RCC_PERIPHCLK_LCD and
                   selected clock source (HSE, LSI or LSE)
@@ -34,7 +34,7 @@
               (+++) Configure these LCD pins as alternate function no-pull.
           (++) Enable the LCD interface clock.
 
-      
+
       (#) Program the Prescaler, Divider, Blink mode, Blink Frequency Duty, Bias,
           Voltage Source, Dead Time, Pulse On Duration, Contrast, High drive and Multiplexer
           Segment in the Init structure of the LCD handle.
@@ -156,116 +156,109 @@
   */
 HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
 {
-  uint32_t tickstart = 0x00;
-  uint32_t counter = 0;
+    uint32_t tickstart = 0x00;
+    uint32_t counter = 0;
 
-  /* Check the LCD handle allocation */
-  if(hlcd == NULL)
-  {
-    return HAL_ERROR;
-  }
-
-  /* Check function parameters */
-  assert_param(IS_LCD_ALL_INSTANCE(hlcd->Instance));
-  assert_param(IS_LCD_PRESCALER(hlcd->Init.Prescaler));
-  assert_param(IS_LCD_DIVIDER(hlcd->Init.Divider));
-  assert_param(IS_LCD_DUTY(hlcd->Init.Duty));
-  assert_param(IS_LCD_BIAS(hlcd->Init.Bias));
-  assert_param(IS_LCD_VOLTAGE_SOURCE(hlcd->Init.VoltageSource));
-  assert_param(IS_LCD_PULSE_ON_DURATION(hlcd->Init.PulseOnDuration));
-  assert_param(IS_LCD_HIGH_DRIVE(hlcd->Init.HighDrive));
-  assert_param(IS_LCD_DEAD_TIME(hlcd->Init.DeadTime));
-  assert_param(IS_LCD_CONTRAST(hlcd->Init.Contrast));
-  assert_param(IS_LCD_BLINK_FREQUENCY(hlcd->Init.BlinkFrequency));
-  assert_param(IS_LCD_BLINK_MODE(hlcd->Init.BlinkMode));
-  assert_param(IS_LCD_MUX_SEGMENT(hlcd->Init.MuxSegment));
-
-  if(hlcd->State == HAL_LCD_STATE_RESET)
-  {
-    /* Allocate lock resource and initialize it */
-    hlcd->Lock = HAL_UNLOCKED;
-
-    /* Initialize the low level hardware (MSP) */
-    HAL_LCD_MspInit(hlcd);
-  }
-
-  hlcd->State = HAL_LCD_STATE_BUSY;
-
-  /* Disable the peripheral */
-  __HAL_LCD_DISABLE(hlcd);
-
-  /* Clear the LCD_RAM registers and enable the display request by setting the UDR bit
-     in the LCD_SR register */
-  for(counter = LCD_RAM_REGISTER0; counter <= LCD_RAM_REGISTER15; counter++)
-  {
-    hlcd->Instance->RAM[counter] = 0;
-  }
-  /* Enable the display request */
-  hlcd->Instance->SR |= LCD_SR_UDR;
-
-  /* Configure the LCD Prescaler, Divider, Blink mode and Blink Frequency:
-     Set PS[3:0] bits according to hlcd->Init.Prescaler value
-     Set DIV[3:0] bits according to hlcd->Init.Divider value
-     Set BLINK[1:0] bits according to hlcd->Init.BlinkMode value
-     Set BLINKF[2:0] bits according to hlcd->Init.BlinkFrequency value
-     Set DEAD[2:0] bits according to hlcd->Init.DeadTime value
-     Set PON[2:0] bits according to hlcd->Init.PulseOnDuration value
-     Set CC[2:0] bits according to hlcd->Init.Contrast value
-     Set HD bit according to hlcd->Init.HighDrive value */
-   MODIFY_REG(hlcd->Instance->FCR, \
-      (LCD_FCR_PS | LCD_FCR_DIV | LCD_FCR_BLINK| LCD_FCR_BLINKF | \
-       LCD_FCR_DEAD | LCD_FCR_PON | LCD_FCR_CC | LCD_FCR_HD), \
-      (hlcd->Init.Prescaler | hlcd->Init.Divider | hlcd->Init.BlinkMode | hlcd->Init.BlinkFrequency | \
-       hlcd->Init.DeadTime | hlcd->Init.PulseOnDuration | hlcd->Init.Contrast | hlcd->Init.HighDrive));
-
-  /* Wait until LCD Frame Control Register Synchronization flag (FCRSF) is set in the LCD_SR register
-     This bit is set by hardware each time the LCD_FCR register is updated in the LCDCLK
-     domain. It is cleared by hardware when writing to the LCD_FCR register.*/
-  LCD_WaitForSynchro(hlcd);
-
-  /* Configure the LCD Duty, Bias, Voltage Source, Dead Time, Pulse On Duration and Contrast:
-     Set DUTY[2:0] bits according to hlcd->Init.Duty value
-     Set BIAS[1:0] bits according to hlcd->Init.Bias value
-     Set VSEL bit according to hlcd->Init.VoltageSource value
-     Set MUX_SEG bit according to hlcd->Init.MuxSegment value */
-  MODIFY_REG(hlcd->Instance->CR, \
-    (LCD_CR_DUTY | LCD_CR_BIAS | LCD_CR_VSEL | LCD_CR_MUX_SEG), \
-    (hlcd->Init.Duty | hlcd->Init.Bias | hlcd->Init.VoltageSource | hlcd->Init.MuxSegment));
-
-  /* Enable the peripheral */
-  __HAL_LCD_ENABLE(hlcd);
-
-  /* Get timeout */
-  tickstart = HAL_GetTick();
-
-  /* Wait Until the LCD is enabled */
-  while(__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_ENS) == RESET)
-  {
-    if((HAL_GetTick() - tickstart ) > LCD_TIMEOUT_VALUE)
-    {
-      hlcd->ErrorCode = HAL_LCD_ERROR_ENS;
-      return HAL_TIMEOUT;
+    /* Check the LCD handle allocation */
+    if (hlcd == NULL) {
+        return HAL_ERROR;
     }
-  }
 
-  /* Get timeout */
-  tickstart = HAL_GetTick();
+    /* Check function parameters */
+    assert_param(IS_LCD_ALL_INSTANCE(hlcd->Instance));
+    assert_param(IS_LCD_PRESCALER(hlcd->Init.Prescaler));
+    assert_param(IS_LCD_DIVIDER(hlcd->Init.Divider));
+    assert_param(IS_LCD_DUTY(hlcd->Init.Duty));
+    assert_param(IS_LCD_BIAS(hlcd->Init.Bias));
+    assert_param(IS_LCD_VOLTAGE_SOURCE(hlcd->Init.VoltageSource));
+    assert_param(IS_LCD_PULSE_ON_DURATION(hlcd->Init.PulseOnDuration));
+    assert_param(IS_LCD_HIGH_DRIVE(hlcd->Init.HighDrive));
+    assert_param(IS_LCD_DEAD_TIME(hlcd->Init.DeadTime));
+    assert_param(IS_LCD_CONTRAST(hlcd->Init.Contrast));
+    assert_param(IS_LCD_BLINK_FREQUENCY(hlcd->Init.BlinkFrequency));
+    assert_param(IS_LCD_BLINK_MODE(hlcd->Init.BlinkMode));
+    assert_param(IS_LCD_MUX_SEGMENT(hlcd->Init.MuxSegment));
 
-  /*!< Wait Until the LCD Booster is ready */
-  while(__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_RDY) == RESET)
-  {
-    if((HAL_GetTick() - tickstart ) > LCD_TIMEOUT_VALUE)
-    {
-      hlcd->ErrorCode = HAL_LCD_ERROR_RDY;
-      return HAL_TIMEOUT;
+    if (hlcd->State == HAL_LCD_STATE_RESET) {
+        /* Allocate lock resource and initialize it */
+        hlcd->Lock = HAL_UNLOCKED;
+
+        /* Initialize the low level hardware (MSP) */
+        HAL_LCD_MspInit(hlcd);
     }
-  }
 
-  /* Initialize the LCD state */
-  hlcd->ErrorCode = HAL_LCD_ERROR_NONE;
-  hlcd->State= HAL_LCD_STATE_READY;
+    hlcd->State = HAL_LCD_STATE_BUSY;
 
-  return HAL_OK;
+    /* Disable the peripheral */
+    __HAL_LCD_DISABLE(hlcd);
+
+    /* Clear the LCD_RAM registers and enable the display request by setting the UDR bit
+       in the LCD_SR register */
+    for (counter = LCD_RAM_REGISTER0; counter <= LCD_RAM_REGISTER15; counter++) {
+        hlcd->Instance->RAM[counter] = 0;
+    }
+    /* Enable the display request */
+    hlcd->Instance->SR |= LCD_SR_UDR;
+
+    /* Configure the LCD Prescaler, Divider, Blink mode and Blink Frequency:
+       Set PS[3:0] bits according to hlcd->Init.Prescaler value
+       Set DIV[3:0] bits according to hlcd->Init.Divider value
+       Set BLINK[1:0] bits according to hlcd->Init.BlinkMode value
+       Set BLINKF[2:0] bits according to hlcd->Init.BlinkFrequency value
+       Set DEAD[2:0] bits according to hlcd->Init.DeadTime value
+       Set PON[2:0] bits according to hlcd->Init.PulseOnDuration value
+       Set CC[2:0] bits according to hlcd->Init.Contrast value
+       Set HD bit according to hlcd->Init.HighDrive value */
+    MODIFY_REG(hlcd->Instance->FCR, \
+               (LCD_FCR_PS | LCD_FCR_DIV | LCD_FCR_BLINK | LCD_FCR_BLINKF | \
+                LCD_FCR_DEAD | LCD_FCR_PON | LCD_FCR_CC | LCD_FCR_HD), \
+               (hlcd->Init.Prescaler | hlcd->Init.Divider | hlcd->Init.BlinkMode | hlcd->Init.BlinkFrequency | \
+                hlcd->Init.DeadTime | hlcd->Init.PulseOnDuration | hlcd->Init.Contrast | hlcd->Init.HighDrive));
+
+    /* Wait until LCD Frame Control Register Synchronization flag (FCRSF) is set in the LCD_SR register
+       This bit is set by hardware each time the LCD_FCR register is updated in the LCDCLK
+       domain. It is cleared by hardware when writing to the LCD_FCR register.*/
+    LCD_WaitForSynchro(hlcd);
+
+    /* Configure the LCD Duty, Bias, Voltage Source, Dead Time, Pulse On Duration and Contrast:
+       Set DUTY[2:0] bits according to hlcd->Init.Duty value
+       Set BIAS[1:0] bits according to hlcd->Init.Bias value
+       Set VSEL bit according to hlcd->Init.VoltageSource value
+       Set MUX_SEG bit according to hlcd->Init.MuxSegment value */
+    MODIFY_REG(hlcd->Instance->CR, \
+               (LCD_CR_DUTY | LCD_CR_BIAS | LCD_CR_VSEL | LCD_CR_MUX_SEG), \
+               (hlcd->Init.Duty | hlcd->Init.Bias | hlcd->Init.VoltageSource | hlcd->Init.MuxSegment));
+
+    /* Enable the peripheral */
+    __HAL_LCD_ENABLE(hlcd);
+
+    /* Get timeout */
+    tickstart = HAL_GetTick();
+
+    /* Wait Until the LCD is enabled */
+    while (__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_ENS) == RESET) {
+        if ((HAL_GetTick() - tickstart) > LCD_TIMEOUT_VALUE) {
+            hlcd->ErrorCode = HAL_LCD_ERROR_ENS;
+            return HAL_TIMEOUT;
+        }
+    }
+
+    /* Get timeout */
+    tickstart = HAL_GetTick();
+
+    /*!< Wait Until the LCD Booster is ready */
+    while (__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_RDY) == RESET) {
+        if ((HAL_GetTick() - tickstart) > LCD_TIMEOUT_VALUE) {
+            hlcd->ErrorCode = HAL_LCD_ERROR_RDY;
+            return HAL_TIMEOUT;
+        }
+    }
+
+    /* Initialize the LCD state */
+    hlcd->ErrorCode = HAL_LCD_ERROR_NONE;
+    hlcd->State = HAL_LCD_STATE_READY;
+
+    return HAL_OK;
 }
 
 /**
@@ -275,27 +268,26 @@ HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
   */
 HAL_StatusTypeDef HAL_LCD_DeInit(LCD_HandleTypeDef *hlcd)
 {
-  /* Check the LCD handle allocation */
-  if(hlcd == NULL)
-  {
-    return HAL_ERROR;
-  }
+    /* Check the LCD handle allocation */
+    if (hlcd == NULL) {
+        return HAL_ERROR;
+    }
 
-  /* Check the parameters */
-  assert_param(IS_LCD_ALL_INSTANCE(hlcd->Instance));
+    /* Check the parameters */
+    assert_param(IS_LCD_ALL_INSTANCE(hlcd->Instance));
 
-  hlcd->State = HAL_LCD_STATE_BUSY;
+    hlcd->State = HAL_LCD_STATE_BUSY;
 
-  /* DeInit the low level hardware */
-  HAL_LCD_MspDeInit(hlcd);
+    /* DeInit the low level hardware */
+    HAL_LCD_MspDeInit(hlcd);
 
-  hlcd->ErrorCode = HAL_LCD_ERROR_NONE;
-  hlcd->State = HAL_LCD_STATE_RESET;
+    hlcd->ErrorCode = HAL_LCD_ERROR_NONE;
+    hlcd->State = HAL_LCD_STATE_RESET;
 
-  /* Release Lock */
-  __HAL_UNLOCK(hlcd);
+    /* Release Lock */
+    __HAL_UNLOCK(hlcd);
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 /**
@@ -305,12 +297,12 @@ HAL_StatusTypeDef HAL_LCD_DeInit(LCD_HandleTypeDef *hlcd)
   */
 __weak void HAL_LCD_MspDeInit(LCD_HandleTypeDef *hlcd)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hlcd);
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hlcd);
 
-  /* NOTE: This function should not be modified, when the callback is needed,
-           the HAL_LCD_MspDeInit it to be implemented in the user file
-   */
+    /* NOTE: This function should not be modified, when the callback is needed,
+             the HAL_LCD_MspDeInit it to be implemented in the user file
+     */
 }
 
 /**
@@ -320,12 +312,12 @@ __weak void HAL_LCD_MspDeInit(LCD_HandleTypeDef *hlcd)
   */
 __weak void HAL_LCD_MspInit(LCD_HandleTypeDef *hlcd)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hlcd);
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hlcd);
 
-  /* NOTE: This function should not be modified, when the callback is needed,
-           the HAL_LCD_MspInit is to be implemented in the user file
-   */
+    /* NOTE: This function should not be modified, when the callback is needed,
+             the HAL_LCD_MspInit is to be implemented in the user file
+     */
 }
 
 /**
@@ -388,46 +380,40 @@ __weak void HAL_LCD_MspInit(LCD_HandleTypeDef *hlcd)
   */
 HAL_StatusTypeDef HAL_LCD_Write(LCD_HandleTypeDef *hlcd, uint32_t RAMRegisterIndex, uint32_t RAMRegisterMask, uint32_t Data)
 {
-  uint32_t tickstart = 0x00;
+    uint32_t tickstart = 0x00;
 
-  if((hlcd->State == HAL_LCD_STATE_READY) || (hlcd->State == HAL_LCD_STATE_BUSY))
-  {
-    /* Check the parameters */
-    assert_param(IS_LCD_RAM_REGISTER(RAMRegisterIndex));
+    if ((hlcd->State == HAL_LCD_STATE_READY) || (hlcd->State == HAL_LCD_STATE_BUSY)) {
+        /* Check the parameters */
+        assert_param(IS_LCD_RAM_REGISTER(RAMRegisterIndex));
 
-    if(hlcd->State == HAL_LCD_STATE_READY)
-    {
-      /* Process Locked */
-      __HAL_LOCK(hlcd);
-      hlcd->State = HAL_LCD_STATE_BUSY;
+        if (hlcd->State == HAL_LCD_STATE_READY) {
+            /* Process Locked */
+            __HAL_LOCK(hlcd);
+            hlcd->State = HAL_LCD_STATE_BUSY;
 
-      /* Get timeout */
-      tickstart = HAL_GetTick();
+            /* Get timeout */
+            tickstart = HAL_GetTick();
 
-      /*!< Wait Until the LCD is ready */
-      while(__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_UDR) != RESET)
-      {
-        if((HAL_GetTick() - tickstart ) > LCD_TIMEOUT_VALUE)
-        {
-          hlcd->ErrorCode = HAL_LCD_ERROR_UDR;
+            /*!< Wait Until the LCD is ready */
+            while (__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_UDR) != RESET) {
+                if ((HAL_GetTick() - tickstart) > LCD_TIMEOUT_VALUE) {
+                    hlcd->ErrorCode = HAL_LCD_ERROR_UDR;
 
-          /* Process Unlocked */
-          __HAL_UNLOCK(hlcd);
+                    /* Process Unlocked */
+                    __HAL_UNLOCK(hlcd);
 
-          return HAL_TIMEOUT;
+                    return HAL_TIMEOUT;
+                }
+            }
         }
-      }
+
+        /* Copy the new Data bytes to LCD RAM register */
+        MODIFY_REG(hlcd->Instance->RAM[RAMRegisterIndex], ~(RAMRegisterMask), Data);
+
+        return HAL_OK;
+    } else {
+        return HAL_ERROR;
     }
-
-    /* Copy the new Data bytes to LCD RAM register */
-    MODIFY_REG(hlcd->Instance->RAM[RAMRegisterIndex], ~(RAMRegisterMask), Data);
-
-    return HAL_OK;
-  }
-  else
-  {
-    return HAL_ERROR;
-  }
 }
 
 /**
@@ -437,47 +423,41 @@ HAL_StatusTypeDef HAL_LCD_Write(LCD_HandleTypeDef *hlcd, uint32_t RAMRegisterInd
   */
 HAL_StatusTypeDef HAL_LCD_Clear(LCD_HandleTypeDef *hlcd)
 {
-  uint32_t tickstart = 0x00;
-  uint32_t counter = 0;
+    uint32_t tickstart = 0x00;
+    uint32_t counter = 0;
 
-  if((hlcd->State == HAL_LCD_STATE_READY) || (hlcd->State == HAL_LCD_STATE_BUSY))
-  {
-    /* Process Locked */
-    __HAL_LOCK(hlcd);
+    if ((hlcd->State == HAL_LCD_STATE_READY) || (hlcd->State == HAL_LCD_STATE_BUSY)) {
+        /* Process Locked */
+        __HAL_LOCK(hlcd);
 
-    hlcd->State = HAL_LCD_STATE_BUSY;
+        hlcd->State = HAL_LCD_STATE_BUSY;
 
-    /* Get timeout */
-    tickstart = HAL_GetTick();
+        /* Get timeout */
+        tickstart = HAL_GetTick();
 
-    /*!< Wait Until the LCD is ready */
-    while(__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_UDR) != RESET)
-    {
-      if((HAL_GetTick() - tickstart ) > LCD_TIMEOUT_VALUE)
-      {
-        hlcd->ErrorCode = HAL_LCD_ERROR_UDR;
+        /*!< Wait Until the LCD is ready */
+        while (__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_UDR) != RESET) {
+            if ((HAL_GetTick() - tickstart) > LCD_TIMEOUT_VALUE) {
+                hlcd->ErrorCode = HAL_LCD_ERROR_UDR;
 
-        /* Process Unlocked */
-        __HAL_UNLOCK(hlcd);
+                /* Process Unlocked */
+                __HAL_UNLOCK(hlcd);
 
-        return HAL_TIMEOUT;
-      }
+                return HAL_TIMEOUT;
+            }
+        }
+        /* Clear the LCD_RAM registers */
+        for (counter = LCD_RAM_REGISTER0; counter <= LCD_RAM_REGISTER15; counter++) {
+            hlcd->Instance->RAM[counter] = 0;
+        }
+
+        /* Update the LCD display */
+        HAL_LCD_UpdateDisplayRequest(hlcd);
+
+        return HAL_OK;
+    } else {
+        return HAL_ERROR;
     }
-    /* Clear the LCD_RAM registers */
-    for(counter = LCD_RAM_REGISTER0; counter <= LCD_RAM_REGISTER15; counter++)
-    {
-      hlcd->Instance->RAM[counter] = 0;
-    }
-
-    /* Update the LCD display */
-    HAL_LCD_UpdateDisplayRequest(hlcd);
-
-    return HAL_OK;
-  }
-  else
-  {
-    return HAL_ERROR;
-  }
 }
 
 /**
@@ -496,37 +476,35 @@ HAL_StatusTypeDef HAL_LCD_Clear(LCD_HandleTypeDef *hlcd)
   */
 HAL_StatusTypeDef HAL_LCD_UpdateDisplayRequest(LCD_HandleTypeDef *hlcd)
 {
-  uint32_t tickstart = 0x00;
+    uint32_t tickstart = 0x00;
 
-  /* Clear the Update Display Done flag before starting the update display request */
-  __HAL_LCD_CLEAR_FLAG(hlcd, LCD_FLAG_UDD);
+    /* Clear the Update Display Done flag before starting the update display request */
+    __HAL_LCD_CLEAR_FLAG(hlcd, LCD_FLAG_UDD);
 
-  /* Enable the display request */
-  hlcd->Instance->SR |= LCD_SR_UDR;
+    /* Enable the display request */
+    hlcd->Instance->SR |= LCD_SR_UDR;
 
-  /* Get timeout */
-  tickstart = HAL_GetTick();
+    /* Get timeout */
+    tickstart = HAL_GetTick();
 
-  /*!< Wait Until the LCD display is done */
-  while(__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_UDD) == RESET)
-  {
-    if((HAL_GetTick() - tickstart ) > LCD_TIMEOUT_VALUE)
-    {
-      hlcd->ErrorCode = HAL_LCD_ERROR_UDD;
+    /*!< Wait Until the LCD display is done */
+    while (__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_UDD) == RESET) {
+        if ((HAL_GetTick() - tickstart) > LCD_TIMEOUT_VALUE) {
+            hlcd->ErrorCode = HAL_LCD_ERROR_UDD;
 
-      /* Process Unlocked */
-      __HAL_UNLOCK(hlcd);
+            /* Process Unlocked */
+            __HAL_UNLOCK(hlcd);
 
-      return HAL_TIMEOUT;
+            return HAL_TIMEOUT;
+        }
     }
-  }
 
-  hlcd->State = HAL_LCD_STATE_READY;
+    hlcd->State = HAL_LCD_STATE_READY;
 
-  /* Process Unlocked */
-  __HAL_UNLOCK(hlcd);
+    /* Process Unlocked */
+    __HAL_UNLOCK(hlcd);
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 /**
@@ -555,8 +533,8 @@ HAL_StatusTypeDef HAL_LCD_UpdateDisplayRequest(LCD_HandleTypeDef *hlcd)
   */
 HAL_LCD_StateTypeDef HAL_LCD_GetState(LCD_HandleTypeDef *hlcd)
 {
-  /* Return LCD handle state */
-  return hlcd->State;
+    /* Return LCD handle state */
+    return hlcd->State;
 }
 
 /**
@@ -566,7 +544,7 @@ HAL_LCD_StateTypeDef HAL_LCD_GetState(LCD_HandleTypeDef *hlcd)
   */
 uint32_t HAL_LCD_GetError(LCD_HandleTypeDef *hlcd)
 {
-  return hlcd->ErrorCode;
+    return hlcd->ErrorCode;
 }
 
 /**
@@ -588,22 +566,20 @@ uint32_t HAL_LCD_GetError(LCD_HandleTypeDef *hlcd)
   */
 HAL_StatusTypeDef LCD_WaitForSynchro(LCD_HandleTypeDef *hlcd)
 {
-  uint32_t tickstart = 0x00;
+    uint32_t tickstart = 0x00;
 
-  /* Get timeout */
-  tickstart = HAL_GetTick();
+    /* Get timeout */
+    tickstart = HAL_GetTick();
 
-  /* Loop until FCRSF flag is set */
-  while(__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_FCRSF) == RESET)
-  {
-    if((HAL_GetTick() - tickstart ) > LCD_TIMEOUT_VALUE)
-    {
-      hlcd->ErrorCode = HAL_LCD_ERROR_FCRSF;
-      return HAL_TIMEOUT;
+    /* Loop until FCRSF flag is set */
+    while (__HAL_LCD_GET_FLAG(hlcd, LCD_FLAG_FCRSF) == RESET) {
+        if ((HAL_GetTick() - tickstart) > LCD_TIMEOUT_VALUE) {
+            hlcd->ErrorCode = HAL_LCD_ERROR_FCRSF;
+            return HAL_TIMEOUT;
+        }
     }
-  }
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 /**

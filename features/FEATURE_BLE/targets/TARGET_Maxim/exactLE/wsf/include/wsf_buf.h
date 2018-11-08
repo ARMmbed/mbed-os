@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   wsf_buf.h
- *        
+ *
  *  \brief  Buffer pool service.
  *
  *          $Date: 2013-05-13 15:20:24 -0700 (Mon, 13 May 2013) $
  *          $Revision: 612 $
- *  
+ *
  *  Copyright (c) 2009-2016 ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: LicenseRef-PBL
@@ -38,10 +38,9 @@ extern "C" {
 **************************************************************************************************/
 
 /*! Buffer pool descriptor structure */
-typedef struct
-{
-  uint16_t   len;                  /*! length of buffers in pool */
-  uint8_t    num;                  /*! number of buffers in pool */
+typedef struct {
+    uint16_t   len;                  /*! length of buffers in pool */
+    uint8_t    num;                  /*! number of buffers in pool */
 } wsfBufPoolDesc_t;
 
 
@@ -52,7 +51,7 @@ typedef struct
 /*************************************************************************************************/
 /*!
  *  \fn     WsfBufInit
- *        
+ *
  *  \brief  Initialize the buffer pool service.  This function should only be called once
  *          upon system initialization.
  *
@@ -69,7 +68,7 @@ bool_t WsfBufInit(uint16_t bufMemLen, uint8_t *pBufMem, uint8_t numPools, wsfBuf
 /*************************************************************************************************/
 /*!
  *  \fn     WsfBufAlloc
- *        
+ *
  *  \brief  Allocate a buffer.
  *
  *  \param  len     Length of buffer to allocate.
@@ -82,7 +81,7 @@ void *WsfBufAlloc(uint16_t len);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfBufFree
- *        
+ *
  *  \brief  Free a buffer.
  *
  *  \param  pBuf    Buffer to free.
@@ -95,7 +94,7 @@ void WsfBufFree(void *pBuf);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfBufGetMaxAlloc
- *        
+ *
  *  \brief  Diagnostic function to get maximum allocated buffers from a pool.
  *
  *  \param  pool    Buffer pool number.
@@ -108,7 +107,7 @@ uint8_t WsfBufGetMaxAlloc(uint8_t pool);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfBufGetNumAlloc
- *        
+ *
  *  \brief  Diagnostic function to get the number of currently allocated buffers in a pool.
  *
  *  \param  pool    Buffer pool number.
@@ -121,7 +120,7 @@ uint8_t WsfBufGetNumAlloc(uint8_t pool);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfBufGetAllocStats
- *        
+ *
  *  \brief  Diagnostic function to get the buffer allocation statistics.
  *
  *  \return Buffer allocation statistics array.

@@ -86,7 +86,7 @@ void SystemCoreClockUpdate(void)
 #endif
     /* Update Core Clock sources */
     /* update the HF clock */
-    switch (pADI_CLKG0_CLK->CTL0 & BITM_CLKG_CLK_CTL0_CLKMUX ) {
+    switch (pADI_CLKG0_CLK->CTL0 & BITM_CLKG_CLK_CTL0_CLKMUX) {
 
         case HFMUX_INTERNAL_OSC_VAL:
             hfClock = __HFOSC;
@@ -164,7 +164,7 @@ void SramInit(void)
  * @brief  Setup the microcontroller system.
  *         Initialize the System and update the relocate vector table.
  */
-void SystemInit (void)
+void SystemInit(void)
 {
     uint32_t IntStatus;
 
@@ -189,7 +189,7 @@ void SystemInit (void)
      * CP11 = grant CP11 coprocessor privileged and user mode access (full access)
      * (CP10 and CP11 MUST be the same or "BEHAVIOR IS UNPREDICTABLE")
      */
-    SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 for Full Access */
+    SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10 and CP11 for Full Access */
 #endif
 
     /* Flush instruction and data pipelines to insure assertion of new settings. */
@@ -197,16 +197,16 @@ void SystemInit (void)
     __DSB();
 
     adi_pwr_Init();
-    adi_pwr_SetClockDivider(ADI_CLOCK_HCLK,1);
-    adi_pwr_SetClockDivider(ADI_CLOCK_PCLK,1);
+    adi_pwr_SetClockDivider(ADI_CLOCK_HCLK, 1);
+    adi_pwr_SetClockDivider(ADI_CLOCK_PCLK, 1);
 
     /* Set up the LF clock MUX. Currently LFXTAL is unstable so use the
        internal LF Oscillator instead. LFXTAL is still required to be enabled
        as it is required by RTC0. This LFXTAL issue is going to be fixed
        in the next revision of the silicon. */
-    adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFXTAL,true);
+    adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFXTAL, true);
     adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFOSC);
-    adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFOSC,true);
+    adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFOSC, true);
 
     __set_PRIMASK(IntStatus);
 }
@@ -221,7 +221,7 @@ void SystemInit (void)
 void adi_system_EnableCache(bool bEnable)
 {
     pADI_FLCC0_CACHE->KEY = CACHE_CONTROLLER_KEY;
-    if( bEnable == true ) {
+    if (bEnable == true) {
         pADI_FLCC0_CACHE->SETUP |= BITM_FLCC_CACHE_SETUP_ICEN;
     } else {
         pADI_FLCC0_CACHE->SETUP &= ~BITM_FLCC_CACHE_SETUP_ICEN;
@@ -240,7 +240,7 @@ void adi_system_EnableCache(bool bEnable)
 void adi_system_EnableISRAM(bool bEnable)
 {
 
-    if( bEnable == true ) {
+    if (bEnable == true) {
         pADI_PMG0_TST->SRAM_CTL |= BITM_PMG_TST_SRAM_CTL_INSTREN;
     } else {
         pADI_PMG0_TST->SRAM_CTL &= ~BITM_PMG_TST_SRAM_CTL_INSTREN;
@@ -271,38 +271,38 @@ ADI_SYS_RESULT adi_system_EnableRetention(ADI_SRAM_BANK eBank, bool bEnable)
     uint32_t retainBits = 0u;
 
 #ifdef ADI_DEBUG
-    if((0u != (eBank & ADI_SRAM_BANK_0)) ||
+    if ((0u != (eBank & ADI_SRAM_BANK_0)) ||
             (0u != (eBank & ADI_SRAM_BANK_2))) {
         /* Banks 0 and 2 are not selectable */
         return ADI_SYS_FAILURE;
     }
 
     /* Are banks 3 or 4 selected? */
-    if(0u != (eBank & (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4))) {
+    if (0u != (eBank & (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4))) {
         /* If so, the only valid option is for both to be retained. */
-        if((eBank & (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4)) != (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4)) {
+        if ((eBank & (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4)) != (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4)) {
             return ADI_SYS_FAILURE;
         }
     }
 
     /* Are banks 6 or 7 selected? */
-    if(0u != (eBank & (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7))) {
+    if (0u != (eBank & (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7))) {
         /* If so, the only valid option is for both to be retained */
-        if((eBank & (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7)) != (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7)) {
+        if ((eBank & (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7)) != (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7)) {
             return ADI_SYS_FAILURE;
         }
     }
 #endif
-    if((eBank & ADI_SRAM_BANK_1) != 0u) {
+    if ((eBank & ADI_SRAM_BANK_1) != 0u) {
         retainBits |= BITM_PMG_SRAMRET_RET1;
     }
-    if((eBank & (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4)) != 0u) {
+    if ((eBank & (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4)) != 0u) {
         retainBits |= BITM_PMG_SRAMRET_RET2;
     }
-    if((eBank & ADI_SRAM_BANK_5) != 0u) {
+    if ((eBank & ADI_SRAM_BANK_5) != 0u) {
         retainBits |= BITM_PMG_SRAMRET_RET3;
     }
-    if((eBank & (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7)) != 0u) {
+    if ((eBank & (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7)) != 0u) {
         retainBits |= BITM_PMG_SRAMRET_RET4;
     }
 
@@ -312,7 +312,7 @@ ADI_SYS_RESULT adi_system_EnableRetention(ADI_SRAM_BANK eBank, bool bEnable)
      * register on the APB bus before writing to PMG_SRAMRET will return the
      * protection to the lock state. */
     pADI_PMG0->PWRKEY = PWRKEY_VALUE_KEY;
-    if(bEnable) {
+    if (bEnable) {
         pADI_PMG0->SRAMRET |= retainBits;
     } else {
         pADI_PMG0->SRAMRET &= ~(retainBits);

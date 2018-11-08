@@ -210,7 +210,7 @@ extern volatile uint32_t *const kFCCOBx;
 #elif defined ( __ICCARM__ )
 #define __RAMFUNC __ramfunc
 #else // unknown compiler
-    #error "This compiler is not yet supported. If you can contribute support for defining a function to be RAM resident, please provide a definition for __RAMFUNC"
+#error "This compiler is not yet supported. If you can contribute support for defining a function to be RAM resident, please provide a definition for __RAMFUNC"
 #endif
 #endif /* #ifndef __RAMFUNC */
 
@@ -218,7 +218,7 @@ extern volatile uint32_t *const kFCCOBx;
  * forward declarations
  */
 static int32_t getBlock(uint64_t addr, ARM_STORAGE_BLOCK *blockP);
-static int32_t nextBlock(const ARM_STORAGE_BLOCK* prevP, ARM_STORAGE_BLOCK *nextP);
+static int32_t nextBlock(const ARM_STORAGE_BLOCK *prevP, ARM_STORAGE_BLOCK *nextP);
 
 /*
  * Global state for the driver.
@@ -268,7 +268,7 @@ static const ARM_STORAGE_BLOCK blockTable[] = {
 
 static const ARM_DRIVER_VERSION version = {
     .api = ARM_STORAGE_API_VERSION,
-    .drv = ARM_DRIVER_VERSION_MAJOR_MINOR(1,00)
+    .drv = ARM_DRIVER_VERSION_MAJOR_MINOR(1, 00)
 };
 
 
@@ -292,12 +292,12 @@ static const ARM_STORAGE_CAPABILITIES caps = {
     .asynchronous_ops = ASYNC_OPS,
 
     /* Enable chip-erase functionality if we own all of block-1. */
-    #if ((!defined (STORAGE_START_ADDR) || (STORAGE_START_ADDR == BLOCK1_START_ADDR)) && \
+#if ((!defined (STORAGE_START_ADDR) || (STORAGE_START_ADDR == BLOCK1_START_ADDR)) && \
          (!defined (STORAGE_SIZE)       || (STORAGE_SIZE == BLOCK1_SIZE)))
     .erase_all        = 1,    /**< Supports EraseChip operation. */
-    #else
+#else
     .erase_all        = 0,    /**< Supports EraseChip operation. */
-    #endif
+#endif
 };
 
 static const ARM_STORAGE_INFO info = {
@@ -606,7 +606,7 @@ static inline void setupProgramSection(uint64_t addr, const void *data, size_t c
     setupAddressInCCOB123(addr);
 
     BW_FTFE_FCCOB4_CCOBn((uintptr_t)FTFE, ((((uint32_t)(cnt >> 4)) & (0x0000FF00)) >> 8)); /* number of 128-bits to program [15:8] */
-    BW_FTFE_FCCOB5_CCOBn((uintptr_t)FTFE,  (((uint32_t)(cnt >> 4)) & (0x000000FF)));       /* number of 128-bits to program  [7:0] */
+    BW_FTFE_FCCOB5_CCOBn((uintptr_t)FTFE, (((uint32_t)(cnt >> 4)) & (0x000000FF)));        /* number of 128-bits to program  [7:0] */
 #endif /* ifdef USING_KSDK2 */
 }
 
@@ -644,7 +644,7 @@ static inline size_t sizeofLargestProgramSection(uint64_t addr, size_t size)
 static inline void setupNextProgramData(struct mtd_k64f_data *context)
 {
     if ((context->amountLeftToOperate == PROGRAM_PHRASE_SIZEOF_INLINE_DATA) ||
-        ((context->currentOperatingStorageAddress % SIZEOF_DOUBLE_PHRASE) == PROGRAM_PHRASE_SIZEOF_INLINE_DATA)) {
+            ((context->currentOperatingStorageAddress % SIZEOF_DOUBLE_PHRASE) == PROGRAM_PHRASE_SIZEOF_INLINE_DATA)) {
         setup8ByteWrite(context->currentOperatingStorageAddress, context->currentOperatingData);
         tr_debug("setupNextProgramData: W8, [%lu]", (uint32_t)context->currentOperatingStorageAddress);
 
@@ -720,13 +720,13 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
     while (1) {
         tr_debug("executeCommand: synchronous iteration");
 
-        #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+#if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
         __disable_irq();
-        #endif
+#endif
         launchCommandAndWaitForCompletion();
-        #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+#if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
         __enable_irq();
-        #endif
+#endif
 
         /* Execution may result in failure. Check for errors */
         if (failedWithAccessError() || failedWithProtectionError()) {
@@ -1123,9 +1123,9 @@ static int32_t eraseAll(void)
 
     /* unless we are managing all of block 1, we shouldn't allow chip-erase. */
     if ((caps.erase_all != 1) ||
-        ((sizeof(blockTable) / sizeof(ARM_STORAGE_BLOCK)) != 1) || /* there are more than one flash blocks */
-        (blockTable[0].addr != BLOCK1_START_ADDR)               ||
-        (blockTable[0].size != BLOCK1_SIZE)) {
+            ((sizeof(blockTable) / sizeof(ARM_STORAGE_BLOCK)) != 1) || /* there are more than one flash blocks */
+            (blockTable[0].addr != BLOCK1_START_ADDR)               ||
+            (blockTable[0].size != BLOCK1_SIZE)) {
         return ARM_DRIVER_ERROR_UNSUPPORTED;
     }
 

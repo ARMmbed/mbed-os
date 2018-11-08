@@ -55,7 +55,7 @@ void rtc_free(void)
 /* See rtc_apc.h for description */
 int rtc_isenabled(void)
 {
-    return(fIsRtcEnabled());
+    return (fIsRtcEnabled());
 }
 
 /* See rtc_apc.h for description */

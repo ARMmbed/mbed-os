@@ -20,29 +20,29 @@
 #endif
 
 #ifndef NRF_LOG_USES_COLORS
-    #define NRF_LOG_USES_COLORS 1
+#define NRF_LOG_USES_COLORS 1
 #endif
 
 #if NRF_LOG_USES_COLORS == 1
-    #define NRF_LOG_COLOR_DEFAULT  "\x1B[0m"
-    #define NRF_LOG_COLOR_BLACK    "\x1B[1;30m"
-    #define NRF_LOG_COLOR_RED      "\x1B[1;31m"
-    #define NRF_LOG_COLOR_GREEN    "\x1B[1;32m"
-    #define NRF_LOG_COLOR_YELLOW   "\x1B[1;33m"
-    #define NRF_LOG_COLOR_BLUE     "\x1B[1;34m"
-    #define NRF_LOG_COLOR_MAGENTA  "\x1B[1;35m"
-    #define NRF_LOG_COLOR_CYAN     "\x1B[1;36m"
-    #define NRF_LOG_COLOR_WHITE    "\x1B[1;37m"
+#define NRF_LOG_COLOR_DEFAULT  "\x1B[0m"
+#define NRF_LOG_COLOR_BLACK    "\x1B[1;30m"
+#define NRF_LOG_COLOR_RED      "\x1B[1;31m"
+#define NRF_LOG_COLOR_GREEN    "\x1B[1;32m"
+#define NRF_LOG_COLOR_YELLOW   "\x1B[1;33m"
+#define NRF_LOG_COLOR_BLUE     "\x1B[1;34m"
+#define NRF_LOG_COLOR_MAGENTA  "\x1B[1;35m"
+#define NRF_LOG_COLOR_CYAN     "\x1B[1;36m"
+#define NRF_LOG_COLOR_WHITE    "\x1B[1;37m"
 #else
-    #define NRF_LOG_COLOR_DEFAULT
-    #define NRF_LOG_COLOR_BLACK
-    #define NRF_LOG_COLOR_RED
-    #define NRF_LOG_COLOR_GREEN
-    #define NRF_LOG_COLOR_YELLOW
-    #define NRF_LOG_COLOR_BLUE
-    #define NRF_LOG_COLOR_MAGENTA
-    #define NRF_LOG_COLOR_CYAN
-    #define NRF_LOG_COLOR_WHITE
+#define NRF_LOG_COLOR_DEFAULT
+#define NRF_LOG_COLOR_BLACK
+#define NRF_LOG_COLOR_RED
+#define NRF_LOG_COLOR_GREEN
+#define NRF_LOG_COLOR_YELLOW
+#define NRF_LOG_COLOR_BLUE
+#define NRF_LOG_COLOR_MAGENTA
+#define NRF_LOG_COLOR_CYAN
+#define NRF_LOG_COLOR_WHITE
 #endif
 
 #if defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1
@@ -83,7 +83,7 @@ uint32_t log_rtt_init(void);
  * @param   terminal_index  Segger RTT terminal index to use as output.
  * @param   format_msg      Printf format string.
  */
-void log_rtt_printf(int terminal_index, char * format_msg, ...);
+void log_rtt_printf(int terminal_index, char *format_msg, ...);
 
 /**@brief Function for writing a string using RTT.
  *
@@ -157,7 +157,7 @@ int log_rtt_has_input(void);
  * @retval      NRF_SUCCESS If the character was read out.
  * @retval      NRF_ERROR_INVALID_DATA If no character could be read.
  */
-uint32_t log_rtt_read_input(char* p_char);
+uint32_t log_rtt_read_input(char *p_char);
 
 #define NRF_LOG_INIT()                  log_rtt_init()                                                                          /*!< Initialize the module. */
 
@@ -228,7 +228,7 @@ uint32_t log_uart_init(void);
  *
  * @param  format_msg      Printf format string.
  */
-void log_uart_printf(const char * format_msg, ...);
+void log_uart_printf(const char *format_msg, ...);
 
 /**@brief Function for logging a single character to UART.
  *
@@ -269,7 +269,7 @@ void log_uart_write_string_many(int num_args, ...);
  *
  * @param  msg     Null-terminated string.
  */
-void log_uart_write_string(const char* msg);
+void log_uart_write_string(const char *msg);
 
 
 /**@brief Function for logging an integer value as HEX to UART.
@@ -331,7 +331,7 @@ int log_uart_has_input(void);
  * @retval      NRF_SUCCESS If the character was read out.
  * @retval      NRF_ERROR_INVALID_DATA If no character could be read.
  */
-uint32_t log_uart_read_input(char* p_char);
+uint32_t log_uart_read_input(char *p_char);
 
 
 #define NRF_LOG_INIT()                  log_uart_init()                                                         /*!< Initialize the module. */
@@ -406,7 +406,7 @@ uint32_t log_raw_uart_init(void);
  *
  * @param  format_msg      Printf format string.
  */
-void log_raw_uart_printf(const char * format_msg, ...);
+void log_raw_uart_printf(const char *format_msg, ...);
 
 /**@brief Function for logging a single character to raw UART.
  *
@@ -447,7 +447,7 @@ void log_raw_uart_write_string_many(int num_args, ...);
  *
  * @param  str     Null-terminated string.
  */
-void log_raw_uart_write_string(const char * str);
+void log_raw_uart_write_string(const char *str);
 
 /**@brief Function for logging an integer value as HEX to raw UART.
  *
@@ -509,7 +509,7 @@ int log_raw_uart_has_input(void);
  * @retval      NRF_ERROR_INVALID_DATA If no character could be read.
  */
 
-uint32_t log_raw_uart_read_input(char* p_char);
+uint32_t log_raw_uart_read_input(char *p_char);
 
 #define NRF_LOG_INIT()                  log_raw_uart_init()                                                         /*!< nitialize the module. */
 
@@ -587,7 +587,7 @@ uint32_t log_raw_uart_read_input(char* p_char);
  *
  * @retval NULL By default.
  */
-const char* log_hex(uint32_t value);
+const char *log_hex(uint32_t value);
 
 /**@brief Function for writing HEX characters.
  *
@@ -596,7 +596,7 @@ const char* log_hex(uint32_t value);
  *
  * @retval NULL By default.
  */
-const char* log_hex_char(const char value);
+const char *log_hex_char(const char value);
 
 
 
@@ -635,7 +635,7 @@ uint32_t NRF_LOG_INIT(void);
  *
  * @param  msg  Null-terminated string.
  */
-void NRF_LOG(const char* msg);
+void NRF_LOG(const char *msg);
 
 /**@brief Macro for logging a printf string.
  *
@@ -650,7 +650,7 @@ void NRF_LOG(const char* msg);
  * @param  format_msg      Printf format string.
  * @param  ...             Additional arguments replacing format specifiers in format_msg.
  */
-void NRF_LOG_PRINTF(const char * format_msg, ...);
+void NRF_LOG_PRINTF(const char *format_msg, ...);
 
 /**@brief Macro for logging an integer value as HEX.
  *
@@ -692,7 +692,7 @@ int NRF_LOG_HAS_INPUT(void);
  * @retval      NRF_SUCCESS If the character was read out.
  * @retval      NRF_ERROR_INVALID_DATA If no character could be read.
  */
-uint32_t NRF_LOG_READ_INPUT(char* p_char);
+uint32_t NRF_LOG_READ_INPUT(char *p_char);
 
 /** @} */
 #endif // DOXYGEN

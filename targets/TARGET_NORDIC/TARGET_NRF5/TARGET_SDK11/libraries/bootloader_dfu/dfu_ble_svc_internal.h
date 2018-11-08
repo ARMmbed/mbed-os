@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2014 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,17 +33,17 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
-  
+
 /** @file
  *
  * @defgroup nrf_dfu_ble_svc_internal DFU BLE SVC internal
  * @{
  *
- * @brief DFU BLE SVC internal functions in bootloader. The DFU BLE SuperVisor Calls allow an 
- *        application to execute functions in the installed bootloader. This interface provides 
+ * @brief DFU BLE SVC internal functions in bootloader. The DFU BLE SuperVisor Calls allow an
+ *        application to execute functions in the installed bootloader. This interface provides
  *        internal Bootloader DFU functions for retrieving data exchanged through SuperVisor Calls.
  *
  */
@@ -63,7 +63,7 @@
  * @retval NRF_ERROR_NULL         If p_peer_data is a NULL pointer.
  * @retval NRF_ERROR_INVALID_DATA If peer data is not available or invalid.
  */
-uint32_t dfu_ble_peer_data_get(dfu_ble_peer_data_t * p_peer_data);
+uint32_t dfu_ble_peer_data_get(dfu_ble_peer_data_t *p_peer_data);
 
 #endif // DFU_BLE_SVC_INTERNAL_H__
 

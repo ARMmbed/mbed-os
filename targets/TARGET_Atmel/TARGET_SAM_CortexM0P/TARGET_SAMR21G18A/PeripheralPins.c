@@ -33,7 +33,7 @@ const PinMap PinMap_ADC[] = {
     {PA11,  ADC_19, 1},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************SERCOM Pins***********/
@@ -72,7 +72,7 @@ const PinMap PinMap_SERCOM_PAD[] = {
     {PC19, SERCOM4_PAD0, 5},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /*******SERCOM Pins extended*******/
@@ -89,7 +89,7 @@ const PinMap PinMap_SERCOM_PADEx[] = {
     {PA25, SERCOM5_PAD3, 3},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 
@@ -124,7 +124,7 @@ const PinMap PinMap_PWM[] = {
     {PB31, PWM_0, 4},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /**********EXTINT*************/
@@ -185,7 +185,7 @@ const PinMap PinMap_EXTINT[] = {
     {PB31,  EXTINT_15, 0},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const struct pwm_pin_channel pwn_pins[] = {
@@ -218,7 +218,7 @@ const struct pwm_pin_channel pwn_pins[] = {
     {PB31, PWM_0, 1},
 
     /* Not connected */
-    {(PinName) NC  ,(PWMName) NC   ,(uint8_t) NC}
+    {(PinName) NC, (PWMName) NC, (uint8_t) NC}
 };
 
 

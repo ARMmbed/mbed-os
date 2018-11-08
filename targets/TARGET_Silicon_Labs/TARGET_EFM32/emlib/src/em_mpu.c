@@ -86,29 +86,29 @@
  ******************************************************************************/
 void MPU_ConfigureRegion(const MPU_RegionInit_TypeDef *init)
 {
-  EFM_ASSERT(init->regionNo < ((MPU->TYPE & MPU_TYPE_DREGION_Msk)
-                               >> MPU_TYPE_DREGION_Pos));
+    EFM_ASSERT(init->regionNo < ((MPU->TYPE & MPU_TYPE_DREGION_Msk)
+                                 >> MPU_TYPE_DREGION_Pos));
 
-  MPU->RNR = init->regionNo;
+    MPU->RNR = init->regionNo;
 
-  if (init->regionEnable) {
-    EFM_ASSERT(!(init->baseAddress & ~MPU_RBAR_ADDR_Msk));
-    EFM_ASSERT(init->tex <= 0x7);
+    if (init->regionEnable) {
+        EFM_ASSERT(!(init->baseAddress & ~MPU_RBAR_ADDR_Msk));
+        EFM_ASSERT(init->tex <= 0x7);
 
-    MPU->RBAR = init->baseAddress;
-    MPU->RASR = ((init->disableExec ? 1 : 0)   << MPU_RASR_XN_Pos)
-                | (init->accessPermission      << MPU_RASR_AP_Pos)
-                | (init->tex                   << MPU_RASR_TEX_Pos)
-                | ((init->shareable   ? 1 : 0) << MPU_RASR_S_Pos)
-                | ((init->cacheable   ? 1 : 0) << MPU_RASR_C_Pos)
-                | ((init->bufferable  ? 1 : 0) << MPU_RASR_B_Pos)
-                | (init->srd                   << MPU_RASR_SRD_Pos)
-                | (init->size                  << MPU_RASR_SIZE_Pos)
-                | (1                           << MPU_RASR_ENABLE_Pos);
-  } else {
-    MPU->RBAR = 0;
-    MPU->RASR = 0;
-  }
+        MPU->RBAR = init->baseAddress;
+        MPU->RASR = ((init->disableExec ? 1 : 0)   << MPU_RASR_XN_Pos)
+                    | (init->accessPermission      << MPU_RASR_AP_Pos)
+                    | (init->tex                   << MPU_RASR_TEX_Pos)
+                    | ((init->shareable   ? 1 : 0) << MPU_RASR_S_Pos)
+                    | ((init->cacheable   ? 1 : 0) << MPU_RASR_C_Pos)
+                    | ((init->bufferable  ? 1 : 0) << MPU_RASR_B_Pos)
+                    | (init->srd                   << MPU_RASR_SRD_Pos)
+                    | (init->size                  << MPU_RASR_SIZE_Pos)
+                    | (1                           << MPU_RASR_ENABLE_Pos);
+    } else {
+        MPU->RBAR = 0;
+        MPU->RASR = 0;
+    }
 }
 
 /** @} (end addtogroup CMU) */

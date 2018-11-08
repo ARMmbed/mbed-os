@@ -57,8 +57,7 @@ typedef void (*uart_dma_transfer_callback_t)(UART_Type *base,
 /*!
 * @brief UART DMA handle
 */
-struct _uart_dma_handle
-{
+struct _uart_dma_handle {
     UART_Type *base; /*!< UART peripheral base address. */
 
     uart_dma_transfer_callback_t callback; /*!< Callback function. */
@@ -97,11 +96,11 @@ extern "C" {
  * @param txDmaHandle User requested DMA handle for TX DMA transfer.
  */
 void UART_TransferCreateHandleDMA(UART_Type *base,
-                          uart_dma_handle_t *handle,
-                          uart_dma_transfer_callback_t callback,
-                          void *userData,
-                          dma_handle_t *txDmaHandle,
-                          dma_handle_t *rxDmaHandle);
+                                  uart_dma_handle_t *handle,
+                                  uart_dma_transfer_callback_t callback,
+                                  void *userData,
+                                  dma_handle_t *txDmaHandle,
+                                  dma_handle_t *rxDmaHandle);
 
 /*!
  * @brief Sends data using DMA.

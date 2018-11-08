@@ -16,9 +16,9 @@
 
 #include "nRF5xGattServer.h"
 #ifdef YOTTA_CFG_MBED_OS
-    #include "mbed-drivers/mbed.h"
+#include "mbed-drivers/mbed.h"
 #else
-    #include "mbed.h"
+#include "mbed.h"
 #endif
 
 #include "common/common.h"
@@ -69,9 +69,10 @@ static ble_error_t set_attribute_value(
     Gap::Handle_t connectionHandle,
     GattAttribute::Handle_t attributeHandle,
     ble_gatts_value_t *value
-) {
+)
+{
     uint32_t err = sd_ble_gatts_value_set(connectionHandle, attributeHandle, value);
-    switch(err) {
+    switch (err) {
         case NRF_SUCCESS:
             return BLE_ERROR_NONE;
         case NRF_ERROR_INVALID_ADDR:
@@ -117,11 +118,11 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
     nordicUUID = custom_convert_to_nordic_uuid(service.getUUID());
 
     uint16_t serviceHandle;
-    ASSERT_TRUE( ERROR_NONE ==
-            sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
-                                     &nordicUUID,
-                                     &serviceHandle),
-            BLE_ERROR_PARAM_OUT_OF_RANGE );
+    ASSERT_TRUE(ERROR_NONE ==
+                sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
+                                         &nordicUUID,
+                                         &serviceHandle),
+                BLE_ERROR_PARAM_OUT_OF_RANGE);
     service.setHandle(serviceHandle);
 
     /* Add characteristics to the service */
@@ -134,8 +135,8 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
 
         /* Skip any incompletely defined, read-only characteristics. */
         if ((p_char->getValueAttribute().getValuePtr() == NULL) &&
-            (p_char->getValueAttribute().getLength() == 0) &&
-            (p_char->getProperties() == GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)) {
+                (p_char->getValueAttribute().getLength() == 0) &&
+                (p_char->getProperties() == GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)) {
             continue;
         }
 
@@ -155,21 +156,21 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
             }
         }
 
-        ASSERT_TRUE ( ERROR_NONE ==
-                 custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
-                                              &nordicUUID,
-                                              p_char->getProperties(),
-                                              p_char->getRequiredSecurity(),
-                                              p_char->getValueAttribute().getValuePtr(),
-                                              p_char->getValueAttribute().getLength(),
-                                              p_char->getValueAttribute().getMaxLength(),
-                                              p_char->getValueAttribute().hasVariableLength(),
-                                              userDescriptionDescriptorValuePtr,
-                                              userDescriptionDescriptorValueLen,
-                                              p_char->isReadAuthorizationEnabled(),
-                                              p_char->isWriteAuthorizationEnabled(),
-                                              &nrfCharacteristicHandles[characteristicCount]),
-                 BLE_ERROR_PARAM_OUT_OF_RANGE );
+        ASSERT_TRUE(ERROR_NONE ==
+                    custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
+                                                 &nordicUUID,
+                                                 p_char->getProperties(),
+                                                 p_char->getRequiredSecurity(),
+                                                 p_char->getValueAttribute().getValuePtr(),
+                                                 p_char->getValueAttribute().getLength(),
+                                                 p_char->getValueAttribute().getMaxLength(),
+                                                 p_char->getValueAttribute().hasVariableLength(),
+                                                 userDescriptionDescriptorValuePtr,
+                                                 userDescriptionDescriptorValueLen,
+                                                 p_char->isReadAuthorizationEnabled(),
+                                                 p_char->isWriteAuthorizationEnabled(),
+                                                 &nrfCharacteristicHandles[characteristicCount]),
+                    BLE_ERROR_PARAM_OUT_OF_RANGE);
 
         /* Update the characteristic handle */
         p_characteristics[characteristicCount] = p_char;
@@ -196,14 +197,14 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
             nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
 
             ASSERT_TRUE(ERROR_NONE ==
-                   custom_add_in_descriptor(BLE_GATT_HANDLE_INVALID,
-                                            &nordicUUID,
-                                            p_desc->getValuePtr(),
-                                            p_desc->getLength(),
-                                            p_desc->getMaxLength(),
-                                            p_desc->hasVariableLength(),
-                                            &nrfDescriptorHandles[descriptorCount]),
-                BLE_ERROR_PARAM_OUT_OF_RANGE);
+                        custom_add_in_descriptor(BLE_GATT_HANDLE_INVALID,
+                                                 &nordicUUID,
+                                                 p_desc->getValuePtr(),
+                                                 p_desc->getLength(),
+                                                 p_desc->getMaxLength(),
+                                                 p_desc->hasVariableLength(),
+                                                 &nrfDescriptorHandles[descriptorCount]),
+                        BLE_ERROR_PARAM_OUT_OF_RANGE);
 
             p_descriptors[descriptorCount] = p_desc;
             p_desc->setHandle(nrfDescriptorHandles[descriptorCount]);
@@ -249,9 +250,9 @@ ble_error_t nRF5xGattServer::read(Gap::Handle_t connectionHandle, GattAttribute:
         .p_value = buffer,
     };
 
-    ASSERT_TRUE( ERROR_NONE ==
-            sd_ble_gatts_value_get(connectionHandle, attributeHandle, &value),
-            BLE_ERROR_PARAM_OUT_OF_RANGE);
+    ASSERT_TRUE(ERROR_NONE ==
+                sd_ble_gatts_value_get(connectionHandle, attributeHandle, &value),
+                BLE_ERROR_PARAM_OUT_OF_RANGE);
     *lengthP = value.len;
 
     return BLE_ERROR_NONE;
@@ -293,15 +294,15 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
 
     if (localOnly) {
         /* Only update locally regardless of notify/indicate */
-        ASSERT_INT( ERROR_NONE,
-                    sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
-                    BLE_ERROR_PARAM_OUT_OF_RANGE );
+        ASSERT_INT(ERROR_NONE,
+                   sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
+                   BLE_ERROR_PARAM_OUT_OF_RANGE);
         return BLE_ERROR_NONE;
     }
 
     int characteristicIndex = resolveValueHandleToCharIndex(attributeHandle);
     if ((characteristicIndex != -1) &&
-        (p_characteristics[characteristicIndex]->getProperties() & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY))) {
+            (p_characteristics[characteristicIndex]->getProperties() & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY))) {
         /* HVX update for the characteristic value */
         ble_gatts_hvx_params_t hvx_params;
 
@@ -324,7 +325,7 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
             // FIXME: The softdevice allocates and populates CCCD when the client
             // interract with them. Checking for updates may return an out of
             // range error in such case.
-            if(err && err != BLE_ERROR_PARAM_OUT_OF_RANGE) {
+            if (err && err != BLE_ERROR_PARAM_OUT_OF_RANGE) {
                 return err;
             }
         }
@@ -344,9 +345,9 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
                         break;
 
                     default :
-                        ASSERT_INT( ERROR_NONE,
-                                    sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
-                                    BLE_ERROR_PARAM_OUT_OF_RANGE );
+                        ASSERT_INT(ERROR_NONE,
+                                   sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
+                                   BLE_ERROR_PARAM_OUT_OF_RANGE);
 
                         /* Notifications consume application buffers. The return value can
                         * be used for resending notifications. */
@@ -445,32 +446,32 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
 
     switch (p_ble_evt->header.evt_id) {
         case BLE_GATTS_EVT_WRITE: {
-                /* There are 2 use case here: Values being updated & CCCD (indicate/notify) enabled */
+            /* There are 2 use case here: Values being updated & CCCD (indicate/notify) enabled */
 
-                /* 1.) Handle CCCD changes */
-                handle_value = gattsEventP->params.write.handle;
-                int characteristicIndex = resolveCCCDHandleToCharIndex(handle_value);
-                if ((characteristicIndex != -1) &&
+            /* 1.) Handle CCCD changes */
+            handle_value = gattsEventP->params.write.handle;
+            int characteristicIndex = resolveCCCDHandleToCharIndex(handle_value);
+            if ((characteristicIndex != -1) &&
                     (p_characteristics[characteristicIndex]->getProperties() &
-                        (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY))) {
+                     (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY))) {
 
-                    uint16_t cccd_value = (gattsEventP->params.write.data[1] << 8) | gattsEventP->params.write.data[0]; /* Little Endian but M0 may be mis-aligned */
+                uint16_t cccd_value = (gattsEventP->params.write.data[1] << 8) | gattsEventP->params.write.data[0]; /* Little Endian but M0 may be mis-aligned */
 
-                    if (((p_characteristics[characteristicIndex]->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE) && (cccd_value & BLE_GATT_HVX_INDICATION)) ||
+                if (((p_characteristics[characteristicIndex]->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE) && (cccd_value & BLE_GATT_HVX_INDICATION)) ||
                         ((p_characteristics[characteristicIndex]->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) && (cccd_value & BLE_GATT_HVX_NOTIFICATION))) {
-                        eventType = GattServerEvents::GATT_EVENT_UPDATES_ENABLED;
-                    } else {
-                        eventType = GattServerEvents::GATT_EVENT_UPDATES_DISABLED;
-                    }
-
-                    handleEvent(eventType, p_characteristics[characteristicIndex]->getValueHandle());
-                    return;
+                    eventType = GattServerEvents::GATT_EVENT_UPDATES_ENABLED;
+                } else {
+                    eventType = GattServerEvents::GATT_EVENT_UPDATES_DISABLED;
                 }
 
-                /* 2.) Changes to the characteristic value will be handled with other events below */
-                eventType = GattServerEvents::GATT_EVENT_DATA_WRITTEN;
+                handleEvent(eventType, p_characteristics[characteristicIndex]->getValueHandle());
+                return;
             }
-            break;
+
+            /* 2.) Changes to the characteristic value will be handled with other events below */
+            eventType = GattServerEvents::GATT_EVENT_DATA_WRITTEN;
+        }
+        break;
 
         case BLE_GATTS_EVT_HVC:
             /* Indication confirmation received */
@@ -525,8 +526,8 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
         // and there is no attribute handle provided
         uint8_t write_op = gattsEventP->params.authorize_request.request.write.op;
         if (eventType != GattServerEvents::GATT_EVENT_WRITE_AUTHORIZATION_REQ ||
-            (write_op != BLE_GATTS_OP_EXEC_WRITE_REQ_NOW &&
-             write_op != BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL)) {
+                (write_op != BLE_GATTS_OP_EXEC_WRITE_REQ_NOW &&
+                 write_op != BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL)) {
             return;
         }
     }
@@ -547,7 +548,7 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
         }
         case GattServerEvents::GATT_EVENT_WRITE_AUTHORIZATION_REQ: {
             uint16_t conn_handle = gattsEventP->conn_handle;
-            const ble_gatts_evt_write_t& input_req = gattsEventP->params.authorize_request.request.write;
+            const ble_gatts_evt_write_t &input_req = gattsEventP->params.authorize_request.request.write;
             const uint16_t max_size = getBiggestCharacteristicSize();
 
             // this is a long write request, handle it here.
@@ -561,7 +562,7 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                     }
 
                     // find the write request
-                    long_write_request_t* req = findLongWriteRequest(conn_handle);
+                    long_write_request_t *req = findLongWriteRequest(conn_handle);
                     if (!req)  {
                         sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
                         return;
@@ -608,15 +609,17 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                     };
 
                     sd_ble_gatts_rw_authorize_reply(conn_handle, &reply);
-                }   return;
+                }
+                return;
 
                 case BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL: {
                     releaseLongWriteRequest(conn_handle);
                     sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_succes_reply);
-                }   return;
+                }
+                return;
 
                 case BLE_GATTS_OP_EXEC_WRITE_REQ_NOW: {
-                    long_write_request_t* req = findLongWriteRequest(conn_handle);
+                    long_write_request_t *req = findLongWriteRequest(conn_handle);
                     if (!req) {
                         sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_reply);
                         return;
@@ -629,8 +632,8 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                         .len        = req->length,
                         .data       = req->data,
                         .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
-                                                                           * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
-                                                                           * request is to proceed. */
+                                                                   * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
+                                                                   * request is to proceed. */
                     };
                     uint16_t write_authorization = p_characteristics[characteristicIndex]->authorizeWrite(&cbParams);
 
@@ -668,7 +671,8 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                     };
                     handleDataWrittenEvent(&writeParams);
                     releaseLongWriteRequest(conn_handle);
-                }   return;
+                }
+                return;
             }
 
             GattWriteAuthCallbackParams cbParams = {
@@ -678,8 +682,8 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                 .len        = gattsEventP->params.authorize_request.request.write.len,
                 .data       = gattsEventP->params.authorize_request.request.write.data,
                 .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
-                                                                   * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
-                                                                   * request is to proceed. */
+                                                               * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
+                                                               * request is to proceed. */
             };
 
             ble_gatts_rw_authorize_reply_params_t reply = {
@@ -695,8 +699,7 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                 }
             };
 
-            if (reply.params.write.gatt_status != BLE_GATT_STATUS_SUCCESS)
-            {
+            if (reply.params.write.gatt_status != BLE_GATT_STATUS_SUCCESS) {
                 reply.params.write.update = 0;
             }
 
@@ -730,8 +733,8 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                 .len                = 0,
                 .data               = NULL,
                 .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
-                                                                   * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
-                                                                   * request is to proceed. */
+                                                               * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
+                                                               * request is to proceed. */
             };
 
             ble_gatts_rw_authorize_reply_params_t reply = {
@@ -762,7 +765,8 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
     }
 }
 
-uint16_t nRF5xGattServer::getBiggestCharacteristicSize() const {
+uint16_t nRF5xGattServer::getBiggestCharacteristicSize() const
+{
     uint16_t result = 0;
     for (size_t i = 0; i < characteristicCount; ++i) {
         uint16_t current_size = p_characteristics[i]->getValueAttribute().getMaxLength();
@@ -773,12 +777,13 @@ uint16_t nRF5xGattServer::getBiggestCharacteristicSize() const {
     return result;
 }
 
-nRF5xGattServer::long_write_request_t* nRF5xGattServer::allocateLongWriteRequest(uint16_t connection_handle) {
+nRF5xGattServer::long_write_request_t *nRF5xGattServer::allocateLongWriteRequest(uint16_t connection_handle)
+{
     for (size_t i = 0; i < TOTAL_CONCURRENT_LONG_WRITE_REQUESTS; ++i) {
-        long_write_request_t& req = long_write_requests[i];
+        long_write_request_t &req = long_write_requests[i];
         if (req.data == NULL) {
             uint16_t block_size = getBiggestCharacteristicSize();
-            req.data = static_cast<uint8_t*>(malloc(block_size));
+            req.data = static_cast<uint8_t *>(malloc(block_size));
             req.offset = 0;
             req.length = 0;
             req.conn_handle = connection_handle;
@@ -789,8 +794,9 @@ nRF5xGattServer::long_write_request_t* nRF5xGattServer::allocateLongWriteRequest
     return NULL;
 }
 
-bool nRF5xGattServer::releaseLongWriteRequest(uint16_t connection_handle) {
-    long_write_request_t* req = findLongWriteRequest(connection_handle);
+bool nRF5xGattServer::releaseLongWriteRequest(uint16_t connection_handle)
+{
+    long_write_request_t *req = findLongWriteRequest(connection_handle);
     if (!req) {
         return false;
     }
@@ -802,9 +808,10 @@ bool nRF5xGattServer::releaseLongWriteRequest(uint16_t connection_handle) {
     return true;
 }
 
-nRF5xGattServer::long_write_request_t* nRF5xGattServer::findLongWriteRequest(uint16_t connection_handle) {
+nRF5xGattServer::long_write_request_t *nRF5xGattServer::findLongWriteRequest(uint16_t connection_handle)
+{
     for (size_t i = 0; i < TOTAL_CONCURRENT_LONG_WRITE_REQUESTS; ++i) {
-        long_write_request_t& req = long_write_requests[i];
+        long_write_request_t &req = long_write_requests[i];
         if (req.data != NULL && req.conn_handle == connection_handle) {
             return &req;
         }
@@ -813,9 +820,10 @@ nRF5xGattServer::long_write_request_t* nRF5xGattServer::findLongWriteRequest(uin
     return NULL;
 }
 
-void nRF5xGattServer::releaseAllWriteRequests() {
+void nRF5xGattServer::releaseAllWriteRequests()
+{
     for (size_t i = 0; i < TOTAL_CONCURRENT_LONG_WRITE_REQUESTS; ++i) {
-        long_write_request_t& req = long_write_requests[i];
+        long_write_request_t &req = long_write_requests[i];
         if (req.data != NULL) {
             free(req.data);
             req.data = NULL;

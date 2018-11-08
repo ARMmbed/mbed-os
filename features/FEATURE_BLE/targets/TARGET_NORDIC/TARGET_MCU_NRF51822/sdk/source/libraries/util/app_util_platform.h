@@ -50,8 +50,7 @@
 #include "app_error.h"
 #endif
 /**@brief The interrupt priorities available to the application while the SoftDevice is active. */
-typedef enum
-{
+typedef enum {
 #ifndef SOFTDEVICE_PRESENT
     APP_IRQ_PRIORITY_HIGHEST = 0,
 #endif
@@ -68,8 +67,8 @@ typedef enum
 #define EXTERNAL_INT_VECTOR_OFFSET 16
 /**@endcond */
 
-void critical_region_enter (void);
-void critical_region_exit (void);
+void critical_region_enter(void);
+void critical_region_exit(void);
 
 /**@brief Macro for entering a critical region.
  *
@@ -93,7 +92,7 @@ void critical_region_exit (void);
             {                                                                               \
                 APP_ERROR_CHECK(ERR_CODE);                                                  \
             }                                                                               \
-        }        
+        }
 #else
 #define CRITICAL_REGION_ENTER() critical_region_enter()
 #endif
@@ -119,8 +118,8 @@ void critical_region_exit (void);
     }
 #else
 #define CRITICAL_REGION_EXIT() critical_region_exit()
-#endif 
-       
+#endif
+
 /**@brief Function for finding the current interrupt level.
  *
  * @return   Current interrupt level.
@@ -131,13 +130,10 @@ void critical_region_exit (void);
 static __INLINE uint8_t current_int_priority_get(void)
 {
     uint32_t isr_vector_num = (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk);
-    if (isr_vector_num > 0)
-    {
+    if (isr_vector_num > 0) {
         int32_t irq_type = ((int32_t)isr_vector_num - EXTERNAL_INT_VECTOR_OFFSET);
         return (NVIC_GetPriority((IRQn_Type)irq_type) & 0xFF);
-    }
-    else
-    {
+    } else {
         return NRF_APP_PRIORITY_THREAD;
     }
 }

@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   wsf_types.h
- *        
+ *
  *  \brief  Platform-independent data types.
  *
  *          $Date: 2012-04-28 22:02:14 -0700 (Sat, 28 Apr 2012) $
  *          $Revision: 306 $
- *  
+ *
  *  Copyright (c) 2009-2016 ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: LicenseRef-PBL

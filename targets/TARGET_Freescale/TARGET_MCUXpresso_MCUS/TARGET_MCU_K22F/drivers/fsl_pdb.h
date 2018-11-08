@@ -53,8 +53,7 @@
 /*!
  * @brief PDB flags.
  */
-enum _pdb_status_flags
-{
+enum _pdb_status_flags {
     kPDB_LoadOKFlag = PDB_SC_LDOK_MASK,      /*!< This flag is automatically cleared when the values in buffers are
                                                   loaded into the internal registers after the LDOK bit is set or the
                                                   PDBEN is cleared. */
@@ -64,8 +63,7 @@ enum _pdb_status_flags
 /*!
  * @brief PDB ADC PreTrigger channel flags.
  */
-enum _pdb_adc_pretrigger_flags
-{
+enum _pdb_adc_pretrigger_flags {
     /* PDB PreTrigger channel match flags. */
     kPDB_ADCPreTriggerChannel0Flag = PDB_S_CF(1U << 0), /*!< Pre-Trigger 0 flag. */
     kPDB_ADCPreTriggerChannel1Flag = PDB_S_CF(1U << 1), /*!< Pre-Trigger 1 flag. */
@@ -98,8 +96,7 @@ enum _pdb_adc_pretrigger_flags
 /*!
  * @brief PDB buffer interrupts.
  */
-enum _pdb_interrupt_enable
-{
+enum _pdb_interrupt_enable {
     kPDB_SequenceErrorInterruptEnable = PDB_SC_PDBEIE_MASK, /*!< PDB sequence error interrupt enable. */
     kPDB_DelayInterruptEnable = PDB_SC_PDBIE_MASK,          /*!< PDB delay interrupt enable. */
 };
@@ -114,8 +111,7 @@ enum _pdb_interrupt_enable
  *  - DAC trigger (PDBx_DACINTx)
  *  - CMP trigger (PDBx_POyDLY)
  */
-typedef enum _pdb_load_value_mode
-{
+typedef enum _pdb_load_value_mode {
     kPDB_LoadValueImmediately = 0U,                     /*!< Load immediately after 1 is written to LDOK. */
     kPDB_LoadValueOnCounterOverflow = 1U,               /*!< Load when the PDB counter overflows (reaches the MOD
                                                              register value). */
@@ -129,8 +125,7 @@ typedef enum _pdb_load_value_mode
  *
  * Counting uses the peripheral clock divided by multiplication factor selected by times of MULT.
  */
-typedef enum _pdb_prescaler_divider
-{
+typedef enum _pdb_prescaler_divider {
     kPDB_PrescalerDivider1 = 0U,   /*!< Divider x1. */
     kPDB_PrescalerDivider2 = 1U,   /*!< Divider x2. */
     kPDB_PrescalerDivider4 = 2U,   /*!< Divider x4. */
@@ -146,8 +141,7 @@ typedef enum _pdb_prescaler_divider
  *
  * Selects the multiplication factor of the prescaler divider for the counter clock.
  */
-typedef enum _pdb_divider_multiplication_factor
-{
+typedef enum _pdb_divider_multiplication_factor {
     kPDB_DividerMultiplicationFactor1 = 0U,  /*!< Multiplication factor is 1. */
     kPDB_DividerMultiplicationFactor10 = 1U, /*!< Multiplication factor is 10. */
     kPDB_DividerMultiplicationFactor20 = 2U, /*!< Multiplication factor is 20. */
@@ -160,8 +154,7 @@ typedef enum _pdb_divider_multiplication_factor
  * Selects the trigger input source for the PDB. The trigger input source can be internal or external (EXTRG pin), or
  * the software trigger. Refer to chip configuration details for the actual PDB input trigger connections.
  */
-typedef enum _pdb_trigger_input_source
-{
+typedef enum _pdb_trigger_input_source {
     kPDB_TriggerInput0 = 0U,    /*!< Trigger-In 0. */
     kPDB_TriggerInput1 = 1U,    /*!< Trigger-In 1. */
     kPDB_TriggerInput2 = 2U,    /*!< Trigger-In 2. */
@@ -183,8 +176,7 @@ typedef enum _pdb_trigger_input_source
 /*!
  * @brief PDB module configuration.
  */
-typedef struct _pdb_config
-{
+typedef struct _pdb_config {
     pdb_load_value_mode_t loadValueMode;                             /*!< Select the load value mode. */
     pdb_prescaler_divider_t prescalerDivider;                        /*!< Select the prescaler divider. */
     pdb_divider_multiplication_factor_t dividerMultiplicationFactor; /*!< Multiplication factor select for prescaler. */
@@ -195,8 +187,7 @@ typedef struct _pdb_config
 /*!
  * @brief PDB ADC Pre-Trigger configuration.
  */
-typedef struct _pdb_adc_pretrigger_config
-{
+typedef struct _pdb_adc_pretrigger_config {
     uint32_t enablePreTriggerMask;          /*!< PDB Channel Pre-Trigger Enable. */
     uint32_t enableOutputMask;              /*!< PDB Channel Pre-Trigger Output Select.
                                                  PDB channel's corresponding pre-trigger asserts when the counter
@@ -211,8 +202,7 @@ typedef struct _pdb_adc_pretrigger_config
 /*!
  * @brief PDB DAC trigger configuration.
  */
-typedef struct _pdb_dac_trigger_config
-{
+typedef struct _pdb_dac_trigger_config {
     bool enableExternalTriggerInput; /*!< Enables the external trigger for DAC interval counter. */
     bool enableIntervalTrigger;      /*!< Enables the DAC interval trigger. */
 } pdb_dac_trigger_config_t;
@@ -272,12 +262,9 @@ void PDB_GetDefaultConfig(pdb_config_t *config);
  */
 static inline void PDB_Enable(PDB_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->SC |= PDB_SC_PDBEN_MASK;
-    }
-    else
-    {
+    } else {
         base->SC &= ~PDB_SC_PDBEN_MASK;
     }
 }
@@ -320,12 +307,9 @@ static inline void PDB_DoLoadValues(PDB_Type *base)
  */
 static inline void PDB_EnableDMA(PDB_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->SC |= PDB_SC_DMAEN_MASK;
-    }
-    else
-    {
+    } else {
         base->SC &= ~PDB_SC_DMAEN_MASK;
     }
 }
@@ -536,12 +520,9 @@ static inline void PDB_SetDACTriggerIntervalValue(PDB_Type *base, uint32_t chann
  */
 static inline void PDB_EnablePulseOutTrigger(PDB_Type *base, uint32_t channelMask, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->POEN |= PDB_POEN_POEN(channelMask);
-    }
-    else
-    {
+    } else {
         base->POEN &= ~(PDB_POEN_POEN(channelMask));
     }
 }

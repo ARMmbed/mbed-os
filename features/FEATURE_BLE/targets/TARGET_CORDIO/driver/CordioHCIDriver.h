@@ -44,9 +44,9 @@ struct buf_pool_desc_t {
     {
     }
 
-    uint8_t* buffer_memory;         /// Pointer to the buffer memory
+    uint8_t *buffer_memory;         /// Pointer to the buffer memory
     size_t buffer_size;             /// Size of the buffer
-    const wsfBufPoolDesc_t* pool_description;   /// Pointer to the first element describing the pool
+    const wsfBufPoolDesc_t *pool_description;   /// Pointer to the first element describing the pool
     size_t pool_count;      /// Number of pools
 };
 
@@ -63,7 +63,7 @@ public:
      * Construct a new instance of an HCI driver.
      * @param transport_driver The driver used to communicate with the chip.
      */
-    CordioHCIDriver(CordioHCITransportDriver& transport_driver);
+    CordioHCIDriver(CordioHCITransportDriver &transport_driver);
 
     /**
      * Driver destructor
@@ -134,7 +134,7 @@ private:
      */
     virtual void do_terminate() = 0;
 
-    CordioHCITransportDriver& _transport_driver;
+    CordioHCITransportDriver &_transport_driver;
 };
 
 

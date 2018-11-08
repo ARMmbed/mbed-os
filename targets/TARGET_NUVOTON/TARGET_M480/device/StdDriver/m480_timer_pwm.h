@@ -145,7 +145,7 @@ extern "C"
   *
   * @details    This macro is used to enable specified Timer channel as PWM counter mode, then timer counter mode is invalid.
   * @note       All registers about time counter function will be cleared to 0 and timer clock source will be changed to PCLKx automatically after executing this macro.
-  * \hideinitializer 
+  * \hideinitializer
   */
 #define TPWM_ENABLE_PWM_MODE(timer)         ((timer)->ALTCTL = (1 << TIMER_ALTCTL_FUNCSEL_Pos))
 

@@ -198,13 +198,13 @@ typedef uint32_t CMU_ClkPresc_TypeDef;
 #if defined(_CMU_HFRCOCTRL_BAND_MASK)
 /** High frequency system RCO bands */
 typedef enum {
-  cmuHFRCOBand_1MHz  = _CMU_HFRCOCTRL_BAND_1MHZ,      /**< 1MHz HFRCO band  */
-  cmuHFRCOBand_7MHz  = _CMU_HFRCOCTRL_BAND_7MHZ,      /**< 7MHz HFRCO band  */
-  cmuHFRCOBand_11MHz = _CMU_HFRCOCTRL_BAND_11MHZ,     /**< 11MHz HFRCO band */
-  cmuHFRCOBand_14MHz = _CMU_HFRCOCTRL_BAND_14MHZ,     /**< 14MHz HFRCO band */
-  cmuHFRCOBand_21MHz = _CMU_HFRCOCTRL_BAND_21MHZ,     /**< 21MHz HFRCO band */
+    cmuHFRCOBand_1MHz  = _CMU_HFRCOCTRL_BAND_1MHZ,      /**< 1MHz HFRCO band  */
+    cmuHFRCOBand_7MHz  = _CMU_HFRCOCTRL_BAND_7MHZ,      /**< 7MHz HFRCO band  */
+    cmuHFRCOBand_11MHz = _CMU_HFRCOCTRL_BAND_11MHZ,     /**< 11MHz HFRCO band */
+    cmuHFRCOBand_14MHz = _CMU_HFRCOCTRL_BAND_14MHZ,     /**< 14MHz HFRCO band */
+    cmuHFRCOBand_21MHz = _CMU_HFRCOCTRL_BAND_21MHZ,     /**< 21MHz HFRCO band */
 #if defined(CMU_HFRCOCTRL_BAND_28MHZ)
-  cmuHFRCOBand_28MHz = _CMU_HFRCOCTRL_BAND_28MHZ,     /**< 28MHz HFRCO band */
+    cmuHFRCOBand_28MHz = _CMU_HFRCOCTRL_BAND_28MHZ,     /**< 28MHz HFRCO band */
 #endif
 } CMU_HFRCOBand_TypeDef;
 #endif /* _CMU_HFRCOCTRL_BAND_MASK */
@@ -212,13 +212,13 @@ typedef enum {
 #if defined(_CMU_AUXHFRCOCTRL_BAND_MASK)
 /** AUX High frequency RCO bands */
 typedef enum {
-  cmuAUXHFRCOBand_1MHz  = _CMU_AUXHFRCOCTRL_BAND_1MHZ,  /**< 1MHz RC band  */
-  cmuAUXHFRCOBand_7MHz  = _CMU_AUXHFRCOCTRL_BAND_7MHZ,  /**< 7MHz RC band  */
-  cmuAUXHFRCOBand_11MHz = _CMU_AUXHFRCOCTRL_BAND_11MHZ, /**< 11MHz RC band */
-  cmuAUXHFRCOBand_14MHz = _CMU_AUXHFRCOCTRL_BAND_14MHZ, /**< 14MHz RC band */
-  cmuAUXHFRCOBand_21MHz = _CMU_AUXHFRCOCTRL_BAND_21MHZ, /**< 21MHz RC band */
+    cmuAUXHFRCOBand_1MHz  = _CMU_AUXHFRCOCTRL_BAND_1MHZ,  /**< 1MHz RC band  */
+    cmuAUXHFRCOBand_7MHz  = _CMU_AUXHFRCOCTRL_BAND_7MHZ,  /**< 7MHz RC band  */
+    cmuAUXHFRCOBand_11MHz = _CMU_AUXHFRCOCTRL_BAND_11MHZ, /**< 11MHz RC band */
+    cmuAUXHFRCOBand_14MHz = _CMU_AUXHFRCOCTRL_BAND_14MHZ, /**< 14MHz RC band */
+    cmuAUXHFRCOBand_21MHz = _CMU_AUXHFRCOCTRL_BAND_21MHZ, /**< 21MHz RC band */
 #if defined(CMU_AUXHFRCOCTRL_BAND_28MHZ)
-  cmuAUXHFRCOBand_28MHz = _CMU_AUXHFRCOCTRL_BAND_28MHZ, /**< 28MHz RC band */
+    cmuAUXHFRCOBand_28MHz = _CMU_AUXHFRCOCTRL_BAND_28MHZ, /**< 28MHz RC band */
 #endif
 } CMU_AUXHFRCOBand_TypeDef;
 #endif
@@ -226,21 +226,21 @@ typedef enum {
 #if defined(_CMU_USHFRCOCONF_BAND_MASK)
 /** USB High frequency RC bands. */
 typedef enum {
-  /** 24MHz RC band. */
-  cmuUSHFRCOBand_24MHz = _CMU_USHFRCOCONF_BAND_24MHZ,
-  /** 48MHz RC band. */
-  cmuUSHFRCOBand_48MHz = _CMU_USHFRCOCONF_BAND_48MHZ,
+    /** 24MHz RC band. */
+    cmuUSHFRCOBand_24MHz = _CMU_USHFRCOCONF_BAND_24MHZ,
+    /** 48MHz RC band. */
+    cmuUSHFRCOBand_48MHz = _CMU_USHFRCOCONF_BAND_48MHZ,
 } CMU_USHFRCOBand_TypeDef;
 #endif
 
 #if defined(_CMU_USHFRCOCTRL_FREQRANGE_MASK)
 /** High USHFRCO bands */
 typedef enum {
-  cmuUSHFRCOFreq_16M0Hz           = 16000000U,            /**< 16MHz RC band  */
-  cmuUSHFRCOFreq_32M0Hz           = 32000000U,            /**< 32MHz RC band  */
-  cmuUSHFRCOFreq_48M0Hz           = 48000000U,            /**< 48MHz RC band  */
-  cmuUSHFRCOFreq_50M0Hz           = 50000000U,            /**< 50MHz RC band  */
-  cmuUSHFRCOFreq_UserDefined      = 0,
+    cmuUSHFRCOFreq_16M0Hz           = 16000000U,            /**< 16MHz RC band  */
+    cmuUSHFRCOFreq_32M0Hz           = 32000000U,            /**< 32MHz RC band  */
+    cmuUSHFRCOFreq_48M0Hz           = 48000000U,            /**< 48MHz RC band  */
+    cmuUSHFRCOFreq_50M0Hz           = 50000000U,            /**< 50MHz RC band  */
+    cmuUSHFRCOFreq_UserDefined      = 0,
 } CMU_USHFRCOFreq_TypeDef;
 #define CMU_USHFRCO_MIN           cmuUSHFRCOFreq_16M0Hz
 #define CMU_USHFRCO_MAX           cmuUSHFRCOFreq_50M0Hz
@@ -249,29 +249,29 @@ typedef enum {
 #if defined(_CMU_HFRCOCTRL_FREQRANGE_MASK)
 /** High frequency system RCO bands */
 typedef enum {
-  cmuHFRCOFreq_1M0Hz            = 1000000U,             /**< 1MHz RC band   */
-  cmuHFRCOFreq_2M0Hz            = 2000000U,             /**< 2MHz RC band   */
-  cmuHFRCOFreq_4M0Hz            = 4000000U,             /**< 4MHz RC band   */
-  cmuHFRCOFreq_7M0Hz            = 7000000U,             /**< 7MHz RC band   */
-  cmuHFRCOFreq_13M0Hz           = 13000000U,            /**< 13MHz RC band  */
-  cmuHFRCOFreq_16M0Hz           = 16000000U,            /**< 16MHz RC band  */
-  cmuHFRCOFreq_19M0Hz           = 19000000U,            /**< 19MHz RC band  */
-  cmuHFRCOFreq_26M0Hz           = 26000000U,            /**< 26MHz RC band  */
-  cmuHFRCOFreq_32M0Hz           = 32000000U,            /**< 32MHz RC band  */
-  cmuHFRCOFreq_38M0Hz           = 38000000U,            /**< 38MHz RC band  */
+    cmuHFRCOFreq_1M0Hz            = 1000000U,             /**< 1MHz RC band   */
+    cmuHFRCOFreq_2M0Hz            = 2000000U,             /**< 2MHz RC band   */
+    cmuHFRCOFreq_4M0Hz            = 4000000U,             /**< 4MHz RC band   */
+    cmuHFRCOFreq_7M0Hz            = 7000000U,             /**< 7MHz RC band   */
+    cmuHFRCOFreq_13M0Hz           = 13000000U,            /**< 13MHz RC band  */
+    cmuHFRCOFreq_16M0Hz           = 16000000U,            /**< 16MHz RC band  */
+    cmuHFRCOFreq_19M0Hz           = 19000000U,            /**< 19MHz RC band  */
+    cmuHFRCOFreq_26M0Hz           = 26000000U,            /**< 26MHz RC band  */
+    cmuHFRCOFreq_32M0Hz           = 32000000U,            /**< 32MHz RC band  */
+    cmuHFRCOFreq_38M0Hz           = 38000000U,            /**< 38MHz RC band  */
 #if defined(_DEVINFO_HFRCOCAL13_MASK)
-  cmuHFRCOFreq_48M0Hz           = 48000000U,            /**< 48MHz RC band  */
+    cmuHFRCOFreq_48M0Hz           = 48000000U,            /**< 48MHz RC band  */
 #endif
 #if defined(_DEVINFO_HFRCOCAL14_MASK)
-  cmuHFRCOFreq_56M0Hz           = 56000000U,            /**< 56MHz RC band  */
+    cmuHFRCOFreq_56M0Hz           = 56000000U,            /**< 56MHz RC band  */
 #endif
 #if defined(_DEVINFO_HFRCOCAL15_MASK)
-  cmuHFRCOFreq_64M0Hz           = 64000000U,            /**< 64MHz RC band  */
+    cmuHFRCOFreq_64M0Hz           = 64000000U,            /**< 64MHz RC band  */
 #endif
 #if defined(_DEVINFO_HFRCOCAL16_MASK)
-  cmuHFRCOFreq_72M0Hz           = 72000000U,            /**< 72MHz RC band  */
+    cmuHFRCOFreq_72M0Hz           = 72000000U,            /**< 72MHz RC band  */
 #endif
-  cmuHFRCOFreq_UserDefined      = 0,
+    cmuHFRCOFreq_UserDefined      = 0,
 } CMU_HFRCOFreq_TypeDef;
 #define CMU_HFRCO_MIN           cmuHFRCOFreq_1M0Hz
 #if defined(_DEVINFO_HFRCOCAL16_MASK)
@@ -290,21 +290,21 @@ typedef enum {
 #if defined(_CMU_AUXHFRCOCTRL_FREQRANGE_MASK)
 /** AUX High frequency RCO bands */
 typedef enum {
-  cmuAUXHFRCOFreq_1M0Hz         = 1000000U,             /**< 1MHz RC band   */
-  cmuAUXHFRCOFreq_2M0Hz         = 2000000U,             /**< 2MHz RC band   */
-  cmuAUXHFRCOFreq_4M0Hz         = 4000000U,             /**< 4MHz RC band   */
-  cmuAUXHFRCOFreq_7M0Hz         = 7000000U,             /**< 7MHz RC band   */
-  cmuAUXHFRCOFreq_13M0Hz        = 13000000U,            /**< 13MHz RC band  */
-  cmuAUXHFRCOFreq_16M0Hz        = 16000000U,            /**< 16MHz RC band  */
-  cmuAUXHFRCOFreq_19M0Hz        = 19000000U,            /**< 19MHz RC band  */
-  cmuAUXHFRCOFreq_26M0Hz        = 26000000U,            /**< 26MHz RC band  */
-  cmuAUXHFRCOFreq_32M0Hz        = 32000000U,            /**< 32MHz RC band  */
-  cmuAUXHFRCOFreq_38M0Hz        = 38000000U,            /**< 38MHz RC band  */
+    cmuAUXHFRCOFreq_1M0Hz         = 1000000U,             /**< 1MHz RC band   */
+    cmuAUXHFRCOFreq_2M0Hz         = 2000000U,             /**< 2MHz RC band   */
+    cmuAUXHFRCOFreq_4M0Hz         = 4000000U,             /**< 4MHz RC band   */
+    cmuAUXHFRCOFreq_7M0Hz         = 7000000U,             /**< 7MHz RC band   */
+    cmuAUXHFRCOFreq_13M0Hz        = 13000000U,            /**< 13MHz RC band  */
+    cmuAUXHFRCOFreq_16M0Hz        = 16000000U,            /**< 16MHz RC band  */
+    cmuAUXHFRCOFreq_19M0Hz        = 19000000U,            /**< 19MHz RC band  */
+    cmuAUXHFRCOFreq_26M0Hz        = 26000000U,            /**< 26MHz RC band  */
+    cmuAUXHFRCOFreq_32M0Hz        = 32000000U,            /**< 32MHz RC band  */
+    cmuAUXHFRCOFreq_38M0Hz        = 38000000U,            /**< 38MHz RC band  */
 #if defined(_DEVINFO_AUXHFRCOCAL14_MASK)
-  cmuAUXHFRCOFreq_48M0Hz        = 48000000U,            /**< 48MHz RC band  */
-  cmuAUXHFRCOFreq_50M0Hz        = 50000000U,            /**< 50MHz RC band  */
+    cmuAUXHFRCOFreq_48M0Hz        = 48000000U,            /**< 48MHz RC band  */
+    cmuAUXHFRCOFreq_50M0Hz        = 50000000U,            /**< 50MHz RC band  */
 #endif
-  cmuAUXHFRCOFreq_UserDefined   = 0,
+    cmuAUXHFRCOFreq_UserDefined   = 0,
 } CMU_AUXHFRCOFreq_TypeDef;
 #define CMU_AUXHFRCO_MIN        cmuAUXHFRCOFreq_1M0Hz
 #if defined(_DEVINFO_AUXHFRCOCAL14_MASK)
@@ -316,906 +316,906 @@ typedef enum {
 
 /** Clock points in CMU. Please refer to CMU overview in reference manual. */
 typedef enum {
-  /*******************/
-  /* HF clock branch */
-  /*******************/
+    /*******************/
+    /* HF clock branch */
+    /*******************/
 
-  /** High frequency clock */
+    /** High frequency clock */
 #if defined(_CMU_CTRL_HFCLKDIV_MASK) \
   || defined(_CMU_HFPRESC_MASK)
-  cmuClock_HF = (CMU_HFCLKDIV_REG << CMU_DIV_REG_POS)
-                | (CMU_HFCLKSEL_REG << CMU_SEL_REG_POS)
-                | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                | (0 << CMU_EN_BIT_POS)
-                | (CMU_HF_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    cmuClock_HF = (CMU_HFCLKDIV_REG << CMU_DIV_REG_POS)
+                  | (CMU_HFCLKSEL_REG << CMU_SEL_REG_POS)
+                  | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                  | (0 << CMU_EN_BIT_POS)
+                  | (CMU_HF_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #else
-  cmuClock_HF = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                | (CMU_HFCLKSEL_REG << CMU_SEL_REG_POS)
-                | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                | (0 << CMU_EN_BIT_POS)
-                | (CMU_HF_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    cmuClock_HF = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                  | (CMU_HFCLKSEL_REG << CMU_SEL_REG_POS)
+                  | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                  | (0 << CMU_EN_BIT_POS)
+                  | (CMU_HF_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
-  /** Debug clock */
-  cmuClock_DBG = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                 | (CMU_DBGCLKSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                 | (0 << CMU_EN_BIT_POS)
-                 | (CMU_DBG_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Debug clock */
+    cmuClock_DBG = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                   | (CMU_DBGCLKSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                   | (0 << CMU_EN_BIT_POS)
+                   | (CMU_DBG_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 
-  /** AUX clock */
-  cmuClock_AUX = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                 | (0 << CMU_EN_BIT_POS)
-                 | (CMU_AUX_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** AUX clock */
+    cmuClock_AUX = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                   | (0 << CMU_EN_BIT_POS)
+                   | (CMU_AUX_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 
 #if defined(_CMU_HFEXPPRESC_MASK)
-  /**********************/
-  /* HF export sub-branch */
-  /**********************/
+    /**********************/
+    /* HF export sub-branch */
+    /**********************/
 
-  /** Export clock */
-  cmuClock_EXPORT = (CMU_HFEXPPRESC_REG << CMU_PRESC_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                    | (0 << CMU_EN_BIT_POS)
-                    | (CMU_HFEXP_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Export clock */
+    cmuClock_EXPORT = (CMU_HFEXPPRESC_REG << CMU_PRESC_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                      | (0 << CMU_EN_BIT_POS)
+                      | (CMU_HFEXP_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(_CMU_HFBUSCLKEN0_MASK)
-/**********************************/
-/* HF bus clock sub-branch */
-/**********************************/
+    /**********************************/
+    /* HF bus clock sub-branch */
+    /**********************************/
 
-  /** High frequency bus clock. */
-  cmuClock_BUS = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                 | (0 << CMU_EN_BIT_POS)
-                 | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** High frequency bus clock. */
+    cmuClock_BUS = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                   | (0 << CMU_EN_BIT_POS)
+                   | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 
 #if defined(CMU_HFBUSCLKEN0_CRYPTO)
-  /** Cryptography accelerator clock. */
-  cmuClock_CRYPTO = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFBUSCLKEN0_CRYPTO_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Cryptography accelerator clock. */
+    cmuClock_CRYPTO = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFBUSCLKEN0_CRYPTO_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFBUSCLKEN0_CRYPTO0)
-  /** Cryptography accelerator 0 clock. */
-  cmuClock_CRYPTO0 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_HFBUSCLKEN0_CRYPTO0_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Cryptography accelerator 0 clock. */
+    cmuClock_CRYPTO0 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_HFBUSCLKEN0_CRYPTO0_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFBUSCLKEN0_CRYPTO1)
-  /** Cryptography accelerator 1 clock. */
-  cmuClock_CRYPTO1 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_HFBUSCLKEN0_CRYPTO1_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Cryptography accelerator 1 clock. */
+    cmuClock_CRYPTO1 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_HFBUSCLKEN0_CRYPTO1_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFBUSCLKEN0_LDMA)
-  /** Direct memory access controller clock. */
-  cmuClock_LDMA = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFBUSCLKEN0_LDMA_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Direct memory access controller clock. */
+    cmuClock_LDMA = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFBUSCLKEN0_LDMA_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFBUSCLKEN0_QSPI0)
-  /** Quad SPI clock. */
-  cmuClock_QSPI0 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFBUSCLKEN0_QSPI0_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Quad SPI clock. */
+    cmuClock_QSPI0 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFBUSCLKEN0_QSPI0_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFBUSCLKEN0_GPCRC)
-  /** General purpose cyclic redundancy checksum clock. */
-  cmuClock_GPCRC = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFBUSCLKEN0_GPCRC_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** General purpose cyclic redundancy checksum clock. */
+    cmuClock_GPCRC = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFBUSCLKEN0_GPCRC_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFBUSCLKEN0_GPIO)
-  /** General purpose input/output clock. */
-  cmuClock_GPIO = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFBUSCLKEN0_GPIO_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** General purpose input/output clock. */
+    cmuClock_GPIO = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFBUSCLKEN0_GPIO_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
-  /** Low energy clock divided down from HFBUSCLK. */
-  cmuClock_HFLE = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFBUSCLKEN0_LE_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Low energy clock divided down from HFBUSCLK. */
+    cmuClock_HFLE = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFBUSCLKEN0_LE_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 
 #if defined(CMU_HFBUSCLKEN0_PRS)
-  /** Peripheral reflex system clock. */
-  cmuClock_PRS = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                 | (_CMU_HFBUSCLKEN0_PRS_SHIFT << CMU_EN_BIT_POS)
-                 | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Peripheral reflex system clock. */
+    cmuClock_PRS = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                   | (_CMU_HFBUSCLKEN0_PRS_SHIFT << CMU_EN_BIT_POS)
+                   | (CMU_HFBUS_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 #endif
 
-  /**********************************/
-  /* HF peripheral clock sub-branch */
-  /**********************************/
+    /**********************************/
+    /* HF peripheral clock sub-branch */
+    /**********************************/
 
-  /** High frequency peripheral clock */
+    /** High frequency peripheral clock */
 #if defined(_CMU_HFPRESC_MASK)
-  cmuClock_HFPER = (CMU_HFPERPRESC_REG << CMU_PRESC_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_CTRL_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_CTRL_HFPERCLKEN_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    cmuClock_HFPER = (CMU_HFPERPRESC_REG << CMU_PRESC_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_CTRL_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_CTRL_HFPERCLKEN_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #else
-  cmuClock_HFPER = (CMU_HFPERCLKDIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKDIV_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKDIV_HFPERCLKEN_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    cmuClock_HFPER = (CMU_HFPERCLKDIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKDIV_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKDIV_HFPERCLKEN_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_USART0)
-  /** Universal sync/async receiver/transmitter 0 clock. */
-  cmuClock_USART0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_USART0_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal sync/async receiver/transmitter 0 clock. */
+    cmuClock_USART0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_USART0_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_USARTRF0)
-  /** Universal sync/async receiver/transmitter 0 clock. */
-  cmuClock_USARTRF0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                      | (_CMU_HFPERCLKEN0_USARTRF0_SHIFT << CMU_EN_BIT_POS)
-                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal sync/async receiver/transmitter 0 clock. */
+    cmuClock_USARTRF0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                        | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                        | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                        | (_CMU_HFPERCLKEN0_USARTRF0_SHIFT << CMU_EN_BIT_POS)
+                        | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_USARTRF1)
-  /** Universal sync/async receiver/transmitter 0 clock. */
-  cmuClock_USARTRF1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                      | (_CMU_HFPERCLKEN0_USARTRF1_SHIFT << CMU_EN_BIT_POS)
-                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal sync/async receiver/transmitter 0 clock. */
+    cmuClock_USARTRF1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                        | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                        | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                        | (_CMU_HFPERCLKEN0_USARTRF1_SHIFT << CMU_EN_BIT_POS)
+                        | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_USART1)
-  /** Universal sync/async receiver/transmitter 1 clock. */
-  cmuClock_USART1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_USART1_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal sync/async receiver/transmitter 1 clock. */
+    cmuClock_USART1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_USART1_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_USART2)
-  /** Universal sync/async receiver/transmitter 2 clock. */
-  cmuClock_USART2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_USART2_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal sync/async receiver/transmitter 2 clock. */
+    cmuClock_USART2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_USART2_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_USART3)
-  /** Universal sync/async receiver/transmitter 3 clock. */
-  cmuClock_USART3 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_USART3_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal sync/async receiver/transmitter 3 clock. */
+    cmuClock_USART3 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_USART3_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_USART4)
-  /** Universal sync/async receiver/transmitter 4 clock. */
-  cmuClock_USART4 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_USART4_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal sync/async receiver/transmitter 4 clock. */
+    cmuClock_USART4 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_USART4_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_USART5)
-  /** Universal sync/async receiver/transmitter 5 clock. */
-  cmuClock_USART5 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_USART5_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal sync/async receiver/transmitter 5 clock. */
+    cmuClock_USART5 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_USART5_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_UART0)
-  /** Universal async receiver/transmitter 0 clock. */
-  cmuClock_UART0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN0_UART0_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal async receiver/transmitter 0 clock. */
+    cmuClock_UART0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN0_UART0_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #elif defined(_CMU_HFPERCLKEN1_UART0_MASK)
-  /** Universal async receiver/transmitter 0 clock. */
-  cmuClock_UART0 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN1_UART0_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal async receiver/transmitter 0 clock. */
+    cmuClock_UART0 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN1_UART0_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_UART1)
-  /** Universal async receiver/transmitter 1 clock. */
-  cmuClock_UART1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN0_UART1_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal async receiver/transmitter 1 clock. */
+    cmuClock_UART1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN0_UART1_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #elif defined(_CMU_HFPERCLKEN1_UART1_MASK)
-  /** Universal async receiver/transmitter 1 clock. */
-  cmuClock_UART1 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN1_UART1_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Universal async receiver/transmitter 1 clock. */
+    cmuClock_UART1 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN1_UART1_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_TIMER0)
-  /** Timer 0 clock. */
-  cmuClock_TIMER0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_TIMER0_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Timer 0 clock. */
+    cmuClock_TIMER0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_TIMER0_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_TIMER1)
-  /** Timer 1 clock. */
-  cmuClock_TIMER1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_TIMER1_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Timer 1 clock. */
+    cmuClock_TIMER1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_TIMER1_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_TIMER2)
-  /** Timer 2 clock. */
-  cmuClock_TIMER2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_TIMER2_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Timer 2 clock. */
+    cmuClock_TIMER2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_TIMER2_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_TIMER3)
-  /** Timer 3 clock. */
-  cmuClock_TIMER3 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_TIMER3_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Timer 3 clock. */
+    cmuClock_TIMER3 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_TIMER3_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_TIMER4)
-  /** Timer 4 clock. */
-  cmuClock_TIMER4 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_TIMER4_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Timer 4 clock. */
+    cmuClock_TIMER4 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_TIMER4_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_TIMER5)
-  /** Timer 5 clock. */
-  cmuClock_TIMER5 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_TIMER5_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Timer 5 clock. */
+    cmuClock_TIMER5 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_TIMER5_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_TIMER6)
-  /** Timer 6 clock. */
-  cmuClock_TIMER6 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                    | (_CMU_HFPERCLKEN0_TIMER6_SHIFT << CMU_EN_BIT_POS)
-                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Timer 6 clock. */
+    cmuClock_TIMER6 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                      | (_CMU_HFPERCLKEN0_TIMER6_SHIFT << CMU_EN_BIT_POS)
+                      | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_WTIMER0)
-  /** Wide Timer 0 clock. */
-  cmuClock_WTIMER0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_HFPERCLKEN0_WTIMER0_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#elif defined(CMU_HFPERCLKEN1_WTIMER0)
-  /** Wide Timer 0 clock. */
-  cmuClock_WTIMER0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_HFPERCLKEN1_WTIMER0_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(CMU_HFPERCLKEN0_WTIMER1)
-  /** Wide Timer 1 clock. */
-  cmuClock_WTIMER1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_HFPERCLKEN0_WTIMER1_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#elif defined(CMU_HFPERCLKEN1_WTIMER1)
-  /** Wide Timer 1 clock. */
-  cmuClock_WTIMER1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_HFPERCLKEN1_WTIMER1_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(CMU_HFPERCLKEN1_WTIMER2)
-  /** Wide Timer 2 clock. */
-  cmuClock_WTIMER2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_HFPERCLKEN1_WTIMER2_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(CMU_HFPERCLKEN1_WTIMER3)
-  /** Wide Timer 3 clock. */
-  cmuClock_WTIMER3 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_HFPERCLKEN1_WTIMER3_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(CMU_HFPERCLKEN0_CRYOTIMER)
-  /** CRYOtimer clock. */
-  cmuClock_CRYOTIMER = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+    /** Wide Timer 0 clock. */
+    cmuClock_WTIMER0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
                        | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
                        | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                       | (_CMU_HFPERCLKEN0_CRYOTIMER_SHIFT << CMU_EN_BIT_POS)
+                       | (_CMU_HFPERCLKEN0_WTIMER0_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#elif defined(CMU_HFPERCLKEN1_WTIMER0)
+    /** Wide Timer 0 clock. */
+    cmuClock_WTIMER0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_HFPERCLKEN1_WTIMER0_SHIFT << CMU_EN_BIT_POS)
                        | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
+#if defined(CMU_HFPERCLKEN0_WTIMER1)
+    /** Wide Timer 1 clock. */
+    cmuClock_WTIMER1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_HFPERCLKEN0_WTIMER1_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#elif defined(CMU_HFPERCLKEN1_WTIMER1)
+    /** Wide Timer 1 clock. */
+    cmuClock_WTIMER1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_HFPERCLKEN1_WTIMER1_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(CMU_HFPERCLKEN1_WTIMER2)
+    /** Wide Timer 2 clock. */
+    cmuClock_WTIMER2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_HFPERCLKEN1_WTIMER2_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(CMU_HFPERCLKEN1_WTIMER3)
+    /** Wide Timer 3 clock. */
+    cmuClock_WTIMER3 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_HFPERCLKEN1_WTIMER3_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(CMU_HFPERCLKEN0_CRYOTIMER)
+    /** CRYOtimer clock. */
+    cmuClock_CRYOTIMER = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                         | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                         | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                         | (_CMU_HFPERCLKEN0_CRYOTIMER_SHIFT << CMU_EN_BIT_POS)
+                         | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
 #if defined(CMU_HFPERCLKEN0_ACMP0)
-  /** Analog comparator 0 clock. */
-  cmuClock_ACMP0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN0_ACMP0_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Analog comparator 0 clock. */
+    cmuClock_ACMP0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN0_ACMP0_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_ACMP1)
-  /** Analog comparator 1 clock. */
-  cmuClock_ACMP1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN0_ACMP1_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Analog comparator 1 clock. */
+    cmuClock_ACMP1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN0_ACMP1_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_ACMP2)
-  /** Analog comparator 2 clock. */
-  cmuClock_ACMP2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN0_ACMP2_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Analog comparator 2 clock. */
+    cmuClock_ACMP2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN0_ACMP2_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_ACMP3)
-  /** Analog comparator 3 clock. */
-  cmuClock_ACMP3 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN0_ACMP3_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Analog comparator 3 clock. */
+    cmuClock_ACMP3 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN0_ACMP3_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_PRS)
-  /** Peripheral reflex system clock. */
-  cmuClock_PRS = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                 | (_CMU_HFPERCLKEN0_PRS_SHIFT << CMU_EN_BIT_POS)
-                 | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Peripheral reflex system clock. */
+    cmuClock_PRS = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                   | (_CMU_HFPERCLKEN0_PRS_SHIFT << CMU_EN_BIT_POS)
+                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_DAC0)
-  /** Digital to analog converter 0 clock. */
-  cmuClock_DAC0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFPERCLKEN0_DAC0_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Digital to analog converter 0 clock. */
+    cmuClock_DAC0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFPERCLKEN0_DAC0_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_VDAC0)
-  /** Voltage digital to analog converter 0 clock. */
-  cmuClock_VDAC0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN0_VDAC0_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Voltage digital to analog converter 0 clock. */
+    cmuClock_VDAC0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN0_VDAC0_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #elif defined(CMU_HFPERCLKEN1_VDAC0)
-  /** Voltage digital to analog converter 0 clock. */
-  cmuClock_VDAC0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN1_VDAC0_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Voltage digital to analog converter 0 clock. */
+    cmuClock_VDAC0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN1_VDAC0_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_IDAC0)
-  /** Current digital to analog converter 0 clock. */
-  cmuClock_IDAC0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN0_IDAC0_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Current digital to analog converter 0 clock. */
+    cmuClock_IDAC0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN0_IDAC0_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_GPIO)
-  /** General purpose input/output clock. */
-  cmuClock_GPIO = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFPERCLKEN0_GPIO_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** General purpose input/output clock. */
+    cmuClock_GPIO = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFPERCLKEN0_GPIO_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_VCMP)
-  /** Voltage comparator clock. */
-  cmuClock_VCMP = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFPERCLKEN0_VCMP_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Voltage comparator clock. */
+    cmuClock_VCMP = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFPERCLKEN0_VCMP_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_ADC0)
-  /** Analog to digital converter 0 clock. */
-  cmuClock_ADC0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFPERCLKEN0_ADC0_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Analog to digital converter 0 clock. */
+    cmuClock_ADC0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFPERCLKEN0_ADC0_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_ADC1)
-  /** Analog to digital converter 1 clock. */
-  cmuClock_ADC1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFPERCLKEN0_ADC1_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Analog to digital converter 1 clock. */
+    cmuClock_ADC1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFPERCLKEN0_ADC1_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_I2C0)
-  /** I2C 0 clock. */
-  cmuClock_I2C0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFPERCLKEN0_I2C0_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** I2C 0 clock. */
+    cmuClock_I2C0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFPERCLKEN0_I2C0_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_I2C1)
-  /** I2C 1 clock. */
-  cmuClock_I2C1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFPERCLKEN0_I2C1_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** I2C 1 clock. */
+    cmuClock_I2C1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFPERCLKEN0_I2C1_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_I2C2)
-  /** I2C 2 clock. */
-  cmuClock_I2C2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFPERCLKEN0_I2C2_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** I2C 2 clock. */
+    cmuClock_I2C2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFPERCLKEN0_I2C2_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_CSEN)
-  /** Capacitive Sense HF clock */
-  cmuClock_CSEN_HF = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_HFPERCLKEN0_CSEN_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Capacitive Sense HF clock */
+    cmuClock_CSEN_HF = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_HFPERCLKEN0_CSEN_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #elif defined(CMU_HFPERCLKEN1_CSEN)
-  /** Capacitive Sense HF clock */
-  cmuClock_CSEN_HF = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_HFPERCLKEN1_CSEN_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Capacitive Sense HF clock */
+    cmuClock_CSEN_HF = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_HFPERCLKEN1_CSEN_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_HFPERCLKEN0_TRNG0)
-  /** True random number generator clock */
-  cmuClock_TRNG0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_HFPERCLKEN0_TRNG0_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** True random number generator clock */
+    cmuClock_TRNG0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_HFPERCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_HFPERCLKEN0_TRNG0_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(_CMU_HFPERCLKEN1_CAN0_MASK)
-  /** Controller Area Network 0 clock. */
-  cmuClock_CAN0 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFPERCLKEN1_CAN0_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Controller Area Network 0 clock. */
+    cmuClock_CAN0 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFPERCLKEN1_CAN0_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(_CMU_HFPERCLKEN1_CAN1_MASK)
-  /** Controller Area Network 1 clock. */
-  cmuClock_CAN1 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFPERCLKEN1_CAN1_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Controller Area Network 1 clock. */
+    cmuClock_CAN1 = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFPERCLKEN1_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFPERCLKEN1_CAN1_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFPER_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
-  /**********************/
-  /* HF core sub-branch */
-  /**********************/
+    /**********************/
+    /* HF core sub-branch */
+    /**********************/
 
-  /** Core clock */
-  cmuClock_CORE = (CMU_HFCORECLKDIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                  | (0 << CMU_EN_BIT_POS)
-                  | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-
-#if defined(CMU_HFCORECLKEN0_AES)
-  /** Advanced encryption standard accelerator clock. */
-  cmuClock_AES = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
-                 | (_CMU_HFCORECLKEN0_AES_SHIFT << CMU_EN_BIT_POS)
-                 | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(CMU_HFCORECLKEN0_DMA)
-  /** Direct memory access controller clock. */
-  cmuClock_DMA = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
-                 | (_CMU_HFCORECLKEN0_DMA_SHIFT << CMU_EN_BIT_POS)
-                 | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(CMU_HFCORECLKEN0_LE)
-  /** Low energy clock divided down from HFCORECLK. */
-  cmuClock_HFLE = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFCORECLKEN0_LE_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(CMU_HFCORECLKEN0_EBI)
-  /** External bus interface clock. */
-  cmuClock_EBI = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
-                 | (_CMU_HFCORECLKEN0_EBI_SHIFT << CMU_EN_BIT_POS)
-                 | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#elif defined(_CMU_HFBUSCLKEN0_EBI_MASK)
-  /** External bus interface clock. */
-  cmuClock_EBI = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                 | (_CMU_HFBUSCLKEN0_EBI_SHIFT << CMU_EN_BIT_POS)
-                 | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(_CMU_HFBUSCLKEN0_ETH_MASK)
-  /** Ethernet clock. */
-  cmuClock_ETH = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                 | (_CMU_HFBUSCLKEN0_ETH_SHIFT << CMU_EN_BIT_POS)
-                 | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(_CMU_HFBUSCLKEN0_SDIO_MASK)
-  /** SDIO clock. */
-  cmuClock_SDIO = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFBUSCLKEN0_SDIO_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(USBC_CLOCK_PRESENT)
-  /** USB Core clock. */
-  cmuClock_USBC = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_USBCCLKSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_HFCORECLKEN0_USBC_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_USBC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-#if defined (USBR_CLOCK_PRESENT)
-  /** USB Rate clock. */
-  cmuClock_USBR = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                  | (CMU_USBRCLKSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_USBRCLK_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_USBCTRL_USBCLKEN_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_USBR_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(CMU_HFCORECLKEN0_USB)
-  /** USB clock. */
-  cmuClock_USB = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
-                 | (_CMU_HFCORECLKEN0_USB_SHIFT << CMU_EN_BIT_POS)
-                 | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#elif defined(CMU_HFBUSCLKEN0_USB)
-  /** USB clock. */
-  cmuClock_USB = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
-                 | (_CMU_HFBUSCLKEN0_USB_SHIFT << CMU_EN_BIT_POS)
-                 | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-  /***************/
-  /* LF A branch */
-  /***************/
-
-  /** Low frequency A clock */
-  cmuClock_LFA = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                 | (CMU_LFACLKSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                 | (0 << CMU_EN_BIT_POS)
-                 | (CMU_LFA_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-
-#if defined(CMU_LFACLKEN0_RTC)
-  /** Real time counter clock. */
-  cmuClock_RTC = (CMU_LFAPRESC0_REG << CMU_DIV_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_LFACLKEN0_EN_REG << CMU_EN_REG_POS)
-                 | (_CMU_LFACLKEN0_RTC_SHIFT << CMU_EN_BIT_POS)
-                 | (CMU_RTC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(CMU_LFACLKEN0_LETIMER0)
-  /** Low energy timer 0 clock. */
-  cmuClock_LETIMER0 = (CMU_LFAPRESC0_REG << CMU_DIV_REG_POS)
-                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                      | (CMU_LFACLKEN0_EN_REG << CMU_EN_REG_POS)
-                      | (_CMU_LFACLKEN0_LETIMER0_SHIFT << CMU_EN_BIT_POS)
-                      | (CMU_LETIMER0_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(CMU_LFACLKEN0_LETIMER1)
-  /** Low energy timer 1 clock. */
-  cmuClock_LETIMER1 = (CMU_LFAPRESC0_REG << CMU_DIV_REG_POS)
-                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                      | (CMU_LFACLKEN0_EN_REG << CMU_EN_REG_POS)
-                      | (_CMU_LFACLKEN0_LETIMER1_SHIFT << CMU_EN_BIT_POS)
-                      | (CMU_LETIMER0_CLK_BRANCH << CMU_CLK_BRANCH_POS),
-#endif
-
-#if defined(CMU_LFACLKEN0_LCD)
-  /** Liquid crystal display, pre FDIV clock. */
-  cmuClock_LCDpre = (CMU_LFAPRESC0_REG << CMU_DIV_REG_POS)
+    /** Core clock */
+    cmuClock_CORE = (CMU_HFCORECLKDIV_REG << CMU_DIV_REG_POS)
                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
                     | (CMU_NO_EN_REG << CMU_EN_REG_POS)
                     | (0 << CMU_EN_BIT_POS)
-                    | (CMU_LCDPRE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+                    | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 
-  /** Liquid crystal display clock. Please notice that FDIV prescaler
-   * must be set by special API. */
-  cmuClock_LCD = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                 | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_LFACLKEN0_EN_REG << CMU_EN_REG_POS)
-                 | (_CMU_LFACLKEN0_LCD_SHIFT << CMU_EN_BIT_POS)
-                 | (CMU_LCD_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#if defined(CMU_HFCORECLKEN0_AES)
+    /** Advanced encryption standard accelerator clock. */
+    cmuClock_AES = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
+                   | (_CMU_HFCORECLKEN0_AES_SHIFT << CMU_EN_BIT_POS)
+                   | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(CMU_HFCORECLKEN0_DMA)
+    /** Direct memory access controller clock. */
+    cmuClock_DMA = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
+                   | (_CMU_HFCORECLKEN0_DMA_SHIFT << CMU_EN_BIT_POS)
+                   | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(CMU_HFCORECLKEN0_LE)
+    /** Low energy clock divided down from HFCORECLK. */
+    cmuClock_HFLE = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFCORECLKEN0_LE_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(CMU_HFCORECLKEN0_EBI)
+    /** External bus interface clock. */
+    cmuClock_EBI = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
+                   | (_CMU_HFCORECLKEN0_EBI_SHIFT << CMU_EN_BIT_POS)
+                   | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#elif defined(_CMU_HFBUSCLKEN0_EBI_MASK)
+    /** External bus interface clock. */
+    cmuClock_EBI = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                   | (_CMU_HFBUSCLKEN0_EBI_SHIFT << CMU_EN_BIT_POS)
+                   | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(_CMU_HFBUSCLKEN0_ETH_MASK)
+    /** Ethernet clock. */
+    cmuClock_ETH = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                   | (_CMU_HFBUSCLKEN0_ETH_SHIFT << CMU_EN_BIT_POS)
+                   | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(_CMU_HFBUSCLKEN0_SDIO_MASK)
+    /** SDIO clock. */
+    cmuClock_SDIO = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFBUSCLKEN0_SDIO_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(USBC_CLOCK_PRESENT)
+    /** USB Core clock. */
+    cmuClock_USBC = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                    | (CMU_USBCCLKSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_HFCORECLKEN0_USBC_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_USBC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+#if defined (USBR_CLOCK_PRESENT)
+    /** USB Rate clock. */
+    cmuClock_USBR = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                    | (CMU_USBRCLKSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_USBRCLK_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_USBCTRL_USBCLKEN_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_USBR_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(CMU_HFCORECLKEN0_USB)
+    /** USB clock. */
+    cmuClock_USB = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_HFCORECLKEN0_EN_REG << CMU_EN_REG_POS)
+                   | (_CMU_HFCORECLKEN0_USB_SHIFT << CMU_EN_BIT_POS)
+                   | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#elif defined(CMU_HFBUSCLKEN0_USB)
+    /** USB clock. */
+    cmuClock_USB = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_HFBUSCLKEN0_EN_REG << CMU_EN_REG_POS)
+                   | (_CMU_HFBUSCLKEN0_USB_SHIFT << CMU_EN_BIT_POS)
+                   | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+    /***************/
+    /* LF A branch */
+    /***************/
+
+    /** Low frequency A clock */
+    cmuClock_LFA = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                   | (CMU_LFACLKSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                   | (0 << CMU_EN_BIT_POS)
+                   | (CMU_LFA_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+
+#if defined(CMU_LFACLKEN0_RTC)
+    /** Real time counter clock. */
+    cmuClock_RTC = (CMU_LFAPRESC0_REG << CMU_DIV_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_LFACLKEN0_EN_REG << CMU_EN_REG_POS)
+                   | (_CMU_LFACLKEN0_RTC_SHIFT << CMU_EN_BIT_POS)
+                   | (CMU_RTC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(CMU_LFACLKEN0_LETIMER0)
+    /** Low energy timer 0 clock. */
+    cmuClock_LETIMER0 = (CMU_LFAPRESC0_REG << CMU_DIV_REG_POS)
+                        | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                        | (CMU_LFACLKEN0_EN_REG << CMU_EN_REG_POS)
+                        | (_CMU_LFACLKEN0_LETIMER0_SHIFT << CMU_EN_BIT_POS)
+                        | (CMU_LETIMER0_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(CMU_LFACLKEN0_LETIMER1)
+    /** Low energy timer 1 clock. */
+    cmuClock_LETIMER1 = (CMU_LFAPRESC0_REG << CMU_DIV_REG_POS)
+                        | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                        | (CMU_LFACLKEN0_EN_REG << CMU_EN_REG_POS)
+                        | (_CMU_LFACLKEN0_LETIMER1_SHIFT << CMU_EN_BIT_POS)
+                        | (CMU_LETIMER0_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+#endif
+
+#if defined(CMU_LFACLKEN0_LCD)
+    /** Liquid crystal display, pre FDIV clock. */
+    cmuClock_LCDpre = (CMU_LFAPRESC0_REG << CMU_DIV_REG_POS)
+                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                      | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                      | (0 << CMU_EN_BIT_POS)
+                      | (CMU_LCDPRE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+
+    /** Liquid crystal display clock. Please notice that FDIV prescaler
+     * must be set by special API. */
+    cmuClock_LCD = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_LFACLKEN0_EN_REG << CMU_EN_REG_POS)
+                   | (_CMU_LFACLKEN0_LCD_SHIFT << CMU_EN_BIT_POS)
+                   | (CMU_LCD_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_PCNTCTRL_PCNT0CLKEN)
-  /** Pulse counter 0 clock. */
-  cmuClock_PCNT0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_PCNT_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_PCNTCTRL_PCNT0CLKEN_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_LFA_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Pulse counter 0 clock. */
+    cmuClock_PCNT0 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_PCNT_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_PCNTCTRL_PCNT0CLKEN_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_LFA_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_PCNTCTRL_PCNT1CLKEN)
-  /** Pulse counter 1 clock. */
-  cmuClock_PCNT1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_PCNT_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_PCNTCTRL_PCNT1CLKEN_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_LFA_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Pulse counter 1 clock. */
+    cmuClock_PCNT1 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_PCNT_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_PCNTCTRL_PCNT1CLKEN_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_LFA_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_PCNTCTRL_PCNT2CLKEN)
-  /** Pulse counter 2 clock. */
-  cmuClock_PCNT2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_PCNT_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_PCNTCTRL_PCNT2CLKEN_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_LFA_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Pulse counter 2 clock. */
+    cmuClock_PCNT2 = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_PCNT_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_PCNTCTRL_PCNT2CLKEN_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_LFA_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 #if defined(CMU_LFACLKEN0_LESENSE)
-  /** LESENSE clock. */
-  cmuClock_LESENSE = (CMU_LFAPRESC0_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_LFACLKEN0_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_LFACLKEN0_LESENSE_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_LESENSE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** LESENSE clock. */
+    cmuClock_LESENSE = (CMU_LFAPRESC0_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_LFACLKEN0_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_LFACLKEN0_LESENSE_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_LESENSE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
-  /***************/
-  /* LF B branch */
-  /***************/
+    /***************/
+    /* LF B branch */
+    /***************/
 
-  /** Low frequency B clock */
-  cmuClock_LFB = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                 | (CMU_LFBCLKSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                 | (0 << CMU_EN_BIT_POS)
-                 | (CMU_LFB_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Low frequency B clock */
+    cmuClock_LFB = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                   | (CMU_LFBCLKSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                   | (0 << CMU_EN_BIT_POS)
+                   | (CMU_LFB_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 
 #if defined(CMU_LFBCLKEN0_LEUART0)
-  /** Low energy universal asynchronous receiver/transmitter 0 clock. */
-  cmuClock_LEUART0 = (CMU_LFBPRESC0_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_LFBCLKEN0_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_LFBCLKEN0_LEUART0_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_LEUART0_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Low energy universal asynchronous receiver/transmitter 0 clock. */
+    cmuClock_LEUART0 = (CMU_LFBPRESC0_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_LFBCLKEN0_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_LFBCLKEN0_LEUART0_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_LEUART0_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_LFBCLKEN0_CSEN)
-  /** Capacitive Sense LF clock. */
-  cmuClock_CSEN_LF = (CMU_LFBPRESC0_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_LFBCLKEN0_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_LFBCLKEN0_CSEN_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_CSEN_LF_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Capacitive Sense LF clock. */
+    cmuClock_CSEN_LF = (CMU_LFBPRESC0_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_LFBCLKEN0_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_LFBCLKEN0_CSEN_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_CSEN_LF_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_LFBCLKEN0_LEUART1)
-  /** Low energy universal asynchronous receiver/transmitter 1 clock. */
-  cmuClock_LEUART1 = (CMU_LFBPRESC0_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_LFBCLKEN0_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_LFBCLKEN0_LEUART1_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_LEUART1_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Low energy universal asynchronous receiver/transmitter 1 clock. */
+    cmuClock_LEUART1 = (CMU_LFBPRESC0_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_LFBCLKEN0_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_LFBCLKEN0_LEUART1_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_LEUART1_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(CMU_LFBCLKEN0_SYSTICK)
-  /** Cortex SYSTICK LF clock. */
-  cmuClock_SYSTICK = (CMU_LFBPRESC0_REG << CMU_DIV_REG_POS)
-                     | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_LFBCLKEN0_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_LFBCLKEN0_SYSTICK_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_LEUART0_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Cortex SYSTICK LF clock. */
+    cmuClock_SYSTICK = (CMU_LFBPRESC0_REG << CMU_DIV_REG_POS)
+                       | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_LFBCLKEN0_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_LFBCLKEN0_SYSTICK_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_LEUART0_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(_CMU_LFCCLKEN0_MASK)
-  /***************/
-  /* LF C branch */
-  /***************/
+    /***************/
+    /* LF C branch */
+    /***************/
 
-  /** Low frequency C clock */
-  cmuClock_LFC = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                 | (CMU_LFCCLKSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                 | (0 << CMU_EN_BIT_POS)
-                 | (CMU_LFC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Low frequency C clock */
+    cmuClock_LFC = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                   | (CMU_LFCCLKSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                   | (0 << CMU_EN_BIT_POS)
+                   | (CMU_LFC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 
 #if defined(CMU_LFCCLKEN0_USBLE)
-  /** USB LE clock. */
-  cmuClock_USBLE = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_LFCCLKSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_LFCCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_LFCCLKEN0_USBLE_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_USBLE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** USB LE clock. */
+    cmuClock_USBLE = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_LFCCLKSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_LFCCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_LFCCLKEN0_USBLE_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_USBLE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #elif defined(CMU_LFCCLKEN0_USB)
-  /** USB LE clock. */
-  cmuClock_USBLE = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                   | (CMU_LFCCLKSEL_REG << CMU_SEL_REG_POS)
-                   | (CMU_LFCCLKEN0_EN_REG << CMU_EN_REG_POS)
-                   | (_CMU_LFCCLKEN0_USB_SHIFT << CMU_EN_BIT_POS)
-                   | (CMU_USBLE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** USB LE clock. */
+    cmuClock_USBLE = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                     | (CMU_LFCCLKSEL_REG << CMU_SEL_REG_POS)
+                     | (CMU_LFCCLKEN0_EN_REG << CMU_EN_REG_POS)
+                     | (_CMU_LFCCLKEN0_USB_SHIFT << CMU_EN_BIT_POS)
+                     | (CMU_USBLE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 #endif
 
 #if defined(_CMU_LFECLKEN0_MASK)
-  /***************/
-  /* LF E branch */
-  /***************/
+    /***************/
+    /* LF E branch */
+    /***************/
 
-  /** Low frequency E clock */
-  cmuClock_LFE = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
-                 | (CMU_LFECLKSEL_REG << CMU_SEL_REG_POS)
-                 | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                 | (0 << CMU_EN_BIT_POS)
-                 | (CMU_LFE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** Low frequency E clock */
+    cmuClock_LFE = (CMU_NOPRESC_REG << CMU_PRESC_REG_POS)
+                   | (CMU_LFECLKSEL_REG << CMU_SEL_REG_POS)
+                   | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                   | (0 << CMU_EN_BIT_POS)
+                   | (CMU_LFE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 
-  /** Real-time counter and calendar clock. */
+    /** Real-time counter and calendar clock. */
 #if defined (CMU_LFECLKEN0_RTCC)
-  cmuClock_RTCC = (CMU_LFEPRESC0_REG << CMU_PRESC_REG_POS)
-                  | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
-                  | (CMU_LFECLKEN0_EN_REG << CMU_EN_REG_POS)
-                  | (_CMU_LFECLKEN0_RTCC_SHIFT << CMU_EN_BIT_POS)
-                  | (CMU_RTCC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    cmuClock_RTCC = (CMU_LFEPRESC0_REG << CMU_PRESC_REG_POS)
+                    | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
+                    | (CMU_LFECLKEN0_EN_REG << CMU_EN_REG_POS)
+                    | (_CMU_LFECLKEN0_RTCC_SHIFT << CMU_EN_BIT_POS)
+                    | (CMU_RTCC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 #endif
 
-  /**********************************/
-  /* Asynchronous peripheral clocks */
-  /**********************************/
+    /**********************************/
+    /* Asynchronous peripheral clocks */
+    /**********************************/
 
 #if defined(_CMU_ADCCTRL_ADC0CLKSEL_MASK)
-  /** ADC0 asynchronous clock. */
-  cmuClock_ADC0ASYNC = (CMU_ADCASYNCDIV_REG << CMU_DIV_REG_POS)
-                       | (CMU_ADC0ASYNCSEL_REG << CMU_SEL_REG_POS)
-                       | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                       | (0 << CMU_EN_BIT_POS)
-                       | (CMU_ADC0ASYNC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** ADC0 asynchronous clock. */
+    cmuClock_ADC0ASYNC = (CMU_ADCASYNCDIV_REG << CMU_DIV_REG_POS)
+                         | (CMU_ADC0ASYNCSEL_REG << CMU_SEL_REG_POS)
+                         | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                         | (0 << CMU_EN_BIT_POS)
+                         | (CMU_ADC0ASYNC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(_CMU_ADCCTRL_ADC1CLKSEL_MASK)
-  /** ADC1 asynchronous clock. */
-  cmuClock_ADC1ASYNC = (CMU_ADCASYNCDIV_REG << CMU_DIV_REG_POS)
-                       | (CMU_ADC1ASYNCSEL_REG << CMU_SEL_REG_POS)
-                       | (CMU_NO_EN_REG << CMU_EN_REG_POS)
-                       | (0 << CMU_EN_BIT_POS)
-                       | (CMU_ADC1ASYNC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** ADC1 asynchronous clock. */
+    cmuClock_ADC1ASYNC = (CMU_ADCASYNCDIV_REG << CMU_DIV_REG_POS)
+                         | (CMU_ADC1ASYNCSEL_REG << CMU_SEL_REG_POS)
+                         | (CMU_NO_EN_REG << CMU_EN_REG_POS)
+                         | (0 << CMU_EN_BIT_POS)
+                         | (CMU_ADC1ASYNC_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(_CMU_SDIOCTRL_SDIOCLKDIS_MASK)
-  /** SDIO reference clock. */
-  cmuClock_SDIOREF = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                     | (CMU_SDIOREFSEL_REG << CMU_SEL_REG_POS)
-                     | (CMU_SDIOREF_EN_REG << CMU_EN_REG_POS)
-                     | (_CMU_SDIOCTRL_SDIOCLKDIS_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_SDIOREF_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** SDIO reference clock. */
+    cmuClock_SDIOREF = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                       | (CMU_SDIOREFSEL_REG << CMU_SEL_REG_POS)
+                       | (CMU_SDIOREF_EN_REG << CMU_EN_REG_POS)
+                       | (_CMU_SDIOCTRL_SDIOCLKDIS_SHIFT << CMU_EN_BIT_POS)
+                       | (CMU_SDIOREF_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined(_CMU_QSPICTRL_QSPI0CLKDIS_MASK)
-  /** QSPI0 reference clock. */
-  cmuClock_QSPI0REF = (CMU_NODIV_REG << CMU_DIV_REG_POS)
-                      | (CMU_QSPI0REFSEL_REG << CMU_SEL_REG_POS)
-                      | (CMU_QSPI0REF_EN_REG << CMU_EN_REG_POS)
-                      | (_CMU_QSPICTRL_QSPI0CLKDIS_SHIFT << CMU_EN_BIT_POS)
-                      | (CMU_QSPI0REF_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+    /** QSPI0 reference clock. */
+    cmuClock_QSPI0REF = (CMU_NODIV_REG << CMU_DIV_REG_POS)
+                        | (CMU_QSPI0REFSEL_REG << CMU_SEL_REG_POS)
+                        | (CMU_QSPI0REF_EN_REG << CMU_EN_REG_POS)
+                        | (_CMU_QSPICTRL_QSPI0CLKDIS_SHIFT << CMU_EN_BIT_POS)
+                        | (CMU_QSPI0REF_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 } CMU_Clock_TypeDef;
 
@@ -1226,56 +1226,56 @@ typedef enum {
 
 /** Oscillator types. */
 typedef enum {
-  cmuOsc_LFXO,     /**< Low frequency crystal oscillator. */
-  cmuOsc_LFRCO,    /**< Low frequency RC oscillator. */
-  cmuOsc_HFXO,     /**< High frequency crystal oscillator. */
-  cmuOsc_HFRCO,    /**< High frequency RC oscillator. */
-  cmuOsc_AUXHFRCO, /**< Auxiliary high frequency RC oscillator. */
+    cmuOsc_LFXO,     /**< Low frequency crystal oscillator. */
+    cmuOsc_LFRCO,    /**< Low frequency RC oscillator. */
+    cmuOsc_HFXO,     /**< High frequency crystal oscillator. */
+    cmuOsc_HFRCO,    /**< High frequency RC oscillator. */
+    cmuOsc_AUXHFRCO, /**< Auxiliary high frequency RC oscillator. */
 #if defined(_CMU_STATUS_USHFRCOENS_MASK)
-  cmuOsc_USHFRCO,  /**< USB high frequency RC oscillator */
+    cmuOsc_USHFRCO,  /**< USB high frequency RC oscillator */
 #endif
 #if defined(CMU_LFCLKSEL_LFAE_ULFRCO) || defined(CMU_LFACLKSEL_LFA_ULFRCO)
-  cmuOsc_ULFRCO,   /**< Ultra low frequency RC oscillator. */
+    cmuOsc_ULFRCO,   /**< Ultra low frequency RC oscillator. */
 #endif
 #if defined(_CMU_STATUS_PLFRCOENS_MASK)
-  cmuOsc_PLFRCO,   /**< Precision Low Frequency Oscillator. */
+    cmuOsc_PLFRCO,   /**< Precision Low Frequency Oscillator. */
 #endif
 } CMU_Osc_TypeDef;
 
 /** Oscillator modes. */
 typedef enum {
-  cmuOscMode_Crystal,   /**< Crystal oscillator. */
-  cmuOscMode_AcCoupled, /**< AC coupled buffer. */
-  cmuOscMode_External,  /**< External digital clock. */
+    cmuOscMode_Crystal,   /**< Crystal oscillator. */
+    cmuOscMode_AcCoupled, /**< AC coupled buffer. */
+    cmuOscMode_External,  /**< External digital clock. */
 } CMU_OscMode_TypeDef;
 
 /** Selectable clock sources. */
 typedef enum {
-  cmuSelect_Error,                      /**< Usage error. */
-  cmuSelect_Disabled,                   /**< Clock selector disabled. */
-  cmuSelect_LFXO,                       /**< Low frequency crystal oscillator. */
-  cmuSelect_LFRCO,                      /**< Low frequency RC oscillator. */
-  cmuSelect_HFXO,                       /**< High frequency crystal oscillator. */
-  cmuSelect_HFRCO,                      /**< High frequency RC oscillator. */
-  cmuSelect_HFCLKLE,                    /**< High frequency LE clock divided by 2 or 4. */
-  cmuSelect_AUXHFRCO,                   /**< Auxilliary clock source can be used for debug clock */
-  cmuSelect_HFSRCCLK,                   /**< High frequency source clock */
-  cmuSelect_HFCLK,                      /**< Divided HFCLK on Giant for debug clock, undivided on
+    cmuSelect_Error,                      /**< Usage error. */
+    cmuSelect_Disabled,                   /**< Clock selector disabled. */
+    cmuSelect_LFXO,                       /**< Low frequency crystal oscillator. */
+    cmuSelect_LFRCO,                      /**< Low frequency RC oscillator. */
+    cmuSelect_HFXO,                       /**< High frequency crystal oscillator. */
+    cmuSelect_HFRCO,                      /**< High frequency RC oscillator. */
+    cmuSelect_HFCLKLE,                    /**< High frequency LE clock divided by 2 or 4. */
+    cmuSelect_AUXHFRCO,                   /**< Auxilliary clock source can be used for debug clock */
+    cmuSelect_HFSRCCLK,                   /**< High frequency source clock */
+    cmuSelect_HFCLK,                      /**< Divided HFCLK on Giant for debug clock, undivided on
                                              Tiny Gecko and for USBC (not used on Gecko) */
 #if defined(CMU_STATUS_USHFRCOENS)
-  cmuSelect_USHFRCO,                    /**< USB high frequency RC oscillator */
+    cmuSelect_USHFRCO,                    /**< USB high frequency RC oscillator */
 #endif
 #if defined(CMU_CMD_HFCLKSEL_USHFRCODIV2)
-  cmuSelect_USHFRCODIV2,                /**< USB high frequency RC oscillator / 2 */
+    cmuSelect_USHFRCODIV2,                /**< USB high frequency RC oscillator / 2 */
 #endif
 #if defined(CMU_HFXOCTRL_HFXOX2EN)
-  cmuSelect_HFXOX2,                     /**< High frequency crystal oscillator x 2. */
+    cmuSelect_HFXOX2,                     /**< High frequency crystal oscillator x 2. */
 #endif
 #if defined(CMU_LFCLKSEL_LFAE_ULFRCO) || defined(CMU_LFACLKSEL_LFA_ULFRCO)
-  cmuSelect_ULFRCO,                     /**< Ultra low frequency RC oscillator. */
+    cmuSelect_ULFRCO,                     /**< Ultra low frequency RC oscillator. */
 #endif
 #if defined(_CMU_STATUS_PLFRCOENS_MASK)
-  cmuSelect_PLFRCO,                     /**< Precision Low Frequency Oscillator. */
+    cmuSelect_PLFRCO,                     /**< Precision Low Frequency Oscillator. */
 #endif
 } CMU_Select_TypeDef;
 
@@ -1289,12 +1289,12 @@ typedef enum {
 #if defined(_CMU_HFXOCTRL_PEAKDETSHUNTOPTMODE_MASK) || defined(_CMU_HFXOCTRL_PEAKDETMODE_MASK)
 /** HFXO tuning modes */
 typedef enum {
-  cmuHFXOTuningMode_Auto               = 0,
-  cmuHFXOTuningMode_PeakDetectCommand  = CMU_CMD_HFXOPEAKDETSTART,   /**< Run peak detect optimization only */
+    cmuHFXOTuningMode_Auto               = 0,
+    cmuHFXOTuningMode_PeakDetectCommand  = CMU_CMD_HFXOPEAKDETSTART,   /**< Run peak detect optimization only */
 #if defined(CMU_CMD_HFXOSHUNTOPTSTART)
-  cmuHFXOTuningMode_ShuntCommand       = CMU_CMD_HFXOSHUNTOPTSTART,  /**< Run shunt current optimization only */
-  cmuHFXOTuningMode_PeakShuntCommand   = CMU_CMD_HFXOPEAKDETSTART    /**< Run peak and shunt current optimization */
-                                         | CMU_CMD_HFXOSHUNTOPTSTART,
+    cmuHFXOTuningMode_ShuntCommand       = CMU_CMD_HFXOSHUNTOPTSTART,  /**< Run shunt current optimization only */
+    cmuHFXOTuningMode_PeakShuntCommand   = CMU_CMD_HFXOPEAKDETSTART    /**< Run peak and shunt current optimization */
+                                           | CMU_CMD_HFXOSHUNTOPTSTART,
 #endif
 } CMU_HFXOTuningMode_TypeDef;
 #endif
@@ -1302,11 +1302,11 @@ typedef enum {
 #if defined(_CMU_CTRL_LFXOBOOST_MASK)
 /** LFXO Boost values. */
 typedef enum {
-  cmuLfxoBoost70         = 0x0,
-  cmuLfxoBoost100        = 0x2,
+    cmuLfxoBoost70         = 0x0,
+    cmuLfxoBoost100        = 0x2,
 #if defined(_EMU_AUXCTRL_REDLFXOBOOST_MASK)
-  cmuLfxoBoost70Reduced  = 0x1,
-  cmuLfxoBoost100Reduced = 0x3,
+    cmuLfxoBoost70Reduced  = 0x1,
+    cmuLfxoBoost100Reduced = 0x3,
 #endif
 } CMU_LFXOBoost_TypeDef;
 #endif
@@ -1314,21 +1314,21 @@ typedef enum {
 #if defined(CMU_OSCENCMD_DPLLEN)
 /** DPLL reference clock selector. */
 typedef enum {
-  cmuDPLLClkSel_Hfxo   = _CMU_DPLLCTRL_REFSEL_HFXO,   /**< HFXO is DPLL reference clock. */
-  cmuDPLLClkSel_Lfxo   = _CMU_DPLLCTRL_REFSEL_LFXO,   /**< LFXO is DPLL reference clock. */
-  cmuDPLLClkSel_Clkin0 = _CMU_DPLLCTRL_REFSEL_CLKIN0  /**< CLKIN0 is DPLL reference clock. */
+    cmuDPLLClkSel_Hfxo   = _CMU_DPLLCTRL_REFSEL_HFXO,   /**< HFXO is DPLL reference clock. */
+    cmuDPLLClkSel_Lfxo   = _CMU_DPLLCTRL_REFSEL_LFXO,   /**< LFXO is DPLL reference clock. */
+    cmuDPLLClkSel_Clkin0 = _CMU_DPLLCTRL_REFSEL_CLKIN0  /**< CLKIN0 is DPLL reference clock. */
 } CMU_DPLLClkSel_TypeDef;
 
 /** DPLL reference clock edge detect selector. */
 typedef enum {
-  cmuDPLLEdgeSel_Fall = _CMU_DPLLCTRL_EDGESEL_FALL,   /**< Detect falling edge of reference clock. */
-  cmuDPLLEdgeSel_Rise = _CMU_DPLLCTRL_EDGESEL_RISE    /**< Detect rising edge of reference clock. */
+    cmuDPLLEdgeSel_Fall = _CMU_DPLLCTRL_EDGESEL_FALL,   /**< Detect falling edge of reference clock. */
+    cmuDPLLEdgeSel_Rise = _CMU_DPLLCTRL_EDGESEL_RISE    /**< Detect rising edge of reference clock. */
 } CMU_DPLLEdgeSel_TypeDef;
 
 /** DPLL lock mode selector. */
 typedef enum {
-  cmuDPLLLockMode_Freq  = _CMU_DPLLCTRL_MODE_FREQLL,  /**< Frequency lock mode. */
-  cmuDPLLLockMode_Phase = _CMU_DPLLCTRL_MODE_PHASELL  /**< Phase lock mode. */
+    cmuDPLLLockMode_Freq  = _CMU_DPLLCTRL_MODE_FREQLL,  /**< Frequency lock mode. */
+    cmuDPLLLockMode_Phase = _CMU_DPLLCTRL_MODE_PHASELL  /**< Phase lock mode. */
 } CMU_DPLLLockMode_TypeDef;
 #endif // CMU_OSCENCMD_DPLLEN
 
@@ -1340,13 +1340,13 @@ typedef enum {
     app note or xtal datasheet  */
 typedef struct {
 #if defined(_CMU_LFXOCTRL_MASK)
-  uint8_t ctune;                        /**< CTUNE (load capacitance) value */
-  uint8_t gain;                         /**< Gain / max startup margin */
+    uint8_t ctune;                        /**< CTUNE (load capacitance) value */
+    uint8_t gain;                         /**< Gain / max startup margin */
 #else
-  CMU_LFXOBoost_TypeDef boost;          /**< LFXO boost */
+    CMU_LFXOBoost_TypeDef boost;          /**< LFXO boost */
 #endif
-  uint8_t timeout;                      /**< Startup delay */
-  CMU_OscMode_TypeDef mode;             /**< Oscillator mode */
+    uint8_t timeout;                      /**< Startup delay */
+    CMU_OscMode_TypeDef mode;             /**< Oscillator mode */
 } CMU_LFXOInit_TypeDef;
 
 #if defined(_CMU_LFXOCTRL_MASK)
@@ -1386,34 +1386,34 @@ typedef struct {
     app note or xtal datasheet  */
 typedef struct {
 #if defined(_SILICON_LABS_32B_SERIES_1) && (_SILICON_LABS_GECKO_INTERNAL_SDID >= 100)
-  uint16_t ctuneStartup;                /**< Startup phase CTUNE (load capacitance) value */
-  uint16_t ctuneSteadyState;            /**< Steady-state phase CTUNE (load capacitance) value */
-  uint16_t xoCoreBiasTrimStartup;       /**< Startup XO core bias current trim */
-  uint16_t xoCoreBiasTrimSteadyState;   /**< Steady-state XO core bias current trim */
-  uint8_t timeoutPeakDetect;            /**< Timeout - peak detection */
-  uint8_t timeoutSteady;                /**< Timeout - steady-state */
-  uint8_t timeoutStartup;               /**< Timeout - startup */
+    uint16_t ctuneStartup;                /**< Startup phase CTUNE (load capacitance) value */
+    uint16_t ctuneSteadyState;            /**< Steady-state phase CTUNE (load capacitance) value */
+    uint16_t xoCoreBiasTrimStartup;       /**< Startup XO core bias current trim */
+    uint16_t xoCoreBiasTrimSteadyState;   /**< Steady-state XO core bias current trim */
+    uint8_t timeoutPeakDetect;            /**< Timeout - peak detection */
+    uint8_t timeoutSteady;                /**< Timeout - steady-state */
+    uint8_t timeoutStartup;               /**< Timeout - startup */
 #elif defined(_CMU_HFXOCTRL_MASK)
-  bool lowPowerMode;                    /**< Enable low-power mode */
-  bool autoStartEm01;                   /**< @deprecated Use @ref CMU_HFXOAutostartEnable instead. */
-  bool autoSelEm01;                     /**< @deprecated Use @ref CMU_HFXOAutostartEnable instead. */
-  bool autoStartSelOnRacWakeup;         /**< @deprecated Use @ref CMU_HFXOAutostartEnable instead. */
-  uint16_t ctuneStartup;                /**< Startup phase CTUNE (load capacitance) value */
-  uint16_t ctuneSteadyState;            /**< Steady-state phase CTUNE (load capacitance) value */
-  uint8_t regIshSteadyState;            /**< Shunt steady-state current */
-  uint8_t xoCoreBiasTrimStartup;        /**< Startup XO core bias current trim */
-  uint8_t xoCoreBiasTrimSteadyState;    /**< Steady-state XO core bias current trim */
-  uint8_t thresholdPeakDetect;          /**< Peak detection threshold */
-  uint8_t timeoutShuntOptimization;     /**< Timeout - shunt optimization */
-  uint8_t timeoutPeakDetect;            /**< Timeout - peak detection */
-  uint8_t timeoutSteady;                /**< Timeout - steady-state */
-  uint8_t timeoutStartup;               /**< Timeout - startup */
+    bool lowPowerMode;                    /**< Enable low-power mode */
+    bool autoStartEm01;                   /**< @deprecated Use @ref CMU_HFXOAutostartEnable instead. */
+    bool autoSelEm01;                     /**< @deprecated Use @ref CMU_HFXOAutostartEnable instead. */
+    bool autoStartSelOnRacWakeup;         /**< @deprecated Use @ref CMU_HFXOAutostartEnable instead. */
+    uint16_t ctuneStartup;                /**< Startup phase CTUNE (load capacitance) value */
+    uint16_t ctuneSteadyState;            /**< Steady-state phase CTUNE (load capacitance) value */
+    uint8_t regIshSteadyState;            /**< Shunt steady-state current */
+    uint8_t xoCoreBiasTrimStartup;        /**< Startup XO core bias current trim */
+    uint8_t xoCoreBiasTrimSteadyState;    /**< Steady-state XO core bias current trim */
+    uint8_t thresholdPeakDetect;          /**< Peak detection threshold */
+    uint8_t timeoutShuntOptimization;     /**< Timeout - shunt optimization */
+    uint8_t timeoutPeakDetect;            /**< Timeout - peak detection */
+    uint8_t timeoutSteady;                /**< Timeout - steady-state */
+    uint8_t timeoutStartup;               /**< Timeout - startup */
 #else
-  uint8_t boost;                        /**< HFXO Boost, 0=50% 1=70%, 2=80%, 3=100% */
-  uint8_t timeout;                      /**< Startup delay */
-  bool glitchDetector;                  /**< Enable/disable glitch detector */
+    uint8_t boost;                        /**< HFXO Boost, 0=50% 1=70%, 2=80%, 3=100% */
+    uint8_t timeout;                      /**< Startup delay */
+    bool glitchDetector;                  /**< Enable/disable glitch detector */
 #endif
-  CMU_OscMode_TypeDef mode;             /**< Oscillator mode */
+    CMU_OscMode_TypeDef mode;             /**< Oscillator mode */
 } CMU_HFXOInit_TypeDef;
 
 #if defined(_SILICON_LABS_32B_SERIES_1) && (_SILICON_LABS_GECKO_INTERNAL_SDID >= 100)
@@ -1524,15 +1524,15 @@ typedef struct {
 #if defined(CMU_OSCENCMD_DPLLEN)
 /** DPLL initialization structure. Frequency will be Fref*(N+1)/(M+1). */
 typedef struct {
-  uint32_t  frequency;                  /**< PLL frequency value, max 40 MHz. */
-  uint16_t  n;                          /**< Factor N. 32 <= N <= 4095        */
-  uint16_t  m;                          /**< Factor M. M <= 4095              */
-  uint8_t   ssInterval;                 /**< Spread spectrum update interval. */
-  uint8_t   ssAmplitude;                /**< Spread spectrum amplitude.       */
-  CMU_DPLLClkSel_TypeDef    refClk;     /**< Reference clock selector.        */
-  CMU_DPLLEdgeSel_TypeDef   edgeSel;    /**< Reference clock edge detect selector. */
-  CMU_DPLLLockMode_TypeDef  lockMode;   /**< DPLL lock mode selector.         */
-  bool      autoRecover;                /**< Enable automatic lock recovery.  */
+    uint32_t  frequency;                  /**< PLL frequency value, max 40 MHz. */
+    uint16_t  n;                          /**< Factor N. 32 <= N <= 4095        */
+    uint16_t  m;                          /**< Factor M. M <= 4095              */
+    uint8_t   ssInterval;                 /**< Spread spectrum update interval. */
+    uint8_t   ssAmplitude;                /**< Spread spectrum amplitude.       */
+    CMU_DPLLClkSel_TypeDef    refClk;     /**< Reference clock selector.        */
+    CMU_DPLLEdgeSel_TypeDef   edgeSel;    /**< Reference clock edge detect selector. */
+    CMU_DPLLLockMode_TypeDef  lockMode;   /**< DPLL lock mode selector.         */
+    bool      autoRecover;                /**< Enable automatic lock recovery.  */
 } CMU_DPLLInit_TypeDef;
 
 /**
@@ -1652,7 +1652,7 @@ void                  CMU_UpdateWaitStates(uint32_t freq, int vscale);
  ******************************************************************************/
 __STATIC_INLINE void CMU_CalibrateCont(bool enable)
 {
-  BUS_RegBitWrite(&(CMU->CALCTRL), _CMU_CALCTRL_CONT_SHIFT, enable);
+    BUS_RegBitWrite(&(CMU->CALCTRL), _CMU_CALCTRL_CONT_SHIFT, enable);
 }
 #endif
 
@@ -1665,7 +1665,7 @@ __STATIC_INLINE void CMU_CalibrateCont(bool enable)
  ******************************************************************************/
 __STATIC_INLINE void CMU_CalibrateStart(void)
 {
-  CMU->CMD = CMU_CMD_CALSTART;
+    CMU->CMD = CMU_CMD_CALSTART;
 }
 
 #if defined(CMU_CMD_CALSTOP)
@@ -1675,7 +1675,7 @@ __STATIC_INLINE void CMU_CalibrateStart(void)
  ******************************************************************************/
 __STATIC_INLINE void CMU_CalibrateStop(void)
 {
-  CMU->CMD = CMU_CMD_CALSTOP;
+    CMU->CMD = CMU_CMD_CALSTOP;
 }
 #endif
 
@@ -1692,15 +1692,15 @@ __STATIC_INLINE void CMU_CalibrateStop(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CMU_DivToLog2(CMU_ClkDiv_TypeDef div)
 {
-  uint32_t log2;
+    uint32_t log2;
 
-  /* Fixed 2^n prescalers take argument of 32768 or less. */
-  EFM_ASSERT((div > 0U) && (div <= 32768U));
+    /* Fixed 2^n prescalers take argument of 32768 or less. */
+    EFM_ASSERT((div > 0U) && (div <= 32768U));
 
-  /* Count leading zeroes and "reverse" result */
-  log2 = (31U - __CLZ(div));
+    /* Count leading zeroes and "reverse" result */
+    log2 = (31U - __CLZ(div));
 
-  return log2;
+    return log2;
 }
 
 #if defined(CMU_OSCENCMD_DPLLEN)
@@ -1712,7 +1712,7 @@ __STATIC_INLINE uint32_t CMU_DivToLog2(CMU_ClkDiv_TypeDef div)
  ******************************************************************************/
 __STATIC_INLINE void CMU_DPLLUnlock(void)
 {
-  CMU->OSCENCMD  = CMU_OSCENCMD_DPLLDIS;
+    CMU->OSCENCMD  = CMU_OSCENCMD_DPLLDIS;
 }
 #endif
 
@@ -1725,7 +1725,7 @@ __STATIC_INLINE void CMU_DPLLUnlock(void)
  ******************************************************************************/
 __STATIC_INLINE void CMU_IntClear(uint32_t flags)
 {
-  CMU->IFC = flags;
+    CMU->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -1737,7 +1737,7 @@ __STATIC_INLINE void CMU_IntClear(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CMU_IntDisable(uint32_t flags)
 {
-  CMU->IEN &= ~flags;
+    CMU->IEN &= ~flags;
 }
 
 /***************************************************************************//**
@@ -1754,7 +1754,7 @@ __STATIC_INLINE void CMU_IntDisable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CMU_IntEnable(uint32_t flags)
 {
-  CMU->IEN |= flags;
+    CMU->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -1766,7 +1766,7 @@ __STATIC_INLINE void CMU_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CMU_IntGet(void)
 {
-  return CMU->IF;
+    return CMU->IF;
 }
 
 /***************************************************************************//**
@@ -1787,10 +1787,10 @@ __STATIC_INLINE uint32_t CMU_IntGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CMU_IntGetEnabled(void)
 {
-  uint32_t ien;
+    uint32_t ien;
 
-  ien = CMU->IEN;
-  return CMU->IF & ien;
+    ien = CMU->IEN;
+    return CMU->IF & ien;
 }
 
 /**************************************************************************//**
@@ -1802,7 +1802,7 @@ __STATIC_INLINE uint32_t CMU_IntGetEnabled(void)
  *****************************************************************************/
 __STATIC_INLINE void CMU_IntSet(uint32_t flags)
 {
-  CMU->IFS = flags;
+    CMU->IFS = flags;
 }
 
 /***************************************************************************//**
@@ -1820,7 +1820,7 @@ __STATIC_INLINE void CMU_IntSet(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CMU_Lock(void)
 {
-  CMU->LOCK = CMU_LOCK_LOCKKEY_LOCK;
+    CMU->LOCK = CMU_LOCK_LOCKKEY_LOCK;
 }
 
 /***************************************************************************//**
@@ -1835,7 +1835,7 @@ __STATIC_INLINE void CMU_Lock(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CMU_Log2ToDiv(uint32_t log2)
 {
-  return 1 << log2;
+    return 1 << log2;
 }
 
 #if defined(_SILICON_LABS_32B_SERIES_1)
@@ -1852,18 +1852,18 @@ __STATIC_INLINE uint32_t CMU_Log2ToDiv(uint32_t log2)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CMU_PrescToLog2(CMU_ClkPresc_TypeDef presc)
 {
-  uint32_t log2;
+    uint32_t log2;
 
-  /* Integer prescalers take argument less than 32768. */
-  EFM_ASSERT(presc < 32768U);
+    /* Integer prescalers take argument less than 32768. */
+    EFM_ASSERT(presc < 32768U);
 
-  /* Count leading zeroes and "reverse" result */
-  log2 = (31U - __CLZ(presc + 1));
+    /* Count leading zeroes and "reverse" result */
+    log2 = (31U - __CLZ(presc + 1));
 
-  /* Check that presc is a 2^n number */
-  EFM_ASSERT(presc == (CMU_Log2ToDiv(log2) - 1));
+    /* Check that presc is a 2^n number */
+    EFM_ASSERT(presc == (CMU_Log2ToDiv(log2) - 1));
 
-  return log2;
+    return log2;
 }
 #endif
 
@@ -1873,7 +1873,7 @@ __STATIC_INLINE uint32_t CMU_PrescToLog2(CMU_ClkPresc_TypeDef presc)
  ******************************************************************************/
 __STATIC_INLINE void CMU_Unlock(void)
 {
-  CMU->LOCK = CMU_LOCK_LOCKKEY_UNLOCK;
+    CMU->LOCK = CMU_LOCK_LOCKKEY_UNLOCK;
 }
 
 #if defined(_CMU_HFRCOCTRL_FREQRANGE_MASK)
@@ -1889,7 +1889,7 @@ __STATIC_INLINE void CMU_Unlock(void)
  ******************************************************************************/
 __STATIC_INLINE CMU_HFRCOFreq_TypeDef CMU_HFRCOFreqGet(void)
 {
-  return CMU_HFRCOBandGet();
+    return CMU_HFRCOBandGet();
 }
 
 /***************************************************************************//**
@@ -1904,7 +1904,7 @@ __STATIC_INLINE CMU_HFRCOFreq_TypeDef CMU_HFRCOFreqGet(void)
  ******************************************************************************/
 __STATIC_INLINE void CMU_HFRCOFreqSet(CMU_HFRCOFreq_TypeDef setFreq)
 {
-  CMU_HFRCOBandSet(setFreq);
+    CMU_HFRCOBandSet(setFreq);
 }
 #endif
 
@@ -1921,7 +1921,7 @@ __STATIC_INLINE void CMU_HFRCOFreqSet(CMU_HFRCOFreq_TypeDef setFreq)
  ******************************************************************************/
 __STATIC_INLINE CMU_AUXHFRCOFreq_TypeDef CMU_AUXHFRCOFreqGet(void)
 {
-  return CMU_AUXHFRCOBandGet();
+    return CMU_AUXHFRCOBandGet();
 }
 
 /***************************************************************************//**
@@ -1936,7 +1936,7 @@ __STATIC_INLINE CMU_AUXHFRCOFreq_TypeDef CMU_AUXHFRCOFreqGet(void)
  ******************************************************************************/
 __STATIC_INLINE void CMU_AUXHFRCOFreqSet(CMU_AUXHFRCOFreq_TypeDef setFreq)
 {
-  CMU_AUXHFRCOBandSet(setFreq);
+    CMU_AUXHFRCOBandSet(setFreq);
 }
 #endif
 

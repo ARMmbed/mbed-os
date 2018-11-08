@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**@file
@@ -61,14 +61,14 @@ extern "C" {
 #endif
 
 
-    #define SPIS0_IRQ            SPI0_TWI0_IRQn
-    #define SPIS0_IRQ_HANDLER    SPI0_TWI0_IRQHandler
-    #define SPIS1_IRQ            SPI1_TWI1_IRQn
-    #define SPIS1_IRQ_HANDLER    SPI1_TWI1_IRQHandler
+#define SPIS0_IRQ            SPI0_TWI0_IRQn
+#define SPIS0_IRQ_HANDLER    SPI0_TWI0_IRQHandler
+#define SPIS1_IRQ            SPI1_TWI1_IRQn
+#define SPIS1_IRQ_HANDLER    SPI1_TWI1_IRQHandler
 
 #if SPIS_COUNT > 2
-    #define SPIS2_IRQ            SPIM2_SPIS2_SPI2_IRQn
-    #define SPIS2_IRQ_HANDLER    SPIM2_SPIS2_SPI2_IRQHandler
+#define SPIS2_IRQ            SPIM2_SPIS2_SPI2_IRQn
+#define SPIS2_IRQ_HANDLER    SPIM2_SPIS2_SPI2_IRQHandler
 #endif
 
 /**
@@ -89,15 +89,13 @@ extern "C" {
 #define NRF_DRV_SPIS_PIN_NOT_USED       0xFF
 
 /** @brief SPIS transaction bit order definitions. */
-typedef enum
-{
+typedef enum {
     NRF_DRV_SPIS_BIT_ORDER_LSB_FIRST = NRF_SPIS_BIT_ORDER_LSB_FIRST, /**< Least significant bit shifted out first. */
     NRF_DRV_SPIS_BIT_ORDER_MSB_FIRST = NRF_SPIS_BIT_ORDER_MSB_FIRST  /**< Most significant bit shifted out first. */
 } nrf_drv_spis_endian_t;
 
 /** @brief SPIS mode definitions for clock polarity and phase. */
-typedef enum
-{
+typedef enum {
     NRF_DRV_SPIS_MODE_0 = NRF_SPIS_MODE_0,       /**< (CPOL = 0, CPHA = 0). */
     NRF_DRV_SPIS_MODE_1 = NRF_SPIS_MODE_1,       /**< (CPOL = 0, CPHA = 1). */
     NRF_DRV_SPIS_MODE_2 = NRF_SPIS_MODE_2,       /**< (CPOL = 1, CPHA = 0). */
@@ -105,25 +103,22 @@ typedef enum
 } nrf_drv_spis_mode_t;
 
 /** @brief Event callback function event definitions. */
-typedef enum
-{
+typedef enum {
     NRF_DRV_SPIS_BUFFERS_SET_DONE,          /**< Memory buffer set event. Memory buffers have been set successfully to the SPI slave device, and SPI transactions can be done. */
     NRF_DRV_SPIS_XFER_DONE,                 /**< SPI transaction event. SPI transaction has been completed. */
     NRF_DRV_SPIS_EVT_TYPE_MAX                    /**< Enumeration upper bound. */
 } nrf_drv_spis_event_type_t;
 
 /** @brief Structure containing the event context from the SPI slave driver. */
-typedef struct
-{
+typedef struct {
     nrf_drv_spis_event_type_t evt_type;     //!< Type of event.
     uint32_t                  rx_amount;    //!< Number of bytes received in last transaction. This parameter is only valid for @ref NRF_DRV_SPIS_XFER_DONE events.
     uint32_t                  tx_amount;    //!< Number of bytes transmitted in last transaction. This parameter is only valid for @ref NRF_DRV_SPIS_XFER_DONE events.
 } nrf_drv_spis_event_t;
 
 /** @brief SPI slave driver instance data structure. */
-typedef struct
-{
-    NRF_SPIS_Type * p_reg;          //!< SPIS instance register.
+typedef struct {
+    NRF_SPIS_Type *p_reg;           //!< SPIS instance register.
     uint8_t         instance_id;    //!< SPIS instance ID.
     IRQn_Type       irq;            //!< IRQ of the specific instance.
 } nrf_drv_spis_t;
@@ -157,14 +152,13 @@ typedef struct
 }
 
 /** @brief SPI peripheral device configuration data. */
-typedef struct
-{
+typedef struct {
     uint32_t              miso_pin;            //!< SPI MISO pin (optional).
-                                               /**< Set @ref NRF_DRV_SPIS_PIN_NOT_USED
-                                                *   if this signal is not needed. */
+    /**< Set @ref NRF_DRV_SPIS_PIN_NOT_USED
+     *   if this signal is not needed. */
     uint32_t              mosi_pin;            //!< SPI MOSI pin (optional).
-                                               /**< Set @ref NRF_DRV_SPIS_PIN_NOT_USED
-                                                *   if this signal is not needed. */
+    /**< Set @ref NRF_DRV_SPIS_PIN_NOT_USED
+     *   if this signal is not needed. */
     uint32_t              sck_pin;             //!< SPI SCK pin.
     uint32_t              csn_pin;             //!< SPI CSN pin.
     nrf_drv_spis_mode_t   mode;                //!< SPI mode.
@@ -197,8 +191,8 @@ typedef void (*nrf_drv_spis_event_handler_t)(nrf_drv_spis_event_t event);
  *                                 possible only if PERIPHERAL_RESOURCE_SHARING_ENABLED
  *                                 is set to a value other than zero.
  */
-ret_code_t nrf_drv_spis_init(nrf_drv_spis_t const * const  p_instance,
-                             nrf_drv_spis_config_t const * p_config,
+ret_code_t nrf_drv_spis_init(nrf_drv_spis_t const *const  p_instance,
+                             nrf_drv_spis_config_t const *p_config,
                              nrf_drv_spis_event_handler_t  event_handler);
 
 /**
@@ -206,7 +200,7 @@ ret_code_t nrf_drv_spis_init(nrf_drv_spis_t const * const  p_instance,
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrf_drv_spis_uninit(nrf_drv_spis_t const * const p_instance);
+void nrf_drv_spis_uninit(nrf_drv_spis_t const *const p_instance);
 
 /** @brief Function for preparing the SPI slave instance for a single SPI transaction.
  *
@@ -240,10 +234,10 @@ void nrf_drv_spis_uninit(nrf_drv_spis_t const * const p_instance);
  *                                  RAM region.
  * @retval NRF_ERROR_INTERNAL       If the operation failed because of an internal error.
  */
-ret_code_t nrf_drv_spis_buffers_set(nrf_drv_spis_t const * const  p_instance,
-                                    const uint8_t * p_tx_buffer,
+ret_code_t nrf_drv_spis_buffers_set(nrf_drv_spis_t const *const  p_instance,
+                                    const uint8_t *p_tx_buffer,
                                     uint8_t   tx_buffer_length,
-                                    uint8_t * p_rx_buffer,
+                                    uint8_t *p_rx_buffer,
                                     uint8_t   rx_buffer_length);
 
 

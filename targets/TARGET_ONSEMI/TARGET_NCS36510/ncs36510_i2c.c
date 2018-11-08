@@ -63,7 +63,7 @@
 #include "mbed_wait_api.h"
 
 /* See i2c.h for details */
-void fI2cInit(i2c_t *obj,PinName sda,PinName scl)
+void fI2cInit(i2c_t *obj, PinName sda, PinName scl)
 {
     /* determine the I2C to use */
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
@@ -75,7 +75,7 @@ void fI2cInit(i2c_t *obj,PinName sda,PinName scl)
     obj->membase->IER.WORD = False;
 
     /* enable interrupt associated with the device */
-    if(obj->membase == I2C1REG) {
+    if (obj->membase == I2C1REG) {
         CLOCK_ENABLE(CLOCK_I2C);             /* enable i2c peripheral */
         NVIC_ClearPendingIRQ(I2C_IRQn);
         NVIC_EnableIRQ(I2C_IRQn);
@@ -103,8 +103,8 @@ void fI2cInit(i2c_t *obj,PinName sda,PinName scl)
     pin_mode(scl, OpenDrainPullUp);
 
     /* PAD drive strength */
-    PadReg_t *padRegSda = (PadReg_t*)(PADREG_BASE + (sda * PAD_REG_ADRS_BYTE_SIZE));
-    PadReg_t *padRegScl = (PadReg_t*)(PADREG_BASE + (scl * PAD_REG_ADRS_BYTE_SIZE));
+    PadReg_t *padRegSda = (PadReg_t *)(PADREG_BASE + (sda * PAD_REG_ADRS_BYTE_SIZE));
+    PadReg_t *padRegScl = (PadReg_t *)(PADREG_BASE + (scl * PAD_REG_ADRS_BYTE_SIZE));
 
     CLOCK_ENABLE(CLOCK_PAD);
     padRegSda->PADIO0.BITS.POWER = 3; /* sda: Drive strength */
@@ -158,11 +158,11 @@ int32_t fI2cReadB(i2c_t *obj, char *buf, int len)
 
     while (read < len) {
 
-        while(FIFO_OFL_CHECK); /* Wait till command overflow ends */
+        while (FIFO_OFL_CHECK); /* Wait till command overflow ends */
 
-    	/* Send read command */
+        /* Send read command */
         SEND_COMMAND(I2C_CMD_RDAT8);
-        while(!RD_DATA_READY) {
+        while (!RD_DATA_READY) {
             if (I2C_BUS_ERR_CHECK) {
                 /* Bus error occured */
                 return I2C_ERROR_BUS_BUSY;
@@ -170,7 +170,7 @@ int32_t fI2cReadB(i2c_t *obj, char *buf, int len)
         }
         buf[read++] = obj->membase->RD_FIFO_REG; /**< Reading 'read FIFO register' will clear status register */
 
-        if(!(read>=len)) {
+        if (!(read >= len)) {
             SEND_COMMAND(I2C_CMD_WDAT0);
         } else {
             /* No ack */
@@ -178,10 +178,10 @@ int32_t fI2cReadB(i2c_t *obj, char *buf, int len)
         }
 
         /* check for FIFO underflow */
-        if(I2C_UFL_CHECK) {
+        if (I2C_UFL_CHECK) {
             return I2C_EVENT_ERROR;
         }
-        if(I2C_BUS_ERR_CHECK) {
+        if (I2C_BUS_ERR_CHECK) {
             /* Bus error */
             return I2C_ERROR_BUS_BUSY;
         }
@@ -197,9 +197,9 @@ int32_t fI2cWriteB(i2c_t *obj, const char *buf, int len)
 
     while (write < len) {
 
-        while(FIFO_OFL_CHECK); /* Wait till command overflow ends */
+        while (FIFO_OFL_CHECK); /* Wait till command overflow ends */
 
-        if(buf[write] == I2C_CMD_RDAT8) {
+        if (buf[write] == I2C_CMD_RDAT8) {
             /* SW work around to counter FSM issue. If the only command in the CMD FIFO is the WDAT8 command (data of 0x13)
             then as the command is read out (i.e. the FIFO goes empty), the WDAT8 command will be misinterpreted as a
             RDAT8 command by the data FSM; resulting in an I2C bus error (NACK instead of an ACK). */

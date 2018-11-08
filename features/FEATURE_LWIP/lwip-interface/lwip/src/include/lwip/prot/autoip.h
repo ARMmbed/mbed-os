@@ -65,10 +65,10 @@ extern "C" {
 
 /* AutoIP client states */
 typedef enum {
-  AUTOIP_STATE_OFF        = 0,
-  AUTOIP_STATE_PROBING    = 1,
-  AUTOIP_STATE_ANNOUNCING = 2,
-  AUTOIP_STATE_BOUND      = 3
+    AUTOIP_STATE_OFF        = 0,
+    AUTOIP_STATE_PROBING    = 1,
+    AUTOIP_STATE_ANNOUNCING = 2,
+    AUTOIP_STATE_BOUND      = 3
 } autoip_state_enum_t;
 
 #ifdef __cplusplus

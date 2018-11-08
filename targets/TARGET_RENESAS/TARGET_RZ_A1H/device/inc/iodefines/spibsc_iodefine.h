@@ -148,9 +148,8 @@
 #define SPODLY_1 (SPIBSC1.SPODLY)
 
 
-typedef struct st_spibsc
-{
-                                                           /* SPIBSC           */
+typedef struct st_spibsc {
+    /* SPIBSC           */
     volatile uint32_t  CMNCR;                                  /*  CMNCR           */
     volatile uint32_t  SSLDR;                                  /*  SSLDR           */
     volatile uint32_t  SPBCR;                                  /*  SPBCR           */
@@ -169,7 +168,7 @@ typedef struct st_spibsc
     union iodefine_reg32_t  SMRDR1;                        /*  SMRDR1          */
     union iodefine_reg32_t  SMWDR0;                        /*  SMWDR0          */
     union iodefine_reg32_t  SMWDR1;                        /*  SMWDR1          */
-    
+
     volatile uint32_t  CMNSR;                                  /*  CMNSR           */
     volatile uint8_t   dummy2[4];                              /*                  */
     volatile uint32_t  CKDLY;                                  /*  CKDLY           */
@@ -184,10 +183,10 @@ typedef struct st_spibsc
 
 /* Channel array defines of SPIBSC (2)*/
 #ifdef  DECLARE_SPIBSC_CHANNELS
-volatile struct st_spibsc*  SPIBSC[ SPIBSC_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    SPIBSC_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_spibsc  *SPIBSC[ SPIBSC_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        SPIBSC_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_SPIBSC_CHANNELS */
 /* End of channel array defines of SPIBSC (2)*/
 

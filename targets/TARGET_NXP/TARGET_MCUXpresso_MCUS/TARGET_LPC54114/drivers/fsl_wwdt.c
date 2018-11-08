@@ -64,10 +64,8 @@ static uint32_t WWDT_GetInstance(WWDT_Type *base)
     uint32_t wwdtArrayCount = (sizeof(s_wwdtBases) / sizeof(s_wwdtBases[0]));
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < wwdtArrayCount; instance++)
-    {
-        if (s_wwdtBases[instance] == base)
-        {
+    for (instance = 0; instance < wwdtArrayCount; instance++) {
+        if (s_wwdtBases[instance] == base) {
             break;
         }
     }
@@ -147,14 +145,12 @@ void WWDT_ClearStatusFlags(WWDT_Type *base, uint32_t mask)
     uint32_t reg = (base->MOD & (~WWDT_MOD_WDINT_MASK));
 
     /* Clear timeout by writing a zero */
-    if (mask & kWWDT_TimeoutFlag)
-    {
+    if (mask & kWWDT_TimeoutFlag) {
         reg &= ~WWDT_MOD_WDTOF_MASK;
     }
 
     /* Clear warning interrupt flag by writing a one */
-    if (mask & kWWDT_WarningFlag)
-    {
+    if (mask & kWWDT_WarningFlag) {
         reg |= WWDT_MOD_WDINT_MASK;
     }
 

@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -18,7 +18,7 @@
 
 enum _IRQn_Type_ {
 #if 0
-/******  Cortex-M3 Processor Exceptions Numbers ********/  
+    /******  Cortex-M3 Processor Exceptions Numbers ********/
     NON_MASKABLE_INT_IRQ            = -14,
     HARD_FAULT_IRQ                  = -13,
     MEM_MANAGE_FAULT_IRQ            = -12,
@@ -28,8 +28,8 @@ enum _IRQn_Type_ {
     DEBUG_MONITOR_IRQ               = -4,
     PENDSVC_IRQ                     = -2,
     SYSTICK_IRQ                     = -1,
-#else    
-/******  Cortex-M3 Processor Exceptions Numbers ********/  
+#else
+    /******  Cortex-M3 Processor Exceptions Numbers ********/
     NonMaskableInt_IRQn             = -14,      /*!< 2 Non Maskable Interrupt                         */
     HardFault_IRQn                  = -13,              /*!<   3  Hard Fault, all classes of Fault                                 */
     MemoryManagement_IRQn           = -12,      /*!< 4 Cortex-M3 Memory Management Interrupt          */
@@ -40,7 +40,7 @@ enum _IRQn_Type_ {
     PendSV_IRQn                     = -2,       /*!< 14 Cortex-M3 Pend SV Interrupt                   */
     SysTick_IRQn                    = -1,       /*!< 15 Cortex-M3 System Tick Interrupt               */
 #endif
-/******  RTL8195A Specific Interrupt Numbers ************/
+    /******  RTL8195A Specific Interrupt Numbers ************/
     SYSTEM_ON_IRQ                   =  0,
     WDG_IRQ                         =  1,
     TIMER0_IRQ                      =  2,
@@ -59,7 +59,7 @@ enum _IRQn_Type_ {
     WL_DMA_IRQ                      =  15,
     WL_PROTOCOL_IRQ                 =  16,
     CRYPTO_IRQ                      =  17,
-    GMAC_IRQ						=  18,
+    GMAC_IRQ                        =  18,
     PERIPHERAL_IRQ                  =  19,
     GDMA0_CHANNEL0_IRQ              =  20,
     GDMA0_CHANNEL1_IRQ              =  21,
@@ -74,7 +74,7 @@ enum _IRQn_Type_ {
     GDMA1_CHANNEL4_IRQ              =  30,
     GDMA1_CHANNEL5_IRQ              =  31,
 
-/******  RTL8195A Peripheral Interrupt Numbers ************/
+    /******  RTL8195A Peripheral Interrupt Numbers ************/
     I2C0_IRQ                        =  64,// 0 + 64,
     I2C1_IRQ                        =  65,// 1 + 64,
     I2C2_IRQ                        =  66,// 2 + 64,
@@ -88,7 +88,7 @@ enum _IRQn_Type_ {
     DAC1_IRQ                        =  92,// 28 + 64,
     //RXI300_IRQ                      =  93// 29 + 64
     LP_EXTENSION_IRQ                =  93,// 29+64
-    
+
     PTA_TRX_IRQ                     =  95,// 31+64
     RXI300_IRQ                      =  96,// 0+32 + 64
     NFC_IRQ                         =  97// 1+32+64
@@ -97,9 +97,9 @@ typedef uint32_t IRQn_Type;
 typedef uint32_t *PIRQn_Type;
 
 
-typedef VOID (*HAL_VECTOR_FUN) (VOID);
+typedef VOID (*HAL_VECTOR_FUN)(VOID);
 
-enum _VECTOR_TABLE_TYPE_{
+enum _VECTOR_TABLE_TYPE_ {
     DEDECATED_VECTRO_TABLE,
     PERIPHERAL_VECTOR_TABLE
 };
@@ -114,7 +114,7 @@ typedef struct _IRQ_HANDLE_ {
     IRQn_Type   IrqNum;
     u32         Data;
     u32         Priority;
-}IRQ_HANDLE, *PIRQ_HANDLE, IRQ_Handle;
+} IRQ_HANDLE, *PIRQ_HANDLE, IRQ_Handle;
 
 
 #endif //_HAL_IRQN_H_

@@ -169,67 +169,66 @@ typedef void (*hpalBlepStartupCback_t)(bool_t ok);
  *  \brief  Storage callbacks invoked during startup to read patch and trim data.
  */
 /*************************************************************************************************/
-typedef struct
-{
-  /***********************************************************************************************/
-  /*!
-   *  \brief  Setup device for reading from beginning of blob storage.
-   *
-   *  \param  pContext    Context given to HpalBlepStart()
-   *
-   *  \return TRUE if successful
-   */
-  /***********************************************************************************************/
-  bool_t (*StartStorage)(void *pContext);
+typedef struct {
+    /***********************************************************************************************/
+    /*!
+     *  \brief  Setup device for reading from beginning of blob storage.
+     *
+     *  \param  pContext    Context given to HpalBlepStart()
+     *
+     *  \return TRUE if successful
+     */
+    /***********************************************************************************************/
+    bool_t (*StartStorage)(void *pContext);
 
-  /***********************************************************************************************/
-  /*!
-   *  \brief  Storage device is no longer needed, so it can be powered down.
-   *
-   *  \param  pContext    Context given to HpalBlepStart()
-   *
-   *  \return TRUE if successful
-   */
-  /***********************************************************************************************/
-  bool_t (*EndStorage)(void *pContext);
+    /***********************************************************************************************/
+    /*!
+     *  \brief  Storage device is no longer needed, so it can be powered down.
+     *
+     *  \param  pContext    Context given to HpalBlepStart()
+     *
+     *  \return TRUE if successful
+     */
+    /***********************************************************************************************/
+    bool_t (*EndStorage)(void *pContext);
 
-  /***********************************************************************************************/
-  /*!
-   *  \brief  Read next blob header from storage device.
-   *
-   *  \param  pContext    Context given to HpalBlepStart()
-   *  \param  pHdr        Pointer to structure that will receive header
-   *
-   *  \return TRUE if successful
-   */
-  /***********************************************************************************************/
-  bool_t (*ReadNextBlobHeader)(void *pContext, hpalBlepBlobHeader_t *pHdr);
+    /***********************************************************************************************/
+    /*!
+     *  \brief  Read next blob header from storage device.
+     *
+     *  \param  pContext    Context given to HpalBlepStart()
+     *  \param  pHdr        Pointer to structure that will receive header
+     *
+     *  \return TRUE if successful
+     */
+    /***********************************************************************************************/
+    bool_t (*ReadNextBlobHeader)(void *pContext, hpalBlepBlobHeader_t *pHdr);
 
-  /***********************************************************************************************/
-  /*!
-   *  \brief  Read more data from current blob at current offset.  Reading data advances the
-   *          offset.
-   *
-   *  \param  pContext    Context given to HpalBlep_Startup()
-   *  \param  pData       Storage for data
-   *  \param  length      Number of bytes to read
-   *
-   *  \return TRUE if successful
-   */
-  /***********************************************************************************************/
-  bool_t (*ReadMoreBlobData)(void *pContext, uint8_t *pData, uint32_t length);
+    /***********************************************************************************************/
+    /*!
+     *  \brief  Read more data from current blob at current offset.  Reading data advances the
+     *          offset.
+     *
+     *  \param  pContext    Context given to HpalBlep_Startup()
+     *  \param  pData       Storage for data
+     *  \param  length      Number of bytes to read
+     *
+     *  \return TRUE if successful
+     */
+    /***********************************************************************************************/
+    bool_t (*ReadMoreBlobData)(void *pContext, uint8_t *pData, uint32_t length);
 
-  /***********************************************************************************************/
-  /*!
-   * \brief   Advance the offset of the current blob.
-   *
-   * \param   pContext    Context given to HpalBlep_Startup()
-   * \param   length      Number of bytes to skip
-   *
-   * \return  TRUE if successful
-   */
-  /***********************************************************************************************/
-  bool_t (*SkipBlobData)(void *pContext, uint32_t length);
+    /***********************************************************************************************/
+    /*!
+     * \brief   Advance the offset of the current blob.
+     *
+     * \param   pContext    Context given to HpalBlep_Startup()
+     * \param   length      Number of bytes to skip
+     *
+     * \return  TRUE if successful
+     */
+    /***********************************************************************************************/
+    bool_t (*SkipBlobData)(void *pContext, uint32_t length);
 } hpalBlepStorageCbacks_t;
 
 /**************************************************************************************************

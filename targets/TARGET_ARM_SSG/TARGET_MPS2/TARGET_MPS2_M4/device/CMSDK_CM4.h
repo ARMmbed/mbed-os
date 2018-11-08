@@ -40,58 +40,57 @@
 #define CMSDK_CM4_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 
 /* -------------------------  Interrupt Number Definition  ------------------------ */
 
-typedef enum IRQn
-{
-/* -------------------  Cortex-M3 Processor Exceptions Numbers  ------------------- */
-  NonMaskableInt_IRQn           = -14,        /*  2 Non Maskable Interrupt          */
-  HardFault_IRQn                = -13,        /*  3 HardFault Interrupt             */
-  MemoryManagement_IRQn         = -12,        /*  4 Memory Management Interrupt     */
-  BusFault_IRQn                 = -11,        /*  5 Bus Fault Interrupt             */
-  UsageFault_IRQn               = -10,        /*  6 Usage Fault Interrupt           */
-  SVCall_IRQn                   =  -5,        /* 11 SV Call Interrupt               */
-  DebugMonitor_IRQn             =  -4,        /* 12 Debug Monitor Interrupt         */
-  PendSV_IRQn                   =  -2,        /* 14 Pend SV Interrupt               */
-  SysTick_IRQn                  =  -1,        /* 15 System Tick Interrupt           */
+typedef enum IRQn {
+    /* -------------------  Cortex-M3 Processor Exceptions Numbers  ------------------- */
+    NonMaskableInt_IRQn           = -14,        /*  2 Non Maskable Interrupt          */
+    HardFault_IRQn                = -13,        /*  3 HardFault Interrupt             */
+    MemoryManagement_IRQn         = -12,        /*  4 Memory Management Interrupt     */
+    BusFault_IRQn                 = -11,        /*  5 Bus Fault Interrupt             */
+    UsageFault_IRQn               = -10,        /*  6 Usage Fault Interrupt           */
+    SVCall_IRQn                   =  -5,        /* 11 SV Call Interrupt               */
+    DebugMonitor_IRQn             =  -4,        /* 12 Debug Monitor Interrupt         */
+    PendSV_IRQn                   =  -2,        /* 14 Pend SV Interrupt               */
+    SysTick_IRQn                  =  -1,        /* 15 System Tick Interrupt           */
 
-/******  CMSDK Specific Interrupt Numbers *********************************************************/
-  UARTRX0_IRQn                  = 0,       /*!< UART 0 RX Interrupt                               */
-  UARTTX0_IRQn                  = 1,       /*!< UART 0 TX Interrupt                               */
-  UARTRX1_IRQn                  = 2,       /*!< UART 1 RX Interrupt                               */
-  UARTTX1_IRQn                  = 3,       /*!< UART 1 TX Interrupt                               */
-  UARTRX2_IRQn                  = 4,       /*!< UART 2 RX Interrupt                               */
-  UARTTX2_IRQn                  = 5,       /*!< UART 2 TX Interrupt                               */
-  PORT0_ALL_IRQn                = 6,       /*!< Port 0 combined Interrupt                         */
-  PORT1_ALL_IRQn                = 7,       /*!< Port 1 combined Interrupt                         */
-  TIMER0_IRQn                   = 8,       /*!< TIMER 0 Interrupt                                 */
-  TIMER1_IRQn                   = 9,       /*!< TIMER 1 Interrupt                                 */
-  DUALTIMER_IRQn                = 10,      /*!< Dual Timer Interrupt                              */
-  SPI_IRQn                      = 11,      /*!< SPI Interrupt                                     */
-  UARTOVF_IRQn                  = 12,      /*!< UART 0,1,2 Overflow Interrupt                     */
-  ETHERNET_IRQn                 = 13,      /*!< Ethernet Interrupt                                */
-  I2S_IRQn                      = 14,      /*!< I2S Interrupt                                     */
-  TSC_IRQn                      = 15,      /*!< Touch Screen Interrupt                            */
-  PORT2_ALL_IRQn                = 16,      /*!< Port 2 combined Interrupt                         */
-  PORT3_ALL_IRQn                = 17,      /*!< Port 3 combined Interrupt                         */
-  UARTRX3_IRQn                  = 18,      /*!< UART 3 RX Interrupt                               */
-  UARTTX3_IRQn                  = 19,      /*!< UART 3 TX Interrupt                               */
-  UARTRX4_IRQn                  = 20,      /*!< UART 4 RX Interrupt                               */
-  UARTTX4_IRQn                  = 21,      /*!< UART 4 TX Interrupt                               */
-  ADCSPI_IRQn                   = 22,      /*!< SHIELD ADC SPI Interrupt                          */
-  SHIELDSPI_IRQn                = 23,      /*!< SHIELD SPI Combined Interrupt                     */
-  PORT0_0_IRQn                  = 24,      /*!<  GPIO Port 0 pin 0 Interrupt                      */
-  PORT0_1_IRQn                  = 25,      /*!<  GPIO Port 0 pin 1 Interrupt                      */
-  PORT0_2_IRQn                  = 26,      /*!<  GPIO Port 0 pin 2 Interrupt                      */
-  PORT0_3_IRQn                  = 27,      /*!<  GPIO Port 0 pin 3 Interrupt                      */
-  PORT0_4_IRQn                  = 28,      /*!<  GPIO Port 0 pin 4 Interrupt                      */
-  PORT0_5_IRQn                  = 29,      /*!<  GPIO Port 0 pin 5 Interrupt                      */
-  PORT0_6_IRQn                  = 30,      /*!<  GPIO Port 0 pin 6 Interrupt                      */
-  PORT0_7_IRQn                  = 31,      /*!<  GPIO Port 0 pin 7 Interrupt                      */
+    /******  CMSDK Specific Interrupt Numbers *********************************************************/
+    UARTRX0_IRQn                  = 0,       /*!< UART 0 RX Interrupt                               */
+    UARTTX0_IRQn                  = 1,       /*!< UART 0 TX Interrupt                               */
+    UARTRX1_IRQn                  = 2,       /*!< UART 1 RX Interrupt                               */
+    UARTTX1_IRQn                  = 3,       /*!< UART 1 TX Interrupt                               */
+    UARTRX2_IRQn                  = 4,       /*!< UART 2 RX Interrupt                               */
+    UARTTX2_IRQn                  = 5,       /*!< UART 2 TX Interrupt                               */
+    PORT0_ALL_IRQn                = 6,       /*!< Port 0 combined Interrupt                         */
+    PORT1_ALL_IRQn                = 7,       /*!< Port 1 combined Interrupt                         */
+    TIMER0_IRQn                   = 8,       /*!< TIMER 0 Interrupt                                 */
+    TIMER1_IRQn                   = 9,       /*!< TIMER 1 Interrupt                                 */
+    DUALTIMER_IRQn                = 10,      /*!< Dual Timer Interrupt                              */
+    SPI_IRQn                      = 11,      /*!< SPI Interrupt                                     */
+    UARTOVF_IRQn                  = 12,      /*!< UART 0,1,2 Overflow Interrupt                     */
+    ETHERNET_IRQn                 = 13,      /*!< Ethernet Interrupt                                */
+    I2S_IRQn                      = 14,      /*!< I2S Interrupt                                     */
+    TSC_IRQn                      = 15,      /*!< Touch Screen Interrupt                            */
+    PORT2_ALL_IRQn                = 16,      /*!< Port 2 combined Interrupt                         */
+    PORT3_ALL_IRQn                = 17,      /*!< Port 3 combined Interrupt                         */
+    UARTRX3_IRQn                  = 18,      /*!< UART 3 RX Interrupt                               */
+    UARTTX3_IRQn                  = 19,      /*!< UART 3 TX Interrupt                               */
+    UARTRX4_IRQn                  = 20,      /*!< UART 4 RX Interrupt                               */
+    UARTTX4_IRQn                  = 21,      /*!< UART 4 TX Interrupt                               */
+    ADCSPI_IRQn                   = 22,      /*!< SHIELD ADC SPI Interrupt                          */
+    SHIELDSPI_IRQn                = 23,      /*!< SHIELD SPI Combined Interrupt                     */
+    PORT0_0_IRQn                  = 24,      /*!<  GPIO Port 0 pin 0 Interrupt                      */
+    PORT0_1_IRQn                  = 25,      /*!<  GPIO Port 0 pin 1 Interrupt                      */
+    PORT0_2_IRQn                  = 26,      /*!<  GPIO Port 0 pin 2 Interrupt                      */
+    PORT0_3_IRQn                  = 27,      /*!<  GPIO Port 0 pin 3 Interrupt                      */
+    PORT0_4_IRQn                  = 28,      /*!<  GPIO Port 0 pin 4 Interrupt                      */
+    PORT0_5_IRQn                  = 29,      /*!<  GPIO Port 0 pin 5 Interrupt                      */
+    PORT0_6_IRQn                  = 30,      /*!<  GPIO Port 0 pin 6 Interrupt                      */
+    PORT0_7_IRQn                  = 31,      /*!<  GPIO Port 0 pin 7 Interrupt                      */
 } IRQn_Type;
 
 
@@ -132,16 +131,15 @@ typedef enum IRQn
   memory mapped structure for CMSDK_UART
   @{
 */
-typedef struct
-{
-  __IO   uint32_t  DATA;          /*!< Offset: 0x000 Data Register    (R/W) */
-  __IO   uint32_t  STATE;         /*!< Offset: 0x004 Status Register  (R/W) */
-  __IO   uint32_t  CTRL;          /*!< Offset: 0x008 Control Register (R/W) */
-  union {
-    __I    uint32_t  INTSTATUS;   /*!< Offset: 0x00C Interrupt Status Register (R/ ) */
-    __O    uint32_t  INTCLEAR;    /*!< Offset: 0x00C Interrupt Clear Register ( /W) */
+typedef struct {
+    __IO   uint32_t  DATA;          /*!< Offset: 0x000 Data Register    (R/W) */
+    __IO   uint32_t  STATE;         /*!< Offset: 0x004 Status Register  (R/W) */
+    __IO   uint32_t  CTRL;          /*!< Offset: 0x008 Control Register (R/W) */
+    union {
+        __I    uint32_t  INTSTATUS;   /*!< Offset: 0x00C Interrupt Status Register (R/ ) */
+        __O    uint32_t  INTCLEAR;    /*!< Offset: 0x00C Interrupt Clear Register ( /W) */
     };
-  __IO   uint32_t  BAUDDIV;       /*!< Offset: 0x010 Baudrate Divider Register (R/W) */
+    __IO   uint32_t  BAUDDIV;       /*!< Offset: 0x010 Baudrate Divider Register (R/W) */
 
 } CMSDK_UART_TypeDef;
 
@@ -205,14 +203,13 @@ typedef struct
 /** @addtogroup CMSDK_TIMER CMSDK Timer
   @{
 */
-typedef struct
-{
-  __IO   uint32_t  CTRL;          /*!< Offset: 0x000 Control Register (R/W) */
-  __IO   uint32_t  VALUE;         /*!< Offset: 0x004 Current Value Register (R/W) */
-  __IO   uint32_t  RELOAD;        /*!< Offset: 0x008 Reload Value Register  (R/W) */
-  union {
-    __I    uint32_t  INTSTATUS;   /*!< Offset: 0x00C Interrupt Status Register (R/ ) */
-    __O    uint32_t  INTCLEAR;    /*!< Offset: 0x00C Interrupt Clear Register ( /W) */
+typedef struct {
+    __IO   uint32_t  CTRL;          /*!< Offset: 0x000 Control Register (R/W) */
+    __IO   uint32_t  VALUE;         /*!< Offset: 0x004 Current Value Register (R/W) */
+    __IO   uint32_t  RELOAD;        /*!< Offset: 0x008 Reload Value Register  (R/W) */
+    union {
+        __I    uint32_t  INTSTATUS;   /*!< Offset: 0x00C Interrupt Status Register (R/ ) */
+        __O    uint32_t  INTCLEAR;    /*!< Offset: 0x00C Interrupt Clear Register ( /W) */
     };
 
 } CMSDK_TIMER_TypeDef;
@@ -253,60 +250,59 @@ typedef struct
   @{
 */
 
-typedef struct
-{
-  __IO uint32_t Timer1Load;                  /* Offset: 0x000 (R/W) Timer 1 Load */
-  __I  uint32_t Timer1Value;                 /* Offset: 0x004 (R/ ) Timer 1 Counter Current Value */
-  __IO uint32_t Timer1Control;               /* Offset: 0x008 (R/W) Timer 1 Control */
-                                             /* <o.7> TimerEn: Timer Enable         */
-                                             /* <o.6> TimerMode: Timer Mode         */
-                                             /*   <0=> Freerunning-mode             */
-                                             /*   <1=> Periodic mode                */
-                                             /* <o.5> IntEnable: Interrupt Enable   */
-                                             /* <o.2..3> TimerPre: Timer Prescale   */
-                                             /*   <0=> / 1                          */
-                                             /*   <1=> / 16                         */
-                                             /*   <2=> / 256                        */
-                                             /*   <3=> Undefined!                   */
-                                             /* <o.1> TimerSize: Timer Size         */
-                                             /*   <0=> 16-bit counter               */
-                                             /*   <1=> 32-bit counter               */
-                                             /* <o.0> OneShot: One-shoot mode       */
-                                             /*   <0=> Wrapping mode                */
-                                             /*   <1=> One-shot mode                */
-                                             /* </h>                                */
-  __O  uint32_t Timer1IntClr;                /* Offset: 0x00C ( /W) Timer 1 Interrupt Clear */
-  __I  uint32_t Timer1RIS;                   /* Offset: 0x010 (R/ ) Timer 1 Raw Interrupt Status */
-  __I  uint32_t Timer1MIS;                   /* Offset: 0x014 (R/ ) Timer 1 Masked Interrupt Status */
-  __IO uint32_t Timer1BGLoad;                /* Offset: 0x018 (R/W) Background Load Register */
-       uint32_t RESERVED0;
-  __IO uint32_t Timer2Load;                  /* Offset: 0x020 (R/W) Timer 2 Load */
-  __I  uint32_t Timer2Value;                 /* Offset: 0x024 (R/ ) Timer 2 Counter Current Value */
-  __IO uint32_t Timer2Control;               /* Offset: 0x028 (R/W) Timer 2 Control */
-                                             /* <o.7> TimerEn: Timer Enable         */
-                                             /* <o.6> TimerMode: Timer Mode         */
-                                             /*   <0=> Freerunning-mode             */
-                                             /*   <1=> Periodic mode                */
-                                             /* <o.5> IntEnable: Interrupt Enable   */
-                                             /* <o.2..3> TimerPre: Timer Prescale   */
-                                             /*   <0=> / 1                          */
-                                             /*   <1=> / 16                         */
-                                             /*   <2=> / 256                        */
-                                             /*   <3=> Undefined!                   */
-                                             /* <o.1> TimerSize: Timer Size         */
-                                             /*   <0=> 16-bit counter               */
-                                             /*   <1=> 32-bit counter               */
-                                             /* <o.0> OneShot: One-shoot mode       */
-                                             /*   <0=> Wrapping mode                */
-                                             /*   <1=> One-shot mode                */
-                                             /* </h>                                */
-  __O  uint32_t Timer2IntClr;                /* Offset: 0x02C ( /W) Timer 2 Interrupt Clear */
-  __I  uint32_t Timer2RIS;                   /* Offset: 0x030 (R/ ) Timer 2 Raw Interrupt Status */
-  __I  uint32_t Timer2MIS;                   /* Offset: 0x034 (R/ ) Timer 2 Masked Interrupt Status */
-  __IO uint32_t Timer2BGLoad;                /* Offset: 0x038 (R/W) Background Load Register */
-       uint32_t RESERVED1[945];
-  __IO uint32_t ITCR;                        /* Offset: 0xF00 (R/W) Integration Test Control Register */
-  __O  uint32_t ITOP;                        /* Offset: 0xF04 ( /W) Integration Test Output Set Register */
+typedef struct {
+    __IO uint32_t Timer1Load;                  /* Offset: 0x000 (R/W) Timer 1 Load */
+    __I  uint32_t Timer1Value;                 /* Offset: 0x004 (R/ ) Timer 1 Counter Current Value */
+    __IO uint32_t Timer1Control;               /* Offset: 0x008 (R/W) Timer 1 Control */
+    /* <o.7> TimerEn: Timer Enable         */
+    /* <o.6> TimerMode: Timer Mode         */
+    /*   <0=> Freerunning-mode             */
+    /*   <1=> Periodic mode                */
+    /* <o.5> IntEnable: Interrupt Enable   */
+    /* <o.2..3> TimerPre: Timer Prescale   */
+    /*   <0=> / 1                          */
+    /*   <1=> / 16                         */
+    /*   <2=> / 256                        */
+    /*   <3=> Undefined!                   */
+    /* <o.1> TimerSize: Timer Size         */
+    /*   <0=> 16-bit counter               */
+    /*   <1=> 32-bit counter               */
+    /* <o.0> OneShot: One-shoot mode       */
+    /*   <0=> Wrapping mode                */
+    /*   <1=> One-shot mode                */
+    /* </h>                                */
+    __O  uint32_t Timer1IntClr;                /* Offset: 0x00C ( /W) Timer 1 Interrupt Clear */
+    __I  uint32_t Timer1RIS;                   /* Offset: 0x010 (R/ ) Timer 1 Raw Interrupt Status */
+    __I  uint32_t Timer1MIS;                   /* Offset: 0x014 (R/ ) Timer 1 Masked Interrupt Status */
+    __IO uint32_t Timer1BGLoad;                /* Offset: 0x018 (R/W) Background Load Register */
+    uint32_t RESERVED0;
+    __IO uint32_t Timer2Load;                  /* Offset: 0x020 (R/W) Timer 2 Load */
+    __I  uint32_t Timer2Value;                 /* Offset: 0x024 (R/ ) Timer 2 Counter Current Value */
+    __IO uint32_t Timer2Control;               /* Offset: 0x028 (R/W) Timer 2 Control */
+    /* <o.7> TimerEn: Timer Enable         */
+    /* <o.6> TimerMode: Timer Mode         */
+    /*   <0=> Freerunning-mode             */
+    /*   <1=> Periodic mode                */
+    /* <o.5> IntEnable: Interrupt Enable   */
+    /* <o.2..3> TimerPre: Timer Prescale   */
+    /*   <0=> / 1                          */
+    /*   <1=> / 16                         */
+    /*   <2=> / 256                        */
+    /*   <3=> Undefined!                   */
+    /* <o.1> TimerSize: Timer Size         */
+    /*   <0=> 16-bit counter               */
+    /*   <1=> 32-bit counter               */
+    /* <o.0> OneShot: One-shoot mode       */
+    /*   <0=> Wrapping mode                */
+    /*   <1=> One-shot mode                */
+    /* </h>                                */
+    __O  uint32_t Timer2IntClr;                /* Offset: 0x02C ( /W) Timer 2 Interrupt Clear */
+    __I  uint32_t Timer2RIS;                   /* Offset: 0x030 (R/ ) Timer 2 Raw Interrupt Status */
+    __I  uint32_t Timer2MIS;                   /* Offset: 0x034 (R/ ) Timer 2 Masked Interrupt Status */
+    __IO uint32_t Timer2BGLoad;                /* Offset: 0x038 (R/W) Background Load Register */
+    uint32_t RESERVED1[945];
+    __IO uint32_t ITCR;                        /* Offset: 0xF00 (R/W) Integration Test Control Register */
+    __O  uint32_t ITOP;                        /* Offset: 0xF04 ( /W) Integration Test Output Set Register */
 } CMSDK_DUALTIMER_BOTH_TypeDef;
 
 #define CMSDK_DUALTIMER1_LOAD_Pos            0                                               /*!< CMSDK_DUALTIMER1 LOAD: LOAD Position */
@@ -381,32 +377,31 @@ typedef struct
 #define CMSDK_DUALTIMER2_BGLOAD_Pos          0                                               /*!< CMSDK_DUALTIMER2 BGLOAD: Background Load Position */
 #define CMSDK_DUALTIMER2_BGLOAD_Msk          (0xFFFFFFFFul << CMSDK_DUALTIMER2_BGLOAD_Pos)   /*!< CMSDK_DUALTIMER2 BGLOAD: Background Load Mask */
 
-typedef struct
-{
-  __IO uint32_t TimerLoad;                   /* Offset: 0x000 (R/W) Timer Load */
-  __I  uint32_t TimerValue;                  /* Offset: 0x000 (R/W) Timer Counter Current Value */
-  __IO uint32_t TimerControl;                /* Offset: 0x000 (R/W) Timer Control */
-                                             /* <o.7> TimerEn: Timer Enable         */
-                                             /* <o.6> TimerMode: Timer Mode         */
-                                             /*   <0=> Freerunning-mode             */
-                                             /*   <1=> Periodic mode                */
-                                             /* <o.5> IntEnable: Interrupt Enable   */
-                                             /* <o.2..3> TimerPre: Timer Prescale   */
-                                             /*   <0=> / 1                          */
-                                             /*   <1=> / 16                         */
-                                             /*   <2=> / 256                        */
-                                             /*   <3=> Undefined!                   */
-                                             /* <o.1> TimerSize: Timer Size         */
-                                             /*   <0=> 16-bit counter               */
-                                             /*   <1=> 32-bit counter               */
-                                             /* <o.0> OneShot: One-shoot mode       */
-                                             /*   <0=> Wrapping mode                */
-                                             /*   <1=> One-shot mode                */
-                                             /* </h>                                */
-  __O  uint32_t TimerIntClr;                 /* Offset: 0x000 (R/W) Timer Interrupt Clear */
-  __I  uint32_t TimerRIS;                    /* Offset: 0x000 (R/W) Timer Raw Interrupt Status */
-  __I  uint32_t TimerMIS;                    /* Offset: 0x000 (R/W) Timer Masked Interrupt Status */
-  __IO uint32_t TimerBGLoad;                 /* Offset: 0x000 (R/W) Background Load Register */
+typedef struct {
+    __IO uint32_t TimerLoad;                   /* Offset: 0x000 (R/W) Timer Load */
+    __I  uint32_t TimerValue;                  /* Offset: 0x000 (R/W) Timer Counter Current Value */
+    __IO uint32_t TimerControl;                /* Offset: 0x000 (R/W) Timer Control */
+    /* <o.7> TimerEn: Timer Enable         */
+    /* <o.6> TimerMode: Timer Mode         */
+    /*   <0=> Freerunning-mode             */
+    /*   <1=> Periodic mode                */
+    /* <o.5> IntEnable: Interrupt Enable   */
+    /* <o.2..3> TimerPre: Timer Prescale   */
+    /*   <0=> / 1                          */
+    /*   <1=> / 16                         */
+    /*   <2=> / 256                        */
+    /*   <3=> Undefined!                   */
+    /* <o.1> TimerSize: Timer Size         */
+    /*   <0=> 16-bit counter               */
+    /*   <1=> 32-bit counter               */
+    /* <o.0> OneShot: One-shoot mode       */
+    /*   <0=> Wrapping mode                */
+    /*   <1=> One-shot mode                */
+    /* </h>                                */
+    __O  uint32_t TimerIntClr;                 /* Offset: 0x000 (R/W) Timer Interrupt Clear */
+    __I  uint32_t TimerRIS;                    /* Offset: 0x000 (R/W) Timer Raw Interrupt Status */
+    __I  uint32_t TimerMIS;                    /* Offset: 0x000 (R/W) Timer Masked Interrupt Status */
+    __IO uint32_t TimerBGLoad;                 /* Offset: 0x000 (R/W) Background Load Register */
 } CMSDK_DUALTIMER_SINGLE_TypeDef;
 
 #define CMSDK_DUALTIMER_LOAD_Pos             0                                               /*!< CMSDK_DUALTIMER LOAD: LOAD Position */
@@ -452,28 +447,27 @@ typedef struct
 /** @addtogroup CMSDK_GPIO CMSDK GPIO
   @{
 */
-typedef struct
-{
-  __IO   uint32_t  DATA;                     /* Offset: 0x000 (R/W) DATA Register */
-  __IO   uint32_t  DATAOUT;                  /* Offset: 0x004 (R/W) Data Output Latch Register */
-         uint32_t  RESERVED0[2];
-  __IO   uint32_t  OUTENABLESET;             /* Offset: 0x010 (R/W) Output Enable Set Register */
-  __IO   uint32_t  OUTENABLECLR;             /* Offset: 0x014 (R/W) Output Enable Clear Register */
-  __IO   uint32_t  ALTFUNCSET;               /* Offset: 0x018 (R/W) Alternate Function Set Register */
-  __IO   uint32_t  ALTFUNCCLR;               /* Offset: 0x01C (R/W) Alternate Function Clear Register */
-  __IO   uint32_t  INTENSET;                 /* Offset: 0x020 (R/W) Interrupt Enable Set Register */
-  __IO   uint32_t  INTENCLR;                 /* Offset: 0x024 (R/W) Interrupt Enable Clear Register */
-  __IO   uint32_t  INTTYPESET;               /* Offset: 0x028 (R/W) Interrupt Type Set Register */
-  __IO   uint32_t  INTTYPECLR;               /* Offset: 0x02C (R/W) Interrupt Type Clear Register */
-  __IO   uint32_t  INTPOLSET;                /* Offset: 0x030 (R/W) Interrupt Polarity Set Register */
-  __IO   uint32_t  INTPOLCLR;                /* Offset: 0x034 (R/W) Interrupt Polarity Clear Register */
-  union {
-    __I    uint32_t  INTSTATUS;              /* Offset: 0x038 (R/ ) Interrupt Status Register */
-    __O    uint32_t  INTCLEAR;               /* Offset: 0x038 ( /W) Interrupt Clear Register */
+typedef struct {
+    __IO   uint32_t  DATA;                     /* Offset: 0x000 (R/W) DATA Register */
+    __IO   uint32_t  DATAOUT;                  /* Offset: 0x004 (R/W) Data Output Latch Register */
+    uint32_t  RESERVED0[2];
+    __IO   uint32_t  OUTENABLESET;             /* Offset: 0x010 (R/W) Output Enable Set Register */
+    __IO   uint32_t  OUTENABLECLR;             /* Offset: 0x014 (R/W) Output Enable Clear Register */
+    __IO   uint32_t  ALTFUNCSET;               /* Offset: 0x018 (R/W) Alternate Function Set Register */
+    __IO   uint32_t  ALTFUNCCLR;               /* Offset: 0x01C (R/W) Alternate Function Clear Register */
+    __IO   uint32_t  INTENSET;                 /* Offset: 0x020 (R/W) Interrupt Enable Set Register */
+    __IO   uint32_t  INTENCLR;                 /* Offset: 0x024 (R/W) Interrupt Enable Clear Register */
+    __IO   uint32_t  INTTYPESET;               /* Offset: 0x028 (R/W) Interrupt Type Set Register */
+    __IO   uint32_t  INTTYPECLR;               /* Offset: 0x02C (R/W) Interrupt Type Clear Register */
+    __IO   uint32_t  INTPOLSET;                /* Offset: 0x030 (R/W) Interrupt Polarity Set Register */
+    __IO   uint32_t  INTPOLCLR;                /* Offset: 0x034 (R/W) Interrupt Polarity Clear Register */
+    union {
+        __I    uint32_t  INTSTATUS;              /* Offset: 0x038 (R/ ) Interrupt Status Register */
+        __O    uint32_t  INTCLEAR;               /* Offset: 0x038 ( /W) Interrupt Clear Register */
     };
-         uint32_t RESERVED1[241];
-  __IO   uint32_t LB_MASKED[256];            /* Offset: 0x400 - 0x7FC Lower byte Masked Access Register (R/W) */
-  __IO   uint32_t UB_MASKED[256];            /* Offset: 0x800 - 0xBFC Upper byte Masked Access Register (R/W) */
+    uint32_t RESERVED1[241];
+    __IO   uint32_t LB_MASKED[256];            /* Offset: 0x400 - 0x7FC Lower byte Masked Access Register (R/W) */
+    __IO   uint32_t UB_MASKED[256];            /* Offset: 0x800 - 0xBFC Upper byte Masked Access Register (R/W) */
 } CMSDK_GPIO_TypeDef;
 
 #define CMSDK_GPIO_DATA_Pos            0                                          /*!< CMSDK_GPIO DATA: DATA Position */
@@ -531,13 +525,12 @@ typedef struct
 /** @addtogroup CMSDK_SYSCON CMSDK System Control
   @{
 */
-typedef struct
-{
-  __IO   uint32_t  REMAP;                    /* Offset: 0x000 (R/W) Remap Control Register */
-  __IO   uint32_t  PMUCTRL;                  /* Offset: 0x004 (R/W) PMU Control Register */
-  __IO   uint32_t  RESETOP;                  /* Offset: 0x008 (R/W) Reset Option Register */
-  __IO   uint32_t  EMICTRL;                  /* Offset: 0x00C (R/W) EMI Control Register */
-  __IO   uint32_t  RSTINFO;                  /* Offset: 0x010 (R/W) Reset Information Register */
+typedef struct {
+    __IO   uint32_t  REMAP;                    /* Offset: 0x000 (R/W) Remap Control Register */
+    __IO   uint32_t  PMUCTRL;                  /* Offset: 0x004 (R/W) PMU Control Register */
+    __IO   uint32_t  RESETOP;                  /* Offset: 0x008 (R/W) Reset Option Register */
+    __IO   uint32_t  EMICTRL;                  /* Offset: 0x00C (R/W) EMI Control Register */
+    __IO   uint32_t  RSTINFO;                  /* Offset: 0x010 (R/W) Reset Information Register */
 } CMSDK_SYSCON_TypeDef;
 
 #define CMSDK_SYSCON_REMAP_Pos                 0
@@ -576,26 +569,25 @@ typedef struct
 /** @addtogroup CMSDK_PL230 CMSDK uDMA controller
   @{
 */
-typedef struct
-{
-  __I    uint32_t  DMA_STATUS;               /* Offset: 0x000 (R/W) DMA status Register */
-  __O    uint32_t  DMA_CFG;                  /* Offset: 0x004 ( /W) DMA configuration Register */
-  __IO   uint32_t  CTRL_BASE_PTR;            /* Offset: 0x008 (R/W) Channel Control Data Base Pointer Register */
-  __I    uint32_t  ALT_CTRL_BASE_PTR;        /* Offset: 0x00C (R/ ) Channel Alternate Control Data Base Pointer Register */
-  __I    uint32_t  DMA_WAITONREQ_STATUS;     /* Offset: 0x010 (R/ ) Channel Wait On Request Status Register */
-  __O    uint32_t  CHNL_SW_REQUEST;          /* Offset: 0x014 ( /W) Channel Software Request Register */
-  __IO   uint32_t  CHNL_USEBURST_SET;        /* Offset: 0x018 (R/W) Channel UseBurst Set Register */
-  __O    uint32_t  CHNL_USEBURST_CLR;        /* Offset: 0x01C ( /W) Channel UseBurst Clear Register */
-  __IO   uint32_t  CHNL_REQ_MASK_SET;        /* Offset: 0x020 (R/W) Channel Request Mask Set Register */
-  __O    uint32_t  CHNL_REQ_MASK_CLR;        /* Offset: 0x024 ( /W) Channel Request Mask Clear Register */
-  __IO   uint32_t  CHNL_ENABLE_SET;          /* Offset: 0x028 (R/W) Channel Enable Set Register */
-  __O    uint32_t  CHNL_ENABLE_CLR;          /* Offset: 0x02C ( /W) Channel Enable Clear Register */
-  __IO   uint32_t  CHNL_PRI_ALT_SET;         /* Offset: 0x030 (R/W) Channel Primary-Alterante Set Register */
-  __O    uint32_t  CHNL_PRI_ALT_CLR;         /* Offset: 0x034 ( /W) Channel Primary-Alterante Clear Register */
-  __IO   uint32_t  CHNL_PRIORITY_SET;        /* Offset: 0x038 (R/W) Channel Priority Set Register */
-  __O    uint32_t  CHNL_PRIORITY_CLR;        /* Offset: 0x03C ( /W) Channel Priority Clear Register */
-         uint32_t  RESERVED0[3];
-  __IO   uint32_t  ERR_CLR;                  /* Offset: 0x04C (R/W) Bus Error Clear Register   */
+typedef struct {
+    __I    uint32_t  DMA_STATUS;               /* Offset: 0x000 (R/W) DMA status Register */
+    __O    uint32_t  DMA_CFG;                  /* Offset: 0x004 ( /W) DMA configuration Register */
+    __IO   uint32_t  CTRL_BASE_PTR;            /* Offset: 0x008 (R/W) Channel Control Data Base Pointer Register */
+    __I    uint32_t  ALT_CTRL_BASE_PTR;        /* Offset: 0x00C (R/ ) Channel Alternate Control Data Base Pointer Register */
+    __I    uint32_t  DMA_WAITONREQ_STATUS;     /* Offset: 0x010 (R/ ) Channel Wait On Request Status Register */
+    __O    uint32_t  CHNL_SW_REQUEST;          /* Offset: 0x014 ( /W) Channel Software Request Register */
+    __IO   uint32_t  CHNL_USEBURST_SET;        /* Offset: 0x018 (R/W) Channel UseBurst Set Register */
+    __O    uint32_t  CHNL_USEBURST_CLR;        /* Offset: 0x01C ( /W) Channel UseBurst Clear Register */
+    __IO   uint32_t  CHNL_REQ_MASK_SET;        /* Offset: 0x020 (R/W) Channel Request Mask Set Register */
+    __O    uint32_t  CHNL_REQ_MASK_CLR;        /* Offset: 0x024 ( /W) Channel Request Mask Clear Register */
+    __IO   uint32_t  CHNL_ENABLE_SET;          /* Offset: 0x028 (R/W) Channel Enable Set Register */
+    __O    uint32_t  CHNL_ENABLE_CLR;          /* Offset: 0x02C ( /W) Channel Enable Clear Register */
+    __IO   uint32_t  CHNL_PRI_ALT_SET;         /* Offset: 0x030 (R/W) Channel Primary-Alterante Set Register */
+    __O    uint32_t  CHNL_PRI_ALT_CLR;         /* Offset: 0x034 ( /W) Channel Primary-Alterante Clear Register */
+    __IO   uint32_t  CHNL_PRIORITY_SET;        /* Offset: 0x038 (R/W) Channel Priority Set Register */
+    __O    uint32_t  CHNL_PRIORITY_CLR;        /* Offset: 0x03C ( /W) Channel Priority Clear Register */
+    uint32_t  RESERVED0[3];
+    __IO   uint32_t  ERR_CLR;                  /* Offset: 0x04C (R/W) Bus Error Clear Register   */
 
 } CMSDK_PL230_TypeDef;
 
@@ -679,155 +671,154 @@ typedef struct
   @{
 */
 
-typedef struct
-{
-  __IO uint32_t UARTDR;       // <h> Data
-                              //   <o.11>   OE: Overrun error <r>
-                              //   <o.10>   BE: Break error <r>
-                              //   <o.9>    PE: Parity error <r>
-                              //   <o.8>    FE: Framing error <r>
-                              //   <o.0..7> DATA: Received or Transmitting data (0..255)
-                              // </h>
-  union {
-  __I  uint32_t UARTRSR;      // <h> Receive Status <r>
-                              //   <o.3>    OE: Overrun error <r>
-                              //   <o.2>    BE: Break error <r>
-                              //   <o.1>    PE: Parity error <r>
-                              //   <o.0>    FE: Framing error <r>
-                              // </h>
-  __O  uint32_t UARTECR;      // <h> Error Clear <w>
-                              //   <o.3>    OE: Overrun error <w>
-                              //   <o.2>    BE: Break error <w>
-                              //   <o.1>    PE: Parity error <w>
-                              //   <o.0>    FE: Framing error <w>
-                              // </h>
-  };
-       uint32_t RESERVED0[4];
-  __IO uint32_t UARTFR;       // <h> Flags <r>
-                              //   <o.8>    RI: Ring indicator <r>
-                              //   <o.7>    TXFE: Transmit FIFO empty <r>
-                              //   <o.6>    RXFF: Receive FIFO full <r>
-                              //   <o.5>    TXFF: Transmit FIFO full <r>
-                              //   <o.4>    RXFE: Receive FIFO empty <r>
-                              //   <o.3>    BUSY: UART busy <r>
-                              //   <o.2>    DCD: Data carrier detect <r>
-                              //   <o.1>    DSR: Data set ready <r>
-                              //   <o.0>    CTS: Clear to send <r>
-                              // </h>
-       uint32_t RESERVED1;
-  __IO uint32_t UARTILPR;     // <h> IrDA Low-power Counter
-                              //   <o.0..7> ILPDVSR: 8-bit low-power divisor value (0..255)
-                              // </h>
-  __IO uint32_t UARTIBRD;     // <h> Integer Baud Rate
-                              //   <o.0..15> BAUD DIVINT: Integer baud rate divisor (0..65535)
-                              // </h>
-  __IO uint32_t UARTFBRD;     // <h> Fractional Baud Rate
-                              //   <o.0..5> BAUD DIVFRAC: Fractional baud rate divisor (0..63)
-                              // </h>
-  __IO uint32_t UARTLCR_H;    // <h> Line Control
-                              //   <o.8>    SPS: Stick parity select
-                              //   <o.5..6> WLEN: Word length
-                              //     <0=> 5 bits
-                              //     <1=> 6 bits
-                              //     <2=> 7 bits
-                              //     <3=> 8 bits
-                              //   <o.4>    FEN: Enable FIFOs
-                              //   <o.3>    STP2: Two stop bits select
-                              //   <o.2>    EPS: Even parity select
-                              //   <o.1>    PEN: Parity enable
-                              //   <o.0>    BRK: Send break
-                              // </h>
-  __IO uint32_t UARTCR;       // <h> Control
-                              //   <o.15>   CTSEn: CTS hardware flow control enable
-                              //   <o.14>   RTSEn: RTS hardware flow control enable
-                              //   <o.13>   Out2: Complement of Out2 modem status output
-                              //   <o.12>   Out1: Complement of Out1 modem status output
-                              //   <o.11>   RTS: Request to send
-                              //   <o.10>   DTR: Data transmit ready
-                              //   <o.9>    RXE: Receive enable
-                              //   <o.8>    TXE: Transmit enable
-                              //   <o.7>    LBE: Loop-back enable
-                              //   <o.2>    SIRLP: IrDA SIR low power mode
-                              //   <o.1>    SIREN: SIR enable
-                              //   <o.0>    UARTEN: UART enable
-                              // </h>
-  __IO uint32_t UARTIFLS;     // <h> Interrupt FIFO Level Select
-                              //   <o.3..5> RXIFLSEL: Receive interrupt FIFO level select
-                              //     <0=> >= 1/8 full
-                              //     <1=> >= 1/4 full
-                              //     <2=> >= 1/2 full
-                              //     <3=> >= 3/4 full
-                              //     <4=> >= 7/8 full
-                              //     <5=> reserved
-                              //     <6=> reserved
-                              //     <7=> reserved
-                              //   <o.0..2> TXIFLSEL: Transmit interrupt FIFO level select
-                              //     <0=> <= 1/8 full
-                              //     <1=> <= 1/4 full
-                              //     <2=> <= 1/2 full
-                              //     <3=> <= 3/4 full
-                              //     <4=> <= 7/8 full
-                              //     <5=> reserved
-                              //     <6=> reserved
-                              //     <7=> reserved
-                              // </h>
-  __IO uint32_t UARTIMSC;     // <h> Interrupt Mask Set / Clear
-                              //   <o.10>   OEIM: Overrun error interrupt mask
-                              //   <o.9>    BEIM: Break error interrupt mask
-                              //   <o.8>    PEIM: Parity error interrupt mask
-                              //   <o.7>    FEIM: Framing error interrupt mask
-                              //   <o.6>    RTIM: Receive interrupt mask
-                              //   <o.5>    TXIM: Transmit interrupt mask
-                              //   <o.4>    RXIM: Receive interrupt mask
-                              //   <o.3>    DSRMIM: nUARTDSR modem interrupt mask
-                              //   <o.2>    DCDMIM: nUARTDCD modem interrupt mask
-                              //   <o.1>    CTSMIM: nUARTCTS modem interrupt mask
-                              //   <o.0>    RIMIM: nUARTRI modem interrupt mask
-                              // </h>
-  __IO uint32_t UARTRIS;      // <h> Raw Interrupt Status <r>
-                              //   <o.10>   OERIS: Overrun error interrupt status <r>
-                              //   <o.9>    BERIS: Break error interrupt status <r>
-                              //   <o.8>    PERIS: Parity error interrupt status <r>
-                              //   <o.7>    FERIS: Framing error interrupt status <r>
-                              //   <o.6>    RTRIS: Receive timeout interrupt status <r>
-                              //   <o.5>    TXRIS: Transmit interrupt status <r>
-                              //   <o.4>    RXRIS: Receive interrupt status <r>
-                              //   <o.3>    DSRRMIS: nUARTDSR modem interrupt status <r>
-                              //   <o.2>    DCDRMIS: nUARTDCD modem interrupt status <r>
-                              //   <o.1>    CTSRMIS: nUARTCTS modem interrupt status <r>
-                              //   <o.0>    RIRMIS: nUARTRI modem interrupt status <r>
-                              // </h>
-  __IO uint32_t UARTMIS;      // <h> Masked Interrupt Status <r>
-                              //   <o.10>   OEMIS: Overrun error masked interrupt status <r>
-                              //   <o.9>    BEMIS: Break error masked interrupt status <r>
-                              //   <o.8>    PEMIS: Parity error masked interrupt status <r>
-                              //   <o.7>    FEMIS: Framing error masked interrupt status <r>
-                              //   <o.6>    RTMIS: Receive timeout masked interrupt status <r>
-                              //   <o.5>    TXMIS: Transmit masked interrupt status <r>
-                              //   <o.4>    RXMIS: Receive masked interrupt status <r>
-                              //   <o.3>    DSRMMIS: nUARTDSR modem masked interrupt status <r>
-                              //   <o.2>    DCDMMIS: nUARTDCD modem masked interrupt status <r>
-                              //   <o.1>    CTSMMIS: nUARTCTS modem masked interrupt status <r>
-                              //   <o.0>    RIMMIS: nUARTRI modem masked interrupt status <r>
-                              // </h>
-  __O  uint32_t UARTICR;      // <h> Interrupt Clear <w>
-                              //   <o.10>   OEIC: Overrun error interrupt clear <w>
-                              //   <o.9>    BEIC: Break error interrupt clear <w>
-                              //   <o.8>    PEIC: Parity error interrupt clear <w>
-                              //   <o.7>    FEIC: Framing error interrupt clear <w>
-                              //   <o.6>    RTIC: Receive timeout interrupt clear <w>
-                              //   <o.5>    TXIC: Transmit interrupt clear <w>
-                              //   <o.4>    RXIC: Receive interrupt clear <w>
-                              //   <o.3>    DSRMIC: nUARTDSR modem interrupt clear <w>
-                              //   <o.2>    DCDMIC: nUARTDCD modem interrupt clear <w>
-                              //   <o.1>    CTSMIC: nUARTCTS modem interrupt clear <w>
-                              //   <o.0>    RIMIC: nUARTRI modem interrupt clear <w>
-                              // </h>
-  __IO uint32_t UARTDMACR;    // <h> DMA Control
-                              //   <o.2>    DMAONERR: DMA on error
-                              //   <o.1>    TXDMAE: Transmit DMA enable
-                              //   <o.0>    RXDMAE: Receive DMA enable
-                              // </h>
+typedef struct {
+    __IO uint32_t UARTDR;       // <h> Data
+    //   <o.11>   OE: Overrun error <r>
+    //   <o.10>   BE: Break error <r>
+    //   <o.9>    PE: Parity error <r>
+    //   <o.8>    FE: Framing error <r>
+    //   <o.0..7> DATA: Received or Transmitting data (0..255)
+    // </h>
+    union {
+        __I  uint32_t UARTRSR;      // <h> Receive Status <r>
+        //   <o.3>    OE: Overrun error <r>
+        //   <o.2>    BE: Break error <r>
+        //   <o.1>    PE: Parity error <r>
+        //   <o.0>    FE: Framing error <r>
+        // </h>
+        __O  uint32_t UARTECR;      // <h> Error Clear <w>
+        //   <o.3>    OE: Overrun error <w>
+        //   <o.2>    BE: Break error <w>
+        //   <o.1>    PE: Parity error <w>
+        //   <o.0>    FE: Framing error <w>
+        // </h>
+    };
+    uint32_t RESERVED0[4];
+    __IO uint32_t UARTFR;       // <h> Flags <r>
+    //   <o.8>    RI: Ring indicator <r>
+    //   <o.7>    TXFE: Transmit FIFO empty <r>
+    //   <o.6>    RXFF: Receive FIFO full <r>
+    //   <o.5>    TXFF: Transmit FIFO full <r>
+    //   <o.4>    RXFE: Receive FIFO empty <r>
+    //   <o.3>    BUSY: UART busy <r>
+    //   <o.2>    DCD: Data carrier detect <r>
+    //   <o.1>    DSR: Data set ready <r>
+    //   <o.0>    CTS: Clear to send <r>
+    // </h>
+    uint32_t RESERVED1;
+    __IO uint32_t UARTILPR;     // <h> IrDA Low-power Counter
+    //   <o.0..7> ILPDVSR: 8-bit low-power divisor value (0..255)
+    // </h>
+    __IO uint32_t UARTIBRD;     // <h> Integer Baud Rate
+    //   <o.0..15> BAUD DIVINT: Integer baud rate divisor (0..65535)
+    // </h>
+    __IO uint32_t UARTFBRD;     // <h> Fractional Baud Rate
+    //   <o.0..5> BAUD DIVFRAC: Fractional baud rate divisor (0..63)
+    // </h>
+    __IO uint32_t UARTLCR_H;    // <h> Line Control
+    //   <o.8>    SPS: Stick parity select
+    //   <o.5..6> WLEN: Word length
+    //     <0=> 5 bits
+    //     <1=> 6 bits
+    //     <2=> 7 bits
+    //     <3=> 8 bits
+    //   <o.4>    FEN: Enable FIFOs
+    //   <o.3>    STP2: Two stop bits select
+    //   <o.2>    EPS: Even parity select
+    //   <o.1>    PEN: Parity enable
+    //   <o.0>    BRK: Send break
+    // </h>
+    __IO uint32_t UARTCR;       // <h> Control
+    //   <o.15>   CTSEn: CTS hardware flow control enable
+    //   <o.14>   RTSEn: RTS hardware flow control enable
+    //   <o.13>   Out2: Complement of Out2 modem status output
+    //   <o.12>   Out1: Complement of Out1 modem status output
+    //   <o.11>   RTS: Request to send
+    //   <o.10>   DTR: Data transmit ready
+    //   <o.9>    RXE: Receive enable
+    //   <o.8>    TXE: Transmit enable
+    //   <o.7>    LBE: Loop-back enable
+    //   <o.2>    SIRLP: IrDA SIR low power mode
+    //   <o.1>    SIREN: SIR enable
+    //   <o.0>    UARTEN: UART enable
+    // </h>
+    __IO uint32_t UARTIFLS;     // <h> Interrupt FIFO Level Select
+    //   <o.3..5> RXIFLSEL: Receive interrupt FIFO level select
+    //     <0=> >= 1/8 full
+    //     <1=> >= 1/4 full
+    //     <2=> >= 1/2 full
+    //     <3=> >= 3/4 full
+    //     <4=> >= 7/8 full
+    //     <5=> reserved
+    //     <6=> reserved
+    //     <7=> reserved
+    //   <o.0..2> TXIFLSEL: Transmit interrupt FIFO level select
+    //     <0=> <= 1/8 full
+    //     <1=> <= 1/4 full
+    //     <2=> <= 1/2 full
+    //     <3=> <= 3/4 full
+    //     <4=> <= 7/8 full
+    //     <5=> reserved
+    //     <6=> reserved
+    //     <7=> reserved
+    // </h>
+    __IO uint32_t UARTIMSC;     // <h> Interrupt Mask Set / Clear
+    //   <o.10>   OEIM: Overrun error interrupt mask
+    //   <o.9>    BEIM: Break error interrupt mask
+    //   <o.8>    PEIM: Parity error interrupt mask
+    //   <o.7>    FEIM: Framing error interrupt mask
+    //   <o.6>    RTIM: Receive interrupt mask
+    //   <o.5>    TXIM: Transmit interrupt mask
+    //   <o.4>    RXIM: Receive interrupt mask
+    //   <o.3>    DSRMIM: nUARTDSR modem interrupt mask
+    //   <o.2>    DCDMIM: nUARTDCD modem interrupt mask
+    //   <o.1>    CTSMIM: nUARTCTS modem interrupt mask
+    //   <o.0>    RIMIM: nUARTRI modem interrupt mask
+    // </h>
+    __IO uint32_t UARTRIS;      // <h> Raw Interrupt Status <r>
+    //   <o.10>   OERIS: Overrun error interrupt status <r>
+    //   <o.9>    BERIS: Break error interrupt status <r>
+    //   <o.8>    PERIS: Parity error interrupt status <r>
+    //   <o.7>    FERIS: Framing error interrupt status <r>
+    //   <o.6>    RTRIS: Receive timeout interrupt status <r>
+    //   <o.5>    TXRIS: Transmit interrupt status <r>
+    //   <o.4>    RXRIS: Receive interrupt status <r>
+    //   <o.3>    DSRRMIS: nUARTDSR modem interrupt status <r>
+    //   <o.2>    DCDRMIS: nUARTDCD modem interrupt status <r>
+    //   <o.1>    CTSRMIS: nUARTCTS modem interrupt status <r>
+    //   <o.0>    RIRMIS: nUARTRI modem interrupt status <r>
+    // </h>
+    __IO uint32_t UARTMIS;      // <h> Masked Interrupt Status <r>
+    //   <o.10>   OEMIS: Overrun error masked interrupt status <r>
+    //   <o.9>    BEMIS: Break error masked interrupt status <r>
+    //   <o.8>    PEMIS: Parity error masked interrupt status <r>
+    //   <o.7>    FEMIS: Framing error masked interrupt status <r>
+    //   <o.6>    RTMIS: Receive timeout masked interrupt status <r>
+    //   <o.5>    TXMIS: Transmit masked interrupt status <r>
+    //   <o.4>    RXMIS: Receive masked interrupt status <r>
+    //   <o.3>    DSRMMIS: nUARTDSR modem masked interrupt status <r>
+    //   <o.2>    DCDMMIS: nUARTDCD modem masked interrupt status <r>
+    //   <o.1>    CTSMMIS: nUARTCTS modem masked interrupt status <r>
+    //   <o.0>    RIMMIS: nUARTRI modem masked interrupt status <r>
+    // </h>
+    __O  uint32_t UARTICR;      // <h> Interrupt Clear <w>
+    //   <o.10>   OEIC: Overrun error interrupt clear <w>
+    //   <o.9>    BEIC: Break error interrupt clear <w>
+    //   <o.8>    PEIC: Parity error interrupt clear <w>
+    //   <o.7>    FEIC: Framing error interrupt clear <w>
+    //   <o.6>    RTIC: Receive timeout interrupt clear <w>
+    //   <o.5>    TXIC: Transmit interrupt clear <w>
+    //   <o.4>    RXIC: Receive interrupt clear <w>
+    //   <o.3>    DSRMIC: nUARTDSR modem interrupt clear <w>
+    //   <o.2>    DCDMIC: nUARTDCD modem interrupt clear <w>
+    //   <o.1>    CTSMIC: nUARTCTS modem interrupt clear <w>
+    //   <o.0>    RIMIC: nUARTRI modem interrupt clear <w>
+    // </h>
+    __IO uint32_t UARTDMACR;    // <h> DMA Control
+    //   <o.2>    DMAONERR: DMA on error
+    //   <o.1>    TXDMAE: Transmit DMA enable
+    //   <o.0>    RXDMAE: Receive DMA enable
+    // </h>
 } PL110_UART_TypeDef;
 
 #define CMSDK_PL110_DATAOVRRUN_Pos            11                                             /*!< CMSDK_PL110 DATAOVRRUN: Data Overrun Position */
@@ -1113,24 +1104,23 @@ typedef struct
 /** @addtogroup CMSDK_Watchdog CMSDK Watchdog
   @{
 */
-typedef struct
-{
+typedef struct {
 
-  __IO    uint32_t  LOAD;                   /* Offset: 0x000 (R/W) Watchdog Load Register */
-  __I     uint32_t  VALUE;                  /* Offset: 0x004 (R/ ) Watchdog Value Register */
-  __IO    uint32_t  CTRL;                   /* Offset: 0x008 (R/W) Watchdog Control Register */
-                                            /*    <o.1>    RESEN: Reset enable               */
-                                            /*    <o.0>    INTEN: Interrupt enable           */
-                                            /*    </h>                                       */
-  __O     uint32_t  INTCLR;                 /* Offset: 0x00C ( /W) Watchdog Clear Interrupt Register */
-  __I     uint32_t  RAWINTSTAT;             /* Offset: 0x010 (R/ ) Watchdog Raw Interrupt Status Register */
-  __I     uint32_t  MASKINTSTAT;            /* Offset: 0x014 (R/ ) Watchdog Interrupt Status Register */
-        uint32_t  RESERVED0[762];
-  __IO    uint32_t  LOCK;                   /* Offset: 0xC00 (R/W) Watchdog Lock Register */
-        uint32_t  RESERVED1[191];
-  __IO    uint32_t  ITCR;                   /* Offset: 0xF00 (R/W) Watchdog Integration Test Control Register */
-  __O     uint32_t  ITOP;                   /* Offset: 0xF04 ( /W) Watchdog Integration Test Output Set Register */
-}CMSDK_WATCHDOG_TypeDef;
+    __IO    uint32_t  LOAD;                   /* Offset: 0x000 (R/W) Watchdog Load Register */
+    __I     uint32_t  VALUE;                  /* Offset: 0x004 (R/ ) Watchdog Value Register */
+    __IO    uint32_t  CTRL;                   /* Offset: 0x008 (R/W) Watchdog Control Register */
+    /*    <o.1>    RESEN: Reset enable               */
+    /*    <o.0>    INTEN: Interrupt enable           */
+    /*    </h>                                       */
+    __O     uint32_t  INTCLR;                 /* Offset: 0x00C ( /W) Watchdog Clear Interrupt Register */
+    __I     uint32_t  RAWINTSTAT;             /* Offset: 0x010 (R/ ) Watchdog Raw Interrupt Status Register */
+    __I     uint32_t  MASKINTSTAT;            /* Offset: 0x014 (R/ ) Watchdog Interrupt Status Register */
+    uint32_t  RESERVED0[762];
+    __IO    uint32_t  LOCK;                   /* Offset: 0xC00 (R/W) Watchdog Lock Register */
+    uint32_t  RESERVED1[191];
+    __IO    uint32_t  ITCR;                   /* Offset: 0xF00 (R/W) Watchdog Integration Test Control Register */
+    __O     uint32_t  ITOP;                   /* Offset: 0xF04 ( /W) Watchdog Integration Test Output Set Register */
+} CMSDK_WATCHDOG_TypeDef;
 
 #define CMSDK_Watchdog_LOAD_Pos               0                                              /*!< CMSDK_Watchdog LOAD: LOAD Position */
 #define CMSDK_Watchdog_LOAD_Msk              (0xFFFFFFFFul << CMSDK_Watchdog_LOAD_Pos)       /*!< CMSDK_Watchdog LOAD: LOAD Mask */
@@ -1168,21 +1158,20 @@ typedef struct
 /** @addtogroup CMSDK_PL061 CMSDK APB GPIO
   @{
 */
-typedef struct
-{
+typedef struct {
 
-__IO    uint32_t  DATA[256];
-__IO    uint32_t  DIR;
-__IO    uint32_t  INTSENSE;
-__IO    uint32_t  INTBOTHEDGE;
-__IO    uint32_t  INTEVENT;
-__IO    uint32_t  INTMASK;
-__O     uint32_t  RAWINTSTAT;
-__O     uint32_t  MASKINTSTAT;
-__I     uint32_t  INTCLR;
-__IO    uint32_t  MODECTRL;
+    __IO    uint32_t  DATA[256];
+    __IO    uint32_t  DIR;
+    __IO    uint32_t  INTSENSE;
+    __IO    uint32_t  INTBOTHEDGE;
+    __IO    uint32_t  INTEVENT;
+    __IO    uint32_t  INTMASK;
+    __O     uint32_t  RAWINTSTAT;
+    __O     uint32_t  MASKINTSTAT;
+    __I     uint32_t  INTCLR;
+    __IO    uint32_t  MODECTRL;
 
-}APBGPIO_TypeDef;
+} APBGPIO_TypeDef;
 
 #define CMSDK_PL061_DATA_Pos               0                                              /*!< CMSDK_PL061 DATA: DATA Position */
 #define CMSDK_PL061_DATA_Msk              (0xFFFFFFFFul << CMSDK_PL061_LOAD_Pos)          /*!< CMSDK_PL061 DATA: DATA Mask */

@@ -135,8 +135,7 @@ uint32_t WDOG_GetStatusFlags(WDOG_Type *base)
 
 void WDOG_ClearStatusFlags(WDOG_Type *base, uint32_t mask)
 {
-    if (mask & kWDOG_TimeoutFlag)
-    {
+    if (mask & kWDOG_TimeoutFlag) {
         base->STCTRLL |= WDOG_STCTRLL_INTFLG_MASK;
     }
 }

@@ -72,13 +72,13 @@ typedef enum {
     NINA_B1_GPIO_27 = p4,
     NINA_B1_GPIO_28 = p9,
     NINA_B1_GPIO_29 = p10,
-    
+
     // Board pins
     LED1 = NINA_B1_GPIO_7, // ORANGE
     LED2 = NC,
     LED3 = NC,
     LED4 = NC,
-    
+
     // Nordic SDK pin names
     RX_PIN_NUMBER = p5,
     TX_PIN_NUMBER = p6,

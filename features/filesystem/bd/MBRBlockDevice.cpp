@@ -57,7 +57,7 @@ static inline uint32_t fromle32(uint32_t a)
 
 static void tochs(uint32_t lba, uint8_t chs[3])
 {
-    uint32_t sector = std::min<uint32_t>(lba, 0xfffffd)+1;
+    uint32_t sector = std::min<uint32_t>(lba, 0xfffffd) + 1;
     chs[0] = (sector >> 6) & 0xff;
     chs[1] = ((sector >> 0) & 0x3f) | ((sector >> 16) & 0xc0);
     chs[2] = (sector >> 14) & 0xff;
@@ -67,22 +67,22 @@ static void tochs(uint32_t lba, uint8_t chs[3])
 // Partition after address are turned into absolute
 // addresses, assumes bd is initialized
 static int partition_absolute(
-        BlockDevice *bd, int part, uint8_t type,
-        bd_size_t offset, bd_size_t size)
+    BlockDevice *bd, int part, uint8_t type,
+    bd_size_t offset, bd_size_t size)
 {
     // Allocate smallest buffer necessary to write MBR
     uint32_t buffer_size = std::max<uint32_t>(bd->get_program_size(), sizeof(struct mbr_table));
     uint8_t *buffer = new uint8_t[buffer_size];
 
     // Check for existing MBR
-    int err = bd->read(buffer, 512-buffer_size, buffer_size);
+    int err = bd->read(buffer, 512 - buffer_size, buffer_size);
     if (err) {
         delete[] buffer;
         return err;
     }
 
-    struct mbr_table *table = reinterpret_cast<struct mbr_table*>(
-            &buffer[buffer_size - sizeof(struct mbr_table)]);
+    struct mbr_table *table = reinterpret_cast<struct mbr_table *>(
+                                  &buffer[buffer_size - sizeof(struct mbr_table)]);
     if (table->signature[0] != 0x55 || table->signature[1] != 0xaa) {
         // Setup default values for MBR
         table->signature[0] = 0x55;
@@ -92,19 +92,19 @@ static int partition_absolute(
 
     // Setup new partition
     MBED_ASSERT(part >= 1 && part <= 4);
-    table->entries[part-1].status = 0x00; // inactive (not bootable)
-    table->entries[part-1].type = type;
+    table->entries[part - 1].status = 0x00; // inactive (not bootable)
+    table->entries[part - 1].type = type;
 
     // lba dimensions
     uint32_t sector = std::max<uint32_t>(bd->get_erase_size(), 512);
     uint32_t lba_offset = offset / sector;
     uint32_t lba_size = size / sector;
-    table->entries[part-1].lba_offset = tole32(lba_offset);
-    table->entries[part-1].lba_size = tole32(lba_size);
+    table->entries[part - 1].lba_offset = tole32(lba_offset);
+    table->entries[part - 1].lba_size = tole32(lba_size);
 
     // chs dimensions
-    tochs(lba_offset,            table->entries[part-1].chs_start);
-    tochs(lba_offset+lba_size-1, table->entries[part-1].chs_stop);
+    tochs(lba_offset,            table->entries[part - 1].chs_start);
+    tochs(lba_offset + lba_size - 1, table->entries[part - 1].chs_stop);
 
     // Write out MBR
     err = bd->erase(0, bd->get_erase_size());
@@ -113,7 +113,7 @@ static int partition_absolute(
         return err;
     }
 
-    err = bd->program(buffer, 512-buffer_size, buffer_size);
+    err = bd->program(buffer, 512 - buffer_size, buffer_size);
     delete[] buffer;
     return err;
 }
@@ -149,7 +149,7 @@ int MBRBlockDevice::partition(BlockDevice *bd, int part, uint8_t type, bd_addr_t
 }
 
 int MBRBlockDevice::partition(BlockDevice *bd, int part, uint8_t type,
-        bd_addr_t start, bd_addr_t stop)
+                              bd_addr_t start, bd_addr_t stop)
 {
     int err = bd->init();
     if (err) {
@@ -196,31 +196,31 @@ int MBRBlockDevice::init()
     uint32_t buffer_size = std::max<uint32_t>(_bd->get_read_size(), sizeof(struct mbr_table));
     uint8_t *buffer = new uint8_t[buffer_size];
 
-    err = _bd->read(buffer, 512-buffer_size, buffer_size);
+    err = _bd->read(buffer, 512 - buffer_size, buffer_size);
     if (err) {
         delete[] buffer;
         return err;
     }
 
     // Check for valid table
-    struct mbr_table *table = reinterpret_cast<struct mbr_table*>(
-            &buffer[buffer_size - sizeof(struct mbr_table)]);
+    struct mbr_table *table = reinterpret_cast<struct mbr_table *>(
+                                  &buffer[buffer_size - sizeof(struct mbr_table)]);
     if (table->signature[0] != 0x55 || table->signature[1] != 0xaa) {
         delete[] buffer;
         return BD_ERROR_INVALID_MBR;
     }
 
     // Check for valid entry
-    if (table->entries[_part-1].type == 0x00) {
+    if (table->entries[_part - 1].type == 0x00) {
         delete[] buffer;
         return BD_ERROR_INVALID_PARTITION;
     }
 
     // Get partition attributes
     bd_size_t sector = std::max<uint32_t>(_bd->get_erase_size(), 512);
-    _type = table->entries[_part-1].type;
-    _offset = fromle32(table->entries[_part-1].lba_offset) * sector;
-    _size   = fromle32(table->entries[_part-1].lba_size)   * sector;
+    _type = table->entries[_part - 1].type;
+    _offset = fromle32(table->entries[_part - 1].lba_offset) * sector;
+    _size   = fromle32(table->entries[_part - 1].lba_size)   * sector;
 
     // Check that block addresses are valid
     MBED_ASSERT(_bd->is_valid_erase(_offset, _size));
@@ -279,7 +279,7 @@ bd_size_t MBRBlockDevice::get_partition_start() const
 
 bd_size_t MBRBlockDevice::get_partition_stop() const
 {
-    return _offset+_size;
+    return _offset + _size;
 }
 
 uint8_t MBRBlockDevice::get_partition_type() const

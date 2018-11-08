@@ -54,7 +54,7 @@
  * @param[out] p_chunks      The resulting chunks. This must be an array of at least 2 elements.
  * @param[out] p_n_chunks    The number of chunks. If this is 0, something went wrong.
  */
-void peer_data_parts_get(pm_peer_data_const_t const * p_peer_data, fds_record_chunk_t * p_chunks, uint16_t * p_n_chunks);
+void peer_data_parts_get(pm_peer_data_const_t const *p_peer_data, fds_record_chunk_t *p_chunks, uint16_t *p_n_chunks);
 
 
 /**@brief Function for converting @ref pm_peer_data_flash_t into @ref pm_peer_data_t.
@@ -66,7 +66,7 @@ void peer_data_parts_get(pm_peer_data_const_t const * p_peer_data, fds_record_ch
  * @retval NRF_ERROR_NULL    A parameter was NULL.
  * @retval NRF_ERROR_NO_MEM  A buffer was not large enough.
  */
-ret_code_t peer_data_deserialize(pm_peer_data_flash_t const * p_in_data, pm_peer_data_t * p_out_data);
+ret_code_t peer_data_deserialize(pm_peer_data_flash_t const *p_in_data, pm_peer_data_t *p_out_data);
 
 /** @} */
 

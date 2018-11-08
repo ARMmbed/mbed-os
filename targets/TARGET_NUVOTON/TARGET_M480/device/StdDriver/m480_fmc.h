@@ -123,7 +123,7 @@ extern int32_t FMC_Erase_Bank(uint32_t u32BankAddr);
 extern int32_t FMC_GetBootSource(void);
 extern void FMC_Open(void);
 extern uint32_t FMC_Read(uint32_t u32Addr);
-extern int32_t FMC_Read_64(uint32_t u32addr, uint32_t * u32data0, uint32_t * u32data1);
+extern int32_t FMC_Read_64(uint32_t u32addr, uint32_t *u32data0, uint32_t *u32data1);
 extern uint32_t FMC_ReadCID(void);
 extern uint32_t FMC_ReadPID(void);
 extern uint32_t FMC_ReadUCID(uint32_t u32Index);

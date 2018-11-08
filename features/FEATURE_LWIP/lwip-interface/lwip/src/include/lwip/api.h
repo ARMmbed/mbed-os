@@ -98,86 +98,86 @@ extern "C" {
  * Protocol family and type of the netconn
  */
 enum netconn_type {
-  NETCONN_INVALID     = 0,
-  /** TCP IPv4 */
-  NETCONN_TCP         = 0x10,
+    NETCONN_INVALID     = 0,
+    /** TCP IPv4 */
+    NETCONN_TCP         = 0x10,
 #if LWIP_IPV6
-  /** TCP IPv6 */
-  NETCONN_TCP_IPV6    = NETCONN_TCP | NETCONN_TYPE_IPV6 /* 0x18 */,
+    /** TCP IPv6 */
+    NETCONN_TCP_IPV6    = NETCONN_TCP | NETCONN_TYPE_IPV6 /* 0x18 */,
 #endif /* LWIP_IPV6 */
-  /** UDP IPv4 */
-  NETCONN_UDP         = 0x20,
-  /** UDP IPv4 lite */
-  NETCONN_UDPLITE     = 0x21,
-  /** UDP IPv4 no checksum */
-  NETCONN_UDPNOCHKSUM = 0x22,
+    /** UDP IPv4 */
+    NETCONN_UDP         = 0x20,
+    /** UDP IPv4 lite */
+    NETCONN_UDPLITE     = 0x21,
+    /** UDP IPv4 no checksum */
+    NETCONN_UDPNOCHKSUM = 0x22,
 
 #if LWIP_IPV6
-  /** UDP IPv6 (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
-  NETCONN_UDP_IPV6         = NETCONN_UDP | NETCONN_TYPE_IPV6 /* 0x28 */,
-  /** UDP IPv6 lite (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
-  NETCONN_UDPLITE_IPV6     = NETCONN_UDPLITE | NETCONN_TYPE_IPV6 /* 0x29 */,
-  /** UDP IPv6 no checksum (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
-  NETCONN_UDPNOCHKSUM_IPV6 = NETCONN_UDPNOCHKSUM | NETCONN_TYPE_IPV6 /* 0x2a */,
+    /** UDP IPv6 (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
+    NETCONN_UDP_IPV6         = NETCONN_UDP | NETCONN_TYPE_IPV6 /* 0x28 */,
+    /** UDP IPv6 lite (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
+    NETCONN_UDPLITE_IPV6     = NETCONN_UDPLITE | NETCONN_TYPE_IPV6 /* 0x29 */,
+    /** UDP IPv6 no checksum (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
+    NETCONN_UDPNOCHKSUM_IPV6 = NETCONN_UDPNOCHKSUM | NETCONN_TYPE_IPV6 /* 0x2a */,
 #endif /* LWIP_IPV6 */
 
-  /** Raw connection IPv4 */
-  NETCONN_RAW         = 0x40
+    /** Raw connection IPv4 */
+    NETCONN_RAW         = 0x40
 #if LWIP_IPV6
-  /** Raw connection IPv6 (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
-  , NETCONN_RAW_IPV6    = NETCONN_RAW | NETCONN_TYPE_IPV6 /* 0x48 */
+                          /** Raw connection IPv6 (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
+    , NETCONN_RAW_IPV6    = NETCONN_RAW | NETCONN_TYPE_IPV6 /* 0x48 */
 #endif /* LWIP_IPV6 */
 };
 
 /** Current state of the netconn. Non-TCP netconns are always
  * in state NETCONN_NONE! */
 enum netconn_state {
-  NETCONN_NONE,
-  NETCONN_WRITE,
-  NETCONN_LISTEN,
-  NETCONN_CONNECT,
-  NETCONN_CLOSE
+    NETCONN_NONE,
+    NETCONN_WRITE,
+    NETCONN_LISTEN,
+    NETCONN_CONNECT,
+    NETCONN_CLOSE
 };
 
 /** Used to inform the callback function about changes
- * 
+ *
  * Event explanation:
- * 
+ *
  * In the netconn implementation, there are three ways to block a client:
- * 
+ *
  * - accept mbox (sys_arch_mbox_fetch(&conn->acceptmbox, &accept_ptr, 0); in netconn_accept())
  * - receive mbox (sys_arch_mbox_fetch(&conn->recvmbox, &buf, 0); in netconn_recv_data())
  * - send queue is full (sys_arch_sem_wait(LWIP_API_MSG_SEM(msg), 0); in lwip_netconn_do_write())
- * 
+ *
  * The events have to be seen as events signaling the state of these mboxes/semaphores. For non-blocking
  * connections, you need to know in advance whether a call to a netconn function call would block or not,
  * and these events tell you about that.
- * 
- * RCVPLUS events say: Safe to perform a potentially blocking call call once more. 
+ *
+ * RCVPLUS events say: Safe to perform a potentially blocking call call once more.
  * They are counted in sockets - three RCVPLUS events for accept mbox means you are safe
  * to call netconn_accept 3 times without being blocked.
  * Same thing for receive mbox.
- * 
+ *
  * RCVMINUS events say: Your call to to a possibly blocking function is "acknowledged".
  * Socket implementation decrements the counter.
- * 
+ *
  * For TX, there is no need to count, its merely a flag. SENDPLUS means you may send something.
  * SENDPLUS occurs when enough data was delivered to peer so netconn_send() can be called again.
  * A SENDMINUS event occurs when the next call to a netconn_send() would be blocking.
  */
 enum netconn_evt {
-  NETCONN_EVT_RCVPLUS,
-  NETCONN_EVT_RCVMINUS,
-  NETCONN_EVT_SENDPLUS,
-  NETCONN_EVT_SENDMINUS,
-  NETCONN_EVT_ERROR
+    NETCONN_EVT_RCVPLUS,
+    NETCONN_EVT_RCVMINUS,
+    NETCONN_EVT_SENDPLUS,
+    NETCONN_EVT_SENDMINUS,
+    NETCONN_EVT_ERROR
 };
 
 #if LWIP_IGMP || (LWIP_IPV6 && LWIP_IPV6_MLD)
 /** Used for netconn_join_leave_group() */
 enum netconn_igmp {
-  NETCONN_JOIN,
-  NETCONN_LEAVE
+    NETCONN_JOIN,
+    NETCONN_LEAVE
 };
 #endif /* LWIP_IGMP || (LWIP_IPV6 && LWIP_IPV6_MLD) */
 
@@ -203,71 +203,71 @@ typedef void (* netconn_callback)(struct netconn *, enum netconn_evt, u16_t len)
 
 /** A netconn descriptor */
 struct netconn {
-  /** type of the netconn (TCP, UDP or RAW) */
-  enum netconn_type type;
-  /** current state of the netconn */
-  enum netconn_state state;
-  /** the lwIP internal protocol control block */
-  union {
-    struct ip_pcb  *ip;
-    struct tcp_pcb *tcp;
-    struct udp_pcb *udp;
-    struct raw_pcb *raw;
-  } pcb;
-  /** the last error this netconn had */
-  err_t last_err;
+    /** type of the netconn (TCP, UDP or RAW) */
+    enum netconn_type type;
+    /** current state of the netconn */
+    enum netconn_state state;
+    /** the lwIP internal protocol control block */
+    union {
+        struct ip_pcb  *ip;
+        struct tcp_pcb *tcp;
+        struct udp_pcb *udp;
+        struct raw_pcb *raw;
+    } pcb;
+    /** the last error this netconn had */
+    err_t last_err;
 #if !LWIP_NETCONN_SEM_PER_THREAD
-  /** sem that is used to synchronously execute functions in the core context */
-  sys_sem_t op_completed;
+    /** sem that is used to synchronously execute functions in the core context */
+    sys_sem_t op_completed;
 #endif
-  /** mbox where received packets are stored until they are fetched
-      by the netconn application thread (can grow quite big) */
-  sys_mbox_t recvmbox;
+    /** mbox where received packets are stored until they are fetched
+        by the netconn application thread (can grow quite big) */
+    sys_mbox_t recvmbox;
 #if LWIP_TCP
-  /** mbox where new connections are stored until processed
-      by the application thread */
-  sys_mbox_t acceptmbox;
+    /** mbox where new connections are stored until processed
+        by the application thread */
+    sys_mbox_t acceptmbox;
 #endif /* LWIP_TCP */
-  /** only used for socket layer */
+    /** only used for socket layer */
 #if LWIP_SOCKET
-  int socket;
+    int socket;
 #endif /* LWIP_SOCKET */
 #if LWIP_SO_SNDTIMEO
-  /** timeout to wait for sending data (which means enqueueing data for sending
-      in internal buffers) in milliseconds */
-  s32_t send_timeout;
+    /** timeout to wait for sending data (which means enqueueing data for sending
+        in internal buffers) in milliseconds */
+    s32_t send_timeout;
 #endif /* LWIP_SO_RCVTIMEO */
 #if LWIP_SO_RCVTIMEO
-  /** timeout in milliseconds to wait for new data to be received
-      (or connections to arrive for listening netconns) */
-  int recv_timeout;
+    /** timeout in milliseconds to wait for new data to be received
+        (or connections to arrive for listening netconns) */
+    int recv_timeout;
 #endif /* LWIP_SO_RCVTIMEO */
 #if LWIP_SO_RCVBUF
-  /** maximum amount of bytes queued in recvmbox
-      not used for TCP: adjust TCP_WND instead! */
-  int recv_bufsize;
-  /** number of bytes currently in recvmbox to be received,
-      tested against recv_bufsize to limit bytes on recvmbox
-      for UDP and RAW, used for FIONREAD */
-  int recv_avail;
+    /** maximum amount of bytes queued in recvmbox
+        not used for TCP: adjust TCP_WND instead! */
+    int recv_bufsize;
+    /** number of bytes currently in recvmbox to be received,
+        tested against recv_bufsize to limit bytes on recvmbox
+        for UDP and RAW, used for FIONREAD */
+    int recv_avail;
 #endif /* LWIP_SO_RCVBUF */
 #if LWIP_SO_LINGER
-   /** values <0 mean linger is disabled, values > 0 are seconds to linger */
-  s16_t linger;
+    /** values <0 mean linger is disabled, values > 0 are seconds to linger */
+    s16_t linger;
 #endif /* LWIP_SO_LINGER */
-  /** flags holding more netconn-internal state, see NETCONN_FLAG_* defines */
-  u8_t flags;
+    /** flags holding more netconn-internal state, see NETCONN_FLAG_* defines */
+    u8_t flags;
 #if LWIP_TCP
-  /** TCP: when data passed to netconn_write doesn't fit into the send buffer,
-      this temporarily stores how much is already sent. */
-  size_t write_offset;
-  /** TCP: when data passed to netconn_write doesn't fit into the send buffer,
-      this temporarily stores the message.
-      Also used during connect and close. */
-  struct api_msg *current_msg;
+    /** TCP: when data passed to netconn_write doesn't fit into the send buffer,
+        this temporarily stores how much is already sent. */
+    size_t write_offset;
+    /** TCP: when data passed to netconn_write doesn't fit into the send buffer,
+        this temporarily stores the message.
+        Also used during connect and close. */
+    struct api_msg *current_msg;
 #endif /* LWIP_TCP */
-  /** A callback function that is informed about events for this netconn */
-  netconn_callback callback;
+    /** A callback function that is informed about events for this netconn */
+    netconn_callback callback;
 };
 
 /** Register an Network connection event */
@@ -293,7 +293,7 @@ struct netconn {
 #define netconn_new(t)                  netconn_new_with_proto_and_callback(t, 0, NULL)
 #define netconn_new_with_callback(t, c) netconn_new_with_proto_and_callback(t, 0, c)
 struct netconn *netconn_new_with_proto_and_callback(enum netconn_type t, u8_t proto,
-                                             netconn_callback callback);
+                                                    netconn_callback callback);
 err_t   netconn_delete(struct netconn *conn);
 /** Get the type of a netconn (as enum netconn_type). */
 #define netconn_type(conn) (conn->type)
@@ -307,7 +307,7 @@ err_t   netconn_getaddr(struct netconn *conn, ip_addr_t *addr,
 
 err_t   netconn_bind(struct netconn *conn, const ip_addr_t *addr, u16_t port);
 err_t   netconn_connect(struct netconn *conn, const ip_addr_t *addr, u16_t port);
-err_t   netconn_disconnect (struct netconn *conn);
+err_t   netconn_disconnect(struct netconn *conn);
 err_t   netconn_listen_with_backlog(struct netconn *conn, u8_t backlog);
 /** @ingroup netconn_tcp */
 #define netconn_listen(conn) netconn_listen_with_backlog(conn, TCP_DEFAULT_LISTEN_BACKLOG)
@@ -315,7 +315,7 @@ err_t   netconn_accept(struct netconn *conn, struct netconn **new_conn);
 err_t   netconn_recv(struct netconn *conn, struct netbuf **new_buf);
 err_t   netconn_recv_tcp_pbuf(struct netconn *conn, struct pbuf **new_buf);
 err_t   netconn_sendto(struct netconn *conn, struct netbuf *buf,
-                             const ip_addr_t *addr, u16_t port);
+                       const ip_addr_t *addr, u16_t port);
 err_t   netconn_send(struct netconn *conn, struct netbuf *buf);
 err_t   netconn_write_partly(struct netconn *conn, const void *dataptr, size_t size,
                              u8_t apiflags, size_t *bytes_written);
@@ -327,7 +327,7 @@ err_t   netconn_shutdown(struct netconn *conn, u8_t shut_rx, u8_t shut_tx);
 
 #if LWIP_IGMP || (LWIP_IPV6 && LWIP_IPV6_MLD)
 err_t   netconn_join_leave_group(struct netconn *conn, const ip_addr_t *multiaddr,
-                             const ip_addr_t *netif_addr, enum netconn_igmp join_or_leave);
+                                 const ip_addr_t *netif_addr, enum netconn_igmp join_or_leave);
 #endif /* LWIP_IGMP || (LWIP_IPV6 && LWIP_IPV6_MLD) */
 #if LWIP_DNS
 #if LWIP_IPV4 && LWIP_IPV6

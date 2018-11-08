@@ -46,7 +46,7 @@
 #include "MKW24D5_features.h"
 
 #else
-    #error "No valid CPU defined!"
+#error "No valid CPU defined!"
 #endif
 
 #endif /* __FSL_DEVICE_REGISTERS_H__ */

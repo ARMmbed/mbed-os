@@ -52,8 +52,8 @@ UVISOR_BOX_CONFIG(cfstore_read_box1, UVISOR_BOX_STACK_SIZE);
 
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_read_test_01_kv_data[] = {
-        CFSTORE_INIT_1_TABLE_MID_NODE,
-        { NULL, NULL},
+    CFSTORE_INIT_1_TABLE_MID_NODE,
+    { NULL, NULL},
 };
 
 /* report whether built/configured for flash sync or async mode */
@@ -75,19 +75,19 @@ static int32_t cfstore_read_seek_test(ARM_CFSTORE_HANDLE hkey, uint32_t offset, 
     ARM_CFSTORE_SIZE len = 1;
     char read_buf[1];
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
 
     ret = drv->Rseek(hkey, offset);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:failed to Rseek() to desired offset (offset=%d) (ret=%d).\n", __func__, (int) offset, (int) ret);
         goto out0;
     }
     ret = drv->Read(hkey, read_buf, &len);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:failed to Read() (offset=%d)(ret=%d).\n", __func__, (int) offset, (int) ret);
         goto out0;
     }
-    if(read_buf[0] != expected){
+    if (read_buf[0] != expected) {
         ret = ARM_DRIVER_ERROR;
         goto out0;
     }
@@ -103,7 +103,7 @@ control_t cfstore_read_test_01_end(const size_t call_count)
 {
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE len = 0;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_KEYDESC kdesc;
     ARM_CFSTORE_HANDLE_INIT(hkey);
     cfstore_test_rw_data_entry_t *node;
@@ -117,7 +117,7 @@ control_t cfstore_read_test_01_end(const size_t call_count)
     /* create a key for reading */
     kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
     len = strlen(cfstore_read_test_01_kv_data[0].value);
-    ret = cfstore_test_create(cfstore_read_test_01_kv_data[0].key_name, (char*) cfstore_read_test_01_kv_data[0].value, &len, &kdesc);
+    ret = cfstore_test_create(cfstore_read_test_01_kv_data[0].key_name, (char *) cfstore_read_test_01_kv_data[0].value, &len, &kdesc);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_read_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create KV in store (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_read_utest_msg_g);
 
@@ -128,8 +128,7 @@ control_t cfstore_read_test_01_end(const size_t call_count)
 
     /* seek back and forth in key and check the characters are as expected */
     node = cfstore_test_rw_data_table;
-    while(node->offset != CFSTORE_TEST_RW_TABLE_SENTINEL)
-    {
+    while (node->offset != CFSTORE_TEST_RW_TABLE_SENTINEL) {
         ret = cfstore_read_seek_test(hkey, node->offset, node->rw_char);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_read_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Rseek() to offset (%d) didn't read expected char (\'%c\') (ret=%d)\n", __func__, (int) node->offset, node->rw_char, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_read_utest_msg_g);
@@ -168,13 +167,13 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("READ_test_00", cfstore_read_test_00),
-        Case("READ_test_01_start", cfstore_utest_default_start),
-        Case("READ_test_01_end", cfstore_read_test_01_end),
-        Case("READ_test_02_start", cfstore_utest_default_start),
-        Case("READ_test_02_end", cfstore_read_test_02_end),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("READ_test_00", cfstore_read_test_00),
+    Case("READ_test_01_start", cfstore_utest_default_start),
+    Case("READ_test_01_end", cfstore_read_test_01_end),
+    Case("READ_test_02_start", cfstore_utest_default_start),
+    Case("READ_test_02_end", cfstore_read_test_02_end),
 };
 
 

@@ -134,14 +134,14 @@ enum status_code _usart_read_buffer(
 
 #ifdef FEATURE_USART_LIN_SLAVE
     /* Enable the break character is received Interrupt */
-    if(module->lin_slave_enabled) {
+    if (module->lin_slave_enabled) {
         usart_hw->INTENSET.reg = SERCOM_USART_INTFLAG_RXBRK;
     }
 #endif
 
 #ifdef FEATURE_USART_START_FRAME_DECTION
     /* Enable a start condition is detected Interrupt */
-    if(module->start_frame_detection_enabled) {
+    if (module->start_frame_detection_enabled) {
         usart_hw->INTENSET.reg = SERCOM_USART_INTFLAG_RXS;
     }
 #endif
@@ -379,7 +379,7 @@ void usart_abort_job(
     /* Get a pointer to the hardware module instance */
     SercomUsart *const usart_hw = &(module->hw->USART);
 
-    switch(transceiver_type) {
+    switch (transceiver_type) {
         case USART_TRANSCEIVER_RX:
             /* Clear the interrupt flag in order to prevent the receive
              * complete callback to fire */
@@ -433,7 +433,7 @@ enum status_code usart_get_job_status(
     /* Variable for status code */
     enum status_code status_code;
 
-    switch(transceiver_type) {
+    switch (transceiver_type) {
         case USART_TRANSCEIVER_RX:
             status_code = module->rx_status;
             break;
@@ -538,13 +538,13 @@ void _usart_interrupt_handler(
             error_code = (uint8_t)(usart_hw->STATUS.reg & SERCOM_USART_STATUS_MASK);
 #if !SAMD20
             /* CTS status should not be considered as an error */
-            if(error_code & SERCOM_USART_STATUS_CTS) {
+            if (error_code & SERCOM_USART_STATUS_CTS) {
                 error_code &= ~SERCOM_USART_STATUS_CTS;
             }
 #endif
 #ifdef FEATURE_USART_LIN_MASTER
             /* TXE status should not be considered as an error */
-            if(error_code & SERCOM_USART_STATUS_TXE) {
+            if (error_code & SERCOM_USART_STATUS_TXE) {
                 error_code &= ~SERCOM_USART_STATUS_TXE;
             }
 #endif
@@ -604,7 +604,7 @@ void _usart_interrupt_handler(
                 }
 
                 /* Check if the last character have been received */
-                if(--(module->remaining_rx_buffer_length) == 0) {
+                if (--(module->remaining_rx_buffer_length) == 0) {
                     /* Disable RX Complete Interrupt,
                      * and set STATUS_OK */
                     usart_hw->INTENCLR.reg = SERCOM_USART_INTFLAG_RXC;

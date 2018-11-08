@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2000 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 #ifndef NRF_DRV_POWER_H__
 #define NRF_DRV_POWER_H__
@@ -69,37 +69,34 @@ extern "C" {
 /**
  * @brief Power mode possible configurations
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_POWER_MODE_CONSTLAT, /**< Constant latency mode *///!< NRF_DRV_POWER_MODE_CONSTLAT
     NRF_DRV_POWER_MODE_LOWPWR    /**< Low power mode        *///!< NRF_DRV_POWER_MODE_LOWPWR
-}nrf_drv_power_mode_t;
+} nrf_drv_power_mode_t;
 
 #if NRF_POWER_HAS_SLEEPEVT
 /**
  * @brief Events from power system
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_POWER_SLEEP_EVT_ENTER, /**< CPU entered WFI/WFE sleep
                                     *
                                     * Keep in mind that if this interrupt is enabled,
                                     * it means that CPU was waken up just after WFI by this interrupt.
                                     */
     NRF_DRV_POWER_SLEEP_EVT_EXIT   /**< CPU exited WFI/WFE sleep */
-}nrf_drv_power_sleep_evt_t;
+} nrf_drv_power_sleep_evt_t;
 #endif /* NRF_POWER_HAS_SLEEPEVT */
 
 #if NRF_POWER_HAS_USBREG
 /**
  * @brief Events from USB power system
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_POWER_USB_EVT_DETECTED, /**< USB power detected on the connector (plugged in). */
     NRF_DRV_POWER_USB_EVT_REMOVED,  /**< USB power removed from the connector. */
     NRF_DRV_POWER_USB_EVT_READY     /**< USB power regulator ready. */
-}nrf_drv_power_usb_evt_t;
+} nrf_drv_power_usb_evt_t;
 
 /**
  * @brief USB power state
@@ -109,12 +106,11 @@ typedef enum
  *
  * Organized this way that higher power state has higher numeric value
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_POWER_USB_STATE_DISCONNECTED, /**< No power on USB lines detected */
     NRF_DRV_POWER_USB_STATE_CONNECTED,    /**< The USB power is detected, but USB power regulator is not ready */
     NRF_DRV_POWER_USB_STATE_READY         /**< From the power point of view USB is ready for working */
-}nrf_drv_power_usb_state_t;
+} nrf_drv_power_usb_state_t;
 #endif /* NRF_POWER_HAS_USBREG */
 
 /**
@@ -152,8 +148,7 @@ typedef void (*nrf_drv_power_usb_event_handler_t)(nrf_drv_power_usb_evt_t event)
  *
  * Parameters required to initialize power driver.
  */
-typedef struct
-{
+typedef struct {
     /**
      * @brief Enable main DCDC regulator
      *
@@ -162,7 +157,7 @@ typedef struct
      * The regulator would be enabled or disabled automatically
      * automatically by the hardware, basing on current power requirement.
      */
-    bool dcdcen:1;
+    bool dcdcen: 1;
 
 #if NRF_POWER_HAS_VDDH
     /**
@@ -175,21 +170,20 @@ typedef struct
      */
     bool dcdcenhv: 1;
 #endif
-}nrf_drv_power_config_t;
+} nrf_drv_power_config_t;
 
 /**
  * @brief The configuration for power failure comparator
  *
  * Configuration used to enable and configure power failure comparator
  */
-typedef struct
-{
+typedef struct {
     nrf_drv_power_pofwarn_event_handler_t handler; //!< Event handler
     nrf_power_pof_thr_t                   thr;     //!< Threshold for power failure detection
 #if NRF_POWER_HAS_VDDH
     nrf_power_pof_thrvddh_t               thrvddh; //!< Threshold for power failure detection on VDDH pin
 #endif
-}nrf_drv_power_pofwarn_config_t;
+} nrf_drv_power_pofwarn_config_t;
 
 #if NRF_POWER_HAS_SLEEPEVT
 /**
@@ -197,12 +191,11 @@ typedef struct
  *
  * Configuration used to enable and configure sleep event handling
  */
-typedef struct
-{
+typedef struct {
     nrf_drv_power_sleep_event_handler_t handler;    //!< Event handler
-    bool                                en_enter:1; //!< Enable event on sleep entering
-    bool                                en_exit :1; //!< Enable event on sleep exiting
-}nrf_drv_power_sleepevt_config_t;
+    bool                                en_enter: 1; //!< Enable event on sleep entering
+    bool                                en_exit : 1; //!< Enable event on sleep exiting
+} nrf_drv_power_sleepevt_config_t;
 #endif
 
 #if NRF_POWER_HAS_USBREG
@@ -211,10 +204,9 @@ typedef struct
  *
  * Configuration used to enable and configure USB power event handling
  */
-typedef struct
-{
+typedef struct {
     nrf_drv_power_usb_event_handler_t handler; //!< Event processing
-}nrf_drv_power_usbevt_config_t;
+} nrf_drv_power_usbevt_config_t;
 #endif /* NRF_POWER_HAS_USBREG */
 
 /**
@@ -241,7 +233,7 @@ bool nrf_drv_power_init_check(void);
  * @retval NRF_ERROR_MODULE_ALREADY_INITIALIZED Module is initialized already.
  * @retval NRF_SUCCESS                          Successfully initialized.
  */
-ret_code_t nrf_drv_power_init(nrf_drv_power_config_t const * p_config);
+ret_code_t nrf_drv_power_init(nrf_drv_power_config_t const *p_config);
 
 /**
  * @brief Unintialize power module driver
@@ -260,7 +252,7 @@ void nrf_drv_power_uninit(void);
  * @param[in] p_config Configuration with values and event handler.
  *                     If event handler is set to NULL, interrupt would be disabled.
  */
-void nrf_drv_power_pof_init(nrf_drv_power_pofwarn_config_t const * p_config);
+void nrf_drv_power_pof_init(nrf_drv_power_pofwarn_config_t const *p_config);
 
 /**
  * @brief Turn off the power failure comparator
@@ -279,7 +271,7 @@ void nrf_drv_power_pof_uninit(void);
  *
  * @sa nrf_drv_power_sleepevt_uninit
  */
-void nrf_drv_power_sleepevt_init(nrf_drv_power_sleepevt_config_t const * p_config);
+void nrf_drv_power_sleepevt_init(nrf_drv_power_sleepevt_config_t const *p_config);
 
 /**
  * @brief Uninitialize sleep entering and exiting events processing
@@ -299,7 +291,7 @@ void nrf_drv_power_sleepevt_uninit(void);
  *
  * @sa nrf_drv_power_usbevt_uninit
  */
-void nrf_drv_power_usbevt_init(nrf_drv_power_usbevt_config_t const * p_config);
+void nrf_drv_power_usbevt_init(nrf_drv_power_usbevt_config_t const *p_config);
 
 /**
  * @brief Uninitalize USB power event processing
@@ -325,12 +317,10 @@ __STATIC_INLINE nrf_drv_power_usb_state_t nrf_drv_power_usbstatus_get(void);
 __STATIC_INLINE nrf_drv_power_usb_state_t nrf_drv_power_usbstatus_get(void)
 {
     uint32_t status = nrf_power_usbregstatus_get();
-    if(0 == (status & NRF_POWER_USBREGSTATUS_VBUSDETECT_MASK))
-    {
+    if (0 == (status & NRF_POWER_USBREGSTATUS_VBUSDETECT_MASK)) {
         return NRF_DRV_POWER_USB_STATE_DISCONNECTED;
     }
-    if(0 == (status & NRF_POWER_USBREGSTATUS_OUTPUTRDY_MASK))
-    {
+    if (0 == (status & NRF_POWER_USBREGSTATUS_OUTPUTRDY_MASK)) {
         return NRF_DRV_POWER_USB_STATE_CONNECTED;
     }
     return NRF_DRV_POWER_USB_STATE_READY;

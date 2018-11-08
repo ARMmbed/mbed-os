@@ -1,14 +1,15 @@
 #include "test_env.h"
 
 #if !DEVICE_INTERRUPTIN
-  #error [NOT_SUPPORTED] InterruptIn is not supported
+#error [NOT_SUPPORTED] InterruptIn is not supported
 #endif
 
 DigitalOut myled(LED1);
 DigitalOut led2(LED2);
 
 volatile int checks = 0;
-void in_handler() {
+void in_handler()
+{
     checks++;
     led2 = !led2;
 }
@@ -122,7 +123,8 @@ InterruptIn in(PIN_IN);
 #define IN_OUT_SET      out = 1; myled = 1;
 #define IN_OUT_CLEAR    out = 0; myled = 0;
 
-void flipper() {
+void flipper()
+{
     for (int i = 0; i < 5; i++) {
         IN_OUT_SET;
         wait(0.2);
@@ -131,7 +133,8 @@ void flipper() {
     }
 }
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(15);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(InterruptIn);
@@ -143,8 +146,8 @@ int main() {
     in.fall(in_handler);
     flipper();
 
-    if(checks != 5) {
-        printf("MBED: falling edges test failed: %d\r\n",checks);
+    if (checks != 5) {
+        printf("MBED: falling edges test failed: %d\r\n", checks);
         MBED_HOSTTEST_RESULT(false);
     }
 

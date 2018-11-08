@@ -40,7 +40,7 @@
 #define __STM32L4xx_HAL_TSC_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -59,77 +59,72 @@
   * @{
   */
 
-/** 
-  * @brief TSC state structure definition  
-  */ 
-typedef enum
-{
-  HAL_TSC_STATE_RESET  = 0x00, /*!< TSC registers have their reset value */
-  HAL_TSC_STATE_READY  = 0x01, /*!< TSC registers are initialized or acquisition is completed with success */
-  HAL_TSC_STATE_BUSY   = 0x02, /*!< TSC initialization or acquisition is on-going */
-  HAL_TSC_STATE_ERROR  = 0x03  /*!< Acquisition is completed with max count error */
+/**
+  * @brief TSC state structure definition
+  */
+typedef enum {
+    HAL_TSC_STATE_RESET  = 0x00, /*!< TSC registers have their reset value */
+    HAL_TSC_STATE_READY  = 0x01, /*!< TSC registers are initialized or acquisition is completed with success */
+    HAL_TSC_STATE_BUSY   = 0x02, /*!< TSC initialization or acquisition is on-going */
+    HAL_TSC_STATE_ERROR  = 0x03  /*!< Acquisition is completed with max count error */
 } HAL_TSC_StateTypeDef;
 
-/** 
-  * @brief TSC group status structure definition  
-  */ 
-typedef enum
-{
-  TSC_GROUP_ONGOING   = 0x00, /*!< Acquisition on group is on-going or not started */
-  TSC_GROUP_COMPLETED = 0x01  /*!< Acquisition on group is completed with success (no max count error) */
+/**
+  * @brief TSC group status structure definition
+  */
+typedef enum {
+    TSC_GROUP_ONGOING   = 0x00, /*!< Acquisition on group is on-going or not started */
+    TSC_GROUP_COMPLETED = 0x01  /*!< Acquisition on group is completed with success (no max count error) */
 } TSC_GroupStatusTypeDef;
 
-/** 
-  * @brief TSC init structure definition  
-  */ 
-typedef struct
-{
-  uint32_t CTPulseHighLength;       /*!< Charge-transfer high pulse length 
+/**
+  * @brief TSC init structure definition
+  */
+typedef struct {
+    uint32_t CTPulseHighLength;       /*!< Charge-transfer high pulse length
                                          This parameter can be a value of @ref TSC_CTPulseHL_Config  */
-  uint32_t CTPulseLowLength;        /*!< Charge-transfer low pulse length
+    uint32_t CTPulseLowLength;        /*!< Charge-transfer low pulse length
                                          This parameter can be a value of @ref TSC_CTPulseLL_Config  */
-  uint32_t SpreadSpectrum;          /*!< Spread spectrum activation
+    uint32_t SpreadSpectrum;          /*!< Spread spectrum activation
                                          This parameter can be a value of @ref TSC_CTPulseLL_Config  */
-  uint32_t SpreadSpectrumDeviation; /*!< Spread spectrum deviation
+    uint32_t SpreadSpectrumDeviation; /*!< Spread spectrum deviation
                                          This parameter must be a number between Min_Data = 0 and Max_Data = 127 */
-  uint32_t SpreadSpectrumPrescaler; /*!< Spread spectrum prescaler
+    uint32_t SpreadSpectrumPrescaler; /*!< Spread spectrum prescaler
                                          This parameter can be a value of @ref TSC_SpreadSpec_Prescaler */
-  uint32_t PulseGeneratorPrescaler; /*!< Pulse generator prescaler
+    uint32_t PulseGeneratorPrescaler; /*!< Pulse generator prescaler
                                          This parameter can be a value of @ref TSC_PulseGenerator_Prescaler */
-  uint32_t MaxCountValue;           /*!< Max count value
+    uint32_t MaxCountValue;           /*!< Max count value
                                          This parameter can be a value of @ref TSC_MaxCount_Value  */
-  uint32_t IODefaultMode;           /*!< IO default mode
+    uint32_t IODefaultMode;           /*!< IO default mode
                                          This parameter can be a value of @ref TSC_IO_Default_Mode  */
-  uint32_t SynchroPinPolarity;      /*!< Synchro pin polarity
+    uint32_t SynchroPinPolarity;      /*!< Synchro pin polarity
                                          This parameter can be a value of @ref TSC_Synchro_Pin_Polarity */
-  uint32_t AcquisitionMode;         /*!< Acquisition mode
+    uint32_t AcquisitionMode;         /*!< Acquisition mode
                                          This parameter can be a value of @ref TSC_Acquisition_Mode  */
-  uint32_t MaxCountInterrupt;       /*!< Max count interrupt activation
+    uint32_t MaxCountInterrupt;       /*!< Max count interrupt activation
                                          This parameter can be set to ENABLE or DISABLE. */
-  uint32_t ChannelIOs;              /*!< Channel IOs mask */
-  uint32_t ShieldIOs;               /*!< Shield IOs mask */
-  uint32_t SamplingIOs;             /*!< Sampling IOs mask */
+    uint32_t ChannelIOs;              /*!< Channel IOs mask */
+    uint32_t ShieldIOs;               /*!< Shield IOs mask */
+    uint32_t SamplingIOs;             /*!< Sampling IOs mask */
 } TSC_InitTypeDef;
 
-/** 
-  * @brief TSC IOs configuration structure definition  
-  */ 
-typedef struct
-{
-  uint32_t ChannelIOs;  /*!< Channel IOs mask */
-  uint32_t ShieldIOs;   /*!< Shield IOs mask */
-  uint32_t SamplingIOs; /*!< Sampling IOs mask */
+/**
+  * @brief TSC IOs configuration structure definition
+  */
+typedef struct {
+    uint32_t ChannelIOs;  /*!< Channel IOs mask */
+    uint32_t ShieldIOs;   /*!< Shield IOs mask */
+    uint32_t SamplingIOs; /*!< Sampling IOs mask */
 } TSC_IOConfigTypeDef;
 
-/** 
-  * @brief  TSC handle Structure definition  
-  */ 
-typedef struct
-{
-  TSC_TypeDef               *Instance; /*!< Register base address */
-  TSC_InitTypeDef           Init;      /*!< Initialization parameters */
-  __IO HAL_TSC_StateTypeDef State;     /*!< Peripheral state */
-  HAL_LockTypeDef           Lock;      /*!< Lock feature */
+/**
+  * @brief  TSC handle Structure definition
+  */
+typedef struct {
+    TSC_TypeDef               *Instance; /*!< Register base address */
+    TSC_InitTypeDef           Init;      /*!< Initialization parameters */
+    __IO HAL_TSC_StateTypeDef State;     /*!< Peripheral state */
+    HAL_LockTypeDef           Lock;      /*!< Lock feature */
 } TSC_HandleTypeDef;
 
 /**
@@ -190,8 +185,8 @@ typedef struct
 /** @defgroup TSC_SpreadSpec_Prescaler Spread Spectrum Prescaler
   * @{
   */
-#define TSC_SS_PRESC_DIV1 ((uint32_t)0)  
-#define TSC_SS_PRESC_DIV2  (TSC_CR_SSPSC) 
+#define TSC_SS_PRESC_DIV1 ((uint32_t)0)
+#define TSC_SS_PRESC_DIV2  (TSC_CR_SSPSC)
 /**
   * @}
   */
@@ -266,8 +261,8 @@ typedef struct
 /** @defgroup TSC_interrupts_definition Interrupts definition
   * @{
   */
-#define TSC_IT_EOA ((uint32_t)TSC_IER_EOAIE)  
-#define TSC_IT_MCE ((uint32_t)TSC_IER_MCEIE) 
+#define TSC_IT_EOA ((uint32_t)TSC_IER_EOAIE)
+#define TSC_IT_MCE ((uint32_t)TSC_IER_MCEIE)
 /**
   * @}
   */
@@ -643,7 +638,7 @@ typedef struct
   * @}
   */
 
-/* Exported functions --------------------------------------------------------*/  
+/* Exported functions --------------------------------------------------------*/
 /** @addtogroup TSC_Exported_Functions
   * @{
   */
@@ -652,10 +647,10 @@ typedef struct
   * @{
   */
 /* Initialization and de-initialization functions *****************************/
-HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc);
+HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef *htsc);
 HAL_StatusTypeDef HAL_TSC_DeInit(TSC_HandleTypeDef *htsc);
-void HAL_TSC_MspInit(TSC_HandleTypeDef* htsc);
-void HAL_TSC_MspDeInit(TSC_HandleTypeDef* htsc);
+void HAL_TSC_MspInit(TSC_HandleTypeDef *htsc);
+void HAL_TSC_MspDeInit(TSC_HandleTypeDef *htsc);
 /**
   * @}
   */
@@ -664,13 +659,13 @@ void HAL_TSC_MspDeInit(TSC_HandleTypeDef* htsc);
   * @{
   */
 /* IO operation functions *****************************************************/
-HAL_StatusTypeDef HAL_TSC_Start(TSC_HandleTypeDef* htsc);
-HAL_StatusTypeDef HAL_TSC_Start_IT(TSC_HandleTypeDef* htsc);
-HAL_StatusTypeDef HAL_TSC_Stop(TSC_HandleTypeDef* htsc);
-HAL_StatusTypeDef HAL_TSC_Stop_IT(TSC_HandleTypeDef* htsc);
-HAL_StatusTypeDef HAL_TSC_PollForAcquisition(TSC_HandleTypeDef* htsc);
-TSC_GroupStatusTypeDef HAL_TSC_GroupGetStatus(TSC_HandleTypeDef* htsc, uint32_t gx_index);
-uint32_t HAL_TSC_GroupGetValue(TSC_HandleTypeDef* htsc, uint32_t gx_index);
+HAL_StatusTypeDef HAL_TSC_Start(TSC_HandleTypeDef *htsc);
+HAL_StatusTypeDef HAL_TSC_Start_IT(TSC_HandleTypeDef *htsc);
+HAL_StatusTypeDef HAL_TSC_Stop(TSC_HandleTypeDef *htsc);
+HAL_StatusTypeDef HAL_TSC_Stop_IT(TSC_HandleTypeDef *htsc);
+HAL_StatusTypeDef HAL_TSC_PollForAcquisition(TSC_HandleTypeDef *htsc);
+TSC_GroupStatusTypeDef HAL_TSC_GroupGetStatus(TSC_HandleTypeDef *htsc, uint32_t gx_index);
+uint32_t HAL_TSC_GroupGetValue(TSC_HandleTypeDef *htsc, uint32_t gx_index);
 /**
   * @}
   */
@@ -679,8 +674,8 @@ uint32_t HAL_TSC_GroupGetValue(TSC_HandleTypeDef* htsc, uint32_t gx_index);
   * @{
   */
 /* Peripheral Control functions ***********************************************/
-HAL_StatusTypeDef HAL_TSC_IOConfig(TSC_HandleTypeDef* htsc, TSC_IOConfigTypeDef* config);
-HAL_StatusTypeDef HAL_TSC_IODischarge(TSC_HandleTypeDef* htsc, uint32_t choice);
+HAL_StatusTypeDef HAL_TSC_IOConfig(TSC_HandleTypeDef *htsc, TSC_IOConfigTypeDef *config);
+HAL_StatusTypeDef HAL_TSC_IODischarge(TSC_HandleTypeDef *htsc, uint32_t choice);
 /**
   * @}
   */
@@ -689,18 +684,18 @@ HAL_StatusTypeDef HAL_TSC_IODischarge(TSC_HandleTypeDef* htsc, uint32_t choice);
   * @{
   */
 /* Peripheral State and Error functions ***************************************/
-HAL_TSC_StateTypeDef HAL_TSC_GetState(TSC_HandleTypeDef* htsc);
+HAL_TSC_StateTypeDef HAL_TSC_GetState(TSC_HandleTypeDef *htsc);
 /**
   * @}
   */
 
 /** @addtogroup TSC_IRQ_Handler_and_Callbacks IRQ Handler and Callbacks
  * @{
- */   
+ */
 /******* TSC IRQHandler and Callbacks used in Interrupt mode */
-void HAL_TSC_IRQHandler(TSC_HandleTypeDef* htsc);
-void HAL_TSC_ConvCpltCallback(TSC_HandleTypeDef* htsc);
-void HAL_TSC_ErrorCallback(TSC_HandleTypeDef* htsc);
+void HAL_TSC_IRQHandler(TSC_HandleTypeDef *htsc);
+void HAL_TSC_ConvCpltCallback(TSC_HandleTypeDef *htsc);
+void HAL_TSC_ErrorCallback(TSC_HandleTypeDef *htsc);
 /**
   * @}
   */

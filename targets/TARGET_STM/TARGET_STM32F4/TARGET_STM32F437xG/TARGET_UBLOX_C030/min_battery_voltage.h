@@ -18,7 +18,7 @@
 #define MIN_BATTERY_VOLTAGE_H
 
 #ifdef __cplusplus
-extern"C"{
+extern"C" {
 #endif
 
 #define BQ24295_I2C_ADDRESS (0x6B << 1)
@@ -34,4 +34,4 @@ void set_minimum_battery_voltage(void);
 }
 #endif
 
-#endif	// MIN_BATTERY_VOLTAGE_H
+#endif  // MIN_BATTERY_VOLTAGE_H

@@ -31,7 +31,7 @@ typedef struct {
     uint8_t intf_class;
     uint8_t intf_subclass;
     uint8_t intf_protocol;
-    USBEndpoint * ep[MAX_ENDPOINT_PER_INTERFACE];
+    USBEndpoint *ep[MAX_ENDPOINT_PER_INTERFACE];
     Callback<void()> detach;
     char name[10];
 } INTERFACE;
@@ -39,8 +39,7 @@ typedef struct {
 /**
 * USBDeviceConnected class
 */
-class USBDeviceConnected
-{
+class USBDeviceConnected {
 public:
 
     /**
@@ -55,7 +54,7 @@ public:
     * @param ep pointeur on the USBEndpoint which will be attached
     * @returns true if successful, false otherwise
     */
-    bool addEndpoint(uint8_t intf_nb, USBEndpoint * ep);
+    bool addEndpoint(uint8_t intf_nb, USBEndpoint *ep);
 
     /**
     * Retrieve an USBEndpoint by its TYPE and DIRECTION
@@ -66,7 +65,7 @@ public:
     * @param index the index of the USBEndpoint whitin the interface
     * @returns pointer on the USBEndpoint if found, NULL otherwise
     */
-    USBEndpoint * getEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir, uint8_t index = 0);
+    USBEndpoint *getEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir, uint8_t index = 0);
 
     /**
     * Retrieve an USBEndpoint by its index
@@ -75,7 +74,7 @@ public:
     * @param index index of the USBEndpoint
     * @returns pointer on the USBEndpoint if found, NULL otherwise
     */
-    USBEndpoint * getEndpoint(uint8_t intf_nb, uint8_t index);
+    USBEndpoint *getEndpoint(uint8_t intf_nb, uint8_t index);
 
     /**
     * Add a new interface to this device
@@ -94,7 +93,7 @@ public:
     * @param index index of the interface to be fetched
     * @returns interface
     */
-    INTERFACE * getInterface(uint8_t index);
+    INTERFACE *getInterface(uint8_t index);
 
     /**
      *  Attach a member function to call when a the device has been disconnected
@@ -104,7 +103,8 @@ public:
      *  @param mptr pointer to the member function to be called
      */
     template<typename T>
-    inline void onDisconnect(uint8_t intf_nb, T* tptr, void (T::*mptr)(void)) {
+    inline void onDisconnect(uint8_t intf_nb, T *tptr, void (T::*mptr)(void))
+    {
         if ((mptr != NULL) && (tptr != NULL)) {
             intf[intf_nb].detach.attach(tptr, mptr);
         }
@@ -116,7 +116,8 @@ public:
      *  @param intf_nb interface number
      *  @param fn function pointer
      */
-    inline void onDisconnect(uint8_t intf_nb, void (*fn)(void)) {
+    inline void onDisconnect(uint8_t intf_nb, void (*fn)(void))
+    {
         if (fn != NULL) {
             intf[intf_nb].detach.attach(fn);
         }
@@ -129,41 +130,122 @@ public:
 
     // setters
     void init(uint8_t hub, uint8_t port, bool lowSpeed);
-    inline void setAddress(uint8_t addr_) { addr = addr_; };
-    inline void setVid(uint16_t vid_) { vid = vid_; };
-    inline void setPid(uint16_t pid_) { pid = pid_; };
-    inline void setClass(uint8_t device_class_) { device_class = device_class_; };
-    inline void setSubClass(uint8_t device_subclass_) { device_subclass = device_subclass_; };
-    inline void setProtocol(uint8_t pr) { proto = pr; };
-    inline void setSizeControlEndpoint(uint32_t size) { sizeControlEndpoint = size; };
-    inline void activeAddress(bool active) { activeAddr = active; };
-    inline void setEnumerated() { enumerated = true; };
-    inline void setNbIntf(uint8_t nb_intf) {nb_interf = nb_intf; };
-    inline void setHubParent(USBHostHub * hub) { hub_parent = hub; };
-    inline void setName(const char * name_, uint8_t intf_nb) { strcpy(intf[intf_nb].name, name_); };
+    inline void setAddress(uint8_t addr_)
+    {
+        addr = addr_;
+    };
+    inline void setVid(uint16_t vid_)
+    {
+        vid = vid_;
+    };
+    inline void setPid(uint16_t pid_)
+    {
+        pid = pid_;
+    };
+    inline void setClass(uint8_t device_class_)
+    {
+        device_class = device_class_;
+    };
+    inline void setSubClass(uint8_t device_subclass_)
+    {
+        device_subclass = device_subclass_;
+    };
+    inline void setProtocol(uint8_t pr)
+    {
+        proto = pr;
+    };
+    inline void setSizeControlEndpoint(uint32_t size)
+    {
+        sizeControlEndpoint = size;
+    };
+    inline void activeAddress(bool active)
+    {
+        activeAddr = active;
+    };
+    inline void setEnumerated()
+    {
+        enumerated = true;
+    };
+    inline void setNbIntf(uint8_t nb_intf)
+    {
+        nb_interf = nb_intf;
+    };
+    inline void setHubParent(USBHostHub *hub)
+    {
+        hub_parent = hub;
+    };
+    inline void setName(const char *name_, uint8_t intf_nb)
+    {
+        strcpy(intf[intf_nb].name, name_);
+    };
 
     //getters
-    inline uint8_t     getPort() { return port; };
-    inline uint8_t     getHub() { return hub_nb; };
-    inline uint8_t     getAddress() { return addr; };
-    inline uint16_t    getVid() { return vid; };
-    inline uint16_t    getPid() { return pid; };
-    inline uint8_t     getClass() { return device_class; };
-    inline uint8_t     getSubClass() { return device_subclass; };
-    inline uint8_t     getProtocol() { return proto; };
-    inline bool        getSpeed() { return speed; };
-    inline uint32_t    getSizeControlEndpoint() { return sizeControlEndpoint; };
-    inline bool        isActiveAddress() { return activeAddr; };
-    inline bool        isEnumerated() { return enumerated; };
-    inline USBHostHub * getHubParent() { return hub_parent; };
-    inline uint8_t      getNbIntf() { return nb_interf; };
-    inline const char * getName(uint8_t intf_nb) { return intf[intf_nb].name; };
+    inline uint8_t     getPort()
+    {
+        return port;
+    };
+    inline uint8_t     getHub()
+    {
+        return hub_nb;
+    };
+    inline uint8_t     getAddress()
+    {
+        return addr;
+    };
+    inline uint16_t    getVid()
+    {
+        return vid;
+    };
+    inline uint16_t    getPid()
+    {
+        return pid;
+    };
+    inline uint8_t     getClass()
+    {
+        return device_class;
+    };
+    inline uint8_t     getSubClass()
+    {
+        return device_subclass;
+    };
+    inline uint8_t     getProtocol()
+    {
+        return proto;
+    };
+    inline bool        getSpeed()
+    {
+        return speed;
+    };
+    inline uint32_t    getSizeControlEndpoint()
+    {
+        return sizeControlEndpoint;
+    };
+    inline bool        isActiveAddress()
+    {
+        return activeAddr;
+    };
+    inline bool        isEnumerated()
+    {
+        return enumerated;
+    };
+    inline USBHostHub *getHubParent()
+    {
+        return hub_parent;
+    };
+    inline uint8_t      getNbIntf()
+    {
+        return nb_interf;
+    };
+    inline const char *getName(uint8_t intf_nb)
+    {
+        return intf[intf_nb].name;
+    };
 
     // in case this device is a hub
-    USBHostHub * hub;
+    USBHostHub *hub;
 
 private:
-    USBHostHub * hub_parent;
+    USBHostHub *hub_parent;
 
     INTERFACE intf[MAX_INTF];
     uint32_t sizeControlEndpoint;

@@ -80,7 +80,7 @@ extern "C" {
  * @ingroup spix_registers
  * Structure type to access the SPIX Registers.
  */
-  typedef struct {
+typedef struct {
     __IO uint32_t master_cfg;                           /**<  SPIX_MASTER_CFG Register.                                               */
     __IO uint32_t fetch_ctrl;                           /**<  SPIX_FETCH_CTRL Register.                                               */
     __IO uint32_t mode_ctrl;                            /**<  SPIX_MODE_CTRL Register.                                                */
@@ -91,7 +91,7 @@ extern "C" {
 /**
  * @ingroup    spix_registers
  * @defgroup   SPIX_Register_Offsets Register Offsets
- * @brief      SPIX Peripheral Register Offsets from the SPIX Base Peripheral Address, #MXC_BASE_SPIX. 
+ * @brief      SPIX Peripheral Register Offsets from the SPIX Base Peripheral Address, #MXC_BASE_SPIX.
  * @{
  */
 #define MXC_R_SPIX_OFFS_MASTER_CFG                          ((uint32_t)0x00000000UL) /**< Offset from #MXC_BASE_SPIX: <tt>\b 0x000</tt>  */
@@ -190,7 +190,7 @@ extern "C" {
 
 
 /**
- * @ingroup SPIX_Master_Cfg_Register 
+ * @ingroup SPIX_Master_Cfg_Register
  * @defgroup SPIX_Master_Cfg_SCK SCK Sampling Mode Field
  * @brief Field values and shifted field values for setting the SPIX SCK Sampling Mode.
  * @{
@@ -202,7 +202,7 @@ extern "C" {
 #define MXC_S_SPIX_MASTER_CFG_SPI_MODE_SCK_LO_SAMPLE_FALLING                    ((uint32_t)(MXC_V_SPIX_MASTER_CFG_SPI_MODE_SCK_LO_SAMPLE_FALLING   << MXC_F_SPIX_MASTER_CFG_SPI_MODE_POS)) /**< SCK sampling on falling edge Field Shifted Value. */
 /**@}*/
 /**
- * @ingroup SPIX_Master_Cfg_Register 
+ * @ingroup SPIX_Master_Cfg_Register
  * @defgroup SPIX_Master_Cfg_SS Slave Select Polarity Field
  * @brief Field values and shifted field values for setting the SPIX Slave Select Active High/Low Field.
  * @{
@@ -214,9 +214,9 @@ extern "C" {
 #define MXC_S_SPIX_MASTER_CFG_SS_ACT_LO_ACTIVE_LOW                              ((uint32_t)(MXC_V_SPIX_MASTER_CFG_SS_ACT_LO_ACTIVE_LOW   << MXC_F_SPIX_MASTER_CFG_SS_ACT_LO_POS)) /**< Slave Select Active Low Field Shifted Value.  */
 /**@}*/
 /**
- * @ingroup SPIX_Master_Cfg_Register 
+ * @ingroup SPIX_Master_Cfg_Register
  * @defgroup SPIX_Master_Cfg_Alt Alternate Timing
- * @brief Field values and shifted field values for setting the SPIX Alternate Timing Field. 
+ * @brief Field values and shifted field values for setting the SPIX Alternate Timing Field.
  * @{
  */
 #define MXC_V_SPIX_MASTER_CFG_ALT_TIMING_EN_DISABLED                            ((uint32_t)(0x00000000UL))  /**< Alternate Timing Disabled (Default) Field selection value.         */
@@ -226,9 +226,9 @@ extern "C" {
 #define MXC_S_SPIX_MASTER_CFG_ALT_TIMING_EN_ENABLED_AS_NEEDED                   ((uint32_t)(MXC_V_SPIX_MASTER_CFG_ALT_TIMING_EN_ENABLED_AS_NEEDED   << MXC_F_SPIX_MASTER_CFG_ALT_TIMING_EN_POS))  /**< Alternate Timing Enabled As Needed Field Shifted Value.  */
 /**@}*/
 /**
- * @ingroup SPIX_Master_Cfg_Register 
+ * @ingroup SPIX_Master_Cfg_Register
  * @defgroup SPIX_Master_Cfg_Act Active Delay Settings
- * @brief Field values and shifted field values for setting the SPIX Activity Delay, the number of SPIX clocks between slave selection assert and active SPI clocking. 
+ * @brief Field values and shifted field values for setting the SPIX Activity Delay, the number of SPIX clocks between slave selection assert and active SPI clocking.
  * @{
  */
 #define MXC_V_SPIX_MASTER_CFG_ACT_DELAY_OFF                                     ((uint32_t)(0x00000000UL))  /**< Activity Delay Off Field selection value.         */
@@ -242,8 +242,8 @@ extern "C" {
 #define MXC_S_SPIX_MASTER_CFG_ACT_DELAY_FOR_8_MOD_CLK                           ((uint32_t)(MXC_V_SPIX_MASTER_CFG_ACT_DELAY_FOR_8_MOD_CLK   << MXC_F_SPIX_MASTER_CFG_ACT_DELAY_POS))  /**< 8 Mode Clocks Field Shifted Value.  */
 /**@}*/
 /**
- * @ingroup SPIX_Master_Cfg_Register 
- * @defgroup SPIX_Master_Cfg_Inact Inactive Delay Settings 
+ * @ingroup SPIX_Master_Cfg_Register
+ * @defgroup SPIX_Master_Cfg_Inact Inactive Delay Settings
  * @brief Field values and shifted field values for setting the SPIX Inactivity Delay, the number of SPIX clocks between the active SPI Clock and the Slave Select Deassertion.
  * @{
  */
@@ -258,7 +258,7 @@ extern "C" {
 #define MXC_S_SPIX_MASTER_CFG_INACT_DELAY_FOR_8_MOD_CLK                         ((uint32_t)(MXC_V_SPIX_MASTER_CFG_INACT_DELAY_FOR_8_MOD_CLK   << MXC_F_SPIX_MASTER_CFG_INACT_DELAY_POS))  /**< 8 Mode Clocks Field Shifted Value.  */
 /**@}*/
 /**
- * @ingroup SPIX_Fetch_Ctrl_Register 
+ * @ingroup SPIX_Fetch_Ctrl_Register
  * @defgroup SPIX_Fetch_ctrl_cmd_width Address Width Values and Shifted Values
  * @brief Field values and shifted field values for selecting the SPIX Command Fetch Width
  * @{
@@ -272,7 +272,7 @@ extern "C" {
 #define MXC_S_SPIX_FETCH_CTRL_CMD_WIDTH_QUAD_IO                                 ((uint32_t)(MXC_V_SPIX_FETCH_CTRL_CMD_WIDTH_QUAD_IO   << MXC_F_SPIX_FETCH_CTRL_CMD_WIDTH_POS))  /**< x4 Quad command width fetch shifted value.  */
 /**@}*/
 /**
- * @ingroup SPIX_Fetch_Ctrl_Register 
+ * @ingroup SPIX_Fetch_Ctrl_Register
  * @defgroup SPIX_Fetch_ctrl_addr_width Address Width Values and Shifted Values
  * @brief Field values and shifted field values for selecting the SPIX Address Fetch Width
  * @{
@@ -286,7 +286,7 @@ extern "C" {
 #define MXC_S_SPIX_FETCH_CTRL_ADDR_WIDTH_QUAD_IO                                ((uint32_t)(MXC_V_SPIX_FETCH_CTRL_ADDR_WIDTH_QUAD_IO   << MXC_F_SPIX_FETCH_CTRL_ADDR_WIDTH_POS))  /**< x4 Quad addr width fetch shifted value.  */
 /**@}*/
 /**
- * @ingroup SPIX_Fetch_Ctrl_Register 
+ * @ingroup SPIX_Fetch_Ctrl_Register
  * @defgroup SPIX_Fetch_ctrl_data_width Data Width Values and Shifted Values
  * @brief Field values and shifted field values for selecting the SPIX Data Fetch Width
  * @{

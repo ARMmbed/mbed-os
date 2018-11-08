@@ -46,8 +46,7 @@ extern const uint8_t BEACON_EDDYSTONE[2];
 * See https://github.com/google/eddystone
 *
 */
-class EddystoneConfigService
-{
+class EddystoneConfigService {
 public:
     /**
      * @brief Transmission Power Modes for UriBeacon
@@ -88,7 +87,7 @@ public:
     struct Params_t {
         // Config Data
         bool             isConfigured; // Flag for configuration being complete:
-                                       //   True = configured, False = not configured. Reset at instantiation, used for external callbacks.
+        //   True = configured, False = not configured. Reset at instantiation, used for external callbacks.
         uint8_t          lockedState;
         Lock_t           lock;
         uint8_t          flags;
@@ -151,7 +150,8 @@ public:
         advPowerLevelsChar(UUID_ADV_POWER_LEVELS_CHAR, &params.advPowerLevels),
         txPowerModeChar(UUID_TX_POWER_MODE_CHAR, &params.txPowerMode),
         beaconPeriodChar(UUID_BEACON_PERIOD_CHAR, &params.beaconPeriod),
-        resetChar(UUID_RESET_CHAR, &resetFlag) {
+        resetChar(UUID_RESET_CHAR, &resetFlag)
+    {
         // Set Eddystone as not configured yet. Used to exit config before timeout if GATT services are written to.
         params.isConfigured = false;
 
@@ -185,7 +185,8 @@ public:
      *                    un-initialized, and default values should be used
      *                    instead. Otherwise, paramsIn overrides the defaults.
      */
-    void start(bool resetToDefaultsFlag){
+    void start(bool resetToDefaultsFlag)
+    {
         INFO("reset to defaults flag = %d", resetToDefaultsFlag);
         if (!resetToDefaultsFlag && (params.uriDataLength > URI_DATA_MAX)) {
             INFO("Reset to Defaults triggered");
@@ -205,7 +206,8 @@ public:
     /*
     * Check if Eddystone initialized successfully.
     */
-    bool initSuccessfully(void) const {
+    bool initSuccessfully(void) const
+    {
         return initSucceeded;
     }
 
@@ -216,7 +218,8 @@ public:
     * @param[in] advPeriodInMin How long between TLM frames being advertised, measured in minutes.
     *
     */
-    void setDefaultTLMFrameData(uint8_t tlmVersionIn = 0, float advPeriodInSec = 60){
+    void setDefaultTLMFrameData(uint8_t tlmVersionIn = 0, float advPeriodInSec = 60)
+    {
         DBG("Setting Default TLM Data, version = %d, advPeriodInMind= %f", tlmVersionIn, advPeriodInSec);
         defaultTlmVersion   = tlmVersionIn;
         TlmBatteryVoltage   = 0;
@@ -234,7 +237,8 @@ public:
     * @param[in] advPeriod  How long to advertise the URL, measured in number of ADV frames.
     *
     */
-    void setDefaultURIFrameData(const char *uriIn, float advPeriod = 1){
+    void setDefaultURIFrameData(const char *uriIn, float advPeriod = 1)
+    {
         DBG("Setting Default URI Data");
         // Set URL Frame
         EddystoneService::encodeURL(uriIn, defaultUriData, defaultUriDataLength);   // Encode URL to URL Formatting.
@@ -242,7 +246,7 @@ public:
             return;
         }
         INFO("\t  URI input = %s : %d", uriIn, defaultUriDataLength);
-        INFO("\t default URI = %s : %d ", defaultUriData, defaultUriDataLength );
+        INFO("\t default URI = %s : %d ", defaultUriData, defaultUriDataLength);
         defaultUriAdvPeriod = advPeriod;
         urlIsSet            = true; // Flag to add this to Eddystone service when config is done.
     }
@@ -255,7 +259,8 @@ public:
     * @param[in] advPeriod   How long to advertise the URL, measured in the number of ADV frames.
     *
     */
-    void setDefaultUIDFrameData(UIDNamespaceID_t *namespaceID, UIDInstanceID_t *instanceID, float advPeriod = 10){
+    void setDefaultUIDFrameData(UIDNamespaceID_t *namespaceID, UIDInstanceID_t *instanceID, float advPeriod = 10)
+    {
         //Set UID frame
         DBG("Setting default UID Data");
         memcpy(defaultUidNamespaceID, namespaceID, UID_NAMESPACEID_SIZE);
@@ -267,7 +272,8 @@ public:
     /* Start out by advertising the config service for a limited time after
      * startup, then switch to the normal non-connectible beacon functionality.
      */
-    void setupEddystoneConfigAdvertisements() {
+    void setupEddystoneConfigAdvertisements()
+    {
         const char DEVICE_NAME[] = "eddystone Config";
 
         ble.clearAdvertisingPayload();
@@ -298,7 +304,8 @@ public:
     *   to load saved config params, or it can be called explicitly to reset the Eddystone beacon to hardcoded values on each reset.
     *
     */
-    void setupEddystoneAdvertisements() {
+    void setupEddystoneAdvertisements()
+    {
         DBG("Switching Config -> adv");
         // Save params to storage.
         extern void saveURIBeaconConfigParams(const Params_t *paramsP); /* forward declaration; necessary to avoid a circular dependency. */
@@ -329,7 +336,8 @@ private:
      * characteristics of this service. Attempts to do so are also applied to
      * the internal state of this service object.
      */
-    void onDataWrittenCallback(const GattWriteCallbackParams *writeParams) {
+    void onDataWrittenCallback(const GattWriteCallbackParams *writeParams)
+    {
         uint16_t handle = writeParams->handle;
 
         if (handle == lockChar.getValueHandle()) {
@@ -386,7 +394,8 @@ private:
     /*
      * Reset the default values.
      */
-    void resetToDefaults(void) {
+    void resetToDefaults(void)
+    {
         INFO("Resetting to defaults");
         // General.
         params.lockedState = false;
@@ -420,7 +429,8 @@ private:
      * Internal helper function used to update the GATT database following any
      * change to the internal state of the service object.
      */
-    void updateCharacteristicValues(void) {
+    void updateCharacteristicValues(void)
+    {
         ble.updateCharacteristicValue(lockedStateChar.getValueHandle(), &params.lockedState, 1);
         ble.updateCharacteristicValue(uriDataChar.getValueHandle(), params.uriData, params.uriDataLength);
         ble.updateCharacteristicValue(flagsChar.getValueHandle(), &params.flags, 1);
@@ -432,7 +442,8 @@ private:
     }
 
 private:
-    void lockAuthorizationCallback(GattWriteAuthCallbackParams *authParams) {
+    void lockAuthorizationCallback(GattWriteAuthCallbackParams *authParams)
+    {
         if (params.lockedState) {
             authParams->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION;
         } else if (authParams->len != sizeof(Lock_t)) {
@@ -444,7 +455,8 @@ private:
         }
     }
 
-    void unlockAuthorizationCallback(GattWriteAuthCallbackParams *authParams) {
+    void unlockAuthorizationCallback(GattWriteAuthCallbackParams *authParams)
+    {
         if ((!params.lockedState) && (authParams->len == sizeof(Lock_t))) {
             authParams->authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS;
         } else if (authParams->len != sizeof(Lock_t)) {
@@ -458,7 +470,8 @@ private:
         }
     }
 
-    void uriDataWriteAuthorizationCallback(GattWriteAuthCallbackParams *authParams) {
+    void uriDataWriteAuthorizationCallback(GattWriteAuthCallbackParams *authParams)
+    {
         if (params.lockedState) {
             authParams->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION;
         } else if (authParams->offset != 0) {
@@ -468,7 +481,8 @@ private:
         }
     }
 
-    void powerModeAuthorizationCallback(GattWriteAuthCallbackParams *authParams) {
+    void powerModeAuthorizationCallback(GattWriteAuthCallbackParams *authParams)
+    {
         if (params.lockedState) {
             authParams->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION;
         } else if (authParams->len != sizeof(uint8_t)) {
@@ -483,7 +497,8 @@ private:
     }
 
     template <typename T>
-    void basicAuthorizationCallback(GattWriteAuthCallbackParams *authParams) {
+    void basicAuthorizationCallback(GattWriteAuthCallbackParams *authParams)
+    {
         if (params.lockedState) {
             authParams->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION;
         } else if (authParams->len != sizeof(T)) {

@@ -23,7 +23,7 @@
 #endif
 #include "USBHAL.h"
 
-USBHAL * USBHAL::instance;
+USBHAL *USBHAL::instance;
 
 static volatile int epComplete = 0;
 
@@ -69,27 +69,30 @@ typedef struct BDT {
 //    * as there are ODD and EVEN buffer -> 8*2 bdt
 MBED_ALIGN(512) BDT bdt[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];  // 512 bytes aligned!
 
-uint8_t * endpoint_buffer[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];
+uint8_t *endpoint_buffer[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];
 
 static uint8_t set_addr = 0;
 static uint8_t addr = 0;
 
 static uint32_t Data1  = 0x55555555;
 
-static uint32_t frameNumber() {
-    return((USB0->FRMNUML | (USB0->FRMNUMH << 8)) & 0x07FF);
+static uint32_t frameNumber()
+{
+    return ((USB0->FRMNUML | (USB0->FRMNUMH << 8)) & 0x07FF);
 }
 
-uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer) {
+uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer)
+{
     return 0;
 }
 
-USBHAL::USBHAL(void) {
+USBHAL::USBHAL(void)
+{
     // Disable IRQ
     NVIC_DisableIRQ(USB0_IRQn);
 
 #if (defined(FSL_FEATURE_SOC_MPU_COUNT) && (FSL_FEATURE_SOC_MPU_COUNT > 0U))
-    MPU->CESR=0;
+    MPU->CESR = 0;
 #endif
     // fill in callback array
     epCallback[0] = &USBHAL::EP1_OUT_callback;
@@ -120,9 +123,9 @@ USBHAL::USBHAL(void) {
 
     // USB Module Configuration
     // Set BDT Base Register
-    USB0->BDTPAGE1 = (uint8_t)((uint32_t)bdt>>8);
-    USB0->BDTPAGE2 = (uint8_t)((uint32_t)bdt>>16);
-    USB0->BDTPAGE3 = (uint8_t)((uint32_t)bdt>>24);
+    USB0->BDTPAGE1 = (uint8_t)((uint32_t)bdt >> 8);
+    USB0->BDTPAGE2 = (uint8_t)((uint32_t)bdt >> 16);
+    USB0->BDTPAGE3 = (uint8_t)((uint32_t)bdt >> 24);
 
     // Clear interrupt flag
     USB0->ISTAT = 0xff;
@@ -145,7 +148,8 @@ USBHAL::USBHAL(void) {
 
 USBHAL::~USBHAL(void) { }
 
-void USBHAL::connect(void) {
+void USBHAL::connect(void)
+{
     // enable USB
     USB0->CTL |= USB_CTL_USBENSOFEN_MASK;
     // Pull up enable
@@ -161,7 +165,8 @@ void USBHAL::connect(void) {
     }
 }
 
-void USBHAL::disconnect(void) {
+void USBHAL::disconnect(void)
+{
     // disable USB
     USB0->CTL &= ~USB_CTL_USBENSOFEN_MASK;
     // Pull up disable
@@ -174,15 +179,18 @@ void USBHAL::disconnect(void) {
     }
 }
 
-void USBHAL::configureDevice(void) {
+void USBHAL::configureDevice(void)
+{
     // not needed
 }
 
-void USBHAL::unconfigureDevice(void) {
+void USBHAL::unconfigureDevice(void)
+{
     // not needed
 }
 
-void USBHAL::setAddress(uint8_t address) {
+void USBHAL::setAddress(uint8_t address)
+{
     // we don't set the address now otherwise the usb controller does not ack
     // we set a flag instead
     // see usbisr when an IN token is received
@@ -190,9 +198,10 @@ void USBHAL::setAddress(uint8_t address) {
     addr = address;
 }
 
-bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flags) {
+bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flags)
+{
     uint32_t handshake_flag = 0;
-    uint8_t * buf;
+    uint8_t *buf;
 
     if (endpoint > NUMBER_OF_PHYSICAL_ENDPOINTS - 1) {
         return false;
@@ -214,16 +223,16 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flag
     if (IN_EP(endpoint)) {
         USB0->ENDPOINT[log_endpoint].ENDPT |= handshake_flag |        // ep handshaking (not if iso endpoint)
                                               USB_ENDPT_EPTXEN_MASK;  // en TX (IN) tran
-        bdt[EP_BDT_IDX(log_endpoint, TX, ODD )].address = (uint32_t) buf;
+        bdt[EP_BDT_IDX(log_endpoint, TX, ODD)].address = (uint32_t) buf;
         bdt[EP_BDT_IDX(log_endpoint, TX, EVEN)].address = 0;
     }
     // OUT endpt -> host to device (RX)
     else {
         USB0->ENDPOINT[log_endpoint].ENDPT |= handshake_flag |        // ep handshaking (not if iso endpoint)
                                               USB_ENDPT_EPRXEN_MASK;  // en RX (OUT) tran.
-        bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].byte_count = maxPacket;
-        bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].address    = (uint32_t) buf;
-        bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].info       = BD_OWN_MASK | BD_DTS_MASK;
+        bdt[EP_BDT_IDX(log_endpoint, RX, ODD)].byte_count = maxPacket;
+        bdt[EP_BDT_IDX(log_endpoint, RX, ODD)].address    = (uint32_t) buf;
+        bdt[EP_BDT_IDX(log_endpoint, RX, ODD)].info       = BD_OWN_MASK | BD_DTS_MASK;
         bdt[EP_BDT_IDX(log_endpoint, RX, EVEN)].info       = 0;
     }
 
@@ -233,49 +242,58 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flag
 }
 
 // read setup packet
-void USBHAL::EP0setup(uint8_t *buffer) {
+void USBHAL::EP0setup(uint8_t *buffer)
+{
     uint32_t sz;
     endpointReadResult(EP0OUT, buffer, &sz);
 }
 
-void USBHAL::EP0readStage(void) {
+void USBHAL::EP0readStage(void)
+{
     Data1 &= ~1UL;  // set DATA0
     bdt[0].info = (BD_DTS_MASK | BD_OWN_MASK);
 }
 
-void USBHAL::EP0read(void) {
+void USBHAL::EP0read(void)
+{
     uint32_t idx = EP_BDT_IDX(PHY_TO_LOG(EP0OUT), RX, 0);
     bdt[idx].byte_count = MAX_PACKET_SIZE_EP0;
 }
 
-uint32_t USBHAL::EP0getReadResult(uint8_t *buffer) {
+uint32_t USBHAL::EP0getReadResult(uint8_t *buffer)
+{
     uint32_t sz;
     endpointReadResult(EP0OUT, buffer, &sz);
     return sz;
 }
 
-void USBHAL::EP0write(uint8_t *buffer, uint32_t size) {
+void USBHAL::EP0write(uint8_t *buffer, uint32_t size)
+{
     endpointWrite(EP0IN, buffer, size);
 }
 
-void USBHAL::EP0getWriteResult(void) {
+void USBHAL::EP0getWriteResult(void)
+{
 }
 
-void USBHAL::EP0stall(void) {
+void USBHAL::EP0stall(void)
+{
     stallEndpoint(EP0OUT);
 }
 
-EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
+EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize)
+{
     endpoint = PHY_TO_LOG(endpoint);
     uint32_t idx = EP_BDT_IDX(endpoint, RX, 0);
     bdt[idx].byte_count = maximumSize;
     return EP_PENDING;
 }
 
-EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_t *bytesRead) {
+EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *buffer, uint32_t *bytesRead)
+{
     uint32_t n, sz, idx, setup = 0;
     uint8_t not_iso;
-    uint8_t * ep_buf;
+    uint8_t *ep_buf;
 
     uint32_t log_endpoint = PHY_TO_LOG(endpoint);
 
@@ -308,16 +326,16 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
     }
 
     if (((Data1 >> endpoint) & 1) == ((bdt[idx].info >> 6) & 1)) {
-        if (setup && (buffer[6] == 0))  // if no setup data stage,
-            Data1 &= ~1UL;              // set DATA0
-        else
+        if (setup && (buffer[6] == 0)) { // if no setup data stage,
+            Data1 &= ~1UL;    // set DATA0
+        } else {
             Data1 ^= (1 << endpoint);
+        }
     }
 
     if (((Data1 >> endpoint) & 1)) {
         bdt[idx].info = BD_DTS_MASK | BD_DATA01_MASK | BD_OWN_MASK;
-    }
-    else {
+    } else {
         bdt[idx].info = BD_DTS_MASK | BD_OWN_MASK;
     }
 
@@ -328,9 +346,10 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
     return EP_COMPLETED;
 }
 
-EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) {
+EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
+{
     uint32_t idx, n;
-    uint8_t * ep_buf;
+    uint8_t *ep_buf;
 
     if (endpoint > NUMBER_OF_PHYSICAL_ENDPOINTS - 1) {
         return EP_INVALID;
@@ -361,7 +380,8 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) 
     return EP_PENDING;
 }
 
-EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint) {
+EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint)
+{
     if (epComplete & EP(endpoint)) {
         epComplete &= ~EP(endpoint);
         return EP_COMPLETED;
@@ -370,37 +390,43 @@ EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint) {
     return EP_PENDING;
 }
 
-void USBHAL::stallEndpoint(uint8_t endpoint) {
+void USBHAL::stallEndpoint(uint8_t endpoint)
+{
     USB0->ENDPOINT[PHY_TO_LOG(endpoint)].ENDPT |= USB_ENDPT_EPSTALL_MASK;
 }
 
-void USBHAL::unstallEndpoint(uint8_t endpoint) {
+void USBHAL::unstallEndpoint(uint8_t endpoint)
+{
     USB0->ENDPOINT[PHY_TO_LOG(endpoint)].ENDPT &= ~USB_ENDPT_EPSTALL_MASK;
 }
 
-bool USBHAL::getEndpointStallState(uint8_t endpoint) {
+bool USBHAL::getEndpointStallState(uint8_t endpoint)
+{
     uint8_t stall = (USB0->ENDPOINT[PHY_TO_LOG(endpoint)].ENDPT & USB_ENDPT_EPSTALL_MASK);
     return (stall) ? true : false;
 }
 
-void USBHAL::remoteWakeup(void) {
+void USBHAL::remoteWakeup(void)
+{
     // [TODO]
 }
 
 
-void USBHAL::_usbisr(void) {
+void USBHAL::_usbisr(void)
+{
     instance->usbisr();
 }
 
 
-void USBHAL::usbisr(void) {
+void USBHAL::usbisr(void)
+{
     uint8_t i;
     uint8_t istat = USB0->ISTAT;
 
     // reset interrupt
     if (istat & USB_ISTAT_USBRST_MASK) {
         // disable all endpt
-        for(i = 0; i < 16; i++) {
+        for (i = 0; i < 16; i++) {
             USB0->ENDPOINT[i].ENDPT = 0x00;
         }
 
@@ -435,14 +461,15 @@ void USBHAL::usbisr(void) {
     }
 
     // stall interrupt
-    if (istat & 1<<7) {
-        if (USB0->ENDPOINT[0].ENDPT & USB_ENDPT_EPSTALL_MASK)
+    if (istat & 1 << 7) {
+        if (USB0->ENDPOINT[0].ENDPT & USB_ENDPT_EPSTALL_MASK) {
             USB0->ENDPOINT[0].ENDPT &= ~USB_ENDPT_EPSTALL_MASK;
+        }
         USB0->ISTAT |= USB_ISTAT_STALL_MASK;
     }
 
     // token interrupt
-    if (istat & 1<<3) {
+    if (istat & 1 << 3) {
         uint32_t num  = (USB0->STAT >> 4) & 0x0F;
         uint32_t dir  = (USB0->STAT >> 3) & 0x01;
         uint32_t ev_odd = (USB0->STAT >> 2) & 0x01;
@@ -460,9 +487,9 @@ void USBHAL::usbisr(void) {
         } else {
             // OUT packet
             if (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == OUT_TOKEN) {
-                if (num == 0)
+                if (num == 0) {
                     EP0out();
-                else {
+                } else {
                     epComplete |= EP(endpoint);
                     if ((instance->*(epCallback[endpoint - 2]))()) {
                         epComplete &= ~EP(endpoint);
@@ -478,8 +505,7 @@ void USBHAL::usbisr(void) {
                         USB0->ADDR = addr & 0x7F;
                         set_addr = 0;
                     }
-                }
-                else {
+                } else {
                     epComplete |= EP(endpoint);
                     if ((instance->*(epCallback[endpoint - 2]))()) {
                         epComplete &= ~EP(endpoint);
@@ -492,7 +518,7 @@ void USBHAL::usbisr(void) {
     }
 
     // sleep interrupt
-    if (istat & 1<<4) {
+    if (istat & 1 << 4) {
         USB0->ISTAT |= USB_ISTAT_SLEEP_MASK;
     }
 

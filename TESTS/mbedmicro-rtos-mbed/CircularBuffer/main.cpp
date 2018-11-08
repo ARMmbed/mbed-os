@@ -23,8 +23,7 @@
 using namespace utest::v1;
 
 /* Structure for complex type. */
-typedef struct
-{
+typedef struct {
     int a;
     char b;
     int c;

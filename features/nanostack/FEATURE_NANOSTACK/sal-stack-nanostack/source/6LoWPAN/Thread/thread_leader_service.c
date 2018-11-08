@@ -91,7 +91,7 @@ typedef struct {
 
 static NS_LIST_DEFINE(leader_service_instance_list, thread_leader_service_t, link);
 
-static void thread_leader_service_commissioner_timeout_cb(void* arg);
+static void thread_leader_service_commissioner_timeout_cb(void *arg);
 
 /* Private functions */
 static thread_leader_service_t *thread_leader_service_find_by_interface(int8_t interface_id)
@@ -118,7 +118,7 @@ static thread_leader_service_t *thread_leader_service_find_by_service(int8_t ser
     return this;
 }
 
-static char* thread_commissioning_if_commissioner_id_get(int8_t interface_id)
+static char *thread_commissioning_if_commissioner_id_get(int8_t interface_id)
 {
     protocol_interface_info_entry_t *cur;
 
@@ -140,16 +140,16 @@ static bool thread_leader_service_commissioner_address_changed(int8_t interface_
         return false;
     }
 
-    if(!memcmp(cur->thread_info->registered_commissioner.border_router_address, border_router_address, 16)) {
+    if (!memcmp(cur->thread_info->registered_commissioner.border_router_address, border_router_address, 16)) {
         // Border router address is same
         return false;
     }
-    if( common_read_16_bit(&border_router_address[14]) >= 0xfc00 ) {
+    if (common_read_16_bit(&border_router_address[14]) >= 0xfc00) {
         // Address is not valid RLOC we dont change address to this.
         return false;
     }
     memcpy(cur->thread_info->registered_commissioner.border_router_address, border_router_address, 16);
-    thread_leader_service_network_data_changed(cur,false,true);
+    thread_leader_service_network_data_changed(cur, false, true);
     // This will trigger advertisement either from following commands or from leader tick
     return true;
 }
@@ -191,12 +191,14 @@ static bool thread_leader_service_commissioner_unregister(int8_t interface_id, u
     link_configuration_s *linkConfiguration;
 
     linkConfiguration = thread_joiner_application_get_config(interface_id);
-    if(!linkConfiguration)
+    if (!linkConfiguration) {
         return false;
+    }
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->thread_info || !cur->thread_info->leader_private_data)
+    if (!cur || !cur->thread_info || !cur->thread_info->leader_private_data) {
         return false;
+    }
 
     if (cur->thread_info->registered_commissioner.session_id != session_id) {
         tr_debug("Commissioner session id not valid - unregister failed");
@@ -205,9 +207,9 @@ static bool thread_leader_service_commissioner_unregister(int8_t interface_id, u
     // Removing commissioner we need to increase the session id
     cur->thread_info->registered_commissioner.session_id++;
 
-    if(cur->thread_info->registered_commissioner.commissioner_id_ptr){
-       ns_dyn_mem_free(cur->thread_info->registered_commissioner.commissioner_id_ptr);
-       cur->thread_info->registered_commissioner.commissioner_id_ptr = NULL;
+    if (cur->thread_info->registered_commissioner.commissioner_id_ptr) {
+        ns_dyn_mem_free(cur->thread_info->registered_commissioner.commissioner_id_ptr);
+        cur->thread_info->registered_commissioner.commissioner_id_ptr = NULL;
     }
 
     cur->thread_info->registered_commissioner.commissioner_valid = false;
@@ -233,7 +235,7 @@ static bool thread_leader_service_commissioner_session_refresh(int8_t interface_
         return false;
     }
 
-    if(cur->thread_info->registered_commissioner.commissioner_registration == THREAD_COMMISSIONER_NOT_REGISTERED) {
+    if (cur->thread_info->registered_commissioner.commissioner_registration == THREAD_COMMISSIONER_NOT_REGISTERED) {
         tr_debug("Commissioner not registered - refresh failed");
         return false;
     }
@@ -251,7 +253,7 @@ static bool thread_leader_service_commissioner_session_refresh(int8_t interface_
     return true;
 }
 
-static void thread_leader_service_commissioner_timeout_cb(void* arg)
+static void thread_leader_service_commissioner_timeout_cb(void *arg)
 {
     thread_info_t *thread_ptr = arg;
 
@@ -265,32 +267,30 @@ static void thread_leader_service_commissioner_timeout_cb(void* arg)
         return;
     }
 
-    switch(thread_ptr->registered_commissioner.commissioner_registration)
-    {
-    case THREAD_COMMISSIONER_REGISTRATION_OBSOLETE:
-        thread_ptr->registered_commissioner.commissioner_registration = THREAD_COMMISSIONER_NOT_REGISTERED;
-        if(false == thread_leader_service_commissioner_unregister(thread_ptr->interface_id, thread_ptr->registered_commissioner.session_id)){
-            tr_debug("Commissioner registration remove failed");
-        }
-        else{
-            tr_debug("Commissioner registration removed");
-        }
-        break;
-    case THREAD_COMMISSIONER_REGISTERED:
-        tr_debug("Commissioner registration obsoleted");
-        thread_ptr->registered_commissioner.commissioner_registration = THREAD_COMMISSIONER_REGISTRATION_OBSOLETE;
-        thread_ptr->registered_commissioner.commissioner_timeout = eventOS_timeout_ms(thread_leader_service_commissioner_timeout_cb, COMMISSIONER_REMOVE_TIMEOUT, thread_ptr);
-        break;
-    case THREAD_COMMISSIONER_NOT_REGISTERED:
-    default:
-       break;
+    switch (thread_ptr->registered_commissioner.commissioner_registration) {
+        case THREAD_COMMISSIONER_REGISTRATION_OBSOLETE:
+            thread_ptr->registered_commissioner.commissioner_registration = THREAD_COMMISSIONER_NOT_REGISTERED;
+            if (false == thread_leader_service_commissioner_unregister(thread_ptr->interface_id, thread_ptr->registered_commissioner.session_id)) {
+                tr_debug("Commissioner registration remove failed");
+            } else {
+                tr_debug("Commissioner registration removed");
+            }
+            break;
+        case THREAD_COMMISSIONER_REGISTERED:
+            tr_debug("Commissioner registration obsoleted");
+            thread_ptr->registered_commissioner.commissioner_registration = THREAD_COMMISSIONER_REGISTRATION_OBSOLETE;
+            thread_ptr->registered_commissioner.commissioner_timeout = eventOS_timeout_ms(thread_leader_service_commissioner_timeout_cb, COMMISSIONER_REMOVE_TIMEOUT, thread_ptr);
+            break;
+        case THREAD_COMMISSIONER_NOT_REGISTERED:
+        default:
+            break;
     }
 }
 
 
 static int thread_leader_service_commissioner_register(int8_t interface_id, uint8_t border_router_address[static 16],
-                                  uint8_t *commissioner_id_ptr, uint16_t commissioner_id_len,
-                                  uint16_t *session_id)
+                                                       uint8_t *commissioner_id_ptr, uint16_t commissioner_id_len,
+                                                       uint16_t *session_id)
 {
     /* Save commissioner data to new commissioner structure and start advertise it
     Commissioner session id
@@ -317,7 +317,7 @@ static int thread_leader_service_commissioner_register(int8_t interface_id, uint
     }
 
     /* If commissioner already registered */
-    if(cur->thread_info->registered_commissioner.commissioner_valid &&
+    if (cur->thread_info->registered_commissioner.commissioner_valid &&
             cur->thread_info->registered_commissioner.commissioner_registration == THREAD_COMMISSIONER_REGISTERED) {
         return -2;
     }
@@ -378,7 +378,7 @@ static int thread_leader_service_active_set_cb(int8_t service_id, uint8_t source
     }
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(this->interface_id);
     linkConfiguration = thread_joiner_application_get_config(this->interface_id);
-    if(!cur || !cur->thread_info || !linkConfiguration || !cur->thread_info->leader_private_data){
+    if (!cur || !cur->thread_info || !linkConfiguration || !cur->thread_info->leader_private_data) {
         return -1;
     }
 
@@ -392,7 +392,7 @@ static int thread_leader_service_active_set_cb(int8_t service_id, uint8_t source
     }
 
     if (3 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_CHANNEL, &ptr) &&
-         (linkConfiguration->rfChannel != common_read_16_bit(&ptr[1]) || linkConfiguration->channel_page != *ptr)){
+            (linkConfiguration->rfChannel != common_read_16_bit(&ptr[1]) || linkConfiguration->channel_page != *ptr)) {
         tr_debug("Channel changed");
         changing_connectivity = true;
         // validity check for channel page
@@ -403,7 +403,7 @@ static int thread_leader_service_active_set_cb(int8_t service_id, uint8_t source
         }
     }
     if (2 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_PANID, &ptr) &&
-         linkConfiguration->panId != common_read_16_bit(ptr)){
+            linkConfiguration->panId != common_read_16_bit(ptr)) {
         tr_debug("PANID changed");
         changing_connectivity = true;
         if (common_read_16_bit(ptr) > 0xfffe) {
@@ -420,13 +420,13 @@ static int thread_leader_service_active_set_cb(int8_t service_id, uint8_t source
         }
     }
 
-    if ( 8 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA, &ptr) &&
-         memcmp(linkConfiguration->mesh_local_ula_prefix,ptr,8) != 0) {
+    if (8 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA, &ptr) &&
+            memcmp(linkConfiguration->mesh_local_ula_prefix, ptr, 8) != 0) {
         tr_debug("ML prefix changed");
         changing_connectivity = true;
     }
-    if ( 16 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_MASTER_KEY, &ptr) &&
-         memcmp(linkConfiguration->master_key,ptr,16) != 0) {
+    if (16 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_MASTER_KEY, &ptr) &&
+            memcmp(linkConfiguration->master_key, ptr, 16) != 0) {
         tr_debug("Master key changed");
         changing_connectivity = true;
     }
@@ -449,17 +449,17 @@ static int thread_leader_service_active_set_cb(int8_t service_id, uint8_t source
         }
     }
 
-    if(8 > thread_meshcop_tlv_data_get_uint64(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_ACTIVE_TIME_STAMP, &timestamp)){
+    if (8 > thread_meshcop_tlv_data_get_uint64(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_ACTIVE_TIME_STAMP, &timestamp)) {
         tr_warn("no timestamp");
         ret = -1;
         goto send_response;
     }
-    if (timestamp < linkConfiguration->timestamp){
+    if (timestamp < linkConfiguration->timestamp) {
         tr_warn("older timestamp");
         ret = -1;
         goto send_response;
     }
-    if (timestamp == linkConfiguration->timestamp){
+    if (timestamp == linkConfiguration->timestamp) {
         tr_warn("same timestamp");
         ret = -1;
         goto send_response;
@@ -470,8 +470,8 @@ static int thread_leader_service_active_set_cb(int8_t service_id, uint8_t source
             // Node changed settings and Registered commissioner send changed_notify to commissioner
             tr_info("Notify commissioner that settings are changed");
             coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, cur->thread_info->registered_commissioner.border_router_address,
-                         THREAD_MANAGEMENT_PORT, COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_DATASET_CHANGED,
-                         COAP_CT_OCTET_STREAM, NULL, 0, NULL);
+                                      THREAD_MANAGEMENT_PORT, COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_DATASET_CHANGED,
+                                      COAP_CT_OCTET_STREAM, NULL, 0, NULL);
         }
     }
     if (changing_connectivity) {
@@ -479,7 +479,7 @@ static int thread_leader_service_active_set_cb(int8_t service_id, uint8_t source
         tr_info("creating pending configuration");
 
         if (thread_joiner_application_pending_config_exists(this->interface_id) &&
-            thread_joiner_application_pending_config_timestamp_get(this->interface_id) >= timestamp ) {
+                thread_joiner_application_pending_config_timestamp_get(this->interface_id) >= timestamp) {
             tr_info("Pending config is newer we reject");
             ret = -1;
             goto send_response;
@@ -493,7 +493,7 @@ static int thread_leader_service_active_set_cb(int8_t service_id, uint8_t source
         // Start distributing pending configuration
         thread_joiner_application_pending_config_add_missing_fields(this->interface_id);
         thread_joiner_application_pending_config_timestamp_set(this->interface_id, timestamp);
-        thread_joiner_application_pending_config_enable(this->interface_id, thread_delay_timer_default*1000);
+        thread_joiner_application_pending_config_enable(this->interface_id, thread_delay_timer_default * 1000);
 
     } else {
         tr_info("updating active configuration");
@@ -546,7 +546,7 @@ static int thread_leader_service_pending_set_cb(int8_t service_id, uint8_t sourc
     }
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(this->interface_id);
     linkConfiguration = thread_joiner_application_get_config(this->interface_id);
-     if(!cur || !cur->thread_info || !linkConfiguration || !cur->thread_info->leader_private_data){
+    if (!cur || !cur->thread_info || !linkConfiguration || !cur->thread_info->leader_private_data) {
         return -1;
     }
 
@@ -567,23 +567,23 @@ static int thread_leader_service_pending_set_cb(int8_t service_id, uint8_t sourc
         thread_leader_service_commissioner_address_changed(this->interface_id, source_address);
         msg_from_commissioner = true;
     }
-    if ( 16 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_MASTER_KEY, &secret_ptr) &&
-         memcmp(linkConfiguration->master_key,secret_ptr,16) != 0) {
+    if (16 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_MASTER_KEY, &secret_ptr) &&
+            memcmp(linkConfiguration->master_key, secret_ptr, 16) != 0) {
         tr_debug("Master key changed");
         master_key_changed = true;
     }
 
-    if(8 > thread_meshcop_tlv_data_get_uint64(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_PENDING_TIMESTAMP, &pending_timestamp)){
+    if (8 > thread_meshcop_tlv_data_get_uint64(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_PENDING_TIMESTAMP, &pending_timestamp)) {
         tr_warn("no timestamp");
         ret = -1;
         goto send_response;
     }
-    if(4 > thread_meshcop_tlv_data_get_uint32(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_DELAY_TIMER, &delay_timer)){
+    if (4 > thread_meshcop_tlv_data_get_uint32(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_DELAY_TIMER, &delay_timer)) {
         tr_warn("no delay timer");
         ret = -1;
         goto send_response;
     }
-    if(8 > thread_meshcop_tlv_data_get_uint64(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_ACTIVE_TIME_STAMP, &active_timestamp)){
+    if (8 > thread_meshcop_tlv_data_get_uint64(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_ACTIVE_TIME_STAMP, &active_timestamp)) {
         tr_warn("no active timestamp");
         ret = -1;
         goto send_response;
@@ -595,27 +595,27 @@ static int thread_leader_service_pending_set_cb(int8_t service_id, uint8_t sourc
     }
 
     if (thread_joiner_application_pending_config_exists(this->interface_id) &&
-        pending_timestamp <= thread_joiner_application_pending_config_timestamp_get(this->interface_id)){
+            pending_timestamp <= thread_joiner_application_pending_config_timestamp_get(this->interface_id)) {
         tr_warn("Older or same pending timestamp");
         ret = -1;
         goto send_response;
     }
 
-    if (delay_timer > THREAD_MAX_DELAY_TIMER_SECONDS*1000) {
-        delay_timer = THREAD_MAX_DELAY_TIMER_SECONDS*1000;
+    if (delay_timer > THREAD_MAX_DELAY_TIMER_SECONDS * 1000) {
+        delay_timer = THREAD_MAX_DELAY_TIMER_SECONDS * 1000;
     }
 
     if (master_key_changed &&
-            delay_timer < thread_delay_timer_default*1000) {
+            delay_timer < thread_delay_timer_default * 1000) {
         //If message Changes the master key default value is used
-        delay_timer = thread_delay_timer_default*1000;
+        delay_timer = thread_delay_timer_default * 1000;
     }
-    if (delay_timer < THREAD_DELAY_TIMER_MINIMAL_SECONDS*1000) {
+    if (delay_timer < THREAD_DELAY_TIMER_MINIMAL_SECONDS * 1000) {
         // Absolute minimum value allowed
-        delay_timer = THREAD_DELAY_TIMER_MINIMAL_SECONDS*1000;
+        delay_timer = THREAD_DELAY_TIMER_MINIMAL_SECONDS * 1000;
     }
 
-    if (thread_joiner_application_pending_config_create(this->interface_id, request_ptr->payload_ptr, request_ptr->payload_len) != 0){
+    if (thread_joiner_application_pending_config_create(this->interface_id, request_ptr->payload_ptr, request_ptr->payload_len) != 0) {
         tr_error("Could not create pending config");
         response_code = COAP_MSG_CODE_RESPONSE_INTERNAL_SERVER_ERROR;
         goto send_error_response;
@@ -627,8 +627,8 @@ static int thread_leader_service_pending_set_cb(int8_t service_id, uint8_t sourc
             // Node changed settings and Registered commissioner send changed_notify to commissioner
             tr_info("Notify commissioner that settings are changed");
             coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, cur->thread_info->registered_commissioner.border_router_address,
-                         THREAD_MANAGEMENT_PORT, COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_DATASET_CHANGED,
-                         COAP_CT_OCTET_STREAM, NULL, 0, NULL);
+                                      THREAD_MANAGEMENT_PORT, COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_DATASET_CHANGED,
+                                      COAP_CT_OCTET_STREAM, NULL, 0, NULL);
         }
     }
 
@@ -669,7 +669,7 @@ static int thread_leader_service_commissioner_set_cb(int8_t service_id, uint8_t 
         return -1;
     }
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(this->interface_id);
-    if(!cur || !cur->thread_info || !cur->thread_info->leader_private_data){
+    if (!cur || !cur->thread_info || !cur->thread_info->leader_private_data) {
         return -1;
     }
 
@@ -680,13 +680,13 @@ static int thread_leader_service_commissioner_set_cb(int8_t service_id, uint8_t 
         goto send_error_response;
     }
     //Check if the CoAp payload is greater than maximum commissioner data size and reject
-    if (request_ptr->payload_len > THREAD_MAX_COMMISSIONER_DATA_SIZE){
+    if (request_ptr->payload_len > THREAD_MAX_COMMISSIONER_DATA_SIZE) {
         tr_error("Payload length greater than maximum commissioner data size");
         ret = -1;
         goto send_response;
     }
     //TODO must be checked against a list of all non permissible TLVs
-    if (2 <= thread_meshcop_tlv_data_get_uint16(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_BORDER_ROUTER_LOCATOR, &br_locator)){
+    if (2 <= thread_meshcop_tlv_data_get_uint16(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_BORDER_ROUTER_LOCATOR, &br_locator)) {
         tr_error("BORDER ROUTER TLV should not be present");
         ret = -1;
         goto send_response;
@@ -709,7 +709,7 @@ static int thread_leader_service_commissioner_set_cb(int8_t service_id, uint8_t 
     thread_leader_service_commissioner_address_changed(this->interface_id, source_address);
 
     /* Set steering data */
-    if(thread_meshcop_tlv_exist(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_STEERING_DATA)){
+    if (thread_meshcop_tlv_exist(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_STEERING_DATA)) {
         steering_data_len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_STEERING_DATA, &steering_data_ptr);
         ret = thread_leader_service_steering_data_set(this->interface_id, steering_data_ptr, steering_data_len);
         tr_info("steering data set : %s, ret %d", trace_array(steering_data_ptr, steering_data_len), ret);
@@ -785,7 +785,7 @@ static int thread_leader_service_router_id_allocate(const uint8_t *eui64, protoc
     }
 
     //We need to allocate new Router ID
-    uint16_t random_base = randLIB_get_random_in_range(0,64);
+    uint16_t random_base = randLIB_get_random_in_range(0, 64);
     // New addresses are assigned randomly
     for (i = 0; i < 64; i++) {
         uint16_t id = (random_base + i) % (MAX_ROUTER_ID + 1);
@@ -873,7 +873,7 @@ static int thread_leader_service_routerid_assign(protocol_interface_info_entry_t
     }
     *router_id = router_id_response.shortAddress;
     router_id_mask_out[0] = router_id_response.dataSeq;
-    memcpy(&router_id_mask_out[1], router_id_response.routerID , 8);
+    memcpy(&router_id_mask_out[1], router_id_response.routerID, 8);
     return 0;
 }
 
@@ -929,13 +929,13 @@ static int thread_leader_service_assign_cb(int8_t service_id, uint8_t source_add
     // LOCATOR is optional others are mandatory
     (void)thread_meshcop_tlv_data_get_uint16(request_ptr->payload_ptr, request_ptr->payload_len, TMFCOP_TLV_RLOC16, &router_id);
 
-    if (8 > thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, TMFCOP_TLV_MAC_ADDRESS, &mac_ptr) ) {
+    if (8 > thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, TMFCOP_TLV_MAC_ADDRESS, &mac_ptr)) {
         // Failure in message
         return -1;
     }
 
-        // Failure in message
-    if (1 > thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, TMFCOP_TLV_STATUS, &status) ) {
+    // Failure in message
+    if (1 > thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, TMFCOP_TLV_STATUS, &status)) {
         return -1;
     }
 
@@ -1052,10 +1052,10 @@ static int thread_leader_service_petition_cb(int8_t service_id, uint8_t source_a
         // Commissioner already registered - reject and send commissioner ID
         ptr = thread_meshcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_STATE, 0xff);
         commissioner_id_ptr = thread_commissioning_if_commissioner_id_get(this->interface_id);
-        if(commissioner_id_ptr)
+        if (commissioner_id_ptr) {
             ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_COMMISSIONER_ID, strlen(commissioner_id_ptr), (uint8_t *)commissioner_id_ptr);
-    }
-    else{
+        }
+    } else {
         // Reject, anyhow, no commissioner registered - no commissioner ID
         ptr = thread_meshcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_STATE, 0xff);
     }
@@ -1098,11 +1098,10 @@ static int thread_leader_service_petition_ka_cb(int8_t service_id, uint8_t sourc
     if (2 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_COMMISSIONER_SESSION_ID, &ptr)) {
         session_id = common_read_16_bit(ptr);
     }
-    if (1 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_STATE, &ptr))
-    {
+    if (1 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_STATE, &ptr)) {
         if (*ptr == 0x01) {
             state = thread_leader_service_commissioner_session_refresh(this->interface_id, session_id);
-        } else if(*ptr == 0xff) {
+        } else if (*ptr == 0xff) {
             thread_leader_service_commissioner_unregister(this->interface_id, session_id);
             state = false;
         }
@@ -1237,7 +1236,7 @@ static int thread_leader_service_leader_start(protocol_interface_info_entry_t *c
     cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
     cur->lowpan_info &= ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     mac_helper_default_security_level_set(cur, SEC_ENC_MIC32);
-    mac_helper_default_security_key_id_mode_set(cur,MAC_KEY_ID_MODE_IDX);
+    mac_helper_default_security_key_id_mode_set(cur, MAC_KEY_ID_MODE_IDX);
     thread_discovery_responser_enable(cur->id, true);
     if (cur->mac_api) {
         mlme_start_t start_req;
@@ -1247,7 +1246,7 @@ static int thread_leader_service_leader_start(protocol_interface_info_entry_t *c
         start_req.PANCoordinator = true;
         start_req.LogicalChannel = cur->mac_parameters->mac_channel;
         start_req.PANId = cur->mac_parameters->pan_id;
-        cur->mac_api->mlme_req(cur->mac_api, MLME_START , &start_req);
+        cur->mac_api->mlme_req(cur->mac_api, MLME_START, &start_req);
     }
     return 0;
 }
@@ -1289,7 +1288,7 @@ static void thread_leader_service_private_routemask_init(thread_leader_info_t *l
     memset(leader_info, 0, sizeof(thread_leader_info_t));
     leader_info->maskSeq = randLIB_get_8bit();
     uint8_t i;
-    for (i=0; i<64; i++) {
+    for (i = 0; i < 64; i++) {
         leader_info->thread_router_id_list[i].reUsePossible = true;
         leader_info->thread_router_id_list[i].validLifeTime = 0xffffffff;
     }
@@ -1304,7 +1303,7 @@ static void thread_leader_service_interface_setup_activate(protocol_interface_in
 
     thread_leader_service_leader_data_initialize(cur->thread_info->thread_leader_data, routerId);
     // Test code
-    if(cur->thread_info->testRandomPartitionId != 0){
+    if (cur->thread_info->testRandomPartitionId != 0) {
         cur->thread_info->thread_leader_data->partitionId = cur->thread_info->testRandomPartitionId;
         cur->thread_info->testRandomPartitionId = 0;
     }
@@ -1561,9 +1560,9 @@ void thread_leader_service_thread_partitition_generate(int8_t interface_id, bool
     cur->thread_info->routerShortAddress = leaderRloc;
 
     if (cur->thread_info->routerShortAddress == 0xfffe ||
-        !thread_is_router_addr(cur->thread_info->routerShortAddress)) {
+            !thread_is_router_addr(cur->thread_info->routerShortAddress)) {
         //If we were REED do not use reed address
-        cur->thread_info->routerShortAddress = thread_router_addr_from_id(randLIB_get_random_in_range(0,MAX_ROUTER_ID));
+        cur->thread_info->routerShortAddress = thread_router_addr_from_id(randLIB_get_random_in_range(0, MAX_ROUTER_ID));
     }
 
     // clean network data
@@ -1613,9 +1612,9 @@ int thread_leader_service_thread_partitition_restart(int8_t interface_id, mle_tl
 
     // initialize private data
     thread_info(cur)->leader_private_data->maskSeq = *routing->dataPtr;
-    memcpy(thread_info(cur)->leader_private_data->master_router_id_mask,routing->dataPtr + 1,8);
+    memcpy(thread_info(cur)->leader_private_data->master_router_id_mask, routing->dataPtr + 1, 8);
     for (int i = 0; i < 64; i++) {
-        memset(thread_info(cur)->leader_private_data->thread_router_id_list[i].eui64,0,8);
+        memset(thread_info(cur)->leader_private_data->thread_router_id_list[i].eui64, 0, 8);
         if (bit_test(thread_info(cur)->leader_private_data->master_router_id_mask, i)) {
             //Active ID
             thread_info(cur)->leader_private_data->thread_router_id_list[i].reUsePossible = false;
@@ -1721,18 +1720,18 @@ static uint8_t *thread_unstable_commission_data_write(protocol_interface_info_en
 {
 
     uint8_t length = thread_unstable_commission_data_length(cur);
-    if( !length) {
+    if (!length) {
         // No unstable TLV in thread 1.0 or if TLV is empty we skip it
         return ptr;
     }
     *ptr++ = THREAD_NWK_DATA_TYPE_COMMISSION_DATA ;
     *ptr++ = length;
-    ptr = thread_meshcop_tlv_data_write_uint16(ptr,MESHCOP_TLV_COMMISSIONER_SESSION_ID, cur->thread_info->registered_commissioner.session_id);
+    ptr = thread_meshcop_tlv_data_write_uint16(ptr, MESHCOP_TLV_COMMISSIONER_SESSION_ID, cur->thread_info->registered_commissioner.session_id);
     if (cur->thread_info->registered_commissioner.commissioner_valid) {
         //SET Commision TLV
-        ptr = thread_meshcop_tlv_data_write(ptr,MESHCOP_TLV_BORDER_ROUTER_LOCATOR, 2, &cur->thread_info->registered_commissioner.border_router_address[14]);
+        ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_BORDER_ROUTER_LOCATOR, 2, &cur->thread_info->registered_commissioner.border_router_address[14]);
         if (cur->thread_info->registered_commissioner.steering_data_len) {
-            ptr = thread_meshcop_tlv_data_write(ptr,MESHCOP_TLV_STEERING_DATA, cur->thread_info->registered_commissioner.steering_data_len, cur->thread_info->registered_commissioner.steering_data);
+            ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_STEERING_DATA, cur->thread_info->registered_commissioner.steering_data_len, cur->thread_info->registered_commissioner.steering_data);
         }
     }
     return ptr;

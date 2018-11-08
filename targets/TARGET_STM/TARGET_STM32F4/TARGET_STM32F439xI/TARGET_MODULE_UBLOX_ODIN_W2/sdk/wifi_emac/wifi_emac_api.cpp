@@ -22,8 +22,8 @@
 typedef struct {
     emac_link_input_fn wifi_input_cb;
     emac_link_state_change_fn wifi_state_cb;
-    void* link_input_user_data;
-    void* link_state_user_data;
+    void *link_input_user_data;
+    void *link_state_user_data;
     bool linkStateRegistered;
 } wifi_emac_api_s;
 
@@ -32,12 +32,12 @@ typedef struct {
 *=========================================================================*/
 static void statusIndication(void *dummy, cbWLAN_StatusIndicationInfo status, void *data);
 static void packetIndication(void *dummy, cbWLAN_PacketIndicationInfo *packetInfo);
-static cb_boolean handleWlanTargetCopyFromDataFrame(uint8_t* buffer, cbWLANTARGET_dataFrame* frame, uint32_t size, uint32_t offsetInFrame);
-static cb_boolean handleWlanTargetCopyToDataFrame(cbWLANTARGET_dataFrame* frame, uint8_t* buffer, uint32_t size, uint32_t offsetInFrame);
-static cbWLANTARGET_dataFrame* handleWlanTargetAllocDataFrame(uint32_t size);
-static void handleWlanTargetFreeDataFrame(cbWLANTARGET_dataFrame* frame);
-static cb_uint32 handleWlanTargetGetDataFrameSize(cbWLANTARGET_dataFrame* frame);
-static cb_uint8 handleWlanTargetGetDataFrameTID(cbWLANTARGET_dataFrame* frame);
+static cb_boolean handleWlanTargetCopyFromDataFrame(uint8_t *buffer, cbWLANTARGET_dataFrame *frame, uint32_t size, uint32_t offsetInFrame);
+static cb_boolean handleWlanTargetCopyToDataFrame(cbWLANTARGET_dataFrame *frame, uint8_t *buffer, uint32_t size, uint32_t offsetInFrame);
+static cbWLANTARGET_dataFrame *handleWlanTargetAllocDataFrame(uint32_t size);
+static void handleWlanTargetFreeDataFrame(cbWLANTARGET_dataFrame *frame);
+static cb_uint32 handleWlanTargetGetDataFrameSize(cbWLANTARGET_dataFrame *frame);
+static cb_uint8 handleWlanTargetGetDataFrameTID(cbWLANTARGET_dataFrame *frame);
 
 static uint32_t wifi_get_mtu_size(emac_interface_t *emac);
 static void wifi_get_ifname(emac_interface_t *emac, char *name, uint8_t size);
@@ -69,10 +69,9 @@ const emac_interface_ops_t wifi_emac_interface = {
     .set_link_state_cb = wifi_set_link_state_cb
 };
 
-static emac_interface_t* _intf = NULL;
+static emac_interface_t *_intf = NULL;
 
-static const cbWLANTARGET_Callback _wlanTargetCallback =
-{
+static const cbWLANTARGET_Callback _wlanTargetCallback = {
     handleWlanTargetCopyFromDataFrame,
     handleWlanTargetCopyToDataFrame,
     handleWlanTargetAllocDataFrame,
@@ -114,14 +113,14 @@ static void statusIndication(void *dummy, cbWLAN_StatusIndicationInfo status, vo
 static void packetIndication(void *dummy, cbWLAN_PacketIndicationInfo *packetInfo)
 {
     (void)dummy;
-    _admin.wifi_input_cb(_admin.link_input_user_data, (void*)packetInfo->rxData);
+    _admin.wifi_input_cb(_admin.link_input_user_data, (void *)packetInfo->rxData);
 }
 
-static cb_boolean handleWlanTargetCopyFromDataFrame(uint8_t* buffer, cbWLANTARGET_dataFrame* frame, uint32_t size, uint32_t offsetInFrame)
+static cb_boolean handleWlanTargetCopyFromDataFrame(uint8_t *buffer, cbWLANTARGET_dataFrame *frame, uint32_t size, uint32_t offsetInFrame)
 {
-    void* dummy = NULL;
-    emac_stack_mem_t** phead = (emac_stack_mem_chain_t **)&frame;
-    emac_stack_mem_t* pbuf;
+    void *dummy = NULL;
+    emac_stack_mem_t **phead = (emac_stack_mem_chain_t **)&frame;
+    emac_stack_mem_t *pbuf;
     uint32_t copySize, bytesCopied = 0, pbufOffset = 0;
 
     MBED_ASSERT(frame != NULL);
@@ -154,11 +153,11 @@ static cb_boolean handleWlanTargetCopyFromDataFrame(uint8_t* buffer, cbWLANTARGE
     return (bytesCopied == size);
 }
 
-static cb_boolean handleWlanTargetCopyToDataFrame(cbWLANTARGET_dataFrame* frame, uint8_t* buffer, uint32_t size, uint32_t offsetInFrame)
+static cb_boolean handleWlanTargetCopyToDataFrame(cbWLANTARGET_dataFrame *frame, uint8_t *buffer, uint32_t size, uint32_t offsetInFrame)
 {
-    void* dummy = NULL;
-    emac_stack_mem_t** phead = (emac_stack_mem_chain_t **)&frame;
-    emac_stack_mem_t* pbuf;
+    void *dummy = NULL;
+    emac_stack_mem_t **phead = (emac_stack_mem_chain_t **)&frame;
+    emac_stack_mem_t *pbuf;
     uint32_t copySize, bytesCopied = 0, pbufOffset = 0;
 
     MBED_ASSERT(frame != NULL);
@@ -191,27 +190,27 @@ static cb_boolean handleWlanTargetCopyToDataFrame(cbWLANTARGET_dataFrame* frame,
     return (bytesCopied == size);
 }
 
-static cbWLANTARGET_dataFrame* handleWlanTargetAllocDataFrame(uint32_t size)
+static cbWLANTARGET_dataFrame *handleWlanTargetAllocDataFrame(uint32_t size)
 {
-    void* dummy = NULL;
+    void *dummy = NULL;
 
-    return (cbWLANTARGET_dataFrame*)emac_stack_mem_alloc(dummy, size, 0);
+    return (cbWLANTARGET_dataFrame *)emac_stack_mem_alloc(dummy, size, 0);
 }
 
-static void handleWlanTargetFreeDataFrame(cbWLANTARGET_dataFrame* frame)
+static void handleWlanTargetFreeDataFrame(cbWLANTARGET_dataFrame *frame)
 {
-    void* dummy = NULL;
+    void *dummy = NULL;
 
-    emac_stack_mem_free(dummy, (emac_stack_mem_t*)frame);
+    emac_stack_mem_free(dummy, (emac_stack_mem_t *)frame);
 }
 
-static uint32_t handleWlanTargetGetDataFrameSize(cbWLANTARGET_dataFrame* frame)
+static uint32_t handleWlanTargetGetDataFrameSize(cbWLANTARGET_dataFrame *frame)
 {
-    void* dummy = NULL;
-    return emac_stack_mem_chain_len(dummy, (emac_stack_mem_t*)frame);
+    void *dummy = NULL;
+    return emac_stack_mem_chain_len(dummy, (emac_stack_mem_t *)frame);
 }
 
-static uint8_t handleWlanTargetGetDataFrameTID(cbWLANTARGET_dataFrame* frame)
+static uint8_t handleWlanTargetGetDataFrameTID(cbWLANTARGET_dataFrame *frame)
 {
     (void)frame;
     return (uint8_t)cbWLAN_AC_BE;
@@ -231,7 +230,7 @@ static void wifi_get_ifname(emac_interface_t *emac, char *name, uint8_t size)
 {
     (void)emac;
     MBED_ASSERT(name != NULL);
-    memcpy((void*)name, (void*)&_ifname, cb_MIN(size, sizeof(_ifname)));
+    memcpy((void *)name, (void *)&_ifname, cb_MIN(size, sizeof(_ifname)));
 }
 
 static uint8_t wifi_get_hwaddr_size(emac_interface_t *emac)
@@ -252,28 +251,27 @@ static void wifi_set_hwaddr(emac_interface_t *emac, uint8_t *addr)
 {
     (void)emac;
     (void)addr;
-    
+
     // Do nothing, not possible to change the address
 }
 
 static void send_packet(emac_interface_t *emac, void *buf)
 {
     cbWLAN_sendPacket(buf);
-    emac_stack_mem_free(emac,buf);
+    emac_stack_mem_free(emac, buf);
 }
 
 static bool wifi_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
 {
     (void)emac;
     // Break call chain to avoid the driver affecting stack usage for the IP stack thread too much
-    emac_stack_mem_t *new_buf = emac_stack_mem_alloc(emac, emac_stack_mem_chain_len(emac,buf),0);
+    emac_stack_mem_t *new_buf = emac_stack_mem_alloc(emac, emac_stack_mem_chain_len(emac, buf), 0);
     if (new_buf != NULL) {
         emac_stack_mem_copy(emac, new_buf, buf);
         int id = cbMAIN_getEventQueue()->call(send_packet, emac, new_buf);
         if (id != 0) {
-            cbMAIN_dispatchEventQueue();        
-        }
-        else {
+            cbMAIN_dispatchEventQueue();
+        } else {
             emac_stack_mem_free(emac, new_buf);
         }
     }
@@ -311,7 +309,7 @@ static void wifi_set_link_state_cb(emac_interface_t *emac, emac_link_state_chang
     cbRTSL_Status result;
     void *dummy = NULL;
     (void)emac;
-    
+
     _admin.wifi_state_cb = state_cb;
     _admin.link_state_user_data = data;
 
@@ -325,21 +323,21 @@ static void wifi_set_link_state_cb(emac_interface_t *emac, emac_link_state_chang
     }
 }
 
-emac_interface_t* wifi_emac_get_interface()
+emac_interface_t *wifi_emac_get_interface()
 {
     if (_intf == NULL) {
-        _intf = (emac_interface_t*)malloc(sizeof(emac_interface_t));
+        _intf = (emac_interface_t *)malloc(sizeof(emac_interface_t));
         if (_intf) {
             _intf->hw = NULL;
-            memcpy((void*)&_intf->ops, &wifi_emac_interface, sizeof(wifi_emac_interface));
+            memcpy((void *)&_intf->ops, &wifi_emac_interface, sizeof(wifi_emac_interface));
         }
     }
-   return _intf;
+    return _intf;
 }
 
 void wifi_emac_init_mem(void)
 {
-    cbWLANTARGET_registerCallbacks((cbWLANTARGET_Callback*)&_wlanTargetCallback);
+    cbWLANTARGET_registerCallbacks((cbWLANTARGET_Callback *)&_wlanTargetCallback);
 }
 
 #endif

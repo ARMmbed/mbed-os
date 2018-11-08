@@ -46,13 +46,13 @@ void rtc_free(void)
 int rtc_isenabled(void)
 {
     // NOTE: To access (RTC) registers, clock must be enabled first.
-    if (! (CLK->APBCLK0 & CLK_APBCLK0_RTCCKEN_Msk)) {
+    if (!(CLK->APBCLK0 & CLK_APBCLK0_RTCCKEN_Msk)) {
         // Enable IP clock
         CLK_EnableModuleClock(rtc_modinit.clkidx);
     }
 
     // NOTE: Check RTC Init Active flag to support crossing reset cycle.
-    return !! (RTC->INIT & RTC_INIT_ACTIVE_Msk);
+    return !!(RTC->INIT & RTC_INIT_ACTIVE_Msk);
 }
 
 /*

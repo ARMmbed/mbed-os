@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-#define UART_3				3
+#define UART_3              3
 #define STDIO_UART_TX     PB_0
 #define STDIO_UART_RX     PB_1
 #define STDIO_UART        UART_3

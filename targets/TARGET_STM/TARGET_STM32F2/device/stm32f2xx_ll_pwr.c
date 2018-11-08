@@ -73,13 +73,13 @@
   */
 ErrorStatus LL_PWR_DeInit(void)
 {
-  /* Force reset of PWR clock */
-  LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_PWR);
+    /* Force reset of PWR clock */
+    LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_PWR);
 
-  /* Release reset of PWR clock */
-  LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_PWR);
+    /* Release reset of PWR clock */
+    LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_PWR);
 
-  return SUCCESS;
+    return SUCCESS;
 }
 
 /**

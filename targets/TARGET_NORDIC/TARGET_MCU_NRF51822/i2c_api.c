@@ -55,7 +55,7 @@ void twi_master_init(i2c_t *obj, PinName sda, PinName scl, int frequency)
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
     NRF_TWI_Type *i2c = NULL;
-  
+
     if (i2c0_spi0_peripheral.usage == I2C_SPI_PERIPHERAL_FOR_I2C &&
             i2c0_spi0_peripheral.sda_mosi == (uint8_t)sda &&
             i2c0_spi0_peripheral.scl_miso == (uint8_t)scl) {
@@ -63,8 +63,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         i2c = (NRF_TWI_Type *)I2C_0;
         obj->peripheral = 0x1;
     } else if (i2c1_spi1_peripheral.usage == I2C_SPI_PERIPHERAL_FOR_I2C &&
-            i2c1_spi1_peripheral.sda_mosi == (uint8_t)sda &&
-            i2c1_spi1_peripheral.scl_miso == (uint8_t)scl) {
+               i2c1_spi1_peripheral.sda_mosi == (uint8_t)sda &&
+               i2c1_spi1_peripheral.scl_miso == (uint8_t)scl) {
         // The I2C with the same pins is already initialized
         i2c = (NRF_TWI_Type *)I2C_1;
         obj->peripheral = 0x2;
@@ -72,14 +72,14 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         i2c0_spi0_peripheral.usage = I2C_SPI_PERIPHERAL_FOR_I2C;
         i2c0_spi0_peripheral.sda_mosi = (uint8_t)sda;
         i2c0_spi0_peripheral.scl_miso = (uint8_t)scl;
-        
+
         i2c = (NRF_TWI_Type *)I2C_0;
         obj->peripheral = 0x1;
     } else if (i2c1_spi1_peripheral.usage == 0) {
         i2c1_spi1_peripheral.usage = I2C_SPI_PERIPHERAL_FOR_I2C;
         i2c1_spi1_peripheral.sda_mosi = (uint8_t)sda;
         i2c1_spi1_peripheral.scl_miso = (uint8_t)scl;
-        
+
         i2c = (NRF_TWI_Type *)I2C_1;
         obj->peripheral = 0x2;
     } else {
@@ -87,7 +87,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         error("No available I2C");
     }
 
-	twi_master_init_and_clear(i2c);
+    twi_master_init_and_clear(i2c);
 
     obj->i2c               = i2c;
     obj->scl               = scl;
@@ -96,7 +96,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     obj->i2c->ENABLE       = TWI_ENABLE_ENABLE_Disabled << TWI_ENABLE_ENABLE_Pos;
     obj->i2c->POWER        = 0;
 
-    for (int i = 0; i<100; i++) {
+    for (int i = 0; i < 100; i++) {
     }
 
     obj->i2c->POWER = 1;
@@ -108,7 +108,7 @@ void i2c_reset(i2c_t *obj)
     obj->i2c->EVENTS_ERROR = 0;
     obj->i2c->ENABLE       = TWI_ENABLE_ENABLE_Disabled << TWI_ENABLE_ENABLE_Pos;
     obj->i2c->POWER        = 0;
-    for (int i = 0; i<100; i++) {
+    for (int i = 0; i < 100; i++) {
     }
 
     obj->i2c->POWER = 1;
@@ -131,7 +131,7 @@ int i2c_stop(i2c_t *obj)
     obj->i2c->TASKS_STOP = 1;
     while (!obj->i2c->EVENTS_STOPPED) {
         timeOut--;
-        if (timeOut<0) {
+        if (timeOut < 0) {
             return 1;
         }
     }
@@ -146,7 +146,7 @@ int i2c_do_write(i2c_t *obj, int value)
     obj->i2c->TXD = value;
     while (!obj->i2c->EVENTS_TXDSENT) {
         timeOut--;
-        if (timeOut<0) {
+        if (timeOut < 0) {
             return 1;
         }
     }
@@ -168,7 +168,7 @@ int i2c_do_read(i2c_t *obj, char *data, int last)
 
     while (!obj->i2c->EVENTS_RXDREADY) {
         timeOut--;
-        if (timeOut<0) {
+        if (timeOut < 0) {
             return 1;
         }
     }
@@ -180,10 +180,10 @@ int i2c_do_read(i2c_t *obj, char *data, int last)
 
 void i2c_frequency(i2c_t *obj, int hz)
 {
-    if (hz<250000) {
+    if (hz < 250000) {
         obj->freq           = 100000;
         obj->i2c->FREQUENCY = (TWI_FREQUENCY_FREQUENCY_K100 << TWI_FREQUENCY_FREQUENCY_Pos);
-    } else if (hz<400000) {
+    } else if (hz < 400000) {
         obj->freq           = 250000;
         obj->i2c->FREQUENCY = (TWI_FREQUENCY_FREQUENCY_K250 << TWI_FREQUENCY_FREQUENCY_Pos);
     } else {
@@ -222,7 +222,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         if (status) {
             errorResult = checkError(obj);
             i2c_reset(obj);
-            if (errorResult<0) {
+            if (errorResult < 0) {
                 return errorResult;
             }
             return count;
@@ -251,12 +251,12 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     obj->i2c->SHORTS        = 0;
     obj->i2c->TASKS_STARTTX = 1;
 
-    for (int i = 0; i<length; i++) {
+    for (int i = 0; i < length; i++) {
         status = i2c_do_write(obj, data[i]);
         if (status) {
             i2c_reset(obj);
             errorResult = checkError(obj);
-            if (errorResult<0) {
+            if (errorResult < 0) {
                 return errorResult;
             }
             return i;

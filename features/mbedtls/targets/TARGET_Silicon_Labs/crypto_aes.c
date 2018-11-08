@@ -42,82 +42,76 @@
 #include "em_core.h"
 #include <string.h>
 
-__STATIC_INLINE void CRYPTO_DataReadUnaligned(volatile uint32_t * reg,
-                                              uint8_t * const val)
+__STATIC_INLINE void CRYPTO_DataReadUnaligned(volatile uint32_t *reg,
+                                              uint8_t *const val)
 {
-  /* Check data is 32bit aligned, if not, read into temporary buffer and
-     then move to user buffer. */
-  if ((uint32_t)val & 0x3)
-  {
-    uint32_t temp[4];
-    CRYPTO_DataRead(reg, temp);
-    memcpy(val, temp, 16);
-  }
-  else
-  {
-    CRYPTO_DataRead(reg, (uint32_t* const)val);
-  }
+    /* Check data is 32bit aligned, if not, read into temporary buffer and
+       then move to user buffer. */
+    if ((uint32_t)val & 0x3) {
+        uint32_t temp[4];
+        CRYPTO_DataRead(reg, temp);
+        memcpy(val, temp, 16);
+    } else {
+        CRYPTO_DataRead(reg, (uint32_t *const)val);
+    }
 }
 
-__STATIC_INLINE void CRYPTO_DataWriteUnaligned(volatile uint32_t * reg,
-                                               uint8_t * const val)
+__STATIC_INLINE void CRYPTO_DataWriteUnaligned(volatile uint32_t *reg,
+                                               uint8_t *const val)
 {
-  /* Check data is 32bit aligned, if not move to temporary buffer before
-     writing.*/
-  if ((uint32_t)val & 0x3)
-  {
-    uint32_t temp[4];
-    memcpy(temp, val, 16);
-    CRYPTO_DataWrite(reg, temp);
-  }
-  else
-  {
-    CRYPTO_DataWrite(reg, (uint32_t* const)val);
-  }
+    /* Check data is 32bit aligned, if not move to temporary buffer before
+       writing.*/
+    if ((uint32_t)val & 0x3) {
+        uint32_t temp[4];
+        memcpy(temp, val, 16);
+        CRYPTO_DataWrite(reg, temp);
+    } else {
+        CRYPTO_DataWrite(reg, (uint32_t *const)val);
+    }
 }
 
 /*
  * Initialize AES context
  */
-void mbedtls_aes_init( mbedtls_aes_context *ctx )
+void mbedtls_aes_init(mbedtls_aes_context *ctx)
 {
-    if( ctx == NULL ) {
+    if (ctx == NULL) {
         return;
     }
 
-    memset( ctx, 0, sizeof( mbedtls_aes_context ) );
+    memset(ctx, 0, sizeof(mbedtls_aes_context));
 }
 
 /*
  * Clear AES context
  */
-void mbedtls_aes_free( mbedtls_aes_context *ctx )
+void mbedtls_aes_free(mbedtls_aes_context *ctx)
 {
-    if( ctx == NULL ) {
+    if (ctx == NULL) {
         return;
     }
 
-    memset( ctx, 0, sizeof( mbedtls_aes_context ) );
+    memset(ctx, 0, sizeof(mbedtls_aes_context));
 }
 
 /*
  * AES key schedule (encryption)
  */
-int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx,
-                            const unsigned char *key,
-                            unsigned int keybits )
+int mbedtls_aes_setkey_enc(mbedtls_aes_context *ctx,
+                           const unsigned char *key,
+                           unsigned int keybits)
 {
-    if( ctx == NULL || key == NULL ) {
-        return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
+    if (ctx == NULL || key == NULL) {
+        return (MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH);
     }
 
-    if ( ( 128UL != keybits ) && ( 256UL != keybits ) ) {
+    if ((128UL != keybits) && (256UL != keybits)) {
         /* Unsupported key size */
-        return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
+        return (MBEDTLS_ERR_AES_INVALID_KEY_LENGTH);
     }
 
     ctx->keybits = keybits;
-    memcpy(ctx->key, key, keybits/8);
+    memcpy(ctx->key, key, keybits / 8);
 
     return 0;
 }
@@ -125,19 +119,19 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx,
 /*
  * AES key schedule (decryption)
  */
-int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx,
-                            const unsigned char *key,
-                            unsigned int keybits )
+int mbedtls_aes_setkey_dec(mbedtls_aes_context *ctx,
+                           const unsigned char *key,
+                           unsigned int keybits)
 {
     CORE_DECLARE_IRQ_STATE;
 
-    if( ctx == NULL || key == NULL ) {
-        return ( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
+    if (ctx == NULL || key == NULL) {
+        return (MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH);
     }
 
-    if ( ( 128UL != keybits ) && ( 256UL != keybits ) ) {
+    if ((128UL != keybits) && (256UL != keybits)) {
         /* Unsupported key size */
-        return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
+        return (MBEDTLS_ERR_AES_INVALID_KEY_LENGTH);
     }
 
     ctx->keybits = keybits;
@@ -147,7 +141,7 @@ int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx,
     device->CTRL = 0;
 
     CORE_ENTER_CRITICAL();
-    CRYPTO_KeyBufWrite(device, (uint32_t*)key, (keybits == 128) ? cryptoKey128Bits : cryptoKey256Bits);
+    CRYPTO_KeyBufWrite(device, (uint32_t *)key, (keybits == 128) ? cryptoKey128Bits : cryptoKey256Bits);
     CORE_EXIT_CRITICAL();
 
     /* Busy-wait here to allow context-switching to occur */
@@ -155,7 +149,7 @@ int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx,
     while ((device->STATUS & CRYPTO_STATUS_INSTRRUNNING) != 0);
 
     CORE_ENTER_CRITICAL();
-    CRYPTO_KeyRead(device, (uint32_t*)ctx->key, (keybits == 128) ? cryptoKey128Bits : cryptoKey256Bits);
+    CRYPTO_KeyRead(device, (uint32_t *)ctx->key, (keybits == 128) ? cryptoKey128Bits : cryptoKey256Bits);
     CORE_EXIT_CRITICAL();
 
     crypto_management_release(device);
@@ -170,9 +164,9 @@ int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx,
 /*
  * AES-ECB block encryption
  */
-int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
-                                   const unsigned char input[16],
-                                   unsigned char output[16] )
+int mbedtls_internal_aes_encrypt(mbedtls_aes_context *ctx,
+                                 const unsigned char input[16],
+                                 unsigned char output[16])
 {
     return mbedtls_aes_crypt_ecb(ctx, MBEDTLS_AES_ENCRYPT, input, output);
 }
@@ -180,9 +174,9 @@ int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
 /*
  * AES-ECB block decryption
  */
-int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
-                                   const unsigned char input[16],
-                                   unsigned char output[16] )
+int mbedtls_internal_aes_decrypt(mbedtls_aes_context *ctx,
+                                 const unsigned char input[16],
+                                 unsigned char output[16])
 {
     return mbedtls_aes_crypt_ecb(ctx, MBEDTLS_AES_DECRYPT, input, output);
 }
@@ -190,19 +184,19 @@ int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
 /*
  * AES-ECB block encryption/decryption
  */
-int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
-                           int mode,
-                           const unsigned char input[16],
-                           unsigned char output[16] )
+int mbedtls_aes_crypt_ecb(mbedtls_aes_context *ctx,
+                          int mode,
+                          const unsigned char input[16],
+                          unsigned char output[16])
 {
     int ret = 0;
     CORE_DECLARE_IRQ_STATE;
 
-    if( ctx == NULL || input == NULL || output == NULL ) {
-        return ( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
+    if (ctx == NULL || input == NULL || output == NULL) {
+        return (MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH);
     }
 
-    if ( ctx->keybits != 128UL && ctx->keybits != 256UL) {
+    if (ctx->keybits != 128UL && ctx->keybits != 256UL) {
         return MBEDTLS_ERR_AES_INVALID_KEY_LENGTH;
     }
 
@@ -211,11 +205,11 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
     device->CTRL = 0;
 
     CORE_ENTER_CRITICAL();
-    CRYPTO_KeyBufWrite(device, (uint32_t*)ctx->key, (ctx->keybits == 128UL) ? cryptoKey128Bits : cryptoKey256Bits);
+    CRYPTO_KeyBufWrite(device, (uint32_t *)ctx->key, (ctx->keybits == 128UL) ? cryptoKey128Bits : cryptoKey256Bits);
     CRYPTO_DataWriteUnaligned(&device->DATA0, (uint8_t *)input);
     CORE_EXIT_CRITICAL();
 
-    if ( mode == MBEDTLS_AES_ENCRYPT ) {
+    if (mode == MBEDTLS_AES_ENCRYPT) {
         device->CMD = CRYPTO_CMD_INSTR_AESENC;
     } else {
         device->CMD = CRYPTO_CMD_INSTR_AESDEC;
@@ -236,28 +230,28 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
 /*
  * AES-CBC buffer encryption/decryption
  */
-int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
-                           int mode,
-                           size_t length,
-                           unsigned char iv[16],
-                           const unsigned char *input,
-                           unsigned char *output )
+int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
+                          int mode,
+                          size_t length,
+                          unsigned char iv[16],
+                          const unsigned char *input,
+                          unsigned char *output)
 {
     int ret = 0;
     CORE_DECLARE_IRQ_STATE;
     size_t processed = 0;
 
-    if( ctx == NULL || input == NULL || output == NULL || iv == NULL ) {
-        return ( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
+    if (ctx == NULL || input == NULL || output == NULL || iv == NULL) {
+        return (MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH);
     }
 
     /* Input length must be a multiple of 16 bytes which is the AES block
        length. */
-    if( length & 0xf ) {
-        return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
+    if (length & 0xf) {
+        return (MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH);
     }
 
-    if ( ctx->keybits != 128UL && ctx->keybits != 256UL) {
+    if (ctx->keybits != 128UL && ctx->keybits != 256UL) {
         return MBEDTLS_ERR_AES_INVALID_KEY_LENGTH;
     }
 
@@ -266,16 +260,16 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
     device->CTRL = 0;
 
     CORE_ENTER_CRITICAL();
-    CRYPTO_KeyBufWrite(device, (uint32_t*)ctx->key, (ctx->keybits == 128UL) ? cryptoKey128Bits : cryptoKey256Bits);
-    if ( mode == MBEDTLS_AES_ENCRYPT ) {
+    CRYPTO_KeyBufWrite(device, (uint32_t *)ctx->key, (ctx->keybits == 128UL) ? cryptoKey128Bits : cryptoKey256Bits);
+    if (mode == MBEDTLS_AES_ENCRYPT) {
         CRYPTO_DataWriteUnaligned(&device->DATA0, (uint8_t *)iv);
     } else {
         CRYPTO_DataWriteUnaligned(&device->DATA2, (uint8_t *)iv);
     }
     CORE_EXIT_CRITICAL();
 
-    while ( processed < length ) {
-        if ( mode == MBEDTLS_AES_ENCRYPT ) {
+    while (processed < length) {
+        if (mode == MBEDTLS_AES_ENCRYPT) {
             CORE_ENTER_CRITICAL();
             CRYPTO_DataWriteUnaligned(&device->DATA0XOR, (uint8_t *)(&input[processed]));
             device->CMD = CRYPTO_CMD_INSTR_AESENC;
@@ -285,20 +279,20 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
             /* Decrypt input block, XOR IV to decrypted text, set ciphertext as next IV */
             CORE_ENTER_CRITICAL();
             CRYPTO_DataWriteUnaligned(&device->DATA0, (uint8_t *)(&input[processed]));
-            CRYPTO_EXECUTE_4( device,
-                              CRYPTO_CMD_INSTR_DATA0TODATA1,
-                              CRYPTO_CMD_INSTR_AESDEC,
-                              CRYPTO_CMD_INSTR_DATA2TODATA0XOR,
-                              CRYPTO_CMD_INSTR_DATA1TODATA2);
+            CRYPTO_EXECUTE_4(device,
+                             CRYPTO_CMD_INSTR_DATA0TODATA1,
+                             CRYPTO_CMD_INSTR_AESDEC,
+                             CRYPTO_CMD_INSTR_DATA2TODATA0XOR,
+                             CRYPTO_CMD_INSTR_DATA1TODATA2);
             CRYPTO_DataReadUnaligned(&device->DATA0, (uint8_t *)(&output[processed]));
             CORE_EXIT_CRITICAL();
         }
         processed += 16;
     }
 
-    if ( processed >= 16 ) {
-        if ( mode == MBEDTLS_AES_ENCRYPT ) {
-            memcpy(iv, &output[processed-16], 16);
+    if (processed >= 16) {
+        if (mode == MBEDTLS_AES_ENCRYPT) {
+            memcpy(iv, &output[processed - 16], 16);
         } else {
             CORE_ENTER_CRITICAL();
             CRYPTO_DataReadUnaligned(&device->DATA2, (uint8_t *)(iv));
@@ -316,38 +310,38 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
 /*
  * AES-CFB128 buffer encryption/decryption
  */
-int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
-                              int mode,
-                              size_t length,
-                              size_t *iv_off,
-                              unsigned char iv[16],
-                              const unsigned char *input,
-                              unsigned char *output )
+int mbedtls_aes_crypt_cfb128(mbedtls_aes_context *ctx,
+                             int mode,
+                             size_t length,
+                             size_t *iv_off,
+                             unsigned char iv[16],
+                             const unsigned char *input,
+                             unsigned char *output)
 {
     size_t n = iv_off ? *iv_off : 0;
     size_t processed = 0;
     int ret = 0;
     CORE_DECLARE_IRQ_STATE;
 
-    if( ctx == NULL || input == NULL || output == NULL || iv == NULL ) {
-        return ( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
+    if (ctx == NULL || input == NULL || output == NULL || iv == NULL) {
+        return (MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH);
     }
 
-    if ( ctx->keybits != 128UL && ctx->keybits != 256UL) {
+    if (ctx->keybits != 128UL && ctx->keybits != 256UL) {
         return MBEDTLS_ERR_AES_INVALID_KEY_LENGTH;
     }
 
-    while ( processed < length ) {
-        if ( n > 0 ) {
+    while (processed < length) {
+        if (n > 0) {
             /* start by filling up the IV */
-            if( mode == MBEDTLS_AES_ENCRYPT ) {
-                iv[n] = output[processed] = (unsigned char)( iv[n] ^ input[processed] );
+            if (mode == MBEDTLS_AES_ENCRYPT) {
+                iv[n] = output[processed] = (unsigned char)(iv[n] ^ input[processed]);
             } else {
                 int c = input[processed];
-                output[processed] = (unsigned char)( c ^ iv[n] );
+                output[processed] = (unsigned char)(c ^ iv[n]);
                 iv[n] = (unsigned char) c;
             }
-            n = ( n + 1 ) & 0x0F;
+            n = (n + 1) & 0x0F;
             processed++;
             continue;
         } else {
@@ -357,19 +351,19 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
             device->CTRL = 0;
 
             CORE_ENTER_CRITICAL();
-            CRYPTO_KeyBufWrite(device, (uint32_t*)ctx->key, (ctx->keybits == 128UL) ? cryptoKey128Bits : cryptoKey256Bits);
+            CRYPTO_KeyBufWrite(device, (uint32_t *)ctx->key, (ctx->keybits == 128UL) ? cryptoKey128Bits : cryptoKey256Bits);
             CRYPTO_DataWriteUnaligned(&device->DATA0, (uint8_t *)iv);
             CORE_EXIT_CRITICAL();
 
             /* Encryption: encrypt IV, encIV xor input -> output and IV */
             /* Decryption: encrypt IV, encIV xor input -> output, input -> IV */
             size_t iterations = (length - processed) / 16;
-            for (size_t i = 0; i < iterations; i++ ) {
+            for (size_t i = 0; i < iterations; i++) {
                 device->CMD = CRYPTO_CMD_INSTR_AESENC;
                 while ((device->STATUS & CRYPTO_STATUS_INSTRRUNNING) != 0);
 
                 CORE_ENTER_CRITICAL();
-                if ( mode == MBEDTLS_AES_ENCRYPT ) {
+                if (mode == MBEDTLS_AES_ENCRYPT) {
                     CRYPTO_DataWriteUnaligned(&device->DATA0XOR, (uint8_t *)(&input[processed]));
                     CRYPTO_DataReadUnaligned(&device->DATA0, (uint8_t *)(&output[processed]));
                 } else {
@@ -386,8 +380,8 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
             CRYPTO_DataReadUnaligned(&device->DATA0, (uint8_t *)iv);
             CORE_EXIT_CRITICAL();
 
-            while ( length - processed > 0 ) {
-                if ( n == 0 ) {
+            while (length - processed > 0) {
+                if (n == 0) {
                     device->CMD = CRYPTO_CMD_INSTR_AESENC;
                     while ((device->STATUS & CRYPTO_STATUS_INSTRRUNNING) != 0);
                     CORE_ENTER_CRITICAL();
@@ -395,14 +389,14 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
                     CORE_EXIT_CRITICAL();
                 }
                 /* Save remainder to iv */
-                if( mode == MBEDTLS_AES_ENCRYPT ) {
-                    iv[n] = output[processed] = (unsigned char)( iv[n] ^ input[processed] );
+                if (mode == MBEDTLS_AES_ENCRYPT) {
+                    iv[n] = output[processed] = (unsigned char)(iv[n] ^ input[processed]);
                 } else {
                     int c = input[processed];
-                    output[processed] = (unsigned char)( c ^ iv[n] );
+                    output[processed] = (unsigned char)(c ^ iv[n]);
                     iv[n] = (unsigned char) c;
                 }
-                n = ( n + 1 ) & 0x0F;
+                n = (n + 1) & 0x0F;
                 processed++;
             }
 
@@ -410,7 +404,7 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
         }
     }
 
-    if ( iv_off ) {
+    if (iv_off) {
         *iv_off = n;
     }
 
@@ -420,41 +414,42 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
 /*
  * AES-CFB8 buffer encryption/decryption
  */
-int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
-                            int mode,
-                            size_t length,
-                            unsigned char iv[16],
-                            const unsigned char *input,
-                            unsigned char *output )
+int mbedtls_aes_crypt_cfb8(mbedtls_aes_context *ctx,
+                           int mode,
+                           size_t length,
+                           unsigned char iv[16],
+                           const unsigned char *input,
+                           unsigned char *output)
 {
     unsigned char c;
     unsigned char ov[17];
     int ret = 0;
 
-    if( ctx == NULL || input == NULL || output == NULL || iv == NULL ) {
-        return ( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
+    if (ctx == NULL || input == NULL || output == NULL || iv == NULL) {
+        return (MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH);
     }
 
-    if ( ctx->keybits != 128UL && ctx->keybits != 256UL) {
+    if (ctx->keybits != 128UL && ctx->keybits != 256UL) {
         return MBEDTLS_ERR_AES_INVALID_KEY_LENGTH;
     }
 
-    while( length-- )
-    {
-        memcpy( ov, iv, 16 );
-        if ( (ret = mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv ) ) != 0 ) {
+    while (length--) {
+        memcpy(ov, iv, 16);
+        if ((ret = mbedtls_aes_crypt_ecb(ctx, MBEDTLS_AES_ENCRYPT, iv, iv)) != 0) {
             return ret;
         }
 
-        if( mode == MBEDTLS_AES_DECRYPT )
+        if (mode == MBEDTLS_AES_DECRYPT) {
             ov[16] = *input;
+        }
 
-        c = *output++ = (unsigned char)( iv[0] ^ *input++ );
+        c = *output++ = (unsigned char)(iv[0] ^ *input++);
 
-        if( mode == MBEDTLS_AES_ENCRYPT )
+        if (mode == MBEDTLS_AES_ENCRYPT) {
             ov[16] = c;
+        }
 
-        memcpy( iv, ov + 1, 16 );
+        memcpy(iv, ov + 1, 16);
     }
 
     return ret;
@@ -465,32 +460,32 @@ int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
 /*
  * AES-CTR buffer encryption/decryption
  */
-int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
-                           size_t length,
-                           size_t *nc_off,
-                           unsigned char nonce_counter[16],
-                           unsigned char stream_block[16],
-                           const unsigned char *input,
-                           unsigned char *output )
+int mbedtls_aes_crypt_ctr(mbedtls_aes_context *ctx,
+                          size_t length,
+                          size_t *nc_off,
+                          unsigned char nonce_counter[16],
+                          unsigned char stream_block[16],
+                          const unsigned char *input,
+                          unsigned char *output)
 {
     size_t n = nc_off ? *nc_off : 0;
     size_t processed = 0;
     int ret = 0;
     CORE_DECLARE_IRQ_STATE;
 
-    if( ctx == NULL || input == NULL || output == NULL || nonce_counter == NULL || stream_block == NULL ) {
-        return ( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
+    if (ctx == NULL || input == NULL || output == NULL || nonce_counter == NULL || stream_block == NULL) {
+        return (MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH);
     }
 
-    if ( ctx->keybits != 128UL && ctx->keybits != 256UL) {
+    if (ctx->keybits != 128UL && ctx->keybits != 256UL) {
         return MBEDTLS_ERR_AES_INVALID_KEY_LENGTH;
     }
 
-    while ( processed < length ) {
-        if ( n > 0 ) {
+    while (processed < length) {
+        if (n > 0) {
             /* start by filling up the IV */
-            output[processed] = (unsigned char)( input[processed] ^ stream_block[n] );
-            n = ( n + 1 ) & 0x0F;
+            output[processed] = (unsigned char)(input[processed] ^ stream_block[n]);
+            n = (n + 1) & 0x0F;
             processed++;
             continue;
         } else {
@@ -500,13 +495,13 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
             device->CTRL = CRYPTO_CTRL_INCWIDTH_INCWIDTH4;
 
             CORE_ENTER_CRITICAL();
-            CRYPTO_KeyBufWrite(device, (uint32_t*)ctx->key, (ctx->keybits == 128UL) ? cryptoKey128Bits : cryptoKey256Bits);
+            CRYPTO_KeyBufWrite(device, (uint32_t *)ctx->key, (ctx->keybits == 128UL) ? cryptoKey128Bits : cryptoKey256Bits);
             CRYPTO_DataWriteUnaligned(&device->DATA1, (uint8_t *)nonce_counter);
             CORE_EXIT_CRITICAL();
 
             /* strategy: encrypt nonce, encNonce xor input -> output, inc(nonce) */
             size_t iterations = (length - processed) / 16;
-            for (size_t i = 0; i < iterations; i++ ) {
+            for (size_t i = 0; i < iterations; i++) {
                 device->CMD = CRYPTO_CMD_INSTR_DATA1TODATA0;
                 device->CMD = CRYPTO_CMD_INSTR_AESENC;
                 while ((device->STATUS & CRYPTO_STATUS_INSTRRUNNING) != 0);
@@ -519,8 +514,8 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
                 processed += 16;
             }
 
-            while ( length - processed > 0 ) {
-                if ( n == 0 ) {
+            while (length - processed > 0) {
+                if (n == 0) {
                     device->CMD = CRYPTO_CMD_INSTR_DATA1TODATA0;
                     device->CMD = CRYPTO_CMD_INSTR_AESENC;
                     while ((device->STATUS & CRYPTO_STATUS_INSTRRUNNING) != 0);
@@ -531,8 +526,8 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
                     CORE_EXIT_CRITICAL();
                 }
                 /* Save remainder to iv */
-                output[processed] = (unsigned char)( input[processed] ^ stream_block[n] );
-                n = ( n + 1 ) & 0x0F;
+                output[processed] = (unsigned char)(input[processed] ^ stream_block[n]);
+                n = (n + 1) & 0x0F;
                 processed++;
             }
 
@@ -544,7 +539,7 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
         }
     }
 
-    if ( nc_off ) {
+    if (nc_off) {
         *nc_off = n;
     }
 

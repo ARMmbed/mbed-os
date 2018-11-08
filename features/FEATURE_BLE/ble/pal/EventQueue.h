@@ -59,7 +59,7 @@ struct EventQueue {
      * the event queue shall be processed at the next invocation of
      * BLEInstanceBase::process
      */
-    virtual bool post(const mbed::Callback<void()>& event) = 0;
+    virtual bool post(const mbed::Callback<void()> &event) = 0;
 };
 
 } // namespace pal

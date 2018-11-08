@@ -65,7 +65,7 @@ struct pwmout_s {
     PWMName pwm_name;
     PinName pin;
     uint8_t pwm_channel;
-    void *  pwm_struct;
+    void   *pwm_struct;
 };
 
 struct i2c_s {

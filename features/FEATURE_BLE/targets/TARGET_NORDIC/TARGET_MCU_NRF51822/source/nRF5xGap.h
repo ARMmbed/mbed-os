@@ -18,21 +18,21 @@
 #define __NRF5x_GAP_H__
 
 #ifdef YOTTA_CFG_MBED_OS
-    #include "mbed-drivers/mbed.h"
+#include "mbed-drivers/mbed.h"
 #else
-    #include "mbed.h"
+#include "mbed.h"
 #endif
 #ifndef YOTTA_CFG_WHITELIST_MAX_SIZE
-    #define YOTTA_CFG_WHITELIST_MAX_SIZE BLE_GAP_WHITELIST_ADDR_MAX_COUNT
+#define YOTTA_CFG_WHITELIST_MAX_SIZE BLE_GAP_WHITELIST_ADDR_MAX_COUNT
 #elif YOTTA_CFG_WHITELIST_MAX_SIZE > BLE_GAP_WHITELIST_ADDR_MAX_COUNT
-    #undef YOTTA_CFG_WHITELIST_MAX_SIZE
-    #define YOTTA_CFG_WHITELIST_MAX_SIZE BLE_GAP_WHITELIST_ADDR_MAX_COUNT
+#undef YOTTA_CFG_WHITELIST_MAX_SIZE
+#define YOTTA_CFG_WHITELIST_MAX_SIZE BLE_GAP_WHITELIST_ADDR_MAX_COUNT
 #endif
 #ifndef YOTTA_CFG_IRK_TABLE_MAX_SIZE
-    #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
+#define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
 #elif YOTTA_CFG_IRK_TABLE_MAX_SIZE > BLE_GAP_WHITELIST_IRK_MAX_COUNT
-    #undef YOTTA_CFG_IRK_TABLE_MAX_SIZE
-    #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
+#undef YOTTA_CFG_IRK_TABLE_MAX_SIZE
+#define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
 #endif
 #include "ble/blecommon.h"
 #include "nrf_ble.h"
@@ -57,17 +57,25 @@ void radioNotificationStaticCallback(bool param);
 
 */
 /**************************************************************************/
-class nRF5xGap : public Gap
-{
+class nRF5xGap : public Gap {
 public:
     /* Functions that must be implemented from Gap */
     virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
     virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
     virtual ble_error_t setAdvertisingData(const GapAdvertisingData &, const GapAdvertisingData &);
 
-    virtual uint16_t    getMinAdvertisingInterval(void) const {return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MIN);}
-    virtual uint16_t    getMinNonConnectableAdvertisingInterval(void) const {return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_NONCON_INTERVAL_MIN);}
-    virtual uint16_t    getMaxAdvertisingInterval(void) const {return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MAX);}
+    virtual uint16_t    getMinAdvertisingInterval(void) const
+    {
+        return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MIN);
+    }
+    virtual uint16_t    getMinNonConnectableAdvertisingInterval(void) const
+    {
+        return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_NONCON_INTERVAL_MIN);
+    }
+    virtual uint16_t    getMaxAdvertisingInterval(void) const
+    {
+        return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MAX);
+    }
 
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
@@ -107,7 +115,8 @@ public:
     virtual Gap::ScanningPolicyMode_t getScanningPolicyMode(void) const;
     virtual Gap::InitiatorPolicyMode_t getInitiatorPolicyMode(void) const;
 
-    virtual ble_error_t initRadioNotification(void) {
+    virtual ble_error_t initRadioNotification(void)
+    {
         if (ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationStaticCallback) == NRF_SUCCESS) {
             return BLE_ERROR_NONE;
         }
@@ -115,7 +124,7 @@ public:
         return BLE_ERROR_UNSPECIFIED;
     }
 
-/* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
+    /* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams);
     virtual ble_error_t stopScan(void);
@@ -149,7 +158,8 @@ private:
     /*
      * A helper function to post radio notification callbacks with low interrupt priority.
      */
-    void postRadioNotificationCallback(void) {
+    void postRadioNotificationCallback(void)
+    {
 #ifdef YOTTA_CFG_MBED_OS
         /*
          * In mbed OS, all user-facing BLE events (interrupts) are posted to the
@@ -218,7 +228,8 @@ private:
      * A helper function to process radio-notification events; to be called internally.
      * @param param [description]
      */
-    void processRadioNotificationEvent(bool param) {
+    void processRadioNotificationEvent(bool param)
+    {
         radioNotificationCallbackParam = param;
         radioNotificationTimeout.attach_us(mbed::callback(this, &nRF5xGap::postRadioNotificationCallback), 0);
     }
@@ -235,7 +246,8 @@ private:
     nRF5xGap() :
         advertisingPolicyMode(Gap::ADV_POLICY_IGNORE_WHITELIST),
         scanningPolicyMode(Gap::SCAN_POLICY_IGNORE_WHITELIST),
-        whitelistAddressesSize(0) {
+        whitelistAddressesSize(0)
+    {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
     }
 

@@ -55,8 +55,7 @@ typedef void (*i2c_master_dma_transfer_callback_t)(I2C_Type *base,
                                                    void *userData);
 
 /*! @brief I2C master dma transfer structure. */
-struct _i2c_master_dma_handle
-{
+struct _i2c_master_dma_handle {
     uint8_t state;              /*!< Transfer state machine current state. */
     uint32_t transferCount;     /*!< Indicates progress of the transfer */
     uint32_t remainingBytesDMA; /*!< Remaining byte count to be transferred using DMA. */

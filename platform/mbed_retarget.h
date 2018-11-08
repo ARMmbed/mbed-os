@@ -62,7 +62,7 @@ typedef unsigned int  gid_t;    ///< Group ID
 /* DIR declarations must also be here */
 #if __cplusplus
 namespace mbed {
-    
+
 class FileHandle;
 class DirHandle;
 std::FILE *mbed_fdopen(FileHandle *fh, const char *mode);
@@ -76,12 +76,12 @@ typedef struct Dir DIR;
 #if __cplusplus
 extern "C" {
 #endif
-    DIR *opendir(const char*);
+    DIR *opendir(const char *);
     struct dirent *readdir(DIR *);
-    int closedir(DIR*);
-    void rewinddir(DIR*);
-    long telldir(DIR*);
-    void seekdir(DIR*, long);
+    int closedir(DIR *);
+    void rewinddir(DIR *);
+    long telldir(DIR *);
+    void seekdir(DIR *, long);
     int mkdir(const char *name, mode_t n);
 #if __cplusplus
 };
@@ -428,7 +428,7 @@ extern "C" {
  * consistency where structure may be different with different toolchains
  */
 struct dirent {
-    char d_name[NAME_MAX+1]; ///< Name of file
+    char d_name[NAME_MAX + 1]; ///< Name of file
     uint8_t d_type;          ///< Type of file
 };
 

@@ -122,7 +122,7 @@ static void _system_pinmux_config(
           pin_cfg | PORT_WRCONFIG_WRPMUX | PORT_WRCONFIG_WRPINCFG |
           PORT_WRCONFIG_HWSEL;
 
-    if(!config->powersave) {
+    if (!config->powersave) {
         /* Set the pull-up state once the port pins are configured if one was
          * requested and it does not violate the valid set of port
          * configurations */

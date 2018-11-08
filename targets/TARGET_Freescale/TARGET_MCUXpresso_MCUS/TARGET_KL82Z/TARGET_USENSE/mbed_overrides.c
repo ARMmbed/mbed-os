@@ -23,11 +23,12 @@
 rcm_reset_source_t kinetisResetSource;
 
 // called before main
-void mbed_sdk_init() {
+void mbed_sdk_init()
+{
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
 
     // check the power mode source
-    kinetisResetSource = (rcm_reset_source_t) (RCM_GetPreviousResetSources(RCM));
+    kinetisResetSource = (rcm_reset_source_t)(RCM_GetPreviousResetSources(RCM));
     // if waking up from VLLS, do some cleanup
     if (kinetisResetSource & kRCM_SourceWakeup) {
         PMC_ClearPeriphIOIsolationFlag(PMC);

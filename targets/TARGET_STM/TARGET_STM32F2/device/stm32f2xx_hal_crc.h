@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F2xx_HAL_CRC_H
 #define __STM32F2xx_HAL_CRC_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -60,41 +60,39 @@
   * @{
   */
 
-/** @defgroup CRC_Exported_Types_Group1 CRC State Structure definition 
+/** @defgroup CRC_Exported_Types_Group1 CRC State Structure definition
   * @{
   */
-typedef enum
-{
-  HAL_CRC_STATE_RESET     = 0x00U,  /*!< CRC not yet initialized or disabled */
-  HAL_CRC_STATE_READY     = 0x01U,  /*!< CRC initialized and ready for use   */
-  HAL_CRC_STATE_BUSY      = 0x02U,  /*!< CRC internal process is ongoing     */
-  HAL_CRC_STATE_TIMEOUT   = 0x03U,  /*!< CRC timeout state                   */
-  HAL_CRC_STATE_ERROR     = 0x04U   /*!< CRC error state                     */
+typedef enum {
+    HAL_CRC_STATE_RESET     = 0x00U,  /*!< CRC not yet initialized or disabled */
+    HAL_CRC_STATE_READY     = 0x01U,  /*!< CRC initialized and ready for use   */
+    HAL_CRC_STATE_BUSY      = 0x02U,  /*!< CRC internal process is ongoing     */
+    HAL_CRC_STATE_TIMEOUT   = 0x03U,  /*!< CRC timeout state                   */
+    HAL_CRC_STATE_ERROR     = 0x04U   /*!< CRC error state                     */
 
-}HAL_CRC_StateTypeDef;
-/** 
+} HAL_CRC_StateTypeDef;
+/**
   * @}
   */
 
-/** @defgroup CRC_Exported_Types_Group2 CRC Handle Structure definition   
+/** @defgroup CRC_Exported_Types_Group2 CRC Handle Structure definition
   * @{
-  */ 
-typedef struct
-{
-  CRC_TypeDef                 *Instance;  /*!< Register base address   */
+  */
+typedef struct {
+    CRC_TypeDef                 *Instance;  /*!< Register base address   */
 
-  HAL_LockTypeDef             Lock;       /*!< CRC locking object      */
+    HAL_LockTypeDef             Lock;       /*!< CRC locking object      */
 
-  __IO HAL_CRC_StateTypeDef   State;      /*!< CRC communication state */
+    __IO HAL_CRC_StateTypeDef   State;      /*!< CRC communication state */
 
-}CRC_HandleTypeDef;
-/** 
+} CRC_HandleTypeDef;
+/**
   * @}
   */
 
 /**
   * @}
-  */ 
+  */
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
@@ -121,17 +119,17 @@ typedef struct
   * @param __VALUE__: 8-bit value to be stored in the ID register
   * @retval None
   */
-#define __HAL_CRC_SET_IDR(__HANDLE__, __VALUE__) (WRITE_REG((__HANDLE__)->Instance->IDR, (__VALUE__))) 
+#define __HAL_CRC_SET_IDR(__HANDLE__, __VALUE__) (WRITE_REG((__HANDLE__)->Instance->IDR, (__VALUE__)))
 
 /**
   * @brief Returns the 8-bit data stored in the Independent Data(ID) register.
   * @param __HANDLE__: CRC handle
-  * @retval 8-bit value of the ID register 
+  * @retval 8-bit value of the ID register
   */
 #define __HAL_CRC_GET_IDR(__HANDLE__) (((__HANDLE__)->Instance->IDR) & CRC_IDR_IDR)
 /**
   * @}
-  */ 
+  */
 
 /* Exported functions --------------------------------------------------------*/
 /** @defgroup CRC_Exported_Functions CRC Exported Functions
@@ -142,12 +140,12 @@ typedef struct
   * @{
   */
 HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc);
-HAL_StatusTypeDef HAL_CRC_DeInit (CRC_HandleTypeDef *hcrc);
+HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc);
 void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc);
 void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc);
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup CRC_Exported_Functions_Group2 Peripheral Control functions
   * @{
@@ -156,7 +154,7 @@ uint32_t HAL_CRC_Accumulate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_
 uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t BufferLength);
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup CRC_Exported_Functions_Group3 Peripheral State functions
   * @{
@@ -164,7 +162,7 @@ uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t
 HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc);
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
@@ -176,7 +174,7 @@ HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc);
 
 /**
   * @}
-  */ 
+  */
 
 /* Private defines -----------------------------------------------------------*/
 /** @defgroup CRC_Private_Defines CRC Private Defines
@@ -185,8 +183,8 @@ HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc);
 
 /**
   * @}
-  */ 
-          
+  */
+
 /* Private variables ---------------------------------------------------------*/
 /** @defgroup CRC_Private_Variables CRC Private Variables
   * @{
@@ -194,7 +192,7 @@ HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc);
 
 /**
   * @}
-  */ 
+  */
 
 /* Private constants ---------------------------------------------------------*/
 /** @defgroup CRC_Private_Constants CRC Private Constants
@@ -203,7 +201,7 @@ HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc);
 
 /**
   * @}
-  */ 
+  */
 
 /* Private macros ------------------------------------------------------------*/
 /** @defgroup CRC_Private_Macros CRC Private Macros
@@ -234,11 +232,11 @@ HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 #ifdef __cplusplus
 }

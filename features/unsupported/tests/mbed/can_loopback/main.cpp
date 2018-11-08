@@ -2,7 +2,7 @@
 #include "test_env.h"
 
 #if !DEVICE_CAN
-  #error [NOT_SUPPORTED] CAN not supported
+#error [NOT_SUPPORTED] CAN not supported
 #endif
 
 #if defined(TARGET_LPC1549)
@@ -33,7 +33,8 @@ CAN can1(PB_8, PB_9);
 
 #define TEST_ITERATIONS     127
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(dev_null);
     MBED_HOSTTEST_DESCRIPTION(CAN Loopback);
@@ -48,7 +49,7 @@ int main() {
     }
 
     char success_count = 0;
-    for (char i=0; i < TEST_ITERATIONS; i++) {
+    for (char i = 0; i < TEST_ITERATIONS; i++) {
         unsigned int id = 1337;
         CANMessage tx_msg(id, &i, sizeof(i));
         bool sent = false;

@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**
@@ -69,31 +69,28 @@ extern "C" {
 /**
  * @brief I2S tasks.
  */
-typedef enum
-{
+typedef enum {
     /*lint -save -e30*/
     NRF_I2S_TASK_START = offsetof(NRF_I2S_Type, TASKS_START), ///< Starts continuous I2S transfer. Also starts the MCK generator if this is enabled.
     NRF_I2S_TASK_STOP  = offsetof(NRF_I2S_Type, TASKS_STOP)   ///< Stops I2S transfer. Also stops the MCK generator.
-    /*lint -restore*/
+                         /*lint -restore*/
 } nrf_i2s_task_t;
 
 /**
  * @brief I2S events.
  */
-typedef enum
-{
+typedef enum {
     /*lint -save -e30*/
     NRF_I2S_EVENT_RXPTRUPD = offsetof(NRF_I2S_Type, EVENTS_RXPTRUPD), ///< The RXD.PTR register has been copied to internal double-buffers.
     NRF_I2S_EVENT_TXPTRUPD = offsetof(NRF_I2S_Type, EVENTS_TXPTRUPD), ///< The TXD.PTR register has been copied to internal double-buffers.
     NRF_I2S_EVENT_STOPPED  = offsetof(NRF_I2S_Type, EVENTS_STOPPED)   ///< I2S transfer stopped.
-    /*lint -restore*/
+                             /*lint -restore*/
 } nrf_i2s_event_t;
 
 /**
  * @brief I2S interrupts.
  */
-typedef enum
-{
+typedef enum {
     NRF_I2S_INT_RXPTRUPD_MASK = I2S_INTENSET_RXPTRUPD_Msk, ///< Interrupt on RXPTRUPD event.
     NRF_I2S_INT_TXPTRUPD_MASK = I2S_INTENSET_TXPTRUPD_Msk, ///< Interrupt on TXPTRUPD event.
     NRF_I2S_INT_STOPPED_MASK  = I2S_INTENSET_STOPPED_Msk   ///< Interrupt on STOPPED event.
@@ -102,8 +99,7 @@ typedef enum
 /**
  * @brief I2S modes of operation.
  */
-typedef enum
-{
+typedef enum {
     NRF_I2S_MODE_MASTER = I2S_CONFIG_MODE_MODE_Master, ///< Master mode.
     NRF_I2S_MODE_SLAVE  = I2S_CONFIG_MODE_MODE_Slave   ///< Slave mode.
 } nrf_i2s_mode_t;
@@ -111,8 +107,7 @@ typedef enum
 /**
  * @brief I2S master clock generator settings.
  */
-typedef enum
-{
+typedef enum {
     NRF_I2S_MCK_DISABLED  = 0,                                       ///< MCK disabled.
     // [conversion to 'int' needed to prevent compilers from complaining
     //  that the provided value (0x80000000UL) is out of range of "int"]
@@ -137,8 +132,7 @@ typedef enum
 /**
  * @brief I2S MCK/LRCK ratios.
  */
-typedef enum
-{
+typedef enum {
     NRF_I2S_RATIO_32X  = I2S_CONFIG_RATIO_RATIO_32X,  ///< LRCK = MCK / 32.
     NRF_I2S_RATIO_48X  = I2S_CONFIG_RATIO_RATIO_48X,  ///< LRCK = MCK / 48.
     NRF_I2S_RATIO_64X  = I2S_CONFIG_RATIO_RATIO_64X,  ///< LRCK = MCK / 64.
@@ -153,8 +147,7 @@ typedef enum
 /**
  * @brief I2S sample widths.
  */
-typedef enum
-{
+typedef enum {
     NRF_I2S_SWIDTH_8BIT  = I2S_CONFIG_SWIDTH_SWIDTH_8Bit,  ///< 8 bit.
     NRF_I2S_SWIDTH_16BIT = I2S_CONFIG_SWIDTH_SWIDTH_16Bit, ///< 16 bit.
     NRF_I2S_SWIDTH_24BIT = I2S_CONFIG_SWIDTH_SWIDTH_24Bit  ///< 24 bit.
@@ -163,8 +156,7 @@ typedef enum
 /**
  * @brief I2S alignments of sample within a frame.
  */
-typedef enum
-{
+typedef enum {
     NRF_I2S_ALIGN_LEFT  = I2S_CONFIG_ALIGN_ALIGN_Left, ///< Left-aligned.
     NRF_I2S_ALIGN_RIGHT = I2S_CONFIG_ALIGN_ALIGN_Right ///< Right-aligned.
 } nrf_i2s_align_t;
@@ -172,8 +164,7 @@ typedef enum
 /**
  * @brief I2S frame formats.
  */
-typedef enum
-{
+typedef enum {
     NRF_I2S_FORMAT_I2S     = I2S_CONFIG_FORMAT_FORMAT_I2S,    ///< Original I2S format.
     NRF_I2S_FORMAT_ALIGNED = I2S_CONFIG_FORMAT_FORMAT_Aligned ///< Alternate (left- or right-aligned) format.
 } nrf_i2s_format_t;
@@ -181,8 +172,7 @@ typedef enum
 /**
  * @brief I2S enabled channels.
  */
-typedef enum
-{
+typedef enum {
     NRF_I2S_CHANNELS_STEREO = I2S_CONFIG_CHANNELS_CHANNELS_Stereo, ///< Stereo.
     NRF_I2S_CHANNELS_LEFT   = I2S_CONFIG_CHANNELS_CHANNELS_Left,   ///< Left only.
     NRF_I2S_CHANNELS_RIGHT  = I2S_CONFIG_CHANNELS_CHANNELS_Right   ///< Right only.
@@ -195,7 +185,7 @@ typedef enum
  * @param[in] p_i2s I2S instance.
  * @param[in] task  Task to activate.
  */
-__STATIC_INLINE void nrf_i2s_task_trigger(NRF_I2S_Type * p_i2s,
+__STATIC_INLINE void nrf_i2s_task_trigger(NRF_I2S_Type *p_i2s,
                                           nrf_i2s_task_t task);
 
 /**
@@ -206,7 +196,7 @@ __STATIC_INLINE void nrf_i2s_task_trigger(NRF_I2S_Type * p_i2s,
  *
  * @return Address of the specified task register.
  */
-__STATIC_INLINE uint32_t nrf_i2s_task_address_get(NRF_I2S_Type const * p_i2s,
+__STATIC_INLINE uint32_t nrf_i2s_task_address_get(NRF_I2S_Type const *p_i2s,
                                                   nrf_i2s_task_t task);
 
 /**
@@ -215,7 +205,7 @@ __STATIC_INLINE uint32_t nrf_i2s_task_address_get(NRF_I2S_Type const * p_i2s,
  * @param[in] p_i2s I2S instance.
  * @param[in] event Event to clear.
  */
-__STATIC_INLINE void nrf_i2s_event_clear(NRF_I2S_Type * p_i2s,
+__STATIC_INLINE void nrf_i2s_event_clear(NRF_I2S_Type *p_i2s,
                                          nrf_i2s_event_t event);
 
 /**
@@ -227,7 +217,7 @@ __STATIC_INLINE void nrf_i2s_event_clear(NRF_I2S_Type * p_i2s,
  * @retval true  If the event is set.
  * @retval false If the event is not set.
  */
-__STATIC_INLINE bool nrf_i2s_event_check(NRF_I2S_Type const * p_i2s,
+__STATIC_INLINE bool nrf_i2s_event_check(NRF_I2S_Type const *p_i2s,
                                          nrf_i2s_event_t event);
 
 /**
@@ -238,7 +228,7 @@ __STATIC_INLINE bool nrf_i2s_event_check(NRF_I2S_Type const * p_i2s,
  *
  * @return Address of the specified event register.
  */
-__STATIC_INLINE uint32_t nrf_i2s_event_address_get(NRF_I2S_Type const * p_i2s,
+__STATIC_INLINE uint32_t nrf_i2s_event_address_get(NRF_I2S_Type const *p_i2s,
                                                    nrf_i2s_event_t event);
 
 /**
@@ -247,7 +237,7 @@ __STATIC_INLINE uint32_t nrf_i2s_event_address_get(NRF_I2S_Type const * p_i2s,
  * @param[in] p_i2s I2S instance.
  * @param[in] mask  Interrupts to enable.
  */
-__STATIC_INLINE void nrf_i2s_int_enable(NRF_I2S_Type * p_i2s, uint32_t mask);
+__STATIC_INLINE void nrf_i2s_int_enable(NRF_I2S_Type *p_i2s, uint32_t mask);
 
 /**
  * @brief Function for disabling specified interrupts.
@@ -255,7 +245,7 @@ __STATIC_INLINE void nrf_i2s_int_enable(NRF_I2S_Type * p_i2s, uint32_t mask);
  * @param[in] p_i2s I2S instance.
  * @param[in] mask  Interrupts to disable.
  */
-__STATIC_INLINE void nrf_i2s_int_disable(NRF_I2S_Type * p_i2s, uint32_t mask);
+__STATIC_INLINE void nrf_i2s_int_disable(NRF_I2S_Type *p_i2s, uint32_t mask);
 
 /**
  * @brief Function for retrieving the state of a given interrupt.
@@ -266,7 +256,7 @@ __STATIC_INLINE void nrf_i2s_int_disable(NRF_I2S_Type * p_i2s, uint32_t mask);
  * @retval true  If the interrupt is enabled.
  * @retval false If the interrupt is not enabled.
  */
-__STATIC_INLINE bool nrf_i2s_int_enable_check(NRF_I2S_Type const * p_i2s,
+__STATIC_INLINE bool nrf_i2s_int_enable_check(NRF_I2S_Type const *p_i2s,
                                               nrf_i2s_int_mask_t i2s_int);
 
 /**
@@ -274,14 +264,14 @@ __STATIC_INLINE bool nrf_i2s_int_enable_check(NRF_I2S_Type const * p_i2s,
  *
  * @param[in] p_i2s I2S instance.
  */
-__STATIC_INLINE void nrf_i2s_enable(NRF_I2S_Type * p_i2s);
+__STATIC_INLINE void nrf_i2s_enable(NRF_I2S_Type *p_i2s);
 
 /**
  * @brief Function for disabling the I2S peripheral.
  *
  * @param[in] p_i2s I2S instance.
  */
-__STATIC_INLINE void nrf_i2s_disable(NRF_I2S_Type * p_i2s);
+__STATIC_INLINE void nrf_i2s_disable(NRF_I2S_Type *p_i2s);
 
 /**
  * @brief Function for configuring I2S pins.
@@ -297,7 +287,7 @@ __STATIC_INLINE void nrf_i2s_disable(NRF_I2S_Type * p_i2s);
  * @param[in] sdout_pin SDOUT pin number.
  * @param[in] sdin_pin  SDIN pin number.
  */
-__STATIC_INLINE void nrf_i2s_pins_set(NRF_I2S_Type * p_i2s,
+__STATIC_INLINE void nrf_i2s_pins_set(NRF_I2S_Type *p_i2s,
                                       uint32_t sck_pin,
                                       uint32_t lrck_pin,
                                       uint32_t mck_pin,
@@ -319,7 +309,7 @@ __STATIC_INLINE void nrf_i2s_pins_set(NRF_I2S_Type * p_i2s,
  * @retval true  If the configuration has been set successfully.
  * @retval false If the requested configuration is not allowed.
  */
-__STATIC_INLINE bool nrf_i2s_configure(NRF_I2S_Type * p_i2s,
+__STATIC_INLINE bool nrf_i2s_configure(NRF_I2S_Type *p_i2s,
                                        nrf_i2s_mode_t     mode,
                                        nrf_i2s_format_t   format,
                                        nrf_i2s_align_t    alignment,
@@ -342,10 +332,10 @@ __STATIC_INLINE bool nrf_i2s_configure(NRF_I2S_Type * p_i2s,
  * @param[in] p_tx_buffer Pointer to the transmit buffer.
  *                        Pass NULL to disable transmission.
  */
-__STATIC_INLINE void nrf_i2s_transfer_set(NRF_I2S_Type * p_i2s,
+__STATIC_INLINE void nrf_i2s_transfer_set(NRF_I2S_Type *p_i2s,
                                           uint16_t         size,
-                                          uint32_t *       p_rx_buffer,
-                                          uint32_t const * p_tx_buffer);
+                                          uint32_t        *p_rx_buffer,
+                                          uint32_t const *p_tx_buffer);
 
 /**
  * @brief Function for setting the pointer to the receive buffer.
@@ -356,8 +346,8 @@ __STATIC_INLINE void nrf_i2s_transfer_set(NRF_I2S_Type * p_i2s,
  * @param[in] p_i2s    I2S instance.
  * @param[in] p_buffer Pointer to the receive buffer.
  */
-__STATIC_INLINE void nrf_i2s_rx_buffer_set(NRF_I2S_Type * p_i2s,
-                                           uint32_t * p_buffer);
+__STATIC_INLINE void nrf_i2s_rx_buffer_set(NRF_I2S_Type *p_i2s,
+                                           uint32_t *p_buffer);
 
 /**
  * @brief Function for getting the pointer to the receive buffer.
@@ -366,7 +356,7 @@ __STATIC_INLINE void nrf_i2s_rx_buffer_set(NRF_I2S_Type * p_i2s,
  *
  * @return Pointer to the receive buffer.
  */
-__STATIC_INLINE uint32_t * nrf_i2s_rx_buffer_get(NRF_I2S_Type const * p_i2s);
+__STATIC_INLINE uint32_t *nrf_i2s_rx_buffer_get(NRF_I2S_Type const *p_i2s);
 
 /**
  * @brief Function for setting the pointer to the transmit buffer.
@@ -377,8 +367,8 @@ __STATIC_INLINE uint32_t * nrf_i2s_rx_buffer_get(NRF_I2S_Type const * p_i2s);
  * @param[in] p_i2s    I2S instance.
  * @param[in] p_buffer Pointer to the transmit buffer.
  */
-__STATIC_INLINE void nrf_i2s_tx_buffer_set(NRF_I2S_Type * p_i2s,
-                                           uint32_t const * p_buffer);
+__STATIC_INLINE void nrf_i2s_tx_buffer_set(NRF_I2S_Type *p_i2s,
+                                           uint32_t const *p_buffer);
 
 /**
  * @brief Function for getting the pointer to the transmit buffer.
@@ -387,24 +377,24 @@ __STATIC_INLINE void nrf_i2s_tx_buffer_set(NRF_I2S_Type * p_i2s,
  *
  * @return Pointer to the transmit buffer.
  */
-__STATIC_INLINE uint32_t * nrf_i2s_tx_buffer_get(NRF_I2S_Type const * p_i2s);
+__STATIC_INLINE uint32_t *nrf_i2s_tx_buffer_get(NRF_I2S_Type const *p_i2s);
 
 
 #ifndef SUPPRESS_INLINE_IMPLEMENTATION
 
-__STATIC_INLINE void nrf_i2s_task_trigger(NRF_I2S_Type * p_i2s,
+__STATIC_INLINE void nrf_i2s_task_trigger(NRF_I2S_Type *p_i2s,
                                           nrf_i2s_task_t task)
 {
     *((volatile uint32_t *)((uint8_t *)p_i2s + (uint32_t)task)) = 0x1UL;
 }
 
-__STATIC_INLINE uint32_t nrf_i2s_task_address_get(NRF_I2S_Type const * p_i2s,
+__STATIC_INLINE uint32_t nrf_i2s_task_address_get(NRF_I2S_Type const *p_i2s,
                                                   nrf_i2s_task_t task)
 {
     return ((uint32_t)p_i2s + (uint32_t)task);
 }
 
-__STATIC_INLINE void nrf_i2s_event_clear(NRF_I2S_Type * p_i2s,
+__STATIC_INLINE void nrf_i2s_event_clear(NRF_I2S_Type *p_i2s,
                                          nrf_i2s_event_t event)
 {
     *((volatile uint32_t *)((uint8_t *)p_i2s + (uint32_t)event)) = 0x0UL;
@@ -414,45 +404,45 @@ __STATIC_INLINE void nrf_i2s_event_clear(NRF_I2S_Type * p_i2s,
 #endif
 }
 
-__STATIC_INLINE bool nrf_i2s_event_check(NRF_I2S_Type const * p_i2s,
+__STATIC_INLINE bool nrf_i2s_event_check(NRF_I2S_Type const *p_i2s,
                                          nrf_i2s_event_t event)
 {
-    return (bool)*(volatile uint32_t *)((uint8_t *)p_i2s + (uint32_t)event);
+    return (bool) * (volatile uint32_t *)((uint8_t *)p_i2s + (uint32_t)event);
 }
 
-__STATIC_INLINE uint32_t nrf_i2s_event_address_get(NRF_I2S_Type const * p_i2s,
+__STATIC_INLINE uint32_t nrf_i2s_event_address_get(NRF_I2S_Type const *p_i2s,
                                                    nrf_i2s_event_t event)
 {
     return ((uint32_t)p_i2s + (uint32_t)event);
 }
 
-__STATIC_INLINE void nrf_i2s_int_enable(NRF_I2S_Type * p_i2s, uint32_t mask)
+__STATIC_INLINE void nrf_i2s_int_enable(NRF_I2S_Type *p_i2s, uint32_t mask)
 {
     p_i2s->INTENSET = mask;
 }
 
-__STATIC_INLINE void nrf_i2s_int_disable(NRF_I2S_Type * p_i2s, uint32_t mask)
+__STATIC_INLINE void nrf_i2s_int_disable(NRF_I2S_Type *p_i2s, uint32_t mask)
 {
     p_i2s->INTENCLR = mask;
 }
 
-__STATIC_INLINE bool nrf_i2s_int_enable_check(NRF_I2S_Type const * p_i2s,
+__STATIC_INLINE bool nrf_i2s_int_enable_check(NRF_I2S_Type const *p_i2s,
                                               nrf_i2s_int_mask_t i2s_int)
 {
     return (bool)(p_i2s->INTENSET & i2s_int);
 }
 
-__STATIC_INLINE void nrf_i2s_enable(NRF_I2S_Type * p_i2s)
+__STATIC_INLINE void nrf_i2s_enable(NRF_I2S_Type *p_i2s)
 {
     p_i2s->ENABLE = (I2S_ENABLE_ENABLE_Enabled << I2S_ENABLE_ENABLE_Pos);
 }
 
-__STATIC_INLINE void nrf_i2s_disable(NRF_I2S_Type * p_i2s)
+__STATIC_INLINE void nrf_i2s_disable(NRF_I2S_Type *p_i2s)
 {
     p_i2s->ENABLE = (I2S_ENABLE_ENABLE_Disabled << I2S_ENABLE_ENABLE_Pos);
 }
 
-__STATIC_INLINE void nrf_i2s_pins_set(NRF_I2S_Type * p_i2s,
+__STATIC_INLINE void nrf_i2s_pins_set(NRF_I2S_Type *p_i2s,
                                       uint32_t sck_pin,
                                       uint32_t lrck_pin,
                                       uint32_t mck_pin,
@@ -466,7 +456,7 @@ __STATIC_INLINE void nrf_i2s_pins_set(NRF_I2S_Type * p_i2s,
     p_i2s->PSEL.SDIN  = sdin_pin;
 }
 
-__STATIC_INLINE bool nrf_i2s_configure(NRF_I2S_Type * p_i2s,
+__STATIC_INLINE bool nrf_i2s_configure(NRF_I2S_Type *p_i2s,
                                        nrf_i2s_mode_t     mode,
                                        nrf_i2s_format_t   format,
                                        nrf_i2s_align_t    alignment,
@@ -475,19 +465,17 @@ __STATIC_INLINE bool nrf_i2s_configure(NRF_I2S_Type * p_i2s,
                                        nrf_i2s_mck_t      mck_setup,
                                        nrf_i2s_ratio_t    ratio)
 {
-    if (mode == NRF_I2S_MODE_MASTER)
-    {
+    if (mode == NRF_I2S_MODE_MASTER) {
         // The MCK/LRCK ratio shall be a multiple of 2 * sample width.
         if (((sample_width == NRF_I2S_SWIDTH_16BIT) &&
-                 (ratio == NRF_I2S_RATIO_48X))
-            ||
-            ((sample_width == NRF_I2S_SWIDTH_24BIT) &&
-                ((ratio == NRF_I2S_RATIO_32X)  ||
-                 (ratio == NRF_I2S_RATIO_64X)  ||
-                 (ratio == NRF_I2S_RATIO_128X) ||
-                 (ratio == NRF_I2S_RATIO_256X) ||
-                 (ratio == NRF_I2S_RATIO_512X))))
-        {
+                (ratio == NRF_I2S_RATIO_48X))
+                ||
+                ((sample_width == NRF_I2S_SWIDTH_24BIT) &&
+                 ((ratio == NRF_I2S_RATIO_32X)  ||
+                  (ratio == NRF_I2S_RATIO_64X)  ||
+                  (ratio == NRF_I2S_RATIO_128X) ||
+                  (ratio == NRF_I2S_RATIO_256X) ||
+                  (ratio == NRF_I2S_RATIO_512X)))) {
             return false;
         }
     }
@@ -499,13 +487,10 @@ __STATIC_INLINE bool nrf_i2s_configure(NRF_I2S_Type * p_i2s,
     p_i2s->CONFIG.CHANNELS = channels;
     p_i2s->CONFIG.RATIO    = ratio;
 
-    if (mck_setup == NRF_I2S_MCK_DISABLED)
-    {
+    if (mck_setup == NRF_I2S_MCK_DISABLED) {
         p_i2s->CONFIG.MCKEN =
             (I2S_CONFIG_MCKEN_MCKEN_Disabled << I2S_CONFIG_MCKEN_MCKEN_Pos);
-    }
-    else
-    {
+    } else {
         p_i2s->CONFIG.MCKFREQ = mck_setup;
         p_i2s->CONFIG.MCKEN =
             (I2S_CONFIG_MCKEN_MCKEN_Enabled << I2S_CONFIG_MCKEN_MCKEN_Pos);
@@ -514,10 +499,10 @@ __STATIC_INLINE bool nrf_i2s_configure(NRF_I2S_Type * p_i2s,
     return true;
 }
 
-__STATIC_INLINE void nrf_i2s_transfer_set(NRF_I2S_Type * p_i2s,
+__STATIC_INLINE void nrf_i2s_transfer_set(NRF_I2S_Type *p_i2s,
                                           uint16_t         size,
-                                          uint32_t *       p_buffer_rx,
-                                          uint32_t const * p_buffer_tx)
+                                          uint32_t        *p_buffer_rx,
+                                          uint32_t const *p_buffer_tx)
 {
     p_i2s->RXTXD.MAXCNT = size;
 
@@ -528,24 +513,24 @@ __STATIC_INLINE void nrf_i2s_transfer_set(NRF_I2S_Type * p_i2s,
     p_i2s->CONFIG.TXEN = (p_buffer_tx != NULL) ? 1 : 0;
 }
 
-__STATIC_INLINE void nrf_i2s_rx_buffer_set(NRF_I2S_Type * p_i2s,
-                                           uint32_t * p_buffer)
+__STATIC_INLINE void nrf_i2s_rx_buffer_set(NRF_I2S_Type *p_i2s,
+                                           uint32_t *p_buffer)
 {
     p_i2s->RXD.PTR = (uint32_t)p_buffer;
 }
 
-__STATIC_INLINE uint32_t * nrf_i2s_rx_buffer_get(NRF_I2S_Type const * p_i2s)
+__STATIC_INLINE uint32_t *nrf_i2s_rx_buffer_get(NRF_I2S_Type const *p_i2s)
 {
     return (uint32_t *)(p_i2s->RXD.PTR);
 }
 
-__STATIC_INLINE void nrf_i2s_tx_buffer_set(NRF_I2S_Type * p_i2s,
-                                           uint32_t const * p_buffer)
+__STATIC_INLINE void nrf_i2s_tx_buffer_set(NRF_I2S_Type *p_i2s,
+                                           uint32_t const *p_buffer)
 {
     p_i2s->TXD.PTR = (uint32_t)p_buffer;
 }
 
-__STATIC_INLINE uint32_t * nrf_i2s_tx_buffer_get(NRF_I2S_Type const * p_i2s)
+__STATIC_INLINE uint32_t *nrf_i2s_tx_buffer_get(NRF_I2S_Type const *p_i2s)
 {
     return (uint32_t *)(p_i2s->TXD.PTR);
 }

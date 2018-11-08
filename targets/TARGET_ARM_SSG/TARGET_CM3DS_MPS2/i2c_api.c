@@ -42,19 +42,19 @@
 #define I2C_GET(p_i2c, pin)  ((p_i2c->CONTROL >> (pin-1)) & 0x01)
 
 static const PinMap PinMap_I2C_SDA[] = {
-    {TSC_SDA      , I2C_0, 0},
-    {AUD_SDA      , I2C_1, 0},
-    {SHIELD_0_SDA , I2C_2, ALTERNATE_FUNC},
-    {SHIELD_1_SDA , I2C_3, ALTERNATE_FUNC},
-    {NC           , NC   , 0}
+    {TSC_SDA, I2C_0, 0},
+    {AUD_SDA, I2C_1, 0},
+    {SHIELD_0_SDA, I2C_2, ALTERNATE_FUNC},
+    {SHIELD_1_SDA, I2C_3, ALTERNATE_FUNC},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_I2C_SCL[] = {
-    {TSC_SCL      , I2C_0, 0},
-    {AUD_SCL      , I2C_1, 0},
-    {SHIELD_0_SCL , I2C_2, ALTERNATE_FUNC},
-    {SHIELD_1_SCL , I2C_3, ALTERNATE_FUNC},
-    {NC           , NC,    0}
+    {TSC_SCL, I2C_0, 0},
+    {AUD_SCL, I2C_1, 0},
+    {SHIELD_0_SCL, I2C_2, ALTERNATE_FUNC},
+    {SHIELD_1_SCL, I2C_3, ALTERNATE_FUNC},
+    {NC, NC,    0}
 };
 
 /*
@@ -122,7 +122,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
             pin_function(sda, ALTERNATE_FUNC);
             pin_function(scl, ALTERNATE_FUNC);
             break;
-       default:
+        default:
             break;
     }
 
@@ -179,7 +179,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 
     i2c_byte_write(obj, (uint8_t)(address | 0x1));
 
-    while(nbr_bytes_read < (length - 1)) {
+    while (nbr_bytes_read < (length - 1)) {
         data[nbr_bytes_read++] = i2c_byte_read(obj, LAST_ACK_NOT_REQUIRED);
     }
 
@@ -209,7 +209,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     }
 
     if (stop == STOP_REQUIRED) {
-       i2c_stop(obj);
+        i2c_stop(obj);
     }
 
     return nbr_bytes_write;
@@ -217,7 +217,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
 void i2c_reset(i2c_t *obj)
 {
-   uint32_t iter;
+    uint32_t iter;
 
     /*
      * The reset sequence is:
@@ -228,7 +228,7 @@ void i2c_reset(i2c_t *obj)
     I2C_LOW(obj->i2c, SDA);
     wait_us(obj->freq_us);
 
-    for(iter=0; iter < 9; iter++) {
+    for (iter = 0; iter < 9; iter++) {
         I2C_LOW(obj->i2c, SCL);
         wait_us(obj->freq_us);
         I2C_HIGH(obj->i2c, SCL);
@@ -260,7 +260,7 @@ int i2c_byte_write(i2c_t *obj, int data)
     uint8_t nbr_bits;
     uint8_t ack;
 
-    for(nbr_bits=0; nbr_bits < 7; nbr_bits++) {
+    for (nbr_bits = 0; nbr_bits < 7; nbr_bits++) {
         i2c_tx_bit(obj, data & 0x80);
         data <<= 1;
     }

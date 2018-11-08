@@ -67,12 +67,11 @@
 #define INB_AXIRERRCLRn_COUNT (4)
 
 
-typedef struct st_inb
-{
-                                                           /* INB              */
+typedef struct st_inb {
+    /* INB              */
     volatile uint32_t  RMPR;                                   /*  RMPR            */
 
-/* #define INB_AXIBUSCTLn_COUNT (11) */
+    /* #define INB_AXIBUSCTLn_COUNT (11) */
     volatile uint32_t  AXIBUSCTL0;                             /*  AXIBUSCTL0      */
     volatile uint32_t  AXIBUSCTL1;                             /*  AXIBUSCTL1      */
     volatile uint32_t  AXIBUSCTL2;                             /*  AXIBUSCTL2      */
@@ -85,19 +84,19 @@ typedef struct st_inb
     volatile uint32_t  AXIBUSCTL9;                             /*  AXIBUSCTL9      */
     volatile uint32_t  AXIBUSCTL10;                            /*  AXIBUSCTL10     */
 
-/* #define INB_AXIRERRCTLn_COUNT (4) */
+    /* #define INB_AXIRERRCTLn_COUNT (4) */
     volatile uint32_t  AXIRERRCTL0;                            /*  AXIRERRCTL0     */
     volatile uint32_t  AXIRERRCTL1;                            /*  AXIRERRCTL1     */
     volatile uint32_t  AXIRERRCTL2;                            /*  AXIRERRCTL2     */
     volatile uint32_t  AXIRERRCTL3;                            /*  AXIRERRCTL3     */
 
-/* #define INB_AXIRERRSTn_COUNT (4) */
+    /* #define INB_AXIRERRSTn_COUNT (4) */
     volatile uint32_t  AXIRERRST0;                             /*  AXIRERRST0      */
     volatile uint32_t  AXIRERRST1;                             /*  AXIRERRST1      */
     volatile uint32_t  AXIRERRST2;                             /*  AXIRERRST2      */
     volatile uint32_t  AXIRERRST3;                             /*  AXIRERRST3      */
 
-/* #define INB_AXIRERRCLRn_COUNT (4) */
+    /* #define INB_AXIRERRCLRn_COUNT (4) */
     volatile uint32_t  AXIRERRCLR0;                            /*  AXIRERRCLR0     */
     volatile uint32_t  AXIRERRCLR1;                            /*  AXIRERRCLR1     */
     volatile uint32_t  AXIRERRCLR2;                            /*  AXIRERRCLR2     */

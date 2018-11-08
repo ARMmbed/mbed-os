@@ -103,25 +103,27 @@ static uint16_t long_data_16[LONG_TRANSFER_FRAMES];
 static uint8_t long_data_8_rx[LONG_TRANSFER_FRAMES];
 static uint16_t long_data_16_rx[LONG_TRANSFER_FRAMES];
 
-void callbackFunction(int flags) {
+void callbackFunction(int flags)
+{
     complete = true;
 }
 
-void init_timer() {
+void init_timer()
+{
     CMU_ClockEnable(cmuClock_PRS, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
     CMU_ClockEnable(TEST_TIMER_CLOCK, true);
 
     // Setup USART TX pin as PRS producer
     GPIO_IntConfig(GPIO_PORT, GPIO_PIN_TX, false, false, false);
-    PRS_SourceSignalSet(0, 
+    PRS_SourceSignalSet(0,
                         GPIO_PRS_SRC_TX,
                         GPIO_PRS_SIG_TX,
                         prsEdgeOff);
 
     // Setup USART CLK pin as PRS producer
     GPIO_IntConfig(GPIO_PORT, GPIO_PIN_CLK, false, false, false);
-    PRS_SourceSignalSet(1, 
+    PRS_SourceSignalSet(1,
                         GPIO_PRS_SRC_CLK,
                         GPIO_PRS_SIG_CLK,
                         prsEdgeOff);
@@ -142,7 +144,8 @@ void init_timer() {
 }
 
 template<typename T>
-void init_arrays(T * tx, T * rx, int len, uint32_t mask) {
+void init_arrays(T *tx, T *rx, int len, uint32_t mask)
+{
     for (uint32_t i = 0; i < len; i++) {
         if (tx) {
             tx[i] = i & mask;
@@ -154,7 +157,8 @@ void init_arrays(T * tx, T * rx, int len, uint32_t mask) {
 }
 
 template<typename T>
-void test_transfer(int bits, int polarity, int freq, DMAUsage dma, T * data_tx, T * data_rx, int len) {
+void test_transfer(int bits, int polarity, int freq, DMAUsage dma, T *data_tx, T *data_rx, int len)
+{
     SPI spi(MOSI_PIN, MISO_PIN, CLK_PIN);
 
     spi.format(bits, polarity);
@@ -179,7 +183,7 @@ void test_transfer(int bits, int polarity, int freq, DMAUsage dma, T * data_tx, 
     cs = 1;
 
     // Check that all bits were sent
-    TEST_ASSERT_EQUAL(bits*len, xferred);
+    TEST_ASSERT_EQUAL(bits * len, xferred);
 
     // Check that all data was received correctly
     if (data_rx) {
@@ -192,135 +196,165 @@ void test_transfer(int bits, int polarity, int freq, DMAUsage dma, T * data_tx, 
 ////////////////////////////////
 // Short single transfers
 
-void test_5bit_8bit_0_1mhz_short_transfer() {
+void test_5bit_8bit_0_1mhz_short_transfer()
+{
     test_transfer(5, 0, 1000000, DMA_USAGE_NEVER, short_data_8, short_data_8_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_5bit_8bit_0_1mhz_short_dma_transfer() {
+void test_5bit_8bit_0_1mhz_short_dma_transfer()
+{
     test_transfer(5, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, short_data_8, short_data_8_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_5bit_16bit_0_1mhz_short_transfer() {
+void test_5bit_16bit_0_1mhz_short_transfer()
+{
     test_transfer(5, 0, 1000000, DMA_USAGE_NEVER, short_data_16, short_data_16_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_5bit_16bit_0_1mhz_short_dma_transfer() {
+void test_5bit_16bit_0_1mhz_short_dma_transfer()
+{
     test_transfer(5, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, short_data_16, short_data_16_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_8bit_8bit_0_1mhz_short_transfer() {
+void test_8bit_8bit_0_1mhz_short_transfer()
+{
     test_transfer(8, 0, 1000000, DMA_USAGE_NEVER, short_data_8, short_data_8_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_8bit_8bit_0_1mhz_short_dma_transfer() {
+void test_8bit_8bit_0_1mhz_short_dma_transfer()
+{
     test_transfer(8, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, short_data_8, short_data_8_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_8bit_16bit_0_1mhz_short_transfer() {
+void test_8bit_16bit_0_1mhz_short_transfer()
+{
     test_transfer(8, 0, 1000000, DMA_USAGE_NEVER, short_data_16, short_data_16_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_8bit_16bit_0_1mhz_short_dma_transfer() {
+void test_8bit_16bit_0_1mhz_short_dma_transfer()
+{
     test_transfer(8, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, short_data_16, short_data_16_rx, SHORT_TRANSFER_FRAMES);
 }
 
 ////////////////////////////////
 // Short extended/double transfers
 
-void test_9bit_16bit_0_1mhz_short_transfer() {
+void test_9bit_16bit_0_1mhz_short_transfer()
+{
     test_transfer(9, 0, 1000000, DMA_USAGE_NEVER, short_data_16, short_data_16_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_9bit_16bit_0_1mhz_short_dma_transfer() {
+void test_9bit_16bit_0_1mhz_short_dma_transfer()
+{
     test_transfer(9, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, short_data_16, short_data_16_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_9bit_32bit_0_1mhz_short_transfer() {
+void test_9bit_32bit_0_1mhz_short_transfer()
+{
     test_transfer(9, 0, 1000000, DMA_USAGE_NEVER, short_data_32, short_data_32_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_9bit_32bit_0_1mhz_short_dma_transfer() {
+void test_9bit_32bit_0_1mhz_short_dma_transfer()
+{
     test_transfer(9, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, short_data_32, short_data_32_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_16bit_16bit_0_1mhz_short_transfer() {
+void test_16bit_16bit_0_1mhz_short_transfer()
+{
     test_transfer(16, 0, 1000000, DMA_USAGE_NEVER, short_data_16, short_data_16_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_16bit_16bit_0_1mhz_short_dma_transfer() {
+void test_16bit_16bit_0_1mhz_short_dma_transfer()
+{
     test_transfer(16, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, short_data_16, short_data_16_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_16bit_32bit_0_1mhz_short_transfer() {
+void test_16bit_32bit_0_1mhz_short_transfer()
+{
     test_transfer(16, 0, 1000000, DMA_USAGE_NEVER, short_data_32, short_data_32_rx, SHORT_TRANSFER_FRAMES);
 }
 
-void test_16bit_32bit_0_1mhz_short_dma_transfer() {
+void test_16bit_32bit_0_1mhz_short_dma_transfer()
+{
     test_transfer(16, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, short_data_32, short_data_32_rx, SHORT_TRANSFER_FRAMES);
 }
 
 ////////////////////////////////
 // Long single transfers
 
-void test_5bit_8bit_0_1mhz_long_transfer() {
+void test_5bit_8bit_0_1mhz_long_transfer()
+{
     test_transfer(5, 0, 1000000, DMA_USAGE_NEVER, long_data_8, long_data_8_rx, LONG_TRANSFER_FRAMES);
 }
 
-void test_5bit_8bit_0_1mhz_long_dma_transfer() {
+void test_5bit_8bit_0_1mhz_long_dma_transfer()
+{
     test_transfer(5, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, long_data_8, long_data_8_rx, LONG_TRANSFER_FRAMES);
 }
 
-void test_5bit_16bit_0_1mhz_long_transfer() {
+void test_5bit_16bit_0_1mhz_long_transfer()
+{
     test_transfer(5, 0, 1000000, DMA_USAGE_NEVER, long_data_16, long_data_16_rx, LONG_TRANSFER_FRAMES);
 }
 
-void test_5bit_16bit_0_1mhz_long_dma_transfer() {
+void test_5bit_16bit_0_1mhz_long_dma_transfer()
+{
     test_transfer(5, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, long_data_16, long_data_16_rx, LONG_TRANSFER_FRAMES);
 }
 
-void test_8bit_8bit_0_1mhz_long_transfer() {
+void test_8bit_8bit_0_1mhz_long_transfer()
+{
     test_transfer(8, 0, 1000000, DMA_USAGE_NEVER, long_data_8, long_data_8_rx, LONG_TRANSFER_FRAMES);
 }
 
-void test_8bit_8bit_0_1mhz_long_dma_transfer() {
+void test_8bit_8bit_0_1mhz_long_dma_transfer()
+{
     test_transfer(8, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, long_data_8, long_data_8_rx, LONG_TRANSFER_FRAMES);
 }
 
-void test_8bit_16bit_0_1mhz_long_transfer() {
+void test_8bit_16bit_0_1mhz_long_transfer()
+{
     test_transfer(8, 0, 1000000, DMA_USAGE_NEVER, long_data_16, long_data_16_rx, LONG_TRANSFER_FRAMES);
 }
 
-void test_8bit_16bit_0_1mhz_long_dma_transfer() {
+void test_8bit_16bit_0_1mhz_long_dma_transfer()
+{
     test_transfer(8, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, long_data_16, long_data_16_rx, LONG_TRANSFER_FRAMES);
 }
 
 ////////////////////////////////
 // Long extended/double transfers
 
-void test_9bit_16bit_0_1mhz_long_transfer() {
+void test_9bit_16bit_0_1mhz_long_transfer()
+{
     test_transfer(9, 0, 1000000, DMA_USAGE_NEVER, long_data_16, long_data_16_rx, LONG_TRANSFER_FRAMES);
 }
 
-void test_9bit_16bit_0_1mhz_long_dma_transfer() {
+void test_9bit_16bit_0_1mhz_long_dma_transfer()
+{
     test_transfer(9, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, long_data_16, long_data_16_rx, LONG_TRANSFER_FRAMES);
 }
 
-void test_16bit_16bit_0_1mhz_long_transfer() {
+void test_16bit_16bit_0_1mhz_long_transfer()
+{
     test_transfer(16, 0, 1000000, DMA_USAGE_NEVER, long_data_16, long_data_16_rx, LONG_TRANSFER_FRAMES);
 }
 
-void test_16bit_16bit_0_1mhz_long_dma_transfer() {
+void test_16bit_16bit_0_1mhz_long_dma_transfer()
+{
     test_transfer(16, 0, 1000000, DMA_USAGE_OPPORTUNISTIC, long_data_16, long_data_16_rx, LONG_TRANSFER_FRAMES);
 }
 
 ////////////////////////////////
 #else
-void test_dummy() {
+void test_dummy()
+{
     TEST_IGNORE_MESSAGE("This test is not compatible with this target.");
 }
 #endif
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }
@@ -361,14 +395,16 @@ Case cases[] = {
 #endif
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(25, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
 #if TEST
     cs = 1;
     cb.attach(callbackFunction);

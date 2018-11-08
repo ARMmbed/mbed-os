@@ -36,9 +36,8 @@
 /**************************************************************************//**
  * @brief DMA_CH EFM32WG DMA CH
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL; /**< Channel Control Register  */
+typedef struct {
+    __IOM uint32_t CTRL; /**< Channel Control Register  */
 } DMA_CH_TypeDef;
 
 /** @} End of group Parts */

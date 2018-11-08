@@ -65,9 +65,9 @@ void FCache_Enable(int mode)
              * Manual, Invalidate: Manual)
              */
             FCache_Writel(SYS_FCACHE_CCR, (FCACHE_POW_REQ
-                        | FCACHE_SET_MAN_POW
-                        | FCACHE_SET_MAN_INV
-                        | FCACHE_STATISTIC_EN));
+                                           | FCACHE_SET_MAN_POW
+                                           | FCACHE_SET_MAN_INV
+                                           | FCACHE_STATISTIC_EN));
             /* Wait until the cache rams are powered */
             while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_POW_STAT) != FCACHE_POW_STAT);
             /* Statistic counters enabled, Cache enabled
@@ -75,20 +75,20 @@ void FCache_Enable(int mode)
              * Manual, Invalidate: Manual)
              */
             FCache_Writel(SYS_FCACHE_CCR, (FCACHE_INV_REQ
-                        | FCACHE_POW_REQ
-                        | FCACHE_SET_MAN_POW
-                        | FCACHE_SET_MAN_INV
-                        | FCACHE_STATISTIC_EN));
+                                           | FCACHE_POW_REQ
+                                           | FCACHE_SET_MAN_POW
+                                           | FCACHE_SET_MAN_INV
+                                           | FCACHE_STATISTIC_EN));
             /* Wait until the cache is invalidated */
             while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_INV_STAT) == FCACHE_INV_STAT);
             /* Statistic counters enabled, Cache enable,
              * manual-inval, manual-power control
              */
             FCache_Writel(SYS_FCACHE_CCR, (FCACHE_EN
-                        | FCACHE_POW_REQ
-                        | FCACHE_SET_MAN_POW
-                        | FCACHE_SET_MAN_INV
-                        | FCACHE_STATISTIC_EN));
+                                           | FCACHE_POW_REQ
+                                           | FCACHE_SET_MAN_POW
+                                           | FCACHE_SET_MAN_INV
+                                           | FCACHE_STATISTIC_EN));
             /* Wait until the cache is enabled */
             while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_ENABLED);
             /* Cache Enabled: Set enabled to 1 */
@@ -121,9 +121,9 @@ void FCache_Disable()
              * manual-inval, manual-power control
              */
             FCache_Writel(SYS_FCACHE_CCR, (FCACHE_POW_REQ
-                        | FCACHE_SET_MAN_POW
-                        | FCACHE_SET_MAN_INV
-                        | FCACHE_STATISTIC_EN));
+                                           | FCACHE_SET_MAN_POW
+                                           | FCACHE_SET_MAN_INV
+                                           | FCACHE_STATISTIC_EN));
             /* Wait until the cache is disabled */
             while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_DISABLED);
             /* Cache Enabled: Set enabled to 0 */
@@ -142,20 +142,20 @@ void FCache_Disable()
 int FCache_Invalidate()
 {
     /* Manual cache invalidate */
-    if (fcache_mode == 1)
-    {
+    if (fcache_mode == 1) {
         /* Disable Flash Cache */
-        if (enabled == 1)
+        if (enabled == 1) {
             FCache_Disable();
-        else
+        } else {
             goto error;
+        }
 
         /* Trigger INV_REQ */
         FCache_Writel(SYS_FCACHE_CCR, (FCACHE_INV_REQ
-                    | FCACHE_POW_REQ
-                    | FCACHE_SET_MAN_POW
-                    | FCACHE_SET_MAN_INV
-                    | FCACHE_STATISTIC_EN));
+                                       | FCACHE_POW_REQ
+                                       | FCACHE_SET_MAN_POW
+                                       | FCACHE_SET_MAN_INV
+                                       | FCACHE_STATISTIC_EN));
 
         /* Wait until INV_REQ is finished */
         while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_DISABLED);
@@ -165,20 +165,22 @@ int FCache_Invalidate()
         FCache_Writel(SYS_FCACHE_CSMR, 0);
 
         /* Enable Flash Cache */
-        if (enabled == 0)
+        if (enabled == 0) {
             FCache_Enable(1);
+        }
 
 error:
-        if (enabled == 0)
+        if (enabled == 0) {
             return -1;
-        else
+        } else {
             return -2;
+        }
     }
 
     return 0;
 }
 
-unsigned int * FCache_GetStats()
+unsigned int *FCache_GetStats()
 {
     static unsigned int stats[2];
 

@@ -38,16 +38,17 @@
 
 #include "ble/GattClient.h"
 
-class MaximGattClient : public GattClient
-{
+class MaximGattClient : public GattClient {
 public:
-    static MaximGattClient &getInstance() {
+    static MaximGattClient &getInstance()
+    {
         static MaximGattClient m_instance;
         return m_instance;
     }
 
 public:
-    MaximGattClient() {
+    MaximGattClient()
+    {
         /* empty */
     }
 

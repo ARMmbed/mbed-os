@@ -401,10 +401,11 @@ extern "C"
   */
 static __INLINE void I2S_ENABLE_TX_ZCD(SPI_T *i2s, uint32_t u32ChMask)
 {
-    if(u32ChMask == I2S_RIGHT)
+    if (u32ChMask == I2S_RIGHT) {
         i2s->I2SCTL |= SPI_I2SCTL_RZCEN_Msk;
-    else
+    } else {
         i2s->I2SCTL |= SPI_I2SCTL_LZCEN_Msk;
+    }
 }
 
 /**
@@ -418,10 +419,11 @@ static __INLINE void I2S_ENABLE_TX_ZCD(SPI_T *i2s, uint32_t u32ChMask)
   */
 static __INLINE void I2S_DISABLE_TX_ZCD(SPI_T *i2s, uint32_t u32ChMask)
 {
-    if(u32ChMask == I2S_RIGHT)
+    if (u32ChMask == I2S_RIGHT) {
         i2s->I2SCTL &= ~SPI_I2SCTL_RZCEN_Msk;
-    else
+    } else {
         i2s->I2SCTL &= ~SPI_I2SCTL_LZCEN_Msk;
+    }
 }
 
 /**

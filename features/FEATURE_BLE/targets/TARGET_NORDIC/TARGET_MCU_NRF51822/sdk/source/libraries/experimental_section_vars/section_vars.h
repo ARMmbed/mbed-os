@@ -81,9 +81,9 @@
 
 /*lint -save -e27 */
 
-/**@brief Macro for accessing start of a named data section by symbol 
+/**@brief Macro for accessing start of a named data section by symbol
  *
- * @details     The symbol that this macro resolves to is used to access the section 
+ * @details     The symbol that this macro resolves to is used to access the section
  *              by start address.
  *
  * @param[in]   section_name    Name of the section
@@ -112,7 +112,7 @@
  * @details     The symbol that this macro resolves to is used to access the section
  *              by end address.
  *
- * @param[in]   section_name    Name of the section    
+ * @param[in]   section_name    Name of the section
  */
 #if defined __CC_ARM
 
@@ -145,12 +145,12 @@
 
 #elif defined __GNUC__
 
- #define NRF_SECTION_VARS_LENGTH(section_name) \
+#define NRF_SECTION_VARS_LENGTH(section_name) \
     ((uint32_t)&NRF_SECTION_VARS_END_SYMBOL(section_name) - (uint32_t)&NRF_SECTION_VARS_START_SYMBOL(section_name))
 
 #elif defined __ICCARM__
 
- #define NRF_SECTION_VARS_LENGTH(section_name) \
+#define NRF_SECTION_VARS_LENGTH(section_name) \
     ((uint32_t)NRF_SECTION_VARS_END_SYMBOL(section_name) - (uint32_t)NRF_SECTION_VARS_START_SYMBOL(section_name))
 
 #else
@@ -158,7 +158,7 @@
 #error TODO
 
 #endif
-      
+
 
 /**@brief Macro for accessing the start address of a named section
  *
@@ -167,22 +167,22 @@
 #if defined __CC_ARM
 
 #define NRF_SECTION_VARS_START_ADDR(section_name)       (uint32_t)&NRF_SECTION_VARS_START_SYMBOL(section_name)
-      
+
 #elif defined __GNUC__
-      
+
 #define NRF_SECTION_VARS_START_ADDR(section_name)       (uint32_t)&NRF_SECTION_VARS_START_SYMBOL(section_name)
-      
+
 #elif defined __ICCARM__
-      
+
 #define NRF_SECTION_VARS_START_ADDR(section_name)       (uint32_t)iar_ ## section_name ## _start
 
 #else
-      
+
 #error TODO
-      
+
 #endif
 
-      
+
 /*@brief Macro for accessing the end address of a named section
  *
  * @param[in]   section_name    Name of the section to get end address from
@@ -190,19 +190,19 @@
 #if defined __CC_ARM
 
 #define NRF_SECTION_VARS_END_ADDR(section_name)         (uint32_t)&NRF_SECTION_VARS_END_SYMBOL(section_name)
-      
+
 #elif defined __GNUC__
 
 #define NRF_SECTION_VARS_END_ADDR(section_name)         (uint32_t)&NRF_SECTION_VARS_END_SYMBOL(section_name)
-      
+
 #elif defined __ICCARM__
 
 #define NRF_SECTION_VARS_END_ADDR(section_name)         (uint32_t)iar_ ## section_name ## _end
 
 #else
-      
+
 #error TODO
-      
+
 #endif
 
 
@@ -227,13 +227,13 @@
 
 #elif defined __ICCARM__
 
-// No symbol registration required for IAR      
+// No symbol registration required for IAR
 #define NRF_SECTION_VARS_REGISTER_SYMBOLS(type_name, section_name)                              \
     extern void*   iar_ ## section_name ## _start   = __section_begin(#section_name);            \
     extern void*   iar_ ## section_name ## _end     = __section_end(#section_name)
-      
+
 #else
-      
+
 #error TODO
 
 #endif
@@ -242,7 +242,7 @@
 /**@brief Macro to add symbols to a named section
  *
  * @details     The symbols are placed in a named section. All calls to this macro
- *              will result in symbols being placed in a contiguous manner in the named section. 
+ *              will result in symbols being placed in a contiguous manner in the named section.
  *              This macro ensures that the symbol is not removed because of optimization level.
  *
  * @warning     There is no guarantee for ordering of placement. If ordering is required
@@ -254,7 +254,7 @@
  * @param[in]   type_def        Datatype of the symbol to place in the given section
  */
 #if defined __CC_ARM
-    
+
 #define NRF_SECTION_VARS_ADD(section_name, type_def) \
     static type_def __attribute__((section( #section_name ))) __attribute__((used))
 
@@ -269,35 +269,35 @@
     __root type_def @ #section_name
 
 #else
-      
-#error    TODO
-      
-#endif    
 
-      
+#error    TODO
+
+#endif
+
+
 /**@brief Macro to get symbol from named section
  *
- * @warning     The stored symbol can only be resolved using this macro if the 
- *              type of the data is word aligned. The operation of acquiring 
- *              the stored symbol relies on sizeof of the stored type, no 
- *              padding can exist in the named section in between individual 
+ * @warning     The stored symbol can only be resolved using this macro if the
+ *              type of the data is word aligned. The operation of acquiring
+ *              the stored symbol relies on sizeof of the stored type, no
+ *              padding can exist in the named section in between individual
  *              stored items or this macro will fail.
  *
  * @param[in]   i               Index of item in section
  * @param[in]   type_name       Type name of item in section
  * @param[in]   section_name    Name of the section
  */
-      
+
 #if defined __CC_ARM
 
 #define NRF_SECTION_VARS_GET(i, type_name, section_name) \
     (type_name*)(NRF_SECTION_VARS_START_ADDR(section_name) + i * sizeof(type_name))
-      
+
 #elif defined __GNUC__
 
 #define NRF_SECTION_VARS_GET(i, type_name, section_name) \
     (type_name*)(NRF_SECTION_VARS_START_ADDR(section_name) + i * sizeof(type_name))
-      
+
 #elif defined __ICCARM__
 
 #define NRF_SECTION_VARS_GET(i, type_name, section_name) \

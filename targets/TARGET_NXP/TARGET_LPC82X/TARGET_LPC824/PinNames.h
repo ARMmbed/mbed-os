@@ -32,16 +32,16 @@ typedef enum {
 typedef enum {
 // LPC824 Pin Names (PIN[11:8] + IOCON offset[7:0])
 
-    P0_0  = ( 0 << PIN_SHIFT) | 0x44,
-    P0_1  = ( 1 << PIN_SHIFT) | 0x2C,
-    P0_2  = ( 2 << PIN_SHIFT) | 0x18,
-    P0_3  = ( 3 << PIN_SHIFT) | 0x14,
-    P0_4  = ( 4 << PIN_SHIFT) | 0x10,
-    P0_5  = ( 5 << PIN_SHIFT) | 0x0C,
-    P0_6  = ( 6 << PIN_SHIFT) | 0x40,
-    P0_7  = ( 7 << PIN_SHIFT) | 0x3C,
-    P0_8  = ( 8 << PIN_SHIFT) | 0x38,
-    P0_9  = ( 9 << PIN_SHIFT) | 0x34,
+    P0_0  = (0 << PIN_SHIFT) | 0x44,
+    P0_1  = (1 << PIN_SHIFT) | 0x2C,
+    P0_2  = (2 << PIN_SHIFT) | 0x18,
+    P0_3  = (3 << PIN_SHIFT) | 0x14,
+    P0_4  = (4 << PIN_SHIFT) | 0x10,
+    P0_5  = (5 << PIN_SHIFT) | 0x0C,
+    P0_6  = (6 << PIN_SHIFT) | 0x40,
+    P0_7  = (7 << PIN_SHIFT) | 0x3C,
+    P0_8  = (8 << PIN_SHIFT) | 0x38,
+    P0_9  = (9 << PIN_SHIFT) | 0x34,
     P0_10 = (10 << PIN_SHIFT) | 0x20,
     P0_11 = (11 << PIN_SHIFT) | 0x1C,
     P0_12 = (12 << PIN_SHIFT) | 0x08,
@@ -61,7 +61,7 @@ typedef enum {
     P0_26 = (26 << PIN_SHIFT) | 0x58,
     P0_27 = (27 << PIN_SHIFT) | 0x54,
     P0_28 = (28 << PIN_SHIFT) | 0x50,
-    
+
     D0 = P0_0,
     D1 = P0_4,
     D2 = P0_19,
@@ -78,35 +78,35 @@ typedef enum {
     D13 = P0_24,
     D14 = P0_11,
     D15 = P0_10,
-    
+
     A0 = P0_6,
     A1 = P0_14,
     A2 = P0_23,
     A3 = P0_22,
     A4 = P0_21,
     A5 = P0_20,
-    
+
     // LPC824-MAX board
     LED_RED = P0_12,
     LED_GREEN = P0_16,
     LED_BLUE = P0_27,
-    
+
     // mbed original LED naming
     LED1 = LED_RED,
     LED2 = LED_GREEN,
     LED3 = LED_BLUE,
     LED4 = LED_BLUE,
-    
+
     // Serial to USB pins
     USBTX = P0_7,
     USBRX = P0_18,
-    
+
     // I2C pins
     SCL = P0_10,
     SDA = P0_11,
     I2C_SCL = P0_10,
     I2C_SDA = P0_11,
-    
+
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;

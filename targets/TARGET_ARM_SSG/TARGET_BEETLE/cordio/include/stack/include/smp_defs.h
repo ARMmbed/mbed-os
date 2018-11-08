@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   smp_defs.h
- *        
+ *
  *  \brief  Security manager constants and definitions from the Bluetooth specification.
  *
  *          $Date: 2015-10-15 10:06:43 -0700 (Thu, 15 Oct 2015) $
  *          $Revision: 4216 $
- *  
+ *
  *  Copyright (c) 2010 Wicentric, Inc., all rights reserved.
  *  Wicentric confidential and proprietary.
  *

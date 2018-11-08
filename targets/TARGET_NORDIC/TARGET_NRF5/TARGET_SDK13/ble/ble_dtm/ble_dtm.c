@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2012 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 #include "sdk_common.h"
 #if NRF_MODULE_ENABLED(BLE_DTM)
@@ -97,15 +97,13 @@
 
 /**@brief Structure holding the PDU used for transmitting/receiving a PDU.
  */
-typedef struct
-{
+typedef struct {
     uint8_t content[DTM_HEADER_SIZE + DTM_PAYLOAD_MAX_SIZE];                 /**< PDU packet content. */
 } pdu_type_t;
 
 /**@brief States used for the DTM test implementation.
  */
-typedef enum
-{
+typedef enum {
     STATE_UNINITIALIZED,                                                     /**< The DTM is uninitialized. */
     STATE_IDLE,                                                              /**< State when system has just initialized, or current test has completed. */
     STATE_TRANSMITTER_TEST,                                                  /**< State used when a DTM Transmission test is running. */
@@ -127,7 +125,7 @@ static uint32_t          m_current_time = 0;                                 /**
 // Nordic specific configuration values (not defined by BLE standard).
 // Definition of initial values found in ble_dtm.h
 static int32_t           m_tx_power          = DEFAULT_TX_POWER;             /**< TX power for transmission test, default to maximum value (+4 dBm). */
-static NRF_TIMER_Type *  mp_timer            = DEFAULT_TIMER;                /**< Timer to be used. */
+static NRF_TIMER_Type   *mp_timer            = DEFAULT_TIMER;                /**< Timer to be used. */
 static IRQn_Type         m_timer_irq         = DEFAULT_TIMER_IRQn;           /**< which interrupt line to clear on every timeout */
 
 static uint8_t const     m_prbs_content[]    = PRBS9_CONTENT;                /**< Pseudo-random bit sequence defined by the BLE standard. */
@@ -159,31 +157,24 @@ static bool check_pdu(void)
     pdu_packet_type = (dtm_pkt_type_t)(m_pdu.content[DTM_HEADER_OFFSET] & 0x0F);
     length          = m_pdu.content[DTM_LENGTH_OFFSET];
 
-    if ((pdu_packet_type > (dtm_pkt_type_t)PACKET_TYPE_MAX) || (length > DTM_PAYLOAD_MAX_SIZE))
-    {
+    if ((pdu_packet_type > (dtm_pkt_type_t)PACKET_TYPE_MAX) || (length > DTM_PAYLOAD_MAX_SIZE)) {
         return false;
     }
 
-    if (pdu_packet_type == DTM_PKT_PRBS9)
-    {
+    if (pdu_packet_type == DTM_PKT_PRBS9) {
         // Payload does not consist of one repeated octet; must compare ir with entire block into
         return (memcmp(m_pdu.content + DTM_HEADER_SIZE, m_prbs_content, length) == 0);
     }
 
-    if (pdu_packet_type == DTM_PKT_0X0F)
-    {
+    if (pdu_packet_type == DTM_PKT_0X0F) {
         pattern = RFPHY_TEST_0X0F_REF_PATTERN;
-    }
-    else
-    {
+    } else {
         pattern = RFPHY_TEST_0X55_REF_PATTERN;
     }
 
-    for (k = 0; k < length; k++)
-    {
+    for (k = 0; k < length; k++) {
         // Check repeated pattern filling the PDU payload
-        if (m_pdu.content[k + 2] != pattern)
-        {
+        if (m_pdu.content[k + 2] != pattern) {
             return false;
         }
     }
@@ -202,8 +193,7 @@ static void radio_reset(void)
     NRF_RADIO->EVENTS_DISABLED = 0;
     NRF_RADIO->TASKS_DISABLE   = 1;
 
-    while (NRF_RADIO->EVENTS_DISABLED == 0)
-    {
+    while (NRF_RADIO->EVENTS_DISABLED == 0) {
         // Do nothing
     }
 
@@ -219,8 +209,7 @@ static void radio_reset(void)
  */
 static uint32_t radio_init(void)
 {
-    if(dtm_radio_validate(m_tx_power, m_radio_mode) != DTM_SUCCESS)
-    {
+    if (dtm_radio_validate(m_tx_power, m_radio_mode) != DTM_SUCCESS) {
         return DTM_ERROR_ILLEGAL_CONFIGURATION;
     }
 
@@ -271,13 +260,10 @@ static void radio_prepare(bool rx)
     NRF_RADIO->SHORTS       = (1 << RADIO_SHORTS_READY_START_Pos) |  // Shortcut between READY event and START task
                               (1 << RADIO_SHORTS_END_DISABLE_Pos);   // Shortcut between END event and DISABLE task
 
-    if (rx)
-    {
+    if (rx) {
         NRF_RADIO->EVENTS_END = 0;
         NRF_RADIO->TASKS_RXEN = 1;  // shorts will start radio in RX mode when it is ready
-    }
-    else // tx
-    {
+    } else { // tx
         NRF_RADIO->TXPOWER = m_tx_power;
     }
 }
@@ -306,8 +292,7 @@ static uint32_t timer_init(void)
     NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
     NRF_CLOCK->TASKS_HFCLKSTART    = 1;
 
-    while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0)
-    {
+    while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) {
         // Do nothing while waiting for the clock to start
     }
 
@@ -343,8 +328,7 @@ static uint32_t timer_init(void)
  */
 static uint32_t dtm_vendor_specific_pkt(uint32_t vendor_cmd, dtm_freq_t vendor_option)
 {
-    switch (vendor_cmd)
-    {
+    switch (vendor_cmd) {
         // nRFgo Studio uses CARRIER_TEST_STUDIO to indicate a continuous carrier without
         // a modulated signal.
         case CARRIER_TEST:
@@ -364,15 +348,13 @@ static uint32_t dtm_vendor_specific_pkt(uint32_t vendor_cmd, dtm_freq_t vendor_o
             break;
 
         case SET_TX_POWER:
-            if (!dtm_set_txpower(vendor_option))
-            {
+            if (!dtm_set_txpower(vendor_option)) {
                 return DTM_ERROR_ILLEGAL_CONFIGURATION;
             }
             break;
 
         case SELECT_TIMER:
-            if (!dtm_set_timer(vendor_option))
-            {
+            if (!dtm_set_timer(vendor_option)) {
                 return DTM_ERROR_ILLEGAL_CONFIGURATION;
             }
             break;
@@ -384,8 +366,7 @@ static uint32_t dtm_vendor_specific_pkt(uint32_t vendor_cmd, dtm_freq_t vendor_o
 
 uint32_t dtm_init(void)
 {
-    if ((timer_init() != DTM_SUCCESS) || (radio_init() != DTM_SUCCESS))
-    {
+    if ((timer_init() != DTM_SUCCESS) || (radio_init() != DTM_SUCCESS)) {
         return DTM_ERROR_ILLEGAL_CONFIGURATION;
     }
     m_new_event     = false;
@@ -404,20 +385,16 @@ uint32_t dtm_wait(void)
     // Enable wake-up on event
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
 
-    for (;;)
-    {
+    for (;;) {
         // Event may be the reception of a packet -
         // handle radio first, to give it highest priority:
-        if (NRF_RADIO->EVENTS_END != 0)
-        {
+        if (NRF_RADIO->EVENTS_END != 0) {
             NRF_RADIO->EVENTS_END = 0;
             NVIC_ClearPendingIRQ(RADIO_IRQn);
 
-            if (m_state == STATE_RECEIVER_TEST)
-            {
+            if (m_state == STATE_RECEIVER_TEST) {
                 NRF_RADIO->TASKS_RXEN = 1;
-                if ((NRF_RADIO->CRCSTATUS == 1) && check_pdu())
-                {
+                if ((NRF_RADIO->CRCSTATUS == 1) && check_pdu()) {
                     // Count the number of successfully received packets
                     m_rx_pkt_count++;
                 }
@@ -430,12 +407,9 @@ uint32_t dtm_wait(void)
         }
 
         // Check for timeouts:
-        if (mp_timer->EVENTS_COMPARE[0] != 0)
-        {
+        if (mp_timer->EVENTS_COMPARE[0] != 0) {
             mp_timer->EVENTS_COMPARE[0] = 0;
-        }
-        else if (mp_timer->EVENTS_COMPARE[1] != 0)
-        {
+        } else if (mp_timer->EVENTS_COMPARE[1] != 0) {
             // Reset timeout event flag for next iteration.
             mp_timer->EVENTS_COMPARE[1] = 0;
             NVIC_ClearPendingIRQ(m_timer_irq);
@@ -461,31 +435,24 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
     // Set default event; any error will set it to LE_TEST_STATUS_EVENT_ERROR
     m_event         = LE_TEST_STATUS_EVENT_SUCCESS;
 
-    if (m_state == STATE_UNINITIALIZED)
-    {
+    if (m_state == STATE_UNINITIALIZED) {
         // Application has not explicitly initialized DTM,
         return DTM_ERROR_UNINITIALIZED;
     }
 
-    if (cmd == LE_RESET)
-    {
+    if (cmd == LE_RESET) {
         // Note that timer will continue running after a reset
         dtm_test_done();
-        if (freq == 0x01)
-        {
+        if (freq == 0x01) {
             m_packet_length = length << 6;
-        }
-        else
-        {
+        } else {
             m_packet_length = 0;
         }
         return DTM_SUCCESS;
     }
 
-    if (cmd == LE_TEST_END)
-    {
-        if (m_state == STATE_IDLE)
-        {
+    if (cmd == LE_TEST_END) {
+        if (m_state == STATE_IDLE) {
             // Sequencing error - only rx or tx test may be ended!
             m_event = LE_TEST_STATUS_EVENT_ERROR;
             return DTM_ERROR_INVALID_STATE;
@@ -495,8 +462,7 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
         return DTM_SUCCESS;
     }
 
-    if (m_state != STATE_IDLE)
-    {
+    if (m_state != STATE_IDLE) {
         // Sequencing error - only TEST_END/RESET are legal while test is running
         // Note: State is unchanged; ongoing test not affected
         m_event = LE_TEST_STATUS_EVENT_ERROR;
@@ -504,8 +470,7 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
     }
 
     // Check for illegal values of m_phys_ch. Skip the check if the packet is vendor spesific.
-    if (payload != DTM_PKT_VENDORSPECIFIC && m_phys_ch > PHYS_CH_MAX)
-    {
+    if (payload != DTM_PKT_VENDORSPECIFIC && m_phys_ch > PHYS_CH_MAX) {
         // Parameter error
         // Note: State is unchanged; ongoing test not affected
         m_event = LE_TEST_STATUS_EVENT_ERROR;
@@ -514,8 +479,7 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
 
     m_rx_pkt_count = 0;
 
-    if (cmd == LE_RECEIVER_TEST)
-    {
+    if (cmd == LE_RECEIVER_TEST) {
         // Zero fill all pdu fields to avoid stray data from earlier test run
         memset(&m_pdu, 0, DTM_PDU_MAX_MEMORY_SIZE);
         radio_prepare(RX_MODE);                      // Reinitialize "everything"; RF interrupts OFF
@@ -523,11 +487,9 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
         return DTM_SUCCESS;
     }
 
-    if (cmd == LE_TRANSMITTER_TEST)
-    {
+    if (cmd == LE_TRANSMITTER_TEST) {
         // Check for illegal values of m_packet_length. Skip the check if the packet is vendor spesific.
-        if (payload != DTM_PKT_VENDORSPECIFIC && m_packet_length > DTM_PAYLOAD_MAX_SIZE)
-        {
+        if (payload != DTM_PKT_VENDORSPECIFIC && m_packet_length > DTM_PAYLOAD_MAX_SIZE) {
             // Parameter error
             m_event = LE_TEST_STATUS_EVENT_ERROR;
             return DTM_ERROR_ILLEGAL_LENGTH;
@@ -537,8 +499,7 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
         m_pdu.content[DTM_HEADER_OFFSET] = ((uint8_t)m_packet_type & 0x0F);
         m_pdu.content[DTM_LENGTH_OFFSET] = m_packet_length;
 
-        switch (m_packet_type)
-        {
+        switch (m_packet_type) {
             case DTM_PKT_PRBS9:
                 // Non-repeated, must copy entire pattern to PDU
                 memcpy(m_pdu.content + DTM_HEADER_SIZE, m_prbs_content, m_packet_length);
@@ -569,20 +530,13 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
         radio_prepare(TX_MODE);
         // Set the timer to the correct period. The delay between each packet is described in the
         // Bluetooth Core Spsification version 4.2 Vol. 6 Part F Section 4.1.6.
-        if ((m_packet_length + DTM_ON_AIR_OVERHEAD_SIZE ) * 8  <= 376)
-        {
+        if ((m_packet_length + DTM_ON_AIR_OVERHEAD_SIZE) * 8  <= 376) {
             mp_timer->CC[0]       = 625;                        // 625uS with 1MHz clock to the timer
-        }
-        else if ((m_packet_length + DTM_ON_AIR_OVERHEAD_SIZE ) * 8  <= 1000)
-        {
+        } else if ((m_packet_length + DTM_ON_AIR_OVERHEAD_SIZE) * 8  <= 1000) {
             mp_timer->CC[0]       = 1250;                        // 625uS with 1MHz clock to the timer
-        }
-        else if ((m_packet_length + DTM_ON_AIR_OVERHEAD_SIZE ) * 8  <= 1624)
-        {
+        } else if ((m_packet_length + DTM_ON_AIR_OVERHEAD_SIZE) * 8  <= 1624) {
             mp_timer->CC[0]       = 1875;                        // 625uS with 1MHz clock to the timer
-        }
-        else
-        {
+        } else {
             mp_timer->CC[0]       = 2500;                        // 625uS with 1MHz clock to the timer
         }
 
@@ -628,8 +582,7 @@ bool dtm_set_txpower(uint32_t new_tx_power)
     // By checking this bit, the two most significant bits can be determined.
     new_power8 = (new_power8 & 0x30) != 0 ? (new_power8 | 0xC0) : new_power8;
 
-    if (m_state > STATE_IDLE)
-    {
+    if (m_state > STATE_IDLE) {
         // radio must be idle to change the tx power
         return false;
     }
@@ -650,8 +603,7 @@ bool dtm_set_txpower(uint32_t new_tx_power)
  */
 bool dtm_set_timer(uint32_t new_timer)
 {
-    if (m_state > STATE_IDLE)
-    {
+    if (m_state > STATE_IDLE) {
         return false;
     }
     return dtm_hw_set_timer(&mp_timer, &m_timer_irq, new_timer);

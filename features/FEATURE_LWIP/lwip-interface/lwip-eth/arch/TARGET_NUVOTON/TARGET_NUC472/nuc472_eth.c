@@ -80,7 +80,7 @@ static u16_t mdio_read(u8_t addr, u8_t reg)
     EMAC->MIIMCTL = (addr << EMAC_MIIMCTL_PHYADDR_Pos) | reg | EMAC_MIIMCTL_BUSY_Msk | EMAC_MIIMCTL_MDCON_Msk;
     while (EMAC->MIIMCTL & EMAC_MIIMCTL_BUSY_Msk);
 
-    return(EMAC->MIIMDAT);
+    return (EMAC->MIIMDAT);
 }
 
 static int reset_phy(void)
@@ -93,15 +93,16 @@ static int reset_phy(void)
     mdio_write(CONFIG_PHY_ADDR, MII_BMCR, BMCR_RESET);
 
     delay = 2000;
-    while(delay-- > 0) {
-        if((mdio_read(CONFIG_PHY_ADDR, MII_BMCR) & BMCR_RESET) == 0)
+    while (delay-- > 0) {
+        if ((mdio_read(CONFIG_PHY_ADDR, MII_BMCR) & BMCR_RESET) == 0) {
             break;
+        }
 
     }
 
-    if(delay == 0) {
-        LWIP_DEBUGF(LWIP_DBG_LEVEL_SEVERE|LWIP_DBG_ON,("Reset phy failed\n"));
-        return(-1);
+    if (delay == 0) {
+        LWIP_DEBUGF(LWIP_DBG_LEVEL_SEVERE | LWIP_DBG_ON, ("Reset phy failed\n"));
+        return (-1);
     }
 
     mdio_write(CONFIG_PHY_ADDR, MII_ADVERTISE, ADVERTISE_CSMA |
@@ -114,35 +115,36 @@ static int reset_phy(void)
     mdio_write(CONFIG_PHY_ADDR, MII_BMCR, reg | BMCR_ANRESTART);
 
     delay = 200000;
-    while(delay-- > 0) {
-        if((mdio_read(CONFIG_PHY_ADDR, MII_BMSR) & (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
-                == (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
+    while (delay-- > 0) {
+        if ((mdio_read(CONFIG_PHY_ADDR, MII_BMSR) & (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
+                == (BMSR_ANEGCOMPLETE | BMSR_LSTATUS)) {
             break;
+        }
     }
 
-    if(delay == 0) {
-        LWIP_DEBUGF(LWIP_DBG_LEVEL_SEVERE|LWIP_DBG_ON , ("AN failed. Set to 100 FULL\n"));
+    if (delay == 0) {
+        LWIP_DEBUGF(LWIP_DBG_LEVEL_SEVERE | LWIP_DBG_ON, ("AN failed. Set to 100 FULL\n"));
         EMAC->CTL |= (EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
-        return(-1);
+        return (-1);
     } else {
         reg = mdio_read(CONFIG_PHY_ADDR, MII_LPA);
 
-        if(reg & ADVERTISE_100FULL) {
-            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL|LWIP_DBG_ON, ("100 full\n"));
+        if (reg & ADVERTISE_100FULL) {
+            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL | LWIP_DBG_ON, ("100 full\n"));
             EMAC->CTL |= (EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
-        } else if(reg & ADVERTISE_100HALF) {
-            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL|LWIP_DBG_ON, ("100 half\n"));
+        } else if (reg & ADVERTISE_100HALF) {
+            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL | LWIP_DBG_ON, ("100 half\n"));
             EMAC->CTL = (EMAC->CTL & ~EMAC_CTL_FUDUP_Msk) | EMAC_CTL_OPMODE_Msk;
-        } else if(reg & ADVERTISE_10FULL) {
-            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL|LWIP_DBG_ON, ("10 full\n"));
+        } else if (reg & ADVERTISE_10FULL) {
+            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL | LWIP_DBG_ON, ("10 full\n"));
             EMAC->CTL = (EMAC->CTL & ~EMAC_CTL_OPMODE_Msk) | EMAC_CTL_FUDUP_Msk;
         } else {
-            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL|LWIP_DBG_ON, ("10 half\n"));
+            LWIP_DEBUGF(LWIP_DBG_LEVEL_ALL | LWIP_DBG_ON, ("10 half\n"));
             EMAC->CTL &= ~(EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
         }
     }
 
-    return(0);
+    return (0);
 }
 
 
@@ -153,7 +155,7 @@ static void init_tx_desc(void)
 
     cur_tx_desc_ptr = fin_tx_desc_ptr = &tx_desc[0];
 
-    for(i = 0; i < TX_DESCRIPTOR_NUM; i++) {
+    for (i = 0; i < TX_DESCRIPTOR_NUM; i++) {
         tx_desc[i].status1 = TXFD_PADEN | TXFD_CRCAPP | TXFD_INTEN;
         tx_desc[i].buf = &tx_buf[i][0];
         tx_desc[i].status2 = 0;
@@ -171,7 +173,7 @@ static void init_rx_desc(void)
 
     cur_rx_desc_ptr = &rx_desc[0];
 
-    for(i = 0; i < RX_DESCRIPTOR_NUM; i++) {
+    for (i = 0; i < RX_DESCRIPTOR_NUM; i++) {
         rx_desc[i].status1 = OWNERSHIP_EMAC;
         rx_desc[i].buf = &rx_buf[i][0];
         rx_desc[i].status2 = 0;
@@ -199,7 +201,7 @@ static void set_mac_addr(u8_t *addr)
 
 static void __eth_clk_pin_init()
 {
-	 /* Enable IP clock */
+    /* Enable IP clock */
     CLK_EnableModuleClock(EMAC_MODULE);
     // Configure MDC clock rate to HCLK / (127 + 1) = 656 kHz if system is running at 84 MHz
     CLK_SetModuleClock(EMAC_MODULE, 0, CLK_CLKDIV3_EMAC(127));
@@ -207,16 +209,16 @@ static void __eth_clk_pin_init()
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
     // Configure RMII pins
-    SYS->GPC_MFPL &= ~( SYS_GPC_MFPL_PC0MFP_Msk | SYS_GPC_MFPL_PC1MFP_Msk |
-                    SYS_GPC_MFPL_PC2MFP_Msk | SYS_GPC_MFPL_PC3MFP_Msk |
-                    SYS_GPC_MFPL_PC4MFP_Msk | SYS_GPC_MFPL_PC6MFP_Msk | SYS_GPC_MFPL_PC7MFP_Msk ); 
+    SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC0MFP_Msk | SYS_GPC_MFPL_PC1MFP_Msk |
+                       SYS_GPC_MFPL_PC2MFP_Msk | SYS_GPC_MFPL_PC3MFP_Msk |
+                       SYS_GPC_MFPL_PC4MFP_Msk | SYS_GPC_MFPL_PC6MFP_Msk | SYS_GPC_MFPL_PC7MFP_Msk);
     SYS->GPC_MFPL |= SYS_GPC_MFPL_PC0MFP_EMAC_REFCLK |
-                    SYS_GPC_MFPL_PC1MFP_EMAC_MII_RXERR |
-                    SYS_GPC_MFPL_PC2MFP_EMAC_MII_RXDV |
-                    SYS_GPC_MFPL_PC3MFP_EMAC_MII_RXD1 |
-                    SYS_GPC_MFPL_PC4MFP_EMAC_MII_RXD0 |
-                    SYS_GPC_MFPL_PC6MFP_EMAC_MII_TXD0 |
-                    SYS_GPC_MFPL_PC7MFP_EMAC_MII_TXD1;
+                     SYS_GPC_MFPL_PC1MFP_EMAC_MII_RXERR |
+                     SYS_GPC_MFPL_PC2MFP_EMAC_MII_RXDV |
+                     SYS_GPC_MFPL_PC3MFP_EMAC_MII_RXD1 |
+                     SYS_GPC_MFPL_PC4MFP_EMAC_MII_RXD0 |
+                     SYS_GPC_MFPL_PC6MFP_EMAC_MII_TXD0 |
+                     SYS_GPC_MFPL_PC7MFP_EMAC_MII_TXD1;
 
     SYS->GPC_MFPH &= ~SYS_GPC_MFPH_PC8MFP_Msk;
     SYS->GPC_MFPH |= SYS_GPC_MFPH_PC8MFP_EMAC_MII_TXEN;
@@ -231,9 +233,9 @@ static void __eth_clk_pin_init()
 
 void ETH_init(u8_t *mac_addr)
 {
-	// init CLK & pins
-	__eth_clk_pin_init();
-	
+    // init CLK & pins
+    __eth_clk_pin_init();
+
     // Reset MAC
     EMAC->CTL = EMAC_CTL_RST_Msk;
 
@@ -272,10 +274,10 @@ void EMAC_RX_IRQHandler(void)
     EMAC->INTSTS = m_status;
     if (m_status & EMAC_INTSTS_RXBEIF_Msk) {
         // Shouldn't goes here, unless descriptor corrupted
-		LWIP_DEBUGF(LWIP_DBG_LEVEL_SERIOUS|LWIP_DBG_ON, ("RX descriptor corrupted \r\n"));
-		//return;
+        LWIP_DEBUGF(LWIP_DBG_LEVEL_SERIOUS | LWIP_DBG_ON, ("RX descriptor corrupted \r\n"));
+        //return;
     }
-	ack_emac_rx_isr();
+    ack_emac_rx_isr();
 }
 
 void EMAC_RX_Action(void)
@@ -285,15 +287,17 @@ void EMAC_RX_Action(void)
 
         cur_entry = EMAC->CRXDSA;
 
-        if ((cur_entry == (u32_t)cur_rx_desc_ptr) && (!(m_status & EMAC_INTSTS_RDUIF_Msk)))  // cur_entry may equal to cur_rx_desc_ptr if RDU occures
+        if ((cur_entry == (u32_t)cur_rx_desc_ptr) && (!(m_status & EMAC_INTSTS_RDUIF_Msk))) { // cur_entry may equal to cur_rx_desc_ptr if RDU occures
             break;
+        }
         status = cur_rx_desc_ptr->status1;
 
-        if(status & OWNERSHIP_EMAC)
+        if (status & OWNERSHIP_EMAC) {
             break;
+        }
 
         if (status & RXFD_RXGD) {
-			// Lwip will invoke osMutexWait for resource protection, so ethernetif_input can't be called in EMAC_RX_IRQHandler.
+            // Lwip will invoke osMutexWait for resource protection, so ethernetif_input can't be called in EMAC_RX_IRQHandler.
             ethernetif_input(status & 0xFFFF, cur_rx_desc_ptr->buf, cur_rx_desc_ptr->status2, (u32_t)cur_rx_desc_ptr->next);
 
         }
@@ -304,7 +308,7 @@ void EMAC_RX_Action(void)
     } while (1);
 
     ETH_TRIGGER_RX();
-//	eth_arch_tcpip_thread();
+//  eth_arch_tcpip_thread();
 }
 
 void EMAC_TX_IRQHandler(void)
@@ -313,7 +317,7 @@ void EMAC_TX_IRQHandler(void)
 
     status = EMAC->INTSTS & 0xFFFF0000;
     EMAC->INTSTS = status;
-    if(status & EMAC_INTSTS_TXBEIF_Msk) {
+    if (status & EMAC_INTSTS_TXBEIF_Msk) {
         // Shouldn't goes here, unless descriptor corrupted
         return;
     }
@@ -329,10 +333,11 @@ void EMAC_TX_IRQHandler(void)
 
 u8_t *ETH_get_tx_buf(void)
 {
-    if(cur_tx_desc_ptr->status1 & OWNERSHIP_EMAC)
-        return(NULL);
-    else
-        return(cur_tx_desc_ptr->buf);
+    if (cur_tx_desc_ptr->status1 & OWNERSHIP_EMAC) {
+        return (NULL);
+    } else {
+        return (cur_tx_desc_ptr->buf);
+    }
 }
 
 void ETH_trigger_tx(u16_t length, struct pbuf *p)
@@ -349,9 +354,10 @@ void ETH_trigger_tx(u16_t length, struct pbuf *p)
 
 int ETH_link_ok()
 {
-	/* first, a dummy read to latch */
-	mdio_read(CONFIG_PHY_ADDR, MII_BMSR);
-	if(mdio_read(CONFIG_PHY_ADDR, MII_BMSR) & BMSR_LSTATUS)
-		return 1;
-	return 0;	
+    /* first, a dummy read to latch */
+    mdio_read(CONFIG_PHY_ADDR, MII_BMSR);
+    if (mdio_read(CONFIG_PHY_ADDR, MII_BMSR) & BMSR_LSTATUS) {
+        return 1;
+    }
+    return 0;
 }

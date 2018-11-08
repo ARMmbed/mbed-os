@@ -79,7 +79,7 @@ void fSysTickHandler(void);
 
 uint32_t fSysTickRead(void);
 
-void fSysTickEnableInterrupt (void);
+void fSysTickEnableInterrupt(void);
 
-void fSysTickDisableInterrupt (void);
+void fSysTickDisableInterrupt(void);
 #endif // TICKER_H_

@@ -28,10 +28,10 @@
 #define _FNET_ISR_H_
 
 #ifndef FNET_ISR_HANDLER
-    #define FNET_ISR_HANDLER    fnet_cpu_isr
+#define FNET_ISR_HANDLER    fnet_cpu_isr
 #endif
 #ifndef FNET_ISR_HANDLER_INSTALL
-    #define FNET_ISR_HANDLER_INSTALL    fnet_cpu_isr_install
+#define FNET_ISR_HANDLER_INSTALL    fnet_cpu_isr_install
 #endif
 
 /* Defines number of the first event handler. MUST be higher than any HW-vector number. */
@@ -49,7 +49,7 @@ typedef fnet_int32_t fnet_event_desc_t;
 extern "C" {
 #endif
 
-fnet_return_t fnet_isr_vector_init( fnet_uint32_t vector_number, void (*handler_top)(fnet_uint32_t cookie), void (*handler_bottom)(fnet_uint32_t cookie), fnet_uint32_t priority, fnet_uint32_t cookie );
+fnet_return_t fnet_isr_vector_init(fnet_uint32_t vector_number, void (*handler_top)(fnet_uint32_t cookie), void (*handler_bottom)(fnet_uint32_t cookie), fnet_uint32_t priority, fnet_uint32_t cookie);
 fnet_event_desc_t fnet_event_init(void (*event_handler)(fnet_uint32_t cookie), fnet_uint32_t cookie);
 void fnet_event_raise(fnet_event_desc_t event_number);
 void fnet_isr_vector_release(fnet_uint32_t vector_number);

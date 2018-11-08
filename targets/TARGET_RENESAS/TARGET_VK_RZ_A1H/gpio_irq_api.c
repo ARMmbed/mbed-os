@@ -38,10 +38,10 @@ static const int nIRQn_h = 32;
 extern PinName gpio_multi_guard;
 
 enum {
-    IRQ0,IRQ1, 
-    IRQ2,IRQ3, 
-    IRQ4,IRQ5, 
-    IRQ6,IRQ7, 
+    IRQ0, IRQ1,
+    IRQ2, IRQ3,
+    IRQ4, IRQ5,
+    IRQ6, IRQ7,
 
 } IRQNo;
 
@@ -81,7 +81,8 @@ static const PinMap PinMap_IRQ[] = {
 };
 #endif
 
-static void handle_interrupt_in(int irq_num) {
+static void handle_interrupt_in(int irq_num)
+{
     uint16_t irqs;
     uint16_t edge_req;
     gpio_irq_t *obj;
@@ -105,79 +106,92 @@ static void handle_interrupt_in(int irq_num) {
                 } else {
                     irq_event = IRQ_RISE;
                 }
-	        }
+            }
             irq_handler(obj->port, irq_event);
         }
         INTCIRQRR &= ~(1 << irq_num);
     }
 }
 
-static void gpio_irq0(void) {
+static void gpio_irq0(void)
+{
     handle_interrupt_in(0);
 }
 
-static void gpio_irq1(void) {
+static void gpio_irq1(void)
+{
     handle_interrupt_in(1);
 }
 
-static void gpio_irq2(void) {
+static void gpio_irq2(void)
+{
     handle_interrupt_in(2);
 }
 
-static void gpio_irq3(void) {
+static void gpio_irq3(void)
+{
     handle_interrupt_in(3);
 }
 
-static void gpio_irq4(void) {
+static void gpio_irq4(void)
+{
     handle_interrupt_in(4);
 }
 
-static void gpio_irq5(void) {
+static void gpio_irq5(void)
+{
     handle_interrupt_in(5);
 }
 
-static void gpio_irq6(void) {
+static void gpio_irq6(void)
+{
     handle_interrupt_in(6);
 }
 
-static void gpio_irq7(void) {
+static void gpio_irq7(void)
+{
     handle_interrupt_in(7);
 }
 
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) {
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+{
     int shift;
-    if (pin == NC) return -1;
+    if (pin == NC) {
+        return -1;
+    }
 
     obj->ch = pinmap_peripheral(pin, PinMap_IRQ);
     obj->pin = (int)pin ;
     obj->port = (int)id ;
 
-    shift = obj->ch*2;
+    shift = obj->ch * 2;
     channel_obj[obj->ch] = obj;
     irq_handler = handler;
-    
+
     pinmap_pinout(pin, PinMap_IRQ);
     gpio_multi_guard = pin;           /* Set multi guard */
 
     // INTC settings
-    InterruptHandlerRegister((IRQn_Type)(nIRQn_h+obj->ch), (void (*)(uint32_t))irq_tbl[obj->ch]);
+    InterruptHandlerRegister((IRQn_Type)(nIRQn_h + obj->ch), (void (*)(uint32_t))irq_tbl[obj->ch]);
     INTCICR1 &= ~(0x3 << shift);
     INTCICR1 |= (0x3 << shift);
-    GIC_SetPriority((IRQn_Type)(nIRQn_h+obj->ch), 5);
-    GIC_EnableIRQ((IRQn_Type)(nIRQn_h+obj->ch));
+    GIC_SetPriority((IRQn_Type)(nIRQn_h + obj->ch), 5);
+    GIC_EnableIRQ((IRQn_Type)(nIRQn_h + obj->ch));
     obj->int_enable = 1;
     __enable_irq();
 
     return 0;
 }
 
-void gpio_irq_free(gpio_irq_t *obj) {
+void gpio_irq_free(gpio_irq_t *obj)
+{
     channel_obj[obj->ch] = NULL;
 }
 
-void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
-    int shift = obj->ch*2;
-    uint16_t val = event == IRQ_RISE ? 2 : 
+void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
+{
+    int shift = obj->ch * 2;
+    uint16_t val = event == IRQ_RISE ? 2 :
                    event == IRQ_FALL ? 1 : 0;
     uint16_t work_icr_val;
 
@@ -185,7 +199,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     work_icr_val = INTCICR1;
     if (enable == 1) {
         /* Set interrupt serect */
-        work_icr_val |=  (val << shift);
+        work_icr_val |= (val << shift);
     } else {
         /* Clear interrupt serect */
         work_icr_val &= ~(val << shift);
@@ -193,7 +207,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
 
     if ((work_icr_val & (3 << shift)) == 0) {
         /* No edge interrupt setting */
-        GIC_DisableIRQ((IRQn_Type)(nIRQn_h+obj->ch));
+        GIC_DisableIRQ((IRQn_Type)(nIRQn_h + obj->ch));
         /* Clear Interrupt flags */
         INTCIRQRR &= ~(1 << obj->ch);
         INTCICR1  = work_icr_val;
@@ -205,8 +219,9 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {
     }
 }
 
-void gpio_irq_enable(gpio_irq_t *obj) {
-    int shift = obj->ch*2;
+void gpio_irq_enable(gpio_irq_t *obj)
+{
+    int shift = obj->ch * 2;
     uint16_t work_icr_val = INTCICR1;
 
     /* check edge interrupt setting */
@@ -216,7 +231,8 @@ void gpio_irq_enable(gpio_irq_t *obj) {
     obj->int_enable = 1;
 }
 
-void gpio_irq_disable(gpio_irq_t *obj) {
+void gpio_irq_disable(gpio_irq_t *obj)
+{
     GIC_DisableIRQ((IRQn_Type)(nIRQn_h + obj->ch));
     obj->int_enable = 0;
 }

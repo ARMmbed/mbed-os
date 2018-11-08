@@ -78,7 +78,7 @@ Private global variables and functions
 * Return Value : none
 *******************************************************************************/
 #if 0
-void usb1_api_function_init (uint8_t int_level, uint16_t mode, uint16_t clockmode)
+void usb1_api_function_init(uint8_t int_level, uint16_t mode, uint16_t clockmode)
 {
     volatile uint8_t dummy_buf;
 
@@ -88,12 +88,12 @@ void usb1_api_function_init (uint8_t int_level, uint16_t mode, uint16_t clockmod
     usb1_function_setting_interrupt(int_level);
 
     usb1_function_reset_module(clockmode);      /* reset USB module with setting tranciever */
-                                                /* and HSE=1                                */
+    /* and HSE=1                                */
 
     usb1_function_init_status();                /* clear variables                          */
 
     usb1_function_InitModule(mode);             /* select USB Function and Interrupt Enable */
-                                                /* Detect USB Device to attach or detach    */
+    /* Detect USB Device to attach or detach    */
 }
 #endif
 
@@ -105,15 +105,14 @@ void usb1_api_function_init (uint8_t int_level, uint16_t mode, uint16_t clockmod
 * Return Value : DEVDRV_USBF_YES  : Configured & Configured Suspend
 *              : DEVDRV_USBF_NO   : not Configured
 *******************************************************************************/
-uint16_t usb1_api_function_IsConfigured (void)
+uint16_t usb1_api_function_IsConfigured(void)
 {
     uint16_t dvst;
 
     dvst = usb1_function_GetDeviceState();
 
     if ((dvst == USB_FUNCTION_DVST_CONFIGURED) ||
-        (dvst == USB_FUNCTION_DVST_CONFIGURED_SUSPEND))
-    {
+            (dvst == USB_FUNCTION_DVST_CONFIGURED_SUSPEND)) {
         return DEVDRV_USBF_YES;
     }
 
@@ -126,43 +125,42 @@ uint16_t usb1_api_function_IsConfigured (void)
 * Arguments    : none
 * Return Value : Device States
 *******************************************************************************/
-uint16_t usb1_function_GetDeviceState (void)
+uint16_t usb1_function_GetDeviceState(void)
 {
     uint16_t dvsq;
     uint16_t dvst;
 
     dvsq = USB201.INTSTS0;
-    switch (dvsq & USB_FUNCTION_BITDVSQ)
-    {
+    switch (dvsq & USB_FUNCTION_BITDVSQ) {
         case USB_FUNCTION_DS_POWR:                      /* Power state *//* power-on */
             dvst = USB_FUNCTION_DVST_POWERED;
-        break;
+            break;
 
         case USB_FUNCTION_DS_DFLT:                      /* Default state *//* bus-reset */
             dvst = USB_FUNCTION_DVST_DEFAULT;
-        break;
+            break;
 
         case USB_FUNCTION_DS_ADDS:                      /* Address state */
             dvst = USB_FUNCTION_DVST_ADDRESS;
-        break;
+            break;
 
         case USB_FUNCTION_DS_CNFG:                      /* Configured state */
             dvst = USB_FUNCTION_DVST_CONFIGURED;
-        break;
+            break;
 
         case USB_FUNCTION_DS_SPD_CNFG:                  /* Configured Suspend state */
             dvst = USB_FUNCTION_DVST_CONFIGURED_SUSPEND;
-        break;
+            break;
 
         case USB_FUNCTION_DS_SPD_POWR:                  /* Power      Suspend state */
         case USB_FUNCTION_DS_SPD_DFLT:                  /* Default    Suspend state */
         case USB_FUNCTION_DS_SPD_ADDR:                  /* Address    Suspend state */
             dvst = USB_FUNCTION_DVST_SUSPEND;
-        break;
+            break;
 
         default:                                        /* error */
             dvst = USB_FUNCTION_DVST_SUSPEND;
-        break;
+            break;
     }
 
     return dvst;
@@ -177,7 +175,7 @@ uint16_t usb1_function_GetDeviceState (void)
 *              : uint8_t *data      ; Data data Address
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_start_receive_transfer (uint16_t pipe, uint32_t size, uint8_t * data)
+void usb1_api_function_start_receive_transfer(uint16_t pipe, uint32_t size, uint8_t *data)
 {
     usb1_function_start_receive_transfer(pipe, size, data);
 }
@@ -194,7 +192,7 @@ void usb1_api_function_start_receive_transfer (uint16_t pipe, uint32_t size, uin
 *              : DEVDRV_USBF_WRITEDMA           ; Write DMA
 *              : DEVDRV_USBF_FIFOERROR          ; FIFO status
 *******************************************************************************/
-uint16_t usb1_api_function_start_send_transfer (uint16_t pipe, uint32_t size, uint8_t * data)
+uint16_t usb1_api_function_start_send_transfer(uint16_t pipe, uint32_t size, uint8_t *data)
 {
     uint16_t status;
 
@@ -211,38 +209,29 @@ uint16_t usb1_api_function_start_send_transfer (uint16_t pipe, uint32_t size, ui
 *              : uint32_t *size     ; Data Size
 * Return Value : Pipe Status
 *******************************************************************************/
-uint16_t usb1_api_function_check_pipe_status (uint16_t pipe, uint32_t * size)
+uint16_t usb1_api_function_check_pipe_status(uint16_t pipe, uint32_t *size)
 {
-    if (g_usb1_function_pipe_status[pipe] == DEVDRV_USBF_PIPE_DONE)
-    {
+    if (g_usb1_function_pipe_status[pipe] == DEVDRV_USBF_PIPE_DONE) {
         *size = g_usb1_function_PipeDataSize[pipe];
         g_usb1_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_IDLE;
 
         return DEVDRV_USBF_PIPE_DONE;
-    }
-    else if (g_usb1_function_pipe_status[pipe] == DEVDRV_USBF_PIPE_NORES)
-    {
+    } else if (g_usb1_function_pipe_status[pipe] == DEVDRV_USBF_PIPE_NORES) {
         *size = 0;
         g_usb1_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_IDLE;
 
         return DEVDRV_USBF_PIPE_NORES;
-    }
-    else if (g_usb1_function_pipe_status[pipe] == DEVDRV_USBF_PIPE_STALL)
-    {
+    } else if (g_usb1_function_pipe_status[pipe] == DEVDRV_USBF_PIPE_STALL) {
         *size = 0;
         g_usb1_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_IDLE;
 
         return DEVDRV_USBF_PIPE_STALL;
-    }
-    else if (g_usb1_function_pipe_status[pipe] == DEVDRV_USBF_FIFOERROR)
-    {
+    } else if (g_usb1_function_pipe_status[pipe] == DEVDRV_USBF_FIFOERROR) {
         *size = 0;
         g_usb1_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_IDLE;
 
         return DEVDRV_USBF_FIFOERROR;
-    }
-    else
-    {
+    } else {
         /* Do Nothing */
     }
 
@@ -256,7 +245,7 @@ uint16_t usb1_api_function_check_pipe_status (uint16_t pipe, uint32_t * size)
 * Arguments    : uint16_t  pipe     ; Pipe Number
 * Return Value : Pipe Status
 *******************************************************************************/
-void usb1_api_function_clear_pipe_status (uint16_t pipe)
+void usb1_api_function_clear_pipe_status(uint16_t pipe)
 {
     g_usb1_function_pipe_status[pipe]  = DEVDRV_USBF_PIPE_IDLE;
     g_usb1_function_PipeDataSize[pipe] = 0;
@@ -269,7 +258,7 @@ void usb1_api_function_clear_pipe_status (uint16_t pipe)
 * Arguments    : uint16_t pipe             ; pipe Number
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_set_pid_buf (uint16_t pipe)
+void usb1_api_function_set_pid_buf(uint16_t pipe)
 {
     usb1_function_set_pid_buf(pipe);
 }
@@ -283,7 +272,7 @@ void usb1_api_function_set_pid_buf (uint16_t pipe)
 * Arguments    : uint16_t pipe            ; pipe Number
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_set_pid_nak (uint16_t pipe)
+void usb1_api_function_set_pid_nak(uint16_t pipe)
 {
     usb1_function_set_pid_nak(pipe);
 }
@@ -295,7 +284,7 @@ void usb1_api_function_set_pid_nak (uint16_t pipe)
 * Arguments    : uint16_t pipe            ; pipe Number
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_set_pid_stall (uint16_t pipe)
+void usb1_api_function_set_pid_stall(uint16_t pipe)
 {
     usb1_function_set_pid_stall(pipe);
 }
@@ -306,7 +295,7 @@ void usb1_api_function_set_pid_stall (uint16_t pipe)
 * Arguments    : uint16_t pipe            ; pipe Number
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_clear_pid_stall (uint16_t pipe)
+void usb1_api_function_clear_pid_stall(uint16_t pipe)
 {
     usb1_function_clear_pid_stall(pipe);
 }
@@ -317,7 +306,7 @@ void usb1_api_function_clear_pid_stall (uint16_t pipe)
 * Arguments    : uint16_t pipe          ; Pipe Number
 * Return Value : PID
 *******************************************************************************/
-uint16_t usb1_api_function_get_pid (uint16_t pipe)
+uint16_t usb1_api_function_get_pid(uint16_t pipe)
 {
     uint16_t pid;
 
@@ -332,14 +321,13 @@ uint16_t usb1_api_function_get_pid (uint16_t pipe)
 * Arguments    : uint16_t pipe          ; Pipe Number
 * Return Value : PID
 *******************************************************************************/
-int32_t usb1_api_function_check_stall (uint16_t pipe)
+int32_t usb1_api_function_check_stall(uint16_t pipe)
 {
     uint16_t pid;
 
     pid = usb1_function_get_pid(pipe);
 
-    if ((pid & DEVDRV_USBF_PID_STALL) == DEVDRV_USBF_PID_STALL)
-    {
+    if ((pid & DEVDRV_USBF_PID_STALL) == DEVDRV_USBF_PID_STALL) {
         return DEVDRV_USBF_STALL;
     }
 
@@ -353,7 +341,7 @@ int32_t usb1_api_function_check_stall (uint16_t pipe)
 * Arguments    : uint16_t pipe              ; Pipe Number
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_set_sqclr (uint16_t pipe)
+void usb1_api_function_set_sqclr(uint16_t pipe)
 {
     usb1_function_set_sqclr(pipe);
 }
@@ -365,7 +353,7 @@ void usb1_api_function_set_sqclr (uint16_t pipe)
 * Arguments    : uint16_t pipe   ; Pipe number
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_set_sqset (uint16_t pipe)
+void usb1_api_function_set_sqset(uint16_t pipe)
 {
     usb1_function_set_sqset(pipe);
 }
@@ -385,7 +373,7 @@ void usb1_api_function_set_sqset (uint16_t pipe)
 * Arguments    : uint16_t pipe     ; Pipe number
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_set_csclr (uint16_t pipe)
+void usb1_api_function_set_csclr(uint16_t pipe)
 {
     usb1_function_set_csclr(pipe);
 }
@@ -400,7 +388,7 @@ void usb1_api_function_set_csclr (uint16_t pipe)
 *              : uint16_t mbw       ; FIFO Port Access Bit Width
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_set_curpipe (uint16_t pipe, uint16_t fifosel, uint16_t isel, uint16_t mbw)
+void usb1_api_function_set_curpipe(uint16_t pipe, uint16_t fifosel, uint16_t isel, uint16_t mbw)
 {
     usb1_function_set_curpipe(pipe, fifosel, isel, mbw);
 }
@@ -411,7 +399,7 @@ void usb1_api_function_set_curpipe (uint16_t pipe, uint16_t fifosel, uint16_t is
 * Arguments    : uint16_t pipe        ; pipe Number
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_clear_brdy_sts (uint16_t pipe)
+void usb1_api_function_clear_brdy_sts(uint16_t pipe)
 {
     usb1_function_clear_brdy_sts(pipe);
 }
@@ -422,7 +410,7 @@ void usb1_api_function_clear_brdy_sts (uint16_t pipe)
 * Arguments    : uint16_t pipe        ; pipe Number
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_clear_bemp_sts (uint16_t pipe)
+void usb1_api_function_clear_bemp_sts(uint16_t pipe)
 {
     usb1_function_clear_bemp_sts(pipe);
 }
@@ -433,7 +421,7 @@ void usb1_api_function_clear_bemp_sts (uint16_t pipe)
 * Arguments    : uint16_t pipe        ; pipe Number
 * Return Value : none
 *******************************************************************************/
-void usb1_api_function_clear_nrdy_sts (uint16_t pipe)
+void usb1_api_function_clear_nrdy_sts(uint16_t pipe)
 {
     usb1_function_clear_nrdy_sts(pipe);
 }

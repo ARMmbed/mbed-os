@@ -36,7 +36,7 @@ namespace {
 /**
  * Extract an uint16_t value from a memory location.
  */
-static uint16_t bytes_to_u16(const void* b)
+static uint16_t bytes_to_u16(const void *b)
 {
     uint16_t res;
     memcpy(&res, b, sizeof(uint16_t));
@@ -114,10 +114,10 @@ static ble_error_t to_nordic_uuid(const UUID &uuid, ble_uuid_t &nordic_uuid)
     if (uuid.getLen() == UUID::LENGTH_OF_LONG_UUID) {
         // first try to get the long UUID in the table of UUIDs
         uint32_t err = sd_ble_uuid_decode(
-            uuid.getLen(),
-            uuid.getBaseUUID(),
-            &nordic_uuid
-        );
+                           uuid.getLen(),
+                           uuid.getBaseUUID(),
+                           &nordic_uuid
+                       );
 
         // UUID found and filed, return.
         if (err == NRF_SUCCESS) {
@@ -183,8 +183,9 @@ ble_error_t nRF5XGattClient::exchange_mtu(connection_handle_t connection)
 }
 
 ble_error_t nRF5XGattClient::get_mtu_size(
-    connection_handle_t connection_handle, uint16_t& mtu_size
-) {
+    connection_handle_t connection_handle, uint16_t &mtu_size
+)
+{
 #if (NRF_SD_BLE_API_VERSION >= 3)
     // FIXME: implement when MTU size can be configured; the mtu size must be
     // stored locally when BLE_GATTC_EVT_EXCHANGE_MTU_RSP has been received
@@ -198,99 +199,109 @@ ble_error_t nRF5XGattClient::get_mtu_size(
 ble_error_t nRF5XGattClient::discover_primary_service(
     connection_handle_t connection,
     attribute_handle_t discovery_range_begining
-) {
+)
+{
     return launch_procedure<DiscoverPrimaryServiceProcedure>(
-        connection, discovery_range_begining
-    );
+               connection, discovery_range_begining
+           );
 }
 
 ble_error_t nRF5XGattClient::discover_primary_service_by_service_uuid(
     connection_handle_t connection_handle,
     attribute_handle_t discovery_range_beginning,
-    const UUID& uuid
-) {
+    const UUID &uuid
+)
+{
     return launch_procedure<DiscoverPrimaryServiceByUUIDProcedure>(
-        connection_handle, discovery_range_beginning, uuid
-    );
+               connection_handle, discovery_range_beginning, uuid
+           );
 }
 
 ble_error_t nRF5XGattClient::find_included_service(
     connection_handle_t connection_handle,
     attribute_handle_range_t service_range
-) {
+)
+{
     return launch_procedure<FindIncludedServicesProcedure>(
-        connection_handle, service_range
-    );
+               connection_handle, service_range
+           );
 }
 
 ble_error_t nRF5XGattClient::discover_characteristics_of_a_service(
     connection_handle_t connection_handle,
     attribute_handle_range_t discovery_range
-) {
+)
+{
     return launch_procedure<DiscoverCharacteristicsProcedure>(
-        connection_handle, discovery_range
-    );
+               connection_handle, discovery_range
+           );
 }
 
 ble_error_t nRF5XGattClient::discover_characteristics_descriptors(
     connection_handle_t connection_handle,
     attribute_handle_range_t descriptors_discovery_range
-) {
+)
+{
     return launch_procedure<DiscoverDescriptorsProcedure>(
-        connection_handle, descriptors_discovery_range
-    );
+               connection_handle, descriptors_discovery_range
+           );
 }
 
 ble_error_t nRF5XGattClient::read_attribute_value(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle
-) {
+)
+{
     return launch_procedure<ReadAttributeProcedure>(
-        connection_handle, attribute_handle
-    );
+               connection_handle, attribute_handle
+           );
 }
 
 ble_error_t nRF5XGattClient::read_using_characteristic_uuid(
     connection_handle_t connection_handle,
     attribute_handle_range_t read_range,
-    const UUID& uuid
-) {
+    const UUID &uuid
+)
+{
     return launch_procedure<ReadUsingCharacteristicUUIDProcedure>(
-        connection_handle, read_range, uuid
-    );
+               connection_handle, read_range, uuid
+           );
 }
 
 ble_error_t nRF5XGattClient::read_attribute_blob(
     connection_handle_t connection,
     attribute_handle_t attribute_handle,
     uint16_t offset
-) {
+)
+{
     return launch_procedure<ReadAttributeBlobProcedure>(
-        connection, attribute_handle, offset
-    );
+               connection, attribute_handle, offset
+           );
 }
 
 ble_error_t nRF5XGattClient::read_multiple_characteristic_values(
     connection_handle_t connection,
-    const ArrayView<const attribute_handle_t>& characteristic_handles
-) {
+    const ArrayView<const attribute_handle_t> &characteristic_handles
+)
+{
     return launch_procedure<ReadMultipleCharacteristicsProcedure>(
-        connection, characteristic_handles
-    );
+               connection, characteristic_handles
+           );
 }
 
 ble_error_t nRF5XGattClient::write_without_response(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
-    const ArrayView<const uint8_t>& value
-) {
+    const ArrayView<const uint8_t> &value
+)
+{
     ble_gattc_write_params_t write_params = {
         BLE_GATT_OP_WRITE_CMD,
         /* exec flags */ 0,
         characteristic_value_handle,
         /* offset */ 0,
         static_cast<uint16_t>(value.size()),
-        const_cast<uint8_t*>(value.data())
+        const_cast<uint8_t *>(value.data())
     };
 
     uint32_t err = sd_ble_gattc_write(connection_handle, &write_params);
@@ -300,15 +311,16 @@ ble_error_t nRF5XGattClient::write_without_response(
 ble_error_t nRF5XGattClient::signed_write_without_response(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
-    const ArrayView<const uint8_t>& value
-) {
+    const ArrayView<const uint8_t> &value
+)
+{
     ble_gattc_write_params_t write_params = {
         BLE_GATT_OP_SIGN_WRITE_CMD,
         /* exec flags */ 0,
         characteristic_value_handle,
         /* offset */ 0,
         static_cast<uint16_t>(value.size()),
-        const_cast<uint8_t*>(value.data())
+        const_cast<uint8_t *>(value.data())
     };
 
     uint32_t err = sd_ble_gattc_write(connection_handle, &write_params);
@@ -318,31 +330,34 @@ ble_error_t nRF5XGattClient::signed_write_without_response(
 ble_error_t nRF5XGattClient::write_attribute(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
-    const ArrayView<const uint8_t>& value
-) {
+    const ArrayView<const uint8_t> &value
+)
+{
     return launch_procedure<WriteAttributeProcedure>(
-        connection_handle, attribute_handle, value
-    );
+               connection_handle, attribute_handle, value
+           );
 }
 
 ble_error_t nRF5XGattClient::queue_prepare_write(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
-    const ArrayView<const uint8_t>& value,
+    const ArrayView<const uint8_t> &value,
     uint16_t offset
-) {
+)
+{
     return launch_procedure<QueuePrepareWriteProcedure>(
-        connection_handle, characteristic_value_handle, value, offset
-    );
+               connection_handle, characteristic_value_handle, value, offset
+           );
 }
 
 ble_error_t nRF5XGattClient::execute_write_queue(
     connection_handle_t connection_handle,
     bool execute
-) {
+)
+{
     return launch_procedure<ExecuteWriteQueueProcedure>(
-        connection_handle, execute
-    );
+               connection_handle, execute
+           );
 }
 
 
@@ -406,8 +421,8 @@ struct nRF5XGattClient::GattProcedure {
     void abort()
     {
         terminate(AttErrorResponse(
-            procedure_opcode, AttErrorResponse::UNLIKELY_ERROR
-        ));
+                      procedure_opcode, AttErrorResponse::UNLIKELY_ERROR
+                  ));
     }
 
     const connection_handle_t connection_handle;
@@ -451,10 +466,10 @@ struct nRF5XGattClient::RegularGattProcedure : GattProcedure {
             const ble_gattc_evt_t &gattc_evt = evt.evt.gattc_evt;
             if (gattc_evt.gatt_status != BLE_GATT_STATUS_SUCCESS) {
                 terminate(AttErrorResponse(
-                    procedure_opcode,
-                    gattc_evt.error_handle,
-                    convert_sd_att_error_code(gattc_evt.gatt_status)
-                ));
+                              procedure_opcode,
+                              gattc_evt.error_handle,
+                              convert_sd_att_error_code(gattc_evt.gatt_status)
+                          ));
                 return;
             } else {
                 do_handle(gattc_evt);
@@ -501,8 +516,8 @@ struct nRF5XGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
     ble_error_t start(attribute_handle_t begining)
     {
         uint32_t err = sd_ble_gattc_primary_services_discover(
-            connection_handle, begining, /* p_srvc_uuid */ NULL
-        );
+                           connection_handle, begining, /* p_srvc_uuid */ NULL
+                       );
         return convert_sd_error(err);
     }
 
@@ -533,9 +548,9 @@ struct nRF5XGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
     {
         if (evt.gatt_status != BLE_GATT_STATUS_SUCCESS) {
             terminate(AttErrorResponse(
-                AttributeOpcode::READ_BY_GROUP_TYPE_REQUEST,
-                convert_sd_att_error_code(evt.gatt_status)
-            ));
+                          AttributeOpcode::READ_BY_GROUP_TYPE_REQUEST,
+                          convert_sd_att_error_code(evt.gatt_status)
+                      ));
             return;
         }
 
@@ -565,7 +580,8 @@ struct nRF5XGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
          */
         struct CustomAttReadByGroupTypeResponse : AttReadByGroupTypeResponse {
             CustomAttReadByGroupTypeResponse(const services_array_t &s) :
-                AttReadByGroupTypeResponse(), services(s) {
+                AttReadByGroupTypeResponse(), services(s)
+            {
             }
 
             virtual size_t size() const
@@ -578,7 +594,7 @@ struct nRF5XGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
                 attribute_data_t result = {
                     to_ble_handle_range(services[i].handle_range),
                     make_const_ArrayView(
-                        reinterpret_cast<const uint8_t*>(&services[i].uuid.uuid),
+                        reinterpret_cast<const uint8_t *>(&services[i].uuid.uuid),
                         sizeof(uint16_t)
                     )
                 };
@@ -603,7 +619,7 @@ struct nRF5XGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
      */
     void handle_128bit_services_discovered(const services_array_t &services)
     {
-        response = new(std::nothrow) packed_discovery_response_t[services.size()];
+        response = new (std::nothrow) packed_discovery_response_t[services.size()];
         if (!response) {
             abort();
             return;
@@ -641,9 +657,9 @@ struct nRF5XGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
     {
         if (evt.gatt_status != BLE_GATT_STATUS_SUCCESS) {
             terminate(AttErrorResponse(
-                AttributeOpcode::READ_REQUEST,
-                convert_sd_att_error_code(evt.gatt_status)
-            ));
+                          AttributeOpcode::READ_REQUEST,
+                          convert_sd_att_error_code(evt.gatt_status)
+                      ));
             return;
         }
 
@@ -652,7 +668,7 @@ struct nRF5XGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
         uint16_t expected_handle = bytes_to_u16(&response[idx][0]);
 
         if (rsp.handle != expected_handle || rsp.offset != 0 ||
-            rsp.len != long_uuid_length) {
+                rsp.len != long_uuid_length) {
             abort();
             return;
         }
@@ -663,12 +679,12 @@ struct nRF5XGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
 
         if (idx == count) {
             terminate(SimpleAttReadByGroupTypeResponse(
-                sizeof(packed_discovery_response_t),
-                make_const_ArrayView(
-                    reinterpret_cast<const uint8_t*>(response),
-                    count * sizeof(packed_discovery_response_t)
-                ))
-            );
+                          sizeof(packed_discovery_response_t),
+                          make_const_ArrayView(
+                              reinterpret_cast<const uint8_t *>(response),
+                              count * sizeof(packed_discovery_response_t)
+                          ))
+                     );
         } else {
             read_service_uuid();
         }
@@ -679,7 +695,7 @@ struct nRF5XGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
     // end group handle (2 bytes) and the service UUID (16 bytes).
     typedef uint8_t packed_discovery_response_t[20];
 
-    packed_discovery_response_t* response;
+    packed_discovery_response_t *response;
     uint16_t count;
     uint16_t idx;
 };
@@ -713,8 +729,8 @@ struct nRF5XGattClient::DiscoverPrimaryServiceByUUIDProcedure : RegularGattProce
         }
 
         uint32_t err = sd_ble_gattc_primary_services_discover(
-            connection_handle, begining, &nordic_uuid
-        );
+                           connection_handle, begining, &nordic_uuid
+                       );
         if (!err) {
             _service_uuid = uuid;
         }
@@ -735,7 +751,8 @@ struct nRF5XGattClient::DiscoverPrimaryServiceByUUIDProcedure : RegularGattProce
          */
         struct CustomAttReadByGroupTypeResponse : AttReadByGroupTypeResponse {
             CustomAttReadByGroupTypeResponse(const services_array_t &s, const UUID &u) :
-                AttReadByGroupTypeResponse(), services(s), uuid(u) {
+                AttReadByGroupTypeResponse(), services(s), uuid(u)
+            {
             }
 
             virtual size_t size() const
@@ -781,8 +798,8 @@ struct nRF5XGattClient::FindIncludedServicesProcedure : RegularGattProcedure {
     {
         ble_gattc_handle_range_t range = to_nordic_handle_range(service_range);
         uint32_t err = sd_ble_gattc_relationships_discover(
-            connection_handle, &range
-        );
+                           connection_handle, &range
+                       );
 
         return convert_sd_error(err);
     }
@@ -806,14 +823,14 @@ struct nRF5XGattClient::FindIncludedServicesProcedure : RegularGattProcedure {
         // softdevices lands could would have to be rewritten because they support
         // variable MTU size.
         size_t buffer_size = element_size * resp.count;
-        uint8_t* buffer = new(std::nothrow) uint8_t[buffer_size];
+        uint8_t *buffer = new (std::nothrow) uint8_t[buffer_size];
         if (!buffer) {
             abort();
             return;
         }
 
         uint8_t *it = buffer;
-        for(size_t i = 0; i < resp.count; ++i) {
+        for (size_t i = 0; i < resp.count; ++i) {
             u16_to_stream(it, resp.includes[i].handle);
             u16_to_stream(it, resp.includes[i].included_srvc.handle_range.start_handle);
             u16_to_stream(it, resp.includes[i].included_srvc.handle_range.end_handle);
@@ -823,9 +840,9 @@ struct nRF5XGattClient::FindIncludedServicesProcedure : RegularGattProcedure {
         }
 
         terminate(SimpleAttReadByTypeResponse(
-            element_size,
-            make_const_ArrayView(buffer, buffer_size)
-        ));
+                      element_size,
+                      make_const_ArrayView(buffer, buffer_size)
+                  ));
 
         delete[] buffer;
     }
@@ -848,7 +865,7 @@ struct nRF5XGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
     struct read_by_type_response_t {
         uint16_t count;
         uint16_t element_size;
-        uint8_t* buffer;
+        uint8_t *buffer;
     };
 
     DiscoverCharacteristicsProcedure(connection_handle_t connection) :
@@ -866,9 +883,9 @@ struct nRF5XGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
     {
         ble_gattc_handle_range_t range = to_nordic_handle_range(discovery_range);
         uint32_t err = sd_ble_gattc_characteristics_discover(
-            connection_handle,
-            &range
-        );
+                           connection_handle,
+                           &range
+                       );
 
         return convert_sd_error(err);
     }
@@ -897,9 +914,9 @@ struct nRF5XGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
     {
         if (evt.gatt_status != BLE_GATT_STATUS_SUCCESS) {
             terminate(AttErrorResponse(
-                AttributeOpcode::READ_BY_TYPE_REQUEST,
-                convert_sd_att_error_code(evt.gatt_status)
-            ));
+                          AttributeOpcode::READ_BY_TYPE_REQUEST,
+                          convert_sd_att_error_code(evt.gatt_status)
+                      ));
             return;
         }
 
@@ -955,18 +972,18 @@ struct nRF5XGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
 
         if (evt.gatt_status != BLE_GATT_STATUS_SUCCESS) {
             terminate(AttErrorResponse(
-                AttributeOpcode::READ_REQUEST,
-                convert_sd_att_error_code(evt.gatt_status)
-            ));
+                          AttributeOpcode::READ_REQUEST,
+                          convert_sd_att_error_code(evt.gatt_status)
+                      ));
             return;
         }
 
         const ble_gattc_evt_read_rsp_t &rsp = evt.params.read_rsp;
-        uint8_t* current_element = &_response.buffer[_idx * _response.element_size];
+        uint8_t *current_element = &_response.buffer[_idx * _response.element_size];
         uint16_t expected_handle = bytes_to_u16(current_element);
 
         if (rsp.handle != expected_handle || rsp.offset != 0 ||
-            rsp.len != characteristic_declaration_length) {
+                rsp.len != characteristic_declaration_length) {
             abort();
             return;
         }
@@ -987,14 +1004,15 @@ struct nRF5XGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
     /**
      * Terminate the procedure by forwarding the AttReadByTypeResponse built.
      */
-    void forward_response_and_terminate() {
+    void forward_response_and_terminate()
+    {
         terminate(SimpleAttReadByTypeResponse(
-            _response.element_size,
-            make_const_ArrayView(
-                _response.buffer,
-                _response.element_size * _response.count
-            )
-        ));
+                      _response.element_size,
+                      make_const_ArrayView(
+                          _response.buffer,
+                          _response.element_size * _response.count
+                      )
+                  ));
     }
 
     /**
@@ -1005,7 +1023,7 @@ struct nRF5XGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
      * discovered is present and properties, handle value and UUID are populated
      * by reading the attribute handle.
      */
-    static read_by_type_response_t flatten_response(const ble_gattc_evt_char_disc_rsp_t& resp)
+    static read_by_type_response_t flatten_response(const ble_gattc_evt_char_disc_rsp_t &resp)
     {
         read_by_type_response_t result = { resp.count, 0 };
 
@@ -1015,13 +1033,13 @@ struct nRF5XGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
         result.element_size = 5 + (short_uuid ? 2 : 16) ;
 
         size_t buffer_size = resp.count * result.element_size;
-        result.buffer = new(std::nothrow) uint8_t[buffer_size];
-        if(!result.buffer) {
+        result.buffer = new (std::nothrow) uint8_t[buffer_size];
+        if (!result.buffer) {
             return result;
         }
 
         uint8_t *it = result.buffer;
-        for(size_t i = 0; i < resp.count; ++i) {
+        for (size_t i = 0; i < resp.count; ++i) {
             u16_to_stream(it, resp.chars[i].handle_decl);
             if (short_uuid) {
                 *it++ = get_properties(resp.chars[i]);
@@ -1040,7 +1058,7 @@ struct nRF5XGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
     /**
      * Compute characteristic properties from ble_gattc_char_t.
      */
-    static uint8_t get_properties(const ble_gattc_char_t& char_desc)
+    static uint8_t get_properties(const ble_gattc_char_t &char_desc)
     {
         return
             (char_desc.char_props.broadcast << 0) |
@@ -1066,16 +1084,17 @@ struct nRF5XGattClient::DiscoverDescriptorsProcedure : RegularGattProcedure {
             connection,
             AttributeOpcode::FIND_INFORMATION_REQUEST,
             BLE_GATTC_EVT_ATTR_INFO_DISC_RSP
-        ) {
-        }
+        )
+    {
+    }
 
     ble_error_t start(attribute_handle_range_t discovery_range)
     {
         ble_gattc_handle_range_t range = to_nordic_handle_range(discovery_range);
         uint32_t err = sd_ble_gattc_attr_info_discover(
-            connection_handle,
-            &range
-        );
+                           connection_handle,
+                           &range
+                       );
 
         return convert_sd_error(err);
     }
@@ -1106,9 +1125,9 @@ struct nRF5XGattClient::DiscoverDescriptorsProcedure : RegularGattProcedure {
                     result.uuid = UUID(response.attr_info[i].info.uuid16.uuid);
                 } else {
                     result.uuid = UUID(
-                        response.attr_info[i].info.uuid128.uuid128,
-                        UUID::LSB
-                    );
+                                      response.attr_info[i].info.uuid128.uuid128,
+                                      UUID::LSB
+                                  );
                 }
 
                 return result;
@@ -1165,8 +1184,8 @@ struct nRF5XGattClient::ReadAttributeProcedure : RegularGattProcedure {
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
     {
-        const ble_gattc_evt_read_rsp_t& rsp = evt.params.read_rsp;
-        if (rsp.offset != 0 ) {
+        const ble_gattc_evt_read_rsp_t &rsp = evt.params.read_rsp;
+        if (rsp.offset != 0) {
             abort();
             return;
         }
@@ -1186,7 +1205,7 @@ struct nRF5XGattClient::ReadUsingCharacteristicUUIDProcedure : RegularGattProced
             BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP
         ) { }
 
-    ble_error_t start(attribute_handle_range_t read_range, const UUID& uuid)
+    ble_error_t start(attribute_handle_range_t read_range, const UUID &uuid)
     {
         ble_uuid_t nordic_uuid = { 0 };
         ble_error_t ble_err = to_nordic_uuid(uuid, nordic_uuid);
@@ -1200,10 +1219,10 @@ struct nRF5XGattClient::ReadUsingCharacteristicUUIDProcedure : RegularGattProced
         };
 
         uint32_t err =  sd_ble_gattc_char_value_by_uuid_read(
-            connection_handle,
-            &nordic_uuid,
-            &range
-        );
+                            connection_handle,
+                            &nordic_uuid,
+                            &range
+                        );
         return convert_sd_error(err);
     }
 
@@ -1219,12 +1238,12 @@ struct nRF5XGattClient::ReadUsingCharacteristicUUIDProcedure : RegularGattProced
         uint8_t element_size = sizeof(uint16_t) + rsp.value_len;
 
         terminate(SimpleAttReadByTypeResponse(
-            element_size,
-            make_const_ArrayView(
-                rsp.handle_value,
-                rsp.count * element_size
-            )
-        ));
+                      element_size,
+                      make_const_ArrayView(
+                          rsp.handle_value,
+                          rsp.count * element_size
+                      )
+                  ));
     }
 
 #else
@@ -1234,7 +1253,7 @@ struct nRF5XGattClient::ReadUsingCharacteristicUUIDProcedure : RegularGattProced
     virtual void do_handle(const ble_gattc_evt_t &evt)
     {
         struct CustomReadByTypeResponse : AttReadByTypeResponse {
-            CustomReadByTypeResponse(const ble_gattc_evt_char_val_by_uuid_read_rsp_t& rsp) :
+            CustomReadByTypeResponse(const ble_gattc_evt_char_val_by_uuid_read_rsp_t &rsp) :
                 AttReadByTypeResponse(), response(rsp) { }
 
             virtual size_t size() const
@@ -1254,7 +1273,7 @@ struct nRF5XGattClient::ReadUsingCharacteristicUUIDProcedure : RegularGattProced
                 return result;
             }
 
-            const ble_gattc_evt_char_val_by_uuid_read_rsp_t& response;
+            const ble_gattc_evt_char_val_by_uuid_read_rsp_t &response;
         }
 
         terminate(CustomReadByTypeResponse(evt.params.char_val_by_uuid_read_rsp));
@@ -1274,17 +1293,17 @@ struct nRF5XGattClient::ReadAttributeBlobProcedure : RegularGattProcedure {
     ble_error_t start(attribute_handle_t attribute_handle, uint16_t offset)
     {
         uint32_t err = sd_ble_gattc_read(
-            connection_handle, attribute_handle, offset
-        );
+                           connection_handle, attribute_handle, offset
+                       );
         return convert_sd_error(err);
     }
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
     {
         terminate(AttReadBlobResponse(make_const_ArrayView(
-            evt.params.read_rsp.data,
-            evt.params.read_rsp.len
-        )));
+                                          evt.params.read_rsp.data,
+                                          evt.params.read_rsp.len
+                                      )));
     }
 };
 
@@ -1299,22 +1318,22 @@ struct nRF5XGattClient::ReadMultipleCharacteristicsProcedure : RegularGattProced
             BLE_GATTC_EVT_CHAR_VALS_READ_RSP
         ) { }
 
-    ble_error_t start(const ArrayView<const attribute_handle_t>& characteristic_handles)
+    ble_error_t start(const ArrayView<const attribute_handle_t> &characteristic_handles)
     {
         uint32_t err = sd_ble_gattc_char_values_read(
-            connection_handle,
-            characteristic_handles.data(),
-            characteristic_handles.size()
-        );
+                           connection_handle,
+                           characteristic_handles.data(),
+                           characteristic_handles.size()
+                       );
         return convert_sd_error(err);
     }
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
     {
         terminate(AttReadMultipleResponse(make_const_ArrayView(
-            evt.params.char_vals_read_rsp.values,
-            evt.params.char_vals_read_rsp.len
-        )));
+                                              evt.params.char_vals_read_rsp.values,
+                                              evt.params.char_vals_read_rsp.len
+                                          )));
     }
 };
 
@@ -1328,15 +1347,16 @@ struct nRF5XGattClient::WriteAttributeProcedure : RegularGattProcedure {
         ) { }
 
     ble_error_t start(
-        attribute_handle_t attribute_handle, const ArrayView<const uint8_t>& value
-    ) {
+        attribute_handle_t attribute_handle, const ArrayView<const uint8_t> &value
+    )
+    {
         ble_gattc_write_params_t write_params = {
             BLE_GATT_OP_WRITE_REQ,
             /* exec flags */ 0,
             attribute_handle,
             /* offset */ 0,
             static_cast<uint16_t>(value.size()),
-            const_cast<uint8_t*>(value.data())
+            const_cast<uint8_t *>(value.data())
         };
 
         uint32_t err = sd_ble_gattc_write(connection_handle, &write_params);
@@ -1362,16 +1382,17 @@ struct nRF5XGattClient::QueuePrepareWriteProcedure : RegularGattProcedure {
 
     ble_error_t start(
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value,
+        const ArrayView<const uint8_t> &value,
         uint16_t offset
-    ) {
+    )
+    {
         ble_gattc_write_params_t write_params = {
             BLE_GATT_OP_PREP_WRITE_REQ,
             /* exec flags */ 0,
             characteristic_value_handle,
             offset,
             static_cast<uint16_t>(value.size()),
-            const_cast<uint8_t*>(value.data())
+            const_cast<uint8_t *>(value.data())
         };
 
         uint32_t err = sd_ble_gattc_write(connection_handle, &write_params);
@@ -1388,10 +1409,10 @@ struct nRF5XGattClient::QueuePrepareWriteProcedure : RegularGattProcedure {
         }
 
         terminate(AttPrepareWriteResponse(
-            response.handle,
-            response.offset,
-            make_const_ArrayView(response.data, response.len)
-        ));
+                      response.handle,
+                      response.offset,
+                      make_const_ArrayView(response.data, response.len)
+                  ));
     }
 };
 
@@ -1406,13 +1427,14 @@ struct nRF5XGattClient::ExecuteWriteQueueProcedure : RegularGattProcedure {
             BLE_GATTC_EVT_WRITE_RSP
         ) { }
 
-    ble_error_t start(bool execute) {
+    ble_error_t start(bool execute)
+    {
         ble_gattc_write_params_t write_params = {
             BLE_GATT_OP_EXEC_WRITE_REQ,
             static_cast<uint8_t>(
                 execute ?
-                    BLE_GATT_EXEC_WRITE_FLAG_PREPARED_CANCEL :
-                    BLE_GATT_EXEC_WRITE_FLAG_PREPARED_WRITE
+                BLE_GATT_EXEC_WRITE_FLAG_PREPARED_CANCEL :
+                BLE_GATT_EXEC_WRITE_FLAG_PREPARED_WRITE
             ),
             /* attribute handle */ 0,
             /* value offset */ 0,
@@ -1451,9 +1473,10 @@ ble_error_t nRF5XGattClient::terminate()
 
 template<typename ProcType, typename A0>
 ble_error_t nRF5XGattClient::launch_procedure(
-    connection_handle_t connection, const A0& a0
-) {
-    ProcType* p = new(std::nothrow) ProcType(connection);
+    connection_handle_t connection, const A0 &a0
+)
+{
+    ProcType *p = new (std::nothrow) ProcType(connection);
     if (!p) {
         return BLE_ERROR_NO_MEM;
     }
@@ -1474,9 +1497,10 @@ ble_error_t nRF5XGattClient::launch_procedure(
 
 template<typename ProcType, typename A0, typename A1>
 ble_error_t nRF5XGattClient::launch_procedure(
-    connection_handle_t connection, const A0& a0, const A1& a1
-) {
-    ProcType* p = new(std::nothrow) ProcType(connection);
+    connection_handle_t connection, const A0 &a0, const A1 &a1
+)
+{
+    ProcType *p = new (std::nothrow) ProcType(connection);
     if (!p) {
         return BLE_ERROR_NO_MEM;
     }
@@ -1498,9 +1522,10 @@ ble_error_t nRF5XGattClient::launch_procedure(
 template<typename ProcType, typename A0, typename A1, typename A2>
 ble_error_t nRF5XGattClient::launch_procedure(
     connection_handle_t connection,
-    const A0& a0, const A1& a1, const A2& a2
-) {
-    ProcType* p = new(std::nothrow) ProcType(connection);
+    const A0 &a0, const A1 &a1, const A2 &a2
+)
+{
+    ProcType *p = new (std::nothrow) ProcType(connection);
     if (!p) {
         return BLE_ERROR_NO_MEM;
     }
@@ -1522,9 +1547,10 @@ ble_error_t nRF5XGattClient::launch_procedure(
 template<typename ProcType, typename A0, typename A1, typename A2, typename A3>
 ble_error_t nRF5XGattClient::launch_procedure(
     connection_handle_t connection,
-    const A0& a0, const A1& a1, const A2& a2, const A3& a3
-) {
-    ProcType* p = new(std::nothrow) ProcType(connection);
+    const A0 &a0, const A1 &a1, const A2 &a2, const A3 &a3
+)
+{
+    ProcType *p = new (std::nothrow) ProcType(connection);
     if (!p) {
         return BLE_ERROR_NO_MEM;
     }
@@ -1543,9 +1569,10 @@ ble_error_t nRF5XGattClient::launch_procedure(
     return err;
 }
 
-nRF5XGattClient::GattProcedure* nRF5XGattClient::get_procedure(
+nRF5XGattClient::GattProcedure *nRF5XGattClient::get_procedure(
     connection_handle_t connection
-) const {
+) const
+{
     for (size_t i = 0; i < max_procedures_count; ++i) {
         if (_procedures[i] && _procedures[i]->connection_handle == connection) {
             return _procedures[i];
@@ -1570,7 +1597,7 @@ bool nRF5XGattClient::register_procedure(GattProcedure *p)
     return false;
 }
 
-bool nRF5XGattClient::remove_procedure(nRF5XGattClient::GattProcedure* p)
+bool nRF5XGattClient::remove_procedure(nRF5XGattClient::GattProcedure *p)
 {
     for (size_t i = 0; i < max_procedures_count; ++i) {
         if (_procedures[i] == p) {
@@ -1583,13 +1610,14 @@ bool nRF5XGattClient::remove_procedure(nRF5XGattClient::GattProcedure* p)
 }
 
 // singleton of the ARM Cordio client
-nRF5XGattClient& nRF5XGattClient::get_client()
+nRF5XGattClient &nRF5XGattClient::get_client()
 {
     static nRF5XGattClient _client;
     return _client;
 }
 
-void nRF5XGattClient::handle_events(const ble_evt_t *evt) {
+void nRF5XGattClient::handle_events(const ble_evt_t *evt)
+{
     switch (evt->header.evt_id) {
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
         case BLE_GATTC_EVT_REL_DISC_RSP:
@@ -1613,7 +1641,7 @@ void nRF5XGattClient::handle_events(const ble_evt_t *evt) {
 
 void nRF5XGattClient::handle_procedure_event(const ble_evt_t &evt)
 {
-    GattProcedure* p = get_procedure(evt.evt.gattc_evt.conn_handle);
+    GattProcedure *p = get_procedure(evt.evt.gattc_evt.conn_handle);
     if (p) {
         p->handle(evt);
     }
@@ -1653,7 +1681,7 @@ void nRF5XGattClient::handle_hvx_event(const ble_evt_t &evt)
 void nRF5XGattClient::handle_timeout_event(const ble_evt_t &evt)
 {
     connection_handle_t connection = evt.evt.gattc_evt.conn_handle;
-    GattProcedure* p = get_procedure(connection);
+    GattProcedure *p = get_procedure(connection);
     if (p) {
         p->abort();
     }
@@ -1663,7 +1691,7 @@ void nRF5XGattClient::handle_timeout_event(const ble_evt_t &evt)
 
 void nRF5XGattClient::handle_connection_termination(connection_handle_t connection)
 {
-    GattProcedure* p = get_client().get_procedure(connection);
+    GattProcedure *p = get_client().get_procedure(connection);
     if (p) {
         p->abort();
     }

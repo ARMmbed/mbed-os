@@ -1,7 +1,7 @@
 /**
  * @file
- * @brief   This file contains the function implementations for the Cyclic 
- *          Redundency Check (CRC) peripheral module. 
+ * @brief   This file contains the function implementations for the Cyclic
+ *          Redundency Check (CRC) peripheral module.
  */
 
 /* ****************************************************************************
@@ -57,24 +57,27 @@
 /* ************************************************************************* */
 void CRC16_Init(uint8_t CCITT_TRUE, uint8_t lilEndian)
 {
-    if(CCITT_TRUE)
+    if (CCITT_TRUE) {
         MXC_CRC->reseed |= MXC_F_CRC_RESEED_CCITT_MODE;
-    else
+    } else {
         MXC_CRC->reseed &= ~MXC_F_CRC_RESEED_CCITT_MODE;
+    }
 
-    if(lilEndian)
+    if (lilEndian) {
         MXC_CRC->reseed |= MXC_F_CRC_RESEED_REV_ENDIAN16;
-    else
+    } else {
         MXC_CRC->reseed &= ~MXC_F_CRC_RESEED_REV_ENDIAN16;
+    }
 }
 
 /* ************************************************************************* */
 void CRC32_Init(uint8_t lilEndian)
 {
-    if(lilEndian)
+    if (lilEndian) {
         MXC_CRC->reseed |= MXC_F_CRC_RESEED_REV_ENDIAN32;
-    else
+    } else {
         MXC_CRC->reseed &= ~MXC_F_CRC_RESEED_REV_ENDIAN32;
+    }
 }
 
 /* ************************************************************************* */
@@ -88,7 +91,7 @@ void CRC16_Reseed(uint16_t initData)
     MXC_CRC->reseed |= MXC_F_CRC_RESEED_CRC16;
 
     //wait for reseed to clear itself
-    while(MXC_CRC->reseed & MXC_F_CRC_RESEED_CRC16);
+    while (MXC_CRC->reseed & MXC_F_CRC_RESEED_CRC16);
 
 }
 
@@ -102,7 +105,7 @@ void CRC32_Reseed(uint32_t initData)
     MXC_CRC->reseed |= MXC_F_CRC_RESEED_CRC32;
 
     //wait for reseed to clear itself
-    while(MXC_CRC->reseed & MXC_F_CRC_RESEED_CRC32);
+    while (MXC_CRC->reseed & MXC_F_CRC_RESEED_CRC32);
 }
 
 /**@} end of group crc */

@@ -285,7 +285,7 @@ extern "C"
  *
  * @details     Disable I/O DOUT mask of specified GPIO pin.
  */
-#define GPIO_DISABLE_DOUT_MASK(port, u32PinMask)    ((port)->DATMSK &= ~(u32PinMask))    
+#define GPIO_DISABLE_DOUT_MASK(port, u32PinMask)    ((port)->DATMSK &= ~(u32PinMask))
 
 /**
  * @brief       Enable I/O DOUT mask
@@ -324,20 +324,20 @@ extern "C"
  * @param[in]   u32ClkSrc   The de-bounce counter clock source. It could be GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_LIRC.
  * @param[in]   u32ClkSel   The de-bounce sampling cycle selection. It could be
  *                            - \ref GPIO_DBCTL_DBCLKSEL_1
- *                            - \ref GPIO_DBCTL_DBCLKSEL_2 
- *                            - \ref GPIO_DBCTL_DBCLKSEL_4 
+ *                            - \ref GPIO_DBCTL_DBCLKSEL_2
+ *                            - \ref GPIO_DBCTL_DBCLKSEL_4
  *                            - \ref GPIO_DBCTL_DBCLKSEL_8
- *                            - \ref GPIO_DBCTL_DBCLKSEL_16 
- *                            - \ref GPIO_DBCTL_DBCLKSEL_32 
- *                            - \ref GPIO_DBCTL_DBCLKSEL_64 
+ *                            - \ref GPIO_DBCTL_DBCLKSEL_16
+ *                            - \ref GPIO_DBCTL_DBCLKSEL_32
+ *                            - \ref GPIO_DBCTL_DBCLKSEL_64
  *                            - \ref GPIO_DBCTL_DBCLKSEL_128
- *                            - \ref GPIO_DBCTL_DBCLKSEL_256 
- *                            - \ref GPIO_DBCTL_DBCLKSEL_512 
- *                            - \ref GPIO_DBCTL_DBCLKSEL_1024 
+ *                            - \ref GPIO_DBCTL_DBCLKSEL_256
+ *                            - \ref GPIO_DBCTL_DBCLKSEL_512
+ *                            - \ref GPIO_DBCTL_DBCLKSEL_1024
  *                            - \ref GPIO_DBCTL_DBCLKSEL_2048
- *                            - \ref GPIO_DBCTL_DBCLKSEL_4096 
- *                            - \ref GPIO_DBCTL_DBCLKSEL_8192 
- *                            - \ref GPIO_DBCTL_DBCLKSEL_16384 
+ *                            - \ref GPIO_DBCTL_DBCLKSEL_4096
+ *                            - \ref GPIO_DBCTL_DBCLKSEL_8192
+ *                            - \ref GPIO_DBCTL_DBCLKSEL_16384
  *                            - \ref GPIO_DBCTL_DBCLKSEL_32768
  *
  * @return      None

@@ -38,7 +38,7 @@ extern void utest_dump_trace();
 
 #else
 
-#define UTEST_LOG_FUNCTION(); 
+#define UTEST_LOG_FUNCTION();
 #define UTEST_TRACE_START
 #define UTEST_DUMP_TRACE
 

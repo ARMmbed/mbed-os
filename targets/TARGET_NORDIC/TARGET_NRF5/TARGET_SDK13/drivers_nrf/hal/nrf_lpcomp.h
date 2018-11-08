@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2014 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**
@@ -66,8 +66,7 @@ extern "C" {
  * @enum nrf_lpcomp_ref_t
  * @brief LPCOMP reference selection.
  */
-typedef enum
-{
+typedef enum {
 #if (LPCOMP_REFSEL_RESOLUTION == 8) || defined(__SDK_DOXYGEN__)
     NRF_LPCOMP_REF_SUPPLY_1_8   = LPCOMP_REFSEL_REFSEL_SupplyOneEighthPrescaling,    /**< Use supply with a 1/8 prescaler as reference. */
     NRF_LPCOMP_REF_SUPPLY_2_8   = LPCOMP_REFSEL_REFSEL_SupplyTwoEighthsPrescaling,   /**< Use supply with a 2/8 prescaler as reference. */
@@ -94,17 +93,16 @@ typedef enum
     NRF_LPCOMP_REF_SUPPLY_15_16 = LPCOMP_REFSEL_REFSEL_Ref15_16Vdd, /**< Use supply with a 15/16 prescaler as reference. */
 #endif
     NRF_LPCOMP_REF_EXT_REF0        = LPCOMP_REFSEL_REFSEL_ARef |
-                       (LPCOMP_EXTREFSEL_EXTREFSEL_AnalogReference0 << 16), /**< External reference 0. */
+                                     (LPCOMP_EXTREFSEL_EXTREFSEL_AnalogReference0 << 16), /**< External reference 0. */
     NRF_LPCOMP_CONFIG_REF_EXT_REF1 = LPCOMP_REFSEL_REFSEL_ARef |
-                        (LPCOMP_EXTREFSEL_EXTREFSEL_AnalogReference1 << 16), /**< External reference 1. */
+                                     (LPCOMP_EXTREFSEL_EXTREFSEL_AnalogReference1 << 16), /**< External reference 1. */
 } nrf_lpcomp_ref_t;
 
 /**
  * @enum nrf_lpcomp_input_t
  * @brief LPCOMP input selection.
  */
-typedef enum
-{
+typedef enum {
     NRF_LPCOMP_INPUT_0 = LPCOMP_PSEL_PSEL_AnalogInput0, /**< Input 0. */
     NRF_LPCOMP_INPUT_1 = LPCOMP_PSEL_PSEL_AnalogInput1, /**< Input 1. */
     NRF_LPCOMP_INPUT_2 = LPCOMP_PSEL_PSEL_AnalogInput2, /**< Input 2. */
@@ -119,8 +117,7 @@ typedef enum
  * @enum nrf_lpcomp_detect_t
  * @brief LPCOMP detection type selection.
  */
-typedef enum
-{
+typedef enum {
     NRF_LPCOMP_DETECT_CROSS = LPCOMP_ANADETECT_ANADETECT_Cross, /**< Generate ANADETEC on crossing, both upwards and downwards crossing. */
     NRF_LPCOMP_DETECT_UP    = LPCOMP_ANADETECT_ANADETECT_Up,    /**< Generate ANADETEC on upwards crossing only. */
     NRF_LPCOMP_DETECT_DOWN  = LPCOMP_ANADETECT_ANADETECT_Down   /**< Generate ANADETEC on downwards crossing only. */
@@ -154,8 +151,7 @@ typedef enum /*lint -save -e30 -esym(628,__INTADDR__) */
  * @enum nrf_lpcomp_short_mask_t
  * @brief LPCOMP shorts masks.
  */
-typedef enum
-{
+typedef enum {
     NRF_LPCOMP_SHORT_CROSS_STOP_MASK   = LPCOMP_SHORTS_CROSS_STOP_Msk,  /*!< Short between CROSS event and STOP task. */
     NRF_LPCOMP_SHORT_UP_STOP_MASK      = LPCOMP_SHORTS_UP_STOP_Msk,     /*!< Short between UP event and STOP task. */
     NRF_LPCOMP_SHORT_DOWN_STOP_MASK    = LPCOMP_SHORTS_DOWN_STOP_Msk,   /*!< Short between DOWN event and STOP task. */
@@ -168,16 +164,14 @@ typedef enum
  * @enum nrf_lpcomp_hysteresis_t
  * @brief LPCOMP hysteresis.
  */
-typedef enum
-{
+typedef enum {
     NRF_LPCOMP_HYST_NOHYST              = LPCOMP_HYST_HYST_NoHyst,      /**< Comparator hysteresis disabled. */
     NRF_LPCOMP_HYST_50mV                = LPCOMP_HYST_HYST_Hyst50mV     /**< Comparator hysteresis enabled (typ. 50 mV). */
-}nrf_lpcomp_hysteresis_t;
+} nrf_lpcomp_hysteresis_t;
 #endif // NRF52
 
 /** @brief LPCOMP configuration. */
-typedef struct
-{
+typedef struct {
     nrf_lpcomp_ref_t            reference; /**< LPCOMP reference. */
     nrf_lpcomp_detect_t         detection; /**< LPCOMP detection type. */
 #ifdef NRF52_SERIES
@@ -196,7 +190,7 @@ typedef struct
  *
  * @param[in] p_config Configuration.
  */
-__STATIC_INLINE void nrf_lpcomp_configure(const nrf_lpcomp_config_t * p_config)
+__STATIC_INLINE void nrf_lpcomp_configure(const nrf_lpcomp_config_t *p_config)
 {
     NRF_LPCOMP->TASKS_STOP = 1;
     NRF_LPCOMP->ENABLE     = LPCOMP_ENABLE_ENABLE_Disabled << LPCOMP_ENABLE_ENABLE_Pos;
@@ -204,8 +198,7 @@ __STATIC_INLINE void nrf_lpcomp_configure(const nrf_lpcomp_config_t * p_config)
         (p_config->reference << LPCOMP_REFSEL_REFSEL_Pos) & LPCOMP_REFSEL_REFSEL_Msk;
 
     //If external source is choosen extract analog reference index.
-    if ((p_config->reference & LPCOMP_REFSEL_REFSEL_ARef)==LPCOMP_REFSEL_REFSEL_ARef)
-    {
+    if ((p_config->reference & LPCOMP_REFSEL_REFSEL_ARef) == LPCOMP_REFSEL_REFSEL_ARef) {
         uint32_t extref       = p_config->reference >> 16;
         NRF_LPCOMP->EXTREFSEL = (extref << LPCOMP_EXTREFSEL_EXTREFSEL_Pos) & LPCOMP_EXTREFSEL_EXTREFSEL_Msk;
     }
@@ -217,7 +210,7 @@ __STATIC_INLINE void nrf_lpcomp_configure(const nrf_lpcomp_config_t * p_config)
 #endif
     NRF_LPCOMP->SHORTS      = 0;
     NRF_LPCOMP->INTENCLR    = LPCOMP_INTENCLR_CROSS_Msk | LPCOMP_INTENCLR_UP_Msk |
-                               LPCOMP_INTENCLR_DOWN_Msk | LPCOMP_INTENCLR_READY_Msk;
+                              LPCOMP_INTENCLR_DOWN_Msk | LPCOMP_INTENCLR_READY_Msk;
 }
 
 
@@ -329,7 +322,7 @@ __STATIC_INLINE bool nrf_lpcomp_int_enable_check(uint32_t lpcomp_int_mask)
  *
  * @return The address of the specified LPCOMP task.
  */
-__STATIC_INLINE uint32_t * nrf_lpcomp_task_address_get(nrf_lpcomp_task_t lpcomp_task)
+__STATIC_INLINE uint32_t *nrf_lpcomp_task_address_get(nrf_lpcomp_task_t lpcomp_task)
 {
     return (uint32_t *)((uint8_t *)NRF_LPCOMP + lpcomp_task);
 }
@@ -342,7 +335,7 @@ __STATIC_INLINE uint32_t * nrf_lpcomp_task_address_get(nrf_lpcomp_task_t lpcomp_
  *
  * @return The address of the specified LPCOMP event.
  */
-__STATIC_INLINE uint32_t * nrf_lpcomp_event_address_get(nrf_lpcomp_event_t lpcomp_event)
+__STATIC_INLINE uint32_t *nrf_lpcomp_event_address_get(nrf_lpcomp_event_t lpcomp_event)
 {
     return (uint32_t *)((uint8_t *)NRF_LPCOMP + lpcomp_event);
 }
@@ -380,7 +373,7 @@ __STATIC_INLINE void nrf_lpcomp_shorts_disable(uint32_t lpcomp_short_mask)
  */
 __STATIC_INLINE void nrf_lpcomp_task_trigger(nrf_lpcomp_task_t lpcomp_task)
 {
-    *( (volatile uint32_t *)( (uint8_t *)NRF_LPCOMP + lpcomp_task) ) = 1;
+    *((volatile uint32_t *)((uint8_t *)NRF_LPCOMP + lpcomp_task)) = 1;
 }
 
 
@@ -392,7 +385,7 @@ __STATIC_INLINE void nrf_lpcomp_task_trigger(nrf_lpcomp_task_t lpcomp_task)
  */
 __STATIC_INLINE void nrf_lpcomp_event_clear(nrf_lpcomp_event_t lpcomp_event)
 {
-    *( (volatile uint32_t *)( (uint8_t *)NRF_LPCOMP + lpcomp_event) ) = 0;
+    *((volatile uint32_t *)((uint8_t *)NRF_LPCOMP + lpcomp_event)) = 0;
 #if __CORTEX_M == 0x04
     volatile uint32_t dummy = *((volatile uint32_t *)((uint8_t *)NRF_LPCOMP + lpcomp_event));
     (void)dummy;
@@ -408,7 +401,7 @@ __STATIC_INLINE void nrf_lpcomp_event_clear(nrf_lpcomp_event_t lpcomp_event)
  */
 __STATIC_INLINE bool nrf_lpcomp_event_check(nrf_lpcomp_event_t lpcomp_event)
 {
-    return (bool) (*(volatile uint32_t *)( (uint8_t *)NRF_LPCOMP + lpcomp_event));
+    return (bool)(*(volatile uint32_t *)((uint8_t *)NRF_LPCOMP + lpcomp_event));
 }
 
 

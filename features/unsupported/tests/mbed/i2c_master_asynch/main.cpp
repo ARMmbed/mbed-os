@@ -2,7 +2,7 @@
 #include "test_env.h"
 
 #if !DEVICE_I2C || !DEVICE_I2C_ASYNCH
-  #error [NOT_SUPPORTED] I2C ASYNCH is not supported
+#error [NOT_SUPPORTED] I2C ASYNCH is not supported
 #endif
 
 #define SIZE (10)
@@ -12,7 +12,7 @@
 #if defined(TARGET_KL25Z)
 I2C i2c(PTE0, PTE1);
 #elif defined(TARGET_nRF51822)
-I2C i2c(p22,p20);
+I2C i2c(p22, p20);
 #elif defined(TARGET_NUCLEO_F411RE) || defined (TARGET_DISCO_F469NI)
 #define TEST_SDA_PIN PB_9
 #define TEST_SCL_PIN PB_8
@@ -55,29 +55,31 @@ I2C i2c(TEST_SDA_PIN, TEST_SCL_PIN);
 
 volatile int why;
 volatile bool complete = false;
-void cbdone(int event) {
+void cbdone(int event)
+{
     complete = true;
     why = event;
 }
 
 
-int main() {
-    
+int main()
+{
+
     event_callback_t callback;
     char buf[] = {3, 2, 1, 4, 5, 6, 7, 8, 9, 10};
     char res[SIZE];
     char buf_master_tx[] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
     char buf_master_rx[SIZE];
     int rc;
-    
+
     printf("\n\nTest init\n");
-    
+
     callback.attach(cbdone);
 
     i2c.frequency(FREQ);
-    
+
     // First transfer: Tx/Rx
-    printf("\nFirst transfer: Master Tx\n");    
+    printf("\nFirst transfer: Master Tx\n");
     rc = i2c.transfer(ADDR, buf, SIZE, 0, 0, callback, I2C_EVENT_ALL, true);
     if (rc != 0) {
         notify_completion(false);
@@ -87,13 +89,13 @@ int main() {
     }
     if (why != I2C_EVENT_TRANSFER_COMPLETE) {
         notify_completion(false);
-    }    
+    }
     printf("Why: %d\n", (int)why);
     why = 0;
-    complete = false;    
+    complete = false;
 
     // Second transfer: Rx
-    printf("\nSecond transfer: Master Rx\n");    
+    printf("\nSecond transfer: Master Rx\n");
     rc = i2c.transfer(ADDR, 0, 0, res, SIZE, callback, I2C_EVENT_ALL, false);
     if (rc != 0) {
         notify_completion(false);
@@ -105,9 +107,9 @@ int main() {
         notify_completion(false);
     }
     printf("Why: %d\n", (int)why);
-    
+
     // Check buffers
-    for(int i = 0; i < SIZE; i++) {
+    for (int i = 0; i < SIZE; i++) {
         if (res[i] != (buf[i] + 1)) {
             printf("Buffer check KO\n");
             notify_completion(false);
@@ -122,7 +124,7 @@ int main() {
         notify_completion(false);
     }
     while (!complete) {
-    sleep();
+        sleep();
     }
     if (why != I2C_EVENT_TRANSFER_COMPLETE) {
         printf("Transfer result: 0x%x\n", why);
@@ -132,10 +134,10 @@ int main() {
     why = 0;
     printf("Transfer result: OK\n");
 
-    for(int i = 0; i < SIZE; i++) {
+    for (int i = 0; i < SIZE; i++) {
         if (buf_master_rx[i] != (buf_master_tx[i] + 1)) {
             printf("Buffer check KO\n");
-            printf("buf_master_rx[%d]: %d, buf_master_tx[%d]: %d\n",i,buf_master_rx[i],i,buf_master_tx[i]);
+            printf("buf_master_rx[%d]: %d, buf_master_tx[%d]: %d\n", i, buf_master_rx[i], i, buf_master_tx[i]);
             notify_completion(false);
             break;
         }

@@ -43,39 +43,39 @@ Thread rf_thread(osPriorityRealtime, RF_THREAD_STACK_SIZE);
 /**
  * MAC status code bit definition
  */
-#define MAC_STATUS_SUCCESS			(0x0) /**< Success */
-#define MAC_STATUS_TIMEOUT			(0x1) /**< Time out */
-#define MAC_STATUS_BUSY				(0x2) /**< Channel Busy */
-#define MAC_STATUS_CRCFAIL			(0x3) /**< CRC Failed */
-#define MAC_STATUS_NOACK			(0x5) /**< No ACK */
-#define MAC_STATUS_UNLOCK			(0x6) /**< PLL unlocked */
-#define MAC_STATUS_BADSTART			(0x7) /**< Bad Start */
-#define MAC_STATUS_RXACK_PENDING	(0x8) /**< ACK frame was received with the Pending bit set */
-#define MAC_STATUS_TXACK_PENDING	(0x9) /**< ACK frame was transmitted with the Pending bit set */
-#define MAC_STATUS_FAIL_FILTER		(0xA) /**< One or more frame filtering tests has failed */
-#define MAC_STATUS_PANID_CONFLICT	(0xB) /**< A PANID conflict has been detected */
-#define MAC_STATUS_NOTCOMPLETE		(0xF) /**< Not complete */
+#define MAC_STATUS_SUCCESS          (0x0) /**< Success */
+#define MAC_STATUS_TIMEOUT          (0x1) /**< Time out */
+#define MAC_STATUS_BUSY             (0x2) /**< Channel Busy */
+#define MAC_STATUS_CRCFAIL          (0x3) /**< CRC Failed */
+#define MAC_STATUS_NOACK            (0x5) /**< No ACK */
+#define MAC_STATUS_UNLOCK           (0x6) /**< PLL unlocked */
+#define MAC_STATUS_BADSTART         (0x7) /**< Bad Start */
+#define MAC_STATUS_RXACK_PENDING    (0x8) /**< ACK frame was received with the Pending bit set */
+#define MAC_STATUS_TXACK_PENDING    (0x9) /**< ACK frame was transmitted with the Pending bit set */
+#define MAC_STATUS_FAIL_FILTER      (0xA) /**< One or more frame filtering tests has failed */
+#define MAC_STATUS_PANID_CONFLICT   (0xB) /**< A PANID conflict has been detected */
+#define MAC_STATUS_NOTCOMPLETE      (0xF) /**< Not complete */
 
 /**
  * MAC sequence modes
 */
-#define MAC_SEQUENCE_NOP		(0x0) /**< NOP */
-#define MAC_SEQUENCE_RX			(0x3) /**< RX */
-#define MAC_SEQUENCE_TX			(0x4) /**< TX */
-#define MAC_SEQUENCE_ED			(0x5) /**< ED */
-#define MAC_SEQUENCE_CCA		(0x6) /**< CCA */
+#define MAC_SEQUENCE_NOP        (0x0) /**< NOP */
+#define MAC_SEQUENCE_RX         (0x3) /**< RX */
+#define MAC_SEQUENCE_TX         (0x4) /**< TX */
+#define MAC_SEQUENCE_ED         (0x5) /**< ED */
+#define MAC_SEQUENCE_CCA        (0x6) /**< CCA */
 
 /**
  * MAC Interrupt enable / disable
 */
-#define MAC_IRQ_NONE			(0x0) /**< No IRQ */
-#define MAC_IRQ_COMPLETE		(0x1) /**< Event-complete IRQ */
-#define MAC_IRQ_EVENT_STARTED	(0x2) /**< Event-started IRQ */
-#define MAC_IRQ_DATA			(0x4) /**< Data-arrived IRQ */
-#define MAC_IRQ_FRAME_STARTED	(0x8) /**< Frame-started IRQ */
-#define MAC_IRQ_PACKET_FAIL 	(0x10) /**< Failed-packet IRQ */
-#define MAC_IRQ_FRAME_MATCH	    (0x20) /**< Frame-match IRQ (indicating matching process is done) */
-#define MAC_IRQ_ALL				(0x3F) /**< All IRQs */
+#define MAC_IRQ_NONE            (0x0) /**< No IRQ */
+#define MAC_IRQ_COMPLETE        (0x1) /**< Event-complete IRQ */
+#define MAC_IRQ_EVENT_STARTED   (0x2) /**< Event-started IRQ */
+#define MAC_IRQ_DATA            (0x4) /**< Data-arrived IRQ */
+#define MAC_IRQ_FRAME_STARTED   (0x8) /**< Frame-started IRQ */
+#define MAC_IRQ_PACKET_FAIL     (0x10) /**< Failed-packet IRQ */
+#define MAC_IRQ_FRAME_MATCH     (0x20) /**< Frame-match IRQ (indicating matching process is done) */
+#define MAC_IRQ_ALL             (0x3F) /**< All IRQs */
 
 #define MAC_RSSI_TO_ED 0
 #define MAC_RSSI_TO_LQI 1
@@ -104,11 +104,11 @@ static void rf_mac_write(uint8_t *data_ptr, uint8_t length);
 
 static void rf_mac_set_pending(uint8_t status);
 
-static void rf_mac_set_shortAddress(uint8_t* valueAddress);
-static void rf_mac_set_panId(uint8_t* valueAddress);
-static void rf_mac_set_mac64(const uint8_t* valueAddress);
+static void rf_mac_set_shortAddress(uint8_t *valueAddress);
+static void rf_mac_set_panId(uint8_t *valueAddress);
+static void rf_mac_set_mac64(const uint8_t *valueAddress);
 
-static void rf_mac_get_mac64(uint8_t* valueAddress);
+static void rf_mac_get_mac64(uint8_t *valueAddress);
 
 static int8_t set_channel(uint8_t channel);
 static void handle_IRQ_events(void);
@@ -131,8 +131,8 @@ static uint8_t PHYPAYLOAD[MAC_PACKET_SIZE];
 const phy_rf_channel_configuration_s phy_2_4ghz = {2405000000U, 5000000U, 250000U, 16U, M_OQPSK};
 
 const phy_device_channel_page_s phy_channel_pages[] = {
-        {CHANNEL_PAGE_0, &phy_2_4ghz},
-        {CHANNEL_PAGE_0, NULL}
+    {CHANNEL_PAGE_0, &phy_2_4ghz},
+    {CHANNEL_PAGE_0, NULL}
 };
 
 static phy_device_driver_s device_driver = {
@@ -140,7 +140,7 @@ static phy_device_driver_s device_driver = {
     PHY_LAYER_PAYLOAD_DATA_FLOW,
     MAC64_addr,
     PHY_MTU_SIZE,
-    (char*)"ON Semi ncs36510",
+    (char *)"ON Semi ncs36510",
     CRC_LENGTH,
     PHY_HEADER_LENGTH,
     &rf_interface_state_control,
@@ -174,7 +174,7 @@ static void rf_thread_loop()
 
 static int8_t rf_device_register(void)
 {
-    if( rf_radio_driver_id < 0 ) {
+    if (rf_radio_driver_id < 0) {
 
         rf_mac_hw_init();
         /**
@@ -213,7 +213,8 @@ void rf_set_mac_address(const uint8_t *ptr)
     platform_exit_critical();
 }
 
-static void rf_mac_set_pending(uint8_t status) {
+static void rf_mac_set_pending(uint8_t status)
+{
 
     if (status) {
         MACHWREG->OPTIONS.BITS.TFPO = 0;
@@ -229,33 +230,33 @@ static void rf_mac_set_pending(uint8_t status) {
 static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_t rf_channel)
 {
     platform_enter_critical();
-    switch(new_state){
+    switch (new_state) {
         case PHY_INTERFACE_RESET: {           /**< Reset PHY driver and set to idle. */
             rf_mac_set_rx_on_state(false);
             break;
-            }
+        }
         case PHY_INTERFACE_DOWN: {             /**< Disable PHY interface driver (RF radio disable). */
             rf_mac_set_rx_on_state(false);
             break;
-            }
+        }
         case PHY_INTERFACE_UP: {              /**< Enable PHY interface driver (RF radio receiver ON). */
             set_channel(rf_channel);
             rf_mac_set_rx_on_state(true);
 
             break;
-            }
+        }
         case PHY_INTERFACE_RX_ENERGY_STATE: { /**< Enable wirless interface ED scan mode. */
             rf_ed_value = 0;
             set_channel(rf_channel);
             rf_mac_set_rx_on_state(false);
             rf_mac_ed_state_enable();
             break;
-            }
+        }
         case PHY_INTERFACE_SNIFFER_STATE: {
             set_channel(rf_channel);
             rf_mac_set_rx_on_state(true);
             break;
-            }
+        }
     }
     platform_exit_critical();
     return 0;
@@ -276,17 +277,17 @@ static int8_t rf_address_write(phy_address_type_e address_type, uint8_t *address
     int ret_value = 0;
     platform_enter_critical();
     switch (address_type) {
-    case PHY_MAC_64BIT: /**< RF/PLC link layer address. */
-        rf_mac_set_mac64(address_ptr);
-        break;
-    case PHY_MAC_16BIT: /**< RF interface short address. */
-        rf_mac_set_shortAddress(address_ptr);
-        break;
-    case PHY_MAC_PANID: /**< RF interface 16-Bit PAN-ID. */
-        rf_mac_set_panId(address_ptr);
-        break;
-    default:
-        ret_value = -1;
+        case PHY_MAC_64BIT: /**< RF/PLC link layer address. */
+            rf_mac_set_mac64(address_ptr);
+            break;
+        case PHY_MAC_16BIT: /**< RF interface short address. */
+            rf_mac_set_shortAddress(address_ptr);
+            break;
+        case PHY_MAC_PANID: /**< RF interface 16-Bit PAN-ID. */
+            rf_mac_set_panId(address_ptr);
+            break;
+        default:
+            ret_value = -1;
     }
     platform_exit_critical();
 
@@ -313,7 +314,7 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
 
         case PHY_EXTENSION_READ_LINK_STATUS: /**< Net library could read link status. */
         case PHY_EXTENSION_CONVERT_SIGNAL_INFO: /**< Convert signal info. */
-            default:
+        default:
             ret_value = -1;
     }
     platform_exit_critical();
@@ -323,7 +324,7 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
 
 static int8_t set_channel(uint8_t channel)
 {
-    if( channel > 10 && channel < 27 ){
+    if (channel > 10 && channel < 27) {
         fRfAnaIoctl(SET_RF_CHANNEL, &channel);
         return 0;
     }
@@ -334,32 +335,37 @@ static int8_t set_channel(uint8_t channel)
 /**
  *  SET MAC 16 address to Register
  */
-static void rf_mac_set_shortAddress(uint8_t* valueAddress) {
+static void rf_mac_set_shortAddress(uint8_t *valueAddress)
+{
     MACHWREG->SHORT_ADDRESS = common_read_16_bit(valueAddress);
 }
 
 /**
  *  SET PAN-ID to Register
  */
-static void rf_mac_set_panId(uint8_t* valueAddress) {
+static void rf_mac_set_panId(uint8_t *valueAddress)
+{
     MACHWREG->PANID = common_read_16_bit(valueAddress);
 }
 
 /**
  *  SET MAC64 address to register
  */
-static void rf_mac_set_mac64(const uint8_t* valueAddress) {
+static void rf_mac_set_mac64(const uint8_t *valueAddress)
+{
     MACHWREG->LONG_ADDRESS_HIGH = common_read_32_bit(valueAddress);
     valueAddress += 4;
     MACHWREG->LONG_ADDRESS_LOW = common_read_32_bit(valueAddress);
 }
 
-static void rf_mac_get_mac64(uint8_t* valueAddress) {
+static void rf_mac_get_mac64(uint8_t *valueAddress)
+{
     valueAddress = common_write_32_bit(MACHWREG->LONG_ADDRESS_HIGH, valueAddress);
     common_write_32_bit(MACHWREG->LONG_ADDRESS_LOW, valueAddress);
 }
 
-static void rf_mac_timers_disable_trig_event(void) {
+static void rf_mac_timers_disable_trig_event(void)
+{
     MACHWREG->TIMER_DISABLE.BITS.START = true;
     MACHWREG->TIMER_DISABLE.BITS.STOP = true;
     MACHWREG->SEQ_OPTIONS.BITS.NOW = true;
@@ -368,7 +374,8 @@ static void rf_mac_timers_disable_trig_event(void) {
 /**
  * Call this only One time
  */
-static void rf_mac_hw_init(void) {
+static void rf_mac_hw_init(void)
+{
     uint32_t periphClockfrequency;
     uint8_t lutIndex;
     volatile uint8_t *pMatchReg = MACMATCHREG;
@@ -451,8 +458,8 @@ static void rf_mac_hw_init(void) {
     rf_mac_reset();
 
     /** Initialise LUT RAM */
-    for (lutIndex=0;lutIndex<96;lutIndex++) {
-      *(pMatchReg + lutIndex) = 0xFF;
+    for (lutIndex = 0; lutIndex < 96; lutIndex++) {
+        *(pMatchReg + lutIndex) = 0xFF;
     }
     osStatus status = rf_thread.start(mbed::callback(rf_thread_loop));
     MBED_ASSERT(status == osOK);
@@ -462,7 +469,8 @@ static void rf_mac_hw_init(void) {
     NVIC_EnableIRQ(MacHw_IRQn);
 }
 
-static void rf_mac_set_rx_on_state(bool enable) {
+static void rf_mac_set_rx_on_state(bool enable)
+{
     /** Abort ongoing sequence */
     rf_mac_reset();
     /** Start rx if requested */
@@ -476,7 +484,8 @@ static void rf_mac_set_rx_on_state(bool enable) {
     }
 }
 
-static void rf_mac_write(uint8_t *data_ptr, uint8_t length) {
+static void rf_mac_write(uint8_t *data_ptr, uint8_t length)
+{
     uint8_t i;
     volatile uint8_t *txRam = MACTXREG;
 
@@ -514,7 +523,9 @@ static void rf_mac_write(uint8_t *data_ptr, uint8_t length) {
     /* Start CCA immediately */
     rf_mac_timers_disable_trig_event();
 
-    while (MACHWREG->TIMER != 0x0) MACHWREG->TIMER = 0x0; // HW ISSUE: field is not set immediately
+    while (MACHWREG->TIMER != 0x0) {
+        MACHWREG->TIMER = 0x0;    // HW ISSUE: field is not set immediately
+    }
 
     /* Enable tx irq, reset protocol timer and start tx sequence */
     MACHWREG->MASK_IRQ.WORD = MAC_IRQ_COMPLETE;
@@ -523,7 +534,8 @@ static void rf_mac_write(uint8_t *data_ptr, uint8_t length) {
 }
 
 
-static void rf_mac_ed_state_enable(void) {
+static void rf_mac_ed_state_enable(void)
+{
     rf_mac_state = MAC_RF_ED_SCAN;
     /** Enable Energy scan state and event complete interrupt */
     MACHWREG->CLEAR_IRQ.WORD = MAC_IRQ_COMPLETE;
@@ -532,18 +544,22 @@ static void rf_mac_ed_state_enable(void) {
 }
 
 
-static void rf_mac_rx_enable(void) {
+static void rf_mac_rx_enable(void)
+{
     rf_mac_state = MAC_RF_RX_ON;
 
     /** Enable rx irqs, reset protocol timer and start rx sequence */
     MACHWREG->MASK_IRQ.WORD = MAC_IRQ_COMPLETE | MAC_IRQ_FRAME_MATCH | MAC_IRQ_DATA;
-    while (MACHWREG->TIMER != 0x0) MACHWREG->TIMER = 0x0; // HW ISSUE: field is not set immediately
+    while (MACHWREG->TIMER != 0x0) {
+        MACHWREG->TIMER = 0x0;    // HW ISSUE: field is not set immediately
+    }
     MACHWREG->SEQUENCER = MAC_SEQUENCE_RX;
     return;
 }
 
 
-static void rf_mac_reset(void) {
+static void rf_mac_reset(void)
+{
     uint32_t macHwDivider;
 
     /** Recommended abort sequence (with synchronous reset) */
@@ -586,7 +602,8 @@ static void rf_mac_reset(void) {
     rf_mac_state = MAC_RF_TRX_OFF;
 }
 
-static uint8_t rf_mac_convert_rssi(uint8_t scale) {
+static uint8_t rf_mac_convert_rssi(uint8_t scale)
+{
     /* RSSI Value: The value is captured at the end of packet reception or at the end of ED/CCA
      * measurements and is interpreted in dBm as follows:
      * 1xxxxxxx:  not used
@@ -608,7 +625,7 @@ static uint8_t rf_mac_convert_rssi(uint8_t scale) {
     /* convert rssi in sign char: translate 01111111 into 0 and following alike, make negative */
     signed char rssi_value = -1 * (DMDREG->DMD_STATUS.BITS.RSSI_VALUE ^ 0x7F);
 
-    if (scale == MAC_RSSI_TO_ED ) {
+    if (scale == MAC_RSSI_TO_ED) {
         /**
          * For ED (IEEE 6.9.7) "The ED result shall be reported to the MLME as an 8 bit integer
          * ranging from 0x00 to 0xff. The minimum ED value (zero) shall indicate received power less than 10 dB
@@ -620,8 +637,12 @@ static uint8_t rf_mac_convert_rssi(uint8_t scale) {
          */
 
         /* Clip maximal and minimal rssi value reported by ED */
-        if (rssi_value < -75) rssi_value = -75;
-        if (rssi_value > -24) rssi_value = -24;
+        if (rssi_value < -75) {
+            rssi_value = -75;
+        }
+        if (rssi_value > -24) {
+            rssi_value = -24;
+        }
 
         /* scale the span -75dBm --> -24dBm to 0x00 --> 0xFF
          * Attention:  This scaling implies that granularity of the result is changing from 1dBm per unit to 1/5 dBm per unit
@@ -649,8 +670,12 @@ static uint8_t rf_mac_convert_rssi(uint8_t scale) {
          */
 
         /* Clip maximal and minimal rssi value reported by LQI */
-        if (rssi_value < -85) rssi_value = -85;
-        if (rssi_value > -21) rssi_value = -21;
+        if (rssi_value < -85) {
+            rssi_value = -85;
+        }
+        if (rssi_value > -21) {
+            rssi_value = -21;
+        }
 
         /* scale the span -85dBm --> -21,25dBm to 0x00 --> 0xFF
          * Attention:  This scaling implies that granularity of the result is changing from 1dBm per unit to 1/4 dBm per unit
@@ -670,19 +695,22 @@ static uint8_t rf_mac_convert_rssi(uint8_t scale) {
          *   0x01: (impossible code)
          *   0x00: - 85dBm
          */
-        if (rssi_value == -21)
+        if (rssi_value == -21) {
             return ((rssi_value + 85) * 4) - 1;
-        else
+        } else {
             return (rssi_value + 85) * 4;
+        }
     }
 }
 
-static int8_t rf_mac_get_rssi(void) {
+static int8_t rf_mac_get_rssi(void)
+{
     int8_t rssi_value = -1 * (DMDREG->DMD_STATUS.BITS.RSSI_VALUE ^ 0x7F);
     return rssi_value;
 }
 
-static void rf_rx_ed_scan_interrupt() {
+static void rf_rx_ed_scan_interrupt()
+{
     MACHWREG->CLEAR_IRQ.WORD = MAC_IRQ_COMPLETE;
     if (MACHWREG->STATUS.BITS.CODE == MAC_STATUS_SUCCESS) {
         uint8_t ed = rf_mac_convert_rssi(MAC_RSSI_TO_ED);
@@ -697,7 +725,8 @@ static void rf_rx_ed_scan_interrupt() {
     MACHWREG->SEQUENCER = MAC_SEQUENCE_ED;
 }
 
-static void rf_rx_interrupt() {
+static void rf_rx_interrupt()
+{
     // Frame match is used for association and data frames
     uint8_t seqSts = MACHWREG->STATUS.BITS.CODE;
 
@@ -739,14 +768,14 @@ static void rf_rx_interrupt() {
         }
 
         length = *rxRam++;
-        if (length < 5){
+        if (length < 5) {
             rf_mac_rx_enable();
             return;
         }
         length -= 2; //Cut CRC OUT
 
         /* Initialize frame status */
-        for (uint8_t i=0; i < length; i++) {
+        for (uint8_t i = 0; i < length; i++) {
             PHYPAYLOAD[i] = *rxRam++;
         }
 
@@ -754,7 +783,7 @@ static void rf_rx_interrupt() {
         rssi = rf_mac_get_rssi();
         rf_mac_rx_enable();
         //Call ARM API
-        if( device_driver.phy_rx_cb ){
+        if (device_driver.phy_rx_cb) {
             device_driver.phy_rx_cb(PHYPAYLOAD, length, lqi, rssi, rf_radio_driver_id);
         }
     }
@@ -771,31 +800,31 @@ static void rf_mac_tx_interrupt(void)
     rf_mac_set_rx_on_state(true);
 
     switch (sharedSeqSts) {
-    case MAC_STATUS_SUCCESS: /* Positive */
-        //SET Success
-        if (rf_mac_ack_requsted) {
-            status = PHY_LINK_TX_DONE;
-        } else {
-            status = PHY_LINK_TX_SUCCESS;
-        }
-        break;
+        case MAC_STATUS_SUCCESS: /* Positive */
+            //SET Success
+            if (rf_mac_ack_requsted) {
+                status = PHY_LINK_TX_DONE;
+            } else {
+                status = PHY_LINK_TX_SUCCESS;
+            }
+            break;
 
-    case MAC_STATUS_RXACK_PENDING:  /* Positive for broadcast */
-        status = PHY_LINK_TX_DONE_PENDING;
-        break;
+        case MAC_STATUS_RXACK_PENDING:  /* Positive for broadcast */
+            status = PHY_LINK_TX_DONE_PENDING;
+            break;
 
 
-    case MAC_STATUS_BUSY:
-        status = PHY_LINK_CCA_FAIL;
-        break;
+        case MAC_STATUS_BUSY:
+            status = PHY_LINK_CCA_FAIL;
+            break;
 
-    default:
-        status = PHY_LINK_TX_FAIL;
-        break;
+        default:
+            status = PHY_LINK_TX_FAIL;
+            break;
     }
     rf_mac_ack_requsted = false;
-     //Call RX TX complete
-    if( device_driver.phy_tx_done_cb ) {
+    //Call RX TX complete
+    if (device_driver.phy_tx_done_cb) {
         device_driver.phy_tx_done_cb(rf_radio_driver_id, rf_mac_handle, status, 1, 1);
     }
 }
@@ -823,9 +852,9 @@ static void handle_IRQ_events(void)
 
     if (rf_mac_state == MAC_RF_RX_ON) {
         rf_rx_interrupt();
-    } else if(rf_mac_state == MAC_RF_TX_ON) {
+    } else if (rf_mac_state == MAC_RF_TX_ON) {
         rf_mac_tx_interrupt();
-    } else if (rf_mac_state == MAC_RF_ED_SCAN){
+    } else if (rf_mac_state == MAC_RF_ED_SCAN) {
         rf_rx_ed_scan_interrupt();
     } else {
         /** Clear the event complete IRQ */
@@ -883,7 +912,7 @@ void NanostackRfPhyNcs36510::get_mac_address(uint8_t *mac)
 {
     platform_enter_critical();
 
-    memcpy((void*)mac, (void*)MAC64_addr, sizeof(MAC64_addr));
+    memcpy((void *)mac, (void *)MAC64_addr, sizeof(MAC64_addr));
 
     platform_exit_critical();
 }
@@ -897,7 +926,7 @@ void NanostackRfPhyNcs36510::set_mac_address(uint8_t *mac)
         platform_exit_critical();
         return;
     }
-    memcpy((void*)MAC64_addr, (void*)mac, sizeof(MAC64_addr));
+    memcpy((void *)MAC64_addr, (void *)mac, sizeof(MAC64_addr));
 
     platform_exit_critical();
 }

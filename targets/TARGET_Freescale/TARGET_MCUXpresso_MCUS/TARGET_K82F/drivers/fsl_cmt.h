@@ -51,8 +51,7 @@
 /*!
  * @brief The modes of CMT.
  */
-typedef enum _cmt_mode
-{
+typedef enum _cmt_mode {
     kCMT_DirectIROCtl = 0x00U, /*!< Carrier modulator is disabled and the IRO signal is directly in software control */
     kCMT_TimeMode = 0x01U,     /*!< Carrier modulator is enabled in time mode. */
     kCMT_FSKMode = 0x05U,      /*!< Carrier modulator is enabled in FSK mode. */
@@ -65,8 +64,7 @@ typedef enum _cmt_mode
  * get the intermediate frequency to approximately equal to 8 MHZ.
  * When the bus clock is 8 MHZ, set primary prescaler to "kCMT_PrimaryClkDiv1".
  */
-typedef enum _cmt_primary_clkdiv
-{
+typedef enum _cmt_primary_clkdiv {
     kCMT_PrimaryClkDiv1 = 0U,   /*!< The intermediate frequency is the bus clock divided by 1. */
     kCMT_PrimaryClkDiv2 = 1U,   /*!< The intermediate frequency is the bus clock divided by 2. */
     kCMT_PrimaryClkDiv3 = 2U,   /*!< The intermediate frequency is the bus clock divided by 3. */
@@ -90,8 +88,7 @@ typedef enum _cmt_primary_clkdiv
  * The second prescaler can be used to divide the 8 MHZ CMT clock
  * by 1, 2, 4, or 8 according to the specification.
  */
-typedef enum _cmt_second_clkdiv
-{
+typedef enum _cmt_second_clkdiv {
     kCMT_SecondClkDiv1 = 0U, /*!< The CMT clock is the intermediate frequency frequency divided by 1. */
     kCMT_SecondClkDiv2 = 1U, /*!< The CMT clock is the intermediate frequency frequency divided by 2. */
     kCMT_SecondClkDiv4 = 2U, /*!< The CMT clock is the intermediate frequency frequency divided by 4. */
@@ -101,8 +98,7 @@ typedef enum _cmt_second_clkdiv
 /*!
  * @brief The CMT infrared output polarity.
  */
-typedef enum _cmt_infrared_output_polarity
-{
+typedef enum _cmt_infrared_output_polarity {
     kCMT_IROActiveLow = 0U, /*!< The CMT infrared output signal polarity is active-low. */
     kCMT_IROActiveHigh = 1U /*!< The CMT infrared output signal polarity is active-high. */
 } cmt_infrared_output_polarity_t;
@@ -110,8 +106,7 @@ typedef enum _cmt_infrared_output_polarity
 /*!
  * @brief The CMT infrared output signal state control.
  */
-typedef enum _cmt_infrared_output_state
-{
+typedef enum _cmt_infrared_output_state {
     kCMT_IROCtlLow = 0U, /*!< The CMT Infrared output signal state is controlled to low. */
     kCMT_IROCtlHigh = 1U /*!< The CMT Infrared output signal state is controlled to high. */
 } cmt_infrared_output_state_t;
@@ -121,8 +116,7 @@ typedef enum _cmt_infrared_output_state
  *
  * This structure contains the settings for all of the CMT interrupt configurations.
  */
-enum _cmt_interrupt_enable
-{
+enum _cmt_interrupt_enable {
     kCMT_EndOfCycleInterruptEnable = CMT_MSC_EOCIE_MASK, /*!< CMT end of cycle interrupt. */
 };
 
@@ -130,8 +124,7 @@ enum _cmt_interrupt_enable
  * @brief CMT carrier generator and modulator configuration structure
  *
  */
-typedef struct _cmt_modulate_config
-{
+typedef struct _cmt_modulate_config {
     uint8_t highCount1;  /*!< The high-time for carrier generator first register. */
     uint8_t lowCount1;   /*!< The low-time for carrier generator first register. */
     uint8_t highCount2;  /*!< The high-time for carrier generator second register for FSK mode. */
@@ -141,8 +134,7 @@ typedef struct _cmt_modulate_config
 } cmt_modulate_config_t;
 
 /*! @brief CMT basic configuration structure. */
-typedef struct _cmt_config
-{
+typedef struct _cmt_config {
     bool isInterruptEnabled;                    /*!< Timer interrupt 0-disable, 1-enable. */
     bool isIroEnabled;                          /*!< The IRO output 0-disabled, 1-enabled. */
     cmt_infrared_output_polarity_t iroPolarity; /*!< The IRO polarity. */
@@ -313,12 +305,9 @@ void CMT_SetModulateMarkSpace(CMT_Type *base, uint32_t markCount, uint32_t space
  */
 static inline void CMT_EnableExtendedSpace(CMT_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->MSC |= CMT_MSC_EXSPC_MASK;
-    }
-    else
-    {
+    } else {
         base->MSC &= ~CMT_MSC_EXSPC_MASK;
     }
 }

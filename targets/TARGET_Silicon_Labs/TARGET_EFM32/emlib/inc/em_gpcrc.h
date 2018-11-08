@@ -100,61 +100,61 @@ extern "C" {
 
 /** CRC initialization structure. */
 typedef struct {
-  /**
-   * CRC polynomial value. The GPCRC support either a fixed 32-bit polynomial
-   * or a user configurable 16 bit polynomial. The fixed 32-bit polynomial
-   * is the one used in IEEE 802.3, which has the value 0x04C11DB7. To use the
-   * 32-bit fixed polynomial just assign 0x04C11DB7 to the crcPoly field. To use
-   * a 16-bit polynomial assign a value to crcPoly where the upper 16 bit's are
-   * zero.
-   *
-   * The polynomial should be written in normal bit order. So for instance
-   * if you want to use the CRC-16 polynomial X^16 + X^15 + X^2 + 1 then we
-   * can first convert it to hex representation and remove the highest order term
-   * of the polynomial. This would give us 0x8005 as the value to write into
-   * crcPoly.
-   */
-  uint32_t                   crcPoly;
+    /**
+     * CRC polynomial value. The GPCRC support either a fixed 32-bit polynomial
+     * or a user configurable 16 bit polynomial. The fixed 32-bit polynomial
+     * is the one used in IEEE 802.3, which has the value 0x04C11DB7. To use the
+     * 32-bit fixed polynomial just assign 0x04C11DB7 to the crcPoly field. To use
+     * a 16-bit polynomial assign a value to crcPoly where the upper 16 bit's are
+     * zero.
+     *
+     * The polynomial should be written in normal bit order. So for instance
+     * if you want to use the CRC-16 polynomial X^16 + X^15 + X^2 + 1 then we
+     * can first convert it to hex representation and remove the highest order term
+     * of the polynomial. This would give us 0x8005 as the value to write into
+     * crcPoly.
+     */
+    uint32_t                   crcPoly;
 
-  /**
-   * CRC initialization value. This value is assigned to the GPCRC_INIT register.
-   * The initValue is loaded into the data register when calling the
-   * @ref GPCRC_Start function or when one of the data registers are read
-   * while @ref autoInit is enabled.
-   */
-  uint32_t                   initValue;
+    /**
+     * CRC initialization value. This value is assigned to the GPCRC_INIT register.
+     * The initValue is loaded into the data register when calling the
+     * @ref GPCRC_Start function or when one of the data registers are read
+     * while @ref autoInit is enabled.
+     */
+    uint32_t                   initValue;
 
-  /**
-   * Reverse byte order. This has an effect when sending a 32-bit word or
-   * 16-bit half word input to the CRC calculation. When set to true the input
-   * bytes are reversed before entering the CRC calculation. When set to
-   * false the input bytes stay in the same order.
-   */
-  bool                       reverseByteOrder;
+    /**
+     * Reverse byte order. This has an effect when sending a 32-bit word or
+     * 16-bit half word input to the CRC calculation. When set to true the input
+     * bytes are reversed before entering the CRC calculation. When set to
+     * false the input bytes stay in the same order.
+     */
+    bool                       reverseByteOrder;
 
-  /**
-   * Reverse bits within each input byte. This setting enables or disable byte
-   * level bit reversal. When byte-level bit reversal is enabled then each byte
-   * of input data will be reversed before entering the CRC calculation.
-   */
-  bool                       reverseBits;
+    /**
+     * Reverse bits within each input byte. This setting enables or disable byte
+     * level bit reversal. When byte-level bit reversal is enabled then each byte
+     * of input data will be reversed before entering the CRC calculation.
+     */
+    bool                       reverseBits;
 
-  /**
-   * Enable/disable byte mode. When byte mode is enabled then all input
-   * is treated as single byte input, even though the input is a 32-bit word
-   * or a 16-bit half word. Only the least significant byte of the data-word
-   * will be used for CRC calculation for all writes.
-   */
-  bool                       enableByteMode;
+    /**
+     * Enable/disable byte mode. When byte mode is enabled then all input
+     * is treated as single byte input, even though the input is a 32-bit word
+     * or a 16-bit half word. Only the least significant byte of the data-word
+     * will be used for CRC calculation for all writes.
+     */
+    bool                       enableByteMode;
 
-  /**
-   * Enable automatic initialization by re-seeding the CRC result based on
-   * the init value after reading one of the CRC data registers
-   */
-  bool                       autoInit;
+    /**
+     * Enable automatic initialization by re-seeding the CRC result based on
+     * the init value after reading one of the CRC data registers
+     */
+    bool                       autoInit;
 
-  /** Enable/disable GPCRC when initialization is completed. */
-  bool                       enable;
+    /** Enable/disable GPCRC when initialization is completed. */
+    bool                       enable;
 } GPCRC_Init_TypeDef;
 
 /** Default configuration for GPCRC_Init_TypeDef structure. */
@@ -173,8 +173,8 @@ typedef struct {
  ******************************   PROTOTYPES   *********************************
  ******************************************************************************/
 
-void GPCRC_Init(GPCRC_TypeDef * gpcrc, const GPCRC_Init_TypeDef * init);
-void GPCRC_Reset(GPCRC_TypeDef * gpcrc);
+void GPCRC_Init(GPCRC_TypeDef *gpcrc, const GPCRC_Init_TypeDef *init);
+void GPCRC_Reset(GPCRC_TypeDef *gpcrc);
 
 /***************************************************************************//**
  * @brief
@@ -186,9 +186,9 @@ void GPCRC_Reset(GPCRC_TypeDef * gpcrc);
  * @param[in] enable
  *   True to enable GPCRC, false to disable.
  ******************************************************************************/
-__STATIC_INLINE void GPCRC_Enable(GPCRC_TypeDef * gpcrc, bool enable)
+__STATIC_INLINE void GPCRC_Enable(GPCRC_TypeDef *gpcrc, bool enable)
 {
-  BUS_RegBitWrite(&gpcrc->CTRL, _GPCRC_CTRL_EN_SHIFT, enable);
+    BUS_RegBitWrite(&gpcrc->CTRL, _GPCRC_CTRL_EN_SHIFT, enable);
 }
 
 /***************************************************************************//**
@@ -202,9 +202,9 @@ __STATIC_INLINE void GPCRC_Enable(GPCRC_TypeDef * gpcrc, bool enable)
  * @param[in] gpcrc
  *   Pointer to GPCRC peripheral register block.
  ******************************************************************************/
-__STATIC_INLINE void GPCRC_Start(GPCRC_TypeDef * gpcrc)
+__STATIC_INLINE void GPCRC_Start(GPCRC_TypeDef *gpcrc)
 {
-  gpcrc->CMD = GPCRC_CMD_INIT;
+    gpcrc->CMD = GPCRC_CMD_INIT;
 }
 
 /***************************************************************************//**
@@ -218,9 +218,9 @@ __STATIC_INLINE void GPCRC_Start(GPCRC_TypeDef * gpcrc)
  * @param[in] gpcrc
  *   Pointer to GPCRC peripheral register block.
  ******************************************************************************/
-__STATIC_INLINE void GPCRC_InitValueSet(GPCRC_TypeDef * gpcrc, uint32_t initValue)
+__STATIC_INLINE void GPCRC_InitValueSet(GPCRC_TypeDef *gpcrc, uint32_t initValue)
 {
-  gpcrc->INIT = initValue;
+    gpcrc->INIT = initValue;
 }
 
 /***************************************************************************//**
@@ -238,9 +238,9 @@ __STATIC_INLINE void GPCRC_InitValueSet(GPCRC_TypeDef * gpcrc, uint32_t initValu
  * @param[in] data
  *   Data to be written to the input data register.
  ******************************************************************************/
-__STATIC_INLINE void GPCRC_InputU32(GPCRC_TypeDef * gpcrc, uint32_t data)
+__STATIC_INLINE void GPCRC_InputU32(GPCRC_TypeDef *gpcrc, uint32_t data)
 {
-  gpcrc->INPUTDATA = data;
+    gpcrc->INPUTDATA = data;
 }
 
 /***************************************************************************//**
@@ -258,9 +258,9 @@ __STATIC_INLINE void GPCRC_InputU32(GPCRC_TypeDef * gpcrc, uint32_t data)
  * @param[in] data
  *   Data to be written to the input data register.
  ******************************************************************************/
-__STATIC_INLINE void GPCRC_InputU16(GPCRC_TypeDef * gpcrc, uint16_t data)
+__STATIC_INLINE void GPCRC_InputU16(GPCRC_TypeDef *gpcrc, uint16_t data)
 {
-  gpcrc->INPUTDATAHWORD = data;
+    gpcrc->INPUTDATAHWORD = data;
 }
 
 /***************************************************************************//**
@@ -278,9 +278,9 @@ __STATIC_INLINE void GPCRC_InputU16(GPCRC_TypeDef * gpcrc, uint16_t data)
  * @param[in] data
  *   Data to be written to the input data register.
  ******************************************************************************/
-__STATIC_INLINE void GPCRC_InputU8(GPCRC_TypeDef * gpcrc, uint8_t data)
+__STATIC_INLINE void GPCRC_InputU8(GPCRC_TypeDef *gpcrc, uint8_t data)
 {
-  gpcrc->INPUTDATABYTE = data;
+    gpcrc->INPUTDATABYTE = data;
 }
 
 /***************************************************************************//**
@@ -296,9 +296,9 @@ __STATIC_INLINE void GPCRC_InputU8(GPCRC_TypeDef * gpcrc, uint8_t data)
  * @return
  *   Content of the CRC data register.
  ******************************************************************************/
-__STATIC_INLINE uint32_t GPCRC_DataRead(GPCRC_TypeDef * gpcrc)
+__STATIC_INLINE uint32_t GPCRC_DataRead(GPCRC_TypeDef *gpcrc)
 {
-  return gpcrc->DATA;
+    return gpcrc->DATA;
 }
 
 /***************************************************************************//**
@@ -316,9 +316,9 @@ __STATIC_INLINE uint32_t GPCRC_DataRead(GPCRC_TypeDef * gpcrc)
  * @return
  *   Content of the CRC data register bit reversed.
  ******************************************************************************/
-__STATIC_INLINE uint32_t GPCRC_DataReadBitReversed(GPCRC_TypeDef * gpcrc)
+__STATIC_INLINE uint32_t GPCRC_DataReadBitReversed(GPCRC_TypeDef *gpcrc)
 {
-  return gpcrc->DATAREV;
+    return gpcrc->DATAREV;
 }
 
 /***************************************************************************//**
@@ -334,9 +334,9 @@ __STATIC_INLINE uint32_t GPCRC_DataReadBitReversed(GPCRC_TypeDef * gpcrc)
  * @return
  *   Content of the CRC data register byte reversed.
  ******************************************************************************/
-__STATIC_INLINE uint32_t GPCRC_DataReadByteReversed(GPCRC_TypeDef * gpcrc)
+__STATIC_INLINE uint32_t GPCRC_DataReadByteReversed(GPCRC_TypeDef *gpcrc)
 {
-  return gpcrc->DATABYTEREV;
+    return gpcrc->DATABYTEREV;
 }
 
 /** @} (end addtogroup GPCRC) */

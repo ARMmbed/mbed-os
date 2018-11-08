@@ -68,7 +68,7 @@ static void sys_evt_dispatch(uint32_t sys_evt)
  */
 static uint32_t signalEvent()
 {
-    if(isEventsSignaled == false) {
+    if (isEventsSignaled == false) {
         isEventsSignaled = true;
         nRF5xn::Instance(BLE::DEFAULT_INSTANCE).signalEventsToProcess(BLE::DEFAULT_INSTANCE);
     }
@@ -117,8 +117,8 @@ error_t btle_init(void)
         return ERROR_INVALID_PARAM;
     }
 
-    ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
-    ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
+    ASSERT_STATUS(softdevice_ble_evt_handler_set(btle_handler));
+    ASSERT_STATUS(softdevice_sys_evt_handler_set(sys_evt_dispatch));
 
     return btle_gap_init();
 }
@@ -156,10 +156,10 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             const ble_gap_addr_t *peer = &p_ble_evt->evt.gap_evt.params.connected.peer_addr;
             const ble_gap_addr_t *own  = &p_ble_evt->evt.gap_evt.params.connected.own_addr;
             gap.processConnectionEvent(handle,
-                                                           role,
-                                                           static_cast<BLEProtocol::AddressType_t>(peer->addr_type), peer->addr,
-                                                           static_cast<BLEProtocol::AddressType_t>(own->addr_type),  own->addr,
-                                                           params);
+                                       role,
+                                       static_cast<BLEProtocol::AddressType_t>(peer->addr_type), peer->addr,
+                                       static_cast<BLEProtocol::AddressType_t>(own->addr_type),  own->addr,
+                                       params);
             break;
         }
 
@@ -167,7 +167,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
             // Since we are not in a connection and have not started advertising,
             // store bonds
-            gap.setConnectionHandle (BLE_CONN_HANDLE_INVALID);
+            gap.setConnectionHandle(BLE_CONN_HANDLE_INVALID);
 
             Gap::DisconnectionReason_t reason;
             switch (p_ble_evt->evt.gap_evt.params.disconnected.reason) {
@@ -189,7 +189,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
             // Close all pending discoveries for this connection
-            nRF5xGattClient& gattClient = ble.getGattClient();
+            nRF5xGattClient &gattClient = ble.getGattClient();
             gattClient.characteristicDescriptorDiscoverer().terminate(handle, BLE_ERROR_INVALID_STATE);
             gattClient.discovery().terminate(handle);
 #endif
@@ -243,6 +243,6 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name)
 */
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name)
 {
-    ASSERT_STATUS_RET_VOID( error_code );
+    ASSERT_STATUS_RET_VOID(error_code);
     NVIC_SystemReset();
 }

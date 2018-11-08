@@ -40,7 +40,7 @@
 #define __STM32F1xx_HAL_NAND_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -53,7 +53,7 @@
 #if defined (STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG) || defined(STM32F103xG)
 /** @addtogroup NAND
   * @{
-  */ 
+  */
 
 
 /* Exported typedef ----------------------------------------------------------*/
@@ -62,89 +62,84 @@
   * @{
   */
 
-/** 
+/**
   * @brief  HAL NAND State structures definition
   */
-typedef enum
-{
-  HAL_NAND_STATE_RESET     = 0x00U,  /*!< NAND not yet initialized or disabled */
-  HAL_NAND_STATE_READY     = 0x01U,  /*!< NAND initialized and ready for use   */
-  HAL_NAND_STATE_BUSY      = 0x02U,  /*!< NAND internal process is ongoing     */
-  HAL_NAND_STATE_ERROR     = 0x03U   /*!< NAND error state                     */
-}HAL_NAND_StateTypeDef;
-   
-/** 
+typedef enum {
+    HAL_NAND_STATE_RESET     = 0x00U,  /*!< NAND not yet initialized or disabled */
+    HAL_NAND_STATE_READY     = 0x01U,  /*!< NAND initialized and ready for use   */
+    HAL_NAND_STATE_BUSY      = 0x02U,  /*!< NAND internal process is ongoing     */
+    HAL_NAND_STATE_ERROR     = 0x03U   /*!< NAND error state                     */
+} HAL_NAND_StateTypeDef;
+
+/**
   * @brief  NAND Memory electronic signature Structure definition
   */
-typedef struct
-{
-  /*<! NAND memory electronic signature maker and device IDs */
+typedef struct {
+    /*<! NAND memory electronic signature maker and device IDs */
 
-  uint8_t Maker_Id; 
+    uint8_t Maker_Id;
 
-  uint8_t Device_Id;
+    uint8_t Device_Id;
 
-  uint8_t Third_Id;
+    uint8_t Third_Id;
 
-  uint8_t Fourth_Id;
-}NAND_IDTypeDef;
+    uint8_t Fourth_Id;
+} NAND_IDTypeDef;
 
-/** 
+/**
   * @brief  NAND Memory address Structure definition
   */
-typedef struct 
-{
-  uint16_t Page;   /*!< NAND memory Page address    */
+typedef struct {
+    uint16_t Page;   /*!< NAND memory Page address    */
 
-  uint16_t Plane;   /*!< NAND memory Plane address  */
+    uint16_t Plane;   /*!< NAND memory Plane address  */
 
-  uint16_t Block;  /*!< NAND memory Block address   */
+    uint16_t Block;  /*!< NAND memory Block address   */
 
-}NAND_AddressTypeDef;
+} NAND_AddressTypeDef;
 
-/** 
+/**
   * @brief  NAND Memory info Structure definition
-  */ 
-typedef struct
-{
-  uint32_t        PageSize;              /*!< NAND memory page (without spare area) size measured in bytes 
+  */
+typedef struct {
+    uint32_t        PageSize;              /*!< NAND memory page (without spare area) size measured in bytes
                                               for 8 bits adressing or words for 16 bits addressing             */
 
-  uint32_t        SpareAreaSize;         /*!< NAND memory spare area size measured in bytes 
+    uint32_t        SpareAreaSize;         /*!< NAND memory spare area size measured in bytes
                                               for 8 bits adressing or words for 16 bits addressing             */
-  
-  uint32_t        BlockSize;             /*!< NAND memory block size measured in number of pages               */
 
-  uint32_t        BlockNbr;              /*!< NAND memory number of total blocks                               */
-     
-  uint32_t        PlaneNbr;              /*!< NAND memory number of planes                                     */
+    uint32_t        BlockSize;             /*!< NAND memory block size measured in number of pages               */
 
-  uint32_t        PlaneSize;             /*!< NAND memory plane size measured in number of blocks              */
+    uint32_t        BlockNbr;              /*!< NAND memory number of total blocks                               */
 
-  FunctionalState ExtraCommandEnable;    /*!< NAND extra command needed for Page reading mode. This 
-                                              parameter is mandatory for some NAND parts after the read 
-                                              command (NAND_CMD_AREA_TRUE1) and before DATA reading sequence. 
+    uint32_t        PlaneNbr;              /*!< NAND memory number of planes                                     */
+
+    uint32_t        PlaneSize;             /*!< NAND memory plane size measured in number of blocks              */
+
+    FunctionalState ExtraCommandEnable;    /*!< NAND extra command needed for Page reading mode. This
+                                              parameter is mandatory for some NAND parts after the read
+                                              command (NAND_CMD_AREA_TRUE1) and before DATA reading sequence.
                                               Example: Toshiba THTH58BYG3S0HBAI6.
                                               This parameter could be ENABLE or DISABLE
                                               Please check the Read Mode sequnece in the NAND device datasheet */
-}NAND_DeviceConfigTypeDef;
+} NAND_DeviceConfigTypeDef;
 
-/** 
+/**
   * @brief  NAND handle Structure definition
-  */   
-typedef struct
-{
-  FSMC_NAND_TypeDef              *Instance;  /*!< Register base address                                 */
-  
-  FSMC_NAND_InitTypeDef          Init;       /*!< NAND device control configuration parameters          */
+  */
+typedef struct {
+    FSMC_NAND_TypeDef              *Instance;  /*!< Register base address                                 */
 
-  HAL_LockTypeDef                Lock;       /*!< NAND locking object                                   */
+    FSMC_NAND_InitTypeDef          Init;       /*!< NAND device control configuration parameters          */
 
-  __IO HAL_NAND_StateTypeDef     State;      /*!< NAND device access state                              */
+    HAL_LockTypeDef                Lock;       /*!< NAND locking object                                   */
 
-  NAND_DeviceConfigTypeDef       Config;     /*!< NAND phusical characteristic information structure    */
+    __IO HAL_NAND_StateTypeDef     State;      /*!< NAND device access state                              */
 
-}NAND_HandleTypeDef;
+    NAND_DeviceConfigTypeDef       Config;     /*!< NAND phusical characteristic information structure    */
+
+} NAND_HandleTypeDef;
 
 /**
   * @}
@@ -154,7 +149,7 @@ typedef struct
 /* Exported macros -----------------------------------------------------------*/
 /** @defgroup NAND_Exported_Macros NAND Exported Macros
   * @{
-  */ 
+  */
 
 /** @brief Reset NAND handle state
   * @param  __HANDLE__: specifies the NAND handle.
@@ -170,8 +165,8 @@ typedef struct
 /** @addtogroup NAND_Exported_Functions NAND Exported Functions
   * @{
   */
-    
-/** @addtogroup NAND_Exported_Functions_Group1 Initialization and de-initialization functions 
+
+/** @addtogroup NAND_Exported_Functions_Group1 Initialization and de-initialization functions
   * @{
   */
 
@@ -191,8 +186,8 @@ void               HAL_NAND_ITCallback(NAND_HandleTypeDef *hnand);
 /**
   * @}
   */
-  
-/** @addtogroup NAND_Exported_Functions_Group2 Input and Output functions 
+
+/** @addtogroup NAND_Exported_Functions_Group2 Input and Output functions
   * @{
   */
 
@@ -218,7 +213,7 @@ uint32_t           HAL_NAND_Address_Inc(NAND_HandleTypeDef *hnand, NAND_AddressT
   * @}
   */
 
-/** @addtogroup NAND_Exported_Functions_Group3 Peripheral Control functions 
+/** @addtogroup NAND_Exported_Functions_Group3 Peripheral Control functions
   * @{
   */
 
@@ -230,8 +225,8 @@ HAL_StatusTypeDef  HAL_NAND_GetECC(NAND_HandleTypeDef *hnand, uint32_t *ECCval, 
 /**
   * @}
   */
-    
-/** @defgroup NAND_Exported_Functions_Group4 Peripheral State functions 
+
+/** @defgroup NAND_Exported_Functions_Group4 Peripheral State functions
   * @{
   */
 
@@ -242,7 +237,7 @@ uint32_t              HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
 /**
   * @}
   */
-    
+
 /**
   * @}
   */
@@ -266,10 +261,10 @@ uint32_t              HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
 #define NAND_CMD_AREA_TRUE1        ((uint8_t)0x30)
 
 #define NAND_CMD_WRITE0            ((uint8_t)0x80)
-#define NAND_CMD_WRITE_TRUE1       ((uint8_t)0x10)  
+#define NAND_CMD_WRITE_TRUE1       ((uint8_t)0x10)
 #define NAND_CMD_ERASE0            ((uint8_t)0x60)
-#define NAND_CMD_ERASE1            ((uint8_t)0xD0)  
-#define NAND_CMD_READID            ((uint8_t)0x90)  
+#define NAND_CMD_ERASE1            ((uint8_t)0xD0)
+#define NAND_CMD_READID            ((uint8_t)0x90)
 #define NAND_CMD_STATUS            ((uint8_t)0x70)
 #define NAND_CMD_LOCK_STATUS       ((uint8_t)0x7A)
 #define NAND_CMD_RESET             ((uint8_t)0xFF)
@@ -306,7 +301,7 @@ uint32_t              HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
   * @retval NAND Raw address value
   */
 #define COLUMN_ADDRESS( __HANDLE__) ((__HANDLE__)->Config.PageSize)
-   
+
 /**
   * @brief  NAND memory address cycling.
   * @param  __ADDRESS__: NAND memory address.
@@ -328,15 +323,15 @@ uint32_t              HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
 /**
   * @}
   */
-    
+
 /**
   * @}
-  */ 
+  */
 #endif /* STM32F101xE || STM32F103xE || STM32F101xG || STM32F103xG */
 
 /**
   * @}
-  */ 
+  */
 
 #ifdef __cplusplus
 }

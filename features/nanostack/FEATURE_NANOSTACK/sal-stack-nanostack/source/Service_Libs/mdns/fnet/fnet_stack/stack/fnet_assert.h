@@ -26,18 +26,18 @@
 
 #if FNET_CFG_ASSERT
 
-    #define FNET_ASSERT_ERROR_MESSAGE   "FNET ASSERT: %s: %s: %d\n\r"
+#define FNET_ASSERT_ERROR_MESSAGE   "FNET ASSERT: %s: %s: %d\n\r"
 
-    /* Checks that the given condition is true, otherwise it prints error message 
-     * and stops the program execution.*/
-    #define FNET_ASSERT(condition)                                                  \
+/* Checks that the given condition is true, otherwise it prints error message
+ * and stops the program execution.*/
+#define FNET_ASSERT(condition)                                                  \
             if (!(condition))                                                       \
             {                                                                       \
                 printf(FNET_ASSERT_ERROR_MESSAGE, __func__, __FILE__, __LINE__);    \
                 while (1);                                                          \
-            } 
+            }
 #else
-    #define FNET_ASSERT(condition)  ((void) 0)
+#define FNET_ASSERT(condition)  ((void) 0)
 #endif
 
 #endif  /* _FNET_ASSERT_H_ */

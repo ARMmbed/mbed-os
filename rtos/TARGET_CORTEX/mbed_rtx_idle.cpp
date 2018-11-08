@@ -47,7 +47,8 @@ extern "C" IRQn_Type mbed_get_m0_tick_irqn(void);
 
 class RtosTimer : private TimerEvent {
 public:
-    RtosTimer(): TimerEvent(get_lp_ticker_data()), _start_time(0), _tick(0) {
+    RtosTimer(): TimerEvent(get_lp_ticker_data()), _start_time(0), _tick(0)
+    {
         _start_time = ticker_read_us(_ticker_data);
 #if (defined(NO_SYSTICK))
         NVIC_SetVector(mbed_get_m0_tick_irqn(), (uint32_t)SysTick_Handler);
@@ -66,7 +67,8 @@ public:
      *
      * @param delta Tick to fire at relative to current tick
      */
-    void schedule_tick(uint32_t delta=1) {
+    void schedule_tick(uint32_t delta = 1)
+    {
         insert_absolute(_start_time + (_tick + delta) * 1000000 /  OS_TICK_FREQ);
     }
 
@@ -74,7 +76,8 @@ public:
     /**
      * Prevent any scheduled ticks from triggering
      */
-    void cancel_tick() {
+    void cancel_tick()
+    {
         remove();
     }
 
@@ -83,7 +86,8 @@ public:
      *
      * @return The number of ticks since boot. This should match RTX's tick count
      */
-    uint32_t get_tick() {
+    uint32_t get_tick()
+    {
         return _tick & 0xFFFFFFFF;
     }
 
@@ -92,7 +96,8 @@ public:
      *
      * @return The number of ticks incremented
      */
-    uint32_t update_tick() {
+    uint32_t update_tick()
+    {
         uint64_t new_tick = ticker_read_us(_ticker_data) * OS_TICK_FREQ / 1000000;
         if (new_tick > _tick) {
             // Don't update to the current tick. Instead, update to the
@@ -111,17 +116,20 @@ public:
      *
      * @return Current time in microseconds
      */
-    us_timestamp_t get_time() {
+    us_timestamp_t get_time()
+    {
         return ticker_read_us(_ticker_data);
     }
 
-    ~RtosTimer() {
+    ~RtosTimer()
+    {
 
     };
 
 protected:
 
-    void handler() {
+    void handler()
+    {
 #if (defined(NO_SYSTICK))
         NVIC_SetPendingIRQ(mbed_get_m0_tick_irqn());
 #else
@@ -138,7 +146,7 @@ static RtosTimer *os_timer;
 static uint64_t os_timer_data[sizeof(RtosTimer) / 8];
 
 /// Enable System Timer.
-int32_t OS_Tick_Enable (void)
+int32_t OS_Tick_Enable(void)
 {
     // Do not use SingletonPtr since this relies on the RTOS
     if (NULL == os_timer) {
@@ -152,7 +160,7 @@ int32_t OS_Tick_Enable (void)
 }
 
 /// Disable System Timer.
-int32_t OS_Tick_Disable (void)
+int32_t OS_Tick_Disable(void)
 {
     os_timer->cancel_tick();
 
@@ -160,7 +168,7 @@ int32_t OS_Tick_Disable (void)
 }
 
 /// Acknowledge System Timer IRQ.
-int32_t OS_Tick_AcknowledgeIRQ (void)
+int32_t OS_Tick_AcknowledgeIRQ(void)
 {
     os_timer->schedule_tick();
 
@@ -168,24 +176,27 @@ int32_t OS_Tick_AcknowledgeIRQ (void)
 }
 
 /// Get System Timer count.
-uint32_t OS_Tick_GetCount (void)
+uint32_t OS_Tick_GetCount(void)
 {
     return os_timer->get_time() & 0xFFFFFFFF;
 }
 
 // Get OS Tick IRQ number.
-int32_t  OS_Tick_GetIRQn (void) {
-  return -1;
+int32_t  OS_Tick_GetIRQn(void)
+{
+    return -1;
 }
 
 // Get OS Tick overflow status.
-uint32_t OS_Tick_GetOverflow (void) {
-  return 0;
+uint32_t OS_Tick_GetOverflow(void)
+{
+    return 0;
 }
 
 // Get OS Tick interval.
-uint32_t OS_Tick_GetInterval (void) {
-  return 1000;
+uint32_t OS_Tick_GetInterval(void)
+{
+    return 1000;
 }
 
 static void default_idle_hook(void)

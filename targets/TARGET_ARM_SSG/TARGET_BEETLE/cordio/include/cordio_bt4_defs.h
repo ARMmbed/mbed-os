@@ -42,34 +42,31 @@ extern "C" {
 **************************************************************************************************/
 
 /*! \brief      Header for images sought by ROM bootloader. */
-typedef struct
-{
-  uint32_t cookie;                                      /*!< Cookie value. */
-  uint8_t  hdrLen;                                      /*!< Header length, in octets (must be 24).  */
-  uint8_t  type;                                        /*!< Type of image. */
-  uint8_t  revMajor;                                    /*!< Major image revision. */
-  uint8_t  revMinor;                                    /*!< Minor image revision. */
-  uint32_t dataLen;                                     /*!< Length of data, with image flags. */
-  uint32_t offset;                                      /*!< Offset to which image should be copied. */
-  uint32_t entry;                                       /*!< Entry point. */
-  uint32_t crc;                                         /*!< Checksum over header and data. */
+typedef struct {
+    uint32_t cookie;                                      /*!< Cookie value. */
+    uint8_t  hdrLen;                                      /*!< Header length, in octets (must be 24).  */
+    uint8_t  type;                                        /*!< Type of image. */
+    uint8_t  revMajor;                                    /*!< Major image revision. */
+    uint8_t  revMinor;                                    /*!< Minor image revision. */
+    uint32_t dataLen;                                     /*!< Length of data, with image flags. */
+    uint32_t offset;                                      /*!< Offset to which image should be copied. */
+    uint32_t entry;                                       /*!< Entry point. */
+    uint32_t crc;                                         /*!< Checksum over header and data. */
 } CordioTc2ImgHdr_t;
 
 /*! \brief      Image types. */
-enum
-{
-  CORDIO_TC2_IMG_TYPE_HOST_FW         = 0,              /*!< Host firmware. */
-  CORDIO_TC2_IMG_TYPE_BT4_FW          = 1,              /*!< BT4 firmware. */
-  CORDIO_TC2_IMG_TYPE_BT4_PATCH       = 2,              /*!< BT4 patch. */
-  CORDIO_TC2_IMG_TYPE_BT4_TRIM        = 3,              /*!< BT4 trim. */
-  CORDIO_TC2_IMG_TYPE_HOST_CFG        = 4               /*!< Host configuration. */
+enum {
+    CORDIO_TC2_IMG_TYPE_HOST_FW         = 0,              /*!< Host firmware. */
+    CORDIO_TC2_IMG_TYPE_BT4_FW          = 1,              /*!< BT4 firmware. */
+    CORDIO_TC2_IMG_TYPE_BT4_PATCH       = 2,              /*!< BT4 patch. */
+    CORDIO_TC2_IMG_TYPE_BT4_TRIM        = 3,              /*!< BT4 trim. */
+    CORDIO_TC2_IMG_TYPE_HOST_CFG        = 4               /*!< Host configuration. */
 };
 
 /*! \brief      Data length bits and fields. */
-enum
-{
-  CORDIO_TC2_DATA_LEN_MASK            = 0x00FFFFFF,     /*!< Data length mask. */
-  CORDIO_TC2_DATA_LEN_FLAG_ENCRYPTED  = (1 << 30)       /*!< Data encrypted flag. */
+enum {
+    CORDIO_TC2_DATA_LEN_MASK            = 0x00FFFFFF,     /*!< Data length mask. */
+    CORDIO_TC2_DATA_LEN_FLAG_ENCRYPTED  = (1 << 30)       /*!< Data encrypted flag. */
 };
 
 #ifdef __cplusplus

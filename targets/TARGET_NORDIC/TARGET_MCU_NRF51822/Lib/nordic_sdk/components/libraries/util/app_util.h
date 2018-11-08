@@ -26,8 +26,7 @@
 #include <stdbool.h>
 #include "compiler_abstraction.h"
 
-enum
-{
+enum {
     UNIT_0_625_MS = 625,                                /**< Number of microseconds in 0.625 milliseconds. */
     UNIT_1_25_MS  = 1250,                               /**< Number of microseconds in 1.25 milliseconds. */
     UNIT_10_MS    = 10000                               /**< Number of microseconds in 10 milliseconds. */
@@ -51,7 +50,7 @@ enum
 #if defined(__GNUC__)
 #define STATIC_ASSERT(EXPR) typedef char __attribute__((unused)) static_assert_failed[(EXPR) ? 1 : -1]
 #elif defined(__ICCARM__)
-#define STATIC_ASSERT(EXPR) extern char static_assert_failed[(EXPR) ? 1 : -1] 
+#define STATIC_ASSERT(EXPR) extern char static_assert_failed[(EXPR) ? 1 : -1]
 #else
 #define STATIC_ASSERT(EXPR) typedef char static_assert_failed[(EXPR) ? 1 : -1]
 #endif
@@ -64,12 +63,11 @@ typedef uint8_t uint16_le_t[2];
 typedef uint8_t uint32_le_t[4];
 
 /**@brief Byte array type. */
-typedef struct
-{
+typedef struct {
     uint16_t  size;                 /**< Number of array entries. */
-    uint8_t * p_data;               /**< Pointer to array entries. */
+    uint8_t *p_data;                /**< Pointer to array entries. */
 } uint8_array_t;
-    
+
 /**@brief Perform rounded integer division (as opposed to truncating the result).
  *
  * @param[in]   A   Numerator.
@@ -117,13 +115,13 @@ typedef struct
  *
  * @return      Number of bytes written.
  */
-static __INLINE uint8_t uint16_encode(uint16_t value, uint8_t * p_encoded_data)
+static __INLINE uint8_t uint16_encode(uint16_t value, uint8_t *p_encoded_data)
 {
-    p_encoded_data[0] = (uint8_t) ((value & 0x00FF) >> 0);
-    p_encoded_data[1] = (uint8_t) ((value & 0xFF00) >> 8);
+    p_encoded_data[0] = (uint8_t)((value & 0x00FF) >> 0);
+    p_encoded_data[1] = (uint8_t)((value & 0xFF00) >> 8);
     return sizeof(uint16_t);
 }
-    
+
 /**@brief Function for encoding a uint32 value.
  *
  * @param[in]   value            Value to be encoded.
@@ -131,12 +129,12 @@ static __INLINE uint8_t uint16_encode(uint16_t value, uint8_t * p_encoded_data)
  *
  * @return      Number of bytes written.
  */
-static __INLINE uint8_t uint32_encode(uint32_t value, uint8_t * p_encoded_data)
+static __INLINE uint8_t uint32_encode(uint32_t value, uint8_t *p_encoded_data)
 {
-    p_encoded_data[0] = (uint8_t) ((value & 0x000000FF) >> 0);
-    p_encoded_data[1] = (uint8_t) ((value & 0x0000FF00) >> 8);
-    p_encoded_data[2] = (uint8_t) ((value & 0x00FF0000) >> 16);
-    p_encoded_data[3] = (uint8_t) ((value & 0xFF000000) >> 24);
+    p_encoded_data[0] = (uint8_t)((value & 0x000000FF) >> 0);
+    p_encoded_data[1] = (uint8_t)((value & 0x0000FF00) >> 8);
+    p_encoded_data[2] = (uint8_t)((value & 0x00FF0000) >> 16);
+    p_encoded_data[3] = (uint8_t)((value & 0xFF000000) >> 24);
     return sizeof(uint32_t);
 }
 
@@ -146,10 +144,10 @@ static __INLINE uint8_t uint32_encode(uint32_t value, uint8_t * p_encoded_data)
  *
  * @return      Decoded value.
  */
-static __INLINE uint16_t uint16_decode(const uint8_t * p_encoded_data)
+static __INLINE uint16_t uint16_decode(const uint8_t *p_encoded_data)
 {
-        return ( (((uint16_t)((uint8_t *)p_encoded_data)[0])) | 
-                 (((uint16_t)((uint8_t *)p_encoded_data)[1]) << 8 ));
+    return ((((uint16_t)((uint8_t *)p_encoded_data)[0])) |
+            (((uint16_t)((uint8_t *)p_encoded_data)[1]) << 8));
 }
 
 /**@brief Function for decoding a uint32 value.
@@ -158,14 +156,14 @@ static __INLINE uint16_t uint16_decode(const uint8_t * p_encoded_data)
  *
  * @return      Decoded value.
  */
-static __INLINE uint32_t uint32_decode(const uint8_t * p_encoded_data)
+static __INLINE uint32_t uint32_decode(const uint8_t *p_encoded_data)
 {
-    return ( (((uint32_t)((uint8_t *)p_encoded_data)[0]) << 0)  |
-             (((uint32_t)((uint8_t *)p_encoded_data)[1]) << 8)  |
-             (((uint32_t)((uint8_t *)p_encoded_data)[2]) << 16) |
-             (((uint32_t)((uint8_t *)p_encoded_data)[3]) << 24 ));
+    return ((((uint32_t)((uint8_t *)p_encoded_data)[0]) << 0)  |
+            (((uint32_t)((uint8_t *)p_encoded_data)[1]) << 8)  |
+            (((uint32_t)((uint8_t *)p_encoded_data)[2]) << 16) |
+            (((uint32_t)((uint8_t *)p_encoded_data)[3]) << 24));
 }
-    
+
 /** @brief Function for converting the input voltage (in milli volts) into percentage of 3.0 Volts.
  *
  *  @details The calculation is based on a linearized version of the battery's discharge
@@ -190,28 +188,17 @@ static __INLINE uint8_t battery_level_in_percent(const uint16_t mvolts)
 {
     uint8_t battery_level;
 
-    if (mvolts >= 3000)
-    {
+    if (mvolts >= 3000) {
         battery_level = 100;
-    }
-    else if (mvolts > 2900)
-    {
+    } else if (mvolts > 2900) {
         battery_level = 100 - ((3000 - mvolts) * 58) / 100;
-    }
-    else if (mvolts > 2740)
-    {
+    } else if (mvolts > 2740) {
         battery_level = 42 - ((2900 - mvolts) * 24) / 160;
-    }
-    else if (mvolts > 2440)
-    {
+    } else if (mvolts > 2440) {
         battery_level = 18 - ((2740 - mvolts) * 12) / 300;
-    }
-    else if (mvolts > 2100)
-    {
+    } else if (mvolts > 2100) {
         battery_level = 6 - ((2440 - mvolts) * 6) / 340;
-    }
-    else
-    {
+    } else {
         battery_level = 0;
     }
 
@@ -224,7 +211,7 @@ static __INLINE uint8_t battery_level_in_percent(const uint16_t mvolts)
  *
  * @return      TRUE if pointer is aligned to a 4 byte boundary, FALSE otherwise.
  */
-static __INLINE bool is_word_aligned(void * p)
+static __INLINE bool is_word_aligned(void *p)
 {
     return (((uintptr_t)p & 0x03) == 0);
 }

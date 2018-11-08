@@ -59,9 +59,8 @@
 #define RTCRFRL (RTC.RFRL)
 
 
-typedef struct st_rtc
-{
-                                                           /* RTC              */
+typedef struct st_rtc {
+    /* RTC              */
     volatile uint8_t   R64CNT;                                 /*  R64CNT          */
     volatile uint8_t   dummy537[1];                            /*                  */
     volatile uint8_t   RSECCNT;                                /*  RSECCNT         */

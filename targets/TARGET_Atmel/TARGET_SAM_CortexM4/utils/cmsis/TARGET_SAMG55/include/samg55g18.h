@@ -88,34 +88,34 @@ typedef enum IRQn {
     WDT_IRQn             =  4, /**<  4 SAMG55G18 Watchdog Timer (WDT) */
     PMC_IRQn             =  5, /**<  5 SAMG55G18 Power Management Controller (PMC) */
     EFC_IRQn             =  6, /**<  6 SAMG55G18 Enhanced Flash Controller (EFC) */
-    USART0_IRQn					 = 8, /**<  8 SAMG55G18 FLEXCOM0  (USART0) */
-    SPI0_IRQn				   	 = 8, /**<  8 SAMG55G18 FLEXCOM0  (SPI0) */
-    TWI0_IRQn						 = 8, /**<  8 SAMG55G18 FLEXCOM0  (TWI0) */
-    USART1_IRQn					 = 9, /**<  9 SAMG55G18 FLEXCOM1  (USART1) */
-    SPI1_IRQn				   	 = 9, /**<  9 SAMG55G18 FLEXCOM1  (SPI1) */
-    TWI1_IRQn						 = 9, /**<  9 SAMG55G18 FLEXCOM1  (TWI1) */
+    USART0_IRQn                  = 8, /**<  8 SAMG55G18 FLEXCOM0  (USART0) */
+    SPI0_IRQn                    = 8, /**<  8 SAMG55G18 FLEXCOM0  (SPI0) */
+    TWI0_IRQn                        = 8, /**<  8 SAMG55G18 FLEXCOM0  (TWI0) */
+    USART1_IRQn                  = 9, /**<  9 SAMG55G18 FLEXCOM1  (USART1) */
+    SPI1_IRQn                    = 9, /**<  9 SAMG55G18 FLEXCOM1  (SPI1) */
+    TWI1_IRQn                        = 9, /**<  9 SAMG55G18 FLEXCOM1  (TWI1) */
     PIOA_IRQn            = 11, /**< 11 SAMG55G18 Parallel I/O Controller A (PIOA) */
     PIOB_IRQn            = 12, /**< 12 SAMG55G18 Parallel I/O Controller B (PIOB) */
     PDMIC0_IRQn          = 13, /**< 13 SAMG55G18 PDM 0 (PDMIC0) */
-    USART2_IRQn					 = 14, /**<  14 SAMG55G18 FLEXCOM2  (USART2) */
-    SPI2_IRQn				   	 = 14, /**<  14 SAMG55G18 FLEXCOM2  (SPI2) */
-    TWI2_IRQn						 = 14, /**<  14 SAMG55G18 FLEXCOM2  (TWI2) */
+    USART2_IRQn                  = 14, /**<  14 SAMG55G18 FLEXCOM2  (USART2) */
+    SPI2_IRQn                    = 14, /**<  14 SAMG55G18 FLEXCOM2  (SPI2) */
+    TWI2_IRQn                        = 14, /**<  14 SAMG55G18 FLEXCOM2  (TWI2) */
     MEM2MEM_IRQn         = 15, /**< 15 SAMG55G18 MEM2MEM (MEM2MEM) */
     I2SC0_IRQn           = 16, /**< 16 SAMG55G18 I2SC0 (I2SC0) */
     I2SC1_IRQn           = 17, /**< 17 SAMG55G18 I2SC1 (I2SC1) */
     PDMIC1_IRQn          = 18, /**< 18 SAMG55G18 PDM 1 (PDMIC1) */
-    USART3_IRQn					 = 19, /**< 19 SAMG55G18 FLEXCOM3  (USART3) */
-    SPI3_IRQn				   	 = 19, /**< 19 SAMG55G18 FLEXCOM3  (SPI3) */
-    TWI3_IRQn						 = 19, /**< 19 SAMG55G18 FLEXCOM3  (TWI3) */
-    USART4_IRQn					 = 20, /**< 20 SAMG55G18 FLEXCOM3  (USART4) */
-    SPI4_IRQn				   	 = 20, /**< 20 SAMG55G18 FLEXCOM3  (SPI4) */
-    TWI4_IRQn						 = 20, /**< 20 SAMG55G18 FLEXCOM3  (TWI4) */
-    USART5_IRQn					 = 21, /**< 21 SAMG55G18 FLEXCOM3  (USART5) */
-    SPI5_IRQn				   	 = 21, /**< 21 SAMG55G18 FLEXCOM3  (SPI5) */
-    TWI5_IRQn						 = 21, /**< 21 SAMG55G18 FLEXCOM3  (TWI5) */
-    USART6_IRQn					 = 22, /**< 22 SAMG55G18 FLEXCOM3  (USART6) */
-    SPI6_IRQn				   	 = 22, /**< 22 SAMG55G18 FLEXCOM3  (SPI6) */
-    TWI6_IRQn						 = 22, /**< 22 SAMG55G18 FLEXCOM3  (TWI6) */
+    USART3_IRQn                  = 19, /**< 19 SAMG55G18 FLEXCOM3  (USART3) */
+    SPI3_IRQn                    = 19, /**< 19 SAMG55G18 FLEXCOM3  (SPI3) */
+    TWI3_IRQn                        = 19, /**< 19 SAMG55G18 FLEXCOM3  (TWI3) */
+    USART4_IRQn                  = 20, /**< 20 SAMG55G18 FLEXCOM3  (USART4) */
+    SPI4_IRQn                    = 20, /**< 20 SAMG55G18 FLEXCOM3  (SPI4) */
+    TWI4_IRQn                        = 20, /**< 20 SAMG55G18 FLEXCOM3  (TWI4) */
+    USART5_IRQn                  = 21, /**< 21 SAMG55G18 FLEXCOM3  (USART5) */
+    SPI5_IRQn                    = 21, /**< 21 SAMG55G18 FLEXCOM3  (SPI5) */
+    TWI5_IRQn                        = 21, /**< 21 SAMG55G18 FLEXCOM3  (TWI5) */
+    USART6_IRQn                  = 22, /**< 22 SAMG55G18 FLEXCOM3  (USART6) */
+    SPI6_IRQn                    = 22, /**< 22 SAMG55G18 FLEXCOM3  (SPI6) */
+    TWI6_IRQn                        = 22, /**< 22 SAMG55G18 FLEXCOM3  (TWI6) */
     TC0_IRQn             = 23, /**< 23 SAMG55G18 Timer/Counter 0 (TC0) */
     TC1_IRQn             = 24, /**< 24 SAMG55G18 Timer/Counter 1 (TC1) */
     TC2_IRQn             = 25, /**< 25 SAMG55G18 Timer/Counter 2 (TC2) */
@@ -148,166 +148,166 @@ typedef enum IRQn {
 
 typedef struct _DeviceVectors {
     /* Stack pointer */
-    void* pvStack;
+    void *pvStack;
 
     /* Cortex-M handlers */
-    void* pfnReset_Handler;
-    void* pfnNMI_Handler;
-    void* pfnHardFault_Handler;
-    void* pfnMemManage_Handler;
-    void* pfnBusFault_Handler;
-    void* pfnUsageFault_Handler;
-    void* pfnReserved1_Handler;
-    void* pfnReserved2_Handler;
-    void* pfnReserved3_Handler;
-    void* pfnReserved4_Handler;
-    void* pfnSVC_Handler;
-    void* pfnDebugMon_Handler;
-    void* pfnReserved5_Handler;
-    void* pfnPendSV_Handler;
-    void* pfnSysTick_Handler;
+    void *pfnReset_Handler;
+    void *pfnNMI_Handler;
+    void *pfnHardFault_Handler;
+    void *pfnMemManage_Handler;
+    void *pfnBusFault_Handler;
+    void *pfnUsageFault_Handler;
+    void *pfnReserved1_Handler;
+    void *pfnReserved2_Handler;
+    void *pfnReserved3_Handler;
+    void *pfnReserved4_Handler;
+    void *pfnSVC_Handler;
+    void *pfnDebugMon_Handler;
+    void *pfnReserved5_Handler;
+    void *pfnPendSV_Handler;
+    void *pfnSysTick_Handler;
 
     /* Peripheral handlers */
-    void* pfnSUPC_Handler;    /*  0 Supply Controller */
-    void* pfnRSTC_Handler;    /*  1 Reset Controller */
-    void* pfnRTC_Handler;     /*  2 Real Time Clock */
-    void* pfnRTT_Handler;     /*  3 Real Time Timer */
-    void* pfnWDT_Handler;     /*  4 Watchdog Timer */
-    void* pfnPMC_Handler;     /*  5 Power Management Controller */
-    void* pfnEFC_Handler;     /*  6 Enhanced Flash Controller */
-    void* pvReserved7;
-    void* pfnUSART0_Handler;  /* 8  FLEXCOM 0 */
-    void* pfnSPI0_Handler;    /* 8  FLEXCOM 0 */
-    void* pfnTWI0_Handler;    /* 8  FLEXCOM 0 */
-    void* pfnUSART1_Handler;  /* 9  FLEXCOM 1 */
-    void* pfnSPI1_Handler;    /* 9  FLEXCOM 1 */
-    void* pfnTWI1_Handler;    /* 9  FLEXCOM 1 */
-    void* pvReserved10;
-    void* pfnPIOA_Handler;    /* 11 Parallel I/O Controller A */
-    void* pfnPIOB_Handler;    /* 12 Parallel I/O Controller B */
-    void* pfnPDMIC0_Handler;  /* 13 PDM 0 */
-    void* pfnUSART2_Handler;  /* 14  FLEXCOM 2 */
-    void* pfnSPI2_Handler;    /* 14  FLEXCOM 2 */
-    void* pfnTWI2_Handler;    /* 14  FLEXCOM 2 */
-    void* pfnMEM2MEM_Handler; /* 15 MEM2MEM */
-    void* pfnI2SC0_Handler;   /* 16 I2SC0 */
-    void* pfnI2SC1_Handler;   /* 17 I2SC1 */
-    void* pfnPDMIC1_Handler;  /* 18 PDM 1 */
-    void* pfnUSART3_Handler;  /* 19  FLEXCOM 3 */
-    void* pfnSPI3_Handler;    /* 19  FLEXCOM 3 */
-    void* pfnTWI3_Handler;    /* 19  FLEXCOM 3 */
-    void* pfnUSART4_Handler;  /* 20  FLEXCOM 4 */
-    void* pfnSPI4_Handler;    /* 20  FLEXCOM 4 */
-    void* pfnTWI4_Handler;    /* 20  FLEXCOM 4 */
-    void* pfnUSART5_Handler;  /* 21  FLEXCOM 5 */
-    void* pfnSPI5_Handler;    /* 21  FLEXCOM 5 */
-    void* pfnTWI5_Handler;    /* 21  FLEXCOM 5 */
-    void* pfnUSART6_Handler;  /* 22  FLEXCOM 6 */
-    void* pfnSPI6_Handler;    /* 22  FLEXCOM 6 */
-    void* pfnTWI6_Handler;    /* 22  FLEXCOM 6 */
-    void* pfnTC0_Handler;     /* 23 Timer/Counter 0 */
-    void* pfnTC1_Handler;     /* 24 Timer/Counter 1 */
-    void* pfnTC2_Handler;     /* 25 Timer/Counter 2 */
-    void* pfnTC3_Handler;     /* 26 Timer/Counter 3 */
-    void* pfnTC4_Handler;     /* 27 Timer/Counter 4 */
-    void* pfnTC5_Handler;     /* 28 Timer/Counter 5 */
-    void* pfnADC_Handler;     /* 29 Analog To Digital Converter */
-    void* pfnARM_Handler;     /* 30 FPU */
-    void* pvReserved31;
-    void* pvReserved32;
-    void* pvReserved33;
-    void* pvReserved34;
-    void* pvReserved35;
-    void* pvReserved36;
-    void* pvReserved37;
-    void* pvReserved38;
-    void* pvReserved39;
-    void* pvReserved40;
-    void* pvReserved41;
-    void* pvReserved42;
-    void* pvReserved43;
-    void* pvReserved44;
-    void* pvReserved45;
-    void* pvReserved46;
-    void* pfnUHP_Handler;     /* 47 USB OHCI */
-    void* pfnUDP_Handler;     /* 48 USB Device FS */
-    void* pvReserved49;       /*  */
-    void* pvReserved50;       /*  */
-    void* pvReserved51;       /*  */
-    void* pvReserved52;       /*  */
-    void* pvReserved53;       /*  */
-    void* pvReserved54;       /*  */
-    void* pvReserved55;       /*  */
-    void* pvReserved56;       /*  */
-    void* pvReserved57;       /*  */
-    void* pvReserved58;       /*  */
-    void* pvReserved59;       /*  */
-    void* pvReserved60;       /*  */
-    void* pvReserved61;       /*  */
-    void* pvReserved62;       /*  */
-    void* pvReserved63;       /* UHP */
-    void* pvReserved64;       /* UDP */
-    void* pvReserved65;       /* CRCCU */
+    void *pfnSUPC_Handler;    /*  0 Supply Controller */
+    void *pfnRSTC_Handler;    /*  1 Reset Controller */
+    void *pfnRTC_Handler;     /*  2 Real Time Clock */
+    void *pfnRTT_Handler;     /*  3 Real Time Timer */
+    void *pfnWDT_Handler;     /*  4 Watchdog Timer */
+    void *pfnPMC_Handler;     /*  5 Power Management Controller */
+    void *pfnEFC_Handler;     /*  6 Enhanced Flash Controller */
+    void *pvReserved7;
+    void *pfnUSART0_Handler;  /* 8  FLEXCOM 0 */
+    void *pfnSPI0_Handler;    /* 8  FLEXCOM 0 */
+    void *pfnTWI0_Handler;    /* 8  FLEXCOM 0 */
+    void *pfnUSART1_Handler;  /* 9  FLEXCOM 1 */
+    void *pfnSPI1_Handler;    /* 9  FLEXCOM 1 */
+    void *pfnTWI1_Handler;    /* 9  FLEXCOM 1 */
+    void *pvReserved10;
+    void *pfnPIOA_Handler;    /* 11 Parallel I/O Controller A */
+    void *pfnPIOB_Handler;    /* 12 Parallel I/O Controller B */
+    void *pfnPDMIC0_Handler;  /* 13 PDM 0 */
+    void *pfnUSART2_Handler;  /* 14  FLEXCOM 2 */
+    void *pfnSPI2_Handler;    /* 14  FLEXCOM 2 */
+    void *pfnTWI2_Handler;    /* 14  FLEXCOM 2 */
+    void *pfnMEM2MEM_Handler; /* 15 MEM2MEM */
+    void *pfnI2SC0_Handler;   /* 16 I2SC0 */
+    void *pfnI2SC1_Handler;   /* 17 I2SC1 */
+    void *pfnPDMIC1_Handler;  /* 18 PDM 1 */
+    void *pfnUSART3_Handler;  /* 19  FLEXCOM 3 */
+    void *pfnSPI3_Handler;    /* 19  FLEXCOM 3 */
+    void *pfnTWI3_Handler;    /* 19  FLEXCOM 3 */
+    void *pfnUSART4_Handler;  /* 20  FLEXCOM 4 */
+    void *pfnSPI4_Handler;    /* 20  FLEXCOM 4 */
+    void *pfnTWI4_Handler;    /* 20  FLEXCOM 4 */
+    void *pfnUSART5_Handler;  /* 21  FLEXCOM 5 */
+    void *pfnSPI5_Handler;    /* 21  FLEXCOM 5 */
+    void *pfnTWI5_Handler;    /* 21  FLEXCOM 5 */
+    void *pfnUSART6_Handler;  /* 22  FLEXCOM 6 */
+    void *pfnSPI6_Handler;    /* 22  FLEXCOM 6 */
+    void *pfnTWI6_Handler;    /* 22  FLEXCOM 6 */
+    void *pfnTC0_Handler;     /* 23 Timer/Counter 0 */
+    void *pfnTC1_Handler;     /* 24 Timer/Counter 1 */
+    void *pfnTC2_Handler;     /* 25 Timer/Counter 2 */
+    void *pfnTC3_Handler;     /* 26 Timer/Counter 3 */
+    void *pfnTC4_Handler;     /* 27 Timer/Counter 4 */
+    void *pfnTC5_Handler;     /* 28 Timer/Counter 5 */
+    void *pfnADC_Handler;     /* 29 Analog To Digital Converter */
+    void *pfnARM_Handler;     /* 30 FPU */
+    void *pvReserved31;
+    void *pvReserved32;
+    void *pvReserved33;
+    void *pvReserved34;
+    void *pvReserved35;
+    void *pvReserved36;
+    void *pvReserved37;
+    void *pvReserved38;
+    void *pvReserved39;
+    void *pvReserved40;
+    void *pvReserved41;
+    void *pvReserved42;
+    void *pvReserved43;
+    void *pvReserved44;
+    void *pvReserved45;
+    void *pvReserved46;
+    void *pfnUHP_Handler;     /* 47 USB OHCI */
+    void *pfnUDP_Handler;     /* 48 USB Device FS */
+    void *pvReserved49;       /*  */
+    void *pvReserved50;       /*  */
+    void *pvReserved51;       /*  */
+    void *pvReserved52;       /*  */
+    void *pvReserved53;       /*  */
+    void *pvReserved54;       /*  */
+    void *pvReserved55;       /*  */
+    void *pvReserved56;       /*  */
+    void *pvReserved57;       /*  */
+    void *pvReserved58;       /*  */
+    void *pvReserved59;       /*  */
+    void *pvReserved60;       /*  */
+    void *pvReserved61;       /*  */
+    void *pvReserved62;       /*  */
+    void *pvReserved63;       /* UHP */
+    void *pvReserved64;       /* UDP */
+    void *pvReserved65;       /* CRCCU */
 } DeviceVectors;
 
 /* Cortex-M4 core handlers */
-void Reset_Handler      ( void );
-void NMI_Handler        ( void );
-void HardFault_Handler  ( void );
-void MemManage_Handler  ( void );
-void BusFault_Handler   ( void );
-void UsageFault_Handler ( void );
-void SVC_Handler        ( void );
-void DebugMon_Handler   ( void );
-void PendSV_Handler     ( void );
-void SysTick_Handler    ( void );
+void Reset_Handler(void);
+void NMI_Handler(void);
+void HardFault_Handler(void);
+void MemManage_Handler(void);
+void BusFault_Handler(void);
+void UsageFault_Handler(void);
+void SVC_Handler(void);
+void DebugMon_Handler(void);
+void PendSV_Handler(void);
+void SysTick_Handler(void);
 
 /* Peripherals handlers */
-void ADC_Handler        ( void );
-void ARM_Handler        ( void );
-void EFC_Handler        ( void );
-void I2SC0_Handler      ( void );
-void I2SC1_Handler      ( void );
-void MEM2MEM_Handler    ( void );
-void PDMIC0_Handler     ( void );
-void PDMIC1_Handler     ( void );
-void PIOA_Handler       ( void );
-void PIOB_Handler       ( void );
-void PMC_Handler        ( void );
-void RSTC_Handler       ( void );
-void RTC_Handler        ( void );
-void RTT_Handler        ( void );
-void SPI0_Handler        ( void );
-void SPI1_Handler        ( void );
-void SPI2_Handler        ( void );
-void SPI3_Handler        ( void );
-void SPI4_Handler        ( void );
-void SPI5_Handler        ( void );
-void SPI6_Handler        ( void );
-void SUPC_Handler       ( void );
-void TC0_Handler        ( void );
-void TC1_Handler        ( void );
-void TC2_Handler        ( void );
-void TC3_Handler        ( void );
-void TC4_Handler        ( void );
-void TC5_Handler        ( void );
-void TWI0_Handler       ( void );
-void TWI1_Handler       ( void );
-void TWI2_Handler       ( void );
-void TWI3_Handler       ( void );
-void TWI4_Handler       ( void );
-void TWI5_Handler       ( void );
-void TWI6_Handler       ( void );
-void UDP_Handler        ( void );
-void UHP_Handler        ( void );
-void USART0_Handler      ( void );
-void USART1_Handler      ( void );
-void USART2_Handler      ( void );
-void USART3_Handler      ( void );
-void USART4_Handler      ( void );
-void USART5_Handler      ( void );
-void USART6_Handler      ( void );
-void WDT_Handler        ( void );
+void ADC_Handler(void);
+void ARM_Handler(void);
+void EFC_Handler(void);
+void I2SC0_Handler(void);
+void I2SC1_Handler(void);
+void MEM2MEM_Handler(void);
+void PDMIC0_Handler(void);
+void PDMIC1_Handler(void);
+void PIOA_Handler(void);
+void PIOB_Handler(void);
+void PMC_Handler(void);
+void RSTC_Handler(void);
+void RTC_Handler(void);
+void RTT_Handler(void);
+void SPI0_Handler(void);
+void SPI1_Handler(void);
+void SPI2_Handler(void);
+void SPI3_Handler(void);
+void SPI4_Handler(void);
+void SPI5_Handler(void);
+void SPI6_Handler(void);
+void SUPC_Handler(void);
+void TC0_Handler(void);
+void TC1_Handler(void);
+void TC2_Handler(void);
+void TC3_Handler(void);
+void TC4_Handler(void);
+void TC5_Handler(void);
+void TWI0_Handler(void);
+void TWI1_Handler(void);
+void TWI2_Handler(void);
+void TWI3_Handler(void);
+void TWI4_Handler(void);
+void TWI5_Handler(void);
+void TWI6_Handler(void);
+void UDP_Handler(void);
+void UHP_Handler(void);
+void USART0_Handler(void);
+void USART1_Handler(void);
+void USART2_Handler(void);
+void USART3_Handler(void);
+void USART4_Handler(void);
+void USART5_Handler(void);
+void USART6_Handler(void);
+void WDT_Handler(void);
 
 /**
  * \brief Configuration of the Cortex-M4 Processor and Core Peripherals

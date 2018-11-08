@@ -116,9 +116,8 @@
 #define SSIFCSR_5 (SSIF5.SSIFCSR)
 
 
-typedef struct st_ssif
-{
-                                                           /* SSIF             */
+typedef struct st_ssif {
+    /* SSIF             */
     volatile uint32_t  SSICR;                                  /*  SSICR           */
     volatile uint32_t  SSISR;                                  /*  SSISR           */
     volatile uint8_t   dummy1[8];                              /*                  */
@@ -135,10 +134,10 @@ typedef struct st_ssif
 
 /* Channel array defines of SSIF (2)*/
 #ifdef  DECLARE_SSIF_CHANNELS
-volatile struct st_ssif*  SSIF[ SSIF_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    SSIF_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_ssif  *SSIF[ SSIF_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        SSIF_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_SSIF_CHANNELS */
 /* End of channel array defines of SSIF (2)*/
 

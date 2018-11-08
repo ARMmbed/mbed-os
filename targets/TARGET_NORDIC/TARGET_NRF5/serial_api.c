@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #include "serial_api.h"
@@ -61,23 +61,23 @@
 
 // expected the macro from mbed configuration system
 #ifndef MBED_CONF_NORDIC_UART_HWFC
-    #define MBED_CONF_NORDIC_UART_HWFC 1
-    #warning None of UART flow control configuration (expected macro MBED_CONF_NORDIC_UART_HWFC). The RTSCTS flow control is used by default .
+#define MBED_CONF_NORDIC_UART_HWFC 1
+#warning None of UART flow control configuration (expected macro MBED_CONF_NORDIC_UART_HWFC). The RTSCTS flow control is used by default .
 #endif
 
 #if MBED_CONF_NORDIC_UART_HWFC == 1
-    #define UART_DEFAULT_HWFC       UART_DEFAULT_CONFIG_HWFC
+#define UART_DEFAULT_HWFC       UART_DEFAULT_CONFIG_HWFC
 #else
-    #define UART_DEFAULT_HWFC  NRF_UART_HWFC_DISABLED
+#define UART_DEFAULT_HWFC  NRF_UART_HWFC_DISABLED
 #endif
 
 #define UART_DEFAULT_CTS        CTS_PIN_NUMBER
 #define UART_DEFAULT_RTS        RTS_PIN_NUMBER
 
 #ifdef NRF51
-    #define NRFx_MBED_UART_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOW
+#define NRFx_MBED_UART_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOW
 #elif defined(NRF52) || defined(NRF52840_XXAA)
-    #define NRFx_MBED_UART_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOWEST
+#define NRFx_MBED_UART_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOWEST
 #endif
 
 // Required by "retarget.cpp".
@@ -102,20 +102,20 @@ typedef struct {
     uint8_t            *rx_buffer;
     size_t              rx_length;
     size_t              rx_pos;
-    void              (*rx_asynch_handler)();
+    void (*rx_asynch_handler)();
     uint8_t             char_match;
 
     bool volatile       tx_active;
     const uint8_t      *tx_buffer;
     size_t              tx_length;
     size_t              tx_pos;
-    void              (*tx_asynch_handler)();
+    void (*tx_asynch_handler)();
 
     uint32_t            events_wanted;
     uint32_t            events_occured;
 
-    #define UART_IRQ_TX 1
-    #define UART_IRQ_RX 2
+#define UART_IRQ_TX 1
+#define UART_IRQ_RX 2
     uint8_t             irq_enabled;
 #endif // DEVICE_SERIAL_ASYNCH
 } uart_ctlblock_t;
@@ -123,7 +123,7 @@ typedef struct {
 static uart_ctlblock_t uart_cb[UART_INSTANCE_COUNT];
 
 static void internal_set_hwfc(FlowControl type,
-                             PinName rxflow, PinName txflow);
+                              PinName rxflow, PinName txflow);
 
 
 #if DEVICE_SERIAL_ASYNCH
@@ -150,9 +150,9 @@ static void end_asynch_tx(void)
 void UART_IRQ_HANDLER(void)
 {
     if (nrf_uart_int_enable_check(UART_INSTANCE, NRF_UART_INT_MASK_RXDRDY) &&
-        nrf_uart_event_check(UART_INSTANCE, NRF_UART_EVENT_RXDRDY)) {
+            nrf_uart_event_check(UART_INSTANCE, NRF_UART_EVENT_RXDRDY)) {
 
-    #if DEVICE_SERIAL_ASYNCH
+#if DEVICE_SERIAL_ASYNCH
         if (UART_CB.rx_active) {
             nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_RXDRDY);
 
@@ -163,7 +163,7 @@ void UART_IRQ_HANDLER(void)
             // If character matching should be performed, check if the current
             // data matches the given one.
             if (UART_CB.char_match != SERIAL_RESERVED_CHAR_MATCH &&
-                rx_data == UART_CB.char_match) {
+                    rx_data == UART_CB.char_match) {
                 // If it does, report the match and abort further receiving.
                 UART_CB.events_occured |= SERIAL_EVENT_RX_CHARACTER_MATCH;
                 if (UART_CB.events_wanted & SERIAL_EVENT_RX_CHARACTER_MATCH) {
@@ -185,29 +185,27 @@ void UART_IRQ_HANDLER(void)
                     handler();
                 }
             }
-        }
-        else
-    #endif
+        } else
+#endif
 
-        if (UART_CB.irq_handler) {
-            UART_CB.irq_handler(UART_CB.irq_context, RxIrq);
-        }
+            if (UART_CB.irq_handler) {
+                UART_CB.irq_handler(UART_CB.irq_context, RxIrq);
+            }
     }
 
     if (nrf_uart_int_enable_check(UART_INSTANCE, NRF_UART_INT_MASK_TXDRDY) &&
-        nrf_uart_event_check(UART_INSTANCE, NRF_UART_EVENT_TXDRDY)) {
+            nrf_uart_event_check(UART_INSTANCE, NRF_UART_EVENT_TXDRDY)) {
 
-    #if DEVICE_SERIAL_ASYNCH
+#if DEVICE_SERIAL_ASYNCH
         if (UART_CB.tx_active) {
             if (UART_CB.tx_pos < UART_CB.tx_length) {
                 // When there is still something to send, clear the TXDRDY event
                 // and put next byte to transmitter.
                 nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_TXDRDY);
                 nrf_uart_txd_set(UART_INSTANCE,
-                    UART_CB.tx_buffer[UART_CB.tx_pos]);
+                                 UART_CB.tx_buffer[UART_CB.tx_pos]);
                 UART_CB.tx_pos++;
-            }
-            else {
+            } else {
                 // When the TXDRDY event is set after the last byte to be sent
                 // has been passed to the transmitter, the job is done and TX
                 // complete can be indicated.
@@ -224,13 +222,12 @@ void UART_IRQ_HANDLER(void)
                     handler();
                 }
             }
-        }
-        else
-    #endif
+        } else
+#endif
 
-        if (UART_CB.irq_handler) {
-            UART_CB.irq_handler(UART_CB.irq_context, TxIrq);
-        }
+            if (UART_CB.irq_handler) {
+                UART_CB.irq_handler(UART_CB.irq_context, TxIrq);
+            }
     }
 
 #if DEVICE_SERIAL_ASYNCH
@@ -255,11 +252,12 @@ void UART_IRQ_HANDLER(void)
 #endif // DEVICE_SERIAL_ASYNCH
 }
 
-void serial_init(serial_t *obj, PinName tx, PinName rx) {
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
 
     NVIC_SetVector(UART0_IRQn, (uint32_t) UART0_IRQHandler);
 
-    
+
     UART_CB.pseltxd =
         (tx == NC) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t)tx;
     UART_CB.pselrxd =
@@ -283,8 +281,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         nrf_uart_disable(UART_INSTANCE);
         nrf_uart_txrx_pins_set(UART_INSTANCE, UART_CB.pseltxd, UART_CB.pselrxd);
         nrf_uart_enable(UART_INSTANCE);
-    }
-    else {
+    } else {
         UART_CB.baudrate = UART_DEFAULT_BAUDRATE;
         UART_CB.parity   = UART_DEFAULT_PARITY;
         UART_CB.hwfc     = UART_DEFAULT_HWFC;
@@ -297,17 +294,17 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         nrf_uart_task_trigger(UART_INSTANCE, NRF_UART_TASK_STARTTX);
 
         nrf_uart_int_disable(UART_INSTANCE, NRF_UART_INT_MASK_RXDRDY |
-                                            NRF_UART_INT_MASK_TXDRDY);
-    #if DEVICE_SERIAL_ASYNCH
+                             NRF_UART_INT_MASK_TXDRDY);
+#if DEVICE_SERIAL_ASYNCH
         nrf_uart_int_enable(UART_INSTANCE, NRF_UART_INT_MASK_ERROR);
-    #endif
+#endif
         nrf_drv_common_irq_enable(UART_IRQn, NRFx_MBED_UART_IRQ_PRIORITY);
 
         // TX interrupt needs to be signaled when transmitter buffer is empty,
         // so a dummy transmission is needed to get the TXDRDY event initially
         // set.
         nrf_uart_configure(UART_INSTANCE,
-            NRF_UART_PARITY_EXCLUDED, NRF_UART_HWFC_DISABLED);
+                           NRF_UART_PARITY_EXCLUDED, NRF_UART_HWFC_DISABLED);
         // Use maximum baud rate, so this dummy transmission takes as little
         // time as possible.
         nrf_uart_baudrate_set(UART_INSTANCE, NRF_UART_BAUDRATE_1000000);
@@ -328,9 +325,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         nrf_uart_configure(UART_INSTANCE, UART_CB.parity, UART_CB.hwfc);
         if (UART_CB.hwfc == NRF_UART_HWFC_ENABLED) {
             internal_set_hwfc(FlowControlRTSCTS,
-                (PinName) UART_CB.pselrts, (PinName) UART_CB.pselcts);
+                              (PinName) UART_CB.pselrts, (PinName) UART_CB.pselcts);
         }
-        
+
         nrf_uart_enable(UART_INSTANCE);
 
         UART_CB.initialized = true;
@@ -339,8 +336,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     if (tx == STDIO_UART_TX && rx == STDIO_UART_RX) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
-    else {
+    } else {
         stdio_uart_inited = 0;
     }
 }
@@ -352,8 +348,8 @@ void serial_free(serial_t *obj)
     if (UART_CB.initialized) {
         nrf_uart_disable(UART_INSTANCE);
         nrf_uart_int_disable(UART_INSTANCE, NRF_UART_INT_MASK_RXDRDY |
-                                            NRF_UART_INT_MASK_TXDRDY |
-                                            NRF_UART_INT_MASK_ERROR);
+                             NRF_UART_INT_MASK_TXDRDY |
+                             NRF_UART_INT_MASK_ERROR);
         nrf_drv_common_irq_disable(UART_IRQn);
         UART_CB.initialized = false;
 
@@ -377,9 +373,9 @@ void serial_baud(serial_t *obj, int baudrate)
         { 14400,   UART_BAUDRATE_BAUDRATE_Baud14400  },
         { 19200,   UART_BAUDRATE_BAUDRATE_Baud19200  },
         { 28800,   UART_BAUDRATE_BAUDRATE_Baud28800  },
-        { 31250,   (0x00800000UL) /* 31250 baud */   },
+        { 31250, (0x00800000UL) /* 31250 baud */   },
         { 38400,   UART_BAUDRATE_BAUDRATE_Baud38400  },
-        { 56000,   (0x00E51000UL) /* 56000 baud */   },
+        { 56000, (0x00E51000UL) /* 56000 baud */   },
         { 57600,   UART_BAUDRATE_BAUDRATE_Baud57600  },
         { 76800,   UART_BAUDRATE_BAUDRATE_Baud76800  },
         { 115200,  UART_BAUDRATE_BAUDRATE_Baud115200 },
@@ -395,7 +391,7 @@ void serial_baud(serial_t *obj, int baudrate)
         return;
     }
 
-    int const item_cnt = sizeof(acceptedSpeeds)/sizeof(acceptedSpeeds[0]);
+    int const item_cnt = sizeof(acceptedSpeeds) / sizeof(acceptedSpeeds[0]);
     for (int i = 1; i < item_cnt; i++) {
         if ((uint32_t)baudrate < acceptedSpeeds[i][0]) {
             UART_INSTANCE->BAUDRATE = acceptedSpeeds[i - 1][1];
@@ -442,40 +438,40 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     if (enable) {
         switch (irq) {
             case RxIrq:
-            #if DEVICE_SERIAL_ASYNCH
+#if DEVICE_SERIAL_ASYNCH
                 UART_CB.irq_enabled |= UART_IRQ_RX;
-            #endif
+#endif
                 nrf_uart_int_enable(UART_INSTANCE, NRF_UART_INT_MASK_RXDRDY);
                 break;
 
             case TxIrq:
-            #if DEVICE_SERIAL_ASYNCH
+#if DEVICE_SERIAL_ASYNCH
                 UART_CB.irq_enabled |= UART_IRQ_TX;
-            #endif
+#endif
                 nrf_uart_int_enable(UART_INSTANCE, NRF_UART_INT_MASK_TXDRDY);
                 break;
         }
     } else {
         switch (irq) {
             case RxIrq:
-            #if DEVICE_SERIAL_ASYNCH
+#if DEVICE_SERIAL_ASYNCH
                 UART_CB.irq_enabled &= ~UART_IRQ_RX;
                 if (!UART_CB.rx_active)
-            #endif
+#endif
                 {
                     nrf_uart_int_disable(UART_INSTANCE,
-                        NRF_UART_INT_MASK_RXDRDY);
+                                         NRF_UART_INT_MASK_RXDRDY);
                 }
                 break;
 
             case TxIrq:
-            #if DEVICE_SERIAL_ASYNCH
+#if DEVICE_SERIAL_ASYNCH
                 UART_CB.irq_enabled &= ~UART_IRQ_TX;
                 if (!UART_CB.tx_active)
-            #endif
+#endif
                 {
                     nrf_uart_int_disable(UART_INSTANCE,
-                        NRF_UART_INT_MASK_TXDRDY);
+                                         NRF_UART_INT_MASK_TXDRDY);
                 }
                 break;
         }
@@ -541,7 +537,7 @@ void serial_break_clear(serial_t *obj)
 
 
 static void internal_set_hwfc(FlowControl type,
-                             PinName rxflow, PinName txflow)
+                              PinName rxflow, PinName txflow)
 {
     UART_CB.pselrts =
         ((rxflow == NC) || (type == FlowControlCTS)) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t)rxflow;
@@ -555,9 +551,9 @@ static void internal_set_hwfc(FlowControl type,
     if (UART_CB.pselcts != NRF_UART_PSEL_DISCONNECTED) {
         nrf_gpio_cfg_input(UART_CB.pselcts, NRF_GPIO_PIN_NOPULL);
     }
-    
-    UART_CB.hwfc = (nrf_uart_hwfc_t)((type == FlowControlNone)? NRF_UART_HWFC_DISABLED  : UART_DEFAULT_CONFIG_HWFC);
-    
+
+    UART_CB.hwfc = (nrf_uart_hwfc_t)((type == FlowControlNone) ? NRF_UART_HWFC_DISABLED  : UART_DEFAULT_CONFIG_HWFC);
+
     nrf_uart_configure(UART_INSTANCE, UART_CB.parity, UART_CB.hwfc);
     nrf_uart_hwfc_pins_set(UART_INSTANCE, UART_CB.pselrts, UART_CB.pselcts);
 }
@@ -566,14 +562,15 @@ void serial_set_flow_control(serial_t *obj, FlowControl type,
                              PinName rxflow, PinName txflow)
 {
     (void)obj;
-    
+
     nrf_uart_disable(UART_INSTANCE);
     internal_set_hwfc(type, rxflow, txflow);
     nrf_uart_enable(UART_INSTANCE);
 }
 
 
-void serial_clear(serial_t *obj) {
+void serial_clear(serial_t *obj)
+{
     (void)obj;
 }
 

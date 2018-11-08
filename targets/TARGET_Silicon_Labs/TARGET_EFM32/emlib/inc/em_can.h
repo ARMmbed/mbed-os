@@ -63,59 +63,59 @@ extern "C" {
 
 /** CAN Status codes */
 typedef enum {
-  /** No error occurred during last CAN bus event. */
-  canErrorNoError  = CAN_STATUS_LEC_NONE,
+    /** No error occurred during last CAN bus event. */
+    canErrorNoError  = CAN_STATUS_LEC_NONE,
 
-  /**
-   * More than 5 equal bits in a sequence have occurred in a part of a received
-   * message where this is not allowed.
-   */
-  canErrorStuff    = CAN_STATUS_LEC_STUFF,
+    /**
+     * More than 5 equal bits in a sequence have occurred in a part of a received
+     * message where this is not allowed.
+     */
+    canErrorStuff    = CAN_STATUS_LEC_STUFF,
 
-  /** A fixed format part of a received frame has the wrong format. */
-  canErrorForm     = CAN_STATUS_LEC_FORM,
+    /** A fixed format part of a received frame has the wrong format. */
+    canErrorForm     = CAN_STATUS_LEC_FORM,
 
-  /** The message this CAN Core transmitted was not acknowledged by another node. */
-  canErrorAck      = CAN_STATUS_LEC_ACK,
+    /** The message this CAN Core transmitted was not acknowledged by another node. */
+    canErrorAck      = CAN_STATUS_LEC_ACK,
 
-  /** Wrong monitored bus value : dominant when the module wanted to send a recessive. */
-  canErrorBit1     = CAN_STATUS_LEC_BIT1,
+    /** Wrong monitored bus value : dominant when the module wanted to send a recessive. */
+    canErrorBit1     = CAN_STATUS_LEC_BIT1,
 
-  /** Wrong monitored bus value : recessive when the module intended to send a dominant. */
-  canErrorBit0     = CAN_STATUS_LEC_BIT0,
+    /** Wrong monitored bus value : recessive when the module intended to send a dominant. */
+    canErrorBit0     = CAN_STATUS_LEC_BIT0,
 
-  /** CRC check sum incorrect. */
-  canErrorCrc      = CAN_STATUS_LEC_CRC,
+    /** CRC check sum incorrect. */
+    canErrorCrc      = CAN_STATUS_LEC_CRC,
 
-  /** Unused. No new error since the cpu wrote this value */
-  canErrorUnused   = CAN_STATUS_LEC_UNUSED
+    /** Unused. No new error since the cpu wrote this value */
+    canErrorUnused   = CAN_STATUS_LEC_UNUSED
 } CAN_ErrorCode_TypeDef;
 
 /** CAN peripheral mode */
 typedef enum {
-  /** CAN peripheral in Normal mode : ready to send and receive messages */
-  canModeNormal,
+    /** CAN peripheral in Normal mode : ready to send and receive messages */
+    canModeNormal,
 
-  /** CAN peripheral in Basic mode : no use of the RAM */
-  canModeBasic,
+    /** CAN peripheral in Basic mode : no use of the RAM */
+    canModeBasic,
 
-  /**
-   * CAN peripheral in Loopback mode : input from the CAN bus is disregarded
-   * and comes from TX instead
-   */
-  canModeLoopBack,
+    /**
+     * CAN peripheral in Loopback mode : input from the CAN bus is disregarded
+     * and comes from TX instead
+     */
+    canModeLoopBack,
 
-  /**
-   * CAN peripheral in SilentLoopback mode : input from the CAN bus is
-   * disregarded and comes from TX instead ; no output on the CAN bus
-   */
-  canModeSilentLoopBack,
+    /**
+     * CAN peripheral in SilentLoopback mode : input from the CAN bus is
+     * disregarded and comes from TX instead ; no output on the CAN bus
+     */
+    canModeSilentLoopBack,
 
-  /** CAN peripheral in Silent mode : no output on the CAN bus. If required to
-   * send a dominant bit, it's rerouted internally so that the CAN module
-   * monitors it but the CAN bus stays recessive.
-   */
-  canModeSilent
+    /** CAN peripheral in Silent mode : no output on the CAN bus. If required to
+     * send a dominant bit, it's rerouted internally so that the CAN module
+     * monitors it but the CAN bus stays recessive.
+     */
+    canModeSilent
 } CAN_Mode_TypeDef;
 
 /*******************************************************************************
@@ -124,56 +124,56 @@ typedef enum {
 
 /** CAN Message Object TypeDef structure. LSBs is used */
 typedef struct {
-  /** Message number of this Message Object, [1 - 32] */
-  uint8_t   msgNum;
+    /** Message number of this Message Object, [1 - 32] */
+    uint8_t   msgNum;
 
-  /** Id extended if true, standard if false  */
-  bool      extended;
+    /** Id extended if true, standard if false  */
+    bool      extended;
 
-  /**
-   * Id of the message, with 11 bits (standard) or 28 bits (extended).
-   * LSBs are used for both of them
-   */
-  uint32_t  id;
+    /**
+     * Id of the message, with 11 bits (standard) or 28 bits (extended).
+     * LSBs are used for both of them
+     */
+    uint32_t  id;
 
-  /** Data Length Code [0 - 8]  */
-  uint8_t   dlc;
+    /** Data Length Code [0 - 8]  */
+    uint8_t   dlc;
 
-  /** Pointer to the data, [0 - 8] bytes  */
-  uint8_t   data[8];
+    /** Pointer to the data, [0 - 8] bytes  */
+    uint8_t   data[8];
 
-  /** Mask for id filtering */
-  uint32_t  mask;
+    /** Mask for id filtering */
+    uint32_t  mask;
 
-  /** Enable the use of 'extended' value for filtering */
-  bool      extendedMask;
+    /** Enable the use of 'extended' value for filtering */
+    bool      extendedMask;
 
-  /** Enable the use of 'direction' value for filtering */
-  bool      directionMask;
+    /** Enable the use of 'direction' value for filtering */
+    bool      directionMask;
 } CAN_MessageObject_TypeDef;
 
 /** CAN initialization structure. */
 typedef struct {
-  /** true to set the CAN Device in normal mode after init */
-  bool      enable;
+    /** true to set the CAN Device in normal mode after init */
+    bool      enable;
 
-  /** True to reset messages during initialization */
-  bool      resetMessages;
+    /** True to reset messages during initialization */
+    bool      resetMessages;
 
-  /** Default bitrate */
-  uint32_t  bitrate;
+    /** Default bitrate */
+    uint32_t  bitrate;
 
-  /** Default Propagation Time Segment */
-  uint8_t   propagationTimeSegment;
+    /** Default Propagation Time Segment */
+    uint8_t   propagationTimeSegment;
 
-  /** Default Phase Buffer Segment 1 */
-  uint8_t   phaseBufferSegment1;
+    /** Default Phase Buffer Segment 1 */
+    uint8_t   phaseBufferSegment1;
 
-  /** Default Phase Buffer Segment 2 */
-  uint8_t   phaseBufferSegment2;
+    /** Default Phase Buffer Segment 2 */
+    uint8_t   phaseBufferSegment2;
 
-  /** Default Synchronisation Jump Width */
-  uint8_t   synchronisationJumpWidth;
+    /** Default Synchronisation Jump Width */
+    uint8_t   synchronisationJumpWidth;
 } CAN_Init_TypeDef;
 
 /**
@@ -272,7 +272,7 @@ void CAN_SendRequest(CAN_TypeDef *can,
  ******************************************************************************/
 __STATIC_INLINE void CAN_Enable(CAN_TypeDef *can, bool enable)
 {
-  BUS_RegBitWrite(&can->CTRL, _CAN_CTRL_INIT_SHIFT, (enable ? 0 : 1));
+    BUS_RegBitWrite(&can->CTRL, _CAN_CTRL_INIT_SHIFT, (enable ? 0 : 1));
 }
 
 /***************************************************************************//**
@@ -287,7 +287,7 @@ __STATIC_INLINE void CAN_Enable(CAN_TypeDef *can, bool enable)
  ******************************************************************************/
 __STATIC_INLINE bool CAN_IsEnabled(CAN_TypeDef *can)
 {
-  return (can->CTRL & _CAN_CTRL_INIT_MASK) == 0;
+    return (can->CTRL & _CAN_CTRL_INIT_MASK) == 0;
 }
 
 /***************************************************************************//**
@@ -304,8 +304,8 @@ __STATIC_INLINE bool CAN_IsEnabled(CAN_TypeDef *can)
 __STATIC_INLINE void CAN_ReadyWait(CAN_TypeDef *can,
                                    uint8_t interface)
 {
-  while ((_CAN_MIR_CMDREQ_BUSY_MASK & can->MIR[interface].CMDREQ) != 0) {
-  }
+    while ((_CAN_MIR_CMDREQ_BUSY_MASK & can->MIR[interface].CMDREQ) != 0) {
+    }
 }
 
 /***************************************************************************//**
@@ -320,10 +320,10 @@ __STATIC_INLINE void CAN_ReadyWait(CAN_TypeDef *can,
  ******************************************************************************/
 __STATIC_INLINE CAN_ErrorCode_TypeDef CAN_GetLastErrorCode(CAN_TypeDef *can)
 {
-  CAN_ErrorCode_TypeDef errorCode = (CAN_ErrorCode_TypeDef)
-                                    (can->STATUS & _CAN_STATUS_LEC_MASK);
-  can->STATUS |= ~_CAN_STATUS_LEC_MASK;
-  return errorCode;
+    CAN_ErrorCode_TypeDef errorCode = (CAN_ErrorCode_TypeDef)
+                                      (can->STATUS & _CAN_STATUS_LEC_MASK);
+    can->STATUS |= ~_CAN_STATUS_LEC_MASK;
+    return errorCode;
 }
 
 /***************************************************************************//**
@@ -339,7 +339,7 @@ __STATIC_INLINE CAN_ErrorCode_TypeDef CAN_GetLastErrorCode(CAN_TypeDef *can)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CAN_HasNewdata(CAN_TypeDef *can)
 {
-  return can->MESSAGEDATA;
+    return can->MESSAGEDATA;
 }
 
 /***************************************************************************//**
@@ -354,7 +354,7 @@ __STATIC_INLINE uint32_t CAN_HasNewdata(CAN_TypeDef *can)
  ******************************************************************************/
 __STATIC_INLINE void CAN_StatusIntClear(CAN_TypeDef *can, uint32_t flags)
 {
-  can->IF1IFC = flags;
+    can->IF1IFC = flags;
 }
 
 /***************************************************************************//**
@@ -369,7 +369,7 @@ __STATIC_INLINE void CAN_StatusIntClear(CAN_TypeDef *can, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CAN_StatusIntDisable(CAN_TypeDef *can, uint32_t flags)
 {
-  can->IF1IEN &= ~flags;
+    can->IF1IEN &= ~flags;
 }
 
 /***************************************************************************//**
@@ -384,7 +384,7 @@ __STATIC_INLINE void CAN_StatusIntDisable(CAN_TypeDef *can, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CAN_StatusIntEnable(CAN_TypeDef *can, uint32_t flags)
 {
-  can->IF1IEN |= flags;
+    can->IF1IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -402,7 +402,7 @@ __STATIC_INLINE void CAN_StatusIntEnable(CAN_TypeDef *can, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CAN_StatusIntGet(CAN_TypeDef *can)
 {
-  return can->IF1IF;
+    return can->IF1IF;
 }
 
 /***************************************************************************//**
@@ -420,10 +420,10 @@ __STATIC_INLINE uint32_t CAN_StatusIntGet(CAN_TypeDef *can)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CAN_StatusIntGetEnabled(CAN_TypeDef *can)
 {
-  uint32_t ien;
+    uint32_t ien;
 
-  ien = can->IF1IEN;
-  return can->IF1IF & ien;
+    ien = can->IF1IEN;
+    return can->IF1IF & ien;
 }
 
 /***************************************************************************//**
@@ -438,7 +438,7 @@ __STATIC_INLINE uint32_t CAN_StatusIntGetEnabled(CAN_TypeDef *can)
  ******************************************************************************/
 __STATIC_INLINE void CAN_StatusIntSet(CAN_TypeDef *can, uint32_t flags)
 {
-  can->IF1IFS = flags;
+    can->IF1IFS = flags;
 }
 
 /***************************************************************************//**
@@ -453,7 +453,7 @@ __STATIC_INLINE void CAN_StatusIntSet(CAN_TypeDef *can, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CAN_StatusGet(CAN_TypeDef *can)
 {
-  return can->STATUS & ~_CAN_STATUS_LEC_MASK;
+    return can->STATUS & ~_CAN_STATUS_LEC_MASK;
 }
 
 /***************************************************************************//**
@@ -468,7 +468,7 @@ __STATIC_INLINE uint32_t CAN_StatusGet(CAN_TypeDef *can)
  ******************************************************************************/
 __STATIC_INLINE void CAN_StatusClear(CAN_TypeDef *can, uint32_t flags)
 {
-  can->STATUS &= ~flags;
+    can->STATUS &= ~flags;
 }
 
 /***************************************************************************//**
@@ -483,7 +483,7 @@ __STATIC_INLINE void CAN_StatusClear(CAN_TypeDef *can, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CAN_GetErrorCount(CAN_TypeDef *can)
 {
-  return can->ERRCNT;
+    return can->ERRCNT;
 }
 
 /***************************************************************************//**
@@ -498,7 +498,7 @@ __STATIC_INLINE uint32_t CAN_GetErrorCount(CAN_TypeDef *can)
  ******************************************************************************/
 __STATIC_INLINE void CAN_MessageIntClear(CAN_TypeDef *can, uint32_t flags)
 {
-  can->IF0IFC = flags;
+    can->IF0IFC = flags;
 }
 
 /***************************************************************************//**
@@ -513,7 +513,7 @@ __STATIC_INLINE void CAN_MessageIntClear(CAN_TypeDef *can, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CAN_MessageIntDisable(CAN_TypeDef *can, uint32_t flags)
 {
-  can->IF0IEN &= ~flags;
+    can->IF0IEN &= ~flags;
 }
 
 /***************************************************************************//**
@@ -528,7 +528,7 @@ __STATIC_INLINE void CAN_MessageIntDisable(CAN_TypeDef *can, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CAN_MessageIntEnable(CAN_TypeDef *can, uint32_t flags)
 {
-  can->IF0IEN |= flags;
+    can->IF0IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -546,7 +546,7 @@ __STATIC_INLINE void CAN_MessageIntEnable(CAN_TypeDef *can, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CAN_MessageIntGet(CAN_TypeDef *can)
 {
-  return can->IF0IF;
+    return can->IF0IF;
 }
 
 /***************************************************************************//**
@@ -564,10 +564,10 @@ __STATIC_INLINE uint32_t CAN_MessageIntGet(CAN_TypeDef *can)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CAN_MessageIntGetEnabled(CAN_TypeDef *can)
 {
-  uint32_t ien;
+    uint32_t ien;
 
-  ien = can->IF0IEN;
-  return can->IF0IF & ien;
+    ien = can->IF0IEN;
+    return can->IF0IF & ien;
 }
 
 /***************************************************************************//**
@@ -582,7 +582,7 @@ __STATIC_INLINE uint32_t CAN_MessageIntGetEnabled(CAN_TypeDef *can)
  ******************************************************************************/
 __STATIC_INLINE void CAN_MessageIntSet(CAN_TypeDef *can, uint32_t flags)
 {
-  can->IF0IFS = flags;
+    can->IF0IFS = flags;
 }
 
 /** @} (end addtogroup CAN) */

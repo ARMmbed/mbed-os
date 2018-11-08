@@ -41,27 +41,27 @@ extern const USBH_AttachTiming_TypeDef  USBH_attachTiming[];
 extern USBH_Init_TypeDef                USBH_initData;
 extern volatile USBH_PortState_TypeDef  USBH_portStatus;
 
-USB_Status_TypeDef USBH_CtlSendSetup(   USBH_Ep_TypeDef *ep );
-USB_Status_TypeDef USBH_CtlSendData(    USBH_Ep_TypeDef *ep, uint16_t length );
-USB_Status_TypeDef USBH_CtlReceiveData( USBH_Ep_TypeDef *ep, uint16_t length );
+USB_Status_TypeDef USBH_CtlSendSetup(USBH_Ep_TypeDef *ep);
+USB_Status_TypeDef USBH_CtlSendData(USBH_Ep_TypeDef *ep, uint16_t length);
+USB_Status_TypeDef USBH_CtlReceiveData(USBH_Ep_TypeDef *ep, uint16_t length);
 
 #if defined( USB_RAW_API )
-int USBH_CtlRxRaw( uint8_t pid, USBH_Ep_TypeDef *ep, void *data, int byteCount );
-int USBH_CtlTxRaw( uint8_t pid, USBH_Ep_TypeDef *ep, void *data, int byteCount );
+int USBH_CtlRxRaw(uint8_t pid, USBH_Ep_TypeDef *ep, void *data, int byteCount);
+int USBH_CtlTxRaw(uint8_t pid, USBH_Ep_TypeDef *ep, void *data, int byteCount);
 #endif
 
-void USBHEP_EpHandler(     USBH_Ep_TypeDef *ep, USB_Status_TypeDef result );
-void USBHEP_CtrlEpHandler( USBH_Ep_TypeDef *ep, USB_Status_TypeDef result );
-void USBHEP_TransferDone(  USBH_Ep_TypeDef *ep, USB_Status_TypeDef result );
+void USBHEP_EpHandler(USBH_Ep_TypeDef *ep, USB_Status_TypeDef result);
+void USBHEP_CtrlEpHandler(USBH_Ep_TypeDef *ep, USB_Status_TypeDef result);
+void USBHEP_TransferDone(USBH_Ep_TypeDef *ep, USB_Status_TypeDef result);
 
-__STATIC_INLINE uint16_t USBH_GetFrameNum( void )
+__STATIC_INLINE uint16_t USBH_GetFrameNum(void)
 {
-  return USBHHAL_GetFrameNum();
+    return USBHHAL_GetFrameNum();
 }
 
-__STATIC_INLINE bool USBH_FrameNumIsEven( void )
+__STATIC_INLINE bool USBH_FrameNumIsEven(void)
 {
-  return ( USBHHAL_GetFrameNum() & 1 ) == 0;
+    return (USBHHAL_GetFrameNum() & 1) == 0;
 }
 
 /** @endcond */

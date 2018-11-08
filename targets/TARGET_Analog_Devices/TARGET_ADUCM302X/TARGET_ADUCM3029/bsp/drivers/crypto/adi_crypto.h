@@ -50,7 +50,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef ADI_CRYPTO_H
 #define ADI_CRYPTO_H
 
- /*! \cond PRIVATE */
+/*! \cond PRIVATE */
 #include <adi_processor.h>
 #include <adi_callback.h>
 #include <rtos_map/adi_rtos_map.h>  /* for ADI_SEM_SIZE */
@@ -66,8 +66,7 @@ extern "C" {
  * \enum ADI_CRYPTO_RESULT
  * Crypto API return codes
  */
-typedef enum
-{
+typedef enum {
     ADI_CRYPTO_SUCCESS = 0,              /*!<  No Error, API suceeded.                                   */
     ADI_CRYPTO_ERR_ALREADY_INITIALIZED,  /*!<  Crypto is already initialized.                            */
     ADI_CRYPTO_ERR_BAD_BUFFER,           /*!<  Invalid buffer parameters.                                */
@@ -100,8 +99,7 @@ typedef enum
  * \enum ADI_CRYPTO_EVENT
  * Crypto callback events
  */
-typedef enum
-{
+typedef enum {
     /* successful buffer completion events */
     ADI_CRYPTO_EVENT_STATUS_CBC_DONE,        /*!<  CBC operation is complete.         */
     ADI_CRYPTO_EVENT_STATUS_CCM_DONE,        /*!<  CCM operation is complete.         */
@@ -133,29 +131,26 @@ typedef enum
 #endif
 
 /*! A device handle used in all API functions to identify the flash device. */
-typedef struct __ADI_CRYPTO_DEV_DATA_TYPE* ADI_CRYPTO_HANDLE;
+typedef struct __ADI_CRYPTO_DEV_DATA_TYPE *ADI_CRYPTO_HANDLE;
 
 /*! Number of bytes to allocate for SHA256 hash outputs */
 #define ADI_CRYPTO_SHA_HASH_BYTES        (256u/8u)
 
 /*! Computation mode(Encryption/Decryption) for given buffers */
-typedef enum
-{
+typedef enum {
     ADI_CRYPTO_DECODE = (0u << BITP_CRYPT_CFG_ENCR),    /*!< Encoding mode is decryption. */
     ADI_CRYPTO_ENCODE = (1u << BITP_CRYPT_CFG_ENCR),    /*!< Encoding mode is encryption. */
 } ADI_CRYPTO_CODING_MODE;
 
 /*! Enum for the AES KEY Length */
-typedef enum
-{
+typedef enum {
     ADI_CRYPTO_AES_KEY_LEN_128_BIT = (0u << BITP_CRYPT_CFG_AESKEYLEN),     /*!< KEY length is 128 bits. */
     ADI_CRYPTO_AES_KEY_LEN_256_BIT = (2u << BITP_CRYPT_CFG_AESKEYLEN),     /*!< KEY length is 256 bits. */
 } ADI_CRYPTO_AES_KEY_LEN;
 
 #if defined (__ADUCM4x50__)
 /*! Enable byte swapping for KEY writes */
-typedef enum
-{
+typedef enum {
     ADI_CRYPTO_KEY_LITTLE_ENDIAN = (0u << BITP_CRYPT_CFG_KEY_BYTESWAP),    /*!< Do not apply KEY write byte swaps. */
     ADI_CRYPTO_KEY_BIG_ENDIAN    = (1u << BITP_CRYPT_CFG_KEY_BYTESWAP),    /*!< Apply KEY write byte swaps.        */
 } ADI_CRYPTO_KEY_BYTE_SWAP;
@@ -163,16 +158,14 @@ typedef enum
 
 #if defined (__ADUCM4x50__)
 /*! Byte-swap the SHA Input Data */
-typedef enum
-{
+typedef enum {
     ADI_CRYPTO_SHA_LITTLE_ENDIAN = (0u << BITP_CRYPT_CFG_SHA_BYTESWAP),    /*!< Do not apply SHA data write byte swaps. */
     ADI_CRYPTO_SHA_BIG_ENDIAN    = (1u << BITP_CRYPT_CFG_SHA_BYTESWAP),    /*!< Apply SHA data write byte swaps. */
 } ADI_CRYPTO_SHA_BYTE_SWAP;
 #endif /*__ADUCM4x50__*/
 
 /*! Byte-swap the AES Input Data */
-typedef enum
-{
+typedef enum {
     ADI_CRYPTO_AES_LITTLE_ENDIAN = (0u << BITP_CRYPT_CFG_AES_BYTESWAP),    /*!< Do not apply AES data write byte swaps. */
     ADI_CRYPTO_AES_BIG_ENDIAN    = (1u << BITP_CRYPT_CFG_AES_BYTESWAP),    /*!< Apply AES data write byte swaps. */
 } ADI_CRYPTO_AES_BYTE_SWAP;
@@ -196,36 +189,33 @@ typedef enum {
 
 #if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
 /*! PKSTOR Key Wrap/Unwrap key lengths */
-typedef enum
-{
-	ADI_PK_KUW_LEN_128       = (1u << BITP_CRYPT_CFG_KUWKEYLEN),       /*!< key wrap/unwrap size is 128-bit. */
-	ADI_PK_KUW_LEN_256       = (2u << BITP_CRYPT_CFG_KUWKEYLEN),       /*!< key wrap/unwrap size is 256-bit. */
-	ADI_PK_KUW_LEN_512       = (3u << BITP_CRYPT_CFG_KUWKEYLEN),       /*!< key wrap/unwrap size is 512-bit (compute-only; not store). */
+typedef enum {
+    ADI_PK_KUW_LEN_128       = (1u << BITP_CRYPT_CFG_KUWKEYLEN),       /*!< key wrap/unwrap size is 128-bit. */
+    ADI_PK_KUW_LEN_256       = (2u << BITP_CRYPT_CFG_KUWKEYLEN),       /*!< key wrap/unwrap size is 256-bit. */
+    ADI_PK_KUW_LEN_512       = (3u << BITP_CRYPT_CFG_KUWKEYLEN),       /*!< key wrap/unwrap size is 512-bit (compute-only; not store). */
 } ADI_CRYPTO_PK_KUW_LEN;
 #endif /*ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT*/
 
 
 #if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
 /*! PKSTOR commands */
-typedef enum
-{
-	ADI_PK_CMD_WRAP_KUW      = (0x1 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< KUW wrap command. */
-	ADI_PK_CMD_UNWRAP_KUW    = (0x2 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< KUW unwrap command. */
-	ADI_PK_CMD_RESET_KUW     = (0x3 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< clear all KUW registers command. */
-	ADI_PK_CMD_USE_KEY       = (0x4 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< load Key registers from KUW registers command. */
-	ADI_PK_CMD_USE_DEV_KEY   = (0x5 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< load Key registers with devide key command. */
-	/* gap */
-	ADI_PK_CMD_RETRIEVE_KEY  = (0x8 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< load KUW registers command. */
-	ADI_PK_CMD_STORE_KEY     = (0x9 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< program KUW registers into flash command. */
-	ADI_PK_CMD_ERASE_KEY     = (0xA << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< erase single key set from flash command. */
-	ADI_PK_CMD_ERASE_PAGE    = (0xB << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< erase entire key page command. */
+typedef enum {
+    ADI_PK_CMD_WRAP_KUW      = (0x1 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< KUW wrap command. */
+    ADI_PK_CMD_UNWRAP_KUW    = (0x2 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< KUW unwrap command. */
+    ADI_PK_CMD_RESET_KUW     = (0x3 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< clear all KUW registers command. */
+    ADI_PK_CMD_USE_KEY       = (0x4 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< load Key registers from KUW registers command. */
+    ADI_PK_CMD_USE_DEV_KEY   = (0x5 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< load Key registers with devide key command. */
+    /* gap */
+    ADI_PK_CMD_RETRIEVE_KEY  = (0x8 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< load KUW registers command. */
+    ADI_PK_CMD_STORE_KEY     = (0x9 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< program KUW registers into flash command. */
+    ADI_PK_CMD_ERASE_KEY     = (0xA << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< erase single key set from flash command. */
+    ADI_PK_CMD_ERASE_PAGE    = (0xB << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< erase entire key page command. */
 } ADI_CRYPTO_PK_CMD;
 #endif /*ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT*/
 
 
 /*! superset user Crypto transaction structure (different elements used for different modes) */
-typedef struct
-{
+typedef struct {
     ADI_CRYPTO_CIPHER_MODE    eCipherMode;        /*!< Cipher mode to use */
     ADI_CRYPTO_CODING_MODE    eCodingMode;        /*!< Coding Mode (Encryption or Decryption) */
 #if defined (__ADUCM4x50__)
@@ -262,7 +252,7 @@ typedef struct
     uint32_t                  numShaBits;         /*!< SHA mode: Number of bits in the SHA payload, which may be odd-sized */
 
 #if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
-	/* PKSTOR extensions used only in context of overriding above key info with protected keys stored in flash. */
+    /* PKSTOR extensions used only in context of overriding above key info with protected keys stored in flash. */
     /* Assumes previously wrapped keys have already been stored using adi_crypto_pk_Xxx APIs. */
     /* NOTE: Enabeling PKSTOR boolean results in explicit key loads being replaced with PKSTOR keys prior to all Crypto operations */
     /* When enabled, the PKSTOR sequence is to RETRIEVE, UNWRAP and USE whichever key index and size is designated below. */
@@ -277,38 +267,38 @@ typedef struct
 /*================ PUBLIC API ==================*/
 
 
-ADI_CRYPTO_RESULT adi_crypto_Open                  (uint32_t const nDeviceNum, void * const pMemory, uint32_t const nMemorySize, ADI_CRYPTO_HANDLE * const phDevice);
-ADI_CRYPTO_RESULT adi_crypto_Close                 (ADI_CRYPTO_HANDLE const hDevice);
-ADI_CRYPTO_RESULT adi_crypto_RegisterCallback      (ADI_CRYPTO_HANDLE const hDevice, ADI_CALLBACK const pfCallback, void * const pCBParam);
-ADI_CRYPTO_RESULT adi_crypto_Enable                (ADI_CRYPTO_HANDLE const hDevice, bool const bEnable);
+ADI_CRYPTO_RESULT adi_crypto_Open(uint32_t const nDeviceNum, void *const pMemory, uint32_t const nMemorySize, ADI_CRYPTO_HANDLE *const phDevice);
+ADI_CRYPTO_RESULT adi_crypto_Close(ADI_CRYPTO_HANDLE const hDevice);
+ADI_CRYPTO_RESULT adi_crypto_RegisterCallback(ADI_CRYPTO_HANDLE const hDevice, ADI_CALLBACK const pfCallback, void *const pCBParam);
+ADI_CRYPTO_RESULT adi_crypto_Enable(ADI_CRYPTO_HANDLE const hDevice, bool const bEnable);
 
-ADI_CRYPTO_RESULT adi_crypto_SubmitBuffer          (ADI_CRYPTO_HANDLE const hDevice, ADI_CRYPTO_TRANSACTION * const pBuffer);
-ADI_CRYPTO_RESULT adi_crypto_GetBuffer             (ADI_CRYPTO_HANDLE const hDevice, ADI_CRYPTO_TRANSACTION ** const ppBuffer);
-ADI_CRYPTO_RESULT adi_crypto_IsBufferAvailable     (ADI_CRYPTO_HANDLE const hDevice, bool * const pbAvailable);
+ADI_CRYPTO_RESULT adi_crypto_SubmitBuffer(ADI_CRYPTO_HANDLE const hDevice, ADI_CRYPTO_TRANSACTION *const pBuffer);
+ADI_CRYPTO_RESULT adi_crypto_GetBuffer(ADI_CRYPTO_HANDLE const hDevice, ADI_CRYPTO_TRANSACTION **const ppBuffer);
+ADI_CRYPTO_RESULT adi_crypto_IsBufferAvailable(ADI_CRYPTO_HANDLE const hDevice, bool *const pbAvailable);
 
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
-ADI_CRYPTO_RESULT adi_crypto_EnableDmaMode         (ADI_CRYPTO_HANDLE const hDevice, bool const bEnable);
+ADI_CRYPTO_RESULT adi_crypto_EnableDmaMode(ADI_CRYPTO_HANDLE const hDevice, bool const bEnable);
 #endif
 
 #if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
-ADI_CRYPTO_RESULT adi_crypto_pk_EnablePKSTOR       (ADI_CRYPTO_HANDLE const hDevice, bool const bEnable);
+ADI_CRYPTO_RESULT adi_crypto_pk_EnablePKSTOR(ADI_CRYPTO_HANDLE const hDevice, bool const bEnable);
 
-ADI_CRYPTO_RESULT adi_crypto_pk_SetValString       (ADI_CRYPTO_HANDLE const hDevice, uint8_t * const pValStr);
-ADI_CRYPTO_RESULT adi_crypto_pk_GetValString       (ADI_CRYPTO_HANDLE const hDevice, uint8_t * const pValStr);
+ADI_CRYPTO_RESULT adi_crypto_pk_SetValString(ADI_CRYPTO_HANDLE const hDevice, uint8_t *const pValStr);
+ADI_CRYPTO_RESULT adi_crypto_pk_GetValString(ADI_CRYPTO_HANDLE const hDevice, uint8_t *const pValStr);
 
-ADI_CRYPTO_RESULT adi_crypto_pk_SetKuwLen          (ADI_CRYPTO_HANDLE const hDevice, ADI_CRYPTO_PK_KUW_LEN const kuwDataLen);
-ADI_CRYPTO_RESULT adi_crypto_pk_SetKuwReg          (ADI_CRYPTO_HANDLE const hDevice, uint8_t * const pKuwData);
-ADI_CRYPTO_RESULT adi_crypto_pk_WrapKuwReg         (ADI_CRYPTO_HANDLE const hDevice);
-ADI_CRYPTO_RESULT adi_crypto_pk_UnwrapKuwReg       (ADI_CRYPTO_HANDLE const hDevice);
-ADI_CRYPTO_RESULT adi_crypto_pk_ResetKuwReg        (ADI_CRYPTO_HANDLE const hDevice);
+ADI_CRYPTO_RESULT adi_crypto_pk_SetKuwLen(ADI_CRYPTO_HANDLE const hDevice, ADI_CRYPTO_PK_KUW_LEN const kuwDataLen);
+ADI_CRYPTO_RESULT adi_crypto_pk_SetKuwReg(ADI_CRYPTO_HANDLE const hDevice, uint8_t *const pKuwData);
+ADI_CRYPTO_RESULT adi_crypto_pk_WrapKuwReg(ADI_CRYPTO_HANDLE const hDevice);
+ADI_CRYPTO_RESULT adi_crypto_pk_UnwrapKuwReg(ADI_CRYPTO_HANDLE const hDevice);
+ADI_CRYPTO_RESULT adi_crypto_pk_ResetKuwReg(ADI_CRYPTO_HANDLE const hDevice);
 
-ADI_CRYPTO_RESULT adi_crypto_pk_UseDecryptedKey    (ADI_CRYPTO_HANDLE const hDevice);
-ADI_CRYPTO_RESULT adi_crypto_pk_LoadDeviceKey      (ADI_CRYPTO_HANDLE const hDevice);
+ADI_CRYPTO_RESULT adi_crypto_pk_UseDecryptedKey(ADI_CRYPTO_HANDLE const hDevice);
+ADI_CRYPTO_RESULT adi_crypto_pk_LoadDeviceKey(ADI_CRYPTO_HANDLE const hDevice);
 
-ADI_CRYPTO_RESULT adi_crypto_pk_RetrieveKey        (ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
-ADI_CRYPTO_RESULT adi_crypto_pk_StoreKey           (ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
-ADI_CRYPTO_RESULT adi_crypto_pk_DestroyKey         (ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
-ADI_CRYPTO_RESULT adi_crypto_pk_ErasePage          (ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
+ADI_CRYPTO_RESULT adi_crypto_pk_RetrieveKey(ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
+ADI_CRYPTO_RESULT adi_crypto_pk_StoreKey(ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
+ADI_CRYPTO_RESULT adi_crypto_pk_DestroyKey(ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
+ADI_CRYPTO_RESULT adi_crypto_pk_ErasePage(ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
 #endif  /* ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT */
 
 

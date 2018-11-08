@@ -32,7 +32,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -40,7 +40,7 @@
 #define __STM32L1xx_HAL_COMP_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,9 +52,9 @@
 
 /** @defgroup COMPEx COMPEx
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup COMPEx_Exported_Constants COMPEx Exported Constants
   * @{
@@ -108,7 +108,7 @@
 #define COMP_NONINVERTINGINPUT_OPAMP3   COMP_NONINVERTINGINPUT_PC3  /*!< OPAMP3 output connection to COMP1 non-inverting input */
 #endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD */
 #endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
-   
+
 #if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
 /* Non-inverting inputs specific to COMP2 */
 #define COMP_NONINVERTINGINPUT_PB4      RI_IOSWITCH_GR6_1       /*!< I/O pin PB4 connection to COMP2 non-inverting input */
@@ -145,8 +145,8 @@
 
 #define COMP_NONINVERTINGINPUT_OPAMP1   COMP_NONINVERTINGINPUT_PA3  /*!< OPAMP1 output connection to COMP1 non-inverting input */
 #define COMP_NONINVERTINGINPUT_OPAMP2   COMP_NONINVERTINGINPUT_PB0  /*!< OPAMP2 output connection to COMP1 non-inverting input */
-#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC */   
-   
+#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC */
+
 #if defined(STM32L100xB) || defined (STM32L151xB) || defined (STM32L152xB) || defined(STM32L100xBA) || defined (STM32L151xBA) || defined (STM32L152xBA)
 /* Non-inverting inputs specific to COMP2 */
 #define COMP_NONINVERTINGINPUT_PB4      RI_IOSWITCH_GR6_1       /*!< I/O pin PB4 connection to COMP2 non-inverting input */
@@ -283,7 +283,7 @@
 /**
   * @}
   */
-  
+
 /**
   * @}
   */
@@ -296,7 +296,7 @@
   */
 
 /**
-  * @brief Specifies whether Routing Interface (RI) needs to be configured for 
+  * @brief Specifies whether Routing Interface (RI) needs to be configured for
   * switches of comparator non-inverting input.
   * @param  __HANDLE__: COMP handle.
   * @retval None.
@@ -312,7 +312,7 @@
 
 /**
   * @}
-  */ 
+  */
 
 
 
@@ -321,11 +321,11 @@
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 #ifdef __cplusplus
 }

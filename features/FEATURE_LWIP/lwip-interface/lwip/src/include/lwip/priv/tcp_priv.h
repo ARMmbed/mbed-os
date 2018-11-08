@@ -58,30 +58,30 @@ extern "C" {
 /* Functions for interfacing with TCP: */
 
 /* Lower layer interface to TCP: */
-void             tcp_init    (void);  /* Initialize this module. */
-void             tcp_tmr     (void);  /* Must be called every
+void             tcp_init(void);      /* Initialize this module. */
+void             tcp_tmr(void);  /* Must be called every
                                          TCP_TMR_INTERVAL
                                          ms. (Typically 250 ms). */
 /* It is also possible to call these two functions at the right
    intervals (instead of calling tcp_tmr()). */
-void             tcp_slowtmr (void);
-void             tcp_fasttmr (void);
+void             tcp_slowtmr(void);
+void             tcp_fasttmr(void);
 
 /* Call this from a netif driver (watch out for threading issues!) that has
    returned a memory error on transmit and now has free buffers to send more.
    This iterates all active pcbs that had an error and tries to call
    tcp_output, so use this with care as it might slow down the system. */
-void             tcp_txnow   (void);
+void             tcp_txnow(void);
 
 /* Only used by IP to pass a TCP segment to TCP: */
-void             tcp_input   (struct pbuf *p, struct netif *inp);
+void             tcp_input(struct pbuf *p, struct netif *inp);
 /* Used within the TCP code only: */
-struct tcp_pcb * tcp_alloc   (u8_t prio);
-void             tcp_abandon (struct tcp_pcb *pcb, int reset);
+struct tcp_pcb *tcp_alloc(u8_t prio);
+void             tcp_abandon(struct tcp_pcb *pcb, int reset);
 err_t            tcp_send_empty_ack(struct tcp_pcb *pcb);
-void             tcp_rexmit  (struct tcp_pcb *pcb);
-void             tcp_rexmit_rto  (struct tcp_pcb *pcb);
-void             tcp_rexmit_fast (struct tcp_pcb *pcb);
+void             tcp_rexmit(struct tcp_pcb *pcb);
+void             tcp_rexmit_rto(struct tcp_pcb *pcb);
+void             tcp_rexmit_fast(struct tcp_pcb *pcb);
 u32_t            tcp_update_rcv_ann_wnd(struct tcp_pcb *pcb);
 err_t            tcp_process_refused_data(struct tcp_pcb *pcb);
 
@@ -246,25 +246,25 @@ err_t            tcp_process_refused_data(struct tcp_pcb *pcb);
 
 /* This structure represents a TCP segment on the unsent, unacked and ooseq queues */
 struct tcp_seg {
-  struct tcp_seg *next;    /* used when putting segments on a queue */
-  struct pbuf *p;          /* buffer containing data + TCP header */
-  u16_t len;               /* the TCP length of this segment */
+    struct tcp_seg *next;    /* used when putting segments on a queue */
+    struct pbuf *p;          /* buffer containing data + TCP header */
+    u16_t len;               /* the TCP length of this segment */
 #if TCP_OVERSIZE_DBGCHECK
-  u16_t oversize_left;     /* Extra bytes available at the end of the last
+    u16_t oversize_left;     /* Extra bytes available at the end of the last
                               pbuf in unsent (used for asserting vs.
                               tcp_pcb.unsent_oversize only) */
 #endif /* TCP_OVERSIZE_DBGCHECK */
 #if TCP_CHECKSUM_ON_COPY
-  u16_t chksum;
-  u8_t  chksum_swapped;
+    u16_t chksum;
+    u8_t  chksum_swapped;
 #endif /* TCP_CHECKSUM_ON_COPY */
-  u8_t  flags;
+    u8_t  flags;
 #define TF_SEG_OPTS_MSS         (u8_t)0x01U /* Include MSS option. */
 #define TF_SEG_OPTS_TS          (u8_t)0x02U /* Include timestamp option. */
 #define TF_SEG_DATA_CHECKSUMMED (u8_t)0x04U /* ALL data (not the header) is
                                                checksummed into 'chksum' */
 #define TF_SEG_OPTS_WND_SCALE   (u8_t)0x08U /* Include WND SCALE option */
-  struct tcp_hdr *tcphdr;  /* the TCP header */
+    struct tcp_hdr *tcphdr;  /* the TCP header */
 };
 
 #define LWIP_TCP_OPT_EOL        0
@@ -314,8 +314,8 @@ extern u8_t tcp_active_pcbs_changed;
 
 /* The TCP PCB lists. */
 union tcp_listen_pcbs_t { /* List of all TCP PCBs in LISTEN state. */
-  struct tcp_pcb_listen *listen_pcbs;
-  struct tcp_pcb *pcbs;
+    struct tcp_pcb_listen *listen_pcbs;
+    struct tcp_pcb *pcbs;
 };
 extern struct tcp_pcb *tcp_bound_pcbs;
 extern union tcp_listen_pcbs_t tcp_listen_pcbs;
@@ -326,7 +326,7 @@ extern struct tcp_pcb *tcp_tw_pcbs;      /* List of all TCP PCBs in TIME-WAIT. *
 
 #define NUM_TCP_PCB_LISTS_NO_TIME_WAIT  3
 #define NUM_TCP_PCB_LISTS               4
-extern struct tcp_pcb ** const tcp_pcb_lists[NUM_TCP_PCB_LISTS];
+extern struct tcp_pcb **const tcp_pcb_lists[NUM_TCP_PCB_LISTS];
 
 /* Axioms about the above lists:
    1) Every TCP PCB that is not CLOSED is in one of the lists.
@@ -452,8 +452,8 @@ err_t tcp_enqueue_flags(struct tcp_pcb *pcb, u8_t flags);
 void tcp_rexmit_seg(struct tcp_pcb *pcb, struct tcp_seg *seg);
 
 void tcp_rst(u32_t seqno, u32_t ackno,
-       const ip_addr_t *local_ip, const ip_addr_t *remote_ip,
-       u16_t local_port, u16_t remote_port);
+             const ip_addr_t *local_ip, const ip_addr_t *remote_ip,
+             u16_t local_port, u16_t remote_port);
 
 u32_t tcp_next_iss(struct tcp_pcb *pcb);
 
@@ -464,7 +464,7 @@ void  tcp_trigger_input_pcb_close(void);
 #if TCP_CALCULATE_EFF_SEND_MSS
 u16_t tcp_eff_send_mss_impl(u16_t sendmss, const ip_addr_t *dest
 #if LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING
-                           , const ip_addr_t *src
+                            , const ip_addr_t *src
 #endif /* LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING */
                            );
 #if LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING
@@ -496,7 +496,7 @@ s16_t tcp_pcbs_sane(void);
  * that a timer is needed (i.e. active- or time-wait-pcb found). */
 void tcp_timer_needed(void);
 
-void tcp_netif_ip_addr_changed(const ip_addr_t* old_addr, const ip_addr_t* new_addr);
+void tcp_netif_ip_addr_changed(const ip_addr_t *old_addr, const ip_addr_t *new_addr);
 
 #ifdef __cplusplus
 }

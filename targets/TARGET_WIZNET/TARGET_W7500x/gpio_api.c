@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
- 
+
 #include "mbed_assert.h"
 #include "gpio_api.h"
 #include "pinmap.h"
@@ -48,7 +48,7 @@ void gpio_init(gpio_t *obj, PinName pin)
     if (pin == (PinName)NC) {
         return;
     }
-    
+
     obj->port_num = WIZ_PORT(pin);
     obj->pin_index    = WIZ_PIN_INDEX(pin);
     obj->pin = pin;

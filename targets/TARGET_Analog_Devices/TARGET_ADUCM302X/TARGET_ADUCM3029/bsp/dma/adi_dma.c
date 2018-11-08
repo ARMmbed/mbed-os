@@ -90,7 +90,7 @@ POSSIBILITY OF SUCH DAMAGE.
 /*! DMA Channel callback information structure */
 typedef struct _DMA_CHANNEL {
     ADI_CALLBACK        pfCallback;             /*!< Pointer to the callback func */
-    void*               pCBParam;               /*!< Application Callback param */
+    void               *pCBParam;               /*!< Application Callback param */
 } DMA_CHANNEL_CALLBACK_INFO;
 
 /*! \struct ADI_DMA_DEV_DATA
@@ -120,19 +120,19 @@ ADI_ALIGNED_PRAGMA(CCD_ALIGN)
 static ADI_DCC_TypeDef gChannelControlDataArray[CCD_SIZE * 2u] ADI_ALIGNED_ATTRIBUTE(CCD_ALIGN)
 
 #ifdef ADI_DMA_DESCRIPTORS_IN_VOLATILE_MEMORY
-	/* conditional placement of DMA descriptor table to volatile memory */
-	@ "volatile_ram";
+/* conditional placement of DMA descriptor table to volatile memory */
+@ "volatile_ram";
 #else
-	/* default placement to non-volatile memory (no override) */
-	;
+/* default placement to non-volatile memory (no override) */
+;
 #endif
 
 
 /* pointer to the primary CCD array */
-ADI_DCC_TypeDef* const pPrimaryCCD = &gChannelControlDataArray[0];
+ADI_DCC_TypeDef *const pPrimaryCCD = &gChannelControlDataArray[0];
 
 /* pointer to the alternate CCD array */
-ADI_DCC_TypeDef* const pAlternateCCD = &gChannelControlDataArray[CCD_SIZE];
+ADI_DCC_TypeDef *const pAlternateCCD = &gChannelControlDataArray[CCD_SIZE];
 
 
 /*! DMA Device Driver Data instance
@@ -142,15 +142,16 @@ ADI_DCC_TypeDef* const pAlternateCCD = &gChannelControlDataArray[CCD_SIZE];
 static ADI_DMA_DEV_DATA DMA_DevData = {
 
     false,                      /*!< DMA device data not initialized. (See adi_dma_Init) */
-    {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0},
-     {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0},
-     {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0},
-     {0,0}, {0,0}, {0,0}},
+    {   {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
+        {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
+        {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
+        {0, 0}, {0, 0}, {0, 0}
+    },
     0ul                         /*!< channels-in-use bitfield */
 };
 
 /*! pointer to the DMA Device Driver Data instance */
-static ADI_DMA_DEV_DATA* const pDMA_DevData = &DMA_DevData;
+static ADI_DMA_DEV_DATA *const pDMA_DevData = &DMA_DevData;
 
 /*=============  Local function declarations  =============*/
 
@@ -177,8 +178,7 @@ void adi_dma_Init(void)
     ADI_INT_STATUS_ALLOC();
     ADI_ENTER_CRITICAL_REGION();
 
-    if( false == pDMA_DevData->Initialized )
-    {
+    if (false == pDMA_DevData->Initialized) {
         pDMA_DevData->Initialized = true;
 
         /* Enable the DMA Controller */
@@ -191,7 +191,7 @@ void adi_dma_Init(void)
         NVIC_EnableIRQ(DMA_CHAN_ERR_IRQn);
 
         /* Reset per-channel, bitmapped control registers (W1C) */
-        const uint32_t w1r_value = (uint32_t) ((1 << NUM_DMA_CHANNELSn) - 1);
+        const uint32_t w1r_value = (uint32_t)((1 << NUM_DMA_CHANNELSn) - 1);
         pADI_DMA0->RMSK_SET        = w1r_value;
         pADI_DMA0->EN_CLR          = w1r_value;
         pADI_DMA0->ALT_CLR         = w1r_value;
@@ -220,11 +220,11 @@ void adi_dma_Init(void)
  *              - #ADI_DMA_ERR_NOT_INITIALIZED          [D] adi_dma_Init must be called prior registering a call-back function.
  *              - #ADI_DMA_ERR_INVALID_PARAMETER        [D] Some parameter(s) passed to the function is invalid.
  */
-ADI_DMA_RESULT adi_dma_RegisterCallback (
+ADI_DMA_RESULT adi_dma_RegisterCallback(
     DMA_CHANn_TypeDef   const eChannelID,
     ADI_CALLBACK        const pfCallback,
-    void*               const pCBParam
-    )
+    void               *const pCBParam
+)
 {
     ADI_DMA_RESULT result = ADI_DMA_SUCCESS;
 
@@ -232,10 +232,9 @@ ADI_DMA_RESULT adi_dma_RegisterCallback (
     /* DMA must be initialized first */
     if (false == pDMA_DevData->Initialized) {
         result = ADI_DMA_ERR_NOT_INITIALIZED;
-    }else{
+    } else {
         const size_t numChannelId = sizeof(pDMA_DevData->CallbackInfo) / sizeof(DMA_CHANNEL_CALLBACK_INFO);
-        if (numChannelId <= eChannelID)                 /*!< pDMA_DevData->CallbackInfo definition is invalid */
-        {
+        if (numChannelId <= eChannelID) {               /*!< pDMA_DevData->CallbackInfo definition is invalid */
             result = ADI_DMA_ERR_INVALID_PARAMETER;
         }
     }
@@ -243,7 +242,7 @@ ADI_DMA_RESULT adi_dma_RegisterCallback (
 #endif
     {
         /* eChannelID cannot be out of range by definition (we use DMA_CHANn_TypeDef) */
-        DMA_CHANNEL_CALLBACK_INFO * pChannel = &pDMA_DevData->CallbackInfo[eChannelID];
+        DMA_CHANNEL_CALLBACK_INFO *pChannel = &pDMA_DevData->CallbackInfo[eChannelID];
 
         /* Set the callback parameters */
         pChannel->pfCallback = pfCallback;      /* assign the pointer to a callback function */
@@ -252,7 +251,7 @@ ADI_DMA_RESULT adi_dma_RegisterCallback (
         const uint32_t nChannelBit = (1u << eChannelID);
         if (NULL != pfCallback) {
             pDMA_DevData->ChannelsInUse |= nChannelBit;         /* set the bit to mark the channel as "being used" */
-        }else{
+        } else {
             pDMA_DevData->ChannelsInUse &= (~nChannelBit);      /* clear the bit to mark the channel as "not being used" */
         }
     }
@@ -303,28 +302,25 @@ void DMA_Err_Int_Handler(void)
     /* if there are invalid channel descriptors or channel errors amongts the channels in use */
     uint32_t functionsToBeCalled = pDMA_DevData->ChannelsInUse & (nErrChnClr | nInvdDescClr);
 
-    if (functionsToBeCalled > 0u)
-    {
+    if (functionsToBeCalled > 0u) {
         const uint32_t numBits = sizeof(uint32_t) << 3; /* maximum number of bits to be considered */
         uint32_t nlz;                                   /* number of leading zeroes in functionsToBeCalled */
 
         /* For all the bits set in functionsToBeCalled, starting from the MSB */
-        for (nlz = (uint32_t) ADI_CLZ(functionsToBeCalled); nlz < numBits; nlz = (uint32_t) ADI_CLZ(functionsToBeCalled))
-        {
+        for (nlz = (uint32_t) ADI_CLZ(functionsToBeCalled); nlz < numBits; nlz = (uint32_t) ADI_CLZ(functionsToBeCalled)) {
             const uint32_t bitSet = numBits - nlz - 1u; /* bit position in functionsToBeCalled */
             const uint32_t selected_bit = ((uint32_t)1u << bitSet);
-            DMA_CHANNEL_CALLBACK_INFO* pChannel = &pDMA_DevData->CallbackInfo[bitSet];
+            DMA_CHANNEL_CALLBACK_INFO *pChannel = &pDMA_DevData->CallbackInfo[bitSet];
 
             /* if there's a callback function to be called */
-            if (NULL != pChannel->pfCallback)
-            {
+            if (NULL != pChannel->pfCallback) {
                 /* define the nature of the error: DMA bus error or else invalid descriptor */
                 uint32_t nEvent = ((nErrChnClr & selected_bit) != 0u)
-                                ? (uint32_t)ADI_DMA_EVENT_ERR_BUS
-                                : (uint32_t)ADI_DMA_EVENT_ERR_INVALID_DESCRIPTOR;
+                                  ? (uint32_t)ADI_DMA_EVENT_ERR_BUS
+                                  : (uint32_t)ADI_DMA_EVENT_ERR_INVALID_DESCRIPTOR;
 
                 /* report the error to the peripheral through the callback function */
-                pChannel->pfCallback (pChannel->pCBParam, nEvent, NULL );
+                pChannel->pfCallback(pChannel->pCBParam, nEvent, NULL);
             }
 
             functionsToBeCalled &= ~selected_bit;       /* clear bit in functionsToBeCalled */

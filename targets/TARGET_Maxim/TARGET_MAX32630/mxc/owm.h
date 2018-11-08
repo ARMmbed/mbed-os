@@ -3,41 +3,41 @@
  * @brief      Registers, Bit Masks and Bit Positions for the 1-Wire Master
  *             peripheral module.
  */
- /* ****************************************************************************
- * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
- * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * Except as contained in this notice, the name of Maxim Integrated
- * Products, Inc. shall not be used except as stated in the Maxim Integrated
- * Products, Inc. Branding Policy.
- *
- * The mere transfer of this software does not imply any licenses
- * of trade secrets, proprietary technology, copyrights, patents,
- * trademarks, maskwork rights, or any other form of intellectual
- * property whatsoever. Maxim Integrated Products, Inc. retains all
- * ownership rights.
- *
- * $Date: 2016-03-14 10:08:53 -0500 (Mon, 14 Mar 2016) $
- * $Revision: 21855 $
- *
- **************************************************************************** */
+/* ****************************************************************************
+* Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a
+* copy of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
+* and/or sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included
+* in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
+* OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+*
+* Except as contained in this notice, the name of Maxim Integrated
+* Products, Inc. shall not be used except as stated in the Maxim Integrated
+* Products, Inc. Branding Policy.
+*
+* The mere transfer of this software does not imply any licenses
+* of trade secrets, proprietary technology, copyrights, patents,
+* trademarks, maskwork rights, or any other form of intellectual
+* property whatsoever. Maxim Integrated Products, Inc. retains all
+* ownership rights.
+*
+* $Date: 2016-03-14 10:08:53 -0500 (Mon, 14 Mar 2016) $
+* $Revision: 21855 $
+*
+**************************************************************************** */
 
 /* Define to prevent redundant inclusion */
 #ifndef _OWM_H_
@@ -64,18 +64,18 @@ extern "C" {
  * Enumeration type for 1-Wire Overdrive Speed Options.
  */
 typedef enum {
-  OWM_OVERDRIVE_UNUSED = MXC_V_OWM_CTRL_STAT_OD_SPEC_MODE_12US, /**< 12us Overdrive Speed Select. */ 
-  OWM_OVERDRIVE_12US = MXC_V_OWM_CTRL_STAT_OD_SPEC_MODE_12US,   /**< 12us Overdrive Speed Select. */
-  OWM_OVERDRIVE_10US = MXC_V_OWM_CTRL_STAT_OD_SPEC_MODE_10US    /**< 10us Overdrive Speed Select. */
+    OWM_OVERDRIVE_UNUSED = MXC_V_OWM_CTRL_STAT_OD_SPEC_MODE_12US, /**< 12us Overdrive Speed Select. */
+    OWM_OVERDRIVE_12US = MXC_V_OWM_CTRL_STAT_OD_SPEC_MODE_12US,   /**< 12us Overdrive Speed Select. */
+    OWM_OVERDRIVE_10US = MXC_V_OWM_CTRL_STAT_OD_SPEC_MODE_10US    /**< 10us Overdrive Speed Select. */
 } owm_overdrive_t;
 
 /**
  * Enumeration type for specifying options for 1-Wire external pullup mode.
  */
 typedef enum {
-  OWM_EXT_PU_ACT_HIGH = 0,  /**< Pullup pin is active high when enabled.        */
-  OWM_EXT_PU_ACT_LOW = 1,   /**< Pullup pin is active low when enabled.         */
-  OWM_EXT_PU_UNUSED = 2,    /**< Pullup pin is not used for an external pullup. */
+    OWM_EXT_PU_ACT_HIGH = 0,  /**< Pullup pin is active high when enabled.        */
+    OWM_EXT_PU_ACT_LOW = 1,   /**< Pullup pin is active low when enabled.         */
+    OWM_EXT_PU_UNUSED = 2,    /**< Pullup pin is not used for an external pullup. */
 } owm_ext_pu_t;
 
 /**
@@ -188,7 +188,7 @@ int OWM_ReadBit(mxc_owm_regs_t *owm);
  * @retval  Number of bytes written if successful
  * @retval  #E_COMM_ERR if line short detected before transaction
  */
-int OWM_Write(mxc_owm_regs_t *owm, uint8_t* data, int len);
+int OWM_Write(mxc_owm_regs_t *owm, uint8_t *data, int len);
 
 /**
  * @brief   Read multiple bytes of data. Will block until transaction is complete.
@@ -199,7 +199,7 @@ int OWM_Write(mxc_owm_regs_t *owm, uint8_t* data, int len);
  * @retval Number of bytes read if successful
  * @retval #E_COMM_ERR if line short detected before transaction
  */
-int OWM_Read(mxc_owm_regs_t *owm, uint8_t* data, int len);
+int OWM_Read(mxc_owm_regs_t *owm, uint8_t *data, int len);
 
 /**
  * @brief   Starts 1-Wire communication with Read ROM command
@@ -209,7 +209,7 @@ int OWM_Read(mxc_owm_regs_t *owm, uint8_t* data, int len);
  * @retval  #E_NO_ERROR if everything is successful
  * @retval  #E_COMM_ERR if reset, read or write fails
  */
-int OWM_ReadROM(mxc_owm_regs_t *owm, uint8_t* ROMCode);
+int OWM_ReadROM(mxc_owm_regs_t *owm, uint8_t *ROMCode);
 
 /**
  * @brief   Starts 1-Wire communication with Match ROM command
@@ -218,7 +218,7 @@ int OWM_ReadROM(mxc_owm_regs_t *owm, uint8_t* ROMCode);
  * @retval  #E_NO_ERROR if everything is successful
  * @retval  #E_COMM_ERR if reset or write fails
  */
-int OWM_MatchROM(mxc_owm_regs_t *owm, uint8_t* ROMCode);
+int OWM_MatchROM(mxc_owm_regs_t *owm, uint8_t *ROMCode);
 
 /**
  * @brief   Starts 1-Wire communication with Overdrive Match ROM command
@@ -229,7 +229,7 @@ int OWM_MatchROM(mxc_owm_regs_t *owm, uint8_t* ROMCode);
  * @retval  #E_NO_ERROR if everything is successful
  * @retval  #E_COMM_ERR if reset or write fails
  */
-int OWM_ODMatchROM(mxc_owm_regs_t *owm, uint8_t* ROMCode);
+int OWM_ODMatchROM(mxc_owm_regs_t *owm, uint8_t *ROMCode);
 
 /**
  * @brief   Starts 1-Wire communication with Skip ROM command
@@ -264,7 +264,7 @@ int OWM_Resume(mxc_owm_regs_t *owm);
  * @param   ROMCode     Pointer to buffer with ROM code found
  * @retval  (1) = ROM found, (0) = no new ROM found, end of search
  */
-int OWM_SearchROM(mxc_owm_regs_t *owm, int newSearch, uint8_t* ROMCode);
+int OWM_SearchROM(mxc_owm_regs_t *owm, int newSearch, uint8_t *ROMCode);
 
 /**
  * @brief   Clear interrupt flags.
@@ -293,10 +293,11 @@ __STATIC_INLINE unsigned OWM_GetFlags(mxc_owm_regs_t *owm)
  */
 __STATIC_INLINE void OWM_SetExtPullup(mxc_owm_regs_t *owm, int enable)
 {
-    if(enable)
+    if (enable) {
         owm->cfg |= MXC_F_OWM_CFG_EXT_PULLUP_ENABLE;
-    else
+    } else {
         owm->cfg &= ~(MXC_F_OWM_CFG_EXT_PULLUP_ENABLE);
+    }
 }
 
 /**
@@ -306,10 +307,11 @@ __STATIC_INLINE void OWM_SetExtPullup(mxc_owm_regs_t *owm, int enable)
  */
 __STATIC_INLINE void OWM_SetOverdrive(mxc_owm_regs_t *owm, int enable)
 {
-    if(enable)
+    if (enable) {
         owm->cfg |= MXC_F_OWM_CFG_OVERDRIVE;
-    else
+    } else {
         owm->cfg &= ~(MXC_F_OWM_CFG_OVERDRIVE);
+    }
 }
 
 /**@} end of group owm */

@@ -31,7 +31,7 @@ struct gpio_irq_s {
 
 struct port_s {
     __IO uint32_t *reg_dir;
-        __IO uint32_t *reg_dirclr;
+    __IO uint32_t *reg_dirclr;
     __IO uint32_t *reg_out;
     __IO  uint32_t *reg_in;
     PortName port;
@@ -53,7 +53,7 @@ struct tsc_s {
 
 struct audio_s {
     MPS2_I2S_TypeDef *audio_I2S;
-        MPS2_I2C_TypeDef *audio_I2C;
+    MPS2_I2C_TypeDef *audio_I2C;
 };
 
 
@@ -67,9 +67,9 @@ struct clcd_s {
 
 struct analogin_s {
     ADCName adc;
-        MPS2_SSP_TypeDef *adc_spi;
+    MPS2_SSP_TypeDef *adc_spi;
     PinName  pin;
-        uint32_t pin_number;
+    uint32_t pin_number;
     __IO uint32_t address;
 };
 

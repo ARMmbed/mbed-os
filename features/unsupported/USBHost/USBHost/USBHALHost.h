@@ -103,7 +103,7 @@ protected:
     * @param lowSpeed 1 if low speed, 0 otherwise
     * @param hub_parent reference to the hub where the device is connected (NULL if the hub parent is the root hub)
     */
-    virtual void deviceConnected(int hub, int port, bool lowSpeed, USBHostHub * hub_parent = NULL) = 0;
+    virtual void deviceConnected(int hub, int port, bool lowSpeed, USBHostHub *hub_parent = NULL) = 0;
 
     /**
     * Virtual method called when a device has been disconnected
@@ -113,7 +113,7 @@ protected:
     * @param hub_parent reference to the hub where the device is connected (NULL if the hub parent is the root hub)
     * @param addr list of the TDs which have been completed to dequeue freed TDs
     */
-    virtual void deviceDisconnected(int hub, int port, USBHostHub * hub_parent, volatile uint32_t addr) = 0;
+    virtual void deviceDisconnected(int hub, int port, USBHostHub *hub_parent, volatile uint32_t addr) = 0;
 
     /**
     * Virtual method called when a transfer has been completed
@@ -127,28 +127,28 @@ protected:
     *
     * @returns the address of the new ED
     */
-    volatile uint8_t * getED();
+    volatile uint8_t *getED();
 
     /**
     * Find a memory section for a new TD
     *
     * @returns the address of the new TD
     */
-    volatile uint8_t * getTD();
+    volatile uint8_t *getTD();
 
     /**
     * Release a previous memory section reserved for an ED
     *
     * @param ed address of the ED
     */
-    void freeED(volatile uint8_t * ed);
+    void freeED(volatile uint8_t *ed);
 
     /**
     * Release a previous memory section reserved for an TD
     *
     * @param td address of the TD
     */
-    void freeTD(volatile uint8_t * td);
+    void freeTD(volatile uint8_t *td);
 
 private:
     static void _usbisr(void);
@@ -156,11 +156,11 @@ private:
 
     void memInit();
 
-    HCCA volatile * usb_hcca;           //256 bytes aligned
-    uint8_t volatile  * usb_edBuf;      //4 bytes aligned
-    uint8_t volatile  * usb_tdBuf;      //4 bytes aligned
+    HCCA volatile *usb_hcca;            //256 bytes aligned
+    uint8_t volatile   *usb_edBuf;      //4 bytes aligned
+    uint8_t volatile   *usb_tdBuf;      //4 bytes aligned
 
-    static USBHALHost * instHost;
+    static USBHALHost *instHost;
 
     bool volatile  edBufAlloc[MAX_ENDPOINT];
     bool volatile tdBufAlloc[MAX_TD];

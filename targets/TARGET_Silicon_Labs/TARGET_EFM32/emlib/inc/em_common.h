@@ -196,21 +196,21 @@ extern "C" {
 __STATIC_INLINE uint32_t SL_CTZ(uint32_t value)
 {
 #if (__CORTEX_M >= 3)
-  return __CLZ(__RBIT(value));
+    return __CLZ(__RBIT(value));
 
 #else
-  uint32_t zeros;
-  for (zeros = 0; (zeros < 32) && ((value & 0x1) == 0); zeros++, value >>= 1) {
-    ;
-  }
-  return zeros;
+    uint32_t zeros;
+    for (zeros = 0; (zeros < 32) && ((value & 0x1) == 0); zeros++, value >>= 1) {
+        ;
+    }
+    return zeros;
 #endif
 }
 
 /* Deprecated function. New code should use @ref SL_CTZ. */
 __STATIC_INLINE uint32_t EFM32_CTZ(uint32_t value)
 {
-  return SL_CTZ(value);
+    return SL_CTZ(value);
 }
 
 /***************************************************************************//**
@@ -225,22 +225,22 @@ __STATIC_INLINE uint32_t EFM32_CTZ(uint32_t value)
  ******************************************************************************/
 __STATIC_INLINE uint32_t SL_RBIT(uint32_t value)
 {
-  uint32_t result;
+    uint32_t result;
 
 #if (__CORTEX_M >= 0x03U)
-  result = __RBIT(value);
+    result = __RBIT(value);
 #else
-  int32_t s = 4 * 8 - 1;
+    int32_t s = 4 * 8 - 1;
 
-  result = value;
-  for (value >>= 1U; value; value >>= 1U) {
-    result <<= 1U;
-    result |= value & 1U;
-    s--;
-  }
-  result <<= s;
+    result = value;
+    for (value >>= 1U; value; value >>= 1U) {
+        result <<= 1U;
+        result |= value & 1U;
+        s--;
+    }
+    result <<= s;
 #endif
-  return result;
+    return result;
 }
 
 /***************************************************************************//**
@@ -255,7 +255,7 @@ __STATIC_INLINE uint32_t SL_RBIT(uint32_t value)
  ******************************************************************************/
 __STATIC_INLINE uint32_t SL_RBIT16(uint32_t value)
 {
-  return SL_RBIT(value) >> 16;
+    return SL_RBIT(value) >> 16;
 }
 
 /** @} (end addtogroup COMMON) */

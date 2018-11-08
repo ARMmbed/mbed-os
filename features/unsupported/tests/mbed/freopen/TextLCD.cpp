@@ -35,8 +35,9 @@
  */
 
 TextLCD::TextLCD(PinName rs, PinName rw, PinName e, PinName d0, PinName d1,
-    PinName d2, PinName d3, const char *name) : TextDisplay(name), _rw(rw), _rs(rs),
-    _e(e), _d(d0, d1, d2, d3) {
+                 PinName d2, PinName d3, const char *name) : TextDisplay(name), _rw(rw), _rs(rs),
+    _e(e), _d(d0, d1, d2, d3)
+{
 
     _rw = 0;
     _e  = 1;
@@ -48,7 +49,7 @@ TextLCD::TextLCD(PinName rs, PinName rw, PinName e, PinName d0, PinName d1,
     // wait(0.015);
 
     // send "Display Settings" 3 times (Only top nibble of 0x30 as we've got 4-bit bus)
-    for(int i=0; i<3; i++) {
+    for (int i = 0; i < 3; i++) {
         writeByte(0x3);
         wait(0.00164);      // this command takes 1.64ms, so wait for it
     }
@@ -60,21 +61,25 @@ TextLCD::TextLCD(PinName rs, PinName rw, PinName e, PinName d0, PinName d1,
     cls();
 }
 
-void TextLCD::character(int column, int row, int c) {
-      int address = 0x80 + (row * 40) + column; // memory starts at 0x80, and is 40 chars long per row
-      writeCommand(address);
-      writeData(c);
+void TextLCD::character(int column, int row, int c)
+{
+    int address = 0x80 + (row * 40) + column; // memory starts at 0x80, and is 40 chars long per row
+    writeCommand(address);
+    writeData(c);
 }
 
-int TextLCD::columns() {
+int TextLCD::columns()
+{
     return 16;
 }
 
-int TextLCD::rows() {
+int TextLCD::rows()
+{
     return 2;
 }
 
-void TextLCD::writeByte(int value) {
+void TextLCD::writeByte(int value)
+{
     _d = value >> 4;
     wait(0.000040f); // most instructions take 40us
     _e = 0;
@@ -87,12 +92,14 @@ void TextLCD::writeByte(int value) {
     _e = 1;
 }
 
-void TextLCD::writeCommand(int command) {
+void TextLCD::writeCommand(int command)
+{
     _rs = 0;
     writeByte(command);
 }
 
-void TextLCD::writeData(int data) {
+void TextLCD::writeData(int data)
+{
     _rs = 1;
     writeByte(data);
 }

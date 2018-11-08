@@ -36,7 +36,7 @@ namespace rtos {
  * \defgroup rtos_Mutex Mutex class
  * @{
  */
- 
+
 /** The Mutex class is used to synchronize the execution of threads.
  This is for example used to protect access to a shared resource.
 
@@ -64,7 +64,7 @@ public:
                @a osErrorResource the mutex could not be obtained when no timeout was specified.
                @a osErrorISR this function cannot be called from the interrupt service routine.
      */
-    osStatus lock(uint32_t millisec=osWaitForever);
+    osStatus lock(uint32_t millisec = osWaitForever);
 
     /** Try to lock the mutex, and return immediately
       @return true if the mutex was acquired, false otherwise.

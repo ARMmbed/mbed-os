@@ -49,7 +49,7 @@
 /* global error variables - in order to prevent removal by optimizers */
 uint32_t m_error_code;
 uint32_t m_line_num;
-const uint8_t * m_p_file_name;
+const uint8_t *m_p_file_name;
 #endif
 
 /**@brief Function for error handling, which is called when an error has occurred.
@@ -66,14 +66,14 @@ const uint8_t * m_p_file_name;
  */
 
 /*lint -save -e14 */
-__WEAK void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name)
+__WEAK void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name)
 {
     // On assert, the system can only recover with a reset.
 #ifndef DEBUG
     NVIC_SystemReset();
 #else
 
-#ifdef BSP_DEFINES_ONLY 
+#ifdef BSP_DEFINES_ONLY
     LEDS_ON(LEDS_MASK);
 #else
     UNUSED_VARIABLE(bsp_indication_set(BSP_INDICATE_FATAL_ERROR));
@@ -101,7 +101,7 @@ __WEAK void app_error_handler(uint32_t error_code, uint32_t line_num, const uint
     UNUSED_VARIABLE(m_p_file_name);
     __disable_irq();
 
-    while(loop);
+    while (loop);
 #endif // DEBUG
 }
 /*lint -restore */

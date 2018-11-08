@@ -25,8 +25,8 @@ static struct sercom_dma sercom_channels[SERCOM_INST_NUM] = {{0}};
 
 /** Allocate a channel for TX
  *
- * @param[in] sercom_index	index of sercom instance
- * @param[out] tx_id		pointer to channel id
+ * @param[in] sercom_index  index of sercom instance
+ * @param[out] tx_id        pointer to channel id
  * @return allocated channel id
  */
 uint8_t sercom_setup_tx_channel(uint8_t sercom_index, uint8_t *tx_id)
@@ -49,8 +49,8 @@ uint8_t sercom_setup_tx_channel(uint8_t sercom_index, uint8_t *tx_id)
 
 /** Allocate a channel for RX
  *
- * @param[in] sercom_index	index of sercom instance
- * @param[out] rx_id		pointer to channel id
+ * @param[in] sercom_index  index of sercom instance
+ * @param[out] rx_id        pointer to channel id
  * @return allocated channel id
  */
 uint8_t sercom_setup_rx_channel(uint8_t sercom_index, uint8_t *rx_id)
@@ -73,7 +73,7 @@ uint8_t sercom_setup_rx_channel(uint8_t sercom_index, uint8_t *rx_id)
 
 /** Release DMA channels if allocated
  *
- * @param[in] sercom_index	index of sercom instance
+ * @param[in] sercom_index  index of sercom instance
  * @return void
  */
 void sercom_release_channel(uint8_t sercom_index)

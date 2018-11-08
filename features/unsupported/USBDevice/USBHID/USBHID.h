@@ -86,7 +86,7 @@ public:
     * @param report pointer to the report to fill
     * @returns true if successful
     */
-    bool read(HID_REPORT * report);
+    bool read(HID_REPORT *report);
 
     /**
     * Read a report: non blocking
@@ -94,7 +94,7 @@ public:
     * @param report pointer to the report to fill
     * @returns true if successful
     */
-    bool readNB(HID_REPORT * report);
+    bool readNB(HID_REPORT *report);
 
 protected:
     uint16_t reportLength;
@@ -104,7 +104,7 @@ protected:
     *
     * @returns pointer to the report descriptor
     */
-    virtual uint8_t * reportDesc();
+    virtual uint8_t *reportDesc();
 
     /*
     * Get the length of the report descriptor
@@ -118,21 +118,21 @@ protected:
     *
     * @returns pointer to the string product descriptor
     */
-    virtual uint8_t * stringIproductDesc();
+    virtual uint8_t *stringIproductDesc();
 
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
-    virtual uint8_t * stringIinterfaceDesc();
+    virtual uint8_t *stringIinterfaceDesc();
 
     /*
     * Get configuration descriptor
     *
     * @returns pointer to the configuration descriptor
     */
-    virtual uint8_t * configurationDesc();
+    virtual uint8_t *configurationDesc();
 
 
     /*
@@ -141,7 +141,7 @@ protected:
     *
     * @param report Data and length received
     */
-    virtual void HID_callbackSetReport(HID_REPORT *report){};
+    virtual void HID_callbackSetReport(HID_REPORT *report) {};
 
 
     /*

@@ -127,8 +127,8 @@ void SYS_ResetCPU(void)
   */
 void SYS_ResetModule(uint32_t u32ModuleIndex)
 {
-    *(volatile uint32_t *)((uint32_t)&(SYS->IPRST_CTL1) + (u32ModuleIndex>>24)) |= 1<<(u32ModuleIndex & 0x00ffffff);
-    *(volatile uint32_t *)((uint32_t)&(SYS->IPRST_CTL1) + (u32ModuleIndex>>24)) &= ~(1<<(u32ModuleIndex & 0x00ffffff));
+    *(volatile uint32_t *)((uint32_t) & (SYS->IPRST_CTL1) + (u32ModuleIndex >> 24)) |= 1 << (u32ModuleIndex & 0x00ffffff);
+    *(volatile uint32_t *)((uint32_t) & (SYS->IPRST_CTL1) + (u32ModuleIndex >> 24)) &= ~(1 << (u32ModuleIndex & 0x00ffffff));
 }
 
 /**
@@ -173,10 +173,10 @@ void SYS_DisableBOD(void)
   *         - \ref SYS_IRCTRIMIEN_DISABLE
   * @return None
   */
-void SYS_EnableIRCTrim(uint32_t u32TrimSel,uint32_t u32TrimEnInt)
+void SYS_EnableIRCTrim(uint32_t u32TrimSel, uint32_t u32TrimEnInt)
 {
-    SYS->IRCTRIMIEN = (SYS->IRCTRIMIEN & ~(SYS_IRCTRIMIEN_TRIM_FAIL_IEN_Msk|SYS_IRCTRIMIEN_32K_ERR_IEN_Msk)) | u32TrimEnInt;
-    SYS->IRCTRIMCTL = (SYS->IRCTRIMCTL & ~SYS_IRCTRIMCTL_TRIM_SEL_Msk)|u32TrimSel;
+    SYS->IRCTRIMIEN = (SYS->IRCTRIMIEN & ~(SYS_IRCTRIMIEN_TRIM_FAIL_IEN_Msk | SYS_IRCTRIMIEN_32K_ERR_IEN_Msk)) | u32TrimEnInt;
+    SYS->IRCTRIMCTL = (SYS->IRCTRIMCTL & ~SYS_IRCTRIMCTL_TRIM_SEL_Msk) | u32TrimSel;
 }
 
 /**

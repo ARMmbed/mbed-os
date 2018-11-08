@@ -78,64 +78,46 @@ Private global variables and functions
 * Return Value : none
 *******************************************************************************/
 #if 0
-void usb0_function_brdy_int (uint16_t status, uint16_t int_enb)
+void usb0_function_brdy_int(uint16_t status, uint16_t int_enb)
 {
     uint32_t int_sense = 0;
     uint16_t pipe;
     uint16_t pipebit;
 
-    for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++)
-    {
+    for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++) {
         pipebit = g_usb0_function_bit_set[pipe];
 
-        if ((status & pipebit) && (int_enb & pipebit))
-        {
+        if ((status & pipebit) && (int_enb & pipebit)) {
             USB200.BRDYSTS = (uint16_t)~pipebit;
             USB200.BEMPSTS = (uint16_t)~pipebit;
-            if ((g_usb0_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE) == USB_FUNCTION_D0FIFO_DMA)
-            {
-                if (g_usb0_function_DmaStatus[USB_FUNCTION_D0FIFO] != USB_FUNCTION_DMA_READY)
-                {
+            if ((g_usb0_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE) == USB_FUNCTION_D0FIFO_DMA) {
+                if (g_usb0_function_DmaStatus[USB_FUNCTION_D0FIFO] != USB_FUNCTION_DMA_READY) {
                     usb0_function_dma_interrupt_d0fifo(int_sense);
                 }
 
-                if (RZA_IO_RegRead_16(&g_usb0_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0)
-                {
+                if (RZA_IO_RegRead_16(&g_usb0_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
                     usb0_function_read_dma(pipe);
                     usb0_function_disable_brdy_int(pipe);
-                }
-                else
-                {
+                } else {
                     USB200.D0FIFOCTR = USB_FUNCTION_BITBCLR;
                     g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE;
                 }
-            }
-            else if ((g_usb0_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE) == USB_FUNCTION_D1FIFO_DMA)
-            {
-                if (g_usb0_function_DmaStatus[USB_FUNCTION_D1FIFO] != USB_FUNCTION_DMA_READY)
-                {
+            } else if ((g_usb0_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE) == USB_FUNCTION_D1FIFO_DMA) {
+                if (g_usb0_function_DmaStatus[USB_FUNCTION_D1FIFO] != USB_FUNCTION_DMA_READY) {
                     usb0_function_dma_interrupt_d1fifo(int_sense);
                 }
 
-                if (RZA_IO_RegRead_16(&g_usb0_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0)
-                {
+                if (RZA_IO_RegRead_16(&g_usb0_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
                     usb0_function_read_dma(pipe);
                     usb0_function_disable_brdy_int(pipe);
-                }
-                else
-                {
+                } else {
                     USB200.D1FIFOCTR = USB_FUNCTION_BITBCLR;
                     g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE;
                 }
-            }
-            else
-            {
-                if (RZA_IO_RegRead_16(&g_usb0_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0)
-                {
+            } else {
+                if (RZA_IO_RegRead_16(&g_usb0_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
                     usb0_function_read_buffer(pipe);
-                }
-                else
-                {
+                } else {
                     usb0_function_write_buffer(pipe);
                 }
             }
@@ -158,7 +140,7 @@ void usb0_function_brdy_int (uint16_t status, uint16_t int_enb)
 *              : uint16_t int_enb      ; NRDYENB Register Value
 * Return Value : none
 *******************************************************************************/
-void usb0_function_nrdy_int (uint16_t status, uint16_t int_enb)
+void usb0_function_nrdy_int(uint16_t status, uint16_t int_enb)
 {
     uint16_t pid;
     uint16_t pipe;
@@ -168,35 +150,23 @@ void usb0_function_nrdy_int (uint16_t status, uint16_t int_enb)
 
     USB200.NRDYSTS = (uint16_t)~status;
 
-    for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++)
-    {
-        if ((bitcheck&g_usb0_function_bit_set[pipe]) == g_usb0_function_bit_set[pipe])
-        {
-            if (RZA_IO_RegRead_16(&USB200.SYSCFG0, USB_SYSCFG_DCFM_SHIFT, USB_SYSCFG_DCFM) == 1)
-            {
-                if (g_usb0_function_pipe_status[pipe] == DEVDRV_USBF_PIPE_WAIT)
-                {
+    for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++) {
+        if ((bitcheck & g_usb0_function_bit_set[pipe]) == g_usb0_function_bit_set[pipe]) {
+            if (RZA_IO_RegRead_16(&USB200.SYSCFG0, USB_SYSCFG_DCFM_SHIFT, USB_SYSCFG_DCFM) == 1) {
+                if (g_usb0_function_pipe_status[pipe] == DEVDRV_USBF_PIPE_WAIT) {
                     pid = usb0_function_get_pid(pipe);
-                    if ((pid == DEVDRV_USBF_PID_STALL) || (pid == DEVDRV_USBF_PID_STALL2))
-                    {
+                    if ((pid == DEVDRV_USBF_PID_STALL) || (pid == DEVDRV_USBF_PID_STALL2)) {
                         g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_STALL;
-                    }
-                    else
-                    {
+                    } else {
                         g_usb0_function_PipeIgnore[pipe]++;
-                        if (g_usb0_function_PipeIgnore[pipe] == 3)
-                        {
+                        if (g_usb0_function_PipeIgnore[pipe] == 3) {
                             g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_NORES;
-                        }
-                        else
-                        {
+                        } else {
                             usb0_function_set_pid_buf(pipe);
                         }
                     }
                 }
-            }
-            else
-            {
+            } else {
                 /* USB Function */
             }
         }
@@ -210,7 +180,7 @@ void usb0_function_nrdy_int (uint16_t status, uint16_t int_enb)
 *              : uint16_t int_enb      ; BEMPENB Register Value
 * Return Value : none
 *******************************************************************************/
-void usb0_function_bemp_int (uint16_t status, uint16_t int_enb)
+void usb0_function_bemp_int(uint16_t status, uint16_t int_enb)
 {
     uint16_t pid;
     uint16_t pipe;
@@ -221,22 +191,16 @@ void usb0_function_bemp_int (uint16_t status, uint16_t int_enb)
 
     USB200.BEMPSTS = (uint16_t)~status;
 
-    for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++)
-    {
-        if ((bitcheck&g_usb0_function_bit_set[pipe]) == g_usb0_function_bit_set[pipe])
-        {
+    for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++) {
+        if ((bitcheck & g_usb0_function_bit_set[pipe]) == g_usb0_function_bit_set[pipe]) {
             pid = usb0_function_get_pid(pipe);
 
-            if ((pid == DEVDRV_USBF_PID_STALL) || (pid == DEVDRV_USBF_PID_STALL2))
-            {
+            if ((pid == DEVDRV_USBF_PID_STALL) || (pid == DEVDRV_USBF_PID_STALL2)) {
                 g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_STALL;
-            }
-            else
-            {
+            } else {
                 inbuf = usb0_function_get_inbuf(pipe);
 
-                if (inbuf == 0)
-                {
+                if (inbuf == 0) {
                     usb0_function_disable_bemp_int(pipe);
                     usb0_function_set_pid_nak(pipe);
                     g_usb0_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_DONE;

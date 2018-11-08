@@ -66,7 +66,7 @@ void SystemInit(void)
 {
     /* FPU settings ------------------------------------------------------------*/
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
-    SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
+    SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10 and CP11 Full Access */
 #endif
     /* Reset the RCC clock configuration to the default reset state ------------*/
     /* Set HSION bit */
@@ -123,7 +123,7 @@ void SetSysClock(void)
         {
             /* 3- If fail start with HSI clock */
             if (SetSysClock_PLL_HSI() == 0) {
-                while(1) {
+                while (1) {
                     // [TODO] Put something here to tell the user that a problem occured...
                 }
             }
@@ -196,10 +196,11 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 
     // Output clock on MCO1 pin(PA8) for debugging purpose
 #if DEBUG_MCO == 1
-    if (bypass == 0)
-        HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1); // 16 MHz with xtal
-    else
-        HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1); // xx MHz with external clock (MCO)
+    if (bypass == 0) {
+        HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1);    // 16 MHz with xtal
+    } else {
+        HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1);    // xx MHz with external clock (MCO)
+    }
 #endif
 
     return 1; // OK

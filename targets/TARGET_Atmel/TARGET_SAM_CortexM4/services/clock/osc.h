@@ -118,8 +118,8 @@
  * procedure is used on all platforms, the parameter to osc_enable()
  * will be different from device to device.
  * \code
-	osc_enable(OSC_ID_XOSC);
-	osc_wait_ready(OSC_ID_XOSC); \endcode
+    osc_enable(OSC_ID_XOSC);
+    osc_wait_ready(OSC_ID_XOSC); \endcode
  *
  * \section osc_group_board Board-specific Definitions
  * If external oscillators are used, the board code must provide the

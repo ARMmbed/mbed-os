@@ -39,12 +39,9 @@
 static status_t translate_iap_status(uint32_t status)
 {
     /* Translate IAP return code to sdk status code */
-    if (status == kStatus_Success)
-    {
+    if (status == kStatus_Success) {
         return status;
-    }
-    else
-    {
+    } else {
         return MAKE_STATUS(kStatusGroup_FLASHIAP, status);
     }
 }

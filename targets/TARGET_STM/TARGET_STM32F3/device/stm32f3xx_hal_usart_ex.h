@@ -40,7 +40,7 @@
 #define __STM32F3xx_HAL_USART_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -73,8 +73,8 @@
 #define USART_WORDLENGTH_8B                  (0x00000000U)              /*!< 8-bit long USART frame */
 #define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)    /*!< 9-bit long USART frame */
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F334x8                               || */
-       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+/* STM32F334x8                               || */
+/* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 /**
   * @}
   */
@@ -201,7 +201,7 @@
     {                                                          \
       (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;         \
     }                                                          \
-  } while(0U)  
+  } while(0U)
 #endif /* STM32F303x8 || STM32F334x8 || STM32F328xx */
 
 /** @brief  Compute the USART mask to apply to retrieve the received data
@@ -279,13 +279,13 @@
   }                                                                   \
 } while(0U)
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F334x8                               || */
-       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+/* STM32F334x8                               || */
+/* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 
 /**
   * @brief Ensure that USART frame length is valid.
-  * @param __LENGTH__: USART frame length. 
+  * @param __LENGTH__: USART frame length.
   * @retval SET (__LENGTH__ is valid) or RESET (__LENGTH__ is invalid)
   */
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
@@ -298,8 +298,8 @@
 #define IS_USART_WORD_LENGTH(__LENGTH__) (((__LENGTH__) == USART_WORDLENGTH_8B) || \
                                           ((__LENGTH__) == USART_WORDLENGTH_9B))
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F334x8                               || */
-       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+/* STM32F334x8                               || */
+/* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 /**
   * @}
   */

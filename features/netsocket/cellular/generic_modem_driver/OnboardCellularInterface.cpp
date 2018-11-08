@@ -22,9 +22,9 @@
  * OnboardCellularInterface is an on-board specific implementation.
  */
 OnboardCellularInterface::OnboardCellularInterface(bool debug) :
-                                                      UARTCellularInterface(MDMTXD, MDMRXD, MDMDCD, MDMRTS,
-                                                                            MDMCTS, MDMRI, MDMDTR, MDMDSR,
-                                                                            MBED_CONF_PPP_CELL_IFACE_BAUD_RATE, MDM_PIN_POLARITY, debug)
+    UARTCellularInterface(MDMTXD, MDMRXD, MDMDCD, MDMRTS,
+                          MDMCTS, MDMRI, MDMDTR, MDMDSR,
+                          MBED_CONF_PPP_CELL_IFACE_BAUD_RATE, MDM_PIN_POLARITY, debug)
 {
 }
 

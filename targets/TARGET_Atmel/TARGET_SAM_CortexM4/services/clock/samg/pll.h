@@ -92,9 +92,9 @@ struct pll_config {
 };
 
 #define pll_get_default_rate(pll_id)                                       \
-	((osc_get_rate(CONFIG_PLL##pll_id##_SOURCE)                            \
-			* CONFIG_PLL##pll_id##_MUL)                                    \
-			/ CONFIG_PLL##pll_id##_DIV)
+    ((osc_get_rate(CONFIG_PLL##pll_id##_SOURCE)                            \
+            * CONFIG_PLL##pll_id##_MUL)                                    \
+            / CONFIG_PLL##pll_id##_DIV)
 
 /**
  * \note The SAMG PLL hardware interprets mul as mul+1. For readability the hardware mul+1
@@ -120,10 +120,10 @@ static inline void pll_config_init(struct pll_config *p_cfg,
 }
 
 #define pll_config_defaults(cfg, pll_id)                                   \
-	pll_config_init(cfg,                                                   \
-			CONFIG_PLL##pll_id##_SOURCE,                                   \
-			CONFIG_PLL##pll_id##_DIV,                                      \
-			CONFIG_PLL##pll_id##_MUL)
+    pll_config_init(cfg,                                                   \
+            CONFIG_PLL##pll_id##_SOURCE,                                   \
+            CONFIG_PLL##pll_id##_DIV,                                      \
+            CONFIG_PLL##pll_id##_MUL)
 
 static inline void pll_config_read(struct pll_config *p_cfg, uint32_t ul_pll_id)
 {

@@ -30,8 +30,8 @@
 #define ROMDEC_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_romdec
-{                                                          /* ROMDEC           */
+struct st_romdec {
+    /* ROMDEC           */
     volatile uint8_t   CROMEN;                                 /*  CROMEN          */
     volatile uint8_t   CROMSY0;                                /*  CROMSY0         */
 #define ROMDEC_CROMCTL0_COUNT 2

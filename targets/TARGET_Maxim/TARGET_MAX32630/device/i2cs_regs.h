@@ -78,7 +78,7 @@ extern "C" {
 /**
  * Structure type to access the I2CS Peripheral Module Registers
  */
- typedef struct {
+typedef struct {
     __IO uint32_t clk_div;                              /**< <tt>\b 0x0000:</tt> I2CS_CLK_DIV Register - Clock Divisor Control               */
     __IO uint32_t dev_id;                               /**< <tt>\b 0x0004:</tt> I2CS_DEV_ID Register - Device ID Register                   */
     __IO uint32_t intfl;                                /**< <tt>\b 0x0008:</tt> I2CS_INTFL Register - Interrupt Flags                       */
@@ -94,7 +94,7 @@ extern "C" {
 /**
  * @ingroup    i2cs_registers
  * @defgroup   I2CS_Register_Offsets Register Offsets
- * @brief      I2C Slave Register Offsets from the I2CS Base Peripheral Address. 
+ * @brief      I2C Slave Register Offsets from the I2CS Base Peripheral Address.
  * @{
  */
 #define MXC_R_I2CS_OFFS_CLK_DIV                             ((uint32_t)0x00000000UL)     /**< Offset from I2CS Base Peripheral Address: <tt>\b 0x0000</tt>  */
@@ -122,7 +122,7 @@ extern "C" {
  * @{
  */
 #define MXC_F_I2CS_DEV_ID_SLAVE_DEV_ID_POS                  0                                                                       /**< SLAVE_DEV_ID Position          */
-#define MXC_F_I2CS_DEV_ID_SLAVE_DEV_ID                      ((uint32_t)(0x000003FFUL << MXC_F_I2CS_DEV_ID_SLAVE_DEV_ID_POS))        /**< SLAVE_DEV_ID Mask              */  
+#define MXC_F_I2CS_DEV_ID_SLAVE_DEV_ID                      ((uint32_t)(0x000003FFUL << MXC_F_I2CS_DEV_ID_SLAVE_DEV_ID_POS))        /**< SLAVE_DEV_ID Mask              */
 #define MXC_F_I2CS_DEV_ID_TEN_BIT_ID_MODE_POS               12                                                                      /**< TEN_BIT_ID_MODE Position       */
 #define MXC_F_I2CS_DEV_ID_TEN_BIT_ID_MODE                   ((uint32_t)(0x00000001UL << MXC_F_I2CS_DEV_ID_TEN_BIT_ID_MODE_POS))     /**< TEN_BIT_ID_MODE Mask           */
 #define MXC_F_I2CS_DEV_ID_SLAVE_RESET_POS                   14                                                                      /**< SLAVE_RESET Position           */
@@ -155,49 +155,49 @@ extern "C" {
 #define MXC_F_I2CS_INTFL_BYTE9_POS                          9                                                                        /**< BYTE9 Position                  */
 #define MXC_F_I2CS_INTFL_BYTE9                              ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE9_POS))                 /**< BYTE9 Mask                      */
 #define MXC_F_I2CS_INTFL_BYTE10_POS                         10                                                                       /**< BYTE10 Position                 */
-#define MXC_F_I2CS_INTFL_BYTE10                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE10_POS))                /**< BYTE10 Mask                     */ 
+#define MXC_F_I2CS_INTFL_BYTE10                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE10_POS))                /**< BYTE10 Mask                     */
 #define MXC_F_I2CS_INTFL_BYTE11_POS                         11                                                                       /**< BYTE11 Position                 */
-#define MXC_F_I2CS_INTFL_BYTE11                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE11_POS))                /**< BYTE11 Mask                     */ 
+#define MXC_F_I2CS_INTFL_BYTE11                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE11_POS))                /**< BYTE11 Mask                     */
 #define MXC_F_I2CS_INTFL_BYTE12_POS                         12                                                                       /**< BYTE12 Position                 */
-#define MXC_F_I2CS_INTFL_BYTE12                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE12_POS))                /**< BYTE12 Mask                     */ 
+#define MXC_F_I2CS_INTFL_BYTE12                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE12_POS))                /**< BYTE12 Mask                     */
 #define MXC_F_I2CS_INTFL_BYTE13_POS                         13                                                                       /**< BYTE13 Position                 */
-#define MXC_F_I2CS_INTFL_BYTE13                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE13_POS))                /**< BYTE13 Mask                     */ 
+#define MXC_F_I2CS_INTFL_BYTE13                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE13_POS))                /**< BYTE13 Mask                     */
 #define MXC_F_I2CS_INTFL_BYTE14_POS                         14                                                                       /**< BYTE14 Position                 */
-#define MXC_F_I2CS_INTFL_BYTE14                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE14_POS))                /**< BYTE14 Mask                     */ 
+#define MXC_F_I2CS_INTFL_BYTE14                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE14_POS))                /**< BYTE14 Mask                     */
 #define MXC_F_I2CS_INTFL_BYTE15_POS                         15                                                                       /**< BYTE15 Position                 */
-#define MXC_F_I2CS_INTFL_BYTE15                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE15_POS))                /**< BYTE15 Mask                     */ 
+#define MXC_F_I2CS_INTFL_BYTE15                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE15_POS))                /**< BYTE15 Mask                     */
 #define MXC_F_I2CS_INTFL_BYTE16_POS                         16                                                                       /**< BYTE16 Position                 */
-#define MXC_F_I2CS_INTFL_BYTE16                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE16_POS))                /**< BYTE16 Mask                     */ 
+#define MXC_F_I2CS_INTFL_BYTE16                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE16_POS))                /**< BYTE16 Mask                     */
 #define MXC_F_I2CS_INTFL_BYTE17_POS                         17                                                                       /**< BYTE17 Position                 */
-#define MXC_F_I2CS_INTFL_BYTE17                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE17_POS))                /**< BYTE17 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE18_POS                         18                                                                       /**< BYTE18 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE18                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE18_POS))                /**< BYTE18 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE19_POS                         19                                                                       /**< BYTE19 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE19                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE19_POS))                /**< BYTE19 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE20_POS                         20                                                                       /**< BYTE20 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE20                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE20_POS))                /**< BYTE20 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE21_POS                         21                                                                       /**< BYTE21 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE21                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE21_POS))                /**< BYTE21 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE22_POS                         22                                                                       /**< BYTE22 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE22                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE22_POS))                /**< BYTE22 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE23_POS                         23                                                                       /**< BYTE23 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE23                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE23_POS))                /**< BYTE23 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE24_POS                         24                                                                       /**< BYTE24 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE24                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE24_POS))                /**< BYTE24 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE25_POS                         25                                                                       /**< BYTE25 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE25                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE25_POS))                /**< BYTE25 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE26_POS                         26                                                                       /**< BYTE26 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE26                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE26_POS))                /**< BYTE26 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE27_POS                         27                                                                       /**< BYTE27 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE27                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE27_POS))                /**< BYTE27 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE28_POS                         28                                                                       /**< BYTE28 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE28                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE28_POS))                /**< BYTE28 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE29_POS                         29                                                                       /**< BYTE29 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE29                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE29_POS))                /**< BYTE29 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE30_POS                         30                                                                       /**< BYTE30 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE30                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE30_POS))                /**< BYTE30 Mask                     */ 
-#define MXC_F_I2CS_INTFL_BYTE31_POS                         31                                                                       /**< BYTE31 Position                 */ 
-#define MXC_F_I2CS_INTFL_BYTE31                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE31_POS))                /**< BYTE31 Mask                     */ 
+#define MXC_F_I2CS_INTFL_BYTE17                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE17_POS))                /**< BYTE17 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE18_POS                         18                                                                       /**< BYTE18 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE18                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE18_POS))                /**< BYTE18 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE19_POS                         19                                                                       /**< BYTE19 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE19                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE19_POS))                /**< BYTE19 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE20_POS                         20                                                                       /**< BYTE20 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE20                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE20_POS))                /**< BYTE20 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE21_POS                         21                                                                       /**< BYTE21 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE21                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE21_POS))                /**< BYTE21 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE22_POS                         22                                                                       /**< BYTE22 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE22                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE22_POS))                /**< BYTE22 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE23_POS                         23                                                                       /**< BYTE23 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE23                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE23_POS))                /**< BYTE23 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE24_POS                         24                                                                       /**< BYTE24 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE24                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE24_POS))                /**< BYTE24 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE25_POS                         25                                                                       /**< BYTE25 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE25                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE25_POS))                /**< BYTE25 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE26_POS                         26                                                                       /**< BYTE26 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE26                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE26_POS))                /**< BYTE26 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE27_POS                         27                                                                       /**< BYTE27 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE27                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE27_POS))                /**< BYTE27 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE28_POS                         28                                                                       /**< BYTE28 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE28                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE28_POS))                /**< BYTE28 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE29_POS                         29                                                                       /**< BYTE29 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE29                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE29_POS))                /**< BYTE29 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE30_POS                         30                                                                       /**< BYTE30 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE30                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE30_POS))                /**< BYTE30 Mask                     */
+#define MXC_F_I2CS_INTFL_BYTE31_POS                         31                                                                       /**< BYTE31 Position                 */
+#define MXC_F_I2CS_INTFL_BYTE31                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTFL_BYTE31_POS))                /**< BYTE31 Mask                     */
 /**@} end group I2CS_INTFL */
 /**
  * @ingroup  i2cs_registers
@@ -225,50 +225,50 @@ extern "C" {
 #define MXC_F_I2CS_INTEN_BYTE8                              ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE8_POS))                 /**< BYTE8 Mask                      */
 #define MXC_F_I2CS_INTEN_BYTE9_POS                          9                                                                        /**< BYTE9 Position                  */
 #define MXC_F_I2CS_INTEN_BYTE9                              ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE9_POS))                 /**< BYTE9 Mask                      */
-#define MXC_F_I2CS_INTEN_BYTE10_POS                         10                                                                       /**< BYTE10 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE10                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE10_POS))                /**< BYTE10 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE11_POS                         11                                                                       /**< BYTE11 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE11                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE11_POS))                /**< BYTE11 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE12_POS                         12                                                                       /**< BYTE12 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE12                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE12_POS))                /**< BYTE12 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE13_POS                         13                                                                       /**< BYTE13 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE13                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE13_POS))                /**< BYTE13 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE14_POS                         14                                                                       /**< BYTE14 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE14                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE14_POS))                /**< BYTE14 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE15_POS                         15                                                                       /**< BYTE15 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE15                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE15_POS))                /**< BYTE15 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE16_POS                         16                                                                       /**< BYTE16 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE16                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE16_POS))                /**< BYTE16 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE17_POS                         17                                                                       /**< BYTE17 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE17                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE17_POS))                /**< BYTE17 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE18_POS                         18                                                                       /**< BYTE18 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE18                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE18_POS))                /**< BYTE18 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE19_POS                         19                                                                       /**< BYTE19 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE19                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE19_POS))                /**< BYTE19 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE20_POS                         20                                                                       /**< BYTE20 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE20                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE20_POS))                /**< BYTE20 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE21_POS                         21                                                                       /**< BYTE21 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE21                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE21_POS))                /**< BYTE21 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE22_POS                         22                                                                       /**< BYTE22 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE22                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE22_POS))                /**< BYTE22 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE23_POS                         23                                                                       /**< BYTE23 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE23                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE23_POS))                /**< BYTE23 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE24_POS                         24                                                                       /**< BYTE24 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE24                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE24_POS))                /**< BYTE24 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE25_POS                         25                                                                       /**< BYTE25 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE25                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE25_POS))                /**< BYTE25 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE26_POS                         26                                                                       /**< BYTE26 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE26                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE26_POS))                /**< BYTE26 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE27_POS                         27                                                                       /**< BYTE27 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE27                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE27_POS))                /**< BYTE27 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE28_POS                         28                                                                       /**< BYTE28 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE28                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE28_POS))                /**< BYTE28 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE29_POS                         29                                                                       /**< BYTE29 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE29                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE29_POS))                /**< BYTE29 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE30_POS                         30                                                                       /**< BYTE30 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE30                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE30_POS))                /**< BYTE30 Mask                     */ 
-#define MXC_F_I2CS_INTEN_BYTE31_POS                         31                                                                       /**< BYTE31 Position                 */ 
-#define MXC_F_I2CS_INTEN_BYTE31                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE31_POS))                /**< BYTE31 Mask                     */ 
+#define MXC_F_I2CS_INTEN_BYTE10_POS                         10                                                                       /**< BYTE10 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE10                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE10_POS))                /**< BYTE10 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE11_POS                         11                                                                       /**< BYTE11 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE11                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE11_POS))                /**< BYTE11 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE12_POS                         12                                                                       /**< BYTE12 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE12                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE12_POS))                /**< BYTE12 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE13_POS                         13                                                                       /**< BYTE13 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE13                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE13_POS))                /**< BYTE13 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE14_POS                         14                                                                       /**< BYTE14 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE14                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE14_POS))                /**< BYTE14 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE15_POS                         15                                                                       /**< BYTE15 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE15                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE15_POS))                /**< BYTE15 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE16_POS                         16                                                                       /**< BYTE16 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE16                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE16_POS))                /**< BYTE16 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE17_POS                         17                                                                       /**< BYTE17 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE17                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE17_POS))                /**< BYTE17 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE18_POS                         18                                                                       /**< BYTE18 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE18                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE18_POS))                /**< BYTE18 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE19_POS                         19                                                                       /**< BYTE19 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE19                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE19_POS))                /**< BYTE19 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE20_POS                         20                                                                       /**< BYTE20 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE20                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE20_POS))                /**< BYTE20 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE21_POS                         21                                                                       /**< BYTE21 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE21                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE21_POS))                /**< BYTE21 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE22_POS                         22                                                                       /**< BYTE22 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE22                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE22_POS))                /**< BYTE22 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE23_POS                         23                                                                       /**< BYTE23 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE23                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE23_POS))                /**< BYTE23 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE24_POS                         24                                                                       /**< BYTE24 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE24                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE24_POS))                /**< BYTE24 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE25_POS                         25                                                                       /**< BYTE25 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE25                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE25_POS))                /**< BYTE25 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE26_POS                         26                                                                       /**< BYTE26 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE26                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE26_POS))                /**< BYTE26 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE27_POS                         27                                                                       /**< BYTE27 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE27                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE27_POS))                /**< BYTE27 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE28_POS                         28                                                                       /**< BYTE28 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE28                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE28_POS))                /**< BYTE28 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE29_POS                         29                                                                       /**< BYTE29 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE29                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE29_POS))                /**< BYTE29 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE30_POS                         30                                                                       /**< BYTE30 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE30                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE30_POS))                /**< BYTE30 Mask                     */
+#define MXC_F_I2CS_INTEN_BYTE31_POS                         31                                                                       /**< BYTE31 Position                 */
+#define MXC_F_I2CS_INTEN_BYTE31                             ((uint32_t)(0x00000001UL << MXC_F_I2CS_INTEN_BYTE31_POS))                /**< BYTE31 Mask                     */
 /**@} end group I2CS_INTEN */
 /**
  * @ingroup  i2cs_registers

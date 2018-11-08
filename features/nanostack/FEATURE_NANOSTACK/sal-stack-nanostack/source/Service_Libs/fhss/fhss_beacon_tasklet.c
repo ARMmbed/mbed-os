@@ -31,7 +31,7 @@
 
 #define TRACE_GROUP "fhss"
 
-static void fhss_beacon_tasklet_func(arm_event_s* event);
+static void fhss_beacon_tasklet_func(arm_event_s *event);
 
 int8_t fhss_beacon_create_tasklet(fhss_structure_t *fhss_structure)
 {
@@ -42,7 +42,7 @@ int8_t fhss_beacon_create_tasklet(fhss_structure_t *fhss_structure)
 }
 
 int fhss_beacon_periodic_start(fhss_structure_t *fhss_structure,
-                                uint32_t time_to_first_beacon)
+                               uint32_t time_to_first_beacon)
 {
     int ret_val = -1;
 
@@ -60,7 +60,7 @@ void fhss_beacon_periodic_stop(fhss_structure_t *fhss_structure)
     }
 }
 
-static void fhss_beacon_tasklet_func(arm_event_s* event)
+static void fhss_beacon_tasklet_func(arm_event_s *event)
 {
     fhss_structure_t *fhss_structure = (fhss_structure_t *)event->data_ptr;
     if (!fhss_structure) {
@@ -93,11 +93,10 @@ static void fhss_beacon_tasklet_func(arm_event_s* event)
         }
     }
     // Compare if synchronization parent has changed and request beacon if needed
-    else if(event->event_type == FHSS_COMPARE_SYNCH_PARENT)
-    {
+    else if (event->event_type == FHSS_COMPARE_SYNCH_PARENT) {
         if (fhss_compare_with_synch_parent_address(fhss_structure, fhss_structure->synch_parent)) {
             fhss_structure->synch_monitor.avg_synch_fix = 0;
-            if(fhss_structure->synch_monitor.avg_synch_fix_counter > 0) {
+            if (fhss_structure->synch_monitor.avg_synch_fix_counter > 0) {
                 fhss_structure->synch_monitor.avg_synch_fix_counter = 0;
             }
             // Send synchronization request
@@ -110,22 +109,19 @@ static void fhss_beacon_tasklet_func(arm_event_s* event)
             }
 #endif /*FEA_TRACE_SUPPORT*/
         }
-    }
-    else if(event->event_type == FHSS_BROADCAST_CHANNEL)
-    {
+    } else if (event->event_type == FHSS_BROADCAST_CHANNEL) {
         uint16_t superframe_length = fhss_structure->synch_configuration.fhss_superframe_length;
         uint8_t number_of_superframes = fhss_structure->synch_configuration.fhss_number_of_superframes;
         // Given broadcast time is channel length minus 1 superframe
         fhss_structure->callbacks.broadcast_notify(fhss_structure->fhss_api, (uint32_t)superframe_length * (number_of_superframes - 1));
     }
     // Update Beacon info lifetimes
-    else if(event->event_type == FHSS_UPDATE_SYNCH_INFO_STORAGE)
-    {
+    else if (event->event_type == FHSS_UPDATE_SYNCH_INFO_STORAGE) {
         fhss_update_beacon_info_lifetimes(fhss_structure, fhss_structure->platform_functions.fhss_get_timestamp(fhss_structure->fhss_api));
     }
 }
 
-void fhss_beacon_build(fhss_structure_t *fhss_structure, uint8_t* dest)
+void fhss_beacon_build(fhss_structure_t *fhss_structure, uint8_t *dest)
 {
     fhss_synchronization_beacon_payload_s temp_payload;
 
@@ -134,7 +130,8 @@ void fhss_beacon_build(fhss_structure_t *fhss_structure, uint8_t* dest)
 }
 
 // this assumes that the buffer's data pointer is seeked to the beacon payload
-void fhss_beacon_received(fhss_structure_t *fhss_structure, const uint8_t *synch_info, const uint32_t elapsed_time) {
+void fhss_beacon_received(fhss_structure_t *fhss_structure, const uint8_t *synch_info, const uint32_t elapsed_time)
+{
 
     if (fhss_structure) {
 

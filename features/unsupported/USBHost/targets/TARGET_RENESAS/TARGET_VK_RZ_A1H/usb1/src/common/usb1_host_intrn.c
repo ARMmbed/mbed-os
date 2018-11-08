@@ -80,82 +80,63 @@ Private global variables and functions
 *              : uint16_t int_enb      ; BRDYENB Register Value
 * Return Value : none
 *******************************************************************************/
-void usb1_host_brdy_int (uint16_t status, uint16_t int_enb)
+void usb1_host_brdy_int(uint16_t status, uint16_t int_enb)
 {
     uint32_t int_sense = 0;
     uint16_t pipe;
     uint16_t pipebit;
 
-    for (pipe = USB_HOST_PIPE1; pipe <= USB_HOST_MAX_PIPE_NO; pipe++)
-    {
+    for (pipe = USB_HOST_PIPE1; pipe <= USB_HOST_MAX_PIPE_NO; pipe++) {
         pipebit = g_usb1_host_bit_set[pipe];
 
-        if ((status & pipebit) && (int_enb & pipebit))
-        {
+        if ((status & pipebit) && (int_enb & pipebit)) {
             USB201.BRDYSTS = (uint16_t)~pipebit;
             USB201.BEMPSTS = (uint16_t)~pipebit;
 
-            if ((g_usb1_host_PipeTbl[pipe] & USB_HOST_FIFO_USE) == USB_HOST_D0FIFO_DMA)
-            {
-                if (g_usb1_host_DmaStatus[USB_HOST_D0FIFO] != USB_HOST_DMA_READY)
-                {
+            if ((g_usb1_host_PipeTbl[pipe] & USB_HOST_FIFO_USE) == USB_HOST_D0FIFO_DMA) {
+                if (g_usb1_host_DmaStatus[USB_HOST_D0FIFO] != USB_HOST_DMA_READY) {
                     usb1_host_dma_interrupt_d0fifo(int_sense);
                 }
 
-                if (RZA_IO_RegRead_16(&g_usb1_host_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0)
-                {
+                if (RZA_IO_RegRead_16(&g_usb1_host_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
                     usb1_host_read_dma(pipe);
                     usb1_host_disable_brdy_int(pipe);
-                }
-                else
-                {
+                } else {
                     USB201.D0FIFOCTR = USB_HOST_BITBCLR;
                     g_usb1_host_pipe_status[pipe] = USB_HOST_PIPE_DONE;
                 }
-            }
-            else if ((g_usb1_host_PipeTbl[pipe] & USB_HOST_FIFO_USE) == USB_HOST_D1FIFO_DMA)
-            {
-                if (g_usb1_host_DmaStatus[USB_HOST_D1FIFO] != USB_HOST_DMA_READY)
-                {
+            } else if ((g_usb1_host_PipeTbl[pipe] & USB_HOST_FIFO_USE) == USB_HOST_D1FIFO_DMA) {
+                if (g_usb1_host_DmaStatus[USB_HOST_D1FIFO] != USB_HOST_DMA_READY) {
                     usb1_host_dma_interrupt_d1fifo(int_sense);
                 }
 
-                if (RZA_IO_RegRead_16(&g_usb1_host_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0)
-                {
+                if (RZA_IO_RegRead_16(&g_usb1_host_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
                     usb1_host_read_dma(pipe);
                     usb1_host_disable_brdy_int(pipe);
-                }
-                else
-                {
+                } else {
                     USB201.D1FIFOCTR = USB_HOST_BITBCLR;
                     g_usb1_host_pipe_status[pipe] = USB_HOST_PIPE_DONE;
                 }
-            }
-            else
-            {
-                if (RZA_IO_RegRead_16(&g_usb1_host_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0)
-                {
+            } else {
+                if (RZA_IO_RegRead_16(&g_usb1_host_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
                     usb1_host_read_buffer(pipe);
-                }
-                else
-                {
+                } else {
                     usb1_host_write_buffer(pipe);
                 }
             }
 #if(1) /* ohci_wrapp */
-            switch (g_usb1_host_pipe_status[pipe])
-            {
+            switch (g_usb1_host_pipe_status[pipe]) {
                 case USB_HOST_PIPE_DONE:
                     ohciwrapp_loc_TransEnd(pipe, TD_CC_NOERROR);
-                break;
+                    break;
                 case USB_HOST_PIPE_NORES:
                 case USB_HOST_PIPE_STALL:
                 case USB_HOST_PIPE_ERROR:
                     ohciwrapp_loc_TransEnd(pipe, TD_CC_STALL);
-                break;
+                    break;
                 default:
                     /* Do Nothing */
-                break;
+                    break;
             }
 #endif
         }
@@ -176,7 +157,7 @@ void usb1_host_brdy_int (uint16_t status, uint16_t int_enb)
 *              : uint16_t int_enb      ; NRDYENB Register Value
 * Return Value : none
 *******************************************************************************/
-void usb1_host_nrdy_int (uint16_t status, uint16_t int_enb)
+void usb1_host_nrdy_int(uint16_t status, uint16_t int_enb)
 {
     uint16_t pid;
     uint16_t pipe;
@@ -186,47 +167,35 @@ void usb1_host_nrdy_int (uint16_t status, uint16_t int_enb)
 
     USB201.NRDYSTS = (uint16_t)~status;
 
-    for (pipe = USB_HOST_PIPE1; pipe <= USB_HOST_MAX_PIPE_NO; pipe++)
-    {
-        if ((bitcheck&g_usb1_host_bit_set[pipe]) == g_usb1_host_bit_set[pipe])
-        {
+    for (pipe = USB_HOST_PIPE1; pipe <= USB_HOST_MAX_PIPE_NO; pipe++) {
+        if ((bitcheck & g_usb1_host_bit_set[pipe]) == g_usb1_host_bit_set[pipe]) {
             if (RZA_IO_RegRead_16(&USB201.SYSCFG0,
-                                    USB_SYSCFG_DCFM_SHIFT,
-                                    USB_SYSCFG_DCFM) == 1)
-            {
-                if (g_usb1_host_pipe_status[pipe] == USB_HOST_PIPE_WAIT)
-                {
+                                  USB_SYSCFG_DCFM_SHIFT,
+                                  USB_SYSCFG_DCFM) == 1) {
+                if (g_usb1_host_pipe_status[pipe] == USB_HOST_PIPE_WAIT) {
                     pid = usb1_host_get_pid(pipe);
 
-                    if ((pid == USB_HOST_PID_STALL) || (pid == USB_HOST_PID_STALL2))
-                    {
+                    if ((pid == USB_HOST_PID_STALL) || (pid == USB_HOST_PID_STALL2)) {
                         g_usb1_host_pipe_status[pipe] = USB_HOST_PIPE_STALL;
 #if(1) /* ohci_wrapp */
                         ohciwrapp_loc_TransEnd(pipe, TD_CC_STALL);
 #endif
-                    }
-                    else
-                    {
+                    } else {
 #if(1) /* ohci_wrapp */
                         g_usb1_host_pipe_status[pipe] = USB_HOST_PIPE_NORES;
                         ohciwrapp_loc_TransEnd(pipe, TD_CC_DEVICENOTRESPONDING);
 #else
                         g_usb1_host_PipeIgnore[pipe]++;
 
-                        if (g_usb1_host_PipeIgnore[pipe] == 3)
-                        {
+                        if (g_usb1_host_PipeIgnore[pipe] == 3) {
                             g_usb1_host_pipe_status[pipe] = USB_HOST_PIPE_NORES;
-                        }
-                        else
-                        {
+                        } else {
                             usb1_host_set_pid_buf(pipe);
                         }
 #endif
                     }
                 }
-            }
-            else
-            {
+            } else {
                 /* USB Function */
             }
         }
@@ -240,7 +209,7 @@ void usb1_host_nrdy_int (uint16_t status, uint16_t int_enb)
 *              : uint16_t int_enb      ; BEMPENB Register Value
 * Return Value : none
 *******************************************************************************/
-void usb1_host_bemp_int (uint16_t status, uint16_t int_enb)
+void usb1_host_bemp_int(uint16_t status, uint16_t int_enb)
 {
     uint16_t pid;
     uint16_t pipe;
@@ -251,25 +220,19 @@ void usb1_host_bemp_int (uint16_t status, uint16_t int_enb)
 
     USB201.BEMPSTS = (uint16_t)~status;
 
-    for (pipe = USB_HOST_PIPE1; pipe <= USB_HOST_MAX_PIPE_NO; pipe++)
-    {
-        if ((bitcheck&g_usb1_host_bit_set[pipe]) == g_usb1_host_bit_set[pipe])
-        {
+    for (pipe = USB_HOST_PIPE1; pipe <= USB_HOST_MAX_PIPE_NO; pipe++) {
+        if ((bitcheck & g_usb1_host_bit_set[pipe]) == g_usb1_host_bit_set[pipe]) {
             pid = usb1_host_get_pid(pipe);
 
-            if ((pid == USB_HOST_PID_STALL) || (pid == USB_HOST_PID_STALL2))
-            {
+            if ((pid == USB_HOST_PID_STALL) || (pid == USB_HOST_PID_STALL2)) {
                 g_usb1_host_pipe_status[pipe] = USB_HOST_PIPE_STALL;
 #if(1) /* ohci_wrapp */
                 ohciwrapp_loc_TransEnd(pipe, TD_CC_STALL);
 #endif
-            }
-            else
-            {
+            } else {
                 inbuf = usb1_host_get_inbuf(pipe);
 
-                if (inbuf == 0)
-                {
+                if (inbuf == 0) {
                     usb1_host_disable_bemp_int(pipe);
                     usb1_host_set_pid_nak(pipe);
                     g_usb1_host_pipe_status[pipe] = USB_HOST_PIPE_DONE;

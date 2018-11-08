@@ -16,7 +16,7 @@
  * Component   : Bluetooth utility
  * File        : cb_bt_utils.h
  *
- * Description : 
+ * Description :
  *-------------------------------------------------------------------------*/
 
 #ifndef _CB_BT_UTILS_H_
@@ -42,8 +42,8 @@ extern "C" {
  * @returns TRUE if equal otherwise FALSE
  */
 extern cb_boolean cbBT_UTILS_cmpBdAddr(
-    TBdAddr* addr1, 
-    TBdAddr* addr2);
+    TBdAddr *addr1,
+    TBdAddr *addr2);
 
 /**
  * Check if address in invalid i.e. {{0,0,0,0,0,0},BT_PUBLIC_ADDRESS}
@@ -52,7 +52,7 @@ extern cb_boolean cbBT_UTILS_cmpBdAddr(
  * @returns TRUE if invalid otherwise FALSE
  */
 extern cb_boolean cbBT_UTILS_isInvalidBdAddr(
-    TBdAddr* addr);
+    TBdAddr *addr);
 
 /**
  * Set invalid address i.e. {{0,0,0,0,0,0},BT_PUBLIC_ADDRESS}
@@ -60,14 +60,14 @@ extern cb_boolean cbBT_UTILS_isInvalidBdAddr(
  * @param addr    Pointer where to put the address
  */
 extern void cbBT_UTILS_setInvalidBdAddr(
-    TBdAddr* addr);
+    TBdAddr *addr);
 
 /**
  * Get invalid address
  *
  * @returns Pointer to the invalid address
  */
-extern const TBdAddr* cbBT_UTILS_getInvalidBdAddr(void);
+extern const TBdAddr *cbBT_UTILS_getInvalidBdAddr(void);
 
 /**
  * Copy Bluetooth address
@@ -76,8 +76,8 @@ extern const TBdAddr* cbBT_UTILS_getInvalidBdAddr(void);
  * @param src    Pointer to source address
  */
 extern void cbBT_UTILS_cpyBdAddr(
-    TBdAddr* dest, 
-    TBdAddr* src);
+    TBdAddr *dest,
+    TBdAddr *src);
 
 #ifdef __cplusplus
 }

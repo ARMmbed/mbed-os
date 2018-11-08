@@ -105,7 +105,7 @@ uint32_t us_ticker_read()
         us_ticker_init();
     }
 
-    TIMER_T * timer0_base = (TIMER_T *) NU_MODBASE(timer0hires_modinit.modname);
+    TIMER_T *timer0_base = (TIMER_T *) NU_MODBASE(timer0hires_modinit.modname);
 
     do {
         uint32_t major_minor_us;
@@ -180,7 +180,7 @@ static void tmr1_vec(void)
 
 static void us_ticker_arm_cd(void)
 {
-    TIMER_T * timer1_base = (TIMER_T *) NU_MODBASE(timer1hires_modinit.modname);
+    TIMER_T *timer1_base = (TIMER_T *) NU_MODBASE(timer1hires_modinit.modname);
 
     cd_minor_us = cd_major_minor_us;
 

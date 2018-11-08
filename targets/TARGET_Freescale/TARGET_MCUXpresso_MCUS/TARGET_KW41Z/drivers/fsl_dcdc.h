@@ -47,8 +47,7 @@
 /*!
  * @brief Status flags.
  */
-enum _dcdc_status_flags_t
-{
+enum _dcdc_status_flags_t {
     kDCDC_LockedOKStatus = (1U << 0),         /*!< Status to indicate DCDC lock. Read only bit. */
     kDCDC_PSwitchStatus = (1U << 1),          /*!< Status to indicate PSWITCH signal. Read only bit. */
     kDCDC_PSwitchInterruptStatus = (1U << 2), /*!< PSWITCH edge detection interrupt status. */
@@ -57,16 +56,14 @@ enum _dcdc_status_flags_t
 /*!
  * @brief Interrupts.
  */
-enum _dcdc_interrupt_enable_t
-{
+enum _dcdc_interrupt_enable_t {
     kDCDC_PSwitchEdgeDetectInterruptEnable = DCDC_REG6_PSWITCH_INT_MUTE_MASK, /*!< Enable the edge detect interrupt. */
 };
 
 /*!
  * @brief Events for PSWITCH signal(pin).
  */
-enum _dcdc_pswitch_detect_event_t
-{
+enum _dcdc_pswitch_detect_event_t {
     kDCDC_PSwitchFallingEdgeDetectEnable = DCDC_REG6_PSWITCH_INT_FALL_EN_MASK, /*!< Enable falling edge detect. */
     kDCDC_PSwitchRisingEdgeDetectEnable = DCDC_REG6_PSWITCH_INT_RISE_EN_MASK,  /*!< Enable rising edge detect. */
 };
@@ -74,8 +71,7 @@ enum _dcdc_pswitch_detect_event_t
 /*!
  * @brief DCDC work mode in SoC's low power condition.
  */
-typedef enum _dcdc_work_mode
-{
+typedef enum _dcdc_work_mode {
     kDCDC_WorkInContinuousMode = 0U, /*!< DCDC works in continuous mode when SOC is in low power mode. */
     kDCDC_WorkInPulsedMode = 1U,     /*!< DCDC works in pulsed mode when SOC is in low power mode. */
 } dcdc_work_mode_t;
@@ -83,8 +79,7 @@ typedef enum _dcdc_work_mode
 /*!
  * @brief Hysteretic upper/lower threshold value in low power mode.
  */
-typedef enum _dcdc_hysteretic_threshold_offset_value
-{
+typedef enum _dcdc_hysteretic_threshold_offset_value {
     kDCDC_HystereticThresholdOffset0mV = 0U,  /*!< Target voltage value +/- 0mV. */
     kDCDC_HystereticThresholdOffset25mV = 1U, /*!< Target voltage value +/- 25mV. */
     kDCDC_HystereticThresholdOffset50mV = 2U, /*!< Target voltage value +/- 50mV. */
@@ -94,8 +89,7 @@ typedef enum _dcdc_hysteretic_threshold_offset_value
 /*!
  * @brief VBAT voltage divider.
  */
-typedef enum _dcdc_vbat_divider
-{
+typedef enum _dcdc_vbat_divider {
     kDCDC_VBatVoltageDividerOff = 0U, /*!< The sensor signal is disabled. */
     kDCDC_VBatVoltageDivider1 = 1U,   /*!< VBat. */
     kDCDC_VBatVoltageDivider2 = 2U,   /*!< VBat/2. */
@@ -105,8 +99,7 @@ typedef enum _dcdc_vbat_divider
 /*!
  * @brief Oscillator clock option.
  */
-typedef enum _dcdc_clock_source_t
-{
+typedef enum _dcdc_clock_source_t {
     kDCDC_ClockAutoSwitch = 0U, /*!< Automatic clock switch from internal oscillator to external clock. */
     kDCDC_ClockInternalOsc,     /* Use internal oscillator. */
     kDCDC_ClockExternalOsc,     /* Use external 32M crystal oscillator. */
@@ -115,8 +108,7 @@ typedef enum _dcdc_clock_source_t
 /*!
  * @brief Configuration for the low power.
  */
-typedef struct _dcdc_low_power_config
-{
+typedef struct _dcdc_low_power_config {
     dcdc_work_mode_t workModeInVLPRW;      /*!< Select the behavior of DCDC in device VLPR and VLPW low power modes. */
     dcdc_work_mode_t workModeInVLPS;       /*!< Select the behavior of DCDC in device VLPS low power modes. */
     bool enableHysteresisVoltageSense;     /*!< Enable hysteresis in low power voltage sense. */
@@ -133,8 +125,7 @@ typedef struct _dcdc_low_power_config
 /*!
  * @brief Configuration for the loop control.
  */
-typedef struct _dcdc_loop_control_config
-{
+typedef struct _dcdc_loop_control_config {
     bool enableDiffHysteresis; /*!< Enable hysteresis in switching converter differential mode analog comparators. This
                                     feature improves transient supply ripple and efficiency. */
     bool enableCommonHysteresis;     /*!< Enable hysteresis in switching converter common mode analog comparators. This
@@ -151,8 +142,7 @@ typedef struct _dcdc_loop_control_config
 /*!
  * @brief Configuration for min power setting.
  */
-typedef struct _dcdc_min_power_config
-{
+typedef struct _dcdc_min_power_config {
     /* For Continuous Mode. */
     bool enableUseHalfFetForContinuous;   /*!< Use half switch FET for the continuous mode. */
     bool enableUseDoubleFetForContinuous; /*!< Use double switch FET for the continuous mode. */
@@ -167,8 +157,7 @@ typedef struct _dcdc_min_power_config
 /*!
  * @brief Configuration for the integrator in pulsed mode.
  */
-typedef struct _dcdc_pulsed_integrator_config_t
-{
+typedef struct _dcdc_pulsed_integrator_config_t {
     bool enableUseUserIntegratorValue; /*!< Enable to use the setting value in userIntegratorValue field. Otherwise, the
                                             predefined hardware setting would be applied internally. */
     uint32_t userIntegratorValue;      /*!< User defined integrator value. The available value is 19-bit. */
@@ -342,12 +331,9 @@ void DCDC_SetLoopControlConfig(DCDC_Type *base, const dcdc_loop_control_config_t
  */
 static inline void DCDC_EnableXtalOKDetectionCircuit(DCDC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->REG0 &= ~DCDC_REG0_DCDC_XTALOK_DISABLE_MASK;
-    }
-    else
-    {
+    } else {
         base->REG0 |= DCDC_REG0_DCDC_XTALOK_DISABLE_MASK;
     }
 }
@@ -362,12 +348,9 @@ static inline void DCDC_EnableXtalOKDetectionCircuit(DCDC_Type *base, bool enabl
  */
 static inline void DCDC_EnableOutputRangeComparator(DCDC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->REG0 &= ~DCDC_REG0_PWD_CMP_OFFSET_MASK;
-    }
-    else
-    {
+    } else {
         base->REG0 |= DCDC_REG0_PWD_CMP_OFFSET_MASK;
     }
 }
@@ -382,12 +365,9 @@ static inline void DCDC_EnableOutputRangeComparator(DCDC_Type *base, bool enable
  */
 static inline void DCDC_EnableReduceCurrent(DCDC_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->REG0 |= DCDC_REG0_DCDC_LESS_I_MASK;
-    }
-    else
-    {
+    } else {
         base->REG0 &= ~DCDC_REG0_DCDC_LESS_I_MASK;
     }
 }

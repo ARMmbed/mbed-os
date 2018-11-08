@@ -73,7 +73,7 @@ extern uint32_t Image$$RW_DATA$$Base;
 extern uint32_t Image$$ZI_DATA$$Base;
 #if !defined ( __ICCARM__ )
 extern uint32_t Image$$TTB$$ZI$$Base;
-#endif 
+#endif
 
 #if defined( __CC_ARM )
 #elif defined( __ICCARM__ )
@@ -147,13 +147,13 @@ void create_translation_table(void)
 #pragma section=".bss"
 
     Image$$VECTORS$$Base = (uint32_t) __section_begin(".intvec");
-    Image$$VECTORS$$Limit= ((uint32_t)__section_begin(".intvec")+(uint32_t)__section_size(".intvec"));
+    Image$$VECTORS$$Limit = ((uint32_t)__section_begin(".intvec") + (uint32_t)__section_size(".intvec"));
     Image$$RO_DATA$$Base = (uint32_t) __section_begin(".rodata");
-    Image$$RO_DATA$$Limit= ((uint32_t)__section_begin(".rodata")+(uint32_t)__section_size(".rodata"));
-    Image$$RW_DATA$$Base = (uint32_t) __section_begin(".rwdata"); 
-    Image$$RW_DATA$$Limit= ((uint32_t)__section_begin(".rwdata")+(uint32_t)__section_size(".rwdata"));
-    Image$$ZI_DATA$$Base = (uint32_t) __section_begin(".bss");  
-    Image$$ZI_DATA$$Limit= ((uint32_t)__section_begin(".bss")+(uint32_t)__section_size(".bss"));
+    Image$$RO_DATA$$Limit = ((uint32_t)__section_begin(".rodata") + (uint32_t)__section_size(".rodata"));
+    Image$$RW_DATA$$Base = (uint32_t) __section_begin(".rwdata");
+    Image$$RW_DATA$$Limit = ((uint32_t)__section_begin(".rwdata") + (uint32_t)__section_size(".rwdata"));
+    Image$$ZI_DATA$$Base = (uint32_t) __section_begin(".bss");
+    Image$$ZI_DATA$$Limit = ((uint32_t)__section_begin(".bss") + (uint32_t)__section_size(".bss"));
 #endif
     /*
      * Generate descriptors. Refer to VKRZA1H.h to get information about attributes
@@ -179,45 +179,45 @@ void create_translation_table(void)
      */
 
     //Create 4GB of faulting entries
-    __TTSection (&Image$$TTB$$ZI$$Base, 0, 4096, DESCRIPTOR_FAULT);
+    __TTSection(&Image$$TTB$$ZI$$Base, 0, 4096, DESCRIPTOR_FAULT);
 
     // R7S72100 memory map.
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_NORFLASH_BASE0    , 64, Sect_Normal_RO);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_NORFLASH_BASE1    , 64, Sect_Normal_RO);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SDRAM_BASE0       , 64, Sect_Normal_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SDRAM_BASE1       , 64, Sect_Normal_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_USER_AREA0        , 64, Sect_Normal_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_USER_AREA1        , 64, Sect_Normal_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SPI_IO0           , 64, Sect_Normal_RO);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SPI_IO1           , 64, Sect_Normal_RO);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_ONCHIP_SRAM_BASE  , 10, Sect_Normal_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SPI_MIO_BASE      ,  1, Sect_Device_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_BSC_BASE          ,  1, Sect_Device_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_PERIPH_BASE0      ,  3, Sect_Device_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_PERIPH_BASE1      , 49, Sect_Device_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_NORFLASH_BASE0, 64, Sect_Normal_RO);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_NORFLASH_BASE1, 64, Sect_Normal_RO);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SDRAM_BASE0, 64, Sect_Normal_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SDRAM_BASE1, 64, Sect_Normal_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_USER_AREA0, 64, Sect_Normal_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_USER_AREA1, 64, Sect_Normal_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SPI_IO0, 64, Sect_Normal_RO);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SPI_IO1, 64, Sect_Normal_RO);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_ONCHIP_SRAM_BASE, 10, Sect_Normal_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SPI_MIO_BASE,  1, Sect_Device_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_BSC_BASE,  1, Sect_Device_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_PERIPH_BASE0,  3, Sect_Device_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_PERIPH_BASE1, 49, Sect_Device_RW);
 
 #if defined( __ICCARM__ )
     //Define Image
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RO_DATA$$Base, RO_DATA_SIZE, Sect_Normal_RO);
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$VECTORS$$Base, VECTORS_SIZE, Sect_Normal_Cod);
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RW_DATA$$Base, RW_DATA_SIZE, Sect_Normal_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$ZI_DATA$$Base, ZI_DATA_SIZE, Sect_Normal_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RO_DATA$$Base, RO_DATA_SIZE, Sect_Normal_RO);
+    __TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)Image$$VECTORS$$Base, VECTORS_SIZE, Sect_Normal_Cod);
+    __TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RW_DATA$$Base, RW_DATA_SIZE, Sect_Normal_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)Image$$ZI_DATA$$Base, ZI_DATA_SIZE, Sect_Normal_RW);
 #else
     //Define Image
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RO_DATA$$Base, RO_DATA_SIZE, Sect_Normal_RO);
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$VECTORS$$Base, VECTORS_SIZE, Sect_Normal_Cod);
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA$$Base, RW_DATA_SIZE, Sect_Normal_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA$$Base, ZI_DATA_SIZE, Sect_Normal_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RO_DATA$$Base, RO_DATA_SIZE, Sect_Normal_RO);
+    __TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$VECTORS$$Base, VECTORS_SIZE, Sect_Normal_Cod);
+    __TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA$$Base, RW_DATA_SIZE, Sect_Normal_RW);
+    __TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA$$Base, ZI_DATA_SIZE, Sect_Normal_RW);
 #endif
 
 #if defined( __CC_ARM )
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_ONCHIP_SRAM_NC_BASE,         10, Sect_Normal_NC);
-#elif defined ( __ICCARM__ ) 
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_ONCHIP_SRAM_NC_BASE,         10, Sect_Normal_NC);
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_ONCHIP_SRAM_NC_BASE,         10, Sect_Normal_NC);
+#elif defined ( __ICCARM__ )
+    __TTSection(&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_ONCHIP_SRAM_NC_BASE,         10, Sect_Normal_NC);
 
 #else
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA_NC$$Base, RW_DATA_NC_SIZE, Sect_Normal_NC);
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA_NC$$Base, ZI_DATA_NC_SIZE, Sect_Normal_NC);
+    __TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA_NC$$Base, RW_DATA_NC_SIZE, Sect_Normal_NC);
+    __TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA_NC$$Base, ZI_DATA_NC_SIZE, Sect_Normal_NC);
 #endif
 
     /* Set location of level 1 page table

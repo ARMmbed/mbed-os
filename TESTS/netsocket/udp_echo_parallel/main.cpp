@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
- #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-     #error [NOT_SUPPORTED] No network configuration found for this target.
- #endif
+#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#error [NOT_SUPPORTED] No network configuration found for this target.
+#endif
 
 #ifndef MBED_EXTENDED_TESTS
-    #error [NOT_SUPPORTED] Parallel tests are not supported by default
+#error [NOT_SUPPORTED] Parallel tests are not supported by default
 #endif
 
 #include "mbed.h"
@@ -50,24 +50,25 @@ using namespace utest::v1;
 
 
 const int ECHO_LOOPS = 16;
-NetworkInterface* net;
+NetworkInterface *net;
 SocketAddress udp_addr;
 Mutex iomutex;
 char uuid[48] = {0};
 
 // NOTE: assuming that "id" stays in the single digits
-void prep_buffer(int id, char *uuid, char *tx_buffer, size_t tx_size) {
+void prep_buffer(int id, char *uuid, char *tx_buffer, size_t tx_size)
+{
     size_t i = 0;
 
     tx_buffer[i++] = '0' + id;
     tx_buffer[i++] = ' ';
 
-    memcpy(tx_buffer+i, uuid, strlen(uuid));
+    memcpy(tx_buffer + i, uuid, strlen(uuid));
     i += strlen(uuid);
 
     tx_buffer[i++] = ' ';
 
-    for (; i<tx_size; ++i) {
+    for (; i < tx_size; ++i) {
         tx_buffer[i] = (rand() % 10) + '0';
     }
 }
@@ -87,21 +88,25 @@ private:
 
 public:
     // Limiting stack size to 1k
-    Echo(): thread(osPriorityNormal, 1024), result(false) {
+    Echo(): thread(osPriorityNormal, 1024), result(false)
+    {
     }
 
-    void start(int id, char *uuid) {
+    void start(int id, char *uuid)
+    {
         this->id = id;
         this->uuid = uuid;
         osStatus status = thread.start(callback(this, &Echo::echo));
     }
 
-    void join() {
+    void join()
+    {
         osStatus status = thread.join();
         TEST_ASSERT_EQUAL(osOK, status);
     }
 
-    void echo() {
+    void echo()
+    {
         int success = 0;
 
         int err = sock.open(net);
@@ -137,8 +142,8 @@ public:
             }
 
             if ((temp_addr == udp_addr &&
-                 n == sizeof(tx_buffer) &&
-                 memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
+                    n == sizeof(tx_buffer) &&
+                    memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
                 success += 1;
                 iomutex.lock();
                 printf("[ID:%01d][%02d] success #%d\n", id, i, success);
@@ -166,7 +171,8 @@ public:
         }
     }
 
-    bool get_result() {
+    bool get_result()
+    {
         return result;
     }
 };
@@ -174,7 +180,8 @@ public:
 Echo *echoers[MBED_CFG_UDP_CLIENT_ECHO_THREADS];
 
 
-void test_udp_echo_parallel() {
+void test_udp_echo_parallel()
+{
     net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
     TEST_ASSERT_EQUAL(0, err);
@@ -209,7 +216,8 @@ void test_udp_echo_parallel() {
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(120, "udp_echo");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -220,6 +228,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

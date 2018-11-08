@@ -76,8 +76,7 @@ Exported global variables and functions (to be accessed by other files)
 /********************************************************************************************************/
 
 /* Device Address 1 */
-USB_HOST_CFG_PIPETBL_t     usb_host_blk_ep_tbl1[ ] =
-{
+USB_HOST_CFG_PIPETBL_t     usb_host_blk_ep_tbl1[ ] = {
     {
         USB_HOST_PIPE3,
         /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */
@@ -99,8 +98,7 @@ USB_HOST_CFG_PIPETBL_t     usb_host_blk_ep_tbl1[ ] =
     }
 };
 
-USB_HOST_CFG_PIPETBL_t     usb_host_int_ep_tbl1[ ] =
-{
+USB_HOST_CFG_PIPETBL_t     usb_host_int_ep_tbl1[ ] = {
     {
         USB_HOST_PIPE6,
         /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */
@@ -152,8 +150,7 @@ USB_HOST_CFG_PIPETBL_t     usb_host_int_ep_tbl1[ ] =
     }
 };
 
-USB_HOST_CFG_PIPETBL_t     usb_host_iso_ep_tbl1[ ] =
-{
+USB_HOST_CFG_PIPETBL_t     usb_host_iso_ep_tbl1[ ] = {
     {
         USB_HOST_PIPE1,
         /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */

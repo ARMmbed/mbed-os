@@ -70,13 +70,12 @@ extern "C" {
  */
 #define ADI_SPORT_MEMORY_SIZE   (76u + ADI_SEM_SIZE)
 
-typedef void*  ADI_SPORT_HANDLE;        /*!< Handle to the SPORT Device */
+typedef void  *ADI_SPORT_HANDLE;        /*!< Handle to the SPORT Device */
 
 /**
  * Enumeration of different channels of the SPORT
  */
-typedef enum
-{
+typedef enum {
     ADI_HALF_SPORT_A = 0,               /*!< First half SPORT */
     ADI_HALF_SPORT_B = 1                /*!< Second half SPORT */
 } ADI_SPORT_CHANNEL;
@@ -84,8 +83,7 @@ typedef enum
 /**
  * Enumeration for the direction of operation.
  */
-typedef enum
-{
+typedef enum {
     ADI_SPORT_DIR_RX,                   /*!< Sport in Rx mode */
     ADI_SPORT_DIR_TX                    /*!< Sport in Tx mode */
 } ADI_SPORT_DIRECTION;
@@ -93,8 +91,7 @@ typedef enum
 /**
  * Enumeration for enabling packing.
  */
-typedef enum
-{
+typedef enum {
     ADI_SPORT_NO_PACKING = 0,                                   /*!< No Packing */
     ADI_SPORT_8BIT_PACKING = ENUM_SPORT_CTL_A_CTL_PACK_8BIT,    /*!< 8-bit packing */
     ADI_SPORT_16BIT_PACKING = ENUM_SPORT_CTL_A_CTL_PACK_16BIT   /*!< 16-Bit packing */
@@ -103,8 +100,7 @@ typedef enum
 /**
  * Enumeration for Hardware Error encountered by the SPORT device.
  */
- typedef enum
-{
+typedef enum {
     ADI_SPORT_HW_NO_ERR                  = 0x00,  /*!< No Hardware error */
     ADI_SPORT_HW_ERR_RX_OVERFLOW         = 0x02,  /*!< Data overflow  for Rx (same value as Tx underflow) */
     ADI_SPORT_HW_ERR_TX_UNDERFLOW        = 0x02,  /*!< Data underflow for Tx (same value as Rx overflow) */
@@ -116,17 +112,16 @@ typedef enum
 
     ADI_SPORT_DMA_ERR_BUS                = 0x100, /*!< SPORT DMA bus error detected  */
     ADI_SPORT_DMA_ERR_INVALID_DESCRIPTOR = 0x200  /*!< SPORT DMA invalid descriptor error detected  */
-}ADI_SPORT_EVENT;
+} ADI_SPORT_EVENT;
 
 
 /**
  *  Enumeration for result code returned from the SPORT device driver functions.
  */
-typedef enum
-{
+typedef enum {
     ADI_SPORT_SUCCESS,                  /*!< Success */
     ADI_SPORT_FAILED,                   /*!< Generic Failure to indicate a call to SPORT driver function returned unsuccessful */
-    ADI_SPORT_INVALID_DEVICE_NUM ,      /*!< Invalid device number */
+    ADI_SPORT_INVALID_DEVICE_NUM,       /*!< Invalid device number */
     ADI_SPORT_INVALID_NULL_POINTER,     /*!< Specified pointer is invalid */
     ADI_SPORT_INVALID_HANDLE,           /*!< The given handle is invalid */
     ADI_SPORT_INVALID_PARAMETER,        /*!< Specified parameter is not valid */
@@ -148,41 +143,41 @@ ADI_SPORT_RESULT adi_sport_Open(
     const ADI_SPORT_DIRECTION   eDirection,
     void                        *pMemory,
     const uint32_t              nMemSize,
-    ADI_SPORT_HANDLE * const    phDevice
-    );
+    ADI_SPORT_HANDLE *const    phDevice
+);
 
 /* Closes a SPORT device */
 ADI_SPORT_RESULT adi_sport_Close(
     ADI_SPORT_HANDLE const      hDevice
-    );
+);
 
 /* Submits a buffer to the driver */
 ADI_SPORT_RESULT adi_sport_SubmitBuffer(
     ADI_SPORT_HANDLE const hDevice,
-    void *           const pBuffer,
+    void            *const pBuffer,
     uint32_t         const nNumBytes,
     bool             const bDMA
-    );
+);
 
 /* Get the processed buffer from the driver */
 ADI_SPORT_RESULT adi_sport_GetBuffer(
     ADI_SPORT_HANDLE const      hDevice,
-    void ** const               ppBuffer,
-    uint32_t *                  pHwError
-    );
+    void **const               ppBuffer,
+    uint32_t                   *pHwError
+);
 
 /* Peek function to know whether an processed buffer is avilable */
 ADI_SPORT_RESULT adi_sport_IsBufferAvailable(
     ADI_SPORT_HANDLE const      hDevice,
-    bool   * const              pbAvailable
-    );
+    bool    *const              pbAvailable
+);
 
 /* To register the callback function */
 ADI_SPORT_RESULT adi_sport_RegisterCallback(
     ADI_SPORT_HANDLE const      hDevice,
     const ADI_CALLBACK          pfCallback,
-    void * const                pCBparam
-    );
+    void *const                pCBparam
+);
 
 /* Configure the data */
 ADI_SPORT_RESULT adi_sport_ConfigData(
@@ -190,7 +185,7 @@ ADI_SPORT_RESULT adi_sport_ConfigData(
     const uint8_t                       nWordLength,
     const ADI_SPORT_PACKING_MODE        ePackMode,
     const bool                          bLSBFirst
-    );
+);
 
 /* Configure the clock */
 ADI_SPORT_RESULT adi_sport_ConfigClock(
@@ -199,7 +194,7 @@ ADI_SPORT_RESULT adi_sport_ConfigClock(
     const bool                  bUseIntlClock,
     const bool                  bRisingEdge,
     const bool                  bGatedClk
-    );
+);
 
 /* Configure the frame sync */
 ADI_SPORT_RESULT adi_sport_ConfigFrameSync(
@@ -211,14 +206,14 @@ ADI_SPORT_RESULT adi_sport_ConfigFrameSync(
     const bool                  bActiveLowFS,
     const bool                  bLateFS,
     const bool                  bFSErrorOperation
-    );
+);
 
 /* To mux the half-SPORT; this makes the device to use FS and Clock from other half-SPORT */
 ADI_SPORT_RESULT adi_sport_MultiplexSportSignal(
     ADI_SPORT_HANDLE const      hDevice,
     const bool                  bUseOtherFS,
     const bool                  bUseOtherClk
-    );
+);
 
 /* To configure the SPORT in timer mode */
 ADI_SPORT_RESULT adi_sport_ConfigTimerMode(
@@ -226,7 +221,7 @@ ADI_SPORT_RESULT adi_sport_ConfigTimerMode(
     const uint8_t               nFSDuration,
     const uint8_t               nWidth,
     const bool                  bActiveLow
-    );
+);
 
 #ifdef __cplusplus
 }

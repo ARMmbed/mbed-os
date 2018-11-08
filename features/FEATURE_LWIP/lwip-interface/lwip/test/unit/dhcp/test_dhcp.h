@@ -3,6 +3,6 @@
 
 #include "../lwip_check.h"
 
-Suite* dhcp_suite(void);
+Suite *dhcp_suite(void);
 
 #endif

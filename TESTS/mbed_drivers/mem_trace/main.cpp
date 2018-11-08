@@ -25,7 +25,7 @@
 #include <stdarg.h>
 
 #ifndef MBED_MEM_TRACING_ENABLED
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 using utest::v1::Case;
@@ -99,7 +99,7 @@ extern "C" void test_trace_cb(uint8_t op, void *res, void *caller, ...)
     va_start(va, caller);
     pmem->op = op;
     pmem->res = res;
-    switch(op) {
+    switch (op) {
         case MBED_MEM_TRACE_MALLOC:
             pmem->malloc_info.arg_size = va_arg(va, size_t);
             break;
@@ -180,7 +180,7 @@ void malloc_free(volatile bool *thread_continue)
 {
     const size_t block_size = 126;
 
-    while(*thread_continue) {
+    while (*thread_continue) {
         void *p = malloc(block_size);
         TEST_ASSERT_NOT_EQUAL(p, NULL);
         free(p);
@@ -403,8 +403,7 @@ static void test_case_multithread_malloc_free()
 
 
 
-static Case cases[] =
-{
+static Case cases[] = {
     Case("Test single malloc/free trace", test_case_single_malloc_free),
     Case("Test all memory operations trace", test_case_all_memory_ops),
     Case("Test trace off", test_case_trace_off),

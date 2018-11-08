@@ -34,9 +34,8 @@
 /**
  * @brief PWM driver instance data structure.
  */
-typedef struct
-{
-    NRF_PWM_Type * p_registers;  ///< Pointer to the structure with PWM peripheral instance registers.
+typedef struct {
+    NRF_PWM_Type *p_registers;   ///< Pointer to the structure with PWM peripheral instance registers.
     uint8_t        drv_inst_idx; ///< Driver instance index.
 } nrf_drv_pwm_t;
 
@@ -58,7 +57,7 @@ typedef struct
 #define NRF_DRV_PWM_PIN_NOT_USED    0xFF
 
 /**
- * @brief This value can be added to a pin number to inverse its polarity 
+ * @brief This value can be added to a pin number to inverse its polarity
  *        (set idle state = 1).
  */
 #define NRF_DRV_PWM_PIN_INVERTED    0x80
@@ -66,11 +65,10 @@ typedef struct
 /**
  * @brief PWM driver configuration structure.
  */
-typedef struct
-{
-    uint8_t output_pins[NRF_PWM_CHANNEL_COUNT]; ///< Pin numbers for individual output channels (optional). 
-                                                /**< Use @ref NRF_DRV_PWM_PIN_NOT_USED
-                                                 *   if a given output channel is not needed. */
+typedef struct {
+    uint8_t output_pins[NRF_PWM_CHANNEL_COUNT]; ///< Pin numbers for individual output channels (optional).
+    /**< Use @ref NRF_DRV_PWM_PIN_NOT_USED
+     *   if a given output channel is not needed. */
     uint8_t            irq_priority; ///< Interrupt priority.
     nrf_pwm_clk_t      base_clock;   ///< Base clock frequency.
     nrf_pwm_mode_t     count_mode;   ///< Operating mode of the pulse generator counter.
@@ -100,8 +98,7 @@ typedef struct
 /**
  * @brief PWM flags providing additional playback options.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_PWM_FLAG_STOP = 0x01, /**< When the requested playback is finished,
                                        the peripheral should be stopped.
                                        @note The STOP task is triggered when
@@ -131,8 +128,7 @@ typedef enum
 /**
  * @brief PWM driver event type.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_PWM_EVT_FINISHED, ///< Sequence playback finished.
     NRF_DRV_PWM_EVT_END_SEQ0, /**< End of sequence 0 reached. Its data can be
                                    safely modified now. */
@@ -160,8 +156,8 @@ typedef void (* nrf_drv_pwm_handler_t)(nrf_drv_pwm_evt_type_t event_type);
  * @retval NRF_SUCCESS             If initialization was successful.
  * @retval NRF_ERROR_INVALID_STATE If the driver was already initialized.
  */
-ret_code_t nrf_drv_pwm_init(nrf_drv_pwm_t const * const p_instance,
-                            nrf_drv_pwm_config_t const * p_config,
+ret_code_t nrf_drv_pwm_init(nrf_drv_pwm_t const *const p_instance,
+                            nrf_drv_pwm_config_t const *p_config,
                             nrf_drv_pwm_handler_t        handler);
 
 /**
@@ -171,7 +167,7 @@ ret_code_t nrf_drv_pwm_init(nrf_drv_pwm_t const * const p_instance,
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrf_drv_pwm_uninit(nrf_drv_pwm_t const * const p_instance);
+void nrf_drv_pwm_uninit(nrf_drv_pwm_t const *const p_instance);
 
 /**
  * @brief Function for starting a single sequence playback.
@@ -197,8 +193,8 @@ void nrf_drv_pwm_uninit(nrf_drv_pwm_t const * const p_instance);
  *                           @ref nrf_drv_pwm_flag_t "playback flags", or 0
  *                           for default settings.
  */
-void nrf_drv_pwm_simple_playback(nrf_drv_pwm_t const * const p_instance,
-                                 nrf_pwm_sequence_t const * p_sequence,
+void nrf_drv_pwm_simple_playback(nrf_drv_pwm_t const *const p_instance,
+                                 nrf_pwm_sequence_t const *p_sequence,
                                  uint16_t                   playback_count,
                                  uint32_t                   flags);
 
@@ -217,9 +213,9 @@ void nrf_drv_pwm_simple_playback(nrf_drv_pwm_t const * const p_instance,
  *                           @ref nrf_drv_pwm_flag_t "playback flags", or 0
  *                           for default settings.
  */
-void nrf_drv_pwm_complex_playback(nrf_drv_pwm_t const * const p_instance,
-                                  nrf_pwm_sequence_t const * p_sequence_0,
-                                  nrf_pwm_sequence_t const * p_sequence_1,
+void nrf_drv_pwm_complex_playback(nrf_drv_pwm_t const *const p_instance,
+                                  nrf_pwm_sequence_t const *p_sequence_0,
+                                  nrf_pwm_sequence_t const *p_sequence_1,
                                   uint16_t                   playback_count,
                                   uint32_t                   flags);
 
@@ -230,7 +226,7 @@ void nrf_drv_pwm_complex_playback(nrf_drv_pwm_t const * const p_instance,
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-__STATIC_INLINE void nrf_drv_pwm_step(nrf_drv_pwm_t const * const p_instance);
+__STATIC_INLINE void nrf_drv_pwm_step(nrf_drv_pwm_t const *const p_instance);
 
 /**
  * @brief Function for stopping the sequence playback.
@@ -255,7 +251,7 @@ __STATIC_INLINE void nrf_drv_pwm_step(nrf_drv_pwm_t const * const p_instance);
  * @retval true  If the PWM peripheral is stopped.
  * @retval false If the PWM peripheral is not stopped.
  */
-bool nrf_drv_pwm_stop(nrf_drv_pwm_t const * const p_instance,
+bool nrf_drv_pwm_stop(nrf_drv_pwm_t const *const p_instance,
                       bool wait_until_stopped);
 
 /**
@@ -266,7 +262,7 @@ bool nrf_drv_pwm_stop(nrf_drv_pwm_t const * const p_instance,
  * @retval true  If the PWM peripheral is stopped.
  * @retval false If the PWM peripheral is not stopped.
  */
-bool nrf_drv_pwm_is_stopped(nrf_drv_pwm_t const * const p_instance);
+bool nrf_drv_pwm_is_stopped(nrf_drv_pwm_t const *const p_instance);
 
 /**
  * @brief Function for updating the sequence data during playback.
@@ -276,9 +272,9 @@ bool nrf_drv_pwm_is_stopped(nrf_drv_pwm_t const * const p_instance);
  * @param[in] p_sequence Pointer to the new sequence definition.
  */
 __STATIC_INLINE void nrf_drv_pwm_sequence_update(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        uint8_t                    seq_id,
-                                        nrf_pwm_sequence_t const * p_sequence);
+    nrf_drv_pwm_t const *const p_instance,
+    uint8_t                    seq_id,
+    nrf_pwm_sequence_t const *p_sequence);
 
 /**
  * @brief Function for updating the pointer to the duty cycle values
@@ -289,9 +285,9 @@ __STATIC_INLINE void nrf_drv_pwm_sequence_update(
  * @param[in] values     New pointer to the duty cycle values.
  */
 __STATIC_INLINE void nrf_drv_pwm_sequence_values_update(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        uint8_t          seq_id,
-                                        nrf_pwm_values_t values);
+    nrf_drv_pwm_t const *const p_instance,
+    uint8_t          seq_id,
+    nrf_pwm_values_t values);
 
 /**
  * @brief Function for updating the number of duty cycle values
@@ -302,9 +298,9 @@ __STATIC_INLINE void nrf_drv_pwm_sequence_values_update(
  * @param[in] length     New number of the duty cycle values.
  */
 __STATIC_INLINE void nrf_drv_pwm_sequence_length_update(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        uint8_t  seq_id,
-                                        uint16_t length);
+    nrf_drv_pwm_t const *const p_instance,
+    uint8_t  seq_id,
+    uint16_t length);
 
 /**
  * @brief Function for updating the number of repeats for duty cycle values
@@ -315,9 +311,9 @@ __STATIC_INLINE void nrf_drv_pwm_sequence_length_update(
  * @param[in] repeats    New number of repeats.
  */
 __STATIC_INLINE void nrf_drv_pwm_sequence_repeats_update(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        uint8_t  seq_id,
-                                        uint32_t repeats);
+    nrf_drv_pwm_t const *const p_instance,
+    uint8_t  seq_id,
+    uint32_t repeats);
 
 /**
  * @brief Function for updating the additional delay after the specified
@@ -328,9 +324,9 @@ __STATIC_INLINE void nrf_drv_pwm_sequence_repeats_update(
  * @param[in] end_delay  New end delay value (in PWM periods).
  */
 __STATIC_INLINE void nrf_drv_pwm_sequence_end_delay_update(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        uint8_t  seq_id,
-                                        uint32_t end_delay);
+    nrf_drv_pwm_t const *const p_instance,
+    uint8_t  seq_id,
+    uint32_t end_delay);
 
 /**
  * @brief Function for returning the address of a specified PWM task that can
@@ -342,8 +338,8 @@ __STATIC_INLINE void nrf_drv_pwm_sequence_end_delay_update(
  * @return Task address.
  */
 __STATIC_INLINE uint32_t nrf_drv_pwm_task_address_get(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        nrf_pwm_task_t task);
+    nrf_drv_pwm_t const *const p_instance,
+    nrf_pwm_task_t task);
 
 /**@brief Function for returning the address of a specified PWM event that can
  *        be used in PPI module.
@@ -354,67 +350,67 @@ __STATIC_INLINE uint32_t nrf_drv_pwm_task_address_get(
  * @return Event address.
  */
 __STATIC_INLINE uint32_t nrf_drv_pwm_event_address_get(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        nrf_pwm_event_t event);
+    nrf_drv_pwm_t const *const p_instance,
+    nrf_pwm_event_t event);
 
 
 #ifndef SUPPRESS_INLINE_IMPLEMENTATION
 
-__STATIC_INLINE void nrf_drv_pwm_step(nrf_drv_pwm_t const * const p_instance)
+__STATIC_INLINE void nrf_drv_pwm_step(nrf_drv_pwm_t const *const p_instance)
 {
     nrf_pwm_task_trigger(p_instance->p_registers, NRF_PWM_TASK_NEXTSTEP);
 }
 
 __STATIC_INLINE void nrf_drv_pwm_sequence_update(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        uint8_t                    seq_id,
-                                        nrf_pwm_sequence_t const * p_sequence)
+    nrf_drv_pwm_t const *const p_instance,
+    uint8_t                    seq_id,
+    nrf_pwm_sequence_t const *p_sequence)
 {
     nrf_pwm_sequence_set(p_instance->p_registers, seq_id, p_sequence);
 }
 
 __STATIC_INLINE void nrf_drv_pwm_sequence_values_update(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        uint8_t          seq_id,
-                                        nrf_pwm_values_t values)
+    nrf_drv_pwm_t const *const p_instance,
+    uint8_t          seq_id,
+    nrf_pwm_values_t values)
 {
     nrf_pwm_seq_ptr_set(p_instance->p_registers, seq_id, values.p_raw);
 }
 
 __STATIC_INLINE void nrf_drv_pwm_sequence_length_update(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        uint8_t  seq_id,
-                                        uint16_t length)
+    nrf_drv_pwm_t const *const p_instance,
+    uint8_t  seq_id,
+    uint16_t length)
 {
     nrf_pwm_seq_cnt_set(p_instance->p_registers, seq_id, length);
 }
 
 __STATIC_INLINE void nrf_drv_pwm_sequence_repeats_update(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        uint8_t  seq_id,
-                                        uint32_t repeats)
+    nrf_drv_pwm_t const *const p_instance,
+    uint8_t  seq_id,
+    uint32_t repeats)
 {
     nrf_pwm_seq_refresh_set(p_instance->p_registers, seq_id, repeats);
 }
 
 __STATIC_INLINE void nrf_drv_pwm_sequence_end_delay_update(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        uint8_t  seq_id,
-                                        uint32_t end_delay)
+    nrf_drv_pwm_t const *const p_instance,
+    uint8_t  seq_id,
+    uint32_t end_delay)
 {
     nrf_pwm_seq_end_delay_set(p_instance->p_registers, seq_id, end_delay);
 }
 
 __STATIC_INLINE uint32_t nrf_drv_pwm_task_address_get(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        nrf_pwm_task_t task)
+    nrf_drv_pwm_t const *const p_instance,
+    nrf_pwm_task_t task)
 {
     return nrf_pwm_task_address_get(p_instance->p_registers, task);
 }
 
 __STATIC_INLINE uint32_t nrf_drv_pwm_event_address_get(
-                                        nrf_drv_pwm_t const * const p_instance,
-                                        nrf_pwm_event_t event)
+    nrf_drv_pwm_t const *const p_instance,
+    nrf_pwm_event_t event)
 {
     return nrf_pwm_event_address_get(p_instance->p_registers, event);
 }

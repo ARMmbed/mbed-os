@@ -53,7 +53,7 @@ void portable_delay_cycles(unsigned long n)
 {
     UNUSED(n);
 
-    __asm (
+    __asm(
         "loop: DMB	\n"
         "SUBS R0, R0, #1  \n"
         "BNE.N loop         "

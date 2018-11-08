@@ -78,44 +78,34 @@ Private global variables and functions
 * Return Value : DEVDRV_SUCCESS     ;   SUCCESS
 *              : DEVDRV_ERROR       ;   ERROR
 *******************************************************************************/
-int32_t usb1_host_CtrlTransStart (uint16_t devadr, uint16_t Req, uint16_t Val,
-                            uint16_t Indx, uint16_t Len, uint8_t * Buf)
+int32_t usb1_host_CtrlTransStart(uint16_t devadr, uint16_t Req, uint16_t Val,
+                                 uint16_t Indx, uint16_t Len, uint8_t *Buf)
 {
-    if (g_usb1_host_UsbDeviceSpeed == USB_HOST_LOW_SPEED)
-    {
+    if (g_usb1_host_UsbDeviceSpeed == USB_HOST_LOW_SPEED) {
         RZA_IO_RegWrite_16(&USB201.SOFCFG,
-                            1,
-                            USB_SOFCFG_TRNENSEL_SHIFT,
-                            USB_SOFCFG_TRNENSEL);
-    }
-    else
-    {
+                           1,
+                           USB_SOFCFG_TRNENSEL_SHIFT,
+                           USB_SOFCFG_TRNENSEL);
+    } else {
         RZA_IO_RegWrite_16(&USB201.SOFCFG,
-                            0,
-                            USB_SOFCFG_TRNENSEL_SHIFT,
-                            USB_SOFCFG_TRNENSEL);
+                           0,
+                           USB_SOFCFG_TRNENSEL_SHIFT,
+                           USB_SOFCFG_TRNENSEL);
     }
 
     USB201.DCPMAXP = (uint16_t)((uint16_t)(devadr << 12) + g_usb1_host_default_max_packet[devadr]);
 
-    if (g_usb1_host_pipe_status[USB_HOST_PIPE0] == USB_HOST_PIPE_IDLE)
-    {
+    if (g_usb1_host_pipe_status[USB_HOST_PIPE0] == USB_HOST_PIPE_IDLE) {
         g_usb1_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_WAIT;
         g_usb1_host_PipeIgnore[USB_HOST_PIPE0]  = 0;                    /* Ignore count clear */
         g_usb1_host_CmdStage = (USB_HOST_STAGE_SETUP | USB_HOST_CMD_IDLE);
 
-        if (Len == 0)
-        {
+        if (Len == 0) {
             g_usb1_host_CmdStage |= USB_HOST_MODE_NO_DATA;              /* No-data Control */
-        }
-        else
-        {
-            if ((Req & 0x0080) != 0)
-            {
+        } else {
+            if ((Req & 0x0080) != 0) {
                 g_usb1_host_CmdStage |= USB_HOST_MODE_READ;             /* Control Read */
-            }
-            else
-            {
+            } else {
                 g_usb1_host_CmdStage |= USB_HOST_MODE_WRITE;            /* Control Write */
             }
         }
@@ -124,86 +114,77 @@ int32_t usb1_host_CtrlTransStart (uint16_t devadr, uint16_t Req, uint16_t Val,
         g_usb1_host_SavVal  = Val;
         g_usb1_host_SavIndx = Indx;
         g_usb1_host_SavLen  = Len;
-    }
-    else
-    {
+    } else {
         if ((g_usb1_host_SavReq  != Req)  || (g_usb1_host_SavVal != Val)
-         || (g_usb1_host_SavIndx != Indx) || (g_usb1_host_SavLen != Len))
-        {
+                || (g_usb1_host_SavIndx != Indx) || (g_usb1_host_SavLen != Len)) {
             return DEVDRV_ERROR;
         }
     }
 
-    switch ((g_usb1_host_CmdStage & (USB_HOST_STAGE_FIELD | USB_HOST_CMD_FIELD)))
-    {
+    switch ((g_usb1_host_CmdStage & (USB_HOST_STAGE_FIELD | USB_HOST_CMD_FIELD))) {
         /* --------------- SETUP STAGE --------------- */
         case (USB_HOST_STAGE_SETUP | USB_HOST_CMD_IDLE):
             usb1_host_SetupStage(Req, Val, Indx, Len);
-        break;
+            break;
 
         case (USB_HOST_STAGE_SETUP | USB_HOST_CMD_DOING):
             /* do nothing */
-        break;
+            break;
 
         case (USB_HOST_STAGE_SETUP | USB_HOST_CMD_DONE):                /* goto next stage */
             g_usb1_host_PipeIgnore[USB_HOST_PIPE0]  = 0;                /* Ignore count clear */
-            switch ((g_usb1_host_CmdStage & (USB_HOST_MODE_FIELD)))
-            {
+            switch ((g_usb1_host_CmdStage & (USB_HOST_MODE_FIELD))) {
                 case USB_HOST_MODE_WRITE:
                     g_usb1_host_CmdStage &= (~USB_HOST_STAGE_FIELD);
                     g_usb1_host_CmdStage |= USB_HOST_STAGE_DATA;
-                break;
+                    break;
 
                 case USB_HOST_MODE_READ:
                     g_usb1_host_CmdStage &= (~USB_HOST_STAGE_FIELD);
                     g_usb1_host_CmdStage |= USB_HOST_STAGE_DATA;
-                break;
+                    break;
 
                 case USB_HOST_MODE_NO_DATA:
                     g_usb1_host_CmdStage &= (~USB_HOST_STAGE_FIELD);
                     g_usb1_host_CmdStage |= USB_HOST_STAGE_STATUS;
-                break;
+                    break;
 
                 default:
-                break;
+                    break;
             }
             g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
             g_usb1_host_CmdStage |= USB_HOST_CMD_IDLE;
-        break;
+            break;
 
         case (USB_HOST_STAGE_SETUP | USB_HOST_CMD_NORES):
-            if (g_usb1_host_PipeIgnore[USB_HOST_PIPE0] == 3)
-            {
+            if (g_usb1_host_PipeIgnore[USB_HOST_PIPE0] == 3) {
                 g_usb1_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_NORES;  /* exit NORES */
-            }
-            else
-            {
+            } else {
                 g_usb1_host_PipeIgnore[USB_HOST_PIPE0]++;                       /* Ignore count */
                 g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                 g_usb1_host_CmdStage |= USB_HOST_CMD_IDLE;
             }
-        break;
+            break;
 
         /* --------------- DATA STAGE --------------- */
         case (USB_HOST_STAGE_DATA | USB_HOST_CMD_IDLE):
-            switch ((g_usb1_host_CmdStage & (USB_HOST_MODE_FIELD)))
-            {
+            switch ((g_usb1_host_CmdStage & (USB_HOST_MODE_FIELD))) {
                 case USB_HOST_MODE_WRITE:
                     usb1_host_CtrlWriteStart((uint32_t)Len, Buf);
-                break;
+                    break;
 
                 case USB_HOST_MODE_READ:
                     usb1_host_CtrlReadStart((uint32_t)Len, Buf);
-                break;
+                    break;
 
                 default:
-                break;
+                    break;
             }
-        break;
+            break;
 
         case (USB_HOST_STAGE_DATA | USB_HOST_CMD_DOING):
             /* do nothing */
-        break;
+            break;
 
         case (USB_HOST_STAGE_DATA | USB_HOST_CMD_DONE):                         /* goto next stage */
             g_usb1_host_PipeIgnore[USB_HOST_PIPE0]  = 0;                        /* Ignore count clear */
@@ -211,70 +192,63 @@ int32_t usb1_host_CtrlTransStart (uint16_t devadr, uint16_t Req, uint16_t Val,
             g_usb1_host_CmdStage |= USB_HOST_STAGE_STATUS;
             g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
             g_usb1_host_CmdStage |= USB_HOST_CMD_IDLE;
-        break;
+            break;
 
         case (USB_HOST_STAGE_DATA | USB_HOST_CMD_NORES):
-            if (g_usb1_host_PipeIgnore[USB_HOST_PIPE0] == 3)
-            {
+            if (g_usb1_host_PipeIgnore[USB_HOST_PIPE0] == 3) {
                 g_usb1_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_NORES;  /* exit NORES */
-            }
-            else
-            {
+            } else {
                 g_usb1_host_PipeIgnore[USB_HOST_PIPE0]++;                       /* Ignore count */
                 g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                 g_usb1_host_CmdStage |= USB_HOST_CMD_DOING;
                 usb1_host_clear_pid_stall(USB_HOST_PIPE0);
                 usb1_host_set_pid_buf(USB_HOST_PIPE0);
             }
-        break;
+            break;
 
         case (USB_HOST_STAGE_DATA | USB_HOST_CMD_STALL):
             g_usb1_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_STALL;      /* exit STALL */
-        break;
+            break;
 
         /* --------------- STATUS STAGE --------------- */
         case (USB_HOST_STAGE_STATUS | USB_HOST_CMD_IDLE):
             usb1_host_StatusStage();
-        break;
+            break;
 
         case (USB_HOST_STAGE_STATUS | USB_HOST_CMD_DOING):
             /* do nothing */
-        break;
+            break;
 
         case (USB_HOST_STAGE_STATUS | USB_HOST_CMD_DONE):                       /* end of Control transfer */
             usb1_host_set_pid_nak(USB_HOST_PIPE0);
             g_usb1_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_DONE;       /* exit DONE */
-        break;
+            break;
 
         case (USB_HOST_STAGE_STATUS | USB_HOST_CMD_NORES):
-            if (g_usb1_host_PipeIgnore[USB_HOST_PIPE0] == 3)
-            {
+            if (g_usb1_host_PipeIgnore[USB_HOST_PIPE0] == 3) {
                 g_usb1_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_NORES;  /* exit NORES */
-            }
-            else
-            {
+            } else {
                 g_usb1_host_PipeIgnore[USB_HOST_PIPE0]++;                       /* Ignore count */
                 g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                 g_usb1_host_CmdStage |= USB_HOST_CMD_DOING;
                 usb1_host_clear_pid_stall(USB_HOST_PIPE0);
                 usb1_host_set_pid_buf(USB_HOST_PIPE0);
             }
-        break;
+            break;
 
         case (USB_HOST_STAGE_STATUS | USB_HOST_CMD_STALL):
             g_usb1_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_STALL;      /* exit STALL */
-        break;
+            break;
 
         default:
-        break;
+            break;
     }
 
-    if (g_usb1_host_pipe_status[USB_HOST_PIPE0] != USB_HOST_PIPE_WAIT)
-    {
+    if (g_usb1_host_pipe_status[USB_HOST_PIPE0] != USB_HOST_PIPE_WAIT) {
         RZA_IO_RegWrite_16(&USB201.SOFCFG,
-                            0,
-                            USB_SOFCFG_TRNENSEL_SHIFT,
-                            USB_SOFCFG_TRNENSEL);
+                           0,
+                           USB_SOFCFG_TRNENSEL_SHIFT,
+                           USB_SOFCFG_TRNENSEL);
     }
 
     return DEVDRV_SUCCESS;
@@ -289,7 +263,7 @@ int32_t usb1_host_CtrlTransStart (uint16_t devadr, uint16_t Req, uint16_t Val,
 *              : uint16_t Len           ; wLength
 * Return Value : none
 *******************************************************************************/
-void usb1_host_SetupStage (uint16_t Req, uint16_t Val, uint16_t Indx, uint16_t Len)
+void usb1_host_SetupStage(uint16_t Req, uint16_t Val, uint16_t Indx, uint16_t Len)
 {
     g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
     g_usb1_host_CmdStage |= USB_HOST_CMD_DOING;
@@ -308,26 +282,25 @@ void usb1_host_SetupStage (uint16_t Req, uint16_t Val, uint16_t Indx, uint16_t L
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_StatusStage (void)
+void usb1_host_StatusStage(void)
 {
     uint8_t Buf1[16];
 
-    switch ((g_usb1_host_CmdStage & (USB_HOST_MODE_FIELD)))
-    {
+    switch ((g_usb1_host_CmdStage & (USB_HOST_MODE_FIELD))) {
         case USB_HOST_MODE_READ:
-            usb1_host_CtrlWriteStart((uint32_t)0, (uint8_t*)&Buf1);
-        break;
+            usb1_host_CtrlWriteStart((uint32_t)0, (uint8_t *)&Buf1);
+            break;
 
         case USB_HOST_MODE_WRITE:
-            usb1_host_CtrlReadStart((uint32_t)0, (uint8_t*)&Buf1);
-        break;
+            usb1_host_CtrlReadStart((uint32_t)0, (uint8_t *)&Buf1);
+            break;
 
         case USB_HOST_MODE_NO_DATA:
-            usb1_host_CtrlReadStart((uint32_t)0, (uint8_t*)&Buf1);
-        break;
+            usb1_host_CtrlReadStart((uint32_t)0, (uint8_t *)&Buf1);
+            break;
 
         default:
-        break;
+            break;
     }
 }
 
@@ -341,7 +314,7 @@ void usb1_host_StatusStage (void)
 *              : USB_HOST_WRITING   ; Continue of data write
 *              : USB_HOST_FIFOERROR ; FIFO access error
 *******************************************************************************/
-uint16_t usb1_host_CtrlWriteStart (uint32_t Bsize, uint8_t * Table)
+uint16_t usb1_host_CtrlWriteStart(uint32_t Bsize, uint8_t *Table)
 {
     uint16_t EndFlag_K;
     uint16_t mbw;
@@ -358,9 +331,9 @@ uint16_t usb1_host_CtrlWriteStart (uint32_t Bsize, uint8_t * Table)
     Userdef_USB_usb1_host_delay_10us(3);
 #endif
     RZA_IO_RegWrite_16(&USB201.DCPCFG,
-                        1,
-                        USB_DCPCFG_DIR_SHIFT,
-                        USB_DCPCFG_DIR);
+                       1,
+                       USB_DCPCFG_DIR_SHIFT,
+                       USB_DCPCFG_DIR);
 
     mbw = usb1_host_get_mbw(g_usb1_host_data_count[USB_HOST_PIPE0], (uint32_t)g_usb1_host_data_pointer[USB_HOST_PIPE0]);
     usb1_host_set_curpipe(USB_HOST_PIPE0, USB_HOST_CUSE, USB_HOST_BITISEL, mbw);
@@ -369,26 +342,25 @@ uint16_t usb1_host_CtrlWriteStart (uint32_t Bsize, uint8_t * Table)
     usb1_host_clear_pid_stall(USB_HOST_PIPE0);
     EndFlag_K = usb1_host_write_buffer_c(USB_HOST_PIPE0);
     /* Host Control sequence */
-    switch (EndFlag_K)
-    {
+    switch (EndFlag_K) {
         case USB_HOST_WRITESHRT:                                        /* End of data write */
             g_usb1_host_CmdStage &= (~USB_HOST_STAGE_FIELD);
             g_usb1_host_CmdStage |= USB_HOST_STAGE_STATUS;
             usb1_host_enable_nrdy_int(USB_HOST_PIPE0);                  /* Error (NORES or STALL) */
             usb1_host_enable_bemp_int(USB_HOST_PIPE0);                  /* Enable Empty Interrupt */
-        break;
+            break;
 
         case USB_HOST_WRITEEND:                                         /* End of data write (not null) */
         case USB_HOST_WRITING:                                          /* Continue of data write */
             usb1_host_enable_nrdy_int(USB_HOST_PIPE0);                  /* Error (NORES or STALL) */
             usb1_host_enable_bemp_int(USB_HOST_PIPE0);                  /* Enable Empty Interrupt */
-        break;
+            break;
 
         case USB_HOST_FIFOERROR:                                        /* FIFO access error */
-        break;
+            break;
 
         default:
-        break;
+            break;
     }
     usb1_host_set_pid_buf(USB_HOST_PIPE0);                              /* Set BUF */
     return (EndFlag_K);                                                 /* End or Err or Continue */
@@ -401,7 +373,7 @@ uint16_t usb1_host_CtrlWriteStart (uint32_t Bsize, uint8_t * Table)
 *              : uint8_t  *Table    ; Data Table Address
 * Return Value : none
 *******************************************************************************/
-void usb1_host_CtrlReadStart (uint32_t Bsize, uint8_t * Table)
+void usb1_host_CtrlReadStart(uint32_t Bsize, uint8_t *Table)
 {
     uint16_t mbw;
 
@@ -417,9 +389,9 @@ void usb1_host_CtrlReadStart (uint32_t Bsize, uint8_t * Table)
     Userdef_USB_usb1_host_delay_10us(3);
 #endif
     RZA_IO_RegWrite_16(&USB201.DCPCFG,
-                        0,
-                        USB_DCPCFG_DIR_SHIFT,
-                        USB_DCPCFG_DIR);
+                       0,
+                       USB_DCPCFG_DIR_SHIFT,
+                       USB_DCPCFG_DIR);
 
     mbw = usb1_host_get_mbw(g_usb1_host_data_count[USB_HOST_PIPE0], (uint32_t)g_usb1_host_data_pointer[USB_HOST_PIPE0]);
     usb1_host_set_curpipe(USB_HOST_PIPE0, USB_HOST_CUSE, USB_HOST_NO, mbw);

@@ -38,15 +38,14 @@
  * @{
  * @brief EFM32HG_EMU Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;         /**< Control Register  */
+typedef struct {
+    __IOM uint32_t CTRL;         /**< Control Register  */
 
-  uint32_t       RESERVED0[1]; /**< Reserved for future use **/
-  __IOM uint32_t LOCK;         /**< Configuration Lock Register  */
+    uint32_t       RESERVED0[1]; /**< Reserved for future use **/
+    __IOM uint32_t LOCK;         /**< Configuration Lock Register  */
 
-  uint32_t       RESERVED1[6]; /**< Reserved for future use **/
-  __IOM uint32_t AUXCTRL;      /**< Auxiliary Control Register  */
+    uint32_t       RESERVED1[6]; /**< Reserved for future use **/
+    __IOM uint32_t AUXCTRL;      /**< Auxiliary Control Register  */
 } EMU_TypeDef;                 /** @} */
 
 /**************************************************************************//**

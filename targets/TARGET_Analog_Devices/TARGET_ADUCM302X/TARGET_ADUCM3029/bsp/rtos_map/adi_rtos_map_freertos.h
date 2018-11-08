@@ -4,7 +4,7 @@
  @brief:   FreeRTOS RTOS API mapping file.
 
            This file maps the RTOS macros to FreeRTOS APIs
-           
+
  -----------------------------------------------------------------------------
 Copyright (c) 2016 Analog Devices, Inc.
 
@@ -54,22 +54,22 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "semphr.h"
 
 extern BaseType_t xHigherPriorityTaskWoken;
-  
-/*! Macro that declares the semaphore type that the drivers use. 
+
+/*! Macro that declares the semaphore type that the drivers use.
     The macro should be used within the device data structure.
     It should not be used to declare the semaphore as a global variable. */
 #define SEM_VAR_DECLR                                                                    \
-                            StaticQueue_t hSemaphore;                                  
-                            
-/*! Memory required for semaphore in terms bytes. This size is used to compute 
-    the total memory required for the operation of the driver. FreeRtos does not 
+                            StaticQueue_t hSemaphore;
+
+/*! Memory required for semaphore in terms bytes. This size is used to compute
+    the total memory required for the operation of the driver. FreeRtos does not
     require semaphore memory to be passed by application. But memory is required
     to store the handle. */
-#define ADI_SEM_SIZE        (sizeof(StaticQueue_t))                            
+#define ADI_SEM_SIZE        (sizeof(StaticQueue_t))
 
 /*! Macro that creates a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle. */
 
-                        /*! Macro that creates a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle. */
+/*! Macro that creates a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle. */
 #define SEM_CREATE(DEV, name, error)                                                     \
                    do {                                                                  \
                          xSemaphoreCreateBinaryStatic(&(DEV)->hSemaphore);                \
@@ -96,13 +96,13 @@ extern BaseType_t xHigherPriorityTaskWoken;
           /* Assume that a higher priority task can be schedule in */                     \
           BaseType_t xHigherPriorityTaskWoken = pdTRUE;                                   \
           xSemaphoreGiveFromISR(&(DEV)->hSemaphore, &xHigherPriorityTaskWoken);           \
-        } while (0)                        
+        } while (0)
 
-/*! Defines a local variable where interrupt status register value is stored. 
+/*! Defines a local variable where interrupt status register value is stored.
     This macro should be used within a function in which critical section
-    macros ADI_ENTER_CRITICAL_REGION and ADI_EXIT_CRITICAL_REGION are 
-    used. 
-    
+    macros ADI_ENTER_CRITICAL_REGION and ADI_EXIT_CRITICAL_REGION are
+    used.
+
     @sa ADI_ENTER_CRITICAL_REGION()
     @sa ADI_EXIT_CRITICAL_REGION()
     */
@@ -110,30 +110,30 @@ extern BaseType_t xHigherPriorityTaskWoken;
 
 /*! Macro to enter critical section. To use this macro, the
     interrupt status variable should be defined (ADI_INT_STATUS_ALLOC)
-    in the same scope. 
-    
+    in the same scope.
+
     @sa ADI_INT_STATUS_ALLOC()
 */
 #define ADI_ENTER_CRITICAL_REGION()  vPortEnterCritical()
 
 /*! Macro to exit critical section.To use this macro, the
     interrupt status variable should be defined (ADI_INT_STATUS_ALLOC)
-    in the same scope. 
+    in the same scope.
 
-    @sa  ADI_INT_STATUS_ALLOC()   
-*/ 
+    @sa  ADI_INT_STATUS_ALLOC()
+*/
 #define ADI_EXIT_CRITICAL_REGION() vPortExitCritical()
 
-/*! Code that uCOS requires to be run in the beginning of an interrupt handler. 
+/*! Code that uCOS requires to be run in the beginning of an interrupt handler.
     @sa ISR_EPILOG()
 */
-#define ISR_PROLOG()            
+#define ISR_PROLOG()
 
-/*! Code that uCOS requires to be run in the end of an interrupt handler. 
+/*! Code that uCOS requires to be run in the end of an interrupt handler.
     @sa ISR_PROLOG()
 */
-#define ISR_EPILOG()   portYIELD()         
-     
+#define ISR_EPILOG()   portYIELD()
+
 #endif /* __STDC__  */
 
 #define PENDSV_HANDLER   xPortPendSVHandler

@@ -184,9 +184,9 @@ typedef struct thread_network_local_data_cache_entry_s {
     thread_network_data_prefix_list_t prefix_list; /*!< Local parsed or generated service list */
     thread_network_data_service_list_t service_list;
     uint16_t registered_rloc16;/*!< Address used for latest registration */
-    bool release_old_address:1;/*!< true if release of old address is needed */
-    bool publish_active:1;
-    bool publish_pending:1;
+    bool release_old_address: 1; /*!< true if release of old address is needed */
+    bool publish_active: 1;
+    bool publish_pending: 1;
 } thread_network_local_data_cache_entry_t;
 
 /**
@@ -342,7 +342,7 @@ uint8_t *thread_network_data_service_set_write(thread_network_data_cache_entry_t
 bool thread_network_data_service_hosted_by_this_router_id(thread_network_data_service_cache_entry_t *dataList, uint16_t router_id);
 uint16_t thread_network_data_service_child_id_from_networkdata_get(thread_network_data_cache_entry_t *networkDataList, uint16_t router_short_addr);
 
-uint8_t * thread_nd_own_service_list_data_write(thread_network_local_data_cache_entry_t *serverDataList, uint8_t *ptr, uint16_t routerID);
+uint8_t *thread_nd_own_service_list_data_write(thread_network_local_data_cache_entry_t *serverDataList, uint8_t *ptr, uint16_t routerID);
 
 uint16_t thread_nd_own_service_list_data_size(thread_network_local_data_cache_entry_t *serverDataList);
 

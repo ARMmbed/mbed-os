@@ -45,32 +45,32 @@ typedef struct {
 
     void (*init)(uint32_t caller);
 
-    void     (*irq_enable)(uint32_t irqn);
-    void     (*irq_disable)(uint32_t irqn);
-    void     (*irq_disable_all)(void);
-    void     (*irq_enable_all)(void);
-    void     (*irq_set_vector)(uint32_t irqn, uint32_t vector);
+    void (*irq_enable)(uint32_t irqn);
+    void (*irq_disable)(uint32_t irqn);
+    void (*irq_disable_all)(void);
+    void (*irq_enable_all)(void);
+    void (*irq_set_vector)(uint32_t irqn, uint32_t vector);
     uint32_t (*irq_get_vector)(uint32_t irqn);
-    void     (*irq_set_priority)(uint32_t irqn, uint32_t priority);
+    void (*irq_set_priority)(uint32_t irqn, uint32_t priority);
     uint32_t (*irq_get_priority)(uint32_t irqn);
-    void     (*irq_set_pending)(uint32_t irqn);
+    void (*irq_set_pending)(uint32_t irqn);
     uint32_t (*irq_get_pending)(uint32_t irqn);
-    void     (*irq_clear_pending)(uint32_t irqn);
-    int      (*irq_get_level)(void);
-    void     (*irq_system_reset)(TResetReason reason);
+    void (*irq_clear_pending)(uint32_t irqn);
+    int (*irq_get_level)(void);
+    void (*irq_system_reset)(TResetReason reason);
 
-    int (*page_malloc)(UvisorPageTable * const table);
-    int (*page_free)(const UvisorPageTable * const table);
+    int (*page_malloc)(UvisorPageTable *const table);
+    int (*page_free)(const UvisorPageTable *const table);
 
     int (*box_namespace)(int box_id, char *box_namespace, size_t length);
-    int (*box_id_for_namespace)(int * const box_id, const char * const box_namespace);
+    int (*box_id_for_namespace)(int *const box_id, const char *const box_namespace);
 
     void (*error)(THaltUserError reason);
     void (*start)(void);
     void (*vmpu_mem_invalidate)(void);
 
-    int                (*pool_init)(uvisor_pool_t *, void *, size_t, size_t);
-    int                (*pool_queue_init)(uvisor_pool_queue_t *, uvisor_pool_t *, void *, size_t, size_t);
+    int (*pool_init)(uvisor_pool_t *, void *, size_t, size_t);
+    int (*pool_queue_init)(uvisor_pool_queue_t *, uvisor_pool_t *, void *, size_t, size_t);
     uvisor_pool_slot_t (*pool_allocate)(uvisor_pool_t *);
     uvisor_pool_slot_t (*pool_try_allocate)(uvisor_pool_t *);
     uvisor_pool_slot_t (*pool_queue_enqueue)(uvisor_pool_queue_t *, uvisor_pool_slot_t);
@@ -84,10 +84,10 @@ typedef struct {
     uvisor_pool_slot_t (*pool_queue_find_first)(uvisor_pool_queue_t *, TQueryFN_Ptr, void *);
     uvisor_pool_slot_t (*pool_queue_try_find_first)(uvisor_pool_queue_t *, TQueryFN_Ptr, void *);
 
-    void (*spin_init)(UvisorSpinlock * spinlock);
-    bool (*spin_trylock)(UvisorSpinlock * spinlock);
-    void (*spin_lock)(UvisorSpinlock * spinlock);
-    void (*spin_unlock)(UvisorSpinlock * spinlock);
+    void (*spin_init)(UvisorSpinlock *spinlock);
+    bool (*spin_trylock)(UvisorSpinlock *spinlock);
+    void (*spin_lock)(UvisorSpinlock *spinlock);
+    void (*spin_unlock)(UvisorSpinlock *spinlock);
 
     void (*debug_semihosting_enable)(void);
 

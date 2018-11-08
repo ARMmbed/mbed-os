@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
+
 /** @file
  *
  * @defgroup memory_pool_internal Memory Pool Internal
@@ -38,7 +38,7 @@
  *
  * @brief Memory pool internal definitions
  */
- 
+
 #ifndef MEM_POOL_INTERNAL_H__
 #define MEM_POOL_INTERNAL_H__
 
@@ -46,7 +46,7 @@
 #define RX_BUF_SIZE       32u   /**< RX buffer size in bytes. */
 
 #define RX_BUF_QUEUE_SIZE 8u     /**< RX buffer element size. */
- 
+
 #endif // MEM_POOL_INTERNAL_H__
- 
+
 /** @} */

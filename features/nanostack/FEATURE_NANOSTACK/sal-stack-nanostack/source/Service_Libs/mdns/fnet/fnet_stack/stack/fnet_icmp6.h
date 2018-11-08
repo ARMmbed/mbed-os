@@ -44,7 +44,7 @@
 
 /* ICMPv6 informational messages:*/
 #define FNET_ICMP6_TYPE_ECHO_REQ                    (128u)   /* Echo Request. */
-#define FNET_ICMP6_TYPE_ECHO_REPLY                  (129u)	/* Echo Reply. */
+#define FNET_ICMP6_TYPE_ECHO_REPLY                  (129u)  /* Echo Reply. */
 
 /* MLD messages (RFC2710):*/
 #define FNET_ICMP6_TYPE_MULTICAST_LISTENER_QUERY    (130u)   /* Multicast Listener Query */
@@ -103,8 +103,7 @@
  *
  ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct
-{
+typedef struct {
     fnet_uint8_t  type     FNET_COMP_PACKED;   /* The type of the message.*/
     fnet_uint8_t  code     FNET_COMP_PACKED;   /* The code of the message.*/
     fnet_uint16_t  checksum FNET_COMP_PACKED;   /* The checksum of the message.*/
@@ -124,8 +123,7 @@ FNET_COMP_PACKED_END
  * +-+-+-+-+-
  ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_icmp6_echo_header
-{
+typedef struct fnet_icmp6_echo_header {
     fnet_icmp6_header_t  icmp6_header    FNET_COMP_PACKED;
     fnet_uint16_t        id              FNET_COMP_PACKED;
     fnet_uint16_t        seq_number      FNET_COMP_PACKED;
@@ -135,8 +133,7 @@ FNET_COMP_PACKED_END
 /***********************************************************************
  * ICMPv6 Error packet
  ***********************************************************************/
-typedef struct fnet_icmp6_err_header
-{
+typedef struct fnet_icmp6_err_header {
     fnet_icmp6_header_t  icmp6_header    FNET_COMP_PACKED;
     fnet_uint32_t        data            FNET_COMP_PACKED;
 } fnet_icmp6_err_header_t;
@@ -151,7 +148,7 @@ extern "C" {
 #endif
 struct fnet_netif; /* Forward declaration.*/
 void fnet_icmp6_error(struct fnet_netif *netif, fnet_uint8_t type, fnet_uint8_t code, fnet_uint32_t param, fnet_netbuf_t *origin_nb);
-void fnet_icmp6_output(struct fnet_netif *netif, const fnet_ip6_addr_t *src_ip, const fnet_ip6_addr_t *dest_ip, fnet_uint8_t hop_limit, fnet_netbuf_t *nb );
+void fnet_icmp6_output(struct fnet_netif *netif, const fnet_ip6_addr_t *src_ip, const fnet_ip6_addr_t *dest_ip, fnet_uint8_t hop_limit, fnet_netbuf_t *nb);
 #if defined(__cplusplus)
 }
 #endif

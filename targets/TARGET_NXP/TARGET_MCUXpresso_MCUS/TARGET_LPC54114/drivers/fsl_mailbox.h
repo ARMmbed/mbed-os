@@ -54,8 +54,7 @@
 /*!
  * @brief CPU ID.
  */
-typedef enum _mailbox_cpu_id
-{
+typedef enum _mailbox_cpu_id {
     kMAILBOX_CM0Plus = 0,
     kMAILBOX_CM4
 } mailbox_cpu_id_t;

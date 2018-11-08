@@ -70,8 +70,7 @@
  *
  * These constants define the tsi number of consecutive scans in a TSI instance for each electrode.
  */
-typedef enum _tsi_n_consecutive_scans
-{
+typedef enum _tsi_n_consecutive_scans {
     kTSI_ConsecutiveScansNumber_1time = 0U,   /*!< Once per electrode */
     kTSI_ConsecutiveScansNumber_2time = 1U,   /*!< Twice per electrode */
     kTSI_ConsecutiveScansNumber_3time = 2U,   /*!< 3 times consecutive scan */
@@ -111,8 +110,7 @@ typedef enum _tsi_n_consecutive_scans
  *
  * These constants define the TSI electrode oscillator prescaler in a TSI instance.
  */
-typedef enum _tsi_electrode_osc_prescaler
-{
+typedef enum _tsi_electrode_osc_prescaler {
     kTSI_ElecOscPrescaler_1div = 0U,  /*!< Electrode oscillator frequency divided by 1 */
     kTSI_ElecOscPrescaler_2div = 1U,  /*!< Electrode oscillator frequency divided by 2 */
     kTSI_ElecOscPrescaler_4div = 2U,  /*!< Electrode oscillator frequency divided by 4 */
@@ -128,8 +126,7 @@ typedef enum _tsi_electrode_osc_prescaler
  *
  * Set up TSI analog modes in a TSI instance.
  */
-typedef enum _tsi_analog_mode
-{
+typedef enum _tsi_analog_mode {
     kTSI_AnalogModeSel_Capacitive = 0U,     /*!< Active TSI capacitive sensing mode */
     kTSI_AnalogModeSel_NoiseNoFreqLim = 4U, /*!< Single threshold noise detection mode with no freq. limitation. */
     kTSI_AnalogModeSel_NoiseFreqLim = 8U,   /*!< Single threshold noise detection mode with freq. limitation. */
@@ -141,8 +138,7 @@ typedef enum _tsi_analog_mode
  *
  * These constants define the TSI Reference oscillator charge current select in a TSI (REFCHRG) instance.
  */
-typedef enum _tsi_reference_osc_charge_current
-{
+typedef enum _tsi_reference_osc_charge_current {
     kTSI_RefOscChargeCurrent_500nA = 0U, /*!< Reference oscillator charge current is 500 µA */
     kTSI_RefOscChargeCurrent_1uA = 1U,   /*!< Reference oscillator charge current is 1 µA */
     kTSI_RefOscChargeCurrent_2uA = 2U,   /*!< Reference oscillator charge current is 2 µA */
@@ -158,8 +154,7 @@ typedef enum _tsi_reference_osc_charge_current
  *
  * These bits indicate the oscillator's voltage rails.
  */
-typedef enum _tsi_osc_voltage_rails
-{
+typedef enum _tsi_osc_voltage_rails {
     kTSI_OscVolRailsOption_0 = 0U, /*!< DVOLT value option 0, the value may differ on different platforms */
     kTSI_OscVolRailsOption_1 = 1U, /*!< DVOLT value option 1, the value may differ on different platforms */
     kTSI_OscVolRailsOption_2 = 2U, /*!< DVOLT value option 2, the value may differ on different platforms */
@@ -172,8 +167,7 @@ typedef enum _tsi_osc_voltage_rails
  * These bits indicate the electrode oscillator charge and discharge current value
  * in TSI (EXTCHRG) instance.
  */
-typedef enum _tsi_external_osc_charge_current
-{
+typedef enum _tsi_external_osc_charge_current {
     kTSI_ExtOscChargeCurrent_500nA = 0U, /*!< External oscillator charge current is 500 µA */
     kTSI_ExtOscChargeCurrent_1uA = 1U,   /*!< External oscillator charge current is 1 µA */
     kTSI_ExtOscChargeCurrent_2uA = 2U,   /*!< External oscillator charge current is 2 µA */
@@ -190,8 +184,7 @@ typedef enum _tsi_external_osc_charge_current
  * These bits indicate the electrode RS series resistance for the noise mode
  * in TSI (EXTCHRG) instance.
  */
-typedef enum _tsi_series_resistance
-{
+typedef enum _tsi_series_resistance {
     kTSI_SeriesResistance_32k = 0U, /*!< Series Resistance is 32 kilo ohms   */
     kTSI_SeriesResistance_187k = 1U /*!< Series Resistance is 18 7 kilo ohms  */
 } tsi_series_resistor_t;
@@ -202,8 +195,7 @@ typedef enum _tsi_series_resistance
  * These bits indicate the count of the filter bits
  * in TSI noise mode EXTCHRG[2:1] bits
  */
-typedef enum _tsi_filter_bits
-{
+typedef enum _tsi_filter_bits {
     kTSI_FilterBits_3 = 0U, /*!< 3 filter bits, 8 peaks increments the cnt+1 */
     kTSI_FilterBits_2 = 1U, /*!< 2 filter bits, 4 peaks increments the cnt+1 */
     kTSI_FilterBits_1 = 2U, /*!< 1 filter bits, 2 peaks increments the cnt+1 */
@@ -211,23 +203,20 @@ typedef enum _tsi_filter_bits
 } tsi_filter_bits_t;
 
 /*! @brief TSI status flags. */
-typedef enum _tsi_status_flags
-{
+typedef enum _tsi_status_flags {
     kTSI_EndOfScanFlag = TSI_GENCS_EOSF_MASK,   /*!< End-Of-Scan flag */
     kTSI_OutOfRangeFlag = TSI_GENCS_OUTRGF_MASK /*!< Out-Of-Range flag */
 } tsi_status_flags_t;
 
 /*! @brief TSI feature interrupt source.*/
-typedef enum _tsi_interrupt_enable
-{
+typedef enum _tsi_interrupt_enable {
     kTSI_GlobalInterruptEnable = 1U,     /*!< TSI module global interrupt */
     kTSI_OutOfRangeInterruptEnable = 2U, /*!< Out-Of-Range interrupt */
     kTSI_EndOfScanInterruptEnable = 4U   /*!< End-Of-Scan interrupt */
 } tsi_interrupt_enable_t;
 
 /*! @brief TSI calibration data storage. */
-typedef struct _tsi_calibration_data
-{
+typedef struct _tsi_calibration_data {
     uint16_t calibratedData[FSL_FEATURE_TSI_CHANNEL_COUNT]; /*!< TSI calibration data storage buffer */
 } tsi_calibration_data_t;
 
@@ -237,8 +226,7 @@ typedef struct _tsi_calibration_data
  * This structure contains the settings for the most common TSI configurations including
  * the TSI module charge currents, number of scans, thresholds, and so on.
  */
-typedef struct _tsi_config
-{
+typedef struct _tsi_config {
     uint16_t thresh;                            /*!< High threshold. */
     uint16_t thresl;                            /*!< Low threshold. */
     tsi_electrode_osc_prescaler_t prescaler;    /*!< Prescaler */
@@ -441,12 +429,9 @@ static inline void TSI_SetNumberOfScans(TSI_Type *base, tsi_n_consecutive_scans_
 */
 static inline void TSI_EnableModule(TSI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) | TSI_GENCS_TSIEN_MASK;    /* Enable module */
-    }
-    else
-    {
+    } else {
         base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) & (~TSI_GENCS_TSIEN_MASK); /* Disable module */
     }
 }
@@ -463,12 +448,9 @@ static inline void TSI_EnableModule(TSI_Type *base, bool enable)
 */
 static inline void TSI_EnableLowPower(TSI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) | TSI_GENCS_STPE_MASK;    /* Module enabled in low power stop modes */
-    }
-    else
-    {
+    } else {
         base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) & (~TSI_GENCS_STPE_MASK); /* Module disabled in low power stop modes */
     }
 }
@@ -484,12 +466,9 @@ static inline void TSI_EnableLowPower(TSI_Type *base, bool enable)
 */
 static inline void TSI_EnableHardwareTriggerScan(TSI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) | TSI_GENCS_STM_MASK;    /* Enable hardware trigger scan */
-    }
-    else
-    {
+    } else {
         base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) & (~TSI_GENCS_STM_MASK); /* Enable software trigger scan */
     }
 }
@@ -541,12 +520,9 @@ static inline uint8_t TSI_GetMeasuredChannelNumber(TSI_Type *base)
 */
 static inline void TSI_EnableDmaTransfer(TSI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->DATA |= TSI_DATA_DMAEN_MASK; /* Enable DMA transfer */
-    }
-    else
-    {
+    } else {
         base->DATA &= ~TSI_DATA_DMAEN_MASK; /* Disable DMA transfer */
     }
 }
@@ -563,12 +539,9 @@ static inline void TSI_EnableDmaTransfer(TSI_Type *base, bool enable)
 */
 static inline void TSI_EnableEndOfScanDmaTransferOnly(TSI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) | TSI_GENCS_EOSDMEO_MASK; /* Enable End of Scan DMA transfer request only; */
-    }
-    else
-    {
+    } else {
         base->GENCS =
             (base->GENCS & ~ALL_FLAGS_MASK) & (~TSI_GENCS_EOSDMEO_MASK); /* Both End-of-Scan and Out-of-Range can generate DMA transfer request. */
     }

@@ -98,7 +98,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     /* Find out which I2C peripheral we're asked to use */
     I2CName i2c_sda = (I2CName) pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName) pinmap_peripheral(scl, PinMap_I2C_SCL);
-    obj->i2c.i2c = (I2C_TypeDef*) pinmap_merge(i2c_sda, i2c_scl);
+    obj->i2c.i2c = (I2C_TypeDef *) pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT(((unsigned int) obj->i2c.i2c) != NC);
 
     /* You need both SDA and SCL for I2C, so configuring one of them to NC is illegal */
@@ -193,7 +193,9 @@ void i2c_frequency(i2c_t *obj, int hz)
 {
     /* Set frequency. As the second argument is 0,
      *  HFPER clock frequency is used as reference freq */
-    if (hz <= 0) return;
+    if (hz <= 0) {
+        return;
+    }
     /* In I2C Normal mode (50% duty), we can go up to 100kHz */
     if (hz <= 100000) {
         I2C_BusFreqSet(obj->i2c.i2c, REFERENCE_FREQUENCY, hz, i2cClockHLRStandard);
@@ -260,7 +262,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     retval = i2c_byte_write(obj, (address | 1));
     if ((!retval) || (length == 0)) { //Write address with W flag (last bit 1)
         obj->i2c.i2c->CMD = I2C_CMD_STOP | I2C_CMD_ABORT;
-        while(obj->i2c.i2c->STATE & I2C_STATE_BUSY); // Wait until the bus is done
+        while (obj->i2c.i2c->STATE & I2C_STATE_BUSY); // Wait until the bus is done
         return (retval == 0 ? I2C_ERROR_NO_SLAVE : 0); //NACK or error when writing adress. Return 0 as 0 bytes were read
     }
     int i = 0;
@@ -375,7 +377,7 @@ int block_and_wait_for_ack(I2C_TypeDef *i2c)
 
 void i2c_slave_mode(i2c_t *obj, int enable_slave)
 {
-    if(enable_slave) {
+    if (enable_slave) {
         /* Reference manual note: DIV must be set to 1 during slave operation */
         obj->i2c.i2c->CLKDIV = 1;
         obj->i2c.i2c->CTRL |= _I2C_CTRL_SLAVE_MASK;
@@ -391,17 +393,17 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave)
 int i2c_slave_receive(i2c_t *obj)
 {
 
-    if(obj->i2c.i2c->IF & I2C_IF_ADDR) {
+    if (obj->i2c.i2c->IF & I2C_IF_ADDR) {
         obj->i2c.i2c->IFC = I2C_IF_ADDR; //Clear interrupt
         /*0x00 is the address for general write.
          The address the master wrote is in RXDATA now
          and reading it also frees the buffer for the next
          write which can then be acked. */
-        if(obj->i2c.i2c->RXDATA == 0x00) {
+        if (obj->i2c.i2c->RXDATA == 0x00) {
             return WriteGeneral; //Read the address;
         }
 
-        if(obj->i2c.i2c->STATE & I2C_STATE_TRANSMITTER) {
+        if (obj->i2c.i2c->STATE & I2C_STATE_TRANSMITTER) {
             return ReadAddressed;
         } else {
             return WriteAddressed;
@@ -463,8 +465,12 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
 void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     I2C_TransferReturn_TypeDef retval;
-    if(i2c_active(obj)) return;
-    if((tx_length == 0) && (rx_length == 0)) return;
+    if (i2c_active(obj)) {
+        return;
+    }
+    if ((tx_length == 0) && (rx_length == 0)) {
+        return;
+    }
     // For now, we are assuming a solely interrupt-driven implementation.
 
 #ifdef I2C_ROUTE_SDAPEN
@@ -477,7 +483,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     obj->i2c.xfer.addr = address;
 
     // Some combination of tx_length and rx_length will tell us what to do
-    if((tx_length > 0) && (rx_length == 0)) {
+    if ((tx_length > 0) && (rx_length == 0)) {
         obj->i2c.xfer.flags = I2C_FLAG_WRITE;
         //Store buffer info
         obj->i2c.xfer.buf[0].data = (void *)tx;
@@ -496,7 +502,9 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
         obj->i2c.xfer.buf[1].len  = (uint16_t) rx_length;
     }
 
-    if(address > 255) obj->i2c.xfer.flags |= I2C_FLAG_10BIT_ADDR;
+    if (address > 255) {
+        obj->i2c.xfer.flags |= I2C_FLAG_10BIT_ADDR;
+    }
 
     // Store event flags
     obj->i2c.events = event;
@@ -507,7 +515,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     // Kick off the transfer
     retval = I2C_TransferInit(obj->i2c.i2c, &(obj->i2c.xfer));
 
-    if(retval == i2cTransferInProgress) {
+    if (retval == i2cTransferInProgress) {
         sleep_manager_lock_deep_sleep();
     } else {
         // something happened, and the transfer did not go through
@@ -517,7 +525,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
         i2c_enable_interrupt(obj, 0, false);
 
         // Block until free
-        while(i2c_active(obj));
+        while (i2c_active(obj));
     }
 }
 
@@ -531,7 +539,7 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
     // For now, we are assuming a solely interrupt-driven implementation.
 
     I2C_TransferReturn_TypeDef status = I2C_Transfer(obj->i2c.i2c);
-    switch(status) {
+    switch (status) {
         case i2cTransferInProgress:
             // Still busy transferring, so let it.
             return 0;
@@ -582,13 +590,15 @@ void i2c_abort_asynch(i2c_t *obj)
     i2c_enable_interrupt(obj, 0, false);
 
     // Do not deactivate I2C twice
-    if (!i2c_active(obj)) return;
+    if (!i2c_active(obj)) {
+        return;
+    }
 
     // Abort
     obj->i2c.i2c->CMD = I2C_CMD_STOP | I2C_CMD_ABORT;
 
     // Block until free
-    while(i2c_active(obj));
+    while (i2c_active(obj));
 
     sleep_manager_unlock_deep_sleep();
 }

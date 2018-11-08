@@ -38,7 +38,7 @@
 #include "ioman_regs.h"
 #include "rtc_regs.h"
 
-static mxc_uart_regs_t *stdio_uart = (mxc_uart_regs_t*)STDIO_UART;
+static mxc_uart_regs_t *stdio_uart = (mxc_uart_regs_t *)STDIO_UART;
 
 // Normal wait mode
 void hal_sleep(void)

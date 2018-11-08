@@ -31,179 +31,184 @@
 /// Put Object into ISR Queue.
 /// \param[in]  object          object.
 /// \return 1 - success, 0 - failure.
-static uint32_t isr_queue_put (void *object) {
+static uint32_t isr_queue_put(void *object)
+{
 #if (__EXCLUSIVE_ACCESS == 0U)
-  uint32_t primask = __get_PRIMASK();
+    uint32_t primask = __get_PRIMASK();
 #else
-  uint32_t n;
+    uint32_t n;
 #endif
-  uint16_t max;
-  uint32_t ret;
+    uint16_t max;
+    uint32_t ret;
 
-  max = osRtxInfo.isr_queue.max;
+    max = osRtxInfo.isr_queue.max;
 
 #if (__EXCLUSIVE_ACCESS == 0U)
-  __disable_irq();
+    __disable_irq();
 
-  if (osRtxInfo.isr_queue.cnt < max) {
-    osRtxInfo.isr_queue.cnt++;
-    osRtxInfo.isr_queue.data[osRtxInfo.isr_queue.in] = object;
-    if (++osRtxInfo.isr_queue.in == max) {
-      osRtxInfo.isr_queue.in = 0U;
+    if (osRtxInfo.isr_queue.cnt < max) {
+        osRtxInfo.isr_queue.cnt++;
+        osRtxInfo.isr_queue.data[osRtxInfo.isr_queue.in] = object;
+        if (++osRtxInfo.isr_queue.in == max) {
+            osRtxInfo.isr_queue.in = 0U;
+        }
+        ret = 1U;
+    } else {
+        ret = 0U;
     }
-    ret = 1U;
-  } else {
-    ret = 0U;
-  }
-  
-  if (primask == 0U) {
-    __enable_irq();
-  }
+
+    if (primask == 0U) {
+        __enable_irq();
+    }
 #else
-  if (atomic_inc16_lt(&osRtxInfo.isr_queue.cnt, max) < max) {
-    n = atomic_inc16_lim(&osRtxInfo.isr_queue.in, max);
-    osRtxInfo.isr_queue.data[n] = object;
-    ret = 1U;
-  } else {
-    ret = 0U;
-  }
+    if (atomic_inc16_lt(&osRtxInfo.isr_queue.cnt, max) < max) {
+        n = atomic_inc16_lim(&osRtxInfo.isr_queue.in, max);
+        osRtxInfo.isr_queue.data[n] = object;
+        ret = 1U;
+    } else {
+        ret = 0U;
+    }
 #endif
 
-  return ret;
+    return ret;
 }
 
 /// Get Object from ISR Queue.
 /// \return object or NULL.
-static void *isr_queue_get (void) {
+static void *isr_queue_get(void)
+{
 #if (__EXCLUSIVE_ACCESS == 0U)
-  uint32_t primask = __get_PRIMASK();
+    uint32_t primask = __get_PRIMASK();
 #else
-  uint32_t n;
+    uint32_t n;
 #endif
-  uint16_t max;
-  void    *ret;
+    uint16_t max;
+    void    *ret;
 
-  max = osRtxInfo.isr_queue.max;
+    max = osRtxInfo.isr_queue.max;
 
 #if (__EXCLUSIVE_ACCESS == 0U)
-  __disable_irq();
+    __disable_irq();
 
-  if (osRtxInfo.isr_queue.cnt != 0U) {
-    osRtxInfo.isr_queue.cnt--;
-    ret = osRtxInfo.isr_queue.data[osRtxInfo.isr_queue.out];
-    if (++osRtxInfo.isr_queue.out == max) {
-      osRtxInfo.isr_queue.out = 0U;
+    if (osRtxInfo.isr_queue.cnt != 0U) {
+        osRtxInfo.isr_queue.cnt--;
+        ret = osRtxInfo.isr_queue.data[osRtxInfo.isr_queue.out];
+        if (++osRtxInfo.isr_queue.out == max) {
+            osRtxInfo.isr_queue.out = 0U;
+        }
+    } else {
+        ret = NULL;
     }
-  } else {
-    ret = NULL;
-  }
-  
-  if (primask == 0U) {
-    __enable_irq();
-  }
+
+    if (primask == 0U) {
+        __enable_irq();
+    }
 #else
-  if (atomic_dec16_nz(&osRtxInfo.isr_queue.cnt) != 0U) {
-    n = atomic_inc16_lim(&osRtxInfo.isr_queue.out, max);
-    ret = osRtxInfo.isr_queue.data[n];
-  } else {
-    ret = NULL;
-  }
+    if (atomic_dec16_nz(&osRtxInfo.isr_queue.cnt) != 0U) {
+        n = atomic_inc16_lim(&osRtxInfo.isr_queue.out, max);
+        ret = osRtxInfo.isr_queue.data[n];
+    } else {
+        ret = NULL;
+    }
 #endif
 
-  return ret;
+    return ret;
 }
 
 
 //  ==== Library Functions ====
 
 /// Tick Handler.
-void osRtxTick_Handler (void) {
-  os_thread_t *thread;
+void osRtxTick_Handler(void)
+{
+    os_thread_t *thread;
 
-  OS_Tick_AcknowledgeIRQ();
-  osRtxInfo.kernel.tick++;
+    OS_Tick_AcknowledgeIRQ();
+    osRtxInfo.kernel.tick++;
 
-  // Process Timers
-  if (osRtxInfo.timer.tick != NULL) {
-    osRtxInfo.timer.tick();
-  }
-
-  // Process Thread Delays
-  osRtxThreadDelayTick();
-
-  osRtxThreadDispatch(NULL);
-
-  // Check Round Robin timeout
-  if (osRtxInfo.thread.robin.timeout != 0U) {
-    if (osRtxInfo.thread.robin.thread != osRtxInfo.thread.run.next) {
-      // Reset Round Robin
-      osRtxInfo.thread.robin.thread = osRtxInfo.thread.run.next;
-      osRtxInfo.thread.robin.tick   = osRtxInfo.thread.robin.timeout;
-    } else {
-      if (osRtxInfo.thread.robin.tick != 0U) {
-        osRtxInfo.thread.robin.tick--;
-      }
-      if (osRtxInfo.thread.robin.tick == 0U) {
-        // Round Robin Timeout
-        if (osRtxKernelGetState() == osRtxKernelRunning) {
-          thread = osRtxInfo.thread.ready.thread_list;
-          if ((thread != NULL) && (thread->priority == osRtxInfo.thread.robin.thread->priority)) {
-            osRtxThreadListRemove(thread);
-            osRtxThreadReadyPut(osRtxInfo.thread.robin.thread);
-            osRtxThreadSwitch(thread);
-            osRtxInfo.thread.robin.thread = thread;
-            osRtxInfo.thread.robin.tick   = osRtxInfo.thread.robin.timeout;
-          }
-        }
-      }
+    // Process Timers
+    if (osRtxInfo.timer.tick != NULL) {
+        osRtxInfo.timer.tick();
     }
-  }
+
+    // Process Thread Delays
+    osRtxThreadDelayTick();
+
+    osRtxThreadDispatch(NULL);
+
+    // Check Round Robin timeout
+    if (osRtxInfo.thread.robin.timeout != 0U) {
+        if (osRtxInfo.thread.robin.thread != osRtxInfo.thread.run.next) {
+            // Reset Round Robin
+            osRtxInfo.thread.robin.thread = osRtxInfo.thread.run.next;
+            osRtxInfo.thread.robin.tick   = osRtxInfo.thread.robin.timeout;
+        } else {
+            if (osRtxInfo.thread.robin.tick != 0U) {
+                osRtxInfo.thread.robin.tick--;
+            }
+            if (osRtxInfo.thread.robin.tick == 0U) {
+                // Round Robin Timeout
+                if (osRtxKernelGetState() == osRtxKernelRunning) {
+                    thread = osRtxInfo.thread.ready.thread_list;
+                    if ((thread != NULL) && (thread->priority == osRtxInfo.thread.robin.thread->priority)) {
+                        osRtxThreadListRemove(thread);
+                        osRtxThreadReadyPut(osRtxInfo.thread.robin.thread);
+                        osRtxThreadSwitch(thread);
+                        osRtxInfo.thread.robin.thread = thread;
+                        osRtxInfo.thread.robin.tick   = osRtxInfo.thread.robin.timeout;
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// Pending Service Call Handler.
-void osRtxPendSV_Handler (void) {
-  os_object_t *object;
+void osRtxPendSV_Handler(void)
+{
+    os_object_t *object;
 
-  for (;;) {
-    object = isr_queue_get();
-    if (object == NULL) {
-      break;
+    for (;;) {
+        object = isr_queue_get();
+        if (object == NULL) {
+            break;
+        }
+        switch (object->id) {
+            case osRtxIdThread:
+                osRtxInfo.post_process.thread((os_thread_t *)object);
+                break;
+            case osRtxIdEventFlags:
+                osRtxInfo.post_process.event_flags((os_event_flags_t *)object);
+                break;
+            case osRtxIdSemaphore:
+                osRtxInfo.post_process.semaphore((os_semaphore_t *)object);
+                break;
+            case osRtxIdMemoryPool:
+                osRtxInfo.post_process.memory_pool((os_memory_pool_t *)object);
+                break;
+            case osRtxIdMessage:
+                osRtxInfo.post_process.message_queue((os_message_t *)object);
+                break;
+            default:
+                break;
+        }
     }
-    switch (object->id) {
-      case osRtxIdThread:
-        osRtxInfo.post_process.thread((os_thread_t *)object);
-        break;
-      case osRtxIdEventFlags:
-        osRtxInfo.post_process.event_flags((os_event_flags_t *)object);
-        break;
-      case osRtxIdSemaphore:
-        osRtxInfo.post_process.semaphore((os_semaphore_t *)object);
-        break;
-      case osRtxIdMemoryPool:
-        osRtxInfo.post_process.memory_pool((os_memory_pool_t *)object);
-        break;
-      case osRtxIdMessage:
-        osRtxInfo.post_process.message_queue((os_message_t *)object);
-        break;
-      default:
-        break;
-    }
-  }
 
-  osRtxThreadDispatch(NULL);
+    osRtxThreadDispatch(NULL);
 }
 
 /// Register post ISR processing.
 /// \param[in]  object          generic object.
-void osRtxPostProcess (os_object_t *object) {
+void osRtxPostProcess(os_object_t *object)
+{
 
-  if (isr_queue_put(object) != 0U) {
-    if (osRtxInfo.kernel.blocked == 0U) {
-      SetPendSV();
+    if (isr_queue_put(object) != 0U) {
+        if (osRtxInfo.kernel.blocked == 0U) {
+            SetPendSV();
+        } else {
+            osRtxInfo.kernel.pendSV = 1U;
+        }
     } else {
-      osRtxInfo.kernel.pendSV = 1U;
+        osRtxErrorNotify(osRtxErrorISRQueueOverflow, object);
     }
-  } else {
-    osRtxErrorNotify(osRtxErrorISRQueueOverflow, object);
-  }
 }

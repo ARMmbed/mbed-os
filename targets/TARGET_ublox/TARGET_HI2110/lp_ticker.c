@@ -127,7 +127,7 @@ static inline uint32_t uSecondsToTicks(uint32_t x)
     /* TODO: find a way to avoid the divide by 1000000
      * Shift by 20 would introduce a 5% error, which is
      * probably too much */
-    return (uint32_t) ((((uint64_t) x) << 15) / 1000000);
+    return (uint32_t)((((uint64_t) x) << 15) / 1000000);
 }
 
 /* Take g_next_32bit_overflow_value and apply it to g_next_compare_value and

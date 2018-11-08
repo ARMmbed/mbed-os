@@ -71,7 +71,7 @@
  * \subsection sysclk_quickstart_use_case_1_setup_steps Initialization code
  * Add to the application initialization code:
  * \code
-	sysclk_init();
+    sysclk_init();
 \endcode
  *
  * \subsection sysclk_quickstart_use_case_1_setup_steps_workflow Workflow
@@ -82,15 +82,15 @@
  *   Add or uncomment the following in your conf_clock.h header file, commenting out all other
  *   definitions of the same symbol(s):
  *   \code
-	   #define CONFIG_SYSCLK_SOURCE        SYSCLK_SRC_PLLACK
+       #define CONFIG_SYSCLK_SOURCE        SYSCLK_SRC_PLLACK
 
-	   // Fpll0 = (Fclk * PLL_mul) / PLL_div
-	   #define CONFIG_PLL0_SOURCE          PLL_SRC_SCLK_RC
-	   #define CONFIG_PLL0_MUL             (1500)
-	   #define CONFIG_PLL0_DIV             1
+       // Fpll0 = (Fclk * PLL_mul) / PLL_div
+       #define CONFIG_PLL0_SOURCE          PLL_SRC_SCLK_RC
+       #define CONFIG_PLL0_MUL             (1500)
+       #define CONFIG_PLL0_DIV             1
 
-	   // Fbus = Fsys / BUS_div
-	   #define CONFIG_SYSCLK_PRES          SYSCLK_PRES_1
+       // Fbus = Fsys / BUS_div
+       #define CONFIG_SYSCLK_PRES          SYSCLK_PRES_1
 \endcode
  *
  * \subsection sysclk_quickstart_use_case_1_example_workflow Workflow
@@ -100,12 +100,12 @@
  *   \code #define CONFIG_PLL0_SOURCE            PLL_SRC_SCLK_RC \endcode
  *  -# Configure the PLL module to multiply the internal 32K RC frequency up to 48MHz:
  *   \code
-	#define CONFIG_PLL0_MUL             (1500)
-	#define CONFIG_PLL0_DIV             1
+    #define CONFIG_PLL0_MUL             (1500)
+    #define CONFIG_PLL0_DIV             1
 \endcode
  *  -# Configure the main clock to run at the full 48MHz, disable scaling of the main system clock speed:
  *    \code
-	#define CONFIG_SYSCLK_PRES         SYSCLK_PRES_1
+    #define CONFIG_SYSCLK_PRES         SYSCLK_PRES_1
 \endcode
  *    \note Some dividers are powers of two, while others are integer division factors. Refer to the
  *          formulas in the conf_clock.h template commented above each division define.
@@ -242,7 +242,7 @@ extern "C" {
     static inline uint32_t sysclk_get_main_hz(void)
 {
 #if (defined CONFIG_SYSCLK_DEFAULT_RETURNS_SLOW_OSC)
-    if (!sysclk_initialized ) {
+    if (!sysclk_initialized) {
         return OSC_MAINCK_8M_RC_HZ;
     }
 #endif

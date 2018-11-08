@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #ifndef MBED_OBJECTS_H
 #define MBED_OBJECTS_H
 
@@ -93,7 +93,7 @@ struct pwmout_s {
 struct analogin_s {
     mxc_adc_regs_t *adc;
     mxc_adccfg_regs_t *adccfg;
-    mxc_adc_fifo_regs_t * adc_fifo;
+    mxc_adc_fifo_regs_t *adc_fifo;
     PinName adc_pin;
 };
 
@@ -101,7 +101,7 @@ struct dac_s {
     int index;
     uint16_t out;
     mxc_dac_regs_t *dac;
-    mxc_dac_fifo_regs_t * dac_fifo;
+    mxc_dac_fifo_regs_t *dac_fifo;
 };
 
 typedef struct {

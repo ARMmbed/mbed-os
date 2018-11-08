@@ -7,64 +7,63 @@
 #if defined ( __CC_ARM   )
 static __ASM void __INLINE nrf_delay_us(uint32_t volatile number_of_us)
 {
-loop
-        SUBS    R0, R0, #1
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        BNE    loop
-        BX     LR
+    loop
+    SUBS    R0, R0, #1
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    BNE    loop
+    BX     LR
 }
 #elif defined ( __ICCARM__ )
 static void __INLINE nrf_delay_us(uint32_t volatile number_of_us)
 {
-__ASM (
-"loop:\n\t"
-       " SUBS R0, R0, #1\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " BNE loop\n\t");
+    __ASM(
+        "loop:\n\t"
+        " SUBS R0, R0, #1\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " BNE loop\n\t");
 }
 #elif defined   (  __GNUC__  )
 static __INLINE void nrf_delay_us(uint32_t volatile number_of_us)
 {
-    do 
-    {
-    __ASM volatile (
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-        "NOP\n\t"
-    );
+    do {
+        __ASM volatile(
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+            "NOP\n\t"
+        );
     } while (--number_of_us);
 }
 #endif

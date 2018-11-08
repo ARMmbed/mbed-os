@@ -30,8 +30,7 @@
  * of a discovery. The Nordic stack will provide new descriptors and indicate when
  * the discovery is done.
  */
-class nRF5xCharacteristicDescriptorDiscoverer
-{
+class nRF5xCharacteristicDescriptorDiscoverer {
     typedef CharacteristicDescriptorDiscovery::DiscoveryCallback_t DiscoveryCallback_t;
     typedef CharacteristicDescriptorDiscovery::TerminationCallback_t TerminationCallback_t;
 
@@ -56,9 +55,9 @@ public:
      * @note: this will be called by BLE API side.
      */
     ble_error_t launch(
-        const DiscoveredCharacteristic& characteristic,
-        const DiscoveryCallback_t& discoveryCallback,
-        const TerminationCallback_t& terminationCallback
+        const DiscoveredCharacteristic &characteristic,
+        const DiscoveryCallback_t &discoveryCallback,
+        const TerminationCallback_t &terminationCallback
     );
 
     /**
@@ -69,7 +68,7 @@ public:
      * @return true if descriptors of characteristic are discovered, false otherwise.
      * @note: this will be called by BLE API side.
      */
-    bool isActive(const DiscoveredCharacteristic& characteristic) const;
+    bool isActive(const DiscoveredCharacteristic &characteristic) const;
 
     /**
      * @brief request the termination of characteristic descriptor discovery
@@ -78,7 +77,7 @@ public:
      * should be stopped.
      * @note: this will be called by BLE API side.
      */
-    void requestTerminate(const DiscoveredCharacteristic& characteristic);
+    void requestTerminate(const DiscoveredCharacteristic &characteristic);
 
     /**
      * @brief process descriptors discovered from the Nordic stack.
@@ -87,7 +86,7 @@ public:
      * @param descriptors Discovered descriptors.
      * @note This will be called by the Nordic stack.
      */
-    void process(uint16_t connectionHandle, const ble_gattc_evt_desc_disc_rsp_t& descriptors);
+    void process(uint16_t connectionHandle, const ble_gattc_evt_desc_disc_rsp_t &descriptors);
 
     /**
      * @brief Called by the Nordic stack when the discovery is over.
@@ -98,8 +97,8 @@ public:
 
 private:
     // protection against copy construction and assignment
-    nRF5xCharacteristicDescriptorDiscoverer(const nRF5xCharacteristicDescriptorDiscoverer&);
-    nRF5xCharacteristicDescriptorDiscoverer& operator=(const nRF5xCharacteristicDescriptorDiscoverer&);
+    nRF5xCharacteristicDescriptorDiscoverer(const nRF5xCharacteristicDescriptorDiscoverer &);
+    nRF5xCharacteristicDescriptorDiscoverer &operator=(const nRF5xCharacteristicDescriptorDiscoverer &);
 
     /**
      * @brief Discovery process, it store the DiscoveredCharacteristic, the
@@ -122,7 +121,7 @@ private:
          *
          * @note #isEmpty function will return false
          */
-        Discovery(const DiscoveredCharacteristic& c, const DiscoveryCallback_t& dCb, const TerminationCallback_t& tCb);
+        Discovery(const DiscoveredCharacteristic &c, const DiscoveryCallback_t &dCb, const TerminationCallback_t &tCb);
 
         /**
          * @brief Process the discovery of a descriptor.
@@ -130,7 +129,7 @@ private:
          * @param handle The attribute handle of the descriptor found
          * @param uuid The UUID of the descriptor found.
          */
-        void process(GattAttribute::Handle_t handle, const UUID& uuid);
+        void process(GattAttribute::Handle_t handle, const UUID &uuid);
 
         /**
          * @brief Terminate the discovery process.
@@ -156,7 +155,7 @@ private:
          * @brief return the characteristic from whom descriptors are discovered.
          * @return the characteristic from whom descriptors are discovered.
          */
-        const DiscoveredCharacteristic& getCharacteristic() const;
+        const DiscoveredCharacteristic &getCharacteristic() const;
 
         /**
          * @brief equal to operator, test if two discovery process are equal
@@ -165,7 +164,8 @@ private:
          * @param rhs right hand side of the expression
          * @return true if lhs == rhs
          */
-        friend bool operator==(const Discovery& lhs, const Discovery& rhs) {
+        friend bool operator==(const Discovery &lhs, const Discovery &rhs)
+        {
             return lhs.characteristic == rhs.characteristic &&
                    lhs.onDiscovery == rhs.onDiscovery &&
                    lhs.onTerminate == rhs.onTerminate;
@@ -178,7 +178,8 @@ private:
          * @param rhs right hand side of the expression
          * @return true if lhs != rhs
          */
-        friend bool operator!=(const Discovery& lhs, const Discovery& rhs) {
+        friend bool operator!=(const Discovery &lhs, const Discovery &rhs)
+        {
             return !(lhs == rhs);
         }
 
@@ -189,14 +190,14 @@ private:
     };
 
     // find a running discovery process
-    Discovery* findRunningDiscovery(const DiscoveredCharacteristic& characteristic);
-    Discovery* findRunningDiscovery(uint16_t handle);
+    Discovery *findRunningDiscovery(const DiscoveredCharacteristic &characteristic);
+    Discovery *findRunningDiscovery(uint16_t handle);
 
     // Called to terminate a discovery is over.
-    void terminate(Discovery* discovery, ble_error_t err);
+    void terminate(Discovery *discovery, ble_error_t err);
 
     // get one slot for a discovery process
-    Discovery* getAvailableDiscoverySlot();
+    Discovery *getAvailableDiscoverySlot();
 
     // indicate if a connection is already running a discovery
     bool isConnectionInUse(uint16_t connHandle);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "pwmout_api.h"
 
 #if DEVICE_PWMOUT
@@ -52,18 +52,18 @@ static const struct nu_modinit_s pwm_modinit_tab[] = {
     {PWM_0_1, PWM0_CH01_MODULE, CLK_CLKSEL1_PWM0_CH01_S_HCLK, 0, PWM0_RST, PWM0_IRQn, &pwm0_01_var},
     {PWM_0_2, PWM0_CH23_MODULE, CLK_CLKSEL1_PWM0_CH23_S_HCLK, 0, PWM0_RST, PWM0_IRQn, &pwm0_23_var},
     {PWM_0_3, PWM0_CH23_MODULE, CLK_CLKSEL1_PWM0_CH23_S_HCLK, 0, PWM0_RST, PWM0_IRQn, &pwm0_23_var},
-    
+
     {PWM_1_0, PWM1_CH01_MODULE, CLK_CLKSEL2_PWM1_CH01_S_HCLK, 0, PWM1_RST, PWM1_IRQn, &pwm1_01_var},
     {PWM_1_1, PWM1_CH01_MODULE, CLK_CLKSEL2_PWM1_CH01_S_HCLK, 0, PWM1_RST, PWM1_IRQn, &pwm1_01_var},
     {PWM_1_2, PWM1_CH23_MODULE, CLK_CLKSEL2_PWM1_CH23_S_HCLK, 0, PWM1_RST, PWM1_IRQn, &pwm1_23_var},
     {PWM_1_3, PWM1_CH23_MODULE, CLK_CLKSEL2_PWM1_CH23_S_HCLK, 0, PWM1_RST, PWM1_IRQn, &pwm1_23_var},
-    
+
     {NC, 0, 0, 0, 0, (IRQn_Type) 0, NULL}
 };
 
-static void pwmout_config(pwmout_t* obj);
+static void pwmout_config(pwmout_t *obj);
 
-void pwmout_init(pwmout_t* obj, PinName pin)
+void pwmout_init(pwmout_t *obj, PinName pin)
 {
     obj->pwm = (PWMName) pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT((int) obj->pwm != NC);
@@ -71,10 +71,10 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     const struct nu_modinit_s *modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT((PWMName) modinit->modname == obj->pwm);
-    
+
     PWM_T *pwm_base = (PWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
-        
+
     // NOTE: Channels 0/1, 2/3 share a clock source.
     if ((((struct nu_pwm_var *) modinit->var)->en_msk & 0xF) == 0) {
         // Select clock source of paired channels
@@ -82,23 +82,23 @@ void pwmout_init(pwmout_t* obj, PinName pin)
         // Enable clock of paired channels
         CLK_EnableModuleClock(modinit->clkidx);
     }
-    
+
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);
-    
+
     // Default: period = 10 ms, pulse width = 0 ms
     obj->period_us = 1000 * 10;
     obj->pulsewidth_us = 0;
     pwmout_config(obj);
     // enable inverter to ensure the first PWM cycle is correct
     pwm_base->CTL |= (PWM_CTL_CH0INV_Msk << (chn * 8));
-    
+
     // Enable output of the specified PWM channel
     PWM_EnableOutput(pwm_base, 1 << chn);
     PWM_Start(pwm_base, 1 << chn);
-    
+
     ((struct nu_pwm_var *) modinit->var)->en_msk |= 1 << chn;
-    
+
     if (((struct nu_pwm_var *) modinit->var)->en_msk) {
         // Mark this module to be inited.
         int i = modinit - pwm_modinit_tab;
@@ -106,22 +106,22 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     }
 }
 
-void pwmout_free(pwmout_t* obj)
+void pwmout_free(pwmout_t *obj)
 {
     PWM_T *pwm_base = (PWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
     PWM_ForceStop(pwm_base, 1 << chn);
-    
+
     const struct nu_modinit_s *modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT((PWMName) modinit->modname == obj->pwm);
     ((struct nu_pwm_var *) modinit->var)->en_msk &= ~(1 << chn);
-    
-    
+
+
     if ((((struct nu_pwm_var *) modinit->var)->en_msk & 0xF) == 0) {
         CLK_DisableModuleClock(modinit->clkidx);
     }
-    
+
     if (((struct nu_pwm_var *) modinit->var)->en_msk == 0) {
         // Mark this module to be deinited.
         int i = modinit - pwm_modinit_tab;
@@ -129,29 +129,29 @@ void pwmout_free(pwmout_t* obj)
     }
 }
 
-void pwmout_write(pwmout_t* obj, float value)
+void pwmout_write(pwmout_t *obj, float value)
 {
-    obj->pulsewidth_us = NU_CLAMP((uint32_t) (value * obj->period_us), 0, obj->period_us);
+    obj->pulsewidth_us = NU_CLAMP((uint32_t)(value * obj->period_us), 0, obj->period_us);
     pwmout_config(obj);
 }
 
-float pwmout_read(pwmout_t* obj)
+float pwmout_read(pwmout_t *obj)
 {
     return NU_CLAMP((((float) obj->pulsewidth_us) / obj->period_us), 0.0f, 1.0f);
 }
 
-void pwmout_period(pwmout_t* obj, float seconds)
+void pwmout_period(pwmout_t *obj, float seconds)
 {
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms)
+void pwmout_period_ms(pwmout_t *obj, int ms)
 {
     pwmout_period_us(obj, ms * 1000);
 }
 
 // Set the PWM period, keeping the duty cycle the same.
-void pwmout_period_us(pwmout_t* obj, int us)
+void pwmout_period_us(pwmout_t *obj, int us)
 {
     uint32_t period_us_old = obj->period_us;
     uint32_t pulsewidth_us_old = obj->pulsewidth_us;
@@ -160,23 +160,23 @@ void pwmout_period_us(pwmout_t* obj, int us)
     pwmout_config(obj);
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds)
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us)
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
     obj->pulsewidth_us = NU_CLAMP(us, 0, obj->period_us);
     pwmout_config(obj);
 }
 
-static void pwmout_config(pwmout_t* obj)
+static void pwmout_config(pwmout_t *obj)
 {
     PWM_T *pwm_base = (PWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn = NU_MODSUBINDEX(obj->pwm);

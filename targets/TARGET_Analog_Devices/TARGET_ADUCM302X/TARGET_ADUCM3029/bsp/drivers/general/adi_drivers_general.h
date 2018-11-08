@@ -48,7 +48,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* Macros related to alignment in the different toolchains supported */
 
-/* 
+/*
  * These macros are designed to be used as follows:
  * ADI_ALIGNED_PRAGMA(<required_alignment>)
  * <variable_declaration> ADI_ALIGNED_ATTRIBUTE(<required_alignment>)
@@ -60,10 +60,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *
 * Pm120 (rule 19.10): In the definition of a function-like macro each parameter
-*                     shall be enclosed in parenthesis. 
+*                     shall be enclosed in parenthesis.
 *                     This is not possible in attributes and pragmas
 * Pm154 (rule 19.13): The # and ## preprocessor operators shall not be used.
-*                     We need to do this to abstract the macros for the 
+*                     We need to do this to abstract the macros for the
 *                     different toolchains
 */
 #pragma diag_suppress=Pm120,Pm154
@@ -73,20 +73,20 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ATTRIBUTE(x) __attribute__((x))
 
 #if defined (__GNUC__)
-  /* Gcc uses attributes */
-  #define ADI_ALIGNED_PRAGMA(num)
-  #define ADI_ALIGNED_ATTRIBUTE(num) ATTRIBUTE(aligned(num))
-  #define ADI_UNUSED_ATTRIBUTE ATTRIBUTE(unused)
+/* Gcc uses attributes */
+#define ADI_ALIGNED_PRAGMA(num)
+#define ADI_ALIGNED_ATTRIBUTE(num) ATTRIBUTE(aligned(num))
+#define ADI_UNUSED_ATTRIBUTE ATTRIBUTE(unused)
 #elif defined ( __ICCARM__ )
-  /* IAR uses a pragma */
-  #define ADI_ALIGNED_ATTRIBUTE(num)
-  #define ADI_ALIGNED_PRAGMA(num) PRAGMA(data_alignment=num) 
-  #define ADI_UNUSED_ATTRIBUTE
+/* IAR uses a pragma */
+#define ADI_ALIGNED_ATTRIBUTE(num)
+#define ADI_ALIGNED_PRAGMA(num) PRAGMA(data_alignment=num)
+#define ADI_UNUSED_ATTRIBUTE
 #elif defined (__ARMCC_VERSION)
-  /* Keil uses a decorator which is placed in the same position as pragmas */
-  #define ADI_ALIGNED_ATTRIBUTE(num)
-  #define ADI_ALIGNED_PRAGMA(num) __attribute__((aligned(num)))
-  #define ADI_UNUSED_ATTRIBUTE ATTRIBUTE(unused)
+/* Keil uses a decorator which is placed in the same position as pragmas */
+#define ADI_ALIGNED_ATTRIBUTE(num)
+#define ADI_ALIGNED_PRAGMA(num) __attribute__((aligned(num)))
+#define ADI_UNUSED_ATTRIBUTE ATTRIBUTE(unused)
 #else
 #error "Toolchain not supported"
 #endif

@@ -45,11 +45,11 @@ public:
     };
 
     enum SecurityIOCapabilities_t {
-      IO_CAPS_DISPLAY_ONLY     = 0x00,   /**< Display only. */
-      IO_CAPS_DISPLAY_YESNO    = 0x01,   /**< Display and yes/no entry. */
-      IO_CAPS_KEYBOARD_ONLY    = 0x02,   /**< Keyboard only. */
-      IO_CAPS_NONE             = 0x03,   /**< No I/O capabilities. */
-      IO_CAPS_KEYBOARD_DISPLAY = 0x04,   /**< Keyboard and display. */
+        IO_CAPS_DISPLAY_ONLY     = 0x00,   /**< Display only. */
+        IO_CAPS_DISPLAY_YESNO    = 0x01,   /**< Display and yes/no entry. */
+        IO_CAPS_KEYBOARD_ONLY    = 0x02,   /**< Keyboard only. */
+        IO_CAPS_NONE             = 0x03,   /**< No I/O capabilities. */
+        IO_CAPS_KEYBOARD_DISPLAY = 0x04,   /**< Keyboard and display. */
     };
 
     enum SecurityCompletionStatus_t {
@@ -108,7 +108,8 @@ public:
     virtual ble_error_t init(bool                     enableBonding = true,
                              bool                     requireMITM   = true,
                              SecurityIOCapabilities_t iocaps        = IO_CAPS_NONE,
-                             const Passkey_t          passkey       = NULL) {
+                             const Passkey_t          passkey       = NULL)
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)enableBonding;
         (void)requireMITM;
@@ -126,7 +127,8 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
+    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP)
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)securityStatusP;
@@ -143,7 +145,8 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
+    virtual ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode)
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)securityMode;
@@ -159,7 +162,8 @@ public:
      * @retval BLE_ERROR_INVALID_STATE    If the API is called without module initialization or
      *                                    application registration.
      */
-    virtual ble_error_t purgeAllBondingState(void) {
+    virtual ble_error_t purgeAllBondingState(void)
+    {
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
@@ -176,7 +180,8 @@ public:
      * @retval BLE_ERROR_INVALID_STATE    If the API is called without module initialization or
      *                                    application registration.
      */
-    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
+    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const
+    {
         /* Avoid compiler warnings about unused variables */
         (void) addresses;
 
@@ -199,11 +204,13 @@ public:
      *
      * @note It is possible to unregister a callback using onShutdown().detach(callback)
      */
-    void onShutdown(const SecurityManagerShutdownCallback_t& callback) {
+    void onShutdown(const SecurityManagerShutdownCallback_t &callback)
+    {
         shutdownCallChain.add(callback);
     }
     template <typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const SecurityManager *)) {
+    void onShutdown(T *objPtr, void (T::*memberPtr)(const SecurityManager *))
+    {
         shutdownCallChain.add(objPtr, memberPtr);
     }
 
@@ -213,19 +220,26 @@ public:
      * It is possible to unregister callbacks using onShutdown().detach(callback)
      * @return The shutdown event callbacks chain
      */
-    SecurityManagerShutdownCallbackChain_t& onShutdown() {
+    SecurityManagerShutdownCallbackChain_t &onShutdown()
+    {
         return shutdownCallChain;
     }
 
     /**
      * To indicate that a security procedure for the link has started.
      */
-    virtual void onSecuritySetupInitiated(SecuritySetupInitiatedCallback_t callback) {securitySetupInitiatedCallback = callback;}
+    virtual void onSecuritySetupInitiated(SecuritySetupInitiatedCallback_t callback)
+    {
+        securitySetupInitiatedCallback = callback;
+    }
 
     /**
      * To indicate that the security procedure for the link has completed.
      */
-    virtual void onSecuritySetupCompleted(SecuritySetupCompletedCallback_t callback) {securitySetupCompletedCallback = callback;}
+    virtual void onSecuritySetupCompleted(SecuritySetupCompletedCallback_t callback)
+    {
+        securitySetupCompletedCallback = callback;
+    }
 
     /**
      * To indicate that the link with the peer is secured. For bonded devices,
@@ -233,45 +247,59 @@ public:
      * when the link is secured; setup procedures will not occur (unless the
      * bonding information is either lost or deleted on either or both sides).
      */
-    virtual void onLinkSecured(LinkSecuredCallback_t callback) {linkSecuredCallback = callback;}
+    virtual void onLinkSecured(LinkSecuredCallback_t callback)
+    {
+        linkSecuredCallback = callback;
+    }
 
     /**
      * To indicate that device context is stored persistently.
      */
-    virtual void onSecurityContextStored(HandleSpecificEvent_t callback) {securityContextStoredCallback = callback;}
+    virtual void onSecurityContextStored(HandleSpecificEvent_t callback)
+    {
+        securityContextStoredCallback = callback;
+    }
 
     /**
      * To set the callback for when the passkey needs to be displayed on a peripheral with DISPLAY capability.
      */
-    virtual void onPasskeyDisplay(PasskeyDisplayCallback_t callback) {passkeyDisplayCallback = callback;}
+    virtual void onPasskeyDisplay(PasskeyDisplayCallback_t callback)
+    {
+        passkeyDisplayCallback = callback;
+    }
 
     /* Entry points for the underlying stack to report events back to the user. */
 public:
-    void processSecuritySetupInitiatedEvent(Gap::Handle_t handle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps) {
+    void processSecuritySetupInitiatedEvent(Gap::Handle_t handle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps)
+    {
         if (securitySetupInitiatedCallback) {
             securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
         }
     }
 
-    void processSecuritySetupCompletedEvent(Gap::Handle_t handle, SecurityCompletionStatus_t status) {
+    void processSecuritySetupCompletedEvent(Gap::Handle_t handle, SecurityCompletionStatus_t status)
+    {
         if (securitySetupCompletedCallback) {
             securitySetupCompletedCallback(handle, status);
         }
     }
 
-    void processLinkSecuredEvent(Gap::Handle_t handle, SecurityMode_t securityMode) {
+    void processLinkSecuredEvent(Gap::Handle_t handle, SecurityMode_t securityMode)
+    {
         if (linkSecuredCallback) {
             linkSecuredCallback(handle, securityMode);
         }
     }
 
-    void processSecurityContextStoredEvent(Gap::Handle_t handle) {
+    void processSecurityContextStoredEvent(Gap::Handle_t handle)
+    {
         if (securityContextStoredCallback) {
             securityContextStoredCallback(handle);
         }
     }
 
-    void processPasskeyDisplayEvent(Gap::Handle_t handle, const Passkey_t passkey) {
+    void processPasskeyDisplayEvent(Gap::Handle_t handle, const Passkey_t passkey)
+    {
         if (passkeyDisplayCallback) {
             passkeyDisplayCallback(handle, passkey);
         }
@@ -283,7 +311,8 @@ protected:
         securitySetupCompletedCallback(),
         linkSecuredCallback(),
         securityContextStoredCallback(),
-        passkeyDisplayCallback() {
+        passkeyDisplayCallback()
+    {
         /* empty */
     }
 
@@ -301,7 +330,8 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t reset(void) {
+    virtual ble_error_t reset(void)
+    {
         /* Notify that the instance is about to shutdown */
         shutdownCallChain.call(this);
         shutdownCallChain.clear();

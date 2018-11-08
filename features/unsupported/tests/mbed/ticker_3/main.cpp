@@ -39,5 +39,5 @@ int main(void)
 
     ticker.attach(ticker_callback_1, 1.0);
 
-    while(1);
+    while (1);
 }

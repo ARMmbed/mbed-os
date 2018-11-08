@@ -234,7 +234,7 @@ protected:
 private:
     nsapi_size_or_error_t do_sendto(void *handle, const struct ns_address *address, const void *data, nsapi_size_t size);
     char text_ip_address[40];
-    static NanostackInterface * _ns_interface;
+    static NanostackInterface *_ns_interface;
 };
 
 nsapi_error_t map_mesh_error(mesh_error_t err);

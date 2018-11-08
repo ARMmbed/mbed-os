@@ -28,7 +28,7 @@
 #define NU_PDMA_CH_Msk      (((1 << NU_PDMA_CH_MAX) - 1) << NU_PDMA_CH_Pos)
 
 struct nu_dma_chn_s {
-    void        (*handler)(uint32_t, uint32_t);
+    void (*handler)(uint32_t, uint32_t);
     uint32_t    id;
     uint32_t    event;
 };
@@ -49,7 +49,7 @@ void dma_init(void)
 
     dma_inited = 1;
     dma_chn_mask = ~NU_PDMA_CH_Msk;
-    memset(dma_chn_arr, 0x00, sizeof (dma_chn_arr));
+    memset(dma_chn_arr, 0x00, sizeof(dma_chn_arr));
 
     // Reset this module
     SYS_ResetModule(dma_modinit.rsetidx);
@@ -72,7 +72,7 @@ int dma_channel_allocate(uint32_t capabilities)
     int i = nu_cto(dma_chn_mask);
     if (i != 32) {
         dma_chn_mask |= 1 << i;
-        memset(dma_chn_arr + i - NU_PDMA_CH_Pos, 0x00, sizeof (struct nu_dma_chn_s));
+        memset(dma_chn_arr + i - NU_PDMA_CH_Pos, 0x00, sizeof(struct nu_dma_chn_s));
         return i;
     }
 

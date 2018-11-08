@@ -39,8 +39,7 @@
  * @see fnet_arp_get_entry()
  ******************************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_arp_entry_info
-{
+typedef struct fnet_arp_entry_info {
     fnet_mac_addr_t mac_addr;      /**< @brief ARP cache entry Physical (MAC) address.*/
     fnet_ip4_addr_t ip_addr;       /**< @brief ARP cache entry IPv4 address.*/
 } fnet_arp_entry_info_t;
@@ -73,7 +72,7 @@ extern "C" {
  * the given interface.
  *
  ******************************************************************************/
-fnet_bool_t fnet_arp_get_entry ( fnet_netif_desc_t netif_desc, fnet_index_t n, fnet_arp_entry_info_t *entry_info );
+fnet_bool_t fnet_arp_get_entry(fnet_netif_desc_t netif_desc, fnet_index_t n, fnet_arp_entry_info_t *entry_info);
 
 /***************************************************************************/ /*!
  *
@@ -97,7 +96,7 @@ fnet_bool_t fnet_arp_get_entry ( fnet_netif_desc_t netif_desc, fnet_index_t n, f
  * valid MAC address corresponding to @c ip_addr.
  *
  ******************************************************************************/
-fnet_bool_t fnet_arp_get_mac( fnet_netif_desc_t netif_desc, fnet_ip4_addr_t ip_addr, fnet_mac_addr_t mac_addr);
+fnet_bool_t fnet_arp_get_mac(fnet_netif_desc_t netif_desc, fnet_ip4_addr_t ip_addr, fnet_mac_addr_t mac_addr);
 
 /***************************************************************************/ /*!
  *
@@ -115,7 +114,7 @@ fnet_bool_t fnet_arp_get_mac( fnet_netif_desc_t netif_desc, fnet_ip4_addr_t ip_a
  * or MAC address has changed.
  *
  ******************************************************************************/
-void fnet_arp_send_request( fnet_netif_desc_t netif_desc, fnet_ip4_addr_t ip_addr );
+void fnet_arp_send_request(fnet_netif_desc_t netif_desc, fnet_ip4_addr_t ip_addr);
 
 #if defined(__cplusplus)
 }

@@ -42,10 +42,10 @@ error_t btle_gap_init(void)
     ble_gap_conn_sec_mode_t sec_mode;
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode); // no security is needed
 
-    ASSERT_STATUS( sd_ble_gap_device_name_set(&sec_mode, (const uint8_t *) CFG_GAP_LOCAL_NAME, strlen(CFG_GAP_LOCAL_NAME)));
-    ASSERT_STATUS( sd_ble_gap_appearance_set(CFG_GAP_APPEARANCE));
-    ASSERT_STATUS( sd_ble_gap_ppcp_set(&gap_conn_params));
-    ASSERT_STATUS( sd_ble_gap_tx_power_set(CFG_BLE_TX_POWER_LEVEL));
+    ASSERT_STATUS(sd_ble_gap_device_name_set(&sec_mode, (const uint8_t *) CFG_GAP_LOCAL_NAME, strlen(CFG_GAP_LOCAL_NAME)));
+    ASSERT_STATUS(sd_ble_gap_appearance_set(CFG_GAP_APPEARANCE));
+    ASSERT_STATUS(sd_ble_gap_ppcp_set(&gap_conn_params));
+    ASSERT_STATUS(sd_ble_gap_tx_power_set(CFG_BLE_TX_POWER_LEVEL));
 
     /**
      * Call to conn_params_init() is not necessary; and so is disabled by default.
@@ -70,7 +70,7 @@ error_t btle_gap_init(void)
     cp_init.evt_handler                    = NULL;
     cp_init.error_handler                  = error_callback;
 
-    ASSERT_STATUS ( ble_conn_params_init(&cp_init));
+    ASSERT_STATUS(ble_conn_params_init(&cp_init));
 #endif // SDK_CONN_PARAMS_MODULE_ENABLE
 
     return ERROR_NONE;
@@ -94,6 +94,6 @@ static inline uint32_t msec_to_1_25msec(uint32_t interval_ms)
 #if SDK_CONN_PARAMS_MODULE_ENABLE
 static void error_callback(uint32_t nrf_error)
 {
-    ASSERT_STATUS_RET_VOID( nrf_error );
+    ASSERT_STATUS_RET_VOID(nrf_error);
 }
 #endif // SDK_CONN_PARAMS_MODULE_ENABLE

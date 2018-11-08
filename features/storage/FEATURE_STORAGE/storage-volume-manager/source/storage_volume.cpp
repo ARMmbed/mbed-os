@@ -212,11 +212,12 @@ int32_t StorageVolume::GetInfo(ARM_STORAGE_INFO *infoP)
     return ARM_DRIVER_OK;
 }
 
-uint32_t StorageVolume::ResolveAddress(uint64_t addr) {
+uint32_t StorageVolume::ResolveAddress(uint64_t addr)
+{
     return (uint32_t)(volumeOffset + addr);
 }
 
-int32_t StorageVolume::GetNextBlock(const ARM_STORAGE_BLOCK* prevP, ARM_STORAGE_BLOCK *nextP)
+int32_t StorageVolume::GetNextBlock(const ARM_STORAGE_BLOCK *prevP, ARM_STORAGE_BLOCK *nextP)
 {
     int32_t rc;
     ARM_STORAGE_BLOCK tmpBlock;

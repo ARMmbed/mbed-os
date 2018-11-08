@@ -57,31 +57,31 @@ const ip_addr_t ip_addr_broadcast = IPADDR4_INIT(IPADDR_BROADCAST);
 u8_t
 ip4_addr_isbroadcast_u32(u32_t addr, const struct netif *netif)
 {
-  ip4_addr_t ipaddr;
-  ip4_addr_set_u32(&ipaddr, addr);
+    ip4_addr_t ipaddr;
+    ip4_addr_set_u32(&ipaddr, addr);
 
-  /* all ones (broadcast) or all zeroes (old skool broadcast) */
-  if ((~addr == IPADDR_ANY) ||
-      (addr == IPADDR_ANY)) {
-    return 1;
-  /* no broadcast support on this network interface? */
-  } else if ((netif->flags & NETIF_FLAG_BROADCAST) == 0) {
-    /* the given address cannot be a broadcast address
-     * nor can we check against any broadcast addresses */
-    return 0;
-  /* address matches network interface address exactly? => no broadcast */
-  } else if (addr == ip4_addr_get_u32(netif_ip4_addr(netif))) {
-    return 0;
-  /*  on the same (sub) network... */
-  } else if (ip4_addr_netcmp(&ipaddr, netif_ip4_addr(netif), netif_ip4_netmask(netif))
-         /* ...and host identifier bits are all ones? =>... */
-          && ((addr & ~ip4_addr_get_u32(netif_ip4_netmask(netif))) ==
-           (IPADDR_BROADCAST & ~ip4_addr_get_u32(netif_ip4_netmask(netif))))) {
-    /* => network broadcast address */
-    return 1;
-  } else {
-    return 0;
-  }
+    /* all ones (broadcast) or all zeroes (old skool broadcast) */
+    if ((~addr == IPADDR_ANY) ||
+            (addr == IPADDR_ANY)) {
+        return 1;
+        /* no broadcast support on this network interface? */
+    } else if ((netif->flags & NETIF_FLAG_BROADCAST) == 0) {
+        /* the given address cannot be a broadcast address
+         * nor can we check against any broadcast addresses */
+        return 0;
+        /* address matches network interface address exactly? => no broadcast */
+    } else if (addr == ip4_addr_get_u32(netif_ip4_addr(netif))) {
+        return 0;
+        /*  on the same (sub) network... */
+    } else if (ip4_addr_netcmp(&ipaddr, netif_ip4_addr(netif), netif_ip4_netmask(netif))
+               /* ...and host identifier bits are all ones? =>... */
+               && ((addr & ~ip4_addr_get_u32(netif_ip4_netmask(netif))) ==
+                   (IPADDR_BROADCAST & ~ip4_addr_get_u32(netif_ip4_netmask(netif))))) {
+        /* => network broadcast address */
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 /** Checks if a netmask is valid (starting with ones, then only zeros)
@@ -92,24 +92,24 @@ ip4_addr_isbroadcast_u32(u32_t addr, const struct netif *netif)
 u8_t
 ip4_addr_netmask_valid(u32_t netmask)
 {
-  u32_t mask;
-  u32_t nm_hostorder = lwip_htonl(netmask);
+    u32_t mask;
+    u32_t nm_hostorder = lwip_htonl(netmask);
 
-  /* first, check for the first zero */
-  for (mask = 1UL << 31 ; mask != 0; mask >>= 1) {
-    if ((nm_hostorder & mask) == 0) {
-      break;
+    /* first, check for the first zero */
+    for (mask = 1UL << 31 ; mask != 0; mask >>= 1) {
+        if ((nm_hostorder & mask) == 0) {
+            break;
+        }
     }
-  }
-  /* then check that there is no one */
-  for (; mask != 0; mask >>= 1) {
-    if ((nm_hostorder & mask) != 0) {
-      /* there is a one after the first zero -> invalid */
-      return 0;
+    /* then check that there is no one */
+    for (; mask != 0; mask >>= 1) {
+        if ((nm_hostorder & mask) != 0) {
+            /* there is a one after the first zero -> invalid */
+            return 0;
+        }
     }
-  }
-  /* no one after the first zero -> valid */
-  return 1;
+    /* no one after the first zero -> valid */
+    return 1;
 }
 
 /* Here for now until needed in other places in lwIP */
@@ -132,12 +132,12 @@ ip4_addr_netmask_valid(u32_t netmask)
 u32_t
 ipaddr_addr(const char *cp)
 {
-  ip4_addr_t val;
+    ip4_addr_t val;
 
-  if (ip4addr_aton(cp, &val)) {
-    return ip4_addr_get_u32(&val);
-  }
-  return (IPADDR_NONE);
+    if (ip4addr_aton(cp, &val)) {
+        return ip4_addr_get_u32(&val);
+    }
+    return (IPADDR_NONE);
 }
 
 /**
@@ -154,115 +154,115 @@ ipaddr_addr(const char *cp)
 int
 ip4addr_aton(const char *cp, ip4_addr_t *addr)
 {
-  u32_t val;
-  u8_t base;
-  char c;
-  u32_t parts[4];
-  u32_t *pp = parts;
+    u32_t val;
+    u8_t base;
+    char c;
+    u32_t parts[4];
+    u32_t *pp = parts;
 
-  c = *cp;
-  for (;;) {
-    /*
-     * Collect number up to ``.''.
-     * Values are specified as for C:
-     * 0x=hex, 0=octal, 1-9=decimal.
-     */
-    if (!isdigit(c)) {
-      return 0;
-    }
-    val = 0;
-    base = 10;
-    if (c == '0') {
-      c = *++cp;
-      if (c == 'x' || c == 'X') {
-        base = 16;
-        c = *++cp;
-      } else {
-        base = 8;
-      }
-    }
+    c = *cp;
     for (;;) {
-      if (isdigit(c)) {
-        val = (val * base) + (u32_t)(c - '0');
-        c = *++cp;
-      } else if (base == 16 && isxdigit(c)) {
-        val = (val << 4) | (u32_t)(c + 10 - (islower(c) ? 'a' : 'A'));
-        c = *++cp;
-      } else {
-        break;
-      }
+        /*
+         * Collect number up to ``.''.
+         * Values are specified as for C:
+         * 0x=hex, 0=octal, 1-9=decimal.
+         */
+        if (!isdigit(c)) {
+            return 0;
+        }
+        val = 0;
+        base = 10;
+        if (c == '0') {
+            c = *++cp;
+            if (c == 'x' || c == 'X') {
+                base = 16;
+                c = *++cp;
+            } else {
+                base = 8;
+            }
+        }
+        for (;;) {
+            if (isdigit(c)) {
+                val = (val * base) + (u32_t)(c - '0');
+                c = *++cp;
+            } else if (base == 16 && isxdigit(c)) {
+                val = (val << 4) | (u32_t)(c + 10 - (islower(c) ? 'a' : 'A'));
+                c = *++cp;
+            } else {
+                break;
+            }
+        }
+        if (c == '.') {
+            /*
+             * Internet format:
+             *  a.b.c.d
+             *  a.b.c   (with c treated as 16 bits)
+             *  a.b (with b treated as 24 bits)
+             */
+            if (pp >= parts + 3) {
+                return 0;
+            }
+            *pp++ = val;
+            c = *++cp;
+        } else {
+            break;
+        }
     }
-    if (c == '.') {
-      /*
-       * Internet format:
-       *  a.b.c.d
-       *  a.b.c   (with c treated as 16 bits)
-       *  a.b (with b treated as 24 bits)
-       */
-      if (pp >= parts + 3) {
+    /*
+     * Check for trailing characters.
+     */
+    if (c != '\0' && !isspace(c)) {
         return 0;
-      }
-      *pp++ = val;
-      c = *++cp;
-    } else {
-      break;
     }
-  }
-  /*
-   * Check for trailing characters.
-   */
-  if (c != '\0' && !isspace(c)) {
-    return 0;
-  }
-  /*
-   * Concoct the address according to
-   * the number of parts specified.
-   */
-  switch (pp - parts + 1) {
+    /*
+     * Concoct the address according to
+     * the number of parts specified.
+     */
+    switch (pp - parts + 1) {
 
-  case 0:
-    return 0;       /* initial nondigit */
+        case 0:
+            return 0;       /* initial nondigit */
 
-  case 1:             /* a -- 32 bits */
-    break;
+        case 1:             /* a -- 32 bits */
+            break;
 
-  case 2:             /* a.b -- 8.24 bits */
-    if (val > 0xffffffUL) {
-      return 0;
-    }
-    if (parts[0] > 0xff) {
-      return 0;
-    }
-    val |= parts[0] << 24;
-    break;
+        case 2:             /* a.b -- 8.24 bits */
+            if (val > 0xffffffUL) {
+                return 0;
+            }
+            if (parts[0] > 0xff) {
+                return 0;
+            }
+            val |= parts[0] << 24;
+            break;
 
-  case 3:             /* a.b.c -- 8.8.16 bits */
-    if (val > 0xffff) {
-      return 0;
-    }
-    if ((parts[0] > 0xff) || (parts[1] > 0xff)) {
-      return 0;
-    }
-    val |= (parts[0] << 24) | (parts[1] << 16);
-    break;
+        case 3:             /* a.b.c -- 8.8.16 bits */
+            if (val > 0xffff) {
+                return 0;
+            }
+            if ((parts[0] > 0xff) || (parts[1] > 0xff)) {
+                return 0;
+            }
+            val |= (parts[0] << 24) | (parts[1] << 16);
+            break;
 
-  case 4:             /* a.b.c.d -- 8.8.8.8 bits */
-    if (val > 0xff) {
-      return 0;
+        case 4:             /* a.b.c.d -- 8.8.8.8 bits */
+            if (val > 0xff) {
+                return 0;
+            }
+            if ((parts[0] > 0xff) || (parts[1] > 0xff) || (parts[2] > 0xff)) {
+                return 0;
+            }
+            val |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8);
+            break;
+        default:
+            LWIP_ASSERT("unhandled", 0);
+            break;
     }
-    if ((parts[0] > 0xff) || (parts[1] > 0xff) || (parts[2] > 0xff)) {
-      return 0;
+    if (addr) {
+        ip4_addr_set_u32(addr, lwip_htonl(val));
     }
-    val |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8);
-    break;
-  default:
-    LWIP_ASSERT("unhandled", 0);
-    break;
-  }
-  if (addr) {
-    ip4_addr_set_u32(addr, lwip_htonl(val));
-  }
-  return 1;
+    return 1;
 }
 
 /**
@@ -273,11 +273,11 @@ ip4addr_aton(const char *cp, ip4_addr_t *addr)
  * @return pointer to a global static (!) buffer that holds the ASCII
  *         representation of addr
  */
-char*
+char *
 ip4addr_ntoa(const ip4_addr_t *addr)
 {
-  static char str[IP4ADDR_STRLEN_MAX];
-  return ip4addr_ntoa_r(addr, str, IP4ADDR_STRLEN_MAX);
+    static char str[IP4ADDR_STRLEN_MAX];
+    return ip4addr_ntoa_r(addr, str, IP4ADDR_STRLEN_MAX);
 }
 
 /**
@@ -289,43 +289,43 @@ ip4addr_ntoa(const ip4_addr_t *addr)
  * @return either pointer to buf which now holds the ASCII
  *         representation of addr or NULL if buf was too small
  */
-char*
+char *
 ip4addr_ntoa_r(const ip4_addr_t *addr, char *buf, int buflen)
 {
-  u32_t s_addr;
-  char inv[3];
-  char *rp;
-  u8_t *ap;
-  u8_t rem;
-  u8_t n;
-  u8_t i;
-  int len = 0;
+    u32_t s_addr;
+    char inv[3];
+    char *rp;
+    u8_t *ap;
+    u8_t rem;
+    u8_t n;
+    u8_t i;
+    int len = 0;
 
-  s_addr = ip4_addr_get_u32(addr);
+    s_addr = ip4_addr_get_u32(addr);
 
-  rp = buf;
-  ap = (u8_t *)&s_addr;
-  for (n = 0; n < 4; n++) {
-    i = 0;
-    do {
-      rem = *ap % (u8_t)10;
-      *ap /= (u8_t)10;
-      inv[i++] = (char)('0' + rem);
-    } while (*ap);
-    while (i--) {
-      if (len++ >= buflen) {
-        return NULL;
-      }
-      *rp++ = inv[i];
+    rp = buf;
+    ap = (u8_t *)&s_addr;
+    for (n = 0; n < 4; n++) {
+        i = 0;
+        do {
+            rem = *ap % (u8_t)10;
+            *ap /= (u8_t)10;
+            inv[i++] = (char)('0' + rem);
+        } while (*ap);
+        while (i--) {
+            if (len++ >= buflen) {
+                return NULL;
+            }
+            *rp++ = inv[i];
+        }
+        if (len++ >= buflen) {
+            return NULL;
+        }
+        *rp++ = '.';
+        ap++;
     }
-    if (len++ >= buflen) {
-      return NULL;
-    }
-    *rp++ = '.';
-    ap++;
-  }
-  *--rp = 0;
-  return buf;
+    *--rp = 0;
+    return buf;
 }
 
 #endif /* LWIP_IPV4 */

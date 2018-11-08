@@ -70,16 +70,16 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     uint32_t mode_intern = GPIO_MODE_INPUT;
 
     switch (direction) {
-    case PIN_INPUT:
-        mode_intern = GPIO_MODE_INPUT;
-        break;
+        case PIN_INPUT:
+            mode_intern = GPIO_MODE_INPUT;
+            break;
 
-    case PIN_OUTPUT:
-        mode_intern = GPIO_MODE_OUTPUT;
-        break;
+        case PIN_OUTPUT:
+            mode_intern = GPIO_MODE_OUTPUT;
+            break;
 
-    default:
-        return;
+        default:
+            return;
     }
 
     GPIO_SetMode(gpio_base, 1 << pin_index, mode_intern);

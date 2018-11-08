@@ -13,7 +13,8 @@ ADXL345 accelerometer(p5, p6, p7, p8);
 #define MIN_Z       (200)
 #define MAX_Z       (300)
 
-void check_X_Y(int v) {
+void check_X_Y(int v)
+{
     int16_t a = (int16_t)v;
     if (abs(a) > MAX_X_Y) {
         printf("X/Y acceleration is too big: %d\n", a);
@@ -22,7 +23,8 @@ void check_X_Y(int v) {
 }
 
 
-int main() {
+int main()
+{
     int readings[3] = {0, 0, 0};
 
     printf("Starting ADXL345 test...\n");
@@ -40,7 +42,7 @@ int main() {
     //Measurement mode.
     accelerometer.setPowerControl(0x08);
 
-    for (int i=0; i<3; i++) {
+    for (int i = 0; i < 3; i++) {
         wait(0.1);
 
         //13-bit, sign extended values.

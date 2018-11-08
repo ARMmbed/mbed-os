@@ -46,20 +46,18 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef ADI_RNG_DEF_H
 #define ADI_RNG_DEF_H
 
- /*! \cond PRIVATE */
+/*! \cond PRIVATE */
 
 
 /*! RNG device internal instance data structure */
-typedef struct __ADI_RNG_DEV_DATA_TYPE
-{
+typedef struct __ADI_RNG_DEV_DATA_TYPE {
     IRQn_Type                      IRQn;      /*!< RNG interrupt number       */
     ADI_CALLBACK                   CBFunc;    /*!< Callback function          */
     void                          *pCBParam;  /*!< Callback parameter         */
 } ADI_RNG_DEV_DATA_TYPE;
 
 /*! RNG device internal data structure */
-typedef struct __ADI_RNG_DEV_TYPE
-{
+typedef struct __ADI_RNG_DEV_TYPE {
     volatile ADI_RNG_TypeDef      *pRNG;      /*!< MMR address for this RNG   */
     ADI_RNG_DEV_DATA_TYPE         *pData;     /*!< Pointer to instance data   */
 } ADI_RNG_DEV_TYPE;

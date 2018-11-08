@@ -97,13 +97,13 @@ void fGpioHandler(void)
     /** - Store all active interrupts */
     active_interrupts = gpioBase->R_IRQ_W_CLEAR;
 
-    for (index=0; index < NUMBER_OF_GPIO; index++) {
+    for (index = 0; index < NUMBER_OF_GPIO; index++) {
 
         /* Check the pin for which IRQ is raised */
         if ((active_interrupts >> index) & 0x01) {
             /* Check if it is edge triggered and clear the interrupt */
             if ((gpioBase->IRQ_EDGE >> index) &  0x01) {
-                if ((gpioBase->IRQ_POLARITY_SET >> index) &0x01)  {
+                if ((gpioBase->IRQ_POLARITY_SET >> index) & 0x01)  {
                     /* Edge triggered high */
                     event = IRQ_RISE;
                 } else {
@@ -132,7 +132,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 {
     /* If Pin is not connected; then return -1 */
     if (pin == NC) {
-        return(-1);
+        return (-1);
     }
 
     /* Store the pin for which handler is registered */
@@ -160,7 +160,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     NVIC_ClearPendingIRQ(Gpio_IRQn);
     NVIC_EnableIRQ(Gpio_IRQn);
 
-    return(0);
+    return (0);
 }
 
 /** Release the GPIO IRQ PIN
@@ -188,13 +188,13 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     /* Enable the GPIO clock which may have been switched off by other drivers */
     CLOCK_ENABLE(CLOCK_GPIO);
     obj->GPIOMEMBASE->IRQ_EDGE = obj->pinMask;
-    
-    switch(event) {
-        case IRQ_RISE: 
-          
+
+    switch (event) {
+        case IRQ_RISE:
+
             /* Enable rising edge */
             obj->GPIOMEMBASE->IRQ_POLARITY_SET = obj->pinMask;
-           break;
+            break;
 
         case IRQ_FALL:
 

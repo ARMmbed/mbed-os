@@ -55,8 +55,7 @@
 /*@}*/
 
 /*! @brief Bank bit flags. */
-typedef enum _otp_bank
-{
+typedef enum _otp_bank {
     kOTP_Bank0 = 0x1U, /*!< Bank 0. */
     kOTP_Bank1 = 0x2U, /*!< Bank 1. */
     kOTP_Bank2 = 0x4U, /*!< Bank 2. */
@@ -64,8 +63,7 @@ typedef enum _otp_bank
 } otp_bank_t;
 
 /*! @brief Bank word bit flags. */
-typedef enum _otp_word
-{
+typedef enum _otp_word {
     kOTP_Word0 = 0x1U, /*!< Word 0. */
     kOTP_Word1 = 0x2U, /*!< Word 1. */
     kOTP_Word2 = 0x4U, /*!< Word 2. */
@@ -73,15 +71,13 @@ typedef enum _otp_word
 } otp_word_t;
 
 /*! @brief Lock modifications of a read or write access to a bank register. */
-typedef enum _otp_lock
-{
+typedef enum _otp_lock {
     kOTP_LockDontLock = 0U, /*!< Do not lock. */
     kOTP_LockLock = 1U      /*!< Lock till reset. */
 } otp_lock_t;
 
 /*! @brief OTP error codes. */
-enum _otp_status
-{
+enum _otp_status {
     kStatus_OTP_WrEnableInvalid = MAKE_STATUS(kStatusGroup_OTP, 0x1U),           /*!< Write enable invalid. */
     kStatus_OTP_SomeBitsAlreadyProgrammed = MAKE_STATUS(kStatusGroup_OTP, 0x2U), /*!< Some bits already programmed. */
     kStatus_OTP_AllDataOrMaskZero = MAKE_STATUS(kStatusGroup_OTP, 0x3U),         /*!< All data or mask zero. */

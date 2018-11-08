@@ -23,37 +23,41 @@
 
 using namespace utest::v1;
 
-void eeprom_read_mac(void) {
-	
-	uint8_t buf[6];
-	
-	int result = eeprom_read_eui48_node_address(buf);
-	
-	// test if read was successful
-	TEST_ASSERT_TRUE(result == 0);
-	
-	// validate mac address range -> D8:80:39:00:00:00 - D8:80:39:FF:FF:FF
-	TEST_ASSERT_TRUE(buf[0] == 0xD8);
-	TEST_ASSERT_TRUE(buf[1] == 0x80);
-	TEST_ASSERT_TRUE(buf[2] == 0x39);
+void eeprom_read_mac(void)
+{
+
+    uint8_t buf[6];
+
+    int result = eeprom_read_eui48_node_address(buf);
+
+    // test if read was successful
+    TEST_ASSERT_TRUE(result == 0);
+
+    // validate mac address range -> D8:80:39:00:00:00 - D8:80:39:FF:FF:FF
+    TEST_ASSERT_TRUE(buf[0] == 0xD8);
+    TEST_ASSERT_TRUE(buf[1] == 0x80);
+    TEST_ASSERT_TRUE(buf[2] == 0x39);
 }
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
-	greentea_case_failure_abort_handler(source, reason);
-	return STATUS_CONTINUE;
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
+    greentea_case_failure_abort_handler(source, reason);
+    return STATUS_CONTINUE;
 }
 
 Case cases[] = {
-	Case("EEPROM read and validate MAC address", eeprom_read_mac, greentea_failure_handler)
+    Case("EEPROM read and validate MAC address", eeprom_read_mac, greentea_failure_handler)
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-	GREENTEA_SETUP(20, "default_auto");
-	return greentea_test_setup_handler(number_of_cases);
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
+    GREENTEA_SETUP(20, "default_auto");
+    return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
-	Harness::run(specification);
+int main()
+{
+    Harness::run(specification);
 }

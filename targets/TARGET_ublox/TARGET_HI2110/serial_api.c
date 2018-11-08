@@ -110,8 +110,7 @@ static void init_config(serial_t *obj)
     uint32_t x;
 
     switch (obj->config) {
-        case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        {
+        case SERIAL_CONFIG_UARTLP_RX_UART0_TX: {
             pin_function(obj->rx_pin, PIN_FUNCTION_LP_UART);
             pin_function(obj->tx_pin, PIN_FUNCTION_UART0_TXD);
             CLKEN_REG_BITSET = UARTLP_CTRL | UART0_CTRL;
@@ -126,8 +125,7 @@ static void init_config(serial_t *obj)
             RESET_REG_BITCLR |= 1ul << 3;
         }
         break;
-        case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        {
+        case SERIAL_CONFIG_UART0_RX_UART0_TX: {
             pin_function(obj->rx_pin, PIN_FUNCTION_UART0_RXD);
             pin_function(obj->tx_pin, PIN_FUNCTION_UART0_TXD);
             CLKEN_REG_BITSET = UART0_CTRL;
@@ -138,8 +136,7 @@ static void init_config(serial_t *obj)
             RESET_REG_BITCLR |= 1ul << 3;
         }
         break;
-        case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        {
+        case SERIAL_CONFIG_UART1_RX_UART1_TX: {
             pin_function(obj->rx_pin, PIN_FUNCTION_UART1_RXD);
             pin_function(obj->tx_pin, PIN_FUNCTION_UART1_TXD);
             CLKEN_REG_BITSET = UART1_CTRL;
@@ -150,8 +147,7 @@ static void init_config(serial_t *obj)
             RESET_REG_BITCLR |= 1ul << 4;
         }
         break;
-        default:
-        {
+        default: {
             MBED_ASSERT(false);
         }
         break;
@@ -173,9 +169,9 @@ static void init_config(serial_t *obj)
      * Set up the Rx FIFO to be used fully (but we will also set
      * a timeout to get immediate notice) and also the Tx FIFO
      * to be fully used. */
-     obj->reg_base->UARTIFLS = (obj->reg_base->UARTIFLS & ~(0x07 << 0)) | (4 << 0);
-     obj->reg_base->UARTIFLS = (obj->reg_base->UARTIFLS & ~(0x07 << 3)) | (4 << 3);
-     obj->reg_base->UARTLCR_H |= 1 << 4;
+    obj->reg_base->UARTIFLS = (obj->reg_base->UARTIFLS & ~(0x07 << 0)) | (4 << 0);
+    obj->reg_base->UARTIFLS = (obj->reg_base->UARTIFLS & ~(0x07 << 3)) | (4 << 3);
+    obj->reg_base->UARTLCR_H |= 1 << 4;
 
     /* Enable for Tx and Rx (TODO: add CTS when we add flow control) */
     obj->reg_base->UARTCR |= (1 << 8) | (1 << 9);
@@ -205,24 +201,20 @@ static void deinit_config(serial_t *obj)
     obj->reg_base->UARTCR = 0;
 
     switch (obj->config) {
-        case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        {
+        case SERIAL_CONFIG_UARTLP_RX_UART0_TX: {
             CLKEN_REG_BITCLR = UARTLP_CTRL | UART0_CTRL;
             LP_UART_CTRL &= ~(0xF << 20); /* Disable all LP interrupts */
         }
         break;
-        case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        {
+        case SERIAL_CONFIG_UART0_RX_UART0_TX: {
             CLKEN_REG_BITCLR = UART0_CTRL;
         }
         break;
-        case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        {
+        case SERIAL_CONFIG_UART1_RX_UART1_TX: {
             CLKEN_REG_BITCLR = UART1_CTRL;
         }
         break;
-        default:
-        {
+        default: {
             MBED_ASSERT(false);
         }
         break;
@@ -283,24 +275,20 @@ static void set_baud(serial_t *obj, uint32_t baud_rate)
 static void irq_enable(serial_t *obj)
 {
     switch (obj->config) {
-        case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        {
+        case SERIAL_CONFIG_UARTLP_RX_UART0_TX: {
             NVIC_EnableIRQ(UART0_IRQn);
             NVIC_EnableIRQ(LPUART_IRQn);
         }
         break;
-        case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        {
+        case SERIAL_CONFIG_UART0_RX_UART0_TX: {
             NVIC_EnableIRQ(UART0_IRQn);
         }
         break;
-        case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        {
+        case SERIAL_CONFIG_UART1_RX_UART1_TX: {
             NVIC_EnableIRQ(UART1_IRQn);
         }
         break;
-        default:
-        {
+        default: {
             MBED_ASSERT(false);
         }
         break;
@@ -311,24 +299,20 @@ static void irq_enable(serial_t *obj)
 static void irq_disable(serial_t *obj)
 {
     switch (obj->config) {
-        case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        {
+        case SERIAL_CONFIG_UARTLP_RX_UART0_TX: {
             NVIC_DisableIRQ(UART0_IRQn);
             NVIC_DisableIRQ(LPUART_IRQn);
         }
         break;
-        case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        {
+        case SERIAL_CONFIG_UART0_RX_UART0_TX: {
             NVIC_DisableIRQ(UART0_IRQn);
         }
         break;
-        case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        {
+        case SERIAL_CONFIG_UART1_RX_UART1_TX: {
             NVIC_DisableIRQ(UART1_IRQn);
         }
         break;
-        default:
-        {
+        default: {
             MBED_ASSERT(false);
         }
         break;
@@ -518,21 +502,18 @@ void serial_baud(serial_t *obj, int baudrate)
     }
 
     switch (obj->config) {
-        case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        {
+        case SERIAL_CONFIG_UARTLP_RX_UART0_TX: {
             /* Set LP UART to 9600 (numerator 75 (0x4B), denominator 256 (00 == 256)) */
             LP_UART_CTRL = (LP_UART_CTRL & ~0xFFFF) | 0x004B;
             set_baud(obj, baudrate);
         }
         break;
         case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        {
+        case SERIAL_CONFIG_UART1_RX_UART1_TX: {
             set_baud(obj, baudrate);
         }
         break;
-        default:
-        {
+        default: {
             MBED_ASSERT(false);
         }
         break;
@@ -581,39 +562,32 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
     /* Set parity */
     switch (parity) {
-        case ParityNone:
-        {
+        case ParityNone: {
             /* Disable parity */
             obj->reg_base->UARTLCR_H &= ~0x02;
-            if (lp_also)
-            {
+            if (lp_also) {
                 LP_UART_CTRL &= ~(1 << 24);
             }
         }
         break;
-        case ParityOdd:
-        {
+        case ParityOdd: {
             /* Set even bit and enable parity */
             obj->reg_base->UARTLCR_H = (obj->reg_base->UARTLCR_H | (1 << 3)) | (1 << 2);
-            if (lp_also)
-            {
+            if (lp_also) {
                 LP_UART_CTRL |= (1 << 24) | (1 << 25);
             }
         }
         break;
-        case ParityEven:
-        {
+        case ParityEven: {
             /* Clear even bit and enable parity */
             obj->reg_base->UARTLCR_H = (obj->reg_base->UARTLCR_H & ~(1 << 3)) | (1 << 2);
-            if (lp_also)
-            {
+            if (lp_also) {
                 LP_UART_CTRL &= ~(1 << 25);
                 LP_UART_CTRL |= 1 << 24;
             }
         }
         break;
-        default:
-        {
+        default: {
             MBED_ASSERT(false);
         }
         break;
@@ -649,12 +623,10 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
     if (enable) {
         switch (irq) {
-            case RxIrq:
-            {
+            case RxIrq: {
                 /* Bit 4 for Rx and bit 6 for Rx Timeout */
                 obj->reg_base->UARTIMSC |= (1 << 4) | (1 << 6);
-                if (lp_also)
-                {
+                if (lp_also) {
                     /* "Word Received" IRQ */
                     LP_UART_CTRL |= 1 << 23;
                 }
@@ -662,43 +634,37 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
                 irq_enable(obj);
             }
             break;
-            case TxIrq:
-            {
+            case TxIrq: {
                 /* Bit 5 */
                 obj->reg_base->UARTIMSC |= 1 << 5;
                 obj->irq_tx_setting = IRQ_ON;
                 irq_enable(obj);
             }
             break;
-            default:
-            {
+            default: {
                 MBED_ASSERT(false);
             }
             break;
         }
     } else {
         switch (irq) {
-            case RxIrq:
-            {
+            case RxIrq: {
                 /* Bit 4  for Rx and bit 6 for Rx Timeout */
                 obj->reg_base->UARTIMSC &= ~((1 << 4) | (1 << 6));
-                if (lp_also)
-                {
+                if (lp_also) {
                     /* "Word Received" IRQ */
                     LP_UART_CTRL &= ~(1 << 23);
                 }
                 obj->irq_rx_setting = IRQ_OFF;
             }
             break;
-            case TxIrq:
-            {
+            case TxIrq: {
                 /* Bit 5 */
                 obj->reg_base->UARTIMSC &= ~(1 << 5);
                 obj->irq_tx_setting = IRQ_OFF;
             }
             break;
-            default:
-            {
+            default: {
                 MBED_ASSERT(false);
             }
             break;
@@ -726,19 +692,16 @@ int serial_getc(serial_t *obj)
 
     /* Read the data */
     switch (obj->config) {
-        case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        {
+        case SERIAL_CONFIG_UARTLP_RX_UART0_TX: {
             data = (uint8_t) LP_UART_DATA;
         }
         break;
         case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        {
+        case SERIAL_CONFIG_UART1_RX_UART1_TX: {
             data = (uint8_t) obj->reg_base->UARTDR;
         }
         break;
-        default:
-        {
+        default: {
             MBED_ASSERT(false);
         }
         break;
@@ -761,8 +724,7 @@ int serial_readable(serial_t *obj)
     bool readable = false;
 
     switch (obj->config) {
-        case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        {
+        case SERIAL_CONFIG_UARTLP_RX_UART0_TX: {
             /* Check the status register, bits 8 to 10 indicate
              * the number of Rx bytes (make sure it's the status
              * register not the data register as a read from that
@@ -771,14 +733,12 @@ int serial_readable(serial_t *obj)
         }
         break;
         case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        {
+        case SERIAL_CONFIG_UART1_RX_UART1_TX: {
             /* Check the Rx FIFO Empty bit */
             readable = ((obj->reg_base->UARTFR & (1 << 4)) != (1 << 4));
         }
         break;
-        default:
-        {
+        default: {
             MBED_ASSERT(false);
         }
         break;

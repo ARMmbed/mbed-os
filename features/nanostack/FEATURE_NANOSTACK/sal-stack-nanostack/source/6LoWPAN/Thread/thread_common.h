@@ -209,8 +209,8 @@ typedef struct thread_master_secret_material_s {
     uint8_t     historyKey[32];
     uint32_t    keySwitchGuardTimer;
     uint32_t    keyRotation;
-    bool        historyKeyValid:1;
-    bool        valid_Info:1;
+    bool        historyKeyValid: 1;
+    bool        valid_Info: 1;
     uint8_t     historyKeyId;
 } thread_master_secret_material_t;
 
@@ -223,7 +223,7 @@ typedef struct thread_commissioner {
     uint16_t session_id;    /* session_id is valid even if commissioner is not valid */
     thread_commissioner_register_status_e commissioner_registration; /* Only for Leader */
     uint8_t steering_data_len;
-    bool commissioner_valid:1;
+    bool commissioner_valid: 1;
 } thread_commissioner_t;
 
 typedef struct thread_announcement_s {

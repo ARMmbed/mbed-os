@@ -64,6 +64,6 @@ void fRfAnaInit(void);
 /** Function for miscellaneous I/O and control operations on rfAna
  * @details
  */
-boolean fRfAnaIoctl (uint32_t request, void *argument);
+boolean fRfAnaIoctl(uint32_t request, void *argument);
 
 #endif /* RFANA_H_ */

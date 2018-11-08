@@ -1,5 +1,6 @@
 #include "mbed.h"
 
-int main() {
+int main()
+{
     printf("Hello World!");
 }

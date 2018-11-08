@@ -90,8 +90,8 @@ static void us_timer_init(void)
                              (TIME_MODE_PERIODIC    << TIMER_MODE_BIT_POS));
 
     /* Register & enable interrupt associated with the timer */
-    NVIC_SetVector(Tim0_IRQn,(uint32_t)us_timer_isr);
-    NVIC_SetVector(Tim1_IRQn,(uint32_t)us_ticker_isr);
+    NVIC_SetVector(Tim0_IRQn, (uint32_t)us_timer_isr);
+    NVIC_SetVector(Tim1_IRQn, (uint32_t)us_ticker_isr);
 
     /* Clear pending irqs */
     NVIC_ClearPendingIRQ(Tim0_IRQn);

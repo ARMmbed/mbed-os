@@ -57,9 +57,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :2;               /*!< bit:  0.. 1  Reserved                           */
-        uint32_t WRAP:1;           /*!< bit:      2  Pointer Value Wraps                */
-        uint32_t POINTER:29;       /*!< bit:  3..31  Trace Packet Location Pointer      */
+        uint32_t : 2;              /*!< bit:  0.. 1  Reserved                           */
+        uint32_t WRAP: 1;          /*!< bit:      2  Pointer Value Wraps                */
+        uint32_t POINTER: 29;      /*!< bit:  3..31  Trace Packet Location Pointer      */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } MTB_POSITION_Type;
@@ -78,14 +78,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t MASK:5;           /*!< bit:  0.. 4  Maximum Value of the Trace Buffer in SRAM */
-        uint32_t TSTARTEN:1;       /*!< bit:      5  Trace Start Input Enable           */
-        uint32_t TSTOPEN:1;        /*!< bit:      6  Trace Stop Input Enable            */
-        uint32_t SFRWPRIV:1;       /*!< bit:      7  Special Function Register Write Privilege */
-        uint32_t RAMPRIV:1;        /*!< bit:      8  SRAM Privilege                     */
-        uint32_t HALTREQ:1;        /*!< bit:      9  Halt Request                       */
-        uint32_t :21;              /*!< bit: 10..30  Reserved                           */
-        uint32_t EN:1;             /*!< bit:     31  Main Trace Enable                  */
+        uint32_t MASK: 5;          /*!< bit:  0.. 4  Maximum Value of the Trace Buffer in SRAM */
+        uint32_t TSTARTEN: 1;      /*!< bit:      5  Trace Start Input Enable           */
+        uint32_t TSTOPEN: 1;       /*!< bit:      6  Trace Stop Input Enable            */
+        uint32_t SFRWPRIV: 1;      /*!< bit:      7  Special Function Register Write Privilege */
+        uint32_t RAMPRIV: 1;       /*!< bit:      8  SRAM Privilege                     */
+        uint32_t HALTREQ: 1;       /*!< bit:      9  Halt Request                       */
+        uint32_t : 21;             /*!< bit: 10..30  Reserved                           */
+        uint32_t EN: 1;            /*!< bit:     31  Main Trace Enable                  */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } MTB_MASTER_Type;
@@ -115,10 +115,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t AUTOSTOP:1;       /*!< bit:      0  Auto Stop Tracing                  */
-        uint32_t AUTOHALT:1;       /*!< bit:      1  Auto Halt Request                  */
-        uint32_t :1;               /*!< bit:      2  Reserved                           */
-        uint32_t WATERMARK:29;     /*!< bit:  3..31  Watermark value                    */
+        uint32_t AUTOSTOP: 1;      /*!< bit:      0  Auto Stop Tracing                  */
+        uint32_t AUTOHALT: 1;      /*!< bit:      1  Auto Halt Request                  */
+        uint32_t : 1;              /*!< bit:      2  Reserved                           */
+        uint32_t WATERMARK: 29;    /*!< bit:  3..31  Watermark value                    */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } MTB_FLOW_Type;

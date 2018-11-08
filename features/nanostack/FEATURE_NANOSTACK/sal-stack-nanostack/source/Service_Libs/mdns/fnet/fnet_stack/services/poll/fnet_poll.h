@@ -111,7 +111,7 @@ void fnet_poll_service_release(void);
  * User application should not call this function directly.
  *
  ******************************************************************************/
-fnet_poll_desc_t fnet_poll_service_register( fnet_poll_service_t service, void *service_param );
+fnet_poll_desc_t fnet_poll_service_register(fnet_poll_service_t service, void *service_param);
 
 /***************************************************************************/ /*!
  *
@@ -129,7 +129,7 @@ fnet_poll_desc_t fnet_poll_service_register( fnet_poll_service_t service, void *
  * User application should not call this function directly.
  *
  ******************************************************************************/
-void fnet_poll_service_unregister( fnet_poll_desc_t desc );
+void fnet_poll_service_unregister(fnet_poll_desc_t desc);
 
 #if defined(__cplusplus)
 }

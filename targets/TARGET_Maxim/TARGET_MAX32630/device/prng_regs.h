@@ -68,16 +68,16 @@ extern "C" {
 /*                                                          Offset          Register Description
                                                             =============   ============================================================================ */
 typedef struct {
-    __IO uint32_t user_entropy;								/*  0x0000          PRNG User Entropy and Status                                                 */
-    __IO uint32_t rnd_num;									/*  0x0004          PRNG Seed Output                                                             */
+    __IO uint32_t user_entropy;                             /*  0x0000          PRNG User Entropy and Status                                                 */
+    __IO uint32_t rnd_num;                                  /*  0x0004          PRNG Seed Output                                                             */
 } mxc_prng_regs_t;
 
 /*
    Register offsets for module PRNG.
 */
 
-#define MXC_R_PRNG_OFFS_USER_ENTROPY						((uint32_t)0x00000000UL)
-#define MXC_R_PRNG_OFFS_RND_NUM								((uint32_t)0x00000004UL)
+#define MXC_R_PRNG_OFFS_USER_ENTROPY                        ((uint32_t)0x00000000UL)
+#define MXC_R_PRNG_OFFS_RND_NUM                             ((uint32_t)0x00000004UL)
 
 /*
    Field positions and masks for module PRNG.

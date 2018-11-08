@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F1xx_HAL_GPIO_EX_H
 #define __STM32F1xx_HAL_GPIO_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,7 +52,7 @@
 
 /** @defgroup GPIOEx GPIOEx
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 
@@ -60,17 +60,17 @@
 
 /** @defgroup GPIOEx_Exported_Constants GPIOEx Exported Constants
   * @{
-  */ 
-  
+  */
+
 /** @defgroup GPIOEx_EVENTOUT EVENTOUT Cortex Configuration
   * @brief This section propose definition to use the Cortex EVENTOUT signal.
   * @{
   */
-  
-/** @defgroup GPIOEx_EVENTOUT_PIN EVENTOUT Pin 
+
+/** @defgroup GPIOEx_EVENTOUT_PIN EVENTOUT Pin
   * @{
   */
-  
+
 #define AFIO_EVENTOUT_PIN_0  AFIO_EVCR_PIN_PX0 /*!< EVENTOUT on pin 0 */
 #define AFIO_EVENTOUT_PIN_1  AFIO_EVCR_PIN_PX1 /*!< EVENTOUT on pin 1 */
 #define AFIO_EVENTOUT_PIN_2  AFIO_EVCR_PIN_PX2 /*!< EVENTOUT on pin 2 */
@@ -106,12 +106,12 @@
                                        ((__PIN__) == AFIO_EVENTOUT_PIN_15))
 /**
   * @}
-  */ 
-  
+  */
+
 /** @defgroup GPIOEx_EVENTOUT_PORT EVENTOUT Port
   * @{
   */
-  
+
 #define AFIO_EVENTOUT_PORT_A AFIO_EVCR_PORT_PA /*!< EVENTOUT on port A */
 #define AFIO_EVENTOUT_PORT_B AFIO_EVCR_PORT_PB /*!< EVENTOUT on port B */
 #define AFIO_EVENTOUT_PORT_C AFIO_EVCR_PORT_PC /*!< EVENTOUT on port C */
@@ -126,7 +126,7 @@
 /**
   * @}
   */
-  
+
 /**
   * @}
   */
@@ -135,7 +135,7 @@
   * @brief This section propose definition to remap the alternate function to some other port/pins.
   * @{
   */
-  
+
 /**
   * @brief Enable the remapping of SPI1 alternate function NSS, SCK, MISO and MOSI.
   * @note  ENABLE: Remap     (NSS/PA15, SCK/PB3, MISO/PB4, MOSI/PB5)
@@ -358,9 +358,9 @@
 #endif
 
 /**
-  * @brief Enable the remapping of PD0 and PD1. When the HSE oscillator is not used 
-  *        (application running on internal 8 MHz RC) PD0 and PD1 can be mapped on OSC_IN and 
-  *        OSC_OUT. This is available only on 36, 48 and 64 pins packages (PD0 and PD1 are available 
+  * @brief Enable the remapping of PD0 and PD1. When the HSE oscillator is not used
+  *        (application running on internal 8 MHz RC) PD0 and PD1 can be mapped on OSC_IN and
+  *        OSC_OUT. This is available only on 36, 48 and 64 pins packages (PD0 and PD1 are available
   *        on 100-pin and 144-pin packages, no need for remapping).
   * @note  ENABLE: PD0 remapped on OSC_IN, PD1 remapped on OSC_OUT.
   * @retval None
@@ -368,9 +368,9 @@
 #define __HAL_AFIO_REMAP_PD01_ENABLE()  SET_BIT(AFIO->MAPR, AFIO_MAPR_PD01_REMAP)
 
 /**
-  * @brief Disable the remapping of PD0 and PD1. When the HSE oscillator is not used 
-  *        (application running on internal 8 MHz RC) PD0 and PD1 can be mapped on OSC_IN and 
-  *        OSC_OUT. This is available only on 36, 48 and 64 pins packages (PD0 and PD1 are available 
+  * @brief Disable the remapping of PD0 and PD1. When the HSE oscillator is not used
+  *        (application running on internal 8 MHz RC) PD0 and PD1 can be mapped on OSC_IN and
+  *        OSC_OUT. This is available only on 36, 48 and 64 pins packages (PD0 and PD1 are available
   *        on 100-pin and 144-pin packages, no need for remapping).
   * @note  DISABLE: No remapping of PD0 and PD1
   * @retval None
@@ -856,12 +856,12 @@
 
 /**
   * @}
-  */ 
-  
+  */
+
 /**
   * @}
   */
-  
+
 /** @defgroup GPIOEx_Private_Macros GPIOEx Private Macros
   * @{
   */
@@ -903,20 +903,20 @@ void HAL_GPIOEx_DisableEventout(void);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
-  
+  */
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,7 +1,8 @@
 #include "mbed.h"
 #include "TSISensor.h"
 
-int main(void) {
+int main(void)
+{
     DigitalOut led(LED_GREEN);
     TSISensor tsi;
 

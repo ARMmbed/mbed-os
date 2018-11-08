@@ -29,14 +29,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-  
+
 /** @file
  *
  * @defgroup nrf_dfu_ble_svc_internal DFU BLE SVC internal
  * @{
  *
- * @brief DFU BLE SVC internal functions in bootloader. The DFU BLE SuperVisor Calls allow an 
- *        application to execute functions in the installed bootloader. This interface provides 
+ * @brief DFU BLE SVC internal functions in bootloader. The DFU BLE SuperVisor Calls allow an
+ *        application to execute functions in the installed bootloader. This interface provides
  *        internal Bootloader DFU functions for retrieving data exchanged through SuperVisor Calls.
  *
  */
@@ -56,7 +56,7 @@
  * @retval NRF_ERROR_NULL         If p_peer_data is a NULL pointer.
  * @retval NRF_ERROR_INVALID_DATA If peer data is not available or invalid.
  */
-uint32_t dfu_ble_peer_data_get(dfu_ble_peer_data_t * p_peer_data);
+uint32_t dfu_ble_peer_data_get(dfu_ble_peer_data_t *p_peer_data);
 
 #endif // DFU_BLE_SVC_INTERNAL_H__
 

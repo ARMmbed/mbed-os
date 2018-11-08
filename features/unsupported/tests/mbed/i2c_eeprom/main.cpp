@@ -88,7 +88,8 @@ const int i2c_freq_hz = 400000;
 const int i2c_delay_us = 0;
 }
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(15);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(I2C EEPROM read write test);
@@ -134,8 +135,9 @@ int main() {
         }
 
         // us delay if specified
-        if (i2c_delay_us != 0)
+        if (i2c_delay_us != 0) {
             wait_us(i2c_delay_us);
+        }
 
         // Read data
         {

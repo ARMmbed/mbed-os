@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2016 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 #include "sdk_common.h"
 #if NRF_MODULE_ENABLED(NRF_LOG)
@@ -59,8 +59,7 @@ STATIC_ASSERT((NRF_LOG_DEFERRED_BUFSIZE == 0) || IS_POWER_OF_TWO(NRF_LOG_DEFERRE
  * With rate of 1000 log entries with 2 parameters per second such situation
  * would happen after 12 days.
  */
-typedef struct
-{
+typedef struct {
     uint32_t                  wr_idx;          // Current write index (never reset)
     uint32_t                  rd_idx;          // Current read index  (never_reset)
     uint32_t                  mask;            // Size of buffer (must be power of 2) presented as mask
@@ -72,7 +71,7 @@ typedef struct
 
 static log_data_t   m_log_data;
 #if (NRF_LOG_DEFERRED == 1)
-static const char * m_overflow_info = NRF_LOG_ERROR_COLOR_CODE "Overflow\r\n";
+static const char *m_overflow_info = NRF_LOG_ERROR_COLOR_CODE "Overflow\r\n";
 #endif //(NRF_LOG_DEFERRED == 1)
 
 /**
@@ -139,15 +138,13 @@ static const char * m_overflow_info = NRF_LOG_ERROR_COLOR_CODE "Overflow\r\n";
 #define HEADER_TYPE_HEXDUMP 2U
 #define HEADER_TYPE_PUSHED  0U
 
-typedef struct
-{
+typedef struct {
     uint32_t type       : 2;
     uint32_t raw        : 1;
     uint32_t data       : 29;
 } nrf_log_generic_header_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t type       : 2;
     uint32_t raw        : 1;
     uint32_t severity   : 3;
@@ -155,8 +152,7 @@ typedef struct
     uint32_t addr       : 22;
 } nrf_log_std_header_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t type       : 2;
     uint32_t raw        : 1;
     uint32_t severity   : 3;
@@ -165,8 +161,7 @@ typedef struct
     uint32_t len        : 10;
 } nrf_log_hexdump_header_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t type       : 2;
     uint32_t reserved0  : 4;
     uint32_t offset     : 10;
@@ -174,8 +169,7 @@ typedef struct
     uint32_t len        : 10;
 } nrf_log_pushed_header_t;
 
-typedef union
-{
+typedef union {
     nrf_log_generic_header_t generic;
     nrf_log_std_header_t     std;
     nrf_log_hexdump_header_t hexdump;
@@ -258,15 +252,13 @@ typedef union
 
 ret_code_t nrf_log_init(nrf_log_timestamp_func_t timestamp_func)
 {
-    if (NRF_LOG_USES_TIMESTAMP && (timestamp_func == NULL))
-    {
+    if (NRF_LOG_USES_TIMESTAMP && (timestamp_func == NULL)) {
         return NRF_ERROR_INVALID_PARAM;
     }
 
     ret_code_t err_code = nrf_log_backend_init(NRF_LOG_DEFERRED ? false : true);
 
-    if (err_code == NRF_SUCCESS)
-    {
+    if (err_code == NRF_SUCCESS) {
         nrf_log_frontend_init(nrf_log_backend_std_handler_get(),
                               nrf_log_backend_hexdump_handler_get(),
                               timestamp_func);
@@ -317,7 +309,7 @@ void nrf_log_handlers_set(nrf_log_std_handler_t     std_handler,
  * @return True if successful allocation, false otherwise.
  *
  */
-static inline bool buf_prealloc(uint32_t nargs, uint32_t * p_wr_idx)
+static inline bool buf_prealloc(uint32_t nargs, uint32_t *p_wr_idx)
 {
     nargs += HEADER_SIZE;
     uint32_t ovflw_tag_size = HEADER_SIZE;
@@ -326,10 +318,8 @@ static inline bool buf_prealloc(uint32_t nargs, uint32_t * p_wr_idx)
     *p_wr_idx = m_log_data.wr_idx;
     uint32_t available_words = (m_log_data.mask + 1) - (m_log_data.wr_idx - m_log_data.rd_idx);
     uint32_t required_words  = nargs + ovflw_tag_size; // room for current entry and overflow
-    if (required_words > available_words)
-    {
-        if (available_words >= HEADER_SIZE)
-        {
+    if (required_words > available_words) {
+        if (available_words >= HEADER_SIZE) {
             // Overflow entry is injected
             STD_HEADER_DEF(header, m_overflow_info, NRF_LOG_LEVEL_INTERNAL, 0);
             m_log_data.buffer[m_log_data.wr_idx++ & m_log_data.mask] =
@@ -341,9 +331,7 @@ static inline bool buf_prealloc(uint32_t nargs, uint32_t * p_wr_idx)
         }
         // overflow case
         ret = false;
-    }
-    else
-    {
+    } else {
         m_log_data.wr_idx += nargs;
     }
     CRITICAL_REGION_EXIT();
@@ -365,11 +353,11 @@ static inline bool buf_prealloc(uint32_t nargs, uint32_t * p_wr_idx)
  *
  * @return A pointer to the allocated buffer. NULL if allocation failed.
  */
-static inline uint32_t * cont_buf_prealloc(uint32_t len32,
-                                           uint32_t * p_offset,
-                                           uint32_t * p_wr_idx)
+static inline uint32_t *cont_buf_prealloc(uint32_t len32,
+                                          uint32_t *p_offset,
+                                          uint32_t *p_wr_idx)
 {
-    uint32_t * p_buf = NULL;
+    uint32_t *p_buf = NULL;
 
     len32++; // Increment because 32bit header is needed to be stored.
 
@@ -377,15 +365,12 @@ static inline uint32_t * cont_buf_prealloc(uint32_t len32,
     *p_wr_idx = m_log_data.wr_idx;
     uint32_t available_words = (m_log_data.mask + 1) -
                                (m_log_data.wr_idx & m_log_data.mask);
-    if (len32 <= available_words)
-    {
+    if (len32 <= available_words) {
         // buffer will fit as is
         p_buf              = &m_log_data.buffer[(m_log_data.wr_idx + 1) & m_log_data.mask];
         m_log_data.wr_idx += len32;
         *p_offset          = 0;
-    }
-    else if (len32 < (m_log_data.rd_idx & m_log_data.mask))
-    {
+    } else if (len32 < (m_log_data.rd_idx & m_log_data.mask)) {
         // wraping to the begining of the buffer
         m_log_data.wr_idx += (len32 + available_words - 1);
         *p_offset          = available_words - 1;
@@ -393,8 +378,7 @@ static inline uint32_t * cont_buf_prealloc(uint32_t len32,
     }
     available_words = (m_log_data.mask + 1) - (m_log_data.wr_idx - m_log_data.rd_idx);
     // If there is no more room for even overflow tag indicate failed allocation.
-    if (available_words < HEADER_SIZE)
-    {
+    if (available_words < HEADER_SIZE) {
         p_buf = NULL;
     }
     CRITICAL_REGION_EXIT();
@@ -406,12 +390,12 @@ static inline uint32_t * cont_buf_prealloc(uint32_t len32,
 
 #if (NRF_LOG_DEFERRED == 0)
 static inline void nrf_log_direct_feed(uint8_t            type,
-                                       char const * const p_str,
-                                       uint32_t         * p_args,
+                                       char const *const p_str,
+                                       uint32_t          *p_args,
                                        uint32_t           nargs)
 {
     uint32_t   timestamp   = 0;
-    uint32_t * p_timestamp = NRF_LOG_USES_TIMESTAMP ? &timestamp : NULL;
+    uint32_t *p_timestamp = NRF_LOG_USES_TIMESTAMP ? &timestamp : NULL;
 
 #if NRF_LOG_USES_TIMESTAMP
     timestamp = m_log_data.timestamp_func();
@@ -420,13 +404,13 @@ static inline void nrf_log_direct_feed(uint8_t            type,
 #endif //NRF_LOG_USES_TIMESTAMP
 
     UNUSED_VARIABLE
-      (m_log_data.std_handler(type, p_timestamp, (char *)p_str, p_args, nargs));
+    (m_log_data.std_handler(type, p_timestamp, (char *)p_str, p_args, nargs));
 
 }
 #endif //(NRF_LOG_DEFERRED == 0)
 
 
-uint32_t nrf_log_push(char * const p_str)
+uint32_t nrf_log_push(char *const p_str)
 {
 #if (NRF_LOG_DEFERRED == 0)
     return (uint32_t)p_str;
@@ -436,9 +420,8 @@ uint32_t nrf_log_push(char * const p_str)
     uint32_t buflen    = CEIL_DIV(slen, 4);
     uint32_t offset    = 0;
     uint32_t wr_idx;
-    char   * p_dst_str = (char *)cont_buf_prealloc(buflen, &offset, &wr_idx);
-    if (p_dst_str)
-    {
+    char    *p_dst_str = (char *)cont_buf_prealloc(buflen, &offset, &wr_idx);
+    if (p_dst_str) {
         PUSHED_HEADER_DEF(header, offset, buflen);
         m_log_data.buffer[wr_idx++ & mask] = header.raw;
         memcpy(p_dst_str, p_str, slen);
@@ -448,7 +431,7 @@ uint32_t nrf_log_push(char * const p_str)
 }
 
 
-void nrf_log_frontend_std_0(uint8_t severity, char const * const p_str)
+void nrf_log_frontend_std_0(uint8_t severity, char const *const p_str)
 {
 #if (NRF_LOG_DEFERRED == 0)
     nrf_log_direct_feed(severity, p_str, NULL, 0);
@@ -456,8 +439,7 @@ void nrf_log_frontend_std_0(uint8_t severity, char const * const p_str)
     uint32_t nargs  = 0;
     uint32_t mask   = m_log_data.mask;
     uint32_t wr_idx;
-    if (buf_prealloc(nargs, &wr_idx))
-    {
+    if (buf_prealloc(nargs, &wr_idx)) {
         // Proceed only if buffer was successfully preallocated.
         STD_HEADER_DEF(header, p_str, severity, nargs);
         m_log_data.buffer[wr_idx++ & mask] = header.raw;
@@ -470,7 +452,7 @@ void nrf_log_frontend_std_0(uint8_t severity, char const * const p_str)
 
 
 void nrf_log_frontend_std_1(uint8_t            severity,
-                            char const * const p_str,
+                            char const *const p_str,
                             uint32_t           val0)
 {
 #if (NRF_LOG_DEFERRED == 0)
@@ -480,8 +462,7 @@ void nrf_log_frontend_std_1(uint8_t            severity,
     uint32_t nargs  = 1;
     uint32_t mask   = m_log_data.mask;
     uint32_t wr_idx;
-    if (buf_prealloc(nargs, &wr_idx))
-    {
+    if (buf_prealloc(nargs, &wr_idx)) {
         // Proceed only if buffer was successfully preallocated.
         STD_HEADER_DEF(header, p_str, severity, nargs);
         m_log_data.buffer[wr_idx++ & mask] = header.raw;
@@ -495,7 +476,7 @@ void nrf_log_frontend_std_1(uint8_t            severity,
 
 
 void nrf_log_frontend_std_2(uint8_t            severity,
-                            char const * const p_str,
+                            char const *const p_str,
                             uint32_t           val0,
                             uint32_t           val1)
 {
@@ -506,8 +487,7 @@ void nrf_log_frontend_std_2(uint8_t            severity,
     uint32_t nargs  = 2;
     uint32_t mask   = m_log_data.mask;
     uint32_t wr_idx;
-    if (buf_prealloc(nargs, &wr_idx))
-    {
+    if (buf_prealloc(nargs, &wr_idx)) {
         // Proceed only if buffer was successfully preallocated.
         STD_HEADER_DEF(header, p_str, severity, nargs);
         m_log_data.buffer[wr_idx++ & mask] = header.raw;
@@ -522,7 +502,7 @@ void nrf_log_frontend_std_2(uint8_t            severity,
 
 
 void nrf_log_frontend_std_3(uint8_t            severity,
-                            char const * const p_str,
+                            char const *const p_str,
                             uint32_t           val0,
                             uint32_t           val1,
                             uint32_t           val2)
@@ -534,8 +514,7 @@ void nrf_log_frontend_std_3(uint8_t            severity,
     uint32_t nargs  = 3;
     uint32_t mask   = m_log_data.mask;
     uint32_t wr_idx;
-    if (buf_prealloc(nargs, &wr_idx))
-    {
+    if (buf_prealloc(nargs, &wr_idx)) {
         // Proceed only if buffer was successfully preallocated.
         STD_HEADER_DEF(header, p_str, severity, nargs);
         m_log_data.buffer[wr_idx++ & mask] = header.raw;
@@ -551,7 +530,7 @@ void nrf_log_frontend_std_3(uint8_t            severity,
 
 
 void nrf_log_frontend_std_4(uint8_t            severity,
-                            char const * const p_str,
+                            char const *const p_str,
                             uint32_t           val0,
                             uint32_t           val1,
                             uint32_t           val2,
@@ -564,8 +543,7 @@ void nrf_log_frontend_std_4(uint8_t            severity,
     uint32_t nargs  = 4;
     uint32_t mask   = m_log_data.mask;
     uint32_t wr_idx;
-    if (buf_prealloc(nargs, &wr_idx))
-    {
+    if (buf_prealloc(nargs, &wr_idx)) {
         // Proceed only if buffer was successfully preallocated.
         STD_HEADER_DEF(header, p_str, severity, nargs);
         m_log_data.buffer[wr_idx++ & mask] = header.raw;
@@ -582,7 +560,7 @@ void nrf_log_frontend_std_4(uint8_t            severity,
 
 
 void nrf_log_frontend_std_5(uint8_t            severity,
-                            char const * const p_str,
+                            char const *const p_str,
                             uint32_t           val0,
                             uint32_t           val1,
                             uint32_t           val2,
@@ -596,8 +574,7 @@ void nrf_log_frontend_std_5(uint8_t            severity,
     uint32_t nargs  = 5;
     uint32_t mask   = m_log_data.mask;
     uint32_t wr_idx;
-    if (buf_prealloc(nargs, &wr_idx))
-    {
+    if (buf_prealloc(nargs, &wr_idx)) {
         // Proceed only if buffer was successfully preallocated.
         STD_HEADER_DEF(header, p_str, severity, nargs);
         m_log_data.buffer[wr_idx++ & mask] = header.raw;
@@ -615,7 +592,7 @@ void nrf_log_frontend_std_5(uint8_t            severity,
 
 
 void nrf_log_frontend_std_6(uint8_t            severity,
-                            char const * const p_str,
+                            char const *const p_str,
                             uint32_t           val0,
                             uint32_t           val1,
                             uint32_t           val2,
@@ -630,8 +607,7 @@ void nrf_log_frontend_std_6(uint8_t            severity,
     uint32_t nargs  = 6;
     uint32_t mask   = m_log_data.mask;
     uint32_t wr_idx;
-    if (buf_prealloc(nargs, &wr_idx))
-    {
+    if (buf_prealloc(nargs, &wr_idx)) {
         // Proceed only if buffer was successfully preallocated.
         STD_HEADER_DEF(header, p_str, severity, nargs);
         m_log_data.buffer[wr_idx++ & mask] = header.raw;
@@ -650,8 +626,8 @@ void nrf_log_frontend_std_6(uint8_t            severity,
 
 
 void nrf_log_frontend_hexdump(uint8_t            severity,
-                              char const * const p_str,
-                              const void * const p_data,
+                              char const *const p_str,
+                              const void *const p_data,
                               uint16_t           length)
 {
 #if (NRF_LOG_DEFERRED == 0)
@@ -664,8 +640,7 @@ void nrf_log_frontend_hexdump(uint8_t            severity,
 
     uint32_t curr_offset = 0;
 
-    do
-    {
+    do {
         curr_offset = m_log_data.hexdump_handler(severity,
                                                  NRF_LOG_USES_TIMESTAMP ? &timestamp : NULL,
                                                  p_str,
@@ -674,14 +649,12 @@ void nrf_log_frontend_hexdump(uint8_t            severity,
                                                  length,
                                                  NULL,
                                                  0);
-    }
-    while (curr_offset < length);
+    } while (curr_offset < length);
 #else //(NRF_LOG_DEFERRED == 0)
     uint32_t mask   = m_log_data.mask;
 
     uint32_t wr_idx;
-    if (buf_prealloc(CEIL_DIV(length, 4) + 1, &wr_idx))
-    {
+    if (buf_prealloc(CEIL_DIV(length, 4) + 1, &wr_idx)) {
         HEXDUMP_HEADER_DEF(header, severity, length);
         m_log_data.buffer[wr_idx++ & mask] = header.raw;
 #if NRF_LOG_USES_TIMESTAMP
@@ -689,12 +662,9 @@ void nrf_log_frontend_hexdump(uint8_t            severity,
 #endif //NRF_LOG_USES_TIMESTAMP
         m_log_data.buffer[wr_idx++ & mask] = (uint32_t)p_str;
         uint32_t space0 = sizeof(uint32_t) * (m_log_data.mask + 1 - (wr_idx & mask));
-        if (length <= space0)
-        {
+        if (length <= space0) {
             memcpy(&m_log_data.buffer[wr_idx & mask], p_data, length);
-        }
-        else
-        {
+        } else {
             memcpy(&m_log_data.buffer[wr_idx & mask], p_data, space0);
             length -= space0;
             memcpy(&m_log_data.buffer[0], &((uint8_t *)p_data)[space0], length);
@@ -712,8 +682,7 @@ bool buffer_is_empty(void)
 
 bool nrf_log_frontend_dequeue(void)
 {
-    if (buffer_is_empty())
-    {
+    if (buffer_is_empty()) {
         return false;
     }
 
@@ -725,37 +694,33 @@ bool nrf_log_frontend_dequeue(void)
     header.raw = m_log_data.buffer[rd_idx++ & mask];
 
     // Skip any string that is pushed to the circular buffer.
-    while (header.generic.type == HEADER_TYPE_PUSHED)
-    {
+    while (header.generic.type == HEADER_TYPE_PUSHED) {
         rd_idx       += (header.pushed.len + header.pushed.offset);
         header_rd_idx = rd_idx;
         header.raw    = m_log_data.buffer[rd_idx++ & mask];
     }
 
-    uint32_t * p_timestamp = NRF_LOG_USES_TIMESTAMP ?
-                             &m_log_data.buffer[rd_idx++ & mask] : NULL;
+    uint32_t *p_timestamp = NRF_LOG_USES_TIMESTAMP ?
+                            &m_log_data.buffer[rd_idx++ & mask] : NULL;
 
-    if (header.generic.raw)
-    {
+    if (header.generic.raw) {
         p_timestamp = NULL;
     }
 
     bool ret = false;
-    if (header.generic.type == HEADER_TYPE_HEXDUMP)
-    {
+    if (header.generic.type == HEADER_TYPE_HEXDUMP) {
         // buffer
-        char   * p_str  = (char *)m_log_data.buffer[rd_idx++ & mask];
+        char    *p_str  = (char *)m_log_data.buffer[rd_idx++ & mask];
         uint32_t length = header.hexdump.len;
         uint32_t offset = header.hexdump.offset;
         uint32_t space0 = sizeof(uint32_t) * (mask + 1 - (rd_idx & mask));
-        if (length > space0)
-        {
-            uint8_t * ptr0 = space0 ?
-                             (uint8_t *)&m_log_data.buffer[rd_idx & mask] :
-                             (uint8_t *)&m_log_data.buffer[0];
+        if (length > space0) {
+            uint8_t *ptr0 = space0 ?
+                            (uint8_t *)&m_log_data.buffer[rd_idx & mask] :
+                            (uint8_t *)&m_log_data.buffer[0];
             uint8_t   len0 = space0 ? space0 : length;
-            uint8_t * ptr1 = space0 ?
-                             (uint8_t *)&m_log_data.buffer[0] : NULL;
+            uint8_t *ptr1 = space0 ?
+                            (uint8_t *)&m_log_data.buffer[0] : NULL;
             uint8_t len1 = space0 ? length - space0 : 0;
 
             offset = m_log_data.hexdump_handler(header.hexdump.severity,
@@ -763,43 +728,35 @@ bool nrf_log_frontend_dequeue(void)
                                                 offset,
                                                 ptr0, len0,
                                                 ptr1, len1);
-        }
-        else
-        {
+        } else {
             offset = m_log_data.hexdump_handler(
-                header.hexdump.severity,
-                p_timestamp,
-                p_str,
-                offset,
-                (uint8_t *)&m_log_data.buffer[rd_idx & mask],
-                length,
-                NULL, 0);
+                         header.hexdump.severity,
+                         p_timestamp,
+                         p_str,
+                         offset,
+                         (uint8_t *)&m_log_data.buffer[rd_idx & mask],
+                         length,
+                         NULL, 0);
         }
 
-        if (offset == length)
-        {
+        if (offset == length) {
             rd_idx += CEIL_DIV(length, 4);
             ret     = true;
-        }
-        else
-        {
+        } else {
             // If there is more log to process just updated the offset but
             // do not move rd_idx.
             header.hexdump.offset                   = offset;
             m_log_data.buffer[header_rd_idx & mask] = header.raw;
         }
-    }
-    else // standard entry
-    {
+    } else { // standard entry
         uint32_t   args[6];
-        uint32_t * p_arg = args;
-        char     * p_str = (char *)((uint32_t)header.std.addr);
+        uint32_t *p_arg = args;
+        char      *p_str = (char *)((uint32_t)header.std.addr);
         uint32_t   nargs = header.std.nargs;
 
         uint32_t i;
 
-        for (i = 0; i < nargs; i++)
-        {
+        for (i = 0; i < nargs; i++) {
             *p_arg = m_log_data.buffer[rd_idx++ & mask];
             p_arg++;
         }
@@ -808,8 +765,7 @@ bool nrf_log_frontend_dequeue(void)
                                      p_timestamp,
                                      p_str, args, nargs);
     }
-    if (ret)
-    {
+    if (ret) {
         m_log_data.rd_idx = rd_idx;
     }
     return buffer_is_empty() ? false : true;

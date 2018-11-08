@@ -49,7 +49,7 @@ typedef enum {
     p30 = 30,
     p31 = 31,
     NC = (int)0xFFFFFFFF, // Not connected
-    
+
     //NINA-B1 module pin names
     NINA_B1_GPIO_1 = p8,
     NINA_B1_GPIO_2 = p11,
@@ -72,7 +72,7 @@ typedef enum {
     NINA_B1_GPIO_27 = p4,
     NINA_B1_GPIO_28 = p9,
     NINA_B1_GPIO_29 = p10,
-     
+
     // EVK-NINA-B1 board
     LED1 = NINA_B1_GPIO_1, // Red
     LED2 = NINA_B1_GPIO_7, // Green/SW1

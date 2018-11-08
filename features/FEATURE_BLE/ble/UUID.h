@@ -144,7 +144,7 @@ public:
      * @note Internally, the UUID is stored in the little endian order as a
      * 16-byte array.
      */
-    UUID(const char* stringUUID) :
+    UUID(const char *stringUUID) :
         type(UUID_TYPE_LONG),
         baseUUID(),
         shortUUID(0)
@@ -184,7 +184,8 @@ public:
             setupLong(tempUUID, UUID::MSB);
         } else {
             const uint8_t sig[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00,
-                                    0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB };
+                                    0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB
+                                  };
             setupLong(sig, UUID::MSB);
         }
     }
@@ -195,7 +196,8 @@ public:
      * @param[in] longUUID The 128-bit (16-byte) of the UUID value.
      * @param[in] order Bytes order of @p longUUID.
      */
-    UUID(const LongUUIDBytes_t longUUID, ByteOrder_t order = UUID::MSB) : type(UUID_TYPE_LONG), baseUUID(), shortUUID(0) {
+    UUID(const LongUUIDBytes_t longUUID, ByteOrder_t order = UUID::MSB) : type(UUID_TYPE_LONG), baseUUID(), shortUUID(0)
+    {
         setupLong(longUUID, order);
     }
 
@@ -218,7 +220,8 @@ public:
     UUID(ShortUUIDBytes_t _shortUUID) :
         type(UUID_TYPE_SHORT),
         baseUUID(),
-        shortUUID(_shortUUID) {
+        shortUUID(_shortUUID)
+    {
     }
 
     /**
@@ -243,7 +246,8 @@ public:
      */
     UUID(void) :
         type(UUID_TYPE_SHORT),
-        shortUUID(BLE_UUID_UNKNOWN) {
+        shortUUID(BLE_UUID_UNKNOWN)
+    {
     }
 
     /**
@@ -288,7 +292,7 @@ public:
     const uint8_t *getBaseUUID(void) const
     {
         if (type == UUID_TYPE_SHORT) {
-            return (const uint8_t*)&shortUUID;
+            return (const uint8_t *)&shortUUID;
         } else {
             return baseUUID;
         }
@@ -315,8 +319,8 @@ public:
     uint8_t getLen(void) const
     {
         return ((type == UUID_TYPE_SHORT) ?
-            sizeof(ShortUUIDBytes_t) :
-            LENGTH_OF_LONG_UUID);
+                sizeof(ShortUUIDBytes_t) :
+                LENGTH_OF_LONG_UUID);
     }
 
     /**
@@ -329,12 +333,12 @@ public:
     bool operator== (const UUID &other) const
     {
         if ((this->type == UUID_TYPE_SHORT) && (other.type == UUID_TYPE_SHORT) &&
-            (this->shortUUID == other.shortUUID)) {
+                (this->shortUUID == other.shortUUID)) {
             return true;
         }
 
         if ((this->type == UUID_TYPE_LONG) && (other.type == UUID_TYPE_LONG) &&
-            (memcmp(this->baseUUID, other.baseUUID, LENGTH_OF_LONG_UUID) == 0)) {
+                (memcmp(this->baseUUID, other.baseUUID, LENGTH_OF_LONG_UUID) == 0)) {
             return true;
         }
 

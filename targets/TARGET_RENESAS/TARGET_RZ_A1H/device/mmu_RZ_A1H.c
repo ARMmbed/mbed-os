@@ -114,7 +114,7 @@ extern uint32_t Image$$RW_DATA$$Base;
 extern uint32_t Image$$RW_IRAM1$$Base;
 #if !defined ( __ICCARM__ )
 extern uint32_t Image$$TTB$$ZI$$Base;
-#endif 
+#endif
 
 #if defined( __CC_ARM )
 #elif defined( __ICCARM__ )
@@ -188,13 +188,13 @@ void MMU_CreateTranslationTable(void)
 #pragma section=".bss"
 
     Image$$VECTORS$$Base = (uint32_t) __section_begin(".intvec");
-    Image$$VECTORS$$Limit= ((uint32_t)__section_begin(".intvec")+(uint32_t)__section_size(".intvec"));
+    Image$$VECTORS$$Limit = ((uint32_t)__section_begin(".intvec") + (uint32_t)__section_size(".intvec"));
     Image$$RO_DATA$$Base = (uint32_t) __section_begin(".rodata");
-    Image$$RO_DATA$$Limit= ((uint32_t)__section_begin(".rodata")+(uint32_t)__section_size(".rodata"));
-    Image$$RW_DATA$$Base = (uint32_t) __section_begin(".rwdata"); 
-    Image$$RW_DATA$$Limit= ((uint32_t)__section_begin(".rwdata")+(uint32_t)__section_size(".rwdata"));
-    Image$$RW_IRAM1$$Base = (uint32_t) __section_begin(".bss");  
-    Image$$RW_IRAM1$$Limit= ((uint32_t)__section_begin(".bss")+(uint32_t)__section_size(".bss"));
+    Image$$RO_DATA$$Limit = ((uint32_t)__section_begin(".rodata") + (uint32_t)__section_size(".rodata"));
+    Image$$RW_DATA$$Base = (uint32_t) __section_begin(".rwdata");
+    Image$$RW_DATA$$Limit = ((uint32_t)__section_begin(".rwdata") + (uint32_t)__section_size(".rwdata"));
+    Image$$RW_IRAM1$$Base = (uint32_t) __section_begin(".bss");
+    Image$$RW_IRAM1$$Limit = ((uint32_t)__section_begin(".bss") + (uint32_t)__section_size(".bss"));
 #endif
     /*
      * Generate descriptors. Refer to core_ca.h to get information about attributes
@@ -220,45 +220,45 @@ void MMU_CreateTranslationTable(void)
      */
 
     //Create 4GB of faulting entries
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, 0, 4096, DESCRIPTOR_FAULT);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, 0, 4096, DESCRIPTOR_FAULT);
 
     // R7S72100 memory map.
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_NORFLASH_BASE0    , 64, Sect_Normal_RO);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_NORFLASH_BASE1    , 64, Sect_Normal_RO);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_SDRAM_BASE0       , 64, Sect_Normal_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_SDRAM_BASE1       , 64, Sect_Normal_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_USER_AREA0        , 64, Sect_Normal_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_USER_AREA1        , 64, Sect_Normal_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_SPI_IO0           , 64, Sect_Normal_RO);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_SPI_IO1           , 64, Sect_Normal_RO);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_ONCHIP_SRAM_BASE  , 10, Sect_Normal_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_SPI_MIO_BASE      ,  1, Sect_Device_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_BSC_BASE          ,  1, Sect_Device_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_PERIPH_BASE0      ,  3, Sect_Device_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_PERIPH_BASE1      , 49, Sect_Device_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_NORFLASH_BASE0, 64, Sect_Normal_RO);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_NORFLASH_BASE1, 64, Sect_Normal_RO);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_SDRAM_BASE0, 64, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_SDRAM_BASE1, 64, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_USER_AREA0, 64, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_USER_AREA1, 64, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_SPI_IO0, 64, Sect_Normal_RO);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_SPI_IO1, 64, Sect_Normal_RO);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_ONCHIP_SRAM_BASE, 10, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_SPI_MIO_BASE,  1, Sect_Device_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_BSC_BASE,  1, Sect_Device_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_PERIPH_BASE0,  3, Sect_Device_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_PERIPH_BASE1, 49, Sect_Device_RW);
 
 #if defined( __ICCARM__ )
     //Define Image
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RO_DATA$$Base , RO_DATA_SIZE , Sect_Normal_Cod);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$VECTORS$$Base , VECTORS_SIZE , Sect_Normal_Cod);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RW_DATA$$Base , RW_DATA_SIZE , Sect_Normal_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RW_IRAM1$$Base, RW_IRAM1_SIZE, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RO_DATA$$Base, RO_DATA_SIZE, Sect_Normal_Cod);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)Image$$VECTORS$$Base, VECTORS_SIZE, Sect_Normal_Cod);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RW_DATA$$Base, RW_DATA_SIZE, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RW_IRAM1$$Base, RW_IRAM1_SIZE, Sect_Normal_RW);
 #else
     //Define Image
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RO_DATA$$Base , RO_DATA_SIZE , Sect_Normal_Cod);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$VECTORS$$Base , VECTORS_SIZE , Sect_Normal_Cod);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA$$Base , RW_DATA_SIZE , Sect_Normal_RW);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_IRAM1$$Base, RW_IRAM1_SIZE, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RO_DATA$$Base, RO_DATA_SIZE, Sect_Normal_Cod);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$VECTORS$$Base, VECTORS_SIZE, Sect_Normal_Cod);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA$$Base, RW_DATA_SIZE, Sect_Normal_RW);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_IRAM1$$Base, RW_IRAM1_SIZE, Sect_Normal_RW);
 #endif
 
 #if defined( __CC_ARM )
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_ONCHIP_SRAM_NC_BASE         ,              10, Sect_Normal_NC);
-#elif defined ( __ICCARM__ ) 
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_ONCHIP_SRAM_NC_BASE         ,              10, Sect_Normal_NC);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_ONCHIP_SRAM_NC_BASE,              10, Sect_Normal_NC);
+#elif defined ( __ICCARM__ )
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, RZ_A1_ONCHIP_SRAM_NC_BASE,              10, Sect_Normal_NC);
 
 #else
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA_NC$$Base, RW_DATA_NC_SIZE, Sect_Normal_NC);
-    MMU_TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA_NC$$Base, ZI_DATA_NC_SIZE, Sect_Normal_NC);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA_NC$$Base, RW_DATA_NC_SIZE, Sect_Normal_NC);
+    MMU_TTSection(&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA_NC$$Base, ZI_DATA_NC_SIZE, Sect_Normal_NC);
 #endif
 
     /* Set location of level 1 page table

@@ -66,23 +66,24 @@ void gpio_set_hal_pin_mode(gpio_t *obj)
     }
 }
 
-uint32_t gpio_set(PinName pin) 
+uint32_t gpio_set(PinName pin)
 {
     u32 ip_pin;
-    
+
     DBG_ASSERT(pin != (PinName)NC);
     pin_function(pin, 0);
     ip_pin = HAL_GPIO_GetPinName((u32)pin);
-    
+
     return ip_pin;
 }
 
-void gpio_init(gpio_t *obj, PinName pin) 
+void gpio_init(gpio_t *obj, PinName pin)
 {
     uint32_t pin_name;
 
-    if (pin == (PinName)NC)
+    if (pin == (PinName)NC) {
         return;
+    }
 
     obj->pin = pin;
     obj->mode = PullNone;
@@ -95,10 +96,10 @@ void gpio_init(gpio_t *obj, PinName pin)
     HAL_GPIO_Init(&obj->hal_pin);
 }
 
-void gpio_mode(gpio_t *obj, PinMode mode) 
+void gpio_mode(gpio_t *obj, PinMode mode)
 {
     obj->mode = mode;
-    gpio_set_hal_pin_mode(obj);    
+    gpio_set_hal_pin_mode(obj);
     HAL_GPIO_Init(&obj->hal_pin);
 }
 
@@ -133,21 +134,21 @@ void gpio_change_dir(gpio_t *obj, PinDirection direction)
     HAL_WRITE32(GPIO_REG_BASE, GPIO_SWPORT_DDR_TBL[port_num], reg_value);
 }
 
-void gpio_write(gpio_t *obj, int value) 
+void gpio_write(gpio_t *obj, int value)
 {
-    HAL_GPIO_PIN  *hal_pin=&obj->hal_pin;
+    HAL_GPIO_PIN  *hal_pin = &obj->hal_pin;
     volatile uint32_t reg_value;
     uint8_t port_num;
     uint8_t pin_num;
-    
+
     if (hal_pin->pin_mode != DOUT_OPEN_DRAIN) {
         port_num = obj->hal_port_num;
         pin_num = obj->hal_pin_num;
-        
+
         reg_value =  HAL_READ32(GPIO_REG_BASE, GPIO_SWPORT_DR_TBL[port_num]);
         reg_value &= ~(1 << pin_num);
-        reg_value |= ((value&0x01)<< pin_num);
-        HAL_WRITE32(GPIO_REG_BASE, GPIO_SWPORT_DR_TBL[port_num], reg_value);            
+        reg_value |= ((value & 0x01) << pin_num);
+        HAL_WRITE32(GPIO_REG_BASE, GPIO_SWPORT_DR_TBL[port_num], reg_value);
     } else {
         HAL_GPIO_WritePin(&obj->hal_pin, value);
     }
@@ -169,11 +170,11 @@ int gpio_read(gpio_t *obj)
         return ((reg_value >> pin_num) & 0x01);
     } else {
         return (!((reg_value >> pin_num) & 0x01));
-    }    
+    }
 }
 
 // This API only works for non-Open-Drain pin
-void gpio_direct_write(gpio_t *obj, BOOL value) 
+void gpio_direct_write(gpio_t *obj, BOOL value)
 {
     uint8_t port_num;
     uint8_t pin_num;
@@ -184,7 +185,7 @@ void gpio_direct_write(gpio_t *obj, BOOL value)
 
     reg_value =  HAL_READ32(GPIO_REG_BASE, GPIO_SWPORT_DR_TBL[port_num]);
     reg_value &= ~(1 << pin_num);
-    reg_value |= (value<< pin_num);
+    reg_value |= (value << pin_num);
     HAL_WRITE32(GPIO_REG_BASE, GPIO_SWPORT_DR_TBL[port_num], reg_value);
 }
 

@@ -34,8 +34,7 @@
  * Definitons
  ******************************************************************************/
 /*<! Structure definition for spi_edma_private_handle_t. The structure is private. */
-typedef struct _flexio_spi_master_edma_private_handle
-{
+typedef struct _flexio_spi_master_edma_private_handle {
     FLEXIO_SPI_Type *base;
     flexio_spi_master_edma_handle_t *handle;
 } flexio_spi_master_edma_private_handle_t;
@@ -94,18 +93,15 @@ static void FLEXIO_SPI_TxEDMACallback(edma_handle_t *handle, void *param, bool t
     flexio_spi_master_edma_private_handle_t *spiPrivateHandle = (flexio_spi_master_edma_private_handle_t *)param;
 
     /* Disable Tx DMA */
-    if (transferDone)
-    {
+    if (transferDone) {
         FLEXIO_SPI_EnableDMA(spiPrivateHandle->base, kFLEXIO_SPI_TxDmaEnable, false);
 
         /* change the state */
         spiPrivateHandle->handle->txInProgress = false;
 
         /* All finished, call the callback */
-        if ((spiPrivateHandle->handle->txInProgress == false) && (spiPrivateHandle->handle->rxInProgress == false))
-        {
-            if (spiPrivateHandle->handle->callback)
-            {
+        if ((spiPrivateHandle->handle->txInProgress == false) && (spiPrivateHandle->handle->rxInProgress == false)) {
+            if (spiPrivateHandle->handle->callback) {
                 (spiPrivateHandle->handle->callback)(spiPrivateHandle->base, spiPrivateHandle->handle, kStatus_Success,
                                                      spiPrivateHandle->handle->userData);
             }
@@ -118,8 +114,7 @@ static void FLEXIO_SPI_RxEDMACallback(edma_handle_t *handle, void *param, bool t
     tcds = tcds;
     flexio_spi_master_edma_private_handle_t *spiPrivateHandle = (flexio_spi_master_edma_private_handle_t *)param;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         /* Disable Rx dma */
         FLEXIO_SPI_EnableDMA(spiPrivateHandle->base, kFLEXIO_SPI_RxDmaEnable, false);
 
@@ -127,10 +122,8 @@ static void FLEXIO_SPI_RxEDMACallback(edma_handle_t *handle, void *param, bool t
         spiPrivateHandle->handle->rxInProgress = false;
 
         /* All finished, call the callback */
-        if ((spiPrivateHandle->handle->txInProgress == false) && (spiPrivateHandle->handle->rxInProgress == false))
-        {
-            if (spiPrivateHandle->handle->callback)
-            {
+        if ((spiPrivateHandle->handle->txInProgress == false) && (spiPrivateHandle->handle->rxInProgress == false)) {
+            if (spiPrivateHandle->handle->callback) {
                 (spiPrivateHandle->handle->callback)(spiPrivateHandle->base, spiPrivateHandle->handle, kStatus_Success,
                                                      spiPrivateHandle->handle->userData);
             }
@@ -147,8 +140,7 @@ static void FLEXIO_SPI_EDMAConfig(FLEXIO_SPI_Type *base,
     uint8_t bytesPerFrame;
 
     /* Configure the values in handle. */
-    switch (xfer->flags)
-    {
+    switch (xfer->flags) {
         case kFLEXIO_SPI_8bitMsb:
             bytesPerFrame = 1;
             direction = kFLEXIO_SPI_MsbFirst;
@@ -178,16 +170,12 @@ static void FLEXIO_SPI_EDMAConfig(FLEXIO_SPI_Type *base,
     /* Configure tx transfer EDMA. */
     xferConfig.destAddr = FLEXIO_SPI_GetTxDataRegisterAddress(base, direction);
     xferConfig.destOffset = 0;
-    if (bytesPerFrame == 1U)
-    {
+    if (bytesPerFrame == 1U) {
         xferConfig.srcTransferSize = kEDMA_TransferSize1Bytes;
         xferConfig.destTransferSize = kEDMA_TransferSize1Bytes;
         xferConfig.minorLoopBytes = 1;
-    }
-    else
-    {
-        if (direction == kFLEXIO_SPI_MsbFirst)
-        {
+    } else {
+        if (direction == kFLEXIO_SPI_MsbFirst) {
             xferConfig.destAddr -= 1U;
         }
         xferConfig.srcTransferSize = kEDMA_TransferSize2Bytes;
@@ -196,13 +184,10 @@ static void FLEXIO_SPI_EDMAConfig(FLEXIO_SPI_Type *base,
     }
 
     /* Configure DMA channel. */
-    if (xfer->txData)
-    {
+    if (xfer->txData) {
         xferConfig.srcOffset = bytesPerFrame;
         xferConfig.srcAddr = (uint32_t)(xfer->txData);
-    }
-    else
-    {
+    } else {
         /* Disable the source increasement and source set to dummyData. */
         xferConfig.srcOffset = 0;
         xferConfig.srcAddr = (uint32_t)(&s_dummyData);
@@ -213,19 +198,15 @@ static void FLEXIO_SPI_EDMAConfig(FLEXIO_SPI_Type *base,
     /* Store the initially configured eDMA minor byte transfer count into the FLEXIO SPI handle */
     handle->nbytes = xferConfig.minorLoopBytes;
 
-    if (handle->txHandle)
-    {
+    if (handle->txHandle) {
         EDMA_SubmitTransfer(handle->txHandle, &xferConfig);
     }
 
     /* Configure tx transfer EDMA. */
-    if (xfer->rxData)
-    {
+    if (xfer->rxData) {
         xferConfig.srcAddr = FLEXIO_SPI_GetRxDataRegisterAddress(base, direction);
-        if (bytesPerFrame == 2U)
-        {
-            if (direction == kFLEXIO_SPI_LsbFirst)
-            {
+        if (bytesPerFrame == 2U) {
+            if (direction == kFLEXIO_SPI_LsbFirst) {
                 xferConfig.srcAddr -= 1U;
             }
         }
@@ -239,8 +220,7 @@ static void FLEXIO_SPI_EDMAConfig(FLEXIO_SPI_Type *base,
     }
 
     /* Always start Tx transfer. */
-    if (handle->txHandle)
-    {
+    if (handle->txHandle) {
         handle->txInProgress = true;
         FLEXIO_SPI_EnableDMA(base, kFLEXIO_SPI_TxDmaEnable, true);
         EDMA_StartTransfer(handle->txHandle);
@@ -259,18 +239,15 @@ status_t FLEXIO_SPI_MasterTransferCreateHandleEDMA(FLEXIO_SPI_Type *base,
     uint8_t index = 0;
 
     /* Find the an empty handle pointer to store the handle. */
-    for (index = 0; index < FLEXIO_SPI_HANDLE_COUNT; index++)
-    {
-        if (s_edmaPrivateHandle[index].base == NULL)
-        {
+    for (index = 0; index < FLEXIO_SPI_HANDLE_COUNT; index++) {
+        if (s_edmaPrivateHandle[index].base == NULL) {
             s_edmaPrivateHandle[index].base = base;
             s_edmaPrivateHandle[index].handle = handle;
             break;
         }
     }
 
-    if (index == FLEXIO_SPI_HANDLE_COUNT)
-    {
+    if (index == FLEXIO_SPI_HANDLE_COUNT) {
         return kStatus_OutOfRange;
     }
 
@@ -287,12 +264,10 @@ status_t FLEXIO_SPI_MasterTransferCreateHandleEDMA(FLEXIO_SPI_Type *base,
     handle->rxInProgress = false;
 
     /* Install callback for Tx/Rx dma channel. */
-    if (handle->txHandle)
-    {
+    if (handle->txHandle) {
         EDMA_SetCallback(handle->txHandle, FLEXIO_SPI_TxEDMACallback, &s_edmaPrivateHandle[index]);
     }
-    if (handle->rxHandle)
-    {
+    if (handle->rxHandle) {
         EDMA_SetCallback(handle->rxHandle, FLEXIO_SPI_RxEDMACallback, &s_edmaPrivateHandle[index]);
     }
 
@@ -312,28 +287,21 @@ status_t FLEXIO_SPI_MasterTransferEDMA(FLEXIO_SPI_Type *base,
     timerCmp &= 0x00FFU;
 
     /* Check if the device is busy. */
-    if ((handle->txInProgress) || (handle->rxInProgress))
-    {
+    if ((handle->txInProgress) || (handle->rxInProgress)) {
         return kStatus_FLEXIO_SPI_Busy;
     }
 
     /* Check if input parameter invalid. */
-    if (((xfer->txData == NULL) && (xfer->rxData == NULL)) || (xfer->dataSize == 0U))
-    {
+    if (((xfer->txData == NULL) && (xfer->rxData == NULL)) || (xfer->dataSize == 0U)) {
         return kStatus_InvalidArgument;
     }
 
     /* configure data mode. */
-    if ((xfer->flags == kFLEXIO_SPI_8bitMsb) || (xfer->flags == kFLEXIO_SPI_8bitLsb))
-    {
+    if ((xfer->flags == kFLEXIO_SPI_8bitMsb) || (xfer->flags == kFLEXIO_SPI_8bitLsb)) {
         dataMode = (8 * 2 - 1U) << 8U;
-    }
-    else if ((xfer->flags == kFLEXIO_SPI_16bitMsb) || (xfer->flags == kFLEXIO_SPI_16bitLsb))
-    {
+    } else if ((xfer->flags == kFLEXIO_SPI_16bitMsb) || (xfer->flags == kFLEXIO_SPI_16bitLsb)) {
         dataMode = (16 * 2 - 1U) << 8U;
-    }
-    else
-    {
+    } else {
         dataMode = 8 * 2 - 1U;
     }
 
@@ -352,22 +320,18 @@ status_t FLEXIO_SPI_MasterTransferGetCountEDMA(FLEXIO_SPI_Type *base,
 {
     assert(handle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
-    if (handle->rxInProgress)
-    {
+    if (handle->rxInProgress) {
         *count = (handle->transferSize -
                   (uint32_t)handle->nbytes *
-                      EDMA_GetRemainingMajorLoopCount(handle->rxHandle->base, handle->rxHandle->channel));
-    }
-    else
-    {
+                  EDMA_GetRemainingMajorLoopCount(handle->rxHandle->base, handle->rxHandle->channel));
+    } else {
         *count = (handle->transferSize -
                   (uint32_t)handle->nbytes *
-                      EDMA_GetRemainingMajorLoopCount(handle->txHandle->base, handle->txHandle->channel));
+                  EDMA_GetRemainingMajorLoopCount(handle->txHandle->base, handle->txHandle->channel));
     }
 
     return kStatus_Success;
@@ -399,28 +363,21 @@ status_t FLEXIO_SPI_SlaveTransferEDMA(FLEXIO_SPI_Type *base,
     uint32_t dataMode = 0;
 
     /* Check if the device is busy. */
-    if ((handle->txInProgress) || (handle->rxInProgress))
-    {
+    if ((handle->txInProgress) || (handle->rxInProgress)) {
         return kStatus_FLEXIO_SPI_Busy;
     }
 
     /* Check if input parameter invalid. */
-    if (((xfer->txData == NULL) && (xfer->rxData == NULL)) || (xfer->dataSize == 0U))
-    {
+    if (((xfer->txData == NULL) && (xfer->rxData == NULL)) || (xfer->dataSize == 0U)) {
         return kStatus_InvalidArgument;
     }
 
     /* configure data mode. */
-    if ((xfer->flags == kFLEXIO_SPI_8bitMsb) || (xfer->flags == kFLEXIO_SPI_8bitLsb))
-    {
+    if ((xfer->flags == kFLEXIO_SPI_8bitMsb) || (xfer->flags == kFLEXIO_SPI_8bitLsb)) {
         dataMode = 8 * 2 - 1U;
-    }
-    else if ((xfer->flags == kFLEXIO_SPI_16bitMsb) || (xfer->flags == kFLEXIO_SPI_16bitLsb))
-    {
+    } else if ((xfer->flags == kFLEXIO_SPI_16bitMsb) || (xfer->flags == kFLEXIO_SPI_16bitLsb)) {
         dataMode = 16 * 2 - 1U;
-    }
-    else
-    {
+    } else {
         dataMode = 8 * 2 - 1U;
     }
 

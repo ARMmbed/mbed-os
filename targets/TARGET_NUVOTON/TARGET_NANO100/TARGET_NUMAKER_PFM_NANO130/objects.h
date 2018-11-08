@@ -48,27 +48,27 @@ struct serial_s {
     UARTName uart;
     PinName pin_tx;
     PinName pin_rx;
-    
+
     uint32_t baudrate;
     uint32_t databits;
     uint32_t parity;
     uint32_t stopbits;
-    
-    void        (*vec)(void);
+
+    void (*vec)(void);
     uint32_t    irq_handler;
     uint32_t    irq_id;
     uint32_t    irq_en;
     uint32_t    ier_msk;
     uint32_t    async_en;
-    
+
     // Async transfer related fields
     DMAUsage    dma_usage_tx;
     DMAUsage    dma_usage_rx;
     int         dma_chn_id_tx;
     int         dma_chn_id_rx;
     uint32_t    event;
-    void        (*irq_handler_tx_async)(void);
-    void        (*irq_handler_rx_async)(void);
+    void (*irq_handler_tx_async)(void);
+    void (*irq_handler_rx_async)(void);
 };
 
 struct spi_s {
@@ -77,7 +77,7 @@ struct spi_s {
     PinName pin_mosi;
     PinName pin_sclk;
     PinName pin_ssel;
-    
+
     // Async transfer related fields
     DMAUsage    dma_usage;
     int         dma_chn_id_tx;
@@ -89,11 +89,11 @@ struct spi_s {
 struct i2c_s {
     I2CName     i2c;
     int         slaveaddr_state;
-    
+
     uint32_t    tran_ctrl;
-    char *      tran_beg;
-    char *      tran_pos;
-    char *      tran_end;
+    char       *tran_beg;
+    char       *tran_pos;
+    char       *tran_end;
     int         inten;
 
     // Async transfer related fields

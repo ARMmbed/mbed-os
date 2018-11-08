@@ -50,8 +50,7 @@
 /*@}*/
 
 /*! @brief FlexIO I2S transfer status */
-enum _flexio_i2s_status
-{
+enum _flexio_i2s_status {
     kStatus_FLEXIO_I2S_Idle = MAKE_STATUS(kStatusGroup_FLEXIO_I2S, 0),      /*!< FlexIO I2S is in idle state */
     kStatus_FLEXIO_I2S_TxBusy = MAKE_STATUS(kStatusGroup_FLEXIO_I2S, 1),    /*!< FlexIO I2S Tx is busy */
     kStatus_FLEXIO_I2S_RxBusy = MAKE_STATUS(kStatusGroup_FLEXIO_I2S, 2),    /*!< FlexIO I2S Tx is busy */
@@ -60,8 +59,7 @@ enum _flexio_i2s_status
 };
 
 /*! @brief Define FlexIO I2S access structure typedef */
-typedef struct _flexio_i2s_type
-{
+typedef struct _flexio_i2s_type {
     FLEXIO_Type *flexioBase; /*!< FlexIO base pointer */
     uint8_t txPinIndex;      /*!< Tx data pin index in FlexIO pins */
     uint8_t rxPinIndex;      /*!< Rx data pin index */
@@ -74,36 +72,31 @@ typedef struct _flexio_i2s_type
 } FLEXIO_I2S_Type;
 
 /*! @brief Master or slave mode */
-typedef enum _flexio_i2s_master_slave
-{
+typedef enum _flexio_i2s_master_slave {
     kFLEXIO_I2S_Master = 0x0U, /*!< Master mode */
     kFLEXIO_I2S_Slave = 0x1U   /*!< Slave mode */
 } flexio_i2s_master_slave_t;
 
 /*! @brief Define FlexIO FlexIO I2S interrupt mask. */
-enum _flexio_i2s_interrupt_enable
-{
+enum _flexio_i2s_interrupt_enable {
     kFLEXIO_I2S_TxDataRegEmptyInterruptEnable = 0x1U, /*!< Transmit buffer empty interrupt enable. */
     kFLEXIO_I2S_RxDataRegFullInterruptEnable = 0x2U,  /*!< Receive buffer full interrupt enable. */
 };
 
 /*! @brief Define FlexIO FlexIO I2S status mask. */
-enum _flexio_i2s_status_flags
-{
+enum _flexio_i2s_status_flags {
     kFLEXIO_I2S_TxDataRegEmptyFlag = 0x1U, /*!< Transmit buffer empty flag. */
     kFLEXIO_I2S_RxDataRegFullFlag = 0x2U,  /*!< Receive buffer full flag. */
 };
 
 /*! @brief FlexIO I2S configure structure */
-typedef struct _flexio_i2s_config
-{
+typedef struct _flexio_i2s_config {
     bool enableI2S;                        /*!< Enable FlexIO I2S */
     flexio_i2s_master_slave_t masterSlave; /*!< Master or slave */
 } flexio_i2s_config_t;
 
 /*! @brief FlexIO I2S audio format, FlexIO I2S only support the same format in Tx and Rx */
-typedef struct _flexio_i2s_format
-{
+typedef struct _flexio_i2s_format {
     uint8_t bitWidth;       /*!< Bit width of audio data, always 8/16/24/32 bits */
     uint32_t sampleRate_Hz; /*!< Sample rate of the audio data */
 } flexio_i2s_format_t;
@@ -112,8 +105,7 @@ typedef struct _flexio_i2s_format
 #define FLEXIO_I2S_XFER_QUEUE_SIZE (4)
 
 /*! @brief Audio sample rate */
-typedef enum _flexio_i2s_sample_rate
-{
+typedef enum _flexio_i2s_sample_rate {
     kFLEXIO_I2S_SampleRate8KHz = 8000U,     /*!< Sample rate 8000Hz */
     kFLEXIO_I2S_SampleRate11025Hz = 11025U, /*!< Sample rate 11025Hz */
     kFLEXIO_I2S_SampleRate12KHz = 12000U,   /*!< Sample rate 12000Hz */
@@ -127,8 +119,7 @@ typedef enum _flexio_i2s_sample_rate
 } flexio_i2s_sample_rate_t;
 
 /*! @brief Audio word width */
-typedef enum _flexio_i2s_word_width
-{
+typedef enum _flexio_i2s_word_width {
     kFLEXIO_I2S_WordWidth8bits = 8U,   /*!< Audio data width 8 bits */
     kFLEXIO_I2S_WordWidth16bits = 16U, /*!< Audio data width 16 bits */
     kFLEXIO_I2S_WordWidth24bits = 24U, /*!< Audio data width 24 bits */
@@ -136,8 +127,7 @@ typedef enum _flexio_i2s_word_width
 } flexio_i2s_word_width_t;
 
 /*! @brief Define FlexIO I2S transfer structure. */
-typedef struct _flexio_i2s_transfer
-{
+typedef struct _flexio_i2s_transfer {
     uint8_t *data;   /*!< Data buffer start pointer */
     size_t dataSize; /*!< Bytes to be transferred. */
 } flexio_i2s_transfer_t;
@@ -151,8 +141,7 @@ typedef void (*flexio_i2s_callback_t)(FLEXIO_I2S_Type *base,
                                       void *userData);
 
 /*! @brief Define FlexIO I2S handle structure. */
-struct _flexio_i2s_handle
-{
+struct _flexio_i2s_handle {
     uint32_t state;                                          /*!< Internal state */
     flexio_i2s_callback_t callback;                          /*!< Callback function called at transfer event*/
     void *userData;                                          /*!< Callback parameter passed to callback function*/
@@ -221,12 +210,9 @@ void FLEXIO_I2S_Deinit(FLEXIO_I2S_Type *base);
 */
 static inline void FLEXIO_I2S_Enable(FLEXIO_I2S_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->flexioBase->CTRL |= FLEXIO_CTRL_FLEXEN_MASK;
-    }
-    else
-    {
+    } else {
         base->flexioBase->CTRL &= ~FLEXIO_CTRL_FLEXEN_MASK;
     }
 }

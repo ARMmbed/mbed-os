@@ -29,7 +29,7 @@
   * @return None
   * @details The function is used to disable smartcard interface UART mode.
   */
-void SCUART_Close(SC_T* sc)
+void SCUART_Close(SC_T *sc)
 {
     sc->INTEN = 0;
     sc->UARTCTL = 0;
@@ -47,48 +47,53 @@ static uint32_t SCUART_GetClock(SC_T *sc)
 {
     uint32_t u32ClkSrc, u32Num, u32Clk;
 
-    if(sc == SC0)
+    if (sc == SC0) {
         u32Num = 0;
-#if 0 /* M451 series has only one SC interface */    
-    else if(sc == SC1)
+    }
+#if 0 /* M451 series has only one SC interface */
+    else if (sc == SC1) {
         u32Num = 1;
-    else if(sc == SC2)
+    } else if (sc == SC2) {
         u32Num = 2;
-    else if(sc == SC3)
+    } else if (sc == SC3) {
         u32Num = 3;
-    else if(sc == SC4)
+    } else if (sc == SC4) {
         u32Num = 4;
-    else if(sc == SC5)
+    } else if (sc == SC5) {
         u32Intf = 5;
-#endif    
-    else
+    }
+#endif
+    else {
         return FALSE;
+    }
 
     u32ClkSrc = (CLK->CLKSEL3 >> (2 * u32Num)) & CLK_CLKSEL3_SC0SEL_Msk;
 
     // Get smartcard module clock
-    if(u32ClkSrc == 0)
+    if (u32ClkSrc == 0) {
         u32Clk = __HXT;
-    else if(u32ClkSrc == 1)
+    } else if (u32ClkSrc == 1) {
         u32Clk = CLK_GetPLLClockFreq();
-    else if(u32ClkSrc == 2) {
+    } else if (u32ClkSrc == 2) {
         SystemCoreClockUpdate();
-        if(CLK->CLKSEL0 & CLK_CLKSEL0_PCLK0SEL_Msk)
+        if (CLK->CLKSEL0 & CLK_CLKSEL0_PCLK0SEL_Msk) {
             u32Clk = SystemCoreClock / 2;
-        else
+        } else {
             u32Clk = SystemCoreClock;
-    } else
+        }
+    } else {
         u32Clk = __HIRC;
+    }
 
-#if 0 /* M451 series has only one SC interface */  
-    if(u32Num < 4) {
+#if 0 /* M451 series has only one SC interface */
+    if (u32Num < 4) {
         u32Clk /= (((CLK->CLKDIV1 >> (8 * u32Num)) & CLK_CLKDIV1_SC0DIV_Msk) + 1);
     } else {
         u32Clk /= (((CLK->CLKDIV2 >> (8 * (u32Num - 4))) & CLK_CLKDIV2_SC4DIV_Msk) + 1);
     }
-#else    
+#else
     u32Clk /= (((CLK->CLKDIV1 >> (8 * u32Num)) & CLK_CLKDIV1_SC0DIV_Msk) + 1);
-#endif    
+#endif
 
     return u32Clk;
 }
@@ -103,7 +108,7 @@ static uint32_t SCUART_GetClock(SC_T *sc)
   * @note This function configures character width to 8 bits, 1 stop bit, and no parity.
   *       And can use \ref SCUART_SetLineConfig function to update these settings.
   */
-uint32_t SCUART_Open(SC_T* sc, uint32_t u32baudrate)
+uint32_t SCUART_Open(SC_T *sc, uint32_t u32baudrate)
 {
     uint32_t u32Clk = SCUART_GetClock(sc), u32Div;
 
@@ -114,7 +119,7 @@ uint32_t SCUART_Open(SC_T* sc, uint32_t u32baudrate)
     sc->UARTCTL = SCUART_CHAR_LEN_8 | SCUART_PARITY_NONE | SC_UARTCTL_UARTEN_Msk; // Enable UART mode, disable parity and 8 bit per character
     sc->ETUCTL = u32Div;
 
-    return(u32Clk / (u32Div+1));
+    return (u32Clk / (u32Div + 1));
 }
 
 /**
@@ -126,12 +131,12 @@ uint32_t SCUART_Open(SC_T* sc, uint32_t u32baudrate)
   * @details The function is used to read Rx data from RX FIFO.
   * @note This function does not block and return immediately if there's no data available.
   */
-uint32_t SCUART_Read(SC_T* sc, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
+uint32_t SCUART_Read(SC_T *sc, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
 {
     uint32_t u32Count;
 
-    for(u32Count = 0; u32Count < u32ReadBytes; u32Count++) {
-        if(SCUART_GET_RX_EMPTY(sc)) { // no data available
+    for (u32Count = 0; u32Count < u32ReadBytes; u32Count++) {
+        if (SCUART_GET_RX_EMPTY(sc)) { // no data available
             break;
         }
         pu8RxBuf[u32Count] = SCUART_READ(sc);    // get data from FIFO
@@ -159,12 +164,12 @@ uint32_t SCUART_Read(SC_T* sc, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
   * @return Actual baudrate of smartcard.
   * @details Smartcard UART mode is operated in LIN data frame.
   */
-uint32_t SCUART_SetLineConfig(SC_T* sc, uint32_t u32Baudrate, uint32_t u32DataWidth, uint32_t u32Parity, uint32_t  u32StopBits)
+uint32_t SCUART_SetLineConfig(SC_T *sc, uint32_t u32Baudrate, uint32_t u32DataWidth, uint32_t u32Parity, uint32_t  u32StopBits)
 {
 
     uint32_t u32Clk = SCUART_GetClock(sc), u32Div;
 
-    if(u32Baudrate == 0) {  // keep original baudrate setting
+    if (u32Baudrate == 0) { // keep original baudrate setting
         u32Div = sc->ETUCTL & SC_ETUCTL_ETURDIV_Msk;
     } else {
         // Calculate divider for target baudrate
@@ -175,7 +180,7 @@ uint32_t SCUART_SetLineConfig(SC_T* sc, uint32_t u32Baudrate, uint32_t u32DataWi
     sc->CTL = u32StopBits | SC_CTL_SCEN_Msk;  // Set stop bit
     sc->UARTCTL = u32Parity | u32DataWidth | SC_UARTCTL_UARTEN_Msk;  // Set character width and parity
 
-    return(u32Clk / (u32Div+1));
+    return (u32Clk / (u32Div + 1));
 }
 
 /**
@@ -188,7 +193,7 @@ uint32_t SCUART_SetLineConfig(SC_T* sc, uint32_t u32Baudrate, uint32_t u32DataWi
   *          new data word. Once the counter decrease to 1 and no new data is received or CPU
   *          does not read any data from FIFO, a receiver time-out interrupt will be generated.
   */
-void SCUART_SetTimeoutCnt(SC_T* sc, uint32_t u32TOC)
+void SCUART_SetTimeoutCnt(SC_T *sc, uint32_t u32TOC)
 {
     sc->RXTOUT = u32TOC;
 }
@@ -203,12 +208,12 @@ void SCUART_SetTimeoutCnt(SC_T* sc, uint32_t u32TOC)
   * @details This function is to write data into transmit FIFO to send data out.
   * @note This function blocks until all data write into FIFO.
   */
-void SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
+void SCUART_Write(SC_T *sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
 {
     uint32_t u32Count;
 
-    for(u32Count = 0; u32Count != u32WriteBytes; u32Count++) {
-        while(SCUART_GET_TX_FULL(sc));  // Wait 'til FIFO not full
+    for (u32Count = 0; u32Count != u32WriteBytes; u32Count++) {
+        while (SCUART_GET_TX_FULL(sc)); // Wait 'til FIFO not full
         sc->DAT = pu8TxBuf[u32Count];    // Write 1 byte to FIFO
     }
 }

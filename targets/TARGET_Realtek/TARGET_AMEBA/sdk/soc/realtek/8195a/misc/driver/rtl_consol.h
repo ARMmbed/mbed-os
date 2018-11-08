@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -17,7 +17,7 @@
  * Include user defined options first. Anything not defined in these files
  * will be set to standard values. Override anything you dont like!
  */
- #if defined(CONFIG_PLATFORM_8195A) || defined(CONFIG_PLATFORM_8711B)
+#if defined(CONFIG_PLATFORM_8195A) || defined(CONFIG_PLATFORM_8711B)
 #include "platform_opts.h"
 #endif
 
@@ -25,53 +25,53 @@
 #include "osdep_service.h"
 #include "hal_diag.h"
 
-#define CONSOLE_PREFIX	"#"
+#define CONSOLE_PREFIX  "#"
 
 
 //Log UART
 //UART_LOG_CMD_BUFLEN: only 126 bytes could be used for keeping input
 //                                     cmd, the last byte is for string end ('\0').
-#define UART_LOG_CMD_BUFLEN     127     
+#define UART_LOG_CMD_BUFLEN     127
 #define MAX_ARGV                10
 
 
 
-typedef u32 (*ECHOFUNC)(IN u8*,...);    //UART LOG echo-function type.
+typedef u32(*ECHOFUNC)(IN u8 *, ...);   //UART LOG echo-function type.
 
 typedef struct _UART_LOG_BUF_ {
-        u8  BufCount;                           //record the input cmd char number.
-        u8  UARTLogBuf[UART_LOG_CMD_BUFLEN];   //record the input command.
+    u8  BufCount;                           //record the input cmd char number.
+    u8  UARTLogBuf[UART_LOG_CMD_BUFLEN];   //record the input command.
 } UART_LOG_BUF, *PUART_LOG_BUF;
 
 
 
 typedef struct _UART_LOG_CTL_ {
-        u8  NewIdx;
-        u8  SeeIdx;
-        u8  RevdNo;
-        u8  EscSTS;
-        u8  ExecuteCmd;
-        u8  ExecuteEsc;
-        u8  BootRdy;
-        u8  Resvd;
-        PUART_LOG_BUF   pTmpLogBuf;        
-        VOID *pfINPUT;
-        PCOMMAND_TABLE  pCmdTbl;
-        u32 CmdTblSz;
-#ifdef CONFIG_UART_LOG_HISTORY        
-        u32  CRSTS;
-#endif        
+    u8  NewIdx;
+    u8  SeeIdx;
+    u8  RevdNo;
+    u8  EscSTS;
+    u8  ExecuteCmd;
+    u8  ExecuteEsc;
+    u8  BootRdy;
+    u8  Resvd;
+    PUART_LOG_BUF   pTmpLogBuf;
+    VOID *pfINPUT;
+    PCOMMAND_TABLE  pCmdTbl;
+    u32 CmdTblSz;
 #ifdef CONFIG_UART_LOG_HISTORY
-        u8  (*pHistoryBuf)[UART_LOG_CMD_BUFLEN];
+    u32  CRSTS;
+#endif
+#ifdef CONFIG_UART_LOG_HISTORY
+    u8(*pHistoryBuf)[UART_LOG_CMD_BUFLEN];
 #endif
 #ifdef CONFIG_KERNEL
-		u32		TaskRdy;
-		//_Sema	Sema;	
-		_sema	Sema;
+    u32     TaskRdy;
+    //_Sema Sema;
+    _sema   Sema;
 #else
-        // Since ROM code will reference this typedef, so keep the typedef same size
-        u32     TaskRdy;
-        void    *Sema;
+    // Since ROM code will reference this typedef, so keep the typedef same size
+    u32     TaskRdy;
+    void    *Sema;
 #endif
 } UART_LOG_CTL, *PUART_LOG_CTL;
 
@@ -99,7 +99,7 @@ typedef struct _UART_LOG_CTL_ {
 #endif
 
 #ifndef CONSOLE_PREFIX
-#define CONSOLE_PREFIX	"<RTL8195A>"
+#define CONSOLE_PREFIX  "<RTL8195A>"
 #endif
 
 #define CONSOLE_8195A(...)     do {\
@@ -111,7 +111,7 @@ _LONG_CALL_ VOID
 RtlConsolInit(
     IN  u32     Boot,
     IN  u32     TBLSz,
-    IN  VOID    *pTBL    
+    IN  VOID    *pTBL
 );
 
 #if defined(CONFIG_KERNEL)
@@ -127,7 +127,7 @@ RtlConsolTaskRom(
 );
 
 
-_LONG_CALL_ u32 
+_LONG_CALL_ u32
 Strtoul(
     IN  const u8 *nptr,
     IN  u8 **endptr,

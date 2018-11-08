@@ -57,7 +57,7 @@
 #define __STM32L4xx_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif /* __cplusplus */
 
 /** @addtogroup Library_configuration_section
@@ -79,21 +79,21 @@
     !defined (STM32L451xx) && !defined (STM32L452xx) && !defined (STM32L462xx) && \
     !defined (STM32L471xx) && !defined (STM32L475xx) && !defined (STM32L476xx) && !defined (STM32L485xx) && !defined (STM32L486xx) && \
     !defined (STM32L496xx) && !defined (STM32L4A6xx)
-  /* #define STM32L431xx */   /*!< STM32L431xx Devices */
-  /* #define STM32L432xx */   /*!< STM32L432xx Devices */
-  /* #define STM32L433xx */   /*!< STM32L433xx Devices */
-  /* #define STM32L442xx */   /*!< STM32L442xx Devices */
-  /* #define STM32L443xx */   /*!< STM32L443xx Devices */
-  /* #define STM32L451xx */   /*!< STM32L451xx Devices */
-  /* #define STM32L452xx */   /*!< STM32L452xx Devices */
-  /* #define STM32L462xx */   /*!< STM32L462xx Devices */
-  /* #define STM32L471xx */   /*!< STM32L471xx Devices */
-  /* #define STM32L475xx */   /*!< STM32L475xx Devices */
+/* #define STM32L431xx */   /*!< STM32L431xx Devices */
+/* #define STM32L432xx */   /*!< STM32L432xx Devices */
+/* #define STM32L433xx */   /*!< STM32L433xx Devices */
+/* #define STM32L442xx */   /*!< STM32L442xx Devices */
+/* #define STM32L443xx */   /*!< STM32L443xx Devices */
+/* #define STM32L451xx */   /*!< STM32L451xx Devices */
+/* #define STM32L452xx */   /*!< STM32L452xx Devices */
+/* #define STM32L462xx */   /*!< STM32L462xx Devices */
+/* #define STM32L471xx */   /*!< STM32L471xx Devices */
+/* #define STM32L475xx */   /*!< STM32L475xx Devices */
 #define STM32L476xx           /*!< STM32L476xx Devices */
-  /* #define STM32L485xx */   /*!< STM32L485xx Devices */
-  /* #define STM32L486xx */   /*!< STM32L486xx Devices */
-  /* #define STM32L496xx */   /*!< STM32L496xx Devices */
-  /* #define STM32L4A6xx */   /*!< STM32L4A6xx Devices */
+/* #define STM32L485xx */   /*!< STM32L485xx Devices */
+/* #define STM32L486xx */   /*!< STM32L486xx Devices */
+/* #define STM32L496xx */   /*!< STM32L496xx Devices */
+/* #define STM32L4A6xx */   /*!< STM32L4A6xx Devices */
 #endif
 
 /*  Tip: To avoid modifying this file each time you need to switch between these
@@ -105,7 +105,7 @@
    In this case, these drivers will not be included and the application code will
    be based on direct access to peripherals registers
    */
-  #define USE_HAL_DRIVER
+#define USE_HAL_DRIVER
 #endif /* USE_HAL_DRIVER */
 
 /**
@@ -129,37 +129,37 @@
   */
 
 #if defined(STM32L431xx)
-  #include "stm32l431xx.h"
+#include "stm32l431xx.h"
 #elif defined(STM32L432xx)
-  #include "stm32l432xx.h"
+#include "stm32l432xx.h"
 #elif defined(STM32L433xx)
-  #include "stm32l433xx.h"
+#include "stm32l433xx.h"
 #elif defined(STM32L442xx)
-  #include "stm32l442xx.h"
+#include "stm32l442xx.h"
 #elif defined(STM32L443xx)
-  #include "stm32l443xx.h"
+#include "stm32l443xx.h"
 #elif defined(STM32L451xx)
-  #include "stm32l451xx.h"
+#include "stm32l451xx.h"
 #elif defined(STM32L452xx)
-  #include "stm32l452xx.h"
+#include "stm32l452xx.h"
 #elif defined(STM32L462xx)
-  #include "stm32l462xx.h"
+#include "stm32l462xx.h"
 #elif defined(STM32L471xx)
-  #include "stm32l471xx.h"
+#include "stm32l471xx.h"
 #elif defined(STM32L475xx)
-  #include "stm32l475xx.h"
+#include "stm32l475xx.h"
 #elif defined(STM32L476xx)
-  #include "stm32l476xx.h"
+#include "stm32l476xx.h"
 #elif defined(STM32L485xx)
-  #include "stm32l485xx.h"
+#include "stm32l485xx.h"
 #elif defined(STM32L486xx)
-  #include "stm32l486xx.h"
+#include "stm32l486xx.h"
 #elif defined(STM32L496xx)
-  #include "stm32l496xx.h"
+#include "stm32l496xx.h"
 #elif defined(STM32L4A6xx)
-  #include "stm32l4a6xx.h"
+#include "stm32l4a6xx.h"
 #else
- #error "Please select first the target STM32L4xx device used in your application (in stm32l4xx.h file)"
+#error "Please select first the target STM32L4xx device used in your application (in stm32l4xx.h file)"
 #endif
 
 /**
@@ -169,23 +169,20 @@
 /** @addtogroup Exported_types
   * @{
   */
-typedef enum
-{
-  RESET = 0,
-  SET = !RESET
+typedef enum {
+    RESET = 0,
+    SET = !RESET
 } FlagStatus, ITStatus;
 
-typedef enum
-{
-  DISABLE = 0,
-  ENABLE = !DISABLE
+typedef enum {
+    DISABLE = 0,
+    ENABLE = !DISABLE
 } FunctionalState;
 #define IS_FUNCTIONAL_STATE(STATE) (((STATE) == DISABLE) || ((STATE) == ENABLE))
 
-typedef enum
-{
-  ERROR = 0,
-  SUCCESS = !ERROR
+typedef enum {
+    ERROR = 0,
+    SUCCESS = !ERROR
 } ErrorStatus;
 
 /**
@@ -218,7 +215,7 @@ typedef enum
   */
 
 #if defined (USE_HAL_DRIVER)
- #include "stm32l4xx_hal.h"
+#include "stm32l4xx_hal.h"
 #endif /* USE_HAL_DRIVER */
 
 #ifdef __cplusplus

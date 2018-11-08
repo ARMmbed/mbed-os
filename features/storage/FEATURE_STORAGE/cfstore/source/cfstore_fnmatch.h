@@ -1,6 +1,6 @@
 /*-
  * Copyright (c) 1992, 1993
- *	The Regents of the University of California.  All rights reserved.
+ *  The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,14 +27,14 @@
  * SUCH DAMAGE.
  *
  * $FreeBSD: src/include/fnmatch.h,v 1.10 2002/03/23 17:24:53 imp Exp $
- *	@(#)fnmatch.h	8.1 (Berkeley) 6/2/93
+ *  @(#)fnmatch.h   8.1 (Berkeley) 6/2/93
  */
 
-#ifndef	__CFSTORE_FNMATCH_H_
-#define	__CFSTORE_FNMATCH_H_
+#ifndef __CFSTORE_FNMATCH_H_
+#define __CFSTORE_FNMATCH_H_
 
-#define	CFSTORE_FNM_NOMATCH	1	/* Match failed. */
+#define CFSTORE_FNM_NOMATCH 1   /* Match failed. */
 
-int	 cfstore_fnmatch(const char *, const char *, int);
+int  cfstore_fnmatch(const char *, const char *, int);
 
 #endif /* !__CFSTORE_FNMATCH_H_ */

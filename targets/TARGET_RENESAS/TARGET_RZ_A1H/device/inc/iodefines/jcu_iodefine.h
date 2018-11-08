@@ -97,9 +97,8 @@
 #define JCUJCHTBA1 (JCU.JCHTBA1)
 
 
-typedef struct st_jcu
-{
-                                                           /* JCU              */
+typedef struct st_jcu {
+    /* JCU              */
     volatile uint8_t   JCMOD;                                  /*  JCMOD           */
     volatile uint8_t   JCCMD;                                  /*  JCCMD           */
     volatile uint8_t   dummy145[1];                            /*                  */
@@ -139,29 +138,29 @@ typedef struct st_jcu
     volatile uint32_t  JIFESHSZ;                               /*  JIFESHSZ        */
     volatile uint8_t   dummy148[100];                          /*                  */
 
-/* start of struct st_jcu_from_jcqtbl0 */
+    /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL0;                                /*  JCQTBL0         */
     volatile uint8_t   dummy149[63];                           /*                  */
 
-/* end of struct st_jcu_from_jcqtbl0 */
+    /* end of struct st_jcu_from_jcqtbl0 */
 
-/* start of struct st_jcu_from_jcqtbl0 */
+    /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL1;                                /*  JCQTBL1         */
     volatile uint8_t   dummy150[63];                           /*                  */
 
-/* end of struct st_jcu_from_jcqtbl0 */
+    /* end of struct st_jcu_from_jcqtbl0 */
 
-/* start of struct st_jcu_from_jcqtbl0 */
+    /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL2;                                /*  JCQTBL2         */
     volatile uint8_t   dummy151[63];                           /*                  */
 
-/* end of struct st_jcu_from_jcqtbl0 */
+    /* end of struct st_jcu_from_jcqtbl0 */
 
-/* start of struct st_jcu_from_jcqtbl0 */
+    /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL3;                                /*  JCQTBL3         */
     volatile uint8_t   dummy152[63];                           /*                  */
 
-/* end of struct st_jcu_from_jcqtbl0 */
+    /* end of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCHTBD0;                                /*  JCHTBD0         */
     volatile uint8_t   dummy153[31];                           /*                  */
     volatile uint8_t   JCHTBA0;                                /*  JCHTBA0         */
@@ -172,9 +171,8 @@ typedef struct st_jcu
 } r_io_jcu_t;
 
 
-typedef struct st_jcu_from_jcqtbl0
-{
- 
+typedef struct st_jcu_from_jcqtbl0 {
+
     volatile uint8_t   JCQTBL0;                                /*  JCQTBL0         */
     volatile uint8_t   dummy1[63];                             /*                  */
 } r_io_jcu_from_jcqtbl0_t;
@@ -182,10 +180,10 @@ typedef struct st_jcu_from_jcqtbl0
 
 /* Channel array defines of JCU (2)*/
 #ifdef  DECLARE_JCU_JCQTBL0_CHANNELS
-volatile struct st_jcu_from_jcqtbl0*  JCU_JCQTBL0[ JCU_JCQTBL0_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    JCU_JCQTBL0_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_jcu_from_jcqtbl0  *JCU_JCQTBL0[ JCU_JCQTBL0_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        JCU_JCQTBL0_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_JCU_JCQTBL0_CHANNELS */
 /* End of channel array defines of JCU (2)*/
 

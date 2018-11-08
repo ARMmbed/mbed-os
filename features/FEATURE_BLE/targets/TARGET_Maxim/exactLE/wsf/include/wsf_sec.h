@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   wsf_sec.h
- *        
+ *
  *  \brief  AES and random number security service API.
  *
  *          $Date: 2011-10-14 21:35:03 -0700 (Fri, 14 Oct 2011) $
  *          $Revision: 191 $
- *  
+ *
  *  Copyright (c) 2010-2016 ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: LicenseRef-PBL
@@ -32,10 +32,9 @@ extern "C" {
 **************************************************************************************************/
 
 /*! AES callback parameters structure */
-typedef struct
-{
-  wsfMsgHdr_t   hdr;              /*! header */
-  uint8_t       *pCiphertext;     /*! pointer to 16 bytes of ciphertext data */
+typedef struct {
+    wsfMsgHdr_t   hdr;              /*! header */
+    uint8_t       *pCiphertext;     /*! pointer to 16 bytes of ciphertext data */
 } wsfSecAes_t;
 
 /*! AES callback function type */
@@ -48,7 +47,7 @@ typedef void (*wsfSecAesCback_t)(wsfSecAes_t *pMsg);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfSecInit
- *        
+ *
  *  \brief  Initialize the security service.  This function should only be called once
  *          upon system initialization.
  *
@@ -60,7 +59,7 @@ void WsfSecInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfSecRandInit
- *        
+ *
  *  \brief  Initialize the random number service.  This function should only be called once
  *          upon system initialization.
  *
@@ -72,7 +71,7 @@ void WsfSecRandInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfSecAes
- *        
+ *
  *  \brief  Execute an AES calculation.  When the calculation completes, a WSF message will be
  *          sent to the specified handler.  This function returns a token value that
  *          the client can use to match calls to this function with messages.
@@ -92,7 +91,7 @@ uint8_t WsfSecAes(uint8_t *pKey, uint8_t *pPlaintext, wsfHandlerId_t handlerId,
 /*************************************************************************************************/
 /*!
  *  \fn     WsfSecRand
- *        
+ *
  *  \brief  This function returns up to 16 bytes of random data to a buffer provided by the
  *          client.
  *

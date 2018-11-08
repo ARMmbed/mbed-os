@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -89,8 +89,7 @@ typedef enum /*lint -save -e30 -esym(628,__INTADDR__) */
 /**
  * @brief PDM interrupt masks.
  */
-typedef enum
-{
+typedef enum {
     NRF_PDM_INT_STARTED = PDM_INTENSET_STARTED_Msk,   ///< Interrupt on EVENTS_STARTED event.
     NRF_PDM_INT_STOPPED = PDM_INTENSET_STOPPED_Msk,   ///< Interrupt on EVENTS_STOPPED event.
     NRF_PDM_INT_END     = PDM_INTENSET_END_Msk        ///< Interrupt on EVENTS_END event.
@@ -99,8 +98,7 @@ typedef enum
 /**
  * @brief PDM clock frequency.
  */
-typedef enum
-{
+typedef enum {
     NRF_PDM_FREQ_1000K = PDM_PDMCLKCTRL_FREQ_1000K,  ///< PDM_CLK = 1.000 MHz.
     NRF_PDM_FREQ_1032K = PDM_PDMCLKCTRL_FREQ_Default,  ///< PDM_CLK = 1.032 MHz.
     NRF_PDM_FREQ_1067K = PDM_PDMCLKCTRL_FREQ_1067K   ///< PDM_CLK = 1.067 MHz.
@@ -110,8 +108,7 @@ typedef enum
 /**
  * @brief PDM operation mode.
  */
-typedef enum
-{
+typedef enum {
     NRF_PDM_MODE_STEREO = PDM_MODE_OPERATION_Stereo,  ///< Sample and store one pair (Left + Right) of 16-bit samples per RAM word.
     NRF_PDM_MODE_MONO   = PDM_MODE_OPERATION_Mono     ///< Sample and store two successive Left samples (16 bit each) per RAM word.
 } nrf_pdm_mode_t;
@@ -120,8 +117,7 @@ typedef enum
 /**
  * @brief PDM sampling mode.
  */
-typedef enum
-{
+typedef enum {
     NRF_PDM_EDGE_LEFTFALLING = PDM_MODE_EDGE_LeftFalling,  ///< Left (or mono) is sampled on falling edge of PDM_CLK.
     NRF_PDM_EDGE_LEFTRISING  = PDM_MODE_EDGE_LeftRising    ///< Left (or mono) is sampled on rising edge of PDM_CLK.
 } nrf_pdm_edge_t;
@@ -160,7 +156,7 @@ __STATIC_INLINE uint32_t nrf_pdm_task_address_get(nrf_pdm_task_t pdm_task)
  */
 __STATIC_INLINE bool nrf_pdm_event_check(nrf_pdm_event_t pdm_event)
 {
-    return (bool)*(volatile uint32_t *)((uint8_t *)NRF_PDM + (uint32_t)pdm_event);
+    return (bool) * (volatile uint32_t *)((uint8_t *)NRF_PDM + (uint32_t)pdm_event);
 }
 
 
@@ -186,7 +182,7 @@ __STATIC_INLINE void nrf_pdm_event_clear(nrf_pdm_event_t pdm_event)
  *
  * @return Address of the specified PDM event.
  */
-__STATIC_INLINE volatile uint32_t * nrf_pdm_event_address_get(nrf_pdm_event_t pdm_event)
+__STATIC_INLINE volatile uint32_t *nrf_pdm_event_address_get(nrf_pdm_event_t pdm_event)
 {
     return (volatile uint32_t *)((uint8_t *)NRF_PDM + (uint32_t)pdm_event);
 }
@@ -279,11 +275,11 @@ __STATIC_INLINE void nrf_pdm_mode_set(nrf_pdm_mode_t pdm_mode, nrf_pdm_edge_t pd
  * @param[out] p_pdm_mode PDM operation mode.
  * @param[out] p_pdm_edge PDM sampling mode.
  */
-__STATIC_INLINE void nrf_pdm_mode_get(nrf_pdm_mode_t * p_pdm_mode, nrf_pdm_edge_t * p_pdm_edge)
+__STATIC_INLINE void nrf_pdm_mode_get(nrf_pdm_mode_t *p_pdm_mode, nrf_pdm_edge_t *p_pdm_edge)
 {
     uint32_t mode = NRF_PDM->MODE;
-    *p_pdm_mode = (nrf_pdm_mode_t)((mode & PDM_MODE_OPERATION_Msk ) >> PDM_MODE_OPERATION_Pos);
-    *p_pdm_edge = (nrf_pdm_edge_t)((mode & PDM_MODE_EDGE_Msk ) >> PDM_MODE_EDGE_Pos);
+    *p_pdm_mode = (nrf_pdm_mode_t)((mode & PDM_MODE_OPERATION_Msk) >> PDM_MODE_OPERATION_Pos);
+    *p_pdm_edge = (nrf_pdm_edge_t)((mode & PDM_MODE_EDGE_Msk) >> PDM_MODE_EDGE_Pos);
 }
 
 
@@ -303,7 +299,7 @@ __STATIC_INLINE void nrf_pdm_clock_set(nrf_pdm_freq_t pdm_freq)
  */
 __STATIC_INLINE nrf_pdm_freq_t nrf_pdm_clock_get(void)
 {
-     return (nrf_pdm_freq_t) ((NRF_PDM->PDMCLKCTRL << PDM_PDMCLKCTRL_FREQ_Pos) & PDM_PDMCLKCTRL_FREQ_Msk);
+    return (nrf_pdm_freq_t)((NRF_PDM->PDMCLKCTRL << PDM_PDMCLKCTRL_FREQ_Pos) & PDM_PDMCLKCTRL_FREQ_Msk);
 }
 
 
@@ -350,7 +346,7 @@ __STATIC_INLINE void nrf_pdm_gain_set(nrf_pdm_gain_t gain_l, nrf_pdm_gain_t gain
  * @param[out] p_gain_l Left channel gain.
  * @param[out] p_gain_r Right channel gain.
  */
-__STATIC_INLINE void nrf_pdm_gain_get(nrf_pdm_gain_t * p_gain_l, nrf_pdm_gain_t * p_gain_r)
+__STATIC_INLINE void nrf_pdm_gain_get(nrf_pdm_gain_t *p_gain_l, nrf_pdm_gain_t *p_gain_r)
 {
     *p_gain_l = NRF_PDM->GAINL;
     *p_gain_r = NRF_PDM->GAINR;
@@ -367,7 +363,7 @@ __STATIC_INLINE void nrf_pdm_gain_get(nrf_pdm_gain_t * p_gain_l, nrf_pdm_gain_t 
  * - For stereo mode: N 32-bit words.
  * - For mono mode: Ceil(N/2) 32-bit words.
  */
-__STATIC_INLINE void nrf_pdm_buffer_set(uint32_t * p_buffer, uint32_t num)
+__STATIC_INLINE void nrf_pdm_buffer_set(uint32_t *p_buffer, uint32_t num)
 {
     NRF_PDM->SAMPLE.PTR = (uint32_t)p_buffer;
     NRF_PDM->SAMPLE.MAXCNT = num;
@@ -378,7 +374,7 @@ __STATIC_INLINE void nrf_pdm_buffer_set(uint32_t * p_buffer, uint32_t num)
  *
  * @return Pointer to the current sample buffer.
  */
-__STATIC_INLINE uint32_t * nrf_pdm_buffer_get()
+__STATIC_INLINE uint32_t *nrf_pdm_buffer_get()
 {
     return (uint32_t *)NRF_PDM->SAMPLE.PTR;
 }

@@ -54,8 +54,8 @@ void gpio_init(gpio_t *obj, PinName name)
     unsigned int port = PINNAME_TO_PORT(name);
     unsigned int pin = PINNAME_TO_PIN(name);
 
-    obj->reg_out = (uint32_t*)BITBAND(&MXC_GPIO->out_val[port], pin);
-    obj->reg_in = (uint32_t*)BITBAND(&MXC_GPIO->in_val[port], pin);
+    obj->reg_out = (uint32_t *)BITBAND(&MXC_GPIO->out_val[port], pin);
+    obj->reg_in = (uint32_t *)BITBAND(&MXC_GPIO->in_val[port], pin);
     obj->mode = PullDefault;
 
     /* Ensure that the GPIO clock is enabled */
@@ -69,7 +69,7 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 {
 #ifdef OPEN_DRAIN_LEDS
     if ((obj->name == LED1) || (obj->name == LED2) ||
-        (obj->name == LED3) || (obj->name == LED4)) {
+            (obj->name == LED3) || (obj->name == LED4)) {
         mode = OpenDrain;
     }
 #endif

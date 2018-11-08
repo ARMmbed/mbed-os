@@ -1,7 +1,7 @@
 #include "mbed.h"
 
 #if !DEVICE_INTERRUPTIN
-  #error [NOT_SUPPORTED] InterruptIn is not supported
+#error [NOT_SUPPORTED] InterruptIn is not supported
 #endif
 
 #if defined(TARGET_LPC4088)
@@ -33,7 +33,7 @@ DigitalOut led(LED1);
 DigitalOut flash(LED2);
 
 #elif defined(TARGET_SAMR21G18A)
-InterruptIn button (PA28); /*SW0*/
+InterruptIn button(PA28);  /*SW0*/
 InterruptIn button1(PA06);
 InterruptIn button2(PA07);
 InterruptIn button3(PB03);
@@ -47,7 +47,7 @@ DigitalOut led(LED1);
 DigitalOut flash(PA22); /*1 LED Available*/
 
 #elif defined(TARGET_SAMD21J18A)
-InterruptIn button (PA15); /*SW0*/
+InterruptIn button(PA15);  /*SW0*/
 InterruptIn button1(PA16);
 InterruptIn button2(PB01);
 InterruptIn button3(PA18);
@@ -61,7 +61,7 @@ DigitalOut led(LED1);
 DigitalOut flash(PA27); /*1 LED Available*/
 
 #elif defined(TARGET_SAMD21G18A)
-InterruptIn button (PB23); /*SW0*/
+InterruptIn button(PB23);  /*SW0*/
 InterruptIn button1(PA02);
 InterruptIn button2(PA03);
 InterruptIn button3(PA10);
@@ -75,7 +75,7 @@ DigitalOut led(LED1);
 DigitalOut flash(PA19); /*1 LED Available*/
 
 #elif defined(TARGET_SAML21J18A)
-InterruptIn button (PA02); /*SW0*/
+InterruptIn button(PA02);  /*SW0*/
 InterruptIn button1(PA16);
 InterruptIn button2(PA17);
 InterruptIn button3(PA15);
@@ -89,7 +89,7 @@ DigitalOut led(LED1);
 DigitalOut flash(PA27); /*1 LED Available*/
 
 #elif defined(TARGET_SAMG55J19)
-InterruptIn button (PA02); /*SW0*/
+InterruptIn button(PA02);  /*SW0*/
 InterruptIn button1(PA17);
 InterruptIn button2(PA26);
 InterruptIn button3(PA25);
@@ -117,11 +117,13 @@ DigitalOut led(LED1);
 DigitalOut flash(LED4);
 #endif
 
-void flip() {
+void flip()
+{
     led = !led;
 }
 
-int main() {
+int main()
+{
     flash = 0;
     led = 0;
 #if defined(TARGET_LPC1114)
@@ -138,7 +140,7 @@ int main() {
     button8.rise(&flip);
     button9.rise(&flip);
 
-    while(1) {           // wait around, interrupts will interrupt this!
+    while (1) {          // wait around, interrupts will interrupt this!
         flash = !flash;
         wait(0.25);
     }

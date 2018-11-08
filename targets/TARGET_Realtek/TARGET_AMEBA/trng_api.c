@@ -32,7 +32,7 @@ void trng_free(trng_t *obj)
     if (!obj->inited) {
         return;
     }
-    
+
     obj->inited = 0;
     analogin_deinit(&obj->tradcng);
 }
@@ -41,7 +41,7 @@ static void trng_get_byte(trng_t *obj, unsigned char *byte)
 {
     size_t bit;
     uint32_t adc[2];
-    
+
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
     PSAL_ADC_HND            pSalADCHND          = NULL;
 
@@ -58,7 +58,7 @@ static void trng_get_byte(trng_t *obj, unsigned char *byte)
 int trng_get_bytes(trng_t *obj, uint8_t *buf, size_t len, size_t *output_len)
 {
     size_t i;
-    
+
     if (!obj->inited) {
         return -1;
     }

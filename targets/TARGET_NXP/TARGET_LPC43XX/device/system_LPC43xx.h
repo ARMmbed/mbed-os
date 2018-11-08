@@ -53,20 +53,20 @@ extern "C" {
 #endif
 
 #if defined(__FPU_PRESENT) && __FPU_PRESENT == 1
-  /* FPU declarations */
-  #define LPC_CPACR	          0xE000ED88
+/* FPU declarations */
+#define LPC_CPACR           0xE000ED88
 
-  #define SCB_MVFR0           0xE000EF40
-  #define SCB_MVFR0_RESET     0x10110021
+#define SCB_MVFR0           0xE000EF40
+#define SCB_MVFR0_RESET     0x10110021
 
-  #define SCB_MVFR1           0xE000EF44
-  #define SCB_MVFR1_RESET     0x11000011
+#define SCB_MVFR1           0xE000EF44
+#define SCB_MVFR1_RESET     0x11000011
 
-  #if defined(__ARMCC_VERSION)
-    void fpuInit(void) __attribute__ ((section("BOOTSTRAP_CODE")));
-  #else
-    extern void fpuInit(void);
-  #endif
+#if defined(__ARMCC_VERSION)
+void fpuInit(void) __attribute__((section("BOOTSTRAP_CODE")));
+#else
+extern void fpuInit(void);
+#endif
 #endif
 
 extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  */
@@ -80,7 +80,7 @@ extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  *
  * @brief  Setup the microcontroller system.
  *         Initialize the System and update the SystemCoreClock variable.
  */
-extern void SystemInit (void);
+extern void SystemInit(void);
 extern void SystemCoreClockUpdate(void);
 
 #ifdef __cplusplus

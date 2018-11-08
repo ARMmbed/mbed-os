@@ -36,12 +36,11 @@
 /**************************************************************************//**
  * @brief LESENSE_CH EFM32PG12B LESENSE CH
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t TIMING;       /**< Scan configuration  */
-  __IOM uint32_t INTERACT;     /**< Scan configuration  */
-  __IOM uint32_t EVAL;         /**< Scan configuration  */
-  uint32_t       RESERVED0[1]; /**< Reserved future */
+typedef struct {
+    __IOM uint32_t TIMING;       /**< Scan configuration  */
+    __IOM uint32_t INTERACT;     /**< Scan configuration  */
+    __IOM uint32_t EVAL;         /**< Scan configuration  */
+    uint32_t       RESERVED0[1]; /**< Reserved future */
 } LESENSE_CH_TypeDef;
 
 /** @} End of group Parts */

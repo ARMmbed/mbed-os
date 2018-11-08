@@ -56,8 +56,7 @@ typedef void (*flexio_uart_edma_transfer_callback_t)(FLEXIO_UART_Type *base,
 /*!
 * @brief UART eDMA handle
 */
-struct _flexio_uart_edma_handle
-{
+struct _flexio_uart_edma_handle {
     flexio_uart_edma_transfer_callback_t callback; /*!< Callback function. */
     void *userData;                                /*!< UART callback function parameter.*/
 

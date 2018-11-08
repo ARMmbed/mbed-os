@@ -91,11 +91,12 @@ __STATIC_INLINE void LP_ClearFirstBoot()
 __STATIC_INLINE unsigned int LP_IsLP0WakeUp()
 {
     //POR should be set and first boot clear
-    if((MXC_PWRMAN->pwr_rst_ctrl & MXC_F_PWRMAN_PWR_RST_CTRL_POR) &&
-            ((MXC_PWRSEQ->reg0 & MXC_F_PWRSEQ_REG0_PWR_FIRST_BOOT) == 0))
+    if ((MXC_PWRMAN->pwr_rst_ctrl & MXC_F_PWRMAN_PWR_RST_CTRL_POR) &&
+            ((MXC_PWRSEQ->reg0 & MXC_F_PWRSEQ_REG0_PWR_FIRST_BOOT) == 0)) {
         return 1;
-    else
+    } else {
         return 0;
+    }
 
 }
 

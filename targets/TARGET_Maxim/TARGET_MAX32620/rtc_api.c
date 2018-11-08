@@ -278,7 +278,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     MXC_PWRSEQ->msk_flags &= ~MXC_F_PWRSEQ_MSK_FLAGS_RTC_CMPR0;
 
     // Wait for pending transactions
-    while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 void lp_ticker_fire_interrupt(void)

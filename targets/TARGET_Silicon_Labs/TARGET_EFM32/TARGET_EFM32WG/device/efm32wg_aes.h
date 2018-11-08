@@ -38,26 +38,25 @@
  * @{
  * @brief EFM32WG_AES Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;         /**< Control Register  */
-  __IOM uint32_t CMD;          /**< Command Register  */
-  __IM uint32_t  STATUS;       /**< Status Register  */
-  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
-  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t DATA;         /**< DATA Register  */
-  __IOM uint32_t XORDATA;      /**< XORDATA Register  */
-  uint32_t       RESERVED0[3]; /**< Reserved for future use **/
-  __IOM uint32_t KEYLA;        /**< KEY Low Register  */
-  __IOM uint32_t KEYLB;        /**< KEY Low Register  */
-  __IOM uint32_t KEYLC;        /**< KEY Low Register  */
-  __IOM uint32_t KEYLD;        /**< KEY Low Register  */
-  __IOM uint32_t KEYHA;        /**< KEY High Register  */
-  __IOM uint32_t KEYHB;        /**< KEY High Register  */
-  __IOM uint32_t KEYHC;        /**< KEY High Register  */
-  __IOM uint32_t KEYHD;        /**< KEY High Register  */
+typedef struct {
+    __IOM uint32_t CTRL;         /**< Control Register  */
+    __IOM uint32_t CMD;          /**< Command Register  */
+    __IM uint32_t  STATUS;       /**< Status Register  */
+    __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
+    __IM uint32_t  IF;           /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t DATA;         /**< DATA Register  */
+    __IOM uint32_t XORDATA;      /**< XORDATA Register  */
+    uint32_t       RESERVED0[3]; /**< Reserved for future use **/
+    __IOM uint32_t KEYLA;        /**< KEY Low Register  */
+    __IOM uint32_t KEYLB;        /**< KEY Low Register  */
+    __IOM uint32_t KEYLC;        /**< KEY Low Register  */
+    __IOM uint32_t KEYLD;        /**< KEY Low Register  */
+    __IOM uint32_t KEYHA;        /**< KEY High Register  */
+    __IOM uint32_t KEYHB;        /**< KEY High Register  */
+    __IOM uint32_t KEYHC;        /**< KEY High Register  */
+    __IOM uint32_t KEYHD;        /**< KEY High Register  */
 } AES_TypeDef;                 /** @} */
 
 /**************************************************************************//**

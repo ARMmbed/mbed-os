@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -82,8 +82,7 @@
 
 /**@brief   Type of the DB Discovery event.
  */
-typedef enum
-{
+typedef enum {
     BLE_DB_DISCOVERY_COMPLETE,      /**< Event indicating that the GATT Database discovery is complete. */
     BLE_DB_DISCOVERY_ERROR,         /**< Event indicating that an internal error has occurred in the DB Discovery module. This could typically be because of the SoftDevice API returning an error code during the DB discover.*/
     BLE_DB_DISCOVERY_SRV_NOT_FOUND, /**< Event indicating that the service was not found at the peer.*/
@@ -99,8 +98,7 @@ typedef enum
  *
  * @warning This structure must be zero-initialized.
  */
-typedef struct
-{
+typedef struct {
     ble_gatt_db_srv_t   services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered. This is intended for internal use during service discovery.*/
     uint8_t             srv_count;                           /**< Number of services at the peers GATT database.*/
     uint8_t             curr_char_ind;                       /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
@@ -113,12 +111,10 @@ typedef struct
 
 /**@brief   Structure containing the event from the DB discovery module to the application.
  */
-typedef struct
-{
+typedef struct {
     ble_db_discovery_evt_type_t evt_type;     /**< Type of event. */
     uint16_t                    conn_handle;  /**< Handle of the connection for which this event has occurred. */
-    union
-    {
+    union {
         ble_gatt_db_srv_t discovered_db;  /**< Structure containing the information about the GATT Database at the server. This will be filled when the event type is @ref BLE_DB_DISCOVERY_COMPLETE.*/
         uint32_t               err_code;       /**< nRF Error code indicating the type of error which occurred in the DB Discovery module. This will be filled when the event type is @ref BLE_DB_DISCOVERY_ERROR. */
     } params;
@@ -126,7 +122,7 @@ typedef struct
 
 
 /**@brief   DB Discovery event handler type. */
-typedef void (* ble_db_discovery_evt_handler_t)(ble_db_discovery_evt_t * p_evt);
+typedef void (* ble_db_discovery_evt_handler_t)(ble_db_discovery_evt_t *p_evt);
 
 
 /**@brief     Function for initializing the DB Discovery module.
@@ -169,7 +165,7 @@ uint32_t ble_db_discovery_close(void);
  * @retval    NRF_ERROR_NO_MEM          The maximum number of registrations allowed by this module
  *                                      has been reached.
  */
-uint32_t ble_db_discovery_evt_register(const ble_uuid_t * const             p_uuid);
+uint32_t ble_db_discovery_evt_register(const ble_uuid_t *const             p_uuid);
 
 
 /**@brief Function for starting the discovery of the GATT database at the server.
@@ -191,7 +187,7 @@ uint32_t ble_db_discovery_evt_register(const ble_uuid_t * const             p_uu
  * @return                              This API propagates the error code returned by the
  *                                      SoftDevice API @ref sd_ble_gattc_primary_services_discover.
  */
-uint32_t ble_db_discovery_start(ble_db_discovery_t * const p_db_discovery,
+uint32_t ble_db_discovery_start(ble_db_discovery_t *const p_db_discovery,
                                 uint16_t                   conn_handle);
 
 
@@ -200,8 +196,8 @@ uint32_t ble_db_discovery_start(ble_db_discovery_t * const p_db_discovery,
  * @param[in,out] p_db_discovery Pointer to the DB Discovery structure.
  * @param[in]     p_ble_evt      Pointer to the BLE event received.
  */
-void ble_db_discovery_on_ble_evt(ble_db_discovery_t * const p_db_discovery,
-                                 const ble_evt_t * const    p_ble_evt);
+void ble_db_discovery_on_ble_evt(ble_db_discovery_t *const p_db_discovery,
+                                 const ble_evt_t *const    p_ble_evt);
 
 #endif // BLE_DB_DISCOVERY_H__
 

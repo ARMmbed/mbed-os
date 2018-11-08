@@ -122,7 +122,7 @@ POSSIBILITY OF SUCH DAMAGE.
    directly from from ADI_CRYPTO_TRANSACTION during buffer submit.
 */
 typedef struct _CRYPTO_COMPUTE {
-	ADI_CRYPTO_CIPHER_MODE    eCipherMode;              /*!< Cipher mode to use */
+    ADI_CRYPTO_CIPHER_MODE    eCipherMode;              /*!< Cipher mode to use */
     ADI_CRYPTO_CODING_MODE    eCodingMode;              /*!< Coding Mode (Encryption or Decryption) */
 
     ADI_CRYPTO_KEY_BYTE_SWAP  eKeyByteSwap;             /*!< KEY endianness */
@@ -159,14 +159,14 @@ typedef struct _CRYPTO_COMPUTE {
 
 /* Crypto device attributes */
 typedef struct _CRYPTO_INFO {
-    ADI_CRYPT_TypeDef          *pDev;				/* Pointer to physical Crypto controller */
-    ADI_CRYPTO_HANDLE           hDevice;			/* Device Handle */
+    ADI_CRYPT_TypeDef          *pDev;               /* Pointer to physical Crypto controller */
+    ADI_CRYPTO_HANDLE           hDevice;            /* Device Handle */
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
     IRQn_Type                   dmaInputIrqNum;
     IRQn_Type                   dmaOutputIrqNum;
     DMA_CHANn_TypeDef           dmaInputChanNum;
     DMA_CHANn_TypeDef           dmaOutputChanNum;
-    volatile ADI_CRYPTO_RESULT  dmaError;			/* DMA error collector. */
+    volatile ADI_CRYPTO_RESULT  dmaError;           /* DMA error collector. */
 #endif
 } CRYPTO_INFO;
 
@@ -191,7 +191,7 @@ struct __ADI_CRYPTO_DEV_DATA_TYPE {
 
     CRYPTO_COMPUTE           Computation;            /* Active computation structure */
 
-	ADI_CRYPTO_TRANSACTION  *pUserBuffer;            /* saved user buffer pointer from submit */
+    ADI_CRYPTO_TRANSACTION  *pUserBuffer;            /* saved user buffer pointer from submit */
     ADI_CALLBACK             pfCallback;             /* User defined callback function */
     void                    *pCBParam;               /* User defined callback param */
     ADI_CRYPTO_RESULT        dmaErrorCode;           /* saved DMA error code to return via user API */

@@ -57,7 +57,7 @@
  */
 
 void snmpv3_get_engine_id(const char **id, u8_t *len);
-err_t snmpv3_set_engine_id(const char* id, u8_t len);
+err_t snmpv3_set_engine_id(const char *id, u8_t len);
 
 u32_t snmpv3_get_engine_boots(void);
 void snmpv3_set_engine_boots(u32_t boots);
@@ -65,7 +65,7 @@ void snmpv3_set_engine_boots(u32_t boots);
 u32_t snmpv3_get_engine_time(void);
 void snmpv3_reset_engine_time(void);
 
-err_t snmpv3_get_user(const char* username, u8_t *auth_algo, u8_t *auth_key, u8_t *priv_algo, u8_t *priv_key);
+err_t snmpv3_get_user(const char *username, u8_t *auth_algo, u8_t *auth_key, u8_t *priv_algo, u8_t *priv_key);
 
 /* The following functions are provided by the SNMPv3 agent */
 

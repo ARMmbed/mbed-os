@@ -67,7 +67,7 @@
 static inline bool system_gclk_is_syncing(const uint8_t generator)
 {
 
-    if (GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_GENCTRL(1 << generator )) {
+    if (GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_GENCTRL(1 << generator)) {
         return true;
     }
 
@@ -293,7 +293,7 @@ uint32_t system_gclk_gen_get_hz(
     if (!divsel && divider > 1) {
         gen_input_hz /= divider;
     } else if (divsel) {
-        gen_input_hz >>= (divider+1);
+        gen_input_hz >>= (divider + 1);
     }
 
     return gen_input_hz;

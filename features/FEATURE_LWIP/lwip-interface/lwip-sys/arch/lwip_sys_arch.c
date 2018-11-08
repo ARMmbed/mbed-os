@@ -57,12 +57,12 @@
  * enough to hold "MEM_SIZE" (which we specify) plus mem.c's overhead. Have to work
  * it all out here, copying code from mem.c */
 struct mem {
-  /** index (-> ram[next]) of the next struct */
-  mem_size_t next;
-  /** index (-> ram[prev]) of the previous struct */
-  mem_size_t prev;
-  /** 1: this area is used; 0: this area is unused */
-  u8_t used;
+    /** index (-> ram[next]) of the next struct */
+    mem_size_t next;
+    /** index (-> ram[prev]) of the previous struct */
+    mem_size_t prev;
+    /** 1: this area is used; 0: this area is unused */
+    u8_t used;
 };
 
 #define SIZEOF_STRUCT_MEM    LWIP_MEM_ALIGN_SIZE(sizeof(struct mem))
@@ -71,16 +71,17 @@ struct mem {
 #if defined (__ICCARM__)
 #pragma location = ".ethusbram"
 #endif
-LWIP_DECLARE_MEMORY_ALIGNED(lwip_ram_heap, MEM_SIZE_ALIGNED + (2U*SIZEOF_STRUCT_MEM)) ETHMEM_SECTION;
+LWIP_DECLARE_MEMORY_ALIGNED(lwip_ram_heap, MEM_SIZE_ALIGNED + (2U * SIZEOF_STRUCT_MEM)) ETHMEM_SECTION;
 
- #if NO_SYS==1
+#if NO_SYS==1
 #include "cmsis.h"
 
 /* Saved total time in ms since timer was enabled */
 static volatile u32_t systick_timems;
 
 /* Enable systick rate and interrupt */
-void SysTick_Init(void) {
+void SysTick_Init(void)
+{
     if (SysTick_Config(SystemCoreClock / 1000)) {
         while (1);     /* Capture error */
     }
@@ -92,19 +93,22 @@ void SysTick_Init(void) {
  * used for other functions. It also calls an external function
  * (SysTick_User) that must be defined outside this handler.
  */
-void SysTick_Handler(void) {
+void SysTick_Handler(void)
+{
     systick_timems++;
 }
 
 /* Delay for the specified number of milliSeconds */
-void osDelay(uint32_t ms) {
+void osDelay(uint32_t ms)
+{
     uint32_t to = ms + systick_timems;
     while (to > systick_timems);
 }
 
 /* Returns the current time in mS. This is needed for the LWIP timers */
-u32_t sys_now(void) {
-  return (u32_t) systick_timems;
+u32_t sys_now(void)
+{
+    return (u32_t) systick_timems;
 }
 
 #else
@@ -122,17 +126,20 @@ u32_t sys_now(void) {
  * Outputs:
  *      err_t                   -- ERR_OK if message posted, else ERR_MEM
  *---------------------------------------------------------------------------*/
-err_t sys_mbox_new(sys_mbox_t *mbox, int queue_sz) {
-    if (queue_sz > MB_SIZE)
+err_t sys_mbox_new(sys_mbox_t *mbox, int queue_sz)
+{
+    if (queue_sz > MB_SIZE) {
         error("sys_mbox_new size error\n");
+    }
 
     memset(mbox, 0, sizeof(*mbox));
 
     mbox->attr.cb_mem = &mbox->data;
     mbox->attr.cb_size = sizeof(mbox->data);
     mbox->id = osEventFlagsNew(&mbox->attr);
-    if (mbox->id == NULL)
+    if (mbox->id == NULL) {
         error("sys_mbox_new create error\n");
+    }
 
     osEventFlagsSet(mbox->id, SYS_MBOX_POST_EVENT);
 
@@ -149,9 +156,11 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int queue_sz) {
  * Inputs:
  *      sys_mbox_t *mbox         -- Handle of mailbox
  *---------------------------------------------------------------------------*/
-void sys_mbox_free(sys_mbox_t *mbox) {
-    if (mbox->post_idx != mbox->fetch_idx)
+void sys_mbox_free(sys_mbox_t *mbox)
+{
+    if (mbox->post_idx != mbox->fetch_idx) {
         error("sys_mbox_free error\n");
+    }
 }
 
 /*---------------------------------------------------------------------------*
@@ -163,9 +172,10 @@ void sys_mbox_free(sys_mbox_t *mbox) {
  *      sys_mbox_t mbox        -- Handle of mailbox
  *      void *msg              -- Pointer to data to post
  *---------------------------------------------------------------------------*/
-void sys_mbox_post(sys_mbox_t *mbox, void *msg) {
+void sys_mbox_post(sys_mbox_t *mbox, void *msg)
+{
     osEventFlagsWait(mbox->id, SYS_MBOX_POST_EVENT,
-            osFlagsWaitAny | osFlagsNoClear, osWaitForever);
+                     osFlagsWaitAny | osFlagsNoClear, osWaitForever);
 
     int state = osKernelLock();
 
@@ -173,8 +183,9 @@ void sys_mbox_post(sys_mbox_t *mbox, void *msg) {
     mbox->post_idx += 1;
 
     osEventFlagsSet(mbox->id, SYS_MBOX_FETCH_EVENT);
-    if (mbox->post_idx - mbox->fetch_idx == MB_SIZE-1)
+    if (mbox->post_idx - mbox->fetch_idx == MB_SIZE - 1) {
         osEventFlagsClear(mbox->id, SYS_MBOX_POST_EVENT);
+    }
 
     osKernelRestoreLock(state);
 }
@@ -192,11 +203,13 @@ void sys_mbox_post(sys_mbox_t *mbox, void *msg) {
  *      err_t                   -- ERR_OK if message posted, else ERR_MEM
  *                                  if not.
  *---------------------------------------------------------------------------*/
-err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
+err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
+{
     uint32_t flags = osEventFlagsWait(mbox->id, SYS_MBOX_POST_EVENT,
-            osFlagsWaitAny | osFlagsNoClear, 0);
-    if ((flags & osFlagsError) || !(flags & SYS_MBOX_POST_EVENT))
+                                      osFlagsWaitAny | osFlagsNoClear, 0);
+    if ((flags & osFlagsError) || !(flags & SYS_MBOX_POST_EVENT)) {
         return ERR_MEM;
+    }
 
     int state = osKernelLock();
 
@@ -204,8 +217,9 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
     mbox->post_idx += 1;
 
     osEventFlagsSet(mbox->id, SYS_MBOX_FETCH_EVENT);
-    if (mbox->post_idx - mbox->fetch_idx == MB_SIZE-1)
+    if (mbox->post_idx - mbox->fetch_idx == MB_SIZE - 1) {
         osEventFlagsClear(mbox->id, SYS_MBOX_POST_EVENT);
+    }
 
     osKernelRestoreLock(state);
     return ERR_OK;
@@ -236,22 +250,26 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
  *      u32_t                   -- SYS_ARCH_TIMEOUT if timeout, else number
  *                                  of milliseconds until received.
  *---------------------------------------------------------------------------*/
-u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
+u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
+{
     uint32_t start = us_ticker_read();
     uint32_t flags = osEventFlagsWait(mbox->id, SYS_MBOX_FETCH_EVENT,
-            osFlagsWaitAny | osFlagsNoClear, (timeout ? timeout : osWaitForever));
-    if ((flags & osFlagsError) || !(flags & SYS_MBOX_FETCH_EVENT))
+                                      osFlagsWaitAny | osFlagsNoClear, (timeout ? timeout : osWaitForever));
+    if ((flags & osFlagsError) || !(flags & SYS_MBOX_FETCH_EVENT)) {
         return SYS_ARCH_TIMEOUT;
+    }
 
     int state = osKernelLock();
 
-    if (msg)
+    if (msg) {
         *msg = mbox->queue[mbox->fetch_idx % MB_SIZE];
+    }
     mbox->fetch_idx += 1;
 
     osEventFlagsSet(mbox->id, SYS_MBOX_POST_EVENT);
-    if (mbox->post_idx == mbox->fetch_idx)
+    if (mbox->post_idx == mbox->fetch_idx) {
         osEventFlagsClear(mbox->id, SYS_MBOX_FETCH_EVENT);
+    }
 
     osKernelRestoreLock(state);
     return (us_ticker_read() - start) / 1000;
@@ -271,21 +289,25 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
  *      u32_t                   -- SYS_MBOX_EMPTY if no messages.  Otherwise,
  *                                  return ERR_OK.
  *---------------------------------------------------------------------------*/
-u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg) {
+u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
+{
     uint32_t flags = osEventFlagsWait(mbox->id, SYS_MBOX_FETCH_EVENT,
-            osFlagsWaitAny | osFlagsNoClear, 0);
-    if ((flags & osFlagsError) || !(flags & SYS_MBOX_FETCH_EVENT))
+                                      osFlagsWaitAny | osFlagsNoClear, 0);
+    if ((flags & osFlagsError) || !(flags & SYS_MBOX_FETCH_EVENT)) {
         return SYS_MBOX_EMPTY;
+    }
 
     int state = osKernelLock();
 
-    if (msg)
+    if (msg) {
         *msg = mbox->queue[mbox->fetch_idx % MB_SIZE];
+    }
     mbox->fetch_idx += 1;
 
     osEventFlagsSet(mbox->id, SYS_MBOX_POST_EVENT);
-    if (mbox->post_idx == mbox->fetch_idx)
+    if (mbox->post_idx == mbox->fetch_idx) {
         osEventFlagsClear(mbox->id, SYS_MBOX_FETCH_EVENT);
+    }
 
     osKernelRestoreLock(state);
     return ERR_OK;
@@ -304,14 +326,16 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg) {
  * Outputs:
  *      err_t                 -- ERR_OK if semaphore created
  *---------------------------------------------------------------------------*/
-err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
+err_t sys_sem_new(sys_sem_t *sem, u8_t count)
+{
     memset(sem, 0, sizeof(*sem));
     sem->attr.cb_mem = &sem->data;
     sem->attr.cb_size = sizeof(sem->data);
     sem->id = osSemaphoreNew(UINT16_MAX, count, &sem->attr);
-    if (sem->id == NULL)
+    if (sem->id == NULL) {
         error("sys_sem_new create error\n");
-    
+    }
+
     return ERR_OK;
 }
 
@@ -338,12 +362,14 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
  * Outputs:
  *      u32_t                   -- Time elapsed or SYS_ARCH_TIMEOUT.
  *---------------------------------------------------------------------------*/
-u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout) {
+u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
+{
     u32_t start = us_ticker_read();
-    
-    if (osSemaphoreAcquire(sem->id, (timeout != 0)?(timeout):(osWaitForever)) != osOK)
+
+    if (osSemaphoreAcquire(sem->id, (timeout != 0) ? (timeout) : (osWaitForever)) != osOK) {
         return SYS_ARCH_TIMEOUT;
-    
+    }
+
     return (us_ticker_read() - start) / 1000;
 }
 
@@ -355,9 +381,11 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout) {
  * Inputs:
  *      sys_sem_t sem           -- Semaphore to signal
  *---------------------------------------------------------------------------*/
-void sys_sem_signal(sys_sem_t *data) {
-    if (osSemaphoreRelease(data->id) != osOK)
-        mbed_die(); /* Can be called by ISR do not use printf */
+void sys_sem_signal(sys_sem_t *data)
+{
+    if (osSemaphoreRelease(data->id) != osOK) {
+        mbed_die();    /* Can be called by ISR do not use printf */
+    }
 }
 
 /*---------------------------------------------------------------------------*
@@ -373,30 +401,36 @@ void sys_sem_free(sys_sem_t *sem) {}
 /** Create a new mutex
  * @param mutex pointer to the mutex to create
  * @return a new mutex */
-err_t sys_mutex_new(sys_mutex_t *mutex) {
+err_t sys_mutex_new(sys_mutex_t *mutex)
+{
     memset(mutex, 0, sizeof(*mutex));
     mutex->attr.name = "lwip_mutex";
     mutex->attr.cb_mem = &mutex->data;
     mutex->attr.cb_size = sizeof(mutex->data);
     mutex->id = osMutexNew(&mutex->attr);
-    if (mutex->id == NULL)
+    if (mutex->id == NULL) {
         return ERR_MEM;
-    
+    }
+
     return ERR_OK;
 }
 
 /** Lock a mutex
  * @param mutex the mutex to lock */
-void sys_mutex_lock(sys_mutex_t *mutex) {
-    if (osMutexAcquire(mutex->id, osWaitForever) != osOK)
+void sys_mutex_lock(sys_mutex_t *mutex)
+{
+    if (osMutexAcquire(mutex->id, osWaitForever) != osOK) {
         error("sys_mutex_lock error\n");
+    }
 }
 
 /** Unlock a mutex
  * @param mutex the mutex to unlock */
-void sys_mutex_unlock(sys_mutex_t *mutex) {
-    if (osMutexRelease(mutex->id) != osOK)
+void sys_mutex_unlock(sys_mutex_t *mutex)
+{
+    if (osMutexRelease(mutex->id) != osOK) {
         error("sys_mutex_unlock error\n");
+    }
 }
 
 /** Delete a mutex
@@ -413,14 +447,16 @@ osMutexId_t lwip_sys_mutex;
 osMutexAttr_t lwip_sys_mutex_attr;
 mbed_rtos_storage_mutex_t lwip_sys_mutex_data;
 
-void sys_init(void) {
+void sys_init(void)
+{
     us_ticker_read(); // Init sys tick
     lwip_sys_mutex_attr.name = "lwip_sys_mutex";
     lwip_sys_mutex_attr.cb_mem = &lwip_sys_mutex_data;
     lwip_sys_mutex_attr.cb_size = sizeof(lwip_sys_mutex_data);
     lwip_sys_mutex = osMutexNew(&lwip_sys_mutex_attr);
-    if (lwip_sys_mutex == NULL)
+    if (lwip_sys_mutex == NULL) {
         error("sys_init error\n");
+    }
 }
 
 /*---------------------------------------------------------------------------*
@@ -429,9 +465,10 @@ void sys_init(void) {
  * Description:
  *      Used by PPP as a timestamp-ish value
  *---------------------------------------------------------------------------*/
-u32_t sys_jiffies(void) {
+u32_t sys_jiffies(void)
+{
     static u32_t jiffies = 0;
-    jiffies += 1 + (us_ticker_read()/10000);
+    jiffies += 1 + (us_ticker_read() / 10000);
     return jiffies;
 }
 
@@ -454,9 +491,11 @@ u32_t sys_jiffies(void) {
  * Outputs:
  *      sys_prot_t              -- Previous protection level (not used here)
  *---------------------------------------------------------------------------*/
-sys_prot_t sys_arch_protect(void) {
-    if (osMutexAcquire(lwip_sys_mutex, osWaitForever) != osOK)
+sys_prot_t sys_arch_protect(void)
+{
+    if (osMutexAcquire(lwip_sys_mutex, osWaitForever) != osOK) {
         error("sys_arch_protect error\n");
+    }
     return (sys_prot_t) 1;
 }
 
@@ -471,16 +510,20 @@ sys_prot_t sys_arch_protect(void) {
  * Inputs:
  *      sys_prot_t              -- Previous protection level (not used here)
  *---------------------------------------------------------------------------*/
-void sys_arch_unprotect(sys_prot_t p) {
-    if (osMutexRelease(lwip_sys_mutex) != osOK)
+void sys_arch_unprotect(sys_prot_t p)
+{
+    if (osMutexRelease(lwip_sys_mutex) != osOK) {
         error("sys_arch_unprotect error\n");
+    }
 }
 
-u32_t sys_now(void) {
+u32_t sys_now(void)
+{
     return us_ticker_read() / 1000;
 }
 
-void sys_msleep(u32_t ms) {
+void sys_msleep(u32_t ms)
+{
     osDelay(ms);
 }
 
@@ -508,11 +551,13 @@ static sys_thread_data_t thread_pool[SYS_THREAD_POOL_N];
  *---------------------------------------------------------------------------*/
 sys_thread_t sys_thread_new(const char *pcName,
                             void (*thread)(void *arg),
-                            void *arg, int stacksize, int priority) {
+                            void *arg, int stacksize, int priority)
+{
     LWIP_DEBUGF(SYS_DEBUG, ("New Thread: %s\n", pcName));
 
-    if (thread_pool_index >= SYS_THREAD_POOL_N)
+    if (thread_pool_index >= SYS_THREAD_POOL_N) {
         error("sys_thread_new number error\n");
+    }
     sys_thread_t t = (sys_thread_t)&thread_pool[thread_pool_index];
     thread_pool_index++;
 
@@ -524,12 +569,13 @@ sys_thread_t sys_thread_new(const char *pcName,
     t->attr.stack_size = stacksize;
     t->attr.stack_mem = malloc(stacksize);
     if (t->attr.stack_mem == NULL) {
-      error("Error allocating the stack memory");
+        error("Error allocating the stack memory");
     }
     t->id = osThreadNew((osThreadFunc_t)thread, arg, &t->attr);
-    if (t->id == NULL)
+    if (t->id == NULL) {
         error("sys_thread_new create error\n");
-    
+    }
+
     return t;
 }
 
@@ -582,11 +628,13 @@ void lwip_mbed_assert_fail(const char *msg, const char *func, const char *file, 
     \param[in]    line  Line number in file with error
     \param[in]    file  Filename with error
  */
-void assert_printf(char *msg, int line, char *file) {
-    if (msg)
+void assert_printf(char *msg, int line, char *file)
+{
+    if (msg) {
         error("%s:%d in file %s\n", msg, line, file);
-    else
+    } else {
         error("LWIP ASSERT\n");
+    }
 }
 #endif // MBED_CONF_LWIP_USE_MBED_TRACE
 
@@ -596,14 +644,14 @@ void trace_to_ascii_hex_dump(char *prefix, int len, char *data)
     int line_len = 0;
 
     for (int i = 0; i < len; i++) {
-       if ((line_len % 16) == 0) {
-           if (line_len != 0) {
-               LWIP_PLATFORM_DIAG(("\n"));
-           }
-           LWIP_PLATFORM_DIAG(("%s %06x", prefix, line_len));
-       }
-       line_len++;
-       LWIP_PLATFORM_DIAG((" %02x", data[i]));
+        if ((line_len % 16) == 0) {
+            if (line_len != 0) {
+                LWIP_PLATFORM_DIAG(("\n"));
+            }
+            LWIP_PLATFORM_DIAG(("%s %06x", prefix, line_len));
+        }
+        line_len++;
+        LWIP_PLATFORM_DIAG((" %02x", data[i]));
     }
     LWIP_PLATFORM_DIAG(("\n"));
 }

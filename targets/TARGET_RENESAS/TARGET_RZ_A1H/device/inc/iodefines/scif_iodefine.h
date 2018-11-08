@@ -146,9 +146,8 @@
 #define SCEMR_7 (SCIF7.SCEMR)
 
 
-typedef struct st_scif
-{
-                                                           /* SCIF             */
+typedef struct st_scif {
+    /* SCIF             */
     volatile uint16_t SCSMR;                                  /*  SCSMR           */
     volatile uint8_t   dummy1[2];                              /*                  */
     volatile uint8_t   SCBRR;                                  /*  SCBRR           */
@@ -175,10 +174,10 @@ typedef struct st_scif
 
 /* Channel array defines of SCIF (2)*/
 #ifdef  DECLARE_SCIF_CHANNELS
-volatile struct st_scif*  SCIF[ SCIF_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    SCIF_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_scif  *SCIF[ SCIF_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        SCIF_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_SCIF_CHANNELS */
 /* End of channel array defines of SCIF (2)*/
 

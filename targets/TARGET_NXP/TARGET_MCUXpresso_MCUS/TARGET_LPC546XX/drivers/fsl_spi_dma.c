@@ -34,21 +34,18 @@
  * Definitons
  ******************************************************************************/
 /*<! Structure definition for spi_dma_private_handle_t. The structure is private. */
-typedef struct _spi_dma_private_handle
-{
+typedef struct _spi_dma_private_handle {
     SPI_Type *base;
     spi_dma_handle_t *handle;
 } spi_dma_private_handle_t;
 
 /*! @brief SPI transfer state, which is used for SPI transactiaonl APIs' internal state. */
-enum _spi_dma_states_t
-{
+enum _spi_dma_states_t {
     kSPI_Idle = 0x0, /*!< SPI is idle state */
     kSPI_Busy        /*!< SPI is busy tranferring data. */
 };
 
-typedef struct _spi_dma_txdummy
-{
+typedef struct _spi_dma_txdummy {
     uint32_t lastWord;
     uint32_t word;
 } spi_dma_txdummy_t;
@@ -132,19 +129,16 @@ static void SpiConfigToFifoWR(spi_config_t *config, uint32_t *fifowr)
 static void PrepareTxFIFO(uint32_t *fifo, uint32_t count, uint32_t ctrl)
 {
     assert(!(fifo == NULL));
-    if (fifo == NULL)
-    {
+    if (fifo == NULL) {
         return;
     }
     /* CS deassert and CS delay are relevant only for last word */
     uint32_t tx_ctrl = ctrl & (~(SPI_FIFOWR_EOT_MASK | SPI_FIFOWR_EOF_MASK));
     uint32_t i = 0;
-    for (; i + 1 < count; i++)
-    {
+    for (; i + 1 < count; i++) {
         fifo[i] = (fifo[i] & 0xFFFFU) | (tx_ctrl & 0xFFFF0000U);
     }
-    if (i < count)
-    {
+    if (i < count) {
         fifo[i] = (fifo[i] & 0xFFFFU) | (ctrl & 0xFFFF0000U);
     }
 }
@@ -167,14 +161,12 @@ status_t SPI_MasterTransferCreateHandleDMA(SPI_Type *base,
 
     /* check 'base' */
     assert(!(NULL == base));
-    if (NULL == base)
-    {
+    if (NULL == base) {
         return kStatus_InvalidArgument;
     }
     /* check 'handle' */
     assert(!(NULL == handle));
-    if (NULL == handle)
-    {
+    if (NULL == handle) {
         return kStatus_InvalidArgument;
     }
 
@@ -208,43 +200,35 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
     spi_config_t *spi_config_p;
 
     assert(!((NULL == handle) || (NULL == xfer)));
-    if ((NULL == handle) || (NULL == xfer))
-    {
+    if ((NULL == handle) || (NULL == xfer)) {
         return kStatus_InvalidArgument;
     }
     /* txData set and not aligned to sizeof(uint32_t) */
     assert(!((NULL != xfer->txData) && ((uint32_t)xfer->txData % sizeof(uint32_t))));
-    if ((NULL != xfer->txData) && ((uint32_t)xfer->txData % sizeof(uint32_t)))
-    {
+    if ((NULL != xfer->txData) && ((uint32_t)xfer->txData % sizeof(uint32_t))) {
         return kStatus_InvalidArgument;
     }
     /* rxData set and not aligned to sizeof(uint32_t) */
     assert(!((NULL != xfer->rxData) && ((uint32_t)xfer->rxData % sizeof(uint32_t))));
-    if ((NULL != xfer->rxData) && ((uint32_t)xfer->rxData % sizeof(uint32_t)))
-    {
+    if ((NULL != xfer->rxData) && ((uint32_t)xfer->rxData % sizeof(uint32_t))) {
         return kStatus_InvalidArgument;
     }
     /* byte size is zero or not aligned to sizeof(uint32_t) */
     assert(!((xfer->dataSize == 0) || (xfer->dataSize % sizeof(uint32_t))));
-    if ((xfer->dataSize == 0) || (xfer->dataSize % sizeof(uint32_t)))
-    {
+    if ((xfer->dataSize == 0) || (xfer->dataSize % sizeof(uint32_t))) {
         return kStatus_InvalidArgument;
     }
     /* cannot get instance from base address */
     instance = SPI_GetInstance(base);
     assert(!(instance < 0));
-    if (instance < 0)
-    {
+    if (instance < 0) {
         return kStatus_InvalidArgument;
     }
 
     /* Check if the device is busy */
-    if (handle->state == kSPI_Busy)
-    {
+    if (handle->state == kSPI_Busy) {
         return kStatus_SPI_Busy;
-    }
-    else
-    {
+    } else {
         uint32_t tmp;
         dma_transfer_config_t xferConfig = {0};
         spi_config_p = (spi_config_t *)SPI_GetConfig(base);
@@ -254,13 +238,10 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
 
         /* receive */
         SPI_EnableRxDMA(base, true);
-        if (xfer->rxData)
-        {
+        if (xfer->rxData) {
             DMA_PrepareTransfer(&xferConfig, (void *)&base->FIFORD, xfer->rxData, sizeof(uint32_t), xfer->dataSize,
                                 kDMA_PeripheralToMemory, NULL);
-        }
-        else
-        {
+        } else {
             DMA_PrepareTransfer(&xferConfig, (void *)&base->FIFORD, &s_rxDummy, sizeof(uint32_t), xfer->dataSize,
                                 kDMA_StaticToStatic, NULL);
         }
@@ -270,8 +251,7 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
 
         /* transmit */
         SPI_EnableTxDMA(base, true);
-        if (xfer->txData)
-        {
+        if (xfer->txData) {
             tmp = 0;
             XferToFifoWR(xfer, &tmp);
             SpiConfigToFifoWR(spi_config_p, &tmp);
@@ -279,11 +259,8 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
             DMA_PrepareTransfer(&xferConfig, xfer->txData, (void *)&base->FIFOWR, sizeof(uint32_t), xfer->dataSize,
                                 kDMA_MemoryToPeripheral, NULL);
             DMA_SubmitTransfer(handle->txHandle, &xferConfig);
-        }
-        else
-        {
-            if ((xfer->configFlags & kSPI_FrameAssert) && (xfer->dataSize > sizeof(uint32_t)))
-            {
+        } else {
+            if ((xfer->configFlags & kSPI_FrameAssert) && (xfer->dataSize > sizeof(uint32_t))) {
                 dma_xfercfg_t tmp_xfercfg = { 0 };
                 tmp_xfercfg.valid = true;
                 tmp_xfercfg.swtrig = true;
@@ -306,19 +283,15 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
                 xferConfig.xfercfg.intA = false;
                 xferConfig.xfercfg.intB = false;
                 result = DMA_SubmitTransfer(handle->txHandle, &xferConfig);
-                if (result != kStatus_Success)
-                {
+                if (result != kStatus_Success) {
                     return result;
                 }
-            }
-            else
-            {
+            } else {
                 SPI_SetupDummy(&s_txDummy[instance].word, xfer, spi_config_p);
                 DMA_PrepareTransfer(&xferConfig, &s_txDummy[instance].word, (void *)&base->FIFOWR, sizeof(uint32_t),
                                     xfer->dataSize, kDMA_StaticToStatic, NULL);
                 result = DMA_SubmitTransfer(handle->txHandle, &xferConfig);
-                if (result != kStatus_Success)
-                {
+                if (result != kStatus_Success) {
                     return result;
                 }
             }
@@ -340,11 +313,9 @@ static void SPI_RxDMACallback(dma_handle_t *handle, void *userData, bool transfe
     spiHandle->rxInProgress = false;
 
     /* All finished, call the callback */
-    if ((spiHandle->txInProgress == false) && (spiHandle->rxInProgress == false))
-    {
+    if ((spiHandle->txInProgress == false) && (spiHandle->rxInProgress == false)) {
         spiHandle->state = kSPI_Idle;
-        if (spiHandle->callback)
-        {
+        if (spiHandle->callback) {
             (spiHandle->callback)(base, spiHandle, kStatus_Success, spiHandle->userData);
         }
     }
@@ -360,11 +331,9 @@ static void SPI_TxDMACallback(dma_handle_t *handle, void *userData, bool transfe
     spiHandle->txInProgress = false;
 
     /* All finished, call the callback */
-    if ((spiHandle->txInProgress == false) && (spiHandle->rxInProgress == false))
-    {
+    if ((spiHandle->txInProgress == false) && (spiHandle->rxInProgress == false)) {
         spiHandle->state = kSPI_Idle;
-        if (spiHandle->callback)
-        {
+        if (spiHandle->callback) {
             (spiHandle->callback)(base, spiHandle, kStatus_Success, spiHandle->userData);
         }
     }
@@ -389,14 +358,12 @@ status_t SPI_MasterTransferGetCountDMA(SPI_Type *base, spi_dma_handle_t *handle,
 {
     assert(handle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
     /* Catch when there is not an active transfer. */
-    if (handle->state != kSPI_Busy)
-    {
+    if (handle->state != kSPI_Busy) {
         *count = 0;
         return kStatus_NoTransferInProgress;
     }

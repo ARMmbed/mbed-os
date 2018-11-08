@@ -56,10 +56,10 @@ extern "C" {
 
 /** Edge detection type. */
 typedef enum {
-  prsEdgeOff  = PRS_CH_CTRL_EDSEL_OFF,      /**< Leave signal as is. */
-  prsEdgePos  = PRS_CH_CTRL_EDSEL_POSEDGE,  /**< Generate pules on positive edge. */
-  prsEdgeNeg  = PRS_CH_CTRL_EDSEL_NEGEDGE,  /**< Generate pules on negative edge. */
-  prsEdgeBoth = PRS_CH_CTRL_EDSEL_BOTHEDGES /**< Generate pules on both edges. */
+    prsEdgeOff  = PRS_CH_CTRL_EDSEL_OFF,      /**< Leave signal as is. */
+    prsEdgePos  = PRS_CH_CTRL_EDSEL_POSEDGE,  /**< Generate pules on positive edge. */
+    prsEdgeNeg  = PRS_CH_CTRL_EDSEL_NEGEDGE,  /**< Generate pules on negative edge. */
+    prsEdgeBoth = PRS_CH_CTRL_EDSEL_BOTHEDGES /**< Generate pules on both edges. */
 } PRS_Edge_TypeDef;
 
 /*******************************************************************************
@@ -84,7 +84,7 @@ typedef enum {
  ******************************************************************************/
 __STATIC_INLINE void PRS_LevelSet(uint32_t level, uint32_t mask)
 {
-  PRS->SWLEVEL = (PRS->SWLEVEL & ~mask) | (level & mask);
+    PRS->SWLEVEL = (PRS->SWLEVEL & ~mask) | (level & mask);
 }
 
 /***************************************************************************//**
@@ -103,7 +103,7 @@ __STATIC_INLINE void PRS_LevelSet(uint32_t level, uint32_t mask)
  ******************************************************************************/
 __STATIC_INLINE void PRS_PulseTrigger(uint32_t channels)
 {
-  PRS->SWPULSE = channels & _PRS_SWPULSE_MASK;
+    PRS->SWPULSE = channels & _PRS_SWPULSE_MASK;
 }
 
 void PRS_SourceSignalSet(unsigned int ch,

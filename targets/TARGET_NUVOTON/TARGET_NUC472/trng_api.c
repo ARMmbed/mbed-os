@@ -50,19 +50,19 @@ static void trng_get(unsigned char *pConversionData)
 void trng_init(trng_t *obj)
 {
     (void)obj;
-    
+
     /* Init crypto module */
     crypto_init();
-    
+
     PRNG_ENABLE_INT();
 }
 
 void trng_free(trng_t *obj)
 {
     (void)obj;
-    
+
     PRNG_DISABLE_INT();
-    
+
     /* Uninit crypto module */
     crypto_uninit();
 }
@@ -72,7 +72,7 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     (void)obj;
     unsigned char tmpBuff[PRNG_KEY_SIZE];
     size_t cur_length = 0;
-    
+
     while (length >= sizeof(tmpBuff)) {
         trng_get(output);
         output += sizeof(tmpBuff);

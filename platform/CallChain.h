@@ -78,11 +78,11 @@ public:
      *  @param size (optional) Initial size of the chain
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     CallChain(int size = 4);
 
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     virtual ~CallChain();
 
     /** Add a function at the end of the chain
@@ -93,7 +93,7 @@ public:
      *  The function object created for 'func'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     pFunctionPointer_t add(Callback<void()> func);
 
     /** Add a function at the end of the chain
@@ -110,9 +110,10 @@ public:
      */
     template<typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "The add function does not support cv-qualifiers. Replaced by "
-        "add(callback(obj, method)).")
-    pFunctionPointer_t add(T *obj, M method) {
+                          "The add function does not support cv-qualifiers. Replaced by "
+                          "add(callback(obj, method)).")
+    pFunctionPointer_t add(T *obj, M method)
+    {
         return add(callback(obj, method));
     }
 
@@ -124,7 +125,7 @@ public:
      *  The function object created for 'func'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     pFunctionPointer_t add_front(Callback<void()> func);
 
     /** Add a function at the beginning of the chain
@@ -141,16 +142,17 @@ public:
      */
     template<typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "The add_front function does not support cv-qualifiers. Replaced by "
-        "add_front(callback(obj, method)).")
-    pFunctionPointer_t add_front(T *obj, M method) {
+                          "The add_front function does not support cv-qualifiers. Replaced by "
+                          "add_front(callback(obj, method)).")
+    pFunctionPointer_t add_front(T *obj, M method)
+    {
         return add_front(callback(obj, method));
     }
 
     /** Get the number of functions in the chain
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     int size() const;
 
     /** Get a function object from the chain
@@ -161,7 +163,7 @@ public:
      *  The function object at position 'i' in the chain
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     pFunctionPointer_t get(int i) const;
 
     /** Look for a function object in the call chain
@@ -172,13 +174,13 @@ public:
      *  The index of the function object if found, -1 otherwise.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     int find(pFunctionPointer_t f) const;
 
     /** Clear the call chain (remove all functions in the chain).
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     void clear();
 
     /** Remove a function object from the chain
@@ -189,24 +191,26 @@ public:
      *  true if the function object was found and removed, false otherwise.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     bool remove(pFunctionPointer_t f);
 
     /** Call all the functions in the chain in sequence
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     void call();
 
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
-    void operator ()(void) {
+                          "public API of mbed-os and is being removed in the future.")
+    void operator()(void)
+    {
         call();
     }
 
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
-    pFunctionPointer_t operator [](int i) const {
+                          "public API of mbed-os and is being removed in the future.")
+    pFunctionPointer_t operator [](int i) const
+    {
         return get(i);
     }
 

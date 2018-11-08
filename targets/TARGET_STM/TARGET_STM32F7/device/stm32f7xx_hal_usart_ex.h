@@ -40,7 +40,7 @@
 #define __STM32F7xx_HAL_USART_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -129,7 +129,7 @@
 
 #define IS_USART_WORD_LENGTH(__LENGTH__) (((__LENGTH__) == USART_WORDLENGTH_7B) || \
                                           ((__LENGTH__) == USART_WORDLENGTH_8B) || \
-                                          ((__LENGTH__) == USART_WORDLENGTH_9B))                                 
+                                          ((__LENGTH__) == USART_WORDLENGTH_9B))
 /**
   * @}
   */

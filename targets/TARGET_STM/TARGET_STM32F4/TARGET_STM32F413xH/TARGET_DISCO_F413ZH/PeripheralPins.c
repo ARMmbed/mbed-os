@@ -224,7 +224,7 @@ const PinMap PinMap_UART_TX[] = {
     {PF_7,       UART_7,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART7)},   // ARDUINO D1
     {PF_9,       UART_8,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART8)},   // Pin not available on any connector
     {PG_14,      UART_6,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},  // Pin not available on any connector - STDIO_UART_TX
-    {NC,         NC,      0} 
+    {NC,         NC,      0}
 };
 
 const PinMap PinMap_UART_RX[] = {

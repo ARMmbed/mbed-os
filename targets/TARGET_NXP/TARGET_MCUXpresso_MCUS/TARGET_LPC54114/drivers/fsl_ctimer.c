@@ -72,10 +72,8 @@ static uint32_t CTIMER_GetInstance(CTIMER_Type *base)
     uint32_t ctimerArrayCount = (sizeof(s_ctimerBases) / sizeof(s_ctimerBases[0]));
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ctimerArrayCount; instance++)
-    {
-        if (s_ctimerBases[instance] == base)
-        {
+    for (instance = 0; instance < ctimerArrayCount; instance++) {
+        if (s_ctimerBases[instance] == base) {
             break;
         }
     }
@@ -141,8 +139,7 @@ status_t CTIMER_SetupPwm(CTIMER_Type *base,
     uint32_t timerClock = srcClock_Hz / (base->PR + 1);
     uint32_t index = CTIMER_GetInstance(base);
 
-    if (matchChannel == kCTIMER_Match_3)
-    {
+    if (matchChannel == kCTIMER_Match_3) {
         return kStatus_Fail;
     }
 
@@ -154,8 +151,7 @@ status_t CTIMER_SetupPwm(CTIMER_Type *base,
     reg &= ~((CTIMER_MCR_MR0R_MASK | CTIMER_MCR_MR0S_MASK | CTIMER_MCR_MR0I_MASK) << (matchChannel * 3));
 
     /* If call back function is valid then enable match interrupt for the channel */
-    if (enableInt)
-    {
+    if (enableInt) {
         reg |= (CTIMER_MCR_MR0I_MASK << (CTIMER_MCR_MR0I_SHIFT + (matchChannel * 3)));
     }
 
@@ -168,12 +164,9 @@ status_t CTIMER_SetupPwm(CTIMER_Type *base,
     period = (timerClock / pwmFreq_Hz) - 1;
 
     /* Calculate pulse width match value */
-    if (dutyCyclePercent == 0)
-    {
+    if (dutyCyclePercent == 0) {
         pulsePeriod = period + 1;
-    }
-    else
-    {
+    } else {
         pulsePeriod = (period * (100 - dutyCyclePercent)) / 100;
     }
 
@@ -185,8 +178,7 @@ status_t CTIMER_SetupPwm(CTIMER_Type *base,
     /* Clear status flags */
     CTIMER_ClearStatusFlags(base, CTIMER_IR_MR0INT_MASK << matchChannel);
     /* If call back function is valid then enable interrupt and update the call back function */
-    if (enableInt)
-    {
+    if (enableInt) {
         EnableIRQ(s_ctimerIRQ[index]);
     }
 
@@ -204,12 +196,9 @@ void CTIMER_UpdatePwmDutycycle(CTIMER_Type *base, ctimer_match_t matchChannel, u
     pulsePeriod = (period * dutyCyclePercent) / 100;
 
     /* For 0% dutycyle, make pulse period greater than period so the event will never occur */
-    if (dutyCyclePercent == 0)
-    {
+    if (dutyCyclePercent == 0) {
         pulsePeriod = period + 1;
-    }
-    else
-    {
+    } else {
         pulsePeriod = (period * (100 - dutyCyclePercent)) / 100;
     }
 
@@ -245,8 +234,7 @@ void CTIMER_SetupMatch(CTIMER_Type *base, ctimer_match_t matchChannel, const cti
     /* Clear status flags */
     CTIMER_ClearStatusFlags(base, CTIMER_IR_MR0INT_MASK << matchChannel);
     /* If interrupt is enabled then enable interrupt and update the call back function */
-    if (config->enableInterrupt)
-    {
+    if (config->enableInterrupt) {
         EnableIRQ(s_ctimerIRQ[index]);
     }
 }
@@ -265,8 +253,7 @@ void CTIMER_SetupCapture(CTIMER_Type *base,
     /* Clear status flags */
     CTIMER_ClearStatusFlags(base, (kCTIMER_Capture0Flag << capture));
     /* If call back function is valid then enable capture interrupt for the channel and update the call back function */
-    if (enableInt)
-    {
+    if (enableInt) {
         reg |= CTIMER_CCR_CAP0I_MASK << (capture * 3);
         EnableIRQ(s_ctimerIRQ[index]);
     }
@@ -287,21 +274,15 @@ void CTIMER_GenericIRQHandler(uint32_t index)
     int_stat = CTIMER_GetStatusFlags(s_ctimerBases[index]);
     /* Clear the status flags that were set */
     CTIMER_ClearStatusFlags(s_ctimerBases[index], int_stat);
-    if (ctimerCallbackType[index] == kCTIMER_SingleCallback)
-    {
-        if (s_ctimerCallback[index][0])
-        {
+    if (ctimerCallbackType[index] == kCTIMER_SingleCallback) {
+        if (s_ctimerCallback[index][0]) {
             s_ctimerCallback[index][0](int_stat);
         }
-    }
-    else
-    {
-        for (i = 0; i <= CTIMER_IR_CR3INT_SHIFT; i++)
-        {
+    } else {
+        for (i = 0; i <= CTIMER_IR_CR3INT_SHIFT; i++) {
             mask = 0x01 << i;
             /* For each status flag bit that was set call the callback function if it is valid */
-            if ((int_stat & mask) && (s_ctimerCallback[index][i]))
-            {
+            if ((int_stat & mask) && (s_ctimerCallback[index][i])) {
                 s_ctimerCallback[index][i](int_stat);
             }
         }

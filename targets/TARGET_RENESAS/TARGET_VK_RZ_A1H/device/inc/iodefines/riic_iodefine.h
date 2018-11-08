@@ -31,8 +31,8 @@
 
 #include "reg32_t.h"
 
-struct st_riic
-{                                                          /* RIIC             */
+struct st_riic {
+    /* RIIC             */
 #define RIICnCRm_COUNT 2
     union reg32_t  RIICnCR1;                      /*  RIICnCR1        */
     union reg32_t  RIICnCR2;                      /*  RIICnCR2        */
@@ -54,7 +54,7 @@ struct st_riic
     union reg32_t  RIICnBRH;                      /*  RIICnBRH        */
     union reg32_t  RIICnDRT;                      /*  RIICnDRT        */
     union reg32_t  RIICnDRR;                      /*  RIICnDRR        */
-    
+
 };
 
 

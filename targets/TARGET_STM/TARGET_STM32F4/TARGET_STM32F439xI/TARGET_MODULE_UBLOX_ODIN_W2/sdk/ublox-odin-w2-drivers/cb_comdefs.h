@@ -54,7 +54,7 @@
  * Used in function definitions to declare an input parameter unused to avoid warnings.
  */
 #ifndef cb_UNUSED
-#  define cb_UNUSED(x) x 
+#  define cb_UNUSED(x) x
 #endif
 
 
@@ -108,7 +108,7 @@
 #define cb_BIT_31       (1ul << 31)
 
 /**
- * Clears (set to zero) a bit or bits in a variable. 
+ * Clears (set to zero) a bit or bits in a variable.
  * @param variable The variable.
  * @param bit The bit or bits to clear
  */
@@ -166,7 +166,7 @@
 #ifdef __GNUC__
 #  define DO_PRAGMA(x) _Pragma (#x)
 #  define TODO(x) DO_PRAGMA(message ("TODO - " #x))
-#else 
+#else
 #  define TODO(x)
 #endif
 

@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #ifndef NRF_DRV_QDEC_H__
@@ -63,8 +63,7 @@ extern "C" {
  */
 
 /**@brief QDEC configuration structure.*/
-typedef struct
-{
+typedef struct {
     nrf_qdec_reportper_t   reportper;          /**< Report period in samples. */
     nrf_qdec_sampleper_t   sampleper;          /**< Sampling period in microseconds. */
     uint32_t               psela;              /**< Pin number for A input. */
@@ -93,24 +92,20 @@ typedef struct
     }
 
 /**@brief QDEC sample event data.*/
-typedef struct
-{
+typedef struct {
     int8_t value; /**< Sample value. */
 } nrf_drv_qdec_sample_data_evt_t;
 
 /**@brief QDEC report event data.*/
-typedef struct
-{
+typedef struct {
     int16_t acc;     /**< Accumulated transitions. */
     uint16_t accdbl;  /**< Accumulated double transitions. */
 } nrf_drv_qdec_report_data_evt_t;
 
 /**@brief QDEC event handler structure. */
-typedef struct
-{
+typedef struct {
     nrf_qdec_event_t  type;
-    union
-    {
+    union {
         nrf_drv_qdec_sample_data_evt_t sample; /**< Sample event data. */
         nrf_drv_qdec_report_data_evt_t report; /**< Report event data. */
     } data;
@@ -130,7 +125,7 @@ typedef void (*qdec_event_handler_t)(nrf_drv_qdec_event_t event);
  * @retval NRF_ERROR_INVALID_PARAM If invalid parameters were supplied.
  * @retval NRF_ERROR_INVALID_STATE If QDEC was already initialized.
  */
-ret_code_t nrf_drv_qdec_init(nrf_drv_qdec_config_t const * p_config,
+ret_code_t nrf_drv_qdec_init(nrf_drv_qdec_config_t const *p_config,
                              qdec_event_handler_t event_handler);
 
 /**@brief Function for uninitializing QDEC.
@@ -155,7 +150,7 @@ void nrf_drv_qdec_disable(void);
  * @param[out] p_acc      Pointer to store accumulated transitions.
  * @param[out] p_accdbl   Pointer to store accumulated double transitions.
  */
-void nrf_drv_qdec_accumulators_read(int16_t * p_acc, int16_t * p_accdbl);
+void nrf_drv_qdec_accumulators_read(int16_t *p_acc, int16_t *p_accdbl);
 
 /**
  * @brief Function for returning the address of a specific timer task.
@@ -163,7 +158,7 @@ void nrf_drv_qdec_accumulators_read(int16_t * p_acc, int16_t * p_accdbl);
  * @param[in]  task       QDEC task.
  * @param[out] p_task     Task address.
  */
-void nrf_drv_qdec_task_address_get(nrf_qdec_task_t task, uint32_t * p_task);
+void nrf_drv_qdec_task_address_get(nrf_qdec_task_t task, uint32_t *p_task);
 
 /**
  * @brief Function for returning the address of a specific timer event.
@@ -171,7 +166,7 @@ void nrf_drv_qdec_task_address_get(nrf_qdec_task_t task, uint32_t * p_task);
  * @param[in]  event       QDEC event.
  * @param[out] p_event     Event address.
  */
-void nrf_drv_qdec_event_address_get(nrf_qdec_event_t event, uint32_t * p_event);
+void nrf_drv_qdec_event_address_get(nrf_qdec_event_t event, uint32_t *p_event);
 
 /**
    *@}

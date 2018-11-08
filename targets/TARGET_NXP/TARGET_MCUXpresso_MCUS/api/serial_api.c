@@ -135,8 +135,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     /* Set bit count and parity mode. */
     temp = base->CFG & ~(USART_CFG_PARITYSEL_MASK | USART_CFG_DATALEN_MASK | USART_CFG_STOPLEN_MASK);
 
-    if (parity != ParityNone)
-    {
+    if (parity != ParityNone) {
         /* Enable Parity */
         if (parity == ParityOdd) {
             temp |= USART_CFG_PARITYSEL(3U);
@@ -169,11 +168,13 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint32_t index)
 {
     if (serial_irq_ids[index] != 0) {
-        if (transmit_empty)
+        if (transmit_empty) {
             irq_handler(serial_irq_ids[index], TxIrq);
+        }
 
-        if (receive_full)
+        if (receive_full) {
             irq_handler(serial_irq_ids[index], RxIrq);
+        }
     }
 }
 
@@ -323,13 +324,14 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
                 all_disabled = (((uart_addrs[obj->index]->FIFOINTENSET) & kUSART_RxLevelInterruptEnable) == 0);
                 break;
             case TxIrq:
-                all_disabled = (((uart_addrs[obj->index]->FIFOINTENSET) & kUSART_TxLevelInterruptEnable)== 0);
+                all_disabled = (((uart_addrs[obj->index]->FIFOINTENSET) & kUSART_TxLevelInterruptEnable) == 0);
                 break;
             default:
                 break;
         }
-        if (all_disabled)
+        if (all_disabled) {
             NVIC_DisableIRQ(uart_irqs[obj->index]);
+        }
     }
 }
 

@@ -51,8 +51,7 @@ Macro definitions
 #define DEVDRV_FLAG_ON      (1)     /* Flag ON  */
 
 /* ==== Channels ==== */
-typedef enum devdrv_ch
-{
+typedef enum devdrv_ch {
     DEVDRV_CH_0,            /* Channel 0  */
     DEVDRV_CH_1,            /* Channel 1  */
     DEVDRV_CH_2,            /* Channel 2  */

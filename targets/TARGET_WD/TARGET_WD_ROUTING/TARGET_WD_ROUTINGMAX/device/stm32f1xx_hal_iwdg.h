@@ -40,7 +40,7 @@
 #define __STM32F1xx_HAL_IWDG_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -59,15 +59,14 @@
   * @{
   */
 
-/** 
+/**
   * @brief  IWDG Init structure definition
   */
-typedef struct
-{
-  uint32_t Prescaler;  /*!< Select the prescaler of the IWDG.
+typedef struct {
+    uint32_t Prescaler;  /*!< Select the prescaler of the IWDG.
                             This parameter can be a value of @ref IWDG_Prescaler */
 
-  uint32_t Reload;     /*!< Specifies the IWDG down-counter reload value.
+    uint32_t Reload;     /*!< Specifies the IWDG down-counter reload value.
                             This parameter must be a number between Min_Data = 0 and Max_Data = 0x0FFF */
 
 } IWDG_InitTypeDef;
@@ -75,13 +74,12 @@ typedef struct
 /**
   * @brief  IWDG Handle Structure definition
   */
-typedef struct
-{
-  IWDG_TypeDef                 *Instance;  /*!< Register base address    */
+typedef struct {
+    IWDG_TypeDef                 *Instance;  /*!< Register base address    */
 
-  IWDG_InitTypeDef             Init;       /*!< IWDG required parameters */
+    IWDG_InitTypeDef             Init;       /*!< IWDG required parameters */
 
-}IWDG_HandleTypeDef;
+} IWDG_HandleTypeDef;
 
 /**
   * @}

@@ -20,7 +20,8 @@
 #include "PeripheralPins.h"
 #include "clk_freqs.h"
 
-static void init(void) {
+static void init(void)
+{
     // enable RTC clock
     SIM->SCGC6 |= SIM_SCGC6_RTC_MASK;
 
@@ -28,17 +29,17 @@ static void init(void) {
     SIM->SOPT1 &= ~SIM_SOPT1_OSC32KSEL_MASK;
 
     // Enable external crystal source if clock source is 32KHz
-    if (extosc_frequency()==32768) {
+    if (extosc_frequency() == 32768) {
         SIM->SOPT1 |= SIM_SOPT1_OSC32KSEL(OSC32KCLK);
-    }
-    else{
+    } else {
         // If main clock is NOT 32KHz crystal, use external 32KHz clock source defined in PeripheralPins.c
         SIM->SOPT1 |= SIM_SOPT1_OSC32KSEL(PinMap_RTC[0].peripheral);
         pinmap_pinout(PinMap_RTC[0].pin, PinMap_RTC);        //Map RTC clk input (if not NC)
     }
 }
 
-void rtc_init(void) {
+void rtc_init(void)
+{
     init();
 
     // Configure the TSR. default value: 1
@@ -72,7 +73,8 @@ void rtc_init(void) {
     RTC->SR |= RTC_SR_TCE_MASK;
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
     // [TODO]
 }
 
@@ -80,7 +82,8 @@ void rtc_free(void) {
  * Little check routine to see if the RTC has been enabled
  * 0 = Disabled, 1 = Enabled
  */
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     // even if the RTC module is enabled,
     // as we use RTC_CLKIN and an external clock,
     // we need to reconfigure the pins. That is why we
@@ -89,18 +92,21 @@ int rtc_isenabled(void) {
     // if RTC not enabled return 0
     SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK;
     SIM->SCGC6 |= SIM_SCGC6_RTC_MASK;
-    if ((RTC->SR & RTC_SR_TCE_MASK) == 0)
+    if ((RTC->SR & RTC_SR_TCE_MASK) == 0) {
         return 0;
+    }
 
     init();
     return 1;
 }
 
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
     return RTC->TSR;
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     // disable counter
     RTC->SR &= ~RTC_SR_TCE_MASK;
 

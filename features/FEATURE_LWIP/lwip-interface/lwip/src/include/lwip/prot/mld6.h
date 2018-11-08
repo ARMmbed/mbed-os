@@ -50,13 +50,13 @@ extern "C" {
 #endif
 PACK_STRUCT_BEGIN
 struct mld_header {
-  PACK_STRUCT_FLD_8(u8_t type);
-  PACK_STRUCT_FLD_8(u8_t code);
-  PACK_STRUCT_FIELD(u16_t chksum);
-  PACK_STRUCT_FIELD(u16_t max_resp_delay);
-  PACK_STRUCT_FIELD(u16_t reserved);
-  PACK_STRUCT_FLD_S(ip6_addr_p_t multicast_address);
-  /* Options follow. */
+    PACK_STRUCT_FLD_8(u8_t type);
+    PACK_STRUCT_FLD_8(u8_t code);
+    PACK_STRUCT_FIELD(u16_t chksum);
+    PACK_STRUCT_FIELD(u16_t max_resp_delay);
+    PACK_STRUCT_FIELD(u16_t reserved);
+    PACK_STRUCT_FLD_S(ip6_addr_p_t multicast_address);
+    /* Options follow. */
 } PACK_STRUCT_STRUCT;
 PACK_STRUCT_END
 #ifdef PACK_STRUCT_USE_INCLUDES

@@ -787,11 +787,11 @@ extern "C" {
 /* Generates table enum list entries for all channels of a
    given type and channel number on TCC module. */
 #define _TCC_CHANNEL_ENUM_LIST(type) \
-		MREPEAT(TCC_NUM_CHANNELS, _TCC_ENUM, type##_CHANNEL)
+        MREPEAT(TCC_NUM_CHANNELS, _TCC_ENUM, type##_CHANNEL)
 /* Generates table enum list entries for all output of a
    given type and waveform output number on TCC module. */
 #define _TCC_WO_ENUM_LIST(type) \
-		MREPEAT(TCC_NUM_WAVE_OUTPUTS, _TCC_ENUM, type)
+        MREPEAT(TCC_NUM_WAVE_OUTPUTS, _TCC_ENUM, type)
 
 
 #if TCC_ASYNC == true
@@ -1137,7 +1137,7 @@ enum tcc_event_action {
     /** Decrement the counter on event, irrespective of count direction. */
     TCC_EVENT_ACTION_DECREMENT,
     /** Count during active state of asynchronous event. In this case,
-    * depending	on the count direction, the  count will be incremented
+    * depending on the count direction, the  count will be incremented
     * or decremented on each prescaled GCLK_TCCx, as long as the input
     * event remains active. */
     TCC_EVENT_ACTION_COUNT_DURING_ACTIVE,

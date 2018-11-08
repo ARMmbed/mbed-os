@@ -5,7 +5,7 @@
  * \defgroup platform_wait_api wait_api functions
  * @{
  */
- 
+
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *

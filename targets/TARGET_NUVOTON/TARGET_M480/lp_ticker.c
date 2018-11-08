@@ -111,7 +111,7 @@ timestamp_t lp_ticker_read()
         lp_ticker_init();
     }
 
-    TIMER_T * timer2_base = (TIMER_T *) NU_MODBASE(timer2_modinit.modname);
+    TIMER_T *timer2_base = (TIMER_T *) NU_MODBASE(timer2_modinit.modname);
 
     do {
         uint64_t major_minor_clks;
@@ -191,7 +191,7 @@ static void tmr3_vec(void)
 
 static void lp_ticker_arm_cd(void)
 {
-    TIMER_T * timer3_base = (TIMER_T *) NU_MODBASE(timer3_modinit.modname);
+    TIMER_T *timer3_base = (TIMER_T *) NU_MODBASE(timer3_modinit.modname);
 
     // Reset 8-bit PSC counter, 24-bit up counter value and CNTEN bit
     // NUC472/M451: See TIMER_CTL_RSTCNT_Msk

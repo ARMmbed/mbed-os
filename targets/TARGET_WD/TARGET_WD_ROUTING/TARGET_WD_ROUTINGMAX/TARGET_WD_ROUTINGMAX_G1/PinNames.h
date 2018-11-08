@@ -93,67 +93,67 @@ typedef enum {
     PD_1  = 0x31,
     PD_2  = 0x32,
 
-	// Generic signals namings
+    // Generic signals namings
     SERIAL_TX   = PC_10, // Virtual Com Port
     SERIAL_RX   = PC_11, // Virtual Com Port
     USBTX       = PC_10, // Virtual Com Port
     USBRX       = PC_11, // Virtual Com Port
-	
-	SPI_MOSI    = PB_15,
+
+    SPI_MOSI    = PB_15,
     SPI_MISO    = PB_14,
     SPI_SCK     = PB_13,
-    SPI_CS0     = PC_7,	
-	SPI_CS1     = PC_6,		
-	SPI_CS2		= PA_0,
-	SPI_CS3		= PC_9,
-	SPI_CS4		= PC_8,
-	SPI_CS5		= PA_5,
-	
-	SPI_CS_FLASH	= SPI_CS2, // was PB_2
-	
-	BUS_nINT	= PC_0,
-	
-	In1			= PC_14,
-	In2			= PC_15,
-	In3			= PA_8,
-	In4			= PA_9,
-	In5			= PA_10,
-	In6			= PB_5,	// was PB_9
-	In7			= PC_13, // was PC_8
-	In8			= PB_1,	// was PC_9
-	In9			= PB_2,	// was PA_0
-	In10		= PA_4,
-	
-	Out1		= PC_3,
-	Out2		= PC_2,
-	Out3		= PC_1,
-	
-	Version1	= PA_6,
-	Version2	= PA_7,
-	Version4	= PC_4,
-	Version8	= PC_5,
-	Version16	= PB_0,
-	
-	MUX_0		= PB_10,
-	MUX_1		= PB_11,
-	MUX_2		= PB_12,
-	
-	ONEWIRE_TxH	= PB_4,
-	ONEWIRE_Tx	= PD_2,
-	ONEWIRE_Rx	= PC_12,
-	
-	Tx0			= PB_6,	// BUS Tx
-	Rx0			= PB_7,	// BUS Rx
-	
-	BUS_LED		= PB_8,
-	LED1		= BUS_LED,
-	
-	USB_ID		= PA_15,
-	
-	RS485_En	= PA_1,
-	RS485_Tx1	= PA_2,
-	RS485_Rx1	= PA_3,
-	
+    SPI_CS0     = PC_7,
+    SPI_CS1     = PC_6,
+    SPI_CS2     = PA_0,
+    SPI_CS3     = PC_9,
+    SPI_CS4     = PC_8,
+    SPI_CS5     = PA_5,
+
+    SPI_CS_FLASH    = SPI_CS2, // was PB_2
+
+    BUS_nINT    = PC_0,
+
+    In1         = PC_14,
+    In2         = PC_15,
+    In3         = PA_8,
+    In4         = PA_9,
+    In5         = PA_10,
+    In6         = PB_5, // was PB_9
+    In7         = PC_13, // was PC_8
+    In8         = PB_1, // was PC_9
+    In9         = PB_2, // was PA_0
+    In10        = PA_4,
+
+    Out1        = PC_3,
+    Out2        = PC_2,
+    Out3        = PC_1,
+
+    Version1    = PA_6,
+    Version2    = PA_7,
+    Version4    = PC_4,
+    Version8    = PC_5,
+    Version16   = PB_0,
+
+    MUX_0       = PB_10,
+    MUX_1       = PB_11,
+    MUX_2       = PB_12,
+
+    ONEWIRE_TxH = PB_4,
+    ONEWIRE_Tx  = PD_2,
+    ONEWIRE_Rx  = PC_12,
+
+    Tx0         = PB_6, // BUS Tx
+    Rx0         = PB_7, // BUS Rx
+
+    BUS_LED     = PB_8,
+    LED1        = BUS_LED,
+
+    USB_ID      = PA_15,
+
+    RS485_En    = PA_1,
+    RS485_Tx1   = PA_2,
+    RS485_Rx1   = PA_3,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

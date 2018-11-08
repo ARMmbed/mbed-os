@@ -44,8 +44,8 @@ struct spi_s {
 };
 
 struct pwmout_s {
-     LPC_SCT_TypeDef* pwm;
-     uint32_t pwm_ch;
+    LPC_SCT_TypeDef *pwm;
+    uint32_t pwm_ch;
 };
 
 #include "gpio_object.h"

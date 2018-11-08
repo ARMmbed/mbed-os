@@ -35,14 +35,12 @@
  ******************************************************************************/
 
 /*<! Structure definition for flexio_i2s_dma_private_handle_t. The structure is private. */
-typedef struct _flexio_i2s_dma_private_handle
-{
+typedef struct _flexio_i2s_dma_private_handle {
     FLEXIO_I2S_Type *base;
     flexio_i2s_dma_handle_t *handle;
 } flexio_i2s_dma_private_handle_t;
 
-enum _flexio_i2s_dma_transfer_state
-{
+enum _flexio_i2s_dma_transfer_state {
     kFLEXIO_I2S_Busy = 0x0U, /*!< FLEXIO I2S is busy */
     kFLEXIO_I2S_Idle,        /*!< Transfer is done. */
 };
@@ -80,14 +78,12 @@ static void FLEXIO_I2S_TxDMACallback(dma_handle_t *handle, void *userData)
     /* If finished a blcok, call the callback function */
     memset(&flexio_i2sHandle->queue[flexio_i2sHandle->queueDriver], 0, sizeof(flexio_i2s_transfer_t));
     flexio_i2sHandle->queueDriver = (flexio_i2sHandle->queueDriver + 1) % FLEXIO_I2S_XFER_QUEUE_SIZE;
-    if (flexio_i2sHandle->callback)
-    {
+    if (flexio_i2sHandle->callback) {
         (flexio_i2sHandle->callback)(privHandle->base, flexio_i2sHandle, kStatus_Success, flexio_i2sHandle->userData);
     }
 
     /* If all data finished, just stop the transfer */
-    if (flexio_i2sHandle->queue[flexio_i2sHandle->queueDriver].data == NULL)
-    {
+    if (flexio_i2sHandle->queue[flexio_i2sHandle->queueDriver].data == NULL) {
         FLEXIO_I2S_TransferAbortSendDMA(privHandle->base, flexio_i2sHandle);
     }
 }
@@ -100,14 +96,12 @@ static void FLEXIO_I2S_RxDMACallback(dma_handle_t *handle, void *userData)
     /* If finished a blcok, call the callback function */
     memset(&flexio_i2sHandle->queue[flexio_i2sHandle->queueDriver], 0, sizeof(flexio_i2s_transfer_t));
     flexio_i2sHandle->queueDriver = (flexio_i2sHandle->queueDriver + 1) % FLEXIO_I2S_XFER_QUEUE_SIZE;
-    if (flexio_i2sHandle->callback)
-    {
+    if (flexio_i2sHandle->callback) {
         (flexio_i2sHandle->callback)(privHandle->base, flexio_i2sHandle, kStatus_Success, flexio_i2sHandle->userData);
     }
 
     /* If all data finished, just stop the transfer */
-    if (flexio_i2sHandle->queue[flexio_i2sHandle->queueDriver].data == NULL)
-    {
+    if (flexio_i2sHandle->queue[flexio_i2sHandle->queueDriver].data == NULL) {
         FLEXIO_I2S_TransferAbortReceiveDMA(privHandle->base, flexio_i2sHandle);
     }
 }
@@ -166,13 +160,10 @@ void FLEXIO_I2S_TransferSetFormatDMA(FLEXIO_I2S_Type *base,
     assert(handle && format);
 
     /* Configure the audio format to FLEXIO I2S registers */
-    if (srcClock_Hz != 0)
-    {
+    if (srcClock_Hz != 0) {
         /* It is master */
         FLEXIO_I2S_MasterSetFormat(base, format, srcClock_Hz);
-    }
-    else
-    {
+    } else {
         FLEXIO_I2S_SlaveSetFormat(base, format);
     }
 
@@ -188,13 +179,11 @@ status_t FLEXIO_I2S_TransferSendDMA(FLEXIO_I2S_Type *base, flexio_i2s_dma_handle
     uint32_t destAddr = FLEXIO_I2S_TxGetDataRegisterAddress(base) + (4U - handle->bytesPerFrame);
 
     /* Check if input parameter invalid */
-    if ((xfer->data == NULL) || (xfer->dataSize == 0U))
-    {
+    if ((xfer->data == NULL) || (xfer->dataSize == 0U)) {
         return kStatus_InvalidArgument;
     }
 
-    if (handle->queue[handle->queueUser].data)
-    {
+    if (handle->queue[handle->queueUser].data) {
         return kStatus_FLEXIO_I2S_QueueFull;
     }
 
@@ -235,13 +224,11 @@ status_t FLEXIO_I2S_TransferReceiveDMA(FLEXIO_I2S_Type *base,
     uint32_t srcAddr = FLEXIO_I2S_RxGetDataRegisterAddress(base) - (4U - handle->bytesPerFrame);
 
     /* Check if input parameter invalid */
-    if ((xfer->data == NULL) || (xfer->dataSize == 0U))
-    {
+    if ((xfer->data == NULL) || (xfer->dataSize == 0U)) {
         return kStatus_InvalidArgument;
     }
 
-    if (handle->queue[handle->queueUser].data)
-    {
+    if (handle->queue[handle->queueUser].data) {
         return kStatus_FLEXIO_I2S_QueueFull;
     }
 
@@ -306,12 +293,9 @@ status_t FLEXIO_I2S_TransferGetSendCountDMA(FLEXIO_I2S_Type *base, flexio_i2s_dm
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kFLEXIO_I2S_Busy)
-    {
+    if (handle->state != kFLEXIO_I2S_Busy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = handle->transferSize[handle->queueDriver] -
                  DMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel);
     }
@@ -325,12 +309,9 @@ status_t FLEXIO_I2S_TransferGetReceiveCountDMA(FLEXIO_I2S_Type *base, flexio_i2s
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kFLEXIO_I2S_Busy)
-    {
+    if (handle->state != kFLEXIO_I2S_Busy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = handle->transferSize[handle->queueDriver] -
                  DMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel);
     }

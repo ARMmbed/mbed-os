@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-     
+
 #include "device.h"
 #include "objects.h"
 #include "pinmap.h"
@@ -22,7 +22,7 @@
 
 #ifdef CONFIG_PWM_EN
 #include "pwmout_api.h"
-     
+
 static const PinMap PinMap_PWM[] = {
     {PB_4,  RTL_PIN_PERI(PWM0, 0, S0), RTL_PIN_FUNC(PWM0, S0)},
     {PB_5,  RTL_PIN_PERI(PWM1, 1, S0), RTL_PIN_FUNC(PWM1, S0)},
@@ -46,15 +46,15 @@ static const PinMap PinMap_PWM[] = {
 
     {NC,    NC,     0}
 };
- 
-void pwmout_init(pwmout_t* obj, PinName pin) 
+
+void pwmout_init(pwmout_t *obj, PinName pin)
 {
     uint32_t peripheral;
     u32 pwm_idx;
     u32 pin_sel;
 
     DBG_PWM_INFO("%s: Init PWM for pin(0x%x)\n", __FUNCTION__, pin);
-    
+
     // Get the peripheral name from the pin and assign it to the object
     peripheral = pinmap_peripheral(pin, PinMap_PWM);
 
@@ -79,12 +79,12 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     HAL_Pwm_Enable(&obj->pwm_hal_adp);
 }
 
-void pwmout_free(pwmout_t* obj) 
+void pwmout_free(pwmout_t *obj)
 {
     HAL_Pwm_Disable(&obj->pwm_hal_adp);
 }
 
-void pwmout_write(pwmout_t* obj, float value) 
+void pwmout_write(pwmout_t *obj, float value)
 {
     if (value < (float)0.0) {
         value = 0.0;
@@ -96,7 +96,7 @@ void pwmout_write(pwmout_t* obj, float value)
     HAL_Pwm_SetDuty(&obj->pwm_hal_adp, obj->period, obj->pulse);
 }
 
-float pwmout_read(pwmout_t* obj) 
+float pwmout_read(pwmout_t *obj)
 {
     float value = 0;
     if (obj->period > 0) {
@@ -105,17 +105,17 @@ float pwmout_read(pwmout_t* obj)
     return ((value > (float)1.0) ? (float)(1.0) : (value));
 }
 
-void pwmout_period(pwmout_t* obj, float seconds) 
+void pwmout_period(pwmout_t *obj, float seconds)
 {
     pwmout_period_us(obj, (int)(seconds * 1000000.0f));
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms) 
+void pwmout_period_ms(pwmout_t *obj, int ms)
 {
     pwmout_period_us(obj, (int)(ms * 1000));
 }
 
-void pwmout_period_us(pwmout_t* obj, int us) 
+void pwmout_period_us(pwmout_t *obj, int us)
 {
     float dc = pwmout_read(obj);
 
@@ -124,17 +124,17 @@ void pwmout_period_us(pwmout_t* obj, int us)
     pwmout_write(obj, dc);
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) 
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, (int)(seconds * 1000000.0f));
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) 
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) 
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
     float value = (float)us / (float)obj->period;
     pwmout_write(obj, value);

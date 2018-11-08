@@ -21,7 +21,7 @@
 #define GET_GPIO_MAP_NUM(pin)  (pin >> 4)    /* pin / 16 */
 #define GPIO_NUM               4
 
-static CMSDK_GPIO_TypeDef* GPIO_MAP[GPIO_NUM] = {
+static CMSDK_GPIO_TypeDef *GPIO_MAP[GPIO_NUM] = {
     CMSDK_GPIO0,
     CMSDK_GPIO1,
     CMSDK_GPIO2,
@@ -30,7 +30,7 @@ static CMSDK_GPIO_TypeDef* GPIO_MAP[GPIO_NUM] = {
 
 void pin_function(PinName pin, int function)
 {
-    CMSDK_GPIO_TypeDef* p_gpio_map = 0;
+    CMSDK_GPIO_TypeDef *p_gpio_map = 0;
 
     MBED_ASSERT(pin != (PinName)NC);
 
@@ -38,7 +38,7 @@ void pin_function(PinName pin, int function)
         if (function == ALTERNATE_FUNC) {
             p_gpio_map = GPIO_MAP[GET_GPIO_MAP_NUM(pin)];
             p_gpio_map->ALTFUNCSET = (1 << GET_GPIO_PIN_POS(pin));
-        } else if(function == GPIO_FUNC) {
+        } else if (function == GPIO_FUNC) {
             p_gpio_map = GPIO_MAP[GET_GPIO_MAP_NUM(pin)];
             p_gpio_map->ALTFUNCCLR = (1 << GET_GPIO_PIN_POS(pin));
         } else {

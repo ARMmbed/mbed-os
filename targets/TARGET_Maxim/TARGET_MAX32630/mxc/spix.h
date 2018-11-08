@@ -95,15 +95,15 @@ typedef struct {
 
 /* **** Function Prototypes **** */
 
- /**
-  * @brief      Configure SPI execute in place clocking.
-  * @param      sys_cfg  Pointer to system level configuration structure.
-  * @param      baud     Frequency in hertz to set the clock to. May not be able
-  *                      to achieve with the given clock divider.
-  * @param      sample   Number of SPIX clocks to delay the sampling of the SDIO
-  *                      lines. Will use feedback mode if set to 0.
-  * @return     #E_NO_ERROR if everything is successful
-  */
+/**
+ * @brief      Configure SPI execute in place clocking.
+ * @param      sys_cfg  Pointer to system level configuration structure.
+ * @param      baud     Frequency in hertz to set the clock to. May not be able
+ *                      to achieve with the given clock divider.
+ * @param      sample   Number of SPIX clocks to delay the sampling of the SDIO
+ *                      lines. Will use feedback mode if set to 0.
+ * @return     #E_NO_ERROR if everything is successful
+ */
 int SPIX_ConfigClock(const sys_cfg_spix_t *sys_cfg, uint32_t baud, uint8_t sample);
 
 /**

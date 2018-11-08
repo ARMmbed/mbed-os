@@ -92,7 +92,7 @@ int main()
     MBED_HOSTTEST_START("MBED_A30");
 
     const int frequency_table[] = {10000, 50000, 100000, 500000, 1000000};
-    for (uint32_t i = 0; i < sizeof(frequency_table)/sizeof(int); i++) {
+    for (uint32_t i = 0; i < sizeof(frequency_table) / sizeof(int); i++) {
         Check_CAN_Frequency(frequency_table[i]);
     }
 

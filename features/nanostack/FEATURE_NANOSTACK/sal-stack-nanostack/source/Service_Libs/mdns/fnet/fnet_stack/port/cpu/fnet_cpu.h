@@ -30,19 +30,19 @@
 #include "fnet_config.h"
 
 #if FNET_MCF    /* ColdFire.*/
-    #include "mcf/fnet_mcf.h"
+#include "mcf/fnet_mcf.h"
 #endif
 
 #if FNET_MK     /* Kinetis.*/
-    #include "mk/fnet_mk.h"
+#include "mk/fnet_mk.h"
 #endif
 
 #if FNET_MPC     /* MPC.*/
-    #include "mpc/fnet_mpc.h"
+#include "mpc/fnet_mpc.h"
 #endif
 
 #if FNET_LPC     /* NXP's LPC.*/
-    #include "lpc/fnet_lpc.h"
+#include "lpc/fnet_lpc.h"
 #endif
 
 #include "stack/fnet_stdlib.h"
@@ -220,7 +220,7 @@ typedef fnet_uint32_t fnet_cpu_irq_desc_t;
  * (RSTO) pin.
  *
  ******************************************************************************/
-void fnet_cpu_reset (void);
+void fnet_cpu_reset(void);
 
 /***************************************************************************/ /*!
  *
@@ -274,7 +274,7 @@ void fnet_cpu_irq_enable(fnet_cpu_irq_desc_t irq_desc);
  * by @c port_number. @n
  *
  ******************************************************************************/
-void fnet_cpu_serial_putchar( fnet_index_t port_number, fnet_char_t character );
+void fnet_cpu_serial_putchar(fnet_index_t port_number, fnet_char_t character);
 
 /***************************************************************************/ /*!
  *
@@ -294,7 +294,7 @@ void fnet_cpu_serial_putchar( fnet_index_t port_number, fnet_char_t character );
  * by @c port_number. @n
  *
  ******************************************************************************/
-fnet_int32_t fnet_cpu_serial_getchar( fnet_index_t port_number );
+fnet_int32_t fnet_cpu_serial_getchar(fnet_index_t port_number);
 
 /***************************************************************************/ /*!
  *
@@ -420,12 +420,12 @@ void fnet_cpu_isr(void);
 
 struct fnet_netif; /* Forward declaration.*/
 #if FNET_CFG_CPU_ETH0
-    extern struct fnet_netif fnet_cpu_eth0_if;
-    #define FNET_CPU_ETH0_IF ((fnet_netif_desc_t)(&fnet_cpu_eth0_if))
+extern struct fnet_netif fnet_cpu_eth0_if;
+#define FNET_CPU_ETH0_IF ((fnet_netif_desc_t)(&fnet_cpu_eth0_if))
 #endif
 #if FNET_CFG_CPU_ETH1
-    extern struct fnet_netif  fnet_cpu_eth1_if;
-    #define FNET_CPU_ETH1_IF ((fnet_netif_desc_t)(&fnet_cpu_eth1_if))
+extern struct fnet_netif  fnet_cpu_eth1_if;
+#define FNET_CPU_ETH1_IF ((fnet_netif_desc_t)(&fnet_cpu_eth1_if))
 #endif
 
 #if defined(__cplusplus)

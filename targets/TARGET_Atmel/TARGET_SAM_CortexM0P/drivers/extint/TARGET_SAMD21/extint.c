@@ -71,10 +71,10 @@ struct _extint_module _extint_dev;
  * \param[in] detection_criteria  Edge detection mode to use (\ref extint_detect)
  */
 #define _extint_is_gclk_required(filter_input_signal, detection_criteria) \
-		((filter_input_signal) ? true : (\
-			(EXTINT_DETECT_RISING == (detection_criteria)) ? true : (\
-			(EXTINT_DETECT_FALLING == (detection_criteria)) ? true : (\
-			(EXTINT_DETECT_BOTH == (detection_criteria)) ? true : false))))
+        ((filter_input_signal) ? true : (\
+            (EXTINT_DETECT_RISING == (detection_criteria)) ? true : (\
+            (EXTINT_DETECT_FALLING == (detection_criteria)) ? true : (\
+            (EXTINT_DETECT_BOTH == (detection_criteria)) ? true : false))))
 
 static void _extint_enable(void);
 static void _extint_disable(void);
@@ -287,7 +287,7 @@ void extint_chan_set_config(
 
     /* Set the channel's new wake up mode setting */
     if (config->wake_if_sleeping) {
-        EIC_module->WAKEUP.reg |=  (1UL << channel);
+        EIC_module->WAKEUP.reg |= (1UL << channel);
     } else {
         EIC_module->WAKEUP.reg &= ~(1UL << channel);
     }

@@ -50,7 +50,7 @@ typedef uint8_t bdAddr_t[BDA_ADDR_LEN];
 /*************************************************************************************************/
 /*!
  *  \fn     BdaCpy
- *        
+ *
  *  \brief  Copy a BD address from source to destination.
  *
  *  \param  pDst    Pointer to destination.
@@ -65,7 +65,7 @@ void BdaCpy(uint8_t *pDst, uint8_t *pSrc);
 /*************************************************************************************************/
 /*!
  *  \fn     BdaCmp
- *        
+ *
  *  \brief  Compare two BD addresses.
  *
  *  \param  pAddr1  First address.
@@ -79,7 +79,7 @@ bool_t BdaCmp(uint8_t *pAddr1, uint8_t *pAddr2);
 /*************************************************************************************************/
 /*!
  *  \fn     BdaClr
- *        
+ *
  *  \brief  Set a BD address to all zeros.
  *
  *  \param  pDst    Pointer to destination.
@@ -92,7 +92,7 @@ uint8_t *BdaClr(uint8_t *pDst);
 /*************************************************************************************************/
 /*!
  *  \fn     Bda2Str
- *        
+ *
  *  \brief  Convert a BD address to a string.
  *
  *  \param  pAddr    Pointer to BD address.

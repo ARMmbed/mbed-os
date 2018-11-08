@@ -64,9 +64,9 @@ typedef struct {
 /* Creates nvm files if they don't exist. Checks file versions */
 int thread_nvm_store_init(void);
 /* reads all fast data from nvm */
-int thread_nvm_store_fast_data_read(thread_nvm_fast_data_t* fast_data);
+int thread_nvm_store_fast_data_read(thread_nvm_fast_data_t *fast_data);
 /* stores all fast data to nvm */
-int thread_nvm_store_fast_data_store(thread_nvm_fast_data_t* fast_data);
+int thread_nvm_store_fast_data_store(thread_nvm_fast_data_t *fast_data);
 /* stores new frame counters to nvm only if the any frame counter threshold is passed*/
 int thread_nvm_store_frame_counters_check_and_store(uint32_t mac_frame_counter, uint32_t mle_frame_counter);
 /* stores the frame counter and seq counter to nvm only if any threshold is passed*/

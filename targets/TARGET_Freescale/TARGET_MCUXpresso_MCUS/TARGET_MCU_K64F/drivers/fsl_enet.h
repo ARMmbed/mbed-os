@@ -140,8 +140,7 @@
 #define ENET_PHY_MAXADDRESS (ENET_MMFR_PA_MASK >> ENET_MMFR_PA_SHIFT)
 
 /*! @brief Defines the status return codes for transaction. */
-enum _enet_status
-{
+enum _enet_status {
     kStatus_ENET_RxFrameError = MAKE_STATUS(kStatusGroup_ENET, 0U), /*!< A frame received but data error happen. */
     kStatus_ENET_RxFrameFail = MAKE_STATUS(kStatusGroup_ENET, 1U),  /*!< Failed to receive a frame. */
     kStatus_ENET_RxFrameEmpty = MAKE_STATUS(kStatusGroup_ENET, 2U), /*!< No frame arrive. */
@@ -156,36 +155,31 @@ enum _enet_status
 };
 
 /*! @brief Defines the RMII or MII mode for data interface between the MAC and the PHY. */
-typedef enum _enet_mii_mode
-{
+typedef enum _enet_mii_mode {
     kENET_MiiMode = 0U, /*!< MII mode for data interface. */
     kENET_RmiiMode      /*!< RMII mode for data interface. */
 } enet_mii_mode_t;
 
 /*! @brief Defines the 10 Mbps or 100 Mbps speed for the  MII data interface. */
-typedef enum _enet_mii_speed
-{
+typedef enum _enet_mii_speed {
     kENET_MiiSpeed10M = 0U, /*!< Speed 10 Mbps. */
     kENET_MiiSpeed100M      /*!< Speed 100 Mbps. */
 } enet_mii_speed_t;
 
 /*! @brief Defines the half or full duplex for the MII data interface. */
-typedef enum _enet_mii_duplex
-{
+typedef enum _enet_mii_duplex {
     kENET_MiiHalfDuplex = 0U, /*!< Half duplex mode. */
     kENET_MiiFullDuplex       /*!< Full duplex mode. */
 } enet_mii_duplex_t;
 
 /*! @brief Defines the write operation for the MII management frame. */
-typedef enum _enet_mii_write
-{
+typedef enum _enet_mii_write {
     kENET_MiiWriteNoCompliant = 0U, /*!< Write frame operation, but not MII-compliant. */
     kENET_MiiWriteValidFrame        /*!< Write frame operation for a valid MII management frame. */
 } enet_mii_write_t;
 
 /*! @brief Defines the read operation for the MII management frame. */
-typedef enum _enet_mii_read
-{
+typedef enum _enet_mii_read {
     kENET_MiiReadValidFrame = 2U, /*!< Read frame operation for a valid MII management frame. */
     kENET_MiiReadNoCompliant = 3U /*!< Read frame operation, but not MII-compliant. */
 } enet_mii_read_t;
@@ -202,8 +196,7 @@ typedef enum _enet_mii_read
  * configure rxFifoFullThreshold and txFifoWatermark
  * in the enet_config_t.
  */
-typedef enum _enet_special_control_flag
-{
+typedef enum _enet_special_control_flag {
     kENET_ControlFlowControlEnable = 0x0001U,       /*!< Enable ENET flow control: pause frame. */
     kENET_ControlRxPayloadCheckEnable = 0x0002U,    /*!< Enable ENET receive payload length check. */
     kENET_ControlRxPadRemoveEnable = 0x0004U,       /*!< Padding is removed from received frames. */
@@ -221,8 +214,7 @@ typedef enum _enet_special_control_flag
  * members. Members usually map to interrupt enable bits in one or more
  * peripheral registers.
  */
-typedef enum _enet_interrupt_enable
-{
+typedef enum _enet_interrupt_enable {
     kENET_BabrInterrupt = ENET_EIR_BABR_MASK,        /*!< Babbling receive error interrupt source */
     kENET_BabtInterrupt = ENET_EIR_BABT_MASK,        /*!< Babbling transmit error interrupt source */
     kENET_GraceStopInterrupt = ENET_EIR_GRA_MASK,    /*!< Graceful stop complete interrupt source */
@@ -245,8 +237,7 @@ typedef enum _enet_interrupt_enable
 } enet_interrupt_enable_t;
 
 /*! @brief Defines the common interrupt event for callback use. */
-typedef enum _enet_event
-{
+typedef enum _enet_event {
     kENET_RxEvent,     /*!< Receive event. */
     kENET_TxEvent,     /*!< Transmit event. */
     kENET_ErrEvent,    /*!< Error event: BABR/BABT/EBERR/LC/RL/UN/PLR . */
@@ -258,16 +249,14 @@ typedef enum _enet_event
 } enet_event_t;
 
 /*! @brief Defines the transmit accelerator configuration. */
-typedef enum _enet_tx_accelerator
-{
+typedef enum _enet_tx_accelerator {
     kENET_TxAccelIsShift16Enabled = ENET_TACC_SHIFT16_MASK, /*!< Transmit FIFO shift-16. */
     kENET_TxAccelIpCheckEnabled = ENET_TACC_IPCHK_MASK,     /*!< Insert IP header checksum. */
     kENET_TxAccelProtoCheckEnabled = ENET_TACC_PROCHK_MASK  /*!< Insert protocol checksum. */
 } enet_tx_accelerator_t;
 
 /*! @brief Defines the receive accelerator configuration. */
-typedef enum _enet_rx_accelerator
-{
+typedef enum _enet_rx_accelerator {
     kENET_RxAccelPadRemoveEnabled = ENET_RACC_PADREM_MASK,  /*!< Padding removal for short IP frames. */
     kENET_RxAccelIpCheckEnabled = ENET_RACC_IPDIS_MASK,     /*!< Discard with wrong IP header checksum. */
     kENET_RxAccelProtoCheckEnabled = ENET_RACC_PRODIS_MASK, /*!< Discard with wrong protocol checksum. */
@@ -277,8 +266,7 @@ typedef enum _enet_rx_accelerator
 
 #ifdef ENET_ENHANCEDBUFFERDESCRIPTOR_MODE
 /*! @brief Defines the ENET PTP message related constant. */
-typedef enum _enet_ptp_event_type
-{
+typedef enum _enet_ptp_event_type {
     kENET_PtpEventMsgType = 3U,  /*!< PTP event message type. */
     kENET_PtpSrcPortIdLen = 10U, /*!< PTP message sequence id length. */
     kENET_PtpEventPort = 319U,   /*!< PTP event port number. */
@@ -286,8 +274,7 @@ typedef enum _enet_ptp_event_type
 } enet_ptp_event_type_t;
 
 /*! @brief Defines the IEEE 1588 PTP timer channel numbers. */
-typedef enum _enet_ptp_timer_channel
-{
+typedef enum _enet_ptp_timer_channel {
     kENET_PtpTimerChannel1 = 0U, /*!< IEEE 1588 PTP timer Channel 1. */
     kENET_PtpTimerChannel2,      /*!< IEEE 1588 PTP timer Channel 2. */
     kENET_PtpTimerChannel3,      /*!< IEEE 1588 PTP timer Channel 3. */
@@ -295,8 +282,7 @@ typedef enum _enet_ptp_timer_channel
 } enet_ptp_timer_channel_t;
 
 /*! @brief Defines the capture or compare mode for IEEE 1588 PTP timer channels. */
-typedef enum _enet_ptp_timer_channel_mode
-{
+typedef enum _enet_ptp_timer_channel_mode {
     kENET_PtpChannelDisable = 0U,                  /*!< Disable timer channel. */
     kENET_PtpChannelRisingCapture = 1U,            /*!< Input capture on rising edge. */
     kENET_PtpChannelFallingCapture = 2U,           /*!< Input capture on falling edge. */
@@ -313,8 +299,7 @@ typedef enum _enet_ptp_timer_channel_mode
 #endif /* ENET_ENHANCEDBUFFERDESCRIPTOR_MODE */
 
 /*! @brief Defines the receive buffer descriptor structure for the little endian system.*/
-typedef struct _enet_rx_bd_struct
-{
+typedef struct _enet_rx_bd_struct {
     uint16_t length;  /*!< Buffer descriptor data length. */
     uint16_t control; /*!< Buffer descriptor control and status. */
     uint8_t *buffer;  /*!< Data buffer pointer. */
@@ -335,8 +320,7 @@ typedef struct _enet_rx_bd_struct
 } enet_rx_bd_struct_t;
 
 /*! @brief Defines the enhanced transmit buffer descriptor structure for the little endian system. */
-typedef struct _enet_tx_bd_struct
-{
+typedef struct _enet_tx_bd_struct {
     uint16_t length;  /*!< Buffer descriptor data length. */
     uint16_t control; /*!< Buffer descriptor control and status. */
     uint8_t *buffer;  /*!< Data buffer pointer. */
@@ -356,8 +340,7 @@ typedef struct _enet_tx_bd_struct
 } enet_tx_bd_struct_t;
 
 /*! @brief Defines the ENET data error statistic structure. */
-typedef struct _enet_data_error_stats
-{
+typedef struct _enet_data_error_stats {
     uint32_t statsRxLenGreaterErr; /*!< Receive length greater than RCR[MAX_FL]. */
     uint32_t statsRxAlignErr;      /*!< Receive non-octet alignment/ */
     uint32_t statsRxFcsErr;        /*!< Receive CRC error. */
@@ -389,8 +372,7 @@ typedef struct _enet_data_error_stats
  *    Receive buffers should be continuous with the total size equal to "rxBdNumber * rxBuffSizeAlign".
  *    Transmit buffers should be continuous with the total size equal to "txBdNumber * txBuffSizeAlign".
  */
-typedef struct _enet_buffer_config
-{
+typedef struct _enet_buffer_config {
     uint16_t rxBdNumber;                              /*!< Receive buffer descriptor number. */
     uint16_t txBdNumber;                              /*!< Transmit buffer descriptor number. */
     uint32_t rxBuffSizeAlign;                         /*!< Aligned receive data buffer size. */
@@ -403,15 +385,13 @@ typedef struct _enet_buffer_config
 
 #ifdef ENET_ENHANCEDBUFFERDESCRIPTOR_MODE
 /*! @brief Defines the ENET PTP time stamp structure. */
-typedef struct _enet_ptp_time
-{
+typedef struct _enet_ptp_time {
     uint64_t second;     /*!< Second. */
     uint32_t nanosecond; /*!< Nanosecond. */
 } enet_ptp_time_t;
 
 /*! @brief Defines the structure for the ENET PTP message data and timestamp data.*/
-typedef struct _enet_ptp_time_data
-{
+typedef struct _enet_ptp_time_data {
     uint8_t version;                             /*!< PTP version. */
     uint8_t sourcePortId[kENET_PtpSrcPortIdLen]; /*!< PTP source port ID. */
     uint16_t sequenceId;                         /*!< PTP sequence ID. */
@@ -420,8 +400,7 @@ typedef struct _enet_ptp_time_data
 } enet_ptp_time_data_t;
 
 /*! @brief Defines the ENET PTP ring buffer structure for the PTP message timestamp store.*/
-typedef struct _enet_ptp_time_data_ring
-{
+typedef struct _enet_ptp_time_data_ring {
     uint32_t front;                  /*!< The first index of the ring. */
     uint32_t end;                    /*!< The end index of the ring. */
     uint32_t size;                   /*!< The size of the ring. */
@@ -429,8 +408,7 @@ typedef struct _enet_ptp_time_data_ring
 } enet_ptp_time_data_ring_t;
 
 /*! @brief Defines the ENET PTP configuration structure. */
-typedef struct _enet_ptp_config
-{
+typedef struct _enet_ptp_config {
     uint8_t ptpTsRxBuffNum;            /*!< Receive 1588 timestamp buffer number*/
     uint8_t ptpTsTxBuffNum;            /*!< Transmit 1588 timestamp buffer number*/
     enet_ptp_time_data_t *rxPtpTsData; /*!< The start address of 1588 receive timestamp buffers */
@@ -471,8 +449,7 @@ typedef struct _enet_ptp_config
  *  After the accelerators are enabled, the store and forward feature should be enabled.
  *  As a result, kENET_ControlStoreAndFwdDisabled should not be set.
  */
-typedef struct _enet_config
-{
+typedef struct _enet_config {
     uint32_t macSpecialConfig;    /*!< Mac special configuration. A logical OR of "enet_special_control_flag_t". */
     uint32_t interrupt;           /*!< Mac interrupt source. A logical OR of "enet_interrupt_enable_t". */
     uint16_t rxMaxFrameLen;       /*!< Receive maximum frame length. */
@@ -502,8 +479,7 @@ typedef struct _enet_handle enet_handle_t;
 typedef void (*enet_callback_t)(ENET_Type *base, enet_handle_t *handle, enet_event_t event, void *userData);
 
 /*! @brief Defines the ENET handler structure. */
-struct _enet_handle
-{
+struct _enet_handle {
     volatile enet_rx_bd_struct_t *rxBdBase;    /*!< Receive buffer descriptor base address pointer. */
     volatile enet_rx_bd_struct_t *rxBdCurrent; /*!< The current available receive buffer descriptor pointer. */
     volatile enet_tx_bd_struct_t *txBdBase;    /*!< Transmit buffer descriptor base address pointer. */
@@ -748,13 +724,11 @@ static inline void ENET_ActiveRead(ENET_Type *base)
  */
 static inline void ENET_EnableSleepMode(ENET_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         /* When this field is set, MAC enters sleep mode. */
         base->ECR |= ENET_ECR_SLEEP_MASK | ENET_ECR_MAGICEN_MASK;
-    }
-    else
-    { /* MAC exits sleep mode. */
+    } else {
+        /* MAC exits sleep mode. */
         base->ECR &= ~(ENET_ECR_SLEEP_MASK | ENET_ECR_MAGICEN_MASK);
     }
 }

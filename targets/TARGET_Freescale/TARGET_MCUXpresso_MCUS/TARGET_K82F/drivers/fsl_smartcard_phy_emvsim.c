@@ -78,23 +78,18 @@ void SMARTCARD_PHY_EMVSIM_GetDefaultConfig(smartcard_interface_config_t *config)
 
 status_t SMARTCARD_PHY_EMVSIM_Init(EMVSIM_Type *base, smartcard_interface_config_t const *config, uint32_t srcClock_Hz)
 {
-    if ((NULL == config) || (0u == srcClock_Hz))
-    {
+    if ((NULL == config) || (0u == srcClock_Hz)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
     /* SMARTCARD clock initialization. Clock is still not active after this call */
-    if (config->smartCardClock != smartcard_phy_emvsim_InterfaceClockInit(base, config, srcClock_Hz))
-    {
+    if (config->smartCardClock != smartcard_phy_emvsim_InterfaceClockInit(base, config, srcClock_Hz)) {
         return kStatus_SMARTCARD_OtherError;
     }
     /* Configure EMVSIM direct interface driver interrupt occur according card presence */
-    if (base->PCSR & EMVSIM_PCSR_SPDP_MASK)
-    {
+    if (base->PCSR & EMVSIM_PCSR_SPDP_MASK) {
         base->PCSR &= ~EMVSIM_PCSR_SPDES_MASK;
-    }
-    else
-    {
+    } else {
         base->PCSR |= EMVSIM_PCSR_SPDES_MASK;
     }
     /* Un-mask presence detect interrupt flag */
@@ -114,8 +109,7 @@ status_t SMARTCARD_PHY_EMVSIM_Activate(EMVSIM_Type *base,
                                        smartcard_context_t *context,
                                        smartcard_reset_type_t resetType)
 {
-    if ((NULL == context) || (NULL == context->timeDelay))
-    {
+    if ((NULL == context) || (NULL == context->timeDelay)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
     assert(context->interfaceConfig.vcc == kSMARTCARD_VoltageClassB3_3V);
@@ -125,21 +119,18 @@ status_t SMARTCARD_PHY_EMVSIM_Activate(EMVSIM_Type *base,
 
     /* Disable receiver to deactivate GPC timers trigger */
     base->CTRL &= ~EMVSIM_CTRL_RCV_EN_MASK;
-    if (resetType == kSMARTCARD_ColdReset)
-    { /* Set polarity of VCC to active high, Enable VCC for SMARTCARD, Enable smart card clock */
+    if (resetType == kSMARTCARD_ColdReset) {
+        /* Set polarity of VCC to active high, Enable VCC for SMARTCARD, Enable smart card clock */
         base->PCSR = (base->PCSR & ~EMVSIM_PCSR_VCCENP_MASK) | (EMVSIM_PCSR_SVCC_EN_MASK | EMVSIM_PCSR_SCEN_MASK);
         /* Set transfer inversion to default(direct) value */
         base->CTRL &= ~EMVSIM_CTRL_IC_MASK;
-    }
-    else if (resetType == kSMARTCARD_WarmReset)
-    { /* Ensure that card is already active */
-        if (!context->cardParams.active)
-        { /* Card is not active;hence return */
+    } else if (resetType == kSMARTCARD_WarmReset) {
+        /* Ensure that card is already active */
+        if (!context->cardParams.active) {
+            /* Card is not active;hence return */
             return kStatus_SMARTCARD_CardNotActivated;
         }
-    }
-    else
-    {
+    } else {
         return kStatus_SMARTCARD_InvalidInput;
     }
     /* Set Reset low */
@@ -177,8 +168,7 @@ status_t SMARTCARD_PHY_EMVSIM_Activate(EMVSIM_Type *base,
 
 status_t SMARTCARD_PHY_EMVSIM_Deactivate(EMVSIM_Type *base, smartcard_context_t *context)
 {
-    if ((NULL == context))
-    {
+    if ((NULL == context)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
@@ -204,13 +194,11 @@ status_t SMARTCARD_PHY_EMVSIM_Control(EMVSIM_Type *base,
                                       smartcard_interface_control_t control,
                                       uint32_t param)
 {
-    if ((NULL == context))
-    {
+    if ((NULL == context)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
-    switch (control)
-    {
+    switch (control) {
         case kSMARTCARD_InterfaceSetVcc:
             /* Only 3.3V interface supported by the direct interface */
             assert((smartcard_card_voltage_class_t)param == kSMARTCARD_VoltageClassB3_3V);

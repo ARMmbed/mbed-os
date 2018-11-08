@@ -26,7 +26,7 @@
 
 #include "USBHAL.h"
 
-USBHAL * USBHAL::instance;
+USBHAL *USBHAL::instance;
 #if defined(TARGET_LPC1549)
 static uint8_t usbmem[2048] __attribute__((aligned(2048)));
 #endif
@@ -135,7 +135,8 @@ static uint32_t epRamPtr = 0; // Buffers for endpoints > 0 start here
 #define ROUND_UP_TO_MULTIPLE(x, m) ((((x)+((m)-1))/(m))*(m))
 
 void USBMemCopy(uint8_t *dst, uint8_t *src, uint32_t size);
-void USBMemCopy(uint8_t *dst, uint8_t *src, uint32_t size) {
+void USBMemCopy(uint8_t *dst, uint8_t *src, uint32_t size)
+{
     if (size > 0) {
         do {
             *dst++ = *src++;
@@ -144,7 +145,8 @@ void USBMemCopy(uint8_t *dst, uint8_t *src, uint32_t size) {
 }
 
 
-USBHAL::USBHAL(void) {
+USBHAL::USBHAL(void)
+{
     NVIC_DisableIRQ(USB_IRQ);
 
     // fill in callback array
@@ -171,7 +173,7 @@ USBHAL::USBHAL(void) {
     LPC_SYSCON->PDRUNCFG &= ~(CLK_USB);
 
     /* Wait for PLL to lock */
-    while(!(LPC_SYSCON->USBPLLSTAT & 0x01));
+    while (!(LPC_SYSCON->USBPLLSTAT & 0x01));
 
     /* enable USB main clock */
     LPC_SYSCON->USBCLKSEL = 0x02;
@@ -188,10 +190,10 @@ USBHAL::USBHAL(void) {
     LPC_SYSCON->PRESETCTRL1 &= ~(CLK_USB);
 
 #else
-    #if defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501)
+#if defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501)
     // USB_VBUS input with pull-down
     LPC_IOCON->PIO0_3 = 0x00000009;
-    #endif
+#endif
 
     // nUSB_CONNECT output
     LPC_IOCON->PIO0_6 = 0x00000001;
@@ -218,7 +220,7 @@ USBHAL::USBHAL(void) {
     usbRamPtr = ROUND_UP_TO_MULTIPLE(usbRamPtr, 64);
     ct = (CONTROL_TRANSFER *)usbRamPtr;
     usbRamPtr += sizeof(CONTROL_TRANSFER);
-    LPC_USB->DATABUFSTART =(uint32_t)(ct) & 0xffc00000;
+    LPC_USB->DATABUFSTART = (uint32_t)(ct) & 0xffc00000;
 
     // Setup command/status list for EP0
     ep[0].out[0] = 0;
@@ -241,50 +243,58 @@ USBHAL::USBHAL(void) {
     NVIC_SetVector(USB_IRQ, (uint32_t)&_usbisr);
 }
 
-USBHAL::~USBHAL(void) {
+USBHAL::~USBHAL(void)
+{
     // Ensure device disconnected (DCON not set)
     LPC_USB->DEVCMDSTAT = 0;
     // Disable USB interrupts
     NVIC_DisableIRQ(USB_IRQ);
 }
 
-void USBHAL::connect(void) {
+void USBHAL::connect(void)
+{
     NVIC_EnableIRQ(USB_IRQ);
     devCmdStat |= DCON;
     LPC_USB->DEVCMDSTAT = devCmdStat;
 }
 
-void USBHAL::disconnect(void) {
+void USBHAL::disconnect(void)
+{
     NVIC_DisableIRQ(USB_IRQ);
     devCmdStat &= ~DCON;
     LPC_USB->DEVCMDSTAT = devCmdStat;
 }
 
-void USBHAL::configureDevice(void) {
+void USBHAL::configureDevice(void)
+{
     // Not required
 }
 
-void USBHAL::unconfigureDevice(void) {
+void USBHAL::unconfigureDevice(void)
+{
     // Not required
 }
 
-void USBHAL::EP0setup(uint8_t *buffer) {
+void USBHAL::EP0setup(uint8_t *buffer)
+{
     // Copy setup packet data
     USBMemCopy(buffer, ct->setup, SETUP_PACKET_SIZE);
 }
 
-void USBHAL::EP0read(void) {
+void USBHAL::EP0read(void)
+{
     // Start an endpoint 0 read
 
     // The USB ISR will call USBDevice_EP0out() when a packet has been read,
     // the USBDevice layer then calls USBBusInterface_EP0getReadResult() to
     // read the data.
 
-    ep[0].out[0] = CMDSTS_A |CMDSTS_NBYTES(MAX_PACKET_SIZE_EP0) \
+    ep[0].out[0] = CMDSTS_A | CMDSTS_NBYTES(MAX_PACKET_SIZE_EP0) \
                    | CMDSTS_ADDRESS_OFFSET((uint32_t)ct->out);
 }
 
-uint32_t USBHAL::EP0getReadResult(uint8_t *buffer) {
+uint32_t USBHAL::EP0getReadResult(uint8_t *buffer)
+{
     // Complete an endpoint 0 read
     uint32_t bytesRead;
 
@@ -297,11 +307,13 @@ uint32_t USBHAL::EP0getReadResult(uint8_t *buffer) {
 }
 
 
-void USBHAL::EP0readStage(void) {
+void USBHAL::EP0readStage(void)
+{
     // Not required
 }
 
-void USBHAL::EP0write(uint8_t *buffer, uint32_t size) {
+void USBHAL::EP0write(uint8_t *buffer, uint32_t size)
+{
     // Start and endpoint 0 write
 
     // The USB ISR will call USBDevice_EP0in() when the data has
@@ -317,7 +329,8 @@ void USBHAL::EP0write(uint8_t *buffer, uint32_t size) {
 }
 
 
-EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
+EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize)
+{
     uint8_t bf = 0;
     uint32_t flags = 0;
 
@@ -332,8 +345,7 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
     }
 
     // if isochronous endpoint, T = 1
-    if(endpointState[endpoint].options & ISOCHRONOUS)
-    {
+    if (endpointState[endpoint].options & ISOCHRONOUS) {
         flags |= CMDSTS_T;
     }
 
@@ -343,13 +355,14 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
     return EP_PENDING;
 }
 
-EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *data, uint32_t *bytesRead) {
+EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *data, uint32_t *bytesRead)
+{
 
     uint8_t bf = 0;
 
-    if (!(epComplete & EP(endpoint)))
+    if (!(epComplete & EP(endpoint))) {
         return EP_PENDING;
-    else {
+    } else {
         epComplete &= ~EP(endpoint);
 
         //check which buffer has been filled
@@ -363,7 +376,7 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *data, uint32_t *
         }
 
         // Find how many bytes were read
-        *bytesRead = (uint32_t) (endpointState[endpoint].maxPacket - BYTES_REMAINING(ep[PHY_TO_LOG(endpoint)].out[bf]));
+        *bytesRead = (uint32_t)(endpointState[endpoint].maxPacket - BYTES_REMAINING(ep[PHY_TO_LOG(endpoint)].out[bf]));
 
         // Copy data
         USBMemCopy(data, ct->out, *bytesRead);
@@ -371,22 +384,26 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *data, uint32_t *
     }
 }
 
-void USBHAL::EP0getWriteResult(void) {
+void USBHAL::EP0getWriteResult(void)
+{
     // Not required
 }
 
-void USBHAL::EP0stall(void) {
+void USBHAL::EP0stall(void)
+{
     ep[0].in[0] = CMDSTS_S;
     ep[0].out[0] = CMDSTS_S;
 }
 
-void USBHAL::setAddress(uint8_t address) {
+void USBHAL::setAddress(uint8_t address)
+{
     devCmdStat &= ~DEV_ADDR_MASK;
     devCmdStat |= DEV_ADDR(address);
     LPC_USB->DEVCMDSTAT = devCmdStat;
 }
 
-EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) {
+EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
+{
     uint32_t flags = 0;
     uint32_t bf;
 
@@ -399,7 +416,7 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) 
         return EP_INVALID;
     }
 
-    if ((endpoint==EP0IN) || (endpoint==EP0OUT)) {
+    if ((endpoint == EP0IN) || (endpoint == EP0OUT)) {
         return EP_INVALID;
     }
 
@@ -442,14 +459,15 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) 
     }
 
     // Add transfer
-    ep[PHY_TO_LOG(endpoint)].in[bf] = CMDSTS_ADDRESS_OFFSET( \
-                                      endpointState[endpoint].buffer[bf]) \
+    ep[PHY_TO_LOG(endpoint)].in[bf] = CMDSTS_ADDRESS_OFFSET(\
+                                                            endpointState[endpoint].buffer[bf]) \
                                       | CMDSTS_NBYTES(size) | CMDSTS_A | flags;
 
     return EP_PENDING;
 }
 
-EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint) {
+EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint)
+{
     uint32_t bf;
 
     // Validate parameters
@@ -486,7 +504,8 @@ EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint) {
     return EP_COMPLETED;
 }
 
-void USBHAL::stallEndpoint(uint8_t endpoint) {
+void USBHAL::stallEndpoint(uint8_t endpoint)
+{
 
     // FIX: should this clear active bit?
     if (IN_EP(endpoint)) {
@@ -498,7 +517,8 @@ void USBHAL::stallEndpoint(uint8_t endpoint) {
     }
 }
 
-void USBHAL::unstallEndpoint(uint8_t endpoint) {
+void USBHAL::unstallEndpoint(uint8_t endpoint)
+{
     if (LPC_USB->EPBUFCFG & EP(endpoint)) {
         // Double buffered
         if (IN_EP(endpoint)) {
@@ -530,7 +550,8 @@ void USBHAL::unstallEndpoint(uint8_t endpoint) {
     }
 }
 
-bool USBHAL::getEndpointStallState(unsigned char endpoint) {
+bool USBHAL::getEndpointStallState(unsigned char endpoint)
+{
     if (IN_EP(endpoint)) {
         if (LPC_USB->EPINUSE & EP(endpoint)) {
             if (ep[PHY_TO_LOG(endpoint)].in[1] & CMDSTS_S) {
@@ -556,7 +577,8 @@ bool USBHAL::getEndpointStallState(unsigned char endpoint) {
     return false;
 }
 
-bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t options) {
+bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t options)
+{
     uint32_t tmpEpRamPtr;
 
     if (endpoint > LAST_PHYSICAL_ENDPOINT) {
@@ -564,7 +586,7 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t opti
     }
 
     // Not applicable to the control endpoints
-    if ((endpoint==EP0IN) || (endpoint==EP0OUT)) {
+    if ((endpoint == EP0IN) || (endpoint == EP0OUT)) {
         return false;
     }
 
@@ -620,7 +642,8 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t opti
     return true;
 }
 
-void USBHAL::remoteWakeup(void) {
+void USBHAL::remoteWakeup(void)
+{
     // Clearing DSUS bit initiates a remote wakeup if the
     // device is currently enabled and suspended - otherwise
     // it has no effect.
@@ -628,7 +651,8 @@ void USBHAL::remoteWakeup(void) {
 }
 
 
-static void disableEndpoints(void) {
+static void disableEndpoints(void)
+{
     uint32_t logEp;
 
     // Ref. Table 158 "When a bus reset is received, software
@@ -647,11 +671,13 @@ static void disableEndpoints(void) {
 
 
 
-void USBHAL::_usbisr(void) {
+void USBHAL::_usbisr(void)
+{
     instance->usbisr();
 }
 
-void USBHAL::usbisr(void) {
+void USBHAL::usbisr(void)
+{
     // Start of frame
     if (LPC_USB->INTSTAT & FRAME_INT) {
         // Clear SOF interrupt
@@ -724,7 +750,7 @@ void USBHAL::usbisr(void) {
         EP0in();
     }
 
-    for (uint8_t num = 2; num < 5*2; num++) {
+    for (uint8_t num = 2; num < 5 * 2; num++) {
         if (LPC_USB->INTSTAT & EP(num)) {
             LPC_USB->INTSTAT = EP(num);
             epComplete |= EP(num);

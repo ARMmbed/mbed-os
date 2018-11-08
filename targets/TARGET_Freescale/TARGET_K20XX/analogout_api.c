@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "mbed_assert.h"
 #include "analogout_api.h"
 
@@ -25,7 +25,8 @@
 
 #define RANGE_12BIT     0xFFF
 
-void analogout_init(dac_t *obj, PinName pin) {
+void analogout_init(dac_t *obj, PinName pin)
+{
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
     MBED_ASSERT(obj->dac != (DACName)NC);
 
@@ -40,24 +41,27 @@ void analogout_init(dac_t *obj, PinName pin) {
     DAC0->C1 = DAC_C1_DACBFMD_MASK;     // One-Time Scan Mode
 
     DAC0->C0 = DAC_C0_DACEN_MASK      // Enable
-             | DAC_C0_DACSWTRG_MASK   // Software Trigger
-             | DAC_C0_DACRFS_MASK;    // VDDA selected
+               | DAC_C0_DACSWTRG_MASK   // Software Trigger
+               | DAC_C0_DACRFS_MASK;    // VDDA selected
 
     analogout_write_u16(obj, 0);
 }
 
 void analogout_free(dac_t *obj) {}
 
-static inline void dac_write(dac_t *obj, int value) {
-    DAC0->DAT[obj->dac].DATL = (uint8_t)( value       & 0xFF);
+static inline void dac_write(dac_t *obj, int value)
+{
+    DAC0->DAT[obj->dac].DATL = (uint8_t)(value       & 0xFF);
     DAC0->DAT[obj->dac].DATH = (uint8_t)((value >> 8) & 0xFF);
 }
 
-static inline int dac_read(dac_t *obj) {
+static inline int dac_read(dac_t *obj)
+{
     return ((DAC0->DAT[obj->dac].DATH << 8) | DAC0->DAT[obj->dac].DATL);
 }
 
-void analogout_write(dac_t *obj, float value) {
+void analogout_write(dac_t *obj, float value)
+{
     if (value < 0.0) {
         dac_write(obj, 0);
     } else if (value > 1.0) {
@@ -67,16 +71,19 @@ void analogout_write(dac_t *obj, float value) {
     }
 }
 
-void analogout_write_u16(dac_t *obj, uint16_t value) {
+void analogout_write_u16(dac_t *obj, uint16_t value)
+{
     dac_write(obj, value >> 4); // 12-bit
 }
 
-float analogout_read(dac_t *obj) {
+float analogout_read(dac_t *obj)
+{
     uint32_t value = dac_read(obj);
     return (float)value * (1.0f / (float)RANGE_12BIT);
 }
 
-uint16_t analogout_read_u16(dac_t *obj) {
+uint16_t analogout_read_u16(dac_t *obj)
+{
     uint32_t value = dac_read(obj); // 12-bit
     return (value << 4) | ((value >> 8) & 0x003F);
 }

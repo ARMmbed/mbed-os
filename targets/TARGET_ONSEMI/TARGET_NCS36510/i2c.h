@@ -106,7 +106,7 @@
  * @param scl GPIO number for SCL line
  * @return None
  */
-extern void fI2cInit(i2c_t *obj,PinName sda,PinName scl);
+extern void fI2cInit(i2c_t *obj, PinName sda, PinName scl);
 
 /** Set baud rate or frequency
  * @details

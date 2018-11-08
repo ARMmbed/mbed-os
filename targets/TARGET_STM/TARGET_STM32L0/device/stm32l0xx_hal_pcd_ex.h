@@ -33,26 +33,26 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_HAL_PCD_EX_H
 #define __STM32L0xx_HAL_PCD_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l0xx_hal_def.h"  
-   
+#include "stm32l0xx_hal_def.h"
+
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
 
 /** @defgroup PCDEx PCDEx
   * @{
-  */ 
+  */
 
 /* Exported functions --------------------------------------------------------*/
 
@@ -63,21 +63,21 @@
 /** @defgroup PCDEx__Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and Configuration functions
  */
-HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, 
-                                     uint16_t ep_addr,
-                                     uint16_t ep_kind,
-                                     uint32_t pmaadress);
+HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
+                                      uint16_t ep_addr,
+                                      uint16_t ep_kind,
+                                      uint32_t pmaadress);
 /**
   * @}
   */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 #ifdef __cplusplus
 }

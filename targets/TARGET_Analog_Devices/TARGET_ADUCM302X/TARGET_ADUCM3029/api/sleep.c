@@ -73,7 +73,7 @@ static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
         pADI_PMG0->PWRKEY = ADI_PMG_KEY;
 
         /* Clear the previous mode and set new mode */
-        pADI_PMG0->PWRMOD =(uint32_t) ( ( pADI_PMG0->PWRMOD & (uint32_t) (~BITM_PMG_PWRMOD_MODE) ) | PowerMode );
+        pADI_PMG0->PWRMOD = (uint32_t)((pADI_PMG0->PWRMOD & (uint32_t)(~BITM_PMG_PWRMOD_MODE)) | PowerMode);
     }
 
     /* Update the SCR (sleepdeep and sleep-on-exit bits) */

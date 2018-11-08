@@ -26,7 +26,7 @@
 ** DEVICE
 ***************************************************************************************************/
 
-/* install defines and installs for device ARM_BEETLE_SOC	*/
+/* install defines and installs for device ARM_BEETLE_SOC   */
 #define ARM_BEETLE_SOC  (1U)
 
 /***************************************************************************************************

@@ -24,11 +24,11 @@
 /**
  * @file cb_gatt_client.h
  *
- * This file contains all GATT client functionality. There are some restrictions 
+ * This file contains all GATT client functionality. There are some restrictions
  * on how this API is used.
  * - Pointer data in callbacks are only valid in the context of the callback
- * - Only one request at a time should be done from each app(app handle). The 
- *   app must wait until all responses from an outstanding request have been 
+ * - Only one request at a time should be done from each app(app handle). The
+ *   app must wait until all responses from an outstanding request have been
  *   received.
  * - In the callback of the request another request can not be done except when
  *   the request is interrupted by setting the return value to FALSE
@@ -69,15 +69,15 @@ extern "C" {
  * @param pUuid             Pointer to UUID of the service
  * @return TRUE to continue or FALSE to interrupt the search.
  */
-typedef cb_boolean (*cbGATT_DiscoverAllPrimaryServicesCnf)(
+typedef cb_boolean(*cbGATT_DiscoverAllPrimaryServicesCnf)(
     TConnHandle         connHandle,
     cbGATT_ErrorCode    errorCode,
     cb_uint16           startGroupHandle,
     cb_uint16           endGroupHandle,
-    cbGATT_Uuid*        pUuid);
+    cbGATT_Uuid        *pUuid);
 
 /**
- * Callback for discover all secondary services. This callback will be called 
+ * Callback for discover all secondary services. This callback will be called
  * for each secondary service found.
  * @param connHandle Connection handle
  * @param errorCode         cbGATT_ERROR_CODE_OK when succeeded
@@ -89,12 +89,12 @@ typedef cb_boolean (*cbGATT_DiscoverAllPrimaryServicesCnf)(
  * @param pUuid             Pointer to UUID of the service
  * @return TRUE to continue or FALSE to interrupt the search.
  */
-typedef cb_boolean (*cbGATT_DiscoverAllSecondaryServicesCnf)(
+typedef cb_boolean(*cbGATT_DiscoverAllSecondaryServicesCnf)(
     TConnHandle         connHandle,
     cbGATT_ErrorCode    errorCode,
     cb_uint16           startGroupHandle,
     cb_uint16           endGroupHandle,
-    cbGATT_Uuid*        pUuid);
+    cbGATT_Uuid        *pUuid);
 
 /**
  * Callback for discover all primary services by UUID. This callback will be
@@ -108,14 +108,14 @@ typedef cb_boolean (*cbGATT_DiscoverAllSecondaryServicesCnf)(
  * @param endGroupHandle    End handle of the service
  * @return TRUE to continue or FALSE to interrupt the search.
  */
-typedef cb_boolean (*cbGATT_DiscoverPrimaryServiceByUuidCnf)(
+typedef cb_boolean(*cbGATT_DiscoverPrimaryServiceByUuidCnf)(
     TConnHandle         connHandle,
     cbGATT_ErrorCode    errorCode,
     cb_uint16           startHandle,
     cb_uint16           endHandle);
 
 /**
- * Callback for find included services. This callback will be called 
+ * Callback for find included services. This callback will be called
  * for each service found.
  * @param connHandle        Connection handle
  * @param errorCode         cbGATT_ERROR_CODE_OK when succeeded
@@ -127,16 +127,16 @@ typedef cb_boolean (*cbGATT_DiscoverPrimaryServiceByUuidCnf)(
  * @param pUuid             Pointer to UUID of the service
  * @return TRUE to continue or FALSE to interrupt the search.
  */
-typedef cb_boolean (*cbGATT_FindIncludedServicesCnf)(
+typedef cb_boolean(*cbGATT_FindIncludedServicesCnf)(
     TConnHandle         connHandle,
     cbGATT_ErrorCode    errorCode,
     cb_uint16           attrHandle,
     cb_uint16           startGroupHandle,
     cb_uint16           endGroupHandle,
-    cbGATT_Uuid*        pUuid);
+    cbGATT_Uuid        *pUuid);
 
 /**
- * Callback for discover all characteristics of service. This callback will 
+ * Callback for discover all characteristics of service. This callback will
  * be called for each characteristic found.
  * @param connHandle    Connection handle
  * @param errorCode     cbGATT_ERROR_CODE_OK when succeeded
@@ -151,16 +151,16 @@ typedef cb_boolean (*cbGATT_FindIncludedServicesCnf)(
  * @param pUuid         Pointer to UUID of the characteristic
  * @return TRUE to continue or FALSE to interrupt the search.
  */
-typedef cb_boolean (*cbGATT_DiscoverAllCharacteristicsOfServiceCnf)(
+typedef cb_boolean(*cbGATT_DiscoverAllCharacteristicsOfServiceCnf)(
     TConnHandle         connHandle,
     cbGATT_ErrorCode    errorCode,
     cb_uint16           attrHandle,
     cb_uint8            properties,
     cb_uint16           valueHandle,
-    cbGATT_Uuid*        pUuid);
+    cbGATT_Uuid        *pUuid);
 
 /**
- * Callback for discover all descriptors of a characteristic. This callback 
+ * Callback for discover all descriptors of a characteristic. This callback
  * will be called for each descriptor found.
  * @param connHandle        Connection handle
  * @param errorCode         cbGATT_ERROR_CODE_OK when succeeded
@@ -169,18 +169,18 @@ typedef cb_boolean (*cbGATT_DiscoverAllCharacteristicsOfServiceCnf)(
  *                          cbGATT_ERROR_CODE_* on failure
  * @param charAttrHandle    Attribute handle of the characteristic
  * @param attrHandle        Attribute handle of the characteristic descriptor.
- * @param pUuid             Pointer to UUID of the descriptor 
+ * @param pUuid             Pointer to UUID of the descriptor
  * @return TRUE to continue or FALSE to interrupt the search.
  */
-typedef cb_boolean (*cbGATT_DiscoverAllCharacteristicDescriptorsCnf)(
+typedef cb_boolean(*cbGATT_DiscoverAllCharacteristicDescriptorsCnf)(
     TConnHandle         connHandle,
     cbGATT_ErrorCode    errorCode,
     cb_uint16           charAttrHandle,
     cb_uint16           attrHandle,
-    cbGATT_Uuid*        pUuid);
+    cbGATT_Uuid        *pUuid);
 
 /**
- * Callback for read characteristic. This callback will be called for each 
+ * Callback for read characteristic. This callback will be called for each
  * data chunk read.
  * The last callback will contain either an error code or moreToRead = FALSE
  * @param connHandle    Connection handle
@@ -192,16 +192,16 @@ typedef cb_boolean (*cbGATT_DiscoverAllCharacteristicDescriptorsCnf)(
  *                      FALSE = no more data to read
  * @return TRUE to continue or FALSE to interrupt the search.
  */
-typedef cb_boolean (*cbGATT_ReadCharacteristicCnf)(
+typedef cb_boolean(*cbGATT_ReadCharacteristicCnf)(
     TConnHandle         connHandle,
     cbGATT_ErrorCode    errorCode,
     cb_uint16           attrHandle,
-    cb_uint8*           pAttrValue,
+    cb_uint8           *pAttrValue,
     cb_uint16           length,
     cb_boolean          moreToRead);
 
 /**
- * Callback for read characteristic by UUID. This callback will be called 
+ * Callback for read characteristic by UUID. This callback will be called
  * for each data chunk read.
  * The last callback will contain either an error code or moreToRead = FALSE
  * @param connHandle    Connection handle
@@ -213,11 +213,11 @@ typedef cb_boolean (*cbGATT_ReadCharacteristicCnf)(
  *                      FALSE = no more data to read
  * @return TRUE to continue or FALSE to interrupt the search.
  */
-typedef cb_boolean (*cbGATT_ReadCharacteristicByUuidCnf)(
+typedef cb_boolean(*cbGATT_ReadCharacteristicByUuidCnf)(
     TConnHandle         connHandle,
     cbGATT_ErrorCode    errorCode,
     cb_uint16           attrHandle,
-    cb_uint8*           pAttrValue,
+    cb_uint8           *pAttrValue,
     cb_uint16           length,
     cb_boolean          moreToRead);
 
@@ -225,11 +225,11 @@ typedef cb_boolean (*cbGATT_ReadCharacteristicByUuidCnf)(
 typedef void (*cbGATT_ReadLongCharacteristicCnf)(
     TConnHandle         connHandle,
     cbGATT_ErrorCode    errorCode,
-    cb_uint8*           pAttrValue,
+    cb_uint8           *pAttrValue,
     cb_uint16           length);
 
 /**
- * Callback for read multiple characteristics. This callback will be called 
+ * Callback for read multiple characteristics. This callback will be called
  * for each data chunk read.
  * The last callback will contain either an error code or moreToRead = FALSE
  * @param connHandle    Connection handle
@@ -240,10 +240,10 @@ typedef void (*cbGATT_ReadLongCharacteristicCnf)(
  *                      FALSE = no more data to read
  * @return TRUE to continue or FALSE to interrupt the search.
  */
-typedef cb_boolean (*cbGATT_ReadMultipleCharacteristicCnf)(
+typedef cb_boolean(*cbGATT_ReadMultipleCharacteristicCnf)(
     TConnHandle         connHandle,
     cbGATT_ErrorCode    errorCode,
-    cb_uint8*           pAttrValues,
+    cb_uint8           *pAttrValues,
     cb_uint16           length,
     cb_boolean          moreToRead);
 
@@ -257,7 +257,7 @@ typedef void (*cbGATT_WriteCharacteristicCnf)(
     cbGATT_ErrorCode    errorCode);
 
 /**
- * Callback for write characteristic with no response from the remote side 
+ * Callback for write characteristic with no response from the remote side
  * @param connHandle    Connection handle
  * @param errorCode     Error code, cbGATT_ERROR_CODE_OK when succeeded
  */
@@ -266,7 +266,7 @@ typedef void (*cbGATT_WriteCharacteristicNoRspCnf)(
     cbGATT_ErrorCode    errorCode);
 
 /**
- * Callback for write characteristic configuration with response from the 
+ * Callback for write characteristic configuration with response from the
  * remote side.
  * @param connHandle    Connection handle
  * @param errorCode     Error code, cbGATT_ERROR_CODE_OK when succeeded
@@ -276,7 +276,7 @@ typedef void (*cbGATT_WriteCharacteristicConfigCnf)(
     cbGATT_ErrorCode    errorCode);
 
 /**
- * Callback for write long characteristic with response from the 
+ * Callback for write long characteristic with response from the
  * remote side.
  * @param connHandle    Connection handle
  * @param errorCode     Error code, cbGATT_ERROR_CODE_OK when succeeded
@@ -286,7 +286,7 @@ typedef void (*cbGATT_WriteLongCharacteristicCnf)(
     cbGATT_ErrorCode    errorCode);
 
 /**
-* Callback for receiving value indication. The client configuration 
+* Callback for receiving value indication. The client configuration
  * notifications must have been enabled before this will be sent to the app.
  * Note that the indication is replied by GATT when exiting the callback.
  * @param connHandle        Connection handle
@@ -297,11 +297,11 @@ typedef void (*cbGATT_WriteLongCharacteristicCnf)(
 typedef void (*cbGATT_CharacteristicValueIndication)(
     TConnHandle         connHandle,
     cb_uint16           attrHandle,
-    cb_uint8*           pAttrValue,
+    cb_uint8           *pAttrValue,
     cb_uint16           length);
 
 /**
- * Callback for receiving value notification. The client configuration 
+ * Callback for receiving value notification. The client configuration
  * notifications must have been enabled before this will be sent to the app.
  * @param connHandle        Connection handle
  * @param attrHandle        Attribute handle of the notified value
@@ -311,11 +311,10 @@ typedef void (*cbGATT_CharacteristicValueIndication)(
 typedef void (*cbGATT_CharacteristicValueNotification)(
     TConnHandle         connHandle,
     cb_uint16           attrHandle,
-    cb_uint8*           pAttrValue,
+    cb_uint8           *pAttrValue,
     cb_uint16           length);
 
-typedef struct
-{
+typedef struct {
     cbGATT_ConnComplEvt                             connComplEvt;
     cbGATT_DisconnectEvt                            disconnectEvt;
     cbGATT_DiscoverAllPrimaryServicesCnf            discoverAllPrimaryServicesCnf;
@@ -335,8 +334,7 @@ typedef struct
 } cbGATT_ClientCallBack;
 
 
-typedef struct
-{
+typedef struct {
     cbGATT_CharacteristicValueIndication            characteristicValueIndication;
     cbGATT_CharacteristicValueNotification          characteristicValueNotification;
 } cbGATT_ClientNotIndCallBack;
@@ -349,31 +347,31 @@ typedef struct
 /**
  * Register a GATT client. This must be done before any GATT client
  * functionality can be used.
- * @param pCallBack Callback structure that should be provided by the app. Use 
+ * @param pCallBack Callback structure that should be provided by the app. Use
  *                  NULL as pointer for callbacks that are not used.
  * @param pAppHandle Pointer where to put created app handle
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_registerClient(
-    const cbGATT_ClientCallBack* pCallBack, 
-    cb_uint8*       pAppHandle);
+    const cbGATT_ClientCallBack *pCallBack,
+    cb_uint8       *pAppHandle);
 
 /**
  * Register a notification/indication handler for an attribute handle
  * This is used when the application needs a specific handler for an
  * attribute. This can be done first after connection setup.
- * @param pCallBack  Callback structure that should be provided by the app. Use 
+ * @param pCallBack  Callback structure that should be provided by the app. Use
  *                   NULL as pointer for callbacks that are not used.
  * @param appHandle  App handle
- * @param attrHandle Attribute handle for the notification/indication to 
+ * @param attrHandle Attribute handle for the notification/indication to
  *                   subscribe on.
  * @param connHandle Connection handle
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_registerNotIndHandler(
-    const cbGATT_ClientNotIndCallBack* pCallBack, 
-    cb_uint8        appHandle, 
-    cb_uint16       attrHandle, 
+    const cbGATT_ClientNotIndCallBack *pCallBack,
+    cb_uint8        appHandle,
+    cb_uint16       attrHandle,
     TConnHandle     connHandle);
 
 /**
@@ -383,53 +381,53 @@ cb_int32 cbGATT_registerNotIndHandler(
  * automatically de-registered on disconnection.
  * @param pCallBack  Registered callback.
  * @param appHandle  App handle
- * @param attrHandle Attribute handle for the notification/indication to 
+ * @param attrHandle Attribute handle for the notification/indication to
  *                   subscribe on.
  * @param connHandle Connection handle
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_deregisterNotIndHandler(
-    const cbGATT_ClientNotIndCallBack* pCallBack, 
+    const cbGATT_ClientNotIndCallBack *pCallBack,
     cb_uint8        appHandle,
-    cb_uint16       attrHandle, 
+    cb_uint16       attrHandle,
     TConnHandle     connHandle);
 
 /**
  * Register a default notification/indication handler. This is used when the
  * app wants to subscribe to all attribute handles notifications/indications
  * for all connections. This can only be used by one app at a time.
- * @param pCallBack Callback structure that should be provided by the app. Use 
+ * @param pCallBack Callback structure that should be provided by the app. Use
  *                  NULL as pointer for callbacks that are not used.
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_registerDefaultNotIndHandler(
-    const cbGATT_ClientNotIndCallBack* pCallBack);
+    const cbGATT_ClientNotIndCallBack *pCallBack);
 
 /**
- * Discover all primary services. Results will be provided in the 
+ * Discover all primary services. Results will be provided in the
  * cbGATT_DiscoverAllPrimaryServicesCnf callback.
  * @param connHandle Connection handle
  * @param appHandle  App handle
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_discoverAllPrimaryServices(
-    TConnHandle     connHandle, 
+    TConnHandle     connHandle,
     cb_uint8        appHandle);
 
 /**
- * Discover all secondary services. Results will be provided in the 
+ * Discover all secondary services. Results will be provided in the
  * cbGATT_DiscoverAllSecondaryServicesCnf callback.
  * @param connHandle Connection handle
  * @param appHandle  App handle
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_discoverAllSecondaryServices(
-    TConnHandle     connHandle, 
+    TConnHandle     connHandle,
     cb_uint8        appHandle);
 
 /**
  * Discover all primary services by UUID. This will filter out all results
- * based on the UUID. Results will be provided in the 
+ * based on the UUID. Results will be provided in the
  * cbGATT_DiscoverPrimaryServiceByUuidCnf callback.
  * @param connHandle Connection handle
  * @param pUuid      Pointer to the 16 or 128 bits UUID to search for
@@ -437,13 +435,13 @@ cb_int32 cbGATT_discoverAllSecondaryServices(
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_discoverPrimaryServiceByUuid(
-    TConnHandle     connHandle, 
-    cbGATT_Uuid*    pUuid, 
+    TConnHandle     connHandle,
+    cbGATT_Uuid    *pUuid,
     cb_uint8        appHandle);
 
 /**
- * Discover all characteristics of a service. The handles can be 
- * retrieved by doing a discover primary/secondary services request. Results 
+ * Discover all characteristics of a service. The handles can be
+ * retrieved by doing a discover primary/secondary services request. Results
  * will be provided in the cbGATT_DiscoverAllCharacteristicsOfServiceCnf
  * callback.
  * @param connHandle  Connection handle
@@ -453,14 +451,14 @@ cb_int32 cbGATT_discoverPrimaryServiceByUuid(
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_discoverAllCharacteristicsOfService(
-    TConnHandle     connHandle, 
-    cb_uint16       startHandle, 
-    cb_uint16       endHandle, 
+    TConnHandle     connHandle,
+    cb_uint16       startHandle,
+    cb_uint16       endHandle,
     cb_uint8        appHandle);
 
 /**
- * Find included services of a given service. The handles can be 
- * retrieved by doing a discover primary/secondary services request. Results 
+ * Find included services of a given service. The handles can be
+ * retrieved by doing a discover primary/secondary services request. Results
  * will be provided in the cbGATT_FindIncludedServicesCnf callback.
  * @param connHandle  Connection handle
  * @param startHandle Start handle of the service
@@ -469,34 +467,34 @@ cb_int32 cbGATT_discoverAllCharacteristicsOfService(
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_findIncludedServices(
-    TConnHandle     connHandle, 
-    cb_uint16       startHandle, 
-    cb_uint16       endHandle, 
+    TConnHandle     connHandle,
+    cb_uint16       startHandle,
+    cb_uint16       endHandle,
     cb_uint8        appHandle);
 
 /**
- * Discover all descriptors of a characteristic. The handles can be 
- * retrieved by doing a cbGATT_discoverAllCharacteristicsOfService. Results 
+ * Discover all descriptors of a characteristic. The handles can be
+ * retrieved by doing a cbGATT_discoverAllCharacteristicsOfService. Results
  * will be provided in the cbGATT_DiscoverAllCharacteristicDescriptorsCnf.
- * callback. If the app wants to do a discover characteristics by UUID this 
+ * callback. If the app wants to do a discover characteristics by UUID this
  * function can be used and in the callback filter on UUID.
  * @param connHandle        Connection handle
  * @param valueHandle       Handle of the characteristic value
- * @param serviceEndHandle  End handle of the service which the characteristic 
+ * @param serviceEndHandle  End handle of the service which the characteristic
  *                          belongs to.
  * @param appHandle         App handle
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_discoverAllCharacteristicDescriptors(
-    TConnHandle     connHandle, 
-    cb_uint16       valueHandle, 
-    cb_uint16       serviceEndHandle, 
+    TConnHandle     connHandle,
+    cb_uint16       valueHandle,
+    cb_uint16       serviceEndHandle,
     cb_uint8        appHandle);
 
 /**
- * Read characteristic/descriptor value. The handles can be retrieved by 
- * doing a cbGATT_discoverAllCharacteristicsOfService or 
- * cbGATT_discoverAllCharacteristicDescriptors. Results will be provided in 
+ * Read characteristic/descriptor value. The handles can be retrieved by
+ * doing a cbGATT_discoverAllCharacteristicsOfService or
+ * cbGATT_discoverAllCharacteristicDescriptors. Results will be provided in
  * the cbGATT_ReadCharacteristicCnf callback.
  * @param connHandle    Connection handle
  * @param attrHandle    Handle of the attribute value
@@ -505,15 +503,15 @@ cb_int32 cbGATT_discoverAllCharacteristicDescriptors(
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_readCharacteristic(
-    TConnHandle     connHandle, 
-    cb_uint16       attrHandle, 
-    cb_uint16       offset, 
+    TConnHandle     connHandle,
+    cb_uint16       attrHandle,
+    cb_uint16       offset,
     cb_uint8        appHandle);
 
 /**
- * Read characteristic/descriptor value by UUID. The app can search the whole 
- * database by using cbGATT_MIN_ATTR_HANDLE and cbGATT_MAX_ATTR_HANDLE. 
- * Results will be provided in the cbGATT_ReadCharacteristicByUuidCnf 
+ * Read characteristic/descriptor value by UUID. The app can search the whole
+ * database by using cbGATT_MIN_ATTR_HANDLE and cbGATT_MAX_ATTR_HANDLE.
+ * Results will be provided in the cbGATT_ReadCharacteristicByUuidCnf
  * callback.
  * @param connHandle    Connection handle
  * @param startHandle   Handle, where to start looking for the UUID
@@ -523,18 +521,18 @@ cb_int32 cbGATT_readCharacteristic(
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_readCharacteristicByUuid(
-    TConnHandle     connHandle, 
-    cb_uint16       startHandle, 
-    cb_uint16       endHandle, 
-    cbGATT_Uuid*    pUuid, 
+    TConnHandle     connHandle,
+    cb_uint16       startHandle,
+    cb_uint16       endHandle,
+    cbGATT_Uuid    *pUuid,
     cb_uint8        appHandle);
 
 // Used for reading long characteristics value or descriptor
 // TODO is this function necessary, because cbGATT_readCharacteristic will read long if needed
 cb_int32 cbGATT_readLongCharacteristic(
-    TConnHandle     connHandle, 
-    cb_uint16       attrHandle, 
-    cb_uint8*       pDest, 
+    TConnHandle     connHandle,
+    cb_uint16       attrHandle,
+    cb_uint8       *pDest,
     cb_uint8        appHandle);
 
 
@@ -542,7 +540,7 @@ cb_int32 cbGATT_readLongCharacteristic(
  * Read multiple characteristics in a single read. The app must know the
  * length of each data element in the returned list. Therefore only the last
  * data element may have a variable length.
- * Results will be provided in the cbGATT_ReadMultipleCharacteristicCnf 
+ * Results will be provided in the cbGATT_ReadMultipleCharacteristicCnf
  * callback.
  * @param connHandle        Connection handle
  * @param pAttrHandleList   Pointer to a list of attribute handles
@@ -551,14 +549,14 @@ cb_int32 cbGATT_readLongCharacteristic(
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_readMultipleCharacteristic(
-    TConnHandle     connHandle, 
-    cb_uint16*      pAttrHandleList, 
-    cb_uint16       nbrOfHandles, 
+    TConnHandle     connHandle,
+    cb_uint16      *pAttrHandleList,
+    cb_uint16       nbrOfHandles,
     cb_uint8        appHandle);
 
 /**
  * Write characteristic/descriptor and wait for response from remote side.
- * Results will be provided in the cbGATT_WriteCharacteristicCnf 
+ * Results will be provided in the cbGATT_WriteCharacteristicCnf
  * callback.
  * @param connHandle    Connection handle
  * @param attrHandle    Attribute handle of the value
@@ -568,10 +566,10 @@ cb_int32 cbGATT_readMultipleCharacteristic(
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_writeCharacteristic(
-    TConnHandle     connHandle, 
-    cb_uint16       attrHandle, 
-    cb_uint8*       pData, 
-    cb_uint16       length, 
+    TConnHandle     connHandle,
+    cb_uint16       attrHandle,
+    cb_uint8       *pData,
+    cb_uint16       length,
     cb_uint8        appHandle);
 
 /**
@@ -581,26 +579,26 @@ cb_int32 cbGATT_writeCharacteristic(
  * callback.
  * @param connHandle    Connection handle
  * @param attrHandle    Attribute handle of the value
- * @param config        Configuration i.e. cbGATT_CLIENT_CFG_* or 
+ * @param config        Configuration i.e. cbGATT_CLIENT_CFG_* or
  *                      cbGATT_SERVER_CFG_*
  * @param appHandle     App handle
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_writeCharacteristicConfig(
-    TConnHandle     connHandle, 
-    cb_uint16       attrHandle, 
-    cb_uint16       config, 
+    TConnHandle     connHandle,
+    cb_uint16       attrHandle,
+    cb_uint16       config,
     cb_uint8        appHandle);
 
 /**
  * Write characteristic/descriptor with no response from remote side.
- * Results will be provided in the cbGATT_WriteCharacteristicNoRspCnf 
+ * Results will be provided in the cbGATT_WriteCharacteristicNoRspCnf
  * callback.
  * @param connHandle    Connection handle
  * @param attrHandle    Attribute handle of the value
  * @param pData         Pointer to the data byte sequence
  * @param length        Number of bytes to write
- * @param pSignature    Pointer to encrypted signature which is checked by the 
+ * @param pSignature    Pointer to encrypted signature which is checked by the
  *                      server. If the check fails the write is discarded.
  *                      The devices must be bonded and CSRK exchanged. Use NULL
  *                      when no signature is being used.
@@ -608,41 +606,41 @@ cb_int32 cbGATT_writeCharacteristicConfig(
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_writeCharacteristicNoRsp(
-    TConnHandle     connHandle, 
-    cb_uint16       attrHandle, 
-    cb_uint8*       pData, 
-    cb_uint16       length, 
-    cb_uint8*       pSignature, 
+    TConnHandle     connHandle,
+    cb_uint16       attrHandle,
+    cb_uint8       *pData,
+    cb_uint16       length,
+    cb_uint8       *pSignature,
     cb_uint8        appHandle);
 
 /**
- * Write long characteristic/descriptor and wait for response from remote 
- * side. Results will be provided in the cbGATT_WriteLongCharacteristicCnf 
+ * Write long characteristic/descriptor and wait for response from remote
+ * side. Results will be provided in the cbGATT_WriteLongCharacteristicCnf
  * callback.
  * @param connHandle    Connection handle
  * @param attrHandle    Attribute handle of the value
  * @param pData         Pointer to the data byte sequence
  * @param length        Number of bytes to write
  * @param reliable      TRUE = the data will be sent back to client and
- *                      checked by GATT. 
+ *                      checked by GATT.
  *                      FALSE = no check of data
  * @param flag          Flag which is used when sending several packets
- *                      or when data is canceled. If sending several packets all 
- *                      but the last packet should set the flag to more data. 
+ *                      or when data is canceled. If sending several packets all
+ *                      but the last packet should set the flag to more data.
  *                      The last data packet should set the flag to final.
- * @param offset        Offset of the data to write. Is used when several packets 
+ * @param offset        Offset of the data to write. Is used when several packets
  *                      need to be sent to write a complete data value.
  * @param appHandle     App handle
  * @return cbGATT_OK if succeeded or cbGATT_ERROR when failed.
  */
 cb_int32 cbGATT_writeLongCharacteristic(
-    TConnHandle     connHandle, 
-    cb_uint16       attrHandle, 
-    cb_uint8*       pData, 
-    cb_uint16       length, 
-    cb_boolean      reliable, 
-    cbGATT_WriteLongCharFlag flag, 
-    cb_uint16       offset, 
+    TConnHandle     connHandle,
+    cb_uint16       attrHandle,
+    cb_uint8       *pData,
+    cb_uint16       length,
+    cb_boolean      reliable,
+    cbGATT_WriteLongCharFlag flag,
+    cb_uint16       offset,
     cb_uint8        appHandle);
 
 #ifdef __cplusplus

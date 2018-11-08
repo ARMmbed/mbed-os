@@ -1,8 +1,8 @@
 /**
  *******************************************************************************
  * @file    tmpm066_cg.c
- * @brief   This file provides API functions for CG driver 
- * @version V2.0.2.1    
+ * @brief   This file provides API functions for CG driver
+ * @version V2.0.2.1
  * @date    2015/09/22
  *
  * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
@@ -132,24 +132,24 @@ void CG_SetFgearLevel(CG_DivideLevel DivideFgearFromFc)
 
     /* Set the value of fgear */
     switch (DivideFgearFromFc) {
-    case CG_DIVIDE_1:
-        gear = FC_GEAR_1_1;
-        break;
-    case CG_DIVIDE_2:
-        gear = FC_GEAR_1_2;
-        break;
-    case CG_DIVIDE_4:
-        gear = FC_GEAR_1_4;
-        break;
-    case CG_DIVIDE_8:
-        gear = FC_GEAR_1_8;
-        break;
-    case CG_DIVIDE_16:
-        gear = FC_GEAR_1_16;
-        break;
-    default:
-        /* Do nothing */
-        break;
+        case CG_DIVIDE_1:
+            gear = FC_GEAR_1_1;
+            break;
+        case CG_DIVIDE_2:
+            gear = FC_GEAR_1_2;
+            break;
+        case CG_DIVIDE_4:
+            gear = FC_GEAR_1_4;
+            break;
+        case CG_DIVIDE_8:
+            gear = FC_GEAR_1_8;
+            break;
+        case CG_DIVIDE_16:
+            gear = FC_GEAR_1_16;
+            break;
+        default:
+            /* Do nothing */
+            break;
     }
 
     regval &= CG_FC_GEAR_MASK;
@@ -172,24 +172,24 @@ CG_DivideLevel CG_GetFgearLevel(void)
     syscr &= (~CG_FC_GEAR_MASK);
 
     switch (syscr) {
-    case FC_GEAR_1_1:
-        DivideFgearFromFc = CG_DIVIDE_1;
-        break;
-    case FC_GEAR_1_2:
-        DivideFgearFromFc = CG_DIVIDE_2;
-        break;
-    case FC_GEAR_1_4:
-        DivideFgearFromFc = CG_DIVIDE_4;
-        break;
-    case FC_GEAR_1_8:
-        DivideFgearFromFc = CG_DIVIDE_8;
-        break;
-    case FC_GEAR_1_16:
-        DivideFgearFromFc = CG_DIVIDE_16;
-        break;
-    default:
-        /* Do nothing */
-        break;
+        case FC_GEAR_1_1:
+            DivideFgearFromFc = CG_DIVIDE_1;
+            break;
+        case FC_GEAR_1_2:
+            DivideFgearFromFc = CG_DIVIDE_2;
+            break;
+        case FC_GEAR_1_4:
+            DivideFgearFromFc = CG_DIVIDE_4;
+            break;
+        case FC_GEAR_1_8:
+            DivideFgearFromFc = CG_DIVIDE_8;
+            break;
+        case FC_GEAR_1_16:
+            DivideFgearFromFc = CG_DIVIDE_16;
+            break;
+        default:
+            /* Do nothing */
+            break;
     }
 
     return DivideFgearFromFc;
@@ -214,14 +214,14 @@ Result CG_SetPhiT0Level(CG_DivideLevel DividePhiT0FromFc)
 
     /* Check the parameters */
     assert_param(IS_CG_DIVIDE_FC_LEVEL(DividePhiT0FromFc));
-  
+
     fprclk = (uint32_t) DividePhiT0FromFc;
     regval &= CG_PRCK_MASK;
     fprclk <<= 8U;
     regval |= fprclk;
     TSB_CG->SYSCR = regval;
     retval = SUCCESS;
-    
+
     return retval;
 }
 
@@ -240,15 +240,15 @@ CG_DivideLevel CG_GetPhiT0Level(void)
     CG_DivideLevel phiT0Level = CG_DIVIDE_UNKNOWN;
 
     fprclk = TSB_CG->SYSCR & (~CG_PRCK_MASK);
-    fprclk = (uint32_t) (fprclk >> 8U);
+    fprclk = (uint32_t)(fprclk >> 8U);
 
     phiT0Level = numToDivideLevel_table[fprclk];
-    
+
     return phiT0Level;
 }
 
 /**
-  * @brief  Set the warm up time 
+  * @brief  Set the warm up time
   * @param  Source: Select source of warm-up counter
   *   This parameter can be one of the following values:
   *   CG_WARM_UP_SRC_OSC_INT_HIGH, CG_WARM_UP_SRC_OSC_EXT_HIGH.
@@ -271,17 +271,17 @@ void CG_SetWarmUpTime(CG_WarmUpSrc Source, uint16_t Time)
     regval &= CG_WUP_COUNTER_MASK;
 
     switch (Source) {
-    case CG_WARM_UP_SRC_OSC_INT_HIGH:
-        regval |= wupt;
-        regval &= WARM_UP_SEL_OSC_INT_HIGH;
-        break;
-    case CG_WARM_UP_SRC_OSC_EXT_HIGH:
-        regval |= wupt;
-        regval |= WARM_UP_SEL_OSC_EXT_HIGH;
-        break;
-    default:
-        /* Do nothing */
-        break;
+        case CG_WARM_UP_SRC_OSC_INT_HIGH:
+            regval |= wupt;
+            regval &= WARM_UP_SEL_OSC_INT_HIGH;
+            break;
+        case CG_WARM_UP_SRC_OSC_EXT_HIGH:
+            regval |= wupt;
+            regval |= WARM_UP_SEL_OSC_EXT_HIGH;
+            break;
+        default:
+            /* Do nothing */
+            break;
     }
 
     TSB_CG->WUPHCR = regval;
@@ -359,7 +359,7 @@ Result CG_SetFPLLValue(uint32_t NewValue)
 /**
   * @brief  Get the value of PLL setting
   * @param  None
-  * @retval Get the value of PLL setting.  
+  * @retval Get the value of PLL setting.
   *   CG_8M_MUL_12_FPLL, CG_10M_MUL_8_FPLL, CG_12M_MUL_8_FPLL,
   *   CG_16M_MUL_6_FPLL.
   */
@@ -443,7 +443,7 @@ void CG_SetFoscSrc(CG_FoscSrc Source)
     if (Source == CG_FOSC_OSC_INT) {
         /*Selects internal high-speed oscillator */
         TSB_CG->OSCCR |= CG_OSCCR_IOSCEN_SET;
-        TSB_CG->OSCCR &= CG_OSCCR_OSCSEL_CLEAR;        
+        TSB_CG->OSCCR &= CG_OSCCR_OSCSEL_CLEAR;
     } else {
         /*Selects external high-speed oscillator */
         TSB_CG->OSCCR |= CG_OSCCR_OSCSEL_SET;
@@ -512,12 +512,12 @@ void CG_SetSTBYMode(CG_STBYMode Mode)
   * @param  None
   * @retval Low power mode
   *   The value returned can be one of the following values:
-  *   CG_STBY_MODE_STOP1, CG_STBY_MODE_IDLE, CG_STBY_MODE_UNKNOWN. 
+  *   CG_STBY_MODE_STOP1, CG_STBY_MODE_IDLE, CG_STBY_MODE_UNKNOWN.
   */
 CG_STBYMode CG_GetSTBYMode(void)
 {
     CG_STBYMode stby_mode = CG_STBY_MODE_UNKNOWN;
-    uint8_t regval = (uint8_t) (TSB_CG->STBYCR & (~CG_STBY_MODE_MASK));
+    uint8_t regval = (uint8_t)(TSB_CG->STBYCR & (~CG_STBY_MODE_MASK));
 
     stby_mode = numToSTBYMode_table[regval];
 
@@ -539,9 +539,9 @@ void CG_SetFcSrc(CG_FcSrc Source)
     assert_param(IS_CG_FC_SRC(Source));
 
     if (Source == CG_FC_SRC_FOSC) {
-       regval &= CG_PLL0SEL_PLL0SEL_CLEAR;
+        regval &= CG_PLL0SEL_PLL0SEL_CLEAR;
     } else {
-       regval |= CG_PLL0SEL_PLL0SEL_SET;
+        regval |= CG_PLL0SEL_PLL0SEL_SET;
     }
     TSB_CG->PLL0SEL = regval;
 }
@@ -591,11 +591,11 @@ void CG_SetProtectCtrl(FunctionalState NewState)
    * @brief  Enable or disable supplying clock fsys to peripheries
    * @param  Periph: The target peripheral of CG supplies clock
    *   This parameter can be one of the following values or their combination:
-   *   CG_FC_PERIPH_PORTH,  CG_FC_PERIPH_PORTJ,  CG_FC_PERIPH_TMRB0_3,          
-   *   CG_FC_PERIPH_TMRB4_6,  CG_FC_PERIPH_TMR16A,  CG_FC_PERIPH_I2C0,         
-   *   CG_FC_PERIPH_SIO0,  CG_FC_PERIPH_TSPI,  CG_FC_PERIPH_DMAC,          
+   *   CG_FC_PERIPH_PORTH,  CG_FC_PERIPH_PORTJ,  CG_FC_PERIPH_TMRB0_3,
+   *   CG_FC_PERIPH_TMRB4_6,  CG_FC_PERIPH_TMR16A,  CG_FC_PERIPH_I2C0,
+   *   CG_FC_PERIPH_SIO0,  CG_FC_PERIPH_TSPI,  CG_FC_PERIPH_DMAC,
    *   CG_FC_PERIPH_ADC,  CG_FC_PERIPH_USBD,  CG_FC_PERIPH_TMRD,
-   *   CG_FC_PERIPHA_ALL.      
+   *   CG_FC_PERIPHA_ALL.
    * @param  NewState: New state of clock supply setting.
    *   This parameter can be one of the following values:
    *   DISABLE or ENABLE
@@ -612,17 +612,17 @@ void CG_SetFcPeriphA(uint32_t Periph, FunctionalState NewState)
     }
 }
 
- /**
-   * @brief  Enable or disable supplying clock fsys to peripheries
-   * @param  Periph: The target peripheral of CG supplies clock
-   *   This parameter can be one of the following values or their combination:   
-   *   CG_FC_PERIPH_TMRB7, CG_FC_PERIPH_SIO1, CG_FC_PERIPH_WDT,      
-   *   CG_FC_PERIPH_I2C1, CG_FC_PERIPHB_ALL.                  
-   * @param  NewState: New state of clock supply setting.
-   *   This parameter can be one of the following values:
-   *   DISABLE or ENABLE
-   * @retval None
-   */
+/**
+  * @brief  Enable or disable supplying clock fsys to peripheries
+  * @param  Periph: The target peripheral of CG supplies clock
+  *   This parameter can be one of the following values or their combination:
+  *   CG_FC_PERIPH_TMRB7, CG_FC_PERIPH_SIO1, CG_FC_PERIPH_WDT,
+  *   CG_FC_PERIPH_I2C1, CG_FC_PERIPHB_ALL.
+  * @param  NewState: New state of clock supply setting.
+  *   This parameter can be one of the following values:
+  *   DISABLE or ENABLE
+  * @retval None
+  */
 void CG_SetFcPeriphB(uint32_t Periph, FunctionalState NewState)
 {
     assert_param(IS_FUNCTIONAL_STATE(NewState));
@@ -634,17 +634,17 @@ void CG_SetFcPeriphB(uint32_t Periph, FunctionalState NewState)
     }
 }
 
- /**
-   * @brief  Enable or disable supplying clock fsys to peripheries
-   * @param  Periph: The target peripheral of CG supplies clock
-   *   This parameter can be one of the following values or their combination:   
-   *   CG_FPLL_PERIPH_TMRD, CG_EHCLKSEL_8_24_48MHZ, CG_USBSEL_PLL_CLOCKIN,
-   *   CG_FC_PERIPH_I2C1, CG_FC_PERIPHB_ALL.  
-   * @param  NewState: New state of clock supply setting.
-   *   This parameter can be one of the following values:
-   *   DISABLE or ENABLE
-   * @retval None
-   */
+/**
+  * @brief  Enable or disable supplying clock fsys to peripheries
+  * @param  Periph: The target peripheral of CG supplies clock
+  *   This parameter can be one of the following values or their combination:
+  *   CG_FPLL_PERIPH_TMRD, CG_EHCLKSEL_8_24_48MHZ, CG_USBSEL_PLL_CLOCKIN,
+  *   CG_FC_PERIPH_I2C1, CG_FC_PERIPHB_ALL.
+  * @param  NewState: New state of clock supply setting.
+  *   This parameter can be one of the following values:
+  *   DISABLE or ENABLE
+  * @retval None
+  */
 void CG_SetFcOptional(uint32_t Periph, FunctionalState NewState)
 {
     assert_param(IS_FUNCTIONAL_STATE(NewState));
@@ -673,13 +673,12 @@ void CG_SetADCClkSupply(FunctionalState NewState)
     /* Check ADC is not during conversion */
     do {
         tmp = TSB_AD->MOD0 & ADC_MOD0_BUSY_MASK;
-    }
-    while (tmp);
+    } while (tmp);
 
     /* Set CGSPCLKEN<ADCKEN>  */
     tmp = TSB_CG->SPCLKEN;
     if (NewState == ENABLE) {
-        tmp |= CG_SPCLKEN_ADCKEN_SET;        
+        tmp |= CG_SPCLKEN_ADCKEN_SET;
     } else {
         tmp &= CG_SPCLKEN_ADCKEN_CLEAR;
     }

@@ -36,8 +36,8 @@ extern "C"
 
 #define UART0_FIFO_SIZE 16 /*!< UART0 supports separated receive/transmit 16/16 bytes entry FIFO */
 #define UART1_FIFO_SIZE 16 /*!< UART1 supports separated receive/transmit 16/16 bytes entry FIFO */
-#define UART2_FIFO_SIZE 16 /*!< UART2 supports separated receive/transmit 16/16 bytes entry FIFO */    
-#define UART3_FIFO_SIZE 16 /*!< UART3 supports separated receive/transmit 16/16 bytes entry FIFO */    
+#define UART2_FIFO_SIZE 16 /*!< UART2 supports separated receive/transmit 16/16 bytes entry FIFO */
+#define UART3_FIFO_SIZE 16 /*!< UART3 supports separated receive/transmit 16/16 bytes entry FIFO */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* UART_FIFO constants definitions                                                                            */
@@ -380,7 +380,7 @@ extern "C"
  *
  *    @details      This macro set RTS pin to low.
  */
-__STATIC_INLINE void UART_CLEAR_RTS(UART_T* uart)
+__STATIC_INLINE void UART_CLEAR_RTS(UART_T *uart)
 {
     uart->MODEM |= UART_MODEM_RTSACTLV_Msk;
     uart->MODEM &= ~UART_MODEM_RTS_Msk;
@@ -396,7 +396,7 @@ __STATIC_INLINE void UART_CLEAR_RTS(UART_T* uart)
  *
  *    @details      This macro set RTS pin to high.
  */
-__STATIC_INLINE void UART_SET_RTS(UART_T* uart)
+__STATIC_INLINE void UART_SET_RTS(UART_T *uart)
 {
     uart->MODEM |= UART_MODEM_RTSACTLV_Msk | UART_MODEM_RTS_Msk;
 }
@@ -427,20 +427,20 @@ __STATIC_INLINE void UART_SET_RTS(UART_T* uart)
 #define UART_RS485_GET_ADDR_FLAG(uart)    (((uart)->FIFOSTS  & UART_FIFOSTS_ADDRDETF_Msk) >> UART_FIFOSTS_ADDRDETF_Pos)
 
 
-void UART_ClearIntFlag(UART_T* uart , uint32_t u32InterruptFlag);
-void UART_Close(UART_T* uart);
-void UART_DisableFlowCtrl(UART_T* uart);
-void UART_DisableInt(UART_T*  uart, uint32_t u32InterruptFlag);
-void UART_EnableFlowCtrl(UART_T* uart);
-void UART_EnableInt(UART_T*  uart, uint32_t u32InterruptFlag);
-void UART_Open(UART_T* uart, uint32_t u32baudrate);
-uint32_t UART_Read(UART_T* uart, uint8_t *pu8RxBuf, uint32_t u32ReadBytes);
-void UART_SetLine_Config(UART_T* uart, uint32_t u32baudrate, uint32_t u32data_width, uint32_t u32parity, uint32_t  u32stop_bits);
-void UART_SetTimeoutCnt(UART_T* uart, uint32_t u32TOC);
-void UART_SelectIrDAMode(UART_T* uart, uint32_t u32Buadrate, uint32_t u32Direction);
-void UART_SelectRS485Mode(UART_T* uart, uint32_t u32Mode, uint32_t u32Addr);
-void UART_SelectLINMode(UART_T* uart, uint32_t u32Mode, uint32_t u32BreakLength);
-uint32_t UART_Write(UART_T* uart, uint8_t *pu8TxBuf, uint32_t u32WriteBytes);
+void UART_ClearIntFlag(UART_T *uart, uint32_t u32InterruptFlag);
+void UART_Close(UART_T *uart);
+void UART_DisableFlowCtrl(UART_T *uart);
+void UART_DisableInt(UART_T  *uart, uint32_t u32InterruptFlag);
+void UART_EnableFlowCtrl(UART_T *uart);
+void UART_EnableInt(UART_T  *uart, uint32_t u32InterruptFlag);
+void UART_Open(UART_T *uart, uint32_t u32baudrate);
+uint32_t UART_Read(UART_T *uart, uint8_t *pu8RxBuf, uint32_t u32ReadBytes);
+void UART_SetLine_Config(UART_T *uart, uint32_t u32baudrate, uint32_t u32data_width, uint32_t u32parity, uint32_t  u32stop_bits);
+void UART_SetTimeoutCnt(UART_T *uart, uint32_t u32TOC);
+void UART_SelectIrDAMode(UART_T *uart, uint32_t u32Buadrate, uint32_t u32Direction);
+void UART_SelectRS485Mode(UART_T *uart, uint32_t u32Mode, uint32_t u32Addr);
+void UART_SelectLINMode(UART_T *uart, uint32_t u32Mode, uint32_t u32BreakLength);
+uint32_t UART_Write(UART_T *uart, uint8_t *pu8TxBuf, uint32_t u32WriteBytes);
 
 
 

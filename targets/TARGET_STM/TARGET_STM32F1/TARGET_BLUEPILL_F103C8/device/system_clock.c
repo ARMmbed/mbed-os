@@ -64,7 +64,7 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @param  None
   * @retval None
   */
-void SystemInit (void)
+void SystemInit(void)
 {
     /* Reset the RCC clock configuration to the default reset state(for debug purpose) */
     /* Set HSION bit */
@@ -142,7 +142,7 @@ void SetSysClock(void)
         {
             /* 3- If fail start with HSI clock */
             if (SetSysClock_PLL_HSI() == 0) {
-                while(1) {
+                while (1) {
                     // [TODO] Put something here to tell the user that a problem occured...
                 }
             }

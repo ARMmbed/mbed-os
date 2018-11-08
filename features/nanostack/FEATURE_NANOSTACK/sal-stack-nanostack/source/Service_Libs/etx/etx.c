@@ -364,14 +364,14 @@ static uint16_t etx_dbm_lqi_calc(uint8_t lqi, int8_t dbm)
         etx = signal_info.result;
         etx <<= 4;
     } else {
-       /* Atmel version
-          dBm = RSSI base value [dBm] + 1.03 [dB] x ED level
-          LQI = errors in received frame */
+        /* Atmel version
+           dBm = RSSI base value [dBm] + 1.03 [dB] x ED level
+           LQI = errors in received frame */
 
-       // for dBm -90 and LQI 0 ETX will be 2.4
-       etx = ((dbm * -1) * (256 - lqi));
-       etx >>= 1; // scale result to 12 bits
-       etx += 1 << 12; // add one (perfect link)
+        // for dBm -90 and LQI 0 ETX will be 2.4
+        etx = ((dbm * -1) * (256 - lqi));
+        etx >>= 1; // scale result to 12 bits
+        etx += 1 << 12; // add one (perfect link)
     }
 
     return etx;
@@ -504,7 +504,8 @@ static void etx_accum_failures_callback_needed_check(struct mle_neigh_table_entr
  * \param mac64_addr_ptr long MAC address
  *
  */
-void etx_neighbor_remove(int8_t interface_id, mle_neigh_table_entry_t *neigh_table_ptr) {
+void etx_neighbor_remove(int8_t interface_id, mle_neigh_table_entry_t *neigh_table_ptr)
+{
 
     uint16_t stored_diff_etx;
     (void) interface_id;
@@ -515,7 +516,7 @@ void etx_neighbor_remove(int8_t interface_id, mle_neigh_table_entry_t *neigh_tab
                 stored_diff_etx = 0xffff;
             }
             etx_info.callback_ptr(etx_info.interface_id, stored_diff_etx, 0xffff, neigh_table_ptr->mac64,
-                neigh_table_ptr->short_adr);
+                                  neigh_table_ptr->short_adr);
         }
     }
 }
@@ -529,7 +530,8 @@ void etx_neighbor_remove(int8_t interface_id, mle_neigh_table_entry_t *neigh_tab
  * \param mac64_addr_ptr long MAC address
  *
  */
-void etx_neighbor_add(int8_t interface_id, mle_neigh_table_entry_t *neigh_table_ptr) {
+void etx_neighbor_add(int8_t interface_id, mle_neigh_table_entry_t *neigh_table_ptr)
+{
 
     uint16_t stored_diff_etx;
     (void) interface_id;
@@ -542,7 +544,7 @@ void etx_neighbor_add(int8_t interface_id, mle_neigh_table_entry_t *neigh_table_
                 stored_diff_etx = neigh_table_ptr->etx;
             }
             etx_info.callback_ptr(etx_info.interface_id, stored_diff_etx >> 4, neigh_table_ptr->etx >> 4,
-                neigh_table_ptr->mac64, neigh_table_ptr->short_adr);
+                                  neigh_table_ptr->mac64, neigh_table_ptr->short_adr);
         }
     }
 }

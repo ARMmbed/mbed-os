@@ -177,10 +177,10 @@ typedef struct tag_split_trans {
     uint32_t        port_sts_bits[PORT_NUM];
 } split_trans_t;
 
-static void callback_task(void const * argument);
-static void control_ed_task(void const * argument);
-static void bulk_ed_task(void const * argument);
-static void int_ed_task(void const * argument);
+static void callback_task(void const *argument);
+static void control_ed_task(void const *argument);
+static void bulk_ed_task(void const *argument);
+static void int_ed_task(void const *argument);
 static int32_t int_trans_doing(hced_t *p_ed, uint32_t index);
 static int32_t chk_genelal_ed(genelal_ed_t *p_g_ed);
 static void chk_genelal_td_done(genelal_ed_t *p_g_ed);
@@ -194,7 +194,7 @@ static void int_trans(genelal_ed_t *p_g_ed);
 static void get_td_info(genelal_ed_t *p_g_ed, tdinfo_t *p_td_info);
 static void set_togle(uint32_t pipe, hctd_t *p_td, hced_t *p_ed);
 #if (ISO_TRANS_MAX_NUM > 0)
-static void iso_ed_task(void const * argument);
+static void iso_ed_task(void const *argument);
 static int32_t iso_trans_doing(hced_t *p_ed, uint32_t index);
 static void chk_iso_td_done(genelal_ed_t *p_g_ed);
 static int32_t chk_iso_ed(genelal_ed_t *p_g_ed);
@@ -256,80 +256,87 @@ osSemaphoreDef(ohciwrapp_sem_17);
 osThreadDef(callback_task,   osPriorityHigh,        512);
 osThreadDef(control_ed_task, osPriorityNormal,      512);
 osThreadDef(bulk_ed_task,    osPriorityNormal,      512);
-static void int_ed_task_1(void const * argument) {
+static void int_ed_task_1(void const *argument)
+{
     int_ed_task(argument);
 }
 osThreadDef(int_ed_task_1,   osPriorityNormal,      512);
 #if (INT_TRANS_MAX_NUM >= 2)
-static void int_ed_task_2(void const * argument) {
+static void int_ed_task_2(void const *argument)
+{
     int_ed_task(argument);
 }
 osThreadDef(int_ed_task_2,   osPriorityNormal,      512);
 #endif
 #if (INT_TRANS_MAX_NUM >= 3)
-static void int_ed_task_3(void const * argument) {
+static void int_ed_task_3(void const *argument)
+{
     int_ed_task(argument);
 }
 osThreadDef(int_ed_task_3,   osPriorityNormal,      512);
 #endif
 #if (INT_TRANS_MAX_NUM >= 4)
-static void int_ed_task_4(void const * argument) {
+static void int_ed_task_4(void const *argument)
+{
     int_ed_task(argument);
 }
 osThreadDef(int_ed_task_4,   osPriorityNormal,      512);
 #endif
 
 #if (ISO_TRANS_MAX_NUM >= 1)
-static void iso_ed_task_1(void const * argument) {
+static void iso_ed_task_1(void const *argument)
+{
     iso_ed_task(argument);
 }
 osThreadDef(iso_ed_task_1,   osPriorityAboveNormal, 512);
 #endif
 #if (ISO_TRANS_MAX_NUM >= 2)
-static void iso_ed_task_2(void const * argument) {
+static void iso_ed_task_2(void const *argument)
+{
     iso_ed_task(argument);
 }
 osThreadDef(iso_ed_task_2,   osPriorityAboveNormal, 512);
 #endif
 
-void ohciwrapp_init(usbisr_fnc_t *p_usbisr_fnc) {
-    static const osSemaphoreDef_t * const sem_def_tbl[TOTAL_SEM_NUM] = {
+void ohciwrapp_init(usbisr_fnc_t *p_usbisr_fnc)
+{
+    static const osSemaphoreDef_t *const sem_def_tbl[TOTAL_SEM_NUM] = {
         osSemaphore(ohciwrapp_sem_01), osSemaphore(ohciwrapp_sem_02), osSemaphore(ohciwrapp_sem_03)
-      , osSemaphore(ohciwrapp_sem_04), osSemaphore(ohciwrapp_sem_05), osSemaphore(ohciwrapp_sem_06)
-      , osSemaphore(ohciwrapp_sem_07)
+        , osSemaphore(ohciwrapp_sem_04), osSemaphore(ohciwrapp_sem_05), osSemaphore(ohciwrapp_sem_06)
+        , osSemaphore(ohciwrapp_sem_07)
 #if (INT_TRANS_MAX_NUM >= 2)
-      , osSemaphore(ohciwrapp_sem_08), osSemaphore(ohciwrapp_sem_09)
+        , osSemaphore(ohciwrapp_sem_08), osSemaphore(ohciwrapp_sem_09)
 #endif
 #if (INT_TRANS_MAX_NUM >= 3)
-      , osSemaphore(ohciwrapp_sem_10), osSemaphore(ohciwrapp_sem_11)
+        , osSemaphore(ohciwrapp_sem_10), osSemaphore(ohciwrapp_sem_11)
 #endif
 #if (INT_TRANS_MAX_NUM >= 4)
-      , osSemaphore(ohciwrapp_sem_12), osSemaphore(ohciwrapp_sem_13)
+        , osSemaphore(ohciwrapp_sem_12), osSemaphore(ohciwrapp_sem_13)
 #endif
 #if (ISO_TRANS_MAX_NUM >= 1)
-      , osSemaphore(ohciwrapp_sem_14), osSemaphore(ohciwrapp_sem_15)
+        , osSemaphore(ohciwrapp_sem_14), osSemaphore(ohciwrapp_sem_15)
 #endif
 #if (ISO_TRANS_MAX_NUM >= 2)
-      , osSemaphore(ohciwrapp_sem_16), osSemaphore(ohciwrapp_sem_17)
+        , osSemaphore(ohciwrapp_sem_16), osSemaphore(ohciwrapp_sem_17)
 #endif
     };
-    static const osThreadDef_t * const int_tsk_def_tbl[INT_TRANS_MAX_NUM] = {
+    static const osThreadDef_t *const int_tsk_def_tbl[INT_TRANS_MAX_NUM] = {
         osThread(int_ed_task_1)
 #if (INT_TRANS_MAX_NUM >= 2)
-      , osThread(int_ed_task_2)
+        , osThread(int_ed_task_2)
 #endif
 #if (INT_TRANS_MAX_NUM >= 3)
-      , osThread(int_ed_task_3)
+        , osThread(int_ed_task_3)
 #endif
 #if (INT_TRANS_MAX_NUM >= 4)
-      , osThread(int_ed_task_4)
+        , osThread(int_ed_task_4)
 #endif
     };
 #if (ISO_TRANS_MAX_NUM > 0)
-    static const osThreadDef_t * const iso_tsk_def_tbl[ISO_TRANS_MAX_NUM] = {
+    static const osThreadDef_t *const iso_tsk_def_tbl[ISO_TRANS_MAX_NUM] = {
         osThread(iso_ed_task_1)
 #if (ISO_TRANS_MAX_NUM >= 2)
-      , osThread(iso_ed_task_2)
+        , osThread(iso_ed_task_2)
 #endif
     };
 #endif
@@ -435,7 +442,8 @@ void ohciwrapp_init(usbisr_fnc_t *p_usbisr_fnc) {
     }
 }
 
-uint32_t ohciwrapp_reg_r(uint32_t reg_ofs) {
+uint32_t ohciwrapp_reg_r(uint32_t reg_ofs)
+{
     if (init_end == 0) {
         return 0;
     }
@@ -443,7 +451,8 @@ uint32_t ohciwrapp_reg_r(uint32_t reg_ofs) {
     return *(uint32_t *)((uint8_t *)p_usb_reg + reg_ofs);
 }
 
-void ohciwrapp_reg_w(uint32_t reg_ofs, uint32_t set_data) {
+void ohciwrapp_reg_w(uint32_t reg_ofs, uint32_t set_data)
+{
     uint32_t cnt;
     uint32_t last_data;
     hcca_t   *p_hcca;
@@ -535,9 +544,9 @@ void ohciwrapp_reg_w(uint32_t reg_ofs, uint32_t set_data) {
             break;
         case OHCI_REG_INTERRUPTSTATUS:
             if (((p_usb_reg->HcInterruptStatus & OR_INTR_STATUS_WDH) != 0)
-             && ((set_data & OR_INTR_STATUS_WDH) != 0)) {
+                    && ((set_data & OR_INTR_STATUS_WDH) != 0)) {
                 if (p_usb_reg->HcDoneHead != 0x00000000) {
-                    p_hcca                       =  (hcca_t *)p_usb_reg->HcHCCA;
+                    p_hcca                       = (hcca_t *)p_usb_reg->HcHCCA;
                     p_hcca->DoneHead             =  p_usb_reg->HcDoneHead;
                     p_usb_reg->HcDoneHead        =  0x00000000;
                     p_usb_reg->HcInterruptStatus |= OR_INTR_STATUS_WDH;
@@ -584,7 +593,8 @@ void ohciwrapp_reg_w(uint32_t reg_ofs, uint32_t set_data) {
     }
 }
 
-static void callback_task(void const * argument) {
+static void callback_task(void const *argument)
+{
     usbisr_fnc_t *p_wk_cb = p_usbisr_cb;
 
     if (p_wk_cb == NULL) {
@@ -601,13 +611,14 @@ static void callback_task(void const * argument) {
     }
 }
 
-static void control_ed_task(void const * argument) {
+static void control_ed_task(void const *argument)
+{
     while (1) {
         osSignalWait(SIG_GEN_LIST_REQ, osWaitForever);
         (void)osSemaphoreWait(ctl_ed.semid_list, osWaitForever);
         while ((p_usb_reg->HcControl & OR_CONTROL_CLE) != 0) {
             if ((p_usb_reg->HcControlCurrentED == 0)
-             && ((p_usb_reg->HcCommandStatus & OR_CMD_STATUS_CLF) != 0)) {
+                    && ((p_usb_reg->HcCommandStatus & OR_CMD_STATUS_CLF) != 0)) {
                 p_usb_reg->HcControlCurrentED =  p_usb_reg->HcControlHeadED;
                 p_usb_reg->HcCommandStatus    &= ~OR_CMD_STATUS_CLF;
             }
@@ -629,13 +640,14 @@ static void control_ed_task(void const * argument) {
     }
 }
 
-static void bulk_ed_task(void const * argument) {
+static void bulk_ed_task(void const *argument)
+{
     while (1) {
         osSignalWait(SIG_GEN_LIST_REQ, osWaitForever);
         (void)osSemaphoreWait(blk_ed.semid_list, osWaitForever);
         while ((p_usb_reg->HcControl & OR_CONTROL_BLE) != 0) {
             if ((p_usb_reg->HcBulkCurrentED == 0)
-             && ((p_usb_reg->HcCommandStatus & OR_CMD_STATUS_BLF) != 0)) {
+                    && ((p_usb_reg->HcCommandStatus & OR_CMD_STATUS_BLF) != 0)) {
                 p_usb_reg->HcBulkCurrentED =  p_usb_reg->HcBulkHeadED;
                 p_usb_reg->HcCommandStatus &= ~OR_CMD_STATUS_BLF;
             }
@@ -657,7 +669,8 @@ static void bulk_ed_task(void const * argument) {
     }
 }
 
-static void int_ed_task(void const * argument) {
+static void int_ed_task(void const *argument)
+{
     genelal_ed_t *p_int_ed = &int_ed[(uint32_t)argument];
     uint32_t     cnt;
     uint32_t     wait_cnt = 0;
@@ -668,11 +681,11 @@ static void int_ed_task(void const * argument) {
         (void)osSemaphoreWait(p_int_ed->semid_list, osWaitForever);
         if (p_int_ed->p_curr_ed == NULL) {
             for (cnt = 0; (cnt < 32) && ((p_usb_reg->HcControl & OR_CONTROL_PLE) != 0)
-                                                 && (p_int_ed->p_curr_ed == NULL); cnt++) {
+                    && (p_int_ed->p_curr_ed == NULL); cnt++) {
                 p_hcca = (hcca_t *)p_usb_reg->HcHCCA;
                 p_ed   = (hced_t *)p_hcca->IntTable[cnt];
                 while ((p_ed != NULL) && ((p_usb_reg->HcControl & OR_CONTROL_PLE) != 0)
-                                                        && (p_int_ed->p_curr_ed == NULL)) {
+                        && (p_int_ed->p_curr_ed == NULL)) {
                     if (int_trans_doing(p_ed, (uint32_t)argument) == 0) {
                         p_int_ed->p_curr_ed = p_ed;
                         if (chk_genelal_ed(p_int_ed) != 0) {
@@ -711,7 +724,8 @@ static void int_ed_task(void const * argument) {
     }
 }
 
-static int32_t int_trans_doing(hced_t *p_ed, uint32_t index) {
+static int32_t int_trans_doing(hced_t *p_ed, uint32_t index)
+{
     uint32_t cnt;
     int32_t  ret = 0;
 
@@ -724,14 +738,15 @@ static int32_t int_trans_doing(hced_t *p_ed, uint32_t index) {
     return ret;
 }
 
-static int32_t chk_genelal_ed(genelal_ed_t *p_g_ed){
+static int32_t chk_genelal_ed(genelal_ed_t *p_g_ed)
+{
     int32_t ret   = 0;
     hced_t  *p_ed = p_g_ed->p_curr_ed;
 
     if (((p_ed->control & ED_SKIP)   != 0)
-     || ((p_ed->control & ED_FORMAT) != 0)
-     || ((p_ed->headTD & ED_HALTED)  != 0)
-     || ((p_ed->tailTD & 0xFFFFFFF0) == (p_ed->headTD & 0xFFFFFFF0))) {
+            || ((p_ed->control & ED_FORMAT) != 0)
+            || ((p_ed->headTD & ED_HALTED)  != 0)
+            || ((p_ed->tailTD & 0xFFFFFFF0) == (p_ed->headTD & 0xFFFFFFF0))) {
         /* Do Nothing */
     } else if ((p_ed->control & 0x0000007F) > 10) {
         p_ed->headTD |= ED_HALTED;
@@ -750,18 +765,19 @@ static int32_t chk_genelal_ed(genelal_ed_t *p_g_ed){
     return ret;
 }
 
-static void chk_genelal_td_done(genelal_ed_t *p_g_ed) {
+static void chk_genelal_td_done(genelal_ed_t *p_g_ed)
+{
     hcca_t   *p_hcca;
     hctd_t   *p_td = (hctd_t *)p_g_ed->p_curr_td;
     uint32_t ConditionCode = RZA_IO_RegRead_32(&p_td->control, TD_CTL_SHFT_CC, TD_CTL_MSK_CC);
 
     if ((ConditionCode != TD_CC_NOT_ACCESSED_1) && (ConditionCode != TD_CC_NOT_ACCESSED_2)) {
         p_g_ed->p_curr_ed->headTD = ((uint32_t)p_td->nextTD & 0xFFFFFFF0)
-                                  | (p_g_ed->p_curr_ed->headTD & 0x0000000F);
+                                    | (p_g_ed->p_curr_ed->headTD & 0x0000000F);
         p_td->nextTD              = (hctd_t *)p_usb_reg->HcDoneHead;
         p_usb_reg->HcDoneHead     = (uint32_t)p_g_ed->p_curr_td;
         if ((p_usb_reg->HcInterruptStatus & OR_INTR_STATUS_WDH) == 0) {
-            p_hcca                       =  (hcca_t *)p_usb_reg->HcHCCA;
+            p_hcca                       = (hcca_t *)p_usb_reg->HcHCCA;
             p_hcca->DoneHead             =  p_usb_reg->HcDoneHead;
             p_usb_reg->HcDoneHead        =  0x00000000;
             p_usb_reg->HcInterruptStatus |= OR_INTR_STATUS_WDH;
@@ -770,7 +786,8 @@ static void chk_genelal_td_done(genelal_ed_t *p_g_ed) {
     }
 }
 
-static void chk_split_trans_setting(genelal_ed_t *p_g_ed) {
+static void chk_split_trans_setting(genelal_ed_t *p_g_ed)
+{
     uint8_t   *p_buf;
     tdinfo_t  td_info;
     hctd_t    *p_td = (hctd_t *)p_g_ed->p_curr_td;
@@ -801,7 +818,7 @@ static void chk_split_trans_setting(genelal_ed_t *p_g_ed) {
                 split_ctl.root_devadr = wValue; /* New Address */
             }
         } else if ((td_info.devadr == split_ctl.root_devadr) && (bRequest == SET_FEATURE)
-                && (wValue == 0x0004) && (split_ctl.root_devadr != 0)) {
+                   && (wValue == 0x0004) && (split_ctl.root_devadr != 0)) {
             /* SET_FEATURE PORT_RESET */
             split_ctl.reset_port = (wIndx & 0x00FF);
         } else if ((td_info.devadr == split_ctl.root_devadr) && (bRequest == GET_STATUS)) {
@@ -823,7 +840,8 @@ static void chk_split_trans_setting(genelal_ed_t *p_g_ed) {
     }
 }
 
-static void set_split_trans_setting(void) {
+static void set_split_trans_setting(void)
+{
     uint16_t port_speed;
     uint16_t devadd;
 
@@ -844,7 +862,8 @@ static void set_split_trans_setting(void) {
     }
 }
 
-static void control_trans(genelal_ed_t *p_g_ed) {
+static void control_trans(genelal_ed_t *p_g_ed)
+{
     hctd_t   *p_td = (hctd_t *)p_g_ed->p_curr_td;
     tdinfo_t td_info;
     uint16_t devadd;
@@ -907,7 +926,8 @@ static void control_trans(genelal_ed_t *p_g_ed) {
     g_usbx_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_IDLE;
 }
 
-static void bulk_trans(genelal_ed_t *p_g_ed) {
+static void bulk_trans(genelal_ed_t *p_g_ed)
+{
     hctd_t                 *p_td = (hctd_t *)p_g_ed->p_curr_td;
     hced_t                 *p_ed = p_g_ed->p_curr_ed;
     tdinfo_t               td_info;
@@ -945,7 +965,8 @@ static void bulk_trans(genelal_ed_t *p_g_ed) {
     }
 }
 
-static void int_trans_setting(genelal_ed_t *p_g_ed, uint32_t index) {
+static void int_trans_setting(genelal_ed_t *p_g_ed, uint32_t index)
+{
     hctd_t                 *p_td = (hctd_t *)p_g_ed->p_curr_td;
     hced_t                 *p_ed = p_g_ed->p_curr_ed;
     tdinfo_t               td_info;
@@ -988,7 +1009,8 @@ static void int_trans_setting(genelal_ed_t *p_g_ed, uint32_t index) {
     set_togle(p_g_ed->pipe_no, p_td, p_ed);
 }
 
-static uint32_t chk_cycle(hced_t *p_ed) {
+static uint32_t chk_cycle(hced_t *p_ed)
+{
     uint32_t     cnt;
     uint32_t     hit_cnt    = 0;
     uint32_t     cycle_time = 1;
@@ -1017,14 +1039,15 @@ static uint32_t chk_cycle(hced_t *p_ed) {
         cycle_time = 4;
     } else if (hit_cnt < 32) {
         cycle_time = 2;
-    } else{
+    } else {
         cycle_time = 1;
     }
 
     return cycle_time;
 }
 
-static void int_trans(genelal_ed_t *p_g_ed) {
+static void int_trans(genelal_ed_t *p_g_ed)
+{
     hctd_t   *p_td = (hctd_t *)p_g_ed->p_curr_td;
     tdinfo_t td_info;
 
@@ -1041,7 +1064,8 @@ static void int_trans(genelal_ed_t *p_g_ed) {
     }
 }
 
-static void get_td_info(genelal_ed_t *p_g_ed, tdinfo_t *p_td_info) {
+static void get_td_info(genelal_ed_t *p_g_ed, tdinfo_t *p_td_info)
+{
     hced_t *p_ed = p_g_ed->p_curr_ed;
 
     p_td_info->endpoint_no = (uint8_t)((p_ed->control >> 7) & 0x0000000F);
@@ -1084,7 +1108,8 @@ static void get_td_info(genelal_ed_t *p_g_ed, tdinfo_t *p_td_info) {
     }
 }
 
-static void set_togle(uint32_t pipe, hctd_t *p_td, hced_t *p_ed) {
+static void set_togle(uint32_t pipe, hctd_t *p_td, hced_t *p_ed)
+{
     if ((p_td->control & TD_CTL_MSK_T) == TD_TOGGLE_0) {
         usbx_host_set_sqclr(pipe);
     } else if ((p_td->control & TD_CTL_MSK_T) == TD_TOGGLE_1) {
@@ -1097,7 +1122,8 @@ static void set_togle(uint32_t pipe, hctd_t *p_td, hced_t *p_ed) {
 }
 
 #if (ISO_TRANS_MAX_NUM > 0)
-static void iso_ed_task(void const * argument) {
+static void iso_ed_task(void const *argument)
+{
     genelal_ed_t *p_iso_ed = &iso_ed[(uint32_t)argument];
     uint32_t     wait_cnt = 0;
     hcca_t       *p_hcca;
@@ -1109,7 +1135,7 @@ static void iso_ed_task(void const * argument) {
             p_hcca = (hcca_t *)p_usb_reg->HcHCCA;
             p_ed   = (hced_t *)p_hcca->IntTable[0];
             while ((p_ed != NULL) && ((p_usb_reg->HcControl & OR_CONTROL_IE) != 0)
-                                                    && (p_iso_ed->p_curr_ed == NULL)) {
+                    && (p_iso_ed->p_curr_ed == NULL)) {
                 if (iso_trans_doing(p_ed, (uint32_t)argument) == 0) {
                     p_iso_ed->p_curr_ed = p_ed;
                     if (chk_iso_ed(p_iso_ed) != 0) {
@@ -1164,7 +1190,8 @@ static void iso_ed_task(void const * argument) {
     }
 }
 
-static int32_t iso_trans_doing(hced_t *p_ed, uint32_t index) {
+static int32_t iso_trans_doing(hced_t *p_ed, uint32_t index)
+{
     uint32_t cnt;
     int32_t  ret = 0;
 
@@ -1177,18 +1204,19 @@ static int32_t iso_trans_doing(hced_t *p_ed, uint32_t index) {
     return ret;
 }
 
-static void chk_iso_td_done(genelal_ed_t *p_g_ed) {
+static void chk_iso_td_done(genelal_ed_t *p_g_ed)
+{
     hcca_t    *p_hcca;
     hcisotd_t *p_isotd = (hcisotd_t *)p_g_ed->p_curr_td;
     uint32_t  ConditionCode = RZA_IO_RegRead_32(&p_isotd->control, TD_CTL_SHFT_CC, TD_CTL_MSK_CC);
 
     if ((ConditionCode != TD_CC_NOT_ACCESSED_1) && (ConditionCode != TD_CC_NOT_ACCESSED_2)) {
         p_g_ed->p_curr_ed->headTD = ((uint32_t)p_isotd->nextTD & 0xFFFFFFF0)
-                                  | (p_g_ed->p_curr_ed->headTD & 0x0000000F);
+                                    | (p_g_ed->p_curr_ed->headTD & 0x0000000F);
         p_isotd->nextTD           = (hcisotd_t *)p_usb_reg->HcDoneHead;
         p_usb_reg->HcDoneHead     = (uint32_t)p_g_ed->p_curr_td;
         if ((p_usb_reg->HcInterruptStatus & OR_INTR_STATUS_WDH) == 0) {
-            p_hcca                       =  (hcca_t *)p_usb_reg->HcHCCA;
+            p_hcca                       = (hcca_t *)p_usb_reg->HcHCCA;
             p_hcca->DoneHead             =  p_usb_reg->HcDoneHead;
             p_usb_reg->HcDoneHead        =  0x00000000;
             p_usb_reg->HcInterruptStatus |= OR_INTR_STATUS_WDH;
@@ -1197,14 +1225,15 @@ static void chk_iso_td_done(genelal_ed_t *p_g_ed) {
     }
 }
 
-static int32_t chk_iso_ed(genelal_ed_t *p_g_ed){
+static int32_t chk_iso_ed(genelal_ed_t *p_g_ed)
+{
     int32_t ret   = 0;
     hced_t  *p_ed = p_g_ed->p_curr_ed;
 
     if (((p_ed->control & ED_SKIP)   != 0)
-     || ((p_ed->control & ED_FORMAT) == 0)
-     || ((p_ed->headTD & ED_HALTED)  != 0)
-     || ((p_ed->tailTD & 0xFFFFFFF0) == (p_ed->headTD & 0xFFFFFFF0))) {
+            || ((p_ed->control & ED_FORMAT) == 0)
+            || ((p_ed->headTD & ED_HALTED)  != 0)
+            || ((p_ed->tailTD & 0xFFFFFFF0) == (p_ed->headTD & 0xFFFFFFF0))) {
         /* Do Nothing */
     } else if ((p_ed->control & 0x0000007F) > 10) {
         p_ed->headTD |= ED_HALTED;
@@ -1223,7 +1252,8 @@ static int32_t chk_iso_ed(genelal_ed_t *p_g_ed){
     return ret;
 }
 
-static void iso_trans_setting(genelal_ed_t *p_g_ed, uint32_t index) {
+static void iso_trans_setting(genelal_ed_t *p_g_ed, uint32_t index)
+{
     tdinfo_t               td_info;
     USB_HOST_CFG_PIPETBL_t *user_table = &usb_host_iso_ep_tbl1[index];
     uint8_t                wk_table[6];
@@ -1253,7 +1283,8 @@ static void iso_trans_setting(genelal_ed_t *p_g_ed, uint32_t index) {
     usbx_api_host_SetEndpointTable(td_info.devadr, user_table, wk_table);
 }
 
-static void iso_trans(genelal_ed_t *p_g_ed) {
+static void iso_trans(genelal_ed_t *p_g_ed)
+{
     hcisotd_t *p_isotd = (hcisotd_t *)p_g_ed->p_curr_td;
     tdinfo_t  td_info;
     uint32_t  buff_addr;
@@ -1287,7 +1318,8 @@ static void iso_trans(genelal_ed_t *p_g_ed) {
 }
 #endif
 
-static void connect_check(void) {
+static void connect_check(void)
+{
     uint32_t type = 0;
     uint16_t stat;
     uint16_t devadd = 0;
@@ -1298,7 +1330,7 @@ static void connect_check(void) {
     }
 
     if ((((wk_HcRhPortStatus1 & OR_RH_PORT_CCS) == 0) && (type == 0))
-     || (((wk_HcRhPortStatus1 & OR_RH_PORT_CCS) != 0) && (type != 0))) {
+            || (((wk_HcRhPortStatus1 & OR_RH_PORT_CCS) != 0) && (type != 0))) {
         return;
     }
 
@@ -1334,7 +1366,8 @@ static void connect_check(void) {
     (void)memset(&split_ctl, 0, sizeof(split_ctl));
 }
 
-void ohciwrapp_loc_Connect(uint32_t type) {
+void ohciwrapp_loc_Connect(uint32_t type)
+{
     uint32_t cnt;
 
     connect_status = type;
@@ -1346,13 +1379,13 @@ void ohciwrapp_loc_Connect(uint32_t type) {
         if (blk_ed.trans_wait == 1) {
             ohciwrapp_loc_TransEnd(blk_ed.pipe_no, TD_CC_DEVICENOTRESPONDING);
         }
-        for (cnt = 0; cnt< INT_TRANS_MAX_NUM; cnt++) {
+        for (cnt = 0; cnt < INT_TRANS_MAX_NUM; cnt++) {
             if (int_ed[cnt].trans_wait == 1) {
                 ohciwrapp_loc_TransEnd(int_ed[cnt].pipe_no, TD_CC_DEVICENOTRESPONDING);
             }
         }
 #if (ISO_TRANS_MAX_NUM > 0)
-        for (cnt = 0; cnt< ISO_TRANS_MAX_NUM; cnt++) {
+        for (cnt = 0; cnt < ISO_TRANS_MAX_NUM; cnt++) {
             if (iso_ed[cnt].trans_wait == 1) {
                 hced_t  *p_ed = iso_ed[cnt].p_curr_ed;
 
@@ -1365,7 +1398,8 @@ void ohciwrapp_loc_Connect(uint32_t type) {
     (void)osSemaphoreRelease(semid_cb);
 }
 
-void ohciwrapp_loc_TransEnd(uint32_t pipe, uint32_t ConditionCode) {
+void ohciwrapp_loc_TransEnd(uint32_t pipe, uint32_t ConditionCode)
+{
     uint32_t     periodic = 0;
     uint32_t     cnt;
     uint32_t     sqmon;
@@ -1379,7 +1413,7 @@ void ohciwrapp_loc_TransEnd(uint32_t pipe, uint32_t ConditionCode) {
     } else {
 #if (ISO_TRANS_MAX_NUM > 0)
         if (p_wait_ed == NULL) {
-            for (cnt = 0; cnt< ISO_TRANS_MAX_NUM; cnt++) {
+            for (cnt = 0; cnt < ISO_TRANS_MAX_NUM; cnt++) {
                 if (iso_ed[cnt].pipe_no == pipe) {
                     p_wait_ed = &iso_ed[cnt];
                     break;
@@ -1388,7 +1422,7 @@ void ohciwrapp_loc_TransEnd(uint32_t pipe, uint32_t ConditionCode) {
         }
 #endif
         if (p_wait_ed == NULL) {
-            for (cnt = 0; cnt< INT_TRANS_MAX_NUM; cnt++) {
+            for (cnt = 0; cnt < INT_TRANS_MAX_NUM; cnt++) {
                 if (int_ed[cnt].pipe_no == pipe) {
                     p_wait_ed = &int_ed[cnt];
                     periodic = 1;

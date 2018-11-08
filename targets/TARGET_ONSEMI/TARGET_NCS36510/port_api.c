@@ -38,7 +38,7 @@
  */
 PinName port_pin(PortName port, int pin_n)
 {
-    return((PinName)(pin_n));
+    return ((PinName)(pin_n));
 }
 
 /** Initilize the port
@@ -62,9 +62,9 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
     /* Store GPIO base address */
     obj->GPIOMEMBASE = GPIOREG;
 
-    for (i=0; i<NUMBER_OF_GPIO; i++) {
+    for (i = 0; i < NUMBER_OF_GPIO; i++) {
         /* check for valid pin */
-        if (obj->mask & (1<<i)) {
+        if (obj->mask & (1 << i)) {
 
             /* Gpio numbers start from DIO#0 to #17, so can pass in "i" */
             pin = port_pin(obj->port, i);
@@ -89,9 +89,9 @@ void port_mode(port_t *obj, PinMode mode)
     PinName pin;
 
     /* For each pin in the mask, set the mode to that defined in "mode" parameter */
-    for (i=0; i < NUMBER_OF_GPIO; i++) {
+    for (i = 0; i < NUMBER_OF_GPIO; i++) {
         /* check for valid pin */
-        if (obj->mask & (1<<i)) {
+        if (obj->mask & (1 << i)) {
 
             /* get the pin name */
             pin = port_pin(obj->port, i);
@@ -156,7 +156,7 @@ int port_read(port_t *obj)
     /* Disable the GPIO clock */
     CLOCK_DISABLE(CLOCK_GPIO);
 
-    return(gpio_level);
+    return (gpio_level);
 }
 
 #endif

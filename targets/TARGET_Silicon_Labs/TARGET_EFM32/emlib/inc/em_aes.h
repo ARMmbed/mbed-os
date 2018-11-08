@@ -199,7 +199,7 @@ void AES_ECB256(uint8_t *out,
  ******************************************************************************/
 __STATIC_INLINE void AES_IntClear(uint32_t flags)
 {
-  AES->IFC = flags;
+    AES->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -212,7 +212,7 @@ __STATIC_INLINE void AES_IntClear(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void AES_IntDisable(uint32_t flags)
 {
-  AES->IEN &= ~(flags);
+    AES->IEN &= ~(flags);
 }
 
 /***************************************************************************//**
@@ -230,7 +230,7 @@ __STATIC_INLINE void AES_IntDisable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void AES_IntEnable(uint32_t flags)
 {
-  AES->IEN |= flags;
+    AES->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -246,7 +246,7 @@ __STATIC_INLINE void AES_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t AES_IntGet(void)
 {
-  return AES->IF;
+    return AES->IF;
 }
 
 /***************************************************************************//**
@@ -265,10 +265,10 @@ __STATIC_INLINE uint32_t AES_IntGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t AES_IntGetEnabled(void)
 {
-  uint32_t ien;
+    uint32_t ien;
 
-  ien = AES->IEN;
-  return AES->IF & ien;
+    ien = AES->IEN;
+    return AES->IF & ien;
 }
 
 /***************************************************************************//**
@@ -281,7 +281,7 @@ __STATIC_INLINE uint32_t AES_IntGetEnabled(void)
  ******************************************************************************/
 __STATIC_INLINE void AES_IntSet(uint32_t flags)
 {
-  AES->IFS = flags;
+    AES->IFS = flags;
 }
 
 void AES_OFB128(uint8_t *out,

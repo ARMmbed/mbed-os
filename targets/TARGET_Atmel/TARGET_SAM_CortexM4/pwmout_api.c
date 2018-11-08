@@ -39,7 +39,7 @@ static const uint32_t tc_prescalar_divider[] = {
     128 // MCK/128
 };
 
-uint32_t getpwmchannelid (uint32_t channel)
+uint32_t getpwmchannelid(uint32_t channel)
 {
     switch (channel) {
         case 0 :
@@ -54,7 +54,7 @@ uint32_t getpwmchannelid (uint32_t channel)
     }
 }
 
-uint32_t getprescalarindex (uint16_t frequency)
+uint32_t getprescalarindex(uint16_t frequency)
 {
     float time_period_ms;
     time_period_ms = (1.0 / (float)frequency) * 1000.0;
@@ -69,7 +69,7 @@ uint32_t getprescalarindex (uint16_t frequency)
     }
 }
 
-static void setregisterabc (pwmout_t* obj)
+static void setregisterabc(pwmout_t *obj)
 {
     uint32_t ra, rb, rc;
     /* Sanity check arguments */
@@ -77,18 +77,22 @@ static void setregisterabc (pwmout_t* obj)
 
     /* Configure waveform frequency and duty cycle. */
     rc = (sysclk_get_peripheral_bus_hz(TC) /
-          tc_prescalar_divider[obj->prescalarindex] )/
+          tc_prescalar_divider[obj->prescalarindex]) /
          obj->waveconfig.us_frequency;
     tc_write_rc(TC, obj->channel, rc);
     switch (obj->ioline) {
         case 0 :
             ra = (100 - obj->waveconfig.us_dutycycle) * rc / 100;
-            if(ra <= 0) ra = 1; /*non zero value only*/
+            if (ra <= 0) {
+                ra = 1;    /*non zero value only*/
+            }
             tc_write_ra(TC, obj->channel, ra);
             break;
         case 1 :
             rb = (100 - obj->waveconfig.us_dutycycle) * rc / 100;
-            if(rb <= 0) rb = 1; /*non zero value only*/
+            if (rb <= 0) {
+                rb = 1;    /*non zero value only*/
+            }
             tc_write_rb(TC, obj->channel, rb);
             break;
         default :
@@ -97,7 +101,7 @@ static void setregisterabc (pwmout_t* obj)
     }
 }
 
-void pwmout_inithw(pwmout_t* obj)
+void pwmout_inithw(pwmout_t *obj)
 {
     uint32_t mode = 0;
     /* Configure the PMC to enable the TC module. */
@@ -136,7 +140,7 @@ void pwmout_inithw(pwmout_t* obj)
  * @param[in][out] obj  The PWM object to initialize
  * @return         void
  */
-void pwmout_init(pwmout_t* obj, PinName pin)
+void pwmout_init(pwmout_t *obj, PinName pin)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -148,7 +152,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
         system_board_init();
         g_sys_init = 1;
     }
-    if(pin != NC) {
+    if (pin != NC) {
         pin_function(pin, pinmap_find_function(pin, PinMap_PWM));
         ioport_disable_pin(pin);
     }
@@ -180,7 +184,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
  * @param[in] obj  The PWM object to free
  * @return    void
  */
-void pwmout_free(pwmout_t* obj)
+void pwmout_free(pwmout_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -193,7 +197,7 @@ void pwmout_free(pwmout_t* obj)
  * @param[in] value  New duty cycle to be set
  * @return    void
  */
-void pwmout_write(pwmout_t* obj, float value)
+void pwmout_write(pwmout_t *obj, float value)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -217,7 +221,7 @@ void pwmout_write(pwmout_t* obj, float value)
  * @param[in] obj  The PWM object
  * @return    Current duty cycle
  */
-float pwmout_read(pwmout_t* obj)
+float pwmout_read(pwmout_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -230,7 +234,7 @@ float pwmout_read(pwmout_t* obj)
  * @param[in] seconds  New period in seconds
  * @return           void
  */
-void pwmout_period(pwmout_t* obj, float seconds)
+void pwmout_period(pwmout_t *obj, float seconds)
 {
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
@@ -241,7 +245,7 @@ void pwmout_period(pwmout_t* obj, float seconds)
  * @param[in] value  New period in milliseconds
  * @return           void
  */
-void pwmout_period_ms(pwmout_t* obj, int ms)
+void pwmout_period_ms(pwmout_t *obj, int ms)
 {
     pwmout_period_us(obj, ms * 1000);
 }
@@ -252,11 +256,11 @@ void pwmout_period_ms(pwmout_t* obj, int ms)
  * @param[in] us   New period in microseconds
  * @return    void
  */
-void pwmout_period_us(pwmout_t* obj, int us)
+void pwmout_period_us(pwmout_t *obj, int us)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    float freq = ( 1.0 / us ) * 1000000.0;
+    float freq = (1.0 / us) * 1000000.0;
 
     obj->waveconfig.us_frequency = (uint16_t) freq;
     obj->prescalarindex = getprescalarindex(obj->waveconfig.us_frequency);
@@ -276,7 +280,7 @@ void pwmout_period_us(pwmout_t* obj, int us)
  * @param[in] seconds  New pulse width in seconds
  * @return    void
  */
-void pwmout_pulsewidth(pwmout_t* obj, float seconds)
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
@@ -287,7 +291,7 @@ void pwmout_pulsewidth(pwmout_t* obj, float seconds)
  * @param[in] ms   New pulse width in milliseconds
  * @return    void
  */
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
@@ -298,7 +302,7 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
  * @param[in] us   New pulse width in microseconds
  * @return    void
  */
-void pwmout_pulsewidth_us(pwmout_t* obj, int us)
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);

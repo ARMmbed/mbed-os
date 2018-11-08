@@ -1,21 +1,24 @@
 #include "mbed.h"
 
 extern "C" {
-volatile uint32_t msTicks;
+    volatile uint32_t msTicks;
 
-void SysTick_Handler(void) {
-    msTicks++;
+    void SysTick_Handler(void)
+    {
+        msTicks++;
+    }
+
+    void Delay(uint32_t dlyTicks)
+    {
+        uint32_t curTicks;
+
+        curTicks = msTicks;
+        while ((msTicks - curTicks) < dlyTicks);
+    }
 }
 
-void Delay(uint32_t dlyTicks) {
-    uint32_t curTicks;
-
-    curTicks = msTicks;
-    while ((msTicks - curTicks) < dlyTicks);
-}
-}
-
-int main() {
+int main()
+{
     SysTick_Config(SystemCoreClock / 1000);
 
     SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;   // Clock PIT
@@ -38,7 +41,7 @@ int main() {
 
         uint64_t ticks = (uint64_t)PIT->LTMR64H << 32;
         ticks         |= (uint64_t)PIT->LTMR64L;
-        printf("ticks: 0x%x%x\n", (uint32_t)(ticks>>32), (uint32_t)(ticks & 0xFFFFFFFF));
+        printf("ticks: 0x%x%x\n", (uint32_t)(ticks >> 32), (uint32_t)(ticks & 0xFFFFFFFF));
 
         ticks = (~ticks) / 24;
         uint32_t us = (uint32_t)(0xFFFFFFFF & ticks);

@@ -20,45 +20,48 @@
 #include "mbed_error.h"
 
 static LPC_SCT0_Type *SCTs[4] = {
-    (LPC_SCT0_Type*)LPC_SCT0,
-    (LPC_SCT0_Type*)LPC_SCT1,
-    (LPC_SCT0_Type*)LPC_SCT2,
-    (LPC_SCT0_Type*)LPC_SCT3,
+    (LPC_SCT0_Type *)LPC_SCT0,
+    (LPC_SCT0_Type *)LPC_SCT1,
+    (LPC_SCT0_Type *)LPC_SCT2,
+    (LPC_SCT0_Type *)LPC_SCT3,
 };
 
 // bit flags for used SCTs
 static unsigned char sct_used = (1 << 3);
-static int get_available_sct(void) {
+static int get_available_sct(void)
+{
     int i;
-    for (i=0; i<4; i++) {
-        if ((sct_used & (1 << i)) == 0)
+    for (i = 0; i < 4; i++) {
+        if ((sct_used & (1 << i)) == 0) {
             return i;
+        }
     }
     return -1;
 }
 
-void pwmout_init(pwmout_t* obj, PinName pin) {
+void pwmout_init(pwmout_t *obj, PinName pin)
+{
     MBED_ASSERT(pin != (uint32_t)NC);
 
     int sct_n = get_available_sct();
     if (sct_n == -1) {
         error("No available SCT");
     }
-    
+
     sct_used |= (1 << sct_n);
     obj->pwm =  SCTs[sct_n];
     obj->pwm_ch = sct_n;
 
-    LPC_SCT0_Type* pwm = obj->pwm;
+    LPC_SCT0_Type *pwm = obj->pwm;
 
     // Enable the SCT clock
     LPC_SYSCON->SYSAHBCLKCTRL1 |= (1 << (obj->pwm_ch + 2));
 
     // Clear peripheral reset the SCT:
-    LPC_SYSCON->PRESETCTRL1 |=  (1 << (obj->pwm_ch + 2));
+    LPC_SYSCON->PRESETCTRL1 |= (1 << (obj->pwm_ch + 2));
     LPC_SYSCON->PRESETCTRL1 &= ~(1 << (obj->pwm_ch + 2));
-    
-    switch(obj->pwm_ch) {
+
+    switch (obj->pwm_ch) {
         case 0:
             // SCT0_OUT0
             LPC_SWM->PINASSIGN[7] &= ~0x0000FF00;
@@ -82,13 +85,13 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
         default:
             break;
     }
-    
+
     // Unified 32-bit counter, autolimit
     pwm->CONFIG |= ((0x3 << 17) | 0x01);
-    
+
     // halt and clear the counter
     pwm->CTRL |= (1 << 2) | (1 << 3);
-    
+
     pwm->OUT0_SET = (1 << 0); // event 0
     pwm->OUT0_CLR = (1 << 1); // event 1
     // Resolve conflicts on output 0 to set output
@@ -102,17 +105,19 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
-    pwmout_write    (obj, 0);
+    pwmout_write(obj, 0);
 }
 
-void pwmout_free(pwmout_t* obj) {
+void pwmout_free(pwmout_t *obj)
+{
     // Disable the SCT clock
     LPC_SYSCON->SYSAHBCLKCTRL1 &= ~(1 << (obj->pwm_ch + 2));
     sct_used &= ~(1 << obj->pwm_ch);
 }
 
-void pwmout_write(pwmout_t* obj, float value) {
-    LPC_SCT0_Type* pwm = obj->pwm;
+void pwmout_write(pwmout_t *obj, float value)
+{
+    LPC_SCT0_Type *pwm = obj->pwm;
     if (value < 0.0f) {
         value = 0.0;
     } else if (value > 1.0f) {
@@ -121,7 +126,7 @@ void pwmout_write(pwmout_t* obj, float value) {
     uint32_t t_on = (uint32_t)((float)(pwm->MATCHREL0 + 1) * value);
     if (t_on > 0) {
         pwm->MATCHREL1 = t_on - 1;
-        
+
         // Un-halt the timer and ensure the new pulse-width takes immediate effect if necessary
         if (pwm->CTRL & (1 << 2)) {
             pwm->MATCH1 = pwm->MATCHREL1;
@@ -134,34 +139,38 @@ void pwmout_write(pwmout_t* obj, float value) {
     }
 }
 
-float pwmout_read(pwmout_t* obj) {
-    LPC_SCT0_Type* pwm = obj->pwm;
+float pwmout_read(pwmout_t *obj)
+{
+    LPC_SCT0_Type *pwm = obj->pwm;
     uint32_t t_off = pwm->MATCHREL0 + 1;
     uint32_t t_on  = (!(pwm->CTRL & (1 << 2))) ? pwm->MATCHREL1 + 1 : 0;
-    float v = (float)t_on/(float)t_off;
+    float v = (float)t_on / (float)t_off;
     return (v > 1.0f) ? (1.0f) : (v);
 }
 
-void pwmout_period(pwmout_t* obj, float seconds) {
+void pwmout_period(pwmout_t *obj, float seconds)
+{
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms) {
+void pwmout_period_ms(pwmout_t *obj, int ms)
+{
     pwmout_period_us(obj, ms * 1000);
 }
 
 // Set the PWM period, keeping the duty cycle the same.
-void pwmout_period_us(pwmout_t* obj, int us) {
-    LPC_SCT0_Type* pwm = obj->pwm;
+void pwmout_period_us(pwmout_t *obj, int us)
+{
+    LPC_SCT0_Type *pwm = obj->pwm;
     uint32_t t_off = pwm->MATCHREL0 + 1;
     uint32_t t_on  = (!(pwm->CTRL & (1 << 2))) ? pwm->MATCHREL1 + 1 : 0;
-    float v = (float)t_on/(float)t_off;
+    float v = (float)t_on / (float)t_off;
     uint32_t period_ticks = (uint32_t)(((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000);
     uint32_t pulsewidth_ticks = period_ticks * v;
     pwm->MATCHREL0 = period_ticks - 1;
     if (pulsewidth_ticks > 0) {
         pwm->MATCHREL1 = pulsewidth_ticks - 1;
-        
+
         // Un-halt the timer and ensure the new period & pulse-width take immediate effect if necessary
         if (pwm->CTRL & (1 << 2)) {
             pwm->MATCH0 = pwm->MATCHREL0;
@@ -178,19 +187,22 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     }
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
+{
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
+{
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    LPC_SCT0_Type* pwm = obj->pwm;
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
+{
+    LPC_SCT0_Type *pwm = obj->pwm;
     if (us > 0) {
         pwm->MATCHREL1 = (uint32_t)(((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000) - 1;
-        
+
         // Un-halt the timer and ensure the new pulse-width takes immediate effect if necessary
         if (pwm->CTRL & (1 << 2)) {
             pwm->MATCH1 = pwm->MATCHREL1;

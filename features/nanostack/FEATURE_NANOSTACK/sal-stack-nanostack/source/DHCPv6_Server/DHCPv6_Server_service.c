@@ -61,14 +61,14 @@ static void DHCPV6_server_service_remove_GUA_from_neighcache(protocol_interface_
 
 static bool DHCP_server_service_timer_start(void)
 {
-    if(!dhcp_timer_storage) {
+    if (!dhcp_timer_storage) {
         arm_event_s event = {
-                .receiver = dhcpv6_service_tasklet,
-                .sender = 0,
-                .event_id = DHCPV6_SERVER_SERVICE_TIMER_ID,
-                .data_ptr = NULL,
-                .event_type = DHCPV6_SERVER_SERVICE_TIMER,
-                .priority = ARM_LIB_LOW_PRIORITY_EVENT,
+            .receiver = dhcpv6_service_tasklet,
+            .sender = 0,
+            .event_id = DHCPV6_SERVER_SERVICE_TIMER_ID,
+            .data_ptr = NULL,
+            .event_type = DHCPV6_SERVER_SERVICE_TIMER,
+            .priority = ARM_LIB_LOW_PRIORITY_EVENT,
         };
 
         dhcp_timer_storage  = eventOS_event_timer_request_every(&event, eventOS_event_timer_ms_to_ticks(DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * 1000));
@@ -82,7 +82,7 @@ static bool DHCP_server_service_timer_start(void)
 
 static void DHCP_server_service_timer_stop(void)
 {
-    if (dhcp_timer_storage && libdhcpv6_gua_server_list_empty() ) {
+    if (dhcp_timer_storage && libdhcpv6_gua_server_list_empty()) {
         eventOS_cancel(dhcp_timer_storage);
         dhcp_timer_storage = NULL;
     }
@@ -106,10 +106,10 @@ int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_r
             DHCPV6_server_service_remove_GUA_from_neighcache(protocol_stack_interface_info_get_by_id(serverBase->interfaceId), nonTemporalAddress.requestedAddress);
         }
 
-        ipv6_route_t *route = ipv6_route_add_with_info(dhcp_allocated_address->nonTemporalAddress, 128, serverBase->interfaceId, NULL, ROUTE_THREAD_PROXIED_HOST,serverBase->guaPrefix,0, nonTemporalAddress.validLifeTime, 0);
+        ipv6_route_t *route = ipv6_route_add_with_info(dhcp_allocated_address->nonTemporalAddress, 128, serverBase->interfaceId, NULL, ROUTE_THREAD_PROXIED_HOST, serverBase->guaPrefix, 0, nonTemporalAddress.validLifeTime, 0);
         if (!route) {
             address_allocated = false;
-            libdhcpv6_address_rm_from_allocated_list(serverBase,dhcp_allocated_address->nonTemporalAddress);
+            libdhcpv6_address_rm_from_allocated_list(serverBase, dhcp_allocated_address->nonTemporalAddress);
         }
 
     }
@@ -341,7 +341,7 @@ void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 16]
                 DHCPV6_server_service_remove_GUA_from_neighcache(curPtr, cur->nonTemporalAddress);
             }
             // Clean all /128 'Thread Proxy' routes to self and others added when acting as a DHCP server
-            ipv6_route_table_remove_info(curPtr->id, ROUTE_THREAD_PROXIED_HOST,serverInfo->guaPrefix);
+            ipv6_route_table_remove_info(curPtr->id, ROUTE_THREAD_PROXIED_HOST, serverInfo->guaPrefix);
             dhcp_service_delete(serverInfo->socketInstance_id);
         }
 

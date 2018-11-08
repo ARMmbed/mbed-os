@@ -41,8 +41,7 @@ static ble_radio_notification_evt_handler_t m_evt_handler  = NULL;   /**< Applic
 void SWI1_IRQHandler(void)
 {
     m_radio_active = !m_radio_active;
-    if (m_evt_handler != NULL)
-    {
+    if (m_evt_handler != NULL) {
         m_evt_handler(m_radio_active);
     }
 }
@@ -58,20 +57,17 @@ uint32_t ble_radio_notification_init(nrf_app_irq_priority_t               irq_pr
 
     // Initialize Radio Notification software interrupt
     err_code = sd_nvic_ClearPendingIRQ(SWI1_IRQn);
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
         return err_code;
     }
 
     err_code = sd_nvic_SetPriority(SWI1_IRQn, irq_priority);
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
         return err_code;
     }
 
     err_code = sd_nvic_EnableIRQ(SWI1_IRQn);
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
         return err_code;
     }
 

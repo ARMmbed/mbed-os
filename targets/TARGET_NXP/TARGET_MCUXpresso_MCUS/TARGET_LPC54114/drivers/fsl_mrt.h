@@ -49,8 +49,7 @@
 /*@}*/
 
 /*! @brief List of MRT channels */
-typedef enum _mrt_chnl
-{
+typedef enum _mrt_chnl {
     kMRT_Channel_0 = 0U, /*!< MRT channel number 0*/
     kMRT_Channel_1,      /*!< MRT channel number 1 */
     kMRT_Channel_2,      /*!< MRT channel number 2 */
@@ -58,22 +57,19 @@ typedef enum _mrt_chnl
 } mrt_chnl_t;
 
 /*! @brief List of MRT timer modes */
-typedef enum _mrt_timer_mode
-{
+typedef enum _mrt_timer_mode {
     kMRT_RepeatMode = (0 << MRT_CHANNEL_CTRL_MODE_SHIFT),      /*!< Repeat Interrupt mode */
     kMRT_OneShotMode = (1 << MRT_CHANNEL_CTRL_MODE_SHIFT),     /*!< One-shot Interrupt mode */
     kMRT_OneShotStallMode = (2 << MRT_CHANNEL_CTRL_MODE_SHIFT) /*!< One-shot stall mode */
 } mrt_timer_mode_t;
 
 /*! @brief List of MRT interrupts */
-typedef enum _mrt_interrupt_enable
-{
+typedef enum _mrt_interrupt_enable {
     kMRT_TimerInterruptEnable = MRT_CHANNEL_CTRL_INTEN_MASK /*!< Timer interrupt enable*/
 } mrt_interrupt_enable_t;
 
 /*! @brief List of MRT status flags */
-typedef enum _mrt_status_flags
-{
+typedef enum _mrt_status_flags {
     kMRT_TimerInterruptFlag = MRT_CHANNEL_STAT_INTFLAG_MASK, /*!< Timer interrupt flag */
     kMRT_TimerRunFlag = MRT_CHANNEL_STAT_RUN_MASK,           /*!< Indicates state of the timer */
 } mrt_status_flags_t;
@@ -87,8 +83,7 @@ typedef enum _mrt_status_flags
  *
  * The config struct can be made const so it resides in flash
  */
-typedef struct _mrt_config
-{
+typedef struct _mrt_config {
     bool enableMultiTask; /*!< true: Timers run in multi-task mode; false: Timers run in hardware status mode */
 } mrt_config_t;
 

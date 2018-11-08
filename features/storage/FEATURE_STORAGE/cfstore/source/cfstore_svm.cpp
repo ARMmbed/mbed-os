@@ -54,12 +54,12 @@ StorageVolumeManager volumeManager;
 /* used only for the initialization of the volume-manager. */
 static void cfstore_svm_volume_manager_initialize_callback(int32_t status)
 {
-    CFSTORE_FENTRYLOG("%s: with status %d" , __func__, (int) status);
+    CFSTORE_FENTRYLOG("%s: with status %d", __func__, (int) status);
 }
 
 static void cfstore_svm_journal_mtc_callback(int32_t status, ARM_STORAGE_OPERATION operation)
 {
-    CFSTORE_FENTRYLOG("%s: operation %d with status %d" , __func__, (int) operation, (int) status);
+    CFSTORE_FENTRYLOG("%s: operation %d with status %d", __func__, (int) operation, (int) status);
 }
 
 int32_t cfstore_svm_init(struct _ARM_DRIVER_STORAGE *storage_mtd)
@@ -68,17 +68,17 @@ int32_t cfstore_svm_init(struct _ARM_DRIVER_STORAGE *storage_mtd)
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     ret = volumeManager.initialize(cfstore_svm_storage_drv, cfstore_svm_volume_manager_initialize_callback);
-    if(ret < ARM_DRIVER_OK) {
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:debug: volume-manager::initialize() failed for storage_mtd=%p (ret=%d)", __func__, storage_mtd, (int) ret);
         return ret;
     }
     ret = volumeManager.addVolume_C(CFSTORE_SVM_VOL_01_START_OFFSET, CFSTORE_SVM_VOL_01_SIZE, storage_mtd);
-    if(ret < ARM_DRIVER_OK) {
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:debug: volume-manager::addVolume_C() failed for storage_mtd=%p (ret=%d)", __func__, storage_mtd, (int) ret);
         return ret;
     }
     ret = storage_mtd->Initialize(cfstore_svm_journal_mtc_callback);
-    if(ret < ARM_DRIVER_OK) {
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:debug: storage_mtd->initialize() failed for storage_mtd=%p (ret=%d)", __func__, storage_mtd, (int) ret);
         return ret;
     }

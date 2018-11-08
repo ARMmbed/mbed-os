@@ -1,5 +1,5 @@
 /**
- * @file   
+ * @file
  * @brief   IOMAN hardware register definitions.
  */
 /* *****************************************************************************
@@ -69,7 +69,7 @@ extern "C" {
 
 /* **** Definitions **** */
 /**
- * Structure type for wakeup detection @b request for port 4, port 5, port 6 and port 7.  
+ * Structure type for wakeup detection @b request for port 4, port 5, port 6 and port 7.
  */
 typedef struct {
     uint32_t wud_req_p4 : 8;        /**< Port 4 wake-up detection @b request bit field. */
@@ -78,7 +78,7 @@ typedef struct {
     uint32_t wud_req_p7 : 8;        /**< Port 7 wake-up detection @b request bit field. */
 } mxc_ioman_wud_req1_t;
 /**
- * Structure type for wakeup detection @b acknowledgement for port 0, port 1, port 2 and port 3.  
+ * Structure type for wakeup detection @b acknowledgement for port 0, port 1, port 2 and port 3.
  */
 typedef struct {
     uint32_t wud_ack_p0 : 8;        /**< Port 0 wake-up detection @b acknowledgement bit field. */
@@ -91,9 +91,9 @@ typedef struct {
  * @ingroup    ioman
  * @defgroup   ioman_req_ack_bit_fields IOMAN Bit Field Structures
  * @brief      Bit Field Structes used to request and configure all I/O for all
- *             port pins and peripherals with external I/O. 
+ *             port pins and peripherals with external I/O.
  * @{
- */ 
+ */
 typedef struct {
     uint32_t wud_req_p0 : 8;        /**< Port 0 wake-up detection @b request bit field. */
     uint32_t wud_req_p1 : 8;        /**< Port 1 wake-up detection @b request bit field. */
@@ -101,7 +101,7 @@ typedef struct {
     uint32_t wud_req_p3 : 8;        /**< Port 3 wake-up detection @b request bit field. */
 } mxc_ioman_wud_req0_t;
 /**
- * Structure type for wakeup detection @b acknowledgement for port 4, port 5, port 6 and port 7.  
+ * Structure type for wakeup detection @b acknowledgement for port 4, port 5, port 6 and port 7.
  */
 typedef struct {
     uint32_t wud_ack_p4 : 8;        /**< Port 4 wake-up detection @b acknowledgement bit field. */
@@ -110,7 +110,7 @@ typedef struct {
     uint32_t wud_ack_p7 : 8;        /**< Port 7 wake-up detection @b acknowledgement bit field. */
 } mxc_ioman_wud_ack1_t;
 /**
- * Structure type for analog input @b request for port 0, port 1, port 2 and port 3.  
+ * Structure type for analog input @b request for port 0, port 1, port 2 and port 3.
  */
 typedef struct {
     uint32_t ali_req_p0 : 8;        /**< Port 0 analog input @b request bit field.  */
@@ -119,7 +119,7 @@ typedef struct {
     uint32_t ali_req_p3 : 8;        /**< Port 3 analog input @b request bit field.  */
 } mxc_ioman_ali_req0_t;
 /**
- * Structure type for analog input @b request for port 4, port 5, port 6 and port 7.  
+ * Structure type for analog input @b request for port 4, port 5, port 6 and port 7.
  */
 typedef struct {
     uint32_t ali_req_p4 : 8;        /**< Port 4 analog input @b request bit field.  */
@@ -128,7 +128,7 @@ typedef struct {
     uint32_t ali_req_p7 : 8;        /**< Port 7 analog input @b request bit field.  */
 } mxc_ioman_ali_req1_t;
 /**
- * Structure type for analog input @b acknowledgement for port 0, port 1, port 2 and port 3.  
+ * Structure type for analog input @b acknowledgement for port 0, port 1, port 2 and port 3.
  */
 typedef struct {
     uint32_t ali_ack_p0 : 8;        /**< Port 0 analog input @b acknowledgement bit field.  */
@@ -137,7 +137,7 @@ typedef struct {
     uint32_t ali_ack_p3 : 8;        /**< Port 3 analog input @b acknowledgement bit field.  */
 } mxc_ioman_ali_ack0_t;
 /**
- * Structure type for analog input @b acknowledgement for port 4, port 5, port 6 and port 7.  
+ * Structure type for analog input @b acknowledgement for port 4, port 5, port 6 and port 7.
  */
 typedef struct {
     uint32_t ali_ack_p4 : 8;        /**< Port 4 analog input @b acknowledgement bit field.  */
@@ -146,7 +146,7 @@ typedef struct {
     uint32_t ali_ack_p7 : 8;        /**< Port 7 analog input @b acknowledgement bit field.  */
 } mxc_ioman_ali_ack1_t;
 /**
- * Structure type for SPI XIP configuration @b requests. 
+ * Structure type for SPI XIP configuration @b requests.
  */
 typedef struct {
     uint32_t             : 4;       /**< Reserved: Do Not Modify.                       */
@@ -162,7 +162,7 @@ typedef struct {
     uint32_t             : 15;      /**< Reserved: Do Not Modify.                       */
 } mxc_ioman_spix_req_t;
 /**
- * Structure type for SPI XIP configuration @b acknowledgements. 
+ * Structure type for SPI XIP configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t             : 4;       /**< Reserved: Do Not Modify.                                           */
@@ -178,7 +178,7 @@ typedef struct {
     uint32_t             : 15;      /**< Reserved: Do Not Modify.                                           */
 } mxc_ioman_spix_ack_t;
 /**
- * Structure type for UART0 configuration @b requests. 
+ * Structure type for UART0 configuration @b requests.
  */
 typedef struct {
     uint32_t io_map     : 1;        /**< Value for the desired pin mapping for the RX/TX pins.          */
@@ -191,7 +191,7 @@ typedef struct {
     uint32_t            : 25;       /**< Reserved: Do No Modify.                                        */
 } mxc_ioman_uart0_req_t;
 /**
- * Structure type for UART0 configuration @b acknowledgements. 
+ * Structure type for UART0 configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t io_map     : 1;        /**< Is set to @p 1 if request successful.  */
@@ -204,7 +204,7 @@ typedef struct {
     uint32_t            : 25;       /**< Reserved: Do No Modify.                */
 } mxc_ioman_uart0_ack_t;
 /**
- * Structure type for UART1 configuration @b requests.  
+ * Structure type for UART1 configuration @b requests.
  */
 typedef struct {
     uint32_t io_map     : 1;        /**< Value for the desired pin mapping for the RX/TX pins.          */
@@ -217,7 +217,7 @@ typedef struct {
     uint32_t            : 25;       /**< Reserved: Do No Modify.                                        */
 } mxc_ioman_uart1_req_t;
 /**
- * Structure type for UART1 configuration @b acknowledgements. 
+ * Structure type for UART1 configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t io_map     : 1;        /**< Is set to @p 1 if request successful.  */
@@ -230,7 +230,7 @@ typedef struct {
     uint32_t            : 25;       /**< Reserved: Do No Modify.                */
 } mxc_ioman_uart1_ack_t;
 /**
- * Structure type for UART2 configuration @b requests.  
+ * Structure type for UART2 configuration @b requests.
  */
 typedef struct {
     uint32_t io_map     : 1;        /**< Value for the desired pin mapping for the RX/TX pins.          */
@@ -243,7 +243,7 @@ typedef struct {
     uint32_t            : 25;       /**< Reserved: Do No Modify.                                        */
 } mxc_ioman_uart2_req_t;
 /**
- * Structure type for UART2 configuration @b acknowledgements. 
+ * Structure type for UART2 configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t io_map     : 1;        /**< Is set to @p 1 if request successful.  */
@@ -256,7 +256,7 @@ typedef struct {
     uint32_t            : 25;       /**< Reserved: Do No Modify.                */
 } mxc_ioman_uart2_ack_t;
 /**
- * Structure type for UART3 configuration @b requests.  
+ * Structure type for UART3 configuration @b requests.
  */
 typedef struct {
     uint32_t io_map     : 1;        /**< Value for the desired pin mapping for the RX/TX pins.          */
@@ -269,7 +269,7 @@ typedef struct {
     uint32_t            : 25;       /**< Reserved: Do No Modify.                */
 } mxc_ioman_uart3_req_t;
 /**
- * Structure type for UART3 configuration @b acknowledgements. 
+ * Structure type for UART3 configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t io_map     : 1;        /**< Is set to @p 1 if request successful.  */
@@ -282,15 +282,15 @@ typedef struct {
     uint32_t            : 25;       /**< Reserved: Do No Modify.                */
 } mxc_ioman_uart3_ack_t;
 /**
- * Structure type for I2C Master 0 configuration @b requests. 
+ * Structure type for I2C Master 0 configuration @b requests.
  */
 typedef struct {
     uint32_t             : 4;       /**< Reserved: Do No Modify.                                */
-    uint32_t mapping_req : 1;       /**< Value for the desired pin mapping for the I2CM0 pins.  */       
+    uint32_t mapping_req : 1;       /**< Value for the desired pin mapping for the I2CM0 pins.  */
     uint32_t             : 27;      /**< Reserved: Do No Modify.                                */
 } mxc_ioman_i2cm0_req_t;
 /**
- * Structure type for I2C Master 0 configuration @b acknowledgements. 
+ * Structure type for I2C Master 0 configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t             : 4;       /**< Reserved: Do No Modify.                                */
@@ -298,7 +298,7 @@ typedef struct {
     uint32_t             : 27;      /**< Reserved: Do No Modify.                                */
 } mxc_ioman_i2cm0_ack_t;
 /**
- * Structure type for I2C Master 1 configuration @b requests. 
+ * Structure type for I2C Master 1 configuration @b requests.
  */
 typedef struct {
     uint32_t io_sel      : 2;      /**< Value for the desired pin mapping for the I2CM1 CLK and Data pins.  */
@@ -307,7 +307,7 @@ typedef struct {
     uint32_t             : 27;     /**< Reserved: Do No Modify.                                             */
 } mxc_ioman_i2cm1_req_t;
 /**
- * Structure type for I2C Master 1 configuration @b acknowledgements. 
+ * Structure type for I2C Master 1 configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t io_sel      : 2;      /**< Non-zero if mapping request successful.                */
@@ -316,7 +316,7 @@ typedef struct {
     uint32_t             : 27;     /**< Reserved: Do No Modify.                                */
 } mxc_ioman_i2cm1_ack_t;
 /**
- * Structure type for I2C Master 2 configuration @b requests. 
+ * Structure type for I2C Master 2 configuration @b requests.
  */
 typedef struct {
     uint32_t io_sel      : 2;      /**< Value for the desired pin mapping for the I2CM2 CLK and Data pins.  */
@@ -325,7 +325,7 @@ typedef struct {
     uint32_t             : 27;     /**< Reserved: Do No Modify.                                             */
 } mxc_ioman_i2cm2_req_t;
 /**
- * Structure type for I2C Master 2 configuration @b acknowledgements. 
+ * Structure type for I2C Master 2 configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t io_sel      : 2;      /**< Non-zero if mapping request successful.                */
@@ -334,7 +334,7 @@ typedef struct {
     uint32_t             : 27;     /**< Reserved: Do No Modify.                                */
 } mxc_ioman_i2cm2_ack_t;
 /**
- * Structure type for I2C Slave 0 configuration @b requests. 
+ * Structure type for I2C Slave 0 configuration @b requests.
  */
 typedef struct {
     uint32_t io_sel      : 3;      /**< Value for the desired pin mapping for the I2CS0 CLK and Data pins.  */
@@ -343,7 +343,7 @@ typedef struct {
     uint32_t             : 27;     /**< Reserved: Do No Modify.                                             */
 } mxc_ioman_i2cs_req_t;
 /**
- * Structure type for I2C Slave 0 configuration @b acknowledgements. 
+ * Structure type for I2C Slave 0 configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t io_sel      : 3;      /**< Non-zero if mapping request successful.                */
@@ -352,7 +352,7 @@ typedef struct {
     uint32_t             : 27;     /**< Reserved: Do No Modify.                                */
 } mxc_ioman_i2cs_ack_t;
 /**
- * Structure type for SPI Master 0 configuration @b requests. 
+ * Structure type for SPI Master 0 configuration @b requests.
  */
 typedef struct {
     uint32_t             : 4;       /**< Reserved: Do Not Modify.                       */
@@ -370,7 +370,7 @@ typedef struct {
     uint32_t             : 7;       /**< Reserved: Do Not Modify.                       */
 } mxc_ioman_spim0_req_t;
 /**
- * Structure type for SPI Master 0 configuration @b acknowledgements. 
+ * Structure type for SPI Master 0 configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t             : 4;       /**< Reserved: Do Not Modify.                                           */
@@ -388,7 +388,7 @@ typedef struct {
     uint32_t             : 7;       /**< Reserved: Do Not Modify.                                           */
 } mxc_ioman_spim0_ack_t;
 /**
- * Structure type for SPI Master 1 configuration @b requests. 
+ * Structure type for SPI Master 1 configuration @b requests.
  */
 typedef struct {
     uint32_t             : 4;      /**< Reserved: Do Not Modify.                       */
@@ -404,7 +404,7 @@ typedef struct {
     uint32_t             : 7;      /**< Reserved: Do Not Modify.                       */
 } mxc_ioman_spim1_req_t;
 /**
- * Structure type for SPI Master 1 configuration @b acknowledgements. 
+ * Structure type for SPI Master 1 configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t             : 4;      /**< Reserved: Do Not Modify.                                           */
@@ -420,7 +420,7 @@ typedef struct {
     uint32_t             : 7;      /**< Reserved: Do Not Modify.                                           */
 } mxc_ioman_spim1_ack_t;
 /**
- * Structure type for SPI Master 2 configuration @b requests. 
+ * Structure type for SPI Master 2 configuration @b requests.
  */
 typedef struct {
     uint32_t mapping_req : 2;      /**< Set to the desired port pin mapping for the SPIM2.                  */
@@ -440,7 +440,7 @@ typedef struct {
     uint32_t             : 7;      /**< Reserved: Do Not Modify.                                            */
 } mxc_ioman_spim2_req_t;
 /**
- * Structure type for SPI Master 2 configuration @b acknowledgements. 
+ * Structure type for SPI Master 2 configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t mapping_ack : 2;      /**< Non-zero if mapping request successful.                             */
@@ -460,7 +460,7 @@ typedef struct {
     uint32_t             : 7;      /**< Reserved: Do Not Modify.                                            */
 } mxc_ioman_spim2_ack_t;
 /**
- * Structure type for SPI Bridge configuration @b requests. 
+ * Structure type for SPI Bridge configuration @b requests.
  */
 typedef struct {
     uint32_t             : 4;      /**< Reserved: Do Not Modify.                                            */
@@ -472,7 +472,7 @@ typedef struct {
     uint32_t             : 19;     /**< Reserved: Do Not Modify.                                            */
 } mxc_ioman_spib_req_t;
 /**
- * Structure type for SPI Bridge configuration @b acknowledgements. 
+ * Structure type for SPI Bridge configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t             : 4;      /**< Reserved: Do Not Modify.                                            */
@@ -484,7 +484,7 @@ typedef struct {
     uint32_t             : 19;     /**< Reserved: Do Not Modify.                                            */
 } mxc_ioman_spib_ack_t;
 /**
- * Structure type for 1-Wire Master (OWM) configuration @b requests. 
+ * Structure type for 1-Wire Master (OWM) configuration @b requests.
  */
 typedef struct {
     uint32_t             : 4;      /**< Reserved: Do Not Modify.                                            */
@@ -493,7 +493,7 @@ typedef struct {
     uint32_t             : 26;     /**< Reserved: Do Not Modify.                                            */
 } mxc_ioman_owm_req_t;
 /**
- * Structure type for 1-Wire Master configuration @b acknowledgements. 
+ * Structure type for 1-Wire Master configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t             : 4;      /**< Reserved: Do Not Modify.                                            */
@@ -502,7 +502,7 @@ typedef struct {
     uint32_t             : 26;     /**< Reserved: Do Not Modify.                                            */
 } mxc_ioman_owm_ack_t;
 /**
- * Structure type for SPI Slave configuration @b requests. 
+ * Structure type for SPI Slave configuration @b requests.
  */
 typedef struct {
     uint32_t mapping_req : 2;      /**< Set to desired port pin mapping for the SPIS peripheral.            */
@@ -515,7 +515,7 @@ typedef struct {
     uint32_t             : 19;     /**< Reserved: Do Not Modify.                                            */
 } mxc_ioman_spis_req_t;
 /**
- * Structure type for SPI Slave configuration @b acknowledgements. 
+ * Structure type for SPI Slave configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t mapping_ack : 2;      /**< Non-zero if mapping request successful.                             */
@@ -536,28 +536,28 @@ typedef struct {
     uint32_t               : 30;    /**< Reserved: Do not modify. */
 } mxc_ioman_pad_mode_t;
 /**
- * Structure type for Wake-Up Detect (WUD) configuration @b requests. 
+ * Structure type for Wake-Up Detect (WUD) configuration @b requests.
  */
 typedef struct {
     uint32_t wud_req_p8 : 2;        /**< Request bits for Wakeup Detect Mode requests for ports P0/P1/P2/P3. */
     uint32_t            : 30;       /**< Reserved: Do not modify. */
 } mxc_ioman_wud_req2_t;
 /**
- * Structure type for Wake-Up Detect (WUD) configuration @b acknowledgements. 
+ * Structure type for Wake-Up Detect (WUD) configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t wud_ack_p8 : 2;    /**< Acknowledgement bits for Wakeup Detect Mode requests for ports P0/P1/P2/P3. */
     uint32_t            : 30;   /**< Reserved: Do not modify. */
 } mxc_ioman_wud_ack2_t;
 /**
- * Structure type for Analog Wake-Up Detect (WUD) configuration @b requests. 
+ * Structure type for Analog Wake-Up Detect (WUD) configuration @b requests.
  */
 typedef struct {
     uint32_t ali_req_p8 : 2;    /**< Request bits for Analog Wakeup Detect Mode requests for ports P4/P5/P6/P7. */
     uint32_t            : 30;   /**< Reserved: Do not modify. */
 } mxc_ioman_ali_req2_t;
 /**
- * Structure type for Wake-Up Detect (WUD) configuration @b acknowledgements. 
+ * Structure type for Wake-Up Detect (WUD) configuration @b acknowledgements.
  */
 typedef struct {
     uint32_t ali_ack_p8 : 2;   /**< Acknowledgement bits for Analog Wakeup Detect Mode requests for ports P4/P5/P6/P7. */
@@ -750,7 +750,7 @@ typedef struct {
 */
 /**
  * @ingroup ioman_registers
- * @defgroup Bit and Field Positions Masks for the IOMAN Registers. 
+ * @defgroup Bit and Field Positions Masks for the IOMAN Registers.
  * @{
  */
 #define MXC_F_IOMAN_WUD_REQ0_WUD_REQ_P0_POS                 0

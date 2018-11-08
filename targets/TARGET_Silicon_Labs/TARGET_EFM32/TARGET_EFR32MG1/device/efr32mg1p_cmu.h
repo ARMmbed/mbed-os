@@ -38,93 +38,92 @@
  * @{
  * @brief EFR32MG1P_CMU Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;                /**< CMU Control Register  */
+typedef struct {
+    __IOM uint32_t CTRL;                /**< CMU Control Register  */
 
-  uint32_t       RESERVED0[3];        /**< Reserved for future use **/
-  __IOM uint32_t HFRCOCTRL;           /**< HFRCO Control Register  */
+    uint32_t       RESERVED0[3];        /**< Reserved for future use **/
+    __IOM uint32_t HFRCOCTRL;           /**< HFRCO Control Register  */
 
-  uint32_t       RESERVED1[1];        /**< Reserved for future use **/
-  __IOM uint32_t AUXHFRCOCTRL;        /**< AUXHFRCO Control Register  */
+    uint32_t       RESERVED1[1];        /**< Reserved for future use **/
+    __IOM uint32_t AUXHFRCOCTRL;        /**< AUXHFRCO Control Register  */
 
-  uint32_t       RESERVED2[1];        /**< Reserved for future use **/
-  __IOM uint32_t LFRCOCTRL;           /**< LFRCO Control Register  */
-  __IOM uint32_t HFXOCTRL;            /**< HFXO Control Register  */
-  __IOM uint32_t HFXOCTRL1;           /**< HFXO Control 1  */
-  __IOM uint32_t HFXOSTARTUPCTRL;     /**< HFXO Startup Control  */
-  __IOM uint32_t HFXOSTEADYSTATECTRL; /**< HFXO Steady State control  */
-  __IOM uint32_t HFXOTIMEOUTCTRL;     /**< HFXO Timeout Control  */
-  __IOM uint32_t LFXOCTRL;            /**< LFXO Control Register  */
-  __IOM uint32_t ULFRCOCTRL;          /**< ULFRCO Control Register  */
+    uint32_t       RESERVED2[1];        /**< Reserved for future use **/
+    __IOM uint32_t LFRCOCTRL;           /**< LFRCO Control Register  */
+    __IOM uint32_t HFXOCTRL;            /**< HFXO Control Register  */
+    __IOM uint32_t HFXOCTRL1;           /**< HFXO Control 1  */
+    __IOM uint32_t HFXOSTARTUPCTRL;     /**< HFXO Startup Control  */
+    __IOM uint32_t HFXOSTEADYSTATECTRL; /**< HFXO Steady State control  */
+    __IOM uint32_t HFXOTIMEOUTCTRL;     /**< HFXO Timeout Control  */
+    __IOM uint32_t LFXOCTRL;            /**< LFXO Control Register  */
+    __IOM uint32_t ULFRCOCTRL;          /**< ULFRCO Control Register  */
 
-  uint32_t       RESERVED3[4];        /**< Reserved for future use **/
-  __IOM uint32_t CALCTRL;             /**< Calibration Control Register  */
-  __IOM uint32_t CALCNT;              /**< Calibration Counter Register  */
-  uint32_t       RESERVED4[2];        /**< Reserved for future use **/
-  __IOM uint32_t OSCENCMD;            /**< Oscillator Enable/Disable Command Register  */
-  __IOM uint32_t CMD;                 /**< Command Register  */
-  uint32_t       RESERVED5[2];        /**< Reserved for future use **/
-  __IOM uint32_t DBGCLKSEL;           /**< Debug Trace Clock Select  */
-  __IOM uint32_t HFCLKSEL;            /**< High Frequency Clock Select Command Register  */
-  uint32_t       RESERVED6[2];        /**< Reserved for future use **/
-  __IOM uint32_t LFACLKSEL;           /**< Low Frequency A Clock Select Register  */
-  __IOM uint32_t LFBCLKSEL;           /**< Low Frequency B Clock Select Register  */
-  __IOM uint32_t LFECLKSEL;           /**< Low Frequency E Clock Select Register  */
+    uint32_t       RESERVED3[4];        /**< Reserved for future use **/
+    __IOM uint32_t CALCTRL;             /**< Calibration Control Register  */
+    __IOM uint32_t CALCNT;              /**< Calibration Counter Register  */
+    uint32_t       RESERVED4[2];        /**< Reserved for future use **/
+    __IOM uint32_t OSCENCMD;            /**< Oscillator Enable/Disable Command Register  */
+    __IOM uint32_t CMD;                 /**< Command Register  */
+    uint32_t       RESERVED5[2];        /**< Reserved for future use **/
+    __IOM uint32_t DBGCLKSEL;           /**< Debug Trace Clock Select  */
+    __IOM uint32_t HFCLKSEL;            /**< High Frequency Clock Select Command Register  */
+    uint32_t       RESERVED6[2];        /**< Reserved for future use **/
+    __IOM uint32_t LFACLKSEL;           /**< Low Frequency A Clock Select Register  */
+    __IOM uint32_t LFBCLKSEL;           /**< Low Frequency B Clock Select Register  */
+    __IOM uint32_t LFECLKSEL;           /**< Low Frequency E Clock Select Register  */
 
-  uint32_t       RESERVED7[1];        /**< Reserved for future use **/
-  __IM uint32_t  STATUS;              /**< Status Register  */
-  __IM uint32_t  HFCLKSTATUS;         /**< HFCLK Status Register  */
-  uint32_t       RESERVED8[1];        /**< Reserved for future use **/
-  __IM uint32_t  HFXOTRIMSTATUS;      /**< HFXO Trim Status  */
-  __IM uint32_t  IF;                  /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;                 /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;                 /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;                 /**< Interrupt Enable Register  */
-  __IOM uint32_t HFBUSCLKEN0;         /**< High Frequency Bus Clock Enable Register 0  */
+    uint32_t       RESERVED7[1];        /**< Reserved for future use **/
+    __IM uint32_t  STATUS;              /**< Status Register  */
+    __IM uint32_t  HFCLKSTATUS;         /**< HFCLK Status Register  */
+    uint32_t       RESERVED8[1];        /**< Reserved for future use **/
+    __IM uint32_t  HFXOTRIMSTATUS;      /**< HFXO Trim Status  */
+    __IM uint32_t  IF;                  /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;                 /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;                 /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN;                 /**< Interrupt Enable Register  */
+    __IOM uint32_t HFBUSCLKEN0;         /**< High Frequency Bus Clock Enable Register 0  */
 
-  uint32_t       RESERVED9[3];        /**< Reserved for future use **/
-  __IOM uint32_t HFPERCLKEN0;         /**< High Frequency Peripheral Clock Enable Register 0  */
+    uint32_t       RESERVED9[3];        /**< Reserved for future use **/
+    __IOM uint32_t HFPERCLKEN0;         /**< High Frequency Peripheral Clock Enable Register 0  */
 
-  uint32_t       RESERVED10[7];       /**< Reserved for future use **/
-  __IOM uint32_t LFACLKEN0;           /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
-  uint32_t       RESERVED11[1];       /**< Reserved for future use **/
-  __IOM uint32_t LFBCLKEN0;           /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
+    uint32_t       RESERVED10[7];       /**< Reserved for future use **/
+    __IOM uint32_t LFACLKEN0;           /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
+    uint32_t       RESERVED11[1];       /**< Reserved for future use **/
+    __IOM uint32_t LFBCLKEN0;           /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
 
-  uint32_t       RESERVED12[1];       /**< Reserved for future use **/
-  __IOM uint32_t LFECLKEN0;           /**< Low Frequency E Clock Enable Register 0 (Async Reg)  */
-  uint32_t       RESERVED13[3];       /**< Reserved for future use **/
-  __IOM uint32_t HFPRESC;             /**< High Frequency Clock Prescaler Register  */
+    uint32_t       RESERVED12[1];       /**< Reserved for future use **/
+    __IOM uint32_t LFECLKEN0;           /**< Low Frequency E Clock Enable Register 0 (Async Reg)  */
+    uint32_t       RESERVED13[3];       /**< Reserved for future use **/
+    __IOM uint32_t HFPRESC;             /**< High Frequency Clock Prescaler Register  */
 
-  uint32_t       RESERVED14[1];       /**< Reserved for future use **/
-  __IOM uint32_t HFCOREPRESC;         /**< High Frequency Core Clock Prescaler Register  */
-  __IOM uint32_t HFPERPRESC;          /**< High Frequency Peripheral Clock Prescaler Register  */
+    uint32_t       RESERVED14[1];       /**< Reserved for future use **/
+    __IOM uint32_t HFCOREPRESC;         /**< High Frequency Core Clock Prescaler Register  */
+    __IOM uint32_t HFPERPRESC;          /**< High Frequency Peripheral Clock Prescaler Register  */
 
-  uint32_t       RESERVED15[1];       /**< Reserved for future use **/
-  __IOM uint32_t HFEXPPRESC;          /**< High Frequency Export Clock Prescaler Register  */
+    uint32_t       RESERVED15[1];       /**< Reserved for future use **/
+    __IOM uint32_t HFEXPPRESC;          /**< High Frequency Export Clock Prescaler Register  */
 
-  uint32_t       RESERVED16[2];       /**< Reserved for future use **/
-  __IOM uint32_t LFAPRESC0;           /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
-  uint32_t       RESERVED17[1];       /**< Reserved for future use **/
-  __IOM uint32_t LFBPRESC0;           /**< Low Frequency B Prescaler Register 0  (Async Reg)  */
-  uint32_t       RESERVED18[1];       /**< Reserved for future use **/
-  __IOM uint32_t LFEPRESC0;           /**< Low Frequency E Prescaler Register 0  (Async Reg).  When waking up from EM4 make sure EM4UNLATCH in EMU_CMD is set for this to take effect  */
+    uint32_t       RESERVED16[2];       /**< Reserved for future use **/
+    __IOM uint32_t LFAPRESC0;           /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
+    uint32_t       RESERVED17[1];       /**< Reserved for future use **/
+    __IOM uint32_t LFBPRESC0;           /**< Low Frequency B Prescaler Register 0  (Async Reg)  */
+    uint32_t       RESERVED18[1];       /**< Reserved for future use **/
+    __IOM uint32_t LFEPRESC0;           /**< Low Frequency E Prescaler Register 0  (Async Reg).  When waking up from EM4 make sure EM4UNLATCH in EMU_CMD is set for this to take effect  */
 
-  uint32_t       RESERVED19[3];       /**< Reserved for future use **/
-  __IM uint32_t  SYNCBUSY;            /**< Synchronization Busy Register  */
-  __IOM uint32_t FREEZE;              /**< Freeze Register  */
-  uint32_t       RESERVED20[2];       /**< Reserved for future use **/
-  __IOM uint32_t PCNTCTRL;            /**< PCNT Control Register  */
+    uint32_t       RESERVED19[3];       /**< Reserved for future use **/
+    __IM uint32_t  SYNCBUSY;            /**< Synchronization Busy Register  */
+    __IOM uint32_t FREEZE;              /**< Freeze Register  */
+    uint32_t       RESERVED20[2];       /**< Reserved for future use **/
+    __IOM uint32_t PCNTCTRL;            /**< PCNT Control Register  */
 
-  uint32_t       RESERVED21[2];       /**< Reserved for future use **/
-  __IOM uint32_t ADCCTRL;             /**< ADC Control Register  */
+    uint32_t       RESERVED21[2];       /**< Reserved for future use **/
+    __IOM uint32_t ADCCTRL;             /**< ADC Control Register  */
 
-  uint32_t       RESERVED22[4];       /**< Reserved for future use **/
-  __IOM uint32_t ROUTEPEN;            /**< I/O Routing Pin Enable Register  */
-  __IOM uint32_t ROUTELOC0;           /**< I/O Routing Location Register  */
+    uint32_t       RESERVED22[4];       /**< Reserved for future use **/
+    __IOM uint32_t ROUTEPEN;            /**< I/O Routing Pin Enable Register  */
+    __IOM uint32_t ROUTELOC0;           /**< I/O Routing Location Register  */
 
-  uint32_t       RESERVED23[2];       /**< Reserved for future use **/
-  __IOM uint32_t LOCK;                /**< Configuration Lock Register  */
+    uint32_t       RESERVED23[2];       /**< Reserved for future use **/
+    __IOM uint32_t LOCK;                /**< Configuration Lock Register  */
 } CMU_TypeDef;                        /** @} */
 
 /**************************************************************************//**

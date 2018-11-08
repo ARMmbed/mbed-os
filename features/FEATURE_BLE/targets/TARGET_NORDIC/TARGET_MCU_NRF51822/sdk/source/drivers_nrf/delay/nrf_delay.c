@@ -29,8 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
-#include <stdio.h> 
+
+#include <stdio.h>
 #include "compiler_abstraction.h"
 #include "nrf.h"
 #include "nrf_delay.h"
@@ -38,8 +38,7 @@
 /*lint --e{438} "Variable not used" */
 void nrf_delay_ms(uint32_t volatile number_of_ms)
 {
-    while(number_of_ms != 0)
-    {
+    while (number_of_ms != 0) {
         number_of_ms--;
         nrf_delay_us(999);
     }

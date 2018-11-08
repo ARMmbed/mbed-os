@@ -51,8 +51,7 @@
 /*@}*/
 
 /*! @brief SLCD power supply option. */
-typedef enum _slcd_power_supply_option
-{
+typedef enum _slcd_power_supply_option {
     kSLCD_InternalVll3UseChargePump =
         2U, /*!< VLL3 connected to VDD internally, charge pump is used to generate VLL1 and VLL2. */
     kSLCD_ExternalVll3UseResistorBiasNetwork =
@@ -64,8 +63,7 @@ typedef enum _slcd_power_supply_option
 } slcd_power_supply_option_t;
 
 /*! @brief SLCD regulated voltage trim parameter, be used to meet the desired contrast. */
-typedef enum _slcd_regulated_voltage_trim
-{
+typedef enum _slcd_regulated_voltage_trim {
     kSLCD_RegulatedVolatgeTrim00 = 0U, /*!< Increase the voltage to 0.91 V. */
     kSLCD_RegulatedVolatgeTrim01,      /*!< Increase the voltage to 1.01 V. */
     kSLCD_RegulatedVolatgeTrim02,      /*!< Increase the voltage to 0.96 V. */
@@ -105,8 +103,7 @@ typedef enum _slcd_regulated_voltage_trim
  *  kSLCD_HighLoadOrSlowestClkSrc - slowest clock source (LCD glass capacitance
  *                 1000pF or 500pF or lower if Fast Frame Rate is set)
  */
-typedef enum _slcd_load_adjust
-{
+typedef enum _slcd_load_adjust {
     kSLCD_LowLoadOrFastestClkSrc = 0U,  /*!< Adjust in low load or selects fastest clock. */
     kSLCD_LowLoadOrIntermediateClkSrc,  /*!< Adjust in low load or selects intermediate clock. */
     kSLCD_HighLoadOrIntermediateClkSrc, /*!< Adjust in high load or selects intermediate clock. */
@@ -114,8 +111,7 @@ typedef enum _slcd_load_adjust
 } slcd_load_adjust_t;
 
 /*! @brief SLCD clock source. */
-typedef enum _slcd_clock_src
-{
+typedef enum _slcd_clock_src {
     kSLCD_DefaultClk = 0U,    /*!< Select default clock ERCLK32K. */
     kSLCD_AlternateClk1 = 1U, /*!< Select alternate clock source 1 : MCGIRCLK. */
 #if FSL_FEATURE_SLCD_HAS_MULTI_ALTERNATE_CLOCK_SOURCE
@@ -124,8 +120,7 @@ typedef enum _slcd_clock_src
 } slcd_clock_src_t;
 
 /*! @brief SLCD alternate clock divider. */
-typedef enum _slcd_alt_clock_div
-{
+typedef enum _slcd_alt_clock_div {
     kSLCD_AltClkDivFactor1 = 0U, /*!< No divide for alternate clock. */
     kSLCD_AltClkDivFactor64,     /*!< Divide alternate clock with factor 64. */
     kSLCD_AltClkDivFactor256,    /*!< Divide alternate clock with factor 256. */
@@ -133,8 +128,7 @@ typedef enum _slcd_alt_clock_div
 } slcd_alt_clock_div_t;
 
 /*! @brief SLCD clock prescaler to generate frame frequency. */
-typedef enum _slcd_clock_prescaler
-{
+typedef enum _slcd_clock_prescaler {
     kSLCD_ClkPrescaler00 = 0U, /*!< Prescaler 0. */
     kSLCD_ClkPrescaler01,      /*!< Prescaler 1. */
     kSLCD_ClkPrescaler02,      /*!< Prescaler 2. */
@@ -146,8 +140,7 @@ typedef enum _slcd_clock_prescaler
 } slcd_clock_prescaler_t;
 
 /*! @brief SLCD duty cycle. */
-typedef enum _slcd_duty_cycle
-{
+typedef enum _slcd_duty_cycle {
     kSLCD_1Div1DutyCycle = 0U, /*!< LCD use 1 BP 1/1 duty cycle. */
     kSLCD_1Div2DutyCycle,      /*!< LCD use 2 BP 1/2 duty cycle. */
     kSLCD_1Div3DutyCycle,      /*!< LCD use 3 BP 1/3 duty cycle. */
@@ -159,8 +152,7 @@ typedef enum _slcd_duty_cycle
 } slcd_duty_cycle_t;
 
 /*! @brief SLCD segment phase type. */
-typedef enum _slcd_phase_type
-{
+typedef enum _slcd_phase_type {
     kSLCD_NoPhaseActivate = 0x00U, /*!< LCD wareform no phase activates. */
     kSLCD_PhaseAActivate = 0x01U,  /*!< LCD waveform phase A activates. */
     kSLCD_PhaseBActivate = 0x02U,  /*!< LCD waveform phase B activates. */
@@ -173,8 +165,7 @@ typedef enum _slcd_phase_type
 } slcd_phase_type_t;
 
 /*! @brief SLCD segment phase bit index. */
-typedef enum _slcd_phase_index
-{
+typedef enum _slcd_phase_index {
     kSLCD_PhaseAIndex = 0x0U, /*!< LCD phase A bit index. */
     kSLCD_PhaseBIndex = 0x1U, /*!< LCD phase B bit index. */
     kSLCD_PhaseCIndex = 0x2U, /*!< LCD phase C bit index. */
@@ -186,23 +177,20 @@ typedef enum _slcd_phase_index
 } slcd_phase_index_t;
 
 /*! @brief SLCD display mode. */
-typedef enum _slcd_display_mode
-{
+typedef enum _slcd_display_mode {
     kSLCD_NormalMode = 0U, /*!< LCD Normal display mode. */
     kSLCD_AlternateMode,   /*!< LCD Alternate display mode. For four back planes or less. */
     kSLCD_BlankMode        /*!< LCD Blank display mode. */
 } slcd_display_mode_t;
 
 /*! @brief SLCD blink mode. */
-typedef enum _slcd_blink_mode
-{
+typedef enum _slcd_blink_mode {
     kSLCD_BlankDisplayBlink = 0U, /*!< Display blank during the blink period. */
     kSLCD_AltDisplayBlink /*!< Display alternate display during the blink period if duty cycle is lower than 5. */
 } slcd_blink_mode_t;
 
 /*! @brief SLCD blink rate. */
-typedef enum _slcd_blink_rate
-{
+typedef enum _slcd_blink_rate {
     kSLCD_BlinkRate00 = 0U, /*!< SLCD blink rate is LCD clock/((2^12)). */
     kSLCD_BlinkRate01,      /*!< SLCD blink rate is LCD clock/((2^13)). */
     kSLCD_BlinkRate02,      /*!< SLCD blink rate is LCD clock/((2^14)). */
@@ -214,8 +202,7 @@ typedef enum _slcd_blink_rate
 } slcd_blink_rate_t;
 
 /*! @brief SLCD fault detect clock prescaler. */
-typedef enum _slcd_fault_detect_clock_prescaler
-{
+typedef enum _slcd_fault_detect_clock_prescaler {
     kSLCD_FaultSampleFreqDivider1 = 0U, /*!< Fault detect sample clock frequency is 1/1 bus clock. */
     kSLCD_FaultSampleFreqDivider2,      /*!< Fault detect sample clock frequency is 1/2 bus clock. */
     kSLCD_FaultSampleFreqDivider4,      /*!< Fault detect sample clock frequency is 1/4 bus clock. */
@@ -227,8 +214,7 @@ typedef enum _slcd_fault_detect_clock_prescaler
 } slcd_fault_detect_clock_prescaler_t;
 
 /*! @brief SLCD fault detect sample window width. */
-typedef enum _slcd_fault_detect_sample_window_width
-{
+typedef enum _slcd_fault_detect_sample_window_width {
     kSLCD_FaultDetectWindowWidth4SampleClk = 0U, /*!< Sample window width is 4 sample clock cycles. */
     kSLCD_FaultDetectWindowWidth8SampleClk,      /*!< Sample window width is 8 sample clock cycles. */
     kSLCD_FaultDetectWindowWidth16SampleClk,     /*!< Sample window width is 16 sample clock cycles. */
@@ -240,8 +226,7 @@ typedef enum _slcd_fault_detect_sample_window_width
 } slcd_fault_detect_sample_window_width_t;
 
 /*! @brief SLCD interrupt source. */
-typedef enum _slcd_interrupt_enable
-{
+typedef enum _slcd_interrupt_enable {
     kSLCD_FaultDetectCompleteInterrupt = 1U, /*!< SLCD fault detection complete interrupt source. */
 #if FSL_FEATURE_SLCD_HAS_FRAME_FREQUENCY_INTERRUPT
     kSLCD_FrameFreqInterrupt = 2U /*!< SLCD frame frequency interrupt source. Not available in all low-power modes. */
@@ -249,8 +234,7 @@ typedef enum _slcd_interrupt_enable
 } slcd_interrupt_enable_t;
 
 /*! @brief SLCD behavior in low power mode. */
-typedef enum _slcd_lowpower_behavior
-{
+typedef enum _slcd_lowpower_behavior {
     kSLCD_EnabledInWaitStop = 0, /*!< SLCD works in wait and stop mode. */
     kSLCD_EnabledInWaitOnly,     /*!< SLCD works in wait mode and is disabled in stop mode. */
     kSLCD_EnabledInStopOnly,     /*!< SLCD works in stop mode and is disabled in wait mode. */
@@ -258,8 +242,7 @@ typedef enum _slcd_lowpower_behavior
 } slcd_lowpower_behavior;
 
 /*! @brief SLCD fault frame detection configure structure. */
-typedef struct _slcd_fault_detect_config
-{
+typedef struct _slcd_fault_detect_config {
     bool faultDetectIntEnable;       /*!< Fault frame detection interrupt enable flag.*/
     bool faultDetectBackPlaneEnable; /*!< True means the pin id fault detected is back plane otherwise front plane. */
     uint8_t faultDetectPinIndex;     /*!< Fault detected pin id  from 0 to 63. */
@@ -268,12 +251,11 @@ typedef struct _slcd_fault_detect_config
 } slcd_fault_detect_config_t;
 
 /*! @brief SLCD clock configure structure. */
-typedef struct _slcd_clock_config
-{
+typedef struct _slcd_clock_config {
     slcd_clock_src_t clkSource; /*!< Clock source. "slcd_clock_src_t" is recommended to be used.
                                   The SLCD is optimized to operate using a 32.768kHz clock input. */
     slcd_alt_clock_div_t
-        altClkDivider; /*!< The divider to divide the alternate clock used for alternate clock source. */
+    altClkDivider; /*!< The divider to divide the alternate clock used for alternate clock source. */
     slcd_clock_prescaler_t clkPrescaler; /*!< Clock prescaler. */
 #if FSL_FEATURE_SLCD_HAS_FAST_FRAME_RATE
     bool fastFrameRateEnable; /*!< Fast frame rate enable flag. */
@@ -281,8 +263,7 @@ typedef struct _slcd_clock_config
 } slcd_clock_config_t;
 
 /*! @brief SLCD configure structure. */
-typedef struct _slcd_config
-{
+typedef struct _slcd_config {
     slcd_power_supply_option_t powerSupply;    /*!< Power supply option. */
     slcd_regulated_voltage_trim_t voltageTrim; /*!< Regulated voltage trim used for the internal regulator VIREG to
                                                   adjust to facilitate contrast control. */
@@ -296,7 +277,7 @@ typedef struct _slcd_config
 #endif                          /* FSL_FEATURE_SLCD_HAS_FAST_FRAME_RATE */
     uint32_t slcdLowPinEnabled; /*!< Setting enabled SLCD pin 0 ~ pin 31. Setting bit n to 1 means enable pin n. */
     uint32_t
-        slcdHighPinEnabled; /*!< Setting enabled SLCD pin 32 ~ pin 63. Setting bit n to 1 means enable pin (n + 32). */
+    slcdHighPinEnabled; /*!< Setting enabled SLCD pin 32 ~ pin 63. Setting bit n to 1 means enable pin (n + 32). */
     uint32_t backPlaneLowPin;  /*!< Setting back plane pin 0 ~ pin 31. Setting bit n to 1 means setting pin n as back
                                   plane. It should never have the same bit setting as the frontPlane Pin. */
     uint32_t backPlaneHighPin; /*!< Setting back plane pin 32 ~ pin 63. Setting bit n to 1 means setting pin (n + 32) as
@@ -472,12 +453,9 @@ static inline void SLCD_SetFrontPlaneOnePhase(LCD_Type *base,
 {
     uint8_t reg = base->WF8B[pinIndx];
 
-    if (enable)
-    {
+    if (enable) {
         base->WF8B[pinIndx] = (reg | (1U << phaseIndx));
-    }
-    else
-    {
+    } else {
         base->WF8B[pinIndx] = (reg & ~(1U << phaseIndx));
     }
 }
@@ -494,12 +472,11 @@ static inline void SLCD_SetFrontPlaneOnePhase(LCD_Type *base,
  */
 static inline void SLCD_EnablePadSafeState(LCD_Type *base, bool enable)
 {
-    if (enable)
-    { /* Enable. */
+    if (enable) {
+        /* Enable. */
         base->GCR |= LCD_GCR_PADSAFE_MASK;
-    }
-    else
-    { /* Disable. */
+    } else {
+        /* Disable. */
         base->GCR &= ~LCD_GCR_PADSAFE_MASK;
     }
 }

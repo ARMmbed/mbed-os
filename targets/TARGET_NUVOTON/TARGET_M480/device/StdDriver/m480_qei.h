@@ -366,12 +366,12 @@ extern "C"
 #define QEI_SET_CNT_MODE(qei, u32Mode)       ((qei)->CTL = ((qei)->CTL & (~QEI_CTL_MODE_Msk)) | (u32Mode))
 
 
-void QEI_Close(QEI_T* qei);
-void QEI_DisableInt(QEI_T* qei, uint32_t u32IntSel);
-void QEI_EnableInt(QEI_T* qei, uint32_t u32IntSel);
-void QEI_Open(QEI_T* qei, uint32_t u32Mode, uint32_t u32Value);
-void QEI_Start(QEI_T* qei);
-void QEI_Stop(QEI_T* qei);
+void QEI_Close(QEI_T *qei);
+void QEI_DisableInt(QEI_T *qei, uint32_t u32IntSel);
+void QEI_EnableInt(QEI_T *qei, uint32_t u32IntSel);
+void QEI_Open(QEI_T *qei, uint32_t u32Mode, uint32_t u32Value);
+void QEI_Start(QEI_T *qei);
+void QEI_Stop(QEI_T *qei);
 
 
 /*@}*/ /* end of group QEI_EXPORTED_FUNCTIONS */

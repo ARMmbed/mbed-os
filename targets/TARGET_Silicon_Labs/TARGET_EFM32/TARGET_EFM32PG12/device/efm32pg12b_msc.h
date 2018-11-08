@@ -38,44 +38,43 @@
  * @{
  * @brief EFM32PG12B_MSC Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;           /**< Memory System Control Register  */
-  __IOM uint32_t READCTRL;       /**< Read Control Register  */
-  __IOM uint32_t WRITECTRL;      /**< Write Control Register  */
-  __IOM uint32_t WRITECMD;       /**< Write Command Register  */
-  __IOM uint32_t ADDRB;          /**< Page Erase/Write Address Buffer  */
-  uint32_t       RESERVED0[1];   /**< Reserved for future use **/
-  __IOM uint32_t WDATA;          /**< Write Data Register  */
-  __IM uint32_t  STATUS;         /**< Status Register  */
+typedef struct {
+    __IOM uint32_t CTRL;           /**< Memory System Control Register  */
+    __IOM uint32_t READCTRL;       /**< Read Control Register  */
+    __IOM uint32_t WRITECTRL;      /**< Write Control Register  */
+    __IOM uint32_t WRITECMD;       /**< Write Command Register  */
+    __IOM uint32_t ADDRB;          /**< Page Erase/Write Address Buffer  */
+    uint32_t       RESERVED0[1];   /**< Reserved for future use **/
+    __IOM uint32_t WDATA;          /**< Write Data Register  */
+    __IM uint32_t  STATUS;         /**< Status Register  */
 
-  uint32_t       RESERVED1[4];   /**< Reserved for future use **/
-  __IM uint32_t  IF;             /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;            /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;            /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;            /**< Interrupt Enable Register  */
-  __IOM uint32_t LOCK;           /**< Configuration Lock Register  */
-  __IOM uint32_t CACHECMD;       /**< Flash Cache Command Register  */
-  __IM uint32_t  CACHEHITS;      /**< Cache Hits Performance Counter  */
-  __IM uint32_t  CACHEMISSES;    /**< Cache Misses Performance Counter  */
+    uint32_t       RESERVED1[4];   /**< Reserved for future use **/
+    __IM uint32_t  IF;             /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;            /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;            /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN;            /**< Interrupt Enable Register  */
+    __IOM uint32_t LOCK;           /**< Configuration Lock Register  */
+    __IOM uint32_t CACHECMD;       /**< Flash Cache Command Register  */
+    __IM uint32_t  CACHEHITS;      /**< Cache Hits Performance Counter  */
+    __IM uint32_t  CACHEMISSES;    /**< Cache Misses Performance Counter  */
 
-  uint32_t       RESERVED2[1];   /**< Reserved for future use **/
-  __IOM uint32_t MASSLOCK;       /**< Mass Erase Lock Register  */
+    uint32_t       RESERVED2[1];   /**< Reserved for future use **/
+    __IOM uint32_t MASSLOCK;       /**< Mass Erase Lock Register  */
 
-  uint32_t       RESERVED3[1];   /**< Reserved for future use **/
-  __IOM uint32_t STARTUP;        /**< Startup Control  */
+    uint32_t       RESERVED3[1];   /**< Reserved for future use **/
+    __IOM uint32_t STARTUP;        /**< Startup Control  */
 
-  uint32_t       RESERVED4[4];   /**< Reserved for future use **/
-  __IOM uint32_t BANKSWITCHLOCK; /**< Bank Switching Lock Register  */
-  __IOM uint32_t CMD;            /**< Command Register  */
+    uint32_t       RESERVED4[4];   /**< Reserved for future use **/
+    __IOM uint32_t BANKSWITCHLOCK; /**< Bank Switching Lock Register  */
+    __IOM uint32_t CMD;            /**< Command Register  */
 
-  uint32_t       RESERVED5[6];   /**< Reserved for future use **/
-  __IOM uint32_t BOOTLOADERCTRL; /**< Bootloader read and write enable, write once register  */
-  __IOM uint32_t AAPUNLOCKCMD;   /**< Software Unlock AAP Command Register  */
-  __IOM uint32_t CACHECONFIG0;   /**< Cache Configuration Register 0  */
+    uint32_t       RESERVED5[6];   /**< Reserved for future use **/
+    __IOM uint32_t BOOTLOADERCTRL; /**< Bootloader read and write enable, write once register  */
+    __IOM uint32_t AAPUNLOCKCMD;   /**< Software Unlock AAP Command Register  */
+    __IOM uint32_t CACHECONFIG0;   /**< Cache Configuration Register 0  */
 
-  uint32_t       RESERVED6[25];  /**< Reserved for future use **/
-  __IOM uint32_t RAMCTRL;        /**< RAM Control enable Register  */
+    uint32_t       RESERVED6[25];  /**< Reserved for future use **/
+    __IOM uint32_t RAMCTRL;        /**< RAM Control enable Register  */
 } MSC_TypeDef;                   /** @} */
 
 /**************************************************************************//**

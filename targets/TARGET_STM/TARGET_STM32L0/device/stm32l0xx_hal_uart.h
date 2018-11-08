@@ -32,7 +32,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -40,7 +40,7 @@
 #define __STM32L0xx_HAL_UART_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,102 +52,100 @@
 
 /** @defgroup UART UART
   * @{
-  */ 
+  */
 
 /******************************************************************************/
 /* Exported types ------------------------------------------------------------*/
 /******************************************************************************/
 
-   /** @defgroup UART_Exported_Types UART Exported Types
-  * @{
-  */
+/** @defgroup UART_Exported_Types UART Exported Types
+* @{
+*/
 
 /** @defgroup UART_Init_Configuration UART initialization configuration structure
   * @{
   */
-/** 
-  * @brief UART Init Structure definition  
-  */ 
-typedef struct
-{
-  uint32_t BaudRate;                  /*!< This member configures the UART communication baud rate.
+/**
+  * @brief UART Init Structure definition
+  */
+typedef struct {
+    uint32_t BaudRate;                  /*!< This member configures the UART communication baud rate.
                                            The baud rate register is computed using the following formula:
                                            - If oversampling is 16 or in LIN mode,
                                               Baud Rate Register = ((PCLKx) / ((huart->Init.BaudRate)))
                                            - If oversampling is 8,
-                                              Baud Rate Register[15:4] = ((2 * PCLKx) / ((huart->Init.BaudRate)))[15:4]  
+                                              Baud Rate Register[15:4] = ((2 * PCLKx) / ((huart->Init.BaudRate)))[15:4]
                                               Baud Rate Register[3] =  0
                                               Baud Rate Register[2:0] =  (((2 * PCLKx) / ((huart->Init.BaudRate)))[3:0]) >> 1      */
 
-  uint32_t WordLength;                /*!< Specifies the number of data bits transmitted or received in a frame.
+    uint32_t WordLength;                /*!< Specifies the number of data bits transmitted or received in a frame.
                                            This parameter can be a value of @ref UARTEx_Word_Length */
 
-  uint32_t StopBits;                  /*!< Specifies the number of stop bits transmitted.
+    uint32_t StopBits;                  /*!< Specifies the number of stop bits transmitted.
                                            This parameter can be a value of @ref UART_Stop_Bits */
 
-  uint32_t Parity;                    /*!< Specifies the parity mode.
+    uint32_t Parity;                    /*!< Specifies the parity mode.
                                            This parameter can be a value of @ref UART_Parity
                                            @note When parity is enabled, the computed parity is inserted
                                                  at the MSB position of the transmitted data (9th bit when
                                                  the word length is set to 9 data bits; 8th bit when the
                                                  word length is set to 8 data bits). */
- 
-  uint32_t Mode;                      /*!< Specifies wether the Receive or Transmit mode is enabled or disabled.
+
+    uint32_t Mode;                      /*!< Specifies wether the Receive or Transmit mode is enabled or disabled.
                                            This parameter can be a value of @ref UART_Mode */
 
-  uint32_t HwFlowCtl;                 /*!< Specifies wether the hardware flow control mode is enabled
+    uint32_t HwFlowCtl;                 /*!< Specifies wether the hardware flow control mode is enabled
                                            or disabled.
                                            This parameter can be a value of @ref UART_Hardware_Flow_Control */
-  
-  uint32_t OverSampling;              /*!< Specifies wether the Over sampling 8 is enabled or disabled, to achieve higher speed (up to fPCLK/8).
-                                           This parameter can be a value of @ref UART_Over_Sampling */  
-                                           
-  uint32_t OneBitSampling;            /*!< Specifies wether a single sample or three samples' majority vote is selected.
+
+    uint32_t OverSampling;              /*!< Specifies wether the Over sampling 8 is enabled or disabled, to achieve higher speed (up to fPCLK/8).
+                                           This parameter can be a value of @ref UART_Over_Sampling */
+
+    uint32_t OneBitSampling;            /*!< Specifies wether a single sample or three samples' majority vote is selected.
                                            Selecting the single sample method increases the receiver tolerance to clock
                                            deviations. This parameter can be a value of @ref UART_One_Bit */
-}UART_InitTypeDef;
+} UART_InitTypeDef;
 /**
   * @}
   */
 /** @defgroup UART_Advanced_Feature UART advanced feature structure
   * @{
   */
-/** 
-  * @brief  UART Advanced Features initalization structure definition  
+/**
+  * @brief  UART Advanced Features initalization structure definition
   */
-typedef struct                                      
-{
-  uint32_t AdvFeatureInit;        /*!< Specifies which advanced UART features is initialized. Several
+typedef struct {
+    uint32_t AdvFeatureInit;        /*!< Specifies which advanced UART features is initialized. Several
                                        Advanced Features may be initialized at the same time .
                                        This parameter can be a value of @ref UART_Advanced_Features_Initialization_Type */
-  
-  uint32_t TxPinLevelInvert;      /*!< Specifies whether the TX pin active level is inverted.
+
+    uint32_t TxPinLevelInvert;      /*!< Specifies whether the TX pin active level is inverted.
                                        This parameter can be a value of @ref UART_Tx_Inv  */
-                                           
-  uint32_t RxPinLevelInvert;      /*!< Specifies whether the RX pin active level is inverted.
+
+    uint32_t RxPinLevelInvert;      /*!< Specifies whether the RX pin active level is inverted.
                                        This parameter can be a value of @ref UART_Rx_Inv  */
 
-  uint32_t DataInvert;            /*!< Specifies whether data are inverted (positive/direct logic
+    uint32_t DataInvert;            /*!< Specifies whether data are inverted (positive/direct logic
                                        vs negative/inverted logic).
                                        This parameter can be a value of @ref UART_Data_Inv */
-                                       
-  uint32_t Swap;                  /*!< Specifies whether TX and RX pins are swapped.   
+
+    uint32_t Swap;                  /*!< Specifies whether TX and RX pins are swapped.
                                        This parameter can be a value of @ref UART_Rx_Tx_Swap */
-                                       
-  uint32_t OverrunDisable;        /*!< Specifies whether the reception overrun detection is disabled.   
+
+    uint32_t OverrunDisable;        /*!< Specifies whether the reception overrun detection is disabled.
                                        This parameter can be a value of @ref UART_Overrun_Disable */
-                                       
-  uint32_t DMADisableonRxError;   /*!< Specifies whether the DMA is disabled in case of reception error.     
+
+    uint32_t DMADisableonRxError;   /*!< Specifies whether the DMA is disabled in case of reception error.
                                        This parameter can be a value of @ref UART_DMA_Disable_on_Rx_Error */
-                                       
-  uint32_t AutoBaudRateEnable;    /*!< Specifies whether auto Baud rate detection is enabled.     
-                                       This parameter can be a value of @ref UART_AutoBaudRate_Enable */  
-                                       
-  uint32_t AutoBaudRateMode;      /*!< If auto Baud rate detection is enabled, specifies how the rate 
-                                       detection is carried out.     
-                                       This parameter can be a value of @ref UARTEx_AutoBaud_Rate_Mode */ 
-                                    
-  uint32_t MSBFirst;              /*!< Specifies whether MSB is sent first on UART line.      
+
+    uint32_t AutoBaudRateEnable;    /*!< Specifies whether auto Baud rate detection is enabled.
+                                       This parameter can be a value of @ref UART_AutoBaudRate_Enable */
+
+    uint32_t AutoBaudRateMode;      /*!< If auto Baud rate detection is enabled, specifies how the rate
+                                       detection is carried out.
+                                       This parameter can be a value of @ref UARTEx_AutoBaud_Rate_Mode */
+
+    uint32_t MSBFirst;              /*!< Specifies whether MSB is sent first on UART line.
                                        This parameter can be a value of @ref UART_MSB_First */
 } UART_AdvFeatureInitTypeDef;
 /**
@@ -158,8 +156,8 @@ typedef struct
   * @{
   */
 
-/** 
-  * @brief HAL UART State structures definition  
+/**
+  * @brief HAL UART State structures definition
   * @note  HAL UART State value is a combination of 2 different substates: gState and RxState.
   *        - gState contains UART state information related to global Handle management
   *          and also information related to Tx operations.
@@ -196,27 +194,26 @@ typedef struct
   *             1  : Busy (Rx operation ongoing)
   *          b0     (not used)
   *             x  : Should be set to 0.
-  */ 
-typedef enum
-{
-  HAL_UART_STATE_RESET             = 0x00U,    /*!< Peripheral is not yet Initialized
+  */
+typedef enum {
+    HAL_UART_STATE_RESET             = 0x00U,    /*!< Peripheral is not yet Initialized
                                                    Value is allowed for gState and RxState */
-  HAL_UART_STATE_READY             = 0x20U,    /*!< Peripheral Initialized and ready for use
+    HAL_UART_STATE_READY             = 0x20U,    /*!< Peripheral Initialized and ready for use
                                                    Value is allowed for gState and RxState */
-  HAL_UART_STATE_BUSY              = 0x24U,    /*!< an internal process is ongoing
+    HAL_UART_STATE_BUSY              = 0x24U,    /*!< an internal process is ongoing
                                                    Value is allowed for gState only */
-  HAL_UART_STATE_BUSY_TX           = 0x21U,    /*!< Data Transmission process is ongoing
+    HAL_UART_STATE_BUSY_TX           = 0x21U,    /*!< Data Transmission process is ongoing
                                                    Value is allowed for gState only */
-  HAL_UART_STATE_BUSY_RX           = 0x22U,    /*!< Data Reception process is ongoing
+    HAL_UART_STATE_BUSY_RX           = 0x22U,    /*!< Data Reception process is ongoing
                                                    Value is allowed for RxState only */
-  HAL_UART_STATE_BUSY_TX_RX        = 0x23U,    /*!< Data Transmission and Reception process is ongoing
+    HAL_UART_STATE_BUSY_TX_RX        = 0x23U,    /*!< Data Transmission and Reception process is ongoing
                                                    Not to be used for neither gState nor RxState.
                                                    Value is result of combination (Or) between gState and RxState values */
-  HAL_UART_STATE_TIMEOUT           = 0xA0U,    /*!< Timeout state
+    HAL_UART_STATE_TIMEOUT           = 0xA0U,    /*!< Timeout state
                                                    Value is allowed for gState only */
-  HAL_UART_STATE_ERROR             = 0xE0U     /*!< Error
+    HAL_UART_STATE_ERROR             = 0xE0U     /*!< Error
                                                    Value is allowed for gState only */
-}HAL_UART_StateTypeDef;
+} HAL_UART_StateTypeDef;
 
 /**
   * @}
@@ -224,9 +221,9 @@ typedef enum
 /** @defgroup UART_Error_Definition  UART error definition
   * @{
   */
-/** 
+/**
   * @brief  HAL UART Error Code definition
-  */ 
+  */
 
 #define   HAL_UART_ERROR_NONE      ((uint32_t)0x00U)    /*!< No error            */
 #define   HAL_UART_ERROR_PE        ((uint32_t)0x01U)    /*!< Parity error        */
@@ -244,14 +241,13 @@ typedef enum
 /**
   * @brief UART clock sources definition
   */
-typedef enum
-{
-  UART_CLOCKSOURCE_PCLK1      = 0x00U,    /*!< PCLK1 clock source  */
-  UART_CLOCKSOURCE_PCLK2      = 0x01U,    /*!< PCLK2 clock source  */
-  UART_CLOCKSOURCE_HSI        = 0x02U,    /*!< HSI clock source    */
-  UART_CLOCKSOURCE_SYSCLK     = 0x04U,    /*!< SYSCLK clock source */
-  UART_CLOCKSOURCE_LSE        = 0x08U     /*!< LSE clock source     */
-}UART_ClockSourceTypeDef;
+typedef enum {
+    UART_CLOCKSOURCE_PCLK1      = 0x00U,    /*!< PCLK1 clock source  */
+    UART_CLOCKSOURCE_PCLK2      = 0x01U,    /*!< PCLK2 clock source  */
+    UART_CLOCKSOURCE_HSI        = 0x02U,    /*!< HSI clock source    */
+    UART_CLOCKSOURCE_SYSCLK     = 0x04U,    /*!< SYSCLK clock source */
+    UART_CLOCKSOURCE_LSE        = 0x08U     /*!< LSE clock source     */
+} UART_ClockSourceTypeDef;
 /**
   * @}
   */
@@ -259,47 +255,46 @@ typedef enum
   * @{
   */
 
-/** 
-  * @brief  UART handle Structure definition  
+/**
+  * @brief  UART handle Structure definition
   */
-typedef struct
-{
-  USART_TypeDef                 *Instance;        /*!< UART registers base address        */
+typedef struct {
+    USART_TypeDef                 *Instance;        /*!< UART registers base address        */
 
-  UART_InitTypeDef              Init;             /*!< UART communication parameters      */
+    UART_InitTypeDef              Init;             /*!< UART communication parameters      */
 
-  UART_AdvFeatureInitTypeDef    AdvancedInit;        /*!< UART Advanced Features initialization parameters */
+    UART_AdvFeatureInitTypeDef    AdvancedInit;        /*!< UART Advanced Features initialization parameters */
 
-  uint8_t                       *pTxBuffPtr;      /*!< Pointer to UART Tx transfer Buffer */
+    uint8_t                       *pTxBuffPtr;      /*!< Pointer to UART Tx transfer Buffer */
 
-  uint16_t                      TxXferSize;       /*!< UART Tx Transfer size              */
+    uint16_t                      TxXferSize;       /*!< UART Tx Transfer size              */
 
-  uint16_t                      TxXferCount;      /*!< UART Tx Transfer Counter           */
+    uint16_t                      TxXferCount;      /*!< UART Tx Transfer Counter           */
 
-  uint8_t                       *pRxBuffPtr;      /*!< Pointer to UART Rx transfer Buffer */
+    uint8_t                       *pRxBuffPtr;      /*!< Pointer to UART Rx transfer Buffer */
 
-  uint16_t                      RxXferSize;       /*!< UART Rx Transfer size              */
+    uint16_t                      RxXferSize;       /*!< UART Rx Transfer size              */
 
-  uint16_t                      RxXferCount;      /*!< UART Rx Transfer Counter           */
+    uint16_t                      RxXferCount;      /*!< UART Rx Transfer Counter           */
 
-  uint16_t                      Mask;             /*!< UART Rx RDR register mask          */
+    uint16_t                      Mask;             /*!< UART Rx RDR register mask          */
 
-  DMA_HandleTypeDef             *hdmatx;          /*!< UART Tx DMA Handle parameters      */
+    DMA_HandleTypeDef             *hdmatx;          /*!< UART Tx DMA Handle parameters      */
 
-  DMA_HandleTypeDef             *hdmarx;          /*!< UART Rx DMA Handle parameters      */
+    DMA_HandleTypeDef             *hdmarx;          /*!< UART Rx DMA Handle parameters      */
 
-  HAL_LockTypeDef               Lock;             /*!< Locking object                     */
+    HAL_LockTypeDef               Lock;             /*!< Locking object                     */
 
-  __IO HAL_UART_StateTypeDef    gState;           /*!< UART state information related to global Handle management
+    __IO HAL_UART_StateTypeDef    gState;           /*!< UART state information related to global Handle management
                                                        and also related to Tx operations.
                                                        This parameter can be a value of @ref HAL_UART_StateTypeDef */
 
-  __IO HAL_UART_StateTypeDef    RxState;          /*!< UART state information related to Rx operations.
+    __IO HAL_UART_StateTypeDef    RxState;          /*!< UART state information related to Rx operations.
                                                        This parameter can be a value of @ref HAL_UART_StateTypeDef */
 
-  __IO uint32_t                 ErrorCode;        /*!< UART Error code                    */
+    __IO uint32_t                 ErrorCode;        /*!< UART Error code                    */
 
-}UART_HandleTypeDef;
+} UART_HandleTypeDef;
 
 /**
   * @}
@@ -328,24 +323,24 @@ typedef struct
 
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup UART_Parity UART parity definition
   * @{
-  */ 
+  */
 #define UART_PARITY_NONE                    ((uint32_t)0x0000U)
 #define UART_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE)
-#define UART_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS)) 
+#define UART_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS))
 #define IS_UART_PARITY(PARITY) (((PARITY) == UART_PARITY_NONE) || \
                                 ((PARITY) == UART_PARITY_EVEN) || \
                                 ((PARITY) == UART_PARITY_ODD))
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup UART_Hardware_Flow_Control UART hardware flow control definition
   * @{
-  */ 
+  */
 #define UART_HWCONTROL_NONE                  ((uint32_t)0x0000U)
 #define UART_HWCONTROL_RTS                   ((uint32_t)USART_CR3_RTSE)
 #define UART_HWCONTROL_CTS                   ((uint32_t)USART_CR3_CTSE)
@@ -361,7 +356,7 @@ typedef struct
 
 /** @defgroup UART_Mode UART mode definition
   * @{
-  */ 
+  */
 #define UART_MODE_RX                        ((uint32_t)USART_CR1_RE)
 #define UART_MODE_TX                        ((uint32_t)USART_CR1_TE)
 #define UART_MODE_TX_RX                     ((uint32_t)(USART_CR1_TE |USART_CR1_RE))
@@ -369,10 +364,10 @@ typedef struct
 /**
   * @}
   */
-    
- /** @defgroup UART_State UART state enable and disable definition
-  * @{
-  */ 
+
+/** @defgroup UART_State UART state enable and disable definition
+ * @{
+ */
 #define UART_STATE_DISABLE                  ((uint32_t)0x0000U)
 #define UART_STATE_ENABLE                   ((uint32_t)USART_CR1_UE)
 #define IS_UART_STATE(STATE) (((STATE) == UART_STATE_DISABLE) || \
@@ -390,8 +385,8 @@ typedef struct
                                         ((SAMPLING) == UART_OVERSAMPLING_8))
 /**
   * @}
-  */ 
-  
+  */
+
 
 /** @defgroup UART_Receiver_TimeOut UART receiver timeOut definition
   * @{
@@ -402,7 +397,7 @@ typedef struct
                                            ((TIMEOUT) == UART_RECEIVER_TIMEOUT_ENABLE))
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup UART_LIN UART LIN enable and disable definition
   * @{
@@ -413,8 +408,8 @@ typedef struct
                                      ((LIN) == UART_LIN_ENABLE))
 /**
   * @}
-  */ 
-  
+  */
+
 /** @defgroup UART_LIN_Break_Detection UART LIN break detection definition
   * @{
   */
@@ -424,9 +419,9 @@ typedef struct
                                                  ((LENGTH) == UART_LINBREAKDETECTLENGTH_11B))
 /**
   * @}
-  */ 
-  
- 
+  */
+
+
 
 /** @defgroup UART_One_Bit UART one bit definition
   * @{
@@ -437,8 +432,8 @@ typedef struct
                                               ((ONEBIT) == UART_ONE_BIT_SAMPLE_ENABLE))
 /**
   * @}
-  */  
-  
+  */
+
 /** @defgroup UART_DMA_Tx UART DMA Tx definition
   * @{
   */
@@ -501,7 +496,7 @@ typedef struct
 #define UART_FLAG_PE                        USART_ISR_PE      /*!< Parity Error */
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup UART_Interrupt_definition UART interrupt definition
   *        Elements values convention: 000ZZZZZ0XXYYYYYb
@@ -545,17 +540,17 @@ typedef struct
 /** @defgroup UART_IT_CLEAR_Flags  UART interrupt clear flags definition
   * @{
   */
-#define UART_CLEAR_PEF                       USART_ICR_PECF            /*!< Parity Error Clear Flag */          
-#define UART_CLEAR_FEF                       USART_ICR_FECF            /*!< Framing Error Clear Flag */         
-#define UART_CLEAR_NEF                       USART_ICR_NCF             /*!< Noise detected Clear Flag */        
-#define UART_CLEAR_OREF                      USART_ICR_ORECF           /*!< OverRun Error Clear Flag */         
-#define UART_CLEAR_IDLEF                     USART_ICR_IDLECF          /*!< IDLE line detected Clear Flag */    
-#define UART_CLEAR_TCF                       USART_ICR_TCCF            /*!< Transmission Complete Clear Flag */ 
-#define UART_CLEAR_LBDF                      USART_ICR_LBDCF           /*!< LIN Break Detection Clear Flag */   
-#define UART_CLEAR_CTSF                      USART_ICR_CTSCF           /*!< CTS Interrupt Clear Flag */         
-#define UART_CLEAR_RTOF                      USART_ICR_RTOCF           /*!< Receiver Time Out Clear Flag */     
-#define UART_CLEAR_EOBF                      USART_ICR_EOBCF           /*!< End Of Block Clear Flag */          
-#define UART_CLEAR_CMF                       USART_ICR_CMCF            /*!< Character Match Clear Flag */       
+#define UART_CLEAR_PEF                       USART_ICR_PECF            /*!< Parity Error Clear Flag */
+#define UART_CLEAR_FEF                       USART_ICR_FECF            /*!< Framing Error Clear Flag */
+#define UART_CLEAR_NEF                       USART_ICR_NCF             /*!< Noise detected Clear Flag */
+#define UART_CLEAR_OREF                      USART_ICR_ORECF           /*!< OverRun Error Clear Flag */
+#define UART_CLEAR_IDLEF                     USART_ICR_IDLECF          /*!< IDLE line detected Clear Flag */
+#define UART_CLEAR_TCF                       USART_ICR_TCCF            /*!< Transmission Complete Clear Flag */
+#define UART_CLEAR_LBDF                      USART_ICR_LBDCF           /*!< LIN Break Detection Clear Flag */
+#define UART_CLEAR_CTSF                      USART_ICR_CTSCF           /*!< CTS Interrupt Clear Flag */
+#define UART_CLEAR_RTOF                      USART_ICR_RTOCF           /*!< Receiver Time Out Clear Flag */
+#define UART_CLEAR_EOBF                      USART_ICR_EOBCF           /*!< End Of Block Clear Flag */
+#define UART_CLEAR_CMF                       USART_ICR_CMCF            /*!< Character Match Clear Flag */
 #define UART_CLEAR_WUF                       USART_ICR_WUCF            /*!< Wake Up from stop mode Clear Flag */
 /**
   * @}
@@ -564,10 +559,10 @@ typedef struct
 /** @defgroup UART_Request_Parameters UART request parameter definition
   * @{
   */
-#define UART_AUTOBAUD_REQUEST            ((uint32_t)USART_RQR_ABRRQ)        /*!< Auto-Baud Rate Request */     
-#define UART_SENDBREAK_REQUEST           ((uint32_t)USART_RQR_SBKRQ)        /*!< Send Break Request */         
-#define UART_MUTE_MODE_REQUEST           ((uint32_t)USART_RQR_MMRQ)         /*!< Mute Mode Request */          
-#define UART_RXDATA_FLUSH_REQUEST        ((uint32_t)USART_RQR_RXFRQ)        /*!< Receive Data flush Request */ 
+#define UART_AUTOBAUD_REQUEST            ((uint32_t)USART_RQR_ABRRQ)        /*!< Auto-Baud Rate Request */
+#define UART_SENDBREAK_REQUEST           ((uint32_t)USART_RQR_SBKRQ)        /*!< Send Break Request */
+#define UART_MUTE_MODE_REQUEST           ((uint32_t)USART_RQR_MMRQ)         /*!< Mute Mode Request */
+#define UART_RXDATA_FLUSH_REQUEST        ((uint32_t)USART_RQR_RXFRQ)        /*!< Receive Data flush Request */
 #define UART_TXDATA_FLUSH_REQUEST        ((uint32_t)USART_RQR_TXFRQ)        /*!< Transmit data flush Request */
 #define IS_UART_REQUEST_PARAMETER(PARAM) (((PARAM) == UART_AUTOBAUD_REQUEST) || \
                                           ((PARAM) == UART_SENDBREAK_REQUEST) || \
@@ -860,8 +855,8 @@ typedef struct
   *            @arg UART_FLAG_BUSY:  Busy flag
   *            @arg UART_FLAG_ABRF:  Auto Baud rate detection flag
   *            @arg UART_FLAG_ABRE:  Auto Baud rate detection error flag
-  *            @arg UART_FLAG_EOBF:  End of block flag   
-  *            @arg UART_FLAG_RTOF:  Receiver timeout flag                     
+  *            @arg UART_FLAG_EOBF:  End of block flag
+  *            @arg UART_FLAG_RTOF:  Receiver timeout flag
   *            @arg UART_FLAG_CTS:   CTS Change flag (not available for UART4 and UART5)
   *            @arg UART_FLAG_LBD:   LIN Break detection flag
   *            @arg UART_FLAG_TXE:   Transmit data register empty flag
@@ -903,7 +898,7 @@ typedef struct
   * @param  __INTERRUPT__: specifies the UART interrupt source to disable.
   *          This parameter can be one of the following values:
   *            @arg UART_IT_WUF:  Wakeup from stop mode interrupt
-  *            @arg UART_IT_CM:   Character match interrupt            
+  *            @arg UART_IT_CM:   Character match interrupt
   *            @arg UART_IT_CTS:  CTS change interrupt
   *            @arg UART_IT_LBD:  LIN Break detection interrupt
   *            @arg UART_IT_TXE:  Transmit Data Register empty interrupt
@@ -924,7 +919,7 @@ typedef struct
   * @param  __IT__: specifies the UART interrupt to check.
   *          This parameter can be one of the following values:
   *            @arg UART_IT_WUF:  Wakeup from stop mode interrupt
-  *            @arg UART_IT_CM:   Character match interrupt              
+  *            @arg UART_IT_CM:   Character match interrupt
   *            @arg UART_IT_CTS:  CTS change interrupt (not available for UART4 and UART5)
   *            @arg UART_IT_LBD:  LIN Break detection interrupt
   *            @arg UART_IT_TXE:  Transmit Data Register empty interrupt
@@ -934,7 +929,7 @@ typedef struct
   *            @arg UART_IT_ORE:  OverRun Error interrupt
   *            @arg UART_IT_NE:   Noise Error interrupt
   *            @arg UART_IT_FE:   Framing Error interrupt
-  *            @arg UART_IT_PE:   Parity Error interrupt  
+  *            @arg UART_IT_PE:   Parity Error interrupt
   * @retval The new state of __IT__ (TRUE or FALSE).
   */
 #define __HAL_UART_GET_IT(__HANDLE__, __IT__) ((__HANDLE__)->Instance->ISR & ((uint32_t)1U << ((__IT__)>> 0x08U)))
@@ -953,7 +948,7 @@ typedef struct
   *            @arg UART_IT_ORE: OverRun Error interrupt
   *            @arg UART_IT_NE: Noise Error interrupt
   *            @arg UART_IT_FE: Framing Error interrupt
-  *            @arg UART_IT_PE: Parity Error interrupt  
+  *            @arg UART_IT_PE: Parity Error interrupt
   * @retval The new state of __IT__ (TRUE or FALSE).
   */
 #define __HAL_UART_GET_IT_SOURCE(__HANDLE__, __IT__) ((((((uint8_t)(__IT__)) >> 5U) == 1U)? (__HANDLE__)->Instance->CR1:(((((uint8_t)(__IT__)) >> 5U) == 2U)? \
@@ -1011,7 +1006,7 @@ typedef struct
   * @param  __HANDLE__: specifies the UART Handle.
   *         The Handle Instance can be USART1, USART2 or LPUART.
   * @retval None
-  */ 
+  */
 #define __HAL_UART_ENABLE(__HANDLE__)                   ((__HANDLE__)->Instance->CR1 |=  USART_CR1_UE)
 
 /** @brief  Disable UART
@@ -1021,15 +1016,15 @@ typedef struct
   */
 #define __HAL_UART_DISABLE(__HANDLE__)                  ((__HANDLE__)->Instance->CR1 &=  ~USART_CR1_UE)
 
-/** @brief  Enable CTS flow control 
-  *         This macro allows to enable CTS hardware flow control for a given UART instance, 
+/** @brief  Enable CTS flow control
+  *         This macro allows to enable CTS hardware flow control for a given UART instance,
   *         without need to call HAL_UART_Init() function.
   *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
   * @note   As macro is expected to be used for modifying CTS Hw flow control feature activation, without need
   *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
   *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
   *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
-  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).                                                                                                                  
+  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).
   * @param  __HANDLE__: specifies the UART Handle.
   *         The Handle Instance can be USART1, USART2 or LPUART.
   * @retval None
@@ -1040,15 +1035,15 @@ typedef struct
     (__HANDLE__)->Init.HwFlowCtl |= USART_CR3_CTSE;        \
   } while(0)
 
-/** @brief  Disable CTS flow control 
-  *         This macro allows to disable CTS hardware flow control for a given UART instance, 
+/** @brief  Disable CTS flow control
+  *         This macro allows to disable CTS hardware flow control for a given UART instance,
   *         without need to call HAL_UART_Init() function.
   *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
   * @note   As macro is expected to be used for modifying CTS Hw flow control feature activation, without need
   *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
   *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
   *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
-  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)). 
+  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).
   * @param  __HANDLE__: specifies the UART Handle.
   *         The Handle Instance can be USART1, USART2 or LPUART.
   * @retval None
@@ -1059,15 +1054,15 @@ typedef struct
     (__HANDLE__)->Init.HwFlowCtl &= ~(USART_CR3_CTSE);      \
   } while(0)
 
-/** @brief  Enable RTS flow control 
-  *         This macro allows to enable RTS hardware flow control for a given UART instance, 
+/** @brief  Enable RTS flow control
+  *         This macro allows to enable RTS hardware flow control for a given UART instance,
   *         without need to call HAL_UART_Init() function.
   *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
   * @note   As macro is expected to be used for modifying RTS Hw flow control feature activation, without need
   *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
   *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
   *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
-  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)). 
+  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).
   * @param  __HANDLE__: specifies the UART Handle.
   *         The Handle Instance can be USART1, USART2 or LPUART.
   * @retval None
@@ -1078,15 +1073,15 @@ typedef struct
     (__HANDLE__)->Init.HwFlowCtl |= USART_CR3_RTSE;       \
   } while(0)
 
-/** @brief  Disable RTS flow control 
-  *         This macro allows to disable RTS hardware flow control for a given UART instance, 
+/** @brief  Disable RTS flow control
+  *         This macro allows to disable RTS hardware flow control for a given UART instance,
   *         without need to call HAL_UART_Init() function.
   *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
   * @note   As macro is expected to be used for modifying RTS Hw flow control feature activation, without need
   *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
   *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
   *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
-  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)). 
+  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).
   * @param  __HANDLE__: specifies the UART Handle.
   *         The Handle Instance can be USART1, USART2 or LPUART.
   * @retval None
@@ -1116,7 +1111,7 @@ typedef struct
   * @retval Division result
   */
 #define __DIV_LPUART(_PCLK_, _BAUD_)                ((uint32_t)(((((uint64_t)_PCLK_)*256.0) + (((uint64_t)_BAUD_)/2U)) / (((uint64_t)_BAUD_))))
-    
+
 /** @brief  BRR division operation to set BRR register in 8-bit oversampling mode
   * @param  _PCLK_: UART clock
   * @param  _BAUD_: Baud rate set by the user
@@ -1139,33 +1134,33 @@ typedef struct
 
 /** @brief  Check UART Baud rate
   * @param  BAUDRATE: Baudrate specified by the user
-  *         The maximum Baud Rate is derived from the maximum clock on L0 (i.e. 32 MHz) 
-  *         divided by the smallest oversampling used on the USART (i.e. 8) 
+  *         The maximum Baud Rate is derived from the maximum clock on L0 (i.e. 32 MHz)
+  *         divided by the smallest oversampling used on the USART (i.e. 8)
   * @retval Test result (TRUE or FALSE).
   */
 #define IS_UART_BAUDRATE(BAUDRATE) ((BAUDRATE) < 4000001)
 
 /** @brief  Check UART byte address
   * @param  ADDRESS: UART 8-bit address for wake-up process scheme
-  * @retval Test result (TRUE or FALSE). 
-  */ 
+  * @retval Test result (TRUE or FALSE).
+  */
 #define IS_UART_7B_ADDRESS(ADDRESS) ((ADDRESS) <= 0x7F)
 
 /** @brief  Check UART 4-bit address
   * @param  ADDRESS: UART 4-bit address for wake-up process scheme
-  * @retval Test result (TRUE or FALSE). 
-  */ 
+  * @retval Test result (TRUE or FALSE).
+  */
 #define IS_UART_4B_ADDRESS(ADDRESS) ((ADDRESS) <= 0xF)
 
 /** @brief  Check UART assertion time
   * @param  TIME: 5-bit value assertion time
-  * @retval Test result (TRUE or FALSE). 
-  */ 
+  * @retval Test result (TRUE or FALSE).
+  */
 #define IS_UART_ASSERTIONTIME(TIME)    ((TIME) <= 0x1F)
 
 /** @brief  Check UART deassertion time
   * @param  TIME: 5-bit value deassertion time
-  * @retval Test result (TRUE or FALSE). 
+  * @retval Test result (TRUE or FALSE).
   */
 #define IS_UART_DEASSERTIONTIME(TIME) ((TIME) <= 0x1F)
 
@@ -1191,7 +1186,7 @@ HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLength);
 HAL_StatusTypeDef HAL_MultiProcessor_Init(UART_HandleTypeDef *huart, uint8_t Address, uint32_t WakeUpMethod);
-HAL_StatusTypeDef HAL_UART_DeInit (UART_HandleTypeDef *huart);
+HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart);
 void HAL_UART_MspInit(UART_HandleTypeDef *huart);
 void HAL_UART_MspDeInit(UART_HandleTypeDef *huart);
 /**
@@ -1263,11 +1258,11 @@ void UART_AdvFeatureConfig(UART_HandleTypeDef *huart);
 
 /**
   * @}
-  */ 
+  */
 /**
   * @}
-  */ 
-  
+  */
+
 #ifdef __cplusplus
 }
 #endif

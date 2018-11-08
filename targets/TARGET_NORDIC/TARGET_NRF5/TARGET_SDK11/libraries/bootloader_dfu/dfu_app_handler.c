@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2014 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -79,10 +79,8 @@ static void interrupts_disable(void)
     interrupt_setting_mask = NVIC->ISER[0];
 
     // Loop from interrupt 0 for disabling of all interrupts.
-    for (irq = 0; irq < MAX_NUMBER_INTERRUPTS; irq++)
-    {
-        if (interrupt_setting_mask & (IRQ_ENABLED << irq))
-        {
+    for (irq = 0; irq < MAX_NUMBER_INTERRUPTS; irq++) {
+        if (interrupt_setting_mask & (IRQ_ENABLED << irq)) {
             // The interrupt was enabled, hence disable it.
             NVIC_DisableIRQ((IRQn_Type)irq);
         }
@@ -103,13 +101,11 @@ static void dfu_app_peer_data_set(uint16_t conn_handle)
     dm_application_context_t app_context;
 
 
-/** [DFU bond sharing] */
+    /** [DFU bond sharing] */
     err_code = dm_handle_get(conn_handle, &m_dm_handle);
-    if (err_code == NRF_SUCCESS)
-    {
+    if (err_code == NRF_SUCCESS) {
         err_code = dm_distributed_keys_get(&m_dm_handle, &key_set);
-        if (err_code == NRF_SUCCESS)
-        {
+        if (err_code == NRF_SUCCESS) {
             APP_ERROR_CHECK(err_code);
 
             m_peer_data.addr              = key_set.keys_central.p_id_key->id_addr_info;
@@ -127,9 +123,7 @@ static void dfu_app_peer_data_set(uint16_t conn_handle)
 
             err_code = dm_application_context_set(&m_dm_handle, &app_context);
             APP_ERROR_CHECK(err_code);
-        }
-        else
-        {
+        } else {
             // Keys were not available, thus we have a non-encrypted connection.
             err_code = dm_peer_addr_get(&m_dm_handle, &m_peer_data.addr);
             APP_ERROR_CHECK(err_code);
@@ -138,7 +132,7 @@ static void dfu_app_peer_data_set(uint16_t conn_handle)
             APP_ERROR_CHECK(err_code);
         }
     }
-/** [DFU bond sharing] */
+    /** [DFU bond sharing] */
 }
 
 
@@ -155,8 +149,7 @@ static void bootloader_start(uint16_t conn_handle)
                                          m_peer_data.sys_serv_attr,
                                          &sys_serv_attr_len,
                                          BLE_GATTS_SYS_ATTR_FLAG_SYS_SRVCS);
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
         // Any error at this stage means the system service attributes could not be fetched.
         // This means the service changed indication cannot be sent in DFU mode, but connection
         // is still possible to establish.
@@ -181,25 +174,23 @@ static void bootloader_start(uint16_t conn_handle)
 }
 
 
-void dfu_app_on_dfu_evt(ble_dfu_t * p_dfu, ble_dfu_evt_t * p_evt)
+void dfu_app_on_dfu_evt(ble_dfu_t *p_dfu, ble_dfu_evt_t *p_evt)
 {
-    switch (p_evt->ble_dfu_evt_type)
-    {
+    switch (p_evt->ble_dfu_evt_type) {
         case BLE_DFU_START:
             // Starting the bootloader - will cause reset.
             bootloader_start(p_dfu->conn_handle);
             break;
 
-        default:
-            {
-                // Unsupported event received from DFU Service.
-                // Send back BLE_DFU_RESP_VAL_NOT_SUPPORTED message to peer.
-                uint32_t err_code = ble_dfu_response_send(p_dfu,
-                                                          BLE_DFU_START_PROCEDURE,
-                                                          BLE_DFU_RESP_VAL_NOT_SUPPORTED);
-                APP_ERROR_CHECK(err_code);
-            }
-            break;
+        default: {
+            // Unsupported event received from DFU Service.
+            // Send back BLE_DFU_RESP_VAL_NOT_SUPPORTED message to peer.
+            uint32_t err_code = ble_dfu_response_send(p_dfu,
+                                                      BLE_DFU_START_PROCEDURE,
+                                                      BLE_DFU_RESP_VAL_NOT_SUPPORTED);
+            APP_ERROR_CHECK(err_code);
+        }
+        break;
     }
 }
 

@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2017 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -56,19 +56,19 @@
 // (e.g. STOPPED), needed to avoid infinite loops.
 // This value might be defined externally.
 #ifndef I2C_TIMEOUT_VALUE_US
-    #define I2C_TIMEOUT_VALUE_US 1000000
+#define I2C_TIMEOUT_VALUE_US 1000000
 #endif
 
 #if DEVICE_I2C_ASYNCH
-    #define TWI_IDX(obj)    ((obj)->i2c.twi_idx)
+#define TWI_IDX(obj)    ((obj)->i2c.twi_idx)
 #else
-    #define TWI_IDX(obj)    ((obj)->twi_idx)
+#define TWI_IDX(obj)    ((obj)->twi_idx)
 #endif
 #define TWI_INFO(obj)   (&m_twi_info[TWI_IDX(obj)])
 
 #ifdef TARGET_SDK13
-    #define TWI0_INSTANCE_INDEX 0
-    #define TWI1_INSTANCE_INDEX TWI0_INSTANCE_INDEX+TWI0_ENABLED
+#define TWI0_INSTANCE_INDEX 0
+#define TWI1_INSTANCE_INDEX TWI0_INSTANCE_INDEX+TWI0_ENABLED
 #endif
 
 typedef struct {
@@ -87,13 +87,13 @@ typedef struct {
     bool            stop;
 
     volatile uint32_t   events;
-    void              (*handler)(void);
+    void (*handler)(void);
     uint32_t            evt_mask;
 #endif // DEVICE_I2C_ASYNCH
 } twi_info_t;
 static twi_info_t m_twi_info[TWI_COUNT];
 
-static NRF_TWI_Type * const m_twi_instances[TWI_COUNT] = {
+static NRF_TWI_Type *const m_twi_instances[TWI_COUNT] = {
 #if TWI0_ENABLED
     NRF_TWI0,
 #endif
@@ -105,8 +105,7 @@ static NRF_TWI_Type * const m_twi_instances[TWI_COUNT] = {
 void SPI0_TWI0_IRQHandler(void);
 void SPI1_TWI1_IRQHandler(void);
 
-static const peripheral_handler_desc_t twi_handlers[TWI_COUNT] =
-{
+static const peripheral_handler_desc_t twi_handlers[TWI_COUNT] = {
 #if TWI0_ENABLED
     {
         SPI0_TWI0_IRQn,
@@ -121,9 +120,9 @@ static const peripheral_handler_desc_t twi_handlers[TWI_COUNT] =
 #endif
 };
 #ifdef NRF51
-    #define TWI_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOW
+#define TWI_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOW
 #elif defined(NRF52) || defined(NRF52840_XXAA)
-    #define TWI_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOWEST
+#define TWI_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOWEST
 #endif
 
 
@@ -173,10 +172,10 @@ static void twi_irq_handler(uint8_t instance_idx)
         if (twi_info->tx_length > 0) {
             nrf_twi_txd_set(twi, *(twi_info->tx));
             ++(twi_info->tx);
-        // It TX is done, start RX if requested.
+            // It TX is done, start RX if requested.
         } else if (twi_info->rx_length > 0) {
             start_asynch_rx(twi_info, twi);
-        // If there is nothing more to do, finalize the transfer.
+            // If there is nothing more to do, finalize the transfer.
         } else {
             if (twi_info->stop) {
                 nrf_twi_task_trigger(twi, NRF_TWI_TASK_STOP);
@@ -212,9 +211,9 @@ static void twi_irq_handler(uint8_t instance_idx)
     }
 
     if (finished ||
-        nrf_twi_event_check(twi, NRF_TWI_EVENT_STOPPED) ||
-        (nrf_twi_int_enable_check(twi, NRF_TWI_INT_SUSPENDED_MASK) &&
-         nrf_twi_event_check(twi, NRF_TWI_EVENT_SUSPENDED))) {
+            nrf_twi_event_check(twi, NRF_TWI_EVENT_STOPPED) ||
+            (nrf_twi_int_enable_check(twi, NRF_TWI_INT_SUSPENDED_MASK) &&
+             nrf_twi_event_check(twi, NRF_TWI_EVENT_SUSPENDED))) {
         // There is no need to clear the STOPPED and SUSPENDED events here,
         // they will no longer generate the interrupt - see below.
 
@@ -241,8 +240,7 @@ static void irq_handler_twi1(void)
     twi_irq_handler(TWI1_INSTANCE_INDEX);
 }
 #endif
-static nrf_drv_irq_handler_t const m_twi_irq_handlers[TWI_COUNT] =
-{
+static nrf_drv_irq_handler_t const m_twi_irq_handlers[TWI_COUNT] = {
 #if TWI0_ENABLED
     irq_handler_twi0,
 #endif
@@ -256,11 +254,11 @@ static nrf_drv_irq_handler_t const m_twi_irq_handlers[TWI_COUNT] =
 static void configure_twi_pin(uint32_t pin, nrf_gpio_pin_dir_t dir)
 {
     nrf_gpio_cfg(pin,
-        dir,
-        NRF_GPIO_PIN_INPUT_CONNECT,
-        NRF_GPIO_PIN_PULLUP,
-        NRF_GPIO_PIN_S0D1,
-        NRF_GPIO_PIN_NOSENSE);
+                 dir,
+                 NRF_GPIO_PIN_INPUT_CONNECT,
+                 NRF_GPIO_PIN_PULLUP,
+                 NRF_GPIO_PIN_S0D1,
+                 NRF_GPIO_PIN_NOSENSE);
 }
 
 static void twi_clear_bus(twi_info_t *twi_info)
@@ -299,8 +297,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     for (i = 0; i < TWI_COUNT; ++i) {
         if (m_twi_info[i].initialized &&
-            m_twi_info[i].pselsda == (uint32_t)sda &&
-            m_twi_info[i].pselscl == (uint32_t)scl) {
+                m_twi_info[i].pselsda == (uint32_t)sda &&
+                m_twi_info[i].pselscl == (uint32_t)scl) {
             TWI_IDX(obj) = i;
             TWI_INFO(obj)->frequency = NRF_TWI_FREQ_100K;
             i2c_reset(obj);
@@ -311,7 +309,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     for (i = 0; i < TWI_COUNT; ++i) {
         if (!m_twi_info[i].initialized) {
             ret = nrf_drv_common_per_res_acquire(m_twi_instances[i],
-                    m_twi_irq_handlers[i]);
+                                                 m_twi_irq_handlers[i]);
 
             if (ret != NRF_SUCCESS) {
                 continue; /* the hw resource is busy - test another one */
@@ -560,7 +558,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
     int result = length;
     do {
-        uint8_t byte_write_result = twi_byte_write(twi, (uint8_t)*data++);
+        uint8_t byte_write_result = twi_byte_write(twi, (uint8_t) * data++);
         if (byte_write_result != 1) {
             if (byte_write_result == 0) {
                 // Check what kind of error has been signaled by TWI.
@@ -676,12 +674,12 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length,
         nrf_twi_task_trigger(twi, NRF_TWI_TASK_STARTTX);
         nrf_twi_txd_set(twi, *(twi_info->tx));
         ++(twi_info->tx);
-    // RX only.
+        // RX only.
     } else if (rx_length > 0) {
         start_asynch_rx(twi_info, twi);
-    // Both 'tx_length' and 'rx_length' are 0 - this case may be used
-    // to test if the slave is presentand ready for transfer (by just
-    // sending the address and checking if it is acknowledged).
+        // Both 'tx_length' and 'rx_length' are 0 - this case may be used
+        // to test if the slave is presentand ready for transfer (by just
+        // sending the address and checking if it is acknowledged).
     } else {
         nrf_twi_task_trigger(twi, NRF_TWI_TASK_STARTTX);
         if (stop) {
@@ -694,9 +692,9 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length,
     }
 
     nrf_twi_int_enable(twi, NRF_TWI_INT_TXDSENT_MASK |
-                            NRF_TWI_INT_RXDREADY_MASK |
-                            NRF_TWI_INT_STOPPED_MASK |
-                            NRF_TWI_INT_ERROR_MASK);
+                       NRF_TWI_INT_RXDREADY_MASK |
+                       NRF_TWI_INT_STOPPED_MASK |
+                       NRF_TWI_INT_ERROR_MASK);
 }
 
 uint32_t i2c_irq_handler_asynch(i2c_t *obj)

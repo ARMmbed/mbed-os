@@ -24,9 +24,9 @@
 #define MBED_DEVICE_PERIPHERALS_H
 
 /* us ticker */
-#define US_TICKER_TIMER			TIMER0
-#define US_TICKER_TIMER_CLOCK	cmuClock_TIMER0
-#define US_TICKER_TIMER_IRQ		TIMER0_IRQn
+#define US_TICKER_TIMER         TIMER0
+#define US_TICKER_TIMER_CLOCK   cmuClock_TIMER0
+#define US_TICKER_TIMER_IRQ     TIMER0_IRQn
 
 /* PWM */
 #define PWM_TIMER TIMER2

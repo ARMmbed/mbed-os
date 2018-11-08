@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -260,41 +260,35 @@ typedef uint8_t dm_service_instance_t;
 typedef uint8_t service_type_t;
 
 /**@brief Device Manager Master identification and encryption information. */
-typedef struct dm_enc_key
-{
+typedef struct dm_enc_key {
     ble_gap_enc_info_t  enc_info;  /**< GAP encryption information. */
     ble_gap_master_id_t master_id; /**< Master identification. */
 } dm_enc_key_t;
 
 /** @brief Device Manager identity and address information. */
-typedef struct dm_id_key
-{
-  ble_gap_irk_t  id_info;      /**< Identity information. */
-  ble_gap_addr_t id_addr_info; /**< Identity address information. */
+typedef struct dm_id_key {
+    ble_gap_irk_t  id_info;      /**< Identity information. */
+    ble_gap_addr_t id_addr_info; /**< Identity address information. */
 } dm_id_key_t;
 
 /** @brief Device Manager signing information. */
-typedef struct dm_sign_key
-{
+typedef struct dm_sign_key {
     ble_gap_sign_info_t sign_key; /**< GAP signing information. */
 } dm_sign_key_t;
 
 /** @brief Security keys. */
-typedef struct dm_sec_keyset
-{
-    union
-    {
-        dm_enc_key_t       * p_enc_key;  /**< Pointer to Device Manager encryption information structure. */
+typedef struct dm_sec_keyset {
+    union {
+        dm_enc_key_t        *p_enc_key;  /**< Pointer to Device Manager encryption information structure. */
     } enc_key;
-    dm_id_key_t   * p_id_key;            /**< Identity key, or NULL. */
-    dm_sign_key_t * p_sign_key;          /**< Signing key, or NULL. */
+    dm_id_key_t    *p_id_key;            /**< Identity key, or NULL. */
+    dm_sign_key_t *p_sign_key;           /**< Signing key, or NULL. */
 } dm_sec_keys_t;
 
 /** @brief Device Manager security key set. */
-typedef struct
-{
-  dm_sec_keys_t keys_periph;  /**< Keys distributed by the device in the Peripheral role. */
-  dm_sec_keys_t keys_central; /**< Keys distributed by the device in the Central role. */
+typedef struct {
+    dm_sec_keys_t keys_periph;  /**< Keys distributed by the device in the Peripheral role. */
+    dm_sec_keys_t keys_central; /**< Keys distributed by the device in the Central role. */
 } dm_sec_keyset_t;
 
 /**
@@ -306,8 +300,7 @@ typedef struct
  *          all API interactions once stored on appropriate events.
  *          See \ref dm_events.
  */
-typedef struct device_handle
-{
+typedef struct device_handle {
     dm_application_instance_t    appl_id;       /**< Identifies the application instances for the device that is being managed. */
     dm_connection_instance_t     connection_id; /**< Identifies the active connection instance. */
     dm_device_instance_t         device_id;     /**< Identifies peer instance in the data base. */
@@ -319,11 +312,10 @@ typedef struct device_handle
  *
  * @details Defines contextual data format, it consists of context data length and pointer to data.
  */
-typedef struct
-{
+typedef struct {
     uint32_t  flags;  /**< Additional flags identifying data. */
     uint32_t  len;    /**< Length of data. */
-    uint8_t * p_data; /**< Pointer to contextual data, a copy is made of the data. */
+    uint8_t *p_data;  /**< Pointer to contextual data, a copy is made of the data. */
 } dm_context_t;
 
 
@@ -339,8 +331,7 @@ typedef dm_context_t dm_device_context_t;
  *
  * @details Service context data for a service identified by the 'service_type' field.
  */
-typedef struct
-{
+typedef struct {
     service_type_t service_type; /**< Identifies the service/protocol to which the context data is related. */
     dm_context_t   context_data; /**< Contains length and pointer to context data */
 } dm_service_context_t;
@@ -362,12 +353,11 @@ typedef dm_context_t dm_application_context_t;
  *
  * @details Defines event parameters for each of the events notified by the module.
  */
-typedef union
-{
-    ble_gap_evt_t            * p_gap_param;       /**< All events that are triggered in device manager as a result of GAP events, like connection, disconnection and security procedures are accompanied with GAP parameters. */
-    dm_application_context_t * p_app_context;     /**< All events that are associated with application context procedures of store, load, and deletion have this as event parameter. */
-    dm_service_context_t     * p_service_context; /**< All events that are associated with service context procedures of store, load and deletion have this as event parameter. */
-    dm_device_context_t      * p_device_context;  /**< All events that are associated with device context procedures of store, load and deletion have this as event parameter. */
+typedef union {
+    ble_gap_evt_t             *p_gap_param;       /**< All events that are triggered in device manager as a result of GAP events, like connection, disconnection and security procedures are accompanied with GAP parameters. */
+    dm_application_context_t *p_app_context;      /**< All events that are associated with application context procedures of store, load, and deletion have this as event parameter. */
+    dm_service_context_t      *p_service_context; /**< All events that are associated with service context procedures of store, load and deletion have this as event parameter. */
+    dm_device_context_t       *p_device_context;  /**< All events that are associated with device context procedures of store, load and deletion have this as event parameter. */
 } dm_event_param_t;
 
 /**
@@ -376,8 +366,7 @@ typedef union
  * @details Defines event type along with event parameters notified to the application by the
  *          module.
  */
-typedef struct
-{
+typedef struct {
     uint8_t          event_id;       /**< Identifies the event. See \ref dm_events for details on event types and their significance. */
     dm_event_param_t event_param;    /**< Event parameters. Can be NULL if the event does not have any parameters. */
     uint16_t         event_paramlen; /**< Length of the event parameters, is zero if the event does not have any parameters. */
@@ -399,8 +388,8 @@ typedef struct
  * @retval NRF_SUCCESS on success, or a failure to indicate if it could handle the event
  *         successfully. There is no action taken in case application returns a failure.
  */
-typedef ret_code_t (*dm_event_cb_t)(dm_handle_t const * p_handle,
-                                    dm_event_t const  * p_event,
+typedef ret_code_t (*dm_event_cb_t)(dm_handle_t const *p_handle,
+                                    dm_event_t const   *p_event,
                                     ret_code_t        event_result);
 
 /**
@@ -409,8 +398,7 @@ typedef ret_code_t (*dm_event_cb_t)(dm_handle_t const * p_handle,
  * @details Indicates the application parameters. Currently this only encompasses clearing
  *          all persistent data.
  */
-typedef struct
-{
+typedef struct {
     bool clear_persistent_data; /**< Set to true in case the module should clear all persistent data. */
 } dm_init_param_t;
 
@@ -419,8 +407,7 @@ typedef struct
  *
  * @details Parameters needed by the module when registering with it.
  */
-typedef struct
-{
+typedef struct {
     dm_event_cb_t        evt_handler;  /**< Event Handler to be registered. It will receive asynchronous notification from the module, see \ref dm_events for asynchronous events. */
     uint8_t              service_type; /**< Bit mask identifying services that the application intends to support for all peers. */
     ble_gap_sec_params_t sec_param;    /**< Security parameters to be used for the application. */
@@ -432,8 +419,7 @@ typedef struct
  * @details Defines possible security status/states of a link when requested by application using
  *          the \ref dm_security_status_req.
  */
-typedef enum
-{
+typedef enum {
     NOT_ENCRYPTED,          /**< The link is not secured. */
     ENCRYPTION_IN_PROGRESS, /**< Link security is being established.*/
     ENCRYPTED               /**< The link is secure.*/
@@ -477,7 +463,7 @@ typedef enum
  *
  * @note It is mandatory that pstorage is initialized before initializing this module.
  */
-ret_code_t dm_init(dm_init_param_t const * p_init_param);
+ret_code_t dm_init(dm_init_param_t const *p_init_param);
 
 /**
  * @brief Function for registering the application.
@@ -501,8 +487,8 @@ ret_code_t dm_init(dm_init_param_t const * p_init_param);
  *
  * @note Currently only one application instance is supported by the module.
  */
-ret_code_t dm_register(dm_application_instance_t    * p_appl_instance,
-                       dm_application_param_t const * p_appl_param);
+ret_code_t dm_register(dm_application_instance_t     *p_appl_instance,
+                       dm_application_param_t const *p_appl_param);
 
 /**
  * @brief Function for handling BLE events.
@@ -513,7 +499,7 @@ ret_code_t dm_register(dm_application_instance_t    * p_appl_instance,
  * @param[in] p_ble_evt BLE stack event being dispatched to the function.
  *
  */
-void dm_ble_evt_handler(ble_evt_t * p_ble_evt);
+void dm_ble_evt_handler(ble_evt_t *p_ble_evt);
 
 /** @} */
 
@@ -549,7 +535,7 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt);
  * @retval NRF_ERROR_INVALID_ADDR  If the peer is not identified by the handle provided by the application
  *                                 or if the peer is not connected when this procedure is requested.
  */
-ret_code_t dm_security_setup_req(dm_handle_t * p_handle);
+ret_code_t dm_security_setup_req(dm_handle_t *p_handle);
 
 /**
  * @brief Function for reading the status of the security on a link.
@@ -567,7 +553,7 @@ ret_code_t dm_security_setup_req(dm_handle_t * p_handle);
  * @retval NRF_ERROR_INVALID_ADDR  If peer is not identified by the handle provided by the application
  *                                 or if peer is not connected when this procedure is requested.
  */
-ret_code_t dm_security_status_req(dm_handle_t const * p_handle, dm_security_status_t * p_status);
+ret_code_t dm_security_status_req(dm_handle_t const *p_handle, dm_security_status_t *p_status);
 
 /**
  * @brief Function for creating the whitelist.
@@ -591,8 +577,8 @@ ret_code_t dm_security_status_req(dm_handle_t const * p_handle, dm_security_stat
  *                                 application registration.
  * @retval NRF_ERROR_NULL          If p_handle or p_whitelist is NULL.
  */
-ret_code_t dm_whitelist_create(dm_application_instance_t const * p_handle,
-                               ble_gap_whitelist_t             * p_whitelist);
+ret_code_t dm_whitelist_create(dm_application_instance_t const *p_handle,
+                               ble_gap_whitelist_t              *p_whitelist);
 
 /** @} */
 
@@ -610,8 +596,8 @@ ret_code_t dm_whitelist_create(dm_application_instance_t const * p_handle,
  * @{
  */
 
-ret_code_t dm_device_add(dm_handle_t               * p_handle,
-                         dm_device_context_t const * p_context);
+ret_code_t dm_device_add(dm_handle_t                *p_handle,
+                         dm_device_context_t const *p_context);
 
 /**
  * @brief Function for deleting a peer device context and all related information from the database.
@@ -633,7 +619,7 @@ ret_code_t dm_device_add(dm_handle_t               * p_handle,
  *       bonded device. The respective events DM_EVT_SERVICE_CONTEXT_DELETED and
  *       DM_EVT_APPL_CONTEXT_DELETED are not notified to the application.
  */
-ret_code_t dm_device_delete(dm_handle_t const * p_handle);
+ret_code_t dm_device_delete(dm_handle_t const *p_handle);
 
 /**
  * @brief Function for deleting all peer device context and all related information from the database.
@@ -656,7 +642,7 @@ ret_code_t dm_device_delete(dm_handle_t const * p_handle);
  *       bonded device. The respective events DM_EVT_SERVICE_CONTEXT_DELETED and
  *       DM_EVT_APPL_CONTEXT_DELETED are not notified to the application.
  */
-ret_code_t dm_device_delete_all(dm_application_instance_t const * p_handle);
+ret_code_t dm_device_delete_all(dm_application_instance_t const *p_handle);
 
 /**
  * @brief Function for setting Service Context for a peer device identified by 'p_handle' parameter.
@@ -683,8 +669,8 @@ ret_code_t dm_device_delete_all(dm_application_instance_t const * p_handle);
  * @retval NRF_ERROR_NULL          If p_handle is NULL.
  * @retval NRF_ERROR_INVALID_ADDR  If the peer is not identified by the handle provided by the application.
  */
-ret_code_t dm_service_context_set(dm_handle_t const          * p_handle,
-                                  dm_service_context_t const * p_context);
+ret_code_t dm_service_context_set(dm_handle_t const           *p_handle,
+                                  dm_service_context_t const *p_context);
 
 /**
  * @brief Function for getting Service Context for a peer device identified by 'p_handle' parameter.
@@ -706,8 +692,8 @@ ret_code_t dm_service_context_set(dm_handle_t const          * p_handle,
  * @retval NRF_ERROR_NULL          If p_handle is NULL.
  * @retval NRF_ERROR_INVALID_ADDR  If the peer is not identified by the handle provided by the application.
  */
-ret_code_t dm_service_context_get(dm_handle_t const    * p_handle,
-                                  dm_service_context_t * p_context);
+ret_code_t dm_service_context_get(dm_handle_t const     *p_handle,
+                                  dm_service_context_t *p_context);
 
 /**
  * @brief Function for deleting a Service Context for a peer device identified by the 'p_handle' parameter.
@@ -726,7 +712,7 @@ ret_code_t dm_service_context_get(dm_handle_t const    * p_handle,
  * @retval NRF_ERROR_NULL          If p_handle is NULL.
  * @retval NRF_ERROR_INVALID_ADDR  If the peer is not identified by the handle provided by the application.
  */
-ret_code_t dm_service_context_delete(dm_handle_t const * p_handle);
+ret_code_t dm_service_context_delete(dm_handle_t const *p_handle);
 
 /**
  * @brief Function for setting Application Context for a peer device identified by the 'p_handle' parameter.
@@ -756,8 +742,8 @@ ret_code_t dm_service_context_delete(dm_handle_t const * p_handle);
  *
  * @note The API returns FEATURE_NOT_ENABLED in case DEVICE_MANAGER_APP_CONTEXT_SIZE is set to zero.
  */
-ret_code_t dm_application_context_set(dm_handle_t const              * p_handle,
-                                      dm_application_context_t const * p_context);
+ret_code_t dm_application_context_set(dm_handle_t const               *p_handle,
+                                      dm_application_context_t const *p_context);
 
 /**
  * @brief Function for getting Application Context for a peer device identified by the 'p_handle' parameter.
@@ -781,8 +767,8 @@ ret_code_t dm_application_context_set(dm_handle_t const              * p_handle,
  * @note The API returns FEATURE_NOT_ENABLED in case DEVICE_MANAGER_APP_CONTEXT_SIZE is set to
  *       zero.
  */
-ret_code_t dm_application_context_get(dm_handle_t const        * p_handle,
-                                      dm_application_context_t * p_context);
+ret_code_t dm_application_context_get(dm_handle_t const         *p_handle,
+                                      dm_application_context_t *p_context);
 
 /**
  * @brief Function for deleting Application Context for a peer device identified by the 'p_handle' parameter.
@@ -803,7 +789,7 @@ ret_code_t dm_application_context_get(dm_handle_t const        * p_handle,
  *
  * @note The API returns FEATURE_NOT_ENABLED if the DEVICE_MANAGER_APP_CONTEXT_SIZE is set to zero.
  */
-ret_code_t dm_application_context_delete(dm_handle_t const * p_handle);
+ret_code_t dm_application_context_delete(dm_handle_t const *p_handle);
 
 /** @} */
 
@@ -826,8 +812,8 @@ ret_code_t dm_application_context_delete(dm_handle_t const * p_handle);
  *                                 application registration.
  * @retval NRF_ERROR_NULL          If p_handle and/or p_addr is NULL.
  */
-ret_code_t dm_application_instance_set(dm_application_instance_t const * p_appl_instance,
-                                       dm_handle_t                     * p_handle);
+ret_code_t dm_application_instance_set(dm_application_instance_t const *p_appl_instance,
+                                       dm_handle_t                      *p_handle);
 
 /**
  * @brief Function for getting a peer's device address.
@@ -841,8 +827,8 @@ ret_code_t dm_application_instance_set(dm_application_instance_t const * p_appl_
  * @retval NRF_ERROR_NULL          If p_handle and/or p_addr is NULL.
  * @retval NRF_ERROR_NOT_FOUND     If the peer could not be identified.
  */
-ret_code_t dm_peer_addr_get(dm_handle_t const * p_handle,
-                            ble_gap_addr_t    * p_addr);
+ret_code_t dm_peer_addr_get(dm_handle_t const *p_handle,
+                            ble_gap_addr_t     *p_addr);
 
 /**
  * @brief Function for setting/updating a peer's device address.
@@ -865,8 +851,8 @@ ret_code_t dm_peer_addr_get(dm_handle_t const * p_handle,
  *       recommended to not invite/initiate connections on the updated address unless this event
  *       has been notified.
  */
-ret_code_t dm_peer_addr_set(dm_handle_t const    * p_handle,
-                            ble_gap_addr_t const * p_addr);
+ret_code_t dm_peer_addr_set(dm_handle_t const     *p_handle,
+                            ble_gap_addr_t const *p_addr);
 
 /**
  * @brief Function for initializing Device Manager handle.
@@ -878,7 +864,7 @@ ret_code_t dm_peer_addr_set(dm_handle_t const    * p_handle,
  *
  * @note This routine is permitted before initialization of the module.
  */
-ret_code_t dm_handle_initialize(dm_handle_t * p_handle);
+ret_code_t dm_handle_initialize(dm_handle_t *p_handle);
 
 /**
  * @brief Function for getting distributed keys for a device.
@@ -892,8 +878,8 @@ ret_code_t dm_handle_initialize(dm_handle_t * p_handle);
  * @retval NRF_ERROR_NULL          If the p_handle and/or p_key_dist pointer is NULL.
  * @retval NRF_ERROR_INVALID_ADDR  If the peer is not identified by the handle provided by the application.
  */
-ret_code_t dm_distributed_keys_get(dm_handle_t const * p_handle,
-                                   dm_sec_keyset_t   * p_key_dist);
+ret_code_t dm_distributed_keys_get(dm_handle_t const *p_handle,
+                                   dm_sec_keyset_t    *p_key_dist);
 
 /**
  * @brief Function for getting the corresponding dm_handle_t based on the connection handle.
@@ -907,7 +893,7 @@ ret_code_t dm_distributed_keys_get(dm_handle_t const * p_handle,
  * @retval NRF_ERROR_NULL       If the p_handle pointer is NULL.
  * @retval NRF_ERROR_NOT_FOUND  If no p_handle is found for the provided connection handle.
  */
-ret_code_t dm_handle_get(uint16_t conn_handle, dm_handle_t * p_handle);
+ret_code_t dm_handle_get(uint16_t conn_handle, dm_handle_t *p_handle);
 
 /** @} */
 /** @} */

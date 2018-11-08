@@ -27,38 +27,45 @@
 #include "ArmGattClient.h"
 #include "ArmSecurityManager.h"
 
-class ArmBLE : public BLEInstanceBase
-{
+class ArmBLE : public BLEInstanceBase {
 public:
     ArmBLE(void);
     virtual ~ArmBLE(void);
 
     virtual ble_error_t init(BLE::InstanceID_t instanceID, FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext *> initCallback);
-    virtual bool        hasInitialized(void) const {
+    virtual bool        hasInitialized(void) const
+    {
         return initialized;
     }
     virtual ble_error_t shutdown(void);
     virtual const char *getVersion(void);
 
-    virtual Gap &getGap() {
+    virtual Gap &getGap()
+    {
         return ArmGap::getInstance();
     };
-    virtual const Gap &getGap() const {
+    virtual const Gap &getGap() const
+    {
         return ArmGap::getInstance();
     };
-    virtual GattServer &getGattServer() {
+    virtual GattServer &getGattServer()
+    {
         return ArmGattServer::getInstance();
     };
-    virtual const GattServer &getGattServer() const {
+    virtual const GattServer &getGattServer() const
+    {
         return ArmGattServer::getInstance();
     };
-    virtual GattClient &getGattClient() {
+    virtual GattClient &getGattClient()
+    {
         return ArmGattClient::getInstance();
     };
-    virtual SecurityManager &getSecurityManager() {
+    virtual SecurityManager &getSecurityManager()
+    {
         return ArmSecurityManager::getInstance();
     };
-    virtual const SecurityManager &getSecurityManager() const {
+    virtual const SecurityManager &getSecurityManager() const
+    {
         return ArmSecurityManager::getInstance();
     };
 

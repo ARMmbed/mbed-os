@@ -63,8 +63,7 @@ Exported global variables and functions (to be accessed by other files)
 /*******************************************************************************
 Private global variables and functions
 *******************************************************************************/
-const uint16_t g_usb1_function_bit_set[16] =
-{
+const uint16_t g_usb1_function_bit_set[16] = {
     0x0001, 0x0002, 0x0004, 0x0008,
     0x0010, 0x0020, 0x0040, 0x0080,
     0x0100, 0x0200, 0x0400, 0x0800,
@@ -72,7 +71,7 @@ const uint16_t g_usb1_function_bit_set[16] =
 };
 
 uint32_t g_usb1_function_data_count[USB_FUNCTION_MAX_PIPE_NO + 1];
-uint8_t  * g_usb1_function_data_pointer[USB_FUNCTION_MAX_PIPE_NO + 1];
+uint8_t   *g_usb1_function_data_pointer[USB_FUNCTION_MAX_PIPE_NO + 1];
 
 uint16_t g_usb1_function_PipeIgnore[USB_FUNCTION_MAX_PIPE_NO + 1];
 uint16_t g_usb1_function_PipeTbl[USB_FUNCTION_MAX_PIPE_NO + 1];
@@ -114,7 +113,7 @@ uint16_t g_usb1_function_pipeperi[USB_FUNCTION_MAX_PIPE_NO + 1];
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_function_init_status (void)
+void usb1_function_init_status(void)
 {
     uint16_t pipe;
 
@@ -127,8 +126,7 @@ void usb1_function_init_status (void)
     usb1_function_clear_alt();
 #endif
 
-    for (pipe = 0; pipe < (USB_FUNCTION_MAX_PIPE_NO + 1); ++pipe)
-    {
+    for (pipe = 0; pipe < (USB_FUNCTION_MAX_PIPE_NO + 1); ++pipe) {
         g_usb1_function_pipe_status[pipe]  = DEVDRV_USBF_PIPE_IDLE;
         g_usb1_function_PipeDataSize[pipe] = 0;
         g_usb1_function_data_count[pipe]   = 0;

@@ -50,7 +50,7 @@ extern "C" {
 
 /*                                 Offset   Register Description
                                    ======   ======================================================= */
-typedef struct {    
+typedef struct {
     __IO uint32_t lcfg;         /* 0x0000                                                           */
     __IO uint32_t lcra;         /* 0x0004                                                           */
     __IO uint32_t lpcf;         /* 0x0008  LCD Port Configuration Register                          */

@@ -395,10 +395,10 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
                 /* This is managed independently because User gives this option in one character table */
 
                 ret_status = sn_coap_parser_options_parse_multiple_options(handle, packet_data_pptr,
-                             message_left,
-                             &dst_coap_msg_ptr->options_list_ptr->etag_ptr,
-                             (uint16_t *)&dst_coap_msg_ptr->options_list_ptr->etag_len,
-                             COAP_OPTION_ETAG, option_len);
+                                                                           message_left,
+                                                                           &dst_coap_msg_ptr->options_list_ptr->etag_ptr,
+                                                                           (uint16_t *)&dst_coap_msg_ptr->options_list_ptr->etag_len,
+                                                                           COAP_OPTION_ETAG, option_len);
                 if (ret_status >= 0) {
                     i += (ret_status - 1); /* i += is because possible several Options are handled by sn_coap_parser_options_parse_multiple_options() */
                 } else {
@@ -433,8 +433,8 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
                 }
                 /* This is managed independently because User gives this option in one character table */
                 ret_status = sn_coap_parser_options_parse_multiple_options(handle, packet_data_pptr, message_left,
-                             &dst_coap_msg_ptr->options_list_ptr->location_path_ptr, &dst_coap_msg_ptr->options_list_ptr->location_path_len,
-                             COAP_OPTION_LOCATION_PATH, option_len);
+                                                                           &dst_coap_msg_ptr->options_list_ptr->location_path_ptr, &dst_coap_msg_ptr->options_list_ptr->location_path_len,
+                                                                           COAP_OPTION_LOCATION_PATH, option_len);
                 if (ret_status >= 0) {
                     i += (ret_status - 1); /* i += is because possible several Options are handled by sn_coap_parser_options_parse_multiple_options() */
                 } else {
@@ -457,8 +457,8 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_LOCATION_QUERY:
                 ret_status = sn_coap_parser_options_parse_multiple_options(handle, packet_data_pptr, message_left,
-                             &dst_coap_msg_ptr->options_list_ptr->location_query_ptr, &dst_coap_msg_ptr->options_list_ptr->location_query_len,
-                             COAP_OPTION_LOCATION_QUERY, option_len);
+                                                                           &dst_coap_msg_ptr->options_list_ptr->location_query_ptr, &dst_coap_msg_ptr->options_list_ptr->location_query_len,
+                                                                           COAP_OPTION_LOCATION_QUERY, option_len);
                 if (ret_status >= 0) {
                     i += (ret_status - 1); /* i += is because possible several Options are handled by sn_coap_parser_options_parse_multiple_options() */
                 } else {
@@ -470,8 +470,8 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_URI_PATH:
                 ret_status = sn_coap_parser_options_parse_multiple_options(handle, packet_data_pptr, message_left,
-                             &dst_coap_msg_ptr->uri_path_ptr, &dst_coap_msg_ptr->uri_path_len,
-                             COAP_OPTION_URI_PATH, option_len);
+                                                                           &dst_coap_msg_ptr->uri_path_ptr, &dst_coap_msg_ptr->uri_path_len,
+                                                                           COAP_OPTION_URI_PATH, option_len);
                 if (ret_status >= 0) {
                     i += (ret_status - 1); /* i += is because possible several Options are handled by sn_coap_parser_options_parse_multiple_options() */
                 } else {
@@ -495,8 +495,8 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_URI_QUERY:
                 ret_status = sn_coap_parser_options_parse_multiple_options(handle, packet_data_pptr, message_left,
-                             &dst_coap_msg_ptr->options_list_ptr->uri_query_ptr, &dst_coap_msg_ptr->options_list_ptr->uri_query_len,
-                             COAP_OPTION_URI_QUERY, option_len);
+                                                                           &dst_coap_msg_ptr->options_list_ptr->uri_query_ptr, &dst_coap_msg_ptr->options_list_ptr->uri_query_len,
+                                                                           COAP_OPTION_URI_QUERY, option_len);
                 if (ret_status >= 0) {
                     i += (ret_status - 1); /* i += is because possible several Options are handled by sn_coap_parser_options_parse_multiple_options() */
                 } else {
@@ -709,10 +709,9 @@ static int16_t sn_coap_parser_options_count_needed_memory_multiple_option(uint8_
         i += option_number_len;
         ret_value += option_number_len + 1; /* + 1 is for separator */
 
-        if( i == packet_left_len ) {
+        if (i == packet_left_len) {
             break;
-        }
-        else if( i > packet_left_len ) {
+        } else if (i > packet_left_len) {
             return -1;
         }
 
@@ -724,7 +723,7 @@ static int16_t sn_coap_parser_options_count_needed_memory_multiple_option(uint8_
 
         if (option_number_len == 13) {
 
-            if(i + 1 >= packet_left_len) {
+            if (i + 1 >= packet_left_len) {
                 return -1;
             }
 
@@ -732,7 +731,7 @@ static int16_t sn_coap_parser_options_count_needed_memory_multiple_option(uint8_
             option_number_len = *(packet_data_ptr + i) + 13;
         } else if (option_number_len == 14) {
 
-            if(i + 2 >= packet_left_len) {
+            if (i + 2 >= packet_left_len) {
                 return -1;
             }
 

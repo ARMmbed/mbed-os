@@ -49,7 +49,8 @@ static volatile uint64_t event_cnt;     // Holds the value of the next event
 #define MAX_TICK_VAL    ((uint64_t)0xFFFFFFFF * ticks_per_us)
 
 //******************************************************************************
-static inline void inc_current_cnt(uint32_t inc) {
+static inline void inc_current_cnt(uint32_t inc)
+{
 
     // Overflow the ticker when the us ticker overflows
     current_cnt += inc;
@@ -59,14 +60,15 @@ static inline void inc_current_cnt(uint32_t inc) {
 }
 
 //******************************************************************************
-static inline int event_passed(uint64_t current, uint64_t event) {
+static inline int event_passed(uint64_t current, uint64_t event)
+{
 
     // Determine if the event has already happened.
     // If the event is behind the current ticker, within a window,
     // then the event has already happened.
-    if (((current < tick_win) && ((event < current) || 
-        (event > (MAX_TICK_VAL - (tick_win - current))))) || 
-        ((event < current) && (event > (current - tick_win)))) {
+    if (((current < tick_win) && ((event < current) ||
+                                  (event > (MAX_TICK_VAL - (tick_win - current))))) ||
+            ((event < current) && (event > (current - tick_win)))) {
         return 1;
     }
 
@@ -74,10 +76,11 @@ static inline int event_passed(uint64_t current, uint64_t event) {
 }
 
 //******************************************************************************
-static inline uint64_t event_diff(uint64_t current, uint64_t event) {
+static inline uint64_t event_diff(uint64_t current, uint64_t event)
+{
 
     // Check to see if the ticker will overflow before the event
-    if(current <= event) {
+    if (current <= event) {
         return (event - current);
     }
 
@@ -94,7 +97,7 @@ static void tmr_handler(void)
 
     inc_current_cnt(term_cnt32);
 
-    if (event_passed(current_cnt + US_TIMER->count32, event_cnt )) {
+    if (event_passed(current_cnt + US_TIMER->count32, event_cnt)) {
         // the timestamp has expired
         event_cnt = 0xFFFFFFFFFFFFFFFFULL;  // reset to max value
         us_ticker_irq_handler();
@@ -106,7 +109,7 @@ static void tmr_handler(void)
             US_TIMER->term_cnt32 = diff;
 
             // Since the timer keeps counting after the terminal value is reached, it is possible that the new
-            // terminal value is in the past.    
+            // terminal value is in the past.
             if (US_TIMER->term_cnt32 < US_TIMER->count32) {
                 // the timestamp has expired
                 US_TIMER->term_cnt32 = 0xFFFFFFFF;  // reset to max value to prevent further interrupts
@@ -122,8 +125,9 @@ static void tmr_handler(void)
 //******************************************************************************
 void us_ticker_init(void)
 {
-    if (us_ticker_inited)
+    if (us_ticker_inited) {
         return;
+    }
     us_ticker_inited = 1;
 
     current_cnt = 0;
@@ -139,7 +143,7 @@ void us_ticker_init(void)
     ticks_per_us = SystemCoreClock / 1000000;
 
     // Set the tick window to 10ms
-    tick_win = SystemCoreClock/100;
+    tick_win = SystemCoreClock / 100;
 
     // Set timer overflow to the max
     US_TIMER->term_cnt32 = 0xFFFFFFFF;
@@ -171,8 +175,9 @@ uint32_t us_ticker_read(void)
     uint32_t term_cnt, tmr_cnt;
     uint32_t intfl1, intfl2;
 
-    if (!us_ticker_inited)
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     // Ensure coherency between current_cnt and US_TIMER->count32
     do {
@@ -211,7 +216,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     inc_current_cnt(US_TIMER->count32);
     US_TIMER->count32 = 0;
 
-    // add the number of cycles that the timer is disabled here for 
+    // add the number of cycles that the timer is disabled here for
     inc_current_cnt(200);
 
     event_cnt = (uint64_t)timestamp * ticks_per_us;
@@ -223,7 +228,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
             // the event occurs before the next overflow
             US_TIMER->term_cnt32 = diff;
         } else {
-            // the event occurs after the next overflow 
+            // the event occurs after the next overflow
             US_TIMER->term_cnt32 = 0xFFFFFFFF;  // set to max
         }
     } else {

@@ -34,7 +34,7 @@
 #define SPI_CLK_PHASE 0
 
 /* Last data */
-#define SPI_LAST	0
+#define SPI_LAST    0
 
 
 /* Delay before SPCK. */
@@ -43,10 +43,10 @@
 /* Delay between consecutive transfers. */
 #define SPI_DLYBCT 0x10
 
-#define MAX_SPI	8
+#define MAX_SPI 8
 
 /* SPI clock setting (Hz). */
-uint32_t gSPI_clock=500000;
+uint32_t gSPI_clock = 500000;
 
 extern uint8_t g_sys_init;
 
@@ -54,61 +54,62 @@ extern uint8_t g_sys_init;
 
 void pinmap_find_spi_info(Spi *sercombase, spi_t *obj)
 {
-    if(sercombase==SPI0) {
-        obj->spi.flexcom=FLEXCOM0;
-        obj->spi.module_number=0;
-        obj->spi.pdc =PDC_SPI0;
-        obj->spi.irq_type=FLEXCOM0_IRQn;
-    } else if(sercombase==SPI1) {
-        obj->spi.flexcom=FLEXCOM1;
-        obj->spi.module_number=1;
-        obj->spi.pdc =PDC_SPI1;
-        obj->spi.irq_type=FLEXCOM1_IRQn;
-    } else if(sercombase==SPI2) {
-        obj->spi.flexcom=FLEXCOM2;
-        obj->spi.module_number=2;
-        obj->spi.pdc =PDC_SPI2;
-        obj->spi.irq_type=FLEXCOM2_IRQn;
-    } else if(sercombase==SPI3) {
-        obj->spi.flexcom=FLEXCOM3;
-        obj->spi.module_number=3;
-        obj->spi.pdc =PDC_SPI3;
-        obj->spi.irq_type=FLEXCOM3_IRQn;
-    } else if(sercombase==SPI4) {
-        obj->spi.flexcom=FLEXCOM4;
-        obj->spi.module_number=4;
-        obj->spi.pdc =PDC_SPI4;
-        obj->spi.irq_type=FLEXCOM4_IRQn;
-    } else if(sercombase==SPI5) {
-        obj->spi.flexcom=FLEXCOM5;
-        obj->spi.module_number=5;
-        obj->spi.pdc =PDC_SPI5;
-        obj->spi.irq_type=FLEXCOM5_IRQn;
-    } else if(sercombase==SPI6) {
-        obj->spi.flexcom=FLEXCOM6;
-        obj->spi.module_number=6;
-        obj->spi.pdc =PDC_SPI6;
-        obj->spi.irq_type=FLEXCOM6_IRQn;
-    } else if(sercombase==SPI7) {
-        obj->spi.flexcom=FLEXCOM7;
-        obj->spi.module_number=7;
-        obj->spi.pdc =PDC_SPI7;
-        obj->spi.irq_type=FLEXCOM7_IRQn;
+    if (sercombase == SPI0) {
+        obj->spi.flexcom = FLEXCOM0;
+        obj->spi.module_number = 0;
+        obj->spi.pdc = PDC_SPI0;
+        obj->spi.irq_type = FLEXCOM0_IRQn;
+    } else if (sercombase == SPI1) {
+        obj->spi.flexcom = FLEXCOM1;
+        obj->spi.module_number = 1;
+        obj->spi.pdc = PDC_SPI1;
+        obj->spi.irq_type = FLEXCOM1_IRQn;
+    } else if (sercombase == SPI2) {
+        obj->spi.flexcom = FLEXCOM2;
+        obj->spi.module_number = 2;
+        obj->spi.pdc = PDC_SPI2;
+        obj->spi.irq_type = FLEXCOM2_IRQn;
+    } else if (sercombase == SPI3) {
+        obj->spi.flexcom = FLEXCOM3;
+        obj->spi.module_number = 3;
+        obj->spi.pdc = PDC_SPI3;
+        obj->spi.irq_type = FLEXCOM3_IRQn;
+    } else if (sercombase == SPI4) {
+        obj->spi.flexcom = FLEXCOM4;
+        obj->spi.module_number = 4;
+        obj->spi.pdc = PDC_SPI4;
+        obj->spi.irq_type = FLEXCOM4_IRQn;
+    } else if (sercombase == SPI5) {
+        obj->spi.flexcom = FLEXCOM5;
+        obj->spi.module_number = 5;
+        obj->spi.pdc = PDC_SPI5;
+        obj->spi.irq_type = FLEXCOM5_IRQn;
+    } else if (sercombase == SPI6) {
+        obj->spi.flexcom = FLEXCOM6;
+        obj->spi.module_number = 6;
+        obj->spi.pdc = PDC_SPI6;
+        obj->spi.irq_type = FLEXCOM6_IRQn;
+    } else if (sercombase == SPI7) {
+        obj->spi.flexcom = FLEXCOM7;
+        obj->spi.module_number = 7;
+        obj->spi.pdc = PDC_SPI7;
+        obj->spi.irq_type = FLEXCOM7_IRQn;
     } else {
-        obj->spi.flexcom=(Flexcom *)NC;
-        obj->spi.module_number=0;
-        obj->spi.pdc =(Pdc *) NC;
+        obj->spi.flexcom = (Flexcom *)NC;
+        obj->spi.module_number = 0;
+        obj->spi.pdc = (Pdc *) NC;
     }
 }
 
-Spi* pinmap_find_sercom(PinName mosi, PinName miso, PinName sclk)
+Spi *pinmap_find_sercom(PinName mosi, PinName miso, PinName sclk)
 {
-    Spi* sercomIndex=(Spi*)pinmap_peripheral (mosi,PinMap_SPI_MOSI);
-    if(sercomIndex== (Spi*)pinmap_peripheral (miso, PinMap_SPI_MISO) &&
-            sercomIndex == (Spi*)pinmap_peripheral (sclk, PinMap_SPI_SCLK))
+    Spi *sercomIndex = (Spi *)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    if (sercomIndex == (Spi *)pinmap_peripheral(miso, PinMap_SPI_MISO) &&
+            sercomIndex == (Spi *)pinmap_peripheral(sclk, PinMap_SPI_SCLK)) {
         return sercomIndex;
+    }
 
-    return (Spi*)NC;
+    return (Spi *)NC;
 }
 
 
@@ -124,7 +125,7 @@ Spi* pinmap_find_sercom(PinName mosi, PinName miso, PinName sclk)
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel /*Not Used*/)
 {
     MBED_ASSERT(obj);
-    MBED_ASSERT(mosi !=NC && miso!=NC && sclk !=NC );
+    MBED_ASSERT(mosi != NC && miso != NC && sclk != NC);
 
     if (g_sys_init == 0) {
         sysclk_init();
@@ -132,12 +133,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         g_sys_init = 1;
     }
 
-    Spi *sercombase = pinmap_find_sercom(mosi,miso,sclk);
-    MBED_ASSERT(sercombase!=NC);
+    Spi *sercombase = pinmap_find_sercom(mosi, miso, sclk);
+    MBED_ASSERT(sercombase != NC);
 
     pinmap_find_spi_info(sercombase, obj);
-    MBED_ASSERT(obj->spi.flexcom!=NC);
-    MBED_ASSERT(obj->spi.pdc!=NC);
+    MBED_ASSERT(obj->spi.flexcom != NC);
+    MBED_ASSERT(obj->spi.pdc != NC);
 
     /* Configure SPI pins */
     pin_function(mosi, pinmap_find_function(mosi, PinMap_SPI_MOSI));
@@ -166,19 +167,19 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     spi_set_clock_polarity(sercombase, SPI_CHIP_SEL, SPI_CLK_POLARITY);
     spi_set_clock_phase(sercombase, SPI_CHIP_SEL, SPI_CLK_PHASE);
     spi_set_bits_per_transfer(sercombase, SPI_CHIP_SEL, SPI_CSR_BITS_8_BIT);
-    spi_set_baudrate_div(sercombase, SPI_CHIP_SEL,(sysclk_get_cpu_hz() / gSPI_clock));
-    spi_set_transfer_delay(sercombase, SPI_CHIP_SEL, SPI_DLYBS,SPI_DLYBCT);
+    spi_set_baudrate_div(sercombase, SPI_CHIP_SEL, (sysclk_get_cpu_hz() / gSPI_clock));
+    spi_set_transfer_delay(sercombase, SPI_CHIP_SEL, SPI_DLYBS, SPI_DLYBCT);
 
     spi_enable(sercombase);
 
-    pdc_disable_transfer(obj->spi.pdc, PERIPH_PTCR_RXTDIS |	PERIPH_PTCR_TXTDIS);
+    pdc_disable_transfer(obj->spi.pdc, PERIPH_PTCR_RXTDIS | PERIPH_PTCR_TXTDIS);
 
-    obj->spi.spi_base=sercombase;
-    obj->spi.cs= SPI_CHIP_SEL;
-    obj->spi.polarity=SPI_CLK_POLARITY;
-    obj->spi.phase=SPI_CLK_PHASE;
-    obj->spi.transferrate=SPI_CSR_BITS_8_BIT;
-    obj->spi.is_slave=0;
+    obj->spi.spi_base = sercombase;
+    obj->spi.cs = SPI_CHIP_SEL;
+    obj->spi.polarity = SPI_CLK_POLARITY;
+    obj->spi.phase = SPI_CLK_PHASE;
+    obj->spi.transferrate = SPI_CSR_BITS_8_BIT;
+    obj->spi.is_slave = 0;
 }
 
 /** Release a SPI object
@@ -201,7 +202,7 @@ void spi_free(spi_t *obj)
 
 uint32_t get_transfer_rate(int bits)
 {
-    switch(bits) {
+    switch (bits) {
         case 8:
             return SPI_CSR_BITS_8_BIT;
         case 9:
@@ -235,24 +236,24 @@ uint32_t get_transfer_rate(int bits)
  */
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
-    uint32_t transferrate= get_transfer_rate(bits);
-    MBED_ASSERT(transferrate!=NC);
+    uint32_t transferrate = get_transfer_rate(bits);
+    MBED_ASSERT(transferrate != NC);
 
     spi_disable(obj->spi.spi_base);
-    obj->spi.transferrate=transferrate;
-    if(slave) {
+    obj->spi.transferrate = transferrate;
+    if (slave) {
         spi_set_slave_mode(obj->spi.spi_base);
-        obj->spi.is_slave=1;
+        obj->spi.is_slave = 1;
     } else {
         spi_set_master_mode(obj->spi.spi_base);
-        obj->spi.is_slave=0;
+        obj->spi.is_slave = 0;
     }
     spi_set_bits_per_transfer(obj->spi.spi_base, obj->spi.cs, obj->spi.transferrate);
     spi_set_clock_phase(obj->spi.spi_base, SPI_CHIP_SEL, (mode & 0x01));
     spi_set_clock_polarity(obj->spi.spi_base, SPI_CHIP_SEL, (mode & 0x02));
 
-    obj->spi.phase=(mode & 0x01);
-    obj->spi.polarity=(mode & 0x02);
+    obj->spi.phase = (mode & 0x01);
+    obj->spi.polarity = (mode & 0x02);
     spi_enable(obj->spi.spi_base);
 }
 
@@ -267,8 +268,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 void spi_frequency(spi_t *obj, int hz)
 {
     spi_disable(obj->spi.spi_base);
-    int16_t baudrate_div=spi_calc_baudrate_div(hz, sysclk_get_cpu_hz());
-    spi_set_baudrate_div(obj->spi.spi_base,obj->spi.cs,(uint8_t)baudrate_div);
+    int16_t baudrate_div = spi_calc_baudrate_div(hz, sysclk_get_cpu_hz());
+    spi_set_baudrate_div(obj->spi.spi_base, obj->spi.cs, (uint8_t)baudrate_div);
     spi_enable(obj->spi.spi_base);
 }
 
@@ -286,18 +287,20 @@ void spi_frequency(spi_t *obj, int hz)
  */
 int  spi_master_write(spi_t *obj, int value)
 {
-    spi_status_t status=spi_write(obj->spi.spi_base,(uint16_t)value,obj->spi.cs,SPI_LAST);
-    if(status ==SPI_OK) {
+    spi_status_t status = spi_write(obj->spi.spi_base, (uint16_t)value, obj->spi.cs, SPI_LAST);
+    if (status == SPI_OK) {
         uint16_t data;
-        status =spi_read(obj->spi.spi_base,&data,&obj->spi.cs);
-        if(status == SPI_OK)
+        status = spi_read(obj->spi.spi_base, &data, &obj->spi.cs);
+        if (status == SPI_OK) {
             return data;
+        }
     }
     return 0;
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char _write_fill) {
+                           char *rx_buffer, int rx_length, char _write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -318,8 +321,9 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
  */
 int  spi_slave_receive(spi_t *obj)
 {
-    if(obj->spi.spi_base->SPI_SR & SPI_SR_RDRF)
+    if (obj->spi.spi_base->SPI_SR & SPI_SR_RDRF) {
         return 1;
+    }
     return 0;
 }
 
@@ -332,9 +336,10 @@ int  spi_slave_receive(spi_t *obj)
 int  spi_slave_read(spi_t *obj)
 {
     uint16_t data;
-    spi_status_t status =spi_read(obj->spi.spi_base, &data, &obj->spi.cs);
-    if(status == SPI_OK)
+    spi_status_t status = spi_read(obj->spi.spi_base, &data, &obj->spi.cs);
+    if (status == SPI_OK) {
         return data;
+    }
     return 0;
 }
 
@@ -346,7 +351,7 @@ int  spi_slave_read(spi_t *obj)
  */
 void spi_slave_write(spi_t *obj, int value)
 {
-    spi_write(obj->spi.spi_base,(uint16_t)value,obj->spi.cs,SPI_LAST);
+    spi_write(obj->spi.spi_base, (uint16_t)value, obj->spi.cs, SPI_LAST);
 }
 
 /** Checks if the specified SPI peripheral is in use
@@ -356,8 +361,9 @@ void spi_slave_write(spi_t *obj, int value)
  */
 int  spi_busy(spi_t *obj)
 {
-    if(obj->spi.spi_base->SPI_SR & SPI_SR_TDRE) //Transmit Data Register Empty
+    if (obj->spi.spi_base->SPI_SR & SPI_SR_TDRE) { //Transmit Data Register Empty
         return 0;
+    }
     return 1;
 }
 
@@ -395,50 +401,51 @@ uint8_t spi_get_module(spi_t *obj)
 
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-    uint32_t pdcenable=0;
+    uint32_t pdcenable = 0;
 
-    if(bit_width) {
-        uint32_t transferrate= get_transfer_rate(bit_width);
+    if (bit_width) {
+        uint32_t transferrate = get_transfer_rate(bit_width);
         spi_set_bits_per_transfer(obj->spi.spi_base, obj->spi.cs, transferrate);
     }
 
-    if(tx) {
+    if (tx) {
         pdc_packet_t pdc_packet_tx;
-        pdc_packet_tx.ul_addr=(uint32_t)tx;
-        pdc_packet_tx.ul_size=tx_length;
+        pdc_packet_tx.ul_addr = (uint32_t)tx;
+        pdc_packet_tx.ul_size = tx_length;
 
-        pdcenable|=PERIPH_PTCR_TXTEN;
+        pdcenable |= PERIPH_PTCR_TXTEN;
         /* Configure PDC for data send */
         pdc_tx_init(obj->spi.pdc, &pdc_packet_tx, NULL);
     }
 
-    if(rx) {
+    if (rx) {
         pdc_rx_clear_cnt(obj->spi.pdc);
         pdc_packet_t pdc_packet_rx;
-        pdc_packet_rx.ul_addr=(uint32_t)rx;
-        pdc_packet_rx.ul_size=rx_length;
-        pdcenable|=PERIPH_PTCR_RXTEN;
-        char *rxbuffer=(char *)rx;
-        for(uint8_t index=0; index<rx_length; index++, rxbuffer++)
-            *rxbuffer=SPI_FILL_WORD;
+        pdc_packet_rx.ul_addr = (uint32_t)rx;
+        pdc_packet_rx.ul_size = rx_length;
+        pdcenable |= PERIPH_PTCR_RXTEN;
+        char *rxbuffer = (char *)rx;
+        for (uint8_t index = 0; index < rx_length; index++, rxbuffer++) {
+            *rxbuffer = SPI_FILL_WORD;
+        }
 
         /* Configure PDC for data receive */
         pdc_rx_init(obj->spi.pdc, &pdc_packet_rx, NULL);
     }
 
-    obj->spi.dma_usage=hint;
-    obj->spi.event=event;
+    obj->spi.dma_usage = hint;
+    obj->spi.event = event;
 
     NVIC_ClearPendingIRQ(obj->spi.irq_type);
     NVIC_DisableIRQ(obj->spi.irq_type);
-	NVIC_SetVector(obj->spi.irq_type,handler);
+    NVIC_SetVector(obj->spi.irq_type, handler);
     NVIC_EnableIRQ(obj->spi.irq_type);
 
     /* Enable SPI IRQ */
-    spi_enable_interrupt(obj->spi.spi_base, SPI_IER_RXBUFF| SPI_IER_TXBUFE | SPI_IER_MODF | SPI_IER_OVRES);
+    spi_enable_interrupt(obj->spi.spi_base, SPI_IER_RXBUFF | SPI_IER_TXBUFE | SPI_IER_MODF | SPI_IER_OVRES);
 
     /* Enable PDC transfers */
-    pdc_enable_transfer(obj->spi.pdc, pdcenable );
+    pdc_enable_transfer(obj->spi.pdc, pdcenable);
 
 }
 
@@ -451,29 +458,33 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
  */
 uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
-    uint32_t event=0;
+    uint32_t event = 0;
 
     // Data transferred via DMA
-    if((obj->spi.spi_base->SPI_SR & SPI_IER_TXBUFE)) {
-	    spi_disable_interrupt(obj->spi.spi_base, SPI_IDR_TXBUFE | SPI_IDR_MODF | SPI_IDR_OVRES);
-        if(obj->spi.event | SPI_EVENT_COMPLETE)
-            event |=SPI_EVENT_COMPLETE;
-    }
-	
-    if((obj->spi.spi_base->SPI_SR & SPI_IER_RXBUFF)) {
-	    spi_disable_interrupt(obj->spi.spi_base, SPI_IDR_RXBUFF | SPI_IDR_MODF | SPI_IDR_OVRES);
-	    if(obj->spi.event | SPI_EVENT_COMPLETE)
-	    event |=SPI_EVENT_COMPLETE;
-    }	
-
-    if(obj->spi.spi_base->SPI_SR & SPI_SR_MODF) {
-        if(obj->spi.event | SPI_EVENT_ERROR)
-            event |=SPI_EVENT_ERROR;
+    if ((obj->spi.spi_base->SPI_SR & SPI_IER_TXBUFE)) {
+        spi_disable_interrupt(obj->spi.spi_base, SPI_IDR_TXBUFE | SPI_IDR_MODF | SPI_IDR_OVRES);
+        if (obj->spi.event | SPI_EVENT_COMPLETE) {
+            event |= SPI_EVENT_COMPLETE;
+        }
     }
 
-    if(obj->spi.spi_base->SPI_SR & SPI_SR_OVRES) {
-        if(obj->spi.event | SPI_EVENT_RX_OVERFLOW)
-            event |=SPI_EVENT_RX_OVERFLOW;
+    if ((obj->spi.spi_base->SPI_SR & SPI_IER_RXBUFF)) {
+        spi_disable_interrupt(obj->spi.spi_base, SPI_IDR_RXBUFF | SPI_IDR_MODF | SPI_IDR_OVRES);
+        if (obj->spi.event | SPI_EVENT_COMPLETE) {
+            event |= SPI_EVENT_COMPLETE;
+        }
+    }
+
+    if (obj->spi.spi_base->SPI_SR & SPI_SR_MODF) {
+        if (obj->spi.event | SPI_EVENT_ERROR) {
+            event |= SPI_EVENT_ERROR;
+        }
+    }
+
+    if (obj->spi.spi_base->SPI_SR & SPI_SR_OVRES) {
+        if (obj->spi.event | SPI_EVENT_RX_OVERFLOW) {
+            event |= SPI_EVENT_RX_OVERFLOW;
+        }
     }
 
     return event;
@@ -493,8 +504,9 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 
 uint8_t spi_active(spi_t *obj)
 {
-    if(obj->spi.spi_base->SPI_SR & SPI_SR_ENDTX && obj->spi.spi_base->SPI_SR & SPI_SR_ENDRX)
+    if (obj->spi.spi_base->SPI_SR & SPI_SR_ENDTX && obj->spi.spi_base->SPI_SR & SPI_SR_ENDRX) {
         return 0;
+    }
     return 1;
 }
 

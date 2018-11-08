@@ -27,7 +27,8 @@ static uint32_t us_ticker_overflow_delta = 0;
 /* us ticker overflow limit */
 static uint32_t us_ticker_overflow_limit = 0;
 
-void __us_ticker_irq_handler(void) {
+void __us_ticker_irq_handler(void)
+{
     Timer_ClearInterrupt(TIMER1);
     /*
      * For each overflow event adds the timer max represented value to
@@ -38,12 +39,14 @@ void __us_ticker_irq_handler(void) {
     us_ticker_overflow_delta += us_ticker_overflow_limit;
 }
 
-void us_ticker_init(void) {
+void us_ticker_init(void)
+{
     uint32_t us_ticker_irqn0 = 0;
     uint32_t us_ticker_irqn1 = 0;
 
-    if (us_ticker_inited)
+    if (us_ticker_inited) {
         return;
+    }
     us_ticker_inited = 1;
 
     /* Initialize Timer 0 */
@@ -79,20 +82,24 @@ void us_ticker_init(void) {
     us_ticker_overflow_limit = Timer_GetReloadValue(TIMER1);
 }
 
-uint32_t us_ticker_read() {
+uint32_t us_ticker_read()
+{
     uint32_t return_value = 0;
 
-    if (!us_ticker_inited)
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     return_value = us_ticker_overflow_delta + Timer_Read(TIMER1);
 
     return return_value;
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
-    if (!us_ticker_inited)
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     uint32_t delta = timestamp - us_ticker_read();
     Timer_SetInterrupt(TIMER0, delta);
@@ -104,10 +111,12 @@ void us_ticker_fire_interrupt(void)
     NVIC_SetPendingIRQ((IRQn_Type)us_ticker_irqn1);
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
     Timer_DisableInterrupt(TIMER0);
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
     Timer_ClearInterrupt(TIMER0);
 }

@@ -46,12 +46,12 @@ typedef uintptr_t connection_handle_t;
 typedef uint16_t attribute_handle_t;
 
 
- /**
-  * Inclusive range of GATT attributes handles.
-  *
-  * @note Instances can be constructed with the help of the factory function
-  * attribute_handle_range().
-  */
+/**
+ * Inclusive range of GATT attributes handles.
+ *
+ * @note Instances can be constructed with the help of the factory function
+ * attribute_handle_range().
+ */
 struct attribute_handle_range_t {
     /**
      * Begining of the range.
@@ -73,7 +73,8 @@ struct attribute_handle_range_t {
      */
     friend bool operator==(
         const attribute_handle_range_t &lhs, const attribute_handle_range_t &rhs
-    ) {
+    )
+    {
         return (lhs.begin == rhs.begin) && (lhs.end == rhs.end);
     }
 
@@ -87,7 +88,8 @@ struct attribute_handle_range_t {
      */
     friend bool operator!=(
         const attribute_handle_range_t &lhs, const attribute_handle_range_t &rhs
-    ) {
+    )
+    {
         return !(lhs == rhs);
     }
 };
@@ -109,7 +111,8 @@ struct attribute_handle_range_t {
 static inline attribute_handle_range_t attribute_handle_range(
     attribute_handle_t begin,
     attribute_handle_t end
-) {
+)
+{
     attribute_handle_range_t result = {
         begin,
         end

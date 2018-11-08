@@ -24,8 +24,9 @@
 
 #define ANALOGIN_MEDIAN_FILTER      1
 
-static inline int div_round_up(int x, int y) {
-  return (x + (y - 1)) / y;
+static inline int div_round_up(int x, int y)
+{
+    return (x + (y - 1)) / y;
 }
 
 static const PinMap PinMap_ADC[] = {
@@ -63,52 +64,54 @@ static const PinMap PinMap_ADC[] = {
     {NC,    NC,     0   }
 };
 
-void analogin_init(analogin_t *obj, PinName pin) {
+void analogin_init(analogin_t *obj, PinName pin)
+{
     ADCName name;
 
     name = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (LPC_ADC_T *)NC);
-    
+
     // Set ADC number
-    if(name < ADC1_0) {
+    if (name < ADC1_0) {
         obj->num = 0;
-    } else if(name < ADC_pin0_0 && name > ADC0_6) {
+    } else if (name < ADC_pin0_0 && name > ADC0_6) {
         obj->num = 1;
-    } else if(name < ADC_pin1_1 && name > ADC1_7) {
+    } else if (name < ADC_pin1_1 && name > ADC1_7) {
         obj->num = 0;
-    } else if(name > ADC_pin0_7) {
+    } else if (name > ADC_pin0_7) {
         obj->num = 1;
     }
 
     //ADC register and channel
     obj->ch = name % (ADC0_7 + 1);
-    obj->adc = (LPC_ADC_T *) (obj->num > 0) ? LPC_ADC1 : LPC_ADC0;
+    obj->adc = (LPC_ADC_T *)(obj->num > 0) ? LPC_ADC1 : LPC_ADC0;
 
     // Reset pin function to GPIO if it is a GPIO pin. for adc only pins it is not necessary
-    if(name < ADC_pin0_0) {
-    	gpio_set(pin);
-    	// Select ADC on analog function select register in SCU
-    	LPC_SCU->ENAIO[obj->num] |= (1 << obj->ch);
+    if (name < ADC_pin0_0) {
+        gpio_set(pin);
+        // Select ADC on analog function select register in SCU
+        LPC_SCU->ENAIO[obj->num] |= (1 << obj->ch);
     } else {
-    	LPC_SCU->ENAIO[obj->num] &= ~(1 << obj->ch);
+        LPC_SCU->ENAIO[obj->num] &= ~(1 << obj->ch);
     }
-    
+
     // Calculate minimum clock divider
     //  clkdiv = divider - 1
     uint32_t PCLK = SystemCoreClock;
     uint32_t adcRate = 400000;
     uint32_t clkdiv = div_round_up(PCLK, adcRate) - 1;
-    
+
     // Set the generic software-controlled ADC settings
     obj->adc->CR = (0 << 0)      // SEL: 0 = no channels selected
-                  | (clkdiv << 8) // CLKDIV:
-                  | (0 << 16)     // BURST: 0 = software control
-                  | (1 << 21)     // PDN: 1 = operational
-                  | (0 << 24)     // START: 0 = no start
-                  | (0 << 27);    // EDGE: not applicable
+                   | (clkdiv << 8) // CLKDIV:
+                   | (0 << 16)     // BURST: 0 = software control
+                   | (1 << 21)     // PDN: 1 = operational
+                   | (0 << 24)     // START: 0 = no start
+                   | (0 << 27);    // EDGE: not applicable
 }
 
-static inline uint32_t adc_read(analogin_t *obj) {
+static inline uint32_t adc_read(analogin_t *obj)
+{
     uint32_t temp;
     uint8_t channel = obj->ch;
     LPC_ADC_T *pADC = obj->adc;
@@ -128,7 +131,8 @@ static inline uint32_t adc_read(analogin_t *obj) {
     return ADC_DR_RESULT(temp);
 }
 
-static inline void order(uint32_t *a, uint32_t *b) {
+static inline void order(uint32_t *a, uint32_t *b)
+{
     if (*a > *b) {
         uint32_t t = *a;
         *a = *b;
@@ -136,7 +140,8 @@ static inline void order(uint32_t *a, uint32_t *b) {
     }
 }
 
-static inline uint32_t adc_read_u32(analogin_t *obj) {
+static inline uint32_t adc_read_u32(analogin_t *obj)
+{
     uint32_t value;
 #if ANALOGIN_MEDIAN_FILTER
     uint32_t v1 = adc_read(obj);
@@ -152,13 +157,15 @@ static inline uint32_t adc_read_u32(analogin_t *obj) {
     return value;
 }
 
-uint16_t analogin_read_u16(analogin_t *obj) {
+uint16_t analogin_read_u16(analogin_t *obj)
+{
     uint32_t value = adc_read_u32(obj);
 
     return (value << 6) | ((value >> 4) & 0x003F); // 10 bit
 }
 
-float analogin_read(analogin_t *obj) {
+float analogin_read(analogin_t *obj)
+{
     uint32_t value = adc_read_u32(obj);
     return (float)value * (1.0f / (float)ADC_RANGE);
 }

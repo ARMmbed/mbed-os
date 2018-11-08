@@ -40,11 +40,11 @@
 #define __STM32F1xx_HAL_DAC_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined (STM32F100xB) || defined (STM32F100xE) || defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || defined (STM32F103xG) || defined (STM32F105xC) || defined (STM32F107xC)
-   
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal_def.h"
 
@@ -59,10 +59,10 @@
 /* Exported types ------------------------------------------------------------*/
 
 /* Exported constants --------------------------------------------------------*/
-  
+
 /** @defgroup DACEx_Exported_Constants DACEx Exported Constants
   * @{
-  */ 
+  */
 
 /** @defgroup DACEx_lfsrunmask_triangleamplitude DACEx lfsrunmask triangleamplitude
   * @{
@@ -112,7 +112,7 @@
 /* For STM32F10x high-density and XL-density devices: TIM8 */
 #define DAC_TRIGGER_T8_TRGO                ((uint32_t)                                   DAC_CR_TSEL1_0 | DAC_CR_TEN1)  /*!< TIM8 TRGO selected as external conversion trigger for DAC channel */
 #endif /* STM32F101xE || STM32F101xG || STM32F103xE || STM32F103xG */
-   
+
 #if defined (STM32F100xB) || defined (STM32F100xE) || defined (STM32F105xC) || defined (STM32F107xC)
 /* For STM32F10x connectivity line devices and STM32F100x devices: TIM3 */
 #define DAC_TRIGGER_T3_TRGO                ((uint32_t)                                   DAC_CR_TSEL1_0 | DAC_CR_TEN1)  /*!< TIM3 TRGO selected as external conversion trigger for DAC channel */
@@ -134,14 +134,14 @@
 
 #if defined (STM32F100xE)
 /*!< DAC trigger availability depending on STM32F1 devices:
-     For STM32F100x high-density value line devices, the TIM15 TRGO event can be selected 
+     For STM32F100x high-density value line devices, the TIM15 TRGO event can be selected
      as replacement of TIM5 TRGO if the MISC_REMAP bit in the AFIO_MAPR2 register is set.
      Refer to macro "__HAL_AFIO_REMAP_MISC_ENABLE()/__HAL_AFIO_REMAP_MISC_DISABLE()".
      Otherwise, TIM5 TRGO is used and TIM15 TRGO is not used (default case).
      For more details please refer to the AFIO section. */
 #define DAC_TRIGGER_T15_TRGO    DAC_TRIGGER_T5_TRGO
 #endif /* STM32F100xE */
-   
+
 #endif /* STM32F100xB */
 /**
   * @}
@@ -150,9 +150,9 @@
 #if defined (STM32F100xB) || defined (STM32F100xE)
 /** @defgroup DAC_flags_definition DAC flags definition
   * @{
-  */ 
+  */
 #define DAC_FLAG_DMAUDR1                   ((uint32_t)DAC_SR_DMAUDR1)
-#define DAC_FLAG_DMAUDR2                   ((uint32_t)DAC_SR_DMAUDR2)   
+#define DAC_FLAG_DMAUDR2                   ((uint32_t)DAC_SR_DMAUDR2)
 
 /**
   * @}
@@ -160,9 +160,9 @@
 
 /** @defgroup DAC_IT_definition DAC IT definition
   * @{
-  */ 
+  */
 #define DAC_IT_DMAUDR1                   ((uint32_t)DAC_SR_DMAUDR1)
-#define DAC_IT_DMAUDR2                   ((uint32_t)DAC_SR_DMAUDR2)   
+#define DAC_IT_DMAUDR2                   ((uint32_t)DAC_SR_DMAUDR2)
 
 /**
   * @}
@@ -209,7 +209,7 @@
   * @retval State of interruption (SET or RESET)
   */
 #define __HAL_DAC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->CR & (__INTERRUPT__)) == (__INTERRUPT__))
-    
+
 /** @brief  Get the selected DAC's flag status.
   * @param  __HANDLE__: specifies the DAC handle.
   * @param  __FLAG__: specifies the DAC flag to get.
@@ -305,7 +305,7 @@
   */
 
 
-/* Exported functions --------------------------------------------------------*/  
+/* Exported functions --------------------------------------------------------*/
 
 /** @addtogroup DACEx_Exported_Functions
   * @{
@@ -316,19 +316,19 @@
   */
 /* Extension features functions ***********************************************/
 
-uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef* hdac);
-HAL_StatusTypeDef HAL_DACEx_TriangleWaveGenerate(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Amplitude);
-HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Amplitude);
-HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Alignment, uint32_t Data1, uint32_t Data2);
+uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef *hdac);
+HAL_StatusTypeDef HAL_DACEx_TriangleWaveGenerate(DAC_HandleTypeDef *hdac, uint32_t Channel, uint32_t Amplitude);
+HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef *hdac, uint32_t Channel, uint32_t Amplitude);
+HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef *hdac, uint32_t Alignment, uint32_t Data1, uint32_t Data2);
 
-void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef* hdac);
-void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef* hdac);
-void HAL_DACEx_ErrorCallbackCh2(DAC_HandleTypeDef* hdac);
+void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef *hdac);
+void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef *hdac);
+void HAL_DACEx_ErrorCallbackCh2(DAC_HandleTypeDef *hdac);
 
 #if defined (STM32F100xB) || defined (STM32F100xE)
-void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac);
+void HAL_DAC_IRQHandler(DAC_HandleTypeDef *hdac);
 void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac);
-void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef* hdac);
+void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef *hdac);
 #endif /* STM32F100xB) || defined (STM32F100xE) */
 
 /**
@@ -337,7 +337,7 @@ void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef* hdac);
 
 
 
-    
+
 /**
   * @}
   */
@@ -346,7 +346,7 @@ void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef* hdac);
   * @{
   */
 void DAC_DMAConvCpltCh2(DMA_HandleTypeDef *hdma);
-void DAC_DMAHalfConvCpltCh2(DMA_HandleTypeDef *hdma); 
+void DAC_DMAHalfConvCpltCh2(DMA_HandleTypeDef *hdma);
 void DAC_DMAErrorCh2(DMA_HandleTypeDef *hdma);
 
 /**

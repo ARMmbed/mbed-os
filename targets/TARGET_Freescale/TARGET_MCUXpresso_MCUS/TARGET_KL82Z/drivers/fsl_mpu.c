@@ -49,8 +49,7 @@ void MPU_Init(MPU_Type *base, const mpu_config_t *config)
     CLOCK_EnableClock(g_mpuClock[0]);
 
     /* Initializes the regions. */
-    for (count = 1; count < FSL_FEATURE_MPU_DESCRIPTOR_COUNT; count++)
-    {
+    for (count = 1; count < FSL_FEATURE_MPU_DESCRIPTOR_COUNT; count++) {
         base->WORD[count][3] = 0; /* VLD/VID+PID. */
         base->WORD[count][0] = 0; /* Start address. */
         base->WORD[count][1] = 0; /* End address. */
@@ -59,8 +58,7 @@ void MPU_Init(MPU_Type *base, const mpu_config_t *config)
     }
 
     /* MPU configure. */
-    while (config)
-    {
+    while (config) {
         MPU_SetRegionConfig(base, &(config->regionConfig));
         config = config->next;
     }
@@ -102,11 +100,10 @@ void MPU_SetRegionConfig(MPU_Type *base, const mpu_region_config_t *regionConfig
     base->WORD[regNumber][1] = regionConfig->endAddress;
 
     /* Set the privilege rights for master 0 ~ master 3. */
-    for (msPortNum = 0; msPortNum <= FSL_FEATURE_MPU_PRIVILEGED_RIGHTS_MASTER_MAX_INDEX; msPortNum++)
-    {
+    for (msPortNum = 0; msPortNum <= FSL_FEATURE_MPU_PRIVILEGED_RIGHTS_MASTER_MAX_INDEX; msPortNum++) {
         wordReg |= MPU_REGION_RWXRIGHTS_MASTER(
-            msPortNum, (((uint32_t)regionConfig->accessRights1[msPortNum].superAccessRights << 3U) |
-                        (uint32_t)regionConfig->accessRights1[msPortNum].userAccessRights));
+                       msPortNum, (((uint32_t)regionConfig->accessRights1[msPortNum].superAccessRights << 3U) |
+                                   (uint32_t)regionConfig->accessRights1[msPortNum].userAccessRights));
 
 #if FSL_FEATURE_MPU_HAS_PROCESS_IDENTIFIER
         wordReg |=
@@ -116,11 +113,10 @@ void MPU_SetRegionConfig(MPU_Type *base, const mpu_region_config_t *regionConfig
 
     /* Set the normal read write rights for master 4 ~ master 7. */
     for (msPortNum = FSL_FEATURE_MPU_PRIVILEGED_RIGHTS_MASTER_COUNT; msPortNum < FSL_FEATURE_MPU_MASTER_COUNT;
-         msPortNum++)
-    {
+            msPortNum++) {
         wordReg |= MPU_REGION_RWRIGHTS_MASTER(msPortNum,
-            ((uint32_t)regionConfig->accessRights2[msPortNum - FSL_FEATURE_MPU_PRIVILEGED_RIGHTS_MASTER_COUNT].readEnable << 1U |
-            (uint32_t)regionConfig->accessRights2[msPortNum - FSL_FEATURE_MPU_PRIVILEGED_RIGHTS_MASTER_COUNT].writeEnable));
+                                              ((uint32_t)regionConfig->accessRights2[msPortNum - FSL_FEATURE_MPU_PRIVILEGED_RIGHTS_MASTER_COUNT].readEnable << 1U |
+                                               (uint32_t)regionConfig->accessRights2[msPortNum - FSL_FEATURE_MPU_PRIVILEGED_RIGHTS_MASTER_COUNT].writeEnable));
     }
 
     /* Set region descriptor access rights. */
@@ -161,7 +157,7 @@ void MPU_SetRegionRwxMasterAccessRights(MPU_Type *base,
     /* Build rights control value. */
     right &= ~mask;
     right |= MPU_REGION_RWXRIGHTS_MASTER(
-        masterNum, ((uint32_t)(accessRights->superAccessRights << 3U) | accessRights->userAccessRights));
+                 masterNum, ((uint32_t)(accessRights->superAccessRights << 3U) | accessRights->userAccessRights));
 #if FSL_FEATURE_MPU_HAS_PROCESS_IDENTIFIER
     right |= MPU_REGION_RWXRIGHTS_MASTER_PE(masterNum, accessRights->processIdentifierEnable);
 #endif /* FSL_FEATURE_MPU_HAS_PROCESS_IDENTIFIER */
@@ -212,16 +208,11 @@ void MPU_GetDetailErrorAccessInfo(MPU_Type *base, mpu_slave_t slaveNum, mpu_acce
 
     /* Error detail information. */
     value = (base->SP[slaveNum].EDR & MPU_EDR_EACD_MASK) >> MPU_EDR_EACD_SHIFT;
-    if (!value)
-    {
+    if (!value) {
         errInform->accessControl = kMPU_NoRegionHit;
-    }
-    else if (!(value & (uint16_t)(value - 1)))
-    {
+    } else if (!(value & (uint16_t)(value - 1))) {
         errInform->accessControl = kMPU_NoneOverlappRegion;
-    }
-    else
-    {
+    } else {
         errInform->accessControl = kMPU_OverlappRegion;
     }
 

@@ -98,13 +98,13 @@
   */
 ErrorStatus LL_SWPMI_DeInit(SWPMI_TypeDef *SWPMIx)
 {
-  /* Check the parameter */
-  assert_param(IS_SWPMI_INSTANCE(SWPMIx));
+    /* Check the parameter */
+    assert_param(IS_SWPMI_INSTANCE(SWPMIx));
 
-  LL_APB1_GRP2_ForceReset(LL_APB1_GRP2_PERIPH_SWPMI1);
-  LL_APB1_GRP2_ReleaseReset(LL_APB1_GRP2_PERIPH_SWPMI1);
+    LL_APB1_GRP2_ForceReset(LL_APB1_GRP2_PERIPH_SWPMI1);
+    LL_APB1_GRP2_ReleaseReset(LL_APB1_GRP2_PERIPH_SWPMI1);
 
-  return SUCCESS;
+    return SUCCESS;
 }
 
 /**
@@ -120,36 +120,34 @@ ErrorStatus LL_SWPMI_DeInit(SWPMI_TypeDef *SWPMIx)
   */
 ErrorStatus LL_SWPMI_Init(SWPMI_TypeDef *SWPMIx, LL_SWPMI_InitTypeDef *SWPMI_InitStruct)
 {
-  ErrorStatus status = SUCCESS;
-  
-  /* Check the parameters */
-  assert_param(IS_SWPMI_INSTANCE(SWPMIx));
-  assert_param(IS_LL_SWPMI_BITRATE_VALUE(SWPMI_InitStruct->BitRatePrescaler));
-  assert_param(IS_LL_SWPMI_SW_BUFFER_TX(SWPMI_InitStruct->TxBufferingMode));
-  assert_param(IS_LL_SWPMI_SW_BUFFER_RX(SWPMI_InitStruct->RxBufferingMode));
-  assert_param(IS_LL_SWPMI_VOLTAGE_CLASS(SWPMI_InitStruct->VoltageClass));
+    ErrorStatus status = SUCCESS;
 
-  /* SWPMI needs to be in deactivated state, in order to be able to configure some bits */
-  if (LL_SWPMI_IsActivated(SWPMIx) == 0)
-  {
-    /* Configure the BRR register (Bitrate) */
-    LL_SWPMI_SetBitRatePrescaler(SWPMIx, SWPMI_InitStruct->BitRatePrescaler);
+    /* Check the parameters */
+    assert_param(IS_SWPMI_INSTANCE(SWPMIx));
+    assert_param(IS_LL_SWPMI_BITRATE_VALUE(SWPMI_InitStruct->BitRatePrescaler));
+    assert_param(IS_LL_SWPMI_SW_BUFFER_TX(SWPMI_InitStruct->TxBufferingMode));
+    assert_param(IS_LL_SWPMI_SW_BUFFER_RX(SWPMI_InitStruct->RxBufferingMode));
+    assert_param(IS_LL_SWPMI_VOLTAGE_CLASS(SWPMI_InitStruct->VoltageClass));
 
-    /* Configure the voltage class */
-    LL_SWPMI_SetVoltageClass(SWPMIx, SWPMI_InitStruct->VoltageClass);
+    /* SWPMI needs to be in deactivated state, in order to be able to configure some bits */
+    if (LL_SWPMI_IsActivated(SWPMIx) == 0) {
+        /* Configure the BRR register (Bitrate) */
+        LL_SWPMI_SetBitRatePrescaler(SWPMIx, SWPMI_InitStruct->BitRatePrescaler);
 
-    /* Set the new configuration of the SWPMI peripheral */
-    MODIFY_REG(SWPMIx->CR,
-              (SWPMI_CR_RXMODE | SWPMI_CR_TXMODE),
-              (SWPMI_InitStruct->TxBufferingMode | SWPMI_InitStruct->RxBufferingMode));
-  }
-  /* Else (SWPMI not in deactivated state => return ERROR) */
-  else
-  {
-    status = ERROR;
-  }
+        /* Configure the voltage class */
+        LL_SWPMI_SetVoltageClass(SWPMIx, SWPMI_InitStruct->VoltageClass);
 
-  return status;
+        /* Set the new configuration of the SWPMI peripheral */
+        MODIFY_REG(SWPMIx->CR,
+                   (SWPMI_CR_RXMODE | SWPMI_CR_TXMODE),
+                   (SWPMI_InitStruct->TxBufferingMode | SWPMI_InitStruct->RxBufferingMode));
+    }
+    /* Else (SWPMI not in deactivated state => return ERROR) */
+    else {
+        status = ERROR;
+    }
+
+    return status;
 }
 
 /**
@@ -160,11 +158,11 @@ ErrorStatus LL_SWPMI_Init(SWPMI_TypeDef *SWPMIx, LL_SWPMI_InitTypeDef *SWPMI_Ini
   */
 void LL_SWPMI_StructInit(LL_SWPMI_InitTypeDef *SWPMI_InitStruct)
 {
-  /* Set SWPMI_InitStruct fields to default values */
-  SWPMI_InitStruct->VoltageClass     = LL_SWPMI_VOLTAGE_CLASS_C;
-  SWPMI_InitStruct->BitRatePrescaler = (uint32_t)0x00000001;
-  SWPMI_InitStruct->TxBufferingMode  = LL_SWPMI_SW_BUFFER_TX_SINGLE;
-  SWPMI_InitStruct->RxBufferingMode  = LL_SWPMI_SW_BUFFER_RX_SINGLE;
+    /* Set SWPMI_InitStruct fields to default values */
+    SWPMI_InitStruct->VoltageClass     = LL_SWPMI_VOLTAGE_CLASS_C;
+    SWPMI_InitStruct->BitRatePrescaler = (uint32_t)0x00000001;
+    SWPMI_InitStruct->TxBufferingMode  = LL_SWPMI_SW_BUFFER_TX_SINGLE;
+    SWPMI_InitStruct->RxBufferingMode  = LL_SWPMI_SW_BUFFER_RX_SINGLE;
 }
 
 /**

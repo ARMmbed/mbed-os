@@ -70,18 +70,17 @@ void trng_free(trng_t *obj)
 
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
-    uint32_t MSLRandom = 0, Index, TempLen, *TempPtr = (uint32_t*)output;
-        
+    uint32_t MSLRandom = 0, Index, TempLen, *TempPtr = (uint32_t *)output;
+
     RANDREG->CONTROL.BITS.METASTABLE_LATCH_EN = TRNG_ENABLE;        /* ENable MSL TRNG */
     RANDREG->CONTROL.BITS.MEATSTABLE_SPEED    = TRNG_FAST_MODE;     /* Meta-stable Latch TRNG Speed Control */
     RANDREG->CONTROL.BITS.MODE                = TRNG_ON_READ_EVENT; /* TRNG is only updated on a read event of the TRNG register */
 
     wait_us(1); /* Wait till MSL generates random number after enable for the first time */
-    
+
     TempLen = length / 4;
 
-    for(Index = 0; Index < TempLen; Index++)
-    {
+    for (Index = 0; Index < TempLen; Index++) {
         MSLRandom = RANDREG->METASTABLE_LATCH_VAL;
         *TempPtr++ = MSLRandom ;
     }
@@ -89,15 +88,12 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     TempLen = length % 4;
     Index *= 4;
 
-    if(TempLen-- > 0)
-    {
+    if (TempLen-- > 0) {
         MSLRandom = RANDREG->METASTABLE_LATCH_VAL;
         *(output + Index++) = (MSLRandom >> 0) & 0xFF;
-        if(TempLen-- > 0)
-        {
+        if (TempLen-- > 0) {
             *(output + Index++) = (MSLRandom >> 8) & 0xFF;
-            if(TempLen-- > 0)
-            {
+            if (TempLen-- > 0) {
                 *(output + Index++) = (MSLRandom >> 16) & 0xFF;
             }
         }

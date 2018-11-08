@@ -20,7 +20,8 @@
 
 static const PinName reserved_pins[] = TARGET_RESERVED_PINS;
 
-uint32_t gpio_set(PinName pin) {
+uint32_t gpio_set(PinName pin)
+{
     MBED_ASSERT(pin != (PinName)NC);
     // PIO default value of following ports are not same as others
     unsigned i;
@@ -36,23 +37,27 @@ uint32_t gpio_set(PinName pin) {
     return ((pin & 0x0F00) >> 8);
 }
 
-void gpio_init(gpio_t *obj, PinName pin) {
+void gpio_init(gpio_t *obj, PinName pin)
+{
     obj->pin = pin;
-    if (pin == (PinName)NC)
+    if (pin == (PinName)NC) {
         return;
+    }
 
-    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *) (LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
+    LPC_GPIO_TypeDef *port_reg = ((LPC_GPIO_TypeDef *)(LPC_GPIO0_BASE + (((pin & 0xF000) >> PORT_SHIFT) * 0x10000)));
 
     obj->reg_mask_read = &port_reg->MASKED_ACCESS[1 << gpio_set(pin)];
     obj->reg_dir       = &port_reg->DIR;
     obj->reg_write     = &port_reg->DATA;
 }
 
-void gpio_mode(gpio_t *obj, PinMode mode) {
+void gpio_mode(gpio_t *obj, PinMode mode)
+{
     pin_mode(obj->pin, mode);
 }
 
-void gpio_dir(gpio_t *obj, PinDirection direction) {
+void gpio_dir(gpio_t *obj, PinDirection direction)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     int pin_number = ((obj->pin & 0x0F00) >> 8);
     switch (direction) {

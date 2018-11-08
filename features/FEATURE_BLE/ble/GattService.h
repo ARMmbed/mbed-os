@@ -154,7 +154,8 @@ public:
         _primaryServiceID(uuid),
         _characteristicCount(numCharacteristics),
         _characteristics(characteristics),
-        _handle(0) {
+        _handle(0)
+    {
     }
 
     /**

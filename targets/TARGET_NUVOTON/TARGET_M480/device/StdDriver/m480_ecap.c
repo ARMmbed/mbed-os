@@ -29,7 +29,7 @@
   * @return     None
   * @details    This macro enable input capture function and select compare and reload function.
   */
-void ECAP_Open(ECAP_T* ecap, uint32_t u32FuncMask)
+void ECAP_Open(ECAP_T *ecap, uint32_t u32FuncMask)
 {
     /* Clear Input capture mode*/
     ecap->CTL0 = ecap->CTL0 & ~(ECAP_CTL0_CMPEN_Msk);
@@ -46,7 +46,7 @@ void ECAP_Open(ECAP_T* ecap, uint32_t u32FuncMask)
   * @return     None
   * @details    This macro disable input capture function.
   */
-void ECAP_Close(ECAP_T* ecap)
+void ECAP_Close(ECAP_T *ecap)
 {
     /* Disable Input Capture*/
     ecap->CTL0 &= ~ECAP_CTL0_CAPEN_Msk;
@@ -64,13 +64,13 @@ void ECAP_Close(ECAP_T* ecap)
   * @return None
   * @details This macro will enable the input channel_n interrupt.
   */
-void ECAP_EnableINT(ECAP_T* ecap, uint32_t u32Mask)
+void ECAP_EnableINT(ECAP_T *ecap, uint32_t u32Mask)
 {
     /* Enable input channel interrupt */
     ecap->CTL0 |= (u32Mask);
 
     /* Enable NVIC ECAP IRQ */
-    if(ecap == (ECAP_T*)ECAP0) {
+    if (ecap == (ECAP_T *)ECAP0) {
         NVIC_EnableIRQ((IRQn_Type)ECAP0_IRQn);
     } else {
         NVIC_EnableIRQ((IRQn_Type)ECAP1_IRQn);
@@ -89,13 +89,13 @@ void ECAP_EnableINT(ECAP_T* ecap, uint32_t u32Mask)
   * @return None
   * @details This macro will disable the input channel_n interrupt.
   */
-void ECAP_DisableINT(ECAP_T* ecap, uint32_t u32Mask)
+void ECAP_DisableINT(ECAP_T *ecap, uint32_t u32Mask)
 {
     /* Disable input channel interrupt */
     ecap->CTL0 &= ~(u32Mask);
 
     /* Disable NVIC ECAP IRQ */
-    if(ecap == (ECAP_T*)ECAP0) {
+    if (ecap == (ECAP_T *)ECAP0) {
         NVIC_DisableIRQ((IRQn_Type)ECAP0_IRQn);
     } else {
         NVIC_DisableIRQ((IRQn_Type)ECAP1_IRQn);

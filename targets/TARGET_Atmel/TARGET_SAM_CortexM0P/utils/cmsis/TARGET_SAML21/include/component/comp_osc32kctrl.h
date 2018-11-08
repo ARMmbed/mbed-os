@@ -60,9 +60,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t XOSC32KRDY:1;     /*!< bit:      0  XOSC32K Ready Interrupt Enable     */
-        uint32_t OSC32KRDY:1;      /*!< bit:      1  OSC32K Ready Interrupt Enable      */
-        uint32_t :30;              /*!< bit:  2..31  Reserved                           */
+        uint32_t XOSC32KRDY: 1;    /*!< bit:      0  XOSC32K Ready Interrupt Enable     */
+        uint32_t OSC32KRDY: 1;     /*!< bit:      1  OSC32K Ready Interrupt Enable      */
+        uint32_t : 30;             /*!< bit:  2..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } OSC32KCTRL_INTENCLR_Type;
@@ -81,9 +81,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t XOSC32KRDY:1;     /*!< bit:      0  XOSC32K Ready Interrupt Enable     */
-        uint32_t OSC32KRDY:1;      /*!< bit:      1  OSC32K Ready Interrupt Enable      */
-        uint32_t :30;              /*!< bit:  2..31  Reserved                           */
+        uint32_t XOSC32KRDY: 1;    /*!< bit:      0  XOSC32K Ready Interrupt Enable     */
+        uint32_t OSC32KRDY: 1;     /*!< bit:      1  OSC32K Ready Interrupt Enable      */
+        uint32_t : 30;             /*!< bit:  2..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } OSC32KCTRL_INTENSET_Type;
@@ -102,9 +102,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t XOSC32KRDY:1;     /*!< bit:      0  XOSC32K Ready                      */
-        uint32_t OSC32KRDY:1;      /*!< bit:      1  OSC32K Ready                       */
-        uint32_t :30;              /*!< bit:  2..31  Reserved                           */
+        uint32_t XOSC32KRDY: 1;    /*!< bit:      0  XOSC32K Ready                      */
+        uint32_t OSC32KRDY: 1;     /*!< bit:      1  OSC32K Ready                       */
+        uint32_t : 30;             /*!< bit:  2..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } OSC32KCTRL_INTFLAG_Type;
@@ -123,9 +123,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t XOSC32KRDY:1;     /*!< bit:      0  XOSC32K Ready                      */
-        uint32_t OSC32KRDY:1;      /*!< bit:      1  OSC32K Ready                       */
-        uint32_t :30;              /*!< bit:  2..31  Reserved                           */
+        uint32_t XOSC32KRDY: 1;    /*!< bit:      0  XOSC32K Ready                      */
+        uint32_t OSC32KRDY: 1;     /*!< bit:      1  OSC32K Ready                       */
+        uint32_t : 30;             /*!< bit:  2..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } OSC32KCTRL_STATUS_Type;
@@ -144,8 +144,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t RTCSEL:3;         /*!< bit:  0.. 2  RTC Clock Selection                */
-        uint32_t :29;              /*!< bit:  3..31  Reserved                           */
+        uint32_t RTCSEL: 3;        /*!< bit:  0.. 2  RTC Clock Selection                */
+        uint32_t : 29;             /*!< bit:  3..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } OSC32KCTRL_RTCCTRL_Type;
@@ -175,18 +175,18 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :1;               /*!< bit:      0  Reserved                           */
-        uint32_t ENABLE:1;         /*!< bit:      1  Oscillator Enable                  */
-        uint32_t XTALEN:1;         /*!< bit:      2  Crystal Oscillator Enable          */
-        uint32_t EN32K:1;          /*!< bit:      3  32kHz Output Enable                */
-        uint32_t EN1K:1;           /*!< bit:      4  1kHz Output Enable                 */
-        uint32_t :1;               /*!< bit:      5  Reserved                           */
-        uint32_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-        uint32_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
-        uint32_t STARTUP:3;        /*!< bit:  8..10  Oscillator Start-Up Time           */
-        uint32_t :1;               /*!< bit:     11  Reserved                           */
-        uint32_t WRTLOCK:1;        /*!< bit:     12  Write Lock                         */
-        uint32_t :19;              /*!< bit: 13..31  Reserved                           */
+        uint32_t : 1;              /*!< bit:      0  Reserved                           */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Oscillator Enable                  */
+        uint32_t XTALEN: 1;        /*!< bit:      2  Crystal Oscillator Enable          */
+        uint32_t EN32K: 1;         /*!< bit:      3  32kHz Output Enable                */
+        uint32_t EN1K: 1;          /*!< bit:      4  1kHz Output Enable                 */
+        uint32_t : 1;              /*!< bit:      5  Reserved                           */
+        uint32_t RUNSTDBY: 1;      /*!< bit:      6  Run in Standby                     */
+        uint32_t ONDEMAND: 1;      /*!< bit:      7  On Demand Control                  */
+        uint32_t STARTUP: 3;       /*!< bit:  8..10  Oscillator Start-Up Time           */
+        uint32_t : 1;              /*!< bit:     11  Reserved                           */
+        uint32_t WRTLOCK: 1;       /*!< bit:     12  Write Lock                         */
+        uint32_t : 19;             /*!< bit: 13..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } OSC32KCTRL_XOSC32K_Type;
@@ -218,19 +218,19 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :1;               /*!< bit:      0  Reserved                           */
-        uint32_t ENABLE:1;         /*!< bit:      1  Oscillator Enable                  */
-        uint32_t EN32K:1;          /*!< bit:      2  32kHz Output Enable                */
-        uint32_t EN1K:1;           /*!< bit:      3  1kHz Output Enable                 */
-        uint32_t :2;               /*!< bit:  4.. 5  Reserved                           */
-        uint32_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-        uint32_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
-        uint32_t STARTUP:3;        /*!< bit:  8..10  Oscillator Start-Up Time           */
-        uint32_t :1;               /*!< bit:     11  Reserved                           */
-        uint32_t WRTLOCK:1;        /*!< bit:     12  Write Lock                         */
-        uint32_t :3;               /*!< bit: 13..15  Reserved                           */
-        uint32_t CALIB:7;          /*!< bit: 16..22  Oscillator Calibration             */
-        uint32_t :9;               /*!< bit: 23..31  Reserved                           */
+        uint32_t : 1;              /*!< bit:      0  Reserved                           */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Oscillator Enable                  */
+        uint32_t EN32K: 1;         /*!< bit:      2  32kHz Output Enable                */
+        uint32_t EN1K: 1;          /*!< bit:      3  1kHz Output Enable                 */
+        uint32_t : 2;              /*!< bit:  4.. 5  Reserved                           */
+        uint32_t RUNSTDBY: 1;      /*!< bit:      6  Run in Standby                     */
+        uint32_t ONDEMAND: 1;      /*!< bit:      7  On Demand Control                  */
+        uint32_t STARTUP: 3;       /*!< bit:  8..10  Oscillator Start-Up Time           */
+        uint32_t : 1;              /*!< bit:     11  Reserved                           */
+        uint32_t WRTLOCK: 1;       /*!< bit:     12  Write Lock                         */
+        uint32_t : 3;              /*!< bit: 13..15  Reserved                           */
+        uint32_t CALIB: 7;         /*!< bit: 16..22  Oscillator Calibration             */
+        uint32_t : 9;              /*!< bit: 23..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } OSC32KCTRL_OSC32K_Type;
@@ -263,11 +263,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :8;               /*!< bit:  0.. 7  Reserved                           */
-        uint32_t CALIB:5;          /*!< bit:  8..12  Oscillator Calibration             */
-        uint32_t :2;               /*!< bit: 13..14  Reserved                           */
-        uint32_t WRTLOCK:1;        /*!< bit:     15  Write Lock                         */
-        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+        uint32_t : 8;              /*!< bit:  0.. 7  Reserved                           */
+        uint32_t CALIB: 5;         /*!< bit:  8..12  Oscillator Calibration             */
+        uint32_t : 2;              /*!< bit: 13..14  Reserved                           */
+        uint32_t WRTLOCK: 1;       /*!< bit:     15  Write Lock                         */
+        uint32_t : 16;             /*!< bit: 16..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } OSC32KCTRL_OSCULP32K_Type;

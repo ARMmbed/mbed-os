@@ -51,8 +51,7 @@
 /*@}*/
 
 /*! @brief RNGA working mode */
-typedef enum _rnga_mode
-{
+typedef enum _rnga_mode {
     kRNGA_ModeNormal = 0U, /*!< Normal Mode. The ring-oscillator clocks are active; RNGA generates entropy
                                            (randomness) from the clocks and stores it in shift registers.*/
     kRNGA_ModeSleep = 1U,  /*!< Sleep Mode. The ring-oscillator clocks are inactive; RNGA does not generate entropy.*/

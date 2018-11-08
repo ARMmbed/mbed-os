@@ -83,7 +83,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     MBED_ASSERT((SPIName)spi != (SPIName)NC);
 
     // Set the obj pointer to the proper SPI Instance
-    obj->spi.spi = (mxc_spi_regs_t*)spi;
+    obj->spi.spi = (mxc_spi_regs_t *)spi;
 
     // Set the SPI index and FIFOs
     obj->spi.index = MXC_SPI_GET_IDX(obj->spi.spi);
@@ -103,7 +103,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     // Enable SPI and FIFOs
     obj->spi.spi->gen_ctrl = (MXC_F_SPI_GEN_CTRL_SPI_MSTR_EN |
                               MXC_F_SPI_GEN_CTRL_TX_FIFO_EN |
-                              MXC_F_SPI_GEN_CTRL_RX_FIFO_EN );
+                              MXC_F_SPI_GEN_CTRL_RX_FIFO_EN);
 
     obj->spi.sclk = sclk;       // save the sclk PinName in the object as a key for Quad SPI pin mapping lookup
     spi_master_width(obj, 0);   // default this for Single SPI communications
@@ -155,7 +155,7 @@ void spi_frequency(spi_t *obj, int hz)
 
     // Set the number of clocks to hold sclk high and low
     MXC_SET_FIELD(&obj->spi.spi->mstr_cfg, (MXC_F_SPI_MSTR_CFG_SCK_HI_CLK | MXC_F_SPI_MSTR_CFG_SCK_LO_CLK),
-        ((clocks << MXC_F_SPI_MSTR_CFG_SCK_HI_CLK_POS) | (clocks << MXC_F_SPI_MSTR_CFG_SCK_LO_CLK_POS)));
+                  ((clocks << MXC_F_SPI_MSTR_CFG_SCK_HI_CLK_POS) | (clocks << MXC_F_SPI_MSTR_CFG_SCK_LO_CLK_POS)));
 }
 
 //******************************************************************************
@@ -192,11 +192,11 @@ static int spi_master_transaction(spi_t *obj, int value, uint32_t direction)
     int bits;
 
     // Create the header
-    uint16_t header =  (direction |                 // direction based on SPI object
-                        MXC_S_SPI_FIFO_UNIT_BITS |  // unit size
-                        ((obj->spi.bits == 32) ? 0 : obj->spi.bits << MXC_F_SPI_FIFO_SIZE_POS) |    // Number of units
-                        obj->spi.width |            // I/O width
-                        ((obj->spi.ssel == -1) ? 0 : 1 << MXC_F_SPI_FIFO_DASS_POS));
+    uint16_t header = (direction |                  // direction based on SPI object
+                       MXC_S_SPI_FIFO_UNIT_BITS |  // unit size
+                       ((obj->spi.bits == 32) ? 0 : obj->spi.bits << MXC_F_SPI_FIFO_SIZE_POS) |    // Number of units
+                       obj->spi.width |            // I/O width
+                       ((obj->spi.ssel == -1) ? 0 : 1 << MXC_F_SPI_FIFO_DASS_POS));
 
     // Send the message header
     *obj->spi.fifo->trans_16 = header;
@@ -217,8 +217,8 @@ static int spi_master_transaction(spi_t *obj, int value, uint32_t direction)
         while (((obj->spi.spi->fifo_ctrl & MXC_F_SPI_FIFO_CTRL_RX_FIFO_USED)
                 >> MXC_F_SPI_FIFO_CTRL_RX_FIFO_USED_POS) < 1);
 
-        result |= (*obj->spi.fifo->rslts_8 << (i++*8));
-        bits-=8;
+        result |= (*obj->spi.fifo->rslts_8 << (i++ * 8));
+        bits -= 8;
     }
 
     return result;
@@ -232,7 +232,8 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -431,7 +432,7 @@ static uint32_t spi_master_transfer_handler(spi_t *obj)
             // Only memcpy even numbers
             length = ((length / 2) * 2);
 
-            memcpy((void*)fifo->trans_32, &(req->tx_data[req->write_num]), length);
+            memcpy((void *)fifo->trans_32, &(req->tx_data[req->write_num]), length);
 
             head_rem_temp -= length;
             req->write_num += length;
@@ -568,8 +569,17 @@ static void SPI_IRQHandler(int spim_num)
 }
 
 //******************************************************************************
-void SPI0_IRQHandler(void) { SPI_IRQHandler(0); }
-void SPI1_IRQHandler(void) { SPI_IRQHandler(1); }
-void SPI2_IRQHandler(void) { SPI_IRQHandler(2); }
+void SPI0_IRQHandler(void)
+{
+    SPI_IRQHandler(0);
+}
+void SPI1_IRQHandler(void)
+{
+    SPI_IRQHandler(1);
+}
+void SPI2_IRQHandler(void)
+{
+    SPI_IRQHandler(2);
+}
 
 #endif

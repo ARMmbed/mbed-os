@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -52,7 +52,7 @@
  * @ingroup nrf_drivers
  * @brief Programmable Peripheral Interconnect (PPI) APIs.
  *
- * @details The PPI HAL provides basic APIs for accessing the registers of the PPI. 
+ * @details The PPI HAL provides basic APIs for accessing the registers of the PPI.
  * The PPI driver provides APIs on a higher level.
  *
  * @defgroup lib_driver_ppi PPI driver
@@ -66,15 +66,15 @@
 
 #ifdef NRF52
 
-    #define NRF_PPI_ALL_APP_CHANNELS_MASK   ((uint32_t)0xFFFFFFFFuL & ~(NRF_PPI_CHANNELS_USED))  /**< All PPI channels available to the application. */
-    #define NRF_PPI_PROG_APP_CHANNELS_MASK  ((uint32_t)0x000FFFFFuL & ~(NRF_PPI_CHANNELS_USED))  /**< Programmable PPI channels available to the application. */
-    #define NRF_PPI_ALL_APP_GROUPS_MASK     ((uint32_t)0x0000003FuL & ~(NRF_PPI_GROUPS_USED))    /**< All PPI groups available to the application. */
+#define NRF_PPI_ALL_APP_CHANNELS_MASK   ((uint32_t)0xFFFFFFFFuL & ~(NRF_PPI_CHANNELS_USED))  /**< All PPI channels available to the application. */
+#define NRF_PPI_PROG_APP_CHANNELS_MASK  ((uint32_t)0x000FFFFFuL & ~(NRF_PPI_CHANNELS_USED))  /**< Programmable PPI channels available to the application. */
+#define NRF_PPI_ALL_APP_GROUPS_MASK     ((uint32_t)0x0000003FuL & ~(NRF_PPI_GROUPS_USED))    /**< All PPI groups available to the application. */
 
 #else
 
-    #define NRF_PPI_ALL_APP_CHANNELS_MASK   ((uint32_t)0xFFF0FFFFuL & ~(NRF_PPI_CHANNELS_USED))  /**< All PPI channels available to the application. */
-    #define NRF_PPI_PROG_APP_CHANNELS_MASK  ((uint32_t)0x0000FFFFuL & ~(NRF_PPI_CHANNELS_USED))  /**< Programmable PPI channels available to the application. */
-    #define NRF_PPI_ALL_APP_GROUPS_MASK     ((uint32_t)0x0000000FuL & ~(NRF_PPI_GROUPS_USED))    /**< All PPI groups available to the application. */
+#define NRF_PPI_ALL_APP_CHANNELS_MASK   ((uint32_t)0xFFF0FFFFuL & ~(NRF_PPI_CHANNELS_USED))  /**< All PPI channels available to the application. */
+#define NRF_PPI_PROG_APP_CHANNELS_MASK  ((uint32_t)0x0000FFFFuL & ~(NRF_PPI_CHANNELS_USED))  /**< Programmable PPI channels available to the application. */
+#define NRF_PPI_ALL_APP_GROUPS_MASK     ((uint32_t)0x0000000FuL & ~(NRF_PPI_GROUPS_USED))    /**< All PPI groups available to the application. */
 
 #endif
 
@@ -86,7 +86,7 @@
  */
 uint32_t nrf_drv_ppi_init(void);
 
-/**@brief Function for uninitializing the PPI module. 
+/**@brief Function for uninitializing the PPI module.
  *
  * This function also disables all channels and clears the channel groups.
  *
@@ -104,7 +104,7 @@ uint32_t nrf_drv_ppi_uninit(void);
  * @retval     NRF_SUCCESS             If the channel was successfully allocated.
  * @retval     NRF_ERROR_NO_MEM        If there is no available channel to be used.
  */
-uint32_t nrf_drv_ppi_channel_alloc(nrf_ppi_channel_t * p_channel);
+uint32_t nrf_drv_ppi_channel_alloc(nrf_ppi_channel_t *p_channel);
 
 /**@brief Function for freeing a PPI channel.
  * @details This function also disables the chosen channel.
@@ -171,7 +171,7 @@ uint32_t nrf_drv_ppi_channel_disable(nrf_ppi_channel_t channel);
  * @retval     NRF_SUCCESS             If the channel group was successfully allocated.
  * @retval     NRF_ERROR_NO_MEM        If there is no available channel group to be used.
  */
-uint32_t nrf_drv_ppi_group_alloc(nrf_ppi_channel_group_t * p_group);
+uint32_t nrf_drv_ppi_group_alloc(nrf_ppi_channel_group_t *p_group);
 
 /**@brief Function for freeing a PPI channel group.
  * @details This function also disables the chosen group.

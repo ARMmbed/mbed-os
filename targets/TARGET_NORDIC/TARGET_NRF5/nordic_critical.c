@@ -64,11 +64,11 @@ static inline void nordic_nvic_critical_region_enter(void)
     int was_masked = __sd_nvic_irq_disable();
 
     if (nordic_cr_nested == 0) {
-            nrf_nvic_state.__irq_masks[0] = ( NVIC->ICER[0] & __NRF_NVIC_APP_IRQS_0 );
-            NVIC->ICER[0] = __NRF_NVIC_APP_IRQS_0;
+        nrf_nvic_state.__irq_masks[0] = (NVIC->ICER[0] & __NRF_NVIC_APP_IRQS_0);
+        NVIC->ICER[0] = __NRF_NVIC_APP_IRQS_0;
 #ifdef NRF52
-            nrf_nvic_state.__irq_masks[1] = ( NVIC->ICER[1] & __NRF_NVIC_APP_IRQS_1 );
-            NVIC->ICER[1] = __NRF_NVIC_APP_IRQS_1;
+        nrf_nvic_state.__irq_masks[1] = (NVIC->ICER[1] & __NRF_NVIC_APP_IRQS_1);
+        NVIC->ICER[1] = __NRF_NVIC_APP_IRQS_1;
 #endif
     }
 
@@ -95,7 +95,7 @@ static inline void nordic_nvic_critical_region_exit(void)
         NVIC->ISER[1] = nrf_nvic_state.__irq_masks[1];
 #endif
         if (!was_masked) {
-        __sd_nvic_irq_enable();
+            __sd_nvic_irq_enable();
         }
     }
 }

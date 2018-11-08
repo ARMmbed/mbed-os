@@ -34,17 +34,25 @@ nsapi_addr_t dns_servers[DNS_SERVERS_SIZE] = {
     {NSAPI_IPv4, {8, 8, 8, 8}},                             // Google
     {NSAPI_IPv4, {209, 244, 0, 3}},                         // Level 3
     {NSAPI_IPv4, {84, 200, 69, 80}},                        // DNS.WATCH
-    {NSAPI_IPv6, {0x20,0x01, 0x48,0x60, 0x48,0x60, 0,0,     // Google
-                  0,0, 0,0, 0,0, 0x88,0x88}},
-    {NSAPI_IPv6, {0x20,0x01, 0x16,0x08, 0,0x10, 0,0x25,     // DNS.WATCH
-                  0,0, 0,0, 0x1c,0x04, 0xb1,0x2f}},
+    {
+        NSAPI_IPv6, {
+            0x20, 0x01, 0x48, 0x60, 0x48, 0x60, 0, 0, // Google
+            0, 0, 0, 0, 0, 0, 0x88, 0x88
+        }
+    },
+    {
+        NSAPI_IPv6, {
+            0x20, 0x01, 0x16, 0x08, 0, 0x10, 0, 0x25, // DNS.WATCH
+            0, 0, 0, 0, 0x1c, 0x04, 0xb1, 0x2f
+        }
+    },
 };
 
 // DNS server configuration
 extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr)
 {
     memmove(&dns_servers[1], &dns_servers[0],
-            (DNS_SERVERS_SIZE-1)*sizeof(nsapi_addr_t));
+            (DNS_SERVERS_SIZE - 1)*sizeof(nsapi_addr_t));
 
     dns_servers[0] = addr;
     return NSAPI_ERROR_OK;
@@ -196,7 +204,7 @@ static int dns_scan_response(const uint8_t **p, nsapi_addr_t *addr, unsigned add
 
 // core query function
 static nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
-        nsapi_addr_t *addr, unsigned addr_count, nsapi_version_t version)
+                                                      nsapi_addr_t *addr, unsigned addr_count, nsapi_version_t version)
 {
     // check for valid host name
     int host_len = host ? strlen(host) : 0;
@@ -266,14 +274,14 @@ static nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const
 
 // convenience functions for other forms of queries
 extern "C" nsapi_size_or_error_t nsapi_dns_query_multiple(nsapi_stack_t *stack, const char *host,
-        nsapi_addr_t *addr, nsapi_size_t addr_count, nsapi_version_t version)
+                                                          nsapi_addr_t *addr, nsapi_size_t addr_count, nsapi_version_t version)
 {
     NetworkStack *nstack = nsapi_create_stack(stack);
     return nsapi_dns_query_multiple(nstack, host, addr, addr_count, version);
 }
 
 nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
-        SocketAddress *addresses, nsapi_size_t addr_count, nsapi_version_t version)
+                                               SocketAddress *addresses, nsapi_size_t addr_count, nsapi_version_t version)
 {
     nsapi_addr_t *addrs = new nsapi_addr_t[addr_count];
     nsapi_size_or_error_t result = nsapi_dns_query_multiple(stack, host, addrs, addr_count, version);
@@ -289,7 +297,7 @@ nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const char *
 }
 
 extern "C" nsapi_error_t nsapi_dns_query(nsapi_stack_t *stack, const char *host,
-        nsapi_addr_t *addr, nsapi_version_t version)
+                                         nsapi_addr_t *addr, nsapi_version_t version)
 {
     NetworkStack *nstack = nsapi_create_stack(stack);
     nsapi_size_or_error_t result = nsapi_dns_query_multiple(nstack, host, addr, 1, version);
@@ -297,7 +305,7 @@ extern "C" nsapi_error_t nsapi_dns_query(nsapi_stack_t *stack, const char *host,
 }
 
 nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
-        SocketAddress *address, nsapi_version_t version)
+                              SocketAddress *address, nsapi_version_t version)
 {
     nsapi_addr_t addr;
     nsapi_size_or_error_t result = nsapi_dns_query_multiple(stack, host, &addr, 1, version);

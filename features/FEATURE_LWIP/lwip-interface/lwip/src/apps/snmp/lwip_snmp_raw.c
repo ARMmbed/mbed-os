@@ -45,36 +45,36 @@
 static void
 snmp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port)
 {
-  LWIP_UNUSED_ARG(arg);
+    LWIP_UNUSED_ARG(arg);
 
-  snmp_receive(pcb, p, addr, port);
+    snmp_receive(pcb, p, addr, port);
 
-  pbuf_free(p);
+    pbuf_free(p);
 }
 
-err_t 
+err_t
 snmp_sendto(void *handle, struct pbuf *p, const ip_addr_t *dst, u16_t port)
 {
-  return udp_sendto((struct udp_pcb*)handle, p, dst, port);
+    return udp_sendto((struct udp_pcb *)handle, p, dst, port);
 }
 
 u8_t
-snmp_get_local_ip_for_dst(void* handle, const ip_addr_t *dst, ip_addr_t *result)
+snmp_get_local_ip_for_dst(void *handle, const ip_addr_t *dst, ip_addr_t *result)
 {
-  struct udp_pcb* udp_pcb = (struct udp_pcb*)handle;
-  struct netif *dst_if;
-  const ip_addr_t* dst_ip;
+    struct udp_pcb *udp_pcb = (struct udp_pcb *)handle;
+    struct netif *dst_if;
+    const ip_addr_t *dst_ip;
 
-  LWIP_UNUSED_ARG(udp_pcb); /* unused in case of IPV4 only configuration */
+    LWIP_UNUSED_ARG(udp_pcb); /* unused in case of IPV4 only configuration */
 
-  ip_route_get_local_ip(&udp_pcb->local_ip, dst, dst_if, dst_ip);
+    ip_route_get_local_ip(&udp_pcb->local_ip, dst, dst_if, dst_ip);
 
-  if ((dst_if != NULL) && (dst_ip != NULL)) {
-    ip_addr_copy(*result, *dst_ip);
-    return 1;
-  } else {
-    return 0;
-  }
+    if ((dst_if != NULL) && (dst_ip != NULL)) {
+        ip_addr_copy(*result, *dst_ip);
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 /**
@@ -85,16 +85,16 @@ snmp_get_local_ip_for_dst(void* handle, const ip_addr_t *dst, ip_addr_t *result)
 void
 snmp_init(void)
 {
-  err_t err;
-  
-  struct udp_pcb *snmp_pcb = udp_new_ip_type(IPADDR_TYPE_ANY);
-  LWIP_ERROR("snmp_raw: no PCB", (snmp_pcb != NULL), return;);
+    err_t err;
 
-  snmp_traps_handle = snmp_pcb;
+    struct udp_pcb *snmp_pcb = udp_new_ip_type(IPADDR_TYPE_ANY);
+    LWIP_ERROR("snmp_raw: no PCB", (snmp_pcb != NULL), return;);
 
-  udp_recv(snmp_pcb, snmp_recv, (void *)SNMP_IN_PORT);
-  err = udp_bind(snmp_pcb, IP_ANY_TYPE, SNMP_IN_PORT);
-  LWIP_ERROR("snmp_raw: Unable to bind PCB", (err == ERR_OK), return;);
+    snmp_traps_handle = snmp_pcb;
+
+    udp_recv(snmp_pcb, snmp_recv, (void *)SNMP_IN_PORT);
+    err = udp_bind(snmp_pcb, IP_ANY_TYPE, SNMP_IN_PORT);
+    LWIP_ERROR("snmp_raw: Unable to bind PCB", (err == ERR_OK), return;);
 }
 
 #endif /* LWIP_SNMP && SNMP_USE_RAW */

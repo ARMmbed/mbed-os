@@ -23,7 +23,8 @@
 #include "clk_freqs.h"
 #include "PeripheralPins.h"
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
     // determine the SPI to use
     SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
@@ -31,8 +32,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-    
-    obj->spi = (SPI_Type*)pinmap_merge(spi_data, spi_cntl);
+
+    obj->spi = (SPI_Type *)pinmap_merge(spi_data, spi_cntl);
     MBED_ASSERT((int)obj->spi != NC);
 
     SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK | SIM_SCGC5_PORTD_MASK;
@@ -53,10 +54,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 }
 
-void spi_free(spi_t *obj) {
+void spi_free(spi_t *obj)
+{
     // [TODO]
 }
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
     MBED_ASSERT((bits > 4) || (bits < 16));
     MBED_ASSERT((mode >= 0) && (mode <= 3));
 
@@ -74,7 +77,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     // CTAR0 is used
     obj->spi->CTAR[0] &= ~(SPI_CTAR_CPHA_MASK | SPI_CTAR_CPOL_MASK | SPI_CTAR_FMSZ_MASK);
     obj->spi->CTAR[0] |= (polarity << SPI_CTAR_CPOL_SHIFT) | (phase << SPI_CTAR_CPHA_SHIFT) | ((bits - 1) << SPI_CTAR_FMSZ_SHIFT);
-    
+
     //If clk idle state was changed, start a dummy transmission
     //This is a 'feature' in DSPI: https://community.freescale.com/thread/105526
     if ((old_polarity != polarity) && (slave == 0)) {
@@ -83,10 +86,11 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     }
 }
 
-static const uint8_t baudrate_prescaler[] = {2,3,5,7};
-static const uint16_t baudrate_scaler[] = {2,4,6,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768};
+static const uint8_t baudrate_prescaler[] = {2, 3, 5, 7};
+static const uint16_t baudrate_scaler[] = {2, 4, 6, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     uint32_t f_error = 0;
     uint32_t p_error = 0xffffffff;
     uint32_t ref = 0;
@@ -102,8 +106,9 @@ void spi_frequency(spi_t *obj, int hz) {
         for (br = 0; br <= 15; br++) {
             for (uint32_t dr = 0; dr < 2; dr++) {
                 ref = (PCLK * (1U + dr) / baudrate_prescaler[i]) / baudrate_scaler[br];
-                if (ref > (uint32_t)hz)
+                if (ref > (uint32_t)hz) {
                     continue;
+                }
                 f_error = hz - ref;
                 if (f_error < p_error) {
                     ref_spr = br;
@@ -120,19 +125,22 @@ void spi_frequency(spi_t *obj, int hz) {
     obj->spi->CTAR[0] |= (ref_prescaler << SPI_CTAR_PBR_SHIFT) | (ref_spr << SPI_CTAR_BR_SHIFT) | (ref_dr << SPI_CTAR_DBR_SHIFT);
 }
 
-static inline int spi_writeable(spi_t *obj) {
+static inline int spi_writeable(spi_t *obj)
+{
     return (obj->spi->SR & SPI_SR_TFFF_MASK) ? 1 : 0;
 }
 
-static inline int spi_readable(spi_t *obj) {
+static inline int spi_readable(spi_t *obj)
+{
     return (obj->spi->SR & SPI_SR_RFDF_MASK) ? 1 : 0;
 }
 
-int spi_master_write(spi_t *obj, int value) {
+int spi_master_write(spi_t *obj, int value)
+{
     //clear RX buffer flag
     obj->spi->SR |= SPI_SR_RFDF_MASK;
     // wait tx buffer empty
-    while(!spi_writeable(obj));
+    while (!spi_writeable(obj));
     obj->spi->PUSHR = SPI_PUSHR_TXDATA(value & 0xffff) /*| SPI_PUSHR_EOQ_MASK*/;
 
     // wait rx buffer full
@@ -141,7 +149,8 @@ int spi_master_write(spi_t *obj, int value) {
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -155,15 +164,18 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     return total;
 }
 
-int spi_slave_receive(spi_t *obj) {
+int spi_slave_receive(spi_t *obj)
+{
     return spi_readable(obj);
 }
 
-int spi_slave_read(spi_t *obj) {
+int spi_slave_read(spi_t *obj)
+{
     obj->spi->SR |= SPI_SR_RFDF_MASK;
     return obj->spi->POPR;
 }
 
-void spi_slave_write(spi_t *obj, int value) {
+void spi_slave_write(spi_t *obj, int value)
+{
     while (!spi_writeable(obj));
 }

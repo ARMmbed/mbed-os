@@ -129,7 +129,7 @@ static rpl_neighbour_t *rpl_mrhof_select_backup_parent(rpl_instance_t *instance,
 
         /* Backup must be in the same DODAG version (keep it simple) */
         if (c->dodag_version != pref->dodag_version) {
-        	continue;
+            continue;
         }
 
         rpl_dodag_t *dodag = c->dodag_version->dodag;
@@ -197,7 +197,7 @@ static rpl_neighbour_t *rpl_mrhof_select_best_parent(rpl_instance_t *instance, c
     /* Previous preferred parent, if any, will be at the start of the list */
     /* We can use this to simplify some logic */
     if (prev_preferred) {
-    	prev_preferred_path_cost = rpl_mrhof_path_cost_through_neighbour(prev_preferred);
+        prev_preferred_path_cost = rpl_mrhof_path_cost_through_neighbour(prev_preferred);
     }
 
     ns_list_foreach(rpl_neighbour_t, c, &instance->candidate_neighbours) {
@@ -215,7 +215,7 @@ static rpl_neighbour_t *rpl_mrhof_select_best_parent(rpl_instance_t *instance, c
         uint16_t new_rank = path_cost;
         uint16_t min_rank = rpl_rank_add(c->rank, dodag->config.min_hop_rank_increase);
         if (new_rank < min_rank) {
-        	new_rank = min_rank;
+            new_rank = min_rank;
         }
 
         if (new_rank > c->dodag_version->hard_rank_limit) {
@@ -264,10 +264,10 @@ static rpl_neighbour_t *rpl_mrhof_select_best_parent(rpl_instance_t *instance, c
         /* Hysteresis path cost test, if we are thinking of switching parents */
         if (best == prev_preferred) {
             /* Do not switch away from current parent, until threshold met */
-        	/* Note that any current parent will be first in the list - we
-        	 * don't need to worry about hitting it and giving it preference as
-        	 * a candidate later.
-        	 */
+            /* Note that any current parent will be first in the list - we
+             * don't need to worry about hitting it and giving it preference as
+             * a candidate later.
+             */
             if (rpl_rank_add(path_cost, rpl_policy_mrhof_parent_switch_threshold(instance->domain)) <= prev_preferred_path_cost) {
                 goto new_best;
             } else {
@@ -277,9 +277,9 @@ static rpl_neighbour_t *rpl_mrhof_select_best_parent(rpl_instance_t *instance, c
 
         /* Prefer lesser resulting path cost */
         if (path_cost < best_path_cost) {
-        	goto new_best;
+            goto new_best;
         } else if (path_cost > best_path_cost) {
-        	continue;
+            continue;
         }
 
         /* Prefer parent that most recently sent a DIO */
@@ -292,7 +292,7 @@ static rpl_neighbour_t *rpl_mrhof_select_best_parent(rpl_instance_t *instance, c
         }
 
 
-    new_best:
+new_best:
         best_rank = new_rank;
         best_path_cost = path_cost;
         best_link_metric = link_metric;
@@ -372,7 +372,7 @@ static void rpl_mrhof_parent_selection(rpl_instance_t *instance)
     while (more_successors--) {
         rpl_neighbour_t *backup = rpl_mrhof_select_backup_parent(instance, pref_parent, &rank, max_rank);
         if (!backup) {
-        	break;
+            break;
         }
 
         if (rank != RPL_RANK_INFINITE && rank > version->greediness_rank_limit) {

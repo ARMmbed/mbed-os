@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2016 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**@file
@@ -57,8 +57,7 @@ extern "C"
 
 /**@brief DFU object types.
  */
-typedef enum
-{
+typedef enum {
     NRF_DFU_OBJ_TYPE_INVALID,                   /**< Invalid object type.*/
     NRF_DFU_OBJ_TYPE_COMMAND,                   /**< Command object packet.*/
     NRF_DFU_OBJ_TYPE_DATA,                      /**< Data object.*/
@@ -69,8 +68,7 @@ typedef enum
  *
  * @details The DFU transport layer creates request events of these types. The implementation of @ref nrf_dfu_req_handler_on_req handles requests of these types.
  */
-typedef enum
-{
+typedef enum {
 
     NRF_DFU_OBJECT_OP_NONE          = 0,        /**< No operation set. */
     NRF_DFU_OBJECT_OP_CREATE        = 1,        /**< Create operation. The length of the request indicates the required size. When called, the created object is selected. */
@@ -87,8 +85,7 @@ typedef enum
  * @details The DFU transport layer creates request events of types @ref nrf_dfu_req_op_t,
  * which are handled by @ref nrf_dfu_req_handler_on_req. That functions returns one of these result codes.
  */
-typedef enum
-{
+typedef enum {
     NRF_DFU_RES_CODE_INVALID                 = 0x00,     /**< Invalid opcode. */
     NRF_DFU_RES_CODE_SUCCESS                 = 0x01,     /**< Operation successful. */
     NRF_DFU_RES_CODE_OP_CODE_NOT_SUPPORTED   = 0x02,     /**< Opcode not supported. */
@@ -103,12 +100,12 @@ typedef enum
 
 
 #if defined(__CC_ARM)
-  #pragma push
-  #pragma anon_unions
+#pragma push
+#pragma anon_unions
 #elif defined(__ICCARM__)
-  #pragma language=extended
+#pragma language=extended
 #elif defined(__GNUC__)
-  // Anonymous unions are enabled by default.
+// Anonymous unions are enabled by default.
 #endif
 
 
@@ -116,21 +113,17 @@ typedef enum
  *
  * @details When the transport layer gets a DFU event, it calls the function @ref nrf_dfu_req_handler_on_req to handle the DFU request.
  */
-typedef struct
-{
+typedef struct {
     nrf_dfu_req_op_t    req_type;       /**< Request operation type. */
 
-    union
-    {
-        struct
-        {
+    union {
+        struct {
             uint32_t        obj_type;       /**< Object type of the object to be created for a request of type @ref NRF_DFU_OBJECT_OP_CREATE. */
             uint32_t        object_size;    /**< Size of the object to be created for a request of type @ref NRF_DFU_OBJECT_OP_CREATE. Note that the object size is not the same as the size of the firmware. */
         };
 
-        struct
-        {
-            uint8_t *   p_req;      /**< Pointer to an array holding the serialized version of the request. */
+        struct {
+            uint8_t    *p_req;      /**< Pointer to an array holding the serialized version of the request. */
             uint32_t    req_len;    /**< Length of the request array. */
         };
     };
@@ -139,18 +132,14 @@ typedef struct
 
 /** @brief Response used during DFU operations.
  */
-typedef struct
-{
-    union
-    {
-        struct
-        {
-            uint8_t *       p_res;          /**< Pointer to an array holding the serialized version of the response. */
+typedef struct {
+    union {
+        struct {
+            uint8_t        *p_res;          /**< Pointer to an array holding the serialized version of the response. */
             uint32_t        res_len;        /**< Length of the response array. */
         };
 
-        struct
-        {
+        struct {
             uint32_t        max_size;       /**< Maximum size of the object of a given type. */
             uint32_t        offset;         /**< Current offset. */
             uint32_t        crc;            /**< Current CRC. */
@@ -159,11 +148,11 @@ typedef struct
 } nrf_dfu_res_t;
 
 #if defined(__CC_ARM)
-  #pragma pop
+#pragma pop
 #elif defined(__ICCARM__)
-  // Leave anonymous unions enabled.
+// Leave anonymous unions enabled.
 #elif defined(__GNUC__)
-  // Anonymous unions are enabled by default.
+// Anonymous unions are enabled by default.
 #endif
 
 
@@ -190,7 +179,7 @@ uint32_t nrf_dfu_req_handler_init(void);
  *                                      Any other error code indicates that the request
  *                                      could not be handled.
  */
-nrf_dfu_res_code_t nrf_dfu_req_handler_on_req(void * p_context, nrf_dfu_req_t * p_req, nrf_dfu_res_t * p_res);
+nrf_dfu_res_code_t nrf_dfu_req_handler_on_req(void *p_context, nrf_dfu_req_t *p_req, nrf_dfu_res_t *p_res);
 
 
 #ifdef __cplusplus

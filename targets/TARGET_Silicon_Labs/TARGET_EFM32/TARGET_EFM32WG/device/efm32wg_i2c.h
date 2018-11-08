@@ -38,23 +38,22 @@
  * @{
  * @brief EFM32WG_I2C Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;      /**< Control Register  */
-  __IOM uint32_t CMD;       /**< Command Register  */
-  __IM uint32_t  STATE;     /**< State Register  */
-  __IM uint32_t  STATUS;    /**< Status Register  */
-  __IOM uint32_t CLKDIV;    /**< Clock Division Register  */
-  __IOM uint32_t SADDR;     /**< Slave Address Register  */
-  __IOM uint32_t SADDRMASK; /**< Slave Address Mask Register  */
-  __IM uint32_t  RXDATA;    /**< Receive Buffer Data Register  */
-  __IM uint32_t  RXDATAP;   /**< Receive Buffer Data Peek Register  */
-  __IOM uint32_t TXDATA;    /**< Transmit Buffer Data Register  */
-  __IM uint32_t  IF;        /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;       /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;       /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;       /**< Interrupt Enable Register  */
-  __IOM uint32_t ROUTE;     /**< I/O Routing Register  */
+typedef struct {
+    __IOM uint32_t CTRL;      /**< Control Register  */
+    __IOM uint32_t CMD;       /**< Command Register  */
+    __IM uint32_t  STATE;     /**< State Register  */
+    __IM uint32_t  STATUS;    /**< Status Register  */
+    __IOM uint32_t CLKDIV;    /**< Clock Division Register  */
+    __IOM uint32_t SADDR;     /**< Slave Address Register  */
+    __IOM uint32_t SADDRMASK; /**< Slave Address Mask Register  */
+    __IM uint32_t  RXDATA;    /**< Receive Buffer Data Register  */
+    __IM uint32_t  RXDATAP;   /**< Receive Buffer Data Peek Register  */
+    __IOM uint32_t TXDATA;    /**< Transmit Buffer Data Register  */
+    __IM uint32_t  IF;        /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;       /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;       /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN;       /**< Interrupt Enable Register  */
+    __IOM uint32_t ROUTE;     /**< I/O Routing Register  */
 } I2C_TypeDef;              /** @} */
 
 /**************************************************************************//**

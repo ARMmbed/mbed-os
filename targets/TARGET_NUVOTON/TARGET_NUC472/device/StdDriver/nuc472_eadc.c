@@ -97,8 +97,9 @@ void EADC_ConfigSampleModule(EADC_T *eadc, \
 {
     *(__IO uint32_t *)(&eadc->AD0SPCTL0 + u32ModuleNum) &= ~(EADC_AD0SPCTL0_TRGSEL_Msk | EADC_AD0SPCTL0_CHSEL_Msk);
     *(__IO uint32_t *)(&eadc->AD0SPCTL0 + u32ModuleNum) |= (u32TriggerSrc | u32Channel);
-    if (u32TriggerSrc == EADC_STADC_TRIGGER)
+    if (u32TriggerSrc == EADC_STADC_TRIGGER) {
         *(__IO uint32_t *)(&eadc->AD0SPCTL0 + u32ModuleNum) |= (EADC_AD0SPCTL0_EXTREN_Msk | EADC_AD0SPCTL0_EXTFEN_Msk);
+    }
 
 }
 

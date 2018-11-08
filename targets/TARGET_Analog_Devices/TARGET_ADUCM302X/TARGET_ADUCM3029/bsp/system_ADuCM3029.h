@@ -45,13 +45,13 @@ extern "C" {
 #define FAILURE 1u
 
 /* System clock constant */
-#define __HFOSC     26000000u  
+#define __HFOSC     26000000u
 
 /* System clock constant (may also be 16000000) */
-#define __HFXTAL    26000000u  
+#define __HFXTAL    26000000u
 
 /*System clock constant (same whether internal osc or external xtal) */
-#define __LFCLK        32768u 
+#define __LFCLK        32768u
 
 /* Selecting HFOSC as input for generating root clock*/
 #define HFMUX_INTERNAL_OSC_VAL      (0u << BITP_CLKG_CLK_CTL0_CLKMUX)
@@ -69,11 +69,11 @@ extern "C" {
  * Security options
  */
 typedef struct {
-        const uint32_t ReadProtectKeyHash[4];    
-        const uint32_t CrcOfReadProtectKeyHash;  
-        const uint32_t LastCRCPage;              
-        const uint32_t InCircuitWriteProtectCode;
-        const uint32_t FlashBlockWriteProtect;   
+    const uint32_t ReadProtectKeyHash[4];
+    const uint32_t CrcOfReadProtectKeyHash;
+    const uint32_t LastCRCPage;
+    const uint32_t InCircuitWriteProtectCode;
+    const uint32_t FlashBlockWriteProtect;
 
 } ADI_ADUCM302X_SECURITY_OPTIONS;
 
@@ -84,7 +84,7 @@ typedef struct {
 /*! Power  key */
 #define PWRKEY_VALUE_KEY 0x4859u
 
-  
+
 /**
  *  SRAM banks
  */

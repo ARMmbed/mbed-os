@@ -129,8 +129,8 @@ void flexcom_read(Flexcom *p_flexcom, uint32_t *data);
  * \subsection flexcom_basic_use_case_usage_flow Workflow
  * -# Use write/read function to access the data
  * \code
-	 flexcom_write(FLEXCOM0, data);
-	 flexcom_read(FLEXCOM0, &data);
+     flexcom_write(FLEXCOM0, data);
+     flexcom_read(FLEXCOM0, &data);
  \endcode
  */
 

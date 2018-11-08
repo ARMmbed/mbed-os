@@ -40,7 +40,7 @@
 #define __STM32F3xx_HAL_UART_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -73,8 +73,8 @@
 #define UART_WORDLENGTH_8B                  (0x00000000U)              /*!< 8-bit long UART frame */
 #define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)    /*!< 9-bit long UART frame */
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
-       /* STM32F301x8 || STM32F302x8 || STM32F318xx   */
+/* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+/* STM32F301x8 || STM32F302x8 || STM32F318xx   */
 /**
   * @}
   */
@@ -355,7 +355,7 @@ void HAL_UARTEx_WakeupCallback(UART_HandleTypeDef *huart);
     }                                                         \
   } while(0U)
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx    */
+/* STM32F302xC || STM32F303xC || STM32F358xx    */
 
 
 /** @brief  Compute the UART mask to apply to retrieve the received data
@@ -433,12 +433,12 @@ void HAL_UARTEx_WakeupCallback(UART_HandleTypeDef *huart);
   }                                                                   \
 } while(0U)
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
-       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+/* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+/* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 /**
   * @brief Ensure that UART frame length is valid.
-  * @param __LENGTH__: UART frame length. 
+  * @param __LENGTH__: UART frame length.
   * @retval SET (__LENGTH__ is valid) or RESET (__LENGTH__ is invalid)
   */
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
@@ -451,8 +451,8 @@ void HAL_UARTEx_WakeupCallback(UART_HandleTypeDef *huart);
 #define IS_UART_WORD_LENGTH(__LENGTH__) (((__LENGTH__) == UART_WORDLENGTH_8B) || \
                                          ((__LENGTH__) == UART_WORDLENGTH_9B))
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
-       /* STM32F301x8 || STM32F302x8 || STM32F318xx   */
+/* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+/* STM32F301x8 || STM32F302x8 || STM32F318xx   */
 /**
   * @}
   */

@@ -41,7 +41,7 @@ nRF5xDiscoveredCharacteristic::setup(nRF5xGattClient         *gattcIn,
 
 void
 nRF5xDiscoveredCharacteristic::setup(nRF5xGattClient         *gattcIn,
-                                      Gap::Handle_t            connectionHandleIn,
+                                     Gap::Handle_t            connectionHandleIn,
                                      UUID::ShortUUIDBytes_t   uuidIn,
                                      ble_gatt_char_props_t    propsIn,
                                      GattAttribute::Handle_t  declHandleIn,

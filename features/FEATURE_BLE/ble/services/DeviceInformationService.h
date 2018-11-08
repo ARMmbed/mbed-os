@@ -95,7 +95,8 @@ public:
                                            &serialNumberStringCharacteristic,
                                            &hardwareRevisionStringCharacteristic,
                                            &firmwareRevisionStringCharacteristic,
-                                           &softwareRevisionStringCharacteristic};
+                                           &softwareRevisionStringCharacteristic
+                                          };
         GattService         deviceInformationService(GattService::UUID_DEVICE_INFORMATION_SERVICE, charTable,
                                                      sizeof(charTable) / sizeof(GattCharacteristic *));
 

@@ -5,7 +5,7 @@
   * @version V1.7.1
   * @date    21-April-2017
   * @brief   FLASH RAMFUNC driver.
-  *          This file provides a Flash firmware functions which should be 
+  *          This file provides a Flash firmware functions which should be
   *          executed from internal SRAM
   *            + FLASH HalfPage Programming
   *            + FLASH Power Down in Run mode
@@ -13,15 +13,15 @@
   *  @verbatim
   ==============================================================================
                    ##### Flash RAM functions #####
-  ==============================================================================    
+  ==============================================================================
 
     *** ARM Compiler ***
     --------------------
-    [..] RAM functions are defined using the toolchain options. 
+    [..] RAM functions are defined using the toolchain options.
          Functions that are executed in RAM should reside in a separate
          source module. Using the 'Options for File' dialog you can simply change
          the 'Code / Const' area of a module to a memory space in physical RAM.
-         Available memory areas are declared in the 'Target' tab of the 
+         Available memory areas are declared in the 'Target' tab of the
          Options for Target' dialog.
 
     *** ICCARM Compiler ***
@@ -32,7 +32,7 @@
     --------------------
     [..] RAM functions are defined using a specific toolchain attribute
          "__attribute__((section(".RamFunc")))".
-  
+
   @endverbatim
   ******************************************************************************
   * @attention
@@ -62,7 +62,7 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
@@ -91,13 +91,13 @@ extern FLASH_ProcessTypeDef pFlash;
   * @{
   */
 
-/** @defgroup FLASH_RAMFUNC_Exported_Functions_Group1 Peripheral features functions 
- *  @brief   Data transfers functions 
+/** @defgroup FLASH_RAMFUNC_Exported_Functions_Group1 Peripheral features functions
+ *  @brief   Data transfers functions
  *
-@verbatim   
+@verbatim
  ===============================================================================
                       ##### ramfunc functions #####
- ===============================================================================  
+ ===============================================================================
     [..]
     This subsection provides a set of functions that should be executed from RAM.
 
@@ -112,11 +112,11 @@ extern FLASH_ProcessTypeDef pFlash;
   */
 __RAM_FUNC HAL_FLASHEx_EnableRunPowerDown(void)
 {
-  /* Enable the Power Down in Run mode*/
-  __HAL_FLASH_POWER_DOWN_ENABLE();
-  
-  return HAL_OK;
-  
+    /* Enable the Power Down in Run mode*/
+    __HAL_FLASH_POWER_DOWN_ENABLE();
+
+    return HAL_OK;
+
 }
 
 /**
@@ -126,10 +126,10 @@ __RAM_FUNC HAL_FLASHEx_EnableRunPowerDown(void)
   */
 __RAM_FUNC HAL_FLASHEx_DisableRunPowerDown(void)
 {
-  /* Disable the Power Down in Run mode*/
-  __HAL_FLASH_POWER_DOWN_DISABLE();
+    /* Disable the Power Down in Run mode*/
+    __HAL_FLASH_POWER_DOWN_DISABLE();
 
-  return HAL_OK;  
+    return HAL_OK;
 }
 
 /**
@@ -138,20 +138,20 @@ __RAM_FUNC HAL_FLASHEx_DisableRunPowerDown(void)
 
 /**
   * @}
-  */   
+  */
 #endif /* HAL_FLASH_MODULE_ENABLED */
 
 
-  
-/**
-  * @}
-  */
 
 /**
   * @}
   */
 
-     
+/**
+  * @}
+  */
+
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 
 

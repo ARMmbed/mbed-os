@@ -48,7 +48,7 @@ extern "C" {
 #define DHCP_SERVER_PORT  67
 
 
- /* DHCP message item offsets and length */
+/* DHCP message item offsets and length */
 #define DHCP_CHADDR_LEN   16U
 #define DHCP_SNAME_OFS    44U
 #define DHCP_SNAME_LEN    64U
@@ -62,34 +62,33 @@ extern "C" {
 #endif
 PACK_STRUCT_BEGIN
 /** minimum set of fields of any DHCP message */
-struct dhcp_msg
-{
-  PACK_STRUCT_FLD_8(u8_t op);
-  PACK_STRUCT_FLD_8(u8_t htype);
-  PACK_STRUCT_FLD_8(u8_t hlen);
-  PACK_STRUCT_FLD_8(u8_t hops);
-  PACK_STRUCT_FIELD(u32_t xid);
-  PACK_STRUCT_FIELD(u16_t secs);
-  PACK_STRUCT_FIELD(u16_t flags);
-  PACK_STRUCT_FLD_S(ip4_addr_p_t ciaddr);
-  PACK_STRUCT_FLD_S(ip4_addr_p_t yiaddr);
-  PACK_STRUCT_FLD_S(ip4_addr_p_t siaddr);
-  PACK_STRUCT_FLD_S(ip4_addr_p_t giaddr);
-  PACK_STRUCT_FLD_8(u8_t chaddr[DHCP_CHADDR_LEN]);
-  PACK_STRUCT_FLD_8(u8_t sname[DHCP_SNAME_LEN]);
-  PACK_STRUCT_FLD_8(u8_t file[DHCP_FILE_LEN]);
-  PACK_STRUCT_FIELD(u32_t cookie);
+struct dhcp_msg {
+    PACK_STRUCT_FLD_8(u8_t op);
+    PACK_STRUCT_FLD_8(u8_t htype);
+    PACK_STRUCT_FLD_8(u8_t hlen);
+    PACK_STRUCT_FLD_8(u8_t hops);
+    PACK_STRUCT_FIELD(u32_t xid);
+    PACK_STRUCT_FIELD(u16_t secs);
+    PACK_STRUCT_FIELD(u16_t flags);
+    PACK_STRUCT_FLD_S(ip4_addr_p_t ciaddr);
+    PACK_STRUCT_FLD_S(ip4_addr_p_t yiaddr);
+    PACK_STRUCT_FLD_S(ip4_addr_p_t siaddr);
+    PACK_STRUCT_FLD_S(ip4_addr_p_t giaddr);
+    PACK_STRUCT_FLD_8(u8_t chaddr[DHCP_CHADDR_LEN]);
+    PACK_STRUCT_FLD_8(u8_t sname[DHCP_SNAME_LEN]);
+    PACK_STRUCT_FLD_8(u8_t file[DHCP_FILE_LEN]);
+    PACK_STRUCT_FIELD(u32_t cookie);
 #define DHCP_MIN_OPTIONS_LEN 68U
-/** make sure user does not configure this too small */
+    /** make sure user does not configure this too small */
 #if ((defined(DHCP_OPTIONS_LEN)) && (DHCP_OPTIONS_LEN < DHCP_MIN_OPTIONS_LEN))
 #  undef DHCP_OPTIONS_LEN
 #endif
-/** allow this to be configured in lwipopts.h, but not too small */
+    /** allow this to be configured in lwipopts.h, but not too small */
 #if (!defined(DHCP_OPTIONS_LEN))
-/** set this to be sufficient for your options in outgoing DHCP msgs */
+    /** set this to be sufficient for your options in outgoing DHCP msgs */
 #  define DHCP_OPTIONS_LEN DHCP_MIN_OPTIONS_LEN
 #endif
-  PACK_STRUCT_FLD_8(u8_t options[DHCP_OPTIONS_LEN]);
+    PACK_STRUCT_FLD_8(u8_t options[DHCP_OPTIONS_LEN]);
 } PACK_STRUCT_STRUCT;
 PACK_STRUCT_END
 #ifdef PACK_STRUCT_USE_INCLUDES
@@ -99,19 +98,19 @@ PACK_STRUCT_END
 
 /* DHCP client states */
 typedef enum {
-  DHCP_STATE_OFF             = 0,
-  DHCP_STATE_REQUESTING      = 1,
-  DHCP_STATE_INIT            = 2,
-  DHCP_STATE_REBOOTING       = 3,
-  DHCP_STATE_REBINDING       = 4,
-  DHCP_STATE_RENEWING        = 5,
-  DHCP_STATE_SELECTING       = 6,
-  DHCP_STATE_INFORMING       = 7,
-  DHCP_STATE_CHECKING        = 8,
-  DHCP_STATE_PERMANENT       = 9,  /* not yet implemented */
-  DHCP_STATE_BOUND           = 10,
-  DHCP_STATE_RELEASING       = 11, /* not yet implemented */
-  DHCP_STATE_BACKING_OFF     = 12
+    DHCP_STATE_OFF             = 0,
+    DHCP_STATE_REQUESTING      = 1,
+    DHCP_STATE_INIT            = 2,
+    DHCP_STATE_REBOOTING       = 3,
+    DHCP_STATE_REBINDING       = 4,
+    DHCP_STATE_RENEWING        = 5,
+    DHCP_STATE_SELECTING       = 6,
+    DHCP_STATE_INFORMING       = 7,
+    DHCP_STATE_CHECKING        = 8,
+    DHCP_STATE_PERMANENT       = 9,  /* not yet implemented */
+    DHCP_STATE_BOUND           = 10,
+    DHCP_STATE_RELEASING       = 11, /* not yet implemented */
+    DHCP_STATE_BACKING_OFF     = 12
 } dhcp_state_enum_t;
 
 /* DHCP op codes */

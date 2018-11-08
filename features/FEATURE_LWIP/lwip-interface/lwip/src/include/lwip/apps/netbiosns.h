@@ -36,7 +36,7 @@
 
 void netbiosns_init(void);
 #ifndef NETBIOS_LWIP_NAME
-void netbiosns_set_name(const char* hostname);
+void netbiosns_set_name(const char *hostname);
 #endif
 void netbiosns_stop(void);
 

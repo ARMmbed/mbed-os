@@ -62,11 +62,11 @@
 /**@brief Macro for flash page size according to chip family
  */
 #if defined (NRF51)
-    #define FS_PAGE_SIZE    (1024)
+#define FS_PAGE_SIZE    (1024)
 #elif defined (NRF52)
-    #define FS_PAGE_SIZE    (4096)
+#define FS_PAGE_SIZE    (4096)
 #else
-    #error "Device family must be defined. See nrf.h."
+#error "Device family must be defined. See nrf.h."
 #endif
 
 
@@ -83,8 +83,8 @@
 static __INLINE uint32_t fs_flash_page_end_addr()
 {
     uint32_t const bootloader_addr = NRF_UICR->NRFFW[0];
-    return  ((bootloader_addr != FS_EMPTY_MASK) ?
-             bootloader_addr : NRF_FICR->CODESIZE * FS_PAGE_SIZE);
+    return ((bootloader_addr != FS_EMPTY_MASK) ?
+            bootloader_addr : NRF_FICR->CODESIZE * FS_PAGE_SIZE);
 }
 
 
@@ -100,11 +100,11 @@ static __INLINE uint32_t fs_flash_page_end_addr()
  *
  */
 #if defined (NRF51)
-    #define FS_MAX_WRITE_SIZE_WORDS	    (256)
+#define FS_MAX_WRITE_SIZE_WORDS     (256)
 #elif defined (NRF52)
-    #define FS_MAX_WRITE_SIZE_WORDS     (1024)
+#define FS_MAX_WRITE_SIZE_WORDS     (1024)
 #else
-    #error "Device family must be defined. see nrf.h"
+#error "Device family must be defined. see nrf.h"
 #endif
 
 /** @} */

@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -60,21 +60,17 @@
 
 /**@brief Events that can come from the ID Manager module.
  */
-typedef enum
-{
+typedef enum {
     IM_EVT_DUPLICATE_ID,          /**< The ID Manager module has detected that two stored peers represent the same peer. */
     IM_EVT_BONDED_PEER_CONNECTED, /**< A connected peer has been identified as one of the bonded peers. This can happen immediately on connection, or at a later time. */
 } im_evt_id_t;
 
 
-typedef struct
-{
+typedef struct {
     im_evt_id_t evt_id;
     uint16_t    conn_handle;
-    union
-    {
-        struct
-        {
+    union {
+        struct {
             pm_peer_id_t peer_id_1;
             pm_peer_id_t peer_id_2;
         } duplicate_id;
@@ -86,7 +82,7 @@ typedef struct
  *
  * @param[in]  p_event   The event that has happened.
  */
-typedef void (*im_evt_handler_t)(im_evt_t const * p_event);
+typedef void (*im_evt_handler_t)(im_evt_t const *p_event);
 
 /**@brief Function for registering for events from the ID Manager module.
  *
@@ -105,7 +101,7 @@ ret_code_t im_register(im_evt_handler_t evt_handler);
  *
  * @param[in]  p_ble_evt  The SoftDevice event.
  */
-void im_ble_evt_handler(ble_evt_t * p_ble_evt);
+void im_ble_evt_handler(ble_evt_t *p_ble_evt);
 
 
 /**@brief Function for getting the corresponding peer ID from a connection handle.
@@ -123,7 +119,7 @@ pm_peer_id_t im_peer_id_get_by_conn_handle(uint16_t conn_handle);
  *
  * @return The corresponding peer ID, or @ref PM_PEER_ID_INVALID if none could be resolved.
  */
-pm_peer_id_t im_peer_id_get_by_master_id(ble_gap_master_id_t * p_master_id);
+pm_peer_id_t im_peer_id_get_by_master_id(ble_gap_master_id_t *p_master_id);
 
 
 /**@brief Function for getting the corresponding peer ID from an IRK match index, see @ref
@@ -154,8 +150,8 @@ uint16_t im_conn_handle_get(pm_peer_id_t peer_id);
  *
  * @return     True if the input matches, false if it does not.
  */
-bool im_master_ids_compare(ble_gap_master_id_t const * p_master_id1,
-                           ble_gap_master_id_t const * p_master_id2);
+bool im_master_ids_compare(ble_gap_master_id_t const *p_master_id1,
+                           ble_gap_master_id_t const *p_master_id2);
 
 
 /**@brief Function for getting the BLE address used by the peer when connecting.
@@ -169,7 +165,7 @@ bool im_master_ids_compare(ble_gap_master_id_t const * p_master_id1,
  * @retval BLE_ERROR_CONN_HANDLE_INVALID conn_handle does not refer to an active connection.
  * @retval NRF_ERROR_NULL                p_ble_addr was NULL.
  */
-ret_code_t im_ble_addr_get(uint16_t conn_handle, ble_gap_addr_t * p_ble_addr);
+ret_code_t im_ble_addr_get(uint16_t conn_handle, ble_gap_addr_t *p_ble_addr);
 
 
 /**@brief Function for checking whether a master ID is valid or invalid
@@ -179,7 +175,7 @@ ret_code_t im_ble_addr_get(uint16_t conn_handle, ble_gap_addr_t * p_ble_addr);
  * @retval true   The master id is valid.
  * @retval true   The master id is invalid (i.e. all zeros).
  */
-bool im_master_id_is_valid(ble_gap_master_id_t const * p_master_id);
+bool im_master_id_is_valid(ble_gap_master_id_t const *p_master_id);
 
 
 /**@brief Function for reporting that a new peer ID has been allocated for a specified connection.
@@ -220,7 +216,7 @@ ret_code_t im_peer_free(pm_peer_id_t peer_id);
  * @retval NRF_ERROR_NULL      p_whitelist was NULL.
  * @retval NRF_ERROR_NOT_FOUND One or more of the whitelists irks was not found in the peer_database.
  */
-ret_code_t im_whitelist_custom(ble_gap_whitelist_t const * p_whitelist);
+ret_code_t im_whitelist_custom(ble_gap_whitelist_t const *p_whitelist);
 
 
 /**
@@ -241,9 +237,9 @@ ret_code_t im_whitelist_custom(ble_gap_whitelist_t const * p_whitelist);
  * @retval NRF_SUCCESS     Whitelist successfully created.
  * @retval NRF_ERROR_NULL  p_whitelist was NULL.
  */
-ret_code_t im_whitelist_create(pm_peer_id_t        * p_peer_ids,
+ret_code_t im_whitelist_create(pm_peer_id_t         *p_peer_ids,
                                uint8_t               n_peer_ids,
-                               ble_gap_whitelist_t * p_whitelist);
+                               ble_gap_whitelist_t *p_whitelist);
 
 /**
  * @brief Function for resolving a resolvable address with an identity resolution key (IRK).
@@ -260,7 +256,7 @@ ret_code_t im_whitelist_create(pm_peer_id_t        * p_peer_ids,
  * @retval false  The irk used did not match the one used to create the address, or an argument was
  *                NULL.
  */
-bool im_address_resolve(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_irk);
+bool im_address_resolve(ble_gap_addr_t const *p_addr, ble_gap_irk_t const *p_irk);
 
 /**@brief Function for calculating the ah() hash function described in Bluetooth core specification
  *        4.2 section 3.H.2.2.2.
@@ -292,7 +288,7 @@ bool im_address_resolve(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_i
  *          ble-nrf52832 yotta module.
  *          =================
  */
-void ah(uint8_t const * p_k, uint8_t const * p_r, uint8_t * p_local_hash);  
+void ah(uint8_t const *p_k, uint8_t const *p_r, uint8_t *p_local_hash);
 
 /** @}
  * @endcond

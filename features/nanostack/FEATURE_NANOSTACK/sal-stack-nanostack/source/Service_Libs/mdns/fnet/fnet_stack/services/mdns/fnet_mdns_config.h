@@ -40,7 +40,7 @@
  *               - @b @c 0 = is disabled (Default value).
  ******************************************************************************/
 #ifndef FNET_CFG_MDNS
-    #define FNET_CFG_MDNS                       (0)
+#define FNET_CFG_MDNS                       (0)
 #endif
 
 /**************************************************************************/ /*!
@@ -50,7 +50,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_MDNS_MAX
-    #define FNET_CFG_MDNS_MAX                   (1u)
+#define FNET_CFG_MDNS_MAX                   (1u)
 #endif
 
 /**************************************************************************/ /*!
@@ -63,7 +63,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_MDNS_PORT
-    #define FNET_CFG_MDNS_PORT                  (FNET_HTONS(5353u))
+#define FNET_CFG_MDNS_PORT                  (FNET_HTONS(5353u))
 #endif
 
 /**************************************************************************/ /*!
@@ -73,7 +73,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_MDNS_RR_TTL
-    #define FNET_CFG_MDNS_RR_TTL                (120)
+#define FNET_CFG_MDNS_RR_TTL                (120)
 #endif
 
 /**************************************************************************/ /*!
@@ -84,7 +84,7 @@
  * @showinitializer
  ******************************************************************************/
 #ifndef FNET_CFG_MDNS_SERVICE_MAX
-    #define FNET_CFG_MDNS_SERVICE_MAX           (2u)
+#define FNET_CFG_MDNS_SERVICE_MAX           (2u)
 #endif
 
 /*! @} */

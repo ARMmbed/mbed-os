@@ -75,9 +75,10 @@ static mac_pairwise_interface_entry_t *mac_pairwise_key_list_allocate(uint8_t li
     return newEntry;
 }
 
-static bool mac_pairwise_key_deacriptro_attribute_get(mac_pairwise_interface_entry_t *main_list, uint8_t key_attribute) {
+static bool mac_pairwise_key_deacriptro_attribute_get(mac_pairwise_interface_entry_t *main_list, uint8_t key_attribute)
+{
     mac_pairwise_key_info_t *key_table = main_list->mac_pairwise_key_table;
-    for (uint8_t i = 0; i<main_list->key_table_size; i++) {
+    for (uint8_t i = 0; i < main_list->key_table_size; i++) {
         if (key_table->key_decriptor_attribute == key_attribute) {
             return false;
         }
@@ -87,16 +88,17 @@ static bool mac_pairwise_key_deacriptro_attribute_get(mac_pairwise_interface_ent
     return true;
 }
 
-mac_pairwise_key_info_t *mac_pairwise_key_info_get(mac_pairwise_interface_entry_t *main_list, uint8_t device_id) {
+mac_pairwise_key_info_t *mac_pairwise_key_info_get(mac_pairwise_interface_entry_t *main_list, uint8_t device_id)
+{
     mac_pairwise_key_info_t *key_table = main_list->mac_pairwise_key_table;
-    for (uint8_t i = 0; i<main_list->key_table_size; i++) {
+    for (uint8_t i = 0; i < main_list->key_table_size; i++) {
         if (key_table->device_descriptor_attribute == device_id) {
             return key_table;
         }
         key_table++;
     }
 
-    if (main_list->key_table_size == main_list->key_list_size ) {
+    if (main_list->key_table_size == main_list->key_list_size) {
         return NULL;
     }
 
@@ -106,7 +108,7 @@ mac_pairwise_key_info_t *mac_pairwise_key_info_get(mac_pairwise_interface_entry_
     new_entry->device_descriptor_attribute = device_id;
     new_entry->key_decriptor_attribute = main_list->network_key_offset;
     //Allocate key id
-    while(!unique_id) {
+    while (!unique_id) {
         unique_id = mac_pairwise_key_deacriptro_attribute_get(main_list, new_entry->key_decriptor_attribute);
         if (!unique_id) {
             new_entry->key_decriptor_attribute++;
@@ -117,12 +119,13 @@ mac_pairwise_key_info_t *mac_pairwise_key_info_get(mac_pairwise_interface_entry_
     return new_entry;
 }
 
-static bool mac_pairwise_key_info_delete(mac_pairwise_interface_entry_t *main_list, uint8_t device_id, uint8_t *key_attribute) {
+static bool mac_pairwise_key_info_delete(mac_pairwise_interface_entry_t *main_list, uint8_t device_id, uint8_t *key_attribute)
+{
     bool removed_entry = false;
 
     mac_pairwise_key_info_t *cur = main_list->mac_pairwise_key_table;
     mac_pairwise_key_info_t *prev = NULL;
-    for (uint8_t i = 0; i<main_list->key_table_size; i++) {
+    for (uint8_t i = 0; i < main_list->key_table_size; i++) {
         if (removed_entry) {
             *prev = *cur;
         } else {
@@ -169,11 +172,12 @@ static mac_pairwise_interface_entry_t *mac_pairwise_key_main_class(uint8_t key_l
 }
 
 
-static void mac_pairwise_key_list_free(protocol_interface_info_entry_t *interface, mac_pairwise_interface_entry_t *main_list) {
+static void mac_pairwise_key_list_free(protocol_interface_info_entry_t *interface, mac_pairwise_interface_entry_t *main_list)
+{
     //Delete mle entries & Keys
     mle_neigh_table_entry_t *cur_entry;
     mac_pairwise_key_info_t *cur = main_list->mac_pairwise_key_table;
-    for (uint8_t i = 0; i< main_list->key_table_size; i++) {
+    for (uint8_t i = 0; i < main_list->key_table_size; i++) {
         cur_entry = mle_class_get_by_device_attribute_id(interface->id, cur->device_descriptor_attribute);
         if (cur_entry) {
             mle_class_remove_entry(interface->id, cur_entry);
@@ -185,7 +189,7 @@ static void mac_pairwise_key_list_free(protocol_interface_info_entry_t *interfac
 
 int mac_pairwise_key_interface_register(int8_t interface_id, uint8_t mac_supported_key_decription_size, uint8_t network_key_size)
 {
-    if (!mac_supported_key_decription_size || !network_key_size ) {
+    if (!mac_supported_key_decription_size || !network_key_size) {
         return -2;
     }
 

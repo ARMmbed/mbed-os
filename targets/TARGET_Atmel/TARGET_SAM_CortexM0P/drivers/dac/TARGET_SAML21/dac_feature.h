@@ -507,34 +507,34 @@ bool dac_chan_is_end_of_conversion(
  * The table below presents the acronyms used in this module:
  *
  * <table>
- *	<tr>
- *		<th>Acronym</th>
- *		<th>Description</th>
- *	</tr>
- *	<tr>
- *		<td>ADC</td>
- *		<td>Analog-to-Digital Converter</td>
- *	</tr>
- *	<tr>
- *		<td>AC</td>
- *		<td>Analog Comparator</td>
- *	</tr>
- *	<tr>
- *		<td>DAC</td>
- *		<td>Digital-to-Analog Converter</td>
- *	</tr>
- *	<tr>
- *		<td>LSB</td>
- *		<td>Least Significant Bit</td>
- *	</tr>
- *	<tr>
- *		<td>MSB</td>
- *		<td>Most Significant Bit</td>
- *	</tr>
- *	<tr>
- *		<td>DMA</td>
- *		<td>Direct Memory Access</td>
- *	</tr>
+ *  <tr>
+ *      <th>Acronym</th>
+ *      <th>Description</th>
+ *  </tr>
+ *  <tr>
+ *      <td>ADC</td>
+ *      <td>Analog-to-Digital Converter</td>
+ *  </tr>
+ *  <tr>
+ *      <td>AC</td>
+ *      <td>Analog Comparator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>DAC</td>
+ *      <td>Digital-to-Analog Converter</td>
+ *  </tr>
+ *  <tr>
+ *      <td>LSB</td>
+ *      <td>Least Significant Bit</td>
+ *  </tr>
+ *  <tr>
+ *      <td>MSB</td>
+ *      <td>Most Significant Bit</td>
+ *  </tr>
+ *  <tr>
+ *      <td>DMA</td>
+ *      <td>Direct Memory Access</td>
+ *  </tr>
  * </table>
  *
  *
@@ -555,12 +555,12 @@ bool dac_chan_is_end_of_conversion(
  * the table.
  *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
- *	<tr>
- *		<td>Initial Release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Changelog</th>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial Release</td>
+ *  </tr>
  * </table>
  */
 
@@ -590,16 +590,16 @@ bool dac_chan_is_end_of_conversion(
  * \page asfdoc_sam0_dac_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
- *	<tr>
- *		<td>42450A</td>
- *		<td>07/2015</td>
- *		<td>Initial document release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42450A</td>
+ *      <td>07/2015</td>
+ *      <td>Initial document release</td>
+ *  </tr>
  * </table>
  */
 #ifdef __cplusplus

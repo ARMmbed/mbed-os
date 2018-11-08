@@ -63,13 +63,10 @@ uint32_t I2C_Open(I2C_T *i2c, uint32_t u32BusClock)
 void I2C_Close(I2C_T *i2c)
 {
     /* Reset I2C Controller */
-    if((uint32_t)i2c == I2C0_BASE)
-    {
+    if ((uint32_t)i2c == I2C0_BASE) {
         SYS->IPRST1 |= SYS_IPRST1_I2C0RST_Msk;
         SYS->IPRST1 &= ~SYS_IPRST1_I2C0RST_Msk;
-    }
-    else if((uint32_t)i2c == I2C1_BASE)
-    {
+    } else if ((uint32_t)i2c == I2C1_BASE) {
         SYS->IPRST1 |= SYS_IPRST1_I2C1RST_Msk;
         SYS->IPRST1 &= ~SYS_IPRST1_I2C1RST_Msk;
     }
@@ -111,14 +108,18 @@ void I2C_Trigger(I2C_T *i2c, uint8_t u8Start, uint8_t u8Stop, uint8_t u8Si, uint
 {
     uint32_t u32Reg = 0;
 
-    if(u8Start)
+    if (u8Start) {
         u32Reg |= I2C_CTL_STA;
-    if(u8Stop)
+    }
+    if (u8Stop) {
         u32Reg |= I2C_CTL_STO;
-    if(u8Si)
+    }
+    if (u8Si) {
         u32Reg |= I2C_CTL_SI;
-    if(u8Ack)
+    }
+    if (u8Ack) {
         u32Reg |= I2C_CTL_AA;
+    }
 
     i2c->CTL = (i2c->CTL & ~0x3C) | u32Reg;
 }
@@ -262,8 +263,7 @@ void I2C_SetData(I2C_T *i2c, uint8_t u8Data)
  */
 void I2C_SetSlaveAddr(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddr, uint8_t u8GCMode)
 {
-    switch(u8SlaveNo)
-    {
+    switch (u8SlaveNo) {
         case 1:
             i2c->ADDR1  = (u8SlaveAddr << 1) | u8GCMode;
             break;
@@ -294,8 +294,7 @@ void I2C_SetSlaveAddr(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddr, uint8_
  */
 void I2C_SetSlaveAddrMask(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddrMask)
 {
-    switch(u8SlaveNo)
-    {
+    switch (u8SlaveNo) {
         case 1:
             i2c->ADDRMSK1  = u8SlaveAddrMask << 1;
             break;
@@ -326,10 +325,11 @@ void I2C_SetSlaveAddrMask(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddrMask
  */
 void I2C_EnableTimeout(I2C_T *i2c, uint8_t u8LongTimeout)
 {
-    if(u8LongTimeout)
+    if (u8LongTimeout) {
         i2c->TOCTL |= I2C_TOCTL_TOCDIV4_Msk;
-    else
+    } else {
         i2c->TOCTL &= ~I2C_TOCTL_TOCDIV4_Msk;
+    }
 
     i2c->TOCTL |= I2C_TOCTL_TOCEN_Msk;
 }
@@ -443,10 +443,11 @@ void I2C_SMBusOpen(I2C_T *i2c, uint8_t u8HostDevice)
     i2c->BUSCTL &=  ~(I2C_BUSCTL_BMHEN_Msk | I2C_BUSCTL_BMDEN_Msk);
 
     /* Set SMBus Host/Device Mode, and enable Bus Management*/
-    if(u8HostDevice == I2C_SMBH_ENABLE)
+    if (u8HostDevice == I2C_SMBH_ENABLE) {
         i2c->BUSCTL |= (I2C_BUSCTL_BMHEN_Msk | I2C_BUSCTL_BUSEN_Msk);
-    else
+    } else {
         i2c->BUSCTL |= (I2C_BUSCTL_BMDEN_Msk | I2C_BUSCTL_BUSEN_Msk);
+    }
 }
 
 /**
@@ -480,10 +481,11 @@ void I2C_SMBusPECTxEnable(I2C_T *i2c, uint8_t u8PECTxEn)
 {
     i2c->BUSCTL &= ~I2C_BUSCTL_PECTXEN_Msk;
 
-    if(u8PECTxEn)
+    if (u8PECTxEn) {
         i2c->BUSCTL |= (I2C_BUSCTL_PECEN_Msk | I2C_BUSCTL_PECTXEN_Msk);
-    else
+    } else {
         i2c->BUSCTL |= I2C_BUSCTL_PECEN_Msk;
+    }
 }
 
 /**
@@ -521,12 +523,9 @@ void I2C_SMBusIdleTimeout(I2C_T *i2c, uint32_t us, uint32_t u32Hclk)
     i2c->BUSCTL |= I2C_BUSCTL_TIDLE_Msk;
     u32Hclk_kHz = u32Hclk / 1000;
     u32Div = (((us * u32Hclk_kHz) / 1000) >> 2) - 1;
-    if(u32Div > 255)
-    {
+    if (u32Div > 255) {
         i2c->BUSTOUT = 0xFF;
-    }
-    else
-    {
+    } else {
         i2c->BUSTOUT = u32Div;
     }
 
@@ -556,8 +555,7 @@ void I2C_SMBusTimeout(I2C_T *i2c, uint32_t ms, uint32_t u32Pclk)
     i2c->TOCTL &= ~I2C_TOCTL_TOCEN_Msk;
     u32Pclk_kHz = u32Pclk / 1000;
     u32Div = ((ms * u32Pclk_kHz) / (16 * 1024)) - 1;
-    if(u32Div <= 0xFF)
-    {
+    if (u32Div <= 0xFF) {
         i2c->BUSTOUT = u32Div;
         return;
     }
@@ -592,8 +590,7 @@ void I2C_SMBusClockLoTimeout(I2C_T *i2c, uint32_t ms, uint32_t u32Pclk)
     i2c->TOCTL &= ~I2C_TOCTL_TOCEN_Msk;
     u32Pclk_kHz = u32Pclk / 1000;
     u32Div = ((ms * u32Pclk_kHz) / (16 * 1024)) - 1;
-    if(u32Div <= 0xFF)
-    {
+    if (u32Div <= 0xFF) {
         i2c->CLKTOUT = u32Div;
         return;
     }

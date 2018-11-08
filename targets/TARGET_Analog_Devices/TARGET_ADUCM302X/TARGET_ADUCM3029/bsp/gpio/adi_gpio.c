@@ -70,26 +70,25 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* Debug function declarations */
 #ifdef ADI_DEBUG
-static bool ArePinsValid      (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);   /*!< tests for pins validity */
+static bool ArePinsValid(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);         /*!< tests for pins validity */
 #endif /* ADI_DEBUG */
 
 
-static void CommonInterruptHandler  (const ADI_GPIO_IRQ_INDEX index, const IRQn_Type eIrq);
+static void CommonInterruptHandler(const ADI_GPIO_IRQ_INDEX index, const IRQn_Type eIrq);
 void GPIO_A_Int_Handler(void);
 void GPIO_B_Int_Handler(void);
 
 /*==========  D A T A  ==========*/
-static ADI_GPIO_DRIVER adi_gpio_Device =
-{
+static ADI_GPIO_DRIVER adi_gpio_Device = {
     {
-       pADI_GPIO0,       /* port 0 base address */
-       pADI_GPIO1,       /* port 1 base address */
-       pADI_GPIO2,       /* port 2 base address */
-#if defined(__ADUCM4x50__)       
-	   pADI_GPIO3,		 /* port 3 base address */
-#endif /* __ADUCM4x50__ */       
+        pADI_GPIO0,       /* port 0 base address */
+        pADI_GPIO1,       /* port 1 base address */
+        pADI_GPIO2,       /* port 2 base address */
+#if defined(__ADUCM4x50__)
+        pADI_GPIO3,       /* port 3 base address */
+#endif /* __ADUCM4x50__ */
     },
-    
+
     NULL
 };
 /*! \endcond */
@@ -156,53 +155,49 @@ static ADI_GPIO_DRIVER adi_gpio_Device =
 
     @param[in] pMemory      Pointer to the memory required for the driver to operate.
                             The size of the memory should be at least #ADI_GPIO_MEMORY_SIZE bytes.
-                            
+
     @param[in] MemorySize   Size of the memory (in bytes) passed in pMemory parameter.
 
     @return     Status
                     - ADI_GPIO_SUCCESS                  If successfully initialized the GPIO driver.
                     - ADI_GPIO_NULL_PARAMETER       [D] If the given pointer to the driver memory is pointing to NULL.
-                    - ADI_GPIO_INVALID_MEMORY_SIZE  [D] If the given memory size is not sufficient to operate the driver. 
+                    - ADI_GPIO_INVALID_MEMORY_SIZE  [D] If the given memory size is not sufficient to operate the driver.
 
-    @note       This function clears memory reserved for managing the callback function when it is called 
+    @note       This function clears memory reserved for managing the callback function when it is called
                 for the first time. It is expected from user to call "adi_gpio_UnInit" function when the GPIO service is no longer required.
 
     @sa         adi_gpio_UnInit
 */
 ADI_GPIO_RESULT adi_gpio_Init(
-    void*                const pMemory,
+    void                *const pMemory,
     uint32_t             const MemorySize
 )
 {
 
 #ifdef ADI_DEBUG
-        /* Verify the given memory pointer */
-        if(NULL == pMemory)
-        {
-            return ADI_GPIO_NULL_PARAMETER;
-        }
-        /* Check if the memory size is sufficient to operate the driver */ 
-        if(MemorySize < ADI_GPIO_MEMORY_SIZE)
-        {
-            return ADI_GPIO_INVALID_MEMORY_SIZE;
-        }
-        assert(ADI_GPIO_MEMORY_SIZE == sizeof(ADI_GPIO_DEV_DATA));
+    /* Verify the given memory pointer */
+    if (NULL == pMemory) {
+        return ADI_GPIO_NULL_PARAMETER;
+    }
+    /* Check if the memory size is sufficient to operate the driver */
+    if (MemorySize < ADI_GPIO_MEMORY_SIZE) {
+        return ADI_GPIO_INVALID_MEMORY_SIZE;
+    }
+    assert(ADI_GPIO_MEMORY_SIZE == sizeof(ADI_GPIO_DEV_DATA));
 #endif
 
     /* Only initialize on 1st init call, i.e., preserve callbacks on multiple inits */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         uint32_t i;
 
-        adi_gpio_Device.pData = (ADI_GPIO_DEV_DATA*)pMemory;
+        adi_gpio_Device.pData = (ADI_GPIO_DEV_DATA *)pMemory;
 
         /* Initialize the callback table */
-        for (i = 0u; i < ADI_GPIO_NUM_INTERRUPTS; i++)
-        {
+        for (i = 0u; i < ADI_GPIO_NUM_INTERRUPTS; i++) {
             adi_gpio_Device.pData->CallbackTable[i].pfCallback = NULL;
             adi_gpio_Device.pData->CallbackTable[i].pCBParam   = NULL;
         }
-        
+
         /* Enable the group interrupts */
         NVIC_EnableIRQ(SYS_GPIO_INTA_IRQn);
         NVIC_EnableIRQ(SYS_GPIO_INTB_IRQn);
@@ -228,8 +223,7 @@ ADI_GPIO_RESULT adi_gpio_UnInit(void)
 
 #ifdef ADI_DEBUG
     /* IF (not initialized) */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         /* return error if not initialized */
         return (ADI_GPIO_NOT_INITIALIZED);
     }
@@ -272,14 +266,12 @@ ADI_GPIO_RESULT adi_gpio_SetGroupInterruptPins(const ADI_GPIO_PORT Port, const A
     ADI_INT_STATUS_ALLOC();
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         return (ADI_GPIO_NOT_INITIALIZED);
     }
 
     /* validate the pins */
-    if (!ArePinsValid(Port, Pins))
-    {
+    if (!ArePinsValid(Port, Pins)) {
         return (ADI_GPIO_INVALID_PINS);
     }
 #endif
@@ -287,8 +279,7 @@ ADI_GPIO_RESULT adi_gpio_SetGroupInterruptPins(const ADI_GPIO_PORT Port, const A
     pPort = adi_gpio_Device.pReg[Port];
 
     ADI_ENTER_CRITICAL_REGION();
-    switch (eIrq)
-    {
+    switch (eIrq) {
         case SYS_GPIO_INTA_IRQn:
             pPort->IENA = Pins;
             break;
@@ -335,14 +326,12 @@ ADI_GPIO_RESULT adi_gpio_SetGroupInterruptPolarity(const ADI_GPIO_PORT Port, con
 
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         return (ADI_GPIO_NOT_INITIALIZED);
     }
 
     /* validate the pins */
-    if (!ArePinsValid(Port, Pins))
-    {
+    if (!ArePinsValid(Port, Pins)) {
         return (ADI_GPIO_INVALID_PINS);
     }
 #endif
@@ -384,17 +373,15 @@ ADI_GPIO_RESULT adi_gpio_OutputEnable(const ADI_GPIO_PORT Port, const ADI_GPIO_D
 
     ADI_GPIO_TypeDef    *pPort;     /* pointer to port registers */
     ADI_INT_STATUS_ALLOC();
-    
+
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         return (ADI_GPIO_NOT_INITIALIZED);
     }
 
     /* validate the pins */
-    if (!ArePinsValid(Port, Pins))
-    {
+    if (!ArePinsValid(Port, Pins)) {
         return (ADI_GPIO_INVALID_PINS);
     }
 #endif
@@ -402,12 +389,10 @@ ADI_GPIO_RESULT adi_gpio_OutputEnable(const ADI_GPIO_PORT Port, const ADI_GPIO_D
     pPort = adi_gpio_Device.pReg[Port];
 
     ADI_ENTER_CRITICAL_REGION();
-    if (bFlag)
-    {
+    if (bFlag) {
         /* enable output */
         pPort->OEN |= Pins;
-    } else
-    {
+    } else {
         /* disable output */
         pPort->OEN &= (uint16_t)~Pins;
     }
@@ -447,7 +432,7 @@ ADI_GPIO_RESULT adi_gpio_InputEnable(const ADI_GPIO_PORT Port, const ADI_GPIO_DA
 
     ADI_GPIO_TypeDef    *pPort;     /* pointer to port registers */
     ADI_INT_STATUS_ALLOC();
-    
+
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
     if (NULL == adi_gpio_Device.pData) {
@@ -463,12 +448,10 @@ ADI_GPIO_RESULT adi_gpio_InputEnable(const ADI_GPIO_PORT Port, const ADI_GPIO_DA
     pPort = adi_gpio_Device.pReg[Port];
 
     ADI_ENTER_CRITICAL_REGION();
-    if (bFlag)
-    {
+    if (bFlag) {
         /* enable input */
         pPort->IEN |= Pins;
-    } else
-    {
+    } else {
         /* disable input */
         pPort->IEN &= (uint16_t)~Pins;
     }
@@ -508,17 +491,15 @@ ADI_GPIO_RESULT adi_gpio_PullUpEnable(const ADI_GPIO_PORT Port, const ADI_GPIO_D
 
     ADI_GPIO_TypeDef    *pPort;     /* pointer to port registers */
     ADI_INT_STATUS_ALLOC();
-    
+
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         return (ADI_GPIO_NOT_INITIALIZED);
     }
 
     /* validate the pins */
-    if (!ArePinsValid(Port, Pins))
-    {
+    if (!ArePinsValid(Port, Pins)) {
         return (ADI_GPIO_INVALID_PINS);
     }
 #endif
@@ -526,11 +507,9 @@ ADI_GPIO_RESULT adi_gpio_PullUpEnable(const ADI_GPIO_PORT Port, const ADI_GPIO_D
     pPort = adi_gpio_Device.pReg[Port];
 
     ADI_ENTER_CRITICAL_REGION();
-    if (bFlag)
-    {
+    if (bFlag) {
         pPort->PE |= Pins;
-    } else
-    {
+    } else {
         pPort->PE &= (uint16_t)(~Pins);
     }
     ADI_EXIT_CRITICAL_REGION();
@@ -569,14 +548,12 @@ ADI_GPIO_RESULT adi_gpio_SetHigh(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA P
 
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         return (ADI_GPIO_NOT_INITIALIZED);
     }
 
     /* validate the pins */
-    if (!ArePinsValid(Port, Pins))
-    {
+    if (!ArePinsValid(Port, Pins)) {
         return (ADI_GPIO_INVALID_PINS);
     }
 #endif
@@ -621,14 +598,12 @@ ADI_GPIO_RESULT adi_gpio_SetLow(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pi
 
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         return (ADI_GPIO_NOT_INITIALIZED);
     }
 
     /* validate the pins */
-    if (!ArePinsValid(Port, Pins))
-    {
+    if (!ArePinsValid(Port, Pins)) {
         return (ADI_GPIO_INVALID_PINS);
     }
 #endif
@@ -676,14 +651,12 @@ ADI_GPIO_RESULT adi_gpio_Toggle(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pi
 
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         return (ADI_GPIO_NOT_INITIALIZED);
     }
 
     /* validate the pins */
-    if (!ArePinsValid(Port, Pins))
-    {
+    if (!ArePinsValid(Port, Pins)) {
         return (ADI_GPIO_INVALID_PINS);
     }
 #endif
@@ -706,10 +679,10 @@ ADI_GPIO_RESULT adi_gpio_Toggle(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pi
                 given value.
 
     @param[in]  Port    The GPIO port whose pins logic level to be set.
-    @param[in]  Pins    The GPIO pins whose logic level to be set high. All other 
-                        GPIO pins on the port will be set to a logical low level. 
-                        For example, to set pins 0 and 1 to a logical high level and 
-                        all other pins to a logical low level, this parameter should 
+    @param[in]  Pins    The GPIO pins whose logic level to be set high. All other
+                        GPIO pins on the port will be set to a logical low level.
+                        For example, to set pins 0 and 1 to a logical high level and
+                        all other pins to a logical low level, this parameter should
                         be passed as #ADI_GPIO_PIN_0 | #ADI_GPIO_PIN_1.
 
     @return     Status
@@ -726,14 +699,12 @@ ADI_GPIO_RESULT adi_gpio_SetData(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA P
 
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         return (ADI_GPIO_NOT_INITIALIZED);
     }
 
     /* validate the pins */
-    if (!ArePinsValid(Port, Pins))
-    {
+    if (!ArePinsValid(Port, Pins)) {
         return (ADI_GPIO_INVALID_PINS);
     }
 #endif
@@ -753,7 +724,7 @@ ADI_GPIO_RESULT adi_gpio_SetData(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA P
     @details    Gets the level of all GPIO input pins on the given port.
 
     @param[in]  Port    The GPIO port whose input level to be sensed.
-    @param[in]  Pins    The GPIO pins to be sensed. To sense a single GPIO pin, a single 
+    @param[in]  Pins    The GPIO pins to be sensed. To sense a single GPIO pin, a single
                         GPIO value is passed for this parameter. For example, #ADI_GPIO_PIN_4.
                         Alternatively, multiple GPIO pins can be configured
                         simultaneously by OR-ing together GPIO pin values and
@@ -790,21 +761,19 @@ ADI_GPIO_RESULT adi_gpio_SetData(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA P
 
     @sa         adi_gpio_SetHigh, adi_gpio_SetLow, adi_gpio_Toggle, adi_gpio_SetData
 */
-ADI_GPIO_RESULT adi_gpio_GetData (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins, uint16_t* const pValue)
+ADI_GPIO_RESULT adi_gpio_GetData(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins, uint16_t *const pValue)
 {
 
     ADI_GPIO_TypeDef    *pPort;     /* pointer to port registers */
 
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         return (ADI_GPIO_NOT_INITIALIZED);
     }
 
     /* validate the pins */
-    if (!ArePinsValid(Port, Pins))
-    {
+    if (!ArePinsValid(Port, Pins)) {
         return (ADI_GPIO_INVALID_PINS);
     }
 #endif
@@ -822,8 +791,8 @@ ADI_GPIO_RESULT adi_gpio_GetData (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA 
     @brief      Register or unregister an application callback function for group (A/B) interrupts.
 
     @details    Applications may register a callback function that will be called when a
-                GPIO group (A/B) interrupt occurs. 
-                
+                GPIO group (A/B) interrupt occurs.
+
                 The driver dispatches calls to registered callback functions when the
                 properly configured pin(s) latches an external interrupt input on the GPIO
                 pin(s).  The callback is dispatched with the following parameters, respectively:
@@ -844,15 +813,14 @@ ADI_GPIO_RESULT adi_gpio_GetData (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA 
 
     @sa         adi_gpio_SetGroupInterruptPolarity
 */
-ADI_GPIO_RESULT  adi_gpio_RegisterCallback (const ADI_GPIO_IRQ eIrq, ADI_CALLBACK const pfCallback, void *const pCBParam )
+ADI_GPIO_RESULT  adi_gpio_RegisterCallback(const ADI_GPIO_IRQ eIrq, ADI_CALLBACK const pfCallback, void *const pCBParam)
 {
     uint16_t index = 0u;
     ADI_INT_STATUS_ALLOC();
-    
+
 #ifdef ADI_DEBUG
     /* make sure we're initialized */
-    if (NULL == adi_gpio_Device.pData)
-    {
+    if (NULL == adi_gpio_Device.pData) {
         return (ADI_GPIO_NOT_INITIALIZED);
     }
 #endif
@@ -860,7 +828,7 @@ ADI_GPIO_RESULT  adi_gpio_RegisterCallback (const ADI_GPIO_IRQ eIrq, ADI_CALLBAC
     index = (uint16_t)eIrq - (uint16_t)SYS_GPIO_INTA_IRQn + ADI_GPIO_IRQ_GROUPA_INDEX;
 
     ADI_ENTER_CRITICAL_REGION();
-    
+
     adi_gpio_Device.pData->CallbackTable[index].pfCallback = pfCallback;
     adi_gpio_Device.pData->CallbackTable[index].pCBParam = pCBParam;
 
@@ -888,17 +856,13 @@ static void CommonInterruptHandler(const ADI_GPIO_IRQ_INDEX index, const IRQn_Ty
     ADI_GPIO_CALLBACK_INFO *pCallbackInfo = &adi_gpio_Device.pData->CallbackTable[index];
 
     /* Loop over all the ports. */
-    for(Port=ADI_GPIO_PORT0; Port<ADI_GPIO_NUM_PORTS; Port++)
-    {
+    for (Port = ADI_GPIO_PORT0; Port < ADI_GPIO_NUM_PORTS; Port++) {
         pPort = adi_gpio_Device.pReg[Port];
 
         /* Is the interrupt is for GROUP A */
-        if(SYS_GPIO_INTA_IRQn == eIrq)
-        {
+        if (SYS_GPIO_INTA_IRQn == eIrq) {
             nIntEnabledPins =  pPort->IENA;
-        }
-        else  /* Is the interrupt is for GROUP B */
-        {
+        } else { /* Is the interrupt is for GROUP B */
             nIntEnabledPins =  pPort->IENB;
         }
 
@@ -907,9 +871,8 @@ static void CommonInterruptHandler(const ADI_GPIO_IRQ_INDEX index, const IRQn_Ty
         pPort->INT = Pins;
 
         /* params list is: application-registered cbParam, Port number, and interrupt status */
-        if((pCallbackInfo->pfCallback != NULL) && (Pins != 0u))
-        {
-            pCallbackInfo->pfCallback (pCallbackInfo->pCBParam, (uint32_t)Port, &Pins);
+        if ((pCallbackInfo->pfCallback != NULL) && (Pins != 0u)) {
+            pCallbackInfo->pfCallback(pCallbackInfo->pCBParam, (uint32_t)Port, &Pins);
         }
     }
 }
@@ -923,11 +886,11 @@ void GPIO_A_Int_Handler(void)
 }
 
 /* Interrupt B handler */
-void GPIO_B_Int_Handler (void)
+void GPIO_B_Int_Handler(void)
 {
     ISR_PROLOG()
     CommonInterruptHandler(ADI_GPIO_IRQ_GROUPB_INDEX, SYS_GPIO_INTB_IRQn);
-    ISR_EPILOG()      
+    ISR_EPILOG()
 }
 
 #ifdef ADI_DEBUG
@@ -949,8 +912,7 @@ static bool ArePinsValid(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins)
     uint32_t PinValid = 0u;
 
     /* test for a valid pin */
-    switch (Port)
-    {
+    switch (Port) {
         case ADI_GPIO_PORT0:
             PinValid = ~ADI_GPIO_PORT0_PIN_AVL & Pins;
             break;
@@ -962,21 +924,18 @@ static bool ArePinsValid(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins)
         case ADI_GPIO_PORT2:
             PinValid = ~ADI_GPIO_PORT2_PIN_AVL & Pins;
             break;
-#if defined(__ADUCM4x50__)           
+#if defined(__ADUCM4x50__)
         case ADI_GPIO_PORT3:
             PinValid = ~ADI_GPIO_PORT3_PIN_AVL & Pins;
             break;
-#endif /* __ADUCM4x50__ */            
+#endif /* __ADUCM4x50__ */
         default:
             break;
     }
 
-    if (PinValid == 0u)
-    {
+    if (PinValid == 0u) {
         return true;
-    }
-    else
-    {
+    } else {
         return false;
     }
 }

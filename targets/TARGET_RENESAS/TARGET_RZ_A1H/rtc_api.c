@@ -64,7 +64,8 @@ static uint16_t rtc_hex16_to_dec(uint16_t hex_val);
  * [out]
  * None.
  */
-void rtc_init(void) {
+void rtc_init(void)
+{
     volatile uint8_t dummy_read;
 
     // Set control register
@@ -115,7 +116,8 @@ void rtc_init(void) {
  * [out]
  * None.
  */
-void rtc_free(void) {
+void rtc_free(void)
+{
     volatile uint8_t dummy_read;
 
     // Set control register
@@ -166,7 +168,8 @@ void rtc_free(void) {
  * [out]
  * 0:Disabled, 1:Enabled.
  */
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     int ret_val = 0;
 
     if ((RTC.RCR1 & RCR1_VAL_ON) != 0) { // RTC ON ?
@@ -184,7 +187,8 @@ int rtc_isenabled(void) {
  * [out]
  * UNIX timestamp value.
  */
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
 
     struct tm timeinfo;
     int    err = 0;
@@ -201,12 +205,12 @@ time_t rtc_read(void) {
             RTC.RCR1 = tmp_regdata;
 
             // Read RTC register
-            err  = rtc_dec8_to_hex(RTC.RSECCNT , 0    , &timeinfo.tm_sec);
-            err += rtc_dec8_to_hex(RTC.RMINCNT , 0    , &timeinfo.tm_min);
-            err += rtc_dec8_to_hex(RTC.RHRCNT  , 0    , &timeinfo.tm_hour);
-            err += rtc_dec8_to_hex(RTC.RDAYCNT , 0    , &timeinfo.tm_mday);
-            err += rtc_dec8_to_hex(RTC.RMONCNT , 1    , &timeinfo.tm_mon);
-            err += rtc_dec16_to_hex(RTC.RYRCNT , 1900 , &timeinfo.tm_year);
+            err  = rtc_dec8_to_hex(RTC.RSECCNT, 0, &timeinfo.tm_sec);
+            err += rtc_dec8_to_hex(RTC.RMINCNT, 0, &timeinfo.tm_min);
+            err += rtc_dec8_to_hex(RTC.RHRCNT, 0, &timeinfo.tm_hour);
+            err += rtc_dec8_to_hex(RTC.RDAYCNT, 0, &timeinfo.tm_mday);
+            err += rtc_dec8_to_hex(RTC.RMONCNT, 1, &timeinfo.tm_mon);
+            err += rtc_dec16_to_hex(RTC.RYRCNT, 1900, &timeinfo.tm_year);
         } while ((RTC.RCR1 & 0x80u) != 0);
     } else {
         err = 1;
@@ -235,17 +239,18 @@ time_t rtc_read(void) {
  * 0:Success
  * 1:Error
  */
-static int rtc_dec8_to_hex(uint8_t dec_val, uint8_t offset, int *hex_val) {
+static int rtc_dec8_to_hex(uint8_t dec_val, uint8_t offset, int *hex_val)
+{
     int err = 0;
     uint8_t ret_val;
 
     if (hex_val != NULL) {
         if (((dec_val & MASK_04_07_POS) >= (0x0A << SHIFT_1_HBYTE)) ||
-            ((dec_val & MASK_00_03_POS) >=  0x0A)) {
+                ((dec_val & MASK_00_03_POS) >=  0x0A)) {
             err = 1;
         } else {
             ret_val = ((dec_val & MASK_04_07_POS) >> SHIFT_1_HBYTE) * 10 +
-                       (dec_val & MASK_00_03_POS);
+                      (dec_val & MASK_00_03_POS);
             if (ret_val < offset) {
                 err = 1;
             } else {
@@ -269,22 +274,23 @@ static int rtc_dec8_to_hex(uint8_t dec_val, uint8_t offset, int *hex_val) {
  * 0:Success
  * 1:Error
  */
-static int rtc_dec16_to_hex(uint16_t dec_val, uint16_t offset, int *hex_val) {
+static int rtc_dec16_to_hex(uint16_t dec_val, uint16_t offset, int *hex_val)
+{
     int err = 0;
     uint16_t ret_val;
 
     if (hex_val != NULL) {
         if (((dec_val & MASK_12_15_POS) >= (0x0A << SHIFT_3_HBYTE)) ||
-            ((dec_val & MASK_08_11_POS) >= (0x0A << SHIFT_2_HBYTE)) ||
-            ((dec_val & MASK_04_07_POS) >= (0x0A << SHIFT_1_HBYTE)) ||
-            ((dec_val & MASK_00_03_POS) >=  0x0A)) {
+                ((dec_val & MASK_08_11_POS) >= (0x0A << SHIFT_2_HBYTE)) ||
+                ((dec_val & MASK_04_07_POS) >= (0x0A << SHIFT_1_HBYTE)) ||
+                ((dec_val & MASK_00_03_POS) >=  0x0A)) {
             err = 1;
             *hex_val = 0;
         } else {
             ret_val = (((dec_val & MASK_12_15_POS)) >> SHIFT_3_HBYTE) * 1000 +
                       (((dec_val & MASK_08_11_POS)) >> SHIFT_2_HBYTE) * 100 +
                       (((dec_val & MASK_04_07_POS)) >> SHIFT_1_HBYTE) * 10 +
-                        (dec_val & MASK_00_03_POS);
+                      (dec_val & MASK_00_03_POS);
             if (ret_val < offset) {
                 err = 1;
             } else {
@@ -304,7 +310,8 @@ static int rtc_dec16_to_hex(uint16_t dec_val, uint16_t offset, int *hex_val) {
  * [out]
  * None.
  */
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
 
     struct tm timeinfo;
     if (_rtc_localtime(t, &timeinfo, RTC_FULL_LEAP_YEAR_SUPPORT) == false) {
@@ -344,7 +351,8 @@ void rtc_write(time_t t) {
  * [out]
  * decimal value:From 0x00 to 0x99.
  */
-static uint8_t rtc_hex8_to_dec(uint8_t hex_val) {
+static uint8_t rtc_hex8_to_dec(uint8_t hex_val)
+{
     uint32_t calc_data;
 
     calc_data  = hex_val / 10 * 0x10;
@@ -364,7 +372,8 @@ static uint8_t rtc_hex8_to_dec(uint8_t hex_val) {
  * [out]
  * decimal value:From 0x0000 to 0x9999.
  */
-static uint16_t rtc_hex16_to_dec(uint16_t hex_val) {
+static uint16_t rtc_hex16_to_dec(uint16_t hex_val)
+{
     uint32_t calc_data;
     calc_data  =   hex_val / 1000       * 0x1000;
     calc_data += ((hex_val / 100) % 10) * 0x100;

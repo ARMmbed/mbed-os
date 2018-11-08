@@ -62,14 +62,14 @@
    The size in uint32_t for RngDevMem is recalculated to be
    (ADI_RNG_MEMORY_SIZE + 3)/4.
  *******************************************************************************/
-static uint32_t RngDevMem[(ADI_RNG_MEMORY_SIZE + 3)/4];
+static uint32_t RngDevMem[(ADI_RNG_MEMORY_SIZE + 3) / 4];
 
 void trng_init(trng_t *obj)
 {
     ADI_RNG_HANDLE RNGhDevice;
 
     // Open the device
-    adi_rng_Open(0,RngDevMem,sizeof(RngDevMem),&RNGhDevice);
+    adi_rng_Open(0, RngDevMem, sizeof(RngDevMem), &RNGhDevice);
 
     // Set sample length for the H/W RN accumulator
     adi_rng_SetSampleLen(RNGhDevice, TRNG_PRESCALER, TRNG_CNT_VAL);
@@ -99,7 +99,7 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     uint32_t i;
     volatile uint32_t nRandomNum;
     ADI_RNG_RESULT result;
-    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)RNGhDevice;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE *)RNGhDevice;
 
     for (i = 0; i < length; i++) {
         // Loop until the device has data to be read
@@ -115,14 +115,14 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 
         // If the stuck bit is set, this means there may be a problem with RNG hardware,
         // exit with an error
-        if ( (result != ADI_RNG_SUCCESS) || ((result == ADI_RNG_SUCCESS) && (bStuck)) ) {
+        if ((result != ADI_RNG_SUCCESS) || ((result == ADI_RNG_SUCCESS) && (bStuck))) {
             // Clear the STUCK bit by writing a 1 to it
             pDevice->pRNG->STAT |= BITM_RNG_STAT_STUCK;
             return -1;
         }
 
         // Read the RNG
-        result = adi_rng_GetRngData(RNGhDevice, (uint32_t*)(&nRandomNum));
+        result = adi_rng_GetRngData(RNGhDevice, (uint32_t *)(&nRandomNum));
 
         if (result != ADI_RNG_SUCCESS) {
             return -1;

@@ -57,15 +57,15 @@
 /* **** Functions **** */
 
 /* ************************************************************************** */
-void TMR_Delay(mxc_tmr_regs_t* tmr, unsigned long us)
+void TMR_Delay(mxc_tmr_regs_t *tmr, unsigned long us)
 {
     TMR_TO_Start(tmr, us);
 
-    while(TMR_TO_Check(tmr) != E_TIME_OUT) {}
+    while (TMR_TO_Check(tmr) != E_TIME_OUT) {}
 }
 
 /* ************************************************************************** */
-void TMR_TO_Start(mxc_tmr_regs_t* tmr, unsigned long us)
+void TMR_TO_Start(mxc_tmr_regs_t *tmr, unsigned long us)
 {
     unsigned clk_shift = 0;
     uint64_t max_us;
@@ -75,7 +75,7 @@ void TMR_TO_Start(mxc_tmr_regs_t* tmr, unsigned long us)
     // Start with the fastest clock to give the greatest accuracy
     do {
         max_us = (uint64_t)((0xFFFFFFFFUL / ((uint64_t)SystemCoreClock >> clk_shift++)) * 1000000UL);
-    } while(us > max_us);
+    } while (us > max_us);
 
     // Calculate the number of timer ticks we need to wait
     TMR_Init(tmr, (tmr_prescale_t)clk_shift, NULL);
@@ -93,37 +93,37 @@ void TMR_TO_Start(mxc_tmr_regs_t* tmr, unsigned long us)
 }
 
 /* ************************************************************************** */
-int TMR_TO_Check(mxc_tmr_regs_t* tmr)
+int TMR_TO_Check(mxc_tmr_regs_t *tmr)
 {
-    if(TMR32_GetFlag(tmr)) {
+    if (TMR32_GetFlag(tmr)) {
         return E_TIME_OUT;
     }
     return E_NO_ERROR;
 }
 
 /* ************************************************************************** */
-void TMR_TO_Stop(mxc_tmr_regs_t* tmr)
+void TMR_TO_Stop(mxc_tmr_regs_t *tmr)
 {
     TMR32_Stop(tmr);
     TMR32_SetCount(tmr, 0x0);
 }
 
 /* ************************************************************************** */
-void TMR_TO_Clear(mxc_tmr_regs_t* tmr)
+void TMR_TO_Clear(mxc_tmr_regs_t *tmr)
 {
     TMR32_ClearFlag(tmr);
     TMR32_SetCount(tmr, 0x0);
 }
 
 /* ************************************************************************** */
-unsigned TMR_TO_Elapsed(mxc_tmr_regs_t* tmr)
+unsigned TMR_TO_Elapsed(mxc_tmr_regs_t *tmr)
 {
     uint32_t elapsed;
     tmr_unit_t units;
 
     TMR_TicksToTime(tmr, TMR32_GetCount(tmr), &elapsed, &units);
 
-    switch(units) {
+    switch (units) {
         case TMR_UNIT_NANOSEC:
         default:
             return (elapsed / 1000);
@@ -137,7 +137,7 @@ unsigned TMR_TO_Elapsed(mxc_tmr_regs_t* tmr)
 }
 
 /* ************************************************************************** */
-unsigned TMR_TO_Remaining(mxc_tmr_regs_t* tmr)
+unsigned TMR_TO_Remaining(mxc_tmr_regs_t *tmr)
 {
     uint32_t remaining_ticks, remaining_time;
     tmr_unit_t units;
@@ -145,7 +145,7 @@ unsigned TMR_TO_Remaining(mxc_tmr_regs_t* tmr)
     remaining_ticks = TMR32_GetCompare(tmr) - TMR32_GetCount(tmr);
     TMR_TicksToTime(tmr, remaining_ticks, &remaining_time, &units);
 
-    switch(units) {
+    switch (units) {
         case TMR_UNIT_NANOSEC:
         default:
             return (remaining_time / 1000);
@@ -159,13 +159,13 @@ unsigned TMR_TO_Remaining(mxc_tmr_regs_t* tmr)
 }
 
 /* ************************************************************************** */
-void TMR_SW_Start(mxc_tmr_regs_t* tmr)
+void TMR_SW_Start(mxc_tmr_regs_t *tmr)
 {
     TMR_TO_Start(tmr, 0xFFFFFFFF);
 }
 
 /* ************************************************************************** */
-unsigned TMR_SW_Stop(mxc_tmr_regs_t* tmr)
+unsigned TMR_SW_Stop(mxc_tmr_regs_t *tmr)
 {
     unsigned elapsed = TMR_TO_Elapsed(tmr);
     TMR_TO_Stop(tmr);

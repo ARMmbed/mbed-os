@@ -565,7 +565,7 @@ extern "C"
 
 /**
   * @brief      Clear Brown-out detector interrupt flag
-  * @param      None  
+  * @param      None
   * @return     None
   * @details    This macro clear Brown-out detector interrupt flag.
   */
@@ -573,64 +573,64 @@ extern "C"
 
 /**
   * @brief      Disable Brown-out 2.5V detector function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro disable Brown-out 2.5V detector function.  
+  * @details    This macro disable Brown-out 2.5V detector function.
   */
 #define SYS_DISABLE_BOD25()             (SYS->BODCTL &= ~SYS_BODCTL_BOD25_EN_Msk)
 
 /**
   * @brief      Enable Brown-out 2.5V detector function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro enable Brown-out 2.5V detector function.  
+  * @details    This macro enable Brown-out 2.5V detector function.
   */
 #define SYS_ENABLE_BOD25()              (SYS->BODCTL |= SYS_BODCTL_BOD25_EN_Msk)
 
 /**
   * @brief      Disable Brown-out 2.0V detector function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro disable Brown-out 2.0V detector function.  
+  * @details    This macro disable Brown-out 2.0V detector function.
   */
 #define SYS_DISABLE_BOD20()             (SYS->BODCTL &= ~SYS_BODCTL_BOD20_EN_Msk)
 
 /**
   * @brief      Enable Brown-out 2.0V detector function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro enable Brown-out 2.0V detector function.  
+  * @details    This macro enable Brown-out 2.0V detector function.
   */
 #define SYS_ENABLE_BOD20()              (SYS->BODCTL |= SYS_BODCTL_BOD20_EN_Msk)
 
 /**
   * @brief      Disable Brown-out 1.7V detector function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro disable Brown-out 1.7V detector function.  
+  * @details    This macro disable Brown-out 1.7V detector function.
   */
 #define SYS_DISABLE_BOD17()             (SYS->BODCTL &= ~SYS_BODCTL_BOD17_EN_Msk)
 
 /**
   * @brief      Enable Brown-out 1.7V detector function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro enable Brown-out 1.7V detector function.  
+  * @details    This macro enable Brown-out 1.7V detector function.
   */
 #define SYS_ENABLE_BOD17()              (SYS->BODCTL |= SYS_BODCTL_BOD17_EN_Msk)
 
 /**
   * @brief      Get Brown-out detector interrupt flag
-  * @param      None    
+  * @param      None
   * @retval     0   Brown-out detect interrupt flag is not set.
   * @retval     >=1 Brown-out detect interrupt flag is set.
-  * @details    This macro get Brown-out detector interrupt flag.    
+  * @details    This macro get Brown-out detector interrupt flag.
   */
 #define SYS_GET_BOD_INT_FLAG()          (SYS->BODSTS & SYS_BODSTS_BOD_INT_Msk)
 
 /**
   * @brief      Get Brown-out 2.5V detector status
-  * @param      None 
+  * @param      None
   * @retval     0   System voltage is higher than 2.5V setting or BOD_EN is 0.
   * @retval     >=1 System voltage is lower than 2.5V setting.
   * @details    This macro get Brown-out detector output status.
@@ -640,7 +640,7 @@ extern "C"
 
 /**
   * @brief      Get Brown-out 2.0V detector status
-  * @param      None 
+  * @param      None
   * @retval     0   System voltage is higher than 2.0V setting or BOD_EN is 0.
   * @retval     >=1 System voltage is lower than 2.0V setting.
   * @details    This macro get Brown-out detector output status.
@@ -650,7 +650,7 @@ extern "C"
 
 /**
   * @brief      Get Brown-out 1.7V detector status
-  * @param      None 
+  * @param      None
   * @retval     0   System voltage is higher than 1.7V setting or BOD_EN is 0.
   * @retval     >=1 System voltage is lower than 1.7V setting.
   * @details    This macro get Brown-out detector output status.
@@ -660,7 +660,7 @@ extern "C"
 
 /**
   * @brief      Disable Brown-out 2.5V detector interrupt function
-  * @param      None   
+  * @param      None
   * @return     None
   * @details    This macro enable Brown-out detector interrupt function.
   */
@@ -668,15 +668,15 @@ extern "C"
 
 /**
   * @brief      Enable Brown-out 2.5V detector reset function
-  * @param      None     
+  * @param      None
   * @return     None
-  * @details    This macro enable Brown-out detect reset function.  
+  * @details    This macro enable Brown-out detect reset function.
   */
 #define SYS_ENABLE_BOD25_RST()          (SYS->BODCTL |= SYS_BODCTL_BOD25_RST_EN_Msk)
 
 /**
   * @brief      Disable Brown-out 2.0V detector interrupt function
-  * @param      None   
+  * @param      None
   * @return     None
   * @details    This macro enable Brown-out detector interrupt function.
   */
@@ -684,15 +684,15 @@ extern "C"
 
 /**
   * @brief      Enable Brown-out 2.0V detector reset function
-  * @param      None     
+  * @param      None
   * @return     None
-  * @details    This macro enable Brown-out detect reset function.  
+  * @details    This macro enable Brown-out detect reset function.
   */
 #define SYS_ENABLE_BOD20_RST()          (SYS->BODCTL |= SYS_BODCTL_BOD20_RST_EN_Msk)
 
 /**
   * @brief      Disable Brown-out 1.7V detector interrupt function
-  * @param      None   
+  * @param      None
   * @return     None
   * @details    This macro enable Brown-out detector interrupt function.
   */
@@ -700,56 +700,56 @@ extern "C"
 
 /**
   * @brief      Enable Brown-out 1.7V detector reset function
-  * @param      None     
+  * @param      None
   * @return     None
-  * @details    This macro enable Brown-out detect reset function.  
+  * @details    This macro enable Brown-out detect reset function.
   */
 #define SYS_ENABLE_BOD17_RST()          (SYS->BODCTL |= SYS_BODCTL_BOD17_RST_EN_Msk)
 
 /**
   * @brief      Get reset source is from Brown-out detector reset
-  * @param      None    
+  * @param      None
   * @retval     0   Previous reset source is not from Brown-out detector reset
   * @retval     >=1 Previous reset source is from Brown-out detector reset
-  * @details    This macro get previous reset source is from Brown-out detect reset or not.   
+  * @details    This macro get previous reset source is from Brown-out detect reset or not.
   */
 #define SYS_IS_BOD_RST()                (SYS->RST_SRC & SYS_RST_SRC_RSTS_BOD_Msk)
 
 
 /**
   * @brief      Get reset source is from CPU reset
-  * @param      None     
+  * @param      None
   * @retval     0   Previous reset source is not from CPU reset
   * @retval     >=1 Previous reset source is from CPU reset
-  * @details    This macro get previous reset source is from CPU reset. 
+  * @details    This macro get previous reset source is from CPU reset.
   */
 #define SYS_IS_CPU_RST()                (SYS->RST_SRC & SYS_RST_SRC_RSTS_CPU_Msk)
 
 /**
   * @brief      Get reset source is from Power-on Reset
-  * @param      None     
+  * @param      None
   * @retval     0   Previous reset source is not from Power-on Reset
   * @retval     >=1 Previous reset source is from Power-on Reset
-  * @details    This macro get previous reset source is from Power-on Reset.   
+  * @details    This macro get previous reset source is from Power-on Reset.
   */
 #define SYS_IS_POR_RST()                (SYS->RST_SRC & SYS_RST_SRC_RSTS_POR_Msk)
 
 /**
   * @brief      Get reset source is from reset pin reset
-  * @param      None     
+  * @param      None
   * @retval     0   Previous reset source is not from reset pin reset
   * @retval     >=1 Previous reset source is from reset pin reset
-  * @details    This macro get previous reset source is from reset pin reset.  
+  * @details    This macro get previous reset source is from reset pin reset.
   */
 #define SYS_IS_RSTPIN_RST()             (SYS->RST_SRC & SYS_RST_SRC_RSTS_PAD_Msk)
 
 
 /**
   * @brief      Get reset source is from system reset
-  * @param      None     
+  * @param      None
   * @retval     0   Previous reset source is not from system reset
   * @retval     >=1 Previous reset source is from system reset
-  * @details    This macro get previous reset source is from system reset.   
+  * @details    This macro get previous reset source is from system reset.
   */
 #define SYS_IS_SYSTEM_RST()             (SYS->RST_SRC & SYS_RST_SRC_RSTS_SYS_Msk)
 
@@ -759,23 +759,23 @@ extern "C"
   * @param      None
   * @retval     0   Previous reset source is not from window watch dog reset
   * @retval     >=1 Previous reset source is from window watch dog reset
-  * @details    This macro get previous reset source is from window watch dog reset.    
+  * @details    This macro get previous reset source is from window watch dog reset.
   */
 #define SYS_IS_WDT_RST()                (SYS->RST_SRC & SYS_RST_SRC_RSTS_WDT_Msk)
 
 /**
   * @brief      Disable Power-on Reset function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro disable Power-on Reset function.  
+  * @details    This macro disable Power-on Reset function.
   */
 #define SYS_DISABLE_POR()               (SYS->PORCTL = 0x5AA5)
 
 /**
   * @brief      Enable Power-on Reset function
-  * @param      None  
+  * @param      None
   * @return     None
-  * @details    This macro enable Power-on Reset function.  
+  * @details    This macro enable Power-on Reset function.
   */
 #define SYS_ENABLE_POR()                (SYS->PORCTL = 0)
 
@@ -787,10 +787,10 @@ extern "C"
   *             - \ref SYS_RST_SRC_RSTS_PAD_Msk
   *             - \ref SYS_RST_SRC_RSTS_WDT_Msk
   *             - \ref SYS_RST_SRC_RSTS_BOD_Msk
-  *             - \ref SYS_RST_SRC_RSTS_SYS_Msk 
-  *             - \ref SYS_RST_SRC_RSTS_CPU_Msk   
+  *             - \ref SYS_RST_SRC_RSTS_SYS_Msk
+  *             - \ref SYS_RST_SRC_RSTS_CPU_Msk
   * @return     None
-  * @details    This macro clear reset source flag.   
+  * @details    This macro clear reset source flag.
   */
 #define SYS_CLEAR_RST_SOURCE(u32RstSrc) (SYS->RST_SRC = u32RstSrc )
 
@@ -798,7 +798,7 @@ extern "C"
   * @brief      Get HIRC trim status
   * @param      None
   * @retval     BIT0 HIRC Frequency Lock
-  * @retval     BIT1 Trim Failure Interrupt 
+  * @retval     BIT1 Trim Failure Interrupt
   * @retval     BIT2 LXT Clock error
   * @details    This macro get HIRC trim interrupt status register.
   */
@@ -824,7 +824,7 @@ extern "C"
   */
 __STATIC_INLINE void SYS_UnlockReg(void)
 {
-    while(SYS->RegLockAddr != SYS_RegLockAddr_RegUnLock_Msk) {
+    while (SYS->RegLockAddr != SYS_RegLockAddr_RegUnLock_Msk) {
         SYS->RegLockAddr = 0x59;
         SYS->RegLockAddr = 0x16;
         SYS->RegLockAddr = 0x88;
@@ -853,7 +853,7 @@ void SYS_ResetCPU(void);
 void SYS_ResetModule(uint32_t u32ModuleIndex);
 void SYS_EnableBOD(int32_t i32Mode, uint32_t u32BODLevel);
 void SYS_DisableBOD(void);
-void SYS_EnableIRCTrim(uint32_t u32TrimSel,uint32_t u32TrimEnInt);
+void SYS_EnableIRCTrim(uint32_t u32TrimSel, uint32_t u32TrimEnInt);
 void SYS_DisableIRCTrim(void);
 /*@}*/ /* end of group NANO100_SYS_EXPORTED_FUNCTIONS */
 

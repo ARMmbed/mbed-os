@@ -155,7 +155,7 @@ typedef enum {
     PMIC_INT = P3_7,
     MPC = P2_7,
     MON = AIN_0,
-    
+
     // BMI160 hardwired
     IMU_INT = P3_6,
 

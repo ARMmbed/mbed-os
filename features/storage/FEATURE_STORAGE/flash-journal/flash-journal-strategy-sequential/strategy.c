@@ -105,10 +105,10 @@ int32_t readAndVerifyJournalHeader(SequentialFlashJournal_t *journal, Sequential
     }
 
     if ((headerP->genericHeader.magic        != FLASH_JOURNAL_HEADER_MAGIC)             ||
-        (headerP->genericHeader.version      != FLASH_JOURNAL_HEADER_VERSION)           ||
-        (headerP->genericHeader.sizeofHeader != sizeof(SequentialFlashJournalHeader_t)) ||
-        (headerP->magic                      != SEQUENTIAL_FLASH_JOURNAL_HEADER_MAGIC)  ||
-        (headerP->version                    != SEQUENTIAL_FLASH_JOURNAL_HEADER_VERSION)) {
+            (headerP->genericHeader.version      != FLASH_JOURNAL_HEADER_VERSION)           ||
+            (headerP->genericHeader.sizeofHeader != sizeof(SequentialFlashJournalHeader_t)) ||
+            (headerP->magic                      != SEQUENTIAL_FLASH_JOURNAL_HEADER_MAGIC)  ||
+            (headerP->version                    != SEQUENTIAL_FLASH_JOURNAL_HEADER_VERSION)) {
         return JOURNAL_STATUS_NOT_FORMATTED;
     }
 
@@ -240,7 +240,7 @@ int32_t flashJournalStrategySequential_read(FlashJournal_t *_journal, void *blob
     }
     journal->read.dataBeingRead    = blob;
     journal->read.amountLeftToRead = ((journal->info.sizeofJournaledBlob - journal->read.logicalOffset) < sizeofBlob) ?
-                                        (journal->info.sizeofJournaledBlob - journal->read.logicalOffset) : sizeofBlob;
+                                     (journal->info.sizeofJournaledBlob - journal->read.logicalOffset) : sizeofBlob;
     // printf("amount left to read %u\n", journal->read.amountLeftToRead);
 
     journal->state       = SEQUENTIAL_JOURNAL_STATE_READING;
@@ -266,7 +266,7 @@ int32_t flashJournalStrategySequential_readFrom(FlashJournal_t *_journal, size_t
 
     journal->read.dataBeingRead    = blob;
     journal->read.amountLeftToRead = ((journal->info.sizeofJournaledBlob - journal->read.logicalOffset) < sizeofBlob) ?
-                                        (journal->info.sizeofJournaledBlob - journal->read.logicalOffset) : sizeofBlob;
+                                     (journal->info.sizeofJournaledBlob - journal->read.logicalOffset) : sizeofBlob;
     // printf("amount left to read %u\n", journal->read.amountLeftToRead);
 
     journal->state       = SEQUENTIAL_JOURNAL_STATE_READING;
@@ -292,7 +292,7 @@ int32_t flashJournalStrategySequential_log(FlashJournal_t *_journal, const void 
          * This is the first log in the sequence. We have to begin by identifying a new slot and erasing it.
          */
 
-         /* choose the next slot */
+        /* choose the next slot */
         uint32_t logBlobIndex = journal->currentBlobIndex + 1;
         if (logBlobIndex == journal->numSlots) {
             logBlobIndex = 0;
@@ -465,10 +465,10 @@ int32_t flashJournalStrategySequential_commit_sanityChecks(SequentialFlashJourna
             return JOURNAL_STATUS_ERROR;
         }
         if ((journal->log.mtdOffset       == ARM_STORAGE_INVALID_OFFSET) ||
-            (journal->log.mtdTailOffset   == ARM_STORAGE_INVALID_OFFSET) ||
-            (journal->log.mtdTailOffset    < journal->log.mtdOffset)     ||
-            (journal->log.tail.sizeofBlob == 0)                          ||
-            (journal->log.tail.sizeofBlob  > journal->info.capacity)) {
+                (journal->log.mtdTailOffset   == ARM_STORAGE_INVALID_OFFSET) ||
+                (journal->log.mtdTailOffset    < journal->log.mtdOffset)     ||
+                (journal->log.tail.sizeofBlob == 0)                          ||
+                (journal->log.tail.sizeofBlob  > journal->info.capacity)) {
             return JOURNAL_STATUS_ERROR; /* journal is in an un-expected state. */
         }
     }

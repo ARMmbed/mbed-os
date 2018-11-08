@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -70,7 +70,7 @@
 #define __RTK_CLRBIT(A,V)          (REG32(A) &= ~V)
 #define __RTK_SETMSK(A,M,V)        (REG32(A) = ((REG32(A) & (~M)) | V))
 
-#define PERI_BASE	0x40000000
+#define PERI_BASE   0x40000000
 
 #define __BUILD_MACRO(name,ctrl)                                 \
 static inline uint32_t                                           \
@@ -261,13 +261,13 @@ __##name##_Disable(void)                                         \
 #define FW_INFO_RSV3        (0x00)          // the firmware information reserved
 #define FW_INFO_RSV4        (0x00)          // the firmware information reserved
 
-#define FLASH_RESERVED_DATA_BASE		0x8000  // reserve 32K for Image1
-#define FLASH_SYSTEM_DATA_ADDR			0x9000  // reserve 32K+4K for Image1 + Reserved data
+#define FLASH_RESERVED_DATA_BASE        0x8000  // reserve 32K for Image1
+#define FLASH_SYSTEM_DATA_ADDR          0x9000  // reserve 32K+4K for Image1 + Reserved data
 // Flash Map for Calibration data
-#define FLASH_CAL_DATA_BASE				0xA000
-#define FLASH_CAL_DATA_ADDR(_offset)	(FLASH_CAL_DATA_BASE + _offset)
-#define FLASH_CAL_DATA_SIZE				0x1000
-#define FLASH_SECTOR_SIZE				0x1000
+#define FLASH_CAL_DATA_BASE             0xA000
+#define FLASH_CAL_DATA_ADDR(_offset)    (FLASH_CAL_DATA_BASE + _offset)
+#define FLASH_CAL_DATA_SIZE             0x1000
+#define FLASH_SECTOR_SIZE               0x1000
 // SPIC Calibration Data
 #define FLASH_SPIC_PARA_OFFSET          0x80
 #define FLASH_SPIC_PARA_BASE            (FLASH_SYSTEM_DATA_ADDR+FLASH_SPIC_PARA_OFFSET)

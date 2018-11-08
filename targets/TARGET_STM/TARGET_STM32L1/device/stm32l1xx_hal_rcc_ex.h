@@ -40,7 +40,7 @@
 #define __STM32L1xx_HAL_RCC_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,7 +52,7 @@
 
 /** @addtogroup RCCEx
   * @{
-  */ 
+  */
 
 /** @addtogroup RCCEx_Private_Constants
  * @{
@@ -94,26 +94,25 @@
   * @}
   */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 
 /** @defgroup RCCEx_Exported_Types RCCEx Exported Types
   * @{
   */
 
-/** 
-  * @brief  RCC extended clocks structure definition  
+/**
+  * @brief  RCC extended clocks structure definition
   */
-typedef struct
-{
-  uint32_t PeriphClockSelection;                /*!< The Extended Clock to be configured.
+typedef struct {
+    uint32_t PeriphClockSelection;                /*!< The Extended Clock to be configured.
                                       This parameter can be a value of @ref RCCEx_Periph_Clock_Selection */
 
-  uint32_t RTCClockSelection;         /*!< specifies the RTC clock source.
+    uint32_t RTCClockSelection;         /*!< specifies the RTC clock source.
                                        This parameter can be a value of @ref RCC_RTC_LCD_Clock_Source */
 
 #if defined(LCD)
 
-  uint32_t LCDClockSelection;         /*!< specifies the LCD clock source.
+    uint32_t LCDClockSelection;         /*!< specifies the LCD clock source.
                                        This parameter can be a value of @ref RCC_RTC_LCD_Clock_Source */
 
 #endif /* LCD */
@@ -166,8 +165,8 @@ typedef struct
 /** @defgroup RCCEx_Peripheral_Clock_Enable_Disable RCCEx_Peripheral_Clock_Enable_Disable
   * @brief  Enables or disables the AHB1 peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
-  *         is disabled and the application software has to enable this clock before 
-  *         using it.   
+  *         is disabled and the application software has to enable this clock before
+  *         using it.
   * @{
   */
 #if defined(STM32L151xB) || defined(STM32L152xB) || defined(STM32L151xBA)\
@@ -176,7 +175,7 @@ typedef struct
  || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L162xCA)\
  || defined(STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_GPIOE_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->AHBENR, RCC_AHBENR_GPIOEEN);\
@@ -217,7 +216,7 @@ typedef struct
  || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L162xCA)\
  || defined(STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_DMA2_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->AHBENR, RCC_AHBENR_DMA2EN);\
@@ -245,7 +244,7 @@ typedef struct
 #endif /* STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE || STM32L162xDX */
 
 #if defined(STM32L151xD) || defined(STM32L152xD) || defined(STM32L162xD)
-  
+
 #define __HAL_RCC_FSMC_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->AHBENR, RCC_AHBENR_FSMCEN);\
@@ -262,7 +261,7 @@ typedef struct
  || defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD)\
  || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_LCD_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB1ENR, RCC_APB1ENR_LCDEN);\
@@ -276,8 +275,8 @@ typedef struct
 
 /** @brief  Enables or disables the Low Speed APB (APB1) peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
-  *         is disabled and the application software has to enable this clock before 
-  *         using it. 
+  *         is disabled and the application software has to enable this clock before
+  *         using it.
   */
 #if defined(STM32L151xC) || defined(STM32L152xC) || defined(STM32L162xC)\
  || defined(STM32L151xCA) || defined(STM32L151xD) || defined(STM32L152xCA)\
@@ -343,12 +342,12 @@ typedef struct
 
 #define __HAL_RCC_OPAMP_CLK_ENABLE()      __HAL_RCC_COMP_CLK_ENABLE()   /* Peripherals COMP and OPAMP share the same clock domain */
 #define __HAL_RCC_OPAMP_CLK_DISABLE()     __HAL_RCC_COMP_CLK_DISABLE()  /* Peripherals COMP and OPAMP share the same clock domain */
-      
+
 #endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || (...) || STM32L162xC || STM32L152xC || STM32L151xC */
-      
+
 /** @brief  Enables or disables the High Speed APB (APB2) peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
-  *         is disabled and the application software has to enable this clock before 
+  *         is disabled and the application software has to enable this clock before
   *         using it.
   */
 #if defined(STM32L151xD) || defined(STM32L152xD) || defined(STM32L162xD)
@@ -367,19 +366,19 @@ typedef struct
 /**
     * @}
     */
-  
+
 
 /** @defgroup RCCEx_Force_Release_Peripheral_Reset RCCEx Force Release Peripheral Reset
   * @brief  Forces or releases AHB peripheral reset.
   * @{
-  */  
+  */
 #if defined(STM32L151xB) || defined(STM32L152xB) || defined(STM32L151xBA)\
  || defined(STM32L152xBA) || defined(STM32L151xC) || defined(STM32L152xC)\
  || defined(STM32L162xC) || defined(STM32L151xCA) || defined(STM32L151xD)\
  || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L162xCA)\
  || defined(STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_GPIOE_FORCE_RESET()   (RCC->AHBRSTR |= (RCC_AHBRSTR_GPIOERST))
 #define __HAL_RCC_GPIOE_RELEASE_RESET() (RCC->AHBRSTR &= ~(RCC_AHBRSTR_GPIOERST))
 
@@ -402,7 +401,7 @@ typedef struct
  || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L162xCA)\
  || defined(STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_DMA2_FORCE_RESET()    (RCC->AHBRSTR |= (RCC_AHBRSTR_DMA2RST))
 #define __HAL_RCC_DMA2_RELEASE_RESET()  (RCC->AHBRSTR &= ~(RCC_AHBRSTR_DMA2RST))
 
@@ -417,7 +416,7 @@ typedef struct
 #endif /* STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE || STM32L162xDX */
 
 #if defined(STM32L151xD) || defined(STM32L152xD) || defined(STM32L162xD)
-  
+
 #define __HAL_RCC_FSMC_FORCE_RESET()    (RCC->AHBRSTR |= (RCC_AHBRSTR_FSMCRST))
 #define __HAL_RCC_FSMC_RELEASE_RESET()  (RCC->AHBRSTR &= ~(RCC_AHBRSTR_FSMCRST))
 
@@ -428,7 +427,7 @@ typedef struct
  || defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD)\
  || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_LCD_FORCE_RESET()     (RCC->APB1RSTR |= (RCC_APB1RSTR_LCDRST))
 #define __HAL_RCC_LCD_RELEASE_RESET()   (RCC->APB1RSTR &= ~(RCC_APB1RSTR_LCDRST))
 
@@ -475,9 +474,9 @@ typedef struct
 
 #define __HAL_RCC_OPAMP_FORCE_RESET()     __HAL_RCC_COMP_FORCE_RESET()   /* Peripherals COMP and OPAMP share the same clock domain */
 #define __HAL_RCC_OPAMP_RELEASE_RESET()   __HAL_RCC_COMP_RELEASE_RESET() /* Peripherals COMP and OPAMP share the same clock domain */
-      
+
 #endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xC || STM32L152xC || STM32L151xC */
-      
+
 /** @brief  Forces or releases APB2 peripheral reset.
   */
 #if defined(STM32L151xD) || defined(STM32L152xD) || defined(STM32L162xD)
@@ -505,7 +504,7 @@ typedef struct
  || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L162xCA)\
  || defined(STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_GPIOE_CLK_SLEEP_ENABLE()  (RCC->AHBLPENR |= (RCC_AHBLPENR_GPIOELPEN))
 #define __HAL_RCC_GPIOE_CLK_SLEEP_DISABLE() (RCC->AHBLPENR &= ~(RCC_AHBLPENR_GPIOELPEN))
 
@@ -528,7 +527,7 @@ typedef struct
  || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L162xCA)\
  || defined(STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_DMA2_CLK_SLEEP_ENABLE()   (RCC->AHBLPENR |= (RCC_AHBLPENR_DMA2LPEN))
 #define __HAL_RCC_DMA2_CLK_SLEEP_DISABLE()  (RCC->AHBLPENR &= ~(RCC_AHBLPENR_DMA2LPEN))
 
@@ -542,7 +541,7 @@ typedef struct
 #endif /* STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE || STM32L162xDX */
 
 #if defined(STM32L151xD) || defined(STM32L152xD) || defined(STM32L162xD)
-  
+
 #define __HAL_RCC_FSMC_CLK_SLEEP_ENABLE()   (RCC->AHBLPENR |= (RCC_AHBLPENR_FSMCLPEN))
 #define __HAL_RCC_FSMC_CLK_SLEEP_DISABLE()  (RCC->AHBLPENR &= ~(RCC_AHBLPENR_FSMCLPEN))
 
@@ -553,7 +552,7 @@ typedef struct
  || defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD)\
  || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_LCD_CLK_SLEEP_ENABLE()    (RCC->APB1LPENR |= (RCC_APB1LPENR_LCDLPEN))
 #define __HAL_RCC_LCD_CLK_SLEEP_DISABLE()   (RCC->APB1LPENR &= ~(RCC_APB1LPENR_LCDLPEN))
 
@@ -604,7 +603,7 @@ typedef struct
 
 #define __HAL_RCC_OPAMP_CLK_SLEEP_ENABLE()      __HAL_RCC_COMP_CLK_SLEEP_ENABLE()   /* Peripherals COMP and OPAMP share the same clock domain */
 #define __HAL_RCC_OPAMP_CLK_SLEEP_DISABLE()     __HAL_RCC_COMP_CLK_SLEEP_DISABLE()  /* Peripherals COMP and OPAMP share the same clock domain */
-      
+
 #endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xC || STM32L152xC || STM32L151xC */
 
 /** @brief  Enables or disables the APB2 peripheral clock during Low Power (Sleep) mode.
@@ -638,7 +637,7 @@ typedef struct
  || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L162xCA)\
  || defined(STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_GPIOE_IS_CLK_ENABLED()       ((RCC->AHBENR & (RCC_AHBENR_GPIOEEN)) != RESET)
 #define __HAL_RCC_GPIOE_IS_CLK_DISABLED()      ((RCC->AHBENR & (RCC_AHBENR_GPIOEEN)) == RESET)
 
@@ -660,7 +659,7 @@ typedef struct
  || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L162xCA)\
  || defined(STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_DMA2_IS_CLK_ENABLED()        ((RCC->AHBENR & (RCC_AHBENR_DMA2EN)) != RESET)
 #define __HAL_RCC_DMA2_IS_CLK_DISABLED()       ((RCC->AHBENR & (RCC_AHBENR_DMA2EN)) == RESET)
 
@@ -686,7 +685,7 @@ typedef struct
  || defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD)\
  || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_LCD_IS_CLK_ENABLED()         ((RCC->APB1ENR & (RCC_APB1ENR_LCDEN)) != RESET)
 #define __HAL_RCC_LCD_IS_CLK_DISABLED()        ((RCC->APB1ENR & (RCC_APB1ENR_LCDEN)) == RESET)
 
@@ -759,7 +758,7 @@ typedef struct
  || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L162xCA)\
  || defined(STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_GPIOE_IS_CLK_SLEEP_ENABLED()       ((RCC->AHBLPENR & (RCC_AHBLPENR_GPIOELPEN)) != RESET)
 #define __HAL_RCC_GPIOE_IS_CLK_SLEEP_DISABLED()      ((RCC->AHBLPENR & (RCC_AHBLPENR_GPIOELPEN)) == RESET)
 
@@ -781,7 +780,7 @@ typedef struct
  || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L162xCA)\
  || defined(STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_DMA2_IS_CLK_SLEEP_ENABLED()        ((RCC->AHBLPENR & (RCC_AHBLPENR_DMA2LPEN)) != RESET)
 #define __HAL_RCC_DMA2_IS_CLK_SLEEP_DISABLED()       ((RCC->AHBLPENR & (RCC_AHBLPENR_DMA2LPEN)) == RESET)
 
@@ -807,7 +806,7 @@ typedef struct
  || defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD)\
  || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || defined(STM32L152xDX)\
  || defined(STM32L162xE) || defined(STM32L162xDX)
-    
+
 #define __HAL_RCC_LCD_IS_CLK_SLEEP_ENABLED()         ((RCC->APB1LPENR & (RCC_APB1LPENR_LCDLPEN)) != RESET)
 #define __HAL_RCC_LCD_IS_CLK_SLEEP_DISABLED()        ((RCC->APB1LPENR & (RCC_APB1LPENR_LCDLPEN)) == RESET)
 
@@ -864,8 +863,8 @@ typedef struct
 /**
   * @}
   */
-  
-  
+
+
 #if defined(RCC_LSECSS_SUPPORT)
 
 /**
@@ -927,8 +926,8 @@ typedef struct
   do {                                                      \
     __HAL_RCC_LSECSS_EXTI_ENABLE_RISING_EDGE();             \
     __HAL_RCC_LSECSS_EXTI_ENABLE_FALLING_EDGE();            \
-  } while(0)  
-  
+  } while(0)
+
 /**
   * @brief Disable the RCC LSE CSS Extended Interrupt Rising & Falling Trigger.
   * @retval None.
@@ -937,7 +936,7 @@ typedef struct
   do {                                                       \
     __HAL_RCC_LSECSS_EXTI_DISABLE_RISING_EDGE();             \
     __HAL_RCC_LSECSS_EXTI_DISABLE_FALLING_EDGE();            \
-  } while(0)  
+  } while(0)
 
 /**
   * @brief Check whether the specified RCC LSE CSS EXTI interrupt flag is set or not.
@@ -960,17 +959,17 @@ typedef struct
 #endif /* RCC_LSECSS_SUPPORT */
 
 #if defined(LCD)
-    
+
 /** @defgroup RCCEx_LCD_Configuration LCD Configuration
   * @brief  Macros to configure clock source of LCD peripherals.
   * @{
-  */  
+  */
 
 /** @brief Macro to configures LCD clock (LCDCLK).
   *  @note   LCD and RTC use the same configuration
   *  @note   LCD can however be used in the Stop low power mode if the LSE or LSI is used as the
   *          LCD clock source.
-  *    
+  *
   *  @param  __LCD_CLKSOURCE__ specifies the LCD clock source.
   *          This parameter can be one of the following values:
   *             @arg @ref RCC_RTCCLKSOURCE_LSE LSE selected as LCD clock
@@ -1039,7 +1038,7 @@ void              HAL_RCCEx_LSECSS_Callback(void);
 /**
   * @}
   */
-  
+
 #ifdef __cplusplus
 }
 #endif

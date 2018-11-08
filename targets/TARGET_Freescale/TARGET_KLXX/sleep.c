@@ -38,17 +38,17 @@ void hal_deepsleep(void)
             ADC0->CFG2 &= ~(ADC_CFG2_ADHSC_MASK);
         }
     }
-    
+
 #if ! defined(TARGET_KL43Z)
     //Check if PLL/FLL is enabled:
     uint32_t PLL_FLL_en = (MCG->C1 & MCG_C1_CLKS_MASK) == MCG_C1_CLKS(0);
-#endif 
-   
+#endif
+
     SMC->PMPROT = SMC_PMPROT_AVLLS_MASK | SMC_PMPROT_ALLS_MASK | SMC_PMPROT_AVLP_MASK;
     SMC->PMCTRL = SMC_PMCTRL_STOPM(2);
 
     //Deep sleep for ARM core:
-    SCB->SCR = 1<<SCB_SCR_SLEEPDEEP_Pos;
+    SCB->SCR = 1 << SCB_SCR_SLEEPDEEP_Pos;
 
     __WFI();
 
@@ -56,13 +56,13 @@ void hal_deepsleep(void)
     //Switch back to PLL as clock source if needed
     //The interrupt that woke up the device will run at reduced speed
     if (PLL_FLL_en) {
-        #ifdef MCG_C5_PLLCLKEN0_MASK        //PLL available
-        if (MCG->C6 & (1<<MCG_C6_PLLS_SHIFT) != 0) /* If PLL */
-            while((MCG->S & MCG_S_LOCK0_MASK) == 0x00U); /* Wait until locked */
-        #endif
+#ifdef MCG_C5_PLLCLKEN0_MASK        //PLL available
+        if (MCG->C6 & (1 << MCG_C6_PLLS_SHIFT) != 0) /* If PLL */
+            while ((MCG->S & MCG_S_LOCK0_MASK) == 0x00U); /* Wait until locked */
+#endif
         MCG->C1 &= ~MCG_C1_CLKS_MASK;
     }
-#endif 
+#endif
 
     if (ADC_HSC) {
         ADC0->CFG2 |= (ADC_CFG2_ADHSC_MASK);

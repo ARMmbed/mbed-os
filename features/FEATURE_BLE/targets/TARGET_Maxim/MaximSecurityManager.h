@@ -38,16 +38,17 @@
 
 #include "ble/SecurityManager.h"
 
-class MaximSecurityManager : public SecurityManager
-{
+class MaximSecurityManager : public SecurityManager {
 public:
-    static MaximSecurityManager &getInstance() {
+    static MaximSecurityManager &getInstance()
+    {
         static MaximSecurityManager m_instance;
         return m_instance;
     }
 
 public:
-    MaximSecurityManager() {
+    MaximSecurityManager()
+    {
         /* empty */
     }
 };

@@ -35,7 +35,7 @@ extern "C" {
 /*************************************************************************************************/
 /*!
  *  \fn     HciHandlerInit
- *        
+ *
  *  \brief  HCI handler init function called during system initialization.
  *
  *  \param  handlerID  WSF handler ID for HCI.
@@ -49,7 +49,7 @@ void HciHandlerInit(wsfHandlerId_t handlerId);
 /*************************************************************************************************/
 /*!
  *  \fn     HciHandler
- *        
+ *
  *  \brief  WSF event handler for HCI.
  *
  *  \param  event   WSF event mask.

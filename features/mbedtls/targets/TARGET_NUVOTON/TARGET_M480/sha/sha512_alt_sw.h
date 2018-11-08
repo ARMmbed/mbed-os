@@ -48,14 +48,14 @@ mbedtls_sha512_sw_context;
  *
  * \param ctx      SHA-512 context to be initialized
  */
-void mbedtls_sha512_sw_init( mbedtls_sha512_sw_context *ctx );
+void mbedtls_sha512_sw_init(mbedtls_sha512_sw_context *ctx);
 
 /**
  * \brief          Clear SHA-512 context
  *
  * \param ctx      SHA-512 context to be cleared
  */
-void mbedtls_sha512_sw_free( mbedtls_sha512_sw_context *ctx );
+void mbedtls_sha512_sw_free(mbedtls_sha512_sw_context *ctx);
 
 /**
  * \brief          Clone (the state of) a SHA-512 context
@@ -63,8 +63,8 @@ void mbedtls_sha512_sw_free( mbedtls_sha512_sw_context *ctx );
  * \param dst      The destination context
  * \param src      The context to be cloned
  */
-void mbedtls_sha512_sw_clone( mbedtls_sha512_sw_context *dst,
-                              const mbedtls_sha512_sw_context *src );
+void mbedtls_sha512_sw_clone(mbedtls_sha512_sw_context *dst,
+                             const mbedtls_sha512_sw_context *src);
 
 /**
  * \brief          SHA-512 context setup
@@ -72,7 +72,7 @@ void mbedtls_sha512_sw_clone( mbedtls_sha512_sw_context *dst,
  * \param ctx      context to be initialized
  * \param is384    0 = use SHA512, 1 = use SHA384
  */
-void mbedtls_sha512_sw_starts( mbedtls_sha512_sw_context *ctx, int is384 );
+void mbedtls_sha512_sw_starts(mbedtls_sha512_sw_context *ctx, int is384);
 
 /**
  * \brief          SHA-512 process buffer
@@ -81,8 +81,8 @@ void mbedtls_sha512_sw_starts( mbedtls_sha512_sw_context *ctx, int is384 );
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-void mbedtls_sha512_sw_update( mbedtls_sha512_sw_context *ctx, const unsigned char *input,
-                               size_t ilen );
+void mbedtls_sha512_sw_update(mbedtls_sha512_sw_context *ctx, const unsigned char *input,
+                              size_t ilen);
 
 /**
  * \brief          SHA-512 final digest
@@ -90,10 +90,10 @@ void mbedtls_sha512_sw_update( mbedtls_sha512_sw_context *ctx, const unsigned ch
  * \param ctx      SHA-512 context
  * \param output   SHA-384/512 checksum result
  */
-void mbedtls_sha512_sw_finish( mbedtls_sha512_sw_context *ctx, unsigned char output[64] );
+void mbedtls_sha512_sw_finish(mbedtls_sha512_sw_context *ctx, unsigned char output[64]);
 
 /* Internal use */
-void mbedtls_sha512_sw_process( mbedtls_sha512_sw_context *ctx, const unsigned char data[128] );
+void mbedtls_sha512_sw_process(mbedtls_sha512_sw_context *ctx, const unsigned char data[128]);
 
 #ifdef __cplusplus
 }

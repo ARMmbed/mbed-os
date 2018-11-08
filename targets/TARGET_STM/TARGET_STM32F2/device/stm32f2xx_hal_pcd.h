@@ -33,66 +33,63 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F2xx_HAL_PCD_H
 #define __STM32F2xx_HAL_PCD_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f2xx_ll_usb.h"
-   
+
 /** @addtogroup STM32F2xx_HAL_Driver
   * @{
   */
 
 /** @addtogroup PCD
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /** @defgroup PCD_Exported_Types PCD Exported Types
   * @{
   */
-   
+
 /**
   * @brief  PCD State structure definition
   */
-typedef enum 
-{
-  HAL_PCD_STATE_RESET   = 0x00U,
-  HAL_PCD_STATE_READY   = 0x01U,
-  HAL_PCD_STATE_ERROR   = 0x02U,
-  HAL_PCD_STATE_BUSY    = 0x03U,
-  HAL_PCD_STATE_TIMEOUT = 0x04U
+typedef enum {
+    HAL_PCD_STATE_RESET   = 0x00U,
+    HAL_PCD_STATE_READY   = 0x01U,
+    HAL_PCD_STATE_ERROR   = 0x02U,
+    HAL_PCD_STATE_BUSY    = 0x03U,
+    HAL_PCD_STATE_TIMEOUT = 0x04U
 } PCD_StateTypeDef;
 
 typedef USB_OTG_GlobalTypeDef  PCD_TypeDef;
 typedef USB_OTG_CfgTypeDef     PCD_InitTypeDef;
 typedef USB_OTG_EPTypeDef      PCD_EPTypeDef ;
 
-typedef struct
-{
-	HAL_LockTypeDef Lock;
+typedef struct {
+    HAL_LockTypeDef Lock;
 } PCD_EPLockDef;
-/** 
-  * @brief  PCD Handle Structure definition  
-  */ 
-typedef struct
-{
-  PCD_TypeDef             *Instance;    /*!< Register base address              */
-  PCD_InitTypeDef         Init;         /*!< PCD required parameters            */
-  PCD_EPTypeDef           IN_ep[16U];   /*!< IN endpoint parameters             */
-  PCD_EPTypeDef           OUT_ep[16U];  /*!< OUT endpoint parameters            */
-  HAL_LockTypeDef         Lock;         /*!< PCD peripheral status              */
-  PCD_EPLockDef           EPLock[15];
-  __IO PCD_StateTypeDef   State;        /*!< PCD communication state            */
-  uint32_t                Setup[12];    /*!< Setup packet buffer                */
-  void                    *pData;       /*!< Pointer to upper stack Handler     */
+/**
+  * @brief  PCD Handle Structure definition
+  */
+typedef struct {
+    PCD_TypeDef             *Instance;    /*!< Register base address              */
+    PCD_InitTypeDef         Init;         /*!< PCD required parameters            */
+    PCD_EPTypeDef           IN_ep[16U];   /*!< IN endpoint parameters             */
+    PCD_EPTypeDef           OUT_ep[16U];  /*!< OUT endpoint parameters            */
+    HAL_LockTypeDef         Lock;         /*!< PCD peripheral status              */
+    PCD_EPLockDef           EPLock[15];
+    __IO PCD_StateTypeDef   State;        /*!< PCD communication state            */
+    uint32_t                Setup[12];    /*!< Setup packet buffer                */
+    void                    *pData;       /*!< Pointer to upper stack Handler     */
 } PCD_HandleTypeDef;
 
 /**
@@ -116,7 +113,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup PCD_PHY_Module PCD PHY Module
   * @{
   */
@@ -130,10 +127,10 @@ typedef struct
   * @{
   */
 #ifndef USBD_HS_TRDT_VALUE
- #define USBD_HS_TRDT_VALUE           9U
+#define USBD_HS_TRDT_VALUE           9U
 #endif /* USBD_HS_TRDT_VALUE */
 #ifndef USBD_FS_TRDT_VALUE
- #define USBD_FS_TRDT_VALUE           5U
+#define USBD_FS_TRDT_VALUE           5U
 #endif /* USBD_FS_TRDT_VALUE */
 /**
   * @}
@@ -192,7 +189,7 @@ typedef struct
                                                                        EXTI->FTSR |= USB_OTG_HS_WAKEUP_EXTI_LINE;\
                                                                       }while(0U)
 
-#define __HAL_USB_OTG_HS_WAKEUP_EXTI_GENERATE_SWIT()   (EXTI->SWIER |= USB_OTG_FS_WAKEUP_EXTI_LINE) 
+#define __HAL_USB_OTG_HS_WAKEUP_EXTI_GENERATE_SWIT()   (EXTI->SWIER |= USB_OTG_FS_WAKEUP_EXTI_LINE)
 
 #define __HAL_USB_OTG_FS_WAKEUP_EXTI_ENABLE_IT()    EXTI->IMR |= USB_OTG_FS_WAKEUP_EXTI_LINE
 #define __HAL_USB_OTG_FS_WAKEUP_EXTI_DISABLE_IT()   EXTI->IMR &= ~(USB_OTG_FS_WAKEUP_EXTI_LINE)
@@ -213,7 +210,7 @@ typedef struct
                                                                       EXTI->FTSR |= USB_OTG_FS_WAKEUP_EXTI_LINE;\
                                                                      }while(0U)
 
-#define __HAL_USB_OTG_FS_WAKEUP_EXTI_GENERATE_SWIT()  (EXTI->SWIER |= USB_OTG_FS_WAKEUP_EXTI_LINE) 
+#define __HAL_USB_OTG_FS_WAKEUP_EXTI_GENERATE_SWIT()  (EXTI->SWIER |= USB_OTG_FS_WAKEUP_EXTI_LINE)
 /**
   * @}
   */
@@ -288,12 +285,12 @@ HAL_StatusTypeDef HAL_PCD_DeActivateRemoteWakeup(PCD_HandleTypeDef *hpcd);
 PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
   */
- 
+
 /* Private macros ------------------------------------------------------------*/
 /** @defgroup PCD_Private_Macros PCD Private Macros
  * @{
@@ -301,22 +298,22 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 /** @defgroup PCD_Instance_definition PCD Instance definition
   * @{
   */
- #define IS_PCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS) || \
+#define IS_PCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS) || \
                                         ((INSTANCE) == USB_OTG_HS))
 /**
   * @}
-  */ 
+  */
 /**
   * @}
   */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 #ifdef __cplusplus
 }

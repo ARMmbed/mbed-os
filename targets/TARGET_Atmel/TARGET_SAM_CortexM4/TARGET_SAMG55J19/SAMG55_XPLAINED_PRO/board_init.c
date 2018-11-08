@@ -62,10 +62,10 @@
  * \param mode Mode masks to configure for the specified pin (\ref ioport_modes)
  */
 #define ioport_set_port_peripheral_mode(port, masks, mode) \
-	do {\
-		ioport_set_port_mode(port, masks, mode);\
-		ioport_disable_port(port, masks);\
-	} while (0)
+    do {\
+        ioport_set_port_mode(port, masks, mode);\
+        ioport_disable_port(port, masks);\
+    } while (0)
 
 /**
  * \brief Set peripheral mode for one single IOPORT pin.
@@ -74,10 +74,10 @@
  * \param mode Mode masks to configure for the specified pin (\ref ioport_modes)
  */
 #define ioport_set_pin_peripheral_mode(pin, mode) \
-	do {\
-		ioport_set_pin_mode(pin, mode);\
-		ioport_disable_pin(pin);\
-	} while (0)
+    do {\
+        ioport_set_pin_mode(pin, mode);\
+        ioport_disable_pin(pin);\
+    } while (0)
 
 #if defined(__GNUC__)
 void board_init(void) WEAK __attribute__((alias("system_board_init")));

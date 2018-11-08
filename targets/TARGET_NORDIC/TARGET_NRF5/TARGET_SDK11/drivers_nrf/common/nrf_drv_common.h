@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -57,18 +57,16 @@
 /**
  * @brief Driver state.
  */
-typedef enum 
-{ 
-	NRF_DRV_STATE_UNINITIALIZED, /**< Uninitialized. */
-	NRF_DRV_STATE_INITIALIZED, /**< Initialized but powered off. */
-	NRF_DRV_STATE_POWERED_ON
+typedef enum {
+    NRF_DRV_STATE_UNINITIALIZED, /**< Uninitialized. */
+    NRF_DRV_STATE_INITIALIZED, /**< Initialized but powered off. */
+    NRF_DRV_STATE_POWERED_ON
 } nrf_drv_state_t;
 
 /**
  * @brief Driver power state selection.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_PWR_CTRL_ON,   /**< Power on request. */
     NRF_DRV_PWR_CTRL_OFF   /**< Power off request. */
 } nrf_drv_pwr_ctrl_t;
@@ -101,11 +99,11 @@ typedef void (*nrf_drv_irq_handler_t)(void);
  *
  * @retval NRF_SUCCESS             If resources were acquired successfully.
  * @retval NRF_ERROR_BUSY          If resources were already acquired.
- * @retval NRF_ERROR_INVALID_PARAM If the specified peripheral is not enabled 
- *                                 or the peripheral does not share resources 
+ * @retval NRF_ERROR_INVALID_PARAM If the specified peripheral is not enabled
+ *                                 or the peripheral does not share resources
  *                                 with other peripherals.
  */
-ret_code_t nrf_drv_common_per_res_acquire(void const * p_per_base,
+ret_code_t nrf_drv_common_per_res_acquire(void const *p_per_base,
                                           nrf_drv_irq_handler_t handler);
 
 /**
@@ -114,7 +112,7 @@ ret_code_t nrf_drv_common_per_res_acquire(void const * p_per_base,
  *
  * @param[in] p_per_base Requested peripheral base pointer.
  */
-void nrf_drv_common_per_res_release(void const * p_per_base);
+void nrf_drv_common_per_res_release(void const *p_per_base);
 
 #endif // PERIPHERAL_RESOURCE_SHARING_ENABLED
 
@@ -174,7 +172,7 @@ __STATIC_INLINE uint32_t nrf_drv_event_to_bitpos(uint32_t event);
  * @param[in] pinst Pointer to peripheral registry
  * @return Interrupt number
  */
-__STATIC_INLINE IRQn_Type nrf_drv_get_IRQn(void const * const pinst);
+__STATIC_INLINE IRQn_Type nrf_drv_get_IRQn(void const *const pinst);
 
 /**
  * @brief Check if given object is in RAM
@@ -185,7 +183,7 @@ __STATIC_INLINE IRQn_Type nrf_drv_get_IRQn(void const * const pinst);
  * @retval true  Object is located in RAM
  * @retval false Object is not located in RAM
  */
-__STATIC_INLINE bool nrf_drv_is_in_RAM(void const * const ptr);
+__STATIC_INLINE bool nrf_drv_is_in_RAM(void const *const ptr);
 
 
 #ifndef SUPPRESS_INLINE_IMPLEMENTATION
@@ -205,13 +203,13 @@ __STATIC_INLINE uint32_t nrf_drv_event_to_bitpos(uint32_t event)
     return (event - NRF_DRV_COMMON_EVREGS_OFFSET) / sizeof(uint32_t);
 }
 
-__STATIC_INLINE IRQn_Type nrf_drv_get_IRQn(void const * const pinst)
+__STATIC_INLINE IRQn_Type nrf_drv_get_IRQn(void const *const pinst)
 {
-    uint8_t ret = (uint8_t)((uint32_t)pinst>>12U);
+    uint8_t ret = (uint8_t)((uint32_t)pinst >> 12U);
     return (IRQn_Type) ret;
 }
 
-__STATIC_INLINE bool nrf_drv_is_in_RAM(void const * const ptr)
+__STATIC_INLINE bool nrf_drv_is_in_RAM(void const *const ptr)
 {
     return ((((uintptr_t)ptr) & 0xE0000000u) == 0x20000000u);
 }

@@ -57,24 +57,24 @@
  ******************************************************************************/
 void LDMA_IRQHandler(void)
 {
-  uint32_t ch;
-  /* Get all pending and enabled interrupts. */
-  uint32_t pending = LDMA_IntGetEnabled();
+    uint32_t ch;
+    /* Get all pending and enabled interrupts. */
+    uint32_t pending = LDMA_IntGetEnabled();
 
-  /* Loop here on an LDMA error to enable debugging. */
-  while (pending & LDMA_IF_ERROR) {
-  }
-
-  /* Iterate over all LDMA channels. */
-  for (ch = 0; ch < DMA_CHAN_COUNT; ch++) {
-    uint32_t mask = 0x1 << ch;
-    if (pending & mask) {
-      /* Clear interrupt flag. */
-      LDMA->IFC = mask;
-
-      /* Do more stuff here, execute callbacks etc. */
+    /* Loop here on an LDMA error to enable debugging. */
+    while (pending & LDMA_IF_ERROR) {
     }
-  }
+
+    /* Iterate over all LDMA channels. */
+    for (ch = 0; ch < DMA_CHAN_COUNT; ch++) {
+        uint32_t mask = 0x1 << ch;
+        if (pending & mask) {
+            /* Clear interrupt flag. */
+            LDMA->IFC = mask;
+
+            /* Do more stuff here, execute callbacks etc. */
+        }
+    }
 }
 #endif
 
@@ -86,10 +86,10 @@ void LDMA_IRQHandler(void)
  ******************************************************************************/
 void LDMA_DeInit(void)
 {
-  NVIC_DisableIRQ(LDMA_IRQn);
-  LDMA->IEN  = 0;
-  LDMA->CHEN = 0;
-  CMU_ClockEnable(cmuClock_LDMA, false);
+    NVIC_DisableIRQ(LDMA_IRQn);
+    LDMA->IEN  = 0;
+    LDMA->CHEN = 0;
+    CMU_ClockEnable(cmuClock_LDMA, false);
 }
 
 /***************************************************************************//**
@@ -108,9 +108,9 @@ void LDMA_DeInit(void)
  ******************************************************************************/
 void LDMA_EnableChannelRequest(int ch, bool enable)
 {
-  EFM_ASSERT(ch < DMA_CHAN_COUNT);
+    EFM_ASSERT(ch < DMA_CHAN_COUNT);
 
-  BUS_RegBitWrite(&LDMA->REQDIS, ch, !enable);
+    BUS_RegBitWrite(&LDMA->REQDIS, ch, !enable);
 }
 
 /***************************************************************************//**
@@ -133,35 +133,35 @@ void LDMA_EnableChannelRequest(int ch, bool enable)
  ******************************************************************************/
 void LDMA_Init(const LDMA_Init_t *init)
 {
-  EFM_ASSERT(init != NULL);
-  EFM_ASSERT(!((init->ldmaInitCtrlNumFixed << _LDMA_CTRL_NUMFIXED_SHIFT)
-               & ~_LDMA_CTRL_NUMFIXED_MASK));
-  EFM_ASSERT(!((init->ldmaInitCtrlSyncPrsClrEn << _LDMA_CTRL_SYNCPRSCLREN_SHIFT)
-               & ~_LDMA_CTRL_SYNCPRSCLREN_MASK));
-  EFM_ASSERT(!((init->ldmaInitCtrlSyncPrsSetEn << _LDMA_CTRL_SYNCPRSSETEN_SHIFT)
-               & ~_LDMA_CTRL_SYNCPRSSETEN_MASK));
-  EFM_ASSERT(init->ldmaInitIrqPriority < (1 << __NVIC_PRIO_BITS));
+    EFM_ASSERT(init != NULL);
+    EFM_ASSERT(!((init->ldmaInitCtrlNumFixed << _LDMA_CTRL_NUMFIXED_SHIFT)
+                 & ~_LDMA_CTRL_NUMFIXED_MASK));
+    EFM_ASSERT(!((init->ldmaInitCtrlSyncPrsClrEn << _LDMA_CTRL_SYNCPRSCLREN_SHIFT)
+                 & ~_LDMA_CTRL_SYNCPRSCLREN_MASK));
+    EFM_ASSERT(!((init->ldmaInitCtrlSyncPrsSetEn << _LDMA_CTRL_SYNCPRSSETEN_SHIFT)
+                 & ~_LDMA_CTRL_SYNCPRSSETEN_MASK));
+    EFM_ASSERT(init->ldmaInitIrqPriority < (1 << __NVIC_PRIO_BITS));
 
-  CMU_ClockEnable(cmuClock_LDMA, true);
+    CMU_ClockEnable(cmuClock_LDMA, true);
 
-  LDMA->CTRL = (init->ldmaInitCtrlNumFixed << _LDMA_CTRL_NUMFIXED_SHIFT)
-               | (init->ldmaInitCtrlSyncPrsClrEn << _LDMA_CTRL_SYNCPRSCLREN_SHIFT)
-               | (init->ldmaInitCtrlSyncPrsSetEn << _LDMA_CTRL_SYNCPRSSETEN_SHIFT);
+    LDMA->CTRL = (init->ldmaInitCtrlNumFixed << _LDMA_CTRL_NUMFIXED_SHIFT)
+                 | (init->ldmaInitCtrlSyncPrsClrEn << _LDMA_CTRL_SYNCPRSCLREN_SHIFT)
+                 | (init->ldmaInitCtrlSyncPrsSetEn << _LDMA_CTRL_SYNCPRSSETEN_SHIFT);
 
-  LDMA->CHEN    = 0;
-  LDMA->DBGHALT = 0;
-  LDMA->REQDIS  = 0;
+    LDMA->CHEN    = 0;
+    LDMA->DBGHALT = 0;
+    LDMA->REQDIS  = 0;
 
-  /* Enable LDMA error interrupt. */
-  LDMA->IEN = LDMA_IEN_ERROR;
-  LDMA->IFC = 0xFFFFFFFF;
+    /* Enable LDMA error interrupt. */
+    LDMA->IEN = LDMA_IEN_ERROR;
+    LDMA->IFC = 0xFFFFFFFF;
 
-  NVIC_ClearPendingIRQ(LDMA_IRQn);
+    NVIC_ClearPendingIRQ(LDMA_IRQn);
 
-  /* Range is 0..7, 0 is highest priority. */
-  NVIC_SetPriority(LDMA_IRQn, init->ldmaInitIrqPriority);
+    /* Range is 0..7, 0 is highest priority. */
+    NVIC_SetPriority(LDMA_IRQn, init->ldmaInitIrqPriority);
 
-  NVIC_EnableIRQ(LDMA_IRQn);
+    NVIC_EnableIRQ(LDMA_IRQn);
 }
 
 /***************************************************************************//**
@@ -181,85 +181,85 @@ void LDMA_StartTransfer(int ch,
                         const LDMA_TransferCfg_t *transfer,
                         const LDMA_Descriptor_t  *descriptor)
 {
-  uint32_t tmp;
-  CORE_DECLARE_IRQ_STATE;
-  uint32_t chMask = 1 << ch;
+    uint32_t tmp;
+    CORE_DECLARE_IRQ_STATE;
+    uint32_t chMask = 1 << ch;
 
-  EFM_ASSERT(ch < DMA_CHAN_COUNT);
-  EFM_ASSERT(transfer != NULL);
-  EFM_ASSERT(!(transfer->ldmaReqSel & ~_LDMA_CH_REQSEL_MASK));
+    EFM_ASSERT(ch < DMA_CHAN_COUNT);
+    EFM_ASSERT(transfer != NULL);
+    EFM_ASSERT(!(transfer->ldmaReqSel & ~_LDMA_CH_REQSEL_MASK));
 
-  EFM_ASSERT(!((transfer->ldmaCtrlSyncPrsClrOff << _LDMA_CTRL_SYNCPRSCLREN_SHIFT)
-               & ~_LDMA_CTRL_SYNCPRSCLREN_MASK));
-  EFM_ASSERT(!((transfer->ldmaCtrlSyncPrsClrOn << _LDMA_CTRL_SYNCPRSCLREN_SHIFT)
-               & ~_LDMA_CTRL_SYNCPRSCLREN_MASK));
-  EFM_ASSERT(!((transfer->ldmaCtrlSyncPrsSetOff << _LDMA_CTRL_SYNCPRSSETEN_SHIFT)
-               & ~_LDMA_CTRL_SYNCPRSSETEN_MASK));
-  EFM_ASSERT(!((transfer->ldmaCtrlSyncPrsSetOn << _LDMA_CTRL_SYNCPRSSETEN_SHIFT)
-               & ~_LDMA_CTRL_SYNCPRSSETEN_MASK));
+    EFM_ASSERT(!((transfer->ldmaCtrlSyncPrsClrOff << _LDMA_CTRL_SYNCPRSCLREN_SHIFT)
+                 & ~_LDMA_CTRL_SYNCPRSCLREN_MASK));
+    EFM_ASSERT(!((transfer->ldmaCtrlSyncPrsClrOn << _LDMA_CTRL_SYNCPRSCLREN_SHIFT)
+                 & ~_LDMA_CTRL_SYNCPRSCLREN_MASK));
+    EFM_ASSERT(!((transfer->ldmaCtrlSyncPrsSetOff << _LDMA_CTRL_SYNCPRSSETEN_SHIFT)
+                 & ~_LDMA_CTRL_SYNCPRSSETEN_MASK));
+    EFM_ASSERT(!((transfer->ldmaCtrlSyncPrsSetOn << _LDMA_CTRL_SYNCPRSSETEN_SHIFT)
+                 & ~_LDMA_CTRL_SYNCPRSSETEN_MASK));
 
-  EFM_ASSERT(!((transfer->ldmaCfgArbSlots << _LDMA_CH_CFG_ARBSLOTS_SHIFT)
-               & ~_LDMA_CH_CFG_ARBSLOTS_MASK));
-  EFM_ASSERT(!((transfer->ldmaCfgSrcIncSign << _LDMA_CH_CFG_SRCINCSIGN_SHIFT)
-               & ~_LDMA_CH_CFG_SRCINCSIGN_MASK) );
-  EFM_ASSERT(!((transfer->ldmaCfgDstIncSign << _LDMA_CH_CFG_DSTINCSIGN_SHIFT)
-               & ~_LDMA_CH_CFG_DSTINCSIGN_MASK));
-  EFM_ASSERT(!((transfer->ldmaLoopCnt << _LDMA_CH_LOOP_LOOPCNT_SHIFT)
-               & ~_LDMA_CH_LOOP_LOOPCNT_MASK));
+    EFM_ASSERT(!((transfer->ldmaCfgArbSlots << _LDMA_CH_CFG_ARBSLOTS_SHIFT)
+                 & ~_LDMA_CH_CFG_ARBSLOTS_MASK));
+    EFM_ASSERT(!((transfer->ldmaCfgSrcIncSign << _LDMA_CH_CFG_SRCINCSIGN_SHIFT)
+                 & ~_LDMA_CH_CFG_SRCINCSIGN_MASK));
+    EFM_ASSERT(!((transfer->ldmaCfgDstIncSign << _LDMA_CH_CFG_DSTINCSIGN_SHIFT)
+                 & ~_LDMA_CH_CFG_DSTINCSIGN_MASK));
+    EFM_ASSERT(!((transfer->ldmaLoopCnt << _LDMA_CH_LOOP_LOOPCNT_SHIFT)
+                 & ~_LDMA_CH_LOOP_LOOPCNT_MASK));
 
-  LDMA->CH[ch].REQSEL = transfer->ldmaReqSel;
-  LDMA->CH[ch].LOOP = (transfer->ldmaLoopCnt << _LDMA_CH_LOOP_LOOPCNT_SHIFT);
-  LDMA->CH[ch].CFG = (transfer->ldmaCfgArbSlots << _LDMA_CH_CFG_ARBSLOTS_SHIFT)
-                     | (transfer->ldmaCfgSrcIncSign << _LDMA_CH_CFG_SRCINCSIGN_SHIFT)
-                     | (transfer->ldmaCfgDstIncSign << _LDMA_CH_CFG_DSTINCSIGN_SHIFT);
+    LDMA->CH[ch].REQSEL = transfer->ldmaReqSel;
+    LDMA->CH[ch].LOOP = (transfer->ldmaLoopCnt << _LDMA_CH_LOOP_LOOPCNT_SHIFT);
+    LDMA->CH[ch].CFG = (transfer->ldmaCfgArbSlots << _LDMA_CH_CFG_ARBSLOTS_SHIFT)
+                       | (transfer->ldmaCfgSrcIncSign << _LDMA_CH_CFG_SRCINCSIGN_SHIFT)
+                       | (transfer->ldmaCfgDstIncSign << _LDMA_CH_CFG_DSTINCSIGN_SHIFT);
 
-  /* Set descriptor address. */
-  LDMA->CH[ch].LINK = (uint32_t)descriptor & _LDMA_CH_LINK_LINKADDR_MASK;
+    /* Set descriptor address. */
+    LDMA->CH[ch].LINK = (uint32_t)descriptor & _LDMA_CH_LINK_LINKADDR_MASK;
 
-  /* Clear pending channel interrupt. */
-  LDMA->IFC = chMask;
+    /* Clear pending channel interrupt. */
+    LDMA->IFC = chMask;
 
-  /* Critical region. */
-  CORE_ENTER_ATOMIC();
+    /* Critical region. */
+    CORE_ENTER_ATOMIC();
 
-  /* Enable channel interrupt. */
-  LDMA->IEN |= chMask;
+    /* Enable channel interrupt. */
+    LDMA->IEN |= chMask;
 
-  if (transfer->ldmaReqDis) {
-    LDMA->REQDIS |= chMask;
-  }
+    if (transfer->ldmaReqDis) {
+        LDMA->REQDIS |= chMask;
+    }
 
-  if (transfer->ldmaDbgHalt) {
-    LDMA->DBGHALT |= chMask;
-  }
+    if (transfer->ldmaDbgHalt) {
+        LDMA->DBGHALT |= chMask;
+    }
 
-  tmp = LDMA->CTRL;
+    tmp = LDMA->CTRL;
 
-  if (transfer->ldmaCtrlSyncPrsClrOff) {
-    tmp &= ~_LDMA_CTRL_SYNCPRSCLREN_MASK
-           | (~transfer->ldmaCtrlSyncPrsClrOff << _LDMA_CTRL_SYNCPRSCLREN_SHIFT);
-  }
+    if (transfer->ldmaCtrlSyncPrsClrOff) {
+        tmp &= ~_LDMA_CTRL_SYNCPRSCLREN_MASK
+               | (~transfer->ldmaCtrlSyncPrsClrOff << _LDMA_CTRL_SYNCPRSCLREN_SHIFT);
+    }
 
-  if (transfer->ldmaCtrlSyncPrsClrOn) {
-    tmp |= transfer->ldmaCtrlSyncPrsClrOn << _LDMA_CTRL_SYNCPRSCLREN_SHIFT;
-  }
+    if (transfer->ldmaCtrlSyncPrsClrOn) {
+        tmp |= transfer->ldmaCtrlSyncPrsClrOn << _LDMA_CTRL_SYNCPRSCLREN_SHIFT;
+    }
 
-  if (transfer->ldmaCtrlSyncPrsSetOff) {
-    tmp &= ~_LDMA_CTRL_SYNCPRSSETEN_MASK
-           | (~transfer->ldmaCtrlSyncPrsSetOff << _LDMA_CTRL_SYNCPRSSETEN_SHIFT);
-  }
+    if (transfer->ldmaCtrlSyncPrsSetOff) {
+        tmp &= ~_LDMA_CTRL_SYNCPRSSETEN_MASK
+               | (~transfer->ldmaCtrlSyncPrsSetOff << _LDMA_CTRL_SYNCPRSSETEN_SHIFT);
+    }
 
-  if (transfer->ldmaCtrlSyncPrsSetOn) {
-    tmp |= transfer->ldmaCtrlSyncPrsSetOn << _LDMA_CTRL_SYNCPRSSETEN_SHIFT;
-  }
+    if (transfer->ldmaCtrlSyncPrsSetOn) {
+        tmp |= transfer->ldmaCtrlSyncPrsSetOn << _LDMA_CTRL_SYNCPRSSETEN_SHIFT;
+    }
 
-  LDMA->CTRL = tmp;
+    LDMA->CTRL = tmp;
 
-  BUS_RegMaskedClear(&LDMA->CHDONE, chMask);  /* Clear the done flag.     */
-  LDMA->LINKLOAD = chMask;      /* Start transfer by loading descriptor.  */
+    BUS_RegMaskedClear(&LDMA->CHDONE, chMask);  /* Clear the done flag.     */
+    LDMA->LINKLOAD = chMask;      /* Start transfer by loading descriptor.  */
 
-  /* Critical region end. */
-  CORE_EXIT_ATOMIC();
+    /* Critical region end. */
+    CORE_EXIT_ATOMIC();
 }
 
 /***************************************************************************//**
@@ -274,13 +274,13 @@ void LDMA_StartTransfer(int ch,
  ******************************************************************************/
 void LDMA_StopTransfer(int ch)
 {
-  uint32_t chMask = 1 << ch;
+    uint32_t chMask = 1 << ch;
 
-  EFM_ASSERT(ch < DMA_CHAN_COUNT);
+    EFM_ASSERT(ch < DMA_CHAN_COUNT);
 
-  CORE_ATOMIC_SECTION(
-    LDMA->IEN &= ~chMask;
-    BUS_RegMaskedClear(&LDMA->CHEN, chMask);
+    CORE_ATOMIC_SECTION(
+        LDMA->IEN &= ~chMask;
+        BUS_RegMaskedClear(&LDMA->CHEN, chMask);
     )
 }
 
@@ -296,18 +296,18 @@ void LDMA_StopTransfer(int ch)
  ******************************************************************************/
 bool LDMA_TransferDone(int ch)
 {
-  bool     retVal = false;
-  uint32_t chMask = 1 << ch;
+    bool     retVal = false;
+    uint32_t chMask = 1 << ch;
 
-  EFM_ASSERT(ch < DMA_CHAN_COUNT);
+    EFM_ASSERT(ch < DMA_CHAN_COUNT);
 
-  CORE_ATOMIC_SECTION(
-    if (((LDMA->CHEN & chMask) == 0)
-        && ((LDMA->CHDONE & chMask) == chMask)) {
+    CORE_ATOMIC_SECTION(
+        if (((LDMA->CHEN & chMask) == 0)
+    && ((LDMA->CHDONE & chMask) == chMask)) {
     retVal = true;
-  }
-    )
-  return retVal;
+}
+)
+    return retVal;
 }
 
 /***************************************************************************//**
@@ -327,27 +327,27 @@ bool LDMA_TransferDone(int ch)
  ******************************************************************************/
 uint32_t LDMA_TransferRemainingCount(int ch)
 {
-  uint32_t remaining, done, iflag;
-  uint32_t chMask = 1 << ch;
+    uint32_t remaining, done, iflag;
+    uint32_t chMask = 1 << ch;
 
-  EFM_ASSERT(ch < DMA_CHAN_COUNT);
+    EFM_ASSERT(ch < DMA_CHAN_COUNT);
 
-  CORE_ATOMIC_SECTION(
-    iflag  = LDMA->IF;
-    done   = LDMA->CHDONE;
-    remaining = LDMA->CH[ch].CTRL;
+    CORE_ATOMIC_SECTION(
+        iflag  = LDMA->IF;
+        done   = LDMA->CHDONE;
+        remaining = LDMA->CH[ch].CTRL;
     )
 
-  iflag    &= chMask;
-  done     &= chMask;
-  remaining = (remaining & _LDMA_CH_CTRL_XFERCNT_MASK)
-              >> _LDMA_CH_CTRL_XFERCNT_SHIFT;
+    iflag    &= chMask;
+    done     &= chMask;
+    remaining = (remaining & _LDMA_CH_CTRL_XFERCNT_MASK)
+                >> _LDMA_CH_CTRL_XFERCNT_SHIFT;
 
-  if (done || ((remaining == 0) && iflag)) {
-    return 0;
-  }
+    if (done || ((remaining == 0) && iflag)) {
+        return 0;
+    }
 
-  return remaining + 1;
+    return remaining + 1;
 }
 
 /** @} (end addtogroup LDMA) */

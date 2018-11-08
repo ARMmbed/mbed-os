@@ -51,8 +51,7 @@ typedef void (*flexio_i2s_edma_callback_t)(FLEXIO_I2S_Type *base,
                                            void *userData);
 
 /*! @brief FlexIO I2S DMA transfer handle, users should not touch the content of the handle.*/
-struct _flexio_i2s_edma_handle
-{
+struct _flexio_i2s_edma_handle {
     edma_handle_t *dmaHandle;                        /*!< DMA handler for FlexIO I2S send */
     uint8_t bytesPerFrame;                           /*!< Bytes in a frame */
     uint8_t nbytes;                                  /*!< eDMA minor byte transfer count initially configured. */

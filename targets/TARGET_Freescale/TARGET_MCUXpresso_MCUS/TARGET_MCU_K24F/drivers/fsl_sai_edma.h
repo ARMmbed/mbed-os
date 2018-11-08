@@ -48,8 +48,7 @@ typedef struct _sai_edma_handle sai_edma_handle_t;
 typedef void (*sai_edma_callback_t)(I2S_Type *base, sai_edma_handle_t *handle, status_t status, void *userData);
 
 /*! @brief SAI DMA transfer handle, users should not touch the content of the handle.*/
-struct _sai_edma_handle
-{
+struct _sai_edma_handle {
     edma_handle_t *dmaHandle;                     /*!< DMA handler for SAI send */
     uint8_t nbytes;                               /*!< eDMA minor byte transfer count initially configured. */
     uint8_t bytesPerFrame;                        /*!< Bytes in a frame */

@@ -47,8 +47,9 @@ public:
      */
     virtual ble_error_t get_mtu_size(
         connection_handle_t connection_handle,
-        uint16_t& mtu_size
-    ) {
+        uint16_t &mtu_size
+    )
+    {
         mtu_size = AttGetMtu(connection_handle);
         return BLE_ERROR_NONE;
     }
@@ -59,7 +60,8 @@ public:
     virtual ble_error_t find_information_request(
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range
-    ) {
+    )
+    {
         AttcFindInfoReq(
             connection_handle,
             discovery_range.begin,
@@ -76,15 +78,16 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range,
         uint16_t type,
-        const ArrayView<const uint8_t>& value
-    ) {
+        const ArrayView<const uint8_t> &value
+    )
+    {
         AttcFindByTypeValueReq(
             connection_handle,
             discovery_range.begin,
             discovery_range.end,
             type,
             value.size(),
-            const_cast<uint8_t*>(value.data()),
+            const_cast<uint8_t *>(value.data()),
             false
         );
         return BLE_ERROR_NONE;
@@ -96,14 +99,15 @@ public:
     virtual ble_error_t read_by_type_request(
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
-        const UUID& type
-    ) {
+        const UUID &type
+    )
+    {
         AttcReadByTypeReq(
             connection_handle,
             read_range.begin,
             read_range.end,
             type.getLen(),
-            const_cast<uint8_t*>(type.getBaseUUID()),
+            const_cast<uint8_t *>(type.getBaseUUID()),
             false
         );
         return BLE_ERROR_NONE;
@@ -115,7 +119,8 @@ public:
     virtual ble_error_t read_request(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle
-    ) {
+    )
+    {
         AttcReadReq(connection_handle, attribute_handle);
         return BLE_ERROR_NONE;
     }
@@ -127,7 +132,8 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         uint16_t offset
-    ) {
+    )
+    {
         AttcReadLongReq(
             connection_handle,
             attribute_handle,
@@ -142,12 +148,13 @@ public:
      */
     virtual ble_error_t read_multiple_request(
         connection_handle_t connection_handle,
-        const ArrayView<const attribute_handle_t>& attribute_handles
-    ) {
+        const ArrayView<const attribute_handle_t> &attribute_handles
+    )
+    {
         AttcReadMultipleReq(
             connection_handle,
             attribute_handles.size(),
-            const_cast<uint16_t*>(attribute_handles.data())
+            const_cast<uint16_t *>(attribute_handles.data())
         );
         return BLE_ERROR_NONE;
     }
@@ -158,14 +165,15 @@ public:
     virtual ble_error_t read_by_group_type_request(
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
-        const UUID& group_type
-    ) {
+        const UUID &group_type
+    )
+    {
         AttcReadByGroupTypeReq(
             connection_handle,
             read_range.begin,
             read_range.end,
             group_type.getLen(),
-            const_cast<uint8_t*>(group_type.getBaseUUID()),
+            const_cast<uint8_t *>(group_type.getBaseUUID()),
             false
         );
         return BLE_ERROR_NONE;
@@ -177,13 +185,14 @@ public:
     virtual ble_error_t write_request(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
-    ) {
+        const ArrayView<const uint8_t> &value
+    )
+    {
         AttcWriteReq(
             connection_handle,
             attribute_handle,
             value.size(),
-            const_cast<uint8_t*>(value.data())
+            const_cast<uint8_t *>(value.data())
         );
         return BLE_ERROR_NONE;
     }
@@ -194,13 +203,14 @@ public:
     virtual ble_error_t write_command(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
-    ) {
+        const ArrayView<const uint8_t> &value
+    )
+    {
         AttcWriteCmd(
             connection_handle,
             attribute_handle,
             value.size(),
-            const_cast<uint8_t*>(value.data())
+            const_cast<uint8_t *>(value.data())
         );
         return BLE_ERROR_NONE;
     }
@@ -211,14 +221,15 @@ public:
     virtual ble_error_t signed_write_command(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
-    ) {
+        const ArrayView<const uint8_t> &value
+    )
+    {
         AttcSignedWriteCmd(
             connection_handle,
             attribute_handle,
             /* sign counter from flash or AttsGetSignCounter() ? */ 0,
             value.size(),
-            const_cast<uint8_t*>(value.data())
+            const_cast<uint8_t *>(value.data())
         );
         return BLE_ERROR_NONE;
     }
@@ -230,14 +241,15 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         uint16_t offset,
-        const ArrayView<const uint8_t>& value
-    ) {
+        const ArrayView<const uint8_t> &value
+    )
+    {
         AttcPrepareWriteReq(
             connection_handle,
             attribute_handle,
             offset,
             value.size(),
-            const_cast<uint8_t*>(value.data()),
+            const_cast<uint8_t *>(value.data()),
             false,
             false
         );
@@ -250,7 +262,8 @@ public:
     virtual ble_error_t execute_write_request(
         connection_handle_t connection_handle,
         bool execute
-    ) {
+    )
+    {
         AttcExecuteWriteReq(
             connection_handle,
             execute
@@ -275,7 +288,7 @@ public:
     }
 
     // singleton of the ARM Cordio client
-    static CordioAttClient& get_client()
+    static CordioAttClient &get_client()
     {
         static CordioAttClient _client;
         return _client;
@@ -283,7 +296,7 @@ public:
 
 private:
     // convert an array of byte to an uint16_t
-    static uint16_t to_uint16_t(const uint8_t* array)
+    static uint16_t to_uint16_t(const uint8_t *array)
     {
         uint16_t result;
         memcpy(&result, array, sizeof(result));
@@ -295,13 +308,13 @@ private:
      * @param The event to handle
      * @return true if the event has been handled and false otherwise.
      */
-    typedef bool (*event_handler_t)(const attEvt_t*);
+    typedef bool (*event_handler_t)(const attEvt_t *);
 
 public:
     /**
      * Callback which handle attEvt_t and forward them to on_server_event.
      */
-    static void att_client_handler(const attEvt_t* event)
+    static void att_client_handler(const attEvt_t *event)
     {
         // all handlers are stored in a static array
         static const event_handler_t handlers[] = {
@@ -330,7 +343,7 @@ public:
 
         // traverse all handlers and execute them with the event in input.
         // exit if an handler has handled the event.
-        for(size_t i = 0; i < (sizeof(handlers)/sizeof(handlers[0])); ++i) {
+        for (size_t i = 0; i < (sizeof(handlers) / sizeof(handlers[0])); ++i) {
             if (handlers[i](event)) {
                 return;
             }
@@ -350,7 +363,7 @@ private:
      * @return
      */
     template<typename T>
-    static bool event_handler(const attEvt_t* event)
+    static bool event_handler(const attEvt_t *event)
     {
         if (T::can_convert(event)) {
             generated_handler(event, T::convert);
@@ -359,9 +372,9 @@ private:
         return false;
     }
 
-    static bool timeout_event_handler(const attEvt_t* event)
+    static bool timeout_event_handler(const attEvt_t *event)
     {
-        if(event->hdr.status != ATT_ERR_TIMEOUT) {
+        if (event->hdr.status != ATT_ERR_TIMEOUT) {
             return false;
         }
 
@@ -371,8 +384,9 @@ private:
 
     template<typename ResultType>
     static void generated_handler(
-        const attEvt_t* event, ResultType (*convert)(const attEvt_t*)
-    ) {
+        const attEvt_t *event, ResultType(*convert)(const attEvt_t *)
+    )
+    {
         get_client().on_server_event(
             event->hdr.param,
             convert(event)
@@ -384,9 +398,9 @@ private:
      */
     template<uint8_t RequestID>
     struct ResponseConverter {
-        static bool can_convert(const attEvt_t* event)
+        static bool can_convert(const attEvt_t *event)
         {
-            if(event->hdr.status == ATT_SUCCESS && event->hdr.event == RequestID) {
+            if (event->hdr.status == ATT_SUCCESS && event->hdr.event == RequestID) {
                 return true;
             }
             return false;
@@ -397,21 +411,21 @@ private:
      * Converter for an AttErrorResponse.
      */
     struct ErrorResponseConverter {
-        static bool can_convert(const attEvt_t* event)
+        static bool can_convert(const attEvt_t *event)
         {
-            if(event->hdr.status != ATT_SUCCESS) {
+            if (event->hdr.status != ATT_SUCCESS) {
                 return true;
             }
             return false;
         }
 
-        static AttErrorResponse convert(const attEvt_t* event)
+        static AttErrorResponse convert(const attEvt_t *event)
         {
             return AttErrorResponse(
-                static_cast<AttributeOpcode::Code>(event->hdr.event * 2),
-                event->handle,
-                event->hdr.status
-            );
+                       static_cast<AttributeOpcode::Code>(event->hdr.event * 2),
+                       event->handle,
+                       event->hdr.status
+                   );
         }
     };
 
@@ -419,16 +433,16 @@ private:
      * Converter for an AttExchangeMTUResponse.
      */
     struct ExchangeMtuResponseConverter  {
-        static bool can_convert(const attEvt_t* event)
+        static bool can_convert(const attEvt_t *event)
         {
-            if(event->hdr.status == ATT_SUCCESS &&
-                event->hdr.event == ATT_MTU_UPDATE_IND) {
+            if (event->hdr.status == ATT_SUCCESS &&
+                    event->hdr.event == ATT_MTU_UPDATE_IND) {
                 return true;
             }
             return false;
         }
 
-        static AttExchangeMTUResponse convert(const attEvt_t* event)
+        static AttExchangeMTUResponse convert(const attEvt_t *event)
         {
             return AttExchangeMTUResponse(event->mtu);
         }
@@ -438,15 +452,15 @@ private:
      * Converter for a SimpleAttFindInformationResponse.
      */
     struct FindInformationResponseConverter : ResponseConverter<ATTC_FIND_INFO_RSP> {
-        static SimpleAttFindInformationResponse convert(const attEvt_t* event)
+        static SimpleAttFindInformationResponse convert(const attEvt_t *event)
         {
             return SimpleAttFindInformationResponse(
-                static_cast<SimpleAttFindInformationResponse::Format>(event->pValue[0]),
-                make_const_ArrayView(
-                    event->pValue + 1,
-                    event->valueLen - 1
-                )
-            );
+                       static_cast<SimpleAttFindInformationResponse::Format>(event->pValue[0]),
+                       make_const_ArrayView(
+                           event->pValue + 1,
+                           event->valueLen - 1
+                       )
+                   );
         }
     };
 
@@ -454,14 +468,14 @@ private:
      * Converter for a SimpleAttFindByTypeValueResponse.
      */
     struct FindByTypeValueResponseConverter : ResponseConverter<ATTC_FIND_BY_TYPE_VALUE_RSP> {
-        static SimpleAttFindByTypeValueResponse convert(const attEvt_t* event)
+        static SimpleAttFindByTypeValueResponse convert(const attEvt_t *event)
         {
             return SimpleAttFindByTypeValueResponse(
-                make_const_ArrayView(
-                    event->pValue,
-                    event->valueLen
-                )
-            );
+                       make_const_ArrayView(
+                           event->pValue,
+                           event->valueLen
+                       )
+                   );
         }
     };
 
@@ -469,15 +483,15 @@ private:
      * Converter for a SimpleAttReadByTypeResponse.
      */
     struct ReadByTypeResponseConverter : ResponseConverter<ATTC_READ_BY_TYPE_RSP> {
-        static SimpleAttReadByTypeResponse convert(const attEvt_t* event)
+        static SimpleAttReadByTypeResponse convert(const attEvt_t *event)
         {
             return SimpleAttReadByTypeResponse(
-                event->pValue[0],
-                make_const_ArrayView(
-                    event->pValue + 1,
-                    event->valueLen - 1
-                )
-            );
+                       event->pValue[0],
+                       make_const_ArrayView(
+                           event->pValue + 1,
+                           event->valueLen - 1
+                       )
+                   );
         }
     };
 
@@ -485,14 +499,14 @@ private:
      * Converter for a AttReadResponse.
      */
     struct ReadResponseConverter : ResponseConverter<ATTC_READ_RSP> {
-        static AttReadResponse convert(const attEvt_t* event)
+        static AttReadResponse convert(const attEvt_t *event)
         {
             return AttReadResponse(
-                make_const_ArrayView(
-                    event->pValue,
-                    event->valueLen
-                )
-            );
+                       make_const_ArrayView(
+                           event->pValue,
+                           event->valueLen
+                       )
+                   );
         }
     };
 
@@ -500,14 +514,14 @@ private:
      * Converter for a AttReadBlobResponse.
      */
     struct ReadBlobResponseConverter : ResponseConverter<ATTC_READ_LONG_RSP> {
-        static AttReadBlobResponse convert(const attEvt_t* event)
+        static AttReadBlobResponse convert(const attEvt_t *event)
         {
             return AttReadBlobResponse(
-                make_const_ArrayView(
-                    event->pValue,
-                    event->valueLen
-                )
-            );
+                       make_const_ArrayView(
+                           event->pValue,
+                           event->valueLen
+                       )
+                   );
         }
     };
 
@@ -515,14 +529,14 @@ private:
      * Converter for a AttReadMultipleResponse.
      */
     struct ReadMultipleResponseConverter : ResponseConverter<ATTC_READ_MULTIPLE_RSP> {
-        static AttReadMultipleResponse convert(const attEvt_t* event)
+        static AttReadMultipleResponse convert(const attEvt_t *event)
         {
             return AttReadMultipleResponse(
-                make_const_ArrayView(
-                    event->pValue,
-                    event->valueLen
-                )
-            );
+                       make_const_ArrayView(
+                           event->pValue,
+                           event->valueLen
+                       )
+                   );
         }
     };
 
@@ -530,15 +544,15 @@ private:
      * Converter for a SimpleAttReadByGroupTypeResponse.
      */
     struct ReadBygroupTypeResponseConverter : ResponseConverter<ATTC_READ_BY_GROUP_TYPE_RSP> {
-        static SimpleAttReadByGroupTypeResponse convert(const attEvt_t* event)
+        static SimpleAttReadByGroupTypeResponse convert(const attEvt_t *event)
         {
             return SimpleAttReadByGroupTypeResponse(
-                event->pValue[0],
-                make_const_ArrayView(
-                    event->pValue + 1,
-                    event->valueLen - 1
-                )
-            );
+                       event->pValue[0],
+                       make_const_ArrayView(
+                           event->pValue + 1,
+                           event->valueLen - 1
+                       )
+                   );
         }
     };
 
@@ -546,7 +560,7 @@ private:
      * Converter for a AttWriteResponse.
      */
     struct WriteResponseConverter : ResponseConverter<ATTC_WRITE_RSP> {
-        static AttWriteResponse convert(const attEvt_t* event)
+        static AttWriteResponse convert(const attEvt_t *event)
         {
             return AttWriteResponse();
         }
@@ -556,18 +570,18 @@ private:
      * Converter for a AttPrepareWriteResponse.
      */
     struct PrepareWriteResponseConverter : ResponseConverter<ATTC_PREPARE_WRITE_RSP> {
-        static AttPrepareWriteResponse convert(const attEvt_t* event)
+        static AttPrepareWriteResponse convert(const attEvt_t *event)
         {
             // WARNING: Not sure if correct, the stack erase the length parameter
             return AttPrepareWriteResponse(
-                event->handle,
-                to_uint16_t(event->pValue + 2),
-                // FIXME: the stack set the lenght to 0, the data won't be seen ...
-                make_const_ArrayView(
-                    event->pValue + 4,
-                    event->valueLen
-                )
-            );
+                       event->handle,
+                       to_uint16_t(event->pValue + 2),
+                       // FIXME: the stack set the lenght to 0, the data won't be seen ...
+                       make_const_ArrayView(
+                           event->pValue + 4,
+                           event->valueLen
+                       )
+                   );
         }
     };
 
@@ -575,7 +589,7 @@ private:
      * Converter for a AttExecuteWriteResponse.
      */
     struct ExecuteWriteResponseConverter : ResponseConverter<ATTC_EXECUTE_WRITE_RSP> {
-        static AttExecuteWriteResponse convert(const attEvt_t* event)
+        static AttExecuteWriteResponse convert(const attEvt_t *event)
         {
             return AttExecuteWriteResponse();
         }
@@ -585,15 +599,15 @@ private:
      * Converter for a AttHandleValueNotification.
      */
     struct HandleValueNotificationConverter : ResponseConverter<ATTC_HANDLE_VALUE_NTF> {
-        static AttHandleValueNotification convert(const attEvt_t* event)
+        static AttHandleValueNotification convert(const attEvt_t *event)
         {
             return AttHandleValueNotification(
-                event->handle,
-                make_const_ArrayView(
-                    event->pValue,
-                    event->valueLen
-                )
-            );
+                       event->handle,
+                       make_const_ArrayView(
+                           event->pValue,
+                           event->valueLen
+                       )
+                   );
         }
     };
 
@@ -601,15 +615,15 @@ private:
      * Converter for a AttHandleValueIndication.
      */
     struct HandleValueIndicationConverter : ResponseConverter<ATTC_HANDLE_VALUE_IND> {
-        static AttHandleValueIndication convert(const attEvt_t* event)
+        static AttHandleValueIndication convert(const attEvt_t *event)
         {
             return AttHandleValueIndication(
-                event->handle,
-                make_const_ArrayView(
-                    event->pValue,
-                    event->valueLen
-                )
-            );
+                       event->handle,
+                       make_const_ArrayView(
+                           event->pValue,
+                           event->valueLen
+                       )
+                   );
         }
     };
 };

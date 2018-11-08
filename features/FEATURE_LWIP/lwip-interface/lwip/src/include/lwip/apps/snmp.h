@@ -51,22 +51,21 @@ extern "C" {
 #include "lwip/apps/snmp_core.h"
 
 /** SNMP variable binding descriptor (publically needed for traps) */
-struct snmp_varbind
-{
-  /** pointer to next varbind, NULL for last in list */
-  struct snmp_varbind *next;
-  /** pointer to previous varbind, NULL for first in list */
-  struct snmp_varbind *prev;
+struct snmp_varbind {
+    /** pointer to next varbind, NULL for last in list */
+    struct snmp_varbind *next;
+    /** pointer to previous varbind, NULL for first in list */
+    struct snmp_varbind *prev;
 
-  /** object identifier */
-  struct snmp_obj_id oid;
+    /** object identifier */
+    struct snmp_obj_id oid;
 
-  /** value ASN1 type */
-  u8_t type;
-  /** object value length */
-  u16_t value_len;
-  /** object value */
-  void *value;
+    /** value ASN1 type */
+    u8_t type;
+    /** object value length */
+    u16_t value_len;
+    /** object value */
+    void *value;
 };
 
 /**
@@ -76,8 +75,8 @@ struct snmp_varbind
 void snmp_init(void);
 void snmp_set_mibs(const struct snmp_mib **mibs, u8_t num_mibs);
 
-void snmp_set_device_enterprise_oid(const struct snmp_obj_id* device_enterprise_oid);
-const struct snmp_obj_id* snmp_get_device_enterprise_oid(void);
+void snmp_set_device_enterprise_oid(const struct snmp_obj_id *device_enterprise_oid);
+const struct snmp_obj_id *snmp_get_device_enterprise_oid(void);
 
 void snmp_trap_dst_enable(u8_t dst_idx, u8_t enable);
 void snmp_trap_dst_ip_set(u8_t dst_idx, const ip_addr_t *dst);
@@ -99,25 +98,25 @@ void snmp_trap_dst_ip_set(u8_t dst_idx, const ip_addr_t *dst);
 
 err_t snmp_send_trap_generic(s32_t generic_trap);
 err_t snmp_send_trap_specific(s32_t specific_trap, struct snmp_varbind *varbinds);
-err_t snmp_send_trap(const struct snmp_obj_id* oid, s32_t generic_trap, s32_t specific_trap, struct snmp_varbind *varbinds);
+err_t snmp_send_trap(const struct snmp_obj_id *oid, s32_t generic_trap, s32_t specific_trap, struct snmp_varbind *varbinds);
 
 #define SNMP_AUTH_TRAPS_DISABLED 0
 #define SNMP_AUTH_TRAPS_ENABLED  1
 void snmp_set_auth_traps_enabled(u8_t enable);
 u8_t snmp_get_auth_traps_enabled(void);
 
-const char * snmp_get_community(void);
-const char * snmp_get_community_write(void);
-const char * snmp_get_community_trap(void);
-void snmp_set_community(const char * const community);
-void snmp_set_community_write(const char * const community);
-void snmp_set_community_trap(const char * const community);
+const char *snmp_get_community(void);
+const char *snmp_get_community_write(void);
+const char *snmp_get_community_trap(void);
+void snmp_set_community(const char *const community);
+void snmp_set_community_write(const char *const community);
+void snmp_set_community_trap(const char *const community);
 
 void snmp_coldstart_trap(void);
 void snmp_authfail_trap(void);
 
-typedef void (*snmp_write_callback_fct)(const u32_t* oid, u8_t oid_len, void* callback_arg);
-void snmp_set_write_callback(snmp_write_callback_fct write_callback, void* callback_arg);
+typedef void (*snmp_write_callback_fct)(const u32_t *oid, u8_t oid_len, void *callback_arg);
+void snmp_set_write_callback(snmp_write_callback_fct write_callback, void *callback_arg);
 
 #endif /* LWIP_SNMP */
 

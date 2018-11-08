@@ -38,12 +38,11 @@
  * @{
  * @brief EFM32WG_FPUEH Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IM uint32_t  IF;  /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS; /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC; /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN; /**< Interrupt Enable Register  */
+typedef struct {
+    __IM uint32_t  IF;  /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS; /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC; /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN; /**< Interrupt Enable Register  */
 } FPUEH_TypeDef;      /** @} */
 
 /**************************************************************************//**

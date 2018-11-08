@@ -40,7 +40,7 @@
 #define __STM32F7xx_HAL_SMBUS_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -63,43 +63,42 @@
   * @brief  SMBUS Configuration Structure definition
   * @{
   */
-typedef struct
-{
-  uint32_t Timing;                 /*!< Specifies the SMBUS_TIMINGR_register value.
+typedef struct {
+    uint32_t Timing;                 /*!< Specifies the SMBUS_TIMINGR_register value.
                                      This parameter calculated by referring to SMBUS initialization
                                             section in Reference manual */
-  uint32_t AnalogFilter;           /*!< Specifies if Analog Filter is enable or not.
+    uint32_t AnalogFilter;           /*!< Specifies if Analog Filter is enable or not.
                                      This parameter can be a value of @ref SMBUS_Analog_Filter */
 
-  uint32_t OwnAddress1;            /*!< Specifies the first device own address.
+    uint32_t OwnAddress1;            /*!< Specifies the first device own address.
                                      This parameter can be a 7-bit or 10-bit address. */
 
-  uint32_t AddressingMode;         /*!< Specifies if 7-bit or 10-bit addressing mode for master is selected.
+    uint32_t AddressingMode;         /*!< Specifies if 7-bit or 10-bit addressing mode for master is selected.
                                      This parameter can be a value of @ref SMBUS_addressing_mode */
 
-  uint32_t DualAddressMode;        /*!< Specifies if dual addressing mode is selected.
+    uint32_t DualAddressMode;        /*!< Specifies if dual addressing mode is selected.
                                      This parameter can be a value of @ref SMBUS_dual_addressing_mode */
 
-  uint32_t OwnAddress2;            /*!< Specifies the second device own address if dual addressing mode is selected
+    uint32_t OwnAddress2;            /*!< Specifies the second device own address if dual addressing mode is selected
                                      This parameter can be a 7-bit address. */
 
-  uint32_t OwnAddress2Masks;       /*!< Specifies the acknoledge mask address second device own address if dual addressing mode is selected
+    uint32_t OwnAddress2Masks;       /*!< Specifies the acknoledge mask address second device own address if dual addressing mode is selected
                                      This parameter can be a value of @ref SMBUS_own_address2_masks. */
 
-  uint32_t GeneralCallMode;        /*!< Specifies if general call mode is selected.
+    uint32_t GeneralCallMode;        /*!< Specifies if general call mode is selected.
                                      This parameter can be a value of @ref SMBUS_general_call_addressing_mode. */
 
-  uint32_t NoStretchMode;          /*!< Specifies if nostretch mode is selected.
+    uint32_t NoStretchMode;          /*!< Specifies if nostretch mode is selected.
                                      This parameter can be a value of @ref SMBUS_nostretch_mode */
 
-  uint32_t PacketErrorCheckMode;   /*!< Specifies if Packet Error Check mode is selected.
+    uint32_t PacketErrorCheckMode;   /*!< Specifies if Packet Error Check mode is selected.
                                      This parameter can be a value of @ref SMBUS_packet_error_check_mode */
 
-  uint32_t PeripheralMode;         /*!< Specifies which mode of Periphal is selected.
+    uint32_t PeripheralMode;         /*!< Specifies which mode of Periphal is selected.
                                      This parameter can be a value of @ref SMBUS_peripheral_mode */
 
-  uint32_t SMBusTimeout;           /*!< Specifies the content of the 32 Bits SMBUS_TIMEOUT_register value.
-  																		(Enable bits and different timeout values)
+    uint32_t SMBusTimeout;           /*!< Specifies the content of the 32 Bits SMBUS_TIMEOUT_register value.
+                                                                        (Enable bits and different timeout values)
                                      This parameter calculated by referring to SMBUS initialization
                                          section in Reference manual */
 } SMBUS_InitTypeDef;
@@ -146,29 +145,28 @@ typedef struct
   * @brief  SMBUS handle Structure definition
   * @{
   */
-typedef struct
-{
-  I2C_TypeDef                  *Instance;       /*!< SMBUS registers base address       */
+typedef struct {
+    I2C_TypeDef                  *Instance;       /*!< SMBUS registers base address       */
 
-  SMBUS_InitTypeDef            Init;            /*!< SMBUS communication parameters     */
+    SMBUS_InitTypeDef            Init;            /*!< SMBUS communication parameters     */
 
-  uint8_t                      *pBuffPtr;       /*!< Pointer to SMBUS transfer buffer   */
+    uint8_t                      *pBuffPtr;       /*!< Pointer to SMBUS transfer buffer   */
 
-  uint16_t                     XferSize;        /*!< SMBUS transfer size                */
+    uint16_t                     XferSize;        /*!< SMBUS transfer size                */
 
-  __IO uint16_t                XferCount;       /*!< SMBUS transfer counter             */
+    __IO uint16_t                XferCount;       /*!< SMBUS transfer counter             */
 
-  __IO uint32_t                XferOptions;     /*!< SMBUS transfer options             */
+    __IO uint32_t                XferOptions;     /*!< SMBUS transfer options             */
 
-  __IO uint32_t                PreviousState;   /*!< SMBUS communication Previous state */
+    __IO uint32_t                PreviousState;   /*!< SMBUS communication Previous state */
 
-  HAL_LockTypeDef              Lock;            /*!< SMBUS locking object               */
+    HAL_LockTypeDef              Lock;            /*!< SMBUS locking object               */
 
-  __IO uint32_t                State;           /*!< SMBUS communication state          */
+    __IO uint32_t                State;           /*!< SMBUS communication state          */
 
-  __IO uint32_t                ErrorCode;       /*!< SMBUS Error code                   */
+    __IO uint32_t                ErrorCode;       /*!< SMBUS Error code                   */
 
-}SMBUS_HandleTypeDef;
+} SMBUS_HandleTypeDef;
 /**
   * @}
   */
@@ -429,17 +427,17 @@ typedef struct
   * @param  __HANDLE__ specifies the SMBUS Handle.
   * @param  __FLAG__ specifies the flag to check.
   *        This parameter can be one of the following values:
-  *            @arg @ref SMBUS_FLAG_TXE	    Transmit data register empty
+  *            @arg @ref SMBUS_FLAG_TXE     Transmit data register empty
   *            @arg @ref SMBUS_FLAG_TXIS    Transmit interrupt status
   *            @arg @ref SMBUS_FLAG_RXNE    Receive data register not empty
   *            @arg @ref SMBUS_FLAG_ADDR    Address matched (slave mode)
-  *            @arg @ref SMBUS_FLAG_AF 	    NACK received flag
+  *            @arg @ref SMBUS_FLAG_AF      NACK received flag
   *            @arg @ref SMBUS_FLAG_STOPF   STOP detection flag
-  *            @arg @ref SMBUS_FLAG_TC	    Transfer complete (master mode)
-  *            @arg @ref SMBUS_FLAG_TCR	    Transfer complete reload
+  *            @arg @ref SMBUS_FLAG_TC      Transfer complete (master mode)
+  *            @arg @ref SMBUS_FLAG_TCR     Transfer complete reload
   *            @arg @ref SMBUS_FLAG_BERR    Bus error
   *            @arg @ref SMBUS_FLAG_ARLO    Arbitration lost
-  *            @arg @ref SMBUS_FLAG_OVR	    Overrun/Underrun
+  *            @arg @ref SMBUS_FLAG_OVR     Overrun/Underrun
   *            @arg @ref SMBUS_FLAG_PECERR  PEC error in reception
   *            @arg @ref SMBUS_FLAG_TIMEOUT Timeout or Tlow detection flag
   *            @arg @ref SMBUS_FLAG_ALERT   SMBus alert
@@ -456,11 +454,11 @@ typedef struct
   * @param  __FLAG__ specifies the flag to clear.
   *          This parameter can be any combination of the following values:
   *            @arg @ref SMBUS_FLAG_ADDR    Address matched (slave mode)
-  *            @arg @ref SMBUS_FLAG_AF 	    NACK received flag
+  *            @arg @ref SMBUS_FLAG_AF      NACK received flag
   *            @arg @ref SMBUS_FLAG_STOPF   STOP detection flag
   *            @arg @ref SMBUS_FLAG_BERR    Bus error
   *            @arg @ref SMBUS_FLAG_ARLO    Arbitration lost
-  *            @arg @ref SMBUS_FLAG_OVR	    Overrun/Underrun
+  *            @arg @ref SMBUS_FLAG_OVR     Overrun/Underrun
   *            @arg @ref SMBUS_FLAG_PECERR  PEC error in reception
   *            @arg @ref SMBUS_FLAG_TIMEOUT Timeout or Tlow detection flag
   *            @arg @ref SMBUS_FLAG_ALERT   SMBus alert
@@ -592,7 +590,7 @@ typedef struct
 
 /* Initialization and de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_SMBUS_Init(SMBUS_HandleTypeDef *hsmbus);
-HAL_StatusTypeDef HAL_SMBUS_DeInit (SMBUS_HandleTypeDef *hsmbus);
+HAL_StatusTypeDef HAL_SMBUS_DeInit(SMBUS_HandleTypeDef *hsmbus);
 void HAL_SMBUS_MspInit(SMBUS_HandleTypeDef *hsmbus);
 void HAL_SMBUS_MspDeInit(SMBUS_HandleTypeDef *hsmbus);
 

@@ -61,7 +61,7 @@ static inline void debugger_breakpoint(void) ATTR_ALWAYS_INLINE;
 static inline void debugger_breakpoint(void)
 {
 #ifndef _TEST_
-  __asm("BKPT #0\n");
+    __asm("BKPT #0\n");
 #endif
 }
 
@@ -69,9 +69,9 @@ static inline void debugger_breakpoint(void)
 // Compile-time Assert
 //--------------------------------------------------------------------+
 #if defined __COUNTER__ && __COUNTER__ != __COUNTER__
-  #define _ASSERT_COUNTER __COUNTER__
+#define _ASSERT_COUNTER __COUNTER__
 #else
-  #define _ASSERT_COUNTER __LINE__
+#define _ASSERT_COUNTER __LINE__
 #endif
 
 #define ASSERT_STATIC(const_expr, message) enum { XSTRING_CONCAT_(static_assert_, _ASSERT_COUNTER) = 1/(!!(const_expr)) }
@@ -86,11 +86,11 @@ static inline void debugger_breakpoint(void)
 //#endif
 
 #if CFG_DEBUG == 3
-  #define ASSERT_MESSAGE(format, ...) debugger_breakpoint()
+#define ASSERT_MESSAGE(format, ...) debugger_breakpoint()
 #elif CFG_DEBUG == 2
-  #define ASSERT_MESSAGE(format, ...) printf("Assert at %s: %s: %d: " format "\n", __BASE_FILE__, __PRETTY_FUNCTION__, __LINE__, __VA_ARGS__)
+#define ASSERT_MESSAGE(format, ...) printf("Assert at %s: %s: %d: " format "\n", __BASE_FILE__, __PRETTY_FUNCTION__, __LINE__, __VA_ARGS__)
 #else
-  #define ASSERT_MESSAGE(format, ...)
+#define ASSERT_MESSAGE(format, ...)
 #endif
 
 #define ASSERT_ERROR_HANDLER(x, para)  \
@@ -99,11 +99,11 @@ static inline void debugger_breakpoint(void)
 #define ASSERT_DEFINE_WITH_HANDLER(error_handler, handler_para, setup_statement, condition, error, format, ...) \
   do{\
     setup_statement;\
-	  if (!(condition)) {\
-	    ASSERT_MESSAGE(format, __VA_ARGS__);\
-	    error_handler(error, handler_para);\
-	  }\
-	}while(0)
+      if (!(condition)) {\
+        ASSERT_MESSAGE(format, __VA_ARGS__);\
+        error_handler(error, handler_para);\
+      }\
+    }while(0)
 
 #define ASSERT_DEFINE(...) ASSERT_DEFINE_WITH_HANDLER(ASSERT_ERROR_HANDLER, NULL, __VA_ARGS__)
 

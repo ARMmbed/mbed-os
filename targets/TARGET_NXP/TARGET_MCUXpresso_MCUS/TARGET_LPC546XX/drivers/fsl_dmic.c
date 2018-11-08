@@ -66,10 +66,8 @@ uint32_t DMIC_GetInstance(DMIC_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_dmicBases); instance++)
-    {
-        if (s_dmicBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_dmicBases); instance++) {
+        if (s_dmicBases[instance] == base) {
             break;
         }
     }
@@ -112,14 +110,12 @@ void DMIC_ConfigIO(DMIC_Type *base, dmic_io_t config)
 
 void DMIC_SetOperationMode(DMIC_Type *base, operation_mode_t mode)
 {
-    if (mode == kDMIC_OperationModeInterrupt)
-    {
+    if (mode == kDMIC_OperationModeInterrupt) {
         /* Enable DMIC interrupt. */
         base->CHANNEL[0].FIFO_CTRL |= DMIC_CHANNEL_FIFO_CTRL_INTEN(1);
         base->CHANNEL[1].FIFO_CTRL |= DMIC_CHANNEL_FIFO_CTRL_INTEN(1);
     }
-    if (mode == kDMIC_OperationModeDma)
-    {
+    if (mode == kDMIC_OperationModeDma) {
         /* enable DMA request*/
         base->CHANNEL[0].FIFO_CTRL |= DMIC_CHANNEL_FIFO_CTRL_DMAEN(1);
         base->CHANNEL[1].FIFO_CTRL |= DMIC_CHANNEL_FIFO_CTRL_DMAEN(1);
@@ -219,16 +215,14 @@ void DMIC_HwvadDisableIntCallback(DMIC_Type *base, dmic_hwvad_callback_t vadcb)
 /*DMIC0 IRQ handler */
 void DMIC0_DriverIRQHandler(void)
 {
-    if (s_dmicCallback[0] != NULL)
-    {
+    if (s_dmicCallback[0] != NULL) {
         s_dmicCallback[0]();
     }
 }
 /*DMIC0 HWVAD IRQ handler */
 void HWVAD0_IRQHandler(void)
 {
-    if (s_dmicHwvadCallback[0] != NULL)
-    {
+    if (s_dmicHwvadCallback[0] != NULL) {
         s_dmicHwvadCallback[0]();
     }
 }

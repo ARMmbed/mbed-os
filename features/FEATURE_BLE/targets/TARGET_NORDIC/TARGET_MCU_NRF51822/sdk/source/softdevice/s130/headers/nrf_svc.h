@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
+
 #ifndef NRF_SVC__
 #define NRF_SVC__
 
@@ -60,7 +60,7 @@
 PRAGMA(swi_number = number) \
  __swi return_type signature;
 #else
-#define SVCALL(number, return_type, signature) return_type signature  
+#define SVCALL(number, return_type, signature) return_type signature
 #endif
 #endif  // SVCALL
 

@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F3xx_HAL_PCD_EX_H
 #define __STM32F3xx_HAL_PCD_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined(STM32F302xE) || defined(STM32F303xE) || \
@@ -57,11 +57,11 @@
 
 /** @addtogroup PCDEx
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-/* Exported macros -----------------------------------------------------------*/                                              
+/* Exported macros -----------------------------------------------------------*/
 /** @defgroup PCDEx_Exported_Macros PCD Extended Exported Macros
   * @{
   */
@@ -71,28 +71,28 @@
   * @param  bEpNum: Endpoint Number.
   * @retval None
   */
-   
+
 #if defined(STM32F302xC) || defined(STM32F303xC) || \
     defined(STM32F373xC)
-      
+
 #define PCD_EP_TX_ADDRESS(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8)*2+     ((uint32_t)(USBx) + 0x400U)))))
 #define PCD_EP_TX_CNT(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+2)*2+  ((uint32_t)(USBx) + 0x400U)))))
 #define PCD_EP_RX_ADDRESS(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+4)*2+ ((uint32_t)(USBx) + 0x400U)))))
 #define PCD_EP_RX_CNT(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+6)*2+  ((uint32_t)(USBx) + 0x400U)))))
 
-      
+
 #define PCD_SET_EP_RX_CNT(USBx, bEpNum,wCount) {\
     uint16_t *pdwReg =PCD_EP_RX_CNT((USBx),(bEpNum)); \
     PCD_SET_EP_CNT_RX_REG((pdwReg), (wCount))\
   }
 
 #endif /* STM32F302xC || STM32F303xC || */
-       /* STM32F373xC                   */
-   
-      
+/* STM32F373xC                   */
+
+
 #if defined(STM32F302xE) || defined(STM32F303xE) || \
     defined(STM32F302x8)
-           
+
 #define PCD_EP_TX_ADDRESS(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8)+     ((uint32_t)(USBx) + 0x400U)))))
 #define PCD_EP_TX_CNT(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+2)+  ((uint32_t)(USBx) + 0x400U)))))
 #define PCD_EP_RX_ADDRESS(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+4)+ ((uint32_t)(USBx) + 0x400U)))))
@@ -104,10 +104,10 @@
   }
 
 #endif /* STM32F302xE || STM32F303xE || */
-       /* STM32F302x8                   */
+/* STM32F302x8                   */
 /**
   * @}
-  */ 
+  */
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup PCDEx_Exported_Functions PCDEx Exported Functions
@@ -116,20 +116,20 @@
 /** @addtogroup PCDEx_Exported_Functions_Group1 Peripheral Control functions
   * @{
   */
-HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, 
-                                     uint16_t ep_addr,
-                                     uint16_t ep_kind,
-                                     uint32_t pmaadress);
+HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
+                                      uint16_t ep_addr,
+                                      uint16_t ep_kind,
+                                      uint32_t pmaadress);
 
 void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state);
 
 /**
   * @}
-  */ 
-  
+  */
+
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
@@ -140,9 +140,9 @@ void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state);
   */
 
 #endif /* STM32F302xE || STM32F303xE || */
-       /* STM32F302xC || STM32F303xC || */
-       /* STM32F302x8                || */
-       /* STM32F373xC                   */
+/* STM32F302xC || STM32F303xC || */
+/* STM32F302x8                || */
+/* STM32F373xC                   */
 
 #ifdef __cplusplus
 }

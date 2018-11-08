@@ -54,15 +54,15 @@ extern "C" {
 
 /// @brief Active levels for slave select lines.
 typedef enum {
-    SPIM_SSEL0_HIGH  =    (0x1 << 0),
+    SPIM_SSEL0_HIGH  = (0x1 << 0),
     SPIM_SSEL0_LOW   =    0,
-    SPIM_SSEL1_HIGH  =    (0x1 << 1),
+    SPIM_SSEL1_HIGH  = (0x1 << 1),
     SPIM_SSEL1_LOW   =    0,
-    SPIM_SSEL2_HIGH  =    (0x1 << 2),
+    SPIM_SSEL2_HIGH  = (0x1 << 2),
     SPIM_SSEL2_LOW   =    0,
-    SPIM_SSEL3_HIGH  =    (0x1 << 3),
+    SPIM_SSEL3_HIGH  = (0x1 << 3),
     SPIM_SSEL3_LOW   =    0,
-    SPIM_SSEL4_HIGH  =    (0x1 << 4),
+    SPIM_SSEL4_HIGH  = (0x1 << 4),
     SPIM_SSEL4_LOW   =    0
 }
 spim_ssel_t;
@@ -98,7 +98,7 @@ struct spim_req {
      * @param   spim_req_t*  Pointer to the transaction request.
      * @param   int         Error code.
      */
-    void (*callback)(spim_req_t*, int);
+    void (*callback)(spim_req_t *, int);
 };
 
 /***** Globals *****/

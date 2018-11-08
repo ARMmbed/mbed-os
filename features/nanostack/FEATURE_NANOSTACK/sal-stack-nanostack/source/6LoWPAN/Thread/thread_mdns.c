@@ -101,7 +101,7 @@ static uint8_t *thread_mdns_txt_record_sb_get(int interface_id, uint8_t *buf, ui
         /* Thread Interface Status
          *  2, Thread interface is initialized with a set of valid operational parameters and is actively part of a Thread Network Partition
          *  */
-        state_bitmap |= 0x02<<3;
+        state_bitmap |= 0x02 << 3;
 
         /* Availability
          * 1: High availability – The Border Agent device and its Thread interface are part of stable, always-on network infrastructure
@@ -137,7 +137,7 @@ static uint8_t *thread_mdns_txt_record_nn_key_fill(int8_t interface_id, uint8_t 
     uint8_t length;
     const char nn_string[4] = "nn=";
 
-    if (! (state_bitmap & THREAD_MDNS_TXT_SB_CONNECTION_MODE_BM)) {
+    if (!(state_bitmap & THREAD_MDNS_TXT_SB_CONNECTION_MODE_BM)) {
         // if connection mode is not allowed, elide nn-key
         return ptr;
     }
@@ -176,7 +176,7 @@ static uint8_t *thread_mdns_txt_record_xp_key_fill(int8_t interface_id, uint8_t 
     int length;
     const uint8_t xp_string[4] = { 11, 'x', 'p', '=' };
 
-    if (! (state_bitmap & THREAD_MDNS_TXT_SB_CONNECTION_MODE_BM)) {
+    if (!(state_bitmap & THREAD_MDNS_TXT_SB_CONNECTION_MODE_BM)) {
         // if connection mode not allowed, skip xb-key
         return ptr;
     }
@@ -185,7 +185,7 @@ static uint8_t *thread_mdns_txt_record_xp_key_fill(int8_t interface_id, uint8_t 
     memcpy(ptr, xp_string, length);
     ptr += length;
 
-    if(state_bitmap & THREAD_MDNS_TXT_SB_INTERFACE_STATUS_BM) {
+    if (state_bitmap & THREAD_MDNS_TXT_SB_INTERFACE_STATUS_BM) {
         link_configuration_s *link_configuration = thread_management_configuration_get(interface_id);
         if (!link_configuration) {
             tr_error("Failed to read link configuration");
@@ -219,7 +219,7 @@ static uint8_t *thread_mdns_txt_record_fill(int8_t interface_id, uint8_t *buf)
 
     /* tv */
     *ptr++ = sizeof(mDNS_thread_version) - 1; /* tv length */
-    memcpy(ptr, mDNS_thread_version, sizeof(mDNS_thread_version)- 1);
+    memcpy(ptr, mDNS_thread_version, sizeof(mDNS_thread_version) - 1);
     ptr +=  sizeof(mDNS_thread_version) - 1;
 
     /* state bitmap */
@@ -261,7 +261,7 @@ static const uint8_t *thread_mdns_txt_record_callback(void)
 
     if (!thread_mdns_ptr->txt_record_buffer) {
         tr_error("mDNS record not allocated");
-        return (uint8_t*)'\0';
+        return (uint8_t *)'\0';
     }
 
     memcpy(thread_mdns_ptr->txt_record_buffer, buffer, new_record_length);

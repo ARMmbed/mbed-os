@@ -22,9 +22,9 @@
    stack to improve its performance.  It copies 4 bytes at a time and
    unrolls the loop to perform 4 of these copies per loop iteration.
 */
-__attribute__((naked)) void thumb2_memcpy(void* pDest, const void* pSource, size_t length)
+__attribute__((naked)) void thumb2_memcpy(void *pDest, const void *pSource, size_t length)
 {
-    __asm (
+    __asm(
         ".syntax unified\n"
         ".thumb\n"
 

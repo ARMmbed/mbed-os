@@ -30,7 +30,7 @@
 #define TRACE_GROUP "cryp"
 #define TLS_1_2_VER                 0x0303
 
-static ccm_globals_t * tls_ccm_init(const uint8_t *key_expansion, const uint8_t *nonce, bool server, uint8_t crypt_process)
+static ccm_globals_t *tls_ccm_init(const uint8_t *key_expansion, const uint8_t *nonce, bool server, uint8_t crypt_process)
 {
     ccm_globals_t *ccm_ptr;
     const uint8_t *key, *iv_ptr;
@@ -41,7 +41,7 @@ static ccm_globals_t * tls_ccm_init(const uint8_t *key_expansion, const uint8_t 
         key = key_expansion + CLIENT_WRITE_KEY;
         iv_ptr = key_expansion + CLIENT_IV;
     }
-    ccm_ptr = ccm_sec_init(AES_SECURITY_LEVEL_ENC_MIC64, key, crypt_process , 3);
+    ccm_ptr = ccm_sec_init(AES_SECURITY_LEVEL_ENC_MIC64, key, crypt_process, 3);
     if (ccm_ptr) {
         memcpy(ccm_ptr->exp_nonce, iv_ptr, 4);
         memcpy(&ccm_ptr->exp_nonce[4], nonce, 8);
@@ -64,7 +64,7 @@ static void tls_set_adata(ccm_globals_t *ccm_ptr, uint8_t *a_data, const uint8_t
 
 int8_t tls_ccm_data_encrypt(uint8_t *data_ptr, uint16_t data_length, const uint8_t *key_expansion, const uint8_t *nonce, uint8_t type, bool server)
 {
-    ccm_globals_t * ccm_ptr = tls_ccm_init(key_expansion, nonce, server, AES_CCM_ENCRYPT);
+    ccm_globals_t *ccm_ptr = tls_ccm_init(key_expansion, nonce, server, AES_CCM_ENCRYPT);
     if (!ccm_ptr) {
         return -1;
     }
@@ -72,7 +72,7 @@ int8_t tls_ccm_data_encrypt(uint8_t *data_ptr, uint16_t data_length, const uint8
     ccm_ptr->data_len = data_length;
     ccm_ptr->data_ptr  = data_ptr;
     ccm_ptr->mic = (ccm_ptr->data_ptr + ccm_ptr->data_len);
-    tls_set_adata(ccm_ptr,adata, nonce, type);
+    tls_set_adata(ccm_ptr, adata, nonce, type);
     return ccm_process_run(ccm_ptr);
 }
 

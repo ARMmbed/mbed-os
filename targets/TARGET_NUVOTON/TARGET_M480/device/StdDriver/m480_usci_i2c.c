@@ -35,13 +35,13 @@ uint32_t UI2C_Open(UI2C_T *ui2c, uint32_t u32BusClock)
     uint32_t u32ClkDiv;
     uint32_t u32Pclk;
 
-    if( ui2c == UI2C0 ) {
+    if (ui2c == UI2C0) {
         u32Pclk = CLK_GetPCLK0Freq();
     } else {
         u32Pclk = CLK_GetPCLK1Freq();
     }
 
-    u32ClkDiv = (uint32_t) ((((((u32Pclk/2U)*10U)/(u32BusClock))+5U)/10U)-1U); /* Compute proper divider for USCI_I2C clock */
+    u32ClkDiv = (uint32_t)((((((u32Pclk / 2U) * 10U) / (u32BusClock)) + 5U) / 10U) - 1U); /* Compute proper divider for USCI_I2C clock */
 
     /* Enable USCI_I2C protocol */
     ui2c->CTL &= ~UI2C_CTL_FUNMODE_Msk;
@@ -57,10 +57,10 @@ uint32_t UI2C_Open(UI2C_T *ui2c, uint32_t u32BusClock)
 
     /* Set USCI_I2C bus clock */
     ui2c->BRGEN &= ~UI2C_BRGEN_CLKDIV_Msk;
-    ui2c->BRGEN |=  (u32ClkDiv << UI2C_BRGEN_CLKDIV_Pos);
+    ui2c->BRGEN |= (u32ClkDiv << UI2C_BRGEN_CLKDIV_Pos);
     ui2c->PROTCTL |=  UI2C_PROTCTL_PROTEN_Msk;
 
-    return ( u32Pclk / ((u32ClkDiv+1U)<<1U) );
+    return (u32Pclk / ((u32ClkDiv + 1U) << 1U));
 }
 
 /**
@@ -148,37 +148,37 @@ void UI2C_Trigger(UI2C_T *ui2c, uint8_t u8Start, uint8_t u8Stop, uint8_t u8Ptrg,
 void UI2C_DisableInt(UI2C_T *ui2c, uint32_t u32Mask)
 {
     /* Disable time-out interrupt flag */
-    if((u32Mask & UI2C_TO_INT_MASK) == UI2C_TO_INT_MASK) {
+    if ((u32Mask & UI2C_TO_INT_MASK) == UI2C_TO_INT_MASK) {
         ui2c->PROTIEN &= ~UI2C_PROTIEN_TOIEN_Msk;
     }
 
     /* Disable start condition received interrupt flag */
-    if((u32Mask & UI2C_STAR_INT_MASK) == UI2C_STAR_INT_MASK) {
+    if ((u32Mask & UI2C_STAR_INT_MASK) == UI2C_STAR_INT_MASK) {
         ui2c->PROTIEN &= ~UI2C_PROTIEN_STARIEN_Msk;
     }
 
     /* Disable stop condition received interrupt flag */
-    if((u32Mask & UI2C_STOR_INT_MASK) == UI2C_STOR_INT_MASK) {
+    if ((u32Mask & UI2C_STOR_INT_MASK) == UI2C_STOR_INT_MASK) {
         ui2c->PROTIEN &= ~UI2C_PROTIEN_STORIEN_Msk;
     }
 
     /* Disable non-acknowledge interrupt flag */
-    if((u32Mask & UI2C_NACK_INT_MASK) == UI2C_NACK_INT_MASK) {
+    if ((u32Mask & UI2C_NACK_INT_MASK) == UI2C_NACK_INT_MASK) {
         ui2c->PROTIEN &= ~UI2C_PROTIEN_NACKIEN_Msk;
     }
 
     /* Disable arbitration lost interrupt flag */
-    if((u32Mask & UI2C_ARBLO_INT_MASK) == UI2C_ARBLO_INT_MASK) {
+    if ((u32Mask & UI2C_ARBLO_INT_MASK) == UI2C_ARBLO_INT_MASK) {
         ui2c->PROTIEN &= ~UI2C_PROTIEN_ARBLOIEN_Msk;
     }
 
     /* Disable error interrupt flag */
-    if((u32Mask & UI2C_ERR_INT_MASK) == UI2C_ERR_INT_MASK) {
+    if ((u32Mask & UI2C_ERR_INT_MASK) == UI2C_ERR_INT_MASK) {
         ui2c->PROTIEN &= ~UI2C_PROTIEN_ERRIEN_Msk;
     }
 
     /* Disable acknowledge interrupt flag */
-    if((u32Mask & UI2C_ACK_INT_MASK) == UI2C_ACK_INT_MASK) {
+    if ((u32Mask & UI2C_ACK_INT_MASK) == UI2C_ACK_INT_MASK) {
         ui2c->PROTIEN &= ~UI2C_PROTIEN_ACKIEN_Msk;
     }
 }
@@ -203,37 +203,37 @@ void UI2C_DisableInt(UI2C_T *ui2c, uint32_t u32Mask)
 void UI2C_EnableInt(UI2C_T *ui2c, uint32_t u32Mask)
 {
     /* Enable time-out interrupt flag */
-    if((u32Mask & UI2C_TO_INT_MASK) == UI2C_TO_INT_MASK) {
+    if ((u32Mask & UI2C_TO_INT_MASK) == UI2C_TO_INT_MASK) {
         ui2c->PROTIEN |= UI2C_PROTIEN_TOIEN_Msk;
     }
 
     /* Enable start condition received interrupt flag */
-    if((u32Mask & UI2C_STAR_INT_MASK) == UI2C_STAR_INT_MASK) {
+    if ((u32Mask & UI2C_STAR_INT_MASK) == UI2C_STAR_INT_MASK) {
         ui2c->PROTIEN |= UI2C_PROTIEN_STARIEN_Msk;
     }
 
     /* Enable stop condition received interrupt flag */
-    if((u32Mask & UI2C_STOR_INT_MASK) == UI2C_STOR_INT_MASK) {
+    if ((u32Mask & UI2C_STOR_INT_MASK) == UI2C_STOR_INT_MASK) {
         ui2c->PROTIEN |= UI2C_PROTIEN_STORIEN_Msk;
     }
 
     /* Enable non-acknowledge interrupt flag */
-    if((u32Mask & UI2C_NACK_INT_MASK) == UI2C_NACK_INT_MASK) {
+    if ((u32Mask & UI2C_NACK_INT_MASK) == UI2C_NACK_INT_MASK) {
         ui2c->PROTIEN |= UI2C_PROTIEN_NACKIEN_Msk;
     }
 
     /* Enable arbitration lost interrupt flag */
-    if((u32Mask & UI2C_ARBLO_INT_MASK) == UI2C_ARBLO_INT_MASK) {
+    if ((u32Mask & UI2C_ARBLO_INT_MASK) == UI2C_ARBLO_INT_MASK) {
         ui2c->PROTIEN |= UI2C_PROTIEN_ARBLOIEN_Msk;
     }
 
     /* Enable error interrupt flag */
-    if((u32Mask & UI2C_ERR_INT_MASK) == UI2C_ERR_INT_MASK) {
+    if ((u32Mask & UI2C_ERR_INT_MASK) == UI2C_ERR_INT_MASK) {
         ui2c->PROTIEN |= UI2C_PROTIEN_ERRIEN_Msk;
     }
 
     /* Enable acknowledge interrupt flag */
-    if((u32Mask & UI2C_ACK_INT_MASK) == UI2C_ACK_INT_MASK) {
+    if ((u32Mask & UI2C_ACK_INT_MASK) == UI2C_ACK_INT_MASK) {
         ui2c->PROTIEN |= UI2C_PROTIEN_ACKIEN_Msk;
     }
 }
@@ -260,7 +260,7 @@ uint32_t UI2C_GetBusClockFreq(UI2C_T *ui2c)
 
     u32Divider = (ui2c->BRGEN & UI2C_BRGEN_CLKDIV_Msk) >> UI2C_BRGEN_CLKDIV_Pos;
 
-    return ( u32Pclk / ((u32Divider+1U)<<1U) );
+    return (u32Pclk / ((u32Divider + 1U) << 1U));
 }
 
 /**
@@ -278,19 +278,19 @@ uint32_t UI2C_SetBusClockFreq(UI2C_T *ui2c, uint32_t u32BusClock)
     uint32_t u32ClkDiv;
     uint32_t u32Pclk;
 
-    if( ui2c == UI2C0 ) {
+    if (ui2c == UI2C0) {
         u32Pclk = CLK_GetPCLK0Freq();
     } else {
         u32Pclk = CLK_GetPCLK1Freq();
     }
 
-    u32ClkDiv = (uint32_t) ((((((u32Pclk/2U)*10U)/(u32BusClock))+5U)/10U)-1U); /* Compute proper divider for USCI_I2C clock */
+    u32ClkDiv = (uint32_t)((((((u32Pclk / 2U) * 10U) / (u32BusClock)) + 5U) / 10U) - 1U); /* Compute proper divider for USCI_I2C clock */
 
     /* Set USCI_I2C bus clock */
     ui2c->BRGEN &= ~UI2C_BRGEN_CLKDIV_Msk;
-    ui2c->BRGEN |=  (u32ClkDiv << UI2C_BRGEN_CLKDIV_Pos);
+    ui2c->BRGEN |= (u32ClkDiv << UI2C_BRGEN_CLKDIV_Pos);
 
-    return ( u32Pclk / ((u32ClkDiv+1U)<<1U) );
+    return (u32Pclk / ((u32ClkDiv + 1U) << 1U));
 }
 
 /**
@@ -319,43 +319,43 @@ uint32_t UI2C_GetIntFlag(UI2C_T *ui2c, uint32_t u32Mask)
 
     u32TmpValue = ui2c->PROTSTS & UI2C_PROTSTS_TOIF_Msk;
     /* Check Time-out Interrupt Flag */
-    if((u32Mask & UI2C_TO_INT_MASK) && (u32TmpValue)) {
+    if ((u32Mask & UI2C_TO_INT_MASK) && (u32TmpValue)) {
         u32IntFlag |= UI2C_TO_INT_MASK;
     }
 
     u32TmpValue = ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk;
     /* Check Start Condition Received Interrupt Flag */
-    if((u32Mask & UI2C_STAR_INT_MASK) && (u32TmpValue)) {
+    if ((u32Mask & UI2C_STAR_INT_MASK) && (u32TmpValue)) {
         u32IntFlag |= UI2C_STAR_INT_MASK;
     }
 
     u32TmpValue = ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk;
     /* Check Stop Condition Received Interrupt Flag */
-    if((u32Mask & UI2C_STOR_INT_MASK) && (u32TmpValue)) {
+    if ((u32Mask & UI2C_STOR_INT_MASK) && (u32TmpValue)) {
         u32IntFlag |= UI2C_STOR_INT_MASK;
     }
 
     u32TmpValue = ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk;
     /* Check Non-Acknowledge Interrupt Flag */
-    if((u32Mask & UI2C_NACK_INT_MASK) && (u32TmpValue)) {
+    if ((u32Mask & UI2C_NACK_INT_MASK) && (u32TmpValue)) {
         u32IntFlag |= UI2C_NACK_INT_MASK;
     }
 
     u32TmpValue = ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk;
     /* Check Arbitration Lost Interrupt Flag */
-    if((u32Mask & UI2C_ARBLO_INT_MASK) && (u32TmpValue)) {
+    if ((u32Mask & UI2C_ARBLO_INT_MASK) && (u32TmpValue)) {
         u32IntFlag |= UI2C_ARBLO_INT_MASK;
     }
 
     u32TmpValue = ui2c->PROTSTS & UI2C_PROTSTS_ERRIF_Msk;
     /* Check Error Interrupt Flag */
-    if((u32Mask & UI2C_ERR_INT_MASK) && (u32TmpValue)) {
+    if ((u32Mask & UI2C_ERR_INT_MASK) && (u32TmpValue)) {
         u32IntFlag |= UI2C_ERR_INT_MASK;
     }
 
     u32TmpValue = ui2c->PROTSTS & UI2C_PROTSTS_ACKIF_Msk;
     /* Check Acknowledge Interrupt Flag */
-    if((u32Mask & UI2C_ACK_INT_MASK) && (u32TmpValue)) {
+    if ((u32Mask & UI2C_ACK_INT_MASK) && (u32TmpValue)) {
         u32IntFlag |= UI2C_ACK_INT_MASK;
     }
 
@@ -380,40 +380,40 @@ uint32_t UI2C_GetIntFlag(UI2C_T *ui2c, uint32_t u32Mask)
  *
  *    @details      Use this function to clear USCI_I2C interrupt flag when module occurs interrupt event and set flag.
  */
-void UI2C_ClearIntFlag(UI2C_T *ui2c , uint32_t u32Mask)
+void UI2C_ClearIntFlag(UI2C_T *ui2c, uint32_t u32Mask)
 {
     /* Clear Time-out Interrupt Flag */
-    if(u32Mask & UI2C_TO_INT_MASK) {
+    if (u32Mask & UI2C_TO_INT_MASK) {
         ui2c->PROTSTS = UI2C_PROTSTS_TOIF_Msk;
     }
 
     /* Clear Start Condition Received Interrupt Flag */
-    if(u32Mask & UI2C_STAR_INT_MASK) {
+    if (u32Mask & UI2C_STAR_INT_MASK) {
         ui2c->PROTSTS = UI2C_PROTSTS_STARIF_Msk;
     }
 
     /* Clear Stop Condition Received Interrupt Flag */
-    if(u32Mask & UI2C_STOR_INT_MASK) {
+    if (u32Mask & UI2C_STOR_INT_MASK) {
         ui2c->PROTSTS = UI2C_PROTSTS_STORIF_Msk;
     }
 
     /* Clear Non-Acknowledge Interrupt Flag */
-    if(u32Mask & UI2C_NACK_INT_MASK) {
+    if (u32Mask & UI2C_NACK_INT_MASK) {
         ui2c->PROTSTS = UI2C_PROTSTS_NACKIF_Msk;
     }
 
     /* Clear Arbitration Lost Interrupt Flag */
-    if(u32Mask & UI2C_ARBLO_INT_MASK) {
+    if (u32Mask & UI2C_ARBLO_INT_MASK) {
         ui2c->PROTSTS = UI2C_PROTSTS_ARBLOIF_Msk;
     }
 
     /* Clear Error Interrupt Flag */
-    if(u32Mask & UI2C_ERR_INT_MASK) {
+    if (u32Mask & UI2C_ERR_INT_MASK) {
         ui2c->PROTSTS = UI2C_PROTSTS_ERRIF_Msk;
     }
 
     /* Clear Acknowledge Interrupt Flag */
-    if(u32Mask & UI2C_ACK_INT_MASK) {
+    if (u32Mask & UI2C_ACK_INT_MASK) {
         ui2c->PROTSTS = UI2C_PROTSTS_ACKIF_Msk;
     }
 }
@@ -429,7 +429,7 @@ void UI2C_ClearIntFlag(UI2C_T *ui2c , uint32_t u32Mask)
  */
 uint32_t UI2C_GetData(UI2C_T *ui2c)
 {
-    return ( ui2c->RXDAT );
+    return (ui2c->RXDAT);
 }
 
 /**
@@ -463,13 +463,13 @@ void UI2C_SetData(UI2C_T *ui2c, uint8_t u8Data)
  */
 void UI2C_SetSlaveAddr(UI2C_T *ui2c, uint8_t u8SlaveNo, uint16_t u16SlaveAddr, uint8_t u8GCMode)
 {
-    if(u8SlaveNo) {
+    if (u8SlaveNo) {
         ui2c->DEVADDR1  = u16SlaveAddr;
     } else {
         ui2c->DEVADDR0  = u16SlaveAddr;
     }
 
-    ui2c->PROTCTL  = (ui2c->PROTCTL & ~UI2C_PROTCTL_GCFUNC_Msk) |u8GCMode;
+    ui2c->PROTCTL  = (ui2c->PROTCTL & ~UI2C_PROTCTL_GCFUNC_Msk) | u8GCMode;
 }
 
 /**
@@ -486,7 +486,7 @@ void UI2C_SetSlaveAddr(UI2C_T *ui2c, uint8_t u8SlaveNo, uint16_t u16SlaveAddr, u
  */
 void UI2C_SetSlaveAddrMask(UI2C_T *ui2c, uint8_t u8SlaveNo, uint16_t u16SlaveAddrMask)
 {
-    if(u8SlaveNo) {
+    if (u8SlaveNo) {
         ui2c->ADDRMSK1  = u16SlaveAddrMask;
     } else {
         ui2c->ADDRMSK0  = u16SlaveAddrMask;

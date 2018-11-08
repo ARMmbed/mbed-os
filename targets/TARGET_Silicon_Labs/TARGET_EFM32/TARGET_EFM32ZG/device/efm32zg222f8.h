@@ -49,33 +49,32 @@ extern "C" {
  *****************************************************************************/
 
 /** Interrupt Number Definition */
-typedef enum IRQn
-{
-/******  Cortex-M0+ Processor Exceptions Numbers *****************************************/
-  NonMaskableInt_IRQn = -14,                /*!< -14 Cortex-M0+ Non Maskable Interrupt   */
-  HardFault_IRQn      = -13,                /*!< -13 Cortex-M0+ Hard Fault Interrupt     */
-  SVCall_IRQn         = -5,                 /*!< -5  Cortex-M0+ SV Call Interrupt        */
-  PendSV_IRQn         = -2,                 /*!< -2  Cortex-M0+ Pend SV Interrupt        */
-  SysTick_IRQn        = -1,                 /*!< -1  Cortex-M0+ System Tick Interrupt    */
+typedef enum IRQn {
+    /******  Cortex-M0+ Processor Exceptions Numbers *****************************************/
+    NonMaskableInt_IRQn = -14,                /*!< -14 Cortex-M0+ Non Maskable Interrupt   */
+    HardFault_IRQn      = -13,                /*!< -13 Cortex-M0+ Hard Fault Interrupt     */
+    SVCall_IRQn         = -5,                 /*!< -5  Cortex-M0+ SV Call Interrupt        */
+    PendSV_IRQn         = -2,                 /*!< -2  Cortex-M0+ Pend SV Interrupt        */
+    SysTick_IRQn        = -1,                 /*!< -1  Cortex-M0+ System Tick Interrupt    */
 
-/******  EFM32ZG Peripheral Interrupt Numbers ********************************************/
-  DMA_IRQn            = 0,  /*!< 0 EFM32 DMA Interrupt */
-  GPIO_EVEN_IRQn      = 1,  /*!< 1 EFM32 GPIO_EVEN Interrupt */
-  TIMER0_IRQn         = 2,  /*!< 2 EFM32 TIMER0 Interrupt */
-  ACMP0_IRQn          = 3,  /*!< 3 EFM32 ACMP0 Interrupt */
-  ADC0_IRQn           = 4,  /*!< 4 EFM32 ADC0 Interrupt */
-  I2C0_IRQn           = 5,  /*!< 5 EFM32 I2C0 Interrupt */
-  GPIO_ODD_IRQn       = 6,  /*!< 6 EFM32 GPIO_ODD Interrupt */
-  TIMER1_IRQn         = 7,  /*!< 7 EFM32 TIMER1 Interrupt */
-  USART1_RX_IRQn      = 8,  /*!< 8 EFM32 USART1_RX Interrupt */
-  USART1_TX_IRQn      = 9,  /*!< 9 EFM32 USART1_TX Interrupt */
-  LEUART0_IRQn        = 10, /*!< 10 EFM32 LEUART0 Interrupt */
-  PCNT0_IRQn          = 11, /*!< 11 EFM32 PCNT0 Interrupt */
-  RTC_IRQn            = 12, /*!< 12 EFM32 RTC Interrupt */
-  CMU_IRQn            = 13, /*!< 13 EFM32 CMU Interrupt */
-  VCMP_IRQn           = 14, /*!< 14 EFM32 VCMP Interrupt */
-  MSC_IRQn            = 15, /*!< 15 EFM32 MSC Interrupt */
-  AES_IRQn            = 16, /*!< 16 EFM32 AES Interrupt */
+    /******  EFM32ZG Peripheral Interrupt Numbers ********************************************/
+    DMA_IRQn            = 0,  /*!< 0 EFM32 DMA Interrupt */
+    GPIO_EVEN_IRQn      = 1,  /*!< 1 EFM32 GPIO_EVEN Interrupt */
+    TIMER0_IRQn         = 2,  /*!< 2 EFM32 TIMER0 Interrupt */
+    ACMP0_IRQn          = 3,  /*!< 3 EFM32 ACMP0 Interrupt */
+    ADC0_IRQn           = 4,  /*!< 4 EFM32 ADC0 Interrupt */
+    I2C0_IRQn           = 5,  /*!< 5 EFM32 I2C0 Interrupt */
+    GPIO_ODD_IRQn       = 6,  /*!< 6 EFM32 GPIO_ODD Interrupt */
+    TIMER1_IRQn         = 7,  /*!< 7 EFM32 TIMER1 Interrupt */
+    USART1_RX_IRQn      = 8,  /*!< 8 EFM32 USART1_RX Interrupt */
+    USART1_TX_IRQn      = 9,  /*!< 9 EFM32 USART1_TX Interrupt */
+    LEUART0_IRQn        = 10, /*!< 10 EFM32 LEUART0 Interrupt */
+    PCNT0_IRQn          = 11, /*!< 11 EFM32 PCNT0 Interrupt */
+    RTC_IRQn            = 12, /*!< 12 EFM32 RTC Interrupt */
+    CMU_IRQn            = 13, /*!< 13 EFM32 CMU Interrupt */
+    VCMP_IRQn           = 14, /*!< 14 EFM32 VCMP Interrupt */
+    MSC_IRQn            = 15, /*!< 15 EFM32 MSC Interrupt */
+    AES_IRQn            = 16, /*!< 16 EFM32 AES Interrupt */
 } IRQn_Type;
 
 /**************************************************************************//**

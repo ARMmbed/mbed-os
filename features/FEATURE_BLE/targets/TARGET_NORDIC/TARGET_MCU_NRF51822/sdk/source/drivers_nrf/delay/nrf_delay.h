@@ -47,89 +47,89 @@
 
 static __ASM void __INLINE nrf_delay_us(uint32_t volatile number_of_us)
 {
-loop
-        SUBS    R0, R0, #1
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
+    loop
+    SUBS    R0, R0, #1
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
 #ifdef NRF52
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
 #endif
-        BNE    loop
-        BX     LR
+    BNE    loop
+    BX     LR
 }
 
 #elif defined ( __ICCARM__ )
 
 static void __INLINE nrf_delay_us(uint32_t volatile number_of_us)
 {
-__ASM (
-"loop:\n\t"
-       " SUBS R0, R0, #1\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
-       " NOP\n\t"
+    __ASM(
+        "loop:\n\t"
+        " SUBS R0, R0, #1\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
+        " NOP\n\t"
 #ifdef NRF52
         " NOP\n\t"
         " NOP\n\t"
@@ -177,7 +177,7 @@ __ASM (
         " NOP\n\t"
         " NOP\n\t"
 #endif
-       " BNE.n loop\n\t");
+        " BNE.n loop\n\t");
 }
 
 #elif defined ( _WIN32 ) || defined ( __unix ) || defined( __APPLE__ )
@@ -194,78 +194,78 @@ __STATIC_INLINE void nrf_delay_us(uint32_t volatile number_of_us)
 static __INLINE void nrf_delay_us(uint32_t volatile number_of_us) __attribute__((always_inline));
 static __INLINE void nrf_delay_us(uint32_t volatile number_of_us)
 {
-register uint32_t delay __ASM ("r0") = number_of_us;
-__ASM volatile (
+    register uint32_t delay __ASM("r0") = number_of_us;
+    __ASM volatile(
 #ifdef NRF51
         ".syntax unified\n"
 #endif
-    "1:\n"
-    " SUBS %0, %0, #1\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"   
-    " NOP\n"  
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
+        "1:\n"
+        " SUBS %0, %0, #1\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
 #ifdef NRF52
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
-    " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
+        " NOP\n"
 #endif
-    " BNE 1b\n"
+        " BNE 1b\n"
 #ifdef NRF51
-    ".syntax divided\n"
+        ".syntax divided\n"
 #endif
-    : "+r" (delay));
+        : "+r"(delay));
 }
 #endif
 

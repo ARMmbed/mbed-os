@@ -68,10 +68,8 @@ static uint32_t SDRAMC_GetInstance(SDRAM_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_sdramcBases); instance++)
-    {
-        if (s_sdramcBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_sdramcBases); instance++) {
+        if (s_sdramcBases[instance] == base) {
             break;
         }
     }
@@ -103,8 +101,7 @@ void SDRAMC_Init(SDRAM_Type *base, sdramc_config_t *configure)
     count = (count / SDRAMC_ONEMILLSEC_NANOSECONDS) / 16 - 1;
     base->CTRL = SDRAM_CTRL_RC(count) | SDRAM_CTRL_RTIM(refreshConfig->refreshTime);
 
-    for (index = 0; index < configure->numBlockConfig; index++)
-    {
+    for (index = 0; index < configure->numBlockConfig; index++) {
         /* Set the sdram block control. */
         base->BLOCK[index].AC = SDRAM_AC_PS(bctlConfig->portSize) | SDRAM_AC_CASL(bctlConfig->latency) |
                                 SDRAM_AC_CBM(bctlConfig->location) | (bctlConfig->address & SDRAM_AC_BA_MASK);
@@ -130,12 +127,11 @@ void SDRAMC_Deinit(SDRAM_Type *base)
 
 void SDRAMC_SendCommand(SDRAM_Type *base, sdramc_block_selection_t block, sdramc_command_t command)
 {
-    switch (command)
-    {
+    switch (command) {
         /* Initiate mrs command. */
         case kSDRAMC_ImrsCommand:
             base->BLOCK[block].AC |= SDRAM_AC_IMRS_MASK;
-            break;            
+            break;
         /* Initiate precharge command. */
         case kSDRAMC_PrechargeCommand:
             base->BLOCK[block].AC |= SDRAM_AC_IP_MASK;

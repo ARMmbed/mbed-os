@@ -3,7 +3,7 @@
  *
  * Created: 16.08.2017 15:05:12
  *  Author: Patrick.Frischmann
- */ 
+ */
 
 
 #ifndef METADATA_H_

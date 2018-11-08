@@ -73,44 +73,38 @@ Private global variables and functions
 *              :                ; other                   ; Full-speed Mode
 * Return Value : none
 *******************************************************************************/
-void usb0_function_InitModule (uint16_t mode)
+void usb0_function_InitModule(uint16_t mode)
 {
     RZA_IO_RegWrite_16(&USB200.SYSCFG0,
-                        0,
-                        USB_SYSCFG_DCFM_SHIFT,
-                        USB_SYSCFG_DCFM);           /* USB function */
+                       0,
+                       USB_SYSCFG_DCFM_SHIFT,
+                       USB_SYSCFG_DCFM);           /* USB function */
 
     /* USB module operation enabled     */
     RZA_IO_RegWrite_16(&USB200.SYSCFG0,
-                        1,
-                        USB_SYSCFG_USBE_SHIFT,
-                        USB_SYSCFG_USBE);
+                       1,
+                       USB_SYSCFG_USBE_SHIFT,
+                       USB_SYSCFG_USBE);
 
-    if (mode == USB_FUNCTION_HIGH_SPEED)
-    {
+    if (mode == USB_FUNCTION_HIGH_SPEED) {
         RZA_IO_RegWrite_16(&USB200.SYSCFG0,
-                            1,
-                            USB_SYSCFG_HSE_SHIFT,
-                            USB_SYSCFG_HSE);        /* Hi-Speed Mode */
-    }
-    else
-    {
+                           1,
+                           USB_SYSCFG_HSE_SHIFT,
+                           USB_SYSCFG_HSE);        /* Hi-Speed Mode */
+    } else {
         RZA_IO_RegWrite_16(&USB200.SYSCFG0,
-                            0,
-                            USB_SYSCFG_HSE_SHIFT,
-                            USB_SYSCFG_HSE);
+                           0,
+                           USB_SYSCFG_HSE_SHIFT,
+                           USB_SYSCFG_HSE);
     }
 
     /* for power-on                     */
-    if (usb0_function_CheckVBUStaus() == DEVDRV_USBF_ON)
-    {
+    if (usb0_function_CheckVBUStaus() == DEVDRV_USBF_ON) {
         usb0_function_EnableINTModule();            /* Interrupt Enable         */
         usb0_function_USB_FUNCTION_Attach();        /* pull-up D+ and open D-   */
-    }
-    else
-    {
+    } else {
         usb0_function_USB_FUNCTION_Detach();        /* USB Detach               */
-                                                    /* with Interrupt Enable    */
+        /* with Interrupt Enable    */
     }
 }
 
@@ -122,30 +116,28 @@ void usb0_function_InitModule (uint16_t mode)
 * Return Value : DEVDRV_USBF_ON     :   VBUS ON
 *              : DEVDRV_USBF_OFF    :   VBUS OFF
 *******************************************************************************/
-uint16_t usb0_function_CheckVBUStaus (void)
+uint16_t usb0_function_CheckVBUStaus(void)
 {
     uint16_t buf1;
     uint16_t buf2;
     uint16_t buf3;
 
     /* monitor VBUS pins */
-    do
-    {
+    do {
         buf1 = RZA_IO_RegRead_16(&USB200.INTSTS0,
-                                USB_INTSTS0_VBSTS_SHIFT,
-                                USB_INTSTS0_VBSTS);
+                                 USB_INTSTS0_VBSTS_SHIFT,
+                                 USB_INTSTS0_VBSTS);
         Userdef_USB_usb0_function_delay_10us(1);
         buf2 = RZA_IO_RegRead_16(&USB200.INTSTS0,
-                                USB_INTSTS0_VBSTS_SHIFT,
-                                USB_INTSTS0_VBSTS);
+                                 USB_INTSTS0_VBSTS_SHIFT,
+                                 USB_INTSTS0_VBSTS);
         Userdef_USB_usb0_function_delay_10us(1);
         buf3 = RZA_IO_RegRead_16(&USB200.INTSTS0,
-                                USB_INTSTS0_VBSTS_SHIFT,
-                                USB_INTSTS0_VBSTS);
+                                 USB_INTSTS0_VBSTS_SHIFT,
+                                 USB_INTSTS0_VBSTS);
     } while ((buf1 != buf2) || (buf2 != buf3));
 
-    if (buf1 == DEVDRV_USBF_OFF)
-    {
+    if (buf1 == DEVDRV_USBF_OFF) {
         return DEVDRV_USBF_OFF;         /* detach */
     }
 
@@ -159,16 +151,16 @@ uint16_t usb0_function_CheckVBUStaus (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb0_function_USB_FUNCTION_Attach (void)
+void usb0_function_USB_FUNCTION_Attach(void)
 {
     Userdef_USB_usb0_function_attach();
 
     Userdef_USB_usb0_function_delay_xms(10);
 
     RZA_IO_RegWrite_16(&USB200.SYSCFG0,
-                        1,
-                        USB_SYSCFG_DPRPU_SHIFT,
-                        USB_SYSCFG_DPRPU);      /* Pull-up D+ and open D- */
+                       1,
+                       USB_SYSCFG_DPRPU_SHIFT,
+                       USB_SYSCFG_DPRPU);      /* Pull-up D+ and open D- */
 }
 
 /*******************************************************************************
@@ -178,50 +170,48 @@ void usb0_function_USB_FUNCTION_Attach (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb0_function_USB_FUNCTION_Detach (void)
+void usb0_function_USB_FUNCTION_Detach(void)
 {
     uint16_t pipe;
 
     Userdef_USB_usb0_function_detach();
 
-    for (pipe = 0; pipe < (USB_FUNCTION_MAX_PIPE_NO + 1); ++pipe)
-    {
-        if (g_usb0_function_pipe_status[pipe] != DEVDRV_USBF_PIPE_IDLE)
-        {
+    for (pipe = 0; pipe < (USB_FUNCTION_MAX_PIPE_NO + 1); ++pipe) {
+        if (g_usb0_function_pipe_status[pipe] != DEVDRV_USBF_PIPE_IDLE) {
             usb0_function_stop_transfer(pipe);
         }
     }
 
     RZA_IO_RegWrite_16(&USB200.SYSCFG0,
-                        0,
-                        USB_SYSCFG_DPRPU_SHIFT,
-                        USB_SYSCFG_DPRPU);                  /* open D+ and D- */
+                       0,
+                       USB_SYSCFG_DPRPU_SHIFT,
+                       USB_SYSCFG_DPRPU);                  /* open D+ and D- */
 
     /* Detach Recovery */
     Userdef_USB_usb0_function_delay_500ns();                /* need 1us=500ns * 2 wait */
     Userdef_USB_usb0_function_delay_500ns();
 
     RZA_IO_RegWrite_16(&USB200.SYSCFG0,
-                        1,
-                        USB_SYSCFG_DCFM_SHIFT,
-                        USB_SYSCFG_DCFM);
+                       1,
+                       USB_SYSCFG_DCFM_SHIFT,
+                       USB_SYSCFG_DCFM);
     Userdef_USB_usb0_function_delay_500ns();                /* need 100ns wait but 500ns S/W wait */
 
     RZA_IO_RegWrite_16(&USB200.SYSCFG0,
-                        0,
-                        USB_SYSCFG_DCFM_SHIFT,
-                        USB_SYSCFG_DCFM);
+                       0,
+                       USB_SYSCFG_DCFM_SHIFT,
+                       USB_SYSCFG_DCFM);
 
     RZA_IO_RegWrite_16(&USB200.SYSCFG0,
-                        0,
-                        USB_SYSCFG_USBE_SHIFT,
-                        USB_SYSCFG_USBE);       /* soft reset module */
+                       0,
+                       USB_SYSCFG_USBE_SHIFT,
+                       USB_SYSCFG_USBE);       /* soft reset module */
     Userdef_USB_usb0_function_delay_500ns();
 
     RZA_IO_RegWrite_16(&USB200.SYSCFG0,
-                        1,
-                        USB_SYSCFG_USBE_SHIFT,
-                        USB_SYSCFG_USBE);
+                       1,
+                       USB_SYSCFG_USBE_SHIFT,
+                       USB_SYSCFG_USBE);
 
     usb0_function_EnableINTModule();            /* Interrupt Enable */
 }
@@ -234,17 +224,14 @@ void usb0_function_USB_FUNCTION_Detach (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-#if 0	/*The USBHAL in mbed does not need this function*/
-void usb0_function_USB_FUNCTION_BusReset (void)
+#if 0   /*The USBHAL in mbed does not need this function*/
+void usb0_function_USB_FUNCTION_BusReset(void)
 {
     usb0_function_init_status();                                    /* memory clear */
 
-    if (usb0_function_is_hispeed() == USB_FUNCTION_HIGH_SPEED)
-    {
+    if (usb0_function_is_hispeed() == USB_FUNCTION_HIGH_SPEED) {
         usb0_function_ResetDescriptor(USB_FUNCTION_HIGH_SPEED);     /* Device Descriptor reset */
-    }
-    else
-    {
+    } else {
         usb0_function_ResetDescriptor(USB_FUNCTION_FULL_SPEED);     /* Device Descriptor reset */
     }
 
@@ -260,8 +247,8 @@ void usb0_function_USB_FUNCTION_BusReset (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-#if 0	/*The USBHAL in mbed does not need this function*/
-void usb0_function_USB_FUNCTION_Resume (void)
+#if 0   /*The USBHAL in mbed does not need this function*/
+void usb0_function_USB_FUNCTION_Resume(void)
 {
     /* NOP */
 }
@@ -275,8 +262,8 @@ void usb0_function_USB_FUNCTION_Resume (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-#if 0	/*The USBHAL in mbed does not need this function*/
-void usb0_function_USB_FUNCTION_Suspend (void)
+#if 0   /*The USBHAL in mbed does not need this function*/
+void usb0_function_USB_FUNCTION_Suspend(void)
 {
     /* NOP */
 }
@@ -289,23 +276,22 @@ void usb0_function_USB_FUNCTION_Suspend (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb0_function_USB_FUNCTION_TestMode (void)
+void usb0_function_USB_FUNCTION_TestMode(void)
 {
-    switch (g_usb0_function_TestModeSelectors & USB_FUNCTION_FUNCTION_TEST_SELECT)
-    {
+    switch (g_usb0_function_TestModeSelectors & USB_FUNCTION_FUNCTION_TEST_SELECT) {
         case USB_FUNCTION_FUNCTION_TEST_J:
         case USB_FUNCTION_FUNCTION_TEST_K:
         case USB_FUNCTION_FUNCTION_TEST_SE0_NAK:
         case USB_FUNCTION_FUNCTION_TEST_PACKET:
             RZA_IO_RegWrite_16(&USB200.TESTMODE,
-                                (g_usb0_function_TestModeSelectors >> 8),
-                                USB_TESTMODE_UTST_SHIFT,
-                                USB_TESTMODE_UTST);
-        break;
+                               (g_usb0_function_TestModeSelectors >> 8),
+                               USB_TESTMODE_UTST_SHIFT,
+                               USB_TESTMODE_UTST);
+            break;
 
         case USB_FUNCTION_FUNCTION_TEST_FORCE_ENABLE:
         default:
-        break;
+            break;
     }
 }
 
@@ -315,13 +301,13 @@ void usb0_function_USB_FUNCTION_TestMode (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-static void usb0_function_EnableINTModule (void)
+static void usb0_function_EnableINTModule(void)
 {
     uint16_t buf;
 
     buf  = USB200.INTENB0;
     buf |= (USB_FUNCTION_BITVBSE | USB_FUNCTION_BITDVSE | USB_FUNCTION_BITCTRE |
-             USB_FUNCTION_BITBEMPE | USB_FUNCTION_BITNRDYE | USB_FUNCTION_BITBRDYE);
+            USB_FUNCTION_BITBEMPE | USB_FUNCTION_BITNRDYE | USB_FUNCTION_BITBRDYE);
     USB200.INTENB0 = buf;
 
     usb0_function_enable_bemp_int(USB_FUNCTION_PIPE0);

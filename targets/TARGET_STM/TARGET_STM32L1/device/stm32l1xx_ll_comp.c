@@ -40,9 +40,9 @@
 #include "stm32l1xx_ll_comp.h"
 
 #ifdef  USE_FULL_ASSERT
-  #include "stm32_assert.h"
+#include "stm32_assert.h"
 #else
-  #define assert_param(expr) ((void)0U)
+#define assert_param(expr) ((void)0U)
 #endif
 
 /** @addtogroup STM32L1xx_LL_Driver
@@ -212,11 +212,11 @@
   */
 ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
 {
-  ErrorStatus status = SUCCESS;
-  
-  /* Check the parameters */
-  assert_param(IS_COMP_ALL_INSTANCE(COMPx));
-  
+    ErrorStatus status = SUCCESS;
+
+    /* Check the parameters */
+    assert_param(IS_COMP_ALL_INSTANCE(COMPx));
+
     /* Note: On this STM32 serie, only COMP instance COMP2 has                */
     /*       features settables: power mode, input minus selection            */
     /*       and output selection.                                            */
@@ -228,31 +228,28 @@ ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
     /*       to connect OPAMP3 to ADC.                                        */
     /*       Switches RI_ASCR1_VCOMP, RI_ASCR1_SCM are reset: let routing     */
     /*       interface under control of ADC.                                  */
-    if(COMPx == COMP1)
-    {
-      CLEAR_BIT(COMP->CSR,
-                (  COMP_CSR_CMP1EN
-                 | COMP_CSR_10KPU
-                 | COMP_CSR_400KPU
-                 | COMP_CSR_10KPD
-                 | COMP_CSR_400KPD
-                ) 
-               );
+    if (COMPx == COMP1) {
+        CLEAR_BIT(COMP->CSR,
+                  (COMP_CSR_CMP1EN
+                   | COMP_CSR_10KPU
+                   | COMP_CSR_400KPU
+                   | COMP_CSR_10KPD
+                   | COMP_CSR_400KPD
+                  )
+                 );
+    } else {
+        CLEAR_BIT(COMP->CSR,
+                  (COMP_CSR_SPEED
+                   | COMP_CSR_INSEL
+                   | COMP_CSR_OUTSEL
+                  )
+                 );
     }
-    else
-    {
-      CLEAR_BIT(COMP->CSR,
-                (  COMP_CSR_SPEED
-                 | COMP_CSR_INSEL
-                 | COMP_CSR_OUTSEL
-                ) 
-               );
-    }
-    
+
     /* Set comparator input plus */
     LL_COMP_SetInputPlus(COMPx, LL_COMP_INPUT_PLUS_NONE);
-    
-  return status;
+
+    return status;
 }
 
 /**
@@ -269,18 +266,17 @@ ErrorStatus LL_COMP_DeInit(COMP_TypeDef *COMPx)
   */
 ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStruct)
 {
-  ErrorStatus status = SUCCESS;
-  
-  /* Check the parameters */
-  assert_param(IS_COMP_ALL_INSTANCE(COMPx));
-  if(COMPx == COMP2)
-  {
-    assert_param(IS_LL_COMP_POWER_MODE(COMP_InitStruct->PowerMode));
-    assert_param(IS_LL_COMP_INPUT_MINUS(COMPx, COMP_InitStruct->InputMinus));
-    assert_param(IS_LL_COMP_OUTPUT_SELECTION(COMP_InitStruct->OutputSelection));
-  }
-  assert_param(IS_LL_COMP_INPUT_PLUS(COMPx, COMP_InitStruct->InputPlus));
-  
+    ErrorStatus status = SUCCESS;
+
+    /* Check the parameters */
+    assert_param(IS_COMP_ALL_INSTANCE(COMPx));
+    if (COMPx == COMP2) {
+        assert_param(IS_LL_COMP_POWER_MODE(COMP_InitStruct->PowerMode));
+        assert_param(IS_LL_COMP_INPUT_MINUS(COMPx, COMP_InitStruct->InputMinus));
+        assert_param(IS_LL_COMP_OUTPUT_SELECTION(COMP_InitStruct->OutputSelection));
+    }
+    assert_param(IS_LL_COMP_INPUT_PLUS(COMPx, COMP_InitStruct->InputPlus));
+
     /* Configuration of comparator instance :                                 */
     /*  - PowerMode                                                           */
     /*  - InputPlus                                                           */
@@ -291,23 +287,22 @@ ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStru
     /*       and output selection.                                            */
     /* Note: On this STM32 serie, setting COMP instance COMP2 input minus     */
     /*       is enabling the comparator.                                      */
-    if(COMPx == COMP2)
-    {
-      MODIFY_REG(COMP->CSR,
+    if (COMPx == COMP2) {
+        MODIFY_REG(COMP->CSR,
                    COMP_CSR_SPEED
-                 | COMP_CSR_INSEL
-                 | COMP_CSR_OUTSEL
-                ,
+                   | COMP_CSR_INSEL
+                   | COMP_CSR_OUTSEL
+                   ,
                    COMP_InitStruct->PowerMode
-                 | COMP_InitStruct->InputMinus
-                 | COMP_InitStruct->OutputSelection
-                );
+                   | COMP_InitStruct->InputMinus
+                   | COMP_InitStruct->OutputSelection
+                  );
     }
-    
+
     /* Set comparator input plus */
     LL_COMP_SetInputPlus(COMPx, COMP_InitStruct->InputPlus);
-    
-  return status;
+
+    return status;
 }
 
 /**
@@ -318,11 +313,11 @@ ErrorStatus LL_COMP_Init(COMP_TypeDef *COMPx, LL_COMP_InitTypeDef *COMP_InitStru
   */
 void LL_COMP_StructInit(LL_COMP_InitTypeDef *COMP_InitStruct)
 {
-  /* Set COMP_InitStruct fields to default values */
-  COMP_InitStruct->PowerMode            = LL_COMP_POWERMODE_ULTRALOWPOWER;
-  COMP_InitStruct->InputPlus            = LL_COMP_INPUT_PLUS_IO1;
-  COMP_InitStruct->InputMinus           = LL_COMP_INPUT_MINUS_VREFINT;
-  COMP_InitStruct->OutputSelection      = LL_COMP_OUTPUT_NONE;
+    /* Set COMP_InitStruct fields to default values */
+    COMP_InitStruct->PowerMode            = LL_COMP_POWERMODE_ULTRALOWPOWER;
+    COMP_InitStruct->InputPlus            = LL_COMP_INPUT_PLUS_IO1;
+    COMP_InitStruct->InputMinus           = LL_COMP_INPUT_MINUS_VREFINT;
+    COMP_InitStruct->OutputSelection      = LL_COMP_OUTPUT_NONE;
 }
 
 /**

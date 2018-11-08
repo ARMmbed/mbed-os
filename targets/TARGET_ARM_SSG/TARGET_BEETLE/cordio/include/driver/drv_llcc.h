@@ -61,9 +61,9 @@ extern "C" {
 ** TYPES
 ***************************************************************************************************/
 
-typedef void (*DRV_LLCC_WD_CALLBACK_t) (uint8_t type, uint8_t *pData, void *pContext, int32_t error);
-typedef void (*DRV_LLCC_RD_CALLBACK_t) (uint8_t type, uint8_t *pData, uint8_t align, uint16_t len);
-typedef void * (*DRV_LLCC_ALLOC_CALLBACK_t) (uint16_t len);
+typedef void (*DRV_LLCC_WD_CALLBACK_t)(uint8_t type, uint8_t *pData, void *pContext, int32_t error);
+typedef void (*DRV_LLCC_RD_CALLBACK_t)(uint8_t type, uint8_t *pData, uint8_t align, uint16_t len);
+typedef void *(*DRV_LLCC_ALLOC_CALLBACK_t)(uint16_t len);
 
 /*--------------------------------------------------------------------------------------------------
 ** struct drv_llcc
@@ -104,12 +104,12 @@ struct drv_llcc {
      ---------------------------------------------------------------------------------------------*/
     void (*SetRxHandler)(DRV_LLCC_RD_CALLBACK_t cb);
 
-     /*----------------------------------------------------------------------------------------------
-     ** SetAllocHandler()
-     **
-     ** DESCRIPTION: Set handler for allocate requests
-     ** PARAMETERS:  cb       Pointer to callback; if NULL, the default handler is set
-     ---------------------------------------------------------------------------------------------*/
+    /*----------------------------------------------------------------------------------------------
+    ** SetAllocHandler()
+    **
+    ** DESCRIPTION: Set handler for allocate requests
+    ** PARAMETERS:  cb       Pointer to callback; if NULL, the default handler is set
+    ---------------------------------------------------------------------------------------------*/
     void (*SetAllocHandler)(DRV_LLCC_ALLOC_CALLBACK_t cb);
 
     /*----------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ struct drv_llcc {
      **              context  Context associated with this write
      ** RETURNS:     Number of bytes written or error (if less than 0)
      ---------------------------------------------------------------------------------------------*/
-     int32_t (*Write)(uint32_t cmd, const uint8_t *data, uint16_t num, void *context);
+    int32_t (*Write)(uint32_t cmd, const uint8_t *data, uint16_t num, void *context);
 };
 
 #ifdef __cplusplus

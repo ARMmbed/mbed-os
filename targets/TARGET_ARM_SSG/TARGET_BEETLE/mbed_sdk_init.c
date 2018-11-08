@@ -15,7 +15,8 @@
  */
 #include "cmsis.h"
 
-void mbed_sdk_init(void) {
+void mbed_sdk_init(void)
+{
     /* Beetle System Power Config */
     SystemPowerConfig();
 

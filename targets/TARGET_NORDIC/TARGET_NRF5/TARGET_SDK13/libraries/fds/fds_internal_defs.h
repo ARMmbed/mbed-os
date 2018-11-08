@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #ifndef FDS_INTERNAL_DEFS_H__
@@ -43,8 +43,8 @@
 #include <stdbool.h>
 
 #if defined (FDS_THREADS)
-    #include "nrf_soc.h"
-    #include "app_util_platform.h"
+#include "nrf_soc.h"
+#include "app_util_platform.h"
 #endif
 
 #ifdef __cplusplus
@@ -77,9 +77,9 @@ extern "C" {
 
 // The size of a physical page, in 4-byte words.
 #if     defined(NRF51)
-    #define FDS_PHY_PAGE_SIZE   (256)
- #elif (defined(NRF52) || defined(NRF52840_XXAA))
-    #define FDS_PHY_PAGE_SIZE   (1024)
+#define FDS_PHY_PAGE_SIZE   (256)
+#elif (defined(NRF52) || defined(NRF52840_XXAA))
+#define FDS_PHY_PAGE_SIZE   (1024)
 #endif
 
 // The number of physical pages to be used. This value is configured indirectly.
@@ -91,22 +91,21 @@ extern "C" {
 // The number of pages available to store data; which is the total minus one (the swap).
 #define FDS_MAX_PAGES               (FDS_VIRTUAL_PAGES - 1)
 
- // Just a shorter name for the size, in words, of a virtual page.
+// Just a shorter name for the size, in words, of a virtual page.
 #define FDS_PAGE_SIZE               (FDS_VIRTUAL_PAGE_SIZE)
 
 
 #if (FDS_VIRTUAL_PAGE_SIZE % FDS_PHY_PAGE_SIZE != 0)
-    #error "FDS_VIRTUAL_PAGE_SIZE must be a multiple of the size of a physical page."
+#error "FDS_VIRTUAL_PAGE_SIZE must be a multiple of the size of a physical page."
 #endif
 
 #if (FDS_VIRTUAL_PAGES < 2)
-    #error "FDS requires at least two virtual pages."
+#error "FDS requires at least two virtual pages."
 #endif
 
 
 // FDS internal status flags.
-typedef enum
-{
+typedef enum {
     FDS_FLAG_INITIALIZING   = (1 << 0),  // The module is initializing.
     FDS_FLAG_INITIALIZED    = (1 << 1),  // The module is initialized.
     FDS_FLAG_PROCESSING     = (1 << 2),  // The queue is being processed.
@@ -115,8 +114,7 @@ typedef enum
 
 
 // Page types.
-typedef enum
-{
+typedef enum {
     FDS_PAGE_DATA,      // Page is ready for storage.
     FDS_PAGE_SWAP,      // Page is reserved for garbage collection.
     FDS_PAGE_ERASED,    // Page is erased.
@@ -124,10 +122,9 @@ typedef enum
 } fds_page_type_t;
 
 
-typedef struct
-{
+typedef struct {
     fds_page_type_t         page_type;      // The page type.
-    uint32_t        const * p_addr;         // The address of the page.
+    uint32_t        const *p_addr;          // The address of the page.
     uint16_t                write_offset;   // The page write offset, in 4-byte words.
     uint16_t                words_reserved; // The amount of words reserved by fds_write_reserve().
     uint16_t                records_open;   // The number of records opened using fds_open().
@@ -135,16 +132,14 @@ typedef struct
 } fds_page_t;
 
 
-typedef struct
-{
-    uint32_t const * p_addr;
+typedef struct {
+    uint32_t const *p_addr;
     uint16_t         write_offset;
 } fds_swap_page_t;
 
 
 // FDS op-codes.
-typedef enum
-{
+typedef enum {
     FDS_OP_NONE,
     FDS_OP_INIT,        // Initialize the module.
     FDS_OP_WRITE,       // Write a record to flash.
@@ -155,8 +150,7 @@ typedef enum
 } fds_op_code_t;
 
 
-typedef enum
-{
+typedef enum {
     FDS_OP_INIT_TAG_SWAP,
     FDS_OP_INIT_TAG_DATA,
     FDS_OP_INIT_ERASE_SWAP,
@@ -164,8 +158,7 @@ typedef enum
 } fds_init_step_t;
 
 
-typedef enum
-{
+typedef enum {
     FDS_OP_WRITE_HEADER_BEGIN,      // Write the record key and length.
     FDS_OP_WRITE_HEADER_FINALIZE,   // Write the file ID and CRC.
     FDS_OP_WRITE_RECORD_ID,         // Write the record ID.
@@ -176,8 +169,7 @@ typedef enum
 } fds_write_step_t;
 
 
-typedef enum
-{
+typedef enum {
     FDS_OP_DEL_RECORD_FLAG_DIRTY,   // Flag a record as dirty.
     FDS_OP_DEL_FILE_FLAG_DIRTY,     // Flag multiple records as dirty.
     FDS_OP_DEL_DONE,
@@ -185,25 +177,21 @@ typedef enum
 
 
 #if defined(__CC_ARM)
-    #pragma push
-    #pragma anon_unions
+#pragma push
+#pragma anon_unions
 #elif defined(__ICCARM__)
-    #pragma language=extended
+#pragma language=extended
 #elif defined(__GNUC__)
-    // anonymous unions are enabled by default
+// anonymous unions are enabled by default
 #endif
 
-typedef struct
-{
+typedef struct {
     fds_op_code_t op_code;                      // The opcode for the operation.
-    union
-    {
-        struct
-        {
+    union {
+        struct {
             fds_init_step_t step;               // The current step the operation is at.
         } init;
-        struct
-        {
+        struct {
             fds_header_t     header;
             fds_write_step_t step;              // The current step the operation is at.
             uint16_t         page;              // The page the flash space for this command was reserved.
@@ -211,8 +199,7 @@ typedef struct
             uint8_t          chunk_count;       // Number of chunks to be written.
             uint32_t         record_to_delete;  // The record to delete in case this is an update.
         } write;
-        struct
-        {
+        struct {
             fds_delete_step_t step;
             uint16_t          file_id;
             uint16_t          record_key;
@@ -222,32 +209,29 @@ typedef struct
 } fds_op_t;
 
 #if defined(__CC_ARM)
-    #pragma pop
+#pragma pop
 #elif defined(__ICCARM__)
-    // leave anonymous unions enabled
+// leave anonymous unions enabled
 #elif defined(__GNUC__)
-    // anonymous unions are enabled by default
+// anonymous unions are enabled by default
 #endif
 
 
-typedef struct
-{
+typedef struct {
     fds_op_t op[FDS_OP_QUEUE_SIZE];    // Queued flash operations.
     uint32_t rp;                       // The index of the command being executed.
     uint32_t count;                    // Number of elements in the queue.
 } fds_op_queue_t;
 
 
-typedef struct
-{
+typedef struct {
     fds_record_chunk_t chunk[FDS_CHUNK_QUEUE_SIZE];
     uint32_t           rp;
     uint32_t           count;
 } fds_chunk_queue_t;
 
 
-enum
-{
+enum {
     PAGE_ERASED = 0x1,
     PAGE_DATA   = 0x2,
     SWAP_EMPTY  = 0x4,
@@ -255,8 +239,7 @@ enum
 };
 
 
-typedef enum
-{
+typedef enum {
     // This is a fatal error.
     NO_PAGES,
 
@@ -292,8 +275,7 @@ typedef enum
 } fds_init_opts_t;
 
 
-typedef enum
-{
+typedef enum {
     GC_BEGIN,               // Begin GC.
     GC_NEXT_PAGE,           // GC a page.
     GC_FIND_NEXT_RECORD,    // Find a valid record to copy.
@@ -306,11 +288,10 @@ typedef enum
 
 
 // Holds garbage collection status and related data.
-typedef struct
-{
+typedef struct {
     fds_gc_state_t   state;                     // The current GC step.
     uint16_t         cur_page;                  // The current page being garbage collected.
-    uint32_t const * p_record_src;              // The current record being copied to swap.
+    uint32_t const *p_record_src;               // The current record being copied to swap.
     uint16_t         run_count;                 // Total number of times GC was run.
     bool             do_gc_page[FDS_MAX_PAGES]; // Controls which pages to garbage collect.
     bool             resume;                    // Whether or not GC should be resumed.
@@ -320,13 +301,13 @@ typedef struct
 // Macros to enable and disable application interrupts.
 #if defined (FDS_THREADS)
 
-    #define CRITICAL_SECTION_ENTER()    CRITICAL_REGION_ENTER()
-    #define CRITICAL_SECTION_EXIT()     CRITICAL_REGION_EXIT()
+#define CRITICAL_SECTION_ENTER()    CRITICAL_REGION_ENTER()
+#define CRITICAL_SECTION_EXIT()     CRITICAL_REGION_EXIT()
 
 #else
 
-    #define CRITICAL_SECTION_ENTER()
-    #define CRITICAL_SECTION_EXIT()
+#define CRITICAL_SECTION_ENTER()
+#define CRITICAL_SECTION_EXIT()
 
 #endif
 

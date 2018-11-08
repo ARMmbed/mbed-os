@@ -83,10 +83,10 @@ struct _extint_module _extint_dev;
  * \param[in] detection_criteria  Edge detection mode to use (\ref extint_detect)
  */
 #define _extint_is_gclk_required(filter_input_signal, detection_criteria) \
-		((filter_input_signal) ? true : (\
-			(EXTINT_DETECT_RISING == (detection_criteria)) ? true : (\
-			(EXTINT_DETECT_FALLING == (detection_criteria)) ? true : (\
-			(EXTINT_DETECT_BOTH == (detection_criteria)) ? true : false))))
+        ((filter_input_signal) ? true : (\
+            (EXTINT_DETECT_RISING == (detection_criteria)) ? true : (\
+            (EXTINT_DETECT_FALLING == (detection_criteria)) ? true : (\
+            (EXTINT_DETECT_BOTH == (detection_criteria)) ? true : false))))
 
 static void _extint_enable(void);
 static void _extint_disable(void);
@@ -110,7 +110,7 @@ static inline bool extint_is_syncing(void)
     Eic *const eics[EIC_INST_NUM] = EIC_INSTS;
 
     for (uint32_t i = 0; i < EIC_INST_NUM; i++) {
-        if((eics[i]->SYNCBUSY.reg & EIC_SYNCBUSY_ENABLE)
+        if ((eics[i]->SYNCBUSY.reg & EIC_SYNCBUSY_ENABLE)
                 || (eics[i]->SYNCBUSY.reg & EIC_SYNCBUSY_SWRST)) {
             return true;
         }

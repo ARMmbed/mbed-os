@@ -63,10 +63,10 @@ typedef void (* lwip_cyclic_timer_handler)(void);
 /** This struct contains information about a stack-internal timer function
  that has to be called at a defined interval */
 struct lwip_cyclic_timer {
-  u32_t interval_ms;
-  lwip_cyclic_timer_handler handler;
+    u32_t interval_ms;
+    lwip_cyclic_timer_handler handler;
 #if LWIP_DEBUG_TIMERNAMES
-  const char* handler_name;
+    const char *handler_name;
 #endif /* LWIP_DEBUG_TIMERNAMES */
 };
 
@@ -84,19 +84,19 @@ extern const struct lwip_cyclic_timer lwip_cyclic_timers[];
 typedef void (* sys_timeout_handler)(void *arg);
 
 struct sys_timeo {
-  struct sys_timeo *next;
-  u32_t time;
-  sys_timeout_handler h;
-  void *arg;
+    struct sys_timeo *next;
+    u32_t time;
+    sys_timeout_handler h;
+    void *arg;
 #if LWIP_DEBUG_TIMERNAMES
-  const char* handler_name;
+    const char *handler_name;
 #endif /* LWIP_DEBUG_TIMERNAMES */
 };
 
 void sys_timeouts_init(void);
 
 #if LWIP_DEBUG_TIMERNAMES
-void sys_timeout_debug(u32_t msecs, sys_timeout_handler handler, void *arg, const char* handler_name);
+void sys_timeout_debug(u32_t msecs, sys_timeout_handler handler, void *arg, const char *handler_name);
 #define sys_timeout(msecs, handler, arg) sys_timeout_debug(msecs, handler, arg, #handler)
 #else /* LWIP_DEBUG_TIMERNAMES */
 void sys_timeout(u32_t msecs, sys_timeout_handler handler, void *arg);

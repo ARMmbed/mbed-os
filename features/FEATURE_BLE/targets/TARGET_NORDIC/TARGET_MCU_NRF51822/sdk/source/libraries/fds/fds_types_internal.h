@@ -75,8 +75,7 @@
 #define CRITICAL_SECTION_EXIT()     //sd_nvic_critical_region_exit ( m_nested_critical)
 
 /**@brief Page types. */
-typedef enum
-{
+typedef enum {
     FDS_PAGE_UNDEFINED, /**< Undefined page type. */
     FDS_PAGE_ERASED,    /**< Page is erased. */
     FDS_PAGE_VALID,     /**< Page is ready for storage. */
@@ -85,8 +84,7 @@ typedef enum
 } fds_page_type_t;
 
 
-typedef enum
-{
+typedef enum {
     FDS_OP_NONE         = 0x00, /**< No operation. */
     FDS_OP_WRITE_TL,            /**< Write the type and length. */
     FDS_OP_WRITE_ID,            /**< Write the record ID. */
@@ -98,8 +96,7 @@ typedef enum
 } fds_opcode_t;
 
 
-typedef enum
-{
+typedef enum {
     FDS_FLAG_INITIALIZING       = (1 << 0),  /**< TODO: Not really needed atm? */
     FDS_FLAG_INITIALIZED        = (1 << 1),  /**< Flag indicating that flash data storage has been initialized. */
     FDS_FLAG_PROCESSING         = (1 << 2),  /**< Flag indicating that queue is being processed. */
@@ -107,9 +104,8 @@ typedef enum
 } fds_flags_t;
 
 
-typedef struct
-{
-    uint32_t const    * start_addr;
+typedef struct {
+    uint32_t const     *start_addr;
     uint16_t            vpage_id;             /**< The page logical ID. */
     uint16_t volatile   write_offset;         /**< The page write offset, in 4 bytes words. */
     uint16_t volatile   words_reserved;       /**< The amount of words reserved by fds_write_reserve() on this page. */
@@ -118,8 +114,7 @@ typedef struct
 } fds_page_t;
 
 
-typedef struct
-{
+typedef struct {
     fds_cmd_id_t        id            : 4;    /**< The ID of the command. */
     fds_opcode_t        op_code       : 4;
     uint8_t             num_chunks;           /**< Number of operations this command has left in the operation queue. */
@@ -135,26 +130,23 @@ typedef struct
  *          more flash access operations pending if the count field is not zero. When the queue is
  *          not empty, the rp (read pointer) field points to the flash access command in progress
  *          or, if none is in progress, the command to be requested next. The queue implements a
- *          simple first in first out algorithm. Data addresses are assumed to be resident. 
+ *          simple first in first out algorithm. Data addresses are assumed to be resident.
  */
-typedef struct
-{
+typedef struct {
     fds_cmd_t          cmd[FDS_CMD_QUEUE_SIZE];        /**< Array to maintain flash access operation details. */
     uint8_t   volatile rp;                             /**< The index of the command being executed. */
     uint8_t   volatile count;                          /**< Number of elements in the queue. */
 } fds_cmd_queue_t;
 
 
-typedef struct
-{
+typedef struct {
     fds_record_chunk_t          chunk[FDS_CHUNK_QUEUE_SIZE];
     uint8_t            volatile rp;
     uint8_t            volatile count;
 } fds_chunk_queue_t;
 
 
-typedef enum
-{
+typedef enum {
     NONE,
     BEGIN,
     RESUME,
@@ -166,11 +158,10 @@ typedef enum
 } fds_gc_state_t;
 
 
-typedef struct
-{
+typedef struct {
     uint16_t         cur_page;
     uint16_t         swap_page;
-    uint32_t const * p_scan_addr;
+    uint32_t const *p_scan_addr;
     fds_gc_state_t   state;
     bool             do_gc_page[FDS_MAX_PAGES];
 } fds_gc_data_t;

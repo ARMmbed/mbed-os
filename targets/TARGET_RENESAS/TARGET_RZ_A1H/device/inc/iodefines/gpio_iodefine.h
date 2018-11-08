@@ -443,78 +443,77 @@
 #define GPIO_PMCSRn_COUNT (12)
 
 
-typedef struct st_gpio
-{
-                                                           /* GPIO             */
+typedef struct st_gpio {
+    /* GPIO             */
 
-/* start of struct st_gpio_from_p1 */
+    /* start of struct st_gpio_from_p1 */
     volatile uint16_t P1;                                     /*  P1              */
     volatile uint8_t   dummy348[2];                            /*                  */
 
-/* end of struct st_gpio_from_p1 */
+    /* end of struct st_gpio_from_p1 */
 
-/* start of struct st_gpio_from_p1 */
+    /* start of struct st_gpio_from_p1 */
     volatile uint16_t P2;                                     /*  P2              */
     volatile uint8_t   dummy349[2];                            /*                  */
 
-/* end of struct st_gpio_from_p1 */
+    /* end of struct st_gpio_from_p1 */
 
-/* start of struct st_gpio_from_p1 */
+    /* start of struct st_gpio_from_p1 */
     volatile uint16_t P3;                                     /*  P3              */
     volatile uint8_t   dummy350[2];                            /*                  */
 
-/* end of struct st_gpio_from_p1 */
+    /* end of struct st_gpio_from_p1 */
 
-/* start of struct st_gpio_from_p1 */
+    /* start of struct st_gpio_from_p1 */
     volatile uint16_t P4;                                     /*  P4              */
     volatile uint8_t   dummy351[2];                            /*                  */
 
-/* end of struct st_gpio_from_p1 */
+    /* end of struct st_gpio_from_p1 */
 
-/* start of struct st_gpio_from_p1 */
+    /* start of struct st_gpio_from_p1 */
     volatile uint16_t P5;                                     /*  P5              */
     volatile uint8_t   dummy352[2];                            /*                  */
 
-/* end of struct st_gpio_from_p1 */
+    /* end of struct st_gpio_from_p1 */
 
-/* start of struct st_gpio_from_p1 */
+    /* start of struct st_gpio_from_p1 */
     volatile uint16_t P6;                                     /*  P6              */
     volatile uint8_t   dummy353[2];                            /*                  */
 
-/* end of struct st_gpio_from_p1 */
+    /* end of struct st_gpio_from_p1 */
 
-/* start of struct st_gpio_from_p1 */
+    /* start of struct st_gpio_from_p1 */
     volatile uint16_t P7;                                     /*  P7              */
     volatile uint8_t   dummy354[2];                            /*                  */
 
-/* end of struct st_gpio_from_p1 */
+    /* end of struct st_gpio_from_p1 */
 
-/* start of struct st_gpio_from_p1 */
+    /* start of struct st_gpio_from_p1 */
     volatile uint16_t P8;                                     /*  P8              */
     volatile uint8_t   dummy355[2];                            /*                  */
 
-/* end of struct st_gpio_from_p1 */
+    /* end of struct st_gpio_from_p1 */
 
-/* start of struct st_gpio_from_p1 */
+    /* start of struct st_gpio_from_p1 */
     volatile uint16_t P9;                                     /*  P9              */
     volatile uint8_t   dummy356[2];                            /*                  */
 
-/* end of struct st_gpio_from_p1 */
+    /* end of struct st_gpio_from_p1 */
 
-/* start of struct st_gpio_from_p1 */
+    /* start of struct st_gpio_from_p1 */
     volatile uint16_t P10;                                    /*  P10             */
     volatile uint8_t   dummy357[2];                            /*                  */
 
-/* end of struct st_gpio_from_p1 */
+    /* end of struct st_gpio_from_p1 */
 
-/* start of struct st_gpio_from_p1 */
+    /* start of struct st_gpio_from_p1 */
     volatile uint16_t P11;                                    /*  P11             */
     volatile uint8_t   dummy3580[2];                           /*                  */
 
-/* end of struct st_gpio_from_p1 */
+    /* end of struct st_gpio_from_p1 */
     volatile uint8_t   dummy3581[212];                         /*                  */
 
-/* #define GPIO_PSRn_COUNT (11) */
+    /* #define GPIO_PSRn_COUNT (11) */
     volatile uint32_t  PSR1;                                   /*  PSR1            */
     volatile uint32_t  PSR2;                                   /*  PSR2            */
     volatile uint32_t  PSR3;                                   /*  PSR3            */
@@ -528,421 +527,421 @@ typedef struct st_gpio
     volatile uint32_t  PSR11;                                  /*  PSR11           */
     volatile uint8_t   dummy359[208];                          /*                  */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR0;                                   /*  PPR0            */
     volatile uint8_t   dummy360[2];                            /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR1;                                   /*  PPR1            */
     volatile uint8_t   dummy361[2];                            /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR2;                                   /*  PPR2            */
     volatile uint8_t   dummy362[2];                            /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR3;                                   /*  PPR3            */
     volatile uint8_t   dummy363[2];                            /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR4;                                   /*  PPR4            */
     volatile uint8_t   dummy364[2];                            /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR5;                                   /*  PPR5            */
     volatile uint8_t   dummy365[2];                            /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR6;                                   /*  PPR6            */
     volatile uint8_t   dummy366[2];                            /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR7;                                   /*  PPR7            */
     volatile uint8_t   dummy367[2];                            /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR8;                                   /*  PPR8            */
     volatile uint8_t   dummy368[2];                            /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR9;                                   /*  PPR9            */
     volatile uint8_t   dummy369[2];                            /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR10;                                  /*  PPR10           */
     volatile uint8_t   dummy370[2];                            /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
 
-/* start of struct st_gpio_from_ppr0 */
+    /* start of struct st_gpio_from_ppr0 */
     volatile uint16_t PPR11;                                  /*  PPR11           */
     volatile uint8_t   dummy3710[2];                           /*                  */
 
-/* end of struct st_gpio_from_ppr0 */
+    /* end of struct st_gpio_from_ppr0 */
     volatile uint8_t   dummy3711[212];                         /*                  */
 
-/* start of struct st_gpio_from_pm1 */
+    /* start of struct st_gpio_from_pm1 */
     volatile uint16_t PM1;                                    /*  PM1             */
     volatile uint8_t   dummy372[2];                            /*                  */
 
-/* end of struct st_gpio_from_pm1 */
+    /* end of struct st_gpio_from_pm1 */
 
-/* start of struct st_gpio_from_pm1 */
+    /* start of struct st_gpio_from_pm1 */
     volatile uint16_t PM2;                                    /*  PM2             */
     volatile uint8_t   dummy373[2];                            /*                  */
 
-/* end of struct st_gpio_from_pm1 */
+    /* end of struct st_gpio_from_pm1 */
 
-/* start of struct st_gpio_from_pm1 */
+    /* start of struct st_gpio_from_pm1 */
     volatile uint16_t PM3;                                    /*  PM3             */
     volatile uint8_t   dummy374[2];                            /*                  */
 
-/* end of struct st_gpio_from_pm1 */
+    /* end of struct st_gpio_from_pm1 */
 
-/* start of struct st_gpio_from_pm1 */
+    /* start of struct st_gpio_from_pm1 */
     volatile uint16_t PM4;                                    /*  PM4             */
     volatile uint8_t   dummy375[2];                            /*                  */
 
-/* end of struct st_gpio_from_pm1 */
+    /* end of struct st_gpio_from_pm1 */
 
-/* start of struct st_gpio_from_pm1 */
+    /* start of struct st_gpio_from_pm1 */
     volatile uint16_t PM5;                                    /*  PM5             */
     volatile uint8_t   dummy376[2];                            /*                  */
 
-/* end of struct st_gpio_from_pm1 */
+    /* end of struct st_gpio_from_pm1 */
 
-/* start of struct st_gpio_from_pm1 */
+    /* start of struct st_gpio_from_pm1 */
     volatile uint16_t PM6;                                    /*  PM6             */
     volatile uint8_t   dummy377[2];                            /*                  */
 
-/* end of struct st_gpio_from_pm1 */
+    /* end of struct st_gpio_from_pm1 */
 
-/* start of struct st_gpio_from_pm1 */
+    /* start of struct st_gpio_from_pm1 */
     volatile uint16_t PM7;                                    /*  PM7             */
     volatile uint8_t   dummy378[2];                            /*                  */
 
-/* end of struct st_gpio_from_pm1 */
+    /* end of struct st_gpio_from_pm1 */
 
-/* start of struct st_gpio_from_pm1 */
+    /* start of struct st_gpio_from_pm1 */
     volatile uint16_t PM8;                                    /*  PM8             */
     volatile uint8_t   dummy379[2];                            /*                  */
 
-/* end of struct st_gpio_from_pm1 */
+    /* end of struct st_gpio_from_pm1 */
 
-/* start of struct st_gpio_from_pm1 */
+    /* start of struct st_gpio_from_pm1 */
     volatile uint16_t PM9;                                    /*  PM9             */
     volatile uint8_t   dummy380[2];                            /*                  */
 
-/* end of struct st_gpio_from_pm1 */
+    /* end of struct st_gpio_from_pm1 */
 
-/* start of struct st_gpio_from_pm1 */
+    /* start of struct st_gpio_from_pm1 */
     volatile uint16_t PM10;                                   /*  PM10            */
     volatile uint8_t   dummy381[2];                            /*                  */
 
-/* end of struct st_gpio_from_pm1 */
+    /* end of struct st_gpio_from_pm1 */
 
-/* start of struct st_gpio_from_pm1 */
+    /* start of struct st_gpio_from_pm1 */
     volatile uint16_t PM11;                                   /*  PM11            */
     volatile uint8_t   dummy3820[2];                           /*                  */
 
-/* end of struct st_gpio_from_pm1 */
+    /* end of struct st_gpio_from_pm1 */
     volatile uint8_t   dummy3821[208];                         /*                  */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC0;                                   /*  PMC0            */
     volatile uint8_t   dummy383[2];                            /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC1;                                   /*  PMC1            */
     volatile uint8_t   dummy384[2];                            /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC2;                                   /*  PMC2            */
     volatile uint8_t   dummy385[2];                            /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC3;                                   /*  PMC3            */
     volatile uint8_t   dummy386[2];                            /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC4;                                   /*  PMC4            */
     volatile uint8_t   dummy387[2];                            /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC5;                                   /*  PMC5            */
     volatile uint8_t   dummy388[2];                            /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC6;                                   /*  PMC6            */
     volatile uint8_t   dummy389[2];                            /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC7;                                   /*  PMC7            */
     volatile uint8_t   dummy390[2];                            /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC8;                                   /*  PMC8            */
     volatile uint8_t   dummy391[2];                            /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC9;                                   /*  PMC9            */
     volatile uint8_t   dummy392[2];                            /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC10;                                  /*  PMC10           */
     volatile uint8_t   dummy393[2];                            /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
 
-/* start of struct st_gpio_from_pmc0 */
+    /* start of struct st_gpio_from_pmc0 */
     volatile uint16_t PMC11;                                  /*  PMC11           */
     volatile uint8_t   dummy3940[2];                           /*                  */
 
-/* end of struct st_gpio_from_pmc0 */
+    /* end of struct st_gpio_from_pmc0 */
     volatile uint8_t   dummy3941[212];                         /*                  */
 
-/* start of struct st_gpio_from_pfc1 */
+    /* start of struct st_gpio_from_pfc1 */
     volatile uint16_t PFC1;                                   /*  PFC1            */
     volatile uint8_t   dummy395[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfc1 */
+    /* end of struct st_gpio_from_pfc1 */
 
-/* start of struct st_gpio_from_pfc1 */
+    /* start of struct st_gpio_from_pfc1 */
     volatile uint16_t PFC2;                                   /*  PFC2            */
     volatile uint8_t   dummy396[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfc1 */
+    /* end of struct st_gpio_from_pfc1 */
 
-/* start of struct st_gpio_from_pfc1 */
+    /* start of struct st_gpio_from_pfc1 */
     volatile uint16_t PFC3;                                   /*  PFC3            */
     volatile uint8_t   dummy397[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfc1 */
+    /* end of struct st_gpio_from_pfc1 */
 
-/* start of struct st_gpio_from_pfc1 */
+    /* start of struct st_gpio_from_pfc1 */
     volatile uint16_t PFC4;                                   /*  PFC4            */
     volatile uint8_t   dummy398[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfc1 */
+    /* end of struct st_gpio_from_pfc1 */
 
-/* start of struct st_gpio_from_pfc1 */
+    /* start of struct st_gpio_from_pfc1 */
     volatile uint16_t PFC5;                                   /*  PFC5            */
     volatile uint8_t   dummy399[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfc1 */
+    /* end of struct st_gpio_from_pfc1 */
 
-/* start of struct st_gpio_from_pfc1 */
+    /* start of struct st_gpio_from_pfc1 */
     volatile uint16_t PFC6;                                   /*  PFC6            */
     volatile uint8_t   dummy400[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfc1 */
+    /* end of struct st_gpio_from_pfc1 */
 
-/* start of struct st_gpio_from_pfc1 */
+    /* start of struct st_gpio_from_pfc1 */
     volatile uint16_t PFC7;                                   /*  PFC7            */
     volatile uint8_t   dummy401[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfc1 */
+    /* end of struct st_gpio_from_pfc1 */
 
-/* start of struct st_gpio_from_pfc1 */
+    /* start of struct st_gpio_from_pfc1 */
     volatile uint16_t PFC8;                                   /*  PFC8            */
     volatile uint8_t   dummy402[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfc1 */
+    /* end of struct st_gpio_from_pfc1 */
 
-/* start of struct st_gpio_from_pfc1 */
+    /* start of struct st_gpio_from_pfc1 */
     volatile uint16_t PFC9;                                   /*  PFC9            */
     volatile uint8_t   dummy403[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfc1 */
+    /* end of struct st_gpio_from_pfc1 */
 
-/* start of struct st_gpio_from_pfc1 */
+    /* start of struct st_gpio_from_pfc1 */
     volatile uint16_t PFC10;                                  /*  PFC10           */
     volatile uint8_t   dummy404[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfc1 */
+    /* end of struct st_gpio_from_pfc1 */
 
-/* start of struct st_gpio_from_pfc1 */
+    /* start of struct st_gpio_from_pfc1 */
     volatile uint16_t PFC11;                                  /*  PFC11           */
     volatile uint8_t   dummy4050[2];                           /*                  */
 
-/* end of struct st_gpio_from_pfc1 */
+    /* end of struct st_gpio_from_pfc1 */
     volatile uint8_t   dummy4051[212];                         /*                  */
 
-/* start of struct st_gpio_from_pfce1 */
+    /* start of struct st_gpio_from_pfce1 */
     volatile uint16_t PFCE1;                                  /*  PFCE1           */
     volatile uint8_t   dummy406[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfce1 */
+    /* end of struct st_gpio_from_pfce1 */
 
-/* start of struct st_gpio_from_pfce1 */
+    /* start of struct st_gpio_from_pfce1 */
     volatile uint16_t PFCE2;                                  /*  PFCE2           */
     volatile uint8_t   dummy407[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfce1 */
+    /* end of struct st_gpio_from_pfce1 */
 
-/* start of struct st_gpio_from_pfce1 */
+    /* start of struct st_gpio_from_pfce1 */
     volatile uint16_t PFCE3;                                  /*  PFCE3           */
     volatile uint8_t   dummy408[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfce1 */
+    /* end of struct st_gpio_from_pfce1 */
 
-/* start of struct st_gpio_from_pfce1 */
+    /* start of struct st_gpio_from_pfce1 */
     volatile uint16_t PFCE4;                                  /*  PFCE4           */
     volatile uint8_t   dummy409[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfce1 */
+    /* end of struct st_gpio_from_pfce1 */
 
-/* start of struct st_gpio_from_pfce1 */
+    /* start of struct st_gpio_from_pfce1 */
     volatile uint16_t PFCE5;                                  /*  PFCE5           */
     volatile uint8_t   dummy410[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfce1 */
+    /* end of struct st_gpio_from_pfce1 */
 
-/* start of struct st_gpio_from_pfce1 */
+    /* start of struct st_gpio_from_pfce1 */
     volatile uint16_t PFCE6;                                  /*  PFCE6           */
     volatile uint8_t   dummy411[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfce1 */
+    /* end of struct st_gpio_from_pfce1 */
 
-/* start of struct st_gpio_from_pfce1 */
+    /* start of struct st_gpio_from_pfce1 */
     volatile uint16_t PFCE7;                                  /*  PFCE7           */
     volatile uint8_t   dummy412[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfce1 */
+    /* end of struct st_gpio_from_pfce1 */
 
-/* start of struct st_gpio_from_pfce1 */
+    /* start of struct st_gpio_from_pfce1 */
     volatile uint16_t PFCE8;                                  /*  PFCE8           */
     volatile uint8_t   dummy413[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfce1 */
+    /* end of struct st_gpio_from_pfce1 */
 
-/* start of struct st_gpio_from_pfce1 */
+    /* start of struct st_gpio_from_pfce1 */
     volatile uint16_t PFCE9;                                  /*  PFCE9           */
     volatile uint8_t   dummy414[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfce1 */
+    /* end of struct st_gpio_from_pfce1 */
 
-/* start of struct st_gpio_from_pfce1 */
+    /* start of struct st_gpio_from_pfce1 */
     volatile uint16_t PFCE10;                                 /*  PFCE10          */
     volatile uint8_t   dummy415[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfce1 */
+    /* end of struct st_gpio_from_pfce1 */
 
-/* start of struct st_gpio_from_pfce1 */
+    /* start of struct st_gpio_from_pfce1 */
     volatile uint16_t PFCE11;                                 /*  PFCE11          */
     volatile uint8_t   dummy4160[2];                           /*                  */
 
-/* end of struct st_gpio_from_pfce1 */
+    /* end of struct st_gpio_from_pfce1 */
     volatile uint8_t   dummy4161[212];                         /*                  */
 
-/* start of struct st_gpio_from_pnot1 */
+    /* start of struct st_gpio_from_pnot1 */
     volatile uint16_t PNOT1;                                  /*  PNOT1           */
     volatile uint8_t   dummy417[2];                            /*                  */
 
-/* end of struct st_gpio_from_pnot1 */
+    /* end of struct st_gpio_from_pnot1 */
 
-/* start of struct st_gpio_from_pnot1 */
+    /* start of struct st_gpio_from_pnot1 */
     volatile uint16_t PNOT2;                                  /*  PNOT2           */
     volatile uint8_t   dummy418[2];                            /*                  */
 
-/* end of struct st_gpio_from_pnot1 */
+    /* end of struct st_gpio_from_pnot1 */
 
-/* start of struct st_gpio_from_pnot1 */
+    /* start of struct st_gpio_from_pnot1 */
     volatile uint16_t PNOT3;                                  /*  PNOT3           */
     volatile uint8_t   dummy419[2];                            /*                  */
 
-/* end of struct st_gpio_from_pnot1 */
+    /* end of struct st_gpio_from_pnot1 */
 
-/* start of struct st_gpio_from_pnot1 */
+    /* start of struct st_gpio_from_pnot1 */
     volatile uint16_t PNOT4;                                  /*  PNOT4           */
     volatile uint8_t   dummy420[2];                            /*                  */
 
-/* end of struct st_gpio_from_pnot1 */
+    /* end of struct st_gpio_from_pnot1 */
 
-/* start of struct st_gpio_from_pnot1 */
+    /* start of struct st_gpio_from_pnot1 */
     volatile uint16_t PNOT5;                                  /*  PNOT5           */
     volatile uint8_t   dummy421[2];                            /*                  */
 
-/* end of struct st_gpio_from_pnot1 */
+    /* end of struct st_gpio_from_pnot1 */
 
-/* start of struct st_gpio_from_pnot1 */
+    /* start of struct st_gpio_from_pnot1 */
     volatile uint16_t PNOT6;                                  /*  PNOT6           */
     volatile uint8_t   dummy422[2];                            /*                  */
 
-/* end of struct st_gpio_from_pnot1 */
+    /* end of struct st_gpio_from_pnot1 */
 
-/* start of struct st_gpio_from_pnot1 */
+    /* start of struct st_gpio_from_pnot1 */
     volatile uint16_t PNOT7;                                  /*  PNOT7           */
     volatile uint8_t   dummy423[2];                            /*                  */
 
-/* end of struct st_gpio_from_pnot1 */
+    /* end of struct st_gpio_from_pnot1 */
 
-/* start of struct st_gpio_from_pnot1 */
+    /* start of struct st_gpio_from_pnot1 */
     volatile uint16_t PNOT8;                                  /*  PNOT8           */
     volatile uint8_t   dummy424[2];                            /*                  */
 
-/* end of struct st_gpio_from_pnot1 */
+    /* end of struct st_gpio_from_pnot1 */
 
-/* start of struct st_gpio_from_pnot1 */
+    /* start of struct st_gpio_from_pnot1 */
     volatile uint16_t PNOT9;                                  /*  PNOT9           */
     volatile uint8_t   dummy425[2];                            /*                  */
 
-/* end of struct st_gpio_from_pnot1 */
+    /* end of struct st_gpio_from_pnot1 */
 
-/* start of struct st_gpio_from_pnot1 */
+    /* start of struct st_gpio_from_pnot1 */
     volatile uint16_t PNOT10;                                 /*  PNOT10          */
     volatile uint8_t   dummy426[2];                            /*                  */
 
-/* end of struct st_gpio_from_pnot1 */
+    /* end of struct st_gpio_from_pnot1 */
 
-/* start of struct st_gpio_from_pnot1 */
+    /* start of struct st_gpio_from_pnot1 */
     volatile uint16_t PNOT11;                                 /*  PNOT11          */
     volatile uint8_t   dummy4270[2];                           /*                  */
 
-/* end of struct st_gpio_from_pnot1 */
+    /* end of struct st_gpio_from_pnot1 */
     volatile uint8_t   dummy4271[212];                         /*                  */
 
-/* #define GPIO_PMSRn_COUNT (11) */
+    /* #define GPIO_PMSRn_COUNT (11) */
     volatile uint32_t  PMSR1;                                  /*  PMSR1           */
     volatile uint32_t  PMSR2;                                  /*  PMSR2           */
     volatile uint32_t  PMSR3;                                  /*  PMSR3           */
@@ -956,7 +955,7 @@ typedef struct st_gpio
     volatile uint32_t  PMSR11;                                 /*  PMSR11          */
     volatile uint8_t   dummy428[208];                          /*                  */
 
-/* #define GPIO_PMCSRn_COUNT (12) */
+    /* #define GPIO_PMCSRn_COUNT (12) */
     volatile uint32_t  PMCSR0;                                 /*  PMCSR0          */
     volatile uint32_t  PMCSR1;                                 /*  PMCSR1          */
     volatile uint32_t  PMCSR2;                                 /*  PMCSR2          */
@@ -971,280 +970,280 @@ typedef struct st_gpio
     volatile uint32_t  PMCSR11;                                /*  PMCSR11         */
     volatile uint8_t   dummy429[212];                          /*                  */
 
-/* start of struct st_gpio_from_pfcae1 */
+    /* start of struct st_gpio_from_pfcae1 */
     volatile uint16_t PFCAE1;                                 /*  PFCAE1          */
     volatile uint8_t   dummy430[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfcae1 */
+    /* end of struct st_gpio_from_pfcae1 */
 
-/* start of struct st_gpio_from_pfcae1 */
+    /* start of struct st_gpio_from_pfcae1 */
     volatile uint16_t PFCAE2;                                 /*  PFCAE2          */
     volatile uint8_t   dummy431[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfcae1 */
+    /* end of struct st_gpio_from_pfcae1 */
 
-/* start of struct st_gpio_from_pfcae1 */
+    /* start of struct st_gpio_from_pfcae1 */
     volatile uint16_t PFCAE3;                                 /*  PFCAE3          */
     volatile uint8_t   dummy432[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfcae1 */
+    /* end of struct st_gpio_from_pfcae1 */
 
-/* start of struct st_gpio_from_pfcae1 */
+    /* start of struct st_gpio_from_pfcae1 */
     volatile uint16_t PFCAE4;                                 /*  PFCAE4          */
     volatile uint8_t   dummy433[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfcae1 */
+    /* end of struct st_gpio_from_pfcae1 */
 
-/* start of struct st_gpio_from_pfcae1 */
+    /* start of struct st_gpio_from_pfcae1 */
     volatile uint16_t PFCAE5;                                 /*  PFCAE5          */
     volatile uint8_t   dummy434[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfcae1 */
+    /* end of struct st_gpio_from_pfcae1 */
 
-/* start of struct st_gpio_from_pfcae1 */
+    /* start of struct st_gpio_from_pfcae1 */
     volatile uint16_t PFCAE6;                                 /*  PFCAE6          */
     volatile uint8_t   dummy435[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfcae1 */
+    /* end of struct st_gpio_from_pfcae1 */
 
-/* start of struct st_gpio_from_pfcae1 */
+    /* start of struct st_gpio_from_pfcae1 */
     volatile uint16_t PFCAE7;                                 /*  PFCAE7          */
     volatile uint8_t   dummy436[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfcae1 */
+    /* end of struct st_gpio_from_pfcae1 */
 
-/* start of struct st_gpio_from_pfcae1 */
+    /* start of struct st_gpio_from_pfcae1 */
     volatile uint16_t PFCAE8;                                 /*  PFCAE8          */
     volatile uint8_t   dummy437[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfcae1 */
+    /* end of struct st_gpio_from_pfcae1 */
 
-/* start of struct st_gpio_from_pfcae1 */
+    /* start of struct st_gpio_from_pfcae1 */
     volatile uint16_t PFCAE9;                                 /*  PFCAE9          */
     volatile uint8_t   dummy438[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfcae1 */
+    /* end of struct st_gpio_from_pfcae1 */
 
-/* start of struct st_gpio_from_pfcae1 */
+    /* start of struct st_gpio_from_pfcae1 */
     volatile uint16_t PFCAE10;                                /*  PFCAE10         */
     volatile uint8_t   dummy439[2];                            /*                  */
 
-/* end of struct st_gpio_from_pfcae1 */
+    /* end of struct st_gpio_from_pfcae1 */
 
-/* start of struct st_gpio_from_pfcae1 */
+    /* start of struct st_gpio_from_pfcae1 */
     volatile uint16_t PFCAE11;                                /*  PFCAE11         */
     volatile uint8_t   dummy4400[2];                           /*                  */
 
-/* end of struct st_gpio_from_pfcae1 */
+    /* end of struct st_gpio_from_pfcae1 */
     volatile uint8_t   dummy4401[464];                         /*                  */
     volatile uint32_t  SNCR;                                   /*  SNCR            */
     volatile uint8_t   dummy441[13308];                        /*                  */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC0;                                  /*  PIBC0           */
     volatile uint8_t   dummy442[2];                            /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC1;                                  /*  PIBC1           */
     volatile uint8_t   dummy443[2];                            /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC2;                                  /*  PIBC2           */
     volatile uint8_t   dummy444[2];                            /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC3;                                  /*  PIBC3           */
     volatile uint8_t   dummy445[2];                            /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC4;                                  /*  PIBC4           */
     volatile uint8_t   dummy446[2];                            /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC5;                                  /*  PIBC5           */
     volatile uint8_t   dummy447[2];                            /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC6;                                  /*  PIBC6           */
     volatile uint8_t   dummy448[2];                            /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC7;                                  /*  PIBC7           */
     volatile uint8_t   dummy449[2];                            /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC8;                                  /*  PIBC8           */
     volatile uint8_t   dummy450[2];                            /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC9;                                  /*  PIBC9           */
     volatile uint8_t   dummy451[2];                            /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC10;                                 /*  PIBC10          */
     volatile uint8_t   dummy452[2];                            /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
 
-/* start of struct st_gpio_from_pibc1 */
+    /* start of struct st_gpio_from_pibc1 */
     volatile uint16_t PIBC11;                                 /*  PIBC11          */
     volatile uint8_t   dummy4530[2];                           /*                  */
 
-/* end of struct st_gpio_from_pibc1 */
+    /* end of struct st_gpio_from_pibc1 */
     volatile uint8_t   dummy4531[212];                         /*                  */
 
-/* start of struct st_gpio_from_pbdc1 */
+    /* start of struct st_gpio_from_pbdc1 */
     volatile uint16_t PBDC1;                                  /*  PBDC1           */
     volatile uint8_t   dummy454[2];                            /*                  */
 
-/* end of struct st_gpio_from_pbdc1 */
+    /* end of struct st_gpio_from_pbdc1 */
 
-/* start of struct st_gpio_from_pbdc1 */
+    /* start of struct st_gpio_from_pbdc1 */
     volatile uint16_t PBDC2;                                  /*  PBDC2           */
     volatile uint8_t   dummy455[2];                            /*                  */
 
-/* end of struct st_gpio_from_pbdc1 */
+    /* end of struct st_gpio_from_pbdc1 */
 
-/* start of struct st_gpio_from_pbdc1 */
+    /* start of struct st_gpio_from_pbdc1 */
     volatile uint16_t PBDC3;                                  /*  PBDC3           */
     volatile uint8_t   dummy456[2];                            /*                  */
 
-/* end of struct st_gpio_from_pbdc1 */
+    /* end of struct st_gpio_from_pbdc1 */
 
-/* start of struct st_gpio_from_pbdc1 */
+    /* start of struct st_gpio_from_pbdc1 */
     volatile uint16_t PBDC4;                                  /*  PBDC4           */
     volatile uint8_t   dummy457[2];                            /*                  */
 
-/* end of struct st_gpio_from_pbdc1 */
+    /* end of struct st_gpio_from_pbdc1 */
 
-/* start of struct st_gpio_from_pbdc1 */
+    /* start of struct st_gpio_from_pbdc1 */
     volatile uint16_t PBDC5;                                  /*  PBDC5           */
     volatile uint8_t   dummy458[2];                            /*                  */
 
-/* end of struct st_gpio_from_pbdc1 */
+    /* end of struct st_gpio_from_pbdc1 */
 
-/* start of struct st_gpio_from_pbdc1 */
+    /* start of struct st_gpio_from_pbdc1 */
     volatile uint16_t PBDC6;                                  /*  PBDC6           */
     volatile uint8_t   dummy459[2];                            /*                  */
 
-/* end of struct st_gpio_from_pbdc1 */
+    /* end of struct st_gpio_from_pbdc1 */
 
-/* start of struct st_gpio_from_pbdc1 */
+    /* start of struct st_gpio_from_pbdc1 */
     volatile uint16_t PBDC7;                                  /*  PBDC7           */
     volatile uint8_t   dummy460[2];                            /*                  */
 
-/* end of struct st_gpio_from_pbdc1 */
+    /* end of struct st_gpio_from_pbdc1 */
 
-/* start of struct st_gpio_from_pbdc1 */
+    /* start of struct st_gpio_from_pbdc1 */
     volatile uint16_t PBDC8;                                  /*  PBDC8           */
     volatile uint8_t   dummy461[2];                            /*                  */
 
-/* end of struct st_gpio_from_pbdc1 */
+    /* end of struct st_gpio_from_pbdc1 */
 
-/* start of struct st_gpio_from_pbdc1 */
+    /* start of struct st_gpio_from_pbdc1 */
     volatile uint16_t PBDC9;                                  /*  PBDC9           */
     volatile uint8_t   dummy462[2];                            /*                  */
 
-/* end of struct st_gpio_from_pbdc1 */
+    /* end of struct st_gpio_from_pbdc1 */
 
-/* start of struct st_gpio_from_pbdc1 */
+    /* start of struct st_gpio_from_pbdc1 */
     volatile uint16_t PBDC10;                                 /*  PBDC10          */
     volatile uint8_t   dummy463[2];                            /*                  */
 
-/* end of struct st_gpio_from_pbdc1 */
+    /* end of struct st_gpio_from_pbdc1 */
 
-/* start of struct st_gpio_from_pbdc1 */
+    /* start of struct st_gpio_from_pbdc1 */
     volatile uint16_t PBDC11;                                 /*  PBDC11          */
     volatile uint8_t   dummy4640[2];                           /*                  */
 
-/* end of struct st_gpio_from_pbdc1 */
+    /* end of struct st_gpio_from_pbdc1 */
     volatile uint8_t   dummy4641[212];                         /*                  */
 
-/* start of struct st_gpio_from_pipc1 */
+    /* start of struct st_gpio_from_pipc1 */
     volatile uint16_t PIPC1;                                  /*  PIPC1           */
     volatile uint8_t   dummy465[2];                            /*                  */
 
-/* end of struct st_gpio_from_pipc1 */
+    /* end of struct st_gpio_from_pipc1 */
 
-/* start of struct st_gpio_from_pipc1 */
+    /* start of struct st_gpio_from_pipc1 */
     volatile uint16_t PIPC2;                                  /*  PIPC2           */
     volatile uint8_t   dummy466[2];                            /*                  */
 
-/* end of struct st_gpio_from_pipc1 */
+    /* end of struct st_gpio_from_pipc1 */
 
-/* start of struct st_gpio_from_pipc1 */
+    /* start of struct st_gpio_from_pipc1 */
     volatile uint16_t PIPC3;                                  /*  PIPC3           */
     volatile uint8_t   dummy467[2];                            /*                  */
 
-/* end of struct st_gpio_from_pipc1 */
+    /* end of struct st_gpio_from_pipc1 */
 
-/* start of struct st_gpio_from_pipc1 */
+    /* start of struct st_gpio_from_pipc1 */
     volatile uint16_t PIPC4;                                  /*  PIPC4           */
     volatile uint8_t   dummy468[2];                            /*                  */
 
-/* end of struct st_gpio_from_pipc1 */
+    /* end of struct st_gpio_from_pipc1 */
 
-/* start of struct st_gpio_from_pipc1 */
+    /* start of struct st_gpio_from_pipc1 */
     volatile uint16_t PIPC5;                                  /*  PIPC5           */
     volatile uint8_t   dummy469[2];                            /*                  */
 
-/* end of struct st_gpio_from_pipc1 */
+    /* end of struct st_gpio_from_pipc1 */
 
-/* start of struct st_gpio_from_pipc1 */
+    /* start of struct st_gpio_from_pipc1 */
     volatile uint16_t PIPC6;                                  /*  PIPC6           */
     volatile uint8_t   dummy470[2];                            /*                  */
 
-/* end of struct st_gpio_from_pipc1 */
+    /* end of struct st_gpio_from_pipc1 */
 
-/* start of struct st_gpio_from_pipc1 */
+    /* start of struct st_gpio_from_pipc1 */
     volatile uint16_t PIPC7;                                  /*  PIPC7           */
     volatile uint8_t   dummy471[2];                            /*                  */
 
-/* end of struct st_gpio_from_pipc1 */
+    /* end of struct st_gpio_from_pipc1 */
 
-/* start of struct st_gpio_from_pipc1 */
+    /* start of struct st_gpio_from_pipc1 */
     volatile uint16_t PIPC8;                                  /*  PIPC8           */
     volatile uint8_t   dummy472[2];                            /*                  */
 
-/* end of struct st_gpio_from_pipc1 */
+    /* end of struct st_gpio_from_pipc1 */
 
-/* start of struct st_gpio_from_pipc1 */
+    /* start of struct st_gpio_from_pipc1 */
     volatile uint16_t PIPC9;                                  /*  PIPC9           */
     volatile uint8_t   dummy473[2];                            /*                  */
 
-/* end of struct st_gpio_from_pipc1 */
+    /* end of struct st_gpio_from_pipc1 */
 
-/* start of struct st_gpio_from_pipc1 */
+    /* start of struct st_gpio_from_pipc1 */
     volatile uint16_t PIPC10;                                 /*  PIPC10          */
     volatile uint8_t   dummy474[2];                            /*                  */
 
-/* end of struct st_gpio_from_pipc1 */
+    /* end of struct st_gpio_from_pipc1 */
 
-/* start of struct st_gpio_from_pipc1 */
+    /* start of struct st_gpio_from_pipc1 */
     volatile uint16_t PIPC11;                                 /*  PIPC11          */
     volatile uint8_t   dummy4750[2];                           /*                  */
 
-/* end of struct st_gpio_from_pipc1 */
+    /* end of struct st_gpio_from_pipc1 */
     volatile uint8_t   dummy4751[2288];                        /*                  */
     volatile uint16_t JPPR0;                                  /*  JPPR0           */
     volatile uint8_t   dummy476[30];                           /*                  */
@@ -1256,89 +1255,78 @@ typedef struct st_gpio
 } r_io_gpio_t;
 
 
-typedef struct st_gpio_from_p1
-{
- 
+typedef struct st_gpio_from_p1 {
+
     volatile uint16_t P1;                                     /*  P1              */
     volatile uint8_t   dummy1[3];                              /*                  */
 } r_io_gpio_from_p1_t;
 
 
-typedef struct st_gpio_from_ppr0
-{
- 
+typedef struct st_gpio_from_ppr0 {
+
     volatile uint16_t PPR0;                                   /*  PPR0            */
     volatile uint8_t   dummy1[2];                              /*                  */
 } r_io_gpio_from_ppr0_t;
 
 
-typedef struct st_gpio_from_pm1
-{
- 
+typedef struct st_gpio_from_pm1 {
+
     volatile uint16_t PM1;                                    /*  PM1             */
     volatile uint8_t   dummy1[2];                              /*                  */
 } r_io_gpio_from_pm1_t;
 
 
-typedef struct st_gpio_from_pmc0
-{
- 
+typedef struct st_gpio_from_pmc0 {
+
     volatile uint16_t PMC0;                                   /*  PMC0            */
     volatile uint8_t   dummy1[2];                              /*                  */
 } r_io_gpio_from_pmc0_t;
 
 
-typedef struct st_gpio_from_pfc1
-{
- 
+typedef struct st_gpio_from_pfc1 {
+
     volatile uint16_t PFC1;                                   /*  PFC1            */
     volatile uint8_t   dummy1[2];                              /*                  */
 } r_io_gpio_from_pfc1_t;
 
 
-typedef struct st_gpio_from_pfce1
-{
- 
+typedef struct st_gpio_from_pfce1 {
+
     volatile uint16_t PFCE1;                                  /*  PFCE1           */
     volatile uint8_t   dummy1[2];                              /*                  */
 } r_io_gpio_from_pfce1_t;
 
 
-typedef struct st_gpio_from_pnot1
-{
- 
+typedef struct st_gpio_from_pnot1 {
+
     volatile uint16_t PNOT1;                                  /*  PNOT1           */
     volatile uint8_t   dummy1[2];                              /*                  */
 } r_io_gpio_from_pnot1_t;
 
 
-typedef struct st_gpio_from_pfcae1
-{
- 
+typedef struct st_gpio_from_pfcae1 {
+
     volatile uint16_t PFCAE1;                                 /*  PFCAE1          */
     volatile uint8_t   dummy1[2];                              /*                  */
 } r_io_gpio_from_pfcae1_t;
 
 
-typedef struct st_gpio_from_pibc1
-{
- 
+typedef struct st_gpio_from_pibc1 {
+
     volatile uint16_t PIBC1;                                  /*  PIBC1           */
     volatile uint8_t   dummy1[2];                              /*                  */
 } r_io_gpio_from_pibc1_t;
 
 
-typedef struct st_gpio_from_pbdc1
-{
- 
+typedef struct st_gpio_from_pbdc1 {
+
     volatile uint16_t PBDC1;                                  /*  PBDC1           */
     volatile uint8_t   dummy1[2];                              /*                  */
 } r_io_gpio_from_pbdc1_t;
 
 
-typedef struct st_gpio_from_pipc1
-{
- 
+typedef struct st_gpio_from_pipc1 {
+
     volatile uint16_t PIPC1;                                  /*  PIPC1           */
     volatile uint8_t   dummy1[2];                              /*                  */
 } r_io_gpio_from_pipc1_t;
@@ -1346,80 +1334,80 @@ typedef struct st_gpio_from_pipc1
 
 /* Channel array defines of GPIO (2)*/
 #ifdef  DECLARE_GPIO_FROM_PIPC1_ARRAY_CHANNELS
-volatile struct st_gpio_from_pipc1*  GPIO_FROM_PIPC1_ARRAY[ GPIO_FROM_PIPC1_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    GPIO_FROM_PIPC1_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_gpio_from_pipc1  *GPIO_FROM_PIPC1_ARRAY[ GPIO_FROM_PIPC1_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        GPIO_FROM_PIPC1_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_GPIO_FROM_PIPC1_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_GPIO_FROM_PBDC1_ARRAY_CHANNELS
-volatile struct st_gpio_from_pbdc1*  GPIO_FROM_PBDC1_ARRAY[ GPIO_FROM_PBDC1_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    GPIO_FROM_PBDC1_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_gpio_from_pbdc1  *GPIO_FROM_PBDC1_ARRAY[ GPIO_FROM_PBDC1_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        GPIO_FROM_PBDC1_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_GPIO_FROM_PBDC1_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_GPIO_FROM_PIBC1_ARRAY_CHANNELS
-volatile struct st_gpio_from_pibc1*  GPIO_FROM_PIBC1_ARRAY[ GPIO_FROM_PIBC1_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    GPIO_FROM_PIBC1_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_gpio_from_pibc1  *GPIO_FROM_PIBC1_ARRAY[ GPIO_FROM_PIBC1_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        GPIO_FROM_PIBC1_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_GPIO_FROM_PIBC1_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_GPIO_FROM_PFCAE1_ARRAY_CHANNELS
-volatile struct st_gpio_from_pfcae1*  GPIO_FROM_PFCAE1_ARRAY[ GPIO_FROM_PFCAE1_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    GPIO_FROM_PFCAE1_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_gpio_from_pfcae1  *GPIO_FROM_PFCAE1_ARRAY[ GPIO_FROM_PFCAE1_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        GPIO_FROM_PFCAE1_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_GPIO_FROM_PFCAE1_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_GPIO_FROM_PNOT1_ARRAY_CHANNELS
-volatile struct st_gpio_from_pnot1*  GPIO_FROM_PNOT1_ARRAY[ GPIO_FROM_PNOT1_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    GPIO_FROM_PNOT1_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_gpio_from_pnot1  *GPIO_FROM_PNOT1_ARRAY[ GPIO_FROM_PNOT1_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        GPIO_FROM_PNOT1_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_GPIO_FROM_PNOT1_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_GPIO_FROM_PFCE1_ARRAY_CHANNELS
-volatile struct st_gpio_from_pfce1*  GPIO_FROM_PFCE1_ARRAY[ GPIO_FROM_PFCE1_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    GPIO_FROM_PFCE1_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_gpio_from_pfce1  *GPIO_FROM_PFCE1_ARRAY[ GPIO_FROM_PFCE1_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        GPIO_FROM_PFCE1_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_GPIO_FROM_PFCE1_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_GPIO_FROM_PFC1_ARRAY_CHANNELS
-volatile struct st_gpio_from_pfc1*  GPIO_FROM_PFC1_ARRAY[ GPIO_FROM_PFC1_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    GPIO_FROM_PFC1_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_gpio_from_pfc1  *GPIO_FROM_PFC1_ARRAY[ GPIO_FROM_PFC1_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        GPIO_FROM_PFC1_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_GPIO_FROM_PFC1_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_GPIO_FROM_PMC0_ARRAY_CHANNELS
-volatile struct st_gpio_from_pmc0*  GPIO_FROM_PMC0_ARRAY[ GPIO_FROM_PMC0_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    GPIO_FROM_PMC0_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_gpio_from_pmc0  *GPIO_FROM_PMC0_ARRAY[ GPIO_FROM_PMC0_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        GPIO_FROM_PMC0_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_GPIO_FROM_PMC0_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_GPIO_FROM_PM1_ARRAY_CHANNELS
-volatile struct st_gpio_from_pm1*  GPIO_FROM_PM1_ARRAY[ GPIO_FROM_PM1_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    GPIO_FROM_PM1_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_gpio_from_pm1  *GPIO_FROM_PM1_ARRAY[ GPIO_FROM_PM1_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        GPIO_FROM_PM1_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_GPIO_FROM_PM1_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_GPIO_FROM_PPR0_ARRAY_CHANNELS
-volatile struct st_gpio_from_ppr0*  GPIO_FROM_PPR0_ARRAY[ GPIO_FROM_PPR0_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    GPIO_FROM_PPR0_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_gpio_from_ppr0  *GPIO_FROM_PPR0_ARRAY[ GPIO_FROM_PPR0_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        GPIO_FROM_PPR0_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_GPIO_FROM_PPR0_ARRAY_CHANNELS */
 
 #ifdef  DECLARE_GPIO_FROM_P1_ARRAY_CHANNELS
-volatile struct st_gpio_from_p1*  GPIO_FROM_P1_ARRAY[ GPIO_FROM_P1_ARRAY_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    GPIO_FROM_P1_ARRAY_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_gpio_from_p1  *GPIO_FROM_P1_ARRAY[ GPIO_FROM_P1_ARRAY_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        GPIO_FROM_P1_ARRAY_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_GPIO_FROM_P1_ARRAY_CHANNELS */
 /* End of channel array defines of GPIO (2)*/
 

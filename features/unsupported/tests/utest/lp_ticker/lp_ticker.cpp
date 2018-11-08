@@ -27,7 +27,8 @@
 
 volatile bool complete;
 
-void cbdone() {
+void cbdone()
+{
     complete = true;
 }
 
@@ -68,10 +69,10 @@ TEST(LowPowerTimerTest, lp_ticker_callback_50us_timeout)
 {
     timestamp_t start = us_ticker_read();
     obj->attach_us(&cbdone, 50);
-    while(!complete);
+    while (!complete);
     timestamp_t end = us_ticker_read();
     // roughly should be around 50us +/- 500us, for example with 32kHz, it can be 32us the lowest
-    CHECK_EQUAL(((end - start) > 1) && ((end - start) < 500) ,1);
+    CHECK_EQUAL(((end - start) > 1) && ((end - start) < 500), 1);
     CHECK_EQUAL(complete, 1);
 }
 
@@ -80,10 +81,10 @@ TEST(LowPowerTimerTest, lp_ticker_callback_1ms_timeout)
 {
     timestamp_t start = us_ticker_read();
     obj->attach_us(&cbdone, 1000);
-    while(!complete);
+    while (!complete);
     timestamp_t end = us_ticker_read();
 
-    CHECK_EQUAL(((end - start) > 800) && ((end - start) < 1600) ,1);
+    CHECK_EQUAL(((end - start) > 800) && ((end - start) < 1600), 1);
     CHECK_EQUAL(complete, 1);
 }
 
@@ -96,7 +97,7 @@ TEST(LowPowerTimerTest, lp_ticker_deepsleep_wakeup_5sec_timeout)
     while (!complete);
     timestamp_t end = lp_ticker_read();
     // roughly should be around 5seconds +/- 100ms
-    CHECK_EQUAL(((end - start) > 4900000) && ((end - start) < 5100000) ,1);
+    CHECK_EQUAL(((end - start) > 4900000) && ((end - start) < 5100000), 1);
     CHECK_EQUAL(complete, 1);
 }
 
@@ -109,6 +110,6 @@ TEST(LowPowerTimerTest, lp_ticker_deepsleep_wakeup_1ms_timeout)
     while (!complete);
     timestamp_t end = lp_ticker_read();
     // 1ms timeout +/- 600us
-    CHECK_EQUAL(((end - start) > 400) && ((end - start) < 1600) ,1);
+    CHECK_EQUAL(((end - start) > 400) && ((end - start) < 1600), 1);
     CHECK_EQUAL(complete, 1);
 }

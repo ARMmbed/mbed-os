@@ -42,9 +42,9 @@ extern "C" {
  */
 
 #if DEVICE_SERIAL_ASYNCH
-    #define SERIAL_S(obj) (&((obj)->serial))
+#define SERIAL_S(obj) (&((obj)->serial))
 #else
-    #define SERIAL_S(obj) (obj)
+#define SERIAL_S(obj) (obj)
 #endif
 
 extern UART_HandleTypeDef uart_handlers[];

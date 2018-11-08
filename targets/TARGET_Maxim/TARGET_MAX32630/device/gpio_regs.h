@@ -111,7 +111,7 @@ typedef struct {
 /**
  * @ingroup  GPIO_Register_Offsets
  * @defgroup gpio_rst_mode_offsets Registers GPIO_RST_MODE_P[0..15] Offsets
- * @brief   GPIO_RST_MODE_P[0..15] Register Offsets from the GPIO Base Peripheral Address. 
+ * @brief   GPIO_RST_MODE_P[0..15] Register Offsets from the GPIO Base Peripheral Address.
  * @{
  */
 #define MXC_R_GPIO_OFFS_RST_MODE_P0                         ((uint32_t)0x00000000UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0000</tt>    */
@@ -133,10 +133,10 @@ typedef struct {
 /**@} end of gpio_rst_mode group */
 /**
  * @ingroup  GPIO_Register_Offsets
- * @defgroup gpio_free_offsets Registers GPIO_FREE_P[0..15] Offsets 
- * @brief    GPIO_FREE_P[0..15] Register Offsets from the GPIO Base Peripheral Address. 
+ * @defgroup gpio_free_offsets Registers GPIO_FREE_P[0..15] Offsets
+ * @brief    GPIO_FREE_P[0..15] Register Offsets from the GPIO Base Peripheral Address.
  * @{
- */    
+ */
 #define MXC_R_GPIO_OFFS_FREE_P0                             ((uint32_t)0x00000040UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0040</tt> */
 #define MXC_R_GPIO_OFFS_FREE_P1                             ((uint32_t)0x00000044UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0044</tt> */
 #define MXC_R_GPIO_OFFS_FREE_P2                             ((uint32_t)0x00000048UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0048</tt> */
@@ -156,10 +156,10 @@ typedef struct {
 /**@} end of gpio_free group */
 /**
  * @ingroup  GPIO_Register_Offsets
- * @defgroup gpio_out_mode_offsets GPIO_OUT_MODE_P[0..15] Registers 
- * @brief    GPIO_OUT_MODE_P[0..15] Register Offsets from the GPIO Base Peripheral Address. 
+ * @defgroup gpio_out_mode_offsets GPIO_OUT_MODE_P[0..15] Registers
+ * @brief    GPIO_OUT_MODE_P[0..15] Register Offsets from the GPIO Base Peripheral Address.
  * @{
- */   
+ */
 #define MXC_R_GPIO_OFFS_OUT_MODE_P0                         ((uint32_t)0x00000080UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0080</tt> */
 #define MXC_R_GPIO_OFFS_OUT_MODE_P1                         ((uint32_t)0x00000084UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0084</tt> */
 #define MXC_R_GPIO_OFFS_OUT_MODE_P2                         ((uint32_t)0x00000088UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0088</tt> */
@@ -179,10 +179,10 @@ typedef struct {
 /**@} end of gpio_out_mode group */
 /**
  * @ingroup  GPIO_Register_Offsets
- * @defgroup gpio_out_val_offsets GPIO_OUT_VAL_P[0..15] Registers 
- * @brief    GPIO_OUT_VAL_P[0..15] Register Offsets from the GPIO Base Peripheral Address. 
+ * @defgroup gpio_out_val_offsets GPIO_OUT_VAL_P[0..15] Registers
+ * @brief    GPIO_OUT_VAL_P[0..15] Register Offsets from the GPIO Base Peripheral Address.
  * @{
- */   
+ */
 #define MXC_R_GPIO_OFFS_OUT_VAL_P0                          ((uint32_t)0x000000C0UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x00C0</tt> */
 #define MXC_R_GPIO_OFFS_OUT_VAL_P1                          ((uint32_t)0x000000C4UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x00C4</tt> */
 #define MXC_R_GPIO_OFFS_OUT_VAL_P2                          ((uint32_t)0x000000C8UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x00C8</tt> */
@@ -202,10 +202,10 @@ typedef struct {
 /**@} end of gpio_out_val group */
 /**
  * @ingroup  GPIO_Register_Offsets
- * @defgroup gpio_func_sel_offsets GPIO_FUNC_SEL_P[0..15] Registers 
- * @brief    GPIO_FUNC_SEL_P[0..15] Register Offsets from the GPIO Base Peripheral Address. 
+ * @defgroup gpio_func_sel_offsets GPIO_FUNC_SEL_P[0..15] Registers
+ * @brief    GPIO_FUNC_SEL_P[0..15] Register Offsets from the GPIO Base Peripheral Address.
  * @{
- */   
+ */
 #define MXC_R_GPIO_OFFS_FUNC_SEL_P0                         ((uint32_t)0x00000100UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0100</tt> */
 #define MXC_R_GPIO_OFFS_FUNC_SEL_P1                         ((uint32_t)0x00000104UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0104</tt> */
 #define MXC_R_GPIO_OFFS_FUNC_SEL_P2                         ((uint32_t)0x00000108UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0108</tt> */
@@ -225,10 +225,10 @@ typedef struct {
 /**@} end of gpio_func_sel */
 /**
  * @ingroup  GPIO_Register_Offsets
- * @defgroup gpio_in_mode_offsets GPIO_IN_MODE_P[0..15] Registers 
- * @brief    GPIO_IN_MODE_P[0..15] Register Offsets from the GPIO Base Peripheral Address. 
+ * @defgroup gpio_in_mode_offsets GPIO_IN_MODE_P[0..15] Registers
+ * @brief    GPIO_IN_MODE_P[0..15] Register Offsets from the GPIO Base Peripheral Address.
  * @{
- */ 
+ */
 #define MXC_R_GPIO_OFFS_IN_MODE_P0                          ((uint32_t)0x00000140UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0140</tt> */
 #define MXC_R_GPIO_OFFS_IN_MODE_P1                          ((uint32_t)0x00000144UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0144</tt> */
 #define MXC_R_GPIO_OFFS_IN_MODE_P2                          ((uint32_t)0x00000148UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0148</tt> */
@@ -248,10 +248,10 @@ typedef struct {
 /**@} end of gpio_in_mode group */
 /**
  * @ingroup  GPIO_Register_Offsets
- * @defgroup gpio_in_val_offsets GPIO_IN_VAL_P[0..15] Registers 
- * @brief    GPIO_IN_VAL_P[0..15] Register Offsets from the GPIO Base Peripheral Address. 
+ * @defgroup gpio_in_val_offsets GPIO_IN_VAL_P[0..15] Registers
+ * @brief    GPIO_IN_VAL_P[0..15] Register Offsets from the GPIO Base Peripheral Address.
  * @{
- */ 
+ */
 #define MXC_R_GPIO_OFFS_IN_VAL_P0                           ((uint32_t)0x00000180UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0180</tt> */
 #define MXC_R_GPIO_OFFS_IN_VAL_P1                           ((uint32_t)0x00000184UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0184</tt> */
 #define MXC_R_GPIO_OFFS_IN_VAL_P2                           ((uint32_t)0x00000188UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0188</tt> */
@@ -271,10 +271,10 @@ typedef struct {
 /**@} end of gpio_in_val group */
 /**
  * @ingroup  GPIO_Register_Offsets
- * @defgroup gpio_int_mode_offsets GPIO_INT_MODE_P[0..15] Registers 
- * @brief    GPIO_INT_MODE_P[0..15] Register Offsets from the GPIO Base Peripheral Address. 
+ * @defgroup gpio_int_mode_offsets GPIO_INT_MODE_P[0..15] Registers
+ * @brief    GPIO_INT_MODE_P[0..15] Register Offsets from the GPIO Base Peripheral Address.
  * @{
- */ 
+ */
 #define MXC_R_GPIO_OFFS_INT_MODE_P0                         ((uint32_t)0x000001C0UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x01C0</tt> */
 #define MXC_R_GPIO_OFFS_INT_MODE_P1                         ((uint32_t)0x000001C4UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x01C4</tt> */
 #define MXC_R_GPIO_OFFS_INT_MODE_P2                         ((uint32_t)0x000001C8UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x01C8</tt> */
@@ -294,10 +294,10 @@ typedef struct {
 /**@} end of gpio_int_mode group */
 /**
  * @ingroup  GPIO_Register_Offsets
- * @defgroup gpio_int_flag_offsets GPIO_INTFL_P[0..15] Registers 
- * @brief    GPIO_INTFL_P[0..15] Register Offsets from the GPIO Base Peripheral Address. 
+ * @defgroup gpio_int_flag_offsets GPIO_INTFL_P[0..15] Registers
+ * @brief    GPIO_INTFL_P[0..15] Register Offsets from the GPIO Base Peripheral Address.
  * @{
- */ 
+ */
 #define MXC_R_GPIO_OFFS_INTFL_P0                            ((uint32_t)0x00000200UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0200</tt> */
 #define MXC_R_GPIO_OFFS_INTFL_P1                            ((uint32_t)0x00000204UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0204</tt> */
 #define MXC_R_GPIO_OFFS_INTFL_P2                            ((uint32_t)0x00000208UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0208</tt> */
@@ -317,10 +317,10 @@ typedef struct {
 /**@} end of gpio_int_flag group */
 /**
  * @ingroup  GPIO_Register_Offsets
- * @defgroup gpio_int_enable_offsets GPIO_INTEN_P[0..15] Registers 
- * @brief    GPIO_INTEN_P[0..15] Register Offsets from the GPIO Base Peripheral Address. 
+ * @defgroup gpio_int_enable_offsets GPIO_INTEN_P[0..15] Registers
+ * @brief    GPIO_INTEN_P[0..15] Register Offsets from the GPIO Base Peripheral Address.
  * @{
- */ 
+ */
 #define MXC_R_GPIO_OFFS_INTEN_P0                            ((uint32_t)0x00000240UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0240</tt> */
 #define MXC_R_GPIO_OFFS_INTEN_P1                            ((uint32_t)0x00000244UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0244</tt> */
 #define MXC_R_GPIO_OFFS_INTEN_P2                            ((uint32_t)0x00000248UL)                        /**< Offset from GPIO Base Address: <tt>\b 0x0248</tt> */
@@ -346,7 +346,7 @@ typedef struct {
 /**
  * @ingroup    gpio_registers
  * @defgroup   GPIO_RST_MODE_Register GPIO_RST_MODE
- * @brief      Field Positions and Bit Masks for the GPIO_RST_MODE register. 
+ * @brief      Field Positions and Bit Masks for the GPIO_RST_MODE register.
  * @{
  */
 #define MXC_F_GPIO_RST_MODE_PIN0_POS                        0                                                                 /**< PIN0 Position                  */
@@ -369,7 +369,7 @@ typedef struct {
 /**
  * @ingroup    gpio_registers
  * @defgroup   GPIO_FREE_Register GPIO_FREE
- * @brief      Field Positions and Bit Masks for the GPIO_FREE register. 
+ * @brief      Field Positions and Bit Masks for the GPIO_FREE register.
  * @{
  */
 #define MXC_F_GPIO_FREE_PIN0_POS                            0                                                                 /**< PIN0 Position                  */
@@ -392,145 +392,145 @@ typedef struct {
 /**
  * @ingroup    gpio_registers
  * @defgroup   GPIO_OUT_MODE_Register GPIO_OUT_MODE
- * @brief      Field Positions and Bit Masks for the GPIO_OUT_MODE register. 
+ * @brief      Field Positions and Bit Masks for the GPIO_OUT_MODE register.
  * @{
  */
 #define MXC_F_GPIO_OUT_MODE_PIN0_POS                        0                                                                 /**< PIN0 Position                  */
-#define MXC_F_GPIO_OUT_MODE_PIN0                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN0_POS))        /**< PIN0 Mask                      */    
+#define MXC_F_GPIO_OUT_MODE_PIN0                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN0_POS))        /**< PIN0 Mask                      */
 #define MXC_F_GPIO_OUT_MODE_PIN1_POS                        4                                                                 /**< PIN1 Position                  */
-#define MXC_F_GPIO_OUT_MODE_PIN1                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN1_POS))        /**< PIN1 Mask                      */    
+#define MXC_F_GPIO_OUT_MODE_PIN1                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN1_POS))        /**< PIN1 Mask                      */
 #define MXC_F_GPIO_OUT_MODE_PIN2_POS                        8                                                                 /**< PIN2 Position                  */
-#define MXC_F_GPIO_OUT_MODE_PIN2                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN2_POS))        /**< PIN2 Mask                      */    
-#define MXC_F_GPIO_OUT_MODE_PIN3_POS                        12                                                                /**< PIN3 Position                  */  
-#define MXC_F_GPIO_OUT_MODE_PIN3                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN3_POS))        /**< PIN3 Mask                      */    
-#define MXC_F_GPIO_OUT_MODE_PIN4_POS                        16                                                                /**< PIN4 Position                  */  
-#define MXC_F_GPIO_OUT_MODE_PIN4                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN4_POS))        /**< PIN4 Mask                      */    
-#define MXC_F_GPIO_OUT_MODE_PIN5_POS                        20                                                                /**< PIN5 Position                  */  
-#define MXC_F_GPIO_OUT_MODE_PIN5                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN5_POS))        /**< PIN5 Mask                      */    
-#define MXC_F_GPIO_OUT_MODE_PIN6_POS                        24                                                                /**< PIN6 Position                  */  
-#define MXC_F_GPIO_OUT_MODE_PIN6                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN6_POS))        /**< PIN6 Mask                      */    
-#define MXC_F_GPIO_OUT_MODE_PIN7_POS                        28                                                                /**< PIN7 Position                  */  
-#define MXC_F_GPIO_OUT_MODE_PIN7                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN7_POS))        /**< PIN7 Mask                      */    
+#define MXC_F_GPIO_OUT_MODE_PIN2                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN2_POS))        /**< PIN2 Mask                      */
+#define MXC_F_GPIO_OUT_MODE_PIN3_POS                        12                                                                /**< PIN3 Position                  */
+#define MXC_F_GPIO_OUT_MODE_PIN3                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN3_POS))        /**< PIN3 Mask                      */
+#define MXC_F_GPIO_OUT_MODE_PIN4_POS                        16                                                                /**< PIN4 Position                  */
+#define MXC_F_GPIO_OUT_MODE_PIN4                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN4_POS))        /**< PIN4 Mask                      */
+#define MXC_F_GPIO_OUT_MODE_PIN5_POS                        20                                                                /**< PIN5 Position                  */
+#define MXC_F_GPIO_OUT_MODE_PIN5                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN5_POS))        /**< PIN5 Mask                      */
+#define MXC_F_GPIO_OUT_MODE_PIN6_POS                        24                                                                /**< PIN6 Position                  */
+#define MXC_F_GPIO_OUT_MODE_PIN6                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN6_POS))        /**< PIN6 Mask                      */
+#define MXC_F_GPIO_OUT_MODE_PIN7_POS                        28                                                                /**< PIN7 Position                  */
+#define MXC_F_GPIO_OUT_MODE_PIN7                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_OUT_MODE_PIN7_POS))        /**< PIN7 Mask                      */
 /**@} end of group GPIO_OUT_MODE */
 /**
  * @ingroup    gpio_registers
  * @defgroup   GPIO_OUT_VAL_Register GPIO_OUT_VAL
- * @brief      Field Positions and Bit Masks for the GPIO_OUT_VAL register. 
+ * @brief      Field Positions and Bit Masks for the GPIO_OUT_VAL register.
  * @{
  */
 #define MXC_F_GPIO_OUT_VAL_PIN0_POS                         0                                                                 /**< PIN0 Position                  */
-#define MXC_F_GPIO_OUT_VAL_PIN0                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN0_POS))         /**< PIN0 Mask                      */  
+#define MXC_F_GPIO_OUT_VAL_PIN0                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN0_POS))         /**< PIN0 Mask                      */
 #define MXC_F_GPIO_OUT_VAL_PIN1_POS                         1                                                                 /**< PIN1 Position                  */
-#define MXC_F_GPIO_OUT_VAL_PIN1                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN1_POS))         /**< PIN1 Mask                      */  
+#define MXC_F_GPIO_OUT_VAL_PIN1                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN1_POS))         /**< PIN1 Mask                      */
 #define MXC_F_GPIO_OUT_VAL_PIN2_POS                         2                                                                 /**< PIN2 Position                  */
-#define MXC_F_GPIO_OUT_VAL_PIN2                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN2_POS))         /**< PIN2 Mask                      */  
+#define MXC_F_GPIO_OUT_VAL_PIN2                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN2_POS))         /**< PIN2 Mask                      */
 #define MXC_F_GPIO_OUT_VAL_PIN3_POS                         3                                                                 /**< PIN3 Position                  */
-#define MXC_F_GPIO_OUT_VAL_PIN3                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN3_POS))         /**< PIN3 Mask                      */  
+#define MXC_F_GPIO_OUT_VAL_PIN3                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN3_POS))         /**< PIN3 Mask                      */
 #define MXC_F_GPIO_OUT_VAL_PIN4_POS                         4                                                                 /**< PIN4 Position                  */
-#define MXC_F_GPIO_OUT_VAL_PIN4                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN4_POS))         /**< PIN4 Mask                      */  
+#define MXC_F_GPIO_OUT_VAL_PIN4                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN4_POS))         /**< PIN4 Mask                      */
 #define MXC_F_GPIO_OUT_VAL_PIN5_POS                         5                                                                 /**< PIN5 Position                  */
-#define MXC_F_GPIO_OUT_VAL_PIN5                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN5_POS))         /**< PIN5 Mask                      */  
+#define MXC_F_GPIO_OUT_VAL_PIN5                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN5_POS))         /**< PIN5 Mask                      */
 #define MXC_F_GPIO_OUT_VAL_PIN6_POS                         6                                                                 /**< PIN6 Position                  */
-#define MXC_F_GPIO_OUT_VAL_PIN6                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN6_POS))         /**< PIN6 Mask                      */  
+#define MXC_F_GPIO_OUT_VAL_PIN6                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN6_POS))         /**< PIN6 Mask                      */
 #define MXC_F_GPIO_OUT_VAL_PIN7_POS                         7                                                                 /**< PIN7 Position                  */
-#define MXC_F_GPIO_OUT_VAL_PIN7                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN7_POS))         /**< PIN7 Mask                      */  
+#define MXC_F_GPIO_OUT_VAL_PIN7                             ((uint32_t)(0x00000001UL << MXC_F_GPIO_OUT_VAL_PIN7_POS))         /**< PIN7 Mask                      */
 /**@} end of group GPIO_OUT_VAL */
 /**
  * @ingroup    gpio_registers
  * @defgroup   GPIO_FUNC_SEL_Register GPIO_FUNC_SEL
- * @brief      Field Positions and Bit Masks for the GPIO_FUNC_SEL register. 
+ * @brief      Field Positions and Bit Masks for the GPIO_FUNC_SEL register.
  * @{
  */
 #define MXC_F_GPIO_FUNC_SEL_PIN0_POS                        0                                                                 /**< PIN0 Position                  */
-#define MXC_F_GPIO_FUNC_SEL_PIN0                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN0_POS))        /**< PIN0 Mask                      */    
+#define MXC_F_GPIO_FUNC_SEL_PIN0                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN0_POS))        /**< PIN0 Mask                      */
 #define MXC_F_GPIO_FUNC_SEL_PIN1_POS                        4                                                                 /**< PIN1 Position                  */
-#define MXC_F_GPIO_FUNC_SEL_PIN1                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN1_POS))        /**< PIN1 Mask                      */    
+#define MXC_F_GPIO_FUNC_SEL_PIN1                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN1_POS))        /**< PIN1 Mask                      */
 #define MXC_F_GPIO_FUNC_SEL_PIN2_POS                        8                                                                 /**< PIN2 Position                  */
-#define MXC_F_GPIO_FUNC_SEL_PIN2                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN2_POS))        /**< PIN2 Mask                      */    
-#define MXC_F_GPIO_FUNC_SEL_PIN3_POS                        12                                                                /**< PIN3 Position                  */  
-#define MXC_F_GPIO_FUNC_SEL_PIN3                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN3_POS))        /**< PIN3 Mask                      */    
-#define MXC_F_GPIO_FUNC_SEL_PIN4_POS                        16                                                                /**< PIN4 Position                  */  
-#define MXC_F_GPIO_FUNC_SEL_PIN4                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN4_POS))        /**< PIN4 Mask                      */    
-#define MXC_F_GPIO_FUNC_SEL_PIN5_POS                        20                                                                /**< PIN5 Position                  */  
-#define MXC_F_GPIO_FUNC_SEL_PIN5                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN5_POS))        /**< PIN5 Mask                      */    
-#define MXC_F_GPIO_FUNC_SEL_PIN6_POS                        24                                                                /**< PIN6 Position                  */  
-#define MXC_F_GPIO_FUNC_SEL_PIN6                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN6_POS))        /**< PIN6 Mask                      */    
-#define MXC_F_GPIO_FUNC_SEL_PIN7_POS                        28                                                                /**< PIN7 Position                  */  
-#define MXC_F_GPIO_FUNC_SEL_PIN7                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN7_POS))        /**< PIN7 Mask                      */    
+#define MXC_F_GPIO_FUNC_SEL_PIN2                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN2_POS))        /**< PIN2 Mask                      */
+#define MXC_F_GPIO_FUNC_SEL_PIN3_POS                        12                                                                /**< PIN3 Position                  */
+#define MXC_F_GPIO_FUNC_SEL_PIN3                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN3_POS))        /**< PIN3 Mask                      */
+#define MXC_F_GPIO_FUNC_SEL_PIN4_POS                        16                                                                /**< PIN4 Position                  */
+#define MXC_F_GPIO_FUNC_SEL_PIN4                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN4_POS))        /**< PIN4 Mask                      */
+#define MXC_F_GPIO_FUNC_SEL_PIN5_POS                        20                                                                /**< PIN5 Position                  */
+#define MXC_F_GPIO_FUNC_SEL_PIN5                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN5_POS))        /**< PIN5 Mask                      */
+#define MXC_F_GPIO_FUNC_SEL_PIN6_POS                        24                                                                /**< PIN6 Position                  */
+#define MXC_F_GPIO_FUNC_SEL_PIN6                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN6_POS))        /**< PIN6 Mask                      */
+#define MXC_F_GPIO_FUNC_SEL_PIN7_POS                        28                                                                /**< PIN7 Position                  */
+#define MXC_F_GPIO_FUNC_SEL_PIN7                            ((uint32_t)(0x0000000FUL << MXC_F_GPIO_FUNC_SEL_PIN7_POS))        /**< PIN7 Mask                      */
 /**@} end of group GPIO_FUNC_SEL */
 /**
  * @ingroup    gpio_registers
  * @defgroup   GPIO_IN_MODE_Register GPIO_IN_MODE
- * @brief      Field Positions and Bit Masks for the GPIO_IN_MODE register. 
+ * @brief      Field Positions and Bit Masks for the GPIO_IN_MODE register.
  * @{
  */
 #define MXC_F_GPIO_IN_MODE_PIN0_POS                         0                                                                 /**< PIN0 Position                  */
-#define MXC_F_GPIO_IN_MODE_PIN0                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN0_POS))         /**< PIN0 Mask                      */  
+#define MXC_F_GPIO_IN_MODE_PIN0                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN0_POS))         /**< PIN0 Mask                      */
 #define MXC_F_GPIO_IN_MODE_PIN1_POS                         4                                                                 /**< PIN1 Position                  */
-#define MXC_F_GPIO_IN_MODE_PIN1                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN1_POS))         /**< PIN1 Mask                      */  
+#define MXC_F_GPIO_IN_MODE_PIN1                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN1_POS))         /**< PIN1 Mask                      */
 #define MXC_F_GPIO_IN_MODE_PIN2_POS                         8                                                                 /**< PIN2 Position                  */
-#define MXC_F_GPIO_IN_MODE_PIN2                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN2_POS))         /**< PIN2 Mask                      */  
-#define MXC_F_GPIO_IN_MODE_PIN3_POS                         12                                                                /**< PIN3 Position                  */  
-#define MXC_F_GPIO_IN_MODE_PIN3                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN3_POS))         /**< PIN3 Mask                      */  
-#define MXC_F_GPIO_IN_MODE_PIN4_POS                         16                                                                /**< PIN4 Position                  */  
-#define MXC_F_GPIO_IN_MODE_PIN4                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN4_POS))         /**< PIN4 Mask                      */  
-#define MXC_F_GPIO_IN_MODE_PIN5_POS                         20                                                                /**< PIN5 Position                  */  
-#define MXC_F_GPIO_IN_MODE_PIN5                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN5_POS))         /**< PIN5 Mask                      */  
-#define MXC_F_GPIO_IN_MODE_PIN6_POS                         24                                                                /**< PIN6 Position                  */  
-#define MXC_F_GPIO_IN_MODE_PIN6                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN6_POS))         /**< PIN6 Mask                      */  
-#define MXC_F_GPIO_IN_MODE_PIN7_POS                         28                                                                /**< PIN7 Position                  */  
-#define MXC_F_GPIO_IN_MODE_PIN7                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN7_POS))         /**< PIN7 Mask                      */  
+#define MXC_F_GPIO_IN_MODE_PIN2                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN2_POS))         /**< PIN2 Mask                      */
+#define MXC_F_GPIO_IN_MODE_PIN3_POS                         12                                                                /**< PIN3 Position                  */
+#define MXC_F_GPIO_IN_MODE_PIN3                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN3_POS))         /**< PIN3 Mask                      */
+#define MXC_F_GPIO_IN_MODE_PIN4_POS                         16                                                                /**< PIN4 Position                  */
+#define MXC_F_GPIO_IN_MODE_PIN4                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN4_POS))         /**< PIN4 Mask                      */
+#define MXC_F_GPIO_IN_MODE_PIN5_POS                         20                                                                /**< PIN5 Position                  */
+#define MXC_F_GPIO_IN_MODE_PIN5                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN5_POS))         /**< PIN5 Mask                      */
+#define MXC_F_GPIO_IN_MODE_PIN6_POS                         24                                                                /**< PIN6 Position                  */
+#define MXC_F_GPIO_IN_MODE_PIN6                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN6_POS))         /**< PIN6 Mask                      */
+#define MXC_F_GPIO_IN_MODE_PIN7_POS                         28                                                                /**< PIN7 Position                  */
+#define MXC_F_GPIO_IN_MODE_PIN7                             ((uint32_t)(0x00000003UL << MXC_F_GPIO_IN_MODE_PIN7_POS))         /**< PIN7 Mask                      */
 /**@} end of group GPIO_IN_MODE */
 /**
  * @ingroup    gpio_registers
  * @defgroup   GPIO_IN_VAL_Register GPIO_IN_VAL
- * @brief      Field Positions and Bit Masks for the GPIO_IN_VAL register. 
+ * @brief      Field Positions and Bit Masks for the GPIO_IN_VAL register.
  * @{
  */
 #define MXC_F_GPIO_IN_VAL_PIN0_POS                          0                                                                 /**< PIN0 Position                  */
-#define MXC_F_GPIO_IN_VAL_PIN0                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN0_POS))          /**< PIN0 Mask                      */  
+#define MXC_F_GPIO_IN_VAL_PIN0                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN0_POS))          /**< PIN0 Mask                      */
 #define MXC_F_GPIO_IN_VAL_PIN1_POS                          1                                                                 /**< PIN1 Position                  */
-#define MXC_F_GPIO_IN_VAL_PIN1                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN1_POS))          /**< PIN1 Mask                      */  
+#define MXC_F_GPIO_IN_VAL_PIN1                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN1_POS))          /**< PIN1 Mask                      */
 #define MXC_F_GPIO_IN_VAL_PIN2_POS                          2                                                                 /**< PIN2 Position                  */
-#define MXC_F_GPIO_IN_VAL_PIN2                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN2_POS))          /**< PIN2 Mask                      */  
+#define MXC_F_GPIO_IN_VAL_PIN2                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN2_POS))          /**< PIN2 Mask                      */
 #define MXC_F_GPIO_IN_VAL_PIN3_POS                          3                                                                 /**< PIN3 Position                  */
-#define MXC_F_GPIO_IN_VAL_PIN3                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN3_POS))          /**< PIN3 Mask                      */  
+#define MXC_F_GPIO_IN_VAL_PIN3                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN3_POS))          /**< PIN3 Mask                      */
 #define MXC_F_GPIO_IN_VAL_PIN4_POS                          4                                                                 /**< PIN4 Position                  */
-#define MXC_F_GPIO_IN_VAL_PIN4                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN4_POS))          /**< PIN4 Mask                      */  
+#define MXC_F_GPIO_IN_VAL_PIN4                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN4_POS))          /**< PIN4 Mask                      */
 #define MXC_F_GPIO_IN_VAL_PIN5_POS                          5                                                                 /**< PIN5 Position                  */
-#define MXC_F_GPIO_IN_VAL_PIN5                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN5_POS))          /**< PIN5 Mask                      */  
+#define MXC_F_GPIO_IN_VAL_PIN5                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN5_POS))          /**< PIN5 Mask                      */
 #define MXC_F_GPIO_IN_VAL_PIN6_POS                          6                                                                 /**< PIN6 Position                  */
-#define MXC_F_GPIO_IN_VAL_PIN6                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN6_POS))          /**< PIN6 Mask                      */  
+#define MXC_F_GPIO_IN_VAL_PIN6                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN6_POS))          /**< PIN6 Mask                      */
 #define MXC_F_GPIO_IN_VAL_PIN7_POS                          7                                                                 /**< PIN7 Position                  */
-#define MXC_F_GPIO_IN_VAL_PIN7                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN7_POS))          /**< PIN7 Mask                      */  
+#define MXC_F_GPIO_IN_VAL_PIN7                              ((uint32_t)(0x00000001UL << MXC_F_GPIO_IN_VAL_PIN7_POS))          /**< PIN7 Mask                      */
 /**@} end of group GPIO_IN_VAL */
 /**
  * @ingroup    gpio_registers
  * @defgroup   GPIO_INT_MODE_Register GPIO_INT_MODE
- * @brief      Field Positions and Bit Masks for the GPIO_INT_MODE register. 
+ * @brief      Field Positions and Bit Masks for the GPIO_INT_MODE register.
  * @{
  */
 #define MXC_F_GPIO_INT_MODE_PIN0_POS                        0                                                                 /**< PIN0 Position                  */
-#define MXC_F_GPIO_INT_MODE_PIN0                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN0_POS))        /**< PIN0 Mask                      */    
+#define MXC_F_GPIO_INT_MODE_PIN0                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN0_POS))        /**< PIN0 Mask                      */
 #define MXC_F_GPIO_INT_MODE_PIN1_POS                        4                                                                 /**< PIN1 Position                  */
-#define MXC_F_GPIO_INT_MODE_PIN1                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN1_POS))        /**< PIN1 Mask                      */    
+#define MXC_F_GPIO_INT_MODE_PIN1                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN1_POS))        /**< PIN1 Mask                      */
 #define MXC_F_GPIO_INT_MODE_PIN2_POS                        8                                                                 /**< PIN2 Position                  */
-#define MXC_F_GPIO_INT_MODE_PIN2                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN2_POS))        /**< PIN2 Mask                      */    
-#define MXC_F_GPIO_INT_MODE_PIN3_POS                        12                                                                /**< PIN3 Position                  */  
-#define MXC_F_GPIO_INT_MODE_PIN3                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN3_POS))        /**< PIN3 Mask                      */    
-#define MXC_F_GPIO_INT_MODE_PIN4_POS                        16                                                                /**< PIN4 Position                  */  
-#define MXC_F_GPIO_INT_MODE_PIN4                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN4_POS))        /**< PIN4 Mask                      */    
-#define MXC_F_GPIO_INT_MODE_PIN5_POS                        20                                                                /**< PIN5 Position                  */  
-#define MXC_F_GPIO_INT_MODE_PIN5                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN5_POS))        /**< PIN5 Mask                      */    
-#define MXC_F_GPIO_INT_MODE_PIN6_POS                        24                                                                /**< PIN6 Position                  */  
-#define MXC_F_GPIO_INT_MODE_PIN6                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN6_POS))        /**< PIN6 Mask                      */    
-#define MXC_F_GPIO_INT_MODE_PIN7_POS                        28                                                                /**< PIN7 Position                  */  
-#define MXC_F_GPIO_INT_MODE_PIN7                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN7_POS))        /**< PIN7 Mask                      */    
+#define MXC_F_GPIO_INT_MODE_PIN2                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN2_POS))        /**< PIN2 Mask                      */
+#define MXC_F_GPIO_INT_MODE_PIN3_POS                        12                                                                /**< PIN3 Position                  */
+#define MXC_F_GPIO_INT_MODE_PIN3                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN3_POS))        /**< PIN3 Mask                      */
+#define MXC_F_GPIO_INT_MODE_PIN4_POS                        16                                                                /**< PIN4 Position                  */
+#define MXC_F_GPIO_INT_MODE_PIN4                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN4_POS))        /**< PIN4 Mask                      */
+#define MXC_F_GPIO_INT_MODE_PIN5_POS                        20                                                                /**< PIN5 Position                  */
+#define MXC_F_GPIO_INT_MODE_PIN5                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN5_POS))        /**< PIN5 Mask                      */
+#define MXC_F_GPIO_INT_MODE_PIN6_POS                        24                                                                /**< PIN6 Position                  */
+#define MXC_F_GPIO_INT_MODE_PIN6                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN6_POS))        /**< PIN6 Mask                      */
+#define MXC_F_GPIO_INT_MODE_PIN7_POS                        28                                                                /**< PIN7 Position                  */
+#define MXC_F_GPIO_INT_MODE_PIN7                            ((uint32_t)(0x00000007UL << MXC_F_GPIO_INT_MODE_PIN7_POS))        /**< PIN7 Mask                      */
 /**@} end of group GPIO_INT_MODE */
 /**
  * @ingroup    gpio_registers
  * @defgroup   GPIO_INTFL_Register GPIO_INTFL
- * @brief      Field Positions and Bit Masks for the GPIO_INTFL register. 
+ * @brief      Field Positions and Bit Masks for the GPIO_INTFL register.
  * @{
  */
 #define MXC_F_GPIO_INTFL_PIN0_POS                           0                                                                 /**< PIN0 Position                  */
@@ -553,7 +553,7 @@ typedef struct {
 /**
  * @ingroup    gpio_registers
  * @defgroup   GPIO_INTEN_Register GPIO_INTEN
- * @brief      Field Positions and Bit Masks for the GPIO_INTEN register. 
+ * @brief      Field Positions and Bit Masks for the GPIO_INTEN register.
  * @{
  */
 #define MXC_F_GPIO_INTEN_PIN0_POS                           0                                                                 /**< PIN0 Position                  */
@@ -604,7 +604,7 @@ typedef struct {
 /**
  * @ingroup GPIO_FREE_Register
  * @defgroup GPIO_OUT_MODE_Values Output Mode Values
- * @brief   GPIO_OUT_MODE values for setting the different port pin output modes 
+ * @brief   GPIO_OUT_MODE values for setting the different port pin output modes
  * @{
  */
 #define MXC_V_GPIO_OUT_MODE_HIGH_Z_WEAK_PULLUP                                  ((uint32_t)(0x00000000UL))              /**< See \MXIM_Device User Guide for details: HIGH_Z_WEAK_PULLUP        */
@@ -636,7 +636,7 @@ typedef struct {
 /**
  * @ingroup GPIO_IN_MODE_Register
  * @defgroup GPIO_IN_MODE_Values Input mode selection values
- * @brief   Input mode values for selecting the GPIO input mode. 
+ * @brief   Input mode values for selecting the GPIO input mode.
  * @{
  */
 #define MXC_V_GPIO_IN_MODE_NORMAL                                               ((uint32_t)(0x00000000UL))              /**< Normal Input Mode                  */
@@ -648,7 +648,7 @@ typedef struct {
 /**
  * @ingroup GPIO_INT_MODE_Register
  * @defgroup GPIO_INT_MODE_Values Interrupt mode selection values
- * @brief   Values for setting the interrupt mode of a GPIO input pin. 
+ * @brief   Values for setting the interrupt mode of a GPIO input pin.
  * @{
  */
 #define MXC_V_GPIO_INT_MODE_DISABLE                                             ((uint32_t)(0x00000000UL))              /**< Disable Interrupt for a given port pin */

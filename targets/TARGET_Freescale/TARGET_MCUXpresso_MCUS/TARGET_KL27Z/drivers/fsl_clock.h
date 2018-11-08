@@ -191,8 +191,7 @@ extern uint32_t g_xtal32Freq;
 #define UART2_CLK_SRC BUS_CLK
 
 /*! @brief Clock name used to get clock frequency. */
-typedef enum _clock_name
-{
+typedef enum _clock_name {
 
     /* ----------------------------- System layer clock -------------------------------*/
     kCLOCK_CoreSysClk,    /*!< Core/system clock                                         */
@@ -225,8 +224,7 @@ typedef enum _clock_name
 } clock_name_t;
 
 /*! @brief USB clock source definition. */
-typedef enum _clock_usb_src
-{
+typedef enum _clock_usb_src {
     kCLOCK_UsbSrcIrc48M = SIM_SOPT2_USBSRC(1U), /*!< Use IRC48M.    */
     kCLOCK_UsbSrcExt = SIM_SOPT2_USBSRC(0U)     /*!< Use USB_CLKIN. */
 } clock_usb_src_t;
@@ -259,8 +257,7 @@ typedef enum _clock_usb_src
 #define CLK_GATE_ABSTRACT_BITS_SHIFT(x) (((x)&CLK_GATE_BIT_SHIFT_MASK) >> CLK_GATE_BIT_SHIFT_SHIFT)
 
 /*! @brief Clock gate name used for CLOCK_EnableClock/CLOCK_DisableClock. */
-typedef enum _clock_ip_name
-{
+typedef enum _clock_ip_name {
     kCLOCK_IpInvalid = 0U,
     kCLOCK_I2c0 = CLK_GATE_DEFINE(0x1034U, 6U),
     kCLOCK_I2c1 = CLK_GATE_DEFINE(0x1034U, 7U),
@@ -297,15 +294,13 @@ typedef enum _clock_ip_name
 } clock_ip_name_t;
 
 /*!@brief SIM configuration structure for clock setting. */
-typedef struct _sim_clock_config
-{
+typedef struct _sim_clock_config {
     uint8_t er32kSrc; /*!< ERCLK32K source selection.   */
     uint32_t clkdiv1; /*!< SIM_CLKDIV1.                 */
 } sim_clock_config_t;
 
 /*! @brief Oscillator capacitor load setting.*/
-enum _osc_cap_load
-{
+enum _osc_cap_load {
     kOSC_Cap2P = OSC_CR_SC2P_MASK,  /*!< 2  pF capacitor load */
     kOSC_Cap4P = OSC_CR_SC4P_MASK,  /*!< 4  pF capacitor load */
     kOSC_Cap8P = OSC_CR_SC8P_MASK,  /*!< 8  pF capacitor load */
@@ -313,22 +308,19 @@ enum _osc_cap_load
 };
 
 /*! @brief OSCERCLK enable mode. */
-enum _oscer_enable_mode
-{
+enum _oscer_enable_mode {
     kOSC_ErClkEnable = OSC_CR_ERCLKEN_MASK,       /*!< Enable.              */
     kOSC_ErClkEnableInStop = OSC_CR_EREFSTEN_MASK /*!< Enable in stop mode. */
 };
 
 /*! @brief OSC configuration for OSCERCLK. */
-typedef struct _oscer_config
-{
+typedef struct _oscer_config {
     uint8_t enableMode; /*!< OSCERCLK enable mode. OR'ed value of \ref _oscer_enable_mode. */
 
 } oscer_config_t;
 
 /*! @brief OSC work mode. */
-typedef enum _osc_mode
-{
+typedef enum _osc_mode {
     kOSC_ModeExt = 0U,                                            /*!< Use external clock.   */
     kOSC_ModeOscLowPower = MCG_C2_EREFS0_MASK,                    /*!< Oscillator low power. */
     kOSC_ModeOscHighGain = MCG_C2_EREFS0_MASK | MCG_C2_HGO0_MASK, /*!< Oscillator high gain. */
@@ -343,8 +335,7 @@ typedef enum _osc_mode
  * 1. freq: The external frequency.
  * 2. workMode: The OSC module mode.
  */
-typedef struct _osc_config
-{
+typedef struct _osc_config {
     uint32_t freq;              /*!< External clock frequency.    */
     uint8_t capLoad;            /*!< Capacitor load setting.      */
     osc_mode_t workMode;        /*!< OSC work mode setting.       */
@@ -352,8 +343,7 @@ typedef struct _osc_config
 } osc_config_t;
 
 /*! @brief MCG_Lite clock source selection. */
-typedef enum _mcglite_clkout_src
-{
+typedef enum _mcglite_clkout_src {
     kMCGLITE_ClkSrcHirc, /*!< MCGOUTCLK source is HIRC */
     kMCGLITE_ClkSrcLirc, /*!< MCGOUTCLK source is LIRC */
     kMCGLITE_ClkSrcExt,  /*!< MCGOUTCLK source is external clock source */
@@ -361,15 +351,13 @@ typedef enum _mcglite_clkout_src
 } mcglite_clkout_src_t;
 
 /*! @brief MCG_Lite LIRC select. */
-typedef enum _mcglite_lirc_mode
-{
+typedef enum _mcglite_lirc_mode {
     kMCGLITE_Lirc2M, /*!< Slow internal reference(LIRC) 2MHz clock selected */
     kMCGLITE_Lirc8M, /*!< Slow internal reference(LIRC) 8MHz clock selected */
 } mcglite_lirc_mode_t;
 
 /*! @brief MCG_Lite divider factor selection for clock source*/
-typedef enum _mcglite_lirc_div
-{
+typedef enum _mcglite_lirc_div {
     kMCGLITE_LircDivBy1 = 0U, /*!< Divider is 1    */
     kMCGLITE_LircDivBy2,      /*!< Divider is 2    */
     kMCGLITE_LircDivBy4,      /*!< Divider is 4    */
@@ -381,8 +369,7 @@ typedef enum _mcglite_lirc_div
 } mcglite_lirc_div_t;
 
 /*! @brief MCG_Lite clock mode definitions */
-typedef enum _mcglite_mode
-{
+typedef enum _mcglite_mode {
     kMCGLITE_ModeHirc48M, /*!< Clock mode is HIRC 48 M  */
     kMCGLITE_ModeLirc8M,  /*!< Clock mode is LIRC 8 M   */
     kMCGLITE_ModeLirc2M,  /*!< Clock mode is LIRC 2 M   */
@@ -391,15 +378,13 @@ typedef enum _mcglite_mode
 } mcglite_mode_t;
 
 /*! @brief MCG internal reference clock (MCGIRCLK) enable mode definition. */
-enum _mcglite_irclk_enable_mode
-{
+enum _mcglite_irclk_enable_mode {
     kMCGLITE_IrclkEnable = MCG_C1_IRCLKEN_MASK,       /*!< MCGIRCLK enable.              */
     kMCGLITE_IrclkEnableInStop = MCG_C1_IREFSTEN_MASK /*!< MCGIRCLK enable in stop mode. */
 };
 
 /*! @brief MCG_Lite configure structure for mode change. */
-typedef struct _mcglite_config
-{
+typedef struct _mcglite_config {
     mcglite_clkout_src_t outSrc;  /*!< MCGOUT clock select.                */
     uint8_t irclkEnableMode;      /*!< MCGIRCLK enable mode, OR'ed value of _mcglite_irclk_enable_mode. */
     mcglite_lirc_mode_t ircs;     /*!< MCG_C2[IRCS].                       */

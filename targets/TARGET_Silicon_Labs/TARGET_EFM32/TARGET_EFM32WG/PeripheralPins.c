@@ -34,14 +34,14 @@ const PinMap PinMap_ADC[] = {
     {PD5, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH5},
     {PD6, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH6},
     {PD7, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH7},
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************DAC***************/
 const PinMap PinMap_DAC[] = {
     {PB11, DAC_0, 0},
     {PB12, DAC_0, 1},
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************I2C SCL***********/
@@ -61,7 +61,7 @@ const PinMap PinMap_I2C_SCL[] = {
     {PE1,  I2C_1, 2},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************I2C SDA***********/
@@ -81,7 +81,7 @@ const PinMap PinMap_I2C_SDA[] = {
     {PE0,  I2C_1, 2},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************PWM***************/
@@ -95,7 +95,7 @@ const PinMap PinMap_PWM[] = {
     {PC8,  PWM_CH0, 2},
     {PC9,  PWM_CH1, 2},
     {PC10, PWM_CH2, 2},
-    {NC  , NC   , 0}
+    {NC, NC, 0}
 };
 
 /*************SPI**************/
@@ -112,7 +112,7 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PC2, SPI_2, 0},
     {PB3, SPI_2, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
@@ -128,7 +128,7 @@ const PinMap PinMap_SPI_MISO[] = {
     {PC3, SPI_2, 0},
     {PB4, SPI_2, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_SPI_CLK[] = {
@@ -144,7 +144,7 @@ const PinMap PinMap_SPI_CLK[] = {
     {PC4, SPI_2, 0},
     {PB5, SPI_2, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_SPI_CS[] = {
@@ -160,7 +160,7 @@ const PinMap PinMap_SPI_CS[] = {
     {PC5, SPI_2, 0},
     {PB6, SPI_2, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************UART**************/
@@ -195,7 +195,7 @@ const PinMap PinMap_UART_TX[] = {
     {PC6,  LEUART_1, 0},
     {PA5,  LEUART_1, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_UART_RX[] = {
@@ -229,5 +229,5 @@ const PinMap PinMap_UART_RX[] = {
     {PC7,  LEUART_1, 0},
     {PA6,  LEUART_1, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };

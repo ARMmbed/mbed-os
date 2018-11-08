@@ -35,7 +35,7 @@ extern "C" {
 
 /** @brief :The maximum number of the Function Register
   * Note for porting:
-  * If functiong register 2 is the maximum number in 
+  * If functiong register 2 is the maximum number in
   * all the GPIO port,then define FRMAX (2U)
   */
 #define FRMAX  (2U)             /* the max number of Port I/O function register is 2 */
@@ -55,17 +55,17 @@ extern "C" {
   * the port value order from low to high with '1' step
   * and begin with "0".
   */
-    typedef enum {
-        GPIO_PA = 0U,
-        GPIO_PB = 1U,        
-        GPIO_PC = 2U,
-        GPIO_PD = 3U,
-        GPIO_PE = 4U,
-        GPIO_PF = 5U,
-        GPIO_PG = 6U,
-        GPIO_PH = 7U,
-        GPIO_PJ = 8U          
-    } GPIO_Port;
+typedef enum {
+    GPIO_PA = 0U,
+    GPIO_PB = 1U,
+    GPIO_PC = 2U,
+    GPIO_PD = 3U,
+    GPIO_PE = 4U,
+    GPIO_PF = 5U,
+    GPIO_PG = 6U,
+    GPIO_PH = 7U,
+    GPIO_PJ = 8U
+} GPIO_Port;
 
 #define IS_GPIO_PORT(param)             ((param) <= GPIO_PJ)    /*parameter checking for port number */
 
@@ -75,36 +75,36 @@ extern "C" {
 
 #define RESER  (8U-(FRMAX))
 
-    typedef struct {
-        __IO uint32_t DATA;
-        __IO uint32_t CR;
-        __IO uint32_t FR[FRMAX];
-        uint32_t RESERVED0[RESER];
-        __IO uint32_t OD;
-        __IO uint32_t PUP;
-        __IO uint32_t PDN;
-        __IO uint32_t SEL;
-        __IO uint32_t IE;
-    } TSB_Port_TypeDef;
+typedef struct {
+    __IO uint32_t DATA;
+    __IO uint32_t CR;
+    __IO uint32_t FR[FRMAX];
+    uint32_t RESERVED0[RESER];
+    __IO uint32_t OD;
+    __IO uint32_t PUP;
+    __IO uint32_t PDN;
+    __IO uint32_t SEL;
+    __IO uint32_t IE;
+} TSB_Port_TypeDef;
 
-    typedef struct {
-        uint8_t PinDATA;
-        uint8_t PinCR;
-        uint8_t PinFR[FRMAX];
-        uint8_t PinOD;
-        uint8_t PinPUP;
-        uint8_t PinPDN;
-        uint8_t PinSEL;
-        uint8_t PinIE;
-    } GPIO_RegTypeDef;
+typedef struct {
+    uint8_t PinDATA;
+    uint8_t PinCR;
+    uint8_t PinFR[FRMAX];
+    uint8_t PinOD;
+    uint8_t PinPUP;
+    uint8_t PinPDN;
+    uint8_t PinSEL;
+    uint8_t PinIE;
+} GPIO_RegTypeDef;
 
-    typedef struct {
-        uint8_t IOMode;         /* Set the port input or output mode       */
-        uint8_t PullUp;         /* Enable or disable Pullup function       */
-        uint8_t OpenDrain;      /* Enable or disable open drain function */
-        uint8_t PullDown;       /* Enable or disable Pulldown function */
-        uint8_t InputVoltage;   /* Enable or disable Input Voltage function */
-    } GPIO_InitTypeDef;
+typedef struct {
+    uint8_t IOMode;         /* Set the port input or output mode       */
+    uint8_t PullUp;         /* Enable or disable Pullup function       */
+    uint8_t OpenDrain;      /* Enable or disable open drain function */
+    uint8_t PullDown;       /* Enable or disable Pulldown function */
+    uint8_t InputVoltage;   /* Enable or disable Input Voltage function */
+} GPIO_InitTypeDef;
 
 #define GPIO_INPUT_MODE                 ((uint8_t)0x00)
 #define GPIO_OUTPUT_MODE                ((uint8_t)0x01)
@@ -200,21 +200,21 @@ extern "C" {
 /** @defgroup GPIO_Exported_FunctionPrototypes
   * @{
   */
-    uint8_t GPIO_ReadData(GPIO_Port GPIO_x);
-    uint8_t GPIO_ReadDataBit(GPIO_Port GPIO_x, uint8_t Bit_x);
-    void GPIO_WriteData(GPIO_Port GPIO_x, uint8_t Data);
-    void GPIO_WriteDataBit(GPIO_Port GPIO_x, uint8_t Bit_x, uint8_t BitValue);
-    void GPIO_Init(GPIO_Port GPIO_x, uint8_t Bit_x, GPIO_InitTypeDef * GPIO_InitStruct);
-    void GPIO_SetOutput(GPIO_Port GPIO_x, uint8_t Bit_x);
-    void GPIO_SetInput(GPIO_Port GPIO_x, uint8_t Bit_x);
-    void GPIO_SetInputEnableReg(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState);
-    void GPIO_SetOutputEnableReg(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState);
-    void GPIO_SetPullUp(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState);
-    void GPIO_SetPullDown(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState);
-    void GPIO_SetOpenDrain(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState);
-    void GPIO_SetInputVoltage(GPIO_Port GPIO_x, uint8_t Bit_x, uint8_t BitValue);
-    void GPIO_EnableFuncReg(GPIO_Port GPIO_x, uint8_t FuncReg_x, uint8_t Bit_x);
-    void GPIO_DisableFuncReg(GPIO_Port GPIO_x, uint8_t FuncReg_x, uint8_t Bit_x);
+uint8_t GPIO_ReadData(GPIO_Port GPIO_x);
+uint8_t GPIO_ReadDataBit(GPIO_Port GPIO_x, uint8_t Bit_x);
+void GPIO_WriteData(GPIO_Port GPIO_x, uint8_t Data);
+void GPIO_WriteDataBit(GPIO_Port GPIO_x, uint8_t Bit_x, uint8_t BitValue);
+void GPIO_Init(GPIO_Port GPIO_x, uint8_t Bit_x, GPIO_InitTypeDef *GPIO_InitStruct);
+void GPIO_SetOutput(GPIO_Port GPIO_x, uint8_t Bit_x);
+void GPIO_SetInput(GPIO_Port GPIO_x, uint8_t Bit_x);
+void GPIO_SetInputEnableReg(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState);
+void GPIO_SetOutputEnableReg(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState);
+void GPIO_SetPullUp(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState);
+void GPIO_SetPullDown(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState);
+void GPIO_SetOpenDrain(GPIO_Port GPIO_x, uint8_t Bit_x, FunctionalState NewState);
+void GPIO_SetInputVoltage(GPIO_Port GPIO_x, uint8_t Bit_x, uint8_t BitValue);
+void GPIO_EnableFuncReg(GPIO_Port GPIO_x, uint8_t FuncReg_x, uint8_t Bit_x);
+void GPIO_DisableFuncReg(GPIO_Port GPIO_x, uint8_t FuncReg_x, uint8_t Bit_x);
 /** @} */
 /* End of group GPIO_Exported_FunctionPrototypes */
 /** @} */

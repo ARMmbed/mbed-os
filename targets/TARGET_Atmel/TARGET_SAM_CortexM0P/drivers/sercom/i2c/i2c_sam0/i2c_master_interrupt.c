@@ -650,7 +650,7 @@ void _i2c_master_interrupt_handler(
 {
     /* Get software module for callback handling */
     struct i2c_master_module *module =
-        (struct i2c_master_module*)_sercom_instances[instance];
+        (struct i2c_master_module *)_sercom_instances[instance];
 
     Assert(module);
 
@@ -694,7 +694,7 @@ void _i2c_master_interrupt_handler(
     } else if ((module->buffer_length > 0) && (module->buffer_remaining > 0)) {
         /* Check that bus ownership is not lost */
         if ((!(i2c_module->STATUS.reg & SERCOM_I2CM_STATUS_BUSSTATE(2))) &&
-                (!(sclsm_flag && (module->buffer_remaining == 1))))	{
+                (!(sclsm_flag && (module->buffer_remaining == 1)))) {
             module->status = STATUS_ERR_PACKET_COLLISION;
         } else if (module->transfer_direction == I2C_TRANSFER_WRITE) {
             _i2c_master_write(module);

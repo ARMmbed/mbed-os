@@ -33,8 +33,7 @@
 /*******************************************************************************
  * Definitations
  ******************************************************************************/
-enum _qspi_transfer_state
-{
+enum _qspi_transfer_state {
     kQSPI_TxBusy = 0x0U, /*!< QSPI is busy */
     kQSPI_TxIdle,        /*!< Transfer is done. */
     kQSPI_TxError        /*!< Transfer error occured. */
@@ -70,10 +69,8 @@ uint32_t QSPI_GetInstance(QuadSPI_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_QuadSPI_COUNT; instance++)
-    {
-        if (s_qspiBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_QuadSPI_COUNT; instance++) {
+        if (s_qspiBases[instance] == base) {
             break;
         }
     }
@@ -110,17 +107,13 @@ void QSPI_Init(QuadSPI_Type *base, qspi_config_t *config, uint32_t srcClock_Hz)
     base->MCR |= QuadSPI_MCR_SCLKCFG(srcClock_Hz / config->baudRate - 1U);
 
     /* Set AHB buffer size and buffer master */
-    for (i = 0; i < FSL_FEATURE_QSPI_AHB_BUFFER_COUNT; i++)
-    {
+    for (i = 0; i < FSL_FEATURE_QSPI_AHB_BUFFER_COUNT; i++) {
         val = QuadSPI_BUF0CR_MSTRID(config->AHBbufferMaster[i]) | QuadSPI_BUF0CR_ADATSZ(config->AHBbufferSize[i] / 8U);
         QSPI_AHB_BUFFER_REG(base, i) = val;
     }
-    if (config->enableAHBbuffer3AllMaster)
-    {
+    if (config->enableAHBbuffer3AllMaster) {
         base->BUF3CR |= QuadSPI_BUF3CR_ALLMST_MASK;
-    }
-    else
-    {
+    } else {
         base->BUF3CR &= ~QuadSPI_BUF3CR_ALLMST_MASK;
     }
 
@@ -131,8 +124,7 @@ void QSPI_Init(QuadSPI_Type *base, qspi_config_t *config, uint32_t srcClock_Hz)
     base->TBCT |= QuadSPI_TBCT_WMRK(config->txWatermark - 1);
 
     /* Enable QSPI module */
-    if (config->enableQspi)
-    {
+    if (config->enableQspi) {
         QSPI_Enable(base, true);
     }
 }
@@ -185,8 +177,7 @@ void QSPI_SetFlashConfig(QuadSPI_Type *base, qspi_flash_config_t *config)
     /* Config look up table */
     base->LUTKEY = 0x5AF05AF0U;
     base->LCKCR = 0x2U;
-    for (i = 0; i < FSL_FEATURE_QSPI_LUT_DEPTH; i++)
-    {
+    for (i = 0; i < FSL_FEATURE_QSPI_LUT_DEPTH; i++) {
         base->LUT[i] = config->lookuptable[i];
     }
     base->LUTKEY = 0x5AF05AF0U;
@@ -213,8 +204,7 @@ void QSPI_SoftwareReset(QuadSPI_Type *base)
     base->MCR |= (QuadSPI_MCR_SWRSTHD_MASK | QuadSPI_MCR_SWRSTSD_MASK);
 
     /* Wait several time for the reset to finish, this method came from IC team */
-    for (i = 0; i < 100; i++)
-    {
+    for (i = 0; i < 100; i++) {
         __ASM("nop");
     }
 
@@ -231,12 +221,9 @@ void QSPI_SoftwareReset(QuadSPI_Type *base)
 uint32_t QSPI_GetRxDataRegisterAddress(QuadSPI_Type *base)
 {
     /* From RDBR */
-    if (base->RBCT & QuadSPI_RBCT_RXBRD_MASK)
-    {
+    if (base->RBCT & QuadSPI_RBCT_RXBRD_MASK) {
         return (uint32_t)(&(base->RBDR[0]));
-    }
-    else
-    {
+    } else {
         /* From ARDB */
         return FSL_FEATURE_QSPI_ARDB_BASE;
     }
@@ -244,8 +231,7 @@ uint32_t QSPI_GetRxDataRegisterAddress(QuadSPI_Type *base)
 
 void QSPI_ExecuteIPCommand(QuadSPI_Type *base, uint32_t index)
 {
-    while (QSPI_GetStatusFlags(base) & (kQSPI_Busy | kQSPI_IPAccess))
-    {
+    while (QSPI_GetStatusFlags(base) & (kQSPI_Busy | kQSPI_IPAccess)) {
     }
     QSPI_ClearCommandSequence(base, kQSPI_IPSeq);
 
@@ -255,8 +241,7 @@ void QSPI_ExecuteIPCommand(QuadSPI_Type *base, uint32_t index)
 
 void QSPI_ExecuteAHBCommand(QuadSPI_Type *base, uint32_t index)
 {
-    while (QSPI_GetStatusFlags(base) & (kQSPI_Busy | kQSPI_AHBAccess))
-    {
+    while (QSPI_GetStatusFlags(base) & (kQSPI_Busy | kQSPI_AHBAccess)) {
     }
     QSPI_ClearCommandSequence(base, kQSPI_BufferSeq);
     base->BFGENCR = ((base->BFGENCR & (~QuadSPI_BFGENCR_SEQID_MASK)) | QuadSPI_BFGENCR_SEQID(index / 4U));
@@ -271,8 +256,7 @@ void QSPI_UpdateLUT(QuadSPI_Type *base, uint32_t index, uint32_t *cmd)
     base->LCKCR = 0x2U;
 
     /* Write data into LUT */
-    for (i = 0; i < 4; i++)
-    {
+    for (i = 0; i < 4; i++) {
         base->LUT[index + i] = *cmd;
         cmd++;
     }
@@ -290,12 +274,9 @@ void QSPI_SetReadDataArea(QuadSPI_Type *base, qspi_read_area_t area)
 
 uint32_t QSPI_ReadData(QuadSPI_Type *base)
 {
-    if (base->RBCT & QuadSPI_RBCT_RXBRD_MASK)
-    {
+    if (base->RBCT & QuadSPI_RBCT_RXBRD_MASK) {
         return base->RBDR[0];
-    }
-    else
-    {
+    } else {
         /* Data from ARDB. */
         return *((uint32_t *)FSL_FEATURE_QSPI_ARDB_BASE);
     }
@@ -307,11 +288,9 @@ void QSPI_WriteBlocking(QuadSPI_Type *base, uint32_t *buffer, size_t size)
 
     uint32_t i = 0;
 
-    for (i = 0; i < size / 4U; i++)
-    {
+    for (i = 0; i < size / 4U; i++) {
         /* Check if the buffer is full */
-        while (QSPI_GetStatusFlags(base) & kQSPI_TxBufferFull)
-        {
+        while (QSPI_GetStatusFlags(base) & kQSPI_TxBufferFull) {
         }
         QSPI_WriteData(base, *buffer);
         buffer++;
@@ -325,38 +304,27 @@ void QSPI_ReadBlocking(QuadSPI_Type *base, uint32_t *buffer, size_t size)
     uint32_t temp = 0;
     uint32_t level = (base->RBCT & QuadSPI_RBCT_WMRK_MASK) + 1U;
 
-    while (i < size / 4)
-    {
+    while (i < size / 4) {
         /* Check if there is data */
-        if ((size / 4 - i) < level)
-        {
-            do
-            {
+        if ((size / 4 - i) < level) {
+            do {
                 temp = (base->RBSR & QuadSPI_RBSR_RDBFL_MASK) >> QuadSPI_RBSR_RDBFL_SHIFT;
             } while (!temp);
-        }
-        else
-        {
-            while ((QSPI_GetStatusFlags(base) & kQSPI_RxWatermark) == 0U)
-            {
+        } else {
+            while ((QSPI_GetStatusFlags(base) & kQSPI_RxWatermark) == 0U) {
             }
         }
 
         level = (level < (size / 4 - i)) ? level : (size / 4 - i);
 
         /* Data from RBDR */
-        if (base->RBCT & QuadSPI_RBCT_RXBRD_MASK)
-        {
-            for (j = 0; j < level; j++)
-            {
+        if (base->RBCT & QuadSPI_RBCT_RXBRD_MASK) {
+            for (j = 0; j < level; j++) {
                 buffer[i + j] = base->RBDR[j];
             }
-        }
-        else
-        {
+        } else {
             /* Data from ARDB. */
-            for (j = 0; j < level; j++)
-            {
+            for (j = 0; j < level; j++) {
                 buffer[i + j] = ((uint32_t *)FSL_FEATURE_QSPI_ARDB_BASE)[j];
             }
         }

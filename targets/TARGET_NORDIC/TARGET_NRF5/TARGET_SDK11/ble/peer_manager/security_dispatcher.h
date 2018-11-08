@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -61,8 +61,7 @@
 
 /**@brief Events that can come from the Security Dispatcher module.
  */
-typedef enum
-{
+typedef enum {
     SMD_EVT_PARAMS_REQ,             /**< Parameters are required for a pairing procedure on the specified connection. The user must provide them using @ref smd_params_reply. */
     SMD_EVT_SLAVE_SECURITY_REQ,     /**< The peer (slave) has requested link encryption. Call @ref smd_link_secure to honor the request. The data in the event structure must be used in the parameters. */
     SMD_EVT_SEC_PROCEDURE_START,    /**< A security procedure has started. */
@@ -79,8 +78,7 @@ typedef enum
 
 /**@brief Events parameters specific to the @ref SMD_EVT_SLAVE_SECURITY_REQ event.
  */
-typedef struct
-{
+typedef struct {
     bool bond;
     bool mitm;
 } smd_evt_slave_security_req_t;
@@ -88,16 +86,14 @@ typedef struct
 
 /**@brief Events parameters specific to the @ref SMD_EVT_SEC_PROCEDURE_START event.
  */
-typedef struct
-{
+typedef struct {
     pm_conn_sec_procedure_t procedure; /**< The procedure that has started. */
 } smd_evt_sec_procedure_start_t;
 
 
 /**@brief Events parameters specific to the @ref SMD_EVT_PAIRING_SUCCESS event.
  */
-typedef struct
-{
+typedef struct {
     bool                bonded;     /**< Whether bonding was performed. */
     bool                mitm;       /**< Whether MITM protection was used during pairing. */
     ble_gap_sec_kdist_t kdist_own;  /**< Which keys were distributed to the peer. Only relevant if bonding was performed. */
@@ -107,8 +103,7 @@ typedef struct
 
 /**@brief Events parameters specific to the @ref SMD_EVT_PAIRING_FAIL event.
  */
-typedef struct
-{
+typedef struct {
     pm_sec_error_code_t error;     /**< What went wrong. */
     uint8_t             error_src; /**< The party that raised the error, see @ref BLE_GAP_SEC_STATUS_SOURCES. */
 } smd_evt_pairing_failed_t;
@@ -116,16 +111,14 @@ typedef struct
 
 /**@brief Events parameters specific to the @ref SMD_EVT_LINK_ENCRYPTION_UPDATE event.
  */
-typedef struct
-{
+typedef struct {
     bool mitm_protected;  /**< Whether the link is now MITM protected. */
 } smd_evt_link_encryption_update_t;
 
 
 /**@brief Events parameters specific to the @ref SMD_EVT_LINK_ENCRYPTION_FAILED event.
  */
-typedef struct
-{
+typedef struct {
     pm_sec_error_code_t error;     /**< What went wrong. */
     uint8_t             error_src; /**< The party that raised the error, see @ref BLE_GAP_SEC_STATUS_SOURCES. */
 } smd_evt_link_encryption_failed_t;
@@ -133,16 +126,14 @@ typedef struct
 
 /**@brief Events parameters specific to the @ref SMD_EVT_BONDING_INFO_STORED event.
  */
-typedef struct
-{
+typedef struct {
     pm_peer_id_t peer_id; /**< The peer this event pertains to. */
 } smd_evt_bonding_info_stored_t;
 
 
 /**@brief Events parameters specific to the @ref SMD_EVT_ERROR_BONDING_INFO event.
  */
-typedef struct
-{
+typedef struct {
     pm_peer_id_t peer_id; /**< The peer this event pertains to, if previously bonded. @ref PM_PEER_ID_INVALID if no successful bonding has happened with the peer before. */
     ret_code_t   error;   /**< The unexpected error that occurred. */
 } smd_evt_error_bonding_info_t;
@@ -150,20 +141,18 @@ typedef struct
 
 // typedef struct
 // {
-    // pm_peer_id_t peer_id; /**< The peer this event pertains to. */
+// pm_peer_id_t peer_id; /**< The peer this event pertains to. */
 // } smd_evt_error_no_mem_t;
 
 
 /**@brief Events parameters specific to the @ref SMD_EVT_ERROR_UNEXPECTED event.
  */
-typedef struct
-{
+typedef struct {
     ret_code_t error; /**< The unexpected error that occurred. */
 } smd_evt_error_unexpected_t;
 
 
-typedef union
-{
+typedef union {
     smd_evt_slave_security_req_t     slave_security_req;
     smd_evt_sec_procedure_start_t    sec_procedure_start;
     smd_evt_pairing_success_t        pairing_success;
@@ -179,8 +168,7 @@ typedef union
 
 /**@brief Structure describing events from the Security Dispatcher module.
  */
-typedef struct
-{
+typedef struct {
     smd_evt_id_t evt_id;     /**< The type of event. */
     uint16_t conn_handle;    /**< The connection this event pertains to. */
     smd_evt_params_t params; /**< Event specific parameters. Chosen based on evt_id. */
@@ -192,7 +180,7 @@ typedef struct
  *
  * @param[in]  p_event  The event that has happened.
  */
-typedef void (*smd_evt_handler_t)(smd_evt_t const * p_event);
+typedef void (*smd_evt_handler_t)(smd_evt_t const *p_event);
 
 
 /**@brief Function for registering with the Security Dispatcher module. This function also
@@ -211,7 +199,7 @@ ret_code_t smd_register(smd_evt_handler_t evt_handler);
  *
  * @param[in]  ble_evt    The SoftDevice event.
  */
-void smd_ble_evt_handler(ble_evt_t * ble_evt);
+void smd_ble_evt_handler(ble_evt_t *ble_evt);
 
 
 /**@brief Function for providing pairing and bonding parameters to use for the current pairing
@@ -239,8 +227,8 @@ void smd_ble_evt_handler(ble_evt_t * ble_evt);
  * @retval NRF_ERROR_BUSY                 No write buffer. Reattempt later.
  */
 ret_code_t smd_params_reply(uint16_t                 conn_handle,
-                            ble_gap_sec_params_t   * p_sec_params,
-                            ble_gap_lesc_p256_pk_t * p_public_key);
+                            ble_gap_sec_params_t    *p_sec_params,
+                            ble_gap_lesc_p256_pk_t *p_public_key);
 
 
 /**@brief Function for initiating security on the link, with the specified parameters.
@@ -271,7 +259,7 @@ ret_code_t smd_params_reply(uint16_t                 conn_handle,
  * @retval NRF_ERROR_INTERNAL             No more available peer IDs.
  */
 ret_code_t smd_link_secure(uint16_t               conn_handle,
-                           ble_gap_sec_params_t * p_sec_params,
+                           ble_gap_sec_params_t *p_sec_params,
                            bool                   force_repairing);
 
 /** @}

@@ -93,7 +93,7 @@ do {                                                                            
 /*! Memory required for semaphore in terms bytes. This size is used to compute
     the total memory required for the operation of the driver. */
 #define ADI_SEM_SIZE        (sizeof(uint32_t))
-    
+
 /*! Code that uCOS requires to be run in the beginning of an interrupt handler.
     @sa ISR_EPILOG()
 */
@@ -123,7 +123,7 @@ do {                                                                            
 /*! Macro that creates a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle */
 #define SEM_CREATE(DEV, name, error) \
     (DEV)->nLowPowerExitFlag = 0u
-    
+
 /*! Macro that deletes a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle */
 #define SEM_DELETE(DEV, error) do { } while(0)
 
@@ -153,7 +153,7 @@ do {                                                                            
 /*! Macro that creates a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle */
 #define SEM_CREATE(DEV, name, error) \
    (DEV)->nSemCount = 0
-    
+
 /*! Macro that deletes a semaphore and returns the error specified in case of failure. DEV is the handle to the device driver structure that contains the semaphore/semaphore handle */
 #define SEM_DELETE(DEV, error)  do { } while(0)
 

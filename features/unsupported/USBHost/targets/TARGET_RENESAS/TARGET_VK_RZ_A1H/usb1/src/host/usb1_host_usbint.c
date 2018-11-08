@@ -83,7 +83,7 @@ Private global variables and functions
 *              :                    ;  INTC_EDGE_TRIGGER : Edge trigger
 * Return Value : none
 *******************************************************************************/
-void usb1_host_interrupt (uint32_t int_sense)
+void usb1_host_interrupt(uint32_t int_sense)
 {
     uint16_t savepipe1;
     uint16_t savepipe2;
@@ -108,7 +108,7 @@ void usb1_host_interrupt (uint32_t int_sense)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb1_host_interrupt1 (void)
+void usb1_host_interrupt1(void)
 {
     uint16_t intsts0;
     uint16_t intsts1;
@@ -127,17 +127,14 @@ void usb1_host_interrupt1 (void)
     intenb0 = USB201.INTENB0;
     intenb1 = USB201.INTENB1;
 
-    if ((intsts1 & USB_HOST_BITBCHG) && (intenb1 & USB_HOST_BITBCHGE))
-    {
-            USB201.INTSTS1 = (uint16_t)~USB_HOST_BITBCHG;
-            RZA_IO_RegWrite_16(&USB201.INTENB1,
-                                0,
-                                USB_INTENB1_BCHGE_SHIFT,
-                                USB_INTENB1_BCHGE);
-            g_usb1_host_bchg_flag = USB_HOST_YES;
-    }
-    else if ((intsts1 & USB_HOST_BITSACK) && (intenb1 & USB_HOST_BITSACKE))
-    {
+    if ((intsts1 & USB_HOST_BITBCHG) && (intenb1 & USB_HOST_BITBCHGE)) {
+        USB201.INTSTS1 = (uint16_t)~USB_HOST_BITBCHG;
+        RZA_IO_RegWrite_16(&USB201.INTENB1,
+                           0,
+                           USB_INTENB1_BCHGE_SHIFT,
+                           USB_INTENB1_BCHGE);
+        g_usb1_host_bchg_flag = USB_HOST_YES;
+    } else if ((intsts1 & USB_HOST_BITSACK) && (intenb1 & USB_HOST_BITSACKE)) {
         USB201.INTSTS1 = (uint16_t)~USB_HOST_BITSACK;
 #if(1) /* ohci_wrapp */
         ohciwrapp_loc_TransEnd(USB_HOST_PIPE0, TD_CC_NOERROR);
@@ -145,9 +142,7 @@ void usb1_host_interrupt1 (void)
         g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
         g_usb1_host_CmdStage |= USB_HOST_CMD_DONE;
 #endif
-    }
-    else if ((intsts1 & USB_HOST_BITSIGN) && (intenb1 & USB_HOST_BITSIGNE))
-    {
+    } else if ((intsts1 & USB_HOST_BITSIGN) && (intenb1 & USB_HOST_BITSIGNE)) {
         USB201.INTSTS1 = (uint16_t)~USB_HOST_BITSIGN;
 #if(1) /* ohci_wrapp */
         g_usb1_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_NORES;  /* exit NORES */
@@ -156,37 +151,31 @@ void usb1_host_interrupt1 (void)
         g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
         g_usb1_host_CmdStage |= USB_HOST_CMD_NORES;
 #endif
-    }
-    else if (((intsts1 & USB_HOST_BITDTCH) == USB_HOST_BITDTCH)
-          && ((intenb1 & USB_HOST_BITDTCHE) == USB_HOST_BITDTCHE))
-    {
+    } else if (((intsts1 & USB_HOST_BITDTCH) == USB_HOST_BITDTCH)
+               && ((intenb1 & USB_HOST_BITDTCHE) == USB_HOST_BITDTCHE)) {
         USB201.INTSTS1 = (uint16_t)~USB_HOST_BITDTCH;
         RZA_IO_RegWrite_16(&USB201.INTENB1,
-                            0,
-                            USB_INTENB1_DTCHE_SHIFT,
-                            USB_INTENB1_DTCHE);
+                           0,
+                           USB_INTENB1_DTCHE_SHIFT,
+                           USB_INTENB1_DTCHE);
         g_usb1_host_detach_flag = USB_HOST_YES;
 
         Userdef_USB_usb1_host_detach();
 
         usb1_host_UsbDetach2();
-    }
-    else if (((intsts1 & USB_HOST_BITATTCH) == USB_HOST_BITATTCH)
-          && ((intenb1 & USB_HOST_BITATTCHE) == USB_HOST_BITATTCHE))
-    {
+    } else if (((intsts1 & USB_HOST_BITATTCH) == USB_HOST_BITATTCH)
+               && ((intenb1 & USB_HOST_BITATTCHE) == USB_HOST_BITATTCHE)) {
         USB201.INTSTS1 = (uint16_t)~USB_HOST_BITATTCH;
         RZA_IO_RegWrite_16(&USB201.INTENB1,
-                            0,
-                            USB_INTENB1_ATTCHE_SHIFT,
-                            USB_INTENB1_ATTCHE);
+                           0,
+                           USB_INTENB1_ATTCHE_SHIFT,
+                           USB_INTENB1_ATTCHE);
         g_usb1_host_attach_flag = USB_HOST_YES;
 
         Userdef_USB_usb1_host_attach();
 
         usb1_host_UsbAttach();
-    }
-    else if ((intsts0 & intenb0 & (USB_HOST_BITBEMP | USB_HOST_BITNRDY | USB_HOST_BITBRDY)))
-    {
+    } else if ((intsts0 & intenb0 & (USB_HOST_BITBEMP | USB_HOST_BITNRDY | USB_HOST_BITBRDY))) {
         brdysts = USB201.BRDYSTS;
         nrdysts = USB201.NRDYSTS;
         bempsts = USB201.BEMPSTS;
@@ -194,25 +183,16 @@ void usb1_host_interrupt1 (void)
         nrdyenb = USB201.NRDYENB;
         bempenb = USB201.BEMPENB;
 
-        if ((intsts0 & USB_HOST_BITBRDY) && (intenb0 & USB_HOST_BITBRDYE) && (brdysts & brdyenb))
-        {
+        if ((intsts0 & USB_HOST_BITBRDY) && (intenb0 & USB_HOST_BITBRDYE) && (brdysts & brdyenb)) {
             usb1_host_BRDYInterrupt(brdysts, brdyenb);
-        }
-        else if ((intsts0 & USB_HOST_BITBEMP) && (intenb0 & USB_HOST_BITBEMPE) && (bempsts & bempenb))
-        {
+        } else if ((intsts0 & USB_HOST_BITBEMP) && (intenb0 & USB_HOST_BITBEMPE) && (bempsts & bempenb)) {
             usb1_host_BEMPInterrupt(bempsts, bempenb);
-        }
-        else if ((intsts0 & USB_HOST_BITNRDY) && (intenb0 & USB_HOST_BITNRDYE) && (nrdysts & nrdyenb))
-        {
+        } else if ((intsts0 & USB_HOST_BITNRDY) && (intenb0 & USB_HOST_BITNRDYE) && (nrdysts & nrdyenb)) {
             usb1_host_NRDYInterrupt(nrdysts, nrdyenb);
-        }
-        else
-        {
+        } else {
             /* Do Nothing */
         }
-    }
-    else
-    {
+    } else {
         /* Do Nothing */
     }
 
@@ -229,32 +209,29 @@ void usb1_host_interrupt1 (void)
 *              : uint16_t Int_enbl ; BRDYENB Register Value
 * Return Value : none
 *******************************************************************************/
-void usb1_host_BRDYInterrupt (uint16_t Status, uint16_t Int_enbl)
+void usb1_host_BRDYInterrupt(uint16_t Status, uint16_t Int_enbl)
 {
     uint16_t          buffer;
     volatile uint16_t dumy_sts;
 
-    if ((Status & g_usb1_host_bit_set[USB_HOST_PIPE0]) && (Int_enbl & g_usb1_host_bit_set[USB_HOST_PIPE0]))
-    {
+    if ((Status & g_usb1_host_bit_set[USB_HOST_PIPE0]) && (Int_enbl & g_usb1_host_bit_set[USB_HOST_PIPE0])) {
         USB201.BRDYSTS = (uint16_t)~g_usb1_host_bit_set[USB_HOST_PIPE0];
 
 #if(1) /* ohci_wrapp */
-        switch ((g_usb1_host_CmdStage & (USB_HOST_STAGE_FIELD | USB_HOST_CMD_FIELD)))
-        {
+        switch ((g_usb1_host_CmdStage & (USB_HOST_STAGE_FIELD | USB_HOST_CMD_FIELD))) {
             case (USB_HOST_STAGE_STATUS | USB_HOST_CMD_DOING):
                 buffer  = usb1_host_read_buffer_c(USB_HOST_PIPE0);
                 usb1_host_disable_brdy_int(USB_HOST_PIPE0);
                 g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                 g_usb1_host_CmdStage |= USB_HOST_CMD_DONE;
                 ohciwrapp_loc_TransEnd(USB_HOST_PIPE0, TD_CC_NOERROR);
-            break;
+                break;
 
             case (USB_HOST_STAGE_DATA | USB_HOST_CMD_DOING):
                 buffer  = usb1_host_read_buffer_c(USB_HOST_PIPE0);
-                switch (buffer)
-                {
+                switch (buffer) {
                     case USB_HOST_READING:                  /* Continue of data read */
-                    break;
+                        break;
 
                     case USB_HOST_READEND:                  /* End of data read */
                     case USB_HOST_READSHRT:                 /* End of data read */
@@ -262,7 +239,7 @@ void usb1_host_BRDYInterrupt (uint16_t Status, uint16_t Int_enbl)
                         g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                         g_usb1_host_CmdStage |= USB_HOST_CMD_DONE;
                         ohciwrapp_loc_TransEnd(USB_HOST_PIPE0, TD_CC_NOERROR);
-                    break;
+                        break;
 
                     case USB_HOST_READOVER:                 /* buffer over */
                         USB201.CFIFOCTR = USB_HOST_BITBCLR;
@@ -270,63 +247,59 @@ void usb1_host_BRDYInterrupt (uint16_t Status, uint16_t Int_enbl)
                         g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                         g_usb1_host_CmdStage |= USB_HOST_CMD_DONE;
                         ohciwrapp_loc_TransEnd(USB_HOST_PIPE0, TD_CC_NOERROR);
-                    break;
+                        break;
 
                     case USB_HOST_FIFOERROR:                    /* FIFO access error */
                     default:
-                    break;
+                        break;
                 }
-            break;
+                break;
 
             default:
-            break;
+                break;
         }
 #else
-        switch ((g_usb1_host_CmdStage & (USB_HOST_MODE_FIELD | USB_HOST_STAGE_FIELD | USB_HOST_CMD_FIELD)))
-        {
+        switch ((g_usb1_host_CmdStage & (USB_HOST_MODE_FIELD | USB_HOST_STAGE_FIELD | USB_HOST_CMD_FIELD))) {
             case (USB_HOST_MODE_WRITE   | USB_HOST_STAGE_STATUS | USB_HOST_CMD_DOING):
             case (USB_HOST_MODE_NO_DATA | USB_HOST_STAGE_STATUS | USB_HOST_CMD_DOING):
                 buffer  = usb1_host_read_buffer_c(USB_HOST_PIPE0);
                 usb1_host_disable_brdy_int(USB_HOST_PIPE0);
                 g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                 g_usb1_host_CmdStage |= USB_HOST_CMD_DONE;
-            break;
+                break;
 
             case (USB_HOST_MODE_READ   | USB_HOST_STAGE_DATA | USB_HOST_CMD_DOING):
                 buffer  = usb1_host_read_buffer_c(USB_HOST_PIPE0);
 
-                switch (buffer)
-                {
+                switch (buffer) {
                     case USB_HOST_READING:                  /* Continue of data read */
-                    break;
+                        break;
 
                     case USB_HOST_READEND:                  /* End of data read */
                     case USB_HOST_READSHRT:                 /* End of data read */
                         usb1_host_disable_brdy_int(USB_HOST_PIPE0);
                         g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                         g_usb1_host_CmdStage |= USB_HOST_CMD_DONE;
-                    break;
+                        break;
 
                     case USB_HOST_READOVER:                 /* buffer over */
                         USB201.CFIFOCTR = USB_HOST_BITBCLR;
                         usb1_host_disable_brdy_int(USB_HOST_PIPE0);
                         g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                         g_usb1_host_CmdStage |= USB_HOST_CMD_DONE;
-                    break;
+                        break;
 
                     case USB_HOST_FIFOERROR:                    /* FIFO access error */
                     default:
-                    break;
+                        break;
                 }
-            break;
+                break;
 
             default:
-            break;
+                break;
         }
 #endif
-    }
-    else
-    {
+    } else {
         usb1_host_brdy_int(Status, Int_enbl);
     }
 
@@ -341,18 +314,16 @@ void usb1_host_BRDYInterrupt (uint16_t Status, uint16_t Int_enbl)
 *              : uint16_t Int_enbl      ; NRDYENB Register Value
 * Return Value : none
 *******************************************************************************/
-void usb1_host_NRDYInterrupt (uint16_t Status, uint16_t Int_enbl)
+void usb1_host_NRDYInterrupt(uint16_t Status, uint16_t Int_enbl)
 {
     uint16_t          pid;
     volatile uint16_t dumy_sts;
 
-    if ((Status & g_usb1_host_bit_set[USB_HOST_PIPE0]) && (Int_enbl & g_usb1_host_bit_set[USB_HOST_PIPE0]))
-    {
+    if ((Status & g_usb1_host_bit_set[USB_HOST_PIPE0]) && (Int_enbl & g_usb1_host_bit_set[USB_HOST_PIPE0])) {
         USB201.NRDYSTS = (uint16_t)~g_usb1_host_bit_set[USB_HOST_PIPE0];
         pid = usb1_host_get_pid(USB_HOST_PIPE0);
 
-        if ((pid == USB_HOST_PID_STALL) || (pid == USB_HOST_PID_STALL2))
-        {
+        if ((pid == USB_HOST_PID_STALL) || (pid == USB_HOST_PID_STALL2)) {
             g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
             g_usb1_host_CmdStage |= USB_HOST_CMD_STALL;
 #if(1) /* ohci_wrapp */
@@ -360,23 +331,17 @@ void usb1_host_NRDYInterrupt (uint16_t Status, uint16_t Int_enbl)
             ohciwrapp_loc_TransEnd(USB_HOST_PIPE0, TD_CC_STALL);
 #endif
 
-        }
-        else if (pid  == USB_HOST_PID_NAK)
-        {
+        } else if (pid  == USB_HOST_PID_NAK) {
             g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
             g_usb1_host_CmdStage |= USB_HOST_CMD_NORES;
 #if(1) /* ohci_wrapp */
             g_usb1_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_NORES;
             ohciwrapp_loc_TransEnd(USB_HOST_PIPE0, TD_CC_STALL);
 #endif
-        }
-        else
-        {
+        } else {
             /* Do Nothing */
         }
-    }
-    else
-    {
+    } else {
         usb1_host_nrdy_int(Status, Int_enbl);
     }
 
@@ -391,102 +356,92 @@ void usb1_host_NRDYInterrupt (uint16_t Status, uint16_t Int_enbl)
 *              : uint16_t Int_enbl      ; BEMPENB Register Value
 * Return Value : none
 *******************************************************************************/
-void usb1_host_BEMPInterrupt (uint16_t Status, uint16_t Int_enbl)
+void usb1_host_BEMPInterrupt(uint16_t Status, uint16_t Int_enbl)
 {
     uint16_t          buffer;
     uint16_t          pid;
     volatile uint16_t dumy_sts;
 
-    if ((Status & g_usb1_host_bit_set[USB_HOST_PIPE0]) && (Int_enbl & g_usb1_host_bit_set[USB_HOST_PIPE0]))
-    {
+    if ((Status & g_usb1_host_bit_set[USB_HOST_PIPE0]) && (Int_enbl & g_usb1_host_bit_set[USB_HOST_PIPE0])) {
         USB201.BEMPSTS = (uint16_t)~g_usb1_host_bit_set[USB_HOST_PIPE0];
         pid = usb1_host_get_pid(USB_HOST_PIPE0);
 
-        if ((pid == USB_HOST_PID_STALL) || (pid == USB_HOST_PID_STALL2))
-        {
+        if ((pid == USB_HOST_PID_STALL) || (pid == USB_HOST_PID_STALL2)) {
             g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
             g_usb1_host_CmdStage |= USB_HOST_CMD_STALL;
 #if(1) /* ohci_wrapp */
             g_usb1_host_pipe_status[USB_HOST_PIPE0] = USB_HOST_PIPE_STALL;      /* exit STALL */
             ohciwrapp_loc_TransEnd(USB_HOST_PIPE0, TD_CC_STALL);
 #endif
-        }
-        else
-        {
+        } else {
 #if(1) /* ohci_wrapp */
-            switch ((g_usb1_host_CmdStage & (USB_HOST_STAGE_FIELD | USB_HOST_CMD_FIELD)))
-            {
+            switch ((g_usb1_host_CmdStage & (USB_HOST_STAGE_FIELD | USB_HOST_CMD_FIELD))) {
                 case (USB_HOST_STAGE_STATUS | USB_HOST_CMD_DOING):
                     g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                     g_usb1_host_CmdStage |= USB_HOST_CMD_DONE;
                     ohciwrapp_loc_TransEnd(USB_HOST_PIPE0, TD_CC_NOERROR);
-                break;
+                    break;
 
                 case (USB_HOST_STAGE_DATA | USB_HOST_CMD_DOING):
                     buffer  = usb1_host_write_buffer(USB_HOST_PIPE0);
-                    switch (buffer)
-                    {
+                    switch (buffer) {
                         case USB_HOST_WRITING:                  /* Continue of data write */
                         case USB_HOST_WRITEEND:                 /* End of data write (zero-length) */
-                        break;
+                            break;
 
                         case USB_HOST_WRITESHRT:                    /* End of data write */
                             g_usb1_host_CmdStage &= (~USB_HOST_STAGE_FIELD);
                             g_usb1_host_CmdStage |= USB_HOST_STAGE_STATUS;
                             ohciwrapp_loc_TransEnd(USB_HOST_PIPE0, TD_CC_NOERROR);
-                        break;
+                            break;
 
                         case USB_HOST_FIFOERROR:                    /* FIFO access error */
                         default:
-                        break;
+                            break;
                     }
-                break;
+                    break;
 
                 default:
                     /* do nothing */
-                break;
+                    break;
             }
 #else
-            switch ((g_usb1_host_CmdStage & (USB_HOST_MODE_FIELD | USB_HOST_STAGE_FIELD | USB_HOST_CMD_FIELD)))
-            {
+            switch ((g_usb1_host_CmdStage & (USB_HOST_MODE_FIELD | USB_HOST_STAGE_FIELD | USB_HOST_CMD_FIELD))) {
                 case (USB_HOST_MODE_READ | USB_HOST_STAGE_STATUS | USB_HOST_CMD_DOING):
                     g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                     g_usb1_host_CmdStage |= USB_HOST_CMD_DONE;
-                break;
+                    break;
 
                 case (USB_HOST_MODE_WRITE | USB_HOST_STAGE_DATA | USB_HOST_CMD_DOING):
                     buffer  = usb1_host_write_buffer(USB_HOST_PIPE0);
-                    switch (buffer)
-                    {
+                    switch (buffer) {
                         case USB_HOST_WRITING:                  /* Continue of data write */
                         case USB_HOST_WRITEEND:                 /* End of data write (zero-length) */
-                        break;
+                            break;
 
                         case USB_HOST_WRITESHRT:                    /* End of data write */
                             g_usb1_host_CmdStage &= (~USB_HOST_STAGE_FIELD);
                             g_usb1_host_CmdStage |= USB_HOST_STAGE_STATUS;
-                        break;
+                            break;
 
                         case USB_HOST_FIFOERROR:                    /* FIFO access error */
                         default:
-                        break;
+                            break;
                     }
-                break;
+                    break;
 
                 case (USB_HOST_MODE_WRITE | USB_HOST_STAGE_STATUS | USB_HOST_CMD_DOING):
                     g_usb1_host_CmdStage &= (~USB_HOST_CMD_FIELD);
                     g_usb1_host_CmdStage |= USB_HOST_CMD_IDLE;
-                break;
+                    break;
 
                 default:
                     /* do nothing */
-                break;
+                    break;
             }
 #endif
         }
-    }
-    else
-    {
+    } else {
         usb1_host_bemp_int(Status, Int_enbl);
     }
 

@@ -138,7 +138,7 @@ void SetSysClock(void)
             if (SetSysClock_PLL_HSI() == 0)
 #endif
             {
-                while(1) {
+                while (1) {
                     MBED_ASSERT(1);
                 }
             }
@@ -161,7 +161,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     //Select HSI as system clock source to allow modification of the PLL configuration
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-    if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
         return 0; // FAIL
     }
 

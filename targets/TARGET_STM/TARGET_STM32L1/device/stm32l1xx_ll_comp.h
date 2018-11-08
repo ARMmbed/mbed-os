@@ -108,26 +108,25 @@ extern "C" {
 /**
   * @brief  Structure definition of some features of COMP instance.
   */
-typedef struct
-{
-  uint32_t PowerMode;                   /*!< Set comparator operating mode to adjust power and speed.
+typedef struct {
+    uint32_t PowerMode;                   /*!< Set comparator operating mode to adjust power and speed.
                                              This parameter can be a value of @ref COMP_LL_EC_POWERMODE
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetPowerMode(). */
 
-  uint32_t InputPlus;                   /*!< Set comparator input plus (non-inverting input).
+    uint32_t InputPlus;                   /*!< Set comparator input plus (non-inverting input).
                                              This parameter can be a value of @ref COMP_LL_EC_INPUT_PLUS
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetInputPlus(). */
 
-  uint32_t InputMinus;                  /*!< Set comparator input minus (inverting input).
+    uint32_t InputMinus;                  /*!< Set comparator input minus (inverting input).
                                              This parameter can be a value of @ref COMP_LL_EC_INPUT_MINUS
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetInputMinus(). */
 
-  uint32_t OutputSelection;             /*!< Set comparator output selection.
+    uint32_t OutputSelection;             /*!< Set comparator output selection.
                                              This parameter can be a value of @ref COMP_LL_EC_OUTPUT_SELECTION
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetOutputSelection(). */
 
 } LL_COMP_InitTypeDef;
@@ -361,7 +360,7 @@ typedef struct
   */
 __STATIC_INLINE void LL_COMP_SetCommonWindowMode(COMP_Common_TypeDef *COMPxy_COMMON, uint32_t WindowMode)
 {
-  MODIFY_REG(COMPxy_COMMON->CSR, COMP_CSR_WNDWE, WindowMode);
+    MODIFY_REG(COMPxy_COMMON->CSR, COMP_CSR_WNDWE, WindowMode);
 }
 
 /**
@@ -376,7 +375,7 @@ __STATIC_INLINE void LL_COMP_SetCommonWindowMode(COMP_Common_TypeDef *COMPxy_COM
   */
 __STATIC_INLINE uint32_t LL_COMP_GetCommonWindowMode(COMP_Common_TypeDef *COMPxy_COMMON)
 {
-  return (uint32_t)(READ_BIT(COMPxy_COMMON->CSR, COMP_CSR_WNDWE));
+    return (uint32_t)(READ_BIT(COMPxy_COMMON->CSR, COMP_CSR_WNDWE));
 }
 
 /**
@@ -394,13 +393,13 @@ __STATIC_INLINE uint32_t LL_COMP_GetCommonWindowMode(COMP_Common_TypeDef *COMPxy
   * @param  PowerMode This parameter can be one of the following values:
   *         @arg @ref LL_COMP_POWERMODE_MEDIUMSPEED   (1)
   *         @arg @ref LL_COMP_POWERMODE_ULTRALOWPOWER (1)
-  *         
+  *
   *         (1) Available only on COMP instance: COMP2.
   * @retval None
   */
 __STATIC_INLINE void LL_COMP_SetPowerMode(COMP_TypeDef *COMPx, uint32_t PowerMode)
 {
-  MODIFY_REG(COMP->CSR, COMP_CSR_SPEED, PowerMode);
+    MODIFY_REG(COMP->CSR, COMP_CSR_SPEED, PowerMode);
 }
 
 /**
@@ -410,12 +409,12 @@ __STATIC_INLINE void LL_COMP_SetPowerMode(COMP_TypeDef *COMPx, uint32_t PowerMod
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_COMP_POWERMODE_MEDIUMSPEED   (1)
   *         @arg @ref LL_COMP_POWERMODE_ULTRALOWPOWER (1)
-  *         
+  *
   *         (1) Available only on COMP instance: COMP2.
   */
 __STATIC_INLINE uint32_t LL_COMP_GetPowerMode(COMP_TypeDef *COMPx)
 {
-  return (uint32_t)(READ_BIT(COMP->CSR, COMP_CSR_SPEED));
+    return (uint32_t)(READ_BIT(COMP->CSR, COMP_CSR_SPEED));
 }
 
 /**
@@ -472,7 +471,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetPowerMode(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_INPUT_PLUS_OPAMP1 (1)(3)
   *         @arg @ref LL_COMP_INPUT_PLUS_OPAMP2 (1)(3)
   *         @arg @ref LL_COMP_INPUT_PLUS_OPAMP3 (1)(4)
-  *         
+  *
   *         (1) Available only on COMP instance: COMP1. \n
   *         (2) Available only on COMP instance: COMP2. \n
   *         (3) Available on devices: STM32L100xB, STM32L151xB, STM32L152xB, STM32L100xBA, STM32L151xBA, STM32L152xBA, STM32L151xCA, STM32L151xD, STM32L152xCA, STM32L152xD, STM32L162xCA, STM32L162xD \n
@@ -482,19 +481,19 @@ __STATIC_INLINE uint32_t LL_COMP_GetPowerMode(COMP_TypeDef *COMPx)
   */
 __STATIC_INLINE void LL_COMP_SetInputPlus(COMP_TypeDef *COMPx, uint32_t InputPlus)
 {
-  /* Set switch in routing interface (RI) register ASCR1 or ASCR2 */
-  /* Note: If COMP instance COMP1 is selected, this function performs         */
-  /*       necessary actions on routing interface:                            */
-  /*        - close switch netween comparator 1 and switch matrix             */
-  /*          (RI_ASCR1_VCOMP)                                                */
-  /*        - enable IO switch control mode (RI_ASCR1_SCM)                    */
-  /*          If ADC needs to be used afterwards, disable IO switch control   */
-  /*          mode using function @ref LL_RI_DisableSwitchControlMode().      */
-  register uint32_t *preg = ((uint32_t *)((uint32_t) ((uint32_t)(&(RI->ASCR1)) + ((__COMP_IS_INSTANCE_EVEN(COMPx)) << 2U))));
-  
-  MODIFY_REG(*preg,
-             (RI_ASCR1_CH * __COMP_IS_INSTANCE_ODD(COMPx)) | (RI_ASCR2_GR6 * __COMP_IS_INSTANCE_EVEN(COMPx)),
-             InputPlus | ((RI_ASCR1_VCOMP | RI_ASCR1_SCM) * __COMP_IS_INSTANCE_ODD(COMPx)));
+    /* Set switch in routing interface (RI) register ASCR1 or ASCR2 */
+    /* Note: If COMP instance COMP1 is selected, this function performs         */
+    /*       necessary actions on routing interface:                            */
+    /*        - close switch netween comparator 1 and switch matrix             */
+    /*          (RI_ASCR1_VCOMP)                                                */
+    /*        - enable IO switch control mode (RI_ASCR1_SCM)                    */
+    /*          If ADC needs to be used afterwards, disable IO switch control   */
+    /*          mode using function @ref LL_RI_DisableSwitchControlMode().      */
+    register uint32_t *preg = ((uint32_t *)((uint32_t)((uint32_t)(&(RI->ASCR1)) + ((__COMP_IS_INSTANCE_EVEN(COMPx)) << 2U))));
+
+    MODIFY_REG(*preg,
+               (RI_ASCR1_CH * __COMP_IS_INSTANCE_ODD(COMPx)) | (RI_ASCR2_GR6 * __COMP_IS_INSTANCE_EVEN(COMPx)),
+               InputPlus | ((RI_ASCR1_VCOMP | RI_ASCR1_SCM) * __COMP_IS_INSTANCE_ODD(COMPx)));
 }
 
 /**
@@ -543,7 +542,7 @@ __STATIC_INLINE void LL_COMP_SetInputPlus(COMP_TypeDef *COMPx, uint32_t InputPlu
   *         @arg @ref LL_COMP_INPUT_PLUS_OPAMP1 (1)(3)
   *         @arg @ref LL_COMP_INPUT_PLUS_OPAMP2 (1)(3)
   *         @arg @ref LL_COMP_INPUT_PLUS_OPAMP3 (1)(4)
-  *         
+  *
   *         (1) Available only on COMP instance: COMP1. \n
   *         (2) Available only on COMP instance: COMP2. \n
   *         (3) Available on devices: STM32L100xB, STM32L151xB, STM32L152xB, STM32L100xBA, STM32L151xBA, STM32L152xBA, STM32L151xCA, STM32L151xD, STM32L152xCA, STM32L152xD, STM32L162xCA, STM32L162xD \n
@@ -552,11 +551,11 @@ __STATIC_INLINE void LL_COMP_SetInputPlus(COMP_TypeDef *COMPx, uint32_t InputPlu
   */
 __STATIC_INLINE uint32_t LL_COMP_GetInputPlus(COMP_TypeDef *COMPx)
 {
-  /* Get switch state in routing interface (RI) register ASCR1 or ASCR2 */
-  register uint32_t *preg = ((uint32_t *)((uint32_t) ((uint32_t)(&(RI->ASCR1)) + ((__COMP_IS_INSTANCE_EVEN(COMPx)) << 2U))));
-  
-  return (uint32_t)(READ_BIT(*preg,
-                             (RI_ASCR1_CH * __COMP_IS_INSTANCE_ODD(COMPx)) | (RI_ASCR2_GR6 * __COMP_IS_INSTANCE_EVEN(COMPx))));
+    /* Get switch state in routing interface (RI) register ASCR1 or ASCR2 */
+    register uint32_t *preg = ((uint32_t *)((uint32_t)((uint32_t)(&(RI->ASCR1)) + ((__COMP_IS_INSTANCE_EVEN(COMPx)) << 2U))));
+
+    return (uint32_t)(READ_BIT(*preg,
+                               (RI_ASCR1_CH * __COMP_IS_INSTANCE_ODD(COMPx)) | (RI_ASCR2_GR6 * __COMP_IS_INSTANCE_EVEN(COMPx))));
 }
 
 /**
@@ -574,18 +573,18 @@ __STATIC_INLINE uint32_t LL_COMP_GetInputPlus(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH1   (1)
   *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH2   (1)
   *         @arg @ref LL_COMP_INPUT_MINUS_IO1        (1)
-  *         
+  *
   *         (1) Available only on COMP instance: COMP2.
   * @retval None
   */
 __STATIC_INLINE void LL_COMP_SetInputMinus(COMP_TypeDef *COMPx, uint32_t InputMinus)
 {
-  /* On this STM32 serie, only COMP instance COMP1 input minus is fixed to   */
-  /* VrefInt. Check of comparator instance is implemented to modify register  */
-  /* only if COMP2 is selected.                                               */
-  MODIFY_REG(COMP->CSR,
-             COMP_CSR_INSEL * __COMP_IS_INSTANCE_EVEN(COMPx),
-             InputMinus     * __COMP_IS_INSTANCE_EVEN(COMPx));
+    /* On this STM32 serie, only COMP instance COMP1 input minus is fixed to   */
+    /* VrefInt. Check of comparator instance is implemented to modify register  */
+    /* only if COMP2 is selected.                                               */
+    MODIFY_REG(COMP->CSR,
+               COMP_CSR_INSEL * __COMP_IS_INSTANCE_EVEN(COMPx),
+               InputMinus     * __COMP_IS_INSTANCE_EVEN(COMPx));
 }
 
 /**
@@ -603,16 +602,16 @@ __STATIC_INLINE void LL_COMP_SetInputMinus(COMP_TypeDef *COMPx, uint32_t InputMi
   *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH1   (1)
   *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH2   (1)
   *         @arg @ref LL_COMP_INPUT_MINUS_IO1        (1)
-  *         
+  *
   *         (1) Available only on COMP instance: COMP2.
   */
 __STATIC_INLINE uint32_t LL_COMP_GetInputMinus(COMP_TypeDef *COMPx)
 {
-  /* On this STM32 serie, only COMP instance COMP1 input minus is fixed to   */
-  /* VrefInt. Check of comparator instance is implemented to return           */
-  /* the comparator input plus depending on COMP instance selected.           */
-  return (uint32_t)((READ_BIT(COMP->CSR, COMP_CSR_INSEL) * __COMP_IS_INSTANCE_EVEN(COMPx))
-                     | (LL_COMP_INPUT_MINUS_VREFINT * __COMP_IS_INSTANCE_ODD(COMPx)));
+    /* On this STM32 serie, only COMP instance COMP1 input minus is fixed to   */
+    /* VrefInt. Check of comparator instance is implemented to return           */
+    /* the comparator input plus depending on COMP instance selected.           */
+    return (uint32_t)((READ_BIT(COMP->CSR, COMP_CSR_INSEL) * __COMP_IS_INSTANCE_EVEN(COMPx))
+                      | (LL_COMP_INPUT_MINUS_VREFINT * __COMP_IS_INSTANCE_ODD(COMPx)));
 }
 
 /**
@@ -628,18 +627,18 @@ __STATIC_INLINE uint32_t LL_COMP_GetInputMinus(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_INPUT_MINUS_PULL_UP_400K   (1)
   *         @arg @ref LL_COMP_INPUT_MINUS_PULL_DOWN_10K  (1)
   *         @arg @ref LL_COMP_INPUT_MINUS_PULL_DOWN_400K (1)
-  *         
+  *
   *         (1) Available only on COMP instance: COMP1.
   * @retval None
   */
 __STATIC_INLINE void LL_COMP_SetInputPullingResistor(COMP_TypeDef *COMPx, uint32_t InputPullingResistor)
 {
-  /* On this STM32 serie, only COMP instance COMP1 has input pulling         */
-  /* resistor. Check of comparator instance is implemented to modify register */
-  /* only if COMP1 is selected.                                               */
-  MODIFY_REG(COMP->CSR,
-             (COMP_CSR_10KPU | COMP_CSR_400KPU | COMP_CSR_10KPD | COMP_CSR_400KPD) * __COMP_IS_INSTANCE_ODD(COMPx),
-             InputPullingResistor * __COMP_IS_INSTANCE_ODD(COMPx));
+    /* On this STM32 serie, only COMP instance COMP1 has input pulling         */
+    /* resistor. Check of comparator instance is implemented to modify register */
+    /* only if COMP1 is selected.                                               */
+    MODIFY_REG(COMP->CSR,
+               (COMP_CSR_10KPU | COMP_CSR_400KPU | COMP_CSR_10KPD | COMP_CSR_400KPD) * __COMP_IS_INSTANCE_ODD(COMPx),
+               InputPullingResistor * __COMP_IS_INSTANCE_ODD(COMPx));
 }
 
 /**
@@ -655,20 +654,20 @@ __STATIC_INLINE void LL_COMP_SetInputPullingResistor(COMP_TypeDef *COMPx, uint32
   *         @arg @ref LL_COMP_INPUT_MINUS_PULL_UP_400K   (1)
   *         @arg @ref LL_COMP_INPUT_MINUS_PULL_DOWN_10K  (1)
   *         @arg @ref LL_COMP_INPUT_MINUS_PULL_DOWN_400K (1)
-  *         
+  *
   *         (1) Available only on COMP instance: COMP1.
   */
 __STATIC_INLINE uint32_t LL_COMP_GetInputPullingResistor(COMP_TypeDef *COMPx)
 {
-  /* On this STM32 serie, only COMP instance COMP1 has input pulling         */
-  /* resistor. Check of comparator instance is implemented to return          */
-  /* the comparator input pulling resistor depending on COMP instance         */
-  /* selected.                                                                */
-  /* On this STM32 serie, only COMP instance COMP1 input minus is fixed to   */
-  /* VrefInt. Check of comparator instance is implemented to return           */
-  /* the comparator input plus depending on COMP instance selected.           */
-  return (uint32_t)((READ_BIT(COMP->CSR, (COMP_CSR_10KPU | COMP_CSR_400KPU | COMP_CSR_10KPD | COMP_CSR_400KPD)) * __COMP_IS_INSTANCE_ODD(COMPx))
-                     | (LL_COMP_INPUT_MINUS_PULL_NO * __COMP_IS_INSTANCE_EVEN(COMPx)));
+    /* On this STM32 serie, only COMP instance COMP1 has input pulling         */
+    /* resistor. Check of comparator instance is implemented to return          */
+    /* the comparator input pulling resistor depending on COMP instance         */
+    /* selected.                                                                */
+    /* On this STM32 serie, only COMP instance COMP1 input minus is fixed to   */
+    /* VrefInt. Check of comparator instance is implemented to return           */
+    /* the comparator input plus depending on COMP instance selected.           */
+    return (uint32_t)((READ_BIT(COMP->CSR, (COMP_CSR_10KPU | COMP_CSR_400KPU | COMP_CSR_10KPD | COMP_CSR_400KPD)) * __COMP_IS_INSTANCE_ODD(COMPx))
+                      | (LL_COMP_INPUT_MINUS_PULL_NO * __COMP_IS_INSTANCE_EVEN(COMPx)));
 }
 
 /**
@@ -694,7 +693,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetInputPullingResistor(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_OUTPUT_TIM4_IC4      (1)(2)
   *         @arg @ref LL_COMP_OUTPUT_TIM4_OCREFCLR (1)(2)
   *         @arg @ref LL_COMP_OUTPUT_TIM10_IC1     (1)(2)
-  *         
+  *
   *         (1) Parameter availability depending on timer availability
   *             on the selected device.
   *         (2) Available only on COMP instance: COMP2.
@@ -702,12 +701,12 @@ __STATIC_INLINE uint32_t LL_COMP_GetInputPullingResistor(COMP_TypeDef *COMPx)
   */
 __STATIC_INLINE void LL_COMP_SetOutputSelection(COMP_TypeDef *COMPx, uint32_t OutputSelection)
 {
-  /* On this STM32 serie, only COMP instance COMP2 has feature output        */
-  /* selection. Check of comparator instance is implemented to modify register*/
-  /* only if COMP2 is selected.                                               */
-  MODIFY_REG(COMP->CSR,
-             COMP_CSR_OUTSEL * __COMP_IS_INSTANCE_EVEN(COMPx),
-             OutputSelection * __COMP_IS_INSTANCE_EVEN(COMPx));
+    /* On this STM32 serie, only COMP instance COMP2 has feature output        */
+    /* selection. Check of comparator instance is implemented to modify register*/
+    /* only if COMP2 is selected.                                               */
+    MODIFY_REG(COMP->CSR,
+               COMP_CSR_OUTSEL * __COMP_IS_INSTANCE_EVEN(COMPx),
+               OutputSelection * __COMP_IS_INSTANCE_EVEN(COMPx));
 }
 
 /**
@@ -725,18 +724,18 @@ __STATIC_INLINE void LL_COMP_SetOutputSelection(COMP_TypeDef *COMPx, uint32_t Ou
   *         @arg @ref LL_COMP_OUTPUT_TIM4_IC4      (1)(2)
   *         @arg @ref LL_COMP_OUTPUT_TIM4_OCREFCLR (1)(2)
   *         @arg @ref LL_COMP_OUTPUT_TIM10_IC1     (1)(2)
-  *         
+  *
   *         (1) Parameter availability depending on timer availability
   *             on the selected device.
   *         (2) Available only on COMP instance: COMP2.
   */
 __STATIC_INLINE uint32_t LL_COMP_GetOutputSelection(COMP_TypeDef *COMPx)
 {
-  /* On this STM32 serie, only COMP instance COMP2 has feature output        */
-  /* selection. Check of comparator instance is implemented to return         */
-  /* the comparator output depending on COMP instance selected.               */
-  return (uint32_t)((READ_BIT(COMP->CSR, COMP_CSR_OUTSEL) * __COMP_IS_INSTANCE_EVEN(COMPx))
-                     | (LL_COMP_OUTPUT_NONE * __COMP_IS_INSTANCE_ODD(COMPx)));
+    /* On this STM32 serie, only COMP instance COMP2 has feature output        */
+    /* selection. Check of comparator instance is implemented to return         */
+    /* the comparator output depending on COMP instance selected.               */
+    return (uint32_t)((READ_BIT(COMP->CSR, COMP_CSR_OUTSEL) * __COMP_IS_INSTANCE_EVEN(COMPx))
+                      | (LL_COMP_OUTPUT_NONE * __COMP_IS_INSTANCE_ODD(COMPx)));
 }
 
 /**
@@ -755,7 +754,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetOutputSelection(COMP_TypeDef *COMPx)
   * @rmtoll CSR      COMP1EN        LL_COMP_Enable\n
   *         CSR      COMP_CSR_INSEL LL_COMP_Enable
   * @param  COMPx Comparator instance (1)
-  *         
+  *
   *         (1) On this STM32 serie, the only COMP instance that can be enabled
   *             using this function is COMP1.
   *             COMP2 is enabled by setting input minus.
@@ -764,10 +763,10 @@ __STATIC_INLINE uint32_t LL_COMP_GetOutputSelection(COMP_TypeDef *COMPx)
   */
 __STATIC_INLINE void LL_COMP_Enable(COMP_TypeDef *COMPx)
 {
-  /* On this STM32 serie, only COMP instance COMP1 has a dedicated bit       */
-  /* for comparator enable. Check of comparator instance is implemented       */
-  /* to modify register only if COMP1 is selected.                            */
-  SET_BIT(COMP->CSR, __COMP_IS_INSTANCE_ODD(COMPx) << LL_COMP_ENABLE_COMP1_BITOFFSET_POS);
+    /* On this STM32 serie, only COMP instance COMP1 has a dedicated bit       */
+    /* for comparator enable. Check of comparator instance is implemented       */
+    /* to modify register only if COMP1 is selected.                            */
+    SET_BIT(COMP->CSR, __COMP_IS_INSTANCE_ODD(COMPx) << LL_COMP_ENABLE_COMP1_BITOFFSET_POS);
 }
 
 /**
@@ -782,10 +781,10 @@ __STATIC_INLINE void LL_COMP_Enable(COMP_TypeDef *COMPx)
   */
 __STATIC_INLINE void LL_COMP_Disable(COMP_TypeDef *COMPx)
 {
-  /* Note: On this STM32 serie, COMP2 is enabled by setting input minus.     */
-  /*       Refer to function @ref LL_COMP_SetInputMinus().                    */
-  /*       To disable COMP2, bitfield of input minus selection is reset.      */
-  CLEAR_BIT(COMP->CSR, (COMP_CSR_CMP1EN * __COMP_IS_INSTANCE_ODD(COMPx)) | (COMP_CSR_INSEL * __COMP_IS_INSTANCE_EVEN(COMPx)));
+    /* Note: On this STM32 serie, COMP2 is enabled by setting input minus.     */
+    /*       Refer to function @ref LL_COMP_SetInputMinus().                    */
+    /*       To disable COMP2, bitfield of input minus selection is reset.      */
+    CLEAR_BIT(COMP->CSR, (COMP_CSR_CMP1EN * __COMP_IS_INSTANCE_ODD(COMPx)) | (COMP_CSR_INSEL * __COMP_IS_INSTANCE_EVEN(COMPx)));
 }
 
 /**
@@ -798,7 +797,7 @@ __STATIC_INLINE void LL_COMP_Disable(COMP_TypeDef *COMPx)
   */
 __STATIC_INLINE uint32_t LL_COMP_IsEnabled(COMP_TypeDef *COMPx)
 {
-  return (READ_BIT(COMP->CSR, (COMP_CSR_CMP1EN * __COMP_IS_INSTANCE_ODD(COMPx)) | (COMP_CSR_INSEL * __COMP_IS_INSTANCE_EVEN(COMPx))) != (0U));
+    return (READ_BIT(COMP->CSR, (COMP_CSR_CMP1EN * __COMP_IS_INSTANCE_ODD(COMPx)) | (COMP_CSR_INSEL * __COMP_IS_INSTANCE_EVEN(COMPx))) != (0U));
 }
 
 /**
@@ -818,10 +817,10 @@ __STATIC_INLINE uint32_t LL_COMP_IsEnabled(COMP_TypeDef *COMPx)
   */
 __STATIC_INLINE uint32_t LL_COMP_ReadOutputLevel(COMP_TypeDef *COMPx)
 {
-  return (uint32_t)(READ_BIT(COMP->CSR,
-                             ((__COMP_IS_INSTANCE_ODD(COMPx) << LL_COMP_OUTPUT_LEVEL_COMP1_BITOFFSET_POS) | (__COMP_IS_INSTANCE_EVEN(COMPx) << LL_COMP_OUTPUT_LEVEL_COMP2_BITOFFSET_POS)))
-                    >> (LL_COMP_OUTPUT_LEVEL_COMP1_BITOFFSET_POS + ((LL_COMP_OUTPUT_LEVEL_COMP2_BITOFFSET_POS - LL_COMP_OUTPUT_LEVEL_COMP1_BITOFFSET_POS) * __COMP_IS_INSTANCE_EVEN(COMPx)))
-                   );
+    return (uint32_t)(READ_BIT(COMP->CSR,
+                               ((__COMP_IS_INSTANCE_ODD(COMPx) << LL_COMP_OUTPUT_LEVEL_COMP1_BITOFFSET_POS) | (__COMP_IS_INSTANCE_EVEN(COMPx) << LL_COMP_OUTPUT_LEVEL_COMP2_BITOFFSET_POS)))
+                      >> (LL_COMP_OUTPUT_LEVEL_COMP1_BITOFFSET_POS + ((LL_COMP_OUTPUT_LEVEL_COMP2_BITOFFSET_POS - LL_COMP_OUTPUT_LEVEL_COMP1_BITOFFSET_POS) * __COMP_IS_INSTANCE_EVEN(COMPx)))
+                     );
 }
 
 /**

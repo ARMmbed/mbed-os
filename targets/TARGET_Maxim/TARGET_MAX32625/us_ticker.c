@@ -77,7 +77,7 @@ static inline int event_passed(uint64_t current, uint64_t event)
 static inline uint64_t event_diff(uint64_t current, uint64_t event)
 {
     // Check to see if the ticker will overflow before the event
-    if(current <= event) {
+    if (current <= event) {
         return (event - current);
     }
 

@@ -94,9 +94,9 @@ typedef enum {
     P1_31 = 63,
 
     // mbed DIP Pin Names
-                    // CN1-1  (GND)
-                    // CN1-2  (EXTPOWER)
-                    // CN1-3  (NC)
+    // CN1-1  (GND)
+    // CN1-2  (EXTPOWER)
+    // CN1-3  (NC)
     p4 = P0_0,      // CN1-4
     p5 = P0_9,      // CN1-5
     p6 = P0_8,      // CN1-6
@@ -125,16 +125,16 @@ typedef enum {
     p28 = P0_5,     // CN2-13
     p29 = P1_19,    // CN2-12
     p30 = P0_1,     // CN2-11
-                    // CN2-10 (D+USB)
-                    // CN2-9  (D-USB)
+    // CN2-10 (D+USB)
+    // CN2-9  (D-USB)
     p33 = P0_3,     // CN2-8  (USB-VBUS)
-                    // CN2-7  (NC)
-                    // CN2-6  (NC)
-                    // CN2-5  (NC)
-                    // CN2-4  (NC)
-                    // CN2-3  (NC)
-                    // CN2-2  (VDD)
-                    // CN2-1  (VDD)
+    // CN2-7  (NC)
+    // CN2-6  (NC)
+    // CN2-5  (NC)
+    // CN2-4  (NC)
+    // CN2-3  (NC)
+    // CN2-2  (VDD)
+    // CN2-1  (VDD)
 
     // Other mbed Pin Names
     LED1 = P0_20,

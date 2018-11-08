@@ -18,7 +18,7 @@
 
 /* default values */
 #define CFSTORE_CONFIG_BACKEND_UVISOR_ENABLED   0
-#define CFSTORE_CONFIG_MBED_OS_VERSION		    3
+#define CFSTORE_CONFIG_MBED_OS_VERSION          3
 
 /* default build config overridden by package manager configuration
  *

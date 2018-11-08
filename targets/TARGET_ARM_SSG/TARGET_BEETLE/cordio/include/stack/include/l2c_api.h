@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   l2c_api.h
- *        
+ *
  *  \brief  L2CAP subsystem API.
  *
  *          $Date: 2015-10-09 09:08:23 -0700 (Fri, 09 Oct 2015) $
  *          $Revision: 4164 $
- *  
+ *
  *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
  *  Wicentric confidential and proprietary.
  *
@@ -55,12 +55,11 @@ extern "C" {
 
 /*! Connection oriented channel callback events */
 #define L2C_COC_CBACK_START               0x40      /*! L2C callback event starting value */
-enum
-{
-  L2C_COC_CONNECT_IND = L2C_COC_CBACK_START,        /*! Channel connect indication */
-  L2C_COC_DISCONNECT_IND,                           /*! Channel disconnect indication */
-  L2C_COC_DATA_IND,                                 /*! Received data indication */
-  L2C_COC_DATA_CNF                                  /*! Transmit data confirm */
+enum {
+    L2C_COC_CONNECT_IND = L2C_COC_CBACK_START,        /*! Channel connect indication */
+    L2C_COC_DISCONNECT_IND,                           /*! Channel disconnect indication */
+    L2C_COC_DATA_IND,                                 /*! Received data indication */
+    L2C_COC_DATA_CNF                                  /*! Transmit data confirm */
 };
 
 #define L2C_COC_CBACK_CBACK_END           L2C_COC_DATA_CNF  /*! L2C callback event ending value */
@@ -73,72 +72,65 @@ enum
 typedef uint16_t l2cCocRegId_t;
 
 /*! Connection oriented channel registration structure */
-typedef struct
-{
-  uint16_t        psm;                    /*! Protocol service multiplexer */
-  uint16_t        mps;                    /*! Maximum receive PDU fragment size */
-  uint16_t        mtu;                    /*! Maximum receive data packet size */
-  uint16_t        credits;                /*! Data packet receive credits for this channel */
-  bool_t          authoriz;               /*! TRUE if authorization is required */
-  uint8_t         secLevel;               /*! Channel minimum security level requirements */
-  uint8_t         role;                   /*! Channel initiator/acceptor role */
+typedef struct {
+    uint16_t        psm;                    /*! Protocol service multiplexer */
+    uint16_t        mps;                    /*! Maximum receive PDU fragment size */
+    uint16_t        mtu;                    /*! Maximum receive data packet size */
+    uint16_t        credits;                /*! Data packet receive credits for this channel */
+    bool_t          authoriz;               /*! TRUE if authorization is required */
+    uint8_t         secLevel;               /*! Channel minimum security level requirements */
+    uint8_t         role;                   /*! Channel initiator/acceptor role */
 } l2cCocReg_t;
 
 /* Connection oriented channel connect indication structure */
-typedef struct
-{
-  wsfMsgHdr_t           hdr;              /*! Header structure */
-  uint16_t              cid;              /*! Local channel ID */  
-  uint16_t              peerMtu;          /*! Data packet MTU peer can receive */
-  uint16_t              psm;              /*! Connected PSM */
+typedef struct {
+    wsfMsgHdr_t           hdr;              /*! Header structure */
+    uint16_t              cid;              /*! Local channel ID */
+    uint16_t              peerMtu;          /*! Data packet MTU peer can receive */
+    uint16_t              psm;              /*! Connected PSM */
 } l2cCocConnectInd_t;
 
 /* Connection oriented channel disconnect indication structure */
-typedef struct
-{
-  wsfMsgHdr_t           hdr;              /*! Header structure */
-  uint16_t              cid;              /*! Local channel ID */  
-  uint16_t              result;           /*! Connection failure result code */
+typedef struct {
+    wsfMsgHdr_t           hdr;              /*! Header structure */
+    uint16_t              cid;              /*! Local channel ID */
+    uint16_t              result;           /*! Connection failure result code */
 } l2cCocDisconnectInd_t;
 
 /* Connection oriented channel data indication structure */
-typedef struct
-{
-  wsfMsgHdr_t           hdr;              /*! Header structure */
-  uint16_t              cid;              /*! Local channel ID */  
-  uint8_t               *pData;           /*! Pointer to packet data */
-  uint16_t              dataLen;          /*! packet data length */  
+typedef struct {
+    wsfMsgHdr_t           hdr;              /*! Header structure */
+    uint16_t              cid;              /*! Local channel ID */
+    uint8_t               *pData;           /*! Pointer to packet data */
+    uint16_t              dataLen;          /*! packet data length */
 } l2cCocDataInd_t;
 
 /* Connection oriented channel disconnect indication structure */
-typedef struct
-{
-  wsfMsgHdr_t           hdr;              /*! Header structure */
-  uint16_t              cid;              /*! Local channel ID */  
+typedef struct {
+    wsfMsgHdr_t           hdr;              /*! Header structure */
+    uint16_t              cid;              /*! Local channel ID */
 } l2cCocDataCnf_t;
 
-/*! 
+/*!
  * Connection oriented channel event structure
- * 
+ *
  * Connection oriented channel callback header parameters:
  *
  * \param hdr.event     Callback event
  * \param hdr.param     DM connection ID
  * \param hdr.status    Event status (L2C_COC_DATA_CNF only)
  */
-typedef union
-{
-  wsfMsgHdr_t           hdr;              /*! Header structure */
-  l2cCocConnectInd_t    connectInd;       /*! Channel connect indication */ 
-  l2cCocDisconnectInd_t disconnectInd;    /*! Channel disconnect indication */
-  l2cCocDataInd_t       dataInd;          /*! Received data indication */
-  l2cCocDataCnf_t       dataCnf;          /*! Transmit data confirm */
+typedef union {
+    wsfMsgHdr_t           hdr;              /*! Header structure */
+    l2cCocConnectInd_t    connectInd;       /*! Channel connect indication */
+    l2cCocDisconnectInd_t disconnectInd;    /*! Channel disconnect indication */
+    l2cCocDataInd_t       dataInd;          /*! Received data indication */
+    l2cCocDataCnf_t       dataCnf;          /*! Transmit data confirm */
 } l2cCocEvt_t;
 
 /*! Configurable parameters */
-typedef struct
-{
-  uint16_t            reqTimeout;         /*! Request timeout in seconds */
+typedef struct {
+    uint16_t            reqTimeout;         /*! Request timeout in seconds */
 } l2cCfg_t;
 
 /**************************************************************************************************
@@ -155,7 +147,7 @@ extern l2cCfg_t *pL2cCfg;
 /*************************************************************************************************/
 /*!
  *  \fn     l2cDataCback_t
- *        
+ *
  *  \brief  This callback function sends a received L2CAP packet to the client.
  *
  *  \param  handle    The connection handle.
@@ -170,7 +162,7 @@ typedef void (*l2cDataCback_t)(uint16_t handle, uint16_t len, uint8_t *pPacket);
 /*************************************************************************************************/
 /*!
  *  \fn     l2cCtrlCback_t
- *        
+ *
  *  \brief  This callback function sends control messages to the client.
  *
  *  \param  pMsg    Pointer to message structure.
@@ -183,7 +175,7 @@ typedef void (*l2cCtrlCback_t)(wsfMsgHdr_t *pMsg);
 /*************************************************************************************************/
 /*!
  *  \fn     l2cCocCback_t
- *        
+ *
  *  \brief  This callback function sends data and other events to connection oriented
  *          channels clients.
  *
@@ -197,7 +189,7 @@ typedef void (*l2cCocCback_t)(l2cCocEvt_t *pMsg);
 /*************************************************************************************************/
 /*!
  *  \fn     l2cCocAuthorCback_t
- *        
+ *
  *  \brief  This callback function is used for authoriztion of connection oriented channels.
  *
  *  \param  connId    DM connection ID.
@@ -216,7 +208,7 @@ typedef uint16_t (*l2cCocAuthorCback_t)(dmConnId_t connId, l2cCocRegId_t regId, 
 /*************************************************************************************************/
 /*!
  *  \fn     L2cInit
- *        
+ *
  *  \brief  Initialize L2C subsystem.
  *
  *  \return None.
@@ -227,7 +219,7 @@ void L2cInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cMasterInit
- *        
+ *
  *  \brief  Initialize L2C for operation as a Bluetooth LE master.
  *
  *  \return None.
@@ -238,7 +230,7 @@ void L2cMasterInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cSlaveInit
- *        
+ *
  *  \brief  Initialize L2C for operation as a Bluetooth LE slave.
  *
  *  \return None.
@@ -249,7 +241,7 @@ void L2cSlaveInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cSlaveInit
- *        
+ *
  *  \brief  Initialize L2C for operation with connection-oriented channels.
  *
  *  \return None.
@@ -260,7 +252,7 @@ void L2cCocInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cRegister
- *        
+ *
  *  \brief  called by the L2C client, such as ATT or SMP, to register for the given CID.
  *
  *  \param  cid       channel identifier.
@@ -275,13 +267,13 @@ void L2cRegister(uint16_t cid, l2cDataCback_t dataCback, l2cCtrlCback_t ctrlCbac
 /*************************************************************************************************/
 /*!
  *  \fn     L2cDataReq
- *        
+ *
  *  \brief  Send an L2CAP data packet on the given CID.
  *
  *  \param  cid       The channel identifier.
  *  \param  handle    The connection handle.  The client receives this handle from DM.
  *  \param  len       The length of the payload data in pPacket.
- *  \param  pPacket   A buffer containing the packet. 
+ *  \param  pPacket   A buffer containing the packet.
  *
  *  \return None.
  */
@@ -291,7 +283,7 @@ void L2cDataReq(uint16_t cid, uint16_t handle, uint16_t len, uint8_t *pL2cPacket
 /*************************************************************************************************/
 /*!
  *  \fn     L2cCocInit
- *        
+ *
  *  \brief  Initialize L2C connection oriented channel subsystem.
  *
  *  \return None.
@@ -302,7 +294,7 @@ void L2cCocInit(void);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cCocRegister
- *        
+ *
  *  \brief  Register to use a connection oriented channel, as either a channel acceptor,
  *          initiator, or both.  If registering as channel acceptor then the PSM is specified.
  *          After registering a connection can be established by the client using this
@@ -319,7 +311,7 @@ l2cCocRegId_t L2cCocRegister(l2cCocCback_t cback, l2cCocReg_t *pReg);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cCocDeregister
- *        
+ *
  *  \brief  Deregister and deallocate a connection oriented channel registration instance.
  *          This function should only be called if there are no active channels using this
  *          registration instance.
@@ -334,7 +326,7 @@ void L2cCocDeregister(l2cCocRegId_t regId);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cCocConnectReq
- *        
+ *
  *  \brief  Initiate a connection to the given peer PSM.
  *
  *  \param  connId    DM connection ID.
@@ -349,7 +341,7 @@ uint16_t L2cCocConnectReq(dmConnId_t connId, l2cCocRegId_t regId, uint16_t psm);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cCocDisconnectReq
- *        
+ *
  *  \brief  Disconnect the channel for the given CID.
  *
  *  \param  cid       Channel ID.
@@ -362,12 +354,12 @@ void L2cCocDisconnectReq(uint16_t cid);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cCocDataReq
- *        
+ *
  *  \brief  Send an L2CAP data packet on the given connection oriented CID.
  *
  *  \param  cid       The local channel identifier.
  *  \param  len       The length of the payload data in pPacket.
- *  \param  pPacket   Packet payload data. 
+ *  \param  pPacket   Packet payload data.
  *
  *  \return None.
  */
@@ -377,7 +369,7 @@ void L2cCocDataReq(uint16_t cid, uint16_t len, uint8_t *pPayload);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cCocErrorTest
- *        
+ *
  *  \brief  For testing purposes only.
  *
  *  \param  result    Result code
@@ -390,7 +382,7 @@ void L2cCocErrorTest(uint16_t result);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cCocCreditSendTest
- *        
+ *
  *  \brief  For testing purposes only.
  *
  *  \param  cid       The local channel identifier.
@@ -404,7 +396,7 @@ void L2cCocCreditSendTest(uint16_t cid, uint16_t credits);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cDmConnUpdateReq
- *        
+ *
  *  \brief  For internal use only.  This function is called by DM to send an L2CAP
  *          connection update request.
  *
@@ -419,7 +411,7 @@ void L2cDmConnUpdateReq(uint16_t handle, hciConnSpec_t *pConnSpec);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cDmConnUpdateRsp
- *        
+ *
  *  \brief  For internal use only.  This function is called by DM to send an L2CAP
  *          connection update response.
  *

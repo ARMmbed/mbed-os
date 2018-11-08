@@ -61,8 +61,7 @@ typedef void (*flexio_spi_slave_edma_transfer_callback_t)(FLEXIO_SPI_Type *base,
                                                           void *userData);
 
 /*! @brief FlexIO SPI eDMA transfer handle, users should not touch the content of the handle.*/
-struct _flexio_spi_master_edma_handle
-{
+struct _flexio_spi_master_edma_handle {
     size_t transferSize;                                 /*!< Total bytes to be transferred. */
     uint8_t nbytes;                                      /*!< eDMA minor byte transfer count initially configured. */
     bool txInProgress;                                   /*!< Send transfer in progress */

@@ -32,14 +32,14 @@
 
 #include "reg32_t.h"
 
-struct st_rspi
-{                                                          /* RSPI             */
+struct st_rspi {
+    /* RSPI             */
     volatile uint8_t   SPCR;                                   /*  SPCR            */
     volatile uint8_t   SSLP;                                   /*  SSLP            */
     volatile uint8_t   SPPCR;                                  /*  SPPCR           */
     volatile uint8_t   SPSR;                                   /*  SPSR            */
     union reg32_t  SPDR;                          /*  SPDR            */
-    
+
     volatile uint8_t   SPSCR;                                  /*  SPSCR           */
     volatile uint8_t   SPSSR;                                  /*  SPSSR           */
     volatile uint8_t   SPBR;                                   /*  SPBR            */

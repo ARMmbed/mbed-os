@@ -38,7 +38,7 @@ namespace rtos {
  * \defgroup rtos_EventFlags EventFlags class
  * @{
  */
- 
+
 /** The Queue class allow to control, send, receive, or wait for messages.
  A message can be a integer or pointer value  to a certain type T that is send
  to a thread or interrupt service routine.
@@ -53,18 +53,20 @@ template<typename T, uint32_t queue_sz>
 class Queue : private mbed::NonCopyable<Queue<T, queue_sz> > {
 public:
     /** Create and initialize a message Queue. */
-    Queue() {
+    Queue()
+    {
         memset(&_obj_mem, 0, sizeof(_obj_mem));
         osMessageQueueAttr_t attr = { 0 };
         attr.mq_mem = _queue_mem;
         attr.mq_size = sizeof(_queue_mem);
         attr.cb_mem = &_obj_mem;
         attr.cb_size = sizeof(_obj_mem);
-        _id = osMessageQueueNew(queue_sz, sizeof(T*), &attr);
+        _id = osMessageQueueNew(queue_sz, sizeof(T *), &attr);
         MBED_ASSERT(_id);
     }
 
-    ~Queue() {
+    ~Queue()
+    {
         osMessageQueueDelete(_id);
     }
 
@@ -72,7 +74,8 @@ public:
      *
      * @return True if the queue is empty, false if not
      */
-    bool empty() const {
+    bool empty() const
+    {
         return osMessageQueueGetCount(_id) == 0;
     }
 
@@ -80,7 +83,8 @@ public:
      *
      * @return True if the queue is full, false if not
      */
-    bool full() const {
+    bool full() const
+    {
         return osMessageQueueGetSpace(_id) == 0;
     }
 
@@ -94,7 +98,8 @@ public:
                @a osErrorResource not enough space in the queue.
                @a osErrorParameter internal error or non-zero timeout specified in an ISR.
     */
-    osStatus put(T* data, uint32_t millisec=0, uint8_t prio=0) {
+    osStatus put(T *data, uint32_t millisec = 0, uint8_t prio = 0)
+    {
         return osMessageQueuePut(_id, &data, prio, millisec);
     }
 
@@ -107,7 +112,8 @@ public:
                @a osEventTimeout no message has arrived during the given timeout period.
                @a osErrorParameter a parameter is invalid or outside of a permitted range.
     */
-    osEvent get(uint32_t millisec=osWaitForever) {
+    osEvent get(uint32_t millisec = osWaitForever)
+    {
         osEvent event;
         T *data = NULL;
         osStatus_t res = osMessageQueueGet(_id, &data, NULL, millisec);
@@ -135,7 +141,7 @@ public:
 
 private:
     osMessageQueueId_t            _id;
-    char                          _queue_mem[queue_sz * (sizeof(T*) + sizeof(mbed_rtos_storage_message_t))];
+    char                          _queue_mem[queue_sz * (sizeof(T *) + sizeof(mbed_rtos_storage_message_t))];
     mbed_rtos_storage_msg_queue_t _obj_mem;
 };
 /** @}*/

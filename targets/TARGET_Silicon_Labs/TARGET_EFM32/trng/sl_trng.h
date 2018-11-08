@@ -129,7 +129,7 @@
  *
  * \param ctx      TRNG device to be initialized
  */
-void sl_trng_init( TRNG_TypeDef *ctx );
+void sl_trng_init(TRNG_TypeDef *ctx);
 
 /**
  * \brief          Free TRNG context
@@ -139,18 +139,18 @@ void sl_trng_init( TRNG_TypeDef *ctx );
  *
  * \param ctx      TRNG device to be released
  */
-void sl_trng_free( TRNG_TypeDef *ctx );
+void sl_trng_free(TRNG_TypeDef *ctx);
 
 /**
  * \brief          Set the TRNG conditioning key
  *
  * \param ctx      TRNG device
  * \param key      128-bit AES key
- *  
+ *
  * \return
  *   0 if success. Error code if failure.
  */
-int sl_trng_set_key( TRNG_TypeDef *ctx, const unsigned char *key );
+int sl_trng_set_key(TRNG_TypeDef *ctx, const unsigned char *key);
 
 /**
  * \brief           Poll for entropy data
@@ -187,10 +187,10 @@ int sl_trng_set_key( TRNG_TypeDef *ctx, const unsigned char *key );
  *                  the adaptive proportion test over 4096 samples failed while
  *                  reading from the FIFO.
  */
-int sl_trng_poll( TRNG_TypeDef *ctx,
-                  unsigned char *output,
-                  size_t len,
-                  size_t *olen );
+int sl_trng_poll(TRNG_TypeDef *ctx,
+                 unsigned char *output,
+                 size_t len,
+                 size_t *olen);
 
 /**
  * \brief           Execute TRNG soft reset
@@ -201,7 +201,7 @@ int sl_trng_poll( TRNG_TypeDef *ctx,
  *
  * \param ctx       TRNG device
  */
-void sl_trng_soft_reset( TRNG_TypeDef *ctx );
+void sl_trng_soft_reset(TRNG_TypeDef *ctx);
 
 #endif /* TRNG_PRESENT */
 

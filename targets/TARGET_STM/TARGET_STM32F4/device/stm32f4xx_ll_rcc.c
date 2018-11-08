@@ -39,9 +39,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_ll_rcc.h"
 #ifdef  USE_FULL_ASSERT
-  #include "stm32_assert.h"
+#include "stm32_assert.h"
 #else
-  #define assert_param(expr) ((void)0U)
+#define assert_param(expr) ((void)0U)
 #endif
 /** @addtogroup STM32F4xx_LL_Driver
   * @{
@@ -203,55 +203,55 @@ uint32_t RCC_PLLI2S_GetFreqDomain_SPDIFRX(void);
   */
 ErrorStatus LL_RCC_DeInit(void)
 {
-  uint32_t vl_mask = 0U;
+    uint32_t vl_mask = 0U;
 
-  /* Set HSION bit */
-  LL_RCC_HSI_Enable();
+    /* Set HSION bit */
+    LL_RCC_HSI_Enable();
 
-  /* Reset CFGR register */
-  LL_RCC_WriteReg(CFGR, 0x00000000U);
+    /* Reset CFGR register */
+    LL_RCC_WriteReg(CFGR, 0x00000000U);
 
-  vl_mask = 0xFFFFFFFFU;
+    vl_mask = 0xFFFFFFFFU;
 
-  /* Reset HSEON, PLLSYSON bits */
-  CLEAR_BIT(vl_mask, (RCC_CR_HSEON | RCC_CR_HSEBYP | RCC_CR_PLLON | RCC_CR_CSSON));
+    /* Reset HSEON, PLLSYSON bits */
+    CLEAR_BIT(vl_mask, (RCC_CR_HSEON | RCC_CR_HSEBYP | RCC_CR_PLLON | RCC_CR_CSSON));
 
 #if defined(RCC_PLLSAI_SUPPORT)
-  /* Reset PLLSAION bit */
-  CLEAR_BIT(vl_mask, RCC_CR_PLLSAION);
+    /* Reset PLLSAION bit */
+    CLEAR_BIT(vl_mask, RCC_CR_PLLSAION);
 #endif /* RCC_PLLSAI_SUPPORT */
 
 #if defined(RCC_PLLI2S_SUPPORT)
-  /* Reset PLLI2SON bit */
-  CLEAR_BIT(vl_mask, RCC_CR_PLLI2SON);
+    /* Reset PLLI2SON bit */
+    CLEAR_BIT(vl_mask, RCC_CR_PLLI2SON);
 #endif /* RCC_PLLI2S_SUPPORT */
 
-  /* Write new mask in CR register */
-  LL_RCC_WriteReg(CR, vl_mask);
+    /* Write new mask in CR register */
+    LL_RCC_WriteReg(CR, vl_mask);
 
-  /* Set HSITRIM bits to the reset value*/
-  LL_RCC_HSI_SetCalibTrimming(0x10U);
+    /* Set HSITRIM bits to the reset value*/
+    LL_RCC_HSI_SetCalibTrimming(0x10U);
 
-  /* Reset PLLCFGR register */
-  LL_RCC_WriteReg(PLLCFGR, RCC_PLLCFGR_RST_VALUE);
+    /* Reset PLLCFGR register */
+    LL_RCC_WriteReg(PLLCFGR, RCC_PLLCFGR_RST_VALUE);
 
 #if defined(RCC_PLLI2S_SUPPORT)
-  /* Reset PLLI2SCFGR register */
-  LL_RCC_WriteReg(PLLI2SCFGR, RCC_PLLI2SCFGR_RST_VALUE);
+    /* Reset PLLI2SCFGR register */
+    LL_RCC_WriteReg(PLLI2SCFGR, RCC_PLLI2SCFGR_RST_VALUE);
 #endif /* RCC_PLLI2S_SUPPORT */
 
 #if defined(RCC_PLLSAI_SUPPORT)
-  /* Reset PLLSAICFGR register */
-  LL_RCC_WriteReg(PLLSAICFGR, RCC_PLLSAICFGR_RST_VALUE);
+    /* Reset PLLSAICFGR register */
+    LL_RCC_WriteReg(PLLSAICFGR, RCC_PLLSAICFGR_RST_VALUE);
 #endif /* RCC_PLLSAI_SUPPORT */
 
-  /* Reset HSEBYP bit */
-  LL_RCC_HSE_DisableBypass();
+    /* Reset HSEBYP bit */
+    LL_RCC_HSE_DisableBypass();
 
-  /* Disable all interrupts */
-  LL_RCC_WriteReg(CIR, 0x00000000U);
+    /* Disable all interrupts */
+    LL_RCC_WriteReg(CIR, 0x00000000U);
 
-  return SUCCESS;
+    return SUCCESS;
 }
 
 /**
@@ -289,17 +289,17 @@ ErrorStatus LL_RCC_DeInit(void)
   */
 void LL_RCC_GetSystemClocksFreq(LL_RCC_ClocksTypeDef *RCC_Clocks)
 {
-  /* Get SYSCLK frequency */
-  RCC_Clocks->SYSCLK_Frequency = RCC_GetSystemClockFreq();
+    /* Get SYSCLK frequency */
+    RCC_Clocks->SYSCLK_Frequency = RCC_GetSystemClockFreq();
 
-  /* HCLK clock frequency */
-  RCC_Clocks->HCLK_Frequency   = RCC_GetHCLKClockFreq(RCC_Clocks->SYSCLK_Frequency);
+    /* HCLK clock frequency */
+    RCC_Clocks->HCLK_Frequency   = RCC_GetHCLKClockFreq(RCC_Clocks->SYSCLK_Frequency);
 
-  /* PCLK1 clock frequency */
-  RCC_Clocks->PCLK1_Frequency  = RCC_GetPCLK1ClockFreq(RCC_Clocks->HCLK_Frequency);
+    /* PCLK1 clock frequency */
+    RCC_Clocks->PCLK1_Frequency  = RCC_GetPCLK1ClockFreq(RCC_Clocks->HCLK_Frequency);
 
-  /* PCLK2 clock frequency */
-  RCC_Clocks->PCLK2_Frequency  = RCC_GetPCLK2ClockFreq(RCC_Clocks->HCLK_Frequency);
+    /* PCLK2 clock frequency */
+    RCC_Clocks->PCLK2_Frequency  = RCC_GetPCLK2ClockFreq(RCC_Clocks->HCLK_Frequency);
 }
 
 #if defined(FMPI2C1)
@@ -312,35 +312,32 @@ void LL_RCC_GetSystemClocksFreq(LL_RCC_ClocksTypeDef *RCC_Clocks)
   */
 uint32_t LL_RCC_GetFMPI2CClockFreq(uint32_t FMPI2CxSource)
 {
-  uint32_t FMPI2C_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t FMPI2C_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_FMPI2C_CLKSOURCE(FMPI2CxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_FMPI2C_CLKSOURCE(FMPI2CxSource));
 
-  if (FMPI2CxSource == LL_RCC_FMPI2C1_CLKSOURCE)
-  {
-    /* FMPI2C1 CLK clock frequency */
-    switch (LL_RCC_GetFMPI2CClockSource(FMPI2CxSource))
-    {
-      case LL_RCC_FMPI2C1_CLKSOURCE_SYSCLK: /* FMPI2C1 Clock is System Clock */
-        FMPI2C_frequency = RCC_GetSystemClockFreq();
-        break;
+    if (FMPI2CxSource == LL_RCC_FMPI2C1_CLKSOURCE) {
+        /* FMPI2C1 CLK clock frequency */
+        switch (LL_RCC_GetFMPI2CClockSource(FMPI2CxSource)) {
+            case LL_RCC_FMPI2C1_CLKSOURCE_SYSCLK: /* FMPI2C1 Clock is System Clock */
+                FMPI2C_frequency = RCC_GetSystemClockFreq();
+                break;
 
-      case LL_RCC_FMPI2C1_CLKSOURCE_HSI:    /* FMPI2C1 Clock is HSI Osc. */
-        if (LL_RCC_HSI_IsReady())
-        {
-          FMPI2C_frequency = HSI_VALUE;
+            case LL_RCC_FMPI2C1_CLKSOURCE_HSI:    /* FMPI2C1 Clock is HSI Osc. */
+                if (LL_RCC_HSI_IsReady()) {
+                    FMPI2C_frequency = HSI_VALUE;
+                }
+                break;
+
+            case LL_RCC_FMPI2C1_CLKSOURCE_PCLK1:  /* FMPI2C1 Clock is PCLK1 */
+            default:
+                FMPI2C_frequency = RCC_GetPCLK1ClockFreq(RCC_GetHCLKClockFreq(RCC_GetSystemClockFreq()));
+                break;
         }
-        break;
-
-      case LL_RCC_FMPI2C1_CLKSOURCE_PCLK1:  /* FMPI2C1 Clock is PCLK1 */
-      default:
-        FMPI2C_frequency = RCC_GetPCLK1ClockFreq(RCC_GetHCLKClockFreq(RCC_GetSystemClockFreq()));
-        break;
     }
-  }
 
-  return FMPI2C_frequency;
+    return FMPI2C_frequency;
 }
 #endif /* FMPI2C1 */
 
@@ -356,109 +353,95 @@ uint32_t LL_RCC_GetFMPI2CClockFreq(uint32_t FMPI2CxSource)
   */
 uint32_t LL_RCC_GetI2SClockFreq(uint32_t I2SxSource)
 {
-  uint32_t i2s_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t i2s_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_I2S_CLKSOURCE(I2SxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_I2S_CLKSOURCE(I2SxSource));
 
-  if (I2SxSource == LL_RCC_I2S1_CLKSOURCE)
-  {
-    /* I2S1 CLK clock frequency */
-    switch (LL_RCC_GetI2SClockSource(I2SxSource))
-    {
+    if (I2SxSource == LL_RCC_I2S1_CLKSOURCE) {
+        /* I2S1 CLK clock frequency */
+        switch (LL_RCC_GetI2SClockSource(I2SxSource)) {
 #if defined(RCC_PLLI2S_SUPPORT)
-      case LL_RCC_I2S1_CLKSOURCE_PLLI2S:       /* I2S1 Clock is PLLI2S */
-        if (LL_RCC_PLLI2S_IsReady())
-        {
-          i2s_frequency = RCC_PLLI2S_GetFreqDomain_I2S();
-        }
-        break;
+            case LL_RCC_I2S1_CLKSOURCE_PLLI2S:       /* I2S1 Clock is PLLI2S */
+                if (LL_RCC_PLLI2S_IsReady()) {
+                    i2s_frequency = RCC_PLLI2S_GetFreqDomain_I2S();
+                }
+                break;
 #endif /* RCC_PLLI2S_SUPPORT */
 
 #if defined(RCC_DCKCFGR_I2SSRC) || defined(RCC_DCKCFGR_I2S1SRC)
-      case LL_RCC_I2S1_CLKSOURCE_PLL:          /* I2S1 Clock is PLL */
-        if (LL_RCC_PLL_IsReady())
-        {
-          i2s_frequency = RCC_PLL_GetFreqDomain_I2S();
-        }
-        break;
+            case LL_RCC_I2S1_CLKSOURCE_PLL:          /* I2S1 Clock is PLL */
+                if (LL_RCC_PLL_IsReady()) {
+                    i2s_frequency = RCC_PLL_GetFreqDomain_I2S();
+                }
+                break;
 
-      case LL_RCC_I2S1_CLKSOURCE_PLLSRC:       /* I2S1 Clock is PLL Main source */
-        switch (LL_RCC_PLL_GetMainSource())
-        {
-           case LL_RCC_PLLSOURCE_HSE:          /* I2S1 Clock is HSE Osc. */
-             if (LL_RCC_HSE_IsReady())
-             {
-               i2s_frequency = HSE_VALUE;
-             }
-             break;
+            case LL_RCC_I2S1_CLKSOURCE_PLLSRC:       /* I2S1 Clock is PLL Main source */
+                switch (LL_RCC_PLL_GetMainSource()) {
+                    case LL_RCC_PLLSOURCE_HSE:          /* I2S1 Clock is HSE Osc. */
+                        if (LL_RCC_HSE_IsReady()) {
+                            i2s_frequency = HSE_VALUE;
+                        }
+                        break;
 
-           case LL_RCC_PLLSOURCE_HSI:          /* I2S1 Clock is HSI Osc. */
-           default:
-             if (LL_RCC_HSI_IsReady())
-             {
-               i2s_frequency = HSI_VALUE;
-             }
-             break;
-        }
-        break;
+                    case LL_RCC_PLLSOURCE_HSI:          /* I2S1 Clock is HSI Osc. */
+                    default:
+                        if (LL_RCC_HSI_IsReady()) {
+                            i2s_frequency = HSI_VALUE;
+                        }
+                        break;
+                }
+                break;
 #endif /* RCC_DCKCFGR_I2SSRC || RCC_DCKCFGR_I2S1SRC */
 
-      case LL_RCC_I2S1_CLKSOURCE_PIN:          /* I2S1 Clock is External clock */
-      default:
-        i2s_frequency = EXTERNAL_CLOCK_VALUE;
-        break;
+            case LL_RCC_I2S1_CLKSOURCE_PIN:          /* I2S1 Clock is External clock */
+            default:
+                i2s_frequency = EXTERNAL_CLOCK_VALUE;
+                break;
+        }
     }
-  }
 #if defined(RCC_DCKCFGR_I2S2SRC)
-  else
-  {
-    /* I2S2 CLK clock frequency */
-    switch (LL_RCC_GetI2SClockSource(I2SxSource))
-    {
-      case LL_RCC_I2S2_CLKSOURCE_PLLI2S:       /* I2S2 Clock is PLLI2S */
-        if (LL_RCC_PLLI2S_IsReady())
-        {
-          i2s_frequency = RCC_PLLI2S_GetFreqDomain_I2S();
+    else {
+        /* I2S2 CLK clock frequency */
+        switch (LL_RCC_GetI2SClockSource(I2SxSource)) {
+            case LL_RCC_I2S2_CLKSOURCE_PLLI2S:       /* I2S2 Clock is PLLI2S */
+                if (LL_RCC_PLLI2S_IsReady()) {
+                    i2s_frequency = RCC_PLLI2S_GetFreqDomain_I2S();
+                }
+                break;
+
+            case LL_RCC_I2S2_CLKSOURCE_PLL:          /* I2S2 Clock is PLL */
+                if (LL_RCC_PLL_IsReady()) {
+                    i2s_frequency = RCC_PLL_GetFreqDomain_I2S();
+                }
+                break;
+
+            case LL_RCC_I2S2_CLKSOURCE_PLLSRC:       /* I2S2 Clock is PLL Main source */
+                switch (LL_RCC_PLL_GetMainSource()) {
+                    case LL_RCC_PLLSOURCE_HSE:          /* I2S2 Clock is HSE Osc. */
+                        if (LL_RCC_HSE_IsReady()) {
+                            i2s_frequency = HSE_VALUE;
+                        }
+                        break;
+
+                    case LL_RCC_PLLSOURCE_HSI:          /* I2S2 Clock is HSI Osc. */
+                    default:
+                        if (LL_RCC_HSI_IsReady()) {
+                            i2s_frequency = HSI_VALUE;
+                        }
+                        break;
+                }
+                break;
+
+            case LL_RCC_I2S2_CLKSOURCE_PIN:          /* I2S2 Clock is External clock */
+            default:
+                i2s_frequency = EXTERNAL_CLOCK_VALUE;
+                break;
         }
-        break;
-
-      case LL_RCC_I2S2_CLKSOURCE_PLL:          /* I2S2 Clock is PLL */
-        if (LL_RCC_PLL_IsReady())
-        {
-          i2s_frequency = RCC_PLL_GetFreqDomain_I2S();
-        }
-        break;
-
-      case LL_RCC_I2S2_CLKSOURCE_PLLSRC:       /* I2S2 Clock is PLL Main source */
-        switch (LL_RCC_PLL_GetMainSource())
-        {
-           case LL_RCC_PLLSOURCE_HSE:          /* I2S2 Clock is HSE Osc. */
-             if (LL_RCC_HSE_IsReady())
-             {
-               i2s_frequency = HSE_VALUE;
-             }
-             break;
-
-           case LL_RCC_PLLSOURCE_HSI:          /* I2S2 Clock is HSI Osc. */
-           default:
-             if (LL_RCC_HSI_IsReady())
-             {
-               i2s_frequency = HSI_VALUE;
-             }
-             break;
-        }
-        break;
-
-      case LL_RCC_I2S2_CLKSOURCE_PIN:          /* I2S2 Clock is External clock */
-      default:
-        i2s_frequency = EXTERNAL_CLOCK_VALUE;
-        break;
-    } 
-  }
+    }
 #endif /* RCC_DCKCFGR_I2S2SRC */
 
-  return i2s_frequency;
+    return i2s_frequency;
 }
 
 #if defined(LPTIM1)
@@ -471,45 +454,40 @@ uint32_t LL_RCC_GetI2SClockFreq(uint32_t I2SxSource)
   */
 uint32_t LL_RCC_GetLPTIMClockFreq(uint32_t LPTIMxSource)
 {
-  uint32_t lptim_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t lptim_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_LPTIM_CLKSOURCE(LPTIMxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_LPTIM_CLKSOURCE(LPTIMxSource));
 
-  if (LPTIMxSource == LL_RCC_LPTIM1_CLKSOURCE)
-  {
-    /* LPTIM1CLK clock frequency */
-    switch (LL_RCC_GetLPTIMClockSource(LPTIMxSource))
-    {
-      case LL_RCC_LPTIM1_CLKSOURCE_LSI:    /* LPTIM1 Clock is LSI Osc. */
-        if (LL_RCC_LSI_IsReady())
-        {
-          lptim_frequency = LSI_VALUE;
+    if (LPTIMxSource == LL_RCC_LPTIM1_CLKSOURCE) {
+        /* LPTIM1CLK clock frequency */
+        switch (LL_RCC_GetLPTIMClockSource(LPTIMxSource)) {
+            case LL_RCC_LPTIM1_CLKSOURCE_LSI:    /* LPTIM1 Clock is LSI Osc. */
+                if (LL_RCC_LSI_IsReady()) {
+                    lptim_frequency = LSI_VALUE;
+                }
+                break;
+
+            case LL_RCC_LPTIM1_CLKSOURCE_HSI:    /* LPTIM1 Clock is HSI Osc. */
+                if (LL_RCC_HSI_IsReady()) {
+                    lptim_frequency = HSI_VALUE;
+                }
+                break;
+
+            case LL_RCC_LPTIM1_CLKSOURCE_LSE:    /* LPTIM1 Clock is LSE Osc. */
+                if (LL_RCC_LSE_IsReady()) {
+                    lptim_frequency = LSE_VALUE;
+                }
+                break;
+
+            case LL_RCC_LPTIM1_CLKSOURCE_PCLK1:  /* LPTIM1 Clock is PCLK1 */
+            default:
+                lptim_frequency = RCC_GetPCLK1ClockFreq(RCC_GetHCLKClockFreq(RCC_GetSystemClockFreq()));
+                break;
         }
-        break;
-
-      case LL_RCC_LPTIM1_CLKSOURCE_HSI:    /* LPTIM1 Clock is HSI Osc. */
-        if (LL_RCC_HSI_IsReady())
-        {
-          lptim_frequency = HSI_VALUE;
-        }
-        break;
-
-      case LL_RCC_LPTIM1_CLKSOURCE_LSE:    /* LPTIM1 Clock is LSE Osc. */
-        if (LL_RCC_LSE_IsReady())
-        {
-          lptim_frequency = LSE_VALUE;
-        }
-        break;
-
-      case LL_RCC_LPTIM1_CLKSOURCE_PCLK1:  /* LPTIM1 Clock is PCLK1 */
-      default:
-        lptim_frequency = RCC_GetPCLK1ClockFreq(RCC_GetHCLKClockFreq(RCC_GetSystemClockFreq()));
-        break;
     }
-  }
 
-  return lptim_frequency;
+    return lptim_frequency;
 }
 #endif /* LPTIM1 */
 
@@ -528,133 +506,117 @@ uint32_t LL_RCC_GetLPTIMClockFreq(uint32_t LPTIMxSource)
   */
 uint32_t LL_RCC_GetSAIClockFreq(uint32_t SAIxSource)
 {
-  uint32_t sai_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t sai_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_SAI_CLKSOURCE(SAIxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_SAI_CLKSOURCE(SAIxSource));
 
 #if defined(RCC_DCKCFGR_SAI1SRC)
-  if ((SAIxSource == LL_RCC_SAI1_CLKSOURCE) || (SAIxSource == LL_RCC_SAI2_CLKSOURCE))
-  {
-    /* SAI1CLK clock frequency */
-    switch (LL_RCC_GetSAIClockSource(SAIxSource))
-    {
-      case LL_RCC_SAI1_CLKSOURCE_PLLSAI:     /* PLLSAI clock used as SAI1 clock source */
-      case LL_RCC_SAI2_CLKSOURCE_PLLSAI:     /* PLLSAI clock used as SAI2 clock source */
-        if (LL_RCC_PLLSAI_IsReady())
-        {
-          sai_frequency = RCC_PLLSAI_GetFreqDomain_SAI();
+    if ((SAIxSource == LL_RCC_SAI1_CLKSOURCE) || (SAIxSource == LL_RCC_SAI2_CLKSOURCE)) {
+        /* SAI1CLK clock frequency */
+        switch (LL_RCC_GetSAIClockSource(SAIxSource)) {
+            case LL_RCC_SAI1_CLKSOURCE_PLLSAI:     /* PLLSAI clock used as SAI1 clock source */
+            case LL_RCC_SAI2_CLKSOURCE_PLLSAI:     /* PLLSAI clock used as SAI2 clock source */
+                if (LL_RCC_PLLSAI_IsReady()) {
+                    sai_frequency = RCC_PLLSAI_GetFreqDomain_SAI();
+                }
+                break;
+
+            case LL_RCC_SAI1_CLKSOURCE_PLLI2S:     /* PLLI2S clock used as SAI1 clock source */
+            case LL_RCC_SAI2_CLKSOURCE_PLLI2S:     /* PLLI2S clock used as SAI2 clock source */
+                if (LL_RCC_PLLI2S_IsReady()) {
+                    sai_frequency = RCC_PLLI2S_GetFreqDomain_SAI();
+                }
+                break;
+
+            case LL_RCC_SAI1_CLKSOURCE_PLL:        /* PLL clock used as SAI1 clock source */
+            case LL_RCC_SAI2_CLKSOURCE_PLL:        /* PLL clock used as SAI2 clock source */
+                if (LL_RCC_PLL_IsReady()) {
+                    sai_frequency = RCC_PLL_GetFreqDomain_SAI();
+                }
+                break;
+
+            case LL_RCC_SAI2_CLKSOURCE_PLLSRC:
+                switch (LL_RCC_PLL_GetMainSource()) {
+                    case LL_RCC_PLLSOURCE_HSE:        /* HSE clock used as SAI2 clock source */
+                        if (LL_RCC_HSE_IsReady()) {
+                            sai_frequency = HSE_VALUE;
+                        }
+                        break;
+
+                    case LL_RCC_PLLSOURCE_HSI:        /* HSI clock used as SAI2 clock source */
+                    default:
+                        if (LL_RCC_HSI_IsReady()) {
+                            sai_frequency = HSI_VALUE;
+                        }
+                        break;
+                }
+                break;
+
+            case LL_RCC_SAI1_CLKSOURCE_PIN:        /* External input clock used as SAI1 clock source */
+            default:
+                sai_frequency = EXTERNAL_CLOCK_VALUE;
+                break;
         }
-        break;
-
-      case LL_RCC_SAI1_CLKSOURCE_PLLI2S:     /* PLLI2S clock used as SAI1 clock source */
-      case LL_RCC_SAI2_CLKSOURCE_PLLI2S:     /* PLLI2S clock used as SAI2 clock source */
-        if (LL_RCC_PLLI2S_IsReady())
-        {
-          sai_frequency = RCC_PLLI2S_GetFreqDomain_SAI();
-        }
-        break;
-
-      case LL_RCC_SAI1_CLKSOURCE_PLL:        /* PLL clock used as SAI1 clock source */
-      case LL_RCC_SAI2_CLKSOURCE_PLL:        /* PLL clock used as SAI2 clock source */
-        if (LL_RCC_PLL_IsReady())
-        {
-          sai_frequency = RCC_PLL_GetFreqDomain_SAI();
-        }
-        break;
-
-      case LL_RCC_SAI2_CLKSOURCE_PLLSRC:
-        switch (LL_RCC_PLL_GetMainSource())
-        {
-           case LL_RCC_PLLSOURCE_HSE:        /* HSE clock used as SAI2 clock source */
-             if (LL_RCC_HSE_IsReady())
-             {
-               sai_frequency = HSE_VALUE;
-             }
-             break;
-
-           case LL_RCC_PLLSOURCE_HSI:        /* HSI clock used as SAI2 clock source */
-           default:
-             if (LL_RCC_HSI_IsReady())
-             {
-               sai_frequency = HSI_VALUE;
-             }
-             break;
-        }
-        break;
-
-      case LL_RCC_SAI1_CLKSOURCE_PIN:        /* External input clock used as SAI1 clock source */
-      default:
-        sai_frequency = EXTERNAL_CLOCK_VALUE;
-        break;
     }
-  }
 #endif /* RCC_DCKCFGR_SAI1SRC */
 #if defined(RCC_DCKCFGR_SAI1ASRC)
-  if ((SAIxSource == LL_RCC_SAI1_A_CLKSOURCE) || (SAIxSource == LL_RCC_SAI1_B_CLKSOURCE))
-  {
-    /* SAI1CLK clock frequency */
-    switch (LL_RCC_GetSAIClockSource(SAIxSource))
-    {
+    if ((SAIxSource == LL_RCC_SAI1_A_CLKSOURCE) || (SAIxSource == LL_RCC_SAI1_B_CLKSOURCE)) {
+        /* SAI1CLK clock frequency */
+        switch (LL_RCC_GetSAIClockSource(SAIxSource)) {
 #if defined(RCC_PLLSAI_SUPPORT)
-      case LL_RCC_SAI1_A_CLKSOURCE_PLLSAI:     /* PLLSAI clock used as SAI1 Block A clock source */
-      case LL_RCC_SAI1_B_CLKSOURCE_PLLSAI:     /* PLLSAI clock used as SAI1 Block B clock source */
-        if (LL_RCC_PLLSAI_IsReady())
-        {
-          sai_frequency = RCC_PLLSAI_GetFreqDomain_SAI();
-        }
-        break;
+            case LL_RCC_SAI1_A_CLKSOURCE_PLLSAI:     /* PLLSAI clock used as SAI1 Block A clock source */
+            case LL_RCC_SAI1_B_CLKSOURCE_PLLSAI:     /* PLLSAI clock used as SAI1 Block B clock source */
+                if (LL_RCC_PLLSAI_IsReady()) {
+                    sai_frequency = RCC_PLLSAI_GetFreqDomain_SAI();
+                }
+                break;
 #endif /* RCC_PLLSAI_SUPPORT */
 
-      case LL_RCC_SAI1_A_CLKSOURCE_PLLI2S:     /* PLLI2S clock used as SAI1 Block A clock source */
-      case LL_RCC_SAI1_B_CLKSOURCE_PLLI2S:     /* PLLI2S clock used as SAI1 Block B clock source */
-        if (LL_RCC_PLLI2S_IsReady())
-        {
-          sai_frequency = RCC_PLLI2S_GetFreqDomain_SAI();
-        }
-        break;
+            case LL_RCC_SAI1_A_CLKSOURCE_PLLI2S:     /* PLLI2S clock used as SAI1 Block A clock source */
+            case LL_RCC_SAI1_B_CLKSOURCE_PLLI2S:     /* PLLI2S clock used as SAI1 Block B clock source */
+                if (LL_RCC_PLLI2S_IsReady()) {
+                    sai_frequency = RCC_PLLI2S_GetFreqDomain_SAI();
+                }
+                break;
 
 #if defined(RCC_SAI1A_PLLSOURCE_SUPPORT)
-      case LL_RCC_SAI1_A_CLKSOURCE_PLL:        /* PLL clock used as SAI1 Block A clock source */
-      case LL_RCC_SAI1_B_CLKSOURCE_PLL:        /* PLL clock used as SAI1 Block B clock source */
-        if (LL_RCC_PLL_IsReady())
-        {
-          sai_frequency = RCC_PLL_GetFreqDomain_SAI();
-        }
-        break;
+            case LL_RCC_SAI1_A_CLKSOURCE_PLL:        /* PLL clock used as SAI1 Block A clock source */
+            case LL_RCC_SAI1_B_CLKSOURCE_PLL:        /* PLL clock used as SAI1 Block B clock source */
+                if (LL_RCC_PLL_IsReady()) {
+                    sai_frequency = RCC_PLL_GetFreqDomain_SAI();
+                }
+                break;
 
-      case LL_RCC_SAI1_A_CLKSOURCE_PLLSRC:
-      case LL_RCC_SAI1_B_CLKSOURCE_PLLSRC:
-        switch (LL_RCC_PLL_GetMainSource())
-        {
-           case LL_RCC_PLLSOURCE_HSE:          /* HSE clock used as SAI1 Block A or B clock source */
-             if (LL_RCC_HSE_IsReady())
-             {
-               sai_frequency = HSE_VALUE;
-             }
-             break;
+            case LL_RCC_SAI1_A_CLKSOURCE_PLLSRC:
+            case LL_RCC_SAI1_B_CLKSOURCE_PLLSRC:
+                switch (LL_RCC_PLL_GetMainSource()) {
+                    case LL_RCC_PLLSOURCE_HSE:          /* HSE clock used as SAI1 Block A or B clock source */
+                        if (LL_RCC_HSE_IsReady()) {
+                            sai_frequency = HSE_VALUE;
+                        }
+                        break;
 
-           case LL_RCC_PLLSOURCE_HSI:          /* HSI clock used as SAI1 Block A or B clock source */
-           default:
-             if (LL_RCC_HSI_IsReady())
-             {
-               sai_frequency = HSI_VALUE;
-             }
-             break;
-        }
-        break;
+                    case LL_RCC_PLLSOURCE_HSI:          /* HSI clock used as SAI1 Block A or B clock source */
+                    default:
+                        if (LL_RCC_HSI_IsReady()) {
+                            sai_frequency = HSI_VALUE;
+                        }
+                        break;
+                }
+                break;
 #endif /* RCC_SAI1A_PLLSOURCE_SUPPORT */
 
-      case LL_RCC_SAI1_A_CLKSOURCE_PIN:        /* External input clock used as SAI1 Block A clock source */
-      case LL_RCC_SAI1_B_CLKSOURCE_PIN:        /* External input clock used as SAI1 Block B clock source */
-      default:
-        sai_frequency = EXTERNAL_CLOCK_VALUE;
-        break;
+            case LL_RCC_SAI1_A_CLKSOURCE_PIN:        /* External input clock used as SAI1 Block A clock source */
+            case LL_RCC_SAI1_B_CLKSOURCE_PIN:        /* External input clock used as SAI1 Block B clock source */
+            default:
+                sai_frequency = EXTERNAL_CLOCK_VALUE;
+                break;
+        }
     }
-  }
 #endif /* RCC_DCKCFGR_SAI1ASRC */
 
-  return sai_frequency;
+    return sai_frequency;
 }
 #endif /* SAI1 */
 
@@ -668,64 +630,57 @@ uint32_t LL_RCC_GetSAIClockFreq(uint32_t SAIxSource)
   */
 uint32_t LL_RCC_GetSDIOClockFreq(uint32_t SDIOxSource)
 {
-  uint32_t SDIO_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t SDIO_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_SDIO_CLKSOURCE(SDIOxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_SDIO_CLKSOURCE(SDIOxSource));
 
-  if (SDIOxSource == LL_RCC_SDIO_CLKSOURCE)
-  {
+    if (SDIOxSource == LL_RCC_SDIO_CLKSOURCE) {
 #if defined(RCC_DCKCFGR_SDIOSEL) || defined(RCC_DCKCFGR2_SDIOSEL)
-    /* SDIOCLK clock frequency */
-    switch (LL_RCC_GetSDIOClockSource(SDIOxSource))
-    {
-      case LL_RCC_SDIO_CLKSOURCE_PLL48CLK:         /* PLL48M clock used as SDIO clock source */
-        switch (LL_RCC_GetCK48MClockSource(LL_RCC_CK48M_CLKSOURCE))
-        {
-          case LL_RCC_CK48M_CLKSOURCE_PLL:         /* PLL clock used as 48Mhz domain clock */
-            if (LL_RCC_PLL_IsReady())
-            {
-              SDIO_frequency = RCC_PLL_GetFreqDomain_48M();
-            }
-          break;
+        /* SDIOCLK clock frequency */
+        switch (LL_RCC_GetSDIOClockSource(SDIOxSource)) {
+            case LL_RCC_SDIO_CLKSOURCE_PLL48CLK:         /* PLL48M clock used as SDIO clock source */
+                switch (LL_RCC_GetCK48MClockSource(LL_RCC_CK48M_CLKSOURCE)) {
+                    case LL_RCC_CK48M_CLKSOURCE_PLL:         /* PLL clock used as 48Mhz domain clock */
+                        if (LL_RCC_PLL_IsReady()) {
+                            SDIO_frequency = RCC_PLL_GetFreqDomain_48M();
+                        }
+                        break;
 
 #if defined(RCC_PLLSAI_SUPPORT)
-          case LL_RCC_CK48M_CLKSOURCE_PLLSAI:      /* PLLSAI clock used as 48Mhz domain clock */
-          default:
-            if (LL_RCC_PLLSAI_IsReady())
-            {
-              SDIO_frequency = RCC_PLLSAI_GetFreqDomain_48M();
-            }
-            break;
+                    case LL_RCC_CK48M_CLKSOURCE_PLLSAI:      /* PLLSAI clock used as 48Mhz domain clock */
+                    default:
+                        if (LL_RCC_PLLSAI_IsReady()) {
+                            SDIO_frequency = RCC_PLLSAI_GetFreqDomain_48M();
+                        }
+                        break;
 #endif /* RCC_PLLSAI_SUPPORT */
 
 #if defined(RCC_PLLI2SCFGR_PLLI2SQ) && !defined(RCC_DCKCFGR_PLLI2SDIVQ)
-          case LL_RCC_CK48M_CLKSOURCE_PLLI2S:      /* PLLI2S clock used as 48Mhz domain clock */
-          default:
-            if (LL_RCC_PLLI2S_IsReady())
-            {
-              SDIO_frequency = RCC_PLLI2S_GetFreqDomain_48M();
-            }
-            break;
+                    case LL_RCC_CK48M_CLKSOURCE_PLLI2S:      /* PLLI2S clock used as 48Mhz domain clock */
+                    default:
+                        if (LL_RCC_PLLI2S_IsReady()) {
+                            SDIO_frequency = RCC_PLLI2S_GetFreqDomain_48M();
+                        }
+                        break;
 #endif /* RCC_PLLI2SCFGR_PLLI2SQ && !RCC_DCKCFGR_PLLI2SDIVQ */
+                }
+                break;
+
+            case LL_RCC_SDIO_CLKSOURCE_SYSCLK:           /* PLL clock used as SDIO clock source */
+            default:
+                SDIO_frequency = RCC_GetSystemClockFreq();
+                break;
         }
-        break;
-
-      case LL_RCC_SDIO_CLKSOURCE_SYSCLK:           /* PLL clock used as SDIO clock source */
-      default:
-      SDIO_frequency = RCC_GetSystemClockFreq();
-      break;
-    }
 #else
-    /* PLL clock used as 48Mhz domain clock */
-    if (LL_RCC_PLL_IsReady())
-    {
-      SDIO_frequency = RCC_PLL_GetFreqDomain_48M();
-    }
+        /* PLL clock used as 48Mhz domain clock */
+        if (LL_RCC_PLL_IsReady()) {
+            SDIO_frequency = RCC_PLL_GetFreqDomain_48M();
+        }
 #endif /* RCC_DCKCFGR_SDIOSEL || RCC_DCKCFGR2_SDIOSEL */
-  }
+    }
 
-  return SDIO_frequency;
+    return SDIO_frequency;
 }
 #endif /* SDIO */
 
@@ -739,50 +694,45 @@ uint32_t LL_RCC_GetSDIOClockFreq(uint32_t SDIOxSource)
   */
 uint32_t LL_RCC_GetRNGClockFreq(uint32_t RNGxSource)
 {
-  uint32_t rng_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t rng_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_RNG_CLKSOURCE(RNGxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_RNG_CLKSOURCE(RNGxSource));
 
 #if defined(RCC_DCKCFGR_CK48MSEL) || defined(RCC_DCKCFGR2_CK48MSEL)
-  /* RNGCLK clock frequency */
-  switch (LL_RCC_GetRNGClockSource(RNGxSource))
-  {
+    /* RNGCLK clock frequency */
+    switch (LL_RCC_GetRNGClockSource(RNGxSource)) {
 #if defined(RCC_PLLI2SCFGR_PLLI2SQ) && !defined(RCC_DCKCFGR_PLLI2SDIVQ)
-    case LL_RCC_RNG_CLKSOURCE_PLLI2S:        /* PLLI2S clock used as RNG clock source */
-      if (LL_RCC_PLLI2S_IsReady())
-      {
-        rng_frequency = RCC_PLLI2S_GetFreqDomain_48M();
-      }
-      break;
+        case LL_RCC_RNG_CLKSOURCE_PLLI2S:        /* PLLI2S clock used as RNG clock source */
+            if (LL_RCC_PLLI2S_IsReady()) {
+                rng_frequency = RCC_PLLI2S_GetFreqDomain_48M();
+            }
+            break;
 #endif /* RCC_PLLI2SCFGR_PLLI2SQ && !RCC_DCKCFGR_PLLI2SDIVQ */
 
 #if defined(RCC_PLLSAI_SUPPORT)
-    case LL_RCC_RNG_CLKSOURCE_PLLSAI:        /* PLLSAI clock used as RNG clock source */
-      if (LL_RCC_PLLSAI_IsReady())
-      {
-        rng_frequency = RCC_PLLSAI_GetFreqDomain_48M();
-      }
-      break;
+        case LL_RCC_RNG_CLKSOURCE_PLLSAI:        /* PLLSAI clock used as RNG clock source */
+            if (LL_RCC_PLLSAI_IsReady()) {
+                rng_frequency = RCC_PLLSAI_GetFreqDomain_48M();
+            }
+            break;
 #endif /* RCC_PLLSAI_SUPPORT */
 
-    case LL_RCC_RNG_CLKSOURCE_PLL:           /* PLL clock used as RNG clock source */
-    default:
-      if (LL_RCC_PLL_IsReady())
-      {
-        rng_frequency = RCC_PLL_GetFreqDomain_48M();
-      }
-      break;
-  }
+        case LL_RCC_RNG_CLKSOURCE_PLL:           /* PLL clock used as RNG clock source */
+        default:
+            if (LL_RCC_PLL_IsReady()) {
+                rng_frequency = RCC_PLL_GetFreqDomain_48M();
+            }
+            break;
+    }
 #else
-  /* PLL clock used as RNG clock source */
-  if (LL_RCC_PLL_IsReady())
-  {
-    rng_frequency = RCC_PLL_GetFreqDomain_48M();
-  }
+    /* PLL clock used as RNG clock source */
+    if (LL_RCC_PLL_IsReady()) {
+        rng_frequency = RCC_PLL_GetFreqDomain_48M();
+    }
 #endif /* RCC_DCKCFGR_CK48MSEL || RCC_DCKCFGR2_CK48MSEL */
 
-  return rng_frequency;
+    return rng_frequency;
 }
 #endif /* RNG */
 
@@ -796,31 +746,28 @@ uint32_t LL_RCC_GetRNGClockFreq(uint32_t RNGxSource)
   */
 uint32_t LL_RCC_GetCECClockFreq(uint32_t CECxSource)
 {
-  uint32_t cec_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t cec_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_CEC_CLKSOURCE(CECxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_CEC_CLKSOURCE(CECxSource));
 
-  /* CECCLK clock frequency */
-  switch (LL_RCC_GetCECClockSource(CECxSource))
-  {
-    case LL_RCC_CEC_CLKSOURCE_LSE:           /* CEC Clock is LSE Osc. */
-      if (LL_RCC_LSE_IsReady())
-      {
-        cec_frequency = LSE_VALUE;
-      }
-      break;
+    /* CECCLK clock frequency */
+    switch (LL_RCC_GetCECClockSource(CECxSource)) {
+        case LL_RCC_CEC_CLKSOURCE_LSE:           /* CEC Clock is LSE Osc. */
+            if (LL_RCC_LSE_IsReady()) {
+                cec_frequency = LSE_VALUE;
+            }
+            break;
 
-    case LL_RCC_CEC_CLKSOURCE_HSI_DIV488:    /* CEC Clock is HSI Osc. */
-    default:
-      if (LL_RCC_HSI_IsReady())
-      {
-        cec_frequency = HSI_VALUE/488U;
-      }
-      break;
-  }
+        case LL_RCC_CEC_CLKSOURCE_HSI_DIV488:    /* CEC Clock is HSI Osc. */
+        default:
+            if (LL_RCC_HSI_IsReady()) {
+                cec_frequency = HSI_VALUE / 488U;
+            }
+            break;
+    }
 
-  return cec_frequency;
+    return cec_frequency;
 }
 #endif /* CEC */
 
@@ -834,51 +781,46 @@ uint32_t LL_RCC_GetCECClockFreq(uint32_t CECxSource)
   */
 uint32_t LL_RCC_GetUSBClockFreq(uint32_t USBxSource)
 {
-  uint32_t usb_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t usb_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_USB_CLKSOURCE(USBxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_USB_CLKSOURCE(USBxSource));
 
 #if defined(RCC_DCKCFGR_CK48MSEL) || defined(RCC_DCKCFGR2_CK48MSEL)
-  /* USBCLK clock frequency */
-  switch (LL_RCC_GetUSBClockSource(USBxSource))
-  {
+    /* USBCLK clock frequency */
+    switch (LL_RCC_GetUSBClockSource(USBxSource)) {
 #if defined(RCC_PLLI2SCFGR_PLLI2SQ) && !defined(RCC_DCKCFGR_PLLI2SDIVQ)
-    case LL_RCC_USB_CLKSOURCE_PLLI2S:       /* PLLI2S clock used as USB clock source */
-      if (LL_RCC_PLLI2S_IsReady())
-      {
-        usb_frequency = RCC_PLLI2S_GetFreqDomain_48M();
-      }
-      break;
+        case LL_RCC_USB_CLKSOURCE_PLLI2S:       /* PLLI2S clock used as USB clock source */
+            if (LL_RCC_PLLI2S_IsReady()) {
+                usb_frequency = RCC_PLLI2S_GetFreqDomain_48M();
+            }
+            break;
 
 #endif /* RCC_PLLI2SCFGR_PLLI2SQ && !RCC_DCKCFGR_PLLI2SDIVQ */
 
 #if defined(RCC_PLLSAI_SUPPORT)
-    case LL_RCC_USB_CLKSOURCE_PLLSAI:       /* PLLSAI clock used as USB clock source */
-      if (LL_RCC_PLLSAI_IsReady())
-      {
-        usb_frequency = RCC_PLLSAI_GetFreqDomain_48M();
-      }
-      break;
+        case LL_RCC_USB_CLKSOURCE_PLLSAI:       /* PLLSAI clock used as USB clock source */
+            if (LL_RCC_PLLSAI_IsReady()) {
+                usb_frequency = RCC_PLLSAI_GetFreqDomain_48M();
+            }
+            break;
 #endif /* RCC_PLLSAI_SUPPORT */
 
-    case LL_RCC_USB_CLKSOURCE_PLL:          /* PLL clock used as USB clock source */
-    default:
-      if (LL_RCC_PLL_IsReady())
-      {
-        usb_frequency = RCC_PLL_GetFreqDomain_48M();
-      }
-      break;
-  }
+        case LL_RCC_USB_CLKSOURCE_PLL:          /* PLL clock used as USB clock source */
+        default:
+            if (LL_RCC_PLL_IsReady()) {
+                usb_frequency = RCC_PLL_GetFreqDomain_48M();
+            }
+            break;
+    }
 #else
-  /* PLL clock used as USB clock source */
-  if (LL_RCC_PLL_IsReady())
-  {
-    usb_frequency = RCC_PLL_GetFreqDomain_48M();
-  }
+    /* PLL clock used as USB clock source */
+    if (LL_RCC_PLL_IsReady()) {
+        usb_frequency = RCC_PLL_GetFreqDomain_48M();
+    }
 #endif /* RCC_DCKCFGR_CK48MSEL || RCC_DCKCFGR2_CK48MSEL */
 
-  return usb_frequency;
+    return usb_frequency;
 }
 #endif /* USB_OTG_FS || USB_OTG_HS */
 
@@ -894,45 +836,41 @@ uint32_t LL_RCC_GetUSBClockFreq(uint32_t USBxSource)
   */
 uint32_t LL_RCC_GetDFSDMClockFreq(uint32_t DFSDMxSource)
 {
-  uint32_t dfsdm_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t dfsdm_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_DFSDM_CLKSOURCE(DFSDMxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_DFSDM_CLKSOURCE(DFSDMxSource));
 
-  if (DFSDMxSource == LL_RCC_DFSDM1_CLKSOURCE)
-  {
-    /* DFSDM1CLK clock frequency */
-    switch (LL_RCC_GetDFSDMClockSource(DFSDMxSource))
-    {
-      case LL_RCC_DFSDM1_CLKSOURCE_SYSCLK:      /* DFSDM1 Clock is SYSCLK */
-        dfsdm_frequency = RCC_GetSystemClockFreq();
-        break;
+    if (DFSDMxSource == LL_RCC_DFSDM1_CLKSOURCE) {
+        /* DFSDM1CLK clock frequency */
+        switch (LL_RCC_GetDFSDMClockSource(DFSDMxSource)) {
+            case LL_RCC_DFSDM1_CLKSOURCE_SYSCLK:      /* DFSDM1 Clock is SYSCLK */
+                dfsdm_frequency = RCC_GetSystemClockFreq();
+                break;
 
-      case LL_RCC_DFSDM1_CLKSOURCE_PCLK2:       /* DFSDM1 Clock is PCLK2 */
-      default:
-        dfsdm_frequency = RCC_GetPCLK2ClockFreq(RCC_GetHCLKClockFreq(RCC_GetSystemClockFreq()));
-        break;
+            case LL_RCC_DFSDM1_CLKSOURCE_PCLK2:       /* DFSDM1 Clock is PCLK2 */
+            default:
+                dfsdm_frequency = RCC_GetPCLK2ClockFreq(RCC_GetHCLKClockFreq(RCC_GetSystemClockFreq()));
+                break;
+        }
     }
-  }
 #if defined(DFSDM2_Channel0)
-  else
-  {
-    /* DFSDM2CLK clock frequency */
-    switch (LL_RCC_GetDFSDMClockSource(DFSDMxSource))
-    {
-      case LL_RCC_DFSDM2_CLKSOURCE_SYSCLK:      /* DFSDM2 Clock is SYSCLK */
-        dfsdm_frequency = RCC_GetSystemClockFreq();
-        break;
+    else {
+        /* DFSDM2CLK clock frequency */
+        switch (LL_RCC_GetDFSDMClockSource(DFSDMxSource)) {
+            case LL_RCC_DFSDM2_CLKSOURCE_SYSCLK:      /* DFSDM2 Clock is SYSCLK */
+                dfsdm_frequency = RCC_GetSystemClockFreq();
+                break;
 
-      case LL_RCC_DFSDM2_CLKSOURCE_PCLK2:       /* DFSDM2 Clock is PCLK2 */
-      default:
-        dfsdm_frequency = RCC_GetPCLK2ClockFreq(RCC_GetHCLKClockFreq(RCC_GetSystemClockFreq()));
-        break;
+            case LL_RCC_DFSDM2_CLKSOURCE_PCLK2:       /* DFSDM2 Clock is PCLK2 */
+            default:
+                dfsdm_frequency = RCC_GetPCLK2ClockFreq(RCC_GetHCLKClockFreq(RCC_GetSystemClockFreq()));
+                break;
+        }
     }
-  }
 #endif /* DFSDM2_Channel0 */
 
-  return dfsdm_frequency;
+    return dfsdm_frequency;
 }
 
 /**
@@ -947,45 +885,41 @@ uint32_t LL_RCC_GetDFSDMClockFreq(uint32_t DFSDMxSource)
   */
 uint32_t LL_RCC_GetDFSDMAudioClockFreq(uint32_t DFSDMxSource)
 {
-  uint32_t dfsdm_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t dfsdm_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_DFSDM_AUDIO_CLKSOURCE(DFSDMxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_DFSDM_AUDIO_CLKSOURCE(DFSDMxSource));
 
-  if (DFSDMxSource == LL_RCC_DFSDM1_AUDIO_CLKSOURCE)
-  {
-    /* DFSDM1CLK clock frequency */
-    switch (LL_RCC_GetDFSDMAudioClockSource(DFSDMxSource))
-    {
-      case LL_RCC_DFSDM1_AUDIO_CLKSOURCE_I2S1:     /* I2S1 clock used as DFSDM1 clock */
-        dfsdm_frequency = LL_RCC_GetI2SClockFreq(LL_RCC_I2S1_CLKSOURCE);
-        break;
+    if (DFSDMxSource == LL_RCC_DFSDM1_AUDIO_CLKSOURCE) {
+        /* DFSDM1CLK clock frequency */
+        switch (LL_RCC_GetDFSDMAudioClockSource(DFSDMxSource)) {
+            case LL_RCC_DFSDM1_AUDIO_CLKSOURCE_I2S1:     /* I2S1 clock used as DFSDM1 clock */
+                dfsdm_frequency = LL_RCC_GetI2SClockFreq(LL_RCC_I2S1_CLKSOURCE);
+                break;
 
-      case LL_RCC_DFSDM1_AUDIO_CLKSOURCE_I2S2:     /* I2S2 clock used as DFSDM1 clock */
-      default:
-        dfsdm_frequency = LL_RCC_GetI2SClockFreq(LL_RCC_I2S2_CLKSOURCE);
-        break;
+            case LL_RCC_DFSDM1_AUDIO_CLKSOURCE_I2S2:     /* I2S2 clock used as DFSDM1 clock */
+            default:
+                dfsdm_frequency = LL_RCC_GetI2SClockFreq(LL_RCC_I2S2_CLKSOURCE);
+                break;
+        }
     }
-  }
 #if defined(DFSDM2_Channel0)
-  else
-  {
-    /* DFSDM2CLK clock frequency */
-    switch (LL_RCC_GetDFSDMAudioClockSource(DFSDMxSource))
-    {
-      case LL_RCC_DFSDM2_AUDIO_CLKSOURCE_I2S1:     /* I2S1 clock used as DFSDM2 clock */
-        dfsdm_frequency = LL_RCC_GetI2SClockFreq(LL_RCC_I2S1_CLKSOURCE);
-        break;
+    else {
+        /* DFSDM2CLK clock frequency */
+        switch (LL_RCC_GetDFSDMAudioClockSource(DFSDMxSource)) {
+            case LL_RCC_DFSDM2_AUDIO_CLKSOURCE_I2S1:     /* I2S1 clock used as DFSDM2 clock */
+                dfsdm_frequency = LL_RCC_GetI2SClockFreq(LL_RCC_I2S1_CLKSOURCE);
+                break;
 
-      case LL_RCC_DFSDM2_AUDIO_CLKSOURCE_I2S2:     /* I2S2 clock used as DFSDM2 clock */
-      default:
-        dfsdm_frequency = LL_RCC_GetI2SClockFreq(LL_RCC_I2S2_CLKSOURCE);
-        break;
+            case LL_RCC_DFSDM2_AUDIO_CLKSOURCE_I2S2:     /* I2S2 clock used as DFSDM2 clock */
+            default:
+                dfsdm_frequency = LL_RCC_GetI2SClockFreq(LL_RCC_I2S2_CLKSOURCE);
+                break;
+        }
     }
-  }
 #endif /* DFSDM2_Channel0 */
 
-  return dfsdm_frequency;
+    return dfsdm_frequency;
 }
 #endif /* DFSDM1_Channel0 */
 
@@ -1000,28 +934,26 @@ uint32_t LL_RCC_GetDFSDMAudioClockFreq(uint32_t DFSDMxSource)
   */
 uint32_t LL_RCC_GetDSIClockFreq(uint32_t DSIxSource)
 {
-  uint32_t dsi_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t dsi_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_DSI_CLKSOURCE(DSIxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_DSI_CLKSOURCE(DSIxSource));
 
-  /* DSICLK clock frequency */
-  switch (LL_RCC_GetDSIClockSource(DSIxSource))
-  {
-    case LL_RCC_DSI_CLKSOURCE_PLL:     /* DSI Clock is PLL Osc. */
-      if (LL_RCC_PLL_IsReady())
-      {
-        dsi_frequency = RCC_PLL_GetFreqDomain_DSI();
-      }
-      break;
+    /* DSICLK clock frequency */
+    switch (LL_RCC_GetDSIClockSource(DSIxSource)) {
+        case LL_RCC_DSI_CLKSOURCE_PLL:     /* DSI Clock is PLL Osc. */
+            if (LL_RCC_PLL_IsReady()) {
+                dsi_frequency = RCC_PLL_GetFreqDomain_DSI();
+            }
+            break;
 
-    case LL_RCC_DSI_CLKSOURCE_PHY:    /* DSI Clock is DSI physical clock. */
-    default:
-      dsi_frequency = LL_RCC_PERIPH_FREQUENCY_NA;
-      break;
-  }
+        case LL_RCC_DSI_CLKSOURCE_PHY:    /* DSI Clock is DSI physical clock. */
+        default:
+            dsi_frequency = LL_RCC_PERIPH_FREQUENCY_NA;
+            break;
+    }
 
-  return dsi_frequency;
+    return dsi_frequency;
 }
 #endif /* DSI */
 
@@ -1035,17 +967,16 @@ uint32_t LL_RCC_GetDSIClockFreq(uint32_t DSIxSource)
   */
 uint32_t LL_RCC_GetLTDCClockFreq(uint32_t LTDCxSource)
 {
-  uint32_t ltdc_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t ltdc_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_LTDC_CLKSOURCE(LTDCxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_LTDC_CLKSOURCE(LTDCxSource));
 
-  if (LL_RCC_PLLSAI_IsReady())
-  {
-     ltdc_frequency = RCC_PLLSAI_GetFreqDomain_LTDC();
-  }
+    if (LL_RCC_PLLSAI_IsReady()) {
+        ltdc_frequency = RCC_PLLSAI_GetFreqDomain_LTDC();
+    }
 
-  return ltdc_frequency;
+    return ltdc_frequency;
 }
 #endif /* LTDC */
 
@@ -1059,31 +990,28 @@ uint32_t LL_RCC_GetLTDCClockFreq(uint32_t LTDCxSource)
   */
 uint32_t LL_RCC_GetSPDIFRXClockFreq(uint32_t SPDIFRXxSource)
 {
-  uint32_t spdifrx_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+    uint32_t spdifrx_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
-  /* Check parameter */
-  assert_param(IS_LL_RCC_SPDIFRX_CLKSOURCE(SPDIFRXxSource));
+    /* Check parameter */
+    assert_param(IS_LL_RCC_SPDIFRX_CLKSOURCE(SPDIFRXxSource));
 
-  /* SPDIFRX1CLK clock frequency */
-  switch (LL_RCC_GetSPDIFRXClockSource(SPDIFRXxSource))
-  {
-    case LL_RCC_SPDIFRX1_CLKSOURCE_PLLI2S:  /* SPDIFRX Clock is PLLI2S Osc. */
-      if (LL_RCC_PLLI2S_IsReady())
-      {
-        spdifrx_frequency = RCC_PLLI2S_GetFreqDomain_SPDIFRX();
-      }
-      break;
+    /* SPDIFRX1CLK clock frequency */
+    switch (LL_RCC_GetSPDIFRXClockSource(SPDIFRXxSource)) {
+        case LL_RCC_SPDIFRX1_CLKSOURCE_PLLI2S:  /* SPDIFRX Clock is PLLI2S Osc. */
+            if (LL_RCC_PLLI2S_IsReady()) {
+                spdifrx_frequency = RCC_PLLI2S_GetFreqDomain_SPDIFRX();
+            }
+            break;
 
-    case LL_RCC_SPDIFRX1_CLKSOURCE_PLL:     /* SPDIFRX Clock is PLL Osc. */
-    default:
-      if (LL_RCC_PLL_IsReady())
-      {
-        spdifrx_frequency = RCC_PLL_GetFreqDomain_SPDIFRX();
-      }
-      break;
-  }
+        case LL_RCC_SPDIFRX1_CLKSOURCE_PLL:     /* SPDIFRX Clock is PLL Osc. */
+        default:
+            if (LL_RCC_PLL_IsReady()) {
+                spdifrx_frequency = RCC_PLL_GetFreqDomain_SPDIFRX();
+            }
+            break;
+    }
 
-  return spdifrx_frequency;
+    return spdifrx_frequency;
 }
 #endif /* SPDIFRX */
 
@@ -1105,35 +1033,34 @@ uint32_t LL_RCC_GetSPDIFRXClockFreq(uint32_t SPDIFRXxSource)
   */
 uint32_t RCC_GetSystemClockFreq(void)
 {
-  uint32_t frequency = 0U;
+    uint32_t frequency = 0U;
 
-  /* Get SYSCLK source -------------------------------------------------------*/
-  switch (LL_RCC_GetSysClkSource())
-  {
-    case LL_RCC_SYS_CLKSOURCE_STATUS_HSI:  /* HSI used as system clock  source */
-      frequency = HSI_VALUE;
-      break;
+    /* Get SYSCLK source -------------------------------------------------------*/
+    switch (LL_RCC_GetSysClkSource()) {
+        case LL_RCC_SYS_CLKSOURCE_STATUS_HSI:  /* HSI used as system clock  source */
+            frequency = HSI_VALUE;
+            break;
 
-    case LL_RCC_SYS_CLKSOURCE_STATUS_HSE:  /* HSE used as system clock  source */
-      frequency = HSE_VALUE;
-      break;
+        case LL_RCC_SYS_CLKSOURCE_STATUS_HSE:  /* HSE used as system clock  source */
+            frequency = HSE_VALUE;
+            break;
 
-    case LL_RCC_SYS_CLKSOURCE_STATUS_PLL:  /* PLL used as system clock  source */
-      frequency = RCC_PLL_GetFreqDomain_SYS(LL_RCC_SYS_CLKSOURCE_STATUS_PLL);
-      break;
+        case LL_RCC_SYS_CLKSOURCE_STATUS_PLL:  /* PLL used as system clock  source */
+            frequency = RCC_PLL_GetFreqDomain_SYS(LL_RCC_SYS_CLKSOURCE_STATUS_PLL);
+            break;
 
 #if defined(RCC_PLLR_SYSCLK_SUPPORT)
-    case LL_RCC_SYS_CLKSOURCE_STATUS_PLLR: /* PLLR used as system clock  source */
-      frequency = RCC_PLL_GetFreqDomain_SYS(LL_RCC_SYS_CLKSOURCE_STATUS_PLLR);
-      break;
+        case LL_RCC_SYS_CLKSOURCE_STATUS_PLLR: /* PLLR used as system clock  source */
+            frequency = RCC_PLL_GetFreqDomain_SYS(LL_RCC_SYS_CLKSOURCE_STATUS_PLLR);
+            break;
 #endif /* RCC_PLLR_SYSCLK_SUPPORT */
 
-    default:
-      frequency = HSI_VALUE;
-      break;
-  }
+        default:
+            frequency = HSI_VALUE;
+            break;
+    }
 
-  return frequency;
+    return frequency;
 }
 
 /**
@@ -1143,8 +1070,8 @@ uint32_t RCC_GetSystemClockFreq(void)
   */
 uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency)
 {
-  /* HCLK clock frequency */
-  return __LL_RCC_CALC_HCLK_FREQ(SYSCLK_Frequency, LL_RCC_GetAHBPrescaler());
+    /* HCLK clock frequency */
+    return __LL_RCC_CALC_HCLK_FREQ(SYSCLK_Frequency, LL_RCC_GetAHBPrescaler());
 }
 
 /**
@@ -1154,8 +1081,8 @@ uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency)
   */
 uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency)
 {
-  /* PCLK1 clock frequency */
-  return __LL_RCC_CALC_PCLK1_FREQ(HCLK_Frequency, LL_RCC_GetAPB1Prescaler());
+    /* PCLK1 clock frequency */
+    return __LL_RCC_CALC_PCLK1_FREQ(HCLK_Frequency, LL_RCC_GetAPB1Prescaler());
 }
 
 /**
@@ -1165,8 +1092,8 @@ uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency)
   */
 uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency)
 {
-  /* PCLK2 clock frequency */
-  return __LL_RCC_CALC_PCLK2_FREQ(HCLK_Frequency, LL_RCC_GetAPB2Prescaler());
+    /* PCLK2 clock frequency */
+    return __LL_RCC_CALC_PCLK2_FREQ(HCLK_Frequency, LL_RCC_GetAPB2Prescaler());
 }
 
 /**
@@ -1176,42 +1103,39 @@ uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency)
   */
 uint32_t RCC_PLL_GetFreqDomain_SYS(uint32_t SYSCLK_Source)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U, plloutputfreq = 0U;
+    uint32_t pllinputfreq = 0U, pllsource = 0U, plloutputfreq = 0U;
 
-  /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN
-     SYSCLK = PLL_VCO / (PLLP or PLLR)
-  */
-  pllsource = LL_RCC_PLL_GetMainSource();
+    /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN
+       SYSCLK = PLL_VCO / (PLLP or PLLR)
+    */
+    pllsource = LL_RCC_PLL_GetMainSource();
 
-  switch (pllsource)
-  {
-    case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
-      pllinputfreq = HSI_VALUE;
-      break;
+    switch (pllsource) {
+        case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
+            pllinputfreq = HSI_VALUE;
+            break;
 
-    case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
-      pllinputfreq = HSE_VALUE;
-      break;
+        case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
+            pllinputfreq = HSE_VALUE;
+            break;
 
-    default:
-      pllinputfreq = HSI_VALUE;
-      break;
-  }
+        default:
+            pllinputfreq = HSI_VALUE;
+            break;
+    }
 
-  if (SYSCLK_Source == LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
-  {
-    plloutputfreq = __LL_RCC_CALC_PLLCLK_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
-                                        LL_RCC_PLL_GetN(), LL_RCC_PLL_GetP());
-  }
+    if (SYSCLK_Source == LL_RCC_SYS_CLKSOURCE_STATUS_PLL) {
+        plloutputfreq = __LL_RCC_CALC_PLLCLK_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
+                                                  LL_RCC_PLL_GetN(), LL_RCC_PLL_GetP());
+    }
 #if defined(RCC_PLLR_SYSCLK_SUPPORT)
-  else
-  {
-    plloutputfreq = __LL_RCC_CALC_PLLRCLK_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
-                                        LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR());
-  }
+    else {
+        plloutputfreq = __LL_RCC_CALC_PLLRCLK_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
+                                                   LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR());
+    }
 #endif /* RCC_PLLR_SYSCLK_SUPPORT */
 
-  return plloutputfreq;
+    return plloutputfreq;
 }
 
 /**
@@ -1220,29 +1144,28 @@ uint32_t RCC_PLL_GetFreqDomain_SYS(uint32_t SYSCLK_Source)
   */
 uint32_t RCC_PLL_GetFreqDomain_48M(void)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U;
+    uint32_t pllinputfreq = 0U, pllsource = 0U;
 
-  /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM ) * PLLN
-     48M Domain clock = PLL_VCO / PLLQ
-  */
-  pllsource = LL_RCC_PLL_GetMainSource();
+    /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM ) * PLLN
+       48M Domain clock = PLL_VCO / PLLQ
+    */
+    pllsource = LL_RCC_PLL_GetMainSource();
 
-  switch (pllsource)
-  {
-    case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
-      pllinputfreq = HSI_VALUE;
-      break;
+    switch (pllsource) {
+        case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
+            pllinputfreq = HSI_VALUE;
+            break;
 
-    case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
-      pllinputfreq = HSE_VALUE;
-      break;
+        case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
+            pllinputfreq = HSE_VALUE;
+            break;
 
-    default:
-      pllinputfreq = HSI_VALUE;
-      break;
-  }
-  return __LL_RCC_CALC_PLLCLK_48M_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
-                                        LL_RCC_PLL_GetN(), LL_RCC_PLL_GetQ());
+        default:
+            pllinputfreq = HSI_VALUE;
+            break;
+    }
+    return __LL_RCC_CALC_PLLCLK_48M_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
+                                         LL_RCC_PLL_GetN(), LL_RCC_PLL_GetQ());
 }
 
 #if defined(DSI)
@@ -1252,26 +1175,25 @@ uint32_t RCC_PLL_GetFreqDomain_48M(void)
   */
 uint32_t RCC_PLL_GetFreqDomain_DSI(void)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U;
+    uint32_t pllinputfreq = 0U, pllsource = 0U;
 
-  /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN
-     DSICLK = PLL_VCO / PLLR
-  */
-  pllsource = LL_RCC_PLL_GetMainSource();
+    /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN
+       DSICLK = PLL_VCO / PLLR
+    */
+    pllsource = LL_RCC_PLL_GetMainSource();
 
-  switch (pllsource)
-  {
-    case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
-      pllinputfreq = HSE_VALUE;
-      break;
+    switch (pllsource) {
+        case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
+            pllinputfreq = HSE_VALUE;
+            break;
 
-    case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
-    default:
-      pllinputfreq = HSI_VALUE;
-      break;
-  }
-  return __LL_RCC_CALC_PLLCLK_DSI_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
-                                        LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR());
+        case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
+        default:
+            pllinputfreq = HSI_VALUE;
+            break;
+    }
+    return __LL_RCC_CALC_PLLCLK_DSI_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
+                                         LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR());
 }
 #endif /* DSI */
 
@@ -1282,26 +1204,25 @@ uint32_t RCC_PLL_GetFreqDomain_DSI(void)
   */
 uint32_t RCC_PLL_GetFreqDomain_I2S(void)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U;
+    uint32_t pllinputfreq = 0U, pllsource = 0U;
 
-  /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN
-     I2SCLK = PLL_VCO / PLLR
-  */
-  pllsource = LL_RCC_PLL_GetMainSource();
+    /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN
+       I2SCLK = PLL_VCO / PLLR
+    */
+    pllsource = LL_RCC_PLL_GetMainSource();
 
-  switch (pllsource)
-  {
-    case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
-      pllinputfreq = HSE_VALUE;
-      break;
+    switch (pllsource) {
+        case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
+            pllinputfreq = HSE_VALUE;
+            break;
 
-    case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
-    default:
-      pllinputfreq = HSI_VALUE;
-      break;
-  }
-  return __LL_RCC_CALC_PLLCLK_I2S_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
-                                        LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR());
+        case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
+        default:
+            pllinputfreq = HSI_VALUE;
+            break;
+    }
+    return __LL_RCC_CALC_PLLCLK_I2S_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
+                                         LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR());
 }
 #endif /* RCC_DCKCFGR_I2SSRC || RCC_DCKCFGR_I2S1SRC */
 
@@ -1312,26 +1233,25 @@ uint32_t RCC_PLL_GetFreqDomain_I2S(void)
   */
 uint32_t RCC_PLL_GetFreqDomain_SPDIFRX(void)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U;
+    uint32_t pllinputfreq = 0U, pllsource = 0U;
 
-  /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN
-     SPDIFRXCLK = PLL_VCO / PLLR
-  */
-  pllsource = LL_RCC_PLL_GetMainSource();
+    /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN
+       SPDIFRXCLK = PLL_VCO / PLLR
+    */
+    pllsource = LL_RCC_PLL_GetMainSource();
 
-  switch (pllsource)
-  {
-    case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
-      pllinputfreq = HSE_VALUE;
-      break;
+    switch (pllsource) {
+        case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
+            pllinputfreq = HSE_VALUE;
+            break;
 
-    case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
-    default:
-      pllinputfreq = HSI_VALUE;
-      break;
-  }
-  return __LL_RCC_CALC_PLLCLK_SPDIFRX_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
-                                        LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR());
+        case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
+        default:
+            pllinputfreq = HSI_VALUE;
+            break;
+    }
+    return __LL_RCC_CALC_PLLCLK_SPDIFRX_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
+                                             LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR());
 }
 #endif /* SPDIFRX */
 
@@ -1343,36 +1263,35 @@ uint32_t RCC_PLL_GetFreqDomain_SPDIFRX(void)
   */
 uint32_t RCC_PLL_GetFreqDomain_SAI(void)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U, plloutputfreq = 0U;
+    uint32_t pllinputfreq = 0U, pllsource = 0U, plloutputfreq = 0U;
 
-  /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN
-     SAICLK = (PLL_VCO / PLLR) / PLLDIVR
-     or
-     SAICLK = PLL_VCO / PLLR
-  */
-  pllsource = LL_RCC_PLL_GetMainSource();
+    /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN
+       SAICLK = (PLL_VCO / PLLR) / PLLDIVR
+       or
+       SAICLK = PLL_VCO / PLLR
+    */
+    pllsource = LL_RCC_PLL_GetMainSource();
 
-  switch (pllsource)
-  {
-    case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
-      pllinputfreq = HSE_VALUE;
-      break;
+    switch (pllsource) {
+        case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLL clock source */
+            pllinputfreq = HSE_VALUE;
+            break;
 
-    case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
-    default:
-      pllinputfreq = HSI_VALUE;
-      break;
-  }
+        case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLL clock source */
+        default:
+            pllinputfreq = HSI_VALUE;
+            break;
+    }
 
 #if defined(RCC_DCKCFGR_PLLDIVR)
-  plloutputfreq = __LL_RCC_CALC_PLLCLK_SAI_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
-                                        LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR(), LL_RCC_PLL_GetDIVR());
+    plloutputfreq = __LL_RCC_CALC_PLLCLK_SAI_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
+                                                  LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR(), LL_RCC_PLL_GetDIVR());
 #else
-  plloutputfreq = __LL_RCC_CALC_PLLCLK_SAI_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
-                                        LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR());
+    plloutputfreq = __LL_RCC_CALC_PLLCLK_SAI_FREQ(pllinputfreq, LL_RCC_PLL_GetDivider(),
+                                                  LL_RCC_PLL_GetN(), LL_RCC_PLL_GetR());
 #endif /* RCC_DCKCFGR_PLLDIVR */
 
-  return plloutputfreq;
+    return plloutputfreq;
 }
 #endif /* SAI1 */
 #endif /* RCC_PLLCFGR_PLLR */
@@ -1384,29 +1303,28 @@ uint32_t RCC_PLL_GetFreqDomain_SAI(void)
   */
 uint32_t RCC_PLLSAI_GetFreqDomain_SAI(void)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U;
+    uint32_t pllinputfreq = 0U, pllsource = 0U;
 
-  /* PLLSAI_VCO = (HSE_VALUE or HSI_VALUE / PLLSAIM) * PLLSAIN
-     SAI domain clock  = (PLLSAI_VCO / PLLSAIQ) / PLLSAIDIVQ
-  */
-  pllsource = LL_RCC_PLL_GetMainSource();
+    /* PLLSAI_VCO = (HSE_VALUE or HSI_VALUE / PLLSAIM) * PLLSAIN
+       SAI domain clock  = (PLLSAI_VCO / PLLSAIQ) / PLLSAIDIVQ
+    */
+    pllsource = LL_RCC_PLL_GetMainSource();
 
-  switch (pllsource)
-  {
-    case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLLSAI clock source */
-      pllinputfreq = HSI_VALUE;
-      break;
+    switch (pllsource) {
+        case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLLSAI clock source */
+            pllinputfreq = HSI_VALUE;
+            break;
 
-    case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLLSAI clock source */
-      pllinputfreq = HSE_VALUE;
-      break;
+        case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLLSAI clock source */
+            pllinputfreq = HSE_VALUE;
+            break;
 
-    default:
-      pllinputfreq = HSI_VALUE;
-      break;
-  }
-  return __LL_RCC_CALC_PLLSAI_SAI_FREQ(pllinputfreq, LL_RCC_PLLSAI_GetDivider(),
-                                        LL_RCC_PLLSAI_GetN(), LL_RCC_PLLSAI_GetQ(), LL_RCC_PLLSAI_GetDIVQ());
+        default:
+            pllinputfreq = HSI_VALUE;
+            break;
+    }
+    return __LL_RCC_CALC_PLLSAI_SAI_FREQ(pllinputfreq, LL_RCC_PLLSAI_GetDivider(),
+                                         LL_RCC_PLLSAI_GetN(), LL_RCC_PLLSAI_GetQ(), LL_RCC_PLLSAI_GetDIVQ());
 }
 
 #if defined(RCC_PLLSAICFGR_PLLSAIP)
@@ -1416,29 +1334,28 @@ uint32_t RCC_PLLSAI_GetFreqDomain_SAI(void)
   */
 uint32_t RCC_PLLSAI_GetFreqDomain_48M(void)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U;
+    uint32_t pllinputfreq = 0U, pllsource = 0U;
 
-  /* PLLSAI_VCO = (HSE_VALUE or HSI_VALUE / PLLSAIM) * PLLSAIN
-     48M Domain clock  = PLLSAI_VCO / PLLSAIP
-  */
-  pllsource = LL_RCC_PLL_GetMainSource();
+    /* PLLSAI_VCO = (HSE_VALUE or HSI_VALUE / PLLSAIM) * PLLSAIN
+       48M Domain clock  = PLLSAI_VCO / PLLSAIP
+    */
+    pllsource = LL_RCC_PLL_GetMainSource();
 
-  switch (pllsource)
-  {
-    case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLLSAI clock source */
-      pllinputfreq = HSI_VALUE;
-      break;
+    switch (pllsource) {
+        case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLLSAI clock source */
+            pllinputfreq = HSI_VALUE;
+            break;
 
-    case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLLSAI clock source */
-      pllinputfreq = HSE_VALUE;
-      break;
+        case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLLSAI clock source */
+            pllinputfreq = HSE_VALUE;
+            break;
 
-    default:
-      pllinputfreq = HSI_VALUE;
-      break;
-  }
-  return __LL_RCC_CALC_PLLSAI_48M_FREQ(pllinputfreq, LL_RCC_PLLSAI_GetDivider(),
-                                        LL_RCC_PLLSAI_GetN(), LL_RCC_PLLSAI_GetP());
+        default:
+            pllinputfreq = HSI_VALUE;
+            break;
+    }
+    return __LL_RCC_CALC_PLLSAI_48M_FREQ(pllinputfreq, LL_RCC_PLLSAI_GetDivider(),
+                                         LL_RCC_PLLSAI_GetN(), LL_RCC_PLLSAI_GetP());
 }
 #endif /* RCC_PLLSAICFGR_PLLSAIP */
 
@@ -1449,29 +1366,28 @@ uint32_t RCC_PLLSAI_GetFreqDomain_48M(void)
   */
 uint32_t RCC_PLLSAI_GetFreqDomain_LTDC(void)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U;
+    uint32_t pllinputfreq = 0U, pllsource = 0U;
 
-  /* PLLSAI_VCO = (HSE_VALUE or HSI_VALUE / PLLSAIM) * PLLSAIN
-     LTDC Domain clock  = (PLLSAI_VCO / PLLSAIR) / PLLSAIDIVR
-  */
-  pllsource = LL_RCC_PLL_GetMainSource();
+    /* PLLSAI_VCO = (HSE_VALUE or HSI_VALUE / PLLSAIM) * PLLSAIN
+       LTDC Domain clock  = (PLLSAI_VCO / PLLSAIR) / PLLSAIDIVR
+    */
+    pllsource = LL_RCC_PLL_GetMainSource();
 
-  switch (pllsource)
-  {
-    case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLLSAI clock source */
-      pllinputfreq = HSI_VALUE;
-      break;
+    switch (pllsource) {
+        case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLLSAI clock source */
+            pllinputfreq = HSI_VALUE;
+            break;
 
-    case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLLSAI clock source */
-      pllinputfreq = HSE_VALUE;
-      break;
+        case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLLSAI clock source */
+            pllinputfreq = HSE_VALUE;
+            break;
 
-    default:
-      pllinputfreq = HSI_VALUE;
-      break;
-  }
-  return __LL_RCC_CALC_PLLSAI_LTDC_FREQ(pllinputfreq, LL_RCC_PLLSAI_GetDivider(),
-                                        LL_RCC_PLLSAI_GetN(), LL_RCC_PLLSAI_GetR(), LL_RCC_PLLSAI_GetDIVR());
+        default:
+            pllinputfreq = HSI_VALUE;
+            break;
+    }
+    return __LL_RCC_CALC_PLLSAI_LTDC_FREQ(pllinputfreq, LL_RCC_PLLSAI_GetDivider(),
+                                          LL_RCC_PLLSAI_GetN(), LL_RCC_PLLSAI_GetR(), LL_RCC_PLLSAI_GetDIVR());
 }
 #endif /* LTDC */
 #endif /* RCC_PLLSAI_SUPPORT */
@@ -1484,42 +1400,41 @@ uint32_t RCC_PLLSAI_GetFreqDomain_LTDC(void)
   */
 uint32_t RCC_PLLI2S_GetFreqDomain_SAI(void)
 {
-  uint32_t plli2sinputfreq = 0U, plli2ssource = 0U, plli2soutputfreq = 0U;
+    uint32_t plli2sinputfreq = 0U, plli2ssource = 0U, plli2soutputfreq = 0U;
 
-  /* PLLI2S_VCO = (HSE_VALUE or HSI_VALUE / PLLI2SM) * PLLI2SN
-     SAI domain clock  = (PLLI2S_VCO / PLLI2SQ) / PLLI2SDIVQ
-     or
-     SAI domain clock  = (PLLI2S_VCO / PLLI2SR) / PLLI2SDIVR
-  */
-  plli2ssource = LL_RCC_PLLI2S_GetMainSource();
+    /* PLLI2S_VCO = (HSE_VALUE or HSI_VALUE / PLLI2SM) * PLLI2SN
+       SAI domain clock  = (PLLI2S_VCO / PLLI2SQ) / PLLI2SDIVQ
+       or
+       SAI domain clock  = (PLLI2S_VCO / PLLI2SR) / PLLI2SDIVR
+    */
+    plli2ssource = LL_RCC_PLLI2S_GetMainSource();
 
-  switch (plli2ssource)
-  {
-    case LL_RCC_PLLSOURCE_HSE:     /* HSE used as PLLI2S clock source */
-      plli2sinputfreq = HSE_VALUE;
-      break;
+    switch (plli2ssource) {
+        case LL_RCC_PLLSOURCE_HSE:     /* HSE used as PLLI2S clock source */
+            plli2sinputfreq = HSE_VALUE;
+            break;
 
 #if defined(RCC_PLLI2SCFGR_PLLI2SSRC)
-    case LL_RCC_PLLI2SSOURCE_PIN:  /* External pin input clock used as PLLI2S clock source */
-      plli2sinputfreq = EXTERNAL_CLOCK_VALUE;
-      break;
+        case LL_RCC_PLLI2SSOURCE_PIN:  /* External pin input clock used as PLLI2S clock source */
+            plli2sinputfreq = EXTERNAL_CLOCK_VALUE;
+            break;
 #endif /* RCC_PLLI2SCFGR_PLLI2SSRC */
 
-    case LL_RCC_PLLSOURCE_HSI:     /* HSI used as PLLI2S clock source */
-    default:
-      plli2sinputfreq = HSI_VALUE;
-      break;
-  }
+        case LL_RCC_PLLSOURCE_HSI:     /* HSI used as PLLI2S clock source */
+        default:
+            plli2sinputfreq = HSI_VALUE;
+            break;
+    }
 
 #if defined(RCC_DCKCFGR_PLLI2SDIVQ)
-  plli2soutputfreq = __LL_RCC_CALC_PLLI2S_SAI_FREQ(plli2sinputfreq, LL_RCC_PLLI2S_GetDivider(),
-                                          LL_RCC_PLLI2S_GetN(), LL_RCC_PLLI2S_GetQ(), LL_RCC_PLLI2S_GetDIVQ());
+    plli2soutputfreq = __LL_RCC_CALC_PLLI2S_SAI_FREQ(plli2sinputfreq, LL_RCC_PLLI2S_GetDivider(),
+                                                     LL_RCC_PLLI2S_GetN(), LL_RCC_PLLI2S_GetQ(), LL_RCC_PLLI2S_GetDIVQ());
 #else
-  plli2soutputfreq = __LL_RCC_CALC_PLLI2S_SAI_FREQ(plli2sinputfreq, LL_RCC_PLLI2S_GetDivider(),
-                                          LL_RCC_PLLI2S_GetN(), LL_RCC_PLLI2S_GetR(), LL_RCC_PLLI2S_GetDIVR());
+    plli2soutputfreq = __LL_RCC_CALC_PLLI2S_SAI_FREQ(plli2sinputfreq, LL_RCC_PLLI2S_GetDivider(),
+                                                     LL_RCC_PLLI2S_GetN(), LL_RCC_PLLI2S_GetR(), LL_RCC_PLLI2S_GetDIVR());
 #endif /* RCC_DCKCFGR_PLLI2SDIVQ */
 
-  return plli2soutputfreq;
+    return plli2soutputfreq;
 }
 #endif /* SAI1 */
 
@@ -1530,27 +1445,26 @@ uint32_t RCC_PLLI2S_GetFreqDomain_SAI(void)
   */
 uint32_t RCC_PLLI2S_GetFreqDomain_SPDIFRX(void)
 {
-  uint32_t pllinputfreq = 0U, pllsource = 0U;
+    uint32_t pllinputfreq = 0U, pllsource = 0U;
 
-  /* PLLI2S_VCO = (HSE_VALUE or HSI_VALUE / PLLI2SM) * PLLI2SN
-     SPDIFRX Domain clock  = PLLI2S_VCO / PLLI2SP
-  */
-  pllsource = LL_RCC_PLLI2S_GetMainSource();
+    /* PLLI2S_VCO = (HSE_VALUE or HSI_VALUE / PLLI2SM) * PLLI2SN
+       SPDIFRX Domain clock  = PLLI2S_VCO / PLLI2SP
+    */
+    pllsource = LL_RCC_PLLI2S_GetMainSource();
 
-  switch (pllsource)
-  {
-    case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLLI2S clock source */
-      pllinputfreq = HSE_VALUE;
-      break;
+    switch (pllsource) {
+        case LL_RCC_PLLSOURCE_HSE:  /* HSE used as PLLI2S clock source */
+            pllinputfreq = HSE_VALUE;
+            break;
 
-    case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLLI2S clock source */
-    default:
-      pllinputfreq = HSI_VALUE;
-      break;
-  }
+        case LL_RCC_PLLSOURCE_HSI:  /* HSI used as PLLI2S clock source */
+        default:
+            pllinputfreq = HSI_VALUE;
+            break;
+    }
 
-  return __LL_RCC_CALC_PLLI2S_SPDIFRX_FREQ(pllinputfreq, LL_RCC_PLLI2S_GetDivider(),
-                                           LL_RCC_PLLI2S_GetN(), LL_RCC_PLLI2S_GetP());
+    return __LL_RCC_CALC_PLLI2S_SPDIFRX_FREQ(pllinputfreq, LL_RCC_PLLI2S_GetDivider(),
+                                             LL_RCC_PLLI2S_GetN(), LL_RCC_PLLI2S_GetP());
 }
 #endif /* SPDIFRX */
 
@@ -1560,35 +1474,34 @@ uint32_t RCC_PLLI2S_GetFreqDomain_SPDIFRX(void)
   */
 uint32_t RCC_PLLI2S_GetFreqDomain_I2S(void)
 {
-  uint32_t plli2sinputfreq = 0U, plli2ssource = 0U, plli2soutputfreq = 0U;
+    uint32_t plli2sinputfreq = 0U, plli2ssource = 0U, plli2soutputfreq = 0U;
 
-  /* PLLI2S_VCO = (HSE_VALUE or HSI_VALUE / PLLI2SM) * PLLI2SN
-     I2S Domain clock  = PLLI2S_VCO / PLLI2SR
-  */
-  plli2ssource = LL_RCC_PLLI2S_GetMainSource();
+    /* PLLI2S_VCO = (HSE_VALUE or HSI_VALUE / PLLI2SM) * PLLI2SN
+       I2S Domain clock  = PLLI2S_VCO / PLLI2SR
+    */
+    plli2ssource = LL_RCC_PLLI2S_GetMainSource();
 
-  switch (plli2ssource)
-  {
-    case LL_RCC_PLLSOURCE_HSE:     /* HSE used as PLLI2S clock source */
-      plli2sinputfreq = HSE_VALUE;
-      break;
+    switch (plli2ssource) {
+        case LL_RCC_PLLSOURCE_HSE:     /* HSE used as PLLI2S clock source */
+            plli2sinputfreq = HSE_VALUE;
+            break;
 
 #if defined(RCC_PLLI2SCFGR_PLLI2SSRC)
-    case LL_RCC_PLLI2SSOURCE_PIN:  /* External pin input clock used as PLLI2S clock source */
-      plli2sinputfreq = EXTERNAL_CLOCK_VALUE;
-      break;
+        case LL_RCC_PLLI2SSOURCE_PIN:  /* External pin input clock used as PLLI2S clock source */
+            plli2sinputfreq = EXTERNAL_CLOCK_VALUE;
+            break;
 #endif /* RCC_PLLI2SCFGR_PLLI2SSRC */
 
-    case LL_RCC_PLLSOURCE_HSI:     /* HSI used as PLLI2S clock source */
-    default:
-      plli2sinputfreq = HSI_VALUE;
-      break;
-  }
+        case LL_RCC_PLLSOURCE_HSI:     /* HSI used as PLLI2S clock source */
+        default:
+            plli2sinputfreq = HSI_VALUE;
+            break;
+    }
 
-  plli2soutputfreq = __LL_RCC_CALC_PLLI2S_I2S_FREQ(plli2sinputfreq, LL_RCC_PLLI2S_GetDivider(),
-                                                   LL_RCC_PLLI2S_GetN(), LL_RCC_PLLI2S_GetR());
+    plli2soutputfreq = __LL_RCC_CALC_PLLI2S_I2S_FREQ(plli2sinputfreq, LL_RCC_PLLI2S_GetDivider(),
+                                                     LL_RCC_PLLI2S_GetN(), LL_RCC_PLLI2S_GetR());
 
-  return plli2soutputfreq;
+    return plli2soutputfreq;
 }
 
 #if defined(RCC_PLLI2SCFGR_PLLI2SQ) && !defined(RCC_DCKCFGR_PLLI2SDIVQ)
@@ -1598,35 +1511,34 @@ uint32_t RCC_PLLI2S_GetFreqDomain_I2S(void)
   */
 uint32_t RCC_PLLI2S_GetFreqDomain_48M(void)
 {
-  uint32_t plli2sinputfreq = 0U, plli2ssource = 0U, plli2soutputfreq = 0U;
+    uint32_t plli2sinputfreq = 0U, plli2ssource = 0U, plli2soutputfreq = 0U;
 
-  /* PLL48M_VCO = (HSE_VALUE or HSI_VALUE / PLLI2SM) * PLLI2SN
-     48M Domain clock  = PLLI2S_VCO / PLLI2SQ
-  */
-  plli2ssource = LL_RCC_PLLI2S_GetMainSource();
+    /* PLL48M_VCO = (HSE_VALUE or HSI_VALUE / PLLI2SM) * PLLI2SN
+       48M Domain clock  = PLLI2S_VCO / PLLI2SQ
+    */
+    plli2ssource = LL_RCC_PLLI2S_GetMainSource();
 
-  switch (plli2ssource)
-  {
-    case LL_RCC_PLLSOURCE_HSE:     /* HSE used as PLLI2S clock source */
-      plli2sinputfreq = HSE_VALUE;
-      break;
+    switch (plli2ssource) {
+        case LL_RCC_PLLSOURCE_HSE:     /* HSE used as PLLI2S clock source */
+            plli2sinputfreq = HSE_VALUE;
+            break;
 
 #if defined(RCC_PLLI2SCFGR_PLLI2SSRC)
-    case LL_RCC_PLLI2SSOURCE_PIN:  /* External pin input clock used as PLLI2S clock source */
-      plli2sinputfreq = EXTERNAL_CLOCK_VALUE;
-      break;
+        case LL_RCC_PLLI2SSOURCE_PIN:  /* External pin input clock used as PLLI2S clock source */
+            plli2sinputfreq = EXTERNAL_CLOCK_VALUE;
+            break;
 #endif /* RCC_PLLI2SCFGR_PLLI2SSRC */
 
-    case LL_RCC_PLLSOURCE_HSI:     /* HSI used as PLLI2S clock source */
-    default:
-      plli2sinputfreq = HSI_VALUE;
-      break;
-  }
+        case LL_RCC_PLLSOURCE_HSI:     /* HSI used as PLLI2S clock source */
+        default:
+            plli2sinputfreq = HSI_VALUE;
+            break;
+    }
 
-  plli2soutputfreq = __LL_RCC_CALC_PLLI2S_48M_FREQ(plli2sinputfreq, LL_RCC_PLLI2S_GetDivider(),
-                                                   LL_RCC_PLLI2S_GetN(), LL_RCC_PLLI2S_GetQ());
+    plli2soutputfreq = __LL_RCC_CALC_PLLI2S_48M_FREQ(plli2sinputfreq, LL_RCC_PLLI2S_GetDivider(),
+                                                     LL_RCC_PLLI2S_GetN(), LL_RCC_PLLI2S_GetQ());
 
-  return plli2soutputfreq;
+    return plli2soutputfreq;
 }
 #endif /* RCC_PLLI2SCFGR_PLLI2SQ && !RCC_DCKCFGR_PLLI2SDIVQ */
 #endif /* RCC_PLLI2S_SUPPORT */

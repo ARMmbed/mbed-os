@@ -150,133 +150,133 @@ extern "C" {
 
 /** EBI Mode of operation */
 typedef enum {
-  /** 8 data bits, 8 address bits */
-  ebiModeD8A8      = EBI_CTRL_MODE_D8A8,
-  /** 16 data bits, 16 address bits, using address latch enable */
-  ebiModeD16A16ALE = EBI_CTRL_MODE_D16A16ALE,
-  /** 8 data bits, 24 address bits, using address latch enable */
-  ebiModeD8A24ALE  = EBI_CTRL_MODE_D8A24ALE,
+    /** 8 data bits, 8 address bits */
+    ebiModeD8A8      = EBI_CTRL_MODE_D8A8,
+    /** 16 data bits, 16 address bits, using address latch enable */
+    ebiModeD16A16ALE = EBI_CTRL_MODE_D16A16ALE,
+    /** 8 data bits, 24 address bits, using address latch enable */
+    ebiModeD8A24ALE  = EBI_CTRL_MODE_D8A24ALE,
 #if defined(EBI_CTRL_MODE_D16)
-  /** Mode D16 */
-  ebiModeD16       = EBI_CTRL_MODE_D16,
+    /** Mode D16 */
+    ebiModeD16       = EBI_CTRL_MODE_D16,
 #endif
 } EBI_Mode_TypeDef;
 
 /** EBI Polarity configuration */
 typedef enum {
-  /** Active Low */
-  ebiActiveLow  = 0,
-  /** Active High */
-  ebiActiveHigh = 1
+    /** Active Low */
+    ebiActiveLow  = 0,
+    /** Active High */
+    ebiActiveHigh = 1
 } EBI_Polarity_TypeDef;
 
 /** EBI Pin Line types */
 typedef enum {
-  /** Address Ready line */
-  ebiLineARDY,
-  /** Address Latch Enable line */
-  ebiLineALE,
-  /** Write Enable line */
-  ebiLineWE,
-  /** Read Enable line */
-  ebiLineRE,
-  /** Chip Select line */
-  ebiLineCS,
+    /** Address Ready line */
+    ebiLineARDY,
+    /** Address Latch Enable line */
+    ebiLineALE,
+    /** Write Enable line */
+    ebiLineWE,
+    /** Read Enable line */
+    ebiLineRE,
+    /** Chip Select line */
+    ebiLineCS,
 #if defined(_EBI_POLARITY_BLPOL_MASK)
-  /** BL line */
-  ebiLineBL,
+    /** BL line */
+    ebiLineBL,
 #endif
 #if defined(_EBI_TFTPOLARITY_MASK)
-  /** TFT VSYNC line */
-  ebiLineTFTVSync,
-  /** TFT HSYNC line */
-  ebiLineTFTHSync,
-  /** TFT Data enable line */
-  ebiLineTFTDataEn,
-  /** TFT DCLK line */
-  ebiLineTFTDClk,
-  /** TFT Chip select line */
-  ebiLineTFTCS,
+    /** TFT VSYNC line */
+    ebiLineTFTVSync,
+    /** TFT HSYNC line */
+    ebiLineTFTHSync,
+    /** TFT Data enable line */
+    ebiLineTFTDataEn,
+    /** TFT DCLK line */
+    ebiLineTFTDClk,
+    /** TFT Chip select line */
+    ebiLineTFTCS,
 #endif
 } EBI_Line_TypeDef;
 
 #if !defined(_EFM32_GECKO_FAMILY)
 /** Address Pin Enable, lower limit - lower range of pins to enable */
 typedef enum {
-  /** Adress lines EBI_A[0] and upwards are enabled by APEN */
-  ebiALowA0 = EBI_GENERIC_ALB_A0,
-  /** Adress lines EBI_A[8] and upwards are enabled by APEN */
-  ebiALowA8 = EBI_GENERIC_ALB_A8,
-  /** Adress lines EBI_A[16] and upwards are enabled by APEN */
-  ebiALowA16 = EBI_GENERIC_ALB_A16,
-  /** Adress lines EBI_A[24] and upwards are enabled by APEN */
-  ebiALowA24 = EBI_GENERIC_ALB_A24,
+    /** Adress lines EBI_A[0] and upwards are enabled by APEN */
+    ebiALowA0 = EBI_GENERIC_ALB_A0,
+    /** Adress lines EBI_A[8] and upwards are enabled by APEN */
+    ebiALowA8 = EBI_GENERIC_ALB_A8,
+    /** Adress lines EBI_A[16] and upwards are enabled by APEN */
+    ebiALowA16 = EBI_GENERIC_ALB_A16,
+    /** Adress lines EBI_A[24] and upwards are enabled by APEN */
+    ebiALowA24 = EBI_GENERIC_ALB_A24,
 } EBI_ALow_TypeDef;
 
 /** Adress Pin Enable, high limit - higher limit of pins to enable */
 typedef enum {
-  /** All EBI_A pins are disabled */
-  ebiAHighA0 = EBI_GENERIC_APEN_A0,
-  /** All EBI_A[4:ALow] are enabled */
-  ebiAHighA5 = EBI_GENERIC_APEN_A5,
-  /** All EBI_A[5:ALow] are enabled */
-  ebiAHighA6 = EBI_GENERIC_APEN_A6,
-  /** All EBI_A[6:ALow] are enabled */
-  ebiAHighA7 = EBI_GENERIC_APEN_A7,
-  /** All EBI_A[7:ALow] are enabled */
-  ebiAHighA8 = EBI_GENERIC_APEN_A8,
-  /** All EBI_A[8:ALow] are enabled */
-  ebiAHighA9 = EBI_GENERIC_APEN_A9,
-  /** All EBI_A[9:ALow] are enabled */
-  ebiAHighA10 = EBI_GENERIC_APEN_A10,
-  /** All EBI_A[10:ALow] are enabled */
-  ebiAHighA11 = EBI_GENERIC_APEN_A11,
-  /** All EBI_A[11:ALow] are enabled */
-  ebiAHighA12 = EBI_GENERIC_APEN_A12,
-  /** All EBI_A[12:ALow] are enabled */
-  ebiAHighA13 = EBI_GENERIC_APEN_A13,
-  /** All EBI_A[13:ALow] are enabled */
-  ebiAHighA14 = EBI_GENERIC_APEN_A14,
-  /** All EBI_A[14:ALow] are enabled */
-  ebiAHighA15 = EBI_GENERIC_APEN_A15,
-  /** All EBI_A[15:ALow] are enabled */
-  ebiAHighA16 = EBI_GENERIC_APEN_A16,
-  /** All EBI_A[16:ALow] are enabled */
-  ebiAHighA17 = EBI_GENERIC_APEN_A17,
-  /** All EBI_A[17:ALow] are enabled */
-  ebiAHighA18 = EBI_GENERIC_APEN_A18,
-  /** All EBI_A[18:ALow] are enabled */
-  ebiAHighA19 = EBI_GENERIC_APEN_A19,
-  /** All EBI_A[19:ALow] are enabled */
-  ebiAHighA20 = EBI_GENERIC_APEN_A20,
-  /** All EBI_A[20:ALow] are enabled */
-  ebiAHighA21 = EBI_GENERIC_APEN_A21,
-  /** All EBI_A[21:ALow] are enabled */
-  ebiAHighA22 = EBI_GENERIC_APEN_A22,
-  /** All EBI_A[22:ALow] are enabled */
-  ebiAHighA23 = EBI_GENERIC_APEN_A23,
-  /** All EBI_A[23:ALow] are enabled */
-  ebiAHighA24 = EBI_GENERIC_APEN_A24,
-  /** All EBI_A[24:ALow] are enabled */
-  ebiAHighA25 = EBI_GENERIC_APEN_A25,
-  /** All EBI_A[25:ALow] are enabled */
-  ebiAHighA26 = EBI_GENERIC_APEN_A26,
-  /** All EBI_A[26:ALow] are enabled */
-  ebiAHighA27 = EBI_GENERIC_APEN_A27,
-  /** All EBI_A[27:ALow] are enabled */
-  ebiAHighA28 = EBI_GENERIC_APEN_A28,
+    /** All EBI_A pins are disabled */
+    ebiAHighA0 = EBI_GENERIC_APEN_A0,
+    /** All EBI_A[4:ALow] are enabled */
+    ebiAHighA5 = EBI_GENERIC_APEN_A5,
+    /** All EBI_A[5:ALow] are enabled */
+    ebiAHighA6 = EBI_GENERIC_APEN_A6,
+    /** All EBI_A[6:ALow] are enabled */
+    ebiAHighA7 = EBI_GENERIC_APEN_A7,
+    /** All EBI_A[7:ALow] are enabled */
+    ebiAHighA8 = EBI_GENERIC_APEN_A8,
+    /** All EBI_A[8:ALow] are enabled */
+    ebiAHighA9 = EBI_GENERIC_APEN_A9,
+    /** All EBI_A[9:ALow] are enabled */
+    ebiAHighA10 = EBI_GENERIC_APEN_A10,
+    /** All EBI_A[10:ALow] are enabled */
+    ebiAHighA11 = EBI_GENERIC_APEN_A11,
+    /** All EBI_A[11:ALow] are enabled */
+    ebiAHighA12 = EBI_GENERIC_APEN_A12,
+    /** All EBI_A[12:ALow] are enabled */
+    ebiAHighA13 = EBI_GENERIC_APEN_A13,
+    /** All EBI_A[13:ALow] are enabled */
+    ebiAHighA14 = EBI_GENERIC_APEN_A14,
+    /** All EBI_A[14:ALow] are enabled */
+    ebiAHighA15 = EBI_GENERIC_APEN_A15,
+    /** All EBI_A[15:ALow] are enabled */
+    ebiAHighA16 = EBI_GENERIC_APEN_A16,
+    /** All EBI_A[16:ALow] are enabled */
+    ebiAHighA17 = EBI_GENERIC_APEN_A17,
+    /** All EBI_A[17:ALow] are enabled */
+    ebiAHighA18 = EBI_GENERIC_APEN_A18,
+    /** All EBI_A[18:ALow] are enabled */
+    ebiAHighA19 = EBI_GENERIC_APEN_A19,
+    /** All EBI_A[19:ALow] are enabled */
+    ebiAHighA20 = EBI_GENERIC_APEN_A20,
+    /** All EBI_A[20:ALow] are enabled */
+    ebiAHighA21 = EBI_GENERIC_APEN_A21,
+    /** All EBI_A[21:ALow] are enabled */
+    ebiAHighA22 = EBI_GENERIC_APEN_A22,
+    /** All EBI_A[22:ALow] are enabled */
+    ebiAHighA23 = EBI_GENERIC_APEN_A23,
+    /** All EBI_A[23:ALow] are enabled */
+    ebiAHighA24 = EBI_GENERIC_APEN_A24,
+    /** All EBI_A[24:ALow] are enabled */
+    ebiAHighA25 = EBI_GENERIC_APEN_A25,
+    /** All EBI_A[25:ALow] are enabled */
+    ebiAHighA26 = EBI_GENERIC_APEN_A26,
+    /** All EBI_A[26:ALow] are enabled */
+    ebiAHighA27 = EBI_GENERIC_APEN_A27,
+    /** All EBI_A[27:ALow] are enabled */
+    ebiAHighA28 = EBI_GENERIC_APEN_A28,
 } EBI_AHigh_TypeDef;
 #endif
 
 #if defined(_EBI_ROUTE_LOCATION_MASK)
 /** EBI I/O Alternate Pin Location */
 typedef enum {
-  /** EBI PIN I/O Location 0 */
-  ebiLocation0 = EBI_ROUTE_LOCATION_LOC0,
-  /** EBI PIN I/O Location 1 */
-  ebiLocation1 = EBI_ROUTE_LOCATION_LOC1,
-  /** EBI PIN I/O Location 2 */
-  ebiLocation2 = EBI_ROUTE_LOCATION_LOC2
+    /** EBI PIN I/O Location 0 */
+    ebiLocation0 = EBI_ROUTE_LOCATION_LOC0,
+    /** EBI PIN I/O Location 1 */
+    ebiLocation1 = EBI_ROUTE_LOCATION_LOC1,
+    /** EBI PIN I/O Location 2 */
+    ebiLocation2 = EBI_ROUTE_LOCATION_LOC2
 } EBI_Location_TypeDef;
 #endif
 
@@ -285,89 +285,89 @@ typedef enum {
 
 /** EBI TFT Graphics Bank Select */
 typedef enum {
-  /** Memory BANK0 contains frame buffer */
-  ebiTFTBank0 = EBI_TFTCTRL_BANKSEL_BANK0,
-  /** Memory BANK1 contains frame buffer */
-  ebiTFTBank1 = EBI_TFTCTRL_BANKSEL_BANK1,
-  /** Memory BANK2 contains frame buffer */
-  ebiTFTBank2 = EBI_TFTCTRL_BANKSEL_BANK2,
-  /** Memory BANK3 contains frame buffer */
-  ebiTFTBank3 = EBI_TFTCTRL_BANKSEL_BANK3
+    /** Memory BANK0 contains frame buffer */
+    ebiTFTBank0 = EBI_TFTCTRL_BANKSEL_BANK0,
+    /** Memory BANK1 contains frame buffer */
+    ebiTFTBank1 = EBI_TFTCTRL_BANKSEL_BANK1,
+    /** Memory BANK2 contains frame buffer */
+    ebiTFTBank2 = EBI_TFTCTRL_BANKSEL_BANK2,
+    /** Memory BANK3 contains frame buffer */
+    ebiTFTBank3 = EBI_TFTCTRL_BANKSEL_BANK3
 } EBI_TFTBank_TypeDef;
 
 /** Masking and Alpha blending source color*/
 typedef enum {
-  /** Use memory as source color for masking/alpha blending */
-  ebiTFTColorSrcMem    = EBI_TFTCTRL_COLOR1SRC_MEM,
-  /** Use PIXEL1 register as source color for masking/alpha blending */
-  ebiTFTColorSrcPixel1 = EBI_TFTCTRL_COLOR1SRC_PIXEL1,
+    /** Use memory as source color for masking/alpha blending */
+    ebiTFTColorSrcMem    = EBI_TFTCTRL_COLOR1SRC_MEM,
+    /** Use PIXEL1 register as source color for masking/alpha blending */
+    ebiTFTColorSrcPixel1 = EBI_TFTCTRL_COLOR1SRC_PIXEL1,
 } EBI_TFTColorSrc_TypeDef;
 
 /** Bus Data Interleave Mode */
 typedef enum {
-  /** Unlimited interleaved accesses per EBI_DCLK period. Can cause jitter */
-  ebiTFTInterleaveUnlimited  = EBI_TFTCTRL_INTERLEAVE_UNLIMITED,
-  /** Allow 1 interleaved access per EBI_DCLK period */
-  ebiTFTInterleaveOnePerDClk = EBI_TFTCTRL_INTERLEAVE_ONEPERDCLK,
-  /** Only allow accesses during porch periods */
-  ebiTFTInterleavePorch      = EBI_TFTCTRL_INTERLEAVE_PORCH,
+    /** Unlimited interleaved accesses per EBI_DCLK period. Can cause jitter */
+    ebiTFTInterleaveUnlimited  = EBI_TFTCTRL_INTERLEAVE_UNLIMITED,
+    /** Allow 1 interleaved access per EBI_DCLK period */
+    ebiTFTInterleaveOnePerDClk = EBI_TFTCTRL_INTERLEAVE_ONEPERDCLK,
+    /** Only allow accesses during porch periods */
+    ebiTFTInterleavePorch      = EBI_TFTCTRL_INTERLEAVE_PORCH,
 } EBI_TFTInterleave_TypeDef;
 
 /** Control frame base pointer copy */
 typedef enum {
-  /** Trigger update of frame buffer pointer on vertical sync */
-  ebiTFTFrameBufTriggerVSync = EBI_TFTCTRL_FBCTRIG_VSYNC,
-  /** Trigger update of frame buffer pointer on horizontal sync */
-  ebiTFTFrameBufTriggerHSync = EBI_TFTCTRL_FBCTRIG_HSYNC,
+    /** Trigger update of frame buffer pointer on vertical sync */
+    ebiTFTFrameBufTriggerVSync = EBI_TFTCTRL_FBCTRIG_VSYNC,
+    /** Trigger update of frame buffer pointer on horizontal sync */
+    ebiTFTFrameBufTriggerHSync = EBI_TFTCTRL_FBCTRIG_HSYNC,
 } EBI_TFTFrameBufTrigger_TypeDef;
 
 /** Control of mask and alpha blending mode */
 typedef enum {
-  /** Masking and blending are disabled */
-  ebiTFTMBDisabled   = EBI_TFTCTRL_MASKBLEND_DISABLED,
-  /** Internal masking */
-  ebiTFTMBIMask      = EBI_TFTCTRL_MASKBLEND_IMASK,
-  /** Internal alpha blending */
-  ebiTFTMBIAlpha     = EBI_TFTCTRL_MASKBLEND_IALPHA,
-  /** Internal masking and alpha blending are enabled */
+    /** Masking and blending are disabled */
+    ebiTFTMBDisabled   = EBI_TFTCTRL_MASKBLEND_DISABLED,
+    /** Internal masking */
+    ebiTFTMBIMask      = EBI_TFTCTRL_MASKBLEND_IMASK,
+    /** Internal alpha blending */
+    ebiTFTMBIAlpha     = EBI_TFTCTRL_MASKBLEND_IALPHA,
+    /** Internal masking and alpha blending are enabled */
 #if defined(EBI_TFTCTRL_MASKBLEND_IMASKIALPHA)
-  ebiTFTMBIMaskAlpha = EBI_TFTCTRL_MASKBLEND_IMASKIALPHA,
+    ebiTFTMBIMaskAlpha = EBI_TFTCTRL_MASKBLEND_IMASKIALPHA,
 #else
-  ebiTFTMBIMaskAlpha = EBI_TFTCTRL_MASKBLEND_IMASKALPHA,
+    ebiTFTMBIMaskAlpha = EBI_TFTCTRL_MASKBLEND_IMASKALPHA,
 #endif
 #if defined(EBI_TFTCTRL_MASKBLEND_EMASK)
-  /** External masking */
-  ebiTFTMBEMask      = EBI_TFTCTRL_MASKBLEND_EMASK,
-  /** External alpha blending */
-  ebiTFTMBEAlpha     = EBI_TFTCTRL_MASKBLEND_EALPHA,
-  /** External masking and alpha blending */
-  ebiTFTMBEMaskAlpha = EBI_TFTCTRL_MASKBLEND_EMASKEALPHA,
+    /** External masking */
+    ebiTFTMBEMask      = EBI_TFTCTRL_MASKBLEND_EMASK,
+    /** External alpha blending */
+    ebiTFTMBEAlpha     = EBI_TFTCTRL_MASKBLEND_EALPHA,
+    /** External masking and alpha blending */
+    ebiTFTMBEMaskAlpha = EBI_TFTCTRL_MASKBLEND_EMASKEALPHA,
 #else
-  /** External masking */
-  ebiTFTMBEMask      = EBI_TFTCTRL_MASKBLEND_EFBMASK,
-  /** External alpha blending */
-  ebiTFTMBEAlpha     = EBI_TFTCTRL_MASKBLEND_EFBALPHA,
-  /** External masking and alpha blending */
-  ebiTFTMBEMaskAlpha = EBI_TFTCTRL_MASKBLEND_EFBMASKALPHA,
+    /** External masking */
+    ebiTFTMBEMask      = EBI_TFTCTRL_MASKBLEND_EFBMASK,
+    /** External alpha blending */
+    ebiTFTMBEAlpha     = EBI_TFTCTRL_MASKBLEND_EFBALPHA,
+    /** External masking and alpha blending */
+    ebiTFTMBEMaskAlpha = EBI_TFTCTRL_MASKBLEND_EFBMASKALPHA,
 #endif
 } EBI_TFTMaskBlend_TypeDef;
 
 /** TFT Direct Drive mode */
 typedef enum {
-  /** Disabled */
-  ebiTFTDDModeDisabled = EBI_TFTCTRL_DD_DISABLED,
-  /** Direct Drive from internal memory */
-  ebiTFTDDModeInternal = EBI_TFTCTRL_DD_INTERNAL,
-  /** Direct Drive from external memory */
-  ebiTFTDDModeExternal = EBI_TFTCTRL_DD_EXTERNAL,
+    /** Disabled */
+    ebiTFTDDModeDisabled = EBI_TFTCTRL_DD_DISABLED,
+    /** Direct Drive from internal memory */
+    ebiTFTDDModeInternal = EBI_TFTCTRL_DD_INTERNAL,
+    /** Direct Drive from external memory */
+    ebiTFTDDModeExternal = EBI_TFTCTRL_DD_EXTERNAL,
 } EBI_TFTDDMode_TypeDef;
 
 /** TFT Data Increment Width */
 typedef enum {
-  /** Pixel increments are 1 byte at a time */
-  ebiTFTWidthByte = EBI_TFTCTRL_WIDTH_BYTE,
-  /** Pixel increments are 2 bytes (half word) */
-  ebiTFTWidthHalfWord = EBI_TFTCTRL_WIDTH_HALFWORD,
+    /** Pixel increments are 1 byte at a time */
+    ebiTFTWidthByte = EBI_TFTCTRL_WIDTH_BYTE,
+    /** Pixel increments are 2 bytes (half word) */
+    ebiTFTWidthHalfWord = EBI_TFTCTRL_WIDTH_HALFWORD,
 } EBI_TFTWidth_TypeDef;
 
 #endif // _EBI_TFTCTRL_MASK
@@ -378,78 +378,78 @@ typedef enum {
 
 /** EBI Initialization structure */
 typedef struct {
-  /** EBI operation mode, data and address limits */
-  EBI_Mode_TypeDef     mode;
-  /** Address Ready pin polarity, active high or low */
-  EBI_Polarity_TypeDef ardyPolarity;
-  /** Address Latch Enable pin polarity, active high or low */
-  EBI_Polarity_TypeDef alePolarity;
-  /** Write Enable pin polarity, active high or low */
-  EBI_Polarity_TypeDef wePolarity;
-  /** Read Enable pin polarity, active high or low */
-  EBI_Polarity_TypeDef rePolarity;
-  /** Chip Select pin polarity, active high or low */
-  EBI_Polarity_TypeDef csPolarity;
+    /** EBI operation mode, data and address limits */
+    EBI_Mode_TypeDef     mode;
+    /** Address Ready pin polarity, active high or low */
+    EBI_Polarity_TypeDef ardyPolarity;
+    /** Address Latch Enable pin polarity, active high or low */
+    EBI_Polarity_TypeDef alePolarity;
+    /** Write Enable pin polarity, active high or low */
+    EBI_Polarity_TypeDef wePolarity;
+    /** Read Enable pin polarity, active high or low */
+    EBI_Polarity_TypeDef rePolarity;
+    /** Chip Select pin polarity, active high or low */
+    EBI_Polarity_TypeDef csPolarity;
 #if !defined(_EFM32_GECKO_FAMILY)
-  /** Byte Lane pin polarity, active high or low */
-  EBI_Polarity_TypeDef blPolarity;
-  /** Flag to enable or disable Byte Lane support */
-  bool                 blEnable;
-  /** Flag to enable or disable idle state insertion between transfers */
-  bool                 noIdle;
+    /** Byte Lane pin polarity, active high or low */
+    EBI_Polarity_TypeDef blPolarity;
+    /** Flag to enable or disable Byte Lane support */
+    bool                 blEnable;
+    /** Flag to enable or disable idle state insertion between transfers */
+    bool                 noIdle;
 #endif
-  /** Flag to enable or disable Address Ready support */
-  bool                 ardyEnable;
-  /** Set to turn off 32 cycle timeout ability */
-  bool                 ardyDisableTimeout;
-  /** Mask of flags which selects address banks to configure EBI_BANK<0-3> */
-  uint32_t             banks;
-  /** Mask of flags which selects chip select lines to configure EBI_CS<0-3> */
-  uint32_t             csLines;
-  /** Number of cycles address is held after Adress Latch Enable is asserted */
-  int                  addrSetupCycles;
-  /** Number of cycles address is driven onto the ADDRDAT bus before ALE is asserted */
-  int                  addrHoldCycles;
+    /** Flag to enable or disable Address Ready support */
+    bool                 ardyEnable;
+    /** Set to turn off 32 cycle timeout ability */
+    bool                 ardyDisableTimeout;
+    /** Mask of flags which selects address banks to configure EBI_BANK<0-3> */
+    uint32_t             banks;
+    /** Mask of flags which selects chip select lines to configure EBI_CS<0-3> */
+    uint32_t             csLines;
+    /** Number of cycles address is held after Adress Latch Enable is asserted */
+    int                  addrSetupCycles;
+    /** Number of cycles address is driven onto the ADDRDAT bus before ALE is asserted */
+    int                  addrHoldCycles;
 #if !defined(_EFM32_GECKO_FAMILY)
-  /** Enable or disables half cycle duration of the ALE strobe in the last address setup cycle */
-  bool                 addrHalfALE;
+    /** Enable or disables half cycle duration of the ALE strobe in the last address setup cycle */
+    bool                 addrHalfALE;
 #endif
-  /** Number of cycles for address setup before REn is asserted */
-  int                  readSetupCycles;
-  /** Number of cycles REn is held active */
-  int                  readStrobeCycles;
-  /** Number of cycles CSn is held active after REn is deasserted */
-  int                  readHoldCycles;
+    /** Number of cycles for address setup before REn is asserted */
+    int                  readSetupCycles;
+    /** Number of cycles REn is held active */
+    int                  readStrobeCycles;
+    /** Number of cycles CSn is held active after REn is deasserted */
+    int                  readHoldCycles;
 #if !defined(_EFM32_GECKO_FAMILY)
-  /** Enable or disable page mode reads */
-  bool                 readPageMode;
-  /** Enables or disable prefetching from sequential addresses */
-  bool                 readPrefetch;
-  /** Enabled or disables half cycle duration of the REn signal in the last strobe cycle  */
-  bool                 readHalfRE;
+    /** Enable or disable page mode reads */
+    bool                 readPageMode;
+    /** Enables or disable prefetching from sequential addresses */
+    bool                 readPrefetch;
+    /** Enabled or disables half cycle duration of the REn signal in the last strobe cycle  */
+    bool                 readHalfRE;
 #endif
-  /** Number of cycles for address setup before WEn is asserted */
-  int                  writeSetupCycles;
-  /** Number of cycles WEn is held active */
-  int                  writeStrobeCycles;
-  /** Number of cycles CSn is held active after WEn is deasserted */
-  int                  writeHoldCycles;
+    /** Number of cycles for address setup before WEn is asserted */
+    int                  writeSetupCycles;
+    /** Number of cycles WEn is held active */
+    int                  writeStrobeCycles;
+    /** Number of cycles CSn is held active after WEn is deasserted */
+    int                  writeHoldCycles;
 #if !defined(_EFM32_GECKO_FAMILY)
-  /** Enable or disable the write buffer */
-  bool                 writeBufferDisable;
-  /** Enables or disables half cycle duration of the WEn signal in the last strobe cycle */
-  bool                 writeHalfWE;
-  /** Lower address pin limit to enable */
-  EBI_ALow_TypeDef     aLow;
-  /** High address pin limit to enable */
-  EBI_AHigh_TypeDef    aHigh;
+    /** Enable or disable the write buffer */
+    bool                 writeBufferDisable;
+    /** Enables or disables half cycle duration of the WEn signal in the last strobe cycle */
+    bool                 writeHalfWE;
+    /** Lower address pin limit to enable */
+    EBI_ALow_TypeDef     aLow;
+    /** High address pin limit to enable */
+    EBI_AHigh_TypeDef    aHigh;
 #endif
 #if defined(_EBI_ROUTE_LOCATION_MASK)
-  /** Pin Location */
-  EBI_Location_TypeDef location;
+    /** Pin Location */
+    EBI_Location_TypeDef location;
 #endif
-  /** Flag, if EBI should be enabled after configuration */
-  bool                 enable;
+    /** Flag, if EBI should be enabled after configuration */
+    bool                 enable;
 } EBI_Init_TypeDef;
 
 /** Default config for EBI init structures */
@@ -551,58 +551,58 @@ typedef struct {
 
 /** TFT Initialization structure */
 typedef struct {
-  /** External memory bank for driving display */
-  EBI_TFTBank_TypeDef            bank;
-  /** Width */
-  EBI_TFTWidth_TypeDef           width;
-  /** Color source for masking and alpha blending */
-  EBI_TFTColorSrc_TypeDef        colSrc;
-  /** Bus Interleave mode */
-  EBI_TFTInterleave_TypeDef      interleave;
-  /** Trigger for updating frame buffer pointer */
-  EBI_TFTFrameBufTrigger_TypeDef fbTrigger;
-  /** Drive DCLK from negative clock edge of internal clock */
-  bool                           shiftDClk;
-  /** Masking and alpha blending mode */
-  EBI_TFTMaskBlend_TypeDef       maskBlend;
-  /** TFT Direct Drive mode */
-  EBI_TFTDDMode_TypeDef          driveMode;
-  /** TFT Polarity for Chip Select (CS) Line */
-  EBI_Polarity_TypeDef           csPolarity;
-  /** TFT Polarity for Data Clock (DCLK) Line */
-  EBI_Polarity_TypeDef           dclkPolarity;
-  /** TFT Polarity for Data Enable (DATAEN) Line */
-  EBI_Polarity_TypeDef           dataenPolarity;
-  /** TFT Polarity for Horizontal Sync (HSYNC) Line */
-  EBI_Polarity_TypeDef           hsyncPolarity;
-  /** TFT Polarity for Vertical Sync (VSYNC) Line */
-  EBI_Polarity_TypeDef           vsyncPolarity;
-  /** Horizontal size in pixels */
-  int                            hsize;
-  /** Horizontal Front Porch Size */
-  int                            hPorchFront;
-  /** Horizontal Back Porch Size */
-  int                            hPorchBack;
-  /** Horizontal Synchronization Pulse Width */
-  int                            hPulseWidth;
-  /** Vertical size in pixels */
-  int                            vsize;
-  /** Vertical Front Porch Size */
-  int                            vPorchFront;
-  /** Vertical Back Porch Size */
-  int                            vPorchBack;
-  /** Vertical Synchronization Pulse Width */
-  int                            vPulseWidth;
-  /** TFT Frame Buffer address, offset to EBI bank base address */
-  uint32_t                       addressOffset;
-  /** TFT DCLK period in internal cycles */
-  int                            dclkPeriod;
-  /** Starting position of External Direct Drive relative to DCLK inactive edge */
-  int                            startPosition;
-  /** Number of cycles RGB data is driven before active edge of DCLK */
-  int                            setupCycles;
-  /** Number of cycles RGB data is held after active edge of DCLK */
-  int                            holdCycles;
+    /** External memory bank for driving display */
+    EBI_TFTBank_TypeDef            bank;
+    /** Width */
+    EBI_TFTWidth_TypeDef           width;
+    /** Color source for masking and alpha blending */
+    EBI_TFTColorSrc_TypeDef        colSrc;
+    /** Bus Interleave mode */
+    EBI_TFTInterleave_TypeDef      interleave;
+    /** Trigger for updating frame buffer pointer */
+    EBI_TFTFrameBufTrigger_TypeDef fbTrigger;
+    /** Drive DCLK from negative clock edge of internal clock */
+    bool                           shiftDClk;
+    /** Masking and alpha blending mode */
+    EBI_TFTMaskBlend_TypeDef       maskBlend;
+    /** TFT Direct Drive mode */
+    EBI_TFTDDMode_TypeDef          driveMode;
+    /** TFT Polarity for Chip Select (CS) Line */
+    EBI_Polarity_TypeDef           csPolarity;
+    /** TFT Polarity for Data Clock (DCLK) Line */
+    EBI_Polarity_TypeDef           dclkPolarity;
+    /** TFT Polarity for Data Enable (DATAEN) Line */
+    EBI_Polarity_TypeDef           dataenPolarity;
+    /** TFT Polarity for Horizontal Sync (HSYNC) Line */
+    EBI_Polarity_TypeDef           hsyncPolarity;
+    /** TFT Polarity for Vertical Sync (VSYNC) Line */
+    EBI_Polarity_TypeDef           vsyncPolarity;
+    /** Horizontal size in pixels */
+    int                            hsize;
+    /** Horizontal Front Porch Size */
+    int                            hPorchFront;
+    /** Horizontal Back Porch Size */
+    int                            hPorchBack;
+    /** Horizontal Synchronization Pulse Width */
+    int                            hPulseWidth;
+    /** Vertical size in pixels */
+    int                            vsize;
+    /** Vertical Front Porch Size */
+    int                            vPorchFront;
+    /** Vertical Back Porch Size */
+    int                            vPorchBack;
+    /** Vertical Synchronization Pulse Width */
+    int                            vPulseWidth;
+    /** TFT Frame Buffer address, offset to EBI bank base address */
+    uint32_t                       addressOffset;
+    /** TFT DCLK period in internal cycles */
+    int                            dclkPeriod;
+    /** Starting position of External Direct Drive relative to DCLK inactive edge */
+    int                            startPosition;
+    /** Number of cycles RGB data is driven before active edge of DCLK */
+    int                            setupCycles;
+    /** Number of cycles RGB data is held after active edge of DCLK */
+    int                            holdCycles;
 } EBI_TFTInit_TypeDef;
 
 /** Default configuration for EBI TFT init structure */
@@ -680,7 +680,7 @@ void EBI_AltMapEnable(bool enable);
  ******************************************************************************/
 __STATIC_INLINE void EBI_TFTEnable(EBI_TFTDDMode_TypeDef mode)
 {
-  EBI->TFTCTRL = (EBI->TFTCTRL & ~(_EBI_TFTCTRL_DD_MASK)) | (uint32_t) mode;
+    EBI->TFTCTRL = (EBI->TFTCTRL & ~(_EBI_TFTCTRL_DD_MASK)) | (uint32_t) mode;
 }
 
 /***************************************************************************//**
@@ -692,7 +692,7 @@ __STATIC_INLINE void EBI_TFTEnable(EBI_TFTDDMode_TypeDef mode)
  ******************************************************************************/
 __STATIC_INLINE void EBI_TFTFrameBaseSet(uint32_t address)
 {
-  EBI->TFTFRAMEBASE = (uint32_t) address;
+    EBI->TFTFRAMEBASE = (uint32_t) address;
 }
 
 /***************************************************************************//**
@@ -705,14 +705,14 @@ __STATIC_INLINE void EBI_TFTFrameBaseSet(uint32_t address)
  ******************************************************************************/
 __STATIC_INLINE void EBI_TFTPixelSet(int pixel, uint32_t color)
 {
-  EFM_ASSERT(pixel == 0 || pixel == 1);
+    EFM_ASSERT(pixel == 0 || pixel == 1);
 
-  if (pixel == 0) {
-    EBI->TFTPIXEL0 = color;
-  }
-  if (pixel == 1) {
-    EBI->TFTPIXEL1 = color;
-  }
+    if (pixel == 0) {
+        EBI->TFTPIXEL0 = color;
+    }
+    if (pixel == 1) {
+        EBI->TFTPIXEL1 = color;
+    }
 }
 
 /***************************************************************************//**
@@ -723,7 +723,7 @@ __STATIC_INLINE void EBI_TFTPixelSet(int pixel, uint32_t color)
  ******************************************************************************/
 __STATIC_INLINE void EBI_TFTMaskBlendMode(EBI_TFTMaskBlend_TypeDef maskBlend)
 {
-  EBI->TFTCTRL = (EBI->TFTCTRL & (~_EBI_TFTCTRL_MASKBLEND_MASK)) | maskBlend;
+    EBI->TFTCTRL = (EBI->TFTCTRL & (~_EBI_TFTCTRL_MASKBLEND_MASK)) | maskBlend;
 }
 
 /***************************************************************************//**
@@ -734,7 +734,7 @@ __STATIC_INLINE void EBI_TFTMaskBlendMode(EBI_TFTMaskBlend_TypeDef maskBlend)
  ******************************************************************************/
 __STATIC_INLINE void EBI_TFTAlphaBlendSet(uint8_t alpha)
 {
-  EBI->TFTALPHA = alpha;
+    EBI->TFTALPHA = alpha;
 }
 
 /***************************************************************************//**
@@ -744,7 +744,7 @@ __STATIC_INLINE void EBI_TFTAlphaBlendSet(uint8_t alpha)
  ******************************************************************************/
 __STATIC_INLINE void EBI_TFTMaskSet(uint32_t mask)
 {
-  EBI->TFTMASK = mask;
+    EBI->TFTMASK = mask;
 }
 
 /***************************************************************************//**
@@ -754,7 +754,7 @@ __STATIC_INLINE void EBI_TFTMaskSet(uint32_t mask)
  ******************************************************************************/
 __STATIC_INLINE uint32_t EBI_TFTVCount(void)
 {
-  return((EBI->TFTSTATUS & _EBI_TFTSTATUS_VCNT_MASK) >> _EBI_TFTSTATUS_VCNT_SHIFT);
+    return ((EBI->TFTSTATUS & _EBI_TFTSTATUS_VCNT_MASK) >> _EBI_TFTSTATUS_VCNT_SHIFT);
 }
 
 /***************************************************************************//**
@@ -764,7 +764,7 @@ __STATIC_INLINE uint32_t EBI_TFTVCount(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t EBI_TFTHCount(void)
 {
-  return((EBI->TFTSTATUS & _EBI_TFTSTATUS_HCNT_MASK) >> _EBI_TFTSTATUS_HCNT_SHIFT);
+    return ((EBI->TFTSTATUS & _EBI_TFTSTATUS_HCNT_MASK) >> _EBI_TFTSTATUS_HCNT_SHIFT);
 }
 
 /***************************************************************************//**
@@ -779,7 +779,7 @@ __STATIC_INLINE uint32_t EBI_TFTHCount(void)
  ******************************************************************************/
 __STATIC_INLINE void EBI_TFTFBTriggerSet(EBI_TFTFrameBufTrigger_TypeDef sync)
 {
-  EBI->TFTCTRL = ((EBI->TFTCTRL & ~_EBI_TFTCTRL_FBCTRIG_MASK) | sync);
+    EBI->TFTCTRL = ((EBI->TFTCTRL & ~_EBI_TFTCTRL_FBCTRIG_MASK) | sync);
 }
 
 /***************************************************************************//**
@@ -791,10 +791,10 @@ __STATIC_INLINE void EBI_TFTFBTriggerSet(EBI_TFTFrameBufTrigger_TypeDef sync)
  ******************************************************************************/
 __STATIC_INLINE void EBI_TFTHStrideSet(uint32_t nbytes)
 {
-  EFM_ASSERT(nbytes < 0x1000);
+    EFM_ASSERT(nbytes < 0x1000);
 
-  EBI->TFTSTRIDE = (EBI->TFTSTRIDE & ~(_EBI_TFTSTRIDE_HSTRIDE_MASK))
-                   | (nbytes << _EBI_TFTSTRIDE_HSTRIDE_SHIFT);
+    EBI->TFTSTRIDE = (EBI->TFTSTRIDE & ~(_EBI_TFTSTRIDE_HSTRIDE_MASK))
+                     | (nbytes << _EBI_TFTSTRIDE_HSTRIDE_SHIFT);
 }
 #endif // _EBI_TFTCTRL_MASK
 
@@ -808,7 +808,7 @@ __STATIC_INLINE void EBI_TFTHStrideSet(uint32_t nbytes)
  ******************************************************************************/
 __STATIC_INLINE void EBI_IntClear(uint32_t flags)
 {
-  EBI->IFC = flags;
+    EBI->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -821,7 +821,7 @@ __STATIC_INLINE void EBI_IntClear(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void EBI_IntSet(uint32_t flags)
 {
-  EBI->IFS = flags;
+    EBI->IFS = flags;
 }
 
 /***************************************************************************//**
@@ -834,7 +834,7 @@ __STATIC_INLINE void EBI_IntSet(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void EBI_IntDisable(uint32_t flags)
 {
-  EBI->IEN &= ~(flags);
+    EBI->IEN &= ~(flags);
 }
 
 /***************************************************************************//**
@@ -847,7 +847,7 @@ __STATIC_INLINE void EBI_IntDisable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void EBI_IntEnable(uint32_t flags)
 {
-  EBI->IEN |= flags;
+    EBI->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -863,7 +863,7 @@ __STATIC_INLINE void EBI_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t EBI_IntGet(void)
 {
-  return EBI->IF;
+    return EBI->IF;
 }
 
 /***************************************************************************//**
@@ -882,10 +882,10 @@ __STATIC_INLINE uint32_t EBI_IntGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t EBI_IntGetEnabled(void)
 {
-  uint32_t ien;
+    uint32_t ien;
 
-  ien = EBI->IEN;
-  return EBI->IF & ien;
+    ien = EBI->IEN;
+    return EBI->IF & ien;
 }
 #endif // _EBI_IF_MASK
 
@@ -896,7 +896,7 @@ __STATIC_INLINE uint32_t EBI_IntGetEnabled(void)
  ******************************************************************************/
 __STATIC_INLINE void EBI_StartNandEccGen(void)
 {
-  EBI->CMD = EBI_CMD_ECCSTART | EBI_CMD_ECCCLEAR;
+    EBI->CMD = EBI_CMD_ECCSTART | EBI_CMD_ECCCLEAR;
 }
 
 /***************************************************************************//**
@@ -908,8 +908,8 @@ __STATIC_INLINE void EBI_StartNandEccGen(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t EBI_StopNandEccGen(void)
 {
-  EBI->CMD = EBI_CMD_ECCSTOP;
-  return EBI->ECCPARITY;
+    EBI->CMD = EBI_CMD_ECCSTOP;
+    return EBI->ECCPARITY;
 }
 #endif // _EBI_CMD_MASK
 

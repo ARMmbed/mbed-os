@@ -40,16 +40,16 @@
 #include "stm32l1xx_ll_opamp.h"
 
 #ifdef  USE_FULL_ASSERT
-  #include "stm32_assert.h"
+#include "stm32_assert.h"
 #else
-  #define assert_param(expr) ((void)0U)
+#define assert_param(expr) ((void)0U)
 #endif
 
 /** @addtogroup STM32L1xx_LL_Driver
   * @{
   */
 
-#if defined (OPAMP1) || defined (OPAMP2) || defined (OPAMP3) 
+#if defined (OPAMP1) || defined (OPAMP2) || defined (OPAMP3)
 
 /** @addtogroup OPAMP_LL OPAMP
   * @{
@@ -149,20 +149,20 @@
   *          - SUCCESS: OPAMP registers are de-initialized
   *          - ERROR: OPAMP registers are not de-initialized
   */
-ErrorStatus LL_OPAMP_DeInit(OPAMP_TypeDef* OPAMPx)
+ErrorStatus LL_OPAMP_DeInit(OPAMP_TypeDef *OPAMPx)
 {
-  ErrorStatus status = SUCCESS;
-  
-  /* Check the parameters */
-  assert_param(IS_OPAMP_ALL_INSTANCE(OPAMPx));
-  
-  MODIFY_REG(OPAMP->CSR,
+    ErrorStatus status = SUCCESS;
+
+    /* Check the parameters */
+    assert_param(IS_OPAMP_ALL_INSTANCE(OPAMPx));
+
+    MODIFY_REG(OPAMP->CSR,
                (OPAMP_CSR_S3SEL1 | OPAMP_CSR_S4SEL1 | OPAMP_CSR_S5SEL1 | OPAMP_CSR_S6SEL1 | OPAMP_CSR_OPA1CAL_L | OPAMP_CSR_OPA1CAL_H | OPAMP_CSR_OPA1LPM) << __OPAMP_INSTANCE_BITOFFSET(OPAMPx)
-             | (OPAMP_CSR_ANAWSEL1) << __OPAMP_INSTANCE_DECIMAL(OPAMPx)
-             | (OPAMP_CSR_S7SEL2 * __OPAMP_IS_INSTANCE_OPAMP2(OPAMPx)) ,
-             (OPAMP_CSR_OPA1PD) << __OPAMP_INSTANCE_BITOFFSET(OPAMPx)
-            );
-  return status;
+               | (OPAMP_CSR_ANAWSEL1) << __OPAMP_INSTANCE_DECIMAL(OPAMPx)
+               | (OPAMP_CSR_S7SEL2 * __OPAMP_IS_INSTANCE_OPAMP2(OPAMPx)),
+               (OPAMP_CSR_OPA1PD) << __OPAMP_INSTANCE_BITOFFSET(OPAMPx)
+              );
+    return status;
 }
 
 /**
@@ -183,79 +183,75 @@ ErrorStatus LL_OPAMP_DeInit(OPAMP_TypeDef* OPAMPx)
   */
 ErrorStatus LL_OPAMP_Init(OPAMP_TypeDef *OPAMPx, LL_OPAMP_InitTypeDef *OPAMP_InitStruct)
 {
-  /* Check the parameters */
-  assert_param(IS_OPAMP_ALL_INSTANCE(OPAMPx));
-  assert_param(IS_LL_OPAMP_POWER_MODE(OPAMP_InitStruct->PowerMode));
-  assert_param(IS_LL_OPAMP_FUNCTIONAL_MODE(OPAMP_InitStruct->FunctionalMode));
-  assert_param(IS_LL_OPAMP_INPUT_NONINVERTING(OPAMPx, OPAMP_InitStruct->InputNonInverting));
-  
-  /* Note: OPAMP inverting input can be used with OPAMP in mode standalone.   */
-  /*       Otherwise (OPAMP in mode follower), OPAMP inverting input is       */
-  /*       not used (not connected to GPIO pin).                              */
-  if(OPAMP_InitStruct->FunctionalMode != LL_OPAMP_MODE_FOLLOWER)
-  {
-    assert_param(IS_LL_OPAMP_INPUT_INVERTING(OPAMPx, OPAMP_InitStruct->InputInverting));
-  }
-  
-  /* Configuration of OPAMP instance :                                        */
-  /*  - PowerMode                                                             */
-  /*  - Functional mode                                                       */
-  /*  - Input non-inverting                                                   */
-  /*  - Input inverting                                                       */
-  /* Note: Bits OPAMP_CSR_OPAxCAL_y reset to ensure to be in functional mode  */
-  if(OPAMP_InitStruct->FunctionalMode != LL_OPAMP_MODE_FOLLOWER)
-  {
-    MODIFY_REG(OPAMP->CSR,
-               ((
-                   OPAMP_CSR_OPA1LPM
-                 | OPAMP_CSR_S3SEL1
-                 | OPAMP_CSR_OPA1CAL_H
-                 | OPAMP_CSR_OPA1CAL_L
-                 | OPAMP_CSR_S5SEL1
-                 | OPAMP_CSR_S6SEL1
-                 | OPAMP_CSR_S4SEL1
-                ) << __OPAMP_INSTANCE_BITOFFSET(OPAMPx)
-               )
-               | ((OPAMP_CSR_ANAWSEL1) << __OPAMP_INSTANCE_DECIMAL(OPAMPx))
-               | (OPAMP_CSR_S7SEL2 * __OPAMP_IS_INSTANCE_OPAMP2(OPAMPx))
-              ,
-               ((
-                   (OPAMP_InitStruct->PowerMode & OPAMP_POWERMODE_CSR_BIT_MASK)
-                 | OPAMP_InitStruct->FunctionalMode
-                 | OPAMP_InitStruct->InputNonInverting
-                 | (OPAMP_InitStruct->InputInverting & OPAMP_CSR_S4SEL1)
-                ) << __OPAMP_INSTANCE_BITOFFSET(OPAMPx)
-               )
-               | ((OPAMP_InitStruct->InputInverting & OPAMP_CSR_ANAWSEL1) << __OPAMP_INSTANCE_DECIMAL(OPAMPx))
-               | ((OPAMP_InitStruct->InputNonInverting & OPAMP_CSR_S7SEL2) * __OPAMP_IS_INSTANCE_OPAMP2(OPAMPx))
-              );
-  }
-  else
-  {
-    MODIFY_REG(OPAMP->CSR,
-               ((
-                   OPAMP_CSR_OPA1LPM
-                 | OPAMP_CSR_OPA1CAL_H
-                 | OPAMP_CSR_OPA1CAL_L
-                 | OPAMP_CSR_S5SEL1
-                 | OPAMP_CSR_S6SEL1
-                 | OPAMP_CSR_S4SEL1
-                ) << __OPAMP_INSTANCE_BITOFFSET(OPAMPx)
-               )
-               | ((OPAMP_CSR_ANAWSEL1) << __OPAMP_INSTANCE_DECIMAL(OPAMPx))
-               | (OPAMP_CSR_S7SEL2 * __OPAMP_IS_INSTANCE_OPAMP2(OPAMPx))
-              ,
-               ((
-                   (OPAMP_InitStruct->PowerMode & OPAMP_POWERMODE_CSR_BIT_MASK)
-                 | OPAMP_InitStruct->FunctionalMode
-                 | OPAMP_InitStruct->InputNonInverting
-                 | OPAMP_CSR_S3SEL1
-                ) << __OPAMP_INSTANCE_BITOFFSET(OPAMPx)
-               )
-               | ((OPAMP_InitStruct->InputNonInverting & OPAMP_CSR_S7SEL2) * __OPAMP_IS_INSTANCE_OPAMP2(OPAMPx))
-              );
-  }
-  return SUCCESS;
+    /* Check the parameters */
+    assert_param(IS_OPAMP_ALL_INSTANCE(OPAMPx));
+    assert_param(IS_LL_OPAMP_POWER_MODE(OPAMP_InitStruct->PowerMode));
+    assert_param(IS_LL_OPAMP_FUNCTIONAL_MODE(OPAMP_InitStruct->FunctionalMode));
+    assert_param(IS_LL_OPAMP_INPUT_NONINVERTING(OPAMPx, OPAMP_InitStruct->InputNonInverting));
+
+    /* Note: OPAMP inverting input can be used with OPAMP in mode standalone.   */
+    /*       Otherwise (OPAMP in mode follower), OPAMP inverting input is       */
+    /*       not used (not connected to GPIO pin).                              */
+    if (OPAMP_InitStruct->FunctionalMode != LL_OPAMP_MODE_FOLLOWER) {
+        assert_param(IS_LL_OPAMP_INPUT_INVERTING(OPAMPx, OPAMP_InitStruct->InputInverting));
+    }
+
+    /* Configuration of OPAMP instance :                                        */
+    /*  - PowerMode                                                             */
+    /*  - Functional mode                                                       */
+    /*  - Input non-inverting                                                   */
+    /*  - Input inverting                                                       */
+    /* Note: Bits OPAMP_CSR_OPAxCAL_y reset to ensure to be in functional mode  */
+    if (OPAMP_InitStruct->FunctionalMode != LL_OPAMP_MODE_FOLLOWER) {
+        MODIFY_REG(OPAMP->CSR,
+                   ((
+                        OPAMP_CSR_OPA1LPM
+                        | OPAMP_CSR_S3SEL1
+                        | OPAMP_CSR_OPA1CAL_H
+                        | OPAMP_CSR_OPA1CAL_L
+                        | OPAMP_CSR_S5SEL1
+                        | OPAMP_CSR_S6SEL1
+                        | OPAMP_CSR_S4SEL1
+                    ) << __OPAMP_INSTANCE_BITOFFSET(OPAMPx)
+                   )
+                   | ((OPAMP_CSR_ANAWSEL1) << __OPAMP_INSTANCE_DECIMAL(OPAMPx))
+                   | (OPAMP_CSR_S7SEL2 * __OPAMP_IS_INSTANCE_OPAMP2(OPAMPx))
+                   ,
+                   ((
+                        (OPAMP_InitStruct->PowerMode & OPAMP_POWERMODE_CSR_BIT_MASK)
+                        | OPAMP_InitStruct->FunctionalMode
+                        | OPAMP_InitStruct->InputNonInverting
+                        | (OPAMP_InitStruct->InputInverting & OPAMP_CSR_S4SEL1)
+                    ) << __OPAMP_INSTANCE_BITOFFSET(OPAMPx)
+                   )
+                   | ((OPAMP_InitStruct->InputInverting & OPAMP_CSR_ANAWSEL1) << __OPAMP_INSTANCE_DECIMAL(OPAMPx))
+                   | ((OPAMP_InitStruct->InputNonInverting & OPAMP_CSR_S7SEL2) * __OPAMP_IS_INSTANCE_OPAMP2(OPAMPx))
+                  );
+    } else {
+        MODIFY_REG(OPAMP->CSR,
+                   ((
+                        OPAMP_CSR_OPA1LPM
+                        | OPAMP_CSR_OPA1CAL_H
+                        | OPAMP_CSR_OPA1CAL_L
+                        | OPAMP_CSR_S5SEL1
+                        | OPAMP_CSR_S6SEL1
+                        | OPAMP_CSR_S4SEL1
+                    ) << __OPAMP_INSTANCE_BITOFFSET(OPAMPx)
+                   )
+                   | ((OPAMP_CSR_ANAWSEL1) << __OPAMP_INSTANCE_DECIMAL(OPAMPx))
+                   | (OPAMP_CSR_S7SEL2 * __OPAMP_IS_INSTANCE_OPAMP2(OPAMPx))
+                   ,
+                   ((
+                        (OPAMP_InitStruct->PowerMode & OPAMP_POWERMODE_CSR_BIT_MASK)
+                        | OPAMP_InitStruct->FunctionalMode
+                        | OPAMP_InitStruct->InputNonInverting
+                        | OPAMP_CSR_S3SEL1
+                    ) << __OPAMP_INSTANCE_BITOFFSET(OPAMPx)
+                   )
+                   | ((OPAMP_InitStruct->InputNonInverting & OPAMP_CSR_S7SEL2) * __OPAMP_IS_INSTANCE_OPAMP2(OPAMPx))
+                  );
+    }
+    return SUCCESS;
 }
 
 /**
@@ -266,13 +262,13 @@ ErrorStatus LL_OPAMP_Init(OPAMP_TypeDef *OPAMPx, LL_OPAMP_InitTypeDef *OPAMP_Ini
   */
 void LL_OPAMP_StructInit(LL_OPAMP_InitTypeDef *OPAMP_InitStruct)
 {
-  /* Set OPAMP_InitStruct fields to default values */
-  OPAMP_InitStruct->PowerMode         = LL_OPAMP_POWERMODE_NORMAL;
-  OPAMP_InitStruct->FunctionalMode    = LL_OPAMP_MODE_FOLLOWER;
-  OPAMP_InitStruct->InputNonInverting = LL_OPAMP_INPUT_NONINVERT_IO0;
-  /* Note: Parameter discarded if OPAMP in functional mode follower,          */
-  /*       set anyway to its default value.                                   */
-  OPAMP_InitStruct->InputInverting    = LL_OPAMP_INPUT_INVERT_CONNECT_NO;
+    /* Set OPAMP_InitStruct fields to default values */
+    OPAMP_InitStruct->PowerMode         = LL_OPAMP_POWERMODE_NORMAL;
+    OPAMP_InitStruct->FunctionalMode    = LL_OPAMP_MODE_FOLLOWER;
+    OPAMP_InitStruct->InputNonInverting = LL_OPAMP_INPUT_NONINVERT_IO0;
+    /* Note: Parameter discarded if OPAMP in functional mode follower,          */
+    /*       set anyway to its default value.                                   */
+    OPAMP_InitStruct->InputInverting    = LL_OPAMP_INPUT_INVERT_CONNECT_NO;
 }
 
 /**

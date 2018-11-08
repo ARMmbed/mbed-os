@@ -38,11 +38,10 @@
  * @{
  * @brief EFM32ZG_RMU Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;     /**< Control Register  */
-  __IM uint32_t  RSTCAUSE; /**< Reset Cause Register  */
-  __OM uint32_t  CMD;      /**< Command Register  */
+typedef struct {
+    __IOM uint32_t CTRL;     /**< Control Register  */
+    __IM uint32_t  RSTCAUSE; /**< Reset Cause Register  */
+    __OM uint32_t  CMD;      /**< Command Register  */
 } RMU_TypeDef;             /** @} */
 
 /**************************************************************************//**

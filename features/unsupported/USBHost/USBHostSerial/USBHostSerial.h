@@ -49,8 +49,8 @@ public:
         Space
     };
 
-    void connect(USBHost* _host, USBDeviceConnected * _dev,
-        uint8_t _serial_intf, USBEndpoint* _bulk_in, USBEndpoint* _bulk_out);
+    void connect(USBHost *_host, USBDeviceConnected *_dev,
+                 uint8_t _serial_intf, USBEndpoint *_bulk_in, USBEndpoint *_bulk_out);
 
     /**
     * Check the number of bytes available.
@@ -67,7 +67,8 @@ public:
      *  @param irq irq type
      */
     template<typename T>
-    inline void attach(T* tptr, void (T::*mptr)(void), IrqType irq = RxIrq) {
+    inline void attach(T *tptr, void (T::*mptr)(void), IrqType irq = RxIrq)
+    {
         if ((mptr != NULL) && (tptr != NULL)) {
             if (irq == RxIrq) {
                 rx.attach(tptr, mptr);
@@ -82,7 +83,8 @@ public:
      *
      * @param ptr function pointer
      */
-    inline void attach(void (*fn)(void), IrqType irq = RxIrq) {
+    inline void attach(void (*fn)(void), IrqType irq = RxIrq)
+    {
         if (fn != NULL) {
             if (irq == RxIrq) {
                 rx.attach(fn);
@@ -105,19 +107,19 @@ public:
      *  @param stop The number of stop bits (1 or 2; default = 1)
      */
     void format(int bits = 8, Parity parity = USBHostSerialPort::None, int stop_bits = 1);
-    virtual int writeBuf(const char* b, int s);
-    virtual int readBuf(char* b, int s);
+    virtual int writeBuf(const char *b, int s);
+    virtual int readBuf(char *b, int s);
 
 protected:
     virtual int _getc();
     virtual int _putc(int c);
 
 private:
-    USBHost * host;
-    USBDeviceConnected * dev;
+    USBHost *host;
+    USBDeviceConnected *dev;
 
-    USBEndpoint * bulk_in;
-    USBEndpoint * bulk_out;
+    USBEndpoint *bulk_in;
+    USBEndpoint *bulk_out;
     uint32_t size_bulk_in;
     uint32_t size_bulk_out;
 
@@ -146,8 +148,7 @@ private:
 
 #if (USBHOST_SERIAL <= 1)
 
-class USBHostSerial : public IUSBEnumerator, public USBHostSerialPort
-{
+class USBHostSerial : public IUSBEnumerator, public USBHostSerialPort {
 public:
     USBHostSerial();
 
@@ -168,8 +169,8 @@ public:
     bool connected();
 
 protected:
-    USBHost* host;
-    USBDeviceConnected* dev;
+    USBHost *host;
+    USBDeviceConnected *dev;
     uint8_t port_intf;
     int ports_found;
 
@@ -189,7 +190,7 @@ public:
     USBHostMultiSerial();
     virtual ~USBHostMultiSerial();
 
-    USBHostSerialPort* getPort(int port)
+    USBHostSerialPort *getPort(int port)
     {
         return port < USBHOST_SERIAL ? ports[port] : NULL;
     }
@@ -211,9 +212,9 @@ public:
     bool connected();
 
 protected:
-    USBHost* host;
-    USBDeviceConnected* dev;
-    USBHostSerialPort* ports[USBHOST_SERIAL];
+    USBHost *host;
+    USBDeviceConnected *dev;
+    USBHostSerialPort *ports[USBHOST_SERIAL];
     uint8_t port_intf[USBHOST_SERIAL];
     int ports_found;
 

@@ -66,10 +66,8 @@ static uint32_t EEPROM_GetInstance(EEPROM_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_eepromBases); instance++)
-    {
-        if (s_eepromBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_eepromBases); instance++) {
+        if (s_eepromBases[instance] == base) {
             break;
         }
     }
@@ -103,8 +101,7 @@ void EEPROM_Init(EEPROM_Type *base, const eeprom_config_t *config, uint32_t sour
 
     /* Set the clock divider */
     clockDiv = sourceClock_Hz / FSL_FEATURE_EEPROM_INTERNAL_FREQ;
-    if ((sourceClock_Hz % FSL_FEATURE_EEPROM_INTERNAL_FREQ) > (FSL_FEATURE_EEPROM_INTERNAL_FREQ / 2U))
-    {
+    if ((sourceClock_Hz % FSL_FEATURE_EEPROM_INTERNAL_FREQ) > (FSL_FEATURE_EEPROM_INTERNAL_FREQ / 2U)) {
         clockDiv += 1U;
     }
     base->CLKDIV = clockDiv - 1U;
@@ -119,7 +116,7 @@ void EEPROM_Init(EEPROM_Type *base, const eeprom_config_t *config, uint32_t sour
                    EEPROM_WSTATE_PHASE2(config->writeWaitPhase2 - 1U) |
                    EEPROM_WSTATE_PHASE3(config->writeWaitPhase3 - 1U);
     base->WSTATE |= EEPROM_WSTATE_LCK_PARWEP(config->lockTimingParam);
- 
+
     /* Clear the remaining write operation  */
     base->CMD = FSL_FEATURE_EEPROM_PROGRAM_CMD;
     while ((EEPROM_GetInterruptStatus(base) & kEEPROM_ProgramFinishInterruptEnable) == 0U)
@@ -138,14 +135,12 @@ status_t EEPROM_WriteWord(EEPROM_Type *base, uint32_t offset, uint32_t data)
 {
     uint32_t *addr = 0;
 
-    if ((offset % 4U) || (offset > FSL_FEATURE_EEPROM_SIZE))
-    {
+    if ((offset % 4U) || (offset > FSL_FEATURE_EEPROM_SIZE)) {
         return kStatus_InvalidArgument;
     }
 
     /* Set auto program settings */
-    if (base->AUTOPROG != kEEPROM_AutoProgramDisable)
-    {
+    if (base->AUTOPROG != kEEPROM_AutoProgramDisable) {
         EEPROM_SetAutoProgram(base, kEEPROM_AutoProgramWriteWord);
     }
 
@@ -156,8 +151,7 @@ status_t EEPROM_WriteWord(EEPROM_Type *base, uint32_t offset, uint32_t data)
     *addr = data;
 
     /* Check if need to do program erase manually */
-    if (base->AUTOPROG != kEEPROM_AutoProgramWriteWord)
-    {
+    if (base->AUTOPROG != kEEPROM_AutoProgramWriteWord) {
         base->CMD = FSL_FEATURE_EEPROM_PROGRAM_CMD;
     }
 
@@ -173,27 +167,23 @@ status_t EEPROM_WritePage(EEPROM_Type *base, uint32_t pageNum, uint32_t *data)
     uint32_t i = 0;
     uint32_t *addr = NULL;
 
-    if ((pageNum > FSL_FEATURE_EEPROM_PAGE_COUNT) || (!data))
-    {
+    if ((pageNum > FSL_FEATURE_EEPROM_PAGE_COUNT) || (!data)) {
         return kStatus_InvalidArgument;
     }
 
     /* Set auto program settings */
-    if (base->AUTOPROG != kEEPROM_AutoProgramDisable)
-    {
+    if (base->AUTOPROG != kEEPROM_AutoProgramDisable) {
         EEPROM_SetAutoProgram(base, kEEPROM_AutoProgramLastWord);
     }
 
     EEPROM_ClearInterruptFlag(base, kEEPROM_ProgramFinishInterruptEnable);
 
-    addr = (uint32_t *)(FSL_FEATURE_EEPROM_BASE_ADDRESS + pageNum * (FSL_FEATURE_EEPROM_SIZE/FSL_FEATURE_EEPROM_PAGE_COUNT));
-    for (i = 0; i < (FSL_FEATURE_EEPROM_SIZE/FSL_FEATURE_EEPROM_PAGE_COUNT) / 4U; i++)
-    {
+    addr = (uint32_t *)(FSL_FEATURE_EEPROM_BASE_ADDRESS + pageNum * (FSL_FEATURE_EEPROM_SIZE / FSL_FEATURE_EEPROM_PAGE_COUNT));
+    for (i = 0; i < (FSL_FEATURE_EEPROM_SIZE / FSL_FEATURE_EEPROM_PAGE_COUNT) / 4U; i++) {
         addr[i] = data[i];
     }
 
-    if (base->AUTOPROG == kEEPROM_AutoProgramDisable)
-    {
+    if (base->AUTOPROG == kEEPROM_AutoProgramDisable) {
         base->CMD = FSL_FEATURE_EEPROM_PROGRAM_CMD;
     }
 

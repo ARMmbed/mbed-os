@@ -1,5 +1,5 @@
 /**
- * @file    
+ * @file
  * @brief   Registers, Bit Masks and Bit Positions for the Real-Time Clock.
  *
  */
@@ -78,7 +78,7 @@ extern "C" {
 /**
  * Structure type for the Real-Time Clock module registers allowing direct 32-bit access to each register.
  */
- typedef struct {
+typedef struct {
     __IO uint32_t ctrl;                                 /**< <tt>\b 0x0000: </tt> RTC_CTRL Register - RTC Timer Control                                                          */
     __IO uint32_t timer;                                /**< <tt>\b 0x0004: </tt> RTC_TIMER Register - RTC Timer Count Value                                            */
     __IO uint32_t comp[2];                              /**< <tt>\b 0x0008-0x000C: </tt> RTC_COMP0/RTC_COMP1 Registers - RTC Time of Day Alarm [0..1] Compare Register */
@@ -94,7 +94,7 @@ extern "C" {
 
 
 /**
- * Structure type for access to the RTC CFG hardware. 
+ * Structure type for access to the RTC CFG hardware.
  */
 typedef struct {
     __IO uint32_t nano_cntr;                            /**< <tt>\b 0x0000: </tt> - RTCCFG_NANO_CNTR - Nano Oscillator Counter Read Register    */
@@ -110,7 +110,7 @@ typedef struct {
 /**
  * @ingroup    rtc_registers
  * @defgroup   RTC_Register_Offsets Register Offsets
- * @brief      Real-Time Clock Register Offsets from the RTC Base Peripheral Address. 
+ * @brief      Real-Time Clock Register Offsets from the RTC Base Peripheral Address.
  * @{
  */
 #define MXC_R_RTCTMR_OFFS_CTRL                              ((uint32_t)0x00000000UL)    /**< Offset from the RTC Base Peripheral Address:<tt>\b 0x0000</tt> */
@@ -128,7 +128,7 @@ typedef struct {
 /**
  * @ingroup    rtc_registers
  * @defgroup   RTCCFG_Register_Offsets RTCCFG Register Offsets
- * @brief      Real-Time Clock CFG Register Offsets from the RTCCFG Base Peripheral Address. 
+ * @brief      Real-Time Clock CFG Register Offsets from the RTCCFG Base Peripheral Address.
  * @{
  */
 #define MXC_R_RTCCFG_OFFS_NANO_CNTR                         ((uint32_t)0x00000000UL)    /**< Offset from the RTC Base Peripheral Address:<tt>\b 0x0000</tt> */

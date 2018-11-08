@@ -33,106 +33,107 @@
  */
 namespace BLEProtocol {
 
+/**
+ * Container for the enumeration of BLE address types.
+ *
+ * @note Adding a struct to encapsulate the contained enumeration prevents
+ * polluting the BLEProtocol namespace with the enumerated values. It also
+ * allows type-aliases for the enumeration while retaining the enumerated
+ * values. i.e. doing:
+ *
+ * @code
+ *       typedef AddressType AliasedType;
+ * @endcode
+ *
+ * would allow the use of AliasedType::PUBLIC in code.
+ *
+ * @note see Bluetooth Standard version 4.2 [Vol 6, Part B] section 1.3 .
+ */
+struct AddressType {
     /**
-     * Container for the enumeration of BLE address types.
-     *
-     * @note Adding a struct to encapsulate the contained enumeration prevents
-     * polluting the BLEProtocol namespace with the enumerated values. It also
-     * allows type-aliases for the enumeration while retaining the enumerated
-     * values. i.e. doing:
-     *
-     * @code
-     *       typedef AddressType AliasedType;
-     * @endcode
-     *
-     * would allow the use of AliasedType::PUBLIC in code.
-     *
-     * @note see Bluetooth Standard version 4.2 [Vol 6, Part B] section 1.3 .
+     * Address-types for Protocol addresses.
      */
-    struct AddressType {
+    enum Type {
         /**
-         * Address-types for Protocol addresses.
+         * Public device address.
          */
-        enum Type {
-            /**
-             * Public device address.
-             */
-            PUBLIC = 0,
+        PUBLIC = 0,
 
-            /**
-             * Random static device address.
-             */
-            RANDOM_STATIC,
+        /**
+         * Random static device address.
+         */
+        RANDOM_STATIC,
 
-            /**
-             * Private resolvable device address.
-             */
-            RANDOM_PRIVATE_RESOLVABLE,
+        /**
+         * Private resolvable device address.
+         */
+        RANDOM_PRIVATE_RESOLVABLE,
 
-            /**
-             * Private non-resolvable device address.
-             */
-            RANDOM_PRIVATE_NON_RESOLVABLE
-        };
+        /**
+         * Private non-resolvable device address.
+         */
+        RANDOM_PRIVATE_NON_RESOLVABLE
     };
+};
 
-    /**
-     * Alias for AddressType::Type
-     */
-    typedef AddressType::Type AddressType_t;
+/**
+ * Alias for AddressType::Type
+ */
+typedef AddressType::Type AddressType_t;
 
-    /**
-     * Length (in octets) of the BLE MAC address.
-     */
-    static const size_t ADDR_LEN = 6;
+/**
+ * Length (in octets) of the BLE MAC address.
+ */
+static const size_t ADDR_LEN = 6;
 
-    /**
-     * 48-bit address, in LSB format.
-     */
-    typedef uint8_t AddressBytes_t[ADDR_LEN];
+/**
+ * 48-bit address, in LSB format.
+ */
+typedef uint8_t AddressBytes_t[ADDR_LEN];
 
+/**
+ * BLE address representation.
+ *
+ * It contains an address-type (::AddressType_t) and the address value
+ * (::AddressBytes_t).
+ */
+struct Address_t {
     /**
-     * BLE address representation.
+     * Construct an Address_t object with the supplied type and address.
      *
-     * It contains an address-type (::AddressType_t) and the address value
-     * (::AddressBytes_t).
+     * @param[in] typeIn The BLE address type.
+     * @param[in] addressIn The BLE address.
+     *
+     * @post type is equal to typeIn and address is equal to the content
+     * present in addressIn.
      */
-    struct Address_t {
-        /**
-         * Construct an Address_t object with the supplied type and address.
-         *
-         * @param[in] typeIn The BLE address type.
-         * @param[in] addressIn The BLE address.
-         *
-         * @post type is equal to typeIn and address is equal to the content
-         * present in addressIn.
-         */
-        Address_t(AddressType_t typeIn, const AddressBytes_t &addressIn) :
-            type(typeIn) {
-            std::copy(addressIn, addressIn + ADDR_LEN, address);
-        }
+    Address_t(AddressType_t typeIn, const AddressBytes_t &addressIn) :
+        type(typeIn)
+    {
+        std::copy(addressIn, addressIn + ADDR_LEN, address);
+    }
 
-        /**
-         * Empty constructor.
-         *
-         * @note The address constructed with the empty constructor is not
-         * valid.
-         *
-         * @post type is equal to PUBLIC and the address value is equal to
-         * 00:00:00:00:00:00
-         */
-        Address_t(void) : type(), address() { }
+    /**
+     * Empty constructor.
+     *
+     * @note The address constructed with the empty constructor is not
+     * valid.
+     *
+     * @post type is equal to PUBLIC and the address value is equal to
+     * 00:00:00:00:00:00
+     */
+    Address_t(void) : type(), address() { }
 
-        /**
-         * Type of the BLE device address.
-         */
-        AddressType_t  type;
+    /**
+     * Type of the BLE device address.
+     */
+    AddressType_t  type;
 
-        /**
-         * Value of the device address.
-         */
-        AddressBytes_t address;
-    };
+    /**
+     * Value of the device address.
+     */
+    AddressBytes_t address;
+};
 };
 
 /**

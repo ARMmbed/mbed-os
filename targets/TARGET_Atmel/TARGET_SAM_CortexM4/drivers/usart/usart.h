@@ -404,46 +404,46 @@ extern "C" {
  * The following configuration must be added to the project (typically to a
  * conf_usart.h file, but it can also be added to your main application file.)
  * \code
-	#define USART_SERIAL                 USART0
-	#define USART_SERIAL_ID              ID_USART0  //USART0 for sam4l
-	#define USART_SERIAL_BAUDRATE        9600
-	#define USART_SERIAL_CHAR_LENGTH     US_MR_CHRL_8_BIT
-	#define USART_SERIAL_PARITY          US_MR_PAR_NO
-	#define USART_SERIAL_STOP_BIT        US_MR_NBSTOP_1_BIT
+    #define USART_SERIAL                 USART0
+    #define USART_SERIAL_ID              ID_USART0  //USART0 for sam4l
+    #define USART_SERIAL_BAUDRATE        9600
+    #define USART_SERIAL_CHAR_LENGTH     US_MR_CHRL_8_BIT
+    #define USART_SERIAL_PARITY          US_MR_PAR_NO
+    #define USART_SERIAL_STOP_BIT        US_MR_NBSTOP_1_BIT
 \endcode
  *
  * Add to application initialization:
  * \code
-	    sysclk_init();
+        sysclk_init();
 
-	    board_init();
+        board_init();
 
-	    const sam_usart_opt_t usart_console_settings = {
-	        USART_SERIAL_BAUDRATE,
-	        USART_SERIAL_CHAR_LENGTH,
-	        USART_SERIAL_PARITY,
-	        USART_SERIAL_STOP_BIT,
-	        US_MR_CHMODE_NORMAL
-	    };
+        const sam_usart_opt_t usart_console_settings = {
+            USART_SERIAL_BAUDRATE,
+            USART_SERIAL_CHAR_LENGTH,
+            USART_SERIAL_PARITY,
+            USART_SERIAL_STOP_BIT,
+            US_MR_CHMODE_NORMAL
+        };
     #if SAM4L
       sysclk_enable_peripheral_clock(USART_SERIAL);
     #else
-	    sysclk_enable_peripheral_clock(USART_SERIAL_ID);
+        sysclk_enable_peripheral_clock(USART_SERIAL_ID);
     #endif
-	    usart_init_rs232(USART_SERIAL, &usart_console_settings,
-	            sysclk_get_main_hz());
-	    usart_enable_tx(USART_SERIAL);
-	    usart_enable_rx(USART_SERIAL);
+        usart_init_rs232(USART_SERIAL, &usart_console_settings,
+                sysclk_get_main_hz());
+        usart_enable_tx(USART_SERIAL);
+        usart_enable_rx(USART_SERIAL);
 \endcode
  *
  * \subsection usart_basic_use_case_setup_flow Workflow
  * -# Initialize system clock:
  *   \code
-	sysclk_init();
+    sysclk_init();
 \endcode
  * -# Configure the USART Tx and Rx pins by call the board init function:
  *   \code
-	board_init();
+    board_init();
 \endcode
  * \note Set the following define in conf_board.h file to enable COM port,it will be used in
  * board_init() function to set up IOPorts for the USART pins.
@@ -457,31 +457,31 @@ extern "C" {
 \endcode
  * -# Create USART options struct:
  *   \code
-	const sam_usart_opt_t usart_console_settings = {
-	     USART_SERIAL_BAUDRATE,
-	     USART_SERIAL_CHAR_LENGTH,
-	     USART_SERIAL_PARITY,
-	     USART_SERIAL_STOP_BIT,
-	     US_MR_CHMODE_NORMAL
-	};
+    const sam_usart_opt_t usart_console_settings = {
+         USART_SERIAL_BAUDRATE,
+         USART_SERIAL_CHAR_LENGTH,
+         USART_SERIAL_PARITY,
+         USART_SERIAL_STOP_BIT,
+         US_MR_CHMODE_NORMAL
+    };
 \endcode
  * -# Enable the clock to the USART module:
  *   \code
-	  #if SAM4L
+      #if SAM4L
       sysclk_enable_peripheral_clock(USART_SERIAL);
     #else
-	    sysclk_enable_peripheral_clock(USART_SERIAL_ID);
+        sysclk_enable_peripheral_clock(USART_SERIAL_ID);
     #endif
 \endcode
  * -# Initialize the USART module in RS232 mode:
  *   \code
-	usart_init_rs232(USART_SERIAL, &usart_console_settings,
-	        sysclk_get_main_hz());
+    usart_init_rs232(USART_SERIAL, &usart_console_settings,
+            sysclk_get_main_hz());
 \endcode
  * -# Enable the Rx and Tx modes of the USART module:
  *   \code
-	usart_enable_tx(USART_SERIAL);
-	usart_enable_rx(USART_SERIAL);
+    usart_enable_tx(USART_SERIAL);
+    usart_enable_rx(USART_SERIAL);
 \endcode
  *
  * \section usart_basic_use_case_usage Usage steps
@@ -489,7 +489,7 @@ extern "C" {
  * \subsection usart_basic_use_case_usage_code Example code
  * Add to application C-file:
  * \code
-	usart_putchar(USART_SERIAL, 'a');
+    usart_putchar(USART_SERIAL, 'a');
 \endcode
  *
  * \subsection usart_basic_use_case_usage_flow Workflow
@@ -521,53 +521,53 @@ extern "C" {
  * The following configuration must be added to the project (typically to a
  * conf_usart.h file, but it can also be added to your main application file.):
  * \code
-	#define USART_SERIAL                 USART0
-	#define USART_SERIAL_ID              ID_USART0  //USART0 for sam4l
-	#define USART_SERIAL_BAUDRATE        9600
-	#define USART_SERIAL_CHAR_LENGTH     US_MR_CHRL_8_BIT
-	#define USART_SERIAL_PARITY          US_MR_PAR_NO
-	#define USART_SERIAL_STOP_BIT        US_MR_NBSTOP_1_BIT
+    #define USART_SERIAL                 USART0
+    #define USART_SERIAL_ID              ID_USART0  //USART0 for sam4l
+    #define USART_SERIAL_BAUDRATE        9600
+    #define USART_SERIAL_CHAR_LENGTH     US_MR_CHRL_8_BIT
+    #define USART_SERIAL_PARITY          US_MR_PAR_NO
+    #define USART_SERIAL_STOP_BIT        US_MR_NBSTOP_1_BIT
 \endcode
  *
  * A variable for the received byte must be added:
  * \code
-	uint32_t received_byte;
+    uint32_t received_byte;
 \endcode
  *
  * Add to application initialization:
  * \code
-	    sysclk_init();
+        sysclk_init();
 
-	    board_init();
+        board_init();
 
-	    const sam_usart_opt_t usart_console_settings = {
-	        USART_SERIAL_BAUDRATE,
-	        USART_SERIAL_CHAR_LENGTH,
-	        USART_SERIAL_PARITY,
-	        USART_SERIAL_STOP_BIT,
-	        US_MR_CHMODE_NORMAL
-	    };
+        const sam_usart_opt_t usart_console_settings = {
+            USART_SERIAL_BAUDRATE,
+            USART_SERIAL_CHAR_LENGTH,
+            USART_SERIAL_PARITY,
+            USART_SERIAL_STOP_BIT,
+            US_MR_CHMODE_NORMAL
+        };
 
     #if SAM4L
       sysclk_enable_peripheral_clock(USART_SERIAL);
     #else
-	    sysclk_enable_peripheral_clock(USART_SERIAL_ID);
+        sysclk_enable_peripheral_clock(USART_SERIAL_ID);
     #endif
 
-	    usart_init_rs232(USART_SERIAL, &usart_console_settings,
-	            sysclk_get_main_hz());
-	    usart_enable_tx(USART_SERIAL);
-	    usart_enable_rx(USART_SERIAL);
+        usart_init_rs232(USART_SERIAL, &usart_console_settings,
+                sysclk_get_main_hz());
+        usart_enable_tx(USART_SERIAL);
+        usart_enable_rx(USART_SERIAL);
 \endcode
  *
  * \subsection usart_use_case_1_setup_flow Workflow
  * -# Initialize system clock:
  *   \code
-	sysclk_init();
+    sysclk_init();
 \endcode
  * -# Configure the USART Tx and Rx pins  by call the board init function:
  *   \code
-	board_init();
+    board_init();
 \endcode
  * \note Set the following define in conf_board.h file to enable COM port,it will be used in
  * board_init() function to set up IOPorts for the USART pins.
@@ -581,31 +581,31 @@ extern "C" {
 \endcode
  * -# Create USART options struct:
  *   \code
-	const sam_usart_opt_t usart_console_settings = {
-	     USART_SERIAL_BAUDRATE,
-	     USART_SERIAL_CHAR_LENGTH,
-	     USART_SERIAL_PARITY,
-	     USART_SERIAL_STOP_BIT,
-	     US_MR_CHMODE_NORMAL
-	};
+    const sam_usart_opt_t usart_console_settings = {
+         USART_SERIAL_BAUDRATE,
+         USART_SERIAL_CHAR_LENGTH,
+         USART_SERIAL_PARITY,
+         USART_SERIAL_STOP_BIT,
+         US_MR_CHMODE_NORMAL
+    };
 \endcode
  * -# Enable the clock to the USART module:
  *   \code
     #if SAM4L
       sysclk_enable_peripheral_clock(USART_SERIAL);
     #else
-	    sysclk_enable_peripheral_clock(USART_SERIAL_ID);
+        sysclk_enable_peripheral_clock(USART_SERIAL_ID);
     #endif
 \endcode
  * -# Initialize the USART module in RS232 mode:
  *   \code
-	usart_init_rs232(USART_SERIAL, &usart_console_settings,
-	        sysclk_get_main_hz());
+    usart_init_rs232(USART_SERIAL, &usart_console_settings,
+            sysclk_get_main_hz());
 \endcode
  * -# Enable the Rx and Tx modes of the USART module:
  *   \code
-	usart_enable_tx(USART_SERIAL);
-	usart_enable_rx(USART_SERIAL);
+    usart_enable_tx(USART_SERIAL);
+    usart_enable_rx(USART_SERIAL);
 \endcode
  *
  * \section usart_use_case_1_usage Usage steps
@@ -613,8 +613,8 @@ extern "C" {
  * \subsection usart_use_case_1_usage_code Example code
  * Add to, e.g., main loop in application C-file:
  * \code
-	received_byte = usart_getchar(USART_SERIAL);
-	usart_putchar(USART_SERIAL, received_byte);
+    received_byte = usart_getchar(USART_SERIAL);
+    usart_putchar(USART_SERIAL, received_byte);
 \endcode
  *
  * \subsection usart_use_case_1_usage_flow Workflow
@@ -651,57 +651,57 @@ extern "C" {
  * The following configuration must be added to the project (typically to a
  * conf_usart.h file, but it can also be added to your main application file.):
  * \code
-	#define USART_SERIAL                 USART0
-	#define USART_SERIAL_ID              ID_USART0  //USART0 for sam4l
-	#define USART_SERIAL_ISR_HANDLER     USART0_Handler
-	#define USART_SERIAL_BAUDRATE        9600
-	#define USART_SERIAL_CHAR_LENGTH     US_MR_CHRL_8_BIT
-	#define USART_SERIAL_PARITY          US_MR_PAR_NO
-	#define USART_SERIAL_STOP_BIT        US_MR_NBSTOP_1_BIT
+    #define USART_SERIAL                 USART0
+    #define USART_SERIAL_ID              ID_USART0  //USART0 for sam4l
+    #define USART_SERIAL_ISR_HANDLER     USART0_Handler
+    #define USART_SERIAL_BAUDRATE        9600
+    #define USART_SERIAL_CHAR_LENGTH     US_MR_CHRL_8_BIT
+    #define USART_SERIAL_PARITY          US_MR_PAR_NO
+    #define USART_SERIAL_STOP_BIT        US_MR_NBSTOP_1_BIT
 \endcode
  *
  * A variable for the received byte must be added:
  * \code
-	uint32_t received_byte;
+    uint32_t received_byte;
 \endcode
  *
  * Add to application initialization:
  * \code
-	    sysclk_init();
+        sysclk_init();
 
-	    board_init();
+        board_init();
 
-	    const sam_usart_opt_t usart_console_settings = {
-	        USART_SERIAL_BAUDRATE,
-	        USART_SERIAL_CHAR_LENGTH,
-	        USART_SERIAL_PARITY,
-	        USART_SERIAL_STOP_BIT,
-	        US_MR_CHMODE_NORMAL
-	    };
+        const sam_usart_opt_t usart_console_settings = {
+            USART_SERIAL_BAUDRATE,
+            USART_SERIAL_CHAR_LENGTH,
+            USART_SERIAL_PARITY,
+            USART_SERIAL_STOP_BIT,
+            US_MR_CHMODE_NORMAL
+        };
 
     #if SAM4L
       sysclk_enable_peripheral_clock(USART_SERIAL);
     #else
-	    sysclk_enable_peripheral_clock(USART_SERIAL_ID);
+        sysclk_enable_peripheral_clock(USART_SERIAL_ID);
     #endif
 
-	    usart_init_rs232(USART_SERIAL, &usart_console_settings,
-	            sysclk_get_main_hz());
-	    usart_enable_tx(USART_SERIAL);
-	    usart_enable_rx(USART_SERIAL);
+        usart_init_rs232(USART_SERIAL, &usart_console_settings,
+                sysclk_get_main_hz());
+        usart_enable_tx(USART_SERIAL);
+        usart_enable_rx(USART_SERIAL);
 
-	    usart_enable_interrupt(USART_SERIAL, US_IER_RXRDY);
-	    NVIC_EnableIRQ(USART_SERIAL_IRQ);
+        usart_enable_interrupt(USART_SERIAL, US_IER_RXRDY);
+        NVIC_EnableIRQ(USART_SERIAL_IRQ);
 \endcode
  *
  * \subsection usart_use_case_2_setup_flow Workflow
  * -# Initialize system clock:
  *   \code
-	sysclk_init();
+    sysclk_init();
 \endcode
  * -# Configure the USART Tx and Rx pins  by call the board init function:
  *   \code
-	board_init();
+    board_init();
 \endcode
  * \note Set the following define in conf_board.h file to enable COM port,it will be used in
  * board_init() function to set up IOPorts for the USART pins.
@@ -715,54 +715,54 @@ extern "C" {
 \endcode
  * -# Create USART options struct:
  *   \code
-	const sam_usart_opt_t usart_console_settings = {
-	     USART_SERIAL_BAUDRATE,
-	     USART_SERIAL_CHAR_LENGTH,
-	     USART_SERIAL_PARITY,
-	     USART_SERIAL_STOP_BIT,
-	     US_MR_CHMODE_NORMAL
-	};
+    const sam_usart_opt_t usart_console_settings = {
+         USART_SERIAL_BAUDRATE,
+         USART_SERIAL_CHAR_LENGTH,
+         USART_SERIAL_PARITY,
+         USART_SERIAL_STOP_BIT,
+         US_MR_CHMODE_NORMAL
+    };
 \endcode
  * -# Enable the clock to the USART module:
  *   \code
     #if SAM4L
       sysclk_enable_peripheral_clock(USART_SERIAL);
     #else
-	    sysclk_enable_peripheral_clock(USART_SERIAL_ID);
+        sysclk_enable_peripheral_clock(USART_SERIAL_ID);
     #endif
 \endcode
  * -# Initialize the USART module in RS232 mode:
  *   \code
-	usart_init_rs232(USART_SERIAL, &usart_console_settings,
-	        sysclk_get_main_hz());
+    usart_init_rs232(USART_SERIAL, &usart_console_settings,
+            sysclk_get_main_hz());
 \endcode
  * -# Enable the Rx and Tx modes of the USART module:
  *   \code
-	usart_enable_tx(USART_SERIAL);
-	usart_enable_rx(USART_SERIAL);
+    usart_enable_tx(USART_SERIAL);
+    usart_enable_rx(USART_SERIAL);
 \endcode
  * -# Enable the USART character reception interrupt, and general interrupts
  *   for the USART module.
  *   \code
-	usart_enable_interrupt(USART_SERIAL, US_IER_RXRDY);
-	NVIC_EnableIRQ(USART_SERIAL_IRQ);
+    usart_enable_interrupt(USART_SERIAL, US_IER_RXRDY);
+    NVIC_EnableIRQ(USART_SERIAL_IRQ);
 \endcode
  * \section usart_use_case_2_usage Usage steps
  *
  * \subsection usart_use_case_2_usage_code Example code
  * Add to your main application C-file the USART interrupt handler:
  * \code
-	 void USART_SERIAL_ISR_HANDLER(void)
-	 {
-	    uint32_t dw_status = usart_get_status(USART_SERIAL);
+     void USART_SERIAL_ISR_HANDLER(void)
+     {
+        uint32_t dw_status = usart_get_status(USART_SERIAL);
 
-	    if (dw_status & US_CSR_RXRDY) {
-	        uint32_t received_byte;
+        if (dw_status & US_CSR_RXRDY) {
+            uint32_t received_byte;
 
-	        usart_read(USART_SERIAL, &received_byte);
-	        usart_write(USART_SERIAL, received_byte);
-	    }
-	 }
+            usart_read(USART_SERIAL, &received_byte);
+            usart_write(USART_SERIAL, received_byte);
+        }
+     }
 \endcode
  *
  * \subsection usart_use_case_2_usage_flow Workflow

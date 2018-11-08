@@ -116,11 +116,10 @@
 #define CEUCDBCR2_M (CEU.CDBCR2_M)
 
 
-typedef struct st_ceu
-{
-                                                           /* CEU              */
+typedef struct st_ceu {
+    /* CEU              */
 
-/* start of struct st_ceu_n */
+    /* start of struct st_ceu_n */
     volatile uint32_t  CAPSR;                                  /*  CAPSR           */
     volatile uint32_t  CAPCR;                                  /*  CAPCR           */
     volatile uint32_t  CAMCR;                                  /*  CAMCR           */
@@ -156,10 +155,10 @@ typedef struct st_ceu
     volatile uint32_t  CDBYR2_A;                               /*  CDBYR2_A        */
     volatile uint32_t  CDBCR2_A;                               /*  CDBCR2_A        */
 
-/* end of struct st_ceu_n */
+    /* end of struct st_ceu_n */
     volatile uint8_t   dummy3110[3936];                        /*                  */
 
-/* start of struct st_ceu_n */
+    /* start of struct st_ceu_n */
     volatile uint8_t   dummy3111[4];                           /*                  */
     volatile uint8_t   dummy3112[4];                           /*                  */
     volatile uint8_t   dummy3113[4];                           /*                  */
@@ -195,10 +194,10 @@ typedef struct st_ceu
     volatile uint32_t  CDBYR2_B;                               /*  CDBYR2_B        */
     volatile uint32_t  CDBCR2_B;                               /*  CDBCR2_B        */
 
-/* end of struct st_ceu_n */
+    /* end of struct st_ceu_n */
     volatile uint8_t   dummy3150[3936];                        /*                  */
 
-/* start of struct st_ceu_n */
+    /* start of struct st_ceu_n */
     volatile uint8_t   dummy3151[4];                           /*                  */
     volatile uint8_t   dummy3152[4];                           /*                  */
     volatile uint8_t   dummy3153[4];                           /*                  */
@@ -234,13 +233,12 @@ typedef struct st_ceu
     volatile uint32_t  CDBYR2_M;                               /*  CDBYR2_M        */
     volatile uint32_t  CDBCR2_M;                               /*  CDBCR2_M        */
 
-/* end of struct st_ceu_n */
+    /* end of struct st_ceu_n */
 } r_io_ceu_t;
 
 
-typedef struct st_ceu_n
-{
- 
+typedef struct st_ceu_n {
+
     volatile uint32_t  not_common1;                            /*                  */
     volatile uint32_t  not_common2;                            /*                  */
     volatile uint32_t  not_common3;                            /*                  */
@@ -280,10 +278,10 @@ typedef struct st_ceu_n
 
 /* Channel array defines of CEUn (2)*/
 #ifdef  DECLARE_CEUn_CHANNELS
-volatile struct st_ceu_n*  CEUn[ CEUn_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    CEUn_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_ceu_n  *CEUn[ CEUn_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        CEUn_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_CEUn_CHANNELS */
 /* End of channel array defines of CEUn (2)*/
 

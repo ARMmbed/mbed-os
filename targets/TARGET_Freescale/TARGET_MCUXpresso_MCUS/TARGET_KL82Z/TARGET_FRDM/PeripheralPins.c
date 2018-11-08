@@ -50,7 +50,7 @@ const PinMap PinMap_I2C_SDA[] = {
     {PTD3,  I2C_0, 7},
     {PTD9,  I2C_0, 2},
     {PTE0,  I2C_1, 6},
-    {NC,    NC   , 0}
+    {NC,    NC, 0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
@@ -134,12 +134,12 @@ const PinMap PinMap_SPI_SSEL[] = {
 const PinMap PinMap_PWM[] = {
     {PTA0,  PWM_6,  3}, // PTA0 , TPM0 CH5
     {PTA3,  PWM_1,  3}, // PTA3 , TPM0 CH0
-    {PTA4,  PWM_2 , 3}, // PTA4 , TPM0 CH1
-    {PTA5,  PWM_3 , 3}, // PTA5 , TPM0 CH2
+    {PTA4,  PWM_2, 3},  // PTA4 , TPM0 CH1
+    {PTA5,  PWM_3, 3},  // PTA5 , TPM0 CH2
     {PTA10, PWM_9,  3}, // PTA10, TPM2 CH0
     {PTA11, PWM_10, 3}, // PTA11, TPM2 CH1
-    {PTA12, PWM_7 , 3}, // PTA12, TPM1 CH0
-    {PTA13, PWM_8 , 3}, // PTA13, TPM1 CH1
+    {PTA12, PWM_7, 3},  // PTA12, TPM1 CH0
+    {PTA13, PWM_8, 3},  // PTA13, TPM1 CH1
 
     {PTB0,  PWM_7,  3}, // PTB0 , TPM1 CH0
     {PTB1,  PWM_8,  3}, // PTB1 , TPM1 CH1
@@ -152,9 +152,9 @@ const PinMap PinMap_PWM[] = {
     {PTC4,  PWM_4,  4}, // PTC4 , TPM0 CH3
     {PTC5,  PWM_3,  7}, // PTC4 , TPM0 CH2
 
-    {PTD4,  PWM_5 , 4}, // PTD4 , TPM0 CH4
-    {PTD5,  PWM_6 , 4}, // PTD5 , TPM0 CH5
+    {PTD4,  PWM_5, 4},  // PTD4 , TPM0 CH4
+    {PTD5,  PWM_6, 4},  // PTD5 , TPM0 CH5
 
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 

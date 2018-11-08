@@ -22,16 +22,17 @@
 
 #include "SecurityManager.h"
 
-class ArmSecurityManager : public SecurityManager
-{
+class ArmSecurityManager : public SecurityManager {
 public:
-    static ArmSecurityManager &getInstance() {
+    static ArmSecurityManager &getInstance()
+    {
         static ArmSecurityManager m_instance;
         return m_instance;
     }
 
 public:
-    ArmSecurityManager() {
+    ArmSecurityManager()
+    {
         /* empty */
     }
 };

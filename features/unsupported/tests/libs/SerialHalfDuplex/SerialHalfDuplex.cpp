@@ -12,7 +12,8 @@
 namespace mbed {
 
 SerialHalfDuplex::SerialHalfDuplex(PinName tx, PinName rx)
-    : Serial(tx, rx) {
+    : Serial(tx, rx)
+{
 
     gpio_init(&gpio, tx, PIN_INPUT);
     gpio_mode(&gpio, PullNone); // no pull
@@ -26,7 +27,8 @@ SerialHalfDuplex::SerialHalfDuplex(PinName tx, PinName rx)
 //    transmit has occurred, and also clears the byte from the buffer.
 // 5. Return pin to input mode
 // 6. Re-enable interrupts
-int SerialHalfDuplex::_putc(int c) {
+int SerialHalfDuplex::_putc(int c)
+{
     int retc;
 
     // TODO: We should not disable all interrupts
@@ -44,7 +46,8 @@ int SerialHalfDuplex::_putc(int c) {
     return retc;
 }
 
-int SerialHalfDuplex::_getc(void) {
+int SerialHalfDuplex::_getc(void)
+{
     return Serial::_getc();
 }
 

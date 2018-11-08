@@ -134,12 +134,12 @@ static void adc_set_config(Adc *const adc, struct adc_config *config)
 {
     uint32_t reg = 0;
 
-    reg =  (config->useq ? ADC_MR_USEQ_REG_ORDER : 0) |
-           ADC_MR_PRESCAL(config->mck /
-                          (2 * config->adc_clock) - 1) |
-           ADC_MR_TRACKTIM(config->tracktim) |
-           ADC_MR_TRANSFER(config->transfer) |
-           (config->startup_time);
+    reg = (config->useq ? ADC_MR_USEQ_REG_ORDER : 0) |
+          ADC_MR_PRESCAL(config->mck /
+                         (2 * config->adc_clock) - 1) |
+          ADC_MR_TRACKTIM(config->tracktim) |
+          ADC_MR_TRANSFER(config->transfer) |
+          (config->startup_time);
 
     adc->ADC_MR = reg;
 

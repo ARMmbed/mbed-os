@@ -19,7 +19,8 @@ using namespace std;
 
 namespace mbed {
 
-RPC::RPC(const char *name) {
+RPC::RPC(const char *name)
+{
     _from_construct = false;
     if (name != NULL) {
         _name = new char[strlen(name) + 1];
@@ -33,12 +34,13 @@ RPC::RPC(const char *name) {
     _head = this;
 }
 
-RPC::~RPC() {
+RPC::~RPC()
+{
     // remove this object from the list
     if (_head == this) { // first in the list, so just drop me
         _head = _next;
     } else {            // find the object before me, then drop me
-        RPC* p = _head;
+        RPC *p = _head;
         while (p->_next != this) {
             p = p->_next;
         }
@@ -46,7 +48,8 @@ RPC::~RPC() {
     }
 }
 
-const rpc_method *RPC::get_rpc_methods() {
+const rpc_method *RPC::get_rpc_methods()
+{
     static const rpc_method methods[] = {
         {"delete", rpc_method_caller<RPC, &RPC::delete_self> },
         RPC_METHOD_END
@@ -54,7 +57,8 @@ const rpc_method *RPC::get_rpc_methods() {
     return methods;
 }
 
-RPC *RPC::lookup(const char *name) {
+RPC *RPC::lookup(const char *name)
+{
     size_t len = strlen(name);
     for (RPC *p = _head; p != NULL; p = p->_next) {
         /* Check that p->_name matches name and is the correct length */
@@ -65,22 +69,25 @@ RPC *RPC::lookup(const char *name) {
     return NULL;
 }
 
-void RPC::delete_self() {
+void RPC::delete_self()
+{
     delete[] _name;
     if (_from_construct) {
         delete this;
     }
 }
 
-void RPC::list_objs(Arguments *args, Reply *result) {
+void RPC::list_objs(Arguments *args, Reply *result)
+{
     for (RPC *ptr = RPC::_head; ptr != NULL; ptr = ptr->_next) {
         if (ptr->_from_construct) {
-            result->putData<const char*>(ptr->_name);
+            result->putData<const char *>(ptr->_name);
         }
     }
 }
 
-void RPC::clear(Arguments*, Reply*) {
+void RPC::clear(Arguments *, Reply *)
+{
     RPC *ptr = RPC::_head;
     while (ptr != NULL) {
         RPC *tmp = ptr;
@@ -104,8 +111,11 @@ RPC *RPC::_head = NULL;
 
 rpc_class *RPC::_classes = &_RPC_class;
 
-bool RPC::call(const char *request, char *reply) {
-    if (request == NULL) return false;
+bool RPC::call(const char *request, char *reply)
+{
+    if (request == NULL) {
+        return false;
+    }
 
     Arguments args(request);
     Reply r(reply);
@@ -113,10 +123,10 @@ bool RPC::call(const char *request, char *reply) {
     /* If there's no name print object and class names to result */
     if (args.obj_name == NULL) {
         for (RPC *p = RPC::_head; p != NULL; p = p->_next) {
-            r.putData<const char*>(p->_name);
+            r.putData<const char *>(p->_name);
         }
         for (rpc_class *c = RPC::_classes; c != NULL; c = c->next) {
-            r.putData<const char*>(c->name);
+            r.putData<const char *>(c->name);
         }
         return true;
     }
@@ -131,7 +141,7 @@ bool RPC::call(const char *request, char *reply) {
         if (args.method_name == NULL) {
             while (true) {
                 for (; cur_method->name != NULL; cur_method++) {
-                    r.putData<const char*>(cur_method->name);
+                    r.putData<const char *>(cur_method->name);
                 }
 
                 /* write_name_arr's args are references, so result and cur_method will have changed */
@@ -169,7 +179,7 @@ bool RPC::call(const char *request, char *reply) {
             const rpc_function *cur_func = q->static_functions;
             if (args.method_name == NULL) {
                 for (; cur_func->name != NULL; cur_func++) {
-                    r.putData<const char*>(cur_func->name);
+                    r.putData<const char *>(cur_func->name);
                 }
                 return true;
             } else {

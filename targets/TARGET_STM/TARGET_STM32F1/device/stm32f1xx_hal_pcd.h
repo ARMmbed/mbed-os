@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F1xx_HAL_PCD_H
 #define __STM32F1xx_HAL_PCD_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined(STM32F102x6) || defined(STM32F102xB) || \
@@ -57,9 +57,9 @@
 
 /** @addtogroup PCD
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /** @defgroup PCD_Exported_Types PCD Exported Types
   * @{
   */
@@ -67,35 +67,32 @@
 /**
   * @brief  PCD State structure definition
   */
-typedef enum
-{
-  HAL_PCD_STATE_RESET   = 0x00U,
-  HAL_PCD_STATE_READY   = 0x01U,
-  HAL_PCD_STATE_ERROR   = 0x02U,
-  HAL_PCD_STATE_BUSY    = 0x03U,
-  HAL_PCD_STATE_TIMEOUT = 0x04U
+typedef enum {
+    HAL_PCD_STATE_RESET   = 0x00U,
+    HAL_PCD_STATE_READY   = 0x01U,
+    HAL_PCD_STATE_ERROR   = 0x02U,
+    HAL_PCD_STATE_BUSY    = 0x03U,
+    HAL_PCD_STATE_TIMEOUT = 0x04U
 } PCD_StateTypeDef;
 
 #if defined (USB)
 /**
   * @brief  PCD double buffered endpoint direction
   */
-typedef enum
-{
-  PCD_EP_DBUF_OUT,
-  PCD_EP_DBUF_IN,
-  PCD_EP_DBUF_ERR,
-}PCD_EP_DBUF_DIR;
+typedef enum {
+    PCD_EP_DBUF_OUT,
+    PCD_EP_DBUF_IN,
+    PCD_EP_DBUF_ERR,
+} PCD_EP_DBUF_DIR;
 
 /**
   * @brief  PCD endpoint buffer number
   */
-typedef enum 
-{
-  PCD_EP_NOBUF,
-  PCD_EP_BUF0,
-  PCD_EP_BUF1
-}PCD_EP_BUF_NUM;  
+typedef enum {
+    PCD_EP_NOBUF,
+    PCD_EP_BUF0,
+    PCD_EP_BUF1
+} PCD_EP_BUF_NUM;
 #endif /* USB */
 
 #if defined (USB_OTG_FS)
@@ -110,20 +107,19 @@ typedef USB_CfgTypeDef     PCD_InitTypeDef;
 typedef USB_EPTypeDef      PCD_EPTypeDef;
 #endif /* USB */
 
-/** 
+/**
   * @brief  PCD Handle Structure definition
   */
-typedef struct
-{
-  PCD_TypeDef             *Instance;   /*!< Register base address               */
-  PCD_InitTypeDef         Init;        /*!< PCD required parameters             */
-  __IO uint8_t            USB_Address; /*!< USB Address: not used by USB OTG FS */  
-  PCD_EPTypeDef           IN_ep[16];   /*!< IN endpoint parameters              */
-  PCD_EPTypeDef           OUT_ep[16];  /*!< OUT endpoint parameters             */
-  HAL_LockTypeDef         Lock;        /*!< PCD peripheral status               */
-  __IO PCD_StateTypeDef   State;       /*!< PCD communication state             */
-  uint32_t                Setup[12U];   /*!< Setup packet buffer                 */
-  void                    *pData;      /*!< Pointer to upper stack Handler      */
+typedef struct {
+    PCD_TypeDef             *Instance;   /*!< Register base address               */
+    PCD_InitTypeDef         Init;        /*!< PCD required parameters             */
+    __IO uint8_t            USB_Address; /*!< USB Address: not used by USB OTG FS */
+    PCD_EPTypeDef           IN_ep[16];   /*!< IN endpoint parameters              */
+    PCD_EPTypeDef           OUT_ep[16];  /*!< OUT endpoint parameters             */
+    HAL_LockTypeDef         Lock;        /*!< PCD peripheral status               */
+    __IO PCD_StateTypeDef   State;       /*!< PCD communication state             */
+    uint32_t                Setup[12U];   /*!< Setup packet buffer                 */
+    void                    *pData;      /*!< Pointer to upper stack Handler      */
 } PCD_HandleTypeDef;
 
 /**
@@ -147,7 +143,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup PCD_PHY_Module PCD PHY Module
   * @{
   */
@@ -160,7 +156,7 @@ typedef struct
   * @{
   */
 #ifndef USBD_FS_TRDT_VALUE
- #define USBD_FS_TRDT_VALUE           5U
+#define USBD_FS_TRDT_VALUE           5U
 #endif /* USBD_FS_TRDT_VALUE */
 /**
   * @}
@@ -265,7 +261,7 @@ typedef struct
   * @{
   */
 HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd);
-HAL_StatusTypeDef HAL_PCD_DeInit (PCD_HandleTypeDef *hpcd);
+HAL_StatusTypeDef HAL_PCD_DeInit(PCD_HandleTypeDef *hpcd);
 void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd);
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd);
 /**
@@ -359,11 +355,11 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 #define PCD_EP0MPS_64                                                 DEP0CTL_MPS_64
 #define PCD_EP0MPS_32                                                 DEP0CTL_MPS_32
 #define PCD_EP0MPS_16                                                 DEP0CTL_MPS_16
-#define PCD_EP0MPS_08                                                 DEP0CTL_MPS_8 
+#define PCD_EP0MPS_08                                                 DEP0CTL_MPS_8
 /**
   * @}
   */
-  
+
 /** @defgroup PCD_ENDP PCD ENDP
   * @{
   */
@@ -638,7 +634,7 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
                                          {                                                              \
                                             PCD_TX_DTOG((USBx), (bEpNum));                              \
                                          }
-      
+
 /**
   * @brief  Sets address in an endpoint register.
   * @param  USBx: USB peripheral instance register address.
@@ -655,7 +651,7 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 #define PCD_EP_TX_CNT(USBx, bEpNum) ((uint32_t *)(((USBx)->BTABLE+(bEpNum)*8U+2U)*2U+  ((uint32_t)(USBx) + 0x400U)))
 #define PCD_EP_RX_ADDRESS(USBx, bEpNum) ((uint32_t *)(((USBx)->BTABLE+(bEpNum)*8U+4U)*2U+  ((uint32_t)(USBx) + 0x400U)))
 #define PCD_EP_RX_CNT(USBx, bEpNum) ((uint32_t *)(((USBx)->BTABLE+(bEpNum)*8U+6U)*2U+  ((uint32_t)(USBx) + 0x400U)))
-      
+
 #define PCD_SET_EP_RX_CNT(USBx, bEpNum,wCount) {\
     uint32_t *pdwReg = PCD_EP_RX_CNT((USBx), (bEpNum)); \
     PCD_SET_EP_CNT_RX_REG(pdwReg, (wCount));\
@@ -777,9 +773,9 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
   * @brief  Gets buffer 0/1 address of a double buffer endpoint.
   * @param  USBx: USB peripheral instance register address.
   * @param  bEpNum: Endpoint Number.
-  * @param  bDir: endpoint dir  EP_DBUF_OUT = OUT 
-  *         EP_DBUF_IN  = IN 
-  * @param  wCount: Counter value 
+  * @param  bDir: endpoint dir  EP_DBUF_OUT = OUT
+  *         EP_DBUF_IN  = IN
+  * @param  wCount: Counter value
   * @retval None
   */
 #define PCD_SET_EP_DBUF0_CNT(USBx, bEpNum, bDir, wCount)  { \
@@ -825,7 +821,7 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 /**
   * @}
   */
-  
+
 /**
   * @}
   */
@@ -839,9 +835,9 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
   */
 
 #endif /* STM32F102x6 || STM32F102xB || */
-       /* STM32F103x6 || STM32F103xB || */
-       /* STM32F103xE || STM32F103xG || */
-       /* STM32F105xC || STM32F107xC    */
+/* STM32F103x6 || STM32F103xB || */
+/* STM32F103xE || STM32F103xG || */
+/* STM32F105xC || STM32F107xC    */
 
 #ifdef __cplusplus
 }

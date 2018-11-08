@@ -32,9 +32,9 @@
 
 
 #if DEVICE_I2C_ASYNCH
-#define pI2C_S(obj)			(&obj->i2c)
+#define pI2C_S(obj)         (&obj->i2c)
 #else
-#define pI2C_S(obj)			obj
+#define pI2C_S(obj)         obj
 #endif
 
 #define I2C_MASTER_DEFAULT_BAUD     100000
@@ -112,7 +112,7 @@ static enum status_code _i2c_slave_wait_for_bus(
  */
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
-    Sercom* hw;
+    Sercom *hw;
     uint32_t mux_func;
     struct i2c_master_config config_i2c_master;
 
@@ -134,25 +134,29 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     if (sercom_index == (uint32_t)NC) {
         return;
     }
-    hw = (Sercom*)pinmap_peripheral_sercom(NC, sercom_index);
+    hw = (Sercom *)pinmap_peripheral_sercom(NC, sercom_index);
 
     i2c_master_get_config_defaults(&config_i2c_master);
 
     /* SERCOM PAD0 - SDA */
     mux_func = pinmap_function_sercom(sda, sercom_index);
-    if (mux_func == (uint32_t)NC) return;
+    if (mux_func == (uint32_t)NC) {
+        return;
+    }
     config_i2c_master.pinmux_pad0 = (sda << 16) | (mux_func & 0xFFFF);
 
     /* SERCOM PAD1 - SCL */
     mux_func = pinmap_function_sercom(scl, sercom_index);
-    if (mux_func == (uint32_t)NC) return;
+    if (mux_func == (uint32_t)NC) {
+        return;
+    }
     config_i2c_master.pinmux_pad1 = (scl << 16) | (mux_func & 0xFFFF);
 
     /* Default baud rate is set to 100kHz */
     pI2C_S(obj)->baud_rate = I2C_MASTER_DEFAULT_BAUD;
     config_i2c_master.baud_rate = pI2C_S(obj)->baud_rate / 1000;
 
-    while(i2c_master_init(&pI2C_S(obj)->master, hw, &config_i2c_master) != STATUS_OK);
+    while (i2c_master_init(&pI2C_S(obj)->master, hw, &config_i2c_master) != STATUS_OK);
     pI2C_S(obj)->mode = I2C_MODE_MASTER;
 
 #if DEVICE_I2C_ASYNCH
@@ -180,7 +184,9 @@ void i2c_frequency(i2c_t *obj, int hz)
     MBED_ASSERT(pI2C_S(obj)->master.hw);
 
     /* Return if in Slave mode, slave do not have any baud to set */
-    if (pI2C_S(obj)->mode != I2C_MODE_MASTER) return;
+    if (pI2C_S(obj)->mode != I2C_MODE_MASTER) {
+        return;
+    }
 
     SercomI2cm *const i2c_module = &(pI2C_S(obj)->master.hw->I2CM);
 
@@ -196,7 +202,7 @@ void i2c_frequency(i2c_t *obj, int hz)
 
     /* Find and set baudrate. */
     tmp_baud = (int32_t)(div_ceil(
-                             system_gclk_chan_get_hz(SERCOM0_GCLK_ID_CORE + sercom_index), (2000*(baud_rate))) - 5);
+                             system_gclk_chan_get_hz(SERCOM0_GCLK_ID_CORE + sercom_index), (2000 * (baud_rate))) - 5);
 
     /* Check that baudrate is supported at current speed. */
     if (tmp_baud > 255 || tmp_baud < 0) {
@@ -206,7 +212,7 @@ void i2c_frequency(i2c_t *obj, int hz)
         /* Find baudrate for high speed */
         tmp_baud_hs = (int32_t)(div_ceil(
                                     system_gclk_chan_get_hz(SERCOM0_GCLK_ID_CORE + sercom_index),
-                                    (2000*(pI2C_S(obj)->baud_rate_high_speed))) - 1);
+                                    (2000 * (pI2C_S(obj)->baud_rate_high_speed))) - 1);
 
         /* Check that baudrate is supported at current speed. */
         if (tmp_baud_hs > 255 || tmp_baud_hs < 0) {
@@ -287,7 +293,7 @@ int  i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     struct i2c_master_packet packet;
     packet.address = (address & 0xFF) >> 1;
     packet.data_length = length;
-    packet.data = (uint8_t*)data;
+    packet.data = (uint8_t *)data;
     packet.ten_bit_address = false;
     packet.high_speed = false;
 
@@ -595,9 +601,11 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave)
 
     uint32_t mux_func[2];
     uint32_t sercom_index = _sercom_get_sercom_inst_index(pI2C_S(obj)->master.hw);
-    for (i=0; i<2; i++) {
+    for (i = 0; i < 2; i++) {
         mux_func[i] = pinmap_function_sercom(pI2C_S(obj)->pins[0], sercom_index);
-        if (mux_func[i] == (uint32_t)NC) return;
+        if (mux_func[i] == (uint32_t)NC) {
+            return;
+        }
     }
 
     if (enable_slave) {
@@ -635,7 +643,7 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave)
         /* Baud rate */
         config_i2c_master.baud_rate = pI2C_S(obj)->baud_rate / 1000;
 
-        while(i2c_master_init(&pI2C_S(obj)->master, pI2C_S(obj)->master.hw, &config_i2c_master) != STATUS_OK);
+        while (i2c_master_init(&pI2C_S(obj)->master, pI2C_S(obj)->master.hw, &config_i2c_master) != STATUS_OK);
         pI2C_S(obj)->mode = I2C_MODE_MASTER;
 
         i2c_master_enable(&pI2C_S(obj)->master);
@@ -685,13 +693,15 @@ int  i2c_slave_read(i2c_t *obj, char *data, int length)
     MBED_ASSERT(obj);
     MBED_ASSERT(pI2C_S(obj)->slave.hw);
 
-    if (!data || !length) return 0;
+    if (!data || !length) {
+        return 0;
+    }
 
     enum status_code tmp_status;
 
     struct i2c_slave_packet packet;
     packet.data_length = length;
-    packet.data = (uint8_t*)data;
+    packet.data = (uint8_t *)data;
 
     tmp_status = i2c_slave_read_packet_wait(&pI2C_S(obj)->slave, &packet);
 
@@ -716,7 +726,9 @@ int  i2c_slave_write(i2c_t *obj, const char *data, int length)
     MBED_ASSERT(obj);
     MBED_ASSERT(pI2C_S(obj)->slave.hw);
 
-    if (!data || !length) return 0;
+    if (!data || !length) {
+        return 0;
+    }
 
     enum status_code tmp_status;
 
@@ -792,7 +804,7 @@ void i2c_transfer_complete_callback(struct i2c_master_module *const module)
         return;
     }
 
-    i2c_t *obj = (i2c_t*)i2c_instances[sercom_index];
+    i2c_t *obj = (i2c_t *)i2c_instances[sercom_index];
 
     i2c_master_disable_callback(&pI2C_S(obj)->master, I2C_MASTER_CALLBACK_WRITE_COMPLETE);
     i2c_master_disable_callback(&pI2C_S(obj)->master, I2C_MASTER_CALLBACK_READ_COMPLETE);
@@ -819,7 +831,7 @@ void i2c_write_complete_callback(struct i2c_master_module *const module)
         return;
     }
 
-    i2c_t *obj = (i2c_t*)i2c_instances[sercom_index];
+    i2c_t *obj = (i2c_t *)i2c_instances[sercom_index];
 
     if (!(pI2C_S(obj)->rd_packet.data) || (pI2C_S(obj)->rd_packet.data_length == 0)) {
         /* Call the handler function */
@@ -833,7 +845,7 @@ void i2c_write_complete_callback(struct i2c_master_module *const module)
 
         /* Initiate read operation */
         if (pI2C_S(obj)->master.send_stop) {
-            i2c_master_read_packet_job(&pI2C_S(obj)->master,&pI2C_S(obj)->rd_packet);
+            i2c_master_read_packet_job(&pI2C_S(obj)->master, &pI2C_S(obj)->rd_packet);
         } else {
             i2c_master_read_packet_job_no_stop(&pI2C_S(obj)->master, &pI2C_S(obj)->rd_packet);
         }
@@ -858,7 +870,9 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     MBED_ASSERT(pI2C_S(obj)->master.hw);
 
     /* Return if in Slave mode */
-    if (pI2C_S(obj)->mode != I2C_MODE_MASTER) return;
+    if (pI2C_S(obj)->mode != I2C_MODE_MASTER) {
+        return;
+    }
 
     uint32_t sercom_index = _sercom_get_sercom_inst_index(pI2C_S(obj)->master.hw);
 
@@ -901,7 +915,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
 
         /* Start I2C read */
         if (stop) {
-            i2c_master_read_packet_job(&pI2C_S(obj)->master,&pI2C_S(obj)->rd_packet);
+            i2c_master_read_packet_job(&pI2C_S(obj)->master, &pI2C_S(obj)->rd_packet);
         } else {
             i2c_master_read_packet_job_no_stop(&pI2C_S(obj)->master, &pI2C_S(obj)->rd_packet);
         }

@@ -39,12 +39,12 @@ void pint_intr_callback(pint_pin_int_t pintr, uint32_t pmatch_status)
     //   * There is no user handler
     //   * It is a level interrupt, not an edge interrupt
     if (((PINT->IST & ch_bit) == 0) ||
-        (channel_ids[pintr] == 0) ||
-        (PINT->ISEL & ch_bit)) {
+            (channel_ids[pintr] == 0) ||
+            (PINT->ISEL & ch_bit)) {
         return;
     }
 
-    if ((PINT->IENR & ch_bit) && (PINT->RISE & ch_bit)){
+    if ((PINT->IENR & ch_bit) && (PINT->RISE & ch_bit)) {
         irq_handler(channel_ids[pintr], IRQ_RISE);
         PINT->RISE = ch_bit;
     }
@@ -109,8 +109,9 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     unsigned int ch_bit = (1 << obj->ch);
 
     // Clear interrupt
-    if (!(PINT->ISEL & ch_bit))
+    if (!(PINT->ISEL & ch_bit)) {
         PINT->IST = ch_bit;
+    }
 
     // Edge trigger
     PINT->ISEL &= ~ch_bit;

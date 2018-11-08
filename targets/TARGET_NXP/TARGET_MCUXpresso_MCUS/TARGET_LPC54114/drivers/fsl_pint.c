@@ -52,14 +52,12 @@ void PINT_Init(PINT_Type *base)
     assert(base);
 
     pmcfg = 0;
-    for (i = 0; i < FSL_FEATURE_PINT_NUMBER_OF_CONNECTED_OUTPUTS; i++)
-    {
+    for (i = 0; i < FSL_FEATURE_PINT_NUMBER_OF_CONNECTED_OUTPUTS; i++) {
         s_pintCallback[i] = NULL;
     }
 
     /* Disable all bit slices */
-    for (i = 0; i < PINT_PIN_INT_COUNT; i++)
-    {
+    for (i = 0; i < PINT_PIN_INT_COUNT; i++) {
         pmcfg = pmcfg | (kPINT_PatternMatchNever << (PININT_BITSLICE_CFG_START + (i * 3U)));
     }
 
@@ -85,22 +83,16 @@ void PINT_PinInterruptConfig(PINT_Type *base, pint_pin_int_t intr, pint_pin_enab
     base->ISEL = (base->ISEL & ~(1U << intr)) | ((enable & PINT_PIN_INT_LEVEL) ? (1U << intr) : 0U);
 
     /* enable rising or level interrupt */
-    if (enable & (PINT_PIN_INT_LEVEL | PINT_PIN_INT_RISE))
-    {
+    if (enable & (PINT_PIN_INT_LEVEL | PINT_PIN_INT_RISE)) {
         base->SIENR = 1U << intr;
-    }
-    else
-    {
+    } else {
         base->CIENR = 1U << intr;
     }
 
     /* Enable falling or select high level */
-    if (enable & PINT_PIN_INT_FALL_OR_HIGH_LEVEL)
-    {
+    if (enable & PINT_PIN_INT_FALL_OR_HIGH_LEVEL) {
         base->SIENF = 1U << intr;
-    }
-    else
-    {
+    } else {
         base->CIENF = 1U << intr;
     }
 
@@ -118,43 +110,31 @@ void PINT_PinInterruptGetConfig(PINT_Type *base, pint_pin_int_t pintr, pint_pin_
     level = false;
 
     mask = 1U << pintr;
-    if (base->ISEL & mask)
-    {
+    if (base->ISEL & mask) {
         /* Pin interrupt is level sensitive */
         level = true;
     }
 
-    if (base->IENR & mask)
-    {
-        if (level)
-        {
+    if (base->IENR & mask) {
+        if (level) {
             /* Level interrupt is enabled */
             *enable = kPINT_PinIntEnableLowLevel;
-        }
-        else
-        {
+        } else {
             /* Rising edge interrupt */
             *enable = kPINT_PinIntEnableRiseEdge;
         }
     }
 
-    if (base->IENF & mask)
-    {
-        if (level)
-        {
+    if (base->IENF & mask) {
+        if (level) {
             /* Level interrupt is active high */
             *enable = kPINT_PinIntEnableHighLevel;
-        }
-        else
-        {
+        } else {
             /* Either falling or both edge */
-            if (*enable == kPINT_PinIntEnableRiseEdge)
-            {
+            if (*enable == kPINT_PinIntEnableRiseEdge) {
                 /* Rising and faling edge */
                 *enable = kPINT_PinIntEnableBothEdges;
-            }
-            else
-            {
+            } else {
                 /* Falling edge */
                 *enable = kPINT_PinIntEnableFallEdge;
             }
@@ -183,14 +163,10 @@ void PINT_PatternMatchConfig(PINT_Type *base, pint_pmatch_bslice_t bslice, pint_
     pmcfg = (pmcfg & ~(PININT_BITSLICE_CFG_MASK << cfg_shift)) | (cfg->bs_cfg << cfg_shift);
 
     /* If end point is true, enable the bits */
-    if (bslice != 7U)
-    {
-        if (cfg->end_point)
-        {
+    if (bslice != 7U) {
+        if (cfg->end_point) {
             pmcfg |= (0x1U << bslice);
-        }
-        else
-        {
+        } else {
             pmcfg &= ~(0x1U << bslice);
         }
     }
@@ -214,12 +190,9 @@ void PINT_PatternMatchGetConfig(PINT_Type *base, pint_pmatch_bslice_t bslice, pi
     cfg->bs_src = (pint_pmatch_input_src_t)((base->PMSRC & (PININT_BITSLICE_SRC_MASK << src_shift)) >> src_shift);
     cfg->bs_cfg = (pint_pmatch_bslice_cfg_t)((base->PMCFG & (PININT_BITSLICE_CFG_MASK << cfg_shift)) >> cfg_shift);
 
-    if (bslice == 7U)
-    {
+    if (bslice == 7U) {
         cfg->end_point = true;
-    }
-    else
-    {
+    } else {
         cfg->end_point = (base->PMCFG & (0x1U << bslice)) >> bslice;
     }
     cfg->callback = s_pintCallback[bslice];
@@ -233,8 +206,7 @@ uint32_t PINT_PatternMatchResetDetectLogic(PINT_Type *base)
 
     pmctrl = PINT->PMCTRL;
     pmstatus = pmctrl >> PINT_PMCTRL_PMAT_SHIFT;
-    if (pmstatus)
-    {
+    if (pmstatus) {
         /* Reset Pattern match engine detection logic */
         pmsrc = base->PMSRC;
         base->PMSRC = pmsrc;
@@ -249,8 +221,7 @@ void PINT_EnableCallback(PINT_Type *base)
     assert(base);
 
     PINT_PinInterruptClrStatusAll(base);
-    for (i = 0; i < FSL_FEATURE_PINT_NUMBER_OF_CONNECTED_OUTPUTS; i++)
-    {
+    for (i = 0; i < FSL_FEATURE_PINT_NUMBER_OF_CONNECTED_OUTPUTS; i++) {
         NVIC_ClearPendingIRQ(s_pintIRQ[i]);
         PINT_PinInterruptClrStatus(base, (pint_pin_int_t)i);
         EnableIRQ(s_pintIRQ[i]);
@@ -263,8 +234,7 @@ void PINT_DisableCallback(PINT_Type *base)
 
     assert(base);
 
-    for (i = 0; i < FSL_FEATURE_PINT_NUMBER_OF_CONNECTED_OUTPUTS; i++)
-    {
+    for (i = 0; i < FSL_FEATURE_PINT_NUMBER_OF_CONNECTED_OUTPUTS; i++) {
         DisableIRQ(s_pintIRQ[i]);
         PINT_PinInterruptClrStatus(base, (pint_pin_int_t)i);
         NVIC_ClearPendingIRQ(s_pintIRQ[i]);
@@ -279,8 +249,7 @@ void PINT_Deinit(PINT_Type *base)
 
     /* Cleanup */
     PINT_DisableCallback(base);
-    for (i = 0; i < FSL_FEATURE_PINT_NUMBER_OF_CONNECTED_OUTPUTS; i++)
-    {
+    for (i = 0; i < FSL_FEATURE_PINT_NUMBER_OF_CONNECTED_OUTPUTS; i++) {
         s_pintCallback[i] = NULL;
     }
 
@@ -299,8 +268,7 @@ void PIN_INT0_DriverIRQHandler(void)
     /* Reset pattern match detection */
     pmstatus = PINT_PatternMatchResetDetectLogic(PINT);
     /* Call user function */
-    if (s_pintCallback[kPINT_PinInt0] != NULL)
-    {
+    if (s_pintCallback[kPINT_PinInt0] != NULL) {
         s_pintCallback[kPINT_PinInt0](kPINT_PinInt0, pmstatus);
     }
 }
@@ -313,8 +281,7 @@ void PIN_INT1_DriverIRQHandler(void)
     /* Reset pattern match detection */
     pmstatus = PINT_PatternMatchResetDetectLogic(PINT);
     /* Call user function */
-    if (s_pintCallback[kPINT_PinInt1] != NULL)
-    {
+    if (s_pintCallback[kPINT_PinInt1] != NULL) {
         s_pintCallback[kPINT_PinInt1](kPINT_PinInt1, pmstatus);
     }
 }
@@ -328,8 +295,7 @@ void PIN_INT2_DriverIRQHandler(void)
     /* Reset pattern match detection */
     pmstatus = PINT_PatternMatchResetDetectLogic(PINT);
     /* Call user function */
-    if (s_pintCallback[kPINT_PinInt2] != NULL)
-    {
+    if (s_pintCallback[kPINT_PinInt2] != NULL) {
         s_pintCallback[kPINT_PinInt2](kPINT_PinInt2, pmstatus);
     }
 }
@@ -343,8 +309,7 @@ void PIN_INT3_DriverIRQHandler(void)
     /* Reset pattern match detection */
     pmstatus = PINT_PatternMatchResetDetectLogic(PINT);
     /* Call user function */
-    if (s_pintCallback[kPINT_PinInt3] != NULL)
-    {
+    if (s_pintCallback[kPINT_PinInt3] != NULL) {
         s_pintCallback[kPINT_PinInt3](kPINT_PinInt3, pmstatus);
     }
 }
@@ -358,8 +323,7 @@ void PIN_INT4_DriverIRQHandler(void)
     /* Reset pattern match detection */
     pmstatus = PINT_PatternMatchResetDetectLogic(PINT);
     /* Call user function */
-    if (s_pintCallback[kPINT_PinInt4] != NULL)
-    {
+    if (s_pintCallback[kPINT_PinInt4] != NULL) {
         s_pintCallback[kPINT_PinInt4](kPINT_PinInt4, pmstatus);
     }
 }
@@ -373,8 +337,7 @@ void PIN_INT5_DriverIRQHandler(void)
     /* Reset pattern match detection */
     pmstatus = PINT_PatternMatchResetDetectLogic(PINT);
     /* Call user function */
-    if (s_pintCallback[kPINT_PinInt5] != NULL)
-    {
+    if (s_pintCallback[kPINT_PinInt5] != NULL) {
         s_pintCallback[kPINT_PinInt5](kPINT_PinInt5, pmstatus);
     }
 }
@@ -388,8 +351,7 @@ void PIN_INT6_DriverIRQHandler(void)
     /* Reset pattern match detection */
     pmstatus = PINT_PatternMatchResetDetectLogic(PINT);
     /* Call user function */
-    if (s_pintCallback[kPINT_PinInt6] != NULL)
-    {
+    if (s_pintCallback[kPINT_PinInt6] != NULL) {
         s_pintCallback[kPINT_PinInt6](kPINT_PinInt6, pmstatus);
     }
 }
@@ -403,8 +365,7 @@ void PIN_INT7_DriverIRQHandler(void)
     /* Reset pattern match detection */
     pmstatus = PINT_PatternMatchResetDetectLogic(PINT);
     /* Call user function */
-    if (s_pintCallback[kPINT_PinInt7] != NULL)
-    {
+    if (s_pintCallback[kPINT_PinInt7] != NULL) {
         s_pintCallback[kPINT_PinInt7](kPINT_PinInt7, pmstatus);
     }
 }

@@ -49,7 +49,7 @@
 
 /* SAM3 and SAM4 series */
 #if (SAM3S || SAM3N || SAM3XA || SAM3U || SAM4S || SAM4E || SAM4N || SAM4C || \
-		SAM4CM || SAMG || SAM4CP || SAMV71 || SAMV70 || SAMS70 || SAME70)
+        SAM4CM || SAMG || SAM4CP || SAMV71 || SAMV70 || SAMS70 || SAME70)
 # include "pmc.h"
 # include "board.h"
 
@@ -118,13 +118,13 @@ __always_inline static void pmc_save_clock_settings(
         /* MCK -> MAINCK */
         mckr = (mckr & (~PMC_MCKR_CSS_Msk)) | PMC_MCKR_CSS_MAIN_CLK;
         PMC->PMC_MCKR = mckr;
-        while(!(PMC->PMC_SR & PMC_SR_MCKRDY));
+        while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
     }
     /* MCK prescale -> 1 */
     if (mckr & PMC_MCKR_PRES_Msk) {
         mckr = (mckr & (~PMC_MCKR_PRES_Msk));
         PMC->PMC_MCKR = mckr;
-        while(!(PMC->PMC_SR & PMC_SR_MCKRDY));
+        while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
     }
     /* Disable PLLs */
     pmc_disable_pllack();
@@ -237,7 +237,7 @@ __always_inline static void pmc_restore_clock_setting(
     UNUSED(pll1_setting);
 #endif
     /* Wait MCK source ready */
-    switch(mck_setting & PMC_MCKR_CSS_Msk) {
+    switch (mck_setting & PMC_MCKR_CSS_Msk) {
         case PMC_MCKR_CSS_PLLA_CLK:
             while (!(PMC->PMC_SR & PMC_SR_LOCKA));
             break;
@@ -294,10 +294,11 @@ void pmc_sleep(int sleep_mode)
             PMC->PMC_FSMR &= (uint32_t)~PMC_FSMR_LPM;
             SCB->SCR &= (uint32_t)~SCR_SLEEPDEEP;
             cpu_irq_enable();
-            if (sleep_mode == SAM_PM_SMODE_SLEEP_WFI)
+            if (sleep_mode == SAM_PM_SMODE_SLEEP_WFI) {
                 __WFI();
-            else
+            } else {
                 __WFE();
+            }
             break;
 #endif
 #endif

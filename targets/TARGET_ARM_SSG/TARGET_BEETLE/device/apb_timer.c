@@ -44,7 +44,7 @@ typedef struct {
 static apb_timer_t Timers[NUM_TIMERS];
 
 void Timer_Index_Init(uint32_t timer, uint32_t reload,
-    CMSDK_TIMER_TypeDef *TimerN, uint32_t IRQn)
+                      CMSDK_TIMER_TypeDef *TimerN, uint32_t IRQn)
 {
     Timers[timer].timerN = TimerN;
     Timers[timer].timerIRQn = IRQn;
@@ -63,19 +63,22 @@ void Timer_Initialize(uint32_t timer, uint32_t time_us)
 {
     uint32_t reload = 0;
 
-    if (timer < NUM_TIMERS)
-    {
-        if (time_us == 0)
+    if (timer < NUM_TIMERS) {
+        if (time_us == 0) {
             reload = TIMER_MAX_VALUE;
-        else
+        } else {
             reload = (time_us) * TIMER_TICKS_US;
+        }
 
-        switch(timer) {
-            case 0: TIMER_INIT(0, reload);
-                    break;
-            case 1: TIMER_INIT(1, reload);
-                    break;
-            default: break;
+        switch (timer) {
+            case 0:
+                TIMER_INIT(0, reload);
+                break;
+            case 1:
+                TIMER_INIT(1, reload);
+                break;
+            default:
+                break;
         }
     }
 }
@@ -132,8 +135,9 @@ uint32_t Timer_isEnabled(uint32_t timer)
     /* The timer has to be contained in a valid range */
     if (timer < NUM_TIMERS) {
         /* Timer has to be already initialized and enabled */
-        if (Timers[timer].state == (TIMER_INITIALIZED | TIMER_ENABLED))
+        if (Timers[timer].state == (TIMER_INITIALIZED | TIMER_ENABLED)) {
             return 1;
+        }
     } else {
         return 0;
     }
@@ -151,8 +155,8 @@ uint32_t Timer_Read(uint32_t timer)
     /* Verify if the Timer is enabled */
     if (Timer_isEnabled(timer) == 1) {
         return_value = (Timers[timer].timerReload
-                    - (Timers[timer].timerN)->VALUE)
-                    / TIMER_TICKS_US;
+                        - (Timers[timer].timerN)->VALUE)
+                       / TIMER_TICKS_US;
     }
 
     return return_value;
@@ -174,10 +178,11 @@ void Timer_SetInterrupt(uint32_t timer, uint32_t time_us)
         (Timers[timer].timerN)->CTRL = CMSDK_TIMER_CTRL_IRQEN_Msk;
 
         /* Check time us condition */
-        if(time_us == TIMER_DEFAULT_RELOAD)
+        if (time_us == TIMER_DEFAULT_RELOAD) {
             load_time_us = TIMER_MAX_VALUE;
-        else
+        } else {
             load_time_us = time_us * TIMER_TICKS_US;
+        }
 
         /* Initialize Timer Value */
         Timers[timer].timerReload = load_time_us;
@@ -253,10 +258,11 @@ uint32_t Timer_GetReloadValue(uint32_t timer)
 {
     /* Verify if the Timer is enabled */
     if (Timer_isEnabled(timer) == 1) {
-        if (timer == TIMER1)
+        if (timer == TIMER1) {
             return Timers[timer].timerReload / TIMER_TICKS_US;
-        else
+        } else {
             return Timers[timer].timerReload / TIMER_TICKS_US;
+        }
     }
     return 0;
 }

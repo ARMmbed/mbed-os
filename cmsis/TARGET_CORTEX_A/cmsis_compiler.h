@@ -31,169 +31,175 @@
  * ARM Compiler 4/5
  */
 #if   defined ( __CC_ARM )
-  #include "cmsis_armcc.h"
+#include "cmsis_armcc.h"
 
 
 /*
  * ARM Compiler 6 (armclang)
  */
 #elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
-  #include "cmsis_armclang.h"
+#include "cmsis_armclang.h"
 
 
 /*
  * GNU Compiler
  */
 #elif defined ( __GNUC__ )
-  #include "cmsis_gcc.h"
+#include "cmsis_gcc.h"
 
 
 /*
  * IAR Compiler
  */
 #elif defined ( __ICCARM__ )
-  #include "cmsis_iccarm.h"
+#include "cmsis_iccarm.h"
 
 
 /*
  * TI ARM Compiler
  */
 #elif defined ( __TI_ARM__ )
-  #include <cmsis_ccs.h>
+#include <cmsis_ccs.h>
 
-  #ifndef   __ASM
-    #define __ASM                     __asm
-  #endif
-  #ifndef   __INLINE
-    #define __INLINE                  inline
-  #endif
-  #ifndef   __STATIC_INLINE
-    #define __STATIC_INLINE           static inline
-  #endif
-  #ifndef   __STATIC_INLINE
-    #define __STATIC_INLINE           static inline
-  #endif
-  #ifndef   __STATIC_FORCEINLINE
-    #define __STATIC_FORCEINLINE      __STATIC_INLINE
-  #endif
-  #ifndef   __NO_RETURN
-    #define __NO_RETURN               __attribute__((noreturn))
-  #endif
-  #ifndef   CMSIS_DEPRECATED
-    #define CMSIS_DEPRECATED          __attribute__((deprecated))
-  #endif
-  #ifndef   __USED
-    #define __USED                    __attribute__((used))
-  #endif
-  #ifndef   __WEAK
-    #define __WEAK                    __attribute__((weak))
-  #endif
-  #ifndef   __UNALIGNED_UINT32
-    struct __attribute__((packed)) T_UINT32 { uint32_t v; };
-    #define __UNALIGNED_UINT32(x)     (((struct T_UINT32 *)(x))->v)
-  #endif
-  #ifndef   __ALIGNED
-    #define __ALIGNED(x)              __attribute__((aligned(x)))
-  #endif
-  #ifndef   __PACKED
-    #define __PACKED                  __attribute__((packed))
-  #endif
+#ifndef   __ASM
+#define __ASM                     __asm
+#endif
+#ifndef   __INLINE
+#define __INLINE                  inline
+#endif
+#ifndef   __STATIC_INLINE
+#define __STATIC_INLINE           static inline
+#endif
+#ifndef   __STATIC_INLINE
+#define __STATIC_INLINE           static inline
+#endif
+#ifndef   __STATIC_FORCEINLINE
+#define __STATIC_FORCEINLINE      __STATIC_INLINE
+#endif
+#ifndef   __NO_RETURN
+#define __NO_RETURN               __attribute__((noreturn))
+#endif
+#ifndef   CMSIS_DEPRECATED
+#define CMSIS_DEPRECATED          __attribute__((deprecated))
+#endif
+#ifndef   __USED
+#define __USED                    __attribute__((used))
+#endif
+#ifndef   __WEAK
+#define __WEAK                    __attribute__((weak))
+#endif
+#ifndef   __UNALIGNED_UINT32
+struct __attribute__((packed)) T_UINT32 {
+    uint32_t v;
+};
+#define __UNALIGNED_UINT32(x)     (((struct T_UINT32 *)(x))->v)
+#endif
+#ifndef   __ALIGNED
+#define __ALIGNED(x)              __attribute__((aligned(x)))
+#endif
+#ifndef   __PACKED
+#define __PACKED                  __attribute__((packed))
+#endif
 
 
 /*
  * TASKING Compiler
  */
 #elif defined ( __TASKING__ )
-  /*
-   * The CMSIS functions have been implemented as intrinsics in the compiler.
-   * Please use "carm -?i" to get an up to date list of all intrinsics,
-   * Including the CMSIS ones.
-   */
+/*
+ * The CMSIS functions have been implemented as intrinsics in the compiler.
+ * Please use "carm -?i" to get an up to date list of all intrinsics,
+ * Including the CMSIS ones.
+ */
 
-  #ifndef   __ASM
-    #define __ASM                     __asm
-  #endif
-  #ifndef   __INLINE
-    #define __INLINE                  inline
-  #endif
-  #ifndef   __STATIC_INLINE
-    #define __STATIC_INLINE           static inline
-  #endif
-  #ifndef   __STATIC_FORCEINLINE
-    #define __STATIC_FORCEINLINE      __STATIC_INLINE
-  #endif
-  #ifndef   __NO_RETURN
-    #define __NO_RETURN               __attribute__((noreturn))
-  #endif
-  #ifndef   CMSIS_DEPRECATED
-    #define CMSIS_DEPRECATED          __attribute__((deprecated))
-  #endif
-  #ifndef   __USED
-    #define __USED                    __attribute__((used))
-  #endif
-  #ifndef   __WEAK
-    #define __WEAK                    __attribute__((weak))
-  #endif
-  #ifndef   __UNALIGNED_UINT32
-    struct __packed__ T_UINT32 { uint32_t v; };
-    #define __UNALIGNED_UINT32(x)     (((struct T_UINT32 *)(x))->v)
-  #endif
-  #ifndef   __ALIGNED
-    #define __ALIGNED(x)              __align(x)
-  #endif
-  #ifndef   __PACKED
-    #define __PACKED                  __packed__
-  #endif
+#ifndef   __ASM
+#define __ASM                     __asm
+#endif
+#ifndef   __INLINE
+#define __INLINE                  inline
+#endif
+#ifndef   __STATIC_INLINE
+#define __STATIC_INLINE           static inline
+#endif
+#ifndef   __STATIC_FORCEINLINE
+#define __STATIC_FORCEINLINE      __STATIC_INLINE
+#endif
+#ifndef   __NO_RETURN
+#define __NO_RETURN               __attribute__((noreturn))
+#endif
+#ifndef   CMSIS_DEPRECATED
+#define CMSIS_DEPRECATED          __attribute__((deprecated))
+#endif
+#ifndef   __USED
+#define __USED                    __attribute__((used))
+#endif
+#ifndef   __WEAK
+#define __WEAK                    __attribute__((weak))
+#endif
+#ifndef   __UNALIGNED_UINT32
+struct __packed__ T_UINT32 {
+    uint32_t v;
+};
+#define __UNALIGNED_UINT32(x)     (((struct T_UINT32 *)(x))->v)
+#endif
+#ifndef   __ALIGNED
+#define __ALIGNED(x)              __align(x)
+#endif
+#ifndef   __PACKED
+#define __PACKED                  __packed__
+#endif
 
 
 /*
  * COSMIC Compiler
  */
 #elif defined ( __CSMC__ )
-   #include <cmsis_csm.h>
+#include <cmsis_csm.h>
 
- #ifndef   __ASM
-    #define __ASM                     _asm
-  #endif
-  #ifndef   __INLINE
-    #define __INLINE                  inline
-  #endif
-  #ifndef   __STATIC_INLINE
-    #define __STATIC_INLINE           static inline
-  #endif
-  #ifndef   __STATIC_FORCEINLINE
-    #define __STATIC_FORCEINLINE      __STATIC_INLINE
-  #endif
-  #ifndef   __NO_RETURN
-    // NO RETURN is automatically detected hence no warning here
-    #define __NO_RETURN
-  #endif
-  #ifndef   __USED
-    #warning No compiler specific solution for __USED. __USED is ignored.
-    #define __USED
-  #endif
-  #ifndef   CMSIS_DEPRECATED
-    #warning No compiler specific solution for CMSIS_DEPRECATED. CMSIS_DEPRECATED is ignored.
-    #define CMSIS_DEPRECATED
-  #endif
-  #ifndef   __WEAK
-    #define __WEAK                    __weak
-  #endif
-  #ifndef   __UNALIGNED_UINT32
-    @packed struct T_UINT32 { uint32_t v; };
-    #define __UNALIGNED_UINT32(x)     (((struct T_UINT32 *)(x))->v)
-  #endif
-  #ifndef   __ALIGNED
-    #warning No compiler specific solution for __ALIGNED. __ALIGNED is ignored.
-    #define __ALIGNED(x)
-  #endif
-  #ifndef   __PACKED
-    #define __PACKED                  @packed
-  #endif
+#ifndef   __ASM
+#define __ASM                     _asm
+#endif
+#ifndef   __INLINE
+#define __INLINE                  inline
+#endif
+#ifndef   __STATIC_INLINE
+#define __STATIC_INLINE           static inline
+#endif
+#ifndef   __STATIC_FORCEINLINE
+#define __STATIC_FORCEINLINE      __STATIC_INLINE
+#endif
+#ifndef   __NO_RETURN
+// NO RETURN is automatically detected hence no warning here
+#define __NO_RETURN
+#endif
+#ifndef   __USED
+#warning No compiler specific solution for __USED. __USED is ignored.
+#define __USED
+#endif
+#ifndef   CMSIS_DEPRECATED
+#warning No compiler specific solution for CMSIS_DEPRECATED. CMSIS_DEPRECATED is ignored.
+#define CMSIS_DEPRECATED
+#endif
+#ifndef   __WEAK
+#define __WEAK                    __weak
+#endif
+#ifndef   __UNALIGNED_UINT32
+@packed struct T_UINT32 {
+    uint32_t v;
+};
+#define __UNALIGNED_UINT32(x)     (((struct T_UINT32 *)(x))->v)
+#endif
+#ifndef   __ALIGNED
+#warning No compiler specific solution for __ALIGNED. __ALIGNED is ignored.
+#define __ALIGNED(x)
+#endif
+#ifndef   __PACKED
+#define __PACKED                  @packed
+#endif
 
 
 #else
-  #error Unknown compiler.
+#error Unknown compiler.
 #endif
 
 

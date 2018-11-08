@@ -101,10 +101,8 @@ static uint32_t LCDC_GetInstance(LCD_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_lcdBases); instance++)
-    {
-        if (s_lcdBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_lcdBases); instance++) {
+        if (s_lcdBases[instance] == base) {
             break;
         }
     }
@@ -124,61 +122,44 @@ static bool LCDC_GetClockDivider(const lcdc_config_t *config, uint32_t srcClock_
     /* Find the PCD. */
     pcd = (srcClock_Hz + (config->panelClock_Hz / 2U)) / config->panelClock_Hz;
 
-    if (pcd <= 1U)
-    {
-        if (kLCDC_DisplayTFT == config->display)
-        {
+    if (pcd <= 1U) {
+        if (kLCDC_DisplayTFT == config->display) {
             pcd = 0U;
             *divider = LCD_POL_BCD_MASK;
-        }
-        else
-        {
+        } else {
             return false;
         }
-    }
-    else
-    {
+    } else {
         pcd -= 2U;
 
         /* Verify the PCD value. */
-        if (pcd > LCD_PCD_MAX)
-        {
+        if (pcd > LCD_PCD_MAX) {
             return false;
         }
 
         if (((kLCDC_DisplaySingleColorSTN8Bit == config->display) && (pcd < 1U)) ||
-            ((kLCDC_DisplayDualColorSTN8Bit == config->display) && (pcd < 4U)) ||
-            ((kLCDC_DisplaySingleMonoSTN4Bit == config->display) && (pcd < 2U)) ||
-            ((kLCDC_DisplaySingleMonoSTN8Bit == config->display) && (pcd < 8U)) ||
-            ((kLCDC_DisplayDualMonoSTN4Bit == config->display) && (pcd < 8U)) ||
-            ((kLCDC_DisplayDualMonoSTN8Bit == config->display) && (pcd < 14U)))
-        {
+                ((kLCDC_DisplayDualColorSTN8Bit == config->display) && (pcd < 4U)) ||
+                ((kLCDC_DisplaySingleMonoSTN4Bit == config->display) && (pcd < 2U)) ||
+                ((kLCDC_DisplaySingleMonoSTN8Bit == config->display) && (pcd < 8U)) ||
+                ((kLCDC_DisplayDualMonoSTN4Bit == config->display) && (pcd < 8U)) ||
+                ((kLCDC_DisplayDualMonoSTN8Bit == config->display) && (pcd < 14U))) {
             return false;
         }
     }
 
-    if (config->display & LCD_CTRL_LCDTFT_MASK)
-    {
+    if (config->display & LCD_CTRL_LCDTFT_MASK) {
         /* TFT panel. */
         cpl = config->ppl - 1U;
-    }
-    else
-    {
-        if (config->display & LCD_CTRL_LCDBW_MASK)
-        {
-            if (config->display & LCD_CTRL_LCDMONO8_MASK)
-            {
+    } else {
+        if (config->display & LCD_CTRL_LCDBW_MASK) {
+            if (config->display & LCD_CTRL_LCDMONO8_MASK) {
                 /* 8-bit monochrome STN panel. */
                 cpl = (config->ppl / 8U) - 1U;
-            }
-            else
-            {
+            } else {
                 /* 4-bit monochrome STN panel. */
                 cpl = (config->ppl / 4U) - 1U;
             }
-        }
-        else
-        {
+        } else {
             /* Color STN panel. */
             cpl = ((config->ppl * 3U) / 8U) - 1U;
         }
@@ -202,8 +183,7 @@ status_t LCDC_Init(LCD_Type *base, const lcdc_config_t *config, uint32_t srcCloc
     uint32_t instance;
 
     /* Verify the clock here. */
-    if (!LCDC_GetClockDivider(config, srcClock_Hz, &divider))
-    {
+    if (!LCDC_GetClockDivider(config, srcClock_Hz, &divider)) {
         return kStatus_InvalidArgument;
     }
 
@@ -220,8 +200,7 @@ status_t LCDC_Init(LCD_Type *base, const lcdc_config_t *config, uint32_t srcCloc
     reg = base->CTRL & (LCD_CTRL_LCDVCOMP_MASK | LCD_CTRL_WATERMARK_MASK);
     reg |= (uint32_t)(config->dataFormat) | (uint32_t)(config->display) | LCD_CTRL_LCDBPP(config->bpp);
 
-    if (config->swapRedBlue)
-    {
+    if (config->swapRedBlue) {
         reg |= LCD_CTRL_BGR_MASK;
     }
 
@@ -243,12 +222,9 @@ status_t LCDC_Init(LCD_Type *base, const lcdc_config_t *config, uint32_t srcCloc
     base->POL = (uint32_t)(config->polarityFlags) | LCD_POL_ACB(config->acBiasFreq - 1U) | divider;
 
     /* Line end configuration. */
-    if (config->enableLineEnd)
-    {
+    if (config->enableLineEnd) {
         base->LE = LCD_LE_LED(config->lineEndDelay - 1U) | LCD_LE_LEE_MASK;
-    }
-    else
-    {
+    } else {
         base->LE = 0U;
     }
 
@@ -294,12 +270,9 @@ void LCDC_SetPanelAddr(LCD_Type *base, lcdc_panel_t panel, uint32_t addr)
     /* The base address must be doubleword aligned. */
     assert((addr & 0x07U) == 0U);
 
-    if (kLCDC_UpperPanel == panel)
-    {
+    if (kLCDC_UpperPanel == panel) {
         base->UPBASE = addr;
-    }
-    else
-    {
+    } else {
         base->LPBASE = addr;
     }
 }
@@ -310,8 +283,7 @@ void LCDC_SetPalette(LCD_Type *base, const uint32_t *palette, uint8_t count_word
 
     uint32_t i;
 
-    for (i = 0; i < count_words; i++)
-    {
+    for (i = 0; i < count_words; i++) {
         base->PAL[i] = palette[i];
     }
 }
@@ -321,14 +293,12 @@ void LCDC_EnableInterrupts(LCD_Type *base, uint32_t mask)
     uint32_t reg;
 
     reg = mask & LCDC_CURSOR_INT_MASK;
-    if (reg)
-    {
+    if (reg) {
         base->CRSR_INTMSK |= reg;
     }
 
     reg = mask & LCDC_NORMAL_INT_MASK;
-    if (reg)
-    {
+    if (reg) {
         base->INTMSK |= reg;
     }
 }
@@ -338,14 +308,12 @@ void LCDC_DisableInterrupts(LCD_Type *base, uint32_t mask)
     uint32_t reg;
 
     reg = mask & LCDC_CURSOR_INT_MASK;
-    if (reg)
-    {
+    if (reg) {
         base->CRSR_INTMSK &= ~reg;
     }
 
     reg = mask & LCDC_NORMAL_INT_MASK;
-    if (reg)
-    {
+    if (reg) {
         base->INTMSK &= ~reg;
     }
 }
@@ -375,14 +343,12 @@ void LCDC_ClearInterruptsStatus(LCD_Type *base, uint32_t mask)
     uint32_t reg;
 
     reg = mask & LCDC_CURSOR_INT_MASK;
-    if (reg)
-    {
+    if (reg) {
         base->CRSR_INTCLR = reg;
     }
 
     reg = mask & LCDC_NORMAL_INT_MASK;
-    if (reg)
-    {
+    if (reg) {
         base->INTCLR = reg;
     }
 }
@@ -407,17 +373,12 @@ void LCDC_SetCursorConfig(LCD_Type *base, const lcdc_cursor_config_t *config)
                       ((uint32_t)config->palette1.green << LCD_CRSR_PAL1_GREEN_SHIFT);
 
     /* Image of cursors. */
-    if (kLCDC_CursorSize64 == config->size)
-    {
+    if (kLCDC_CursorSize64 == config->size) {
         assert(config->image[0]);
         LCDC_SetCursorImage(base, config->size, 0, config->image[0]);
-    }
-    else
-    {
-        for (i = 0; i < LCDC_CURSOR_COUNT; i++)
-        {
-            if (config->image[i])
-            {
+    } else {
+        for (i = 0; i < LCDC_CURSOR_COUNT; i++) {
+            if (config->image[i]) {
                 LCDC_SetCursorImage(base, config->size, i, config->image[i]);
             }
         }
@@ -437,8 +398,7 @@ void LCDC_CursorGetDefaultConfig(lcdc_cursor_config_t *config)
     config->palette1.green = 255U;
     config->palette1.blue = 255U;
 
-    for (i = 0; i < LCDC_CURSOR_COUNT; i++)
-    {
+    for (i = 0; i < LCDC_CURSOR_COUNT; i++) {
         config->image[i] = (uint32_t *)0;
     }
 }
@@ -448,35 +408,27 @@ void LCDC_SetCursorPosition(LCD_Type *base, int32_t positionX, int32_t positionY
     uint32_t clipX;
     uint32_t clipY;
 
-    if (positionX < 0)
-    {
+    if (positionX < 0) {
         clipX = -positionX;
         positionX = 0U;
 
         /* If clip value too large, set to the max value. */
-        if (clipX > LCDC_CLIP_MAX)
-        {
+        if (clipX > LCDC_CLIP_MAX) {
             clipX = LCDC_CLIP_MAX;
         }
-    }
-    else
-    {
+    } else {
         clipX = 0U;
     }
 
-    if (positionY < 0)
-    {
+    if (positionY < 0) {
         clipY = -positionY;
         positionY = 0U;
 
         /* If clip value too large, set to the max value. */
-        if (clipY > LCDC_CLIP_MAX)
-        {
+        if (clipY > LCDC_CLIP_MAX) {
             clipY = LCDC_CLIP_MAX;
         }
-    }
-    else
-    {
+    } else {
         clipY = 0U;
     }
 
@@ -490,19 +442,15 @@ void LCDC_SetCursorImage(LCD_Type *base, lcdc_cursor_size_t size, uint8_t index,
     uint32_t i;
     uint32_t len;
 
-    if (kLCDC_CursorSize64 == size)
-    {
+    if (kLCDC_CursorSize64 == size) {
         regStart = 0U;
         len = LCDC_CURSOR_IMG_64X64_WORDS;
-    }
-    else
-    {
+    } else {
         regStart = index * LCDC_CURSOR_IMG_32X32_WORDS;
         len = LCDC_CURSOR_IMG_32X32_WORDS;
     }
 
-    for (i = 0U; i < len; i++)
-    {
+    for (i = 0U; i < len; i++) {
         base->CRSR_IMG[regStart + i] = image[i];
     }
 }

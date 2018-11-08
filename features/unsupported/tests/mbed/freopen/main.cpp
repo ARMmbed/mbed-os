@@ -1,12 +1,13 @@
 #include "mbed.h"
 
 #if !DEVICE_LOCALFILESYSTEM
-  #error [NOT_SUPPORTED] LocalFileSystem not supported
+#error [NOT_SUPPORTED] LocalFileSystem not supported
 #endif
 
 #include "TextLCD.h"
 
-int main() {
+int main()
+{
     printf("printf to stdout\n");
 
     // printf to specific peripherals

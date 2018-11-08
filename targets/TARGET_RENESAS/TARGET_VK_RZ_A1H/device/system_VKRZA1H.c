@@ -44,8 +44,8 @@
 #if defined(__ARMCC_VERSION)
 extern void $Super$$main(void);
 __asm void FPUEnable(void);
-#else 
-void FPUEnable(void); 
+#else
+void FPUEnable(void);
 
 #endif
 
@@ -72,7 +72,8 @@ uint32_t SystemCoreClock = CM0_RENESAS_RZ_A1_I_CLK;     /*!< System Clock Freque
 #pragma push
 #pragma arm
 
-void InitMemorySubsystem(void) {
+void InitMemorySubsystem(void)
+{
 
     /* This SVC is specific for reset where data / tlb / btac may contain undefined data, therefore before
      * enabling the cache you must invalidate the instruction cache, the data cache, TLB, and BTAC.
@@ -98,109 +99,106 @@ void InitMemorySubsystem(void) {
 
     /* If present, you may also need to Invalidate and Enable L2 cache here */
     l2_id = PL310_GetID();
-    if (l2_id)
-    {
-       PL310_InvAllByWay();
-       PL310_Enable();
+    if (l2_id) {
+        PL310_InvAllByWay();
+        PL310_Enable();
     }
 }
 #pragma pop
 
-#elif defined(__GNUC__) 
+#elif defined(__GNUC__)
 
-void InitMemorySubsystem(void) { 
- 
-    /* This SVC is specific for reset where data / tlb / btac may contain undefined data, therefore before 
-     * enabling the cache you must invalidate the instruction cache, the data cache, TLB, and BTAC. 
-     * You are not required to invalidate the main TLB, even though it is recommended for safety 
-     * reasons. This ensures compatibility with future revisions of the processor. */ 
- 
-    unsigned int l2_id; 
- 
-    /* Invalidate undefined data */ 
-    __ca9u_inv_tlb_all(); 
-    __v7_inv_icache_all(); 
-    __v7_inv_dcache_all(); 
-    __v7_inv_btac(); 
- 
-    /* Don't use this function during runtime since caches may contain valid data. For a correct cache maintenance you may need to execute a clean and 
-     * invalidate in order to flush the valid data to the next level cache. 
-     */ 
-    __enable_mmu(); 
- 
-    /* After MMU is enabled and data has been invalidated, enable caches and BTAC */ 
-    __enable_caches(); 
-    __enable_btac(); 
- 
-    /* If present, you may also need to Invalidate and Enable L2 cache here */ 
-    l2_id = PL310_GetID(); 
-    if (l2_id) 
-    { 
-       PL310_InvAllByWay(); 
-       PL310_Enable(); 
-    } 
-} 
+void InitMemorySubsystem(void)
+{
+
+    /* This SVC is specific for reset where data / tlb / btac may contain undefined data, therefore before
+     * enabling the cache you must invalidate the instruction cache, the data cache, TLB, and BTAC.
+     * You are not required to invalidate the main TLB, even though it is recommended for safety
+     * reasons. This ensures compatibility with future revisions of the processor. */
+
+    unsigned int l2_id;
+
+    /* Invalidate undefined data */
+    __ca9u_inv_tlb_all();
+    __v7_inv_icache_all();
+    __v7_inv_dcache_all();
+    __v7_inv_btac();
+
+    /* Don't use this function during runtime since caches may contain valid data. For a correct cache maintenance you may need to execute a clean and
+     * invalidate in order to flush the valid data to the next level cache.
+     */
+    __enable_mmu();
+
+    /* After MMU is enabled and data has been invalidated, enable caches and BTAC */
+    __enable_caches();
+    __enable_btac();
+
+    /* If present, you may also need to Invalidate and Enable L2 cache here */
+    l2_id = PL310_GetID();
+    if (l2_id) {
+        PL310_InvAllByWay();
+        PL310_Enable();
+    }
+}
 #elif defined ( __ICCARM__ )
 
-void InitMemorySubsystem(void) { 
- 
-    /* This SVC is specific for reset where data / tlb / btac may contain undefined data, therefore before 
-     * enabling the cache you must invalidate the instruction cache, the data cache, TLB, and BTAC. 
-     * You are not required to invalidate the main TLB, even though it is recommended for safety 
-     * reasons. This ensures compatibility with future revisions of the processor. */ 
- 
-    unsigned int l2_id; 
- 
-    /* Invalidate undefined data */ 
-    __ca9u_inv_tlb_all(); 
-    __v7_inv_icache_all(); 
-    __v7_inv_dcache_all(); 
-    __v7_inv_btac(); 
- 
-    /* Don't use this function during runtime since caches may contain valid data. For a correct cache maintenance you may need to execute a clean and 
-     * invalidate in order to flush the valid data to the next level cache. 
-     */ 
+void InitMemorySubsystem(void)
+{
+
+    /* This SVC is specific for reset where data / tlb / btac may contain undefined data, therefore before
+     * enabling the cache you must invalidate the instruction cache, the data cache, TLB, and BTAC.
+     * You are not required to invalidate the main TLB, even though it is recommended for safety
+     * reasons. This ensures compatibility with future revisions of the processor. */
+
+    unsigned int l2_id;
+
+    /* Invalidate undefined data */
+    __ca9u_inv_tlb_all();
+    __v7_inv_icache_all();
+    __v7_inv_dcache_all();
+    __v7_inv_btac();
+
+    /* Don't use this function during runtime since caches may contain valid data. For a correct cache maintenance you may need to execute a clean and
+     * invalidate in order to flush the valid data to the next level cache.
+     */
     __enable_mmu();
- 
-    /* After MMU is enabled and data has been invalidated, enable caches and BTAC */ 
-    __enable_caches(); 
-    __enable_btac(); 
- 
-    /* If present, you may also need to Invalidate and Enable L2 cache here */ 
-    l2_id = PL310_GetID(); 
-    if (l2_id) 
-    { 
-       PL310_InvAllByWay(); 
-       PL310_Enable(); 
-    } 
-} 
-#else 
 
-#endif 
+    /* After MMU is enabled and data has been invalidated, enable caches and BTAC */
+    __enable_caches();
+    __enable_btac();
+
+    /* If present, you may also need to Invalidate and Enable L2 cache here */
+    l2_id = PL310_GetID();
+    if (l2_id) {
+        PL310_InvAllByWay();
+        PL310_Enable();
+    }
+}
+#else
+
+#endif
 
 
-IRQHandler IRQTable[Renesas_RZ_A1_IRQ_MAX+1];
+IRQHandler IRQTable[Renesas_RZ_A1_IRQ_MAX + 1];
 
 uint32_t IRQCount = sizeof IRQTable / 4;
 
-uint32_t InterruptHandlerRegister (IRQn_Type irq, IRQHandler handler)
+uint32_t InterruptHandlerRegister(IRQn_Type irq, IRQHandler handler)
 {
     if (irq < IRQCount) {
         IRQTable[irq] = handler;
         return 0;
-    }
-    else {
+    } else {
         return 1;
     }
 }
 
-uint32_t InterruptHandlerUnregister (IRQn_Type irq)
+uint32_t InterruptHandlerUnregister(IRQn_Type irq)
 {
     if (irq < IRQCount) {
         IRQTable[irq] = 0;
         return 0;
-    }
-    else {
+    } else {
         return 1;
     }
 }
@@ -213,7 +211,7 @@ uint32_t InterruptHandlerUnregister (IRQn_Type irq)
  *
  * @brief  Updates the SystemCoreClock with current core Clock.
  */
-void SystemCoreClockUpdate (void)
+void SystemCoreClockUpdate(void)
 {
     uint32_t frqcr_ifc = ((uint32_t)CPG.FRQCR & (uint32_t)FRQCR_IFC_MSK) >> FRQCR_IFC_SHFT;
 
@@ -243,15 +241,15 @@ void SystemCoreClockUpdate (void)
  * @brief  Setup the microcontroller system.
  *         Initialize the System.
  */
-void SystemInit (void)
+void SystemInit(void)
 {
     IRQNestLevel = 0;
-/*       do not use global variables because this function is called before
-         reaching pre-main. RW section maybe overwritten afterwards.          */
+    /*       do not use global variables because this function is called before
+             reaching pre-main. RW section maybe overwritten afterwards.          */
     RZ_A1_InitClock();
     RZ_A1_InitBus();
 
-	//Configure GIC ICDICFR GIC_SetICDICFR()
+    //Configure GIC ICDICFR GIC_SetICDICFR()
     GIC_Enable();
     __enable_irq();
 
@@ -282,10 +280,11 @@ void SystemInit (void)
 #define FSR_ASYNC_EXTERNAL_ABORT             0x16   //DFSR only - async/external
 #define FSR_ASYNC_PARITY_ERROR               0x18   //DFSR only - async/external
 
-void CDAbtHandler(uint32_t DFSR, uint32_t DFAR, uint32_t LR) {
+void CDAbtHandler(uint32_t DFSR, uint32_t DFAR, uint32_t LR)
+{
     uint32_t FS = (DFSR & (1 << 10)) >> 6 | (DFSR & 0x0f); //Store Fault Status
 
-    switch(FS) {
+    switch (FS) {
         //Synchronous parity errors - retry
         case FSR_SYNC_PARITY_ERROR:
         case FSR_SYNC_PARITY_TTB_WALK_FIRST:
@@ -313,14 +312,15 @@ void CDAbtHandler(uint32_t DFSR, uint32_t DFAR, uint32_t LR) {
         case FSR_ASYNC_EXTERNAL_ABORT: //DFAR invalid
         case FSR_ASYNC_PARITY_ERROR:   //DFAR invalid
         default:
-            while(1);
+            while (1);
     }
 }
 
-void CPAbtHandler(uint32_t IFSR, uint32_t IFAR, uint32_t LR) {
+void CPAbtHandler(uint32_t IFSR, uint32_t IFAR, uint32_t LR)
+{
     uint32_t FS = (IFSR & (1 << 10)) >> 6 | (IFSR & 0x0f); //Store Fault Status
 
-    switch(FS) {
+    switch (FS) {
         //Synchronous parity errors - retry
         case FSR_SYNC_PARITY_ERROR:
         case FSR_SYNC_PARITY_TTB_WALK_FIRST:
@@ -344,7 +344,7 @@ void CPAbtHandler(uint32_t IFSR, uint32_t IFAR, uint32_t LR) {
         case FSR_LOCKDOWN:
         case FSR_COPROCESSOR_ABORT:
         default:
-            while(1);
+            while (1);
     }
 }
 
@@ -352,7 +352,8 @@ void CPAbtHandler(uint32_t IFSR, uint32_t IFAR, uint32_t LR) {
 //this will be 0 when we have emulated the instruction and want to execute the next instruction
 //this will be 2 when we have performed some maintenance and want to retry the instruction in Thumb (state == 2)
 //this will be 4 when we have performed some maintenance and want to retry the instruction in ARM (state == 4)
-uint32_t CUndefHandler(uint32_t opcode, uint32_t state, uint32_t LR) {
+uint32_t CUndefHandler(uint32_t opcode, uint32_t state, uint32_t LR)
+{
     const unsigned int THUMB = 2;
     const unsigned int ARM = 4;
     //Lazy VFP/NEON initialisation and switching
@@ -362,7 +363,7 @@ uint32_t CUndefHandler(uint32_t opcode, uint32_t state, uint32_t LR) {
     // (ARM ARM section A7.8) VFP/NEON register data transfer instruction?
     // (ARM ARM section A7.9) VFP/NEON 64-bit register data transfer instruction?
     if ((state == ARM   && ((opcode & 0x0C000000) >> 26 == 0x03)) ||
-        (state == THUMB && ((opcode & 0xEC000000) >> 26 == 0x3B))) {
+            (state == THUMB && ((opcode & 0xEC000000) >> 26 == 0x3B))) {
         if (((opcode & 0x00000E00) >> 9) == 5) {
             FPUEnable();
             return state;
@@ -371,87 +372,89 @@ uint32_t CUndefHandler(uint32_t opcode, uint32_t state, uint32_t LR) {
 
     // (ARM ARM section A7.4) NEON data processing instruction?
     if ((state == ARM   && ((opcode & 0xFE000000) >> 24 == 0xF2)) ||
-        (state == THUMB && ((opcode & 0xEF000000) >> 24 == 0xEF)) ||
-    // (ARM ARM section A7.7) NEON load/store instruction?
-        (state == ARM   && ((opcode >> 24) == 0xF4)) ||
-        (state == THUMB && ((opcode >> 24) == 0xF9))) {
+            (state == THUMB && ((opcode & 0xEF000000) >> 24 == 0xEF)) ||
+            // (ARM ARM section A7.7) NEON load/store instruction?
+            (state == ARM   && ((opcode >> 24) == 0xF4)) ||
+            (state == THUMB && ((opcode >> 24) == 0xF9))) {
         FPUEnable();
         return state;
     }
 
     //Add code here for other Undef cases
-    while(1);
+    while (1);
 }
 
 #if defined(__ARMCC_VERSION)
 #pragma push
 #pragma arm
 //Critical section, called from undef handler, so systick is disabled
-__asm void FPUEnable(void) {
-        ARM
+__asm void FPUEnable(void)
+{
+    ARM
 
-        //Permit access to VFP/NEON, registers by modifying CPACR
-        MRC     p15,0,R1,c1,c0,2
-        ORR     R1,R1,#0x00F00000
-        MCR     p15,0,R1,c1,c0,2
+    //Permit access to VFP/NEON, registers by modifying CPACR
+    MRC     p15, 0, R1, c1, c0, 2
+    ORR     R1, R1, #0x00F00000
+    MCR     p15, 0, R1, c1, c0, 2
 
-        //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
-        ISB
+    //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
+    ISB
 
-        //Enable VFP/NEON
-        VMRS    R1,FPEXC
-        ORR     R1,R1,#0x40000000
-        VMSR    FPEXC,R1
+    //Enable VFP/NEON
+    VMRS    R1, FPEXC
+    ORR     R1, R1, #0x40000000
+    VMSR    FPEXC, R1
 
-        //Initialise VFP/NEON registers to 0
-        MOV     R2,#0
-        //Initialise D16 registers to 0
-        VMOV    D0, R2,R2
-        VMOV    D1, R2,R2
-        VMOV    D2, R2,R2
-        VMOV    D3, R2,R2
-        VMOV    D4, R2,R2
-        VMOV    D5, R2,R2
-        VMOV    D6, R2,R2
-        VMOV    D7, R2,R2
-        VMOV    D8, R2,R2
-        VMOV    D9, R2,R2
-        VMOV    D10,R2,R2
-        VMOV    D11,R2,R2
-        VMOV    D12,R2,R2
-        VMOV    D13,R2,R2
-        VMOV    D14,R2,R2
-        VMOV    D15,R2,R2
-        //Initialise D32 registers to 0
-        VMOV    D16,R2,R2
-        VMOV    D17,R2,R2
-        VMOV    D18,R2,R2
-        VMOV    D19,R2,R2
-        VMOV    D20,R2,R2
-        VMOV    D21,R2,R2
-        VMOV    D22,R2,R2
-        VMOV    D23,R2,R2
-        VMOV    D24,R2,R2
-        VMOV    D25,R2,R2
-        VMOV    D26,R2,R2
-        VMOV    D27,R2,R2
-        VMOV    D28,R2,R2
-        VMOV    D29,R2,R2
-        VMOV    D30,R2,R2
-        VMOV    D31,R2,R2
-        //Initialise FPSCR to a known state
-        VMRS    R2,FPSCR
-        LDR     R3,=0x00086060 //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
-        AND     R2,R2,R3
-        VMSR    FPSCR,R2
+    //Initialise VFP/NEON registers to 0
+    MOV     R2, #0
+    //Initialise D16 registers to 0
+    VMOV    D0, R2, R2
+    VMOV    D1, R2, R2
+    VMOV    D2, R2, R2
+    VMOV    D3, R2, R2
+    VMOV    D4, R2, R2
+    VMOV    D5, R2, R2
+    VMOV    D6, R2, R2
+    VMOV    D7, R2, R2
+    VMOV    D8, R2, R2
+    VMOV    D9, R2, R2
+    VMOV    D10, R2, R2
+    VMOV    D11, R2, R2
+    VMOV    D12, R2, R2
+    VMOV    D13, R2, R2
+    VMOV    D14, R2, R2
+    VMOV    D15, R2, R2
+    //Initialise D32 registers to 0
+    VMOV    D16, R2, R2
+    VMOV    D17, R2, R2
+    VMOV    D18, R2, R2
+    VMOV    D19, R2, R2
+    VMOV    D20, R2, R2
+    VMOV    D21, R2, R2
+    VMOV    D22, R2, R2
+    VMOV    D23, R2, R2
+    VMOV    D24, R2, R2
+    VMOV    D25, R2, R2
+    VMOV    D26, R2, R2
+    VMOV    D27, R2, R2
+    VMOV    D28, R2, R2
+    VMOV    D29, R2, R2
+    VMOV    D30, R2, R2
+    VMOV    D31, R2, R2
+    //Initialise FPSCR to a known state
+    VMRS    R2, FPSCR
+    LDR     R3, = 0x00086060 //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
+                  AND     R2, R2, R3
+                  VMSR    FPSCR, R2
 
-        BX      LR
+                  BX      LR
 }
 #pragma pop
 
 #elif defined(__GNUC__)
-void FPUEnable(void) {
-    __asm__ (
+void FPUEnable(void)
+{
+    __asm__(
         ".ARM;"
 
         //Permit access to VFP/NEON, registers by modifying CPACR
@@ -511,9 +514,9 @@ void FPUEnable(void) {
         "VMSR    FPSCR,R2;"
 
         //"BX      LR;"
-             :
-             :
-             :"r1", "r2", "r3");
+        :
+        :
+        :"r1", "r2", "r3");
     return;
 }
 #else

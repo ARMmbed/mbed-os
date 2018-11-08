@@ -40,13 +40,12 @@ extern "C" {
 typedef uint16_t wsfTimerTicks_t;
 
 /*! Timer structure */
-typedef struct wsfTimer_tag
-{
-  struct wsfTimer_tag *pNext;             /*! pointer to next timer in queue */
-  wsfTimerTicks_t     ticks;              /*! number of ticks until expiration */
-  wsfHandlerId_t      handlerId;          /*! event handler for this timer */
-  bool_t              isStarted;          /*! TRUE if timer has been started */
-  wsfMsgHdr_t         msg;                /*! application-defined timer event parameters */
+typedef struct wsfTimer_tag {
+    struct wsfTimer_tag *pNext;             /*! pointer to next timer in queue */
+    wsfTimerTicks_t     ticks;              /*! number of ticks until expiration */
+    wsfHandlerId_t      handlerId;          /*! event handler for this timer */
+    bool_t              isStarted;          /*! TRUE if timer has been started */
+    wsfMsgHdr_t         msg;                /*! application-defined timer event parameters */
 } wsfTimer_t;
 
 

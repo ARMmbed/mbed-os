@@ -25,8 +25,7 @@
 
 #define Module_ID 0x00090108
 
-typedef struct beetle_spi
-{
+typedef struct beetle_spi {
     __IO uint32_t CONFIG;            /* 0x00 RW Configuration Register */
     __I  uint32_t IRQ_STATUS;        /* 0x04 RO Interrupt Status Register*/
     __O  uint32_t IRQ_ENABLE;        /* 0x08 WO Interrupt Enable Register*/
@@ -39,9 +38,9 @@ typedef struct beetle_spi
     __IO uint32_t SLAVE_IDLE_COUNT;  /* 0x24 RW Slave Idle Count Register */
     __IO uint32_t TX_THRESHOLD;      /* 0x28 RW TX Threshold Register */
     __IO uint32_t RX_THRESHOLD;      /* 0x2C RW RX Threshold Register */
-         uint32_t reserved[208];
+    uint32_t reserved[208];
     __I  uint32_t MID;               /* 0xFC RO Module ID Register */
-}SPI_TypeDef;
+} SPI_TypeDef;
 
 
 #define SPI0_BASE   (0x4000C000ul)       /* Shield Header SPI Base Address */

@@ -42,11 +42,11 @@ int smsc9220_check_id(void)
     id = smsc9220_read_id();
 
     // If bottom and top halves of the word are the same
-    if(((id >> 16) & 0xFFFF) == (id & 0xFFFF)) {
+    if (((id >> 16) & 0xFFFF) == (id & 0xFFFF)) {
         error = 1;
         return error;
     }
-    switch(((id >> 16) & 0xFFFF)) {
+    switch (((id >> 16) & 0xFFFF)) {
         case 0x9220:
             break;
 
@@ -81,7 +81,7 @@ int smsc9220_check_macaddress(void)
     smsc9220_mac_regread(SMSC9220_MAC_ADDRL, &mac_low);
 
 
-    if(mac_high != mac_valid_high || mac_low != mac_valid_low) {
+    if (mac_high != mac_valid_high || mac_low != mac_valid_low) {
         error = TRUE;
         return error;
     }
@@ -97,7 +97,7 @@ void smsc9220_print_mac_registers()
     i = 0;
     read = 0;
 
-    for(i = 1; i <= 0xC; i++) {
+    for (i = 1; i <= 0xC; i++) {
         smsc9220_mac_regread(i, &read);
     }
     return;
@@ -111,7 +111,7 @@ void smsc9220_print_phy_registers()
 
     i = 0;
     read = 0;
-    for(i = 0; i <= 6; i++) {
+    for (i = 0; i <= 6; i++) {
         smsc9220_phy_regread(i, &read);
     }
     smsc9220_phy_regread(i = 17, &read);
@@ -133,18 +133,18 @@ void smsc9220_print_phy_registers()
   Ethernet Device initialize
  *----------------------------------------------------------------------------*/
 
-int ethernet_transmission(unsigned char * pkt, unsigned int length)
+int ethernet_transmission(unsigned char *pkt, unsigned int length)
 {
     smsc9220_xmit_packet(pkt, length);
     return 0;
 }
 
-int ethernet_reception(unsigned int *recvbuf, unsigned int *index) 
+int ethernet_reception(unsigned int *recvbuf, unsigned int *index)
 {
     return smsc9220_recv_packet((unsigned int *)recvbuf, index);
 }
 
-int ethernet_mac_address(char *mac) 
+int ethernet_mac_address(char *mac)
 {
     return smsc9220_check_macaddress();
 }
@@ -156,10 +156,10 @@ unsigned int ethernet_check_ready(void)
 
 unsigned int ethernet_intf()
 {
-  unsigned int txfifo_inf;
- 
+    unsigned int txfifo_inf;
+
     txfifo_inf = SMSC9220->TX_FIFO_INF;
-    
+
     return txfifo_inf;
 
 }

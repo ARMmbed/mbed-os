@@ -76,8 +76,7 @@ typedef void (*i2s_dma_transfer_callback_t)(I2S_Type *base,
                                             status_t completionStatus,
                                             void *userData);
 
-struct _i2s_dma_handle
-{
+struct _i2s_dma_handle {
     uint32_t state;                                    /*!< Internal state of I2S DMA transfer */
     i2s_dma_transfer_callback_t completionCallback;    /*!< Callback function pointer */
     void *userData;                                    /*!< Application data passed to callback */

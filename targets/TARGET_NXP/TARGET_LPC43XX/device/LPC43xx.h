@@ -38,38 +38,38 @@ extern "C" {
 
 /* Treat __CORE_Mx as CORE_Mx */
 #if defined(__CORTEX_M0) && !defined(CORE_M0)
-  #define CORE_M0
+#define CORE_M0
 #endif
 #if defined(__CORTEX_M3) && !defined(CORE_M3)
-  #define CORE_M3
+#define CORE_M3
 #endif
 /* Default to M4 core if no core explicitly declared */
 #if !defined(CORE_M0) && !defined(CORE_M3)
-  #define CORE_M4
+#define CORE_M4
 #endif
 
 /* Define LPC18XX or LPC43XX according to core type */
 #if (defined(CORE_M4) || defined(CORE_M0)) && !defined(__LPC43XX__)
-  #define __LPC43XX__
+#define __LPC43XX__
 #endif
 #if defined(CORE_M3) && !defined(__LPC18XX__)
-  #define __LPC18XX__
+#define __LPC18XX__
 #endif
 
 /* Start of section using anonymous unions */
 #if defined(__ARMCC_VERSION)
 // Kill warning "#pragma push with no matching #pragma pop"
-  #pragma diag_suppress 2525
-  #pragma push
-  #pragma anon_unions
+#pragma diag_suppress 2525
+#pragma push
+#pragma anon_unions
 #elif defined(__CWCC__)
-  #pragma push
-  #pragma cpp_extensions on
+#pragma push
+#pragma cpp_extensions on
 #elif defined(__IAR_SYSTEMS_ICC__)
-  //#pragma push // FIXME not usable for IAR
-  #pragma language=extended
+//#pragma push // FIXME not usable for IAR
+#pragma language=extended
 #else /* defined(__GNUC__) and others */
-  /* Assume anonymous unions are enabled by default */
+/* Assume anonymous unions are enabled by default */
 #endif
 
 #if defined(CORE_M4)
@@ -2034,13 +2034,13 @@ typedef struct {                        /* SGPIO Structure        */
 
 /* End of section using anonymous unions */
 #if defined(__ARMCC_VERSION)
-  #pragma pop
+#pragma pop
 #elif defined(__CWCC__)
-  #pragma pop
+#pragma pop
 #elif defined(__IAR_SYSTEMS_ICC__)
-  //#pragma pop // FIXME not usable for IAR
+//#pragma pop // FIXME not usable for IAR
 #else /* defined(__GNUC__) and others */
-  /* Leave anonymous unions enabled */
+/* Leave anonymous unions enabled */
 #endif
 
 /* ---------------------------------------------------------------------------

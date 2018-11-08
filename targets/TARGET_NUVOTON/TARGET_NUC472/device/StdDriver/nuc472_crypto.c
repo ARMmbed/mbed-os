@@ -47,11 +47,12 @@ static uint32_t g_TDES_CTL[4];
   */
 void PRNG_Open(uint32_t u32KeySize, uint32_t u32SeedReload, uint32_t u32Seed)
 {
-    if (u32SeedReload)
+    if (u32SeedReload) {
         CRPT->PRNG_SEED = u32Seed;
+    }
 
-    CRPT->PRNG_CTL =  (u32KeySize << CRPT_PRNG_CTL_KEYSZ_Pos) |
-                      (u32SeedReload << CRPT_PRNG_CTL_SEEDRLD_Pos);
+    CRPT->PRNG_CTL = (u32KeySize << CRPT_PRNG_CTL_KEYSZ_Pos) |
+                     (u32SeedReload << CRPT_PRNG_CTL_SEEDRLD_Pos);
 }
 
 /**
@@ -73,9 +74,10 @@ void PRNG_Read(uint32_t u32RandKey[])
 {
     int  i, wcnt;
 
-    wcnt = (((CRPT->PRNG_CTL & CRPT_PRNG_CTL_KEYSZ_Msk)>>CRPT_PRNG_CTL_KEYSZ_Pos)+1)*2;
-    for (i = 0; i < wcnt; i++)
-        u32RandKey[i] = *(uint32_t *)((uint32_t)&(CRPT->PRNG_KEY0) + (i * 4));
+    wcnt = (((CRPT->PRNG_CTL & CRPT_PRNG_CTL_KEYSZ_Msk) >> CRPT_PRNG_CTL_KEYSZ_Pos) + 1) * 2;
+    for (i = 0; i < wcnt; i++) {
+        u32RandKey[i] = *(uint32_t *)((uint32_t) & (CRPT->PRNG_KEY0) + (i * 4));
+    }
 }
 
 
@@ -144,7 +146,7 @@ void AES_SetKey(uint32_t u32Channel, uint32_t au32Keys[], uint32_t u32KeySize)
     uint32_t  i, wcnt, key_reg_addr;
 
     key_reg_addr = (uint32_t)&CRPT->AES0_KEY0 + (u32Channel * 0x3CUL);
-    wcnt = 4UL + u32KeySize*2UL;
+    wcnt = 4UL + u32KeySize * 2UL;
 
     for (i = 0U; i < wcnt; i++) {
         outpw(key_reg_addr, au32Keys[i]);
@@ -361,15 +363,17 @@ void SHA_Read(uint32_t u32Digest[])
     uint32_t  i, wcnt;
 
     i = (CRPT->SHA_CTL & CRPT_SHA_CTL_OPMODE_Msk) >> CRPT_SHA_CTL_OPMODE_Pos;
-    if (i == SHA_MODE_SHA1)
+    if (i == SHA_MODE_SHA1) {
         wcnt = 5;
-    else if (i == SHA_MODE_SHA224)
+    } else if (i == SHA_MODE_SHA224) {
         wcnt = 7;
-    else
+    } else {
         wcnt = 8;
+    }
 
-    for (i = 0; i < wcnt; i++)
-        u32Digest[i] = *(uint32_t *)((uint32_t)&(CRPT->SHA_DGST0) + (i * 4));
+    for (i = 0; i < wcnt; i++) {
+        u32Digest[i] = *(uint32_t *)((uint32_t) & (CRPT->SHA_DGST0) + (i * 4));
+    }
 }
 
 

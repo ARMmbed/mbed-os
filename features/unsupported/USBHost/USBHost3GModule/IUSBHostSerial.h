@@ -81,7 +81,7 @@ public:
      *
      *  @param pListener instance of the listener deriving from the IUSBHostSerialListener
      */
-    virtual void attach(IUSBHostSerialListener* pListener) = 0;
+    virtual void attach(IUSBHostSerialListener *pListener) = 0;
 
     /**
      * Enable or disable readable/writeable callbacks

@@ -3,7 +3,7 @@
 #include "rtos.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 typedef struct {
@@ -23,22 +23,23 @@ typedef struct {
  * and for ARM_MICRO 512. Because of reduce RAM size some targets need a reduced stacksize.
  */
 #if (defined(TARGET_EFM32HG_STK3400)) && !defined(TOOLCHAIN_ARM_MICRO)
-    #define STACK_SIZE 512
+#define STACK_SIZE 512
 #elif (defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32PG_STK3401)) && !defined(TOOLCHAIN_ARM_MICRO)
-    #define STACK_SIZE 768
+#define STACK_SIZE 768
 #elif (defined(TARGET_EFM32GG_STK3700)) && !defined(TOOLCHAIN_ARM_MICRO)
-    #define STACK_SIZE 1536
+#define STACK_SIZE 1536
 #elif defined(TARGET_MCU_NRF51822)
-    #define STACK_SIZE 768
+#define STACK_SIZE 768
 #elif (defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB))
-    #define STACK_SIZE DEFAULT_STACK_SIZE/2
+#define STACK_SIZE DEFAULT_STACK_SIZE/2
 #else
-    #define STACK_SIZE DEFAULT_STACK_SIZE
+#define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
 
 Mail<mail_t, QUEUE_SIZE> mail_box;
 
-void send_thread (void const *argument) {
+void send_thread(void const *argument)
+{
     static uint32_t i = 10;
     while (true) {
         i++; // fake data update
@@ -51,7 +52,8 @@ void send_thread (void const *argument) {
     }
 }
 
-int main (void) {
+int main(void)
+{
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(Mail messaging);
@@ -64,7 +66,7 @@ int main (void) {
     while (true) {
         osEvent evt = mail_box.get();
         if (evt.status == osEventMail) {
-            mail_t *mail = (mail_t*)evt.value.p;
+            mail_t *mail = (mail_t *)evt.value.p;
             const float expected_voltage = CREATE_VOLTAGE(mail->counter);
             const float expected_current = CREATE_CURRENT(mail->counter);
             // Check using macros if received values correspond to values sent via queue
@@ -73,9 +75,9 @@ int main (void) {
             result = result && expected_values;
             const char *result_msg = expected_values ? "OK" : "FAIL";
             printf("%3d %.2fV %.2fA ... [%s]\r\n", mail->counter,
-                                                   mail->voltage,
-                                                   mail->current,
-                                                   result_msg);
+                   mail->voltage,
+                   mail->current,
+                   result_msg);
             mail_box.free(mail);
             if (result == false || ++result_counter == QUEUE_SIZE) {
                 break;

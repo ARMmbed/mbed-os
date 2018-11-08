@@ -74,8 +74,7 @@
 /*!
  * @brief VREF modes.
  */
-typedef enum _vref_buffer_mode
-{
+typedef enum _vref_buffer_mode {
     kVREF_ModeBandgapOnly = 0U, /*!< Bandgap on only, for stabilization and startup */
 #if defined(FSL_FEATURE_VREF_MODE_LV_TYPE) && FSL_FEATURE_VREF_MODE_LV_TYPE
     kVREF_ModeHighPowerBuffer = 1U, /*!< High power buffer mode enabled */
@@ -88,8 +87,7 @@ typedef enum _vref_buffer_mode
 /*!
  * @brief The description structure for the VREF module.
  */
-typedef struct _vref_config
-{
+typedef struct _vref_config {
     vref_buffer_mode_t bufferMode; /*!< Buffer mode selection */
 #if defined(FSL_FEATURE_VREF_HAS_LOW_REFERENCE) && FSL_FEATURE_VREF_HAS_LOW_REFERENCE
     bool enableLowRef;          /*!< Set VREFL (0.4 V) reference buffer enable or disable */

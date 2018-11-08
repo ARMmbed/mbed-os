@@ -60,7 +60,7 @@ bool USBHostMouse::connect()
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if ((dev = host->getDevice(i)) != NULL) {
 
-            if(host->enumerate(dev, this)) {
+            if (host->enumerate(dev, this)) {
                 break;
             }
             if (mouse_device_found) {
@@ -84,9 +84,9 @@ bool USBHostMouse::connect()
                         len_listen = sizeof(report);
                     }
                 }
-                int ret=host->interruptRead(dev, int_in, report, len_listen, false);
-                MBED_ASSERT((ret==USB_TYPE_OK) || (ret ==USB_TYPE_PROCESSING) || (ret == USB_TYPE_FREE));
-                if ((ret==USB_TYPE_OK) || (ret ==USB_TYPE_PROCESSING)) {
+                int ret = host->interruptRead(dev, int_in, report, len_listen, false);
+                MBED_ASSERT((ret == USB_TYPE_OK) || (ret == USB_TYPE_PROCESSING) || (ret == USB_TYPE_FREE));
+                if ((ret == USB_TYPE_OK) || (ret == USB_TYPE_PROCESSING)) {
                     dev_connected = true;
                 }
                 if (ret == USB_TYPE_FREE) {
@@ -103,7 +103,7 @@ bool USBHostMouse::connect()
 void USBHostMouse::rxHandler()
 {
     int len_listen = int_in->getLengthTransferred();
-    if (len_listen !=0) {
+    if (len_listen != 0) {
 
         if (onUpdate) {
             (*onUpdate)(report[0] & 0x07, report[1], report[2], report[3]);

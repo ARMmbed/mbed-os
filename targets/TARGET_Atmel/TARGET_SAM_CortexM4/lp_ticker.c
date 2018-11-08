@@ -33,12 +33,12 @@ volatile uint16_t lp_ticker_interrupt_counter;
 volatile uint16_t lp_ticker_interrupt_offset;
 volatile uint32_t lpoverflow32bitcounter = 0;
 
-#define TICKER_COUNTER_lp		TC0
+#define TICKER_COUNTER_lp       TC0
 
 #define TICKER_COUNTER_CLK2     ID_TC2
 
 #define TICKER_COUNTER_CHANNEL2 2
-#define TICKER_COUNTER_IRQn2	TC2_IRQn
+#define TICKER_COUNTER_IRQn2    TC2_IRQn
 #define TICKER_COUNTER_Handlr2  TC2_Handler
 
 #define OVERFLOW_16bit_VALUE    0xFFFF
@@ -46,18 +46,18 @@ volatile uint32_t lpoverflow32bitcounter = 0;
 
 void TICKER_COUNTER_Handlr2(void)
 {
-    uint32_t status=tc_get_status(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
-    uint32_t interrupmask=tc_get_interrupt_mask(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
+    uint32_t status = tc_get_status(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
+    uint32_t interrupmask = tc_get_interrupt_mask(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
 
     if (((status & interrupmask)  & TC_IER_CPCS)) {
-        if(lp_ticker_interrupt_counter) {
+        if (lp_ticker_interrupt_counter) {
             lp_ticker_interrupt_counter--;
         } else {
-            if(lp_ticker_interrupt_offset) {
+            if (lp_ticker_interrupt_offset) {
                 tc_stop(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
                 tc_write_rc(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, (uint32_t)lp_ticker_interrupt_offset);
                 tc_start(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
-                lp_ticker_interrupt_offset=0;
+                lp_ticker_interrupt_offset = 0;
             } else {
                 lp_ticker_irq_handler();
             }
@@ -67,10 +67,12 @@ void TICKER_COUNTER_Handlr2(void)
 
 void lp_ticker_init(void)
 {
-    if(lp_ticker_inited)
+    if (lp_ticker_inited) {
         return;
-    if (!us_ticker_inited)
+    }
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
     sysclk_enable_peripheral_clock(TICKER_COUNTER_CLK2);
     tc_init(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, TC_CMR_TCCLKS_TIMER_CLOCK4);
     lp_ticker_inited = 1;
@@ -78,8 +80,9 @@ void lp_ticker_init(void)
 
 uint32_t lp_ticker_read()
 {
-    if (!lp_ticker_inited)
+    if (!lp_ticker_inited) {
         lp_ticker_init();
+    }
     return us_ticker_read();
 }
 
@@ -91,16 +94,16 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     cur_time = lp_ticker_read();
     delta = timestamp - cur_time;
 
-    uint16_t interruptat=0;
+    uint16_t interruptat = 0;
 
-    if(delta > OVERFLOW_16bit_VALUE) {
-        lp_ticker_interrupt_counter= (delta/OVERFLOW_16bit_VALUE) -1;
-        lp_ticker_interrupt_offset=delta%OVERFLOW_16bit_VALUE;
-        interruptat=OVERFLOW_16bit_VALUE;
+    if (delta > OVERFLOW_16bit_VALUE) {
+        lp_ticker_interrupt_counter = (delta / OVERFLOW_16bit_VALUE) - 1;
+        lp_ticker_interrupt_offset = delta % OVERFLOW_16bit_VALUE;
+        interruptat = OVERFLOW_16bit_VALUE;
     } else {
-        lp_ticker_interrupt_counter=0;
-        lp_ticker_interrupt_offset=0;
-        interruptat=delta;
+        lp_ticker_interrupt_counter = 0;
+        lp_ticker_interrupt_offset = 0;
+        interruptat = delta;
     }
 
     NVIC_DisableIRQ(TICKER_COUNTER_IRQn2);
@@ -110,7 +113,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     NVIC_ClearPendingIRQ(TICKER_COUNTER_IRQn2);
     NVIC_SetPriority(TICKER_COUNTER_IRQn2, 0);
     NVIC_EnableIRQ(TICKER_COUNTER_IRQn2);
-    tc_enable_interrupt(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, TC_IDR_CPCS );
+    tc_enable_interrupt(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, TC_IDR_CPCS);
 
     tc_start(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
 }

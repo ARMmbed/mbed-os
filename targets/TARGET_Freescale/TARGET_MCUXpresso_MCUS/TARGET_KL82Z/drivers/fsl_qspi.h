@@ -50,39 +50,34 @@
 /*@}*/
 
 /*! @brief Status structure of QSPI.*/
-enum _status_t
-{
+enum _status_t {
     kStatus_QSPI_Idle = MAKE_STATUS(kStatusGroup_QSPI, 0),  /*!< QSPI is in idle state  */
     kStatus_QSPI_Busy = MAKE_STATUS(kStatusGroup_QSPI, 1),  /*!< QSPI is busy */
     kStatus_QSPI_Error = MAKE_STATUS(kStatusGroup_QSPI, 2), /*!< Error occurred during QSPI transfer */
 };
 
 /*! @brief QSPI read data area, from IP FIFO or AHB buffer.*/
-typedef enum _qspi_read_area
-{
+typedef enum _qspi_read_area {
     kQSPI_ReadAHB = 0x0U, /*!< QSPI read from AHB buffer. */
     kQSPI_ReadIP          /*!< QSPI read from IP FIFO. */
 } qspi_read_area_t;
 
 /*! @brief QSPI command sequence type */
-typedef enum _qspi_command_seq
-{
+typedef enum _qspi_command_seq {
     kQSPI_IPSeq = QuadSPI_SPTRCLR_IPPTRC_MASK,                               /*!< IP command sequence */
     kQSPI_BufferSeq = QuadSPI_SPTRCLR_BFPTRC_MASK,                           /*!< Buffer command sequence */
     kQSPI_AllSeq = QuadSPI_SPTRCLR_IPPTRC_MASK | QuadSPI_SPTRCLR_BFPTRC_MASK /* All command sequence */
 } qspi_command_seq_t;
 
 /*! @brief QSPI buffer type */
-typedef enum _qspi_fifo
-{
+typedef enum _qspi_fifo {
     kQSPI_TxFifo = QuadSPI_MCR_CLR_TXF_MASK,                            /*!< QSPI Tx FIFO */
     kQSPI_RxFifo = QuadSPI_MCR_CLR_RXF_MASK,                            /*!< QSPI Rx FIFO */
     kQSPI_AllFifo = QuadSPI_MCR_CLR_TXF_MASK | QuadSPI_MCR_CLR_RXF_MASK /*!< QSPI all FIFO, including Tx and Rx */
 } qspi_fifo_t;
 
 /*! @brief QSPI transfer endianess*/
-typedef enum _qspi_endianness
-{
+typedef enum _qspi_endianness {
     kQSPI_64BigEndian = 0x0U, /*!< 64 bits big endian */
     kQSPI_32LittleEndian,     /*!< 32 bit little endian */
     kQSPI_32BigEndian,        /*!< 32 bit big endian */
@@ -90,8 +85,7 @@ typedef enum _qspi_endianness
 } qspi_endianness_t;
 
 /*! @brief QSPI error flags */
-enum _qspi_error_flags
-{
+enum _qspi_error_flags {
     kQSPI_DataLearningFail = QuadSPI_FR_DLPFF_MASK,                /*!< Data learning pattern failure flag */
     kQSPI_TxBufferFill = QuadSPI_FR_TBFF_MASK,                     /*!< Tx buffer fill flag */
     kQSPI_TxBufferUnderrun = QuadSPI_FR_TBUF_MASK,                 /*!< Tx buffer underrun flag */
@@ -111,8 +105,7 @@ enum _qspi_error_flags
 };
 
 /*! @brief QSPI state bit */
-enum _qspi_flags
-{
+enum _qspi_flags {
     kQSPI_DataLearningSamplePoint = QuadSPI_SR_DLPSMP_MASK,   /*!< Data learning sample point */
     kQSPI_TxBufferFull = QuadSPI_SR_TXFULL_MASK,              /*!< Tx buffer full flag */
     kQSPI_TxDMA = QuadSPI_SR_TXDMA_MASK,                      /*!< Tx DMA is requested or running */
@@ -138,8 +131,7 @@ enum _qspi_flags
 };
 
 /*! @brief QSPI interrupt enable */
-enum _qspi_interrupt_enable
-{
+enum _qspi_interrupt_enable {
     kQSPI_DataLearningFailInterruptEnable =
         QuadSPI_RSER_DLPFIE_MASK,                                /*!< Data learning pattern failure interrupt enable */
     kQSPI_TxBufferFillInterruptEnable = QuadSPI_RSER_TBFIE_MASK, /*!< Tx buffer fill interrupt enable */
@@ -167,16 +159,14 @@ enum _qspi_interrupt_enable
 };
 
 /*! @brief QSPI DMA request flag */
-enum _qspi_dma_enable
-{
+enum _qspi_dma_enable {
     kQSPI_TxBufferFillDMAEnable = QuadSPI_RSER_TBFDE_MASK,                  /*!< Tx buffer fill DMA */
     kQSPI_RxBufferDrainDMAEnable = QuadSPI_RSER_RBDDE_MASK,                 /*!< Rx buffer drain DMA */
     kQSPI_AllDDMAEnable = QuadSPI_RSER_TBFDE_MASK | QuadSPI_RSER_RBDDE_MASK /*!< All DMA source */
 };
 
 /*! @brief Phrase shift number for DQS mode. */
-typedef enum _qspi_dqs_phrase_shift
-{
+typedef enum _qspi_dqs_phrase_shift {
     kQSPI_DQSNoPhraseShift = 0x0U, /*!< No phase shift */
     kQSPI_DQSPhraseShift45Degree,  /*!< Select 45 degree phase shift*/
     kQSPI_DQSPhraseShift90Degree,  /*!< Select 90 degree phase shift */
@@ -184,8 +174,7 @@ typedef enum _qspi_dqs_phrase_shift
 } qspi_dqs_phrase_shift_t;
 
 /*! @brief DQS configure features*/
-typedef struct QspiDQSConfig
-{
+typedef struct QspiDQSConfig {
     uint32_t portADelayTapNum;     /*!< Delay chain tap number selection for QSPI port A DQS */
     uint32_t portBDelayTapNum;     /*!< Delay chain tap number selection for QSPI port B DQS*/
     qspi_dqs_phrase_shift_t shift; /*!< Phase shift for internal DQS generation */
@@ -195,16 +184,14 @@ typedef struct QspiDQSConfig
 } qspi_dqs_config_t;
 
 /*! @brief Flash timing configuration. */
-typedef struct QspiFlashTiming
-{
+typedef struct QspiFlashTiming {
     uint32_t dataHoldTime; /*!< Serial flash data in hold time */
     uint32_t CSHoldTime;   /*!< Serial flash CS hold time in terms of serial flash clock cycles */
     uint32_t CSSetupTime;  /*!< Serial flash CS setup time in terms of serial flash clock cycles */
 } qspi_flash_timing_t;
 
 /*! @brief QSPI configuration structure*/
-typedef struct QspiConfig
-{
+typedef struct QspiConfig {
     uint32_t clockSource;                                       /*!< Clock source for QSPI module */
     uint32_t baudRate;                                          /*!< Serial flash clock baud rate */
     uint8_t txWatermark;                                        /*!< QSPI transmit watermark value */
@@ -217,8 +204,7 @@ typedef struct QspiConfig
 } qspi_config_t;
 
 /*! @brief External flash configuration items*/
-typedef struct _qspi_flash_config
-{
+typedef struct _qspi_flash_config {
     uint32_t flashA1Size;                             /*!< Flash A1 size */
     uint32_t flashA2Size;                             /*!< Flash A2 size */
     uint32_t flashB1Size;                             /*!< Flash B1 size */
@@ -234,8 +220,7 @@ typedef struct _qspi_flash_config
 } qspi_flash_config_t;
 
 /*! @brief Transfer structure for QSPI */
-typedef struct _qspi_transfer
-{
+typedef struct _qspi_transfer {
     uint32_t *data;  /*!< Pointer to data to transmit */
     size_t dataSize; /*!< Bytes to be transmit */
 } qspi_transfer_t;
@@ -309,12 +294,9 @@ void QSPI_SoftwareReset(QuadSPI_Type *base);
  */
 static inline void QSPI_Enable(QuadSPI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->MCR &= ~QuadSPI_MCR_MDIS_MASK;
-    }
-    else
-    {
+    } else {
         base->MCR |= QuadSPI_MCR_MDIS_MASK;
     }
 }
@@ -403,12 +385,9 @@ static inline void QSPI_DisableInterrupts(QuadSPI_Type *base, uint32_t mask)
  */
 static inline void QSPI_EnableDMA(QuadSPI_Type *base, uint32_t mask, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->RSER |= mask;
-    }
-    else
-    {
+    } else {
         base->RSER &= ~mask;
     }
 }
@@ -483,12 +462,9 @@ void QSPI_ExecuteAHBCommand(QuadSPI_Type *base, uint32_t index);
  */
 static inline void QSPI_EnableIPParallelMode(QuadSPI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->IPCR |= QuadSPI_IPCR_PAR_EN_MASK;
-    }
-    else
-    {
+    } else {
         base->IPCR &= ~QuadSPI_IPCR_PAR_EN_MASK;
     }
 }
@@ -500,12 +476,9 @@ static inline void QSPI_EnableIPParallelMode(QuadSPI_Type *base, bool enable)
  */
 static inline void QSPI_EnableAHBParallelMode(QuadSPI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->BFGENCR |= QuadSPI_BFGENCR_PAR_EN_MASK;
-    }
-    else
-    {
+    } else {
         base->BFGENCR &= ~QuadSPI_BFGENCR_PAR_EN_MASK;
     }
 }

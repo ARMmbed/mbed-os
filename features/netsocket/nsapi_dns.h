@@ -38,7 +38,7 @@
  *                  NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 nsapi_error_t nsapi_dns_query(nsapi_stack_t *stack, const char *host,
-        nsapi_addr_t *addr, nsapi_version_t version);
+                              nsapi_addr_t *addr, nsapi_version_t version);
 
 /** Query a domain name server for multiple IP address of a given hostname
  *
@@ -51,7 +51,7 @@ nsapi_error_t nsapi_dns_query(nsapi_stack_t *stack, const char *host,
  *                    NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 nsapi_size_or_error_t nsapi_dns_query_multiple(nsapi_stack_t *stack, const char *host,
-        nsapi_addr_t *addr, nsapi_size_t addr_count, nsapi_version_t version);
+                                               nsapi_addr_t *addr, nsapi_size_t addr_count, nsapi_version_t version);
 
 /** Add a domain name server to list of servers to query
  *
@@ -74,7 +74,7 @@ nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr);
  *                  NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
-        SocketAddress *addr, nsapi_version_t version = NSAPI_IPv4);
+                              SocketAddress *addr, nsapi_version_t version = NSAPI_IPv4);
 
 /** Query a domain name server for an IP address of a given hostname
  *
@@ -86,7 +86,7 @@ nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
  *                  NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 extern "C" nsapi_error_t nsapi_dns_query(nsapi_stack_t *stack, const char *host,
-        nsapi_addr_t *addr, nsapi_version_t version = NSAPI_IPv4);
+                                         nsapi_addr_t *addr, nsapi_version_t version = NSAPI_IPv4);
 
 /** Query a domain name server for an IP address of a given hostname
  *
@@ -99,7 +99,7 @@ extern "C" nsapi_error_t nsapi_dns_query(nsapi_stack_t *stack, const char *host,
  */
 template <typename S>
 nsapi_error_t nsapi_dns_query(S *stack, const char *host,
-        SocketAddress *addr, nsapi_version_t version = NSAPI_IPv4)
+                              SocketAddress *addr, nsapi_version_t version = NSAPI_IPv4)
 {
     return nsapi_dns_query(nsapi_create_stack(stack), host, addr, version);
 }
@@ -115,7 +115,7 @@ nsapi_error_t nsapi_dns_query(S *stack, const char *host,
  *                    NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
-        SocketAddress *addr, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4);
+                                               SocketAddress *addr, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4);
 
 /** Query a domain name server for multiple IP address of a given hostname
  *
@@ -128,7 +128,7 @@ nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const char *
  *                    NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
  */
 extern "C" nsapi_size_or_error_t nsapi_dns_query_multiple(nsapi_stack_t *stack, const char *host,
-        nsapi_addr_t *addr, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4);
+                                                          nsapi_addr_t *addr, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4);
 
 /** Query a domain name server for multiple IP address of a given hostname
  *
@@ -142,10 +142,10 @@ extern "C" nsapi_size_or_error_t nsapi_dns_query_multiple(nsapi_stack_t *stack, 
  */
 template <typename S>
 nsapi_size_or_error_t nsapi_dns_query_multiple(S *stack, const char *host,
-        SocketAddress *addr, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4)
+                                               SocketAddress *addr, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4)
 {
     return nsapi_dns_query_multiple(nsapi_create_stack(stack),
-                host, addr, addr_count, version);
+                                    host, addr, addr_count, version);
 }
 
 /** Add a domain name server to list of servers to query

@@ -36,16 +36,15 @@
 /**************************************************************************//**
  * @brief VDAC_OPA EFM32PG12B VDAC OPA
  *****************************************************************************/
-typedef struct
-{
-  __IM uint32_t  APORTREQ;      /**< Operational Amplifier APORT Request Status Register  */
-  __IM uint32_t  APORTCONFLICT; /**< Operational Amplifier APORT Conflict Status Register  */
-  __IOM uint32_t CTRL;          /**< Operational Amplifier Control Register  */
-  __IOM uint32_t TIMER;         /**< Operational Amplifier Timer Control Register  */
-  __IOM uint32_t MUX;           /**< Operational Amplifier Mux Configuration Register  */
-  __IOM uint32_t OUT;           /**< Operational Amplifier Output Configuration Register  */
-  __IOM uint32_t CAL;           /**< Operational Amplifier Calibration Register  */
-  uint32_t       RESERVED0[1];  /**< Reserved future */
+typedef struct {
+    __IM uint32_t  APORTREQ;      /**< Operational Amplifier APORT Request Status Register  */
+    __IM uint32_t  APORTCONFLICT; /**< Operational Amplifier APORT Conflict Status Register  */
+    __IOM uint32_t CTRL;          /**< Operational Amplifier Control Register  */
+    __IOM uint32_t TIMER;         /**< Operational Amplifier Timer Control Register  */
+    __IOM uint32_t MUX;           /**< Operational Amplifier Mux Configuration Register  */
+    __IOM uint32_t OUT;           /**< Operational Amplifier Output Configuration Register  */
+    __IOM uint32_t CAL;           /**< Operational Amplifier Calibration Register  */
+    uint32_t       RESERVED0[1];  /**< Reserved future */
 } VDAC_OPA_TypeDef;
 
 /** @} End of group Parts */

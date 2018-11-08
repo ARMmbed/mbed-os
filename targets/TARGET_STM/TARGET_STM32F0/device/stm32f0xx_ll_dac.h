@@ -153,30 +153,29 @@ extern "C" {
 /**
   * @brief  Structure definition of some features of DAC instance.
   */
-typedef struct
-{
-  uint32_t TriggerSource;               /*!< Set the conversion trigger source for the selected DAC channel: internal (SW start) or from external IP (timer event, external interrupt line).
+typedef struct {
+    uint32_t TriggerSource;               /*!< Set the conversion trigger source for the selected DAC channel: internal (SW start) or from external IP (timer event, external interrupt line).
                                              This parameter can be a value of @ref DAC_LL_EC_TRIGGER_SOURCE
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_DAC_SetTriggerSource(). */
 
 #if defined(DAC_CR_WAVE1)
-  uint32_t WaveAutoGeneration;          /*!< Set the waveform automatic generation mode for the selected DAC channel.
+    uint32_t WaveAutoGeneration;          /*!< Set the waveform automatic generation mode for the selected DAC channel.
                                              This parameter can be a value of @ref DAC_LL_EC_WAVE_AUTO_GENERATION_MODE
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_DAC_SetWaveAutoGeneration(). */
 
-  uint32_t WaveAutoGenerationConfig;    /*!< Set the waveform automatic generation mode for the selected DAC channel.
+    uint32_t WaveAutoGenerationConfig;    /*!< Set the waveform automatic generation mode for the selected DAC channel.
                                              If waveform automatic generation mode is set to noise, this parameter can be a value of @ref DAC_LL_EC_WAVE_NOISE_LFSR_UNMASK_BITS
                                              If waveform automatic generation mode is set to triangle, this parameter can be a value of @ref DAC_LL_EC_WAVE_TRIANGLE_AMPLITUDE
                                              @note If waveform automatic generation mode is disabled, this parameter is discarded.
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_DAC_SetWaveNoiseLFSR() or @ref LL_DAC_SetWaveTriangleAmplitude(), depending on the wave automatic generation selected. */
 #endif
 
-  uint32_t OutputBuffer;                /*!< Set the output buffer for the selected DAC channel.
+    uint32_t OutputBuffer;                /*!< Set the output buffer for the selected DAC channel.
                                              This parameter can be a value of @ref DAC_LL_EC_OUTPUT_BUFFER
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_DAC_SetOutputBuffer(). */
 
 } LL_DAC_InitTypeDef;
@@ -411,7 +410,7 @@ typedef struct
   * @param  __CHANNEL__ This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval 1...2 (value "2" depending on DAC channel 2 availability)
@@ -431,7 +430,7 @@ typedef struct
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   */
@@ -535,7 +534,7 @@ typedef struct
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @param  TriggerSource This parameter can be one of the following values:
@@ -551,9 +550,9 @@ typedef struct
   */
 __STATIC_INLINE void LL_DAC_SetTriggerSource(DAC_TypeDef *DACx, uint32_t DAC_Channel, uint32_t TriggerSource)
 {
-  MODIFY_REG(DACx->CR,
-             DAC_CR_TSEL1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK),
-             TriggerSource << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
+    MODIFY_REG(DACx->CR,
+               DAC_CR_TSEL1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK),
+               TriggerSource << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
 }
 
 /**
@@ -568,7 +567,7 @@ __STATIC_INLINE void LL_DAC_SetTriggerSource(DAC_TypeDef *DACx, uint32_t DAC_Cha
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval Returned value can be one of the following values:
@@ -583,9 +582,9 @@ __STATIC_INLINE void LL_DAC_SetTriggerSource(DAC_TypeDef *DACx, uint32_t DAC_Cha
   */
 __STATIC_INLINE uint32_t LL_DAC_GetTriggerSource(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_TSEL1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
-                    >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
-                   );
+    return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_TSEL1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
+                      >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
+                     );
 }
 
 #if defined(DAC_CR_WAVE1)
@@ -598,7 +597,7 @@ __STATIC_INLINE uint32_t LL_DAC_GetTriggerSource(DAC_TypeDef *DACx, uint32_t DAC
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @param  WaveAutoGeneration This parameter can be one of the following values:
@@ -609,9 +608,9 @@ __STATIC_INLINE uint32_t LL_DAC_GetTriggerSource(DAC_TypeDef *DACx, uint32_t DAC
   */
 __STATIC_INLINE void LL_DAC_SetWaveAutoGeneration(DAC_TypeDef *DACx, uint32_t DAC_Channel, uint32_t WaveAutoGeneration)
 {
-  MODIFY_REG(DACx->CR,
-             DAC_CR_WAVE1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK),
-             WaveAutoGeneration << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
+    MODIFY_REG(DACx->CR,
+               DAC_CR_WAVE1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK),
+               WaveAutoGeneration << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
 }
 
 /**
@@ -623,7 +622,7 @@ __STATIC_INLINE void LL_DAC_SetWaveAutoGeneration(DAC_TypeDef *DACx, uint32_t DA
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval Returned value can be one of the following values:
@@ -633,9 +632,9 @@ __STATIC_INLINE void LL_DAC_SetWaveAutoGeneration(DAC_TypeDef *DACx, uint32_t DA
   */
 __STATIC_INLINE uint32_t LL_DAC_GetWaveAutoGeneration(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_WAVE1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
-                    >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
-                   );
+    return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_WAVE1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
+                      >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
+                     );
 }
 
 /**
@@ -652,7 +651,7 @@ __STATIC_INLINE uint32_t LL_DAC_GetWaveAutoGeneration(DAC_TypeDef *DACx, uint32_
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @param  NoiseLFSRMask This parameter can be one of the following values:
@@ -672,9 +671,9 @@ __STATIC_INLINE uint32_t LL_DAC_GetWaveAutoGeneration(DAC_TypeDef *DACx, uint32_
   */
 __STATIC_INLINE void LL_DAC_SetWaveNoiseLFSR(DAC_TypeDef *DACx, uint32_t DAC_Channel, uint32_t NoiseLFSRMask)
 {
-  MODIFY_REG(DACx->CR,
-             DAC_CR_MAMP1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK),
-             NoiseLFSRMask << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
+    MODIFY_REG(DACx->CR,
+               DAC_CR_MAMP1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK),
+               NoiseLFSRMask << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
 }
 
 /**
@@ -686,7 +685,7 @@ __STATIC_INLINE void LL_DAC_SetWaveNoiseLFSR(DAC_TypeDef *DACx, uint32_t DAC_Cha
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval Returned value can be one of the following values:
@@ -705,9 +704,9 @@ __STATIC_INLINE void LL_DAC_SetWaveNoiseLFSR(DAC_TypeDef *DACx, uint32_t DAC_Cha
   */
 __STATIC_INLINE uint32_t LL_DAC_GetWaveNoiseLFSR(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_MAMP1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
-                    >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
-                   );
+    return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_MAMP1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
+                      >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
+                     );
 }
 
 /**
@@ -724,7 +723,7 @@ __STATIC_INLINE uint32_t LL_DAC_GetWaveNoiseLFSR(DAC_TypeDef *DACx, uint32_t DAC
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @param  TriangleAmplitude This parameter can be one of the following values:
@@ -744,9 +743,9 @@ __STATIC_INLINE uint32_t LL_DAC_GetWaveNoiseLFSR(DAC_TypeDef *DACx, uint32_t DAC
   */
 __STATIC_INLINE void LL_DAC_SetWaveTriangleAmplitude(DAC_TypeDef *DACx, uint32_t DAC_Channel, uint32_t TriangleAmplitude)
 {
-  MODIFY_REG(DACx->CR,
-             DAC_CR_MAMP1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK),
-             TriangleAmplitude << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
+    MODIFY_REG(DACx->CR,
+               DAC_CR_MAMP1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK),
+               TriangleAmplitude << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
 }
 
 /**
@@ -758,7 +757,7 @@ __STATIC_INLINE void LL_DAC_SetWaveTriangleAmplitude(DAC_TypeDef *DACx, uint32_t
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval Returned value can be one of the following values:
@@ -777,9 +776,9 @@ __STATIC_INLINE void LL_DAC_SetWaveTriangleAmplitude(DAC_TypeDef *DACx, uint32_t
   */
 __STATIC_INLINE uint32_t LL_DAC_GetWaveTriangleAmplitude(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_MAMP1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
-                    >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
-                   );
+    return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_MAMP1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
+                      >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
+                     );
 }
 #endif
 
@@ -791,7 +790,7 @@ __STATIC_INLINE uint32_t LL_DAC_GetWaveTriangleAmplitude(DAC_TypeDef *DACx, uint
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @param  OutputBuffer This parameter can be one of the following values:
@@ -801,9 +800,9 @@ __STATIC_INLINE uint32_t LL_DAC_GetWaveTriangleAmplitude(DAC_TypeDef *DACx, uint
   */
 __STATIC_INLINE void LL_DAC_SetOutputBuffer(DAC_TypeDef *DACx, uint32_t DAC_Channel, uint32_t OutputBuffer)
 {
-  MODIFY_REG(DACx->CR,
-             DAC_CR_BOFF1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK),
-             OutputBuffer << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
+    MODIFY_REG(DACx->CR,
+               DAC_CR_BOFF1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK),
+               OutputBuffer << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
 }
 
 /**
@@ -814,7 +813,7 @@ __STATIC_INLINE void LL_DAC_SetOutputBuffer(DAC_TypeDef *DACx, uint32_t DAC_Chan
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval Returned value can be one of the following values:
@@ -823,9 +822,9 @@ __STATIC_INLINE void LL_DAC_SetOutputBuffer(DAC_TypeDef *DACx, uint32_t DAC_Chan
   */
 __STATIC_INLINE uint32_t LL_DAC_GetOutputBuffer(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_BOFF1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
-                    >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
-                   );
+    return (uint32_t)(READ_BIT(DACx->CR, DAC_CR_BOFF1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
+                      >> (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)
+                     );
 }
 
 /**
@@ -846,15 +845,15 @@ __STATIC_INLINE uint32_t LL_DAC_GetOutputBuffer(DAC_TypeDef *DACx, uint32_t DAC_
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval None
   */
 __STATIC_INLINE void LL_DAC_EnableDMAReq(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  SET_BIT(DACx->CR,
-          DAC_CR_DMAEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
+    SET_BIT(DACx->CR,
+            DAC_CR_DMAEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
 }
 
 /**
@@ -867,15 +866,15 @@ __STATIC_INLINE void LL_DAC_EnableDMAReq(DAC_TypeDef *DACx, uint32_t DAC_Channel
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval None
   */
 __STATIC_INLINE void LL_DAC_DisableDMAReq(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  CLEAR_BIT(DACx->CR,
-            DAC_CR_DMAEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
+    CLEAR_BIT(DACx->CR,
+              DAC_CR_DMAEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
 }
 
 /**
@@ -887,16 +886,16 @@ __STATIC_INLINE void LL_DAC_DisableDMAReq(DAC_TypeDef *DACx, uint32_t DAC_Channe
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_DAC_IsDMAReqEnabled(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  return (READ_BIT(DACx->CR,
-                   DAC_CR_DMAEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
-          == (DAC_CR_DMAEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)));
+    return (READ_BIT(DACx->CR,
+                     DAC_CR_DMAEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
+            == (DAC_CR_DMAEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)));
 }
 
 /**
@@ -924,7 +923,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsDMAReqEnabled(DAC_TypeDef *DACx, uint32_t DAC_
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @param  Register This parameter can be one of the following values:
@@ -935,9 +934,9 @@ __STATIC_INLINE uint32_t LL_DAC_IsDMAReqEnabled(DAC_TypeDef *DACx, uint32_t DAC_
   */
 __STATIC_INLINE uint32_t LL_DAC_DMA_GetRegAddr(DAC_TypeDef *DACx, uint32_t DAC_Channel, uint32_t Register)
 {
-  /* Retrieve address of register DHR12Rx, DHR12Lx or DHR8Rx depending on     */
-  /* DAC channel selected.                                                    */
-  return ((uint32_t)(__DAC_PTR_REG_OFFSET((DACx)->DHR12R1, ((DAC_Channel >> Register) & DAC_REG_REGOFFSET_MASK_POSBIT0))));
+    /* Retrieve address of register DHR12Rx, DHR12Lx or DHR8Rx depending on     */
+    /* DAC channel selected.                                                    */
+    return ((uint32_t)(__DAC_PTR_REG_OFFSET((DACx)->DHR12R1, ((DAC_Channel >> Register) & DAC_REG_REGOFFSET_MASK_POSBIT0))));
 }
 /**
   * @}
@@ -958,15 +957,15 @@ __STATIC_INLINE uint32_t LL_DAC_DMA_GetRegAddr(DAC_TypeDef *DACx, uint32_t DAC_C
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval None
   */
 __STATIC_INLINE void LL_DAC_Enable(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  SET_BIT(DACx->CR,
-          DAC_CR_EN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
+    SET_BIT(DACx->CR,
+            DAC_CR_EN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
 }
 
 /**
@@ -977,15 +976,15 @@ __STATIC_INLINE void LL_DAC_Enable(DAC_TypeDef *DACx, uint32_t DAC_Channel)
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval None
   */
 __STATIC_INLINE void LL_DAC_Disable(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  CLEAR_BIT(DACx->CR,
-            DAC_CR_EN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
+    CLEAR_BIT(DACx->CR,
+              DAC_CR_EN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
 }
 
 /**
@@ -997,16 +996,16 @@ __STATIC_INLINE void LL_DAC_Disable(DAC_TypeDef *DACx, uint32_t DAC_Channel)
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_DAC_IsEnabled(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  return (READ_BIT(DACx->CR,
-                   DAC_CR_EN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
-          == (DAC_CR_EN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)));
+    return (READ_BIT(DACx->CR,
+                     DAC_CR_EN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
+            == (DAC_CR_EN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)));
 }
 
 /**
@@ -1025,15 +1024,15 @@ __STATIC_INLINE uint32_t LL_DAC_IsEnabled(DAC_TypeDef *DACx, uint32_t DAC_Channe
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval None
   */
 __STATIC_INLINE void LL_DAC_EnableTrigger(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  SET_BIT(DACx->CR,
-          DAC_CR_TEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
+    SET_BIT(DACx->CR,
+            DAC_CR_TEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
 }
 
 /**
@@ -1044,15 +1043,15 @@ __STATIC_INLINE void LL_DAC_EnableTrigger(DAC_TypeDef *DACx, uint32_t DAC_Channe
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval None
   */
 __STATIC_INLINE void LL_DAC_DisableTrigger(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  CLEAR_BIT(DACx->CR,
-            DAC_CR_TEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
+    CLEAR_BIT(DACx->CR,
+              DAC_CR_TEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK));
 }
 
 /**
@@ -1064,16 +1063,16 @@ __STATIC_INLINE void LL_DAC_DisableTrigger(DAC_TypeDef *DACx, uint32_t DAC_Chann
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_DAC_IsTriggerEnabled(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  return (READ_BIT(DACx->CR,
-                   DAC_CR_TEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
-          == (DAC_CR_TEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)));
+    return (READ_BIT(DACx->CR,
+                     DAC_CR_TEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK))
+            == (DAC_CR_TEN1 << (DAC_Channel & DAC_CR_CHX_BITOFFSET_MASK)));
 }
 
 /**
@@ -1093,15 +1092,15 @@ __STATIC_INLINE uint32_t LL_DAC_IsTriggerEnabled(DAC_TypeDef *DACx, uint32_t DAC
   * @param  DAC_Channel  This parameter can a combination of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval None
   */
 __STATIC_INLINE void LL_DAC_TrigSWConversion(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  SET_BIT(DACx->SWTRIGR,
-          (DAC_Channel & DAC_SWTR_CHX_MASK));
+    SET_BIT(DACx->SWTRIGR,
+            (DAC_Channel & DAC_SWTR_CHX_MASK));
 }
 
 /**
@@ -1114,7 +1113,7 @@ __STATIC_INLINE void LL_DAC_TrigSWConversion(DAC_TypeDef *DACx, uint32_t DAC_Cha
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @param  Data Value between Min_Data=0x000 and Max_Data=0xFFF
@@ -1122,11 +1121,11 @@ __STATIC_INLINE void LL_DAC_TrigSWConversion(DAC_TypeDef *DACx, uint32_t DAC_Cha
   */
 __STATIC_INLINE void LL_DAC_ConvertData12RightAligned(DAC_TypeDef *DACx, uint32_t DAC_Channel, uint32_t Data)
 {
-  register uint32_t *preg = __DAC_PTR_REG_OFFSET(DACx->DHR12R1, (DAC_Channel >> DAC_REG_DHR12RX_REGOFFSET_BITOFFSET_POS) & DAC_REG_REGOFFSET_MASK_POSBIT0);
-  
-  MODIFY_REG(*preg,
-             DAC_DHR12R1_DACC1DHR,
-             Data);
+    register uint32_t *preg = __DAC_PTR_REG_OFFSET(DACx->DHR12R1, (DAC_Channel >> DAC_REG_DHR12RX_REGOFFSET_BITOFFSET_POS) & DAC_REG_REGOFFSET_MASK_POSBIT0);
+
+    MODIFY_REG(*preg,
+               DAC_DHR12R1_DACC1DHR,
+               Data);
 }
 
 /**
@@ -1139,7 +1138,7 @@ __STATIC_INLINE void LL_DAC_ConvertData12RightAligned(DAC_TypeDef *DACx, uint32_
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @param  Data Value between Min_Data=0x000 and Max_Data=0xFFF
@@ -1147,11 +1146,11 @@ __STATIC_INLINE void LL_DAC_ConvertData12RightAligned(DAC_TypeDef *DACx, uint32_
   */
 __STATIC_INLINE void LL_DAC_ConvertData12LeftAligned(DAC_TypeDef *DACx, uint32_t DAC_Channel, uint32_t Data)
 {
-  register uint32_t *preg = __DAC_PTR_REG_OFFSET(DACx->DHR12R1, (DAC_Channel >> DAC_REG_DHR12LX_REGOFFSET_BITOFFSET_POS) & DAC_REG_REGOFFSET_MASK_POSBIT0);
-  
-  MODIFY_REG(*preg,
-             DAC_DHR12L1_DACC1DHR,
-             Data);
+    register uint32_t *preg = __DAC_PTR_REG_OFFSET(DACx->DHR12R1, (DAC_Channel >> DAC_REG_DHR12LX_REGOFFSET_BITOFFSET_POS) & DAC_REG_REGOFFSET_MASK_POSBIT0);
+
+    MODIFY_REG(*preg,
+               DAC_DHR12L1_DACC1DHR,
+               Data);
 }
 
 /**
@@ -1164,7 +1163,7 @@ __STATIC_INLINE void LL_DAC_ConvertData12LeftAligned(DAC_TypeDef *DACx, uint32_t
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @param  Data Value between Min_Data=0x00 and Max_Data=0xFF
@@ -1172,11 +1171,11 @@ __STATIC_INLINE void LL_DAC_ConvertData12LeftAligned(DAC_TypeDef *DACx, uint32_t
   */
 __STATIC_INLINE void LL_DAC_ConvertData8RightAligned(DAC_TypeDef *DACx, uint32_t DAC_Channel, uint32_t Data)
 {
-  register uint32_t *preg = __DAC_PTR_REG_OFFSET(DACx->DHR12R1, (DAC_Channel >> DAC_REG_DHR8RX_REGOFFSET_BITOFFSET_POS) & DAC_REG_REGOFFSET_MASK_POSBIT0);
-  
-  MODIFY_REG(*preg,
-             DAC_DHR8R1_DACC1DHR,
-             Data);
+    register uint32_t *preg = __DAC_PTR_REG_OFFSET(DACx->DHR12R1, (DAC_Channel >> DAC_REG_DHR8RX_REGOFFSET_BITOFFSET_POS) & DAC_REG_REGOFFSET_MASK_POSBIT0);
+
+    MODIFY_REG(*preg,
+               DAC_DHR8R1_DACC1DHR,
+               Data);
 }
 
 #if defined(DAC_CHANNEL2_SUPPORT)
@@ -1193,9 +1192,9 @@ __STATIC_INLINE void LL_DAC_ConvertData8RightAligned(DAC_TypeDef *DACx, uint32_t
   */
 __STATIC_INLINE void LL_DAC_ConvertDualData12RightAligned(DAC_TypeDef *DACx, uint32_t DataChannel1, uint32_t DataChannel2)
 {
-  MODIFY_REG(DACx->DHR12RD,
-             (DAC_DHR12RD_DACC2DHR | DAC_DHR12RD_DACC1DHR),
-             ((DataChannel2 << DAC_DHR12RD_DACC2DHR_BITOFFSET_POS) | DataChannel1));
+    MODIFY_REG(DACx->DHR12RD,
+               (DAC_DHR12RD_DACC2DHR | DAC_DHR12RD_DACC1DHR),
+               ((DataChannel2 << DAC_DHR12RD_DACC2DHR_BITOFFSET_POS) | DataChannel1));
 }
 
 /**
@@ -1211,12 +1210,12 @@ __STATIC_INLINE void LL_DAC_ConvertDualData12RightAligned(DAC_TypeDef *DACx, uin
   */
 __STATIC_INLINE void LL_DAC_ConvertDualData12LeftAligned(DAC_TypeDef *DACx, uint32_t DataChannel1, uint32_t DataChannel2)
 {
-  /* Note: Data of DAC channel 2 shift value subtracted of 4 because          */
-  /*       data on 16 bits and DAC channel 2 bits field is on the 12 MSB,     */
-  /*       the 4 LSB must be taken into account for the shift value.          */
-  MODIFY_REG(DACx->DHR12LD,
-             (DAC_DHR12LD_DACC2DHR | DAC_DHR12LD_DACC1DHR),
-             ((DataChannel2 << (DAC_DHR12LD_DACC2DHR_BITOFFSET_POS - 4U)) | DataChannel1));
+    /* Note: Data of DAC channel 2 shift value subtracted of 4 because          */
+    /*       data on 16 bits and DAC channel 2 bits field is on the 12 MSB,     */
+    /*       the 4 LSB must be taken into account for the shift value.          */
+    MODIFY_REG(DACx->DHR12LD,
+               (DAC_DHR12LD_DACC2DHR | DAC_DHR12LD_DACC1DHR),
+               ((DataChannel2 << (DAC_DHR12LD_DACC2DHR_BITOFFSET_POS - 4U)) | DataChannel1));
 }
 
 /**
@@ -1232,9 +1231,9 @@ __STATIC_INLINE void LL_DAC_ConvertDualData12LeftAligned(DAC_TypeDef *DACx, uint
   */
 __STATIC_INLINE void LL_DAC_ConvertDualData8RightAligned(DAC_TypeDef *DACx, uint32_t DataChannel1, uint32_t DataChannel2)
 {
-  MODIFY_REG(DACx->DHR8RD,
-             (DAC_DHR8RD_DACC2DHR | DAC_DHR8RD_DACC1DHR),
-             ((DataChannel2 << DAC_DHR8RD_DACC2DHR_BITOFFSET_POS) | DataChannel1));
+    MODIFY_REG(DACx->DHR8RD,
+               (DAC_DHR8RD_DACC2DHR | DAC_DHR8RD_DACC1DHR),
+               ((DataChannel2 << DAC_DHR8RD_DACC2DHR_BITOFFSET_POS) | DataChannel1));
 }
 
 #endif /* DAC_CHANNEL2_SUPPORT */
@@ -1250,16 +1249,16 @@ __STATIC_INLINE void LL_DAC_ConvertDualData8RightAligned(DAC_TypeDef *DACx, uint
   * @param  DAC_Channel This parameter can be one of the following values:
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
-  *         
+  *
   *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @retval Value between Min_Data=0x000 and Max_Data=0xFFF
   */
 __STATIC_INLINE uint32_t LL_DAC_RetrieveOutputData(DAC_TypeDef *DACx, uint32_t DAC_Channel)
 {
-  register uint32_t *preg = __DAC_PTR_REG_OFFSET(DACx->DOR1, (DAC_Channel >> DAC_REG_DORX_REGOFFSET_BITOFFSET_POS) & DAC_REG_REGOFFSET_MASK_POSBIT0);
-  
-  return (uint16_t) READ_BIT(*preg, DAC_DOR1_DACC1DOR);
+    register uint32_t *preg = __DAC_PTR_REG_OFFSET(DACx->DOR1, (DAC_Channel >> DAC_REG_DORX_REGOFFSET_BITOFFSET_POS) & DAC_REG_REGOFFSET_MASK_POSBIT0);
+
+    return (uint16_t) READ_BIT(*preg, DAC_DOR1_DACC1DOR);
 }
 
 /**
@@ -1277,7 +1276,7 @@ __STATIC_INLINE uint32_t LL_DAC_RetrieveOutputData(DAC_TypeDef *DACx, uint32_t D
   */
 __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DMAUDR1(DAC_TypeDef *DACx)
 {
-  return (READ_BIT(DACx->SR, LL_DAC_FLAG_DMAUDR1) == (LL_DAC_FLAG_DMAUDR1));
+    return (READ_BIT(DACx->SR, LL_DAC_FLAG_DMAUDR1) == (LL_DAC_FLAG_DMAUDR1));
 }
 
 #if defined(DAC_CHANNEL2_SUPPORT)
@@ -1289,7 +1288,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DMAUDR1(DAC_TypeDef *DACx)
   */
 __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DMAUDR2(DAC_TypeDef *DACx)
 {
-  return (READ_BIT(DACx->SR, LL_DAC_FLAG_DMAUDR2) == (LL_DAC_FLAG_DMAUDR2));
+    return (READ_BIT(DACx->SR, LL_DAC_FLAG_DMAUDR2) == (LL_DAC_FLAG_DMAUDR2));
 }
 #endif /* DAC_CHANNEL2_SUPPORT */
 
@@ -1301,7 +1300,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsActiveFlag_DMAUDR2(DAC_TypeDef *DACx)
   */
 __STATIC_INLINE void LL_DAC_ClearFlag_DMAUDR1(DAC_TypeDef *DACx)
 {
-  WRITE_REG(DACx->SR, LL_DAC_FLAG_DMAUDR1);
+    WRITE_REG(DACx->SR, LL_DAC_FLAG_DMAUDR1);
 }
 
 #if defined(DAC_CHANNEL2_SUPPORT)
@@ -1313,7 +1312,7 @@ __STATIC_INLINE void LL_DAC_ClearFlag_DMAUDR1(DAC_TypeDef *DACx)
   */
 __STATIC_INLINE void LL_DAC_ClearFlag_DMAUDR2(DAC_TypeDef *DACx)
 {
-  WRITE_REG(DACx->SR, LL_DAC_FLAG_DMAUDR2);
+    WRITE_REG(DACx->SR, LL_DAC_FLAG_DMAUDR2);
 }
 #endif /* DAC_CHANNEL2_SUPPORT */
 
@@ -1333,7 +1332,7 @@ __STATIC_INLINE void LL_DAC_ClearFlag_DMAUDR2(DAC_TypeDef *DACx)
   */
 __STATIC_INLINE void LL_DAC_EnableIT_DMAUDR1(DAC_TypeDef *DACx)
 {
-  SET_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE1);
+    SET_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE1);
 }
 
 #if defined(DAC_CHANNEL2_SUPPORT)
@@ -1345,7 +1344,7 @@ __STATIC_INLINE void LL_DAC_EnableIT_DMAUDR1(DAC_TypeDef *DACx)
   */
 __STATIC_INLINE void LL_DAC_EnableIT_DMAUDR2(DAC_TypeDef *DACx)
 {
-  SET_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE2);
+    SET_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE2);
 }
 #endif /* DAC_CHANNEL2_SUPPORT */
 
@@ -1357,7 +1356,7 @@ __STATIC_INLINE void LL_DAC_EnableIT_DMAUDR2(DAC_TypeDef *DACx)
   */
 __STATIC_INLINE void LL_DAC_DisableIT_DMAUDR1(DAC_TypeDef *DACx)
 {
-  CLEAR_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE1);
+    CLEAR_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE1);
 }
 
 #if defined(DAC_CHANNEL2_SUPPORT)
@@ -1369,7 +1368,7 @@ __STATIC_INLINE void LL_DAC_DisableIT_DMAUDR1(DAC_TypeDef *DACx)
   */
 __STATIC_INLINE void LL_DAC_DisableIT_DMAUDR2(DAC_TypeDef *DACx)
 {
-  CLEAR_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE2);
+    CLEAR_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE2);
 }
 #endif /* DAC_CHANNEL2_SUPPORT */
 
@@ -1381,7 +1380,7 @@ __STATIC_INLINE void LL_DAC_DisableIT_DMAUDR2(DAC_TypeDef *DACx)
   */
 __STATIC_INLINE uint32_t LL_DAC_IsEnabledIT_DMAUDR1(DAC_TypeDef *DACx)
 {
-  return (READ_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE1) == (LL_DAC_IT_DMAUDRIE1));
+    return (READ_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE1) == (LL_DAC_IT_DMAUDRIE1));
 }
 
 #if defined(DAC_CHANNEL2_SUPPORT)
@@ -1393,7 +1392,7 @@ __STATIC_INLINE uint32_t LL_DAC_IsEnabledIT_DMAUDR1(DAC_TypeDef *DACx)
   */
 __STATIC_INLINE uint32_t LL_DAC_IsEnabledIT_DMAUDR2(DAC_TypeDef *DACx)
 {
-  return (READ_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE2) == (LL_DAC_IT_DMAUDRIE2));
+    return (READ_BIT(DACx->CR, LL_DAC_IT_DMAUDRIE2) == (LL_DAC_IT_DMAUDRIE2));
 }
 #endif /* DAC_CHANNEL2_SUPPORT */
 
@@ -1406,9 +1405,9 @@ __STATIC_INLINE uint32_t LL_DAC_IsEnabledIT_DMAUDR2(DAC_TypeDef *DACx)
   * @{
   */
 
-ErrorStatus LL_DAC_DeInit(DAC_TypeDef* DACx);
-ErrorStatus LL_DAC_Init(DAC_TypeDef* DACx, uint32_t DAC_Channel, LL_DAC_InitTypeDef* DAC_InitStruct);
-void        LL_DAC_StructInit(LL_DAC_InitTypeDef* DAC_InitStruct);
+ErrorStatus LL_DAC_DeInit(DAC_TypeDef *DACx);
+ErrorStatus LL_DAC_Init(DAC_TypeDef *DACx, uint32_t DAC_Channel, LL_DAC_InitTypeDef *DAC_InitStruct);
+void        LL_DAC_StructInit(LL_DAC_InitTypeDef *DAC_InitStruct);
 
 /**
   * @}

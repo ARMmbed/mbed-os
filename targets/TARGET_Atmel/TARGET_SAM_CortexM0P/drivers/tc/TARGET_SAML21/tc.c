@@ -216,14 +216,14 @@ enum status_code tc_init(
     }
 
     /* Enable the user interface clock in the MCLK */
-    system_apb_clock_set_mask((enum system_clock_apb_bus)inst_mclk_apbmask[instance*2],
-                              inst_mclk_apbmask[2*instance+1]);
+    system_apb_clock_set_mask((enum system_clock_apb_bus)inst_mclk_apbmask[instance * 2],
+                              inst_mclk_apbmask[2 * instance + 1]);
 
     /* Enable the slave counter if counter_size is 32-bit */
-    if ((config->counter_size == TC_COUNTER_SIZE_32BIT) && (instance+1 < TC_INST_NUM)) {
+    if ((config->counter_size == TC_COUNTER_SIZE_32BIT) && (instance + 1 < TC_INST_NUM)) {
         /* Enable the user interface clock in the MCLK */
-        system_apb_clock_set_mask((enum system_clock_apb_bus)inst_mclk_apbmask[instance*2+1],
-                                  inst_mclk_apbmask[2*instance+2]);
+        system_apb_clock_set_mask((enum system_clock_apb_bus)inst_mclk_apbmask[instance * 2 + 1],
+                                  inst_mclk_apbmask[2 * instance + 2]);
     }
 
 
@@ -252,7 +252,7 @@ enum status_code tc_init(
     }
 
     ctrla_tmp |= (config->run_in_standby << TC_CTRLA_RUNSTDBY_Pos)
-                 |(config->on_demand << TC_CTRLA_ONDEMAND_Pos);
+                 | (config->on_demand << TC_CTRLA_ONDEMAND_Pos);
 
     /* Write configuration to register */
     while (tc_is_syncing(module_inst)) {
@@ -671,7 +671,7 @@ enum status_code tc_reset(
  * \retval STATUS_ERR_INVALID_ARG The configured TC module counter size in the
  *                                module instance is invalid
  */
-enum status_code tc_set_top_value (
+enum status_code tc_set_top_value(
     const struct tc_module *const module_inst,
     const uint32_t top_value)
 {

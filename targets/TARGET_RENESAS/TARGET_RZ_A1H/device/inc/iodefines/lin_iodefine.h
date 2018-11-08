@@ -106,9 +106,8 @@
 #define LIN_LDBn_COUNT (8)
 
 
-typedef struct st_lin
-{
-                                                           /* LIN              */
+typedef struct st_lin {
+    /* LIN              */
     volatile uint8_t   dummy1[1];                              /*                  */
     volatile uint8_t   RLN3nLWBR;                              /*  RLN3nLWBR       */
     volatile uint8_t   RLN3nLBRP0;                             /*  RLN3nLBRP0      */
@@ -132,7 +131,7 @@ typedef struct st_lin
     volatile uint8_t   RLN3nLCBR;                              /*  RLN3nLCBR       */
     volatile uint8_t   dummy4[1];                              /*                  */
 
-/* #define LIN_LDBn_COUNT (8) */
+    /* #define LIN_LDBn_COUNT (8) */
     volatile uint8_t   RLN3nLDBR1;                             /*  RLN3nLDBR1      */
     volatile uint8_t   RLN3nLDBR2;                             /*  RLN3nLDBR2      */
     volatile uint8_t   RLN3nLDBR3;                             /*  RLN3nLDBR3      */
@@ -146,10 +145,10 @@ typedef struct st_lin
 
 /* Channel array defines of LIN (2)*/
 #ifdef  DECLARE_LIN_CHANNELS
-volatile struct st_lin*  LIN[ LIN_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    LIN_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_lin  *LIN[ LIN_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        LIN_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_LIN_CHANNELS */
 /* End of channel array defines of LIN (2)*/
 

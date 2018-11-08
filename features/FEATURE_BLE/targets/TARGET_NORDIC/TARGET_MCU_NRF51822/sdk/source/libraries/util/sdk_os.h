@@ -30,7 +30,7 @@
  *
  */
 
- /** @cond */
+/** @cond */
 /**@file
  *
  * @defgroup sdk_os SDK OS Abstraction
@@ -53,7 +53,7 @@
 /**
  * @defgroup os_data_type Data types.
  */
- 
+
 /** @} */
 /** @endcond */
 #endif // SDK_OS_H__

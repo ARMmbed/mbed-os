@@ -64,8 +64,7 @@
 #define SMARTCARD_TS_INVERSE_CONVENTION (0x3Fu)
 
 /*! @brief Smart card Error codes. */
-typedef enum _smartcard_status
-{
+typedef enum _smartcard_status {
     kStatus_SMARTCARD_Success = MAKE_STATUS(kStatusGroup_SMARTCARD, 0),              /*!< Transfer ends successfully */
     kStatus_SMARTCARD_TxBusy = MAKE_STATUS(kStatusGroup_SMARTCARD, 1),               /*!< Transmit in progress */
     kStatus_SMARTCARD_RxBusy = MAKE_STATUS(kStatusGroup_SMARTCARD, 2),               /*!< Receiving in progress */
@@ -82,8 +81,7 @@ typedef enum _smartcard_status
 } smartcard_status_t;
 
 /*! @brief Control codes for the Smart card protocol timers and misc. */
-typedef enum _smartcard_control
-{
+typedef enum _smartcard_control {
     kSMARTCARD_EnableADT = 0x0u,
     kSMARTCARD_DisableADT = 0x1u,
     kSMARTCARD_EnableGTV = 0x2u,
@@ -112,8 +110,7 @@ typedef enum _smartcard_control
 } smartcard_control_t;
 
 /*! @brief Defines Smart card interface voltage class values */
-typedef enum _smartcard_card_voltage_class
-{
+typedef enum _smartcard_card_voltage_class {
     kSMARTCARD_VoltageClassUnknown = 0x0u,
     kSMARTCARD_VoltageClassA5_0V = 0x1u,
     kSMARTCARD_VoltageClassB3_3V = 0x2u,
@@ -121,8 +118,7 @@ typedef enum _smartcard_card_voltage_class
 } smartcard_card_voltage_class_t;
 
 /*! @brief Defines Smart card I/O transfer states */
-typedef enum _smartcard_transfer_state
-{
+typedef enum _smartcard_transfer_state {
     kSMARTCARD_IdleState = 0x0u,
     kSMARTCARD_WaitingForTSState = 0x1u,
     kSMARTCARD_InvalidTSDetecetedState = 0x2u,
@@ -131,8 +127,7 @@ typedef enum _smartcard_transfer_state
 } smartcard_transfer_state_t;
 
 /*! @brief Defines Smart card reset types */
-typedef enum _smartcard_reset_type
-{
+typedef enum _smartcard_reset_type {
     kSMARTCARD_ColdReset = 0x0u,
     kSMARTCARD_WarmReset = 0x1u,
     kSMARTCARD_NoColdReset = 0x2u,
@@ -140,37 +135,32 @@ typedef enum _smartcard_reset_type
 } smartcard_reset_type_t;
 
 /*! @brief Defines Smart card transport protocol types */
-typedef enum _smartcard_transport_type
-{
+typedef enum _smartcard_transport_type {
     kSMARTCARD_T0Transport = 0x0u,
     kSMARTCARD_T1Transport = 0x1u
 } smartcard_transport_type_t;
 
 /*! @brief Defines Smart card data parity types */
-typedef enum _smartcard_parity_type
-{
+typedef enum _smartcard_parity_type {
     kSMARTCARD_EvenParity = 0x0u,
     kSMARTCARD_OddParity = 0x1u
 } smartcard_parity_type_t;
 
 /*! @brief Defines data Convention format */
-typedef enum _smartcard_card_convention
-{
+typedef enum _smartcard_card_convention {
     kSMARTCARD_DirectConvention = 0x0u,
     kSMARTCARD_InverseConvention = 0x1u
 } smartcard_card_convention_t;
 
 /*! @brief Defines Smart card interface IC control types */
-typedef enum _smartcard_interface_control
-{
+typedef enum _smartcard_interface_control {
     kSMARTCARD_InterfaceSetVcc = 0x00u,
     kSMARTCARD_InterfaceSetClockToResetDelay = 0x01u,
     kSMARTCARD_InterfaceReadStatus = 0x02u
 } smartcard_interface_control_t;
 
 /*! @brief Defines transfer direction.*/
-typedef enum _smartcard_direction
-{
+typedef enum _smartcard_direction {
     kSMARTCARD_Receive = 0u,
     kSMARTCARD_Transmit = 1u
 } smartcard_direction_t;
@@ -184,8 +174,7 @@ typedef void (*smartcard_transfer_callback_t)(void *smartcardContext, void *para
 typedef void (*smartcard_time_delay_t)(uint32_t miliseconds);
 
 /*! @brief Defines card-specific parameters for Smart card driver */
-typedef struct _smartcard_card_params
-{
+typedef struct _smartcard_card_params {
     /* ISO7816/EMV4.3 specification variables */
     uint16_t Fi;            /*!< 4 bits Fi - clock rate conversion integer */
     uint8_t fMax;           /*!< Maximum Smart card frequency in MHz */
@@ -212,8 +201,7 @@ typedef struct _smartcard_card_params
 } smartcard_card_params_t;
 
 /*! @brief Smart card Defines the state of the EMV timers in the Smart card driver */
-typedef struct _smartcard_timers_state
-{
+typedef struct _smartcard_timers_state {
     volatile bool adtExpired;           /*!< Indicates whether ADT timer expired */
     volatile bool wwtExpired;           /*!< Indicates whether WWT timer expired */
     volatile bool cwtExpired;           /*!< Indicates whether CWT timer expired */
@@ -223,8 +211,7 @@ typedef struct _smartcard_timers_state
 } smartcard_timers_state_t;
 
 /*! @brief Defines user specified configuration of Smart card interface */
-typedef struct _smartcard_interface_config
-{
+typedef struct _smartcard_interface_config {
     uint32_t smartCardClock;            /*!< Smart card interface clock [Hz] */
     uint32_t clockToResetDelay;         /*!< Indicates clock to RST apply delay [smart card clock cycles] */
     uint8_t clockModule;                /*!< Smart card clock module number */
@@ -248,8 +235,7 @@ typedef struct _smartcard_interface_config
 } smartcard_interface_config_t;
 
 /*! @brief Defines user transfer structure used to initialize transfer */
-typedef struct _smartcard_xfer
-{
+typedef struct _smartcard_xfer {
     smartcard_direction_t direction; /*!< Direction of communication. (RX/TX) */
     uint8_t *buff;                   /*!< The buffer of data. */
     size_t size;                     /*!< The number of transferred units. */
@@ -258,8 +244,7 @@ typedef struct _smartcard_xfer
 /*!
  * @brief Runtime state of the Smart card driver.
  */
-typedef struct _smartcard_context
-{
+typedef struct _smartcard_context {
     /* Xfer part */
     void *base;                      /*!< Smart card module base address */
     smartcard_direction_t direction; /*!< Direction of communication. (RX/TX) */
@@ -279,7 +264,7 @@ typedef struct _smartcard_context
     volatile smartcard_transfer_state_t transferState; /*!< Indicates the current transfer state */
     smartcard_timers_state_t timersState; /*!< Indicates the state of different protocol timers used in driver */
     smartcard_card_params_t
-        cardParams; /*!< Smart card parameters(ATR and current) and interface slots states(ATR and current) */
+    cardParams; /*!< Smart card parameters(ATR and current) and interface slots states(ATR and current) */
     uint8_t IFSD;   /*!< Indicates the terminal IFSD */
     smartcard_parity_type_t parity; /*!< Indicates current parity even/odd */
     volatile bool rxtCrossed;       /*!< Indicates whether RXT thresholds has been crossed */

@@ -36,8 +36,7 @@
  * Definitions
  ******************************************************************************/
 /*! @brief Clock configuration structure. */
-typedef struct _clock_config
-{
+typedef struct _clock_config {
     mcg_config_t mcgConfig;       /*!< MCG configuration.      */
     sim_clock_config_t simConfig; /*!< SIM configuration.      */
     osc_config_t oscConfig;       /*!< OSC configuration.      */
@@ -53,116 +52,122 @@ extern uint32_t SystemCoreClock;
 /* Configuration for enter VLPR mode. Core clock = 4MHz. */
 const clock_config_t g_defaultClockConfigVlpr = {
     .mcgConfig =
+    {
+        .mcgMode = kMCG_ModeBLPI,            /* Work in BLPI mode. */
+        .irclkEnableMode = kMCG_IrclkEnable, /*  MCGIRCLK enable. */
+        .ircs = kMCG_IrcFast,                /* Select IRC4M. */
+        .fcrdiv = 0U,                        /* FCRDIV is 0. */
+
+        .frdiv = 0U,
+        .drs = kMCG_DrsLow,         /* Low frequency range. */
+        .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25%. */
+        .oscsel = kMCG_OscselOsc,   /* Select OSC. */
+
+        .pll0Config =
         {
-            .mcgMode = kMCG_ModeBLPI,            /* Work in BLPI mode. */
-            .irclkEnableMode = kMCG_IrclkEnable, /*  MCGIRCLK enable. */
-            .ircs = kMCG_IrcFast,                /* Select IRC4M. */
-            .fcrdiv = 0U,                        /* FCRDIV is 0. */
-
-            .frdiv = 0U,
-            .drs = kMCG_DrsLow,         /* Low frequency range. */
-            .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25%. */
-            .oscsel = kMCG_OscselOsc,   /* Select OSC. */
-
-            .pll0Config =
-                {
-                    .enableMode = 0U, /* Don't eanble PLL. */
-                    .prdiv = 0U,
-                    .vdiv = 0U,
-                },
+            .enableMode = 0U, /* Don't eanble PLL. */
+            .prdiv = 0U,
+            .vdiv = 0U,
         },
+    },
     .simConfig =
+    {
+        .pllFllSel = 3U,        /* PLLFLLSEL select IRC48MCLK. */
+        .er32kSrc = 2U,         /* ERCLK32K selection, use RTC. */
+        .clkdiv1 = 0x00040000U, /* SIM_CLKDIV1. */
+    },
+    .oscConfig = {
+        .freq = BOARD_XTAL0_CLK_HZ,
+        .capLoad = 0,
+        .workMode = kOSC_ModeOscLowPower,
+        .oscerConfig =
         {
-            .pllFllSel = 3U,        /* PLLFLLSEL select IRC48MCLK. */
-            .er32kSrc = 2U,         /* ERCLK32K selection, use RTC. */
-            .clkdiv1 = 0x00040000U, /* SIM_CLKDIV1. */
-        },
-    .oscConfig = {.freq = BOARD_XTAL0_CLK_HZ,
-                  .capLoad = 0,
-                  .workMode = kOSC_ModeOscLowPower,
-                  .oscerConfig =
-                      {
-                          .enableMode = kOSC_ErClkEnable,
+            .enableMode = kOSC_ErClkEnable,
 #if (defined(FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER) && FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER)
-                          .erclkDiv = 0U,
+            .erclkDiv = 0U,
 #endif
-                      }},
+        }
+    },
     .coreClock = 4000000U, /* Core clock frequency */
 };
 
 /* Configuration for enter RUN mode. Core clock = 80MHz. */
 const clock_config_t g_defaultClockConfigRun = {
     .mcgConfig =
+    {
+        .mcgMode = kMCG_ModePEE,             /* Work in PEE mode. */
+        .irclkEnableMode = kMCG_IrclkEnable, /* MCGIRCLK enable. */
+        .ircs = kMCG_IrcSlow,                /* Select IRC32k.*/
+        .fcrdiv = 0U,                        /* FCRDIV is 0. */
+
+        .frdiv = 3U,
+        .drs = kMCG_DrsLow,         /* Low frequency range. */
+        .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25%. */
+        .oscsel = kMCG_OscselOsc,   /* Select OSC. */
+
+        .pll0Config =
         {
-            .mcgMode = kMCG_ModePEE,             /* Work in PEE mode. */
-            .irclkEnableMode = kMCG_IrclkEnable, /* MCGIRCLK enable. */
-            .ircs = kMCG_IrcSlow,                /* Select IRC32k.*/
-            .fcrdiv = 0U,                        /* FCRDIV is 0. */
-
-            .frdiv = 3U,
-            .drs = kMCG_DrsLow,         /* Low frequency range. */
-            .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25%. */
-            .oscsel = kMCG_OscselOsc,   /* Select OSC. */
-
-            .pll0Config =
-                {
-                    .enableMode = 0U, .prdiv = 0x3U, .vdiv = 0x10U,
-                },
+            .enableMode = 0U, .prdiv = 0x3U, .vdiv = 0x10U,
         },
+    },
     .simConfig =
+    {
+        .pllFllSel = 1U,        /* PLLFLLSEL select PLL. */
+        .er32kSrc = 2U,         /* ERCLK32K selection, use RTC. */
+        .clkdiv1 = 0x01230000U, /* SIM_CLKDIV1. */
+    },
+    .oscConfig = {
+        .freq = BOARD_XTAL0_CLK_HZ,
+        .capLoad = 0,
+        .workMode = kOSC_ModeOscLowPower,
+        .oscerConfig =
         {
-            .pllFllSel = 1U,        /* PLLFLLSEL select PLL. */
-            .er32kSrc = 2U,         /* ERCLK32K selection, use RTC. */
-            .clkdiv1 = 0x01230000U, /* SIM_CLKDIV1. */
-        },
-    .oscConfig = {.freq = BOARD_XTAL0_CLK_HZ,
-                  .capLoad = 0,
-                  .workMode = kOSC_ModeOscLowPower,
-                  .oscerConfig =
-                      {
-                          .enableMode = kOSC_ErClkEnable,
+            .enableMode = kOSC_ErClkEnable,
 #if (defined(FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER) && FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER)
-                          .erclkDiv = 0U,
+            .erclkDiv = 0U,
 #endif
-                      }},
+        }
+    },
     .coreClock = 80000000U, /* Core clock frequency */
 };
 
 /* Configuration for HSRUN mode. Core clock = 120MHz. */
 const clock_config_t g_defaultClockConfigHsrun = {
     .mcgConfig =
+    {
+        .mcgMode = kMCG_ModePEE,             /* Work in PEE mode. */
+        .irclkEnableMode = kMCG_IrclkEnable, /* MCGIRCLK enable. */
+        .ircs = kMCG_IrcSlow,                /* Select IRC32k. */
+        .fcrdiv = 0U,                        /* FCRDIV is 0. */
+
+        .frdiv = 3U,
+        .drs = kMCG_DrsLow,         /* Low frequency range. */
+        .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25%. */
+        .oscsel = kMCG_OscselOsc,   /* Select OSC. */
+
+        .pll0Config =
         {
-            .mcgMode = kMCG_ModePEE,             /* Work in PEE mode. */
-            .irclkEnableMode = kMCG_IrclkEnable, /* MCGIRCLK enable. */
-            .ircs = kMCG_IrcSlow,                /* Select IRC32k. */
-            .fcrdiv = 0U,                        /* FCRDIV is 0. */
-
-            .frdiv = 3U,
-            .drs = kMCG_DrsLow,         /* Low frequency range. */
-            .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25%. */
-            .oscsel = kMCG_OscselOsc,   /* Select OSC. */
-
-            .pll0Config =
-                {
-                    .enableMode = 0U, .prdiv = 0x1U, .vdiv = 0x6U,
-                },
+            .enableMode = 0U, .prdiv = 0x1U, .vdiv = 0x6U,
         },
+    },
     .simConfig =
+    {
+        .pllFllSel = 1U,        /* PLLFLLSEL select PLL. */
+        .er32kSrc = 2U,         /* ERCLK32K selection, use RTC. */
+        .clkdiv1 = 0x01340000U, /* SIM_CLKDIV1. */
+    },
+    .oscConfig = {
+        .freq = BOARD_XTAL0_CLK_HZ,
+        .capLoad = 0,
+        .workMode = kOSC_ModeOscLowPower,
+        .oscerConfig =
         {
-            .pllFllSel = 1U,        /* PLLFLLSEL select PLL. */
-            .er32kSrc = 2U,         /* ERCLK32K selection, use RTC. */
-            .clkdiv1 = 0x01340000U, /* SIM_CLKDIV1. */
-        },
-    .oscConfig = {.freq = BOARD_XTAL0_CLK_HZ,
-                  .capLoad = 0,
-                  .workMode = kOSC_ModeOscLowPower,
-                  .oscerConfig =
-                      {
-                          .enableMode = kOSC_ErClkEnable,
+            .enableMode = kOSC_ErClkEnable,
 #if (defined(FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER) && FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER)
-                          .erclkDiv = 0U,
+            .erclkDiv = 0U,
 #endif
-                      }},
+        }
+    },
     .coreClock = 120000000U, /* Core clock frequency */
 };
 
@@ -210,8 +215,7 @@ void BOARD_BootClockVLPR(void)
 
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
     SMC_SetPowerModeVlpr(SMC);
-    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr)
-    {
+    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr) {
     }
 }
 
@@ -237,8 +241,7 @@ void BOARD_BootClockHSRUN(void)
 {
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
     SMC_SetPowerModeHsrun(SMC);
-    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateHsrun)
-    {
+    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateHsrun) {
     }
 
     CLOCK_SetSimSafeDivs();

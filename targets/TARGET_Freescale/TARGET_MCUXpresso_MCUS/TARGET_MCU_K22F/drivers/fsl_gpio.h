@@ -51,8 +51,7 @@
 /*@}*/
 
 /*! @brief GPIO direction definition*/
-typedef enum _gpio_pin_direction
-{
+typedef enum _gpio_pin_direction {
     kGPIO_DigitalInput = 0U,  /*!< Set current pin as digital input*/
     kGPIO_DigitalOutput = 1U, /*!< Set current pin as digital output*/
 } gpio_pin_direction_t;
@@ -65,8 +64,7 @@ typedef enum _gpio_pin_direction
  * Note : In some cases, the corresponding port property should be configured in advance
  *        with the PORT_SetPinConfig()
  */
-typedef struct _gpio_pin_config
-{
+typedef struct _gpio_pin_config {
     gpio_pin_direction_t pinDirection; /*!< gpio direction, input or output */
     /* Output configurations, please ignore if configured as a input one */
     uint8_t outputLogic; /*!< Set default output logic, no use in input */
@@ -134,12 +132,9 @@ void GPIO_PinInit(GPIO_Type *base, uint32_t pin, const gpio_pin_config_t *config
  */
 static inline void GPIO_WritePinOutput(GPIO_Type *base, uint32_t pin, uint8_t output)
 {
-    if (output == 0U)
-    {
+    if (output == 0U) {
         base->PCOR = 1 << pin;
-    }
-    else
-    {
+    } else {
         base->PSOR = 1 << pin;
     }
 }
@@ -287,12 +282,9 @@ void FGPIO_PinInit(FGPIO_Type *base, uint32_t pin, const gpio_pin_config_t *conf
  */
 static inline void FGPIO_WritePinOutput(FGPIO_Type *base, uint32_t pin, uint8_t output)
 {
-    if (output == 0U)
-    {
+    if (output == 0U) {
         base->PCOR = 1 << pin;
-    }
-    else
-    {
+    } else {
         base->PSOR = 1 << pin;
     }
 }

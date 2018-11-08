@@ -64,20 +64,20 @@ void SystemCoreClockUpdate(void)
 {
 #ifdef EMULATOR
     SystemCoreClock = RO_FREQ;
-#else /* real hardware */ 
-    if(MXC_PWRSEQ->reg0 & MXC_F_PWRSEQ_REG0_PWR_RCEN_RUN) {
+#else /* real hardware */
+    if (MXC_PWRSEQ->reg0 & MXC_F_PWRSEQ_REG0_PWR_RCEN_RUN) {
         /* 4 MHz source */
-        if(MXC_PWRSEQ->reg3 & MXC_F_PWRSEQ_REG3_PWR_RC_DIV) {
+        if (MXC_PWRSEQ->reg3 & MXC_F_PWRSEQ_REG3_PWR_RC_DIV) {
             SystemCoreClock = (4000000 / (0x1 << ((MXC_PWRSEQ->reg3 & MXC_F_PWRSEQ_REG3_PWR_RC_DIV) >>
-                MXC_F_PWRSEQ_REG3_PWR_RC_DIV_POS)));
+                                                  MXC_F_PWRSEQ_REG3_PWR_RC_DIV_POS)));
         } else {
             SystemCoreClock = 4000000;
         }
     } else {
         /* 96 MHz source */
-        if(MXC_PWRSEQ->reg3 & MXC_F_PWRSEQ_REG3_PWR_RO_DIV) {
+        if (MXC_PWRSEQ->reg3 & MXC_F_PWRSEQ_REG3_PWR_RO_DIV) {
             SystemCoreClock = (RO_FREQ / (0x1 << ((MXC_PWRSEQ->reg3 & MXC_F_PWRSEQ_REG3_PWR_RO_DIV) >>
-                MXC_F_PWRSEQ_REG3_PWR_RO_DIV_POS)));
+                                                  MXC_F_PWRSEQ_REG3_PWR_RO_DIV_POS)));
         } else {
             SystemCoreClock = RO_FREQ;
         }
@@ -95,7 +95,7 @@ void CLKMAN_TrimRO(void)
     MXC_PWRSEQ->reg0 |= MXC_F_PWRSEQ_REG0_PWR_RTCEN_RUN;
 
     /* Wait for RTC warm-up */
-    while(MXC_RTCCFG->osc_ctrl & MXC_F_RTC_OSC_CTRL_OSC_WARMUP_ENABLE) {}
+    while (MXC_RTCCFG->osc_ctrl & MXC_F_RTC_OSC_CTRL_OSC_WARMUP_ENABLE) {}
 
     /* Step 2: enable RO calibration complete interrupt */
     MXC_ADC->intr |= MXC_F_ADC_INTR_RO_CAL_DONE_IE;
@@ -120,7 +120,7 @@ void CLKMAN_TrimRO(void)
     MXC_ADC->ro_cal0 |= MXC_F_ADC_RO_CAL0_RO_CAL_ATOMIC;
 
     /* Step 9: waiting for ro_cal_done flag */
-    while(!(MXC_ADC->intr & MXC_F_ADC_INTR_RO_CAL_DONE_IF));
+    while (!(MXC_ADC->intr & MXC_F_ADC_INTR_RO_CAL_DONE_IF));
 
     /* Step 10: stop frequency calibration */
     MXC_ADC->ro_cal0 &= ~MXC_F_ADC_RO_CAL0_RO_CAL_RUN;
@@ -250,7 +250,7 @@ void SystemInit(void)
     MXC_PWRSEQ->reg3 = (1 << MXC_F_PWRSEQ_REG3_PWR_ROSEL_POS) |
                        (1 << MXC_F_PWRSEQ_REG3_PWR_FAILSEL_POS) |
                        (MXC_PWRSEQ->reg3 & ~(MXC_F_PWRSEQ_REG3_PWR_ROSEL |
-                               MXC_F_PWRSEQ_REG3_PWR_FLTRROSEL));
+                                             MXC_F_PWRSEQ_REG3_PWR_FLTRROSEL));
 
     /* Enable RTOS Mode: Enable 32kHz clock synchronizer to SysTick external clock input */
     MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_RTOS_MODE;

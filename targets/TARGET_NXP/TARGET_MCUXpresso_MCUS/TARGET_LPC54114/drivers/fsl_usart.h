@@ -51,8 +51,7 @@
 #define USART_FIFOTRIG_RXLVL_GET(base) (((base)->FIFOTRIG & USART_FIFOTRIG_RXLVL_MASK) >> USART_FIFOTRIG_RXLVL_SHIFT)
 
 /*! @brief Error codes for the USART driver. */
-enum _usart_status
-{
+enum _usart_status {
     kStatus_USART_TxBusy = MAKE_STATUS(kStatusGroup_LPC_USART, 0),              /*!< Transmitter is busy. */
     kStatus_USART_RxBusy = MAKE_STATUS(kStatusGroup_LPC_USART, 1),              /*!< Receiver is busy. */
     kStatus_USART_TxIdle = MAKE_STATUS(kStatusGroup_LPC_USART, 2),              /*!< USART transmitter is idle. */
@@ -113,8 +112,7 @@ typedef enum _usart_rxfifo_watermark {
 /*!
  * @brief USART interrupt configuration structure, default settings all disabled.
  */
-enum _usart_interrupt_enable
-{
+enum _usart_interrupt_enable {
     kUSART_TxErrorInterruptEnable = (USART_FIFOINTENSET_TXERR_MASK),
     kUSART_RxErrorInterruptEnable = (USART_FIFOINTENSET_RXERR_MASK),
     kUSART_TxLevelInterruptEnable = (USART_FIFOINTENSET_TXLVL_MASK),
@@ -126,8 +124,7 @@ enum _usart_interrupt_enable
  *
  * This provides constants for the USART status flags for use in the USART functions.
  */
-enum _usart_flags
-{
+enum _usart_flags {
     kUSART_TxError = (USART_FIFOSTAT_TXERR_MASK),                 /*!< TXEMPT bit, sets if TX buffer is empty */
     kUSART_RxError = (USART_FIFOSTAT_RXERR_MASK),                 /*!< TXEMPT bit, sets if TX buffer is empty */
     kUSART_TxFifoEmptyFlag = (USART_FIFOSTAT_TXEMPTY_MASK),       /*!< TXEMPT bit, sets if TX buffer is empty */
@@ -137,8 +134,7 @@ enum _usart_flags
 };
 
 /*! @brief USART configuration structure. */
-typedef struct _usart_config
-{
+typedef struct _usart_config {
     uint32_t baudRate_Bps;               /*!< USART baud rate  */
     usart_parity_mode_t parityMode;      /*!< Parity mode, disabled (default), even, odd */
     usart_stop_bit_count_t stopBitCount; /*!< Number of stop bits, 1 stop bit (default) or 2 stop bits  */
@@ -151,8 +147,7 @@ typedef struct _usart_config
 } usart_config_t;
 
 /*! @brief USART transfer structure. */
-typedef struct _usart_transfer
-{
+typedef struct _usart_transfer {
     uint8_t *data;   /*!< The buffer of data to be transfer.*/
     size_t dataSize; /*!< The byte count to be transfer. */
 } usart_transfer_t;
@@ -164,8 +159,7 @@ typedef struct _usart_handle usart_handle_t;
 typedef void (*usart_transfer_callback_t)(USART_Type *base, usart_handle_t *handle, status_t status, void *userData);
 
 /*! @brief USART handle structure. */
-struct _usart_handle
-{
+struct _usart_handle {
     uint8_t *volatile txData;   /*!< Address of remaining data to send. */
     volatile size_t txDataSize; /*!< Size of the remaining data to send. */
     size_t txDataSizeAll;       /*!< Size of the data to send out. */
@@ -345,12 +339,9 @@ static inline void USART_DisableInterrupts(USART_Type *base, uint32_t mask)
 */
 static inline void USART_EnableTxDMA(USART_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->FIFOCFG |= USART_FIFOCFG_DMATX_MASK;
-    }
-    else
-    {
+    } else {
         base->FIFOCFG &= ~(USART_FIFOCFG_DMATX_MASK);
     }
 }
@@ -360,12 +351,9 @@ static inline void USART_EnableTxDMA(USART_Type *base, bool enable)
 */
 static inline void USART_EnableRxDMA(USART_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->FIFOCFG |= USART_FIFOCFG_DMARX_MASK;
-    }
-    else
-    {
+    } else {
         base->FIFOCFG &= ~(USART_FIFOCFG_DMARX_MASK);
     }
 }

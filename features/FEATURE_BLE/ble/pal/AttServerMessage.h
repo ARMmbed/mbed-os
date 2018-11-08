@@ -66,14 +66,16 @@ struct AttributeOpcode {
     /**
      * Equality comparison operator between two AttributeOpcode
      */
-    friend bool operator==(AttributeOpcode lhs, AttributeOpcode rhs) {
+    friend bool operator==(AttributeOpcode lhs, AttributeOpcode rhs)
+    {
         return lhs._value == rhs._value;
     }
 
     /**
      * Non equality comparison operator between two AttributeOpcode
      */
-    friend bool operator!=(AttributeOpcode lhs, AttributeOpcode rhs) {
+    friend bool operator!=(AttributeOpcode lhs, AttributeOpcode rhs)
+    {
         return lhs._value != rhs._value;
     }
 
@@ -81,7 +83,8 @@ struct AttributeOpcode {
      * implicit cast to uint8_t.
      * Allows AttributeOpcode to be used in switch statements.
      */
-    operator uint8_t() const {
+    operator uint8_t() const
+    {
         return _value;
     }
 
@@ -132,7 +135,8 @@ struct AttErrorResponse : public AttServerMessage {
         uint8_t error_code_
     ) : AttServerMessage(AttributeOpcode::ERROR_RESPONSE),
         request_opcode(request_opcode_),
-        handle_in_error(handle_in_error_), error_code(error_code_) {
+        handle_in_error(handle_in_error_), error_code(error_code_)
+    {
     }
 
     /**
@@ -149,7 +153,8 @@ struct AttErrorResponse : public AttServerMessage {
         uint8_t error_code_
     ) : AttServerMessage(AttributeOpcode::ERROR_RESPONSE),
         request_opcode(request_opcode_),
-        handle_in_error(0x0000), error_code(error_code_) {
+        handle_in_error(0x0000), error_code(error_code_)
+    {
     }
 
     /**
@@ -283,7 +288,8 @@ struct AttExchangeMTUResponse : public AttServerMessage {
      */
     AttExchangeMTUResponse(uint16_t server_rx_mtu_) :
         AttServerMessage(AttributeOpcode::EXCHANGE_MTU_RESPONSE),
-        server_rx_mtu(server_rx_mtu_) {
+        server_rx_mtu(server_rx_mtu_)
+    {
     }
 
     /**
@@ -316,7 +322,8 @@ struct AttFindInformationResponse : public AttServerMessage {
      * Base constructor, setup the OpCode of the response.
      */
     AttFindInformationResponse() :
-        AttServerMessage(AttributeOpcode::FIND_INFORMATION_RESPONSE) {
+        AttServerMessage(AttributeOpcode::FIND_INFORMATION_RESPONSE)
+    {
     }
 
     /**
@@ -359,7 +366,8 @@ struct AttFindByTypeValueResponse : public AttServerMessage {
      * Base constructor, setup the OpCode of the response.
      */
     AttFindByTypeValueResponse() :
-        AttServerMessage(AttributeOpcode::FIND_BY_VALUE_TYPE_RESPONSE) {
+        AttServerMessage(AttributeOpcode::FIND_BY_VALUE_TYPE_RESPONSE)
+    {
     }
 
     /**
@@ -407,7 +415,8 @@ struct AttReadByTypeResponse : public AttServerMessage {
      * Base constructor, setup the OpCode of the response.
      */
     AttReadByTypeResponse() :
-        AttServerMessage(AttributeOpcode::READ_BY_TYPE_RESPONSE) {
+        AttServerMessage(AttributeOpcode::READ_BY_TYPE_RESPONSE)
+    {
     }
 
     /**
@@ -447,13 +456,15 @@ struct AttReadResponse : public AttServerMessage {
      * Construct a Read Response from an array of bytes.
      */
     AttReadResponse(ArrayView<const uint8_t> data_) :
-        AttServerMessage(AttributeOpcode::READ_RESPONSE), _data(data_) {
+        AttServerMessage(AttributeOpcode::READ_RESPONSE), _data(data_)
+    {
     }
 
     /**
      * Return the number of octets presents in the response.
      */
-    size_t size() const {
+    size_t size() const
+    {
         return _data.size();
     }
 
@@ -461,15 +472,17 @@ struct AttReadResponse : public AttServerMessage {
      * Return the octet at the specified index.
      * @note Out of range access is undefined.
      */
-    uint8_t operator[](size_t index) const {
+    uint8_t operator[](size_t index) const
+    {
         return _data[index];
     }
 
     /**
      * Return the pointer to the actual data
      */
-    const uint8_t* data() const {
-    	return _data.data();
+    const uint8_t *data() const
+    {
+        return _data.data();
     }
 
 private:
@@ -496,13 +509,15 @@ struct AttReadBlobResponse : public AttServerMessage {
      * Construct a read blob response from the value responded.
      */
     AttReadBlobResponse(ArrayView<const uint8_t> data_) :
-        AttServerMessage(AttributeOpcode::READ_BLOB_RESPONSE), _data(data_) {
+        AttServerMessage(AttributeOpcode::READ_BLOB_RESPONSE), _data(data_)
+    {
     }
 
     /**
      * Return the number of octets presents in the response value.
      */
-    size_t size() const {
+    size_t size() const
+    {
         return _data.size();
     }
 
@@ -510,15 +525,17 @@ struct AttReadBlobResponse : public AttServerMessage {
      * Return the octet of the value read at the specified index.
      * @note Out of range access is undefined.
      */
-    uint8_t operator[](size_t index) const {
+    uint8_t operator[](size_t index) const
+    {
         return _data[index];
     }
 
     /**
      * Return the pointer to the actual data
      */
-    const uint8_t* data() const {
-    	return _data.data();
+    const uint8_t *data() const
+    {
+        return _data.data();
     }
 
 private:
@@ -540,13 +557,15 @@ struct AttReadMultipleResponse : public AttServerMessage {
      * Construct a Resd Multiple Response from the set of value received.
      */
     AttReadMultipleResponse(ArrayView<const uint8_t> data_) :
-        AttServerMessage(AttributeOpcode::READ_MULTIPLE_RESPONSE), _data(data_) {
+        AttServerMessage(AttributeOpcode::READ_MULTIPLE_RESPONSE), _data(data_)
+    {
     }
 
     /**
      * Return the number of octets presents in the response set of value.
      */
-    size_t size() const {
+    size_t size() const
+    {
         return _data.size();
     }
 
@@ -554,7 +573,8 @@ struct AttReadMultipleResponse : public AttServerMessage {
      * Return the octet of the set of value read at the specified index.
      * @note Out of range access is undefined.
      */
-    uint8_t operator[](size_t index) const {
+    uint8_t operator[](size_t index) const
+    {
         return _data[index];
     }
 
@@ -595,7 +615,8 @@ struct AttReadByGroupTypeResponse : public AttServerMessage {
      * Base constructor, setup the OpCode of the response.
      */
     AttReadByGroupTypeResponse() :
-        AttServerMessage(AttributeOpcode::READ_BY_GROUP_TYPE_RESPONSE) {
+        AttServerMessage(AttributeOpcode::READ_BY_GROUP_TYPE_RESPONSE)
+    {
     }
 
     /**
@@ -655,7 +676,8 @@ struct AttPrepareWriteResponse : public AttServerMessage {
     ) : AttServerMessage(AttributeOpcode::PREPARE_WRITE_RESPONSE),
         attribute_handle(handle_),
         offset(offset_),
-        partial_value(value_) {
+        partial_value(value_)
+    {
     }
 
     /**
@@ -689,7 +711,8 @@ struct AttExecuteWriteResponse : public AttServerMessage {
      * Construct an execute write response object.
      */
     AttExecuteWriteResponse() :
-        AttServerMessage(AttributeOpcode::EXECUTE_WRITE_RESPONSE) {
+        AttServerMessage(AttributeOpcode::EXECUTE_WRITE_RESPONSE)
+    {
     }
 };
 
@@ -715,7 +738,8 @@ struct AttHandleValueNotification : public AttServerMessage {
         ArrayView<const uint8_t> attribute_value
     ) : AttServerMessage(AttributeOpcode::HANDLE_VALUE_NOTIFICATION),
         attribute_handle(attribute_handle),
-        attribute_value(attribute_value) {
+        attribute_value(attribute_value)
+    {
     }
 
     /**
@@ -750,7 +774,8 @@ struct AttHandleValueIndication : public AttServerMessage {
     AttHandleValueIndication(
         attribute_handle_t handle, ArrayView<const uint8_t> value
     ) : AttServerMessage(AttributeOpcode::HANDLE_VALUE_INDICATION),
-        attribute_handle(handle), attribute_value(value) {
+        attribute_handle(handle), attribute_value(value)
+    {
     }
 
     /**

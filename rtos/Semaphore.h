@@ -47,7 +47,7 @@ public:
     /** Create and Initialize a Semaphore object used for managing resources.
       @param count      number of available resources; maximum index value is (count-1). (default: 0).
     */
-    Semaphore(int32_t count=0);
+    Semaphore(int32_t count = 0);
 
     /** Create and Initialize a Semaphore object used for managing resources.
       @param  count     number of available resources
@@ -59,7 +59,7 @@ public:
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
       @return  number of available tokens, before taking one; or -1 in case of incorrect parameters
     */
-    int32_t wait(uint32_t millisec=osWaitForever);
+    int32_t wait(uint32_t millisec = osWaitForever);
 
     /** Release a Semaphore resource that was obtain with Semaphore::wait.
       @return status code that indicates the execution status of the function:

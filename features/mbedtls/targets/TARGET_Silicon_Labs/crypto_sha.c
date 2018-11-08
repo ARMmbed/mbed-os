@@ -54,8 +54,7 @@
 #define CRYPTO_SHA_BLOCK_SIZE (64)
 
 #if defined(MBEDTLS_SHA1_C)
-static const uint32_t init_state_sha1[8] =
-{
+static const uint32_t init_state_sha1[8] = {
     0x67452301UL,
     0xEFCDAB89UL,
     0x98BADCFEUL,
@@ -68,8 +67,7 @@ static const uint32_t init_state_sha1[8] =
 #endif /* defined(MBEDTLS_SHA1_C) */
 
 #if defined(MBEDTLS_SHA256_C)
-static const uint32_t init_state_sha256[8] =
-{
+static const uint32_t init_state_sha256[8] = {
     0x6A09E667UL,
     0xBB67AE85UL,
     0x3C6EF372UL,
@@ -80,8 +78,7 @@ static const uint32_t init_state_sha256[8] =
     0x5BE0CD19UL
 };
 
-static const uint32_t init_state_sha224[8] =
-{
+static const uint32_t init_state_sha224[8] = {
     0xC1059ED8UL,
     0x367CD507UL,
     0x3070DD17UL,
@@ -93,9 +90,8 @@ static const uint32_t init_state_sha224[8] =
 };
 #endif /* defined(MBEDTLS_SHA256_C) */
 
-static const unsigned char sha_padding[64] =
-{
- 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+static const unsigned char sha_padding[64] = {
+    0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -132,15 +128,15 @@ do {                                                    \
  * @param blocks        Amount of blocks pointed to by data
  * @param mode          SHA operation mode
  */
-static void crypto_sha_update_state( uint32_t state[8],
-                                     const unsigned char *data,
-                                     size_t blocks,
-                                     crypto_sha_mode_t mode )
+static void crypto_sha_update_state(uint32_t state[8],
+                                    const unsigned char *data,
+                                    size_t blocks,
+                                    crypto_sha_mode_t mode)
 {
     CORE_DECLARE_IRQ_STATE;
     CRYPTO_TypeDef *crypto = crypto_management_acquire();
 
-    switch ( mode ) {
+    switch (mode) {
 #if defined(MBEDTLS_SHA1_C)
         case CRYPTO_SHA1:
             crypto->CTRL = CRYPTO_CTRL_SHA_SHA1;
@@ -168,65 +164,62 @@ static void crypto_sha_update_state( uint32_t state[8],
     CRYPTO_DDataWrite(&crypto->DDATA1, state);
     CORE_EXIT_CRITICAL();
 
-    CRYPTO_EXECUTE_3( crypto,
-                      CRYPTO_CMD_INSTR_DDATA1TODDATA0,
-                      CRYPTO_CMD_INSTR_DDATA1TODDATA2,
-                      CRYPTO_CMD_INSTR_SELDDATA0DDATA1 );
+    CRYPTO_EXECUTE_3(crypto,
+                     CRYPTO_CMD_INSTR_DDATA1TODDATA0,
+                     CRYPTO_CMD_INSTR_DDATA1TODDATA2,
+                     CRYPTO_CMD_INSTR_SELDDATA0DDATA1);
 
     /* Load the data block(s) */
-    for ( size_t i = 0; i < blocks; i++ ) {
-        if ((uint32_t)(&data[i*CRYPTO_SHA_BLOCK_SIZE]) & 0x3)
-        {
-            uint32_t temp[CRYPTO_SHA_BLOCK_SIZE/sizeof(uint32_t)];
-            memcpy(temp, &data[i*CRYPTO_SHA_BLOCK_SIZE], CRYPTO_SHA_BLOCK_SIZE);
+    for (size_t i = 0; i < blocks; i++) {
+        if ((uint32_t)(&data[i * CRYPTO_SHA_BLOCK_SIZE]) & 0x3) {
+            uint32_t temp[CRYPTO_SHA_BLOCK_SIZE / sizeof(uint32_t)];
+            memcpy(temp, &data[i * CRYPTO_SHA_BLOCK_SIZE], CRYPTO_SHA_BLOCK_SIZE);
             CORE_ENTER_CRITICAL();
             CRYPTO_QDataWrite(&crypto->QDATA1BIG, temp);
             CORE_EXIT_CRITICAL();
-        }
-        else
-        {
+        } else {
             CORE_ENTER_CRITICAL();
             CRYPTO_QDataWrite(&crypto->QDATA1BIG,
-                              (uint32_t*) &data[i*CRYPTO_SHA_BLOCK_SIZE]);
+                              (uint32_t *) &data[i * CRYPTO_SHA_BLOCK_SIZE]);
             CORE_EXIT_CRITICAL();
         }
 
         /* Process the data block */
-        CRYPTO_EXECUTE_3(  crypto,
-                           CRYPTO_CMD_INSTR_SHA,
-                           CRYPTO_CMD_INSTR_MADD32,
-                           CRYPTO_CMD_INSTR_DDATA0TODDATA1 );
+        CRYPTO_EXECUTE_3(crypto,
+                         CRYPTO_CMD_INSTR_SHA,
+                         CRYPTO_CMD_INSTR_MADD32,
+                         CRYPTO_CMD_INSTR_DDATA0TODDATA1);
     }
     CORE_ENTER_CRITICAL();
     CRYPTO_DDataRead(&crypto->DDATA0, state);
     CORE_EXIT_CRITICAL();
 
-    crypto_management_release( crypto );
+    crypto_management_release(crypto);
 }
 
 #if defined(MBEDTLS_SHA256_ALT) && defined(MBEDTLS_SHA256_C)
-void mbedtls_sha256_init( mbedtls_sha256_context *ctx )
+void mbedtls_sha256_init(mbedtls_sha256_context *ctx)
 {
-    if( ctx == NULL ) {
+    if (ctx == NULL) {
         return;
     }
 
-    memset( ctx, 0, sizeof( mbedtls_sha256_context ) );
+    memset(ctx, 0, sizeof(mbedtls_sha256_context));
 }
 
-void mbedtls_sha256_free( mbedtls_sha256_context *ctx )
+void mbedtls_sha256_free(mbedtls_sha256_context *ctx)
 {
-    if( ctx == NULL ) {
+    if (ctx == NULL) {
         return;
     }
 
-    memset( ctx, 0, sizeof( mbedtls_sha256_context ) );
+    memset(ctx, 0, sizeof(mbedtls_sha256_context));
 }
 
-void mbedtls_sha256_clone( mbedtls_sha256_context *dst,
-                           const mbedtls_sha256_context *src )
+void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
+                          const mbedtls_sha256_context *src)
 {
-    if ( dst != NULL && src != NULL ) {
+    if (dst != NULL && src != NULL) {
         *dst = *src;
     }
 }
@@ -234,12 +227,12 @@ void mbedtls_sha256_clone( mbedtls_sha256_context *dst,
 /*
  * SHA-256 context setup
  */
-void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 )
+void mbedtls_sha256_starts(mbedtls_sha256_context *ctx, int is224)
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
 
-    if ( is224 != 0 ) {
+    if (is224 != 0) {
         ctx->is224 = true;
         memcpy(ctx->state, init_state_sha224, sizeof(ctx->state));
     } else {
@@ -248,23 +241,23 @@ void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 )
     }
 }
 
-void mbedtls_sha256_process( mbedtls_sha256_context *ctx,
-                             const unsigned char data[64] )
+void mbedtls_sha256_process(mbedtls_sha256_context *ctx,
+                            const unsigned char data[64])
 {
-    crypto_sha_update_state( ctx->state, data, 1, CRYPTO_SHA2 );
+    crypto_sha_update_state(ctx->state, data, 1, CRYPTO_SHA2);
 }
 
 /*
  * SHA-256 process buffer
  */
-void mbedtls_sha256_update( mbedtls_sha256_context *ctx,
-                            const unsigned char *input,
-                            size_t ilen )
+void mbedtls_sha256_update(mbedtls_sha256_context *ctx,
+                           const unsigned char *input,
+                           size_t ilen)
 {
     size_t fill;
     uint32_t left;
 
-    if( ilen == 0 ) {
+    if (ilen == 0) {
         return;
     }
 
@@ -274,55 +267,55 @@ void mbedtls_sha256_update( mbedtls_sha256_context *ctx,
     ctx->total[0] += (uint32_t) ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if( ctx->total[0] < (uint32_t) ilen ) {
+    if (ctx->total[0] < (uint32_t) ilen) {
         ctx->total[1]++;
     }
 
-    if( left && ilen >= fill ) {
-        memcpy( (void *) (ctx->buffer + left), input, fill );
-        mbedtls_sha256_process( ctx, ctx->buffer );
+    if (left && ilen >= fill) {
+        memcpy((void *)(ctx->buffer + left), input, fill);
+        mbedtls_sha256_process(ctx, ctx->buffer);
         input += fill;
         ilen  -= fill;
         left = 0;
     }
 
-    while( ilen >= 64 ) {
+    while (ilen >= 64) {
         size_t blocks = ilen / 64;
-        crypto_sha_update_state( ctx->state, input, blocks, CRYPTO_SHA2 );
+        crypto_sha_update_state(ctx->state, input, blocks, CRYPTO_SHA2);
         input += blocks * 64;
         ilen  -= blocks * 64;
     }
 
-    if( ilen > 0 ) {
-        memcpy( (void *) (ctx->buffer + left), input, ilen );
+    if (ilen > 0) {
+        memcpy((void *)(ctx->buffer + left), input, ilen);
     }
 }
 
 /*
  * SHA-256 final digest
  */
-void mbedtls_sha256_finish( mbedtls_sha256_context *ctx,
-                            unsigned char output[32] )
+void mbedtls_sha256_finish(mbedtls_sha256_context *ctx,
+                           unsigned char output[32])
 {
     uint32_t        last, padn;
     uint32_t        high, low;
     unsigned char   msglen[8];
 
-    high = ( ctx->total[0] >> 29 )
-         | ( ctx->total[1] <<  3 );
-    low  = ( ctx->total[0] <<  3 );
+    high = (ctx->total[0] >> 29)
+           | (ctx->total[1] <<  3);
+    low  = (ctx->total[0] <<  3);
 
-    PUT_UINT32_BE( high, msglen, 0 );
-    PUT_UINT32_BE( low,  msglen, 4 );
+    PUT_UINT32_BE(high, msglen, 0);
+    PUT_UINT32_BE(low,  msglen, 4);
 
     last = ctx->total[0] & 0x3F;
-    padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
+    padn = (last < 56) ? (56 - last) : (120 - last);
 
-    mbedtls_sha256_update( ctx, sha_padding, padn );
-    mbedtls_sha256_update( ctx, msglen, 8 );
+    mbedtls_sha256_update(ctx, sha_padding, padn);
+    mbedtls_sha256_update(ctx, msglen, 8);
 
-    for ( size_t i = 0; i < (ctx->is224 ? 28 : 32); i+=4) {
-        *((uint32_t*)(&output[i])) = __REV(ctx->state[i >> 2]);
+    for (size_t i = 0; i < (ctx->is224 ? 28 : 32); i += 4) {
+        *((uint32_t *)(&output[i])) = __REV(ctx->state[i >> 2]);
     }
 }
 #endif /* #if defined(MBEDTLS_SHA256_ALT) && defined(MBEDTLS_SHA256_C) */
@@ -332,32 +325,32 @@ void mbedtls_sha256_finish( mbedtls_sha256_context *ctx,
 /**
  * \brief          Initialize SHA-1 context
  */
-void mbedtls_sha1_init( mbedtls_sha1_context *ctx )
+void mbedtls_sha1_init(mbedtls_sha1_context *ctx)
 {
-    if( ctx == NULL ) {
+    if (ctx == NULL) {
         return;
     }
-    memset( ctx, 0, sizeof( mbedtls_sha1_context ) );
+    memset(ctx, 0, sizeof(mbedtls_sha1_context));
 }
 
 /**
  * \brief          Clear SHA-1 context
  */
-void mbedtls_sha1_free( mbedtls_sha1_context *ctx )
+void mbedtls_sha1_free(mbedtls_sha1_context *ctx)
 {
-    if( ctx == NULL ) {
+    if (ctx == NULL) {
         return;
     }
-    memset( ctx, 0, sizeof( mbedtls_sha1_context ) );
+    memset(ctx, 0, sizeof(mbedtls_sha1_context));
 }
 
 /**
  * \brief          Clone (the state of) a SHA-1 context
  */
-void mbedtls_sha1_clone( mbedtls_sha1_context *dst,
-                         const mbedtls_sha1_context *src )
+void mbedtls_sha1_clone(mbedtls_sha1_context *dst,
+                        const mbedtls_sha1_context *src)
 {
-    if ( dst != NULL && src != NULL ) {
+    if (dst != NULL && src != NULL) {
         *dst = *src;
     }
 }
@@ -367,7 +360,7 @@ void mbedtls_sha1_clone( mbedtls_sha1_context *dst,
  *
  * \param ctx      context to be initialized
  */
-void mbedtls_sha1_starts( mbedtls_sha1_context *ctx )
+void mbedtls_sha1_starts(mbedtls_sha1_context *ctx)
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
@@ -381,14 +374,14 @@ void mbedtls_sha1_starts( mbedtls_sha1_context *ctx )
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-void mbedtls_sha1_update( mbedtls_sha1_context *ctx,
-                          const unsigned char *input,
-                          size_t ilen )
+void mbedtls_sha1_update(mbedtls_sha1_context *ctx,
+                         const unsigned char *input,
+                         size_t ilen)
 {
     size_t fill;
     uint32_t left;
 
-    if( ilen == 0 ) {
+    if (ilen == 0) {
         return;
     }
 
@@ -398,27 +391,27 @@ void mbedtls_sha1_update( mbedtls_sha1_context *ctx,
     ctx->total[0] += (uint32_t) ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if( ctx->total[0] < (uint32_t) ilen ) {
+    if (ctx->total[0] < (uint32_t) ilen) {
         ctx->total[1]++;
     }
 
-    if( left && ilen >= fill ) {
-        memcpy( (void *) (ctx->buffer + left), input, fill );
-        mbedtls_sha1_process( ctx, ctx->buffer );
+    if (left && ilen >= fill) {
+        memcpy((void *)(ctx->buffer + left), input, fill);
+        mbedtls_sha1_process(ctx, ctx->buffer);
         input += fill;
         ilen  -= fill;
         left = 0;
     }
 
-    while( ilen >= 64 ) {
+    while (ilen >= 64) {
         size_t blocks = ilen / 64;
-        crypto_sha_update_state( ctx->state, input, blocks, CRYPTO_SHA1 );
+        crypto_sha_update_state(ctx->state, input, blocks, CRYPTO_SHA1);
         input += blocks * 64;
         ilen  -= blocks * 64;
     }
 
-    if( ilen > 0 ) {
-        memcpy( (void *) (ctx->buffer + left), input, ilen );
+    if (ilen > 0) {
+        memcpy((void *)(ctx->buffer + left), input, ilen);
     }
 }
 
@@ -428,36 +421,36 @@ void mbedtls_sha1_update( mbedtls_sha1_context *ctx,
  * \param ctx      SHA-1 context
  * \param output   SHA-1 checksum result
  */
-void mbedtls_sha1_finish( mbedtls_sha1_context *ctx,
-                          unsigned char output[20] )
+void mbedtls_sha1_finish(mbedtls_sha1_context *ctx,
+                         unsigned char output[20])
 {
     uint32_t last, padn;
     uint32_t high, low;
     unsigned char msglen[8];
 
-    high = ( ctx->total[0] >> 29 )
-         | ( ctx->total[1] <<  3 );
-    low  = ( ctx->total[0] <<  3 );
+    high = (ctx->total[0] >> 29)
+           | (ctx->total[1] <<  3);
+    low  = (ctx->total[0] <<  3);
 
-    PUT_UINT32_BE( high, msglen, 0 );
-    PUT_UINT32_BE( low,  msglen, 4 );
+    PUT_UINT32_BE(high, msglen, 0);
+    PUT_UINT32_BE(low,  msglen, 4);
 
     last = ctx->total[0] & 0x3F;
-    padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
+    padn = (last < 56) ? (56 - last) : (120 - last);
 
-    mbedtls_sha1_update( ctx, sha_padding, padn );
-    mbedtls_sha1_update( ctx, msglen, 8 );
+    mbedtls_sha1_update(ctx, sha_padding, padn);
+    mbedtls_sha1_update(ctx, msglen, 8);
 
-    for ( size_t i = 0; i < 20; i+=4) {
-        *((uint32_t*)(&output[i])) = __REV(ctx->state[i >> 2]);
+    for (size_t i = 0; i < 20; i += 4) {
+        *((uint32_t *)(&output[i])) = __REV(ctx->state[i >> 2]);
     }
 }
 
 /* Internal use */
-void mbedtls_sha1_process( mbedtls_sha1_context *ctx,
-                           const unsigned char data[64] )
+void mbedtls_sha1_process(mbedtls_sha1_context *ctx,
+                          const unsigned char data[64])
 {
-    crypto_sha_update_state( ctx->state, data, 1, CRYPTO_SHA1 );
+    crypto_sha_update_state(ctx->state, data, 1, CRYPTO_SHA1);
 }
 
 #endif /* defined(MBEDTLS_SHA1_ALT) && defined(MBEDTLS_SHA1_C) */

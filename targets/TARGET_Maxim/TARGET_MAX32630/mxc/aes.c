@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief      This file contains the function implementations for the Advanced 
+ * @brief      This file contains the function implementations for the Advanced
  *             Encryption Standard (AES) peripheral module.
  */
 
@@ -68,8 +68,8 @@ int AES_SetKey(const uint8_t *key, mxc_aes_mode_t mode)
 
     /* Erase any existing key */
     MXC_AES_MEM->key[7] = MXC_AES_MEM->key[6] = MXC_AES_MEM->key[5] = MXC_AES_MEM->key[4] \
-                          = MXC_AES_MEM->key[3] = MXC_AES_MEM->key[2] = MXC_AES_MEM->key[1] = MXC_AES_MEM->key[0] \
-                                  = 0x00000000;
+                                                                      = MXC_AES_MEM->key[3] = MXC_AES_MEM->key[2] = MXC_AES_MEM->key[1] = MXC_AES_MEM->key[0] \
+                                                                                                                    = 0x00000000;
 
     /* Determine length of key */
     if (mode == MXC_E_AES_MODE_256) {
@@ -195,7 +195,7 @@ int AES_GetOutput(uint8_t *out)
 
 /**
  * @internal This memory copy is used only by the AES module to avoid data leakage by the standard C library.
- * Copy count number of 32-bit locations from in to out 
+ * Copy count number of 32-bit locations from in to out
  */
 static int aes_memcpy32(uint32_t *out, uint32_t *in, unsigned int count)
 {

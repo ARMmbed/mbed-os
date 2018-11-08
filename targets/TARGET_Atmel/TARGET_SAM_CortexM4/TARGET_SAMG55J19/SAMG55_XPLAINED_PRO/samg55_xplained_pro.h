@@ -536,7 +536,7 @@ void system_board_init(void);
 * @{
 */
 /** USART0 pin definitions */
-#define USART0_RXD_GPIO	  EXT1_PIN_13
+#define USART0_RXD_GPIO   EXT1_PIN_13
 #define USART0_RXD_FLAGS  IOPORT_MODE_MUX_A
 #define USART0_TXD_GPIO   EXT1_PIN_14
 #define USART0_TXD_FLAGS  IOPORT_MODE_MUX_A

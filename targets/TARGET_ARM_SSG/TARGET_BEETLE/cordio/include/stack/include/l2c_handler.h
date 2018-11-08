@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   l2c_handler.h
- *        
+ *
  *  \brief  L2CAP handler interface.
  *
  *          $Date $
  *          $Revision $
- *  
+ *
  *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
  *  Wicentric confidential and proprietary.
  *
@@ -35,7 +35,7 @@ extern "C" {
 /*************************************************************************************************/
 /*!
  *  \fn     L2cSlaveHandlerInit
- *        
+ *
  *  \brief  Event handler initialization function for L2C when operating as a slave.
  *
  *  \param  handlerId  ID for this event handler.
@@ -48,7 +48,7 @@ void L2cSlaveHandlerInit(wsfHandlerId_t handlerId);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cSlaveHandler
- *        
+ *
  *  \brief  The WSF event handler for L2C when operating as a slave.
  *
  *  \param  event   Event mask.
@@ -62,7 +62,7 @@ void L2cSlaveHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cCocHandlerInit
- *        
+ *
  *  \brief  Event handler initialization function for L2C with connection oriented channels.
  *
  *  \param  handlerId  ID for this event handler.
@@ -75,7 +75,7 @@ void L2cCocHandlerInit(wsfHandlerId_t handlerId);
 /*************************************************************************************************/
 /*!
  *  \fn     L2cCocHandler
- *        
+ *
  *  \brief  The WSF event handler for L2C with connection oriented channels.
  *
  *  \param  event   Event mask.

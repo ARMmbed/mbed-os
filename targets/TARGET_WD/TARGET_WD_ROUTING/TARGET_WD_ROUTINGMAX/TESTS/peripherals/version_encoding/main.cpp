@@ -22,37 +22,41 @@
 
 using namespace utest::v1;
 
-void test_version_encoding_read_version() {
-	
-	uint8_t version = 
-		((uint8_t) DigitalIn(Version16) << 4) |
-		((uint8_t) DigitalIn(Version8) << 3) |
-		((uint8_t) DigitalIn(Version4) << 2) |
-		((uint8_t) DigitalIn(Version2) << 1) |
-		((uint8_t) DigitalIn(Version1));
-	
-	wd_log_info("ROUTINGMAX version: %d", version);
-	
-	// test if read was successful
-	TEST_ASSERT_TRUE(version > 0);
+void test_version_encoding_read_version()
+{
+
+    uint8_t version =
+        ((uint8_t) DigitalIn(Version16) << 4) |
+        ((uint8_t) DigitalIn(Version8) << 3) |
+        ((uint8_t) DigitalIn(Version4) << 2) |
+        ((uint8_t) DigitalIn(Version2) << 1) |
+        ((uint8_t) DigitalIn(Version1));
+
+    wd_log_info("ROUTINGMAX version: %d", version);
+
+    // test if read was successful
+    TEST_ASSERT_TRUE(version > 0);
 }
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
-	greentea_case_failure_abort_handler(source, reason);
-	return STATUS_CONTINUE;
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
+    greentea_case_failure_abort_handler(source, reason);
+    return STATUS_CONTINUE;
 }
 
 Case cases[] = {
-	Case("VERSION ENCODING read version", test_version_encoding_read_version, greentea_failure_handler)
+    Case("VERSION ENCODING read version", test_version_encoding_read_version, greentea_failure_handler)
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-	GREENTEA_SETUP(20, "default_auto");
-	return greentea_test_setup_handler(number_of_cases);
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
+    GREENTEA_SETUP(20, "default_auto");
+    return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
-	Harness::run(specification);
+int main()
+{
+    Harness::run(specification);
 }

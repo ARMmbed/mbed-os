@@ -57,9 +57,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t CMD:7;            /*!< bit:  0.. 6  Command                            */
-        uint16_t :1;               /*!< bit:      7  Reserved                           */
-        uint16_t CMDEX:8;          /*!< bit:  8..15  Command Execution                  */
+        uint16_t CMD: 7;           /*!< bit:  0.. 6  Command                            */
+        uint16_t : 1;              /*!< bit:      7  Reserved                           */
+        uint16_t CMDEX: 8;         /*!< bit:  8..15  Command Execution                  */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } NVMCTRL_CTRLA_Type;
@@ -108,15 +108,15 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :1;               /*!< bit:      0  Reserved                           */
-        uint32_t RWS:4;            /*!< bit:  1.. 4  NVM Read Wait States               */
-        uint32_t :2;               /*!< bit:  5.. 6  Reserved                           */
-        uint32_t MANW:1;           /*!< bit:      7  Manual Write                       */
-        uint32_t SLEEPPRM:2;       /*!< bit:  8.. 9  Power Reduction Mode during Sleep  */
-        uint32_t :6;               /*!< bit: 10..15  Reserved                           */
-        uint32_t READMODE:2;       /*!< bit: 16..17  NVMCTRL Read Mode                  */
-        uint32_t CACHEDIS:1;       /*!< bit:     18  Cache Disable                      */
-        uint32_t :13;              /*!< bit: 19..31  Reserved                           */
+        uint32_t : 1;              /*!< bit:      0  Reserved                           */
+        uint32_t RWS: 4;           /*!< bit:  1.. 4  NVM Read Wait States               */
+        uint32_t : 2;              /*!< bit:  5.. 6  Reserved                           */
+        uint32_t MANW: 1;          /*!< bit:      7  Manual Write                       */
+        uint32_t SLEEPPRM: 2;      /*!< bit:  8.. 9  Power Reduction Mode during Sleep  */
+        uint32_t : 6;              /*!< bit: 10..15  Reserved                           */
+        uint32_t READMODE: 2;      /*!< bit: 16..17  NVMCTRL Read Mode                  */
+        uint32_t CACHEDIS: 1;      /*!< bit:     18  Cache Disable                      */
+        uint32_t : 13;             /*!< bit: 19..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } NVMCTRL_CTRLB_Type;
@@ -162,9 +162,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t NVMP:16;          /*!< bit:  0..15  NVM Pages                          */
-        uint32_t PSZ:3;            /*!< bit: 16..18  Page Size                          */
-        uint32_t :13;              /*!< bit: 19..31  Reserved                           */
+        uint32_t NVMP: 16;         /*!< bit:  0..15  NVM Pages                          */
+        uint32_t PSZ: 3;           /*!< bit: 16..18  Page Size                          */
+        uint32_t : 13;             /*!< bit: 19..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } NVMCTRL_PARAM_Type;
@@ -201,9 +201,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  READY:1;          /*!< bit:      0  NVM Ready Interrupt Enable         */
-        uint8_t  ERROR:1;          /*!< bit:      1  Error Interrupt Enable             */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  READY: 1;         /*!< bit:      0  NVM Ready Interrupt Enable         */
+        uint8_t  ERROR: 1;         /*!< bit:      1  Error Interrupt Enable             */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } NVMCTRL_INTENCLR_Type;
@@ -222,9 +222,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  READY:1;          /*!< bit:      0  NVM Ready Interrupt Enable         */
-        uint8_t  ERROR:1;          /*!< bit:      1  Error Interrupt Enable             */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  READY: 1;         /*!< bit:      0  NVM Ready Interrupt Enable         */
+        uint8_t  ERROR: 1;         /*!< bit:      1  Error Interrupt Enable             */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } NVMCTRL_INTENSET_Type;
@@ -243,9 +243,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union { // __I to avoid read-modify-write on write-to-clear register
     struct {
-        __I uint8_t  READY:1;          /*!< bit:      0  NVM Ready                          */
-        __I uint8_t  ERROR:1;          /*!< bit:      1  Error                              */
-        __I uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        __I uint8_t  READY: 1;         /*!< bit:      0  NVM Ready                          */
+        __I uint8_t  ERROR: 1;         /*!< bit:      1  Error                              */
+        __I uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } NVMCTRL_INTFLAG_Type;
@@ -264,14 +264,14 @@ typedef union { // __I to avoid read-modify-write on write-to-clear register
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t PRM:1;            /*!< bit:      0  Power Reduction Mode               */
-        uint16_t LOAD:1;           /*!< bit:      1  NVM Page Buffer Active Loading     */
-        uint16_t PROGE:1;          /*!< bit:      2  Programming Error Status           */
-        uint16_t LOCKE:1;          /*!< bit:      3  Lock Error Status                  */
-        uint16_t NVME:1;           /*!< bit:      4  NVM Error                          */
-        uint16_t :3;               /*!< bit:  5.. 7  Reserved                           */
-        uint16_t SB:1;             /*!< bit:      8  Security Bit Status                */
-        uint16_t :7;               /*!< bit:  9..15  Reserved                           */
+        uint16_t PRM: 1;           /*!< bit:      0  Power Reduction Mode               */
+        uint16_t LOAD: 1;          /*!< bit:      1  NVM Page Buffer Active Loading     */
+        uint16_t PROGE: 1;         /*!< bit:      2  Programming Error Status           */
+        uint16_t LOCKE: 1;         /*!< bit:      3  Lock Error Status                  */
+        uint16_t NVME: 1;          /*!< bit:      4  NVM Error                          */
+        uint16_t : 3;              /*!< bit:  5.. 7  Reserved                           */
+        uint16_t SB: 1;            /*!< bit:      8  Security Bit Status                */
+        uint16_t : 7;              /*!< bit:  9..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } NVMCTRL_STATUS_Type;
@@ -298,8 +298,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t ADDR:22;          /*!< bit:  0..21  NVM Address                        */
-        uint32_t :10;              /*!< bit: 22..31  Reserved                           */
+        uint32_t ADDR: 22;         /*!< bit:  0..21  NVM Address                        */
+        uint32_t : 10;             /*!< bit: 22..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } NVMCTRL_ADDR_Type;
@@ -317,7 +317,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t LOCK:16;          /*!< bit:  0..15  Region Lock Bits                   */
+        uint16_t LOCK: 16;         /*!< bit:  0..15  Region Lock Bits                   */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } NVMCTRL_LOCK_Type;

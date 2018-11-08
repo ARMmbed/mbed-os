@@ -46,10 +46,10 @@ void crypto_des_release(void);
 bool crypto_sha_acquire(void);
 void crypto_sha_release(void);
 
-/* Flow control between crypto/xxx start and crypto/xxx ISR 
+/* Flow control between crypto/xxx start and crypto/xxx ISR
  *
  * crypto_xxx_prestart/crypto_xxx_wait encapsulate control flow between crypto/xxx start and crypto/xxx ISR.
- * 
+ *
  * crypto_xxx_prestart will also address synchronization issue with memory barrier instruction.
  *
  * On finish, return of crypto_xxx_wait indicates success or not:

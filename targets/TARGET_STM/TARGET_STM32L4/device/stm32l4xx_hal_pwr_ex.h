@@ -40,7 +40,7 @@
 #define __STM32L4xx_HAL_PWR_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -65,24 +65,23 @@
 /**
   * @brief  PWR PVM configuration structure definition
   */
-typedef struct
-{
-  uint32_t PVMType;   /*!< PVMType: Specifies which voltage is monitored and against which threshold. 
-                           This parameter can be a value of @ref PWREx_PVM_Type. 
-                           @arg @ref PWR_PVM_1 Peripheral Voltage Monitoring 1 enable: VDDUSB versus 1.2 V (applicable when USB feature is supported). 
+typedef struct {
+    uint32_t PVMType;   /*!< PVMType: Specifies which voltage is monitored and against which threshold.
+                           This parameter can be a value of @ref PWREx_PVM_Type.
+                           @arg @ref PWR_PVM_1 Peripheral Voltage Monitoring 1 enable: VDDUSB versus 1.2 V (applicable when USB feature is supported).
 @if STM32L486xx
-                           @arg @ref PWR_PVM_2 Peripheral Voltage Monitoring 2 enable: VDDIO2 versus 0.9 V (applicable when VDDIO2 is present on device). 
+                           @arg @ref PWR_PVM_2 Peripheral Voltage Monitoring 2 enable: VDDIO2 versus 0.9 V (applicable when VDDIO2 is present on device).
 @endif
-                           @arg @ref PWR_PVM_3 Peripheral Voltage Monitoring 3 enable: VDDA versus 1.62 V. 
+                           @arg @ref PWR_PVM_3 Peripheral Voltage Monitoring 3 enable: VDDA versus 1.62 V.
                            @arg @ref PWR_PVM_4 Peripheral Voltage Monitoring 4 enable: VDDA versus 2.2 V. */
 
-  uint32_t Mode;      /*!< Mode: Specifies the operating mode for the selected pins.
+    uint32_t Mode;      /*!< Mode: Specifies the operating mode for the selected pins.
                            This parameter can be a value of @ref PWREx_PVM_Mode. */
-}PWR_PVMTypeDef;
+} PWR_PVMTypeDef;
 
 /**
   * @}
-  */ 
+  */
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -96,12 +95,12 @@ typedef struct
 #define PWR_WUP_POLARITY_SHIFT                  0x05   /*!< Internal constant used to retrieve wakeup pin polariry */
 /**
   * @}
-  */  
+  */
 
 
 /** @defgroup PWREx_WakeUp_Pins  PWR wake-up pins
   * @{
-  */                                                      
+  */
 #define PWR_WAKEUP_PIN1                 PWR_CR3_EWUP1  /*!< Wakeup pin 1 (with high level polarity) */
 #define PWR_WAKEUP_PIN2                 PWR_CR3_EWUP2  /*!< Wakeup pin 2 (with high level polarity) */
 #define PWR_WAKEUP_PIN3                 PWR_CR3_EWUP3  /*!< Wakeup pin 3 (with high level polarity) */
@@ -124,18 +123,18 @@ typedef struct
 /** @defgroup PWREx_PVM_Type Peripheral Voltage Monitoring type
   * @{
   */
-#if defined(PWR_CR2_PVME1)    
+#if defined(PWR_CR2_PVME1)
 #define PWR_PVM_1                  PWR_CR2_PVME1  /*!< Peripheral Voltage Monitoring 1 enable: VDDUSB versus 1.2 V (applicable when USB feature is supported) */
 #endif /* PWR_CR2_PVME1 */
-#if defined(PWR_CR2_PVME2)  
+#if defined(PWR_CR2_PVME2)
 #define PWR_PVM_2                  PWR_CR2_PVME2  /*!< Peripheral Voltage Monitoring 2 enable: VDDIO2 versus 0.9 V (applicable when VDDIO2 is present on device) */
 #endif /* PWR_CR2_PVME2 */
 #define PWR_PVM_3                  PWR_CR2_PVME3  /*!< Peripheral Voltage Monitoring 3 enable: VDDA versus 1.62 V */
 #define PWR_PVM_4                  PWR_CR2_PVME4  /*!< Peripheral Voltage Monitoring 4 enable: VDDA versus 2.2 V  */
 /**
   * @}
-  */  
-  
+  */
+
 /** @defgroup PWREx_PVM_Mode  PWR PVM interrupt and event mode
   * @{
   */
@@ -149,8 +148,8 @@ typedef struct
 /**
   * @}
   */
-  
-  
+
+
 
 /** @defgroup PWREx_Regulator_Voltage_Scale  PWR Regulator voltage scale
   * @{
@@ -161,7 +160,7 @@ typedef struct
   * @}
   */
 
-  
+
 /** @defgroup PWREx_VBAT_Battery_Charging_Selection PWR battery charging resistor selection
   * @{
   */
@@ -170,7 +169,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup PWREx_VBAT_Battery_Charging PWR battery charging
   * @{
   */
@@ -178,8 +177,8 @@ typedef struct
 #define PWR_BATTERY_CHARGING_ENABLE         PWR_CR4_VBE
 /**
   * @}
-  */ 
-  
+  */
+
 /** @defgroup PWREx_GPIO_Bit_Number GPIO bit number for I/O setting in standby/shutdown mode
   * @{
   */
@@ -201,64 +200,64 @@ typedef struct
 #define PWR_GPIO_BIT_15  PWR_PUCRA_PA15   /*!< GPIO port I/O pin 15 */
 /**
   * @}
-  */ 
-  
+  */
+
 /** @defgroup PWREx_GPIO GPIO port
   * @{
   */
 #define PWR_GPIO_A   0x00000000      /*!< GPIO port A */
 #define PWR_GPIO_B   0x00000001      /*!< GPIO port B */
 #define PWR_GPIO_C   0x00000002      /*!< GPIO port C */
-#if defined(GPIOD_BASE)    
+#if defined(GPIOD_BASE)
 #define PWR_GPIO_D   0x00000003      /*!< GPIO port D */
 #endif
-#if defined(GPIOE_BASE) 
+#if defined(GPIOE_BASE)
 #define PWR_GPIO_E   0x00000004      /*!< GPIO port E */
 #endif
-#if defined(GPIOF_BASE)   
+#if defined(GPIOF_BASE)
 #define PWR_GPIO_F   0x00000005      /*!< GPIO port F */
 #endif
-#if defined(GPIOG_BASE)  
+#if defined(GPIOG_BASE)
 #define PWR_GPIO_G   0x00000006      /*!< GPIO port G */
 #endif
 #define PWR_GPIO_H   0x00000007      /*!< GPIO port H */
-#if defined(GPIOI_BASE) 
+#if defined(GPIOI_BASE)
 #define PWR_GPIO_I   0x00000008      /*!< GPIO port I */
 #endif
 /**
   * @}
-  */ 
-  
+  */
+
 /** @defgroup PWREx_PVM_EXTI_LINE PWR PVM external interrupts lines
   * @{
-  */    
-#if defined(PWR_CR2_PVME1) 
+  */
+#if defined(PWR_CR2_PVME1)
 #define PWR_EXTI_LINE_PVM1  ((uint32_t)0x00000008)  /*!< External interrupt line 35 Connected to the PVM1 EXTI Line   */
 #endif /* PWR_CR2_PVME1 */
 #if defined(PWR_CR2_PVME2)
 #define PWR_EXTI_LINE_PVM2  ((uint32_t)0x00000010)  /*!< External interrupt line 36 Connected to the PVM2 EXTI Line   */
 #endif /* PWR_CR2_PVME2 */
 #define PWR_EXTI_LINE_PVM3  ((uint32_t)0x00000020)  /*!< External interrupt line 37 Connected to the PVM3 EXTI Line   */
-#define PWR_EXTI_LINE_PVM4  ((uint32_t)0x00000040)  /*!< External interrupt line 38 Connected to the PVM4 EXTI Line   */ 
+#define PWR_EXTI_LINE_PVM4  ((uint32_t)0x00000040)  /*!< External interrupt line 38 Connected to the PVM4 EXTI Line   */
 /**
   * @}
-  */ 
-  
+  */
+
 /** @defgroup PWREx_PVM_EVENT_LINE PWR PVM event lines
   * @{
-  */    
-#if defined(PWR_CR2_PVME1) 
+  */
+#if defined(PWR_CR2_PVME1)
 #define PWR_EVENT_LINE_PVM1 ((uint32_t)0x00000008)  /*!< Event line 35 Connected to the PVM1 EXTI Line */
 #endif /* PWR_CR2_PVME1 */
 #if defined(PWR_CR2_PVME2)
 #define PWR_EVENT_LINE_PVM2 ((uint32_t)0x00000010)  /*!< Event line 36 Connected to the PVM2 EXTI Line */
 #endif /* PWR_CR2_PVME2 */
 #define PWR_EVENT_LINE_PVM3 ((uint32_t)0x00000020)  /*!< Event line 37 Connected to the PVM3 EXTI Line */
-#define PWR_EVENT_LINE_PVM4 ((uint32_t)0x00000040)  /*!< Event line 38 Connected to the PVM4 EXTI Line */ 
+#define PWR_EVENT_LINE_PVM4 ((uint32_t)0x00000040)  /*!< Event line 38 Connected to the PVM4 EXTI Line */
 /**
   * @}
-  */ 
-  
+  */
+
 /** @defgroup PWREx_Flag  PWR Status Flags
   *        Elements values convention: 0000 0000 0XXY YYYYb
   *           - Y YYYY  : Flag position in the XX register (5 bits)
@@ -266,9 +265,9 @@ typedef struct
   *                 - 01: SR1 register
   *                 - 10: SR2 register
   *        The only exception is PWR_FLAG_WU, encompassing all
-  *        wake-up flags and set to PWR_SR1_WUF.    
-  * @{   
-  */  
+  *        wake-up flags and set to PWR_SR1_WUF.
+  * @{
+  */
 #define PWR_FLAG_WUF1                       ((uint32_t)0x0020)   /*!< Wakeup event on wakeup pin 1 */
 #define PWR_FLAG_WUF2                       ((uint32_t)0x0021)   /*!< Wakeup event on wakeup pin 2 */
 #define PWR_FLAG_WUF3                       ((uint32_t)0x0022)   /*!< Wakeup event on wakeup pin 3 */
@@ -292,11 +291,11 @@ typedef struct
 #define PWR_FLAG_PVMO4                      ((uint32_t)0x004F)   /*!< Power Voltage Monitoring 4 output flag */
 /**
   * @}
-  */        
+  */
 
 /**
   * @}
-  */  
+  */
 
 /* Exported macros -----------------------------------------------------------*/
 /** @defgroup PWREx_Exported_Macros PWR Extended Exported Macros
@@ -455,7 +454,7 @@ typedef struct
     __HAL_PWR_PVM2_EXTI_ENABLE_RISING_EDGE();             \
     __HAL_PWR_PVM2_EXTI_ENABLE_FALLING_EDGE();            \
   } while(0)
-  
+
 /**
   * @brief Disable the PVM2 Extended Interrupt Rising & Falling Trigger.
   * @retval None
@@ -546,7 +545,7 @@ typedef struct
     __HAL_PWR_PVM3_EXTI_ENABLE_RISING_EDGE();             \
     __HAL_PWR_PVM3_EXTI_ENABLE_FALLING_EDGE();            \
   } while(0)
-  
+
 /**
   * @brief Disable the PVM3 Extended Interrupt Rising & Falling Trigger.
   * @retval None
@@ -637,7 +636,7 @@ typedef struct
     __HAL_PWR_PVM4_EXTI_ENABLE_RISING_EDGE();             \
     __HAL_PWR_PVM4_EXTI_ENABLE_FALLING_EDGE();            \
   } while(0)
-  
+
 /**
   * @brief Disable the PVM4 Extended Interrupt Rising & Falling Trigger.
   * @retval None
@@ -673,14 +672,14 @@ typedef struct
   *         a tradeoff between performance and power consumption.
   *          This parameter can be one of the following values:
   *            @arg @ref PWR_REGULATOR_VOLTAGE_SCALE1  Regulator voltage output range 1 mode,
-  *                                                typical output voltage at 1.2 V,  
+  *                                                typical output voltage at 1.2 V,
   *                                                system frequency up to 80 MHz.
   *            @arg @ref PWR_REGULATOR_VOLTAGE_SCALE2  Regulator voltage output range 2 mode,
-  *                                                typical output voltage at 1.0 V,                
-  *                                                system frequency up to 26 MHz.  
+  *                                                typical output voltage at 1.0 V,
+  *                                                system frequency up to 26 MHz.
   * @note  This macro is similar to HAL_PWREx_ControlVoltageScaling() API but doesn't check
   *        whether or not VOSF flag is cleared when moving from range 2 to range 1. User
-  *        may resort to __HAL_PWR_GET_FLAG() macro to check VOSF bit resetting.   
+  *        may resort to __HAL_PWR_GET_FLAG() macro to check VOSF bit resetting.
   * @retval None
   */
 #define __HAL_PWR_VOLTAGESCALING_CONFIG(__REGULATOR__) do {                                                     \
@@ -694,7 +693,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 /* Private macros --------------------------------------------------------*/
 /** @addtogroup  PWREx_Private_Macros   PWR Extended Private Macros
   * @{
@@ -715,7 +714,7 @@ typedef struct
                                 ((PIN) == PWR_WAKEUP_PIN3_LOW) || \
                                 ((PIN) == PWR_WAKEUP_PIN4_LOW) || \
                                 ((PIN) == PWR_WAKEUP_PIN5_LOW))
-                                
+
 #if defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) || \
     defined (STM32L496xx) || defined (STM32L4A6xx)
 #define IS_PWR_PVM_TYPE(TYPE) (((TYPE) == PWR_PVM_1) ||\
@@ -735,7 +734,7 @@ typedef struct
 #elif defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L442xx) || defined (STM32L451xx)
 #define IS_PWR_PVM_TYPE(TYPE) (((TYPE) == PWR_PVM_3) ||\
                                ((TYPE) == PWR_PVM_4))
-#endif                                  
+#endif
 
 #define IS_PWR_PVM_MODE(MODE)  (((MODE) == PWR_PVM_MODE_NORMAL)              ||\
                                 ((MODE) == PWR_PVM_MODE_IT_RISING)           ||\
@@ -743,20 +742,20 @@ typedef struct
                                 ((MODE) == PWR_PVM_MODE_IT_RISING_FALLING)   ||\
                                 ((MODE) == PWR_PVM_MODE_EVENT_RISING)        ||\
                                 ((MODE) == PWR_PVM_MODE_EVENT_FALLING)       ||\
-                                ((MODE) == PWR_PVM_MODE_EVENT_RISING_FALLING))  
-                                
+                                ((MODE) == PWR_PVM_MODE_EVENT_RISING_FALLING))
+
 #define IS_PWR_VOLTAGE_SCALING_RANGE(RANGE) (((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE1) || \
                                              ((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE2))
-                                             
+
 #define IS_PWR_BATTERY_RESISTOR_SELECT(RESISTOR) (((RESISTOR) == PWR_BATTERY_CHARGING_RESISTOR_5) ||\
-                                                  ((RESISTOR) == PWR_BATTERY_CHARGING_RESISTOR_1_5))  
-                                                  
+                                                  ((RESISTOR) == PWR_BATTERY_CHARGING_RESISTOR_1_5))
+
 #define IS_PWR_BATTERY_CHARGING(CHARGING) (((CHARGING) == PWR_BATTERY_CHARGING_DISABLE) ||\
-                                           ((CHARGING) == PWR_BATTERY_CHARGING_ENABLE)) 
-                                           
+                                           ((CHARGING) == PWR_BATTERY_CHARGING_ENABLE))
+
 #define IS_PWR_GPIO_BIT_NUMBER(BIT_NUMBER) (((BIT_NUMBER) & GPIO_PIN_MASK) != (uint32_t)0x00)
-                                           
-                             
+
+
 #if defined (STM32L431xx) || defined (STM32L433xx) || defined (STM32L443xx) || \
     defined (STM32L451xx) || defined (STM32L452xx) || defined (STM32L462xx)
 #define IS_PWR_GPIO(GPIO) (((GPIO) == PWR_GPIO_A) ||\
@@ -794,14 +793,14 @@ typedef struct
 
 /**
   * @}
-  */  
-  
+  */
+
 
 /** @addtogroup PWREx_Exported_Functions PWR Extended Exported Functions
   * @{
   */
-  
-/** @addtogroup PWREx_Exported_Functions_Group1 Extended Peripheral Control functions 
+
+/** @addtogroup PWREx_Exported_Functions_Group1 Extended Peripheral Control functions
   * @{
   */
 
@@ -810,7 +809,7 @@ typedef struct
 uint32_t HAL_PWREx_GetVoltageRange(void);
 HAL_StatusTypeDef HAL_PWREx_ControlVoltageScaling(uint32_t VoltageScaling);
 void HAL_PWREx_EnableBatteryCharging(uint32_t ResistorSelection);
-void HAL_PWREx_DisableBatteryCharging(void);          
+void HAL_PWREx_DisableBatteryCharging(void);
 #if defined(PWR_CR2_USV)
 void HAL_PWREx_EnableVddUSB(void);
 void HAL_PWREx_DisableVddUSB(void);
@@ -853,7 +852,7 @@ void HAL_PWREx_EnterSTOP2Mode(uint8_t STOPEntry);
 void HAL_PWREx_EnterSHUTDOWNMode(void);
 
 void HAL_PWREx_PVD_PVM_IRQHandler(void);
-#if defined(PWR_CR2_PVME1) 
+#if defined(PWR_CR2_PVME1)
 void HAL_PWREx_PVM1Callback(void);
 #endif /* PWR_CR2_PVME1 */
 #if defined(PWR_CR2_PVME2)

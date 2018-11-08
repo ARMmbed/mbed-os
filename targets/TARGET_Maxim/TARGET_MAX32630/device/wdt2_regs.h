@@ -1,5 +1,5 @@
 /**
- * @file    
+ * @file
  * @brief   Registers, Bit Masks and Bit Positions for the WDT2 Peripheral Module.
  */
 /* ****************************************************************************
@@ -79,7 +79,7 @@ extern "C" {
 */
 /**
  * Structure type to access the WDT2 Registers, see #MXC_WDT2 to get a pointer to the WDT2 register structure.
- * @note This is an always-on watchdog timer, it operates in all modes of operation. 
+ * @note This is an always-on watchdog timer, it operates in all modes of operation.
  */
 typedef struct {
     __IO uint32_t ctrl;                                 /**< WDT2_CTRL Register - WDT Control Register                                   */
@@ -98,8 +98,8 @@ typedef struct {
 /**
  * @ingroup    wdt2_registers
  * @defgroup   WDT2_Register_Offsets Register Offsets
- * @brief      Watchdog Timer 2 Register Offsets from the WDT2 Base Peripheral Address. 
- * @details    Use #MXC_WDT2 for the WDT2 Base Peripheral Address. 
+ * @brief      Watchdog Timer 2 Register Offsets from the WDT2 Base Peripheral Address.
+ * @details    Use #MXC_WDT2 for the WDT2 Base Peripheral Address.
  * @{
  */
 #define MXC_R_WDT2_OFFS_CTRL                                ((uint32_t)0x00000000UL)    /**< WDT2_CTRL Offset: <tt>0x0000</tt> */
@@ -116,7 +116,7 @@ typedef struct {
 /**
  * @ingroup    wdt2_registers
  * @defgroup   WDT2_CTRL_Register WDT2_CTRL Register
- * @brief      Field Positions and Bit Masks for the WDT2_CTRL register 
+ * @brief      Field Positions and Bit Masks for the WDT2_CTRL register
  * @{
  */
 #define MXC_F_WDT2_CTRL_INT_PERIOD_POS                      0                                                               /**< INT_PERIOD Field Position */
@@ -138,7 +138,7 @@ typedef struct {
  * @defgroup WDT2_FLAGS_Register WDT2_FLAGS Register
  * @brief    Field Positions and Bit Masks for the WDT2_FLAGS register. Watchdog Timer 2 Flags for Interrupts and Reset.
  * @{
- */  
+ */
 #define MXC_F_WDT2_FLAGS_TIMEOUT_POS                        0                                                               /**< TIMEOUT Flag Position */
 #define MXC_F_WDT2_FLAGS_TIMEOUT                            ((uint32_t)(0x00000001UL << MXC_F_WDT2_FLAGS_TIMEOUT_POS))      /**< TIMEOUT Flag Mask - if this flag is set it indicates the Watchdog Timer 2 timed out. */
 #define MXC_F_WDT2_FLAGS_RESET_OUT_POS                      2                                                               /**< RESET_OUT Flag Position */
@@ -148,7 +148,7 @@ typedef struct {
 /**
  * @ingroup  wdt2_registers
  * @defgroup WDT2_ENABLE_Register WDT2_ENABLE Register
- * @brief    Field Positions and Bit Masks for the WDT2_ENABLE register. 
+ * @brief    Field Positions and Bit Masks for the WDT2_ENABLE register.
  * @{
  */
 #define MXC_F_WDT2_ENABLE_TIMEOUT_POS                       0                                                               /**< ENABLE_TIMEOUT Field Position */
@@ -163,7 +163,7 @@ typedef struct {
  * @brief    The WDT2_LOCK_CTRL register controls read/write access to the \ref WDT2_CTRL_Register.
  * @{
  */
-#define MXC_F_WDT2_LOCK_CTRL_WDLOCK_POS                     0                                                               /**< WDLOCK Field's position in the WDT2_LOCK_CTRL register. */ 
+#define MXC_F_WDT2_LOCK_CTRL_WDLOCK_POS                     0                                                               /**< WDLOCK Field's position in the WDT2_LOCK_CTRL register. */
 #define MXC_F_WDT2_LOCK_CTRL_WDLOCK                         ((uint32_t)(0x000000FFUL << MXC_F_WDT2_LOCK_CTRL_WDLOCK_POS))   /**< WDLOCK Field mask for the WDT2_LOCK_CTRL register.  Reading a value of */
 /**@} end of group WDT2_ENABLE */
 
@@ -173,10 +173,10 @@ typedef struct {
    Field values and shifted values for module WDT2.
 */
 /**
- * @ingroup WDT2_CTRL_Register 
+ * @ingroup WDT2_CTRL_Register
  * @defgroup WDT2_CTRL_field_values WDT2_CTRL Register Field and Shifted Field Values
- * @brief    Field values and Shifted Field values for the WDT2_CTRL register. 
- * @details  Shifted field values are field values shifted to the loacation of the field in the register.  
+ * @brief    Field values and Shifted Field values for the WDT2_CTRL register.
+ * @details  Shifted field values are field values shifted to the loacation of the field in the register.
  */
 /**
  * @ingroup    WDT2_CTRL_field_values
@@ -212,7 +212,7 @@ typedef struct {
  * @defgroup   WDT2_CTRL_INT_PERIOD_Shifted Watchdog Timer Interrupt Period Shifted Values
  * @brief      Shifted values for the \ref WDT2_CTRL_INT_PERIOD_Value
  * @details    The shifted value is
- *             shifted to align with the fields location in the WDT2_CTRL register. 
+ *             shifted to align with the fields location in the WDT2_CTRL register.
  * @{
  */
 #define MXC_S_WDT2_CTRL_INT_PERIOD_2_25_NANO_CLKS                               ((uint32_t)(MXC_V_WDT2_CTRL_INT_PERIOD_2_25_NANO_CLKS   << MXC_F_WDT2_CTRL_INT_PERIOD_POS))  /**< Shifted Field Value for #MXC_V_WDT2_CTRL_INT_PERIOD_2_25_NANO_CLKS */
@@ -265,7 +265,7 @@ typedef struct {
  * @ingroup    WDT2_CTRL_field_values
  * @defgroup   WDT2_CTRL_RST_PERIOD_Shifted Watchdog Timer Reset Period Shifted Values
  * @brief      Shifted values for the \ref WDT2_CTRL_RST_PERIOD_Value
- * @details    These values are shifted to align with the field's location in the WDT2_CTRL register. 
+ * @details    These values are shifted to align with the field's location in the WDT2_CTRL register.
  * @{
  */
 #define MXC_S_WDT2_CTRL_RST_PERIOD_2_25_NANO_CLKS                               ((uint32_t)(MXC_V_WDT2_CTRL_RST_PERIOD_2_25_NANO_CLKS   << MXC_F_WDT2_CTRL_RST_PERIOD_POS))      /**< Shifted Field Value for #MXC_V_WDT2_CTRL_RST_PERIOD_2_25_NANO_CLKS */
@@ -288,7 +288,7 @@ typedef struct {
 /**
  * @ingroup    WDT2_LOCK_CTRL_Register
  * @defgroup   WDT2_LOCK_field_values Watchdog Timer WDT2_LOCK field values
- * @brief      Lock/Unlock values for the watchdog timer \ref WDT2_CTRL_Register. 
+ * @brief      Lock/Unlock values for the watchdog timer \ref WDT2_CTRL_Register.
  * @{
  */
 #define MXC_V_WDT2_LOCK_KEY    0x24     /**< Writing this value to the WDT2_LOCK field of the \ref WDT2_LOCK_CTRL_Register \b locks the \ref WDT2_CTRL_Register making it read only. */
@@ -296,7 +296,7 @@ typedef struct {
 /**@} end of group WDT2_LOCK_field_values */
 ///@cond
 /**
- * @internal 
+ * @internal
  * @ingroup    WDT2_CLEAR_Register
  * @defgroup   WDT2_CLEAR_field_values Watchdog Timer Clear Sequence Values
  * @brief      Writing the sequence of #MXC_V_WDT2_RESET_KEY_0, #MXC_V_WDT2_RESET_KEY_1 to the \ref WDT2_CLEAR_Register will clear/reset the watchdog timer count.
@@ -306,8 +306,8 @@ typedef struct {
 #define MXC_V_WDT2_RESET_KEY_0 0xA5    /**< First value to write to the \ref WDT2_CLEAR_Register to perform a WDT2 clear. */
 #define MXC_V_WDT2_RESET_KEY_1 0x5A    /**< Second value to write to the \ref WDT2_CLEAR_Register to perform a WDT2 clear. */
 /**
- * @} end of group WDT2_CLEAR_field_values 
- * @endinternal 
+ * @} end of group WDT2_CLEAR_field_values
+ * @endinternal
  */
 ///@endcond
 /**@} wdt2_registers*/

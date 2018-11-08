@@ -38,38 +38,37 @@
  * @{
  * @brief EFM32WG_LESENSE Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t      CTRL;           /**< Control Register  */
-  __IOM uint32_t      TIMCTRL;        /**< Timing Control Register  */
-  __IOM uint32_t      PERCTRL;        /**< Peripheral Control Register  */
-  __IOM uint32_t      DECCTRL;        /**< Decoder control Register  */
-  __IOM uint32_t      BIASCTRL;       /**< Bias Control Register  */
-  __IOM uint32_t      CMD;            /**< Command Register  */
-  __IOM uint32_t      CHEN;           /**< Channel enable Register  */
-  __IM uint32_t       SCANRES;        /**< Scan result register  */
-  __IM uint32_t       STATUS;         /**< Status Register  */
-  __IM uint32_t       PTR;            /**< Result buffer pointers  */
-  __IM uint32_t       BUFDATA;        /**< Result buffer data register  */
-  __IM uint32_t       CURCH;          /**< Current channel index  */
-  __IOM uint32_t      DECSTATE;       /**< Current decoder state  */
-  __IOM uint32_t      SENSORSTATE;    /**< Decoder input register  */
-  __IOM uint32_t      IDLECONF;       /**< GPIO Idle phase configuration  */
-  __IOM uint32_t      ALTEXCONF;      /**< Alternative excite pin configuration  */
-  __IM uint32_t       IF;             /**< Interrupt Flag Register  */
-  __IOM uint32_t      IFC;            /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t      IFS;            /**< Interrupt Flag Set Register  */
-  __IOM uint32_t      IEN;            /**< Interrupt Enable Register  */
-  __IM uint32_t       SYNCBUSY;       /**< Synchronization Busy Register  */
-  __IOM uint32_t      ROUTE;          /**< I/O Routing Register  */
-  __IOM uint32_t      POWERDOWN;      /**< LESENSE RAM power-down register  */
+typedef struct {
+    __IOM uint32_t      CTRL;           /**< Control Register  */
+    __IOM uint32_t      TIMCTRL;        /**< Timing Control Register  */
+    __IOM uint32_t      PERCTRL;        /**< Peripheral Control Register  */
+    __IOM uint32_t      DECCTRL;        /**< Decoder control Register  */
+    __IOM uint32_t      BIASCTRL;       /**< Bias Control Register  */
+    __IOM uint32_t      CMD;            /**< Command Register  */
+    __IOM uint32_t      CHEN;           /**< Channel enable Register  */
+    __IM uint32_t       SCANRES;        /**< Scan result register  */
+    __IM uint32_t       STATUS;         /**< Status Register  */
+    __IM uint32_t       PTR;            /**< Result buffer pointers  */
+    __IM uint32_t       BUFDATA;        /**< Result buffer data register  */
+    __IM uint32_t       CURCH;          /**< Current channel index  */
+    __IOM uint32_t      DECSTATE;       /**< Current decoder state  */
+    __IOM uint32_t      SENSORSTATE;    /**< Decoder input register  */
+    __IOM uint32_t      IDLECONF;       /**< GPIO Idle phase configuration  */
+    __IOM uint32_t      ALTEXCONF;      /**< Alternative excite pin configuration  */
+    __IM uint32_t       IF;             /**< Interrupt Flag Register  */
+    __IOM uint32_t      IFC;            /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t      IFS;            /**< Interrupt Flag Set Register  */
+    __IOM uint32_t      IEN;            /**< Interrupt Enable Register  */
+    __IM uint32_t       SYNCBUSY;       /**< Synchronization Busy Register  */
+    __IOM uint32_t      ROUTE;          /**< I/O Routing Register  */
+    __IOM uint32_t      POWERDOWN;      /**< LESENSE RAM power-down register  */
 
-  uint32_t            RESERVED0[105]; /**< Reserved registers */
-  LESENSE_ST_TypeDef  ST[16];         /**< Decoding states */
+    uint32_t            RESERVED0[105]; /**< Reserved registers */
+    LESENSE_ST_TypeDef  ST[16];         /**< Decoding states */
 
-  LESENSE_BUF_TypeDef BUF[16];        /**< Scanresult */
+    LESENSE_BUF_TypeDef BUF[16];        /**< Scanresult */
 
-  LESENSE_CH_TypeDef  CH[16];         /**< Scanconfig */
+    LESENSE_CH_TypeDef  CH[16];         /**< Scanconfig */
 } LESENSE_TypeDef;                    /** @} */
 
 /**************************************************************************//**

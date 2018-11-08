@@ -33,11 +33,11 @@
 /**@file
  *
  * @defgroup nrf_dfu_transport DFU transport API.
- * @{     
- *  
+ * @{
+ *
  * @brief DFU transport module interface.
  */
- 
+
 #ifndef DFU_TRANSPORT_H__
 #define DFU_TRANSPORT_H__
 
@@ -45,13 +45,13 @@
 
 /**@brief Function for starting the update of Device Firmware.
  *
- * @retval NRF_SUCCESS Operation success.   
+ * @retval NRF_SUCCESS Operation success.
  */
 uint32_t dfu_transport_update_start(void);
 
 /**@brief Function for closing the transport layer.
  *
- * @retval NRF_SUCCESS Operation success.    
+ * @retval NRF_SUCCESS Operation success.
  */
 uint32_t dfu_transport_close(void);
 

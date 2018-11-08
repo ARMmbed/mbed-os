@@ -74,24 +74,24 @@
  ******************************************************************************/
 void WDOGn_Enable(WDOG_TypeDef *wdog, bool enable)
 {
-  /* SYNCBUSY may stall when locked. */
-  if (wdog->CTRL & WDOG_CTRL_LOCK) {
-    return;
-  }
-
-  if (!enable) {
-    /* If the user intends to disable and the WDOG is enabled */
-    if (BUS_RegBitRead(&wdog->CTRL, _WDOG_CTRL_EN_SHIFT)) {
-      /* Wait for any pending previous write operation to have been completed in */
-      /* low frequency domain */
-      while (wdog->SYNCBUSY & WDOG_SYNCBUSY_CTRL)
-        ;
-
-      BUS_RegBitWrite(&wdog->CTRL, _WDOG_CTRL_EN_SHIFT, 0);
+    /* SYNCBUSY may stall when locked. */
+    if (wdog->CTRL & WDOG_CTRL_LOCK) {
+        return;
     }
-  } else {
-    BUS_RegBitWrite(&wdog->CTRL, _WDOG_CTRL_EN_SHIFT, 1);
-  }
+
+    if (!enable) {
+        /* If the user intends to disable and the WDOG is enabled */
+        if (BUS_RegBitRead(&wdog->CTRL, _WDOG_CTRL_EN_SHIFT)) {
+            /* Wait for any pending previous write operation to have been completed in */
+            /* low frequency domain */
+            while (wdog->SYNCBUSY & WDOG_SYNCBUSY_CTRL)
+                ;
+
+            BUS_RegBitWrite(&wdog->CTRL, _WDOG_CTRL_EN_SHIFT, 0);
+        }
+    } else {
+        BUS_RegBitWrite(&wdog->CTRL, _WDOG_CTRL_EN_SHIFT, 1);
+    }
 }
 
 /***************************************************************************//**
@@ -108,24 +108,24 @@ void WDOGn_Enable(WDOG_TypeDef *wdog, bool enable)
  ******************************************************************************/
 void WDOGn_Feed(WDOG_TypeDef *wdog)
 {
-  /* The watchdog should not be fed while it is disabled */
-  if (!(wdog->CTRL & WDOG_CTRL_EN)) {
-    return;
-  }
+    /* The watchdog should not be fed while it is disabled */
+    if (!(wdog->CTRL & WDOG_CTRL_EN)) {
+        return;
+    }
 
-  /* If a previous clearing is being synchronized to LF domain, then there */
-  /* is no point in waiting for it to complete before clearing over again. */
-  /* This avoids stalling the core in the typical use case where some idle loop */
-  /* keeps clearing the watchdog. */
-  if (wdog->SYNCBUSY & WDOG_SYNCBUSY_CMD) {
-    return;
-  }
-  /* Before writing to the WDOG_CMD register we also need to make sure that
-   * any previous write to WDOG_CTRL is complete. */
-  while ( wdog->SYNCBUSY & WDOG_SYNCBUSY_CTRL )
-    ;
+    /* If a previous clearing is being synchronized to LF domain, then there */
+    /* is no point in waiting for it to complete before clearing over again. */
+    /* This avoids stalling the core in the typical use case where some idle loop */
+    /* keeps clearing the watchdog. */
+    if (wdog->SYNCBUSY & WDOG_SYNCBUSY_CMD) {
+        return;
+    }
+    /* Before writing to the WDOG_CMD register we also need to make sure that
+     * any previous write to WDOG_CTRL is complete. */
+    while (wdog->SYNCBUSY & WDOG_SYNCBUSY_CTRL)
+        ;
 
-  wdog->CMD = WDOG_CMD_CLEAR;
+    wdog->CMD = WDOG_CMD_CLEAR;
 }
 
 /***************************************************************************//**
@@ -148,55 +148,55 @@ void WDOGn_Feed(WDOG_TypeDef *wdog)
  ******************************************************************************/
 void WDOGn_Init(WDOG_TypeDef *wdog, const WDOG_Init_TypeDef *init)
 {
-  uint32_t setting;
+    uint32_t setting;
 
-  if (init->enable) {
-    setting = WDOG_CTRL_EN;
-  } else {
-    setting = 0;
-  }
+    if (init->enable) {
+        setting = WDOG_CTRL_EN;
+    } else {
+        setting = 0;
+    }
 
-  if (init->debugRun) {
-    setting |= WDOG_CTRL_DEBUGRUN;
-  }
+    if (init->debugRun) {
+        setting |= WDOG_CTRL_DEBUGRUN;
+    }
 
-  if (init->em2Run) {
-    setting |= WDOG_CTRL_EM2RUN;
-  }
+    if (init->em2Run) {
+        setting |= WDOG_CTRL_EM2RUN;
+    }
 
-  if (init->em3Run) {
-    setting |= WDOG_CTRL_EM3RUN;
-  }
+    if (init->em3Run) {
+        setting |= WDOG_CTRL_EM3RUN;
+    }
 
-  if (init->em4Block) {
-    setting |= WDOG_CTRL_EM4BLOCK;
-  }
-  if (init->swoscBlock) {
-    setting |= WDOG_CTRL_SWOSCBLOCK;
-  }
-  if (init->lock) {
-    setting |= WDOG_CTRL_LOCK;
-  }
+    if (init->em4Block) {
+        setting |= WDOG_CTRL_EM4BLOCK;
+    }
+    if (init->swoscBlock) {
+        setting |= WDOG_CTRL_SWOSCBLOCK;
+    }
+    if (init->lock) {
+        setting |= WDOG_CTRL_LOCK;
+    }
 #if defined(_WDOG_CTRL_WDOGRSTDIS_MASK)
-  if (init->resetDisable) {
-    setting |= WDOG_CTRL_WDOGRSTDIS;
-  }
+    if (init->resetDisable) {
+        setting |= WDOG_CTRL_WDOGRSTDIS;
+    }
 #endif
-  setting |= ((uint32_t)(init->clkSel)   << _WDOG_CTRL_CLKSEL_SHIFT)
+    setting |= ((uint32_t)(init->clkSel)   << _WDOG_CTRL_CLKSEL_SHIFT)
 #if defined(_WDOG_CTRL_WARNSEL_MASK)
-             | ((uint32_t)(init->warnSel) << _WDOG_CTRL_WARNSEL_SHIFT)
+               | ((uint32_t)(init->warnSel) << _WDOG_CTRL_WARNSEL_SHIFT)
 #endif
 #if defined(_WDOG_CTRL_WINSEL_MASK)
-             | ((uint32_t)(init->winSel) << _WDOG_CTRL_WINSEL_SHIFT)
+               | ((uint32_t)(init->winSel) << _WDOG_CTRL_WINSEL_SHIFT)
 #endif
-             | ((uint32_t)(init->perSel) << _WDOG_CTRL_PERSEL_SHIFT);
+               | ((uint32_t)(init->perSel) << _WDOG_CTRL_PERSEL_SHIFT);
 
-  /* Wait for any pending previous write operation to have been completed in */
-  /* low frequency domain */
-  while (wdog->SYNCBUSY & WDOG_SYNCBUSY_CTRL)
-    ;
+    /* Wait for any pending previous write operation to have been completed in */
+    /* low frequency domain */
+    while (wdog->SYNCBUSY & WDOG_SYNCBUSY_CTRL)
+        ;
 
-  wdog->CTRL = setting;
+    wdog->CTRL = setting;
 }
 
 /***************************************************************************//**
@@ -222,13 +222,13 @@ void WDOGn_Init(WDOG_TypeDef *wdog, const WDOG_Init_TypeDef *init)
  ******************************************************************************/
 void WDOGn_Lock(WDOG_TypeDef *wdog)
 {
-  /* Wait for any pending previous write operation to have been completed in */
-  /* low frequency domain */
-  while (wdog->SYNCBUSY & WDOG_SYNCBUSY_CTRL)
-    ;
+    /* Wait for any pending previous write operation to have been completed in */
+    /* low frequency domain */
+    while (wdog->SYNCBUSY & WDOG_SYNCBUSY_CTRL)
+        ;
 
-  /* Disable writing to the control register */
-  BUS_RegBitWrite(&wdog->CTRL, _WDOG_CTRL_LOCK_SHIFT, 1);
+    /* Disable writing to the control register */
+    BUS_RegBitWrite(&wdog->CTRL, _WDOG_CTRL_LOCK_SHIFT, 1);
 }
 
 /** @} (end addtogroup WDOG) */

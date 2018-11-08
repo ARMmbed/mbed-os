@@ -60,17 +60,17 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t BOD33RDY:1;       /*!< bit:      0  BOD33 Ready                        */
-        uint32_t BOD33DET:1;       /*!< bit:      1  BOD33 Detection                    */
-        uint32_t B33SRDY:1;        /*!< bit:      2  BOD33 Synchronization Ready        */
-        uint32_t BOD12RDY:1;       /*!< bit:      3  BOD12 Ready                        */
-        uint32_t BOD12DET:1;       /*!< bit:      4  BOD12 Detection                    */
-        uint32_t B12SRDY:1;        /*!< bit:      5  BOD12 Synchronization Ready        */
-        uint32_t :2;               /*!< bit:  6.. 7  Reserved                           */
-        uint32_t VREGRDY:1;        /*!< bit:      8  Voltage Regulator Ready            */
-        uint32_t APWSRDY:1;        /*!< bit:      9  Automatic Power Switch Ready       */
-        uint32_t VCORERDY:1;       /*!< bit:     10  VDDCORE Ready                      */
-        uint32_t :21;              /*!< bit: 11..31  Reserved                           */
+        uint32_t BOD33RDY: 1;      /*!< bit:      0  BOD33 Ready                        */
+        uint32_t BOD33DET: 1;      /*!< bit:      1  BOD33 Detection                    */
+        uint32_t B33SRDY: 1;       /*!< bit:      2  BOD33 Synchronization Ready        */
+        uint32_t BOD12RDY: 1;      /*!< bit:      3  BOD12 Ready                        */
+        uint32_t BOD12DET: 1;      /*!< bit:      4  BOD12 Detection                    */
+        uint32_t B12SRDY: 1;       /*!< bit:      5  BOD12 Synchronization Ready        */
+        uint32_t : 2;              /*!< bit:  6.. 7  Reserved                           */
+        uint32_t VREGRDY: 1;       /*!< bit:      8  Voltage Regulator Ready            */
+        uint32_t APWSRDY: 1;       /*!< bit:      9  Automatic Power Switch Ready       */
+        uint32_t VCORERDY: 1;      /*!< bit:     10  VDDCORE Ready                      */
+        uint32_t : 21;             /*!< bit: 11..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SUPC_INTENCLR_Type;
@@ -103,17 +103,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t BOD33RDY:1;       /*!< bit:      0  BOD33 Ready                        */
-        uint32_t BOD33DET:1;       /*!< bit:      1  BOD33 Detection                    */
-        uint32_t B33SRDY:1;        /*!< bit:      2  BOD33 Synchronization Ready        */
-        uint32_t BOD12RDY:1;       /*!< bit:      3  BOD12 Ready                        */
-        uint32_t BOD12DET:1;       /*!< bit:      4  BOD12 Detection                    */
-        uint32_t B12SRDY:1;        /*!< bit:      5  BOD12 Synchronization Ready        */
-        uint32_t :2;               /*!< bit:  6.. 7  Reserved                           */
-        uint32_t VREGRDY:1;        /*!< bit:      8  Voltage Regulator Ready            */
-        uint32_t APWSRDY:1;        /*!< bit:      9  Automatic Power Switch Ready       */
-        uint32_t VCORERDY:1;       /*!< bit:     10  VDDCORE Ready                      */
-        uint32_t :21;              /*!< bit: 11..31  Reserved                           */
+        uint32_t BOD33RDY: 1;      /*!< bit:      0  BOD33 Ready                        */
+        uint32_t BOD33DET: 1;      /*!< bit:      1  BOD33 Detection                    */
+        uint32_t B33SRDY: 1;       /*!< bit:      2  BOD33 Synchronization Ready        */
+        uint32_t BOD12RDY: 1;      /*!< bit:      3  BOD12 Ready                        */
+        uint32_t BOD12DET: 1;      /*!< bit:      4  BOD12 Detection                    */
+        uint32_t B12SRDY: 1;       /*!< bit:      5  BOD12 Synchronization Ready        */
+        uint32_t : 2;              /*!< bit:  6.. 7  Reserved                           */
+        uint32_t VREGRDY: 1;       /*!< bit:      8  Voltage Regulator Ready            */
+        uint32_t APWSRDY: 1;       /*!< bit:      9  Automatic Power Switch Ready       */
+        uint32_t VCORERDY: 1;      /*!< bit:     10  VDDCORE Ready                      */
+        uint32_t : 21;             /*!< bit: 11..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SUPC_INTENSET_Type;
@@ -146,17 +146,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t BOD33RDY:1;       /*!< bit:      0  BOD33 Ready                        */
-        uint32_t BOD33DET:1;       /*!< bit:      1  BOD33 Detection                    */
-        uint32_t B33SRDY:1;        /*!< bit:      2  BOD33 Synchronization Ready        */
-        uint32_t BOD12RDY:1;       /*!< bit:      3  BOD12 Ready                        */
-        uint32_t BOD12DET:1;       /*!< bit:      4  BOD12 Detection                    */
-        uint32_t B12SRDY:1;        /*!< bit:      5  BOD12 Synchronization Ready        */
-        uint32_t :2;               /*!< bit:  6.. 7  Reserved                           */
-        uint32_t VREGRDY:1;        /*!< bit:      8  Voltage Regulator Ready            */
-        uint32_t APWSRDY:1;        /*!< bit:      9  Automatic Power Switch Ready       */
-        uint32_t VCORERDY:1;       /*!< bit:     10  VDDCORE Ready                      */
-        uint32_t :21;              /*!< bit: 11..31  Reserved                           */
+        uint32_t BOD33RDY: 1;      /*!< bit:      0  BOD33 Ready                        */
+        uint32_t BOD33DET: 1;      /*!< bit:      1  BOD33 Detection                    */
+        uint32_t B33SRDY: 1;       /*!< bit:      2  BOD33 Synchronization Ready        */
+        uint32_t BOD12RDY: 1;      /*!< bit:      3  BOD12 Ready                        */
+        uint32_t BOD12DET: 1;      /*!< bit:      4  BOD12 Detection                    */
+        uint32_t B12SRDY: 1;       /*!< bit:      5  BOD12 Synchronization Ready        */
+        uint32_t : 2;              /*!< bit:  6.. 7  Reserved                           */
+        uint32_t VREGRDY: 1;       /*!< bit:      8  Voltage Regulator Ready            */
+        uint32_t APWSRDY: 1;       /*!< bit:      9  Automatic Power Switch Ready       */
+        uint32_t VCORERDY: 1;      /*!< bit:     10  VDDCORE Ready                      */
+        uint32_t : 21;             /*!< bit: 11..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SUPC_INTFLAG_Type;
@@ -189,18 +189,18 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t BOD33RDY:1;       /*!< bit:      0  BOD33 Ready                        */
-        uint32_t BOD33DET:1;       /*!< bit:      1  BOD33 Detection                    */
-        uint32_t B33SRDY:1;        /*!< bit:      2  BOD33 Synchronization Ready        */
-        uint32_t BOD12RDY:1;       /*!< bit:      3  BOD12 Ready                        */
-        uint32_t BOD12DET:1;       /*!< bit:      4  BOD12 Detection                    */
-        uint32_t B12SRDY:1;        /*!< bit:      5  BOD12 Synchronization Ready        */
-        uint32_t :2;               /*!< bit:  6.. 7  Reserved                           */
-        uint32_t VREGRDY:1;        /*!< bit:      8  Voltage Regulator Ready            */
-        uint32_t APWSRDY:1;        /*!< bit:      9  Automatic Power Switch Ready       */
-        uint32_t VCORERDY:1;       /*!< bit:     10  VDDCORE Ready                      */
-        uint32_t BBPS:1;           /*!< bit:     11  Battery Backup Power Switch        */
-        uint32_t :20;              /*!< bit: 12..31  Reserved                           */
+        uint32_t BOD33RDY: 1;      /*!< bit:      0  BOD33 Ready                        */
+        uint32_t BOD33DET: 1;      /*!< bit:      1  BOD33 Detection                    */
+        uint32_t B33SRDY: 1;       /*!< bit:      2  BOD33 Synchronization Ready        */
+        uint32_t BOD12RDY: 1;      /*!< bit:      3  BOD12 Ready                        */
+        uint32_t BOD12DET: 1;      /*!< bit:      4  BOD12 Detection                    */
+        uint32_t B12SRDY: 1;       /*!< bit:      5  BOD12 Synchronization Ready        */
+        uint32_t : 2;              /*!< bit:  6.. 7  Reserved                           */
+        uint32_t VREGRDY: 1;       /*!< bit:      8  Voltage Regulator Ready            */
+        uint32_t APWSRDY: 1;       /*!< bit:      9  Automatic Power Switch Ready       */
+        uint32_t VCORERDY: 1;      /*!< bit:     10  VDDCORE Ready                      */
+        uint32_t BBPS: 1;          /*!< bit:     11  Battery Backup Power Switch        */
+        uint32_t : 20;             /*!< bit: 12..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SUPC_STATUS_Type;
@@ -235,22 +235,22 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :1;               /*!< bit:      0  Reserved                           */
-        uint32_t ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint32_t HYST:1;           /*!< bit:      2  Hysteresis Enable                  */
-        uint32_t ACTION:2;         /*!< bit:  3.. 4  Action when Threshold Crossed      */
-        uint32_t STDBYCFG:1;       /*!< bit:      5  Configuration in Standby mode      */
-        uint32_t RUNSTDBY:1;       /*!< bit:      6  Run during Standby                 */
-        uint32_t RUNBKUP:1;        /*!< bit:      7  Configuration in Backup mode       */
-        uint32_t ACTCFG:1;         /*!< bit:      8  Configuration in Active mode       */
-        uint32_t :1;               /*!< bit:      9  Reserved                           */
-        uint32_t VMON:1;           /*!< bit:     10  Voltage Monitored in active and standby mode */
-        uint32_t :1;               /*!< bit:     11  Reserved                           */
-        uint32_t PSEL:4;           /*!< bit: 12..15  Prescaler Select                   */
-        uint32_t LEVEL:6;          /*!< bit: 16..21  Threshold Level for VDD            */
-        uint32_t :2;               /*!< bit: 22..23  Reserved                           */
-        uint32_t BKUPLEVEL:6;      /*!< bit: 24..29  Threshold Level in backup sleep mode or for VBAT */
-        uint32_t :2;               /*!< bit: 30..31  Reserved                           */
+        uint32_t : 1;              /*!< bit:      0  Reserved                           */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint32_t HYST: 1;          /*!< bit:      2  Hysteresis Enable                  */
+        uint32_t ACTION: 2;        /*!< bit:  3.. 4  Action when Threshold Crossed      */
+        uint32_t STDBYCFG: 1;      /*!< bit:      5  Configuration in Standby mode      */
+        uint32_t RUNSTDBY: 1;      /*!< bit:      6  Run during Standby                 */
+        uint32_t RUNBKUP: 1;       /*!< bit:      7  Configuration in Backup mode       */
+        uint32_t ACTCFG: 1;        /*!< bit:      8  Configuration in Active mode       */
+        uint32_t : 1;              /*!< bit:      9  Reserved                           */
+        uint32_t VMON: 1;          /*!< bit:     10  Voltage Monitored in active and standby mode */
+        uint32_t : 1;              /*!< bit:     11  Reserved                           */
+        uint32_t PSEL: 4;          /*!< bit: 12..15  Prescaler Select                   */
+        uint32_t LEVEL: 6;         /*!< bit: 16..21  Threshold Level for VDD            */
+        uint32_t : 2;              /*!< bit: 22..23  Reserved                           */
+        uint32_t BKUPLEVEL: 6;     /*!< bit: 24..29  Threshold Level in backup sleep mode or for VBAT */
+        uint32_t : 2;              /*!< bit: 30..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SUPC_BOD33_Type;
@@ -331,18 +331,18 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :1;               /*!< bit:      0  Reserved                           */
-        uint32_t ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint32_t HYST:1;           /*!< bit:      2  Hysteresis Enable                  */
-        uint32_t ACTION:2;         /*!< bit:  3.. 4  Action when Threshold Crossed      */
-        uint32_t STDBYCFG:1;       /*!< bit:      5  Configuration in Standby mode      */
-        uint32_t RUNSTDBY:1;       /*!< bit:      6  Run during Standby                 */
-        uint32_t :1;               /*!< bit:      7  Reserved                           */
-        uint32_t ACTCFG:1;         /*!< bit:      8  Configuration in Active mode       */
-        uint32_t :3;               /*!< bit:  9..11  Reserved                           */
-        uint32_t PSEL:4;           /*!< bit: 12..15  Prescaler Select                   */
-        uint32_t LEVEL:6;          /*!< bit: 16..21  Threshold Level                    */
-        uint32_t :10;              /*!< bit: 22..31  Reserved                           */
+        uint32_t : 1;              /*!< bit:      0  Reserved                           */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint32_t HYST: 1;          /*!< bit:      2  Hysteresis Enable                  */
+        uint32_t ACTION: 2;        /*!< bit:  3.. 4  Action when Threshold Crossed      */
+        uint32_t STDBYCFG: 1;      /*!< bit:      5  Configuration in Standby mode      */
+        uint32_t RUNSTDBY: 1;      /*!< bit:      6  Run during Standby                 */
+        uint32_t : 1;              /*!< bit:      7  Reserved                           */
+        uint32_t ACTCFG: 1;        /*!< bit:      8  Configuration in Active mode       */
+        uint32_t : 3;              /*!< bit:  9..11  Reserved                           */
+        uint32_t PSEL: 4;          /*!< bit: 12..15  Prescaler Select                   */
+        uint32_t LEVEL: 6;         /*!< bit: 16..21  Threshold Level                    */
+        uint32_t : 10;             /*!< bit: 22..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SUPC_BOD12_Type;
@@ -414,17 +414,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :1;               /*!< bit:      0  Reserved                           */
-        uint32_t ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint32_t SEL:2;            /*!< bit:  2.. 3  Voltage Regulator Selection in active mode */
-        uint32_t :2;               /*!< bit:  4.. 5  Reserved                           */
-        uint32_t RUNSTDBY:1;       /*!< bit:      6  Run during Standby                 */
-        uint32_t :1;               /*!< bit:      7  Reserved                           */
-        uint32_t LPEFF:1;          /*!< bit:      8  Low Power Efficiency               */
-        uint32_t :7;               /*!< bit:  9..15  Reserved                           */
-        uint32_t VSVSTEP:4;        /*!< bit: 16..19  Voltage Scaling Voltage Step       */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t VSPER:8;          /*!< bit: 24..31  Voltage Scaling Period             */
+        uint32_t : 1;              /*!< bit:      0  Reserved                           */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint32_t SEL: 2;           /*!< bit:  2.. 3  Voltage Regulator Selection in active mode */
+        uint32_t : 2;              /*!< bit:  4.. 5  Reserved                           */
+        uint32_t RUNSTDBY: 1;      /*!< bit:      6  Run during Standby                 */
+        uint32_t : 1;              /*!< bit:      7  Reserved                           */
+        uint32_t LPEFF: 1;         /*!< bit:      8  Low Power Efficiency               */
+        uint32_t : 7;              /*!< bit:  9..15  Reserved                           */
+        uint32_t VSVSTEP: 4;       /*!< bit: 16..19  Voltage Scaling Voltage Step       */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t VSPER: 8;         /*!< bit: 24..31  Voltage Scaling Period             */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SUPC_VREG_Type;
@@ -460,15 +460,15 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :1;               /*!< bit:      0  Reserved                           */
-        uint32_t TSEN:1;           /*!< bit:      1  Temperature Sensor Output Enable   */
-        uint32_t VREFOE:1;         /*!< bit:      2  Voltage Reference Output Enable    */
-        uint32_t :3;               /*!< bit:  3.. 5  Reserved                           */
-        uint32_t RUNSTDBY:1;       /*!< bit:      6  Run during Standby                 */
-        uint32_t ONDEMAND:1;       /*!< bit:      7  On Demand Contrl                   */
-        uint32_t :8;               /*!< bit:  8..15  Reserved                           */
-        uint32_t SEL:4;            /*!< bit: 16..19  Voltage Reference Selection        */
-        uint32_t :12;              /*!< bit: 20..31  Reserved                           */
+        uint32_t : 1;              /*!< bit:      0  Reserved                           */
+        uint32_t TSEN: 1;          /*!< bit:      1  Temperature Sensor Output Enable   */
+        uint32_t VREFOE: 1;        /*!< bit:      2  Voltage Reference Output Enable    */
+        uint32_t : 3;              /*!< bit:  3.. 5  Reserved                           */
+        uint32_t RUNSTDBY: 1;      /*!< bit:      6  Run during Standby                 */
+        uint32_t ONDEMAND: 1;      /*!< bit:      7  On Demand Contrl                   */
+        uint32_t : 8;              /*!< bit:  8..15  Reserved                           */
+        uint32_t SEL: 4;           /*!< bit: 16..19  Voltage Reference Selection        */
+        uint32_t : 12;             /*!< bit: 20..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SUPC_VREF_Type;
@@ -510,10 +510,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t CONF:2;           /*!< bit:  0.. 1  Battery Backup Configuration       */
-        uint32_t WAKEEN:1;         /*!< bit:      2  Wake Enable                        */
-        uint32_t PSOKEN:1;         /*!< bit:      3  Power Supply OK Enable             */
-        uint32_t :28;              /*!< bit:  4..31  Reserved                           */
+        uint32_t CONF: 2;          /*!< bit:  0.. 1  Battery Backup Configuration       */
+        uint32_t WAKEEN: 1;        /*!< bit:      2  Wake Enable                        */
+        uint32_t PSOKEN: 1;        /*!< bit:      3  Power Supply OK Enable             */
+        uint32_t : 28;             /*!< bit:  4..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SUPC_BBPS_Type;
@@ -543,14 +543,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t EN:2;             /*!< bit:  0.. 1  Enable Output                      */
-        uint32_t :6;               /*!< bit:  2.. 7  Reserved                           */
-        uint32_t CLR:2;            /*!< bit:  8.. 9  Clear Output                       */
-        uint32_t :6;               /*!< bit: 10..15  Reserved                           */
-        uint32_t SET:2;            /*!< bit: 16..17  Set Output                         */
-        uint32_t :6;               /*!< bit: 18..23  Reserved                           */
-        uint32_t RTCTGL:2;         /*!< bit: 24..25  RTC Toggle Output                  */
-        uint32_t :6;               /*!< bit: 26..31  Reserved                           */
+        uint32_t EN: 2;            /*!< bit:  0.. 1  Enable Output                      */
+        uint32_t : 6;              /*!< bit:  2.. 7  Reserved                           */
+        uint32_t CLR: 2;           /*!< bit:  8.. 9  Clear Output                       */
+        uint32_t : 6;              /*!< bit: 10..15  Reserved                           */
+        uint32_t SET: 2;           /*!< bit: 16..17  Set Output                         */
+        uint32_t : 6;              /*!< bit: 18..23  Reserved                           */
+        uint32_t RTCTGL: 2;        /*!< bit: 24..25  RTC Toggle Output                  */
+        uint32_t : 6;              /*!< bit: 26..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SUPC_BKOUT_Type;
@@ -577,8 +577,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t BKIN:8;           /*!< bit:  0.. 7  Backup Input Value                 */
-        uint32_t :24;              /*!< bit:  8..31  Reserved                           */
+        uint32_t BKIN: 8;          /*!< bit:  0.. 7  Backup Input Value                 */
+        uint32_t : 24;             /*!< bit:  8..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SUPC_BKIN_Type;

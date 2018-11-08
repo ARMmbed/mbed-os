@@ -47,7 +47,7 @@ static const SWM_Map SWM_UART_RTS[] = {
     {1, 24},
     {3, 0},
 };
- 
+
 static const SWM_Map SWM_UART_CTS[] = {
     {0, 24},
     {2, 0},
@@ -60,9 +60,10 @@ static unsigned char uart_used = 0;
 static int get_available_uart(void)
 {
     int i;
-    for (i=0; i<UART_NUM; i++) {
-        if ((uart_used & (1 << i)) == 0)
+    for (i = 0; i < UART_NUM; i++) {
+        if ((uart_used & (1 << i)) == 0) {
             return i;
+        }
     }
     return -1;
 }
@@ -92,13 +93,14 @@ serial_t stdio_uart;
 
 static int check_duplication(serial_t *obj, PinName tx, PinName rx)
 {
-    if (uart_used == 0)
+    if (uart_used == 0) {
         return 0;
+    }
 
     const SWM_Map *swm;
     uint32_t assigned_tx, assigned_rx;
     int ch;
-    for (ch=0; ch<UART_NUM; ch++)  {
+    for (ch = 0; ch < UART_NUM; ch++)  {
         // read assigned TX in the UART channel of switch matrix
         swm = &SWM_UART_TX[ch];
         assigned_tx = LPC_SWM->PINASSIGN[swm->n] & (0xFF << swm->offset);
@@ -120,8 +122,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     int is_stdio_uart = 0;
 
-    if (check_duplication(obj, tx, rx) == 1)
+    if (check_duplication(obj, tx, rx) == 1) {
         return;
+    }
 
     int uart_n = get_available_uart();
     if (uart_n == -1) {
@@ -136,11 +139,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     swm = &SWM_UART_TX[uart_n];
     regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-    LPC_SWM->PINASSIGN[swm->n] = regVal |  ((tx >> PIN_SHIFT) << swm->offset);
+    LPC_SWM->PINASSIGN[swm->n] = regVal | ((tx >> PIN_SHIFT) << swm->offset);
 
     swm = &SWM_UART_RX[uart_n];
     regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-    LPC_SWM->PINASSIGN[swm->n] = regVal |  ((rx >> PIN_SHIFT) << swm->offset);
+    LPC_SWM->PINASSIGN[swm->n] = regVal | ((rx >> PIN_SHIFT) << swm->offset);
 
     /* uart clock divided by 1 */
     LPC_SYSCON->UARTCLKDIV = 1;
@@ -153,12 +156,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     /* Peripheral reset control to UART, a "1" bring it out of reset. */
     LPC_SYSCON->PRESETCTRL &= ~(0x1 << (3 + uart_n));
-    LPC_SYSCON->PRESETCTRL |=  (0x1 << (3 + uart_n));
+    LPC_SYSCON->PRESETCTRL |= (0x1 << (3 + uart_n));
 
     UARTSysClk = MainClock / LPC_SYSCON->UARTCLKDIV;
 
     // set default baud rate and format
-    serial_baud  (obj, 9600);
+    serial_baud(obj, 9600);
     serial_format(obj, 8, ParityNone, 1);
 
     /* Clear all status bits. */
@@ -188,13 +191,13 @@ void serial_baud(serial_t *obj, int baudrate)
 {
     /* Integer divider:
          BRG = UARTSysClk/(Baudrate * 16) - 1
-       
+
        Frational divider:
          FRG = ((UARTSysClk / (Baudrate * 16 * (BRG + 1))) - 1)
-       
+
        where
          FRG = (LPC_SYSCON->UARTFRDADD + 1) / (LPC_SYSCON->UARTFRDSUB + 1)
-       
+
        (1) The easiest way is set SUB value to 256, -1 encoded, thus SUB
            register is 0xFF.
        (2) In ADD register value, depending on the value of UartSysClk,
@@ -207,8 +210,8 @@ void serial_baud(serial_t *obj, int baudrate)
     obj->uart->BRG = UARTSysClk / 16 / baudrate - 1;
 
     LPC_SYSCON->UARTFRGDIV = 0xFF;
-    LPC_SYSCON->UARTFRGMULT = ( ((UARTSysClk / 16) * (LPC_SYSCON->UARTFRGDIV + 1)) /
-                                (baudrate * (obj->uart->BRG + 1))
+    LPC_SYSCON->UARTFRGMULT = (((UARTSysClk / 16) * (LPC_SYSCON->UARTFRGDIV + 1)) /
+                               (baudrate * (obj->uart->BRG + 1))
                               ) - (LPC_SYSCON->UARTFRGDIV + 1);
 }
 
@@ -223,9 +226,15 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
     int paritysel = 0;
     switch (parity) {
-        case ParityNone: paritysel = 0; break;
-        case ParityEven: paritysel = 2; break;
-        case ParityOdd : paritysel = 3; break;
+        case ParityNone:
+            paritysel = 0;
+            break;
+        case ParityEven:
+            paritysel = 2;
+            break;
+        case ParityOdd :
+            paritysel = 3;
+            break;
         default:
             break;
     }
@@ -240,9 +249,9 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     obj->uart->CFG &= ~(1 << 0);
 
     obj->uart->CFG = (1 << 0) // this will enable the usart
-                   | (data_bits << 2)
-                   | (paritysel << 4)
-                   | (stop_bits << 6);
+                     | (data_bits << 2)
+                     | (paritysel << 4)
+                     | (stop_bits << 6);
 }
 
 /******************************************************************************
@@ -250,13 +259,23 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
  ******************************************************************************/
 static inline void uart_irq(SerialIrq irq_type, uint32_t index)
 {
-    if (serial_irq_ids[index] != 0)
+    if (serial_irq_ids[index] != 0) {
         irq_handler(serial_irq_ids[index], irq_type);
+    }
 }
 
-void uart0_irq() {uart_irq((LPC_USART0->INTSTAT & RXRDY) ? RxIrq : TxIrq, 0);}
-void uart1_irq() {uart_irq((LPC_USART1->INTSTAT & RXRDY) ? RxIrq : TxIrq, 1);}
-void uart2_irq() {uart_irq((LPC_USART2->INTSTAT & RXRDY) ? RxIrq : TxIrq, 2);}
+void uart0_irq()
+{
+    uart_irq((LPC_USART0->INTSTAT & RXRDY) ? RxIrq : TxIrq, 0);
+}
+void uart1_irq()
+{
+    uart_irq((LPC_USART1->INTSTAT & RXRDY) ? RxIrq : TxIrq, 1);
+}
+void uart2_irq()
+{
+    uart_irq((LPC_USART2->INTSTAT & RXRDY) ? RxIrq : TxIrq, 2);
+}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
@@ -269,9 +288,18 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
     switch ((int)obj->uart) {
-        case LPC_USART0_BASE: irq_n=UART0_IRQn; vector = (uint32_t)&uart0_irq; break;
-        case LPC_USART1_BASE: irq_n=UART1_IRQn; vector = (uint32_t)&uart1_irq; break;
-        case LPC_USART2_BASE: irq_n=UART2_IRQn; vector = (uint32_t)&uart2_irq; break;
+        case LPC_USART0_BASE:
+            irq_n = UART0_IRQn;
+            vector = (uint32_t)&uart0_irq;
+            break;
+        case LPC_USART1_BASE:
+            irq_n = UART1_IRQn;
+            vector = (uint32_t)&uart1_irq;
+            break;
+        case LPC_USART2_BASE:
+            irq_n = UART2_IRQn;
+            vector = (uint32_t)&uart2_irq;
+            break;
     }
 
     if (enable) {
@@ -281,7 +309,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         NVIC_EnableIRQ(irq_n);
     } else { // disable
         obj->uart->INTENCLR |= (1 << ((irq == RxIrq) ? 0 : 2));
-        if ( (obj->uart->INTENSET & (RXRDYEN | TXRDYEN)) == 0) {
+        if ((obj->uart->INTENSET & (RXRDYEN | TXRDYEN)) == 0) {
             NVIC_DisableIRQ(irq_n);
         }
     }

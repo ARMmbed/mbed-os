@@ -7,9 +7,10 @@ AnalogIn in(p20);
 AnalogIn in(p19);
 #endif
 
-int main() {
-    while(1) {
-        if(in > 0.5) {
+int main()
+{
+    while (1) {
+        if (in > 0.5) {
             out = !out;
         }
     }

@@ -34,8 +34,7 @@ namespace cordio {
 /**
  * Cordio implementation of ::GattServer
  */
-class GattServer : public ::GattServer
-{
+class GattServer : public ::GattServer {
 public:
     /**
      * Return the singleton of the Cordio implementation of ::GattServer.
@@ -120,7 +119,7 @@ public:
     /**
      * @see ::GattServer::setPreferredConnectionParams
      */
-    virtual void setPreferredConnectionParams(const ::Gap::ConnectionParams_t& params);
+    virtual void setPreferredConnectionParams(const ::Gap::ConnectionParams_t &params);
 
     /**
      * @see ::GattServer::setDeviceName
@@ -130,7 +129,7 @@ public:
     /**
      * @see ::GattServer::getDeviceName
      */
-    virtual void getDeviceName(const uint8_t*& name, uint16_t& length);
+    virtual void getDeviceName(const uint8_t *&name, uint16_t &length);
 
     /**
      * @see ::GattServer::setAppearance
@@ -154,10 +153,10 @@ private:
     static uint8_t attsWriteCback(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, uint16_t len, uint8_t *pValue, attsAttr_t *pAttr);
     void add_generic_access_service();
     void add_generic_attribute_service();
-    void* alloc_block(size_t block_size);
+    void *alloc_block(size_t block_size);
 
     struct alloc_block_t {
-        alloc_block_t* next;
+        alloc_block_t *next;
         uint8_t data[1];
     };
 
@@ -187,7 +186,8 @@ private:
         uint8_t ppcp_declaration_value[5];
         uint8_t ppcp[8];
 
-        uint8_t*& device_name_value() {
+        uint8_t *&device_name_value()
+        {
             return attributes[2].pValue;
         }
     } generic_access_service;
@@ -198,8 +198,8 @@ private:
         uint8_t service_changed_declaration[5];
     } generic_attribute_service;
 
-    internal_service_t* registered_service;
-    alloc_block_t* allocated_blocks;
+    internal_service_t *registered_service;
+    alloc_block_t *allocated_blocks;
 
     uint16_t currentHandle;
 
@@ -207,7 +207,7 @@ private:
     GattServer();
 
     GattServer(const GattServer &);
-    const GattServer& operator=(const GattServer &);
+    const GattServer &operator=(const GattServer &);
 };
 
 } // namespace cordio

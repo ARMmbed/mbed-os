@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2014 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**
@@ -84,8 +84,7 @@ typedef enum /*lint -save -e30 -esym(628,__INTADDR__) */
  * @enum nrf_rng_int_mask_t
  * @brief RNG interrupts.
  */
-typedef enum
-{
+typedef enum {
     NRF_RNG_INT_VALRDY_MASK = RNG_INTENSET_VALRDY_Msk /**< Mask for enabling or disabling an interrupt on VALRDY event.  */
 } nrf_rng_int_mask_t;
 
@@ -93,8 +92,7 @@ typedef enum
  * @enum nrf_rng_short_mask_t
  * @brief Types of RNG shortcuts.
  */
-typedef enum
-{
+typedef enum {
     NRF_RNG_SHORT_VALRDY_STOP_MASK = RNG_SHORTS_VALRDY_STOP_Msk /**<  Mask for setting shortcut between EVENT_VALRDY and TASK_STOP. */
 } nrf_rng_short_mask_t;
 
@@ -129,7 +127,7 @@ __STATIC_INLINE bool nrf_rng_int_get(nrf_rng_int_mask_t rng_int_mask);
  *
  * @param[in]  rng_task              Task.
  */
-__STATIC_INLINE uint32_t * nrf_rng_task_address_get(nrf_rng_task_t rng_task);
+__STATIC_INLINE uint32_t *nrf_rng_task_address_get(nrf_rng_task_t rng_task);
 
 /**
  * @brief Function for setting a specific task.
@@ -145,7 +143,7 @@ __STATIC_INLINE void nrf_rng_task_trigger(nrf_rng_task_t rng_task);
  *
  * @param[in]  rng_event              Event.
  */
-__STATIC_INLINE uint32_t * nrf_rng_event_address_get(nrf_rng_event_t rng_event);
+__STATIC_INLINE uint32_t *nrf_rng_event_address_get(nrf_rng_event_t rng_event);
 
 /**
  * @brief Function for clearing a specific event.
@@ -218,7 +216,7 @@ __STATIC_INLINE bool nrf_rng_int_get(nrf_rng_int_mask_t rng_int_mask)
     return (bool)(NRF_RNG->INTENCLR & rng_int_mask);
 }
 
-__STATIC_INLINE uint32_t * nrf_rng_task_address_get(nrf_rng_task_t rng_task)
+__STATIC_INLINE uint32_t *nrf_rng_task_address_get(nrf_rng_task_t rng_task)
 {
     return (uint32_t *)((uint8_t *)NRF_RNG + rng_task);
 }
@@ -228,7 +226,7 @@ __STATIC_INLINE void nrf_rng_task_trigger(nrf_rng_task_t rng_task)
     *((volatile uint32_t *)((uint8_t *)NRF_RNG + rng_task)) = NRF_RNG_TASK_SET;
 }
 
-__STATIC_INLINE uint32_t * nrf_rng_event_address_get(nrf_rng_event_t rng_event)
+__STATIC_INLINE uint32_t *nrf_rng_event_address_get(nrf_rng_event_t rng_event)
 {
     return (uint32_t *)((uint8_t *)NRF_RNG + rng_event);
 }
@@ -249,12 +247,12 @@ __STATIC_INLINE bool nrf_rng_event_get(nrf_rng_event_t rng_event)
 
 __STATIC_INLINE void nrf_rng_shorts_enable(uint32_t rng_short_mask)
 {
-     NRF_RNG->SHORTS |= rng_short_mask;
+    NRF_RNG->SHORTS |= rng_short_mask;
 }
 
 __STATIC_INLINE void nrf_rng_shorts_disable(uint32_t rng_short_mask)
 {
-     NRF_RNG->SHORTS &= ~rng_short_mask;
+    NRF_RNG->SHORTS &= ~rng_short_mask;
 }
 
 __STATIC_INLINE uint8_t nrf_rng_random_value_get(void)
@@ -273,7 +271,7 @@ __STATIC_INLINE void nrf_rng_error_correction_disable(void)
 }
 
 #endif
- 
+
 #ifdef __cplusplus
 }
 #endif

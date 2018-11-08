@@ -28,85 +28,85 @@
 
 //  PORT ID, PWM ID, Pin function
 static const PinMap PinMap_PWM[] = {
-    {P2_1     , MTU2_PWM0_PIN  , 6},
-    {P2_11    , MTU2_PWM1_PIN  , 5},
-    {P3_8     , MTU2_PWM2_PIN  , 6},
-    {P3_10    , MTU2_PWM3_PIN  , 6},
-    {P4_0     , MTU2_PWM4_PIN  , 2},
-    {P4_4     , MTU2_PWM5_PIN  , 3},
-    {P4_6     , MTU2_PWM6_PIN  , 3},
-    {P5_0     , MTU2_PWM7_PIN  , 6},
-    {P5_3     , MTU2_PWM8_PIN  , 6},
-    {P5_5     , MTU2_PWM9_PIN  , 6},
-    {P7_2     , MTU2_PWM10_PIN , 7},
-    {P7_4     , MTU2_PWM11_PIN , 7},
-    {P7_6     , MTU2_PWM12_PIN , 7},
-    {P7_10    , MTU2_PWM13_PIN , 7},
-    {P7_12    , MTU2_PWM14_PIN , 7},
-    {P7_14    , MTU2_PWM15_PIN , 7},
-    {P8_8     , MTU2_PWM16_PIN , 5},
-    {P8_10    , MTU2_PWM17_PIN , 4},
-    {P8_12    , MTU2_PWM18_PIN , 4},
-    {P8_14    , MTU2_PWM19_PIN , 4},
-    {P11_0    , MTU2_PWM20_PIN , 2},
-    {P11_2    , MTU2_PWM21_PIN , 2},
-    {P4_4     , PWM0_PIN       , 4},
-    {P3_2     , PWM1_PIN       , 7},
-    {P4_6     , PWM2_PIN       , 4},
-    {P4_7     , PWM3_PIN       , 4},
-    {P8_14    , PWM4_PIN       , 6},
-    {P8_15    , PWM5_PIN       , 6},
-    {P8_13    , PWM6_PIN       , 6},
-    {P8_11    , PWM7_PIN       , 6},
-    {P8_8     , PWM8_PIN       , 6},
-    {P10_0    , PWM9_PIN       , 3},
-    {P8_12    , PWM10_PIN      , 6},
-    {P8_9     , PWM11_PIN      , 6},
-    {P8_10    , PWM12_PIN      , 6},
-    {P4_5     , PWM13_PIN      , 4},
-    {NC       , NC             , 0}
+    {P2_1, MTU2_PWM0_PIN, 6},
+    {P2_11, MTU2_PWM1_PIN, 5},
+    {P3_8, MTU2_PWM2_PIN, 6},
+    {P3_10, MTU2_PWM3_PIN, 6},
+    {P4_0, MTU2_PWM4_PIN, 2},
+    {P4_4, MTU2_PWM5_PIN, 3},
+    {P4_6, MTU2_PWM6_PIN, 3},
+    {P5_0, MTU2_PWM7_PIN, 6},
+    {P5_3, MTU2_PWM8_PIN, 6},
+    {P5_5, MTU2_PWM9_PIN, 6},
+    {P7_2, MTU2_PWM10_PIN, 7},
+    {P7_4, MTU2_PWM11_PIN, 7},
+    {P7_6, MTU2_PWM12_PIN, 7},
+    {P7_10, MTU2_PWM13_PIN, 7},
+    {P7_12, MTU2_PWM14_PIN, 7},
+    {P7_14, MTU2_PWM15_PIN, 7},
+    {P8_8, MTU2_PWM16_PIN, 5},
+    {P8_10, MTU2_PWM17_PIN, 4},
+    {P8_12, MTU2_PWM18_PIN, 4},
+    {P8_14, MTU2_PWM19_PIN, 4},
+    {P11_0, MTU2_PWM20_PIN, 2},
+    {P11_2, MTU2_PWM21_PIN, 2},
+    {P4_4, PWM0_PIN, 4},
+    {P3_2, PWM1_PIN, 7},
+    {P4_6, PWM2_PIN, 4},
+    {P4_7, PWM3_PIN, 4},
+    {P8_14, PWM4_PIN, 6},
+    {P8_15, PWM5_PIN, 6},
+    {P8_13, PWM6_PIN, 6},
+    {P8_11, PWM7_PIN, 6},
+    {P8_8, PWM8_PIN, 6},
+    {P10_0, PWM9_PIN, 3},
+    {P8_12, PWM10_PIN, 6},
+    {P8_9, PWM11_PIN, 6},
+    {P8_10, PWM12_PIN, 6},
+    {P4_5, PWM13_PIN, 4},
+    {NC, NC, 0}
 };
 
 static const PWMType PORT[] = {
-     PWM2E,          // PWM0_PIN
-     PWM2C,          // PWM1_PIN
-     PWM2G,          // PWM2_PIN
-     PWM2H,          // PWM3_PIN
-     PWM1G,          // PWM4_PIN
-     PWM1H,          // PWM5_PIN
-     PWM1F,          // PWM6_PIN
-     PWM1D,          // PWM7_PIN
-     PWM1A,          // PWM8_PIN
-     PWM2A,          // PWM9_PIN
-     PWM1E,          // PWM10_PIN
-     PWM1B,          // PWM11_PIN
-     PWM1C,          // PWM12_PIN
-     PWM2F,          // PWM13_PIN
+    PWM2E,          // PWM0_PIN
+    PWM2C,          // PWM1_PIN
+    PWM2G,          // PWM2_PIN
+    PWM2H,          // PWM3_PIN
+    PWM1G,          // PWM4_PIN
+    PWM1H,          // PWM5_PIN
+    PWM1F,          // PWM6_PIN
+    PWM1D,          // PWM7_PIN
+    PWM1A,          // PWM8_PIN
+    PWM2A,          // PWM9_PIN
+    PWM1E,          // PWM10_PIN
+    PWM1B,          // PWM11_PIN
+    PWM1C,          // PWM12_PIN
+    PWM2F,          // PWM13_PIN
 };
 
 static const MTU2_PWMType MTU2_PORT[] = {
-     TIOC2A,         // MTU2_PWM0_PIN
-     TIOC1A,         // MTU2_PWM1_PIN
-     TIOC4A,         // MTU2_PWM2_PIN
-     TIOC4C,         // MTU2_PWM3_PIN
-     TIOC0A,         // MTU2_PWM4_PIN
-     TIOC4A,         // MTU2_PWM5_PIN
-     TIOC4C,         // MTU2_PWM6_PIN
-     TIOC0A,         // MTU2_PWM7_PIN
-     TIOC3C,         // MTU2_PWM8_PIN
-     TIOC0C,         // MTU2_PWM9_PIN
-     TIOC0C,         // MTU2_PWM10_PIN
-     TIOC1A,         // MTU2_PWM11_PIN
-     TIOC2A,         // MTU2_PWM12_PIN
-     TIOC3C,         // MTU2_PWM13_PIN
-     TIOC4A,         // MTU2_PWM14_PIN
-     TIOC4C,         // MTU2_PWM15_PIN
-     TIOC1A,         // MTU2_PWM16_PIN
-     TIOC3A,         // MTU2_PWM17_PIN
-     TIOC3C,         // MTU2_PWM18_PIN
-     TIOC2A,         // MTU2_PWM19_PIN
-     TIOC4A,         // MTU2_PWM20_PIN
-     TIOC4C,         // MTU2_PWM21_PIN
+    TIOC2A,         // MTU2_PWM0_PIN
+    TIOC1A,         // MTU2_PWM1_PIN
+    TIOC4A,         // MTU2_PWM2_PIN
+    TIOC4C,         // MTU2_PWM3_PIN
+    TIOC0A,         // MTU2_PWM4_PIN
+    TIOC4A,         // MTU2_PWM5_PIN
+    TIOC4C,         // MTU2_PWM6_PIN
+    TIOC0A,         // MTU2_PWM7_PIN
+    TIOC3C,         // MTU2_PWM8_PIN
+    TIOC0C,         // MTU2_PWM9_PIN
+    TIOC0C,         // MTU2_PWM10_PIN
+    TIOC1A,         // MTU2_PWM11_PIN
+    TIOC2A,         // MTU2_PWM12_PIN
+    TIOC3C,         // MTU2_PWM13_PIN
+    TIOC4A,         // MTU2_PWM14_PIN
+    TIOC4C,         // MTU2_PWM15_PIN
+    TIOC1A,         // MTU2_PWM16_PIN
+    TIOC3A,         // MTU2_PWM17_PIN
+    TIOC3C,         // MTU2_PWM18_PIN
+    TIOC2A,         // MTU2_PWM19_PIN
+    TIOC4A,         // MTU2_PWM20_PIN
+    TIOC4C,         // MTU2_PWM21_PIN
 };
 
 static __IO uint16_t *PWM_MATCH[] = {
@@ -219,7 +219,8 @@ static int32_t  period_ch1 = 1;
 static int32_t  period_ch2 = 1;
 static int32_t  mtu2_period_ch[5] = {1, 1, 1, 1, 1};
 
-void pwmout_init(pwmout_t* obj, PinName pin) {
+void pwmout_init(pwmout_t *obj, PinName pin)
+{
     // determine the channel
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(pwm != (PWMName)NC);
@@ -227,10 +228,10 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     if (pwm >= MTU2_PWM_OFFSET) {
         /* PWM by MTU2 */
         int tmp_pwm;
-        
+
         // power on
         CPGSTBCR3 &= ~(CPG_STBCR3_BIT_MSTP33);
-        
+
         obj->pwm = pwm;
         tmp_pwm = (int)(obj->pwm - MTU2_PWM_OFFSET);
         if (((uint32_t)MTU2_PORT[tmp_pwm] & 0x00000040) == 0x00000040) {
@@ -290,18 +291,20 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     }
 }
 
-void pwmout_free(pwmout_t* obj) {
+void pwmout_free(pwmout_t *obj)
+{
     pwmout_write(obj, 0);
 }
 
-void pwmout_write(pwmout_t* obj, float value) {
+void pwmout_write(pwmout_t *obj, float value)
+{
     uint32_t wk_cycle;
     uint16_t v;
 
     if (obj->pwm >= MTU2_PWM_OFFSET) {
         /* PWM by MTU2 */
         int tmp_pwm;
-        
+
         if (value < 0.0f) {
             value = 0.0f;
         } else if (value > 1.0f) {
@@ -335,7 +338,8 @@ void pwmout_write(pwmout_t* obj, float value) {
     }
 }
 
-float pwmout_read(pwmout_t* obj) {
+float pwmout_read(pwmout_t *obj)
+{
     uint32_t wk_cycle;
     float value;
 
@@ -343,7 +347,7 @@ float pwmout_read(pwmout_t* obj) {
         /* PWM by MTU2 */
         uint32_t wk_pulse;
         int tmp_pwm;
-        
+
         tmp_pwm = (int)(obj->pwm - MTU2_PWM_OFFSET);
         wk_cycle = *MTU2_PWM_MATCH[tmp_pwm][MTU2_PERIOD] & 0xffff;
         wk_pulse = *MTU2_PWM_MATCH[tmp_pwm][MTU2_PULSE] & 0xffff;
@@ -361,15 +365,18 @@ float pwmout_read(pwmout_t* obj) {
     return (value > 1.0f) ? (1.0f) : (value);
 }
 
-void pwmout_period(pwmout_t* obj, float seconds) {
+void pwmout_period(pwmout_t *obj, float seconds)
+{
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms) {
+void pwmout_period_ms(pwmout_t *obj, int ms)
+{
     pwmout_period_us(obj, ms * 1000);
 }
 
-static void set_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, uint16_t new_cycle){
+static void set_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, uint16_t new_cycle)
+{
     uint16_t wk_pwmpbfr;
     float    value;
     uint16_t v;
@@ -380,7 +387,8 @@ static void set_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, uint16
     *p_pwmpbfr = (v | (wk_pwmpbfr & 0x1000));
 }
 
-static void set_mtu2_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, uint16_t new_cycle){
+static void set_mtu2_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, uint16_t new_cycle)
+{
     uint16_t wk_pwmpbfr;
     float    value;
 
@@ -390,7 +398,8 @@ static void set_mtu2_duty_again(__IO uint16_t *p_pwmpbfr, uint16_t last_cycle, u
 }
 
 // Set the PWM period, keeping the duty cycle the same.
-void pwmout_period_us(pwmout_t* obj, int us) {
+void pwmout_period_us(pwmout_t *obj, int us)
+{
     uint64_t wk_cycle_mtu2;
     uint32_t pclk_base;
     uint32_t wk_cycle;
@@ -404,7 +413,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
         uint8_t tmp_tcr_up;
         uint8_t tmp_tstr_sp;
         uint8_t tmp_tstr_st;
-        
+
         max_us = MAX_PERIOD[obj->ch];
         if (us > max_us) {
             us = max_us;
@@ -423,16 +432,16 @@ void pwmout_period_us(pwmout_t* obj, int us) {
         wk_cycle_mtu2 = (uint64_t)pclk_base * us;
         while (wk_cycle_mtu2 >= 65535000000) {
             if ((obj->ch == 1) && (wk_cks == 3)) {
-                wk_cks+=2;
+                wk_cks += 2;
             } else if ((obj->ch == 2) && (wk_cks == 3)) {
                 wk_cycle_mtu2 >>= 2;
-                wk_cks+=3;
+                wk_cks += 3;
             }
             wk_cycle_mtu2 >>= 2;
             wk_cks++;
         }
         wk_cycle = (uint32_t)(wk_cycle_mtu2 / 1000000);
-        
+
         tmp_pwm = (int)(obj->pwm - MTU2_PWM_OFFSET);
         if (((uint8_t)MTU2_PORT[tmp_pwm] & 0x02) == 0x02) {
             tmp_tcr_up = 0xC0;
@@ -527,15 +536,18 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     }
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
+{
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
+{
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
+{
     float value = 0;
 
     if (obj->pwm >= MTU2_PWM_OFFSET) {

@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**@file
@@ -83,19 +83,18 @@ extern "C" {
 /**
  * @brief I2S driver configuration structure.
  */
-typedef struct
-{
+typedef struct {
     uint8_t sck_pin;      ///< SCK pin number.
     uint8_t lrck_pin;     ///< LRCK pin number.
     uint8_t mck_pin;      ///< MCK pin number.
-                          /**< Optional. Use @ref NRF_DRV_I2S_PIN_NOT_USED
-                           *   if this signal is not needed. */
+    /**< Optional. Use @ref NRF_DRV_I2S_PIN_NOT_USED
+     *   if this signal is not needed. */
     uint8_t sdout_pin;    ///< SDOUT pin number.
-                          /**< Optional. Use @ref NRF_DRV_I2S_PIN_NOT_USED
-                           *   if this signal is not needed. */
+    /**< Optional. Use @ref NRF_DRV_I2S_PIN_NOT_USED
+     *   if this signal is not needed. */
     uint8_t sdin_pin;     ///< SDIN pin number.
-                          /**< Optional. Use @ref NRF_DRV_I2S_PIN_NOT_USED
-                           *   if this signal is not needed. */
+    /**< Optional. Use @ref NRF_DRV_I2S_PIN_NOT_USED
+     *   if this signal is not needed. */
     uint8_t irq_priority; ///< Interrupt priority.
 
     nrf_i2s_mode_t     mode;         ///< Mode of operation.
@@ -156,8 +155,8 @@ typedef struct
  *                             half the size of the buffers set by the call
  *                             to the @ref nrf_drv_i2s_start function.
  */
-typedef void (* nrf_drv_i2s_data_handler_t)(uint32_t const * p_data_received,
-                                            uint32_t       * p_data_to_send,
+typedef void (* nrf_drv_i2s_data_handler_t)(uint32_t const *p_data_received,
+                                            uint32_t        *p_data_to_send,
                                             uint16_t         number_of_words);
 
 
@@ -173,7 +172,7 @@ typedef void (* nrf_drv_i2s_data_handler_t)(uint32_t const * p_data_received,
  * @retval NRF_ERROR_INVALID_PARAM If the requested combination of configuration
  *                                 options is not allowed by the I2S peripheral.
  */
-ret_code_t nrf_drv_i2s_init(nrf_drv_i2s_config_t const * p_config,
+ret_code_t nrf_drv_i2s_init(nrf_drv_i2s_config_t const *p_config,
                             nrf_drv_i2s_data_handler_t   handler);
 
 /**
@@ -234,8 +233,8 @@ void       nrf_drv_i2s_uninit(void);
  * @retval NRF_ERROR_INVALID_ADDR  If the provided buffers are not placed
  *                                 in the Data RAM region.
  */
-ret_code_t nrf_drv_i2s_start(uint32_t * p_rx_buffer,
-                             uint32_t * p_tx_buffer,
+ret_code_t nrf_drv_i2s_start(uint32_t *p_rx_buffer,
+                             uint32_t *p_tx_buffer,
                              uint16_t   buffer_size,
                              uint8_t    flags);
 

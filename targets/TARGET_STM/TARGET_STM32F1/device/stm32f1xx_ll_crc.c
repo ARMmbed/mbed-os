@@ -80,26 +80,23 @@
   */
 ErrorStatus LL_CRC_DeInit(CRC_TypeDef *CRCx)
 {
-  ErrorStatus status = SUCCESS;
+    ErrorStatus status = SUCCESS;
 
-  /* Check the parameters */
-  assert_param(IS_CRC_ALL_INSTANCE(CRCx));
+    /* Check the parameters */
+    assert_param(IS_CRC_ALL_INSTANCE(CRCx));
 
-  if (CRCx == CRC)
-  {
+    if (CRCx == CRC) {
 
-    /* Reset the CRC calculation unit */
-    LL_CRC_ResetCRCCalculationUnit(CRCx);
+        /* Reset the CRC calculation unit */
+        LL_CRC_ResetCRCCalculationUnit(CRCx);
 
-    /* Reset IDR register */
-    LL_CRC_Write_IDR(CRCx, 0x00U);
-  }
-  else
-  {
-    status = ERROR;
-  }
+        /* Reset IDR register */
+        LL_CRC_Write_IDR(CRCx, 0x00U);
+    } else {
+        status = ERROR;
+    }
 
-  return (status);
+    return (status);
 }
 
 /**

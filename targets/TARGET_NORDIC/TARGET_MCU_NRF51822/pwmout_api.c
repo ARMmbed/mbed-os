@@ -119,12 +119,13 @@ void timer_init(uint8_t pwmChoice)
 static void timer_free()
 {
     NRF_TIMER_Type *timer = Timers[0];
-    for(uint8_t i = 1; i < NO_PWMS; i++){
-        if(PWM_taken[i]){
+    for (uint8_t i = 1; i < NO_PWMS; i++) {
+        if (PWM_taken[i]) {
             break;
         }
-        if((i == NO_PWMS - 1) && (!PWM_taken[i]))
+        if ((i == NO_PWMS - 1) && (!PWM_taken[i])) {
             timer->TASKS_STOP = 0x01;
+        }
     }
 }
 
@@ -135,10 +136,10 @@ void gpiote_init(PinName pin, uint8_t channel_number)
 {
     // Connect GPIO input buffers and configure PWM_OUTPUT_PIN_NUMBER as an output.
     NRF_GPIO->PIN_CNF[pin] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
-                            | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
-                            | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
-                            | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-                            | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+                             | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                             | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                             | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                             | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
     NRF_GPIO->OUTCLR = (1UL << pin);
     // Configure GPIOTE channel 0 to toggle the PWM pin state
     // @note Only one GPIOTE task can be connected to an output pin.
@@ -159,7 +160,7 @@ void gpiote_init(PinName pin, uint8_t channel_number)
                                          ((uint32_t)pin << GPIOTE_CONFIG_PSEL_Pos) |
                                          ((uint32_t)GPIOTE_CONFIG_POLARITY_Toggle << GPIOTE_CONFIG_POLARITY_Pos) |
                                          ((uint32_t)GPIOTE_CONFIG_OUTINIT_Low << GPIOTE_CONFIG_OUTINIT_Pos); // ((uint32_t)GPIOTE_CONFIG_OUTINIT_High <<
-                                                                                                             // GPIOTE_CONFIG_OUTINIT_Pos);//
+    // GPIOTE_CONFIG_OUTINIT_Pos);//
 
     /* Three NOPs are required to make sure configuration is written before setting tasks or getting events */
     __NOP();
@@ -167,7 +168,7 @@ void gpiote_init(PinName pin, uint8_t channel_number)
     __NOP();
 }
 
-static void gpiote_free(PinName pin,uint8_t channel_number)
+static void gpiote_free(PinName pin, uint8_t channel_number)
 {
     NRF_GPIOTE->TASKS_OUT[channel_number] = 0;
     NRF_GPIOTE->CONFIG[channel_number] = 0;
@@ -197,11 +198,11 @@ static void ppi_init(uint8_t pwm)
 static void ppi_free(uint8_t pwm)
 {
     //using ppi channels 0-7 (only 0-7 are available)
-    uint8_t channel_number = 2*pwm;
+    uint8_t channel_number = 2 * pwm;
 
     // Disable PPI channels.
     NRF_PPI->CHEN &= (~(1 << channel_number))
-                  &  (~(1 << (channel_number+1)));
+                     & (~(1 << (channel_number + 1)));
 }
 
 void setModulation(pwmout_t *obj, uint8_t toggle, uint8_t high)
@@ -237,7 +238,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     MBED_ASSERT(pwm != (PWMName)NC);
 
     if (PWM_taken[(uint8_t)pwm]) {
-        for (uint8_t i = 1; !pwmOutSuccess && (i<NO_PWMS); i++) {
+        for (uint8_t i = 1; !pwmOutSuccess && (i < NO_PWMS); i++) {
             if (!PWM_taken[i]) {
                 pwm           = (PWMName)i;
                 PWM_taken[i]  = 1;
@@ -267,16 +268,17 @@ void pwmout_init(pwmout_t *obj, PinName pin)
 
     //default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
-    pwmout_write    (obj, 0);
+    pwmout_write(obj, 0);
 }
 
-void pwmout_free(pwmout_t* obj) {
+void pwmout_free(pwmout_t *obj)
+{
     MBED_ASSERT(obj->pwm != (PWMName)NC);
     pwmout_write(obj, 0);
     PWM_taken[obj->pwm] = 0;
     timer_free();
     ppi_free(obj->pwm);
-    gpiote_free(obj->pin,obj->pwm);
+    gpiote_free(obj->pin, obj->pwm);
 }
 
 void pwmout_write(pwmout_t *obj, float value)
@@ -333,9 +335,9 @@ void pwmout_period_us(pwmout_t *obj, int us)
     NRF_TIMER2->EVENTS_COMPARE[3] = 0;
     NRF_TIMER2->TASKS_STOP        = 1;
 
-    if (periodInTicks>((1 << 16) - 1)) {
+    if (periodInTicks > ((1 << 16) - 1)) {
         PERIOD = (1 << 16) - 1; //131ms
-    } else if (periodInTicks<5) {
+    } else if (periodInTicks < 5) {
         PERIOD = 5;
     } else {
         PERIOD = periodInTicks;

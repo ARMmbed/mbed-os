@@ -92,17 +92,14 @@ static uint16_t mlme_scan_analyze_next_channel(protocol_interface_rf_mac_setup_s
     uint32_t *channel_mask = rf_mac_setup->mac_channel_list.channel_mask;
 
     if (rf_mac_setup->mac_channel_list.channel_page == CHANNEL_PAGE_9 ||
-        rf_mac_setup->mac_channel_list.channel_page == CHANNEL_PAGE_10) {
-        k=8;
+            rf_mac_setup->mac_channel_list.channel_page == CHANNEL_PAGE_10) {
+        k = 8;
     }
-    for(j=0; j<k; j++)
-    {
-        for (i=0; i<32; i++)
-        {
-            if (*channel_mask & mask)
-            {
+    for (j = 0; j < k; j++) {
+        for (i = 0; i < 32; i++) {
+            if (*channel_mask & mask) {
                 *channel_mask &= ~mask;
-                return (i+j*32);
+                return (i + j * 32);
             }
             mask <<= 1;
         }
@@ -112,7 +109,8 @@ static uint16_t mlme_scan_analyze_next_channel(protocol_interface_rf_mac_setup_s
     return 0xffff;
 }
 
-static uint32_t mac_mlme_channel_symbol_rate(uint8_t channel_page, uint8_t channel) {
+static uint32_t mac_mlme_channel_symbol_rate(uint8_t channel_page, uint8_t channel)
+{
 
     uint32_t symbol_rate;
 
@@ -122,10 +120,10 @@ static uint32_t mac_mlme_channel_symbol_rate(uint8_t channel_page, uint8_t chann
             // 868 Mhz BPSK
             if (channel == 0) {
                 symbol_rate = 20000;
-            // 915 Mhz BPSK
+                // 915 Mhz BPSK
             } else if (channel >= 1 && channel <= 10) {
                 symbol_rate = 40000;
-            // 2450 Mhz O-QPSK
+                // 2450 Mhz O-QPSK
             } else {
                 symbol_rate = 62500;
             }
@@ -134,7 +132,7 @@ static uint32_t mac_mlme_channel_symbol_rate(uint8_t channel_page, uint8_t chann
             // 868 MHz ASK
             if (channel == 0) {
                 symbol_rate = 12500;
-            // 915 MHz ASK
+                // 915 MHz ASK
             } else {
                 symbol_rate = 50000;
             }
@@ -143,7 +141,7 @@ static uint32_t mac_mlme_channel_symbol_rate(uint8_t channel_page, uint8_t chann
             // 868 MHz O-QPSK
             if (channel == 0) {
                 symbol_rate = 25000;
-            // 915 MHz O-QPSK
+                // 915 MHz O-QPSK
             } else {
                 symbol_rate = 62500;
             }
@@ -156,7 +154,7 @@ static uint32_t mac_mlme_channel_symbol_rate(uint8_t channel_page, uint8_t chann
             // 950 MHz BPSK
             if (channel <= 9) {
                 symbol_rate = 20000;
-            // 950 MHz GFSK
+                // 950 MHz GFSK
             } else {
                 symbol_rate = 100000;
             }
@@ -182,7 +180,7 @@ static void mac_mlme_calc_scan_duration(protocol_interface_rf_mac_setup_s *rf_ma
     if (rf_mac_setup->scan_type == MAC_ED_SCAN_TYPE) {
         // Gets symbol rate for channel that is scanned
         uint32_t symbol_rate = mac_mlme_channel_symbol_rate(
-             rf_mac_setup->mac_channel_list.channel_page, channel);
+                                   rf_mac_setup->mac_channel_list.channel_page, channel);
 
         // Energy scan duration is aBaseSuperframeDuration * (2^n + 1)
         // aBaseSuperframeDuration is 960 symbols e.g for 2.4Ghz O-QPSK with 62.5 ksymbols/s -> 15,36ms.
@@ -285,22 +283,21 @@ static void mac_mlme_scan_start(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 static bool mac_channel_list_validate(const channel_list_s *list, protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
     if (rf_mac_setup->dev_driver->phy_driver->link_type == PHY_LINK_15_4_2_4GHZ_TYPE &&
-        list->channel_page == 0) {
+            list->channel_page == 0) {
         //Accept only Channels channels 11-26
         if (list->channel_mask[0] & 0x7fff800) {
             return true;
         }
         return false;
-    }
-    else if (rf_mac_setup->dev_driver->phy_driver->link_type == PHY_LINK_15_4_SUBGHZ_TYPE &&
-            (list->channel_page == 0 || list->channel_page == 1 || list->channel_page == 2)) {
+    } else if (rf_mac_setup->dev_driver->phy_driver->link_type == PHY_LINK_15_4_SUBGHZ_TYPE &&
+               (list->channel_page == 0 || list->channel_page == 1 || list->channel_page == 2)) {
         if (list->channel_mask[0] & 0x000007ff) {
             return true;
         }
 
         return false;
     } else {
-        for (int i=0; i < 8; i++) {
+        for (int i = 0; i < 8; i++) {
             if (list->channel_mask[i]) {
                 return true;
             }
@@ -337,7 +334,7 @@ static int mac_mlme_generate_scan_confirmation(mlme_scan_conf_t *conf, const mlm
 
 void mac_mlme_scan_request(const mlme_scan_t *msg, protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
-    if (rf_mac_setup->mac_mlme_scan_resp){
+    if (rf_mac_setup->mac_mlme_scan_resp) {
         mlme_scan_conf_t conf;
         mac_mlme_generate_scan_confirmation(&conf, msg, MLME_SCAN_IN_PROGRESS);
         mac_mlme_scan_confirm_handler(rf_mac_setup, &conf);
@@ -426,7 +423,8 @@ int8_t mac_mlme_start_req(const mlme_start_t *s, struct protocol_interface_rf_ma
     return 0;
 }
 
-int8_t mac_mlme_reset(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_reset_t *reset) {
+int8_t mac_mlme_reset(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_reset_t *reset)
+{
     if (!reset || !rf_mac_setup) {
         return -1;
     }
@@ -460,7 +458,7 @@ int8_t mac_mlme_reset(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlm
 }
 
 
-static int8_t mac_mlme_boolean_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,mlme_attr_t attribute ,bool value)
+static int8_t mac_mlme_boolean_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_t attribute, bool value)
 {
     switch (attribute) {
         case macSecurityEnabled:
@@ -505,7 +503,7 @@ static int8_t mac_mlme_boolean_set(protocol_interface_rf_mac_setup_s *rf_mac_set
         case macLoadBalancingAcceptAnyBeacon:
             rf_mac_setup->macAcceptAnyBeacon = value;
             if (rf_mac_setup->dev_driver->phy_driver->extension) {
-                rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_ACCEPT_ANY_BEACON, (uint8_t*)&value);
+                rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_ACCEPT_ANY_BEACON, (uint8_t *)&value);
             }
             break;
 
@@ -515,7 +513,7 @@ static int8_t mac_mlme_boolean_set(protocol_interface_rf_mac_setup_s *rf_mac_set
     return 0;
 }
 
-static int8_t mac_mlme_16bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,mlme_attr_t attribute, uint16_t value)
+static int8_t mac_mlme_16bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_t attribute, uint16_t value)
 {
     switch (attribute) {
         case macCoordShortAddress:
@@ -544,7 +542,7 @@ static int8_t mac_mlme_16bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup
     return 0;
 }
 
-static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,mlme_attr_t attribute ,uint8_t value)
+static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_t attribute, uint8_t value)
 {
     switch (attribute) {
         case phyCurrentChannel:
@@ -589,7 +587,7 @@ static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,
             break;
 
         case macMaxCSMABackoffs:
-            if (value > 8 ) {
+            if (value > 8) {
                 return -1;
             }
             rf_mac_setup->macMaxCSMABackoffs = value;
@@ -618,7 +616,7 @@ static int8_t mac_mlme_32bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup
 
 void mac_extended_mac_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const uint8_t *mac64)
 {
-    if( !mac64 || !rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver ){
+    if (!mac64 || !rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver) {
         return;
     }
     phy_device_driver_s *dev_driver = rf_mac_setup->dev_driver->phy_driver;
@@ -628,24 +626,27 @@ void mac_extended_mac_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const
     }
 }
 
-static int8_t mac_mlme_device_description_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,const mlme_set_t *set_req) {
+static int8_t mac_mlme_device_description_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
+{
 
     if (set_req->value_size != sizeof(mlme_device_descriptor_t)) {
         return -1;
     }
 
-    return mac_sec_mib_device_description_set(set_req->attr_index,(mlme_device_descriptor_t *) set_req->value_pointer , rf_mac_setup);
+    return mac_sec_mib_device_description_set(set_req->attr_index, (mlme_device_descriptor_t *) set_req->value_pointer, rf_mac_setup);
 }
 
-static int8_t mac_mlme_key_description_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,const mlme_set_t *set_req) {
+static int8_t mac_mlme_key_description_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
+{
     if (set_req->value_size != sizeof(mlme_key_descriptor_entry_t)) {
         return -1;
     }
 
-    return mac_sec_mib_key_description_set(set_req->attr_index,(mlme_key_descriptor_entry_t *) set_req->value_pointer , rf_mac_setup);
+    return mac_sec_mib_key_description_set(set_req->attr_index, (mlme_key_descriptor_entry_t *) set_req->value_pointer, rf_mac_setup);
 }
 
-static int8_t mac_mlme_default_key_source_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,const mlme_set_t *set_req) {
+static int8_t mac_mlme_default_key_source_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
+{
     if (set_req->value_size != 8) {
         return -1;
     }
@@ -669,30 +670,30 @@ static int8_t mac_mlme_beacon_payload_set(protocol_interface_rf_mac_setup_s *rf_
     return 0;
 }
 
-static int8_t mac_mlme_handle_set_values(protocol_interface_rf_mac_setup_s *rf_mac_setup,const mlme_set_t *set_req)
+static int8_t mac_mlme_handle_set_values(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
     if (set_req->value_size == 1) {
         const bool *pbool = set_req->value_pointer;
         //Check first boolean
-        if (mac_mlme_boolean_set(rf_mac_setup,set_req->attr, *pbool) == 0) {
+        if (mac_mlme_boolean_set(rf_mac_setup, set_req->attr, *pbool) == 0) {
             return 0;
         }
         const uint8_t *pu8 = set_req->value_pointer;
-        return mac_mlme_8bit_set(rf_mac_setup,set_req->attr, *pu8);
+        return mac_mlme_8bit_set(rf_mac_setup, set_req->attr, *pu8);
 
     } else if (set_req->value_size == 2) {
         const uint16_t *pu16 = set_req->value_pointer;
-        return mac_mlme_16bit_set(rf_mac_setup,set_req->attr, *pu16);
+        return mac_mlme_16bit_set(rf_mac_setup, set_req->attr, *pu16);
     } else if (set_req->value_size == 4) {
         const uint32_t *pu32 = set_req->value_pointer;
-        return mac_mlme_32bit_set(rf_mac_setup,set_req->attr, *pu32);
+        return mac_mlme_32bit_set(rf_mac_setup, set_req->attr, *pu32);
     }
     return -1;
 }
 
-int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup,const mlme_set_t *set_req)
+int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
-    if (!set_req || !rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver ) {
+    if (!set_req || !rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver) {
         return -1;
     }
 
@@ -709,7 +710,7 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup,const ml
         case macLoadBalancingBeaconTx:
             return mac_mlme_beacon_tx(rf_mac_setup);
         case macCoordExtendedAddress:
-            if( set_req->value_size == 8) {
+            if (set_req->value_size == 8) {
                 memcpy(rf_mac_setup->coord_long_address, set_req->value_pointer, 8);
             }
             return 0;
@@ -720,7 +721,7 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup,const ml
 
 int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_get_conf_t *get_req)
 {
-    if (!get_req || !rf_mac_setup ) {
+    if (!get_req || !rf_mac_setup) {
         return -1;
     }
 
@@ -770,7 +771,7 @@ static void mlme_scan_operation(protocol_interface_rf_mac_setup_s *rf_mac_setup)
         mac_mlme_mac_radio_disabled(rf_mac_setup);
         if (resp->ResultListSize == 0 && rf_mac_setup->scan_type == MAC_ACTIVE_SCAN) {
             resp->status = MLME_NO_BEACON;
-        }else if( resp->ResultListSize == MLME_MAC_RES_SIZE_MAX ){
+        } else if (resp->ResultListSize == MLME_MAC_RES_SIZE_MAX) {
             resp->status = MLME_LIMIT_REACHED;
         }
         resp->UnscannedChannels.channel_mask[0] = rf_mac_setup->mac_channel_list.channel_mask[0];
@@ -784,9 +785,9 @@ static void mlme_scan_operation(protocol_interface_rf_mac_setup_s *rf_mac_setup)
     }
 }
 
-void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode,protocol_interface_rf_mac_setup_s *rf_ptr, uint8_t *addressPtr)
+void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode, protocol_interface_rf_mac_setup_s *rf_ptr, uint8_t *addressPtr)
 {
-    if( !rf_ptr ){
+    if (!rf_ptr) {
         return;
     }
     if (SrcAddrMode == MAC_ADDR_MODE_16_BIT) {
@@ -825,7 +826,7 @@ static void mac_mlme_timers_disable(protocol_interface_rf_mac_setup_s *rf_ptr)
 
 void mac_mlme_event_cb(void *mac_ptr)
 {
-    protocol_interface_rf_mac_setup_s *rf_mac_setup = (protocol_interface_rf_mac_setup_s*) mac_ptr;
+    protocol_interface_rf_mac_setup_s *rf_mac_setup = (protocol_interface_rf_mac_setup_s *) mac_ptr;
     if (!rf_mac_setup) {
         return;
     }
@@ -878,7 +879,7 @@ static void mac_mlme_timer_cb(int8_t timer_id, uint16_t slots)
                     uint8_t ed = 0;
                     phy_device_driver_s *dev_driver = rf_ptr->dev_driver->phy_driver;
                     rf_ptr->mlme_ED_counter--;
-                    if( dev_driver->extension ){
+                    if (dev_driver->extension) {
                         dev_driver->extension(PHY_EXTENSION_READ_CHANNEL_ENERGY, &ed);
                     }
                     if (ed > rf_ptr->max_ED) {
@@ -895,7 +896,7 @@ static void mac_mlme_timer_cb(int8_t timer_id, uint16_t slots)
                     mac_generic_event_trig(MAC_MLME_EVENT_HANDLER, rf_ptr, false);
                 }
             } else {
-                mac_generic_event_trig(MAC_MLME_EVENT_HANDLER,rf_ptr, true);
+                mac_generic_event_trig(MAC_MLME_EVENT_HANDLER, rf_ptr, true);
             }
         }
     } else {
@@ -910,7 +911,7 @@ static void mac_mlme_free_scan_temporary_data(protocol_interface_rf_mac_setup_s 
     if (rf_mac_setup->mac_mlme_scan_resp) {
         mlme_scan_conf_t *r = rf_mac_setup->mac_mlme_scan_resp;
         tr_debug("%02x", r->ResultListSize);
-        if( r->ED_values ){
+        if (r->ED_values) {
             ns_dyn_mem_free(r->ED_values);
             r->ED_values = NULL;
         }
@@ -930,7 +931,7 @@ static void mac_mlme_free_scan_temporary_data(protocol_interface_rf_mac_setup_s 
 
 void mac_mlme_set_active_state(protocol_interface_rf_mac_setup_s *entry, bool new_state)
 {
-    if( entry ){
+    if (entry) {
         entry->macUpState = new_state;
     }
 }
@@ -938,7 +939,7 @@ void mac_mlme_set_active_state(protocol_interface_rf_mac_setup_s *entry, bool ne
 void mac_mlme_data_base_deallocate(struct protocol_interface_rf_mac_setup *rf_mac)
 {
     if (rf_mac) {
-        if( rf_mac->dev_driver ){
+        if (rf_mac->dev_driver) {
             rf_mac->dev_driver->phy_sap_identifier = NULL;
             rf_mac->dev_driver->phy_sap_upper_cb = NULL;
         }
@@ -955,7 +956,7 @@ void mac_mlme_data_base_deallocate(struct protocol_interface_rf_mac_setup *rf_ma
     }
 }
 
-static uint8_t mac_backoff_ticks_calc(phy_device_driver_s * phy_driver)
+static uint8_t mac_backoff_ticks_calc(phy_device_driver_s *phy_driver)
 {
     //Calculate 20 symbol time which is typically 10 bytes
     const phy_device_channel_page_s *phy_channel_pages = phy_driver->phy_channel_pages;
@@ -972,7 +973,7 @@ static uint8_t mac_backoff_ticks_calc(phy_device_driver_s * phy_driver)
     return (uint8_t) ticks;
 }
 
-protocol_interface_rf_mac_setup_s * mac_mlme_data_base_allocate(uint8_t *mac64, arm_device_driver_list_s *dev_driver, mac_description_storage_size_t *storage_sizes)
+protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, arm_device_driver_list_s *dev_driver, mac_description_storage_size_t *storage_sizes)
 {
     uint16_t total_length = 0;
     //allocate security
@@ -1149,13 +1150,13 @@ uint16_t mac_mlme_get_panid(protocol_interface_rf_mac_setup_s *rf_setup)
     return panId;
 }
 
-static bool add_or_update_beacon(mlme_scan_conf_t* conf, mlme_beacon_ind_t *data, fhss_api_t *fhss_api)
+static bool add_or_update_beacon(mlme_scan_conf_t *conf, mlme_beacon_ind_t *data, fhss_api_t *fhss_api)
 {
     bool found = false;
     bool update_beacon = false;
-    for( int i=0; i < conf->ResultListSize; i++){
+    for (int i = 0; i < conf->ResultListSize; i++) {
         mlme_pan_descriptor_t *cur_desc = conf->PAN_values[i];
-        if( !cur_desc ){ //Not an active or passive scan
+        if (!cur_desc) { //Not an active or passive scan
             break;
         }
         /* When FHSS is enabled, logical channel check is not valid
@@ -1172,9 +1173,9 @@ static bool add_or_update_beacon(mlme_scan_conf_t* conf, mlme_beacon_ind_t *data
             }
         }
     }
-    if(!found && conf->ResultListSize != MLME_MAC_RES_SIZE_MAX) {
+    if (!found && conf->ResultListSize != MLME_MAC_RES_SIZE_MAX) {
         mlme_pan_descriptor_t *desc = ns_dyn_mem_temporary_alloc(sizeof(mlme_pan_descriptor_t));
-        if( !desc ){
+        if (!desc) {
             return false;
         }
         memset(desc, 0, sizeof(mlme_pan_descriptor_t));
@@ -1207,7 +1208,7 @@ int mac_mlme_beacon_notify(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme
 {
     bool update_beacon = true;
     bool contains_fhss_synch_info = false;
-    if( !rf_mac_setup || !data){
+    if (!rf_mac_setup || !data) {
         return -1;
     }
 
@@ -1233,7 +1234,7 @@ int mac_mlme_beacon_notify(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme
     tr_debug("Beacon Notify: %s", trace_array(data->beacon_data, data->beacon_data_length));
 
     if (rf_mac_setup->mac_mlme_scan_resp) {
-        mlme_scan_conf_t* conf = rf_mac_setup->mac_mlme_scan_resp;
+        mlme_scan_conf_t *conf = rf_mac_setup->mac_mlme_scan_resp;
         update_beacon = add_or_update_beacon(conf, data, rf_mac_setup->fhss_api);
     }
     if (rf_mac_setup->fhss_api && (update_beacon == true)) {
@@ -1241,7 +1242,7 @@ int mac_mlme_beacon_notify(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme
             // Assume synchronization info is found from the end of the Beacon payload
             uint8_t *synch_info_start = data->beacon_data + data->beacon_data_length;
             rf_mac_setup->fhss_api->receive_frame(rf_mac_setup->fhss_api, data->PANDescriptor.CoordPANId, data->PANDescriptor.CoordAddress,
-                    data->PANDescriptor.Timestamp, synch_info_start, FHSS_SYNCH_FRAME);
+                                                  data->PANDescriptor.Timestamp, synch_info_start, FHSS_SYNCH_FRAME);
         }
     }
 
@@ -1328,7 +1329,7 @@ static void mac_mlme_scan_confirm_handler(protocol_interface_rf_mac_setup_s *rf_
 
 void mac_mlme_scan_confirmation_handle(protocol_interface_rf_mac_setup_s *rf_ptr)
 {
-    if( !rf_ptr ){
+    if (!rf_ptr) {
         return;
     }
     mlme_scan_conf_t *r = rf_ptr->mac_mlme_scan_resp;
@@ -1341,7 +1342,7 @@ void mac_mlme_scan_confirmation_handle(protocol_interface_rf_mac_setup_s *rf_ptr
 
 void mac_mlme_mac_radio_disabled(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
-    if( !rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver ){
+    if (!rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver) {
         return;
     }
     platform_enter_critical();
@@ -1352,7 +1353,7 @@ void mac_mlme_mac_radio_disabled(protocol_interface_rf_mac_setup_s *rf_mac_setup
 
 void mac_mlme_mac_radio_enable(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
-    if( !rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver){
+    if (!rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver) {
         return;
     }
     platform_enter_critical();
@@ -1422,22 +1423,22 @@ static int8_t mac_mlme_rf_receiver_enable(struct protocol_interface_rf_mac_setup
  */
 static int8_t mac_mlme_rf_channel_set(struct protocol_interface_rf_mac_setup *rf_setup, uint8_t new_channel)
 {
-        if (new_channel == rf_setup->mac_channel) {
-            return 0;
-        }
-        mac_pre_build_frame_t *buf;
+    if (new_channel == rf_setup->mac_channel) {
+        return 0;
+    }
+    mac_pre_build_frame_t *buf;
 
-        //Disable allways
-        mac_mlme_mac_radio_disabled(rf_setup);
-        buf = rf_setup->active_pd_data_request;
-        rf_setup->active_pd_data_request = NULL;
-        //Set Channel
-        rf_setup->mac_channel = new_channel;
-        //Enable Radio
-        mac_mlme_mac_radio_enable(rf_setup);
-        if (buf) {
-            mcps_sap_pd_req_queue_write(rf_setup, buf);
-        }
+    //Disable allways
+    mac_mlme_mac_radio_disabled(rf_setup);
+    buf = rf_setup->active_pd_data_request;
+    rf_setup->active_pd_data_request = NULL;
+    //Set Channel
+    rf_setup->mac_channel = new_channel;
+    //Enable Radio
+    mac_mlme_mac_radio_enable(rf_setup);
+    if (buf) {
+        mcps_sap_pd_req_queue_write(rf_setup, buf);
+    }
 
     return 0;
 }
@@ -1492,7 +1493,7 @@ void mac_mlme_poll_process_confirm(protocol_interface_rf_mac_setup_s *rf_mac_set
     if (!rf_mac_setup->macCapRxOnIdle) {
         //Disable Radio If we are RX off at idle device
         //tr_debug("disbale by aceptance data");
-        if (!rf_mac_setup->macRfRadioTxActive ) {
+        if (!rf_mac_setup->macRfRadioTxActive) {
             //Disable radio if no active TX and radio is enabled
             //tr_debug("RF disable");
             mac_mlme_mac_radio_disabled(rf_mac_setup);
@@ -1500,10 +1501,10 @@ void mac_mlme_poll_process_confirm(protocol_interface_rf_mac_setup_s *rf_mac_set
     }
 
     mac_api_t *mac_api = get_sw_mac_api(rf_mac_setup);
-    if( mac_api ) {
+    if (mac_api) {
         mlme_poll_conf_t confirm;
         confirm.status = status;
-        mac_api->mlme_conf_cb(mac_api,MLME_POLL, &confirm);
+        mac_api->mlme_conf_cb(mac_api, MLME_POLL, &confirm);
     }
     //Trig Packet from queue
     mac_mcps_trig_buffer_from_queue(rf_mac_setup);
@@ -1512,10 +1513,10 @@ void mac_mlme_poll_process_confirm(protocol_interface_rf_mac_setup_s *rf_mac_set
 
 void mac_mlme_poll_req(protocol_interface_rf_mac_setup_s *cur, const mlme_poll_t *poll_req)
 {
-    if( !cur || !poll_req ){
+    if (!cur || !poll_req) {
         return;
     }
-    if (cur->macDataPollReq ) {
+    if (cur->macDataPollReq) {
         tr_debug("Poll Active do not start new");
         return;
     }
@@ -1554,7 +1555,7 @@ void mac_mlme_poll_req(protocol_interface_rf_mac_setup_s *cur, const mlme_poll_t
     buf->security_mic_len = mac_security_mic_length_get(buf->aux_header.securityLevel);
     buf->mac_header_length_with_security += mac_header_security_aux_header_length(buf->aux_header.securityLevel, buf->aux_header.KeyIdMode);
 
-    if ( cur->mac_short_address > 0xfffd ) {
+    if (cur->mac_short_address > 0xfffd) {
         buf->fcf_dsn.SrcAddrMode = MAC_ADDR_MODE_64_BIT;
     } else {
         buf->fcf_dsn.SrcAddrMode = MAC_ADDR_MODE_16_BIT;
@@ -1565,16 +1566,17 @@ void mac_mlme_poll_req(protocol_interface_rf_mac_setup_s *cur, const mlme_poll_t
     mcps_sap_pd_req_queue_write(cur, buf);
 }
 
-static bool mac_mlme_beacon_at_queue(protocol_interface_rf_mac_setup_s *rf_ptr) {
+static bool mac_mlme_beacon_at_queue(protocol_interface_rf_mac_setup_s *rf_ptr)
+{
     mac_pre_build_frame_t *buf = rf_ptr->active_pd_data_request;
-    if (buf && buf->fcf_dsn.frametype == FC_BEACON_FRAME ) {
+    if (buf && buf->fcf_dsn.frametype == FC_BEACON_FRAME) {
         return true;
     }
 
     buf = rf_ptr->pd_data_request_queue_to_go;
 
-    while(buf) {
-        if (buf->fcf_dsn.frametype == FC_BEACON_FRAME ) {
+    while (buf) {
+        if (buf->fcf_dsn.frametype == FC_BEACON_FRAME) {
             return true;
         }
         buf = buf->next;
@@ -1599,12 +1601,12 @@ int8_t mac_mlme_beacon_tx(protocol_interface_rf_mac_setup_s *rf_ptr)
     if (rf_ptr->fhss_api) {
         length += FHSS_SYNCH_INFO_LENGTH;
     }
-   /* if (rf_ptr->beacon_join_priority_tx_cb_ptr) {
-        length += 2;
-    }*/
+    /* if (rf_ptr->beacon_join_priority_tx_cb_ptr) {
+         length += 2;
+     }*/
 
     mac_pre_build_frame_t *buf = mcps_sap_prebuild_frame_buffer_get(length);
-    if(!buf) {
+    if (!buf) {
         return -1;
     }
     uint8_t sf_2 = 0x0f;

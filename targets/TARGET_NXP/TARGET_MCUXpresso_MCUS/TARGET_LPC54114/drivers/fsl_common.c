@@ -38,8 +38,7 @@
 void __aeabi_assert(const char *failedExpr, const char *file, int line)
 {
     PRINTF("ASSERT ERROR \" %s \": file \"%s\" Line \"%d\" \n", failedExpr, file, line);
-    for (;;)
-    {
+    for (;;) {
         __asm("bkpt #0");
     }
 }
@@ -47,8 +46,7 @@ void __aeabi_assert(const char *failedExpr, const char *file, int line)
 void __assert_func(const char *file, int line, const char *func, const char *failedExpr)
 {
     PRINTF("ASSERT ERROR \" %s \": file \"%s\" Line \"%d\" function name \"%s\" \n", failedExpr, file, line, func);
-    for (;;)
-    {
+    for (;;) {
         __asm("bkpt #0");
     }
 }
@@ -57,7 +55,7 @@ void __assert_func(const char *file, int line, const char *func, const char *fai
 #endif
 void InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
 {
-/* Addresses for VECTOR_TABLE and VECTOR_RAM come from the linker file */
+    /* Addresses for VECTOR_TABLE and VECTOR_RAM come from the linker file */
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     extern uint32_t Image$$VECTOR_ROM$$Base[];
     extern uint32_t Image$$VECTOR_RAM$$Base[];
@@ -81,11 +79,9 @@ void InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
 
     interrupts_disabled = __get_PRIMASK();
     __disable_irq();
-    if (SCB->VTOR != (uint32_t)__VECTOR_RAM)
-    {
+    if (SCB->VTOR != (uint32_t)__VECTOR_RAM) {
         /* Copy the vector table from ROM to RAM */
-        for (n = 0; n < ((uint32_t)__RAM_VECTOR_TABLE_SIZE) / sizeof(uint32_t); n++)
-        {
+        for (n = 0; n < ((uint32_t)__RAM_VECTOR_TABLE_SIZE) / sizeof(uint32_t); n++) {
             __VECTOR_RAM[n] = __VECTOR_TABLE[n];
         }
         /* Point the VTOR to the position of vector table */
@@ -96,7 +92,7 @@ void InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
     __VECTOR_RAM[irq + 16] = irqHandler;
 
     if (!interrupts_disabled) {
-    __enable_irq();
+        __enable_irq();
     }
 }
 #ifndef CPU_QN908X
@@ -106,8 +102,7 @@ void EnableDeepSleepIRQ(IRQn_Type interrupt)
 {
     uint32_t index = 0;
     uint32_t intNumber = (uint32_t)interrupt;
-    while (intNumber >= 32u)
-    {
+    while (intNumber >= 32u) {
         index++;
         intNumber -= 32u;
     }
@@ -120,8 +115,7 @@ void DisableDeepSleepIRQ(IRQn_Type interrupt)
 {
     uint32_t index = 0;
     uint32_t intNumber = (uint32_t)interrupt;
-    while (intNumber >= 32u)
-    {
+    while (intNumber >= 32u) {
         index++;
         intNumber -= 32u;
     }
@@ -135,8 +129,7 @@ void EnableDeepSleepIRQ(IRQn_Type interrupt)
 {
     uint32_t index = 0;
     uint32_t intNumber = (uint32_t)interrupt;
-    while (intNumber >= 32u)
-    {
+    while (intNumber >= 32u) {
         index++;
         intNumber -= 32u;
     }
@@ -149,13 +142,12 @@ void DisableDeepSleepIRQ(IRQn_Type interrupt)
 {
     uint32_t index = 0;
     uint32_t intNumber = (uint32_t)interrupt;
-    while (intNumber >= 32u)
-    {
+    while (intNumber >= 32u) {
         index++;
         intNumber -= 32u;
     }
 
     DisableIRQ(interrupt); /* also disable interrupt at NVIC */
-                           /*   SYSCON->STARTERCLR[index] = 1u << intNumber; */
+    /*   SYSCON->STARTERCLR[index] = 1u << intNumber; */
 }
 #endif /*CPU_QN908X */

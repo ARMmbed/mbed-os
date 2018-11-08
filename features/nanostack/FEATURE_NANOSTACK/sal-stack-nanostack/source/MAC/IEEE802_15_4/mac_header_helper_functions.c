@@ -73,11 +73,11 @@ uint8_t mac_header_security_aux_header_length(uint8_t security_level, uint8_t ke
 uint8_t mac_header_address_length(const mac_fcf_sequence_t *fcf)
 {
     uint8_t address_length = 0;
-    if( !fcf ){
+    if (!fcf) {
         return address_length;
     }
 
-    if(fcf->DstAddrMode && fcf->SrcAddrMode) {
+    if (fcf->DstAddrMode && fcf->SrcAddrMode) {
         if (fcf->DstAddrMode == MAC_ADDR_MODE_16_BIT) {
             address_length = 4;
         } else {
@@ -99,7 +99,7 @@ uint8_t mac_header_address_length(const mac_fcf_sequence_t *fcf)
         } else {
             address_length = 10;
         }
-    } else if (fcf->SrcAddrMode){
+    } else if (fcf->SrcAddrMode) {
         if (fcf->SrcAddrMode == MAC_ADDR_MODE_16_BIT) {
             address_length = 4;
         } else {
@@ -112,7 +112,7 @@ uint8_t mac_header_address_length(const mac_fcf_sequence_t *fcf)
 
 void mac_header_security_parameter_set(mac_aux_security_header_t *header, const mlme_security_t *frame_setup)
 {
-    if( !header || !frame_setup ){
+    if (!header || !frame_setup) {
         return;
     }
     header->securityLevel = frame_setup->SecurityLevel;
@@ -136,14 +136,14 @@ void mac_header_security_parameter_set(mac_aux_security_header_t *header, const 
                 break;
         }
         if (keysource_len) {
-            memcpy(header->Keysource, frame_setup->Keysource , keysource_len);
+            memcpy(header->Keysource, frame_setup->Keysource, keysource_len);
         }
     }
 }
 
 void mac_header_parse_fcf_dsn(mac_fcf_sequence_t *header, const uint8_t *ptr)
 {
-    if( !header || !ptr ){
+    if (!header || !ptr) {
         return;
     }
     uint16_t fcf = common_read_16_bit_inverse(ptr);
@@ -155,15 +155,15 @@ void mac_header_parse_fcf_dsn(mac_fcf_sequence_t *header, const uint8_t *ptr)
     header->securityEnabled = ((fcf & MAC_FCF_SECURITY_BIT_MASK) >> MAC_FCF_SECURITY_BIT_SHIFT);
     header->framePending = ((fcf & MAC_FCF_PENDING_BIT_MASK) >> MAC_FCF_PENDING_BIT_SHIFT);
     header->ackRequested = ((fcf & MAC_FCF_ACK_REQ_BIT_MASK) >> MAC_FCF_ACK_REQ_BIT_SHIFT);
-    header->intraPan = ((fcf & MAC_FCF_INTRA_PANID_MASK ) >> MAC_FCF_INTRA_PANID_SHIFT);
-    header->DstAddrMode = ((fcf & MAC_FCF_DST_ADDR_MASK ) >> MAC_FCF_DST_ADDR_SHIFT);
+    header->intraPan = ((fcf & MAC_FCF_INTRA_PANID_MASK) >> MAC_FCF_INTRA_PANID_SHIFT);
+    header->DstAddrMode = ((fcf & MAC_FCF_DST_ADDR_MASK) >> MAC_FCF_DST_ADDR_SHIFT);
     header->frameVersion = ((fcf & MAC_FCF_VERSION_MASK) >> MAC_FCF_VERSION_SHIFT);
-    header->SrcAddrMode = ((fcf & MAC_FCF_SRC_ADDR_MASK ) >> MAC_FCF_SRC_ADDR_SHIFT);
+    header->SrcAddrMode = ((fcf & MAC_FCF_SRC_ADDR_MASK) >> MAC_FCF_SRC_ADDR_SHIFT);
 }
 
-static uint8_t * mac_header_write_fcf_dsn(const mac_fcf_sequence_t *header, uint8_t *ptr)
+static uint8_t *mac_header_write_fcf_dsn(const mac_fcf_sequence_t *header, uint8_t *ptr)
 {
-    uint16_t fcf= 0;
+    uint16_t fcf = 0;
     //Read Frame Type
     fcf |= (header->frametype << MAC_FCF_FRAME_TYPE_SHIFT);
     fcf |= (header->securityEnabled << MAC_FCF_SECURITY_BIT_SHIFT);
@@ -173,14 +173,14 @@ static uint8_t * mac_header_write_fcf_dsn(const mac_fcf_sequence_t *header, uint
     fcf |= (header->DstAddrMode << MAC_FCF_DST_ADDR_SHIFT);
     fcf |= (header->frameVersion << MAC_FCF_VERSION_SHIFT);
     fcf |= (header->SrcAddrMode << MAC_FCF_SRC_ADDR_SHIFT);
-    ptr = common_write_16_bit_inverse(fcf,ptr);
+    ptr = common_write_16_bit_inverse(fcf, ptr);
     *ptr++ = header->DSN;
     return ptr;
 }
 
 void mac_header_security_components_read(mac_pre_parsed_frame_t *buffer, mlme_security_t *security_params)
 {
-    if( !buffer || !security_params ){
+    if (!buffer || !security_params) {
         return;
     }
     uint8_t *ptr = mcps_mac_security_aux_header_start_pointer_get(buffer);
@@ -210,7 +210,7 @@ void mac_header_security_components_read(mac_pre_parsed_frame_t *buffer, mlme_se
 
 uint16_t mac_header_get_src_panid(const mac_fcf_sequence_t *header, const uint8_t *ptr)
 {
-    if( !header || !ptr ){
+    if (!header || !ptr) {
         return 0;
     }
     ptr += 3; //Skip FCF + DSN
@@ -236,7 +236,7 @@ uint16_t mac_header_get_src_panid(const mac_fcf_sequence_t *header, const uint8_
 
 uint16_t mac_header_get_dst_panid(const mac_fcf_sequence_t *header, const uint8_t *ptr)
 {
-    if( !header || !ptr ){
+    if (!header || !ptr) {
         return 0;
     }
     if (header->DstAddrMode == MAC_ADDR_MODE_NONE) {
@@ -252,7 +252,7 @@ uint16_t mac_header_get_dst_panid(const mac_fcf_sequence_t *header, const uint8_
 
 void mac_header_get_src_address(const mac_fcf_sequence_t *header, const uint8_t *ptr, uint8_t *address_ptr)
 {
-    if( !header || !ptr || !address_ptr ){
+    if (!header || !ptr || !address_ptr) {
         return;
     }
     ptr += 3; //Skip FCF + DSN
@@ -294,7 +294,7 @@ void mac_header_get_src_address(const mac_fcf_sequence_t *header, const uint8_t 
 
 void mac_header_get_dst_address(const mac_fcf_sequence_t *header, const uint8_t *ptr, uint8_t *address_ptr)
 {
-    if( !header || !ptr || !address_ptr ){
+    if (!header || !ptr || !address_ptr) {
         return;
     }
 
@@ -319,7 +319,7 @@ void mac_header_get_dst_address(const mac_fcf_sequence_t *header, const uint8_t 
 
 uint16_t mcps_payload_length_from_received_frame(const mac_pre_parsed_frame_t *buffer)
 {
-    if( !buffer ){
+    if (!buffer) {
         return 0;
     }
     return buffer->mac_payload_length;
@@ -327,7 +327,7 @@ uint16_t mcps_payload_length_from_received_frame(const mac_pre_parsed_frame_t *b
 
 uint8_t mcps_mac_header_length_from_received_frame(const mac_pre_parsed_frame_t *buffer)
 {
-    if( !buffer ){
+    if (!buffer) {
         return 0;
     }
     return (buffer->mac_header_length + buffer->security_aux_header_length);
@@ -335,7 +335,7 @@ uint8_t mcps_mac_header_length_from_received_frame(const mac_pre_parsed_frame_t 
 
 uint8_t *mcps_mac_payload_pointer_get(const mac_pre_parsed_frame_t *buffer)
 {
-    if( !buffer ){
+    if (!buffer) {
         return NULL;
     }
     uint8_t *ptr = (uint8_t *) mac_header_message_start_pointer(buffer);
@@ -357,12 +357,12 @@ uint8_t *mcps_mac_security_aux_header_start_pointer_get(const mac_pre_parsed_fra
     if (!buffer || !buffer->fcf_dsn.securityEnabled) {
         return NULL;
     }
-    return (uint8_t *) (mac_header_message_start_pointer(buffer) + buffer->mac_header_length);
+    return (uint8_t *)(mac_header_message_start_pointer(buffer) + buffer->mac_header_length);
 }
 
 uint8_t mcps_mac_command_frame_id_get(const mac_pre_parsed_frame_t *buffer)
 {
-    if ( !buffer ) {
+    if (!buffer) {
         return 0;
     }
     const uint8_t *ptr = mcps_mac_payload_pointer_get(buffer);
@@ -395,7 +395,7 @@ static uint8_t *mcps_mac_frame_address_write(uint8_t *ptr, uint8_t addressType, 
     return ptr;
 }
 
-uint8_t * mcps_generic_header_write(uint8_t *ptr, const mac_pre_build_frame_t *buffer)
+uint8_t *mcps_generic_header_write(uint8_t *ptr, const mac_pre_build_frame_t *buffer)
 {
     ptr = mac_header_write_fcf_dsn(&buffer->fcf_dsn, ptr);
 
@@ -405,7 +405,7 @@ uint8_t * mcps_generic_header_write(uint8_t *ptr, const mac_pre_build_frame_t *b
         ptr = mcps_mac_frame_address_write(ptr, buffer->fcf_dsn.DstAddrMode,  buffer->DstAddr);
     }
 
-    if (buffer->fcf_dsn.SrcAddrMode ){
+    if (buffer->fcf_dsn.SrcAddrMode) {
         if (!(buffer->fcf_dsn.intraPan)) {
             ptr = common_write_16_bit_inverse(buffer->SrcPANId, ptr);
         }

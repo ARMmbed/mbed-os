@@ -87,7 +87,7 @@ enum {
      */
     BLE_UUID_DESCRIPTOR_CHAR_AGGREGATE_FORMAT = 0x2905,
 
-/* GATT specific UUIDs */
+    /* GATT specific UUIDs */
     /**
      * Generic Attribute Profile.
      */
@@ -98,7 +98,7 @@ enum {
      */
     BLE_UUID_GATT_CHARACTERISTIC_SERVICE_CHANGED = 0x2A05,
 
-/* GAP specific UUIDs */
+    /* GAP specific UUIDs */
 
     /**
      * Generic Access Profile.

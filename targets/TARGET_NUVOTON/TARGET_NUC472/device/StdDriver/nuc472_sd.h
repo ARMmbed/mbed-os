@@ -41,7 +41,7 @@
 #define SD_TYPE_SD_HIGH 1
 #define SD_TYPE_SD_LOW      2
 #define SD_TYPE_MMC     3
-#define SD_TYPE_EMMC		4
+#define SD_TYPE_EMMC        4
 
 /* SD error */
 #define SD_NO_SD_CARD           (SD_ERR_ID|0x10)
@@ -113,7 +113,7 @@ extern SD_INFO_T SD1;
  *                           \ref SDH_INTEN_WKIEN_Msk
  *
  *  @return   None.
- * \hideinitializer 
+ * \hideinitializer
  */
 #define SD_ENABLE_INT(u32IntMask)    (SD->INTEN |= (u32IntMask))
 
@@ -126,7 +126,7 @@ extern SD_INFO_T SD1;
  *                           \ref SDH_INTEN_WKIEN_Msk / \ref SDH_INTEN_CDSRC0_Msk / \ref SDH_INTEN_CDSRC1_Msk
  *
  *  @return   None.
- * \hideinitializer 
+ * \hideinitializer
  */
 #define SD_DISABLE_INT(u32IntMask)    (SD->INTEN &= ~(u32IntMask))
 
@@ -142,7 +142,7 @@ extern SD_INFO_T SD1;
  *
  *  @return  0 = The specified interrupt is not happened.
  *            1 = The specified interrupt is happened.
- * \hideinitializer 
+ * \hideinitializer
  */
 #define SD_GET_INT_FLAG(u32IntMask) ((SD->INTSTS & (u32IntMask))?1:0)
 
@@ -157,7 +157,7 @@ extern SD_INFO_T SD1;
  *
  *
  *  @return   None.
- * \hideinitializer 
+ * \hideinitializer
  */
 #define SD_CLR_INT_FLAG(u32IntMask) (SD->INTSTS = u32IntMask)
 
@@ -169,7 +169,7 @@ extern SD_INFO_T SD1;
  *
  *  @return   1: Card inserted.
  *            0: Card removed.
- * \hideinitializer 
+ * \hideinitializer
  */
 #define SD_IS_CARD_PRESENT(u32CardNum) ((u32CardNum & (SD_PORT0))?(SD0.IsCardInsert):(SD1.IsCardInsert))
 
@@ -179,7 +179,7 @@ extern SD_INFO_T SD1;
  *  @param[in]    u32CardNum    Select SD0 or SD1. ( \ref SD_PORT0 / \ref SD_PORT1)
  *
  *  @return   SD Card capacity. (unit: KByte)
- * \hideinitializer 
+ * \hideinitializer
  */
 #define SD_GET_CARD_CAPACITY(u32CardNum)  ((u32CardNum & (SD_PORT0))?(SD_DiskInfo0.diskSize):(SD_DiskInfo1.diskSize))
 

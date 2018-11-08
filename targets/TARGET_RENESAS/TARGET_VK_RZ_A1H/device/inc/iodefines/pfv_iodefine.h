@@ -30,8 +30,8 @@
 #define PFV_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_pfv
-{                                                          /* PFV              */
+struct st_pfv {
+    /* PFV              */
     volatile uint32_t  PFVCR;                                  /*  PFVCR           */
     volatile uint32_t  PFVICR;                                 /*  PFVICR          */
     volatile uint32_t  PFVISR;                                 /*  PFVISR          */

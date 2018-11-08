@@ -76,19 +76,19 @@
   *             protection unit (TPU) with encryption and advanced security
   *             features. These features include a modular arithmetic
   *             accelerator (MAA) for fast ECDSA, a hardware PRNG entropy
-  *             generator, and a secure boot loader. 
+  *             generator, and a secure boot loader.
   * @{
   */
 #ifndef  FALSE
 /**
   * @internal False
   */
-#define  FALSE      (0) 
+#define  FALSE      (0)
 #endif
 
 #ifndef  TRUE
 /**
- * @internal True 
+ * @internal True
  */
 #define  TRUE       (1)
 #endif
@@ -108,10 +108,10 @@
  * @{
  */
 /**
- * \MXIM_Device Nested Interrupt Vector Table (NVIC).    
+ * \MXIM_Device Nested Interrupt Vector Table (NVIC).
  * @details
  * NVIC Peripheral Entry numbers and Offsets are shown in the table below.
- * 
+ *
  * | Entry   | Offset  | Peripheral                            |
  * |-------: | ------: | :------------------------------------ |
  * | 0x10    | 0x0040  |  CLKMAN                               |
@@ -165,7 +165,7 @@
  * | 0x40    | 0x0100  |  ADC                                  |
  * | 0x41    | 0x0104  |  SPI Slave                            |
  * | 0x42    | 0x0108  |  GPIO Port 7                          |
- * | 0x43    | 0x010C  |  GPIO Port 8                          |            
+ * | 0x43    | 0x010C  |  GPIO Port 8                          |
  */
 
 /**
@@ -495,23 +495,23 @@ typedef enum {
 #define MXC_WDT_GET_IRQ_P(i)             (IRQn_Type)((i) == 0 ? WDT0_P_IRQn :  \
                                           (i) == 1 ? WDT1_P_IRQn : 0)
 /**
- * Macro to return the base address for a requested Watchdog Timer index number. 
+ * Macro to return the base address for a requested Watchdog Timer index number.
  * @p i WDT instance number.
- * @p returns the base peripheral address for the requested Watchdog Timer instance. 
+ * @p returns the base peripheral address for the requested Watchdog Timer instance.
  */
 #define MXC_WDT_GET_BASE(i)              ((i) == 0 ? MXC_BASE_WDT0 :           \
                                           (i) == 1 ? MXC_BASE_WDT1 : 0)
 /**
- * Macro to return a pointer to the #mxc_tmr_regs_t object for the requested Watchdog Timer. 
- * @p i Watchdog Timer instance number.  
- * @p returns a pointer to a #mxc_wdt_regs_t for the requested WDT number. 
+ * Macro to return a pointer to the #mxc_tmr_regs_t object for the requested Watchdog Timer.
+ * @p i Watchdog Timer instance number.
+ * @p returns a pointer to a #mxc_wdt_regs_t for the requested WDT number.
  */
 #define MXC_WDT_GET_WDT(i)               ((i) == 0 ? MXC_WDT0 :                \
                                           (i) == 1 ? MXC_WDT1 : 0)
 /**
  * Macro to return the index number for a given #mxc_wdt_regs_t structure.
- * @p p pointer to a #mxc_wdt_regs_t structure. 
- * @p returns a watchdog timer instance number. 
+ * @p p pointer to a #mxc_wdt_regs_t structure.
+ * @p returns a watchdog timer instance number.
  */
 #define MXC_WDT_GET_IDX(i)               ((i) == MXC_WDT0 ? 0:                 \
                                           (i) == MXC_WDT1 ? 1: -1)
@@ -523,8 +523,8 @@ typedef enum {
  * @ingroup wdt2_registers
  * @{
  */
-#define MXC_BASE_WDT2                    ((uint32_t)0x40007C60UL)                   /**< Base Peripheral Address for WDT 2 */ 
-#define MXC_WDT2                         ((mxc_wdt2_regs_t *)MXC_BASE_WDT2)         /**< Pointer to the #mxc_wdt2_regs_t structure representing the WDT2 hardware registers. */  
+#define MXC_BASE_WDT2                    ((uint32_t)0x40007C60UL)                   /**< Base Peripheral Address for WDT 2 */
+#define MXC_WDT2                         ((mxc_wdt2_regs_t *)MXC_BASE_WDT2)         /**< Pointer to the #mxc_wdt2_regs_t structure representing the WDT2 hardware registers. */
 /**@} end of ingroup wdt2_registers */
 
 
@@ -575,7 +575,7 @@ typedef enum {
 #define MXC_TMR5                         ((mxc_tmr_regs_t *)MXC_BASE_TMR5)  /**< Pointer to a #mxc_tmr_regs_t structure representing Timer 5 */
 
 /**
- * Macro that returns an #IRQn_Type for the requested 32-bit timer interrupt.  
+ * Macro that returns an #IRQn_Type for the requested 32-bit timer interrupt.
  */
 #define MXC_TMR_GET_IRQ_32(i)            (IRQn_Type)((i) == 0 ? TMR0_0_IRQn :     \
                                                      (i) == 1 ? TMR1_0_IRQn :     \
@@ -584,7 +584,7 @@ typedef enum {
                                                      (i) == 4 ? TMR4_0_IRQn :     \
                                                      (i) == 5 ? TMR5_0_IRQn : 0)
 /**
- * Macro that returns an IRQn_Type for the requested 16-bit timer interrupt number.  
+ * Macro that returns an IRQn_Type for the requested 16-bit timer interrupt number.
  */
 #define MXC_TMR_GET_IRQ_16(i)            (IRQn_Type)((i) == 0  ? TMR0_0_IRQn :    \
                                                      (i) == 1  ? TMR1_0_IRQn :    \
@@ -599,9 +599,9 @@ typedef enum {
                                                      (i) == 10 ? TMR4_1_IRQn :    \
                                                      (i) == 11 ? TMR5_1_IRQn : 0)
 /**
- * Macro to return the base address for a given Timer index number. 
+ * Macro to return the base address for a given Timer index number.
  * @p i Timer instance number.
- * @p returns the base peripheral address for the requested timer instance. 
+ * @p returns the base peripheral address for the requested timer instance.
  */
 #define MXC_TMR_GET_BASE(i)              ((i) == 0 ? MXC_BASE_TMR0 :   \
                                           (i) == 1 ? MXC_BASE_TMR1 :   \
@@ -610,9 +610,9 @@ typedef enum {
                                           (i) == 4 ? MXC_BASE_TMR4 :   \
                                           (i) == 5 ? MXC_BASE_TMR5 : 0)
 /**
- * Macro to return a pointer to the #mxc_tmr_regs_t structure for a given Timer Instance. 
- * @p i Timer instance number.  
- * @p returns a pointer to a #mxc_tmr_regs_t for the requested timer number. 
+ * Macro to return a pointer to the #mxc_tmr_regs_t structure for a given Timer Instance.
+ * @p i Timer instance number.
+ * @p returns a pointer to a #mxc_tmr_regs_t for the requested timer number.
  */
 #define MXC_TMR_GET_TMR(i)               ((i) == 0 ? MXC_TMR0 :        \
                                           (i) == 1 ? MXC_TMR1 :        \
@@ -622,8 +622,8 @@ typedef enum {
                                           (i) == 5 ? MXC_TMR5 : 0)
 /**
  * Macro to return the index number for a given pointer to a #mxc_tmr_regs_t structure.
- * @p p pointer to a #mxc_tmr_regs_t structure. 
- * @p returns a timer instance number. 
+ * @p p pointer to a #mxc_tmr_regs_t structure.
+ * @p returns a timer instance number.
  */
 #define MXC_TMR_GET_IDX(p)               ((p) == MXC_TMR0 ? 0 :        \
                                           (p) == MXC_TMR1 ? 1 :        \
@@ -634,9 +634,9 @@ typedef enum {
 
 /**@} end of ingroup tmr_registers */
 
-/** 
- * @ingroup product_name 
- * @{ 
+/**
+ * @ingroup product_name
+ * @{
  */
 /* *************************************************************************** */
 /*                                                      Pulse Train Generation */

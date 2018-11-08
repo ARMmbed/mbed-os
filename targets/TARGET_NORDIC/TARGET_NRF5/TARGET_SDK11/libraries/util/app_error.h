@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -68,19 +68,17 @@
 
 /**@brief Structure containing info about an error of the type @ref NRF_FAULT_ID_SDK_ERROR.
  */
-typedef struct
-{
+typedef struct {
     uint16_t        line_num;    /**< The line number where the error occurred. */
-    uint8_t const * p_file_name; /**< The file in which the error occurred. */
+    uint8_t const *p_file_name;  /**< The file in which the error occurred. */
     uint32_t        err_code;    /**< The error code representing the error that occurred. */
 } error_info_t;
 
 /**@brief Structure containing info about an error of the type @ref NRF_FAULT_ID_SDK_ASSERT.
  */
-typedef struct
-{
+typedef struct {
     uint16_t        line_num;    /**< The line number where the error occurred. */
-    uint8_t const * p_file_name; /**< The file in which the error occurred. */
+    uint8_t const *p_file_name;  /**< The file in which the error occurred. */
 } assert_info_t;
 
 /**@brief Function for error handling, which is called when an error has occurred.
@@ -89,7 +87,7 @@ typedef struct
  * @param[in] line_num    Line number where the handler is called.
  * @param[in] p_file_name Pointer to the file name.
  */
-void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name);
+void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name);
 
 /**@brief Function for error handling, which is called when an error has occurred.
  *
@@ -120,13 +118,11 @@ void app_error_save_and_stop(uint32_t id, uint32_t pc, uint32_t info);
  */
 static __INLINE void app_error_log(uint32_t id, uint32_t pc, uint32_t info)
 {
-    switch (id)
-    {
+    switch (id) {
         case NRF_FAULT_ID_SDK_ASSERT:
             NRF_LOG(NRF_LOG_COLOR_RED "\n*** ASSERTION FAILED ***\n");
-            if (((assert_info_t *)(info))->p_file_name)
-            {
-                NRF_LOG_PRINTF(NRF_LOG_COLOR_WHITE "Line Number: %u\n", (unsigned int) ((assert_info_t *)(info))->line_num);
+            if (((assert_info_t *)(info))->p_file_name) {
+                NRF_LOG_PRINTF(NRF_LOG_COLOR_WHITE "Line Number: %u\n", (unsigned int)((assert_info_t *)(info))->line_num);
                 NRF_LOG_PRINTF("File Name:   %s\n", ((assert_info_t *)(info))->p_file_name);
             }
             NRF_LOG_PRINTF(NRF_LOG_COLOR_DEFAULT "\n");
@@ -134,12 +130,11 @@ static __INLINE void app_error_log(uint32_t id, uint32_t pc, uint32_t info)
 
         case NRF_FAULT_ID_SDK_ERROR:
             NRF_LOG(NRF_LOG_COLOR_RED "\n*** APPLICATION ERROR *** \n" NRF_LOG_COLOR_WHITE);
-            if (((error_info_t *)(info))->p_file_name)
-            {
-                NRF_LOG_PRINTF("Line Number: %u\n", (unsigned int) ((error_info_t *)(info))->line_num);
+            if (((error_info_t *)(info))->p_file_name) {
+                NRF_LOG_PRINTF("Line Number: %u\n", (unsigned int)((error_info_t *)(info))->line_num);
                 NRF_LOG_PRINTF("File Name:   %s\n", ((error_info_t *)(info))->p_file_name);
             }
-            NRF_LOG_PRINTF("Error Code:  0x%X\n" NRF_LOG_COLOR_DEFAULT "\n", (unsigned int) ((error_info_t *)(info))->err_code);
+            NRF_LOG_PRINTF("Error Code:  0x%X\n" NRF_LOG_COLOR_DEFAULT "\n", (unsigned int)((error_info_t *)(info))->err_code);
             break;
     }
 }
@@ -161,16 +156,15 @@ static __INLINE void app_error_print(uint32_t id, uint32_t pc, uint32_t info)
     printf("Program counter:   0x%X\r\n", tmp = pc);
     printf("Fault information: 0x%X\r\n", tmp = info);
 
-    switch (id)
-    {
+    switch (id) {
         case NRF_FAULT_ID_SDK_ASSERT:
             printf("Line Number: %u\r\n", tmp = ((assert_info_t *)(info))->line_num);
-            printf("File Name:   %s\r\n",       ((assert_info_t *)(info))->p_file_name);
+            printf("File Name:   %s\r\n", ((assert_info_t *)(info))->p_file_name);
             break;
 
         case NRF_FAULT_ID_SDK_ERROR:
             printf("Line Number: %u\r\n",   tmp = ((error_info_t *)(info))->line_num);
-            printf("File Name:   %s\r\n",         ((error_info_t *)(info))->p_file_name);
+            printf("File Name:   %s\r\n", ((error_info_t *)(info))->p_file_name);
             printf("Error Code:  0x%X\r\n", tmp = ((error_info_t *)(info))->err_code);
             break;
     }

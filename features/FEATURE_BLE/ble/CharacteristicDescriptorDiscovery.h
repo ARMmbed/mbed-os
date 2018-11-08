@@ -84,7 +84,7 @@ public:
         /**
          * Characteristic for which descriptors has been discovered.
          */
-        const DiscoveredCharacteristic& characteristic;
+        const DiscoveredCharacteristic &characteristic;
 
         /**
          * Status of the discovery operation.
@@ -111,8 +111,8 @@ public:
      * GattClient::discoverCharacteristicDescriptors
      * DiscoveredCharacteristic::discoverDescriptors
      */
-    typedef FunctionPointerWithContext<const DiscoveryCallbackParams_t*>
-        DiscoveryCallback_t;
+    typedef FunctionPointerWithContext<const DiscoveryCallbackParams_t *>
+    DiscoveryCallback_t;
 
     /**
      * Handler of Characteristic descriptor discovery ended event.
@@ -128,8 +128,8 @@ public:
      * GattClient::discoverCharacteristicDescriptors
      * DiscoveredCharacteristic::discoverDescriptors
      */
-    typedef FunctionPointerWithContext<const TerminationCallbackParams_t*>
-        TerminationCallback_t;
+    typedef FunctionPointerWithContext<const TerminationCallbackParams_t *>
+    TerminationCallback_t;
 };
 
 /**

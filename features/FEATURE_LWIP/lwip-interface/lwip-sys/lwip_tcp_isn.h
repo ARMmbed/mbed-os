@@ -36,7 +36,7 @@ extern "C" {
 
 void lwip_init_tcp_isn(uint32_t boot_time, const uint8_t *secret_16_bytes);
 uint32_t lwip_hook_tcp_isn(const void *local_ip, uint16_t local_port,
-                        const void *remote_ip, uint16_t remote_port);
+                           const void *remote_ip, uint16_t remote_port);
 
 
 #ifdef __cplusplus

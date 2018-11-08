@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -70,8 +70,7 @@
  *
  * @details This enumeration contains the types of events that will be received from the DFU Service.
  */
-typedef enum
-{
+typedef enum {
     BLE_DFU_START,                                                      /**< The event indicating that the peer wants the application to prepare for a new firmware update. */
     BLE_DFU_RECEIVE_INIT_DATA,                                          /**< The event indicating that the peer wants the application to prepare to receive init parameters. */
     BLE_DFU_RECEIVE_APP_DATA,                                           /**< The event indicating that the peer wants the application to prepare to receive the new firmware image. */
@@ -88,8 +87,7 @@ typedef enum
  *
  * @details This enumeration contains the types of DFU procedures.
  */
-typedef enum
-{
+typedef enum {
     BLE_DFU_START_PROCEDURE        = 1,                                 /**< DFU Start procedure.*/
     BLE_DFU_INIT_PROCEDURE         = 2,                                 /**< DFU Initialization procedure.*/
     BLE_DFU_RECEIVE_APP_PROCEDURE  = 3,                                 /**< Firmware receiving procedure.*/
@@ -99,8 +97,7 @@ typedef enum
 
 /**@brief   DFU Response value type.
  */
-typedef enum
-{
+typedef enum {
     BLE_DFU_RESP_VAL_SUCCESS = 1,                                       /**< Success.*/
     BLE_DFU_RESP_VAL_INVALID_STATE,                                     /**< Invalid state.*/
     BLE_DFU_RESP_VAL_NOT_SUPPORTED,                                     /**< Operation not supported.*/
@@ -116,9 +113,8 @@ typedef enum
  *          peer and the length of the value written. It will be filled by the DFU Service when the
  *          peer writes to the DFU Packet characteristic.
  */
-typedef struct
-{
-    uint8_t *                    p_data;                                /**< Pointer to the received packet. This will point to a word aligned memory location.*/
+typedef struct {
+    uint8_t                     *p_data;                                /**< Pointer to the received packet. This will point to a word aligned memory location.*/
     uint8_t                      len;                                   /**< Length of the packet received. */
 } ble_dfu_pkt_write_t;
 
@@ -127,8 +123,7 @@ typedef struct
  * @details This structure contains the contents of the packet receipt notification request
  *          sent by the DFU Controller.
  */
-typedef struct
-{
+typedef struct {
     uint16_t                     num_of_pkts;                           /**< The number of packets of firmware data to be received by application before sending the next Packet Receipt Notification to the peer. */
 } ble_pkt_rcpt_notif_req_t;
 
@@ -137,11 +132,9 @@ typedef struct
  * @details This structure contains the event generated by the DFU Service based on the data
  *          received from the peer.
  */
-typedef struct
-{
+typedef struct {
     ble_dfu_evt_type_t           ble_dfu_evt_type;                      /**< Type of the event.*/
-    union
-    {
+    union {
         ble_dfu_pkt_write_t      ble_dfu_pkt_write;                     /**< The DFU packet received. This field is when the @ref ble_dfu_evt_type field is set to @ref BLE_DFU_PACKET_WRITE.*/
         ble_pkt_rcpt_notif_req_t pkt_rcpt_notif_req;                    /**< Packet receipt notification request. This field is when the @ref ble_dfu_evt_type field is set to @ref BLE_DFU_PKT_RCPT_NOTIF_ENABLED.*/
     } evt;
@@ -151,14 +144,13 @@ typedef struct
 typedef struct ble_dfu_s ble_dfu_t;
 
 /**@brief DFU Service event handler type. */
-typedef void (*ble_dfu_evt_handler_t) (ble_dfu_t * p_dfu, ble_dfu_evt_t * p_evt);
+typedef void (*ble_dfu_evt_handler_t)(ble_dfu_t *p_dfu, ble_dfu_evt_t *p_evt);
 
 /**@brief   DFU service structure.
  *
  * @details This structure contains status information related to the service.
  */
-struct ble_dfu_s
-{
+struct ble_dfu_s {
     uint16_t                     conn_handle;                           /**< Handle of the current connection (as provided by the SoftDevice). This will be BLE_CONN_HANDLE_INVALID when not in a connection. */
     uint16_t                     revision;                              /**< Handle of DFU Service (as provided by the SoftDevice). */
     uint16_t                     service_handle;                        /**< Handle of DFU Service (as provided by the SoftDevice). */
@@ -177,8 +169,7 @@ struct ble_dfu_s
  *             application needs to fill this structure and pass it to the DFU Service using the
  *             @ref ble_dfu_init function.
  */
-typedef struct
-{
+typedef struct {
     uint16_t                     revision;                              /**< Revision number to be exposed by the DFU service. */
     ble_dfu_evt_handler_t        evt_handler;                           /**< Event handler to be called for handling events in the Device Firmware Update Service. */
     ble_srv_error_handler_t      error_handler;                         /**< Function to be called in case of an error. */
@@ -194,7 +185,7 @@ typedef struct
  * @param[in]  p_dfu        Pointer to the DFU service structure.
  * @param[in]  p_ble_evt    Pointer to the event received from SoftDevice.
  */
-void ble_dfu_on_ble_evt(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt);
+void ble_dfu_on_ble_evt(ble_dfu_t *p_dfu, ble_evt_t *p_ble_evt);
 
 /**@brief      Function for initializing the DFU service.
  *
@@ -208,7 +199,7 @@ void ble_dfu_on_ble_evt(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt);
  *             This function returns NRF_ERROR_NULL if the value of evt_handler in p_dfu_init
  *             structure provided is NULL or if the pointers supplied as input are NULL.
  */
-uint32_t ble_dfu_init(ble_dfu_t * p_dfu, ble_dfu_init_t * p_dfu_init);
+uint32_t ble_dfu_init(ble_dfu_t *p_dfu, ble_dfu_init_t *p_dfu_init);
 
 /**@brief       Function for sending response to a control point command.
  *
@@ -226,7 +217,7 @@ uint32_t ble_dfu_init(ble_dfu_t * p_dfu, ble_dfu_init_t * p_dfu_init);
  *              Status Report characteristic was not enabled by the peer. It returns NRF_ERROR_NULL
  *              if the pointer p_dfu is NULL.
  */
-uint32_t ble_dfu_response_send(ble_dfu_t *          p_dfu,
+uint32_t ble_dfu_response_send(ble_dfu_t           *p_dfu,
                                ble_dfu_procedure_t  dfu_proc,
                                ble_dfu_resp_val_t   resp_val);
 
@@ -242,7 +233,7 @@ uint32_t ble_dfu_response_send(ble_dfu_t *          p_dfu,
  *             Status Report characteristic was not enabled by the peer. It returns NRF_ERROR_NULL
  *             if the pointer p_dfu is NULL.
  */
-uint32_t ble_dfu_bytes_rcvd_report(ble_dfu_t * p_dfu, uint32_t num_of_firmware_bytes_rcvd);
+uint32_t ble_dfu_bytes_rcvd_report(ble_dfu_t *p_dfu, uint32_t num_of_firmware_bytes_rcvd);
 
 /**@brief      Function for sending Packet Receipt Notification to the peer.
  *
@@ -259,7 +250,7 @@ uint32_t ble_dfu_bytes_rcvd_report(ble_dfu_t * p_dfu, uint32_t num_of_firmware_b
  *             Status Report characteristic was not enabled by the peer. It returns NRF_ERROR_NULL
  *             if the pointer p_dfu is NULL.
  */
-uint32_t ble_dfu_pkts_rcpt_notify(ble_dfu_t * p_dfu, uint32_t num_of_firmware_bytes_rcvd);
+uint32_t ble_dfu_pkts_rcpt_notify(ble_dfu_t *p_dfu, uint32_t num_of_firmware_bytes_rcvd);
 
 #endif // BLE_DFU_H__
 

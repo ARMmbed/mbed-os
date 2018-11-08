@@ -91,36 +91,36 @@
  ******************************************************************************/
 void DBG_SWOEnable(unsigned int location)
 {
-  int port;
-  int pin;
+    int port;
+    int pin;
 
-  EFM_ASSERT(location < AFCHANLOC_MAX);
+    EFM_ASSERT(location < AFCHANLOC_MAX);
 
 #if defined (AF_DBG_SWO_PORT)
-  port = AF_DBG_SWO_PORT(location);
-  pin  = AF_DBG_SWO_PIN(location);
+    port = AF_DBG_SWO_PORT(location);
+    pin  = AF_DBG_SWO_PIN(location);
 #elif defined (AF_DBG_SWV_PORT)
-  port = AF_DBG_SWV_PORT(location);
-  pin  = AF_DBG_SWV_PIN(location);
+    port = AF_DBG_SWV_PORT(location);
+    pin  = AF_DBG_SWV_PIN(location);
 #else
 #warning "AF debug port is not defined."
 #endif
 
-  /* Port/pin location not defined for device? */
-  if ((pin < 0) || (port < 0)) {
-    EFM_ASSERT(0);
-    return;
-  }
+    /* Port/pin location not defined for device? */
+    if ((pin < 0) || (port < 0)) {
+        EFM_ASSERT(0);
+        return;
+    }
 
-  /* Ensure auxiliary clock going to the Cortex debug trace module is enabled */
-  CMU_OscillatorEnable(cmuOsc_AUXHFRCO, true, false);
+    /* Ensure auxiliary clock going to the Cortex debug trace module is enabled */
+    CMU_OscillatorEnable(cmuOsc_AUXHFRCO, true, false);
 
-  /* Set selected pin location for SWO pin and enable it */
-  GPIO_DbgLocationSet(location);
-  GPIO_DbgSWOEnable(true);
+    /* Set selected pin location for SWO pin and enable it */
+    GPIO_DbgLocationSet(location);
+    GPIO_DbgSWOEnable(true);
 
-  /* Configure SWO pin for output */
-  GPIO_PinModeSet((GPIO_Port_TypeDef)port, pin, gpioModePushPull, 0);
+    /* Configure SWO pin for output */
+    GPIO_PinModeSet((GPIO_Port_TypeDef)port, pin, gpioModePushPull, 0);
 }
 #endif
 

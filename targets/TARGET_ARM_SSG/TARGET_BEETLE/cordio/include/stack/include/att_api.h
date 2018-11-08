@@ -69,23 +69,23 @@ extern "C" {
 #define ATT_CBACK_START             0x02    /*! ATT callback event starting value */
 enum                                        /*! Internal note: event values match method values */
 {
-  /*! ATT client callback events */
-  ATTC_FIND_INFO_RSP = ATT_CBACK_START,     /*! Find information response */
-  ATTC_FIND_BY_TYPE_VALUE_RSP,              /*! Find by type value response */
-  ATTC_READ_BY_TYPE_RSP,                    /*! Read by type value response */
-  ATTC_READ_RSP,                            /*! Read response */
-  ATTC_READ_LONG_RSP,                       /*! Read long response */
-  ATTC_READ_MULTIPLE_RSP,                   /*! Read multiple response */
-  ATTC_READ_BY_GROUP_TYPE_RSP,              /*! Read group type response */
-  ATTC_WRITE_RSP,                           /*! Write response */
-  ATTC_WRITE_CMD_RSP,                       /*! Write command response */
-  ATTC_PREPARE_WRITE_RSP,                   /*! Prepare write response */
-  ATTC_EXECUTE_WRITE_RSP,                   /*! Execute write response */
-  ATTC_HANDLE_VALUE_NTF,                    /*! Handle value notification */
-  ATTC_HANDLE_VALUE_IND,                    /*! Handle value indication */
-  /*! ATT server callback events */
-  ATTS_HANDLE_VALUE_CNF,                    /*! Handle value confirmation */
-  ATTS_CCC_STATE_IND                        /*! Client chracteristic configuration state change */
+    /*! ATT client callback events */
+    ATTC_FIND_INFO_RSP = ATT_CBACK_START,     /*! Find information response */
+    ATTC_FIND_BY_TYPE_VALUE_RSP,              /*! Find by type value response */
+    ATTC_READ_BY_TYPE_RSP,                    /*! Read by type value response */
+    ATTC_READ_RSP,                            /*! Read response */
+    ATTC_READ_LONG_RSP,                       /*! Read long response */
+    ATTC_READ_MULTIPLE_RSP,                   /*! Read multiple response */
+    ATTC_READ_BY_GROUP_TYPE_RSP,              /*! Read group type response */
+    ATTC_WRITE_RSP,                           /*! Write response */
+    ATTC_WRITE_CMD_RSP,                       /*! Write command response */
+    ATTC_PREPARE_WRITE_RSP,                   /*! Prepare write response */
+    ATTC_EXECUTE_WRITE_RSP,                   /*! Execute write response */
+    ATTC_HANDLE_VALUE_NTF,                    /*! Handle value notification */
+    ATTC_HANDLE_VALUE_IND,                    /*! Handle value indication */
+    /*! ATT server callback events */
+    ATTS_HANDLE_VALUE_CNF,                    /*! Handle value confirmation */
+    ATTS_CCC_STATE_IND                        /*! Client chracteristic configuration state change */
 };
 
 /*! ATT callback events */
@@ -99,12 +99,11 @@ enum                                        /*! Internal note: event values matc
 **************************************************************************************************/
 
 /*! Configurable parameters */
-typedef struct
-{
-  wsfTimerTicks_t   discIdleTimeout;  /*! ATT server service discovery connection idle timeout in seconds */
-  uint16_t          mtu;              /*! desired ATT MTU */
-  uint8_t           transTimeout;     /*! transcation timeout in seconds */
-  uint8_t           numPrepWrites;    /*! number of queued prepare writes supported by server */
+typedef struct {
+    wsfTimerTicks_t   discIdleTimeout;  /*! ATT server service discovery connection idle timeout in seconds */
+    uint16_t          mtu;              /*! desired ATT MTU */
+    uint8_t           transTimeout;     /*! transcation timeout in seconds */
+    uint8_t           numPrepWrites;    /*! number of queued prepare writes supported by server */
 } attCfg_t;
 
 /*!
@@ -112,14 +111,13 @@ typedef struct
  */
 
 /*! Attribute structure */
-typedef struct
-{
-  uint8_t const     *pUuid;           /*! Pointer to the attribute's UUID */
-  uint8_t           *pValue;          /*! Pointer to the attribute's value */
-  uint16_t          *pLen;            /*! Pointer to the length of the attribute's value */
-  uint16_t          maxLen;           /*! Maximum length of attribute's value */
-  uint8_t           settings;         /*! Attribute settings */
-  uint8_t           permissions;      /*! Attribute permissions */
+typedef struct {
+    uint8_t const     *pUuid;           /*! Pointer to the attribute's UUID */
+    uint8_t           *pValue;          /*! Pointer to the attribute's value */
+    uint16_t          *pLen;            /*! Pointer to the length of the attribute's value */
+    uint16_t          maxLen;           /*! Maximum length of attribute's value */
+    uint8_t           settings;         /*! Attribute settings */
+    uint8_t           permissions;      /*! Attribute permissions */
 } attsAttr_t;
 
 /*! Attribute group read callback */
@@ -132,53 +130,48 @@ typedef uint8_t (*attsWriteCback_t)(dmConnId_t connId, uint16_t handle, uint8_t 
                                     attsAttr_t *pAttr);
 
 /*! Attribute group */
-typedef struct attsGroup_tag
-{
-  struct attsGroup_tag  *pNext;       /*! For internal use only */
-  attsAttr_t            *pAttr;       /*! Pointer to attribute list for this group */
-  attsReadCback_t       readCback;    /*! Read callback function */
-  attsWriteCback_t      writeCback;   /*! Write callback function */
-  uint16_t              startHandle;  /*! The handle of the first attribute in this group */
-  uint16_t              endHandle;    /*! The handle of the last attribute in this group */
+typedef struct attsGroup_tag {
+    struct attsGroup_tag  *pNext;       /*! For internal use only */
+    attsAttr_t            *pAttr;       /*! Pointer to attribute list for this group */
+    attsReadCback_t       readCback;    /*! Read callback function */
+    attsWriteCback_t      writeCback;   /*! Write callback function */
+    uint16_t              startHandle;  /*! The handle of the first attribute in this group */
+    uint16_t              endHandle;    /*! The handle of the last attribute in this group */
 } attsGroup_t;
 
 /*! Client characteristc configuration settings */
-typedef struct
-{
-  uint16_t          handle;           /*! Client characteristc configuration descriptor handle */
-  uint16_t          valueRange;       /*! Acceptable value range of the descriptor value */
-  uint8_t           secLevel;         /*! Security level of characteristic value */
+typedef struct {
+    uint16_t          handle;           /*! Client characteristc configuration descriptor handle */
+    uint16_t          valueRange;       /*! Acceptable value range of the descriptor value */
+    uint8_t           secLevel;         /*! Security level of characteristic value */
 } attsCccSet_t;
 
 /*! ATT client structure for characteristic and descriptor discovery */
-typedef struct attcDiscChar_tag
-{
-  uint8_t const           *pUuid;       /*! Pointer to UUID */
-  uint8_t                 settings;     /*! Characteristic discovery settings */
+typedef struct attcDiscChar_tag {
+    uint8_t const           *pUuid;       /*! Pointer to UUID */
+    uint8_t                 settings;     /*! Characteristic discovery settings */
 } attcDiscChar_t;
 
 /*! ATT client structure for characteristic and descriptor configuration */
-typedef struct
-{
-  uint8_t const         *pValue;      /*! Pointer to default value or NULL */
-  uint8_t               valueLen;     /*! Default value length */
-  uint8_t               hdlIdx;       /*! Index of its handle in handle list */
+typedef struct {
+    uint8_t const         *pValue;      /*! Pointer to default value or NULL */
+    uint8_t               valueLen;     /*! Default value length */
+    uint8_t               hdlIdx;       /*! Index of its handle in handle list */
 } attcDiscCfg_t;
 
 /*! ATT client discovery control block */
-typedef struct
-{
-  attcDiscChar_t        **pCharList;  /*! Characterisic list for discovery */
-  uint16_t              *pHdlList;    /*! Characteristic handle list */
-  attcDiscCfg_t         *pCfgList;    /*! Characterisic list for configuration */
-  uint8_t               charListLen;  /*! Characteristic and handle list length */
-  uint8_t               cfgListLen;   /*! Configuration list length */
+typedef struct {
+    attcDiscChar_t        **pCharList;  /*! Characterisic list for discovery */
+    uint16_t              *pHdlList;    /*! Characteristic handle list */
+    attcDiscCfg_t         *pCfgList;    /*! Characterisic list for configuration */
+    uint8_t               charListLen;  /*! Characteristic and handle list length */
+    uint8_t               cfgListLen;   /*! Configuration list length */
 
-  /* the following are for internal use only */
-  uint16_t              svcStartHdl;
-  uint16_t              svcEndHdl;
-  uint8_t               charListIdx;
-  uint8_t               endHdlIdx;
+    /* the following are for internal use only */
+    uint16_t              svcStartHdl;
+    uint16_t              svcEndHdl;
+    uint8_t               charListIdx;
+    uint8_t               endHdlIdx;
 } attcDiscCb_t;
 
 /*!
@@ -191,22 +184,20 @@ typedef struct
  * \param valueLen      Length of value data
  * \param handle        Attribute handle
  */
-typedef struct
-{
-  wsfMsgHdr_t           hdr;          /*! Header structure */
-  uint8_t               *pValue;      /*! Value */
-  uint16_t              valueLen;     /*! Value length */
-  uint16_t              handle;       /*! Attribute handle */
-  bool_t                continuing;   /*! TRUE if more response packets expected */
+typedef struct {
+    wsfMsgHdr_t           hdr;          /*! Header structure */
+    uint8_t               *pValue;      /*! Value */
+    uint16_t              valueLen;     /*! Value length */
+    uint16_t              handle;       /*! Attribute handle */
+    bool_t                continuing;   /*! TRUE if more response packets expected */
 } attEvt_t;
 
 /*! ATTS client characteristic configuration callback structure */
-typedef struct
-{
-  wsfMsgHdr_t           hdr;          /*! Header structure */
-  uint16_t              handle;       /*! CCCD handle */
-  uint16_t              value;        /*! CCCD value */
-  uint8_t               idx;          /*! CCCD settings index */
+typedef struct {
+    wsfMsgHdr_t           hdr;          /*! Header structure */
+    uint16_t              handle;       /*! CCCD handle */
+    uint16_t              value;        /*! CCCD value */
+    uint8_t               idx;          /*! CCCD settings index */
 } attsCccEvt_t;
 
 /*! ATT callback type */

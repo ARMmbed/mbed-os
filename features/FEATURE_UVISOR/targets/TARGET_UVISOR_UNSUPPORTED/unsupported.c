@@ -29,11 +29,13 @@ UVISOR_EXTERN void uvisor_init(void)
     return;
 }
 
-extern RtxBoxIndex * __uvisor_ps;
+extern RtxBoxIndex *__uvisor_ps;
 
 static void thread_switch(void *context)
 {
-    if (context == NULL) return;
+    if (context == NULL) {
+        return;
+    }
 
     /* If the active_heap is NULL, then the process heap needs to be
      * initialized. The initializer sets the active heap itself. */

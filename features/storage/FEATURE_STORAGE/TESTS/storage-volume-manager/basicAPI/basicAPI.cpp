@@ -158,7 +158,7 @@ control_t test_againstSingleVolumeAtOffset(const size_t call_count)
             /* synchronous completion */
             TEST_ASSERT(rc == 1);
 
-            /* intentional fall-through */
+        /* intentional fall-through */
 
         case BASIC_SYNCHRONOUS_API_TESTING:
             TEST_ASSERT_EQUAL(true, volumeManager.isInitialized());
@@ -168,7 +168,7 @@ control_t test_againstSingleVolumeAtOffset(const size_t call_count)
             TEST_ASSERT(info.total_storage > 0);
 
             { /* add volume */
-                rc = volumeManager.addVolume(firstBlock.addr + OFFSET /*addr*/, info.total_storage - OFFSET /*size*/ , &volumeP);
+                rc = volumeManager.addVolume(firstBlock.addr + OFFSET /*addr*/, info.total_storage - OFFSET /*size*/, &volumeP);
                 TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
 
                 TEST_ASSERT_EQUAL(true, volumeManager.volumeAtIndex(0)->isAllocated());
@@ -253,7 +253,7 @@ control_t test_againstSingleVolumeAtOffset(const size_t call_count)
             }
 
             state = READ_DATA;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_DATA:
             sizeofDataOperation = ((info.total_storage - OFFSET) > BUFFER_SIZE) ? BUFFER_SIZE : (info.total_storage - OFFSET);
@@ -269,7 +269,7 @@ control_t test_againstSingleVolumeAtOffset(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case ERASE:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -284,7 +284,7 @@ control_t test_againstSingleVolumeAtOffset(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_AFTER_ERASE:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -299,7 +299,7 @@ control_t test_againstSingleVolumeAtOffset(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case PROGRAM_DATA:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -321,7 +321,7 @@ control_t test_againstSingleVolumeAtOffset(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_AFTER_PROGRAM_DATA:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -336,7 +336,7 @@ control_t test_againstSingleVolumeAtOffset(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case VERIFY_PROGRAM_DATA:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -346,12 +346,12 @@ control_t test_againstSingleVolumeAtOffset(const size_t call_count)
                 }
                 TEST_ASSERT_EQUAL(PATTERN_FOR_PROGRAM_DATA, buffer[index]);
             }
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case DISCONNECT_VOLUME_MANAGER_CALLBACK:
             rc = drv->Initialize(mtdCallbackHandler);
             TEST_ASSERT_EQUAL(1, rc); /* expect synchronous completion */
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_FROM_DRV_AFTER_PROGRAM_DATA:
             /* Read after Program */
@@ -364,7 +364,7 @@ control_t test_againstSingleVolumeAtOffset(const size_t call_count)
             }
 
             callbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case VERIFY_PROGRAM_DATA2:
             TEST_ASSERT_EQUAL(sizeofDataOperation, callbackStatus);
@@ -430,7 +430,7 @@ control_t test_againstSingleCStorageAtOffset(const size_t call_count)
             /* synchronous completion */
             TEST_ASSERT(rc == 1);
 
-            /* intentional fall-through */
+        /* intentional fall-through */
 
         case BASIC_SYNCHRONOUS_API_TESTING:
             TEST_ASSERT_EQUAL(true, volumeManager.isInitialized());
@@ -440,7 +440,7 @@ control_t test_againstSingleCStorageAtOffset(const size_t call_count)
             TEST_ASSERT(info.total_storage > 0);
 
             { /* add volume */
-                rc = volumeManager.addVolume_C(firstBlock.addr + OFFSET /*addr*/, info.total_storage - OFFSET /*size*/ , &mtd);
+                rc = volumeManager.addVolume_C(firstBlock.addr + OFFSET /*addr*/, info.total_storage - OFFSET /*size*/, &mtd);
                 TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
 
                 TEST_ASSERT_EQUAL(true, volumeManager.volumeAtIndex(0)->isAllocated());
@@ -531,7 +531,7 @@ control_t test_againstSingleCStorageAtOffset(const size_t call_count)
             }
 
             state = READ_DATA;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_DATA:
             sizeofDataOperation = ((info.total_storage - OFFSET) > BUFFER_SIZE) ? BUFFER_SIZE : (info.total_storage - OFFSET);
@@ -547,7 +547,7 @@ control_t test_againstSingleCStorageAtOffset(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case ERASE:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -562,7 +562,7 @@ control_t test_againstSingleCStorageAtOffset(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_AFTER_ERASE:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -577,7 +577,7 @@ control_t test_againstSingleCStorageAtOffset(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case PROGRAM_DATA:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -599,7 +599,7 @@ control_t test_againstSingleCStorageAtOffset(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_AFTER_PROGRAM_DATA:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -614,7 +614,7 @@ control_t test_againstSingleCStorageAtOffset(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case VERIFY_PROGRAM_DATA:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -624,12 +624,12 @@ control_t test_againstSingleCStorageAtOffset(const size_t call_count)
                 }
                 TEST_ASSERT_EQUAL(PATTERN_FOR_PROGRAM_DATA, buffer[index]);
             }
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case DISCONNECT_VOLUME_MANAGER_CALLBACK:
             rc = drv->Initialize(mtdCallbackHandler);
             TEST_ASSERT_EQUAL(1, rc); /* expect synchronous completion */
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_FROM_DRV_AFTER_PROGRAM_DATA:
             /* Read after Program */
@@ -642,7 +642,7 @@ control_t test_againstSingleCStorageAtOffset(const size_t call_count)
             }
 
             callbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case VERIFY_PROGRAM_DATA2:
             TEST_ASSERT_EQUAL(sizeofDataOperation, callbackStatus);
@@ -707,7 +707,7 @@ control_t test_concurrentAccessFromTwoVolumes(const size_t call_count)
             /* synchronous completion */
             TEST_ASSERT(rc == 1);
 
-            /* intentional fall-through */
+        /* intentional fall-through */
 
         case ADD_VOLUMES:
             TEST_ASSERT_EQUAL(true, volumeManager.isInitialized());
@@ -727,7 +727,7 @@ control_t test_concurrentAccessFromTwoVolumes(const size_t call_count)
                 rc = drv->GetBlock(OFFSET1 + SIZE1 - 1, &block1);
                 TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
 
-                rc = volumeManager.addVolume(OFFSET1 /*addr*/, SIZE1 /*size*/ , &volume1P);
+                rc = volumeManager.addVolume(OFFSET1 /*addr*/, SIZE1 /*size*/, &volume1P);
                 TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
 
                 TEST_ASSERT_EQUAL(true, volumeManager.volumeAtIndex(0)->isAllocated());
@@ -751,7 +751,7 @@ control_t test_concurrentAccessFromTwoVolumes(const size_t call_count)
                 rc = drv->GetBlock(OFFSET2 + SIZE2 - 2, &block2);
                 TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
 
-                rc = volumeManager.addVolume(OFFSET2 /*addr*/, SIZE2 /*size*/ , &volume2P);
+                rc = volumeManager.addVolume(OFFSET2 /*addr*/, SIZE2 /*size*/, &volume2P);
                 TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
 
                 TEST_ASSERT_EQUAL(true, volumeManager.volumeAtIndex(1)->isAllocated());
@@ -770,7 +770,7 @@ control_t test_concurrentAccessFromTwoVolumes(const size_t call_count)
             TEST_ASSERT((sizeofDataOperation > 0) && (sizeofDataOperation <= BUFFER_SIZE));
             memset(buffer, PATTERN_FOR_PROGRAM_DATA, sizeofDataOperation);
 
-            /* intentional fall-through */
+        /* intentional fall-through */
 
         case ERASE1:
             rc = volume1P->Erase(0, sizeofDataOperation);
@@ -782,7 +782,7 @@ control_t test_concurrentAccessFromTwoVolumes(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case PROGRAM_DATA1:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -818,7 +818,7 @@ control_t test_concurrentAccessFromTwoVolumes(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case ERASE2:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -832,7 +832,7 @@ control_t test_concurrentAccessFromTwoVolumes(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case PROGRAM_DATA2:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -868,13 +868,13 @@ control_t test_concurrentAccessFromTwoVolumes(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case DISCONNECT_VOLUME_MANAGER_CALLBACK:
             tr_info("DISCONNECT_VOLUME_MANAGER_CALLBACK");
             rc = drv->Initialize(mtdCallbackHandler);
             TEST_ASSERT_EQUAL(1, rc); /* expect synchronous completion */
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_FROM_DRV_AFTER_PROGRAM_DATA1:
             tr_info("verifying state");
@@ -888,7 +888,7 @@ control_t test_concurrentAccessFromTwoVolumes(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case VERIFY_PROGRAM_DATA1:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -899,7 +899,7 @@ control_t test_concurrentAccessFromTwoVolumes(const size_t call_count)
                 }
                 TEST_ASSERT_EQUAL(PATTERN_FOR_PROGRAM_DATA, buffer[index]);
             }
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_FROM_DRV_AFTER_PROGRAM_DATA2:
             /* Read after Program */
@@ -912,7 +912,7 @@ control_t test_concurrentAccessFromTwoVolumes(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case VERIFY_PROGRAM_DATA2:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -978,7 +978,7 @@ control_t test_concurrentAccessFromTwoCStorageDevices(const size_t call_count)
             /* synchronous completion */
             TEST_ASSERT(rc == 1);
 
-            /* intentional fall-through */
+        /* intentional fall-through */
 
         case ADD_VOLUMES:
             TEST_ASSERT_EQUAL(true, volumeManager.isInitialized());
@@ -994,7 +994,7 @@ control_t test_concurrentAccessFromTwoCStorageDevices(const size_t call_count)
                 rc = drv->GetBlock(OFFSET1 + SIZE1 - 1, &block1);
                 TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
 
-                rc = volumeManager.addVolume_C(OFFSET1 /*addr*/, SIZE1 /*size*/ , &mtd1);
+                rc = volumeManager.addVolume_C(OFFSET1 /*addr*/, SIZE1 /*size*/, &mtd1);
                 TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
 
                 TEST_ASSERT_EQUAL(true, volumeManager.volumeAtIndex(0)->isAllocated());
@@ -1014,7 +1014,7 @@ control_t test_concurrentAccessFromTwoCStorageDevices(const size_t call_count)
                 rc = drv->GetBlock(OFFSET2 + SIZE2 - 2, &block2);
                 TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
 
-                rc = volumeManager.addVolume_C(OFFSET2 /*addr*/, SIZE2 /*size*/ , &mtd2);
+                rc = volumeManager.addVolume_C(OFFSET2 /*addr*/, SIZE2 /*size*/, &mtd2);
                 TEST_ASSERT_EQUAL(ARM_DRIVER_OK, rc);
 
                 TEST_ASSERT_EQUAL(true, volumeManager.volumeAtIndex(1)->isAllocated());
@@ -1033,7 +1033,7 @@ control_t test_concurrentAccessFromTwoCStorageDevices(const size_t call_count)
             TEST_ASSERT((sizeofDataOperation > 0) && (sizeofDataOperation <= BUFFER_SIZE));
             memset(buffer, PATTERN_FOR_PROGRAM_DATA, sizeofDataOperation);
 
-            /* intentional fall-through */
+        /* intentional fall-through */
 
         case ERASE1:
             rc = mtd1.Erase(0, sizeofDataOperation);
@@ -1045,7 +1045,7 @@ control_t test_concurrentAccessFromTwoCStorageDevices(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case PROGRAM_DATA1:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -1081,7 +1081,7 @@ control_t test_concurrentAccessFromTwoCStorageDevices(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case ERASE2:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -1095,7 +1095,7 @@ control_t test_concurrentAccessFromTwoCStorageDevices(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case PROGRAM_DATA2:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -1131,13 +1131,13 @@ control_t test_concurrentAccessFromTwoCStorageDevices(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case DISCONNECT_VOLUME_MANAGER_CALLBACK:
             tr_info("DISCONNECT_VOLUME_MANAGER_CALLBACK");
             rc = drv->Initialize(mtdCallbackHandler);
             TEST_ASSERT_EQUAL(1, rc); /* expect synchronous completion */
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_FROM_DRV_AFTER_PROGRAM_DATA1:
             tr_info("verifying state");
@@ -1151,7 +1151,7 @@ control_t test_concurrentAccessFromTwoCStorageDevices(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case VERIFY_PROGRAM_DATA1:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -1162,7 +1162,7 @@ control_t test_concurrentAccessFromTwoCStorageDevices(const size_t call_count)
                 }
                 TEST_ASSERT_EQUAL(PATTERN_FOR_PROGRAM_DATA, buffer[index]);
             }
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case READ_FROM_DRV_AFTER_PROGRAM_DATA2:
             /* Read after Program */
@@ -1175,7 +1175,7 @@ control_t test_concurrentAccessFromTwoCStorageDevices(const size_t call_count)
             }
 
             virtualVolumeCallbackStatus = rc;
-            /* intentional fallthrough */
+        /* intentional fallthrough */
 
         case VERIFY_PROGRAM_DATA2:
             TEST_ASSERT_EQUAL(sizeofDataOperation, virtualVolumeCallbackStatus);
@@ -1208,23 +1208,26 @@ Case cases[] = {
     Case("Against a single C_Storage at offset",          test_againstSingleCStorageAtOffset<65536>),
 
     /* note: the following tests are unportable in the sense that they require the underlying storage device to support certain address ranges. */
-    Case("Concurrent accesss from two volumes",           test_concurrentAccessFromTwoVolumes<512*1024, 128*1024, (512+128)*1024, 128*1024>),
-    Case("Concurrent accesss from two volumes",           test_concurrentAccessFromTwoVolumes<512*1024, 128*1024, (512+128)*1024, 128*1024>),
-    Case("Concurrent accesss from two volumes",           test_concurrentAccessFromTwoVolumes<512*1024, 128*1024, (512+256)*1024, 128*1024>),
-    Case("Concurrent accesss from two volumes",           test_concurrentAccessFromTwoVolumes<512*1024, 128*1024, (512+384)*1024, 128*1024>),
-    Case("Concurrent accesss from two C_Storage devices", test_concurrentAccessFromTwoCStorageDevices<512*1024, 128*1024, (512+128)*1024, 128*1024>),
-    Case("Concurrent accesss from two C_Storage devices", test_concurrentAccessFromTwoCStorageDevices<512*1024, 128*1024, (512+256)*1024, 128*1024>),
-    Case("Concurrent accesss from two C_Storage devices", test_concurrentAccessFromTwoCStorageDevices<512*1024, 128*1024, (512+384)*1024, 128*1024>),
+    Case("Concurrent accesss from two volumes",           test_concurrentAccessFromTwoVolumes < 512 * 1024, 128 * 1024, (512 + 128) * 1024, 128 * 1024 >),
+    Case("Concurrent accesss from two volumes",           test_concurrentAccessFromTwoVolumes < 512 * 1024, 128 * 1024, (512 + 128) * 1024, 128 * 1024 >),
+    Case("Concurrent accesss from two volumes",           test_concurrentAccessFromTwoVolumes < 512 * 1024, 128 * 1024, (512 + 256) * 1024, 128 * 1024 >),
+    Case("Concurrent accesss from two volumes",           test_concurrentAccessFromTwoVolumes < 512 * 1024, 128 * 1024, (512 + 384) * 1024, 128 * 1024 >),
+    Case("Concurrent accesss from two C_Storage devices", test_concurrentAccessFromTwoCStorageDevices < 512 * 1024, 128 * 1024, (512 + 128) * 1024, 128 * 1024 >),
+    Case("Concurrent accesss from two C_Storage devices", test_concurrentAccessFromTwoCStorageDevices < 512 * 1024, 128 * 1024, (512 + 256) * 1024, 128 * 1024 >),
+    Case("Concurrent accesss from two C_Storage devices", test_concurrentAccessFromTwoCStorageDevices < 512 * 1024, 128 * 1024, (512 + 384) * 1024, 128 * 1024 >),
 };
 
 // Declare your test specification with a custom setup handler
 #ifndef AVOID_GREENTEA
 Specification specification(greentea_setup, cases);
 #else
-Specification specification([](const size_t) {return STATUS_CONTINUE;}, cases);
+Specification specification([](const size_t)
+{
+    return STATUS_CONTINUE;
+}, cases);
 #endif
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     mbed_trace_init();       // initialize the trace library
     mbed_trace_config_set(TRACE_MODE_COLOR | TRACE_ACTIVE_LEVEL_INFO | TRACE_CARRIAGE_RETURN);

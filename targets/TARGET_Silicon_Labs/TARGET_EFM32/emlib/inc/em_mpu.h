@@ -72,46 +72,46 @@ extern "C" {
  * Size of an MPU region.
  */
 typedef enum {
-  mpuRegionSize32b   = 4,        /**< 32   byte region size. */
-  mpuRegionSize64b   = 5,        /**< 64   byte region size. */
-  mpuRegionSize128b  = 6,        /**< 128  byte region size. */
-  mpuRegionSize256b  = 7,        /**< 256  byte region size. */
-  mpuRegionSize512b  = 8,        /**< 512  byte region size. */
-  mpuRegionSize1Kb   = 9,        /**< 1K   byte region size. */
-  mpuRegionSize2Kb   = 10,       /**< 2K   byte region size. */
-  mpuRegionSize4Kb   = 11,       /**< 4K   byte region size. */
-  mpuRegionSize8Kb   = 12,       /**< 8K   byte region size. */
-  mpuRegionSize16Kb  = 13,       /**< 16K  byte region size. */
-  mpuRegionSize32Kb  = 14,       /**< 32K  byte region size. */
-  mpuRegionSize64Kb  = 15,       /**< 64K  byte region size. */
-  mpuRegionSize128Kb = 16,       /**< 128K byte region size. */
-  mpuRegionSize256Kb = 17,       /**< 256K byte region size. */
-  mpuRegionSize512Kb = 18,       /**< 512K byte region size. */
-  mpuRegionSize1Mb   = 19,       /**< 1M   byte region size. */
-  mpuRegionSize2Mb   = 20,       /**< 2M   byte region size. */
-  mpuRegionSize4Mb   = 21,       /**< 4M   byte region size. */
-  mpuRegionSize8Mb   = 22,       /**< 8M   byte region size. */
-  mpuRegionSize16Mb  = 23,       /**< 16M  byte region size. */
-  mpuRegionSize32Mb  = 24,       /**< 32M  byte region size. */
-  mpuRegionSize64Mb  = 25,       /**< 64M  byte region size. */
-  mpuRegionSize128Mb = 26,       /**< 128M byte region size. */
-  mpuRegionSize256Mb = 27,       /**< 256M byte region size. */
-  mpuRegionSize512Mb = 28,       /**< 512M byte region size. */
-  mpuRegionSize1Gb   = 29,       /**< 1G   byte region size. */
-  mpuRegionSize2Gb   = 30,       /**< 2G   byte region size. */
-  mpuRegionSize4Gb   = 31        /**< 4G   byte region size. */
+    mpuRegionSize32b   = 4,        /**< 32   byte region size. */
+    mpuRegionSize64b   = 5,        /**< 64   byte region size. */
+    mpuRegionSize128b  = 6,        /**< 128  byte region size. */
+    mpuRegionSize256b  = 7,        /**< 256  byte region size. */
+    mpuRegionSize512b  = 8,        /**< 512  byte region size. */
+    mpuRegionSize1Kb   = 9,        /**< 1K   byte region size. */
+    mpuRegionSize2Kb   = 10,       /**< 2K   byte region size. */
+    mpuRegionSize4Kb   = 11,       /**< 4K   byte region size. */
+    mpuRegionSize8Kb   = 12,       /**< 8K   byte region size. */
+    mpuRegionSize16Kb  = 13,       /**< 16K  byte region size. */
+    mpuRegionSize32Kb  = 14,       /**< 32K  byte region size. */
+    mpuRegionSize64Kb  = 15,       /**< 64K  byte region size. */
+    mpuRegionSize128Kb = 16,       /**< 128K byte region size. */
+    mpuRegionSize256Kb = 17,       /**< 256K byte region size. */
+    mpuRegionSize512Kb = 18,       /**< 512K byte region size. */
+    mpuRegionSize1Mb   = 19,       /**< 1M   byte region size. */
+    mpuRegionSize2Mb   = 20,       /**< 2M   byte region size. */
+    mpuRegionSize4Mb   = 21,       /**< 4M   byte region size. */
+    mpuRegionSize8Mb   = 22,       /**< 8M   byte region size. */
+    mpuRegionSize16Mb  = 23,       /**< 16M  byte region size. */
+    mpuRegionSize32Mb  = 24,       /**< 32M  byte region size. */
+    mpuRegionSize64Mb  = 25,       /**< 64M  byte region size. */
+    mpuRegionSize128Mb = 26,       /**< 128M byte region size. */
+    mpuRegionSize256Mb = 27,       /**< 256M byte region size. */
+    mpuRegionSize512Mb = 28,       /**< 512M byte region size. */
+    mpuRegionSize1Gb   = 29,       /**< 1G   byte region size. */
+    mpuRegionSize2Gb   = 30,       /**< 2G   byte region size. */
+    mpuRegionSize4Gb   = 31        /**< 4G   byte region size. */
 } MPU_RegionSize_TypeDef;
 
 /**
  * MPU region access permission attributes.
  */
 typedef enum {
-  mpuRegionNoAccess     = 0,  /**< No access what so ever.                   */
-  mpuRegionApPRw        = 1,  /**< Priviledged state R/W only.               */
-  mpuRegionApPRwURo     = 2,  /**< Priviledged state R/W, User state R only. */
-  mpuRegionApFullAccess = 3,  /**< R/W in Priviledged and User state.        */
-  mpuRegionApPRo        = 5,  /**< Priviledged R only.                       */
-  mpuRegionApPRo_URo    = 6   /**< R only in Priviledged and User state.     */
+    mpuRegionNoAccess     = 0,  /**< No access what so ever.                   */
+    mpuRegionApPRw        = 1,  /**< Priviledged state R/W only.               */
+    mpuRegionApPRwURo     = 2,  /**< Priviledged state R/W, User state R only. */
+    mpuRegionApFullAccess = 3,  /**< R/W in Priviledged and User state.        */
+    mpuRegionApPRo        = 5,  /**< Priviledged R only.                       */
+    mpuRegionApPRo_URo    = 6   /**< R only in Priviledged and User state.     */
 } MPU_RegionAp_TypeDef;
 
 /*******************************************************************************
@@ -120,17 +120,17 @@ typedef enum {
 
 /** MPU Region init structure. */
 typedef struct {
-  bool                   regionEnable;     /**< MPU region enable.                */
-  uint8_t                regionNo;         /**< MPU region number.                */
-  uint32_t               baseAddress;      /**< Region baseaddress.               */
-  MPU_RegionSize_TypeDef size;             /**< Memory region size.               */
-  MPU_RegionAp_TypeDef   accessPermission; /**< Memory access permissions.        */
-  bool                   disableExec;      /**< Disable execution.                */
-  bool                   shareable;        /**< Memory shareable attribute.       */
-  bool                   cacheable;        /**< Memory cacheable attribute.       */
-  bool                   bufferable;       /**< Memory bufferable attribute.      */
-  uint8_t                srd;              /**< Memory subregion disable bits.    */
-  uint8_t                tex;              /**< Memory type extension attributes. */
+    bool                   regionEnable;     /**< MPU region enable.                */
+    uint8_t                regionNo;         /**< MPU region number.                */
+    uint32_t               baseAddress;      /**< Region baseaddress.               */
+    MPU_RegionSize_TypeDef size;             /**< Memory region size.               */
+    MPU_RegionAp_TypeDef   accessPermission; /**< Memory access permissions.        */
+    bool                   disableExec;      /**< Disable execution.                */
+    bool                   shareable;        /**< Memory shareable attribute.       */
+    bool                   cacheable;        /**< Memory cacheable attribute.       */
+    bool                   bufferable;       /**< Memory bufferable attribute.      */
+    uint8_t                srd;              /**< Memory subregion disable bits.    */
+    uint8_t                tex;              /**< Memory type extension attributes. */
 } MPU_RegionInit_TypeDef;
 
 /** Default configuration of MPU region init structure for flash memory.     */
@@ -196,9 +196,9 @@ void MPU_ConfigureRegion(const MPU_RegionInit_TypeDef *init);
 __STATIC_INLINE void MPU_Disable(void)
 {
 #if defined(SCB_SHCSR_MEMFAULTENA_Msk)
-  SCB->SHCSR &= ~SCB_SHCSR_MEMFAULTENA_Msk;      /* Disable fault exceptions */
+    SCB->SHCSR &= ~SCB_SHCSR_MEMFAULTENA_Msk;      /* Disable fault exceptions */
 #endif
-  MPU->CTRL  &= ~MPU_CTRL_ENABLE_Msk;            /* Disable the MPU */
+    MPU->CTRL  &= ~MPU_CTRL_ENABLE_Msk;            /* Disable the MPU */
 }
 
 /***************************************************************************//**
@@ -212,13 +212,13 @@ __STATIC_INLINE void MPU_Disable(void)
  ******************************************************************************/
 __STATIC_INLINE void MPU_Enable(uint32_t flags)
 {
-  EFM_ASSERT(!(flags & ~(MPU_CTRL_PRIVDEFENA_Msk
-                         | MPU_CTRL_HFNMIENA_Msk
-                         | MPU_CTRL_ENABLE_Msk)));
+    EFM_ASSERT(!(flags & ~(MPU_CTRL_PRIVDEFENA_Msk
+                           | MPU_CTRL_HFNMIENA_Msk
+                           | MPU_CTRL_ENABLE_Msk)));
 
-  MPU->CTRL   = flags | MPU_CTRL_ENABLE_Msk;     /* Enable the MPU */
+    MPU->CTRL   = flags | MPU_CTRL_ENABLE_Msk;     /* Enable the MPU */
 #if defined(SCB_SHCSR_MEMFAULTENA_Msk)
-  SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;       /* Enable fault exceptions */
+    SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;       /* Enable fault exceptions */
 #endif
 }
 

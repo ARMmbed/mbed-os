@@ -31,30 +31,31 @@
 #define ADC_RANGE                   ADC_12BIT_RANGE
 
 static const PinMap PinMap_ADC[] = {
-    {P1_9 , ADC_0, 3},
+    {P1_9, ADC_0, 3},
     {P0_23, ADC_1, 1},
     {P0_16, ADC_2, 1},
     {P0_15, ADC_3, 3},
     {P1_22, ADC_4, 3},
-    {P1_3 , ADC_5, 4},
+    {P1_3, ADC_5, 4},
     {P0_14, ADC_6, 2},
     {P0_13, ADC_7, 2},
     {P0_12, ADC_8, 2},
     {P0_11, ADC_9, 2},
-    {P1_29, ADC_10,4},
-    {P0_22, ADC_11,1},
-    {NC   , NC    ,0}
+    {P1_29, ADC_10, 4},
+    {P0_22, ADC_11, 1},
+    {NC, NC, 0}
 };
 
 
-void analogin_init(analogin_t *obj, PinName pin) {
+void analogin_init(analogin_t *obj, PinName pin)
+{
     volatile uint32_t tmp;
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
     pinmap_pinout(pin, PinMap_ADC);
 
-    __IO uint32_t *reg = (__IO uint32_t*)(LPC_IOCON_BASE + (pin & 0x1FF));
+    __IO uint32_t *reg = (__IO uint32_t *)(LPC_IOCON_BASE + (pin & 0x1FF));
     // set pin to ADC mode
     *reg &= ~(1 << 7); // set ADMODE = 0 (analog mode)
 
@@ -68,7 +69,7 @@ void analogin_init(analogin_t *obj, PinName pin) {
 
     // Determine the clock divider for a 500kHz ADC clock during calibration
     uint32_t clkdiv = (SystemCoreClock / 500000) - 1;
-    
+
     // Perform a self-calibration
     LPC_ADC->CTRL = (1UL << 30) | (clkdiv & 0xFF);
     while ((LPC_ADC->CTRL & (1UL << 30)) != 0);
@@ -77,7 +78,8 @@ void analogin_init(analogin_t *obj, PinName pin) {
     LPC_ADC->CTRL = 0;
 }
 
-static inline uint32_t adc_read(analogin_t *obj) {
+static inline uint32_t adc_read(analogin_t *obj)
+{
 
     // select channel
     LPC_ADC->SEQA_CTRL &= ~(0xFFF);
@@ -85,21 +87,22 @@ static inline uint32_t adc_read(analogin_t *obj) {
 
     // start conversion, sequence enable with async mode
     LPC_ADC->SEQA_CTRL |= ((1UL << 26) | (1UL << 31) | (1UL << 19));
-    
+
     // Repeatedly get the sample data until DONE bit
     volatile uint32_t data;
     do {
         data = LPC_ADC->SEQA_GDAT;
     } while ((data & (1UL << 31)) == 0);
     data = LPC_ADC->DAT[obj->adc];
-    
+
     // Stop conversion
     LPC_ADC->SEQA_CTRL &= ~(1UL << 31);
-    
+
     return ((data >> 4) & ADC_RANGE);
 }
 
-static inline void order(uint32_t *a, uint32_t *b) {
+static inline void order(uint32_t *a, uint32_t *b)
+{
     if (*a > *b) {
         uint32_t t = *a;
         *a = *b;
@@ -107,7 +110,8 @@ static inline void order(uint32_t *a, uint32_t *b) {
     }
 }
 
-static inline uint32_t adc_read_u32(analogin_t *obj) {
+static inline uint32_t adc_read_u32(analogin_t *obj)
+{
     uint32_t value;
 #if ANALOGIN_MEDIAN_FILTER
     uint32_t v1 = adc_read(obj);
@@ -123,12 +127,14 @@ static inline uint32_t adc_read_u32(analogin_t *obj) {
     return value;
 }
 
-uint16_t analogin_read_u16(analogin_t *obj) {
+uint16_t analogin_read_u16(analogin_t *obj)
+{
     uint32_t value = adc_read_u32(obj);
     return (value << 4) | ((value >> 8) & 0x000F); // 12 bit
 }
 
-float analogin_read(analogin_t *obj) {
+float analogin_read(analogin_t *obj)
+{
     uint32_t value = adc_read_u32(obj);
     return (float)value * (1.0f / (float)ADC_RANGE);
 }

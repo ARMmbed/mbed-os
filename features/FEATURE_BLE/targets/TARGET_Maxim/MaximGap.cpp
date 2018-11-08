@@ -35,7 +35,8 @@
 #include "mbed.h"
 #include "hci_vs.h"
 
-MaximGap &MaximGap::getInstance() {
+MaximGap &MaximGap::getInstance()
+{
     static MaximGap m_instance;
     return m_instance;
 }
@@ -55,8 +56,8 @@ ble_error_t MaximGap::setAdvertisingData(const GapAdvertisingData &advData, cons
     /* save advertising and scan response data */
     advDataLen = advData.getPayloadLen();
     scanResponseLen = scanResponse.getPayloadLen();
-    memcpy((void*)advDataCache, (void*)advData.getPayload(), advDataLen);
-    memcpy((void*)advDataCache, (void*)advData.getPayload(), scanResponseLen);
+    memcpy((void *)advDataCache, (void *)advData.getPayload(), advDataLen);
+    memcpy((void *)advDataCache, (void *)advData.getPayload(), scanResponseLen);
 
     return BLE_ERROR_NONE;
 }
@@ -73,12 +74,12 @@ ble_error_t MaximGap::startAdvertising(const GapAdvertisingParams &params)
     if (params.getAdvertisingType() == GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED) {
         /* Min delay is slightly longer for unconnectable devices */
         if ((params.getInterval() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON) ||
-            (params.getInterval() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
+                (params.getInterval() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
     } else {
         if ((params.getInterval() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN) ||
-            (params.getInterval() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
+                (params.getInterval() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
     }
@@ -92,7 +93,7 @@ ble_error_t MaximGap::startAdvertising(const GapAdvertisingParams &params)
 
     /* Check timeout for other advertising types */
     if ((params.getAdvertisingType() != GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) &&
-        (params.getTimeout() > GapAdvertisingParams::GAP_ADV_PARAMS_TIMEOUT_MAX)) {
+            (params.getTimeout() > GapAdvertisingParams::GAP_ADV_PARAMS_TIMEOUT_MAX)) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -212,7 +213,7 @@ ble_error_t MaximGap::setAddress(AddressType_t type, const Address_t address)
     }
 
     m_type = type;
-    HciVsSetPublicAddr((uint8_t*)address);
+    HciVsSetPublicAddr((uint8_t *)address);
 
     return BLE_ERROR_NONE;
 }
@@ -254,7 +255,7 @@ void MaximGap::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *co
 {
     static const int8_t permittedTxValues[] = {
         -18, -15, -12, -9, -6, -3, 0, 3
-    };
+        };
 
     *valueArrayPP = permittedTxValues;
     *countP = sizeof(permittedTxValues) / sizeof(int8_t);

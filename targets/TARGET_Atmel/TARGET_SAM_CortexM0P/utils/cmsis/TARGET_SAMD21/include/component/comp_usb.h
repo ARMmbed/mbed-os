@@ -60,11 +60,11 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint8_t  ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint8_t  RUNSTDBY:1;       /*!< bit:      2  Run in Standby Mode                */
-        uint8_t  :4;               /*!< bit:  3.. 6  Reserved                           */
-        uint8_t  MODE:1;           /*!< bit:      7  Operating Mode                     */
+        uint8_t  SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint8_t  ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint8_t  RUNSTDBY: 1;      /*!< bit:      2  Run in Standby Mode                */
+        uint8_t  : 4;              /*!< bit:  3.. 6  Reserved                           */
+        uint8_t  MODE: 1;          /*!< bit:      7  Operating Mode                     */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_CTRLA_Type;
@@ -91,9 +91,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset Synchronization Busy */
-        uint8_t  ENABLE:1;         /*!< bit:      1  Enable Synchronization Busy        */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  SWRST: 1;         /*!< bit:      0  Software Reset Synchronization Busy */
+        uint8_t  ENABLE: 1;        /*!< bit:      1  Enable Synchronization Busy        */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_SYNCBUSY_Type;
@@ -112,9 +112,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  CQOS:2;           /*!< bit:  0.. 1  Configuration Quality of Service   */
-        uint8_t  DQOS:2;           /*!< bit:  2.. 3  Data Quality of Service            */
-        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+        uint8_t  CQOS: 2;          /*!< bit:  0.. 1  Configuration Quality of Service   */
+        uint8_t  DQOS: 2;          /*!< bit:  2.. 3  Data Quality of Service            */
+        uint8_t  : 4;              /*!< bit:  4.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_QOSCTRL_Type;
@@ -151,17 +151,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t DETACH:1;         /*!< bit:      0  Detach                             */
-        uint16_t UPRSM:1;          /*!< bit:      1  Upstream Resume                    */
-        uint16_t SPDCONF:2;        /*!< bit:  2.. 3  Speed Configuration                */
-        uint16_t NREPLY:1;         /*!< bit:      4  No Reply                           */
-        uint16_t TSTJ:1;           /*!< bit:      5  Test mode J                        */
-        uint16_t TSTK:1;           /*!< bit:      6  Test mode K                        */
-        uint16_t TSTPCKT:1;        /*!< bit:      7  Test packet mode                   */
-        uint16_t OPMODE2:1;        /*!< bit:      8  Specific Operational Mode          */
-        uint16_t GNAK:1;           /*!< bit:      9  Global NAK                         */
-        uint16_t LPMHDSK:2;        /*!< bit: 10..11  Link Power Management Handshake    */
-        uint16_t :4;               /*!< bit: 12..15  Reserved                           */
+        uint16_t DETACH: 1;        /*!< bit:      0  Detach                             */
+        uint16_t UPRSM: 1;         /*!< bit:      1  Upstream Resume                    */
+        uint16_t SPDCONF: 2;       /*!< bit:  2.. 3  Speed Configuration                */
+        uint16_t NREPLY: 1;        /*!< bit:      4  No Reply                           */
+        uint16_t TSTJ: 1;          /*!< bit:      5  Test mode J                        */
+        uint16_t TSTK: 1;          /*!< bit:      6  Test mode K                        */
+        uint16_t TSTPCKT: 1;       /*!< bit:      7  Test packet mode                   */
+        uint16_t OPMODE2: 1;       /*!< bit:      8  Specific Operational Mode          */
+        uint16_t GNAK: 1;          /*!< bit:      9  Global NAK                         */
+        uint16_t LPMHDSK: 2;       /*!< bit: 10..11  Link Power Management Handshake    */
+        uint16_t : 4;              /*!< bit: 12..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_DEVICE_CTRLB_Type;
@@ -214,18 +214,18 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t :1;               /*!< bit:      0  Reserved                           */
-        uint16_t RESUME:1;         /*!< bit:      1  Send USB Resume                    */
-        uint16_t SPDCONF:2;        /*!< bit:  2.. 3  Speed Configuration for Host       */
-        uint16_t :1;               /*!< bit:      4  Reserved                           */
-        uint16_t TSTJ:1;           /*!< bit:      5  Test mode J                        */
-        uint16_t TSTK:1;           /*!< bit:      6  Test mode K                        */
-        uint16_t :1;               /*!< bit:      7  Reserved                           */
-        uint16_t SOFE:1;           /*!< bit:      8  Start of Frame Generation Enable   */
-        uint16_t BUSRESET:1;       /*!< bit:      9  Send USB Reset                     */
-        uint16_t VBUSOK:1;         /*!< bit:     10  VBUS is OK                         */
-        uint16_t L1RESUME:1;       /*!< bit:     11  Send L1 Resume                     */
-        uint16_t :4;               /*!< bit: 12..15  Reserved                           */
+        uint16_t : 1;              /*!< bit:      0  Reserved                           */
+        uint16_t RESUME: 1;        /*!< bit:      1  Send USB Resume                    */
+        uint16_t SPDCONF: 2;       /*!< bit:  2.. 3  Speed Configuration for Host       */
+        uint16_t : 1;              /*!< bit:      4  Reserved                           */
+        uint16_t TSTJ: 1;          /*!< bit:      5  Test mode J                        */
+        uint16_t TSTK: 1;          /*!< bit:      6  Test mode K                        */
+        uint16_t : 1;              /*!< bit:      7  Reserved                           */
+        uint16_t SOFE: 1;          /*!< bit:      8  Start of Frame Generation Enable   */
+        uint16_t BUSRESET: 1;      /*!< bit:      9  Send USB Reset                     */
+        uint16_t VBUSOK: 1;        /*!< bit:     10  VBUS is OK                         */
+        uint16_t L1RESUME: 1;      /*!< bit:     11  Send L1 Resume                     */
+        uint16_t : 4;              /*!< bit: 12..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_HOST_CTRLB_Type;
@@ -261,8 +261,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DADD:7;           /*!< bit:  0.. 6  Device Address                     */
-        uint8_t  ADDEN:1;          /*!< bit:      7  Device Address Enable              */
+        uint8_t  DADD: 7;          /*!< bit:  0.. 6  Device Address                     */
+        uint8_t  ADDEN: 1;         /*!< bit:      7  Device Address Enable              */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_DEVICE_DADD_Type;
@@ -282,9 +282,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  FLENC:4;          /*!< bit:  0.. 3  Frame Length Control               */
-        uint8_t  :3;               /*!< bit:  4.. 6  Reserved                           */
-        uint8_t  FLENCE:1;         /*!< bit:      7  Frame Length Control Enable        */
+        uint8_t  FLENC: 4;         /*!< bit:  0.. 3  Frame Length Control               */
+        uint8_t  : 3;              /*!< bit:  4.. 6  Reserved                           */
+        uint8_t  FLENCE: 1;        /*!< bit:      7  Frame Length Control Enable        */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_HSOFC_Type;
@@ -304,10 +304,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  :2;               /*!< bit:  0.. 1  Reserved                           */
-        uint8_t  SPEED:2;          /*!< bit:  2.. 3  Speed Status                       */
-        uint8_t  :2;               /*!< bit:  4.. 5  Reserved                           */
-        uint8_t  LINESTATE:2;      /*!< bit:  6.. 7  USB Line State Status              */
+        uint8_t  : 2;              /*!< bit:  0.. 1  Reserved                           */
+        uint8_t  SPEED: 2;         /*!< bit:  2.. 3  Speed Status                       */
+        uint8_t  : 2;              /*!< bit:  4.. 5  Reserved                           */
+        uint8_t  LINESTATE: 2;     /*!< bit:  6.. 7  USB Line State Status              */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_DEVICE_STATUS_Type;
@@ -340,10 +340,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  :2;               /*!< bit:  0.. 1  Reserved                           */
-        uint8_t  SPEED:2;          /*!< bit:  2.. 3  Speed Status                       */
-        uint8_t  :2;               /*!< bit:  4.. 5  Reserved                           */
-        uint8_t  LINESTATE:2;      /*!< bit:  6.. 7  USB Line State Status              */
+        uint8_t  : 2;              /*!< bit:  0.. 1  Reserved                           */
+        uint8_t  SPEED: 2;         /*!< bit:  2.. 3  Speed Status                       */
+        uint8_t  : 2;              /*!< bit:  4.. 5  Reserved                           */
+        uint8_t  LINESTATE: 2;     /*!< bit:  6.. 7  USB Line State Status              */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_STATUS_Type;
@@ -364,8 +364,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  FSMSTATE:6;       /*!< bit:  0.. 5  Fine State Machine Status          */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  FSMSTATE: 6;      /*!< bit:  0.. 5  Fine State Machine Status          */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_FSMSTATUS_Type;
@@ -397,10 +397,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t MFNUM:3;          /*!< bit:  0.. 2  Micro Frame Number                 */
-        uint16_t FNUM:11;          /*!< bit:  3..13  Frame Number                       */
-        uint16_t :1;               /*!< bit:     14  Reserved                           */
-        uint16_t FNCERR:1;         /*!< bit:     15  Frame Number CRC Error             */
+        uint16_t MFNUM: 3;         /*!< bit:  0.. 2  Micro Frame Number                 */
+        uint16_t FNUM: 11;         /*!< bit:  3..13  Frame Number                       */
+        uint16_t : 1;              /*!< bit:     14  Reserved                           */
+        uint16_t FNCERR: 1;        /*!< bit:     15  Frame Number CRC Error             */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_DEVICE_FNUM_Type;
@@ -423,9 +423,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t MFNUM:3;          /*!< bit:  0.. 2  Micro Frame Number                 */
-        uint16_t FNUM:11;          /*!< bit:  3..13  Frame Number                       */
-        uint16_t :2;               /*!< bit: 14..15  Reserved                           */
+        uint16_t MFNUM: 3;         /*!< bit:  0.. 2  Micro Frame Number                 */
+        uint16_t FNUM: 11;         /*!< bit:  3..13  Frame Number                       */
+        uint16_t : 2;              /*!< bit: 14..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_HOST_FNUM_Type;
@@ -446,7 +446,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  FLENHIGH:8;       /*!< bit:  0.. 7  Frame Length                       */
+        uint8_t  FLENHIGH: 8;      /*!< bit:  0.. 7  Frame Length                       */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_FLENHIGH_Type;
@@ -464,17 +464,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t SUSPEND:1;        /*!< bit:      0  Suspend Interrupt Enable           */
-        uint16_t MSOF:1;           /*!< bit:      1  Micro Start of Frame Interrupt Enable in High Speed Mode */
-        uint16_t SOF:1;            /*!< bit:      2  Start Of Frame Interrupt Enable    */
-        uint16_t EORST:1;          /*!< bit:      3  End of Reset Interrupt Enable      */
-        uint16_t WAKEUP:1;         /*!< bit:      4  Wake Up Interrupt Enable           */
-        uint16_t EORSM:1;          /*!< bit:      5  End Of Resume Interrupt Enable     */
-        uint16_t UPRSM:1;          /*!< bit:      6  Upstream Resume Interrupt Enable   */
-        uint16_t RAMACER:1;        /*!< bit:      7  Ram Access Interrupt Enable        */
-        uint16_t LPMNYET:1;        /*!< bit:      8  Link Power Management Not Yet Interrupt Enable */
-        uint16_t LPMSUSP:1;        /*!< bit:      9  Link Power Management Suspend Interrupt Enable */
-        uint16_t :6;               /*!< bit: 10..15  Reserved                           */
+        uint16_t SUSPEND: 1;       /*!< bit:      0  Suspend Interrupt Enable           */
+        uint16_t MSOF: 1;          /*!< bit:      1  Micro Start of Frame Interrupt Enable in High Speed Mode */
+        uint16_t SOF: 1;           /*!< bit:      2  Start Of Frame Interrupt Enable    */
+        uint16_t EORST: 1;         /*!< bit:      3  End of Reset Interrupt Enable      */
+        uint16_t WAKEUP: 1;        /*!< bit:      4  Wake Up Interrupt Enable           */
+        uint16_t EORSM: 1;         /*!< bit:      5  End Of Resume Interrupt Enable     */
+        uint16_t UPRSM: 1;         /*!< bit:      6  Upstream Resume Interrupt Enable   */
+        uint16_t RAMACER: 1;       /*!< bit:      7  Ram Access Interrupt Enable        */
+        uint16_t LPMNYET: 1;       /*!< bit:      8  Link Power Management Not Yet Interrupt Enable */
+        uint16_t LPMSUSP: 1;       /*!< bit:      9  Link Power Management Suspend Interrupt Enable */
+        uint16_t : 6;              /*!< bit: 10..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_DEVICE_INTENCLR_Type;
@@ -509,16 +509,16 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t :2;               /*!< bit:  0.. 1  Reserved                           */
-        uint16_t HSOF:1;           /*!< bit:      2  Host Start Of Frame Interrupt Disable */
-        uint16_t RST:1;            /*!< bit:      3  BUS Reset Interrupt Disable        */
-        uint16_t WAKEUP:1;         /*!< bit:      4  Wake Up Interrupt Disable          */
-        uint16_t DNRSM:1;          /*!< bit:      5  DownStream to Device Interrupt Disable */
-        uint16_t UPRSM:1;          /*!< bit:      6  Upstream Resume from Device Interrupt Disable */
-        uint16_t RAMACER:1;        /*!< bit:      7  Ram Access Interrupt Disable       */
-        uint16_t DCONN:1;          /*!< bit:      8  Device Connection Interrupt Disable */
-        uint16_t DDISC:1;          /*!< bit:      9  Device Disconnection Interrupt Disable */
-        uint16_t :6;               /*!< bit: 10..15  Reserved                           */
+        uint16_t : 2;              /*!< bit:  0.. 1  Reserved                           */
+        uint16_t HSOF: 1;          /*!< bit:      2  Host Start Of Frame Interrupt Disable */
+        uint16_t RST: 1;           /*!< bit:      3  BUS Reset Interrupt Disable        */
+        uint16_t WAKEUP: 1;        /*!< bit:      4  Wake Up Interrupt Disable          */
+        uint16_t DNRSM: 1;         /*!< bit:      5  DownStream to Device Interrupt Disable */
+        uint16_t UPRSM: 1;         /*!< bit:      6  Upstream Resume from Device Interrupt Disable */
+        uint16_t RAMACER: 1;       /*!< bit:      7  Ram Access Interrupt Disable       */
+        uint16_t DCONN: 1;         /*!< bit:      8  Device Connection Interrupt Disable */
+        uint16_t DDISC: 1;         /*!< bit:      9  Device Disconnection Interrupt Disable */
+        uint16_t : 6;              /*!< bit: 10..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_HOST_INTENCLR_Type;
@@ -549,17 +549,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t SUSPEND:1;        /*!< bit:      0  Suspend Interrupt Enable           */
-        uint16_t MSOF:1;           /*!< bit:      1  Micro Start of Frame Interrupt Enable in High Speed Mode */
-        uint16_t SOF:1;            /*!< bit:      2  Start Of Frame Interrupt Enable    */
-        uint16_t EORST:1;          /*!< bit:      3  End of Reset Interrupt Enable      */
-        uint16_t WAKEUP:1;         /*!< bit:      4  Wake Up Interrupt Enable           */
-        uint16_t EORSM:1;          /*!< bit:      5  End Of Resume Interrupt Enable     */
-        uint16_t UPRSM:1;          /*!< bit:      6  Upstream Resume Interrupt Enable   */
-        uint16_t RAMACER:1;        /*!< bit:      7  Ram Access Interrupt Enable        */
-        uint16_t LPMNYET:1;        /*!< bit:      8  Link Power Management Not Yet Interrupt Enable */
-        uint16_t LPMSUSP:1;        /*!< bit:      9  Link Power Management Suspend Interrupt Enable */
-        uint16_t :6;               /*!< bit: 10..15  Reserved                           */
+        uint16_t SUSPEND: 1;       /*!< bit:      0  Suspend Interrupt Enable           */
+        uint16_t MSOF: 1;          /*!< bit:      1  Micro Start of Frame Interrupt Enable in High Speed Mode */
+        uint16_t SOF: 1;           /*!< bit:      2  Start Of Frame Interrupt Enable    */
+        uint16_t EORST: 1;         /*!< bit:      3  End of Reset Interrupt Enable      */
+        uint16_t WAKEUP: 1;        /*!< bit:      4  Wake Up Interrupt Enable           */
+        uint16_t EORSM: 1;         /*!< bit:      5  End Of Resume Interrupt Enable     */
+        uint16_t UPRSM: 1;         /*!< bit:      6  Upstream Resume Interrupt Enable   */
+        uint16_t RAMACER: 1;       /*!< bit:      7  Ram Access Interrupt Enable        */
+        uint16_t LPMNYET: 1;       /*!< bit:      8  Link Power Management Not Yet Interrupt Enable */
+        uint16_t LPMSUSP: 1;       /*!< bit:      9  Link Power Management Suspend Interrupt Enable */
+        uint16_t : 6;              /*!< bit: 10..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_DEVICE_INTENSET_Type;
@@ -594,16 +594,16 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t :2;               /*!< bit:  0.. 1  Reserved                           */
-        uint16_t HSOF:1;           /*!< bit:      2  Host Start Of Frame Interrupt Enable */
-        uint16_t RST:1;            /*!< bit:      3  Bus Reset Interrupt Enable         */
-        uint16_t WAKEUP:1;         /*!< bit:      4  Wake Up Interrupt Enable           */
-        uint16_t DNRSM:1;          /*!< bit:      5  DownStream to the Device Interrupt Enable */
-        uint16_t UPRSM:1;          /*!< bit:      6  Upstream Resume fromthe device Interrupt Enable */
-        uint16_t RAMACER:1;        /*!< bit:      7  Ram Access Interrupt Enable        */
-        uint16_t DCONN:1;          /*!< bit:      8  Link Power Management Interrupt Enable */
-        uint16_t DDISC:1;          /*!< bit:      9  Device Disconnection Interrupt Enable */
-        uint16_t :6;               /*!< bit: 10..15  Reserved                           */
+        uint16_t : 2;              /*!< bit:  0.. 1  Reserved                           */
+        uint16_t HSOF: 1;          /*!< bit:      2  Host Start Of Frame Interrupt Enable */
+        uint16_t RST: 1;           /*!< bit:      3  Bus Reset Interrupt Enable         */
+        uint16_t WAKEUP: 1;        /*!< bit:      4  Wake Up Interrupt Enable           */
+        uint16_t DNRSM: 1;         /*!< bit:      5  DownStream to the Device Interrupt Enable */
+        uint16_t UPRSM: 1;         /*!< bit:      6  Upstream Resume fromthe device Interrupt Enable */
+        uint16_t RAMACER: 1;       /*!< bit:      7  Ram Access Interrupt Enable        */
+        uint16_t DCONN: 1;         /*!< bit:      8  Link Power Management Interrupt Enable */
+        uint16_t DDISC: 1;         /*!< bit:      9  Device Disconnection Interrupt Enable */
+        uint16_t : 6;              /*!< bit: 10..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_HOST_INTENSET_Type;
@@ -634,17 +634,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t SUSPEND:1;        /*!< bit:      0  Suspend                            */
-        uint16_t MSOF:1;           /*!< bit:      1  Micro Start of Frame in High Speed Mode */
-        uint16_t SOF:1;            /*!< bit:      2  Start Of Frame                     */
-        uint16_t EORST:1;          /*!< bit:      3  End of Reset                       */
-        uint16_t WAKEUP:1;         /*!< bit:      4  Wake Up                            */
-        uint16_t EORSM:1;          /*!< bit:      5  End Of Resume                      */
-        uint16_t UPRSM:1;          /*!< bit:      6  Upstream Resume                    */
-        uint16_t RAMACER:1;        /*!< bit:      7  Ram Access                         */
-        uint16_t LPMNYET:1;        /*!< bit:      8  Link Power Management Not Yet      */
-        uint16_t LPMSUSP:1;        /*!< bit:      9  Link Power Management Suspend      */
-        uint16_t :6;               /*!< bit: 10..15  Reserved                           */
+        uint16_t SUSPEND: 1;       /*!< bit:      0  Suspend                            */
+        uint16_t MSOF: 1;          /*!< bit:      1  Micro Start of Frame in High Speed Mode */
+        uint16_t SOF: 1;           /*!< bit:      2  Start Of Frame                     */
+        uint16_t EORST: 1;         /*!< bit:      3  End of Reset                       */
+        uint16_t WAKEUP: 1;        /*!< bit:      4  Wake Up                            */
+        uint16_t EORSM: 1;         /*!< bit:      5  End Of Resume                      */
+        uint16_t UPRSM: 1;         /*!< bit:      6  Upstream Resume                    */
+        uint16_t RAMACER: 1;       /*!< bit:      7  Ram Access                         */
+        uint16_t LPMNYET: 1;       /*!< bit:      8  Link Power Management Not Yet      */
+        uint16_t LPMSUSP: 1;       /*!< bit:      9  Link Power Management Suspend      */
+        uint16_t : 6;              /*!< bit: 10..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_DEVICE_INTFLAG_Type;
@@ -679,16 +679,16 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t :2;               /*!< bit:  0.. 1  Reserved                           */
-        uint16_t HSOF:1;           /*!< bit:      2  Host Start Of Frame                */
-        uint16_t RST:1;            /*!< bit:      3  Bus Reset                          */
-        uint16_t WAKEUP:1;         /*!< bit:      4  Wake Up                            */
-        uint16_t DNRSM:1;          /*!< bit:      5  Downstream                         */
-        uint16_t UPRSM:1;          /*!< bit:      6  Upstream Resume from the Device    */
-        uint16_t RAMACER:1;        /*!< bit:      7  Ram Access                         */
-        uint16_t DCONN:1;          /*!< bit:      8  Device Connection                  */
-        uint16_t DDISC:1;          /*!< bit:      9  Device Disconnection               */
-        uint16_t :6;               /*!< bit: 10..15  Reserved                           */
+        uint16_t : 2;              /*!< bit:  0.. 1  Reserved                           */
+        uint16_t HSOF: 1;          /*!< bit:      2  Host Start Of Frame                */
+        uint16_t RST: 1;           /*!< bit:      3  Bus Reset                          */
+        uint16_t WAKEUP: 1;        /*!< bit:      4  Wake Up                            */
+        uint16_t DNRSM: 1;         /*!< bit:      5  Downstream                         */
+        uint16_t UPRSM: 1;         /*!< bit:      6  Upstream Resume from the Device    */
+        uint16_t RAMACER: 1;       /*!< bit:      7  Ram Access                         */
+        uint16_t DCONN: 1;         /*!< bit:      8  Device Connection                  */
+        uint16_t DDISC: 1;         /*!< bit:      9  Device Disconnection               */
+        uint16_t : 6;              /*!< bit: 10..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_HOST_INTFLAG_Type;
@@ -719,19 +719,19 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t EPINT0:1;         /*!< bit:      0  End Point 0 Interrupt              */
-        uint16_t EPINT1:1;         /*!< bit:      1  End Point 1 Interrupt              */
-        uint16_t EPINT2:1;         /*!< bit:      2  End Point 2 Interrupt              */
-        uint16_t EPINT3:1;         /*!< bit:      3  End Point 3 Interrupt              */
-        uint16_t EPINT4:1;         /*!< bit:      4  End Point 4 Interrupt              */
-        uint16_t EPINT5:1;         /*!< bit:      5  End Point 5 Interrupt              */
-        uint16_t EPINT6:1;         /*!< bit:      6  End Point 6 Interrupt              */
-        uint16_t EPINT7:1;         /*!< bit:      7  End Point 7 Interrupt              */
-        uint16_t :8;               /*!< bit:  8..15  Reserved                           */
+        uint16_t EPINT0: 1;        /*!< bit:      0  End Point 0 Interrupt              */
+        uint16_t EPINT1: 1;        /*!< bit:      1  End Point 1 Interrupt              */
+        uint16_t EPINT2: 1;        /*!< bit:      2  End Point 2 Interrupt              */
+        uint16_t EPINT3: 1;        /*!< bit:      3  End Point 3 Interrupt              */
+        uint16_t EPINT4: 1;        /*!< bit:      4  End Point 4 Interrupt              */
+        uint16_t EPINT5: 1;        /*!< bit:      5  End Point 5 Interrupt              */
+        uint16_t EPINT6: 1;        /*!< bit:      6  End Point 6 Interrupt              */
+        uint16_t EPINT7: 1;        /*!< bit:      7  End Point 7 Interrupt              */
+        uint16_t : 8;              /*!< bit:  8..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint16_t EPINT:8;          /*!< bit:  0.. 7  End Point x Interrupt              */
-        uint16_t :8;               /*!< bit:  8..15  Reserved                           */
+        uint16_t EPINT: 8;         /*!< bit:  0.. 7  End Point x Interrupt              */
+        uint16_t : 8;              /*!< bit:  8..15  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_DEVICE_EPINTSMRY_Type;
@@ -765,19 +765,19 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t EPINT0:1;         /*!< bit:      0  Pipe 0 Interrupt                   */
-        uint16_t EPINT1:1;         /*!< bit:      1  Pipe 1 Interrupt                   */
-        uint16_t EPINT2:1;         /*!< bit:      2  Pipe 2 Interrupt                   */
-        uint16_t EPINT3:1;         /*!< bit:      3  Pipe 3 Interrupt                   */
-        uint16_t EPINT4:1;         /*!< bit:      4  Pipe 4 Interrupt                   */
-        uint16_t EPINT5:1;         /*!< bit:      5  Pipe 5 Interrupt                   */
-        uint16_t EPINT6:1;         /*!< bit:      6  Pipe 6 Interrupt                   */
-        uint16_t EPINT7:1;         /*!< bit:      7  Pipe 7 Interrupt                   */
-        uint16_t :8;               /*!< bit:  8..15  Reserved                           */
+        uint16_t EPINT0: 1;        /*!< bit:      0  Pipe 0 Interrupt                   */
+        uint16_t EPINT1: 1;        /*!< bit:      1  Pipe 1 Interrupt                   */
+        uint16_t EPINT2: 1;        /*!< bit:      2  Pipe 2 Interrupt                   */
+        uint16_t EPINT3: 1;        /*!< bit:      3  Pipe 3 Interrupt                   */
+        uint16_t EPINT4: 1;        /*!< bit:      4  Pipe 4 Interrupt                   */
+        uint16_t EPINT5: 1;        /*!< bit:      5  Pipe 5 Interrupt                   */
+        uint16_t EPINT6: 1;        /*!< bit:      6  Pipe 6 Interrupt                   */
+        uint16_t EPINT7: 1;        /*!< bit:      7  Pipe 7 Interrupt                   */
+        uint16_t : 8;              /*!< bit:  8..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint16_t EPINT:8;          /*!< bit:  0.. 7  Pipe x Interrupt                   */
-        uint16_t :8;               /*!< bit:  8..15  Reserved                           */
+        uint16_t EPINT: 8;         /*!< bit:  0.. 7  Pipe x Interrupt                   */
+        uint16_t : 8;              /*!< bit:  8..15  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_HOST_PINTSMRY_Type;
@@ -811,7 +811,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t DESCADD:32;       /*!< bit:  0..31  Descriptor Address Value           */
+        uint32_t DESCADD: 32;      /*!< bit:  0..31  Descriptor Address Value           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } USB_DESCADD_Type;
@@ -829,12 +829,12 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t TRANSP:5;         /*!< bit:  0.. 4  USB Pad Transp calibration         */
-        uint16_t :1;               /*!< bit:      5  Reserved                           */
-        uint16_t TRANSN:5;         /*!< bit:  6..10  USB Pad Transn calibration         */
-        uint16_t :1;               /*!< bit:     11  Reserved                           */
-        uint16_t TRIM:3;           /*!< bit: 12..14  USB Pad Trim calibration           */
-        uint16_t :1;               /*!< bit:     15  Reserved                           */
+        uint16_t TRANSP: 5;        /*!< bit:  0.. 4  USB Pad Transp calibration         */
+        uint16_t : 1;              /*!< bit:      5  Reserved                           */
+        uint16_t TRANSN: 5;        /*!< bit:  6..10  USB Pad Transn calibration         */
+        uint16_t : 1;              /*!< bit:     11  Reserved                           */
+        uint16_t TRIM: 3;          /*!< bit: 12..14  USB Pad Trim calibration           */
+        uint16_t : 1;              /*!< bit:     15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_PADCAL_Type;
@@ -858,10 +858,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  EPTYPE0:3;        /*!< bit:  0.. 2  End Point Type0                    */
-        uint8_t  :1;               /*!< bit:      3  Reserved                           */
-        uint8_t  EPTYPE1:3;        /*!< bit:  4.. 6  End Point Type1                    */
-        uint8_t  NYETDIS:1;        /*!< bit:      7  NYET Token Disable                 */
+        uint8_t  EPTYPE0: 3;       /*!< bit:  0.. 2  End Point Type0                    */
+        uint8_t  : 1;              /*!< bit:      3  Reserved                           */
+        uint8_t  EPTYPE1: 3;       /*!< bit:  4.. 6  End Point Type1                    */
+        uint8_t  NYETDIS: 1;       /*!< bit:      7  NYET Token Disable                 */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_DEVICE_EPCFG_Type;
@@ -884,10 +884,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PTOKEN:2;         /*!< bit:  0.. 1  Pipe Token                         */
-        uint8_t  BK:1;             /*!< bit:      2  Pipe Bank                          */
-        uint8_t  PTYPE:3;          /*!< bit:  3.. 5  Pipe Type                          */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  PTOKEN: 2;        /*!< bit:  0.. 1  Pipe Token                         */
+        uint8_t  BK: 1;            /*!< bit:      2  Pipe Bank                          */
+        uint8_t  PTYPE: 3;         /*!< bit:  3.. 5  Pipe Type                          */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_PCFG_Type;
@@ -910,7 +910,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  BITINTERVAL:8;    /*!< bit:  0.. 7  Bit Interval                       */
+        uint8_t  BITINTERVAL: 8;   /*!< bit:  0.. 7  Bit Interval                       */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_BINTERVAL_Type;
@@ -928,19 +928,19 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DTGLOUT:1;        /*!< bit:      0  Data Toggle OUT Clear              */
-        uint8_t  DTGLIN:1;         /*!< bit:      1  Data Toggle IN Clear               */
-        uint8_t  CURBK:1;          /*!< bit:      2  Curren Bank Clear                  */
-        uint8_t  :1;               /*!< bit:      3  Reserved                           */
-        uint8_t  STALLRQ0:1;       /*!< bit:      4  Stall 0 Request Clear              */
-        uint8_t  STALLRQ1:1;       /*!< bit:      5  Stall 1 Request Clear              */
-        uint8_t  BK0RDY:1;         /*!< bit:      6  Bank 0 Ready Clear                 */
-        uint8_t  BK1RDY:1;         /*!< bit:      7  Bank 1 Ready Clear                 */
+        uint8_t  DTGLOUT: 1;       /*!< bit:      0  Data Toggle OUT Clear              */
+        uint8_t  DTGLIN: 1;        /*!< bit:      1  Data Toggle IN Clear               */
+        uint8_t  CURBK: 1;         /*!< bit:      2  Curren Bank Clear                  */
+        uint8_t  : 1;              /*!< bit:      3  Reserved                           */
+        uint8_t  STALLRQ0: 1;      /*!< bit:      4  Stall 0 Request Clear              */
+        uint8_t  STALLRQ1: 1;      /*!< bit:      5  Stall 1 Request Clear              */
+        uint8_t  BK0RDY: 1;        /*!< bit:      6  Bank 0 Ready Clear                 */
+        uint8_t  BK1RDY: 1;        /*!< bit:      7  Bank 1 Ready Clear                 */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  :4;               /*!< bit:  0.. 3  Reserved                           */
-        uint8_t  STALLRQ:2;        /*!< bit:  4.. 5  Stall x Request Clear              */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  : 4;              /*!< bit:  0.. 3  Reserved                           */
+        uint8_t  STALLRQ: 2;       /*!< bit:  4.. 5  Stall x Request Clear              */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_DEVICE_EPSTATUSCLR_Type;
@@ -972,14 +972,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DTGL:1;           /*!< bit:      0  Data Toggle clear                  */
-        uint8_t  :1;               /*!< bit:      1  Reserved                           */
-        uint8_t  CURBK:1;          /*!< bit:      2  Curren Bank clear                  */
-        uint8_t  :1;               /*!< bit:      3  Reserved                           */
-        uint8_t  PFREEZE:1;        /*!< bit:      4  Pipe Freeze Clear                  */
-        uint8_t  :1;               /*!< bit:      5  Reserved                           */
-        uint8_t  BK0RDY:1;         /*!< bit:      6  Bank 0 Ready Clear                 */
-        uint8_t  BK1RDY:1;         /*!< bit:      7  Bank 1 Ready Clear                 */
+        uint8_t  DTGL: 1;          /*!< bit:      0  Data Toggle clear                  */
+        uint8_t  : 1;              /*!< bit:      1  Reserved                           */
+        uint8_t  CURBK: 1;         /*!< bit:      2  Curren Bank clear                  */
+        uint8_t  : 1;              /*!< bit:      3  Reserved                           */
+        uint8_t  PFREEZE: 1;       /*!< bit:      4  Pipe Freeze Clear                  */
+        uint8_t  : 1;              /*!< bit:      5  Reserved                           */
+        uint8_t  BK0RDY: 1;        /*!< bit:      6  Bank 0 Ready Clear                 */
+        uint8_t  BK1RDY: 1;        /*!< bit:      7  Bank 1 Ready Clear                 */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_PSTATUSCLR_Type;
@@ -1004,19 +1004,19 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DTGLOUT:1;        /*!< bit:      0  Data Toggle OUT Set                */
-        uint8_t  DTGLIN:1;         /*!< bit:      1  Data Toggle IN Set                 */
-        uint8_t  CURBK:1;          /*!< bit:      2  Current Bank Set                   */
-        uint8_t  :1;               /*!< bit:      3  Reserved                           */
-        uint8_t  STALLRQ0:1;       /*!< bit:      4  Stall 0 Request Set                */
-        uint8_t  STALLRQ1:1;       /*!< bit:      5  Stall 1 Request Set                */
-        uint8_t  BK0RDY:1;         /*!< bit:      6  Bank 0 Ready Set                   */
-        uint8_t  BK1RDY:1;         /*!< bit:      7  Bank 1 Ready Set                   */
+        uint8_t  DTGLOUT: 1;       /*!< bit:      0  Data Toggle OUT Set                */
+        uint8_t  DTGLIN: 1;        /*!< bit:      1  Data Toggle IN Set                 */
+        uint8_t  CURBK: 1;         /*!< bit:      2  Current Bank Set                   */
+        uint8_t  : 1;              /*!< bit:      3  Reserved                           */
+        uint8_t  STALLRQ0: 1;      /*!< bit:      4  Stall 0 Request Set                */
+        uint8_t  STALLRQ1: 1;      /*!< bit:      5  Stall 1 Request Set                */
+        uint8_t  BK0RDY: 1;        /*!< bit:      6  Bank 0 Ready Set                   */
+        uint8_t  BK1RDY: 1;        /*!< bit:      7  Bank 1 Ready Set                   */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  :4;               /*!< bit:  0.. 3  Reserved                           */
-        uint8_t  STALLRQ:2;        /*!< bit:  4.. 5  Stall x Request Set                */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  : 4;              /*!< bit:  0.. 3  Reserved                           */
+        uint8_t  STALLRQ: 2;       /*!< bit:  4.. 5  Stall x Request Set                */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_DEVICE_EPSTATUSSET_Type;
@@ -1048,14 +1048,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DTGL:1;           /*!< bit:      0  Data Toggle Set                    */
-        uint8_t  :1;               /*!< bit:      1  Reserved                           */
-        uint8_t  CURBK:1;          /*!< bit:      2  Current Bank Set                   */
-        uint8_t  :1;               /*!< bit:      3  Reserved                           */
-        uint8_t  PFREEZE:1;        /*!< bit:      4  Pipe Freeze Set                    */
-        uint8_t  :1;               /*!< bit:      5  Reserved                           */
-        uint8_t  BK0RDY:1;         /*!< bit:      6  Bank 0 Ready Set                   */
-        uint8_t  BK1RDY:1;         /*!< bit:      7  Bank 1 Ready Set                   */
+        uint8_t  DTGL: 1;          /*!< bit:      0  Data Toggle Set                    */
+        uint8_t  : 1;              /*!< bit:      1  Reserved                           */
+        uint8_t  CURBK: 1;         /*!< bit:      2  Current Bank Set                   */
+        uint8_t  : 1;              /*!< bit:      3  Reserved                           */
+        uint8_t  PFREEZE: 1;       /*!< bit:      4  Pipe Freeze Set                    */
+        uint8_t  : 1;              /*!< bit:      5  Reserved                           */
+        uint8_t  BK0RDY: 1;        /*!< bit:      6  Bank 0 Ready Set                   */
+        uint8_t  BK1RDY: 1;        /*!< bit:      7  Bank 1 Ready Set                   */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_PSTATUSSET_Type;
@@ -1080,19 +1080,19 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DTGLOUT:1;        /*!< bit:      0  Data Toggle Out                    */
-        uint8_t  DTGLIN:1;         /*!< bit:      1  Data Toggle In                     */
-        uint8_t  CURBK:1;          /*!< bit:      2  Current Bank                       */
-        uint8_t  :1;               /*!< bit:      3  Reserved                           */
-        uint8_t  STALLRQ0:1;       /*!< bit:      4  Stall 0 Request                    */
-        uint8_t  STALLRQ1:1;       /*!< bit:      5  Stall 1 Request                    */
-        uint8_t  BK0RDY:1;         /*!< bit:      6  Bank 0 ready                       */
-        uint8_t  BK1RDY:1;         /*!< bit:      7  Bank 1 ready                       */
+        uint8_t  DTGLOUT: 1;       /*!< bit:      0  Data Toggle Out                    */
+        uint8_t  DTGLIN: 1;        /*!< bit:      1  Data Toggle In                     */
+        uint8_t  CURBK: 1;         /*!< bit:      2  Current Bank                       */
+        uint8_t  : 1;              /*!< bit:      3  Reserved                           */
+        uint8_t  STALLRQ0: 1;      /*!< bit:      4  Stall 0 Request                    */
+        uint8_t  STALLRQ1: 1;      /*!< bit:      5  Stall 1 Request                    */
+        uint8_t  BK0RDY: 1;        /*!< bit:      6  Bank 0 ready                       */
+        uint8_t  BK1RDY: 1;        /*!< bit:      7  Bank 1 ready                       */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  :4;               /*!< bit:  0.. 3  Reserved                           */
-        uint8_t  STALLRQ:2;        /*!< bit:  4.. 5  Stall x Request                    */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  : 4;              /*!< bit:  0.. 3  Reserved                           */
+        uint8_t  STALLRQ: 2;       /*!< bit:  4.. 5  Stall x Request                    */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_DEVICE_EPSTATUS_Type;
@@ -1124,14 +1124,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DTGL:1;           /*!< bit:      0  Data Toggle                        */
-        uint8_t  :1;               /*!< bit:      1  Reserved                           */
-        uint8_t  CURBK:1;          /*!< bit:      2  Current Bank                       */
-        uint8_t  :1;               /*!< bit:      3  Reserved                           */
-        uint8_t  PFREEZE:1;        /*!< bit:      4  Pipe Freeze                        */
-        uint8_t  :1;               /*!< bit:      5  Reserved                           */
-        uint8_t  BK0RDY:1;         /*!< bit:      6  Bank 0 ready                       */
-        uint8_t  BK1RDY:1;         /*!< bit:      7  Bank 1 ready                       */
+        uint8_t  DTGL: 1;          /*!< bit:      0  Data Toggle                        */
+        uint8_t  : 1;              /*!< bit:      1  Reserved                           */
+        uint8_t  CURBK: 1;         /*!< bit:      2  Current Bank                       */
+        uint8_t  : 1;              /*!< bit:      3  Reserved                           */
+        uint8_t  PFREEZE: 1;       /*!< bit:      4  Pipe Freeze                        */
+        uint8_t  : 1;              /*!< bit:      5  Reserved                           */
+        uint8_t  BK0RDY: 1;        /*!< bit:      6  Bank 0 ready                       */
+        uint8_t  BK1RDY: 1;        /*!< bit:      7  Bank 1 ready                       */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_PSTATUS_Type;
@@ -1156,21 +1156,21 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  TRCPT0:1;         /*!< bit:      0  Transfer Complete 0                */
-        uint8_t  TRCPT1:1;         /*!< bit:      1  Transfer Complete 1                */
-        uint8_t  TRFAIL0:1;        /*!< bit:      2  Error Flow 0                       */
-        uint8_t  TRFAIL1:1;        /*!< bit:      3  Error Flow 1                       */
-        uint8_t  RXSTP:1;          /*!< bit:      4  Received Setup                     */
-        uint8_t  STALL0:1;         /*!< bit:      5  Stall 0 In/out                     */
-        uint8_t  STALL1:1;         /*!< bit:      6  Stall 1 In/out                     */
-        uint8_t  :1;               /*!< bit:      7  Reserved                           */
+        uint8_t  TRCPT0: 1;        /*!< bit:      0  Transfer Complete 0                */
+        uint8_t  TRCPT1: 1;        /*!< bit:      1  Transfer Complete 1                */
+        uint8_t  TRFAIL0: 1;       /*!< bit:      2  Error Flow 0                       */
+        uint8_t  TRFAIL1: 1;       /*!< bit:      3  Error Flow 1                       */
+        uint8_t  RXSTP: 1;         /*!< bit:      4  Received Setup                     */
+        uint8_t  STALL0: 1;        /*!< bit:      5  Stall 0 In/out                     */
+        uint8_t  STALL1: 1;        /*!< bit:      6  Stall 1 In/out                     */
+        uint8_t  : 1;              /*!< bit:      7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  TRCPT:2;          /*!< bit:  0.. 1  Transfer Complete x                */
-        uint8_t  TRFAIL:2;         /*!< bit:  2.. 3  Error Flow x                       */
-        uint8_t  :1;               /*!< bit:      4  Reserved                           */
-        uint8_t  STALL:2;          /*!< bit:  5.. 6  Stall x In/out                     */
-        uint8_t  :1;               /*!< bit:      7  Reserved                           */
+        uint8_t  TRCPT: 2;         /*!< bit:  0.. 1  Transfer Complete x                */
+        uint8_t  TRFAIL: 2;        /*!< bit:  2.. 3  Error Flow x                       */
+        uint8_t  : 1;              /*!< bit:      4  Reserved                           */
+        uint8_t  STALL: 2;         /*!< bit:  5.. 6  Stall x In/out                     */
+        uint8_t  : 1;              /*!< bit:      7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_DEVICE_EPINTFLAG_Type;
@@ -1208,17 +1208,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  TRCPT0:1;         /*!< bit:      0  Transfer Complete 0 Interrupt Flag */
-        uint8_t  TRCPT1:1;         /*!< bit:      1  Transfer Complete 1 Interrupt Flag */
-        uint8_t  TRFAIL:1;         /*!< bit:      2  Error Flow Interrupt Flag          */
-        uint8_t  PERR:1;           /*!< bit:      3  Pipe Error Interrupt Flag          */
-        uint8_t  TXSTP:1;          /*!< bit:      4  Transmit  Setup Interrupt Flag     */
-        uint8_t  STALL:1;          /*!< bit:      5  Stall Interrupt Flag               */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  TRCPT0: 1;        /*!< bit:      0  Transfer Complete 0 Interrupt Flag */
+        uint8_t  TRCPT1: 1;        /*!< bit:      1  Transfer Complete 1 Interrupt Flag */
+        uint8_t  TRFAIL: 1;        /*!< bit:      2  Error Flow Interrupt Flag          */
+        uint8_t  PERR: 1;          /*!< bit:      3  Pipe Error Interrupt Flag          */
+        uint8_t  TXSTP: 1;         /*!< bit:      4  Transmit  Setup Interrupt Flag     */
+        uint8_t  STALL: 1;         /*!< bit:      5  Stall Interrupt Flag               */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  TRCPT:2;          /*!< bit:  0.. 1  Transfer Complete x Interrupt Flag */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  TRCPT: 2;         /*!< bit:  0.. 1  Transfer Complete x Interrupt Flag */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_PINTFLAG_Type;
@@ -1248,21 +1248,21 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  TRCPT0:1;         /*!< bit:      0  Transfer Complete 0 Interrupt Disable */
-        uint8_t  TRCPT1:1;         /*!< bit:      1  Transfer Complete 1 Interrupt Disable */
-        uint8_t  TRFAIL0:1;        /*!< bit:      2  Error Flow 0 Interrupt Disable     */
-        uint8_t  TRFAIL1:1;        /*!< bit:      3  Error Flow 1 Interrupt Disable     */
-        uint8_t  RXSTP:1;          /*!< bit:      4  Received Setup Interrupt Disable   */
-        uint8_t  STALL0:1;         /*!< bit:      5  Stall 0 In/Out Interrupt Disable   */
-        uint8_t  STALL1:1;         /*!< bit:      6  Stall 1 In/Out Interrupt Disable   */
-        uint8_t  :1;               /*!< bit:      7  Reserved                           */
+        uint8_t  TRCPT0: 1;        /*!< bit:      0  Transfer Complete 0 Interrupt Disable */
+        uint8_t  TRCPT1: 1;        /*!< bit:      1  Transfer Complete 1 Interrupt Disable */
+        uint8_t  TRFAIL0: 1;       /*!< bit:      2  Error Flow 0 Interrupt Disable     */
+        uint8_t  TRFAIL1: 1;       /*!< bit:      3  Error Flow 1 Interrupt Disable     */
+        uint8_t  RXSTP: 1;         /*!< bit:      4  Received Setup Interrupt Disable   */
+        uint8_t  STALL0: 1;        /*!< bit:      5  Stall 0 In/Out Interrupt Disable   */
+        uint8_t  STALL1: 1;        /*!< bit:      6  Stall 1 In/Out Interrupt Disable   */
+        uint8_t  : 1;              /*!< bit:      7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  TRCPT:2;          /*!< bit:  0.. 1  Transfer Complete x Interrupt Disable */
-        uint8_t  TRFAIL:2;         /*!< bit:  2.. 3  Error Flow x Interrupt Disable     */
-        uint8_t  :1;               /*!< bit:      4  Reserved                           */
-        uint8_t  STALL:2;          /*!< bit:  5.. 6  Stall x In/Out Interrupt Disable   */
-        uint8_t  :1;               /*!< bit:      7  Reserved                           */
+        uint8_t  TRCPT: 2;         /*!< bit:  0.. 1  Transfer Complete x Interrupt Disable */
+        uint8_t  TRFAIL: 2;        /*!< bit:  2.. 3  Error Flow x Interrupt Disable     */
+        uint8_t  : 1;              /*!< bit:      4  Reserved                           */
+        uint8_t  STALL: 2;         /*!< bit:  5.. 6  Stall x In/Out Interrupt Disable   */
+        uint8_t  : 1;              /*!< bit:      7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_DEVICE_EPINTENCLR_Type;
@@ -1300,17 +1300,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  TRCPT0:1;         /*!< bit:      0  Transfer Complete 0 Disable        */
-        uint8_t  TRCPT1:1;         /*!< bit:      1  Transfer Complete 1 Disable        */
-        uint8_t  TRFAIL:1;         /*!< bit:      2  Error Flow Interrupt Disable       */
-        uint8_t  PERR:1;           /*!< bit:      3  Pipe Error Interrupt Disable       */
-        uint8_t  TXSTP:1;          /*!< bit:      4  Transmit  Setup Interrupt Disable  */
-        uint8_t  STALL:1;          /*!< bit:      5  Stall Interrupt Disable            */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  TRCPT0: 1;        /*!< bit:      0  Transfer Complete 0 Disable        */
+        uint8_t  TRCPT1: 1;        /*!< bit:      1  Transfer Complete 1 Disable        */
+        uint8_t  TRFAIL: 1;        /*!< bit:      2  Error Flow Interrupt Disable       */
+        uint8_t  PERR: 1;          /*!< bit:      3  Pipe Error Interrupt Disable       */
+        uint8_t  TXSTP: 1;         /*!< bit:      4  Transmit  Setup Interrupt Disable  */
+        uint8_t  STALL: 1;         /*!< bit:      5  Stall Interrupt Disable            */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  TRCPT:2;          /*!< bit:  0.. 1  Transfer Complete x Disable        */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  TRCPT: 2;         /*!< bit:  0.. 1  Transfer Complete x Disable        */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_PINTENCLR_Type;
@@ -1340,21 +1340,21 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  TRCPT0:1;         /*!< bit:      0  Transfer Complete 0 Interrupt Enable */
-        uint8_t  TRCPT1:1;         /*!< bit:      1  Transfer Complete 1 Interrupt Enable */
-        uint8_t  TRFAIL0:1;        /*!< bit:      2  Error Flow 0 Interrupt Enable      */
-        uint8_t  TRFAIL1:1;        /*!< bit:      3  Error Flow 1 Interrupt Enable      */
-        uint8_t  RXSTP:1;          /*!< bit:      4  Received Setup Interrupt Enable    */
-        uint8_t  STALL0:1;         /*!< bit:      5  Stall 0 In/out Interrupt enable    */
-        uint8_t  STALL1:1;         /*!< bit:      6  Stall 1 In/out Interrupt enable    */
-        uint8_t  :1;               /*!< bit:      7  Reserved                           */
+        uint8_t  TRCPT0: 1;        /*!< bit:      0  Transfer Complete 0 Interrupt Enable */
+        uint8_t  TRCPT1: 1;        /*!< bit:      1  Transfer Complete 1 Interrupt Enable */
+        uint8_t  TRFAIL0: 1;       /*!< bit:      2  Error Flow 0 Interrupt Enable      */
+        uint8_t  TRFAIL1: 1;       /*!< bit:      3  Error Flow 1 Interrupt Enable      */
+        uint8_t  RXSTP: 1;         /*!< bit:      4  Received Setup Interrupt Enable    */
+        uint8_t  STALL0: 1;        /*!< bit:      5  Stall 0 In/out Interrupt enable    */
+        uint8_t  STALL1: 1;        /*!< bit:      6  Stall 1 In/out Interrupt enable    */
+        uint8_t  : 1;              /*!< bit:      7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  TRCPT:2;          /*!< bit:  0.. 1  Transfer Complete x Interrupt Enable */
-        uint8_t  TRFAIL:2;         /*!< bit:  2.. 3  Error Flow x Interrupt Enable      */
-        uint8_t  :1;               /*!< bit:      4  Reserved                           */
-        uint8_t  STALL:2;          /*!< bit:  5.. 6  Stall x In/out Interrupt enable    */
-        uint8_t  :1;               /*!< bit:      7  Reserved                           */
+        uint8_t  TRCPT: 2;         /*!< bit:  0.. 1  Transfer Complete x Interrupt Enable */
+        uint8_t  TRFAIL: 2;        /*!< bit:  2.. 3  Error Flow x Interrupt Enable      */
+        uint8_t  : 1;              /*!< bit:      4  Reserved                           */
+        uint8_t  STALL: 2;         /*!< bit:  5.. 6  Stall x In/out Interrupt enable    */
+        uint8_t  : 1;              /*!< bit:      7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_DEVICE_EPINTENSET_Type;
@@ -1392,17 +1392,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  TRCPT0:1;         /*!< bit:      0  Transfer Complete 0 Interrupt Enable */
-        uint8_t  TRCPT1:1;         /*!< bit:      1  Transfer Complete 1 Interrupt Enable */
-        uint8_t  TRFAIL:1;         /*!< bit:      2  Error Flow Interrupt Enable        */
-        uint8_t  PERR:1;           /*!< bit:      3  Pipe Error Interrupt Enable        */
-        uint8_t  TXSTP:1;          /*!< bit:      4  Transmit  Setup Interrupt Enable   */
-        uint8_t  STALL:1;          /*!< bit:      5  Stall Interrupt Enable             */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  TRCPT0: 1;        /*!< bit:      0  Transfer Complete 0 Interrupt Enable */
+        uint8_t  TRCPT1: 1;        /*!< bit:      1  Transfer Complete 1 Interrupt Enable */
+        uint8_t  TRFAIL: 1;        /*!< bit:      2  Error Flow Interrupt Enable        */
+        uint8_t  PERR: 1;          /*!< bit:      3  Pipe Error Interrupt Enable        */
+        uint8_t  TXSTP: 1;         /*!< bit:      4  Transmit  Setup Interrupt Enable   */
+        uint8_t  STALL: 1;         /*!< bit:      5  Stall Interrupt Enable             */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  TRCPT:2;          /*!< bit:  0.. 1  Transfer Complete x Interrupt Enable */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  TRCPT: 2;         /*!< bit:  0.. 1  Transfer Complete x Interrupt Enable */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_PINTENSET_Type;
@@ -1432,7 +1432,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t ADDR:32;          /*!< bit:  0..31  Adress of data buffer              */
+        uint32_t ADDR: 32;         /*!< bit:  0..31  Adress of data buffer              */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } USB_DEVICE_ADDR_Type;
@@ -1449,7 +1449,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t ADDR:32;          /*!< bit:  0..31  Adress of data buffer              */
+        uint32_t ADDR: 32;         /*!< bit:  0..31  Adress of data buffer              */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } USB_HOST_ADDR_Type;
@@ -1466,10 +1466,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t BYTE_COUNT:14;    /*!< bit:  0..13  Byte Count                         */
-        uint32_t MULTI_PACKET_SIZE:14; /*!< bit: 14..27  Multi Packet In or Out size        */
-        uint32_t SIZE:3;           /*!< bit: 28..30  Enpoint size                       */
-        uint32_t AUTO_ZLP:1;       /*!< bit:     31  Automatic Zero Length Packet       */
+        uint32_t BYTE_COUNT: 14;   /*!< bit:  0..13  Byte Count                         */
+        uint32_t MULTI_PACKET_SIZE: 14; /*!< bit: 14..27  Multi Packet In or Out size        */
+        uint32_t SIZE: 3;          /*!< bit: 28..30  Enpoint size                       */
+        uint32_t AUTO_ZLP: 1;      /*!< bit:     31  Automatic Zero Length Packet       */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } USB_DEVICE_PCKSIZE_Type;
@@ -1494,10 +1494,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t BYTE_COUNT:14;    /*!< bit:  0..13  Byte Count                         */
-        uint32_t MULTI_PACKET_SIZE:14; /*!< bit: 14..27  Multi Packet In or Out size        */
-        uint32_t SIZE:3;           /*!< bit: 28..30  Pipe size                          */
-        uint32_t AUTO_ZLP:1;       /*!< bit:     31  Automatic Zero Length Packet       */
+        uint32_t BYTE_COUNT: 14;   /*!< bit:  0..13  Byte Count                         */
+        uint32_t MULTI_PACKET_SIZE: 14; /*!< bit: 14..27  Multi Packet In or Out size        */
+        uint32_t SIZE: 3;          /*!< bit: 28..30  Pipe size                          */
+        uint32_t AUTO_ZLP: 1;      /*!< bit:     31  Automatic Zero Length Packet       */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } USB_HOST_PCKSIZE_Type;
@@ -1522,9 +1522,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t SUBPID:4;         /*!< bit:  0.. 3  SUBPID field send with extended token */
-        uint16_t VARIABLE:11;      /*!< bit:  4..14  Variable field send with extended token */
-        uint16_t :1;               /*!< bit:     15  Reserved                           */
+        uint16_t SUBPID: 4;        /*!< bit:  0.. 3  SUBPID field send with extended token */
+        uint16_t VARIABLE: 11;     /*!< bit:  4..14  Variable field send with extended token */
+        uint16_t : 1;              /*!< bit:     15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_DEVICE_EXTREG_Type;
@@ -1544,9 +1544,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t SUBPID:4;         /*!< bit:  0.. 3  SUBPID field send with extended token */
-        uint16_t VARIABLE:11;      /*!< bit:  4..14  Variable field send with extended token */
-        uint16_t :1;               /*!< bit:     15  Reserved                           */
+        uint16_t SUBPID: 4;        /*!< bit:  0.. 3  SUBPID field send with extended token */
+        uint16_t VARIABLE: 11;     /*!< bit:  4..14  Variable field send with extended token */
+        uint16_t : 1;              /*!< bit:     15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_HOST_EXTREG_Type;
@@ -1566,9 +1566,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  CRCERR:1;         /*!< bit:      0  CRC Error Status                   */
-        uint8_t  ERRORFLOW:1;      /*!< bit:      1  Error Flow Status                  */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  CRCERR: 1;        /*!< bit:      0  CRC Error Status                   */
+        uint8_t  ERRORFLOW: 1;     /*!< bit:      1  Error Flow Status                  */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_DEVICE_STATUS_BK_Type;
@@ -1586,9 +1586,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  CRCERR:1;         /*!< bit:      0  CRC Error Status                   */
-        uint8_t  ERRORFLOW:1;      /*!< bit:      1  Error Flow Status                  */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  CRCERR: 1;        /*!< bit:      0  CRC Error Status                   */
+        uint8_t  ERRORFLOW: 1;     /*!< bit:      1  Error Flow Status                  */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_STATUS_BK_Type;
@@ -1606,10 +1606,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t PDADDR:7;         /*!< bit:  0.. 6  Pipe Device Adress                 */
-        uint16_t :1;               /*!< bit:      7  Reserved                           */
-        uint16_t PEPNUM:4;         /*!< bit:  8..11  Pipe Endpoint Number               */
-        uint16_t PERMAX:4;         /*!< bit: 12..15  Pipe Error Max Number              */
+        uint16_t PDADDR: 7;        /*!< bit:  0.. 6  Pipe Device Adress                 */
+        uint16_t : 1;              /*!< bit:      7  Reserved                           */
+        uint16_t PEPNUM: 4;        /*!< bit:  8..11  Pipe Endpoint Number               */
+        uint16_t PERMAX: 4;        /*!< bit: 12..15  Pipe Error Max Number              */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_HOST_CTRL_PIPE_Type;
@@ -1633,13 +1633,13 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t DTGLER:1;         /*!< bit:      0  Data Toggle Error                  */
-        uint16_t DAPIDER:1;        /*!< bit:      1  Data PID Error                     */
-        uint16_t PIDER:1;          /*!< bit:      2  PID Error                          */
-        uint16_t TOUTER:1;         /*!< bit:      3  Time Out Error                     */
-        uint16_t CRC16ER:1;        /*!< bit:      4  CRC16 Error                        */
-        uint16_t ERCNT:3;          /*!< bit:  5.. 7  Pipe Error Count                   */
-        uint16_t :8;               /*!< bit:  8..15  Reserved                           */
+        uint16_t DTGLER: 1;        /*!< bit:      0  Data Toggle Error                  */
+        uint16_t DAPIDER: 1;       /*!< bit:      1  Data PID Error                     */
+        uint16_t PIDER: 1;         /*!< bit:      2  PID Error                          */
+        uint16_t TOUTER: 1;        /*!< bit:      3  Time Out Error                     */
+        uint16_t CRC16ER: 1;       /*!< bit:      4  CRC16 Error                        */
+        uint16_t ERCNT: 3;         /*!< bit:  5.. 7  Pipe Error Count                   */
+        uint16_t : 8;              /*!< bit:  8..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } USB_HOST_STATUS_PIPE_Type;

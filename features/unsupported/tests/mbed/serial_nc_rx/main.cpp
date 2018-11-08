@@ -1,7 +1,8 @@
 #include "mbed.h"
 #include "test_env.h"
 
-int main() {
+int main()
+{
     Serial *pc = new Serial(USBTX, USBRX);
 
     MBED_HOSTTEST_TIMEOUT(20);

@@ -43,7 +43,7 @@ extern uint32_t CyclesPerUs;            /*!< Cycles per micro second */
  *         retrieved from CPU registers.
  */
 
-extern void SystemCoreClockUpdate (void);
+extern void SystemCoreClockUpdate(void);
 extern uint32_t SysGet_PLLClockFreq(void);
 
 #ifdef __cplusplus

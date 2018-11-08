@@ -72,8 +72,8 @@ void PRNG_Open(uint32_t u32KeySize, uint32_t u32SeedReload, uint32_t u32Seed)
         CRPT->PRNG_SEED = u32Seed;
     }
 
-    CRPT->PRNG_CTL =  (u32KeySize << CRPT_PRNG_CTL_KEYSZ_Pos) |
-                      (u32SeedReload << CRPT_PRNG_CTL_SEEDRLD_Pos);
+    CRPT->PRNG_CTL = (u32KeySize << CRPT_PRNG_CTL_KEYSZ_Pos) |
+                     (u32SeedReload << CRPT_PRNG_CTL_SEEDRLD_Pos);
 }
 
 /**
@@ -169,7 +169,7 @@ void AES_SetKey(uint32_t u32Channel, uint32_t au32Keys[], uint32_t u32KeySize)
     uint32_t  i, wcnt, key_reg_addr;
 
     key_reg_addr = (uint32_t)&CRPT->AES0_KEY[0] + (u32Channel * 0x3CUL);
-    wcnt = 4UL + u32KeySize*2UL;
+    wcnt = 4UL + u32KeySize * 2UL;
 
     for (i = 0U; i < wcnt; i++) {
         outpw(key_reg_addr, au32Keys[i]);
@@ -407,7 +407,7 @@ void SHA_Read(uint32_t u32Digest[])
         wcnt = 16UL;
     }
 
-    reg_addr = (uint32_t)&(CRPT->HMAC_DGST[0]);
+    reg_addr = (uint32_t) & (CRPT->HMAC_DGST[0]);
     for (i = 0UL; i < wcnt; i++) {
         u32Digest[i] = inpw(reg_addr);
         reg_addr += 4UL;
@@ -735,7 +735,7 @@ const ECC_CURVE _Curve[] = {
 static ECC_CURVE  *pCurve;
 static ECC_CURVE  Curve_Copy;
 
-static ECC_CURVE * get_curve(E_ECC_CURVE ecc_curve);
+static ECC_CURVE *get_curve(E_ECC_CURVE ecc_curve);
 static int32_t ecc_init_curve(E_ECC_CURVE ecc_curve);
 static void run_ecc_codec(uint32_t mode);
 
@@ -825,7 +825,7 @@ static void Hex2RegEx(char input[], uint32_t volatile reg[], int shift)
   */
 static char get_Nth_nibble_char(uint32_t val32, uint32_t idx)
 {
-    return hex_char_tbl[ (val32 >> (idx * 4U)) & 0xfU ];
+    return hex_char_tbl[(val32 >> (idx * 4U)) & 0xfU ];
 }
 
 
@@ -845,7 +845,7 @@ static void Reg2Hex(int32_t count, uint32_t volatile reg[], char output[])
     }
 }
 
-static ECC_CURVE * get_curve(E_ECC_CURVE ecc_curve)
+static ECC_CURVE *get_curve(E_ECC_CURVE ecc_curve)
 {
     uint32_t   i;
     ECC_CURVE  *ret = NULL;

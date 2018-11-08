@@ -8,22 +8,23 @@ MMA7660::MMA7660(PinName sda, PinName scl, bool active) : _i2c(sda, scl)
 }
 
 //Since the MMA lacks a WHO_AM_I register, we can only check if there is a device that answers to the I2C address
-bool MMA7660::testConnection( void )
+bool MMA7660::testConnection(void)
 {
-    if (_i2c.write(MMA7660_ADDRESS, NULL, 0) == 0 )
+    if (_i2c.write(MMA7660_ADDRESS, NULL, 0) == 0) {
         return true;
-    else
+    } else {
         return false;
+    }
 }
 
 void MMA7660::setActive(bool state)
 {
     char modereg = read(MMA7660_MODE_R);
-    modereg &= ~(1<<0);
+    modereg &= ~(1 << 0);
 
     //If it somehow was in testmode, disable that
-    if (modereg && (1<<2)) {
-        modereg &= ~(1<<2);
+    if (modereg && (1 << 2)) {
+        modereg &= ~(1 << 2);
         write(MMA7660_MODE_R, modereg);
     }
 
@@ -36,7 +37,7 @@ void MMA7660::readData(int *data)
     if (!active) {
         setActive(true);
         active = true;
-        wait(0.012 + 1/samplerate); //Wait until new sample is ready, my experience is that 1/samplerate isnt needed, but datasheet says so
+        wait(0.012 + 1 / samplerate); //Wait until new sample is ready, my experience is that 1/samplerate isnt needed, but datasheet says so
     }
 
     char temp[3];
@@ -45,17 +46,20 @@ void MMA7660::readData(int *data)
     do {
         alert = false;
         read(MMA7660_XOUT_R, temp, 3);
-        for (int i = 0; i<3; i++) {
-            if (temp[i] > 63)
+        for (int i = 0; i < 3; i++) {
+            if (temp[i] > 63) {
                 alert = true;
-            if (temp[i] > 31)
-                temp[i] += 128+64;
+            }
+            if (temp[i] > 31) {
+                temp[i] += 128 + 64;
+            }
             data[i] = (signed char)temp[i];
         }
     } while (alert);
 
-    if (!active)
+    if (!active) {
         setActive(false);
+    }
 }
 
 
@@ -63,21 +67,22 @@ void MMA7660::readData(float *data)
 {
     int intdata[3];
     readData(intdata);
-    for (int i = 0; i<3; i++)
-        data[i] = intdata[i]/MMA7660_SENSITIVITY;
+    for (int i = 0; i < 3; i++) {
+        data[i] = intdata[i] / MMA7660_SENSITIVITY;
+    }
 }
 
-float MMA7660::x( void )
+float MMA7660::x(void)
 {
     return getSingle(0);
 }
 
-float MMA7660::y( void )
+float MMA7660::y(void)
 {
     return getSingle(1);
 }
 
-float MMA7660::z( void )
+float MMA7660::z(void)
 {
     return getSingle(2);
 }
@@ -88,11 +93,11 @@ void MMA7660::setSampleRate(int samplerate)
     setActive(false);                               //Not allowed to be active to change anything
     int rates[] = {120, 64, 32, 16, 8, 4, 2, 1};    //Alowed samplerates (and their number in array is also number required for MMA)
     int sampleLoc = 0, sampleError = 10000, temp;
-    for (int i = 0; i<8; i++) {
-        temp = abs( rates[i] - samplerate );
-        if (temp<sampleError) {
+    for (int i = 0; i < 8; i++) {
+        temp = abs(rates[i] - samplerate);
+        if (temp < sampleError) {
             sampleLoc = i;
-            sampleError=temp;
+            sampleError = temp;
         }
     }
 
@@ -106,34 +111,40 @@ void MMA7660::setSampleRate(int samplerate)
 }
 
 
-MMA7660::Orientation MMA7660::getSide( void )
+MMA7660::Orientation MMA7660::getSide(void)
 {
     char tiltreg = read(MMA7660_TILT_R);
 
     //We care about 2 LSBs
     tiltreg &= 0x03;
-    if (tiltreg == 0x01)
+    if (tiltreg == 0x01) {
         return MMA7660::Front;
-    if (tiltreg == 0x02)
+    }
+    if (tiltreg == 0x02) {
         return MMA7660::Back;
+    }
     return MMA7660::Unknown;
 }
 
-MMA7660::Orientation MMA7660::getOrientation( void )
+MMA7660::Orientation MMA7660::getOrientation(void)
 {
     char tiltreg = read(MMA7660_TILT_R);
 
     //We care about bit 2, 3 and 4 (counting from zero)
-    tiltreg &= 0x07<<2;
+    tiltreg &= 0x07 << 2;
     tiltreg >>= 2;
-    if (tiltreg == 0x01)
+    if (tiltreg == 0x01) {
         return MMA7660::Left;
-    if (tiltreg == 0x02)
+    }
+    if (tiltreg == 0x02) {
         return MMA7660::Right;
-    if (tiltreg == 0x05)
+    }
+    if (tiltreg == 0x05) {
         return MMA7660::Down;
-    if (tiltreg == 0x06)
+    }
+    if (tiltreg == 0x06) {
         return MMA7660::Up;
+    }
     return MMA7660::Unknown;
 }
 
@@ -147,8 +158,8 @@ MMA7660::Orientation MMA7660::getOrientation( void )
 void MMA7660::write(char address, char data)
 {
     char temp[2];
-    temp[0]=address;
-    temp[1]=data;
+    temp[0] = address;
+    temp[1] = data;
 
     _i2c.write(MMA7660_ADDRESS, temp, 2);
 }
@@ -167,11 +178,11 @@ void MMA7660::read(char address, char *data, int length)
     _i2c.read(MMA7660_ADDRESS, data, length);
 }
 
-float MMA7660::getSingle( int number )
+float MMA7660::getSingle(int number)
 {
     if (!active) {
         setActive(true);
-        wait(0.012 + 1/samplerate); //Wait until new sample is ready
+        wait(0.012 + 1 / samplerate); //Wait until new sample is ready
     }
 
     signed char temp;
@@ -180,14 +191,17 @@ float MMA7660::getSingle( int number )
     do {
         alert = false;
         temp = read(MMA7660_XOUT_R + number);
-        if (temp > 63)
+        if (temp > 63) {
             alert = true;
-        if (temp > 31)
-            temp += 128+64;
+        }
+        if (temp > 31) {
+            temp += 128 + 64;
+        }
     } while (alert);
 
-    if (!active)
+    if (!active) {
         setActive(false);
+    }
 
     return temp / MMA7660_SENSITIVITY;
 }

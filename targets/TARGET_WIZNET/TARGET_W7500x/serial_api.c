@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
- 
+
 #include "mbed_assert.h"
 #include "serial_api.h"
 
@@ -55,28 +55,20 @@ serial_t stdio_uart;
 
 static void init_uart(serial_t *obj)
 {
-    if(obj->index == 2)        // For UART2, It is simple UART.
-    {
+    if (obj->index == 2) {     // For UART2, It is simple UART.
         SystemCoreClockUpdate();
         //S_UART_Init(obj->baudrate);
-        S_UART_SetCTRL((S_UART_CTRL_RX_EN|S_UART_CTRL_TX_EN), DISABLE);
+        S_UART_SetCTRL((S_UART_CTRL_RX_EN | S_UART_CTRL_TX_EN), DISABLE);
         S_UART_SetBaud(obj->baudrate);
 
-        if(obj->pin_rx == NC)
-        {
+        if (obj->pin_rx == NC) {
             S_UART_SetCTRL(S_UART_CTRL_TX_EN, ENABLE);
-        }
-        else if(obj->pin_tx == NC)
-        {
+        } else if (obj->pin_tx == NC) {
             S_UART_SetCTRL(S_UART_CTRL_RX_EN, ENABLE);
+        } else {
+            S_UART_SetCTRL((S_UART_CTRL_TX_EN | S_UART_CTRL_RX_EN), ENABLE);
         }
-        else
-        {
-            S_UART_SetCTRL((S_UART_CTRL_TX_EN|S_UART_CTRL_RX_EN),ENABLE);
-        }
-    }
-    else                    // For UART0 and UART1.
-    {
+    } else {                // For UART0 and UART1.
         UART = (UART_TypeDef *)(obj->uart);
         UART_InitStructure.UART_BaudRate            = obj->baudrate;
         UART_InitStructure.UART_WordLength          = obj->databits;
@@ -93,7 +85,7 @@ static void init_uart(serial_t *obj)
             UART_InitStructure.UART_Mode = (UART_Mode_Rx | UART_Mode_Tx);
         }
 
-        UART_Init(UART,&UART_InitStructure);
+        UART_Init(UART, &UART_InitStructure);
     }
 }
 
@@ -118,7 +110,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
 
     if (obj->uart == UART_2) {
-    	obj->index = 2;
+        obj->index = 2;
     }
 
     // Configure the UART pins
@@ -209,24 +201,24 @@ static void uart_irq(UARTName name, int id)
 {
     UART = (UART_TypeDef *)name;
     if (serial_irq_ids[id] != 0) {
-       if( UART_GetITStatus(UART,UART_IT_FLAG_TXI) != RESET ){
-           irq_handler(serial_irq_ids[id], TxIrq);
-           UART_ClearITPendingBit(UART,UART_IT_FLAG_TXI);
+        if (UART_GetITStatus(UART, UART_IT_FLAG_TXI) != RESET) {
+            irq_handler(serial_irq_ids[id], TxIrq);
+            UART_ClearITPendingBit(UART, UART_IT_FLAG_TXI);
         }
-       if( UART_GetITStatus(UART,UART_IT_FLAG_RXI) != RESET ){
-           irq_handler(serial_irq_ids[id], RxIrq);
-       }
+        if (UART_GetITStatus(UART, UART_IT_FLAG_RXI) != RESET) {
+            irq_handler(serial_irq_ids[id], RxIrq);
+        }
     }
 }
 
 static void uart2_irq()
 {
-    if(serial_irq_ids[2] != 0){
-        if( S_UART_GetITStatus(S_UART_INTSTATUS_TXI) != RESET ){
+    if (serial_irq_ids[2] != 0) {
+        if (S_UART_GetITStatus(S_UART_INTSTATUS_TXI) != RESET) {
             S_UART_ClearITPendingBit(S_UART_INTSTATUS_TXI);
             irq_handler(serial_irq_ids[2], TxIrq);
         }
-        if( S_UART_GetITStatus(S_UART_INTSTATUS_RXI) != RESET ) {
+        if (S_UART_GetITStatus(S_UART_INTSTATUS_RXI) != RESET) {
             S_UART_ClearITPendingBit(S_UART_INTSTATUS_RXI);
             irq_handler(serial_irq_ids[2], RxIrq);
         }
@@ -234,7 +226,7 @@ static void uart2_irq()
 }
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 void UART0_Handler()
 {
@@ -266,27 +258,24 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     IRQn_Type irq_n = (IRQn_Type)0;
 
 
-    if (obj->uart == UART_2)
-    {
+    if (obj->uart == UART_2) {
         irq_n = UART2_IRQn;
 
-        if (enable){
-            if (irq == RxIrq){
-                S_UART_ITConfig(S_UART_CTRL_RXI,ENABLE);
+        if (enable) {
+            if (irq == RxIrq) {
+                S_UART_ITConfig(S_UART_CTRL_RXI, ENABLE);
             } else {
-                S_UART_ITConfig(S_UART_CTRL_TXI,ENABLE);
+                S_UART_ITConfig(S_UART_CTRL_TXI, ENABLE);
             }
             NVIC_ClearPendingIRQ(irq_n);
             NVIC_EnableIRQ(irq_n);
         } else { // disable
-            S_UART_ITConfig((S_UART_CTRL_RXI|S_UART_CTRL_TXI),DISABLE);
+            S_UART_ITConfig((S_UART_CTRL_RXI | S_UART_CTRL_TXI), DISABLE);
             NVIC_DisableIRQ(irq_n);
         }
-    }
-    else
-    {
+    } else {
         UART = (UART_TypeDef *)(obj->uart);
-        
+
         if (obj->uart == UART_0) {
             irq_n = UART0_IRQn;
         }
@@ -297,15 +286,15 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
         if (enable) {
             if (irq == RxIrq) {
-                UART_ITConfig(UART,UART_IT_FLAG_RXI,ENABLE);
+                UART_ITConfig(UART, UART_IT_FLAG_RXI, ENABLE);
             } else { // TxIrq
-                UART_ITConfig(UART,UART_IT_FLAG_TXI,ENABLE);
+                UART_ITConfig(UART, UART_IT_FLAG_TXI, ENABLE);
             }
 
             NVIC_ClearPendingIRQ(irq_n);
             NVIC_EnableIRQ(irq_n);
         } else { // disable
-            UART_ITConfig(UART,(UART_IT_FLAG_RXI|UART_IT_FLAG_TXI),DISABLE);
+            UART_ITConfig(UART, (UART_IT_FLAG_RXI | UART_IT_FLAG_TXI), DISABLE);
             NVIC_DisableIRQ(irq_n);
         }
     }
@@ -317,17 +306,14 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
 int serial_getc(serial_t *obj)
 {
-    if (obj->uart == UART_2)
-    {
+    if (obj->uart == UART_2) {
         S_UART_TypeDef *uart = (S_UART_TypeDef *)(obj->uart);
 
-        while( (uart->STATE & S_UART_STATE_RX_BUF_FULL) == 0 );
+        while ((uart->STATE & S_UART_STATE_RX_BUF_FULL) == 0);
         return (uint16_t)(uart->DATA);
-    }
-    else
-    {
+    } else {
         UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
-        while(uart->FR & UART_FR_RXFE);
+        while (uart->FR & UART_FR_RXFE);
 
         return (uart->DR & 0xFF);
     }
@@ -335,19 +321,16 @@ int serial_getc(serial_t *obj)
 
 void serial_putc(serial_t *obj, int c)
 {
-    if (obj->uart == UART_2)
-    {
+    if (obj->uart == UART_2) {
         S_UART_TypeDef *uart = (S_UART_TypeDef *)(obj->uart);
 
-        while(uart->STATE & S_UART_STATE_TX_BUF_FULL);
+        while (uart->STATE & S_UART_STATE_TX_BUF_FULL);
         uart->DATA = (uint32_t)(c & (uint16_t)0xFF);
-    }
-    else
-    {
+    } else {
         UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
 
         uart->DR = (uint32_t)(c & (uint16_t)0xFF);
-        while(uart->FR & UART_FR_BUSY);
+        while (uart->FR & UART_FR_BUSY);
     }
 }
 
@@ -355,16 +338,13 @@ int serial_readable(serial_t *obj)
 {
     int status;
 
-    if (obj->uart == UART_2)
-    {
+    if (obj->uart == UART_2) {
         S_UART_TypeDef *uart = (S_UART_TypeDef *)(obj->uart);
         status = ((uart->STATE & S_UART_STATE_RX_BUF_FULL) ? 1 : 0);
-    }
-    else
-    {
+    } else {
         UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
         // Check if data is received
-        status = ((uart->FR & UART_FR_RXFE) ? 0: 1);
+        status = ((uart->FR & UART_FR_RXFE) ? 0 : 1);
     }
 
     return status;
@@ -374,16 +354,13 @@ int serial_writable(serial_t *obj)
 {
     int status;
 
-    if (obj->uart == UART_2)
-    {
+    if (obj->uart == UART_2) {
         S_UART_TypeDef *uart = (S_UART_TypeDef *)(obj->uart);
         status = ((uart->STATE & S_UART_STATE_TX_BUF_FULL) ? 0 : 1);
-    }
-    else
-    {
+    } else {
         UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
         // Check if data is transmitted
-        status = ((uart->FR & UART_FR_BUSY) ? 0: 1);
+        status = ((uart->FR & UART_FR_BUSY) ? 0 : 1);
     }
     return status;
 }

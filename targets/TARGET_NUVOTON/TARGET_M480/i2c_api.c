@@ -27,8 +27,8 @@
 #include "mbed_critical.h"
 
 struct nu_i2c_var {
-    i2c_t *     obj;
-    void        (*vec)(void);
+    i2c_t      *obj;
+    void (*vec)(void);
 };
 
 static void i2c0_vec(void);
@@ -215,7 +215,7 @@ int i2c_byte_write(i2c_t *obj, int data)
     data_[0] = data & 0xFF;
 
     if (i2c_do_tran(obj, data_, 1, 0, 0) == 1 &&
-            ! (obj->i2c.tran_ctrl & TRANCTRL_LASTDATANAKED)) {
+            !(obj->i2c.tran_ctrl & TRANCTRL_LASTDATANAKED)) {
         return 1;
     } else {
         return 0;
@@ -373,19 +373,19 @@ static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync)
         uint32_t status = I2C_GET_STATUS(i2c_base);
 
         switch (status) {
-        case 0x08:  // Start
-        case 0x10:  // Master Repeat Start
-            if (i2c_ctl & I2C_CTL0_STA_Msk) {
-                return 0;
-            } else {
-                break;
-            }
-        case 0xF8:  // Bus Released
-            if ((i2c_ctl & (I2C_CTL0_STA_Msk | I2C_CTL0_STO_Msk)) == I2C_CTL0_STO_Msk) {
-                return 0;
-            } else {
-                break;
-            }
+            case 0x08:  // Start
+            case 0x10:  // Master Repeat Start
+                if (i2c_ctl & I2C_CTL0_STA_Msk) {
+                    return 0;
+                } else {
+                    break;
+                }
+            case 0xF8:  // Bus Released
+                if ((i2c_ctl & (I2C_CTL0_STA_Msk | I2C_CTL0_STO_Msk)) == I2C_CTL0_STO_Msk) {
+                    return 0;
+                } else {
+                    break;
+                }
         }
         I2C_SET_CONTROL_REG(i2c_base, i2c_ctl);
         if (sync && i2c_poll_status_timeout(obj, i2c_is_trsn_done, NU_I2C_TIMEOUT_STAT_INT)) {
@@ -463,14 +463,14 @@ static int i2c_is_stat_int(i2c_t *obj)
 {
     I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
 
-    return !! (i2c_base->CTL0 & I2C_CTL0_SI_Msk);
+    return !!(i2c_base->CTL0 & I2C_CTL0_SI_Msk);
 }
 
 static int i2c_is_stop_det(i2c_t *obj)
 {
     I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
 
-    return ! (i2c_base->CTL0 & I2C_CTL0_STO_Msk);
+    return !(i2c_base->CTL0 & I2C_CTL0_STO_Msk);
 }
 #endif
 
@@ -482,7 +482,7 @@ static int i2c_is_trsn_done(i2c_t *obj)
     int inten_back;
 
     inten_back = i2c_set_int(obj, 0);
-    i2c_int = !! (i2c_base->CTL0 & I2C_CTL0_SI_Msk);
+    i2c_int = !!(i2c_base->CTL0 & I2C_CTL0_SI_Msk);
     status = I2C_GET_STATUS(i2c_base);
     i2c_set_int(obj, inten_back);
 
@@ -495,7 +495,7 @@ static int i2c_is_tran_started(i2c_t *obj)
     int inten_back;
 
     inten_back = i2c_set_int(obj, 0);
-    started = !! (obj->i2c.tran_ctrl & TRANCTRL_STARTED);
+    started = !!(obj->i2c.tran_ctrl & TRANCTRL_STARTED);
     i2c_set_int(obj, inten_back);
 
     return started;
@@ -532,178 +532,178 @@ static void i2c_irq(i2c_t *obj)
     status = I2C_GET_STATUS(i2c_base);
 
     switch (status) {
-    // Master Transmit
-    case 0x28:  // Master Transmit Data ACK
-    case 0x18:  // Master Transmit Address ACK
-    case 0x08:  // Start
-    case 0x10:  // Master Repeat Start
-        if ((obj->i2c.tran_ctrl & TRANCTRL_STARTED) && obj->i2c.tran_pos) {
-            if (obj->i2c.tran_pos < obj->i2c.tran_end) {
-                I2C_SET_DATA(i2c_base, *obj->i2c.tran_pos ++);
-                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
-            } else {
-                i2c_fsm_tranfini(obj, 0);
-            }
-        } else {
-            i2c_disable_int(obj);
-        }
-        break;
-
-    case 0x30:  // Master Transmit Data NACK
-        i2c_fsm_tranfini(obj, 1);
-        break;
-
-    case 0x20:  // Master Transmit Address NACK
-        i2c_fsm_tranfini(obj, 1);
-        break;
-
-    case 0x38:  // Master Arbitration Lost
-        i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
-        break;
-
-    case 0x48:  // Master Receive Address NACK
-        i2c_fsm_tranfini(obj, 1);
-        break;
-
-    case 0x40:  // Master Receive Address ACK
-    case 0x50:  // Master Receive Data ACK
-    case 0x58:  // Master Receive Data NACK
-        if ((obj->i2c.tran_ctrl & TRANCTRL_STARTED) && obj->i2c.tran_pos) {
-            if (obj->i2c.tran_pos < obj->i2c.tran_end) {
-                if (status == 0x50 || status == 0x58) {
-                    *obj->i2c.tran_pos ++ = I2C_GET_DATA(i2c_base);
-                }
-
-                if (status == 0x58) {
-                    i2c_fsm_tranfini(obj, 1);
+        // Master Transmit
+        case 0x28:  // Master Transmit Data ACK
+        case 0x18:  // Master Transmit Address ACK
+        case 0x08:  // Start
+        case 0x10:  // Master Repeat Start
+            if ((obj->i2c.tran_ctrl & TRANCTRL_STARTED) && obj->i2c.tran_pos) {
+                if (obj->i2c.tran_pos < obj->i2c.tran_end) {
+                    I2C_SET_DATA(i2c_base, *obj->i2c.tran_pos ++);
+                    I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
                 } else {
+                    i2c_fsm_tranfini(obj, 0);
+                }
+            } else {
+                i2c_disable_int(obj);
+            }
+            break;
+
+        case 0x30:  // Master Transmit Data NACK
+            i2c_fsm_tranfini(obj, 1);
+            break;
+
+        case 0x20:  // Master Transmit Address NACK
+            i2c_fsm_tranfini(obj, 1);
+            break;
+
+        case 0x38:  // Master Arbitration Lost
+            i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
+            break;
+
+        case 0x48:  // Master Receive Address NACK
+            i2c_fsm_tranfini(obj, 1);
+            break;
+
+        case 0x40:  // Master Receive Address ACK
+        case 0x50:  // Master Receive Data ACK
+        case 0x58:  // Master Receive Data NACK
+            if ((obj->i2c.tran_ctrl & TRANCTRL_STARTED) && obj->i2c.tran_pos) {
+                if (obj->i2c.tran_pos < obj->i2c.tran_end) {
+                    if (status == 0x50 || status == 0x58) {
+                        *obj->i2c.tran_pos ++ = I2C_GET_DATA(i2c_base);
+                    }
+
+                    if (status == 0x58) {
+                        i2c_fsm_tranfini(obj, 1);
+                    } else {
+                        uint32_t i2c_ctl = I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk;
+                        if ((obj->i2c.tran_end - obj->i2c.tran_pos) == 1 &&
+                                obj->i2c.tran_ctrl & TRANCTRL_NAKLASTDATA) {
+                            // Last data
+                            i2c_ctl &= ~I2C_CTL0_AA_Msk;
+                        }
+                        I2C_SET_CONTROL_REG(i2c_base, i2c_ctl);
+                    }
+                } else {
+                    obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
+                    i2c_disable_int(obj);
+                    break;
+                }
+            } else {
+                i2c_disable_int(obj);
+            }
+            break;
+
+        //case 0x00:  // Bus error
+
+        // Slave Transmit
+        case 0xB8:  // Slave Transmit Data ACK
+        case 0xA8:  // Slave Transmit Address ACK
+        case 0xB0:  // Slave Transmit Arbitration Lost
+            if ((obj->i2c.tran_ctrl & TRANCTRL_STARTED) && obj->i2c.tran_pos) {
+                if (obj->i2c.tran_pos < obj->i2c.tran_end) {
                     uint32_t i2c_ctl = I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk;
-                    if ((obj->i2c.tran_end - obj->i2c.tran_pos) == 1 &&
+
+                    I2C_SET_DATA(i2c_base, *obj->i2c.tran_pos ++);
+                    if (obj->i2c.tran_pos == obj->i2c.tran_end &&
                             obj->i2c.tran_ctrl & TRANCTRL_NAKLASTDATA) {
                         // Last data
                         i2c_ctl &= ~I2C_CTL0_AA_Msk;
                     }
                     I2C_SET_CONTROL_REG(i2c_base, i2c_ctl);
-                }
-            } else {
-                obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
-                i2c_disable_int(obj);
-                break;
-            }
-        } else {
-            i2c_disable_int(obj);
-        }
-        break;
-
-    //case 0x00:  // Bus error
-
-    // Slave Transmit
-    case 0xB8:  // Slave Transmit Data ACK
-    case 0xA8:  // Slave Transmit Address ACK
-    case 0xB0:  // Slave Transmit Arbitration Lost
-        if ((obj->i2c.tran_ctrl & TRANCTRL_STARTED) && obj->i2c.tran_pos) {
-            if (obj->i2c.tran_pos < obj->i2c.tran_end) {
-                uint32_t i2c_ctl = I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk;
-
-                I2C_SET_DATA(i2c_base, *obj->i2c.tran_pos ++);
-                if (obj->i2c.tran_pos == obj->i2c.tran_end &&
-                        obj->i2c.tran_ctrl & TRANCTRL_NAKLASTDATA) {
-                    // Last data
-                    i2c_ctl &= ~I2C_CTL0_AA_Msk;
-                }
-                I2C_SET_CONTROL_REG(i2c_base, i2c_ctl);
-            } else {
-                obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
-                i2c_disable_int(obj);
-                break;
-            }
-        } else {
-            i2c_disable_int(obj);
-        }
-        obj->i2c.slaveaddr_state = ReadAddressed;
-        break;
-    //case 0xA0:  // Slave Transmit Repeat Start or Stop
-    case 0xC0:  // Slave Transmit Data NACK
-    case 0xC8:  // Slave Transmit Last Data ACK
-        obj->i2c.slaveaddr_state = NoData;
-        i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
-        break;
-
-    // Slave Receive
-    case 0x80:  // Slave Receive Data ACK
-    case 0x88:  // Slave Receive Data NACK
-    case 0x60:  // Slave Receive Address ACK
-    case 0x68:  // Slave Receive Arbitration Lost
-        obj->i2c.slaveaddr_state = WriteAddressed;
-        if ((obj->i2c.tran_ctrl & TRANCTRL_STARTED) && obj->i2c.tran_pos) {
-            if (obj->i2c.tran_pos < obj->i2c.tran_end) {
-                if (status == 0x80 || status == 0x88) {
-                    *obj->i2c.tran_pos ++ = I2C_GET_DATA(i2c_base);
-                }
-
-                if (status == 0x88) {
-                    obj->i2c.slaveaddr_state = NoData;
-                    i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
                 } else {
-                    uint32_t i2c_ctl = I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk;
-                    if ((obj->i2c.tran_end - obj->i2c.tran_pos) == 1 &&
-                            obj->i2c.tran_ctrl & TRANCTRL_NAKLASTDATA) {
-                        // Last data
-                        i2c_ctl &= ~I2C_CTL0_AA_Msk;
-                    }
-                    I2C_SET_CONTROL_REG(i2c_base, i2c_ctl);
+                    obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
+                    i2c_disable_int(obj);
+                    break;
                 }
             } else {
-                obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
                 i2c_disable_int(obj);
-                break;
             }
-        } else {
-            i2c_disable_int(obj);
-        }
-        break;
-    //case 0xA0:  // Slave Receive Repeat Start or Stop
+            obj->i2c.slaveaddr_state = ReadAddressed;
+            break;
+        //case 0xA0:  // Slave Transmit Repeat Start or Stop
+        case 0xC0:  // Slave Transmit Data NACK
+        case 0xC8:  // Slave Transmit Last Data ACK
+            obj->i2c.slaveaddr_state = NoData;
+            i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
+            break;
 
-    // GC mode
-    //case 0xA0:  // GC mode Repeat Start or Stop
-    case 0x90:  // GC mode Data ACK
-    case 0x98:  // GC mode Data NACK
-    case 0x70:  // GC mode Address ACK
-    case 0x78:  // GC mode Arbitration Lost
-        obj->i2c.slaveaddr_state = WriteAddressed;
-        if ((obj->i2c.tran_ctrl & TRANCTRL_STARTED) && obj->i2c.tran_pos) {
-            if (obj->i2c.tran_pos < obj->i2c.tran_end) {
-                if (status == 0x90 || status == 0x98) {
-                    *obj->i2c.tran_pos ++ = I2C_GET_DATA(i2c_base);
-                }
+        // Slave Receive
+        case 0x80:  // Slave Receive Data ACK
+        case 0x88:  // Slave Receive Data NACK
+        case 0x60:  // Slave Receive Address ACK
+        case 0x68:  // Slave Receive Arbitration Lost
+            obj->i2c.slaveaddr_state = WriteAddressed;
+            if ((obj->i2c.tran_ctrl & TRANCTRL_STARTED) && obj->i2c.tran_pos) {
+                if (obj->i2c.tran_pos < obj->i2c.tran_end) {
+                    if (status == 0x80 || status == 0x88) {
+                        *obj->i2c.tran_pos ++ = I2C_GET_DATA(i2c_base);
+                    }
 
-                if (status == 0x98) {
-                    obj->i2c.slaveaddr_state = NoData;
-                    i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
+                    if (status == 0x88) {
+                        obj->i2c.slaveaddr_state = NoData;
+                        i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
+                    } else {
+                        uint32_t i2c_ctl = I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk;
+                        if ((obj->i2c.tran_end - obj->i2c.tran_pos) == 1 &&
+                                obj->i2c.tran_ctrl & TRANCTRL_NAKLASTDATA) {
+                            // Last data
+                            i2c_ctl &= ~I2C_CTL0_AA_Msk;
+                        }
+                        I2C_SET_CONTROL_REG(i2c_base, i2c_ctl);
+                    }
                 } else {
-                    uint32_t i2c_ctl = I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk;
-                    if ((obj->i2c.tran_end - obj->i2c.tran_pos) == 1 &&
-                            obj->i2c.tran_ctrl & TRANCTRL_NAKLASTDATA) {
-                        // Last data
-                        i2c_ctl &= ~I2C_CTL0_AA_Msk;
-                    }
-                    I2C_SET_CONTROL_REG(i2c_base, i2c_ctl);
+                    obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
+                    i2c_disable_int(obj);
+                    break;
                 }
             } else {
-                obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
                 i2c_disable_int(obj);
-                break;
             }
-        } else {
-            i2c_disable_int(obj);
-        }
-        break;
+            break;
+        //case 0xA0:  // Slave Receive Repeat Start or Stop
 
-    case 0xF8:  // Bus Released
-        break;
+        // GC mode
+        //case 0xA0:  // GC mode Repeat Start or Stop
+        case 0x90:  // GC mode Data ACK
+        case 0x98:  // GC mode Data NACK
+        case 0x70:  // GC mode Address ACK
+        case 0x78:  // GC mode Arbitration Lost
+            obj->i2c.slaveaddr_state = WriteAddressed;
+            if ((obj->i2c.tran_ctrl & TRANCTRL_STARTED) && obj->i2c.tran_pos) {
+                if (obj->i2c.tran_pos < obj->i2c.tran_end) {
+                    if (status == 0x90 || status == 0x98) {
+                        *obj->i2c.tran_pos ++ = I2C_GET_DATA(i2c_base);
+                    }
 
-    default:
-        i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
+                    if (status == 0x98) {
+                        obj->i2c.slaveaddr_state = NoData;
+                        i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
+                    } else {
+                        uint32_t i2c_ctl = I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk;
+                        if ((obj->i2c.tran_end - obj->i2c.tran_pos) == 1 &&
+                                obj->i2c.tran_ctrl & TRANCTRL_NAKLASTDATA) {
+                            // Last data
+                            i2c_ctl &= ~I2C_CTL0_AA_Msk;
+                        }
+                        I2C_SET_CONTROL_REG(i2c_base, i2c_ctl);
+                    }
+                } else {
+                    obj->i2c.tran_ctrl &= ~TRANCTRL_STARTED;
+                    i2c_disable_int(obj);
+                    break;
+                }
+            } else {
+                i2c_disable_int(obj);
+            }
+            break;
+
+        case 0xF8:  // Bus Released
+            break;
+
+        default:
+            i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
     }
 }
 
@@ -756,99 +756,99 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
     I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
     uint32_t status = I2C_GET_STATUS(i2c_base);
     switch (status) {
-    case 0x08:  // Start
-    case 0x10: {// Master Repeat Start
-        if (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) {
-            I2C_SET_DATA(i2c_base, (i2c_addr2data(obj->i2c.address, 0)));
-            I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk);
-        } else if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
-            I2C_SET_DATA(i2c_base, (i2c_addr2data(obj->i2c.address, 1)));
-            I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk);
-        } else {
-            event = I2C_EVENT_TRANSFER_COMPLETE;
+        case 0x08:  // Start
+        case 0x10: {// Master Repeat Start
+            if (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) {
+                I2C_SET_DATA(i2c_base, (i2c_addr2data(obj->i2c.address, 0)));
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk);
+            } else if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
+                I2C_SET_DATA(i2c_base, (i2c_addr2data(obj->i2c.address, 1)));
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk);
+            } else {
+                event = I2C_EVENT_TRANSFER_COMPLETE;
+                if (obj->i2c.stop) {
+                    I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
+                }
+            }
+            break;
+        }
+
+        case 0x18:  // Master Transmit Address ACK
+        case 0x28:  // Master Transmit Data ACK
+            if (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) {
+                uint8_t *tx = (uint8_t *)obj->tx_buff.buffer;
+                I2C_SET_DATA(i2c_base, tx[obj->tx_buff.pos ++]);
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk);
+            } else if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STA_Msk | I2C_CTL0_SI_Msk);
+            } else {
+                event = I2C_EVENT_TRANSFER_COMPLETE;
+                if (obj->i2c.stop) {
+                    I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
+                }
+            }
+            break;
+
+        case 0x20:  // Master Transmit Address NACK
+            event = I2C_EVENT_ERROR_NO_SLAVE;
             if (obj->i2c.stop) {
                 I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
             }
-        }
-        break;
-    }
+            break;
 
-    case 0x18:  // Master Transmit Address ACK
-    case 0x28:  // Master Transmit Data ACK
-        if (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) {
-            uint8_t *tx = (uint8_t *)obj->tx_buff.buffer;
-            I2C_SET_DATA(i2c_base, tx[obj->tx_buff.pos ++]);
-            I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk);
-        } else if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
+        case 0x30:  // Master Transmit Data NACK
+            if (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) {
+                event = I2C_EVENT_TRANSFER_EARLY_NACK;
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
+            } else if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STA_Msk | I2C_CTL0_SI_Msk);
+            } else {
+                event = I2C_EVENT_TRANSFER_COMPLETE;
+                if (obj->i2c.stop) {
+                    I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
+                }
+            }
+            break;
+
+        case 0x38:  // Master Arbitration Lost
+            I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk);  // Enter not addressed SLV mode
+            event = I2C_EVENT_ERROR;
+            break;
+
+        case 0x50:  // Master Receive Data ACK
+            if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
+                uint8_t *rx = (uint8_t *) obj->rx_buff.buffer;
+                rx[obj->rx_buff.pos ++] = I2C_GET_DATA(((I2C_T *) NU_MODBASE(obj->i2c.i2c)));
+            }
+        case 0x40:  // Master Receive Address ACK
+            I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk | ((obj->rx_buff.pos != obj->rx_buff.length - 1) ? I2C_CTL0_AA_Msk : 0));
+            break;
+
+        case 0x48:  // Master Receive Address NACK
+            event = I2C_EVENT_ERROR_NO_SLAVE;
+            if (obj->i2c.stop) {
+                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
+            }
+            break;
+
+        case 0x58:  // Master Receive Data NACK
+            if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
+                uint8_t *rx = (uint8_t *) obj->rx_buff.buffer;
+                rx[obj->rx_buff.pos ++] = I2C_GET_DATA(((I2C_T *) NU_MODBASE(obj->i2c.i2c)));
+            }
             I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STA_Msk | I2C_CTL0_SI_Msk);
-        } else {
-            event = I2C_EVENT_TRANSFER_COMPLETE;
+            break;
+
+        case 0x00:  // Bus error
+            event = I2C_EVENT_ERROR;
+            i2c_reset(obj);
+            break;
+
+        default:
+            event = I2C_EVENT_ERROR;
             if (obj->i2c.stop) {
                 I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
             }
-        }
-        break;
-
-    case 0x20:  // Master Transmit Address NACK
-        event = I2C_EVENT_ERROR_NO_SLAVE;
-        if (obj->i2c.stop) {
-            I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
-        }
-        break;
-
-    case 0x30:  // Master Transmit Data NACK
-        if (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) {
-            event = I2C_EVENT_TRANSFER_EARLY_NACK;
-            I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
-        } else if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
-            I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STA_Msk | I2C_CTL0_SI_Msk);
-        } else {
-            event = I2C_EVENT_TRANSFER_COMPLETE;
-            if (obj->i2c.stop) {
-                I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
-            }
-        }
-        break;
-
-    case 0x38:  // Master Arbitration Lost
-        I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk);  // Enter not addressed SLV mode
-        event = I2C_EVENT_ERROR;
-        break;
-
-    case 0x50:  // Master Receive Data ACK
-        if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
-            uint8_t *rx = (uint8_t *) obj->rx_buff.buffer;
-            rx[obj->rx_buff.pos ++] = I2C_GET_DATA(((I2C_T *) NU_MODBASE(obj->i2c.i2c)));
-        }
-    case 0x40:  // Master Receive Address ACK
-        I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk | ((obj->rx_buff.pos != obj->rx_buff.length - 1) ? I2C_CTL0_AA_Msk : 0));
-        break;
-
-    case 0x48:  // Master Receive Address NACK
-        event = I2C_EVENT_ERROR_NO_SLAVE;
-        if (obj->i2c.stop) {
-            I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
-        }
-        break;
-
-    case 0x58:  // Master Receive Data NACK
-        if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
-            uint8_t *rx = (uint8_t *) obj->rx_buff.buffer;
-            rx[obj->rx_buff.pos ++] = I2C_GET_DATA(((I2C_T *) NU_MODBASE(obj->i2c.i2c)));
-        }
-        I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STA_Msk | I2C_CTL0_SI_Msk);
-        break;
-
-    case 0x00:  // Bus error
-        event = I2C_EVENT_ERROR;
-        i2c_reset(obj);
-        break;
-
-    default:
-        event = I2C_EVENT_ERROR;
-        if (obj->i2c.stop) {
-            I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_STO_Msk | I2C_CTL0_SI_Msk);
-        }
     }
 
     if (event) {

@@ -259,7 +259,7 @@ typedef enum {
 
     // GPIO pins from MCU pins
     GPIO0_0 = P0_0,
-    GPIO0_1 = P0_1 ,
+    GPIO0_1 = P0_1,
     GPIO0_2 = P1_15,
     GPIO0_3 = P1_16,
     GPIO0_4 = P1_0,
@@ -468,8 +468,8 @@ typedef enum {
     p19 = P4_3,  // J8-5*   J8-5*   S3-4    S3-3
     p20 = P4_4,  // J8-6*   J8-6*   S1-5    S1-5
     p20b = PF_8, // J8-6**  J8-6**  S3-5    S3-5
-                 // (*)  if p20 is configured as DAC, ADC is not available for p19
-                 // (**) requires JP2 mod
+    // (*)  if p20 is configured as DAC, ADC is not available for p19
+    // (**) requires JP2 mod
 
     p21 = P6_5,  // J9-1    J9-1    S2-5    S2-5
     p22 = P6_4,  // J9-2    J9-2    S2=4    S2-4
@@ -560,8 +560,8 @@ typedef enum {
     A4  = p19,  // J8-5*    J8-5*   S3-3    S3-3
     A5  = p20,  // J8-6*    J8-6*   S1-5    S1-5
     A5b = p20b, // J8-6**   J8-6**  S3-5    S3-5
-                // (*)  if A5 is configured as DAC, ADC is not available for A4
-                // (**) requires JP2 mod
+    // (*)  if A5 is configured as DAC, ADC is not available for A4
+    // (**) requires JP2 mod
 
     // Extended Arduino pins - J11, J12, J13, J14
     //             210E     210     200E    200
@@ -665,8 +665,8 @@ typedef enum {
     ADC6 = PF_10,     // J12-1    n/p     n/a     n/a
     ADC7 = PF_7,      // J12-2    n/p     n/a     n/a
     DAC0 = P4_4,      // J8-6*    J8-6*   S3-5    S3-5
-                      // (*)  if DAC0 is configured, ADC4 is not available
-                      // (**) ADC5 requires JP2 mod
+    // (*)  if DAC0 is configured, ADC4 is not available
+    // (**) ADC5 requires JP2 mod
 
     // Analog Only Pins
     adc0_0 = MBED_PIN(NO_PORT, 0, NO_GPIO, 0),

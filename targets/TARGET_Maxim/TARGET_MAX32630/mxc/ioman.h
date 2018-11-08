@@ -228,11 +228,11 @@ ioman_cfg_t IOMAN_OWM(int io_en, int epu);
 #define IOMAN_SPIX(c, ss0, ss1, ss2, q, f) {                                        \
         .req_reg = &MXC_IOMAN->spix_req,                                            \
         .ack_reg = &MXC_IOMAN->spix_ack,                                            \
-        .req_val.spix =  { .core_io_req = c,                  						\
-                           .ss0_io_req = ss0,                 						\
-                           .ss1_io_req = ss1,                 						\
-                           .ss2_io_req = ss2,                 						\
-                           .quad_io_req = q,                  						\
+        .req_val.spix =  { .core_io_req = c,                                        \
+                           .ss0_io_req = ss0,                                       \
+                           .ss1_io_req = ss1,                                       \
+                           .ss2_io_req = ss2,                                       \
+                           .quad_io_req = q,                                        \
                            .fast_mode = f } }
 
 #define IOMAN_UART(i, im, cm, rm, ien, cen, ren) {                                                   \

@@ -60,7 +60,7 @@
   *   This parameter can be TMR16A_RUN or TMR16A_STOP.
   * @retval None
   */
-void TMR16A_SetRunState(TSB_T16A_TypeDef * T16Ax, uint32_t Cmd)
+void TMR16A_SetRunState(TSB_T16A_TypeDef *T16Ax, uint32_t Cmd)
 {
     /* Check the parameters */
     assert_param(IS_TMR16A_ALL_PERIPH(T16Ax));
@@ -79,7 +79,7 @@ void TMR16A_SetRunState(TSB_T16A_TypeDef * T16Ax, uint32_t Cmd)
   *   This parameter can be TMR16A_SYSCK or TMR16A_PRCK.
   * @retval None
   */
-void TMR16A_SetSrcClk(TSB_T16A_TypeDef * T16Ax, uint32_t SrcClk)
+void TMR16A_SetSrcClk(TSB_T16A_TypeDef *T16Ax, uint32_t SrcClk)
 {
     uint32_t tmp = 0U;
     /* Check the parameters */
@@ -106,7 +106,7 @@ void TMR16A_SetSrcClk(TSB_T16A_TypeDef * T16Ax, uint32_t SrcClk)
   * @param FFStruct: The structure containing TMR16A flip-flop configuration
   * @retval None
   */
-void TMR16A_SetFlipFlop(TSB_T16A_TypeDef * T16Ax, TMR16A_FFOutputTypeDef * FFStruct)
+void TMR16A_SetFlipFlop(TSB_T16A_TypeDef *T16Ax, TMR16A_FFOutputTypeDef *FFStruct)
 {
     uint32_t tmp = 0U;
     /* Check the parameters */
@@ -130,7 +130,7 @@ void TMR16A_SetFlipFlop(TSB_T16A_TypeDef * T16Ax, TMR16A_FFOutputTypeDef * FFStr
   * @param  Cycle: New cycle value, max 0xFFFF.
   * @retval None
   */
-void TMR16A_ChangeCycle(TSB_T16A_TypeDef * T16Ax, uint32_t Cycle)
+void TMR16A_ChangeCycle(TSB_T16A_TypeDef *T16Ax, uint32_t Cycle)
 {
     /* Check the parameters */
     assert_param(IS_TMR16A_ALL_PERIPH(T16Ax));
@@ -147,7 +147,7 @@ void TMR16A_ChangeCycle(TSB_T16A_TypeDef * T16Ax, uint32_t Cycle)
   *   TSB_T16A0, TSB_T16A1.
   * @retval Capture value of T16Ax
   */
-uint16_t TMR16A_GetCaptureValue(TSB_T16A_TypeDef * T16Ax)
+uint16_t TMR16A_GetCaptureValue(TSB_T16A_TypeDef *T16Ax)
 {
     uint16_t CapVal;
 
@@ -168,7 +168,7 @@ uint16_t TMR16A_GetCaptureValue(TSB_T16A_TypeDef * T16Ax)
   *   This parameter can be TMR16A_RUNNING_IN_CORE_HALT or TMR16A_STOP_IN_CORE_HALT.
   * @retval None
   */
-void TMR16A_SetClkInCoreHalt(TSB_T16A_TypeDef * T16Ax, uint8_t ClkState)
+void TMR16A_SetClkInCoreHalt(TSB_T16A_TypeDef *T16Ax, uint8_t ClkState)
 {
     /* Check the parameters */
     assert_param(IS_TMR16A_ALL_PERIPH(T16Ax));

@@ -29,7 +29,7 @@ extern "C" {
 /*************************************************************************************************/
 /*!
  *  \fn     HciVsSetPublicAddr
- *        
+ *
  *  \brief  Vendor-specific set public address function.
  *
  *  \param  param    public address
@@ -42,7 +42,7 @@ void HciVsSetPublicAddr(uint8_t *bdAddr);
 /*************************************************************************************************/
 /*!
  *  \fn     HciVsSetTxPower
- *        
+ *
  *  \brief  Vendor-specific set RF output power function
  *
  *  \param  param    output power in dB

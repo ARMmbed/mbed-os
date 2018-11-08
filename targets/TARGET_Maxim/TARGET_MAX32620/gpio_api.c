@@ -54,8 +54,8 @@ void gpio_init(gpio_t *obj, PinName name)
     unsigned int port = PINNAME_TO_PORT(name);
     unsigned int pin = PINNAME_TO_PIN(name);
 
-    obj->reg_out = (uint32_t*)BITBAND(&MXC_GPIO->out_val[port], pin);
-    obj->reg_in = (uint32_t*)BITBAND(&MXC_GPIO->in_val[port], pin);
+    obj->reg_out = (uint32_t *)BITBAND(&MXC_GPIO->out_val[port], pin);
+    obj->reg_in = (uint32_t *)BITBAND(&MXC_GPIO->in_val[port], pin);
 
     /* Ensure that the GPIO clock is enabled */
     MXC_CLKMAN->clk_gate_ctrl1 |= MXC_F_CLKMAN_CLK_GATE_CTRL1_GPIO_CLK_GATER;

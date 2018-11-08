@@ -83,8 +83,8 @@ static void spi_check_dma_usage(DMAUsage *dma_usage, int *dma_ch_tx, int *dma_ch
 static uint8_t spi_get_data_width(spi_t *obj);
 static int spi_is_tx_complete(spi_t *obj);
 static int spi_is_rx_complete(spi_t *obj);
-static int spi_writeable(spi_t * obj);
-static int spi_readable(spi_t * obj);
+static int spi_writeable(spi_t *obj);
+static int spi_readable(spi_t *obj);
 static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma);
 static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma);
 static uint32_t spi_fifo_depth(spi_t *obj);
@@ -234,7 +234,7 @@ int spi_master_write(spi_t *obj, int value)
     SPI_ENABLE(spi_base);
 
     // Wait for tx buffer empty
-    while(! spi_writeable(obj));
+    while (! spi_writeable(obj));
     SPI_WRITE_TX(spi_base, value);
 
     // Wait for rx buffer full
@@ -247,7 +247,8 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -290,7 +291,7 @@ void spi_slave_write(spi_t *obj, int value)
     SPI_ENABLE(spi_base);
 
     // Wait for tx buffer empty
-    while(! spi_writeable(obj));
+    while (! spi_writeable(obj));
     SPI_WRITE_TX(spi_base, value);
 }
 #endif
@@ -461,13 +462,13 @@ uint8_t spi_active(spi_t *obj)
     return (spi_base->CTL & SPI_CTL_SPIEN_Msk);
 }
 
-static int spi_writeable(spi_t * obj)
+static int spi_writeable(spi_t *obj)
 {
     // Receive FIFO must not be full to avoid receive FIFO overflow on next transmit/receive
     return (! SPI_GET_TX_FIFO_FULL_FLAG(((SPI_T *) NU_MODBASE(obj->spi.spi))));
 }
 
-static int spi_readable(spi_t * obj)
+static int spi_readable(spi_t *obj)
 {
     return ! SPI_GET_RX_FIFO_EMPTY_FLAG(((SPI_T *) NU_MODBASE(obj->spi.spi)));
 }
@@ -571,18 +572,18 @@ static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t tx_limit)
             SPI_WRITE_TX(spi_base, 0);
         } else {
             switch (bytes_per_word) {
-            case 4:
-                SPI_WRITE_TX(spi_base, nu_get32_le(tx));
-                tx += 4;
-                break;
-            case 2:
-                SPI_WRITE_TX(spi_base, nu_get16_le(tx));
-                tx += 2;
-                break;
-            case 1:
-                SPI_WRITE_TX(spi_base, *((uint8_t *) tx));
-                tx += 1;
-                break;
+                case 4:
+                    SPI_WRITE_TX(spi_base, nu_get32_le(tx));
+                    tx += 4;
+                    break;
+                case 2:
+                    SPI_WRITE_TX(spi_base, nu_get16_le(tx));
+                    tx += 2;
+                    break;
+                case 1:
+                    SPI_WRITE_TX(spi_base, *((uint8_t *) tx));
+                    tx += 1;
+                    break;
             }
 
             obj->tx_buff.pos ++;
@@ -622,21 +623,21 @@ static uint32_t spi_master_read_asynch(spi_t *obj)
             SPI_READ_RX(spi_base);
         } else {
             switch (bytes_per_word) {
-            case 4: {
-                uint32_t val = SPI_READ_RX(spi_base);
-                nu_set32_le(rx, val);
-                rx += 4;
-                break;
-            }
-            case 2: {
-                uint16_t val = SPI_READ_RX(spi_base);
-                nu_set16_le(rx, val);
-                rx += 2;
-                break;
-            }
-            case 1:
-                *rx ++ = SPI_READ_RX(spi_base);
-                break;
+                case 4: {
+                    uint32_t val = SPI_READ_RX(spi_base);
+                    nu_set32_le(rx, val);
+                    rx += 4;
+                    break;
+                }
+                case 2: {
+                    uint16_t val = SPI_READ_RX(spi_base);
+                    nu_set16_le(rx, val);
+                    rx += 2;
+                    break;
+                }
+                case 1:
+                    *rx ++ = SPI_READ_RX(spi_base);
+                    break;
             }
 
             obj->rx_buff.pos ++;

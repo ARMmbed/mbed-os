@@ -203,12 +203,12 @@ typedef enum {
     LED4 = LED_BLUE,
 
     // USB Pins
-    USBTX = PTB17,  
+    USBTX = PTB17,
     USBRX = PTB16,
-    
+
     // DAC Pins
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
-    
+
     // Teensy3.1 Headers
     D0 = PTB16,
     D1 = PTB17,
@@ -244,7 +244,7 @@ typedef enum {
     D31 = PTE0,
     D32 = PTB18,
     D33 = PTA4,
-    
+
     A0 = PTD1,
     A1 = PTC0,
     A2 = PTB0,
@@ -261,18 +261,18 @@ typedef enum {
     A18 = PTC10,
     A19 = PTC11,
     A20 = PTE0,
-    
+
     I2C_SCL = PTB2,
     I2C_SDA = PTB3,
-    
+
     SPI_SCK = PTC5,  // sclk
     SPI_DOUT = PTC6, // mosi
     SPI_DIN = PTC7,  // miso
-    SPI_CS = PTC4,   // ssel    
-    
+    SPI_CS = PTC4,   // ssel
+
     SERIAL_TX = PTB17,
     SERIAL_RX = PTB16,
-    
+
     PWM = PTA12,
     PWM1 = PTA13,
     PWM2 = PTD7,
@@ -285,12 +285,12 @@ typedef enum {
     PWM9 = PTC2,
     PWM10 = PTB19,
     PWM11 = PTB18,
-    
+
     DAC = DAC0_OUT,
 
     TSI_ELEC0 = PTC1,
     TSI_ELEC1 = PTC2,
-        
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

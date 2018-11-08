@@ -62,7 +62,8 @@ public:
         packet(DFUServicePacketCharacteristicUUID, packetBytes, SIZEOF_PACKET_BYTES, SIZEOF_PACKET_BYTES,
                GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE_WITHOUT_RESPONSE),
         controlBytes(),
-        packetBytes() {
+        packetBytes()
+    {
         static bool serviceAdded = false; /* We only add the DFU service once. */
         if (serviceAdded) {
             return;
@@ -86,7 +87,8 @@ public:
     /**
     * @brief Get the handle for the value attribute of the control characteristic.
     */
-    uint16_t getControlHandle(void) const {
+    uint16_t getControlHandle(void) const
+    {
         return controlPoint.getValueHandle();
     }
 
@@ -98,7 +100,8 @@ public:
      * @param[in] params
      *     Information about the characteristic being updated.
      */
-    virtual void onDataWritten(const GattWriteCallbackParams *params) {
+    virtual void onDataWritten(const GattWriteCallbackParams *params)
+    {
         if (params->handle == controlPoint.getValueHandle()) {
             /* At present, writing anything will do the trick - this needs to be improved. */
             if (handoverCallback) {

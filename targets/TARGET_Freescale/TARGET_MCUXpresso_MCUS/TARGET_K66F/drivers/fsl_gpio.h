@@ -49,16 +49,14 @@
 /*@}*/
 
 /*! @brief GPIO direction definition */
-typedef enum _gpio_pin_direction
-{
+typedef enum _gpio_pin_direction {
     kGPIO_DigitalInput = 0U,  /*!< Set current pin as digital input*/
     kGPIO_DigitalOutput = 1U, /*!< Set current pin as digital output*/
 } gpio_pin_direction_t;
 
 #if defined(FSL_FEATURE_GPIO_HAS_ATTRIBUTE_CHECKER) && FSL_FEATURE_GPIO_HAS_ATTRIBUTE_CHECKER
 /*! @brief GPIO checker attribute */
-typedef enum _gpio_checker_attribute
-{
+typedef enum _gpio_checker_attribute {
     kGPIO_UsernonsecureRWUsersecureRWPrivilegedsecureRW =
         0x00U, /*!< User nonsecure:Read+Write; User Secure:Read+Write; Privileged Secure:Read+Write */
     kGPIO_UsernonsecureRUsersecureRWPrivilegedsecureRW =
@@ -87,8 +85,7 @@ typedef enum _gpio_checker_attribute
  * Note that in some use cases, the corresponding port property should be configured in advance
  *        with the PORT_SetPinConfig().
  */
-typedef struct _gpio_pin_config
-{
+typedef struct _gpio_pin_config {
     gpio_pin_direction_t pinDirection; /*!< GPIO direction, input or output */
     /* Output configurations; ignore if configured as an input pin */
     uint8_t outputLogic; /*!< Set a default output logic, which has no use in input */
@@ -156,12 +153,9 @@ void GPIO_PinInit(GPIO_Type *base, uint32_t pin, const gpio_pin_config_t *config
  */
 static inline void GPIO_WritePinOutput(GPIO_Type *base, uint32_t pin, uint8_t output)
 {
-    if (output == 0U)
-    {
+    if (output == 0U) {
         base->PCOR = 1U << pin;
-    }
-    else
-    {
+    } else {
         base->PSOR = 1U << pin;
     }
 }
@@ -323,12 +317,9 @@ void FGPIO_PinInit(FGPIO_Type *base, uint32_t pin, const gpio_pin_config_t *conf
  */
 static inline void FGPIO_WritePinOutput(FGPIO_Type *base, uint32_t pin, uint8_t output)
 {
-    if (output == 0U)
-    {
+    if (output == 0U) {
         base->PCOR = 1 << pin;
-    }
-    else
-    {
+    } else {
         base->PSOR = 1 << pin;
     }
 }

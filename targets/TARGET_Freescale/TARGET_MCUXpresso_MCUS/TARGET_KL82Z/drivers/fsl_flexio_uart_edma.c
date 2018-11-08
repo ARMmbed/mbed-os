@@ -36,15 +36,13 @@
  ******************************************************************************/
 
 /*<! Structure definition for uart_edma_private_handle_t. The structure is private. */
-typedef struct _flexio_uart_edma_private_handle
-{
+typedef struct _flexio_uart_edma_private_handle {
     FLEXIO_UART_Type *base;
     flexio_uart_edma_handle_t *handle;
 } flexio_uart_edma_private_handle_t;
 
 /* UART EDMA transfer handle. */
-enum _flexio_uart_edma_tansfer_states
-{
+enum _flexio_uart_edma_tansfer_states {
     kFLEXIO_UART_TxIdle, /* TX idle. */
     kFLEXIO_UART_TxBusy, /* TX busy. */
     kFLEXIO_UART_RxIdle, /* RX idle. */
@@ -103,12 +101,10 @@ static void FLEXIO_UART_TransferSendEDMACallback(edma_handle_t *handle, void *pa
     handle = handle;
     tcds = tcds;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         FLEXIO_UART_TransferAbortSendEDMA(uartPrivateHandle->base, uartPrivateHandle->handle);
 
-        if (uartPrivateHandle->handle->callback)
-        {
+        if (uartPrivateHandle->handle->callback) {
             uartPrivateHandle->handle->callback(uartPrivateHandle->base, uartPrivateHandle->handle,
                                                 kStatus_FLEXIO_UART_TxIdle, uartPrivateHandle->handle->userData);
         }
@@ -128,13 +124,11 @@ static void FLEXIO_UART_TransferReceiveEDMACallback(edma_handle_t *handle,
     handle = handle;
     tcds = tcds;
 
-    if (transferDone)
-    {
+    if (transferDone) {
         /* Disable transfer. */
         FLEXIO_UART_TransferAbortReceiveEDMA(uartPrivateHandle->base, uartPrivateHandle->handle);
 
-        if (uartPrivateHandle->handle->callback)
-        {
+        if (uartPrivateHandle->handle->callback) {
             uartPrivateHandle->handle->callback(uartPrivateHandle->base, uartPrivateHandle->handle,
                                                 kStatus_FLEXIO_UART_RxIdle, uartPrivateHandle->handle->userData);
         }
@@ -153,18 +147,15 @@ status_t FLEXIO_UART_TransferCreateHandleEDMA(FLEXIO_UART_Type *base,
     uint8_t index = 0;
 
     /* Find the an empty handle pointer to store the handle. */
-    for (index = 0; index < FLEXIO_UART_HANDLE_COUNT; index++)
-    {
-        if (s_edmaPrivateHandle[index].base == NULL)
-        {
+    for (index = 0; index < FLEXIO_UART_HANDLE_COUNT; index++) {
+        if (s_edmaPrivateHandle[index].base == NULL) {
             s_edmaPrivateHandle[index].base = base;
             s_edmaPrivateHandle[index].handle = handle;
             break;
         }
     }
 
-    if (index == FLEXIO_UART_HANDLE_COUNT)
-    {
+    if (index == FLEXIO_UART_HANDLE_COUNT) {
         return kStatus_OutOfRange;
     }
 
@@ -180,14 +171,12 @@ status_t FLEXIO_UART_TransferCreateHandleEDMA(FLEXIO_UART_Type *base,
     handle->userData = userData;
 
     /* Configure TX. */
-    if (txEdmaHandle)
-    {
+    if (txEdmaHandle) {
         EDMA_SetCallback(handle->txEdmaHandle, FLEXIO_UART_TransferSendEDMACallback, &s_edmaPrivateHandle);
     }
 
     /* Configure RX. */
-    if (rxEdmaHandle)
-    {
+    if (rxEdmaHandle) {
         EDMA_SetCallback(handle->rxEdmaHandle, FLEXIO_UART_TransferReceiveEDMACallback, &s_edmaPrivateHandle);
     }
 
@@ -204,18 +193,14 @@ status_t FLEXIO_UART_TransferSendEDMA(FLEXIO_UART_Type *base,
     status_t status;
 
     /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
+    if ((0U == xfer->dataSize) || (NULL == xfer->data)) {
         return kStatus_InvalidArgument;
     }
 
     /* If previous TX not finished. */
-    if (kFLEXIO_UART_TxBusy == handle->txState)
-    {
+    if (kFLEXIO_UART_TxBusy == handle->txState) {
         status = kStatus_FLEXIO_UART_TxBusy;
-    }
-    else
-    {
+    } else {
         handle->txState = kFLEXIO_UART_TxBusy;
 
         /* Prepare transfer. */
@@ -246,18 +231,14 @@ status_t FLEXIO_UART_TransferReceiveEDMA(FLEXIO_UART_Type *base,
     status_t status;
 
     /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
+    if ((0U == xfer->dataSize) || (NULL == xfer->data)) {
         return kStatus_InvalidArgument;
     }
 
     /* If previous RX not finished. */
-    if (kFLEXIO_UART_RxBusy == handle->rxState)
-    {
+    if (kFLEXIO_UART_RxBusy == handle->rxState) {
         status = kStatus_FLEXIO_UART_RxBusy;
-    }
-    else
-    {
+    } else {
         handle->rxState = kFLEXIO_UART_RxBusy;
 
         /* Prepare transfer. */
@@ -309,17 +290,13 @@ status_t FLEXIO_UART_TransferGetReceiveCountEDMA(FLEXIO_UART_Type *base,
 {
     assert(handle->rxEdmaHandle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
-    if (kFLEXIO_UART_RxBusy == handle->rxState)
-    {
+    if (kFLEXIO_UART_RxBusy == handle->rxState) {
         *count = (handle->rxSize - EDMA_GetRemainingBytes(handle->rxEdmaHandle->base, handle->rxEdmaHandle->channel));
-    }
-    else
-    {
+    } else {
         *count = handle->rxSize;
     }
 
@@ -330,17 +307,13 @@ status_t FLEXIO_UART_TransferGetSendCountEDMA(FLEXIO_UART_Type *base, flexio_uar
 {
     assert(handle->txEdmaHandle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
-    if (kFLEXIO_UART_TxBusy == handle->txState)
-    {
+    if (kFLEXIO_UART_TxBusy == handle->txState) {
         *count = (handle->txSize - EDMA_GetRemainingBytes(handle->txEdmaHandle->base, handle->txEdmaHandle->channel));
-    }
-    else
-    {
+    } else {
         *count = handle->txSize;
     }
 

@@ -88,10 +88,10 @@ int FLC_PageErase(uint32_t address, uint8_t erase_code, uint8_t unlock_key);
  *             controller interface
  *
  * @param      address     Start address for desired write. @note This address
- * 						   must be 32-bit word aligned
+ *                         must be 32-bit word aligned
  * @param      data        A pointer to the buffer containing the data to write.
  * @param      length      Size of the data to write in bytes. @note The length
- * 						   must be in 32-bit multiples.
+ *                         must be in 32-bit multiples.
  * @param      unlock_key  Unlock key, #MXC_V_FLC_FLSH_UNLOCK_KEY.
  *
  * @returns    #E_NO_ERROR if data written successfully, error if unsuccessful.

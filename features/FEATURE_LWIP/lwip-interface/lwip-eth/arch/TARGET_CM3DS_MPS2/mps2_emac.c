@@ -107,7 +107,7 @@ static struct pbuf *low_level_input(struct netif *netif)
         /* package has been read */
 
         MIB2_STATS_NETIF_ADD(netif, ifinoctets, p->tot_len);
-        if (((u8_t*)p->payload)[0] & 1) {
+        if (((u8_t *)p->payload)[0] & 1) {
             /* broadcast or multicast packet */
             MIB2_STATS_NETIF_INC(netif, ifinnucastpkts);
         } else {
@@ -120,7 +120,7 @@ static struct pbuf *low_level_input(struct netif *netif)
 
         LINK_STATS_INC(link.recv);
     } else {
-         /* drop packet */
+        /* drop packet */
         LINK_STATS_INC(link.memerr);
         LINK_STATS_INC(link.drop);
         MIB2_STATS_NETIF_INC(netif, ifindiscards);
@@ -162,7 +162,7 @@ static void ethernetif_input(struct netif *netif)
  *
  * @param pvParameters pointer to the interface data
  */
-static void packet_rx(void* pvParameters)
+static void packet_rx(void *pvParameters)
 {
     struct netif *netif = pvParameters;
 
@@ -201,7 +201,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 #endif
 
     /* fragmented packet sending should not be used concurrently */
-    sys_mutex_lock(&(((struct ethernetif*)(netif->state))->tx_mutex));
+    sys_mutex_lock(&(((struct ethernetif *)(netif->state))->tx_mutex));
 
     for (q = p; (q != NULL) && (error == ERR_OK); q = q->next) {
         /* Send the data from the pbuf to the interface, one pbuf at a
@@ -219,12 +219,12 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
         }
         is_new_packet = 0;
     }
-    sys_mutex_unlock(&(((struct ethernetif*)(netif->state))->tx_mutex));
+    sys_mutex_unlock(&(((struct ethernetif *)(netif->state))->tx_mutex));
 
     /* packet should be sent now */
 
     MIB2_STATS_NETIF_ADD(netif, ifoutoctets, p->tot_len);
-    if (((u8_t*)p->payload)[0] & 1) {
+    if (((u8_t *)p->payload)[0] & 1) {
         /* broadcast or multicast packet */
         MIB2_STATS_NETIF_INC(netif, ifoutnucastpkts);
     } else {
@@ -291,7 +291,7 @@ static err_t low_level_init(struct netif *netif)
         return ERR_IF;
     }
 
-    error = sys_mutex_new(&(((struct ethernetif*)(netif->state))->tx_mutex));
+    error = sys_mutex_new(&(((struct ethernetif *)(netif->state))->tx_mutex));
 
     /* Maximum Transfer Unit */
     netif->mtu = ETH_MAX_PAYLOAD_LEN;
@@ -354,7 +354,7 @@ err_t eth_arch_enetif_init(struct netif *netif)
 #endif /* LWIP_IPV6 */
     netif->linkoutput = low_level_output;
 
-    ethernetif->ethaddr = (struct eth_addr *)&(netif->hwaddr[0]);
+    ethernetif->ethaddr = (struct eth_addr *) & (netif->hwaddr[0]);
 
     /* initialize the hardware */
     error = low_level_init(netif);

@@ -50,8 +50,7 @@
  * @brief List of TPM channels.
  * @note Actual number of available channels is SoC dependent
  */
-typedef enum _tpm_chnl
-{
+typedef enum _tpm_chnl {
     kTPM_Chnl_0 = 0U, /*!< TPM channel number 0*/
     kTPM_Chnl_1,      /*!< TPM channel number 1 */
     kTPM_Chnl_2,      /*!< TPM channel number 2 */
@@ -63,8 +62,7 @@ typedef enum _tpm_chnl
 } tpm_chnl_t;
 
 /*! @brief TPM PWM operation modes */
-typedef enum _tpm_pwm_mode
-{
+typedef enum _tpm_pwm_mode {
     kTPM_EdgeAlignedPwm = 0U, /*!< Edge aligned PWM */
     kTPM_CenterAlignedPwm,    /*!< Center aligned PWM */
 #if defined(FSL_FEATURE_TPM_HAS_COMBINE) && FSL_FEATURE_TPM_HAS_COMBINE
@@ -73,16 +71,14 @@ typedef enum _tpm_pwm_mode
 } tpm_pwm_mode_t;
 
 /*! @brief TPM PWM output pulse mode: high-true, low-true or no output */
-typedef enum _tpm_pwm_level_select
-{
+typedef enum _tpm_pwm_level_select {
     kTPM_NoPwmSignal = 0U, /*!< No PWM output on pin */
     kTPM_LowTrue,          /*!< Low true pulses */
     kTPM_HighTrue          /*!< High true pulses */
 } tpm_pwm_level_select_t;
 
 /*! @brief Options to configure a TPM channel's PWM signal */
-typedef struct _tpm_chnl_pwm_signal_param
-{
+typedef struct _tpm_chnl_pwm_signal_param {
     tpm_chnl_t chnlNumber;        /*!< TPM channel to configure.
                                        In combined mode (available in some SoC's, this represents the
                                        channel pair number */
@@ -105,8 +101,7 @@ typedef struct _tpm_chnl_pwm_signal_param
  *
  * @note The actual trigger options available is SoC-specific.
  */
-typedef enum _tpm_trigger_select
-{
+typedef enum _tpm_trigger_select {
     kTPM_Trigger_Select_0 = 0U,
     kTPM_Trigger_Select_1,
     kTPM_Trigger_Select_2,
@@ -132,16 +127,14 @@ typedef enum _tpm_trigger_select
  * @note This selection is available only on some SoC's. For SoC's without this selection, the only
  * trigger source available is internal triger.
  */
-typedef enum _tpm_trigger_source
-{
+typedef enum _tpm_trigger_source {
     kTPM_TriggerSource_External = 0U, /*!< Use external trigger input */
     kTPM_TriggerSource_Internal       /*!< Use internal trigger */
 } tpm_trigger_source_t;
 #endif
 
 /*! @brief TPM output compare modes */
-typedef enum _tpm_output_compare_mode
-{
+typedef enum _tpm_output_compare_mode {
     kTPM_NoOutputSignal = (1U << TPM_CnSC_MSA_SHIFT), /*!< No channel output when counter reaches CnV  */
     kTPM_ToggleOnMatch = ((1U << TPM_CnSC_MSA_SHIFT) | (1U << TPM_CnSC_ELSA_SHIFT)),   /*!< Toggle output */
     kTPM_ClearOnMatch = ((1U << TPM_CnSC_MSA_SHIFT) | (2U << TPM_CnSC_ELSA_SHIFT)),    /*!< Clear output */
@@ -151,8 +144,7 @@ typedef enum _tpm_output_compare_mode
 } tpm_output_compare_mode_t;
 
 /*! @brief TPM input capture edge */
-typedef enum _tpm_input_capture_edge
-{
+typedef enum _tpm_input_capture_edge {
     kTPM_RisingEdge = (1U << TPM_CnSC_ELSA_SHIFT),     /*!< Capture on rising edge only */
     kTPM_FallingEdge = (2U << TPM_CnSC_ELSA_SHIFT),    /*!< Capture on falling edge only */
     kTPM_RiseAndFallEdge = (3U << TPM_CnSC_ELSA_SHIFT) /*!< Capture on rising or falling edge */
@@ -164,8 +156,7 @@ typedef enum _tpm_input_capture_edge
  *
  * @note This mode is available only on some SoC's.
  */
-typedef struct _tpm_dual_edge_capture_param
-{
+typedef struct _tpm_dual_edge_capture_param {
     bool enableSwap;                           /*!< true: Use channel n+1 input, channel n input is ignored;
                                                     false: Use channel n input, channel n+1 input is ignored */
     tpm_input_capture_edge_t currChanEdgeMode; /*!< Input capture edge select for channel n */
@@ -179,37 +170,32 @@ typedef struct _tpm_dual_edge_capture_param
  *
  * @note This mode is available only on some SoC's.
  */
-typedef enum _tpm_quad_decode_mode
-{
+typedef enum _tpm_quad_decode_mode {
     kTPM_QuadPhaseEncode = 0U, /*!< Phase A and Phase B encoding mode */
     kTPM_QuadCountAndDir       /*!< Count and direction encoding mode */
 } tpm_quad_decode_mode_t;
 
 /*! @brief TPM quadrature phase polarities */
-typedef enum _tpm_phase_polarity
-{
+typedef enum _tpm_phase_polarity {
     kTPM_QuadPhaseNormal = 0U, /*!< Phase input signal is not inverted */
     kTPM_QuadPhaseInvert       /*!< Phase input signal is inverted */
 } tpm_phase_polarity_t;
 
 /*! @brief TPM quadrature decode phase parameters */
-typedef struct _tpm_phase_param
-{
+typedef struct _tpm_phase_param {
     uint32_t phaseFilterVal;            /*!< Filter value, filter is disabled when the value is zero */
     tpm_phase_polarity_t phasePolarity; /*!< Phase polarity */
 } tpm_phase_params_t;
 #endif
 
 /*! @brief TPM clock source selection*/
-typedef enum _tpm_clock_source
-{
+typedef enum _tpm_clock_source {
     kTPM_SystemClock = 1U, /*!< System clock */
     kTPM_ExternalClock     /*!< External clock */
 } tpm_clock_source_t;
 
 /*! @brief TPM prescale value selection for the clock source*/
-typedef enum _tpm_clock_prescale
-{
+typedef enum _tpm_clock_prescale {
     kTPM_Prescale_Divide_1 = 0U, /*!< Divide by 1 */
     kTPM_Prescale_Divide_2,      /*!< Divide by 2 */
     kTPM_Prescale_Divide_4,      /*!< Divide by 4 */
@@ -229,8 +215,7 @@ typedef enum _tpm_clock_prescale
  *
  * The config struct can be made const so it resides in flash
  */
-typedef struct _tpm_config
-{
+typedef struct _tpm_config {
     tpm_clock_prescale_t prescale;      /*!< Select TPM clock prescale value */
     bool useGlobalTimeBase;             /*!< true: Use of an external global time base is enabled;
                                              false: disabled */
@@ -255,8 +240,7 @@ typedef struct _tpm_config
 } tpm_config_t;
 
 /*! @brief List of TPM interrupts */
-typedef enum _tpm_interrupt_enable
-{
+typedef enum _tpm_interrupt_enable {
     kTPM_Chnl0InterruptEnable = (1U << 0),       /*!< Channel 0 interrupt.*/
     kTPM_Chnl1InterruptEnable = (1U << 1),       /*!< Channel 1 interrupt.*/
     kTPM_Chnl2InterruptEnable = (1U << 2),       /*!< Channel 2 interrupt.*/
@@ -269,8 +253,7 @@ typedef enum _tpm_interrupt_enable
 } tpm_interrupt_enable_t;
 
 /*! @brief List of TPM flags */
-typedef enum _tpm_status_flags
-{
+typedef enum _tpm_status_flags {
     kTPM_Chnl0Flag = (1U << 0),       /*!< Channel 0 flag */
     kTPM_Chnl1Flag = (1U << 1),       /*!< Channel 1 flag */
     kTPM_Chnl2Flag = (1U << 2),       /*!< Channel 2 flag */
@@ -596,8 +579,7 @@ static inline void TPM_StopTimer(TPM_Type *base)
     base->SC &= ~(TPM_SC_CMOD_MASK);
 
     /* Wait till this reads as zero acknowledging the counter is disabled */
-    while (base->SC & TPM_SC_CMOD_MASK)
-    {
+    while (base->SC & TPM_SC_CMOD_MASK) {
     }
 }
 

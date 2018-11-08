@@ -161,24 +161,24 @@ extern "C" {
   * @note The reset value of the RELOAD field corresponds to a target frequency of 48 MHz
   *       and a synchronization signal frequency of 1 kHz (SOF signal from USB)
   */
-#define LL_CRS_RELOADVALUE_DEFAULT         ((uint32_t)0xBB7FU)      
+#define LL_CRS_RELOADVALUE_DEFAULT         ((uint32_t)0xBB7FU)
 
 /**
   * @brief Reset value of Frequency error limit.
   */
-#define LL_CRS_ERRORLIMIT_DEFAULT          ((uint32_t)0x22U)      
+#define LL_CRS_ERRORLIMIT_DEFAULT          ((uint32_t)0x22U)
 
 /**
   * @brief Reset value of the HSI48 Calibration field
-  * @note The default value is 32, which corresponds to the middle of the trimming interval. 
-  *       The trimming step is around 67 kHz between two consecutive TRIM steps. 
+  * @note The default value is 32, which corresponds to the middle of the trimming interval.
+  *       The trimming step is around 67 kHz between two consecutive TRIM steps.
   *       A higher TRIM value corresponds to a higher output frequency
   */
-#define LL_CRS_HSI48CALIBRATION_DEFAULT    ((uint32_t)0x20U)      
+#define LL_CRS_HSI48CALIBRATION_DEFAULT    ((uint32_t)0x20U)
 /**
   * @}
-  */ 
-  
+  */
+
 /**
   * @}
   */
@@ -218,7 +218,7 @@ extern "C" {
 
 /**
   * @brief  Macro to calculate reload value to be set in CRS register according to target and sync frequencies
-  * @note   The RELOAD value should be selected according to the ratio between 
+  * @note   The RELOAD value should be selected according to the ratio between
   *         the target frequency and the frequency of the synchronization source after
   *         prescaling. It is then decreased by one in order to reach the expected
   *         synchronization on the zero value. The formula is the following:
@@ -254,7 +254,7 @@ extern "C" {
   */
 __STATIC_INLINE void LL_CRS_EnableFreqErrorCounter(void)
 {
-  SET_BIT(CRS->CR, CRS_CR_CEN);
+    SET_BIT(CRS->CR, CRS_CR_CEN);
 }
 
 /**
@@ -264,7 +264,7 @@ __STATIC_INLINE void LL_CRS_EnableFreqErrorCounter(void)
   */
 __STATIC_INLINE void LL_CRS_DisableFreqErrorCounter(void)
 {
-  CLEAR_BIT(CRS->CR, CRS_CR_CEN);
+    CLEAR_BIT(CRS->CR, CRS_CR_CEN);
 }
 
 /**
@@ -274,7 +274,7 @@ __STATIC_INLINE void LL_CRS_DisableFreqErrorCounter(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsEnabledFreqErrorCounter(void)
 {
-  return (READ_BIT(CRS->CR, CRS_CR_CEN) == (CRS_CR_CEN));
+    return (READ_BIT(CRS->CR, CRS_CR_CEN) == (CRS_CR_CEN));
 }
 
 /**
@@ -284,7 +284,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsEnabledFreqErrorCounter(void)
   */
 __STATIC_INLINE void LL_CRS_EnableAutoTrimming(void)
 {
-  SET_BIT(CRS->CR, CRS_CR_AUTOTRIMEN);
+    SET_BIT(CRS->CR, CRS_CR_AUTOTRIMEN);
 }
 
 /**
@@ -294,7 +294,7 @@ __STATIC_INLINE void LL_CRS_EnableAutoTrimming(void)
   */
 __STATIC_INLINE void LL_CRS_DisableAutoTrimming(void)
 {
-  CLEAR_BIT(CRS->CR, CRS_CR_AUTOTRIMEN);
+    CLEAR_BIT(CRS->CR, CRS_CR_AUTOTRIMEN);
 }
 
 /**
@@ -304,7 +304,7 @@ __STATIC_INLINE void LL_CRS_DisableAutoTrimming(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsEnabledAutoTrimming(void)
 {
-  return (READ_BIT(CRS->CR, CRS_CR_AUTOTRIMEN) == (CRS_CR_AUTOTRIMEN));
+    return (READ_BIT(CRS->CR, CRS_CR_AUTOTRIMEN) == (CRS_CR_AUTOTRIMEN));
 }
 
 /**
@@ -312,12 +312,12 @@ __STATIC_INLINE uint32_t LL_CRS_IsEnabledAutoTrimming(void)
   * @note   When the AUTOTRIMEN bit is set, this field is controlled by hardware and is read-only
   * @rmtoll CR           TRIM          LL_CRS_SetHSI48SmoothTrimming
   * @param  Value a number between Min_Data = 0 and Max_Data = 63
-  * @note   Default value can be set thanks to @ref LL_CRS_HSI48CALIBRATION_DEFAULT 
+  * @note   Default value can be set thanks to @ref LL_CRS_HSI48CALIBRATION_DEFAULT
   * @retval None
   */
 __STATIC_INLINE void LL_CRS_SetHSI48SmoothTrimming(uint32_t Value)
 {
-  MODIFY_REG(CRS->CR, CRS_CR_TRIM, Value << CRS_POSITION_TRIM);
+    MODIFY_REG(CRS->CR, CRS_CR_TRIM, Value << CRS_POSITION_TRIM);
 }
 
 /**
@@ -327,20 +327,20 @@ __STATIC_INLINE void LL_CRS_SetHSI48SmoothTrimming(uint32_t Value)
   */
 __STATIC_INLINE uint32_t LL_CRS_GetHSI48SmoothTrimming(void)
 {
-  return (uint32_t)(READ_BIT(CRS->CR, CRS_CR_TRIM) >> CRS_POSITION_TRIM);
+    return (uint32_t)(READ_BIT(CRS->CR, CRS_CR_TRIM) >> CRS_POSITION_TRIM);
 }
 
 /**
   * @brief  Set counter reload value
   * @rmtoll CFGR         RELOAD        LL_CRS_SetReloadCounter
   * @param  Value a number between Min_Data = 0 and Max_Data = 0xFFFF
-  * @note   Default value can be set thanks to @ref LL_CRS_RELOADVALUE_DEFAULT 
+  * @note   Default value can be set thanks to @ref LL_CRS_RELOADVALUE_DEFAULT
   *         Otherwise it can be calculated in using macro @ref __LL_CRS_CALC_CALCULATE_RELOADVALUE (_FTARGET_, _FSYNC_)
   * @retval None
   */
 __STATIC_INLINE void LL_CRS_SetReloadCounter(uint32_t Value)
 {
-  MODIFY_REG(CRS->CFGR, CRS_CFGR_RELOAD, Value);
+    MODIFY_REG(CRS->CFGR, CRS_CFGR_RELOAD, Value);
 }
 
 /**
@@ -350,19 +350,19 @@ __STATIC_INLINE void LL_CRS_SetReloadCounter(uint32_t Value)
   */
 __STATIC_INLINE uint32_t LL_CRS_GetReloadCounter(void)
 {
-  return (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_RELOAD));
+    return (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_RELOAD));
 }
 
 /**
   * @brief  Set frequency error limit
   * @rmtoll CFGR         FELIM         LL_CRS_SetFreqErrorLimit
   * @param  Value a number between Min_Data = 0 and Max_Data = 255
-  * @note   Default value can be set thanks to @ref LL_CRS_ERRORLIMIT_DEFAULT 
+  * @note   Default value can be set thanks to @ref LL_CRS_ERRORLIMIT_DEFAULT
   * @retval None
   */
 __STATIC_INLINE void LL_CRS_SetFreqErrorLimit(uint32_t Value)
 {
-  MODIFY_REG(CRS->CFGR, CRS_CFGR_FELIM, Value << CRS_POSITION_FELIM);
+    MODIFY_REG(CRS->CFGR, CRS_CFGR_FELIM, Value << CRS_POSITION_FELIM);
 }
 
 /**
@@ -372,7 +372,7 @@ __STATIC_INLINE void LL_CRS_SetFreqErrorLimit(uint32_t Value)
   */
 __STATIC_INLINE uint32_t LL_CRS_GetFreqErrorLimit(void)
 {
-  return (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_FELIM) >> CRS_POSITION_FELIM);
+    return (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_FELIM) >> CRS_POSITION_FELIM);
 }
 
 /**
@@ -391,7 +391,7 @@ __STATIC_INLINE uint32_t LL_CRS_GetFreqErrorLimit(void)
   */
 __STATIC_INLINE void LL_CRS_SetSyncDivider(uint32_t Divider)
 {
-  MODIFY_REG(CRS->CFGR, CRS_CFGR_SYNCDIV, Divider);
+    MODIFY_REG(CRS->CFGR, CRS_CFGR_SYNCDIV, Divider);
 }
 
 /**
@@ -409,7 +409,7 @@ __STATIC_INLINE void LL_CRS_SetSyncDivider(uint32_t Divider)
   */
 __STATIC_INLINE uint32_t LL_CRS_GetSyncDivider(void)
 {
-  return (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_SYNCDIV));
+    return (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_SYNCDIV));
 }
 
 /**
@@ -423,7 +423,7 @@ __STATIC_INLINE uint32_t LL_CRS_GetSyncDivider(void)
   */
 __STATIC_INLINE void LL_CRS_SetSyncSignalSource(uint32_t Source)
 {
-  MODIFY_REG(CRS->CFGR, CRS_CFGR_SYNCSRC, Source);
+    MODIFY_REG(CRS->CFGR, CRS_CFGR_SYNCSRC, Source);
 }
 
 /**
@@ -436,7 +436,7 @@ __STATIC_INLINE void LL_CRS_SetSyncSignalSource(uint32_t Source)
   */
 __STATIC_INLINE uint32_t LL_CRS_GetSyncSignalSource(void)
 {
-  return (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_SYNCSRC));
+    return (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_SYNCSRC));
 }
 
 /**
@@ -449,7 +449,7 @@ __STATIC_INLINE uint32_t LL_CRS_GetSyncSignalSource(void)
   */
 __STATIC_INLINE void LL_CRS_SetSyncPolarity(uint32_t Polarity)
 {
-  MODIFY_REG(CRS->CFGR, CRS_CFGR_SYNCPOL, Polarity);
+    MODIFY_REG(CRS->CFGR, CRS_CFGR_SYNCPOL, Polarity);
 }
 
 /**
@@ -461,7 +461,7 @@ __STATIC_INLINE void LL_CRS_SetSyncPolarity(uint32_t Polarity)
   */
 __STATIC_INLINE uint32_t LL_CRS_GetSyncPolarity(void)
 {
-  return (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_SYNCPOL));
+    return (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_SYNCPOL));
 }
 
 /**
@@ -484,10 +484,10 @@ __STATIC_INLINE uint32_t LL_CRS_GetSyncPolarity(void)
   */
 __STATIC_INLINE void LL_CRS_ConfigSynchronization(uint32_t HSI48CalibrationValue, uint32_t ErrorLimitValue, uint32_t ReloadValue, uint32_t Settings)
 {
-  MODIFY_REG(CRS->CR, CRS_CR_TRIM, HSI48CalibrationValue);
-  MODIFY_REG(CRS->CFGR, 
-             CRS_CFGR_RELOAD | CRS_CFGR_FELIM | CRS_CFGR_SYNCDIV | CRS_CFGR_SYNCSRC | CRS_CFGR_SYNCPOL, 
-             ReloadValue | (ErrorLimitValue << CRS_POSITION_FELIM) | Settings);
+    MODIFY_REG(CRS->CR, CRS_CR_TRIM, HSI48CalibrationValue);
+    MODIFY_REG(CRS->CFGR,
+               CRS_CFGR_RELOAD | CRS_CFGR_FELIM | CRS_CFGR_SYNCDIV | CRS_CFGR_SYNCSRC | CRS_CFGR_SYNCPOL,
+               ReloadValue | (ErrorLimitValue << CRS_POSITION_FELIM) | Settings);
 }
 
 /**
@@ -505,11 +505,11 @@ __STATIC_INLINE void LL_CRS_ConfigSynchronization(uint32_t HSI48CalibrationValue
   */
 __STATIC_INLINE void LL_CRS_GenerateEvent_SWSYNC(void)
 {
-  SET_BIT(CRS->CR, CRS_CR_SWSYNC);
+    SET_BIT(CRS->CR, CRS_CR_SWSYNC);
 }
 
 /**
-  * @brief  Get the frequency error direction latched in the time of the last 
+  * @brief  Get the frequency error direction latched in the time of the last
   * SYNC event
   * @rmtoll ISR          FEDIR         LL_CRS_GetFreqErrorDirection
   * @retval Returned value can be one of the following values:
@@ -518,7 +518,7 @@ __STATIC_INLINE void LL_CRS_GenerateEvent_SWSYNC(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_GetFreqErrorDirection(void)
 {
-  return (uint32_t)(READ_BIT(CRS->ISR, CRS_ISR_FEDIR));
+    return (uint32_t)(READ_BIT(CRS->ISR, CRS_ISR_FEDIR));
 }
 
 /**
@@ -528,7 +528,7 @@ __STATIC_INLINE uint32_t LL_CRS_GetFreqErrorDirection(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_GetFreqErrorCapture(void)
 {
-  return (uint32_t)(READ_BIT(CRS->ISR, CRS_ISR_FECAP) >> CRS_POSITION_FECAP);
+    return (uint32_t)(READ_BIT(CRS->ISR, CRS_ISR_FECAP) >> CRS_POSITION_FECAP);
 }
 
 /**
@@ -546,7 +546,7 @@ __STATIC_INLINE uint32_t LL_CRS_GetFreqErrorCapture(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_SYNCOK(void)
 {
-  return (READ_BIT(CRS->ISR, CRS_ISR_SYNCOKF) == (CRS_ISR_SYNCOKF));
+    return (READ_BIT(CRS->ISR, CRS_ISR_SYNCOKF) == (CRS_ISR_SYNCOKF));
 }
 
 /**
@@ -556,7 +556,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_SYNCOK(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_SYNCWARN(void)
 {
-  return (READ_BIT(CRS->ISR, CRS_ISR_SYNCWARNF) == (CRS_ISR_SYNCWARNF));
+    return (READ_BIT(CRS->ISR, CRS_ISR_SYNCWARNF) == (CRS_ISR_SYNCWARNF));
 }
 
 /**
@@ -566,7 +566,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_SYNCWARN(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_ERR(void)
 {
-  return (READ_BIT(CRS->ISR, CRS_ISR_ERRF) == (CRS_ISR_ERRF));
+    return (READ_BIT(CRS->ISR, CRS_ISR_ERRF) == (CRS_ISR_ERRF));
 }
 
 /**
@@ -576,7 +576,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_ERR(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_ESYNC(void)
 {
-  return (READ_BIT(CRS->ISR, CRS_ISR_ESYNCF) == (CRS_ISR_ESYNCF));
+    return (READ_BIT(CRS->ISR, CRS_ISR_ESYNCF) == (CRS_ISR_ESYNCF));
 }
 
 /**
@@ -586,7 +586,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_ESYNC(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_SYNCERR(void)
 {
-  return (READ_BIT(CRS->ISR, CRS_ISR_SYNCERR) == (CRS_ISR_SYNCERR));
+    return (READ_BIT(CRS->ISR, CRS_ISR_SYNCERR) == (CRS_ISR_SYNCERR));
 }
 
 /**
@@ -596,7 +596,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_SYNCERR(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_SYNCMISS(void)
 {
-  return (READ_BIT(CRS->ISR, CRS_ISR_SYNCMISS) == (CRS_ISR_SYNCMISS));
+    return (READ_BIT(CRS->ISR, CRS_ISR_SYNCMISS) == (CRS_ISR_SYNCMISS));
 }
 
 /**
@@ -606,7 +606,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_SYNCMISS(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_TRIMOVF(void)
 {
-  return (READ_BIT(CRS->ISR, CRS_ISR_TRIMOVF) == (CRS_ISR_TRIMOVF));
+    return (READ_BIT(CRS->ISR, CRS_ISR_TRIMOVF) == (CRS_ISR_TRIMOVF));
 }
 
 /**
@@ -616,7 +616,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsActiveFlag_TRIMOVF(void)
   */
 __STATIC_INLINE void LL_CRS_ClearFlag_SYNCOK(void)
 {
-  WRITE_REG(CRS->ICR, CRS_ICR_SYNCOKC);
+    WRITE_REG(CRS->ICR, CRS_ICR_SYNCOKC);
 }
 
 /**
@@ -626,18 +626,18 @@ __STATIC_INLINE void LL_CRS_ClearFlag_SYNCOK(void)
   */
 __STATIC_INLINE void LL_CRS_ClearFlag_SYNCWARN(void)
 {
-  WRITE_REG(CRS->ICR, CRS_ICR_SYNCWARNC);
+    WRITE_REG(CRS->ICR, CRS_ICR_SYNCWARNC);
 }
 
 /**
-  * @brief  Clear TRIMOVF, SYNCMISS and SYNCERR bits and consequently also 
+  * @brief  Clear TRIMOVF, SYNCMISS and SYNCERR bits and consequently also
   * the ERR flag
   * @rmtoll ICR          ERRC          LL_CRS_ClearFlag_ERR
   * @retval None
   */
 __STATIC_INLINE void LL_CRS_ClearFlag_ERR(void)
 {
-  WRITE_REG(CRS->ICR, CRS_ICR_ERRC);
+    WRITE_REG(CRS->ICR, CRS_ICR_ERRC);
 }
 
 /**
@@ -647,7 +647,7 @@ __STATIC_INLINE void LL_CRS_ClearFlag_ERR(void)
   */
 __STATIC_INLINE void LL_CRS_ClearFlag_ESYNC(void)
 {
-  WRITE_REG(CRS->ICR, CRS_ICR_ESYNCC);
+    WRITE_REG(CRS->ICR, CRS_ICR_ESYNCC);
 }
 
 /**
@@ -665,7 +665,7 @@ __STATIC_INLINE void LL_CRS_ClearFlag_ESYNC(void)
   */
 __STATIC_INLINE void LL_CRS_EnableIT_SYNCOK(void)
 {
-  SET_BIT(CRS->CR, CRS_CR_SYNCOKIE);
+    SET_BIT(CRS->CR, CRS_CR_SYNCOKIE);
 }
 
 /**
@@ -675,7 +675,7 @@ __STATIC_INLINE void LL_CRS_EnableIT_SYNCOK(void)
   */
 __STATIC_INLINE void LL_CRS_DisableIT_SYNCOK(void)
 {
-  CLEAR_BIT(CRS->CR, CRS_CR_SYNCOKIE);
+    CLEAR_BIT(CRS->CR, CRS_CR_SYNCOKIE);
 }
 
 /**
@@ -685,7 +685,7 @@ __STATIC_INLINE void LL_CRS_DisableIT_SYNCOK(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsEnabledIT_SYNCOK(void)
 {
-  return (READ_BIT(CRS->CR, CRS_CR_SYNCOKIE) == (CRS_CR_SYNCOKIE));
+    return (READ_BIT(CRS->CR, CRS_CR_SYNCOKIE) == (CRS_CR_SYNCOKIE));
 }
 
 /**
@@ -695,7 +695,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsEnabledIT_SYNCOK(void)
   */
 __STATIC_INLINE void LL_CRS_EnableIT_SYNCWARN(void)
 {
-  SET_BIT(CRS->CR, CRS_CR_SYNCWARNIE);
+    SET_BIT(CRS->CR, CRS_CR_SYNCWARNIE);
 }
 
 /**
@@ -705,7 +705,7 @@ __STATIC_INLINE void LL_CRS_EnableIT_SYNCWARN(void)
   */
 __STATIC_INLINE void LL_CRS_DisableIT_SYNCWARN(void)
 {
-  CLEAR_BIT(CRS->CR, CRS_CR_SYNCWARNIE);
+    CLEAR_BIT(CRS->CR, CRS_CR_SYNCWARNIE);
 }
 
 /**
@@ -715,7 +715,7 @@ __STATIC_INLINE void LL_CRS_DisableIT_SYNCWARN(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsEnabledIT_SYNCWARN(void)
 {
-  return (READ_BIT(CRS->CR, CRS_CR_SYNCWARNIE) == (CRS_CR_SYNCWARNIE));
+    return (READ_BIT(CRS->CR, CRS_CR_SYNCWARNIE) == (CRS_CR_SYNCWARNIE));
 }
 
 /**
@@ -725,7 +725,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsEnabledIT_SYNCWARN(void)
   */
 __STATIC_INLINE void LL_CRS_EnableIT_ERR(void)
 {
-  SET_BIT(CRS->CR, CRS_CR_ERRIE);
+    SET_BIT(CRS->CR, CRS_CR_ERRIE);
 }
 
 /**
@@ -735,7 +735,7 @@ __STATIC_INLINE void LL_CRS_EnableIT_ERR(void)
   */
 __STATIC_INLINE void LL_CRS_DisableIT_ERR(void)
 {
-  CLEAR_BIT(CRS->CR, CRS_CR_ERRIE);
+    CLEAR_BIT(CRS->CR, CRS_CR_ERRIE);
 }
 
 /**
@@ -745,7 +745,7 @@ __STATIC_INLINE void LL_CRS_DisableIT_ERR(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsEnabledIT_ERR(void)
 {
-  return (READ_BIT(CRS->CR, CRS_CR_ERRIE) == (CRS_CR_ERRIE));
+    return (READ_BIT(CRS->CR, CRS_CR_ERRIE) == (CRS_CR_ERRIE));
 }
 
 /**
@@ -755,7 +755,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsEnabledIT_ERR(void)
   */
 __STATIC_INLINE void LL_CRS_EnableIT_ESYNC(void)
 {
-  SET_BIT(CRS->CR, CRS_CR_ESYNCIE);
+    SET_BIT(CRS->CR, CRS_CR_ESYNCIE);
 }
 
 /**
@@ -765,7 +765,7 @@ __STATIC_INLINE void LL_CRS_EnableIT_ESYNC(void)
   */
 __STATIC_INLINE void LL_CRS_DisableIT_ESYNC(void)
 {
-  CLEAR_BIT(CRS->CR, CRS_CR_ESYNCIE);
+    CLEAR_BIT(CRS->CR, CRS_CR_ESYNCIE);
 }
 
 /**
@@ -775,7 +775,7 @@ __STATIC_INLINE void LL_CRS_DisableIT_ESYNC(void)
   */
 __STATIC_INLINE uint32_t LL_CRS_IsEnabledIT_ESYNC(void)
 {
-  return (READ_BIT(CRS->CR, CRS_CR_ESYNCIE) == (CRS_CR_ESYNCIE));
+    return (READ_BIT(CRS->CR, CRS_CR_ESYNCIE) == (CRS_CR_ESYNCIE));
 }
 
 /**
@@ -786,7 +786,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsEnabledIT_ESYNC(void)
 /** @defgroup CRS_LL_EF_Init Initialization and de-initialization functions
   * @{
   */
-  
+
 ErrorStatus LL_CRS_DeInit(void);
 
 /**

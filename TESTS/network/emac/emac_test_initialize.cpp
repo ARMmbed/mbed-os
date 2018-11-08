@@ -65,7 +65,7 @@ void test_emac_initialize()
 
     int size = wifi->scan(ap, 30);
 
-    for (int i=0; i<size; i++) {
+    for (int i = 0; i < size; i++) {
         const char *ssid = ap[i].get_ssid();
         nsapi_security_t security = ap[i].get_security();
         int8_t rssi = ap[i].get_rssi();
@@ -120,7 +120,7 @@ static bool emac_if_init(void)
 
     if (hwaddr_len == 6) {
         emac_if->ops.get_hwaddr(emac_if, eth_mac_addr);
-        printf("emac hwaddr %x:%x:%x:%x:%x:%x\r\n\r\n", eth_mac_addr[0],eth_mac_addr[1],eth_mac_addr[2],eth_mac_addr[3],eth_mac_addr[4],eth_mac_addr[5]);
+        printf("emac hwaddr %x:%x:%x:%x:%x:%x\r\n\r\n", eth_mac_addr[0], eth_mac_addr[1], eth_mac_addr[2], eth_mac_addr[3], eth_mac_addr[4], eth_mac_addr[5]);
     }
 
     int mtu = emac_if->ops.get_mtu_size(emac_if);

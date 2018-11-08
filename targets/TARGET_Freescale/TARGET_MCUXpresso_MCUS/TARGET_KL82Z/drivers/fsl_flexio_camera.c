@@ -85,8 +85,7 @@ void FLEXIO_CAMERA_Init(FLEXIO_CAMERA_Type *base, const flexio_camera_config_t *
     shifterConfig.shifterStop = kFLEXIO_ShifterStopBitDisable;
     shifterConfig.shifterStart = kFLEXIO_ShifterStartBitDisabledLoadDataOnEnable;
     /* Configure the shifters as FIFO buffer. */
-    for (i = base->shifterStartIdx; i < (base->shifterStartIdx + base->shifterCount - 1U); i++)
-    {
+    for (i = base->shifterStartIdx; i < (base->shifterStartIdx + base->shifterCount - 1U); i++) {
         FLEXIO_SetShifterConfig(base->flexioBase, i, &shifterConfig);
     }
     shifterConfig.inputSource = kFLEXIO_ShifterInputFromPin;
@@ -135,13 +134,12 @@ uint32_t FLEXIO_CAMERA_GetStatusFlags(FLEXIO_CAMERA_Type *base)
 
 void FLEXIO_CAMERA_ClearStatusFlags(FLEXIO_CAMERA_Type *base, uint32_t mask)
 {
-    if (mask & kFLEXIO_CAMERA_RxDataRegFullFlag)
-    {
+    if (mask & kFLEXIO_CAMERA_RxDataRegFullFlag) {
         FLEXIO_ClearShifterStatusFlags(base->flexioBase, ((1U << (base->shifterCount)) - 1U)
-                                                             << (base->shifterStartIdx));
+                                       << (base->shifterStartIdx));
     }
-    if (mask & kFLEXIO_CAMERA_RxErrorFlag)
-    { /* Clear error flags if they are asserted to make sure the buffer would be available. */
+    if (mask & kFLEXIO_CAMERA_RxErrorFlag) {
+        /* Clear error flags if they are asserted to make sure the buffer would be available. */
         FLEXIO_ClearShifterErrorFlags(base->flexioBase, ((1U << (base->shifterCount)) - 1U) << (base->shifterStartIdx));
     }
 }

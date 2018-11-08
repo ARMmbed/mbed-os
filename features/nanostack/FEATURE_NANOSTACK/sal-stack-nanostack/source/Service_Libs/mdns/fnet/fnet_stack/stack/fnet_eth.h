@@ -93,7 +93,7 @@ extern "C" {
  * in transmission order (e.g. 01:23:45:67:89:ab ), into buffer pointed to by the
  * @c str_mac.
  ******************************************************************************/
-fnet_char_t *fnet_mac_to_str( const fnet_mac_addr_t addr, fnet_char_t *str_mac );
+fnet_char_t *fnet_mac_to_str(const fnet_mac_addr_t addr, fnet_char_t *str_mac);
 
 /***************************************************************************/ /*!
  *
@@ -118,7 +118,7 @@ fnet_char_t *fnet_mac_to_str( const fnet_mac_addr_t addr, fnet_char_t *str_mac )
  * in transmission order. The value returned, pointed to by the @c addr,
  * is a number suitable for use as an MAC address.
  ******************************************************************************/
-fnet_return_t fnet_str_to_mac( const fnet_char_t *str_mac, fnet_mac_addr_t addr );
+fnet_return_t fnet_str_to_mac(const fnet_char_t *str_mac, fnet_mac_addr_t addr);
 
 #if defined(__cplusplus)
 }

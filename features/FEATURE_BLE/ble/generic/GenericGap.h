@@ -278,7 +278,7 @@ private:
 
     bool initialize_whitelist() const;
 
-    pal::EventQueue& _event_queue;
+    pal::EventQueue &_event_queue;
     pal::Gap &_pal_gap;
     pal::GenericAccessService &_gap_service;
     BLEProtocol::AddressType_t _address_type;

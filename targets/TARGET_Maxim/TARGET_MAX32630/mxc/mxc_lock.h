@@ -1,5 +1,5 @@
 /**
- * @file     
+ * @file
  * @brief    Exclusive access lock utility functions.
 */
 /* ****************************************************************************
@@ -54,9 +54,9 @@ extern "C" {
  * @defgroup   mxc_lock_utilities Lock functions for Exclusive Access
  * @brief      Lock functions to obtain and release a variable for exclusive
  *             access. These functions are marked interrupt safe if they are
- *             interrupt safe. 
+ *             interrupt safe.
  * @{
- */ 
+ */
 
 /* **** Definitions **** */
 
@@ -80,12 +80,12 @@ __STATIC_INLINE int mxc_get_lock(uint32_t *lock, uint32_t value)
     do {
 
         // Return if the lock is taken by a different thread
-        if(__LDREXW((volatile uint32_t *)lock) != 0) {
+        if (__LDREXW((volatile uint32_t *)lock) != 0) {
             return E_BUSY;
         }
 
         // Attempt to take the lock
-    } while(__STREXW(value, (volatile uint32_t *)lock) != 0);
+    } while (__STREXW(value, (volatile uint32_t *)lock) != 0);
 
     // Do not start any other memory access until memory barrier is complete
     __DMB();

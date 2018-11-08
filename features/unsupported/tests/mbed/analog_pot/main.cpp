@@ -2,7 +2,7 @@
 #include "test_env.h"
 
 #if !DEVICE_ANALOGIN
-  #error [NOT_SUPPORTED] AnalogIn not supported
+#error [NOT_SUPPORTED] AnalogIn not supported
 #endif
 
 #if defined(TARGET_VK_RZ_A1H)
@@ -16,7 +16,8 @@ AnalogIn pot2(A1);
 #define TEST_ITERATIONS     20
 #define MEASURE_MIN         0.01
 
-int main(void) {
+int main(void)
+{
     MBED_HOSTTEST_TIMEOUT(10);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(AnalogIn potentiometer test);

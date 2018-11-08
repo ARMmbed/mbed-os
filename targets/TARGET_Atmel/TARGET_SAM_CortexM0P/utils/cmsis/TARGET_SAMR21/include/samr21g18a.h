@@ -132,94 +132,94 @@ typedef enum IRQn {
 
 typedef struct _DeviceVectors {
     /* Stack pointer */
-    void* pvStack;
+    void *pvStack;
 
     /* Cortex-M handlers */
-    void* pfnReset_Handler;
-    void* pfnNMI_Handler;
-    void* pfnHardFault_Handler;
-    void* pfnReservedM12;
-    void* pfnReservedM11;
-    void* pfnReservedM10;
-    void* pfnReservedM9;
-    void* pfnReservedM8;
-    void* pfnReservedM7;
-    void* pfnReservedM6;
-    void* pfnSVC_Handler;
-    void* pfnReservedM4;
-    void* pfnReservedM3;
-    void* pfnPendSV_Handler;
-    void* pfnSysTick_Handler;
+    void *pfnReset_Handler;
+    void *pfnNMI_Handler;
+    void *pfnHardFault_Handler;
+    void *pfnReservedM12;
+    void *pfnReservedM11;
+    void *pfnReservedM10;
+    void *pfnReservedM9;
+    void *pfnReservedM8;
+    void *pfnReservedM7;
+    void *pfnReservedM6;
+    void *pfnSVC_Handler;
+    void *pfnReservedM4;
+    void *pfnReservedM3;
+    void *pfnPendSV_Handler;
+    void *pfnSysTick_Handler;
 
     /* Peripheral handlers */
-    void* pfnPM_Handler;                    /*  0 Power Manager */
-    void* pfnSYSCTRL_Handler;               /*  1 System Control */
-    void* pfnWDT_Handler;                   /*  2 Watchdog Timer */
-    void* pfnRTC_Handler;                   /*  3 Real-Time Counter */
-    void* pfnEIC_Handler;                   /*  4 External Interrupt Controller */
-    void* pfnNVMCTRL_Handler;               /*  5 Non-Volatile Memory Controller */
-    void* pfnDMAC_Handler;                  /*  6 Direct Memory Access Controller */
-    void* pfnUSB_Handler;                   /*  7 Universal Serial Bus */
-    void* pfnEVSYS_Handler;                 /*  8 Event System Interface */
-    void* pfnSERCOM0_Handler;               /*  9 Serial Communication Interface 0 */
-    void* pfnSERCOM1_Handler;               /* 10 Serial Communication Interface 1 */
-    void* pfnSERCOM2_Handler;               /* 11 Serial Communication Interface 2 */
-    void* pfnSERCOM3_Handler;               /* 12 Serial Communication Interface 3 */
-    void* pfnSERCOM4_Handler;               /* 13 Serial Communication Interface 4 */
-    void* pfnSERCOM5_Handler;               /* 14 Serial Communication Interface 5 */
-    void* pfnTCC0_Handler;                  /* 15 Timer Counter Control 0 */
-    void* pfnTCC1_Handler;                  /* 16 Timer Counter Control 1 */
-    void* pfnTCC2_Handler;                  /* 17 Timer Counter Control 2 */
-    void* pfnTC3_Handler;                   /* 18 Basic Timer Counter 3 */
-    void* pfnTC4_Handler;                   /* 19 Basic Timer Counter 4 */
-    void* pfnTC5_Handler;                   /* 20 Basic Timer Counter 5 */
-    void* pfnTC6_Handler;                   /* 21 Basic Timer Counter 6 */
-    void* pfnTC7_Handler;                   /* 22 Basic Timer Counter 7 */
-    void* pfnADC_Handler;                   /* 23 Analog Digital Converter */
-    void* pfnAC_Handler;                    /* 24 Analog Comparators */
-    void* pfnDAC_Handler;                   /* 25 Digital Analog Converter */
-    void* pfnPTC_Handler;                   /* 26 Peripheral Touch Controller */
-    void* pfnI2S_Handler;                   /* 27 Inter-IC Sound Interface */
-    void* pfnReserved28;
+    void *pfnPM_Handler;                    /*  0 Power Manager */
+    void *pfnSYSCTRL_Handler;               /*  1 System Control */
+    void *pfnWDT_Handler;                   /*  2 Watchdog Timer */
+    void *pfnRTC_Handler;                   /*  3 Real-Time Counter */
+    void *pfnEIC_Handler;                   /*  4 External Interrupt Controller */
+    void *pfnNVMCTRL_Handler;               /*  5 Non-Volatile Memory Controller */
+    void *pfnDMAC_Handler;                  /*  6 Direct Memory Access Controller */
+    void *pfnUSB_Handler;                   /*  7 Universal Serial Bus */
+    void *pfnEVSYS_Handler;                 /*  8 Event System Interface */
+    void *pfnSERCOM0_Handler;               /*  9 Serial Communication Interface 0 */
+    void *pfnSERCOM1_Handler;               /* 10 Serial Communication Interface 1 */
+    void *pfnSERCOM2_Handler;               /* 11 Serial Communication Interface 2 */
+    void *pfnSERCOM3_Handler;               /* 12 Serial Communication Interface 3 */
+    void *pfnSERCOM4_Handler;               /* 13 Serial Communication Interface 4 */
+    void *pfnSERCOM5_Handler;               /* 14 Serial Communication Interface 5 */
+    void *pfnTCC0_Handler;                  /* 15 Timer Counter Control 0 */
+    void *pfnTCC1_Handler;                  /* 16 Timer Counter Control 1 */
+    void *pfnTCC2_Handler;                  /* 17 Timer Counter Control 2 */
+    void *pfnTC3_Handler;                   /* 18 Basic Timer Counter 3 */
+    void *pfnTC4_Handler;                   /* 19 Basic Timer Counter 4 */
+    void *pfnTC5_Handler;                   /* 20 Basic Timer Counter 5 */
+    void *pfnTC6_Handler;                   /* 21 Basic Timer Counter 6 */
+    void *pfnTC7_Handler;                   /* 22 Basic Timer Counter 7 */
+    void *pfnADC_Handler;                   /* 23 Analog Digital Converter */
+    void *pfnAC_Handler;                    /* 24 Analog Comparators */
+    void *pfnDAC_Handler;                   /* 25 Digital Analog Converter */
+    void *pfnPTC_Handler;                   /* 26 Peripheral Touch Controller */
+    void *pfnI2S_Handler;                   /* 27 Inter-IC Sound Interface */
+    void *pfnReserved28;
 } DeviceVectors;
 
 /* Cortex-M0+ processor handlers */
-void Reset_Handler               ( void );
-void NMI_Handler                 ( void );
-void HardFault_Handler           ( void );
-void SVC_Handler                 ( void );
-void PendSV_Handler              ( void );
-void SysTick_Handler             ( void );
+void Reset_Handler(void);
+void NMI_Handler(void);
+void HardFault_Handler(void);
+void SVC_Handler(void);
+void PendSV_Handler(void);
+void SysTick_Handler(void);
 
 /* Peripherals handlers */
-void PM_Handler                  ( void );
-void SYSCTRL_Handler             ( void );
-void WDT_Handler                 ( void );
-void RTC_Handler                 ( void );
-void EIC_Handler                 ( void );
-void NVMCTRL_Handler             ( void );
-void DMAC_Handler                ( void );
-void USB_Handler                 ( void );
-void EVSYS_Handler               ( void );
-void SERCOM0_Handler             ( void );
-void SERCOM1_Handler             ( void );
-void SERCOM2_Handler             ( void );
-void SERCOM3_Handler             ( void );
-void SERCOM4_Handler             ( void );
-void SERCOM5_Handler             ( void );
-void TCC0_Handler                ( void );
-void TCC1_Handler                ( void );
-void TCC2_Handler                ( void );
-void TC3_Handler                 ( void );
-void TC4_Handler                 ( void );
-void TC5_Handler                 ( void );
-void TC6_Handler                 ( void );
-void TC7_Handler                 ( void );
-void ADC_Handler                 ( void );
-void AC_Handler                  ( void );
-void DAC_Handler                 ( void );
-void PTC_Handler                 ( void );
-void I2S_Handler                 ( void );
+void PM_Handler(void);
+void SYSCTRL_Handler(void);
+void WDT_Handler(void);
+void RTC_Handler(void);
+void EIC_Handler(void);
+void NVMCTRL_Handler(void);
+void DMAC_Handler(void);
+void USB_Handler(void);
+void EVSYS_Handler(void);
+void SERCOM0_Handler(void);
+void SERCOM1_Handler(void);
+void SERCOM2_Handler(void);
+void SERCOM3_Handler(void);
+void SERCOM4_Handler(void);
+void SERCOM5_Handler(void);
+void TCC0_Handler(void);
+void TCC1_Handler(void);
+void TCC2_Handler(void);
+void TC3_Handler(void);
+void TC4_Handler(void);
+void TC5_Handler(void);
+void TC6_Handler(void);
+void TC7_Handler(void);
+void ADC_Handler(void);
+void AC_Handler(void);
+void DAC_Handler(void);
+void PTC_Handler(void);
+void I2S_Handler(void);
 
 /*
  * \brief Configuration of the Cortex-M0+ Processor and Core Peripherals

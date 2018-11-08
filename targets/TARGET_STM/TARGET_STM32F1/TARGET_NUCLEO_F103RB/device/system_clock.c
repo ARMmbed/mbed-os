@@ -64,7 +64,7 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @param  None
   * @retval None
   */
-void SystemInit (void)
+void SystemInit(void)
 {
     /* Reset the RCC clock configuration to the default reset state(for debug purpose) */
     /* Set HSION bit */
@@ -145,7 +145,7 @@ void SetSysClock(void)
             if (SetSysClock_PLL_HSI() == 0)
 #endif
             {
-                while(1) {
+                while (1) {
                     MBED_ASSERT(1);
                 }
             }

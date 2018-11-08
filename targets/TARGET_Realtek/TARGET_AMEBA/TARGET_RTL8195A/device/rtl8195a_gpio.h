@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -57,7 +57,7 @@ enum {
 extern PHAL_GPIO_ADAPTER _pHAL_Gpio_Adapter;
 #ifndef CONFIG_RELEASE_BUILD_LIBRARIES
 static __inline HAL_Status
-GPIO_Lock (
+GPIO_Lock(
     VOID
 )
 {
@@ -67,12 +67,11 @@ GPIO_Lock (
         _pHAL_Gpio_Adapter->EnterCritical();
     }
 
-    if(_pHAL_Gpio_Adapter->Locked) {
-       Status = HAL_BUSY;
-    }
-    else {
-       _pHAL_Gpio_Adapter->Locked = 1;
-       Status = HAL_OK;
+    if (_pHAL_Gpio_Adapter->Locked) {
+        Status = HAL_BUSY;
+    } else {
+        _pHAL_Gpio_Adapter->Locked = 1;
+        Status = HAL_OK;
     }
 
     if (_pHAL_Gpio_Adapter->ExitCritical) {
@@ -84,7 +83,7 @@ GPIO_Lock (
 
 
 static __inline VOID
-GPIO_UnLock (
+GPIO_UnLock(
     VOID
 )
 {
@@ -110,28 +109,28 @@ HAL_GPIO_MbedIrqHandler_8195a(
     IN VOID *pData
 );
 
-_LONG_CALL_ HAL_Status 
+_LONG_CALL_ HAL_Status
 HAL_GPIO_IntCtrl_8195a(
-    HAL_GPIO_PIN  *GPIO_Pin, 
+    HAL_GPIO_PIN  *GPIO_Pin,
     u32 En
 );
 
-_LONG_CALL_ HAL_Status 
+_LONG_CALL_ HAL_Status
 HAL_GPIO_Init_8195a(
     HAL_GPIO_PIN  *GPIO_Pin
 );
 
-_LONG_CALL_ HAL_Status 
+_LONG_CALL_ HAL_Status
 HAL_GPIO_DeInit_8195a(
     HAL_GPIO_PIN  *GPIO_Pin
 );
 
-_LONG_CALL_ HAL_GPIO_PIN_STATE 
+_LONG_CALL_ HAL_GPIO_PIN_STATE
 HAL_GPIO_ReadPin_8195a(
     HAL_GPIO_PIN  *GPIO_Pin
 );
 
-_LONG_CALL_ HAL_Status 
+_LONG_CALL_ HAL_Status
 HAL_GPIO_WritePin_8195a(
     HAL_GPIO_PIN  *GPIO_Pin,
     HAL_GPIO_PIN_STATE Pin_State
@@ -186,19 +185,19 @@ HAL_GPIO_PullCtrl_8195a(
     u8 pull_type
 );
 
-_LONG_CALL_ u32 
+_LONG_CALL_ u32
 GPIO_GetChipPinName_8195a(
     u32 port,
     u32 pin
 );
 
-_LONG_CALL_ VOID 
+_LONG_CALL_ VOID
 GPIO_PullCtrl_8195a(
     u32 chip_pin,
     u8 pull_type
 );
 
-_LONG_CALL_ VOID 
+_LONG_CALL_ VOID
 GPIO_Int_SetType_8195a(
     u8 pin_num,
     u8 int_mode
@@ -223,12 +222,12 @@ HAL_GPIO_ClearISR_8195a(
   *
   * @retval The input port pin current status(High or Low).
   */
-static __inline s32 
+static __inline s32
 HAL_GPIO_ReadPin(
     HAL_GPIO_PIN  *GPIO_Pin
 )
 {
-    return (s32)HAL_GPIO_ReadPin_8195a(GPIO_Pin);    
+    return (s32)HAL_GPIO_ReadPin_8195a(GPIO_Pin);
 }
 
 /**
@@ -240,7 +239,7 @@ HAL_GPIO_ReadPin(
   *
   * @retval None
   */
-static __inline VOID 
+static __inline VOID
 HAL_GPIO_WritePin(
     HAL_GPIO_PIN  *GPIO_Pin,
     u32 Value
@@ -297,7 +296,7 @@ HAL_GPIO_UserUnRegIrq(
   */
 static __inline VOID
 HAL_GPIO_IntCtrl(
-    HAL_GPIO_PIN  *GPIO_Pin, 
+    HAL_GPIO_PIN  *GPIO_Pin,
     u32 En
 )
 {

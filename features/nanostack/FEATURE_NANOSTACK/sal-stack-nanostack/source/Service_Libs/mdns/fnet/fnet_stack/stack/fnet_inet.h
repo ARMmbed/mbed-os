@@ -68,7 +68,7 @@ extern "C" {
  * fnet_inet_ntoa() is now considered to be deprecated.
  *
  ******************************************************************************/
-fnet_char_t *fnet_inet_ntoa( struct in_addr addr, fnet_char_t *res_str );
+fnet_char_t *fnet_inet_ntoa(struct in_addr addr, fnet_char_t *res_str);
 
 /***************************************************************************/ /*!
  *
@@ -101,7 +101,7 @@ fnet_char_t *fnet_inet_ntoa( struct in_addr addr, fnet_char_t *res_str );
  * fnet_inet_aton() is now considered to be deprecated.
  *
  ******************************************************************************/
-fnet_return_t fnet_inet_aton( fnet_char_t *cp, struct in_addr *addr );
+fnet_return_t fnet_inet_aton(fnet_char_t *cp, struct in_addr *addr);
 
 /***************************************************************************/ /*!
  *
@@ -178,7 +178,7 @@ fnet_char_t *fnet_inet_ntop(fnet_address_family_t family, const void *addr, fnet
  * fnet_inet_aton() is now considered to be deprecated.
  *
  ******************************************************************************/
-fnet_return_t fnet_inet_pton (fnet_address_family_t family, const fnet_char_t *str, void *addr, fnet_size_t addr_len);
+fnet_return_t fnet_inet_pton(fnet_address_family_t family, const fnet_char_t *str, void *addr, fnet_size_t addr_len);
 
 
 /***************************************************************************/ /*!
@@ -205,7 +205,7 @@ fnet_return_t fnet_inet_pton (fnet_address_family_t family, const fnet_char_t *s
  * structure.
  *
  ******************************************************************************/
-fnet_return_t fnet_inet_ptos (const fnet_char_t *str, struct sockaddr *addr);
+fnet_return_t fnet_inet_ptos(const fnet_char_t *str, struct sockaddr *addr);
 
 #if defined(__cplusplus)
 }

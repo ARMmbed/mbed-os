@@ -35,7 +35,7 @@ static void press_power_button(int time_ms)
 
 void onboard_modem_init()
 {
-   //does nothing at the moment, TODO: MultiTech to add hardware initialization stuff if needed
+    //does nothing at the moment, TODO: MultiTech to add hardware initialization stuff if needed
 }
 
 void onboard_modem_deinit()
@@ -59,7 +59,7 @@ void onboard_modem_power_down()
      * If 3G_ON_OFF pin is kept low for more than a second, a controlled disconnect and shutdown takes
      * place, Due to the network disconnect, shut-off can take up to 30 seconds. However, we wait for 10
      * seconds only   */
-    wait_ms(10*1000);
+    wait_ms(10 * 1000);
 }
 #endif //MODEM_ON_BOARD
 #endif //MBED_CONF_NSAPI_PRESENT

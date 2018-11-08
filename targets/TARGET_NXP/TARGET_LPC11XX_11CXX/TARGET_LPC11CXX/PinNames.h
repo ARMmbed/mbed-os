@@ -71,7 +71,7 @@ typedef enum {
     P2_9  = (2 << PORT_SHIFT) | (9  << PIN_SHIFT) | 0x54,
     P2_10 = (2 << PORT_SHIFT) | (10 << PIN_SHIFT) | 0x58,
     P2_11 = (2 << PORT_SHIFT) | (11 << PIN_SHIFT) | 0x70,
-   
+
     P3_0  = (3 << PORT_SHIFT) | (0  << PIN_SHIFT) | 0x84,
     P3_1  = (3 << PORT_SHIFT) | (1  << PIN_SHIFT) | 0x88,
     P3_2  = (3 << PORT_SHIFT) | (2  << PIN_SHIFT) | 0x9c,
@@ -162,31 +162,31 @@ typedef enum {
 
     // Other mbed Pin Names
     xLED1 = P0_7,
-	
-	// DIP Package Names
-	
-	dp1  = P0_8,
-	dp2  = P0_9,
-	dp3  = P0_10,
-	dp4  = P0_11,
-	dp5  = P0_5,
-	dp6  = P0_6,
-	dp9  = P1_0,
-	dp10 = P1_1,
-	dp11 = P1_2,
-	dp12 = P1_3,
-	dp13 = P1_4,
-	dp14 = P1_5,
-	dp15 = P1_6,
-	dp16 = P1_7,
-	dp17 = P1_8,
-	dp18 = P1_9,
-	dp23 = P0_0,
-	dp24 = P0_1,
-	dp25 = P0_2,
-	dp26 = P0_3,
-	dp27 = P0_4,
-	dp28 = P0_7,
+
+    // DIP Package Names
+
+    dp1  = P0_8,
+    dp2  = P0_9,
+    dp3  = P0_10,
+    dp4  = P0_11,
+    dp5  = P0_5,
+    dp6  = P0_6,
+    dp9  = P1_0,
+    dp10 = P1_1,
+    dp11 = P1_2,
+    dp12 = P1_3,
+    dp13 = P1_4,
+    dp14 = P1_5,
+    dp15 = P1_6,
+    dp16 = P1_7,
+    dp17 = P1_8,
+    dp18 = P1_9,
+    dp23 = P0_0,
+    dp24 = P0_1,
+    dp25 = P0_2,
+    dp26 = P0_3,
+    dp27 = P0_4,
+    dp28 = P0_7,
 
     // Not connected
     NC = (int)0xFFFFFFFF,

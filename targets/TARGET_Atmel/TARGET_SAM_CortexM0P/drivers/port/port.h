@@ -319,7 +319,7 @@ struct port_config {
  *
  *  \return Base address of the associated PORT module.
  */
-static inline PortGroup* port_get_group_from_gpio_pin(
+static inline PortGroup *port_get_group_from_gpio_pin(
     const uint8_t gpio_pin)
 {
     return system_pinmux_get_group_from_gpio_pin(gpio_pin);
@@ -695,18 +695,18 @@ static inline enum status_code port_input_event_set_config(
  * intended meanings.
  *
  * <table>
- *	<tr>
- *		<th>Acronym</th>
- *		<th>Description</th>
- *	</tr>
- *	<tr>
- *		<td>GPIO</td>
- *		<td>General Purpose Input/Output</td>
- *	</tr>
- *	<tr>
- *		<td>MUX</td>
- *		<td>Multiplexer</td>
- *	</tr>
+ *  <tr>
+ *      <th>Acronym</th>
+ *      <th>Description</th>
+ *  </tr>
+ *  <tr>
+ *      <td>GPIO</td>
+ *      <td>General Purpose Input/Output</td>
+ *  </tr>
+ *  <tr>
+ *      <td>MUX</td>
+ *      <td>Multiplexer</td>
+ *  </tr>
  * </table>
  *
  *
@@ -727,15 +727,15 @@ static inline enum status_code port_input_event_set_config(
  * the table.
  *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
- *	<tr>
- *		<td>Added input event feature</td>
- *	</tr>
- *	<tr>
- *		<td>Initial Release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Changelog</th>
+ *  </tr>
+ *  <tr>
+ *      <td>Added input event feature</td>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial Release</td>
+ *  </tr>
  * </table>
  */
 
@@ -753,36 +753,36 @@ static inline enum status_code port_input_event_set_config(
  * \page asfdoc_sam0_port_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
- *	<tr>
- *		<td>E</td>
- *		<td>06/2015</td>
- *		<td>Added input event feature and support for SAML21, SAMC21, and SAMDAx.</td>
- *	</tr>
- *	<tr>
- *		<td>D</td>
- *		<td>12/2014</td>
- *		<td>Added support for SAMR21 and SAMD10/D11.</td>
- *	</tr>
- *	<tr>
- *		<td>C</td>
- *		<td>01/2014</td>
- *		<td>Added support for SAMD21.</td>
- *	</tr>
- *	<tr>
- *		<td>B</td>
- *		<td>06/2013</td>
- *		<td>Corrected documentation typos.</td>
- *	</tr>
- *	<tr>
- *		<td>A</td>
- *		<td>06/2013</td>
- *		<td>Initial release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
+ *  <tr>
+ *      <td>E</td>
+ *      <td>06/2015</td>
+ *      <td>Added input event feature and support for SAML21, SAMC21, and SAMDAx.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>D</td>
+ *      <td>12/2014</td>
+ *      <td>Added support for SAMR21 and SAMD10/D11.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>C</td>
+ *      <td>01/2014</td>
+ *      <td>Added support for SAMD21.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>B</td>
+ *      <td>06/2013</td>
+ *      <td>Corrected documentation typos.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>A</td>
+ *      <td>06/2013</td>
+ *      <td>Initial release</td>
+ *  </tr>
  * </table>
  */
 

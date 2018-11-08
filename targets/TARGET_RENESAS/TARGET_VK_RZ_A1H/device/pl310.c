@@ -42,45 +42,47 @@ void PL310_Sync(void)
 }
 
 //return Cache controller cache ID
-int PL310_GetID (void)
+int PL310_GetID(void)
 {
     return PL310->CACHE_ID;
 }
 
 //return Cache controller cache Type
-int PL310_GetType (void)
+int PL310_GetType(void)
 {
     return PL310->CACHE_TYPE;
 }
 
 //Invalidate all cache by way
-void PL310_InvAllByWay (void)
+void PL310_InvAllByWay(void)
 {
     unsigned int assoc;
 
-    if (PL310->AUX_CNT & (1<<16))
+    if (PL310->AUX_CNT & (1 << 16)) {
         assoc = 16;
-    else
+    } else {
         assoc =  8;
+    }
 
     PL310->INV_WAY = (1 << assoc) - 1;
-    while(PL310->INV_WAY & ((1 << assoc) - 1)); //poll invalidate
+    while (PL310->INV_WAY & ((1 << assoc) - 1)); //poll invalidate
 
     PL310_Sync();
 }
 
 //Clean and Invalidate all cache by way
-void PL310_CleanInvAllByWay (void)
+void PL310_CleanInvAllByWay(void)
 {
     unsigned int assoc;
 
-    if (PL310->AUX_CNT & (1<<16))
+    if (PL310->AUX_CNT & (1 << 16)) {
         assoc = 16;
-    else
+    } else {
         assoc =  8;
+    }
 
     PL310->CLEAN_INV_WAY = (1 << assoc) - 1;
-    while(PL310->CLEAN_INV_WAY & ((1 << assoc) - 1)); //poll invalidate
+    while (PL310->CLEAN_INV_WAY & ((1 << assoc) - 1)); //poll invalidate
 
     PL310_Sync();
 }
@@ -105,21 +107,21 @@ void PL310_Disable(void)
 }
 
 //Invalidate cache by physical address
-void PL310_InvPa (void *pa)
+void PL310_InvPa(void *pa)
 {
     PL310->INV_LINE_PA = (unsigned int)pa;
     PL310_Sync();
 }
 
 //Clean cache by physical address
-void PL310_CleanPa (void *pa)
+void PL310_CleanPa(void *pa)
 {
     PL310->CLEAN_LINE_PA = (unsigned int)pa;
     PL310_Sync();
 }
 
 //Clean and invalidate cache by physical address
-void PL310_CleanInvPa (void *pa)
+void PL310_CleanInvPa(void *pa)
 {
     PL310->CLEAN_INV_LINE_PA = (unsigned int)pa;
     PL310_Sync();

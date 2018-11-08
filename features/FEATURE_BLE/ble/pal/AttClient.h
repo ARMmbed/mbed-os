@@ -104,7 +104,7 @@ struct AttClient {
      */
     virtual ble_error_t get_mtu_size(
         connection_handle_t connection_handle,
-        uint16_t& mtu_size
+        uint16_t &mtu_size
     ) = 0;
 
     /**
@@ -178,7 +178,7 @@ struct AttClient {
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range,
         uint16_t type,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t> &value
     ) = 0;
 
     /**
@@ -221,7 +221,7 @@ struct AttClient {
     virtual ble_error_t read_by_type_request(
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
-        const UUID& type
+        const UUID &type
     ) = 0;
 
     /**
@@ -349,7 +349,7 @@ struct AttClient {
      */
     virtual ble_error_t read_multiple_request(
         connection_handle_t connection_handle,
-        const ArrayView<const attribute_handle_t>& attribute_handles
+        const ArrayView<const attribute_handle_t> &attribute_handles
     ) = 0;
 
     /**
@@ -400,7 +400,7 @@ struct AttClient {
     virtual ble_error_t read_by_group_type_request(
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
-        const UUID& group_type
+        const UUID &group_type
     ) = 0;
 
     /**
@@ -453,7 +453,7 @@ struct AttClient {
     virtual ble_error_t write_request(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t> &value
     ) = 0;
 
     /**
@@ -473,7 +473,7 @@ struct AttClient {
     virtual ble_error_t write_command(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t> &value
     ) = 0;
 
     /**
@@ -498,7 +498,7 @@ struct AttClient {
     virtual ble_error_t signed_write_command(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t> &value
     ) = 0;
 
     /**
@@ -551,7 +551,7 @@ struct AttClient {
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         uint16_t offset,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t> &value
     ) = 0;
 
     /**
@@ -605,8 +605,9 @@ struct AttClient {
      * can be obtained from its opcode.
      */
     void when_server_message_received(
-        mbed::Callback<void(connection_handle_t, const AttServerMessage&)> cb
-    ) {
+        mbed::Callback<void(connection_handle_t, const AttServerMessage &)> cb
+    )
+    {
         _server_message_cb = cb;
     }
 
@@ -621,11 +622,12 @@ struct AttClient {
      * timeout. To send a new ATT message, the conenction should be
      * reestablished.
      */
-     void when_transaction_timeout(
-         mbed::Callback<void(connection_handle_t)> cb
-     ) {
-         _transaction_timeout_cb = cb;
-     }
+    void when_transaction_timeout(
+        mbed::Callback<void(connection_handle_t)> cb
+    )
+    {
+        _transaction_timeout_cb = cb;
+    }
 
 protected:
     AttClient() { }
@@ -641,8 +643,9 @@ protected:
      */
     void on_server_event(
         connection_handle_t connection_handle,
-        const AttServerMessage& server_message
-    ) {
+        const AttServerMessage &server_message
+    )
+    {
         if (_server_message_cb) {
             _server_message_cb(connection_handle, server_message);
         }
@@ -658,7 +661,8 @@ protected:
      */
     void on_transaction_timeout(
         connection_handle_t connection_handle
-    ) {
+    )
+    {
         if (_transaction_timeout_cb) {
             _transaction_timeout_cb(connection_handle);
         }
@@ -668,7 +672,7 @@ private:
     /**
      * Callback called when the client receive a message from the server.
      */
-    mbed::Callback<void(connection_handle_t, const AttServerMessage&)> _server_message_cb;
+    mbed::Callback<void(connection_handle_t, const AttServerMessage &)> _server_message_cb;
 
     /**
      * Callback called when a transaction times out.
@@ -676,8 +680,8 @@ private:
     mbed::Callback<void(connection_handle_t)> _transaction_timeout_cb;
 
     // Disallow copy construction and copy assignment.
-    AttClient(const AttClient&);
-    AttClient& operator=(const AttClient&);
+    AttClient(const AttClient &);
+    AttClient &operator=(const AttClient &);
 };
 
 

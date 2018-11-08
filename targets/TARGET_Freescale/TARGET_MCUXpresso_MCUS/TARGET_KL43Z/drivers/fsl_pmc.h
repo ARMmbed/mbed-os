@@ -51,8 +51,7 @@
 /*!
  * @brief Low-Voltage Detect Voltage Select
  */
-typedef enum _pmc_low_volt_detect_volt_select
-{
+typedef enum _pmc_low_volt_detect_volt_select {
     kPMC_LowVoltDetectLowTrip = 0U, /*!< Low trip point selected (VLVD = VLVDL )*/
     kPMC_LowVoltDetectHighTrip = 1U /*!< High trip point selected (VLVD = VLVDH )*/
 } pmc_low_volt_detect_volt_select_t;
@@ -62,8 +61,7 @@ typedef enum _pmc_low_volt_detect_volt_select
 /*!
  * @brief Low-Voltage Warning Voltage Select
  */
-typedef enum _pmc_low_volt_warning_volt_select
-{
+typedef enum _pmc_low_volt_warning_volt_select {
     kPMC_LowVoltWarningLowTrip = 0U,  /*!< Low trip point selected (VLVW = VLVW1)*/
     kPMC_LowVoltWarningMid1Trip = 1U, /*!< Mid 1 trip point selected (VLVW = VLVW2)*/
     kPMC_LowVoltWarningMid2Trip = 2U, /*!< Mid 2 trip point selected (VLVW = VLVW3)*/
@@ -75,8 +73,7 @@ typedef enum _pmc_low_volt_warning_volt_select
 /*!
  * @brief High-Voltage Detect Voltage Select
  */
-typedef enum _pmc_high_volt_detect_volt_select
-{
+typedef enum _pmc_high_volt_detect_volt_select {
     kPMC_HighVoltDetectLowTrip = 0U, /*!< Low trip point selected (VHVD = VHVDL )*/
     kPMC_HighVoltDetectHighTrip = 1U /*!< High trip point selected (VHVD = VHVDH )*/
 } pmc_high_volt_detect_volt_select_t;
@@ -86,8 +83,7 @@ typedef enum _pmc_high_volt_detect_volt_select
 /*!
  * @brief Bandgap Buffer Drive Select.
  */
-typedef enum _pmc_bandgap_buffer_drive_select
-{
+typedef enum _pmc_bandgap_buffer_drive_select {
     kPMC_BandgapBufferDriveLow = 0U, /*!< Low drive.  */
     kPMC_BandgapBufferDriveHigh = 1U /*!< High drive. */
 } pmc_bandgap_buffer_drive_select_t;
@@ -97,8 +93,7 @@ typedef enum _pmc_bandgap_buffer_drive_select
 /*!
  * @brief VLPx Option
  */
-typedef enum _pmc_vlp_freq_option
-{
+typedef enum _pmc_vlp_freq_option {
     kPMC_FreqRestrict = 0U,  /*!< Frequency is restricted in VLPx mode. */
     kPMC_FreqUnrestrict = 1U /*!< Frequency is unrestricted in VLPx mode. */
 } pmc_vlp_freq_mode_t;
@@ -108,8 +103,7 @@ typedef enum _pmc_vlp_freq_option
 /*!
  @brief IP version ID definition.
  */
-typedef struct _pmc_version_id
-{
+typedef struct _pmc_version_id {
     uint16_t feature; /*!< Feature Specification Number. */
     uint8_t minor;    /*!< Minor version number.         */
     uint8_t major;    /*!< Major version number.         */
@@ -118,8 +112,7 @@ typedef struct _pmc_version_id
 
 #if (defined(FSL_FEATURE_PMC_HAS_PARAM) && FSL_FEATURE_PMC_HAS_PARAM)
 /*! @brief IP parameter definition. */
-typedef struct _pmc_param
-{
+typedef struct _pmc_param {
     bool vlpoEnable; /*!< VLPO enable. */
     bool hvdEnable;  /*!< HVD enable.  */
 } pmc_param_t;
@@ -128,8 +121,7 @@ typedef struct _pmc_param
 /*!
  * @brief Low-Voltage Detect Configuration Structure
  */
-typedef struct _pmc_low_volt_detect_config
-{
+typedef struct _pmc_low_volt_detect_config {
     bool enableInt;   /*!< Enable interrupt when low voltage detect*/
     bool enableReset; /*!< Enable system reset when low voltage detect*/
 #if (defined(FSL_FEATURE_PMC_HAS_LVDV) && FSL_FEATURE_PMC_HAS_LVDV)
@@ -140,8 +132,7 @@ typedef struct _pmc_low_volt_detect_config
 /*!
  * @brief Low-Voltage Warning Configuration Structure
  */
-typedef struct _pmc_low_volt_warning_config
-{
+typedef struct _pmc_low_volt_warning_config {
     bool enableInt; /*!< Enable interrupt when low voltage warning*/
 #if (defined(FSL_FEATURE_PMC_HAS_LVWV) && FSL_FEATURE_PMC_HAS_LVWV)
     pmc_low_volt_warning_volt_select_t voltSelect; /*!< Low voltage warning trip point voltage selection*/
@@ -152,8 +143,7 @@ typedef struct _pmc_low_volt_warning_config
 /*!
  * @brief High-Voltage Detect Configuration Structure
  */
-typedef struct _pmc_high_volt_detect_config
-{
+typedef struct _pmc_high_volt_detect_config {
     bool enableInt;                                /*!< Enable interrupt when high voltage detect*/
     bool enableReset;                              /*!< Enable system reset when high voltage detect*/
     pmc_high_volt_detect_volt_select_t voltSelect; /*!< High voltage detect trip point voltage selection*/
@@ -166,8 +156,7 @@ typedef struct _pmc_high_volt_detect_config
 /*!
  * @brief Bandgap Buffer configuration.
  */
-typedef struct _pmc_bandgap_buffer_config
-{
+typedef struct _pmc_bandgap_buffer_config {
 #if (defined(FSL_FEATURE_PMC_HAS_BGBE) && FSL_FEATURE_PMC_HAS_BGBE)
     bool enable; /*!< Enable bandgap buffer.                   */
 #endif

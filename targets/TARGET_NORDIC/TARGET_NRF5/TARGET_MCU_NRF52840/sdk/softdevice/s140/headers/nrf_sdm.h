@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2000 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 /**
   @defgroup nrf_sdm_api SoftDevice Manager API
@@ -160,13 +160,12 @@ the start of the softdevice (without MBR)*/
  * @{ */
 
 /**@brief nRF SoftDevice Manager API SVC numbers. */
-enum NRF_SD_SVCS
-{
-  SD_SOFTDEVICE_ENABLE = SDM_SVC_BASE, /**< ::sd_softdevice_enable */
-  SD_SOFTDEVICE_DISABLE,               /**< ::sd_softdevice_disable */
-  SD_SOFTDEVICE_IS_ENABLED,            /**< ::sd_softdevice_is_enabled */
-  SD_SOFTDEVICE_VECTOR_TABLE_BASE_SET, /**< ::sd_softdevice_vector_table_base_set */
-  SVC_SDM_LAST                         /**< Placeholder for last SDM SVC */
+enum NRF_SD_SVCS {
+    SD_SOFTDEVICE_ENABLE = SDM_SVC_BASE, /**< ::sd_softdevice_enable */
+    SD_SOFTDEVICE_DISABLE,               /**< ::sd_softdevice_disable */
+    SD_SOFTDEVICE_IS_ENABLED,            /**< ::sd_softdevice_is_enabled */
+    SD_SOFTDEVICE_VECTOR_TABLE_BASE_SET, /**< ::sd_softdevice_vector_table_base_set */
+    SVC_SDM_LAST                         /**< Placeholder for last SDM SVC */
 };
 
 /** @} */
@@ -203,17 +202,16 @@ enum NRF_SD_SVCS
  * @{ */
 
 /**@brief Type representing lfclk oscillator source. */
-typedef struct
-{
-  uint8_t source;        /**< LF oscillator clock source, see @ref NRF_CLOCK_LF_SRC. */
-  uint8_t rc_ctiv;      /**< Only for NRF_CLOCK_LF_SRC_RC: Calibration timer interval in 1/4 second
+typedef struct {
+    uint8_t source;        /**< LF oscillator clock source, see @ref NRF_CLOCK_LF_SRC. */
+    uint8_t rc_ctiv;      /**< Only for NRF_CLOCK_LF_SRC_RC: Calibration timer interval in 1/4 second
                               units (nRF51: 1-64, nRF52: 1-32).
                               @note To avoid excessive clock drift, 0.5 degrees Celsius is the
                                     maximum temperature change allowed in one calibration timer
                                     interval. The interval should be selected to ensure this.
 
                               @note Must be 0 if source is not NRF_CLOCK_LF_SRC_RC.  */
-  uint8_t rc_temp_ctiv; /**<  Only for NRF_CLOCK_LF_SRC_RC: How often (in number of calibration
+    uint8_t rc_temp_ctiv; /**<  Only for NRF_CLOCK_LF_SRC_RC: How often (in number of calibration
                               intervals) the RC oscillator shall be calibrated if the temperature
                               hasn't changed.
                                   0: Always calibrate even if the temperature hasn't changed.
@@ -231,7 +229,7 @@ typedef struct
                                     least once every 8 seconds and for temperature changes of 0.5
                                     degrees Celsius every 4 seconds. See the Product Specification
                                     for the nRF52 device being used for more information.*/
-  uint8_t xtal_accuracy; /**< External crystal clock accuracy used in the LL to compute timing windows.
+    uint8_t xtal_accuracy; /**< External crystal clock accuracy used in the LL to compute timing windows.
 
                               @note For the NRF_CLOCK_LF_SRC_RC clock source this parameter is ignored. */
 } nrf_clock_lf_cfg_t;
@@ -287,7 +285,7 @@ typedef void (*nrf_fault_handler_t)(uint32_t id, uint32_t pc, uint32_t info);
  * @retval ::NRF_ERROR_SDM_INCORRECT_INTERRUPT_CONFIGURATION SoftDevice interrupt is already enabled, or an enabled interrupt has an illegal priority level.
  * @retval ::NRF_ERROR_SDM_LFCLK_SOURCE_UNKNOWN Unknown low frequency clock source selected.
  */
-SVCALL(SD_SOFTDEVICE_ENABLE, uint32_t, sd_softdevice_enable(nrf_clock_lf_cfg_t const * p_clock_lf_cfg, nrf_fault_handler_t fault_handler));
+SVCALL(SD_SOFTDEVICE_ENABLE, uint32_t, sd_softdevice_enable(nrf_clock_lf_cfg_t const *p_clock_lf_cfg, nrf_fault_handler_t fault_handler));
 
 
 /**@brief Disables the SoftDevice and by extension the protocol stack.
@@ -311,7 +309,7 @@ SVCALL(SD_SOFTDEVICE_DISABLE, uint32_t, sd_softdevice_disable(void));
  *
  * @retval ::NRF_SUCCESS
  */
-SVCALL(SD_SOFTDEVICE_IS_ENABLED, uint32_t, sd_softdevice_is_enabled(uint8_t * p_softdevice_enabled));
+SVCALL(SD_SOFTDEVICE_IS_ENABLED, uint32_t, sd_softdevice_is_enabled(uint8_t *p_softdevice_enabled));
 
 /**@brief Sets the base address of the interrupt vector table for interrupts forwarded from the SoftDevice
  *

@@ -66,11 +66,11 @@ extern "C" {
 /*! Amount of memory(In bytes) required by the SPI device driver for managing the operation
  *  of a SPI controller. The memory is passed to the driver when the driver is opened.
  * The memory is completely owned by the driver till the the driver is closed.
- *                                               
+ *
  */
-   
+
 #define ADI_SPI_MEMORY_SIZE (40u + ADI_SEM_SIZE)
-        
+
 
 /*!
  *****************************************************************************
@@ -81,8 +81,7 @@ extern "C" {
  * should always be tested at the application level for success or failure.
  *
  *****************************************************************************/
-typedef enum
-{
+typedef enum {
     /*! Generic success.                    */
     ADI_SPI_SUCCESS,
     /*! Generic Failure.                      */
@@ -94,7 +93,7 @@ typedef enum
     /*! Invalid device ID.                  */
     ADI_SPI_INVALID_DEVICE_NUM,
     /*! DMA configuration failure.          */
-    ADI_SPI_DMA_ERROR     ,
+    ADI_SPI_DMA_ERROR,
     /*! NULL data pointer not allowed.      */
     ADI_SPI_INVALID_POINTER,
     /*! Parameter is out of range.          */
@@ -125,12 +124,11 @@ typedef enum
  * More than one event can be recorded at a time so the enumerator symbols
  * have to be assigned values of 2^N
  *****************************************************************************/
-typedef enum
-{
+typedef enum {
     /*!< The given buffer is processed. Application can use this event to submit
          the next buffer to be transmitted. */
     ADI_SPI_HW_ERROR_NONE                       = 0u,
-   /*!  Tx-underflow interrupt enable */
+    /*!  Tx-underflow interrupt enable */
     ADI_SPI_HW_ERROR_TX_UNDERFLOW               = 1u,
     /*!  Rx-overflow interrupt enable */
     ADI_SPI_HW_ERROR_RX_OVERFLOW                = 2u,
@@ -145,7 +143,7 @@ typedef enum
     /*!  Rx DMA channel unkown error detected */
     ADI_SPI_HW_ERROR_RX_CHAN_DMA_UNKNOWN_ERROR  = 64u,
     /*!  Tx DMA channel unkown error detected */
-    ADI_SPI_HW_ERROR_TX_CHAN_DMA_UNKNOWN_ERROR  = 128u          
+    ADI_SPI_HW_ERROR_TX_CHAN_DMA_UNKNOWN_ERROR  = 128u
 
 } ADI_SPI_HW_ERRORS;
 
@@ -162,13 +160,12 @@ typedef enum
  * hence, has a dedicated SPI0 chip select pin that is not available externally.
  *
  *****************************************************************************/
-typedef enum
-{
-   /*! No  Slave Chip Select for SPI.               */
+typedef enum {
+    /*! No  Slave Chip Select for SPI.               */
     ADI_SPI_CS_NONE = 0,
     /*! CS0 Slave Chip Select for SPI.               */
     ADI_SPI_CS0 = 1,
-   /*! CS1 Slave Chip Select for SPI.               */
+    /*! CS1 Slave Chip Select for SPI.               */
     ADI_SPI_CS1 = 2,
     /*! CS2 Slave Chip Select for SPI.               */
     ADI_SPI_CS2 = 4,
@@ -178,9 +175,9 @@ typedef enum
 
 
 /*! SPI Device instance private data handle typedef. */
-typedef       struct __ADI_SPI_DEV_DATA_TYPE*  ADI_SPI_HANDLE;
+typedef       struct __ADI_SPI_DEV_DATA_TYPE  *ADI_SPI_HANDLE;
 /*! SPI Device instance private data handle typedef. 'const' version */
-typedef const struct __ADI_SPI_DEV_DATA_TYPE*  ADI_SPI_CONST_HANDLE;
+typedef const struct __ADI_SPI_DEV_DATA_TYPE  *ADI_SPI_CONST_HANDLE;
 
 
 /*!
@@ -240,19 +237,18 @@ typedef const struct __ADI_SPI_DEV_DATA_TYPE*  ADI_SPI_CONST_HANDLE;
  * RD_CTL effectively provides half-duplex operation as outlined in the HRM.
 
  *****************************************************************************/
-typedef struct
-{
+typedef struct {
     /*! Pointer to transmit data.        */
-    uint8_t*    pTransmitter;
+    uint8_t    *pTransmitter;
     /*! Pointer to receive data.         */
-    uint8_t*    pReceiver;
-   /*! Data size  for TX(bytes).          */
+    uint8_t    *pReceiver;
+    /*! Data size  for TX(bytes).          */
     uint16_t    TransmitterBytes;
     /*! Data size  for RX(bytes).          */
     uint16_t    ReceiverBytes;
-   /*!  Transmit pointer increment flag. */
+    /*!  Transmit pointer increment flag. */
     uint8_t     nTxIncrement;
-   /*! Receive pointer increment flag.  */
+    /*! Receive pointer increment flag.  */
     uint8_t     nRxIncrement;
     /*! DMA mode operation */
     bool        bDMA;
@@ -269,120 +265,120 @@ typedef struct
 
 /* Device Initialization and Uninitialization Interfaces */
 ADI_SPI_RESULT adi_spi_Open(
-               uint32_t nDeviceNum,
-               void *pDevMemory,
-               uint32_t nMemorySize,
-               ADI_SPI_HANDLE* const phDevice
-               );
+    uint32_t nDeviceNum,
+    void *pDevMemory,
+    uint32_t nMemorySize,
+    ADI_SPI_HANDLE *const phDevice
+);
 
 ADI_SPI_RESULT adi_spi_Close(
-               ADI_SPI_HANDLE const hDevice
-               );
+    ADI_SPI_HANDLE const hDevice
+);
 
 /******************************************************************
  * Eliminatable functions that may be optimized out by the linker *
  *****************************************************************/
 
 ADI_SPI_RESULT adi_spi_MasterReadWrite(
-               ADI_SPI_HANDLE const       hDevice,
-               const ADI_SPI_TRANSCEIVER* const pXfr
-               );
+    ADI_SPI_HANDLE const       hDevice,
+    const ADI_SPI_TRANSCEIVER *const pXfr
+);
 
 
 ADI_SPI_RESULT adi_spi_SetMasterMode(
-               ADI_SPI_CONST_HANDLE const hDevice,
-               const bool bFlag
-               );
+    ADI_SPI_CONST_HANDLE const hDevice,
+    const bool bFlag
+);
 
 /* Slave Mode APIs */
 ADI_SPI_RESULT adi_spi_SlaveReadWrite(
-               ADI_SPI_HANDLE const hDevice,
-               const ADI_SPI_TRANSCEIVER* const pXfr
-               );
+    ADI_SPI_HANDLE const hDevice,
+    const ADI_SPI_TRANSCEIVER *const pXfr
+);
 
 /* Command/Data transceiver API */
 ADI_SPI_RESULT adi_spi_MasterSubmitBuffer(
-              ADI_SPI_HANDLE const hDevice, 
-              const ADI_SPI_TRANSCEIVER* const pXfr
-                );
+    ADI_SPI_HANDLE const hDevice,
+    const ADI_SPI_TRANSCEIVER *const pXfr
+);
 
 ADI_SPI_RESULT adi_spi_SlaveSubmitBuffer(
-               ADI_SPI_HANDLE const hDevice, 
-               const ADI_SPI_TRANSCEIVER* 
-               const pXfr
-                 );
+    ADI_SPI_HANDLE const hDevice,
+    const ADI_SPI_TRANSCEIVER *
+    const pXfr
+);
 
-ADI_SPI_RESULT adi_spi_RegisterCallback (
-               ADI_SPI_HANDLE const hDevice,  
-               ADI_CALLBACK const pfCallback, 
-               void *const pCBParam 
-                 );
+ADI_SPI_RESULT adi_spi_RegisterCallback(
+    ADI_SPI_HANDLE const hDevice,
+    ADI_CALLBACK const pfCallback,
+    void *const pCBParam
+);
 
 
 /* Turn a non-blocking call into a blocking call. Wait for the transaction to complete  */
 ADI_SPI_RESULT adi_spi_GetBuffer(
-               ADI_SPI_HANDLE const hDevice,
-               uint32_t * const pHWErrors
-               );
+    ADI_SPI_HANDLE const hDevice,
+    uint32_t *const pHWErrors
+);
 
 /* Hardware Configuration Interface */
 ADI_SPI_RESULT adi_spi_SetClockPhase(
-               ADI_SPI_HANDLE const hDevice,
-               const bool bFlag
-               );
+    ADI_SPI_HANDLE const hDevice,
+    const bool bFlag
+);
 
 ADI_SPI_RESULT adi_spi_SetClockPolarity(
-               ADI_SPI_HANDLE const hDevice,
-               const bool bFlag
-               );
-			   
+    ADI_SPI_HANDLE const hDevice,
+    const bool bFlag
+);
+
 /* Query function for the data transfer completion  */
 ADI_SPI_RESULT adi_spi_isBufferAvailable(
-               ADI_SPI_CONST_HANDLE const hDevice,
-               bool* const bComplete
-               );
+    ADI_SPI_CONST_HANDLE const hDevice,
+    bool *const bComplete
+);
 
 
 
 ADI_SPI_RESULT adi_spi_SetContinuousMode(
-               ADI_SPI_CONST_HANDLE const hDevice,
-               const bool bFlag
-               );
+    ADI_SPI_CONST_HANDLE const hDevice,
+    const bool bFlag
+);
 
 
 ADI_SPI_RESULT adi_spi_SetLoopback(
-               ADI_SPI_CONST_HANDLE const hDevice,
-               const bool bFlag
-               );
+    ADI_SPI_CONST_HANDLE const hDevice,
+    const bool bFlag
+);
 
-ADI_SPI_RESULT adi_spi_SetIrqmode (
-               ADI_SPI_CONST_HANDLE const hDevice, 
-               const uint8_t nMode);
+ADI_SPI_RESULT adi_spi_SetIrqmode(
+    ADI_SPI_CONST_HANDLE const hDevice,
+    const uint8_t nMode);
 
 ADI_SPI_RESULT adi_spi_SetReceiveOverflow(
-               ADI_SPI_CONST_HANDLE const hDevice,
-               const bool bFlag
-               );
+    ADI_SPI_CONST_HANDLE const hDevice,
+    const bool bFlag
+);
 
 ADI_SPI_RESULT adi_spi_SetTransmitUnderflow(
-               ADI_SPI_CONST_HANDLE const hDevice,
-               const bool bFlag
-               );
+    ADI_SPI_CONST_HANDLE const hDevice,
+    const bool bFlag
+);
 
 /* Mode Configuration Interface */
 ADI_SPI_RESULT adi_spi_SetBitrate(
-               ADI_SPI_CONST_HANDLE const hDevice,
-               const uint32_t Hertz
-               );
+    ADI_SPI_CONST_HANDLE const hDevice,
+    const uint32_t Hertz
+);
 ADI_SPI_RESULT adi_spi_SetChipSelect(
-               ADI_SPI_HANDLE const hDevice,
-               const ADI_SPI_CHIP_SELECT eChipSelect
-               );
+    ADI_SPI_HANDLE const hDevice,
+    const ADI_SPI_CHIP_SELECT eChipSelect
+);
 
 ADI_SPI_RESULT adi_spi_GetBitrate(
-               ADI_SPI_CONST_HANDLE const hDevice,
-               uint32_t* const pnBitrate
-               );
+    ADI_SPI_CONST_HANDLE const hDevice,
+    uint32_t *const pnBitrate
+);
 
 
 #ifdef __cplusplus

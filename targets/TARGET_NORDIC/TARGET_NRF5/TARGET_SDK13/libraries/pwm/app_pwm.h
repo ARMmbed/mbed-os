@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /** @file
@@ -120,15 +120,13 @@ typedef void (* app_pwm_callback_t)(uint32_t);
 /**
  * @brief Channel polarity.
  */
-typedef enum
-{
+typedef enum {
     APP_PWM_POLARITY_ACTIVE_LOW  = 0,
     APP_PWM_POLARITY_ACTIVE_HIGH = 1
 } app_pwm_polarity_t;
 
 /**@brief PWM configuration structure used for initialization. */
-typedef struct
-{
+typedef struct {
     uint32_t           pins[APP_PWM_CHANNELS_PER_INSTANCE];         //!< Pins configured as PWM output.
     app_pwm_polarity_t pin_polarity[APP_PWM_CHANNELS_PER_INSTANCE]; //!< Polarity of active state on pin.
     uint32_t           num_of_channels;                             //!< Number of channels that can be used.
@@ -150,48 +148,45 @@ typedef struct
  * without a warning, so you should not access them directly.
  */
 
-    /**
-     * @brief PWM channel instance
-     *
-     * This structure holds all data needed by a single PWM channel.
-     */
-    typedef struct
-    {
-        uint32_t           gpio_pin;        //!< Pin that is used by this PWM channel.
-        uint32_t           pulsewidth;      //!< The copy of duty currently set (in ticks).
-        nrf_ppi_channel_t  ppi_channels[2]; //!< PPI channels used by the PWM channel to clear and set the output.
-        app_pwm_polarity_t polarity;        //!< The active state of the pin.
-        uint8_t            initialized;     //!< The internal information if the selected channel was initialized.
-    } app_pwm_channel_cb_t;
+/**
+ * @brief PWM channel instance
+ *
+ * This structure holds all data needed by a single PWM channel.
+ */
+typedef struct {
+    uint32_t           gpio_pin;        //!< Pin that is used by this PWM channel.
+    uint32_t           pulsewidth;      //!< The copy of duty currently set (in ticks).
+    nrf_ppi_channel_t  ppi_channels[2]; //!< PPI channels used by the PWM channel to clear and set the output.
+    app_pwm_polarity_t polarity;        //!< The active state of the pin.
+    uint8_t            initialized;     //!< The internal information if the selected channel was initialized.
+} app_pwm_channel_cb_t;
 
-    /**
-     * @brief Variable part of PWM instance
-     *
-     * This structure holds instance data that may change.
-     */
-    typedef struct
-    {
-        app_pwm_channel_cb_t    channels_cb[APP_PWM_CHANNELS_PER_INSTANCE]; //!< Channels data
-        uint32_t                period;                                     //!< Selected period in ticks
-        app_pwm_callback_t      p_ready_callback;                           //!< Callback function called on PWM readiness
+/**
+ * @brief Variable part of PWM instance
+ *
+ * This structure holds instance data that may change.
+ */
+typedef struct {
+    app_pwm_channel_cb_t    channels_cb[APP_PWM_CHANNELS_PER_INSTANCE]; //!< Channels data
+    uint32_t                period;                                     //!< Selected period in ticks
+    app_pwm_callback_t      p_ready_callback;                           //!< Callback function called on PWM readiness
 #ifdef GPIOTE_SET_CLEAR_TASKS
-        nrf_ppi_channel_t       ppi_channel;                               //!< PPI channel used temporary while changing duty
+    nrf_ppi_channel_t       ppi_channel;                               //!< PPI channel used temporary while changing duty
 #else
-        nrf_ppi_channel_t       ppi_channels[2];                            //!< PPI channels used temporary while changing duty
-        nrf_ppi_channel_group_t ppi_group;                                  //!< PPI group used to synchronize changes on channels
+    nrf_ppi_channel_t       ppi_channels[2];                            //!< PPI channels used temporary while changing duty
+    nrf_ppi_channel_group_t ppi_group;                                  //!< PPI group used to synchronize changes on channels
 #endif
-        nrf_drv_state_t         state;                                      //!< Current driver status
-    } app_pwm_cb_t;
+    nrf_drv_state_t         state;                                      //!< Current driver status
+} app_pwm_cb_t;
 /** @}
  * @endcond
  */
 
 
 /**@brief PWM instance structure. */
-typedef struct
-{
+typedef struct {
     app_pwm_cb_t *p_cb;                    //!< Pointer to control block internals.
-    nrf_drv_timer_t const * const p_timer; //!< Timer used by this PWM instance.
+    nrf_drv_timer_t const *const p_timer;  //!< Timer used by this PWM instance.
 } app_pwm_t;
 
 /**
@@ -202,7 +197,7 @@ typedef struct
  * @retval True  If the PWM instance is ready for duty cycle changes.
  * @retval False If a change operation is in progress.
  */
-bool app_pwm_busy_check(app_pwm_t const * const p_instance);
+bool app_pwm_busy_check(app_pwm_t const *const p_instance);
 
 /**
  * @brief Function for initializing a PWM instance.
@@ -216,7 +211,7 @@ bool app_pwm_busy_check(app_pwm_t const * const p_instance);
  * @retval    NRF_ERROR_INVALID_PARAM If an invalid configuration structure was passed.
  * @retval    NRF_ERROR_INVALID_STATE If the timer/PWM is already in use or if initialization failed.
  */
-ret_code_t app_pwm_init(app_pwm_t const * const p_instance, app_pwm_config_t const * const p_config,
+ret_code_t app_pwm_init(app_pwm_t const *const p_instance, app_pwm_config_t const *const p_config,
                         app_pwm_callback_t p_ready_callback);
 
 
@@ -228,21 +223,21 @@ ret_code_t app_pwm_init(app_pwm_t const * const p_instance, app_pwm_config_t con
  * @retval    NRF_SUCCESS If uninitialization was successful.
  * @retval    NRF_ERROR_INVALID_STATE If the given instance was not initialized.
  */
-ret_code_t app_pwm_uninit(app_pwm_t const * const p_instance);
+ret_code_t app_pwm_uninit(app_pwm_t const *const p_instance);
 
 /**
  * @brief Function for enabling a PWM instance after initialization.
  *
  * @param[in] p_instance  PWM instance.
  */
-void app_pwm_enable(app_pwm_t const * const p_instance);
+void app_pwm_enable(app_pwm_t const *const p_instance);
 
 /**
  * @brief Function for disabling a PWM instance after initialization.
  *
  * @param[in] p_instance  PWM instance.
  */
-void app_pwm_disable(app_pwm_t const * const p_instance);
+void app_pwm_disable(app_pwm_t const *const p_instance);
 
 /**
  * @brief Function for setting the PWM channel duty cycle in percents.
@@ -261,8 +256,8 @@ void app_pwm_disable(app_pwm_t const * const p_instance);
  * @retval    NRF_ERROR_INVALID_STATE If the given instance was not initialized.
  *
  */
-ret_code_t app_pwm_channel_duty_set(app_pwm_t const * const p_instance,
-                                  uint8_t channel, app_pwm_duty_t duty);
+ret_code_t app_pwm_channel_duty_set(app_pwm_t const *const p_instance,
+                                    uint8_t channel, app_pwm_duty_t duty);
 
 /**
  * @brief Function for retrieving the PWM channel duty cycle in percents.
@@ -272,7 +267,7 @@ ret_code_t app_pwm_channel_duty_set(app_pwm_t const * const p_instance,
  *
  * @return    Duty cycle value.
  */
-app_pwm_duty_t app_pwm_channel_duty_get(app_pwm_t const * const p_instance, uint8_t channel);
+app_pwm_duty_t app_pwm_channel_duty_get(app_pwm_t const *const p_instance, uint8_t channel);
 
 
 /**
@@ -282,49 +277,49 @@ app_pwm_duty_t app_pwm_channel_duty_get(app_pwm_t const * const p_instance, uint
  * @{
  */
 
-    /**
-     * @brief Function for setting PWM channel duty cycle in clock ticks.
-     *
-     * @note      Duty cycle changes require one full PWM clock period to finish.
-     *            Until that, the next change attempt (for any channel of given instance)
-     *            will result in an NRF_ERROR_BUSY error.
-     *
-     * @param[in] p_instance  PWM instance.
-     * @param[in] channel     Channel number.
-     * @param[in] ticks       Number of PWM clock ticks.
-     *
-     * @retval    NRF_SUCCESS If the operation was successful.
-     * @retval    NRF_ERROR_BUSY If PWM is not ready yet.
-     * @retval    NRF_ERROR_INVALID_STATE If the given instance was not initialized.
-     */
-    ret_code_t app_pwm_channel_duty_ticks_set(app_pwm_t const * const p_instance,
-                                              uint8_t           channel,
-                                              uint16_t          ticks);
+/**
+ * @brief Function for setting PWM channel duty cycle in clock ticks.
+ *
+ * @note      Duty cycle changes require one full PWM clock period to finish.
+ *            Until that, the next change attempt (for any channel of given instance)
+ *            will result in an NRF_ERROR_BUSY error.
+ *
+ * @param[in] p_instance  PWM instance.
+ * @param[in] channel     Channel number.
+ * @param[in] ticks       Number of PWM clock ticks.
+ *
+ * @retval    NRF_SUCCESS If the operation was successful.
+ * @retval    NRF_ERROR_BUSY If PWM is not ready yet.
+ * @retval    NRF_ERROR_INVALID_STATE If the given instance was not initialized.
+ */
+ret_code_t app_pwm_channel_duty_ticks_set(app_pwm_t const *const p_instance,
+                                          uint8_t           channel,
+                                          uint16_t          ticks);
 
 
-    /**
-     * @brief Function for retrieving the PWM channel duty cycle in ticks.
-     *
-     * This function retrieves the real, currently set duty cycle in ticks.
-     * For one full PWM cycle the value might be different than the value set by the last
-     * @ref app_pwm_channel_duty_ticks_set function call.
-     *
-     * @param[in] p_instance  PWM instance.
-     * @param[in] channel     Channel number.
-     *
-     * @return    Number of ticks set for selected channel.
-     *
-     */
-    uint16_t app_pwm_channel_duty_ticks_get(app_pwm_t const * const p_instance, uint8_t channel);
+/**
+ * @brief Function for retrieving the PWM channel duty cycle in ticks.
+ *
+ * This function retrieves the real, currently set duty cycle in ticks.
+ * For one full PWM cycle the value might be different than the value set by the last
+ * @ref app_pwm_channel_duty_ticks_set function call.
+ *
+ * @param[in] p_instance  PWM instance.
+ * @param[in] channel     Channel number.
+ *
+ * @return    Number of ticks set for selected channel.
+ *
+ */
+uint16_t app_pwm_channel_duty_ticks_get(app_pwm_t const *const p_instance, uint8_t channel);
 
-    /**
-     * @brief Function for returning the number of ticks in a whole cycle.
-     *
-     * @param[in] p_instance  PWM instance.
-     *
-     * @return    Number of ticks that corresponds to 100% of the duty cycle.
-     */
-    uint16_t app_pwm_cycle_ticks_get(app_pwm_t const * const p_instance);
+/**
+ * @brief Function for returning the number of ticks in a whole cycle.
+ *
+ * @param[in] p_instance  PWM instance.
+ *
+ * @return    Number of ticks that corresponds to 100% of the duty cycle.
+ */
+uint16_t app_pwm_cycle_ticks_get(app_pwm_t const *const p_instance);
 /** @} */
 
 

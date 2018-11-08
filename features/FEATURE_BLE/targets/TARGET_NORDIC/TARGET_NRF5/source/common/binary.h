@@ -45,7 +45,7 @@
 #define _BINARY_H_
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /// n-th Bit

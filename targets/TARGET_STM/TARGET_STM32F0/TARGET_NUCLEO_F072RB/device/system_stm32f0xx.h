@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    system_stm32f0xx.h
   * @author  MCD Application Team
-  * @brief   CMSIS Cortex-M0 Device System Source File for STM32F0xx devices.  
+  * @brief   CMSIS Cortex-M0 Device System Source File for STM32F0xx devices.
   ******************************************************************************
   * @attention
   *
@@ -39,8 +39,8 @@
 
 /** @addtogroup stm32f0xx_system
   * @{
-  */  
-  
+  */
+
 /**
   * @brief Define to prevent recursive inclusion
   */
@@ -48,8 +48,8 @@
 #define __SYSTEM_STM32F0XX_H
 
 #ifdef __cplusplus
- extern "C" {
-#endif 
+extern "C" {
+#endif
 
 /** @addtogroup STM32F0xx_System_Includes
   * @{
@@ -63,14 +63,14 @@
 /** @addtogroup STM32F0xx_System_Exported_types
   * @{
   */
-  /* This variable is updated in three ways:
-      1) by calling CMSIS function SystemCoreClockUpdate()
-      3) by calling HAL API function HAL_RCC_GetHCLKFreq()
-      3) by calling HAL API function HAL_RCC_ClockConfig()
-         Note: If you use this function to configure the system clock; then there
-               is no need to call the 2 first functions listed above, since SystemCoreClock
-               variable is updated automatically.
-  */
+/* This variable is updated in three ways:
+    1) by calling CMSIS function SystemCoreClockUpdate()
+    3) by calling HAL API function HAL_RCC_GetHCLKFreq()
+    3) by calling HAL API function HAL_RCC_ClockConfig()
+       Note: If you use this function to configure the system clock; then there
+             is no need to call the 2 first functions listed above, since SystemCoreClock
+             variable is updated automatically.
+*/
 extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
 extern const uint8_t AHBPrescTable[16];   /*!< AHB prescalers table values */
 extern const uint8_t APBPrescTable[8];    /*!< APB prescalers table values */
@@ -98,7 +98,7 @@ extern const uint8_t APBPrescTable[8];    /*!< APB prescalers table values */
 /** @addtogroup STM32F0xx_System_Exported_Functions
   * @{
   */
-  
+
 extern void SystemInit(void);
 extern void SystemCoreClockUpdate(void);
 extern void SetSysClock(void);
@@ -116,8 +116,8 @@ extern void SetSysClock(void);
 /**
   * @}
   */
-  
+
 /**
   * @}
-  */  
+  */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

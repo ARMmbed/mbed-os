@@ -76,7 +76,7 @@ extern "C" {
  * @brief       Registers, Bit Masks and Bit Positions for the AES Peripheral Module.
  * @{
  */
- 
+
 /**
  * Structure type to access the AES Registers.
  */
@@ -97,12 +97,12 @@ typedef struct {
 } mxc_aes_mem_regs_t;
 /**@} end of group aes_registers */
 
- /**
-  * @ingroup    aes_registers
-  * @defgroup   AES_Register_Offsets Register Offsets
-  * @brief      AES Register Offsets from the AES Base Peripheral Address. 
-  * @{
-  */
+/**
+ * @ingroup    aes_registers
+ * @defgroup   AES_Register_Offsets Register Offsets
+ * @brief      AES Register Offsets from the AES Base Peripheral Address.
+ * @{
+ */
 /**
  * AES Register offsets from the AES base peripheral address.
  */
@@ -144,24 +144,24 @@ typedef struct {
 #define MXC_F_AES_CTRL_START                                ((uint32_t)(0x00000001UL << MXC_F_AES_CTRL_START_POS))              /**< AES_CTRL START Mask            */
 #define MXC_F_AES_CTRL_CRYPT_MODE_POS                       1                                                                   /**< AES_CTRL CRYPT_MODE Position   */
 #define MXC_F_AES_CTRL_CRYPT_MODE                           ((uint32_t)(0x00000001UL << MXC_F_AES_CTRL_CRYPT_MODE_POS))         /**< AES_CTRL CRYPT_MODE Mask       */
-#define MXC_F_AES_CTRL_EXP_KEY_MODE_POS                     2                                                                   /**< AES_CTRL EXP_KEY_MODE Position */   
-#define MXC_F_AES_CTRL_EXP_KEY_MODE                         ((uint32_t)(0x00000001UL << MXC_F_AES_CTRL_EXP_KEY_MODE_POS))       /**<  AES_CTRL EXP_KEY_MODE  Mask   */     
-#define MXC_F_AES_CTRL_KEY_SIZE_POS                         3                                                                   /**< AES_CTRL KEY_SIZE Position     */  
+#define MXC_F_AES_CTRL_EXP_KEY_MODE_POS                     2                                                                   /**< AES_CTRL EXP_KEY_MODE Position */
+#define MXC_F_AES_CTRL_EXP_KEY_MODE                         ((uint32_t)(0x00000001UL << MXC_F_AES_CTRL_EXP_KEY_MODE_POS))       /**<  AES_CTRL EXP_KEY_MODE  Mask   */
+#define MXC_F_AES_CTRL_KEY_SIZE_POS                         3                                                                   /**< AES_CTRL KEY_SIZE Position     */
 #define MXC_F_AES_CTRL_KEY_SIZE                             ((uint32_t)(0x00000003UL << MXC_F_AES_CTRL_KEY_SIZE_POS))           /**<  AES_CTRL KEY_SIZE  Mask       */
-#define MXC_F_AES_CTRL_INTEN_POS                            5                                                                   /**< AES_CTRL INTEN Position        */  
-#define MXC_F_AES_CTRL_INTEN                                ((uint32_t)(0x00000001UL << MXC_F_AES_CTRL_INTEN_POS))              /**<  AES_CTRL INTEN  Mask          */   
-#define MXC_F_AES_CTRL_INTFL_POS                            6                                                                   /**< AES_CTRL INTFL Position        */      
+#define MXC_F_AES_CTRL_INTEN_POS                            5                                                                   /**< AES_CTRL INTEN Position        */
+#define MXC_F_AES_CTRL_INTEN                                ((uint32_t)(0x00000001UL << MXC_F_AES_CTRL_INTEN_POS))              /**<  AES_CTRL INTEN  Mask          */
+#define MXC_F_AES_CTRL_INTFL_POS                            6                                                                   /**< AES_CTRL INTFL Position        */
 #define MXC_F_AES_CTRL_INTFL                                ((uint32_t)(0x00000001UL << MXC_F_AES_CTRL_INTFL_POS))              /**< AES_CTRL INTFL Mask            */
-#define MXC_F_AES_CTRL_LOAD_HW_KEY_POS                      7                                                                   /**< AES_CTRL LOAD_HW_KEY Position  */  
-#define MXC_F_AES_CTRL_LOAD_HW_KEY                          ((uint32_t)(0x00000001UL << MXC_F_AES_CTRL_LOAD_HW_KEY_POS))        /**<  AES_CTRL LOAD_HW_KEY Mask     */   
-/**@} end of aes_registers group */   
+#define MXC_F_AES_CTRL_LOAD_HW_KEY_POS                      7                                                                   /**< AES_CTRL LOAD_HW_KEY Position  */
+#define MXC_F_AES_CTRL_LOAD_HW_KEY                          ((uint32_t)(0x00000001UL << MXC_F_AES_CTRL_LOAD_HW_KEY_POS))        /**<  AES_CTRL LOAD_HW_KEY Mask     */
+/**@} end of aes_registers group */
 
 /*
    Field values and shifted values for module AES.
 */
 ///@cond
-#define MXC_V_AES_CTRL_ENCRYPT_MODE                                             ((uint32_t)(0x00000000UL))                                                          /**< AES_CTRL: CRYPT_MODE Field: Encryption Mode value */                                               
-#define MXC_V_AES_CTRL_DECRYPT_MODE                                             ((uint32_t)(0x00000001UL))                                                          /**< AES_CTRL: CRYPT_MODE Field: Decryption Mode value */                                              
+#define MXC_V_AES_CTRL_ENCRYPT_MODE                                             ((uint32_t)(0x00000000UL))                                                          /**< AES_CTRL: CRYPT_MODE Field: Encryption Mode value */
+#define MXC_V_AES_CTRL_DECRYPT_MODE                                             ((uint32_t)(0x00000001UL))                                                          /**< AES_CTRL: CRYPT_MODE Field: Decryption Mode value */
 
 #define MXC_S_AES_CTRL_ENCRYPT_MODE                                             ((uint32_t)(MXC_V_AES_CTRL_ENCRYPT_MODE   << MXC_F_AES_CTRL_CRYPT_MODE_POS))        /**< AES_CTRL: CRYPT_MODE Field: Encryption Mode Shifted Value*/
 #define MXC_S_AES_CTRL_DECRYPT_MODE                                             ((uint32_t)(MXC_V_AES_CTRL_DECRYPT_MODE   << MXC_F_AES_CTRL_CRYPT_MODE_POS))        /**< AES_CTRL: CRYPT_MODE Field: Decryption Mode Shifted Value*/
@@ -170,7 +170,7 @@ typedef struct {
 #define MXC_V_AES_CTRL_USE_LAST_EXP_KEY                                         ((uint32_t)(0x00000001UL))                                                          /**< AES_CTRL: EXP_KEY_MODE Field: Use previous Exp Key value */
 
 #define MXC_S_AES_CTRL_CALC_NEW_EXP_KEY                                         ((uint32_t)(MXC_V_AES_CTRL_CALC_NEW_EXP_KEY   << MXC_F_AES_CTRL_EXP_KEY_MODE_POS))  /**< AES_CTRL: EXP_KEY_MODE Field: Calculate New Exp Key Shifted Value*/
-#define MXC_S_AES_CTRL_USE_LAST_EXP_KEY                                         ((uint32_t)(MXC_V_AES_CTRL_USE_LAST_EXP_KEY   << MXC_F_AES_CTRL_EXP_KEY_MODE_POS))  /**< AES_CTRL: EXP_KEY_MODE Field: Use previous Exp Key Shifted Value*/ 
+#define MXC_S_AES_CTRL_USE_LAST_EXP_KEY                                         ((uint32_t)(MXC_V_AES_CTRL_USE_LAST_EXP_KEY   << MXC_F_AES_CTRL_EXP_KEY_MODE_POS))  /**< AES_CTRL: EXP_KEY_MODE Field: Use previous Exp Key Shifted Value*/
 
 #define MXC_V_AES_CTRL_KEY_SIZE_128                                             ((uint32_t)(0x00000000UL))                                                          /**< AES_CTRL: KEY_SIZE 128-bit setting value */
 #define MXC_V_AES_CTRL_KEY_SIZE_192                                             ((uint32_t)(0x00000001UL))                                                          /**< AES_CTRL: KEY_SIZE 192-bit setting value */

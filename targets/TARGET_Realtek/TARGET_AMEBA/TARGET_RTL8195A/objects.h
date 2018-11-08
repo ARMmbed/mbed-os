@@ -57,16 +57,16 @@ struct port_s {
 
 #ifdef CONFIG_UART_EN
 struct serial_s {
-	int index;
+    int index;
     HAL_RUART_OP hal_uart_op;
     HAL_RUART_ADAPTER hal_uart_adp;
-#ifdef CONFIG_GDMA_EN    
+#ifdef CONFIG_GDMA_EN
     UART_DMA_CONFIG   uart_gdma_cfg;
     HAL_GDMA_ADAPTER uart_gdma_adp_tx;
     HAL_GDMA_ADAPTER uart_gdma_adp_rx;
     UART_DMA_MULTIBLK gdma_multiblk_list_tx;
     UART_DMA_MULTIBLK gdma_multiblk_list_rx;
-#endif    
+#endif
     uint32_t    tx_len;
     uint32_t    rx_len;
 };
@@ -86,31 +86,30 @@ struct pwmout_s {
     uint8_t pin_sel;
     uint32_t period;
     uint32_t pulse;
-    HAL_PWM_ADAPTER pwm_hal_adp;    
+    HAL_PWM_ADAPTER pwm_hal_adp;
 };
 #endif
 
 #ifdef CONFIG_I2C_EN
 struct i2c_s {
-    SAL_I2C_MNGT_ADPT   SalI2CMngtAdpt;        
-    SAL_I2C_HND_PRIV    SalI2CHndPriv;    
+    SAL_I2C_MNGT_ADPT   SalI2CMngtAdpt;
+    SAL_I2C_HND_PRIV    SalI2CHndPriv;
     HAL_I2C_INIT_DAT    HalI2CInitData;
-    HAL_I2C_OP          HalI2COp;   
-    IRQ_HANDLE          I2CIrqHandleDat;    
-    HAL_GDMA_ADAPTER    HalI2CTxGdmaAdpt;   
-    HAL_GDMA_ADAPTER    HalI2CRxGdmaAdpt;     
+    HAL_I2C_OP          HalI2COp;
+    IRQ_HANDLE          I2CIrqHandleDat;
+    HAL_GDMA_ADAPTER    HalI2CTxGdmaAdpt;
+    HAL_GDMA_ADAPTER    HalI2CRxGdmaAdpt;
     HAL_GDMA_OP         HalI2CGdmaOp;
-    IRQ_HANDLE          I2CTxGdmaIrqHandleDat;    
-    IRQ_HANDLE          I2CRxGdmaIrqHandleDat;        
-    SAL_I2C_USER_CB     SalI2CUserCB;   
-    SAL_I2C_USERCB_ADPT SalI2CUserCBAdpt[SAL_USER_CB_NUM];    
+    IRQ_HANDLE          I2CTxGdmaIrqHandleDat;
+    IRQ_HANDLE          I2CRxGdmaIrqHandleDat;
+    SAL_I2C_USER_CB     SalI2CUserCB;
+    SAL_I2C_USERCB_ADPT SalI2CUserCBAdpt[SAL_USER_CB_NUM];
     SAL_I2C_DMA_USER_DEF    SalI2CDmaUserDef;
 };
 #endif
 
 
-struct flash_s
-{
+struct flash_s {
     SPIC_INIT_PARA SpicInitPara;
     u32 Length;
 };
@@ -118,16 +117,16 @@ struct flash_s
 
 #ifdef CONFIG_ADC_EN
 struct analogin_s {
-    SAL_ADC_MNGT_ADPT   SalADCMngtAdpt;        
-    SAL_ADC_HND_PRIV    SalADCHndPriv;    
+    SAL_ADC_MNGT_ADPT   SalADCMngtAdpt;
+    SAL_ADC_HND_PRIV    SalADCHndPriv;
     HAL_ADC_INIT_DAT    HalADCInitData;
-    HAL_ADC_OP          HalADCOp;   
-    IRQ_HANDLE          ADCIrqHandleDat;    
-    HAL_GDMA_ADAPTER    HalADCGdmaAdpt;     
+    HAL_ADC_OP          HalADCOp;
+    IRQ_HANDLE          ADCIrqHandleDat;
+    HAL_GDMA_ADAPTER    HalADCGdmaAdpt;
     HAL_GDMA_OP         HalADCGdmaOp;
-    IRQ_HANDLE          ADCGdmaIrqHandleDat;        
-    SAL_ADC_USER_CB     SalADCUserCB;   
-    SAL_ADC_USERCB_ADPT SalADCUserCBAdpt[SAL_ADC_USER_CB_NUM];    
+    IRQ_HANDLE          ADCGdmaIrqHandleDat;
+    SAL_ADC_USER_CB     SalADCUserCB;
+    SAL_ADC_USERCB_ADPT SalADCUserCBAdpt[SAL_ADC_USER_CB_NUM];
 };
 #endif
 
@@ -164,17 +163,17 @@ struct gtimer_s {
     void *handler;
     u32 hid;
     u8 timer_id;
-    u8 is_periodcal;    
+    u8 is_periodcal;
 };
 #endif
 
 #ifdef CONFIG_I2S_EN
 struct i2s_s {
     HAL_I2S_ADAPTER I2SAdapter;
-	HAL_I2S_INIT_DAT InitDat;
-	u8 sampling_rate;
-	u8 channel_num;
-	u8 word_length;
+    HAL_I2S_INIT_DAT InitDat;
+    u8 sampling_rate;
+    u8 channel_num;
+    u8 word_length;
     u8 direction;
 };
 
@@ -194,16 +193,16 @@ struct i2s_s {
  *  A DAC initial data structure is the major element of dac_s.
  */
 struct dac_s {
-   HAL_DAC_INIT_DAT DACpara;
+    HAL_DAC_INIT_DAT DACpara;
 };
 #endif
 
 #ifdef CONFIG_ADC_EN //True random number generator uses ADC
 
-struct trng_s{
-	uint32_t pin;
-	struct analogin_s tradcng;
-	uint8_t inited;
+struct trng_s {
+    uint32_t pin;
+    struct analogin_s tradcng;
+    uint8_t inited;
 };
 #endif
 

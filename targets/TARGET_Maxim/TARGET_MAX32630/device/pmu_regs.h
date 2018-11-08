@@ -78,7 +78,7 @@ extern "C" {
  * @{
  */
 /**
- * Structure type for the PMU Registers 
+ * Structure type for the PMU Registers
  */
 typedef struct {
     __IO uint32_t dscadr;                               /**<  <tt>\b 0x0000:</tt> PMU Channel Next Descriptor Address     */
@@ -94,7 +94,7 @@ typedef struct {
 /**
  * @ingroup    pmu_registers
  * @defgroup   PMU_Register_Offsets Register Offsets
- * @brief      PMU Register Offsets from the PMU Base Peripheral Address. 
+ * @brief      PMU Register Offsets from the PMU Base Peripheral Address.
  * @{
  */
 #define MXC_R_PMU_OFFS_DSCADR                               ((uint32_t)0x00000000UL)  /**< Offset from the PMU Base Address: <tt>\b 0x0000</tt>*/

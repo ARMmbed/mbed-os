@@ -92,7 +92,7 @@ void us_ticker_init(void)
      * Limit prescaling to maximum prescaler value, which is 10 (DIV1024).
      */
     uint32_t prescaler = 0;
-    while((ticker_freq_khz >= 2000) && prescaler <= 10) {
+    while ((ticker_freq_khz >= 2000) && prescaler <= 10) {
         ticker_freq_khz = ticker_freq_khz >> 1;
         prescaler++;
     }
@@ -158,7 +158,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     uint32_t goal = timestamp;
     uint32_t trigger;
 
-    if((US_TICKER_TIMER->IEN & TIMER_IEN_CC0) == 0) {
+    if ((US_TICKER_TIMER->IEN & TIMER_IEN_CC0) == 0) {
         //Timer was disabled, but is going to be enabled. Set sleep mode.
         sleep_manager_lock_deep_sleep();
     }
@@ -174,8 +174,8 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     trigger = US_TICKER_TIMER->CNT;
 
     /* Catch "Going back in time" */
-    if(goal < 10 ||
-       goal >= 0xFFFFFF00UL) {
+    if (goal < 10 ||
+            goal >= 0xFFFFFF00UL) {
         TIMER_IntClear(US_TICKER_TIMER, TIMER_IFC_CC0);
         TIMER_CompareSet(US_TICKER_TIMER, 0, (US_TICKER_TIMER->CNT + 3 >= US_TICKER_TIMER->TOP ? 3 : US_TICKER_TIMER->CNT + 3));
         TIMER_IntEnable(US_TICKER_TIMER, TIMER_IEN_CC0);
@@ -215,7 +215,7 @@ void us_ticker_fire_interrupt(void)
 
 void us_ticker_disable_interrupt(void)
 {
-    if((US_TICKER_TIMER->IEN & TIMER_IEN_CC0) != 0) {
+    if ((US_TICKER_TIMER->IEN & TIMER_IEN_CC0) != 0) {
         //Timer was enabled, but is going to get disabled. Clear sleepmode.
         sleep_manager_unlock_deep_sleep();
     }

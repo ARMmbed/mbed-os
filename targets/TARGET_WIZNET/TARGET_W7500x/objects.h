@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
- 
+
 #ifndef MBED_OBJECTS_H
 #define MBED_OBJECTS_H
 
@@ -77,19 +77,19 @@ struct serial_s {
 };
 
 struct spi_s {
-	SSP_TypeDef *spi;
+    SSP_TypeDef *spi;
 };
 
 struct i2c_s {
     I2CName I2Cx;
     PinName sda;
-    PinName scl; 
+    PinName scl;
     uint16_t ADDRESS;
     uint16_t is_setAddress;
 };
 
 struct pwmout_s {
-    PWM_CHn_TypeDef * PWM_CHx;
+    PWM_CHn_TypeDef *PWM_CHx;
     PinName pin;
     uint32_t period;
     uint32_t pulse;

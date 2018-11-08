@@ -80,7 +80,7 @@ typedef enum {
     TMR32_MODE_CAPTURE    = MXC_V_TMR_CTRL_MODE_CAPTURE,            /**< Capture Mode                   */
     TMR32_MODE_COMPARE    = MXC_V_TMR_CTRL_MODE_COMPARE,            /**< Compare Mode                   */
     TMR32_MODE_GATED      = MXC_V_TMR_CTRL_MODE_GATED,              /**< Gated Mode                     */
-    TMR32_MODE_MEASURE    = MXC_V_TMR_CTRL_MODE_MEASURE             /**< Measure Mode                   */    
+    TMR32_MODE_MEASURE    = MXC_V_TMR_CTRL_MODE_MEASURE             /**< Measure Mode                   */
 } tmr32_mode_t;
 
 /**
@@ -93,8 +93,8 @@ typedef enum {
 } tmr16_mode_t;
 
 /**
- * Enumeration type to select the Prescale Divider for the timer module. The prescaler 
- * divides the peripheral input clock to the timer by a selectable divisor. 
+ * Enumeration type to select the Prescale Divider for the timer module. The prescaler
+ * divides the peripheral input clock to the timer by a selectable divisor.
  */
 typedef enum {
     TMR_PRESCALE_DIV_2_0 = MXC_V_TMR_CTRL_PRESCALE_DIVIDE_BY_1,         /**< Divide the peripheral input clock by \f$ TMR_{Prescaler} = 2^{0} = 1 \f$       */
@@ -120,7 +120,7 @@ typedef enum {
 
     TMR_POLARITY_INIT_LOW = 0,      /**< GPIO initial output level = low    */
     TMR_POLARITY_INIT_HIGH = 1,     /**< GPIO initial output level = high   */
-    
+
     TMR_POLARITY_RISING_EDGE = 0,   /**< timer trigger on GPIO rising edge  */
     TMR_POLARITY_FALLING_EDGE = 1,  /**< timer trigger on GPIO falling edge */
 } tmr_polarity_t;
@@ -152,7 +152,7 @@ typedef struct {
 } tmr32_cfg_pwm_t;
 
 /**
- * Structure type for Configuring a 16-bit Timer. 
+ * Structure type for Configuring a 16-bit Timer.
  */
 typedef struct {
     tmr16_mode_t mode;      /**< 16-bit timer mode, see #tmr16_mode_t for supported modes.    */
@@ -173,7 +173,7 @@ typedef struct {
  *                       using GPIO for the timer instance, set this parameter
  *                       to NULL.
  *
- * @retval     #E_NO_ERROR Timer initialized successfully. 
+ * @retval     #E_NO_ERROR Timer initialized successfully.
  * @retval     Error Code  Timer was not initialized, see @ref MXC_Error_Codes.
  */
 int TMR_Init(mxc_tmr_regs_t *tmr, tmr_prescale_t prescale, const sys_cfg_tmr_t *sysCfg);
@@ -250,10 +250,11 @@ __STATIC_INLINE void TMR32_Stop(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE void TMR16_Stop(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         tmr->ctrl &= ~MXC_F_TMR_CTRL_ENABLE1;
-    else
+    } else {
         tmr->ctrl &= ~MXC_F_TMR_CTRL_ENABLE0;
+    }
 }
 
 /**
@@ -279,10 +280,11 @@ __STATIC_INLINE uint32_t TMR32_IsActive(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE uint32_t TMR16_IsActive(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         return (tmr->ctrl & MXC_F_TMR_CTRL_ENABLE1);
-    else
+    } else {
         return (tmr->ctrl & MXC_F_TMR_CTRL_ENABLE0);
+    }
 }
 
 /**
@@ -303,10 +305,11 @@ __STATIC_INLINE void TMR32_EnableINT(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE void TMR16_EnableINT(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         tmr->inten |= MXC_F_TMR_INTEN_TIMER1;
-    else
+    } else {
         tmr->inten |= MXC_F_TMR_INTEN_TIMER0;
+    }
 }
 
 /**
@@ -327,10 +330,11 @@ __STATIC_INLINE void TMR32_DisableINT(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE void TMR16_DisableINT(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         tmr->inten &= ~MXC_F_TMR_INTEN_TIMER1;
-    else
+    } else {
         tmr->inten &= ~MXC_F_TMR_INTEN_TIMER0;
+    }
 }
 
 /**
@@ -355,10 +359,11 @@ __STATIC_INLINE uint32_t TMR32_GetFlag(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE uint32_t TMR16_GetFlag(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         return (tmr->intfl & MXC_F_TMR_INTFL_TIMER1);
-    else
+    } else {
         return (tmr->intfl & MXC_F_TMR_INTFL_TIMER0);
+    }
 }
 
 /**
@@ -379,10 +384,11 @@ __STATIC_INLINE void TMR32_ClearFlag(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE void TMR16_ClearFlag(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         tmr->intfl = MXC_F_TMR_INTFL_TIMER1;
-    else
+    } else {
         tmr->intfl = MXC_F_TMR_INTFL_TIMER0;
+    }
 }
 
 /**
@@ -405,10 +411,11 @@ __STATIC_INLINE void TMR32_SetCount(mxc_tmr_regs_t *tmr, uint32_t count)
  */
 __STATIC_INLINE void TMR16_SetCount(mxc_tmr_regs_t *tmr, uint8_t index, uint16_t count)
 {
-    if (index)
+    if (index) {
         tmr->count16_1 = count;
-    else
+    } else {
         tmr->count16_0 = count;
+    }
 }
 
 /**
@@ -433,10 +440,11 @@ __STATIC_INLINE uint32_t TMR32_GetCount(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE uint32_t TMR16_GetCount(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if(index)
+    if (index) {
         return tmr->count16_1;
-    else
+    } else {
         return tmr->count16_0;
+    }
 }
 
 /**
@@ -486,10 +494,11 @@ __STATIC_INLINE uint32_t TMR32_GetCompare(mxc_tmr_regs_t *tmr)
  */
 __STATIC_INLINE void TMR16_SetCompare(mxc_tmr_regs_t *tmr, uint8_t index, uint16_t count)
 {
-    if (index)
+    if (index) {
         tmr->term_cnt16_1 = count;
-    else
+    } else {
         tmr->term_cnt16_0 = count;
+    }
 }
 
 /**
@@ -500,8 +509,9 @@ __STATIC_INLINE void TMR16_SetCompare(mxc_tmr_regs_t *tmr, uint8_t index, uint16
  */
 __STATIC_INLINE uint32_t TMR16_GetCompare(mxc_tmr_regs_t *tmr, uint8_t index)
 {
-    if (index)
+    if (index) {
         return tmr->term_cnt16_1;
+    }
     return tmr->term_cnt16_0;
 }
 

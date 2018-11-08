@@ -73,15 +73,13 @@
 #define TRNG_USER_CONFIG_DEFAULT_FREQUENCY_MINIMUM 1600
 
 /*! @brief TRNG work mode */
-typedef enum _trng_work_mode
-{
+typedef enum _trng_work_mode {
     kTRNG_WorkModeRun = 0U,    /*!< Run Mode. */
     kTRNG_WorkModeProgram = 1U /*!< Program Mode. */
 } trng_work_mode_t;
 
 /*! @brief TRNG statistical check type*/
-typedef enum _trng_statistical_check
-{
+typedef enum _trng_statistical_check {
     kTRNG_StatisticalCheckMonobit =
         1U,                        /*!< Statistical check of number of ones/zero detected during entropy generation. */
     kTRNG_StatisticalCheckRunBit1, /*!< Statistical check of number of runs of length 1 detected during entropy
@@ -1212,8 +1210,7 @@ status_t TRNG_GetDefaultConfig(trng_config_t *userConfig)
 {
     status_t result;
 
-    if (userConfig != 0)
-    {
+    if (userConfig != 0) {
         userConfig->lock = TRNG_USER_CONFIG_DEFAULT_LOCK;
         userConfig->clockMode = kTRNG_ClockModeRingOscillator;
         userConfig->ringOscDiv = TRNG_USER_CONFIG_DEFAULT_OSC_DIV;
@@ -1246,9 +1243,7 @@ status_t TRNG_GetDefaultConfig(trng_config_t *userConfig)
         userConfig->frequencyCountLimit.minimum = TRNG_USER_CONFIG_DEFAULT_FREQUENCY_MINIMUM;
 
         result = kStatus_Success;
-    }
-    else
-    {
+    } else {
         result = kStatus_InvalidArgument;
     }
 
@@ -1266,14 +1261,11 @@ static status_t trng_SetRetryCount(TRNG_Type *base, uint8_t retry_count)
 {
     status_t status;
 
-    if ((retry_count >= 1u) && (retry_count <= 15u))
-    {
+    if ((retry_count >= 1u) && (retry_count <= 15u)) {
         /* Set retry count.*/
         TRNG_WR_SCMISC_RTY_CT(base, retry_count);
         status = kStatus_Success;
-    }
-    else
-    {
+    } else {
         status = kStatus_InvalidArgument;
     }
     return status;
@@ -1292,117 +1284,88 @@ static status_t trng_SetStatisticalCheckLimit(TRNG_Type *base,
     uint32_t range;
     status_t status = kStatus_Success;
 
-    if (limit && (limit->maximum > limit->minimum))
-    {
+    if (limit && (limit->maximum > limit->minimum)) {
         range = limit->maximum - limit->minimum; /* Registers use range instead of minimum value.*/
 
-        switch (statistical_check)
-        {
+        switch (statistical_check) {
             case kTRNG_StatisticalCheckMonobit: /* Allowable maximum and minimum number of ones/zero detected during
                                                    entropy generation. */
-                if ((range <= 0xffffu) && (limit->maximum <= 0xffffu))
-                {
+                if ((range <= 0xffffu) && (limit->maximum <= 0xffffu)) {
                     TRNG_WR_SCML_MONO_MAX(base, limit->maximum);
                     TRNG_WR_SCML_MONO_RNG(base, range);
-                }
-                else
-                {
+                } else {
                     status = kStatus_InvalidArgument;
                 }
                 break;
             case kTRNG_StatisticalCheckRunBit1: /* Allowable maximum and minimum number of runs of length 1 detected
                                                    during entropy generation. */
-                if ((range <= 0x7fffu) && (limit->maximum <= 0x7fffu))
-                {
+                if ((range <= 0x7fffu) && (limit->maximum <= 0x7fffu)) {
                     TRNG_WR_SCR1L_RUN1_MAX(base, limit->maximum);
                     TRNG_WR_SCR1L_RUN1_RNG(base, range);
-                }
-                else
-                {
+                } else {
                     status = kStatus_InvalidArgument;
                 }
                 break;
             case kTRNG_StatisticalCheckRunBit2: /* Allowable maximum and minimum number of runs of length 2 detected
                                                    during entropy generation. */
-                if ((range <= 0x3fffu) && (limit->maximum <= 0x3fffu))
-                {
+                if ((range <= 0x3fffu) && (limit->maximum <= 0x3fffu)) {
                     TRNG_WR_SCR2L_RUN2_MAX(base, limit->maximum);
                     TRNG_WR_SCR2L_RUN2_RNG(base, range);
-                }
-                else
-                {
+                } else {
                     status = kStatus_InvalidArgument;
                 }
                 break;
             case kTRNG_StatisticalCheckRunBit3: /* Allowable maximum and minimum number of runs of length 3 detected
                                                    during entropy generation. */
-                if ((range <= 0x1fffu) && (limit->maximum <= 0x1fffu))
-                {
+                if ((range <= 0x1fffu) && (limit->maximum <= 0x1fffu)) {
                     TRNG_WR_SCR3L_RUN3_MAX(base, limit->maximum);
                     TRNG_WR_SCR3L_RUN3_RNG(base, range);
-                }
-                else
-                {
+                } else {
                     status = kStatus_InvalidArgument;
                 }
                 break;
             case kTRNG_StatisticalCheckRunBit4: /* Allowable maximum and minimum number of runs of length 4 detected
                                                    during entropy generation. */
-                if ((range <= 0xfffu) && (limit->maximum <= 0xfffu))
-                {
+                if ((range <= 0xfffu) && (limit->maximum <= 0xfffu)) {
                     TRNG_WR_SCR4L_RUN4_MAX(base, limit->maximum);
                     TRNG_WR_SCR4L_RUN4_RNG(base, range);
-                }
-                else
-                {
+                } else {
                     status = kStatus_InvalidArgument;
                 }
                 break;
             case kTRNG_StatisticalCheckRunBit5: /* Allowable maximum and minimum number of runs of length 5 detected
                                                    during entropy generation. */
-                if ((range <= 0x7ffu) && (limit->maximum <= 0x7ffu))
-                {
+                if ((range <= 0x7ffu) && (limit->maximum <= 0x7ffu)) {
                     TRNG_WR_SCR5L_RUN5_MAX(base, limit->maximum);
                     TRNG_WR_SCR5L_RUN5_RNG(base, range);
-                }
-                else
-                {
+                } else {
                     status = kStatus_InvalidArgument;
                 }
                 break;
             case kTRNG_StatisticalCheckRunBit6Plus: /* Allowable maximum and minimum number of length 6 or more detected
                                                        during entropy generation */
-                if ((range <= 0x7ffu) && (limit->maximum <= 0x7ffu))
-                {
+                if ((range <= 0x7ffu) && (limit->maximum <= 0x7ffu)) {
                     TRNG_WR_SCR6PL_RUN6P_MAX(base, limit->maximum);
                     TRNG_WR_SCR6PL_RUN6P_RNG(base, range);
-                }
-                else
-                {
+                } else {
                     status = kStatus_InvalidArgument;
                 }
                 break;
             case kTRNG_StatisticalCheckPoker: /* Allowable maximum and minimum limit of "Poker Test" detected during
                                                  entropy generation . */
-                if ((range <= 0xffffu) && (limit->maximum <= 0xffffffu))
-                {
+                if ((range <= 0xffffu) && (limit->maximum <= 0xffffffu)) {
                     TRNG_WR_PKRMAX_PKR_MAX(base, limit->maximum);
                     TRNG_WR_PKRRNG_PKR_RNG(base, range);
-                }
-                else
-                {
+                } else {
                     status = kStatus_InvalidArgument;
                 }
                 break;
             case kTRNG_StatisticalCheckFrequencyCount: /* Allowable maximum and minimum limit of entropy sample frquency
                                                           count during entropy generation . */
-                if ((limit->minimum <= 0x3fffffu) && (limit->maximum <= 0x3fffffu))
-                {
+                if ((limit->minimum <= 0x3fffffu) && (limit->maximum <= 0x3fffffu)) {
                     TRNG_WR_FRQMAX_FRQ_MAX(base, limit->maximum);
                     TRNG_WR_FRQMIN_FRQ_MIN(base, limit->minimum);
-                }
-                else
-                {
+                } else {
                     status = kStatus_InvalidArgument;
                 }
                 break;
@@ -1426,25 +1389,24 @@ static status_t trng_ApplyUserConfig(TRNG_Type *base, const trng_config_t *userC
     status_t status;
 
     if (((status = trng_SetRetryCount(base, userConfig->retryCount)) == kStatus_Success) &&
-        ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckMonobit, &userConfig->monobitLimit)) ==
-         kStatus_Success) &&
-        ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit1, &userConfig->runBit1Limit)) ==
-         kStatus_Success) &&
-        ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit2, &userConfig->runBit2Limit)) ==
-         kStatus_Success) &&
-        ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit3, &userConfig->runBit3Limit)) ==
-         kStatus_Success) &&
-        ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit4, &userConfig->runBit4Limit)) ==
-         kStatus_Success) &&
-        ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit5, &userConfig->runBit5Limit)) ==
-         kStatus_Success) &&
-        ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit6Plus,
-                                                 &userConfig->runBit6PlusLimit)) == kStatus_Success) &&
-        ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckPoker, &userConfig->pokerLimit)) ==
-         kStatus_Success) &&
-        ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckFrequencyCount,
-                                                 &userConfig->frequencyCountLimit)) == kStatus_Success))
-    {
+            ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckMonobit, &userConfig->monobitLimit)) ==
+             kStatus_Success) &&
+            ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit1, &userConfig->runBit1Limit)) ==
+             kStatus_Success) &&
+            ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit2, &userConfig->runBit2Limit)) ==
+             kStatus_Success) &&
+            ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit3, &userConfig->runBit3Limit)) ==
+             kStatus_Success) &&
+            ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit4, &userConfig->runBit4Limit)) ==
+             kStatus_Success) &&
+            ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit5, &userConfig->runBit5Limit)) ==
+             kStatus_Success) &&
+            ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckRunBit6Plus,
+                                                     &userConfig->runBit6PlusLimit)) == kStatus_Success) &&
+            ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckPoker, &userConfig->pokerLimit)) ==
+             kStatus_Success) &&
+            ((status = trng_SetStatisticalCheckLimit(base, kTRNG_StatisticalCheckFrequencyCount,
+                                                     &userConfig->frequencyCountLimit)) == kStatus_Success)) {
         TRNG_WR_MCTL_FOR_SCLK(base, userConfig->clockMode);
         TRNG_WR_MCTL_OSC_DIV(base, userConfig->ringOscDiv);
         TRNG_WR_MCTL_SAMP_MODE(base, userConfig->sampleMode);
@@ -1472,8 +1434,7 @@ static uint32_t trng_ReadEntropy(TRNG_Type *base, uint32_t index)
 
     data = TRNG_RD_ENT(base, index);
 
-    if (index == (TRNG_ENT_COUNT - 1))
-    {
+    if (index == (TRNG_ENT_COUNT - 1)) {
         /* Dummy read. Defect workaround.
          * TRNG could not clear ENT_VAL  flag automatically, application
          * had to do a dummy reading operation for anyone TRNG register
@@ -1489,8 +1450,7 @@ status_t TRNG_Init(TRNG_Type *base, const trng_config_t *userConfig)
     status_t result;
 
     /* Check input parameters.*/
-    if ((base != 0) && (userConfig != 0))
-    {
+    if ((base != 0) && (userConfig != 0)) {
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
         /* Enable the clock gate. */
         CLOCK_EnableClock(kCLOCK_Trng0);
@@ -1503,8 +1463,7 @@ status_t TRNG_Init(TRNG_Type *base, const trng_config_t *userConfig)
         TRNG_WR_MCTL_RST_DEF(base, 1);
 
         /* Set configuration.*/
-        if ((result = trng_ApplyUserConfig(base, userConfig)) == kStatus_Success)
-        {
+        if ((result = trng_ApplyUserConfig(base, userConfig)) == kStatus_Success) {
             /* Start entropy generation.*/
             /* Set to Run mode.*/
             TRNG_WR_MCTL_PRGM(base, kTRNG_WorkModeRun);
@@ -1512,16 +1471,13 @@ status_t TRNG_Init(TRNG_Type *base, const trng_config_t *userConfig)
             * value that can be read via the true0-true15 registers.*/
             TRNG_WR_MCTL_TRNG_ACC(base, 1);
 
-            if (userConfig->lock == 1) /* Disable programmability of TRNG registers. */
-            {
+            if (userConfig->lock == 1) { /* Disable programmability of TRNG registers. */
                 TRNG_WR_SEC_CFG_NO_PRGM(base, 1);
             }
 
             result = kStatus_Success;
         }
-    }
-    else
-    {
+    } else {
         result = kStatus_InvalidArgument;
     }
 
@@ -1531,8 +1487,7 @@ status_t TRNG_Init(TRNG_Type *base, const trng_config_t *userConfig)
 void TRNG_Deinit(TRNG_Type *base)
 {
     /* Check input parameters.*/
-    if (base)
-    {
+    if (base) {
         /* Move to program mode. Stop entropy generation.*/
         TRNG_WR_MCTL_PRGM(base, kTRNG_WorkModeProgram);
 
@@ -1542,8 +1497,7 @@ void TRNG_Deinit(TRNG_Type *base)
          is complete. If the TRNG clock is stopped while the TRNG ring oscillator
          is running, the oscillator continues running though the RNG clock.
          is stopped. */
-        while (TRNG_RD_MCTL_TSTOP_OK(base) == 0)
-        {
+        while (TRNG_RD_MCTL_TSTOP_OK(base) == 0) {
         }
 
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
@@ -1564,18 +1518,14 @@ status_t TRNG_GetRandomData(TRNG_Type *base, void *data, size_t dataSize)
     int index = 0;
 
     /* Check input parameters.*/
-    if (base && data && dataSize)
-    {
-        do
-        {
+    if (base && data && dataSize) {
+        do {
             /* Wait for Valid or Error flag*/
-            while ((TRNG_RD_MCTL_ENT_VAL(base) == 0) && (TRNG_RD_MCTL_ERR(base) == 0))
-            {
+            while ((TRNG_RD_MCTL_ENT_VAL(base) == 0) && (TRNG_RD_MCTL_ERR(base) == 0)) {
             }
 
             /* Check HW error.*/
-            if (TRNG_RD_MCTL_ERR(base))
-            {
+            if (TRNG_RD_MCTL_ERR(base)) {
                 result = kStatus_Fail; /* TRNG module error occurred */
                 /* Clear error.*/
                 TRNG_WR_MCTL_ERR(base, 1);
@@ -1587,17 +1537,13 @@ status_t TRNG_GetRandomData(TRNG_Type *base, void *data, size_t dataSize)
 
             random_p = (uint8_t *)&random_32;
 
-            if (dataSize < sizeof(random_32))
-            {
+            if (dataSize < sizeof(random_32)) {
                 random_size = dataSize;
-            }
-            else
-            {
+            } else {
                 random_size = sizeof(random_32);
             }
 
-            for (i = 0U; i < random_size; i++)
-            {
+            for (i = 0U; i < random_size; i++) {
                 *data_p++ = *random_p++;
             }
 
@@ -1606,13 +1552,10 @@ status_t TRNG_GetRandomData(TRNG_Type *base, void *data, size_t dataSize)
 
         /* Start a new entropy generation.
         It is done by reading of the last entropy register.*/
-        if ((index % TRNG_ENT_COUNT) != (TRNG_ENT_COUNT - 1))
-        {
+        if ((index % TRNG_ENT_COUNT) != (TRNG_ENT_COUNT - 1)) {
             trng_ReadEntropy(base, (TRNG_ENT_COUNT - 1));
         }
-    }
-    else
-    {
+    } else {
         result = kStatus_InvalidArgument;
     }
 

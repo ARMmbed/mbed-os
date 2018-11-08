@@ -61,7 +61,7 @@ int32_t     usb0_api_host_control_transfer(uint16_t devadr, uint16_t Req, uint16
 int32_t     usb0_api_host_set_endpoint(uint16_t devadr, USB_HOST_CFG_PIPETBL_t *user_table, uint8_t *configdescriptor);
 int32_t     usb0_api_host_clear_endpoint(USB_HOST_CFG_PIPETBL_t *user_table);
 int32_t     usb0_api_host_clear_endpoint_pipe(uint16_t pipe_sel, USB_HOST_CFG_PIPETBL_t *user_table);
-uint16_t    usb0_api_host_SetEndpointTable(uint16_t devadr, USB_HOST_CFG_PIPETBL_t *user_table, uint8_t* Table);
+uint16_t    usb0_api_host_SetEndpointTable(uint16_t devadr, USB_HOST_CFG_PIPETBL_t *user_table, uint8_t *Table);
 int32_t     usb0_api_host_data_count(uint16_t pipe, uint32_t *data_count);
 
 int32_t     usb0_api_host_GetDeviceDescriptor(uint16_t devadr, uint16_t size, uint8_t *buf);

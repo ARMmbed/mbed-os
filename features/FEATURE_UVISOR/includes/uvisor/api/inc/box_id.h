@@ -40,7 +40,7 @@ static UVISOR_FORCEINLINE int uvisor_box_namespace(int box_id, char *box_namespa
     return uvisor_api.box_namespace(box_id, box_namespace, length);
 }
 
-static UVISOR_FORCEINLINE int uvisor_box_id_for_namespace(int * const box_id, const char * const box_namespace)
+static UVISOR_FORCEINLINE int uvisor_box_id_for_namespace(int *const box_id, const char *const box_namespace)
 {
     return uvisor_api.box_id_for_namespace(box_id, box_namespace);
 }

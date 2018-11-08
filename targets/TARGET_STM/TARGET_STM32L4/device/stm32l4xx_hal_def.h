@@ -41,7 +41,7 @@
 #define __STM32L4xx_HAL_DEF
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -54,21 +54,19 @@
 /**
   * @brief  HAL Status structures definition
   */
-typedef enum
-{
-  HAL_OK       = 0x00,
-  HAL_ERROR    = 0x01,
-  HAL_BUSY     = 0x02,
-  HAL_TIMEOUT  = 0x03
+typedef enum {
+    HAL_OK       = 0x00,
+    HAL_ERROR    = 0x01,
+    HAL_BUSY     = 0x02,
+    HAL_TIMEOUT  = 0x03
 } HAL_StatusTypeDef;
 
 /**
   * @brief  HAL Lock structures definition
   */
-typedef enum
-{
-  HAL_UNLOCKED = 0x00,
-  HAL_LOCKED   = 0x01
+typedef enum {
+    HAL_UNLOCKED = 0x00,
+    HAL_LOCKED   = 0x01
 } HAL_LockTypeDef;
 
 /* Exported macros -----------------------------------------------------------*/
@@ -104,10 +102,10 @@ typedef enum
 #define __HAL_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = 0)
 
 #if (USE_RTOS == 1)
-  /* Reserved for future use */
-  #error " USE_RTOS should be 0 in the current HAL release "
+/* Reserved for future use */
+#error " USE_RTOS should be 0 in the current HAL release "
 #else
-  #define __HAL_LOCK(__HANDLE__)                                           \
+#define __HAL_LOCK(__HANDLE__)                                           \
                                 do{                                        \
                                     if((__HANDLE__)->Lock == HAL_LOCKED)   \
                                     {                                      \
@@ -119,7 +117,7 @@ typedef enum
                                     }                                      \
                                   }while (0)
 
-  #define __HAL_UNLOCK(__HANDLE__)                                          \
+#define __HAL_UNLOCK(__HANDLE__)                                          \
                                   do{                                       \
                                       (__HANDLE__)->Lock = HAL_UNLOCKED;    \
                                     }while (0)
@@ -130,52 +128,52 @@ typedef enum
 
 static inline  void atomic_set_u32(volatile uint32_t *ptr, uint32_t mask)
 {
-	uint32_t newValue;
-	do {
-		newValue = (uint32_t)__LDREXW(ptr) | mask;
+    uint32_t newValue;
+    do {
+        newValue = (uint32_t)__LDREXW(ptr) | mask;
 
-	} while (__STREXW(newValue, ptr));
+    } while (__STREXW(newValue, ptr));
 }
 
 
 static inline  void atomic_clr_u32(volatile uint32_t *ptr, uint32_t mask)
 {
-	uint32_t newValue;
-	do {
-		newValue = (uint32_t)__LDREXW(ptr) &~mask;
+    uint32_t newValue;
+    do {
+        newValue = (uint32_t)__LDREXW(ptr) & ~mask;
 
-	} while (__STREXW(newValue, ptr));
+    } while (__STREXW(newValue, ptr));
 }
 
 #if  defined ( __GNUC__ ) && !defined ( __CC_ARM )
-  #ifndef __weak
-    #define __weak   __attribute__((weak))
-  #endif /* __weak */
-  #ifndef __packed
-    #define __packed __attribute__((__packed__))
-  #endif /* __packed */
+#ifndef __weak
+#define __weak   __attribute__((weak))
+#endif /* __weak */
+#ifndef __packed
+#define __packed __attribute__((__packed__))
+#endif /* __packed */
 #endif /* __GNUC__ */
 
 
 /* Macro to get variable aligned on 4-bytes, for __ICCARM__ the directive "#pragma data_alignment=4" must be used instead */
 #if defined   (__GNUC__)        /* GNU Compiler */
-  #ifndef __ALIGN_END
-    #define __ALIGN_END    __attribute__ ((aligned (4)))
-  #endif /* __ALIGN_END */
-  #ifndef __ALIGN_BEGIN
-    #define __ALIGN_BEGIN
-  #endif /* __ALIGN_BEGIN */
+#ifndef __ALIGN_END
+#define __ALIGN_END    __attribute__ ((aligned (4)))
+#endif /* __ALIGN_END */
+#ifndef __ALIGN_BEGIN
+#define __ALIGN_BEGIN
+#endif /* __ALIGN_BEGIN */
 #else
-  #ifndef __ALIGN_END
-    #define __ALIGN_END
-  #endif /* __ALIGN_END */
-  #ifndef __ALIGN_BEGIN
-    #if defined   (__CC_ARM)      /* ARM Compiler */
-      #define __ALIGN_BEGIN    __align(4)
-    #elif defined (__ICCARM__)    /* IAR Compiler */
-      #define __ALIGN_BEGIN
-    #endif /* __CC_ARM */
-  #endif /* __ALIGN_BEGIN */
+#ifndef __ALIGN_END
+#define __ALIGN_END
+#endif /* __ALIGN_END */
+#ifndef __ALIGN_BEGIN
+#if defined   (__CC_ARM)      /* ARM Compiler */
+#define __ALIGN_BEGIN    __align(4)
+#elif defined (__ICCARM__)    /* IAR Compiler */
+#define __ALIGN_BEGIN
+#endif /* __CC_ARM */
+#endif /* __ALIGN_BEGIN */
 #endif /* __GNUC__ */
 
 /**

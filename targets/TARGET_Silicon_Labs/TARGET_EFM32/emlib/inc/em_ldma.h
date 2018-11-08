@@ -132,462 +132,462 @@ extern "C" {
  * cycle, providing a means to balance DMA channels' load on the controller.
  */
 typedef enum {
-  ldmaCtrlBlockSizeUnit1    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT1,    /**< One transfer per arbitration.     */
-  ldmaCtrlBlockSizeUnit2    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT2,    /**< Two transfers per arbitration.    */
-  ldmaCtrlBlockSizeUnit3    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT3,    /**< Three transfers per arbitration.  */
-  ldmaCtrlBlockSizeUnit4    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT4,    /**< Four transfers per arbitration.   */
-  ldmaCtrlBlockSizeUnit6    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT6,    /**< Six transfers per arbitration.    */
-  ldmaCtrlBlockSizeUnit8    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT8,    /**< Eight transfers per arbitration.  */
-  ldmaCtrlBlockSizeUnit16   = _LDMA_CH_CTRL_BLOCKSIZE_UNIT16,   /**< 16 transfers per arbitration.     */
-  ldmaCtrlBlockSizeUnit32   = _LDMA_CH_CTRL_BLOCKSIZE_UNIT32,   /**< 32 transfers per arbitration.     */
-  ldmaCtrlBlockSizeUnit64   = _LDMA_CH_CTRL_BLOCKSIZE_UNIT64,   /**< 64 transfers per arbitration.     */
-  ldmaCtrlBlockSizeUnit128  = _LDMA_CH_CTRL_BLOCKSIZE_UNIT128,  /**< 128 transfers per arbitration.    */
-  ldmaCtrlBlockSizeUnit256  = _LDMA_CH_CTRL_BLOCKSIZE_UNIT256,  /**< 256 transfers per arbitration.    */
-  ldmaCtrlBlockSizeUnit512  = _LDMA_CH_CTRL_BLOCKSIZE_UNIT512,  /**< 512 transfers per arbitration.    */
-  ldmaCtrlBlockSizeUnit1024 = _LDMA_CH_CTRL_BLOCKSIZE_UNIT1024, /**< 1024 transfers per arbitration.   */
-  ldmaCtrlBlockSizeAll      = _LDMA_CH_CTRL_BLOCKSIZE_ALL       /**< Lock arbitration during transfer. */
+    ldmaCtrlBlockSizeUnit1    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT1,    /**< One transfer per arbitration.     */
+    ldmaCtrlBlockSizeUnit2    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT2,    /**< Two transfers per arbitration.    */
+    ldmaCtrlBlockSizeUnit3    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT3,    /**< Three transfers per arbitration.  */
+    ldmaCtrlBlockSizeUnit4    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT4,    /**< Four transfers per arbitration.   */
+    ldmaCtrlBlockSizeUnit6    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT6,    /**< Six transfers per arbitration.    */
+    ldmaCtrlBlockSizeUnit8    = _LDMA_CH_CTRL_BLOCKSIZE_UNIT8,    /**< Eight transfers per arbitration.  */
+    ldmaCtrlBlockSizeUnit16   = _LDMA_CH_CTRL_BLOCKSIZE_UNIT16,   /**< 16 transfers per arbitration.     */
+    ldmaCtrlBlockSizeUnit32   = _LDMA_CH_CTRL_BLOCKSIZE_UNIT32,   /**< 32 transfers per arbitration.     */
+    ldmaCtrlBlockSizeUnit64   = _LDMA_CH_CTRL_BLOCKSIZE_UNIT64,   /**< 64 transfers per arbitration.     */
+    ldmaCtrlBlockSizeUnit128  = _LDMA_CH_CTRL_BLOCKSIZE_UNIT128,  /**< 128 transfers per arbitration.    */
+    ldmaCtrlBlockSizeUnit256  = _LDMA_CH_CTRL_BLOCKSIZE_UNIT256,  /**< 256 transfers per arbitration.    */
+    ldmaCtrlBlockSizeUnit512  = _LDMA_CH_CTRL_BLOCKSIZE_UNIT512,  /**< 512 transfers per arbitration.    */
+    ldmaCtrlBlockSizeUnit1024 = _LDMA_CH_CTRL_BLOCKSIZE_UNIT1024, /**< 1024 transfers per arbitration.   */
+    ldmaCtrlBlockSizeAll      = _LDMA_CH_CTRL_BLOCKSIZE_ALL       /**< Lock arbitration during transfer. */
 } LDMA_CtrlBlockSize_t;
 
 /** DMA structure type. */
 typedef enum {
-  ldmaCtrlStructTypeXfer  = _LDMA_CH_CTRL_STRUCTTYPE_TRANSFER,    /**< TRANSFER transfer type.    */
-  ldmaCtrlStructTypeSync  = _LDMA_CH_CTRL_STRUCTTYPE_SYNCHRONIZE, /**< SYNCHRONIZE transfer type. */
-  ldmaCtrlStructTypeWrite = _LDMA_CH_CTRL_STRUCTTYPE_WRITE        /**< WRITE transfer type.       */
+    ldmaCtrlStructTypeXfer  = _LDMA_CH_CTRL_STRUCTTYPE_TRANSFER,    /**< TRANSFER transfer type.    */
+    ldmaCtrlStructTypeSync  = _LDMA_CH_CTRL_STRUCTTYPE_SYNCHRONIZE, /**< SYNCHRONIZE transfer type. */
+    ldmaCtrlStructTypeWrite = _LDMA_CH_CTRL_STRUCTTYPE_WRITE        /**< WRITE transfer type.       */
 } LDMA_CtrlStructType_t;
 
 /** DMA transfer block or cycle selector. */
 typedef enum {
-  ldmaCtrlReqModeBlock = _LDMA_CH_CTRL_REQMODE_BLOCK, /**< Each DMA request trigger transfer of one block.     */
-  ldmaCtrlReqModeAll   = _LDMA_CH_CTRL_REQMODE_ALL    /**< A DMA request trigger transfer of a complete cycle. */
+    ldmaCtrlReqModeBlock = _LDMA_CH_CTRL_REQMODE_BLOCK, /**< Each DMA request trigger transfer of one block.     */
+    ldmaCtrlReqModeAll   = _LDMA_CH_CTRL_REQMODE_ALL    /**< A DMA request trigger transfer of a complete cycle. */
 } LDMA_CtrlReqMode_t;
 
 /** Source address increment unit size. */
 typedef enum {
-  ldmaCtrlSrcIncOne  = _LDMA_CH_CTRL_SRCINC_ONE,  /**< Increment source address by one unit data size.   */
-  ldmaCtrlSrcIncTwo  = _LDMA_CH_CTRL_SRCINC_TWO,  /**< Increment source address by two unit data sizes.  */
-  ldmaCtrlSrcIncFour = _LDMA_CH_CTRL_SRCINC_FOUR, /**< Increment source address by four unit data sizes. */
-  ldmaCtrlSrcIncNone = _LDMA_CH_CTRL_SRCINC_NONE  /**< Do not increment the source address.              */
+    ldmaCtrlSrcIncOne  = _LDMA_CH_CTRL_SRCINC_ONE,  /**< Increment source address by one unit data size.   */
+    ldmaCtrlSrcIncTwo  = _LDMA_CH_CTRL_SRCINC_TWO,  /**< Increment source address by two unit data sizes.  */
+    ldmaCtrlSrcIncFour = _LDMA_CH_CTRL_SRCINC_FOUR, /**< Increment source address by four unit data sizes. */
+    ldmaCtrlSrcIncNone = _LDMA_CH_CTRL_SRCINC_NONE  /**< Do not increment the source address.              */
 } LDMA_CtrlSrcInc_t;
 
 /** DMA transfer unit size. */
 typedef enum {
-  ldmaCtrlSizeByte = _LDMA_CH_CTRL_SIZE_BYTE,     /**< Each unit transfer is a byte.      */
-  ldmaCtrlSizeHalf = _LDMA_CH_CTRL_SIZE_HALFWORD, /**< Each unit transfer is a half-word. */
-  ldmaCtrlSizeWord = _LDMA_CH_CTRL_SIZE_WORD      /**< Each unit transfer is a word.      */
+    ldmaCtrlSizeByte = _LDMA_CH_CTRL_SIZE_BYTE,     /**< Each unit transfer is a byte.      */
+    ldmaCtrlSizeHalf = _LDMA_CH_CTRL_SIZE_HALFWORD, /**< Each unit transfer is a half-word. */
+    ldmaCtrlSizeWord = _LDMA_CH_CTRL_SIZE_WORD      /**< Each unit transfer is a word.      */
 } LDMA_CtrlSize_t;
 
 /** Destination address increment unit size. */
 typedef enum {
-  ldmaCtrlDstIncOne  = _LDMA_CH_CTRL_DSTINC_ONE,  /**< Increment destination address by one unit data size.   */
-  ldmaCtrlDstIncTwo  = _LDMA_CH_CTRL_DSTINC_TWO,  /**< Increment destination address by two unit data sizes.  */
-  ldmaCtrlDstIncFour = _LDMA_CH_CTRL_DSTINC_FOUR, /**< Increment destination address by four unit data sizes. */
-  ldmaCtrlDstIncNone = _LDMA_CH_CTRL_DSTINC_NONE  /**< Do not increment the destination address.              */
+    ldmaCtrlDstIncOne  = _LDMA_CH_CTRL_DSTINC_ONE,  /**< Increment destination address by one unit data size.   */
+    ldmaCtrlDstIncTwo  = _LDMA_CH_CTRL_DSTINC_TWO,  /**< Increment destination address by two unit data sizes.  */
+    ldmaCtrlDstIncFour = _LDMA_CH_CTRL_DSTINC_FOUR, /**< Increment destination address by four unit data sizes. */
+    ldmaCtrlDstIncNone = _LDMA_CH_CTRL_DSTINC_NONE  /**< Do not increment the destination address.              */
 } LDMA_CtrlDstInc_t;
 
 /** Source addressing mode. */
 typedef enum {
-  ldmaCtrlSrcAddrModeAbs = _LDMA_CH_CTRL_SRCMODE_ABSOLUTE, /**< Address fetched from a linked structure is absolute.  */
-  ldmaCtrlSrcAddrModeRel = _LDMA_CH_CTRL_SRCMODE_RELATIVE  /**< Address fetched from a linked structure is relative.  */
+    ldmaCtrlSrcAddrModeAbs = _LDMA_CH_CTRL_SRCMODE_ABSOLUTE, /**< Address fetched from a linked structure is absolute.  */
+    ldmaCtrlSrcAddrModeRel = _LDMA_CH_CTRL_SRCMODE_RELATIVE  /**< Address fetched from a linked structure is relative.  */
 } LDMA_CtrlSrcAddrMode_t;
 
 /** Destination addressing mode. */
 typedef enum {
-  ldmaCtrlDstAddrModeAbs = _LDMA_CH_CTRL_DSTMODE_ABSOLUTE, /**< Address fetched from a linked structure is absolute.  */
-  ldmaCtrlDstAddrModeRel = _LDMA_CH_CTRL_DSTMODE_RELATIVE  /**< Address fetched from a linked structure is relative.  */
+    ldmaCtrlDstAddrModeAbs = _LDMA_CH_CTRL_DSTMODE_ABSOLUTE, /**< Address fetched from a linked structure is absolute.  */
+    ldmaCtrlDstAddrModeRel = _LDMA_CH_CTRL_DSTMODE_RELATIVE  /**< Address fetched from a linked structure is relative.  */
 } LDMA_CtrlDstAddrMode_t;
 
 /** DMA linkload address mode. */
 typedef enum {
-  ldmaLinkModeAbs = _LDMA_CH_LINK_LINKMODE_ABSOLUTE, /**< Link address is an absolute address value.            */
-  ldmaLinkModeRel = _LDMA_CH_LINK_LINKMODE_RELATIVE  /**< Link address is a two's complement releative address. */
+    ldmaLinkModeAbs = _LDMA_CH_LINK_LINKMODE_ABSOLUTE, /**< Link address is an absolute address value.            */
+    ldmaLinkModeRel = _LDMA_CH_LINK_LINKMODE_RELATIVE  /**< Link address is a two's complement releative address. */
 } LDMA_LinkMode_t;
 
 /** Insert extra arbitration slots to increase channel arbitration priority. */
 typedef enum {
-  ldmaCfgArbSlotsAs1 = _LDMA_CH_CFG_ARBSLOTS_ONE,  /**< One arbitration slot selected.    */
-  ldmaCfgArbSlotsAs2 = _LDMA_CH_CFG_ARBSLOTS_TWO,  /**< Two arbitration slots selected.   */
-  ldmaCfgArbSlotsAs4 = _LDMA_CH_CFG_ARBSLOTS_FOUR, /**< Four arbitration slots selected.  */
-  ldmaCfgArbSlotsAs8 = _LDMA_CH_CFG_ARBSLOTS_EIGHT /**< Eight arbitration slots selected. */
+    ldmaCfgArbSlotsAs1 = _LDMA_CH_CFG_ARBSLOTS_ONE,  /**< One arbitration slot selected.    */
+    ldmaCfgArbSlotsAs2 = _LDMA_CH_CFG_ARBSLOTS_TWO,  /**< Two arbitration slots selected.   */
+    ldmaCfgArbSlotsAs4 = _LDMA_CH_CFG_ARBSLOTS_FOUR, /**< Four arbitration slots selected.  */
+    ldmaCfgArbSlotsAs8 = _LDMA_CH_CFG_ARBSLOTS_EIGHT /**< Eight arbitration slots selected. */
 } LDMA_CfgArbSlots_t;
 
 /** Source address increment sign. */
 typedef enum {
-  ldmaCfgSrcIncSignPos = _LDMA_CH_CFG_SRCINCSIGN_POSITIVE, /**< Increment source address. */
-  ldmaCfgSrcIncSignNeg = _LDMA_CH_CFG_SRCINCSIGN_NEGATIVE  /**< Decrement source address. */
+    ldmaCfgSrcIncSignPos = _LDMA_CH_CFG_SRCINCSIGN_POSITIVE, /**< Increment source address. */
+    ldmaCfgSrcIncSignNeg = _LDMA_CH_CFG_SRCINCSIGN_NEGATIVE  /**< Decrement source address. */
 } LDMA_CfgSrcIncSign_t;
 
 /** Destination address increment sign. */
 typedef enum {
-  ldmaCfgDstIncSignPos = _LDMA_CH_CFG_DSTINCSIGN_POSITIVE, /**< Increment destination address. */
-  ldmaCfgDstIncSignNeg = _LDMA_CH_CFG_DSTINCSIGN_NEGATIVE  /**< Decrement destination address. */
+    ldmaCfgDstIncSignPos = _LDMA_CH_CFG_DSTINCSIGN_POSITIVE, /**< Increment destination address. */
+    ldmaCfgDstIncSignNeg = _LDMA_CH_CFG_DSTINCSIGN_NEGATIVE  /**< Decrement destination address. */
 } LDMA_CfgDstIncSign_t;
 
 /** Peripherals that can trigger LDMA transfers. */
 typedef enum {
-  ldmaPeripheralSignal_NONE = LDMA_CH_REQSEL_SOURCESEL_NONE,                                                                ///< No peripheral selected for DMA triggering.
-  #if defined(LDMA_CH_REQSEL_SIGSEL_ADC0SCAN)
-  ldmaPeripheralSignal_ADC0_SCAN = LDMA_CH_REQSEL_SIGSEL_ADC0SCAN | LDMA_CH_REQSEL_SOURCESEL_ADC0,                          ///< Trig on ADC0_SCAN.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_ADC0SINGLE)
-  ldmaPeripheralSignal_ADC0_SINGLE = LDMA_CH_REQSEL_SIGSEL_ADC0SINGLE | LDMA_CH_REQSEL_SOURCESEL_ADC0,                      ///< Trig on ADC0_SINGLE.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_ADC1SCAN)
-  ldmaPeripheralSignal_ADC1_SCAN = LDMA_CH_REQSEL_SIGSEL_ADC1SCAN | LDMA_CH_REQSEL_SOURCESEL_ADC1,                          ///< Trig on ADC1_SCAN.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_ADC1SINGLE)
-  ldmaPeripheralSignal_ADC1_SINGLE = LDMA_CH_REQSEL_SIGSEL_ADC1SINGLE | LDMA_CH_REQSEL_SOURCESEL_ADC1,                      ///< Trig on ADC1_SINGLE.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0RD)
-  ldmaPeripheralSignal_CRYPTO_DATA0RD = LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO,              ///< Trig on CRYPTO_DATA0RD.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0WR)
-  ldmaPeripheralSignal_CRYPTO_DATA0WR = LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO,              ///< Trig on CRYPTO_DATA0WR.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0XWR)
-  ldmaPeripheralSignal_CRYPTO_DATA0XWR = LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0XWR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO,            ///< Trig on CRYPTO_DATA0XWR.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1RD)
-  ldmaPeripheralSignal_CRYPTO_DATA1RD = LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO,              ///< Trig on CRYPTO_DATA1RD.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1WR)
-  ldmaPeripheralSignal_CRYPTO_DATA1WR = LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO,              ///< Trig on CRYPTO_DATA1WR.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0RD)
-  ldmaPeripheralSignal_CRYPTO0_DATA0RD = LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO0,           ///< Trig on CRYPTO0_DATA0RD.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0WR)
-  ldmaPeripheralSignal_CRYPTO0_DATA0WR = LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO0,           ///< Trig on CRYPTO0_DATA0WR.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0XWR)
-  ldmaPeripheralSignal_CRYPTO0_DATA0XWR = LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0XWR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO0,         ///< Trig on CRYPTO0_DATA0XWR.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA1RD)
-  ldmaPeripheralSignal_CRYPTO0_DATA1RD = LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA1RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO0,           ///< Trig on CRYPTO0_DATA1RD.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA1WR)
-  ldmaPeripheralSignal_CRYPTO0_DATA1WR = LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA1WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO0,           ///< Trig on CRYPTO0_DATA1WR.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0RD)
-  ldmaPeripheralSignal_CRYPTO1_DATA0RD = LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO1,           ///< Trig on CRYPTO1_DATA0RD.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0WR)
-  ldmaPeripheralSignal_CRYPTO1_DATA0WR = LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO1,           ///< Trig on CRYPTO1_DATA0WR.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0XWR)
-  ldmaPeripheralSignal_CRYPTO1_DATA0XWR = LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0XWR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO1,         ///< Trig on CRYPTO1_DATA0XWR.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA1RD)
-  ldmaPeripheralSignal_CRYPTO1_DATA1RD = LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA1RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO1,           ///< Trig on CRYPTO1_DATA1RD.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA1WR)
-  ldmaPeripheralSignal_CRYPTO1_DATA1WR = LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA1WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO1,           ///< Trig on CRYPTO1_DATA1WR.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CSENBSLN)
-  ldmaPeripheralSignal_CSEN_BSLN = LDMA_CH_REQSEL_SIGSEL_CSENBSLN | LDMA_CH_REQSEL_SOURCESEL_CSEN,                          ///< Trig on CSEN_BSLN.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_CSENDATA)
-  ldmaPeripheralSignal_CSEN_DATA = LDMA_CH_REQSEL_SIGSEL_CSENDATA | LDMA_CH_REQSEL_SOURCESEL_CSEN,                          ///< Trig on CSEN_DATA.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_EBIPXL0EMPTY)
-  ldmaPeripheralSignal_EBI_PXL0EMPTY = LDMA_CH_REQSEL_SIGSEL_EBIPXL0EMPTY | LDMA_CH_REQSEL_SOURCESEL_EBI,                   ///< Trig on EBI_PXL0EMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_EBIPXL1EMPTY)
-  ldmaPeripheralSignal_EBI_PXL1EMPTY = LDMA_CH_REQSEL_SIGSEL_EBIPXL1EMPTY | LDMA_CH_REQSEL_SOURCESEL_EBI,                   ///< Trig on EBI_PXL1EMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_EBIPXLFULL)
-  ldmaPeripheralSignal_EBI_PXLFULL = LDMA_CH_REQSEL_SIGSEL_EBIPXLFULL | LDMA_CH_REQSEL_SOURCESEL_EBI,                       ///< Trig on EBI_PXLFULL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_EBIDDEMPTY)
-  ldmaPeripheralSignal_EBI_DDEMPTY = LDMA_CH_REQSEL_SIGSEL_EBIDDEMPTY | LDMA_CH_REQSEL_SOURCESEL_EBI,                       ///< Trig on EBI_DDEMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_EBIVSYNC)
-  ldmaPeripheralSignal_EBI_VSYNC = LDMA_CH_REQSEL_SIGSEL_EBIVSYNC | LDMA_CH_REQSEL_SOURCESEL_EBI,                           ///< Trig on EBI_VSYNC.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_EBIHSYNC)
-  ldmaPeripheralSignal_EBI_HSYNC = LDMA_CH_REQSEL_SIGSEL_EBIHSYNC | LDMA_CH_REQSEL_SOURCESEL_EBI,                           ///< Trig on EBI_HSYNC.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_I2C0RXDATAV)
-  ldmaPeripheralSignal_I2C0_RXDATAV = LDMA_CH_REQSEL_SIGSEL_I2C0RXDATAV | LDMA_CH_REQSEL_SOURCESEL_I2C0,                    ///< Trig on I2C0_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_I2C0TXBL)
-  ldmaPeripheralSignal_I2C0_TXBL = LDMA_CH_REQSEL_SIGSEL_I2C0TXBL | LDMA_CH_REQSEL_SOURCESEL_I2C0,                          ///< Trig on I2C0_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_I2C1RXDATAV)
-  ldmaPeripheralSignal_I2C1_RXDATAV = LDMA_CH_REQSEL_SIGSEL_I2C1RXDATAV | LDMA_CH_REQSEL_SOURCESEL_I2C1,                    ///< Trig on I2C1_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_I2C1TXBL)
-  ldmaPeripheralSignal_I2C1_TXBL = LDMA_CH_REQSEL_SIGSEL_I2C1TXBL | LDMA_CH_REQSEL_SOURCESEL_I2C1,                          ///< Trig on I2C1_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_I2C2RXDATAV)
-  ldmaPeripheralSignal_I2C2_RXDATAV = LDMA_CH_REQSEL_SIGSEL_I2C2RXDATAV | LDMA_CH_REQSEL_SOURCESEL_I2C2,                    ///< Trig on I2C2_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_I2C2TXBL)
-  ldmaPeripheralSignal_I2C2_TXBL = LDMA_CH_REQSEL_SIGSEL_I2C2TXBL | LDMA_CH_REQSEL_SOURCESEL_I2C2,                          ///< Trig on I2C2_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_LESENSEBUFDATAV)
-  ldmaPeripheralSignal_LESENSE_BUFDATAV = LDMA_CH_REQSEL_SIGSEL_LESENSEBUFDATAV | LDMA_CH_REQSEL_SOURCESEL_LESENSE,         ///< Trig on LESENSE_BUFDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_LEUART0RXDATAV)
-  ldmaPeripheralSignal_LEUART0_RXDATAV = LDMA_CH_REQSEL_SIGSEL_LEUART0RXDATAV | LDMA_CH_REQSEL_SOURCESEL_LEUART0,           ///< Trig on LEUART0_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_LEUART0TXBL)
-  ldmaPeripheralSignal_LEUART0_TXBL = LDMA_CH_REQSEL_SIGSEL_LEUART0TXBL | LDMA_CH_REQSEL_SOURCESEL_LEUART0,                 ///< Trig on LEUART0_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_LEUART0TXEMPTY)
-  ldmaPeripheralSignal_LEUART0_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_LEUART0TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_LEUART0,           ///< Trig on LEUART0_TXEMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_LEUART1RXDATAV)
-  ldmaPeripheralSignal_LEUART1_RXDATAV = LDMA_CH_REQSEL_SIGSEL_LEUART1RXDATAV | LDMA_CH_REQSEL_SOURCESEL_LEUART1,           ///< Trig on LEUART1_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_LEUART1TXBL)
-  ldmaPeripheralSignal_LEUART1_TXBL = LDMA_CH_REQSEL_SIGSEL_LEUART1TXBL | LDMA_CH_REQSEL_SOURCESEL_LEUART1,                 ///< Trig on LEUART1_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_LEUART1TXEMPTY)
-  ldmaPeripheralSignal_LEUART1_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_LEUART1TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_LEUART1,           ///< Trig on LEUART1_TXEMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_MSCWDATA)
-  ldmaPeripheralSignal_MSC_WDATA = LDMA_CH_REQSEL_SIGSEL_MSCWDATA | LDMA_CH_REQSEL_SOURCESEL_MSC,                           ///< Trig on MSC_WDATA.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_PRSREQ0)
-  ldmaPeripheralSignal_PRS_REQ0 = LDMA_CH_REQSEL_SIGSEL_PRSREQ0 | LDMA_CH_REQSEL_SOURCESEL_PRS,                             ///< Trig on PRS_REQ0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_PRSREQ1)
-  ldmaPeripheralSignal_PRS_REQ1 = LDMA_CH_REQSEL_SIGSEL_PRSREQ1 | LDMA_CH_REQSEL_SOURCESEL_PRS,                             ///< Trig on PRS_REQ1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER0CC0)
-  ldmaPeripheralSignal_TIMER0_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER0CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER0,                      ///< Trig on TIMER0_CC0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER0CC1)
-  ldmaPeripheralSignal_TIMER0_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER0CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER0,                      ///< Trig on TIMER0_CC1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER0CC2)
-  ldmaPeripheralSignal_TIMER0_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER0CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER0,                      ///< Trig on TIMER0_CC2.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER0UFOF)
-  ldmaPeripheralSignal_TIMER0_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER0UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER0,                    ///< Trig on TIMER0_UFOF.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER1CC0)
-  ldmaPeripheralSignal_TIMER1_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER1CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER1,                      ///< Trig on TIMER1_CC0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER1CC1)
-  ldmaPeripheralSignal_TIMER1_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER1CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER1,                      ///< Trig on TIMER1_CC1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER1CC2)
-  ldmaPeripheralSignal_TIMER1_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER1CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER1,                      ///< Trig on TIMER1_CC2.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER1CC3)
-  ldmaPeripheralSignal_TIMER1_CC3 = LDMA_CH_REQSEL_SIGSEL_TIMER1CC3 | LDMA_CH_REQSEL_SOURCESEL_TIMER1,                      ///< Trig on TIMER1_CC3.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER1UFOF)
-  ldmaPeripheralSignal_TIMER1_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER1UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER1,                    ///< Trig on TIMER1_UFOF.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER2CC0)
-  ldmaPeripheralSignal_TIMER2_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER2CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER2,                      ///< Trig on TIMER2_CC0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER2CC1)
-  ldmaPeripheralSignal_TIMER2_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER2CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER2,                      ///< Trig on TIMER2_CC1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER2CC2)
-  ldmaPeripheralSignal_TIMER2_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER2CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER2,                      ///< Trig on TIMER2_CC2.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER2UFOF)
-  ldmaPeripheralSignal_TIMER2_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER2UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER2,                    ///< Trig on TIMER2_UFOF.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER3CC0)
-  ldmaPeripheralSignal_TIMER3_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER3CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER3,                      ///< Trig on TIMER3_CC0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER3CC1)
-  ldmaPeripheralSignal_TIMER3_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER3CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER3,                      ///< Trig on TIMER3_CC1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER3CC2)
-  ldmaPeripheralSignal_TIMER3_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER3CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER3,                      ///< Trig on TIMER3_CC2.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER3UFOF)
-  ldmaPeripheralSignal_TIMER3_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER3UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER3,                    ///< Trig on TIMER3_UFOF.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER4CC0)
-  ldmaPeripheralSignal_TIMER4_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER4CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER4,                      ///< Trig on TIMER4_CC0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER4CC1)
-  ldmaPeripheralSignal_TIMER4_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER4CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER4,                      ///< Trig on TIMER4_CC1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER4CC2)
-  ldmaPeripheralSignal_TIMER4_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER4CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER4,                      ///< Trig on TIMER4_CC2.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER4UFOF)
-  ldmaPeripheralSignal_TIMER4_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER4UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER4,                    ///< Trig on TIMER4_UFOF.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER5CC0)
-  ldmaPeripheralSignal_TIMER5_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER5CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER5,                      ///< Trig on TIMER5_CC0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER5CC1)
-  ldmaPeripheralSignal_TIMER5_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER5CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER5,                      ///< Trig on TIMER5_CC1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER5CC2)
-  ldmaPeripheralSignal_TIMER5_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER5CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER5,                      ///< Trig on TIMER5_CC2.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER5UFOF)
-  ldmaPeripheralSignal_TIMER5_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER5UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER5,                    ///< Trig on TIMER5_UFOF.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER6CC0)
-  ldmaPeripheralSignal_TIMER6_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER6CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER6,                      ///< Trig on TIMER6_CC0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER6CC1)
-  ldmaPeripheralSignal_TIMER6_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER6CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER6,                      ///< Trig on TIMER6_CC1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER6CC2)
-  ldmaPeripheralSignal_TIMER6_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER6CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER6,                      ///< Trig on TIMER6_CC2.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_TIMER6UFOF)
-  ldmaPeripheralSignal_TIMER6_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER6UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER6,                    ///< Trig on TIMER6_UFOF.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_UART0RXDATAV)
-  ldmaPeripheralSignal_UART0_RXDATAV = LDMA_CH_REQSEL_SIGSEL_UART0RXDATAV | LDMA_CH_REQSEL_SOURCESEL_UART0,                 ///< Trig on UART0_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_UART0TXBL)
-  ldmaPeripheralSignal_UART0_TXBL = LDMA_CH_REQSEL_SIGSEL_UART0TXBL | LDMA_CH_REQSEL_SOURCESEL_UART0,                       ///< Trig on UART0_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_UART0TXEMPTY)
-  ldmaPeripheralSignal_UART0_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_UART0TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_UART0,                 ///< Trig on UART0_TXEMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_UART1RXDATAV)
-  ldmaPeripheralSignal_UART1_RXDATAV = LDMA_CH_REQSEL_SIGSEL_UART1RXDATAV | LDMA_CH_REQSEL_SOURCESEL_UART1,                 ///< Trig on UART1_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_UART1TXBL)
-  ldmaPeripheralSignal_UART1_TXBL = LDMA_CH_REQSEL_SIGSEL_UART1TXBL | LDMA_CH_REQSEL_SOURCESEL_UART1,                       ///< Trig on UART1_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_UART1TXEMPTY)
-  ldmaPeripheralSignal_UART1_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_UART1TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_UART1,                 ///< Trig on UART1_TXEMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART0RXDATAV)
-  ldmaPeripheralSignal_USART0_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART0RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART0,              ///< Trig on USART0_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART0TXBL)
-  ldmaPeripheralSignal_USART0_TXBL = LDMA_CH_REQSEL_SIGSEL_USART0TXBL | LDMA_CH_REQSEL_SOURCESEL_USART0,                    ///< Trig on USART0_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART0TXEMPTY)
-  ldmaPeripheralSignal_USART0_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART0TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART0,              ///< Trig on USART0_TXEMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART1RXDATAV)
-  ldmaPeripheralSignal_USART1_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART1RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART1,              ///< Trig on USART1_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART1RXDATAVRIGHT)
-  ldmaPeripheralSignal_USART1_RXDATAVRIGHT = LDMA_CH_REQSEL_SIGSEL_USART1RXDATAVRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART1,    ///< Trig on USART1_RXDATAVRIGHT.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART1TXBL)
-  ldmaPeripheralSignal_USART1_TXBL = LDMA_CH_REQSEL_SIGSEL_USART1TXBL | LDMA_CH_REQSEL_SOURCESEL_USART1,                    ///< Trig on USART1_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART1TXBLRIGHT)
-  ldmaPeripheralSignal_USART1_TXBLRIGHT = LDMA_CH_REQSEL_SIGSEL_USART1TXBLRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART1,          ///< Trig on USART1_TXBLRIGHT.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART1TXEMPTY)
-  ldmaPeripheralSignal_USART1_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART1TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART1,              ///< Trig on USART1_TXEMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART2RXDATAV)
-  ldmaPeripheralSignal_USART2_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART2RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART2,              ///< Trig on USART2_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART2TXBL)
-  ldmaPeripheralSignal_USART2_TXBL = LDMA_CH_REQSEL_SIGSEL_USART2TXBL | LDMA_CH_REQSEL_SOURCESEL_USART2,                    ///< Trig on USART2_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART2TXEMPTY)
-  ldmaPeripheralSignal_USART2_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART2TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART2,              ///< Trig on USART2_TXEMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART3RXDATAV)
-  ldmaPeripheralSignal_USART3_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART3RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART3,              ///< Trig on USART3_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART3RXDATAVRIGHT)
-  ldmaPeripheralSignal_USART3_RXDATAVRIGHT = LDMA_CH_REQSEL_SIGSEL_USART3RXDATAVRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART3,    ///< Trig on USART3_RXDATAVRIGHT.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART3TXBL)
-  ldmaPeripheralSignal_USART3_TXBL = LDMA_CH_REQSEL_SIGSEL_USART3TXBL | LDMA_CH_REQSEL_SOURCESEL_USART3,                    ///< Trig on USART3_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART3TXBLRIGHT)
-  ldmaPeripheralSignal_USART3_TXBLRIGHT = LDMA_CH_REQSEL_SIGSEL_USART3TXBLRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART3,          ///< Trig on USART3_TXBLRIGHT.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART3TXEMPTY)
-  ldmaPeripheralSignal_USART3_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART3TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART3,              ///< Trig on USART3_TXEMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART4RXDATAV)
-  ldmaPeripheralSignal_USART4_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART4RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART4,              ///< Trig on USART4_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART4RXDATAVRIGHT)
-  ldmaPeripheralSignal_USART4_RXDATAVRIGHT = LDMA_CH_REQSEL_SIGSEL_USART4RXDATAVRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART4,    ///< Trig on USART4_RXDATAVRIGHT.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART4TXBL)
-  ldmaPeripheralSignal_USART4_TXBL = LDMA_CH_REQSEL_SIGSEL_USART4TXBL | LDMA_CH_REQSEL_SOURCESEL_USART4,                    ///< Trig on USART4_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART4TXBLRIGHT)
-  ldmaPeripheralSignal_USART4_TXBLRIGHT = LDMA_CH_REQSEL_SIGSEL_USART4TXBLRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART4,          ///< Trig on USART4_TXBLRIGHT.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART4TXEMPTY)
-  ldmaPeripheralSignal_USART4_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART4TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART4,              ///< Trig on USART4_TXEMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART5RXDATAV)
-  ldmaPeripheralSignal_USART5_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART5RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART5,              ///< Trig on USART5_RXDATAV.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART5TXBL)
-  ldmaPeripheralSignal_USART5_TXBL = LDMA_CH_REQSEL_SIGSEL_USART5TXBL | LDMA_CH_REQSEL_SOURCESEL_USART5,                    ///< Trig on USART5_TXBL.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_USART5TXEMPTY)
-  ldmaPeripheralSignal_USART5_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART5TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART5,              ///< Trig on USART5_TXEMPTY.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_VDAC0CH0)
-  ldmaPeripheralSignal_VDAC0_CH0 = LDMA_CH_REQSEL_SIGSEL_VDAC0CH0 | LDMA_CH_REQSEL_SOURCESEL_VDAC0,                         ///< Trig on VDAC0_CH0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_VDAC0CH1)
-  ldmaPeripheralSignal_VDAC0_CH1 = LDMA_CH_REQSEL_SIGSEL_VDAC0CH1 | LDMA_CH_REQSEL_SOURCESEL_VDAC0,                         ///< Trig on VDAC0_CH1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER0CC0)
-  ldmaPeripheralSignal_WTIMER0_CC0 = LDMA_CH_REQSEL_SIGSEL_WTIMER0CC0 | LDMA_CH_REQSEL_SOURCESEL_WTIMER0,                   ///< Trig on WTIMER0_CC0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER0CC1)
-  ldmaPeripheralSignal_WTIMER0_CC1 = LDMA_CH_REQSEL_SIGSEL_WTIMER0CC1 | LDMA_CH_REQSEL_SOURCESEL_WTIMER0,                   ///< Trig on WTIMER0_CC1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER0CC2)
-  ldmaPeripheralSignal_WTIMER0_CC2 = LDMA_CH_REQSEL_SIGSEL_WTIMER0CC2 | LDMA_CH_REQSEL_SOURCESEL_WTIMER0,                   ///< Trig on WTIMER0_CC2.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER0UFOF)
-  ldmaPeripheralSignal_WTIMER0_UFOF = LDMA_CH_REQSEL_SIGSEL_WTIMER0UFOF | LDMA_CH_REQSEL_SOURCESEL_WTIMER0,                 ///< Trig on WTIMER0_UFOF.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER1CC0)
-  ldmaPeripheralSignal_WTIMER1_CC0 = LDMA_CH_REQSEL_SIGSEL_WTIMER1CC0 | LDMA_CH_REQSEL_SOURCESEL_WTIMER1,                   ///< Trig on WTIMER1_CC0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER1CC1)
-  ldmaPeripheralSignal_WTIMER1_CC1 = LDMA_CH_REQSEL_SIGSEL_WTIMER1CC1 | LDMA_CH_REQSEL_SOURCESEL_WTIMER1,                   ///< Trig on WTIMER1_CC1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER1CC2)
-  ldmaPeripheralSignal_WTIMER1_CC2 = LDMA_CH_REQSEL_SIGSEL_WTIMER1CC2 | LDMA_CH_REQSEL_SOURCESEL_WTIMER1,                   ///< Trig on WTIMER1_CC2.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER1CC3)
-  ldmaPeripheralSignal_WTIMER1_CC3 = LDMA_CH_REQSEL_SIGSEL_WTIMER1CC3 | LDMA_CH_REQSEL_SOURCESEL_WTIMER1,                   ///< Trig on WTIMER1_CC3.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER1UFOF)
-  ldmaPeripheralSignal_WTIMER1_UFOF = LDMA_CH_REQSEL_SIGSEL_WTIMER1UFOF | LDMA_CH_REQSEL_SOURCESEL_WTIMER1,                 ///< Trig on WTIMER1_UFOF.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER2CC0)
-  ldmaPeripheralSignal_WTIMER2_CC0 = LDMA_CH_REQSEL_SIGSEL_WTIMER2CC0 | LDMA_CH_REQSEL_SOURCESEL_WTIMER2,                   ///< Trig on WTIMER2_CC0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER2CC1)
-  ldmaPeripheralSignal_WTIMER2_CC1 = LDMA_CH_REQSEL_SIGSEL_WTIMER2CC1 | LDMA_CH_REQSEL_SOURCESEL_WTIMER2,                   ///< Trig on WTIMER2_CC1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER2CC2)
-  ldmaPeripheralSignal_WTIMER2_CC2 = LDMA_CH_REQSEL_SIGSEL_WTIMER2CC2 | LDMA_CH_REQSEL_SOURCESEL_WTIMER2,                   ///< Trig on WTIMER2_CC2.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER2UFOF)
-  ldmaPeripheralSignal_WTIMER2_UFOF = LDMA_CH_REQSEL_SIGSEL_WTIMER2UFOF | LDMA_CH_REQSEL_SOURCESEL_WTIMER2,                 ///< Trig on WTIMER2_UFOF.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER3CC0)
-  ldmaPeripheralSignal_WTIMER3_CC0 = LDMA_CH_REQSEL_SIGSEL_WTIMER3CC0 | LDMA_CH_REQSEL_SOURCESEL_WTIMER3,                   ///< Trig on WTIMER3_CC0.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER3CC1)
-  ldmaPeripheralSignal_WTIMER3_CC1 = LDMA_CH_REQSEL_SIGSEL_WTIMER3CC1 | LDMA_CH_REQSEL_SOURCESEL_WTIMER3,                   ///< Trig on WTIMER3_CC1.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER3CC2)
-  ldmaPeripheralSignal_WTIMER3_CC2 = LDMA_CH_REQSEL_SIGSEL_WTIMER3CC2 | LDMA_CH_REQSEL_SOURCESEL_WTIMER3,                   ///< Trig on WTIMER3_CC2.
-  #endif
-  #if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER3UFOF)
-  ldmaPeripheralSignal_WTIMER3_UFOF = LDMA_CH_REQSEL_SIGSEL_WTIMER3UFOF | LDMA_CH_REQSEL_SOURCESEL_WTIMER3,                 ///< Trig on WTIMER3_UFOF.
-  #endif
+    ldmaPeripheralSignal_NONE = LDMA_CH_REQSEL_SOURCESEL_NONE,                                                                ///< No peripheral selected for DMA triggering.
+#if defined(LDMA_CH_REQSEL_SIGSEL_ADC0SCAN)
+    ldmaPeripheralSignal_ADC0_SCAN = LDMA_CH_REQSEL_SIGSEL_ADC0SCAN | LDMA_CH_REQSEL_SOURCESEL_ADC0,                          ///< Trig on ADC0_SCAN.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_ADC0SINGLE)
+    ldmaPeripheralSignal_ADC0_SINGLE = LDMA_CH_REQSEL_SIGSEL_ADC0SINGLE | LDMA_CH_REQSEL_SOURCESEL_ADC0,                      ///< Trig on ADC0_SINGLE.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_ADC1SCAN)
+    ldmaPeripheralSignal_ADC1_SCAN = LDMA_CH_REQSEL_SIGSEL_ADC1SCAN | LDMA_CH_REQSEL_SOURCESEL_ADC1,                          ///< Trig on ADC1_SCAN.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_ADC1SINGLE)
+    ldmaPeripheralSignal_ADC1_SINGLE = LDMA_CH_REQSEL_SIGSEL_ADC1SINGLE | LDMA_CH_REQSEL_SOURCESEL_ADC1,                      ///< Trig on ADC1_SINGLE.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0RD)
+    ldmaPeripheralSignal_CRYPTO_DATA0RD = LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO,              ///< Trig on CRYPTO_DATA0RD.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0WR)
+    ldmaPeripheralSignal_CRYPTO_DATA0WR = LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO,              ///< Trig on CRYPTO_DATA0WR.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0XWR)
+    ldmaPeripheralSignal_CRYPTO_DATA0XWR = LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0XWR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO,            ///< Trig on CRYPTO_DATA0XWR.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1RD)
+    ldmaPeripheralSignal_CRYPTO_DATA1RD = LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO,              ///< Trig on CRYPTO_DATA1RD.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1WR)
+    ldmaPeripheralSignal_CRYPTO_DATA1WR = LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO,              ///< Trig on CRYPTO_DATA1WR.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0RD)
+    ldmaPeripheralSignal_CRYPTO0_DATA0RD = LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO0,           ///< Trig on CRYPTO0_DATA0RD.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0WR)
+    ldmaPeripheralSignal_CRYPTO0_DATA0WR = LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO0,           ///< Trig on CRYPTO0_DATA0WR.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0XWR)
+    ldmaPeripheralSignal_CRYPTO0_DATA0XWR = LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA0XWR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO0,         ///< Trig on CRYPTO0_DATA0XWR.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA1RD)
+    ldmaPeripheralSignal_CRYPTO0_DATA1RD = LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA1RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO0,           ///< Trig on CRYPTO0_DATA1RD.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA1WR)
+    ldmaPeripheralSignal_CRYPTO0_DATA1WR = LDMA_CH_REQSEL_SIGSEL_CRYPTO0DATA1WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO0,           ///< Trig on CRYPTO0_DATA1WR.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0RD)
+    ldmaPeripheralSignal_CRYPTO1_DATA0RD = LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO1,           ///< Trig on CRYPTO1_DATA0RD.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0WR)
+    ldmaPeripheralSignal_CRYPTO1_DATA0WR = LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO1,           ///< Trig on CRYPTO1_DATA0WR.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0XWR)
+    ldmaPeripheralSignal_CRYPTO1_DATA0XWR = LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA0XWR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO1,         ///< Trig on CRYPTO1_DATA0XWR.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA1RD)
+    ldmaPeripheralSignal_CRYPTO1_DATA1RD = LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA1RD | LDMA_CH_REQSEL_SOURCESEL_CRYPTO1,           ///< Trig on CRYPTO1_DATA1RD.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA1WR)
+    ldmaPeripheralSignal_CRYPTO1_DATA1WR = LDMA_CH_REQSEL_SIGSEL_CRYPTO1DATA1WR | LDMA_CH_REQSEL_SOURCESEL_CRYPTO1,           ///< Trig on CRYPTO1_DATA1WR.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CSENBSLN)
+    ldmaPeripheralSignal_CSEN_BSLN = LDMA_CH_REQSEL_SIGSEL_CSENBSLN | LDMA_CH_REQSEL_SOURCESEL_CSEN,                          ///< Trig on CSEN_BSLN.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_CSENDATA)
+    ldmaPeripheralSignal_CSEN_DATA = LDMA_CH_REQSEL_SIGSEL_CSENDATA | LDMA_CH_REQSEL_SOURCESEL_CSEN,                          ///< Trig on CSEN_DATA.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_EBIPXL0EMPTY)
+    ldmaPeripheralSignal_EBI_PXL0EMPTY = LDMA_CH_REQSEL_SIGSEL_EBIPXL0EMPTY | LDMA_CH_REQSEL_SOURCESEL_EBI,                   ///< Trig on EBI_PXL0EMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_EBIPXL1EMPTY)
+    ldmaPeripheralSignal_EBI_PXL1EMPTY = LDMA_CH_REQSEL_SIGSEL_EBIPXL1EMPTY | LDMA_CH_REQSEL_SOURCESEL_EBI,                   ///< Trig on EBI_PXL1EMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_EBIPXLFULL)
+    ldmaPeripheralSignal_EBI_PXLFULL = LDMA_CH_REQSEL_SIGSEL_EBIPXLFULL | LDMA_CH_REQSEL_SOURCESEL_EBI,                       ///< Trig on EBI_PXLFULL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_EBIDDEMPTY)
+    ldmaPeripheralSignal_EBI_DDEMPTY = LDMA_CH_REQSEL_SIGSEL_EBIDDEMPTY | LDMA_CH_REQSEL_SOURCESEL_EBI,                       ///< Trig on EBI_DDEMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_EBIVSYNC)
+    ldmaPeripheralSignal_EBI_VSYNC = LDMA_CH_REQSEL_SIGSEL_EBIVSYNC | LDMA_CH_REQSEL_SOURCESEL_EBI,                           ///< Trig on EBI_VSYNC.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_EBIHSYNC)
+    ldmaPeripheralSignal_EBI_HSYNC = LDMA_CH_REQSEL_SIGSEL_EBIHSYNC | LDMA_CH_REQSEL_SOURCESEL_EBI,                           ///< Trig on EBI_HSYNC.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_I2C0RXDATAV)
+    ldmaPeripheralSignal_I2C0_RXDATAV = LDMA_CH_REQSEL_SIGSEL_I2C0RXDATAV | LDMA_CH_REQSEL_SOURCESEL_I2C0,                    ///< Trig on I2C0_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_I2C0TXBL)
+    ldmaPeripheralSignal_I2C0_TXBL = LDMA_CH_REQSEL_SIGSEL_I2C0TXBL | LDMA_CH_REQSEL_SOURCESEL_I2C0,                          ///< Trig on I2C0_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_I2C1RXDATAV)
+    ldmaPeripheralSignal_I2C1_RXDATAV = LDMA_CH_REQSEL_SIGSEL_I2C1RXDATAV | LDMA_CH_REQSEL_SOURCESEL_I2C1,                    ///< Trig on I2C1_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_I2C1TXBL)
+    ldmaPeripheralSignal_I2C1_TXBL = LDMA_CH_REQSEL_SIGSEL_I2C1TXBL | LDMA_CH_REQSEL_SOURCESEL_I2C1,                          ///< Trig on I2C1_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_I2C2RXDATAV)
+    ldmaPeripheralSignal_I2C2_RXDATAV = LDMA_CH_REQSEL_SIGSEL_I2C2RXDATAV | LDMA_CH_REQSEL_SOURCESEL_I2C2,                    ///< Trig on I2C2_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_I2C2TXBL)
+    ldmaPeripheralSignal_I2C2_TXBL = LDMA_CH_REQSEL_SIGSEL_I2C2TXBL | LDMA_CH_REQSEL_SOURCESEL_I2C2,                          ///< Trig on I2C2_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_LESENSEBUFDATAV)
+    ldmaPeripheralSignal_LESENSE_BUFDATAV = LDMA_CH_REQSEL_SIGSEL_LESENSEBUFDATAV | LDMA_CH_REQSEL_SOURCESEL_LESENSE,         ///< Trig on LESENSE_BUFDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_LEUART0RXDATAV)
+    ldmaPeripheralSignal_LEUART0_RXDATAV = LDMA_CH_REQSEL_SIGSEL_LEUART0RXDATAV | LDMA_CH_REQSEL_SOURCESEL_LEUART0,           ///< Trig on LEUART0_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_LEUART0TXBL)
+    ldmaPeripheralSignal_LEUART0_TXBL = LDMA_CH_REQSEL_SIGSEL_LEUART0TXBL | LDMA_CH_REQSEL_SOURCESEL_LEUART0,                 ///< Trig on LEUART0_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_LEUART0TXEMPTY)
+    ldmaPeripheralSignal_LEUART0_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_LEUART0TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_LEUART0,           ///< Trig on LEUART0_TXEMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_LEUART1RXDATAV)
+    ldmaPeripheralSignal_LEUART1_RXDATAV = LDMA_CH_REQSEL_SIGSEL_LEUART1RXDATAV | LDMA_CH_REQSEL_SOURCESEL_LEUART1,           ///< Trig on LEUART1_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_LEUART1TXBL)
+    ldmaPeripheralSignal_LEUART1_TXBL = LDMA_CH_REQSEL_SIGSEL_LEUART1TXBL | LDMA_CH_REQSEL_SOURCESEL_LEUART1,                 ///< Trig on LEUART1_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_LEUART1TXEMPTY)
+    ldmaPeripheralSignal_LEUART1_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_LEUART1TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_LEUART1,           ///< Trig on LEUART1_TXEMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_MSCWDATA)
+    ldmaPeripheralSignal_MSC_WDATA = LDMA_CH_REQSEL_SIGSEL_MSCWDATA | LDMA_CH_REQSEL_SOURCESEL_MSC,                           ///< Trig on MSC_WDATA.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_PRSREQ0)
+    ldmaPeripheralSignal_PRS_REQ0 = LDMA_CH_REQSEL_SIGSEL_PRSREQ0 | LDMA_CH_REQSEL_SOURCESEL_PRS,                             ///< Trig on PRS_REQ0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_PRSREQ1)
+    ldmaPeripheralSignal_PRS_REQ1 = LDMA_CH_REQSEL_SIGSEL_PRSREQ1 | LDMA_CH_REQSEL_SOURCESEL_PRS,                             ///< Trig on PRS_REQ1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER0CC0)
+    ldmaPeripheralSignal_TIMER0_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER0CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER0,                      ///< Trig on TIMER0_CC0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER0CC1)
+    ldmaPeripheralSignal_TIMER0_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER0CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER0,                      ///< Trig on TIMER0_CC1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER0CC2)
+    ldmaPeripheralSignal_TIMER0_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER0CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER0,                      ///< Trig on TIMER0_CC2.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER0UFOF)
+    ldmaPeripheralSignal_TIMER0_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER0UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER0,                    ///< Trig on TIMER0_UFOF.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER1CC0)
+    ldmaPeripheralSignal_TIMER1_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER1CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER1,                      ///< Trig on TIMER1_CC0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER1CC1)
+    ldmaPeripheralSignal_TIMER1_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER1CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER1,                      ///< Trig on TIMER1_CC1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER1CC2)
+    ldmaPeripheralSignal_TIMER1_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER1CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER1,                      ///< Trig on TIMER1_CC2.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER1CC3)
+    ldmaPeripheralSignal_TIMER1_CC3 = LDMA_CH_REQSEL_SIGSEL_TIMER1CC3 | LDMA_CH_REQSEL_SOURCESEL_TIMER1,                      ///< Trig on TIMER1_CC3.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER1UFOF)
+    ldmaPeripheralSignal_TIMER1_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER1UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER1,                    ///< Trig on TIMER1_UFOF.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER2CC0)
+    ldmaPeripheralSignal_TIMER2_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER2CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER2,                      ///< Trig on TIMER2_CC0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER2CC1)
+    ldmaPeripheralSignal_TIMER2_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER2CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER2,                      ///< Trig on TIMER2_CC1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER2CC2)
+    ldmaPeripheralSignal_TIMER2_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER2CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER2,                      ///< Trig on TIMER2_CC2.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER2UFOF)
+    ldmaPeripheralSignal_TIMER2_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER2UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER2,                    ///< Trig on TIMER2_UFOF.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER3CC0)
+    ldmaPeripheralSignal_TIMER3_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER3CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER3,                      ///< Trig on TIMER3_CC0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER3CC1)
+    ldmaPeripheralSignal_TIMER3_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER3CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER3,                      ///< Trig on TIMER3_CC1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER3CC2)
+    ldmaPeripheralSignal_TIMER3_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER3CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER3,                      ///< Trig on TIMER3_CC2.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER3UFOF)
+    ldmaPeripheralSignal_TIMER3_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER3UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER3,                    ///< Trig on TIMER3_UFOF.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER4CC0)
+    ldmaPeripheralSignal_TIMER4_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER4CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER4,                      ///< Trig on TIMER4_CC0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER4CC1)
+    ldmaPeripheralSignal_TIMER4_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER4CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER4,                      ///< Trig on TIMER4_CC1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER4CC2)
+    ldmaPeripheralSignal_TIMER4_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER4CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER4,                      ///< Trig on TIMER4_CC2.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER4UFOF)
+    ldmaPeripheralSignal_TIMER4_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER4UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER4,                    ///< Trig on TIMER4_UFOF.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER5CC0)
+    ldmaPeripheralSignal_TIMER5_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER5CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER5,                      ///< Trig on TIMER5_CC0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER5CC1)
+    ldmaPeripheralSignal_TIMER5_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER5CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER5,                      ///< Trig on TIMER5_CC1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER5CC2)
+    ldmaPeripheralSignal_TIMER5_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER5CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER5,                      ///< Trig on TIMER5_CC2.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER5UFOF)
+    ldmaPeripheralSignal_TIMER5_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER5UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER5,                    ///< Trig on TIMER5_UFOF.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER6CC0)
+    ldmaPeripheralSignal_TIMER6_CC0 = LDMA_CH_REQSEL_SIGSEL_TIMER6CC0 | LDMA_CH_REQSEL_SOURCESEL_TIMER6,                      ///< Trig on TIMER6_CC0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER6CC1)
+    ldmaPeripheralSignal_TIMER6_CC1 = LDMA_CH_REQSEL_SIGSEL_TIMER6CC1 | LDMA_CH_REQSEL_SOURCESEL_TIMER6,                      ///< Trig on TIMER6_CC1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER6CC2)
+    ldmaPeripheralSignal_TIMER6_CC2 = LDMA_CH_REQSEL_SIGSEL_TIMER6CC2 | LDMA_CH_REQSEL_SOURCESEL_TIMER6,                      ///< Trig on TIMER6_CC2.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_TIMER6UFOF)
+    ldmaPeripheralSignal_TIMER6_UFOF = LDMA_CH_REQSEL_SIGSEL_TIMER6UFOF | LDMA_CH_REQSEL_SOURCESEL_TIMER6,                    ///< Trig on TIMER6_UFOF.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_UART0RXDATAV)
+    ldmaPeripheralSignal_UART0_RXDATAV = LDMA_CH_REQSEL_SIGSEL_UART0RXDATAV | LDMA_CH_REQSEL_SOURCESEL_UART0,                 ///< Trig on UART0_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_UART0TXBL)
+    ldmaPeripheralSignal_UART0_TXBL = LDMA_CH_REQSEL_SIGSEL_UART0TXBL | LDMA_CH_REQSEL_SOURCESEL_UART0,                       ///< Trig on UART0_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_UART0TXEMPTY)
+    ldmaPeripheralSignal_UART0_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_UART0TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_UART0,                 ///< Trig on UART0_TXEMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_UART1RXDATAV)
+    ldmaPeripheralSignal_UART1_RXDATAV = LDMA_CH_REQSEL_SIGSEL_UART1RXDATAV | LDMA_CH_REQSEL_SOURCESEL_UART1,                 ///< Trig on UART1_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_UART1TXBL)
+    ldmaPeripheralSignal_UART1_TXBL = LDMA_CH_REQSEL_SIGSEL_UART1TXBL | LDMA_CH_REQSEL_SOURCESEL_UART1,                       ///< Trig on UART1_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_UART1TXEMPTY)
+    ldmaPeripheralSignal_UART1_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_UART1TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_UART1,                 ///< Trig on UART1_TXEMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART0RXDATAV)
+    ldmaPeripheralSignal_USART0_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART0RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART0,              ///< Trig on USART0_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART0TXBL)
+    ldmaPeripheralSignal_USART0_TXBL = LDMA_CH_REQSEL_SIGSEL_USART0TXBL | LDMA_CH_REQSEL_SOURCESEL_USART0,                    ///< Trig on USART0_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART0TXEMPTY)
+    ldmaPeripheralSignal_USART0_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART0TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART0,              ///< Trig on USART0_TXEMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART1RXDATAV)
+    ldmaPeripheralSignal_USART1_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART1RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART1,              ///< Trig on USART1_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART1RXDATAVRIGHT)
+    ldmaPeripheralSignal_USART1_RXDATAVRIGHT = LDMA_CH_REQSEL_SIGSEL_USART1RXDATAVRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART1,    ///< Trig on USART1_RXDATAVRIGHT.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART1TXBL)
+    ldmaPeripheralSignal_USART1_TXBL = LDMA_CH_REQSEL_SIGSEL_USART1TXBL | LDMA_CH_REQSEL_SOURCESEL_USART1,                    ///< Trig on USART1_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART1TXBLRIGHT)
+    ldmaPeripheralSignal_USART1_TXBLRIGHT = LDMA_CH_REQSEL_SIGSEL_USART1TXBLRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART1,          ///< Trig on USART1_TXBLRIGHT.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART1TXEMPTY)
+    ldmaPeripheralSignal_USART1_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART1TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART1,              ///< Trig on USART1_TXEMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART2RXDATAV)
+    ldmaPeripheralSignal_USART2_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART2RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART2,              ///< Trig on USART2_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART2TXBL)
+    ldmaPeripheralSignal_USART2_TXBL = LDMA_CH_REQSEL_SIGSEL_USART2TXBL | LDMA_CH_REQSEL_SOURCESEL_USART2,                    ///< Trig on USART2_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART2TXEMPTY)
+    ldmaPeripheralSignal_USART2_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART2TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART2,              ///< Trig on USART2_TXEMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART3RXDATAV)
+    ldmaPeripheralSignal_USART3_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART3RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART3,              ///< Trig on USART3_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART3RXDATAVRIGHT)
+    ldmaPeripheralSignal_USART3_RXDATAVRIGHT = LDMA_CH_REQSEL_SIGSEL_USART3RXDATAVRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART3,    ///< Trig on USART3_RXDATAVRIGHT.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART3TXBL)
+    ldmaPeripheralSignal_USART3_TXBL = LDMA_CH_REQSEL_SIGSEL_USART3TXBL | LDMA_CH_REQSEL_SOURCESEL_USART3,                    ///< Trig on USART3_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART3TXBLRIGHT)
+    ldmaPeripheralSignal_USART3_TXBLRIGHT = LDMA_CH_REQSEL_SIGSEL_USART3TXBLRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART3,          ///< Trig on USART3_TXBLRIGHT.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART3TXEMPTY)
+    ldmaPeripheralSignal_USART3_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART3TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART3,              ///< Trig on USART3_TXEMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART4RXDATAV)
+    ldmaPeripheralSignal_USART4_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART4RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART4,              ///< Trig on USART4_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART4RXDATAVRIGHT)
+    ldmaPeripheralSignal_USART4_RXDATAVRIGHT = LDMA_CH_REQSEL_SIGSEL_USART4RXDATAVRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART4,    ///< Trig on USART4_RXDATAVRIGHT.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART4TXBL)
+    ldmaPeripheralSignal_USART4_TXBL = LDMA_CH_REQSEL_SIGSEL_USART4TXBL | LDMA_CH_REQSEL_SOURCESEL_USART4,                    ///< Trig on USART4_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART4TXBLRIGHT)
+    ldmaPeripheralSignal_USART4_TXBLRIGHT = LDMA_CH_REQSEL_SIGSEL_USART4TXBLRIGHT | LDMA_CH_REQSEL_SOURCESEL_USART4,          ///< Trig on USART4_TXBLRIGHT.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART4TXEMPTY)
+    ldmaPeripheralSignal_USART4_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART4TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART4,              ///< Trig on USART4_TXEMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART5RXDATAV)
+    ldmaPeripheralSignal_USART5_RXDATAV = LDMA_CH_REQSEL_SIGSEL_USART5RXDATAV | LDMA_CH_REQSEL_SOURCESEL_USART5,              ///< Trig on USART5_RXDATAV.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART5TXBL)
+    ldmaPeripheralSignal_USART5_TXBL = LDMA_CH_REQSEL_SIGSEL_USART5TXBL | LDMA_CH_REQSEL_SOURCESEL_USART5,                    ///< Trig on USART5_TXBL.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_USART5TXEMPTY)
+    ldmaPeripheralSignal_USART5_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_USART5TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_USART5,              ///< Trig on USART5_TXEMPTY.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_VDAC0CH0)
+    ldmaPeripheralSignal_VDAC0_CH0 = LDMA_CH_REQSEL_SIGSEL_VDAC0CH0 | LDMA_CH_REQSEL_SOURCESEL_VDAC0,                         ///< Trig on VDAC0_CH0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_VDAC0CH1)
+    ldmaPeripheralSignal_VDAC0_CH1 = LDMA_CH_REQSEL_SIGSEL_VDAC0CH1 | LDMA_CH_REQSEL_SOURCESEL_VDAC0,                         ///< Trig on VDAC0_CH1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER0CC0)
+    ldmaPeripheralSignal_WTIMER0_CC0 = LDMA_CH_REQSEL_SIGSEL_WTIMER0CC0 | LDMA_CH_REQSEL_SOURCESEL_WTIMER0,                   ///< Trig on WTIMER0_CC0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER0CC1)
+    ldmaPeripheralSignal_WTIMER0_CC1 = LDMA_CH_REQSEL_SIGSEL_WTIMER0CC1 | LDMA_CH_REQSEL_SOURCESEL_WTIMER0,                   ///< Trig on WTIMER0_CC1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER0CC2)
+    ldmaPeripheralSignal_WTIMER0_CC2 = LDMA_CH_REQSEL_SIGSEL_WTIMER0CC2 | LDMA_CH_REQSEL_SOURCESEL_WTIMER0,                   ///< Trig on WTIMER0_CC2.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER0UFOF)
+    ldmaPeripheralSignal_WTIMER0_UFOF = LDMA_CH_REQSEL_SIGSEL_WTIMER0UFOF | LDMA_CH_REQSEL_SOURCESEL_WTIMER0,                 ///< Trig on WTIMER0_UFOF.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER1CC0)
+    ldmaPeripheralSignal_WTIMER1_CC0 = LDMA_CH_REQSEL_SIGSEL_WTIMER1CC0 | LDMA_CH_REQSEL_SOURCESEL_WTIMER1,                   ///< Trig on WTIMER1_CC0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER1CC1)
+    ldmaPeripheralSignal_WTIMER1_CC1 = LDMA_CH_REQSEL_SIGSEL_WTIMER1CC1 | LDMA_CH_REQSEL_SOURCESEL_WTIMER1,                   ///< Trig on WTIMER1_CC1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER1CC2)
+    ldmaPeripheralSignal_WTIMER1_CC2 = LDMA_CH_REQSEL_SIGSEL_WTIMER1CC2 | LDMA_CH_REQSEL_SOURCESEL_WTIMER1,                   ///< Trig on WTIMER1_CC2.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER1CC3)
+    ldmaPeripheralSignal_WTIMER1_CC3 = LDMA_CH_REQSEL_SIGSEL_WTIMER1CC3 | LDMA_CH_REQSEL_SOURCESEL_WTIMER1,                   ///< Trig on WTIMER1_CC3.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER1UFOF)
+    ldmaPeripheralSignal_WTIMER1_UFOF = LDMA_CH_REQSEL_SIGSEL_WTIMER1UFOF | LDMA_CH_REQSEL_SOURCESEL_WTIMER1,                 ///< Trig on WTIMER1_UFOF.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER2CC0)
+    ldmaPeripheralSignal_WTIMER2_CC0 = LDMA_CH_REQSEL_SIGSEL_WTIMER2CC0 | LDMA_CH_REQSEL_SOURCESEL_WTIMER2,                   ///< Trig on WTIMER2_CC0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER2CC1)
+    ldmaPeripheralSignal_WTIMER2_CC1 = LDMA_CH_REQSEL_SIGSEL_WTIMER2CC1 | LDMA_CH_REQSEL_SOURCESEL_WTIMER2,                   ///< Trig on WTIMER2_CC1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER2CC2)
+    ldmaPeripheralSignal_WTIMER2_CC2 = LDMA_CH_REQSEL_SIGSEL_WTIMER2CC2 | LDMA_CH_REQSEL_SOURCESEL_WTIMER2,                   ///< Trig on WTIMER2_CC2.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER2UFOF)
+    ldmaPeripheralSignal_WTIMER2_UFOF = LDMA_CH_REQSEL_SIGSEL_WTIMER2UFOF | LDMA_CH_REQSEL_SOURCESEL_WTIMER2,                 ///< Trig on WTIMER2_UFOF.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER3CC0)
+    ldmaPeripheralSignal_WTIMER3_CC0 = LDMA_CH_REQSEL_SIGSEL_WTIMER3CC0 | LDMA_CH_REQSEL_SOURCESEL_WTIMER3,                   ///< Trig on WTIMER3_CC0.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER3CC1)
+    ldmaPeripheralSignal_WTIMER3_CC1 = LDMA_CH_REQSEL_SIGSEL_WTIMER3CC1 | LDMA_CH_REQSEL_SOURCESEL_WTIMER3,                   ///< Trig on WTIMER3_CC1.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER3CC2)
+    ldmaPeripheralSignal_WTIMER3_CC2 = LDMA_CH_REQSEL_SIGSEL_WTIMER3CC2 | LDMA_CH_REQSEL_SOURCESEL_WTIMER3,                   ///< Trig on WTIMER3_CC2.
+#endif
+#if defined(LDMA_CH_REQSEL_SIGSEL_WTIMER3UFOF)
+    ldmaPeripheralSignal_WTIMER3_UFOF = LDMA_CH_REQSEL_SIGSEL_WTIMER3UFOF | LDMA_CH_REQSEL_SOURCESEL_WTIMER3,                 ///< Trig on WTIMER3_UFOF.
+#endif
 } LDMA_PeripheralSignal_t;
 
 /*******************************************************************************
@@ -604,100 +604,100 @@ typedef enum {
  *   Refer to the reference manual for further information.
  */
 typedef union {
-  /**
-   *  TRANSFER DMA descriptor, this is the only descriptor type which can be
-   *  used to start a DMA transfer.
-   */
-  struct {
-    uint32_t  structType : 2;   /**< Set to 0 to select XFER descriptor type. */
-    uint32_t  reserved0  : 1;
-    uint32_t  structReq  : 1;   /**< DMA transfer trigger during LINKLOAD.    */
-    uint32_t  xferCnt    : 11;  /**< Transfer count minus one.                */
-    uint32_t  byteSwap   : 1;   /**< Enable byte swapping transfers.          */
-    uint32_t  blockSize  : 4;   /**< Number of unit transfers per arb. cycle. */
-    uint32_t  doneIfs    : 1;   /**< Generate interrupt when done.            */
-    uint32_t  reqMode    : 1;   /**< Block or cycle transfer selector.        */
-    uint32_t  decLoopCnt : 1;   /**< Enable looped transfers.                 */
-    uint32_t  ignoreSrec : 1;   /**< Ignore single requests.                  */
-    uint32_t  srcInc     : 2;   /**< Source address increment unit size.      */
-    uint32_t  size       : 2;   /**< DMA transfer unit size.                  */
-    uint32_t  dstInc     : 2;   /**< Destination address increment unit size. */
-    uint32_t  srcAddrMode : 1;  /**< Source addressing mode.                  */
-    uint32_t  dstAddrMode : 1;  /**< Destination addressing mode.             */
+    /**
+     *  TRANSFER DMA descriptor, this is the only descriptor type which can be
+     *  used to start a DMA transfer.
+     */
+    struct {
+        uint32_t  structType : 2;   /**< Set to 0 to select XFER descriptor type. */
+        uint32_t  reserved0  : 1;
+        uint32_t  structReq  : 1;   /**< DMA transfer trigger during LINKLOAD.    */
+        uint32_t  xferCnt    : 11;  /**< Transfer count minus one.                */
+        uint32_t  byteSwap   : 1;   /**< Enable byte swapping transfers.          */
+        uint32_t  blockSize  : 4;   /**< Number of unit transfers per arb. cycle. */
+        uint32_t  doneIfs    : 1;   /**< Generate interrupt when done.            */
+        uint32_t  reqMode    : 1;   /**< Block or cycle transfer selector.        */
+        uint32_t  decLoopCnt : 1;   /**< Enable looped transfers.                 */
+        uint32_t  ignoreSrec : 1;   /**< Ignore single requests.                  */
+        uint32_t  srcInc     : 2;   /**< Source address increment unit size.      */
+        uint32_t  size       : 2;   /**< DMA transfer unit size.                  */
+        uint32_t  dstInc     : 2;   /**< Destination address increment unit size. */
+        uint32_t  srcAddrMode : 1;  /**< Source addressing mode.                  */
+        uint32_t  dstAddrMode : 1;  /**< Destination addressing mode.             */
 
-    uint32_t  srcAddr;          /**< DMA source address.                      */
-    uint32_t  dstAddr;          /**< DMA destination address.                 */
+        uint32_t  srcAddr;          /**< DMA source address.                      */
+        uint32_t  dstAddr;          /**< DMA destination address.                 */
 
-    uint32_t  linkMode   : 1;   /**< Select absolute or relative link address.*/
-    uint32_t  link       : 1;   /**< Enable LINKLOAD when transfer is done.   */
-    int32_t   linkAddr   : 30;  /**< Address of next (linked) descriptor.     */
-  } xfer;
+        uint32_t  linkMode   : 1;   /**< Select absolute or relative link address.*/
+        uint32_t  link       : 1;   /**< Enable LINKLOAD when transfer is done.   */
+        int32_t   linkAddr   : 30;  /**< Address of next (linked) descriptor.     */
+    } xfer;
 
-  /** SYNCHRONIZE DMA descriptor, used for intra channel transfer
-   *  syncronization.
-   */
-  struct {
-    uint32_t  structType : 2;   /**< Set to 1 to select SYNC descriptor type. */
-    uint32_t  reserved0  : 1;
-    uint32_t  structReq  : 1;   /**< DMA transfer trigger during LINKLOAD.    */
-    uint32_t  xferCnt    : 11;  /**< Transfer count minus one.                */
-    uint32_t  byteSwap   : 1;   /**< Enable byte swapping transfers.          */
-    uint32_t  blockSize  : 4;   /**< Number of unit transfers per arb. cycle. */
-    uint32_t  doneIfs    : 1;   /**< Generate interrupt when done.            */
-    uint32_t  reqMode    : 1;   /**< Block or cycle transfer selector.        */
-    uint32_t  decLoopCnt : 1;   /**< Enable looped transfers.                 */
-    uint32_t  ignoreSrec : 1;   /**< Ignore single requests.                  */
-    uint32_t  srcInc     : 2;   /**< Source address increment unit size.      */
-    uint32_t  size       : 2;   /**< DMA transfer unit size.                  */
-    uint32_t  dstInc     : 2;   /**< Destination address increment unit size. */
-    uint32_t  srcAddrMode : 1;  /**< Source addressing mode.                  */
-    uint32_t  dstAddrMode : 1;  /**< Destination addressing mode.             */
+    /** SYNCHRONIZE DMA descriptor, used for intra channel transfer
+     *  syncronization.
+     */
+    struct {
+        uint32_t  structType : 2;   /**< Set to 1 to select SYNC descriptor type. */
+        uint32_t  reserved0  : 1;
+        uint32_t  structReq  : 1;   /**< DMA transfer trigger during LINKLOAD.    */
+        uint32_t  xferCnt    : 11;  /**< Transfer count minus one.                */
+        uint32_t  byteSwap   : 1;   /**< Enable byte swapping transfers.          */
+        uint32_t  blockSize  : 4;   /**< Number of unit transfers per arb. cycle. */
+        uint32_t  doneIfs    : 1;   /**< Generate interrupt when done.            */
+        uint32_t  reqMode    : 1;   /**< Block or cycle transfer selector.        */
+        uint32_t  decLoopCnt : 1;   /**< Enable looped transfers.                 */
+        uint32_t  ignoreSrec : 1;   /**< Ignore single requests.                  */
+        uint32_t  srcInc     : 2;   /**< Source address increment unit size.      */
+        uint32_t  size       : 2;   /**< DMA transfer unit size.                  */
+        uint32_t  dstInc     : 2;   /**< Destination address increment unit size. */
+        uint32_t  srcAddrMode : 1;  /**< Source addressing mode.                  */
+        uint32_t  dstAddrMode : 1;  /**< Destination addressing mode.             */
 
-    uint32_t  syncSet    : 8;   /**< Set bits in LDMA_CTRL.SYNCTRIG register. */
-    uint32_t  syncClr    : 8;   /**< Clear bits in LDMA_CTRL.SYNCTRIG register*/
-    uint32_t  reserved3  : 16;
-    uint32_t  matchVal   : 8;   /**< Sync trig match value.                   */
-    uint32_t  matchEn    : 8;   /**< Sync trig match enable.                  */
-    uint32_t  reserved4  : 16;
+        uint32_t  syncSet    : 8;   /**< Set bits in LDMA_CTRL.SYNCTRIG register. */
+        uint32_t  syncClr    : 8;   /**< Clear bits in LDMA_CTRL.SYNCTRIG register*/
+        uint32_t  reserved3  : 16;
+        uint32_t  matchVal   : 8;   /**< Sync trig match value.                   */
+        uint32_t  matchEn    : 8;   /**< Sync trig match enable.                  */
+        uint32_t  reserved4  : 16;
 
-    uint32_t  linkMode   : 1;   /**< Select absolute or relative link address.*/
-    uint32_t  link       : 1;   /**< Enable LINKLOAD when transfer is done.   */
-    int32_t   linkAddr   : 30;  /**< Address of next (linked) descriptor.     */
-  } sync;
+        uint32_t  linkMode   : 1;   /**< Select absolute or relative link address.*/
+        uint32_t  link       : 1;   /**< Enable LINKLOAD when transfer is done.   */
+        int32_t   linkAddr   : 30;  /**< Address of next (linked) descriptor.     */
+    } sync;
 
-  /** WRITE DMA descriptor, used for write immediate operations.              */
-  struct {
-    uint32_t  structType : 2;   /**< Set to 2 to select WRITE descriptor type.*/
-    uint32_t  reserved0  : 1;
-    uint32_t  structReq  : 1;   /**< DMA transfer trigger during LINKLOAD.    */
-    uint32_t  xferCnt    : 11;  /**< Transfer count minus one.                */
-    uint32_t  byteSwap   : 1;   /**< Enable byte swapping transfers.          */
-    uint32_t  blockSize  : 4;   /**< Number of unit transfers per arb. cycle. */
-    uint32_t  doneIfs    : 1;   /**< Generate interrupt when done.            */
-    uint32_t  reqMode    : 1;   /**< Block or cycle transfer selector.        */
-    uint32_t  decLoopCnt : 1;   /**< Enable looped transfers.                 */
-    uint32_t  ignoreSrec : 1;   /**< Ignore single requests.                  */
-    uint32_t  srcInc     : 2;   /**< Source address increment unit size.      */
-    uint32_t  size       : 2;   /**< DMA transfer unit size.                  */
-    uint32_t  dstInc     : 2;   /**< Destination address increment unit size. */
-    uint32_t  srcAddrMode : 1;  /**< Source addressing mode.                  */
-    uint32_t  dstAddrMode : 1;  /**< Destination addressing mode.             */
+    /** WRITE DMA descriptor, used for write immediate operations.              */
+    struct {
+        uint32_t  structType : 2;   /**< Set to 2 to select WRITE descriptor type.*/
+        uint32_t  reserved0  : 1;
+        uint32_t  structReq  : 1;   /**< DMA transfer trigger during LINKLOAD.    */
+        uint32_t  xferCnt    : 11;  /**< Transfer count minus one.                */
+        uint32_t  byteSwap   : 1;   /**< Enable byte swapping transfers.          */
+        uint32_t  blockSize  : 4;   /**< Number of unit transfers per arb. cycle. */
+        uint32_t  doneIfs    : 1;   /**< Generate interrupt when done.            */
+        uint32_t  reqMode    : 1;   /**< Block or cycle transfer selector.        */
+        uint32_t  decLoopCnt : 1;   /**< Enable looped transfers.                 */
+        uint32_t  ignoreSrec : 1;   /**< Ignore single requests.                  */
+        uint32_t  srcInc     : 2;   /**< Source address increment unit size.      */
+        uint32_t  size       : 2;   /**< DMA transfer unit size.                  */
+        uint32_t  dstInc     : 2;   /**< Destination address increment unit size. */
+        uint32_t  srcAddrMode : 1;  /**< Source addressing mode.                  */
+        uint32_t  dstAddrMode : 1;  /**< Destination addressing mode.             */
 
-    uint32_t  immVal;           /**< Data to be written at dstAddr.           */
-    uint32_t  dstAddr;          /**< DMA write destination address.           */
+        uint32_t  immVal;           /**< Data to be written at dstAddr.           */
+        uint32_t  dstAddr;          /**< DMA write destination address.           */
 
-    uint32_t  linkMode   : 1;   /**< Select absolute or relative link address.*/
-    uint32_t  link       : 1;   /**< Enable LINKLOAD when transfer is done.   */
-    int32_t   linkAddr   : 30;  /**< Address of next (linked) descriptor.     */
-  } wri;
+        uint32_t  linkMode   : 1;   /**< Select absolute or relative link address.*/
+        uint32_t  link       : 1;   /**< Enable LINKLOAD when transfer is done.   */
+        int32_t   linkAddr   : 30;  /**< Address of next (linked) descriptor.     */
+    } wri;
 } LDMA_Descriptor_t;
 
 /** @brief LDMA initialization configuration structure. */
 typedef struct {
-  uint8_t               ldmaInitCtrlNumFixed;     /**< Arbitration mode separator.*/
-  uint8_t               ldmaInitCtrlSyncPrsClrEn; /**< PRS Synctrig clear enable. */
-  uint8_t               ldmaInitCtrlSyncPrsSetEn; /**< PRS Synctrig set enable.   */
-  uint8_t               ldmaInitIrqPriority;      /**< LDMA IRQ priority (0..7).  */
+    uint8_t               ldmaInitCtrlNumFixed;     /**< Arbitration mode separator.*/
+    uint8_t               ldmaInitCtrlSyncPrsClrEn; /**< PRS Synctrig clear enable. */
+    uint8_t               ldmaInitCtrlSyncPrsSetEn; /**< PRS Synctrig set enable.   */
+    uint8_t               ldmaInitIrqPriority;      /**< LDMA IRQ priority (0..7).  */
 } LDMA_Init_t;
 
 /**
@@ -707,17 +707,17 @@ typedef struct {
  *   This struct configures all aspects of a DMA transfer.
  */
 typedef struct {
-  uint32_t              ldmaReqSel;            /**< Selects DMA trigger source.          */
-  uint8_t               ldmaCtrlSyncPrsClrOff; /**< PRS Synctrig clear enables to clear. */
-  uint8_t               ldmaCtrlSyncPrsClrOn;  /**< PRS Synctrig clear enables to set.   */
-  uint8_t               ldmaCtrlSyncPrsSetOff; /**< PRS Synctrig set enables to clear.   */
-  uint8_t               ldmaCtrlSyncPrsSetOn;  /**< PRS Synctrig set enables to set.     */
-  bool                  ldmaReqDis;            /**< Mask the PRS trigger input.          */
-  bool                  ldmaDbgHalt;           /**< Dis. DMA trig when cpu is halted.    */
-  uint8_t               ldmaCfgArbSlots;       /**< Arbitration slot number.             */
-  uint8_t               ldmaCfgSrcIncSign;     /**< Source addr. increment sign.         */
-  uint8_t               ldmaCfgDstIncSign;     /**< Dest. addr. increment sign.          */
-  uint8_t               ldmaLoopCnt;           /**< Counter for looped transfers.        */
+    uint32_t              ldmaReqSel;            /**< Selects DMA trigger source.          */
+    uint8_t               ldmaCtrlSyncPrsClrOff; /**< PRS Synctrig clear enables to clear. */
+    uint8_t               ldmaCtrlSyncPrsClrOn;  /**< PRS Synctrig clear enables to set.   */
+    uint8_t               ldmaCtrlSyncPrsSetOff; /**< PRS Synctrig set enables to clear.   */
+    uint8_t               ldmaCtrlSyncPrsSetOn;  /**< PRS Synctrig set enables to set.     */
+    bool                  ldmaReqDis;            /**< Mask the PRS trigger input.          */
+    bool                  ldmaDbgHalt;           /**< Dis. DMA trig when cpu is halted.    */
+    uint8_t               ldmaCfgArbSlots;       /**< Arbitration slot number.             */
+    uint8_t               ldmaCfgSrcIncSign;     /**< Source addr. increment sign.         */
+    uint8_t               ldmaCfgDstIncSign;     /**< Dest. addr. increment sign.          */
+    uint8_t               ldmaLoopCnt;           /**< Counter for looped transfers.        */
 } LDMA_TransferCfg_t;
 
 /*******************************************************************************
@@ -1547,7 +1547,7 @@ uint32_t LDMA_TransferRemainingCount(int ch);
  ******************************************************************************/
 __STATIC_INLINE void LDMA_IntClear(uint32_t flags)
 {
-  LDMA->IFC = flags;
+    LDMA->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -1561,7 +1561,7 @@ __STATIC_INLINE void LDMA_IntClear(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void LDMA_IntDisable(uint32_t flags)
 {
-  LDMA->IEN &= ~flags;
+    LDMA->IEN &= ~flags;
 }
 
 /***************************************************************************//**
@@ -1580,7 +1580,7 @@ __STATIC_INLINE void LDMA_IntDisable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void LDMA_IntEnable(uint32_t flags)
 {
-  LDMA->IEN |= flags;
+    LDMA->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -1597,7 +1597,7 @@ __STATIC_INLINE void LDMA_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t LDMA_IntGet(void)
 {
-  return LDMA->IF;
+    return LDMA->IF;
 }
 
 /***************************************************************************//**
@@ -1616,10 +1616,10 @@ __STATIC_INLINE uint32_t LDMA_IntGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t LDMA_IntGetEnabled(void)
 {
-  uint32_t ien;
+    uint32_t ien;
 
-  ien = LDMA->IEN;
-  return LDMA->IF & ien;
+    ien = LDMA->IEN;
+    return LDMA->IF & ien;
 }
 
 /***************************************************************************//**
@@ -1633,7 +1633,7 @@ __STATIC_INLINE uint32_t LDMA_IntGetEnabled(void)
  ******************************************************************************/
 __STATIC_INLINE void LDMA_IntSet(uint32_t flags)
 {
-  LDMA->IFS = flags;
+    LDMA->IFS = flags;
 }
 
 /** @} (end addtogroup LDMA) */

@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -124,7 +124,7 @@ enum _SSI_DBG_TYPE_LIST_ {
 typedef uint32_t SSI_DBG_TYPE_LIST;
 typedef uint32_t *PSSI_DBG_TYPE_LIST;
 
- typedef struct _SSI_DMA_CONFIG_ {
+typedef struct _SSI_DMA_CONFIG_ {
     VOID *pHalGdmaOp;
     VOID *pTxHalGdmaAdapter;
     VOID *pRxHalGdmaAdapter;
@@ -134,14 +134,14 @@ typedef uint32_t *PSSI_DBG_TYPE_LIST;
     u8    TxDmaEnable;
     IRQ_HANDLE RxGdmaIrqHandle;
     IRQ_HANDLE TxGdmaIrqHandle;
-}SSI_DMA_CONFIG, *PSSI_DMA_CONFIG;
+} SSI_DMA_CONFIG, *PSSI_DMA_CONFIG;
 
 #if CONFIG_GDMA_EN
 typedef struct _HAL_SSI_DMA_MULTIBLK_ {
     volatile GDMA_CH_LLI_ELE GdmaChLli[16];
     struct GDMA_CH_LLI Lli[16];
-    struct BLOCK_SIZE_LIST BlockSizeList[16];   
-}SSI_DMA_MULTIBLK, *PSSI_DMA_MULTIBLK;
+    struct BLOCK_SIZE_LIST BlockSizeList[16];
+} SSI_DMA_MULTIBLK, *PSSI_DMA_MULTIBLK;
 #endif
 /**
  * DesignWare SSI Configurations
@@ -191,45 +191,45 @@ typedef struct _HAL_SSI_ADAPTOR_ {
     u8 HaveTxChannel;
     u8 HaveRxChannel;
     u8 DefaultRxThresholdLevel;
-    #if CONFIG_GDMA_EN
+#if CONFIG_GDMA_EN
     SSI_DMA_MULTIBLK DmaTxMultiBlk, DmaRxMultiBlk;
-    #endif
+#endif
     u32 ReservedDummy;
     VOID (*TxIdleCallback)(VOID *Para);
-    VOID *TxIdleCbPara;    
-}HAL_SSI_ADAPTOR, *PHAL_SSI_ADAPTOR;
+    VOID *TxIdleCbPara;
+} HAL_SSI_ADAPTOR, *PHAL_SSI_ADAPTOR;
 
-typedef struct _HAL_SSI_OP_{
-    HAL_Status (*HalSsiPinmuxEnable)(VOID *Adaptor);
-    HAL_Status (*HalSsiPinmuxDisable)(VOID *Adaptor);
-    HAL_Status (*HalSsiEnable)(VOID *Adaptor);
-    HAL_Status (*HalSsiDisable)(VOID *Adaptor);
-    HAL_Status (*HalSsiInit)(VOID *Adaptor);
-    HAL_Status (*HalSsiSetSclkPolarity)(VOID *Adaptor);
-    HAL_Status (*HalSsiSetSclkPhase)(VOID *Adaptor);
-    HAL_Status (*HalSsiWrite)(VOID *Adaptor, u32 value);
-    HAL_Status (*HalSsiLoadSetting)(VOID *Adaptor, VOID *Setting);
-    HAL_Status (*HalSsiSetInterruptMask)(VOID *Adaptor);
-    HAL_Status (*HalSsiSetDeviceRole)(VOID *Adaptor, u32 Role);
-    HAL_Status (*HalSsiInterruptEnable)(VOID *Adaptor);
-    HAL_Status (*HalSsiInterruptDisable)(VOID *Adaptor);
-    HAL_Status (*HalSsiReadInterrupt)(VOID *Adaptor, VOID *RxData, u32 Length);
-    HAL_Status (*HalSsiSetRxFifoThresholdLevel)(VOID *Adaptor);
-    HAL_Status (*HalSsiSetTxFifoThresholdLevel)(VOID *Adaptor);
-    HAL_Status (*HalSsiWriteInterrupt)(VOID *Adaptor, u8 *TxData, u32 Length);
-    HAL_Status (*HalSsiSetSlaveEnableRegister)(VOID *Adaptor, u32 SlaveIndex);
-    u32  (*HalSsiBusy)(VOID *Adaptor);
-    u32  (*HalSsiReadable)(VOID *Adaptor);
-    u32  (*HalSsiWriteable)(VOID *Adaptor);
-    u32  (*HalSsiGetInterruptMask)(VOID *Adaptor);
-    u32  (*HalSsiGetRxFifoLevel)(VOID *Adaptor);
-    u32  (*HalSsiGetTxFifoLevel)(VOID *Adaptor);
-    u32  (*HalSsiGetStatus)(VOID *Adaptor);
-    u32  (*HalSsiGetInterruptStatus)(VOID *Adaptor);
-    u32  (*HalSsiRead)(VOID *Adaptor);
-    u32  (*HalSsiGetRawInterruptStatus)(VOID *Adaptor);
-    u32  (*HalSsiGetSlaveEnableRegister)(VOID *Adaptor);
-}HAL_SSI_OP, *PHAL_SSI_OP;
+typedef struct _HAL_SSI_OP_ {
+    HAL_Status(*HalSsiPinmuxEnable)(VOID *Adaptor);
+    HAL_Status(*HalSsiPinmuxDisable)(VOID *Adaptor);
+    HAL_Status(*HalSsiEnable)(VOID *Adaptor);
+    HAL_Status(*HalSsiDisable)(VOID *Adaptor);
+    HAL_Status(*HalSsiInit)(VOID *Adaptor);
+    HAL_Status(*HalSsiSetSclkPolarity)(VOID *Adaptor);
+    HAL_Status(*HalSsiSetSclkPhase)(VOID *Adaptor);
+    HAL_Status(*HalSsiWrite)(VOID *Adaptor, u32 value);
+    HAL_Status(*HalSsiLoadSetting)(VOID *Adaptor, VOID *Setting);
+    HAL_Status(*HalSsiSetInterruptMask)(VOID *Adaptor);
+    HAL_Status(*HalSsiSetDeviceRole)(VOID *Adaptor, u32 Role);
+    HAL_Status(*HalSsiInterruptEnable)(VOID *Adaptor);
+    HAL_Status(*HalSsiInterruptDisable)(VOID *Adaptor);
+    HAL_Status(*HalSsiReadInterrupt)(VOID *Adaptor, VOID *RxData, u32 Length);
+    HAL_Status(*HalSsiSetRxFifoThresholdLevel)(VOID *Adaptor);
+    HAL_Status(*HalSsiSetTxFifoThresholdLevel)(VOID *Adaptor);
+    HAL_Status(*HalSsiWriteInterrupt)(VOID *Adaptor, u8 *TxData, u32 Length);
+    HAL_Status(*HalSsiSetSlaveEnableRegister)(VOID *Adaptor, u32 SlaveIndex);
+    u32(*HalSsiBusy)(VOID *Adaptor);
+    u32(*HalSsiReadable)(VOID *Adaptor);
+    u32(*HalSsiWriteable)(VOID *Adaptor);
+    u32(*HalSsiGetInterruptMask)(VOID *Adaptor);
+    u32(*HalSsiGetRxFifoLevel)(VOID *Adaptor);
+    u32(*HalSsiGetTxFifoLevel)(VOID *Adaptor);
+    u32(*HalSsiGetStatus)(VOID *Adaptor);
+    u32(*HalSsiGetInterruptStatus)(VOID *Adaptor);
+    u32(*HalSsiRead)(VOID *Adaptor);
+    u32(*HalSsiGetRawInterruptStatus)(VOID *Adaptor);
+    u32(*HalSsiGetSlaveEnableRegister)(VOID *Adaptor);
+} HAL_SSI_OP, *PHAL_SSI_OP;
 
 typedef struct _DW_SSI_DEFAULT_SETTING_ {
     VOID (*RxCompCallback)(VOID *Para);
@@ -278,10 +278,10 @@ struct spi_s {
     u32 dma_en;
     volatile u32 state;
     u8 sclk;
-#if CONFIG_GDMA_EN    
+#if CONFIG_GDMA_EN
     HAL_GDMA_ADAPTER spi_gdma_adp_tx;
     HAL_GDMA_ADAPTER spi_gdma_adp_rx;
-#endif    
+#endif
     u32 bus_tx_done_handler;
     u32 bus_tx_done_irq_id;
 };
@@ -291,26 +291,26 @@ static __inline__ VOID HalSsiSetSclk(
     IN PHAL_SSI_ADAPTOR pHalSsiAdapter,
     IN u32 ClkRate)
 {
-    HalSsiSetSclkRtl8195a((VOID*)pHalSsiAdapter, ClkRate);
+    HalSsiSetSclkRtl8195a((VOID *)pHalSsiAdapter, ClkRate);
 }
 
-HAL_Status HalSsiInit(VOID * Data);
-HAL_Status HalSsiDeInit(VOID * Data);
-HAL_Status HalSsiEnable(VOID * Data);
-HAL_Status HalSsiDisable(VOID * Data);
-HAL_Status HalSsiEnterCritical(VOID * Data);
-HAL_Status HalSsiExitCritical(VOID * Data);
+HAL_Status HalSsiInit(VOID *Data);
+HAL_Status HalSsiDeInit(VOID *Data);
+HAL_Status HalSsiEnable(VOID *Data);
+HAL_Status HalSsiDisable(VOID *Data);
+HAL_Status HalSsiEnterCritical(VOID *Data);
+HAL_Status HalSsiExitCritical(VOID *Data);
 HAL_Status HalSsiTimeout(u32 StartCount, u32 TimeoutCnt);
-HAL_Status HalSsiStopRecv(VOID * Data);
-HAL_Status HalSsiSetFormat(VOID * Data);
-VOID HalSsiClearFIFO(VOID * Data);
-#if CONFIG_GDMA_EN    
+HAL_Status HalSsiStopRecv(VOID *Data);
+HAL_Status HalSsiSetFormat(VOID *Data);
+VOID HalSsiClearFIFO(VOID *Data);
+#if CONFIG_GDMA_EN
 HAL_Status HalSsiTxGdmaInit(PHAL_SSI_OP pHalSsiOp, PHAL_SSI_ADAPTOR pHalSsiAdapter);
 VOID HalSsiTxGdmaDeInit(PHAL_SSI_ADAPTOR pHalSsiAdapter);
 HAL_Status HalSsiRxGdmaInit(PHAL_SSI_OP pHalSsiOp, PHAL_SSI_ADAPTOR pHalSsiAdapter);
 VOID HalSsiRxGdmaDeInit(PHAL_SSI_ADAPTOR pHalSsiAdapter);
 HAL_Status HalSsiRxMultiBlkChnl(PHAL_SSI_ADAPTOR pHalSsiAdapter);
-HAL_Status HalSsiDmaRecv(VOID * Adapter, u8 * pRxData, u32 Length);
+HAL_Status HalSsiDmaRecv(VOID *Adapter, u8 *pRxData, u32 Length);
 HAL_Status HalSsiDmaSend(VOID *Adapter, u8 *pTxData, u32 Length);
 
 static __inline__ VOID
@@ -318,11 +318,11 @@ HalSsiDmaInit(
     IN PHAL_SSI_ADAPTOR pHalSsiAdapter
 )
 {
-    #if CONFIG_CHIP_E_CUT
+#if CONFIG_CHIP_E_CUT
     HalSsiDmaInitRtl8195a_V04((void *)pHalSsiAdapter);
-    #else
+#else
     HalSsiDmaInitRtl8195a((void *)pHalSsiAdapter);
-    #endif
+#endif
 }
 /*
 static __inline__ HAL_Status HalSsiDmaSend(VOID *Adapter, u8 *pTxData, u32 Length)
@@ -334,7 +334,7 @@ static __inline__ HAL_Status HalSsiDmaRecv(VOID *Adapter, u8  *pRxData, u32 Leng
 {
     return (HalSsiDmaRecvRtl8195a(Adapter, pRxData, Length));
 }
-*/   
+*/
 
 #endif  // end of "#ifdef CONFIG_GDMA_EN"
 

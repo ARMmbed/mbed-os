@@ -116,7 +116,7 @@ extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 void RESET_EXCPT_HNDLR(void);
 void Reset_Handler(void);
 /* IVT typedefs. */
-typedef void( *pFunc )( void );
+typedef void(*pFunc)(void);
 
 #define ADUCM3029_VECTORS           /* Cortex-M3 Exceptions Handler */ \
     Reset_Handler,                            /* -15 */                \

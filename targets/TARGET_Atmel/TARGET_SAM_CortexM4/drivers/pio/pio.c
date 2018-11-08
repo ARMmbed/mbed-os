@@ -964,7 +964,7 @@ Pio *pio_get_pin_group(uint32_t ul_pin)
         p_pio = PIOD;
     } else if (ul_pin > PIO_PB31_IDX) {
 #  else
-    if  (ul_pin > PIO_PB31_IDX) {
+    if (ul_pin > PIO_PB31_IDX) {
 #  endif
         p_pio = PIOC;
     } else {

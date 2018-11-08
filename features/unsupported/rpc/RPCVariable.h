@@ -35,7 +35,8 @@ public:
      *@param name The name of that this object will be over RPC
      */
     template<class A>
-    RPCVariable(A * ptr, const char * name) : RPC(name) {
+    RPCVariable(A *ptr, const char *name) : RPC(name)
+    {
         _ptr = ptr;
     }
     /**
@@ -43,7 +44,8 @@ public:
      *
      *@return The value of the variable
      */
-    T read() {
+    T read()
+    {
         return (*_ptr);
     }
     /**
@@ -51,7 +53,8 @@ public:
      *
      *@param The value to be written to the attached variable.
      */
-    void write(T value) {
+    void write(T value)
+    {
         *_ptr = value;
     }
 
@@ -59,13 +62,14 @@ public:
     static struct rpc_class *get_rpc_class();
 
 private:
-    T * _ptr;
+    T *_ptr;
 };
 
 template<class T>
-const rpc_method *RPCVariable<T>::get_rpc_methods() {
+const rpc_method *RPCVariable<T>::get_rpc_methods()
+{
     static const rpc_method rpc_methods[] = {
-        {"read" , rpc_method_caller<T, RPCVariable, &RPCVariable::read> },
+        {"read", rpc_method_caller<T, RPCVariable, &RPCVariable::read> },
         {"write", rpc_method_caller<RPCVariable, T, &RPCVariable::write> },
         RPC_METHOD_SUPER(RPC)
     };
@@ -73,10 +77,11 @@ const rpc_method *RPCVariable<T>::get_rpc_methods() {
 }
 
 template<class T>
-rpc_class *RPCVariable<T>::get_rpc_class() {
+rpc_class *RPCVariable<T>::get_rpc_class()
+{
     static const rpc_function funcs[] = {
-            "new", rpc_function_caller<const char*, T, const char*, &RPC::construct<RPCVariable, T, const char*> > ,
-            RPC_METHOD_END
+        "new", rpc_function_caller<const char *, T, const char *, &RPC::construct<RPCVariable, T, const char *> >,
+        RPC_METHOD_END
     };
     static rpc_class c = {"RPCVariable", funcs, NULL};
     return &c;

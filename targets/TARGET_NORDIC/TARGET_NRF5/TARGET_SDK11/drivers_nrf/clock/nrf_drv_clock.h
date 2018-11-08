@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -53,7 +53,7 @@
  * @addtogroup nrf_clock Clock HAL and driver
  * @ingroup nrf_drivers
  * @brief Clock APIs.
- * @details The clock HAL provides basic APIs for accessing the registers of the clock. 
+ * @details The clock HAL provides basic APIs for accessing the registers of the clock.
  * The clock driver provides APIs on a higher level.
  *
  * @defgroup nrf_clock_drv Clock driver
@@ -65,8 +65,7 @@
 /**
  * @brief Clock events.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_CLOCK_EVT_HFCLK_STARTED, ///< HFCLK has been started.
     NRF_DRV_CLOCK_EVT_LFCLK_STARTED, ///< LFCLK has been started.
     NRF_DRV_CLOCK_EVT_CAL_DONE,      ///< Calibration is done.
@@ -83,9 +82,8 @@ typedef void (*nrf_drv_clock_event_handler_t)(nrf_drv_clock_evt_type_t event);
 // Forward declaration of the nrf_drv_clock_handler_item_t type.
 typedef struct nrf_drv_clock_handler_item_s nrf_drv_clock_handler_item_t;
 
-struct nrf_drv_clock_handler_item_s
-{
-    nrf_drv_clock_handler_item_t * p_next;        ///< A pointer to the next handler that should be called when the clock is started.
+struct nrf_drv_clock_handler_item_s {
+    nrf_drv_clock_handler_item_t *p_next;         ///< A pointer to the next handler that should be called when the clock is started.
     nrf_drv_clock_event_handler_t  event_handler; ///< Function to be called when the clock is started.
 };
 
@@ -107,8 +105,8 @@ ret_code_t nrf_drv_clock_init(void);
 void nrf_drv_clock_uninit(void);
 
 /**
- * @brief Function for requesting the LFCLK. 
- * 
+ * @brief Function for requesting the LFCLK.
+ *
  * The low-frequency clock can be requested by different modules
  * or contexts. The driver ensures that the clock will be started only when it is requested
  * the first time. If the clock is not ready but it was already started, the handler item that is
@@ -117,7 +115,7 @@ void nrf_drv_clock_uninit(void);
  * current context.
  *
  * The first request will start the selected LFCLK source. If an event handler is
- * provided, it will be called once the LFCLK is started. If the LFCLK was already started at this 
+ * provided, it will be called once the LFCLK is started. If the LFCLK was already started at this
  * time, the event handler will be called from the context of this function. Additionally,
  * the @ref nrf_drv_clock_lfclk_is_running function can be polled to check if the clock has started.
  *
@@ -127,10 +125,10 @@ void nrf_drv_clock_uninit(void);
  *
  * @param[in] p_handler_item A pointer to the event handler structure.
  */
-void nrf_drv_clock_lfclk_request(nrf_drv_clock_handler_item_t * p_handler_item);
+void nrf_drv_clock_lfclk_request(nrf_drv_clock_handler_item_t *p_handler_item);
 
 /**
- * @brief Function for releasing the LFCLK. 
+ * @brief Function for releasing the LFCLK.
  *
  * If there are no more requests, the LFCLK source will be stopped.
  *
@@ -147,9 +145,9 @@ void nrf_drv_clock_lfclk_release(void);
 bool nrf_drv_clock_lfclk_is_running(void);
 
 /**
- * @brief Function for requesting the high-accuracy source HFCLK. 
+ * @brief Function for requesting the high-accuracy source HFCLK.
  *
- * The high-accuracy source 
+ * The high-accuracy source
  * can be requested by different modules or contexts. The driver ensures that the high-accuracy
  * clock will be started only when it is requested the first time. If the clock is not ready
  * but it was already started, the handler item that is provided as an input parameter is added
@@ -165,10 +163,10 @@ bool nrf_drv_clock_lfclk_is_running(void);
  *
  * @param[in] p_handler_item A pointer to the event handler structure.
  */
-void nrf_drv_clock_hfclk_request(nrf_drv_clock_handler_item_t * p_handler_item);
+void nrf_drv_clock_hfclk_request(nrf_drv_clock_handler_item_t *p_handler_item);
 
 /**
- * @brief Function for releasing the high-accuracy source HFCLK. 
+ * @brief Function for releasing the high-accuracy source HFCLK.
  *
  * If there are no more requests, the high-accuracy source will be released.
  */
@@ -219,7 +217,7 @@ ret_code_t nrf_drv_clock_calibration_start(uint8_t delay, nrf_drv_clock_event_ha
 ret_code_t nrf_drv_clock_calibration_abort(void);
 
 /**
- * @brief Function for checking if calibration is in progress. 
+ * @brief Function for checking if calibration is in progress.
  *
  * This function indicates that the system is
  * in calibration if it is in any of the calibration process phases (see @ref nrf_drv_clock_calibration_start).
@@ -229,7 +227,7 @@ ret_code_t nrf_drv_clock_calibration_abort(void);
  * @retval     NRF_SUCCESS                        If the procedure was successful.
  * @retval     NRF_ERROR_FORBIDDEN                If a SoftDevice is present or the selected LFCLK source is not an RC oscillator.
  */
-ret_code_t nrf_drv_clock_is_calibrating(bool * p_is_calibrating);
+ret_code_t nrf_drv_clock_is_calibrating(bool *p_is_calibrating);
 
 /**@brief Function for returning a requested task address for the clock driver module.
  *

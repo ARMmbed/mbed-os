@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief   Debug Assertion source file. 
+ * @brief   Debug Assertion source file.
  */
 /*******************************************************************************
  * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
@@ -55,6 +55,6 @@
 /* ************************************************************************** */
 __weak void mxc_assert(const char *expr, const char *file, int line)
 {
-    while(1) {}
+    while (1) {}
 }
 /**@} end of ingroup MXC_Assertions*/

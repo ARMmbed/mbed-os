@@ -73,7 +73,7 @@ static int PinConfig(unsigned int port, unsigned int pin, gpio_func_t func, gpio
     /* Set function */
     uint32_t func_sel = MXC_GPIO->func_sel[port];
     func_sel &= ~(0xF << (4 * pin));
-    func_sel |=  (func << (4 * pin));
+    func_sel |= (func << (4 * pin));
     MXC_GPIO->func_sel[port] = func_sel;
 
     /* Normal input is always enabled */
@@ -82,7 +82,7 @@ static int PinConfig(unsigned int port, unsigned int pin, gpio_func_t func, gpio
     /* Set requested output mode */
     uint32_t out_mode = MXC_GPIO->out_mode[port];
     out_mode &= ~(0xF << (4 * pin));
-    out_mode |=  (pad << (4 * pin));
+    out_mode |= (pad << (4 * pin));
     MXC_GPIO->out_mode[port] = out_mode;
 
     /* Enable the pull up/down if necessary */
@@ -125,8 +125,8 @@ int GPIO_Config(const gpio_cfg_t *cfg)
 static void IntConfig(unsigned int port, unsigned int pin, gpio_int_mode_t mode)
 {
     uint32_t int_mode = MXC_GPIO->int_mode[port];
-    int_mode &= ~(0xF << (pin*4));
-    int_mode |= (mode << (pin*4));
+    int_mode &= ~(0xF << (pin * 4));
+    int_mode |= (mode << (pin * 4));
     MXC_GPIO->int_mode[port] = int_mode;
 }
 

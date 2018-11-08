@@ -80,7 +80,7 @@ void Reset_Handler(void);
 WEAK_ALIAS_FUNC(NMI_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(HardFault_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(MemManage_Handler, Default_Handler)
-WEAK_ALIAS_FUNC(BusFault_Handler , Default_Handler)
+WEAK_ALIAS_FUNC(BusFault_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(UsageFault_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(SVC_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(DebugMon_Handler, Default_Handler)
@@ -90,11 +90,11 @@ WEAK_ALIAS_FUNC(SysTick_Handler, Default_Handler)
 /* Peripherals handlers */
 WEAK_ALIAS_FUNC(BOD_IRQHandler, Default_Handler)        // 0: Brown Out detection
 WEAK_ALIAS_FUNC(IRC_IRQHandler, Default_Handler)        // 1: Internal RC
-WEAK_ALIAS_FUNC(PWRWU_IRQHandler, Default_Handler)      // 2: Power Down Wake Up 
+WEAK_ALIAS_FUNC(PWRWU_IRQHandler, Default_Handler)      // 2: Power Down Wake Up
 WEAK_ALIAS_FUNC(SRAMF_IRQHandler, Default_Handler)      // 3: Reserved.
 WEAK_ALIAS_FUNC(CLKF_IRQHandler, Default_Handler)       // 4: CLKF
-                                                        // 5: Reserved.
-WEAK_ALIAS_FUNC(RTC_IRQHandler, Default_Handler)        // 6: Real Time Clock 
+// 5: Reserved.
+WEAK_ALIAS_FUNC(RTC_IRQHandler, Default_Handler)        // 6: Real Time Clock
 WEAK_ALIAS_FUNC(TAMPER_IRQHandler, Default_Handler)     // 7: Tamper detection
 WEAK_ALIAS_FUNC(EINT0_IRQHandler, Default_Handler)      // 8: External Input 0
 WEAK_ALIAS_FUNC(EINT1_IRQHandler, Default_Handler)      // 9: External Input 1
@@ -103,7 +103,7 @@ WEAK_ALIAS_FUNC(EINT3_IRQHandler, Default_Handler)      // 11: External Input 3
 WEAK_ALIAS_FUNC(EINT4_IRQHandler, Default_Handler)      // 12: External Input 4
 WEAK_ALIAS_FUNC(EINT5_IRQHandler, Default_Handler)      // 13: External Input 5
 WEAK_ALIAS_FUNC(EINT6_IRQHandler, Default_Handler)      // 14: External Input 6
-WEAK_ALIAS_FUNC(EINT7_IRQHandler, Default_Handler)      // 15: External Input 7 
+WEAK_ALIAS_FUNC(EINT7_IRQHandler, Default_Handler)      // 15: External Input 7
 WEAK_ALIAS_FUNC(GPA_IRQHandler, Default_Handler)        // 16: GPIO Port A
 WEAK_ALIAS_FUNC(GPB_IRQHandler, Default_Handler)        // 17: GPIO Port B
 WEAK_ALIAS_FUNC(GPC_IRQHandler, Default_Handler)        // 18: GPIO Port C
@@ -113,41 +113,41 @@ WEAK_ALIAS_FUNC(GPF_IRQHandler, Default_Handler)        // 21: GPIO Port F
 WEAK_ALIAS_FUNC(GPG_IRQHandler, Default_Handler)        // 22: GPIO Port G
 WEAK_ALIAS_FUNC(GPH_IRQHandler, Default_Handler)        // 23: GPIO Port H
 WEAK_ALIAS_FUNC(GPI_IRQHandler, Default_Handler)        // 24: GPIO Port I
-                                                        // 25: Reserved.
-                                                        // 26: Reserved.
-                                                        // 27: Reserved.
-                                                        // 28: Reserved.
-                                                        // 29: Reserved.
-                                                        // 30: Reserved.
-                                                        // 31: Reserved.
+// 25: Reserved.
+// 26: Reserved.
+// 27: Reserved.
+// 28: Reserved.
+// 29: Reserved.
+// 30: Reserved.
+// 31: Reserved.
 WEAK_ALIAS_FUNC(TMR0_IRQHandler, Default_Handler)       // 32: Timer 0
 WEAK_ALIAS_FUNC(TMR1_IRQHandler, Default_Handler)       // 33: Timer 1
 WEAK_ALIAS_FUNC(TMR2_IRQHandler, Default_Handler)       // 34: Timer 2
 WEAK_ALIAS_FUNC(TMR3_IRQHandler, Default_Handler)       // 35: Timer 3
-                                                        // 36: Reserved.
-                                                        // 37: Reserved.
-                                                        // 38: Reserved.
-                                                        // 39: Reserved.
+// 36: Reserved.
+// 37: Reserved.
+// 38: Reserved.
+// 39: Reserved.
 WEAK_ALIAS_FUNC(PDMA_IRQHandler, Default_Handler)       // 40: Peripheral DMA
-                                                        // 41: Reserved.
+// 41: Reserved.
 WEAK_ALIAS_FUNC(ADC_IRQHandler, Default_Handler)        // 42: ADC
-                                                        // 43: Reserved.
-                                                        // 44: Reserved.
-                                                        // 45: Reserved.
+// 43: Reserved.
+// 44: Reserved.
+// 45: Reserved.
 WEAK_ALIAS_FUNC(WDT_IRQHandler, Default_Handler)        // 46: Watch Dog Timer
 WEAK_ALIAS_FUNC(WWDT_IRQHandler, Default_Handler)       // 47: Window Watch Dog Timer
 WEAK_ALIAS_FUNC(EADC0_IRQHandler, Default_Handler)      // 48: EDAC 0
 WEAK_ALIAS_FUNC(EADC1_IRQHandler, Default_Handler)      // 49: EDAC 1
 WEAK_ALIAS_FUNC(EADC2_IRQHandler, Default_Handler)      // 50: EDAC 2
 WEAK_ALIAS_FUNC(EADC3_IRQHandler, Default_Handler)      // 51: EDAC 3
-                                                        // 52: Reserved.
-                                                        // 53: Reserved.
-                                                        // 54: Reserved.
-                                                        // 55: Reserved.
+// 52: Reserved.
+// 53: Reserved.
+// 54: Reserved.
+// 55: Reserved.
 WEAK_ALIAS_FUNC(ACMP_IRQHandler, Default_Handler)       // 56: Analog Comparator
-                                                        // 57: Reserved.
-                                                        // 58: Reserved.
-                                                        // 59: Reserved.
+// 57: Reserved.
+// 58: Reserved.
+// 59: Reserved.
 WEAK_ALIAS_FUNC(OPA0_IRQHandler, Default_Handler)       // 60: OPA 0
 WEAK_ALIAS_FUNC(OPA1_IRQHandler, Default_Handler)       // 61: OPA 1
 WEAK_ALIAS_FUNC(ICAP0_IRQHandler, Default_Handler)      // 62: ICAP 0
@@ -172,60 +172,60 @@ WEAK_ALIAS_FUNC(EPWM0_IRQHandler, Default_Handler)      // 80: EPWM0
 WEAK_ALIAS_FUNC(EPWM0BRK_IRQHandler, Default_Handler)   // 81: EPWM0 Break
 WEAK_ALIAS_FUNC(EPWM1_IRQHandler, Default_Handler)      // 82: EPWM1
 WEAK_ALIAS_FUNC(EPWM1BRK_IRQHandler, Default_Handler)   // 83: EPWM1 Break
-                                                        // 84: Reserved.
-                                                        // 85: Reserved.
-                                                        // 86: Reserved.
-                                                        // 87: Reserved.
+// 84: Reserved.
+// 85: Reserved.
+// 86: Reserved.
+// 87: Reserved.
 WEAK_ALIAS_FUNC(USBD_IRQHandler, Default_Handler)       // 88: USB Device
 WEAK_ALIAS_FUNC(USBH_IRQHandler, Default_Handler)       // 89: USB Host
 WEAK_ALIAS_FUNC(USB_OTG_IRQHandler, Default_Handler)    // 90: USB OTG
-                                                        // 91: Reserved.
+// 91: Reserved.
 WEAK_ALIAS_FUNC(EMAC_TX_IRQHandler, Default_Handler)    // 92: Ethernet MAC TX
 WEAK_ALIAS_FUNC(EMAC_RX_IRQHandler, Default_Handler)    // 93: Ethernet MAC RX
-                                                        // 94: Reserved.
-                                                        // 95: Reserved.
+// 94: Reserved.
+// 95: Reserved.
 WEAK_ALIAS_FUNC(SPI0_IRQHandler, Default_Handler)       // 96: SPI 0
 WEAK_ALIAS_FUNC(SPI1_IRQHandler, Default_Handler)       // 97: SPI 1
 WEAK_ALIAS_FUNC(SPI2_IRQHandler, Default_Handler)       // 98: SPI 2
 WEAK_ALIAS_FUNC(SPI3_IRQHandler, Default_Handler)       // 99: SPI 3
-                                                        // 100: Reserved.
-                                                        // 101: Reserved.
-                                                        // 102: Reserved.
-                                                        // 103: Reserved.
+// 100: Reserved.
+// 101: Reserved.
+// 102: Reserved.
+// 103: Reserved.
 WEAK_ALIAS_FUNC(UART0_IRQHandler, Default_Handler)      // 104: UART 0
 WEAK_ALIAS_FUNC(UART1_IRQHandler, Default_Handler)      // 105: UART 1
 WEAK_ALIAS_FUNC(UART2_IRQHandler, Default_Handler)      // 106: UART 2
 WEAK_ALIAS_FUNC(UART3_IRQHandler, Default_Handler)      // 107: UART 3
 WEAK_ALIAS_FUNC(UART4_IRQHandler, Default_Handler)      // 108: UART 4
 WEAK_ALIAS_FUNC(UART5_IRQHandler, Default_Handler)      // 109: UART 5
-                                                        // 110: Reserved.
-                                                        // 111: Reserved.
+// 110: Reserved.
+// 111: Reserved.
 WEAK_ALIAS_FUNC(I2C0_IRQHandler, Default_Handler)       // 112: I2C 0
 WEAK_ALIAS_FUNC(I2C1_IRQHandler, Default_Handler)       // 113: I2C 1
 WEAK_ALIAS_FUNC(I2C2_IRQHandler, Default_Handler)       // 114: I2C 2
 WEAK_ALIAS_FUNC(I2C3_IRQHandler, Default_Handler)       // 115: I2C 3
 WEAK_ALIAS_FUNC(I2C4_IRQHandler, Default_Handler)       // 116: I2C 4
-                                                        // 117: Reserved.
-                                                        // 118: Reserved.
-                                                        // 119: Reserved.
+// 117: Reserved.
+// 118: Reserved.
+// 119: Reserved.
 WEAK_ALIAS_FUNC(SC0_IRQHandler, Default_Handler)        // 120: Smart Card 0
 WEAK_ALIAS_FUNC(SC1_IRQHandler, Default_Handler)        // 121: Smart Card 1
 WEAK_ALIAS_FUNC(SC2_IRQHandler, Default_Handler)        // 122: Smart Card 2
 WEAK_ALIAS_FUNC(SC3_IRQHandler, Default_Handler)        // 123: Smart Card 3
 WEAK_ALIAS_FUNC(SC4_IRQHandler, Default_Handler)        // 124: Smart Card 4
 WEAK_ALIAS_FUNC(SC5_IRQHandler, Default_Handler)        // 125: Smart Card 5
-                                                        // 126: Reserved.
-                                                        // 127: Reserved.
+// 126: Reserved.
+// 127: Reserved.
 WEAK_ALIAS_FUNC(CAN0_IRQHandler, Default_Handler)       // 128: CAN 0
 WEAK_ALIAS_FUNC(CAN1_IRQHandler, Default_Handler)       // 129: CAN 1
-                                                        // 130: Reserved.
-                                                        // 131: Reserved.
+// 130: Reserved.
+// 131: Reserved.
 WEAK_ALIAS_FUNC(I2S0_IRQHandler, Default_Handler)       // 132: I2S 0
 WEAK_ALIAS_FUNC(I2S1_IRQHandler, Default_Handler)       // 133: I2S 1
-                                                        // 134: Reserved.
-                                                        // 135: Reserved.
+// 134: Reserved.
+// 135: Reserved.
 WEAK_ALIAS_FUNC(SD_IRQHandler, Default_Handler)         // 136: SD card
-                                                        // 137: Reserved.
+// 137: Reserved.
 WEAK_ALIAS_FUNC(PS2D_IRQHandler, Default_Handler)       // 138: PS/2 device
 WEAK_ALIAS_FUNC(CAP_IRQHandler, Default_Handler)        // 139: VIN
 WEAK_ALIAS_FUNC(CRYPTO_IRQHandler, Default_Handler)     // 140: CRYPTO
@@ -233,13 +233,13 @@ WEAK_ALIAS_FUNC(CRC_IRQHandler, Default_Handler)        // 141: CRC
 
 /* Vector table */
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-__attribute__ ((section("RESET")))
+__attribute__((section("RESET")))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
 extern uint32_t CSTACK$$Limit;
 const uint32_t __vector_table[] @ ".intvec" = {
 #elif defined(__GNUC__)
-__attribute__ ((section(".vector_table")))
+__attribute__((section(".vector_table")))
 const uint32_t __vector_handlers[] = {
 #endif
 
@@ -272,11 +272,11 @@ const uint32_t __vector_handlers[] = {
     /* External Interrupts */
     (uint32_t) BOD_IRQHandler,          // 0: Brown Out detection
     (uint32_t) IRC_IRQHandler,          // 1: Internal RC
-    (uint32_t) PWRWU_IRQHandler,        // 2: Power Down Wake Up 
+    (uint32_t) PWRWU_IRQHandler,        // 2: Power Down Wake Up
     (uint32_t) SRAMF_IRQHandler,        // 3: Reserved.
     (uint32_t) CLKF_IRQHandler,         // 4: CLKF
     (uint32_t) Default_Handler,         // 5: Reserved.
-    (uint32_t) RTC_IRQHandler,          // 6: Real Time Clock 
+    (uint32_t) RTC_IRQHandler,          // 6: Real Time Clock
     (uint32_t) TAMPER_IRQHandler,       // 7: Tamper detection
     (uint32_t) EINT0_IRQHandler,        // 8: External Input 0
     (uint32_t) EINT1_IRQHandler,        // 9: External Input 1
@@ -285,7 +285,7 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) EINT4_IRQHandler,        // 12: External Input 4
     (uint32_t) EINT5_IRQHandler,        // 13: External Input 5
     (uint32_t) EINT6_IRQHandler,        // 14: External Input 6
-    (uint32_t) EINT7_IRQHandler,        // 15: External Input 7 
+    (uint32_t) EINT7_IRQHandler,        // 15: External Input 7
     (uint32_t) GPA_IRQHandler,          // 16: GPIO Port A
     (uint32_t) GPB_IRQHandler,          // 17: GPIO Port B
     (uint32_t) GPC_IRQHandler,          // 18: GPIO Port C
@@ -411,7 +411,7 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) PS2D_IRQHandler,         // 138: PS/2 device
     (uint32_t) CAP_IRQHandler,          // 139: VIN
     (uint32_t) CRYPTO_IRQHandler,       // 140: CRYPTO
-    (uint32_t) CRC_IRQHandler,          // 141: CRC    
+    (uint32_t) CRC_IRQHandler,          // 141: CRC
 };
 
 /**
@@ -421,27 +421,27 @@ void Reset_Handler(void)
 {
     /* Disable register write-protection function */
     SYS_UnlockReg();
-    
+
     /* Disable branch buffer if VCID is 0 */
     if (SYS->VCID == 0) {
         FMC->FTCTL |= 0x80;
     }
-    
+
     /* Disable Power-on Reset function */
     SYS_DISABLE_POR();
-    
+
     /**
      * NOTE 1: Unlock is required for perhaps some register access in SystemInit().
      * NOTE 2: Because EBI (external SRAM) init is done in SystemInit(), SystemInit() must be called at the very start.
      */
     SystemInit();
-    
+
     /* Enable register write-protection function */
     SYS_LockReg();
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     __main();
-    
+
 #elif defined(__ICCARM__)
     __iar_program_start();
 
@@ -449,14 +449,14 @@ void Reset_Handler(void)
     uint32_t *src_ind = (uint32_t *) &__etext;
     uint32_t *dst_ind = (uint32_t *) &__data_start__;
     uint32_t *dst_end = (uint32_t *) &__data_end__;
-    
+
     /* Move .data section from ROM to RAM */
     if (src_ind != dst_ind) {
         for (; dst_ind < dst_end;) {
             *dst_ind ++ = *src_ind ++;
         }
     }
-   
+
     /* Initialize .bss section to zero */
     dst_ind = (uint32_t *) &__bss_start__;
     dst_end = (uint32_t *) &__bss_end__;
@@ -465,7 +465,7 @@ void Reset_Handler(void)
             *dst_ind ++ = 0;
         }
     }
-    
+
     /* Initialize .bss.extern section to zero */
     dst_ind = (uint32_t *) &__bss_extern_start__;
     dst_end = (uint32_t *) &__bss_extern_end__;
@@ -474,9 +474,9 @@ void Reset_Handler(void)
             *dst_ind ++ = 0;
         }
     }
-    
+
     _start();
-    
+
 #endif
     /* Infinite loop */
     while (1);

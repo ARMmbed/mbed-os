@@ -59,7 +59,7 @@ extern "C" {
 extern void *_tc_instances[TC_INST_NUM];
 
 #  define _TC_INTERRUPT_VECT_NUM(n, unused) \
-		  SYSTEM_INTERRUPT_MODULE_TC##n,
+          SYSTEM_INTERRUPT_MODULE_TC##n,
 /**
  * \internal Get the interrupt vector for the given device instance
  *

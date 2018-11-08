@@ -30,12 +30,20 @@ int main()
     for (;;) {
         const int mask = bus_out.mask();
         int led_mask = 0x00;
-        if (LED1 != NC) led_mask |= 0x01;
+        if (LED1 != NC) {
+            led_mask |= 0x01;
+        }
 #if !defined(TARGET_VK_RZ_A1H)
-        if (LED2 != NC) led_mask |= 0x02;
+        if (LED2 != NC) {
+            led_mask |= 0x02;
+        }
 #if !defined(TARGET_DISCO_F429ZI)
-        if (LED3 != NC) led_mask |= 0x04;
-        if (LED4 != NC) led_mask |= 0x08;
+        if (LED3 != NC) {
+            led_mask |= 0x04;
+        }
+        if (LED4 != NC) {
+            led_mask |= 0x08;
+        }
 #endif
 #endif
 
@@ -48,15 +56,15 @@ int main()
         }
 
         // Checking if DigitalOut is correctly set as connected
-        for (int i=0; i < LOOPCNT; i++) {
+        for (int i = 0; i < LOOPCNT; i++) {
             printf("MBED: BusOut.bit[%d] is %s\r\n",
-                i,
-                (led_pins[i] != NC && bus_out[i].is_connected())
-                    ? "connected"
-                    : "not connected");
+                   i,
+                   (led_pins[i] != NC && bus_out[i].is_connected())
+                   ? "connected"
+                   : "not connected");
         }
 
-        for (int i=0; i < LOOPCNT; i++) {
+        for (int i = 0; i < LOOPCNT; i++) {
             if (led_pins[i] != NC && bus_out[0].is_connected() == 0) {
                 break;
             }
@@ -80,7 +88,7 @@ int main()
     printf("MBED: Blinking LEDs: \r\n");
 
     // Just a quick LED blinking...
-    for (int i=0; i<LOOPCNT; i++) {
+    for (int i = 0; i < LOOPCNT; i++) {
         if (led_pins[i] != NC && bus_out[i].is_connected()) {
             bus_out[i] = 1;
             printf("%c", 'A' + i);

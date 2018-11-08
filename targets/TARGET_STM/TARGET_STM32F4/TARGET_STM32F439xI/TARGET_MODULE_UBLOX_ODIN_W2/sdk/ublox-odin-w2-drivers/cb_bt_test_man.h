@@ -44,8 +44,7 @@ extern "C" {
 /*===========================================================================
  * TYPES
  *=========================================================================*/
-typedef enum
-{
+typedef enum {
     cbBTM_TEST_CONF_POS,
     cbBTM_TEST_CONF_NEG
 } cbBTM_TestEvt;
@@ -60,7 +59,7 @@ typedef void (*cbBTM_LeTestEndCallback)(cbBTM_TestEvt evt, cb_uint16 nbrOfPacket
 
 /**
  * Init Bluetooth test manager
- * @returns None 
+ * @returns None
  */
 extern void cbBTM_init(void);
 
@@ -68,7 +67,7 @@ extern void cbBTM_init(void);
  * Enable Device under test mode. Used for Bluetooth Classic radio tests.
  *
  * @param callback Test callback used to notify if the test was successfully started.
- * @returns cbBTM_OK is returned 
+ * @returns cbBTM_OK is returned
  */
 extern cb_int32 cbBTM_enableDUT(cbBTM_TestCallback callback);
 
@@ -80,7 +79,7 @@ extern cb_int32 cbBTM_enableDUT(cbBTM_TestCallback callback);
  * patch) by setting a new pattern generator (also known as a PN generator) init value and mask.
  * based on HCI_VS_DRPb_Tester_Con_TX, HCI Opcode 0xFDCA
  * The cbBTM_TestCallback is used to notify if the test is sucessfully started.
- * 
+ *
  * @param frequency Transmission frequency in MHz Range: 2402 - 2480
  * @param modulationScheme Range: 0x00 - 0x05 where
  *                         0x00 = CW
@@ -103,7 +102,7 @@ extern cb_int32 cbBTM_enableDUT(cbBTM_TestCallback callback);
  * @param reserved2 shall be set to 0
  * @param callback Test callback used to notify if the test was successfully started.
  *
- * @return  cbBTM_OK is returned 
+ * @return  cbBTM_OK is returned
  */
 extern cb_int32 cbBTM_tiDrpbTesterConTx(
     cb_uint16 frequency,
@@ -133,7 +132,7 @@ extern cb_int32 cbBTM_tiDrpbTesterConTx(
  *                         0x05 = ANT (GFSK)
  * @param callback Test callback used to notify if the test was successfully started.
  *
- * @return  cbBTM_OK is returned 
+ * @return  cbBTM_OK is returned
  */
 extern cb_int32 cbBTM_tiDrpbTesterConRx(
     cb_uint16 frequency,
@@ -142,13 +141,13 @@ extern cb_int32 cbBTM_tiDrpbTesterConRx(
     cbBTM_TestCallback callback);
 
 /**
- * 
+ *
  * This command operates the RF transceiver in continuous reception mode (most likely used in regulatory
  * and standardization procedures and tests, such as FCC and ETSI certifications). Activating the VS runs
  * the RX START sequence code using the configured frequency, RX mode, and modulation type.
  * This command emulates Bluetooth connection mode. Connection does not require a setup procedure.
  * Based on HCI_VS_DRPb_Tester_Packet_TX_RX  HCI Opcode 0xFDCC
- * 
+ *
  * @param aclPacketType ACL TX packet type. Range: 0x00 - 0x0B
  *                         0x00 = DM1
  *                         0x01 = DH1
@@ -191,7 +190,7 @@ extern cb_int32 cbBTM_tiDrpbTesterConRx(
  * @param prbs9Init PRBS9 Init, range 0x0000 - 0x01FF
  * @param callback Test callback used to notify if the test was successfully started.
  *
- * @return cbBTM_OK is returned 
+ * @return cbBTM_OK is returned
  */
 extern cb_int32 cbBTM_tiDrpbTesterPacketTxRx(
     cb_uint8 aclPacketType,
@@ -220,19 +219,19 @@ extern cb_int32 cbBTM_tiDrpbTesterPacketTxRx(
  *                          0x06 Pattern of alternating bits 00001111
  *                          0x07 Pattern of alternating bits 0101
  * @param   callback Test callback used to notify if the test was successfully started.
- * @return  cbBTM_OK is returned 
+ * @return  cbBTM_OK is returned
  */
 extern cb_int32 cbBTM_enableBleTransmitterTest(
-    cb_uint8 txFreq, 
+    cb_uint8 txFreq,
     cb_uint8 length,
-    cb_uint8 packetPayload, 
+    cb_uint8 packetPayload,
     cbBTM_TestCallback callback);
 
 /**
  * Enable Bluetooth Low Energy Receiver test.
  * @param   rxFreq      Receive frequency. N = (F - 2402) / 2, Range: 0x00 to 0x27, Frequency Range : 2402 MHz to 2480 MHz,
  * @param   callback    Test callback used to notify if the test was successfully started.
- * @returns cbBTM_OK is returned 
+ * @returns cbBTM_OK is returned
  */
 extern cb_int32 cbBTM_enableBleReceiverTest(
     cb_uint8 rxFreq,
@@ -241,7 +240,7 @@ extern cb_int32 cbBTM_enableBleReceiverTest(
 /**
  * End Bluetooth Low Energy Receiver or Transmitter test.
  * @param   callback    Test callback used to notify if the test was successfully ended.
- * @returns cbBTM_OK is returned 
+ * @returns cbBTM_OK is returned
  */
 extern cb_int32 cbBTM_bleTestEnd(cbBTM_LeTestEndCallback callback);
 

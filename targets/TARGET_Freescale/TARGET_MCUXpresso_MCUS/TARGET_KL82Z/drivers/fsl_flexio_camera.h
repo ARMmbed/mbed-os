@@ -54,15 +54,13 @@
 #define FLEXIO_CAMERA_PARALLEL_DATA_WIDTH (8U)
 
 /*! @brief Error codes for the CAMERA driver. */
-enum _flexio_camera_status
-{
+enum _flexio_camera_status {
     kStatus_FLEXIO_CAMERA_RxBusy = MAKE_STATUS(kStatusGroup_FLEXIO_CAMERA, 0), /*!< Receiver is busy. */
     kStatus_FLEXIO_CAMERA_RxIdle = MAKE_STATUS(kStatusGroup_FLEXIO_CAMERA, 1), /*!< CAMERA receiver is idle. */
 };
 
 /*! @brief Define FlexIO CAMERA status mask. */
-enum _flexio_camera_status_flags
-{
+enum _flexio_camera_status_flags {
     kFLEXIO_CAMERA_RxDataRegFullFlag = 0x1U, /*!< Receive buffer full flag. */
     kFLEXIO_CAMERA_RxErrorFlag = 0x2U,       /*!< Receive buffer error flag. */
 };
@@ -70,8 +68,7 @@ enum _flexio_camera_status_flags
 /*!
  * @brief Define structure of configuring the FlexIO camera device.
  */
-typedef struct _flexio_camera_type
-{
+typedef struct _flexio_camera_type {
     FLEXIO_Type *flexioBase; /*!< FlexIO module base address. */
     uint32_t datPinStartIdx; /*!< First data pin (D0) index for flexio_camera.
                                   Then the successive following FLEXIO_CAMERA_DATA_WIDTH-1 pins
@@ -85,8 +82,7 @@ typedef struct _flexio_camera_type
 } FLEXIO_CAMERA_Type;
 
 /*! @brief Define FlexIO camera user configuration structure. */
-typedef struct _flexio_camera_config
-{
+typedef struct _flexio_camera_config {
     bool enablecamera;     /*!< Enable/disable FlexIO camera TX & RX. */
     bool enableInDoze;     /*!< Enable/disable FlexIO operation in doze mode*/
     bool enableInDebug;    /*!< Enable/disable FlexIO operation in debug mode*/
@@ -96,8 +92,7 @@ typedef struct _flexio_camera_config
 } flexio_camera_config_t;
 
 /*! @brief Define FlexIO CAMERA transfer structure. */
-typedef struct _flexio_camera_transfer
-{
+typedef struct _flexio_camera_transfer {
     uint32_t dataAddress; /*!< Transfer buffer*/
     uint32_t dataNum;     /*!< Transfer num*/
 } flexio_camera_transfer_t;
@@ -153,12 +148,9 @@ void FLEXIO_CAMERA_GetDefaultConfig(flexio_camera_config_t *config);
 */
 static inline void FLEXIO_CAMERA_Enable(FLEXIO_CAMERA_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->flexioBase->CTRL |= FLEXIO_CTRL_FLEXEN_MASK;
-    }
-    else
-    {
+    } else {
         base->flexioBase->CTRL &= ~FLEXIO_CTRL_FLEXEN_MASK;
     }
 }

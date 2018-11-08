@@ -30,45 +30,45 @@
 /// IRQ Handler.
 #ifndef IRQHANDLER_T
 #define IRQHANDLER_T
-typedef void (*IRQHandler_t) (void);
+typedef void (*IRQHandler_t)(void);
 #endif
 
 /// Setup OS Tick.
 /// \param[in]     freq         tick frequency in Hz
 /// \param[in]     handler      tick IRQ handler
 /// \return 0 on success, -1 on error.
-int32_t  OS_Tick_Setup (uint32_t freq, IRQHandler_t handler);
+int32_t  OS_Tick_Setup(uint32_t freq, IRQHandler_t handler);
 
 /// Enable OS Tick.
 /// \return 0 on success, -1 on error.
-int32_t  OS_Tick_Enable (void);
+int32_t  OS_Tick_Enable(void);
 
 /// Disable OS Tick.
 /// \return 0 on success, -1 on error.
-int32_t  OS_Tick_Disable (void);
+int32_t  OS_Tick_Disable(void);
 
 /// Acknowledge OS Tick IRQ.
 /// \return 0 on success, -1 on error.
-int32_t  OS_Tick_AcknowledgeIRQ (void);
+int32_t  OS_Tick_AcknowledgeIRQ(void);
 
 /// Get OS Tick IRQ number.
 /// \return OS Tick IRQ number.
-int32_t  OS_Tick_GetIRQn (void);
+int32_t  OS_Tick_GetIRQn(void);
 
 /// Get OS Tick clock.
 /// \return OS Tick clock in Hz.
-uint32_t OS_Tick_GetClock (void);
+uint32_t OS_Tick_GetClock(void);
 
 /// Get OS Tick interval.
 /// \return OS Tick interval.
-uint32_t OS_Tick_GetInterval (void);
+uint32_t OS_Tick_GetInterval(void);
 
 /// Get OS Tick count value.
 /// \return OS Tick count value.
-uint32_t OS_Tick_GetCount (void);
+uint32_t OS_Tick_GetCount(void);
 
 /// Get OS Tick overflow status.
 /// \return OS Tick overflow status (1 - overflow, 0 - no overflow).
-uint32_t OS_Tick_GetOverflow (void);
+uint32_t OS_Tick_GetOverflow(void);
 
 #endif  /* OS_TICK_H */

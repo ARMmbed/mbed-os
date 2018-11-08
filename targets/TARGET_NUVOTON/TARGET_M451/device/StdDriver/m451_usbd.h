@@ -26,14 +26,13 @@ extern "C"
 /** @addtogroup USBD_EXPORTED_STRUCTS USBD Exported Structs
   @{
 */
-typedef struct s_usbd_info
-{
+typedef struct s_usbd_info {
     const uint8_t *gu8DevDesc;            /*!< Pointer for USB Device Descriptor          */
     const uint8_t *gu8ConfigDesc;         /*!< Pointer for USB Configuration Descriptor   */
     const uint8_t **gu8StringDesc;        /*!< Pointer for USB String Descriptor pointers */
     const uint8_t **gu8HidReportDesc;     /*!< Pointer for USB HID Report Descriptor      */
     const uint32_t *gu32HidReportSize;    /*!< Pointer for HID Report descriptor Size */
-    const uint32_t *gu32ConfigHidDescIdx; /*!< Pointer for HID Descriptor start index */	
+    const uint32_t *gu32ConfigHidDescIdx; /*!< Pointer for HID Descriptor start index */
 
 } S_USBD_INFO_T;
 
@@ -525,7 +524,9 @@ extern const S_USBD_INFO_T gsInfo;
   */
 static __INLINE void USBD_MemCopy(uint8_t *dest, uint8_t *src, int32_t size)
 {
-    while(size--) *dest++ = *src++;
+    while (size--) {
+        *dest++ = *src++;
+    }
 }
 
 
@@ -545,13 +546,11 @@ static __INLINE void USBD_SetStall(uint8_t epnum)
     uint32_t u32Cfg;
     int i;
 
-    for(i = 0; i < USBD_MAX_EP; i++)
-    {
+    for (i = 0; i < USBD_MAX_EP; i++) {
         u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFG; /* USBD_CFG0 */
         u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
-        if((u32Cfg & 0xf) == epnum)
-        {
+        if ((u32Cfg & 0xf) == epnum) {
             u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFGP; /* USBD_CFGP0 */
             u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
@@ -576,13 +575,11 @@ static __INLINE void USBD_ClearStall(uint8_t epnum)
     uint32_t u32Cfg;
     int i;
 
-    for(i = 0; i < USBD_MAX_EP; i++)
-    {
+    for (i = 0; i < USBD_MAX_EP; i++) {
         u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFG; /* USBD_CFG0 */
         u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
-        if((u32Cfg & 0xf) == epnum)
-        {
+        if ((u32Cfg & 0xf) == epnum) {
             u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFGP; /* USBD_CFGP0 */
             u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
@@ -609,13 +606,11 @@ static __INLINE uint32_t USBD_GetStall(uint8_t epnum)
     uint32_t u32Cfg;
     int i;
 
-    for(i = 0; i < USBD_MAX_EP; i++)
-    {
+    for (i = 0; i < USBD_MAX_EP; i++) {
         u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFG; /* USBD_CFG0 */
         u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
-        if((u32Cfg & 0xf) == epnum)
-        {
+        if ((u32Cfg & 0xf) == epnum) {
             u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFGP; /* USBD_CFGP0 */
             break;
         }

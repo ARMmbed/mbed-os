@@ -29,37 +29,37 @@ const PinMap PinMap_ADC[] = {
     {P0_31,  ADC0_SE5,   0},
     {P1_0,   ADC0_SE6,   0},
     {P0_10,  ADC0_SE0,   0},
-    {NC   ,  NC      ,   0}
+    {NC,  NC,   0}
 };
 
 /************CAN***************/
 const PinMap PinMap_CAN_TD[] = {
     {P0_1,  CAN_1,  1},
-    {NC  ,  NC   ,  0}
+    {NC,  NC,  0}
 };
 
 const PinMap PinMap_CAN_RD[] = {
     {P0_0, CAN_1,  1},
-    {NC  , NC   ,  0}
+    {NC, NC,  0}
 };
 
 
 /************DAC***************/
 const PinMap PinMap_DAC[] = {
-    {NC      , NC   , 0}
+    {NC, NC, 0}
 };
 
 /************I2C***************/
 const PinMap PinMap_I2C_SDA[] = {
     {P0_26, I2C_2, 1},
     {P1_29, I2C_7, 1},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
     {P0_27, I2C_2, 1},
     {P1_30, I2C_7, 1},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 /************UART***************/
@@ -67,22 +67,22 @@ const PinMap PinMap_UART_TX[] = {
     {P0_30, UART_0, 1},
     {P0_27, UART_2, 1},
     {P1_30, UART_7, 1},
-    {NC   ,  NC   , 0}
+    {NC,  NC, 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
     {P0_29, UART_0, 1},
     {P0_26, UART_2, 1},
     {P1_29, UART_7, 1},
-    {NC   ,  NC   , 0}
+    {NC,  NC, 0}
 };
 
 const PinMap PinMap_UART_CTS[] = {
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_UART_RTS[] = {
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 /************SPI***************/
@@ -90,36 +90,36 @@ const PinMap PinMap_SPI_SCLK[] = {
     {P1_4,  SPI_0, 1},
     {P1_23, SPI_2, 1},
     {P0_6,  SPI_3, 1},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
     {P1_5,  SPI_0, 1},
     {P1_24, SPI_2, 1},
     {P0_8,  SPI_3, 1},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
     {P1_6,  SPI_0, 1},
     {P1_25, SPI_2, 1},
     {P0_9,  SPI_3, 1},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
     {P1_7,  SPI_0, 1},
     {P0_7,  SPI_3, 1},
-    {NC  ,  NC   , 0}
+    {NC,  NC, 0}
 };
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
-    {P0_17   , PWM_1,  4},
-    {P0_18   , PWM_2,  4},
-    {P0_19   , PWM_3,  4},
-    {P0_22   , PWM_4,  4},
-    {P0_28   , PWM_8,  4},
-    {P1_31   , PWM_7,  4},
-    {NC      , NC,     0}
+    {P0_17, PWM_1,  4},
+    {P0_18, PWM_2,  4},
+    {P0_19, PWM_3,  4},
+    {P0_22, PWM_4,  4},
+    {P0_28, PWM_8,  4},
+    {P1_31, PWM_7,  4},
+    {NC, NC,     0}
 };

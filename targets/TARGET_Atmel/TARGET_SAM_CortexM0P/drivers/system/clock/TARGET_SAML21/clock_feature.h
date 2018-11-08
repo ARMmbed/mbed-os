@@ -491,7 +491,7 @@ enum system_clock_source {
     /** Internal 32KHz RC oscillator */
     SYSTEM_CLOCK_SOURCE_OSC32K   = GCLK_SOURCE_OSC32K,
     /** External oscillator */
-    SYSTEM_CLOCK_SOURCE_XOSC     = GCLK_SOURCE_XOSC ,
+    SYSTEM_CLOCK_SOURCE_XOSC     = GCLK_SOURCE_XOSC,
     /** External 32KHz oscillator */
     SYSTEM_CLOCK_SOURCE_XOSC32K  = GCLK_SOURCE_XOSC32K,
     /** Digital Frequency Locked Loop (DFLL) */
@@ -1106,84 +1106,84 @@ static inline enum status_code system_apb_clock_set_mask(
     switch (bus) {
         case SYSTEM_CLOCK_APB_APBA:
                     MCLK->APBAMASK.reg |= mask;
-                break;
+            break;
 
-            case SYSTEM_CLOCK_APB_APBB:
-                MCLK->APBBMASK.reg |= mask;
-                break;
+        case SYSTEM_CLOCK_APB_APBB:
+            MCLK->APBBMASK.reg |= mask;
+            break;
 
-            case SYSTEM_CLOCK_APB_APBC:
-                MCLK->APBCMASK.reg |= mask;
-                break;
-            case SYSTEM_CLOCK_APB_APBD:
-                MCLK->APBDMASK.reg |= mask;
-                break;
-            case SYSTEM_CLOCK_APB_APBE:
-                MCLK->APBEMASK.reg |= mask;
-                break;
-            default:
-                Assert(false);
-                return STATUS_ERR_INVALID_ARG;
+        case SYSTEM_CLOCK_APB_APBC:
+            MCLK->APBCMASK.reg |= mask;
+            break;
+        case SYSTEM_CLOCK_APB_APBD:
+            MCLK->APBDMASK.reg |= mask;
+            break;
+        case SYSTEM_CLOCK_APB_APBE:
+            MCLK->APBEMASK.reg |= mask;
+            break;
+        default:
+            Assert(false);
+            return STATUS_ERR_INVALID_ARG;
 
-        }
-
-        return STATUS_OK;
     }
 
-    /**
-     * \brief Clear bits in the clock mask for an APBx bus.
-     *
-     * This function will clear bits in the clock mask for an APBx bus.
-     * Any bits set to 1 will disable the corresponding module clock, zero bits in
-     * the mask will be ignored.
-     *
-     * \param[in] mask  APBx clock mask, a \c SYSTEM_CLOCK_APB_APBx constant from
-     *                  the device header files
-     * \param[in] bus   Bus to clear clock mask bits
-     *
-     * \returns Status indicating the result of the clock mask change operation.
-     *
-     * \retval STATUS_ERR_INVALID_ARG  Invalid bus ID was given.
-     * \retval STATUS_OK               The clock mask was changed successfully.
-     */
-    static inline enum status_code system_apb_clock_clear_mask(
-        const enum system_clock_apb_bus bus,
-        const uint32_t mask)
+    return STATUS_OK;
+}
+
+/**
+ * \brief Clear bits in the clock mask for an APBx bus.
+ *
+ * This function will clear bits in the clock mask for an APBx bus.
+ * Any bits set to 1 will disable the corresponding module clock, zero bits in
+ * the mask will be ignored.
+ *
+ * \param[in] mask  APBx clock mask, a \c SYSTEM_CLOCK_APB_APBx constant from
+ *                  the device header files
+ * \param[in] bus   Bus to clear clock mask bits
+ *
+ * \returns Status indicating the result of the clock mask change operation.
+ *
+ * \retval STATUS_ERR_INVALID_ARG  Invalid bus ID was given.
+ * \retval STATUS_OK               The clock mask was changed successfully.
+ */
+static inline enum status_code system_apb_clock_clear_mask(
+    const enum system_clock_apb_bus bus,
+    const uint32_t mask)
 {
     switch (bus) {
         case SYSTEM_CLOCK_APB_APBA:
                     MCLK->APBAMASK.reg &= ~mask;
-                break;
+            break;
 
-            case SYSTEM_CLOCK_APB_APBB:
-                MCLK->APBBMASK.reg &= ~mask;
-                break;
+        case SYSTEM_CLOCK_APB_APBB:
+            MCLK->APBBMASK.reg &= ~mask;
+            break;
 
-            case SYSTEM_CLOCK_APB_APBC:
-                MCLK->APBCMASK.reg &= ~mask;
-                break;
-            case SYSTEM_CLOCK_APB_APBD:
-                MCLK->APBDMASK.reg &= ~mask;
-                break;
-            case SYSTEM_CLOCK_APB_APBE:
-                MCLK->APBEMASK.reg &= ~mask;
-                break;
-            default:
-                Assert(false);
-                return STATUS_ERR_INVALID_ARG;
-        }
-
-        return STATUS_OK;
+        case SYSTEM_CLOCK_APB_APBC:
+            MCLK->APBCMASK.reg &= ~mask;
+            break;
+        case SYSTEM_CLOCK_APB_APBD:
+            MCLK->APBDMASK.reg &= ~mask;
+            break;
+        case SYSTEM_CLOCK_APB_APBE:
+            MCLK->APBEMASK.reg &= ~mask;
+            break;
+        default:
+            Assert(false);
+            return STATUS_ERR_INVALID_ARG;
     }
 
-    /**
-     * @}
-     */
+    return STATUS_OK;
+}
 
-    /**
-     * \brief Reference clock source of the DPLL module.
-     */
-    enum system_clock_source_dpll_reference_clock {
+/**
+ * @}
+ */
+
+/**
+ * \brief Reference clock source of the DPLL module.
+ */
+enum system_clock_source_dpll_reference_clock {
     /** Select XOSC32K as clock reference */
     SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_XOSC32K,
     /** Select XOSC as clock reference */
@@ -1367,58 +1367,58 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  * intended meanings.
  *
  * <table>
- *	<tr>
- *		<th>Acronym</th>
- *		<th>Description</th>
- *	</tr>
- *	<tr>
- *		<td>DFLL</td>
- *		<td>Digital Frequency Locked Loop</td>
- *	</tr>
- *	<tr>
- *		<td>MUX</td>
- *		<td>Multiplexer</td>
- *	</tr>
- *	<tr>
- *		<td>MCLK</td>
- *		<td>Main Clock</td>
- *	</tr>
- *	<tr>
- *		<td>OSC32K</td>
- *		<td>Internal 32KHz Oscillator</td>
- *	</tr>
- *	<tr>
- *		<td>OSC16M</td>
- *		<td>Internal 16MHz Oscillator</td>
- *	</tr>
- *	<tr>
- *		<td>PLL</td>
- *		<td>Phase Locked Loop</td>
- *	</tr>
- *	<tr>
- *		<td>OSC</td>
- *		<td>Oscillator</td>
- *	</tr>
- *	<tr>
- *		<td>XOSC</td>
- *		<td>External Oscillator</td>
- *	</tr>
- *	<tr>
- *		<td>XOSC32K</td>
- *		<td>External 32KHz Oscillator</td>
- *	</tr>
- *	<tr>
- *		<td>AHB</td>
- *		<td>Advanced High-performance Bus</td>
- *	</tr>
- *	<tr>
- *		<td>APB</td>
- *		<td>Advanced Peripheral Bus</td>
- *	</tr>
- *	<tr>
- *		<td>DPLL</td>
- *		<td>Digital Phase Locked Loop</td>
- *	</tr>
+ *  <tr>
+ *      <th>Acronym</th>
+ *      <th>Description</th>
+ *  </tr>
+ *  <tr>
+ *      <td>DFLL</td>
+ *      <td>Digital Frequency Locked Loop</td>
+ *  </tr>
+ *  <tr>
+ *      <td>MUX</td>
+ *      <td>Multiplexer</td>
+ *  </tr>
+ *  <tr>
+ *      <td>MCLK</td>
+ *      <td>Main Clock</td>
+ *  </tr>
+ *  <tr>
+ *      <td>OSC32K</td>
+ *      <td>Internal 32KHz Oscillator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>OSC16M</td>
+ *      <td>Internal 16MHz Oscillator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>PLL</td>
+ *      <td>Phase Locked Loop</td>
+ *  </tr>
+ *  <tr>
+ *      <td>OSC</td>
+ *      <td>Oscillator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>XOSC</td>
+ *      <td>External Oscillator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>XOSC32K</td>
+ *      <td>External 32KHz Oscillator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>AHB</td>
+ *      <td>Advanced High-performance Bus</td>
+ *  </tr>
+ *  <tr>
+ *      <td>APB</td>
+ *      <td>Advanced Peripheral Bus</td>
+ *  </tr>
+ *  <tr>
+ *      <td>DPLL</td>
+ *      <td>Digital Phase Locked Loop</td>
+ *  </tr>
  * </table>
  *
  *
@@ -1430,11 +1430,11 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  *
  * \section asfdoc_sam0_system_clock_extra_errata Errata
  *
- *	- This driver implements experimental workaround for errata 9905
+ *  - This driver implements experimental workaround for errata 9905
  *
- *	  "The DFLL clock must be requested before being configured. Otherwise a
- *	  write access to a DFLL register can freeze the device."
- *	  This driver will enable and configure the DFLL before the ONDEMAND bit is set.
+ *    "The DFLL clock must be requested before being configured. Otherwise a
+ *    write access to a DFLL register can freeze the device."
+ *    This driver will enable and configure the DFLL before the ONDEMAND bit is set.
  *
  *
  * \section asfdoc_sam0_system_clock_extra_history Module History
@@ -1444,12 +1444,12 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  * the table.
  *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
- *	<tr>
- *		<td>Initial Release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Changelog</th>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial Release</td>
+ *  </tr>
  * </table>
  */
 
@@ -1468,16 +1468,16 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  * \page asfdoc_sam0_system_clock_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
- *	<tr>
- *		<td>42452A</td>
- *		<td>06/2015</td>
- *		<td>Initial document release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42452A</td>
+ *      <td>06/2015</td>
+ *      <td>Initial document release</td>
+ *  </tr>
  * </table>
  */
 

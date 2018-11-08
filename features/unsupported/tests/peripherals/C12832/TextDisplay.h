@@ -9,7 +9,7 @@
  * Everything else (locate, printf, putc, cls) will come for free
  *
  * The model is the display will wrap at the right and bottom, so you can
- * keep writing and will always get valid characters. The location is 
+ * keep writing and will always get valid characters. The location is
  * maintained internally to the class to make this easy
  */
 
@@ -53,7 +53,7 @@ public:
      * @results number of rows
      */
     virtual int columns() = 0;
-    
+
     // functions that come for free, but can be overwritten
 
     /**
@@ -61,23 +61,23 @@ public:
      *
      * @param stream stream that shall be redirected to the TextDisplay
      */
-    virtual bool claim (FILE *stream);
+    virtual bool claim(FILE *stream);
 
     /**
      * Clear screen
      */
     virtual void cls();
-    
+
     /**
      * Change the cursor position to column, row (in pixels)
      */
     virtual void locate(int column, int row);
-    
+
     virtual void foreground(uint16_t colour);
     virtual void background(uint16_t colour);
     // putc (from Stream)
     // printf (from Stream)
-    
+
 protected:
 
     virtual int _putc(int value);

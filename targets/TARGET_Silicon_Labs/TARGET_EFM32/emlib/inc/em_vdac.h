@@ -103,54 +103,54 @@ extern "C" {
 
 /** Channel refresh period. */
 typedef enum {
-  vdacRefresh8  = _VDAC_CTRL_REFRESHPERIOD_8CYCLES,  /**< Refresh every 8 clock cycles. */
-  vdacRefresh16 = _VDAC_CTRL_REFRESHPERIOD_16CYCLES, /**< Refresh every 16 clock cycles. */
-  vdacRefresh32 = _VDAC_CTRL_REFRESHPERIOD_32CYCLES, /**< Refresh every 32 clock cycles. */
-  vdacRefresh64 = _VDAC_CTRL_REFRESHPERIOD_64CYCLES, /**< Refresh every 64 clock cycles. */
+    vdacRefresh8  = _VDAC_CTRL_REFRESHPERIOD_8CYCLES,  /**< Refresh every 8 clock cycles. */
+    vdacRefresh16 = _VDAC_CTRL_REFRESHPERIOD_16CYCLES, /**< Refresh every 16 clock cycles. */
+    vdacRefresh32 = _VDAC_CTRL_REFRESHPERIOD_32CYCLES, /**< Refresh every 32 clock cycles. */
+    vdacRefresh64 = _VDAC_CTRL_REFRESHPERIOD_64CYCLES, /**< Refresh every 64 clock cycles. */
 } VDAC_Refresh_TypeDef;
 
 /** Reference voltage for VDAC. */
 typedef enum {
-  vdacRef1V25Ln = _VDAC_CTRL_REFSEL_1V25LN, /**< Internal low noise 1.25 V bandgap reference. */
-  vdacRef2V5Ln  = _VDAC_CTRL_REFSEL_2V5LN,  /**< Internal low noise 2.5 V bandgap reference. */
-  vdacRef1V25   = _VDAC_CTRL_REFSEL_1V25,   /**< Internal 1.25 V bandgap reference. */
-  vdacRef2V5    = _VDAC_CTRL_REFSEL_2V5,    /**< Internal 2.5 V bandgap reference. */
-  vdacRefAvdd   = _VDAC_CTRL_REFSEL_VDD,    /**< AVDD reference. */
-  vdacRefExtPin = _VDAC_CTRL_REFSEL_EXT,    /**< External pin reference. */
+    vdacRef1V25Ln = _VDAC_CTRL_REFSEL_1V25LN, /**< Internal low noise 1.25 V bandgap reference. */
+    vdacRef2V5Ln  = _VDAC_CTRL_REFSEL_2V5LN,  /**< Internal low noise 2.5 V bandgap reference. */
+    vdacRef1V25   = _VDAC_CTRL_REFSEL_1V25,   /**< Internal 1.25 V bandgap reference. */
+    vdacRef2V5    = _VDAC_CTRL_REFSEL_2V5,    /**< Internal 2.5 V bandgap reference. */
+    vdacRefAvdd   = _VDAC_CTRL_REFSEL_VDD,    /**< AVDD reference. */
+    vdacRefExtPin = _VDAC_CTRL_REFSEL_EXT,    /**< External pin reference. */
 } VDAC_Ref_TypeDef;
 
 /** Peripheral Reflex System signal used to trig VDAC channel conversion. */
 typedef enum {
-  vdacPrsSelCh0 =  _VDAC_CH0CTRL_PRSSEL_PRSCH0,  /**< PRS ch 0 triggers conversion. */
-  vdacPrsSelCh1 =  _VDAC_CH0CTRL_PRSSEL_PRSCH1,  /**< PRS ch 1 triggers conversion. */
-  vdacPrsSelCh2 =  _VDAC_CH0CTRL_PRSSEL_PRSCH2,  /**< PRS ch 2 triggers conversion. */
-  vdacPrsSelCh3 =  _VDAC_CH0CTRL_PRSSEL_PRSCH3,  /**< PRS ch 3 triggers conversion. */
-  vdacPrsSelCh4 =  _VDAC_CH0CTRL_PRSSEL_PRSCH4,  /**< PRS ch 4 triggers conversion. */
-  vdacPrsSelCh5 =  _VDAC_CH0CTRL_PRSSEL_PRSCH5,  /**< PRS ch 5 triggers conversion. */
-  vdacPrsSelCh6 =  _VDAC_CH0CTRL_PRSSEL_PRSCH6,  /**< PRS ch 6 triggers conversion. */
-  vdacPrsSelCh7 =  _VDAC_CH0CTRL_PRSSEL_PRSCH7,  /**< PRS ch 7 triggers conversion. */
+    vdacPrsSelCh0 =  _VDAC_CH0CTRL_PRSSEL_PRSCH0,  /**< PRS ch 0 triggers conversion. */
+    vdacPrsSelCh1 =  _VDAC_CH0CTRL_PRSSEL_PRSCH1,  /**< PRS ch 1 triggers conversion. */
+    vdacPrsSelCh2 =  _VDAC_CH0CTRL_PRSSEL_PRSCH2,  /**< PRS ch 2 triggers conversion. */
+    vdacPrsSelCh3 =  _VDAC_CH0CTRL_PRSSEL_PRSCH3,  /**< PRS ch 3 triggers conversion. */
+    vdacPrsSelCh4 =  _VDAC_CH0CTRL_PRSSEL_PRSCH4,  /**< PRS ch 4 triggers conversion. */
+    vdacPrsSelCh5 =  _VDAC_CH0CTRL_PRSSEL_PRSCH5,  /**< PRS ch 5 triggers conversion. */
+    vdacPrsSelCh6 =  _VDAC_CH0CTRL_PRSSEL_PRSCH6,  /**< PRS ch 6 triggers conversion. */
+    vdacPrsSelCh7 =  _VDAC_CH0CTRL_PRSSEL_PRSCH7,  /**< PRS ch 7 triggers conversion. */
 #if defined(_VDAC_CH0CTRL_PRSSEL_PRSCH8)
-  vdacPrsSelCh8 =  _VDAC_CH0CTRL_PRSSEL_PRSCH8,  /**< PRS ch 8 triggers conversion. */
+    vdacPrsSelCh8 =  _VDAC_CH0CTRL_PRSSEL_PRSCH8,  /**< PRS ch 8 triggers conversion. */
 #endif
 #if defined(_VDAC_CH0CTRL_PRSSEL_PRSCH9)
-  vdacPrsSelCh9 =  _VDAC_CH0CTRL_PRSSEL_PRSCH9,  /**< PRS ch 9 triggers conversion. */
+    vdacPrsSelCh9 =  _VDAC_CH0CTRL_PRSSEL_PRSCH9,  /**< PRS ch 9 triggers conversion. */
 #endif
 #if defined(_VDAC_CH0CTRL_PRSSEL_PRSCH10)
-  vdacPrsSelCh10 = _VDAC_CH0CTRL_PRSSEL_PRSCH10, /**< PRS ch 10 triggers conversion. */
+    vdacPrsSelCh10 = _VDAC_CH0CTRL_PRSSEL_PRSCH10, /**< PRS ch 10 triggers conversion. */
 #endif
 #if defined(_VDAC_CH0CTRL_PRSSEL_PRSCH11)
-  vdacPrsSelCh11 = _VDAC_CH0CTRL_PRSSEL_PRSCH11, /**< PRS ch 11 triggers conversion. */
+    vdacPrsSelCh11 = _VDAC_CH0CTRL_PRSSEL_PRSCH11, /**< PRS ch 11 triggers conversion. */
 #endif
 } VDAC_PrsSel_TypeDef;
 
 /** Channel conversion trigger mode. */
 typedef enum {
-  vdacTrigModeSw        = _VDAC_CH0CTRL_TRIGMODE_SW,        /**< Channel is triggered by CHnDATA or COMBDATA write. */
-  vdacTrigModePrs       = _VDAC_CH0CTRL_TRIGMODE_PRS,       /**< Channel is triggered by PRS input. */
-  vdacTrigModeRefresh   = _VDAC_CH0CTRL_TRIGMODE_REFRESH,   /**< Channel is triggered by Refresh timer. */
-  vdacTrigModeSwPrs     = _VDAC_CH0CTRL_TRIGMODE_SWPRS,     /**< Channel is triggered by CHnDATA/COMBDATA write or PRS input. */
-  vdacTrigModeSwRefresh = _VDAC_CH0CTRL_TRIGMODE_SWREFRESH, /**< Channel is triggered by CHnDATA/COMBDATA write or Refresh timer. */
-  vdacTrigModeLesense   = _VDAC_CH0CTRL_TRIGMODE_LESENSE,   /**< Channel is triggered by LESENSE. */
+    vdacTrigModeSw        = _VDAC_CH0CTRL_TRIGMODE_SW,        /**< Channel is triggered by CHnDATA or COMBDATA write. */
+    vdacTrigModePrs       = _VDAC_CH0CTRL_TRIGMODE_PRS,       /**< Channel is triggered by PRS input. */
+    vdacTrigModeRefresh   = _VDAC_CH0CTRL_TRIGMODE_REFRESH,   /**< Channel is triggered by Refresh timer. */
+    vdacTrigModeSwPrs     = _VDAC_CH0CTRL_TRIGMODE_SWPRS,     /**< Channel is triggered by CHnDATA/COMBDATA write or PRS input. */
+    vdacTrigModeSwRefresh = _VDAC_CH0CTRL_TRIGMODE_SWREFRESH, /**< Channel is triggered by CHnDATA/COMBDATA write or Refresh timer. */
+    vdacTrigModeLesense   = _VDAC_CH0CTRL_TRIGMODE_LESENSE,   /**< Channel is triggered by LESENSE. */
 } VDAC_TrigMode_TypeDef;
 
 /*******************************************************************************
@@ -159,36 +159,36 @@ typedef enum {
 
 /** VDAC init structure, common for both channels. */
 typedef struct {
-  /** Select between main and alternate output path calibration values. */
-  bool                  mainCalibration;
+    /** Select between main and alternate output path calibration values. */
+    bool                  mainCalibration;
 
-  /** Selects clock from asynchronous or synchronous (with respect to
-      peripheral clock) source */
-  bool                  asyncClockMode;
+    /** Selects clock from asynchronous or synchronous (with respect to
+        peripheral clock) source */
+    bool                  asyncClockMode;
 
-  /** Warmup mode, keep VDAC on (in idle) - or shutdown between conversions.*/
-  bool                  warmupKeepOn;
+    /** Warmup mode, keep VDAC on (in idle) - or shutdown between conversions.*/
+    bool                  warmupKeepOn;
 
-  /** Channel refresh period. */
-  VDAC_Refresh_TypeDef  refresh;
+    /** Channel refresh period. */
+    VDAC_Refresh_TypeDef  refresh;
 
-  /** Prescaler for VDAC clock. Clock is source clock divided by prescaler+1. */
-  uint32_t              prescaler;
+    /** Prescaler for VDAC clock. Clock is source clock divided by prescaler+1. */
+    uint32_t              prescaler;
 
-  /** Reference voltage to use. */
-  VDAC_Ref_TypeDef      reference;
+    /** Reference voltage to use. */
+    VDAC_Ref_TypeDef      reference;
 
-  /** Enable/disable reset of prescaler on CH 0 start. */
-  bool                 ch0ResetPre;
+    /** Enable/disable reset of prescaler on CH 0 start. */
+    bool                 ch0ResetPre;
 
-  /** Enable/disable output enable control by CH1 PRS signal. */
-  bool                 outEnablePRS;
+    /** Enable/disable output enable control by CH1 PRS signal. */
+    bool                 outEnablePRS;
 
-  /** Enable/disable sine mode. */
-  bool                 sineEnable;
+    /** Enable/disable sine mode. */
+    bool                 sineEnable;
 
-  /** Select if single ended or differential output mode. */
-  bool                 diff;
+    /** Select if single ended or differential output mode. */
+    bool                 diff;
 } VDAC_Init_TypeDef;
 
 /** Default config for VDAC init structure. */
@@ -208,23 +208,23 @@ typedef struct {
 
 /** VDAC channel init structure. */
 typedef struct {
-  /** Enable channel. */
-  bool                  enable;
+    /** Enable channel. */
+    bool                  enable;
 
-  /**
-   * Peripheral reflex system trigger selection. Only applicable if @p trigMode
-   * is set to @p vdacTrigModePrs or @p vdacTrigModeSwPrs. */
-  VDAC_PrsSel_TypeDef   prsSel;
+    /**
+     * Peripheral reflex system trigger selection. Only applicable if @p trigMode
+     * is set to @p vdacTrigModePrs or @p vdacTrigModeSwPrs. */
+    VDAC_PrsSel_TypeDef   prsSel;
 
-  /** Treat the PRS signal asynchronously. */
-  bool                  prsAsync;
+    /** Treat the PRS signal asynchronously. */
+    bool                  prsAsync;
 
-  /** Channel conversion trigger mode. */
-  VDAC_TrigMode_TypeDef trigMode;
+    /** Channel conversion trigger mode. */
+    VDAC_TrigMode_TypeDef trigMode;
 
-  /** Set channel conversion mode to sample/shut-off mode. Default is
-   *  continous.*/
-  bool                  sampleOffMode;
+    /** Set channel conversion mode to sample/shut-off mode. Default is
+     *  continous.*/
+    bool                  sampleOffMode;
 } VDAC_InitChannel_TypeDef;
 
 /** Default config for VDAC channel init structure. */
@@ -267,8 +267,8 @@ void VDAC_InitChannel(VDAC_TypeDef *vdac,
 __STATIC_INLINE void VDAC_Channel0OutputSet(VDAC_TypeDef *vdac,
                                             uint32_t value)
 {
-  EFM_ASSERT(value <= _VDAC_CH0DATA_MASK);
-  vdac->CH0DATA = value;
+    EFM_ASSERT(value <= _VDAC_CH0DATA_MASK);
+    vdac->CH0DATA = value;
 }
 
 /***************************************************************************//**
@@ -288,8 +288,8 @@ __STATIC_INLINE void VDAC_Channel0OutputSet(VDAC_TypeDef *vdac,
 __STATIC_INLINE void VDAC_Channel1OutputSet(VDAC_TypeDef *vdac,
                                             uint32_t value)
 {
-  EFM_ASSERT(value <= _VDAC_CH1DATA_MASK);
-  vdac->CH1DATA = value;
+    EFM_ASSERT(value <= _VDAC_CH1DATA_MASK);
+    vdac->CH1DATA = value;
 }
 
 /***************************************************************************//**
@@ -305,7 +305,7 @@ __STATIC_INLINE void VDAC_Channel1OutputSet(VDAC_TypeDef *vdac,
  ******************************************************************************/
 __STATIC_INLINE void VDAC_IntClear(VDAC_TypeDef *vdac, uint32_t flags)
 {
-  vdac->IFC = flags;
+    vdac->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -321,7 +321,7 @@ __STATIC_INLINE void VDAC_IntClear(VDAC_TypeDef *vdac, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void VDAC_IntDisable(VDAC_TypeDef *vdac, uint32_t flags)
 {
-  vdac->IEN &= ~flags;
+    vdac->IEN &= ~flags;
 }
 
 /***************************************************************************//**
@@ -342,7 +342,7 @@ __STATIC_INLINE void VDAC_IntDisable(VDAC_TypeDef *vdac, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void VDAC_IntEnable(VDAC_TypeDef *vdac, uint32_t flags)
 {
-  vdac->IEN |= flags;
+    vdac->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -361,7 +361,7 @@ __STATIC_INLINE void VDAC_IntEnable(VDAC_TypeDef *vdac, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t VDAC_IntGet(VDAC_TypeDef *vdac)
 {
-  return vdac->IF;
+    return vdac->IF;
 }
 
 /***************************************************************************//**
@@ -385,10 +385,10 @@ __STATIC_INLINE uint32_t VDAC_IntGet(VDAC_TypeDef *vdac)
  ******************************************************************************/
 __STATIC_INLINE uint32_t VDAC_IntGetEnabled(VDAC_TypeDef *vdac)
 {
-  uint32_t ien = vdac->IEN;
+    uint32_t ien = vdac->IEN;
 
-  /* Bitwise AND of pending and enabled interrupts */
-  return vdac->IF & ien;
+    /* Bitwise AND of pending and enabled interrupts */
+    return vdac->IF & ien;
 }
 
 /***************************************************************************//**
@@ -404,7 +404,7 @@ __STATIC_INLINE uint32_t VDAC_IntGetEnabled(VDAC_TypeDef *vdac)
  ******************************************************************************/
 __STATIC_INLINE void VDAC_IntSet(VDAC_TypeDef *vdac, uint32_t flags)
 {
-  vdac->IFS = flags;
+    vdac->IFS = flags;
 }
 
 uint32_t VDAC_PrescaleCalc(uint32_t vdacFreq, bool syncMode, uint32_t hfperFreq);

@@ -18,12 +18,12 @@
  *
  * Description : Support for One Time Programmable memory intended for
  *               storing production parameters such as mac addresses, trim
- *               values and product configuration. Writing to OTP memory shall 
+ *               values and product configuration. Writing to OTP memory shall
  *               only be done in a production environment.
  *-------------------------------------------------------------------------*/
 
 /**
- * @file cb_otp.h 
+ * @file cb_otp.h
  * @ingroup platform
  */
 
@@ -39,8 +39,7 @@
 extern "C" {
 #endif
 
-typedef enum
-{
+typedef enum {
     cbOTP_MAC_BLUETOOTH = 1,
     cbOTP_MAC_WLAN,
     cbOTP_MAC_ETHERNET,

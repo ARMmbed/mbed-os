@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
- #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-     #error [NOT_SUPPORTED] No network configuration found for this target.
- #endif
+#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#error [NOT_SUPPORTED] No network configuration found for this target.
+#endif
 
 #include <algorithm>
 #include "mbed.h"
@@ -35,41 +35,45 @@ using namespace utest::v1;
 #endif
 
 namespace {
-    // Test connection information
-    const int HTTP_SERVER_PORT = 80;
+// Test connection information
+const int HTTP_SERVER_PORT = 80;
 #if defined(TARGET_VK_RZ_A1H)
-    const int RECV_BUFFER_SIZE = 300;
+const int RECV_BUFFER_SIZE = 300;
 #else
-    const int RECV_BUFFER_SIZE = 512;
+const int RECV_BUFFER_SIZE = 512;
 #endif
-    // Test related data
-    const char *HTTP_OK_STR = "200 OK";
-    const char *HTTP_HELLO_STR = "Hello world!";
+// Test related data
+const char *HTTP_OK_STR = "200 OK";
+const char *HTTP_HELLO_STR = "Hello world!";
 
-    // Test buffers
-    char buffer[RECV_BUFFER_SIZE] = {0};
+// Test buffers
+char buffer[RECV_BUFFER_SIZE] = {0};
 
-    Semaphore recvd;
-    NetworkInterface *net;
+Semaphore recvd;
+NetworkInterface *net;
 }
 
-void net_bringup() {
+void net_bringup()
+{
     net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
     TEST_ASSERT_EQUAL(0, err);
 }
 
-bool find_substring(const char *first, const char *last, const char *s_first, const char *s_last) {
+bool find_substring(const char *first, const char *last, const char *s_first, const char *s_last)
+{
     const char *f = std::search(first, last, s_first, s_last);
     return (f != last);
 }
 
-void get_data(TCPSocket* sock){
+void get_data(TCPSocket *sock)
+{
     bool result = false;
     // Server will respond with HTTP GET's success code
     const int ret = sock->recv(buffer, sizeof(buffer) - 1);
-    if(ret <= 0)
+    if (ret <= 0) {
         return;
+    }
 
     buffer[ret] = '\0';
 
@@ -81,7 +85,9 @@ void get_data(TCPSocket* sock){
     TEST_ASSERT_TRUE(found_200_ok);
     TEST_ASSERT_TRUE(found_hello);
 
-    if (found_200_ok && found_hello) result = true;
+    if (found_200_ok && found_hello) {
+        result = true;
+    }
 
     TEST_ASSERT_EQUAL(result, true);
 
@@ -94,7 +100,8 @@ void get_data(TCPSocket* sock){
     recvd.release();
 }
 
-void prep_buffer() {
+void prep_buffer()
+{
     memset(buffer, 0, sizeof(buffer));
     // We are constructing GET command like this:
     // GET http://developer.mbed.org/media/uploads/mbed_official/hello.txt HTTP/1.0\n\n
@@ -104,12 +111,13 @@ void prep_buffer() {
     strcat(buffer, " HTTP/1.0\n\n");
 }
 
-void test_socket_attach() {
+void test_socket_attach()
+{
     bool result = false;
 
     // Dispatch event queue
     Thread eventThread;
-    EventQueue queue(4*EVENTS_EVENT_SIZE);
+    EventQueue queue(4 * EVENTS_EVENT_SIZE);
     eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
 
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());
@@ -135,18 +143,21 @@ void test_socket_attach() {
     TEST_ASSERT_EQUAL(true, result);
 }
 
-void cb_fail() {
+void cb_fail()
+{
     TEST_ASSERT(false);
 }
 
-void cb_pass() {
+void cb_pass()
+{
     recvd.release();
 }
 
-void test_socket_detach() {
+void test_socket_detach()
+{
     // Dispatch event queue
     Thread eventThread;
-    EventQueue queue(4*EVENTS_EVENT_SIZE);
+    EventQueue queue(4 * EVENTS_EVENT_SIZE);
     eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
 
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());
@@ -170,10 +181,11 @@ void test_socket_detach() {
     sock.close();
 }
 
-void test_socket_reattach() {
+void test_socket_reattach()
+{
     // Dispatch event queue
     Thread eventThread;
-    EventQueue queue(4*EVENTS_EVENT_SIZE);
+    EventQueue queue(4 * EVENTS_EVENT_SIZE);
     eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
 
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());
@@ -200,7 +212,8 @@ void test_socket_reattach() {
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(120, "default_auto");
     net_bringup();
     return verbose_test_setup_handler(number_of_cases);
@@ -214,6 +227,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

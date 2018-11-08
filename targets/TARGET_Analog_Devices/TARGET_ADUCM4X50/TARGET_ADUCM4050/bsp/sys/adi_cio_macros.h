@@ -28,23 +28,23 @@
  */
 
 #ifndef __I
-  #ifdef __cplusplus
-    #define   __I   volatile       /*!< Defines 'read only' permissions    */
-  #else
-    #define   __I   volatile const /*!< Defines 'read only' permissions    */
-  #endif
+#ifdef __cplusplus
+#define   __I   volatile       /*!< Defines 'read only' permissions    */
+#else
+#define   __I   volatile const /*!< Defines 'read only' permissions    */
+#endif
 #endif
 
 #ifndef __O
-  #define   __O     volatile       /*!< Defines 'write only' permissions   */
+#define   __O     volatile       /*!< Defines 'write only' permissions   */
 #endif
 
 #ifndef __IO
-  #define   __IO    volatile       /*!< Defines 'read / write' permissions */
+#define   __IO    volatile       /*!< Defines 'read / write' permissions */
 #endif
 
 #ifndef __C
-  #define     __C     /*nothing*/
+#define     __C     /*nothing*/
 #endif
 
 #endif /* _ADI_CIO_MACROS_H */

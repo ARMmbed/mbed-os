@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
- #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-     #error [NOT_SUPPORTED] No network configuration found for this target.
- #endif
+#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#error [NOT_SUPPORTED] No network configuration found for this target.
+#endif
 
 #ifndef MBED_EXTENDED_TESTS
-    #error [NOT_SUPPORTED] Parallel pressure tests are not supported by default
+#error [NOT_SUPPORTED] Parallel pressure tests are not supported by default
 #endif
 
 #include "mbed.h"
@@ -71,23 +71,26 @@ private:
     static const int C = 11;
 
 public:
-    RandSeq(uint32_t seed=MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_SEED)
+    RandSeq(uint32_t seed = MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_SEED)
         : x(seed), y(seed) {}
 
-    uint32_t next(void) {
+    uint32_t next(void)
+    {
         x ^= x << A;
         x ^= x >> B;
         x ^= y ^ (y >> C);
         return x + y;
     }
 
-    void skip(size_t size) {
+    void skip(size_t size)
+    {
         for (size_t i = 0; i < size; i++) {
             next();
         }
     }
 
-    void buffer(uint8_t *buffer, size_t size) {
+    void buffer(uint8_t *buffer, size_t size)
+    {
         RandSeq lookahead = *this;
 
         for (size_t i = 0; i < size; i++) {
@@ -95,7 +98,8 @@ public:
         }
     }
 
-    int cmp(uint8_t *buffer, size_t size) {
+    int cmp(uint8_t *buffer, size_t size)
+    {
         RandSeq lookahead = *this;
 
         for (size_t i = 0; i < size; i++) {
@@ -111,7 +115,8 @@ public:
 // Tries to get the biggest buffer possible on the device. Exponentially
 // grows a buffer until heap runs out of space, and uses half to leave
 // space for the rest of the program
-void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max) {
+void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max)
+{
     size_t i = min;
     while (i < max) {
         void *b = malloc(i);
@@ -133,7 +138,7 @@ void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max) {
 
 
 // Global variables shared between pressure tests
-NetworkInterface* net;
+NetworkInterface *net;
 SocketAddress udp_addr;
 Timer timer;
 Mutex iomutex;
@@ -149,29 +154,33 @@ private:
 
 public:
     PressureTest(uint8_t *buffer, size_t buffer_size)
-        : buffer(buffer), buffer_size(buffer_size) {
+        : buffer(buffer), buffer_size(buffer_size)
+    {
     }
 
-    void start() {
+    void start()
+    {
         osStatus status = thread.start(callback(this, &PressureTest::run));
         TEST_ASSERT_EQUAL(osOK, status);
     }
 
-    void join() {
+    void join()
+    {
         osStatus status = thread.join();
         TEST_ASSERT_EQUAL(osOK, status);
     }
 
-    void run() {
+    void run()
+    {
         // Tests exponentially growing sequences
         for (size_t size = MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN;
-             size < MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX;
-             size *= 2) {
+                size < MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX;
+                size *= 2) {
             int err = sock.open(net);
             TEST_ASSERT_EQUAL(0, err);
             iomutex.lock();
             printf("UDP: %s:%d streaming %d bytes\r\n",
-                udp_addr.get_ip_address(), udp_addr.get_port(), size);
+                   udp_addr.get_ip_address(), udp_addr.get_port(), size);
             iomutex.unlock();
 
             sock.set_blocking(false);
@@ -240,7 +249,7 @@ public:
                             }
                         }
                     } else if (timer.read_ms() - known_time >
-                            MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_TIMEOUT) {
+                               MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_TIMEOUT) {
                         // Dropped packet or out of order, revert to last good sequence
                         // and cut buffer in half
                         tx_seq = rx_seq;
@@ -270,18 +279,19 @@ public:
 PressureTest *pressure_tests[MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS];
 
 
-void test_udp_packet_pressure_parallel() {
+void test_udp_packet_pressure_parallel()
+{
     uint8_t *buffer;
     size_t buffer_size;
     generate_buffer(&buffer, &buffer_size,
-        MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN,
-        MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX);
+                    MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN,
+                    MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX);
 
     size_t buffer_subsize = buffer_size / MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS;
     printf("MBED: Generated buffer %d\r\n", buffer_size);
     printf("MBED: Split into %d buffers %d\r\n",
-            MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS,
-            buffer_subsize);
+           MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS,
+           buffer_subsize);
 
     net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
@@ -296,7 +306,7 @@ void test_udp_packet_pressure_parallel() {
 
     // Startup pressure tests in parallel
     for (int i = 0; i < MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS; i++) {
-        pressure_tests[i] = new PressureTest(&buffer[i*buffer_subsize], buffer_subsize);
+        pressure_tests[i] = new PressureTest(&buffer[i * buffer_subsize], buffer_subsize);
         pressure_tests[i]->start();
     }
 
@@ -308,16 +318,17 @@ void test_udp_packet_pressure_parallel() {
     timer.stop();
     printf("MBED: Time taken: %fs\r\n", timer.read());
     printf("MBED: Speed: %.3fkb/s\r\n",
-            MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS*
-            8*(2*MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX -
-            MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN) / (1000*timer.read()));
+           MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS *
+           8 * (2 * MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX -
+                MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN) / (1000 * timer.read()));
 
     net->disconnect();
 }
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(120, "udp_echo");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -328,6 +339,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

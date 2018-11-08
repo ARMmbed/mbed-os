@@ -56,24 +56,24 @@ typedef void (*netifapi_void_fn)(struct netif *netif);
 typedef err_t (*netifapi_errt_fn)(struct netif *netif);
 
 struct netifapi_msg {
-  struct tcpip_api_call_data call;
-  struct netif *netif;
-  union {
-    struct {
+    struct tcpip_api_call_data call;
+    struct netif *netif;
+    union {
+        struct {
 #if LWIP_IPV4
-      NETIFAPI_IPADDR_DEF(ip4_addr_t, ipaddr);
-      NETIFAPI_IPADDR_DEF(ip4_addr_t, netmask);
-      NETIFAPI_IPADDR_DEF(ip4_addr_t, gw);
+            NETIFAPI_IPADDR_DEF(ip4_addr_t, ipaddr);
+            NETIFAPI_IPADDR_DEF(ip4_addr_t, netmask);
+            NETIFAPI_IPADDR_DEF(ip4_addr_t, gw);
 #endif /* LWIP_IPV4 */
-      void *state;
-      netif_init_fn init;
-      netif_input_fn input;
-    } add;
-    struct {
-      netifapi_void_fn voidfunc;
-      netifapi_errt_fn errtfunc;
-    } common;
-  } msg;
+            void *state;
+            netif_init_fn init;
+            netif_input_fn input;
+        } add;
+        struct {
+            netifapi_void_fn voidfunc;
+            netifapi_errt_fn errtfunc;
+        } common;
+    } msg;
 };
 
 

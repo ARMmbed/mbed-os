@@ -64,8 +64,7 @@
  *  \brief  General Purpose Timer
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_TMR_TypeDef__
-typedef struct _ADI_TMR_TypeDef
-{
+typedef struct _ADI_TMR_TypeDef {
     __IO     uint16_t   LOAD;                          /*!< 16-bit Load Value */
     __I __C  uint8_t  RESERVED0[2];
     __I __C  uint16_t   CURCNT;                        /*!< 16-bit Timer Value */
@@ -100,8 +99,7 @@ typedef struct _ADI_TMR_TypeDef
  *  \brief  Real-Time Clock
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_RTC_TypeDef__
-typedef struct _ADI_RTC_TypeDef
-{
+typedef struct _ADI_RTC_TypeDef {
     __IO     uint16_t   CR0;                           /*!< RTC Control 0 */
     __I __C  uint8_t  RESERVED0[2];
     __IO     uint16_t   SR0;                           /*!< RTC Status 0 */
@@ -180,8 +178,7 @@ typedef struct _ADI_RTC_TypeDef
  *  \brief  System Identification and Debug Enable
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SYS_TypeDef__
-typedef struct _ADI_SYS_TypeDef
-{
+typedef struct _ADI_SYS_TypeDef {
     __I __C  uint8_t  RESERVED0[32];
     __I __C  uint16_t   ADIID;                         /*!< ADI Identification */
     __I __C  uint8_t  RESERVED1[2];
@@ -203,8 +200,7 @@ typedef struct _ADI_SYS_TypeDef
  *  \brief  Watchdog Timer
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_WDT_TypeDef__
-typedef struct _ADI_WDT_TypeDef
-{
+typedef struct _ADI_WDT_TypeDef {
     __IO     uint16_t   LOAD;                          /*!< Load Value */
     __I __C  uint8_t  RESERVED0[2];
     __I __C  uint16_t   CCNT;                          /*!< Current Count Value */
@@ -229,8 +225,7 @@ typedef struct _ADI_WDT_TypeDef
  *  \brief  I2C Master/Slave
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_I2C_TypeDef__
-typedef struct _ADI_I2C_TypeDef
-{
+typedef struct _ADI_I2C_TypeDef {
     __IO     uint16_t   MCTL;                          /*!< Master Control */
     __I __C  uint8_t  RESERVED0[2];
     __IO     uint16_t   MSTAT;                         /*!< Master Status */
@@ -291,8 +286,7 @@ typedef struct _ADI_I2C_TypeDef
  *  \brief  Serial Peripheral Interface
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPI_TypeDef__
-typedef struct _ADI_SPI_TypeDef
-{
+typedef struct _ADI_SPI_TypeDef {
     __IO     uint16_t   STAT;                          /*!< Status */
     __I __C  uint8_t  RESERVED0[2];
     __I __C  uint16_t   RX;                            /*!< Receive */
@@ -327,20 +321,19 @@ typedef struct _ADI_SPI_TypeDef
 /*!@}*/
 
 /** @defgroup UART  (UART) Module
- *  
+ *
  *  @{
  */
 
 /*! ==========================================================================
  *  \struct ADI_UART_TypeDef
- *  \brief  
+ *  \brief
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_UART_TypeDef__
-typedef struct _ADI_UART_TypeDef
-{
+typedef struct _ADI_UART_TypeDef {
     union {
-    __I __C  uint16_t   RX;                            /*!< Receive Buffer Register */
-    __O      uint16_t   TX;                            /*!< Transmit Holding Register */
+        __I __C  uint16_t   RX;                            /*!< Receive Buffer Register */
+        __O      uint16_t   TX;                            /*!< Transmit Holding Register */
     };
     __I __C  uint8_t  RESERVED0[2];
     __IO     uint16_t   IEN;                           /*!< Interrupt Enable */
@@ -393,8 +386,7 @@ typedef struct _ADI_UART_TypeDef
  *  \brief  Beeper Driver
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_BEEP_TypeDef__
-typedef struct _ADI_BEEP_TypeDef
-{
+typedef struct _ADI_BEEP_TypeDef {
     __IO     uint16_t   CFG;                           /*!< Beeper Configuration */
     __I __C  uint8_t  RESERVED0[2];
     __IO     uint16_t   STAT;                          /*!< Beeper Status */
@@ -408,17 +400,16 @@ typedef struct _ADI_BEEP_TypeDef
 /*!@}*/
 
 /** @defgroup ADC  (ADC) Module
- *  
+ *
  *  @{
  */
 
 /*! ==========================================================================
  *  \struct ADI_ADC_TypeDef
- *  \brief  
+ *  \brief
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_ADC_TypeDef__
-typedef struct _ADI_ADC_TypeDef
-{
+typedef struct _ADI_ADC_TypeDef {
     __IO     uint16_t   CFG;                           /*!< ADC Configuration */
     __I __C  uint8_t  RESERVED0[2];
     __IO     uint16_t   PWRUP;                         /*!< ADC Power-up Time */
@@ -504,8 +495,7 @@ typedef struct _ADI_ADC_TypeDef
  *  \brief  DMA
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_DMA_TypeDef__
-typedef struct _ADI_DMA_TypeDef
-{
+typedef struct _ADI_DMA_TypeDef {
     __I __C  uint32_t   STAT;                          /*!< DMA Status */
     __O      uint32_t   CFG;                           /*!< DMA Configuration */
     __IO     uint32_t   PDBPTR;                        /*!< DMA Channel Primary Control Database Pointer */
@@ -550,8 +540,7 @@ typedef struct _ADI_DMA_TypeDef
  *  \brief  Flash Controller
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_TypeDef__
-typedef struct _ADI_FLCC_TypeDef
-{
+typedef struct _ADI_FLCC_TypeDef {
     __IO     uint32_t   STAT;                          /*!< Status */
     __IO     uint32_t   IEN;                           /*!< Interrupt Enable */
     __IO     uint32_t   CMD;                           /*!< Command */
@@ -589,8 +578,7 @@ typedef struct _ADI_FLCC_TypeDef
  *  \brief  Cache Controller
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_FLCC_CACHE_TypeDef__
-typedef struct _ADI_FLCC_CACHE_TypeDef
-{
+typedef struct _ADI_FLCC_CACHE_TypeDef {
     __I __C  uint32_t   STAT;                          /*!< Cache Status */
     __IO     uint32_t   SETUP;                         /*!< Cache Setup */
     __O      uint32_t   KEY;                           /*!< Cache Key */
@@ -601,17 +589,16 @@ typedef struct _ADI_FLCC_CACHE_TypeDef
 /*!@}*/
 
 /** @defgroup GPIO  (GPIO) Module
- *  
+ *
  *  @{
  */
 
 /*! ==========================================================================
  *  \struct ADI_GPIO_TypeDef
- *  \brief  
+ *  \brief
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_GPIO_TypeDef__
-typedef struct _ADI_GPIO_TypeDef
-{
+typedef struct _ADI_GPIO_TypeDef {
     __IO     uint32_t   CFG;                           /*!< Port Configuration */
     __IO     uint16_t   OEN;                           /*!< Port Output Enable */
     __I __C  uint8_t  RESERVED0[2];
@@ -653,8 +640,7 @@ typedef struct _ADI_GPIO_TypeDef
  *  \brief  Serial Port
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_SPORT_TypeDef__
-typedef struct _ADI_SPORT_TypeDef
-{
+typedef struct _ADI_SPORT_TypeDef {
     __IO     uint32_t   CTL_A;                         /*!< Half SPORT 'A' Control */
     __IO     uint32_t   DIV_A;                         /*!< Half SPORT 'A' Divisor */
     __IO     uint32_t   IEN_A;                         /*!< Half SPORT A's Interrupt Enable */
@@ -692,15 +678,14 @@ typedef struct _ADI_SPORT_TypeDef
  *  \brief  CRC Accelerator
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_CRC_TypeDef__
-typedef struct _ADI_CRC_TypeDef
-{
+typedef struct _ADI_CRC_TypeDef {
     __IO     uint32_t   CTL;                           /*!< CRC Control */
     __O      uint32_t   IPDATA;                        /*!< Input Data Word */
     __IO     uint32_t   RESULT;                        /*!< CRC Result */
     __IO     uint32_t   POLY;                          /*!< Programmable CRC Polynomial */
     union {
-    __O      uint8_t    IPBITS[8];                     /*!< Input Data Bits */
-    __O      uint8_t    IPBYTE;                        /*!< Input Data Byte */
+        __O      uint8_t    IPBITS[8];                     /*!< Input Data Bits */
+        __O      uint8_t    IPBYTE;                        /*!< Input Data Byte */
     };
 } ADI_CRC_TypeDef;
 #endif /* !__ADI_NO_DECL_STRUCT_ADI_CRC_TypeDef__ */
@@ -717,8 +702,7 @@ typedef struct _ADI_CRC_TypeDef
  *  \brief  Random Number Generator
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_RNG_TypeDef__
-typedef struct _ADI_RNG_TypeDef
-{
+typedef struct _ADI_RNG_TypeDef {
     __IO     uint16_t   CTL;                           /*!< RNG Control Register */
     __I __C  uint8_t  RESERVED0[2];
     __IO     uint16_t   LEN;                           /*!< RNG Sample Length Register */
@@ -743,8 +727,7 @@ typedef struct _ADI_RNG_TypeDef
  *  \brief  Register Map for the Crypto Block
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_CRYPT_TypeDef__
-typedef struct _ADI_CRYPT_TypeDef
-{
+typedef struct _ADI_CRYPT_TypeDef {
     __IO     uint32_t   CFG;                           /*!< Configuration Register */
     __IO     uint32_t   DATALEN;                       /*!< Payload Data Length */
     __IO     uint32_t   PREFIXLEN;                     /*!< Authentication Data Length */
@@ -781,17 +764,16 @@ typedef struct _ADI_CRYPT_TypeDef
 /*!@}*/
 
 /** @defgroup PMG Power Management  (PMG) Module
- *  Power Management 
+ *  Power Management
  *  @{
  */
 
 /*! ==========================================================================
  *  \struct ADI_PMG_TypeDef
- *  \brief  Power Management 
+ *  \brief  Power Management
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_PMG_TypeDef__
-typedef struct _ADI_PMG_TypeDef
-{
+typedef struct _ADI_PMG_TypeDef {
     __IO     uint32_t   IEN;                           /*!< Power Supply Monitor Interrupt Enable */
     __IO     uint32_t   PSM_STAT;                      /*!< Power Supply Monitor Status */
     __IO     uint32_t   PWRMOD;                        /*!< Power Mode Register */
@@ -817,8 +799,7 @@ typedef struct _ADI_PMG_TypeDef
  *  \brief  External interrupt configuration
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_XINT_TypeDef__
-typedef struct _ADI_XINT_TypeDef
-{
+typedef struct _ADI_XINT_TypeDef {
     __IO     uint32_t   CFG0;                          /*!< External Interrupt Configuration */
     __I __C  uint32_t   EXT_STAT;                      /*!< External Wakeup Interrupt Status */
     __I __C  uint8_t  RESERVED0[8];
@@ -830,17 +811,16 @@ typedef struct _ADI_XINT_TypeDef
 /*!@}*/
 
 /** @defgroup CLKG_OSC Clocking  (CLKG_OSC) Module
- *  Clocking 
+ *  Clocking
  *  @{
  */
 
 /*! ==========================================================================
  *  \struct ADI_CLKG_OSC_TypeDef
- *  \brief  Clocking 
+ *  \brief  Clocking
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_CLKG_OSC_TypeDef__
-typedef struct _ADI_CLKG_OSC_TypeDef
-{
+typedef struct _ADI_CLKG_OSC_TypeDef {
     __I __C  uint8_t  RESERVED0[12];
     __O      uint32_t   KEY;                           /*!< Key Protection for CLKG_OSC_CTL */
     __IO     uint32_t   CTL;                           /*!< Oscillator Control */
@@ -851,17 +831,16 @@ typedef struct _ADI_CLKG_OSC_TypeDef
 /*!@}*/
 
 /** @defgroup PMG_TST Power Management  (PMG_TST) Module
- *  Power Management 
+ *  Power Management
  *  @{
  */
 
 /*! ==========================================================================
  *  \struct ADI_PMG_TST_TypeDef
- *  \brief  Power Management 
+ *  \brief  Power Management
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_PMG_TST_TypeDef__
-typedef struct _ADI_PMG_TST_TypeDef
-{
+typedef struct _ADI_PMG_TST_TypeDef {
     __I __C  uint8_t  RESERVED0[96];
     __IO     uint32_t   SRAM_CTL;                      /*!< Control for SRAM Parity and Instruction SRAM */
     __IO     uint32_t   SRAM_INITSTAT;                 /*!< Initialization Status Register */
@@ -875,17 +854,16 @@ typedef struct _ADI_PMG_TST_TypeDef
 /*!@}*/
 
 /** @defgroup CLKG_CLK Clocking  (CLKG_CLK) Module
- *  Clocking 
+ *  Clocking
  *  @{
  */
 
 /*! ==========================================================================
  *  \struct ADI_CLKG_CLK_TypeDef
- *  \brief  Clocking 
+ *  \brief  Clocking
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_CLKG_CLK_TypeDef__
-typedef struct _ADI_CLKG_CLK_TypeDef
-{
+typedef struct _ADI_CLKG_CLK_TypeDef {
     __IO     uint32_t   CTL0;                          /*!< Miscellaneous Clock Settings */
     __IO     uint32_t   CTL1;                          /*!< Clock Dividers */
     __I __C  uint8_t  RESERVED0[4];
@@ -909,8 +887,7 @@ typedef struct _ADI_CLKG_CLK_TypeDef
  *  \brief  Bus matrix
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_BUSM_TypeDef__
-typedef struct _ADI_BUSM_TypeDef
-{
+typedef struct _ADI_BUSM_TypeDef {
     __IO     uint32_t   ARBIT0;                        /*!< Arbitration Priority Configuration for FLASH and SRAM0 */
     __IO     uint32_t   ARBIT1;                        /*!< Arbitration Priority Configuration for SRAM1 and SIP */
     __IO     uint32_t   ARBIT2;                        /*!< Arbitration Priority Configuration for APB32 and APB16 */
@@ -931,8 +908,7 @@ typedef struct _ADI_BUSM_TypeDef
  *  \brief  Parallel Test Interface
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_PTI_TypeDef__
-typedef struct _ADI_PTI_TypeDef
-{
+typedef struct _ADI_PTI_TypeDef {
     __IO     uint32_t   RST_ISR_STARTADDR;             /*!< Reset ISR Start Address */
     __IO     uint32_t   RST_STACK_PTR;                 /*!< Reset Stack Pointer */
     __IO     uint32_t   CTL;                           /*!< Parallel Test Interface Control Register */
@@ -951,8 +927,7 @@ typedef struct _ADI_PTI_TypeDef
  *  \brief  Cortex-M3 Interrupt Controller
  *  ========================================================================== */
 #ifndef __ADI_NO_DECL_STRUCT_ADI_NVIC_TypeDef__
-typedef struct _ADI_NVIC_TypeDef
-{
+typedef struct _ADI_NVIC_TypeDef {
     __I __C  uint8_t  RESERVED0[4];
     __IO     uint32_t   INTNUM;                        /*!< Interrupt Control Type */
     __I __C  uint8_t  RESERVED1[8];
@@ -1127,73 +1102,72 @@ typedef struct _ADI_NVIC_TypeDef
  *  ========================================================================= */
 #ifndef __ADI_NO_DECL_ENUM_IRQn_Type__
 
-typedef enum
-{
-  RESET_IRQn                     =   -15,    /*!< Cortex-M3 Reset */
-  NonMaskableInt_IRQn            =   -14,    /*!< Cortex-M3 Non-maskable Interrupt */
-  HardFault_IRQn                 =   -13,    /*!< Cortex-M3 Hardware Fault */
-  MemoryManagement_IRQn          =   -12,    /*!< Cortex-M3 Memory Management Interrupt */
-  BusFault_IRQn                  =   -11,    /*!< Cortex-M3 Bus Fault */
-  UsageFault_IRQn                =   -10,    /*!< Cortex-M3 Usage Fault */
-  SVCall_IRQn                    =    -5,    /*!< Cortex-M3 SVCall Interrupt */
-  DebugMonitor_IRQn              =    -4,    /*!< Cortex-M3 Debug Monitor */
-  PendSV_IRQn                    =    -2,    /*!< Cortex-M3 PendSV Interrupt */
-  SysTick_IRQn                   =    -1,    /*!< Cortex-M3 SysTick Interrupt */
-  RTC1_EVT_IRQn                  =     0,    /*!< Event */
-  XINT_EVT0_IRQn                 =     1,    /*!< External Wakeup Interrupt n */
-  XINT_EVT1_IRQn                 =     2,    /*!< External Wakeup Interrupt n */
-  XINT_EVT2_IRQn                 =     3,    /*!< External Wakeup Interrupt n */
-  XINT_EVT3_IRQn                 =     4,    /*!< External Wakeup Interrupt n */
-  WDT_EXP_IRQn                   =     5,    /*!< Expiration */
-  PMG0_VREG_OVR_IRQn             =     6,    /*!< Voltage Regulator (VREG) Overvoltage */
-  PMG0_BATT_RANGE_IRQn           =     7,    /*!< Battery Voltage (VBAT) Out of Range */
-  RTC0_EVT_IRQn                  =     8,    /*!< Event */
-  SYS_GPIO_INTA_IRQn             =     9,    /*!< GPIO Interrupt A */
-  SYS_GPIO_INTB_IRQn             =    10,    /*!< GPIO Interrupt B */
-  TMR0_EVT_IRQn                  =    11,    /*!< Event */
-  TMR1_EVT_IRQn                  =    12,    /*!< Event */
-  FLCC_EVT_IRQn                  =    13,    /*!< Event */
-  UART_EVT_IRQn                  =    14,    /*!< Event */
-  SPI0_EVT_IRQn                  =    15,    /*!< Event */
-  SPI2_EVT_IRQn                  =    16,    /*!< Event */
-  I2C_SLV_EVT_IRQn               =    17,    /*!< Slave Event */
-  I2C_MST_EVT_IRQn               =    18,    /*!< Master Event */
-  DMA_CHAN_ERR_IRQn              =    19,    /*!< Channel Error */
-  DMA0_CH0_DONE_IRQn             =    20,    /*!< Channel 0 Done */
-  DMA0_CH1_DONE_IRQn             =    21,    /*!< Channel 1 Done */
-  DMA0_CH2_DONE_IRQn             =    22,    /*!< Channel 2 Done */
-  DMA0_CH3_DONE_IRQn             =    23,    /*!< Channel 3 Done */
-  DMA0_CH4_DONE_IRQn             =    24,    /*!< Channel 4 Done */
-  DMA0_CH5_DONE_IRQn             =    25,    /*!< Channel 5 Done */
-  DMA0_CH6_DONE_IRQn             =    26,    /*!< Channel 6 Done */
-  DMA0_CH7_DONE_IRQn             =    27,    /*!< Channel 7 Done */
-  DMA0_CH8_DONE_IRQn             =    28,    /*!< Channel 8 Done */
-  DMA0_CH9_DONE_IRQn             =    29,    /*!< Channel 9 Done */
-  DMA0_CH10_DONE_IRQn            =    30,    /*!< Channel 10 Done */
-  DMA0_CH11_DONE_IRQn            =    31,    /*!< Channel 11 Done */
-  DMA0_CH12_DONE_IRQn            =    32,    /*!< Channel 12 Done */
-  DMA0_CH13_DONE_IRQn            =    33,    /*!< Channel 13 Done */
-  DMA0_CH14_DONE_IRQn            =    34,    /*!< Channel 14 Done */
-  DMA0_CH15_DONE_IRQn            =    35,    /*!< Channel 15 Done */
-  SPORT_A_EVT_IRQn               =    36,    /*!< Channel A Event */
-  SPORT_B_EVT_IRQn               =    37,    /*!< Channel B Event */
-  CRYPT_EVT_IRQn                 =    38,    /*!< Event */
-  DMA0_CH24_DONE_IRQn            =    39,    /*!< Channel 24 Done */
-  TMR2_EVT_IRQn                  =    40,    /*!< Event */
-  CLKG_XTAL_OSC_EVT_IRQn         =    41,    /*!< Crystal Oscillator Event */
-  SPI1_EVT_IRQn                  =    42,    /*!< Event */
-  CLKG_PLL_EVT_IRQn              =    43,    /*!< PLL Event */
-  RNG0_EVT_IRQn                  =    44,    /*!< Event */
-  BEEP_EVT_IRQn                  =    45,    /*!< Event */
-  ADC0_EVT_IRQn                  =    46,    /*!< Event */
-  DMA0_CH16_DONE_IRQn            =    56,    /*!< Channel 16 Done */
-  DMA0_CH17_DONE_IRQn            =    57,    /*!< Channel 17 Done */
-  DMA0_CH18_DONE_IRQn            =    58,    /*!< Channel 18 Done */
-  DMA0_CH19_DONE_IRQn            =    59,    /*!< Channel 19 Done */
-  DMA0_CH20_DONE_IRQn            =    60,    /*!< Channel 20 Done */
-  DMA0_CH21_DONE_IRQn            =    61,    /*!< Channel 21 Done */
-  DMA0_CH22_DONE_IRQn            =    62,    /*!< Channel 22 Done */
-  DMA0_CH23_DONE_IRQn            =    63,    /*!< Channel 23 Done */
+typedef enum {
+    RESET_IRQn                     =   -15,    /*!< Cortex-M3 Reset */
+    NonMaskableInt_IRQn            =   -14,    /*!< Cortex-M3 Non-maskable Interrupt */
+    HardFault_IRQn                 =   -13,    /*!< Cortex-M3 Hardware Fault */
+    MemoryManagement_IRQn          =   -12,    /*!< Cortex-M3 Memory Management Interrupt */
+    BusFault_IRQn                  =   -11,    /*!< Cortex-M3 Bus Fault */
+    UsageFault_IRQn                =   -10,    /*!< Cortex-M3 Usage Fault */
+    SVCall_IRQn                    =    -5,    /*!< Cortex-M3 SVCall Interrupt */
+    DebugMonitor_IRQn              =    -4,    /*!< Cortex-M3 Debug Monitor */
+    PendSV_IRQn                    =    -2,    /*!< Cortex-M3 PendSV Interrupt */
+    SysTick_IRQn                   =    -1,    /*!< Cortex-M3 SysTick Interrupt */
+    RTC1_EVT_IRQn                  =     0,    /*!< Event */
+    XINT_EVT0_IRQn                 =     1,    /*!< External Wakeup Interrupt n */
+    XINT_EVT1_IRQn                 =     2,    /*!< External Wakeup Interrupt n */
+    XINT_EVT2_IRQn                 =     3,    /*!< External Wakeup Interrupt n */
+    XINT_EVT3_IRQn                 =     4,    /*!< External Wakeup Interrupt n */
+    WDT_EXP_IRQn                   =     5,    /*!< Expiration */
+    PMG0_VREG_OVR_IRQn             =     6,    /*!< Voltage Regulator (VREG) Overvoltage */
+    PMG0_BATT_RANGE_IRQn           =     7,    /*!< Battery Voltage (VBAT) Out of Range */
+    RTC0_EVT_IRQn                  =     8,    /*!< Event */
+    SYS_GPIO_INTA_IRQn             =     9,    /*!< GPIO Interrupt A */
+    SYS_GPIO_INTB_IRQn             =    10,    /*!< GPIO Interrupt B */
+    TMR0_EVT_IRQn                  =    11,    /*!< Event */
+    TMR1_EVT_IRQn                  =    12,    /*!< Event */
+    FLCC_EVT_IRQn                  =    13,    /*!< Event */
+    UART_EVT_IRQn                  =    14,    /*!< Event */
+    SPI0_EVT_IRQn                  =    15,    /*!< Event */
+    SPI2_EVT_IRQn                  =    16,    /*!< Event */
+    I2C_SLV_EVT_IRQn               =    17,    /*!< Slave Event */
+    I2C_MST_EVT_IRQn               =    18,    /*!< Master Event */
+    DMA_CHAN_ERR_IRQn              =    19,    /*!< Channel Error */
+    DMA0_CH0_DONE_IRQn             =    20,    /*!< Channel 0 Done */
+    DMA0_CH1_DONE_IRQn             =    21,    /*!< Channel 1 Done */
+    DMA0_CH2_DONE_IRQn             =    22,    /*!< Channel 2 Done */
+    DMA0_CH3_DONE_IRQn             =    23,    /*!< Channel 3 Done */
+    DMA0_CH4_DONE_IRQn             =    24,    /*!< Channel 4 Done */
+    DMA0_CH5_DONE_IRQn             =    25,    /*!< Channel 5 Done */
+    DMA0_CH6_DONE_IRQn             =    26,    /*!< Channel 6 Done */
+    DMA0_CH7_DONE_IRQn             =    27,    /*!< Channel 7 Done */
+    DMA0_CH8_DONE_IRQn             =    28,    /*!< Channel 8 Done */
+    DMA0_CH9_DONE_IRQn             =    29,    /*!< Channel 9 Done */
+    DMA0_CH10_DONE_IRQn            =    30,    /*!< Channel 10 Done */
+    DMA0_CH11_DONE_IRQn            =    31,    /*!< Channel 11 Done */
+    DMA0_CH12_DONE_IRQn            =    32,    /*!< Channel 12 Done */
+    DMA0_CH13_DONE_IRQn            =    33,    /*!< Channel 13 Done */
+    DMA0_CH14_DONE_IRQn            =    34,    /*!< Channel 14 Done */
+    DMA0_CH15_DONE_IRQn            =    35,    /*!< Channel 15 Done */
+    SPORT_A_EVT_IRQn               =    36,    /*!< Channel A Event */
+    SPORT_B_EVT_IRQn               =    37,    /*!< Channel B Event */
+    CRYPT_EVT_IRQn                 =    38,    /*!< Event */
+    DMA0_CH24_DONE_IRQn            =    39,    /*!< Channel 24 Done */
+    TMR2_EVT_IRQn                  =    40,    /*!< Event */
+    CLKG_XTAL_OSC_EVT_IRQn         =    41,    /*!< Crystal Oscillator Event */
+    SPI1_EVT_IRQn                  =    42,    /*!< Event */
+    CLKG_PLL_EVT_IRQn              =    43,    /*!< PLL Event */
+    RNG0_EVT_IRQn                  =    44,    /*!< Event */
+    BEEP_EVT_IRQn                  =    45,    /*!< Event */
+    ADC0_EVT_IRQn                  =    46,    /*!< Event */
+    DMA0_CH16_DONE_IRQn            =    56,    /*!< Channel 16 Done */
+    DMA0_CH17_DONE_IRQn            =    57,    /*!< Channel 17 Done */
+    DMA0_CH18_DONE_IRQn            =    58,    /*!< Channel 18 Done */
+    DMA0_CH19_DONE_IRQn            =    59,    /*!< Channel 19 Done */
+    DMA0_CH20_DONE_IRQn            =    60,    /*!< Channel 20 Done */
+    DMA0_CH21_DONE_IRQn            =    61,    /*!< Channel 21 Done */
+    DMA0_CH22_DONE_IRQn            =    62,    /*!< Channel 22 Done */
+    DMA0_CH23_DONE_IRQn            =    63,    /*!< Channel 23 Done */
 } IRQn_Type;  /* typedef name for fixed interrupt numbers */
 #endif /* !__ADI_NO_DECL_ENUM_IRQn_Type__ */
 

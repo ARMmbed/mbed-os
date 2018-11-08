@@ -28,12 +28,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- */ 
- /**
-  @defgroup nrf_error SoftDevice Global Error Codes
-  @{
-   
-  @brief Global Error definitions
+ */
+/**
+ @defgroup nrf_error SoftDevice Global Error Codes
+ @{
+
+ @brief Global Error definitions
 */
 
 /* Header guard */

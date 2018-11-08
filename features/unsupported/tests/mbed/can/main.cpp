@@ -1,7 +1,7 @@
 #include "mbed.h"
 
 #if !DEVICE_CAN
-  #error [NOT_SUPPORTED] CAN not supported
+#error [NOT_SUPPORTED] CAN not supported
 #endif
 
 Ticker ticker;
@@ -42,29 +42,32 @@ CAN can2(PB_5, PB_6);
 #endif
 char counter = 0;
 
-void printmsg(char *title, CANMessage *msg) {
+void printmsg(char *title, CANMessage *msg)
+{
     printf("%s [%03X]", title, msg->id);
-    for(char i = 0; i < msg->len; i++) {
+    for (char i = 0; i < msg->len; i++) {
         printf(" %02X", msg->data[i]);
     }
     printf("\n");
 }
 
-void send() {
+void send()
+{
     printf("send()\n");
     CANMessage msg = CANMessage(1337, &counter, 1);
-    if(can1.write(msg)) {
+    if (can1.write(msg)) {
         printmsg("Tx message:", &msg);
         counter++;
     }
     led1 = !led1;
 }
 
-int main() {
+int main()
+{
     printf("main()\n");
     ticker.attach(&send, 1);
     CANMessage msg;
-    while(1) {
+    while (1) {
 #if (!defined (TARGET_LPC1549) && !defined(TARGET_B96B_F446VE) && \
      !defined(TARGET_NUCLEO_F091RC) && !defined(TARGET_NUCLEO_F072RB) && \
      !defined(TARGET_NUCLEO_F042K6) && !defined(TARGET_NUCLEO_F334R8) && \
@@ -72,8 +75,8 @@ int main() {
      !defined(TARGET_NUCLEO_F302R8) && !defined(TARGET_NUCLEO_F103RB) && \
      !defined(TARGET_DISCO_L476VG) && !defined(TARGET_DISCO_L475VG_IOT01A) && !defined(TARGET_NUCLEO_L476RG) && \
      !defined(TARGET_NUCLEO_L432KC)) && !defined(TARGET_DISCO_F303VC)
-      printf("loop()\n");
-        if(can2.read(msg)) {
+        printf("loop()\n");
+        if (can2.read(msg)) {
             printmsg("Rx message:", &msg);
             led2 = !led2;
         }

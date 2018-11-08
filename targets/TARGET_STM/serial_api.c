@@ -220,8 +220,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #if MBED_CONF_PLATFORM_STDIO_BAUD_RATE
         obj_s->baudrate = MBED_CONF_PLATFORM_STDIO_BAUD_RATE; // baudrate takes value from platform/mbed_lib.json
 #endif /* MBED_CONF_PLATFORM_STDIO_BAUD_RATE */
-    }
-    else {
+    } else {
 #if MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE
         obj_s->baudrate = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE; // baudrate takes value from platform/mbed_lib.json
 #endif /* MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE */
@@ -394,15 +393,14 @@ void serial_baud(serial_t *obj, int baudrate)
                 PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
                 PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
                 HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-                if (init_uart(obj) == HAL_OK){
+                if (init_uart(obj) == HAL_OK) {
                     return;
                 }
-            }
-            else {
+            } else {
                 PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
                 PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_SYSCLK;
                 HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-                if (init_uart(obj) == HAL_OK){
+                if (init_uart(obj) == HAL_OK) {
                     return;
                 }
             }
@@ -507,7 +505,7 @@ int serial_readable(serial_t *obj)
     /*  To avoid a target blocking case, let's check for
      *  possible OVERRUN error and discard it
      */
-    if(__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE)) {
+    if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE)) {
         __HAL_UART_CLEAR_OREFLAG(huart);
     }
     // Check if data is received

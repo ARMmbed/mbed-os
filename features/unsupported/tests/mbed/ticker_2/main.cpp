@@ -5,7 +5,7 @@ Ticker tick;
 DigitalOut led(LED1);
 
 namespace {
-    const int MS_INTERVALS = 1000;
+const int MS_INTERVALS = 1000;
 }
 
 void print_char(char c = '*')

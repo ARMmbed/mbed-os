@@ -32,7 +32,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -40,7 +40,7 @@
 #define __STM32F3xx_HAL_CRC_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -50,16 +50,16 @@
   * @{
   */
 
-/** @addtogroup CRCEx CRCEx 
+/** @addtogroup CRCEx CRCEx
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup CRCEx_Exported_Constants CRC Extended Exported Constants
   * @{
   */
-  
+
 /** @defgroup CRCEx_Input_Data_Inversion CRC Extended Input Data Inversion Modes
   * @{
   */
@@ -76,38 +76,38 @@
   */
 #define CRC_OUTPUTDATA_INVERSION_DISABLE         (0x00000000U)      /*!< No output data inversion       */
 #define CRC_OUTPUTDATA_INVERSION_ENABLE          ((uint32_t)CRC_CR_REV_OUT)  /*!< Bit-wise output data inversion */
-/**                                               
-  * @}
-  */
-  
 /**
   * @}
   */
-  
+
+/**
+  * @}
+  */
+
 /* Exported macro ------------------------------------------------------------*/
 
 /** @defgroup CRCEx_Exported_Macros CRC Extended Exported Macros
   * @{
   */
-    
+
 /**
   * @brief  Set CRC output reversal
   * @param  __HANDLE__: CRC handle
   * @retval None.
   */
-#define  __HAL_CRC_OUTPUTREVERSAL_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR |= CRC_CR_REV_OUT)   
+#define  __HAL_CRC_OUTPUTREVERSAL_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR |= CRC_CR_REV_OUT)
 
 /**
   * @brief  Unset CRC output reversal
   * @param  __HANDLE__: CRC handle
   * @retval None.
   */
-#define __HAL_CRC_OUTPUTREVERSAL_DISABLE(__HANDLE__) ((__HANDLE__)->Instance->CR &= ~(CRC_CR_REV_OUT))   
+#define __HAL_CRC_OUTPUTREVERSAL_DISABLE(__HANDLE__) ((__HANDLE__)->Instance->CR &= ~(CRC_CR_REV_OUT))
 
 /**
   * @brief  Set CRC non-default polynomial
   * @param  __HANDLE__: CRC handle
-  * @param  __POLYNOMIAL__: 7, 8, 16 or 32-bit polynomial  
+  * @param  __POLYNOMIAL__: 7, 8, 16 or 32-bit polynomial
   * @retval None.
   */
 #define __HAL_CRC_POLYNOMIAL_CONFIG(__HANDLE__, __POLYNOMIAL__) ((__HANDLE__)->Instance->POL = (__POLYNOMIAL__))
@@ -115,24 +115,24 @@
 /**
   * @}
   */
-  
+
 /* Private macros --------------------------------------------------------*/
 /** @addtogroup  CRCEx_Private_Macros   CRCEx Private Macros
   * @{
   */
-  
+
 #define IS_CRC_INPUTDATA_INVERSION_MODE(MODE)     (((MODE) == CRC_INPUTDATA_INVERSION_NONE) || \
                                                    ((MODE) == CRC_INPUTDATA_INVERSION_BYTE) || \
                                                    ((MODE) == CRC_INPUTDATA_INVERSION_HALFWORD) || \
                                                    ((MODE) == CRC_INPUTDATA_INVERSION_WORD))
-                                                   
+
 
 #define IS_CRC_OUTPUTDATA_INVERSION_MODE(MODE)    (((MODE) == CRC_OUTPUTDATA_INVERSION_DISABLE) || \
-                                                   ((MODE) == CRC_OUTPUTDATA_INVERSION_ENABLE))                                                   
+                                                   ((MODE) == CRC_OUTPUTDATA_INVERSION_ENABLE))
 
 /**
   * @}
-  */  
+  */
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup CRCEx_Exported_Functions CRC Extended Exported Functions
@@ -160,12 +160,12 @@ HAL_StatusTypeDef HAL_CRCEx_Output_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
   */
-  
+
 #ifdef __cplusplus
 }
 #endif

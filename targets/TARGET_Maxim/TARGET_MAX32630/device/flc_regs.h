@@ -72,7 +72,7 @@ extern "C" {
  * @ingroup     flc
  * @defgroup    flc_registers   Registers
  * @brief       Registers, Bit Masks, Bit Positions and Values for the FLC Peripheral Module.
- */  
+ */
 /* **** Definitions **** */
 /**
  * @ingroup     flc_registers
@@ -152,7 +152,7 @@ typedef struct {
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_Register_Offsets Register Offsets
- * @brief      Flash Controller Register Offsets from the FLC Base Peripheral Address. 
+ * @brief      Flash Controller Register Offsets from the FLC Base Peripheral Address.
  * @{
  */
 #define MXC_R_FLC_OFFS_FADDR                                ((uint32_t)0x00000000UL)            /**<  Offset from FLC Base Address: <tt>\b 0x0000</tt> */
@@ -189,12 +189,12 @@ typedef struct {
 #define MXC_R_FLC_OFFS_DISABLE_WE5                          ((uint32_t)0x00000314UL)            /**<  Offset from FLC Base Address: <tt>\b 0x0314</tt> */
 #define MXC_R_FLC_OFFS_DISABLE_WE6                          ((uint32_t)0x00000318UL)            /**<  Offset from FLC Base Address: <tt>\b 0x0318</tt> */
 #define MXC_R_FLC_OFFS_DISABLE_WE7                          ((uint32_t)0x0000031CUL)            /**<  Offset from FLC Base Address: <tt>\b 0x031C</tt> */
-/**@} end of group FLC_Register_Offsets */   
+/**@} end of group FLC_Register_Offsets */
 
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_FADDR_Register FLC_FADDR
- * @brief      Field Positions and Bit Masks for the FLC_FADDR register. 
+ * @brief      Field Positions and Bit Masks for the FLC_FADDR register.
  * @{
  */
 #define MXC_F_FLC_FADDR_FADDR_POS                           0                                                                                       /**< FADDR Position                 */
@@ -203,7 +203,7 @@ typedef struct {
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_FCKDIV_Register FLC_FCKDIV
- * @brief      Field Positions and Bit Masks for the FLC_FCKDIV register. 
+ * @brief      Field Positions and Bit Masks for the FLC_FCKDIV register.
  * @{
  */
 #define MXC_F_FLC_FCKDIV_FCKDIV_POS                                                                                                                 /**< FCKDIV Position                */
@@ -214,177 +214,177 @@ typedef struct {
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_CTRL_Register FLC_CTRL
- * @brief      Field Positions and Bit Masks for the FLC_CTRL register. 
+ * @brief      Field Positions and Bit Masks for the FLC_CTRL register.
  * @{
  */
 #define MXC_F_FLC_CTRL_WRITE_POS                            0                                                                                       /**< WRITE Position                     */
-#define MXC_F_FLC_CTRL_WRITE                                ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_WRITE_POS))                                  /**< WRITE Mask                         */ 
+#define MXC_F_FLC_CTRL_WRITE                                ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_WRITE_POS))                                  /**< WRITE Mask                         */
 #define MXC_F_FLC_CTRL_MASS_ERASE_POS                       1                                                                                       /**< MASS_ERASE Position                */
-#define MXC_F_FLC_CTRL_MASS_ERASE                           ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_MASS_ERASE_POS))                             /**< MASS_ERASE Mask                    */ 
+#define MXC_F_FLC_CTRL_MASS_ERASE                           ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_MASS_ERASE_POS))                             /**< MASS_ERASE Mask                    */
 #define MXC_F_FLC_CTRL_PAGE_ERASE_POS                       2                                                                                       /**< PAGE_ERASE Position                */
-#define MXC_F_FLC_CTRL_PAGE_ERASE                           ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_PAGE_ERASE_POS))                             /**< PAGE_ERASE Mask                    */ 
+#define MXC_F_FLC_CTRL_PAGE_ERASE                           ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_PAGE_ERASE_POS))                             /**< PAGE_ERASE Mask                    */
 #define MXC_F_FLC_CTRL_ERASE_CODE_POS                       8                                                                                       /**< ERASE_CODE Position                */
-#define MXC_F_FLC_CTRL_ERASE_CODE                           ((uint32_t)(0x000000FFUL << MXC_F_FLC_CTRL_ERASE_CODE_POS))                             /**< ERASE_CODE Mask                    */ 
+#define MXC_F_FLC_CTRL_ERASE_CODE                           ((uint32_t)(0x000000FFUL << MXC_F_FLC_CTRL_ERASE_CODE_POS))                             /**< ERASE_CODE Mask                    */
 #define MXC_F_FLC_CTRL_INFO_BLOCK_UNLOCK_POS                16                                                                                      /**< INFO_BLOCK_UNLOCK Position         */
-#define MXC_F_FLC_CTRL_INFO_BLOCK_UNLOCK                    ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_INFO_BLOCK_UNLOCK_POS))                      /**< INFO_BLOCK_UNLOCK Mask             */ 
+#define MXC_F_FLC_CTRL_INFO_BLOCK_UNLOCK                    ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_INFO_BLOCK_UNLOCK_POS))                      /**< INFO_BLOCK_UNLOCK Mask             */
 #define MXC_F_FLC_CTRL_WRITE_ENABLE_POS                     17                                                                                      /**< WRITE_ENABLE Position              */
-#define MXC_F_FLC_CTRL_WRITE_ENABLE                         ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_WRITE_ENABLE_POS))                           /**< WRITE_ENABLE Mask                  */ 
+#define MXC_F_FLC_CTRL_WRITE_ENABLE                         ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_WRITE_ENABLE_POS))                           /**< WRITE_ENABLE Mask                  */
 #define MXC_F_FLC_CTRL_PENDING_POS                          24                                                                                      /**< PENDING Position                   */
-#define MXC_F_FLC_CTRL_PENDING                              ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_PENDING_POS))                                /**< PENDING Mask                       */ 
+#define MXC_F_FLC_CTRL_PENDING                              ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_PENDING_POS))                                /**< PENDING Mask                       */
 #define MXC_F_FLC_CTRL_INFO_BLOCK_VALID_POS                 25                                                                                      /**< INFO_BLOCK_VALID Position          */
-#define MXC_F_FLC_CTRL_INFO_BLOCK_VALID                     ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_INFO_BLOCK_VALID_POS))                       /**< INFO_BLOCK_VALID Mask              */ 
+#define MXC_F_FLC_CTRL_INFO_BLOCK_VALID                     ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_INFO_BLOCK_VALID_POS))                       /**< INFO_BLOCK_VALID Mask              */
 #define MXC_F_FLC_CTRL_AUTO_INCRE_MODE_POS                  27                                                                                      /**< AUTO_INCRE_MODE Position           */
-#define MXC_F_FLC_CTRL_AUTO_INCRE_MODE                      ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_AUTO_INCRE_MODE_POS))                        /**< AUTO_INCRE_MODE Mask               */ 
+#define MXC_F_FLC_CTRL_AUTO_INCRE_MODE                      ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL_AUTO_INCRE_MODE_POS))                        /**< AUTO_INCRE_MODE Mask               */
 #define MXC_F_FLC_CTRL_FLSH_UNLOCK_POS                      28                                                                                      /**< FLSH_UNLOCK Position               */
-#define MXC_F_FLC_CTRL_FLSH_UNLOCK                          ((uint32_t)(0x0000000FUL << MXC_F_FLC_CTRL_FLSH_UNLOCK_POS))                            /**< FLSH_UNLOCK Mask                   */ 
+#define MXC_F_FLC_CTRL_FLSH_UNLOCK                          ((uint32_t)(0x0000000FUL << MXC_F_FLC_CTRL_FLSH_UNLOCK_POS))                            /**< FLSH_UNLOCK Mask                   */
 /**@} end of group FLC_CTRL */
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_INTR_Register FLC_INTR
- * @brief      Field Positions and Bit Masks for the FLC_INTR register. 
+ * @brief      Field Positions and Bit Masks for the FLC_INTR register.
  * @{
  */
 #define MXC_F_FLC_INTR_FINISHED_IF_POS                      0                                                                                       /**< FINISHED_IF Position               */
-#define MXC_F_FLC_INTR_FINISHED_IF                          ((uint32_t)(0x00000001UL << MXC_F_FLC_INTR_FINISHED_IF_POS))                            /**< FINISHED_IF Mask                   */ 
+#define MXC_F_FLC_INTR_FINISHED_IF                          ((uint32_t)(0x00000001UL << MXC_F_FLC_INTR_FINISHED_IF_POS))                            /**< FINISHED_IF Mask                   */
 #define MXC_F_FLC_INTR_FAILED_IF_POS                        1                                                                                       /**< FAILED_IF Position                 */
-#define MXC_F_FLC_INTR_FAILED_IF                            ((uint32_t)(0x00000001UL << MXC_F_FLC_INTR_FAILED_IF_POS))                              /**< FAILED_IF Mask                     */ 
+#define MXC_F_FLC_INTR_FAILED_IF                            ((uint32_t)(0x00000001UL << MXC_F_FLC_INTR_FAILED_IF_POS))                              /**< FAILED_IF Mask                     */
 #define MXC_F_FLC_INTR_FINISHED_IE_POS                      8                                                                                       /**< FINISHED_IE Position               */
-#define MXC_F_FLC_INTR_FINISHED_IE                          ((uint32_t)(0x00000001UL << MXC_F_FLC_INTR_FINISHED_IE_POS))                            /**< FINISHED_IE Mask                   */ 
+#define MXC_F_FLC_INTR_FINISHED_IE                          ((uint32_t)(0x00000001UL << MXC_F_FLC_INTR_FINISHED_IE_POS))                            /**< FINISHED_IE Mask                   */
 #define MXC_F_FLC_INTR_FAILED_IE_POS                        9                                                                                       /**< FAILED_IE Position                 */
-#define MXC_F_FLC_INTR_FAILED_IE                            ((uint32_t)(0x00000001UL << MXC_F_FLC_INTR_FAILED_IE_POS))                              /**< FAILED_IE Mask                     */ 
+#define MXC_F_FLC_INTR_FAILED_IE                            ((uint32_t)(0x00000001UL << MXC_F_FLC_INTR_FAILED_IE_POS))                              /**< FAILED_IE Mask                     */
 #define MXC_F_FLC_INTR_FAIL_FLAGS_POS                       16                                                                                      /**< FAIL_FLAGS Position                */
-#define MXC_F_FLC_INTR_FAIL_FLAGS                           ((uint32_t)(0x0000FFFFUL << MXC_F_FLC_INTR_FAIL_FLAGS_POS))                             /**< FAIL_FLAGS Mask                    */ 
+#define MXC_F_FLC_INTR_FAIL_FLAGS                           ((uint32_t)(0x0000FFFFUL << MXC_F_FLC_INTR_FAIL_FLAGS_POS))                             /**< FAIL_FLAGS Mask                    */
 /**@} end of group FLC_INTR */
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_PERFORM_Register FLC_PERFORM
- * @brief      Field Positions and Bit Masks for the FLC_PERFORM register. 
+ * @brief      Field Positions and Bit Masks for the FLC_PERFORM register.
  * @{
  */
 #define MXC_F_FLC_PERFORM_DELAY_SE_EN_POS                   0                                                                                       /**< DELAY_SE_EN Position               */
-#define MXC_F_FLC_PERFORM_DELAY_SE_EN                       ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_DELAY_SE_EN_POS))                         /**< DELAY_SE_EN Mask                   */ 
+#define MXC_F_FLC_PERFORM_DELAY_SE_EN                       ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_DELAY_SE_EN_POS))                         /**< DELAY_SE_EN Mask                   */
 #define MXC_F_FLC_PERFORM_FAST_READ_MODE_EN_POS             8                                                                                       /**< FAST_READ_MODE_EN Position         */
-#define MXC_F_FLC_PERFORM_FAST_READ_MODE_EN                 ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_FAST_READ_MODE_EN_POS))                   /**< FAST_READ_MODE_EN Mask             */ 
+#define MXC_F_FLC_PERFORM_FAST_READ_MODE_EN                 ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_FAST_READ_MODE_EN_POS))                   /**< FAST_READ_MODE_EN Mask             */
 #define MXC_F_FLC_PERFORM_EN_PREVENT_FAIL_POS               12                                                                                      /**< EN_PREVENT_FAIL Position           */
-#define MXC_F_FLC_PERFORM_EN_PREVENT_FAIL                   ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_EN_PREVENT_FAIL_POS))                     /**< EN_PREVENT_FAIL Mask               */ 
+#define MXC_F_FLC_PERFORM_EN_PREVENT_FAIL                   ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_EN_PREVENT_FAIL_POS))                     /**< EN_PREVENT_FAIL Mask               */
 #define MXC_F_FLC_PERFORM_EN_BACK2BACK_RDS_POS              16                                                                                      /**< EN_BACK2BACK_RDS Position          */
-#define MXC_F_FLC_PERFORM_EN_BACK2BACK_RDS                  ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_EN_BACK2BACK_RDS_POS))                    /**< EN_BACK2BACK_RDS Mask              */ 
+#define MXC_F_FLC_PERFORM_EN_BACK2BACK_RDS                  ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_EN_BACK2BACK_RDS_POS))                    /**< EN_BACK2BACK_RDS Mask              */
 #define MXC_F_FLC_PERFORM_EN_BACK2BACK_WRS_POS              20                                                                                      /**< EN_BACK2BACK_WRS Position          */
-#define MXC_F_FLC_PERFORM_EN_BACK2BACK_WRS                  ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_EN_BACK2BACK_WRS_POS))                    /**< EN_BACK2BACK_WRS Mask              */ 
+#define MXC_F_FLC_PERFORM_EN_BACK2BACK_WRS                  ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_EN_BACK2BACK_WRS_POS))                    /**< EN_BACK2BACK_WRS Mask              */
 #define MXC_F_FLC_PERFORM_EN_MERGE_GRAB_GNT_POS             24                                                                                      /**< EN_MERGE_GRAB_GNT Position         */
-#define MXC_F_FLC_PERFORM_EN_MERGE_GRAB_GNT                 ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_EN_MERGE_GRAB_GNT_POS))                   /**< EN_MERGE_GRAB_GNT Mask             */ 
+#define MXC_F_FLC_PERFORM_EN_MERGE_GRAB_GNT                 ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_EN_MERGE_GRAB_GNT_POS))                   /**< EN_MERGE_GRAB_GNT Mask             */
 #define MXC_F_FLC_PERFORM_AUTO_TACC_POS                     28                                                                                      /**< AUTO_TACC Position                 */
-#define MXC_F_FLC_PERFORM_AUTO_TACC                         ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_AUTO_TACC_POS))                           /**< AUTO_TACC Mask                     */ 
+#define MXC_F_FLC_PERFORM_AUTO_TACC                         ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_AUTO_TACC_POS))                           /**< AUTO_TACC Mask                     */
 #define MXC_F_FLC_PERFORM_AUTO_CLKDIV_POS                   29                                                                                      /**< AUTO_CLKDIV Position               */
-#define MXC_F_FLC_PERFORM_AUTO_CLKDIV                       ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_AUTO_CLKDIV_POS))                         /**< AUTO_CLKDIV Mask                   */   
+#define MXC_F_FLC_PERFORM_AUTO_CLKDIV                       ((uint32_t)(0x00000001UL << MXC_F_FLC_PERFORM_AUTO_CLKDIV_POS))                         /**< AUTO_CLKDIV Mask                   */
 /**@} end of group FLC_PERFORM */
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_STATUS_Register FLC_STATUS
- * @brief      Field Positions and Bit Masks for the FLC_STATUS register. 
+ * @brief      Field Positions and Bit Masks for the FLC_STATUS register.
  * @{
  */
 #define MXC_F_FLC_STATUS_JTAG_LOCK_WINDOW_POS               0                                                                                       /**< JTAG_LOCK_WINDOW Position          */
-#define MXC_F_FLC_STATUS_JTAG_LOCK_WINDOW                   ((uint32_t)(0x00000001UL << MXC_F_FLC_STATUS_JTAG_LOCK_WINDOW_POS))                     /**< JTAG_LOCK_WINDOW Mask              */ 
+#define MXC_F_FLC_STATUS_JTAG_LOCK_WINDOW                   ((uint32_t)(0x00000001UL << MXC_F_FLC_STATUS_JTAG_LOCK_WINDOW_POS))                     /**< JTAG_LOCK_WINDOW Mask              */
 #define MXC_F_FLC_STATUS_JTAG_LOCK_STATIC_POS               1                                                                                       /**< JTAG_LOCK_STATIC Position          */
 #define MXC_F_FLC_STATUS_JTAG_LOCK_STATIC                   ((uint32_t)(0x00000001UL << MXC_F_FLC_STATUS_JTAG_LOCK_STATIC_POS))                     /**< JTAG_LOCK_STATIC Mask              */
 #define MXC_F_FLC_STATUS_AUTO_LOCK_POS                      3                                                                                       /**< AUTO_LOCK Position                 */
-#define MXC_F_FLC_STATUS_AUTO_LOCK                          ((uint32_t)(0x00000001UL << MXC_F_FLC_STATUS_AUTO_LOCK_POS))                            /**< AUTO_LOCK Mask                     */ 
+#define MXC_F_FLC_STATUS_AUTO_LOCK                          ((uint32_t)(0x00000001UL << MXC_F_FLC_STATUS_AUTO_LOCK_POS))                            /**< AUTO_LOCK Mask                     */
 #define MXC_F_FLC_STATUS_TRIM_UPDATE_DONE_POS               29                                                                                      /**< TRIM_UPDATE_DONE Position          */
-#define MXC_F_FLC_STATUS_TRIM_UPDATE_DONE                   ((uint32_t)(0x00000001UL << MXC_F_FLC_STATUS_TRIM_UPDATE_DONE_POS))                     /**< TRIM_UPDATE_DONE Mask              */ 
+#define MXC_F_FLC_STATUS_TRIM_UPDATE_DONE                   ((uint32_t)(0x00000001UL << MXC_F_FLC_STATUS_TRIM_UPDATE_DONE_POS))                     /**< TRIM_UPDATE_DONE Mask              */
 #define MXC_F_FLC_STATUS_INFO_BLOCK_VALID_POS               30                                                                                      /**< INFO_BLOCK_VALID Position          */
-#define MXC_F_FLC_STATUS_INFO_BLOCK_VALID                   ((uint32_t)(0x00000001UL << MXC_F_FLC_STATUS_INFO_BLOCK_VALID_POS))                     /**< INFO_BLOCK_VALID Mask              */ 
+#define MXC_F_FLC_STATUS_INFO_BLOCK_VALID                   ((uint32_t)(0x00000001UL << MXC_F_FLC_STATUS_INFO_BLOCK_VALID_POS))                     /**< INFO_BLOCK_VALID Mask              */
 /**@} end of group FLC_STATUS*/
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_SECURITY_Register FLC_SECURITY
- * @brief      Field Positions and Bit Masks for the FLC_SECURITY register. 
+ * @brief      Field Positions and Bit Masks for the FLC_SECURITY register.
  * @{
  */
 #define MXC_F_FLC_SECURITY_DEBUG_DISABLE_POS                0                                                                                       /**< DEBUG_DISABLE Position             */
-#define MXC_F_FLC_SECURITY_DEBUG_DISABLE                    ((uint32_t)(0x000000FFUL << MXC_F_FLC_SECURITY_DEBUG_DISABLE_POS))                      /**< DEBUG_DISABLE Mask                 */ 
+#define MXC_F_FLC_SECURITY_DEBUG_DISABLE                    ((uint32_t)(0x000000FFUL << MXC_F_FLC_SECURITY_DEBUG_DISABLE_POS))                      /**< DEBUG_DISABLE Mask                 */
 #define MXC_F_FLC_SECURITY_MASS_ERASE_LOCK_POS              8                                                                                       /**< MASS_ERASE_LOCK Position           */
-#define MXC_F_FLC_SECURITY_MASS_ERASE_LOCK                  ((uint32_t)(0x0000000FUL << MXC_F_FLC_SECURITY_MASS_ERASE_LOCK_POS))                    /**< MASS_ERASE_LOCK Mask               */ 
+#define MXC_F_FLC_SECURITY_MASS_ERASE_LOCK                  ((uint32_t)(0x0000000FUL << MXC_F_FLC_SECURITY_MASS_ERASE_LOCK_POS))                    /**< MASS_ERASE_LOCK Mask               */
 #define MXC_F_FLC_SECURITY_DISABLE_AHB_WR_POS               16                                                                                      /**< DISABLE_AHB_WR Position            */
-#define MXC_F_FLC_SECURITY_DISABLE_AHB_WR                   ((uint32_t)(0x0000000FUL << MXC_F_FLC_SECURITY_DISABLE_AHB_WR_POS))                     /**< DISABLE_AHB_WR Mask                */ 
+#define MXC_F_FLC_SECURITY_DISABLE_AHB_WR                   ((uint32_t)(0x0000000FUL << MXC_F_FLC_SECURITY_DISABLE_AHB_WR_POS))                     /**< DISABLE_AHB_WR Mask                */
 #define MXC_F_FLC_SECURITY_FLC_SETTINGS_LOCK_POS            24                                                                                      /**< FLC_SETTINGS_LOCK Position         */
-#define MXC_F_FLC_SECURITY_FLC_SETTINGS_LOCK                ((uint32_t)(0x0000000FUL << MXC_F_FLC_SECURITY_FLC_SETTINGS_LOCK_POS))                  /**< FLC_SETTINGS_LOCK Mask             */ 
+#define MXC_F_FLC_SECURITY_FLC_SETTINGS_LOCK                ((uint32_t)(0x0000000FUL << MXC_F_FLC_SECURITY_FLC_SETTINGS_LOCK_POS))                  /**< FLC_SETTINGS_LOCK Mask             */
 #define MXC_F_FLC_SECURITY_SECURITY_LOCK_POS                28                                                                                      /**< SECURITY_LOCK Position             */
-#define MXC_F_FLC_SECURITY_SECURITY_LOCK                    ((uint32_t)(0x0000000FUL << MXC_F_FLC_SECURITY_SECURITY_LOCK_POS))                      /**< SECURITY_LOCK Mask                 */ 
+#define MXC_F_FLC_SECURITY_SECURITY_LOCK                    ((uint32_t)(0x0000000FUL << MXC_F_FLC_SECURITY_SECURITY_LOCK_POS))                      /**< SECURITY_LOCK Mask                 */
 /**@} end of group FLC_SECURITY */
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_BYPASS_Register FLC_BYPASS
- * @brief      Field Positions and Bit Masks for the FLC_BYPASS register. 
+ * @brief      Field Positions and Bit Masks for the FLC_BYPASS register.
  * @{
  */
 #define MXC_F_FLC_BYPASS_DESTRUCT_BYPASS_ERASE_POS          0                                                                                       /**< DESTRUCT_BYPASS_ERASE Position     */
-#define MXC_F_FLC_BYPASS_DESTRUCT_BYPASS_ERASE              ((uint32_t)(0x00000001UL << MXC_F_FLC_BYPASS_DESTRUCT_BYPASS_ERASE_POS))                /**< DESTRUCT_BYPASS_ERASE Mask         */ 
+#define MXC_F_FLC_BYPASS_DESTRUCT_BYPASS_ERASE              ((uint32_t)(0x00000001UL << MXC_F_FLC_BYPASS_DESTRUCT_BYPASS_ERASE_POS))                /**< DESTRUCT_BYPASS_ERASE Mask         */
 #define MXC_F_FLC_BYPASS_SUPERWIPE_ERASE_POS                1                                                                                       /**< SUPERWIPE_ERASE Position           */
-#define MXC_F_FLC_BYPASS_SUPERWIPE_ERASE                    ((uint32_t)(0x00000001UL << MXC_F_FLC_BYPASS_SUPERWIPE_ERASE_POS))                      /**< SUPERWIPE_ERASE Mask               */ 
+#define MXC_F_FLC_BYPASS_SUPERWIPE_ERASE                    ((uint32_t)(0x00000001UL << MXC_F_FLC_BYPASS_SUPERWIPE_ERASE_POS))                      /**< SUPERWIPE_ERASE Mask               */
 #define MXC_F_FLC_BYPASS_DESTRUCT_BYPASS_COMPLETE_POS       2                                                                                       /**< DESTRUCT_BYPASS_COMPLETE Position  */
-#define MXC_F_FLC_BYPASS_DESTRUCT_BYPASS_COMPLETE           ((uint32_t)(0x00000001UL << MXC_F_FLC_BYPASS_DESTRUCT_BYPASS_COMPLETE_POS))             /**< DESTRUCT_BYPASS_COMPLETE Mask      */ 
+#define MXC_F_FLC_BYPASS_DESTRUCT_BYPASS_COMPLETE           ((uint32_t)(0x00000001UL << MXC_F_FLC_BYPASS_DESTRUCT_BYPASS_COMPLETE_POS))             /**< DESTRUCT_BYPASS_COMPLETE Mask      */
 #define MXC_F_FLC_BYPASS_SUPERWIPE_COMPLETE_POS             3                                                                                       /**< SUPERWIPE_COMPLETE Position        */
-#define MXC_F_FLC_BYPASS_SUPERWIPE_COMPLETE                 ((uint32_t)(0x00000001UL << MXC_F_FLC_BYPASS_SUPERWIPE_COMPLETE_POS))                   /**< SUPERWIPE_COMPLETE Mask            */ 
+#define MXC_F_FLC_BYPASS_SUPERWIPE_COMPLETE                 ((uint32_t)(0x00000001UL << MXC_F_FLC_BYPASS_SUPERWIPE_COMPLETE_POS))                   /**< SUPERWIPE_COMPLETE Mask            */
 /**@} end of group FLC_BYPASS*/
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_CTRL2_Register FLC_CTRL2
- * @brief      Field Positions and Bit Masks for the FLC_CTRL2 register. 
+ * @brief      Field Positions and Bit Masks for the FLC_CTRL2 register.
  * @{
  */
 #define MXC_F_FLC_CTRL2_FLASH_LVE_POS                       0                                                                                       /**< FLASH_LVE Position                 */
-#define MXC_F_FLC_CTRL2_FLASH_LVE                           ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_FLASH_LVE_POS))                             /**< FLASH_LVE Mask                     */ 
+#define MXC_F_FLC_CTRL2_FLASH_LVE                           ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_FLASH_LVE_POS))                             /**< FLASH_LVE Mask                     */
 #define MXC_F_FLC_CTRL2_FRC_FCLK1_ON_POS                    1                                                                                       /**< FRC_FCLK1_ON Position              */
-#define MXC_F_FLC_CTRL2_FRC_FCLK1_ON                        ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_FRC_FCLK1_ON_POS))                          /**< FRC_FCLK1_ON Mask                  */ 
+#define MXC_F_FLC_CTRL2_FRC_FCLK1_ON                        ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_FRC_FCLK1_ON_POS))                          /**< FRC_FCLK1_ON Mask                  */
 #define MXC_F_FLC_CTRL2_EN_WRITE_ALL_ZEROES_POS             3                                                                                       /**< EN_WRITE_ALL_ZEROES Position       */
-#define MXC_F_FLC_CTRL2_EN_WRITE_ALL_ZEROES                 ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_EN_WRITE_ALL_ZEROES_POS))                   /**< EN_WRITE_ALL_ZEROES Mask           */ 
+#define MXC_F_FLC_CTRL2_EN_WRITE_ALL_ZEROES                 ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_EN_WRITE_ALL_ZEROES_POS))                   /**< EN_WRITE_ALL_ZEROES Mask           */
 #define MXC_F_FLC_CTRL2_EN_CHANGE_POS                       4                                                                                       /**< EN_CHANGE Position                 */
-#define MXC_F_FLC_CTRL2_EN_CHANGE                           ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_EN_CHANGE_POS))                             /**< EN_CHANGE Mask                     */ 
+#define MXC_F_FLC_CTRL2_EN_CHANGE                           ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_EN_CHANGE_POS))                             /**< EN_CHANGE Mask                     */
 #define MXC_F_FLC_CTRL2_SLOW_CLK_POS                        5                                                                                       /**< SLOW_CLK Position                  */
-#define MXC_F_FLC_CTRL2_SLOW_CLK                            ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_SLOW_CLK_POS))                              /**< SLOW_CLK Mask                      */ 
+#define MXC_F_FLC_CTRL2_SLOW_CLK                            ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_SLOW_CLK_POS))                              /**< SLOW_CLK Mask                      */
 #define MXC_F_FLC_CTRL2_ENABLE_RAM_HRESP_POS                6                                                                                       /**< ENABLE_RAM_HRESP Position          */
-#define MXC_F_FLC_CTRL2_ENABLE_RAM_HRESP                    ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_ENABLE_RAM_HRESP_POS))                      /**< ENABLE_RAM_HRESP Mask              */ 
+#define MXC_F_FLC_CTRL2_ENABLE_RAM_HRESP                    ((uint32_t)(0x00000001UL << MXC_F_FLC_CTRL2_ENABLE_RAM_HRESP_POS))                      /**< ENABLE_RAM_HRESP Mask              */
 #define MXC_F_FLC_CTRL2_BYPASS_AHB_FAIL_POS                 8                                                                                       /**< BYPASS_AHB_FAIL Position           */
-#define MXC_F_FLC_CTRL2_BYPASS_AHB_FAIL                     ((uint32_t)(0x000000FFUL << MXC_F_FLC_CTRL2_BYPASS_AHB_FAIL_POS))                       /**< BYPASS_AHB_FAIL Mask               */ 
+#define MXC_F_FLC_CTRL2_BYPASS_AHB_FAIL                     ((uint32_t)(0x000000FFUL << MXC_F_FLC_CTRL2_BYPASS_AHB_FAIL_POS))                       /**< BYPASS_AHB_FAIL Mask               */
 /**@} end of group FLC_CTRL2*/
-   /**
- * @ingroup    flc_registers
- * @defgroup   FLC_INTFL1_Register FLC_INTFL1
- * @brief      Field Positions and Bit Masks for the FLC_INTFL1 register. 
- * @{
- */
+/**
+* @ingroup    flc_registers
+* @defgroup   FLC_INTFL1_Register FLC_INTFL1
+* @brief      Field Positions and Bit Masks for the FLC_INTFL1 register.
+* @{
+*/
 #define MXC_F_FLC_INTFL1_SRAM_ADDR_WRAPPED_POS              0                                                                                       /**< SRAM_ADDR_WRAPPED Position         */
-#define MXC_F_FLC_INTFL1_SRAM_ADDR_WRAPPED                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_SRAM_ADDR_WRAPPED_POS))                    /**< SRAM_ADDR_WRAPPED Mask             */ 
+#define MXC_F_FLC_INTFL1_SRAM_ADDR_WRAPPED                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_SRAM_ADDR_WRAPPED_POS))                    /**< SRAM_ADDR_WRAPPED Mask             */
 #define MXC_F_FLC_INTFL1_INVALID_FLASH_ADDR_POS             1                                                                                       /**< INVALID_FLASH_ADDR Position        */
-#define MXC_F_FLC_INTFL1_INVALID_FLASH_ADDR                 ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_INVALID_FLASH_ADDR_POS))                   /**< INVALID_FLASH_ADDR Mask            */ 
+#define MXC_F_FLC_INTFL1_INVALID_FLASH_ADDR                 ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_INVALID_FLASH_ADDR_POS))                   /**< INVALID_FLASH_ADDR Mask            */
 #define MXC_F_FLC_INTFL1_FLASH_READ_LOCKED_POS              2                                                                                       /**< FLASH_READ_LOCKED Position         */
-#define MXC_F_FLC_INTFL1_FLASH_READ_LOCKED                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_FLASH_READ_LOCKED_POS))                    /**< FLASH_READ_LOCKED Mask             */ 
+#define MXC_F_FLC_INTFL1_FLASH_READ_LOCKED                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_FLASH_READ_LOCKED_POS))                    /**< FLASH_READ_LOCKED Mask             */
 #define MXC_F_FLC_INTFL1_TRIM_UPDATE_DONE_POS               3                                                                                       /**< TRIM_UPDATE_DONE Position          */
-#define MXC_F_FLC_INTFL1_TRIM_UPDATE_DONE                   ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_TRIM_UPDATE_DONE_POS))                     /**< TRIM_UPDATE_DONE Mask              */ 
+#define MXC_F_FLC_INTFL1_TRIM_UPDATE_DONE                   ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_TRIM_UPDATE_DONE_POS))                     /**< TRIM_UPDATE_DONE Mask              */
 #define MXC_F_FLC_INTFL1_FLC_STATE_DONE_POS                 4                                                                                       /**< FLC_STATE_DONE Position            */
-#define MXC_F_FLC_INTFL1_FLC_STATE_DONE                     ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_FLC_STATE_DONE_POS))                       /**< FLC_STATE_DONE Mask                */ 
+#define MXC_F_FLC_INTFL1_FLC_STATE_DONE                     ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_FLC_STATE_DONE_POS))                       /**< FLC_STATE_DONE Mask                */
 #define MXC_F_FLC_INTFL1_FLC_PROG_COMPLETE_POS              5                                                                                       /**< FLC_PROG_COMPLETE Position         */
-#define MXC_F_FLC_INTFL1_FLC_PROG_COMPLETE                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_FLC_PROG_COMPLETE_POS))                    /**< FLC_PROG_COMPLETE Mask             */ 
+#define MXC_F_FLC_INTFL1_FLC_PROG_COMPLETE                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTFL1_FLC_PROG_COMPLETE_POS))                    /**< FLC_PROG_COMPLETE Mask             */
 /**@} end of group FLC_INTFL1 */
 /**
  * @ingroup    flc_registers
  * @defgroup   FLC_INTEN1_Register FLC_INTEN1
- * @brief      Field Positions and Bit Masks for the FLC_INTEN1 register. 
+ * @brief      Field Positions and Bit Masks for the FLC_INTEN1 register.
  * @{
  */
 #define MXC_F_FLC_INTEN1_SRAM_ADDR_WRAPPED_POS              0                                                                                       /**< SRAM_ADDR_WRAPPED Position         */
-#define MXC_F_FLC_INTEN1_SRAM_ADDR_WRAPPED                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_SRAM_ADDR_WRAPPED_POS))                    /**< SRAM_ADDR_WRAPPED Mask             */ 
+#define MXC_F_FLC_INTEN1_SRAM_ADDR_WRAPPED                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_SRAM_ADDR_WRAPPED_POS))                    /**< SRAM_ADDR_WRAPPED Mask             */
 #define MXC_F_FLC_INTEN1_INVALID_FLASH_ADDR_POS             1                                                                                       /**< INVALID_FLASH_ADDR Position        */
-#define MXC_F_FLC_INTEN1_INVALID_FLASH_ADDR                 ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_INVALID_FLASH_ADDR_POS))                   /**< INVALID_FLASH_ADDR Mask            */ 
+#define MXC_F_FLC_INTEN1_INVALID_FLASH_ADDR                 ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_INVALID_FLASH_ADDR_POS))                   /**< INVALID_FLASH_ADDR Mask            */
 #define MXC_F_FLC_INTEN1_FLASH_READ_LOCKED_POS              2                                                                                       /**< FLASH_READ_LOCKED Position         */
-#define MXC_F_FLC_INTEN1_FLASH_READ_LOCKED                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_FLASH_READ_LOCKED_POS))                    /**< FLASH_READ_LOCKED Mask             */ 
+#define MXC_F_FLC_INTEN1_FLASH_READ_LOCKED                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_FLASH_READ_LOCKED_POS))                    /**< FLASH_READ_LOCKED Mask             */
 #define MXC_F_FLC_INTEN1_TRIM_UPDATE_DONE_POS               3                                                                                       /**< TRIM_UPDATE_DONE Position          */
-#define MXC_F_FLC_INTEN1_TRIM_UPDATE_DONE                   ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_TRIM_UPDATE_DONE_POS))                     /**< TRIM_UPDATE_DONE Mask              */ 
+#define MXC_F_FLC_INTEN1_TRIM_UPDATE_DONE                   ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_TRIM_UPDATE_DONE_POS))                     /**< TRIM_UPDATE_DONE Mask              */
 #define MXC_F_FLC_INTEN1_FLC_STATE_DONE_POS                 4                                                                                       /**< FLC_STATE_DONE Position            */
-#define MXC_F_FLC_INTEN1_FLC_STATE_DONE                     ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_FLC_STATE_DONE_POS))                       /**< FLC_STATE_DONE Mask                */ 
+#define MXC_F_FLC_INTEN1_FLC_STATE_DONE                     ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_FLC_STATE_DONE_POS))                       /**< FLC_STATE_DONE Mask                */
 #define MXC_F_FLC_INTEN1_FLC_PROG_COMPLETE_POS              5                                                                                       /**< FLC_PROG_COMPLETE Position         */
-#define MXC_F_FLC_INTEN1_FLC_PROG_COMPLETE                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_FLC_PROG_COMPLETE_POS))                    /**< FLC_PROG_COMPLETE Mask             */ 
+#define MXC_F_FLC_INTEN1_FLC_PROG_COMPLETE                  ((uint32_t)(0x00000001UL << MXC_F_FLC_INTEN1_FLC_PROG_COMPLETE_POS))                    /**< FLC_PROG_COMPLETE Mask             */
 /**@} end of group FLC_INTEN1*/
 
 #ifdef __cplusplus

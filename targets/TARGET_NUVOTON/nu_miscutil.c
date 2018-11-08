@@ -22,7 +22,7 @@ void nu_nop(uint32_t n)
 {
     uint32_t times = n / 10;
     uint32_t rmn = n % 10;
-    
+
     while (times --) {
         __NOP();
         __NOP();
@@ -35,7 +35,7 @@ void nu_nop(uint32_t n)
         __NOP();
         __NOP();
     }
-    
+
     switch (rmn) {
         case 9:
             __NOP();

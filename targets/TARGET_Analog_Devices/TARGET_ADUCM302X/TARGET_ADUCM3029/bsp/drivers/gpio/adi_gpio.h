@@ -82,8 +82,7 @@ typedef uint16_t ADI_GPIO_DATA;    /*!< pin data reg type */
 
 
 /*! GPIO API function return codes */
-typedef enum
-{
+typedef enum {
     ADI_GPIO_SUCCESS = 0,                   /*!< No error detected. */
     ADI_GPIO_FAILURE,                       /*!< The API call failed. */
     ADI_GPIO_ALREADY_INITIALIZED,           /*!< GPIO device has already been initialized. */
@@ -98,11 +97,11 @@ typedef enum
 
 /*! GPIO trigger condition enumerations */
 typedef enum {
-    ADI_GPIO_IRQ_RISING_EDGE    =(0x0),     /*!< Trigger an interrupt on a rising edge.    */
-    ADI_GPIO_IRQ_FALLING_EDGE   =(0x1),     /*!< Trigger an interrupt on a falling edge.   */
-    ADI_GPIO_IRQ_EITHER_EDGE    =(0x2),     /*!< Trigger an interrupt on either edge.      */
-    ADI_GPIO_IRQ_HIGH_LEVEL     =(0x3),     /*!< Trigger an interrupt on a high level.     */
-    ADI_GPIO_IRQ_LOW_LEVEL      =(0x4)      /*!< Trigger an interrupt on a low level.      */
+    ADI_GPIO_IRQ_RISING_EDGE    = (0x0),    /*!< Trigger an interrupt on a rising edge.    */
+    ADI_GPIO_IRQ_FALLING_EDGE   = (0x1),    /*!< Trigger an interrupt on a falling edge.   */
+    ADI_GPIO_IRQ_EITHER_EDGE    = (0x2),    /*!< Trigger an interrupt on either edge.      */
+    ADI_GPIO_IRQ_HIGH_LEVEL     = (0x3),    /*!< Trigger an interrupt on a high level.     */
+    ADI_GPIO_IRQ_LOW_LEVEL      = (0x4)     /*!< Trigger an interrupt on a low level.      */
 } ADI_GPIO_IRQ_TRIGGER_CONDITION;
 
 /*! GPIO IRQ enumeration */
@@ -117,9 +116,9 @@ typedef enum {
     ADI_GPIO_PORT0,      /*!< Port 0 */
     ADI_GPIO_PORT1,      /*!< Port 1 */
     ADI_GPIO_PORT2,      /*!< Port 2 */
-#if defined(__ADUCM4x50__)    
+#if defined(__ADUCM4x50__)
     ADI_GPIO_PORT3,      /*!< Port 3 */
-#endif /* __ADUCM4x50__ */    
+#endif /* __ADUCM4x50__ */
     ADI_GPIO_NUM_PORTS   /*!< maximum number of ports */
 } ADI_GPIO_PORT;
 
@@ -151,19 +150,19 @@ typedef enum {
 #endif /* __ADUCM4x50__ */
 
 /* GPIO API functions */
-ADI_GPIO_RESULT  adi_gpio_Init                      (void* const pMemory, uint32_t const MemorySize);
-ADI_GPIO_RESULT  adi_gpio_UnInit                    (void);
-ADI_GPIO_RESULT  adi_gpio_RegisterCallback          (const ADI_GPIO_IRQ eIrq, ADI_CALLBACK const pfCallback, void *const pCBParam );
-ADI_GPIO_RESULT  adi_gpio_SetGroupInterruptPins     (const ADI_GPIO_PORT Port, const ADI_GPIO_IRQ eIrq, const ADI_GPIO_DATA Pins);
-ADI_GPIO_RESULT  adi_gpio_SetGroupInterruptPolarity (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);
-ADI_GPIO_RESULT  adi_gpio_OutputEnable              (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins, const bool bFlag);
-ADI_GPIO_RESULT  adi_gpio_InputEnable               (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins, const bool bFlag);
-ADI_GPIO_RESULT  adi_gpio_PullUpEnable              (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins, const bool bFlag);
-ADI_GPIO_RESULT  adi_gpio_SetHigh                   (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);
-ADI_GPIO_RESULT  adi_gpio_SetLow                    (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);
-ADI_GPIO_RESULT  adi_gpio_Toggle                    (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);
-ADI_GPIO_RESULT  adi_gpio_SetData                   (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);
-ADI_GPIO_RESULT  adi_gpio_GetData                   (const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins, uint16_t* const pValue);
+ADI_GPIO_RESULT  adi_gpio_Init(void *const pMemory, uint32_t const MemorySize);
+ADI_GPIO_RESULT  adi_gpio_UnInit(void);
+ADI_GPIO_RESULT  adi_gpio_RegisterCallback(const ADI_GPIO_IRQ eIrq, ADI_CALLBACK const pfCallback, void *const pCBParam);
+ADI_GPIO_RESULT  adi_gpio_SetGroupInterruptPins(const ADI_GPIO_PORT Port, const ADI_GPIO_IRQ eIrq, const ADI_GPIO_DATA Pins);
+ADI_GPIO_RESULT  adi_gpio_SetGroupInterruptPolarity(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);
+ADI_GPIO_RESULT  adi_gpio_OutputEnable(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins, const bool bFlag);
+ADI_GPIO_RESULT  adi_gpio_InputEnable(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins, const bool bFlag);
+ADI_GPIO_RESULT  adi_gpio_PullUpEnable(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins, const bool bFlag);
+ADI_GPIO_RESULT  adi_gpio_SetHigh(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);
+ADI_GPIO_RESULT  adi_gpio_SetLow(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);
+ADI_GPIO_RESULT  adi_gpio_Toggle(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);
+ADI_GPIO_RESULT  adi_gpio_SetData(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins);
+ADI_GPIO_RESULT  adi_gpio_GetData(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins, uint16_t *const pValue);
 
 #if defined (__ICCARM__)
 #pragma diag_default=Pm011

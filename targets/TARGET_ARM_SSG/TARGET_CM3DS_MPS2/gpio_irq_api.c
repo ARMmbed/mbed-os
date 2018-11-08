@@ -35,8 +35,8 @@ static inline void handle_interrupt_in(uint32_t channel)
     //   * It is a level interrupt, not an edge interrupt
     if (ch_bit < 16) {
         if (((CMSDK_GPIO_0->INTSTATUS) == 0)
-             || (channel_ids[channel] == 0)
-             || ((CMSDK_GPIO_0->INTTYPESET) == 0) ) {
+                || (channel_ids[channel] == 0)
+                || ((CMSDK_GPIO_0->INTTYPESET) == 0)) {
             return;
         }
 
@@ -51,8 +51,8 @@ static inline void handle_interrupt_in(uint32_t channel)
         CMSDK_GPIO_0->INTCLEAR = ch_bit;
     } else {
         if (((CMSDK_GPIO_1->INTSTATUS) == 0)
-             || (channel_ids[channel] == 0)
-             || ((CMSDK_GPIO_1->INTTYPESET) == 0)) {
+                || (channel_ids[channel] == 0)
+                || ((CMSDK_GPIO_1->INTTYPESET) == 0)) {
             return;
         }
 
@@ -238,7 +238,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin,
 
     irq_handler = handler;
 
-    for (i=0; i<CHANNEL_NUM; i++) {
+    for (i = 0; i < CHANNEL_NUM; i++) {
         if (channel_ids[i] == 0) {
             channel_ids[i] = id;
             obj->ch = i;
@@ -248,14 +248,14 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin,
     }
 
     if (!found_free_channel) {
-       return -1;
+        return -1;
     }
 
     /* To select a pin for any of the eight pin interrupts, write the pin number
     * as 0 to 23 for pins PIO0_0 to PIO0_23 and 24 to 55.
     * @see: mbed_capi/PinNames.h
     */
-    if (pin <16) {
+    if (pin < 16) {
         CMSDK_GPIO_0->INTENSET |= (0x1 << pin);
     }
 
@@ -371,14 +371,14 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin,
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
-   channel_ids[obj->ch] = 0;
+    channel_ids[obj->ch] = 0;
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
     unsigned int ch_bit = (1 << obj->ch);
 
-    if (obj->ch <16) {
+    if (obj->ch < 16) {
         /* Clear interrupt */
         if (!(CMSDK_GPIO_0->INTTYPESET & ch_bit)) {
             CMSDK_GPIO_0->INTCLEAR = ch_bit;

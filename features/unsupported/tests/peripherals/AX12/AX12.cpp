@@ -25,7 +25,8 @@
 #include "mbed.h"
 
 AX12::AX12(PinName tx, PinName rx, int ID, int baud)
-        : _ax12(tx,rx) {
+    : _ax12(tx, rx)
+{
     _baud = baud;
     _ID = ID;
     _ax12.baud(_baud);
@@ -35,7 +36,8 @@ AX12::AX12(PinName tx, PinName rx, int ID, int baud)
 // Set the mode of the servo
 //  0 = Positional (0-300 degrees)
 //  1 = Rotational -1 to 1 speed
-int AX12::SetMode(int mode) {
+int AX12::SetMode(int mode)
+{
 
     if (mode == 1) { // set CR
         SetCWLimit(0);
@@ -46,14 +48,15 @@ int AX12::SetMode(int mode) {
         SetCCWLimit(300);
         SetCRSpeed(0.0);
     }
-    return(0);
+    return (0);
 }
 
 
 // if flag[0] is set, were blocking
 // if flag[1] is set, we're registering
 // they are mutually exclusive operations
-int AX12::SetGoal(int degrees, int flags) {
+int AX12::SetGoal(int degrees, int flags)
+{
 
     char reg_flag = 0;
     char data[2];
@@ -66,7 +69,7 @@ int AX12::SetGoal(int degrees, int flags) {
     // 1023 / 300 * degrees
     short goal = (1023 * degrees) / 300;
 #ifdef AX12_DEBUG
-    printf("SetGoal to 0x%x\n",goal);
+    printf("SetGoal to 0x%x\n", goal);
 #endif
 
     data[0] = goal & 0xff; // bottom 8 bits
@@ -79,12 +82,13 @@ int AX12::SetGoal(int degrees, int flags) {
         // block until it comes to a halt
         while (isMoving()) {}
     }
-    return(rVal);
+    return (rVal);
 }
 
 
 // Set continuous rotation speed from -1 to 1
-int AX12::SetCRSpeed(float speed) {
+int AX12::SetCRSpeed(float speed)
+{
 
     // bit 10     = direction, 0 = CCW, 1=CW
     // bits 9-0   = Speed
@@ -103,11 +107,12 @@ int AX12::SetCRSpeed(float speed) {
     // write the packet, return the error code
     int rVal = write(_ID, 0x20, 2, data);
 
-    return(rVal);
+    return (rVal);
 }
 
 
-int AX12::SetCWLimit (int degrees) {
+int AX12::SetCWLimit(int degrees)
+{
 
     char data[2];
 
@@ -115,7 +120,7 @@ int AX12::SetCWLimit (int degrees) {
     short limit = (1023 * degrees) / 300;
 
 #ifdef AX12_DEBUG
-    printf("SetCWLimit to 0x%x\n",limit);
+    printf("SetCWLimit to 0x%x\n", limit);
 #endif
 
     data[0] = limit & 0xff; // bottom 8 bits
@@ -126,7 +131,8 @@ int AX12::SetCWLimit (int degrees) {
 
 }
 
-int AX12::SetCCWLimit (int degrees) {
+int AX12::SetCCWLimit(int degrees)
+{
 
     char data[2];
 
@@ -134,7 +140,7 @@ int AX12::SetCCWLimit (int degrees) {
     short limit = (1023 * degrees) / 300;
 
 #ifdef AX12_DEBUG
-    printf("SetCCWLimit to 0x%x\n",limit);
+    printf("SetCCWLimit to 0x%x\n", limit);
 #endif
 
     data[0] = limit & 0xff; // bottom 8 bits
@@ -145,13 +151,14 @@ int AX12::SetCCWLimit (int degrees) {
 }
 
 
-int AX12::SetID (int CurrentID, int NewID) {
+int AX12::SetID(int CurrentID, int NewID)
+{
 
     char data[1];
     data[0] = NewID;
 
 #ifdef AX12_DEBUG
-    printf("Setting ID from 0x%x to 0x%x\n",CurrentID,NewID);
+    printf("Setting ID from 0x%x to 0x%x\n", CurrentID, NewID);
 #endif
 
     return (write(CurrentID, AX12_REG_ID, 1, data));
@@ -159,13 +166,14 @@ int AX12::SetID (int CurrentID, int NewID) {
 }
 
 
-int AX12::SetBaud (int baud) {
+int AX12::SetBaud(int baud)
+{
 
     char data[1];
     data[0] = baud;
 
 #ifdef AX12_DEBUG
-    printf("Setting Baud rate to %d\n",baud);
+    printf("Setting Baud rate to %d\n", baud);
 #endif
 
     return (write(0xFE, AX12_REG_BAUD, 1, data));
@@ -175,15 +183,17 @@ int AX12::SetBaud (int baud) {
 
 
 // return 1 is the servo is still in flight
-int AX12::isMoving(void) {
+int AX12::isMoving(void)
+{
 
     char data[1];
-    read(_ID,AX12_REG_MOVING,1,data);
-    return(data[0]);
+    read(_ID, AX12_REG_MOVING, 1, data);
+    return (data[0]);
 }
 
 
-void AX12::trigger(void) {
+void AX12::trigger(void)
+{
 
     char TxBuf[16];
     char sum = 0;
@@ -202,7 +212,7 @@ void AX12::trigger(void) {
     sum += TxBuf[2];
 
 #ifdef AX12_TRIGGER_DEBUG
-    printf("  ID : %d\n",TxBuf[2]);
+    printf("  ID : %d\n", TxBuf[2]);
 #endif
 
     // Length
@@ -210,7 +220,7 @@ void AX12::trigger(void) {
     sum += TxBuf[3];
 
 #ifdef AX12_TRIGGER_DEBUG
-    printf("  Length %d\n",TxBuf[3]);
+    printf("  Length %d\n", TxBuf[3]);
 #endif
 
     // Instruction - ACTION
@@ -218,13 +228,13 @@ void AX12::trigger(void) {
     sum += TxBuf[4];
 
 #ifdef AX12_TRIGGER_DEBUG
-    printf("  Instruction 0x%X\n",TxBuf[5]);
+    printf("  Instruction 0x%X\n", TxBuf[5]);
 #endif
 
     // Checksum
     TxBuf[5] = 0xFF - sum;
 #ifdef AX12_TRIGGER_DEBUG
-    printf("  Checksum 0x%X\n",TxBuf[5]);
+    printf("  Checksum 0x%X\n", TxBuf[5]);
 #endif
 
     // Transmit the packet in one burst with no pausing
@@ -237,49 +247,53 @@ void AX12::trigger(void) {
 }
 
 
-float AX12::GetPosition(void) {
+float AX12::GetPosition(void)
+{
 
 #ifdef AX12_DEBUG
-    printf("\nGetPosition(%d)",_ID);
+    printf("\nGetPosition(%d)", _ID);
 #endif
 
     char data[2];
 
     int ErrorCode = read(_ID, AX12_REG_POSITION, 2, data);
     short position = data[0] + (data[1] << 8);
-    float angle = (position * 300)/1024;
+    float angle = (position * 300) / 1024;
 
     return (angle);
 }
 
 
-float AX12::GetTemp (void) {
+float AX12::GetTemp(void)
+{
 
 #ifdef AX12_DEBUG
-    printf("\nGetTemp(%d)",_ID);
+    printf("\nGetTemp(%d)", _ID);
 #endif
 
     char data[1];
     int ErrorCode = read(_ID, AX12_REG_TEMP, 1, data);
     float temp = data[0];
-    return(temp);
+    return (temp);
 }
 
 
-float AX12::GetVolts (void) {
+float AX12::GetVolts(void)
+{
 
 #ifdef AX12_DEBUG
-    printf("\nGetVolts(%d)",_ID);
+    printf("\nGetVolts(%d)", _ID);
 #endif
 
     char data[1];
     int ErrorCode = read(_ID, AX12_REG_VOLTS, 1, data);
-    float volts = data[0]/10.0;
-    return(volts);
+    float volts = data[0] / 10.0;
+    return (volts);
 }
 
 
-int AX12::read(int ID, int start, int bytes, char* data) {
+int AX12::read(int ID, int start, int bytes, char *data)
+{
 
     char PacketLength = 0x4;
     char TxBuf[16];
@@ -289,7 +303,7 @@ int AX12::read(int ID, int start, int bytes, char* data) {
     Status[4] = 0xFE; // return code
 
 #ifdef AX12_READ_DEBUG
-    printf("\nread(%d,0x%x,%d,data)\n",ID,start,bytes);
+    printf("\nread(%d,0x%x,%d,data)\n", ID, start, bytes);
 #endif
 
     // Build the TxPacket first in RAM, then we'll send in one go
@@ -305,7 +319,7 @@ int AX12::read(int ID, int start, int bytes, char* data) {
     sum += TxBuf[2];
 
 #ifdef AX12_READ_DEBUG
-    printf("  ID : %d\n",TxBuf[2]);
+    printf("  ID : %d\n", TxBuf[2]);
 #endif
 
     // Packet Length
@@ -313,7 +327,7 @@ int AX12::read(int ID, int start, int bytes, char* data) {
     sum += TxBuf[3];            // Accululate the packet sum
 
 #ifdef AX12_READ_DEBUG
-    printf("  Length : 0x%x\n",TxBuf[3]);
+    printf("  Length : 0x%x\n", TxBuf[3]);
 #endif
 
     // Instruction - Read
@@ -321,7 +335,7 @@ int AX12::read(int ID, int start, int bytes, char* data) {
     sum += TxBuf[4];
 
 #ifdef AX12_READ_DEBUG
-    printf("  Instruction : 0x%x\n",TxBuf[4]);
+    printf("  Instruction : 0x%x\n", TxBuf[4]);
 #endif
 
     // Start Address
@@ -329,7 +343,7 @@ int AX12::read(int ID, int start, int bytes, char* data) {
     sum += TxBuf[5];
 
 #ifdef AX12_READ_DEBUG
-    printf("  Start Address : 0x%x\n",TxBuf[5]);
+    printf("  Start Address : 0x%x\n", TxBuf[5]);
 #endif
 
     // Bytes to read
@@ -337,22 +351,22 @@ int AX12::read(int ID, int start, int bytes, char* data) {
     sum += TxBuf[6];
 
 #ifdef AX12_READ_DEBUG
-    printf("  No bytes : 0x%x\n",TxBuf[6]);
+    printf("  No bytes : 0x%x\n", TxBuf[6]);
 #endif
 
     // Checksum
     TxBuf[7] = 0xFF - sum;
 #ifdef AX12_READ_DEBUG
-    printf("  Checksum : 0x%x\n",TxBuf[7]);
+    printf("  Checksum : 0x%x\n", TxBuf[7]);
 #endif
 
     // Transmit the packet in one burst with no pausing
-    for (int i = 0; i<8 ; i++) {
+    for (int i = 0; i < 8 ; i++) {
         _ax12.putc(TxBuf[i]);
     }
 
     // Wait for the bytes to be transmitted
-    wait (0.00002);
+    wait(0.00002);
 
     // Skip if the read was to the broadcast address
     if (_ID != 0xFE) {
@@ -366,7 +380,7 @@ int AX12::read(int ID, int start, int bytes, char* data) {
 
         int timeout = 0;
         int plen = 0;
-        while ((timeout < ((6+bytes)*10)) && (plen<(6+bytes))) {
+        while ((timeout < ((6 + bytes) * 10)) && (plen < (6 + bytes))) {
 
             if (_ax12.readable()) {
                 Status[plen] = _ax12.getc();
@@ -375,41 +389,42 @@ int AX12::read(int ID, int start, int bytes, char* data) {
             }
 
             // wait for the bit period
-            wait (1.0/_baud);
+            wait(1.0 / _baud);
             timeout++;
         }
 
-        if (timeout == ((6+bytes)*10) ) {
-            return(-1);
+        if (timeout == ((6 + bytes) * 10)) {
+            return (-1);
         }
 
         // Copy the data from Status into data for return
-        for (int i=0; i < Status[3]-2 ; i++) {
-            data[i] = Status[5+i];
+        for (int i = 0; i < Status[3] - 2 ; i++) {
+            data[i] = Status[5 + i];
         }
 
 #ifdef AX12_READ_DEBUG
         printf("\nStatus Packet\n");
-        printf("  Header : 0x%x\n",Status[0]);
-        printf("  Header : 0x%x\n",Status[1]);
-        printf("  ID : 0x%x\n",Status[2]);
-        printf("  Length : 0x%x\n",Status[3]);
-        printf("  Error Code : 0x%x\n",Status[4]);
+        printf("  Header : 0x%x\n", Status[0]);
+        printf("  Header : 0x%x\n", Status[1]);
+        printf("  ID : 0x%x\n", Status[2]);
+        printf("  Length : 0x%x\n", Status[3]);
+        printf("  Error Code : 0x%x\n", Status[4]);
 
-        for (int i=0; i < Status[3]-2 ; i++) {
-            printf("  Data : 0x%x\n",Status[5+i]);
+        for (int i = 0; i < Status[3] - 2 ; i++) {
+            printf("  Data : 0x%x\n", Status[5 + i]);
         }
 
-        printf("  Checksum : 0x%x\n",Status[5+(Status[3]-2)]);
+        printf("  Checksum : 0x%x\n", Status[5 + (Status[3] - 2)]);
 #endif
 
     } // if (ID!=0xFE)
 
-    return(Status[4]);
+    return (Status[4]);
 }
 
 
-int AX12::write(int ID, int start, int bytes, char* data, int flag) {
+int AX12::write(int ID, int start, int bytes, char *data, int flag)
+{
 // 0xff, 0xff, ID, Length, Intruction(write), Address, Param(s), Checksum
 
     char TxBuf[16];
@@ -417,7 +432,7 @@ int AX12::write(int ID, int start, int bytes, char* data, int flag) {
     char Status[6];
 
 #ifdef AX12_WRITE_DEBUG
-    printf("\nwrite(%d,0x%x,%d,data,%d)\n",ID,start,bytes,flag);
+    printf("\nwrite(%d,0x%x,%d,data,%d)\n", ID, start, bytes, flag);
 #endif
 
     // Build the TxPacket first in RAM, then we'll send in one go
@@ -433,28 +448,28 @@ int AX12::write(int ID, int start, int bytes, char* data, int flag) {
     sum += TxBuf[2];
 
 #ifdef AX12_WRITE_DEBUG
-    printf("  ID : %d\n",TxBuf[2]);
+    printf("  ID : %d\n", TxBuf[2]);
 #endif
 
     // packet Length
-    TxBuf[3] = 3+bytes;
+    TxBuf[3] = 3 + bytes;
     sum += TxBuf[3];
 
 #ifdef AX12_WRITE_DEBUG
-    printf("  Length : %d\n",TxBuf[3]);
+    printf("  Length : %d\n", TxBuf[3]);
 #endif
 
     // Instruction
     if (flag == 1) {
-        TxBuf[4]=0x04;
+        TxBuf[4] = 0x04;
         sum += TxBuf[4];
     } else {
-        TxBuf[4]=0x03;
+        TxBuf[4] = 0x03;
         sum += TxBuf[4];
     }
 
 #ifdef AX12_WRITE_DEBUG
-    printf("  Instruction : 0x%x\n",TxBuf[4]);
+    printf("  Instruction : 0x%x\n", TxBuf[4]);
 #endif
 
     // Start Address
@@ -462,25 +477,25 @@ int AX12::write(int ID, int start, int bytes, char* data, int flag) {
     sum += TxBuf[5];
 
 #ifdef AX12_WRITE_DEBUG
-    printf("  Start : 0x%x\n",TxBuf[5]);
+    printf("  Start : 0x%x\n", TxBuf[5]);
 #endif
 
     // data
-    for (char i=0; i<bytes ; i++) {
-        TxBuf[6+i] = data[i];
-        sum += TxBuf[6+i];
+    for (char i = 0; i < bytes ; i++) {
+        TxBuf[6 + i] = data[i];
+        sum += TxBuf[6 + i];
 
 #ifdef AX12_WRITE_DEBUG
-        printf("  Data : 0x%x\n",TxBuf[6+i]);
+        printf("  Data : 0x%x\n", TxBuf[6 + i]);
 #endif
 
     }
 
     // checksum
-    TxBuf[6+bytes] = 0xFF - sum;
+    TxBuf[6 + bytes] = 0xFF - sum;
 
 #ifdef AX12_WRITE_DEBUG
-    printf("  Checksum : 0x%x\n",TxBuf[6+bytes]);
+    printf("  Checksum : 0x%x\n", TxBuf[6 + bytes]);
 #endif
 
     // Transmit the packet in one burst with no pausing
@@ -489,13 +504,13 @@ int AX12::write(int ID, int start, int bytes, char* data, int flag) {
     }
 
     // Wait for data to transmit
-    wait (0.00002);
+    wait(0.00002);
 
     // make sure we have a valid return
-    Status[4]=0x00;
+    Status[4] = 0x00;
 
     // we'll only get a reply if it was not broadcast
-    if (_ID!=0xFE) {
+    if (_ID != 0xFE) {
 
 
         // response packet is always 6 bytes
@@ -504,7 +519,7 @@ int AX12::write(int ID, int start, int bytes, char* data, int flag) {
         // the packet back, i.e. 60 bit periods, round up to 100
         int timeout = 0;
         int plen = 0;
-        while ((timeout < 100) && (plen<6)) {
+        while ((timeout < 100) && (plen < 6)) {
 
             if (_ax12.readable()) {
                 Status[plen] = _ax12.getc();
@@ -513,22 +528,22 @@ int AX12::write(int ID, int start, int bytes, char* data, int flag) {
             }
 
             // wait for the bit period
-            wait (1.0/_baud);
+            wait(1.0 / _baud);
             timeout++;
         }
 
 
         // Build the TxPacket first in RAM, then we'll send in one go
 #ifdef AX12_WRITE_DEBUG
-        printf("\nStatus Packet\n  Header : 0x%X, 0x%X\n",Status[0],Status[1]);
-        printf("  ID : %d\n",Status[2]);
-        printf("  Length : %d\n",Status[3]);
-        printf("  Error : 0x%x\n",Status[4]);
-        printf("  Checksum : 0x%x\n",Status[5]);
+        printf("\nStatus Packet\n  Header : 0x%X, 0x%X\n", Status[0], Status[1]);
+        printf("  ID : %d\n", Status[2]);
+        printf("  Length : %d\n", Status[3]);
+        printf("  Error : 0x%x\n", Status[4]);
+        printf("  Checksum : 0x%x\n", Status[5]);
 #endif
 
 
     }
 
-    return(Status[4]); // return error code
+    return (Status[4]); // return error code
 }

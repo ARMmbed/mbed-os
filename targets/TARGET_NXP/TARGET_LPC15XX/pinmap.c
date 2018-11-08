@@ -17,19 +17,21 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 
-void pin_function(PinName pin, int function) {
+void pin_function(PinName pin, int function)
+{
 }
 
-void pin_mode(PinName pin, PinMode mode) {
+void pin_mode(PinName pin, PinMode mode)
+{
     MBED_ASSERT(pin != (PinName)NC);
-    
+
     if ((pin == P0_22) || (pin == P0_23)) {
         // The true open-drain pins PIO0_22 and PIO0_23 can be configured for different I2C-bus speeds.
         return;
     }
-    
-    __IO uint32_t *reg = (__IO uint32_t*)(LPC_IOCON_BASE + (pin * 4));
-      
+
+    __IO uint32_t *reg = (__IO uint32_t *)(LPC_IOCON_BASE + (pin * 4));
+
     if (mode == OpenDrain) {
         *reg |= (1 << 10);
     } else {

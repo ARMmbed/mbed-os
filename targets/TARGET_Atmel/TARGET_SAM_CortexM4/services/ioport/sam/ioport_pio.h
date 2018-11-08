@@ -161,13 +161,13 @@ __always_inline static void arch_ioport_init(void)
 }
 
 __always_inline static void arch_ioport_enable_port(ioport_port_t port,
-        ioport_port_mask_t mask)
+                                                    ioport_port_mask_t mask)
 {
     arch_ioport_port_to_base(port)->PIO_PER = mask;
 }
 
 __always_inline static void arch_ioport_disable_port(ioport_port_t port,
-        ioport_port_mask_t mask)
+                                                     ioport_port_mask_t mask)
 {
     arch_ioport_port_to_base(port)->PIO_PDR = mask;
 }
@@ -185,7 +185,7 @@ __always_inline static void arch_ioport_disable_pin(ioport_pin_t pin)
 }
 
 __always_inline static void arch_ioport_set_port_mode(ioport_port_t port,
-        ioport_port_mask_t mask, ioport_mode_t mode)
+                                                      ioport_port_mask_t mask, ioport_mode_t mode)
 {
     Pio *base = arch_ioport_port_to_base(port);
 
@@ -251,14 +251,14 @@ __always_inline static void arch_ioport_set_port_mode(ioport_port_t port,
 }
 
 __always_inline static void arch_ioport_set_pin_mode(ioport_pin_t pin,
-        ioport_mode_t mode)
+                                                     ioport_mode_t mode)
 {
     arch_ioport_set_port_mode(arch_ioport_pin_to_port_id(pin),
                               arch_ioport_pin_to_mask(pin), mode);
 }
 
 __always_inline static void arch_ioport_set_port_dir(ioport_port_t port,
-        ioport_port_mask_t mask, enum ioport_direction group_direction)
+                                                     ioport_port_mask_t mask, enum ioport_direction group_direction)
 {
     Pio *base = arch_ioport_port_to_base(port);
 
@@ -272,7 +272,7 @@ __always_inline static void arch_ioport_set_port_dir(ioport_port_t port,
 }
 
 __always_inline static void arch_ioport_set_pin_dir(ioport_pin_t pin,
-        enum ioport_direction dir)
+                                                    enum ioport_direction dir)
 {
     Pio *base = arch_ioport_pin_to_base(pin);
 
@@ -286,7 +286,7 @@ __always_inline static void arch_ioport_set_pin_dir(ioport_pin_t pin,
 }
 
 __always_inline static void arch_ioport_set_pin_level(ioport_pin_t pin,
-        bool level)
+                                                      bool level)
 {
     Pio *base = arch_ioport_pin_to_base(pin);
 
@@ -298,7 +298,7 @@ __always_inline static void arch_ioport_set_pin_level(ioport_pin_t pin,
 }
 
 __always_inline static void arch_ioport_set_port_level(ioport_port_t port,
-        ioport_port_mask_t mask, ioport_port_mask_t level)
+                                                       ioport_port_mask_t mask, ioport_port_mask_t level)
 {
     Pio *base = arch_ioport_port_to_base(port);
 
@@ -330,13 +330,13 @@ __always_inline static void arch_ioport_toggle_pin_level(ioport_pin_t pin)
 }
 
 __always_inline static void arch_ioport_toggle_port_level(ioport_port_t port,
-        ioport_port_mask_t mask)
+                                                          ioport_port_mask_t mask)
 {
     arch_ioport_port_to_base(port)->PIO_ODSR ^= mask;
 }
 
 __always_inline static void arch_ioport_set_port_sense_mode(ioport_port_t port,
-        ioport_port_mask_t mask, enum ioport_sense pin_sense)
+                                                            ioport_port_mask_t mask, enum ioport_sense pin_sense)
 {
     Pio *base = arch_ioport_port_to_base(port);
     /*   AIMMR    ELSR    FRLHSR
@@ -346,7 +346,7 @@ __always_inline static void arch_ioport_set_port_sense_mode(ioport_port_t port,
      *       1       1         0    IOPORT_SENSE_LEVEL_LOW
      *       1       1         1    IOPORT_SENSE_LEVEL_HIGH
      */
-    switch(pin_sense) {
+    switch (pin_sense) {
         case IOPORT_SENSE_LEVEL_LOW:
             base->PIO_LSR = mask;
             base->PIO_FELLSR = mask;
@@ -371,7 +371,7 @@ __always_inline static void arch_ioport_set_port_sense_mode(ioport_port_t port,
 }
 
 __always_inline static void arch_ioport_set_pin_sense_mode(ioport_pin_t pin,
-        enum ioport_sense pin_sense)
+                                                           enum ioport_sense pin_sense)
 {
     arch_ioport_set_port_sense_mode(arch_ioport_pin_to_port_id(pin),
                                     arch_ioport_pin_to_mask(pin), pin_sense);

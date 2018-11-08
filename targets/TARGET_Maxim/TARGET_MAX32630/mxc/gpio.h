@@ -99,7 +99,7 @@ extern "C" {
 #define PIN_7       (1 << 7)        /**< Pin 7 Define */
 /**@} end of gpio_pin group */
 /**@} end of gpio_port_pin group */
-    
+
 /**
  * Enumeration type for the GPIO Function Type
  */
@@ -111,7 +111,7 @@ typedef enum {
 gpio_func_t;
 
 /**
- * Enumeration type for the type of GPIO pad on a given pin.  
+ * Enumeration type for the type of GPIO pad on a given pin.
  */
 typedef enum {
     GPIO_PAD_INPUT_PULLUP           = MXC_V_GPIO_OUT_MODE_HIGH_Z_WEAK_PULLUP,       /**< Set pad to high impedance, weak pull-up */
@@ -121,7 +121,7 @@ typedef enum {
     GPIO_PAD_NORMAL                 = MXC_V_GPIO_OUT_MODE_NORMAL,                   /**< Set pad to normal drive mode for high an low output */
     GPIO_PAD_SLOW                   = MXC_V_GPIO_OUT_MODE_SLOW_DRIVE,               /**< Set pad to slow drive mode, which is normal mode with negative feedback to slow edge transitions */
     GPIO_PAD_FAST                   = MXC_V_GPIO_OUT_MODE_FAST_DRIVE,               /**< Set pad to fash drive mode, which is normal mode with a transistor drive to drive fast high and low */
-    GPIO_PAD_INPUT_PULLDOWN         = MXC_V_GPIO_OUT_MODE_HIGH_Z_WEAK_PULLDOWN,     /**< Set pad to weak pulldown mode */ 
+    GPIO_PAD_INPUT_PULLDOWN         = MXC_V_GPIO_OUT_MODE_HIGH_Z_WEAK_PULLDOWN,     /**< Set pad to weak pulldown mode */
     GPIO_PAD_OPEN_SOURCE            = MXC_V_GPIO_OUT_MODE_OPEN_SOURCE,              /**< Set pad to open source mode, transistor drive to high */
     GPIO_PAD_OPEN_SOURCE_PULLDOWN   = MXC_V_GPIO_OUT_MODE_OPEN_SOURCE_WEAK_PULLDOWN /**< Set pad to open source with weak pulldown mode, transistor drive to high, weak pulldown to GND for low */
 } gpio_pad_t;
@@ -137,7 +137,7 @@ typedef struct {
 } gpio_cfg_t;
 
 /**
- * Enumeration type for the interrupt type on a GPIO port. 
+ * Enumeration type for the interrupt type on a GPIO port.
  */
 typedef enum {
     GPIO_INT_DISABLE        = MXC_V_GPIO_INT_MODE_DISABLE,          /**< Disable interrupts */
@@ -153,18 +153,18 @@ typedef enum {
 /**
  * @brief      Configure GPIO pin(s).
  * @param      cfg   Pointer to configuration structure describing the pin.
- * 
+ *
  * @return     #E_NO_ERROR if everything is successful.
- * 
+ *
  */
 int GPIO_Config(const gpio_cfg_t *cfg);
 
 /**
  * @brief      Gets the pin(s) input state.
  * @param      cfg   Pointer to configuration structure describing the pin.
- * 
+ *
  * @return     The requested pin state.
- * 
+ *
  */
 __STATIC_INLINE uint32_t GPIO_InGet(const gpio_cfg_t *cfg)
 {
@@ -174,7 +174,7 @@ __STATIC_INLINE uint32_t GPIO_InGet(const gpio_cfg_t *cfg)
 /**
  * @brief      Sets the pin(s) to a high level output.
  * @param      cfg   Pointer to configuration structure describing the pin.
- * 
+ *
  */
 __STATIC_INLINE void GPIO_OutSet(const gpio_cfg_t *cfg)
 {
@@ -184,7 +184,7 @@ __STATIC_INLINE void GPIO_OutSet(const gpio_cfg_t *cfg)
 /**
  * @brief      Clears the pin(s) to a low level output.
  * @param      cfg   Pointer to configuration structure describing the pin.
- * 
+ *
  */
 __STATIC_INLINE void GPIO_OutClr(const gpio_cfg_t *cfg)
 {
@@ -194,9 +194,9 @@ __STATIC_INLINE void GPIO_OutClr(const gpio_cfg_t *cfg)
 /**
  * @brief      Gets the pin(s) output state.
  * @param      cfg   Pointer to configuration structure describing the pin.
- * 
- * @return     The state of the requested pin. 
- * 
+ *
+ * @return     The state of the requested pin.
+ *
  */
 __STATIC_INLINE uint32_t GPIO_OutGet(const gpio_cfg_t *cfg)
 {
@@ -208,7 +208,7 @@ __STATIC_INLINE uint32_t GPIO_OutGet(const gpio_cfg_t *cfg)
  * @param      cfg   Pointer to configuration structure describing the pin.
  * @param      val   Desired output level of the pin(s). This will be masked
  *                   with the configuration mask.
- *                   
+ *
  */
 __STATIC_INLINE void GPIO_OutPut(const gpio_cfg_t *cfg, uint32_t val)
 {
@@ -218,7 +218,7 @@ __STATIC_INLINE void GPIO_OutPut(const gpio_cfg_t *cfg, uint32_t val)
 /**
  * @brief      Toggles the the pin(s) output level.
  * @param      cfg   Pointer to configuration structure describing the pin.
- * 
+ *
  */
 __STATIC_INLINE void GPIO_OutToggle(const gpio_cfg_t *cfg)
 {
@@ -229,14 +229,14 @@ __STATIC_INLINE void GPIO_OutToggle(const gpio_cfg_t *cfg)
  * @brief      Configure GPIO interrupt(s)
  * @param      cfg   Pointer to configuration structure describing the pin.
  * @param      mode  Requested interrupt mode.
- * 
+ *
  */
 void GPIO_IntConfig(const gpio_cfg_t *cfg, gpio_int_mode_t mode);
 
 /**
  * @brief      Enables the specified GPIO interrupt
  * @param      cfg   Pointer to configuration structure describing the pin.
- * 
+ *
  */
 __STATIC_INLINE void GPIO_IntEnable(const gpio_cfg_t *cfg)
 {
@@ -246,7 +246,7 @@ __STATIC_INLINE void GPIO_IntEnable(const gpio_cfg_t *cfg)
 /**
  * @brief      Disables the specified GPIO interrupt.
  * @param      cfg   Pointer to configuration structure describing the pin.
- * 
+ *
  */
 __STATIC_INLINE void GPIO_IntDisable(const gpio_cfg_t *cfg)
 {
@@ -256,10 +256,10 @@ __STATIC_INLINE void GPIO_IntDisable(const gpio_cfg_t *cfg)
 /**
  * @brief      Gets the interrupt(s) status on a GPIO pin.
  * @param      cfg   Pointer to configuration structure describing the pin
- *                   for which the status is being requested. 
- * 
+ *                   for which the status is being requested.
+ *
  * @return     The requested interrupt status.
- * 
+ *
  */
 __STATIC_INLINE uint32_t GPIO_IntStatus(const gpio_cfg_t *cfg)
 {
@@ -269,8 +269,8 @@ __STATIC_INLINE uint32_t GPIO_IntStatus(const gpio_cfg_t *cfg)
 /**
  * @brief      Clears the interrupt(s) status on a GPIO pin.
  * @param      cfg   Pointer to configuration structure describing the pin
- *                   to clear the interrupt state of. 
- * 
+ *                   to clear the interrupt state of.
+ *
  */
 __STATIC_INLINE void GPIO_IntClr(const gpio_cfg_t *cfg)
 {
@@ -284,25 +284,25 @@ __STATIC_INLINE void GPIO_IntClr(const gpio_cfg_t *cfg)
  * @endcode
  * @param      cbdata  A void pointer to the data type as registered when
  *                     @c GPIO_RegisterCallback() was called.
- *                     
+ *
  */
 typedef void (*gpio_callback_fn)(void *cbdata);
 
 /**
- * @brief      Registers a callback for the interrupt on a given port and pin. 
+ * @brief      Registers a callback for the interrupt on a given port and pin.
  * @param      cfg       Pointer to configuration structure describing the pin
  * @param      callback  A pointer to a function of type #gpio_callback_fn.
- * @param      cbdata    The parameter to be passed to the callback function, #gpio_callback_fn, when an interrupt occurs. 
- * 
+ * @param      cbdata    The parameter to be passed to the callback function, #gpio_callback_fn, when an interrupt occurs.
+ *
  */
 void GPIO_RegisterCallback(const gpio_cfg_t *cfg, gpio_callback_fn callback, void *cbdata);
 
 /**
  * @brief      GPIO IRQ Handler. @note If a callback is registered for a given
- *             interrupt, the callback function will be called. 
- *             
- * @param      port number of the port that generated the interrupt service routine.  
- * 
+ *             interrupt, the callback function will be called.
+ *
+ * @param      port number of the port that generated the interrupt service routine.
+ *
  */
 void GPIO_Handler(unsigned int port);
 

@@ -109,7 +109,7 @@ ble_error_t btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist);
  *
  * @return True if p_addr can be generated using p_irk, false otherwise.
  */
-bool btle_matchAddressAndIrk(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_irk);
+bool btle_matchAddressAndIrk(ble_gap_addr_t const *p_addr, ble_gap_irk_t const *p_irk);
 
 /**
  * Function to generate a private resolvable BLE address.

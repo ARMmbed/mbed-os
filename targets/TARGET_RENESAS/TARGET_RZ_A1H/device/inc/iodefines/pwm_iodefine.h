@@ -68,14 +68,13 @@
 #define PWMPWBFR_2G (PWM.PWBFR_2G)
 
 
-typedef struct st_pwm
-{
-                                                           /* PWM              */
+typedef struct st_pwm {
+    /* PWM              */
     volatile uint8_t   dummy559[2];                            /*                  */
     volatile uint8_t   PWBTCR;                                 /*  PWBTCR          */
     volatile uint8_t   dummy560[217];                          /*                  */
 
-/* start of struct st_pwm_common */
+    /* start of struct st_pwm_common */
     volatile uint8_t   PWCR_1;                                 /*  PWCR_1          */
     volatile uint8_t   dummy561[3];                            /*                  */
     volatile uint8_t   PWPR_1;                                 /*  PWPR_1          */
@@ -86,9 +85,9 @@ typedef struct st_pwm
     volatile uint16_t PWBFR_1E;                               /*  PWBFR_1E        */
     volatile uint16_t PWBFR_1G;                               /*  PWBFR_1G        */
 
-/* end of struct st_pwm_common */
+    /* end of struct st_pwm_common */
 
-/* start of struct st_pwm_common */
+    /* start of struct st_pwm_common */
     volatile uint8_t   PWCR_2;                                 /*  PWCR_2          */
     volatile uint8_t   dummy563[3];                            /*                  */
     volatile uint8_t   PWPR_2;                                 /*  PWPR_2          */
@@ -99,13 +98,12 @@ typedef struct st_pwm
     volatile uint16_t PWBFR_2E;                               /*  PWBFR_2E        */
     volatile uint16_t PWBFR_2G;                               /*  PWBFR_2G        */
 
-/* end of struct st_pwm_common */
+    /* end of struct st_pwm_common */
 } r_io_pwm_t;
 
 
-typedef struct st_pwm_common
-{
- 
+typedef struct st_pwm_common {
+
     volatile uint8_t   PWCR_1;                                 /*  PWCR_1          */
     volatile uint8_t   dummy562[3];                            /*                  */
     volatile uint8_t   PWPR_1;                                 /*  PWPR_1          */
@@ -120,10 +118,10 @@ typedef struct st_pwm_common
 
 /* Channel array defines of PWMn (2)*/
 #ifdef  DECLARE_PWMn_CHANNELS
-volatile struct st_pwm_common*  PWMn[ PWMn_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    PWMn_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_pwm_common  *PWMn[ PWMn_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        PWMn_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_PWMn_CHANNELS */
 /* End of channel array defines of PWMn (2)*/
 

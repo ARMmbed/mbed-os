@@ -65,8 +65,7 @@
 #endif
 
 /*! @brief I2S status codes. */
-enum _i2s_status
-{
+enum _i2s_status {
     kStatus_I2S_BufferComplete =
         MAKE_STATUS(kStatusGroup_I2S, 0),                /*!< Transfer from/into a single buffer has completed */
     kStatus_I2S_Done = MAKE_STATUS(kStatusGroup_I2S, 1), /*!< All buffers transfers have completed */
@@ -79,8 +78,7 @@ enum _i2s_status
  *
  * @note These enums are meant to be OR'd together to form a bit mask.
  */
-typedef enum _i2s_flags
-{
+typedef enum _i2s_flags {
     kI2S_TxErrorFlag = I2S_FIFOINTENSET_TXERR_MASK, /*!< TX error interrupt */
     kI2S_TxLevelFlag = I2S_FIFOINTENSET_TXLVL_MASK, /*!< TX level interrupt */
     kI2S_RxErrorFlag = I2S_FIFOINTENSET_RXERR_MASK, /*!< RX error interrupt */
@@ -88,8 +86,7 @@ typedef enum _i2s_flags
 } i2s_flags_t;
 
 /*! @brief Master / slave mode. */
-typedef enum _i2s_master_slave
-{
+typedef enum _i2s_master_slave {
     kI2S_MasterSlaveNormalSlave = 0x0,  /*!< Normal slave */
     kI2S_MasterSlaveWsSyncMaster = 0x1, /*!< WS synchronized master */
     kI2S_MasterSlaveExtSckMaster = 0x2, /*!< Master using existing SCK */
@@ -97,8 +94,7 @@ typedef enum _i2s_master_slave
 } i2s_master_slave_t;
 
 /*! @brief I2S mode. */
-typedef enum _i2s_mode
-{
+typedef enum _i2s_mode {
     kI2S_ModeI2sClassic = 0x0, /*!< I2S classic mode */
     kI2S_ModeDspWs50 = 0x1,    /*!< DSP mode, WS having 50% duty cycle */
     kI2S_ModeDspWsShort = 0x2, /*!< DSP mode, WS having one clock long pulse */
@@ -106,8 +102,7 @@ typedef enum _i2s_mode
 } i2s_mode_t;
 
 /*! @brief I2S configuration structure. */
-typedef struct _i2s_config
-{
+typedef struct _i2s_config {
     i2s_master_slave_t masterSlave; /*!< Master / slave configuration */
     i2s_mode_t mode;                /*!< I2S mode */
     bool rightLow;                  /*!< Right channel data in low portion of FIFO */
@@ -127,8 +122,7 @@ typedef struct _i2s_config
 } i2s_config_t;
 
 /*! @brief Buffer to transfer from or receive audio data into. */
-typedef struct _i2s_transfer
-{
+typedef struct _i2s_transfer {
     volatile uint8_t *data;   /*!< Pointer to data buffer. */
     volatile size_t dataSize; /*!< Buffer size in bytes. */
 } i2s_transfer_t;
@@ -151,8 +145,7 @@ typedef void (*i2s_transfer_callback_t)(I2S_Type *base,
                                         void *userData);
 
 /*! @brief Members not to be accessed / modified outside of the driver. */
-struct _i2s_handle
-{
+struct _i2s_handle {
     uint32_t state;                             /*!< State of transfer */
     i2s_transfer_callback_t completionCallback; /*!< Callback function pointer */
     void *userData;                             /*!< Application data passed to callback */

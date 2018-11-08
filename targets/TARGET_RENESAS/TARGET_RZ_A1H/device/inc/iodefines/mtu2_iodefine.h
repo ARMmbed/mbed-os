@@ -117,9 +117,8 @@
 #define MTU2TICCR (MTU2.TICCR)
 
 
-typedef struct st_mtu2
-{
-                                                           /* MTU2             */
+typedef struct st_mtu2 {
+    /* MTU2             */
     volatile uint8_t   TCR_2;                                  /*  TCR_2           */
     volatile uint8_t   TMDR_2;                                 /*  TMDR_2          */
     volatile uint8_t   TIOR_2;                                 /*  TIOR_2          */

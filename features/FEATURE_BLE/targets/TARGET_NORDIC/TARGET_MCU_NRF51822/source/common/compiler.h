@@ -47,7 +47,7 @@
 #define _COMPILER_GCC_H_
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include "projectconfig.h"
@@ -58,16 +58,16 @@
 //#else
 
 #ifdef _TEST_
-  #define ATTR_ALWAYS_INLINE
-  #define STATIC_
-  #define INLINE_
+#define ATTR_ALWAYS_INLINE
+#define STATIC_
+#define INLINE_
 #else
-  #define STATIC_ static
-  #define INLINE_ inline
+#define STATIC_ static
+#define INLINE_ inline
 
-  #if CFG_DEBUG == 3
-    #define ATTR_ALWAYS_INLINE  // no inline for debug = 3
-  #endif
+#if CFG_DEBUG == 3
+#define ATTR_ALWAYS_INLINE  // no inline for debug = 3
+#endif
 #endif
 
 #define ALIGN_OF(x)                __alignof__(x)
@@ -144,7 +144,7 @@
 /** @} */
 
 #ifdef __cplusplus
- }
+}
 #endif
 
 #endif /* _COMPILER_GCC_H_ */

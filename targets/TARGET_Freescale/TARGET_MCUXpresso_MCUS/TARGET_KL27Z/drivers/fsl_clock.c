@@ -96,12 +96,9 @@ static uint32_t CLOCK_GetLircClkFreq(void)
     static const uint32_t lircFreqs[] = {MCG_LIRC_FREQ1, MCG_LIRC_FREQ2};
 
     /* Check whether the LIRC is enabled. */
-    if ((MCG->C1 & MCG_C1_IRCLKEN_MASK) || (kMCGLITE_ClkSrcLirc == MCG_S_CLKST_VAL))
-    {
+    if ((MCG->C1 & MCG_C1_IRCLKEN_MASK) || (kMCGLITE_ClkSrcLirc == MCG_S_CLKST_VAL)) {
         return lircFreqs[MCG_C2_IRCS_VAL];
-    }
-    else
-    {
+    } else {
         return 0U;
     }
 }
@@ -110,16 +107,11 @@ static uint8_t CLOCK_GetOscRangeFromFreq(uint32_t freq)
 {
     uint8_t range;
 
-    if (freq <= 39063U)
-    {
+    if (freq <= 39063U) {
         range = 0U;
-    }
-    else if (freq <= 8000000U)
-    {
+    } else if (freq <= 8000000U) {
         range = 1U;
-    }
-    else
-    {
+    } else {
         range = 2U;
     }
 
@@ -128,14 +120,11 @@ static uint8_t CLOCK_GetOscRangeFromFreq(uint32_t freq)
 
 uint32_t CLOCK_GetOsc0ErClkFreq(void)
 {
-    if (OSC0->CR & OSC_CR_ERCLKEN_MASK)
-    {
+    if (OSC0->CR & OSC_CR_ERCLKEN_MASK) {
         /* Please call CLOCK_SetXtal0Freq base on board setting before using OSC0 clock. */
         assert(g_xtal0Freq);
         return g_xtal0Freq;
-    }
-    else
-    {
+    } else {
         return 0U;
     }
 }
@@ -144,8 +133,7 @@ uint32_t CLOCK_GetEr32kClkFreq(void)
 {
     uint32_t freq;
 
-    switch (SIM_SOPT1_OSC32KSEL_VAL)
-    {
+    switch (SIM_SOPT1_OSC32KSEL_VAL) {
         case 0U: /* OSC 32k clock  */
             freq = (CLOCK_GetOsc0ErClkFreq() == 32768U) ? 32768U : 0U;
             break;
@@ -198,8 +186,7 @@ uint32_t CLOCK_GetFreq(clock_name_t clockName)
 {
     uint32_t freq;
 
-    switch (clockName)
-    {
+    switch (clockName) {
         case kCLOCK_CoreSysClk:
         case kCLOCK_PlatClk:
             freq = CLOCK_GetOutClkFreq() / (SIM_CLKDIV1_OUTDIV1_VAL + 1);
@@ -245,19 +232,15 @@ bool CLOCK_EnableUsbfs0Clock(clock_usb_src_t src, uint32_t freq)
 
     CLOCK_DisableClock(kCLOCK_Usbfs0);
 
-    if (kCLOCK_UsbSrcExt == src)
-    {
+    if (kCLOCK_UsbSrcExt == src) {
         SIM->SOPT2 &= ~SIM_SOPT2_USBSRC_MASK;
-    }
-    else
-    {
+    } else {
         SIM->SOPT2 |= SIM_SOPT2_USBSRC_MASK;
     }
 
     CLOCK_EnableClock(kCLOCK_Usbfs0);
 
-    if (kCLOCK_UsbSrcIrc48M == src)
-    {
+    if (kCLOCK_UsbSrcIrc48M == src) {
         USB0->CLK_RECOVER_IRC_EN = 0x03U;
         USB0->CLK_RECOVER_CTRL |= USB_CLK_RECOVER_CTRL_CLOCK_RECOVER_EN_MASK;
     }
@@ -276,12 +259,9 @@ uint32_t CLOCK_GetInternalRefClkFreq(void)
 uint32_t CLOCK_GetPeriphClkFreq(void)
 {
     /* Check whether the HIRC is enabled. */
-    if ((MCG->MC & MCG_MC_HIRCEN_MASK) || (kMCGLITE_ClkSrcHirc == MCG_S_CLKST_VAL))
-    {
+    if ((MCG->MC & MCG_MC_HIRCEN_MASK) || (kMCGLITE_ClkSrcHirc == MCG_S_CLKST_VAL)) {
         return MCG_HIRC_FREQ;
-    }
-    else
-    {
+    } else {
         return 0U;
     }
 }
@@ -290,8 +270,7 @@ uint32_t CLOCK_GetOutClkFreq(void)
 {
     uint32_t freq;
 
-    switch (MCG_S_CLKST_VAL)
-    {
+    switch (MCG_S_CLKST_VAL) {
         case kMCGLITE_ClkSrcHirc:
             freq = MCG_HIRC_FREQ;
             break;
@@ -315,18 +294,14 @@ mcglite_mode_t CLOCK_GetMode(void)
 {
     mcglite_mode_t mode;
 
-    switch (MCG_S_CLKST_VAL)
-    {
+    switch (MCG_S_CLKST_VAL) {
         case kMCGLITE_ClkSrcHirc: /* HIRC */
             mode = kMCGLITE_ModeHirc48M;
             break;
         case kMCGLITE_ClkSrcLirc: /* LIRC */
-            if (kMCGLITE_Lirc2M == MCG_C2_IRCS_VAL)
-            {
+            if (kMCGLITE_Lirc2M == MCG_C2_IRCS_VAL) {
                 mode = kMCGLITE_ModeLirc2M;
-            }
-            else
-            {
+            } else {
                 mode = kMCGLITE_ModeLirc8M;
             }
             break;
@@ -350,11 +325,9 @@ status_t CLOCK_SetMcgliteConfig(mcglite_config_t const *targetConfig)
      * because could not switch directly.
      */
     if ((kMCGLITE_ClkSrcLirc == MCG_S_CLKST_VAL) && (kMCGLITE_ClkSrcLirc == targetConfig->outSrc) &&
-        (MCG_C2_IRCS_VAL != targetConfig->ircs))
-    {
+            (MCG_C2_IRCS_VAL != targetConfig->ircs)) {
         MCG->C1 = (MCG->C1 & ~MCG_C1_CLKS_MASK) | MCG_C1_CLKS(kMCGLITE_ClkSrcHirc);
-        while (kMCGLITE_ClkSrcHirc != MCG_S_CLKST_VAL)
-        {
+        while (kMCGLITE_ClkSrcHirc != MCG_S_CLKST_VAL) {
         }
     }
 
@@ -368,16 +341,13 @@ status_t CLOCK_SetMcgliteConfig(mcglite_config_t const *targetConfig)
      * If external oscillator used and MCG_Lite is set to EXT mode, need to
      * wait for the OSC stable.
      */
-    if ((MCG->C2 & MCG_C2_EREFS0_MASK) && (kMCGLITE_ClkSrcExt == targetConfig->outSrc))
-    {
-        while (!(MCG->S & MCG_S_OSCINIT0_MASK))
-        {
+    if ((MCG->C2 & MCG_C2_EREFS0_MASK) && (kMCGLITE_ClkSrcExt == targetConfig->outSrc)) {
+        while (!(MCG->S & MCG_S_OSCINIT0_MASK)) {
         }
     }
 
     /* Wait for clock source change completed. */
-    while (targetConfig->outSrc != MCG_S_CLKST_VAL)
-    {
+    while (targetConfig->outSrc != MCG_S_CLKST_VAL) {
     }
 
     return kStatus_Success;
@@ -392,11 +362,9 @@ void CLOCK_InitOsc0(osc_config_t const *config)
 
     MCG->C2 = ((MCG->C2 & MCG_C2_IRCS_MASK) | MCG_C2_RANGE0(range) | (uint8_t)config->workMode);
 
-    if ((kOSC_ModeExt != config->workMode) && (OSC0->CR & OSC_CR_ERCLKEN_MASK))
-    {
+    if ((kOSC_ModeExt != config->workMode) && (OSC0->CR & OSC_CR_ERCLKEN_MASK)) {
         /* Wait for stable. */
-        while (!(MCG->S & MCG_S_OSCINIT0_MASK))
-        {
+        while (!(MCG->S & MCG_S_OSCINIT0_MASK)) {
         }
     }
 }

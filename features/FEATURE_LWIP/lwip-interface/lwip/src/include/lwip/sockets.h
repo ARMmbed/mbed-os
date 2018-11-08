@@ -66,39 +66,39 @@ typedef u16_t in_port_t;
 #if LWIP_IPV4
 /* members are in network byte order */
 struct sockaddr_in {
-  u8_t            sin_len;
-  sa_family_t     sin_family;
-  in_port_t       sin_port;
-  struct in_addr  sin_addr;
+    u8_t            sin_len;
+    sa_family_t     sin_family;
+    in_port_t       sin_port;
+    struct in_addr  sin_addr;
 #define SIN_ZERO_LEN 8
-  char            sin_zero[SIN_ZERO_LEN];
+    char            sin_zero[SIN_ZERO_LEN];
 };
 #endif /* LWIP_IPV4 */
 
 #if LWIP_IPV6
 struct sockaddr_in6 {
-  u8_t            sin6_len;      /* length of this structure    */
-  sa_family_t     sin6_family;   /* AF_INET6                    */
-  in_port_t       sin6_port;     /* Transport layer port #      */
-  u32_t           sin6_flowinfo; /* IPv6 flow information       */
-  struct in6_addr sin6_addr;     /* IPv6 address                */
-  u32_t           sin6_scope_id; /* Set of interfaces for scope */
+    u8_t            sin6_len;      /* length of this structure    */
+    sa_family_t     sin6_family;   /* AF_INET6                    */
+    in_port_t       sin6_port;     /* Transport layer port #      */
+    u32_t           sin6_flowinfo; /* IPv6 flow information       */
+    struct in6_addr sin6_addr;     /* IPv6 address                */
+    u32_t           sin6_scope_id; /* Set of interfaces for scope */
 };
 #endif /* LWIP_IPV6 */
 
 struct sockaddr {
-  u8_t        sa_len;
-  sa_family_t sa_family;
-  char        sa_data[14];
+    u8_t        sa_len;
+    sa_family_t sa_family;
+    char        sa_data[14];
 };
 
 struct sockaddr_storage {
-  u8_t        s2_len;
-  sa_family_t ss_family;
-  char        s2_data1[2];
-  u32_t       s2_data2[3];
+    u8_t        s2_len;
+    sa_family_t ss_family;
+    char        s2_data1[2];
+    u32_t       s2_data2[3];
 #if LWIP_IPV6
-  u32_t       s2_data3[3];
+    u32_t       s2_data3[3];
 #endif /* LWIP_IPV6 */
 };
 
@@ -117,46 +117,46 @@ struct lwip_sock;
 /** This struct is used to pass data to the set/getsockopt_internal
  * functions running in tcpip_thread context (only a void* is allowed) */
 struct lwip_setgetsockopt_data {
-  /** socket index for which to change options */
-  int s;
-  /** level of the option to process */
-  int level;
-  /** name of the option to process */
-  int optname;
-  /** set: value to set the option to
-    * get: value of the option is stored here */
+    /** socket index for which to change options */
+    int s;
+    /** level of the option to process */
+    int level;
+    /** name of the option to process */
+    int optname;
+    /** set: value to set the option to
+      * get: value of the option is stored here */
 #if LWIP_MPU_COMPATIBLE
-  u8_t optval[LWIP_SETGETSOCKOPT_MAXOPTLEN];
+    u8_t optval[LWIP_SETGETSOCKOPT_MAXOPTLEN];
 #else
-  union {
-     void *p;
-     const void *pc;
-  } optval;
+    union {
+        void *p;
+        const void *pc;
+    } optval;
 #endif
-  /** size of *optval */
-  socklen_t optlen;
-  /** if an error occurs, it is temporarily stored here */
-  err_t err;
-  /** semaphore to wake up the calling task */
-  void* completed_sem;
+    /** size of *optval */
+    socklen_t optlen;
+    /** if an error occurs, it is temporarily stored here */
+    err_t err;
+    /** semaphore to wake up the calling task */
+    void *completed_sem;
 };
 #endif /* !LWIP_TCPIP_CORE_LOCKING */
 
 #if !defined(iovec)
 struct iovec {
-  void  *iov_base;
-  size_t iov_len;
+    void  *iov_base;
+    size_t iov_len;
 };
 #endif
 
 struct msghdr {
-  void         *msg_name;
-  socklen_t     msg_namelen;
-  struct iovec *msg_iov;
-  int           msg_iovlen;
-  void         *msg_control;
-  socklen_t     msg_controllen;
-  int           msg_flags;
+    void         *msg_name;
+    socklen_t     msg_namelen;
+    struct iovec *msg_iov;
+    int           msg_iovlen;
+    void         *msg_control;
+    socklen_t     msg_controllen;
+    int           msg_flags;
 };
 
 /* Socket protocol types (TCP/UDP/RAW) */
@@ -199,8 +199,8 @@ struct msghdr {
  * Structure used for manipulating linger option.
  */
 struct linger {
-       int l_onoff;                /* option on/off */
-       int l_linger;               /* linger time in seconds */
+    int l_onoff;                /* option on/off */
+    int l_linger;               /* linger time in seconds */
 };
 
 /*
@@ -356,8 +356,8 @@ typedef struct ip_mreq {
 #define IOC_OUT         0x40000000UL    /* copy out parameters */
 #define IOC_IN          0x80000000UL    /* copy in parameters */
 #define IOC_INOUT       (IOC_IN|IOC_OUT)
-                                        /* 0x20000000 distinguishes new &
-                                           old ioctl's */
+/* 0x20000000 distinguishes new &
+   old ioctl's */
 #define _IO(x,y)        (IOC_VOID|((x)<<8)|(y))
 
 #define _IOR(x,y,t)     (IOC_OUT|(((long)sizeof(t)&IOCPARM_MASK)<<16)|((x)<<8)|(y))
@@ -399,9 +399,9 @@ typedef struct ip_mreq {
 #endif
 
 #ifndef SHUT_RD
-  #define SHUT_RD   0
-  #define SHUT_WR   1
-  #define SHUT_RDWR 2
+#define SHUT_RD   0
+#define SHUT_WR   1
+#define SHUT_RDWR 2
 #endif
 
 /* FD_SET used for lwip_select */
@@ -419,9 +419,8 @@ typedef struct ip_mreq {
 #define FD_ISSET(n,p) FDSETSAFEGET(n, (p)->fd_bits[((n)-LWIP_SOCKET_OFFSET)/8] &   (1 << (((n)-LWIP_SOCKET_OFFSET) & 7)))
 #define FD_ZERO(p)    memset((void*)(p), 0, sizeof(*(p)))
 
-typedef struct fd_set
-{
-  unsigned char fd_bits [(FD_SETSIZE+7)/8];
+typedef struct fd_set {
+    unsigned char fd_bits [(FD_SETSIZE + 7) / 8];
 } fd_set;
 
 #elif LWIP_SOCKET_OFFSET
@@ -438,8 +437,8 @@ typedef struct fd_set
 
 #if LWIP_TIMEVAL_PRIVATE
 struct timeval {
-  long    tv_sec;         /* seconds */
-  long    tv_usec;        /* and microseconds */
+    long    tv_sec;         /* seconds */
+    long    tv_usec;        /* and microseconds */
 };
 #endif /* LWIP_TIMEVAL_PRIVATE */
 
@@ -483,21 +482,21 @@ void lwip_socket_thread_cleanup(void); /* LWIP_NETCONN_SEM_PER_THREAD==1: destro
 int lwip_accept(int s, struct sockaddr *addr, socklen_t *addrlen);
 int lwip_bind(int s, const struct sockaddr *name, socklen_t namelen);
 int lwip_shutdown(int s, int how);
-int lwip_getpeername (int s, struct sockaddr *name, socklen_t *namelen);
-int lwip_getsockname (int s, struct sockaddr *name, socklen_t *namelen);
-int lwip_getsockopt (int s, int level, int optname, void *optval, socklen_t *optlen);
-int lwip_setsockopt (int s, int level, int optname, const void *optval, socklen_t optlen);
+int lwip_getpeername(int s, struct sockaddr *name, socklen_t *namelen);
+int lwip_getsockname(int s, struct sockaddr *name, socklen_t *namelen);
+int lwip_getsockopt(int s, int level, int optname, void *optval, socklen_t *optlen);
+int lwip_setsockopt(int s, int level, int optname, const void *optval, socklen_t optlen);
 int lwip_close(int s);
 int lwip_connect(int s, const struct sockaddr *name, socklen_t namelen);
 int lwip_listen(int s, int backlog);
 int lwip_recv(int s, void *mem, size_t len, int flags);
 int lwip_read(int s, void *mem, size_t len);
 int lwip_recvfrom(int s, void *mem, size_t len, int flags,
-      struct sockaddr *from, socklen_t *fromlen);
+                  struct sockaddr *from, socklen_t *fromlen);
 int lwip_send(int s, const void *dataptr, size_t size, int flags);
 int lwip_sendmsg(int s, const struct msghdr *message, int flags);
 int lwip_sendto(int s, const void *dataptr, size_t size, int flags,
-    const struct sockaddr *to, socklen_t tolen);
+                const struct sockaddr *to, socklen_t tolen);
 int lwip_socket(int domain, int type, int protocol);
 int lwip_write(int s, const void *dataptr, size_t size);
 int lwip_writev(int s, const struct iovec *iov, int iovcnt);

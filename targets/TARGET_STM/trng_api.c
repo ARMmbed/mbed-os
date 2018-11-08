@@ -33,7 +33,7 @@ void trng_init(trng_t *obj)
     uint32_t dummy;
 
     /*  We're only supporting a single user of RNG */
-    if (core_util_atomic_incr_u8(&users, 1) > 1 ) {
+    if (core_util_atomic_incr_u8(&users, 1) > 1) {
         error("Only 1 RNG instance supported\r\n");
     }
 
@@ -77,11 +77,11 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     *output_length = 0;
 
     /* Get Random byte */
-    while ((*output_length < length) && (ret ==0)) {
-        if ( HAL_RNG_GenerateRandomNumber(&obj->handle, (uint32_t *)random ) != HAL_OK) {
-                ret = -1;
+    while ((*output_length < length) && (ret == 0)) {
+        if (HAL_RNG_GenerateRandomNumber(&obj->handle, (uint32_t *)random) != HAL_OK) {
+            ret = -1;
         } else {
-            for (uint8_t i =0; (i < 4) && (*output_length < length) ; i++) {
+            for (uint8_t i = 0; (i < 4) && (*output_length < length) ; i++) {
                 *output++ = random[i];
                 *output_length += 1;
                 random[i] = 0;
@@ -90,11 +90,11 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     }
 
     /* Just be extra sure that we didn't do it wrong */
-    if( ( __HAL_RNG_GET_FLAG(&obj->handle, (RNG_FLAG_CECS | RNG_FLAG_SECS)) ) != 0 ) {
+    if ((__HAL_RNG_GET_FLAG(&obj->handle, (RNG_FLAG_CECS | RNG_FLAG_SECS))) != 0) {
         ret = -1;
     }
 
-    return( ret );
+    return (ret);
 }
 
 #endif

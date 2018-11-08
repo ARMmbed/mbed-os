@@ -55,8 +55,7 @@ typedef void (*lpuart_edma_transfer_callback_t)(LPUART_Type *base,
 /*!
 * @brief LPUART eDMA handle
 */
-struct _lpuart_edma_handle
-{
+struct _lpuart_edma_handle {
     lpuart_edma_transfer_callback_t callback; /*!< Callback function. */
     void *userData;                           /*!< LPUART callback function parameter.*/
     size_t rxDataSizeAll;                     /*!< Size of the data to receive. */

@@ -30,8 +30,8 @@
 #define JCU_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_jcu
-{                                                          /* JCU              */
+struct st_jcu {
+    /* JCU              */
     volatile uint8_t   JCMOD;                                  /*  JCMOD           */
     volatile uint8_t   JCCMD;                                  /*  JCCMD           */
     volatile uint8_t   dummy145[1];                            /*                  */
@@ -70,22 +70,22 @@ struct st_jcu
     volatile uint32_t  JIFESVSZ;                               /*  JIFESVSZ        */
     volatile uint32_t  JIFESHSZ;                               /*  JIFESHSZ        */
     volatile uint8_t   dummy148[100];                          /*                  */
-/* start of struct st_jcu_from_jcqtbl0 */
+    /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL0;                                /*  JCQTBL0         */
     volatile uint8_t   dummy149[63];                           /*                  */
-/* end of struct st_jcu_from_jcqtbl0 */
-/* start of struct st_jcu_from_jcqtbl0 */
+    /* end of struct st_jcu_from_jcqtbl0 */
+    /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL1;                                /*  JCQTBL1         */
     volatile uint8_t   dummy150[63];                           /*                  */
-/* end of struct st_jcu_from_jcqtbl0 */
-/* start of struct st_jcu_from_jcqtbl0 */
+    /* end of struct st_jcu_from_jcqtbl0 */
+    /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL2;                                /*  JCQTBL2         */
     volatile uint8_t   dummy151[63];                           /*                  */
-/* end of struct st_jcu_from_jcqtbl0 */
-/* start of struct st_jcu_from_jcqtbl0 */
+    /* end of struct st_jcu_from_jcqtbl0 */
+    /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL3;                                /*  JCQTBL3         */
     volatile uint8_t   dummy152[63];                           /*                  */
-/* end of struct st_jcu_from_jcqtbl0 */
+    /* end of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCHTBD0;                                /*  JCHTBD0         */
     volatile uint8_t   dummy153[31];                           /*                  */
     volatile uint8_t   JCHTBA0;                                /*  JCHTBA0         */
@@ -96,8 +96,7 @@ struct st_jcu
 };
 
 
-struct st_jcu_from_jcqtbl0
-{
+struct st_jcu_from_jcqtbl0 {
     volatile uint8_t   JCQTBL0;                                /*  JCQTBL0         */
     volatile uint8_t   dummy1[63];                             /*                  */
 };

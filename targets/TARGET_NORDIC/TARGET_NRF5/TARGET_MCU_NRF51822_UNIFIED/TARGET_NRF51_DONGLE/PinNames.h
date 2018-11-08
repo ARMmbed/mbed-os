@@ -118,12 +118,12 @@ typedef enum {
     SPI_PSELMISO1 = p16,
     SPI_PSELSS1   = p17,
     SPI_PSELSCK1  = p18,
-    
+
     SPIS_PSELMOSI = p15,
     SPIS_PSELMISO = p16,
     SPIS_PSELSS   = p17,
     SPIS_PSELSCK  = p18,
-    
+
     I2C_SDA0 = p19,
     I2C_SCL0 = p20,
 

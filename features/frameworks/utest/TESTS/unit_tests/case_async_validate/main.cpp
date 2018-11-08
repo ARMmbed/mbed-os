@@ -215,7 +215,7 @@ void greentea_teardown(const size_t passed, const size_t failed, const failure_t
 }
 
 Specification specification(greentea_setup, cases, greentea_teardown, selftest_handlers);
-extern void utest_run(const Specification& specification);
+extern void utest_run(const Specification &specification);
 
 int main()
 {

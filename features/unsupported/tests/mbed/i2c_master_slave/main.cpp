@@ -3,11 +3,11 @@
 #include <stdio.h>
 
 #if !DEVICE_I2C
-  #error [NOT_SUPPORTED] I2C is not supported
+#error [NOT_SUPPORTED] I2C is not supported
 #endif
 
 #if !DEVICE_I2CSLAVE
-  #error [NOT_SUPPORTED] I2C Slave is not supported
+#error [NOT_SUPPORTED] I2C Slave is not supported
 #endif
 
 #if defined(TARGET_NUCLEO_F031K6) || \
@@ -19,7 +19,7 @@
     defined (TARGET_NUCLEO_F334R8) || \
     defined (TARGET_DISCO_F334C8) || \
     defined (TARGET_NUCLEO_F042K6)
-  #error [NOT_SUPPORTED] Target has only one I2C instance
+#error [NOT_SUPPORTED] Target has only one I2C instance
 #endif
 
 #define ADDR (0x80)
@@ -92,11 +92,10 @@ int main()
     master.start();
     master.write(ADDR);
     master.write(sent);
-    while(slave.receive() != I2CSlave::WriteAddressed);
+    while (slave.receive() != I2CSlave::WriteAddressed);
 
     slave.read(&received, 1);
-    if(sent != received)
-    {
+    if (sent != received) {
         notify_completion(false);
         return 1;
     }
@@ -105,7 +104,7 @@ int main()
     // Second transfer: slave to master
     master.start();
     master.write(ADDR | 1);
-    while(slave.receive() != I2CSlave::ReadAddressed);
+    while (slave.receive() != I2CSlave::ReadAddressed);
 
     slave.write(received);
     received = master.read(0);

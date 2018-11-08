@@ -37,7 +37,7 @@
 #include "em_bus.h"
 #include "em_assert.h"
 
- #include <limits.h>
+#include <limits.h>
 
 /***************************************************************************//**
  * @addtogroup emlib
@@ -95,16 +95,16 @@
 
 /** Master mode transfer states. */
 typedef enum {
-  i2cStateStartAddrSend,       /**< Send start + (first part of) address. */
-  i2cStateAddrWFAckNack,       /**< Wait for ACK/NACK on (first part of) address. */
-  i2cStateAddrWF2ndAckNack,    /**< Wait for ACK/NACK on second part of 10 bit address. */
-  i2cStateRStartAddrSend,      /**< Send repeated start + (first part of) address. */
-  i2cStateRAddrWFAckNack,      /**< Wait for ACK/NACK on address sent after repeated start. */
-  i2cStateDataSend,            /**< Send data. */
-  i2cStateDataWFAckNack,       /**< Wait for ACK/NACK on data sent. */
-  i2cStateWFData,              /**< Wait for data. */
-  i2cStateWFStopSent,          /**< Wait for STOP to have been transmitted. */
-  i2cStateDone                 /**< Transfer completed successfully. */
+    i2cStateStartAddrSend,       /**< Send start + (first part of) address. */
+    i2cStateAddrWFAckNack,       /**< Wait for ACK/NACK on (first part of) address. */
+    i2cStateAddrWF2ndAckNack,    /**< Wait for ACK/NACK on second part of 10 bit address. */
+    i2cStateRStartAddrSend,      /**< Send repeated start + (first part of) address. */
+    i2cStateRAddrWFAckNack,      /**< Wait for ACK/NACK on address sent after repeated start. */
+    i2cStateDataSend,            /**< Send data. */
+    i2cStateDataWFAckNack,       /**< Wait for ACK/NACK on data sent. */
+    i2cStateWFData,              /**< Wait for data. */
+    i2cStateWFStopSent,          /**< Wait for STOP to have been transmitted. */
+    i2cStateDone                 /**< Transfer completed successfully. */
 } I2C_TransferState_TypeDef;
 
 /** @endcond */
@@ -117,20 +117,20 @@ typedef enum {
 
 /** Structure used to store state information on an ongoing master mode transfer. */
 typedef struct {
-  /** Current state. */
-  I2C_TransferState_TypeDef  state;
+    /** Current state. */
+    I2C_TransferState_TypeDef  state;
 
-  /** Result return code. */
-  I2C_TransferReturn_TypeDef result;
+    /** Result return code. */
+    I2C_TransferReturn_TypeDef result;
 
-  /** Offset in current sequence buffer. */
-  uint16_t                   offset;
+    /** Offset in current sequence buffer. */
+    uint16_t                   offset;
 
-  /* Index to current sequence buffer in use. */
-  uint8_t                    bufIndx;
+    /* Index to current sequence buffer in use. */
+    uint8_t                    bufIndx;
 
-  /** Reference to I2C transfer sequence definition provided by user. */
-  I2C_TransferSeq_TypeDef    *seq;
+    /** Reference to I2C transfer sequence definition provided by user. */
+    I2C_TransferSeq_TypeDef    *seq;
 } I2C_Transfer_TypeDef;
 
 /** @endcond */
@@ -171,17 +171,17 @@ static I2C_Transfer_TypeDef i2cTransfer[I2C_COUNT];
  ******************************************************************************/
 uint32_t I2C_BusFreqGet(I2C_TypeDef *i2c)
 {
-  uint32_t freqHfper;
-  uint32_t n;
+    uint32_t freqHfper;
+    uint32_t n;
 
-  /* Max frequency is given by freqScl = freqHfper/((Nlow + Nhigh)(DIV + 1) + I2C_CR_MAX)
-   * More details can be found in the reference manual,
-   * I2C Clock Generation chapter. */
-  freqHfper = CMU_ClockFreqGet(cmuClock_HFPER);
-  /* n = Nlow + Nhigh */
-  n        = (uint32_t)(i2cNSum[(i2c->CTRL & _I2C_CTRL_CLHR_MASK) >> _I2C_CTRL_CLHR_SHIFT]);
+    /* Max frequency is given by freqScl = freqHfper/((Nlow + Nhigh)(DIV + 1) + I2C_CR_MAX)
+     * More details can be found in the reference manual,
+     * I2C Clock Generation chapter. */
+    freqHfper = CMU_ClockFreqGet(cmuClock_HFPER);
+    /* n = Nlow + Nhigh */
+    n        = (uint32_t)(i2cNSum[(i2c->CTRL & _I2C_CTRL_CLHR_MASK) >> _I2C_CTRL_CLHR_SHIFT]);
 
-  return (freqHfper / ((n * (i2c->CLKDIV + 1)) + I2C_CR_MAX));
+    return (freqHfper / ((n * (i2c->CLKDIV + 1)) + I2C_CR_MAX));
 }
 
 /***************************************************************************//**
@@ -226,85 +226,94 @@ void I2C_BusFreqSet(I2C_TypeDef *i2c,
                     uint32_t freqScl,
                     I2C_ClockHLR_TypeDef i2cMode)
 {
-  uint32_t n, minFreq;
-  int32_t div;
+    uint32_t n, minFreq;
+    int32_t div;
 
-  /* Avoid divide by 0 */
-  EFM_ASSERT(freqScl);
-  if (!freqScl) {
-    return;
-  }
-
-  /* Set the CLHR (clock low to high ratio). */
-  i2c->CTRL &= ~_I2C_CTRL_CLHR_MASK;
-  BUS_RegMaskedWrite(&i2c->CTRL,
-                     _I2C_CTRL_CLHR_MASK,
-                     i2cMode << _I2C_CTRL_CLHR_SHIFT);
-
-  if (!freqRef) {
-    freqRef = CMU_ClockFreqGet(cmuClock_HFPER);
-  }
-
-  /* Check minumum HF peripheral clock */
-  minFreq = UINT_MAX;
-  if (i2c->CTRL & I2C_CTRL_SLAVE) {
-    switch (i2cMode) {
-      case i2cClockHLRStandard:
-#if defined(_SILICON_LABS_32B_SERIES_0)
-        minFreq = 4200000; break;
-#elif defined(_SILICON_LABS_32B_SERIES_1)
-        minFreq = 2000000; break;
-#endif
-      case i2cClockHLRAsymetric:
-#if defined(_SILICON_LABS_32B_SERIES_0)
-        minFreq = 11000000; break;
-#elif defined(_SILICON_LABS_32B_SERIES_1)
-        minFreq = 5000000; break;
-#endif
-      case i2cClockHLRFast:
-#if defined(_SILICON_LABS_32B_SERIES_0)
-        minFreq = 24400000; break;
-#elif defined(_SILICON_LABS_32B_SERIES_1)
-        minFreq = 14000000; break;
-#endif
+    /* Avoid divide by 0 */
+    EFM_ASSERT(freqScl);
+    if (!freqScl) {
+        return;
     }
-  } else {
-    /* For master mode, platform 1 and 2 share the same
-       min frequencies */
-    switch (i2cMode) {
-      case i2cClockHLRStandard:
-        minFreq = 2000000; break;
-      case i2cClockHLRAsymetric:
-        minFreq = 9000000; break;
-      case i2cClockHLRFast:
-        minFreq = 20000000; break;
+
+    /* Set the CLHR (clock low to high ratio). */
+    i2c->CTRL &= ~_I2C_CTRL_CLHR_MASK;
+    BUS_RegMaskedWrite(&i2c->CTRL,
+                       _I2C_CTRL_CLHR_MASK,
+                       i2cMode << _I2C_CTRL_CLHR_SHIFT);
+
+    if (!freqRef) {
+        freqRef = CMU_ClockFreqGet(cmuClock_HFPER);
     }
-  }
 
-  /* Frequency most be larger-than */
-  EFM_ASSERT(freqRef > minFreq);
+    /* Check minumum HF peripheral clock */
+    minFreq = UINT_MAX;
+    if (i2c->CTRL & I2C_CTRL_SLAVE) {
+        switch (i2cMode) {
+            case i2cClockHLRStandard:
+#if defined(_SILICON_LABS_32B_SERIES_0)
+                minFreq = 4200000;
+                break;
+#elif defined(_SILICON_LABS_32B_SERIES_1)
+                minFreq = 2000000;
+                break;
+#endif
+            case i2cClockHLRAsymetric:
+#if defined(_SILICON_LABS_32B_SERIES_0)
+                minFreq = 11000000;
+                break;
+#elif defined(_SILICON_LABS_32B_SERIES_1)
+                minFreq = 5000000;
+                break;
+#endif
+            case i2cClockHLRFast:
+#if defined(_SILICON_LABS_32B_SERIES_0)
+                minFreq = 24400000;
+                break;
+#elif defined(_SILICON_LABS_32B_SERIES_1)
+                minFreq = 14000000;
+                break;
+#endif
+        }
+    } else {
+        /* For master mode, platform 1 and 2 share the same
+           min frequencies */
+        switch (i2cMode) {
+            case i2cClockHLRStandard:
+                minFreq = 2000000;
+                break;
+            case i2cClockHLRAsymetric:
+                minFreq = 9000000;
+                break;
+            case i2cClockHLRFast:
+                minFreq = 20000000;
+                break;
+        }
+    }
 
-  /* SCL frequency is given by
-   * freqScl = freqRef/((Nlow + Nhigh) * (DIV + 1) + I2C_CR_MAX)
-   *
-   * Thus
-   * DIV = ((freqRef - (I2C_CR_MAX * freqScl))/((Nlow + Nhigh) * freqScl)) - 1
-   *
-   * More details can be found in the reference manual,
-   * I2C Clock Generation chapter.  */
+    /* Frequency most be larger-than */
+    EFM_ASSERT(freqRef > minFreq);
 
-  /* n = Nlow + Nhigh */
-  n = (uint32_t)(i2cNSum[i2cMode]);
-  div = ((freqRef - (I2C_CR_MAX * freqScl)) / (n * freqScl)) - 1;
-  EFM_ASSERT(div >= 0);
-  EFM_ASSERT((uint32_t)div <= _I2C_CLKDIV_DIV_MASK);
+    /* SCL frequency is given by
+     * freqScl = freqRef/((Nlow + Nhigh) * (DIV + 1) + I2C_CR_MAX)
+     *
+     * Thus
+     * DIV = ((freqRef - (I2C_CR_MAX * freqScl))/((Nlow + Nhigh) * freqScl)) - 1
+     *
+     * More details can be found in the reference manual,
+     * I2C Clock Generation chapter.  */
 
-  /* Clock divisor must be at least 1 in slave mode according to reference */
-  /* manual (in which case there is normally no need to set bus frequency). */
-  if ((i2c->CTRL & I2C_CTRL_SLAVE) && !div) {
-    div = 1;
-  }
-  i2c->CLKDIV = (uint32_t)div;
+    /* n = Nlow + Nhigh */
+    n = (uint32_t)(i2cNSum[i2cMode]);
+    div = ((freqRef - (I2C_CR_MAX * freqScl)) / (n * freqScl)) - 1;
+    EFM_ASSERT(div >= 0);
+    EFM_ASSERT((uint32_t)div <= _I2C_CLKDIV_DIV_MASK);
+
+    /* Clock divisor must be at least 1 in slave mode according to reference */
+    /* manual (in which case there is normally no need to set bus frequency). */
+    if ((i2c->CTRL & I2C_CTRL_SLAVE) && !div) {
+        div = 1;
+    }
+    i2c->CLKDIV = (uint32_t)div;
 }
 
 /***************************************************************************//**
@@ -322,9 +331,9 @@ void I2C_BusFreqSet(I2C_TypeDef *i2c,
  ******************************************************************************/
 void I2C_Enable(I2C_TypeDef *i2c, bool enable)
 {
-  EFM_ASSERT(I2C_REF_VALID(i2c));
+    EFM_ASSERT(I2C_REF_VALID(i2c));
 
-  BUS_RegBitWrite(&(i2c->CTRL), _I2C_CTRL_EN_SHIFT, enable);
+    BUS_RegBitWrite(&(i2c->CTRL), _I2C_CTRL_EN_SHIFT, enable);
 }
 
 /***************************************************************************//**
@@ -339,17 +348,17 @@ void I2C_Enable(I2C_TypeDef *i2c, bool enable)
  ******************************************************************************/
 void I2C_Init(I2C_TypeDef *i2c, const I2C_Init_TypeDef *init)
 {
-  EFM_ASSERT(I2C_REF_VALID(i2c));
+    EFM_ASSERT(I2C_REF_VALID(i2c));
 
-  i2c->IEN = 0;
-  i2c->IFC = _I2C_IFC_MASK;
+    i2c->IEN = 0;
+    i2c->IFC = _I2C_IFC_MASK;
 
-  /* Set SLAVE select mode */
-  BUS_RegBitWrite(&(i2c->CTRL), _I2C_CTRL_SLAVE_SHIFT, init->master ? 0 : 1);
+    /* Set SLAVE select mode */
+    BUS_RegBitWrite(&(i2c->CTRL), _I2C_CTRL_SLAVE_SHIFT, init->master ? 0 : 1);
 
-  I2C_BusFreqSet(i2c, init->refFreq, init->freq, init->clhr);
+    I2C_BusFreqSet(i2c, init->refFreq, init->freq, init->clhr);
 
-  BUS_RegBitWrite(&(i2c->CTRL), _I2C_CTRL_EN_SHIFT, init->enable);
+    BUS_RegBitWrite(&(i2c->CTRL), _I2C_CTRL_EN_SHIFT, init->enable);
 }
 
 /***************************************************************************//**
@@ -365,13 +374,13 @@ void I2C_Init(I2C_TypeDef *i2c, const I2C_Init_TypeDef *init)
  ******************************************************************************/
 void I2C_Reset(I2C_TypeDef *i2c)
 {
-  i2c->CTRL      = _I2C_CTRL_RESETVALUE;
-  i2c->CLKDIV    = _I2C_CLKDIV_RESETVALUE;
-  i2c->SADDR     = _I2C_SADDR_RESETVALUE;
-  i2c->SADDRMASK = _I2C_SADDRMASK_RESETVALUE;
-  i2c->IEN       = _I2C_IEN_RESETVALUE;
-  i2c->IFC       = _I2C_IFC_MASK;
-  /* Do not reset route register, setting should be done independently */
+    i2c->CTRL      = _I2C_CTRL_RESETVALUE;
+    i2c->CLKDIV    = _I2C_CLKDIV_RESETVALUE;
+    i2c->SADDR     = _I2C_SADDR_RESETVALUE;
+    i2c->SADDRMASK = _I2C_SADDRMASK_RESETVALUE;
+    i2c->IEN       = _I2C_IEN_RESETVALUE;
+    i2c->IFC       = _I2C_IFC_MASK;
+    /* Do not reset route register, setting should be done independently */
 }
 
 /***************************************************************************//**
@@ -412,305 +421,305 @@ void I2C_Reset(I2C_TypeDef *i2c)
  ******************************************************************************/
 I2C_TransferReturn_TypeDef I2C_Transfer(I2C_TypeDef *i2c)
 {
-  uint32_t                tmp;
-  uint32_t                pending;
-  I2C_Transfer_TypeDef    *transfer;
-  I2C_TransferSeq_TypeDef *seq;
+    uint32_t                tmp;
+    uint32_t                pending;
+    I2C_Transfer_TypeDef    *transfer;
+    I2C_TransferSeq_TypeDef *seq;
 
-  EFM_ASSERT(I2C_REF_VALID(i2c));
+    EFM_ASSERT(I2C_REF_VALID(i2c));
 
-  /* Support up to 2 I2C buses */
-  if (i2c == I2C0) {
-    transfer = i2cTransfer;
-  }
+    /* Support up to 2 I2C buses */
+    if (i2c == I2C0) {
+        transfer = i2cTransfer;
+    }
 #if (I2C_COUNT > 1)
-  else if (i2c == I2C1) {
-    transfer = i2cTransfer + 1;
-  }
+    else if (i2c == I2C1) {
+        transfer = i2cTransfer + 1;
+    }
 #endif
 #if (I2C_COUNT > 2)
-  else if (i2c == I2C2) {
-    transfer = i2cTransfer + 2;
-  }
+    else if (i2c == I2C2) {
+        transfer = i2cTransfer + 2;
+    }
 #endif
-  else {
-    return i2cTransferUsageFault;
-  }
-
-  seq = transfer->seq;
-  for (;; ) {
-    pending = i2c->IF;
-
-    /* If some sort of fault, abort transfer. */
-    if (pending & I2C_IF_ERRORS) {
-      if (pending & I2C_IF_ARBLOST) {
-        /* If arbitration fault, it indicates either a slave device */
-        /* not responding as expected, or other master which is not */
-        /* supported by this SW. */
-        transfer->result = i2cTransferArbLost;
-      } else if (pending & I2C_IF_BUSERR) {
-        /* A bus error indicates a misplaced start or stop, which should */
-        /* not occur in master mode controlled by this SW. */
-        transfer->result = i2cTransferBusErr;
-      }
-
-      /* If error situation occurred, it is difficult to know */
-      /* exact cause and how to resolve. It will be up to a wrapper */
-      /* to determine how to handle a fault/recovery if possible. */
-      transfer->state = i2cStateDone;
-      goto done;
+    else {
+        return i2cTransferUsageFault;
     }
 
-    switch (transfer->state) {
-      /***************************************************/
-      /* Send first start+address (first byte if 10 bit) */
-      /***************************************************/
-      case i2cStateStartAddrSend:
-        if (seq->flags & I2C_FLAG_10BIT_ADDR) {
-          tmp = (((uint32_t)(seq->addr) >> 8) & 0x06) | 0xf0;
+    seq = transfer->seq;
+    for (;;) {
+        pending = i2c->IF;
 
-          /* In 10 bit address mode, the address following the first */
-          /* start always indicate write. */
-        } else {
-          tmp = (uint32_t)(seq->addr) & 0xfe;
-
-          if (seq->flags & I2C_FLAG_READ) {
-            /* Indicate read request */
-            tmp |= 1;
-          }
-        }
-
-        transfer->state = i2cStateAddrWFAckNack;
-        i2c->TXDATA     = tmp;/* Data not transmitted until START sent */
-        i2c->CMD        = I2C_CMD_START;
-        goto done;
-
-      /*******************************************************/
-      /* Wait for ACK/NACK on address (first byte if 10 bit) */
-      /*******************************************************/
-      case i2cStateAddrWFAckNack:
-        if (pending & I2C_IF_NACK) {
-          i2c->IFC         = I2C_IFC_NACK;
-          transfer->result = i2cTransferNack;
-          transfer->state  = i2cStateWFStopSent;
-          i2c->CMD         = I2C_CMD_STOP;
-        } else if (pending & I2C_IF_ACK) {
-          i2c->IFC = I2C_IFC_ACK;
-
-          /* If 10 bit address, send 2nd byte of address. */
-          if (seq->flags & I2C_FLAG_10BIT_ADDR) {
-            transfer->state = i2cStateAddrWF2ndAckNack;
-            i2c->TXDATA     = (uint32_t)(seq->addr) & 0xff;
-          } else {
-            /* Determine whether receiving or sending data */
-            if (seq->flags & I2C_FLAG_READ) {
-              transfer->state = i2cStateWFData;
-              if (seq->buf[transfer->bufIndx].len == 1) {
-                i2c->CMD  = I2C_CMD_NACK;
-              }
-            } else {
-              transfer->state = i2cStateDataSend;
-              continue;
+        /* If some sort of fault, abort transfer. */
+        if (pending & I2C_IF_ERRORS) {
+            if (pending & I2C_IF_ARBLOST) {
+                /* If arbitration fault, it indicates either a slave device */
+                /* not responding as expected, or other master which is not */
+                /* supported by this SW. */
+                transfer->result = i2cTransferArbLost;
+            } else if (pending & I2C_IF_BUSERR) {
+                /* A bus error indicates a misplaced start or stop, which should */
+                /* not occur in master mode controlled by this SW. */
+                transfer->result = i2cTransferBusErr;
             }
-          }
-        }
-        goto done;
 
-      /******************************************************/
-      /* Wait for ACK/NACK on second byte of 10 bit address */
-      /******************************************************/
-      case i2cStateAddrWF2ndAckNack:
-        if (pending & I2C_IF_NACK) {
-          i2c->IFC         = I2C_IFC_NACK;
-          transfer->result = i2cTransferNack;
-          transfer->state  = i2cStateWFStopSent;
-          i2c->CMD         = I2C_CMD_STOP;
-        } else if (pending & I2C_IF_ACK) {
-          i2c->IFC = I2C_IFC_ACK;
-
-          /* If using plain read sequence with 10 bit address, switch to send */
-          /* repeated start. */
-          if (seq->flags & I2C_FLAG_READ) {
-            transfer->state = i2cStateRStartAddrSend;
-          }
-          /* Otherwise expected to write 0 or more bytes */
-          else {
-            transfer->state = i2cStateDataSend;
-          }
-          continue;
-        }
-        goto done;
-
-      /*******************************/
-      /* Send repeated start+address */
-      /*******************************/
-      case i2cStateRStartAddrSend:
-        if (seq->flags & I2C_FLAG_10BIT_ADDR) {
-          tmp = ((seq->addr >> 8) & 0x06) | 0xf0;
-        } else {
-          tmp = seq->addr & 0xfe;
-        }
-
-        /* If this is a write+read combined sequence, then read is about to start */
-        if (seq->flags & I2C_FLAG_WRITE_READ) {
-          /* Indicate read request */
-          tmp |= 1;
-        }
-
-        transfer->state = i2cStateRAddrWFAckNack;
-        /* We have to write START cmd first since repeated start, otherwise */
-        /* data would be sent first. */
-        i2c->CMD    = I2C_CMD_START;
-        i2c->TXDATA = tmp;
-        goto done;
-
-      /**********************************************************************/
-      /* Wait for ACK/NACK on repeated start+address (first byte if 10 bit) */
-      /**********************************************************************/
-      case i2cStateRAddrWFAckNack:
-        if (pending & I2C_IF_NACK) {
-          i2c->IFC         = I2C_IFC_NACK;
-          transfer->result = i2cTransferNack;
-          transfer->state  = i2cStateWFStopSent;
-          i2c->CMD         = I2C_CMD_STOP;
-        } else if (pending & I2C_IF_ACK) {
-          i2c->IFC = I2C_IFC_ACK;
-
-          /* Determine whether receiving or sending data */
-          if (seq->flags & I2C_FLAG_WRITE_READ) {
-            transfer->state = i2cStateWFData;
-          } else {
-            transfer->state = i2cStateDataSend;
-            continue;
-          }
-        }
-        goto done;
-
-      /*****************************/
-      /* Send a data byte to slave */
-      /*****************************/
-      case i2cStateDataSend:
-        /* Reached end of data buffer? */
-        if (transfer->offset >= seq->buf[transfer->bufIndx].len) {
-          /* Move to next message part */
-          transfer->offset = 0;
-          transfer->bufIndx++;
-
-          /* Send repeated start when switching to read mode on 2nd buffer */
-          if (seq->flags & I2C_FLAG_WRITE_READ) {
-            transfer->state = i2cStateRStartAddrSend;
-            continue;
-          }
-
-          /* Only writing from one buffer, or finished both buffers */
-          if ((seq->flags & I2C_FLAG_WRITE) || (transfer->bufIndx > 1)) {
-            transfer->state = i2cStateWFStopSent;
-            i2c->CMD        = I2C_CMD_STOP;
+            /* If error situation occurred, it is difficult to know */
+            /* exact cause and how to resolve. It will be up to a wrapper */
+            /* to determine how to handle a fault/recovery if possible. */
+            transfer->state = i2cStateDone;
             goto done;
-          }
-
-          /* Reprocess in case next buffer is empty */
-          continue;
         }
 
-        /* Send byte */
-        i2c->TXDATA     = (uint32_t)(seq->buf[transfer->bufIndx].data[transfer->offset++]);
-        transfer->state = i2cStateDataWFAckNack;
-        goto done;
+        switch (transfer->state) {
+            /***************************************************/
+            /* Send first start+address (first byte if 10 bit) */
+            /***************************************************/
+            case i2cStateStartAddrSend:
+                if (seq->flags & I2C_FLAG_10BIT_ADDR) {
+                    tmp = (((uint32_t)(seq->addr) >> 8) & 0x06) | 0xf0;
 
-      /*********************************************************/
-      /* Wait for ACK/NACK from slave after sending data to it */
-      /*********************************************************/
-      case i2cStateDataWFAckNack:
-        if (pending & I2C_IF_NACK) {
-          i2c->IFC         = I2C_IFC_NACK;
-          transfer->result = i2cTransferNack;
-          transfer->state  = i2cStateWFStopSent;
-          i2c->CMD         = I2C_CMD_STOP;
-        } else if (pending & I2C_IF_ACK) {
-          i2c->IFC        = I2C_IFC_ACK;
-          transfer->state = i2cStateDataSend;
-          continue;
+                    /* In 10 bit address mode, the address following the first */
+                    /* start always indicate write. */
+                } else {
+                    tmp = (uint32_t)(seq->addr) & 0xfe;
+
+                    if (seq->flags & I2C_FLAG_READ) {
+                        /* Indicate read request */
+                        tmp |= 1;
+                    }
+                }
+
+                transfer->state = i2cStateAddrWFAckNack;
+                i2c->TXDATA     = tmp;/* Data not transmitted until START sent */
+                i2c->CMD        = I2C_CMD_START;
+                goto done;
+
+            /*******************************************************/
+            /* Wait for ACK/NACK on address (first byte if 10 bit) */
+            /*******************************************************/
+            case i2cStateAddrWFAckNack:
+                if (pending & I2C_IF_NACK) {
+                    i2c->IFC         = I2C_IFC_NACK;
+                    transfer->result = i2cTransferNack;
+                    transfer->state  = i2cStateWFStopSent;
+                    i2c->CMD         = I2C_CMD_STOP;
+                } else if (pending & I2C_IF_ACK) {
+                    i2c->IFC = I2C_IFC_ACK;
+
+                    /* If 10 bit address, send 2nd byte of address. */
+                    if (seq->flags & I2C_FLAG_10BIT_ADDR) {
+                        transfer->state = i2cStateAddrWF2ndAckNack;
+                        i2c->TXDATA     = (uint32_t)(seq->addr) & 0xff;
+                    } else {
+                        /* Determine whether receiving or sending data */
+                        if (seq->flags & I2C_FLAG_READ) {
+                            transfer->state = i2cStateWFData;
+                            if (seq->buf[transfer->bufIndx].len == 1) {
+                                i2c->CMD  = I2C_CMD_NACK;
+                            }
+                        } else {
+                            transfer->state = i2cStateDataSend;
+                            continue;
+                        }
+                    }
+                }
+                goto done;
+
+            /******************************************************/
+            /* Wait for ACK/NACK on second byte of 10 bit address */
+            /******************************************************/
+            case i2cStateAddrWF2ndAckNack:
+                if (pending & I2C_IF_NACK) {
+                    i2c->IFC         = I2C_IFC_NACK;
+                    transfer->result = i2cTransferNack;
+                    transfer->state  = i2cStateWFStopSent;
+                    i2c->CMD         = I2C_CMD_STOP;
+                } else if (pending & I2C_IF_ACK) {
+                    i2c->IFC = I2C_IFC_ACK;
+
+                    /* If using plain read sequence with 10 bit address, switch to send */
+                    /* repeated start. */
+                    if (seq->flags & I2C_FLAG_READ) {
+                        transfer->state = i2cStateRStartAddrSend;
+                    }
+                    /* Otherwise expected to write 0 or more bytes */
+                    else {
+                        transfer->state = i2cStateDataSend;
+                    }
+                    continue;
+                }
+                goto done;
+
+            /*******************************/
+            /* Send repeated start+address */
+            /*******************************/
+            case i2cStateRStartAddrSend:
+                if (seq->flags & I2C_FLAG_10BIT_ADDR) {
+                    tmp = ((seq->addr >> 8) & 0x06) | 0xf0;
+                } else {
+                    tmp = seq->addr & 0xfe;
+                }
+
+                /* If this is a write+read combined sequence, then read is about to start */
+                if (seq->flags & I2C_FLAG_WRITE_READ) {
+                    /* Indicate read request */
+                    tmp |= 1;
+                }
+
+                transfer->state = i2cStateRAddrWFAckNack;
+                /* We have to write START cmd first since repeated start, otherwise */
+                /* data would be sent first. */
+                i2c->CMD    = I2C_CMD_START;
+                i2c->TXDATA = tmp;
+                goto done;
+
+            /**********************************************************************/
+            /* Wait for ACK/NACK on repeated start+address (first byte if 10 bit) */
+            /**********************************************************************/
+            case i2cStateRAddrWFAckNack:
+                if (pending & I2C_IF_NACK) {
+                    i2c->IFC         = I2C_IFC_NACK;
+                    transfer->result = i2cTransferNack;
+                    transfer->state  = i2cStateWFStopSent;
+                    i2c->CMD         = I2C_CMD_STOP;
+                } else if (pending & I2C_IF_ACK) {
+                    i2c->IFC = I2C_IFC_ACK;
+
+                    /* Determine whether receiving or sending data */
+                    if (seq->flags & I2C_FLAG_WRITE_READ) {
+                        transfer->state = i2cStateWFData;
+                    } else {
+                        transfer->state = i2cStateDataSend;
+                        continue;
+                    }
+                }
+                goto done;
+
+            /*****************************/
+            /* Send a data byte to slave */
+            /*****************************/
+            case i2cStateDataSend:
+                /* Reached end of data buffer? */
+                if (transfer->offset >= seq->buf[transfer->bufIndx].len) {
+                    /* Move to next message part */
+                    transfer->offset = 0;
+                    transfer->bufIndx++;
+
+                    /* Send repeated start when switching to read mode on 2nd buffer */
+                    if (seq->flags & I2C_FLAG_WRITE_READ) {
+                        transfer->state = i2cStateRStartAddrSend;
+                        continue;
+                    }
+
+                    /* Only writing from one buffer, or finished both buffers */
+                    if ((seq->flags & I2C_FLAG_WRITE) || (transfer->bufIndx > 1)) {
+                        transfer->state = i2cStateWFStopSent;
+                        i2c->CMD        = I2C_CMD_STOP;
+                        goto done;
+                    }
+
+                    /* Reprocess in case next buffer is empty */
+                    continue;
+                }
+
+                /* Send byte */
+                i2c->TXDATA     = (uint32_t)(seq->buf[transfer->bufIndx].data[transfer->offset++]);
+                transfer->state = i2cStateDataWFAckNack;
+                goto done;
+
+            /*********************************************************/
+            /* Wait for ACK/NACK from slave after sending data to it */
+            /*********************************************************/
+            case i2cStateDataWFAckNack:
+                if (pending & I2C_IF_NACK) {
+                    i2c->IFC         = I2C_IFC_NACK;
+                    transfer->result = i2cTransferNack;
+                    transfer->state  = i2cStateWFStopSent;
+                    i2c->CMD         = I2C_CMD_STOP;
+                } else if (pending & I2C_IF_ACK) {
+                    i2c->IFC        = I2C_IFC_ACK;
+                    transfer->state = i2cStateDataSend;
+                    continue;
+                }
+                goto done;
+
+            /****************************/
+            /* Wait for data from slave */
+            /****************************/
+            case i2cStateWFData:
+                if (pending & I2C_IF_RXDATAV) {
+                    uint8_t       data;
+                    unsigned int  rxLen = seq->buf[transfer->bufIndx].len;
+
+                    /* Must read out data in order to not block further progress */
+                    data = (uint8_t)(i2c->RXDATA);
+
+                    /* Make sure not storing beyond end of buffer just in case */
+                    if (transfer->offset < rxLen) {
+                        seq->buf[transfer->bufIndx].data[transfer->offset++] = data;
+                    }
+
+                    /* If we have read all requested data, then the sequence should end */
+                    if (transfer->offset >= rxLen) {
+                        /* If there is only one byte to receive we need to transmit the
+                           NACK now, before the stop. */
+                        if (1 == rxLen) {
+                            i2c->CMD  = I2C_CMD_NACK;
+                        }
+
+                        transfer->state = i2cStateWFStopSent;
+                        i2c->CMD        = I2C_CMD_STOP;
+                    } else {
+                        /* Send ACK and wait for next byte */
+                        i2c->CMD = I2C_CMD_ACK;
+
+                        if ((1 < rxLen) && (transfer->offset == (rxLen - 1))) {
+                            /* If there is more than one byte to receive and this is the next
+                               to last byte we need to transmit the NACK now, before receiving
+                               the last byte. */
+                            i2c->CMD  = I2C_CMD_NACK;
+                        }
+                    }
+                }
+                goto done;
+
+            /***********************************/
+            /* Wait for STOP to have been sent */
+            /***********************************/
+            case i2cStateWFStopSent:
+                if (pending & I2C_IF_MSTOP) {
+                    i2c->IFC        = I2C_IFC_MSTOP;
+                    transfer->state = i2cStateDone;
+                }
+                goto done;
+
+            /******************************/
+            /* Unexpected state, SW fault */
+            /******************************/
+            default:
+                transfer->result = i2cTransferSwFault;
+                transfer->state  = i2cStateDone;
+                goto done;
         }
-        goto done;
-
-      /****************************/
-      /* Wait for data from slave */
-      /****************************/
-      case i2cStateWFData:
-        if (pending & I2C_IF_RXDATAV) {
-          uint8_t       data;
-          unsigned int  rxLen = seq->buf[transfer->bufIndx].len;
-
-          /* Must read out data in order to not block further progress */
-          data = (uint8_t)(i2c->RXDATA);
-
-          /* Make sure not storing beyond end of buffer just in case */
-          if (transfer->offset < rxLen) {
-            seq->buf[transfer->bufIndx].data[transfer->offset++] = data;
-          }
-
-          /* If we have read all requested data, then the sequence should end */
-          if (transfer->offset >= rxLen) {
-            /* If there is only one byte to receive we need to transmit the
-               NACK now, before the stop. */
-            if (1 == rxLen) {
-              i2c->CMD  = I2C_CMD_NACK;
-            }
-
-            transfer->state = i2cStateWFStopSent;
-            i2c->CMD        = I2C_CMD_STOP;
-          } else {
-            /* Send ACK and wait for next byte */
-            i2c->CMD = I2C_CMD_ACK;
-
-            if ( (1 < rxLen) && (transfer->offset == (rxLen - 1)) ) {
-              /* If there is more than one byte to receive and this is the next
-                 to last byte we need to transmit the NACK now, before receiving
-                 the last byte. */
-              i2c->CMD  = I2C_CMD_NACK;
-            }
-          }
-        }
-        goto done;
-
-      /***********************************/
-      /* Wait for STOP to have been sent */
-      /***********************************/
-      case i2cStateWFStopSent:
-        if (pending & I2C_IF_MSTOP) {
-          i2c->IFC        = I2C_IFC_MSTOP;
-          transfer->state = i2cStateDone;
-        }
-        goto done;
-
-      /******************************/
-      /* Unexpected state, SW fault */
-      /******************************/
-      default:
-        transfer->result = i2cTransferSwFault;
-        transfer->state  = i2cStateDone;
-        goto done;
     }
-  }
 
-  done:
+done:
 
-  if (transfer->state == i2cStateDone) {
-    /* Disable interrupt sources when done */
-    i2c->IEN = 0;
+    if (transfer->state == i2cStateDone) {
+        /* Disable interrupt sources when done */
+        i2c->IEN = 0;
 
-    /* Update result unless some fault already occurred */
-    if (transfer->result == i2cTransferInProgress) {
-      transfer->result = i2cTransferDone;
+        /* Update result unless some fault already occurred */
+        if (transfer->result == i2cTransferInProgress) {
+            transfer->result = i2cTransferDone;
+        }
     }
-  }
-  /* Until transfer is done keep returning i2cTransferInProgress */
-  else {
-    return i2cTransferInProgress;
-  }
+    /* Until transfer is done keep returning i2cTransferInProgress */
+    else {
+        return i2cTransferInProgress;
+    }
 
-  return transfer->result;
+    return transfer->result;
 }
 
 /***************************************************************************//**
@@ -741,69 +750,69 @@ I2C_TransferReturn_TypeDef I2C_Transfer(I2C_TypeDef *i2c)
 I2C_TransferReturn_TypeDef I2C_TransferInit(I2C_TypeDef *i2c,
                                             I2C_TransferSeq_TypeDef *seq)
 {
-  I2C_Transfer_TypeDef *transfer;
+    I2C_Transfer_TypeDef *transfer;
 
-  EFM_ASSERT(I2C_REF_VALID(i2c));
-  EFM_ASSERT(seq);
+    EFM_ASSERT(I2C_REF_VALID(i2c));
+    EFM_ASSERT(seq);
 
-  /* Support up to 2 I2C buses */
-  if (i2c == I2C0) {
-    transfer = i2cTransfer;
-  }
+    /* Support up to 2 I2C buses */
+    if (i2c == I2C0) {
+        transfer = i2cTransfer;
+    }
 #if (I2C_COUNT > 1)
-  else if (i2c == I2C1) {
-    transfer = i2cTransfer + 1;
-  }
+    else if (i2c == I2C1) {
+        transfer = i2cTransfer + 1;
+    }
 #endif
 #if (I2C_COUNT > 2)
-  else if (i2c == I2C2) {
-    transfer = i2cTransfer + 2;
-  }
+    else if (i2c == I2C2) {
+        transfer = i2cTransfer + 2;
+    }
 #endif
-  else {
-    return i2cTransferUsageFault;
-  }
+    else {
+        return i2cTransferUsageFault;
+    }
 
-  /* Check if in busy state. Since this SW assumes single master, we can */
-  /* just issue an abort. The BUSY state is normal after a reset. */
-  if (i2c->STATE & I2C_STATE_BUSY) {
-    i2c->CMD = I2C_CMD_ABORT;
-  }
+    /* Check if in busy state. Since this SW assumes single master, we can */
+    /* just issue an abort. The BUSY state is normal after a reset. */
+    if (i2c->STATE & I2C_STATE_BUSY) {
+        i2c->CMD = I2C_CMD_ABORT;
+    }
 
-  /* Make sure user is not trying to read 0 bytes, it is not */
-  /* possible according to I2C spec, since slave will always start */
-  /* sending first byte ACK on address. The read operation can */
-  /* only be stopped by NACKing a received byte, ie minimum 1 byte. */
-  if (((seq->flags & I2C_FLAG_READ) && !(seq->buf[0].len))
-      || ((seq->flags & I2C_FLAG_WRITE_READ) && !(seq->buf[1].len))
-      ) {
-    return i2cTransferUsageFault;
-  }
+    /* Make sure user is not trying to read 0 bytes, it is not */
+    /* possible according to I2C spec, since slave will always start */
+    /* sending first byte ACK on address. The read operation can */
+    /* only be stopped by NACKing a received byte, ie minimum 1 byte. */
+    if (((seq->flags & I2C_FLAG_READ) && !(seq->buf[0].len))
+            || ((seq->flags & I2C_FLAG_WRITE_READ) && !(seq->buf[1].len))
+       ) {
+        return i2cTransferUsageFault;
+    }
 
-  /* Prepare for a transfer */
-  transfer->state   = i2cStateStartAddrSend;
-  transfer->result  = i2cTransferInProgress;
-  transfer->offset  = 0;
-  transfer->bufIndx = 0;
-  transfer->seq     = seq;
+    /* Prepare for a transfer */
+    transfer->state   = i2cStateStartAddrSend;
+    transfer->result  = i2cTransferInProgress;
+    transfer->offset  = 0;
+    transfer->bufIndx = 0;
+    transfer->seq     = seq;
 
-  /* Ensure buffers are empty */
-  i2c->CMD = I2C_CMD_CLEARPC | I2C_CMD_CLEARTX;
-  if (i2c->IF & I2C_IF_RXDATAV) {
-    (void)i2c->RXDATA;
-  }
+    /* Ensure buffers are empty */
+    i2c->CMD = I2C_CMD_CLEARPC | I2C_CMD_CLEARTX;
+    if (i2c->IF & I2C_IF_RXDATAV) {
+        (void)i2c->RXDATA;
+    }
 
-  /* Clear all pending interrupts prior to starting transfer. */
-  i2c->IFC = _I2C_IFC_MASK;
+    /* Clear all pending interrupts prior to starting transfer. */
+    i2c->IFC = _I2C_IFC_MASK;
 
-  /* Enable those interrupts we are interested in throughout transfer. */
-  /* Notice that the I2C interrupt must also be enabled in the NVIC, but */
-  /* that is left for an additional driver wrapper. */
-  i2c->IEN |= I2C_IF_NACK | I2C_IF_ACK | I2C_IF_MSTOP
-              | I2C_IF_RXDATAV | I2C_IF_ERRORS;
+    /* Enable those interrupts we are interested in throughout transfer. */
+    /* Notice that the I2C interrupt must also be enabled in the NVIC, but */
+    /* that is left for an additional driver wrapper. */
+    i2c->IEN |= I2C_IF_NACK | I2C_IF_ACK | I2C_IF_MSTOP
+                | I2C_IF_RXDATAV | I2C_IF_ERRORS;
 
-  /* Start transfer */
-  return I2C_Transfer(i2c);
+    /* Start transfer */
+    return I2C_Transfer(i2c);
 }
 
 /** @} (end addtogroup I2C) */

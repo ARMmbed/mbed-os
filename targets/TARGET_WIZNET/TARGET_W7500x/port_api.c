@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
- 
+
 #include "port_api.h"
 #include "pinmap.h"
 #include "gpio_api.h"
@@ -42,8 +42,7 @@ PinName port_pin(PortName port, int pin_n)
 {
     int af_num = 0;
 
-    if( (port == 2) && ((pin_n == 0) || (pin_n == 1) || (pin_n == 4) || (pin_n == 8) || (pin_n == 9)) )
-    {
+    if ((port == 2) && ((pin_n == 0) || (pin_n == 1) || (pin_n == 4) || (pin_n == 8) || (pin_n == 9))) {
         af_num = 1;
     }
 
@@ -57,7 +56,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 
     // Enable GPIO clock
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(port_num);
-    
+
 
     // Fill PORT object structure for future use
     obj->port      = port;

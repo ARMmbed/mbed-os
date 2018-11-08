@@ -47,8 +47,7 @@
 /*@}*/
 
 /*! @brief LPTMR pin selection used in pulse counter mode.*/
-typedef enum _lptmr_pin_select
-{
+typedef enum _lptmr_pin_select {
     kLPTMR_PinSelectInput_0 = 0x0U, /*!< Pulse counter input 0 is selected */
     kLPTMR_PinSelectInput_1 = 0x1U, /*!< Pulse counter input 1 is selected */
     kLPTMR_PinSelectInput_2 = 0x2U, /*!< Pulse counter input 2 is selected */
@@ -56,22 +55,19 @@ typedef enum _lptmr_pin_select
 } lptmr_pin_select_t;
 
 /*! @brief LPTMR pin polarity used in pulse counter mode.*/
-typedef enum _lptmr_pin_polarity
-{
+typedef enum _lptmr_pin_polarity {
     kLPTMR_PinPolarityActiveHigh = 0x0U, /*!< Pulse Counter input source is active-high */
     kLPTMR_PinPolarityActiveLow = 0x1U   /*!< Pulse Counter input source is active-low */
 } lptmr_pin_polarity_t;
 
 /*! @brief LPTMR timer mode selection.*/
-typedef enum _lptmr_timer_mode
-{
+typedef enum _lptmr_timer_mode {
     kLPTMR_TimerModeTimeCounter = 0x0U, /*!< Time Counter mode */
     kLPTMR_TimerModePulseCounter = 0x1U /*!< Pulse Counter mode */
 } lptmr_timer_mode_t;
 
 /*! @brief LPTMR prescaler/glitch filter values*/
-typedef enum _lptmr_prescaler_glitch_value
-{
+typedef enum _lptmr_prescaler_glitch_value {
     kLPTMR_Prescale_Glitch_0 = 0x0U,  /*!< Prescaler divide 2, glitch filter does not support this setting */
     kLPTMR_Prescale_Glitch_1 = 0x1U,  /*!< Prescaler divide 4, glitch filter 2 */
     kLPTMR_Prescale_Glitch_2 = 0x2U,  /*!< Prescaler divide 8, glitch filter 4 */
@@ -94,8 +90,7 @@ typedef enum _lptmr_prescaler_glitch_value
  * @brief LPTMR prescaler/glitch filter clock select.
  * @note Clock connections are SoC-specific
  */
-typedef enum _lptmr_prescaler_clock_select
-{
+typedef enum _lptmr_prescaler_clock_select {
     kLPTMR_PrescalerClock_0 = 0x0U, /*!< Prescaler/glitch filter clock 0 selected. */
     kLPTMR_PrescalerClock_1 = 0x1U, /*!< Prescaler/glitch filter clock 1 selected. */
     kLPTMR_PrescalerClock_2 = 0x2U, /*!< Prescaler/glitch filter clock 2 selected. */
@@ -103,14 +98,12 @@ typedef enum _lptmr_prescaler_clock_select
 } lptmr_prescaler_clock_select_t;
 
 /*! @brief List of the LPTMR interrupts */
-typedef enum _lptmr_interrupt_enable
-{
+typedef enum _lptmr_interrupt_enable {
     kLPTMR_TimerInterruptEnable = LPTMR_CSR_TIE_MASK, /*!< Timer interrupt enable */
 } lptmr_interrupt_enable_t;
 
 /*! @brief List of the LPTMR status flags */
-typedef enum _lptmr_status_flags
-{
+typedef enum _lptmr_status_flags {
     kLPTMR_TimerCompareFlag = LPTMR_CSR_TCF_MASK, /*!< Timer compare flag */
 } lptmr_status_flags_t;
 
@@ -123,8 +116,7 @@ typedef enum _lptmr_status_flags
  *
  * The configuration struct can be made constant so it resides in flash.
  */
-typedef struct _lptmr_config
-{
+typedef struct _lptmr_config {
     lptmr_timer_mode_t timerMode;     /*!< Time counter mode or pulse counter mode */
     lptmr_pin_select_t pinSelect;     /*!< LPTMR pulse input pin select; used only in pulse counter mode */
     lptmr_pin_polarity_t pinPolarity; /*!< LPTMR pulse input pin polarity; used only in pulse counter mode */

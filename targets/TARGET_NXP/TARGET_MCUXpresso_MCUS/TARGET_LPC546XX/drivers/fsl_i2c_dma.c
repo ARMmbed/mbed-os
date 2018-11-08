@@ -36,8 +36,7 @@
  ******************************************************************************/
 
 /*<! @brief Structure definition for i2c_master_dma_handle_t. The structure is private. */
-typedef struct _i2c_master_dma_private_handle
-{
+typedef struct _i2c_master_dma_private_handle {
     I2C_Type *base;
     i2c_master_dma_handle_t *handle;
 } i2c_master_dma_private_handle_t;
@@ -106,42 +105,29 @@ static status_t I2C_InitTransferStateMachineDMA(I2C_Type *base,
     handle->buf = (uint8_t *)transfer->data;
     handle->remainingSubaddr = 0;
 
-    if (transfer->flags & kI2C_TransferNoStartFlag)
-    {
+    if (transfer->flags & kI2C_TransferNoStartFlag) {
         /* Start condition shall be ommited, switch directly to next phase */
-        if (transfer->dataSize == 0)
-        {
+        if (transfer->dataSize == 0) {
             handle->state = kStopState;
-        }
-        else if (handle->transfer.direction == kI2C_Write)
-        {
+        } else if (handle->transfer.direction == kI2C_Write) {
             handle->state = xfer->dataSize = kTransmitDataState;
-        }
-        else if (handle->transfer.direction == kI2C_Read)
-        {
+        } else if (handle->transfer.direction == kI2C_Read) {
             handle->state = (xfer->dataSize == 1) ? kReceiveLastDataState : kReceiveDataState;
-        }
-        else
-        {
+        } else {
             return kStatus_I2C_InvalidParameter;
         }
-    }
-    else
-    {
-        if (transfer->subaddressSize != 0)
-        {
+    } else {
+        if (transfer->subaddressSize != 0) {
             int i;
             uint32_t subaddress;
 
-            if (transfer->subaddressSize > sizeof(handle->subaddrBuf))
-            {
+            if (transfer->subaddressSize > sizeof(handle->subaddrBuf)) {
                 return kStatus_I2C_InvalidParameter;
             }
 
             /* Prepare subaddress transmit buffer, most significant byte is stored at the lowest address */
             subaddress = xfer->subaddress;
-            for (i = xfer->subaddressSize - 1; i >= 0; i--)
-            {
+            for (i = xfer->subaddressSize - 1; i >= 0; i--) {
                 handle->subaddrBuf[i] = subaddress & 0xff;
                 subaddress >>= 8;
             }
@@ -163,8 +149,7 @@ static void I2C_RunDMATransfer(I2C_Type *base, i2c_master_dma_handle_t *handle)
     handle->transferCount = handle->buf - (uint8_t *)handle->transfer.data;
 
     /* Check if there is anything to be transferred at all */
-    if (handle->remainingBytesDMA == 0)
-    {
+    if (handle->remainingBytesDMA == 0) {
         /* No data to be transferrred, disable DMA */
         base->MSTCTL = 0;
         return;
@@ -172,13 +157,11 @@ static void I2C_RunDMATransfer(I2C_Type *base, i2c_master_dma_handle_t *handle)
 
     /* Calculate transfer size */
     transfer_size = handle->remainingBytesDMA;
-    if (transfer_size > I2C_MAX_DMA_TRANSFER_COUNT)
-    {
+    if (transfer_size > I2C_MAX_DMA_TRANSFER_COUNT) {
         transfer_size = I2C_MAX_DMA_TRANSFER_COUNT;
     }
 
-    switch (handle->transfer.direction)
-    {
+    switch (handle->transfer.direction) {
         case kI2C_Write:
             DMA_PrepareTransfer(&xferConfig, handle->buf, (void *)&base->MSTDAT, sizeof(uint8_t), transfer_size,
                                 kDMA_MemoryToPeripheral, NULL);
@@ -225,32 +208,28 @@ static status_t I2C_RunTransferStateMachineDMA(I2C_Type *base, i2c_master_dma_ha
 
     status = I2C_GetStatusFlags(base);
 
-    if (status & I2C_STAT_MSTARBLOSS_MASK)
-    {
+    if (status & I2C_STAT_MSTARBLOSS_MASK) {
         I2C_MasterClearStatusFlags(base, I2C_STAT_MSTARBLOSS_MASK);
         DMA_AbortTransfer(handle->dmaHandle);
         base->MSTCTL = 0;
         return kStatus_I2C_ArbitrationLost;
     }
 
-    if (status & I2C_STAT_MSTSTSTPERR_MASK)
-    {
+    if (status & I2C_STAT_MSTSTSTPERR_MASK) {
         I2C_MasterClearStatusFlags(base, I2C_STAT_MSTSTSTPERR_MASK);
         DMA_AbortTransfer(handle->dmaHandle);
         base->MSTCTL = 0;
         return kStatus_I2C_StartStopError;
     }
 
-    if ((status & I2C_STAT_MSTPENDING_MASK) == 0)
-    {
+    if ((status & I2C_STAT_MSTPENDING_MASK) == 0) {
         return kStatus_I2C_Busy;
     }
 
     /* Get the state of the I2C module */
     master_state = (status & I2C_STAT_MSTSTATE_MASK) >> I2C_STAT_MSTSTATE_SHIFT;
 
-    if ((master_state == I2C_STAT_MSTCODE_NACKADR) || (master_state == I2C_STAT_MSTCODE_NACKDAT))
-    {
+    if ((master_state == I2C_STAT_MSTCODE_NACKADR) || (master_state == I2C_STAT_MSTCODE_NACKDAT)) {
         /* Slave NACKed last byte, issue stop and return error */
         DMA_AbortTransfer(handle->dmaHandle);
         base->MSTCTL = I2C_MSTCTL_MSTSTOP_MASK;
@@ -260,53 +239,41 @@ static status_t I2C_RunTransferStateMachineDMA(I2C_Type *base, i2c_master_dma_ha
 
     err = kStatus_Success;
 
-    if (handle->state == kStartState)
-    {
+    if (handle->state == kStartState) {
         /* set start flag for later use */
         start_flag = I2C_MSTCTL_MSTSTART_MASK;
 
-        if (handle->remainingSubaddr)
-        {
+        if (handle->remainingSubaddr) {
             base->MSTDAT = (uint32_t)transfer->slaveAddress << 1;
             handle->state = kTransmitSubaddrState;
-        }
-        else if (transfer->direction == kI2C_Write)
-        {
+        } else if (transfer->direction == kI2C_Write) {
             base->MSTDAT = (uint32_t)transfer->slaveAddress << 1;
-            if (transfer->dataSize == 0)
-            {
+            if (transfer->dataSize == 0) {
                 /* No data to be transferred, initiate start and schedule stop */
                 base->MSTCTL = I2C_MSTCTL_MSTSTART_MASK;
                 handle->state = kStopState;
                 return err;
             }
             handle->state = kTransmitDataState;
-        }
-        else if ((transfer->direction == kI2C_Read) && (transfer->dataSize > 0))
-        {
+        } else if ((transfer->direction == kI2C_Read) && (transfer->dataSize > 0)) {
             base->MSTDAT = ((uint32_t)transfer->slaveAddress << 1) | 1u;
-            if (transfer->dataSize == 1)
-            {
+            if (transfer->dataSize == 1) {
                 /* The very last byte is always received by means of SW */
                 base->MSTCTL = I2C_MSTCTL_MSTSTART_MASK;
                 handle->state = kReceiveLastDataState;
                 return err;
             }
             handle->state = kReceiveDataState;
-        }
-        else
-        {
+        } else {
             handle->state = kIdleState;
             err = kStatus_I2C_UnexpectedState;
             return err;
         }
     }
 
-    switch (handle->state)
-    {
+    switch (handle->state) {
         case kTransmitSubaddrState:
-            if ((master_state != I2C_STAT_MSTCODE_TXREADY) && (!start_flag))
-            {
+            if ((master_state != I2C_STAT_MSTCODE_TXREADY) && (!start_flag)) {
                 return kStatus_I2C_UnexpectedState;
             }
 
@@ -318,22 +285,18 @@ static status_t I2C_RunTransferStateMachineDMA(I2C_Type *base, i2c_master_dma_ha
             DMA_SubmitTransfer(handle->dmaHandle, &xferConfig);
 
             handle->remainingSubaddr = 0;
-            if (transfer->dataSize)
-            {
+            if (transfer->dataSize) {
                 /* There is data to be transferred, if there is write to read turnaround it is necessary to perform
                  * repeated start */
                 handle->state = (transfer->direction == kI2C_Read) ? kStartState : kTransmitDataState;
-            }
-            else
-            {
+            } else {
                 /* No more data, schedule stop condition */
                 handle->state = kStopState;
             }
             break;
 
         case kTransmitDataState:
-            if ((master_state != I2C_STAT_MSTCODE_TXREADY) && (!start_flag))
-            {
+            if ((master_state != I2C_STAT_MSTCODE_TXREADY) && (!start_flag)) {
                 return kStatus_I2C_UnexpectedState;
             }
 
@@ -347,8 +310,7 @@ static status_t I2C_RunTransferStateMachineDMA(I2C_Type *base, i2c_master_dma_ha
             break;
 
         case kReceiveDataState:
-            if ((master_state != I2C_STAT_MSTCODE_RXREADY) && (!start_flag))
-            {
+            if ((master_state != I2C_STAT_MSTCODE_RXREADY) && (!start_flag)) {
                 return kStatus_I2C_UnexpectedState;
             }
 
@@ -362,8 +324,7 @@ static status_t I2C_RunTransferStateMachineDMA(I2C_Type *base, i2c_master_dma_ha
             break;
 
         case kReceiveLastDataState:
-            if (master_state != I2C_STAT_MSTCODE_RXREADY)
-            {
+            if (master_state != I2C_STAT_MSTCODE_RXREADY) {
                 return kStatus_I2C_UnexpectedState;
             }
 
@@ -376,8 +337,7 @@ static status_t I2C_RunTransferStateMachineDMA(I2C_Type *base, i2c_master_dma_ha
             break;
 
         case kStopState:
-            if (transfer->flags & kI2C_TransferNoStopFlag)
-            {
+            if (transfer->flags & kI2C_TransferNoStopFlag) {
                 /* Stop condition is omitted, we are done */
                 *isDone = true;
                 handle->state = kIdleState;
@@ -410,22 +370,19 @@ void I2C_MasterTransferDMAHandleIRQ(I2C_Type *base, i2c_master_dma_handle_t *han
     status_t result;
 
     /* Don't do anything if we don't have a valid handle. */
-    if (!handle)
-    {
+    if (!handle) {
         return;
     }
 
     result = I2C_RunTransferStateMachineDMA(base, handle, &isDone);
 
-    if (isDone || (result != kStatus_Success))
-    {
+    if (isDone || (result != kStatus_Success)) {
         /* Disable internal IRQ enables. */
         I2C_DisableInterrupts(base,
                               I2C_INTSTAT_MSTPENDING_MASK | I2C_INTSTAT_MSTARBLOSS_MASK | I2C_INTSTAT_MSTSTSTPERR_MASK);
 
         /* Invoke callback. */
-        if (handle->completionCallback)
-        {
+        if (handle->completionCallback) {
             handle->completionCallback(base, handle, result, handle->userData);
         }
     }
@@ -436,8 +393,7 @@ static void I2C_MasterTransferCallbackDMA(dma_handle_t *handle, void *userData)
     i2c_master_dma_private_handle_t *dmaPrivateHandle;
 
     /* Don't do anything if we don't have a valid handle. */
-    if (!handle)
-    {
+    if (!handle) {
         return;
     }
 
@@ -491,8 +447,7 @@ status_t I2C_MasterTransferDMA(I2C_Type *base, i2c_master_dma_handle_t *handle, 
     assert(xfer->subaddressSize <= sizeof(xfer->subaddress));
 
     /* Return busy if another transaction is in progress. */
-    if (handle->state != kIdleState)
-    {
+    if (handle->state != kIdleState) {
         return kStatus_I2C_Busy;
     }
 
@@ -513,14 +468,12 @@ status_t I2C_MasterTransferGetCountDMA(I2C_Type *base, i2c_master_dma_handle_t *
 {
     assert(handle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
     /* Catch when there is not an active transfer. */
-    if (handle->state == kIdleState)
-    {
+    if (handle->state == kIdleState) {
         *count = 0;
         return kStatus_NoTransferInProgress;
     }
@@ -535,8 +488,7 @@ void I2C_MasterTransferAbortDMA(I2C_Type *base, i2c_master_dma_handle_t *handle)
     uint32_t status;
     uint32_t master_state;
 
-    if (handle->state != kIdleState)
-    {
+    if (handle->state != kIdleState) {
         DMA_AbortTransfer(handle->dmaHandle);
 
         /* Disable DMA */
@@ -547,8 +499,7 @@ void I2C_MasterTransferAbortDMA(I2C_Type *base, i2c_master_dma_handle_t *handle)
                               I2C_INTSTAT_MSTPENDING_MASK | I2C_INTSTAT_MSTARBLOSS_MASK | I2C_INTSTAT_MSTSTSTPERR_MASK);
 
         /* Wait until module is ready */
-        do
-        {
+        do {
             status = I2C_GetStatusFlags(base);
         } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 
@@ -558,14 +509,12 @@ void I2C_MasterTransferAbortDMA(I2C_Type *base, i2c_master_dma_handle_t *handle)
         /* Get the state of the I2C module */
         master_state = (status & I2C_STAT_MSTSTATE_MASK) >> I2C_STAT_MSTSTATE_SHIFT;
 
-        if (master_state != I2C_STAT_MSTCODE_IDLE)
-        {
+        if (master_state != I2C_STAT_MSTCODE_IDLE) {
             /* Send a stop command to finalize the transfer. */
             base->MSTCTL = I2C_MSTCTL_MSTSTOP_MASK;
 
             /* Wait until module is ready */
-            do
-            {
+            do {
                 status = I2C_GetStatusFlags(base);
             } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 

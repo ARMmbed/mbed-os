@@ -71,7 +71,7 @@ extern "C" {
 #define ADI_RTC_GATEWAY_FLUSH    0xa2c5
 
 /*! A device handle used in all API functions to identify the RTC device. */
-typedef void*   ADI_RTC_HANDLE;
+typedef void   *ADI_RTC_HANDLE;
 
 /*! Interrupt  bit position-1*/
 #define ADI_RTC_INTERRUPT_OFFSET                16
@@ -82,8 +82,7 @@ typedef void*   ADI_RTC_HANDLE;
 /*!
  * RTC  API return codes
  */
-typedef enum
-{
+typedef enum {
     /*!  No Error, API succeeded */
     ADI_RTC_SUCCESS,
     /*!  Generic failure */
@@ -104,7 +103,7 @@ typedef enum
     ADI_RTC_INVALID_PARAM,
     /*!  Input/SensorStrobe channel is invalid for the specified operation */
     ADI_RTC_INVALID_CHANNEL
-    
+
 } ADI_RTC_RESULT;
 
 
@@ -154,8 +153,7 @@ typedef uint32_t ADI_RTC_INT_TYPE;
 /*!
  * RTC Posted Write Status Bits.
  */
-typedef enum
-{
+typedef enum {
     /*!  Posted write control register-0 status bit */
     ADI_RTC_WRITE_STATUS_CONTROL0      = 1 << BITP_RTC_SR0_WSYNCCR0,
     /*!  Posted write status0 register status bit */
@@ -176,8 +174,7 @@ typedef enum
 /*!
  * RTC Trim intervals.
  */
-typedef enum
-{
+typedef enum {
     /*!  Trim interval is 2^2 seconds */
     ADI_RTC_TRIM_INTERVAL_2           = (2 << BITP_RTC_TRM_IVL2EXPMIN    | 0x0 << BITP_RTC_TRM_IVL),
     /*!  Trim interval is 2^3 seconds */
@@ -186,7 +183,7 @@ typedef enum
     ADI_RTC_TRIM_INTERVAL_4           = (4 << BITP_RTC_TRM_IVL2EXPMIN    | 0x0 << BITP_RTC_TRM_IVL),
     /*!  Trim interval is 2^5 seconds */
     ADI_RTC_TRIM_INTERVAL_5           = (5 << BITP_RTC_TRM_IVL2EXPMIN    | 0x0 << BITP_RTC_TRM_IVL),
-      /*!  Trim interval is 2^6 seconds */
+    /*!  Trim interval is 2^6 seconds */
     ADI_RTC_TRIM_INTERVAL_6           = (6 << BITP_RTC_TRM_IVL2EXPMIN    | 0x0 << BITP_RTC_TRM_IVL),
     /*!  Trim interval is 2^7 seconds */
     ADI_RTC_TRIM_INTERVAL_7           = (7 << BITP_RTC_TRM_IVL2EXPMIN    | 0x0 << BITP_RTC_TRM_IVL),
@@ -207,7 +204,7 @@ typedef enum
     /*!  Trim interval is 2^15 seconds */
     ADI_RTC_TRIM_INTERVAL_15           = (14 << BITP_RTC_TRM_IVL2EXPMIN  | 0x1 << BITP_RTC_TRM_IVL),
     /*!  Trim interval is 2^16 seconds */
-    ADI_RTC_TRIM_INTERVAL_16           = (14 << BITP_RTC_TRM_IVL2EXPMIN  | 0x2 << BITP_RTC_TRM_IVL ),
+    ADI_RTC_TRIM_INTERVAL_16           = (14 << BITP_RTC_TRM_IVL2EXPMIN  | 0x2 << BITP_RTC_TRM_IVL),
     /*!  Trim interval is 2^17 seconds */
     ADI_RTC_TRIM_INTERVAL_17           = (14 << BITP_RTC_TRM_IVL2EXPMIN  | 0x3 << BITP_RTC_TRM_IVL)
 
@@ -216,8 +213,7 @@ typedef enum
 /*!
  * RTC input capture  channels.
  */
-typedef enum
-{
+typedef enum {
     /*!  Input capture channel-0  */
     ADI_RTC_INPUT_CHANNEL_0           = 1 << BITP_RTC_CR2IC_IC0EN,
     /*!  Input capture channel-2  */
@@ -227,13 +223,12 @@ typedef enum
     /*!  Input capture channel-4  */
     ADI_RTC_INPUT_CHANNEL_4           = 1 << BITP_RTC_CR2IC_IC4EN
 
-}ADI_RTC_INPUT_CHANNEL;
+} ADI_RTC_INPUT_CHANNEL;
 
 /*!
  * RTC Sensor Strobe  channels.
  */
-typedef enum
-{
+typedef enum {
     /*!  Sensor Strobe channel-1  */
     ADI_RTC_SS_CHANNEL_1               = 1 << BITP_RTC_CR3SS_SS1EN,
     /*!  Sensor Strobe channel-2  */
@@ -243,13 +238,12 @@ typedef enum
     /*!  Sensor Strobe channel-4  */
     ADI_RTC_SS_CHANNEL_4               = 1 << BITP_RTC_CR3SS_SS4EN,
 
-}ADI_RTC_SS_CHANNEL;
+} ADI_RTC_SS_CHANNEL;
 
 /*!
  * RTC Trim polarity.
  */
-typedef enum
-{
+typedef enum {
     /*!  Trim value is added every trim interval */
     ADI_RTC_TRIM_ADD                   = (1 << BITP_RTC_TRM_ADD),
     /*!  Trim value is subtracted every trim interval */
@@ -259,8 +253,7 @@ typedef enum
 /*!
  * RTC Trim values.
  */
-typedef enum
-{
+typedef enum {
     /*!  Trim value is +/- 0 */
     ADI_RTC_TRIM_0                     = (0 << BITP_RTC_TRM_VALUE),
     /*!  Trim value is +/- 1 */
@@ -282,12 +275,11 @@ typedef enum
 /*!
  * RTC control register set.
  */
-typedef enum
-{
-  /*! Specify the RTC-Control register-0 */
-  ADI_RTC_CONTROL_REGISTER_0,
-  /*! Specify the RTC-Control register-1 */
-  ADI_RTC_CONTROL_REGISTER_1
+typedef enum {
+    /*! Specify the RTC-Control register-0 */
+    ADI_RTC_CONTROL_REGISTER_0,
+    /*! Specify the RTC-Control register-1 */
+    ADI_RTC_CONTROL_REGISTER_1
 } ADI_RTC_CONTROL_REGISTER;
 
 /*================ E X T E R N A L S ==================*/
@@ -299,216 +291,216 @@ typedef enum
 /*    RTC API                       */
 /*************************************/
 ADI_RTC_RESULT adi_rtc_Open(
-               uint32_t         DeviceNumber,
-               void            *pDeviceMemory,
-               uint32_t         MemorySize,
-               ADI_RTC_HANDLE  *phDevice
-               );
+    uint32_t         DeviceNumber,
+    void            *pDeviceMemory,
+    uint32_t         MemorySize,
+    ADI_RTC_HANDLE  *phDevice
+);
 
 ADI_RTC_RESULT adi_rtc_Close(
-               ADI_RTC_HANDLE const hDevice
-               );
+    ADI_RTC_HANDLE const hDevice
+);
 
 /*************************************/
 /*    Enable APIs for RTC Device     */
 /*************************************/
-               
+
 ADI_RTC_RESULT adi_rtc_EnableAlarm(
-               ADI_RTC_HANDLE const hDevice,
-               bool bEnable
-               );
+    ADI_RTC_HANDLE const hDevice,
+    bool bEnable
+);
 
 ADI_RTC_RESULT adi_rtc_EnableMod60Alarm(
-               ADI_RTC_HANDLE const hDevice,
-               bool bEnable
-               );
+    ADI_RTC_HANDLE const hDevice,
+    bool bEnable
+);
 
 ADI_RTC_RESULT adi_rtc_Enable(
-               ADI_RTC_HANDLE const hDevice,
-               bool bEnable
-               );
+    ADI_RTC_HANDLE const hDevice,
+    bool bEnable
+);
 
 ADI_RTC_RESULT adi_rtc_EnableInterrupts(
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_INT_TYPE Interrupts,
-               bool bEnable
-               );
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_INT_TYPE Interrupts,
+    bool bEnable
+);
 
 ADI_RTC_RESULT adi_rtc_EnableTrim(
-               ADI_RTC_HANDLE const hDevice,
-               bool bEnable
-               );
-               
+    ADI_RTC_HANDLE const hDevice,
+    bool bEnable
+);
+
 ADI_RTC_RESULT adi_rtc_EnableAutoReload(
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_SS_CHANNEL   eSSChannel,
-               bool bEnable);
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_SS_CHANNEL   eSSChannel,
+    bool bEnable);
 
-ADI_RTC_RESULT adi_rtc_EnableSensorStrobeOutput (
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_SS_CHANNEL   eSSChannel, 
-               bool bEnable);
+ADI_RTC_RESULT adi_rtc_EnableSensorStrobeOutput(
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_SS_CHANNEL   eSSChannel,
+    bool bEnable);
 
-ADI_RTC_RESULT adi_rtc_EnableInputCapture (
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_INPUT_CHANNEL eInpChannel,
-               bool bEnable);
+ADI_RTC_RESULT adi_rtc_EnableInputCapture(
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_INPUT_CHANNEL eInpChannel,
+    bool bEnable);
 
 ADI_RTC_RESULT adi_rtc_EnableSensorStrobeChannelMask(
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_SS_CHANNEL   eSSChannel, 
-               bool bEnable);
-               
-ADI_RTC_RESULT adi_rtc_EnableOverwriteSnapshot (
-               ADI_RTC_HANDLE const hDevice,
-               bool bEnable);
-               
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_SS_CHANNEL   eSSChannel,
+    bool bEnable);
+
+ADI_RTC_RESULT adi_rtc_EnableOverwriteSnapshot(
+    ADI_RTC_HANDLE const hDevice,
+    bool bEnable);
+
 /*************************************/
 /*    Set APIs for RTC Device     */
 /*************************************/
 
 
 ADI_RTC_RESULT adi_rtc_SetMod60AlarmPeriod(
-               ADI_RTC_HANDLE const hDevice,
-               uint8_t nPeriod
-               );
+    ADI_RTC_HANDLE const hDevice,
+    uint8_t nPeriod
+);
 
 ADI_RTC_RESULT adi_rtc_SetAlarm(
-               ADI_RTC_HANDLE const hDevice,
-               uint32_t nAlarm
-               );
+    ADI_RTC_HANDLE const hDevice,
+    uint32_t nAlarm
+);
 
 ADI_RTC_RESULT adi_rtc_SetAlarmEx(
-               ADI_RTC_HANDLE const hDevice,
-               float  fAlarm
-               );
+    ADI_RTC_HANDLE const hDevice,
+    float  fAlarm
+);
 
 
 ADI_RTC_RESULT adi_rtc_SetControlRegister(
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_CONTROL_REGISTER eRegister,
-               uint32_t Control
-               );
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_CONTROL_REGISTER eRegister,
+    uint32_t Control
+);
 
 ADI_RTC_RESULT adi_rtc_SetCount(
-               ADI_RTC_HANDLE const hDevice,
-               uint32_t nCount
-               );
+    ADI_RTC_HANDLE const hDevice,
+    uint32_t nCount
+);
 
 ADI_RTC_RESULT adi_rtc_SetGateway(
-               ADI_RTC_HANDLE const hDevice,
-               uint16_t Command
-               );
+    ADI_RTC_HANDLE const hDevice,
+    uint16_t Command
+);
 
 
 ADI_RTC_RESULT adi_rtc_SetPreScale(
-               ADI_RTC_HANDLE const hDevice,
-               uint8_t nPreScale
-               );
+    ADI_RTC_HANDLE const hDevice,
+    uint8_t nPreScale
+);
 
 ADI_RTC_RESULT adi_rtc_SetTrim(
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_TRIM_INTERVAL eInterval,
-               ADI_RTC_TRIM_VALUE  eTrimValue,
-               ADI_RTC_TRIM_POLARITY eOperation
-               );
-               
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_TRIM_INTERVAL eInterval,
+    ADI_RTC_TRIM_VALUE  eTrimValue,
+    ADI_RTC_TRIM_POLARITY eOperation
+);
+
 ADI_RTC_RESULT adi_rtc_SetSensorStrobeChannelMask(
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_SS_CHANNEL   eSSChannel, 
-               uint8_t nMask);
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_SS_CHANNEL   eSSChannel,
+    uint8_t nMask);
 
 ADI_RTC_RESULT adi_rtc_SetAutoReloadValue(
-                ADI_RTC_HANDLE const hDevice,
-                ADI_RTC_SS_CHANNEL   eSSChannel, 
-                uint16_t nValue);
-                
-ADI_RTC_RESULT adi_rtc_SetInputCapturePolarity (
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_INPUT_CHANNEL eInpChannel,
-               bool bEnable);
-               
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_SS_CHANNEL   eSSChannel,
+    uint16_t nValue);
+
+ADI_RTC_RESULT adi_rtc_SetInputCapturePolarity(
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_INPUT_CHANNEL eInpChannel,
+    bool bEnable);
+
 ADI_RTC_RESULT adi_rtc_SetSensorStrobeValue(
-                ADI_RTC_HANDLE const hDevice,
-                ADI_RTC_SS_CHANNEL   eSSChannel, 
-                uint16_t nValue);
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_SS_CHANNEL   eSSChannel,
+    uint16_t nValue);
 
 /*************************************/
 /*    Get APIs for RTC Device     */
 /*************************************/
 
-ADI_RTC_RESULT adi_rtc_GetAlarm (
-               ADI_RTC_HANDLE hDevice,
-               uint32_t *pAlarm
-               );
+ADI_RTC_RESULT adi_rtc_GetAlarm(
+    ADI_RTC_HANDLE hDevice,
+    uint32_t *pAlarm
+);
 
-ADI_RTC_RESULT adi_rtc_GetAlarmEx (
-               ADI_RTC_HANDLE hDevice,
-               float *pAlarm);
+ADI_RTC_RESULT adi_rtc_GetAlarmEx(
+    ADI_RTC_HANDLE hDevice,
+    float *pAlarm);
 
-ADI_RTC_RESULT adi_rtc_GetControl (
-               ADI_RTC_HANDLE hDevice,
-               ADI_RTC_CONTROL_REGISTER eRegister ,
-               uint32_t *pControl);
-               
+ADI_RTC_RESULT adi_rtc_GetControl(
+    ADI_RTC_HANDLE hDevice,
+    ADI_RTC_CONTROL_REGISTER eRegister,
+    uint32_t *pControl);
+
 ADI_RTC_RESULT adi_rtc_GetTrim(
-               ADI_RTC_HANDLE hDevice,
-               ADI_RTC_TRIM_VALUE *peTrim
-               );
-               
+    ADI_RTC_HANDLE hDevice,
+    ADI_RTC_TRIM_VALUE *peTrim
+);
+
 ADI_RTC_RESULT adi_rtc_GetCount(
-               ADI_RTC_HANDLE const hDevice,
-               uint32_t *pCount
-               );
+    ADI_RTC_HANDLE const hDevice,
+    uint32_t *pCount
+);
 
 ADI_RTC_RESULT adi_rtc_GetCountEx(
-               ADI_RTC_HANDLE const hDevice,
-               float *pfCount
-               );
+    ADI_RTC_HANDLE const hDevice,
+    float *pfCount
+);
 
 ADI_RTC_RESULT adi_rtc_GetSnapShot(
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_INPUT_CHANNEL eChannel, 
-               uint32_t *pValue,
-               uint16_t *pFraction);
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_INPUT_CHANNEL eChannel,
+    uint32_t *pValue,
+    uint16_t *pFraction);
 
 ADI_RTC_RESULT adi_rtc_GetInputCaptureValue(
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_INPUT_CHANNEL eChannel,
-               uint16_t *pValue);
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_INPUT_CHANNEL eChannel,
+    uint16_t *pValue);
 
 ADI_RTC_RESULT adi_rtc_GetWritePendStatus(
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_WRITE_STATUS *pPendBits
-               );
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_WRITE_STATUS *pPendBits
+);
 
 ADI_RTC_RESULT adi_rtc_GetWriteSyncStatus(
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_WRITE_STATUS *pSyncBits
-               );
-               
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_WRITE_STATUS *pSyncBits
+);
+
 ADI_RTC_RESULT adi_rtc_GetSensorStrobeValue(
-               ADI_RTC_HANDLE const hDevice,
-               ADI_RTC_SS_CHANNEL   eSSChannel, 
-               uint16_t *pValue);
-               
+    ADI_RTC_HANDLE const hDevice,
+    ADI_RTC_SS_CHANNEL   eSSChannel,
+    uint16_t *pValue);
+
 ADI_RTC_RESULT adi_rtc_GetCountRegs(
-               ADI_RTC_HANDLE const hDevice, 
-               uint32_t *pnCount,
-               uint32_t *pfCount);        
+    ADI_RTC_HANDLE const hDevice,
+    uint32_t *pnCount,
+    uint32_t *pfCount);
 /************************************************/
 /*    RTC APIs for managing interrupt/sync     */
 /***********************************************/
-               
+
 ADI_RTC_RESULT adi_rtc_SynchronizeAllWrites(
-               ADI_RTC_HANDLE const hDevice
-               );
+    ADI_RTC_HANDLE const hDevice
+);
 
 ADI_RTC_RESULT adi_rtc_RegisterCallback(
-               ADI_RTC_HANDLE const  hDevice,
-               ADI_CALLBACK   const   pfCallback,
-               void        *const     pCBparam
-               );
+    ADI_RTC_HANDLE const  hDevice,
+    ADI_CALLBACK   const   pfCallback,
+    void        *const     pCBparam
+);
 
 #ifdef __cplusplus
 }

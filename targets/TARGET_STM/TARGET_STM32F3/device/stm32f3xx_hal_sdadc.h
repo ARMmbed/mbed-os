@@ -41,7 +41,7 @@
 #define __STM32F3xx_SDADC_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
@@ -55,7 +55,7 @@
 
 /** @addtogroup SDADC
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 /** @defgroup SDADC_Exported_Types SDADC Exported Types
@@ -63,71 +63,67 @@
   */
 
 
-/** 
-  * @brief  HAL SDADC States definition  
-  */ 
-typedef enum
-{
-  HAL_SDADC_STATE_RESET                   = 0x00U,    /*!< SDADC not initialized */
-  HAL_SDADC_STATE_READY                   = 0x01U,    /*!< SDADC initialized and ready for use */
-  HAL_SDADC_STATE_CALIB                   = 0x02U,    /*!< SDADC calibration in progress */
-  HAL_SDADC_STATE_REG                     = 0x03U,    /*!< SDADC regular conversion in progress */
-  HAL_SDADC_STATE_INJ                     = 0x04U,    /*!< SDADC injected conversion in progress */
-  HAL_SDADC_STATE_REG_INJ                 = 0x05U,    /*!< SDADC regular and injected conversions in progress */
-  HAL_SDADC_STATE_ERROR                   = 0xFFU,    /*!< SDADC state error */
-}HAL_SDADC_StateTypeDef;
-   
-/** 
-  * @brief SDADC Init Structure definition  
-  */ 
-typedef struct
-{
-  uint32_t IdleLowPowerMode;        /*!< Specifies if SDADC can enter in power down or standby when idle.
+/**
+  * @brief  HAL SDADC States definition
+  */
+typedef enum {
+    HAL_SDADC_STATE_RESET                   = 0x00U,    /*!< SDADC not initialized */
+    HAL_SDADC_STATE_READY                   = 0x01U,    /*!< SDADC initialized and ready for use */
+    HAL_SDADC_STATE_CALIB                   = 0x02U,    /*!< SDADC calibration in progress */
+    HAL_SDADC_STATE_REG                     = 0x03U,    /*!< SDADC regular conversion in progress */
+    HAL_SDADC_STATE_INJ                     = 0x04U,    /*!< SDADC injected conversion in progress */
+    HAL_SDADC_STATE_REG_INJ                 = 0x05U,    /*!< SDADC regular and injected conversions in progress */
+    HAL_SDADC_STATE_ERROR                   = 0xFFU,    /*!< SDADC state error */
+} HAL_SDADC_StateTypeDef;
+
+/**
+  * @brief SDADC Init Structure definition
+  */
+typedef struct {
+    uint32_t IdleLowPowerMode;        /*!< Specifies if SDADC can enter in power down or standby when idle.
                                          This parameter can be a value of @ref SDADC_Idle_Low_Power_Mode */
-  uint32_t FastConversionMode;      /*!< Specifies if Fast conversion mode is enabled or not. 
+    uint32_t FastConversionMode;      /*!< Specifies if Fast conversion mode is enabled or not.
                                          This parameter can be a value of @ref SDADC_Fast_Conv_Mode */
-  uint32_t SlowClockMode;           /*!< Specifies if slow clock mode is enabled or not. 
+    uint32_t SlowClockMode;           /*!< Specifies if slow clock mode is enabled or not.
                                          This parameter can be a value of @ref SDADC_Slow_Clock_Mode */
-  uint32_t ReferenceVoltage;        /*!< Specifies the reference voltage.
+    uint32_t ReferenceVoltage;        /*!< Specifies the reference voltage.
                                          Note: This parameter is common to all SDADC instances.
                                          This parameter can be a value of @ref SDADC_Reference_Voltage */
-}SDADC_InitTypeDef;
+} SDADC_InitTypeDef;
 
-/** 
-  * @brief  SDADC handle Structure definition  
-  */  
-typedef struct
-{
-  SDADC_TypeDef            *Instance;           /*!< SDADC registers base address */
-  SDADC_InitTypeDef        Init;                /*!< SDADC init parameters        */
-  DMA_HandleTypeDef        *hdma;               /*!< SDADC DMA Handle parameters  */
-  uint32_t                 RegularContMode;     /*!< Regular conversion continuous mode */
-  uint32_t                 InjectedContMode;    /*!< Injected conversion continuous mode */
-  uint32_t                 InjectedChannelsNbr; /*!< Number of channels in injected sequence */
-  uint32_t                 InjConvRemaining;    /*!< Injected conversion remaining */
-  uint32_t                 RegularTrigger;      /*!< Current trigger used for regular conversion */
-  uint32_t                 InjectedTrigger;     /*!< Current trigger used for injected conversion */
-  uint32_t                 ExtTriggerEdge;      /*!< Rising, falling or both edges selected */
-  uint32_t                 RegularMultimode;    /*!< current type of regular multimode */
-  uint32_t                 InjectedMultimode;   /*!< Current type of injected multimode */
-  HAL_SDADC_StateTypeDef   State;               /*!< SDADC state */
-  uint32_t                 ErrorCode;           /*!< SDADC Error code */
-}SDADC_HandleTypeDef;
-
-/** 
-  * @brief  SDADC Configuration Register Parameter Structure 
+/**
+  * @brief  SDADC handle Structure definition
   */
-typedef struct
-{
-  uint32_t InputMode;      /*!< Specifies the input mode (single ended, differential...)
+typedef struct {
+    SDADC_TypeDef            *Instance;           /*!< SDADC registers base address */
+    SDADC_InitTypeDef        Init;                /*!< SDADC init parameters        */
+    DMA_HandleTypeDef        *hdma;               /*!< SDADC DMA Handle parameters  */
+    uint32_t                 RegularContMode;     /*!< Regular conversion continuous mode */
+    uint32_t                 InjectedContMode;    /*!< Injected conversion continuous mode */
+    uint32_t                 InjectedChannelsNbr; /*!< Number of channels in injected sequence */
+    uint32_t                 InjConvRemaining;    /*!< Injected conversion remaining */
+    uint32_t                 RegularTrigger;      /*!< Current trigger used for regular conversion */
+    uint32_t                 InjectedTrigger;     /*!< Current trigger used for injected conversion */
+    uint32_t                 ExtTriggerEdge;      /*!< Rising, falling or both edges selected */
+    uint32_t                 RegularMultimode;    /*!< current type of regular multimode */
+    uint32_t                 InjectedMultimode;   /*!< Current type of injected multimode */
+    HAL_SDADC_StateTypeDef   State;               /*!< SDADC state */
+    uint32_t                 ErrorCode;           /*!< SDADC Error code */
+} SDADC_HandleTypeDef;
+
+/**
+  * @brief  SDADC Configuration Register Parameter Structure
+  */
+typedef struct {
+    uint32_t InputMode;      /*!< Specifies the input mode (single ended, differential...)
                                 This parameter can be any value of @ref SDADC_InputMode */
-  uint32_t Gain;           /*!< Specifies the gain setting.
+    uint32_t Gain;           /*!< Specifies the gain setting.
                                 This parameter can be any value of @ref SDADC_Gain */
-  uint32_t CommonMode;     /*!< Specifies the common mode setting (VSSA, VDDA, VDDA/2U).
+    uint32_t CommonMode;     /*!< Specifies the common mode setting (VSSA, VDDA, VDDA/2U).
                                 This parameter can be any value of @ref SDADC_CommonMode */
-  uint32_t Offset;         /*!< Specifies the 12-bit offset value.
+    uint32_t Offset;         /*!< Specifies the 12-bit offset value.
                                 This parameter can be any value lower or equal to 0x00000FFFU */
-}SDADC_ConfParamTypeDef;
+} SDADC_ConfParamTypeDef;
 
 /**
   * @}
@@ -181,7 +177,7 @@ typedef struct
 /** @defgroup SDADC_ConfIndex SDADC Configuration Index
   * @{
   */
-  
+
 #define SDADC_CONF_INDEX_0                     (0x00000000U) /*!< Configuration 0 Register selected */
 #define SDADC_CONF_INDEX_1                     (0x00000001U) /*!< Configuration 1 Register selected */
 #define SDADC_CONF_INDEX_2                     (0x00000002U) /*!< Configuration 2 Register selected */
@@ -232,10 +228,10 @@ typedef struct
 /* SDADC Channels ------------------------------------------------------------*/
 /* The SDADC channels are defined as follows:
    - in 16-bit LSB the channel mask is set
-   - in 16-bit MSB the channel number is set 
-   e.g. for channel 5 definition:  
-        - the channel mask is 0x00000020 (bit 5 is set) 
-        - the channel number 5 is 0x00050000 
+   - in 16-bit MSB the channel number is set
+   e.g. for channel 5 definition:
+        - the channel mask is 0x00000020 (bit 5 is set)
+        - the channel number 5 is 0x00050000
         --> Consequently, channel 5 definition is 0x00000020U | 0x00050000U = 0x00050020U */
 #define SDADC_CHANNEL_0                              (0x00000001U)
 #define SDADC_CHANNEL_1                              (0x00010002U)
@@ -252,7 +248,7 @@ typedef struct
 
 /** @defgroup SDADC_CalibrationSequence SDADC Calibration Sequence
   * @{
-  */ 
+  */
 #define SDADC_CALIBRATION_SEQ_1                   (0x00000000U) /*!< One calibration sequence to calculate offset of conf0 (OFFSET0[11:0]) */
 #define SDADC_CALIBRATION_SEQ_2                   SDADC_CR2_CALIBCNT_0   /*!< Two calibration sequences to calculate offset of conf0 and conf1 (OFFSET0[11:0] and OFFSET1[11:0]) */
 #define SDADC_CALIBRATION_SEQ_3                   SDADC_CR2_CALIBCNT_1   /*!< Three calibration sequences to calculate offset of conf0, conf1 and conf2 (OFFSET0[11:0], OFFSET1[11:0], and OFFSET2[11:0]) */
@@ -262,7 +258,7 @@ typedef struct
 
 /** @defgroup SDADC_ContinuousMode SDADC Continuous Mode
   * @{
-  */ 
+  */
 #define SDADC_CONTINUOUS_CONV_OFF            (0x00000000U) /*!< Conversion are not continuous */
 #define SDADC_CONTINUOUS_CONV_ON             (0x00000001U) /*!< Conversion are continuous */
 /**
@@ -271,7 +267,7 @@ typedef struct
 
 /** @defgroup SDADC_Trigger SDADC Trigger
   * @{
-  */ 
+  */
 #define SDADC_SOFTWARE_TRIGGER               (0x00000000U) /*!< Software trigger */
 #define SDADC_SYNCHRONOUS_TRIGGER            (0x00000001U) /*!< Synchronous with SDADC1 (only for SDADC2 and SDADC3) */
 #define SDADC_EXTERNAL_TRIGGER               (0x00000002U) /*!< External trigger */
@@ -281,7 +277,7 @@ typedef struct
 
 /** @defgroup SDADC_InjectedExtTrigger SDADC Injected External Trigger
   * @{
-  */ 
+  */
 #define SDADC_EXT_TRIG_TIM13_CC1             (0x00000000U) /*!< Trigger source for SDADC1 */
 #define SDADC_EXT_TRIG_TIM14_CC1             (0x00000100U) /*!< Trigger source for SDADC1 */
 #define SDADC_EXT_TRIG_TIM16_CC1             (0x00000000U) /*!< Trigger source for SDADC3 */
@@ -308,7 +304,7 @@ typedef struct
 
 /** @defgroup SDADC_ExtTriggerEdge SDADC External Trigger Edge
   * @{
-  */ 
+  */
 #define SDADC_EXT_TRIG_RISING_EDGE           SDADC_CR2_JEXTEN_0     /*!< External rising edge */
 #define SDADC_EXT_TRIG_FALLING_EDGE          SDADC_CR2_JEXTEN_1     /*!< External falling edge */
 #define SDADC_EXT_TRIG_BOTH_EDGES            SDADC_CR2_JEXTEN       /*!< External rising and falling edges */
@@ -318,7 +314,7 @@ typedef struct
 
 /** @defgroup SDADC_InjectedDelay SDADC Injected Conversion Delay
   * @{
-  */ 
+  */
 #define SDADC_INJECTED_DELAY_NONE            (0x00000000U) /*!< No delay on injected conversion */
 #define SDADC_INJECTED_DELAY                 SDADC_CR2_JDS          /*!< Delay on injected conversion */
 /**
@@ -327,7 +323,7 @@ typedef struct
 
 /** @defgroup SDADC_MultimodeType SDADC Multimode Type
   * @{
-  */ 
+  */
 #define SDADC_MULTIMODE_SDADC1_SDADC2        (0x00000000U) /*!< Get conversion values for SDADC1 and SDADC2 */
 #define SDADC_MULTIMODE_SDADC1_SDADC3        (0x00000001U) /*!< Get conversion values for SDADC1 and SDADC3 */
 /**
@@ -336,7 +332,7 @@ typedef struct
 
 /** @defgroup SDADC_ErrorCode SDADC Error Code
   * @{
-  */ 
+  */
 #define SDADC_ERROR_NONE                     (0x00000000U) /*!< No error */
 #define SDADC_ERROR_REGULAR_OVERRUN          (0x00000001U) /*!< Overrun occurs during regular conversion */
 #define SDADC_ERROR_INJECTED_OVERRUN         (0x00000002U) /*!< Overrun occurs during injected conversion */
@@ -373,14 +369,14 @@ typedef struct
   * @}
   */
 
-/* Exported macros -----------------------------------------------------------*/  
+/* Exported macros -----------------------------------------------------------*/
 /** @defgroup SDADC_Exported_Macros SDADC Exported Macros
  * @{
  */
 
 /* Macro for internal HAL driver usage, and possibly can be used into code of */
-/* final user.                                                                */    
-       
+/* final user.                                                                */
+
 /** @brief Enable the ADC end of conversion interrupt.
   * @param __HANDLE__: ADC handle
   * @param __INTERRUPT__: ADC Interrupt
@@ -394,7 +390,7 @@ typedef struct
   */
 #define __HAL_SDADC_ENABLE_IT(__HANDLE__, __INTERRUPT__)                       \
   (SET_BIT((__HANDLE__)->Instance->CR1, (__INTERRUPT__)))
-    
+
 /** @brief Disable the ADC end of conversion interrupt.
   * @param __HANDLE__: ADC handle
   * @param __INTERRUPT__: ADC Interrupt
@@ -436,7 +432,7 @@ typedef struct
   */
 #define __HAL_SDADC_GET_FLAG(__HANDLE__, __FLAG__)                             \
   ((((__HANDLE__)->Instance->ISR) & (__FLAG__)) == (__FLAG__))
-    
+
 /** @brief Clear the ADC's pending flags
   * @param __HANDLE__: ADC handle
   * @param __FLAG__: ADC flag
@@ -461,7 +457,7 @@ typedef struct
   * @}
   */
 
-/* Private macros ------------------------------------------------------------*/  
+/* Private macros ------------------------------------------------------------*/
 /** @defgroup SDADC_Private_Macros SDADC Private Macros
  * @{
  */
@@ -569,7 +565,7 @@ typedef struct
   * @}
   */
 
-/* Exported functions --------------------------------------------------------*/  
+/* Exported functions --------------------------------------------------------*/
 /** @addtogroup SDADC_Exported_Functions SDADC Exported Functions
   * @{
   */
@@ -581,8 +577,8 @@ typedef struct
 /* Initialization and de-initialization functions *****************************/
 HAL_StatusTypeDef HAL_SDADC_Init(SDADC_HandleTypeDef *hsdadc);
 HAL_StatusTypeDef HAL_SDADC_DeInit(SDADC_HandleTypeDef *hsdadc);
-void HAL_SDADC_MspInit(SDADC_HandleTypeDef* hsdadc);
-void HAL_SDADC_MspDeInit(SDADC_HandleTypeDef* hsdadc);
+void HAL_SDADC_MspInit(SDADC_HandleTypeDef *hsdadc);
+void HAL_SDADC_MspDeInit(SDADC_HandleTypeDef *hsdadc);
 
 /**
   * @}
@@ -593,9 +589,9 @@ void HAL_SDADC_MspDeInit(SDADC_HandleTypeDef* hsdadc);
   */
 
 /* Peripheral Control functions ***********************************************/
-HAL_StatusTypeDef HAL_SDADC_PrepareChannelConfig(SDADC_HandleTypeDef *hsdadc, 
-                                                 uint32_t ConfIndex, 
-                                                 SDADC_ConfParamTypeDef* ConfParamStruct);
+HAL_StatusTypeDef HAL_SDADC_PrepareChannelConfig(SDADC_HandleTypeDef *hsdadc,
+                                                 uint32_t ConfIndex,
+                                                 SDADC_ConfParamTypeDef *ConfParamStruct);
 HAL_StatusTypeDef HAL_SDADC_AssociateChannelConfig(SDADC_HandleTypeDef *hsdadc,
                                                    uint32_t Channel,
                                                    uint32_t ConfIndex);
@@ -612,8 +608,8 @@ HAL_StatusTypeDef HAL_SDADC_SelectInjectedDelay(SDADC_HandleTypeDef *hsdadc,
                                                 uint32_t InjectedDelay);
 HAL_StatusTypeDef HAL_SDADC_SelectRegularTrigger(SDADC_HandleTypeDef *hsdadc, uint32_t Trigger);
 HAL_StatusTypeDef HAL_SDADC_SelectInjectedTrigger(SDADC_HandleTypeDef *hsdadc, uint32_t Trigger);
-HAL_StatusTypeDef HAL_SDADC_MultiModeConfigChannel(SDADC_HandleTypeDef* hsdadc, uint32_t MultimodeType);
-HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeConfigChannel(SDADC_HandleTypeDef* hsdadc, uint32_t MultimodeType);
+HAL_StatusTypeDef HAL_SDADC_MultiModeConfigChannel(SDADC_HandleTypeDef *hsdadc, uint32_t MultimodeType);
+HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeConfigChannel(SDADC_HandleTypeDef *hsdadc, uint32_t MultimodeType);
 
 /**
   * @}
@@ -641,28 +637,28 @@ HAL_StatusTypeDef HAL_SDADC_InjectedStop(SDADC_HandleTypeDef *hsdadc);
 HAL_StatusTypeDef HAL_SDADC_InjectedStop_IT(SDADC_HandleTypeDef *hsdadc);
 HAL_StatusTypeDef HAL_SDADC_InjectedStop_DMA(SDADC_HandleTypeDef *hsdadc);
 
-HAL_StatusTypeDef HAL_SDADC_MultiModeStart_DMA(SDADC_HandleTypeDef* hsdadc, uint32_t* pData, uint32_t Length);
-HAL_StatusTypeDef HAL_SDADC_MultiModeStop_DMA(SDADC_HandleTypeDef* hsdadc);
-HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeStart_DMA(SDADC_HandleTypeDef* hsdadc, uint32_t* pData, uint32_t Length);
-HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeStop_DMA(SDADC_HandleTypeDef* hsdadc);
+HAL_StatusTypeDef HAL_SDADC_MultiModeStart_DMA(SDADC_HandleTypeDef *hsdadc, uint32_t *pData, uint32_t Length);
+HAL_StatusTypeDef HAL_SDADC_MultiModeStop_DMA(SDADC_HandleTypeDef *hsdadc);
+HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeStart_DMA(SDADC_HandleTypeDef *hsdadc, uint32_t *pData, uint32_t Length);
+HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeStop_DMA(SDADC_HandleTypeDef *hsdadc);
 
 uint32_t HAL_SDADC_GetValue(SDADC_HandleTypeDef *hsdadc);
-uint32_t HAL_SDADC_InjectedGetValue(SDADC_HandleTypeDef *hsdadc, uint32_t* Channel);
-uint32_t HAL_SDADC_MultiModeGetValue(SDADC_HandleTypeDef* hsdadc);
-uint32_t HAL_SDADC_InjectedMultiModeGetValue(SDADC_HandleTypeDef* hsdadc);
-                                               
-void HAL_SDADC_IRQHandler(SDADC_HandleTypeDef* hsdadc);
+uint32_t HAL_SDADC_InjectedGetValue(SDADC_HandleTypeDef *hsdadc, uint32_t *Channel);
+uint32_t HAL_SDADC_MultiModeGetValue(SDADC_HandleTypeDef *hsdadc);
+uint32_t HAL_SDADC_InjectedMultiModeGetValue(SDADC_HandleTypeDef *hsdadc);
 
-HAL_StatusTypeDef HAL_SDADC_PollForCalibEvent(SDADC_HandleTypeDef* hsdadc, uint32_t Timeout);
-HAL_StatusTypeDef HAL_SDADC_PollForConversion(SDADC_HandleTypeDef* hsdadc, uint32_t Timeout);
-HAL_StatusTypeDef HAL_SDADC_PollForInjectedConversion(SDADC_HandleTypeDef* hsdadc, uint32_t Timeout);
+void HAL_SDADC_IRQHandler(SDADC_HandleTypeDef *hsdadc);
 
-void HAL_SDADC_CalibrationCpltCallback(SDADC_HandleTypeDef* hsdadc);
-void HAL_SDADC_ConvHalfCpltCallback(SDADC_HandleTypeDef* hsdadc);
-void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef* hsdadc);
-void HAL_SDADC_InjectedConvHalfCpltCallback(SDADC_HandleTypeDef* hsdadc);
-void HAL_SDADC_InjectedConvCpltCallback(SDADC_HandleTypeDef* hsdadc);
-void HAL_SDADC_ErrorCallback(SDADC_HandleTypeDef* hsdadc);
+HAL_StatusTypeDef HAL_SDADC_PollForCalibEvent(SDADC_HandleTypeDef *hsdadc, uint32_t Timeout);
+HAL_StatusTypeDef HAL_SDADC_PollForConversion(SDADC_HandleTypeDef *hsdadc, uint32_t Timeout);
+HAL_StatusTypeDef HAL_SDADC_PollForInjectedConversion(SDADC_HandleTypeDef *hsdadc, uint32_t Timeout);
+
+void HAL_SDADC_CalibrationCpltCallback(SDADC_HandleTypeDef *hsdadc);
+void HAL_SDADC_ConvHalfCpltCallback(SDADC_HandleTypeDef *hsdadc);
+void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef *hsdadc);
+void HAL_SDADC_InjectedConvHalfCpltCallback(SDADC_HandleTypeDef *hsdadc);
+void HAL_SDADC_InjectedConvCpltCallback(SDADC_HandleTypeDef *hsdadc);
+void HAL_SDADC_ErrorCallback(SDADC_HandleTypeDef *hsdadc);
 
 /**
   * @}
@@ -673,10 +669,14 @@ void HAL_SDADC_ErrorCallback(SDADC_HandleTypeDef* hsdadc);
   */
 
 /* Peripheral State and Error functions ***************************************/
-HAL_SDADC_StateTypeDef HAL_SDADC_GetState(SDADC_HandleTypeDef* hsdadc);
-uint32_t               HAL_SDADC_GetError(SDADC_HandleTypeDef* hsdadc);
+HAL_SDADC_StateTypeDef HAL_SDADC_GetState(SDADC_HandleTypeDef *hsdadc);
+uint32_t               HAL_SDADC_GetError(SDADC_HandleTypeDef *hsdadc);
 
-/* Private functions ---------------------------------------------------------*/  
+/* Private functions ---------------------------------------------------------*/
+
+/**
+  * @}
+  */
 
 /**
   * @}
@@ -685,10 +685,6 @@ uint32_t               HAL_SDADC_GetError(SDADC_HandleTypeDef* hsdadc);
 /**
   * @}
   */
-
-/**
-  * @}
-  */ 
 
 /**
   * @}

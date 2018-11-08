@@ -29,7 +29,7 @@ const PinMap PinMap_ADC[] = {
     {PD5, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH5},
     {PD6, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH6},
     {PD7, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH7},
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************I2C SCL***********/
@@ -42,7 +42,7 @@ const PinMap PinMap_I2C_SCL[] = {
     {PE13, I2C_0, 6},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************I2C SDA***********/
@@ -55,7 +55,7 @@ const PinMap PinMap_I2C_SDA[] = {
     {PE12, I2C_0, 6},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
@@ -65,7 +65,7 @@ const PinMap PinMap_PWM[] = {
     {PF0, PWM_CH0, 5},
     {PF1, PWM_CH1, 5},
     {PF2, PWM_CH2, 5},
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /*************SPI**************/
@@ -82,7 +82,7 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PF2,  SPI_1, 4},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
@@ -98,7 +98,7 @@ const PinMap PinMap_SPI_MISO[] = {
     {PA0,  SPI_1, 4},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_SPI_CLK[] = {
@@ -114,7 +114,7 @@ const PinMap PinMap_SPI_CLK[] = {
     {PB11, SPI_1, 4},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_SPI_CS[] = {
@@ -129,7 +129,7 @@ const PinMap PinMap_SPI_CS[] = {
     {PC14, SPI_1, 3},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************UART**************/
@@ -152,7 +152,7 @@ const PinMap PinMap_UART_TX[] = {
     {PC14, LEUART_0, 5},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_UART_RX[] = {
@@ -174,5 +174,5 @@ const PinMap PinMap_UART_RX[] = {
     {PC15, LEUART_0, 5},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };

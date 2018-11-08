@@ -18,7 +18,7 @@
 #include "dbg.h"
 #include "USBEndpoint.h"
 #if !defined(USBHOST_OTHER)
-void USBEndpoint::init(HCED * hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir_, uint32_t size, uint8_t ep_number, HCTD* td_list_[2])
+void USBEndpoint::init(HCED *hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir_, uint32_t size, uint8_t ep_number, HCTD *td_list_[2])
 {
     hced = hced_;
     type = type_;
@@ -26,7 +26,7 @@ void USBEndpoint::init(HCED * hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir
     setup = (type == CONTROL_ENDPOINT) ? true : false;
 
     //TDs have been allocated by the host
-    memcpy((HCTD**)td_list, td_list_, sizeof(HCTD*)*2); //TODO: Maybe should add a param for td_list size... at least a define
+    memcpy((HCTD **)td_list, td_list_, sizeof(HCTD *) * 2); //TODO: Maybe should add a param for td_list size... at least a define
     memset(td_list_[0], 0, sizeof(HCTD));
     memset(td_list_[1], 0, sizeof(HCTD));
 
@@ -42,7 +42,7 @@ void USBEndpoint::init(HCED * hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir
     address = (ep_number & 0x7F) | ((dir - 1) << 7);
 
     hced->control = ((ep_number & 0x7F) << 7)                         // Endpoint address
-                    | (type != CONTROL_ENDPOINT ? ( dir << 11) : 0 )  // direction : Out = 1, 2 = In
+                    | (type != CONTROL_ENDPOINT ? (dir << 11) : 0)    // direction : Out = 1, 2 = In
                     | ((size & 0x3ff) << 16);                         // MaxPkt Size
 
     transfer_len = 0;
@@ -98,36 +98,39 @@ void USBEndpoint::setNextToken(uint32_t token)
 }
 struct {
     USB_TYPE type;
-    const char * str;
+    const char *str;
 } static type_string[] = {
-/*0*/   {USB_TYPE_OK, "USB_TYPE_OK"},
-        {USB_TYPE_CRC_ERROR, "USB_TYPE_CRC_ERROR"},
-        {USB_TYPE_BIT_STUFFING_ERROR, "USB_TYPE_BIT_STUFFING_ERROR"},
-        {USB_TYPE_DATA_TOGGLE_MISMATCH_ERROR, "USB_TYPE_DATA_TOGGLE_MISMATCH_ERROR"},
-        {USB_TYPE_STALL_ERROR, "USB_TYPE_STALL_ERROR"},
-/*5*/   {USB_TYPE_DEVICE_NOT_RESPONDING_ERROR, "USB_TYPE_DEVICE_NOT_RESPONDING_ERROR"},
-        {USB_TYPE_PID_CHECK_FAILURE_ERROR, "USB_TYPE_PID_CHECK_FAILURE_ERROR"},
-        {USB_TYPE_UNEXPECTED_PID_ERROR, "USB_TYPE_UNEXPECTED_PID_ERROR"},
-        {USB_TYPE_DATA_OVERRUN_ERROR, "USB_TYPE_DATA_OVERRUN_ERROR"},
-        {USB_TYPE_DATA_UNDERRUN_ERROR, "USB_TYPE_DATA_UNDERRUN_ERROR"},
-/*10*/  {USB_TYPE_ERROR, "USB_TYPE_ERROR"},
-        {USB_TYPE_ERROR, "USB_TYPE_ERROR"},
-        {USB_TYPE_BUFFER_OVERRUN_ERROR, "USB_TYPE_BUFFER_OVERRUN_ERROR"},
-        {USB_TYPE_BUFFER_UNDERRUN_ERROR, "USB_TYPE_BUFFER_UNDERRUN_ERROR"},
-        {USB_TYPE_DISCONNECTED, "USB_TYPE_DISCONNECTED"},
-/*15*/  {USB_TYPE_FREE, "USB_TYPE_FREE"},
-        {USB_TYPE_IDLE, "USB_TYPE_IDLE"},
-        {USB_TYPE_PROCESSING, "USB_TYPE_PROCESSING"},
-        {USB_TYPE_ERROR, "USB_TYPE_ERROR"}
+    /*0*/   {USB_TYPE_OK, "USB_TYPE_OK"},
+    {USB_TYPE_CRC_ERROR, "USB_TYPE_CRC_ERROR"},
+    {USB_TYPE_BIT_STUFFING_ERROR, "USB_TYPE_BIT_STUFFING_ERROR"},
+    {USB_TYPE_DATA_TOGGLE_MISMATCH_ERROR, "USB_TYPE_DATA_TOGGLE_MISMATCH_ERROR"},
+    {USB_TYPE_STALL_ERROR, "USB_TYPE_STALL_ERROR"},
+    /*5*/   {USB_TYPE_DEVICE_NOT_RESPONDING_ERROR, "USB_TYPE_DEVICE_NOT_RESPONDING_ERROR"},
+    {USB_TYPE_PID_CHECK_FAILURE_ERROR, "USB_TYPE_PID_CHECK_FAILURE_ERROR"},
+    {USB_TYPE_UNEXPECTED_PID_ERROR, "USB_TYPE_UNEXPECTED_PID_ERROR"},
+    {USB_TYPE_DATA_OVERRUN_ERROR, "USB_TYPE_DATA_OVERRUN_ERROR"},
+    {USB_TYPE_DATA_UNDERRUN_ERROR, "USB_TYPE_DATA_UNDERRUN_ERROR"},
+    /*10*/  {USB_TYPE_ERROR, "USB_TYPE_ERROR"},
+    {USB_TYPE_ERROR, "USB_TYPE_ERROR"},
+    {USB_TYPE_BUFFER_OVERRUN_ERROR, "USB_TYPE_BUFFER_OVERRUN_ERROR"},
+    {USB_TYPE_BUFFER_UNDERRUN_ERROR, "USB_TYPE_BUFFER_UNDERRUN_ERROR"},
+    {USB_TYPE_DISCONNECTED, "USB_TYPE_DISCONNECTED"},
+    /*15*/  {USB_TYPE_FREE, "USB_TYPE_FREE"},
+    {USB_TYPE_IDLE, "USB_TYPE_IDLE"},
+    {USB_TYPE_PROCESSING, "USB_TYPE_PROCESSING"},
+    {USB_TYPE_ERROR, "USB_TYPE_ERROR"}
 };
-const char * USBEndpoint::getStateString() {
+const char *USBEndpoint::getStateString()
+{
     return type_string[state].str;
 }
 
 #if !defined(USBHOST_OTHER)
-void USBEndpoint::setState(uint8_t st) {
-    if (st > 18)
+void USBEndpoint::setState(uint8_t st)
+{
+    if (st > 18) {
         return;
+    }
     state = type_string[st].type;
 }
 
@@ -139,25 +142,25 @@ USB_TYPE USBEndpoint::queueTransfer()
 
     //Now add this free TD at this end of the queue
     state = USB_TYPE_PROCESSING;
-    td_current->nextTD = (hcTd*)td_next;
+    td_current->nextTD = (hcTd *)td_next;
     hced->tailTD = td_next;
     return USB_TYPE_PROCESSING;
 }
 
-void USBEndpoint::unqueueTransfer(volatile HCTD * td)
+void USBEndpoint::unqueueTransfer(volatile HCTD *td)
 {
-    td->control=0;
-    td->currBufPtr=0;
-    td->bufEnd=0;
-    td->nextTD=0;
+    td->control = 0;
+    td->currBufPtr = 0;
+    td->bufEnd = 0;
+    td->nextTD = 0;
     hced->headTD = (HCTD *)((uint32_t)hced->tailTD | ((uint32_t)hced->headTD & 0x2)); //Carry bit
     td_current = td_next;
     td_next = td;
 }
 
-void USBEndpoint::queueEndpoint(USBEndpoint * ed)
+void USBEndpoint::queueEndpoint(USBEndpoint *ed)
 {
     nextEp = ed;
-    hced->nextED = (ed == NULL) ? 0 : (hcEd*)(ed->getHCED());
+    hced->nextED = (ed == NULL) ? 0 : (hcEd *)(ed->getHCED());
 }
 #endif

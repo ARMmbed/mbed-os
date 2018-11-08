@@ -45,8 +45,7 @@
  ******************************************************************************/
 
 /*! @brief DMIC transfer structure. */
-typedef struct _dmic_transfer
-{
+typedef struct _dmic_transfer {
     uint16_t *data;  /*!< The buffer of data to be transfer.*/
     size_t dataSize; /*!< The byte count to be transfer. */
 } dmic_transfer_t;
@@ -63,8 +62,7 @@ typedef void (*dmic_dma_transfer_callback_t)(DMIC_Type *base,
 /*!
 * @brief DMIC DMA handle
 */
-struct _dmic_dma_handle
-{
+struct _dmic_dma_handle {
     DMIC_Type *base;                       /*!< DMIC peripheral base address. */
     dma_handle_t *rxDmaHandle;             /*!< The DMA RX channel used. */
     dmic_dma_transfer_callback_t callback; /*!< Callback function. */
@@ -109,7 +107,7 @@ status_t DMIC_TransferCreateHandleDMA(DMIC_Type *base,
  * @param base USART peripheral base address.
  * @param handle Pointer to usart_dma_handle_t structure.
  * @param xfer DMIC DMA transfer structure. See #dmic_transfer_t.
- * @param dmic_channel DMIC channel 
+ * @param dmic_channel DMIC channel
  * @retval kStatus_Success
  */
 status_t DMIC_TransferReceiveDMA(DMIC_Type *base,

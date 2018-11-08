@@ -65,9 +65,9 @@
  */
 #define APP_SCHED_BUF_SIZE(EVENT_SIZE, QUEUE_SIZE)                                                 \
             (((EVENT_SIZE) + APP_SCHED_EVENT_HEADER_SIZE) * ((QUEUE_SIZE) + 1))
-            
+
 /**@brief Scheduler event handler type. */
-typedef void (*app_sched_event_handler_t)(void * p_event_data, uint16_t event_size);
+typedef void (*app_sched_event_handler_t)(void *p_event_data, uint16_t event_size);
 
 /**@brief Macro for initializing the event scheduler.
  *
@@ -108,7 +108,7 @@ typedef void (*app_sched_event_handler_t)(void * p_event_data, uint16_t event_si
  * @retval      NRF_ERROR_INVALID_PARAM   Invalid parameter (buffer not aligned to a 4 byte
  *                                        boundary).
  */
-uint32_t app_sched_init(uint16_t max_event_size, uint16_t queue_size, void * p_evt_buffer);
+uint32_t app_sched_init(uint16_t max_event_size, uint16_t queue_size, void *p_evt_buffer);
 
 /**@brief Function for executing all scheduled events.
  *
@@ -127,7 +127,7 @@ void app_sched_execute(void);
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t app_sched_event_put(void *                    p_event_data,
+uint32_t app_sched_event_put(void                     *p_event_data,
                              uint16_t                  event_size,
                              app_sched_event_handler_t handler);
 

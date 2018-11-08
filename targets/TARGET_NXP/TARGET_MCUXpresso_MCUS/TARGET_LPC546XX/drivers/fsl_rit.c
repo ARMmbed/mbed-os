@@ -61,10 +61,8 @@ static uint32_t RIT_GetInstance(RIT_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_ritBases); instance++)
-    {
-        if (s_ritBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_ritBases); instance++) {
+        if (s_ritBases[instance] == base) {
             break;
         }
     }
@@ -94,12 +92,9 @@ void RIT_Init(RIT_Type *base, const rit_config_t *config)
     base->CTRL &= ~RIT_CTRL_RITEN_MASK;
 
     /* Config timer operation is no effect in debug mode */
-    if (!config->enableRunInDebug)
-    {
+    if (!config->enableRunInDebug) {
         base->CTRL &= ~RIT_CTRL_RITENBR_MASK;
-    }
-    else
-    {
+    } else {
         base->CTRL |= RIT_CTRL_RITENBR_MASK;
     }
 }

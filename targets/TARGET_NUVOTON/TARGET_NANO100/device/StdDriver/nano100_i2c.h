@@ -70,7 +70,7 @@ extern "C"
 static __INLINE void I2C_STOP(I2C_T *i2c)
 {
     i2c->CON |= (I2C_CON_I2C_STS_Msk | I2C_CON_STOP_Msk);
-    while(i2c->CON & I2C_CON_STOP_Msk);
+    while (i2c->CON & I2C_CON_STOP_Msk);
 }
 
 /**
@@ -81,7 +81,7 @@ static __INLINE void I2C_STOP(I2C_T *i2c)
   */
 static __INLINE void I2C_WAIT_READY(I2C_T *i2c)
 {
-    while(!(i2c->INTSTS & I2C_INTSTS_INTSTS_Msk));
+    while (!(i2c->INTSTS & I2C_INTSTS_INTSTS_Msk));
     i2c->INTSTS |= I2C_INTSTS_INTSTS_Msk;
 }
 

@@ -53,7 +53,7 @@ static uint8_t get_index_from_id(int channelid)
 
     uint8_t i;
 
-    for (i=0; i<CONF_MAX_USED_CHANNEL_NUM; i++) {
+    for (i = 0; i < CONF_MAX_USED_CHANNEL_NUM; i++) {
         if ((dma_channels[i].status & DMA_ALLOCATED)
                 && (dma_channels[i].resource.channel_id == channelid)) {
             break;
@@ -70,7 +70,7 @@ static uint8_t get_index_from_id(int channelid)
  * @param[in] resource pointer to the resource
  * @return void
  */
-static void dma_handler(const struct dma_resource* const resource)
+static void dma_handler(const struct dma_resource *const resource)
 {
     MBED_ASSERT(resource);
     void (*callback_func)(void);
@@ -121,13 +121,13 @@ static void configure_dma_resource(uint8_t channel_index)
 
 /** Setup a DMA descriptor for specified resource
  *
- * @param[in] channel_index		DMA channel id
- * @param[in] src				source address
- * @param[in] src_inc_enable	source address auto increment enable flag
- * @param[in] desc				destination address
- * @param[in] desc_inc_enable	destination address auto increment enable flag
- * @param[in] length			length of data to be transferred
- * @param[in] beat_size			beat size to be set
+ * @param[in] channel_index     DMA channel id
+ * @param[in] src               source address
+ * @param[in] src_inc_enable    source address auto increment enable flag
+ * @param[in] desc              destination address
+ * @param[in] desc_inc_enable   destination address auto increment enable flag
+ * @param[in] length            length of data to be transferred
+ * @param[in] beat_size         beat size to be set
  * @return void
  */
 void dma_setup_transfer(uint8_t channelid, uint32_t src, bool src_inc_enable, uint32_t desc, bool desc_inc_enable, uint32_t length, uint8_t beat_size)
@@ -193,7 +193,7 @@ void dma_init()
     }
 
     if (!_dma_inst._dma_init) {
-        for (i=0; i<CONF_MAX_USED_CHANNEL_NUM; i++) {
+        for (i = 0; i < CONF_MAX_USED_CHANNEL_NUM; i++) {
             dma_channels[i].status = DMA_NOT_USED;
         }
     }
@@ -209,7 +209,7 @@ int dma_channel_allocate(uint32_t capabilities)
 {
     uint8_t channel_index = 0;
 
-    for (channel_index=0; channel_index<CONF_MAX_USED_CHANNEL_NUM; channel_index++) {
+    for (channel_index = 0; channel_index < CONF_MAX_USED_CHANNEL_NUM; channel_index++) {
         if (dma_channels[channel_index].status == DMA_NOT_USED) {
             break;
         }

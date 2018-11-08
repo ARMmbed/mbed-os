@@ -35,15 +35,13 @@
  ******************************************************************************/
 
 /*<! Structure definition for lpuart_dma_handle_t. The structure is private. */
-typedef struct _lpuart_dma_private_handle
-{
+typedef struct _lpuart_dma_private_handle {
     LPUART_Type *base;
     lpuart_dma_handle_t *handle;
 } lpuart_dma_private_handle_t;
 
 /* LPUART DMA transfer handle. */
-enum _uart_dma_tansfer_states
-{
+enum _uart_dma_tansfer_states {
     kLPUART_TxIdle, /* TX idle. */
     kLPUART_TxBusy, /* TX busy. */
     kLPUART_RxIdle, /* RX idle. */
@@ -108,8 +106,7 @@ static void LPUART_TransferSendDMACallback(dma_handle_t *handle, void *param)
 
     lpuartPrivateHandle->handle->txState = kLPUART_TxIdle;
 
-    if (lpuartPrivateHandle->handle->callback)
-    {
+    if (lpuartPrivateHandle->handle->callback) {
         lpuartPrivateHandle->handle->callback(lpuartPrivateHandle->base, lpuartPrivateHandle->handle,
                                               kStatus_LPUART_TxIdle, lpuartPrivateHandle->handle->userData);
     }
@@ -128,19 +125,18 @@ static void LPUART_TransferReceiveDMACallback(dma_handle_t *handle, void *param)
 
     lpuartPrivateHandle->handle->rxState = kLPUART_RxIdle;
 
-    if (lpuartPrivateHandle->handle->callback)
-    {
+    if (lpuartPrivateHandle->handle->callback) {
         lpuartPrivateHandle->handle->callback(lpuartPrivateHandle->base, lpuartPrivateHandle->handle,
                                               kStatus_LPUART_RxIdle, lpuartPrivateHandle->handle->userData);
     }
 }
 
 void LPUART_TransferCreateHandleDMA(LPUART_Type *base,
-                            lpuart_dma_handle_t *handle,
-                            lpuart_dma_transfer_callback_t callback,
-                            void *userData,
-                            dma_handle_t *txDmaHandle,
-                            dma_handle_t *rxDmaHandle)
+                                    lpuart_dma_handle_t *handle,
+                                    lpuart_dma_transfer_callback_t callback,
+                                    void *userData,
+                                    dma_handle_t *txDmaHandle,
+                                    dma_handle_t *rxDmaHandle)
 {
     assert(handle);
 
@@ -166,8 +162,7 @@ void LPUART_TransferCreateHandleDMA(LPUART_Type *base,
        5 bytes are received. the last byte will be saved in FIFO but not trigger
        DMA transfer because the water mark is 2.
      */
-    if (rxDmaHandle)
-    {
+    if (rxDmaHandle) {
         base->WATER &= (~LPUART_WATER_RXWATER_MASK);
     }
 #endif
@@ -176,14 +171,12 @@ void LPUART_TransferCreateHandleDMA(LPUART_Type *base,
     handle->txDmaHandle = txDmaHandle;
 
     /* Configure TX. */
-    if (txDmaHandle)
-    {
+    if (txDmaHandle) {
         DMA_SetCallback(txDmaHandle, LPUART_TransferSendDMACallback, &s_dmaPrivateHandle[instance]);
     }
 
     /* Configure RX. */
-    if (rxDmaHandle)
-    {
+    if (rxDmaHandle) {
         DMA_SetCallback(rxDmaHandle, LPUART_TransferReceiveDMACallback, &s_dmaPrivateHandle[instance]);
     }
 }
@@ -196,18 +189,14 @@ status_t LPUART_TransferSendDMA(LPUART_Type *base, lpuart_dma_handle_t *handle, 
     dma_transfer_config_t xferConfig;
 
     /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
+    if ((0U == xfer->dataSize) || (NULL == xfer->data)) {
         return kStatus_InvalidArgument;
     }
 
     /* If previous TX not finished. */
-    if (kLPUART_TxBusy == handle->txState)
-    {
+    if (kLPUART_TxBusy == handle->txState) {
         status = kStatus_LPUART_TxBusy;
-    }
-    else
-    {
+    } else {
         handle->txState = kLPUART_TxBusy;
         handle->txDataSizeAll = xfer->dataSize;
 
@@ -236,18 +225,14 @@ status_t LPUART_TransferReceiveDMA(LPUART_Type *base, lpuart_dma_handle_t *handl
     dma_transfer_config_t xferConfig;
 
     /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
+    if ((0U == xfer->dataSize) || (NULL == xfer->data)) {
         return kStatus_InvalidArgument;
     }
 
     /* If previous RX not finished. */
-    if (kLPUART_RxBusy == handle->rxState)
-    {
+    if (kLPUART_RxBusy == handle->rxState) {
         status = kStatus_LPUART_RxBusy;
-    }
-    else
-    {
+    } else {
         handle->rxState = kLPUART_RxBusy;
         handle->rxDataSizeAll = xfer->dataSize;
 
@@ -304,13 +289,11 @@ status_t LPUART_TransferGetSendCountDMA(LPUART_Type *base, lpuart_dma_handle_t *
 {
     assert(handle->txDmaHandle);
 
-    if (kLPUART_TxIdle == handle->txState)
-    {
+    if (kLPUART_TxIdle == handle->txState) {
         return kStatus_NoTransferInProgress;
     }
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
@@ -323,13 +306,11 @@ status_t LPUART_TransferGetReceiveCountDMA(LPUART_Type *base, lpuart_dma_handle_
 {
     assert(handle->rxDmaHandle);
 
-    if (kLPUART_RxIdle == handle->rxState)
-    {
+    if (kLPUART_RxIdle == handle->rxState) {
         return kStatus_NoTransferInProgress;
     }
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 

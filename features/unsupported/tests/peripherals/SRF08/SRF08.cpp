@@ -24,7 +24,8 @@ THE SOFTWARE.
 #include "SRF08.h"
 
 
-SRF08::SRF08(PinName sda, PinName scl, int addr) : m_i2c(sda, scl), m_addr(addr) {
+SRF08::SRF08(PinName sda, PinName scl, int addr) : m_i2c(sda, scl), m_addr(addr)
+{
     char cmd[2];
 
 // Set up SRF08 max range and receiver sensitivity over I2C bus
@@ -37,11 +38,13 @@ SRF08::SRF08(PinName sda, PinName scl, int addr) : m_i2c(sda, scl), m_addr(addr)
 
 }
 
-SRF08::~SRF08() {
+SRF08::~SRF08()
+{
 
 }
 
-float SRF08::read() {
+float SRF08::read()
+{
 
     char cmd[2];
     char echo[2];
@@ -61,7 +64,7 @@ float SRF08::read() {
     m_i2c.read(m_addr, echo, 2);            // Read two-byte echo result
 
 // Generate PWM mark/space ratio from range data
-    float range = (echo[0]<<8)+echo[1];
+    float range = (echo[0] << 8) + echo[1];
 
     return range;
 }

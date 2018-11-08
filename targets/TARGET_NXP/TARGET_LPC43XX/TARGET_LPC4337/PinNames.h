@@ -259,7 +259,7 @@ typedef enum {
 
     // GPIO pins from MCU pins
     GPIO0_0 = P0_0,
-    GPIO0_1 = P0_1 ,
+    GPIO0_1 = P0_1,
     GPIO0_2 = P1_15,
     GPIO0_3 = P1_16,
     GPIO0_4 = P1_0,

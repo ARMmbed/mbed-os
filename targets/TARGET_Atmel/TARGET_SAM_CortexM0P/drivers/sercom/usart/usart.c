@@ -146,7 +146,7 @@ static enum status_code _usart_set_config(
     }
 
 #ifdef FEATURE_USART_IRDA
-    if(config->encoding_format_enable) {
+    if (config->encoding_format_enable) {
         usart_hw->RXPL.reg = config->receive_pulse_length;
     }
 #endif
@@ -186,7 +186,7 @@ static enum status_code _usart_set_config(
         ctrlb |= config->parity;
     } else {
 #ifdef FEATURE_USART_LIN_SLAVE
-        if(config->lin_slave_enable) {
+        if (config->lin_slave_enable) {
             ctrla |= SERCOM_USART_CTRLA_FORM(0x4);
         } else {
             ctrla |= SERCOM_USART_CTRLA_FORM(0);
@@ -341,7 +341,7 @@ enum status_code usart_init(
 #endif
     /* Set configuration according to the config struct */
     status_code = _usart_set_config(module, config);
-    if(status_code != STATUS_OK) {
+    if (status_code != STATUS_OK) {
         return status_code;
     }
 

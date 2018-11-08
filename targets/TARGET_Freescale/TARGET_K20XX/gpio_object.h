@@ -31,7 +31,8 @@ typedef struct {
     __I  uint32_t *reg_in;
 } gpio_t;
 
-static inline void gpio_write(gpio_t *obj, int value) {
+static inline void gpio_write(gpio_t *obj, int value)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     if (value) {
         *obj->reg_set = obj->mask;
@@ -40,12 +41,14 @@ static inline void gpio_write(gpio_t *obj, int value) {
     }
 }
 
-static inline int gpio_read(gpio_t *obj) {
+static inline int gpio_read(gpio_t *obj)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     return ((*obj->reg_in & obj->mask) ? 1 : 0);
 }
 
-static inline int gpio_is_connected(const gpio_t *obj) {
+static inline int gpio_is_connected(const gpio_t *obj)
+{
     return obj->pin != (PinName)NC;
 }
 

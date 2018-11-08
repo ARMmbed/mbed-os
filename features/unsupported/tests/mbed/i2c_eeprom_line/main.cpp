@@ -94,7 +94,8 @@ I2C i2c(p28, p27);
 
 #define PATTERN_MASK 0x66, ~0x66, 0x00, 0xFF, 0xA5, 0x5A, 0xF0, 0x0F
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(15);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(I2C EEPROM line read write test);

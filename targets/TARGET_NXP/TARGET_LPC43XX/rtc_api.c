@@ -37,10 +37,12 @@
  * without impacting if it is the case
  */
 
-void rtc_init(void) {
+void rtc_init(void)
+{
     // Return, if already enabled
-    if (LPC_RTC->CCR & 1)
+    if (LPC_RTC->CCR & 1) {
         return;
+    }
 
     // Enable 1kHz output of 32kHz oscillator
     LPC_CREG->CREG0 &= ~((1 << 3) | (1 << 2));
@@ -52,7 +54,8 @@ void rtc_init(void) {
     } while ((LPC_RTC->CCR & 1) == 0);
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
     // [TODO]
 }
 
@@ -63,8 +66,9 @@ void rtc_free(void) {
  *  RTC_CCR[0] : 0 = Disabled, 1 = Enabled
  *
  */
-int rtc_isenabled(void) {
-    return(((LPC_RTC->CCR) & 0x01) != 0);
+int rtc_isenabled(void)
+{
+    return (((LPC_RTC->CCR) & 0x01) != 0);
 }
 
 /*
@@ -89,7 +93,8 @@ int rtc_isenabled(void) {
  *  tm_yday        days since January 1 0-365
  *  tm_isdst    Daylight Saving Time flag
  */
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
     // Setup a tm structure based on the RTC
     struct tm timeinfo;
     timeinfo.tm_sec = LPC_RTC->TIME[RTC_TIMETYPE_SECOND];
@@ -100,17 +105,18 @@ time_t rtc_read(void) {
     timeinfo.tm_yday = LPC_RTC->TIME[RTC_TIMETYPE_DAYOFYEAR];
     timeinfo.tm_mon = LPC_RTC->TIME[RTC_TIMETYPE_MONTH] - 1;
     timeinfo.tm_year = LPC_RTC->TIME[RTC_TIMETYPE_YEAR] - 1900;
-    
+
     // Convert to timestamp
     time_t t;
     if (_rtc_maketime(&timeinfo, &t, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
         return 0;
     }
-    
+
     return t;
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     // Convert the time in to a tm
     struct tm timeinfo;
     if (_rtc_localtime(t, &timeinfo, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
@@ -119,7 +125,7 @@ void rtc_write(time_t t) {
 
     // Pause clock, and clear counter register (clears us count)
     LPC_RTC->CCR |= 2;
-    
+
     // Set the RTC
     LPC_RTC->TIME[RTC_TIMETYPE_SECOND] = timeinfo.tm_sec;
     LPC_RTC->TIME[RTC_TIMETYPE_MINUTE] = timeinfo.tm_min;
@@ -129,7 +135,7 @@ void rtc_write(time_t t) {
     LPC_RTC->TIME[RTC_TIMETYPE_DAYOFYEAR] = timeinfo.tm_yday;
     LPC_RTC->TIME[RTC_TIMETYPE_MONTH] = timeinfo.tm_mon + 1;
     LPC_RTC->TIME[RTC_TIMETYPE_YEAR] = timeinfo.tm_year + 1900;
-    
+
     // Restart clock
     LPC_RTC->CCR &= ~((uint32_t)2);
 }

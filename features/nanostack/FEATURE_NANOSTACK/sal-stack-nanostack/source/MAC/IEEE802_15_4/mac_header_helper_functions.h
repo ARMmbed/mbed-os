@@ -54,7 +54,7 @@ uint8_t *mcps_mac_payload_pointer_get(const struct mac_pre_parsed_frame_s *buffe
 uint8_t *mcps_security_mic_pointer_get(const struct mac_pre_parsed_frame_s *buffer);
 uint8_t *mcps_mac_security_aux_header_start_pointer_get(const struct mac_pre_parsed_frame_s *buffer);
 
-uint8_t * mcps_generic_header_write(uint8_t *ptr, const struct mac_pre_build_frame *buffer);
+uint8_t *mcps_generic_header_write(uint8_t *ptr, const struct mac_pre_build_frame *buffer);
 
 
 /** get pointer to Mac header start point*/

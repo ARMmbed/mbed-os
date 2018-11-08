@@ -32,7 +32,7 @@ int main()
 {
     notify_start();
 
-    for (i=0; i<=65535; i++) {
+    for (i = 0; i <= 65535; i++) {
         bus1 = i;
         bus2 = i;
         wait(0.0001);

@@ -35,10 +35,12 @@ namespace mbed {
 class LowPowerTicker : public Ticker, private NonCopyable<LowPowerTicker> {
 
 public:
-    LowPowerTicker() : Ticker(get_lp_ticker_data()) {
+    LowPowerTicker() : Ticker(get_lp_ticker_data())
+    {
     }
 
-    virtual ~LowPowerTicker() {
+    virtual ~LowPowerTicker()
+    {
     }
 };
 

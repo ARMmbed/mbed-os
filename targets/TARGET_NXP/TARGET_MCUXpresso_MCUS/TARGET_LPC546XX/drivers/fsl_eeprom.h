@@ -48,24 +48,21 @@
 /*@}*/
 
 /*! @brief EEPROM automatic program option */
-typedef enum _eeprom_auto_program
-{
+typedef enum _eeprom_auto_program {
     kEEPROM_AutoProgramDisable = 0x0,   /*!< Disable auto program */
     kEEPROM_AutoProgramWriteWord = 0x1, /*!< Auto program triggered after 1 word is written */
     kEEPROM_AutoProgramLastWord = 0x2   /*!< Auto program triggered after last word of a page written */
 } eeprom_auto_program_t;
 
 /*! @brief EEPROM interrupt source */
-typedef enum _eeprom_interrupt_enable
-{
+typedef enum _eeprom_interrupt_enable {
     kEEPROM_ProgramFinishInterruptEnable = EEPROM_INTENSET_PROG_SET_EN_MASK, /*!< Interrupt while program finished */
 } eeprom_interrupt_enable_t;
 
 /*!
  * @brief EEPROM region configuration structure.
  */
-typedef struct _eeprom_config
-{
+typedef struct _eeprom_config {
     eeprom_auto_program_t autoProgram; /*!< Automatic program feature. */
     uint8_t readWaitPhase1;            /*!< EEPROM read waiting phase 1 */
     uint8_t readWaitPhase2;            /*!< EEPROM read waiting phase 2 */

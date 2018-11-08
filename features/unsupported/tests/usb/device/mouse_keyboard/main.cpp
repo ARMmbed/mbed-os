@@ -9,7 +9,8 @@ BusOut leds(LED1, LED2, LED3);
 //USBMouseKeyboard
 USBMouseKeyboard key_mouse;
 
-int main(void) {
+int main(void)
+{
     while (1) {
         key_mouse.mediaControl(KEY_VOLUME_DOWN);
         key_mouse.printf("Hello World from Mbed\r\n");

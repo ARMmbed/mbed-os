@@ -665,698 +665,698 @@
 /* LLWU module features */
 
 #if defined(CPU_MKL82Z128VLH7) || defined(CPU_MKL82Z128VLK7) || defined(CPU_MKL82Z128VMP7)
-    /* @brief Maximum number of pins (maximal index plus one) connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN (16)
-    /* @brief Has pins 8-15 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_EXTERNAL_PIN_GROUP2 (1)
-    /* @brief Maximum number of internal modules connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE (8)
-    /* @brief Number of digital filters. */
-    #define FSL_FEATURE_LLWU_HAS_PIN_FILTER (4)
-    /* @brief Has MF register. */
-    #define FSL_FEATURE_LLWU_HAS_MF (1)
-    /* @brief Has PF register. */
-    #define FSL_FEATURE_LLWU_HAS_PF (1)
-    /* @brief Has possibility to enable reset in low leakage power mode and enable digital filter for RESET pin (register LLWU_RST). */
-    #define FSL_FEATURE_LLWU_HAS_RESET_ENABLE (0)
-    /* @brief Has external pin 0 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN0 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN0_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN0_GPIO_PIN (1)
-    /* @brief Has external pin 1 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN1 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN1_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN1_GPIO_PIN (2)
-    /* @brief Has external pin 2 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN2 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN2_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN2_GPIO_PIN (4)
-    /* @brief Has external pin 3 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN3 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN3_GPIO_IDX (GPIOA_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN3_GPIO_PIN (4)
-    /* @brief Has external pin 4 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN4 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN4_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN4_GPIO_PIN (0)
-    /* @brief Has external pin 5 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN5 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN5_GPIO_IDX (GPIOB_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN5_GPIO_PIN (0)
-    /* @brief Has external pin 6 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN6 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN6_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN6_GPIO_PIN (1)
-    /* @brief Has external pin 7 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN7 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN7_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN7_GPIO_PIN (3)
-    /* @brief Has external pin 8 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN8 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN8_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN8_GPIO_PIN (4)
-    /* @brief Has external pin 9 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN9 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN9_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN9_GPIO_PIN (5)
-    /* @brief Has external pin 10 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN10 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN10_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN10_GPIO_PIN (6)
-    /* @brief Has external pin 11 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN11 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN11_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN11_GPIO_PIN (11)
-    /* @brief Has external pin 12 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN12 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN12_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN12_GPIO_PIN (0)
-    /* @brief Has external pin 13 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN13 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN13_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN13_GPIO_PIN (2)
-    /* @brief Has external pin 14 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN14 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN14_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN14_GPIO_PIN (4)
-    /* @brief Has external pin 15 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN15 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN15_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN15_GPIO_PIN (6)
-    /* @brief Has external pin 16 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN16 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN16_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN16_GPIO_PIN (0)
-    /* @brief Has external pin 17 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN17 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN17_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN17_GPIO_PIN (0)
-    /* @brief Has external pin 18 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN18 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN18_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN18_GPIO_PIN (0)
-    /* @brief Has external pin 19 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN19 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN19_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN19_GPIO_PIN (0)
-    /* @brief Has external pin 20 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN20 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN20_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN20_GPIO_PIN (0)
-    /* @brief Has external pin 21 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN21 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN21_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN21_GPIO_PIN (0)
-    /* @brief Has external pin 22 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN22 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN22_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN22_GPIO_PIN (0)
-    /* @brief Has external pin 23 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN23 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN23_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN23_GPIO_PIN (0)
-    /* @brief Has external pin 24 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN24 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN24_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN24_GPIO_PIN (0)
-    /* @brief Has external pin 25 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN25 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN25_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN25_GPIO_PIN (0)
-    /* @brief Has external pin 26 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN26 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN26_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN26_GPIO_PIN (0)
-    /* @brief Has external pin 27 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN27 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN27_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN27_GPIO_PIN (0)
-    /* @brief Has external pin 28 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN28 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN28_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN28_GPIO_PIN (0)
-    /* @brief Has external pin 29 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN29 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN29_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN29_GPIO_PIN (0)
-    /* @brief Has external pin 30 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN30 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN30_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN30_GPIO_PIN (0)
-    /* @brief Has external pin 31 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN31 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN31_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN31_GPIO_PIN (0)
-    /* @brief Has internal module 0 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE0 (1)
-    /* @brief Has internal module 1 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE1 (1)
-    /* @brief Has internal module 2 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE2 (0)
-    /* @brief Has internal module 3 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE3 (0)
-    /* @brief Has internal module 4 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE4 (1)
-    /* @brief Has internal module 5 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE5 (1)
-    /* @brief Has internal module 6 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE6 (0)
-    /* @brief Has internal module 7 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE7 (1)
-    /* @brief Has Version ID Register (LLWU_VERID). */
-    #define FSL_FEATURE_LLWU_HAS_VERID (0)
-    /* @brief Has Parameter Register (LLWU_PARAM). */
-    #define FSL_FEATURE_LLWU_HAS_PARAM (0)
-    /* @brief Width of registers of the LLWU. */
-    #define FSL_FEATURE_LLWU_REG_BITWIDTH (8)
-    /* @brief Has DMA Enable register (LLWU_DE). */
-    #define FSL_FEATURE_LLWU_HAS_DMA_ENABLE_REG (0)
+/* @brief Maximum number of pins (maximal index plus one) connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN (16)
+/* @brief Has pins 8-15 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_EXTERNAL_PIN_GROUP2 (1)
+/* @brief Maximum number of internal modules connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE (8)
+/* @brief Number of digital filters. */
+#define FSL_FEATURE_LLWU_HAS_PIN_FILTER (4)
+/* @brief Has MF register. */
+#define FSL_FEATURE_LLWU_HAS_MF (1)
+/* @brief Has PF register. */
+#define FSL_FEATURE_LLWU_HAS_PF (1)
+/* @brief Has possibility to enable reset in low leakage power mode and enable digital filter for RESET pin (register LLWU_RST). */
+#define FSL_FEATURE_LLWU_HAS_RESET_ENABLE (0)
+/* @brief Has external pin 0 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN0 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN0_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN0_GPIO_PIN (1)
+/* @brief Has external pin 1 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN1 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN1_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN1_GPIO_PIN (2)
+/* @brief Has external pin 2 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN2 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN2_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN2_GPIO_PIN (4)
+/* @brief Has external pin 3 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN3 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN3_GPIO_IDX (GPIOA_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN3_GPIO_PIN (4)
+/* @brief Has external pin 4 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN4 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN4_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN4_GPIO_PIN (0)
+/* @brief Has external pin 5 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN5 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN5_GPIO_IDX (GPIOB_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN5_GPIO_PIN (0)
+/* @brief Has external pin 6 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN6 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN6_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN6_GPIO_PIN (1)
+/* @brief Has external pin 7 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN7 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN7_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN7_GPIO_PIN (3)
+/* @brief Has external pin 8 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN8 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN8_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN8_GPIO_PIN (4)
+/* @brief Has external pin 9 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN9 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN9_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN9_GPIO_PIN (5)
+/* @brief Has external pin 10 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN10 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN10_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN10_GPIO_PIN (6)
+/* @brief Has external pin 11 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN11 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN11_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN11_GPIO_PIN (11)
+/* @brief Has external pin 12 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN12 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN12_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN12_GPIO_PIN (0)
+/* @brief Has external pin 13 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN13 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN13_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN13_GPIO_PIN (2)
+/* @brief Has external pin 14 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN14 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN14_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN14_GPIO_PIN (4)
+/* @brief Has external pin 15 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN15 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN15_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN15_GPIO_PIN (6)
+/* @brief Has external pin 16 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN16 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN16_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN16_GPIO_PIN (0)
+/* @brief Has external pin 17 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN17 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN17_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN17_GPIO_PIN (0)
+/* @brief Has external pin 18 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN18 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN18_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN18_GPIO_PIN (0)
+/* @brief Has external pin 19 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN19 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN19_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN19_GPIO_PIN (0)
+/* @brief Has external pin 20 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN20 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN20_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN20_GPIO_PIN (0)
+/* @brief Has external pin 21 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN21 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN21_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN21_GPIO_PIN (0)
+/* @brief Has external pin 22 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN22 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN22_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN22_GPIO_PIN (0)
+/* @brief Has external pin 23 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN23 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN23_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN23_GPIO_PIN (0)
+/* @brief Has external pin 24 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN24 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN24_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN24_GPIO_PIN (0)
+/* @brief Has external pin 25 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN25 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN25_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN25_GPIO_PIN (0)
+/* @brief Has external pin 26 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN26 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN26_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN26_GPIO_PIN (0)
+/* @brief Has external pin 27 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN27 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN27_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN27_GPIO_PIN (0)
+/* @brief Has external pin 28 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN28 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN28_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN28_GPIO_PIN (0)
+/* @brief Has external pin 29 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN29 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN29_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN29_GPIO_PIN (0)
+/* @brief Has external pin 30 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN30 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN30_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN30_GPIO_PIN (0)
+/* @brief Has external pin 31 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN31 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN31_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN31_GPIO_PIN (0)
+/* @brief Has internal module 0 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE0 (1)
+/* @brief Has internal module 1 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE1 (1)
+/* @brief Has internal module 2 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE2 (0)
+/* @brief Has internal module 3 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE3 (0)
+/* @brief Has internal module 4 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE4 (1)
+/* @brief Has internal module 5 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE5 (1)
+/* @brief Has internal module 6 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE6 (0)
+/* @brief Has internal module 7 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE7 (1)
+/* @brief Has Version ID Register (LLWU_VERID). */
+#define FSL_FEATURE_LLWU_HAS_VERID (0)
+/* @brief Has Parameter Register (LLWU_PARAM). */
+#define FSL_FEATURE_LLWU_HAS_PARAM (0)
+/* @brief Width of registers of the LLWU. */
+#define FSL_FEATURE_LLWU_REG_BITWIDTH (8)
+/* @brief Has DMA Enable register (LLWU_DE). */
+#define FSL_FEATURE_LLWU_HAS_DMA_ENABLE_REG (0)
 #elif defined(CPU_MKL82Z128VLL7)
-    /* @brief Maximum number of pins (maximal index plus one) connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN (19)
-    /* @brief Has pins 8-15 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_EXTERNAL_PIN_GROUP2 (1)
-    /* @brief Maximum number of internal modules connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE (8)
-    /* @brief Number of digital filters. */
-    #define FSL_FEATURE_LLWU_HAS_PIN_FILTER (4)
-    /* @brief Has MF register. */
-    #define FSL_FEATURE_LLWU_HAS_MF (1)
-    /* @brief Has PF register. */
-    #define FSL_FEATURE_LLWU_HAS_PF (1)
-    /* @brief Has possibility to enable reset in low leakage power mode and enable digital filter for RESET pin (register LLWU_RST). */
-    #define FSL_FEATURE_LLWU_HAS_RESET_ENABLE (0)
-    /* @brief Has external pin 0 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN0 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN0_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN0_GPIO_PIN (1)
-    /* @brief Has external pin 1 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN1 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN1_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN1_GPIO_PIN (2)
-    /* @brief Has external pin 2 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN2 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN2_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN2_GPIO_PIN (4)
-    /* @brief Has external pin 3 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN3 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN3_GPIO_IDX (GPIOA_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN3_GPIO_PIN (4)
-    /* @brief Has external pin 4 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN4 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN4_GPIO_IDX (GPIOA_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN4_GPIO_PIN (13)
-    /* @brief Has external pin 5 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN5 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN5_GPIO_IDX (GPIOB_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN5_GPIO_PIN (0)
-    /* @brief Has external pin 6 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN6 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN6_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN6_GPIO_PIN (1)
-    /* @brief Has external pin 7 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN7 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN7_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN7_GPIO_PIN (3)
-    /* @brief Has external pin 8 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN8 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN8_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN8_GPIO_PIN (4)
-    /* @brief Has external pin 9 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN9 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN9_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN9_GPIO_PIN (5)
-    /* @brief Has external pin 10 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN10 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN10_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN10_GPIO_PIN (6)
-    /* @brief Has external pin 11 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN11 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN11_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN11_GPIO_PIN (11)
-    /* @brief Has external pin 12 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN12 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN12_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN12_GPIO_PIN (0)
-    /* @brief Has external pin 13 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN13 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN13_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN13_GPIO_PIN (2)
-    /* @brief Has external pin 14 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN14 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN14_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN14_GPIO_PIN (4)
-    /* @brief Has external pin 15 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN15 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN15_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN15_GPIO_PIN (6)
-    /* @brief Has external pin 16 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN16 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN16_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN16_GPIO_PIN (6)
-    /* @brief Has external pin 17 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN17 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN17_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN17_GPIO_PIN (9)
-    /* @brief Has external pin 18 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN18 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN18_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN18_GPIO_PIN (10)
-    /* @brief Has external pin 19 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN19 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN19_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN19_GPIO_PIN (0)
-    /* @brief Has external pin 20 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN20 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN20_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN20_GPIO_PIN (0)
-    /* @brief Has external pin 21 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN21 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN21_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN21_GPIO_PIN (0)
-    /* @brief Has external pin 22 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN22 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN22_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN22_GPIO_PIN (0)
-    /* @brief Has external pin 23 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN23 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN23_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN23_GPIO_PIN (0)
-    /* @brief Has external pin 24 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN24 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN24_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN24_GPIO_PIN (0)
-    /* @brief Has external pin 25 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN25 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN25_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN25_GPIO_PIN (0)
-    /* @brief Has external pin 26 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN26 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN26_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN26_GPIO_PIN (0)
-    /* @brief Has external pin 27 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN27 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN27_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN27_GPIO_PIN (0)
-    /* @brief Has external pin 28 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN28 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN28_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN28_GPIO_PIN (0)
-    /* @brief Has external pin 29 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN29 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN29_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN29_GPIO_PIN (0)
-    /* @brief Has external pin 30 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN30 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN30_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN30_GPIO_PIN (0)
-    /* @brief Has external pin 31 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN31 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN31_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN31_GPIO_PIN (0)
-    /* @brief Has internal module 0 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE0 (1)
-    /* @brief Has internal module 1 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE1 (1)
-    /* @brief Has internal module 2 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE2 (0)
-    /* @brief Has internal module 3 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE3 (0)
-    /* @brief Has internal module 4 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE4 (1)
-    /* @brief Has internal module 5 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE5 (1)
-    /* @brief Has internal module 6 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE6 (0)
-    /* @brief Has internal module 7 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE7 (1)
-    /* @brief Has Version ID Register (LLWU_VERID). */
-    #define FSL_FEATURE_LLWU_HAS_VERID (0)
-    /* @brief Has Parameter Register (LLWU_PARAM). */
-    #define FSL_FEATURE_LLWU_HAS_PARAM (0)
-    /* @brief Width of registers of the LLWU. */
-    #define FSL_FEATURE_LLWU_REG_BITWIDTH (8)
-    /* @brief Has DMA Enable register (LLWU_DE). */
-    #define FSL_FEATURE_LLWU_HAS_DMA_ENABLE_REG (0)
+/* @brief Maximum number of pins (maximal index plus one) connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN (19)
+/* @brief Has pins 8-15 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_EXTERNAL_PIN_GROUP2 (1)
+/* @brief Maximum number of internal modules connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE (8)
+/* @brief Number of digital filters. */
+#define FSL_FEATURE_LLWU_HAS_PIN_FILTER (4)
+/* @brief Has MF register. */
+#define FSL_FEATURE_LLWU_HAS_MF (1)
+/* @brief Has PF register. */
+#define FSL_FEATURE_LLWU_HAS_PF (1)
+/* @brief Has possibility to enable reset in low leakage power mode and enable digital filter for RESET pin (register LLWU_RST). */
+#define FSL_FEATURE_LLWU_HAS_RESET_ENABLE (0)
+/* @brief Has external pin 0 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN0 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN0_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN0_GPIO_PIN (1)
+/* @brief Has external pin 1 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN1 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN1_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN1_GPIO_PIN (2)
+/* @brief Has external pin 2 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN2 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN2_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN2_GPIO_PIN (4)
+/* @brief Has external pin 3 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN3 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN3_GPIO_IDX (GPIOA_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN3_GPIO_PIN (4)
+/* @brief Has external pin 4 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN4 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN4_GPIO_IDX (GPIOA_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN4_GPIO_PIN (13)
+/* @brief Has external pin 5 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN5 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN5_GPIO_IDX (GPIOB_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN5_GPIO_PIN (0)
+/* @brief Has external pin 6 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN6 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN6_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN6_GPIO_PIN (1)
+/* @brief Has external pin 7 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN7 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN7_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN7_GPIO_PIN (3)
+/* @brief Has external pin 8 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN8 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN8_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN8_GPIO_PIN (4)
+/* @brief Has external pin 9 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN9 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN9_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN9_GPIO_PIN (5)
+/* @brief Has external pin 10 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN10 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN10_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN10_GPIO_PIN (6)
+/* @brief Has external pin 11 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN11 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN11_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN11_GPIO_PIN (11)
+/* @brief Has external pin 12 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN12 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN12_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN12_GPIO_PIN (0)
+/* @brief Has external pin 13 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN13 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN13_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN13_GPIO_PIN (2)
+/* @brief Has external pin 14 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN14 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN14_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN14_GPIO_PIN (4)
+/* @brief Has external pin 15 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN15 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN15_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN15_GPIO_PIN (6)
+/* @brief Has external pin 16 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN16 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN16_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN16_GPIO_PIN (6)
+/* @brief Has external pin 17 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN17 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN17_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN17_GPIO_PIN (9)
+/* @brief Has external pin 18 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN18 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN18_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN18_GPIO_PIN (10)
+/* @brief Has external pin 19 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN19 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN19_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN19_GPIO_PIN (0)
+/* @brief Has external pin 20 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN20 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN20_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN20_GPIO_PIN (0)
+/* @brief Has external pin 21 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN21 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN21_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN21_GPIO_PIN (0)
+/* @brief Has external pin 22 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN22 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN22_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN22_GPIO_PIN (0)
+/* @brief Has external pin 23 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN23 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN23_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN23_GPIO_PIN (0)
+/* @brief Has external pin 24 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN24 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN24_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN24_GPIO_PIN (0)
+/* @brief Has external pin 25 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN25 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN25_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN25_GPIO_PIN (0)
+/* @brief Has external pin 26 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN26 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN26_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN26_GPIO_PIN (0)
+/* @brief Has external pin 27 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN27 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN27_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN27_GPIO_PIN (0)
+/* @brief Has external pin 28 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN28 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN28_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN28_GPIO_PIN (0)
+/* @brief Has external pin 29 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN29 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN29_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN29_GPIO_PIN (0)
+/* @brief Has external pin 30 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN30 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN30_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN30_GPIO_PIN (0)
+/* @brief Has external pin 31 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN31 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN31_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN31_GPIO_PIN (0)
+/* @brief Has internal module 0 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE0 (1)
+/* @brief Has internal module 1 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE1 (1)
+/* @brief Has internal module 2 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE2 (0)
+/* @brief Has internal module 3 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE3 (0)
+/* @brief Has internal module 4 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE4 (1)
+/* @brief Has internal module 5 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE5 (1)
+/* @brief Has internal module 6 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE6 (0)
+/* @brief Has internal module 7 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE7 (1)
+/* @brief Has Version ID Register (LLWU_VERID). */
+#define FSL_FEATURE_LLWU_HAS_VERID (0)
+/* @brief Has Parameter Register (LLWU_PARAM). */
+#define FSL_FEATURE_LLWU_HAS_PARAM (0)
+/* @brief Width of registers of the LLWU. */
+#define FSL_FEATURE_LLWU_REG_BITWIDTH (8)
+/* @brief Has DMA Enable register (LLWU_DE). */
+#define FSL_FEATURE_LLWU_HAS_DMA_ENABLE_REG (0)
 #elif defined(CPU_MKL82Z128VMC7)
-    /* @brief Maximum number of pins (maximal index plus one) connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN (26)
-    /* @brief Has pins 8-15 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_EXTERNAL_PIN_GROUP2 (1)
-    /* @brief Maximum number of internal modules connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE (8)
-    /* @brief Number of digital filters. */
-    #define FSL_FEATURE_LLWU_HAS_PIN_FILTER (4)
-    /* @brief Has MF register. */
-    #define FSL_FEATURE_LLWU_HAS_MF (1)
-    /* @brief Has PF register. */
-    #define FSL_FEATURE_LLWU_HAS_PF (1)
-    /* @brief Has possibility to enable reset in low leakage power mode and enable digital filter for RESET pin (register LLWU_RST). */
-    #define FSL_FEATURE_LLWU_HAS_RESET_ENABLE (0)
-    /* @brief Has external pin 0 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN0 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN0_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN0_GPIO_PIN (1)
-    /* @brief Has external pin 1 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN1 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN1_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN1_GPIO_PIN (2)
-    /* @brief Has external pin 2 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN2 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN2_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN2_GPIO_PIN (4)
-    /* @brief Has external pin 3 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN3 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN3_GPIO_IDX (GPIOA_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN3_GPIO_PIN (4)
-    /* @brief Has external pin 4 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN4 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN4_GPIO_IDX (GPIOA_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN4_GPIO_PIN (13)
-    /* @brief Has external pin 5 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN5 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN5_GPIO_IDX (GPIOB_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN5_GPIO_PIN (0)
-    /* @brief Has external pin 6 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN6 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN6_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN6_GPIO_PIN (1)
-    /* @brief Has external pin 7 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN7 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN7_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN7_GPIO_PIN (3)
-    /* @brief Has external pin 8 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN8 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN8_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN8_GPIO_PIN (4)
-    /* @brief Has external pin 9 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN9 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN9_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN9_GPIO_PIN (5)
-    /* @brief Has external pin 10 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN10 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN10_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN10_GPIO_PIN (6)
-    /* @brief Has external pin 11 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN11 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN11_GPIO_IDX (GPIOC_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN11_GPIO_PIN (11)
-    /* @brief Has external pin 12 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN12 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN12_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN12_GPIO_PIN (0)
-    /* @brief Has external pin 13 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN13 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN13_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN13_GPIO_PIN (2)
-    /* @brief Has external pin 14 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN14 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN14_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN14_GPIO_PIN (4)
-    /* @brief Has external pin 15 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN15 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN15_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN15_GPIO_PIN (6)
-    /* @brief Has external pin 16 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN16 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN16_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN16_GPIO_PIN (6)
-    /* @brief Has external pin 17 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN17 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN17_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN17_GPIO_PIN (9)
-    /* @brief Has external pin 18 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN18 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN18_GPIO_IDX (GPIOE_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN18_GPIO_PIN (10)
-    /* @brief Has external pin 19 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN19 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN19_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN19_GPIO_PIN (0)
-    /* @brief Has external pin 20 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN20 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN20_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN20_GPIO_PIN (0)
-    /* @brief Has external pin 21 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN21 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN21_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN21_GPIO_PIN (0)
-    /* @brief Has external pin 22 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN22 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN22_GPIO_IDX (GPIOA_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN22_GPIO_PIN (10)
-    /* @brief Has external pin 23 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN23 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN23_GPIO_IDX (GPIOA_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN23_GPIO_PIN (11)
-    /* @brief Has external pin 24 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN24 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN24_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN24_GPIO_PIN (8)
-    /* @brief Has external pin 25 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN25 (1)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN25_GPIO_IDX (GPIOD_IDX)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN25_GPIO_PIN (11)
-    /* @brief Has external pin 26 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN26 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN26_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN26_GPIO_PIN (0)
-    /* @brief Has external pin 27 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN27 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN27_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN27_GPIO_PIN (0)
-    /* @brief Has external pin 28 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN28 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN28_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN28_GPIO_PIN (0)
-    /* @brief Has external pin 29 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN29 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN29_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN29_GPIO_PIN (0)
-    /* @brief Has external pin 30 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN30 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN30_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN30_GPIO_PIN (0)
-    /* @brief Has external pin 31 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN31 (0)
-    /* @brief Index of port of external pin. */
-    #define FSL_FEATURE_LLWU_PIN31_GPIO_IDX (0)
-    /* @brief Number of external pin port on specified port. */
-    #define FSL_FEATURE_LLWU_PIN31_GPIO_PIN (0)
-    /* @brief Has internal module 0 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE0 (1)
-    /* @brief Has internal module 1 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE1 (1)
-    /* @brief Has internal module 2 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE2 (0)
-    /* @brief Has internal module 3 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE3 (0)
-    /* @brief Has internal module 4 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE4 (1)
-    /* @brief Has internal module 5 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE5 (1)
-    /* @brief Has internal module 6 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE6 (0)
-    /* @brief Has internal module 7 connected to LLWU device. */
-    #define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE7 (1)
-    /* @brief Has Version ID Register (LLWU_VERID). */
-    #define FSL_FEATURE_LLWU_HAS_VERID (0)
-    /* @brief Has Parameter Register (LLWU_PARAM). */
-    #define FSL_FEATURE_LLWU_HAS_PARAM (0)
-    /* @brief Width of registers of the LLWU. */
-    #define FSL_FEATURE_LLWU_REG_BITWIDTH (8)
-    /* @brief Has DMA Enable register (LLWU_DE). */
-    #define FSL_FEATURE_LLWU_HAS_DMA_ENABLE_REG (0)
+/* @brief Maximum number of pins (maximal index plus one) connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN (26)
+/* @brief Has pins 8-15 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_EXTERNAL_PIN_GROUP2 (1)
+/* @brief Maximum number of internal modules connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE (8)
+/* @brief Number of digital filters. */
+#define FSL_FEATURE_LLWU_HAS_PIN_FILTER (4)
+/* @brief Has MF register. */
+#define FSL_FEATURE_LLWU_HAS_MF (1)
+/* @brief Has PF register. */
+#define FSL_FEATURE_LLWU_HAS_PF (1)
+/* @brief Has possibility to enable reset in low leakage power mode and enable digital filter for RESET pin (register LLWU_RST). */
+#define FSL_FEATURE_LLWU_HAS_RESET_ENABLE (0)
+/* @brief Has external pin 0 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN0 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN0_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN0_GPIO_PIN (1)
+/* @brief Has external pin 1 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN1 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN1_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN1_GPIO_PIN (2)
+/* @brief Has external pin 2 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN2 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN2_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN2_GPIO_PIN (4)
+/* @brief Has external pin 3 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN3 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN3_GPIO_IDX (GPIOA_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN3_GPIO_PIN (4)
+/* @brief Has external pin 4 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN4 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN4_GPIO_IDX (GPIOA_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN4_GPIO_PIN (13)
+/* @brief Has external pin 5 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN5 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN5_GPIO_IDX (GPIOB_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN5_GPIO_PIN (0)
+/* @brief Has external pin 6 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN6 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN6_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN6_GPIO_PIN (1)
+/* @brief Has external pin 7 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN7 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN7_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN7_GPIO_PIN (3)
+/* @brief Has external pin 8 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN8 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN8_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN8_GPIO_PIN (4)
+/* @brief Has external pin 9 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN9 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN9_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN9_GPIO_PIN (5)
+/* @brief Has external pin 10 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN10 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN10_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN10_GPIO_PIN (6)
+/* @brief Has external pin 11 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN11 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN11_GPIO_IDX (GPIOC_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN11_GPIO_PIN (11)
+/* @brief Has external pin 12 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN12 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN12_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN12_GPIO_PIN (0)
+/* @brief Has external pin 13 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN13 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN13_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN13_GPIO_PIN (2)
+/* @brief Has external pin 14 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN14 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN14_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN14_GPIO_PIN (4)
+/* @brief Has external pin 15 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN15 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN15_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN15_GPIO_PIN (6)
+/* @brief Has external pin 16 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN16 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN16_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN16_GPIO_PIN (6)
+/* @brief Has external pin 17 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN17 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN17_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN17_GPIO_PIN (9)
+/* @brief Has external pin 18 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN18 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN18_GPIO_IDX (GPIOE_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN18_GPIO_PIN (10)
+/* @brief Has external pin 19 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN19 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN19_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN19_GPIO_PIN (0)
+/* @brief Has external pin 20 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN20 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN20_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN20_GPIO_PIN (0)
+/* @brief Has external pin 21 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN21 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN21_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN21_GPIO_PIN (0)
+/* @brief Has external pin 22 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN22 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN22_GPIO_IDX (GPIOA_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN22_GPIO_PIN (10)
+/* @brief Has external pin 23 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN23 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN23_GPIO_IDX (GPIOA_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN23_GPIO_PIN (11)
+/* @brief Has external pin 24 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN24 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN24_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN24_GPIO_PIN (8)
+/* @brief Has external pin 25 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN25 (1)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN25_GPIO_IDX (GPIOD_IDX)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN25_GPIO_PIN (11)
+/* @brief Has external pin 26 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN26 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN26_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN26_GPIO_PIN (0)
+/* @brief Has external pin 27 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN27 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN27_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN27_GPIO_PIN (0)
+/* @brief Has external pin 28 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN28 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN28_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN28_GPIO_PIN (0)
+/* @brief Has external pin 29 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN29 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN29_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN29_GPIO_PIN (0)
+/* @brief Has external pin 30 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN30 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN30_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN30_GPIO_PIN (0)
+/* @brief Has external pin 31 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_EXTERNAL_PIN31 (0)
+/* @brief Index of port of external pin. */
+#define FSL_FEATURE_LLWU_PIN31_GPIO_IDX (0)
+/* @brief Number of external pin port on specified port. */
+#define FSL_FEATURE_LLWU_PIN31_GPIO_PIN (0)
+/* @brief Has internal module 0 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE0 (1)
+/* @brief Has internal module 1 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE1 (1)
+/* @brief Has internal module 2 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE2 (0)
+/* @brief Has internal module 3 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE3 (0)
+/* @brief Has internal module 4 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE4 (1)
+/* @brief Has internal module 5 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE5 (1)
+/* @brief Has internal module 6 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE6 (0)
+/* @brief Has internal module 7 connected to LLWU device. */
+#define FSL_FEATURE_LLWU_HAS_INTERNAL_MODULE7 (1)
+/* @brief Has Version ID Register (LLWU_VERID). */
+#define FSL_FEATURE_LLWU_HAS_VERID (0)
+/* @brief Has Parameter Register (LLWU_PARAM). */
+#define FSL_FEATURE_LLWU_HAS_PARAM (0)
+/* @brief Width of registers of the LLWU. */
+#define FSL_FEATURE_LLWU_REG_BITWIDTH (8)
+/* @brief Has DMA Enable register (LLWU_DE). */
+#define FSL_FEATURE_LLWU_HAS_DMA_ENABLE_REG (0)
 #endif /* defined(CPU_MKL82Z128VLH7) || defined(CPU_MKL82Z128VLK7) || defined(CPU_MKL82Z128VMP7) */
 
 /* LPTMR module features */
@@ -2032,43 +2032,43 @@
 /* DSPI module features */
 
 #if defined(CPU_MKL82Z128VLH7) || defined(CPU_MKL82Z128VLK7) || defined(CPU_MKL82Z128VMP7)
-    /* @brief Receive/transmit FIFO size in number of items. */
-    #define FSL_FEATURE_DSPI_FIFO_SIZEn(x) \
+/* @brief Receive/transmit FIFO size in number of items. */
+#define FSL_FEATURE_DSPI_FIFO_SIZEn(x) \
         ((x) == DSPI0 ? (4) : \
         ((x) == DSPI1 ? (1) : (-1)))
-    /* @brief Maximum transfer data width in bits. */
-    #define FSL_FEATURE_DSPI_MAX_DATA_WIDTH (16)
-    /* @brief Maximum number of chip select pins. (Reflects the width of register bit field PUSHR[PCS].) */
-    #define FSL_FEATURE_DSPI_MAX_CHIP_SELECT_COUNT (6)
-    /* @brief Number of chip select pins. */
-    #define FSL_FEATURE_DSPI_CHIP_SELECT_COUNT (5)
-    /* @brief Has chip select strobe capability on the PCS5 pin. */
-    #define FSL_FEATURE_DSPI_HAS_CHIP_SELECT_STROBE (1)
-    /* @brief Has separated TXDATA and CMD FIFOs (register SREX). */
-    #define FSL_FEATURE_DSPI_HAS_SEPARATE_TXDATA_CMD_FIFO (0)
-    /* @brief Has 16-bit data transfer support. */
-    #define FSL_FEATURE_DSPI_16BIT_TRANSFERS (1)
-    /* @brief Has separate DMA RX and TX requests. */
-    #define FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(x) (1)
+/* @brief Maximum transfer data width in bits. */
+#define FSL_FEATURE_DSPI_MAX_DATA_WIDTH (16)
+/* @brief Maximum number of chip select pins. (Reflects the width of register bit field PUSHR[PCS].) */
+#define FSL_FEATURE_DSPI_MAX_CHIP_SELECT_COUNT (6)
+/* @brief Number of chip select pins. */
+#define FSL_FEATURE_DSPI_CHIP_SELECT_COUNT (5)
+/* @brief Has chip select strobe capability on the PCS5 pin. */
+#define FSL_FEATURE_DSPI_HAS_CHIP_SELECT_STROBE (1)
+/* @brief Has separated TXDATA and CMD FIFOs (register SREX). */
+#define FSL_FEATURE_DSPI_HAS_SEPARATE_TXDATA_CMD_FIFO (0)
+/* @brief Has 16-bit data transfer support. */
+#define FSL_FEATURE_DSPI_16BIT_TRANSFERS (1)
+/* @brief Has separate DMA RX and TX requests. */
+#define FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(x) (1)
 #elif defined(CPU_MKL82Z128VLL7) || defined(CPU_MKL82Z128VMC7)
-    /* @brief Receive/transmit FIFO size in number of items. */
-    #define FSL_FEATURE_DSPI_FIFO_SIZEn(x) \
+/* @brief Receive/transmit FIFO size in number of items. */
+#define FSL_FEATURE_DSPI_FIFO_SIZEn(x) \
         ((x) == DSPI0 ? (4) : \
         ((x) == DSPI1 ? (1) : (-1)))
-    /* @brief Maximum transfer data width in bits. */
-    #define FSL_FEATURE_DSPI_MAX_DATA_WIDTH (16)
-    /* @brief Maximum number of chip select pins. (Reflects the width of register bit field PUSHR[PCS].) */
-    #define FSL_FEATURE_DSPI_MAX_CHIP_SELECT_COUNT (6)
-    /* @brief Number of chip select pins. */
-    #define FSL_FEATURE_DSPI_CHIP_SELECT_COUNT (6)
-    /* @brief Has chip select strobe capability on the PCS5 pin. */
-    #define FSL_FEATURE_DSPI_HAS_CHIP_SELECT_STROBE (1)
-    /* @brief Has separated TXDATA and CMD FIFOs (register SREX). */
-    #define FSL_FEATURE_DSPI_HAS_SEPARATE_TXDATA_CMD_FIFO (0)
-    /* @brief Has 16-bit data transfer support. */
-    #define FSL_FEATURE_DSPI_16BIT_TRANSFERS (1)
-    /* @brief Has separate DMA RX and TX requests. */
-    #define FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(x) (1)
+/* @brief Maximum transfer data width in bits. */
+#define FSL_FEATURE_DSPI_MAX_DATA_WIDTH (16)
+/* @brief Maximum number of chip select pins. (Reflects the width of register bit field PUSHR[PCS].) */
+#define FSL_FEATURE_DSPI_MAX_CHIP_SELECT_COUNT (6)
+/* @brief Number of chip select pins. */
+#define FSL_FEATURE_DSPI_CHIP_SELECT_COUNT (6)
+/* @brief Has chip select strobe capability on the PCS5 pin. */
+#define FSL_FEATURE_DSPI_HAS_CHIP_SELECT_STROBE (1)
+/* @brief Has separated TXDATA and CMD FIFOs (register SREX). */
+#define FSL_FEATURE_DSPI_HAS_SEPARATE_TXDATA_CMD_FIFO (0)
+/* @brief Has 16-bit data transfer support. */
+#define FSL_FEATURE_DSPI_16BIT_TRANSFERS (1)
+/* @brief Has separate DMA RX and TX requests. */
+#define FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(x) (1)
 #endif /* defined(CPU_MKL82Z128VLH7) || defined(CPU_MKL82Z128VLK7) || defined(CPU_MKL82Z128VMP7) */
 
 /* SysTick module features */

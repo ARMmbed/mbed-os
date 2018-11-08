@@ -35,22 +35,22 @@ extern uint32_t PllClock;            /*!< PLL Output Clock Frequency           *
 
 /**
  * Initialize the system
- * 
+ *
  * @return none
  *
  * @brief  Setup the microcontroller system.
  */
-extern void SystemInit (void);
+extern void SystemInit(void);
 
 /**
  * Update SystemCoreClock variable
- * 
+ *
  * @return none
  *
  * @brief  Updates the SystemCoreClock with current core Clock
  *         retrieved from CPU registers.
  */
-extern void SystemCoreClockUpdate (void);
+extern void SystemCoreClockUpdate(void);
 
 #ifdef __cplusplus
 }

@@ -30,23 +30,27 @@ MODSERIAL uart(p9, p10);
 
 // This function is called when a character goes from the TX buffer
 // to the Uart THR FIFO register.
-void txCallback(MODSERIAL_IRQ_INFO *q) {
+void txCallback(MODSERIAL_IRQ_INFO *q)
+{
     led2 = !led2;
 }
 
 // This function is called when TX buffer goes empty
-void txEmpty(MODSERIAL_IRQ_INFO *q) {
+void txEmpty(MODSERIAL_IRQ_INFO *q)
+{
     led2 = 0;
     pc.puts(" Done. ");
 }
 
 // This function is called when a character goes into the RX buffer.
-void rxCallback(MODSERIAL_IRQ_INFO *q) {
+void rxCallback(MODSERIAL_IRQ_INFO *q)
+{
     led3 = !led3;
     pc.putc(uart.getc());
 }
 
-int main() {
+int main()
+{
     int c = 'A';
 
     // Ensure the baud rate for the PC "USB" serial is much
@@ -68,7 +72,9 @@ int main() {
     for (int loop = 0; loop < 512; loop++) {
         uart.printf("%c", c);
         c++;
-        if (c > 'Z') c = 'A';
+        if (c > 'Z') {
+            c = 'A';
+        }
     }
 
     led1 = 0; // Show the end of sending by switching off LED1.
@@ -77,7 +83,7 @@ int main() {
     // to flash for a short period while the interrupt system
     // continues to send the characters left in the TX buffer.
 
-    while(1) {
+    while (1) {
         led4 = !led4;
         wait(0.25);
     }

@@ -9,14 +9,14 @@
 
 #if (MBED_CONF_TARGET_USB_DEVICE_HSUSBD == 0)
 #define NU_EP2EPH(ep)           (((ep) >> 1) + 1)
-#define NU_EPL2EPH(ep)					((ep) + 1)
-#define NU_EPH2EPL(ep)					((ep) - 1)
+#define NU_EPL2EPH(ep)                  ((ep) + 1)
+#define NU_EPH2EPL(ep)                  ((ep) - 1)
 #define NUMBER_OF_PHYSICAL_ENDPOINTS    8
 #else
 #define NU_EP2EPH(ep)           (((ep) >> 1) - 1)
 #define NU_EPX2EP(ep)          ((ep == CEP) ? EP0OUT : ((ep) - EPA + EP1OUT))
-#define NU_EPL2EPH(ep)					((ep) - 1)
-#define NU_EPH2EPL(ep)					((ep) + 1)
+#define NU_EPL2EPH(ep)                  ((ep) - 1)
+#define NU_EPH2EPL(ep)                  ((ep) + 1)
 #define NUMBER_OF_PHYSICAL_ENDPOINTS    12
 #endif
 
@@ -38,8 +38,8 @@
 #define EP2IN       (5)
 #define EP3OUT      (6)
 #define EP3IN       (7)
-#define EP4OUT     	(8)
-#define EP4IN      	(9)
+#define EP4OUT      (8)
+#define EP4IN       (9)
 #define EP5OUT     (10)
 #define EP5IN      (11)
 #define EP6OUT     (12)
@@ -50,14 +50,14 @@
 #define MAX_PACKET_SIZE_EP1   64
 #define MAX_PACKET_SIZE_EP2   64
 #define MAX_PACKET_SIZE_EP3   0x60
-#define MAX_PACKET_SIZE_EP4  	64
-#define MAX_PACKET_SIZE_EP5  	64
-#define MAX_PACKET_SIZE_EP6  	64
-#define MAX_PACKET_SIZE_EP7  	64
+#define MAX_PACKET_SIZE_EP4     64
+#define MAX_PACKET_SIZE_EP5     64
+#define MAX_PACKET_SIZE_EP6     64
+#define MAX_PACKET_SIZE_EP7     64
 
 #if (MBED_CONF_TARGET_USB_DEVICE_HSUSBD == 1)
-#define MAX_PACKET_SIZE_EP8  	64
-#define MAX_PACKET_SIZE_EP9  	64
+#define MAX_PACKET_SIZE_EP8     64
+#define MAX_PACKET_SIZE_EP9     64
 #define MAX_PACKET_SIZE_EP10  64
 #define MAX_PACKET_SIZE_EP11  64
 #endif
@@ -86,8 +86,8 @@
 #define MAX_PACKET_SIZE_EPISO   1023
 
 #if (MBED_CONF_TARGET_USB_DEVICE_HSUSBD == 1)
-#define HSUSBD_GET_EP_MAX_PAYLOAD(ep)		HSUSBD->EP[ep].EPMPS
-#define HSUSBD_GET_EP_DATA_COUNT(ep)		(HSUSBD->EP[ep].EPDATCNT & 0xFFFFF)
-#define HSUSBD_SET_EP_SHORT_PACKET(ep) 		HSUSBD->EP[ep].EPRSPCTL = ((HSUSBD->EP[ep].EPRSPCTL & 0x10) | 0x40)
-#define HSUSBD_GET_EP_INT_EN(ep)			HSUSBD->EP[ep].EPINTEN
+#define HSUSBD_GET_EP_MAX_PAYLOAD(ep)       HSUSBD->EP[ep].EPMPS
+#define HSUSBD_GET_EP_DATA_COUNT(ep)        (HSUSBD->EP[ep].EPDATCNT & 0xFFFFF)
+#define HSUSBD_SET_EP_SHORT_PACKET(ep)      HSUSBD->EP[ep].EPRSPCTL = ((HSUSBD->EP[ep].EPRSPCTL & 0x10) | 0x40)
+#define HSUSBD_GET_EP_INT_EN(ep)            HSUSBD->EP[ep].EPINTEN
 #endif

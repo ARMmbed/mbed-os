@@ -528,15 +528,14 @@
 #define INTC_SPI_STATUS0_COUNT (17)
 
 
-typedef struct st_intc
-{
-                                                           /* INTC             */
+typedef struct st_intc {
+    /* INTC             */
     volatile uint32_t  ICDDCR;                                 /*  ICDDCR          */
     volatile uint32_t  ICDICTR;                                /*  ICDICTR         */
     volatile uint32_t  ICDIIDR;                                /*  ICDIIDR         */
     volatile uint8_t   dummy193[116];                          /*                  */
 
-/* #define INTC_ICDISR0_COUNT (19) */
+    /* #define INTC_ICDISR0_COUNT (19) */
     volatile uint32_t  ICDISR0;                                /*  ICDISR0         */
     volatile uint32_t  ICDISR1;                                /*  ICDISR1         */
     volatile uint32_t  ICDISR2;                                /*  ICDISR2         */
@@ -558,7 +557,7 @@ typedef struct st_intc
     volatile uint32_t  ICDISR18;                               /*  ICDISR18        */
     volatile uint8_t   dummy194[52];                           /*                  */
 
-/* #define INTC_ICDISER0_COUNT (19) */
+    /* #define INTC_ICDISER0_COUNT (19) */
     volatile uint32_t  ICDISER0;                               /*  ICDISER0        */
     volatile uint32_t  ICDISER1;                               /*  ICDISER1        */
     volatile uint32_t  ICDISER2;                               /*  ICDISER2        */
@@ -580,7 +579,7 @@ typedef struct st_intc
     volatile uint32_t  ICDISER18;                              /*  ICDISER18       */
     volatile uint8_t   dummy195[52];                           /*                  */
 
-/* #define INTC_ICDICER0_COUNT (19) */
+    /* #define INTC_ICDICER0_COUNT (19) */
     volatile uint32_t  ICDICER0;                               /*  ICDICER0        */
     volatile uint32_t  ICDICER1;                               /*  ICDICER1        */
     volatile uint32_t  ICDICER2;                               /*  ICDICER2        */
@@ -602,7 +601,7 @@ typedef struct st_intc
     volatile uint32_t  ICDICER18;                              /*  ICDICER18       */
     volatile uint8_t   dummy196[52];                           /*                  */
 
-/* #define INTC_ICDISPR0_COUNT (19) */
+    /* #define INTC_ICDISPR0_COUNT (19) */
     volatile uint32_t  ICDISPR0;                               /*  ICDISPR0        */
     volatile uint32_t  ICDISPR1;                               /*  ICDISPR1        */
     volatile uint32_t  ICDISPR2;                               /*  ICDISPR2        */
@@ -624,7 +623,7 @@ typedef struct st_intc
     volatile uint32_t  ICDISPR18;                              /*  ICDISPR18       */
     volatile uint8_t   dummy197[52];                           /*                  */
 
-/* #define INTC_ICDICPR0_COUNT (19) */
+    /* #define INTC_ICDICPR0_COUNT (19) */
     volatile uint32_t  ICDICPR0;                               /*  ICDICPR0        */
     volatile uint32_t  ICDICPR1;                               /*  ICDICPR1        */
     volatile uint32_t  ICDICPR2;                               /*  ICDICPR2        */
@@ -646,7 +645,7 @@ typedef struct st_intc
     volatile uint32_t  ICDICPR18;                              /*  ICDICPR18       */
     volatile uint8_t   dummy198[52];                           /*                  */
 
-/* #define INTC_ICDABR0_COUNT (19) */
+    /* #define INTC_ICDABR0_COUNT (19) */
     volatile uint32_t  ICDABR0;                                /*  ICDABR0         */
     volatile uint32_t  ICDABR1;                                /*  ICDABR1         */
     volatile uint32_t  ICDABR2;                                /*  ICDABR2         */
@@ -668,7 +667,7 @@ typedef struct st_intc
     volatile uint32_t  ICDABR18;                               /*  ICDABR18        */
     volatile uint8_t   dummy199[180];                          /*                  */
 
-/* #define INTC_ICDIPR0_COUNT (147) */
+    /* #define INTC_ICDIPR0_COUNT (147) */
     volatile uint32_t  ICDIPR0;                                /*  ICDIPR0         */
     volatile uint32_t  ICDIPR1;                                /*  ICDIPR1         */
     volatile uint32_t  ICDIPR2;                                /*  ICDIPR2         */
@@ -818,7 +817,7 @@ typedef struct st_intc
     volatile uint32_t  ICDIPR146;                              /*  ICDIPR146       */
     volatile uint8_t   dummy200[436];                          /*                  */
 
-/* #define INTC_ICDIPTR0_COUNT (147) */
+    /* #define INTC_ICDIPTR0_COUNT (147) */
     volatile uint32_t  ICDIPTR0;                               /*  ICDIPTR0        */
     volatile uint32_t  ICDIPTR1;                               /*  ICDIPTR1        */
     volatile uint32_t  ICDIPTR2;                               /*  ICDIPTR2        */
@@ -968,7 +967,7 @@ typedef struct st_intc
     volatile uint32_t  ICDIPTR146;                             /*  ICDIPTR146      */
     volatile uint8_t   dummy201[436];                          /*                  */
 
-/* #define INTC_ICDICFR0_COUNT (37) */
+    /* #define INTC_ICDICFR0_COUNT (37) */
     volatile uint32_t  ICDICFR0;                               /*  ICDICFR0        */
     volatile uint32_t  ICDICFR1;                               /*  ICDICFR1        */
     volatile uint32_t  ICDICFR2;                               /*  ICDICFR2        */
@@ -1009,7 +1008,7 @@ typedef struct st_intc
     volatile uint8_t   dummy202[108];                          /*                  */
     volatile uint32_t  PPI_STATUS;                             /*  PPI_STATUS      */
 
-/* #define INTC_SPI_STATUS0_COUNT (17) */
+    /* #define INTC_SPI_STATUS0_COUNT (17) */
     volatile uint32_t  SPI_STATUS0;                            /*  SPI_STATUS0     */
     volatile uint32_t  SPI_STATUS1;                            /*  SPI_STATUS1     */
     volatile uint32_t  SPI_STATUS2;                            /*  SPI_STATUS2     */

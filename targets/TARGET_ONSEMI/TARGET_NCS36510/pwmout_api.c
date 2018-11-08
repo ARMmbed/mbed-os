@@ -109,9 +109,9 @@ float pwmout_read(pwmout_t *obj)
     /* Read out the value of duty cycle register 0x4000B000 and return as a percent */
     /* Read value / 255 is the percent returned */
     dc = obj->pwmReg->DUTYCYCLE;
-    retVal = dc/ (float)255;
+    retVal = dc / (float)255;
 
-    return(retVal);
+    return (retVal);
 }
 
 /** Set the PWM period specified in seconds, keeping the duty cycle the same
@@ -194,7 +194,7 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 
     /* Calculate the duty cycle based on the width of the pulse */
     /* ((255 * us) / 128) + 1 = duty cycle */
-    pulseWidth = (int)((float)(255 * us)/(float)128) + 1;
+    pulseWidth = (int)((float)(255 * us) / (float)128) + 1;
     if (us == 0) {
         obj->pwmReg->DUTYCYCLE = 0x0;
     } else if (us == 128) {

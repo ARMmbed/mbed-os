@@ -26,8 +26,7 @@
 /**
  * A class to communicate a USB mouse
  */
-class USBHostMouse : public IUSBEnumerator
-{
+class USBHostMouse : public IUSBEnumerator {
 public:
 
     /**
@@ -116,9 +115,9 @@ protected:
     virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
 
 private:
-    USBHost * host;
-    USBDeviceConnected * dev;
-    USBEndpoint * int_in;
+    USBHost *host;
+    USBDeviceConnected *dev;
+    USBEndpoint *int_in;
     uint8_t report[64];
     bool dev_connected;
     bool mouse_device_found;

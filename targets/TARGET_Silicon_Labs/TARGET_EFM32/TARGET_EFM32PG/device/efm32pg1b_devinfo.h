@@ -38,65 +38,64 @@
  * @{
  *****************************************************************************/
 
-typedef struct
-{
-  __IM uint32_t CAL;              /**< CRC of DI-page and calibration temperature  */
-  uint32_t      RESERVED0[9];     /**< Reserved for future use **/
-  __IM uint32_t EUI48L;           /**< EUI48 OUI and Unique identifier  */
-  __IM uint32_t EUI48H;           /**< OUI  */
-  __IM uint32_t CUSTOMINFO;       /**< Custom information  */
-  __IM uint32_t MEMINFO;          /**< Flash page size and misc. chip information  */
-  uint32_t      RESERVED1[2];     /**< Reserved for future use **/
-  __IM uint32_t UNIQUEL;          /**< Low 32 bits of device unique number  */
-  __IM uint32_t UNIQUEH;          /**< High 32 bits of device unique number  */
-  __IM uint32_t MSIZE;            /**< Flash and SRAM Memory size in kB  */
-  __IM uint32_t PART;             /**< Part description  */
-  __IM uint32_t DEVINFOREV;       /**< Device information page revision  */
-  __IM uint32_t EMUTEMP;          /**< EMU Temperature Calibration Information  */
-  uint32_t      RESERVED2[2];     /**< Reserved for future use **/
-  __IM uint32_t ADC0CAL0;         /**< ADC0 calibration register 0  */
-  __IM uint32_t ADC0CAL1;         /**< ADC0 calibration register 1  */
-  __IM uint32_t ADC0CAL2;         /**< ADC0 calibration register 2  */
-  __IM uint32_t ADC0CAL3;         /**< ADC0 calibration register 3  */
-  uint32_t      RESERVED3[4];     /**< Reserved for future use **/
-  __IM uint32_t HFRCOCAL0;        /**< HFRCO Calibration Register (4 MHz)  */
-  uint32_t      RESERVED4[2];     /**< Reserved for future use **/
-  __IM uint32_t HFRCOCAL3;        /**< HFRCO Calibration Register (7 MHz)  */
-  uint32_t      RESERVED5[2];     /**< Reserved for future use **/
-  __IM uint32_t HFRCOCAL6;        /**< HFRCO Calibration Register (13 MHz)  */
-  __IM uint32_t HFRCOCAL7;        /**< HFRCO Calibration Register (16 MHz)  */
-  __IM uint32_t HFRCOCAL8;        /**< HFRCO Calibration Register (19 MHz)  */
-  uint32_t      RESERVED6[1];     /**< Reserved for future use **/
-  __IM uint32_t HFRCOCAL10;       /**< HFRCO Calibration Register (26 MHz)  */
-  __IM uint32_t HFRCOCAL11;       /**< HFRCO Calibration Register (32 MHz)  */
-  __IM uint32_t HFRCOCAL12;       /**< HFRCO Calibration Register (38 MHz)  */
-  uint32_t      RESERVED7[11];    /**< Reserved for future use **/
-  __IM uint32_t AUXHFRCOCAL0;     /**< AUXHFRCO Calibration Register (4 MHz)  */
-  uint32_t      RESERVED8[2];     /**< Reserved for future use **/
-  __IM uint32_t AUXHFRCOCAL3;     /**< AUXHFRCO Calibration Register (7 MHz)  */
-  uint32_t      RESERVED9[2];     /**< Reserved for future use **/
-  __IM uint32_t AUXHFRCOCAL6;     /**< AUXHFRCO Calibration Register (13 MHz)  */
-  __IM uint32_t AUXHFRCOCAL7;     /**< AUXHFRCO Calibration Register (16 MHz)  */
-  __IM uint32_t AUXHFRCOCAL8;     /**< AUXHFRCO Calibration Register (19 MHz)  */
-  uint32_t      RESERVED10[1];    /**< Reserved for future use **/
-  __IM uint32_t AUXHFRCOCAL10;    /**< AUXHFRCO Calibration Register (26 MHz)  */
-  __IM uint32_t AUXHFRCOCAL11;    /**< AUXHFRCO Calibration Register (32 MHz)  */
-  __IM uint32_t AUXHFRCOCAL12;    /**< AUXHFRCO Calibration Register (38 MHz)  */
-  uint32_t      RESERVED11[11];   /**< Reserved for future use **/
-  __IM uint32_t VMONCAL0;         /**< VMON Calibration Register 0  */
-  __IM uint32_t VMONCAL1;         /**< VMON Calibration Register 1  */
-  __IM uint32_t VMONCAL2;         /**< VMON Calibration Register 2  */
-  uint32_t      RESERVED12[3];    /**< Reserved for future use **/
-  __IM uint32_t IDAC0CAL0;        /**< IDAC0 Calibration Register 0  */
-  __IM uint32_t IDAC0CAL1;        /**< IDAC0 Calibration Register 1  */
-  uint32_t      RESERVED13[2];    /**< Reserved for future use **/
-  __IM uint32_t DCDCLNVCTRL0;     /**< DCDC Low-noise VREF Trim Register 0  */
-  __IM uint32_t DCDCLPVCTRL0;     /**< DCDC Low-power VREF Trim Register 0  */
-  __IM uint32_t DCDCLPVCTRL1;     /**< DCDC Low-power VREF Trim Register 1  */
-  __IM uint32_t DCDCLPVCTRL2;     /**< DCDC Low-power VREF Trim Register 2  */
-  __IM uint32_t DCDCLPVCTRL3;     /**< DCDC Low-power VREF Trim Register 3  */
-  __IM uint32_t DCDCLPCMPHYSSEL0; /**< DCDC LPCMPHYSSEL Trim Register 0  */
-  __IM uint32_t DCDCLPCMPHYSSEL1; /**< DCDC LPCMPHYSSEL Trim Register 1  */
+typedef struct {
+    __IM uint32_t CAL;              /**< CRC of DI-page and calibration temperature  */
+    uint32_t      RESERVED0[9];     /**< Reserved for future use **/
+    __IM uint32_t EUI48L;           /**< EUI48 OUI and Unique identifier  */
+    __IM uint32_t EUI48H;           /**< OUI  */
+    __IM uint32_t CUSTOMINFO;       /**< Custom information  */
+    __IM uint32_t MEMINFO;          /**< Flash page size and misc. chip information  */
+    uint32_t      RESERVED1[2];     /**< Reserved for future use **/
+    __IM uint32_t UNIQUEL;          /**< Low 32 bits of device unique number  */
+    __IM uint32_t UNIQUEH;          /**< High 32 bits of device unique number  */
+    __IM uint32_t MSIZE;            /**< Flash and SRAM Memory size in kB  */
+    __IM uint32_t PART;             /**< Part description  */
+    __IM uint32_t DEVINFOREV;       /**< Device information page revision  */
+    __IM uint32_t EMUTEMP;          /**< EMU Temperature Calibration Information  */
+    uint32_t      RESERVED2[2];     /**< Reserved for future use **/
+    __IM uint32_t ADC0CAL0;         /**< ADC0 calibration register 0  */
+    __IM uint32_t ADC0CAL1;         /**< ADC0 calibration register 1  */
+    __IM uint32_t ADC0CAL2;         /**< ADC0 calibration register 2  */
+    __IM uint32_t ADC0CAL3;         /**< ADC0 calibration register 3  */
+    uint32_t      RESERVED3[4];     /**< Reserved for future use **/
+    __IM uint32_t HFRCOCAL0;        /**< HFRCO Calibration Register (4 MHz)  */
+    uint32_t      RESERVED4[2];     /**< Reserved for future use **/
+    __IM uint32_t HFRCOCAL3;        /**< HFRCO Calibration Register (7 MHz)  */
+    uint32_t      RESERVED5[2];     /**< Reserved for future use **/
+    __IM uint32_t HFRCOCAL6;        /**< HFRCO Calibration Register (13 MHz)  */
+    __IM uint32_t HFRCOCAL7;        /**< HFRCO Calibration Register (16 MHz)  */
+    __IM uint32_t HFRCOCAL8;        /**< HFRCO Calibration Register (19 MHz)  */
+    uint32_t      RESERVED6[1];     /**< Reserved for future use **/
+    __IM uint32_t HFRCOCAL10;       /**< HFRCO Calibration Register (26 MHz)  */
+    __IM uint32_t HFRCOCAL11;       /**< HFRCO Calibration Register (32 MHz)  */
+    __IM uint32_t HFRCOCAL12;       /**< HFRCO Calibration Register (38 MHz)  */
+    uint32_t      RESERVED7[11];    /**< Reserved for future use **/
+    __IM uint32_t AUXHFRCOCAL0;     /**< AUXHFRCO Calibration Register (4 MHz)  */
+    uint32_t      RESERVED8[2];     /**< Reserved for future use **/
+    __IM uint32_t AUXHFRCOCAL3;     /**< AUXHFRCO Calibration Register (7 MHz)  */
+    uint32_t      RESERVED9[2];     /**< Reserved for future use **/
+    __IM uint32_t AUXHFRCOCAL6;     /**< AUXHFRCO Calibration Register (13 MHz)  */
+    __IM uint32_t AUXHFRCOCAL7;     /**< AUXHFRCO Calibration Register (16 MHz)  */
+    __IM uint32_t AUXHFRCOCAL8;     /**< AUXHFRCO Calibration Register (19 MHz)  */
+    uint32_t      RESERVED10[1];    /**< Reserved for future use **/
+    __IM uint32_t AUXHFRCOCAL10;    /**< AUXHFRCO Calibration Register (26 MHz)  */
+    __IM uint32_t AUXHFRCOCAL11;    /**< AUXHFRCO Calibration Register (32 MHz)  */
+    __IM uint32_t AUXHFRCOCAL12;    /**< AUXHFRCO Calibration Register (38 MHz)  */
+    uint32_t      RESERVED11[11];   /**< Reserved for future use **/
+    __IM uint32_t VMONCAL0;         /**< VMON Calibration Register 0  */
+    __IM uint32_t VMONCAL1;         /**< VMON Calibration Register 1  */
+    __IM uint32_t VMONCAL2;         /**< VMON Calibration Register 2  */
+    uint32_t      RESERVED12[3];    /**< Reserved for future use **/
+    __IM uint32_t IDAC0CAL0;        /**< IDAC0 Calibration Register 0  */
+    __IM uint32_t IDAC0CAL1;        /**< IDAC0 Calibration Register 1  */
+    uint32_t      RESERVED13[2];    /**< Reserved for future use **/
+    __IM uint32_t DCDCLNVCTRL0;     /**< DCDC Low-noise VREF Trim Register 0  */
+    __IM uint32_t DCDCLPVCTRL0;     /**< DCDC Low-power VREF Trim Register 0  */
+    __IM uint32_t DCDCLPVCTRL1;     /**< DCDC Low-power VREF Trim Register 1  */
+    __IM uint32_t DCDCLPVCTRL2;     /**< DCDC Low-power VREF Trim Register 2  */
+    __IM uint32_t DCDCLPVCTRL3;     /**< DCDC Low-power VREF Trim Register 3  */
+    __IM uint32_t DCDCLPCMPHYSSEL0; /**< DCDC LPCMPHYSSEL Trim Register 0  */
+    __IM uint32_t DCDCLPCMPHYSSEL1; /**< DCDC LPCMPHYSSEL Trim Register 1  */
 } DEVINFO_TypeDef;                /** @} */
 
 /**************************************************************************//**

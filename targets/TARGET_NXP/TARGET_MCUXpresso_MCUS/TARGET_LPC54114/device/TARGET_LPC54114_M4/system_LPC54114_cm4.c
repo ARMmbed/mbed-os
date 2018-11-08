@@ -87,15 +87,16 @@ extern void *__Vectors;
 
 uint32_t SystemCoreClock = DEFAULT_SYSTEM_CLOCK;
 
-static const uint8_t wdtFreqLookup[32] = {0, 8, 12, 15, 18, 20, 24, 26, 28, 30, 32, 34, 36, 38, 40, 41, 42, 44, 45, 46, 
-                                            48, 49, 50, 52, 53, 54, 56, 57, 58, 59, 60, 61};
+static const uint8_t wdtFreqLookup[32] = {0, 8, 12, 15, 18, 20, 24, 26, 28, 30, 32, 34, 36, 38, 40, 41, 42, 44, 45, 46,
+                                          48, 49, 50, 52, 53, 54, 56, 57, 58, 59, 60, 61
+                                         };
 
 static uint32_t GetWdtOscFreq(void)
 {
     uint8_t freq_sel, div_sel;
     div_sel = ((SYSCON->WDTOSCCTRL & SYSCON_WDTOSCCTRL_DIVSEL_MASK) + 1) << 1;
     freq_sel = wdtFreqLookup[((SYSCON->WDTOSCCTRL & SYSCON_WDTOSCCTRL_FREQSEL_MASK) >> SYSCON_WDTOSCCTRL_FREQSEL_SHIFT)];
-    return ((uint32_t) freq_sel * 50000U)/((uint32_t)div_sel);
+    return ((uint32_t) freq_sel * 50000U) / ((uint32_t)div_sel);
 }
 
 /* Find decoded N value for raw NDEC value */
@@ -104,8 +105,7 @@ static uint32_t pllDecodeN(uint32_t NDEC)
     uint32_t n, x, i;
 
     /* Find NDec */
-    switch (NDEC)
-    {
+    switch (NDEC) {
         case 0xFFF:
             n = 0;
             break;
@@ -118,11 +118,9 @@ static uint32_t pllDecodeN(uint32_t NDEC)
         default:
             x = 0x080;
             n = 0xFFFFFFFF;
-            for (i = NVALMAX; ((i >= 3) && (n == 0xFFFFFFFF)); i--)
-            {
+            for (i = NVALMAX; ((i >= 3) && (n == 0xFFFFFFFF)); i--) {
                 x = (((x ^ (x >> 2) ^ (x >> 3) ^ (x >> 4)) & 1) << 7) | ((x >> 1) & 0x7F);
-                if ((x & (PLL_NDEC_VAL_M >> PLL_NDEC_VAL_P)) == NDEC)
-                {
+                if ((x & (PLL_NDEC_VAL_M >> PLL_NDEC_VAL_P)) == NDEC) {
                     /* Decoded value of NDEC */
                     n = i;
                 }
@@ -137,8 +135,7 @@ static uint32_t pllDecodeP(uint32_t PDEC)
 {
     uint32_t p, x, i;
     /* Find PDec */
-    switch (PDEC)
-    {
+    switch (PDEC) {
         case 0xFF:
             p = 0;
             break;
@@ -151,11 +148,9 @@ static uint32_t pllDecodeP(uint32_t PDEC)
         default:
             x = 0x10;
             p = 0xFFFFFFFF;
-            for (i = PVALMAX; ((i >= 3) && (p == 0xFFFFFFFF)); i--)
-            {
+            for (i = PVALMAX; ((i >= 3) && (p == 0xFFFFFFFF)); i--) {
                 x = (((x ^ (x >> 2)) & 1) << 4) | ((x >> 1) & 0xF);
-                if ((x & (PLL_PDEC_VAL_M >> PLL_PDEC_VAL_P)) == PDEC)
-                {
+                if ((x & (PLL_PDEC_VAL_M >> PLL_PDEC_VAL_P)) == PDEC) {
                     /* Decoded value of PDEC */
                     p = i;
                 }
@@ -171,8 +166,7 @@ static uint32_t pllDecodeM(uint32_t MDEC)
     uint32_t m, i, x;
 
     /* Find MDec */
-    switch (MDEC)
-    {
+    switch (MDEC) {
         case 0xFFFFF:
             m = 0;
             break;
@@ -185,11 +179,9 @@ static uint32_t pllDecodeM(uint32_t MDEC)
         default:
             x = 0x04000;
             m = 0xFFFFFFFF;
-            for (i = MVALMAX; ((i >= 3) && (m == 0xFFFFFFFF)); i--)
-            {
+            for (i = MVALMAX; ((i >= 3) && (m == 0xFFFFFFFF)); i--) {
                 x = (((x ^ (x >> 1)) & 1) << 14) | ((x >> 1) & 0x3FFF);
-                if ((x & (PLL_SSCG0_MDEC_VAL_M >> PLL_SSCG0_MDEC_VAL_P)) == MDEC)
-                {
+                if ((x & (PLL_SSCG0_MDEC_VAL_M >> PLL_SSCG0_MDEC_VAL_P)) == MDEC) {
                     /* Decoded value of MDEC */
                     m = i;
                 }
@@ -205,12 +197,10 @@ static uint32_t findPllPreDiv(uint32_t ctrlReg, uint32_t nDecReg)
     uint32_t preDiv = 1;
 
     /* Direct input is not used? */
-    if ((ctrlReg & SYSCON_SYSPLLCTRL_DIRECTI_MASK) == 0)
-    {
+    if ((ctrlReg & SYSCON_SYSPLLCTRL_DIRECTI_MASK) == 0) {
         /* Decode NDEC value to get (N) pre divider */
         preDiv = pllDecodeN(nDecReg & 0x3FF);
-        if (preDiv == 0)
-        {
+        if (preDiv == 0) {
             preDiv = 1;
         }
     }
@@ -224,12 +214,10 @@ static uint32_t findPllPostDiv(uint32_t ctrlReg, uint32_t pDecReg)
     uint32_t postDiv = 1;
 
     /* Direct input is not used? */
-    if ((ctrlReg & SYSCON_SYSPLLCTRL_DIRECTO_MASK) == 0)
-    {
+    if ((ctrlReg & SYSCON_SYSPLLCTRL_DIRECTO_MASK) == 0) {
         /* Decode PDEC value to get (P) post divider */
         postDiv = 2 * pllDecodeP(pDecReg & 0x7F);
-        if (postDiv == 0)
-        {
+        if (postDiv == 0) {
             postDiv = 2;
         }
     }
@@ -245,12 +233,10 @@ static uint32_t findPllMMult(uint32_t ctrlReg, uint32_t mDecReg)
     /* Decode MDEC value to get (M) multiplier */
     mMult = pllDecodeM(mDecReg & 0x1FFFF);
     /* Extra multiply by 2 needed? */
-    if ((ctrlReg & SYSCON_SYSPLLCTRL_BYPASSCCODIV2_MASK) == 0)
-    {
+    if ((ctrlReg & SYSCON_SYSPLLCTRL_BYPASSCCODIV2_MASK) == 0) {
         mMult = mMult << 1;
     }
-    if (mMult == 0)
-    {
+    if (mMult == 0) {
         mMult = 1;
     }
     return mMult;
@@ -266,7 +252,7 @@ void SystemInit(void)
     SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10, CP11 Full Access */
 #endif                                                 /* ((__FPU_PRESENT == 1) && (__FPU_USED == 1)) */
     SCB->VTOR = (uint32_t)&__Vectors;
-/* Optionally enable RAM banks that may be off by default at reset */
+    /* Optionally enable RAM banks that may be off by default at reset */
 #if !defined(DONT_ENABLE_DISABLED_RAMBANKS)
     SYSCON->AHBCLKCTRLSET[0] = SYSCON_AHBCLKCTRL_SRAM2_MASK;
 #endif
@@ -282,11 +268,9 @@ void SystemCoreClockUpdate(void)
     uint32_t prediv, postdiv;
     uint64_t workRate;
 
-    switch (SYSCON->MAINCLKSELB & SYSCON_MAINCLKSELB_SEL_MASK)
-    {
+    switch (SYSCON->MAINCLKSELB & SYSCON_MAINCLKSELB_SEL_MASK) {
         case 0x00: /* MAINCLKSELA clock (main_clk_a)*/
-            switch (SYSCON->MAINCLKSELA & SYSCON_MAINCLKSELA_SEL_MASK)
-            {
+            switch (SYSCON->MAINCLKSELA & SYSCON_MAINCLKSELA_SEL_MASK) {
                 case 0x00: /* FRO 12 MHz (fro_12m) */
                     clkRate = CLK_FRO_12MHZ;
                     break;
@@ -297,20 +281,16 @@ void SystemCoreClockUpdate(void)
                     clkRate = GetWdtOscFreq();
                     break;
                 default: /* = 0x03 = FRO 96 or 48 MHz (fro_hf) */
-                    if (SYSCON->FROCTRL & SYSCON_FROCTRL_SEL_MASK)
-                    {
+                    if (SYSCON->FROCTRL & SYSCON_FROCTRL_SEL_MASK) {
                         clkRate = CLK_FRO_96MHZ;
-                    }
-                    else
-                    {
+                    } else {
                         clkRate = CLK_FRO_48MHZ;
                     }
                     break;
             }
             break;
         case 0x02: /* System PLL clock (pll_clk)*/
-            switch (SYSCON->SYSPLLCLKSEL & SYSCON_SYSPLLCLKSEL_SEL_MASK)
-            {
+            switch (SYSCON->SYSPLLCLKSEL & SYSCON_SYSPLLCLKSEL_SEL_MASK) {
                 case 0x00: /* FRO 12 MHz (fro_12m) */
                     clkRate = CLK_FRO_12MHZ;
                     break;
@@ -326,21 +306,17 @@ void SystemCoreClockUpdate(void)
                 default:
                     break;
             }
-            if ((SYSCON->SYSPLLCTRL & SYSCON_SYSPLLCTRL_BYPASS_MASK) == 0)
-            {
+            if ((SYSCON->SYSPLLCTRL & SYSCON_SYSPLLCTRL_BYPASS_MASK) == 0) {
                 /* PLL is not in bypass mode, get pre-divider, post-divider, and M divider */
                 prediv = findPllPreDiv(SYSCON->SYSPLLCTRL, SYSCON->SYSPLLNDEC);
                 postdiv = findPllPostDiv(SYSCON->SYSPLLCTRL, SYSCON->SYSPLLPDEC);
                 /* Adjust input clock */
                 clkRate = clkRate / prediv;
                 /* If using the SS, use the multiplier */
-                if (SYSCON->SYSPLLSSCTRL1 & SYSCON_SYSPLLSSCTRL1_PD_MASK)
-                {
+                if (SYSCON->SYSPLLSSCTRL1 & SYSCON_SYSPLLSSCTRL1_PD_MASK) {
                     /* MDEC used for rate */
                     workRate = (uint64_t)clkRate * (uint64_t)findPllMMult(SYSCON->SYSPLLCTRL, SYSCON->SYSPLLSSCTRL0);
-                }
-                else
-                {
+                } else {
                     /* SS multipler used for rate */
                     workRate = 0;
                     /* Adjust by fractional */

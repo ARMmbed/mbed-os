@@ -67,7 +67,7 @@ extern "C" {
 #ifndef __RO
 #define __RO volatile const
 #endif
-///@endcond 
+///@endcond
 
 
 
@@ -81,7 +81,7 @@ x * @{
 /**
  * Structure type to access the MAA Peripheral Module Registers.
  */
- typedef struct {
+typedef struct {
     __IO uint32_t ctrl;                                 /**< <tt>\b 0x0000</tt> MAA_CTRL - MAA Control, Configuration and Status                          */
     __IO uint32_t maws;                                 /**< <tt>\b 0x0004</tt> MAA_MAWS - MAA Word (Operand) Size, Big/Little Endian Mode Select         */
 } mxc_maa_regs_t;
@@ -95,7 +95,7 @@ x * @{
  * @{
  */
 /**
- * Structure type to access the MAA Peripheral Module Memory Mapped Registers. 
+ * Structure type to access the MAA Peripheral Module Memory Mapped Registers.
  */
 typedef struct {
     __IO uint32_t seg0[32];                             /*  0x0000-0x007C   [128 bytes] MAA Memory Segment 0                                             */
@@ -136,7 +136,7 @@ typedef struct {
 /**
  * @ingroup    maa_registers
  * @defgroup   maa_ctrl MAA_CTRL
- * @brief      Field Positions and Masks 
+ * @brief      Field Positions and Masks
  */
 #define MXC_F_MAA_CTRL_START_POS                            0                                                             /**< START Position */
 #define MXC_F_MAA_CTRL_START                                ((uint32_t)(0x00000001UL << MXC_F_MAA_CTRL_START_POS))        /**< START Mask */
@@ -171,7 +171,7 @@ typedef struct {
 /**
  * @ingroup    maa_registers
  * @defgroup   maa_maws MAA_MAWS
- * @brief      Field Positions and Masks 
+ * @brief      Field Positions and Masks
  */
 #define MXC_F_MAA_MAWS_MODLEN_POS                           0                                                             /**< MODLEN Position */
 #define MXC_F_MAA_MAWS_MODLEN                               ((uint32_t)(0x000007FFUL << MXC_F_MAA_MAWS_MODLEN_POS))       /**< MODLEN Mask */

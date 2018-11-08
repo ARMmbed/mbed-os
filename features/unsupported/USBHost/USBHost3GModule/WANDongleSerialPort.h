@@ -43,11 +43,11 @@ public:
     */
     WANDongleSerialPort();
 
-    void init( USBHost* pHost );
+    void init(USBHost *pHost);
 
-    void connect( USBDeviceConnected* pDev, USBEndpoint* pInEp, USBEndpoint* pOutEp );
+    void connect(USBDeviceConnected *pDev, USBEndpoint *pInEp, USBEndpoint *pOutEp);
 
-    void disconnect( );
+    void disconnect();
 
     /*
     * Get a char from the dongle's serial interface
@@ -88,7 +88,7 @@ public:
      *
      *  @param pListener instance of the listener deriving from the IUSBHostSerialListener
      */
-    virtual void attach(IUSBHostSerialListener* pListener);
+    virtual void attach(IUSBHostSerialListener *pListener);
 
     /**
      * Enable or disable readable/writeable callbacks
@@ -97,10 +97,10 @@ public:
 
 
 protected:
-    USBEndpoint * bulk_in;
-    USBEndpoint * bulk_out;
-    USBHost * host;
-    USBDeviceConnected * dev;
+    USBEndpoint *bulk_in;
+    USBEndpoint *bulk_out;
+    USBHost *host;
+    USBDeviceConnected *dev;
 
     uint8_t buf_out[WANDONGLE_MAX_OUTEP_SIZE];
     volatile uint32_t buf_out_len;
@@ -118,7 +118,7 @@ protected:
     volatile bool cb_rx_pending;
     Mutex rx_mtx;
 
-    IUSBHostSerialListener* listener;
+    IUSBHostSerialListener *listener;
 
     void reset();
 

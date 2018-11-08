@@ -40,13 +40,13 @@
 #define __STM32F3xx_HAL_OPAMP_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
-    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) 
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal_def.h"
@@ -75,16 +75,16 @@
 #if defined(STM32F302xE) || \
     defined(STM32F302xC)
 
-HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPAMP_HandleTypeDef *hopamp2); 
+HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPAMP_HandleTypeDef *hopamp2);
 
 #endif /* STM32F302xE || */
-       /* STM32F302xC    */
+/* STM32F302xC    */
 
 #if defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F303xC) || defined(STM32F358xx) 
+    defined(STM32F303xC) || defined(STM32F358xx)
 HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPAMP_HandleTypeDef *hopamp2, OPAMP_HandleTypeDef *hopamp3, OPAMP_HandleTypeDef *hopamp4);
 #endif /* STM32F303xE || STM32F398xx || */
-       /* STM32F303xC || STM32F358xx    */
+/* STM32F303xC || STM32F358xx    */
 
 /**
   * @}
@@ -103,9 +103,9 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
   */
 
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
-       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+/* STM32F302xC || STM32F303xC || STM32F358xx || */
+/* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+/* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
 #ifdef __cplusplus
 }

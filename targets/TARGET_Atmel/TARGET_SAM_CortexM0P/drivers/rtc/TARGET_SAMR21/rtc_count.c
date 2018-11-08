@@ -330,7 +330,7 @@ enum status_code rtc_count_set_count(
     }
 
     /* Set count according to mode */
-    switch(module->mode) {
+    switch (module->mode) {
         case RTC_COUNT_MODE_32BIT:
             /* Write value to register. */
             rtc_module->MODE0.COUNT.reg = count_value;
@@ -339,7 +339,7 @@ enum status_code rtc_count_set_count(
 
         case RTC_COUNT_MODE_16BIT:
             /* Check if 16-bit value is provided. */
-            if(count_value > 0xffff) {
+            if (count_value > 0xffff) {
                 return STATUS_ERR_INVALID_ARG;
             }
 
@@ -377,7 +377,7 @@ uint32_t rtc_count_get_count(struct rtc_module *const module)
 
     /* Change of read method based on value of continuously_update value in
      * the configuration structure. */
-    if(!(module->continuously_update)) {
+    if (!(module->continuously_update)) {
         /* Request read on count register. */
         rtc_module->MODE0.READREQ.reg = RTC_READREQ_RREQ;
 

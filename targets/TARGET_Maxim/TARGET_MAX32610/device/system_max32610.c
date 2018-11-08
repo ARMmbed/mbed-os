@@ -100,7 +100,7 @@ void ICC_Enable(void)
 
     /* invalidate, wait, enable */
     MXC_ICC->invdt_all = 0xFFFF;
-    while(!(MXC_ICC->ctrl_stat & MXC_F_ICC_CTRL_STAT_READY));
+    while (!(MXC_ICC->ctrl_stat & MXC_F_ICC_CTRL_STAT_READY));
     MXC_ICC->ctrl_stat |= MXC_F_ICC_CTRL_STAT_ENABLE;
 
     /* must invalidate a second time for proper use */
@@ -136,9 +136,9 @@ void Trim_RO(void)
 
     SysTick->LOAD = 1635;   /* about 50ms, based on a 32KHz systick clock */
     SysTick->VAL = 0;
-    SysTick->CTRL = SysTick_CTRL_ENABLE_Msk;    /* Enable SysTick Timer */   
-    while(SysTick->VAL == 0);
-    while(!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk));
+    SysTick->CTRL = SysTick_CTRL_ENABLE_Msk;    /* Enable SysTick Timer */
+    while (SysTick->VAL == 0);
+    while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk));
     SysTick->CTRL = 0;
 
     trim = (MXC_ADCCFG->ro_cal0 & MXC_F_ADC_RO_CAL0_RO_TRM) >> (MXC_F_ADC_RO_CAL0_RO_TRM_POS + 2);

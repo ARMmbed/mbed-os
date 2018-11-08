@@ -81,21 +81,18 @@ static bool RTC_CheckDatetimeFormat(const rtc_datetime_t *datetime)
 
     /* Check year, month, hour, minute, seconds */
     if ((datetime->year < YEAR_RANGE_START) || (datetime->year > YEAR_RANGE_END) || (datetime->month > 12U) ||
-        (datetime->month < 1U) || (datetime->hour >= 24U) || (datetime->minute >= 60U) || (datetime->second >= 60U))
-    {
+            (datetime->month < 1U) || (datetime->hour >= 24U) || (datetime->minute >= 60U) || (datetime->second >= 60U)) {
         /* If not correct then error*/
         return false;
     }
 
     /* Adjust the days in February for a leap year */
-    if (!(datetime->year & 3U))
-    {
+    if (!(datetime->year & 3U)) {
         daysPerMonth[2] = 29U;
     }
 
     /* Check the validity of the day */
-    if (datetime->day > daysPerMonth[datetime->month])
-    {
+    if (datetime->day > daysPerMonth[datetime->month]) {
         return false;
     }
 
@@ -118,8 +115,7 @@ static uint32_t RTC_ConvertDatetimeToSeconds(const rtc_datetime_t *datetime)
      * represented in the hours, minutes and seconds field*/
     seconds += (datetime->day - 1);
     /* For leap year if month less than or equal to Febraury, decrement day counter*/
-    if ((!(datetime->year & 3U)) && (datetime->month <= 2U))
-    {
+    if ((!(datetime->year & 3U)) && (datetime->month <= 2U)) {
         seconds--;
     }
 
@@ -159,38 +155,29 @@ static void RTC_ConvertSecondsToDatetime(uint32_t seconds, rtc_datetime_t *datet
     /* Calculate year */
     daysInYear = DAYS_IN_A_YEAR;
     datetime->year = YEAR_RANGE_START;
-    while (days > daysInYear)
-    {
+    while (days > daysInYear) {
         /* Decrease day count by a year and increment year by 1 */
         days -= daysInYear;
         datetime->year++;
 
         /* Adjust the number of days for a leap year */
-        if (datetime->year & 3U)
-        {
+        if (datetime->year & 3U) {
             daysInYear = DAYS_IN_A_YEAR;
-        }
-        else
-        {
+        } else {
             daysInYear = DAYS_IN_A_YEAR + 1;
         }
     }
 
     /* Adjust the days in February for a leap year */
-    if (!(datetime->year & 3U))
-    {
+    if (!(datetime->year & 3U)) {
         daysPerMonth[2] = 29U;
     }
 
-    for (x = 1U; x <= 12U; x++)
-    {
-        if (days <= daysPerMonth[x])
-        {
+    for (x = 1U; x <= 12U; x++) {
+        if (days <= daysPerMonth[x]) {
             datetime->month = x;
             break;
-        }
-        else
-        {
+        } else {
             days -= daysPerMonth[x];
         }
     }
@@ -207,8 +194,7 @@ void RTC_Init(RTC_Type *base, const rtc_config_t *config)
     CLOCK_EnableClock(kCLOCK_Rtc0);
 
     /* Issue a software reset if timer is invalid */
-    if (RTC_GetStatusFlags(RTC) & kRTC_TimeInvalidFlag)
-    {
+    if (RTC_GetStatusFlags(RTC) & kRTC_TimeInvalidFlag) {
         RTC_Reset(RTC);
     }
 
@@ -248,8 +234,7 @@ status_t RTC_SetDatetime(RTC_Type *base, const rtc_datetime_t *datetime)
     assert(datetime);
 
     /* Return error if the time provided is not valid */
-    if (!(RTC_CheckDatetimeFormat(datetime)))
-    {
+    if (!(RTC_CheckDatetimeFormat(datetime))) {
         return kStatus_InvalidArgument;
     }
 
@@ -277,8 +262,7 @@ status_t RTC_SetAlarm(RTC_Type *base, const rtc_datetime_t *alarmTime)
     uint32_t currSeconds = 0;
 
     /* Return error if the alarm time provided is not valid */
-    if (!(RTC_CheckDatetimeFormat(alarmTime)))
-    {
+    if (!(RTC_CheckDatetimeFormat(alarmTime))) {
         return kStatus_InvalidArgument;
     }
 
@@ -288,8 +272,7 @@ status_t RTC_SetAlarm(RTC_Type *base, const rtc_datetime_t *alarmTime)
     currSeconds = base->TSR;
 
     /* Return error if the alarm time has passed */
-    if (alarmSeconds < currSeconds)
-    {
+    if (alarmSeconds < currSeconds) {
         return kStatus_Fail;
     }
 
@@ -314,24 +297,21 @@ void RTC_GetAlarm(RTC_Type *base, rtc_datetime_t *datetime)
 void RTC_ClearStatusFlags(RTC_Type *base, uint32_t mask)
 {
     /* The alarm flag is cleared by writing to the TAR register */
-    if (mask & kRTC_AlarmFlag)
-    {
+    if (mask & kRTC_AlarmFlag) {
         base->TAR = 0U;
     }
 
     /* The timer overflow flag is cleared by initializing the TSR register.
      * The time counter should be disabled for this write to be successful
      */
-    if (mask & kRTC_TimeOverflowFlag)
-    {
+    if (mask & kRTC_TimeOverflowFlag) {
         base->TSR = 1U;
     }
 
     /* The timer overflow flag is cleared by initializing the TSR register.
      * The time counter should be disabled for this write to be successful
      */
-    if (mask & kRTC_TimeInvalidFlag)
-    {
+    if (mask & kRTC_TimeInvalidFlag) {
         base->TSR = 1U;
     }
 }
@@ -354,8 +334,7 @@ void RTC_SetMonotonicCounter(RTC_Type *base, uint64_t counter)
 
 status_t RTC_IncrementMonotonicCounter(RTC_Type *base)
 {
-    if (base->SR & (RTC_SR_MOF_MASK | RTC_SR_TIF_MASK))
-    {
+    if (base->SR & (RTC_SR_MOF_MASK | RTC_SR_TIF_MASK)) {
         return kStatus_Fail;
     }
 

@@ -61,8 +61,7 @@
 #define DEBUG_CONSOLE_DEVICE_TYPE_FLEXCOMM 5U /*!< Debug console base on USBCDC. */
 
 /*! @brief Status group numbers. */
-enum _status_groups
-{
+enum _status_groups {
     kStatusGroup_Generic = 0,                 /*!< Group number for generic status codes. */
     kStatusGroup_FLASH = 1,                   /*!< Group number for FLASH status codes. */
     kStatusGroup_LPSPI = 4,                   /*!< Group number for LPSPI status codes. */
@@ -111,8 +110,7 @@ enum _status_groups
 };
 
 /*! @brief Generic status return codes. */
-enum _generic_status
-{
+enum _generic_status {
     kStatus_Success = MAKE_STATUS(kStatusGroup_Generic, 0),
     kStatus_Fail = MAKE_STATUS(kStatusGroup_Generic, 1),
     kStatus_ReadOnly = MAKE_STATUS(kStatusGroup_Generic, 2),
@@ -194,8 +192,7 @@ extern "C" {
  */
 static inline void EnableIRQ(IRQn_Type interrupt)
 {
-    if (NotAvail_IRQn == interrupt)
-    {
+    if (NotAvail_IRQn == interrupt) {
         return;
     }
 
@@ -216,8 +213,7 @@ static inline void EnableIRQ(IRQn_Type interrupt)
  */
 static inline void DisableIRQ(IRQn_Type interrupt)
 {
-    if (NotAvail_IRQn == interrupt)
-    {
+    if (NotAvail_IRQn == interrupt) {
         return;
     }
 

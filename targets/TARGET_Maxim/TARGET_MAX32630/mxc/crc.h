@@ -69,7 +69,7 @@ extern "C" {
  *    + CRC16_AddDataArray()
  *    + CRC32_AddData()
  *    + CRC32_AddDataArray()
- *      @note any data passed to the add methods of the peripheral is padded with zeros if it is less than 
+ *      @note any data passed to the add methods of the peripheral is padded with zeros if it is less than
  *      32-bits.
  * @endparblock
 */
@@ -96,7 +96,7 @@ void CRC16_Init(uint8_t CCITT_TRUE, uint8_t lilEndian);
 
 /**
  * @brief Initialize CRC clock and select byte order for CRC32.
- * 
+ *
  * @param lilEndian  byte order, little endian = 1, big endian = 0
  */
 void CRC32_Init(uint8_t lilEndian);
@@ -142,7 +142,7 @@ __STATIC_INLINE void CRC32_AddData(uint32_t data)
  *
  * @param data          pointer to array of data
  * @note  data is padded with zeros if less than 32bits
- * 
+ *
  * @param arrayLength   number of elements in array
  */
 __STATIC_INLINE void CRC16_AddDataArray(uint32_t *data, uint32_t arrayLength)

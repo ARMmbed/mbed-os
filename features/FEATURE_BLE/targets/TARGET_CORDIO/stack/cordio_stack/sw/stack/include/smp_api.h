@@ -38,38 +38,37 @@ extern "C" {
 **************************************************************************************************/
 
 /*! Event handler messages for SMP state machines */
-enum
-{
-  SMP_MSG_API_PAIR_REQ = 1,               /*! API pairing request */
-  SMP_MSG_API_PAIR_RSP,                   /*! API pairing response */
-  SMP_MSG_API_CANCEL_REQ,                 /*! API cancel request */
-  SMP_MSG_API_AUTH_RSP,                   /*! API pin response */
-  SMP_MSG_API_SECURITY_REQ,               /*! API security request */
-  SMP_MSG_CMD_PKT,                        /*! SMP command packet received */
-  SMP_MSG_CMD_PAIRING_FAILED,             /*! SMP pairing failed packet received */
-  SMP_MSG_DM_ENCRYPT_CMPL,                /*! Link encrypted */
-  SMP_MSG_DM_ENCRYPT_FAILED,              /*! Link encryption failed */
-  SMP_MSG_DM_CONN_CLOSE,                  /*! Connection closed */
-  SMP_MSG_WSF_AES_CMPL,                   /*! AES calculation complete */
-  SMP_MSG_INT_SEND_NEXT_KEY,              /*! Send next key to be distributed */
-  SMP_MSG_INT_MAX_ATTEMPTS,               /*! Maximum pairing attempts reached */
-  SMP_MSG_INT_PAIRING_CMPL,               /*! Pairing complete */
-  SMP_MSG_INT_TIMEOUT,                    /*! Pairing protocol timeout */
-  SMP_MSG_INT_LESC,                       /*! Pair with Secure Connections */
-  SMP_MSG_INT_LEGACY,                     /*! Pair with Legacy Security */
-  SMP_MSG_INT_JW_NC,                      /*! LESC Just-Works/Numeric Comparison pairing */
-  SMP_MSG_INT_PASSKEY,                    /*! LESC Passkey pairing */
-  SMP_MSG_INT_OOB,                        /*! LESC Out-of-Band Pairing */
-  SMP_MSG_API_USER_CONFIRM,               /*! User confirms valid numeric comparison */
-  SMP_MSG_API_USER_KEYPRESS,              /*! User keypress in passkey pairing */
-  SMP_MSG_API_KEYPRESS_CMPL,              /*! User keypress complete in passkey pairing */
-  SMP_MSG_WSF_ECC_CMPL,                   /*! WSF ECC operation complete */
-  SMP_MSG_INT_PK_NEXT,                    /*! Continue to next passkey bit */
-  SMP_MSG_INT_PK_CMPL,                    /*! Passkey operation complete */
-  SMP_MSG_WSF_CMAC_CMPL,                  /*! WSF CMAC operation complete */
-  SMP_MSG_DH_CHECK_FAILURE,               /*! WSF CMAC operation complete */
-  SMP_MSG_EARLY_CNF,                      /*! An early Confirm from the initiator in passkey pairing */
-  SMP_NUM_MSGS
+enum {
+    SMP_MSG_API_PAIR_REQ = 1,               /*! API pairing request */
+    SMP_MSG_API_PAIR_RSP,                   /*! API pairing response */
+    SMP_MSG_API_CANCEL_REQ,                 /*! API cancel request */
+    SMP_MSG_API_AUTH_RSP,                   /*! API pin response */
+    SMP_MSG_API_SECURITY_REQ,               /*! API security request */
+    SMP_MSG_CMD_PKT,                        /*! SMP command packet received */
+    SMP_MSG_CMD_PAIRING_FAILED,             /*! SMP pairing failed packet received */
+    SMP_MSG_DM_ENCRYPT_CMPL,                /*! Link encrypted */
+    SMP_MSG_DM_ENCRYPT_FAILED,              /*! Link encryption failed */
+    SMP_MSG_DM_CONN_CLOSE,                  /*! Connection closed */
+    SMP_MSG_WSF_AES_CMPL,                   /*! AES calculation complete */
+    SMP_MSG_INT_SEND_NEXT_KEY,              /*! Send next key to be distributed */
+    SMP_MSG_INT_MAX_ATTEMPTS,               /*! Maximum pairing attempts reached */
+    SMP_MSG_INT_PAIRING_CMPL,               /*! Pairing complete */
+    SMP_MSG_INT_TIMEOUT,                    /*! Pairing protocol timeout */
+    SMP_MSG_INT_LESC,                       /*! Pair with Secure Connections */
+    SMP_MSG_INT_LEGACY,                     /*! Pair with Legacy Security */
+    SMP_MSG_INT_JW_NC,                      /*! LESC Just-Works/Numeric Comparison pairing */
+    SMP_MSG_INT_PASSKEY,                    /*! LESC Passkey pairing */
+    SMP_MSG_INT_OOB,                        /*! LESC Out-of-Band Pairing */
+    SMP_MSG_API_USER_CONFIRM,               /*! User confirms valid numeric comparison */
+    SMP_MSG_API_USER_KEYPRESS,              /*! User keypress in passkey pairing */
+    SMP_MSG_API_KEYPRESS_CMPL,              /*! User keypress complete in passkey pairing */
+    SMP_MSG_WSF_ECC_CMPL,                   /*! WSF ECC operation complete */
+    SMP_MSG_INT_PK_NEXT,                    /*! Continue to next passkey bit */
+    SMP_MSG_INT_PK_CMPL,                    /*! Passkey operation complete */
+    SMP_MSG_WSF_CMAC_CMPL,                  /*! WSF CMAC operation complete */
+    SMP_MSG_DH_CHECK_FAILURE,               /*! WSF CMAC operation complete */
+    SMP_MSG_EARLY_CNF,                      /*! An early Confirm from the initiator in passkey pairing */
+    SMP_NUM_MSGS
 };
 
 /**************************************************************************************************
@@ -77,56 +76,50 @@ enum
 **************************************************************************************************/
 
 /*! Configurable parameters */
-typedef struct
-{
-  uint16_t            attemptTimeout;     /*! 'Repeated attempts' timeout in msec */
-  uint8_t             ioCap;              /*! I/O Capability */
-  uint8_t             minKeyLen;          /*! Minimum encryption key length */
-  uint8_t             maxKeyLen;          /*! Maximum encryption key length */
-  uint8_t             maxAttempts;        /*! Attempts to trigger 'repeated attempts' timeout */
-  uint8_t             auth;               /*! Device authentication requirements */
+typedef struct {
+    uint16_t            attemptTimeout;     /*! 'Repeated attempts' timeout in msec */
+    uint8_t             ioCap;              /*! I/O Capability */
+    uint8_t             minKeyLen;          /*! Minimum encryption key length */
+    uint8_t             maxKeyLen;          /*! Maximum encryption key length */
+    uint8_t             maxAttempts;        /*! Attempts to trigger 'repeated attempts' timeout */
+    uint8_t             auth;               /*! Device authentication requirements */
 } smpCfg_t;
 
 /*! Data type for SMP_MSG_API_PAIR_REQ and SMP_MSG_API_PAIR_RSP */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             oob;
-  uint8_t             auth;
-  uint8_t             iKeyDist;
-  uint8_t             rKeyDist;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             oob;
+    uint8_t             auth;
+    uint8_t             iKeyDist;
+    uint8_t             rKeyDist;
 } smpDmPair_t;
 
 /*! Data type for SMP_MSG_API_AUTH_RSP */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             authData[SMP_OOB_LEN];
-  uint8_t             authDataLen;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             authData[SMP_OOB_LEN];
+    uint8_t             authDataLen;
 } smpDmAuthRsp_t;
 
 /*! Data type for SMP_MSG_API_USER_KEYPRESS */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             keypress;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             keypress;
 } smpDmKeypress_t;
 
 /*! Data type for SMP_MSG_API_SECURITY_REQ */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             auth;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             auth;
 } smpDmSecurityReq_t;
 
 /*! Union SMP DM message data types */
-typedef union
-{
-  wsfMsgHdr_t         hdr;
-  smpDmPair_t         pair;
-  smpDmAuthRsp_t      authRsp;
-  smpDmSecurityReq_t  securityReq;
-  smpDmKeypress_t     keypress;
+typedef union {
+    wsfMsgHdr_t         hdr;
+    smpDmPair_t         pair;
+    smpDmAuthRsp_t      authRsp;
+    smpDmSecurityReq_t  securityReq;
+    smpDmKeypress_t     keypress;
 } smpDmMsg_t;
 
 /**************************************************************************************************

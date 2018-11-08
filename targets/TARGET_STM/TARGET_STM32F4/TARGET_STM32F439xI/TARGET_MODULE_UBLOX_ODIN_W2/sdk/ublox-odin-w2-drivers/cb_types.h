@@ -226,7 +226,7 @@
 #endif
 
 /**
- * Clears (set to zero) a bit or bits in a variable. 
+ * Clears (set to zero) a bit or bits in a variable.
  * @param variable The variable.
  * @param bit The bit or bits to clear
  */

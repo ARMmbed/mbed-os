@@ -30,14 +30,16 @@ static void ticker_init(void);
 static int us_ticker_inited = 0;
 static uint32_t clk_mhz;
 
-void us_ticker_init(void) {
-    if (us_ticker_inited)
+void us_ticker_init(void)
+{
+    if (us_ticker_inited) {
         return;
+    }
     us_ticker_inited = 1;
-    
+
     SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;   // Clock PIT
     PIT->MCR = 0;                       // Enable PIT
-    
+
     clk_mhz = bus_frequency() / 1000000;
 
     timer_init();
@@ -54,14 +56,16 @@ void us_ticker_init(void) {
 static volatile uint32_t msb_counter = 0;
 static uint32_t timer_ldval = 0;
 
-static void timer_isr(void) {
+static void timer_isr(void)
+{
     if (PIT_TIMER.TFLG == 1) {
         msb_counter++;
         PIT_TIMER.TFLG = 1;
     }
 }
 
-static void timer_init(void) {  
+static void timer_init(void)
+{
     //CLZ counts the leading zeros, returning number of bits not used by clk_mhz
     timer_ldval = clk_mhz << __CLZ(clk_mhz);
 
@@ -73,15 +77,17 @@ static void timer_init(void) {
     NVIC_EnableIRQ(PIT_TIMER_IRQ);
 }
 
-uint32_t us_ticker_read() {
-    if (!us_ticker_inited)
+uint32_t us_ticker_read()
+{
+    if (!us_ticker_inited) {
         us_ticker_init();
-        
+    }
+
     uint32_t retval;
-    __disable_irq(); 
+    __disable_irq();
     retval = (timer_ldval - PIT_TIMER.CVAL) / clk_mhz; //Hardware bits
     retval |= msb_counter << __CLZ(clk_mhz);           //Software bits
-    
+
     if (PIT_TIMER.TFLG == 1) {                         //If overflow bit is set, force it to be handled
         timer_isr();                                   //Handle IRQ, read again to make sure software/hardware bits are synced
         NVIC_ClearPendingIRQ(PIT_TIMER_IRQ);
@@ -101,29 +107,34 @@ uint32_t us_ticker_read() {
  ******************************************************************************/
 static void ticker_isr(void);
 
-static void ticker_init(void) {
+static void ticker_init(void)
+{
     /* Set interrupt handler */
     NVIC_SetVector(PIT_TICKER_IRQ, (uint32_t)ticker_isr);
     NVIC_EnableIRQ(PIT_TICKER_IRQ);
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
     PIT_TICKER.TCTRL &= ~PIT_TCTRL_TIE_MASK;
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
     // we already clear interrupt in lptmr_isr
 }
 
 static uint32_t us_ticker_int_counter = 0;
 
-inline static void ticker_set(uint32_t count) {
+inline static void ticker_set(uint32_t count)
+{
     PIT_TICKER.TCTRL = 0;
     PIT_TICKER.LDVAL = count;
     PIT_TICKER.TCTRL = PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK;
 }
 
-static void ticker_isr(void) {
+static void ticker_isr(void)
+{
     // Clear IRQ flag
     PIT_TICKER.TFLG = 1;
 
@@ -137,14 +148,15 @@ static void ticker_isr(void) {
     }
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
     uint32_t delta = timestamp - us_ticker_read();
     //Calculate how much falls outside the 32-bit after multiplying with clk_mhz
     //We shift twice 16-bit to keep everything within the 32-bit variable
     us_ticker_int_counter = (uint32_t)(delta >> 16);
     us_ticker_int_counter *= clk_mhz;
     us_ticker_int_counter >>= 16;
-    
+
     uint32_t us_ticker_int_remainder = (uint32_t)delta * clk_mhz;
     if (us_ticker_int_remainder == 0) {
         ticker_set(0xFFFFFFFF);

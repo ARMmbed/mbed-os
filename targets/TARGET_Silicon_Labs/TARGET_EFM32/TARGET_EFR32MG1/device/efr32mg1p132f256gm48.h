@@ -49,45 +49,44 @@ extern "C" {
  *****************************************************************************/
 
 /** Interrupt Number Definition */
-typedef enum IRQn
-{
-/******  Cortex-M4 Processor Exceptions Numbers ********************************************/
-  NonMaskableInt_IRQn   = -14,              /*!< -14 Cortex-M4 Non Maskable Interrupt      */
-  HardFault_IRQn        = -13,              /*!< -13 Cortex-M4 Hard Fault Interrupt        */
-  MemoryManagement_IRQn = -12,              /*!< -12 Cortex-M4 Memory Management Interrupt */
-  BusFault_IRQn         = -11,              /*!< -11 Cortex-M4 Bus Fault Interrupt         */
-  UsageFault_IRQn       = -10,              /*!< -10 Cortex-M4 Usage Fault Interrupt       */
-  SVCall_IRQn           = -5,               /*!< -5  Cortex-M4 SV Call Interrupt           */
-  DebugMonitor_IRQn     = -4,               /*!< -4  Cortex-M4 Debug Monitor Interrupt     */
-  PendSV_IRQn           = -2,               /*!< -2  Cortex-M4 Pend SV Interrupt           */
-  SysTick_IRQn          = -1,               /*!< -1  Cortex-M4 System Tick Interrupt       */
+typedef enum IRQn {
+    /******  Cortex-M4 Processor Exceptions Numbers ********************************************/
+    NonMaskableInt_IRQn   = -14,              /*!< -14 Cortex-M4 Non Maskable Interrupt      */
+    HardFault_IRQn        = -13,              /*!< -13 Cortex-M4 Hard Fault Interrupt        */
+    MemoryManagement_IRQn = -12,              /*!< -12 Cortex-M4 Memory Management Interrupt */
+    BusFault_IRQn         = -11,              /*!< -11 Cortex-M4 Bus Fault Interrupt         */
+    UsageFault_IRQn       = -10,              /*!< -10 Cortex-M4 Usage Fault Interrupt       */
+    SVCall_IRQn           = -5,               /*!< -5  Cortex-M4 SV Call Interrupt           */
+    DebugMonitor_IRQn     = -4,               /*!< -4  Cortex-M4 Debug Monitor Interrupt     */
+    PendSV_IRQn           = -2,               /*!< -2  Cortex-M4 Pend SV Interrupt           */
+    SysTick_IRQn          = -1,               /*!< -1  Cortex-M4 System Tick Interrupt       */
 
-/******  EFR32MG1P Peripheral Interrupt Numbers ********************************************/
+    /******  EFR32MG1P Peripheral Interrupt Numbers ********************************************/
 
-  EMU_IRQn              = 0,  /*!< 0 EFR32 EMU Interrupt */
-  WDOG0_IRQn            = 2,  /*!< 2 EFR32 WDOG0 Interrupt */
-  LDMA_IRQn             = 8,  /*!< 8 EFR32 LDMA Interrupt */
-  GPIO_EVEN_IRQn        = 9,  /*!< 9 EFR32 GPIO_EVEN Interrupt */
-  TIMER0_IRQn           = 10, /*!< 10 EFR32 TIMER0 Interrupt */
-  USART0_RX_IRQn        = 11, /*!< 11 EFR32 USART0_RX Interrupt */
-  USART0_TX_IRQn        = 12, /*!< 12 EFR32 USART0_TX Interrupt */
-  ACMP0_IRQn            = 13, /*!< 13 EFR32 ACMP0 Interrupt */
-  ADC0_IRQn             = 14, /*!< 14 EFR32 ADC0 Interrupt */
-  IDAC0_IRQn            = 15, /*!< 15 EFR32 IDAC0 Interrupt */
-  I2C0_IRQn             = 16, /*!< 16 EFR32 I2C0 Interrupt */
-  GPIO_ODD_IRQn         = 17, /*!< 17 EFR32 GPIO_ODD Interrupt */
-  TIMER1_IRQn           = 18, /*!< 18 EFR32 TIMER1 Interrupt */
-  USART1_RX_IRQn        = 19, /*!< 19 EFR32 USART1_RX Interrupt */
-  USART1_TX_IRQn        = 20, /*!< 20 EFR32 USART1_TX Interrupt */
-  LEUART0_IRQn          = 21, /*!< 21 EFR32 LEUART0 Interrupt */
-  PCNT0_IRQn            = 22, /*!< 22 EFR32 PCNT0 Interrupt */
-  CMU_IRQn              = 23, /*!< 23 EFR32 CMU Interrupt */
-  MSC_IRQn              = 24, /*!< 24 EFR32 MSC Interrupt */
-  CRYPTO_IRQn           = 25, /*!< 25 EFR32 CRYPTO Interrupt */
-  LETIMER0_IRQn         = 26, /*!< 26 EFR32 LETIMER0 Interrupt */
-  RTCC_IRQn             = 29, /*!< 29 EFR32 RTCC Interrupt */
-  CRYOTIMER_IRQn        = 31, /*!< 31 EFR32 CRYOTIMER Interrupt */
-  FPUEH_IRQn            = 33, /*!< 33 EFR32 FPUEH Interrupt */
+    EMU_IRQn              = 0,  /*!< 0 EFR32 EMU Interrupt */
+    WDOG0_IRQn            = 2,  /*!< 2 EFR32 WDOG0 Interrupt */
+    LDMA_IRQn             = 8,  /*!< 8 EFR32 LDMA Interrupt */
+    GPIO_EVEN_IRQn        = 9,  /*!< 9 EFR32 GPIO_EVEN Interrupt */
+    TIMER0_IRQn           = 10, /*!< 10 EFR32 TIMER0 Interrupt */
+    USART0_RX_IRQn        = 11, /*!< 11 EFR32 USART0_RX Interrupt */
+    USART0_TX_IRQn        = 12, /*!< 12 EFR32 USART0_TX Interrupt */
+    ACMP0_IRQn            = 13, /*!< 13 EFR32 ACMP0 Interrupt */
+    ADC0_IRQn             = 14, /*!< 14 EFR32 ADC0 Interrupt */
+    IDAC0_IRQn            = 15, /*!< 15 EFR32 IDAC0 Interrupt */
+    I2C0_IRQn             = 16, /*!< 16 EFR32 I2C0 Interrupt */
+    GPIO_ODD_IRQn         = 17, /*!< 17 EFR32 GPIO_ODD Interrupt */
+    TIMER1_IRQn           = 18, /*!< 18 EFR32 TIMER1 Interrupt */
+    USART1_RX_IRQn        = 19, /*!< 19 EFR32 USART1_RX Interrupt */
+    USART1_TX_IRQn        = 20, /*!< 20 EFR32 USART1_TX Interrupt */
+    LEUART0_IRQn          = 21, /*!< 21 EFR32 LEUART0 Interrupt */
+    PCNT0_IRQn            = 22, /*!< 22 EFR32 PCNT0 Interrupt */
+    CMU_IRQn              = 23, /*!< 23 EFR32 CMU Interrupt */
+    MSC_IRQn              = 24, /*!< 24 EFR32 MSC Interrupt */
+    CRYPTO_IRQn           = 25, /*!< 25 EFR32 CRYPTO Interrupt */
+    LETIMER0_IRQn         = 26, /*!< 26 EFR32 LETIMER0 Interrupt */
+    RTCC_IRQn             = 29, /*!< 29 EFR32 RTCC Interrupt */
+    CRYOTIMER_IRQn        = 31, /*!< 31 EFR32 CRYOTIMER Interrupt */
+    FPUEH_IRQn            = 33, /*!< 33 EFR32 FPUEH Interrupt */
 } IRQn_Type;
 
 /**************************************************************************//**

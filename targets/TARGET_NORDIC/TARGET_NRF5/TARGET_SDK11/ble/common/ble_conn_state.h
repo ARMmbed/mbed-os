@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -74,8 +74,7 @@
 
 /**@brief Connection handle statuses.
  */
-typedef enum
-{
+typedef enum {
     BLE_CONN_STATUS_INVALID,       /**< The connection handle is invalid. */
     BLE_CONN_STATUS_DISCONNECTED,  /**< The connection handle refers to a connection that has been disconnected, but not yet invalidated. */
     BLE_CONN_STATUS_CONNECTED,     /**< The connection handle refers to an active connection. */
@@ -88,8 +87,7 @@ typedef enum
  *
  * @details These IDs are used to identify user flag collections in the API calls.
  */
-typedef enum
-{
+typedef enum {
     BLE_CONN_STATE_USER_FLAG0 = 0,
     BLE_CONN_STATE_USER_FLAG1,
     BLE_CONN_STATE_USER_FLAG2,
@@ -135,7 +133,7 @@ void ble_conn_state_init(void);
  *
  * @param[in]  p_ble_evt    The SoftDevice event.
  */
-void ble_conn_state_on_ble_evt(ble_evt_t * p_ble_evt);
+void ble_conn_state_on_ble_evt(ble_evt_t *p_ble_evt);
 
 
 /**@brief Function for querying whether a connection handle represents a valid connection.

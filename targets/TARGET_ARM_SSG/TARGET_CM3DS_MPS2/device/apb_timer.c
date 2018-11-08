@@ -44,7 +44,7 @@ typedef struct {
 static apb_timer_t Timers[NUM_TIMERS];
 
 void Timer_Index_Init(uint32_t timer, uint32_t reload,
-    CMSDK_TIMER_TypeDef *TimerN, uint32_t IRQn)
+                      CMSDK_TIMER_TypeDef *TimerN, uint32_t IRQn)
 {
     Timers[timer].timerN = TimerN;
     Timers[timer].timerIRQn = IRQn;

@@ -43,38 +43,45 @@
 #include "MaximGattClient.h"
 #include "MaximSecurityManager.h"
 
-class MaximBLE : public BLEInstanceBase
-{
+class MaximBLE : public BLEInstanceBase {
 public:
     MaximBLE(void);
     virtual ~MaximBLE(void);
 
     virtual ble_error_t init(BLE::InstanceID_t instanceID, FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext *> initCallback);
-    virtual bool        hasInitialized(void) const {
+    virtual bool        hasInitialized(void) const
+    {
         return initialized;
     }
     virtual ble_error_t shutdown(void);
     virtual const char *getVersion(void);
 
-    virtual Gap &getGap() {
+    virtual Gap &getGap()
+    {
         return MaximGap::getInstance();
     };
-    virtual const Gap &getGap() const {
+    virtual const Gap &getGap() const
+    {
         return MaximGap::getInstance();
     };
-    virtual GattServer &getGattServer() {
+    virtual GattServer &getGattServer()
+    {
         return MaximGattServer::getInstance();
     };
-    virtual const GattServer &getGattServer() const {
+    virtual const GattServer &getGattServer() const
+    {
         return MaximGattServer::getInstance();
     };
-    virtual GattClient &getGattClient() {
+    virtual GattClient &getGattClient()
+    {
         return MaximGattClient::getInstance();
     };
-    virtual SecurityManager &getSecurityManager() {
+    virtual SecurityManager &getSecurityManager()
+    {
         return MaximSecurityManager::getInstance();
     };
-    virtual const SecurityManager &getSecurityManager() const {
+    virtual const SecurityManager &getSecurityManager() const
+    {
         return MaximSecurityManager::getInstance();
     };
 

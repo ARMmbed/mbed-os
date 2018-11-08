@@ -54,8 +54,7 @@
 #define PDS_STORE_TOKEN_INVALID   0
 
 
-typedef enum
-{
+typedef enum {
     peer_id_to_instance_id  = 16384,
     instance_id_to_peer_id  = -peer_id_to_instance_id,
     peer_data_id_to_type_id = 32768,
@@ -65,8 +64,7 @@ typedef enum
 
 /**@brief The types of events that can come from the peer_data_storage module.
  */
-typedef enum
-{
+typedef enum {
     PDS_EVT_STORED,                 /**< The specified data has been successfully stored. */
     PDS_EVT_CLEARED,                /**< The specified data has been successfully cleared. */
     PDS_EVT_PEER_ID_CLEAR,          /**< The peer id has been successfully cleared. */
@@ -79,8 +77,7 @@ typedef enum
 
 /**@brief Events that can come from the peer_data_storage module.
  */
-typedef struct
-{
+typedef struct {
     pds_evt_id_t      evt_id;       /**< The type of event. */
     pm_peer_id_t      peer_id;      /**< The peer the event pertains to. */
     pm_peer_data_id_t data_id;      /**< The data the event pertains to. */
@@ -94,7 +91,7 @@ typedef struct
  * @param[in]  peer_id  The id of the peer the event pertains to.
  * @param[in]  flags    The data the event pertains to.
  */
-typedef void (*pds_evt_handler_t)(pds_evt_t const * p_event);
+typedef void (*pds_evt_handler_t)(pds_evt_t const *p_event);
 
 
 /**@brief Function for registering for events from the peer database.
@@ -141,8 +138,8 @@ ret_code_t pds_init(pds_evt_handler_t evt_handler);
  */
 ret_code_t pds_peer_data_read_ptr_get(pm_peer_id_t            peer_id,
                                       pm_peer_data_id_t       data_id,
-                                      pm_peer_data_flash_t  * p_data,
-                                      pm_store_token_t      * p_token);
+                                      pm_peer_data_flash_t   *p_data,
+                                      pm_store_token_t       *p_token);
 
 /**@brief Function to lock the flash data (to defer compression from invalidating data)
  *
@@ -182,8 +179,8 @@ ret_code_t  pds_peer_data_verify(pm_store_token_t store_token);
  */
 ret_code_t pds_peer_data_read(pm_peer_id_t          peer_id,
                               pm_peer_data_id_t     data_id,
-                              pm_peer_data_t      * p_data,
-                              fds_length_t        * p_len_words);
+                              pm_peer_data_t       *p_data,
+                              fds_length_t         *p_len_words);
 
 
 /**@brief Function for preparing persistent storage for a write.
@@ -203,8 +200,8 @@ ret_code_t pds_peer_data_read(pm_peer_id_t          peer_id,
  * @retval NRF_ERROR_NO_MEM          No space available in persistent storage.
  * @retval NRF_ERROR_INVALID_STATE   Module is not initialized.
  */
-ret_code_t pds_peer_data_write_prepare(pm_peer_data_const_t const * p_peer_data,
-                                       pm_prepare_token_t         * p_prepare_token);
+ret_code_t pds_peer_data_write_prepare(pm_peer_data_const_t const *p_peer_data,
+                                       pm_prepare_token_t          *p_prepare_token);
 
 
 /**@brief Function for undoing a previous call to @ref pds_peer_data_write_prepare.
@@ -242,9 +239,9 @@ ret_code_t pds_peer_data_write_prepare_cancel(pm_prepare_token_t prepare_token);
  * @retval NRF_ERROR_INVALID_STATE   Module is not initialized.
  */
 ret_code_t pds_peer_data_write_prepared(pm_peer_id_t                    peer_id,
-                                        pm_peer_data_const_t    const * p_peer_data,
+                                        pm_peer_data_const_t    const *p_peer_data,
                                         pm_prepare_token_t              prepare_token,
-                                        pm_store_token_t              * p_store_token);
+                                        pm_store_token_t               *p_store_token);
 
 
 /**@brief Function for writing peer data to persistent storage.
@@ -267,8 +264,8 @@ ret_code_t pds_peer_data_write_prepared(pm_peer_id_t                    peer_id,
  * @retval NRF_ERROR_INVALID_STATE   Module is not initialized.
  */
 ret_code_t pds_peer_data_write(pm_peer_id_t                 peer_id,
-                               pm_peer_data_const_t const * p_peer_data,
-                               pm_store_token_t           * p_store_token);
+                               pm_peer_data_const_t const *p_peer_data,
+                               pm_store_token_t            *p_store_token);
 
 
 /**@brief Function for updating currently stored peer data to a new version
@@ -291,9 +288,9 @@ ret_code_t pds_peer_data_write(pm_peer_id_t                 peer_id,
  * @retval NRF_ERROR_INVALID_STATE  Module is not initialized.
  */
 ret_code_t pds_peer_data_update(pm_peer_id_t                 peer_id,
-                                pm_peer_data_const_t const * peer_data,
+                                pm_peer_data_const_t const *peer_data,
                                 pm_store_token_t             old_token,
-                                pm_store_token_t           * p_store_token);
+                                pm_store_token_t            *p_store_token);
 
 
 /**@brief Function for clearing peer data from persistent storage.

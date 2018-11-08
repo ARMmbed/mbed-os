@@ -54,23 +54,20 @@
 #endif
 
 /*! @brief Return status for the SPI driver.*/
-enum _spi_status
-{
+enum _spi_status {
     kStatus_SPI_Busy = MAKE_STATUS(kStatusGroup_SPI, 0), /*!< SPI bus is busy */
     kStatus_SPI_Idle = MAKE_STATUS(kStatusGroup_SPI, 1), /*!< SPI is idle */
     kStatus_SPI_Error = MAKE_STATUS(kStatusGroup_SPI, 2) /*!< SPI  error */
 };
 
 /*! @brief SPI clock polarity configuration.*/
-typedef enum _spi_clock_polarity
-{
+typedef enum _spi_clock_polarity {
     kSPI_ClockPolarityActiveHigh = 0x0U, /*!< Active-high SPI clock (idles low). */
     kSPI_ClockPolarityActiveLow          /*!< Active-low SPI clock (idles high). */
 } spi_clock_polarity_t;
 
 /*! @brief SPI clock phase configuration.*/
-typedef enum _spi_clock_phase
-{
+typedef enum _spi_clock_phase {
     kSPI_ClockPhaseFirstEdge = 0x0U, /*!< First edge on SPSCK occurs at the middle of the first
                                       *   cycle of a data transfer. */
     kSPI_ClockPhaseSecondEdge        /*!< First edge on SPSCK occurs at the start of the
@@ -78,23 +75,20 @@ typedef enum _spi_clock_phase
 } spi_clock_phase_t;
 
 /*! @brief SPI data shifter direction options.*/
-typedef enum _spi_shift_direction
-{
+typedef enum _spi_shift_direction {
     kSPI_MsbFirst = 0x0U, /*!< Data transfers start with most significant bit. */
     kSPI_LsbFirst         /*!< Data transfers start with least significant bit. */
 } spi_shift_direction_t;
 
 /*! @brief SPI slave select output mode options.*/
-typedef enum _spi_ss_output_mode
-{
+typedef enum _spi_ss_output_mode {
     kSPI_SlaveSelectAsGpio = 0x0U,         /*!< Slave select pin configured as GPIO. */
     kSPI_SlaveSelectFaultInput = 0x2U,     /*!< Slave select pin configured for fault detection. */
     kSPI_SlaveSelectAutomaticOutput = 0x3U /*!< Slave select pin configured for automatic SPI output. */
 } spi_ss_output_mode_t;
 
 /*! @brief SPI pin mode options.*/
-typedef enum _spi_pin_mode
-{
+typedef enum _spi_pin_mode {
     kSPI_PinModeNormal = 0x0U, /*!< Pins operate in normal, single-direction mode.*/
     kSPI_PinModeInput = 0x1U,  /*!< Bidirectional mode. Master: MOSI pin is input;
                                 *   Slave: MISO pin is input. */
@@ -103,15 +97,13 @@ typedef enum _spi_pin_mode
 } spi_pin_mode_t;
 
 /*! @brief SPI data length mode options.*/
-typedef enum _spi_data_bitcount_mode
-{
+typedef enum _spi_data_bitcount_mode {
     kSPI_8BitMode = 0x0U, /*!< 8-bit data transmission mode*/
     kSPI_16BitMode        /*!< 16-bit data transmission mode*/
 } spi_data_bitcount_mode_t;
 
 /*! @brief SPI interrupt sources.*/
-enum _spi_interrupt_enable
-{
+enum _spi_interrupt_enable {
     kSPI_RxFullAndModfInterruptEnable = 0x1U, /*!< Receive buffer full (SPRF) and mode fault (MODF) interrupt */
     kSPI_TxEmptyInterruptEnable = 0x2U,       /*!< Transmit buffer empty interrupt */
     kSPI_MatchInterruptEnable = 0x4U,         /*!< Match interrupt */
@@ -122,8 +114,7 @@ enum _spi_interrupt_enable
 };
 
 /*! @brief SPI status flags.*/
-enum _spi_flags
-{
+enum _spi_flags {
     kSPI_RxBufferFullFlag = SPI_S_SPRF_MASK,   /*!< Read buffer full flag */
     kSPI_MatchFlag = SPI_S_SPMF_MASK,          /*!< Match flag */
     kSPI_TxBufferEmptyFlag = SPI_S_SPTEF_MASK, /*!< Transmit buffer empty flag */
@@ -142,8 +133,7 @@ enum _spi_flags
 
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
 /*! @brief SPI FIFO write-1-to-clear interrupt flags.*/
-typedef enum _spi_w1c_interrupt
-{
+typedef enum _spi_w1c_interrupt {
     kSPI_RxFifoFullClearInterrupt = SPI_CI_SPRFCI_MASK,    /*!< Receive FIFO full interrupt */
     kSPI_TxFifoEmptyClearInterrupt = SPI_CI_SPTEFCI_MASK,  /*!< Transmit FIFO empty interrupt */
     kSPI_RxNearFullClearInterrupt = SPI_CI_RNFULLFCI_MASK, /*!< Receive FIFO nearly full interrupt */
@@ -151,15 +141,13 @@ typedef enum _spi_w1c_interrupt
 } spi_w1c_interrupt_t;
 
 /*! @brief SPI TX FIFO watermark settings.*/
-typedef enum _spi_txfifo_watermark
-{
+typedef enum _spi_txfifo_watermark {
     kSPI_TxFifoOneFourthEmpty = 0, /*!< SPI tx watermark at 1/4 FIFO size */
     kSPI_TxFifoOneHalfEmpty = 1    /*!< SPI tx watermark at 1/2 FIFO size */
 } spi_txfifo_watermark_t;
 
 /*! @brief SPI RX FIFO watermark settings.*/
-typedef enum _spi_rxfifo_watermark
-{
+typedef enum _spi_rxfifo_watermark {
     kSPI_RxFifoThreeFourthsFull = 0, /*!< SPI rx watermark at 3/4 FIFO size */
     kSPI_RxFifoOneHalfFull = 1       /*!< SPI rx watermark at 1/2 FIFO size */
 } spi_rxfifo_watermark_t;
@@ -167,8 +155,7 @@ typedef enum _spi_rxfifo_watermark
 
 #if defined(FSL_FEATURE_SPI_HAS_DMA_SUPPORT) && FSL_FEATURE_SPI_HAS_DMA_SUPPORT
 /*! @brief SPI DMA source*/
-enum _spi_dma_enable_t
-{
+enum _spi_dma_enable_t {
     kSPI_TxDmaEnable = SPI_C2_TXDMAE_MASK,                        /*!< Tx DMA request source */
     kSPI_RxDmaEnable = SPI_C2_RXDMAE_MASK,                        /*!< Rx DMA request source */
     kSPI_DmaAllEnable = (SPI_C2_TXDMAE_MASK | SPI_C2_RXDMAE_MASK) /*!< All DMA request source*/
@@ -176,8 +163,7 @@ enum _spi_dma_enable_t
 #endif /* FSL_FEATURE_SPI_HAS_DMA_SUPPORT */
 
 /*! @brief SPI master user configure structure.*/
-typedef struct _spi_master_config
-{
+typedef struct _spi_master_config {
     bool enableMaster;               /*!< Enable SPI at initialization time */
     bool enableStopInWaitMode;       /*!< SPI stop in wait mode */
     spi_clock_polarity_t polarity;   /*!< Clock polarity */
@@ -196,8 +182,7 @@ typedef struct _spi_master_config
 } spi_master_config_t;
 
 /*! @brief SPI slave user configure structure.*/
-typedef struct _spi_slave_config
-{
+typedef struct _spi_slave_config {
     bool enableSlave;                /*!< Enable SPI at initialization time */
     bool enableStopInWaitMode;       /*!< SPI stop in wait mode */
     spi_clock_polarity_t polarity;   /*!< Clock polarity */
@@ -213,8 +198,7 @@ typedef struct _spi_slave_config
 } spi_slave_config_t;
 
 /*! @brief SPI transfer structure */
-typedef struct _spi_transfer
-{
+typedef struct _spi_transfer {
     uint8_t *txData; /*!< Send buffer */
     uint8_t *rxData; /*!< Receive buffer */
     size_t dataSize; /*!< Transfer bytes */
@@ -233,8 +217,7 @@ typedef void (*spi_master_callback_t)(SPI_Type *base, spi_master_handle_t *handl
 typedef void (*spi_slave_callback_t)(SPI_Type *base, spi_slave_handle_t *handle, status_t status, void *userData);
 
 /*! @brief SPI transfer handle structure */
-struct _spi_master_handle
-{
+struct _spi_master_handle {
     uint8_t *volatile txData;         /*!< Transfer buffer */
     uint8_t *volatile rxData;         /*!< Receive buffer */
     volatile size_t txRemainingBytes; /*!< Send data remaining in bytes */
@@ -350,12 +333,9 @@ void SPI_Deinit(SPI_Type *base);
  */
 static inline void SPI_Enable(SPI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->C1 |= SPI_C1_SPE_MASK;
-    }
-    else
-    {
+    } else {
         base->C1 &= ~SPI_C1_SPE_MASK;
     }
 }
@@ -443,12 +423,9 @@ void SPI_DisableInterrupts(SPI_Type *base, uint32_t mask);
  */
 static inline void SPI_EnableDMA(SPI_Type *base, uint32_t mask, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->C2 |= mask;
-    }
-    else
-    {
+    } else {
         base->C2 &= ~mask;
     }
 }
@@ -636,8 +613,8 @@ void SPI_MasterTransferHandleIRQ(SPI_Type *base, spi_master_handle_t *handle);
  * @param userData User data.
  */
 void SPI_SlaveTransferCreateHandle(SPI_Type *base,
-                                                 spi_slave_handle_t *handle,
-                                                 spi_slave_callback_t callback,
+                                   spi_slave_handle_t *handle,
+                                   spi_slave_callback_t callback,
                                    void *userData);
 
 /*!

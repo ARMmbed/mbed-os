@@ -58,12 +58,12 @@ extern "C" {
  * @{
  */
 
-/** 
- * @def Definition to clear all WDT2 flags 
+/**
+ * @def Definition to clear all WDT2 flags
  */
 #define WDT2_FLAGS_CLEAR_ALL                 (MXC_F_WDT2_FLAGS_TIMEOUT | MXC_F_WDT2_FLAGS_RESET_OUT)
 /**
- * Enumeration type to select the Watchdog Timer's Period 
+ * Enumeration type to select the Watchdog Timer's Period
  */
 typedef enum {
     WDT2_PERIOD_2_25_CLKS  = MXC_V_WDT2_CTRL_INT_PERIOD_2_25_NANO_CLKS, /**< \f$ 2^{25}\f$ Nano Ring clocks. */

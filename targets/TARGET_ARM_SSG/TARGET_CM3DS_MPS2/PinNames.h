@@ -23,8 +23,8 @@ extern "C" {
 #endif
 
 typedef enum {
-        PIN_INPUT,
-        PIN_OUTPUT
+    PIN_INPUT,
+    PIN_OUTPUT
 } PinDirection;
 
 #define PORT_SHIFT  5

@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-SECTIONS
-{
+SECTIONS {
     __vectors_table = 0x0;
     Reset_Handler = 0x101;
     NMI_Handler = 0x109;

@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- #ifndef MBED_DMA_API_HAL_H
+#ifndef MBED_DMA_API_HAL_H
 #define MBED_DMA_API_HAL_H
 
 #include "dma_api.h"

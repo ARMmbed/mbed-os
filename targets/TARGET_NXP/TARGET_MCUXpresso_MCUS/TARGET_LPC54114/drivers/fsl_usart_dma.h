@@ -57,8 +57,7 @@ typedef void (*usart_dma_transfer_callback_t)(USART_Type *base,
 /*!
 * @brief UART DMA handle
 */
-struct _usart_dma_handle
-{
+struct _usart_dma_handle {
     USART_Type *base; /*!< UART peripheral base address. */
 
     usart_dma_transfer_callback_t callback; /*!< Callback function. */

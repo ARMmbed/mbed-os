@@ -41,7 +41,7 @@ void gpio_init(gpio_t *obj, PinName pin)
     // Store above pin mask, pin name into GPIO object
     obj->pin      = pin;
     obj->mask     = gpio_set(pin);
-    obj->port     = (GPIO_Port) (pin >> 3);
+    obj->port     = (GPIO_Port)(pin >> 3);
     if ((PortName)obj->port == PortH) {
         CG_SetFcPeriphA(CG_FC_PERIPH_PORTH, ENABLE);
     }

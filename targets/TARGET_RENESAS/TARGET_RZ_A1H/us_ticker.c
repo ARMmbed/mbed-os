@@ -36,12 +36,16 @@ static uint64_t ticker_us_last64 = 0;
 static uint64_t set_cmp_val64 = 0;
 static uint64_t timestamp64 = 0;
 
-void us_ticker_interrupt(void) {
+void us_ticker_interrupt(void)
+{
     us_ticker_irq_handler();
 }
 
-void us_ticker_init(void) {
-    if (us_ticker_inited) return;
+void us_ticker_init(void)
+{
+    if (us_ticker_inited) {
+        return;
+    }
     us_ticker_inited = 1;
 
     /* set Counter Clock(us) */
@@ -67,12 +71,14 @@ void us_ticker_init(void) {
     GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
-static uint64_t ticker_read_counter64(void) {
+static uint64_t ticker_read_counter64(void)
+{
     uint32_t cnt_val;
     uint64_t cnt_val64;
 
-    if (!us_ticker_inited)
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     /* read counter */
     cnt_val = OSTM1CNT;
@@ -85,7 +91,8 @@ static uint64_t ticker_read_counter64(void) {
     return cnt_val64;
 }
 
-static void us_ticker_read_last(void) {
+static void us_ticker_read_last(void)
+{
     uint64_t cnt_val64;
 
     cnt_val64        = ticker_read_counter64();
@@ -93,7 +100,8 @@ static void us_ticker_read_last(void) {
     ticker_us_last64 = (cnt_val64 / count_clock);
 }
 
-uint32_t us_ticker_read() {
+uint32_t us_ticker_read()
+{
     core_util_critical_section_enter();
 
     __vfp_neon_push();
@@ -106,11 +114,13 @@ uint32_t us_ticker_read() {
     return (uint32_t)ticker_us_last64;
 }
 
-static void us_ticker_calc_compare_match(void) {
+static void us_ticker_calc_compare_match(void)
+{
     set_cmp_val64  = timestamp64 * count_clock;
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
     // set match value
     volatile uint32_t set_cmp_val;
     uint64_t count_val_64;
@@ -138,14 +148,17 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
-void us_ticker_fire_interrupt(void) {
+void us_ticker_fire_interrupt(void)
+{
     GIC_SetPendingIRQ(US_TICKER_TIMER_IRQn);
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
     GIC_DisableIRQ(US_TICKER_TIMER_IRQn);
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
     GIC_ClearPendingIRQ(US_TICKER_TIMER_IRQn);
 }

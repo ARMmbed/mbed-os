@@ -41,28 +41,27 @@
  * NORMAL
  * XOR set pixel by xor the screen
  */
-enum {NORMAL,XOR};
+enum {NORMAL, XOR};
 
 /**
  * Bitmap
  */
-struct Bitmap{
+struct Bitmap {
     int xSize;
     int ySize;
     int Byte_in_Line;
-    char* data;
+    char *data;
 };
 
 /**
  * The C12832 class
  */
-class C12832 : public GraphicsDisplay
-{
+class C12832 : public GraphicsDisplay {
 public:
     /**
      * Create a C12832 object connected to SPI1
      */
-    C12832(PinName mosi, PinName sck, PinName reset, PinName a0, PinName ncs, const char* name = "LCD");
+    C12832(PinName mosi, PinName sck, PinName reset, PinName a0, PinName ncs, const char *name = "LCD");
 
     /**
      * Get the width of the screen in pixel
@@ -86,15 +85,15 @@ public:
      * @param y vertical position
      * @param color - 1 set pixel, 0 erase pixel
      */
-    virtual void pixel(int x, int y,int colour);
+    virtual void pixel(int x, int y, int colour);
 
-     /**
-      * Draw a circle
-      *
-      * @param x0,y0 center
-      * @param r radius
-      * @param color - 1 set pixel, 0 erase pixel
-      */
+    /**
+     * Draw a circle
+     *
+     * @param x0,y0 center
+     * @param r radius
+     * @param color - 1 set pixel, 0 erase pixel
+     */
     void circle(int x, int y, int r, int colour);
 
     /**
@@ -205,13 +204,13 @@ public:
      * @param y y-position
      */
     virtual void locate(int x, int y);
-    
+
     /**
-     * Setup auto update of screen 
+     * Setup auto update of screen
      *
      * @param up 1 = on , 0 = off
      *
-     * if switched off the program has to call copy_to_lcd() 
+     * if switched off the program has to call copy_to_lcd()
      * to update screen from framebuffer
      */
     void set_auto_up(unsigned int up);
@@ -228,7 +227,7 @@ public:
     DigitalOut _reset;
     DigitalOut _A0;
     DigitalOut _CS;
-    unsigned char* font;
+    unsigned char *font;
     unsigned int draw_mode;
 
 
@@ -245,8 +244,8 @@ public:
      *   - the number of byte per vertical line
      *   you also have to change the array to char[]
      */
-    void set_font(unsigned char* f);
-    
+    void set_font(unsigned char *f);
+
     /**
      * Print bitmap to buffer
      *

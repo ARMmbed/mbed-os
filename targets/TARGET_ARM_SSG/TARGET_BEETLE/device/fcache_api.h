@@ -24,7 +24,7 @@ extern "C" {
 #include <stdio.h>
 #endif
 
-    /* Flash Cache Address Map */
+/* Flash Cache Address Map */
 #define SYS_FCACHE_BASE 0x40003000
 /* Configuration and Control Register */
 #define SYS_FCACHE_CCR  (SYS_FCACHE_BASE)
@@ -37,7 +37,7 @@ extern "C" {
 /* Cache Statistic Miss Register */
 #define SYS_FCACHE_CSMR (SYS_FCACHE_BASE + 0x18)
 
-    /* SYS_FCACHE_CCR (RW): Configuration and Control Register */
+/* SYS_FCACHE_CCR (RW): Configuration and Control Register */
 #define FCACHE_EN           1           /* FCache Enable */
 #define FCACHE_INV_REQ      (1 << 1)    /* Manual Invalidate Request */
 #define FCACHE_POW_REQ      (1 << 2)    /* Manual SRAM Power Request */
@@ -46,7 +46,7 @@ extern "C" {
 #define FCACHE_SET_PREFETCH (1 << 5)    /* Cache Prefetch Setting */
 #define FCACHE_STATISTIC_EN (1 << 6)    /* Enable Statistics Logic */
 
-   /* SYS_FCACHE_SR (RO): Status Register */
+/* SYS_FCACHE_SR (RO): Status Register */
 #define FCACHE_CS           0x3     /* Cache Status Mask */
 #define FCACHE_CS_DISABLED  0x0
 #define FCACHE_CS_ENABLING  0x1
@@ -55,11 +55,11 @@ extern "C" {
 #define FCACHE_INV_STAT     0x4     /* Invalidating Status */
 #define FCACHE_POW_STAT     0x10    /* SRAM Power Ack */
 
-    /* SYS_FCACHE_IRQSTAT (RW): Interrupt Req Status Register */
+/* SYS_FCACHE_IRQSTAT (RW): Interrupt Req Status Register */
 #define FCACHE_POW_ERR      1           /* SRAM Power Error */
 #define FCACHE_MAN_INV_ERR  (1 << 1)    /* Manual Invalidation error status */
 
-    /* Macros */
+/* Macros */
 #define FCache_Readl(reg) *(volatile unsigned int *)reg
 #define FCache_Writel(reg, val)  *(volatile unsigned int *)reg = val;
 
@@ -93,7 +93,7 @@ int FCache_Invalidate(void);
 /*
  * FCache_GetStats: provides cache stats
  */
-unsigned int * FCache_GetStats(void);
+unsigned int *FCache_GetStats(void);
 
 /*
  * FCache_isEnabled: returns 1 if FCache is enabled

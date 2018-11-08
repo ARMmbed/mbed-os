@@ -28,9 +28,9 @@
 #define FLOW_CONTROL_CTS    PA19
 #define RTS_CHECK_PIN       PB03
 
-#elif defined(TARGET_SAMG55J19) 
-#define UART_TX             PA28 
-#define UART_RX             PA27 
+#elif defined(TARGET_SAMG55J19)
+#define UART_TX             PA28
+#define UART_RX             PA27
 #define FLOW_CONTROL_RTS    PA31
 #define FLOW_CONTROL_CTS    PA30
 #define RTS_CHECK_PIN       PA18
@@ -44,12 +44,14 @@ Serial pc(UART_TX, UART_RX);
 #ifdef RTS_CHECK_PIN
 InterruptIn in(RTS_CHECK_PIN);
 DigitalOut led(LED1);
-static void checker(void) {
-  led = !led;
+static void checker(void)
+{
+    led = !led;
 }
 #endif
 
-int main() {
+int main()
+{
     char buf[256];
 
     pc.set_flow_control(Serial::RTSCTS, FLOW_CONTROL_RTS, FLOW_CONTROL_CTS);

@@ -62,9 +62,8 @@
 #define MMC_CE_RESPn_COUNT (4)
 
 
-typedef struct st_mmc
-{
-                                                           /* MMC              */
+typedef struct st_mmc {
+    /* MMC              */
     volatile uint16_t CE_CMD_SETH;                      /*  CE_CMD_SETH */
     volatile uint16_t CE_CMD_SETL;                      /*  CE_CMD_SETL */
     volatile uint8_t   dummy182[4];                            /*                  */
@@ -75,7 +74,7 @@ typedef struct st_mmc
     volatile uint32_t  CE_CLK_CTRL;                            /*  CE_CLK_CTRL     */
     volatile uint32_t  CE_BUF_ACC;                             /*  CE_BUF_ACC      */
 
-/* #define MMC_CE_RESPn_COUNT (4) */
+    /* #define MMC_CE_RESPn_COUNT (4) */
     volatile uint32_t  CE_RESP3;                               /*  CE_RESP3        */
     volatile uint32_t  CE_RESP2;                               /*  CE_RESP2        */
     volatile uint32_t  CE_RESP1;                               /*  CE_RESP1        */

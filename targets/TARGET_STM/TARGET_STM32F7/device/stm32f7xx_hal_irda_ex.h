@@ -7,7 +7,7 @@
   * @brief   Header file of IRDA HAL Extension module.
   ******************************************************************************
   * @attention
-  *                               
+  *
   * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
@@ -32,7 +32,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -40,7 +40,7 @@
 #define __STM32F7xx_HAL_IRDA_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,14 +52,14 @@
 
 /** @addtogroup IRDAEx
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup IRDAEx_Extended_Exported_Constants IRDAEx Extended Exported Constants
   * @{
   */
-  
+
 /** @defgroup IRDAEx_Word_Length IRDAEx Word Length
   * @{
   */
@@ -69,12 +69,12 @@
 /**
   * @}
   */
-  
-  
+
+
 /**
   * @}
-  */  
-  
+  */
+
 /* Exported macro ------------------------------------------------------------*/
 
 /* Private macros ------------------------------------------------------------*/
@@ -169,13 +169,13 @@
           break;                                              \
        }                                                      \
     }                                                         \
-	} while(0)
+    } while(0)
 
 /** @brief  Reports the mask to apply to retrieve the received data
   *         according to the word length and to the parity bits activation.
   * @param  __HANDLE__: specifies the IRDA Handle
   * @retval mask to apply to USART RDR register value.
-  */    
+  */
 #define IRDA_MASK_COMPUTATION(__HANDLE__)                       \
   do {                                                                \
   if ((__HANDLE__)->Init.WordLength == IRDA_WORDLENGTH_9B)            \

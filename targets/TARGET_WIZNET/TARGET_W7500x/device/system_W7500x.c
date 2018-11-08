@@ -43,17 +43,17 @@ uint32_t SystemCoreClock = 0;    /*!< Processor Clock Frequency            */
 /*----------------------------------------------------------------------------
   Clock functions
  *----------------------------------------------------------------------------*/
-void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
+void SystemCoreClockUpdate(void)             /* Get Core Clock Frequency      */
 {
-    uint8_t M,N,OD;
+    uint8_t M, N, OD;
 
 #ifdef SYSCLK_EXTERN_OSC
     CRG->PLL_IFSR = CRG_PLL_IFSR_OCLK;
 #else
     CRG->PLL_IFSR = CRG_PLL_IFSR_RCLK;
-#endif    
+#endif
     OD = (1 << (CRG->PLL_FCR & 0x01)) * (1 << ((CRG->PLL_FCR & 0x02) >> 1));
-    N = (CRG->PLL_FCR >>  8 ) & 0x3F;
+    N = (CRG->PLL_FCR >>  8) & 0x3F;
     M = (CRG->PLL_FCR >> 16) & 0x3F;
 
 #ifdef SYSCLK_EXTERN_OSC
@@ -78,22 +78,22 @@ uint32_t GetSystemClock()
  * @brief  Setup the microcontroller system.
  *         Initialize the System.
  */
-void SystemInit (void)
+void SystemInit(void)
 {
-    uint8_t M,N,OD;
+    uint8_t M, N, OD;
 
     (*((volatile uint32_t *)(W7500x_TRIM_BGT))) = (*((volatile uint32_t *)(W7500x_INFO_BGT)));
     (*((volatile uint32_t *)(W7500x_TRIM_OSC))) = (*((volatile uint32_t *)(W7500x_INFO_OSC)));
 
-    
+
     // Set PLL input frequency
 #ifdef SYSCLK_EXTERN_OSC
     CRG->PLL_IFSR = CRG_PLL_IFSR_OCLK;
 #else
     CRG->PLL_IFSR = CRG_PLL_IFSR_RCLK;
-#endif    
+#endif
     OD = (1 << (CRG->PLL_FCR & 0x01)) * (1 << ((CRG->PLL_FCR & 0x02) >> 1));
-    N = (CRG->PLL_FCR >>  8 ) & 0x3F;
+    N = (CRG->PLL_FCR >>  8) & 0x3F;
     M = (CRG->PLL_FCR >> 16) & 0x3F;
 
 #ifdef SYSCLK_EXTERN_OSC

@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -64,8 +64,7 @@ extern "C" {
 
 /**@brief Events that can come from the Security Manager module.
  */
-typedef enum
-{
+typedef enum {
     // SM_EVT_PARAMS_REQ             = SMD_EVT_PARAMS_REQ,             /**< Parameters are required for a pairing procedure on the specified connection. The user must provide them using @ref sm_sec_params_set or @ref sm_sec_params_reply (only this procedure, currently unimplemented). */
     SM_EVT_SLAVE_SECURITY_REQ     = SMD_EVT_SLAVE_SECURITY_REQ,     /**< The peer (peripheral) has requested link encryption, which has been enabled. */
     SM_EVT_SEC_PROCEDURE_START    = SMD_EVT_SEC_PROCEDURE_START,    /**< A security procedure has started. */
@@ -82,8 +81,7 @@ typedef enum
 } sm_evt_id_t;
 
 
-typedef struct
-{
+typedef struct {
     sm_evt_id_t      evt_id;
     uint16_t         conn_handle;
     smd_evt_params_t params;
@@ -95,7 +93,7 @@ typedef struct
  * @param[in]  event        The event that has happened.
  * @param[in]  conn_handle  The connection handle the event pertains to.
  */
-typedef void (*sm_evt_handler_t)(sm_evt_t const * p_event);
+typedef void (*sm_evt_handler_t)(sm_evt_t const *p_event);
 
 
 /**@brief Function for initializing the Security Manager module.
@@ -110,7 +108,7 @@ ret_code_t sm_init(void);
  *
  * @param[in]  ble_evt    The SoftDevice event.
  */
-void sm_ble_evt_handler(ble_evt_t * ble_evt);
+void sm_ble_evt_handler(ble_evt_t *ble_evt);
 
 
 /**@brief Function for providing pairing and bonding parameters to use for pairing procedures.
@@ -126,7 +124,7 @@ void sm_ble_evt_handler(ble_evt_t * ble_evt);
  * @retval NRF_ERROR_INVALID_PARAM        Invalid combination of parameters.
  * @retval NRF_ERROR_INVALID_STATE        Module is not initialized.
  */
-ret_code_t sm_sec_params_set(ble_gap_sec_params_t * p_sec_params);
+ret_code_t sm_sec_params_set(ble_gap_sec_params_t *p_sec_params);
 
 
 /**@brief Function for providing security configuration for a link.
@@ -139,7 +137,7 @@ ret_code_t sm_sec_params_set(ble_gap_sec_params_t * p_sec_params);
  * @param[in]  conn_handle        The connection to set the configuration for.
  * @param[in]  p_conn_sec_config  The configuration.
  */
-void sm_conn_sec_config_reply(uint16_t conn_handle, pm_conn_sec_config_t * p_conn_sec_config);
+void sm_conn_sec_config_reply(uint16_t conn_handle, pm_conn_sec_config_t *p_conn_sec_config);
 
 
 /**@brief Experimental function for specifying the public key to use for LESC operations.
@@ -155,7 +153,7 @@ void sm_conn_sec_config_reply(uint16_t conn_handle, pm_conn_sec_config_t * p_con
  * @retval NRF_SUCCESS                    Pairing initiated successfully.
  * @retval NRF_ERROR_INVALID_STATE        Peer Manager is not initialized.
  */
-ret_code_t sm_lesc_public_key_set(ble_gap_lesc_p256_pk_t * p_public_key);
+ret_code_t sm_lesc_public_key_set(ble_gap_lesc_p256_pk_t *p_public_key);
 
 
 /**@brief Function for providing pairing and bonding parameters to use for the current pairing
@@ -183,7 +181,7 @@ ret_code_t sm_lesc_public_key_set(ble_gap_lesc_p256_pk_t * p_public_key);
  * @retval NRF_ERROR_STORAGE_FULL         No more room in flash. Fix and reattempt later.
  * @retval NRF_ERROR_BUSY                 No write buffer. Reattempt later.
  */
-ret_code_t sm_sec_params_reply(uint16_t conn_handle, ble_gap_sec_params_t * p_sec_params);
+ret_code_t sm_sec_params_reply(uint16_t conn_handle, ble_gap_sec_params_t *p_sec_params);
 
 
 /**@brief Function for initiating security on the link, with the specified parameters.

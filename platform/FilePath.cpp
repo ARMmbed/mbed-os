@@ -17,10 +17,13 @@
 
 namespace mbed {
 
-FilePath::FilePath(const char* file_path) : file_name(NULL), fb(NULL) {
-    if ((file_path[0] != '/') || (file_path[1] == 0)) return;
+FilePath::FilePath(const char *file_path) : file_name(NULL), fb(NULL)
+{
+    if ((file_path[0] != '/') || (file_path[1] == 0)) {
+        return;
+    }
 
-    const char* file_system = &file_path[1];
+    const char *file_system = &file_path[1];
     file_name = file_system;
     int len = 0;
     while (true) {
@@ -39,37 +42,45 @@ FilePath::FilePath(const char* file_path) : file_name(NULL), fb(NULL) {
     fb = FileBase::lookup(file_system, len);
 }
 
-const char* FilePath::fileName(void) {
+const char *FilePath::fileName(void)
+{
     return file_name;
 }
 
-bool FilePath::isFileSystem(void) {
-    if (NULL == fb)
+bool FilePath::isFileSystem(void)
+{
+    if (NULL == fb) {
         return false;
+    }
     return (fb->getPathType() == FileSystemPathType);
 }
 
-FileSystemLike* FilePath::fileSystem(void) {
+FileSystemLike *FilePath::fileSystem(void)
+{
     if (isFileSystem()) {
-        return static_cast<FileSystemLike*>(fb);
+        return static_cast<FileSystemLike *>(fb);
     }
     return NULL;
 }
 
-bool FilePath::isFile(void) {
-    if (NULL == fb)
+bool FilePath::isFile(void)
+{
+    if (NULL == fb) {
         return false;
+    }
     return (fb->getPathType() == FilePathType);
 }
 
-FileLike* FilePath::file(void) {
+FileLike *FilePath::file(void)
+{
     if (isFile()) {
-        return (FileLike*)fb;
+        return (FileLike *)fb;
     }
     return NULL;
 }
 
-bool FilePath::exists(void) {
+bool FilePath::exists(void)
+{
     return fb != NULL;
 }
 

@@ -92,8 +92,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     uint8_t temp;
     /* Set bit count and parity mode. */
     temp = base->C1 & ~(UART_C1_PE_MASK | UART_C1_PT_MASK | UART_C1_M_MASK);
-    if (parity != ParityNone)
-    {
+    if (parity != ParityNone) {
         /* Enable Parity */
         temp |= (UART_C1_PE_MASK | UART_C1_M_MASK);
         if (parity == ParityOdd) {
@@ -120,18 +119,19 @@ static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint
     UART_Type *base = uart_addrs[index];
 
     /* If RX overrun. */
-    if (UART_S1_OR_MASK & base->S1)
-    {
+    if (UART_S1_OR_MASK & base->S1) {
         /* Read base->D, otherwise the RX does not work. */
         (void)base->D;
     }
 
     if (serial_irq_ids[index] != 0) {
-        if (transmit_empty)
+        if (transmit_empty) {
             irq_handler(serial_irq_ids[index], TxIrq);
+        }
 
-        if (receive_full)
+        if (receive_full) {
             irq_handler(serial_irq_ids[index], RxIrq);
+        }
     }
 }
 
@@ -232,8 +232,9 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             default:
                 break;
         }
-        if (all_disabled)
+        if (all_disabled) {
             NVIC_DisableIRQ(uart_irqs[obj->index]);
+        }
     }
 }
 
@@ -255,16 +256,18 @@ void serial_putc(serial_t *obj, int c)
 int serial_readable(serial_t *obj)
 {
     uint32_t status_flags = UART_GetStatusFlags(uart_addrs[obj->index]);
-    if (status_flags & kUART_RxOverrunFlag)
+    if (status_flags & kUART_RxOverrunFlag) {
         UART_ClearStatusFlags(uart_addrs[obj->index], kUART_RxOverrunFlag);
+    }
     return (status_flags & kUART_RxDataRegFullFlag);
 }
 
 int serial_writable(serial_t *obj)
 {
     uint32_t status_flags = UART_GetStatusFlags(uart_addrs[obj->index]);
-    if (status_flags & kUART_RxOverrunFlag)
+    if (status_flags & kUART_RxOverrunFlag) {
         UART_ClearStatusFlags(uart_addrs[obj->index], kUART_RxOverrunFlag);
+    }
     return (status_flags & kUART_TxDataRegEmptyFlag);
 }
 
@@ -292,7 +295,7 @@ void serial_break_clear(serial_t *obj)
  */
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
-    switch(type) {
+    switch (type) {
         case FlowControlRTS:
             pinmap_pinout(rxflow, PinMap_UART_RTS);
             uart_addrs[obj->index]->MODEM &= ~UART_MODEM_TXCTSE_MASK;

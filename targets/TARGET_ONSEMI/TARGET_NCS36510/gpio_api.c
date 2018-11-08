@@ -84,7 +84,7 @@ uint32_t gpio_set(PinName pin)
 
     }
 
-    return(0x00000000);
+    return (0x00000000);
 
 }
 
@@ -107,7 +107,7 @@ void gpio_init(gpio_t *obj, PinName pin)
 
     /* Set the drive strength of the pin to 1 by default */
     /** - Get PAD IO register address for the PAD number */
-    PadReg_t *PadRegOffset = (PadReg_t*)(PADREG_BASE + (pin * PAD_REG_ADRS_BYTE_SIZE));
+    PadReg_t *PadRegOffset = (PadReg_t *)(PADREG_BASE + (pin * PAD_REG_ADRS_BYTE_SIZE));
 
     /** - Enable the clock for PAD peripheral device */
     CLOCK_ENABLE(CLOCK_PAD);
@@ -182,7 +182,7 @@ int gpio_read(gpio_t *obj)
     /* Enable the GPIO clock which may have been switched off by other drivers */
     CLOCK_ENABLE(CLOCK_GPIO);
 
-    ret = (obj->GPIOMEMBASE->R_STATE_W_SET & obj->gpioMask) ? 1: 0;
+    ret = (obj->GPIOMEMBASE->R_STATE_W_SET & obj->gpioMask) ? 1 : 0;
 
     return ret;
 }
@@ -193,7 +193,7 @@ int gpio_read(gpio_t *obj)
  **/
 int gpio_is_connected(const gpio_t *obj)
 {
-    if(obj->gpioPin != (PinName)NC) {
+    if (obj->gpioPin != (PinName)NC) {
         return 1;
     } else {
         return 0;

@@ -9,5 +9,5 @@ int main()
 
     printf("Hello World\r\n");
 
-    while(1);
+    while (1);
 }

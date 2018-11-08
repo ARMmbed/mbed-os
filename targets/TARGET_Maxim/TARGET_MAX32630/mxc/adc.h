@@ -66,33 +66,33 @@ extern "C" {
  * Enumeration type for ADC Channel Selection. See \ref ADC_CHSEL_values "ADC Channel Select Values" for additional information.
  */
 typedef enum {
-  ADC_CH_0              = MXC_V_ADC_CTRL_ADC_CHSEL_AIN0,          /**< Channel 0 Select */
-  ADC_CH_1              = MXC_V_ADC_CTRL_ADC_CHSEL_AIN1,          /**< Channel 1 Select */
-  ADC_CH_2              = MXC_V_ADC_CTRL_ADC_CHSEL_AIN2,          /**< Channel 2 Select */
-  ADC_CH_3              = MXC_V_ADC_CTRL_ADC_CHSEL_AIN3,          /**< Channel 3 Select */
-  ADC_CH_0_DIV_5        = MXC_V_ADC_CTRL_ADC_CHSEL_AIN0_DIV_5,    /**< Channel 0 divided by 5 */
-  ADC_CH_1_DIV_5        = MXC_V_ADC_CTRL_ADC_CHSEL_AIN1_DIV_5,    /**< Channel 1 divided by 5 */
-  ADC_CH_VDDB_DIV_4     = MXC_V_ADC_CTRL_ADC_CHSEL_VDDB_DIV_4,    /**< VDDB divided by 4 */
-  ADC_CH_VDD18          = MXC_V_ADC_CTRL_ADC_CHSEL_VDD18,         /**< VDD18 input select */
-  ADC_CH_VDD12          = MXC_V_ADC_CTRL_ADC_CHSEL_VDD12,         /**< VDD12 input select */
-  ADC_CH_VRTC_DIV_2     = MXC_V_ADC_CTRL_ADC_CHSEL_VRTC_DIV_2,    /**< VRTC divided by 2 */
-  ADC_CH_TMON           = MXC_V_ADC_CTRL_ADC_CHSEL_TMON,          /**< TMON input select */
+    ADC_CH_0              = MXC_V_ADC_CTRL_ADC_CHSEL_AIN0,          /**< Channel 0 Select */
+    ADC_CH_1              = MXC_V_ADC_CTRL_ADC_CHSEL_AIN1,          /**< Channel 1 Select */
+    ADC_CH_2              = MXC_V_ADC_CTRL_ADC_CHSEL_AIN2,          /**< Channel 2 Select */
+    ADC_CH_3              = MXC_V_ADC_CTRL_ADC_CHSEL_AIN3,          /**< Channel 3 Select */
+    ADC_CH_0_DIV_5        = MXC_V_ADC_CTRL_ADC_CHSEL_AIN0_DIV_5,    /**< Channel 0 divided by 5 */
+    ADC_CH_1_DIV_5        = MXC_V_ADC_CTRL_ADC_CHSEL_AIN1_DIV_5,    /**< Channel 1 divided by 5 */
+    ADC_CH_VDDB_DIV_4     = MXC_V_ADC_CTRL_ADC_CHSEL_VDDB_DIV_4,    /**< VDDB divided by 4 */
+    ADC_CH_VDD18          = MXC_V_ADC_CTRL_ADC_CHSEL_VDD18,         /**< VDD18 input select */
+    ADC_CH_VDD12          = MXC_V_ADC_CTRL_ADC_CHSEL_VDD12,         /**< VDD12 input select */
+    ADC_CH_VRTC_DIV_2     = MXC_V_ADC_CTRL_ADC_CHSEL_VRTC_DIV_2,    /**< VRTC divided by 2 */
+    ADC_CH_TMON           = MXC_V_ADC_CTRL_ADC_CHSEL_TMON,          /**< TMON input select */
 #if (MXC_ADC_REV > 0)
-  ADC_CH_VDDIO_DIV_4    = MXC_V_ADC_CTRL_ADC_CHSEL_VDDIO_DIV_4,   /**< VDDIO divided by 4 select */
-  ADC_CH_VDDIOH_DIV_4   = MXC_V_ADC_CTRL_ADC_CHSEL_VDDIOH_DIV_4,  /**< VDDIOH divided by 4 select */
+    ADC_CH_VDDIO_DIV_4    = MXC_V_ADC_CTRL_ADC_CHSEL_VDDIO_DIV_4,   /**< VDDIO divided by 4 select */
+    ADC_CH_VDDIOH_DIV_4   = MXC_V_ADC_CTRL_ADC_CHSEL_VDDIOH_DIV_4,  /**< VDDIOH divided by 4 select */
 #endif
-  ADC_CH_MAX                                                      /**< Max enum value for channel selection */
+    ADC_CH_MAX                                                      /**< Max enum value for channel selection */
 } mxc_adc_chsel_t;
 
 /**
- * Enumeration type for the ADC limit register to set 
+ * Enumeration type for the ADC limit register to set
  */
 typedef enum {
-  ADC_LIMIT_0 = 0,      /**< ADC Limit Register 0 */
-  ADC_LIMIT_1 = 1,      /**< ADC Limit Register 1 */
-  ADC_LIMIT_2 = 2,      /**< ADC Limit Register 2 */
-  ADC_LIMIT_3 = 3,      /**< ADC Limit Register 3 */
-  ADC_LIMIT_MAX         /**< Number of Limit registers */
+    ADC_LIMIT_0 = 0,      /**< ADC Limit Register 0 */
+    ADC_LIMIT_1 = 1,      /**< ADC Limit Register 1 */
+    ADC_LIMIT_2 = 2,      /**< ADC Limit Register 2 */
+    ADC_LIMIT_3 = 3,      /**< ADC Limit Register 3 */
+    ADC_LIMIT_MAX         /**< Number of Limit registers */
 } mxc_adc_limitsel_t;
 
 ///@cond
@@ -128,7 +128,7 @@ void ADC_StartConvert(mxc_adc_chsel_t channel, unsigned int adc_scale, unsigned 
 /**
  * @brief      Gets the result from the previous ADC conversion
  *
- * @param      outdata      Pointer to store the ADC data conversion 
+ * @param      outdata      Pointer to store the ADC data conversion
  *                          result.
  * @return     #E_OVERFLOW   ADC overflow error
  * @return     #E_NO_ERROR   Data returned in outdata parameter
@@ -213,5 +213,5 @@ __STATIC_INLINE void ADC_DisableINT(uint32_t mask)
 #ifdef __cplusplus
 }
 #endif
- 
+
 #endif /* _ADC_H */

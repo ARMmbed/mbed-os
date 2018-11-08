@@ -41,17 +41,16 @@ static int32_t utest_minar_run()
     return 0;
 }
 extern "C" {
-static const utest_v1_scheduler_t utest_v1_scheduler =
-{
-    utest_minar_init,
-    utest_minar_post,
-    utest_minar_cancel,
-    utest_minar_run
-};
-utest_v1_scheduler_t utest_v1_get_scheduler()
-{
-    return utest_v1_scheduler;
-}
+    static const utest_v1_scheduler_t utest_v1_scheduler = {
+        utest_minar_init,
+        utest_minar_post,
+        utest_minar_cancel,
+        utest_minar_run
+    };
+    utest_v1_scheduler_t utest_v1_get_scheduler()
+    {
+        return utest_v1_scheduler;
+    }
 }
 
 #elif UTEST_SHIM_SCHEDULER_USE_US_TICKER
@@ -77,7 +76,7 @@ static void ticker_handler()
 static int32_t utest_us_ticker_init()
 {
     UTEST_LOG_FUNCTION();
-    // initialize the Timeout object to makes sure it is not initialized in 
+    // initialize the Timeout object to makes sure it is not initialized in
     // interrupt context.
     utest_timeout_object.get();
     return 0;
@@ -85,20 +84,19 @@ static int32_t utest_us_ticker_init()
 static void *utest_us_ticker_post(const utest_v1_harness_callback_t callback, timestamp_t delay_ms)
 {
     UTEST_LOG_FUNCTION();
-    timestamp_t delay_us = delay_ms *1000;
-    
+    timestamp_t delay_us = delay_ms * 1000;
+
     if (delay_ms) {
         ticker_callback = callback;
         // fire the interrupt in 1000us * delay_ms
         utest_timeout_object->attach_us(ticker_handler, delay_us);
-        
-    } 
-    else {
+
+    } else {
         minimal_callback = callback;
     }
 
     // return a bogus handle
-    return (void*)1;
+    return (void *)1;
 }
 static int32_t utest_us_ticker_cancel(void *handle)
 {
@@ -110,11 +108,9 @@ static int32_t utest_us_ticker_cancel(void *handle)
 static int32_t utest_us_ticker_run()
 {
     UTEST_LOG_FUNCTION();
-    while(1)
-    {
+    while (1) {
         // check if a new callback has been set
-        if (minimal_callback)
-        {
+        if (minimal_callback) {
             // copy the callback
             utest_v1_harness_callback_t callback = minimal_callback;
             // reset the shared callback
@@ -127,18 +123,17 @@ static int32_t utest_us_ticker_run()
 
 
 extern "C" {
-static const utest_v1_scheduler_t utest_v1_scheduler =
-{
-    utest_us_ticker_init,
-    utest_us_ticker_post,
-    utest_us_ticker_cancel,
-    utest_us_ticker_run
-};
-utest_v1_scheduler_t utest_v1_get_scheduler()
-{
-    UTEST_LOG_FUNCTION();
-    return utest_v1_scheduler;
-}
+    static const utest_v1_scheduler_t utest_v1_scheduler = {
+        utest_us_ticker_init,
+        utest_us_ticker_post,
+        utest_us_ticker_cancel,
+        utest_us_ticker_run
+    };
+    utest_v1_scheduler_t utest_v1_get_scheduler()
+    {
+        UTEST_LOG_FUNCTION();
+        return utest_v1_scheduler;
+    }
 }
 #endif
 

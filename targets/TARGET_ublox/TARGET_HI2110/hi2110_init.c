@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "mbed_assert.h"
@@ -43,7 +43,7 @@ static uint8_t get_owner(uint8_t pin)
 {
     uint8_t value;
     uint8_t pio_owner_shift = (pin & 0x0F) << 1;
-    volatile uint32_t * pio_owner_reg = (&PIO_OWNER0 + (pin >> 4));
+    volatile uint32_t *pio_owner_reg = (&PIO_OWNER0 + (pin >> 4));
 
     value = 0x03 & (*pio_owner_reg >> pio_owner_shift);
 
@@ -56,8 +56,8 @@ static uint8_t get_owner(uint8_t pin)
 
 void HI2110_init(void)
 {
-    __attribute__ ((unused)) uint8_t owner[20];
-    
+    __attribute__((unused)) uint8_t owner[20];
+
     /* This purely for diagnostics to see who owns which PIO pin.
      * Put a break-point at the end of this function and take a look
      * at the array.

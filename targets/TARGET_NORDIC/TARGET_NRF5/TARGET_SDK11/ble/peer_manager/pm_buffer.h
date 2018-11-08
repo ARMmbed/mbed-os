@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -75,10 +75,9 @@ do                                                                  \
 } while(0)
 
 
-typedef struct
-{
-    uint8_t * p_memory;   /**< The storage for all buffer entries. The size of the buffer must be n_blocks*block_size. */
-    uint8_t * p_mutex;    /**< A mutex group with one mutex for each buffer entry. */
+typedef struct {
+    uint8_t *p_memory;    /**< The storage for all buffer entries. The size of the buffer must be n_blocks*block_size. */
+    uint8_t *p_mutex;     /**< A mutex group with one mutex for each buffer entry. */
     uint32_t  n_blocks;   /**< The number of allocatable blocks in the buffer. */
     uint32_t  block_size; /**< The size of each block in the buffer. */
 } pm_buffer_t;
@@ -98,10 +97,10 @@ typedef struct
  * @retval NRF_SUCCESS              Successfully initialized buffer instance.
  * @retval NRF_ERROR_INVALID_PARAM  A parameter was 0 or NULL or a size was too small.
  */
-ret_code_t pm_buffer_init(pm_buffer_t * p_buffer,
-                          uint8_t     * p_buffer_memory,
+ret_code_t pm_buffer_init(pm_buffer_t *p_buffer,
+                          uint8_t      *p_buffer_memory,
                           uint32_t      buffer_memory_size,
-                          uint8_t     * p_mutex_memory,
+                          uint8_t      *p_mutex_memory,
                           uint32_t      mutex_memory_size,
                           uint32_t      n_blocks,
                           uint32_t      block_size);
@@ -115,7 +114,7 @@ ret_code_t pm_buffer_init(pm_buffer_t * p_buffer,
  * @return The id of the acquired block, if successful.
  * @retval BUFFER_INVALID_ID  If unsuccessful.
  */
-uint8_t pm_buffer_block_acquire(pm_buffer_t * p_buffer, uint32_t n_blocks);
+uint8_t pm_buffer_block_acquire(pm_buffer_t *p_buffer, uint32_t n_blocks);
 
 
 /**@brief Function for getting a pointer to a specific buffer block.
@@ -126,7 +125,7 @@ uint8_t pm_buffer_block_acquire(pm_buffer_t * p_buffer, uint32_t n_blocks);
  * @return A pointer to the buffer for the specified id, if the id is valid.
  * @retval NULL  If the id is invalid.
  */
-uint8_t * pm_buffer_ptr_get(pm_buffer_t * p_buffer, uint8_t id);
+uint8_t *pm_buffer_ptr_get(pm_buffer_t *p_buffer, uint8_t id);
 
 
 /**@brief Function for releasing a buffer block.
@@ -134,7 +133,7 @@ uint8_t * pm_buffer_ptr_get(pm_buffer_t * p_buffer, uint8_t id);
  * @param[in]  p_buffer  The buffer instance containing the block to release.
  * @param[in]  id        The id of the block to release.
  */
-void pm_buffer_release(pm_buffer_t * p_buffer, uint8_t id);
+void pm_buffer_release(pm_buffer_t *p_buffer, uint8_t id);
 
 
 #endif // BUFFER_H__

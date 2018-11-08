@@ -70,21 +70,27 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Check if ADC is already initialized
     // Enable ADC clock
 #if defined(ADC1)
-    if ((obj->adc == ADC_1) && adc1_inited) return;
+    if ((obj->adc == ADC_1) && adc1_inited) {
+        return;
+    }
     if (obj->adc == ADC_1) {
         __ADC1_CLK_ENABLE();
         adc1_inited = 1;
     }
 #endif
 #if defined(ADC2)
-    if ((obj->adc == ADC_2) && adc2_inited) return;
+    if ((obj->adc == ADC_2) && adc2_inited) {
+        return;
+    }
     if (obj->adc == ADC_2) {
         __ADC2_CLK_ENABLE();
         adc2_inited = 1;
     }
 #endif
 #if defined(ADC3)
-    if ((obj->adc == ADC_3) && adc3_inited) return;
+    if ((obj->adc == ADC_3) && adc3_inited) {
+        return;
+    }
     if (obj->adc == ADC_3) {
         __ADC3_CLK_ENABLE();
         adc3_inited = 1;

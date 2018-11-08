@@ -56,7 +56,7 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
         if (!_socket) {
             ret = NSAPI_ERROR_NO_SOCKET;
             break;
-        } 
+        }
 
         _pending = 0;
         void *socket;

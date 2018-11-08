@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -68,10 +68,10 @@
 #define S2          2
 #define S3          3
 
-_LONG_CALL_ u8 
+_LONG_CALL_ u8
 HalPinCtrlRtl8195A(
-    IN u32  Function, 
-    IN u32  PinLocation, 
+    IN u32  Function,
+    IN u32  PinLocation,
     IN BOOL   Operation);
 
 u8 GpioFunctionChk(
@@ -80,7 +80,7 @@ u8 GpioFunctionChk(
 
 u8
 FunctionChk(
-    IN u32  Function, 
+    IN u32  Function,
     IN u32  PinLocation
 );
 #endif   //_HAL_PINMUX_

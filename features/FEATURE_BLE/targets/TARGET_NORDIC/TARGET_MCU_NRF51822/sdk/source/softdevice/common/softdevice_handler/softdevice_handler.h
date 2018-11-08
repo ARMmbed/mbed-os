@@ -64,10 +64,10 @@
 #define SYS_EVT_MSG_BUF_SIZE            sizeof(uint32_t)                                  /**< Size of System (SOC) event message buffer. */
 
 /**@brief Type of function for passing events from the stack handler module to the scheduler. */
-typedef uint32_t (*softdevice_evt_schedule_func_t) (void);
+typedef uint32_t (*softdevice_evt_schedule_func_t)(void);
 
 /**@brief Application System (SOC) event handler type. */
-typedef void (*sys_evt_handler_t) (uint32_t evt_id);
+typedef void (*sys_evt_handler_t)(uint32_t evt_id);
 
 
 /**@brief     Macro for initializing the stack event handler.
@@ -121,7 +121,7 @@ bool softdevice_handler_isEnabled(void);
  *                                 used, this buffer must be provided by the application. The
  *                                 buffer must be large enough to hold the biggest stack event the
  *                                 application is supposed to handle. The buffer must be aligned to
- *                                 a 4 byte boundary. This parameter is unused if BLE stack support 
+ *                                 a 4 byte boundary. This parameter is unused if BLE stack support
  *                                 is not required.
  * @param[in]  ble_evt_buffer_size Size of SoftDevice BLE event buffer. This parameter is unused if
  *                                 BLE stack support is not required.
@@ -135,7 +135,7 @@ bool softdevice_handler_isEnabled(void);
  *                                       boundary) or NULL.
  */
 uint32_t softdevice_handler_init(nrf_clock_lfclksrc_t              clock_source,
-                                 void *                            p_ble_evt_buffer,
+                                 void                             *p_ble_evt_buffer,
                                  uint16_t                          ble_evt_buffer_size,
                                  softdevice_evt_schedule_func_t    evt_schedule_func);
 

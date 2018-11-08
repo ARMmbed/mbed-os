@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2000 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**
@@ -67,50 +67,46 @@ extern "C" {
 /**
  * @brief Common API SVC numbers.
  */
-enum BLE_COMMON_SVCS
-{
-  SD_BLE_ENABLE = BLE_SVC_BASE,         /**< Enable and initialize the BLE stack */
-  SD_BLE_EVT_GET,                       /**< Get an event from the pending events queue. */
-  SD_BLE_TX_PACKET_COUNT_GET,           /**< Get the total number of available application transmission packets for a particular connection. */
-  SD_BLE_UUID_VS_ADD,                   /**< Add a Vendor Specific UUID. */
-  SD_BLE_UUID_DECODE,                   /**< Decode UUID bytes. */
-  SD_BLE_UUID_ENCODE,                   /**< Encode UUID bytes. */
-  SD_BLE_VERSION_GET,                   /**< Get the local version information (company id, Link Layer Version, Link Layer Subversion). */
-  SD_BLE_USER_MEM_REPLY,                /**< User Memory Reply. */
-  SD_BLE_OPT_SET,                       /**< Set a BLE option. */
-  SD_BLE_OPT_GET,                       /**< Get a BLE option. */
+enum BLE_COMMON_SVCS {
+    SD_BLE_ENABLE = BLE_SVC_BASE,         /**< Enable and initialize the BLE stack */
+    SD_BLE_EVT_GET,                       /**< Get an event from the pending events queue. */
+    SD_BLE_TX_PACKET_COUNT_GET,           /**< Get the total number of available application transmission packets for a particular connection. */
+    SD_BLE_UUID_VS_ADD,                   /**< Add a Vendor Specific UUID. */
+    SD_BLE_UUID_DECODE,                   /**< Decode UUID bytes. */
+    SD_BLE_UUID_ENCODE,                   /**< Encode UUID bytes. */
+    SD_BLE_VERSION_GET,                   /**< Get the local version information (company id, Link Layer Version, Link Layer Subversion). */
+    SD_BLE_USER_MEM_REPLY,                /**< User Memory Reply. */
+    SD_BLE_OPT_SET,                       /**< Set a BLE option. */
+    SD_BLE_OPT_GET,                       /**< Get a BLE option. */
 };
 
-  /**
-   * @brief BLE Module Independent Event IDs.
-   */
-enum BLE_COMMON_EVTS
-{
-  BLE_EVT_TX_COMPLETE  = BLE_EVT_BASE,  /**< Transmission Complete. @ref ble_evt_tx_complete_t */
-  BLE_EVT_USER_MEM_REQUEST,             /**< User Memory request. @ref ble_evt_user_mem_request_t */
-  BLE_EVT_USER_MEM_RELEASE,             /**< User Memory release. @ref ble_evt_user_mem_release_t */
-  BLE_EVT_DATA_LENGTH_CHANGED           /**< Link layer PDU length changed. @ref ble_evt_data_length_changed_t. */
+/**
+ * @brief BLE Module Independent Event IDs.
+ */
+enum BLE_COMMON_EVTS {
+    BLE_EVT_TX_COMPLETE  = BLE_EVT_BASE,  /**< Transmission Complete. @ref ble_evt_tx_complete_t */
+    BLE_EVT_USER_MEM_REQUEST,             /**< User Memory request. @ref ble_evt_user_mem_request_t */
+    BLE_EVT_USER_MEM_RELEASE,             /**< User Memory release. @ref ble_evt_user_mem_release_t */
+    BLE_EVT_DATA_LENGTH_CHANGED           /**< Link layer PDU length changed. @ref ble_evt_data_length_changed_t. */
 };
 
 /**@brief BLE connection bandwidth types.
  * Bandwidth types supported by the SoftDevice. The bandwidth type dictates the maximum number of full length packets per connection interval.
  */
-enum BLE_CONN_BWS
-{
-  BLE_CONN_BW_INVALID = 0,              /**< Invalid connection bandwidth. */
-  BLE_CONN_BW_LOW,                      /**< Low connection bandwidth. */
-  BLE_CONN_BW_MID,                      /**< Medium connection bandwidth. */
-  BLE_CONN_BW_HIGH                      /**< High connection bandwidth. */
+enum BLE_CONN_BWS {
+    BLE_CONN_BW_INVALID = 0,              /**< Invalid connection bandwidth. */
+    BLE_CONN_BW_LOW,                      /**< Low connection bandwidth. */
+    BLE_CONN_BW_MID,                      /**< Medium connection bandwidth. */
+    BLE_CONN_BW_HIGH                      /**< High connection bandwidth. */
 };
 
 /**@brief Common Option IDs.
  * IDs that uniquely identify a common option.
  */
-enum BLE_COMMON_OPTS
-{
-  BLE_COMMON_OPT_CONN_BW = BLE_OPT_BASE,     /**< Bandwidth configuration @ref ble_common_opt_conn_bw_t */
-  BLE_COMMON_OPT_PA_LNA,                     /**< PA and LNA options */
-  BLE_COMMON_OPT_CONN_EVT_EXT,               /**< Extended connection events option */
+enum BLE_COMMON_OPTS {
+    BLE_COMMON_OPT_CONN_BW = BLE_OPT_BASE,     /**< Bandwidth configuration @ref ble_common_opt_conn_bw_t */
+    BLE_COMMON_OPT_PA_LNA,                     /**< PA and LNA options */
+    BLE_COMMON_OPT_CONN_EVT_EXT,               /**< Extended connection events option */
 };
 
 /** @} */
@@ -157,95 +153,83 @@ enum BLE_COMMON_OPTS
  * @{ */
 
 /**@brief User Memory Block. */
-typedef struct
-{
-  uint8_t          *p_mem;      /**< Pointer to the start of the user memory block. */
-  uint16_t          len;        /**< Length in bytes of the user memory block. */
+typedef struct {
+    uint8_t          *p_mem;      /**< Pointer to the start of the user memory block. */
+    uint16_t          len;        /**< Length in bytes of the user memory block. */
 } ble_user_mem_block_t;
 
 /**
  * @brief Event structure for @ref BLE_EVT_TX_COMPLETE.
  */
-typedef struct
-{
-  uint8_t count;                        /**< Number of packets transmitted. */
+typedef struct {
+    uint8_t count;                        /**< Number of packets transmitted. */
 } ble_evt_tx_complete_t;
 
 /**@brief Event structure for @ref BLE_EVT_USER_MEM_REQUEST. */
-typedef struct
-{
-  uint8_t                     type;     /**< User memory type, see @ref BLE_USER_MEM_TYPES. */
+typedef struct {
+    uint8_t                     type;     /**< User memory type, see @ref BLE_USER_MEM_TYPES. */
 } ble_evt_user_mem_request_t;
 
 /**@brief Event structure for @ref BLE_EVT_USER_MEM_RELEASE. */
-typedef struct
-{
-  uint8_t                     type;       /**< User memory type, see @ref BLE_USER_MEM_TYPES. */
-  ble_user_mem_block_t        mem_block;  /**< User memory block */
+typedef struct {
+    uint8_t                     type;       /**< User memory type, see @ref BLE_USER_MEM_TYPES. */
+    ble_user_mem_block_t        mem_block;  /**< User memory block */
 } ble_evt_user_mem_release_t;
 
 /**@brief Event structure for @ref BLE_EVT_DATA_LENGTH_CHANGED. */
-typedef struct
-{
-  uint16_t max_tx_octets;                 /**< The maximum number of payload octets in a Link Layer Data Channel PDU that the local Controller will send. Range: 27-251 */
-  uint16_t max_tx_time;                   /**< The maximum time (in microseconds) that the local Controller will take to send a Link Layer Data Channel PDU. Range: 328-2120  */
-  uint16_t max_rx_octets;                 /**< The maximum number of payload octets in a Link Layer Data Channel PDU that the local controller expects to receive. Range: 27-251 */
-  uint16_t max_rx_time;                   /**< The maximum time (in microseconds) that the local Controller expects to take to receive a Link Layer Data Channel PDU. Range: 328-2120 */
+typedef struct {
+    uint16_t max_tx_octets;                 /**< The maximum number of payload octets in a Link Layer Data Channel PDU that the local Controller will send. Range: 27-251 */
+    uint16_t max_tx_time;                   /**< The maximum time (in microseconds) that the local Controller will take to send a Link Layer Data Channel PDU. Range: 328-2120  */
+    uint16_t max_rx_octets;                 /**< The maximum number of payload octets in a Link Layer Data Channel PDU that the local controller expects to receive. Range: 27-251 */
+    uint16_t max_rx_time;                   /**< The maximum time (in microseconds) that the local Controller expects to take to receive a Link Layer Data Channel PDU. Range: 328-2120 */
 } ble_evt_data_length_changed_t;
 
 /**@brief Event structure for events not associated with a specific function module. */
-typedef struct
-{
-  uint16_t conn_handle;                                 /**< Connection Handle on which this event occurred. */
-  union
-  {
-    ble_evt_tx_complete_t           tx_complete;         /**< Transmission Complete. */
-    ble_evt_user_mem_request_t      user_mem_request;    /**< User Memory Request Event Parameters. */
-    ble_evt_user_mem_release_t      user_mem_release;    /**< User Memory Release Event Parameters. */
-    ble_evt_data_length_changed_t   data_length_changed; /**< Data Length Changed Event Parameters. */
-  } params;                                              /**< Event parameter union. */
+typedef struct {
+    uint16_t conn_handle;                                 /**< Connection Handle on which this event occurred. */
+    union {
+        ble_evt_tx_complete_t           tx_complete;         /**< Transmission Complete. */
+        ble_evt_user_mem_request_t      user_mem_request;    /**< User Memory Request Event Parameters. */
+        ble_evt_user_mem_release_t      user_mem_release;    /**< User Memory Release Event Parameters. */
+        ble_evt_data_length_changed_t   data_length_changed; /**< Data Length Changed Event Parameters. */
+    } params;                                              /**< Event parameter union. */
 } ble_common_evt_t;
 
 /**@brief BLE Event header. */
-typedef struct
-{
-  uint16_t evt_id;                /**< Value from a BLE_<module>_EVT series. */
-  uint16_t evt_len;               /**< Length in octets including this header. */
+typedef struct {
+    uint16_t evt_id;                /**< Value from a BLE_<module>_EVT series. */
+    uint16_t evt_len;               /**< Length in octets including this header. */
 } ble_evt_hdr_t;
 
 /**@brief Common BLE Event type, wrapping the module specific event reports. */
-typedef struct
-{
-  ble_evt_hdr_t header;           /**< Event header. */
-  union
-  {
-    ble_common_evt_t  common_evt; /**< Common Event, evt_id in BLE_EVT_* series. */
-    ble_gap_evt_t     gap_evt;    /**< GAP originated event, evt_id in BLE_GAP_EVT_* series. */
-    ble_l2cap_evt_t   l2cap_evt;  /**< L2CAP originated event, evt_id in BLE_L2CAP_EVT* series. */
-    ble_gattc_evt_t   gattc_evt;  /**< GATT client originated event, evt_id in BLE_GATTC_EVT* series. */
-    ble_gatts_evt_t   gatts_evt;  /**< GATT server originated event, evt_id in BLE_GATTS_EVT* series. */
-  } evt;                          /**< Event union. */
+typedef struct {
+    ble_evt_hdr_t header;           /**< Event header. */
+    union {
+        ble_common_evt_t  common_evt; /**< Common Event, evt_id in BLE_EVT_* series. */
+        ble_gap_evt_t     gap_evt;    /**< GAP originated event, evt_id in BLE_GAP_EVT_* series. */
+        ble_l2cap_evt_t   l2cap_evt;  /**< L2CAP originated event, evt_id in BLE_L2CAP_EVT* series. */
+        ble_gattc_evt_t   gattc_evt;  /**< GATT client originated event, evt_id in BLE_GATTC_EVT* series. */
+        ble_gatts_evt_t   gatts_evt;  /**< GATT server originated event, evt_id in BLE_GATTS_EVT* series. */
+    } evt;                          /**< Event union. */
 } ble_evt_t;
 
 
 /**
  * @brief Version Information.
  */
-typedef struct
-{
-  uint8_t   version_number;    /**< Link Layer Version number for BT 4.1 spec is 7 (https://www.bluetooth.org/en-us/specification/assigned-numbers/link-layer). */
-  uint16_t  company_id;        /**< Company ID, Nordic Semiconductor's company ID is 89 (0x0059) (https://www.bluetooth.org/apps/content/Default.aspx?doc_id=49708). */
-  uint16_t  subversion_number; /**< Link Layer Sub Version number, corresponds to the SoftDevice Config ID or Firmware ID (FWID). */
+typedef struct {
+    uint8_t   version_number;    /**< Link Layer Version number for BT 4.1 spec is 7 (https://www.bluetooth.org/en-us/specification/assigned-numbers/link-layer). */
+    uint16_t  company_id;        /**< Company ID, Nordic Semiconductor's company ID is 89 (0x0059) (https://www.bluetooth.org/apps/content/Default.aspx?doc_id=49708). */
+    uint16_t  subversion_number; /**< Link Layer Sub Version number, corresponds to the SoftDevice Config ID or Firmware ID (FWID). */
 } ble_version_t;
 
 /**
  * @brief Configuration parameters for the PA and LNA.
  */
-typedef struct
-{
-     uint8_t enable :1;      /**< Enable toggling for this amplifier */
-     uint8_t active_high :1; /**< Set the pin to be active high */
-     uint8_t gpio_pin :6;    /**< The GPIO pin to toggle for this amplifier */
+typedef struct {
+    uint8_t enable : 1;     /**< Enable toggling for this amplifier */
+    uint8_t active_high : 1; /**< Set the pin to be active high */
+    uint8_t gpio_pin : 6;   /**< The GPIO pin to toggle for this amplifier */
 } ble_pa_lna_cfg_t;
 
 /**
@@ -262,23 +246,21 @@ typedef struct
  * @note  Setting this option while the radio is in use (i.e. any of the roles are active) may have undefined consequences
  * and must be avoided by the application.
  */
-typedef struct
-{
-   ble_pa_lna_cfg_t pa_cfg;   /**< Power Amplifier configuration */
-   ble_pa_lna_cfg_t lna_cfg;  /**< Low Noise Amplifier configuration */
+typedef struct {
+    ble_pa_lna_cfg_t pa_cfg;   /**< Power Amplifier configuration */
+    ble_pa_lna_cfg_t lna_cfg;  /**< Low Noise Amplifier configuration */
 
-   uint8_t ppi_ch_id_set;     /**< PPI channel used for radio pin setting */
-   uint8_t ppi_ch_id_clr;     /**< PPI channel used for radio pin clearing */
-   uint8_t gpiote_ch_id;      /**< GPIOTE channel used for radio pin toggling */
+    uint8_t ppi_ch_id_set;     /**< PPI channel used for radio pin setting */
+    uint8_t ppi_ch_id_clr;     /**< PPI channel used for radio pin clearing */
+    uint8_t gpiote_ch_id;      /**< GPIOTE channel used for radio pin toggling */
 } ble_common_opt_pa_lna_t;
 
 /**
  * @brief BLE connection bandwidth configuration parameters
  */
-typedef struct
-{
-  uint8_t conn_bw_tx;   /**< Connection bandwidth configuration for transmission, see @ref BLE_CONN_BWS.*/
-  uint8_t conn_bw_rx;   /**< Connection bandwidth configuration for reception, see @ref BLE_CONN_BWS.*/
+typedef struct {
+    uint8_t conn_bw_tx;   /**< Connection bandwidth configuration for transmission, see @ref BLE_CONN_BWS.*/
+    uint8_t conn_bw_rx;   /**< Connection bandwidth configuration for reception, see @ref BLE_CONN_BWS.*/
 } ble_conn_bw_t;
 
 /**@brief BLE connection specific bandwidth configuration parameters.
@@ -311,10 +293,9 @@ typedef struct
  * @retval ::NRF_ERROR_INVALID_PARAM Invalid bandwidth configuration parameters.
  * @retval ::NRF_ERROR_NOT_SUPPORTED If the combination of role and bandwidth configuration is not supported.
  */
-typedef struct
-{
-  uint8_t            role;     /**< BLE role of the connection, see @ref BLE_GAP_ROLES. */
-  ble_conn_bw_t      conn_bw;  /**< Bandwidth configuration parameters. */
+typedef struct {
+    uint8_t            role;     /**< BLE role of the connection, see @ref BLE_GAP_ROLES. */
+    ble_conn_bw_t      conn_bw;  /**< Bandwidth configuration parameters. */
 } ble_common_opt_conn_bw_t;
 
 /**
@@ -328,24 +309,21 @@ typedef struct
  *
  * @note @ref sd_ble_opt_get is not supported for this option.
  */
-typedef struct
-{
-   uint8_t enable : 1; /**< Enable extended BLE connection events, disabled by default. */
+typedef struct {
+    uint8_t enable : 1; /**< Enable extended BLE connection events, disabled by default. */
 } ble_common_opt_conn_evt_ext_t;
 
 /**@brief Option structure for common options. */
-typedef union
-{
-  ble_common_opt_conn_bw_t      conn_bw;       /**< Parameters for the connection bandwidth option. */
-  ble_common_opt_pa_lna_t       pa_lna;        /**< Parameters for controlling PA and LNA pin toggling. */
-  ble_common_opt_conn_evt_ext_t conn_evt_ext;  /**< Parameters for enabling extended connection events. */
+typedef union {
+    ble_common_opt_conn_bw_t      conn_bw;       /**< Parameters for the connection bandwidth option. */
+    ble_common_opt_pa_lna_t       pa_lna;        /**< Parameters for controlling PA and LNA pin toggling. */
+    ble_common_opt_conn_evt_ext_t conn_evt_ext;  /**< Parameters for enabling extended connection events. */
 } ble_common_opt_t;
 
 /**@brief Common BLE Option type, wrapping the module specific options. */
-typedef union
-{
-  ble_common_opt_t  common_opt;         /**< COMMON options, opt_id in @ref BLE_COMMON_OPTS series. */
-  ble_gap_opt_t     gap_opt;            /**< GAP option, opt_id in @ref BLE_GAP_OPTS series. */
+typedef union {
+    ble_common_opt_t  common_opt;         /**< COMMON options, opt_id in @ref BLE_COMMON_OPTS series. */
+    ble_gap_opt_t     gap_opt;            /**< GAP option, opt_id in @ref BLE_GAP_OPTS series. */
 } ble_opt_t;
 
 /**
@@ -358,9 +336,9 @@ typedef union
  * @ref ble_gap_enable_params_t::periph_conn_count in @ref ble_gap_enable_params_t.
  */
 typedef struct {
-  uint8_t high_count;   /**< Total number of high bandwidth TX or RX memory pools available to the application at runtime for all active connections. */
-  uint8_t mid_count;    /**< Total number of medium bandwidth TX or RX memory pools available to the application at runtime for all active connections. */
-  uint8_t low_count;    /**< Total number of low bandwidth TX or RX memory pools available to the application at runtime for all active connections. */
+    uint8_t high_count;   /**< Total number of high bandwidth TX or RX memory pools available to the application at runtime for all active connections. */
+    uint8_t mid_count;    /**< Total number of medium bandwidth TX or RX memory pools available to the application at runtime for all active connections. */
+    uint8_t low_count;    /**< Total number of low bandwidth TX or RX memory pools available to the application at runtime for all active connections. */
 } ble_conn_bw_count_t;
 
 /**
@@ -381,8 +359,8 @@ typedef struct {
  *
  */
 typedef struct {
-  ble_conn_bw_count_t tx_counts;   /**< Global memory pool configuration for transmission.*/
-  ble_conn_bw_count_t rx_counts;   /**< Global memory pool configuration for reception.*/
+    ble_conn_bw_count_t tx_counts;   /**< Global memory pool configuration for transmission.*/
+    ble_conn_bw_count_t rx_counts;   /**< Global memory pool configuration for reception.*/
 } ble_conn_bw_counts_t;
 
 /**
@@ -393,21 +371,19 @@ typedef struct {
  * pool configuration here. See @ref ble_common_opt_conn_bw_t for bandwidth configuration of individual connections.
  * Please refer to the SoftDevice Specification for more information on bandwidth configuration.
  */
-typedef struct
-{
-  uint16_t                  vs_uuid_count;     /**< Maximum number of 128-bit, Vendor Specific UUID bases to allocate. */
-  ble_conn_bw_counts_t      *p_conn_bw_counts; /**< Bandwidth configuration parameters or NULL for defaults. */
+typedef struct {
+    uint16_t                  vs_uuid_count;     /**< Maximum number of 128-bit, Vendor Specific UUID bases to allocate. */
+    ble_conn_bw_counts_t      *p_conn_bw_counts; /**< Bandwidth configuration parameters or NULL for defaults. */
 } ble_common_enable_params_t;
 
 /**
  * @brief BLE Initialization parameters.
  */
-typedef struct
-{
-  ble_common_enable_params_t        common_enable_params;  /**< Common init parameters @ref ble_common_enable_params_t. */
-  ble_gap_enable_params_t           gap_enable_params;     /**< GAP init parameters @ref ble_gap_enable_params_t. */
-  ble_gatt_enable_params_t          gatt_enable_params;    /**< GATT init parameters @ref ble_gatt_enable_params_t. */
-  ble_gatts_enable_params_t         gatts_enable_params;   /**< GATTS init parameters @ref ble_gatts_enable_params_t. */
+typedef struct {
+    ble_common_enable_params_t        common_enable_params;  /**< Common init parameters @ref ble_common_enable_params_t. */
+    ble_gap_enable_params_t           gap_enable_params;     /**< GAP init parameters @ref ble_gap_enable_params_t. */
+    ble_gatt_enable_params_t          gatt_enable_params;    /**< GATT init parameters @ref ble_gatt_enable_params_t. */
+    ble_gatts_enable_params_t         gatts_enable_params;   /**< GATTS init parameters @ref ble_gatts_enable_params_t. */
 } ble_enable_params_t;
 
 /** @} */
@@ -457,7 +433,7 @@ typedef struct
  * @retval ::NRF_ERROR_CONN_COUNT     The requested number of connections exceeds the maximum supported by the SoftDevice.
  *                                    Please refer to the SoftDevice Specification for more information on role configuration.
  */
-SVCALL(SD_BLE_ENABLE, uint32_t, sd_ble_enable(ble_enable_params_t * p_ble_enable_params, uint32_t * p_app_ram_base));
+SVCALL(SD_BLE_ENABLE, uint32_t, sd_ble_enable(ble_enable_params_t *p_ble_enable_params, uint32_t *p_app_ram_base));
 
 /**@brief Get an event from the pending events queue.
  *

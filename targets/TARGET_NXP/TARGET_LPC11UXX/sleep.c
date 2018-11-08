@@ -17,18 +17,19 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 
-void hal_sleep(void) {
+void hal_sleep(void)
+{
     // ensure debug is disconnected
-    #if DEVICE_SEMIHOST
+#if DEVICE_SEMIHOST
     mbed_interface_disconnect();
-    #endif
-    
+#endif
+
     // PCON[PD] set to sleep
     LPC_PMU->PCON = 0x0;
-    
+
     // SRC[SLEEPDEEP] set to 0 = sleep
     SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
-    
+
     // wait for interrupt
     __WFI();
 }
@@ -59,21 +60,22 @@ void hal_sleep(void) {
 *       We treat a deepsleep() as a normal sleep().
 */
 
-void hal_deepsleep(void) {
+void hal_deepsleep(void)
+{
     // ensure debug is disconnected
-    #if DEVICE_SEMIHOST
+#if DEVICE_SEMIHOST
     mbed_interface_disconnect();
-    #endif
-    
+#endif
+
     // PCON[PD] set to deepsleep
     LPC_PMU->PCON = 0x1;
-    
+
     // SRC[SLEEPDEEP] set to 1 = deep sleep
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-    
+
     // Power up everything after powerdown
     LPC_SYSCON->PDAWAKECFG &= 0xFFFFF800;
-    
+
     // wait for interrupt
     __WFI();
 }

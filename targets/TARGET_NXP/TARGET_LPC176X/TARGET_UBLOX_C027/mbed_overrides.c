@@ -16,6 +16,7 @@
 #include "ublox_low_level_api.h"
 
 // called before main
-void mbed_sdk_init() {
-	ublox_mdm_init();
+void mbed_sdk_init()
+{
+    ublox_mdm_init();
 }

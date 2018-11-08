@@ -58,8 +58,7 @@ Imported global variables and functions (from other files)
 /*******************************************************************************
 Exported global variables and functions (to be accessed by other files)
 *******************************************************************************/
-const uint16_t g_usb0_host_bit_set[16] =
-{
+const uint16_t g_usb0_host_bit_set[16] = {
     0x0001, 0x0002, 0x0004, 0x0008,
     0x0010, 0x0020, 0x0040, 0x0080,
     0x0100, 0x0200, 0x0400, 0x0800,
@@ -67,7 +66,7 @@ const uint16_t g_usb0_host_bit_set[16] =
 };
 
 uint32_t  g_usb0_host_data_count[USB_HOST_MAX_PIPE_NO + 1];
-uint8_t * g_usb0_host_data_pointer[USB_HOST_MAX_PIPE_NO + 1];
+uint8_t *g_usb0_host_data_pointer[USB_HOST_MAX_PIPE_NO + 1];
 
 uint16_t  g_usb0_host_PipeIgnore[USB_HOST_MAX_PIPE_NO + 1];
 uint16_t  g_usb0_host_PipeTbl[USB_HOST_MAX_PIPE_NO + 1];
@@ -115,14 +114,13 @@ Private global variables and functions
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void usb0_host_init_pipe_status (void)
+void usb0_host_init_pipe_status(void)
 {
     uint16_t loop;
 
     g_usb0_host_ConfigNum = 0;
 
-    for (loop = 0; loop < (USB_HOST_MAX_PIPE_NO + 1); ++loop)
-    {
+    for (loop = 0; loop < (USB_HOST_MAX_PIPE_NO + 1); ++loop) {
         g_usb0_host_pipe_status[loop]   = USB_HOST_PIPE_IDLE;
         g_usb0_host_PipeDataSize[loop]  = 0;
 

@@ -54,23 +54,20 @@
 /*@}*/
 
 /*! @brief DMIC different operation modes. */
-typedef enum _operation_mode
-{
+typedef enum _operation_mode {
     kDMIC_OperationModePoll = 0U,      /*!< Polling mode */
     kDMIC_OperationModeInterrupt = 1U, /*!< Interrupt mode */
     kDMIC_OperationModeDma = 2U,       /*!< DMA mode */
 } operation_mode_t;
 
 /*! @brief DMIC left/right values. */
-typedef enum _stereo_side
-{
+typedef enum _stereo_side {
     kDMIC_Left = 0U,  /*!< Left Stereo channel */
     kDMIC_Right = 1U, /*!< Right Stereo channel */
 } stereo_side_t;
 
 /*! @brief DMIC Clock pre-divider values. */
-typedef enum
-{
+typedef enum {
     kDMIC_PdmDiv1 = 0U,    /*!< DMIC pre-divider set in divide by 1 */
     kDMIC_PdmDiv2 = 1U,    /*!< DMIC pre-divider set in divide by 2 */
     kDMIC_PdmDiv3 = 2U,    /*!< DMIC pre-divider set in divide by 3 */
@@ -88,8 +85,7 @@ typedef enum
 } pdm_div_t;
 
 /*! @brief Pre-emphasis Filter coefficient value for 2FS and 4FS modes. */
-typedef enum _compensation
-{
+typedef enum _compensation {
     kDMIC_CompValueZero = 0U,            /*!< Compensation 0 */
     kDMIC_CompValueNegativePoint16 = 1U, /*!< Compensation -0.16 */
     kDMIC_CompValueNegativePoint15 = 2U, /*!< Compensation -0.15 */
@@ -97,8 +93,7 @@ typedef enum _compensation
 } compensation_t;
 
 /*! @brief DMIC DC filter control values. */
-typedef enum _dc_removal
-{
+typedef enum _dc_removal {
     kDMIC_DcNoRemove = 0U, /*!< Flat response no filter */
     kDMIC_DcCut155 = 1U,   /*!< Cut off Frequency is 155 Hz  */
     kDMIC_DcCut78 = 2U,    /*!< Cut off Frequency is 78 Hz  */
@@ -106,8 +101,7 @@ typedef enum _dc_removal
 } dc_removal_t;
 
 /*! @brief DMIC IO configiration. */
-typedef enum _dmic_io
-{
+typedef enum _dmic_io {
     kDMIC_PdmDual = 0U,       /*!< Two separate pairs of PDM wires */
     kDMIC_PdmStereo = 4U,     /*!< Stereo Mic */
     kDMIC_PdmBypass = 3U,     /*!< Clk Bypass clocks both channels */
@@ -116,22 +110,19 @@ typedef enum _dmic_io
 } dmic_io_t;
 
 /*! @brief DMIC Channel number. */
-typedef enum _dmic_channel
-{
+typedef enum _dmic_channel {
     kDMIC_Channel0 = 0U, /*!< DMIC channel 0 */
     kDMIC_Channel1 = 1U, /*!< DMIC channel 1 */
 } dmic_channel_t;
 
 /*! @brief DMIC and decimator sample rates. */
-typedef enum _dmic_phy_sample_rate
-{
+typedef enum _dmic_phy_sample_rate {
     kDMIC_PhyFullSpeed = 0U, /*!< Decimator gets one sample per each chosen clock edge of PDM interface */
     kDMIC_PhyHalfSpeed = 1U, /*!< PDM clock to Microphone is halved, decimator receives each sample twice */
 } dmic_phy_sample_rate_t;
 
 /*! @brief DMIC transfer status.*/
-enum _dmic_status
-{
+enum _dmic_status {
     kStatus_DMIC_Busy = MAKE_STATUS(kStatusGroup_DMIC, 0),          /*!< DMIC is busy */
     kStatus_DMIC_Idle = MAKE_STATUS(kStatusGroup_DMIC, 1),          /*!< DMIC is idle */
     kStatus_DMIC_OverRunError = MAKE_STATUS(kStatusGroup_DMIC, 2),  /*!< DMIC  over run Error */
@@ -139,8 +130,7 @@ enum _dmic_status
 };
 
 /*! @brief DMIC Channel configuration structure. */
-typedef struct _dmic_channel_config
-{
+typedef struct _dmic_channel_config {
     pdm_div_t divhfclk;                 /*!< DMIC Clock pre-divider values */
     uint32_t osr;                       /*!< oversampling rate(CIC decimation rate) for PCM */
     int32_t gainshft;                   /*!< 4FS PCM data gain control */
@@ -180,42 +170,42 @@ extern "C" {
 uint32_t DMIC_GetInstance(DMIC_Type *base);
 
 /*!
- * @brief	Turns DMIC Clock on
- * @param	base	: DMIC base
- * @return	Nothing
+ * @brief   Turns DMIC Clock on
+ * @param   base    : DMIC base
+ * @return  Nothing
  */
 void DMIC_Init(DMIC_Type *base);
 
 /*!
- * @brief	Turns DMIC Clock off
- * @param	base	: DMIC base
- * @return	Nothing
+ * @brief   Turns DMIC Clock off
+ * @param   base    : DMIC base
+ * @return  Nothing
  */
 void DMIC_DeInit(DMIC_Type *base);
 
 /*!
- * @brief	Configure DMIC io
- * @param	base	: The base address of DMIC interface
- * @param	config		: DMIC io configuration
- * @return	Nothing
+ * @brief   Configure DMIC io
+ * @param   base    : The base address of DMIC interface
+ * @param   config      : DMIC io configuration
+ * @return  Nothing
  */
 void DMIC_ConfigIO(DMIC_Type *base, dmic_io_t config);
 
 /*!
- * @brief	Set DMIC operating mode
- * @param	base	: The base address of DMIC interface
- * @param	mode	: DMIC mode
- * @return	Nothing
+ * @brief   Set DMIC operating mode
+ * @param   base    : The base address of DMIC interface
+ * @param   mode    : DMIC mode
+ * @return  Nothing
  */
 void DMIC_SetOperationMode(DMIC_Type *base, operation_mode_t mode);
 
 /*!
- * @brief	Configure DMIC channel
- * @param	base		: The base address of DMIC interface
- * @param	channel		: DMIC channel
+ * @brief   Configure DMIC channel
+ * @param   base        : The base address of DMIC interface
+ * @param   channel     : DMIC channel
  * @param side     : stereo_side_t, choice of left or right
- * @param	channel_config	: Channel configuration
- * @return	Nothing
+ * @param   channel_config  : Channel configuration
+ * @return  Nothing
  */
 void DMIC_ConfigChannel(DMIC_Type *base,
                         dmic_channel_t channel,
@@ -223,37 +213,37 @@ void DMIC_ConfigChannel(DMIC_Type *base,
                         dmic_channel_config_t *channel_config);
 
 /*!
- * @brief	Configure Clock scaling
- * @param	base		: The base address of DMIC interface
- * @param	use2fs		: clock scaling
- * @return	Nothing
+ * @brief   Configure Clock scaling
+ * @param   base        : The base address of DMIC interface
+ * @param   use2fs      : clock scaling
+ * @return  Nothing
  */
 void DMIC_Use2fs(DMIC_Type *base, bool use2fs);
 
 /*!
- * @brief	Enable a particualr channel
- * @param	base		: The base address of DMIC interface
- * @param	channelmask	: Channel selection
- * @return	Nothing
+ * @brief   Enable a particualr channel
+ * @param   base        : The base address of DMIC interface
+ * @param   channelmask : Channel selection
+ * @return  Nothing
  */
 void DMIC_EnableChannnel(DMIC_Type *base, uint32_t channelmask);
 
 /*!
- * @brief	Configure fifo settings for DMIC channel
- * @param	base		: The base address of DMIC interface
- * @param	channel		: DMIC channel
- * @param	trig_level	: FIFO trigger level
- * @param	enable		: FIFO level
- * @param	resetn		: FIFO reset
- * @return	Nothing
+ * @brief   Configure fifo settings for DMIC channel
+ * @param   base        : The base address of DMIC interface
+ * @param   channel     : DMIC channel
+ * @param   trig_level  : FIFO trigger level
+ * @param   enable      : FIFO level
+ * @param   resetn      : FIFO reset
+ * @return  Nothing
  */
 void DMIC_FifoChannel(DMIC_Type *base, uint32_t channel, uint32_t trig_level, uint32_t enable, uint32_t resetn);
 
 /*!
- * @brief	Get FIFO status
- * @param	base		: The base address of DMIC interface
- * @param	channel		: DMIC channel
- * @return	FIFO status
+ * @brief   Get FIFO status
+ * @param   base        : The base address of DMIC interface
+ * @param   channel     : DMIC channel
+ * @return  FIFO status
  */
 static inline uint32_t DMIC_FifoGetStatus(DMIC_Type *base, uint32_t channel)
 {
@@ -261,11 +251,11 @@ static inline uint32_t DMIC_FifoGetStatus(DMIC_Type *base, uint32_t channel)
 }
 
 /*!
- * @brief	Clear FIFO status
- * @param	base		: The base address of DMIC interface
- * @param	channel		: DMIC channel
- * @param	mask		: Bits to be cleared
- * @return	FIFO status
+ * @brief   Clear FIFO status
+ * @param   base        : The base address of DMIC interface
+ * @param   channel     : DMIC channel
+ * @param   mask        : Bits to be cleared
+ * @return  FIFO status
  */
 static inline void DMIC_FifoClearStatus(DMIC_Type *base, uint32_t channel, uint32_t mask)
 {
@@ -273,10 +263,10 @@ static inline void DMIC_FifoClearStatus(DMIC_Type *base, uint32_t channel, uint3
 }
 
 /*!
- * @brief	Get FIFO data
- * @param	base		: The base address of DMIC interface
- * @param	channel		: DMIC channel
- * @return	FIFO data
+ * @brief   Get FIFO data
+ * @param   base        : The base address of DMIC interface
+ * @param   channel     : DMIC channel
+ * @return  FIFO data
  */
 static inline uint32_t DMIC_FifoGetData(DMIC_Type *base, uint32_t channel)
 {
@@ -284,7 +274,7 @@ static inline uint32_t DMIC_FifoGetData(DMIC_Type *base, uint32_t channel)
 }
 
 /*!
- * @brief	Enable callback.
+ * @brief   Enable callback.
 
  * This function enables the interrupt for the selected DMIC peripheral.
  * The callback function is not enabled until this function is called.
@@ -296,7 +286,7 @@ static inline uint32_t DMIC_FifoGetData(DMIC_Type *base, uint32_t channel)
 void DMIC_EnableIntCallback(DMIC_Type *base, dmic_callback_t cb);
 
 /*!
- * @brief	Disable callback.
+ * @brief   Disable callback.
 
  * This function disables the interrupt for the selected DMIC peripheral.
  *
@@ -406,7 +396,7 @@ static inline uint16_t DMIC_GetNoiseEnvlpEst(DMIC_Type *base)
 }
 
 /*!
- * @brief	Enable hwvad callback.
+ * @brief   Enable hwvad callback.
 
  * This function enables the hwvad interrupt for the selected DMIC  peripheral.
  * The callback function is not enabled until this function is called.
@@ -418,7 +408,7 @@ static inline uint16_t DMIC_GetNoiseEnvlpEst(DMIC_Type *base)
 void DMIC_HwvadEnableIntCallback(DMIC_Type *base, dmic_hwvad_callback_t vadcb);
 
 /*!
- * @brief	Disable callback.
+ * @brief   Disable callback.
 
  * This function disables the hwvad interrupt for the selected DMIC peripheral.
  *

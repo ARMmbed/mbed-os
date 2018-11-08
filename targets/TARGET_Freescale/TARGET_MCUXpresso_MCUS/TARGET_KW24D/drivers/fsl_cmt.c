@@ -82,10 +82,8 @@ static uint32_t CMT_GetInstance(CMT_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_CMT_COUNT; instance++)
-    {
-        if (s_cmtBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_CMT_COUNT; instance++) {
+        if (s_cmtBases[instance] == base) {
             break;
         }
     }
@@ -128,8 +126,7 @@ void CMT_Init(CMT_Type *base, const cmt_config_t *config, uint32_t busClock_Hz)
     base->OC = CMT_OC_CMTPOL(config->iroPolarity) | CMT_OC_IROPEN(config->isIroEnabled);
 
     /* Set interrupt. */
-    if (config->isInterruptEnabled)
-    {
+    if (config->isInterruptEnabled) {
         CMT_EnableInterrupts(base, kCMT_EndOfCycleInterruptEnable);
         EnableIRQ(s_cmtIrqs[CMT_GetInstance(base)]);
     }
@@ -153,14 +150,12 @@ void CMT_SetMode(CMT_Type *base, cmt_mode_t mode, cmt_modulate_config_t *modulat
     uint8_t mscReg;
 
     /* Set the mode. */
-    if (mode != kCMT_DirectIROCtl)
-    {
+    if (mode != kCMT_DirectIROCtl) {
         assert(modulateConfig);
 
         /* Set carrier generator. */
         CMT_SetCarrirGenerateCountOne(base, modulateConfig->highCount1, modulateConfig->lowCount1);
-        if (mode == kCMT_FSKMode)
-        {
+        if (mode == kCMT_FSKMode) {
             CMT_SetCarrirGenerateCountTwo(base, modulateConfig->highCount2, modulateConfig->lowCount2);
         }
 
@@ -180,25 +175,18 @@ cmt_mode_t CMT_GetMode(CMT_Type *base)
 {
     uint8_t mode = base->MSC;
 
-    if (!(mode & CMT_MSC_MCGEN_MASK))
-    { /* Carrier modulator disabled and the IRO signal is in direct software control. */
+    if (!(mode & CMT_MSC_MCGEN_MASK)) {
+        /* Carrier modulator disabled and the IRO signal is in direct software control. */
         return kCMT_DirectIROCtl;
-    }
-    else
-    {
+    } else {
         /* Carrier modulator is enabled. */
-        if (mode & CMT_MSC_BASE_MASK)
-        {
+        if (mode & CMT_MSC_BASE_MASK) {
             /* Base band mode. */
             return kCMT_BasebandMode;
-        }
-        else if (mode & CMT_MSC_FSK_MASK)
-        {
+        } else if (mode & CMT_MSC_FSK_MASK) {
             /* FSK mode. */
             return kCMT_FSKMode;
-        }
-        else
-        {
+        } else {
             /* Time mode. */
             return kCMT_TimeMode;
         }
@@ -216,8 +204,7 @@ uint32_t CMT_GetCMTFrequency(CMT_Type *base, uint32_t busClock_Hz)
     /* Get the second divider. */
     divider = ((base->MSC & CMT_MSC_CMTDIV_MASK) >> CMT_MSC_CMTDIV_SHIFT);
     /* Get CMT frequency. */
-    switch ((cmt_second_clkdiv_t)divider)
-    {
+    switch ((cmt_second_clkdiv_t)divider) {
         case kCMT_SecondClkDiv1:
             frequency = frequency / CMT_CMTDIV_ONE;
             break;

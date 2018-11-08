@@ -65,10 +65,10 @@ const struct PIPECFGREC {
         USB_FUNCTION_SHTNAKOFF |
         USB_FUNCTION_DIR_P_OUT |
         USB_FUNCTION_EP1,
-        ( ( (  64) / 64 - 1 ) << 10 ) | 0x04u,
+        (((64) / 64 - 1) << 10) | 0x04u,
         MAX_PACKET_SIZE_EP1,
         DEVDRV_USBF_OFF |
-        ( 3 << USB_PIPEPERI_IITV_SHIFT ),
+        (3 << USB_PIPEPERI_IITV_SHIFT),
     },
     {
         EP1IN,  /*EP1: Host <- Func, INT*/
@@ -80,10 +80,10 @@ const struct PIPECFGREC {
         USB_FUNCTION_SHTNAKOFF |
         USB_FUNCTION_DIR_P_IN  |
         USB_FUNCTION_EP1,
-        ( ( (  64) / 64 - 1 ) << 10 ) | 0x05u,
+        (((64) / 64 - 1) << 10) | 0x05u,
         MAX_PACKET_SIZE_EP1,
         DEVDRV_USBF_OFF |
-        ( 3 << USB_PIPEPERI_IITV_SHIFT ),
+        (3 << USB_PIPEPERI_IITV_SHIFT),
     },
     {
         EP2OUT, /*EP2: Host -> Func, BULK*/
@@ -95,10 +95,10 @@ const struct PIPECFGREC {
         USB_FUNCTION_SHTNAKON  |
         USB_FUNCTION_DIR_P_OUT |
         USB_FUNCTION_EP2,
-        ( ( (2048) / 64 - 1 ) << 10 ) | 0x30u,
+        (((2048) / 64 - 1) << 10) | 0x30u,
         MAX_PACKET_SIZE_EP2,
         DEVDRV_USBF_OFF |
-        ( 0 << USB_PIPEPERI_IITV_SHIFT ),
+        (0 << USB_PIPEPERI_IITV_SHIFT),
     },
     {
         EP2IN,  /*EP2: Host <- Func, BULK*/
@@ -110,10 +110,10 @@ const struct PIPECFGREC {
         USB_FUNCTION_SHTNAKOFF |
         USB_FUNCTION_DIR_P_IN  |
         USB_FUNCTION_EP2,
-        ( ( (2048) / 64 - 1 ) << 10 ) | 0x50u,
+        (((2048) / 64 - 1) << 10) | 0x50u,
         MAX_PACKET_SIZE_EP2,
         DEVDRV_USBF_OFF |
-        ( 0 << USB_PIPEPERI_IITV_SHIFT ),
+        (0 << USB_PIPEPERI_IITV_SHIFT),
     },
     {
         EP3OUT, /*EP3: Host -> Func, ISO*/
@@ -125,10 +125,10 @@ const struct PIPECFGREC {
         USB_FUNCTION_SHTNAKON  |
         USB_FUNCTION_DIR_P_OUT |
         USB_FUNCTION_EP3,
-        ( ( ( 512) / 64 - 1 ) << 10 ) | 0x10u,
+        (((512) / 64 - 1) << 10) | 0x10u,
         MAX_PACKET_SIZE_EP3,
         DEVDRV_USBF_OFF |
-        ( 0 << USB_PIPEPERI_IITV_SHIFT ),
+        (0 << USB_PIPEPERI_IITV_SHIFT),
     },
     {
         EP3IN,  /*EP3: Host <- Func, ISO*/
@@ -140,10 +140,10 @@ const struct PIPECFGREC {
         USB_FUNCTION_SHTNAKOFF |
         USB_FUNCTION_DIR_P_IN  |
         USB_FUNCTION_EP3,
-        ( ( ( 512) / 64 - 1 ) << 10 ) | 0x20u,
+        (((512) / 64 - 1) << 10) | 0x20u,
         MAX_PACKET_SIZE_EP3,
         DEVDRV_USBF_OFF |
-        ( 0 << USB_PIPEPERI_IITV_SHIFT ),
+        (0 << USB_PIPEPERI_IITV_SHIFT),
     },
     { /*terminator*/
         0, 0, 0, 0, 0,
@@ -153,7 +153,7 @@ const struct PIPECFGREC {
 
 /*************************************************************************/
 /* workareas */
-USBHAL * USBHAL::instance;
+USBHAL *USBHAL::instance;
 
 static IRQn_Type    int_id;         /* interrupt ID          */
 static uint16_t     int_level;      /* initerrupt level      */
@@ -175,23 +175,23 @@ volatile static uint16_t    recv_error;
 /*************************************************************************/
 /* prototypes for C */
 extern "C" {
-    void usbx_function_BRDYInterruptPIPE0 (uint16_t status, uint16_t intenb,
-        USBHAL *object, void (USBHAL::*EP0func)(void));
+    void usbx_function_BRDYInterruptPIPE0(uint16_t status, uint16_t intenb,
+                                          USBHAL *object, void (USBHAL::*EP0func)(void));
 
-    void usbx_function_BRDYInterrupt (uint16_t status, uint16_t intenb,
-        USBHAL *object, bool (USBHAL::*epCallback[])(void));
+    void usbx_function_BRDYInterrupt(uint16_t status, uint16_t intenb,
+                                     USBHAL *object, bool (USBHAL::*epCallback[])(void));
 
     void usbx_function_NRDYInterruptPIPE0(uint16_t status, uint16_t intenb,
-        USBHAL *object, void (USBHAL::*EP0func)(void));
+                                          USBHAL *object, void (USBHAL::*EP0func)(void));
 
-    void usbx_function_NRDYInterrupt (uint16_t status, uint16_t intenb,
-        USBHAL *object, bool (USBHAL::*epCallback[])(void));
+    void usbx_function_NRDYInterrupt(uint16_t status, uint16_t intenb,
+                                     USBHAL *object, bool (USBHAL::*epCallback[])(void));
 
     void usbx_function_BEMPInterruptPIPE0(uint16_t status, uint16_t intenb,
-        USBHAL *object, void (USBHAL::*EP0func)(void));
+                                          USBHAL *object, void (USBHAL::*EP0func)(void));
 
-    void usbx_function_BEMPInterrupt (uint16_t status, uint16_t intenb,
-        USBHAL *object, bool (USBHAL::*epCallback[])(void));
+    void usbx_function_BEMPInterrupt(uint16_t status, uint16_t intenb,
+                                     USBHAL *object, bool (USBHAL::*epCallback[])(void));
 }
 
 
@@ -206,7 +206,7 @@ extern "C" {
  * Return Value : none
  *****************************************************************************/
 extern "C" {
-    void usbx_function_BRDYInterruptPIPE0 (
+    void usbx_function_BRDYInterruptPIPE0(
         uint16_t status,
         uint16_t intenb,
         USBHAL *object,
@@ -324,7 +324,7 @@ extern "C" {
                         }
 
                         if (RZA_IO_RegRead_16(
-                                &g_usbx_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
+                                    &g_usbx_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
                             /*now, DMA is not supported*/
                             usbx_function_read_dma(pipe);
                             usbx_function_disable_brdy_int(pipe);
@@ -341,7 +341,7 @@ extern "C" {
                         }
 
                         if (RZA_IO_RegRead_16(
-                                &g_usbx_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
+                                    &g_usbx_function_pipecfg[pipe], USB_PIPECFG_BFRE_SHIFT, USB_PIPECFG_BFRE) == 0) {
                             /*now, DMA is not supported*/
                             usbx_function_read_dma(pipe);
                             usbx_function_disable_brdy_int(pipe);
@@ -355,15 +355,15 @@ extern "C" {
                         ep = (g_usbx_function_pipecfg[pipe] & USB_PIPECFG_EPNUM) >> USB_PIPECFG_EPNUM_SHIFT;
                         ep <<= 1;
                         if (RZA_IO_RegRead_16(
-                                &g_usbx_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
+                                    &g_usbx_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
                             /* read */
                             EPx_read_status = DEVDRV_USBF_PIPE_WAIT;
-                            (object->*(epCallback[ep - 2])) ();
+                            (object->*(epCallback[ep - 2]))();
                             EPx_read_status = DEVDRV_USBF_PIPE_DONE;
                         } else {
                             /* write */
                             EPx_read_status = DEVDRV_USBF_PIPE_WAIT;
-                            (object->*(epCallback[ep - 2 + 1])) ();
+                            (object->*(epCallback[ep - 2 + 1]))();
                             EPx_read_status = DEVDRV_USBF_PIPE_DONE;
                             usbx_function_write_buffer(pipe);
                         }
@@ -458,7 +458,7 @@ extern "C" {
         } else {
             /* USB Function */
             for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++) {
-                if ((bitcheck&g_usbx_function_bit_set[pipe]) != g_usbx_function_bit_set[pipe]) {
+                if ((bitcheck & g_usbx_function_bit_set[pipe]) != g_usbx_function_bit_set[pipe]) {
                     continue;
                 }
 
@@ -471,7 +471,7 @@ extern "C" {
 
                 size = (uint32_t)g_usbx_function_data_count[pipe];
                 mbw = usbx_function_get_mbw(
-                    size, (uint32_t)g_usbx_function_data_pointer[pipe]);
+                          size, (uint32_t)g_usbx_function_data_pointer[pipe]);
 
                 usefifo = (uint16_t)(g_usbx_function_PipeTbl[pipe] & USB_FUNCTION_FIFO_USE);
                 switch (usefifo) {
@@ -513,7 +513,7 @@ extern "C" {
                 ep = (g_usbx_function_pipecfg[pipe] & USB_PIPECFG_EPNUM) >> USB_PIPECFG_EPNUM_SHIFT;
                 ep <<= 1;
                 if (RZA_IO_RegRead_16(
-                        &g_usbx_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
+                            &g_usbx_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
                     /* read */
                     __NOP();
                 } else {
@@ -596,14 +596,14 @@ extern "C" {
         USB20X.BEMPSTS = (uint16_t)~status;
 
         for (pipe = USB_FUNCTION_PIPE1; pipe <= USB_FUNCTION_MAX_PIPE_NO; pipe++) {
-            if ((bitcheck&g_usbx_function_bit_set[pipe]) != g_usbx_function_bit_set[pipe]) {
+            if ((bitcheck & g_usbx_function_bit_set[pipe]) != g_usbx_function_bit_set[pipe]) {
                 continue;
             }
 
             pid = usbx_function_get_pid(pipe);
 
             if ((pid == DEVDRV_USBF_PID_STALL) ||
-                (pid == DEVDRV_USBF_PID_STALL2)) {
+                    (pid == DEVDRV_USBF_PID_STALL2)) {
                 g_usbx_function_pipe_status[pipe] = DEVDRV_USBF_PIPE_STALL;
 
             } else {
@@ -627,13 +627,13 @@ extern "C" {
                             ep = (g_usbx_function_pipecfg[pipe] & USB_PIPECFG_EPNUM) >> USB_PIPECFG_EPNUM_SHIFT;
                             ep <<= 1;
                             if (RZA_IO_RegRead_16(
-                                    &g_usbx_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
+                                        &g_usbx_function_pipecfg[pipe], USB_PIPECFG_DIR_SHIFT, USB_PIPECFG_DIR) == 0) {
                                 /* read */
                                 __NOP();
                             } else {
                                 /* write */
                                 EPx_read_status = DEVDRV_USBF_PIPE_WAIT;
-                                (object->*(epCallback[ep - 2 + 1])) ();
+                                (object->*(epCallback[ep - 2 + 1]))();
                                 EPx_read_status = DEVDRV_USBF_PIPE_DONE;
                             }
                     }
@@ -691,7 +691,7 @@ USBHAL::USBHAL(void)
 
     /* some constants */
     int_id          = USBIX_IRQn;
-    int_level       = ( 2 << 3 );
+    int_level       = (2 << 3);
     clock_mode      = USBFCLOCK_X1_48MHZ;
 #if (USB_FUNCTION_HISPEED == 0)
     mode            = USB_FUNCTION_FULL_SPEED;
@@ -742,10 +742,10 @@ USBHAL::USBHAL(void)
     /* Clear pipe table */
     usbx_function_clear_pipe_tbl();
 
-/******************************************************************************
- * Function Name: usbx_api_function_init
- * Description  : Initializes the USB module in the USB function mode.
- *****************************************************************************/
+    /******************************************************************************
+     * Function Name: usbx_api_function_init
+     * Description  : Initializes the USB module in the USB function mode.
+     *****************************************************************************/
     /* The clock of USB0 modules is permitted */
 #if (USB_FUNCTION_CH == 0)
     CPG.STBCR7 &= ~(CPG_STBCR7_MSTP71);
@@ -756,10 +756,10 @@ USBHAL::USBHAL(void)
     dummy8 = CPG.STBCR7;
 
     {
-/******************************************************************************
- * Function Name: usbx_function_setting_interrupt
- * Description  : Sets the USB module interrupt level.
- *****************************************************************************/
+        /******************************************************************************
+         * Function Name: usbx_function_setting_interrupt
+         * Description  : Sets the USB module interrupt level.
+         *****************************************************************************/
 #if 0   /*DMA is not supported*/
         IRQn_Type d0fifo_dmaintid;
         IRQn_Type d1fifo_dmaintid;
@@ -786,7 +786,7 @@ USBHAL::USBHAL(void)
             GIC_EnableIRQ(d1fifo_dmaintid);
         }
 #endif
-/*****************************************************************************/
+        /*****************************************************************************/
     }
 
     /* reset USB module with setting tranciever and HSE=1 */
@@ -811,9 +811,9 @@ USBHAL::USBHAL(void)
 USBHAL::~USBHAL(void)
 {
     /* Disables interrupt for usb */
-    GIC_DisableIRQ( int_id );
+    GIC_DisableIRQ(int_id);
     /* Unregisters interrupt function and priority */
-    InterruptHandlerRegister( int_id, (uint32_t)NULL );
+    InterruptHandlerRegister(int_id, (uint32_t)NULL);
 
     //usbx_en  = NULL;
     instance = NULL;
@@ -871,7 +871,7 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flag
     uint16_t pipe;
     uint16_t buf;
 
-    if ( (EP0OUT == endpoint) || (EP0IN  == endpoint) ) {
+    if ((EP0OUT == endpoint) || (EP0IN  == endpoint)) {
         return true;
     }
 
@@ -970,7 +970,7 @@ void USBHAL::EP0read(void)
         EP0write(&bbb[0], 0);
     }
 
-    buffer = (uint8_t*)(&setup_buffer[4]);
+    buffer = (uint8_t *)(&setup_buffer[4]);
     size   = (MAX_PACKET_SIZE_EP0 / 2) - 8;
     usbx_api_function_CtrlWriteStart(size, buffer);
 }
@@ -979,7 +979,7 @@ void USBHAL::EP0read(void)
 /*************************************************************************/
 uint32_t USBHAL::EP0getReadResult(uint8_t *buffer)
 {
-    memcpy(buffer, (uint8_t*)(&setup_buffer[4]), g_usbx_function_PipeDataSize[USB_FUNCTION_PIPE0]);
+    memcpy(buffer, (uint8_t *)(&setup_buffer[4]), g_usbx_function_PipeDataSize[USB_FUNCTION_PIPE0]);
 
     return g_usbx_function_PipeDataSize[USB_FUNCTION_PIPE0];
 }
@@ -989,7 +989,7 @@ uint32_t USBHAL::EP0getReadResult(uint8_t *buffer)
 void USBHAL::EP0write(uint8_t *buffer, uint32_t size)
 {
     /* zero byte writing */
-    if ( (size == 0) && (EP0_read_status == DEVDRV_USBF_WRITEEND) ) {
+    if ((size == 0) && (EP0_read_status == DEVDRV_USBF_WRITEEND)) {
         return;
     }
 
@@ -1020,7 +1020,7 @@ void USBHAL::EP0getWriteResult(void)
 /*************************************************************************/
 void USBHAL::EP0stall(void)
 {
-    stallEndpoint( 0 );
+    stallEndpoint(0);
 }
 
 
@@ -1053,7 +1053,7 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t max_size)
 
 
 /*************************************************************************/
-EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *buffer, uint32_t *bytes_read )
+EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *buffer, uint32_t *bytes_read)
 {
     uint32_t pipe = EP2PIPE(endpoint);
     uint16_t pipe_status;
@@ -1132,7 +1132,7 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
     count = 30000;
     while ((pipe_status == DEVDRV_USBF_PIPE_WAIT) || (pipe_status == DEVDRV_USBF_PIPE_DONE)) {
         pipe_status = usbx_api_function_check_pipe_status(pipe, &pipe_size);
-        if( --count == 0 ) {
+        if (--count == 0) {
             pipe_status = DEVDRV_USBF_PIPE_STALL;
             break;
         }
@@ -1143,15 +1143,15 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
             err = usbx_api_function_start_send_transfer(pipe, size, data);
 
             switch (err) {
-                    /* finish to write */
+                /* finish to write */
                 case DEVDRV_USBF_WRITEEND:
-                    /* finish to write, but data is short */
+                /* finish to write, but data is short */
                 case DEVDRV_USBF_WRITESHRT:
-                    /* continue to write */
+                /* continue to write */
                 case DEVDRV_USBF_WRITING:
-                    /* use DMA */
+                /* use DMA */
                 case DEVDRV_USBF_WRITEDMA:
-                    /* error */
+                /* error */
                 case DEVDRV_USBF_FIFOERROR:
                     status = EP_PENDING;
                     break;
@@ -1228,7 +1228,7 @@ void USBHAL::unstallEndpoint(uint8_t endpoint)
 {
     uint32_t pipe = EP2PIPE(endpoint);
 
-    usbx_function_set_pid_stall( pipe );
+    usbx_function_set_pid_stall(pipe);
 }
 
 
@@ -1278,7 +1278,7 @@ void USBHAL::usbisr(void)
                 USB_FUNCTION_BITCTRT  |
                 USB_FUNCTION_BITBEMP  |
                 USB_FUNCTION_BITNRDY  |
-                USB_FUNCTION_BITBRDY ))) {
+                USB_FUNCTION_BITBRDY))) {
         return;
     }
 
@@ -1467,13 +1467,13 @@ void USBHAL::usbisr(void)
     } else if (
         (int_sts0 & USB_FUNCTION_BITBEMP) &&
         (int_enb0 & USB_FUNCTION_BITBEMP) &&
-        (int_sts3 & int_enb4) ) {
+        (int_sts3 & int_enb4)) {
         /* ==== BEMP PIPEx ==== */
         usbx_function_BEMPInterrupt(int_sts3, int_enb4, this, epCallback);
     } else if (
         (int_sts0 & USB_FUNCTION_BITBRDY) &&
         (int_enb0 & USB_FUNCTION_BITBRDY) &&
-        (int_sts1 & int_enb2) ) {
+        (int_sts1 & int_enb2)) {
         /* ==== BRDY PIPEx ==== */
         usbx_function_BRDYInterrupt(int_sts1, int_enb2, this, epCallback);
     } else if (

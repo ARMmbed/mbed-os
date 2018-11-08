@@ -372,7 +372,7 @@ struct _extint_module {
  *
  * \return Base address of the associated EIC module.
  */
-static inline Eic * _extint_get_eic_from_channel(
+static inline Eic *_extint_get_eic_from_channel(
     const uint8_t channel)
 {
     uint8_t eic_index = (channel / 32);
@@ -398,7 +398,7 @@ static inline Eic * _extint_get_eic_from_channel(
  *
  * \return Base address of the associated EIC module.
  */
-static inline Eic * _extint_get_eic_from_nmi(
+static inline Eic *_extint_get_eic_from_nmi(
     const uint8_t nmi_channel)
 {
     uint8_t eic_index = nmi_channel;

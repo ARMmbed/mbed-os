@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
- /*
- * PinNames for VBLUno51 board
- */
+
+/*
+* PinNames for VBLUno51 board
+*/
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -64,8 +64,8 @@ typedef enum {
     p27 = 27,
     p28 = 28,
     p29 = 29,
-    p30 = 30,  
-    
+    p30 = 30,
+
     P0_0  = p0,
     P0_1  = p1,
     P0_2  = p2,
@@ -74,7 +74,7 @@ typedef enum {
     P0_5  = p5,
     P0_6  = p6,
     P0_7  = p7,
-    
+
     P0_8  = p8,
     P0_9  = p9,
     P0_10 = p10,
@@ -83,7 +83,7 @@ typedef enum {
     P0_13 = p13,
     P0_14 = p14,
     P0_15 = p15,
-    
+
     P0_16 = p16,
     P0_17 = p17,
     P0_18 = p18,
@@ -92,7 +92,7 @@ typedef enum {
     P0_21 = p21,
     P0_22 = p22,
     P0_23 = p23,
-    
+
     P0_24 = p24,
     P0_25 = p25,
     P0_26 = p26,
@@ -100,7 +100,7 @@ typedef enum {
     P0_28 = p28,
     P0_29 = p29,
     P0_30 = p30,
-    
+
     //only for mbed test suite
     LED1    = p7,
     LED2    = p9,
@@ -111,31 +111,31 @@ typedef enum {
     BUTTON2 = p21,
     BUTTON3 = p22,
     BUTTON4 = p18,
-                    
+
     // mbed-os interface pins
     TX_PIN_NUMBER = p10,
     RX_PIN_NUMBER = p11,
     RTS_PIN_NUMBER = p12,        //not on Jump
     CTS_PIN_NUMBER = p13,        //not on Jump
-    
+
     USBTX = TX_PIN_NUMBER,
-    USBRX = RX_PIN_NUMBER,           
+    USBRX = RX_PIN_NUMBER,
 
     SPIS_PSELMOSI = p24,
     SPIS_PSELMISO = p25,
-    SPIS_PSELSS = p23,    
+    SPIS_PSELSS = p23,
     SPIS_PSELSCK = p28,
-    
+
     SPIS_PSELMOSI1 = p24,
     SPIS_PSELMISO1 = p25,
-    SPIS_PSELSS1 = p23,    
+    SPIS_PSELSS1 = p23,
     SPIS_PSELSCK1 = p28,
-    
+
     SPIS_PSELMOSI0 = p24,
     SPIS_PSELMISO0 = p25,
-    SPIS_PSELSS0 = p23,    
+    SPIS_PSELSS0 = p23,
     SPIS_PSELSCK0 = p28,
-    
+
     I2C_SDA = p29,
     I2C_SCL = p30,
     I2C_SDA0 = p29,
@@ -151,7 +151,7 @@ typedef enum {
     D4  = p18,
     D5  = p17,
     D6  = p16,
-    D7  = p9,  
+    D7  = p9,
     D8  = p21,
     D9  = p22,
     D10 = p23,
@@ -163,14 +163,14 @@ typedef enum {
     D16 = p3,
     D17 = p4,
     D18 = p5,
-    D19 = p6,    
-    D20 = p29, 
-    D21 = p30,    
+    D19 = p6,
+    D20 = p29,
+    D21 = p30,
     D22 = p7,
     D23 = p15,
     D24 = p12,
     D25 = p13,
-    
+
     SS = D10,
     MOSI = D11,
     MISO = D12,

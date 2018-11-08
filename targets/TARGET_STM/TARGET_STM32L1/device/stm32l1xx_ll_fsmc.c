@@ -183,64 +183,61 @@
   */
 HAL_StatusTypeDef  FSMC_NORSRAM_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM_InitTypeDef *Init)
 {
-  /* Check the parameters */
-  assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
-  assert_param(IS_FSMC_NORSRAM_BANK(Init->NSBank));
-  assert_param(IS_FSMC_MUX(Init->DataAddressMux));
-  assert_param(IS_FSMC_MEMORY(Init->MemoryType));
-  assert_param(IS_FSMC_NORSRAM_MEMORY_WIDTH(Init->MemoryDataWidth));
-  assert_param(IS_FSMC_BURSTMODE(Init->BurstAccessMode));
-  assert_param(IS_FSMC_WAIT_POLARITY(Init->WaitSignalPolarity));
-  assert_param(IS_FSMC_WRAP_MODE(Init->WrapMode));
-  assert_param(IS_FSMC_WAIT_SIGNAL_ACTIVE(Init->WaitSignalActive));
-  assert_param(IS_FSMC_WRITE_OPERATION(Init->WriteOperation));
-  assert_param(IS_FSMC_WAITE_SIGNAL(Init->WaitSignal));
-  assert_param(IS_FSMC_EXTENDED_MODE(Init->ExtendedMode));
-  assert_param(IS_FSMC_ASYNWAIT(Init->AsynchronousWait));
-  assert_param(IS_FSMC_WRITE_BURST(Init->WriteBurst));
+    /* Check the parameters */
+    assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
+    assert_param(IS_FSMC_NORSRAM_BANK(Init->NSBank));
+    assert_param(IS_FSMC_MUX(Init->DataAddressMux));
+    assert_param(IS_FSMC_MEMORY(Init->MemoryType));
+    assert_param(IS_FSMC_NORSRAM_MEMORY_WIDTH(Init->MemoryDataWidth));
+    assert_param(IS_FSMC_BURSTMODE(Init->BurstAccessMode));
+    assert_param(IS_FSMC_WAIT_POLARITY(Init->WaitSignalPolarity));
+    assert_param(IS_FSMC_WRAP_MODE(Init->WrapMode));
+    assert_param(IS_FSMC_WAIT_SIGNAL_ACTIVE(Init->WaitSignalActive));
+    assert_param(IS_FSMC_WRITE_OPERATION(Init->WriteOperation));
+    assert_param(IS_FSMC_WAITE_SIGNAL(Init->WaitSignal));
+    assert_param(IS_FSMC_EXTENDED_MODE(Init->ExtendedMode));
+    assert_param(IS_FSMC_ASYNWAIT(Init->AsynchronousWait));
+    assert_param(IS_FSMC_WRITE_BURST(Init->WriteBurst));
 
-  /* Disable NORSRAM Device */
-  __FSMC_NORSRAM_DISABLE(Device, Init->NSBank);
+    /* Disable NORSRAM Device */
+    __FSMC_NORSRAM_DISABLE(Device, Init->NSBank);
 
-  /* Set NORSRAM device control parameters */
-  if (Init->MemoryType == FSMC_MEMORY_TYPE_NOR)
-  {
-    MODIFY_REG(Device->BTCR[Init->NSBank], BCR_CLEAR_MASK, (uint32_t)(FSMC_NORSRAM_FLASH_ACCESS_ENABLE
-               | Init->DataAddressMux
-               | Init->MemoryType
-               | Init->MemoryDataWidth
-               | Init->BurstAccessMode
-               | Init->WaitSignalPolarity
-               | Init->WrapMode
-               | Init->WaitSignalActive
-               | Init->WriteOperation
-               | Init->WaitSignal
-               | Init->ExtendedMode
-               | Init->AsynchronousWait
-               | Init->WriteBurst
-                                                                     )
-              );
-  }
-  else
-  {
-    MODIFY_REG(Device->BTCR[Init->NSBank], BCR_CLEAR_MASK, (uint32_t)(FSMC_NORSRAM_FLASH_ACCESS_DISABLE
-               | Init->DataAddressMux
-               | Init->MemoryType
-               | Init->MemoryDataWidth
-               | Init->BurstAccessMode
-               | Init->WaitSignalPolarity
-               | Init->WrapMode
-               | Init->WaitSignalActive
-               | Init->WriteOperation
-               | Init->WaitSignal
-               | Init->ExtendedMode
-               | Init->AsynchronousWait
-               | Init->WriteBurst
-                                                                     )
-              );
-  }
+    /* Set NORSRAM device control parameters */
+    if (Init->MemoryType == FSMC_MEMORY_TYPE_NOR) {
+        MODIFY_REG(Device->BTCR[Init->NSBank], BCR_CLEAR_MASK, (uint32_t)(FSMC_NORSRAM_FLASH_ACCESS_ENABLE
+                                                                          | Init->DataAddressMux
+                                                                          | Init->MemoryType
+                                                                          | Init->MemoryDataWidth
+                                                                          | Init->BurstAccessMode
+                                                                          | Init->WaitSignalPolarity
+                                                                          | Init->WrapMode
+                                                                          | Init->WaitSignalActive
+                                                                          | Init->WriteOperation
+                                                                          | Init->WaitSignal
+                                                                          | Init->ExtendedMode
+                                                                          | Init->AsynchronousWait
+                                                                          | Init->WriteBurst
+                                                                         )
+                  );
+    } else {
+        MODIFY_REG(Device->BTCR[Init->NSBank], BCR_CLEAR_MASK, (uint32_t)(FSMC_NORSRAM_FLASH_ACCESS_DISABLE
+                                                                          | Init->DataAddressMux
+                                                                          | Init->MemoryType
+                                                                          | Init->MemoryDataWidth
+                                                                          | Init->BurstAccessMode
+                                                                          | Init->WaitSignalPolarity
+                                                                          | Init->WrapMode
+                                                                          | Init->WaitSignalActive
+                                                                          | Init->WriteOperation
+                                                                          | Init->WaitSignal
+                                                                          | Init->ExtendedMode
+                                                                          | Init->AsynchronousWait
+                                                                          | Init->WriteBurst
+                                                                         )
+                  );
+    }
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 
@@ -253,30 +250,28 @@ HAL_StatusTypeDef  FSMC_NORSRAM_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM_
   */
 HAL_StatusTypeDef FSMC_NORSRAM_DeInit(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM_EXTENDED_TypeDef *ExDevice, uint32_t Bank)
 {
-  /* Check the parameters */
-  assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
-  assert_param(IS_FSMC_NORSRAM_EXTENDED_DEVICE(ExDevice));
-  assert_param(IS_FSMC_NORSRAM_BANK(Bank));
+    /* Check the parameters */
+    assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
+    assert_param(IS_FSMC_NORSRAM_EXTENDED_DEVICE(ExDevice));
+    assert_param(IS_FSMC_NORSRAM_BANK(Bank));
 
-  /* Disable the FSMC_NORSRAM device */
-  __FSMC_NORSRAM_DISABLE(Device, Bank);
+    /* Disable the FSMC_NORSRAM device */
+    __FSMC_NORSRAM_DISABLE(Device, Bank);
 
-  /* De-initialize the FSMC_NORSRAM device */
-  /* FSMC_NORSRAM_BANK1 */
-  if (Bank == FSMC_NORSRAM_BANK1)
-  {
-    Device->BTCR[Bank] = 0x000030DB;
-  }
-  /* FSMC_NORSRAM_BANK2, FSMC_NORSRAM_BANK3 or FSMC_NORSRAM_BANK4 */
-  else
-  {
-    Device->BTCR[Bank] = 0x000030D2;
-  }
+    /* De-initialize the FSMC_NORSRAM device */
+    /* FSMC_NORSRAM_BANK1 */
+    if (Bank == FSMC_NORSRAM_BANK1) {
+        Device->BTCR[Bank] = 0x000030DB;
+    }
+    /* FSMC_NORSRAM_BANK2, FSMC_NORSRAM_BANK3 or FSMC_NORSRAM_BANK4 */
+    else {
+        Device->BTCR[Bank] = 0x000030D2;
+    }
 
-  Device->BTCR[Bank + 1] = 0x0FFFFFFF;
-  ExDevice->BWTR[Bank]   = 0x0FFFFFFF;
+    Device->BTCR[Bank + 1] = 0x0FFFFFFF;
+    ExDevice->BWTR[Bank]   = 0x0FFFFFFF;
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 
@@ -290,29 +285,29 @@ HAL_StatusTypeDef FSMC_NORSRAM_DeInit(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM
   */
 HAL_StatusTypeDef FSMC_NORSRAM_Timing_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM_TimingTypeDef *Timing, uint32_t Bank)
 {
-  /* Check the parameters */
-  assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
-  assert_param(IS_FSMC_ADDRESS_SETUP_TIME(Timing->AddressSetupTime));
-  assert_param(IS_FSMC_ADDRESS_HOLD_TIME(Timing->AddressHoldTime));
-  assert_param(IS_FSMC_DATASETUP_TIME(Timing->DataSetupTime));
-  assert_param(IS_FSMC_TURNAROUND_TIME(Timing->BusTurnAroundDuration));
-  assert_param(IS_FSMC_CLK_DIV(Timing->CLKDivision));
-  assert_param(IS_FSMC_DATA_LATENCY(Timing->DataLatency));
-  assert_param(IS_FSMC_ACCESS_MODE(Timing->AccessMode));
-  assert_param(IS_FSMC_NORSRAM_BANK(Bank));
+    /* Check the parameters */
+    assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
+    assert_param(IS_FSMC_ADDRESS_SETUP_TIME(Timing->AddressSetupTime));
+    assert_param(IS_FSMC_ADDRESS_HOLD_TIME(Timing->AddressHoldTime));
+    assert_param(IS_FSMC_DATASETUP_TIME(Timing->DataSetupTime));
+    assert_param(IS_FSMC_TURNAROUND_TIME(Timing->BusTurnAroundDuration));
+    assert_param(IS_FSMC_CLK_DIV(Timing->CLKDivision));
+    assert_param(IS_FSMC_DATA_LATENCY(Timing->DataLatency));
+    assert_param(IS_FSMC_ACCESS_MODE(Timing->AccessMode));
+    assert_param(IS_FSMC_NORSRAM_BANK(Bank));
 
-  /* Set FSMC_NORSRAM device timing parameters */
-  MODIFY_REG(Device->BTCR[Bank + 1],                                                    \
-             BTR_CLEAR_MASK,                                                                     \
-             (uint32_t)(Timing->AddressSetupTime                                               | \
-                        ((Timing->AddressHoldTime)        << POSITION_VAL(FSMC_BTRx_ADDHLD))        | \
-                        ((Timing->DataSetupTime)          << POSITION_VAL(FSMC_BTRx_DATAST))        | \
-                        ((Timing->BusTurnAroundDuration)  << POSITION_VAL(FSMC_BTRx_BUSTURN))       | \
-                        (((Timing->CLKDivision) - 1)        << POSITION_VAL(FSMC_BTRx_CLKDIV))        | \
-                        (((Timing->DataLatency) - 2)        << POSITION_VAL(FSMC_BTRx_DATLAT))        | \
-                        (Timing->AccessMode)));
+    /* Set FSMC_NORSRAM device timing parameters */
+    MODIFY_REG(Device->BTCR[Bank + 1],                                                    \
+               BTR_CLEAR_MASK,                                                                     \
+               (uint32_t)(Timing->AddressSetupTime                                               | \
+                          ((Timing->AddressHoldTime)        << POSITION_VAL(FSMC_BTRx_ADDHLD))        | \
+                          ((Timing->DataSetupTime)          << POSITION_VAL(FSMC_BTRx_DATAST))        | \
+                          ((Timing->BusTurnAroundDuration)  << POSITION_VAL(FSMC_BTRx_BUSTURN))       | \
+                          (((Timing->CLKDivision) - 1)        << POSITION_VAL(FSMC_BTRx_CLKDIV))        | \
+                          (((Timing->DataLatency) - 2)        << POSITION_VAL(FSMC_BTRx_DATLAT))        | \
+                          (Timing->AccessMode)));
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 /**
@@ -329,36 +324,33 @@ HAL_StatusTypeDef FSMC_NORSRAM_Timing_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NO
   */
 HAL_StatusTypeDef  FSMC_NORSRAM_Extended_Timing_Init(FSMC_NORSRAM_EXTENDED_TypeDef *Device, FSMC_NORSRAM_TimingTypeDef *Timing, uint32_t Bank, uint32_t ExtendedMode)
 {
-  /* Check the parameters */
-  assert_param(IS_FSMC_EXTENDED_MODE(ExtendedMode));
-
-  /* Set NORSRAM device timing register for write configuration, if extended mode is used */
-  if (ExtendedMode == FSMC_EXTENDED_MODE_ENABLE)
-  {
     /* Check the parameters */
-    assert_param(IS_FSMC_NORSRAM_EXTENDED_DEVICE(Device));
-    assert_param(IS_FSMC_ADDRESS_SETUP_TIME(Timing->AddressSetupTime));
-    assert_param(IS_FSMC_ADDRESS_HOLD_TIME(Timing->AddressHoldTime));
-    assert_param(IS_FSMC_DATASETUP_TIME(Timing->DataSetupTime));
-    assert_param(IS_FSMC_TURNAROUND_TIME(Timing->BusTurnAroundDuration));
-    assert_param(IS_FSMC_ACCESS_MODE(Timing->AccessMode));
-    assert_param(IS_FSMC_NORSRAM_BANK(Bank));
+    assert_param(IS_FSMC_EXTENDED_MODE(ExtendedMode));
 
     /* Set NORSRAM device timing register for write configuration, if extended mode is used */
-    MODIFY_REG(Device->BWTR[Bank],                                                  \
-               BWTR_CLEAR_MASK,                                                              \
-               (uint32_t)(Timing->AddressSetupTime                                         | \
-                          ((Timing->AddressHoldTime)        << POSITION_VAL(FSMC_BWTRx_ADDHLD)) | \
-                          ((Timing->DataSetupTime)          << POSITION_VAL(FSMC_BWTRx_DATAST)) | \
-                          Timing->AccessMode                                                          | \
-                          ((Timing->BusTurnAroundDuration)  << POSITION_VAL(FSMC_BWTRx_BUSTURN))));
-  }
-  else
-  {
-    Device->BWTR[Bank] = 0x0FFFFFFF;
-  }
+    if (ExtendedMode == FSMC_EXTENDED_MODE_ENABLE) {
+        /* Check the parameters */
+        assert_param(IS_FSMC_NORSRAM_EXTENDED_DEVICE(Device));
+        assert_param(IS_FSMC_ADDRESS_SETUP_TIME(Timing->AddressSetupTime));
+        assert_param(IS_FSMC_ADDRESS_HOLD_TIME(Timing->AddressHoldTime));
+        assert_param(IS_FSMC_DATASETUP_TIME(Timing->DataSetupTime));
+        assert_param(IS_FSMC_TURNAROUND_TIME(Timing->BusTurnAroundDuration));
+        assert_param(IS_FSMC_ACCESS_MODE(Timing->AccessMode));
+        assert_param(IS_FSMC_NORSRAM_BANK(Bank));
 
-  return HAL_OK;
+        /* Set NORSRAM device timing register for write configuration, if extended mode is used */
+        MODIFY_REG(Device->BWTR[Bank],                                                  \
+                   BWTR_CLEAR_MASK,                                                              \
+                   (uint32_t)(Timing->AddressSetupTime                                         | \
+                              ((Timing->AddressHoldTime)        << POSITION_VAL(FSMC_BWTRx_ADDHLD)) | \
+                              ((Timing->DataSetupTime)          << POSITION_VAL(FSMC_BWTRx_DATAST)) | \
+                              Timing->AccessMode                                                          | \
+                              ((Timing->BusTurnAroundDuration)  << POSITION_VAL(FSMC_BWTRx_BUSTURN))));
+    } else {
+        Device->BWTR[Bank] = 0x0FFFFFFF;
+    }
+
+    return HAL_OK;
 }
 
 
@@ -390,14 +382,14 @@ HAL_StatusTypeDef  FSMC_NORSRAM_Extended_Timing_Init(FSMC_NORSRAM_EXTENDED_TypeD
   */
 HAL_StatusTypeDef FSMC_NORSRAM_WriteOperation_Enable(FSMC_NORSRAM_TypeDef *Device, uint32_t Bank)
 {
-  /* Check the parameters */
-  assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
-  assert_param(IS_FSMC_NORSRAM_BANK(Bank));
+    /* Check the parameters */
+    assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
+    assert_param(IS_FSMC_NORSRAM_BANK(Bank));
 
-  /* Enable write operation */
-  SET_BIT(Device->BTCR[Bank], FSMC_WRITE_OPERATION_ENABLE);
+    /* Enable write operation */
+    SET_BIT(Device->BTCR[Bank], FSMC_WRITE_OPERATION_ENABLE);
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 /**
@@ -408,14 +400,14 @@ HAL_StatusTypeDef FSMC_NORSRAM_WriteOperation_Enable(FSMC_NORSRAM_TypeDef *Devic
   */
 HAL_StatusTypeDef FSMC_NORSRAM_WriteOperation_Disable(FSMC_NORSRAM_TypeDef *Device, uint32_t Bank)
 {
-  /* Check the parameters */
-  assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
-  assert_param(IS_FSMC_NORSRAM_BANK(Bank));
+    /* Check the parameters */
+    assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
+    assert_param(IS_FSMC_NORSRAM_BANK(Bank));
 
-  /* Disable write operation */
-  CLEAR_BIT(Device->BTCR[Bank], FSMC_WRITE_OPERATION_ENABLE);
+    /* Disable write operation */
+    CLEAR_BIT(Device->BTCR[Bank], FSMC_WRITE_OPERATION_ENABLE);
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 /**

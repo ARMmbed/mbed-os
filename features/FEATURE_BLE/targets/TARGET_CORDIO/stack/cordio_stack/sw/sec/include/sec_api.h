@@ -51,10 +51,9 @@ extern "C" {
   Data Types
 **************************************************************************************************/
 /*! AES Security callback parameters structure */
-typedef struct
-{
-  wsfMsgHdr_t   hdr;                 /*! header */
-  uint8_t       *pCiphertext;        /*! pointer to 16 bytes of ciphertext data */
+typedef struct {
+    wsfMsgHdr_t   hdr;                 /*! header */
+    uint8_t       *pCiphertext;        /*! pointer to 16 bytes of ciphertext data */
 } secMsg_t;
 
 /*! AES Security callback are the same as secMsg_t */
@@ -64,29 +63,25 @@ typedef secMsg_t secAes_t;
 typedef secMsg_t secCmacMsg_t;
 
 /*! ECC Security public/private key pair */
-typedef struct
-{
-  uint8_t pubKey_x[SEC_ECC_KEY_LEN]; /*! x component of ecc public key */
-  uint8_t pubKey_y[SEC_ECC_KEY_LEN]; /*! y component of ecc public key */
-  uint8_t privKey[SEC_ECC_KEY_LEN];  /*! ecc private key */
+typedef struct {
+    uint8_t pubKey_x[SEC_ECC_KEY_LEN]; /*! x component of ecc public key */
+    uint8_t pubKey_y[SEC_ECC_KEY_LEN]; /*! y component of ecc public key */
+    uint8_t privKey[SEC_ECC_KEY_LEN];  /*! ecc private key */
 } secEccKey_t;
 
 /*! ECC security DH Key shared secret */
-typedef struct
-{
-  uint8_t secret[SEC_ECC_KEY_LEN];   /*! DH Key Shared secret */
+typedef struct {
+    uint8_t secret[SEC_ECC_KEY_LEN];   /*! DH Key Shared secret */
 } secEccSharedSec_t;
 
 
 /*! ECC Security callback parameters structure */
-typedef struct
-{
-  wsfMsgHdr_t   hdr;                 /*! header */
-  union
-  {
-    secEccSharedSec_t sharedSecret;  /*! shared secret */
-    secEccKey_t key;                 /*! ecc public/private key pair */
-  } data;
+typedef struct {
+    wsfMsgHdr_t   hdr;                 /*! header */
+    union {
+        secEccSharedSec_t sharedSecret;  /*! shared secret */
+        secEccKey_t key;                 /*! ecc public/private key pair */
+    } data;
 } secEccMsg_t;
 
 

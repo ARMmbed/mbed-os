@@ -78,24 +78,24 @@
   */
 ErrorStatus LL_RNG_DeInit(RNG_TypeDef *RNGx)
 {
-  /* Check the parameters */
-  assert_param(IS_RNG_ALL_INSTANCE(RNGx));
+    /* Check the parameters */
+    assert_param(IS_RNG_ALL_INSTANCE(RNGx));
 
 #if  !defined (RCC_AHB2_SUPPORT)
-  /* Enable RNG reset state */
-  LL_AHB1_GRP1_ForceReset(LL_AHB1_GRP1_PERIPH_RNG);
+    /* Enable RNG reset state */
+    LL_AHB1_GRP1_ForceReset(LL_AHB1_GRP1_PERIPH_RNG);
 
-  /* Release RNG from reset state */
-  LL_AHB1_GRP1_ReleaseReset(LL_AHB1_GRP1_PERIPH_RNG);
+    /* Release RNG from reset state */
+    LL_AHB1_GRP1_ReleaseReset(LL_AHB1_GRP1_PERIPH_RNG);
 #else
-  /* Enable RNG reset state */
-  LL_AHB2_GRP1_ForceReset(LL_AHB2_GRP1_PERIPH_RNG);
+    /* Enable RNG reset state */
+    LL_AHB2_GRP1_ForceReset(LL_AHB2_GRP1_PERIPH_RNG);
 
-  /* Release RNG from reset state */
-  LL_AHB2_GRP1_ReleaseReset(LL_AHB2_GRP1_PERIPH_RNG);
+    /* Release RNG from reset state */
+    LL_AHB2_GRP1_ReleaseReset(LL_AHB2_GRP1_PERIPH_RNG);
 #endif
 
-  return (SUCCESS);
+    return (SUCCESS);
 }
 
 /**

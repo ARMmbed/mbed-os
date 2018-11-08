@@ -37,8 +37,7 @@
 #define MCAN_TIME_QUANTA_NUM (16U)
 
 /*! @brief MCAN Internal State. */
-enum _mcan_state
-{
+enum _mcan_state {
     kMCAN_StateIdle = 0x0,     /*!< MB/RxFIFO idle.*/
     kMCAN_StateRxData = 0x1,   /*!< MB receiving.*/
     kMCAN_StateRxRemote = 0x2, /*!< MB receiving remote reply.*/
@@ -156,10 +155,8 @@ uint32_t MCAN_GetInstance(CAN_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_mcanBases); instance++)
-    {
-        if (s_mcanBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_mcanBases); instance++) {
+        if (s_mcanBases[instance] == base) {
             break;
         }
     }
@@ -174,8 +171,7 @@ static void MCAN_Reset(CAN_Type *base)
     /* Set INIT bit. */
     base->CCCR |= CAN_CCCR_INIT_MASK;
     /* Confirm the value has been accepted. */
-    while (!((base->CCCR & CAN_CCCR_INIT_MASK) >> CAN_CCCR_INIT_SHIFT))
-    {
+    while (!((base->CCCR & CAN_CCCR_INIT_MASK) >> CAN_CCCR_INIT_SHIFT)) {
     }
 
     /* Set CCE bit to have access to the protected configuration registers,
@@ -188,16 +184,14 @@ static void MCAN_SetBaudRate(CAN_Type *base, uint32_t sourceClock_Hz, uint32_t b
     mcan_timing_config_t timingConfigA;
     uint32_t preDivA = baudRateA_Bps * MCAN_TIME_QUANTA_NUM;
 
-    if (0 == preDivA)
-    {
+    if (0 == preDivA) {
         preDivA = 1U;
     }
 
     preDivA = (sourceClock_Hz / preDivA) - 1U;
 
     /* Desired baud rate is too low. */
-    if (preDivA > 0x1FFU)
-    {
+    if (preDivA > 0x1FFU) {
         preDivA = 0x1FFU;
     }
 
@@ -219,16 +213,14 @@ static void MCAN_SetBaudRateFD(CAN_Type *base, uint32_t sourceClock_Hz, uint32_t
     mcan_timing_config_t timingConfigD;
     uint32_t preDivD = baudRateD_Bps * MCAN_TIME_QUANTA_NUM;
 
-    if (0 == preDivD)
-    {
+    if (0 == preDivD) {
         preDivD = 1U;
     }
 
     preDivD = (sourceClock_Hz / preDivD) - 1U;
 
     /* Desired baud rate is too low. */
-    if (preDivD > 0x1FU)
-    {
+    if (preDivD > 0x1FU) {
         preDivD = 0x1FU;
     }
 
@@ -254,27 +246,22 @@ void MCAN_Init(CAN_Type *base, const mcan_config_t *config, uint32_t sourceClock
 
     MCAN_Reset(base);
 
-    if (config->enableLoopBackInt)
-    {
+    if (config->enableLoopBackInt) {
         base->CCCR |= CAN_CCCR_TEST_MASK | CAN_CCCR_MON_MASK;
         base->TEST |= CAN_TEST_LBCK_MASK;
     }
-    if (config->enableLoopBackExt)
-    {
+    if (config->enableLoopBackExt) {
         base->CCCR |= CAN_CCCR_TEST_MASK;
         base->TEST |= CAN_TEST_LBCK_MASK;
     }
-    if (config->enableBusMon)
-    {
+    if (config->enableBusMon) {
         base->CCCR |= CAN_CCCR_MON_MASK;
     }
 #if (defined(FSL_FEATURE_CAN_SUPPORT_CANFD) && FSL_FEATURE_CAN_SUPPORT_CANFD)
-    if (config->enableCanfdNormal)
-    {
+    if (config->enableCanfdNormal) {
         base->CCCR |= CAN_CCCR_FDOE_MASK;
     }
-    if (config->enableCanfdSwitch)
-    {
+    if (config->enableCanfdSwitch) {
         base->CCCR |= CAN_CCCR_FDOE_MASK | CAN_CCCR_BRSE_MASK;
     }
 #endif
@@ -301,8 +288,7 @@ void MCAN_EnterNormalMode(CAN_Type *base)
 {
     /* Reset INIT bit to enter normal mode. */
     base->CCCR &= ~CAN_CCCR_INIT_MASK;
-    while (((base->CCCR & CAN_CCCR_INIT_MASK) >> CAN_CCCR_INIT_SHIFT))
-    {
+    while (((base->CCCR & CAN_CCCR_INIT_MASK) >> CAN_CCCR_INIT_SHIFT)) {
     }
 }
 
@@ -352,13 +338,10 @@ void MCAN_SetArbitrationTimingConfig(CAN_Type *base, const mcan_timing_config_t 
 void MCAN_SetFilterConfig(CAN_Type *base, const mcan_frame_filter_config_t *config)
 {
     /* Set global configuration of remote/nonmasking frames, set filter address and list size. */
-    if (config->idFormat == kMCAN_FrameIDStandard)
-    {
+    if (config->idFormat == kMCAN_FrameIDStandard) {
         base->GFC |= CAN_GFC_RRFS(config->remFrame) | CAN_GFC_ANFS(config->nmFrame);
         base->SIDFC |= CAN_SIDFC_FLSSA(config->address >> CAN_SIDFC_FLSSA_SHIFT) | CAN_SIDFC_LSS(config->listSize);
-    }
-    else
-    {
+    } else {
         base->GFC |= CAN_GFC_RRFE(config->remFrame) | CAN_GFC_ANFE(config->nmFrame);
         base->XIDFC |= CAN_XIDFC_FLESA(config->address >> CAN_XIDFC_FLESA_SHIFT) | CAN_XIDFC_LSE(config->listSize);
     }
@@ -432,12 +415,9 @@ static uint32_t MCAN_GetRxFifo0ElementAddress(CAN_Type *base)
 {
     uint32_t eSize;
     eSize = (base->RXESC & CAN_RXESC_F0DS_MASK) >> CAN_RXESC_F0DS_SHIFT;
-    if (eSize < 5U)
-    {
+    if (eSize < 5U) {
         eSize += 4U;
-    }
-    else
-    {
+    } else {
         eSize = eSize * 4U - 10U;
     }
     return (base->RXF0C & CAN_RXF0C_F0SA_MASK) +
@@ -448,12 +428,9 @@ static uint32_t MCAN_GetRxFifo1ElementAddress(CAN_Type *base)
 {
     uint32_t eSize;
     eSize = (base->RXESC & CAN_RXESC_F1DS_MASK) >> CAN_RXESC_F1DS_SHIFT;
-    if (eSize < 5U)
-    {
+    if (eSize < 5U) {
         eSize += 4U;
-    }
-    else
-    {
+    } else {
         eSize = eSize * 4U - 10U;
     }
     return (base->RXF1C & CAN_RXF1C_F1SA_MASK) +
@@ -465,12 +442,9 @@ static uint32_t MCAN_GetRxBufferElementAddress(CAN_Type *base, uint8_t idx)
     assert(idx <= 63U);
     uint32_t eSize;
     eSize = (base->RXESC & CAN_RXESC_RBDS_MASK) >> CAN_RXESC_RBDS_SHIFT;
-    if (eSize < 5U)
-    {
+    if (eSize < 5U) {
         eSize += 4U;
-    }
-    else
-    {
+    } else {
         eSize = eSize * 4U - 10U;
     }
     return (base->RXBC & CAN_RXBC_RBSA_MASK) + idx * eSize * 4U;
@@ -481,12 +455,9 @@ static uint32_t MCAN_GetTxBufferElementAddress(CAN_Type *base, uint8_t idx)
     assert(idx <= 31U);
     uint32_t eSize;
     eSize = (base->TXESC & CAN_TXESC_TBDS_MASK) >> CAN_TXESC_TBDS_SHIFT;
-    if (eSize < 5U)
-    {
+    if (eSize < 5U) {
         eSize += 4U;
-    }
-    else
-    {
+    } else {
         eSize = eSize * 4U - 10U;
     }
     return (base->TXBC & CAN_TXBC_TBSA_MASK) + idx * eSize * 4U;
@@ -504,8 +475,7 @@ uint32_t MCAN_IsTransmitOccurred(CAN_Type *base, uint8_t idx)
 
 status_t MCAN_WriteTxBuffer(CAN_Type *base, uint8_t idx, const mcan_tx_buffer_frame_t *txFrame)
 {
-    if (!MCAN_IsTransmitRequestPending(base, idx))
-    {
+    if (!MCAN_IsTransmitRequestPending(base, idx)) {
         uint8_t *elementAddress = 0;
         elementAddress = (uint8_t *)(MCAN_GetMsgRAMBase(base) + MCAN_GetTxBufferElementAddress(base, idx));
 
@@ -514,9 +484,7 @@ status_t MCAN_WriteTxBuffer(CAN_Type *base, uint8_t idx, const mcan_tx_buffer_fr
         /* Write data field. */
         memcpy(elementAddress + 8U, txFrame->data, txFrame->size);
         return kStatus_Success;
-    }
-    else
-    {
+    } else {
         return kStatus_Fail;
     }
 }
@@ -533,23 +501,17 @@ status_t MCAN_ReadRxFifo(CAN_Type *base, uint8_t fifoBlock, mcan_rx_buffer_frame
 {
     assert((fifoBlock == 0) || (fifoBlock == 1U));
     mcan_rx_buffer_frame_t *elementAddress = 0;
-    if (0 == fifoBlock)
-    {
+    if (0 == fifoBlock) {
         elementAddress = (mcan_rx_buffer_frame_t *)(MCAN_GetMsgRAMBase(base) + MCAN_GetRxFifo0ElementAddress(base));
-    }
-    else
-    {
+    } else {
         elementAddress = (mcan_rx_buffer_frame_t *)(MCAN_GetMsgRAMBase(base) + MCAN_GetRxFifo1ElementAddress(base));
     }
     memcpy(rxFrame, elementAddress, 8U);
     rxFrame->data = (uint8_t *)elementAddress + 8U;
     /* Acknowledge the read. */
-    if (0 == fifoBlock)
-    {
+    if (0 == fifoBlock) {
         base->RXF0A = (base->RXF0S & CAN_RXF0S_F0GI_MASK) >> CAN_RXF0S_F0GI_SHIFT;
-    }
-    else
-    {
+    } else {
         base->RXF1A = (base->RXF1S & CAN_RXF1S_F1GI_MASK) >> CAN_RXF1S_F1GI_SHIFT;
     }
     return kStatus_Success;
@@ -557,18 +519,14 @@ status_t MCAN_ReadRxFifo(CAN_Type *base, uint8_t fifoBlock, mcan_rx_buffer_frame
 
 status_t MCAN_TransferSendBlocking(CAN_Type *base, uint8_t idx, mcan_tx_buffer_frame_t *txFrame)
 {
-    if (kStatus_Success == MCAN_WriteTxBuffer(base, idx, txFrame))
-    {
+    if (kStatus_Success == MCAN_WriteTxBuffer(base, idx, txFrame)) {
         MCAN_TransmitAddRequest(base, idx);
 
         /* Wait until message sent out. */
-        while (!MCAN_IsTransmitOccurred(base, idx))
-        {
+        while (!MCAN_IsTransmitOccurred(base, idx)) {
         }
         return kStatus_Success;
-    }
-    else
-    {
+    } else {
         return kStatus_Fail;
     }
 }
@@ -577,8 +535,7 @@ status_t MCAN_TransferReceiveBlocking(CAN_Type *base, uint8_t bufferIdx, mcan_rx
 {
     assert(bufferIdx <= 63U);
 
-    while (!MCAN_GetRxBufferStatusFlag(base, bufferIdx))
-    {
+    while (!MCAN_GetRxBufferStatusFlag(base, bufferIdx)) {
     }
     MCAN_ClearRxBufferStatusFlag(base, bufferIdx);
     return MCAN_ReadRxBuffer(base, bufferIdx, rxFrame);
@@ -587,17 +544,12 @@ status_t MCAN_TransferReceiveBlocking(CAN_Type *base, uint8_t bufferIdx, mcan_rx
 status_t MCAN_TransferReceiveFifoBlocking(CAN_Type *base, uint8_t fifoBlock, mcan_rx_buffer_frame_t *rxFrame)
 {
     assert((fifoBlock == 0) || (fifoBlock == 1U));
-    if (0 == fifoBlock)
-    {
-        while (!MCAN_GetStatusFlag(base, CAN_IR_RF0N_MASK))
-        {
+    if (0 == fifoBlock) {
+        while (!MCAN_GetStatusFlag(base, CAN_IR_RF0N_MASK)) {
         }
         MCAN_ClearStatusFlag(base, CAN_IR_RF0N_MASK);
-    }
-    else
-    {
-        while (!MCAN_GetStatusFlag(base, CAN_IR_RF1N_MASK))
-        {
+    } else {
+        while (!MCAN_GetStatusFlag(base, CAN_IR_RF1N_MASK)) {
         }
         MCAN_ClearStatusFlag(base, CAN_IR_RF1N_MASK);
     }
@@ -629,13 +581,10 @@ void MCAN_TransferCreateHandle(CAN_Type *base, mcan_handle_t *handle, mcan_trans
      * report current status of MCAN module through Callback function.
      * It is insignificance without a available callback function.
      */
-    if (handle->callback != NULL)
-    {
+    if (handle->callback != NULL) {
         MCAN_EnableInterrupts(base, 0,
                               kMCAN_BusOffInterruptEnable | kMCAN_ErrorInterruptEnable | kMCAN_WarningInterruptEnable);
-    }
-    else
-    {
+    } else {
         MCAN_DisableInterrupts(base,
                                kMCAN_BusOffInterruptEnable | kMCAN_ErrorInterruptEnable | kMCAN_WarningInterruptEnable);
     }
@@ -653,24 +602,19 @@ status_t MCAN_TransferSendNonBlocking(CAN_Type *base, mcan_handle_t *handle, mca
     assert(xfer->bufferIdx <= 63U);
 
     /* Check if Tx Buffer is idle. */
-    if (kMCAN_StateIdle == handle->bufferState[xfer->bufferIdx])
-    {
+    if (kMCAN_StateIdle == handle->bufferState[xfer->bufferIdx]) {
         handle->txbufferIdx = xfer->bufferIdx;
         /* Distinguish transmit type. */
-        if (kMCAN_FrameTypeRemote == xfer->frame->xtd)
-        {
+        if (kMCAN_FrameTypeRemote == xfer->frame->xtd) {
             handle->bufferState[xfer->bufferIdx] = kMCAN_StateTxRemote;
 
             /* Register user Frame buffer to receive remote Frame. */
             handle->bufferFrameBuf[xfer->bufferIdx] = xfer->frame;
-        }
-        else
-        {
+        } else {
             handle->bufferState[xfer->bufferIdx] = kMCAN_StateTxData;
         }
 
-        if (kStatus_Success == MCAN_WriteTxBuffer(base, xfer->bufferIdx, xfer->frame))
-        {
+        if (kStatus_Success == MCAN_WriteTxBuffer(base, xfer->bufferIdx, xfer->frame)) {
             /* Enable Buffer Interrupt. */
             MCAN_EnableTransmitBufferInterrupts(base, xfer->bufferIdx);
             MCAN_EnableInterrupts(base, 0, CAN_IE_TCE_MASK);
@@ -678,15 +622,11 @@ status_t MCAN_TransferSendNonBlocking(CAN_Type *base, mcan_handle_t *handle, mca
             MCAN_TransmitAddRequest(base, xfer->bufferIdx);
 
             return kStatus_Success;
-        }
-        else
-        {
+        } else {
             handle->bufferState[xfer->bufferIdx] = kMCAN_StateIdle;
             return kStatus_Fail;
         }
-    }
-    else
-    {
+    } else {
         return kStatus_MCAN_TxBusy;
     }
 }
@@ -702,26 +642,20 @@ status_t MCAN_TransferReceiveFifoNonBlocking(CAN_Type *base,
     assert(xfer);
 
     /* Check if Message Buffer is idle. */
-    if (kMCAN_StateIdle == handle->rxFifoState)
-    {
+    if (kMCAN_StateIdle == handle->rxFifoState) {
         handle->rxFifoState = kMCAN_StateRxFifo;
 
         /* Register Message Buffer. */
         handle->rxFifoFrameBuf = xfer->frame;
 
         /* Enable FIFO Interrupt. */
-        if (fifoBlock)
-        {
+        if (fifoBlock) {
             MCAN_EnableInterrupts(base, 0, CAN_IE_RF1NE_MASK);
-        }
-        else
-        {
+        } else {
             MCAN_EnableInterrupts(base, 0, CAN_IE_RF0NE_MASK);
         }
         return kStatus_Success;
-    }
-    else
-    {
+    } else {
         return fifoBlock ? kStatus_MCAN_RxFifo1Busy : kStatus_MCAN_RxFifo0Busy;
     }
 }
@@ -752,13 +686,10 @@ void MCAN_TransferAbortReceiveFifo(CAN_Type *base, uint8_t fifoBlock, mcan_handl
     assert((fifoBlock == 0) || (fifoBlock == 1));
 
     /* Check if Rx FIFO is enabled. */
-    if (fifoBlock)
-    {
+    if (fifoBlock) {
         /* Disable Rx Message FIFO Interrupts. */
         MCAN_DisableInterrupts(base, CAN_IE_RF1NE_MASK);
-    }
-    else
-    {
+    } else {
         MCAN_DisableInterrupts(base, CAN_IE_RF0NE_MASK);
     }
     /* Un-register handle. */
@@ -778,36 +709,24 @@ void MCAN_TransferHandleIRQ(CAN_Type *base, mcan_handle_t *handle)
     /* Store Current MCAN Module Error and Status. */
     result = base->IR;
 
-    do
-    {
+    do {
         /* Solve Rx FIFO, Tx interrupt. */
-        if (result & kMCAN_TxTransmitCompleteFlag)
-        {
+        if (result & kMCAN_TxTransmitCompleteFlag) {
             status = kStatus_MCAN_TxIdle;
             MCAN_TransferAbortSend(base, handle, handle->txbufferIdx);
-        }
-        else if (result & kMCAN_RxFifo0NewFlag)
-        {
+        } else if (result & kMCAN_RxFifo0NewFlag) {
             MCAN_ReadRxFifo(base, 0, handle->rxFifoFrameBuf);
             status = kStatus_MCAN_RxFifo0Idle;
             MCAN_TransferAbortReceiveFifo(base, 0, handle);
-        }
-        else if (result & kMCAN_RxFifo0LostFlag)
-        {
+        } else if (result & kMCAN_RxFifo0LostFlag) {
             status = kStatus_MCAN_RxFifo0Lost;
-        }
-        else if (result & kMCAN_RxFifo1NewFlag)
-        {
+        } else if (result & kMCAN_RxFifo1NewFlag) {
             MCAN_ReadRxFifo(base, 1, handle->rxFifoFrameBuf);
             status = kStatus_MCAN_RxFifo1Idle;
             MCAN_TransferAbortReceiveFifo(base, 1, handle);
-        }
-        else if (result & kMCAN_RxFifo1LostFlag)
-        {
+        } else if (result & kMCAN_RxFifo1LostFlag) {
             status = kStatus_MCAN_RxFifo0Lost;
-        }
-        else
-        {
+        } else {
             ;
         }
 
@@ -815,8 +734,7 @@ void MCAN_TransferHandleIRQ(CAN_Type *base, mcan_handle_t *handle)
         MCAN_ClearStatusFlag(base, result);
 
         /* Calling Callback Function if has one. */
-        if (handle->callback != NULL)
-        {
+        if (handle->callback != NULL) {
             handle->callback(base, handle, status, result, handle->userData);
         }
 

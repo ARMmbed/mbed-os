@@ -43,7 +43,7 @@ public:
      */
     FATFileSystem(const char *name = NULL, BlockDevice *bd = NULL);
     virtual ~FATFileSystem();
-    
+
     /** Formats a logical drive, FDISK partitioning rule.
      *
      *  The block device to format should be mounted when this function is called.
@@ -57,7 +57,7 @@ public:
      *    cluster_size must be a multiple of the underlying device's allocation unit
      *    and is currently limited to a max of 32,768 bytes. If zero, a cluster size
      *    will be determined from the device's allocation unit. Defaults to zero.
-     *   
+     *
      *  @return         0 on success, negative error code on failure
      */
     static int format(BlockDevice *bd, bd_size_t cluster_size = 0);
@@ -170,7 +170,7 @@ protected:
      *
      *  @param file     File handle
      *  @param buffer   The buffer to write from
-     *  @param len      The number of bytes to write 
+     *  @param len      The number of bytes to write
      *  @return         The number of bytes written, negative error on failure
      */
     virtual ssize_t file_write(fs_file_t file, const void *buffer, size_t len);
@@ -251,7 +251,7 @@ protected:
      *  @param dir      Dir handle
      */
     virtual void dir_rewind(fs_dir_t dir);
-    
+
 private:
     FATFS _fs; // Work area (file system object) for logical drive
     char _fsid[sizeof("0:")];

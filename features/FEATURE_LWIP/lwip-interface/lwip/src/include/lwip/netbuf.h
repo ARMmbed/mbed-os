@@ -58,33 +58,33 @@ extern "C" {
 
 /** "Network buffer" - contains data and addressing info */
 struct netbuf {
-  struct pbuf *p, *ptr;
-  ip_addr_t addr;
-  u16_t port;
+    struct pbuf *p, *ptr;
+    ip_addr_t addr;
+    u16_t port;
 #if LWIP_NETBUF_RECVINFO || LWIP_CHECKSUM_ON_COPY
 #if LWIP_CHECKSUM_ON_COPY
-  u8_t flags;
+    u8_t flags;
 #endif /* LWIP_CHECKSUM_ON_COPY */
-  u16_t toport_chksum;
+    u16_t toport_chksum;
 #if LWIP_NETBUF_RECVINFO
-  ip_addr_t toaddr;
+    ip_addr_t toaddr;
 #endif /* LWIP_NETBUF_RECVINFO */
 #endif /* LWIP_NETBUF_RECVINFO || LWIP_CHECKSUM_ON_COPY */
 };
 
 /* Network buffer functions: */
-struct netbuf *   netbuf_new      (void);
-void              netbuf_delete   (struct netbuf *buf);
-void *            netbuf_alloc    (struct netbuf *buf, u16_t size);
-void              netbuf_free     (struct netbuf *buf);
-err_t             netbuf_ref      (struct netbuf *buf,
-                                   const void *dataptr, u16_t size);
-void              netbuf_chain    (struct netbuf *head, struct netbuf *tail);
+struct netbuf    *netbuf_new(void);
+void              netbuf_delete(struct netbuf *buf);
+void             *netbuf_alloc(struct netbuf *buf, u16_t size);
+void              netbuf_free(struct netbuf *buf);
+err_t             netbuf_ref(struct netbuf *buf,
+                             const void *dataptr, u16_t size);
+void              netbuf_chain(struct netbuf *head, struct netbuf *tail);
 
-err_t             netbuf_data     (struct netbuf *buf,
-                                   void **dataptr, u16_t *len);
-s8_t              netbuf_next     (struct netbuf *buf);
-void              netbuf_first    (struct netbuf *buf);
+err_t             netbuf_data(struct netbuf *buf,
+                              void **dataptr, u16_t *len);
+s8_t              netbuf_next(struct netbuf *buf);
+void              netbuf_first(struct netbuf *buf);
 
 
 #define netbuf_copy_partial(buf, dataptr, len, offset) \

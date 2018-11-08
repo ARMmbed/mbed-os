@@ -14,17 +14,17 @@ TEST_GROUP(FirstTestGroup)
         return f;
     }
 
-    bool test_write(FILE *f, char *str, int str_len) {
+    bool test_write(FILE * f, char *str, int str_len) {
         int n = fprintf(f, str);
         return (n == str_len) ? true : false;
     }
 
-    bool test_read(FILE *f, char *str, int str_len) {
+    bool test_read(FILE * f, char *str, int str_len) {
         int n = fread(str, sizeof(unsigned char), str_len, f);
         return (n == str_len) ? true : false;
     }
 
-    bool test_close(FILE *f) {
+    bool test_close(FILE * f) {
         int rc = fclose(f);
         return rc ? true : false;
     }

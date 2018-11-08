@@ -60,10 +60,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint8_t  ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint8_t  :5;               /*!< bit:  2.. 6  Reserved                           */
-        uint8_t  LPMUX:1;          /*!< bit:      7  Low-Power Mux                      */
+        uint8_t  SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint8_t  ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint8_t  : 5;              /*!< bit:  2.. 6  Reserved                           */
+        uint8_t  LPMUX: 1;         /*!< bit:      7  Low-Power Mux                      */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } OPAMP_CTRLA_Type;
@@ -84,14 +84,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  READY0:1;         /*!< bit:      0  OPAMP 0 Ready                      */
-        uint8_t  READY1:1;         /*!< bit:      1  OPAMP 1 Ready                      */
-        uint8_t  READY2:1;         /*!< bit:      2  OPAMP 2 Ready                      */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  READY0: 1;        /*!< bit:      0  OPAMP 0 Ready                      */
+        uint8_t  READY1: 1;        /*!< bit:      1  OPAMP 1 Ready                      */
+        uint8_t  READY2: 1;        /*!< bit:      2  OPAMP 2 Ready                      */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  READY:3;          /*!< bit:  0.. 2  OPAMP x Ready                      */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  READY: 3;         /*!< bit:  0.. 2  OPAMP x Ready                      */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } OPAMP_STATUS_Type;
@@ -115,22 +115,22 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :1;               /*!< bit:      0  Reserved                           */
-        uint32_t ENABLE:1;         /*!< bit:      1  Operational Amplifier Enable       */
-        uint32_t ANAOUT:1;         /*!< bit:      2  Analog Output                      */
-        uint32_t BIAS:2;           /*!< bit:  3.. 4  Bias Selection                     */
-        uint32_t :1;               /*!< bit:      5  Reserved                           */
-        uint32_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-        uint32_t ONDEMAND:1;       /*!< bit:      7  On Demand Control                  */
-        uint32_t RES2OUT:1;        /*!< bit:      8  Resistor ladder To Output          */
-        uint32_t RES2VCC:1;        /*!< bit:      9  Resistor ladder To VCC             */
-        uint32_t RES1EN:1;         /*!< bit:     10  Resistor 1 Enable                  */
-        uint32_t RES1MUX:2;        /*!< bit: 11..12  Resistor 1 Mux                     */
-        uint32_t POTMUX:3;         /*!< bit: 13..15  Potentiometer Selection            */
-        uint32_t MUXPOS:3;         /*!< bit: 16..18  Positive Input Mux Selection       */
-        uint32_t :1;               /*!< bit:     19  Reserved                           */
-        uint32_t MUXNEG:3;         /*!< bit: 20..22  Negative Input Mux Selection       */
-        uint32_t :9;               /*!< bit: 23..31  Reserved                           */
+        uint32_t : 1;              /*!< bit:      0  Reserved                           */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Operational Amplifier Enable       */
+        uint32_t ANAOUT: 1;        /*!< bit:      2  Analog Output                      */
+        uint32_t BIAS: 2;          /*!< bit:  3.. 4  Bias Selection                     */
+        uint32_t : 1;              /*!< bit:      5  Reserved                           */
+        uint32_t RUNSTDBY: 1;      /*!< bit:      6  Run in Standby                     */
+        uint32_t ONDEMAND: 1;      /*!< bit:      7  On Demand Control                  */
+        uint32_t RES2OUT: 1;       /*!< bit:      8  Resistor ladder To Output          */
+        uint32_t RES2VCC: 1;       /*!< bit:      9  Resistor ladder To VCC             */
+        uint32_t RES1EN: 1;        /*!< bit:     10  Resistor 1 Enable                  */
+        uint32_t RES1MUX: 2;       /*!< bit: 11..12  Resistor 1 Mux                     */
+        uint32_t POTMUX: 3;        /*!< bit: 13..15  Potentiometer Selection            */
+        uint32_t MUXPOS: 3;        /*!< bit: 16..18  Positive Input Mux Selection       */
+        uint32_t : 1;              /*!< bit:     19  Reserved                           */
+        uint32_t MUXNEG: 3;        /*!< bit: 20..22  Negative Input Mux Selection       */
+        uint32_t : 9;              /*!< bit: 23..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } OPAMP_OPAMPCTRL_Type;

@@ -21,22 +21,22 @@
 ETH_HandleTypeDef EthHandle;
 
 #if defined (__ICCARM__)   /*!< IAR Compiler */
-  #pragma data_alignment=4
+#pragma data_alignment=4
 #endif
 __ALIGN_BEGIN ETH_DMADescTypeDef DMARxDscrTab[ETH_RXBUFNB] __ALIGN_END; /* Ethernet Rx DMA Descriptor */
 
 #if defined (__ICCARM__)   /*!< IAR Compiler */
-  #pragma data_alignment=4
+#pragma data_alignment=4
 #endif
 __ALIGN_BEGIN ETH_DMADescTypeDef DMATxDscrTab[ETH_TXBUFNB] __ALIGN_END; /* Ethernet Tx DMA Descriptor */
 
 #if defined (__ICCARM__)   /*!< IAR Compiler */
-  #pragma data_alignment=4
+#pragma data_alignment=4
 #endif
 __ALIGN_BEGIN uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE] __ALIGN_END; /* Ethernet Receive Buffer */
 
 #if defined (__ICCARM__)   /*!< IAR Compiler */
-  #pragma data_alignment=4
+#pragma data_alignment=4
 #endif
 __ALIGN_BEGIN uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE] __ALIGN_END; /* Ethernet Transmit Buffer */
 
@@ -59,7 +59,7 @@ static err_t _eth_arch_netif_output_ipv6(struct netif *netif, struct pbuf *q, co
 #endif
 
 static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p);
-static struct pbuf * _eth_arch_low_level_input(struct netif *netif);
+static struct pbuf *_eth_arch_low_level_input(struct netif *netif);
 __weak uint8_t mbed_otp_mac_address(char *mac);
 void mbed_default_mac_address(char *mac);
 
@@ -128,7 +128,7 @@ static void _eth_arch_low_level_init(struct netif *netif)
     /* Initialize Rx Descriptors list: Chain Mode  */
     HAL_ETH_DMARxDescListInit(&EthHandle, DMARxDscrTab, &Rx_Buff[0][0], ETH_RXBUFNB);
 
- #if LWIP_ARP || LWIP_ETHERNET
+#if LWIP_ARP || LWIP_ETHERNET
     /* set MAC hardware address length */
     netif->hwaddr_len = ETH_HWADDR_LEN;
 
@@ -175,7 +175,7 @@ static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p)
 {
     err_t errval;
     struct pbuf *q;
-    uint8_t *buffer = (uint8_t*)(EthHandle.TxDesc->Buffer1Addr);
+    uint8_t *buffer = (uint8_t *)(EthHandle.TxDesc->Buffer1Addr);
     __IO ETH_DMADescTypeDef *DmaTxDesc;
     uint32_t framelength = 0;
     uint32_t bufferoffset = 0;
@@ -201,10 +201,10 @@ static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p)
         /* Check if the length of data to copy is bigger than Tx buffer size*/
         while ((byteslefttocopy + bufferoffset) > ETH_TX_BUF_SIZE) {
             /* Copy data to Tx buffer*/
-            memcpy((uint8_t*)((uint8_t*)buffer + bufferoffset), (uint8_t*)((uint8_t*)q->payload + payloadoffset), (ETH_TX_BUF_SIZE - bufferoffset));
+            memcpy((uint8_t *)((uint8_t *)buffer + bufferoffset), (uint8_t *)((uint8_t *)q->payload + payloadoffset), (ETH_TX_BUF_SIZE - bufferoffset));
 
             /* Point to next descriptor */
-            DmaTxDesc = (ETH_DMADescTypeDef*)(DmaTxDesc->Buffer2NextDescAddr);
+            DmaTxDesc = (ETH_DMADescTypeDef *)(DmaTxDesc->Buffer2NextDescAddr);
 
             /* Check if the buffer is available */
             if ((DmaTxDesc->Status & ETH_DMATXDESC_OWN) != (uint32_t)RESET) {
@@ -212,7 +212,7 @@ static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p)
                 goto error;
             }
 
-            buffer = (uint8_t*)(DmaTxDesc->Buffer1Addr);
+            buffer = (uint8_t *)(DmaTxDesc->Buffer1Addr);
 
             byteslefttocopy = byteslefttocopy - (ETH_TX_BUF_SIZE - bufferoffset);
             payloadoffset = payloadoffset + (ETH_TX_BUF_SIZE - bufferoffset);
@@ -221,7 +221,7 @@ static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p)
         }
 
         /* Copy the remaining bytes */
-        memcpy((uint8_t*)((uint8_t*)buffer + bufferoffset), (uint8_t*)((uint8_t*)q->payload + payloadoffset), byteslefttocopy);
+        memcpy((uint8_t *)((uint8_t *)buffer + bufferoffset), (uint8_t *)((uint8_t *)q->payload + payloadoffset), byteslefttocopy);
         bufferoffset = bufferoffset + byteslefttocopy;
         framelength = framelength + byteslefttocopy;
     }
@@ -256,7 +256,7 @@ error:
  * @return a pbuf filled with the received packet (including MAC header)
  *         NULL on memory error
  */
-static struct pbuf * _eth_arch_low_level_input(struct netif *netif)
+static struct pbuf *_eth_arch_low_level_input(struct netif *netif)
 {
     struct pbuf *p = NULL;
     struct pbuf *q;
@@ -270,12 +270,13 @@ static struct pbuf * _eth_arch_low_level_input(struct netif *netif)
 
 
     /* get received frame */
-    if (HAL_ETH_GetReceivedFrame(&EthHandle) != HAL_OK)
+    if (HAL_ETH_GetReceivedFrame(&EthHandle) != HAL_OK) {
         return NULL;
+    }
 
     /* Obtain the size of the packet and put it into the "len" variable. */
     len = EthHandle.RxFrameInfos.length;
-    buffer = (uint8_t*)EthHandle.RxFrameInfos.buffer;
+    buffer = (uint8_t *)EthHandle.RxFrameInfos.buffer;
 
     if (len > 0) {
         /* We allocate a pbuf chain of pbufs from the Lwip buffer pool */
@@ -292,18 +293,18 @@ static struct pbuf * _eth_arch_low_level_input(struct netif *netif)
             /* Check if the length of bytes to copy in current pbuf is bigger than Rx buffer size*/
             while ((byteslefttocopy + bufferoffset) > ETH_RX_BUF_SIZE) {
                 /* Copy data to pbuf */
-                memcpy((uint8_t*)((uint8_t*)q->payload + payloadoffset), (uint8_t*)((uint8_t*)buffer + bufferoffset), (ETH_RX_BUF_SIZE - bufferoffset));
+                memcpy((uint8_t *)((uint8_t *)q->payload + payloadoffset), (uint8_t *)((uint8_t *)buffer + bufferoffset), (ETH_RX_BUF_SIZE - bufferoffset));
 
                 /* Point to next descriptor */
-                dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
-                buffer = (uint8_t*)(dmarxdesc->Buffer1Addr);
+                dmarxdesc = (ETH_DMADescTypeDef *)(dmarxdesc->Buffer2NextDescAddr);
+                buffer = (uint8_t *)(dmarxdesc->Buffer1Addr);
 
                 byteslefttocopy = byteslefttocopy - (ETH_RX_BUF_SIZE - bufferoffset);
                 payloadoffset = payloadoffset + (ETH_RX_BUF_SIZE - bufferoffset);
                 bufferoffset = 0;
             }
             /* Copy remaining data in pbuf */
-            memcpy((uint8_t*)((uint8_t*)q->payload + payloadoffset), (uint8_t*)((uint8_t*)buffer + bufferoffset), byteslefttocopy);
+            memcpy((uint8_t *)((uint8_t *)q->payload + payloadoffset), (uint8_t *)((uint8_t *)buffer + bufferoffset), byteslefttocopy);
             bufferoffset = bufferoffset + byteslefttocopy;
         }
     }
@@ -314,7 +315,7 @@ static struct pbuf * _eth_arch_low_level_input(struct netif *netif)
     /* Set Own bit in Rx descriptors: gives the buffers back to DMA */
     for (i = 0; i < EthHandle.RxFrameInfos.SegCount; i++) {
         dmarxdesc->Status |= ETH_DMARXDESC_OWN;
-        dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
+        dmarxdesc = (ETH_DMADescTypeDef *)(dmarxdesc->Buffer2NextDescAddr);
     }
 
     /* Clear Segment_Count */
@@ -337,7 +338,7 @@ static struct pbuf * _eth_arch_low_level_input(struct netif *netif)
  */
 static void _eth_arch_rx_task(void *arg)
 {
-    struct netif   *netif = (struct netif*)arg;
+    struct netif   *netif = (struct netif *)arg;
     struct pbuf    *p;
 
     while (1) {
@@ -359,16 +360,16 @@ static void _eth_arch_rx_task(void *arg)
  */
 static void _eth_arch_phy_task(void *arg)
 {
-    struct netif   *netif = (struct netif*)arg;
+    struct netif   *netif = (struct netif *)arg;
     uint32_t phy_status = 0;
 
     while (1) {
         uint32_t status;
         if (HAL_ETH_ReadPHYRegister(&EthHandle, PHY_BSR, &status) == HAL_OK) {
             if ((status & PHY_LINKED_STATUS) && !(phy_status & PHY_LINKED_STATUS)) {
-                tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up, (void*) netif, 1);
+                tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up, (void *) netif, 1);
             } else if (!(status & PHY_LINKED_STATUS) && (phy_status & PHY_LINKED_STATUS)) {
-                tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, (void*) netif, 1);
+                tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, (void *) netif, 1);
             }
             phy_status = status;
         }
@@ -385,12 +386,12 @@ static void _eth_arch_phy_task(void *arg)
  */
 static void _rmii_watchdog(void *arg)
 {
-    while(1) {
+    while (1) {
         /* some good packets are received */
         if (EthHandle.Instance->MMCRGUFCR > 0) {
             /* RMII Init is OK - would need service to terminate or suspend
              * the thread */
-            while(1) {
+            while (1) {
                 /*  don't do anything anymore */
                 osDelay(0xFFFFFFFF);
             }
@@ -523,7 +524,8 @@ void eth_arch_disable_interrupts(void)
 *  @param mac A 6-byte array to write the MAC address
 */
 
-void mbed_mac_address(char *mac) {
+void mbed_mac_address(char *mac)
+{
     if (mbed_otp_mac_address(mac)) {
         return;
     } else {
@@ -532,11 +534,13 @@ void mbed_mac_address(char *mac) {
     return;
 }
 
-__weak uint8_t mbed_otp_mac_address(char *mac) {
+__weak uint8_t mbed_otp_mac_address(char *mac)
+{
     return 0;
 }
 
-void mbed_default_mac_address(char *mac) {
+void mbed_default_mac_address(char *mac)
+{
     unsigned char ST_mac_addr[3] = {0x00, 0x80, 0xe1}; // default STMicro mac address
 
     // Read unic id
@@ -547,7 +551,7 @@ void mbed_default_mac_address(char *mac) {
 #elif defined (TARGET_STM32F7)
     uint32_t word0 = *(uint32_t *)0x1FF0F420;
 #else
-    #error MAC address can not be derived from target unique Id
+#error MAC address can not be derived from target unique Id
 #endif
 
     mac[0] = ST_mac_addr[0];

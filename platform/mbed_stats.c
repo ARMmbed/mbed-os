@@ -24,7 +24,7 @@ void mbed_stats_stack_get(mbed_stats_stack_t *stats)
     osKernelLock();
     thread_n = osThreadEnumerate(threads, thread_n);
 
-    for(i = 0; i < thread_n; i++) {
+    for (i = 0; i < thread_n; i++) {
         uint32_t stack_size = osThreadGetStackSize(threads[i]);
         stats->max_size += stack_size - osThreadGetStackSpace(threads[i]);
         stats->reserved_size += stack_size;
@@ -38,7 +38,7 @@ void mbed_stats_stack_get(mbed_stats_stack_t *stats)
 
 size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count)
 {
-    memset(stats, 0, count*sizeof(mbed_stats_stack_t));
+    memset(stats, 0, count * sizeof(mbed_stats_stack_t));
     size_t i = 0;
 
 #if MBED_STACK_STATS_ENABLED && MBED_CONF_RTOS_PRESENT
@@ -50,7 +50,7 @@ size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count)
     osKernelLock();
     count = osThreadEnumerate(threads, count);
 
-    for(i = 0; i < count; i++) {
+    for (i = 0; i < count; i++) {
         uint32_t stack_size = osThreadGetStackSize(threads[i]);
         stats[i].max_size = stack_size - osThreadGetStackSpace(threads[i]);
         stats[i].reserved_size = stack_size;

@@ -70,7 +70,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void error(const char* format, ...);
+void error(const char *format, ...);
 
 #ifdef __cplusplus
 }

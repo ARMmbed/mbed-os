@@ -17,33 +17,35 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 
-void hal_sleep(void) {
-    
+void hal_sleep(void)
+{
+
     // PCON[DPDEN] set to sleep
     LPC_PMU->PCON = 0x0;
-    
+
     // SRC[SLEEPDEEP] set to 0 = sleep
     SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
-    
+
     // wait for interrupt
     __WFI();
 }
 
-void hal_deepsleep(void) {
-    
+void hal_deepsleep(void)
+{
+
     // PCON[DPDEN] set to deepsleep
     LPC_PMU->PCON = 0;
-    
+
     // SRC[SLEEPDEEP] set to 1 = deep sleep
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-    
+
     //According to user manual it is kinda picky about reserved bits, so we follow that nicely
     //Keep WDOSC and BOD in same state as they are now during deepsleep
-    LPC_SYSCON->PDSLEEPCFG = 0x000018B7 | (LPC_SYSCON->PDRUNCFG & (PDRUNCFG_WDTOSC_PD | PDRUNCFG_BOD_PD)); 
-    
+    LPC_SYSCON->PDSLEEPCFG = 0x000018B7 | (LPC_SYSCON->PDRUNCFG & (PDRUNCFG_WDTOSC_PD | PDRUNCFG_BOD_PD));
+
     // Power up same as before powerdown
     LPC_SYSCON->PDAWAKECFG = LPC_SYSCON->PDRUNCFG;
-    
+
     // wait for interrupt
     __WFI();
 }

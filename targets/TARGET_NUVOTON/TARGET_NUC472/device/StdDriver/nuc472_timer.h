@@ -223,7 +223,7 @@ __STATIC_INLINE void TIMER_DisableCaptureInt(TIMER_T *timer)
   */
 __STATIC_INLINE uint32_t TIMER_GetIntFlag(TIMER_T *timer)
 {
-    return(timer->INTSTS & TIMER_INTSTS_TIF_Msk ? 1 : 0);
+    return (timer->INTSTS & TIMER_INTSTS_TIF_Msk ? 1 : 0);
 }
 
 /**

@@ -25,91 +25,91 @@
 
 #ifdef MAX_PERI
 static const PinMap PinMap_SPI_SCLK[] = {
-    {P2_12 , SPI_0, 2},
-    {P7_15 , SPI_0, 2},
-    {P4_4  , SPI_1, 2},
-    {P6_4  , SPI_1, 7},
-    {P8_3  , SPI_2, 3},
-    {P8_14 , SPI_2, 5},
-    {P3_0  , SPI_3, 8},
-    {P5_0  , SPI_3, 8},
-    {P2_8  , SPI_4, 8},
-    {P4_0  , SPI_4, 7},
-    {NC    , NC   , 0}
+    {P2_12, SPI_0, 2},
+    {P7_15, SPI_0, 2},
+    {P4_4, SPI_1, 2},
+    {P6_4, SPI_1, 7},
+    {P8_3, SPI_2, 3},
+    {P8_14, SPI_2, 5},
+    {P3_0, SPI_3, 8},
+    {P5_0, SPI_3, 8},
+    {P2_8, SPI_4, 8},
+    {P4_0, SPI_4, 7},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
-    {P2_13 , SPI_0, 2},
-    {P8_0  , SPI_0, 2},
-    {P4_5  , SPI_1, 2},
-    {P6_5  , SPI_1, 7},
-    {P8_4  , SPI_2, 3},
-    {P8_15 , SPI_2, 5},
-    {P3_1  , SPI_3, 8},
-    {P5_1  , SPI_3, 8},
-    {P2_9  , SPI_4, 8},
-    {P4_1  , SPI_4, 7},
-    {NC    , NC   , 0}
+    {P2_13, SPI_0, 2},
+    {P8_0, SPI_0, 2},
+    {P4_5, SPI_1, 2},
+    {P6_5, SPI_1, 7},
+    {P8_4, SPI_2, 3},
+    {P8_15, SPI_2, 5},
+    {P3_1, SPI_3, 8},
+    {P5_1, SPI_3, 8},
+    {P2_9, SPI_4, 8},
+    {P4_1, SPI_4, 7},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {P2_14 , SPI_0, 2},
-    {P8_1  , SPI_0, 2},
-    {P4_6  , SPI_1, 2},
-    {P6_6  , SPI_1, 7},
-    {P8_5  , SPI_2, 3},
-    {P9_0  , SPI_2, 5},
-    {P3_2  , SPI_3, 8},
-    {P5_2  , SPI_3, 8},
-    {P2_10 , SPI_4, 8},
-    {P4_2  , SPI_4, 7},
-    {NC    , NC   , 0}
+    {P2_14, SPI_0, 2},
+    {P8_1, SPI_0, 2},
+    {P4_6, SPI_1, 2},
+    {P6_6, SPI_1, 7},
+    {P8_5, SPI_2, 3},
+    {P9_0, SPI_2, 5},
+    {P3_2, SPI_3, 8},
+    {P5_2, SPI_3, 8},
+    {P2_10, SPI_4, 8},
+    {P4_2, SPI_4, 7},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {P2_15 , SPI_0, 2},
-    {P8_2  , SPI_0, 2},
-    {P4_7  , SPI_1, 2},
-    {P6_7  , SPI_1, 7},
-    {P8_6  , SPI_2, 3},
-    {P9_1  , SPI_2, 5},
-    {P3_3  , SPI_3, 8},
-    {P5_3  , SPI_3, 8},
-    {P2_11 , SPI_4, 8},
-    {P4_3  , SPI_4, 7},
-    {NC    , NC   , 0}
+    {P2_15, SPI_0, 2},
+    {P8_2, SPI_0, 2},
+    {P4_7, SPI_1, 2},
+    {P6_7, SPI_1, 7},
+    {P8_6, SPI_2, 3},
+    {P9_1, SPI_2, 5},
+    {P3_3, SPI_3, 8},
+    {P5_3, SPI_3, 8},
+    {P2_11, SPI_4, 8},
+    {P4_3, SPI_4, 7},
+    {NC, NC, 0}
 };
 #else
 static const PinMap PinMap_SPI_SCLK[] = {
-    {P4_4  , SPI_1, 2},
-    {P8_14 , SPI_2, 5},
-    {P5_0  , SPI_3, 8},
-    {P4_0  , SPI_4, 7},
-    {NC    , NC   , 0}
+    {P4_4, SPI_1, 2},
+    {P8_14, SPI_2, 5},
+    {P5_0, SPI_3, 8},
+    {P4_0, SPI_4, 7},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
-    {P4_5  , SPI_1, 2},
-    {P8_15 , SPI_2, 5},
-    {P5_1  , SPI_3, 8},
-    {P4_1  , SPI_4, 7},
-    {NC    , NC   , 0}
+    {P4_5, SPI_1, 2},
+    {P8_15, SPI_2, 5},
+    {P5_1, SPI_3, 8},
+    {P4_1, SPI_4, 7},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {P4_6  , SPI_1, 2},
-    {P9_0  , SPI_2, 5},
-    {P5_2  , SPI_3, 8},
-    {P4_2  , SPI_4, 7},
-    {NC    , NC   , 0}
+    {P4_6, SPI_1, 2},
+    {P9_0, SPI_2, 5},
+    {P5_2, SPI_3, 8},
+    {P4_2, SPI_4, 7},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {P4_7  , SPI_1, 2},
-    {P9_1  , SPI_2, 5},
-    {P5_3  , SPI_3, 8},
-    {P4_3  , SPI_4, 7},
-    {NC    , NC   , 0}
+    {P4_7, SPI_1, 2},
+    {P9_1, SPI_2, 5},
+    {P5_3, SPI_3, 8},
+    {P4_3, SPI_4, 7},
+    {NC, NC, 0}
 };
 #endif
 
@@ -122,7 +122,8 @@ static inline int spi_readable(spi_t *obj);
 static inline void spi_write(spi_t *obj, int value);
 static inline int spi_read(spi_t *obj);
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
     // determine the SPI to use
     volatile uint8_t dummy;
     uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
@@ -139,16 +140,24 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     // enable power and clocking
     switch (spi) {
-        case SPI_1: CPGSTBCR10 &= ~(0x40); break;
-        case SPI_2: CPGSTBCR10 &= ~(0x20); break;
-        case SPI_3: CPGSTBCR10 &= ~(0x10); break;
-        case SPI_4: CPGSTBCR10 &= ~(0x08); break;
+        case SPI_1:
+            CPGSTBCR10 &= ~(0x40);
+            break;
+        case SPI_2:
+            CPGSTBCR10 &= ~(0x20);
+            break;
+        case SPI_3:
+            CPGSTBCR10 &= ~(0x10);
+            break;
+        case SPI_4:
+            CPGSTBCR10 &= ~(0x08);
+            break;
     }
     dummy = CPGSTBCR10;
 
     obj->spi->SPCR   = 0x00;  // CTRL to 0
     obj->spi->SPSCR  = 0x00;  // no sequential operation
-    obj->spi->SSLP   = 0x00;  // SSL 'L' active 
+    obj->spi->SSLP   = 0x00;  // SSL 'L' active
     obj->spi->SPDCR  = 0x20;  // byte access
     obj->spi->SPCKD  = 0x00;  // SSL -> enable CLK delay : 1RSPCK
     obj->spi->SSLND  = 0x00;  // CLK end -> SSL neg delay : 1RSPCK
@@ -168,7 +177,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
 void spi_free(spi_t *obj) {}
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
     int      DSS;      // DSS (data select size)
     int      polarity  = (mode & 0x2) ? 1 : 0;
     int      phase     = (mode & 0x1) ? 1 : 0;
@@ -218,14 +228,15 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     obj->spi->SPCMD0 = wk_spcmd0;
     obj->spi->SPDCR   = splw;
     if (slave) {
-        obj->spi->SPCR &=~(1 << 3);  // MSTR to 0
+        obj->spi->SPCR &= ~(1 << 3); // MSTR to 0
     } else {
         obj->spi->SPCR |= (1 << 3);  // MSTR to 1
     }
     spi_enable(obj);
 }
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     uint32_t  pclk_base;
     uint32_t  div;
     uint32_t  brdv = 0;
@@ -265,23 +276,28 @@ void spi_frequency(spi_t *obj, int hz) {
     spi_enable(obj);
 }
 
-static inline void spi_disable(spi_t *obj) {
+static inline void spi_disable(spi_t *obj)
+{
     obj->spi->SPCR &= ~(1 << 6);       // SPE to 0
 }
 
-static inline void spi_enable(spi_t *obj) {
-    obj->spi->SPCR |=  (1 << 6);       // SPE to 1
+static inline void spi_enable(spi_t *obj)
+{
+    obj->spi->SPCR |= (1 << 6);        // SPE to 1
 }
 
-static inline int spi_readable(spi_t *obj) {
+static inline int spi_readable(spi_t *obj)
+{
     return obj->spi->SPSR & (1 << 7);  // SPRF
 }
 
-static inline int spi_tend(spi_t *obj) {
+static inline int spi_tend(spi_t *obj)
+{
     return obj->spi->SPSR & (1 << 6);  // TEND
 }
 
-static inline void spi_write(spi_t *obj, int value) {
+static inline void spi_write(spi_t *obj, int value)
+{
     if (obj->bits == 8) {
         obj->spi->SPDR.UINT8[0]  = (uint8_t)value;
     } else if (obj->bits == 16) {
@@ -291,7 +307,8 @@ static inline void spi_write(spi_t *obj, int value) {
     }
 }
 
-static inline int spi_read(spi_t *obj) {
+static inline int spi_read(spi_t *obj)
+{
     int read_data;
 
     if (obj->bits == 8) {
@@ -305,14 +322,16 @@ static inline int spi_read(spi_t *obj) {
     return read_data;
 }
 
-int spi_master_write(spi_t *obj, int value) {
+int spi_master_write(spi_t *obj, int value)
+{
     spi_write(obj, value);
-    while(!spi_tend(obj));
+    while (!spi_tend(obj));
     return spi_read(obj);
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -326,18 +345,22 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     return total;
 }
 
-int spi_slave_receive(spi_t *obj) {
+int spi_slave_receive(spi_t *obj)
+{
     return (spi_readable(obj) && !spi_busy(obj)) ? (1) : (0);
 }
 
-int spi_slave_read(spi_t *obj) {
+int spi_slave_read(spi_t *obj)
+{
     return spi_read(obj);
 }
 
-void spi_slave_write(spi_t *obj, int value) {
+void spi_slave_write(spi_t *obj, int value)
+{
     spi_write(obj, value);
 }
 
-int spi_busy(spi_t *obj) {
+int spi_busy(spi_t *obj)
+{
     return 0;
 }

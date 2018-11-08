@@ -130,8 +130,7 @@
 /***********************************************************************
 * Prefix state.
 ***********************************************************************/
-typedef enum fnet_nd6_prefix_state
-{
+typedef enum fnet_nd6_prefix_state {
     FNET_ND6_PREFIX_STATE_NOTUSED = 0,      /* The entry is not used - free.*/
     FNET_ND6_PREFIX_STATE_USED = 1          /* The entry is used.*/
 } fnet_nd6_prefix_state_t;
@@ -141,8 +140,7 @@ typedef enum fnet_nd6_prefix_state
 * Prefix List entries are created from information received in Router
 * Advertisements.
 ***********************************************************************/
-typedef struct fnet_nd6_prefix_entry
-{
+typedef struct fnet_nd6_prefix_entry {
     fnet_ip6_addr_t         prefix;         /* Prefix of an IPv6 address. */
     fnet_size_t             prefix_length;  /* Prefix length (in bits). The number of leading bits
                                              * in the Prefix that are valid. */
@@ -160,8 +158,7 @@ typedef struct fnet_nd6_prefix_entry
 /**************************************************************
 * Neighbor’s reachability states, based on RFC4861.
 **************************************************************/
-typedef enum fnet_nd6_neighbor_state
-{
+typedef enum fnet_nd6_neighbor_state {
     FNET_ND6_NEIGHBOR_STATE_NOTUSED = 0,    /* The entry is not used - free.*/
     FNET_ND6_NEIGHBOR_STATE_INCOMPLETE = 1, /* Address resolution is in progress and the link-layer
                                              * address of the neighbor has not yet been determined.*/
@@ -184,8 +181,7 @@ typedef enum fnet_nd6_neighbor_state
 /***********************************************************************
 * Neighbor Cache entry, based on RFC4861.
 ***********************************************************************/
-typedef struct fnet_nd6_neighbor_entry
-{
+typedef struct fnet_nd6_neighbor_entry {
 
     fnet_ip6_addr_t             ip_addr;        /* Neighbor’s on-link unicast IP address. */
     fnet_netif_ll_addr_t        ll_addr;        /* Its link-layer address. Actual size is defiined by fnet_netif_api_t->netif_hw_addr_size. */
@@ -215,8 +211,7 @@ typedef struct fnet_nd6_neighbor_entry
 /***********************************************************************
 * Redirect Table entry.
 ***********************************************************************/
-typedef struct fnet_nd6_redirect_entry
-{
+typedef struct fnet_nd6_redirect_entry {
     fnet_ip6_addr_t     destination_addr;   /* Destination Address. The IP address of the destination that is
                                              * redirected to the target. */
     fnet_ip6_addr_t     target_addr;        /* Target Address. An IP address that is a better first hop to use for
@@ -234,8 +229,7 @@ typedef struct fnet_nd6_redirect_entry
 /***********************************************************************
 * Recursive DNS Server List entry, based on RFC6106.
 ***********************************************************************/
-typedef struct fnet_nd6_rdnss_entry
-{
+typedef struct fnet_nd6_rdnss_entry {
     fnet_ip6_addr_t             rdnss_addr;         /* IPv6 address of the Recursive
                                                     * DNS Server, which is available for recursive DNS resolution
                                                     * service in the network advertising the RDNSS option. */
@@ -273,8 +267,7 @@ typedef struct fnet_nd6_rdnss_entry
 *    +-+-+-+-+-+-+-+-+-+-+-+-
 ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_nd6_ns_header
-{
+typedef struct fnet_nd6_ns_header {
     fnet_icmp6_header_t icmp6_header    FNET_COMP_PACKED;
     fnet_uint8_t        _reserved[4]    FNET_COMP_PACKED;
     fnet_ip6_addr_t     target_addr     FNET_COMP_PACKED;
@@ -288,7 +281,7 @@ FNET_COMP_PACKED_END
 * Solicitations and sends unsolicited Neighbor Advertisements in order
 * to (unreliably) propagate new information quickly.
 *
-*	 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 *    |     Type      |     Code      |          Checksum             |
 *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 *    |R|S|O|                     Reserved                            |
@@ -305,8 +298,7 @@ FNET_COMP_PACKED_END
 *    +-+-+-+-+-+-+-+-+-+-+-+-
 ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_nd6_na_header
-{
+typedef struct fnet_nd6_na_header {
     fnet_icmp6_header_t icmp6_header    FNET_COMP_PACKED;
     fnet_uint8_t        flag            FNET_COMP_PACKED;
     fnet_uint8_t        _reserved[3]    FNET_COMP_PACKED;
@@ -344,7 +336,7 @@ FNET_COMP_PACKED_END
 * Routers send Redirect packets to inform a host of a better first-hop
 * node on the path to a destination.
 *
-*	 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 *    |     Type      |     Code      |          Checksum             |
 *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 *    |                           Reserved                            |
@@ -369,8 +361,7 @@ FNET_COMP_PACKED_END
 *    +-+-+-+-+-+-+-+-+-+-+-+-
 ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_nd6_rd_header
-{
+typedef struct fnet_nd6_rd_header {
     fnet_icmp6_header_t icmp6_header        FNET_COMP_PACKED;
     fnet_uint8_t        _reserved[4]        FNET_COMP_PACKED;
     fnet_ip6_addr_t     target_addr         FNET_COMP_PACKED;
@@ -394,8 +385,7 @@ FNET_COMP_PACKED_END
 *    +-+-+-+-+-+-+-+-+-+-+-+-
 ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_nd6_rs_header
-{
+typedef struct fnet_nd6_rs_header {
     fnet_icmp6_header_t icmp6_header    FNET_COMP_PACKED;
     fnet_uint8_t        _reserved[4]    FNET_COMP_PACKED;
 } fnet_nd6_rs_header_t;
@@ -420,8 +410,7 @@ FNET_COMP_PACKED_END
 *    +-+-+-+-+-+-+-+-+-+-+-+-
 ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_nd6_ra_header
-{
+typedef struct fnet_nd6_ra_header {
     fnet_icmp6_header_t icmp6_header    FNET_COMP_PACKED;   /* ICMPv6 header.*/
     fnet_uint8_t        cur_hop_limit   FNET_COMP_PACKED;   /* 8-bit unsigned integer. The default value that
                                                              * should be placed in the Hop Count field of the IP
@@ -487,8 +476,7 @@ FNET_COMP_PACKED_END
  * ND option header
  ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_nd6_option_header
-{
+typedef struct fnet_nd6_option_header {
     fnet_uint8_t type      FNET_COMP_PACKED;   /* Identifier of the type of option.*/
     fnet_uint8_t length    FNET_COMP_PACKED;   /* The length of the option
                                                  * (including the type and length fields) in units of
@@ -505,8 +493,7 @@ FNET_COMP_PACKED_END
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_nd6_option_lla_header
-{
+typedef struct fnet_nd6_option_lla_header {
     fnet_nd6_option_header_t    option_header   FNET_COMP_PACKED;   /* Option general header.*/
     fnet_uint8_t                addr[6]         FNET_COMP_PACKED;   /* The length of the option. Can be more or less than 6.*/
 } fnet_nd6_option_lla_header_t;
@@ -521,8 +508,7 @@ FNET_COMP_PACKED_END
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_nd6_option_mtu_header
-{
+typedef struct fnet_nd6_option_mtu_header {
     fnet_nd6_option_header_t    option_header   FNET_COMP_PACKED;   /* Option general header.*/
     fnet_uint8_t                _reserved[2]    FNET_COMP_PACKED;
     fnet_uint32_t               mtu             FNET_COMP_PACKED;   /* The recommended MTU for the link.*/
@@ -550,8 +536,7 @@ FNET_COMP_PACKED_END
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_nd6_option_prefix_header
-{
+typedef struct fnet_nd6_option_prefix_header {
     fnet_nd6_option_header_t    option_header   FNET_COMP_PACKED;   /* Option general header.*/
     fnet_uint8_t                prefix_length   FNET_COMP_PACKED;   /* The number of leading bits
                                                                      * in the Prefix that are valid. The value ranges
@@ -618,8 +603,7 @@ FNET_COMP_PACKED_END
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  ***********************************************************************/
 FNET_COMP_PACKED_BEGIN
-typedef struct fnet_nd6_option_rdnss_header
-{
+typedef struct fnet_nd6_option_rdnss_header {
     fnet_nd6_option_header_t    option_header   FNET_COMP_PACKED;   /* Option general header.*/
     fnet_uint16_t               _reserved       FNET_COMP_PACKED;
     fnet_uint32_t               lifetime        FNET_COMP_PACKED;   /* The maximum time, in
@@ -637,8 +621,7 @@ FNET_COMP_PACKED_END
 /***********************************************************************
 * Neighbor Descovery Configuration
 ***********************************************************************/
-typedef struct fnet_nd6_if
-{
+typedef struct fnet_nd6_if {
     /*************************************************************
     * Neighbor Cache.
     * RFC4861 5.1: A set of entries about individual neighbors to
@@ -700,8 +683,8 @@ struct fnet_netif_ip6_addr;
 extern "C" {
 #endif
 
-fnet_return_t fnet_nd6_init (struct fnet_netif *netif, fnet_nd6_if_t *nd6_if_ptr);
-void fnet_nd6_release (struct fnet_netif *netif);
+fnet_return_t fnet_nd6_init(struct fnet_netif *netif, fnet_nd6_if_t *nd6_if_ptr);
+void fnet_nd6_release(struct fnet_netif *netif);
 fnet_nd6_prefix_entry_t *fnet_nd6_prefix_list_add(struct fnet_netif *if_ptr, const fnet_ip6_addr_t *prefix, fnet_size_t prefix_length, fnet_time_t lifetime);
 void fnet_nd6_prefix_list_del(fnet_nd6_prefix_entry_t *prefix_entry);
 fnet_nd6_prefix_entry_t *fnet_nd6_prefix_list_get(struct fnet_netif *netif, fnet_ip6_addr_t *prefix);
@@ -711,8 +694,8 @@ void fnet_nd6_neighbor_cache_del(struct fnet_netif *netif, fnet_nd6_neighbor_ent
 fnet_nd6_neighbor_entry_t *fnet_nd6_neighbor_cache_add(struct fnet_netif *netif, const fnet_ip6_addr_t *ip_addr, fnet_netif_ll_addr_t ll_addr, fnet_nd6_neighbor_state_t state);
 void fnet_nd6_neighbor_enqueue_waiting_netbuf(fnet_nd6_neighbor_entry_t *neighbor_entry, fnet_netbuf_t *waiting_netbuf);
 void fnet_nd6_neighbor_send_waiting_netbuf(struct fnet_netif *netif, fnet_nd6_neighbor_entry_t *neighbor_entry);
-void fnet_nd6_router_list_add( fnet_nd6_neighbor_entry_t *neighbor_entry, fnet_time_t lifetime );
-void fnet_nd6_router_list_del( fnet_nd6_neighbor_entry_t *neighbor_entry );
+void fnet_nd6_router_list_add(fnet_nd6_neighbor_entry_t *neighbor_entry, fnet_time_t lifetime);
+void fnet_nd6_router_list_del(fnet_nd6_neighbor_entry_t *neighbor_entry);
 fnet_nd6_neighbor_entry_t *fnet_nd6_default_router_get(struct fnet_netif *netif);
 void fnet_nd6_neighbor_solicitation_send(struct fnet_netif *netif, const fnet_ip6_addr_t *ipsrc /* NULL for, DAD */, const fnet_ip6_addr_t *ipdest /*set for NUD,  NULL for DAD & AR */, const fnet_ip6_addr_t *target_addr);
 void fnet_nd6_neighbor_solicitation_receive(struct fnet_netif *netif, fnet_ip6_addr_t *src_ip, fnet_ip6_addr_t *dest_ip, fnet_netbuf_t *nb, fnet_netbuf_t *ip6_nb);
@@ -722,7 +705,7 @@ void fnet_nd6_router_solicitation_send(struct fnet_netif *netif);
 void fnet_nd6_router_advertisement_receive(struct fnet_netif *netif, fnet_ip6_addr_t *src_ip, fnet_ip6_addr_t *dest_ip, fnet_netbuf_t *nb, fnet_netbuf_t *ip6_nb);
 void fnet_nd6_redirect_receive(struct fnet_netif *netif, fnet_ip6_addr_t *src_ip, fnet_ip6_addr_t *dest_ip, fnet_netbuf_t *nb, fnet_netbuf_t *ip6_nb);
 void fnet_nd6_redirect_addr(struct fnet_netif *if_ptr, const fnet_ip6_addr_t **destination_addr_p);
-void fnet_nd6_dad_start(struct fnet_netif *netif , struct fnet_netif_ip6_addr *addr_info);
+void fnet_nd6_dad_start(struct fnet_netif *netif, struct fnet_netif_ip6_addr *addr_info);
 void fnet_nd6_rd_start(struct fnet_netif *netif);
 void fnet_nd6_debug_print_prefix_list(struct fnet_netif *netif);
 #if FNET_CFG_ND6_RDNSS && FNET_CFG_DNS

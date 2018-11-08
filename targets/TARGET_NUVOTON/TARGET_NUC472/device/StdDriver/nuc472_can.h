@@ -100,7 +100,7 @@ typedef enum {
  *  @param[in]    can  The base address of can module
  *
  *  @return   The source of the interrupt.
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define CAN_GET_INT_PENDING_STATUS(can)     (can->IIDR)
 
@@ -110,7 +110,7 @@ typedef enum {
  *  @param[in]    can  The base address of can module
  *
  *  @return   None
- * \hideinitializer 
+ * \hideinitializer
  */
 #define CAN_DISABLE_WAKEUP(can)             (can->WU_IE = 0)
 
@@ -120,7 +120,7 @@ typedef enum {
  *  @param[in]    can  The base address of can module
  *
  *  @return   None
- * \hideinitializer 
+ * \hideinitializer
  */
 #define CAN_ENABLE_WAKEUP(can)              (can->WU_IE = CAN_WUEN_WAKUP_EN_Msk)
 
@@ -131,7 +131,7 @@ typedef enum {
  *  @param[in]    u32MsgNum  Specified Message Object number. (0 ~ 31)
  *
  *  @return   Specified Message Object new data into bit value.
- * \hideinitializer 
+ * \hideinitializer
  */
 #define CAN_GET_NEW_DATA_IN_BIT(can, u32MsgNum)    (u32MsgNum < 16 ? can->NDAT1 & (1 << u32MsgNum) : can->NDAT2 & (1 << (u32MsgNum-16)))
 
@@ -141,14 +141,14 @@ typedef enum {
 /*---------------------------------------------------------------------------------------------------------*/
 uint32_t CAN_SetBaudRate(CAN_T *tCAN, uint32_t u32BaudRate);
 uint32_t CAN_Open(CAN_T *tCAN, uint32_t u32BaudRate, uint32_t u32Mode);
-int32_t CAN_Transmit(CAN_T *tCAN, uint32_t u32MsgNum , STR_CANMSG_T* pCanMsg);
-int32_t CAN_Receive(CAN_T *tCAN, uint32_t u32MsgNum , STR_CANMSG_T* pCanMsg);
+int32_t CAN_Transmit(CAN_T *tCAN, uint32_t u32MsgNum, STR_CANMSG_T *pCanMsg);
+int32_t CAN_Receive(CAN_T *tCAN, uint32_t u32MsgNum, STR_CANMSG_T *pCanMsg);
 void CAN_CLR_INT_PENDING_BIT(CAN_T *tCAN, uint8_t u32MsgNum);
 void CAN_EnableInt(CAN_T  *tCAN, uint32_t u32Mask);
 void CAN_DisableInt(CAN_T  *tCAN, uint32_t u32Mask);
-int32_t CAN_SetMultiRxMsg(CAN_T *tCAN, uint32_t u32MsgNum , uint32_t u32MsgCount, uint32_t u32IDType, uint32_t u32ID);
-int32_t CAN_SetRxMsg(CAN_T *tCAN, uint32_t u32MsgNum , uint32_t u32IDType, uint32_t u32ID);
-int32_t CAN_SetTxMsg(CAN_T *tCAN, uint32_t u32MsgNum , STR_CANMSG_T* pCanMsg);
+int32_t CAN_SetMultiRxMsg(CAN_T *tCAN, uint32_t u32MsgNum, uint32_t u32MsgCount, uint32_t u32IDType, uint32_t u32ID);
+int32_t CAN_SetRxMsg(CAN_T *tCAN, uint32_t u32MsgNum, uint32_t u32IDType, uint32_t u32ID);
+int32_t CAN_SetTxMsg(CAN_T *tCAN, uint32_t u32MsgNum, STR_CANMSG_T *pCanMsg);
 int32_t CAN_TriggerTxMsg(CAN_T  *tCAN, uint32_t u32MsgNum);
 uint32_t CAN_GetCANBitRate(CAN_T  *tCAN);
 void CAN_EnterInitMode(CAN_T *tCAN);

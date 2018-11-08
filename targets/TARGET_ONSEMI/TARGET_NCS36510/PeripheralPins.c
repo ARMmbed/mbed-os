@@ -24,7 +24,7 @@ const PinMap PinMap_ADC[] = {
     {A1,  ADC_0, 0},
     {A2,  ADC_0, 0},
     {A3,  ADC_0, 0},
-    {NC   , NC       , 0}
+    {NC, NC, 0}
 };
 
 /************I2C***************/
@@ -35,7 +35,7 @@ const PinMap PinMap_I2C_SDA[] = {
     {GPIO12, I2C_0, 5},
     {GPIO15, I2C_1, 5},
     {GPIO16, I2C_1, 5},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
@@ -45,20 +45,20 @@ const PinMap PinMap_I2C_SCL[] = {
     {GPIO13, I2C_0, 5},
     {GPIO14, I2C_1, 5},
     {GPIO17, I2C_1, 5},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
     {GPIO0, UART_0, 7},
     {GPIO8, UART_1, 7},
-    {NC  ,  NC    , 0}
+    {NC,  NC, 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
     {GPIO1, UART_0, 7},
     {GPIO9, UART_1, 7},
-    {NC  ,  NC    , 0}
+    {NC,  NC, 0}
 };
 
 /************SPI***************/
@@ -105,10 +105,10 @@ const PinMap PinMap_SPI_SSEL[] = {
 
 const PinMap PinMap_PWM[] = {
 
-    {GPIO6 , PWM_0 , 4},
-    {GPIO7 , PWM_0 , 4},
-    {GPIO9 , PWM_0 , 4},
-    {GPIO12 , PWM_0 , 4},
-    {GPIO13 , PWM_0 , 4},
-    {NC   , NC    , 0}
+    {GPIO6, PWM_0, 4},
+    {GPIO7, PWM_0, 4},
+    {GPIO9, PWM_0, 4},
+    {GPIO12, PWM_0, 4},
+    {GPIO13, PWM_0, 4},
+    {NC, NC, 0}
 };

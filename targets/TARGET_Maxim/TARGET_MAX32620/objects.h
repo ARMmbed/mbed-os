@@ -94,7 +94,7 @@ struct spi_s {
     unsigned        len;            // Number of bytes to send
     unsigned        read_num;       // Number of bytes read
     unsigned        write_num;      // Number of bytes written
-    void            (*callback)();  // Callback for asynchronous request
+    void (*callback)();             // Callback for asynchronous request
     unsigned        head_rem;       // Remaining count for current header
     uint32_t        event;          // Callback response events
 #endif

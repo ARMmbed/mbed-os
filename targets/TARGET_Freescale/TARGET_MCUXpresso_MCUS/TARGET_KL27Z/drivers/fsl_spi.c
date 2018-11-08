@@ -34,8 +34,7 @@
  * Definitons
  ******************************************************************************/
 /*! @brief SPI transfer state, which is used for SPI transactiaonl APIs' internal state. */
-enum _spi_transfer_states_t
-{
+enum _spi_transfer_states_t {
     kSPI_Idle = 0x0, /*!< SPI is idle state */
     kSPI_Busy        /*!< SPI is busy tranferring data. */
 };
@@ -115,10 +114,8 @@ uint32_t SPI_GetInstance(SPI_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_SPI_COUNT; instance++)
-    {
-        if (s_spiBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_SPI_COUNT; instance++) {
+        if (s_spiBases[instance] == base) {
             break;
         }
     }
@@ -138,20 +135,16 @@ static void SPI_WriteNonBlocking(SPI_Type *base, uint8_t *buffer, size_t size)
     bytesPerFrame = ((base->C2 & SPI_C2_SPIMODE_MASK) >> SPI_C2_SPIMODE_SHIFT) + 1U;
 #endif
 
-    while (i < size)
-    {
-        if (buffer != NULL)
-        {
+    while (i < size) {
+        if (buffer != NULL) {
 #if defined(FSL_FEATURE_SPI_16BIT_TRANSFERS) && FSL_FEATURE_SPI_16BIT_TRANSFERS
             /*16 bit mode*/
-            if (base->C2 & SPI_C2_SPIMODE_MASK)
-            {
+            if (base->C2 & SPI_C2_SPIMODE_MASK) {
                 base->DL = *buffer++;
                 base->DH = *buffer++;
             }
             /* 8 bit mode */
-            else
-            {
+            else {
                 base->DL = *buffer++;
             }
 #else
@@ -159,8 +152,7 @@ static void SPI_WriteNonBlocking(SPI_Type *base, uint8_t *buffer, size_t size)
 #endif /* FSL_FEATURE_SPI_16BIT_TRANSFERS */
         }
         /* Send dummy data */
-        else
-        {
+        else {
             SPI_WriteData(base, SPI_DUMMYDATA);
         }
         i += bytesPerFrame;
@@ -177,28 +169,22 @@ static void SPI_ReadNonBlocking(SPI_Type *base, uint8_t *buffer, size_t size)
     bytesPerFrame = ((base->C2 & SPI_C2_SPIMODE_MASK) >> SPI_C2_SPIMODE_SHIFT) + 1U;
 #endif
 
-    while (i < size)
-    {
-        if (buffer != NULL)
-        {
+    while (i < size) {
+        if (buffer != NULL) {
 #if defined(FSL_FEATURE_SPI_16BIT_TRANSFERS) && FSL_FEATURE_SPI_16BIT_TRANSFERS
             /*16 bit mode*/
-            if (base->C2 & SPI_C2_SPIMODE_MASK)
-            {
+            if (base->C2 & SPI_C2_SPIMODE_MASK) {
                 *buffer++ = base->DL;
                 *buffer++ = base->DH;
             }
             /* 8 bit mode */
-            else
-            {
+            else {
                 *buffer++ = base->DL;
             }
 #else
             *buffer++ = base->D;
 #endif /* FSL_FEATURE_SPI_16BIT_TRANSFERS */
-        }
-        else
-        {
+        } else {
             SPI_ReadData(base);
         }
         i += bytesPerFrame;
@@ -210,38 +196,29 @@ static void SPI_SendTransfer(SPI_Type *base, spi_master_handle_t *handle)
     uint8_t bytes = MIN((handle->watermark * 2U), handle->txRemainingBytes);
 
     /* Read S register and ensure SPTEF is 1, otherwise the write would be ignored. */
-    if (handle->watermark == 1U)
-    {
-        if (bytes != 0U)
-        {
+    if (handle->watermark == 1U) {
+        if (bytes != 0U) {
             bytes = handle->bytePerFrame;
         }
 
         /* Send data */
-        if (base->C1 & SPI_C1_MSTR_MASK)
-        {
+        if (base->C1 & SPI_C1_MSTR_MASK) {
             /* As a master, only write once */
-            if (base->S & SPI_S_SPTEF_MASK)
-            {
+            if (base->S & SPI_S_SPTEF_MASK) {
                 SPI_WriteNonBlocking(base, handle->txData, bytes);
                 /* Update handle information */
-                if (handle->txData)
-                {
+                if (handle->txData) {
                     handle->txData += bytes;
                 }
                 handle->txRemainingBytes -= bytes;
             }
-    }
-    else
-    {
+        } else {
             /* As a slave, send data until SPTEF cleared */
-            while ((base->S & SPI_S_SPTEF_MASK) && (handle->txRemainingBytes > 0))
-            {
+            while ((base->S & SPI_S_SPTEF_MASK) && (handle->txRemainingBytes > 0)) {
                 SPI_WriteNonBlocking(base, handle->txData, bytes);
 
                 /* Update handle information */
-                if (handle->txData)
-                {
+                if (handle->txData) {
                     handle->txData += bytes;
                 }
                 handle->txRemainingBytes -= bytes;
@@ -251,15 +228,12 @@ static void SPI_SendTransfer(SPI_Type *base, spi_master_handle_t *handle)
 
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && (FSL_FEATURE_SPI_HAS_FIFO)
     /* If use FIFO */
-    else
-    {
-        if (base->S & SPI_S_TNEAREF_MASK)
-        {
+    else {
+        if (base->S & SPI_S_TNEAREF_MASK) {
             SPI_WriteNonBlocking(base, handle->txData, bytes);
 
             /* Update handle information */
-            if (handle->txData)
-            {
+            if (handle->txData) {
                 handle->txData += bytes;
             }
             handle->txRemainingBytes -= bytes;
@@ -274,22 +248,18 @@ static void SPI_ReceiveTransfer(SPI_Type *base, spi_master_handle_t *handle)
     uint8_t val = 1U;
 
     /* Read S register and ensure SPRF is 1, otherwise the write would be ignored. */
-    if (handle->watermark == 1U)
-    {
+    if (handle->watermark == 1U) {
         val = base->S & SPI_S_SPRF_MASK;
-        if (bytes != 0U)
-        {
+        if (bytes != 0U) {
             bytes = handle->bytePerFrame;
         }
     }
 
-    if (val)
-    {
+    if (val) {
         SPI_ReadNonBlocking(base, handle->rxData, bytes);
 
         /* Update information in handle */
-        if (handle->rxData)
-        {
+        if (handle->rxData) {
             handle->rxData += bytes;
         }
         handle->rxRemainingBytes -= bytes;
@@ -332,7 +302,7 @@ void SPI_MasterInit(SPI_Type *base, const spi_master_config_t *config, uint32_t 
     base->C1 = SPI_C1_MSTR(1U) | SPI_C1_CPOL(config->polarity) | SPI_C1_CPHA(config->phase) |
                SPI_C1_SSOE(config->outputMode & 1U) | SPI_C1_LSBFE(config->direction);
 
-/* Set data mode, and also pin mode and mode fault settings */
+    /* Set data mode, and also pin mode and mode fault settings */
 #if defined(FSL_FEATURE_SPI_16BIT_TRANSFERS) && FSL_FEATURE_SPI_16BIT_TRANSFERS
     base->C2 = SPI_C2_MODFEN(config->outputMode >> 1U) | SPI_C2_BIDIROE(config->pinMode >> 1U) |
                SPI_C2_SPISWAI(config->enableStopInWaitMode) | SPI_C2_SPC0(config->pinMode & 1U) |
@@ -342,10 +312,9 @@ void SPI_MasterInit(SPI_Type *base, const spi_master_config_t *config, uint32_t 
                SPI_C2_SPISWAI(config->enableStopInWaitMode) | SPI_C2_SPC0(config->pinMode & 1U);
 #endif /* FSL_FEATURE_SPI_16BIT_TRANSFERS */
 
-/* Set watermark, FIFO is enabled */
+    /* Set watermark, FIFO is enabled */
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
-    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0)
-    {
+    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0) {
         base->C3 = SPI_C3_TNEAREF_MARK(config->txWatermark) | SPI_C3_RNFULLF_MARK(config->rxWatermark) |
                    SPI_C3_INTCLR(0U) | SPI_C3_FIFOMODE(1U);
     }
@@ -355,8 +324,7 @@ void SPI_MasterInit(SPI_Type *base, const spi_master_config_t *config, uint32_t 
     SPI_MasterSetBaudRate(base, config->baudRate_Bps, srcClock_Hz);
 
     /* Enable SPI */
-    if (config->enableMaster)
-    {
+    if (config->enableMaster) {
         base->C1 |= SPI_C1_SPE_MASK;
     }
 }
@@ -393,25 +361,23 @@ void SPI_SlaveInit(SPI_Type *base, const spi_slave_config_t *config)
     base->C1 =
         SPI_C1_MSTR(0U) | SPI_C1_CPOL(config->polarity) | SPI_C1_CPHA(config->phase) | SPI_C1_LSBFE(config->direction);
 
-/* Configure data mode if needed */
+    /* Configure data mode if needed */
 #if defined(FSL_FEATURE_SPI_16BIT_TRANSFERS) && FSL_FEATURE_SPI_16BIT_TRANSFERS
     base->C2 = SPI_C2_SPIMODE(config->dataMode) | SPI_C2_SPISWAI(config->enableStopInWaitMode);
 #else
     base->C2 = SPI_C2_SPISWAI(config->enableStopInWaitMode);
 #endif /* FSL_FEATURE_SPI_16BIT_TRANSFERS */
 
-/* Set watermark */
+    /* Set watermark */
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
-    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0U)
-    {
+    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0U) {
         base->C3 = SPI_C3_TNEAREF_MARK(config->txWatermark) | SPI_C3_RNFULLF_MARK(config->rxWatermark) |
                    SPI_C3_INTCLR(0U) | SPI_C3_FIFOMODE(1U);
     }
 #endif /* FSL_FEATURE_SPI_HAS_FIFO */
 
     /* Enable SPI */
-    if (config->enableSlave)
-    {
+    if (config->enableSlave) {
         base->C1 |= SPI_C1_SPE_MASK;
     }
 }
@@ -428,12 +394,9 @@ void SPI_Deinit(SPI_Type *base)
 uint32_t SPI_GetStatusFlags(SPI_Type *base)
 {
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
-    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0)
-    {
+    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0) {
         return ((base->S) | (((uint32_t)base->CI) << 8U));
-    }
-    else
-    {
+    } else {
         return (base->S);
     }
 #else
@@ -444,36 +407,30 @@ uint32_t SPI_GetStatusFlags(SPI_Type *base)
 void SPI_EnableInterrupts(SPI_Type *base, uint32_t mask)
 {
     /* Rx full interrupt */
-    if (mask & kSPI_RxFullAndModfInterruptEnable)
-    {
+    if (mask & kSPI_RxFullAndModfInterruptEnable) {
         base->C1 |= SPI_C1_SPIE_MASK;
     }
 
     /* Tx empty interrupt */
-    if (mask & kSPI_TxEmptyInterruptEnable)
-    {
+    if (mask & kSPI_TxEmptyInterruptEnable) {
         base->C1 |= SPI_C1_SPTIE_MASK;
     }
 
     /* Data match interrupt */
-    if (mask & kSPI_MatchInterruptEnable)
-    {
+    if (mask & kSPI_MatchInterruptEnable) {
         base->C2 |= SPI_C2_SPMIE_MASK;
     }
 
-/* FIFO related interrupts */
+    /* FIFO related interrupts */
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
-    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0)
-    {
+    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0) {
         /* Rx FIFO near full interrupt */
-        if (mask & kSPI_RxFifoNearFullInterruptEnable)
-        {
+        if (mask & kSPI_RxFifoNearFullInterruptEnable) {
             base->C3 |= SPI_C3_RNFULLIEN_MASK;
         }
 
         /* Tx FIFO near empty interrupt */
-        if (mask & kSPI_TxFifoNearEmptyInterruptEnable)
-        {
+        if (mask & kSPI_TxFifoNearEmptyInterruptEnable) {
             base->C3 |= SPI_C3_TNEARIEN_MASK;
         }
     }
@@ -483,35 +440,29 @@ void SPI_EnableInterrupts(SPI_Type *base, uint32_t mask)
 void SPI_DisableInterrupts(SPI_Type *base, uint32_t mask)
 {
     /* Rx full interrupt */
-    if (mask & kSPI_RxFullAndModfInterruptEnable)
-    {
+    if (mask & kSPI_RxFullAndModfInterruptEnable) {
         base->C1 &= (~SPI_C1_SPIE_MASK);
     }
 
     /* Tx empty interrupt */
-    if (mask & kSPI_TxEmptyInterruptEnable)
-    {
+    if (mask & kSPI_TxEmptyInterruptEnable) {
         base->C1 &= (~SPI_C1_SPTIE_MASK);
     }
 
     /* Data match interrupt */
-    if (mask & kSPI_MatchInterruptEnable)
-    {
+    if (mask & kSPI_MatchInterruptEnable) {
         base->C2 &= (~SPI_C2_SPMIE_MASK);
     }
 
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
-    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0)
-    {
+    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0) {
         /* Rx FIFO near full interrupt */
-        if (mask & kSPI_RxFifoNearFullInterruptEnable)
-        {
+        if (mask & kSPI_RxFifoNearFullInterruptEnable) {
             base->C3 &= ~SPI_C3_RNFULLIEN_MASK;
         }
 
         /* Tx FIFO near empty interrupt */
-        if (mask & kSPI_TxFifoNearEmptyInterruptEnable)
-        {
+        if (mask & kSPI_TxFifoNearEmptyInterruptEnable) {
             base->C3 &= ~SPI_C3_TNEARIEN_MASK;
         }
     }
@@ -538,23 +489,19 @@ void SPI_MasterSetBaudRate(SPI_Type *base, uint32_t baudRate_Bps, uint32_t srcCl
     bestDivisor = 8U;
 
     /* In all for loops, if min_diff = 0, the exit for loop*/
-    for (prescaler = 0; (prescaler <= 7) && min_diff; prescaler++)
-    {
+    for (prescaler = 0; (prescaler <= 7) && min_diff; prescaler++) {
         /* Initialize to div-by-2 */
         rateDivisorValue = 2U;
 
-        for (rateDivisor = 0; (rateDivisor <= 8U) && min_diff; rateDivisor++)
-        {
+        for (rateDivisor = 0; (rateDivisor <= 8U) && min_diff; rateDivisor++) {
             /* Calculate actual baud rate, note need to add 1 to prescaler */
             realBaudrate = ((srcClock_Hz) / ((prescaler + 1) * rateDivisorValue));
 
             /* Calculate the baud rate difference based on the conditional statement ,that states that the
             calculated baud rate must not exceed the desired baud rate */
-            if (freq >= realBaudrate)
-            {
+            if (freq >= realBaudrate) {
                 diff = freq - realBaudrate;
-                if (min_diff > diff)
-                {
+                if (min_diff > diff) {
                     /* A better match found */
                     min_diff = diff;
                     bestPrescaler = prescaler;
@@ -581,10 +528,8 @@ void SPI_WriteBlocking(SPI_Type *base, uint8_t *buffer, size_t size)
     bytesPerFrame = ((base->C2 & SPI_C2_SPIMODE_MASK) >> SPI_C2_SPIMODE_SHIFT) + 1U;
 #endif
 
-    while (i < size)
-    {
-        while ((base->S & SPI_S_SPTEF_MASK) == 0)
-        {
+    while (i < size) {
+        while ((base->S & SPI_S_SPTEF_MASK) == 0) {
         }
 
         /* Send a frame of data */
@@ -598,14 +543,10 @@ void SPI_WriteBlocking(SPI_Type *base, uint8_t *buffer, size_t size)
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
 void SPI_EnableFIFO(SPI_Type *base, bool enable)
 {
-    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0U)
-    {
-        if (enable)
-        {
+    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0U) {
+        if (enable) {
             base->C3 |= SPI_C3_FIFOMODE_MASK;
-        }
-        else
-        {
+        } else {
             base->C3 &= ~SPI_C3_FIFOMODE_MASK;
         }
     }
@@ -641,8 +582,7 @@ status_t SPI_MasterTransferBlocking(SPI_Type *base, spi_transfer_t *xfer)
     uint8_t bytesPerFrame = 1U;
 
     /* Check if the argument is legal */
-    if ((xfer->txData == NULL) && (xfer->rxData == NULL))
-    {
+    if ((xfer->txData == NULL) && (xfer->rxData == NULL)) {
         return kStatus_InvalidArgument;
     }
 
@@ -660,32 +600,26 @@ status_t SPI_MasterTransferBlocking(SPI_Type *base, spi_transfer_t *xfer)
     /* Disable FIFO, as the FIFO may cause data loss if the data size is not integer
        times of 2bytes. As SPI cannot set watermark to 0, only can set to 1/2 FIFO size or 3/4 FIFO
        size. */
-    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0)
-    {
+    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0) {
         base->C3 &= ~SPI_C3_FIFOMODE_MASK;
     }
 
 #endif /* FSL_FEATURE_SPI_HAS_FIFO */
 
     /* Begin the polling transfer until all data sent */
-    while (xfer->dataSize > 0)
-    {
+    while (xfer->dataSize > 0) {
         /* Data send */
-        while ((base->S & SPI_S_SPTEF_MASK) == 0U)
-        {
+        while ((base->S & SPI_S_SPTEF_MASK) == 0U) {
         }
         SPI_WriteNonBlocking(base, xfer->txData, bytesPerFrame);
-        if (xfer->txData)
-        {
+        if (xfer->txData) {
             xfer->txData += bytesPerFrame;
         }
 
-        while ((base->S & SPI_S_SPRF_MASK) == 0U)
-        {
+        while ((base->S & SPI_S_SPRF_MASK) == 0U) {
         }
         SPI_ReadNonBlocking(base, xfer->rxData, bytesPerFrame);
-        if (xfer->rxData)
-        {
+        if (xfer->rxData) {
             xfer->rxData += bytesPerFrame;
         }
 
@@ -714,28 +648,23 @@ void SPI_MasterTransferCreateHandle(SPI_Type *base,
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
     uint8_t txSize = 0U;
     /* Get the number to be sent if there is FIFO */
-    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0)
-    {
+    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0) {
         txSize = (base->C3 & SPI_C3_TNEAREF_MARK_MASK) >> SPI_C3_TNEAREF_MARK_SHIFT;
-        if (txSize == 0U)
-        {
+        if (txSize == 0U) {
             handle->watermark = FSL_FEATURE_SPI_FIFO_SIZEn(base) * 3U / 4U;
-        }
-        else
-        {
+        } else {
             handle->watermark = FSL_FEATURE_SPI_FIFO_SIZEn(base) / 2U;
         }
     }
     /* If no FIFO, just set the watermark to 1 */
-    else
-    {
+    else {
         handle->watermark = 1U;
     }
 #else
     handle->watermark = 1U;
 #endif /* FSL_FEATURE_SPI_HAS_FIFO */
 
-/* Get the bytes per frame */
+    /* Get the bytes per frame */
 #if defined(FSL_FEATURE_SPI_16BIT_TRANSFERS) && (FSL_FEATURE_SPI_16BIT_TRANSFERS)
     handle->bytePerFrame = ((base->C2 & SPI_C2_SPIMODE_MASK) >> SPI_C2_SPIMODE_SHIFT) + 1U;
 #else
@@ -751,14 +680,12 @@ status_t SPI_MasterTransferNonBlocking(SPI_Type *base, spi_master_handle_t *hand
     assert(handle && xfer);
 
     /* Check if SPI is busy */
-    if (handle->state == kSPI_Busy)
-    {
+    if (handle->state == kSPI_Busy) {
         return kStatus_SPI_Busy;
     }
 
     /* Check if the input arguments valid */
-    if (((xfer->txData == NULL) && (xfer->rxData == NULL)) || (xfer->dataSize == 0U))
-    {
+    if (((xfer->txData == NULL) && (xfer->rxData == NULL)) || (xfer->dataSize == 0U)) {
         return kStatus_InvalidArgument;
     }
 
@@ -776,15 +703,12 @@ status_t SPI_MasterTransferNonBlocking(SPI_Type *base, spi_master_handle_t *hand
     base->C1 &= ~SPI_C1_SPE_MASK;
     base->C1 |= SPI_C1_SPE_MASK;
 
-/* Enable Interrupt, only enable Rx interrupt, use rx interrupt to driver SPI transfer */
+    /* Enable Interrupt, only enable Rx interrupt, use rx interrupt to driver SPI transfer */
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
-    if (handle->watermark > 1U)
-    {
+    if (handle->watermark > 1U) {
         /* Enable Rx near full interrupt */
         SPI_EnableInterrupts(base, kSPI_RxFifoNearFullInterruptEnable);
-    }
-    else
-    {
+    } else {
         SPI_EnableInterrupts(base, kSPI_RxFullAndModfInterruptEnable);
     }
 #else
@@ -803,19 +727,13 @@ status_t SPI_MasterTransferGetCount(SPI_Type *base, spi_master_handle_t *handle,
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kStatus_SPI_Busy)
-    {
+    if (handle->state != kStatus_SPI_Busy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         /* Return remaing bytes in different cases */
-        if (handle->rxData)
-        {
+        if (handle->rxData) {
             *count = handle->transferSize - handle->rxRemainingBytes;
-        }
-        else
-        {
+        } else {
             *count = handle->transferSize - handle->txRemainingBytes;
         }
     }
@@ -827,14 +745,11 @@ void SPI_MasterTransferAbort(SPI_Type *base, spi_master_handle_t *handle)
 {
     assert(handle);
 
-/* Stop interrupts */
+    /* Stop interrupts */
 #if defined(FSL_FEATURE_SPI_HAS_FIFO) && FSL_FEATURE_SPI_HAS_FIFO
-    if (handle->watermark > 1U)
-    {
+    if (handle->watermark > 1U) {
         SPI_DisableInterrupts(base, kSPI_RxFifoNearFullInterruptEnable | kSPI_RxFullAndModfInterruptEnable);
-    }
-    else
-    {
+    } else {
         SPI_DisableInterrupts(base, kSPI_RxFullAndModfInterruptEnable);
     }
 #else
@@ -854,25 +769,21 @@ void SPI_MasterTransferHandleIRQ(SPI_Type *base, spi_master_handle_t *handle)
     assert(handle);
 
     /* If needs to receive data, do a receive */
-    if (handle->rxRemainingBytes)
-    {
+    if (handle->rxRemainingBytes) {
         SPI_ReceiveTransfer(base, handle);
     }
 
     /* We always need to send a data to make the SPI run */
-    if (handle->txRemainingBytes)
-    {
+    if (handle->txRemainingBytes) {
         SPI_SendTransfer(base, handle);
     }
 
     /* All the transfer finished */
-    if ((handle->txRemainingBytes == 0) && (handle->rxRemainingBytes == 0))
-    {
+    if ((handle->txRemainingBytes == 0) && (handle->rxRemainingBytes == 0)) {
         /* Complete the transfer */
         SPI_MasterTransferAbort(base, handle);
 
-        if (handle->callback)
-        {
+        if (handle->callback) {
             (handle->callback)(base, handle, kStatus_SPI_Idle, handle->userData);
         }
     }
@@ -896,25 +807,21 @@ void SPI_SlaveTransferHandleIRQ(SPI_Type *base, spi_slave_handle_t *handle)
     assert(handle);
 
     /* Do data send first in case of data missing. */
-    if (handle->txRemainingBytes)
-    {
+    if (handle->txRemainingBytes) {
         SPI_SendTransfer(base, handle);
     }
 
     /* If needs to receive data, do a receive */
-    if (handle->rxRemainingBytes)
-    {
+    if (handle->rxRemainingBytes) {
         SPI_ReceiveTransfer(base, handle);
     }
 
     /* All the transfer finished */
-    if ((handle->txRemainingBytes == 0) && (handle->rxRemainingBytes == 0))
-    {
+    if ((handle->txRemainingBytes == 0) && (handle->rxRemainingBytes == 0)) {
         /* Complete the transfer */
         SPI_SlaveTransferAbort(base, handle);
 
-        if (handle->callback)
-        {
+        if (handle->callback) {
             (handle->callback)(base, handle, kStatus_SPI_Idle, handle->userData);
         }
     }

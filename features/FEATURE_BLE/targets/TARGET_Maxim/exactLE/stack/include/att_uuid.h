@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   att_uuid.h
- *        
+ *
  *  \brief  Attribute protocol UUIDs from the Bluetooth specification.
  *
  *          $Date: 2014-08-11 17:41:56 -0500 (Mon, 11 Aug 2014) $
  *          $Revision: 14613 $
- *  
+ *
  *  Copyright (c) 2011-2016 ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: LicenseRef-PBL
@@ -146,14 +146,14 @@ extern "C" {
 #define ATT_UUID_SUP_NEW_ALERT_CAT          0x2A47    /*! Supported New Alert Category */
 #define ATT_UUID_SUP_UNREAD_ALERT_CAT       0x2A48    /*! Supported Unread Alert Category */
 #define ATT_UUID_BP_FEATURE                 0x2A49    /*! Blood Pressure Feature */
-#define ATT_UUID_HID_INFO                   0x2A4A    /*! HID Information */            
-#define ATT_UUID_REPORT_MAP                 0x2A4B    /*! Report Map */                
-#define ATT_UUID_HID_CP                     0x2A4C    /*! HID Control Point */          
-#define ATT_UUID_REPORT                     0x2A4D    /*! Report */                    
-#define ATT_UUID_PROTOCOL_MODE              0x2A4E    /*! Protocol Mode */              
-#define ATT_UUID_SCAN_INT_WIND              0x2A4F    /*! Scan Interval Window */       
-#define ATT_UUID_PNP_ID                     0x2A50    /*! PnP ID */                     
-#define ATT_UUID_GLUCOSE_FEATURE            0x2A51    /*! Glucose Feature */            
+#define ATT_UUID_HID_INFO                   0x2A4A    /*! HID Information */
+#define ATT_UUID_REPORT_MAP                 0x2A4B    /*! Report Map */
+#define ATT_UUID_HID_CP                     0x2A4C    /*! HID Control Point */
+#define ATT_UUID_REPORT                     0x2A4D    /*! Report */
+#define ATT_UUID_PROTOCOL_MODE              0x2A4E    /*! Protocol Mode */
+#define ATT_UUID_SCAN_INT_WIND              0x2A4F    /*! Scan Interval Window */
+#define ATT_UUID_PNP_ID                     0x2A50    /*! PnP ID */
+#define ATT_UUID_GLUCOSE_FEATURE            0x2A51    /*! Glucose Feature */
 #define ATT_UUID_RACP                       0x2A52    /*! Record Access Control Point */
 #define ATT_UUID_WEIGHT_MEAS                0x2A9D    /*! Weight Measurement */
 #define ATT_UUID_WEIGHT_SCALE_FEATURE       0x2A9E    /*! Weight Scale Feature */
@@ -326,8 +326,8 @@ extern const uint8_t attPrimSvcUuid[ATT_16_UUID_LEN];    /*! Primary Service */
 extern const uint8_t attSecSvcUuid[ATT_16_UUID_LEN];     /*! Secondary Service */
 extern const uint8_t attIncUuid[ATT_16_UUID_LEN];        /*! Include */
 extern const uint8_t attChUuid[ATT_16_UUID_LEN];         /*! Characteristic */
-                                                         
-/*! Descriptor UUIDs */                                  
+
+/*! Descriptor UUIDs */
 extern const uint8_t attChExtUuid[ATT_16_UUID_LEN];      /*! Characteristic Extended Properties */
 extern const uint8_t attChUserDescUuid[ATT_16_UUID_LEN]; /*! Characteristic User Description */
 extern const uint8_t attCliChCfgUuid[ATT_16_UUID_LEN];   /*! Client Characteristic Configuration */
@@ -341,7 +341,7 @@ extern const uint8_t attHidRimUuid[ATT_16_UUID_LEN];     /*! HID Report ID Mappi
 extern const uint8_t attDnChUuid[ATT_16_UUID_LEN];       /*! Device Name */
 extern const uint8_t attApChUuid[ATT_16_UUID_LEN];       /*! Appearance */
 extern const uint8_t attPpfChUuid[ATT_16_UUID_LEN];      /*! Peripheral Privacy Flag */
-extern const uint8_t attRaChUuid[ATT_16_UUID_LEN];	     /*! Reconnection Address */
+extern const uint8_t attRaChUuid[ATT_16_UUID_LEN];       /*! Reconnection Address */
 extern const uint8_t attPpcpChUuid[ATT_16_UUID_LEN];     /*! Peripheral Preferred Connection Parameters */
 extern const uint8_t attScChUuid[ATT_16_UUID_LEN];       /*! Service Changed */
 extern const uint8_t attAlChUuid[ATT_16_UUID_LEN];       /*! Alert Level */
@@ -412,14 +412,14 @@ extern const uint8_t attNaChUuid[ATT_16_UUID_LEN];       /*! New Alert */
 extern const uint8_t attSnacChUuid[ATT_16_UUID_LEN];     /*! Supported New Alert Category */
 extern const uint8_t attSuacChUuid[ATT_16_UUID_LEN];     /*! Supported Unread Alert Category */
 extern const uint8_t attBpfChUuid[ATT_16_UUID_LEN];      /*! Blood Pressure Feature */
-extern const uint8_t attHidiChUuid[ATT_16_UUID_LEN];     /*! HID Information */            
-extern const uint8_t attRmChUuid[ATT_16_UUID_LEN];       /*! Report Map */                
-extern const uint8_t attHidcpChUuid[ATT_16_UUID_LEN];    /*! HID Control Point */          
-extern const uint8_t attRepChUuid[ATT_16_UUID_LEN];      /*! Report */                    
-extern const uint8_t attPmChUuid[ATT_16_UUID_LEN];       /*! Protocol Mode */              
-extern const uint8_t attSiwChUuid[ATT_16_UUID_LEN];      /*! Scan Interval Window */       
-extern const uint8_t attPnpChUuid[ATT_16_UUID_LEN];      /*! PnP ID */                     
-extern const uint8_t attGlfChUuid[ATT_16_UUID_LEN];      /*! Glucose Feature */            
+extern const uint8_t attHidiChUuid[ATT_16_UUID_LEN];     /*! HID Information */
+extern const uint8_t attRmChUuid[ATT_16_UUID_LEN];       /*! Report Map */
+extern const uint8_t attHidcpChUuid[ATT_16_UUID_LEN];    /*! HID Control Point */
+extern const uint8_t attRepChUuid[ATT_16_UUID_LEN];      /*! Report */
+extern const uint8_t attPmChUuid[ATT_16_UUID_LEN];       /*! Protocol Mode */
+extern const uint8_t attSiwChUuid[ATT_16_UUID_LEN];      /*! Scan Interval Window */
+extern const uint8_t attPnpChUuid[ATT_16_UUID_LEN];      /*! PnP ID */
+extern const uint8_t attGlfChUuid[ATT_16_UUID_LEN];      /*! Glucose Feature */
 extern const uint8_t attRacpChUuid[ATT_16_UUID_LEN];     /*! Record Access Control Point */
 extern const uint8_t attWmChUuid[ATT_16_UUID_LEN];       /*! Weight measurement */
 extern const uint8_t attWsfChUuid[ATT_16_UUID_LEN];      /*! Weight scale feature */

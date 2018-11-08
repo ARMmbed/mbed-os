@@ -41,10 +41,10 @@
 DMA_DESCRIPTOR_TypeDef dmaControlBlock[DMACTRL_CH_CNT * 2];
 
 #elif defined (__CC_ARM)
-DMA_DESCRIPTOR_TypeDef dmaControlBlock[DMACTRL_CH_CNT * 2] __attribute__ ((aligned(DMACTRL_ALIGNMENT)));
+DMA_DESCRIPTOR_TypeDef dmaControlBlock[DMACTRL_CH_CNT * 2] __attribute__((aligned(DMACTRL_ALIGNMENT)));
 
 #elif defined (__GNUC__)
-DMA_DESCRIPTOR_TypeDef dmaControlBlock[DMACTRL_CH_CNT * 2] __attribute__ ((aligned(DMACTRL_ALIGNMENT), section("dma")));
+DMA_DESCRIPTOR_TypeDef dmaControlBlock[DMACTRL_CH_CNT * 2] __attribute__((aligned(DMACTRL_ALIGNMENT), section("dma")));
 
 #else
 #error Undefined toolkit, need to define alignment
@@ -56,7 +56,9 @@ bool enabled = false;
 
 void dma_init(void)
 {
-    if (enabled) return;
+    if (enabled) {
+        return;
+    }
 
 #if defined DMA_PRESENT
     CMU_ClockEnable(cmuClock_DMA, true);
@@ -107,7 +109,7 @@ int dma_channel_allocate(uint32_t capabilities)
         }
     }
     // Check if channel 0 is available
-    if ((channels & 1 ) == 0) {
+    if ((channels & 1) == 0) {
         channels |= 1 << 0;
         return 0;
     }
@@ -117,7 +119,7 @@ int dma_channel_allocate(uint32_t capabilities)
 
 int dma_channel_free(int channelid)
 {
-    if( channelid >= 0 ) {
+    if (channelid >= 0) {
         channels &= ~(1 << channelid);
     }
 
@@ -135,11 +137,11 @@ typedef struct {
 
 static LDMA_InternCallback_t ldmaCallback[DMA_CHAN_COUNT];
 
-void LDMAx_StartTransfer(  int ch,
-                           LDMA_TransferCfg_t *transfer,
-                           LDMA_Descriptor_t  *descriptor,
-                           LDMAx_CBFunc_t cbFunc,
-                           void *userData )
+void LDMAx_StartTransfer(int ch,
+                         LDMA_TransferCfg_t *transfer,
+                         LDMA_Descriptor_t  *descriptor,
+                         LDMAx_CBFunc_t cbFunc,
+                         void *userData)
 {
     ldmaCallback[ch].callback = cbFunc;
     ldmaCallback[ch].userdata = userData;
@@ -147,7 +149,7 @@ void LDMAx_StartTransfer(  int ch,
     LDMA_StartTransfer(ch, transfer, descriptor);
 }
 
-void LDMA_IRQHandler( void )
+void LDMA_IRQHandler(void)
 {
     uint32_t pending, chnum, chmask;
 
@@ -156,26 +158,22 @@ void LDMA_IRQHandler( void )
     pending &= LDMA->IEN;
 
     /* Check for LDMA error */
-    if ( pending & LDMA_IF_ERROR )
-    {
+    if (pending & LDMA_IF_ERROR) {
         /* Loop here to enable the debugger to see what has happened */
         while (1)
             ;
     }
 
     /* Iterate over all LDMA channels. */
-    for ( chnum = 0,                chmask = 1;
-          chnum < DMA_CHAN_COUNT;
-          chnum++,                  chmask <<= 1 )
-    {
-        if ( pending & chmask )
-        {
+    for (chnum = 0,                chmask = 1;
+            chnum < DMA_CHAN_COUNT;
+            chnum++,                  chmask <<= 1) {
+        if (pending & chmask) {
             /* Clear interrupt flag. */
             LDMA->IFC = chmask;
 
             /* Do more stuff here, execute callbacks etc. */
-            if ( ldmaCallback[chnum].callback )
-            {
+            if (ldmaCallback[chnum].callback) {
                 ldmaCallback[chnum].callback(chnum, false, ldmaCallback[chnum].userdata);
             }
         }
@@ -192,7 +190,7 @@ void LDMA_IRQHandler( void )
  * @return
  *   true if channel is enabled, false if not.
  ******************************************************************************/
-bool LDMAx_ChannelEnabled( int ch )
+bool LDMAx_ChannelEnabled(int ch)
 {
     EFM_ASSERT(ch < DMA_CHAN_COUNT);
     uint32_t chMask = 1 << ch;

@@ -29,7 +29,7 @@ typedef void (*loguart_irq_handler)(uint32_t id, LOG_UART_INT_ID event);
 
 typedef struct log_uart_s log_uart_t;
 
-int32_t log_uart_init (log_uart_t *obj, int baudrate, int data_bits, SerialParity parity, int stop_bits);
+int32_t log_uart_init(log_uart_t *obj, int baudrate, int data_bits, SerialParity parity, int stop_bits);
 void log_uart_free(log_uart_t *obj);
 void log_uart_baud(log_uart_t *obj, int baudrate);
 void log_uart_format(log_uart_t *obj, int data_bits, SerialParity parity, int stop_bits);
@@ -47,16 +47,16 @@ void log_uart_break_clear(log_uart_t *obj);
 void log_uart_tx_comp_handler(log_uart_t *obj, void *handler, uint32_t id);
 void log_uart_rx_comp_handler(log_uart_t *obj, void *handler, uint32_t id);
 void log_uart_line_status_handler(log_uart_t *obj, void *handler, uint32_t id);
-int32_t log_uart_recv (log_uart_t *obj, char *prxbuf, uint32_t len, uint32_t timeout_ms);
-int32_t log_uart_send (log_uart_t *obj, char *ptxbuf, uint32_t len, uint32_t timeout_ms);
-int32_t log_uart_recv_stream (log_uart_t *obj, char *prxbuf, uint32_t len);
-int32_t log_uart_send_stream (log_uart_t *obj, char *ptxbuf, uint32_t len);
-int32_t log_uart_recv_stream_timeout (log_uart_t *obj, char *prxbuf, uint32_t len,
-                                        uint32_t timeout_ms, void *force_cs);
-int32_t log_uart_send_stream_abort (log_uart_t *obj);
-int32_t log_uart_recv_stream_abort (log_uart_t *obj);
-void log_uart_disable (log_uart_t *obj);
-void log_uart_enable (log_uart_t *obj);
+int32_t log_uart_recv(log_uart_t *obj, char *prxbuf, uint32_t len, uint32_t timeout_ms);
+int32_t log_uart_send(log_uart_t *obj, char *ptxbuf, uint32_t len, uint32_t timeout_ms);
+int32_t log_uart_recv_stream(log_uart_t *obj, char *prxbuf, uint32_t len);
+int32_t log_uart_send_stream(log_uart_t *obj, char *ptxbuf, uint32_t len);
+int32_t log_uart_recv_stream_timeout(log_uart_t *obj, char *prxbuf, uint32_t len,
+                                     uint32_t timeout_ms, void *force_cs);
+int32_t log_uart_send_stream_abort(log_uart_t *obj);
+int32_t log_uart_recv_stream_abort(log_uart_t *obj);
+void log_uart_disable(log_uart_t *obj);
+void log_uart_enable(log_uart_t *obj);
 uint8_t log_uart_raed_lsr(log_uart_t *obj);
 uint8_t log_uart_raed_msr(log_uart_t *obj);
 

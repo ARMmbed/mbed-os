@@ -4,7 +4,7 @@
   * @author  MCD Application Team
   * @version V1.7.0
   * @date    31-May-2016
-  * @brief  This file contains all the functions prototypes for the ADC firmware 
+  * @brief  This file contains all the functions prototypes for the ADC firmware
   *          library.
   ******************************************************************************
   * @attention
@@ -41,12 +41,12 @@
 #define __STM32L0xx_ADC_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"
-  
+
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
@@ -54,7 +54,7 @@
 /** @defgroup ADCEx ADCEx
   * @brief ADC driver modules
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -113,7 +113,7 @@
 /**
   * @}
   */
-   
+
 /**
   * @}
   */
@@ -128,7 +128,7 @@
 
 /** @defgroup ADCEx_calibration_factor_length_verification ADC Calibration Factor Length Verification
   * @{
-  */ 
+  */
 /**
   * @brief Calibration factor length verification (7 bits maximum)
   * @param _Calibration_Factor_: Calibration factor value
@@ -137,7 +137,7 @@
 #define IS_ADC_CALFACT(_Calibration_Factor_) ((_Calibration_Factor_) <= ((uint32_t)0x7FU))
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup ADC_External_trigger_Source ADC External Trigger Source
   * @{
@@ -192,11 +192,11 @@
 /** @defgroup ADCEx_Exported_Functions_Group3  Peripheral Control functions
   * @{
   */
-/* Exported functions --------------------------------------------------------*/  
+/* Exported functions --------------------------------------------------------*/
 /* Peripheral Control functions ***********************************************/
-HAL_StatusTypeDef   HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc, uint32_t SingleDiff);
-uint32_t            HAL_ADCEx_Calibration_GetValue(ADC_HandleTypeDef* hadc, uint32_t SingleDiff);
-HAL_StatusTypeDef   HAL_ADCEx_Calibration_SetValue(ADC_HandleTypeDef* hadc, uint32_t SingleDiff, uint32_t CalibrationFactor);
+HAL_StatusTypeDef   HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef *hadc, uint32_t SingleDiff);
+uint32_t            HAL_ADCEx_Calibration_GetValue(ADC_HandleTypeDef *hadc, uint32_t SingleDiff);
+HAL_StatusTypeDef   HAL_ADCEx_Calibration_SetValue(ADC_HandleTypeDef *hadc, uint32_t SingleDiff, uint32_t CalibrationFactor);
 HAL_StatusTypeDef   HAL_ADCEx_EnableVREFINT(void);
 void                HAL_ADCEx_DisableVREFINT(void);
 HAL_StatusTypeDef   HAL_ADCEx_EnableVREFINTTempSensor(void);

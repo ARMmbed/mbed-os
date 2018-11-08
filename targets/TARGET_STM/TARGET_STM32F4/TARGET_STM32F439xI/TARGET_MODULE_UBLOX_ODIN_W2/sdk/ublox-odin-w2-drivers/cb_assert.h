@@ -44,7 +44,7 @@ extern void cbOS_error2(const cb_char *file, cb_uint32 line);
 #ifndef NASSERT
 
 #ifndef __CB_FILE__
-    #define __CB_FILE__ __FILE__
+#define __CB_FILE__ __FILE__
 #endif
 
 /*

@@ -67,12 +67,12 @@ Variable Externs
 /******************************************************************************
 Functions Prototypes
 ******************************************************************************/
-void     RZA_IO_RegWrite_8 (volatile uint8_t  * ioreg, uint8_t  write_value, uint8_t  shift, uint8_t  mask);
-void     RZA_IO_RegWrite_16(volatile uint16_t * ioreg, uint16_t write_value, uint16_t shift, uint16_t mask);
-void     RZA_IO_RegWrite_32(volatile uint32_t * ioreg, uint32_t write_value, uint32_t shift, uint32_t mask);
-uint8_t  RZA_IO_RegRead_8  (volatile uint8_t  * ioreg, uint8_t  shift, uint8_t  mask);
-uint16_t RZA_IO_RegRead_16 (volatile uint16_t * ioreg, uint16_t shift, uint16_t mask);
-uint32_t RZA_IO_RegRead_32 (volatile uint32_t * ioreg, uint32_t shift, uint32_t mask);
+void     RZA_IO_RegWrite_8(volatile uint8_t   *ioreg, uint8_t  write_value, uint8_t  shift, uint8_t  mask);
+void     RZA_IO_RegWrite_16(volatile uint16_t *ioreg, uint16_t write_value, uint16_t shift, uint16_t mask);
+void     RZA_IO_RegWrite_32(volatile uint32_t *ioreg, uint32_t write_value, uint32_t shift, uint32_t mask);
+uint8_t  RZA_IO_RegRead_8(volatile uint8_t   *ioreg, uint8_t  shift, uint8_t  mask);
+uint16_t RZA_IO_RegRead_16(volatile uint16_t *ioreg, uint16_t shift, uint16_t mask);
+uint32_t RZA_IO_RegRead_32(volatile uint32_t *ioreg, uint32_t shift, uint32_t mask);
 
 #ifdef __cplusplus
 }

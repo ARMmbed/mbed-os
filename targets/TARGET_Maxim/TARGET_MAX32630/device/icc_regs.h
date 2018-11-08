@@ -100,7 +100,7 @@ typedef struct {
 /**
  * @ingroup    icc_registers
  * @defgroup   ICC_Register_Offsets Register Offsets
- * @brief      Instruction Cache Controller Register Offsets from the ICC Base Address. 
+ * @brief      Instruction Cache Controller Register Offsets from the ICC Base Address.
  * @{
  */
 #define MXC_R_ICC_OFFS_ID                                   ((uint32_t)0x00000000UL)  /**< Offset from ICC Base Address: <tt>\b 0x0000</tt>         */

@@ -52,7 +52,7 @@ static uint8_t get_fpga_misc_pin_pos(PinName pin)
         pin_position = 4;
     } else if (pin == CLCD_RD) {
         pin_position = 5;
-    } else if (pin == CLCD_BL_CTRL){
+    } else if (pin == CLCD_BL_CTRL) {
         pin_position = 6;
     }
 
@@ -63,7 +63,7 @@ uint32_t gpio_set(PinName pin)
 {
     uint8_t pin_position;
 
-    if (pin >=EXP0 && pin <= EXP51) {
+    if (pin >= EXP0 && pin <= EXP51) {
         /* Set pin functinality as GPIO. pin_function asserts if pin == NC */
         pin_function(pin, GPIO_FUNC);
     } else {
@@ -83,7 +83,7 @@ void gpio_init(gpio_t *obj, PinName pin)
     uint8_t pin_position;
 
     if (pin == NC) {
-       return;
+        return;
     }
 
     obj->pin = pin;

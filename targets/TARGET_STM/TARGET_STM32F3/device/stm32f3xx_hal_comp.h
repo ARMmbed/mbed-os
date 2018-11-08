@@ -32,7 +32,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -40,7 +40,7 @@
 #define __STM32F3xx_HAL_COMP_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -54,72 +54,69 @@
   * @{
   */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /** @defgroup COMP_Exported_Types COMP Exported Types
   * @{
   */
-/** 
-  * @brief  COMP Init structure definition  
+/**
+  * @brief  COMP Init structure definition
   */
-typedef struct
-{
+typedef struct {
 
-  uint32_t InvertingInput;     /*!< Selects the inverting input of the comparator.
+    uint32_t InvertingInput;     /*!< Selects the inverting input of the comparator.
                                     This parameter can be a value of @ref COMPEx_InvertingInput */
 
-  uint32_t NonInvertingInput;  /*!< Selects the non inverting input of the comparator.
+    uint32_t NonInvertingInput;  /*!< Selects the non inverting input of the comparator.
                                     This parameter can be a value of @ref COMPEx_NonInvertingInput
                                     Note: Only available on STM32F302xB/xC, STM32F303xB/xC and STM32F358xx devices */
 
-  uint32_t Output;             /*!< Selects the output redirection of the comparator.
+    uint32_t Output;             /*!< Selects the output redirection of the comparator.
                                     This parameter can be a value of @ref COMPEx_Output */
 
-  uint32_t OutputPol;          /*!< Selects the output polarity of the comparator.
+    uint32_t OutputPol;          /*!< Selects the output polarity of the comparator.
                                     This parameter can be a value of @ref COMP_OutputPolarity */
 
-  uint32_t Hysteresis;         /*!< Selects the hysteresis voltage of the comparator.
+    uint32_t Hysteresis;         /*!< Selects the hysteresis voltage of the comparator.
                                     This parameter can be a value of @ref COMPEx_Hysteresis
                                     Note: Only available on STM32F302xB/xC, STM32F303xB/xC, STM32F373xB/xC, STM32F358xx and STM32F378xx devices */
 
-  uint32_t BlankingSrce;       /*!< Selects the output blanking source of the comparator.
+    uint32_t BlankingSrce;       /*!< Selects the output blanking source of the comparator.
                                     This parameter can be a value of @ref COMPEx_BlankingSrce
                                     Note: Not available on STM32F373xB/C and STM32F378xx devices */
 
-  uint32_t Mode;               /*!< Selects the operating consumption mode of the comparator
+    uint32_t Mode;               /*!< Selects the operating consumption mode of the comparator
                                     to adjust the speed/consumption.
                                     This parameter can be a value of @ref COMPEx_Mode
                                     Note: Not available on STM32F301x6/x8, STM32F302x6/x8, STM32F334x6/x8, STM32F318xx and STM32F328xx devices */
 
-  uint32_t WindowMode;         /*!< Selects the window mode of the comparator X (X=2U, 4 or 6 if available).
+    uint32_t WindowMode;         /*!< Selects the window mode of the comparator X (X=2U, 4 or 6 if available).
                                     This parameter can be a value of @ref COMPEx_WindowMode */
-  
-  uint32_t TriggerMode;        /*!< Selects the trigger mode of the comparator (interrupt mode).
+
+    uint32_t TriggerMode;        /*!< Selects the trigger mode of the comparator (interrupt mode).
                                     This parameter can be a value of @ref COMP_TriggerMode */
 
-}COMP_InitTypeDef;
+} COMP_InitTypeDef;
 
-/** 
+/**
   * @brief  HAL State structures definition
   */
-typedef enum
-{
-  HAL_COMP_STATE_RESET             = 0x00U,    /*!< COMP not yet initialized or disabled             */
-  HAL_COMP_STATE_READY             = 0x01U,    /*!< COMP initialized and ready for use               */
-  HAL_COMP_STATE_READY_LOCKED      = 0x11U,    /*!< COMP initialized but the configuration is locked */
-  HAL_COMP_STATE_BUSY              = 0x02U,    /*!< COMP is running                                  */
-  HAL_COMP_STATE_BUSY_LOCKED       = 0x12     /*!< COMP is running and the configuration is locked  */
-}HAL_COMP_StateTypeDef;
+typedef enum {
+    HAL_COMP_STATE_RESET             = 0x00U,    /*!< COMP not yet initialized or disabled             */
+    HAL_COMP_STATE_READY             = 0x01U,    /*!< COMP initialized and ready for use               */
+    HAL_COMP_STATE_READY_LOCKED      = 0x11U,    /*!< COMP initialized but the configuration is locked */
+    HAL_COMP_STATE_BUSY              = 0x02U,    /*!< COMP is running                                  */
+    HAL_COMP_STATE_BUSY_LOCKED       = 0x12     /*!< COMP is running and the configuration is locked  */
+} HAL_COMP_StateTypeDef;
 
-/** 
+/**
   * @brief  COMP Handle Structure definition
   */
-typedef struct
-{
-  COMP_TypeDef                *Instance; /*!< Register base address    */
-  COMP_InitTypeDef            Init;      /*!< COMP required parameters */
-  HAL_LockTypeDef             Lock;      /*!< Locking object           */
-  __IO HAL_COMP_StateTypeDef  State;     /*!< COMP communication state */
-}COMP_HandleTypeDef;
+typedef struct {
+    COMP_TypeDef                *Instance; /*!< Register base address    */
+    COMP_InitTypeDef            Init;      /*!< COMP required parameters */
+    HAL_LockTypeDef             Lock;      /*!< Locking object           */
+    __IO HAL_COMP_StateTypeDef  State;     /*!< COMP communication state */
+} COMP_HandleTypeDef;
 
 /**
   * @}
@@ -141,7 +138,7 @@ typedef struct
 
 /** @defgroup COMP_OutputLevel COMP Output Level
   * @{
-  */ 
+  */
 /* When output polarity is not inverted, comparator output is low when
    the non-inverting input is at a lower voltage than the inverting input*/
 #define COMP_OUTPUTLEVEL_LOW                   (0x00000000U)
@@ -204,7 +201,7 @@ typedef struct
  */
 /* Initialization and de-initialization functions  ****************************/
 HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp);
-HAL_StatusTypeDef HAL_COMP_DeInit (COMP_HandleTypeDef *hcomp);
+HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp);
 void              HAL_COMP_MspInit(COMP_HandleTypeDef *hcomp);
 void              HAL_COMP_MspDeInit(COMP_HandleTypeDef *hcomp);
 /**

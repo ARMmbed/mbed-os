@@ -50,8 +50,7 @@
 
 /*! @brief Describes EWM clock source. */
 #if defined(FSL_FEATURE_EWM_HAS_CLOCK_SELECT) && FSL_FEATURE_EWM_HAS_CLOCK_SELECT
-typedef enum _ewm_lpo_clock_source
-{
+typedef enum _ewm_lpo_clock_source {
     kEWM_LpoClockSource0 = 0U, /*!< EWM clock sourced from lpo_clk[0]*/
     kEWM_LpoClockSource1 = 1U, /*!< EWM clock sourced from lpo_clk[1]*/
     kEWM_LpoClockSource2 = 2U, /*!< EWM clock sourced from lpo_clk[2]*/
@@ -64,8 +63,7 @@ typedef enum _ewm_lpo_clock_source
 *
 * This structure is used to configure the EWM.
 */
-typedef struct _ewm_config
-{
+typedef struct _ewm_config {
     bool enableEwm;           /*!< Enable EWM module */
     bool enableEwmInput;      /*!< Enable EWM_in input */
     bool setInputAssertLogic; /*!< EWM_in signal assertion state */
@@ -85,8 +83,7 @@ typedef struct _ewm_config
  *
  * This structure contains the settings for all of EWM interrupt configurations.
  */
-enum _ewm_interrupt_enable_t
-{
+enum _ewm_interrupt_enable_t {
     kEWM_InterruptEnable = EWM_CTRL_INTEN_MASK, /*!< Enable the EWM to generate an interrupt*/
 };
 
@@ -95,8 +92,7 @@ enum _ewm_interrupt_enable_t
  *
  * This structure contains the constants for the EWM status flags for use in the EWM functions.
  */
-enum _ewm_status_flags_t
-{
+enum _ewm_status_flags_t {
     kEWM_RunningFlag = EWM_CTRL_EWMEN_MASK, /*!< Running flag, set when EWM is enabled*/
 };
 

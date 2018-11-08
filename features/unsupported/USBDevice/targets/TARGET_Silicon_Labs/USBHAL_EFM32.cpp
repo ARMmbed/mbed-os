@@ -56,14 +56,14 @@ typedef struct {
     uint8_t *data_buf;
 } ep_state_t;
 
-USBHAL * USBHAL::instance;
+USBHAL *USBHAL::instance;
 static uint8_t ep0setupdata[8];
 static ep_state_t ep_state[NUMBER_OF_ENDPOINTS];
 #ifdef USB_USE_DYNAMIC_MEMORY
-static uint8_t ep0in_data_buf[MAX_PACKET_SIZE_EP0] __attribute__ ((aligned (4)));
+static uint8_t ep0in_data_buf[MAX_PACKET_SIZE_EP0] __attribute__((aligned(4)));
 static uint8_t ep0out_data_buf[MAX_PACKET_SIZE_EP0]; // FIXME: does this need to be this big?
 #else
-static uint8_t ep_data_buf[NUMBER_OF_ENDPOINTS][64] __attribute__ ((aligned (4)));
+static uint8_t ep_data_buf[NUMBER_OF_ENDPOINTS][64] __attribute__((aligned(4)));
 #endif
 
 static void run_cmd(USBISRCommand cmd, uint32_t param);
@@ -173,7 +173,7 @@ USBHAL::USBHAL(void)
     ep_state[EP0OUT].data_buf = ep0out_data_buf;
     ep_state[EP0IN].data_buf = ep0in_data_buf;
 #else
-    for (int i=0 ; i<NUMBER_OF_ENDPOINTS ; i++) {
+    for (int i = 0 ; i < NUMBER_OF_ENDPOINTS ; i++) {
         ep_state[i].data_buf = ep_data_buf[i];
     }
 #endif
@@ -209,7 +209,8 @@ static void usbhal_reset_cb(void)
 
 #ifdef DEBUG_USB_API
 static const char *usbstate[] = { "NONE", "ATTACHED", "POWERED", "DEFAULT",
-                                  "ADDRESSED", "CONFIGURED", "SUSPENDED", "???" };
+                                  "ADDRESSED", "CONFIGURED", "SUSPENDED", "???"
+                                };
 #endif
 
 static void usbhal_state_change_cb(USBD_State_TypeDef oldState,
@@ -262,7 +263,7 @@ static void usbhal_free_buffers(void)
 #ifdef USB_USE_DYNAMIC_MEMORY
     TRACE_FUNC_IN;
 
-    for (int i=EP1OUT ; i<NUMBER_OF_ENDPOINTS ; i++ ) {
+    for (int i = EP1OUT ; i < NUMBER_OF_ENDPOINTS ; i++) {
         if (ep_state[i].data_buf) {
             free(ep_state[i].data_buf);
             ep_state[i].data_buf = NULL;
@@ -435,7 +436,7 @@ void USBHAL::EP0write(uint8_t *buffer, uint32_t size)
         cb = NULL;
     }
 
-    if (buffer && !is_aligned(buffer,4)) {
+    if (buffer && !is_aligned(buffer, 4)) {
         // Copy unaligned data to write-buffer before USBD_Write
         memcpy(ep_state[EP0IN].data_buf, buffer, size);
         ret = USBD_Write(0, ep_state[EP0IN].data_buf, size, cb);
@@ -523,7 +524,7 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *data, uint32_t *
 
 EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
 {
-    TRACE_FUNC_IN_P("endpoint 0x%x, data 0x%lx, size %lu", (unsigned )endpoint, (uint32_t)data, size);
+    TRACE_FUNC_IN_P("endpoint 0x%x, data 0x%lx, size %lu", (unsigned)endpoint, (uint32_t)data, size);
 
     EFM_ASSERT(endpoint < NUMBER_OF_ENDPOINTS);
     EFM_ASSERT(endpoint > EP0IN);
@@ -664,10 +665,10 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t opti
     }
 
     // Some options force the endpoint to a specific type
-    if( options & ISOCHRONOUS ) {
+    if (options & ISOCHRONOUS) {
         type = USB_EPTYPE_ISOC;
         mult = 2; // ?
-    } else if ( options & RATE_FEEDBACK_MODE ) {
+    } else if (options & RATE_FEEDBACK_MODE) {
         // No support for whatever rate feedback is, but for interrupt only
         type = USB_EPTYPE_INTR;
         mult = 1;

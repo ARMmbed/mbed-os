@@ -55,7 +55,7 @@
 #define BLE_STACK_HANDLER_SCHED_EVT_SIZE 0                                                 /**< The size of the scheduler event used by SoftDevice handler when passing BLE events using the @ref app_scheduler. */
 
 /**@brief Application stack event handler type. */
-typedef void (*ble_evt_handler_t) (ble_evt_t * p_ble_evt);
+typedef void (*ble_evt_handler_t)(ble_evt_t *p_ble_evt);
 
 /**@brief     Function for registering for BLE events.
  *

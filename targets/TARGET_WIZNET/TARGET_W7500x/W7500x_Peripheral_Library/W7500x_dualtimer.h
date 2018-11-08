@@ -4,7 +4,7 @@
   * @author  IOP Team
   * @version V1.0.0
   * @date    01-May-2015
-  * @brief   This file contains all the functions prototypes for the dualtimer 
+  * @brief   This file contains all the functions prototypes for the dualtimer
   *          firmware library.
   ******************************************************************************
   *
@@ -16,7 +16,7 @@
 #define __W7500X_DUALTIMER_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -28,19 +28,18 @@
 /**********************************************************************************************/
 /**********************************************************************************************/
 
-typedef struct
-{
+typedef struct {
     uint32_t TimerLoad;
     uint32_t TimerControl_Mode;
     uint32_t TimerControl_Pre;
     uint32_t TimerControl_Size;
-    uint32_t TimerControl_OneShot;    
-}DUALTIMER_InitTypDef;
+    uint32_t TimerControl_OneShot;
+} DUALTIMER_InitTypDef;
 
 
-#define IS_DUALTIMER_TimerMode(MODE)        (MODE <= 1) 
-#define IS_DUALTIMER_TimerPre(PREE)         (PRE <= 2) 
-#define IS_DUALTIMER_TimerSize(SIZE)        (SIZE <= 1) 
+#define IS_DUALTIMER_TimerMode(MODE)        (MODE <= 1)
+#define IS_DUALTIMER_TimerPre(PREE)         (PRE <= 2)
+#define IS_DUALTIMER_TimerSize(SIZE)        (SIZE <= 1)
 #define IS_DUALTIMER_OneShot(ONESHOT)       (ONESHOT <= 1)
 
 
@@ -57,29 +56,29 @@ typedef struct
 #define IS_DUALTIMER_ALL_CH(CH)            ((CH == DUALTIMER0_0) || \
                                             (CH == DUALTIMER0_1) || \
                                             (CH == DUALTIMER1_0) || \
-                                            (CH == DUALTIMER1_1)) 
+                                            (CH == DUALTIMER1_1))
 
 
 
-void DUALTIMER_ClockEnable(DUALTIMER_TypeDef* DUALTIMERn);
-void DUALTIMER_ClockDisable(DUALTIMER_TypeDef* DUALTIMERn);
-void DUALTIMER_DeInit(DUALTIMER_TypeDef* DUALTIMERn);
-void DUALTIMER_Init(DUALTIMER_TypeDef* DUALTIMERn, DUALTIMER_InitTypDef* DUALTIMER_InitStruct);
-void DUALTIMER_IntConfig(DUALTIMER_TypeDef* DUALTIMERn, FunctionalState state);
-void DUALTIMER_IntClear(DUALTIMER_TypeDef* DUALTIMERn);
-ITStatus DUALTIMER_GetIntStatus(DUALTIMER_TypeDef* DUALTIMERn);
-FlagStatus DUALTIMER_GetIntEnableStatus(DUALTIMER_TypeDef* DUALTIMERn);
-void DUALTIMER_Start(DUALTIMER_TypeDef* DUALTIMERn);
-void DUALTIMER_Stop(DUALTIMER_TypeDef* DUALTIMERn);
-uint32_t DUALTIMER_GetTimerLoad(DUALTIMER_TypeDef* DUALTIMERn);
-void DUALTIMER_SetTimerLoad(DUALTIMER_TypeDef* DUALTIMERn, uint32_t TimerLoad);
-uint32_t DUALTIMER_GetTimerValue(DUALTIMER_TypeDef* DUALTIMERn);
-uint32_t DUALTIMER_GetTimerControl(DUALTIMER_TypeDef* DUALTIMERn);
-void DUALTIMER_SetTimerControl(DUALTIMER_TypeDef* DUALTIMERn, uint32_t TimerControl);
-uint32_t DUALTIMER_GetTimerRIS(DUALTIMER_TypeDef* DUALTIMERn);
-uint32_t DUALTIMER_GetTimerMIS(DUALTIMER_TypeDef* DUALTIMERn);
-uint32_t DUALTIMER_GetTimerBGLoad(DUALTIMER_TypeDef* DUALTIMERn);
-void DUALTIMER_SetTimerBGLoad(DUALTIMER_TypeDef* DUALTIMERn, uint32_t TimerBGLoad);
+void DUALTIMER_ClockEnable(DUALTIMER_TypeDef *DUALTIMERn);
+void DUALTIMER_ClockDisable(DUALTIMER_TypeDef *DUALTIMERn);
+void DUALTIMER_DeInit(DUALTIMER_TypeDef *DUALTIMERn);
+void DUALTIMER_Init(DUALTIMER_TypeDef *DUALTIMERn, DUALTIMER_InitTypDef *DUALTIMER_InitStruct);
+void DUALTIMER_IntConfig(DUALTIMER_TypeDef *DUALTIMERn, FunctionalState state);
+void DUALTIMER_IntClear(DUALTIMER_TypeDef *DUALTIMERn);
+ITStatus DUALTIMER_GetIntStatus(DUALTIMER_TypeDef *DUALTIMERn);
+FlagStatus DUALTIMER_GetIntEnableStatus(DUALTIMER_TypeDef *DUALTIMERn);
+void DUALTIMER_Start(DUALTIMER_TypeDef *DUALTIMERn);
+void DUALTIMER_Stop(DUALTIMER_TypeDef *DUALTIMERn);
+uint32_t DUALTIMER_GetTimerLoad(DUALTIMER_TypeDef *DUALTIMERn);
+void DUALTIMER_SetTimerLoad(DUALTIMER_TypeDef *DUALTIMERn, uint32_t TimerLoad);
+uint32_t DUALTIMER_GetTimerValue(DUALTIMER_TypeDef *DUALTIMERn);
+uint32_t DUALTIMER_GetTimerControl(DUALTIMER_TypeDef *DUALTIMERn);
+void DUALTIMER_SetTimerControl(DUALTIMER_TypeDef *DUALTIMERn, uint32_t TimerControl);
+uint32_t DUALTIMER_GetTimerRIS(DUALTIMER_TypeDef *DUALTIMERn);
+uint32_t DUALTIMER_GetTimerMIS(DUALTIMER_TypeDef *DUALTIMERn);
+uint32_t DUALTIMER_GetTimerBGLoad(DUALTIMER_TypeDef *DUALTIMERn);
+void DUALTIMER_SetTimerBGLoad(DUALTIMER_TypeDef *DUALTIMERn, uint32_t TimerBGLoad);
 
 
 
@@ -89,7 +88,7 @@ void DUALTIMER_SetTimerBGLoad(DUALTIMER_TypeDef* DUALTIMERn, uint32_t TimerBGLoa
 
 
 #ifdef __cplusplus
- }
+}
 #endif
 
 

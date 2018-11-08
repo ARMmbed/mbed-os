@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -41,7 +41,7 @@
  * @addtogroup nrf_saadc SAADC HAL and driver
  * @ingroup    nrf_drivers
  * @brief      @tagAPI52 Successive Approximation Analog-to-Digital Converter (SAADC) APIs.
- * @details The SAADC HAL provides basic APIs for accessing the registers of the SAADC peripheral. 
+ * @details The SAADC HAL provides basic APIs for accessing the registers of the SAADC peripheral.
  * The SAADC driver provides APIs on a higher level.
  *
  * @defgroup nrf_drv_saadc SAADC driver
@@ -117,8 +117,7 @@
 /**
  * @brief Analog-to-digital converter driver configuration structure.
  */
-typedef struct
-{
+typedef struct {
     nrf_saadc_resolution_t resolution;         ///< Resolution configuration.
     nrf_saadc_oversample_t oversample;         ///< Oversampling configuration.
     uint8_t                interrupt_priority; ///< Interrupt priority.
@@ -127,8 +126,7 @@ typedef struct
 /**
  * @brief Driver event types.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_SAADC_EVT_DONE,    ///< Event generated when the buffer is filled with samples.
     NRF_DRV_SAADC_EVT_LIMIT,   ///< Event generated after one of the limits is reached.
 } nrf_drv_saadc_evt_type_t;
@@ -136,17 +134,15 @@ typedef enum
 /**
  * @brief Analog-to-digital converter driver done event data.
  */
-typedef struct
-{
-    nrf_saadc_value_t *      p_buffer; ///< Pointer to buffer with converted samples.
+typedef struct {
+    nrf_saadc_value_t       *p_buffer; ///< Pointer to buffer with converted samples.
     uint16_t                 size;     ///< Number of samples in the buffer.
 } nrf_drv_saadc_done_evt_t;
 
 /**
  * @brief Analog-to-digital converter driver limit event data.
  */
-typedef struct
-{
+typedef struct {
     uint8_t                  channel;    ///< Channel on which the limit was detected.
     nrf_saadc_limit_t        limit_type; ///< Type of limit detected.
 } nrf_drv_saadc_limit_evt_t;
@@ -154,11 +150,9 @@ typedef struct
 /**
  * @brief Analog-to-digital converter driver event structure.
  */
-typedef struct
-{
+typedef struct {
     nrf_drv_saadc_evt_type_t type;      ///< Event type.
-    union
-    {
+    union {
         nrf_drv_saadc_done_evt_t  done; ///< Data for @ref NRF_DRV_SAADC_EVT_DONE event.
         nrf_drv_saadc_limit_evt_t limit;///< Data for @ref NRF_DRV_SAADC_EVT_LIMIT event.
     } data;
@@ -171,7 +165,7 @@ typedef struct
  *                        the stack, so it is valid only within the context of
  *                        the event handler.
  */
-typedef void (*nrf_drv_saadc_event_handler_t)(nrf_drv_saadc_evt_t const * p_event);
+typedef void (*nrf_drv_saadc_event_handler_t)(nrf_drv_saadc_evt_t const *p_event);
 
 /**
  * @brief Function for initializing the SAADC.
@@ -183,7 +177,7 @@ typedef void (*nrf_drv_saadc_event_handler_t)(nrf_drv_saadc_evt_t const * p_even
  * @retval    NRF_ERROR_INVALID_STATE If the driver is already initialized.
  * @retval    NRF_ERROR_INVALID_PARAM If event_handler is NULL.
  */
-ret_code_t nrf_drv_saadc_init(nrf_drv_saadc_config_t const * p_config,
+ret_code_t nrf_drv_saadc_init(nrf_drv_saadc_config_t const *p_config,
                               nrf_drv_saadc_event_handler_t event_handler);
 
 /**
@@ -213,8 +207,8 @@ __STATIC_INLINE uint32_t nrf_drv_saadc_sample_task_get(void)
  * @retval NRF_ERROR_INVALID_STATE If the ADC was not initialized.
  * @retval NRF_ERROR_NO_MEM        If the specified channel was already allocated.
  */
-ret_code_t nrf_drv_saadc_channel_init(uint8_t channel, 
-                                      nrf_saadc_channel_config_t const * const p_config);
+ret_code_t nrf_drv_saadc_channel_init(uint8_t channel,
+                                      nrf_saadc_channel_config_t const *const p_config);
 
 
 /**
@@ -247,7 +241,7 @@ ret_code_t nrf_drv_saadc_sample(void);
  * @retval NRF_SUCCESS    If conversion was successful.
  * @retval NRF_ERROR_BUSY If the ADC driver is busy.
  */
-ret_code_t nrf_drv_saadc_sample_convert(uint8_t channel, nrf_saadc_value_t * p_value);
+ret_code_t nrf_drv_saadc_sample_convert(uint8_t channel, nrf_saadc_value_t *p_value);
 
 /**
  * @brief Function for issuing conversion of data to the buffer.
@@ -266,7 +260,7 @@ ret_code_t nrf_drv_saadc_sample_convert(uint8_t channel, nrf_saadc_value_t * p_v
  * @retval NRF_SUCCESS    If conversion was successful.
  * @retval NRF_ERROR_BUSY If the driver already has two buffers set.
  */
-ret_code_t nrf_drv_saadc_buffer_convert(nrf_saadc_value_t * buffer, uint16_t size);
+ret_code_t nrf_drv_saadc_buffer_convert(nrf_saadc_value_t *buffer, uint16_t size);
 
 /**
  * @brief Function for retrieving the SAADC state.
@@ -309,18 +303,14 @@ void nrf_drv_saadc_limits_set(uint8_t channel, int16_t limit_low, int16_t limit_
 __STATIC_INLINE nrf_saadc_input_t nrf_drv_saadc_gpio_to_ain(uint32_t pin)
 {
     // AIN0 - AIN3
-    if (pin >= 2 && pin <= 5)
-    {
+    if (pin >= 2 && pin <= 5) {
         //0 means "not connected", hence this "+ 1"
         return (nrf_saadc_input_t)(pin - 2 + 1);
     }
     // AIN4 - AIN7
-    else if (pin >= 28 && pin <= 31)
-    {
+    else if (pin >= 28 && pin <= 31) {
         return (nrf_saadc_input_t)(pin - 24 + 1);
-    }
-    else
-    {
+    } else {
         return NRF_SAADC_INPUT_DISABLED;
     }
 }

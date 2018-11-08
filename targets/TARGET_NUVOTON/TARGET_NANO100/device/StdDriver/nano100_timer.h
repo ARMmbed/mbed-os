@@ -217,7 +217,7 @@ __STATIC_INLINE void TIMER_DisableCaptureInt(TIMER_T *timer)
   */
 __STATIC_INLINE uint32_t TIMER_GetIntFlag(TIMER_T *timer)
 {
-    return(timer->ISR & TIMER_ISR_TMR_IS_Msk ? 1 : 0);
+    return (timer->ISR & TIMER_ISR_TMR_IS_Msk ? 1 : 0);
 }
 
 /**
@@ -239,7 +239,7 @@ __STATIC_INLINE void TIMER_ClearIntFlag(TIMER_T *timer)
   */
 __STATIC_INLINE uint32_t TIMER_GetCaptureIntFlag(TIMER_T *timer)
 {
-    return(timer->ISR & TIMER_ISR_TCAP_IS_Msk ? 1 : 0);
+    return (timer->ISR & TIMER_ISR_TCAP_IS_Msk ? 1 : 0);
 }
 
 /**

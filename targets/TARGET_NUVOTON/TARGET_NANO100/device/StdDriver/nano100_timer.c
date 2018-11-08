@@ -44,13 +44,13 @@ uint32_t TIMER_Open(TIMER_T *timer, uint32_t u32Mode, uint32_t u32Freq)
     uint32_t u32Cmpr = 0, u32Prescale = 0;
 
     // Fastest possible timer working freq is u32Clk / 2. While cmpr = 2, pre-scale = 0
-    if(u32Freq > (u32Clk / 2)) {
+    if (u32Freq > (u32Clk / 2)) {
         u32Cmpr = 2;
     } else {
-        if(u32Clk >= 0x2000000) {
+        if (u32Clk >= 0x2000000) {
             u32Prescale = 3;    // real prescaler value is 4
             u32Clk >>= 2;
-        } else if(u32Clk >= 0x1000000) {
+        } else if (u32Clk >= 0x1000000) {
             u32Prescale = 1;    // real prescaler value is 2
             u32Clk >>= 1;
         }
@@ -61,7 +61,7 @@ uint32_t TIMER_Open(TIMER_T *timer, uint32_t u32Mode, uint32_t u32Freq)
     timer->CTL = u32Mode;
 
 
-    return(u32Clk / (u32Cmpr * (u32Prescale + 1)));
+    return (u32Clk / (u32Cmpr * (u32Prescale + 1)));
 }
 
 /**
@@ -92,16 +92,16 @@ void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
     // Clear current timer configuration
     timer->CTL = 0;
 
-    if(u32Clk == 10000) {         // min delay is 100us if timer clock source is LIRC 10k
+    if (u32Clk == 10000) {        // min delay is 100us if timer clock source is LIRC 10k
         u32Usec = ((u32Usec + 99) / 100) * 100;
     } else {    // 10 usec every step
         u32Usec = ((u32Usec + 9) / 10) * 10;
     }
 
-    if(u32Clk >= 0x2000000) {
+    if (u32Clk >= 0x2000000) {
         u32Prescale = 3;    // real prescaler value is 4
         u32Clk >>= 2;
-    } else if(u32Clk >= 0x1000000) {
+    } else if (u32Clk >= 0x1000000) {
         u32Prescale = 1;    // real prescaler value is 2
         u32Clk >>= 1;
     }
@@ -115,11 +115,11 @@ void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
 
     // When system clock is faster than timer clock, it is possible timer active bit cannot set in time while we check it.
     // And the while loop below return immediately, so put a tiny delay here allowing timer start counting and raise active flag.
-    for(; delay > 0; delay--) {
+    for (; delay > 0; delay--) {
         __NOP();
     }
 
-    while(timer->CTL & TIMER_CTL_TMR_ACT_Msk);
+    while (timer->CTL & TIMER_CTL_TMR_ACT_Msk);
 
 }
 
@@ -194,19 +194,21 @@ uint32_t TIMER_GetModuleClock(TIMER_T *timer)
     uint32_t u32Src;
     const uint32_t au32Clk[] = {__HXT, __LXT, __LIRC, 0};   // we don't know actual clock if external pin is clock source, set to 0 here
 
-    if(timer == TIMER0)
+    if (timer == TIMER0) {
         u32Src = (CLK->CLKSEL1 & CLK_CLKSEL1_TMR0_S_Msk) >> CLK_CLKSEL1_TMR0_S_Pos;
-    else if(timer == TIMER1)
+    } else if (timer == TIMER1) {
         u32Src = (CLK->CLKSEL1 & CLK_CLKSEL1_TMR1_S_Msk) >> CLK_CLKSEL1_TMR1_S_Pos;
-    else if(timer == TIMER2)
+    } else if (timer == TIMER2) {
         u32Src = (CLK->CLKSEL2 & CLK_CLKSEL2_TMR2_S_Msk) >> CLK_CLKSEL2_TMR2_S_Pos;
-    else // Timer 3
+    } else { // Timer 3
         u32Src = (CLK->CLKSEL2 & CLK_CLKSEL2_TMR3_S_Msk) >> CLK_CLKSEL2_TMR3_S_Pos;
+    }
 
-    if(u32Src < 4)
+    if (u32Src < 4) {
         return au32Clk[u32Src];
-    else
+    } else {
         return __HIRC;
+    }
 
 }
 

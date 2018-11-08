@@ -56,7 +56,7 @@ typedef struct {
     uint32_t pc;
 } args_t;
 
-typedef int32_t (*flash_algo_jump_t)(args_t*);
+typedef int32_t (*flash_algo_jump_t)(args_t *);
 
 // prototypes for flash algo CMSIS API
 

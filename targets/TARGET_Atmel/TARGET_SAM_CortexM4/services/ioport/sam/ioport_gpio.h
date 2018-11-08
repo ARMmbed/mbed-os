@@ -124,13 +124,13 @@ __always_inline static void arch_ioport_init(void)
 }
 
 __always_inline static void arch_ioport_enable_port(ioport_port_t port,
-        ioport_port_mask_t mask)
+                                                    ioport_port_mask_t mask)
 {
     arch_ioport_port_to_base(port)->GPIO_GPERS = mask;
 }
 
 __always_inline static void arch_ioport_disable_port(ioport_port_t port,
-        ioport_port_mask_t mask)
+                                                     ioport_port_mask_t mask)
 {
     arch_ioport_port_to_base(port)->GPIO_GPERC = mask;
 }
@@ -148,7 +148,7 @@ __always_inline static void arch_ioport_disable_pin(ioport_pin_t pin)
 }
 
 __always_inline static void arch_ioport_set_port_mode(ioport_port_t port,
-        ioport_port_mask_t mask, ioport_mode_t mode)
+                                                      ioport_port_mask_t mask, ioport_mode_t mode)
 {
     volatile GpioPort *base = arch_ioport_port_to_base(port);
 
@@ -202,14 +202,14 @@ __always_inline static void arch_ioport_set_port_mode(ioport_port_t port,
 }
 
 __always_inline static void arch_ioport_set_pin_mode(ioport_pin_t pin,
-        ioport_mode_t mode)
+                                                     ioport_mode_t mode)
 {
     arch_ioport_set_port_mode(arch_ioport_pin_to_port_id(pin),
                               arch_ioport_pin_to_mask(pin), mode);
 }
 
 __always_inline static void arch_ioport_set_port_dir(ioport_port_t port,
-        ioport_port_mask_t mask, unsigned char group_direction)
+                                                     ioport_port_mask_t mask, unsigned char group_direction)
 {
     if (group_direction == IOPORT_DIR_OUTPUT) {
         arch_ioport_port_to_base(port)->GPIO_ODERS = mask;
@@ -223,7 +223,7 @@ __always_inline static void arch_ioport_set_port_dir(ioport_port_t port,
 }
 
 __always_inline static void arch_ioport_set_pin_dir(ioport_pin_t pin,
-        enum ioport_direction dir)
+                                                    enum ioport_direction dir)
 {
     if (dir == IOPORT_DIR_OUTPUT) {
         arch_ioport_pin_to_base(pin)->GPIO_ODERS = arch_ioport_pin_to_mask(pin);
@@ -237,7 +237,7 @@ __always_inline static void arch_ioport_set_pin_dir(ioport_pin_t pin,
 }
 
 __always_inline static void arch_ioport_set_pin_level(ioport_pin_t pin,
-        bool level)
+                                                      bool level)
 {
     if (level) {
         arch_ioport_pin_to_base(pin)->GPIO_OVRS = arch_ioport_pin_to_mask(pin);
@@ -247,7 +247,7 @@ __always_inline static void arch_ioport_set_pin_level(ioport_pin_t pin,
 }
 
 __always_inline static void arch_ioport_set_port_level(ioport_port_t port,
-        ioport_port_mask_t mask, ioport_port_mask_t level)
+                                                       ioport_port_mask_t mask, ioport_port_mask_t level)
 {
     volatile GpioPort *base = arch_ioport_port_to_base(port);
     if (level) {
@@ -274,13 +274,13 @@ __always_inline static void arch_ioport_toggle_pin_level(ioport_pin_t pin)
 }
 
 __always_inline static void arch_ioport_toggle_port_level(ioport_port_t port,
-        ioport_port_mask_t mask)
+                                                          ioport_port_mask_t mask)
 {
     arch_ioport_port_to_base(port)->GPIO_OVRT = mask;
 }
 
 __always_inline static void arch_ioport_set_port_sense_mode(ioport_port_t port,
-        ioport_port_mask_t mask, enum ioport_sense pin_sense)
+                                                            ioport_port_mask_t mask, enum ioport_sense pin_sense)
 {
     volatile GpioPort *base = arch_ioport_port_to_base(port);
 
@@ -298,7 +298,7 @@ __always_inline static void arch_ioport_set_port_sense_mode(ioport_port_t port,
 }
 
 __always_inline static void arch_ioport_set_pin_sense_mode(ioport_pin_t pin,
-        enum ioport_sense pin_sense)
+                                                           enum ioport_sense pin_sense)
 {
     arch_ioport_set_port_sense_mode(arch_ioport_pin_to_port_id(pin),
                                     arch_ioport_pin_to_mask(pin), pin_sense);

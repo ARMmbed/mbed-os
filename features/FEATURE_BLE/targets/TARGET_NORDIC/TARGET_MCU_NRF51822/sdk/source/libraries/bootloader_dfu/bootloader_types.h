@@ -29,17 +29,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
+
 /**@file
  *
  * @defgroup nrf_bootloader_types Types and definitions.
- * @{     
- *  
+ * @{
+ *
  * @ingroup nrf_bootloader
- * 
+ *
  * @brief Bootloader module type and definitions.
  */
- 
+
 #ifndef BOOTLOADER_TYPES_H__
 #define BOOTLOADER_TYPES_H__
 
@@ -51,8 +51,7 @@
 
 /**@brief DFU Bank state code, which indicates wether the bank contains: A valid image, invalid image, or an erased flash.
   */
-typedef enum
-{
+typedef enum {
     BANK_VALID_APP   = 0x01,
     BANK_VALID_SD    = 0xA5,
     BANK_VALID_BOOT  = 0xAA,
@@ -62,8 +61,7 @@ typedef enum
 
 /**@brief Structure holding bootloader settings for application and bank data.
  */
-typedef struct
-{
+typedef struct {
     bootloader_bank_code_t bank_0;          /**< Variable to store if bank 0 contains a valid application. */
     uint16_t               bank_0_crc;      /**< If bank is valid, this field will contain a valid CRC of the total image. */
     bootloader_bank_code_t bank_1;          /**< Variable to store if bank 1 has been erased/prepared for new image. Bank 1 is only used in Banked Update scenario. */

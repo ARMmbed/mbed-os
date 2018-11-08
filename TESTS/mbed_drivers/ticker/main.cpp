@@ -95,12 +95,12 @@ void sem_release(Semaphore *sem)
 void stop_gtimer_set_flag(void)
 {
     gtimer.stop();
-    core_util_atomic_incr_u32((uint32_t*)&ticker_callback_flag, 1);
+    core_util_atomic_incr_u32((uint32_t *)&ticker_callback_flag, 1);
 }
 
 void increment_multi_counter(void)
 {
-    core_util_atomic_incr_u32((uint32_t*)&multi_counter, 1);
+    core_util_atomic_incr_u32((uint32_t *)&multi_counter, 1);
 }
 
 
@@ -137,7 +137,7 @@ void test_case_1x_ticker()
     //get the results from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key,"Host side script reported a fail...");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key, "Host side script reported a fail...");
 }
 
 void test_case_2x_callbacks()
@@ -167,7 +167,7 @@ void test_case_2x_callbacks()
     //get the results from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key,"Host side script reported a fail...");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key, "Host side script reported a fail...");
 }
 
 /** Test many tickers run one after the other
@@ -190,7 +190,7 @@ void test_multi_ticker(void)
 
     Thread::wait(MULTI_TICKER_TIME_MS + extra_wait);
     for (int i = 0; i < TICKER_COUNT; i++) {
-            ticker[i].detach();
+        ticker[i].detach();
     }
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
@@ -224,7 +224,7 @@ void test_multi_call_time(void)
 
         gtimer.start();
         ticker.attach_us(callback(stop_gtimer_set_flag), MULTI_TICKER_TIME_MS * 1000);
-        while(!ticker_callback_flag);
+        while (!ticker_callback_flag);
         time_diff = gtimer.read_us();
 
         TEST_ASSERT_UINT32_WITHIN(TOLERANCE_US, MULTI_TICKER_TIME_MS * 1000, time_diff);
@@ -273,7 +273,7 @@ void test_attach_time(void)
     gtimer.reset();
     gtimer.start();
     ticker.attach(callback(stop_gtimer_set_flag), ((float)DELAY_US) / 1000000.0f);
-    while(!ticker_callback_flag);
+    while (!ticker_callback_flag);
     ticker.detach();
     const int time_diff = gtimer.read_us();
 
@@ -295,7 +295,7 @@ void test_attach_us_time(void)
     gtimer.reset();
     gtimer.start();
     ticker.attach_us(callback(stop_gtimer_set_flag), DELAY_US);
-    while(!ticker_callback_flag);
+    while (!ticker_callback_flag);
     ticker.detach();
     const int time_diff = gtimer.read_us();
 
@@ -347,8 +347,8 @@ Case cases[] = {
     Case("Test detach", test_detach),
     Case("Test multi call and time measure", test_multi_call_time),
     Case("Test multi ticker", test_multi_ticker),
-    Case("Test timers: 1x ticker", one_ticker_case_setup_handler_t,test_case_1x_ticker, one_ticker_case_teardown_handler_t),
-    Case("Test timers: 2x callbacks", two_ticker_case_setup_handler_t,test_case_2x_callbacks, two_ticker_case_teardown_handler_t)
+    Case("Test timers: 1x ticker", one_ticker_case_setup_handler_t, test_case_1x_ticker, one_ticker_case_teardown_handler_t),
+    Case("Test timers: 2x callbacks", two_ticker_case_setup_handler_t, test_case_2x_callbacks, two_ticker_case_teardown_handler_t)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

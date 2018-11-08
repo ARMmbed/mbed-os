@@ -40,7 +40,7 @@
 #define __STM32L0xx_HAL_SMARTCARD_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,7 +52,7 @@
 
 /** @defgroup SMARTCARDEx SMARTCARDEx
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -63,7 +63,7 @@
   */
 /** @brief  Reports the SMARTCARD clock source.
   * @param  __HANDLE__: specifies the USART Handle
-  * @param  __CLOCKSOURCE__ : output variable   
+  * @param  __CLOCKSOURCE__ : output variable
   * @retval the USART clocking source, written in __CLOCKSOURCE__.
   */
 #if defined (STM32L031xx) || defined (STM32L041xx) || defined (STM32L011xx) || defined (STM32L021xx)
@@ -163,7 +163,7 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}

@@ -24,20 +24,26 @@ Serial pc(USBTX, USBRX);
 Ticker flipper_1;
 DigitalOut led1(LED1);
 int led1_state = 0;
-void flip_1() {
+void flip_1()
+{
     if (led1_state) {
-        led1 = 0; led1_state = 0;
+        led1 = 0;
+        led1_state = 0;
     } else {
-        led1 = 1; led1_state = 1;
+        led1 = 1;
+        led1_state = 1;
     }
 }
 
 class Sender {
 public:
-    Sender(Serial&s, char c): _s(s), _c(c) {}
-    void send() { _s.putc(_c); }
+    Sender(Serial &s, char c): _s(s), _c(c) {}
+    void send()
+    {
+        _s.putc(_c);
+    }
 private:
-    Serial& _s;
+    Serial &_s;
     char _c;
 };
 Ticker flipper_2;
@@ -56,24 +62,30 @@ Sender s2(pc, '2');
 
 DigitalOut led2(LED_NAME);
 int led2_state = 0;
-void flip_2() {
+void flip_2()
+{
     if (led2_state) {
-        led2 = 0; led2_state = 0;
+        led2 = 0;
+        led2_state = 0;
     } else {
-        led2 = 1; led2_state = 1;
+        led2 = 1;
+        led2_state = 1;
     }
 }
 
-void testme(void) {
+void testme(void)
+{
     pc.putc('!');
 }
 
 class Counter {
 public:
-    void inc(void) {
+    void inc(void)
+    {
         count ++;
     }
-    int get_count(void) const {
+    int get_count(void) const
+    {
         return count;
     }
 private:
@@ -82,7 +94,8 @@ private:
 
 int Counter::count = 0;
 
-int main() {
+int main()
+{
     led1 = 0;
     led2 = 0;
     uint32_t initial_handler, final_handler;
@@ -102,16 +115,16 @@ int main() {
     wait(4.0);
 
     if (!pManager->remove_handler(ptm, TIMER_IRQ) || !pManager->remove_handler(pinc, TIMER_IRQ)) {
-        printf ("remove handler failed.\n");
+        printf("remove handler failed.\n");
         notify_completion(false);
     }
     printf("Interrupt handler calls: %d\n", c.get_count());
     printf("Handler after removing previously added functions: %08X\n", final_handler = NVIC_GetVector(TIMER_IRQ));
 
     if (initial_handler != final_handler) {
-        printf( "InteruptManager test failed.\n");
+        printf("InteruptManager test failed.\n");
         notify_completion(false);
     }
 
-    while(1);
+    while (1);
 }

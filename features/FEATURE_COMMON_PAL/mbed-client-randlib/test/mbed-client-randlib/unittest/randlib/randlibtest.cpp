@@ -6,12 +6,10 @@
 
 TEST_GROUP(randLIB)
 {
-    void setup()
-    {
+    void setup() {
     }
 
-    void teardown()
-    {
+    void teardown() {
     }
 };
 

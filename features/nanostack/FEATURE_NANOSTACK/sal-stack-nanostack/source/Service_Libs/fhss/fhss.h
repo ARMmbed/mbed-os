@@ -22,7 +22,7 @@
 // Lifetime is given as seconds
 #define BEACON_INFO_LIFETIME        600
 // Limits the number of synchronization info messages sent on broadcast channels
-#define MAX_SYNCH_INFOS_PER_CHANNEL_LIST	2
+#define MAX_SYNCH_INFOS_PER_CHANNEL_LIST    2
 // FHSS randomly selects the starting superframe for broadcast channel. This defines how many superframes are used for randomization.
 #define NUMBER_OF_BC_START_SUPERFRAMES  3
 
@@ -34,35 +34,31 @@
 
 struct fhss_callback;
 
-typedef struct fhss_beacon_info
-{
+typedef struct fhss_beacon_info {
     uint16_t pan_id;
     uint8_t source_address[8];
     uint32_t timestamp;
     uint8_t synch_info[FHSS_SYNCH_INFO_LENGTH];
     struct fhss_beacon_info *next;
-}fhss_beacon_info_t;
+} fhss_beacon_info_t;
 
-typedef struct fhss_failed_tx
-{
+typedef struct fhss_failed_tx {
     uint8_t handle;
     uint8_t bad_channel;
     uint8_t retries_done;
     ns_list_link_t link;
-}fhss_failed_tx_t;
+} fhss_failed_tx_t;
 
 typedef NS_LIST_HEAD(fhss_failed_tx_t, link) fhss_failed_tx_list_t;
 
-typedef struct
-{
+typedef struct {
     int32_t avg_synch_fix;
     int avg_synch_fix_counter;
     int drift_compensation;
     int channel_counter;
 } fhss_synch_monitor_s;
 
-typedef struct
-{
+typedef struct {
     fhss_api_t *fhss_api;
     uint32_t datarate;
     fhss_states fhss_state;

@@ -57,26 +57,26 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint32_t ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint32_t :3;               /*!< bit:  2.. 4  Reserved                           */
-        uint32_t RESOLUTION:2;     /*!< bit:  5.. 6  Enhanced Resolution                */
-        uint32_t :1;               /*!< bit:      7  Reserved                           */
-        uint32_t PRESCALER:3;      /*!< bit:  8..10  Prescaler                          */
-        uint32_t RUNSTDBY:1;       /*!< bit:     11  Run in Standby                     */
-        uint32_t PRESCSYNC:2;      /*!< bit: 12..13  Prescaler and Counter Synchronization Selection */
-        uint32_t ALOCK:1;          /*!< bit:     14  Auto Lock                          */
-        uint32_t :9;               /*!< bit: 15..23  Reserved                           */
-        uint32_t CPTEN0:1;         /*!< bit:     24  Capture Channel 0 Enable           */
-        uint32_t CPTEN1:1;         /*!< bit:     25  Capture Channel 1 Enable           */
-        uint32_t CPTEN2:1;         /*!< bit:     26  Capture Channel 2 Enable           */
-        uint32_t CPTEN3:1;         /*!< bit:     27  Capture Channel 3 Enable           */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint32_t : 3;              /*!< bit:  2.. 4  Reserved                           */
+        uint32_t RESOLUTION: 2;    /*!< bit:  5.. 6  Enhanced Resolution                */
+        uint32_t : 1;              /*!< bit:      7  Reserved                           */
+        uint32_t PRESCALER: 3;     /*!< bit:  8..10  Prescaler                          */
+        uint32_t RUNSTDBY: 1;      /*!< bit:     11  Run in Standby                     */
+        uint32_t PRESCSYNC: 2;     /*!< bit: 12..13  Prescaler and Counter Synchronization Selection */
+        uint32_t ALOCK: 1;         /*!< bit:     14  Auto Lock                          */
+        uint32_t : 9;              /*!< bit: 15..23  Reserved                           */
+        uint32_t CPTEN0: 1;        /*!< bit:     24  Capture Channel 0 Enable           */
+        uint32_t CPTEN1: 1;        /*!< bit:     25  Capture Channel 1 Enable           */
+        uint32_t CPTEN2: 1;        /*!< bit:     26  Capture Channel 2 Enable           */
+        uint32_t CPTEN3: 1;        /*!< bit:     27  Capture Channel 3 Enable           */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t :24;              /*!< bit:  0..23  Reserved                           */
-        uint32_t CPTEN:4;          /*!< bit: 24..27  Capture Channel x Enable           */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t : 24;             /*!< bit:  0..23  Reserved                           */
+        uint32_t CPTEN: 4;         /*!< bit: 24..27  Capture Channel x Enable           */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_CTRLA_Type;
@@ -149,11 +149,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DIR:1;            /*!< bit:      0  Counter Direction                  */
-        uint8_t  LUPD:1;           /*!< bit:      1  Lock Update                        */
-        uint8_t  ONESHOT:1;        /*!< bit:      2  One-Shot                           */
-        uint8_t  IDXCMD:2;         /*!< bit:  3.. 4  Ramp Index Command                 */
-        uint8_t  CMD:3;            /*!< bit:  5.. 7  TCC Command                        */
+        uint8_t  DIR: 1;           /*!< bit:      0  Counter Direction                  */
+        uint8_t  LUPD: 1;          /*!< bit:      1  Lock Update                        */
+        uint8_t  ONESHOT: 1;       /*!< bit:      2  One-Shot                           */
+        uint8_t  IDXCMD: 2;        /*!< bit:  3.. 4  Ramp Index Command                 */
+        uint8_t  CMD: 3;           /*!< bit:  5.. 7  TCC Command                        */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TCC_CTRLBCLR_Type;
@@ -198,11 +198,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DIR:1;            /*!< bit:      0  Counter Direction                  */
-        uint8_t  LUPD:1;           /*!< bit:      1  Lock Update                        */
-        uint8_t  ONESHOT:1;        /*!< bit:      2  One-Shot                           */
-        uint8_t  IDXCMD:2;         /*!< bit:  3.. 4  Ramp Index Command                 */
-        uint8_t  CMD:3;            /*!< bit:  5.. 7  TCC Command                        */
+        uint8_t  DIR: 1;           /*!< bit:      0  Counter Direction                  */
+        uint8_t  LUPD: 1;          /*!< bit:      1  Lock Update                        */
+        uint8_t  ONESHOT: 1;       /*!< bit:      2  One-Shot                           */
+        uint8_t  IDXCMD: 2;        /*!< bit:  3.. 4  Ramp Index Command                 */
+        uint8_t  CMD: 3;           /*!< bit:  5.. 7  TCC Command                        */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TCC_CTRLBSET_Type;
@@ -247,34 +247,34 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Swrst Busy                         */
-        uint32_t ENABLE:1;         /*!< bit:      1  Enable Busy                        */
-        uint32_t CTRLB:1;          /*!< bit:      2  Ctrlb Busy                         */
-        uint32_t STATUS:1;         /*!< bit:      3  Status Busy                        */
-        uint32_t COUNT:1;          /*!< bit:      4  Count Busy                         */
-        uint32_t PATT:1;           /*!< bit:      5  Pattern Busy                       */
-        uint32_t WAVE:1;           /*!< bit:      6  Wave Busy                          */
-        uint32_t PER:1;            /*!< bit:      7  Period busy                        */
-        uint32_t CC0:1;            /*!< bit:      8  Compare Channel 0 Busy             */
-        uint32_t CC1:1;            /*!< bit:      9  Compare Channel 1 Busy             */
-        uint32_t CC2:1;            /*!< bit:     10  Compare Channel 2 Busy             */
-        uint32_t CC3:1;            /*!< bit:     11  Compare Channel 3 Busy             */
-        uint32_t :4;               /*!< bit: 12..15  Reserved                           */
-        uint32_t PATTB:1;          /*!< bit:     16  Pattern Buffer Busy                */
-        uint32_t WAVEB:1;          /*!< bit:     17  Wave Buffer Busy                   */
-        uint32_t PERB:1;           /*!< bit:     18  Period Buffer Busy                 */
-        uint32_t CCB0:1;           /*!< bit:     19  Compare Channel Buffer 0 Busy      */
-        uint32_t CCB1:1;           /*!< bit:     20  Compare Channel Buffer 1 Busy      */
-        uint32_t CCB2:1;           /*!< bit:     21  Compare Channel Buffer 2 Busy      */
-        uint32_t CCB3:1;           /*!< bit:     22  Compare Channel Buffer 3 Busy      */
-        uint32_t :9;               /*!< bit: 23..31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Swrst Busy                         */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Enable Busy                        */
+        uint32_t CTRLB: 1;         /*!< bit:      2  Ctrlb Busy                         */
+        uint32_t STATUS: 1;        /*!< bit:      3  Status Busy                        */
+        uint32_t COUNT: 1;         /*!< bit:      4  Count Busy                         */
+        uint32_t PATT: 1;          /*!< bit:      5  Pattern Busy                       */
+        uint32_t WAVE: 1;          /*!< bit:      6  Wave Busy                          */
+        uint32_t PER: 1;           /*!< bit:      7  Period busy                        */
+        uint32_t CC0: 1;           /*!< bit:      8  Compare Channel 0 Busy             */
+        uint32_t CC1: 1;           /*!< bit:      9  Compare Channel 1 Busy             */
+        uint32_t CC2: 1;           /*!< bit:     10  Compare Channel 2 Busy             */
+        uint32_t CC3: 1;           /*!< bit:     11  Compare Channel 3 Busy             */
+        uint32_t : 4;              /*!< bit: 12..15  Reserved                           */
+        uint32_t PATTB: 1;         /*!< bit:     16  Pattern Buffer Busy                */
+        uint32_t WAVEB: 1;         /*!< bit:     17  Wave Buffer Busy                   */
+        uint32_t PERB: 1;          /*!< bit:     18  Period Buffer Busy                 */
+        uint32_t CCB0: 1;          /*!< bit:     19  Compare Channel Buffer 0 Busy      */
+        uint32_t CCB1: 1;          /*!< bit:     20  Compare Channel Buffer 1 Busy      */
+        uint32_t CCB2: 1;          /*!< bit:     21  Compare Channel Buffer 2 Busy      */
+        uint32_t CCB3: 1;          /*!< bit:     22  Compare Channel Buffer 3 Busy      */
+        uint32_t : 9;              /*!< bit: 23..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t :8;               /*!< bit:  0.. 7  Reserved                           */
-        uint32_t CC:4;             /*!< bit:  8..11  Compare Channel x Busy             */
-        uint32_t :7;               /*!< bit: 12..18  Reserved                           */
-        uint32_t CCB:4;            /*!< bit: 19..22  Compare Channel Buffer x Busy      */
-        uint32_t :9;               /*!< bit: 23..31  Reserved                           */
+        uint32_t : 8;              /*!< bit:  0.. 7  Reserved                           */
+        uint32_t CC: 4;            /*!< bit:  8..11  Compare Channel x Busy             */
+        uint32_t : 7;              /*!< bit: 12..18  Reserved                           */
+        uint32_t CCB: 4;           /*!< bit: 19..22  Compare Channel Buffer x Busy      */
+        uint32_t : 9;              /*!< bit: 23..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_SYNCBUSY_Type;
@@ -333,19 +333,19 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SRC:2;            /*!< bit:  0.. 1  Fault A Source                     */
-        uint32_t :1;               /*!< bit:      2  Reserved                           */
-        uint32_t KEEP:1;           /*!< bit:      3  Fault A Keeper                     */
-        uint32_t QUAL:1;           /*!< bit:      4  Fault A Qualification              */
-        uint32_t BLANK:2;          /*!< bit:  5.. 6  Fault A Blanking Mode              */
-        uint32_t RESTART:1;        /*!< bit:      7  Fault A Restart                    */
-        uint32_t HALT:2;           /*!< bit:  8.. 9  Fault A Halt Mode                  */
-        uint32_t CHSEL:2;          /*!< bit: 10..11  Fault A Capture Channel            */
-        uint32_t CAPTURE:3;        /*!< bit: 12..14  Fault A Capture Action             */
-        uint32_t :1;               /*!< bit:     15  Reserved                           */
-        uint32_t BLANKVAL:8;       /*!< bit: 16..23  Fault A Blanking Time              */
-        uint32_t FILTERVAL:4;      /*!< bit: 24..27  Fault A Filter Value               */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t SRC: 2;           /*!< bit:  0.. 1  Fault A Source                     */
+        uint32_t : 1;              /*!< bit:      2  Reserved                           */
+        uint32_t KEEP: 1;          /*!< bit:      3  Fault A Keeper                     */
+        uint32_t QUAL: 1;          /*!< bit:      4  Fault A Qualification              */
+        uint32_t BLANK: 2;         /*!< bit:  5.. 6  Fault A Blanking Mode              */
+        uint32_t RESTART: 1;       /*!< bit:      7  Fault A Restart                    */
+        uint32_t HALT: 2;          /*!< bit:  8.. 9  Fault A Halt Mode                  */
+        uint32_t CHSEL: 2;         /*!< bit: 10..11  Fault A Capture Channel            */
+        uint32_t CAPTURE: 3;       /*!< bit: 12..14  Fault A Capture Action             */
+        uint32_t : 1;              /*!< bit:     15  Reserved                           */
+        uint32_t BLANKVAL: 8;      /*!< bit: 16..23  Fault A Blanking Time              */
+        uint32_t FILTERVAL: 4;     /*!< bit: 24..27  Fault A Filter Value               */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_FCTRLA_Type;
@@ -433,19 +433,19 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SRC:2;            /*!< bit:  0.. 1  Fault B Source                     */
-        uint32_t :1;               /*!< bit:      2  Reserved                           */
-        uint32_t KEEP:1;           /*!< bit:      3  Fault B Keeper                     */
-        uint32_t QUAL:1;           /*!< bit:      4  Fault B Qualification              */
-        uint32_t BLANK:2;          /*!< bit:  5.. 6  Fault B Blanking Mode              */
-        uint32_t RESTART:1;        /*!< bit:      7  Fault B Restart                    */
-        uint32_t HALT:2;           /*!< bit:  8.. 9  Fault B Halt Mode                  */
-        uint32_t CHSEL:2;          /*!< bit: 10..11  Fault B Capture Channel            */
-        uint32_t CAPTURE:3;        /*!< bit: 12..14  Fault B Capture Action             */
-        uint32_t :1;               /*!< bit:     15  Reserved                           */
-        uint32_t BLANKVAL:8;       /*!< bit: 16..23  Fault B Blanking Time              */
-        uint32_t FILTERVAL:4;      /*!< bit: 24..27  Fault B Filter Value               */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t SRC: 2;           /*!< bit:  0.. 1  Fault B Source                     */
+        uint32_t : 1;              /*!< bit:      2  Reserved                           */
+        uint32_t KEEP: 1;          /*!< bit:      3  Fault B Keeper                     */
+        uint32_t QUAL: 1;          /*!< bit:      4  Fault B Qualification              */
+        uint32_t BLANK: 2;         /*!< bit:  5.. 6  Fault B Blanking Mode              */
+        uint32_t RESTART: 1;       /*!< bit:      7  Fault B Restart                    */
+        uint32_t HALT: 2;          /*!< bit:  8.. 9  Fault B Halt Mode                  */
+        uint32_t CHSEL: 2;         /*!< bit: 10..11  Fault B Capture Channel            */
+        uint32_t CAPTURE: 3;       /*!< bit: 12..14  Fault B Capture Action             */
+        uint32_t : 1;              /*!< bit:     15  Reserved                           */
+        uint32_t BLANKVAL: 8;      /*!< bit: 16..23  Fault B Blanking Time              */
+        uint32_t FILTERVAL: 4;     /*!< bit: 24..27  Fault B Filter Value               */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_FCTRLB_Type;
@@ -533,20 +533,20 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t OTMX:2;           /*!< bit:  0.. 1  Output Matrix                      */
-        uint32_t :6;               /*!< bit:  2.. 7  Reserved                           */
-        uint32_t DTIEN0:1;         /*!< bit:      8  Dead-time Insertion Generator 0 Enable */
-        uint32_t DTIEN1:1;         /*!< bit:      9  Dead-time Insertion Generator 1 Enable */
-        uint32_t DTIEN2:1;         /*!< bit:     10  Dead-time Insertion Generator 2 Enable */
-        uint32_t DTIEN3:1;         /*!< bit:     11  Dead-time Insertion Generator 3 Enable */
-        uint32_t :4;               /*!< bit: 12..15  Reserved                           */
-        uint32_t DTLS:8;           /*!< bit: 16..23  Dead-time Low Side Outputs Value   */
-        uint32_t DTHS:8;           /*!< bit: 24..31  Dead-time High Side Outputs Value  */
+        uint32_t OTMX: 2;          /*!< bit:  0.. 1  Output Matrix                      */
+        uint32_t : 6;              /*!< bit:  2.. 7  Reserved                           */
+        uint32_t DTIEN0: 1;        /*!< bit:      8  Dead-time Insertion Generator 0 Enable */
+        uint32_t DTIEN1: 1;        /*!< bit:      9  Dead-time Insertion Generator 1 Enable */
+        uint32_t DTIEN2: 1;        /*!< bit:     10  Dead-time Insertion Generator 2 Enable */
+        uint32_t DTIEN3: 1;        /*!< bit:     11  Dead-time Insertion Generator 3 Enable */
+        uint32_t : 4;              /*!< bit: 12..15  Reserved                           */
+        uint32_t DTLS: 8;          /*!< bit: 16..23  Dead-time Low Side Outputs Value   */
+        uint32_t DTHS: 8;          /*!< bit: 24..31  Dead-time High Side Outputs Value  */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t :8;               /*!< bit:  0.. 7  Reserved                           */
-        uint32_t DTIEN:4;          /*!< bit:  8..11  Dead-time Insertion Generator x Enable */
-        uint32_t :20;              /*!< bit: 12..31  Reserved                           */
+        uint32_t : 8;              /*!< bit:  0.. 7  Reserved                           */
+        uint32_t DTIEN: 4;         /*!< bit:  8..11  Dead-time Insertion Generator x Enable */
+        uint32_t : 20;             /*!< bit: 12..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_WEXCTRL_Type;
@@ -581,38 +581,38 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t NRE0:1;           /*!< bit:      0  Non-Recoverable State 0 Output Enable */
-        uint32_t NRE1:1;           /*!< bit:      1  Non-Recoverable State 1 Output Enable */
-        uint32_t NRE2:1;           /*!< bit:      2  Non-Recoverable State 2 Output Enable */
-        uint32_t NRE3:1;           /*!< bit:      3  Non-Recoverable State 3 Output Enable */
-        uint32_t NRE4:1;           /*!< bit:      4  Non-Recoverable State 4 Output Enable */
-        uint32_t NRE5:1;           /*!< bit:      5  Non-Recoverable State 5 Output Enable */
-        uint32_t NRE6:1;           /*!< bit:      6  Non-Recoverable State 6 Output Enable */
-        uint32_t NRE7:1;           /*!< bit:      7  Non-Recoverable State 7 Output Enable */
-        uint32_t NRV0:1;           /*!< bit:      8  Non-Recoverable State 0 Output Value */
-        uint32_t NRV1:1;           /*!< bit:      9  Non-Recoverable State 1 Output Value */
-        uint32_t NRV2:1;           /*!< bit:     10  Non-Recoverable State 2 Output Value */
-        uint32_t NRV3:1;           /*!< bit:     11  Non-Recoverable State 3 Output Value */
-        uint32_t NRV4:1;           /*!< bit:     12  Non-Recoverable State 4 Output Value */
-        uint32_t NRV5:1;           /*!< bit:     13  Non-Recoverable State 5 Output Value */
-        uint32_t NRV6:1;           /*!< bit:     14  Non-Recoverable State 6 Output Value */
-        uint32_t NRV7:1;           /*!< bit:     15  Non-Recoverable State 7 Output Value */
-        uint32_t INVEN0:1;         /*!< bit:     16  Output Waveform 0 Inversion        */
-        uint32_t INVEN1:1;         /*!< bit:     17  Output Waveform 1 Inversion        */
-        uint32_t INVEN2:1;         /*!< bit:     18  Output Waveform 2 Inversion        */
-        uint32_t INVEN3:1;         /*!< bit:     19  Output Waveform 3 Inversion        */
-        uint32_t INVEN4:1;         /*!< bit:     20  Output Waveform 4 Inversion        */
-        uint32_t INVEN5:1;         /*!< bit:     21  Output Waveform 5 Inversion        */
-        uint32_t INVEN6:1;         /*!< bit:     22  Output Waveform 6 Inversion        */
-        uint32_t INVEN7:1;         /*!< bit:     23  Output Waveform 7 Inversion        */
-        uint32_t FILTERVAL0:4;     /*!< bit: 24..27  Non-Recoverable Fault Input 0 Filter Value */
-        uint32_t FILTERVAL1:4;     /*!< bit: 28..31  Non-Recoverable Fault Input 1 Filter Value */
+        uint32_t NRE0: 1;          /*!< bit:      0  Non-Recoverable State 0 Output Enable */
+        uint32_t NRE1: 1;          /*!< bit:      1  Non-Recoverable State 1 Output Enable */
+        uint32_t NRE2: 1;          /*!< bit:      2  Non-Recoverable State 2 Output Enable */
+        uint32_t NRE3: 1;          /*!< bit:      3  Non-Recoverable State 3 Output Enable */
+        uint32_t NRE4: 1;          /*!< bit:      4  Non-Recoverable State 4 Output Enable */
+        uint32_t NRE5: 1;          /*!< bit:      5  Non-Recoverable State 5 Output Enable */
+        uint32_t NRE6: 1;          /*!< bit:      6  Non-Recoverable State 6 Output Enable */
+        uint32_t NRE7: 1;          /*!< bit:      7  Non-Recoverable State 7 Output Enable */
+        uint32_t NRV0: 1;          /*!< bit:      8  Non-Recoverable State 0 Output Value */
+        uint32_t NRV1: 1;          /*!< bit:      9  Non-Recoverable State 1 Output Value */
+        uint32_t NRV2: 1;          /*!< bit:     10  Non-Recoverable State 2 Output Value */
+        uint32_t NRV3: 1;          /*!< bit:     11  Non-Recoverable State 3 Output Value */
+        uint32_t NRV4: 1;          /*!< bit:     12  Non-Recoverable State 4 Output Value */
+        uint32_t NRV5: 1;          /*!< bit:     13  Non-Recoverable State 5 Output Value */
+        uint32_t NRV6: 1;          /*!< bit:     14  Non-Recoverable State 6 Output Value */
+        uint32_t NRV7: 1;          /*!< bit:     15  Non-Recoverable State 7 Output Value */
+        uint32_t INVEN0: 1;        /*!< bit:     16  Output Waveform 0 Inversion        */
+        uint32_t INVEN1: 1;        /*!< bit:     17  Output Waveform 1 Inversion        */
+        uint32_t INVEN2: 1;        /*!< bit:     18  Output Waveform 2 Inversion        */
+        uint32_t INVEN3: 1;        /*!< bit:     19  Output Waveform 3 Inversion        */
+        uint32_t INVEN4: 1;        /*!< bit:     20  Output Waveform 4 Inversion        */
+        uint32_t INVEN5: 1;        /*!< bit:     21  Output Waveform 5 Inversion        */
+        uint32_t INVEN6: 1;        /*!< bit:     22  Output Waveform 6 Inversion        */
+        uint32_t INVEN7: 1;        /*!< bit:     23  Output Waveform 7 Inversion        */
+        uint32_t FILTERVAL0: 4;    /*!< bit: 24..27  Non-Recoverable Fault Input 0 Filter Value */
+        uint32_t FILTERVAL1: 4;    /*!< bit: 28..31  Non-Recoverable Fault Input 1 Filter Value */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t NRE:8;            /*!< bit:  0.. 7  Non-Recoverable State x Output Enable */
-        uint32_t NRV:8;            /*!< bit:  8..15  Non-Recoverable State x Output Value */
-        uint32_t INVEN:8;          /*!< bit: 16..23  Output Waveform x Inversion        */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t NRE: 8;           /*!< bit:  0.. 7  Non-Recoverable State x Output Enable */
+        uint32_t NRV: 8;           /*!< bit:  8..15  Non-Recoverable State x Output Value */
+        uint32_t INVEN: 8;         /*!< bit: 16..23  Output Waveform x Inversion        */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_DRVCTRL_Type;
@@ -690,10 +690,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DBGRUN:1;         /*!< bit:      0  Debug Running Mode                 */
-        uint8_t  :1;               /*!< bit:      1  Reserved                           */
-        uint8_t  FDDBD:1;          /*!< bit:      2  Fault Detection on Debug Break Detection */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  DBGRUN: 1;        /*!< bit:      0  Debug Running Mode                 */
+        uint8_t  : 1;              /*!< bit:      1  Reserved                           */
+        uint8_t  FDDBD: 1;         /*!< bit:      2  Fault Detection on Debug Break Detection */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } TCC_DBGCTRL_Type;
@@ -712,36 +712,36 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t EVACT0:3;         /*!< bit:  0.. 2  Timer/counter Input Event0 Action  */
-        uint32_t EVACT1:3;         /*!< bit:  3.. 5  Timer/counter Input Event1 Action  */
-        uint32_t CNTSEL:2;         /*!< bit:  6.. 7  Timer/counter Output Event Mode    */
-        uint32_t OVFEO:1;          /*!< bit:      8  Overflow/Underflow Output Event Enable */
-        uint32_t TRGEO:1;          /*!< bit:      9  Retrigger Output Event Enable      */
-        uint32_t CNTEO:1;          /*!< bit:     10  Timer/counter Output Event Enable  */
-        uint32_t :1;               /*!< bit:     11  Reserved                           */
-        uint32_t TCINV0:1;         /*!< bit:     12  Inverted Event 0 Input Enable      */
-        uint32_t TCINV1:1;         /*!< bit:     13  Inverted Event 1 Input Enable      */
-        uint32_t TCEI0:1;          /*!< bit:     14  Timer/counter Event 0 Input Enable */
-        uint32_t TCEI1:1;          /*!< bit:     15  Timer/counter Event 1 Input Enable */
-        uint32_t MCEI0:1;          /*!< bit:     16  Match or Capture Channel 0 Event Input Enable */
-        uint32_t MCEI1:1;          /*!< bit:     17  Match or Capture Channel 1 Event Input Enable */
-        uint32_t MCEI2:1;          /*!< bit:     18  Match or Capture Channel 2 Event Input Enable */
-        uint32_t MCEI3:1;          /*!< bit:     19  Match or Capture Channel 3 Event Input Enable */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t MCEO0:1;          /*!< bit:     24  Match or Capture Channel 0 Event Output Enable */
-        uint32_t MCEO1:1;          /*!< bit:     25  Match or Capture Channel 1 Event Output Enable */
-        uint32_t MCEO2:1;          /*!< bit:     26  Match or Capture Channel 2 Event Output Enable */
-        uint32_t MCEO3:1;          /*!< bit:     27  Match or Capture Channel 3 Event Output Enable */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t EVACT0: 3;        /*!< bit:  0.. 2  Timer/counter Input Event0 Action  */
+        uint32_t EVACT1: 3;        /*!< bit:  3.. 5  Timer/counter Input Event1 Action  */
+        uint32_t CNTSEL: 2;        /*!< bit:  6.. 7  Timer/counter Output Event Mode    */
+        uint32_t OVFEO: 1;         /*!< bit:      8  Overflow/Underflow Output Event Enable */
+        uint32_t TRGEO: 1;         /*!< bit:      9  Retrigger Output Event Enable      */
+        uint32_t CNTEO: 1;         /*!< bit:     10  Timer/counter Output Event Enable  */
+        uint32_t : 1;              /*!< bit:     11  Reserved                           */
+        uint32_t TCINV0: 1;        /*!< bit:     12  Inverted Event 0 Input Enable      */
+        uint32_t TCINV1: 1;        /*!< bit:     13  Inverted Event 1 Input Enable      */
+        uint32_t TCEI0: 1;         /*!< bit:     14  Timer/counter Event 0 Input Enable */
+        uint32_t TCEI1: 1;         /*!< bit:     15  Timer/counter Event 1 Input Enable */
+        uint32_t MCEI0: 1;         /*!< bit:     16  Match or Capture Channel 0 Event Input Enable */
+        uint32_t MCEI1: 1;         /*!< bit:     17  Match or Capture Channel 1 Event Input Enable */
+        uint32_t MCEI2: 1;         /*!< bit:     18  Match or Capture Channel 2 Event Input Enable */
+        uint32_t MCEI3: 1;         /*!< bit:     19  Match or Capture Channel 3 Event Input Enable */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t MCEO0: 1;         /*!< bit:     24  Match or Capture Channel 0 Event Output Enable */
+        uint32_t MCEO1: 1;         /*!< bit:     25  Match or Capture Channel 1 Event Output Enable */
+        uint32_t MCEO2: 1;         /*!< bit:     26  Match or Capture Channel 2 Event Output Enable */
+        uint32_t MCEO3: 1;         /*!< bit:     27  Match or Capture Channel 3 Event Output Enable */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t :12;              /*!< bit:  0..11  Reserved                           */
-        uint32_t TCINV:2;          /*!< bit: 12..13  Inverted Event x Input Enable      */
-        uint32_t TCEI:2;           /*!< bit: 14..15  Timer/counter Event x Input Enable */
-        uint32_t MCEI:4;           /*!< bit: 16..19  Match or Capture Channel x Event Input Enable */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t MCEO:4;           /*!< bit: 24..27  Match or Capture Channel x Event Output Enable */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t : 12;             /*!< bit:  0..11  Reserved                           */
+        uint32_t TCINV: 2;         /*!< bit: 12..13  Inverted Event x Input Enable      */
+        uint32_t TCEI: 2;          /*!< bit: 14..15  Timer/counter Event x Input Enable */
+        uint32_t MCEI: 4;          /*!< bit: 16..19  Match or Capture Channel x Event Input Enable */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t MCEO: 4;          /*!< bit: 24..27  Match or Capture Channel x Event Output Enable */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_EVCTRL_Type;
@@ -845,26 +845,26 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t OVF:1;            /*!< bit:      0  Overflow Interrupt Enable          */
-        uint32_t TRG:1;            /*!< bit:      1  Retrigger Interrupt Enable         */
-        uint32_t CNT:1;            /*!< bit:      2  Counter Interrupt Enable           */
-        uint32_t ERR:1;            /*!< bit:      3  Error Interrupt Enable             */
-        uint32_t :7;               /*!< bit:  4..10  Reserved                           */
-        uint32_t DFS:1;            /*!< bit:     11  Non-Recoverable Debug Fault Interrupt Enable */
-        uint32_t FAULTA:1;         /*!< bit:     12  Recoverable Fault A Interrupt Enable */
-        uint32_t FAULTB:1;         /*!< bit:     13  Recoverable Fault B Interrupt Enable */
-        uint32_t FAULT0:1;         /*!< bit:     14  Non-Recoverable Fault 0 Interrupt Enable */
-        uint32_t FAULT1:1;         /*!< bit:     15  Non-Recoverable Fault 1 Interrupt Enable */
-        uint32_t MC0:1;            /*!< bit:     16  Match or Capture Channel 0 Interrupt Enable */
-        uint32_t MC1:1;            /*!< bit:     17  Match or Capture Channel 1 Interrupt Enable */
-        uint32_t MC2:1;            /*!< bit:     18  Match or Capture Channel 2 Interrupt Enable */
-        uint32_t MC3:1;            /*!< bit:     19  Match or Capture Channel 3 Interrupt Enable */
-        uint32_t :12;              /*!< bit: 20..31  Reserved                           */
+        uint32_t OVF: 1;           /*!< bit:      0  Overflow Interrupt Enable          */
+        uint32_t TRG: 1;           /*!< bit:      1  Retrigger Interrupt Enable         */
+        uint32_t CNT: 1;           /*!< bit:      2  Counter Interrupt Enable           */
+        uint32_t ERR: 1;           /*!< bit:      3  Error Interrupt Enable             */
+        uint32_t : 7;              /*!< bit:  4..10  Reserved                           */
+        uint32_t DFS: 1;           /*!< bit:     11  Non-Recoverable Debug Fault Interrupt Enable */
+        uint32_t FAULTA: 1;        /*!< bit:     12  Recoverable Fault A Interrupt Enable */
+        uint32_t FAULTB: 1;        /*!< bit:     13  Recoverable Fault B Interrupt Enable */
+        uint32_t FAULT0: 1;        /*!< bit:     14  Non-Recoverable Fault 0 Interrupt Enable */
+        uint32_t FAULT1: 1;        /*!< bit:     15  Non-Recoverable Fault 1 Interrupt Enable */
+        uint32_t MC0: 1;           /*!< bit:     16  Match or Capture Channel 0 Interrupt Enable */
+        uint32_t MC1: 1;           /*!< bit:     17  Match or Capture Channel 1 Interrupt Enable */
+        uint32_t MC2: 1;           /*!< bit:     18  Match or Capture Channel 2 Interrupt Enable */
+        uint32_t MC3: 1;           /*!< bit:     19  Match or Capture Channel 3 Interrupt Enable */
+        uint32_t : 12;             /*!< bit: 20..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t :16;              /*!< bit:  0..15  Reserved                           */
-        uint32_t MC:4;             /*!< bit: 16..19  Match or Capture Channel x Interrupt Enable */
-        uint32_t :12;              /*!< bit: 20..31  Reserved                           */
+        uint32_t : 16;             /*!< bit:  0..15  Reserved                           */
+        uint32_t MC: 4;            /*!< bit: 16..19  Match or Capture Channel x Interrupt Enable */
+        uint32_t : 12;             /*!< bit: 20..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_INTENCLR_Type;
@@ -908,26 +908,26 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t OVF:1;            /*!< bit:      0  Overflow Interrupt Enable          */
-        uint32_t TRG:1;            /*!< bit:      1  Retrigger Interrupt Enable         */
-        uint32_t CNT:1;            /*!< bit:      2  Counter Interrupt Enable           */
-        uint32_t ERR:1;            /*!< bit:      3  Error Interrupt Enable             */
-        uint32_t :7;               /*!< bit:  4..10  Reserved                           */
-        uint32_t DFS:1;            /*!< bit:     11  Non-Recoverable Debug Fault Interrupt Enable */
-        uint32_t FAULTA:1;         /*!< bit:     12  Recoverable Fault A Interrupt Enable */
-        uint32_t FAULTB:1;         /*!< bit:     13  Recoverable Fault B Interrupt Enable */
-        uint32_t FAULT0:1;         /*!< bit:     14  Non-Recoverable Fault 0 Interrupt Enable */
-        uint32_t FAULT1:1;         /*!< bit:     15  Non-Recoverable Fault 1 Interrupt Enable */
-        uint32_t MC0:1;            /*!< bit:     16  Match or Capture Channel 0 Interrupt Enable */
-        uint32_t MC1:1;            /*!< bit:     17  Match or Capture Channel 1 Interrupt Enable */
-        uint32_t MC2:1;            /*!< bit:     18  Match or Capture Channel 2 Interrupt Enable */
-        uint32_t MC3:1;            /*!< bit:     19  Match or Capture Channel 3 Interrupt Enable */
-        uint32_t :12;              /*!< bit: 20..31  Reserved                           */
+        uint32_t OVF: 1;           /*!< bit:      0  Overflow Interrupt Enable          */
+        uint32_t TRG: 1;           /*!< bit:      1  Retrigger Interrupt Enable         */
+        uint32_t CNT: 1;           /*!< bit:      2  Counter Interrupt Enable           */
+        uint32_t ERR: 1;           /*!< bit:      3  Error Interrupt Enable             */
+        uint32_t : 7;              /*!< bit:  4..10  Reserved                           */
+        uint32_t DFS: 1;           /*!< bit:     11  Non-Recoverable Debug Fault Interrupt Enable */
+        uint32_t FAULTA: 1;        /*!< bit:     12  Recoverable Fault A Interrupt Enable */
+        uint32_t FAULTB: 1;        /*!< bit:     13  Recoverable Fault B Interrupt Enable */
+        uint32_t FAULT0: 1;        /*!< bit:     14  Non-Recoverable Fault 0 Interrupt Enable */
+        uint32_t FAULT1: 1;        /*!< bit:     15  Non-Recoverable Fault 1 Interrupt Enable */
+        uint32_t MC0: 1;           /*!< bit:     16  Match or Capture Channel 0 Interrupt Enable */
+        uint32_t MC1: 1;           /*!< bit:     17  Match or Capture Channel 1 Interrupt Enable */
+        uint32_t MC2: 1;           /*!< bit:     18  Match or Capture Channel 2 Interrupt Enable */
+        uint32_t MC3: 1;           /*!< bit:     19  Match or Capture Channel 3 Interrupt Enable */
+        uint32_t : 12;             /*!< bit: 20..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t :16;              /*!< bit:  0..15  Reserved                           */
-        uint32_t MC:4;             /*!< bit: 16..19  Match or Capture Channel x Interrupt Enable */
-        uint32_t :12;              /*!< bit: 20..31  Reserved                           */
+        uint32_t : 16;             /*!< bit:  0..15  Reserved                           */
+        uint32_t MC: 4;            /*!< bit: 16..19  Match or Capture Channel x Interrupt Enable */
+        uint32_t : 12;             /*!< bit: 20..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_INTENSET_Type;
@@ -971,26 +971,26 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union { // __I to avoid read-modify-write on write-to-clear register
     struct {
-        __I uint32_t OVF:1;            /*!< bit:      0  Overflow                           */
-        __I uint32_t TRG:1;            /*!< bit:      1  Retrigger                          */
-        __I uint32_t CNT:1;            /*!< bit:      2  Counter                            */
-        __I uint32_t ERR:1;            /*!< bit:      3  Error                              */
-        __I uint32_t :7;               /*!< bit:  4..10  Reserved                           */
-        __I uint32_t DFS:1;            /*!< bit:     11  Non-Recoverable Debug Fault        */
-        __I uint32_t FAULTA:1;         /*!< bit:     12  Recoverable Fault A                */
-        __I uint32_t FAULTB:1;         /*!< bit:     13  Recoverable Fault B                */
-        __I uint32_t FAULT0:1;         /*!< bit:     14  Non-Recoverable Fault 0            */
-        __I uint32_t FAULT1:1;         /*!< bit:     15  Non-Recoverable Fault 1            */
-        __I uint32_t MC0:1;            /*!< bit:     16  Match or Capture 0                 */
-        __I uint32_t MC1:1;            /*!< bit:     17  Match or Capture 1                 */
-        __I uint32_t MC2:1;            /*!< bit:     18  Match or Capture 2                 */
-        __I uint32_t MC3:1;            /*!< bit:     19  Match or Capture 3                 */
-        __I uint32_t :12;              /*!< bit: 20..31  Reserved                           */
+        __I uint32_t OVF: 1;           /*!< bit:      0  Overflow                           */
+        __I uint32_t TRG: 1;           /*!< bit:      1  Retrigger                          */
+        __I uint32_t CNT: 1;           /*!< bit:      2  Counter                            */
+        __I uint32_t ERR: 1;           /*!< bit:      3  Error                              */
+        __I uint32_t : 7;              /*!< bit:  4..10  Reserved                           */
+        __I uint32_t DFS: 1;           /*!< bit:     11  Non-Recoverable Debug Fault        */
+        __I uint32_t FAULTA: 1;        /*!< bit:     12  Recoverable Fault A                */
+        __I uint32_t FAULTB: 1;        /*!< bit:     13  Recoverable Fault B                */
+        __I uint32_t FAULT0: 1;        /*!< bit:     14  Non-Recoverable Fault 0            */
+        __I uint32_t FAULT1: 1;        /*!< bit:     15  Non-Recoverable Fault 1            */
+        __I uint32_t MC0: 1;           /*!< bit:     16  Match or Capture 0                 */
+        __I uint32_t MC1: 1;           /*!< bit:     17  Match or Capture 1                 */
+        __I uint32_t MC2: 1;           /*!< bit:     18  Match or Capture 2                 */
+        __I uint32_t MC3: 1;           /*!< bit:     19  Match or Capture 3                 */
+        __I uint32_t : 12;             /*!< bit: 20..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        __I uint32_t :16;              /*!< bit:  0..15  Reserved                           */
-        __I uint32_t MC:4;             /*!< bit: 16..19  Match or Capture x                 */
-        __I uint32_t :12;              /*!< bit: 20..31  Reserved                           */
+        __I uint32_t : 16;             /*!< bit:  0..15  Reserved                           */
+        __I uint32_t MC: 4;            /*!< bit: 16..19  Match or Capture x                 */
+        __I uint32_t : 12;             /*!< bit: 20..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_INTFLAG_Type;
@@ -1034,39 +1034,39 @@ typedef union { // __I to avoid read-modify-write on write-to-clear register
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t STOP:1;           /*!< bit:      0  Stop                               */
-        uint32_t IDX:1;            /*!< bit:      1  Ramp                               */
-        uint32_t :1;               /*!< bit:      2  Reserved                           */
-        uint32_t DFS:1;            /*!< bit:      3  Non-Recoverable Debug Fault State  */
-        uint32_t SLAVE:1;          /*!< bit:      4  Slave                              */
-        uint32_t PATTBV:1;         /*!< bit:      5  Pattern Buffer Valid               */
-        uint32_t WAVEBV:1;         /*!< bit:      6  Wave Buffer Valid                  */
-        uint32_t PERBV:1;          /*!< bit:      7  Period Buffer Valid                */
-        uint32_t FAULTAIN:1;       /*!< bit:      8  Recoverable Fault A Input          */
-        uint32_t FAULTBIN:1;       /*!< bit:      9  Recoverable Fault B Input          */
-        uint32_t FAULT0IN:1;       /*!< bit:     10  Non-Recoverable Fault0 Input       */
-        uint32_t FAULT1IN:1;       /*!< bit:     11  Non-Recoverable Fault1 Input       */
-        uint32_t FAULTA:1;         /*!< bit:     12  Recoverable Fault A State          */
-        uint32_t FAULTB:1;         /*!< bit:     13  Recoverable Fault B State          */
-        uint32_t FAULT0:1;         /*!< bit:     14  Non-Recoverable Fault 0 State      */
-        uint32_t FAULT1:1;         /*!< bit:     15  Non-Recoverable Fault 1 State      */
-        uint32_t CCBV0:1;          /*!< bit:     16  Compare Channel 0 Buffer Valid     */
-        uint32_t CCBV1:1;          /*!< bit:     17  Compare Channel 1 Buffer Valid     */
-        uint32_t CCBV2:1;          /*!< bit:     18  Compare Channel 2 Buffer Valid     */
-        uint32_t CCBV3:1;          /*!< bit:     19  Compare Channel 3 Buffer Valid     */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t CMP0:1;           /*!< bit:     24  Compare Channel 0 Value            */
-        uint32_t CMP1:1;           /*!< bit:     25  Compare Channel 1 Value            */
-        uint32_t CMP2:1;           /*!< bit:     26  Compare Channel 2 Value            */
-        uint32_t CMP3:1;           /*!< bit:     27  Compare Channel 3 Value            */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t STOP: 1;          /*!< bit:      0  Stop                               */
+        uint32_t IDX: 1;           /*!< bit:      1  Ramp                               */
+        uint32_t : 1;              /*!< bit:      2  Reserved                           */
+        uint32_t DFS: 1;           /*!< bit:      3  Non-Recoverable Debug Fault State  */
+        uint32_t SLAVE: 1;         /*!< bit:      4  Slave                              */
+        uint32_t PATTBV: 1;        /*!< bit:      5  Pattern Buffer Valid               */
+        uint32_t WAVEBV: 1;        /*!< bit:      6  Wave Buffer Valid                  */
+        uint32_t PERBV: 1;         /*!< bit:      7  Period Buffer Valid                */
+        uint32_t FAULTAIN: 1;      /*!< bit:      8  Recoverable Fault A Input          */
+        uint32_t FAULTBIN: 1;      /*!< bit:      9  Recoverable Fault B Input          */
+        uint32_t FAULT0IN: 1;      /*!< bit:     10  Non-Recoverable Fault0 Input       */
+        uint32_t FAULT1IN: 1;      /*!< bit:     11  Non-Recoverable Fault1 Input       */
+        uint32_t FAULTA: 1;        /*!< bit:     12  Recoverable Fault A State          */
+        uint32_t FAULTB: 1;        /*!< bit:     13  Recoverable Fault B State          */
+        uint32_t FAULT0: 1;        /*!< bit:     14  Non-Recoverable Fault 0 State      */
+        uint32_t FAULT1: 1;        /*!< bit:     15  Non-Recoverable Fault 1 State      */
+        uint32_t CCBV0: 1;         /*!< bit:     16  Compare Channel 0 Buffer Valid     */
+        uint32_t CCBV1: 1;         /*!< bit:     17  Compare Channel 1 Buffer Valid     */
+        uint32_t CCBV2: 1;         /*!< bit:     18  Compare Channel 2 Buffer Valid     */
+        uint32_t CCBV3: 1;         /*!< bit:     19  Compare Channel 3 Buffer Valid     */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t CMP0: 1;          /*!< bit:     24  Compare Channel 0 Value            */
+        uint32_t CMP1: 1;          /*!< bit:     25  Compare Channel 1 Value            */
+        uint32_t CMP2: 1;          /*!< bit:     26  Compare Channel 2 Value            */
+        uint32_t CMP3: 1;          /*!< bit:     27  Compare Channel 3 Value            */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t :16;              /*!< bit:  0..15  Reserved                           */
-        uint32_t CCBV:4;           /*!< bit: 16..19  Compare Channel x Buffer Valid     */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t CMP:4;            /*!< bit: 24..27  Compare Channel x Value            */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t : 16;             /*!< bit:  0..15  Reserved                           */
+        uint32_t CCBV: 4;          /*!< bit: 16..19  Compare Channel x Buffer Valid     */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t CMP: 4;           /*!< bit: 24..27  Compare Channel x Value            */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_STATUS_Type;
@@ -1133,23 +1133,23 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct { // DITH4 mode
-        uint32_t :4;               /*!< bit:  0.. 3  Reserved                           */
-        uint32_t COUNT:20;         /*!< bit:  4..23  Counter Value                      */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t : 4;              /*!< bit:  0.. 3  Reserved                           */
+        uint32_t COUNT: 20;        /*!< bit:  4..23  Counter Value                      */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH4;                     /*!< Structure used for DITH4                        */
     struct { // DITH5 mode
-        uint32_t :5;               /*!< bit:  0.. 4  Reserved                           */
-        uint32_t COUNT:19;         /*!< bit:  5..23  Counter Value                      */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t : 5;              /*!< bit:  0.. 4  Reserved                           */
+        uint32_t COUNT: 19;        /*!< bit:  5..23  Counter Value                      */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH5;                     /*!< Structure used for DITH5                        */
     struct { // DITH6 mode
-        uint32_t :6;               /*!< bit:  0.. 5  Reserved                           */
-        uint32_t COUNT:18;         /*!< bit:  6..23  Counter Value                      */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t : 6;              /*!< bit:  0.. 5  Reserved                           */
+        uint32_t COUNT: 18;        /*!< bit:  6..23  Counter Value                      */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH6;                     /*!< Structure used for DITH6                        */
     struct {
-        uint32_t COUNT:24;         /*!< bit:  0..23  Counter Value                      */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t COUNT: 24;        /*!< bit:  0..23  Counter Value                      */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_COUNT_Type;
@@ -1185,26 +1185,26 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t PGE0:1;           /*!< bit:      0  Pattern Generator 0 Output Enable  */
-        uint16_t PGE1:1;           /*!< bit:      1  Pattern Generator 1 Output Enable  */
-        uint16_t PGE2:1;           /*!< bit:      2  Pattern Generator 2 Output Enable  */
-        uint16_t PGE3:1;           /*!< bit:      3  Pattern Generator 3 Output Enable  */
-        uint16_t PGE4:1;           /*!< bit:      4  Pattern Generator 4 Output Enable  */
-        uint16_t PGE5:1;           /*!< bit:      5  Pattern Generator 5 Output Enable  */
-        uint16_t PGE6:1;           /*!< bit:      6  Pattern Generator 6 Output Enable  */
-        uint16_t PGE7:1;           /*!< bit:      7  Pattern Generator 7 Output Enable  */
-        uint16_t PGV0:1;           /*!< bit:      8  Pattern Generator 0 Output Value   */
-        uint16_t PGV1:1;           /*!< bit:      9  Pattern Generator 1 Output Value   */
-        uint16_t PGV2:1;           /*!< bit:     10  Pattern Generator 2 Output Value   */
-        uint16_t PGV3:1;           /*!< bit:     11  Pattern Generator 3 Output Value   */
-        uint16_t PGV4:1;           /*!< bit:     12  Pattern Generator 4 Output Value   */
-        uint16_t PGV5:1;           /*!< bit:     13  Pattern Generator 5 Output Value   */
-        uint16_t PGV6:1;           /*!< bit:     14  Pattern Generator 6 Output Value   */
-        uint16_t PGV7:1;           /*!< bit:     15  Pattern Generator 7 Output Value   */
+        uint16_t PGE0: 1;          /*!< bit:      0  Pattern Generator 0 Output Enable  */
+        uint16_t PGE1: 1;          /*!< bit:      1  Pattern Generator 1 Output Enable  */
+        uint16_t PGE2: 1;          /*!< bit:      2  Pattern Generator 2 Output Enable  */
+        uint16_t PGE3: 1;          /*!< bit:      3  Pattern Generator 3 Output Enable  */
+        uint16_t PGE4: 1;          /*!< bit:      4  Pattern Generator 4 Output Enable  */
+        uint16_t PGE5: 1;          /*!< bit:      5  Pattern Generator 5 Output Enable  */
+        uint16_t PGE6: 1;          /*!< bit:      6  Pattern Generator 6 Output Enable  */
+        uint16_t PGE7: 1;          /*!< bit:      7  Pattern Generator 7 Output Enable  */
+        uint16_t PGV0: 1;          /*!< bit:      8  Pattern Generator 0 Output Value   */
+        uint16_t PGV1: 1;          /*!< bit:      9  Pattern Generator 1 Output Value   */
+        uint16_t PGV2: 1;          /*!< bit:     10  Pattern Generator 2 Output Value   */
+        uint16_t PGV3: 1;          /*!< bit:     11  Pattern Generator 3 Output Value   */
+        uint16_t PGV4: 1;          /*!< bit:     12  Pattern Generator 4 Output Value   */
+        uint16_t PGV5: 1;          /*!< bit:     13  Pattern Generator 5 Output Value   */
+        uint16_t PGV6: 1;          /*!< bit:     14  Pattern Generator 6 Output Value   */
+        uint16_t PGV7: 1;          /*!< bit:     15  Pattern Generator 7 Output Value   */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint16_t PGE:8;            /*!< bit:  0.. 7  Pattern Generator x Output Enable  */
-        uint16_t PGV:8;            /*!< bit:  8..15  Pattern Generator x Output Value   */
+        uint16_t PGE: 8;           /*!< bit:  0.. 7  Pattern Generator x Output Enable  */
+        uint16_t PGV: 8;           /*!< bit:  8..15  Pattern Generator x Output Value   */
     } vec;                       /*!< Structure used for vec  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } TCC_PATT_Type;
@@ -1257,35 +1257,35 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t WAVEGEN:3;        /*!< bit:  0.. 2  Waveform Generation                */
-        uint32_t :1;               /*!< bit:      3  Reserved                           */
-        uint32_t RAMP:2;           /*!< bit:  4.. 5  Ramp Mode                          */
-        uint32_t :1;               /*!< bit:      6  Reserved                           */
-        uint32_t CIPEREN:1;        /*!< bit:      7  Circular period Enable             */
-        uint32_t CICCEN0:1;        /*!< bit:      8  Circular Channel 0 Enable          */
-        uint32_t CICCEN1:1;        /*!< bit:      9  Circular Channel 1 Enable          */
-        uint32_t CICCEN2:1;        /*!< bit:     10  Circular Channel 2 Enable          */
-        uint32_t CICCEN3:1;        /*!< bit:     11  Circular Channel 3 Enable          */
-        uint32_t :4;               /*!< bit: 12..15  Reserved                           */
-        uint32_t POL0:1;           /*!< bit:     16  Channel 0 Polarity                 */
-        uint32_t POL1:1;           /*!< bit:     17  Channel 1 Polarity                 */
-        uint32_t POL2:1;           /*!< bit:     18  Channel 2 Polarity                 */
-        uint32_t POL3:1;           /*!< bit:     19  Channel 3 Polarity                 */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t SWAP0:1;          /*!< bit:     24  Swap DTI Output Pair 0             */
-        uint32_t SWAP1:1;          /*!< bit:     25  Swap DTI Output Pair 1             */
-        uint32_t SWAP2:1;          /*!< bit:     26  Swap DTI Output Pair 2             */
-        uint32_t SWAP3:1;          /*!< bit:     27  Swap DTI Output Pair 3             */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t WAVEGEN: 3;       /*!< bit:  0.. 2  Waveform Generation                */
+        uint32_t : 1;              /*!< bit:      3  Reserved                           */
+        uint32_t RAMP: 2;          /*!< bit:  4.. 5  Ramp Mode                          */
+        uint32_t : 1;              /*!< bit:      6  Reserved                           */
+        uint32_t CIPEREN: 1;       /*!< bit:      7  Circular period Enable             */
+        uint32_t CICCEN0: 1;       /*!< bit:      8  Circular Channel 0 Enable          */
+        uint32_t CICCEN1: 1;       /*!< bit:      9  Circular Channel 1 Enable          */
+        uint32_t CICCEN2: 1;       /*!< bit:     10  Circular Channel 2 Enable          */
+        uint32_t CICCEN3: 1;       /*!< bit:     11  Circular Channel 3 Enable          */
+        uint32_t : 4;              /*!< bit: 12..15  Reserved                           */
+        uint32_t POL0: 1;          /*!< bit:     16  Channel 0 Polarity                 */
+        uint32_t POL1: 1;          /*!< bit:     17  Channel 1 Polarity                 */
+        uint32_t POL2: 1;          /*!< bit:     18  Channel 2 Polarity                 */
+        uint32_t POL3: 1;          /*!< bit:     19  Channel 3 Polarity                 */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t SWAP0: 1;         /*!< bit:     24  Swap DTI Output Pair 0             */
+        uint32_t SWAP1: 1;         /*!< bit:     25  Swap DTI Output Pair 1             */
+        uint32_t SWAP2: 1;         /*!< bit:     26  Swap DTI Output Pair 2             */
+        uint32_t SWAP3: 1;         /*!< bit:     27  Swap DTI Output Pair 3             */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t :8;               /*!< bit:  0.. 7  Reserved                           */
-        uint32_t CICCEN:4;         /*!< bit:  8..11  Circular Channel x Enable          */
-        uint32_t :4;               /*!< bit: 12..15  Reserved                           */
-        uint32_t POL:4;            /*!< bit: 16..19  Channel x Polarity                 */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t SWAP:4;           /*!< bit: 24..27  Swap DTI Output Pair x             */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t : 8;              /*!< bit:  0.. 7  Reserved                           */
+        uint32_t CICCEN: 4;        /*!< bit:  8..11  Circular Channel x Enable          */
+        uint32_t : 4;              /*!< bit: 12..15  Reserved                           */
+        uint32_t POL: 4;           /*!< bit: 16..19  Channel x Polarity                 */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t SWAP: 4;          /*!< bit: 24..27  Swap DTI Output Pair x             */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_WAVE_Type;
@@ -1361,23 +1361,23 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct { // DITH4 mode
-        uint32_t DITHERCY:4;       /*!< bit:  0.. 3  Dithering Cycle Number             */
-        uint32_t PER:20;           /*!< bit:  4..23  Period Value                       */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCY: 4;      /*!< bit:  0.. 3  Dithering Cycle Number             */
+        uint32_t PER: 20;          /*!< bit:  4..23  Period Value                       */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH4;                     /*!< Structure used for DITH4                        */
     struct { // DITH5 mode
-        uint32_t DITHERCY:5;       /*!< bit:  0.. 4  Dithering Cycle Number             */
-        uint32_t PER:19;           /*!< bit:  5..23  Period Value                       */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCY: 5;      /*!< bit:  0.. 4  Dithering Cycle Number             */
+        uint32_t PER: 19;          /*!< bit:  5..23  Period Value                       */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH5;                     /*!< Structure used for DITH5                        */
     struct { // DITH6 mode
-        uint32_t DITHERCY:6;       /*!< bit:  0.. 5  Dithering Cycle Number             */
-        uint32_t PER:18;           /*!< bit:  6..23  Period Value                       */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCY: 6;      /*!< bit:  0.. 5  Dithering Cycle Number             */
+        uint32_t PER: 18;          /*!< bit:  6..23  Period Value                       */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH6;                     /*!< Structure used for DITH6                        */
     struct {
-        uint32_t PER:24;           /*!< bit:  0..23  Period Value                       */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t PER: 24;          /*!< bit:  0..23  Period Value                       */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_PER_Type;
@@ -1422,23 +1422,23 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct { // DITH4 mode
-        uint32_t DITHERCY:4;       /*!< bit:  0.. 3  Dithering Cycle Number             */
-        uint32_t CC:20;            /*!< bit:  4..23  Channel Compare/Capture Value      */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCY: 4;      /*!< bit:  0.. 3  Dithering Cycle Number             */
+        uint32_t CC: 20;           /*!< bit:  4..23  Channel Compare/Capture Value      */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH4;                     /*!< Structure used for DITH4                        */
     struct { // DITH5 mode
-        uint32_t DITHERCY:5;       /*!< bit:  0.. 4  Dithering Cycle Number             */
-        uint32_t CC:19;            /*!< bit:  5..23  Channel Compare/Capture Value      */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCY: 5;      /*!< bit:  0.. 4  Dithering Cycle Number             */
+        uint32_t CC: 19;           /*!< bit:  5..23  Channel Compare/Capture Value      */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH5;                     /*!< Structure used for DITH5                        */
     struct { // DITH6 mode
-        uint32_t DITHERCY:6;       /*!< bit:  0.. 5  Dithering Cycle Number             */
-        uint32_t CC:18;            /*!< bit:  6..23  Channel Compare/Capture Value      */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCY: 6;      /*!< bit:  0.. 5  Dithering Cycle Number             */
+        uint32_t CC: 18;           /*!< bit:  6..23  Channel Compare/Capture Value      */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH6;                     /*!< Structure used for DITH6                        */
     struct {
-        uint32_t CC:24;            /*!< bit:  0..23  Channel Compare/Capture Value      */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t CC: 24;           /*!< bit:  0..23  Channel Compare/Capture Value      */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_CC_Type;
@@ -1483,26 +1483,26 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t PGEB0:1;          /*!< bit:      0  Pattern Generator 0 Output Enable Buffer */
-        uint16_t PGEB1:1;          /*!< bit:      1  Pattern Generator 1 Output Enable Buffer */
-        uint16_t PGEB2:1;          /*!< bit:      2  Pattern Generator 2 Output Enable Buffer */
-        uint16_t PGEB3:1;          /*!< bit:      3  Pattern Generator 3 Output Enable Buffer */
-        uint16_t PGEB4:1;          /*!< bit:      4  Pattern Generator 4 Output Enable Buffer */
-        uint16_t PGEB5:1;          /*!< bit:      5  Pattern Generator 5 Output Enable Buffer */
-        uint16_t PGEB6:1;          /*!< bit:      6  Pattern Generator 6 Output Enable Buffer */
-        uint16_t PGEB7:1;          /*!< bit:      7  Pattern Generator 7 Output Enable Buffer */
-        uint16_t PGVB0:1;          /*!< bit:      8  Pattern Generator 0 Output Enable  */
-        uint16_t PGVB1:1;          /*!< bit:      9  Pattern Generator 1 Output Enable  */
-        uint16_t PGVB2:1;          /*!< bit:     10  Pattern Generator 2 Output Enable  */
-        uint16_t PGVB3:1;          /*!< bit:     11  Pattern Generator 3 Output Enable  */
-        uint16_t PGVB4:1;          /*!< bit:     12  Pattern Generator 4 Output Enable  */
-        uint16_t PGVB5:1;          /*!< bit:     13  Pattern Generator 5 Output Enable  */
-        uint16_t PGVB6:1;          /*!< bit:     14  Pattern Generator 6 Output Enable  */
-        uint16_t PGVB7:1;          /*!< bit:     15  Pattern Generator 7 Output Enable  */
+        uint16_t PGEB0: 1;         /*!< bit:      0  Pattern Generator 0 Output Enable Buffer */
+        uint16_t PGEB1: 1;         /*!< bit:      1  Pattern Generator 1 Output Enable Buffer */
+        uint16_t PGEB2: 1;         /*!< bit:      2  Pattern Generator 2 Output Enable Buffer */
+        uint16_t PGEB3: 1;         /*!< bit:      3  Pattern Generator 3 Output Enable Buffer */
+        uint16_t PGEB4: 1;         /*!< bit:      4  Pattern Generator 4 Output Enable Buffer */
+        uint16_t PGEB5: 1;         /*!< bit:      5  Pattern Generator 5 Output Enable Buffer */
+        uint16_t PGEB6: 1;         /*!< bit:      6  Pattern Generator 6 Output Enable Buffer */
+        uint16_t PGEB7: 1;         /*!< bit:      7  Pattern Generator 7 Output Enable Buffer */
+        uint16_t PGVB0: 1;         /*!< bit:      8  Pattern Generator 0 Output Enable  */
+        uint16_t PGVB1: 1;         /*!< bit:      9  Pattern Generator 1 Output Enable  */
+        uint16_t PGVB2: 1;         /*!< bit:     10  Pattern Generator 2 Output Enable  */
+        uint16_t PGVB3: 1;         /*!< bit:     11  Pattern Generator 3 Output Enable  */
+        uint16_t PGVB4: 1;         /*!< bit:     12  Pattern Generator 4 Output Enable  */
+        uint16_t PGVB5: 1;         /*!< bit:     13  Pattern Generator 5 Output Enable  */
+        uint16_t PGVB6: 1;         /*!< bit:     14  Pattern Generator 6 Output Enable  */
+        uint16_t PGVB7: 1;         /*!< bit:     15  Pattern Generator 7 Output Enable  */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint16_t PGEB:8;           /*!< bit:  0.. 7  Pattern Generator x Output Enable Buffer */
-        uint16_t PGVB:8;           /*!< bit:  8..15  Pattern Generator x Output Enable  */
+        uint16_t PGEB: 8;          /*!< bit:  0.. 7  Pattern Generator x Output Enable Buffer */
+        uint16_t PGVB: 8;          /*!< bit:  8..15  Pattern Generator x Output Enable  */
     } vec;                       /*!< Structure used for vec  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } TCC_PATTB_Type;
@@ -1555,35 +1555,35 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t WAVEGENB:3;       /*!< bit:  0.. 2  Waveform Generation Buffer         */
-        uint32_t :1;               /*!< bit:      3  Reserved                           */
-        uint32_t RAMPB:2;          /*!< bit:  4.. 5  Ramp Mode Buffer                   */
-        uint32_t :1;               /*!< bit:      6  Reserved                           */
-        uint32_t CIPERENB:1;       /*!< bit:      7  Circular Period Enable Buffer      */
-        uint32_t CICCENB0:1;       /*!< bit:      8  Circular Channel 0 Enable Buffer   */
-        uint32_t CICCENB1:1;       /*!< bit:      9  Circular Channel 1 Enable Buffer   */
-        uint32_t CICCENB2:1;       /*!< bit:     10  Circular Channel 2 Enable Buffer   */
-        uint32_t CICCENB3:1;       /*!< bit:     11  Circular Channel 3 Enable Buffer   */
-        uint32_t :4;               /*!< bit: 12..15  Reserved                           */
-        uint32_t POLB0:1;          /*!< bit:     16  Channel 0 Polarity Buffer          */
-        uint32_t POLB1:1;          /*!< bit:     17  Channel 1 Polarity Buffer          */
-        uint32_t POLB2:1;          /*!< bit:     18  Channel 2 Polarity Buffer          */
-        uint32_t POLB3:1;          /*!< bit:     19  Channel 3 Polarity Buffer          */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t SWAPB0:1;         /*!< bit:     24  Swap DTI Output Pair 0 Buffer      */
-        uint32_t SWAPB1:1;         /*!< bit:     25  Swap DTI Output Pair 1 Buffer      */
-        uint32_t SWAPB2:1;         /*!< bit:     26  Swap DTI Output Pair 2 Buffer      */
-        uint32_t SWAPB3:1;         /*!< bit:     27  Swap DTI Output Pair 3 Buffer      */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t WAVEGENB: 3;      /*!< bit:  0.. 2  Waveform Generation Buffer         */
+        uint32_t : 1;              /*!< bit:      3  Reserved                           */
+        uint32_t RAMPB: 2;         /*!< bit:  4.. 5  Ramp Mode Buffer                   */
+        uint32_t : 1;              /*!< bit:      6  Reserved                           */
+        uint32_t CIPERENB: 1;      /*!< bit:      7  Circular Period Enable Buffer      */
+        uint32_t CICCENB0: 1;      /*!< bit:      8  Circular Channel 0 Enable Buffer   */
+        uint32_t CICCENB1: 1;      /*!< bit:      9  Circular Channel 1 Enable Buffer   */
+        uint32_t CICCENB2: 1;      /*!< bit:     10  Circular Channel 2 Enable Buffer   */
+        uint32_t CICCENB3: 1;      /*!< bit:     11  Circular Channel 3 Enable Buffer   */
+        uint32_t : 4;              /*!< bit: 12..15  Reserved                           */
+        uint32_t POLB0: 1;         /*!< bit:     16  Channel 0 Polarity Buffer          */
+        uint32_t POLB1: 1;         /*!< bit:     17  Channel 1 Polarity Buffer          */
+        uint32_t POLB2: 1;         /*!< bit:     18  Channel 2 Polarity Buffer          */
+        uint32_t POLB3: 1;         /*!< bit:     19  Channel 3 Polarity Buffer          */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t SWAPB0: 1;        /*!< bit:     24  Swap DTI Output Pair 0 Buffer      */
+        uint32_t SWAPB1: 1;        /*!< bit:     25  Swap DTI Output Pair 1 Buffer      */
+        uint32_t SWAPB2: 1;        /*!< bit:     26  Swap DTI Output Pair 2 Buffer      */
+        uint32_t SWAPB3: 1;        /*!< bit:     27  Swap DTI Output Pair 3 Buffer      */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t :8;               /*!< bit:  0.. 7  Reserved                           */
-        uint32_t CICCENB:4;        /*!< bit:  8..11  Circular Channel x Enable Buffer   */
-        uint32_t :4;               /*!< bit: 12..15  Reserved                           */
-        uint32_t POLB:4;           /*!< bit: 16..19  Channel x Polarity Buffer          */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t SWAPB:4;          /*!< bit: 24..27  Swap DTI Output Pair x Buffer      */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t : 8;              /*!< bit:  0.. 7  Reserved                           */
+        uint32_t CICCENB: 4;       /*!< bit:  8..11  Circular Channel x Enable Buffer   */
+        uint32_t : 4;              /*!< bit: 12..15  Reserved                           */
+        uint32_t POLB: 4;          /*!< bit: 16..19  Channel x Polarity Buffer          */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t SWAPB: 4;         /*!< bit: 24..27  Swap DTI Output Pair x Buffer      */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_WAVEB_Type;
@@ -1659,23 +1659,23 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct { // DITH4 mode
-        uint32_t DITHERCYB:4;      /*!< bit:  0.. 3  Dithering Buffer Cycle Number      */
-        uint32_t PERB:20;          /*!< bit:  4..23  Period Buffer Value                */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCYB: 4;     /*!< bit:  0.. 3  Dithering Buffer Cycle Number      */
+        uint32_t PERB: 20;         /*!< bit:  4..23  Period Buffer Value                */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH4;                     /*!< Structure used for DITH4                        */
     struct { // DITH5 mode
-        uint32_t DITHERCYB:5;      /*!< bit:  0.. 4  Dithering Buffer Cycle Number      */
-        uint32_t PERB:19;          /*!< bit:  5..23  Period Buffer Value                */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCYB: 5;     /*!< bit:  0.. 4  Dithering Buffer Cycle Number      */
+        uint32_t PERB: 19;         /*!< bit:  5..23  Period Buffer Value                */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH5;                     /*!< Structure used for DITH5                        */
     struct { // DITH6 mode
-        uint32_t DITHERCYB:6;      /*!< bit:  0.. 5  Dithering Buffer Cycle Number      */
-        uint32_t PERB:18;          /*!< bit:  6..23  Period Buffer Value                */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCYB: 6;     /*!< bit:  0.. 5  Dithering Buffer Cycle Number      */
+        uint32_t PERB: 18;         /*!< bit:  6..23  Period Buffer Value                */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH6;                     /*!< Structure used for DITH6                        */
     struct {
-        uint32_t PERB:24;          /*!< bit:  0..23  Period Buffer Value                */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t PERB: 24;         /*!< bit:  0..23  Period Buffer Value                */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_PERB_Type;
@@ -1720,23 +1720,23 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct { // DITH4 mode
-        uint32_t DITHERCYB:4;      /*!< bit:  0.. 3  Dithering Buffer Cycle Number      */
-        uint32_t CCB:20;           /*!< bit:  4..23  Channel Compare/Capture Buffer Value */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCYB: 4;     /*!< bit:  0.. 3  Dithering Buffer Cycle Number      */
+        uint32_t CCB: 20;          /*!< bit:  4..23  Channel Compare/Capture Buffer Value */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH4;                     /*!< Structure used for DITH4                        */
     struct { // DITH5 mode
-        uint32_t DITHERCYB:5;      /*!< bit:  0.. 4  Dithering Buffer Cycle Number      */
-        uint32_t CCB:19;           /*!< bit:  5..23  Channel Compare/Capture Buffer Value */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCYB: 5;     /*!< bit:  0.. 4  Dithering Buffer Cycle Number      */
+        uint32_t CCB: 19;          /*!< bit:  5..23  Channel Compare/Capture Buffer Value */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH5;                     /*!< Structure used for DITH5                        */
     struct { // DITH6 mode
-        uint32_t DITHERCYB:6;      /*!< bit:  0.. 5  Dithering Buffer Cycle Number      */
-        uint32_t CCB:18;           /*!< bit:  6..23  Channel Compare/Capture Buffer Value */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t DITHERCYB: 6;     /*!< bit:  0.. 5  Dithering Buffer Cycle Number      */
+        uint32_t CCB: 18;          /*!< bit:  6..23  Channel Compare/Capture Buffer Value */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } DITH6;                     /*!< Structure used for DITH6                        */
     struct {
-        uint32_t CCB:24;           /*!< bit:  0..23  Channel Compare/Capture Buffer Value */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t CCB: 24;          /*!< bit:  0..23  Channel Compare/Capture Buffer Value */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } TCC_CCB_Type;

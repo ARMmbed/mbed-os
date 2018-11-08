@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2000 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 #ifndef NRF_POWER_H__
 #define NRF_POWER_H__
@@ -126,42 +126,41 @@ extern "C" {
 typedef enum /*lint -save -e30 -esym(628,__INTADDR__) */
 {
     NRF_POWER_TASK_CONSTLAT  = offsetof(NRF_POWER_Type, TASKS_CONSTLAT), /**< Enable constant latency mode */
-    NRF_POWER_TASK_LOWPWR    = offsetof(NRF_POWER_Type, TASKS_LOWPWR  ), /**< Enable low power mode (variable latency) */
-}nrf_power_task_t; /*lint -restore */
+    NRF_POWER_TASK_LOWPWR    = offsetof(NRF_POWER_Type, TASKS_LOWPWR),   /**< Enable low power mode (variable latency) */
+} nrf_power_task_t; /*lint -restore */
 
 /**
  * @brief POWER events
  */
 typedef enum /*lint -save -e30 -esym(628,__INTADDR__) */
 {
-    NRF_POWER_EVENT_POFWARN      = offsetof(NRF_POWER_Type, EVENTS_POFWARN    ), /**< Power failure warning */
+    NRF_POWER_EVENT_POFWARN      = offsetof(NRF_POWER_Type, EVENTS_POFWARN),     /**< Power failure warning */
 #if NRF_POWER_HAS_SLEEPEVT
-    NRF_POWER_EVENT_SLEEPENTER   = offsetof(NRF_POWER_Type, EVENTS_SLEEPENTER ), /**< CPU entered WFI/WFE sleep */
-    NRF_POWER_EVENT_SLEEPEXIT    = offsetof(NRF_POWER_Type, EVENTS_SLEEPEXIT  ), /**< CPU exited WFI/WFE sleep */
+    NRF_POWER_EVENT_SLEEPENTER   = offsetof(NRF_POWER_Type, EVENTS_SLEEPENTER),  /**< CPU entered WFI/WFE sleep */
+    NRF_POWER_EVENT_SLEEPEXIT    = offsetof(NRF_POWER_Type, EVENTS_SLEEPEXIT),   /**< CPU exited WFI/WFE sleep */
 #endif
 #if NRF_POWER_HAS_USBREG
     NRF_POWER_EVENT_USBDETECTED  = offsetof(NRF_POWER_Type, EVENTS_USBDETECTED), /**< Voltage supply detected on VBUS */
-    NRF_POWER_EVENT_USBREMOVED   = offsetof(NRF_POWER_Type, EVENTS_USBREMOVED ), /**< Voltage supply removed from VBUS */
-    NRF_POWER_EVENT_USBPWRRDY    = offsetof(NRF_POWER_Type, EVENTS_USBPWRRDY  ), /**< USB 3.3&nbsp;V supply ready */
+    NRF_POWER_EVENT_USBREMOVED   = offsetof(NRF_POWER_Type, EVENTS_USBREMOVED),  /**< Voltage supply removed from VBUS */
+    NRF_POWER_EVENT_USBPWRRDY    = offsetof(NRF_POWER_Type, EVENTS_USBPWRRDY),   /**< USB 3.3&nbsp;V supply ready */
 #endif
-}nrf_power_event_t; /*lint -restore */
+} nrf_power_event_t; /*lint -restore */
 
 /**
  * @brief POWER interrupts
  */
-typedef enum
-{
-    NRF_POWER_INT_POFWARN_MASK     = POWER_INTENSET_POFWARN_Msk    , /**< Write '1' to Enable interrupt for POFWARN event */
+typedef enum {
+    NRF_POWER_INT_POFWARN_MASK     = POWER_INTENSET_POFWARN_Msk,     /**< Write '1' to Enable interrupt for POFWARN event */
 #if NRF_POWER_HAS_SLEEPEVT
-    NRF_POWER_INT_SLEEPENTER_MASK  = POWER_INTENSET_SLEEPENTER_Msk , /**< Write '1' to Enable interrupt for SLEEPENTER event */
-    NRF_POWER_INT_SLEEPEXIT_MASK   = POWER_INTENSET_SLEEPEXIT_Msk  , /**< Write '1' to Enable interrupt for SLEEPEXIT event */
+    NRF_POWER_INT_SLEEPENTER_MASK  = POWER_INTENSET_SLEEPENTER_Msk,  /**< Write '1' to Enable interrupt for SLEEPENTER event */
+    NRF_POWER_INT_SLEEPEXIT_MASK   = POWER_INTENSET_SLEEPEXIT_Msk,   /**< Write '1' to Enable interrupt for SLEEPEXIT event */
 #endif
 #if NRF_POWER_HAS_USBREG
     NRF_POWER_INT_USBDETECTED_MASK = POWER_INTENSET_USBDETECTED_Msk, /**< Write '1' to Enable interrupt for USBDETECTED event */
-    NRF_POWER_INT_USBREMOVED_MASK  = POWER_INTENSET_USBREMOVED_Msk , /**< Write '1' to Enable interrupt for USBREMOVED event */
-    NRF_POWER_INT_USBPWRRDY_MASK   = POWER_INTENSET_USBPWRRDY_Msk  , /**< Write '1' to Enable interrupt for USBPWRRDY event */
+    NRF_POWER_INT_USBREMOVED_MASK  = POWER_INTENSET_USBREMOVED_Msk,  /**< Write '1' to Enable interrupt for USBREMOVED event */
+    NRF_POWER_INT_USBPWRRDY_MASK   = POWER_INTENSET_USBPWRRDY_Msk,   /**< Write '1' to Enable interrupt for USBPWRRDY event */
 #endif
-}nrf_power_int_mask_t;
+} nrf_power_int_mask_t;
 
 /**
  * @brief Function for activating a specific POWER task.
@@ -267,7 +266,7 @@ __STATIC_INLINE void nrf_power_int_disable(uint32_t int_mask);
  * @attention offset has to be modulo 4 value. In other case we can get hardware fault.
  * @return Pointer to the register
  */
-__STATIC_INLINE volatile uint32_t * nrf_power_regptr_get(uint32_t offset)
+__STATIC_INLINE volatile uint32_t *nrf_power_regptr_get(uint32_t offset)
 {
     return (volatile uint32_t *)(((uint8_t *)NRF_POWER) + (uint32_t)offset);
 }
@@ -281,11 +280,11 @@ __STATIC_INLINE volatile uint32_t * nrf_power_regptr_get(uint32_t offset)
  * @attention offset has to be modulo 4 value. In other case we can get hardware fault.
  * @return Pointer to the register
  */
-__STATIC_INLINE volatile const uint32_t * nrf_power_regptr_get_c(
+__STATIC_INLINE volatile const uint32_t *nrf_power_regptr_get_c(
     uint32_t offset)
 {
     return (volatile const uint32_t *)(((uint8_t *)NRF_POWER) +
-        (uint32_t)offset);
+                                       (uint32_t)offset);
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -309,14 +308,13 @@ void nrf_power_event_clear(nrf_power_event_t event)
 
 bool nrf_power_event_check(nrf_power_event_t event)
 {
-    return (bool)*nrf_power_regptr_get_c((uint32_t)event);
+    return (bool) * nrf_power_regptr_get_c((uint32_t)event);
 }
 
 bool nrf_power_event_get_and_clear(nrf_power_event_t event)
 {
     bool ret = nrf_power_event_check(event);
-    if(ret)
-    {
+    if (ret) {
         nrf_power_event_clear(event);
     }
     return ret;
@@ -361,22 +359,21 @@ void nrf_power_int_disable(uint32_t int_mask)
 /**
  * @brief Reset reason
  */
-typedef enum
-{
+typedef enum {
     NRF_POWER_RESETREAS_RESETPIN_MASK = POWER_RESETREAS_RESETPIN_Msk, /*!< Bit mask of RESETPIN field. *///!< NRF_POWER_RESETREAS_RESETPIN_MASK
-    NRF_POWER_RESETREAS_DOG_MASK      = POWER_RESETREAS_DOG_Msk     , /*!< Bit mask of DOG field. */     //!< NRF_POWER_RESETREAS_DOG_MASK
-    NRF_POWER_RESETREAS_SREQ_MASK     = POWER_RESETREAS_SREQ_Msk    , /*!< Bit mask of SREQ field. */    //!< NRF_POWER_RESETREAS_SREQ_MASK
-    NRF_POWER_RESETREAS_LOCKUP_MASK   = POWER_RESETREAS_LOCKUP_Msk  , /*!< Bit mask of LOCKUP field. */  //!< NRF_POWER_RESETREAS_LOCKUP_MASK
-    NRF_POWER_RESETREAS_OFF_MASK      = POWER_RESETREAS_OFF_Msk     , /*!< Bit mask of OFF field. */     //!< NRF_POWER_RESETREAS_OFF_MASK
-    NRF_POWER_RESETREAS_LPCOMP_MASK   = POWER_RESETREAS_LPCOMP_Msk  , /*!< Bit mask of LPCOMP field. */  //!< NRF_POWER_RESETREAS_LPCOMP_MASK
-    NRF_POWER_RESETREAS_DIF_MASK      = POWER_RESETREAS_DIF_Msk     , /*!< Bit mask of DIF field. */     //!< NRF_POWER_RESETREAS_DIF_MASK
+    NRF_POWER_RESETREAS_DOG_MASK      = POWER_RESETREAS_DOG_Msk,      /*!< Bit mask of DOG field. */          //!< NRF_POWER_RESETREAS_DOG_MASK
+    NRF_POWER_RESETREAS_SREQ_MASK     = POWER_RESETREAS_SREQ_Msk,     /*!< Bit mask of SREQ field. */        //!< NRF_POWER_RESETREAS_SREQ_MASK
+    NRF_POWER_RESETREAS_LOCKUP_MASK   = POWER_RESETREAS_LOCKUP_Msk,   /*!< Bit mask of LOCKUP field. */    //!< NRF_POWER_RESETREAS_LOCKUP_MASK
+    NRF_POWER_RESETREAS_OFF_MASK      = POWER_RESETREAS_OFF_Msk,      /*!< Bit mask of OFF field. */          //!< NRF_POWER_RESETREAS_OFF_MASK
+    NRF_POWER_RESETREAS_LPCOMP_MASK   = POWER_RESETREAS_LPCOMP_Msk,   /*!< Bit mask of LPCOMP field. */    //!< NRF_POWER_RESETREAS_LPCOMP_MASK
+    NRF_POWER_RESETREAS_DIF_MASK      = POWER_RESETREAS_DIF_Msk,      /*!< Bit mask of DIF field. */          //!< NRF_POWER_RESETREAS_DIF_MASK
 #if defined(POWER_RESETREAS_NFC_Msk) || defined(__SDK_DOXYGEN__)
-    NRF_POWER_RESETREAS_NFC_MASK      = POWER_RESETREAS_NFC_Msk     , /*!< Bit mask of NFC field. */
+    NRF_POWER_RESETREAS_NFC_MASK      = POWER_RESETREAS_NFC_Msk,      /*!< Bit mask of NFC field. */
 #endif
 #if defined(POWER_RESETREAS_VBUS_Msk) || defined(__SDK_DOXYGEN__)
-    NRF_POWER_RESETREAS_VBUS_MASK     = POWER_RESETREAS_VBUS_Msk    , /*!< Bit mask of VBUS field. */
+    NRF_POWER_RESETREAS_VBUS_MASK     = POWER_RESETREAS_VBUS_Msk,     /*!< Bit mask of VBUS field. */
 #endif
-}nrf_power_resetreas_mask_t;
+} nrf_power_resetreas_mask_t;
 
 #if NRF_POWER_HAS_USBREG
 /**
@@ -384,11 +381,10 @@ typedef enum
  *
  * @sa nrf_power_usbregstatus_get
  */
-typedef enum
-{
+typedef enum {
     NRF_POWER_USBREGSTATUS_VBUSDETECT_MASK = POWER_USBREGSTATUS_VBUSDETECT_Msk, /**< USB detected or removed     */
     NRF_POWER_USBREGSTATUS_OUTPUTRDY_MASK  = POWER_USBREGSTATUS_OUTPUTRDY_Msk   /**< USB 3.3&nbsp;V supply ready */
-}nrf_power_usbregstatus_mask_t;
+} nrf_power_usbregstatus_mask_t;
 #endif
 
 /**
@@ -402,34 +398,31 @@ typedef enum
  * because this mapping is not 1:1, and functions related to old style blocks
  * should not be used.
  */
-typedef enum
-{
+typedef enum {
     NRF_POWER_RAMBLOCK0 = POWER_RAMSTATUS_RAMBLOCK0_Pos,
     NRF_POWER_RAMBLOCK1 = POWER_RAMSTATUS_RAMBLOCK1_Pos,
     NRF_POWER_RAMBLOCK2 = POWER_RAMSTATUS_RAMBLOCK2_Pos,
     NRF_POWER_RAMBLOCK3 = POWER_RAMSTATUS_RAMBLOCK3_Pos
-}nrf_power_ramblock_t;
+} nrf_power_ramblock_t;
 
 /**
  * @brief RAM blocks masks
  *
  * @sa nrf_power_ramblock_t
  */
-typedef enum
-{
+typedef enum {
     NRF_POWER_RAMBLOCK0_MASK = POWER_RAMSTATUS_RAMBLOCK0_Msk,
     NRF_POWER_RAMBLOCK1_MASK = POWER_RAMSTATUS_RAMBLOCK1_Msk,
     NRF_POWER_RAMBLOCK2_MASK = POWER_RAMSTATUS_RAMBLOCK2_Msk,
     NRF_POWER_RAMBLOCK3_MASK = POWER_RAMSTATUS_RAMBLOCK3_Msk
-}nrf_power_ramblock_mask_t;
+} nrf_power_ramblock_mask_t;
 
 /**
  * @brief RAM power state position of the bits
  *
  * @sa nrf_power_onoffram_mask_t
  */
-typedef enum
-{
+typedef enum {
     NRF_POWER_ONRAM0,  /**< Keep RAM block 0 on or off in system ON Mode                 */
     NRF_POWER_OFFRAM0, /**< Keep retention on RAM block 0 when RAM block is switched off */
     NRF_POWER_ONRAM1,  /**< Keep RAM block 1 on or off in system ON Mode                 */
@@ -438,15 +431,14 @@ typedef enum
     NRF_POWER_OFFRAM2, /**< Keep retention on RAM block 2 when RAM block is switched off */
     NRF_POWER_ONRAM3,  /**< Keep RAM block 3 on or off in system ON Mode                 */
     NRF_POWER_OFFRAM3, /**< Keep retention on RAM block 3 when RAM block is switched off */
-}nrf_power_onoffram_t;
+} nrf_power_onoffram_t;
 
 /**
  * @brief RAM power state bit masks
  *
  * @sa nrf_power_onoffram_t
  */
-typedef enum
-{
+typedef enum {
     NRF_POWER_ONRAM0_MASK  = 1U << NRF_POWER_ONRAM0,  /**< Keep RAM block 0 on or off in system ON Mode                 */
     NRF_POWER_OFFRAM0_MASK = 1U << NRF_POWER_OFFRAM0, /**< Keep retention on RAM block 0 when RAM block is switched off */
     NRF_POWER_ONRAM1_MASK  = 1U << NRF_POWER_ONRAM1,  /**< Keep RAM block 1 on or off in system ON Mode                 */
@@ -455,13 +447,12 @@ typedef enum
     NRF_POWER_OFFRAM2_MASK = 1U << NRF_POWER_OFFRAM2, /**< Keep retention on RAM block 2 when RAM block is switched off */
     NRF_POWER_ONRAM3_MASK  = 1U << NRF_POWER_ONRAM3,  /**< Keep RAM block 3 on or off in system ON Mode                 */
     NRF_POWER_OFFRAM3_MASK = 1U << NRF_POWER_OFFRAM3, /**< Keep retention on RAM block 3 when RAM block is switched off */
-}nrf_power_onoffram_mask_t;
+} nrf_power_onoffram_mask_t;
 
 /**
  * @brief Power failure comparator thresholds
  */
-typedef enum
-{
+typedef enum {
     NRF_POWER_POFTHR_V21 = POWER_POFCON_THRESHOLD_V21, /**< Set threshold to 2.1&nbsp;V */
     NRF_POWER_POFTHR_V23 = POWER_POFCON_THRESHOLD_V23, /**< Set threshold to 2.3&nbsp;V */
     NRF_POWER_POFTHR_V25 = POWER_POFCON_THRESHOLD_V25, /**< Set threshold to 2.5&nbsp;V */
@@ -476,14 +467,13 @@ typedef enum
     NRF_POWER_POFTHR_V26 = POWER_POFCON_THRESHOLD_V26, /**< Set threshold to 2.6&nbsp;V */
     NRF_POWER_POFTHR_V28 = POWER_POFCON_THRESHOLD_V28, /**< Set threshold to 2.8&nbsp;V */
 #endif
-}nrf_power_pof_thr_t;
+} nrf_power_pof_thr_t;
 
 #if NRF_POWER_HAS_VDDH
 /**
  * @brief Power failure comparator thresholds for VDDH
  */
-typedef enum
-{
+typedef enum {
     NRF_POWER_POFTHRVDDH_V27 = POWER_POFCON_THRESHOLDVDDH_V27, /**< Set threshold to 2.7&nbsp;V */
     NRF_POWER_POFTHRVDDH_V28 = POWER_POFCON_THRESHOLDVDDH_V28, /**< Set threshold to 2.8&nbsp;V */
     NRF_POWER_POFTHRVDDH_V29 = POWER_POFCON_THRESHOLDVDDH_V29, /**< Set threshold to 2.9&nbsp;V */
@@ -500,16 +490,15 @@ typedef enum
     NRF_POWER_POFTHRVDDH_V40 = POWER_POFCON_THRESHOLDVDDH_V40, /**< Set threshold to 4.0&nbsp;V */
     NRF_POWER_POFTHRVDDH_V41 = POWER_POFCON_THRESHOLDVDDH_V41, /**< Set threshold to 4.1&nbsp;V */
     NRF_POWER_POFTHRVDDH_V42 = POWER_POFCON_THRESHOLDVDDH_V42, /**< Set threshold to 4.2&nbsp;V */
-}nrf_power_pof_thrvddh_t;
+} nrf_power_pof_thrvddh_t;
 
 /**
  * @brief Main regulator status
  */
-typedef enum
-{
+typedef enum {
     NRF_POWER_MAINREGSTATUS_NORMAL = POWER_MAINREGSTATUS_MAINREGSTATUS_Normal, /**< Normal voltage mode. Voltage supplied on VDD. */
     NRF_POWER_MAINREGSTATUS_HIGH   = POWER_MAINREGSTATUS_MAINREGSTATUS_High    /**< High voltage mode. Voltage supplied on VDDH.  */
-}nrf_power_mainregstatus_t;
+} nrf_power_mainregstatus_t;
 
 #endif /* NRF_POWER_HAS_VDDH */
 
@@ -519,8 +508,7 @@ typedef enum
  *
  * All possible bits described, even if they are not used in selected MCU.
  */
-typedef enum
-{
+typedef enum {
     /** Keep RAM section S0 ON in System ON mode */
     NRF_POWER_RAMPOWER_S0POWER = POWER_RAM_POWER_S0POWER_Pos,
     NRF_POWER_RAMPOWER_S1POWER,  /**< Keep RAM section S1 ON in System ON mode */
@@ -556,7 +544,7 @@ typedef enum
     NRF_POWER_RAMPOWER_S13RETENTION, /**< Keep section retention in OFF mode when section is OFF */
     NRF_POWER_RAMPOWER_S14RETENTION, /**< Keep section retention in OFF mode when section is OFF */
     NRF_POWER_RAMPOWER_S15RETENTION, /**< Keep section retention in OFF mode when section is OFF */
-}nrf_power_rampower_t;
+} nrf_power_rampower_t;
 
 #if defined ( __CC_ARM )
 #pragma push
@@ -567,17 +555,16 @@ typedef enum
  *
  * All possible bits described, even if they are not used in selected MCU.
  */
-typedef enum
-{
-    NRF_POWER_RAMPOWER_S0POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S0POWER ,
-    NRF_POWER_RAMPOWER_S1POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S1POWER ,
-    NRF_POWER_RAMPOWER_S2POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S2POWER ,
-    NRF_POWER_RAMPOWER_S3POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S3POWER ,
-    NRF_POWER_RAMPOWER_S4POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S4POWER ,
-    NRF_POWER_RAMPOWER_S5POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S5POWER ,
-    NRF_POWER_RAMPOWER_S7POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S7POWER ,
-    NRF_POWER_RAMPOWER_S8POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S8POWER ,
-    NRF_POWER_RAMPOWER_S9POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S9POWER ,
+typedef enum {
+    NRF_POWER_RAMPOWER_S0POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S0POWER,
+    NRF_POWER_RAMPOWER_S1POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S1POWER,
+    NRF_POWER_RAMPOWER_S2POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S2POWER,
+    NRF_POWER_RAMPOWER_S3POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S3POWER,
+    NRF_POWER_RAMPOWER_S4POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S4POWER,
+    NRF_POWER_RAMPOWER_S5POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S5POWER,
+    NRF_POWER_RAMPOWER_S7POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S7POWER,
+    NRF_POWER_RAMPOWER_S8POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S8POWER,
+    NRF_POWER_RAMPOWER_S9POWER_MASK  = 1UL << NRF_POWER_RAMPOWER_S9POWER,
     NRF_POWER_RAMPOWER_S10POWER_MASK = 1UL << NRF_POWER_RAMPOWER_S10POWER,
     NRF_POWER_RAMPOWER_S11POWER_MASK = 1UL << NRF_POWER_RAMPOWER_S11POWER,
     NRF_POWER_RAMPOWER_S12POWER_MASK = 1UL << NRF_POWER_RAMPOWER_S12POWER,
@@ -585,22 +572,22 @@ typedef enum
     NRF_POWER_RAMPOWER_S14POWER_MASK = 1UL << NRF_POWER_RAMPOWER_S14POWER,
     NRF_POWER_RAMPOWER_S15POWER_MASK = 1UL << NRF_POWER_RAMPOWER_S15POWER,
 
-    NRF_POWER_RAMPOWER_S0RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S0RETENTION ,
-    NRF_POWER_RAMPOWER_S1RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S1RETENTION ,
-    NRF_POWER_RAMPOWER_S2RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S2RETENTION ,
-    NRF_POWER_RAMPOWER_S3RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S3RETENTION ,
-    NRF_POWER_RAMPOWER_S4RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S4RETENTION ,
-    NRF_POWER_RAMPOWER_S5RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S5RETENTION ,
-    NRF_POWER_RAMPOWER_S7RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S7RETENTION ,
-    NRF_POWER_RAMPOWER_S8RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S8RETENTION ,
-    NRF_POWER_RAMPOWER_S9RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S9RETENTION ,
+    NRF_POWER_RAMPOWER_S0RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S0RETENTION,
+    NRF_POWER_RAMPOWER_S1RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S1RETENTION,
+    NRF_POWER_RAMPOWER_S2RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S2RETENTION,
+    NRF_POWER_RAMPOWER_S3RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S3RETENTION,
+    NRF_POWER_RAMPOWER_S4RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S4RETENTION,
+    NRF_POWER_RAMPOWER_S5RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S5RETENTION,
+    NRF_POWER_RAMPOWER_S7RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S7RETENTION,
+    NRF_POWER_RAMPOWER_S8RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S8RETENTION,
+    NRF_POWER_RAMPOWER_S9RETENTION_MASK  = 1UL << NRF_POWER_RAMPOWER_S9RETENTION,
     NRF_POWER_RAMPOWER_S10RETENTION_MASK = 1UL << NRF_POWER_RAMPOWER_S10RETENTION,
     NRF_POWER_RAMPOWER_S11RETENTION_MASK = 1UL << NRF_POWER_RAMPOWER_S11RETENTION,
     NRF_POWER_RAMPOWER_S12RETENTION_MASK = 1UL << NRF_POWER_RAMPOWER_S12RETENTION,
     NRF_POWER_RAMPOWER_S13RETENTION_MASK = 1UL << NRF_POWER_RAMPOWER_S13RETENTION,
     NRF_POWER_RAMPOWER_S14RETENTION_MASK = 1UL << NRF_POWER_RAMPOWER_S14RETENTION,
     NRF_POWER_RAMPOWER_S15RETENTION_MASK = 1UL << NRF_POWER_RAMPOWER_S15RETENTION,
-}nrf_power_rampower_mask_t;
+} nrf_power_rampower_mask_t;
 #if defined ( __CC_ARM )
 #pragma pop
 #endif
@@ -675,7 +662,7 @@ __STATIC_INLINE void nrf_power_pofcon_set(bool enabled, nrf_power_pof_thr_t thr)
  *                       The pointer can be NULL if we do not need this information.
  * @return Threshold setting for power failure comparator
  */
-__STATIC_INLINE nrf_power_pof_thr_t nrf_power_pofcon_get(bool * p_enabled);
+__STATIC_INLINE nrf_power_pof_thr_t nrf_power_pofcon_get(bool *p_enabled);
 
 #if NRF_POWER_HAS_VDDH
 /**
@@ -872,8 +859,7 @@ __STATIC_INLINE void nrf_power_system_off(void)
     /* Solution for simulated System OFF in debug mode.
      * Also, because dead loop is placed here, we do not need to implement
      * any barriers here. */
-    while(true)
-    {
+    while (true) {
         /* Intentionally empty - we would be here only in debug mode */
     }
 }
@@ -882,22 +868,21 @@ __STATIC_INLINE void nrf_power_pofcon_set(bool enabled, nrf_power_pof_thr_t thr)
 {
     ASSERT(thr == (thr & (POWER_POFCON_THRESHOLD_Msk >> POWER_POFCON_THRESHOLD_Pos)));
     NRF_POWER->POFCON = (((uint32_t)thr) << POWER_POFCON_THRESHOLD_Pos) |
-        (enabled ?
-        (POWER_POFCON_POF_Enabled << POWER_POFCON_POF_Pos)
-        :
-        (POWER_POFCON_POF_Disabled << POWER_POFCON_POF_Pos));
+                        (enabled ?
+                         (POWER_POFCON_POF_Enabled << POWER_POFCON_POF_Pos)
+                         :
+                         (POWER_POFCON_POF_Disabled << POWER_POFCON_POF_Pos));
 }
 
-__STATIC_INLINE nrf_power_pof_thr_t nrf_power_pofcon_get(bool * p_enabled)
+__STATIC_INLINE nrf_power_pof_thr_t nrf_power_pofcon_get(bool *p_enabled)
 {
     uint32_t pofcon = NRF_POWER->POFCON;
-    if(NULL != p_enabled)
-    {
+    if (NULL != p_enabled) {
         (*p_enabled) = ((pofcon & POWER_POFCON_POF_Msk) >> POWER_POFCON_POF_Pos)
-            == POWER_POFCON_POF_Enabled;
+                       == POWER_POFCON_POF_Enabled;
     }
     return (nrf_power_pof_thr_t)((pofcon & POWER_POFCON_THRESHOLD_Msk) >>
-        POWER_POFCON_THRESHOLD_Pos);
+                                 POWER_POFCON_THRESHOLD_Pos);
 }
 
 #if NRF_POWER_HAS_VDDH
@@ -913,7 +898,7 @@ __STATIC_INLINE void nrf_power_pofcon_vddh_set(nrf_power_pof_thrvddh_t thr)
 __STATIC_INLINE nrf_power_pof_thrvddh_t nrf_power_pofcon_vddh_get(void)
 {
     return (nrf_power_pof_thrvddh_t)((NRF_POWER->POFCON &
-        POWER_POFCON_THRESHOLDVDDH_Msk) >> POWER_POFCON_THRESHOLDVDDH_Pos);
+                                      POWER_POFCON_THRESHOLDVDDH_Msk) >> POWER_POFCON_THRESHOLDVDDH_Pos);
 }
 #endif /* NRF_POWER_HAS_VDDH */
 
@@ -943,12 +928,12 @@ __STATIC_INLINE void nrf_power_dcdcen_set(bool enable)
 {
 #if NRF_POWER_HAS_VDDH
     NRF_POWER->DCDCEN = (enable ?
-        POWER_DCDCEN_DCDCEN_Enabled : POWER_DCDCEN_DCDCEN_Disabled) <<
-            POWER_DCDCEN_DCDCEN_Pos;
+                         POWER_DCDCEN_DCDCEN_Enabled : POWER_DCDCEN_DCDCEN_Disabled) <<
+                        POWER_DCDCEN_DCDCEN_Pos;
 #else
     NRF_POWER->DCDCEN = (enable ?
-        POWER_DCDCEN_DCDCEN_Enabled : POWER_DCDCEN_DCDCEN_Disabled) <<
-            POWER_DCDCEN_DCDCEN_Pos;
+                         POWER_DCDCEN_DCDCEN_Enabled : POWER_DCDCEN_DCDCEN_Disabled) <<
+                        POWER_DCDCEN_DCDCEN_Pos;
 #endif
 }
 
@@ -956,11 +941,11 @@ __STATIC_INLINE bool nrf_power_dcdcen_get(void)
 {
 #if NRF_POWER_HAS_VDDH
     return (NRF_POWER->DCDCEN & POWER_DCDCEN_DCDCEN_Msk)
-            ==
+           ==
            (POWER_DCDCEN_DCDCEN_Enabled << POWER_DCDCEN_DCDCEN_Pos);
 #else
     return (NRF_POWER->DCDCEN & POWER_DCDCEN_DCDCEN_Msk)
-            ==
+           ==
            (POWER_DCDCEN_DCDCEN_Enabled << POWER_DCDCEN_DCDCEN_Pos);
 #endif
 }
@@ -989,22 +974,22 @@ __STATIC_INLINE uint32_t nrf_power_rampower_mask_get(uint8_t block)
 __STATIC_INLINE void nrf_power_dcdcen_vddh_set(bool enable)
 {
     NRF_POWER->DCDCEN0 = (enable ?
-        POWER_DCDCEN0_DCDCEN_Enabled : POWER_DCDCEN0_DCDCEN_Disabled) <<
-            POWER_DCDCEN0_DCDCEN_Pos;
+                          POWER_DCDCEN0_DCDCEN_Enabled : POWER_DCDCEN0_DCDCEN_Disabled) <<
+                         POWER_DCDCEN0_DCDCEN_Pos;
 }
 
 bool nrf_power_dcdcen_vddh_get(void)
 {
     return (NRF_POWER->DCDCEN0 & POWER_DCDCEN0_DCDCEN_Msk)
-            ==
+           ==
            (POWER_DCDCEN0_DCDCEN_Enabled << POWER_DCDCEN0_DCDCEN_Pos);
 }
 
 nrf_power_mainregstatus_t nrf_power_mainregstatus_get(void)
 {
     return (nrf_power_mainregstatus_t)(((NRF_POWER->MAINREGSTATUS) &
-        POWER_MAINREGSTATUS_MAINREGSTATUS_Msk) >>
-        POWER_MAINREGSTATUS_MAINREGSTATUS_Pos);
+                                        POWER_MAINREGSTATUS_MAINREGSTATUS_Msk) >>
+                                       POWER_MAINREGSTATUS_MAINREGSTATUS_Pos);
 }
 #endif /* NRF_POWER_HAS_VDDH */
 
@@ -1017,13 +1002,13 @@ __STATIC_INLINE uint32_t nrf_power_usbregstatus_get(void)
 __STATIC_INLINE bool nrf_power_usbregstatus_vbusdet_get(void)
 {
     return (nrf_power_usbregstatus_get() &
-        NRF_POWER_USBREGSTATUS_VBUSDETECT_MASK) != 0;
+            NRF_POWER_USBREGSTATUS_VBUSDETECT_MASK) != 0;
 }
 
 __STATIC_INLINE bool nrf_power_usbregstatus_outrdy_get(void)
 {
     return (nrf_power_usbregstatus_get() &
-        NRF_POWER_USBREGSTATUS_OUTPUTRDY_MASK) != 0;
+            NRF_POWER_USBREGSTATUS_OUTPUTRDY_MASK) != 0;
 }
 #endif /* NRF_POWER_HAS_USBREG */
 

@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F1xx_HAL_TIM_EX_H
 #define __STM32F1xx_HAL_TIM_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,30 +52,29 @@
 
 /** @addtogroup TIMEx
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /** @defgroup TIMEx_Exported_Types TIMEx Exported Types
   * @{
   */
 
 
-/** 
-  * @brief  TIM Hall sensor Configuration Structure definition  
+/**
+  * @brief  TIM Hall sensor Configuration Structure definition
   */
 
-typedef struct
-{
+typedef struct {
 
-  uint32_t IC1Polarity;            /*!< Specifies the active edge of the input signal.
+    uint32_t IC1Polarity;            /*!< Specifies the active edge of the input signal.
                                         This parameter can be a value of @ref TIM_Input_Capture_Polarity */
 
-  uint32_t IC1Prescaler;        /*!< Specifies the Input Capture Prescaler.
+    uint32_t IC1Prescaler;        /*!< Specifies the Input Capture Prescaler.
                                      This parameter can be a value of @ref TIM_Input_Capture_Prescaler */
 
-  uint32_t IC1Filter;           /*!< Specifies the input capture filter.
-                                     This parameter can be a number between Min_Data = 0x0 and Max_Data = 0xF */  
-  uint32_t Commutation_Delay;  /*!< Specifies the pulse value to be loaded into the Capture Compare Register. 
+    uint32_t IC1Filter;           /*!< Specifies the input capture filter.
+                                     This parameter can be a number between Min_Data = 0x0 and Max_Data = 0xF */
+    uint32_t Commutation_Delay;  /*!< Specifies the pulse value to be loaded into the Capture Compare Register.
                                     This parameter can be a number between Min_Data = 0x0000 and Max_Data = 0xFFFF */
 } TIM_HallSensor_InitTypeDef;
 
@@ -84,44 +83,43 @@ typedef struct
     defined (STM32F103x6) || defined (STM32F103xB) || defined (STM32F103xE) || defined (STM32F103xG) || \
     defined (STM32F105xC) || defined (STM32F107xC)
 
-/** 
-  * @brief  TIM Break and Dead time configuration Structure definition  
-  */ 
-typedef struct
-{
-  uint32_t OffStateRunMode;       /*!< TIM off state in run mode
+/**
+  * @brief  TIM Break and Dead time configuration Structure definition
+  */
+typedef struct {
+    uint32_t OffStateRunMode;       /*!< TIM off state in run mode
                                      This parameter can be a value of @ref TIM_OSSR_Off_State_Selection_for_Run_mode_state */
-  uint32_t OffStateIDLEMode;      /*!< TIM off state in IDLE mode
+    uint32_t OffStateIDLEMode;      /*!< TIM off state in IDLE mode
                                      This parameter can be a value of @ref TIM_OSSI_Off_State_Selection_for_Idle_mode_state */
-  uint32_t LockLevel;             /*!< TIM Lock level
-                                     This parameter can be a value of @ref TIM_Lock_level */                             
-  uint32_t DeadTime;              /*!< TIM dead Time 
+    uint32_t LockLevel;             /*!< TIM Lock level
+                                     This parameter can be a value of @ref TIM_Lock_level */
+    uint32_t DeadTime;              /*!< TIM dead Time
                                      This parameter can be a number between Min_Data = 0x00 and Max_Data = 0xFF */
-  uint32_t BreakState;            /*!< TIM Break State 
+    uint32_t BreakState;            /*!< TIM Break State
                                      This parameter can be a value of @ref TIM_Break_Input_enable_disable */
-  uint32_t BreakPolarity;         /*!< TIM Break input polarity 
+    uint32_t BreakPolarity;         /*!< TIM Break input polarity
                                      This parameter can be a value of @ref TIM_Break_Polarity */
-  uint32_t AutomaticOutput;       /*!< TIM Automatic Output Enable state 
-                                     This parameter can be a value of @ref TIM_AOE_Bit_Set_Reset */           
+    uint32_t AutomaticOutput;       /*!< TIM Automatic Output Enable state
+                                     This parameter can be a value of @ref TIM_AOE_Bit_Set_Reset */
 } TIM_BreakDeadTimeConfigTypeDef;
 
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
-       /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
+/* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
+/* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
-/** 
-  * @brief  TIM Master configuration Structure definition  
-  */ 
+/**
+  * @brief  TIM Master configuration Structure definition
+  */
 typedef struct {
-  uint32_t  MasterOutputTrigger;   /*!< Trigger output (TRGO) selection 
-                                      This parameter can be a value of @ref TIM_Master_Mode_Selection */ 
-  uint32_t  MasterSlaveMode;       /*!< Master/slave mode selection 
+    uint32_t  MasterOutputTrigger;   /*!< Trigger output (TRGO) selection
+                                      This parameter can be a value of @ref TIM_Master_Mode_Selection */
+    uint32_t  MasterSlaveMode;       /*!< Master/slave mode selection
                                       This parameter can be a value of @ref TIM_Master_Slave_Mode */
-}TIM_MasterConfigTypeDef;
+} TIM_MasterConfigTypeDef;
 
 /**
   * @}
-  */ 
+  */
 
 /* Exported constants --------------------------------------------------------*/
 #if defined (STM32F100xB) || defined (STM32F100xE) ||                                                   \
@@ -130,7 +128,7 @@ typedef struct {
 /** @defgroup TIMEx_Exported_Constants TIMEx Exported Constants
   * @{
   */
-    
+
 /** @defgroup TIMEx_Clock_Filter TIMEx Clock Filter
   * @{
   */
@@ -143,8 +141,8 @@ typedef struct {
   * @}
   */
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
-       /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
+/* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
+/* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 /* Exported macro ------------------------------------------------------------*/
 /**
@@ -190,13 +188,13 @@ typedef struct {
   * @{
  */
 /* Timer Hall Sensor functions  **********************************************/
-HAL_StatusTypeDef HAL_TIMEx_HallSensor_Init(TIM_HandleTypeDef *htim, TIM_HallSensor_InitTypeDef* sConfig);
+HAL_StatusTypeDef HAL_TIMEx_HallSensor_Init(TIM_HandleTypeDef *htim, TIM_HallSensor_InitTypeDef *sConfig);
 HAL_StatusTypeDef HAL_TIMEx_HallSensor_DeInit(TIM_HandleTypeDef *htim);
 
 void HAL_TIMEx_HallSensor_MspInit(TIM_HandleTypeDef *htim);
 void HAL_TIMEx_HallSensor_MspDeInit(TIM_HandleTypeDef *htim);
 
- /* Blocking mode: Polling */
+/* Blocking mode: Polling */
 HAL_StatusTypeDef HAL_TIMEx_HallSensor_Start(TIM_HandleTypeDef *htim);
 HAL_StatusTypeDef HAL_TIMEx_HallSensor_Stop(TIM_HandleTypeDef *htim);
 /* Non-Blocking mode: Interrupt */
@@ -265,8 +263,8 @@ HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t 
   * @}
   */
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
-       /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
+/* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
+/* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 /** @addtogroup TIMEx_Exported_Functions_Group5
  * @{
@@ -280,9 +278,9 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigCommutationEvent_IT(TIM_HandleTypeDef *htim, u
 HAL_StatusTypeDef HAL_TIMEx_ConfigCommutationEvent_DMA(TIM_HandleTypeDef *htim, uint32_t  InputTrigger, uint32_t  CommutationSource);
 HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim, TIM_BreakDeadTimeConfigTypeDef *sBreakDeadTimeConfig);
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
-       /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
-HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim, TIM_MasterConfigTypeDef * sMasterConfig);
+/* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
+/* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
+HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim, TIM_MasterConfigTypeDef *sMasterConfig);
 /**
   * @}
   */
@@ -309,12 +307,12 @@ HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef *htim);
   * @}
   */
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
-       /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
+/* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
+/* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 /**
   * @}
-  */ 
+  */
 /* End of exported functions -------------------------------------------------*/
 
 /* Private functions----------------------------------------------------------*/
@@ -324,17 +322,17 @@ HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef *htim);
 void TIMEx_DMACommutationCplt(DMA_HandleTypeDef *hdma);
 /**
 * @}
-*/ 
+*/
 /* End of private functions --------------------------------------------------*/
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
   */
-  
+
 #ifdef __cplusplus
 }
 #endif

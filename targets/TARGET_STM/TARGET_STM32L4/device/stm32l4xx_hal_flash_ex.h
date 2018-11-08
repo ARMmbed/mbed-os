@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_flash_ex.h
   * @author  MCD Application Team
-  * @version V1.7.1 
+  * @version V1.7.1
   * @date    21-April-2017
   * @brief   Header file of FLASH HAL Extended module.
   ******************************************************************************
@@ -40,7 +40,7 @@
 #define __STM32L4xx_HAL_FLASH_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,7 +52,7 @@
 
 /** @addtogroup FLASHEx
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 
@@ -60,7 +60,7 @@
 
 /* Exported macro ------------------------------------------------------------*/
 
-/* Exported functions --------------------------------------------------------*/ 
+/* Exported functions --------------------------------------------------------*/
 /** @addtogroup FLASHEx_Exported_Functions
   * @{
   */
@@ -75,19 +75,19 @@ HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit);
 void              HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit);
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 #ifdef __cplusplus
 }

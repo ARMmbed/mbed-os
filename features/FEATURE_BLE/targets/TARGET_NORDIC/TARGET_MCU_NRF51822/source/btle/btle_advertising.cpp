@@ -40,7 +40,7 @@ error_t btle_advertising_start(void)
                                                                * ms */
     adv_para.timeout     = CFG_GAP_ADV_TIMEOUT_S;
 
-    ASSERT_STATUS( sd_ble_gap_adv_start(&adv_para));
+    ASSERT_STATUS(sd_ble_gap_adv_start(&adv_para));
 
     return ERROR_NONE;
 }

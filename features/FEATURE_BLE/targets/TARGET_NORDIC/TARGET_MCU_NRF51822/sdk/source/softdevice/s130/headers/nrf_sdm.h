@@ -32,9 +32,9 @@
 /**
   @defgroup nrf_sdm_api SoftDevice Manager API
   @{
-     
+
   @brief APIs for SoftDevice management.
- 
+
 */
 
 /* Header guard */
@@ -50,15 +50,15 @@
  * @{ */
 
 /** @brief SoftDevice Manager SVC Base number. */
-#define SDM_SVC_BASE 0x10   
+#define SDM_SVC_BASE 0x10
 
 /** @} */
 
-/** @brief Defines the SoftDevice Information Structure location (address) as an offset from 
+/** @brief Defines the SoftDevice Information Structure location (address) as an offset from
 the start of the softdevice (without MBR)*/
 #define SOFTDEVICE_INFO_STRUCT_OFFSET (0x2000)
 
-/** @brief Defines the usual size reserverd for the MBR when a softdevice is written to flash. 
+/** @brief Defines the usual size reserverd for the MBR when a softdevice is written to flash.
 This is the offset where the first byte of the softdevice hex file is written.*/
 #define MBR_SIZE (0x1000)
 
@@ -84,38 +84,36 @@ This is the offset where the first byte of the softdevice hex file is written.*/
  * @{ */
 
 /**@brief nRF SoftDevice Manager API SVC numbers. */
-enum NRF_SD_SVCS
-{
-  SD_SOFTDEVICE_ENABLE = SDM_SVC_BASE, /**< ::sd_softdevice_enable */
-  SD_SOFTDEVICE_DISABLE,               /**< ::sd_softdevice_disable */
-  SD_SOFTDEVICE_IS_ENABLED,            /**< ::sd_softdevice_is_enabled */
-  SD_SOFTDEVICE_VECTOR_TABLE_BASE_SET, /**< ::sd_softdevice_vector_table_base_set */
-  SVC_SDM_LAST                         /**< Placeholder for last SDM SVC */
+enum NRF_SD_SVCS {
+    SD_SOFTDEVICE_ENABLE = SDM_SVC_BASE, /**< ::sd_softdevice_enable */
+    SD_SOFTDEVICE_DISABLE,               /**< ::sd_softdevice_disable */
+    SD_SOFTDEVICE_IS_ENABLED,            /**< ::sd_softdevice_is_enabled */
+    SD_SOFTDEVICE_VECTOR_TABLE_BASE_SET, /**< ::sd_softdevice_vector_table_base_set */
+    SVC_SDM_LAST                         /**< Placeholder for last SDM SVC */
 };
 
 /**@brief Possible lfclk oscillator sources. */
-enum NRF_CLOCK_LFCLKSRCS
-{
-  NRF_CLOCK_LFCLKSRC_SYNTH_250_PPM,                       /**< LFCLK Synthesized from HFCLK.                    */
-  NRF_CLOCK_LFCLKSRC_XTAL_500_PPM,                        /**< LFCLK crystal oscillator 500 PPM accuracy.       */
-  NRF_CLOCK_LFCLKSRC_XTAL_250_PPM,                        /**< LFCLK crystal oscillator 250 PPM accuracy.       */
-  NRF_CLOCK_LFCLKSRC_XTAL_150_PPM,                        /**< LFCLK crystal oscillator 150 PPM accuracy.       */
-  NRF_CLOCK_LFCLKSRC_XTAL_100_PPM,                        /**< LFCLK crystal oscillator 100 PPM accuracy.       */
-  NRF_CLOCK_LFCLKSRC_XTAL_75_PPM,                         /**< LFCLK crystal oscillator 75 PPM accuracy.        */
-  NRF_CLOCK_LFCLKSRC_XTAL_50_PPM,                         /**< LFCLK crystal oscillator 50 PPM accuracy.        */
-  NRF_CLOCK_LFCLKSRC_XTAL_30_PPM,                         /**< LFCLK crystal oscillator 30 PPM accuracy.        */
-  NRF_CLOCK_LFCLKSRC_XTAL_20_PPM,                         /**< LFCLK crystal oscillator 20 PPM accuracy.        */
-  NRF_CLOCK_LFCLKSRC_RC_250_PPM_250MS_CALIBRATION,        /**< LFCLK RC oscillator, 250ms  calibration interval.*/
-  NRF_CLOCK_LFCLKSRC_RC_250_PPM_500MS_CALIBRATION,        /**< LFCLK RC oscillator, 500ms  calibration interval.*/
-  NRF_CLOCK_LFCLKSRC_RC_250_PPM_1000MS_CALIBRATION,       /**< LFCLK RC oscillator, 1000ms calibration interval.*/
-  NRF_CLOCK_LFCLKSRC_RC_250_PPM_2000MS_CALIBRATION,       /**< LFCLK RC oscillator, 2000ms calibration interval.*/
-  NRF_CLOCK_LFCLKSRC_RC_250_PPM_4000MS_CALIBRATION,       /**< LFCLK RC oscillator, 4000ms calibration interval.*/
-  NRF_CLOCK_LFCLKSRC_RC_250_PPM_8000MS_CALIBRATION,       /**< LFCLK RC oscillator, 8000ms calibration interval.*/
-  NRF_CLOCK_LFCLKSRC_RC_250_PPM_TEMP_1000MS_CALIBRATION,  /**< LFCLK RC oscillator. Temperature checked every 1000ms, if changed above a threshold, a calibration is done.*/
-  NRF_CLOCK_LFCLKSRC_RC_250_PPM_TEMP_2000MS_CALIBRATION,  /**< LFCLK RC oscillator. Temperature checked every 2000ms, if changed above a threshold, a calibration is done.*/
-  NRF_CLOCK_LFCLKSRC_RC_250_PPM_TEMP_4000MS_CALIBRATION,  /**< LFCLK RC oscillator. Temperature checked every 4000ms, if changed above a threshold, a calibration is done.*/
-  NRF_CLOCK_LFCLKSRC_RC_250_PPM_TEMP_8000MS_CALIBRATION,  /**< LFCLK RC oscillator. Temperature checked every 8000ms, if changed above a threshold, a calibration is done.*/
-  NRF_CLOCK_LFCLKSRC_RC_250_PPM_TEMP_16000MS_CALIBRATION, /**< LFCLK RC oscillator. Temperature checked every 16000ms, if changed above a threshold, a calibration is done.*/
+enum NRF_CLOCK_LFCLKSRCS {
+    NRF_CLOCK_LFCLKSRC_SYNTH_250_PPM,                       /**< LFCLK Synthesized from HFCLK.                    */
+    NRF_CLOCK_LFCLKSRC_XTAL_500_PPM,                        /**< LFCLK crystal oscillator 500 PPM accuracy.       */
+    NRF_CLOCK_LFCLKSRC_XTAL_250_PPM,                        /**< LFCLK crystal oscillator 250 PPM accuracy.       */
+    NRF_CLOCK_LFCLKSRC_XTAL_150_PPM,                        /**< LFCLK crystal oscillator 150 PPM accuracy.       */
+    NRF_CLOCK_LFCLKSRC_XTAL_100_PPM,                        /**< LFCLK crystal oscillator 100 PPM accuracy.       */
+    NRF_CLOCK_LFCLKSRC_XTAL_75_PPM,                         /**< LFCLK crystal oscillator 75 PPM accuracy.        */
+    NRF_CLOCK_LFCLKSRC_XTAL_50_PPM,                         /**< LFCLK crystal oscillator 50 PPM accuracy.        */
+    NRF_CLOCK_LFCLKSRC_XTAL_30_PPM,                         /**< LFCLK crystal oscillator 30 PPM accuracy.        */
+    NRF_CLOCK_LFCLKSRC_XTAL_20_PPM,                         /**< LFCLK crystal oscillator 20 PPM accuracy.        */
+    NRF_CLOCK_LFCLKSRC_RC_250_PPM_250MS_CALIBRATION,        /**< LFCLK RC oscillator, 250ms  calibration interval.*/
+    NRF_CLOCK_LFCLKSRC_RC_250_PPM_500MS_CALIBRATION,        /**< LFCLK RC oscillator, 500ms  calibration interval.*/
+    NRF_CLOCK_LFCLKSRC_RC_250_PPM_1000MS_CALIBRATION,       /**< LFCLK RC oscillator, 1000ms calibration interval.*/
+    NRF_CLOCK_LFCLKSRC_RC_250_PPM_2000MS_CALIBRATION,       /**< LFCLK RC oscillator, 2000ms calibration interval.*/
+    NRF_CLOCK_LFCLKSRC_RC_250_PPM_4000MS_CALIBRATION,       /**< LFCLK RC oscillator, 4000ms calibration interval.*/
+    NRF_CLOCK_LFCLKSRC_RC_250_PPM_8000MS_CALIBRATION,       /**< LFCLK RC oscillator, 8000ms calibration interval.*/
+    NRF_CLOCK_LFCLKSRC_RC_250_PPM_TEMP_1000MS_CALIBRATION,  /**< LFCLK RC oscillator. Temperature checked every 1000ms, if changed above a threshold, a calibration is done.*/
+    NRF_CLOCK_LFCLKSRC_RC_250_PPM_TEMP_2000MS_CALIBRATION,  /**< LFCLK RC oscillator. Temperature checked every 2000ms, if changed above a threshold, a calibration is done.*/
+    NRF_CLOCK_LFCLKSRC_RC_250_PPM_TEMP_4000MS_CALIBRATION,  /**< LFCLK RC oscillator. Temperature checked every 4000ms, if changed above a threshold, a calibration is done.*/
+    NRF_CLOCK_LFCLKSRC_RC_250_PPM_TEMP_8000MS_CALIBRATION,  /**< LFCLK RC oscillator. Temperature checked every 8000ms, if changed above a threshold, a calibration is done.*/
+    NRF_CLOCK_LFCLKSRC_RC_250_PPM_TEMP_16000MS_CALIBRATION, /**< LFCLK RC oscillator. Temperature checked every 16000ms, if changed above a threshold, a calibration is done.*/
 };
 
 /** @} */
@@ -134,12 +132,12 @@ typedef uint32_t nrf_clock_lfclksrc_t;
  * perform a reset, using e.g. CMSIS NVIC_SystemReset().
  *
  * @note This callback is executed in HardFault context, thus SVC functions cannot be called from the SoftDevice assert callback.
- *       
+ *
  * @param[in] pc The program counter of the failed assert.
  * @param[in] line_number Line number where the assert failed.
  * @param[in] file_name File name where the assert failed.
  */
-typedef void (*softdevice_assertion_handler_t)(uint32_t pc, uint16_t line_number, const uint8_t * p_file_name);
+typedef void (*softdevice_assertion_handler_t)(uint32_t pc, uint16_t line_number, const uint8_t *p_file_name);
 
 /** @} */
 
@@ -156,7 +154,7 @@ typedef void (*softdevice_assertion_handler_t)(uint32_t pc, uint16_t line_number
  *
  * @note This function has no effect when returning with an error.
  *
- * @post If return code is ::NRF_SUCCESS 
+ * @post If return code is ::NRF_SUCCESS
  *       - SoC library and protocol stack APIs are made available.
  *       - A portion of RAM will be unavailable (see relevant SDS documentation).
  *       - Some peripherals will be unavailable or available only through the SoC API (see relevant SDS documentation).
@@ -176,7 +174,7 @@ typedef void (*softdevice_assertion_handler_t)(uint32_t pc, uint16_t line_number
 SVCALL(SD_SOFTDEVICE_ENABLE, uint32_t, sd_softdevice_enable(nrf_clock_lfclksrc_t clock_source, softdevice_assertion_handler_t assertion_handler));
 
 /**@brief Disables the SoftDevice and by extension the protocol stack.
- * 
+ *
  * Idempotent function to disable the SoftDevice.
  *
  * @post SoC library and protocol stack APIs are made unavailable.
@@ -196,17 +194,17 @@ SVCALL(SD_SOFTDEVICE_DISABLE, uint32_t, sd_softdevice_disable(void));
  *
  * @retval ::NRF_SUCCESS
  */
-SVCALL(SD_SOFTDEVICE_IS_ENABLED, uint32_t, sd_softdevice_is_enabled(uint8_t * p_softdevice_enabled));
+SVCALL(SD_SOFTDEVICE_IS_ENABLED, uint32_t, sd_softdevice_is_enabled(uint8_t *p_softdevice_enabled));
 
 /**@brief Sets the base address of the interrupt vector table for interrupts forwarded from the SoftDevice
- * 
+ *
  * This function is only intended to be called when a bootloader is enabled.
  *
  * @param[in] address The base address of the interrupt vector table for forwarded interrupts.
- 
+
  * @retval ::NRF_SUCCESS
  */
-SVCALL(SD_SOFTDEVICE_VECTOR_TABLE_BASE_SET, uint32_t, sd_softdevice_vector_table_base_set(uint32_t address)); 
+SVCALL(SD_SOFTDEVICE_VECTOR_TABLE_BASE_SET, uint32_t, sd_softdevice_vector_table_base_set(uint32_t address));
 
 /** @} */
 

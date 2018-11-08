@@ -37,8 +37,7 @@
  * @internal
  * @brief    Netif features.
  ******************************************************************************/
-typedef enum
-{
+typedef enum {
     FNET_NETIF_FEATURE_NONE                     = 0x00, /* No special feature.*/
     FNET_NETIF_FEATURE_HW_TX_IP_CHECKSUM        = 0x01, /* If an IP frame is transmitted, the checksum is inserted automatically. The IP header checksum field
                                                          * must be cleared. If a non-IP frame is transmitted the frame is not modified.*/
@@ -53,8 +52,7 @@ typedef enum
 /**************************************************************************/ /*!
  * Interface IPv4 address structure.
  ******************************************************************************/
-typedef struct
-{
+typedef struct {
     fnet_ip4_addr_t address;            /**< The IP address.*/
     fnet_ip4_addr_t net;                /**< Network address.*/
     fnet_ip4_addr_t netmask;            /**< Network mask.*/
@@ -77,8 +75,7 @@ typedef struct
 /*********************************************************************
  * Interface IPv6 address structure.
  *********************************************************************/
-typedef struct fnet_netif_ip6_addr
-{
+typedef struct fnet_netif_ip6_addr {
     fnet_ip6_addr_t             address;                    /* IPv6 address.*/
     fnet_netif_ip6_addr_state_t state;                      /* Address current state.*/
     fnet_netif_ip_addr_type_t   type;                       /* How the address was acquired.*/
@@ -100,33 +97,32 @@ struct fnet_netif; /* Forward declaration.*/
  * @internal
  * @brief    Network-interface general API structure.
  ******************************************************************************/
-typedef struct fnet_netif_api
-{
+typedef struct fnet_netif_api {
     fnet_netif_type_t   netif_type;                                            /* Data-link type. */
     fnet_size_t         netif_hw_addr_size;                                    /* HW address size.*/
-    fnet_return_t       (*netif_init)( struct fnet_netif *netif );             /* Initialization function.*/
-    void                (*netif_release)( struct fnet_netif *netif );          /* Shutdown/release function.*/
+    fnet_return_t (*netif_init)(struct fnet_netif *netif);                     /* Initialization function.*/
+    void (*netif_release)(struct fnet_netif *netif);                           /* Shutdown/release function.*/
 #if FNET_CFG_IP4
-    void                (*netif_output_ip4)(struct fnet_netif *netif, fnet_ip4_addr_t dest_ip_addr, fnet_netbuf_t *nb); /* IPv4 Transmit function.*/
+    void (*netif_output_ip4)(struct fnet_netif *netif, fnet_ip4_addr_t dest_ip_addr, fnet_netbuf_t *nb);                /* IPv4 Transmit function.*/
 #endif
-    void                (*netif_set_addr_notify)( struct fnet_netif *netif );  /* Address change notification function.*/
-    void                (*netif_drain)( struct fnet_netif *netif );            /* Memory drain function.*/
-    fnet_return_t       (*netif_get_hw_addr)( struct fnet_netif *netif, fnet_uint8_t *hw_addr); /* Change HW address */
-    fnet_return_t       (*netif_set_hw_addr)( struct fnet_netif *netif, fnet_uint8_t *hw_addr); /* Get HW address */
-    fnet_bool_t         (*netif_is_connected)( struct fnet_netif *netif );                      /* Connection state flag*/
-    fnet_return_t       (*netif_get_statistics)( struct fnet_netif *netif, struct fnet_netif_statistics *statistics ); /* Get statistics */
+    void (*netif_set_addr_notify)(struct fnet_netif *netif);                   /* Address change notification function.*/
+    void (*netif_drain)(struct fnet_netif *netif);                             /* Memory drain function.*/
+    fnet_return_t (*netif_get_hw_addr)(struct fnet_netif *netif, fnet_uint8_t *hw_addr);        /* Change HW address */
+    fnet_return_t (*netif_set_hw_addr)(struct fnet_netif *netif, fnet_uint8_t *hw_addr);        /* Get HW address */
+    fnet_bool_t (*netif_is_connected)(struct fnet_netif *netif);                                /* Connection state flag*/
+    fnet_return_t (*netif_get_statistics)(struct fnet_netif *netif, struct fnet_netif_statistics *statistics);         /* Get statistics */
 #if FNET_CFG_MULTICAST
 #if FNET_CFG_IP4
-    void                (*netif_multicast_join_ip4)( struct fnet_netif *netif, fnet_ip4_addr_t multicast_addr  );        /* Join IPv4 multicast group */
-    void                (*netif_multicast_leave_ip4)( struct fnet_netif *netif, fnet_ip4_addr_t multicast_addr  );       /* Leave IPv4 multicast group */
+    void (*netif_multicast_join_ip4)(struct fnet_netif *netif, fnet_ip4_addr_t multicast_addr);                          /* Join IPv4 multicast group */
+    void (*netif_multicast_leave_ip4)(struct fnet_netif *netif, fnet_ip4_addr_t multicast_addr);                         /* Leave IPv4 multicast group */
 #endif
 #if FNET_CFG_IP6
-    void                (*netif_multicast_join_ip6)( struct fnet_netif *netif, const fnet_ip6_addr_t *multicast_addr  ); /* Join IPv4 multicast group */
-    void                (*netif_multicast_leave_ip6)( struct fnet_netif *netif, fnet_ip6_addr_t *multicast_addr  );      /* Leave IPv6 multicast group */
+    void (*netif_multicast_join_ip6)(struct fnet_netif *netif, const fnet_ip6_addr_t *multicast_addr);                   /* Join IPv4 multicast group */
+    void (*netif_multicast_leave_ip6)(struct fnet_netif *netif, fnet_ip6_addr_t *multicast_addr);                        /* Leave IPv6 multicast group */
 #endif
 #endif
 #if FNET_CFG_IP6
-    void                (*netif_output_ip6)(struct fnet_netif *netif, const fnet_ip6_addr_t *src_ip_addr,  const fnet_ip6_addr_t *dest_ip_addr, fnet_netbuf_t *nb); /* IPv6 Transmit function.*/
+    void (*netif_output_ip6)(struct fnet_netif *netif, const fnet_ip6_addr_t *src_ip_addr,  const fnet_ip6_addr_t *dest_ip_addr, fnet_netbuf_t *nb);                /* IPv6 Transmit function.*/
 #endif
 } fnet_netif_api_t;
 
@@ -138,8 +134,7 @@ struct fnet_arp_if;
  * @internal
  * @brief    Network interface structure.
  ******************************************************************************/
-typedef struct fnet_netif
-{
+typedef struct fnet_netif {
     fnet_char_t             netif_name[FNET_NETIF_NAMELEN];     /* Network interface name (e.g. "eth0", "loop"). */
     fnet_size_t             netif_mtu;                          /* Maximum transmission unit. */
     void                    *netif_prv;                         /* Points to interface specific control data structure. It is optional. */
@@ -187,34 +182,34 @@ extern fnet_netif_t *fnet_netif_default;    /* Default net_if. */
 extern "C" {
 #endif
 
-void fnet_netif_release_all( void );
-void fnet_netif_drain( void );
-void fnet_netif_signal_p4_addr_conflict( fnet_netif_desc_t netif );
+void fnet_netif_release_all(void);
+void fnet_netif_drain(void);
+void fnet_netif_signal_p4_addr_conflict(fnet_netif_desc_t netif);
 
 #if FNET_CFG_MULTICAST & FNET_CFG_IP4
-void _fnet_netif_join_ip4_multicast (fnet_netif_desc_t netif_desc, fnet_ip4_addr_t multicast_addr);
-void _fnet_netif_leave_ip4_multicast (fnet_netif_desc_t netif_desc, fnet_ip4_addr_t multicast_addr);
+void _fnet_netif_join_ip4_multicast(fnet_netif_desc_t netif_desc, fnet_ip4_addr_t multicast_addr);
+void _fnet_netif_leave_ip4_multicast(fnet_netif_desc_t netif_desc, fnet_ip4_addr_t multicast_addr);
 #endif
 fnet_return_t _fnet_netif_set_hw_addr(fnet_netif_desc_t netif_desc, fnet_uint8_t *hw_addr, fnet_size_t hw_addr_size);
 
 #if FNET_CFG_IP6
 fnet_netif_ip6_addr_t *fnet_netif_get_ip6_addr_info(fnet_netif_t *netif, const fnet_ip6_addr_t *ip_addr);
 fnet_return_t fnet_netif_bind_ip6_addr_prv(fnet_netif_t *netif, const fnet_ip6_addr_t *addr, fnet_netif_ip_addr_type_t addr_type,
-        fnet_time_t lifetime /*in seconds*/, fnet_size_t prefix_length /* bits */ );
-fnet_return_t fnet_netif_unbind_ip6_addr_prv ( fnet_netif_t *netif, fnet_netif_ip6_addr_t *if_addr );
+                                           fnet_time_t lifetime /*in seconds*/, fnet_size_t prefix_length /* bits */);
+fnet_return_t fnet_netif_unbind_ip6_addr_prv(fnet_netif_t *netif, fnet_netif_ip6_addr_t *if_addr);
 fnet_bool_t fnet_netif_is_my_ip6_addr(fnet_netif_t *netif, const fnet_ip6_addr_t *ip_addr);
-fnet_netif_desc_t fnet_netif_get_by_ip6_addr( const fnet_ip6_addr_t *ip_addr );
+fnet_netif_desc_t fnet_netif_get_by_ip6_addr(const fnet_ip6_addr_t *ip_addr);
 fnet_bool_t fnet_netif_is_my_ip6_solicited_multicast_addr(fnet_netif_t *netif, fnet_ip6_addr_t *ip_addr);
-void fnet_netif_ip6_addr_timer ( fnet_netif_t *netif);
+void fnet_netif_ip6_addr_timer(fnet_netif_t *netif);
 fnet_return_t fnet_netif_set_ip6_addr_autoconf(fnet_netif_t *netif, fnet_ip6_addr_t *ip_addr);
-fnet_ip6_addr_t *fnet_netif_get_ip6_addr_valid_link_local (fnet_netif_t *netif);
+fnet_ip6_addr_t *fnet_netif_get_ip6_addr_valid_link_local(fnet_netif_t *netif);
 #if FNET_CFG_IP6_PMTU_DISCOVERY
 void fnet_netif_pmtu_init(fnet_netif_t *netif);
 void fnet_netif_pmtu_release(fnet_netif_t *netif);
 void fnet_netif_set_pmtu(fnet_netif_t *netif, fnet_size_t pmtu);
 #endif
-void _fnet_netif_join_ip6_multicast (fnet_netif_desc_t netif_desc, const fnet_ip6_addr_t *multicast_addr);
-void _fnet_netif_leave_ip6_multicast (fnet_netif_desc_t netif_desc, fnet_ip6_addr_t *multicast_addr);
+void _fnet_netif_join_ip6_multicast(fnet_netif_desc_t netif_desc, const fnet_ip6_addr_t *multicast_addr);
+void _fnet_netif_leave_ip6_multicast(fnet_netif_desc_t netif_desc, fnet_ip6_addr_t *multicast_addr);
 #endif /* FNET_CFG_IP6 */
 
 #if defined(__cplusplus)

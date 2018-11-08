@@ -57,10 +57,10 @@ uint32_t rx_ptr[ENET_RX_RING_LEN];
 
 /* LPC546XX EMAC driver data structure */
 struct lpc_enetdata {
-  struct netif *netif;  /**< Reference back to LWIP parent netif */
-  osThreadId_t thread; /**< Processing thread */
-  sys_mutex_t TXLockMutex; /**< TX critical section mutex */
-  sys_sem_t xTXDCountSem; /**< TX free buffer counting semaphore */
+    struct netif *netif;  /**< Reference back to LWIP parent netif */
+    osThreadId_t thread; /**< Processing thread */
+    sys_mutex_t TXLockMutex; /**< TX critical section mutex */
+    sys_sem_t xTXDCountSem; /**< TX free buffer counting semaphore */
 };
 
 static struct lpc_enetdata lpc_enetdata;
@@ -192,7 +192,7 @@ static struct pbuf *lpc546xx_low_level_input(struct netif *netif)
             LINK_STATS_INC(link.drop);
 
             LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-                       ("lpc546xx_low_level_input: Packet index %d dropped for OOM\n", rxBdRing->rxGenIdx));
+                        ("lpc546xx_low_level_input: Packet index %d dropped for OOM\n", rxBdRing->rxGenIdx));
 
             /* Re-queue the same buffer */
             update_read_buffer(bdPtr, NULL);
@@ -234,8 +234,9 @@ void lpc546xx_enetif_input(struct netif *netif)
 
     /* move received packet into a new pbuf */
     p = lpc546xx_low_level_input(netif);
-    if (p == NULL)
+    if (p == NULL) {
         return;
+    }
 
     /* pass all packets to ethernet_input, which decides what packets it supports */
     if (netif->input(p, netif) != ERR_OK) {
@@ -251,7 +252,7 @@ void lpc546xx_enetif_input(struct netif *netif)
  *
  *  \param[in] pvParameters pointer to the interface data
  */
-static void lpc546xx_emac_thread(void* pvParameters)
+static void lpc546xx_emac_thread(void *pvParameters)
 {
     struct lpc_enetdata *lpc_enet = pvParameters;
 
@@ -296,8 +297,9 @@ static err_t lpc546xx_low_level_output(struct netif *netif, struct pbuf *p)
     uint32_t index = txBdRing->txGenIdx;
 
     psend = (uint8_t *)calloc(1, ENET_ALIGN(p->tot_len, ENET_BUFF_ALIGNMENT));
-    if (NULL == psend)
+    if (NULL == psend) {
         return ERR_MEM;
+    }
 
     if (p->len == p->tot_len) {
         MEMCPY(psend, p->payload, p->len);
@@ -309,8 +311,9 @@ static err_t lpc546xx_low_level_output(struct netif *netif, struct pbuf *p)
     }
     /* Check if a descriptor is available for the transfer. */
     osStatus_t stat = osSemaphoreAcquire(lpc_enet->xTXDCountSem.id, 0);
-    if (stat != osOK)
+    if (stat != osOK) {
         return ERR_BUF;
+    }
 
     /* Save the buffer so that it can be freed when transmit is done */
     tx_buff[index] = psend;
@@ -342,8 +345,7 @@ void enet_mac_tx_isr()
 
 void ethernet_callback(ENET_Type *base, enet_handle_t *handle, enet_event_t event, uint8_t channel, void *param)
 {
-    switch (event)
-    {
+    switch (event) {
         case kENET_RxIntEvent:
             enet_mac_rx_isr();
             break;
@@ -382,8 +384,7 @@ static void lpc546xx_packet_rx(struct lpc_enetdata *lpc_enet)
     }
 
     /* Set command for rx when it is suspend. */
-    if (suspend)
-    {
+    if (suspend) {
         ENET->DMA_CH[0].DMA_CHX_RXDESC_TAIL_PTR = ENET->DMA_CH[0].DMA_CHX_RXDESC_TAIL_PTR;
     }
 }
@@ -454,13 +455,14 @@ static err_t low_level_init(struct netif *netif)
     /* Create buffers for each receive BD */
     for (i = 0; i < ENET_RX_RING_LEN; i++) {
         rx_buff[i] = pbuf_alloc(PBUF_RAW, ENET_ALIGN(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT), PBUF_RAM);
-        if (NULL == rx_buff[i])
+        if (NULL == rx_buff[i]) {
             return ERR_MEM;
+        }
 
         rx_ptr[i] = (uint32_t)rx_buff[i]->payload;
     }
 
-     /* prepare the buffer configuration. */
+    /* prepare the buffer configuration. */
     enet_buffer_config_t buffCfg = {
         ENET_RX_RING_LEN,
         ENET_TX_RING_LEN,
@@ -497,11 +499,12 @@ static err_t low_level_init(struct netif *netif)
  */
 #if LWIP_IPV4
 err_t lpc546xx_etharp_output_ipv4(struct netif *netif, struct pbuf *q,
-    const ip4_addr_t *ipaddr)
+                                  const ip4_addr_t *ipaddr)
 {
     /* Only send packet is link is up */
-    if (netif->flags & NETIF_FLAG_LINK_UP)
+    if (netif->flags & NETIF_FLAG_LINK_UP) {
         return etharp_output(netif, q, ipaddr);
+    }
 
     return ERR_CONN;
 }
@@ -518,11 +521,12 @@ err_t lpc546xx_etharp_output_ipv4(struct netif *netif, struct pbuf *q,
  */
 #if LWIP_IPV6
 err_t lpc546xx_etharp_output_ipv6(struct netif *netif, struct pbuf *q,
-    const ip6_addr_t *ipaddr)
+                                  const ip6_addr_t *ipaddr)
 {
     /* Only send packet is link is up */s
-    if (netif->flags & NETIF_FLAG_LINK_UP)
+    if (netif->flags & NETIF_FLAG_LINK_UP) {
         return ethip6_output(netif, q, ipaddr);
+    }
 
     return ERR_CONN;
 }
@@ -540,7 +544,8 @@ typedef struct {
     phy_duplex_t duplex;
 } PHY_STATE;
 
-int phy_link_status(void) {
+int phy_link_status(void)
+{
     bool connection_status;
     uint32_t phyAddr = 0;
 
@@ -548,8 +553,9 @@ int phy_link_status(void) {
     return (int)connection_status;
 }
 
-static void lpc546xx_phy_task(void *data) {
-    struct netif *netif = (struct netif*)data;
+static void lpc546xx_phy_task(void *data)
+{
+    struct netif *netif = (struct netif *)data;
     static PHY_STATE prev_state = {STATE_UNKNOWN, (phy_speed_t)STATE_UNKNOWN, (phy_duplex_t)STATE_UNKNOWN};
     uint32_t phyAddr = 0;
     // Get current status
@@ -619,7 +625,7 @@ err_t eth_arch_enetif_init(struct netif *netif)
 
     netif->hwaddr_len = ETH_HWADDR_LEN;
 
-     /* maximum transfer unit */
+    /* maximum transfer unit */
     netif->mtu = 1500;
 
     /* device capabilities */
@@ -634,8 +640,9 @@ err_t eth_arch_enetif_init(struct netif *netif)
     /* Initialize the hardware */
     netif->state = &lpc_enetdata;
     err = low_level_init(netif);
-    if (err != ERR_OK)
+    if (err != ERR_OK) {
         return err;
+    }
 
 #if LWIP_NETIF_HOSTNAME
     /* Initialize interface hostname */
@@ -680,11 +687,13 @@ err_t eth_arch_enetif_init(struct netif *netif)
     return ERR_OK;
 }
 
-void eth_arch_enable_interrupts(void) {
+void eth_arch_enable_interrupts(void)
+{
 
 }
 
-void eth_arch_disable_interrupts(void) {
+void eth_arch_disable_interrupts(void)
+{
 
 }
 

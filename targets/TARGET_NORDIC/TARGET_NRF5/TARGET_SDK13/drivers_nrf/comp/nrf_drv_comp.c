@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #include "sdk_common.h"
@@ -48,7 +48,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
- 
+
 #define NRF_LOG_MODULE_NAME "COMP"
 
 #if COMP_CONFIG_LOG_ENABLED
@@ -75,8 +75,7 @@ static const nrf_drv_comp_config_t m_default_config = NRF_DRV_COMP_DEFAULT_CONFI
 
 static void comp_execute_handler(nrf_comp_event_t event, uint32_t event_mask)
 {
-    if ( nrf_comp_event_check(event) && nrf_comp_int_enable_check(event_mask) )
-    {
+    if (nrf_comp_event_check(event) && nrf_comp_int_enable_check(event_mask)) {
         nrf_comp_event_clear(event);
         NRF_LOG_DEBUG("Event: %s.\r\n", (uint32_t)EVT_TO_STR(event));
 
@@ -85,16 +84,15 @@ static void comp_execute_handler(nrf_comp_event_t event, uint32_t event_mask)
 }
 
 #if NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
-    #define IRQ_HANDLER_NAME   irq_handler_for_comp
-    #define IRQ_HANDLER        static void IRQ_HANDLER_NAME(void)
+#define IRQ_HANDLER_NAME   irq_handler_for_comp
+#define IRQ_HANDLER        static void IRQ_HANDLER_NAME(void)
 
-    IRQ_HANDLER;
+IRQ_HANDLER;
 #else
-    #define IRQ_HANDLER void COMP_LPCOMP_IRQHandler(void)
+#define IRQ_HANDLER void COMP_LPCOMP_IRQHandler(void)
 #endif // NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
 
-IRQ_HANDLER
-{
+IRQ_HANDLER {
     comp_execute_handler(NRF_COMP_EVENT_READY, COMP_INTENSET_READY_Msk);
     comp_execute_handler(NRF_COMP_EVENT_DOWN, COMP_INTENSET_DOWN_Msk);
     comp_execute_handler(NRF_COMP_EVENT_UP, COMP_INTENSET_UP_Msk);
@@ -102,26 +100,24 @@ IRQ_HANDLER
 }
 
 
-ret_code_t nrf_drv_comp_init(const nrf_drv_comp_config_t * p_config,
+ret_code_t nrf_drv_comp_init(const nrf_drv_comp_config_t *p_config,
                              comp_events_handler_t   event_handler)
 {
     ret_code_t err_code;
 
-    if (m_state != NRF_DRV_STATE_UNINITIALIZED)
-    { // COMP driver is already initialized
+    if (m_state != NRF_DRV_STATE_UNINITIALIZED) {
+        // COMP driver is already initialized
         err_code = NRF_ERROR_INVALID_STATE;
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
         return err_code;
     }
 
-    if (p_config == NULL)
-    {
+    if (p_config == NULL) {
         p_config = &m_default_config;
     }
 
 #if NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
-    if (nrf_drv_common_per_res_acquire(NRF_COMP, IRQ_HANDLER_NAME) != NRF_SUCCESS)
-    {
+    if (nrf_drv_common_per_res_acquire(NRF_COMP, IRQ_HANDLER_NAME) != NRF_SUCCESS) {
         err_code = NRF_ERROR_BUSY;
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
         return err_code;
@@ -140,8 +136,7 @@ ret_code_t nrf_drv_comp_init(const nrf_drv_comp_config_t * p_config,
     nrf_comp_ref_set(p_config->reference);
 
     //If external source is chosen, write to appropriate register.
-    if (p_config->reference == COMP_REFSEL_REFSEL_ARef)
-    {
+    if (p_config->reference == COMP_REFSEL_REFSEL_ARef) {
         nrf_comp_ext_ref_set(p_config->ext_ref);
     }
 
@@ -155,12 +150,9 @@ ret_code_t nrf_drv_comp_init(const nrf_drv_comp_config_t * p_config,
     nrf_comp_int_disable(COMP_INTENCLR_CROSS_Msk | COMP_INTENCLR_UP_Msk |
                          COMP_INTENCLR_DOWN_Msk | COMP_INTENCLR_READY_Msk);
 
-    if (event_handler)
-    {
+    if (event_handler) {
         m_comp_events_handler = event_handler;
-    }
-    else
-    {
+    } else {
         err_code = NRF_ERROR_INVALID_PARAM;
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
         return err_code;
@@ -195,14 +187,12 @@ void nrf_drv_comp_pin_select(nrf_comp_input_t psel)
 {
     bool comp_enable_state = nrf_comp_enable_check();
     nrf_comp_task_trigger(NRF_COMP_TASK_STOP);
-    if (m_state == NRF_DRV_STATE_POWERED_ON)
-    {
+    if (m_state == NRF_DRV_STATE_POWERED_ON) {
         m_state = NRF_DRV_STATE_INITIALIZED;
     }
     nrf_comp_disable();
     nrf_comp_input_select(psel);
-    if (comp_enable_state == true)
-    {
+    if (comp_enable_state == true) {
         nrf_comp_enable();
     }
 }

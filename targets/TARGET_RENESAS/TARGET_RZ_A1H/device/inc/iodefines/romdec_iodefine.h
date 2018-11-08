@@ -101,13 +101,12 @@
 #define ROMDEC_STRMDIN0_COUNT (2)
 
 
-typedef struct st_romdec
-{
-                                                           /* ROMDEC           */
+typedef struct st_romdec {
+    /* ROMDEC           */
     volatile uint8_t   CROMEN;                                 /*  CROMEN          */
     volatile uint8_t   CROMSY0;                                /*  CROMSY0         */
 
-/* #define ROMDEC_CROMCTL0_COUNT (2) */
+    /* #define ROMDEC_CROMCTL0_COUNT (2) */
     volatile uint8_t   CROMCTL0;                               /*  CROMCTL0        */
     volatile uint8_t   CROMCTL1;                               /*  CROMCTL1        */
     volatile uint8_t   dummy23[1];                             /*                  */
@@ -115,7 +114,7 @@ typedef struct st_romdec
     volatile uint8_t   CROMCTL4;                               /*  CROMCTL4        */
     volatile uint8_t   CROMCTL5;                               /*  CROMCTL5        */
 
-/* #define ROMDEC_CROMST0_COUNT (2) */
+    /* #define ROMDEC_CROMST0_COUNT (2) */
     volatile uint8_t   CROMST0;                                /*  CROMST0         */
     volatile uint8_t   CROMST1;                                /*  CROMST1         */
     volatile uint8_t   dummy24[1];                             /*                  */
@@ -125,19 +124,19 @@ typedef struct st_romdec
     volatile uint8_t   CROMST6;                                /*  CROMST6         */
     volatile uint8_t   dummy25[5];                             /*                  */
 
-/* #define ROMDEC_CBUFST0_COUNT (3) */
+    /* #define ROMDEC_CBUFST0_COUNT (3) */
     volatile uint8_t   CBUFST0;                                /*  CBUFST0         */
     volatile uint8_t   CBUFST1;                                /*  CBUFST1         */
     volatile uint8_t   CBUFST2;                                /*  CBUFST2         */
     volatile uint8_t   dummy26[1];                             /*                  */
 
-/* #define ROMDEC_HEAD00_COUNT (4) */
+    /* #define ROMDEC_HEAD00_COUNT (4) */
     volatile uint8_t   HEAD00;                                 /*  HEAD00          */
     volatile uint8_t   HEAD01;                                 /*  HEAD01          */
     volatile uint8_t   HEAD02;                                 /*  HEAD02          */
     volatile uint8_t   HEAD03;                                 /*  HEAD03          */
 
-/* #define ROMDEC_SHEAD00_COUNT (8) */
+    /* #define ROMDEC_SHEAD00_COUNT (8) */
     volatile uint8_t   SHEAD00;                                /*  SHEAD00         */
     volatile uint8_t   SHEAD01;                                /*  SHEAD01         */
     volatile uint8_t   SHEAD02;                                /*  SHEAD02         */
@@ -147,13 +146,13 @@ typedef struct st_romdec
     volatile uint8_t   SHEAD06;                                /*  SHEAD06         */
     volatile uint8_t   SHEAD07;                                /*  SHEAD07         */
 
-/* #define ROMDEC_HEAD20_COUNT (4) */
+    /* #define ROMDEC_HEAD20_COUNT (4) */
     volatile uint8_t   HEAD20;                                 /*  HEAD20          */
     volatile uint8_t   HEAD21;                                 /*  HEAD21          */
     volatile uint8_t   HEAD22;                                 /*  HEAD22          */
     volatile uint8_t   HEAD23;                                 /*  HEAD23          */
 
-/* #define ROMDEC_SHEAD20_COUNT (8) */
+    /* #define ROMDEC_SHEAD20_COUNT (8) */
     volatile uint8_t   SHEAD20;                                /*  SHEAD20         */
     volatile uint8_t   SHEAD21;                                /*  SHEAD21         */
     volatile uint8_t   SHEAD22;                                /*  SHEAD22         */
@@ -164,7 +163,7 @@ typedef struct st_romdec
     volatile uint8_t   SHEAD27;                                /*  SHEAD27         */
     volatile uint8_t   dummy27[16];                            /*                  */
 
-/* #define ROMDEC_CBUFCTL0_COUNT (4) */
+    /* #define ROMDEC_CBUFCTL0_COUNT (4) */
     volatile uint8_t   CBUFCTL0;                               /*  CBUFCTL0        */
     volatile uint8_t   CBUFCTL1;                               /*  CBUFCTL1        */
     volatile uint8_t   CBUFCTL2;                               /*  CBUFCTL2        */
@@ -180,7 +179,7 @@ typedef struct st_romdec
     volatile uint8_t   INHINT;                                 /*  INHINT          */
     volatile uint8_t   dummy31[246];                           /*                  */
 
-/* #define ROMDEC_STRMDIN0_COUNT (2) */
+    /* #define ROMDEC_STRMDIN0_COUNT (2) */
     volatile uint16_t STRMDIN0;                               /*  STRMDIN0        */
     volatile uint16_t STRMDIN2;                               /*  STRMDIN2        */
     volatile uint16_t STRMDOUT0;                              /*  STRMDOUT0       */

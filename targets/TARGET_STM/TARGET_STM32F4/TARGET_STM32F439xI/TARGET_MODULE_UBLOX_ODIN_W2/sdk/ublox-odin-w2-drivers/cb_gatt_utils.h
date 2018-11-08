@@ -44,27 +44,27 @@ extern "C" {
  */
 
 /**
- * Returns a string representing the error code. NULL if the error code is 
+ * Returns a string representing the error code. NULL if the error code is
  * not found.
  * @param errorCode     GATT error code
  */
-cb_char* cbGATT_UTILS_getStringFromErrorCode(
+cb_char *cbGATT_UTILS_getStringFromErrorCode(
     cbGATT_ErrorCode errorCode);
 
 /**
  * Returns a string representing the GATT/ATT properties for a characteristic.
  * @param properties    Bitmap of properties see cbGATT_PROP_*
  */
-cb_char* cbGATT_UTILS_getStringFromProperties(
+cb_char *cbGATT_UTILS_getStringFromProperties(
     cb_uint8 properties);
 
 /**
- * Returns a string representing the UUID. NULL if the UUID is not 
+ * Returns a string representing the UUID. NULL if the UUID is not
  * found.
  * @param pUuid     Pointer to 128 or 16-bit UUID
  */
-cb_char* cbGATT_UTILS_getStringFromUuid(
-    cbGATT_Uuid* pUuid);
+cb_char *cbGATT_UTILS_getStringFromUuid(
+    cbGATT_Uuid *pUuid);
 
 /**
  * Returns a string representing the UUID as hex bytes.
@@ -72,9 +72,9 @@ cb_char* cbGATT_UTILS_getStringFromUuid(
  * @param resultStr Allocated buffer to put hex string in.
  *                  Should fit 16*2+1 = 33 bytes
  */
-cb_char* cbGATT_UTILS_getHexStringFromUuid(
-    cbGATT_Uuid*    pUuid, 
-    cb_char*        resultStr);
+cb_char *cbGATT_UTILS_getHexStringFromUuid(
+    cbGATT_Uuid    *pUuid,
+    cb_char        *resultStr);
 
 /**
  * Returns a string representing the data as hex bytes.
@@ -83,10 +83,10 @@ cb_char* cbGATT_UTILS_getHexStringFromUuid(
  * @param resultStr Pointer to allocated buffer to put hex string in.
  *                  Should fit len*2+1 bytes
  */
-cb_char* cbGATT_UTILS_dataToHex(
-    cb_uint8*   pData, 
-    cb_uint16   len, 
-    cb_char*    resultStr);
+cb_char *cbGATT_UTILS_dataToHex(
+    cb_uint8   *pData,
+    cb_uint16   len,
+    cb_char    *resultStr);
 
 /**
  * Reverse bytes
@@ -94,7 +94,7 @@ cb_char* cbGATT_UTILS_dataToHex(
  * @param nbrOfBytes    Length of src
  */
 void cbGATT_UTILS_reverseBytes(
-    cb_uint8*   src, 
+    cb_uint8   *src,
     cb_uint16   nbrOfBytes);
 
 #ifdef __cplusplus

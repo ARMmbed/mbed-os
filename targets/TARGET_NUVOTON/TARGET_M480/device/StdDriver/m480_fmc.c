@@ -146,7 +146,7 @@ int32_t FMC_Erase_Bank(uint32_t u32BankAddr)
   * @retval   0  Is boot from APROM.
   * @retval   1  Is boot from LDROM.
   */
-int32_t FMC_GetBootSource (void)
+int32_t FMC_GetBootSource(void)
 {
     int32_t  ret = 0;
 
@@ -194,7 +194,7 @@ uint32_t FMC_Read(uint32_t u32Addr)
   * @return   0   Success
   * @return   -1  Failed
   */
-int32_t FMC_Read_64(uint32_t u32addr, uint32_t * u32data0, uint32_t * u32data1)
+int32_t FMC_Read_64(uint32_t u32addr, uint32_t *u32data0, uint32_t *u32data1)
 {
     int32_t  ret = 0;
 
@@ -520,7 +520,7 @@ int32_t FMC_ReadConfig(uint32_t u32Config[], uint32_t u32Count)
     if (u32Count < 2UL) {
         ret = -1;
     } else {
-        u32Config[1] = FMC_Read(FMC_CONFIG_BASE+4UL);
+        u32Config[1] = FMC_Read(FMC_CONFIG_BASE + 4UL);
     }
     return ret;
 }
@@ -540,7 +540,7 @@ int32_t FMC_WriteConfig(uint32_t u32Config[], uint32_t u32Count)
     FMC_ENABLE_CFG_UPDATE();
     FMC_Erase(FMC_CONFIG_BASE);
     FMC_Write(FMC_CONFIG_BASE, u32Config[0]);
-    FMC_Write(FMC_CONFIG_BASE+4UL, u32Config[1]);
+    FMC_Write(FMC_CONFIG_BASE + 4UL, u32Config[1]);
     FMC_DISABLE_CFG_UPDATE();
     return 0;
 }
@@ -653,7 +653,7 @@ int32_t  FMC_SKey_Setup(uint32_t key[3], uint32_t kpmax, uint32_t kemax,
         ret = -2;
     }
 
-    if (FMC_Erase(FMC_KPROM_BASE+0x200UL)) {
+    if (FMC_Erase(FMC_KPROM_BASE + 0x200UL)) {
         ret = -3;
     }
 
@@ -667,11 +667,11 @@ int32_t  FMC_SKey_Setup(uint32_t key[3], uint32_t kpmax, uint32_t kemax,
 
     if (ret == 0) {
         FMC_Write(FMC_KPROM_BASE, key[0]);
-        FMC_Write(FMC_KPROM_BASE+0x4UL, key[1]);
-        FMC_Write(FMC_KPROM_BASE+0x8UL, key[2]);
-        FMC_Write(FMC_KPROM_BASE+0xCUL, kpmax);
-        FMC_Write(FMC_KPROM_BASE+0x10UL, kemax);
-        FMC_Write(FMC_KPROM_BASE+0x14UL, lock_ctrl);
+        FMC_Write(FMC_KPROM_BASE + 0x4UL, key[1]);
+        FMC_Write(FMC_KPROM_BASE + 0x8UL, key[2]);
+        FMC_Write(FMC_KPROM_BASE + 0xCUL, kpmax);
+        FMC_Write(FMC_KPROM_BASE + 0x10UL, kemax);
+        FMC_Write(FMC_KPROM_BASE + 0x14UL, lock_ctrl);
 
         while (FMC->KPKEYSTS & FMC_KPKEYSTS_KEYBUSY_Msk) { }
 

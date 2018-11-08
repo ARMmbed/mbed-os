@@ -36,7 +36,7 @@ static void hciCoreReadMaxDataLen(void)
 {
     /* if LE Data Packet Length Extensions is supported by Controller and included */
     if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_DATA_LEN_EXT) &&
-        (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_DATA_LEN_EXT)) {
+            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_DATA_LEN_EXT)) {
         /* send next command in sequence */
         HciLeReadMaxDataLen();
     } else {
@@ -49,7 +49,7 @@ static void hciCoreReadResolvingListSize(void)
 {
     /* if LL Privacy is supported by Controller and included */
     if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_PRIVACY) &&
-        (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_PRIVACY)) {
+            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_PRIVACY)) {
         /* send next command in sequence */
         HciLeReadResolvingListSize();
     } else {
@@ -63,7 +63,7 @@ static void hciCoreReadResolvingListSize(void)
 } // end of anonymous namespace
 
 
-CordioHCIDriver::CordioHCIDriver(CordioHCITransportDriver& transport_driver) :
+CordioHCIDriver::CordioHCIDriver(CordioHCITransportDriver &transport_driver) :
     _transport_driver(transport_driver) { }
 
 void CordioHCIDriver::initialize()
@@ -192,18 +192,19 @@ void CordioHCIDriver::handle_reset_sequence(uint8_t *pMsg)
                 break;
 
             case HCI_OPCODE_LE_READ_MAX_DATA_LEN: {
-                    uint16_t maxTxOctets;
-                    uint16_t maxTxTime;
+                uint16_t maxTxOctets;
+                uint16_t maxTxTime;
 
-                    BSTREAM_TO_UINT16(maxTxOctets, pMsg);
-                    BSTREAM_TO_UINT16(maxTxTime, pMsg);
+                BSTREAM_TO_UINT16(maxTxOctets, pMsg);
+                BSTREAM_TO_UINT16(maxTxTime, pMsg);
 
-                    /* use Controller's maximum supported payload octets and packet duration times
-                    * for transmission as Host's suggested values for maximum transmission number
-                    * of payload octets and maximum packet transmission time for new connections.
-                    */
-                    HciLeWriteDefDataLen(maxTxOctets, maxTxTime);
-            }   break;
+                /* use Controller's maximum supported payload octets and packet duration times
+                * for transmission as Host's suggested values for maximum transmission number
+                * of payload octets and maximum packet transmission time for new connections.
+                */
+                HciLeWriteDefDataLen(maxTxOctets, maxTxTime);
+            }
+            break;
 
             case HCI_OPCODE_LE_WRITE_DEF_DATA_LEN:
                 if (hciCoreCb.extResetSeq) {
@@ -231,7 +232,7 @@ void CordioHCIDriver::handle_reset_sequence(uint8_t *pMsg)
 
             case HCI_OPCODE_LE_RAND:
                 /* check if need to send second rand command */
-                if (randCnt < (HCI_RESET_RAND_CNT-1)) {
+                if (randCnt < (HCI_RESET_RAND_CNT - 1)) {
                     randCnt++;
                     HciLeRandCmd();
                 } else {

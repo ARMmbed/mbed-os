@@ -36,7 +36,7 @@
 #define __HAL_TICK_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include "stm32l4xx.h"

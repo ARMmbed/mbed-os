@@ -51,10 +51,10 @@ static bool initialised = false;
 void IRQ5_GPIO_Handler()
 {
     if (initialised) {
-        for (uint8_t i = 0; i < sizeof (channel_ids) / sizeof (channel_ids[0]); i++) {
+        for (uint8_t i = 0; i < sizeof(channel_ids) / sizeof(channel_ids[0]); i++) {
             uint8_t id = channel_ids[i];
             uint32_t mask = 1 << id;
-    
+
             if (id != 0) {
                 if (GPIO_IRQ | mask) {
                     if (GPIO_INT_RISE | mask) {
@@ -63,10 +63,10 @@ void IRQ5_GPIO_Handler()
                         irq_handler(id, IRQ_FALL);
                     }
                 }
-            }    
+            }
         }
     }
-    
+
     /* Clear all the interrupt bits (rather than wasting time on
      * each individual one), or we might get stuck if a spurious
      * one should arrive. */
@@ -85,7 +85,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         return_value = 0;
     } else {
         if (pin != NC) {
-            MBED_ASSERT (pin < NUM_PINS);
+            MBED_ASSERT(pin < NUM_PINS);
 
             irq_handler      = handler;
             obj->ch          = pin;
@@ -100,12 +100,12 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
             GPIO_INT_HIGH_BITCLR &= ~mask;
 
             initialised = true;
-            NVIC_EnableIRQ  (GPIO_IRQn);
+            NVIC_EnableIRQ(GPIO_IRQn);
 
             return_value = 0;
         }
     }
-    
+
     return return_value;
 }
 
@@ -124,9 +124,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         } else if (event == IRQ_FALL) {
             GPIO_INT_FALL_BITSET |= mask;
         }
-    }
-    else
-    {
+    } else {
         if (event == IRQ_RISE) {
             GPIO_INT_RISE_BITSET &= ~mask;
         } else if (event == IRQ_FALL) {
@@ -138,11 +136,11 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 void gpio_irq_enable(gpio_irq_t *obj)
 {
     (void) obj;
-    NVIC_EnableIRQ  (GPIO_IRQn);
+    NVIC_EnableIRQ(GPIO_IRQn);
 }
 
 void gpio_irq_disable(gpio_irq_t *obj)
 {
     (void) obj;
-    NVIC_DisableIRQ  (GPIO_IRQn);
+    NVIC_DisableIRQ(GPIO_IRQn);
 }

@@ -45,7 +45,8 @@ public:
         ble(bleIn),
         alertLevel(levelIn),
         callback(callbackIn),
-        alertLevelChar(GattCharacteristic::UUID_ALERT_LEVEL_CHAR, reinterpret_cast<uint8_t *>(&alertLevel)) {
+        alertLevelChar(GattCharacteristic::UUID_ALERT_LEVEL_CHAR, reinterpret_cast<uint8_t *>(&alertLevel))
+    {
         static bool serviceAdded = false; /* We should only ever add one LinkLoss service. */
         if (serviceAdded) {
             return;
@@ -64,14 +65,16 @@ public:
     /**
      * Update the callback.
      */
-    void setCallback(callback_t newCallback) {
+    void setCallback(callback_t newCallback)
+    {
         callback = newCallback;
     }
 
     /**
      * Update alertness level.
      */
-    void setAlertLevel(AlertLevel_t newLevel) {
+    void setAlertLevel(AlertLevel_t newLevel)
+    {
         alertLevel = newLevel;
     }
 
@@ -82,13 +85,15 @@ protected:
      * @param[in] params
      *     Information about the characteristic being updated.
      */
-    virtual void onDataWritten(const GattWriteCallbackParams *params) {
+    virtual void onDataWritten(const GattWriteCallbackParams *params)
+    {
         if (params->handle == alertLevelChar.getValueHandle()) {
             alertLevel = *reinterpret_cast<const AlertLevel_t *>(params->data);
         }
     }
 
-    void onDisconnectionFilter(const Gap::DisconnectionCallbackParams_t *params) {
+    void onDisconnectionFilter(const Gap::DisconnectionCallbackParams_t *params)
+    {
         if (alertLevel != NO_ALERT) {
             callback(alertLevel);
         }

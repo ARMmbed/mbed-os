@@ -29,8 +29,8 @@
 #ifndef INB_IODEFINE_H
 #define INB_IODEFINE_H
 
-struct st_inb
-{                                                          /* INB              */
+struct st_inb {
+    /* INB              */
     volatile uint32_t  RMPR;                                   /*  RMPR            */
 #define INB_AXIBUSCTLn_COUNT 11
     volatile uint32_t  AXIBUSCTL0;                             /*  AXIBUSCTL0      */

@@ -30,20 +30,20 @@
 #include "nRF5xn.h"
 
 #ifdef S110
-    #define IS_LEGACY_DEVICE_MANAGER_ENABLED 1
+#define IS_LEGACY_DEVICE_MANAGER_ENABLED 1
 #elif defined(S130) || defined(S132)
-    #define IS_LEGACY_DEVICE_MANAGER_ENABLED 0
+#define IS_LEGACY_DEVICE_MANAGER_ENABLED 0
 #endif
 
 extern "C" {
 #if (IS_LEGACY_DEVICE_MANAGER_ENABLED)
-    #include "pstorage.h"
-    #include "device_manager.h"
+#include "pstorage.h"
+#include "device_manager.h"
 #else
-    #include "fstorage.h"
-    #include "fds.h"
-    #include "peer_manager.h"
-    #include "ble_conn_state.h"
+#include "fstorage.h"
+#include "fds.h"
+#include "peer_manager.h"
+#include "ble_conn_state.h"
 #endif
 
 #include "softdevice_handler.h"
@@ -88,7 +88,7 @@ static void sys_evt_dispatch(uint32_t sys_evt)
  */
 static uint32_t signalEvent()
 {
-    if(isEventsSignaled == false) {
+    if (isEventsSignaled == false) {
         isEventsSignaled = true;
         nRF5xn::Instance(BLE::DEFAULT_INSTANCE).signalEventsToProcess(BLE::DEFAULT_INSTANCE);
     }
@@ -130,14 +130,14 @@ error_t btle_init(void)
 
     ble_enable_params_t ble_enable_params;
     uint32_t err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,
-                                                    PERIPHERAL_LINK_COUNT,
-                                                    &ble_enable_params);
+                                                             PERIPHERAL_LINK_COUNT,
+                                                             &ble_enable_params);
 
     ble_enable_params.gatts_enable_params.attr_tab_size  = GATTS_ATTR_TAB_SIZE;
     ble_enable_params.gatts_enable_params.service_changed  = IS_SRVC_CHANGED_CHARACT_PRESENT;
     ble_enable_params.common_enable_params.vs_uuid_count = UUID_TABLE_MAX_ENTRIES;
 
-    if(err_code  != NRF_SUCCESS) {
+    if (err_code  != NRF_SUCCESS) {
         return ERROR_INVALID_PARAM;
     }
 
@@ -162,8 +162,8 @@ error_t btle_init(void)
     pm_privacy_set(&privacy_params);
 #endif
 
-    ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
-    ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
+    ASSERT_STATUS(softdevice_ble_evt_handler_set(btle_handler));
+    ASSERT_STATUS(softdevice_sys_evt_handler_set(sys_evt_dispatch));
 
     return btle_gap_init();
 }
@@ -236,7 +236,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
             // Since we are not in a connection and have not started advertising,
             // store bonds
-            gap.setConnectionHandle (BLE_CONN_HANDLE_INVALID);
+            gap.setConnectionHandle(BLE_CONN_HANDLE_INVALID);
 
             Gap::DisconnectionReason_t reason;
             switch (p_ble_evt->evt.gap_evt.params.disconnected.reason) {
@@ -310,6 +310,6 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name)
 */
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name)
 {
-    ASSERT_STATUS_RET_VOID( error_code );
+    ASSERT_STATUS_RET_VOID(error_code);
     NVIC_SystemReset();
 }

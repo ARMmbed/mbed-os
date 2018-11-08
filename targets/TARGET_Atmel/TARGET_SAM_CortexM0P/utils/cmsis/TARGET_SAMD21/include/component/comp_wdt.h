@@ -60,11 +60,11 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  :1;               /*!< bit:      0  Reserved                           */
-        uint8_t  ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint8_t  WEN:1;            /*!< bit:      2  Watchdog Timer Window Mode Enable  */
-        uint8_t  :4;               /*!< bit:  3.. 6  Reserved                           */
-        uint8_t  ALWAYSON:1;       /*!< bit:      7  Always-On                          */
+        uint8_t  : 1;              /*!< bit:      0  Reserved                           */
+        uint8_t  ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint8_t  WEN: 1;           /*!< bit:      2  Watchdog Timer Window Mode Enable  */
+        uint8_t  : 4;              /*!< bit:  3.. 6  Reserved                           */
+        uint8_t  ALWAYSON: 1;      /*!< bit:      7  Always-On                          */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } WDT_CTRL_Type;
@@ -85,8 +85,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PER:4;            /*!< bit:  0.. 3  Time-Out Period                    */
-        uint8_t  WINDOW:4;         /*!< bit:  4.. 7  Window Mode Time-Out Period        */
+        uint8_t  PER: 4;           /*!< bit:  0.. 3  Time-Out Period                    */
+        uint8_t  WINDOW: 4;        /*!< bit:  4.. 7  Window Mode Time-Out Period        */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } WDT_CONFIG_Type;
@@ -155,8 +155,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  EWOFFSET:4;       /*!< bit:  0.. 3  Early Warning Interrupt Time Offset */
-        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+        uint8_t  EWOFFSET: 4;      /*!< bit:  0.. 3  Early Warning Interrupt Time Offset */
+        uint8_t  : 4;              /*!< bit:  4.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } WDT_EWCTRL_Type;
@@ -198,8 +198,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  EW:1;             /*!< bit:      0  Early Warning Interrupt Enable     */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  EW: 1;            /*!< bit:      0  Early Warning Interrupt Enable     */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } WDT_INTENCLR_Type;
@@ -216,8 +216,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  EW:1;             /*!< bit:      0  Early Warning Interrupt Enable     */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  EW: 1;            /*!< bit:      0  Early Warning Interrupt Enable     */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } WDT_INTENSET_Type;
@@ -234,8 +234,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  EW:1;             /*!< bit:      0  Early Warning                      */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  EW: 1;            /*!< bit:      0  Early Warning                      */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } WDT_INTFLAG_Type;
@@ -252,8 +252,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  :7;               /*!< bit:  0.. 6  Reserved                           */
-        uint8_t  SYNCBUSY:1;       /*!< bit:      7  Synchronization Busy               */
+        uint8_t  : 7;              /*!< bit:  0.. 6  Reserved                           */
+        uint8_t  SYNCBUSY: 1;      /*!< bit:      7  Synchronization Busy               */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } WDT_STATUS_Type;
@@ -270,7 +270,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  CLEAR:8;          /*!< bit:  0.. 7  Watchdog Clear                     */
+        uint8_t  CLEAR: 8;         /*!< bit:  0.. 7  Watchdog Clear                     */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } WDT_CLEAR_Type;

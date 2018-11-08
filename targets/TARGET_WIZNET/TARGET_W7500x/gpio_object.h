@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
- 
+
 #ifndef MBED_GPIO_OBJECT_H
 #define MBED_GPIO_OBJECT_H
 
@@ -51,26 +51,25 @@ typedef struct {
 extern uint32_t Get_GPIO_BaseAddress(uint32_t port_idx);
 
 
-static inline void gpio_write(gpio_t *obj, int value) {
+static inline void gpio_write(gpio_t *obj, int value)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
 
     uint32_t port_num = WIZ_PORT(obj->pin);
     uint32_t pin_index  = WIZ_PIN_INDEX(obj->pin);
 
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(port_num);
-    
 
-    if (value)
-    {
+
+    if (value) {
         HAL_GPIO_SetBits(gpio, pin_index);
-    }
-    else
-    {
+    } else {
         HAL_GPIO_ResetBits(gpio, pin_index);
     }
 }
 
-static inline int gpio_read(gpio_t *obj) {
+static inline int gpio_read(gpio_t *obj)
+{
     int ret;
 
     MBED_ASSERT(obj->pin != (PinName)NC);
@@ -79,19 +78,17 @@ static inline int gpio_read(gpio_t *obj) {
 
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(port_num);
 
-    if(obj->direction == PIN_OUTPUT)
-    {
-        ret = ( HAL_GPIO_ReadOutputData(gpio) & obj->pin_index ) ? 1 : 0;
-    }
-    else
-    {
+    if (obj->direction == PIN_OUTPUT) {
+        ret = (HAL_GPIO_ReadOutputData(gpio) & obj->pin_index) ? 1 : 0;
+    } else {
         ret = ((*obj->reg_data_in & obj->pin_index) ? 1 : 0);
     }
 
     return ret;
 }
 
-static inline int gpio_is_connected(const gpio_t *obj) {
+static inline int gpio_is_connected(const gpio_t *obj)
+{
     return obj->pin != (PinName)NC;
 }
 

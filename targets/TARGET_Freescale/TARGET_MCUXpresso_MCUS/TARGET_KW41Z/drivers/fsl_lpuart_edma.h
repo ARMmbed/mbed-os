@@ -56,8 +56,7 @@ typedef void (*lpuart_edma_transfer_callback_t)(LPUART_Type *base,
 /*!
 * @brief LPUART eDMA handle
 */
-struct _lpuart_edma_handle
-{
+struct _lpuart_edma_handle {
     lpuart_edma_transfer_callback_t callback; /*!< Callback function. */
     void *userData;                           /*!< LPUART callback function parameter.*/
     size_t rxDataSizeAll;                     /*!< Size of the data to receive. */
@@ -93,11 +92,11 @@ extern "C" {
  * @param rxEdmaHandle User requested DMA handle for RX DMA transfer.
  */
 void LPUART_TransferCreateHandleEDMA(LPUART_Type *base,
-                             lpuart_edma_handle_t *handle,
-                             lpuart_edma_transfer_callback_t callback,
-                             void *userData,
-                             edma_handle_t *txEdmaHandle,
-                             edma_handle_t *rxEdmaHandle);
+                                     lpuart_edma_handle_t *handle,
+                                     lpuart_edma_transfer_callback_t callback,
+                                     void *userData,
+                                     edma_handle_t *txEdmaHandle,
+                                     edma_handle_t *rxEdmaHandle);
 
 /*!
  * @brief Sends data using eDMA.

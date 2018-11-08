@@ -63,7 +63,7 @@ public:
      * @param data Pointer to the data received.
      * @param len Number of bytes received.
      */
-    static void on_data_received(uint8_t* data, uint16_t len);
+    static void on_data_received(uint8_t *data, uint16_t len);
 };
 
 } // namespace cordio

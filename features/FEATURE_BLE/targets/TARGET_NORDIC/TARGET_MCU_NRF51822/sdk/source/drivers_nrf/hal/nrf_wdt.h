@@ -57,8 +57,7 @@
  * @enum nrf_wdt_task_t
  * @brief WDT tasks.
  */
-typedef enum
-{
+typedef enum {
     /*lint -save -e30 -esym(628,__INTADDR__)*/
     NRF_WDT_TASK_START = offsetof(NRF_WDT_Type, TASKS_START), /**< Task for starting WDT. */
     /*lint -restore*/
@@ -68,8 +67,7 @@ typedef enum
  * @enum nrf_wdt_event_t
  * @brief WDT events.
  */
-typedef enum
-{
+typedef enum {
     /*lint -save -e30*/
     NRF_WDT_EVENT_TIMEOUT = offsetof(NRF_WDT_Type, EVENTS_TIMEOUT), /**< Event from WDT time-out. */
     /*lint -restore*/
@@ -79,8 +77,7 @@ typedef enum
  * @enum nrf_wdt_behaviour_t
  * @brief WDT behavior in CPU SLEEP or HALT mode.
  */
-typedef enum
-{
+typedef enum {
     NRF_WDT_BEHAVIOUR_RUN_SLEEP        = WDT_CONFIG_SLEEP_Msk,                       /**< WDT will run when CPU is in SLEEP mode. */
     NRF_WDT_BEHAVIOUR_RUN_HALT         = WDT_CONFIG_HALT_Msk,                        /**< WDT will run when CPU is in HALT mode. */
     NRF_WDT_BEHAVIOUR_RUN_SLEEP_HALT   = WDT_CONFIG_SLEEP_Msk | WDT_CONFIG_HALT_Msk, /**< WDT will run when CPU is in SLEEP or HALT mode. */
@@ -91,8 +88,7 @@ typedef enum
  * @enum nrf_wdt_rr_register_t
  * @brief WDT reload request registers.
  */
-typedef enum
-{
+typedef enum {
     NRF_WDT_RR0 = 0, /**< Reload request register 0. */
     NRF_WDT_RR1,     /**< Reload request register 1. */
     NRF_WDT_RR2,     /**< Reload request register 2. */
@@ -107,8 +103,7 @@ typedef enum
  * @enum nrf_wdt_int_mask_t
  * @brief WDT interrupts.
  */
-typedef enum
-{
+typedef enum {
     NRF_WDT_INT_TIMEOUT_MASK = WDT_INTENSET_TIMEOUT_Msk, /**< WDT interrupt from time-out event. */
 } nrf_wdt_int_mask_t;
 
@@ -155,7 +150,7 @@ __STATIC_INLINE void nrf_wdt_event_clear(nrf_wdt_event_t event)
  */
 __STATIC_INLINE bool nrf_wdt_event_check(nrf_wdt_event_t event)
 {
-    return (bool)*((volatile uint32_t *)((uint8_t *)NRF_WDT + event));
+    return (bool) * ((volatile uint32_t *)((uint8_t *)NRF_WDT + event));
 }
 
 

@@ -42,14 +42,14 @@ void gpio_irq(void)
     for (current_channel = 0; current_channel < EIC_NUMBER_OF_INTERRUPTS ; current_channel++) {
         if (extint_chan_is_detected(current_channel)) {
             extint_chan_clear_detected(current_channel);
-            port_base = (PortGroup*)port_get_group_from_gpio_pin(ext_int_pins[current_channel]);
+            port_base = (PortGroup *)port_get_group_from_gpio_pin(ext_int_pins[current_channel]);
             mask = gpio_set((PinName)ext_int_pins[current_channel]);
             if ((port_base->IN.reg & mask) != 0) {
                 event = IRQ_RISE;
             } else {
                 event = IRQ_FALL;
             }
-            if(irq_handler) {
+            if (irq_handler) {
                 irq_handler(channel_ids[current_channel], event);
             }
         }
@@ -59,8 +59,9 @@ void gpio_irq(void)
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
 {
     MBED_ASSERT(obj);
-    if (pin == NC)
+    if (pin == NC) {
         return -1;
+    }
 
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;

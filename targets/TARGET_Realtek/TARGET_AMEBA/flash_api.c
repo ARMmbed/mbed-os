@@ -48,8 +48,9 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
-    if (address >= FLASH_OFS_END)
+    if (address >= FLASH_OFS_END) {
         return MBED_FLASH_INVALID_SIZE;
+    }
 
     return FLASH_SECTOR_SIZE;
 }

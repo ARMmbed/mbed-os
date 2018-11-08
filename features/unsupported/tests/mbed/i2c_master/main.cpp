@@ -2,7 +2,7 @@
 #include "test_env.h"
 
 #if !DEVICE_I2C
-  #error [NOT_SUPPORTED] I2C is not supported
+#error [NOT_SUPPORTED] I2C is not supported
 #endif
 
 #define SIZE (10)
@@ -11,7 +11,7 @@
 #if defined(TARGET_KL25Z)
 I2C i2c(PTE0, PTE1);
 #elif defined(TARGET_nRF51822)
-I2C i2c(p22,p20);
+I2C i2c(p22, p20);
 #elif defined(TARGET_NUCLEO_F411RE) || defined(TARGET_NUCLEO_F429ZI) || defined(TARGET_NUCLEO_F446RE)
 #define TEST_SDA_PIN PB_9
 #define TEST_SCL_PIN PB_8
@@ -50,7 +50,8 @@ I2C i2c(TEST_SDA_PIN, TEST_SCL_PIN);
 I2C i2c(p28, p27);
 #endif
 
-int main() {
+int main()
+{
     bool success = true;
     char buf[] = {3, 2, 1, 4, 5, 6, 7, 8, 9, 10};
     char res[SIZE];
@@ -70,7 +71,7 @@ int main() {
     i2c.read(ADDR, res, SIZE);
     i2c.read(ADDR, res, SIZE);
 
-    for(int i = 0; i < SIZE; i++) {
+    for (int i = 0; i < SIZE; i++) {
         if (res[i] != (buf[i] + 3)) {
             success = false;
             break;

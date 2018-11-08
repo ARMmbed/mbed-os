@@ -37,12 +37,13 @@
 #define TEST_LED PA01 /*LED in board doesnt have PWM functionality*/
 
 #else
-  #error [NOT_SUPPORTED] This test is not supported on this target
+#error [NOT_SUPPORTED] This test is not supported on this target
 #endif
 
 PwmOut led(TEST_LED);
 
-int main() {
+int main()
+{
     float crt = 1.0, delta = 0.05;
 
     led.period_ms(2); // 500Hz
@@ -53,8 +54,7 @@ int main() {
         if (crt > 1.0) {
             crt = 1.0;
             delta = -delta;
-        }
-        else if (crt < 0) {
+        } else if (crt < 0) {
             crt = 0;
             delta = -delta;
         }

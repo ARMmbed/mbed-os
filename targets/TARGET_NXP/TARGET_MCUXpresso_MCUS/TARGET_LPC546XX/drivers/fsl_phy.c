@@ -85,27 +85,23 @@ status_t PHY_Init(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz)
     ENET_SetSMI(base);
 #endif
     /* Initialization after PHY stars to work. */
-    while ((idReg != PHY_CONTROL_ID1) && (delay != 0))
-    {
+    while ((idReg != PHY_CONTROL_ID1) && (delay != 0)) {
         PHY_Read(base, phyAddr, PHY_ID1_REG, &idReg);
-        delay --;       
+        delay --;
     }
 
-    if (!delay)
-    {
+    if (!delay) {
         return kStatus_Fail;
     }
     delay = PHY_TIMEOUT_COUNT;
 
     /* Reset PHY and wait until completion. */
     PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG, PHY_BCTL_RESET_MASK);
-    do
-    {
+    do {
         PHY_Read(base, phyAddr, PHY_BASICCONTROL_REG, &reg);
     } while (delay-- && reg & PHY_BCTL_RESET_MASK);
 
-    if (!delay)
-    {
+    if (!delay) {
         return kStatus_Fail;
     }
 
@@ -115,24 +111,20 @@ status_t PHY_Init(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz)
     /* Start Auto negotiation and wait until auto negotiation completion */
     PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG, (PHY_BCTL_AUTONEG_MASK | PHY_BCTL_RESTART_AUTONEG_MASK));
     delay = PHY_TIMEOUT_COUNT;
-    do
-    {
+    do {
         PHY_Read(base, phyAddr, PHY_SEPCIAL_CONTROL_REG, &reg);
         delay --;
     } while (delay && ((reg & PHY_SPECIALCTL_AUTONEGDONE_MASK) == 0));
 
-    if (!delay)
-    {
+    if (!delay) {
         return kStatus_Fail;
     }
 
     /* Waiting a moment for phy stable. */
-    for (delay = 0; delay < PHY_TIMEOUT_COUNT; delay++)
-    {
+    for (delay = 0; delay < PHY_TIMEOUT_COUNT; delay++) {
         __ASM("nop");
         PHY_GetLinkStatus(base, phyAddr, &status);
-        if (status)
-        {
+        if (status) {
             break;
         }
     }
@@ -152,17 +144,14 @@ status_t PHY_Write(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t 
     ENET_StartSMIWrite(base, phyAddr, phyReg, kENET_MiiWriteValidFrame, data);
 
     /* Wait for SMI complete. */
-    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--)
-    {
-        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK)
-        {
+    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--) {
+        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK) {
             break;
         }
     }
 
     /* Check for timeout. */
-    if (!counter)
-    {
+    if (!counter) {
         return kStatus_PHY_SMIVisitTimeout;
     }
 
@@ -180,7 +169,7 @@ status_t PHY_Write(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t 
 status_t PHY_Read(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t *dataPtr)
 {
 #if defined(FSL_FEATURE_SOC_ENET_COUNT) && (FSL_FEATURE_SOC_ENET_COUNT > 0)
-     assert(dataPtr);
+    assert(dataPtr);
 
     uint32_t counter;
 
@@ -191,17 +180,14 @@ status_t PHY_Read(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t *
     ENET_StartSMIRead(base, phyAddr, phyReg, kENET_MiiReadValidFrame);
 
     /* Wait for MII complete. */
-    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--)
-    {
-        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK)
-        {
+    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--) {
+        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK) {
             break;
         }
     }
 
     /* Check for timeout. */
-    if (!counter)
-    {
+    if (!counter) {
         return kStatus_PHY_SMIVisitTimeout;
     }
 
@@ -216,7 +202,7 @@ status_t PHY_Read(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t *
         ;
     *dataPtr = ENET_ReadSMIData(base);
 #endif
-     return kStatus_Success;
+    return kStatus_Success;
 }
 
 status_t PHY_GetLinkStatus(ENET_Type *base, uint32_t phyAddr, bool *status)
@@ -226,17 +212,13 @@ status_t PHY_GetLinkStatus(ENET_Type *base, uint32_t phyAddr, bool *status)
 
     /* Read the basic status register. */
     result = PHY_Read(base, phyAddr, PHY_BASICSTATUS_REG, &reg);
-    if (result == kStatus_Success)
-    {
-        if (reg & PHY_BSTATUS_LINKSTATUS_MASK)
-        {
+    if (result == kStatus_Success) {
+        if (reg & PHY_BSTATUS_LINKSTATUS_MASK) {
             /* link up. */
             *status = true;
-        }
-        else
-        {
+        } else {
             *status = false;
-        }        
+        }
     }
     return result;
 }
@@ -251,28 +233,22 @@ status_t PHY_GetLinkSpeedDuplex(ENET_Type *base, uint32_t phyAddr, phy_speed_t *
 
     /* Read the control two register. */
     result = PHY_Read(base, phyAddr, PHY_SEPCIAL_CONTROL_REG, &reg);
-    if (result == kStatus_Success)
-    {
-        if (reg & PHY_SPECIALCTL_DUPLEX_MASK)
-        {
+    if (result == kStatus_Success) {
+        if (reg & PHY_SPECIALCTL_DUPLEX_MASK) {
             /* Full duplex. */
             *duplex = kPHY_FullDuplex;
-        }
-        else
-        {
+        } else {
             /* Half duplex. */
             *duplex = kPHY_HalfDuplex;
         }
 
-        if (reg & PHY_SPECIALCTL_100SPEED_MASK)
-        {
+        if (reg & PHY_SPECIALCTL_100SPEED_MASK) {
             /* 100M speed. */
             *speed = kPHY_Speed100M;
-        }
-        else
-        { /* 10M speed. */
+        } else {
+            /* 10M speed. */
             *speed = kPHY_Speed10M;
-        }        
+        }
     }
     return result;
 }

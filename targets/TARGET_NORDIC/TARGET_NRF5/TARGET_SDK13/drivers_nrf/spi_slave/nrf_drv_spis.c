@@ -1,40 +1,40 @@
- /* 
- * Copyright (c) 2013 Nordic Semiconductor ASA
- * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
- *      of conditions and the following disclaimer.
- *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
- *      the documentation and/or other materials provided with the distribution.
- *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
- *      written permission.
- *
- *   4. This software, with or without modification, must only be used with a 
- *      Nordic Semiconductor ASA integrated circuit.
- *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- */
+/*
+* Copyright (c) 2013 Nordic Semiconductor ASA
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without modification,
+* are permitted provided that the following conditions are met:
+*
+*   1. Redistributions of source code must retain the above copyright notice, this list
+*      of conditions and the following disclaimer.
+*
+*   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+*      integrated circuit in a product or a software update for such product, must reproduce
+*      the above copyright notice, this list of conditions and the following disclaimer in
+*      the documentation and/or other materials provided with the distribution.
+*
+*   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+*      used to endorse or promote products derived from this software without specific prior
+*      written permission.
+*
+*   4. This software, with or without modification, must only be used with a
+*      Nordic Semiconductor ASA integrated circuit.
+*
+*   5. Any software provided in binary or object form under this license must not be reverse
+*      engineered, decompiled, modified and/or disassembled.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+*/
 
 #include "sdk_common.h"
 #if NRF_MODULE_ENABLED(SPIS)
@@ -68,8 +68,7 @@
 
 
 /**@brief States of the SPI transaction state machine. */
-typedef enum
-{
+typedef enum {
     SPIS_STATE_INIT,                                 /**< Initialization state. In this state the module waits for a call to @ref spi_slave_buffers_set. */
     SPIS_BUFFER_RESOURCE_REQUESTED,                  /**< State where the configuration of the memory buffers, which are to be used in SPI transaction, has started. */
     SPIS_BUFFER_RESOURCE_CONFIGURED,                 /**< State where the configuration of the memory buffers, which are to be used in SPI transaction, has completed. */
@@ -78,31 +77,31 @@ typedef enum
 
 
 #if NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
-    #define IRQ_HANDLER_NAME(n) irq_handler_for_instance_##n
-    #define IRQ_HANDLER(n)      static void IRQ_HANDLER_NAME(n)(void)
+#define IRQ_HANDLER_NAME(n) irq_handler_for_instance_##n
+#define IRQ_HANDLER(n)      static void IRQ_HANDLER_NAME(n)(void)
 
-    #if NRF_MODULE_ENABLED(SPIS0)
-        IRQ_HANDLER(0);
-    #endif
-    #if NRF_MODULE_ENABLED(SPIS1)
-        IRQ_HANDLER(1);
-    #endif
-    #if NRF_MODULE_ENABLED(SPIS2)
-        IRQ_HANDLER(2);
-    #endif
-    static nrf_drv_irq_handler_t const m_irq_handlers[ENABLED_SPIS_COUNT] = {
-    #if NRF_MODULE_ENABLED(SPIS0)
-        IRQ_HANDLER_NAME(0),
-    #endif
-    #if NRF_MODULE_ENABLED(SPIS1)
-        IRQ_HANDLER_NAME(1),
-    #endif
-    #if NRF_MODULE_ENABLED(SPIS2)
-        IRQ_HANDLER_NAME(2),
-    #endif
-    };
+#if NRF_MODULE_ENABLED(SPIS0)
+IRQ_HANDLER(0);
+#endif
+#if NRF_MODULE_ENABLED(SPIS1)
+IRQ_HANDLER(1);
+#endif
+#if NRF_MODULE_ENABLED(SPIS2)
+IRQ_HANDLER(2);
+#endif
+static nrf_drv_irq_handler_t const m_irq_handlers[ENABLED_SPIS_COUNT] = {
+#if NRF_MODULE_ENABLED(SPIS0)
+    IRQ_HANDLER_NAME(0),
+#endif
+#if NRF_MODULE_ENABLED(SPIS1)
+    IRQ_HANDLER_NAME(1),
+#endif
+#if NRF_MODULE_ENABLED(SPIS2)
+    IRQ_HANDLER_NAME(2),
+#endif
+};
 #else
-    #define IRQ_HANDLER(n) void SPIS##n##_IRQ_HANDLER(void)
+#define IRQ_HANDLER(n) void SPIS##n##_IRQ_HANDLER(void)
 #endif // PERIPHERAL_RESOURCE_SHARING_ENABLED
 
 #define SPIS_IRQHANDLER_TEMPLATE(NUM) \
@@ -113,52 +112,47 @@ typedef enum
 
 
 /**@brief SPIS control block - driver instance local data. */
-typedef struct
-{
+typedef struct {
     volatile uint32_t             tx_buffer_size;  //!< SPI slave TX buffer size in bytes.
     volatile uint32_t             rx_buffer_size;  //!< SPI slave RX buffer size in bytes.
     nrf_drv_spis_event_handler_t  handler;         //!< SPI event handler.
-    volatile const uint8_t *      tx_buffer;       //!< SPI slave TX buffer.
-    volatile uint8_t *            rx_buffer;       //!< SPI slave RX buffer.
+    volatile const uint8_t       *tx_buffer;       //!< SPI slave TX buffer.
+    volatile uint8_t             *rx_buffer;       //!< SPI slave RX buffer.
     nrf_drv_state_t               state;           //!< driver initialization state.
     volatile nrf_drv_spis_state_t spi_state;       //!< SPI slave state.
 } spis_cb_t;
 
 static spis_cb_t m_cb[ENABLED_SPIS_COUNT];
 
-ret_code_t nrf_drv_spis_init(nrf_drv_spis_t const * const  p_instance,
-                             nrf_drv_spis_config_t const * p_config,
+ret_code_t nrf_drv_spis_init(nrf_drv_spis_t const *const  p_instance,
+                             nrf_drv_spis_config_t const *p_config,
                              nrf_drv_spis_event_handler_t  event_handler)
 {
     ASSERT(p_config);
-    spis_cb_t * p_cb = &m_cb[p_instance->instance_id];
+    spis_cb_t *p_cb = &m_cb[p_instance->instance_id];
     ret_code_t err_code;
-    
-    NRF_SPIS_Type * p_spis = p_instance->p_reg;
 
-    if (p_cb->state != NRF_DRV_STATE_UNINITIALIZED)
-    {
+    NRF_SPIS_Type *p_spis = p_instance->p_reg;
+
+    if (p_cb->state != NRF_DRV_STATE_UNINITIALIZED) {
         err_code = NRF_ERROR_INVALID_STATE;
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
         return err_code;
     }
 
-    if ((uint32_t)p_config->mode > (uint32_t)NRF_DRV_SPIS_MODE_3)
-    {
+    if ((uint32_t)p_config->mode > (uint32_t)NRF_DRV_SPIS_MODE_3) {
         err_code = NRF_ERROR_INVALID_PARAM;
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
         return err_code;
     }
-    if (!event_handler)
-    {
+    if (!event_handler) {
         err_code = NRF_ERROR_NULL;
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
         return err_code;
     }
 #if NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
     if (nrf_drv_common_per_res_acquire(p_spis,
-            m_irq_handlers[p_instance->instance_id]) != NRF_SUCCESS)
-    {
+                                       m_irq_handlers[p_instance->instance_id]) != NRF_SUCCESS) {
         err_code = NRF_ERROR_BUSY;
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
         return err_code;
@@ -169,23 +163,19 @@ ret_code_t nrf_drv_spis_init(nrf_drv_spis_t const * const  p_instance,
     uint32_t mosi_pin;
     uint32_t miso_pin;
 
-    if (p_config->miso_pin != NRF_DRV_SPIS_PIN_NOT_USED)
-    {
+    if (p_config->miso_pin != NRF_DRV_SPIS_PIN_NOT_USED) {
         nrf_gpio_cfg(p_config->miso_pin,
-                    NRF_GPIO_PIN_DIR_INPUT,
-                    NRF_GPIO_PIN_INPUT_CONNECT,
-                    NRF_GPIO_PIN_NOPULL,
-                    p_config->miso_drive,
-                    NRF_GPIO_PIN_NOSENSE);
+                     NRF_GPIO_PIN_DIR_INPUT,
+                     NRF_GPIO_PIN_INPUT_CONNECT,
+                     NRF_GPIO_PIN_NOPULL,
+                     p_config->miso_drive,
+                     NRF_GPIO_PIN_NOSENSE);
         miso_pin = p_config->miso_pin;
-    }
-    else
-    {
+    } else {
         miso_pin = NRF_SPIS_PIN_NOT_CONNECTED;
     }
 
-    if (p_config->mosi_pin != NRF_DRV_SPIS_PIN_NOT_USED)
-    {
+    if (p_config->mosi_pin != NRF_DRV_SPIS_PIN_NOT_USED) {
         nrf_gpio_cfg(p_config->mosi_pin,
                      NRF_GPIO_PIN_DIR_INPUT,
                      NRF_GPIO_PIN_INPUT_CONNECT,
@@ -193,9 +183,7 @@ ret_code_t nrf_drv_spis_init(nrf_drv_spis_t const * const  p_instance,
                      NRF_GPIO_PIN_S0S1,
                      NRF_GPIO_PIN_NOSENSE);
         mosi_pin = p_config->mosi_pin;
-    }
-    else
-    {
+    } else {
         mosi_pin = NRF_SPIS_PIN_NOT_CONNECTED;
     }
 
@@ -220,7 +208,7 @@ ret_code_t nrf_drv_spis_init(nrf_drv_spis_t const * const  p_instance,
 
     // Configure SPI mode.
     nrf_spis_configure(p_spis, (nrf_spis_mode_t) p_config->mode,
-                               (nrf_spis_bit_order_t) p_config->bit_order);
+                       (nrf_spis_bit_order_t) p_config->bit_order);
 
     // Configure DEF and ORC characters.
     nrf_spis_def_set(p_spis, p_config->def);
@@ -252,18 +240,18 @@ ret_code_t nrf_drv_spis_init(nrf_drv_spis_t const * const  p_instance,
 }
 
 
-void nrf_drv_spis_uninit(nrf_drv_spis_t const * const  p_instance)
+void nrf_drv_spis_uninit(nrf_drv_spis_t const *const  p_instance)
 {
-    spis_cb_t * p_cb = &m_cb[p_instance->instance_id];
+    spis_cb_t *p_cb = &m_cb[p_instance->instance_id];
     ASSERT(p_cb->state != NRF_DRV_STATE_UNINITIALIZED);
 
-    NRF_SPIS_Type * p_spis = p_instance->p_reg;
+    NRF_SPIS_Type *p_spis = p_instance->p_reg;
 
-    #define DISABLE_ALL 0xFFFFFFFF
+#define DISABLE_ALL 0xFFFFFFFF
     nrf_spis_disable(p_spis);
     nrf_drv_common_irq_disable(p_instance->irq);
     nrf_spis_int_disable(p_spis, DISABLE_ALL);
-    #undef  DISABLE_ALL
+#undef  DISABLE_ALL
 
 #if NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
     nrf_drv_common_per_res_release(p_spis);
@@ -275,13 +263,12 @@ void nrf_drv_spis_uninit(nrf_drv_spis_t const * const  p_instance)
 
 
 /**@brief Function for executing the state entry action. */
-static void spis_state_entry_action_execute(NRF_SPIS_Type * p_spis,
-                                                     spis_cb_t * p_cb)
+static void spis_state_entry_action_execute(NRF_SPIS_Type *p_spis,
+                                            spis_cb_t *p_cb)
 {
     nrf_drv_spis_event_t event;
 
-    switch (p_cb->spi_state)
-    {
+    switch (p_cb->spi_state) {
         case SPIS_BUFFER_RESOURCE_REQUESTED:
             nrf_spis_task_trigger(p_spis, NRF_SPIS_TASK_ACQUIRE);
             break;
@@ -298,7 +285,7 @@ static void spis_state_entry_action_execute(NRF_SPIS_Type * p_spis,
         case SPIS_XFER_COMPLETED:
             event.evt_type  = NRF_DRV_SPIS_XFER_DONE;
             event.rx_amount = nrf_spis_rx_amount_get(p_spis);
-            event.tx_amount = nrf_spis_tx_amount_get(p_spis);            
+            event.tx_amount = nrf_spis_tx_amount_get(p_spis);
             NRF_LOG_INFO("Transfer rx_len:%d.\r\n", event.rx_amount);
             NRF_LOG_DEBUG("Rx data:\r\n");
             NRF_LOG_HEXDUMP_DEBUG((uint8_t *)p_cb->rx_buffer, event.rx_amount * sizeof(p_cb->rx_buffer));
@@ -318,8 +305,8 @@ static void spis_state_entry_action_execute(NRF_SPIS_Type * p_spis,
  * @param[in] p_cb      SPIS instance control block.
  * @param[in] new_state State where the state machine transits to.
  */
-static void spis_state_change(NRF_SPIS_Type * p_spis,
-                              spis_cb_t * p_cb,
+static void spis_state_change(NRF_SPIS_Type *p_spis,
+                              spis_cb_t *p_cb,
                               nrf_drv_spis_state_t new_state)
 {
     p_cb->spi_state = new_state;
@@ -327,13 +314,13 @@ static void spis_state_change(NRF_SPIS_Type * p_spis,
 }
 
 
-ret_code_t nrf_drv_spis_buffers_set(nrf_drv_spis_t const * const  p_instance,
-                                    const uint8_t * p_tx_buffer,
+ret_code_t nrf_drv_spis_buffers_set(nrf_drv_spis_t const *const  p_instance,
+                                    const uint8_t *p_tx_buffer,
                                     uint8_t   tx_buffer_length,
-                                    uint8_t * p_rx_buffer,
+                                    uint8_t *p_rx_buffer,
                                     uint8_t   rx_buffer_length)
 {
-    spis_cb_t * p_cb = &m_cb[p_instance->instance_id];
+    spis_cb_t *p_cb = &m_cb[p_instance->instance_id];
     uint32_t err_code;
 
     VERIFY_PARAM_NOT_NULL(p_rx_buffer);
@@ -342,15 +329,13 @@ ret_code_t nrf_drv_spis_buffers_set(nrf_drv_spis_t const * const  p_instance,
     // EasyDMA requires that transfer buffers are placed in Data RAM region;
     // signal error if they are not.
     if ((p_tx_buffer != NULL && !nrf_drv_is_in_RAM(p_tx_buffer)) ||
-        (p_rx_buffer != NULL && !nrf_drv_is_in_RAM(p_rx_buffer)))
-    {
+            (p_rx_buffer != NULL && !nrf_drv_is_in_RAM(p_rx_buffer))) {
         err_code = NRF_ERROR_INVALID_ADDR;
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n", (uint32_t)__func__, (uint32_t)ERR_TO_STR(err_code));
         return err_code;
     }
 
-    switch (p_cb->spi_state)
-    {
+    switch (p_cb->spi_state) {
         case SPIS_STATE_INIT:
         case SPIS_XFER_COMPLETED:
         case SPIS_BUFFER_RESOURCE_CONFIGURED:
@@ -377,7 +362,7 @@ ret_code_t nrf_drv_spis_buffers_set(nrf_drv_spis_t const * const  p_instance,
     return err_code;
 }
 
-static void spis_irq_handler(NRF_SPIS_Type * p_spis, spis_cb_t * p_cb)
+static void spis_irq_handler(NRF_SPIS_Type *p_spis, spis_cb_t *p_cb)
 {
     // @note: as multiple events can be pending for processing, the correct event processing order
     // is as follows:
@@ -385,13 +370,11 @@ static void spis_irq_handler(NRF_SPIS_Type * p_spis, spis_cb_t * p_cb)
     // - SPI transaction complete event.
 
     // Check for SPI semaphore acquired event.
-    if (nrf_spis_event_check(p_spis, NRF_SPIS_EVENT_ACQUIRED))
-    {
+    if (nrf_spis_event_check(p_spis, NRF_SPIS_EVENT_ACQUIRED)) {
         nrf_spis_event_clear(p_spis, NRF_SPIS_EVENT_ACQUIRED);
         NRF_LOG_DEBUG("SPIS: Event: %s.\r\n", (uint32_t)EVT_TO_STR(NRF_SPIS_EVENT_ACQUIRED));
 
-        switch (p_cb->spi_state)
-        {
+        switch (p_cb->spi_state) {
             case SPIS_BUFFER_RESOURCE_REQUESTED:
                 nrf_spis_tx_buffer_set(p_spis, (uint8_t *)p_cb->tx_buffer, p_cb->tx_buffer_size);
                 nrf_spis_rx_buffer_set(p_spis, (uint8_t *)p_cb->rx_buffer, p_cb->rx_buffer_size);
@@ -408,13 +391,11 @@ static void spis_irq_handler(NRF_SPIS_Type * p_spis, spis_cb_t * p_cb)
     }
 
     // Check for SPI transaction complete event.
-    if (nrf_spis_event_check(p_spis, NRF_SPIS_EVENT_END))
-    {
+    if (nrf_spis_event_check(p_spis, NRF_SPIS_EVENT_END)) {
         nrf_spis_event_clear(p_spis, NRF_SPIS_EVENT_END);
         NRF_LOG_DEBUG("SPIS: Event: %s.\r\n", (uint32_t)EVT_TO_STR(NRF_SPIS_EVENT_END));
 
-        switch (p_cb->spi_state)
-        {
+        switch (p_cb->spi_state) {
             case SPIS_BUFFER_RESOURCE_CONFIGURED:
                 spis_state_change(p_spis, p_cb, SPIS_XFER_COMPLETED);
                 break;
@@ -427,15 +408,15 @@ static void spis_irq_handler(NRF_SPIS_Type * p_spis, spis_cb_t * p_cb)
 }
 
 #if NRF_MODULE_ENABLED(SPIS0)
-    SPIS_IRQHANDLER_TEMPLATE(0)
+SPIS_IRQHANDLER_TEMPLATE(0)
 #endif
 
 #if NRF_MODULE_ENABLED(SPIS1)
-    SPIS_IRQHANDLER_TEMPLATE(1)
+SPIS_IRQHANDLER_TEMPLATE(1)
 #endif
 
 #if NRF_MODULE_ENABLED(SPIS2)
-    SPIS_IRQHANDLER_TEMPLATE(2)
+SPIS_IRQHANDLER_TEMPLATE(2)
 #endif
 
 #endif // SPI_COUNT > 0

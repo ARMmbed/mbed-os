@@ -56,7 +56,7 @@ public:
      */
     int deinit();
 
-    /** Read data from a flash device. 
+    /** Read data from a flash device.
      *
      *  This method invokes memcpy - reads number of bytes from the address
      *
@@ -90,7 +90,7 @@ public:
 
     /** Get the sector size at the defined address
      *
-     *  Sector size might differ at address ranges. 
+     *  Sector size might differ at address ranges.
      *  An example <0-0x1000, sector size=1024; 0x10000-0x20000, size=2048>
      *
      *  @param addr Address of or inside the sector to query
@@ -98,15 +98,15 @@ public:
      */
     uint32_t get_sector_size(uint32_t addr) const;
 
-    /** Get the flash start address 
+    /** Get the flash start address
      *
-     *  @return Flash start address 
+     *  @return Flash start address
      */
     uint32_t get_flash_start() const;
 
     /** Get the flash size
      *
-     *  @return Flash size 
+     *  @return Flash size
      */
     uint32_t get_flash_size() const;
 

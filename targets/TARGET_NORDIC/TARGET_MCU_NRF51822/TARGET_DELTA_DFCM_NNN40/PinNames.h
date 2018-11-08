@@ -144,8 +144,8 @@ typedef enum {
     FLASH_SPICS   = 28,
     FLASH_SPICLK  = 11,
     // Not connected
-    CTS_PIN_NUMBER= NC,
-    RTS_PIN_NUMBER= NC,
+    CTS_PIN_NUMBER = NC,
+    RTS_PIN_NUMBER = NC,
     SPI_PSELMOSI1 = NC,
     SPI_PSELMISO1 = NC,
     SPI_PSELSS1   = NC,

@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -63,8 +63,7 @@
 /**
  * @brief Resolution of the analog-to-digital converter.
  */
-typedef enum
-{
+typedef enum {
     NRF_SAADC_RESOLUTION_8BIT  = SAADC_RESOLUTION_VAL_8bit,  ///< 8 bit resolution.
     NRF_SAADC_RESOLUTION_10BIT = SAADC_RESOLUTION_VAL_10bit, ///< 10 bit resolution.
     NRF_SAADC_RESOLUTION_12BIT = SAADC_RESOLUTION_VAL_12bit, ///< 12 bit resolution.
@@ -75,8 +74,7 @@ typedef enum
 /**
  * @brief Input selection for the analog-to-digital converter.
  */
-typedef enum
-{
+typedef enum {
     NRF_SAADC_INPUT_DISABLED = SAADC_CH_PSELP_PSELP_NC,           ///< Not connected.
     NRF_SAADC_INPUT_AIN0     = SAADC_CH_PSELP_PSELP_AnalogInput0, ///< Analog input 0 (AIN0).
     NRF_SAADC_INPUT_AIN1     = SAADC_CH_PSELP_PSELP_AnalogInput1, ///< Analog input 1 (AIN1).
@@ -93,8 +91,7 @@ typedef enum
 /**
  * @brief Analog-to-digital converter oversampling mode.
  */
-typedef enum
-{
+typedef enum {
     NRF_SAADC_OVERSAMPLE_DISABLED = SAADC_OVERSAMPLE_OVERSAMPLE_Bypass,   ///< No oversampling.
     NRF_SAADC_OVERSAMPLE_2X       = SAADC_OVERSAMPLE_OVERSAMPLE_Over2x,   ///< Oversample 2x.
     NRF_SAADC_OVERSAMPLE_4X       = SAADC_OVERSAMPLE_OVERSAMPLE_Over4x,   ///< Oversample 4x.
@@ -110,8 +107,7 @@ typedef enum
 /**
  * @brief Analog-to-digital converter channel resistor control.
  */
-typedef enum
-{
+typedef enum {
     NRF_SAADC_RESISTOR_DISABLED = SAADC_CH_CONFIG_RESP_Bypass,   ///< Bypass resistor ladder.
     NRF_SAADC_RESISTOR_PULLDOWN = SAADC_CH_CONFIG_RESP_Pulldown, ///< Pull-down to GND.
     NRF_SAADC_RESISTOR_PULLUP   = SAADC_CH_CONFIG_RESP_Pullup,   ///< Pull-up to VDD.
@@ -122,8 +118,7 @@ typedef enum
 /**
  * @brief Gain factor of the analog-to-digital converter input.
  */
-typedef enum
-{
+typedef enum {
     NRF_SAADC_GAIN1_6 = SAADC_CH_CONFIG_GAIN_Gain1_6, ///< Gain factor 1/6.
     NRF_SAADC_GAIN1_5 = SAADC_CH_CONFIG_GAIN_Gain1_5, ///< Gain factor 1/5.
     NRF_SAADC_GAIN1_4 = SAADC_CH_CONFIG_GAIN_Gain1_4, ///< Gain factor 1/4.
@@ -138,8 +133,7 @@ typedef enum
 /**
  * @brief Reference selection for the analog-to-digital converter.
  */
-typedef enum
-{
+typedef enum {
     NRF_SAADC_REFERENCE_INTERNAL = SAADC_CH_CONFIG_REFSEL_Internal, ///< Internal reference (0.6 V).
     NRF_SAADC_REFERENCE_VDD4     = SAADC_CH_CONFIG_REFSEL_VDD1_4    ///< VDD/4 as reference.
 } nrf_saadc_reference_t;
@@ -148,8 +142,7 @@ typedef enum
 /**
  * @brief Analog-to-digital converter acquisition time.
  */
-typedef enum
-{
+typedef enum {
     NRF_SAADC_ACQTIME_3US  = SAADC_CH_CONFIG_TACQ_3us,  ///< 3 us.
     NRF_SAADC_ACQTIME_5US  = SAADC_CH_CONFIG_TACQ_5us,  ///< 5 us.
     NRF_SAADC_ACQTIME_10US = SAADC_CH_CONFIG_TACQ_10us, ///< 10 us.
@@ -162,8 +155,7 @@ typedef enum
 /**
  * @brief Analog-to-digital converter channel mode.
  */
-typedef enum
-{
+typedef enum {
     NRF_SAADC_MODE_SINGLE_ENDED = SAADC_CH_CONFIG_MODE_SE,  ///< Single ended, PSELN will be ignored, negative input to ADC shorted to GND.
     NRF_SAADC_MODE_DIFFERENTIAL = SAADC_CH_CONFIG_MODE_Diff ///< Differential mode.
 } nrf_saadc_mode_t;
@@ -212,8 +204,7 @@ typedef enum /*lint -save -e30 -esym(628,__INTADDR__) */
 /**
  * @brief Analog-to-digital converter interrupt masks.
  */
-typedef enum
-{
+typedef enum {
     NRF_SAADC_INT_STARTED   = SAADC_INTENSET_STARTED_Msk,   ///< Interrupt on EVENTS_STARTED event.
     NRF_SAADC_INT_END       = SAADC_INTENSET_END_Msk,       ///< Interrupt on EVENTS_END event.
     NRF_SAADC_INT_STOPPED   = SAADC_INTENSET_STOPPED_Msk,   ///< Interrupt on EVENTS_STOPPED event.
@@ -240,8 +231,7 @@ typedef enum
 /**
  * @brief Analog-to-digital converter value limit type.
  */
-typedef enum
-{
+typedef enum {
     NRF_SAADC_LIMIT_LOW  = 0,
     NRF_SAADC_LIMIT_HIGH = 1
 } nrf_saadc_limit_t;
@@ -253,11 +243,10 @@ typedef int16_t nrf_saadc_value_t;  ///< Type of a single ADC conversion result.
 /**
  * @brief Analog-to-digital converter configuration structure.
  */
-typedef struct
-{
+typedef struct {
     nrf_saadc_resolution_t resolution;
     nrf_saadc_oversample_t oversample;
-    nrf_saadc_value_t *    buffer;
+    nrf_saadc_value_t     *buffer;
     uint32_t               buffer_size;
 } nrf_saadc_config_t;
 
@@ -265,8 +254,7 @@ typedef struct
 /**
  * @brief Analog-to-digital converter channel configuration structure.
  */
-typedef struct
-{
+typedef struct {
     nrf_saadc_resistor_t  resistor_p;
     nrf_saadc_resistor_t  resistor_n;
     nrf_saadc_gain_t      gain;
@@ -311,7 +299,7 @@ __STATIC_INLINE uint32_t nrf_saadc_task_address_get(nrf_saadc_task_t saadc_task)
  */
 __STATIC_INLINE bool nrf_saadc_event_check(nrf_saadc_event_t saadc_event)
 {
-    return (bool)*(volatile uint32_t *)((uint8_t *)NRF_SAADC + (uint32_t)saadc_event);
+    return (bool) * (volatile uint32_t *)((uint8_t *)NRF_SAADC + (uint32_t)saadc_event);
 }
 
 
@@ -333,7 +321,7 @@ __STATIC_INLINE void nrf_saadc_event_clear(nrf_saadc_event_t saadc_event)
  *
  * @return Address of the specified SAADC event.
  */
-__STATIC_INLINE volatile uint32_t * nrf_saadc_event_address_get(nrf_saadc_event_t saadc_event)
+__STATIC_INLINE volatile uint32_t *nrf_saadc_event_address_get(nrf_saadc_event_t saadc_event)
 {
     return (volatile uint32_t *)((uint8_t *)NRF_SAADC + (uint32_t)saadc_event);
 }
@@ -347,15 +335,12 @@ __STATIC_INLINE volatile uint32_t * nrf_saadc_event_address_get(nrf_saadc_event_
  *
  * @return Address of the specified SAADC limit event.
  */
-__STATIC_INLINE volatile uint32_t * nrf_saadc_event_limit_address_get(uint8_t channel, nrf_saadc_limit_t limit_type)
+__STATIC_INLINE volatile uint32_t *nrf_saadc_event_limit_address_get(uint8_t channel, nrf_saadc_limit_t limit_type)
 {
     ASSERT(channel < NRF_SAADC_CHANNEL_COUNT);
-    if (limit_type == NRF_SAADC_LIMIT_HIGH)
-    {
+    if (limit_type == NRF_SAADC_LIMIT_HIGH) {
         return &NRF_SAADC->EVENTS_CH[channel].LIMITH;
-    }
-    else
-    {
+    } else {
         return &NRF_SAADC->EVENTS_CH[channel].LIMITL;
     }
 }
@@ -369,17 +354,14 @@ __STATIC_INLINE volatile uint32_t * nrf_saadc_event_limit_address_get(uint8_t ch
  */
 __STATIC_INLINE nrf_saadc_event_t nrf_saadc_event_limit_get(uint8_t channel, nrf_saadc_limit_t limit_type)
 {
-    if (limit_type == NRF_SAADC_LIMIT_HIGH)
-    {
-        return (nrf_saadc_event_t)( (uint32_t) NRF_SAADC_EVENT_CH0_LIMITH + 
-                        (uint32_t) (NRF_SAADC_EVENT_CH1_LIMITH - NRF_SAADC_EVENT_CH0_LIMITH)
-                        * (uint32_t) channel );
-    }
-    else
-    {
-        return (nrf_saadc_event_t)( (uint32_t) NRF_SAADC_EVENT_CH0_LIMITL + 
-                        (uint32_t) (NRF_SAADC_EVENT_CH1_LIMITL - NRF_SAADC_EVENT_CH0_LIMITL)
-                        * (uint32_t) channel );
+    if (limit_type == NRF_SAADC_LIMIT_HIGH) {
+        return (nrf_saadc_event_t)((uint32_t) NRF_SAADC_EVENT_CH0_LIMITH +
+                                   (uint32_t)(NRF_SAADC_EVENT_CH1_LIMITH - NRF_SAADC_EVENT_CH0_LIMITH)
+                                   * (uint32_t) channel);
+    } else {
+        return (nrf_saadc_event_t)((uint32_t) NRF_SAADC_EVENT_CH0_LIMITL +
+                                   (uint32_t)(NRF_SAADC_EVENT_CH1_LIMITL - NRF_SAADC_EVENT_CH0_LIMITL)
+                                   * (uint32_t) channel);
     }
 }
 
@@ -410,8 +392,8 @@ __STATIC_INLINE void nrf_saadc_channel_input_set(uint8_t channel,
 __STATIC_INLINE void nrf_saadc_channel_limits_set(uint8_t channel, int16_t low, int16_t high)
 {
     NRF_SAADC->CH[channel].LIMIT = (
-            (((uint32_t) low << SAADC_CH_LIMIT_LOW_Pos) & SAADC_CH_LIMIT_LOW_Msk)
-          | (((uint32_t) high << SAADC_CH_LIMIT_HIGH_Pos) & SAADC_CH_LIMIT_HIGH_Msk));
+                                       (((uint32_t) low << SAADC_CH_LIMIT_LOW_Pos) & SAADC_CH_LIMIT_LOW_Msk)
+                                       | (((uint32_t) high << SAADC_CH_LIMIT_HIGH_Pos) & SAADC_CH_LIMIT_HIGH_Msk));
 }
 
 
@@ -453,7 +435,7 @@ __STATIC_INLINE void nrf_saadc_int_disable(uint32_t saadc_int_mask)
 
 /**
  * @brief Function for generating masks for SAADC channel limit interrupts.
- * 
+ *
  * @param[in] channel    SAADC channel number.
  * @param[in] limit_type Limit type.
  *
@@ -522,7 +504,7 @@ __STATIC_INLINE bool nrf_saadc_enable_check(void)
  * @param[in] buffer Pointer to the result buffer.
  * @param[in] num    Size of buffer in words.
  */
-__STATIC_INLINE void nrf_saadc_buffer_init(nrf_saadc_value_t * buffer, uint32_t num)
+__STATIC_INLINE void nrf_saadc_buffer_init(nrf_saadc_value_t *buffer, uint32_t num)
 {
     NRF_SAADC->RESULT.PTR = (uint32_t)buffer;
     NRF_SAADC->RESULT.MAXCNT = num;
@@ -541,7 +523,7 @@ __STATIC_INLINE uint16_t nrf_saadc_amount_get(void)
 
 /**
  * @brief Function for setting the SAADC sample resolution.
- * 
+ *
  * @param[in] resolution Bit resolution.
  */
 __STATIC_INLINE void nrf_saadc_resolution_set(nrf_saadc_resolution_t resolution)
@@ -576,12 +558,12 @@ __STATIC_INLINE nrf_saadc_oversample_t nrf_saadc_oversample_get(void)
  * @param[in] channel Channel number.
  * @param[in] config  Pointer to the channel configuration structure.
  */
-void nrf_saadc_channel_init(uint8_t channel, nrf_saadc_channel_config_t const * const config);
+void nrf_saadc_channel_init(uint8_t channel, nrf_saadc_channel_config_t const *const config);
 
 /**
  *@}
  **/
- 
+
 #endif //  NRF52
 
 #endif /* NRF_SAADC_H_ */

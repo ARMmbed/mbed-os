@@ -19,17 +19,17 @@
    algorithm 3 version of lwip_standard_chksum in lwIP's inet_chksum.c.  It
    performs the checksumming 32-bits at a time and even unrolls the loop to
    perform two of these 32-bit adds per loop iteration.
-   
+
    Returns:
         16-bit 1's complement summation (not inversed).
-        
+
    NOTE: This function does return a uint16_t from the assembly language code
          but is marked as void so that GCC doesn't issue warning because it
          doesn't know about this low level return.
 */
-__attribute__((naked)) void /*uint16_t*/ thumb2_checksum(const void* pData, int length)
+__attribute__((naked)) void /*uint16_t*/ thumb2_checksum(const void *pData, int length)
 {
-    __asm (
+    __asm(
         ".syntax unified\n"
         ".thumb\n"
 

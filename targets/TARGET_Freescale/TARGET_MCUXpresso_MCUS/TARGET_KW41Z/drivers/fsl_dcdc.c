@@ -57,10 +57,8 @@ static uint32_t DCDC_GetInstance(DCDC_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_DCDC_COUNT; instance++)
-    {
-        if (s_dcdcBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_DCDC_COUNT; instance++) {
+        if (s_dcdcBases[instance] == base) {
             break;
         }
     }
@@ -87,18 +85,15 @@ uint32_t DCDC_GetStatusFlags(DCDC_Type *base)
     uint32_t tmp32 = 0U;
 
     /* kDCDC_LockedOKStatus. */
-    if (0U != (DCDC_REG0_DCDC_STS_DC_OK_MASK & base->REG0))
-    {
+    if (0U != (DCDC_REG0_DCDC_STS_DC_OK_MASK & base->REG0)) {
         tmp32 |= kDCDC_LockedOKStatus;
     }
     /* kDCDC_PSwitchStatus. */
-    if (0U != (DCDC_REG0_PSWITCH_STATUS_MASK & base->REG0))
-    {
+    if (0U != (DCDC_REG0_PSWITCH_STATUS_MASK & base->REG0)) {
         tmp32 |= kDCDC_PSwitchStatus;
     }
     /* kDCDC_PSwitchInterruptStatus. */
-    if (0U != (DCDC_REG6_PSWITCH_INT_STS_MASK & base->REG6))
-    {
+    if (0U != (DCDC_REG6_PSWITCH_INT_STS_MASK & base->REG6)) {
         tmp32 |= kDCDC_PSwitchInterruptStatus;
     }
 
@@ -107,8 +102,7 @@ uint32_t DCDC_GetStatusFlags(DCDC_Type *base)
 
 void DCDC_ClearStatusFlags(DCDC_Type *base, uint32_t mask) /* Clear flags indicated by mask. */
 {
-    if (0U != (kDCDC_PSwitchInterruptStatus & mask))
-    {
+    if (0U != (kDCDC_PSwitchInterruptStatus & mask)) {
         /* Write 1 to clear interrupt. Set to 0 after clear. */
         base->REG6 |= DCDC_REG6_PSWITCH_INT_CLEAR_MASK;
         base->REG6 &= ~DCDC_REG6_PSWITCH_INT_CLEAR_MASK;
@@ -150,28 +144,22 @@ void DCDC_SetLowPowerConfig(DCDC_Type *base, const dcdc_low_power_config_t *conf
           DCDC_REG0_OFFSET_RSNS_LP_DISABLE_MASK | DCDC_REG0_OFFSET_RSNS_LP_ADJ_MASK |
           DCDC_REG0_HYST_LP_CMP_DISABLE_MASK | DCDC_REG0_HYST_LP_COMP_ADJ_MASK | DCDC_REG0_DCDC_LP_STATE_HYS_H_MASK |
           DCDC_REG0_DCDC_LP_STATE_HYS_L_MASK | DCDC_REG0_DCDC_LP_DF_CMP_ENABLE_MASK);
-    if (kDCDC_WorkInContinuousMode == config->workModeInVLPRW)
-    {
+    if (kDCDC_WorkInContinuousMode == config->workModeInVLPRW) {
         tmp32 |= DCDC_REG0_VLPR_VLPW_CONFIG_DCDC_HP_MASK;
     }
-    if (kDCDC_WorkInContinuousMode == config->workModeInVLPS)
-    {
+    if (kDCDC_WorkInContinuousMode == config->workModeInVLPS) {
         tmp32 |= DCDC_REG0_VLPS_CONFIG_DCDC_HP_MASK;
     }
-    if (!config->enableHysteresisVoltageSense)
-    {
+    if (!config->enableHysteresisVoltageSense) {
         tmp32 |= DCDC_REG0_OFFSET_RSNS_LP_DISABLE_MASK;
     }
-    if (config->enableAdjustHystereticValueSense)
-    {
+    if (config->enableAdjustHystereticValueSense) {
         tmp32 |= DCDC_REG0_OFFSET_RSNS_LP_ADJ_MASK;
     }
-    if (!config->enableHystersisComparator)
-    {
+    if (!config->enableHystersisComparator) {
         tmp32 |= DCDC_REG0_HYST_LP_CMP_DISABLE_MASK;
     }
-    if (config->enableAdjustHystereticValueComparator)
-    {
+    if (config->enableAdjustHystereticValueComparator) {
         tmp32 |= DCDC_REG0_HYST_LP_COMP_ADJ_MASK;
     }
     tmp32 |= DCDC_REG0_DCDC_LP_STATE_HYS_H(config->hystereticUpperThresholdValue) |
@@ -181,8 +169,7 @@ void DCDC_SetLowPowerConfig(DCDC_Type *base, const dcdc_low_power_config_t *conf
      * false - DCDC compare the common mode sense of supply(relative to target value) with DCDC_LP_STATE_HYS_L. When it
      *         is lower than DCDC_LP_STATE_HYS_L, re-charge output.
      */
-    if (config->enableDiffComparators)
-    {
+    if (config->enableDiffComparators) {
         tmp32 |= DCDC_REG0_DCDC_LP_DF_CMP_ENABLE_MASK;
     }
 
@@ -208,31 +195,24 @@ void DCDC_SetLoopControlConfig(DCDC_Type *base, const dcdc_loop_control_config_t
     tmp32 = base->REG1 &
             ~(DCDC_REG1_DCDC_LOOPCTRL_EN_DF_HYST_MASK | DCDC_REG1_DCDC_LOOPCTRL_EN_CM_HYST_MASK |
               DCDC_REG1_DCDC_LOOPCTRL_DF_HST_THRESH_MASK | DCDC_REG1_DCDC_LOOPCTRL_CM_HST_THRESH_MASK);
-    if (config->enableDiffHysteresis)
-    {
+    if (config->enableDiffHysteresis) {
         tmp32 |= DCDC_REG1_DCDC_LOOPCTRL_EN_DF_HYST_MASK;
     }
-    if (config->enableCommonHysteresis)
-    {
+    if (config->enableCommonHysteresis) {
         tmp32 |= DCDC_REG1_DCDC_LOOPCTRL_EN_CM_HYST_MASK;
     }
-    if (config->enableDiffHysteresisThresh)
-    {
+    if (config->enableDiffHysteresisThresh) {
         tmp32 |= DCDC_REG1_DCDC_LOOPCTRL_DF_HST_THRESH_MASK;
     }
-    if (config->enableCommonHysteresisThresh)
-    {
+    if (config->enableCommonHysteresisThresh) {
         tmp32 |= DCDC_REG1_DCDC_LOOPCTRL_CM_HST_THRESH_MASK;
     }
     base->REG1 = tmp32;
 
     /* DCDC_REG2. */
-    if (config->enableInvertHysteresisSign)
-    {
+    if (config->enableInvertHysteresisSign) {
         base->REG2 |= DCDC_REG2_DCDC_LOOPCTRL_HYST_SIGN_MASK;
-    }
-    else
-    {
+    } else {
         base->REG2 &= ~DCDC_REG2_DCDC_LOOPCTRL_HYST_SIGN_MASK;
     }
 }
@@ -244,8 +224,7 @@ void DCDC_SetClockSource(DCDC_Type *base, dcdc_clock_source_t clockSource)
     tmp32 =
         base->REG0 &
         ~(DCDC_REG0_DCDC_PWD_OSC_INT_MASK | DCDC_REG0_DCDC_SEL_CLK_MASK | DCDC_REG0_DCDC_DISABLE_AUTO_CLK_SWITCH_MASK);
-    switch (clockSource)
-    {
+    switch (clockSource) {
         case kDCDC_ClockInternalOsc:
             tmp32 |= DCDC_REG0_DCDC_DISABLE_AUTO_CLK_SWITCH_MASK;
             break;
@@ -276,8 +255,7 @@ void DCDC_AdjustTargetVoltage(DCDC_Type *base, uint32_t vdd1p45Boost, uint32_t v
 
     /* DCDC_STS_DC_OK bit will be de-asserted after target register changes. After output voltage settling to new
      * target value, DCDC_STS_DC_OK will be asserted. */
-    while (0U != (DCDC_REG0_DCDC_STS_DC_OK_MASK & base->REG0))
-    {
+    while (0U != (DCDC_REG0_DCDC_STS_DC_OK_MASK & base->REG0)) {
     }
 }
 
@@ -287,8 +265,7 @@ void DCDC_SetBatteryMonitorValue(DCDC_Type *base, uint32_t battValue)
 
     /* Disable the monitor before setting the new value */
     base->REG2 &= ~DCDC_REG2_DCDC_BATTMONITOR_EN_BATADJ_MASK;
-    if (0U != battValue)
-    {
+    if (0U != battValue) {
         tmp32 = base->REG2 & ~DCDC_REG2_DCDC_BATTMONITOR_BATT_VAL_MASK;
         /* Enable the monitor with setting value. */
         tmp32 |= (DCDC_REG2_DCDC_BATTMONITOR_EN_BATADJ_MASK | DCDC_REG2_DCDC_BATTMONITOR_BATT_VAL(battValue));
@@ -304,29 +281,23 @@ void DCDC_SetMinPowerConfig(DCDC_Type *base, const dcdc_min_power_config_t *conf
                        DCDC_REG3_DCDC_MINPWR_DOUBLE_FETS_PULSED_MASK | DCDC_REG3_DCDC_MINPWR_DC_HALFCLK_PULSED_MASK);
 
     /* For Continuous mode. */
-    if (config->enableUseHalfFetForContinuous)
-    {
+    if (config->enableUseHalfFetForContinuous) {
         tmp32 |= DCDC_REG3_DCDC_MINPWR_HALF_FETS_MASK;
     }
-    if (config->enableUseDoubleFetForContinuous)
-    {
+    if (config->enableUseDoubleFetForContinuous) {
         tmp32 |= DCDC_REG3_DCDC_MINPWR_DOUBLE_FETS_MASK;
     }
-    if (config->enableUseHalfFreqForContinuous)
-    {
+    if (config->enableUseHalfFreqForContinuous) {
         tmp32 |= DCDC_REG3_DCDC_MINPWR_DC_HALFCLK_MASK;
     }
     /* For Pulsed mode. */
-    if (config->enableUseHalfFetForPulsed)
-    {
+    if (config->enableUseHalfFetForPulsed) {
         tmp32 |= DCDC_REG3_DCDC_MINPWR_HALF_FETS_PULSED_MASK;
     }
-    if (config->enableUseDoubleFetForPulsed)
-    {
+    if (config->enableUseDoubleFetForPulsed) {
         tmp32 |= DCDC_REG3_DCDC_MINPWR_DOUBLE_FETS_PULSED_MASK;
     }
-    if (config->enableUseHalfFreqForPulsed)
-    {
+    if (config->enableUseHalfFreqForPulsed) {
         tmp32 |= DCDC_REG3_DCDC_MINPWR_DC_HALFCLK_PULSED_MASK;
     }
     base->REG3 = tmp32;
@@ -348,17 +319,13 @@ void DCDC_GetDefaultMinPowerDefault(dcdc_min_power_config_t *config)
 
 void DCDC_SetPulsedIntegratorConfig(DCDC_Type *base, const dcdc_pulsed_integrator_config_t *config)
 {
-    if (config->enableUseUserIntegratorValue) /* Enable to use the user integrator value. */
-    {
+    if (config->enableUseUserIntegratorValue) { /* Enable to use the user integrator value. */
         base->REG7 = (base->REG7 & ~DCDC_REG7_INTEGRATOR_VALUE_MASK) | DCDC_REG7_INTEGRATOR_VALUE_SEL_MASK |
                      DCDC_REG7_INTEGRATOR_VALUE(config->userIntegratorValue);
-        if (config->enablePulseRunSpeedup)
-        {
+        if (config->enablePulseRunSpeedup) {
             base->REG7 |= DCDC_REG7_PULSE_RUN_SPEEDUP_MASK;
         }
-    }
-    else
-    {
+    } else {
         base->REG7 = 0U;
     }
 }

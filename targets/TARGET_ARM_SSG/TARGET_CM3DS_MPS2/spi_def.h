@@ -107,11 +107,11 @@
 #define EERDSR_BP1          0x0008      // Block protect 1
 #define EERDSR_WPEN         0x0080      // Write protect enable
 
- /* ----------------------------------------------------------------
- *
- *            Color LCD Support
- *            =================
- */
+/* ----------------------------------------------------------------
+*
+*            Color LCD Support
+*            =================
+*/
 
 // Color LCD Controller Internal Register addresses
 #define LSSPCS_BASE          (0x4002804C)  // LSSP chip select register

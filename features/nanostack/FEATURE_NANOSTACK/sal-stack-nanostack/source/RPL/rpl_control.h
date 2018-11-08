@@ -38,8 +38,7 @@ typedef enum rpl_event {
 
 typedef void rpl_domain_callback_t(rpl_event_t event, void *handle);
 
-typedef struct rpl_domain
-{
+typedef struct rpl_domain {
     NS_LIST_HEAD_INCOMPLETE(struct rpl_instance) instances;
     ns_list_link_t link;
     /* For non-storing mode, we have to assume a "downstream" interface -
@@ -54,10 +53,9 @@ typedef struct rpl_domain
 } rpl_domain_t;
 
 /* Configuration parameters for a DODAG, obtained through DIO DODAG Configuration options */
-typedef struct rpl_dodag_conf
-{
-    bool authentication:1;
-    unsigned path_control_size:3;
+typedef struct rpl_dodag_conf {
+    bool authentication: 1;
+    unsigned path_control_size: 3;
     uint8_t dio_interval_min;               /* log2 milliseconds */
     uint8_t dio_interval_doublings;
     uint8_t dio_redundancy_constant;
@@ -76,8 +74,7 @@ typedef struct rpl_dodag_conf
  * routing table, which has per-parent information including parent preferences,
  * reachability/probing info, etc.
  */
-typedef struct rpl_dio_route
-{
+typedef struct rpl_dio_route {
     uint32_t lifetime;                              /* Lifetime in seconds */
     ns_list_link_t link;
     bool age;                                       /* Do we age the lifetime? */

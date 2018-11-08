@@ -62,121 +62,121 @@ extern "C" {
 
 /** Protocol related stats */
 struct stats_proto {
-  STAT_COUNTER xmit;             /* Transmitted packets. */
-  STAT_COUNTER recv;             /* Received packets. */
-  STAT_COUNTER fw;               /* Forwarded packets. */
-  STAT_COUNTER drop;             /* Dropped packets. */
-  STAT_COUNTER chkerr;           /* Checksum error. */
-  STAT_COUNTER lenerr;           /* Invalid length error. */
-  STAT_COUNTER memerr;           /* Out of memory error. */
-  STAT_COUNTER rterr;            /* Routing error. */
-  STAT_COUNTER proterr;          /* Protocol error. */
-  STAT_COUNTER opterr;           /* Error in options. */
-  STAT_COUNTER err;              /* Misc error. */
-  STAT_COUNTER cachehit;
+    STAT_COUNTER xmit;             /* Transmitted packets. */
+    STAT_COUNTER recv;             /* Received packets. */
+    STAT_COUNTER fw;               /* Forwarded packets. */
+    STAT_COUNTER drop;             /* Dropped packets. */
+    STAT_COUNTER chkerr;           /* Checksum error. */
+    STAT_COUNTER lenerr;           /* Invalid length error. */
+    STAT_COUNTER memerr;           /* Out of memory error. */
+    STAT_COUNTER rterr;            /* Routing error. */
+    STAT_COUNTER proterr;          /* Protocol error. */
+    STAT_COUNTER opterr;           /* Error in options. */
+    STAT_COUNTER err;              /* Misc error. */
+    STAT_COUNTER cachehit;
 };
 
 /** IGMP stats */
 struct stats_igmp {
-  STAT_COUNTER xmit;             /* Transmitted packets. */
-  STAT_COUNTER recv;             /* Received packets. */
-  STAT_COUNTER drop;             /* Dropped packets. */
-  STAT_COUNTER chkerr;           /* Checksum error. */
-  STAT_COUNTER lenerr;           /* Invalid length error. */
-  STAT_COUNTER memerr;           /* Out of memory error. */
-  STAT_COUNTER proterr;          /* Protocol error. */
-  STAT_COUNTER rx_v1;            /* Received v1 frames. */
-  STAT_COUNTER rx_group;         /* Received group-specific queries. */
-  STAT_COUNTER rx_general;       /* Received general queries. */
-  STAT_COUNTER rx_report;        /* Received reports. */
-  STAT_COUNTER tx_join;          /* Sent joins. */
-  STAT_COUNTER tx_leave;         /* Sent leaves. */
-  STAT_COUNTER tx_report;        /* Sent reports. */
+    STAT_COUNTER xmit;             /* Transmitted packets. */
+    STAT_COUNTER recv;             /* Received packets. */
+    STAT_COUNTER drop;             /* Dropped packets. */
+    STAT_COUNTER chkerr;           /* Checksum error. */
+    STAT_COUNTER lenerr;           /* Invalid length error. */
+    STAT_COUNTER memerr;           /* Out of memory error. */
+    STAT_COUNTER proterr;          /* Protocol error. */
+    STAT_COUNTER rx_v1;            /* Received v1 frames. */
+    STAT_COUNTER rx_group;         /* Received group-specific queries. */
+    STAT_COUNTER rx_general;       /* Received general queries. */
+    STAT_COUNTER rx_report;        /* Received reports. */
+    STAT_COUNTER tx_join;          /* Sent joins. */
+    STAT_COUNTER tx_leave;         /* Sent leaves. */
+    STAT_COUNTER tx_report;        /* Sent reports. */
 };
 
 /** Memory stats */
 struct stats_mem {
 #if defined(LWIP_DEBUG) || LWIP_STATS_DISPLAY
-  const char *name;
+    const char *name;
 #endif /* defined(LWIP_DEBUG) || LWIP_STATS_DISPLAY */
-  STAT_COUNTER err;
-  mem_size_t avail;
-  mem_size_t used;
-  mem_size_t max;
-  STAT_COUNTER illegal;
+    STAT_COUNTER err;
+    mem_size_t avail;
+    mem_size_t used;
+    mem_size_t max;
+    STAT_COUNTER illegal;
 };
 
 /** System element stats */
 struct stats_syselem {
-  STAT_COUNTER used;
-  STAT_COUNTER max;
-  STAT_COUNTER err;
+    STAT_COUNTER used;
+    STAT_COUNTER max;
+    STAT_COUNTER err;
 };
 
 /** System stats */
 struct stats_sys {
-  struct stats_syselem sem;
-  struct stats_syselem mutex;
-  struct stats_syselem mbox;
+    struct stats_syselem sem;
+    struct stats_syselem mutex;
+    struct stats_syselem mbox;
 };
 
 /** SNMP MIB2 stats */
 struct stats_mib2 {
-  /* IP */
-  u32_t ipinhdrerrors;
-  u32_t ipinaddrerrors;
-  u32_t ipinunknownprotos;
-  u32_t ipindiscards;
-  u32_t ipindelivers;
-  u32_t ipoutrequests;
-  u32_t ipoutdiscards;
-  u32_t ipoutnoroutes;
-  u32_t ipreasmoks;
-  u32_t ipreasmfails;
-  u32_t ipfragoks;
-  u32_t ipfragfails;
-  u32_t ipfragcreates;
-  u32_t ipreasmreqds;
-  u32_t ipforwdatagrams;
-  u32_t ipinreceives;
+    /* IP */
+    u32_t ipinhdrerrors;
+    u32_t ipinaddrerrors;
+    u32_t ipinunknownprotos;
+    u32_t ipindiscards;
+    u32_t ipindelivers;
+    u32_t ipoutrequests;
+    u32_t ipoutdiscards;
+    u32_t ipoutnoroutes;
+    u32_t ipreasmoks;
+    u32_t ipreasmfails;
+    u32_t ipfragoks;
+    u32_t ipfragfails;
+    u32_t ipfragcreates;
+    u32_t ipreasmreqds;
+    u32_t ipforwdatagrams;
+    u32_t ipinreceives;
 
-  /* TCP */
-  u32_t tcpactiveopens;
-  u32_t tcppassiveopens;
-  u32_t tcpattemptfails;
-  u32_t tcpestabresets;
-  u32_t tcpoutsegs;
-  u32_t tcpretranssegs;
-  u32_t tcpinsegs;
-  u32_t tcpinerrs;
-  u32_t tcpoutrsts;
+    /* TCP */
+    u32_t tcpactiveopens;
+    u32_t tcppassiveopens;
+    u32_t tcpattemptfails;
+    u32_t tcpestabresets;
+    u32_t tcpoutsegs;
+    u32_t tcpretranssegs;
+    u32_t tcpinsegs;
+    u32_t tcpinerrs;
+    u32_t tcpoutrsts;
 
-  /* UDP */
-  u32_t udpindatagrams;
-  u32_t udpnoports;
-  u32_t udpinerrors;
-  u32_t udpoutdatagrams;
+    /* UDP */
+    u32_t udpindatagrams;
+    u32_t udpnoports;
+    u32_t udpinerrors;
+    u32_t udpoutdatagrams;
 
-  /* ICMP */
-  u32_t icmpinmsgs;
-  u32_t icmpinerrors;
-  u32_t icmpindestunreachs;
-  u32_t icmpintimeexcds;
-  u32_t icmpinparmprobs;
-  u32_t icmpinsrcquenchs;
-  u32_t icmpinredirects;
-  u32_t icmpinechos;
-  u32_t icmpinechoreps;
-  u32_t icmpintimestamps;
-  u32_t icmpintimestampreps;
-  u32_t icmpinaddrmasks;
-  u32_t icmpinaddrmaskreps;
-  u32_t icmpoutmsgs;
-  u32_t icmpouterrors;
-  u32_t icmpoutdestunreachs;
-  u32_t icmpouttimeexcds;
-  u32_t icmpoutechos; /* can be incremented by user application ('ping') */
-  u32_t icmpoutechoreps;
+    /* ICMP */
+    u32_t icmpinmsgs;
+    u32_t icmpinerrors;
+    u32_t icmpindestunreachs;
+    u32_t icmpintimeexcds;
+    u32_t icmpinparmprobs;
+    u32_t icmpinsrcquenchs;
+    u32_t icmpinredirects;
+    u32_t icmpinechos;
+    u32_t icmpinechoreps;
+    u32_t icmpintimestamps;
+    u32_t icmpintimestampreps;
+    u32_t icmpinaddrmasks;
+    u32_t icmpinaddrmaskreps;
+    u32_t icmpoutmsgs;
+    u32_t icmpouterrors;
+    u32_t icmpoutdestunreachs;
+    u32_t icmpouttimeexcds;
+    u32_t icmpoutechos; /* can be incremented by user application ('ping') */
+    u32_t icmpoutechoreps;
 };
 
 /**
@@ -184,119 +184,119 @@ struct stats_mib2 {
  * SNMP MIB2 interface stats
  */
 struct stats_mib2_netif_ctrs {
-  /** The total number of octets received on the interface, including framing characters */
-  u32_t ifinoctets;
-  /** The number of packets, delivered by this sub-layer to a higher (sub-)layer, which were
-   * not addressed to a multicast or broadcast address at this sub-layer */
-  u32_t ifinucastpkts;
-  /** The number of packets, delivered by this sub-layer to a higher (sub-)layer, which were
-   * addressed to a multicast or broadcast address at this sub-layer */
-  u32_t ifinnucastpkts;
-  /** The number of inbound packets which were chosen to be discarded even though no errors had
-   * been detected to prevent their being deliverable to a higher-layer protocol. One possible
-   * reason for discarding such a packet could be to free up buffer space */
-  u32_t ifindiscards;
-  /** For packet-oriented interfaces, the number of inbound packets that contained errors
-   * preventing them from being deliverable to a higher-layer protocol.  For character-
-   * oriented or fixed-length interfaces, the number of inbound transmission units that
-   * contained errors preventing them from being deliverable to a higher-layer protocol. */
-  u32_t ifinerrors;
-  /** For packet-oriented interfaces, the number of packets received via the interface which
-   * were discarded because of an unknown or unsupported protocol.  For character-oriented
-   * or fixed-length interfaces that support protocol multiplexing the number of transmission
-   * units received via the interface which were discarded because of an unknown or unsupported
-   * protocol. For any interface that does not support protocol multiplexing, this counter will
-   * always be 0 */
-  u32_t ifinunknownprotos;
-  /** The total number of octets transmitted out of the interface, including framing characters. */
-  u32_t ifoutoctets;
-  /** The total number of packets that higher-level protocols requested be transmitted, and
-   * which were not addressed to a multicast or broadcast address at this sub-layer, including
-   * those that were discarded or not sent. */
-  u32_t ifoutucastpkts;
-  /** The total number of packets that higher-level protocols requested be transmitted, and which
-   * were addressed to a multicast or broadcast address at this sub-layer, including
-   * those that were discarded or not sent. */
-  u32_t ifoutnucastpkts;
-  /** The number of outbound packets which were chosen to be discarded even though no errors had
-   * been detected to prevent their being transmitted.  One possible reason for discarding
-   * such a packet could be to free up buffer space. */
-  u32_t ifoutdiscards;
-  /** For packet-oriented interfaces, the number of outbound packets that could not be transmitted
-   * because of errors. For character-oriented or fixed-length interfaces, the number of outbound
-   * transmission units that could not be transmitted because of errors. */
-  u32_t ifouterrors;
+    /** The total number of octets received on the interface, including framing characters */
+    u32_t ifinoctets;
+    /** The number of packets, delivered by this sub-layer to a higher (sub-)layer, which were
+     * not addressed to a multicast or broadcast address at this sub-layer */
+    u32_t ifinucastpkts;
+    /** The number of packets, delivered by this sub-layer to a higher (sub-)layer, which were
+     * addressed to a multicast or broadcast address at this sub-layer */
+    u32_t ifinnucastpkts;
+    /** The number of inbound packets which were chosen to be discarded even though no errors had
+     * been detected to prevent their being deliverable to a higher-layer protocol. One possible
+     * reason for discarding such a packet could be to free up buffer space */
+    u32_t ifindiscards;
+    /** For packet-oriented interfaces, the number of inbound packets that contained errors
+     * preventing them from being deliverable to a higher-layer protocol.  For character-
+     * oriented or fixed-length interfaces, the number of inbound transmission units that
+     * contained errors preventing them from being deliverable to a higher-layer protocol. */
+    u32_t ifinerrors;
+    /** For packet-oriented interfaces, the number of packets received via the interface which
+     * were discarded because of an unknown or unsupported protocol.  For character-oriented
+     * or fixed-length interfaces that support protocol multiplexing the number of transmission
+     * units received via the interface which were discarded because of an unknown or unsupported
+     * protocol. For any interface that does not support protocol multiplexing, this counter will
+     * always be 0 */
+    u32_t ifinunknownprotos;
+    /** The total number of octets transmitted out of the interface, including framing characters. */
+    u32_t ifoutoctets;
+    /** The total number of packets that higher-level protocols requested be transmitted, and
+     * which were not addressed to a multicast or broadcast address at this sub-layer, including
+     * those that were discarded or not sent. */
+    u32_t ifoutucastpkts;
+    /** The total number of packets that higher-level protocols requested be transmitted, and which
+     * were addressed to a multicast or broadcast address at this sub-layer, including
+     * those that were discarded or not sent. */
+    u32_t ifoutnucastpkts;
+    /** The number of outbound packets which were chosen to be discarded even though no errors had
+     * been detected to prevent their being transmitted.  One possible reason for discarding
+     * such a packet could be to free up buffer space. */
+    u32_t ifoutdiscards;
+    /** For packet-oriented interfaces, the number of outbound packets that could not be transmitted
+     * because of errors. For character-oriented or fixed-length interfaces, the number of outbound
+     * transmission units that could not be transmitted because of errors. */
+    u32_t ifouterrors;
 };
 
 /** lwIP stats container */
 struct stats_ {
 #if LINK_STATS
-  /** Link level */
-  struct stats_proto link;
+    /** Link level */
+    struct stats_proto link;
 #endif
 #if ETHARP_STATS
-  /** ARP */
-  struct stats_proto etharp;
+    /** ARP */
+    struct stats_proto etharp;
 #endif
 #if IPFRAG_STATS
-  /** Fragmentation */
-  struct stats_proto ip_frag;
+    /** Fragmentation */
+    struct stats_proto ip_frag;
 #endif
 #if IP_STATS
-  /** IP */
-  struct stats_proto ip;
+    /** IP */
+    struct stats_proto ip;
 #endif
 #if ICMP_STATS
-  /** ICMP */
-  struct stats_proto icmp;
+    /** ICMP */
+    struct stats_proto icmp;
 #endif
 #if IGMP_STATS
-  /** IGMP */
-  struct stats_igmp igmp;
+    /** IGMP */
+    struct stats_igmp igmp;
 #endif
 #if UDP_STATS
-  /** UDP */
-  struct stats_proto udp;
+    /** UDP */
+    struct stats_proto udp;
 #endif
 #if TCP_STATS
-  /** TCP */
-  struct stats_proto tcp;
+    /** TCP */
+    struct stats_proto tcp;
 #endif
 #if MEM_STATS
-  /** Heap */
-  struct stats_mem mem;
+    /** Heap */
+    struct stats_mem mem;
 #endif
 #if MEMP_STATS
-  /** Internal memory pools */
-  struct stats_mem *memp[MEMP_MAX];
+    /** Internal memory pools */
+    struct stats_mem *memp[MEMP_MAX];
 #endif
 #if SYS_STATS
-  /** System */
-  struct stats_sys sys;
+    /** System */
+    struct stats_sys sys;
 #endif
 #if IP6_STATS
-  /** IPv6 */
-  struct stats_proto ip6;
+    /** IPv6 */
+    struct stats_proto ip6;
 #endif
 #if ICMP6_STATS
-  /** ICMP6 */
-  struct stats_proto icmp6;
+    /** ICMP6 */
+    struct stats_proto icmp6;
 #endif
 #if IP6_FRAG_STATS
-  /** IPv6 fragmentation */
-  struct stats_proto ip6_frag;
+    /** IPv6 fragmentation */
+    struct stats_proto ip6_frag;
 #endif
 #if MLD6_STATS
-  /** Multicast listener discovery */
-  struct stats_igmp mld6;
+    /** Multicast listener discovery */
+    struct stats_igmp mld6;
 #endif
 #if ND6_STATS
-  /** Neighbor discovery */
-  struct stats_proto nd6;
+    /** Neighbor discovery */
+    struct stats_proto nd6;
 #endif
 #if MIB2_STATS
-  /** SNMP MIB2 */
-  struct stats_mib2 mib2;
+    /** SNMP MIB2 */
+    struct stats_mib2 mib2;
 #endif
 };
 
@@ -399,11 +399,11 @@ void stats_init(void);
 #define MEM_STATS_DISPLAY()
 #endif
 
- #if MEMP_STATS
+#if MEMP_STATS
 #define MEMP_STATS_DEC(x, i) STATS_DEC(memp[i]->x)
 #define MEMP_STATS_DISPLAY(i) stats_display_memp(lwip_stats.memp[i], i)
 #define MEMP_STATS_GET(x, i) STATS_GET(memp[i]->x)
- #else
+#else
 #define MEMP_STATS_DEC(x, i)
 #define MEMP_STATS_DISPLAY(i)
 #define MEMP_STATS_GET(x, i) 0

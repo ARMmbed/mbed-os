@@ -26,8 +26,7 @@
 /**
  * A class to communicate a USB keyboard
  */
-class USBHostKeyboard : public IUSBEnumerator
-{
+class USBHostKeyboard : public IUSBEnumerator {
 public:
 
     /**
@@ -80,9 +79,9 @@ protected:
     virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
 
 private:
-    USBHost * host;
-    USBDeviceConnected * dev;
-    USBEndpoint * int_in;
+    USBHost *host;
+    USBDeviceConnected *dev;
+    USBEndpoint *int_in;
     uint8_t report[9];
     int keyboard_intf;
     bool keyboard_device_found;

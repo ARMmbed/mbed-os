@@ -72,25 +72,25 @@ extern "C" {
 #define CRYPTO_MANAGEMENT_SAVE_UPTO_SEQ4 (0x5U)
 
 /**
- * \brief		   Get ownership of a CRYPTO peripheral
+ * \brief          Get ownership of a CRYPTO peripheral
  *
  * \return         Handle of assigned CRYPTO peripheral
  */
-CRYPTO_TypeDef *crypto_management_acquire( void );
+CRYPTO_TypeDef *crypto_management_acquire(void);
 
 /**
- * \brief		   Get ownership of the default CRYPTO peripheral
+ * \brief          Get ownership of the default CRYPTO peripheral
  *
  * \return         Handle of default CRYPTO peripheral
  */
-CRYPTO_TypeDef *crypto_management_acquire_default( void );
+CRYPTO_TypeDef *crypto_management_acquire_default(void);
 
 /**
  * \brief          Release ownership of a CRYPTO peripheral
  *
  * \param device   Handle of CRYPTO peripheral to be released
  */
-void crypto_management_release( CRYPTO_TypeDef *device );
+void crypto_management_release(CRYPTO_TypeDef *device);
 
 /**
  * \brief          Acquire preempting ownership of a CRYPTO peripheral.
@@ -104,7 +104,7 @@ void crypto_management_release( CRYPTO_TypeDef *device );
  *
  * \return         Handle of assigned CRYPTO peripheral
  */
-CRYPTO_TypeDef *crypto_management_acquire_preemption( uint32_t regmask );
+CRYPTO_TypeDef *crypto_management_acquire_preemption(uint32_t regmask);
 
 /**
  * \brief          Releasing preempting ownership of a CRYPTO peripheral.
@@ -114,7 +114,7 @@ CRYPTO_TypeDef *crypto_management_acquire_preemption( uint32_t regmask );
  *
  * \param device   Handle of preempted CRYPTO peripheral to be released
  */
-void crypto_management_release_preemption( CRYPTO_TypeDef *device );
+void crypto_management_release_preemption(CRYPTO_TypeDef *device);
 
 #ifdef __cplusplus
 }

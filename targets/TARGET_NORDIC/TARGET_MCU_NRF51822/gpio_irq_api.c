@@ -37,10 +37,10 @@ void GPIOTE_IRQHandler(void)
     if ((NRF_GPIOTE->EVENTS_PORT != 0) && ((NRF_GPIOTE->INTENSET & GPIOTE_INTENSET_PORT_Msk) != 0)) {
         NRF_GPIOTE->EVENTS_PORT = 0;
 
-        for (uint8_t i = 0; i<31; i++) {
-            if (channel_ids[i]>0) {
+        for (uint8_t i = 0; i < 31; i++) {
+            if (channel_ids[i] > 0) {
                 if (channel_enabled[i]) {
-                    if( ((newVal>>i)&1)  && ( ( (NRF_GPIO->PIN_CNF[i] >>GPIO_PIN_CNF_SENSE_Pos) & GPIO_PIN_CNF_SENSE_Low) != GPIO_PIN_CNF_SENSE_Low) && ( (portRISE>>i)&1) ){
+                    if (((newVal >> i) & 1)  && (((NRF_GPIO->PIN_CNF[i] >> GPIO_PIN_CNF_SENSE_Pos) & GPIO_PIN_CNF_SENSE_Low) != GPIO_PIN_CNF_SENSE_Low) && ((portRISE >> i) & 1)) {
                         irq_handler(channel_ids[i], IRQ_RISE);
                     } else if ((((newVal >> i) & 1) == 0) &&
                                (((NRF_GPIO->PIN_CNF[i] >> GPIO_PIN_CNF_SENSE_Pos) & GPIO_PIN_CNF_SENSE_Low) == GPIO_PIN_CNF_SENSE_Low) &&
@@ -81,7 +81,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     NRF_GPIOTE->INTENSET    = GPIOTE_INTENSET_PORT_Set << GPIOTE_INTENSET_PORT_Pos;
 
     NVIC_SetPriority(GPIOTE_IRQn, 3);
-    NVIC_EnableIRQ  (GPIOTE_IRQn);
+    NVIC_EnableIRQ(GPIOTE_IRQn);
     return 0;
 }
 

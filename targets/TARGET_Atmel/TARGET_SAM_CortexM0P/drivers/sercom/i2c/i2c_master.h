@@ -373,7 +373,7 @@ static inline void i2c_master_unlock(struct i2c_master_module *const module)
  * \retval true   Module is busy synchronizing
  * \retval false  Module is not synchronizing
  */
-static inline bool i2c_master_is_syncing (
+static inline bool i2c_master_is_syncing(
     const struct i2c_master_module *const module)
 {
     /* Sanity check. */
@@ -503,7 +503,7 @@ static inline void i2c_master_enable(
     /* Start timeout if bus state is unknown. */
     while (!(i2c_module->STATUS.reg & SERCOM_I2CM_STATUS_BUSSTATE(1))) {
         timeout_counter++;
-        if(timeout_counter >= (module->unknown_bus_state_timeout)) {
+        if (timeout_counter >= (module->unknown_bus_state_timeout)) {
             /* Timeout, force bus state to idle. */
             i2c_module->STATUS.reg = SERCOM_I2CM_STATUS_BUSSTATE(1);
             /* Workaround #1 */
@@ -602,10 +602,10 @@ enum status_code i2c_master_read_packet_wait_no_nack(
  *
  */
 static inline void i2c_master_dma_set_transfer(struct i2c_master_module *const module,
-        uint16_t addr, uint8_t length, enum i2c_transfer_direction direction)
+                                               uint16_t addr, uint8_t length, enum i2c_transfer_direction direction)
 {
     module->hw->I2CM.ADDR.reg =
-        SERCOM_I2CM_ADDR_ADDR(addr<<1) |
+        SERCOM_I2CM_ADDR_ADDR(addr << 1) |
         SERCOM_I2CM_ADDR_LENEN |
         SERCOM_I2CM_ADDR_LEN(length) |
         direction;

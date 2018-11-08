@@ -42,7 +42,7 @@ extern "C"
  *  @param[in]    u32Count    TX FIFO length
  *
  *  @return   None
- * \hideinitializer 
+ * \hideinitializer
  */
 #define PS2_SET_TX_BYTE_CNT(u32Count) (PS2->CTL = (PS2->CTL & ~PS2_CTL_TXFDEPTH_Msk) \
                                       | ((u32Count-1) << PS2_CTL_TXFDEPTH_Pos))
@@ -53,7 +53,7 @@ extern "C"
  *  @param    None
  *
  *  @return   PS2 status
- * \hideinitializer 
+ * \hideinitializer
  */
 #define PS2_GET_STATUS() (PS2->STATUS)
 
@@ -73,11 +73,11 @@ extern "C"
  *  @param    None
  *
  *  @return   None
- *  \hideinitializer 
+ *  \hideinitializer
  */
-__STATIC_INLINE void PS2_CLEAR_TX_FIFO(void) 
+__STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
 {
-    PS2->CTL |= PS2_CTL_CLRFIFO_Msk; 
+    PS2->CTL |= PS2_CTL_CLRFIFO_Msk;
     PS2->CTL &= ~PS2_CTL_CLRFIFO_Msk;
 }
 
@@ -87,7 +87,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *  @param    None
  *
  *  @return   None
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_CLR_RX_INT_FLAG() (PS2->INTSTS = PS2_INTSTS_RXIF_Msk)
 
@@ -97,7 +97,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *  @param    None
  *
  *  @return   None
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_CLR_TX_INT_FLAG() (PS2->INTSTS = PS2_INTSTS_TXIF_Msk)
 
@@ -108,7 +108,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *
  *  @return   1: interrupt occurs
  *            0: interrupt not occurs
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_GET_INT_FLAG(u32IntFlag) ((PS2->INTSTS & u32IntFlag)?1:0)
 
@@ -118,7 +118,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *  @param    None
  *
  *  @return   None
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_DISABLE_OVERRIDE() (PS2->CTL &= ~PS2_CTL_PS2EN_Msk)
 
@@ -128,7 +128,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *  @param    None
  *
  *  @return   None
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_ENABLE_OVERRIDE() (PS2->CTL |= PS2_CTL_PS2EN_Msk)
 
@@ -138,7 +138,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *  @param    None
  *
  *  @return   The indicates which data byte in transmit data shift register.
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_GET_TX_BYTE_INDEX() ((PS2->STATUS & PS2_STATUS_BYTEIDX_Msk) >> PS2_STATUS_BYTEIDX_Pos)
 
@@ -148,7 +148,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *  @param    None
  *
  *  @return   None.
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_SET_DATA_LOW() (PS2->CTL &= ~PS2_CTL_FPS2DAT_Msk)
 
@@ -158,7 +158,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *  @param    None
  *
  *  @return   None.
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_SET_DATA_HIGH() (PS2->CTL |= PS2_CTL_FPS2DAT_Msk)
 
@@ -168,7 +168,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *  @param    None
  *
  *  @return   None.
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_SET_CLK_LOW() (PS2->CTL &= ~PS2_CTL_FPS2CLK_Msk)
 
@@ -178,7 +178,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *  @param    None
  *
  *  @return   None.
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_SET_CLK_HIGH() (PS2->CTL |= PS2_CTL_FPS2CLK_Msk)
 
@@ -188,7 +188,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *  @param    None
  *
  *  @return   None.
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_DISABLE_ACK_ALWAYS() (PS2->CTL |= PS2_CTL_ACK_Msk)
 
@@ -198,7 +198,7 @@ __STATIC_INLINE void PS2_CLEAR_TX_FIFO(void)
  *  @param    None
  *
  *  @return   None.
- *  \hideinitializer 
+ *  \hideinitializer
  */
 #define PS2_ENABLE_ACK_ALWAYS() (PS2->CTL &= ~PS2_CTL_ACK_Msk)
 

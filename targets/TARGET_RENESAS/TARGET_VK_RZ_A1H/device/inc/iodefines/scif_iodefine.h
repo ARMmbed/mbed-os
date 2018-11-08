@@ -31,8 +31,8 @@
 /* ->QAC 0857 : Over 1024 #define (C90) */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_scif
-{                                                          /* SCIF             */
+struct st_scif {
+    /* SCIF             */
     volatile uint16_t SCSMR;                                  /*  SCSMR           */
     volatile uint8_t   dummy1[2];                              /*                  */
     volatile uint8_t   SCBRR;                                  /*  SCBRR           */

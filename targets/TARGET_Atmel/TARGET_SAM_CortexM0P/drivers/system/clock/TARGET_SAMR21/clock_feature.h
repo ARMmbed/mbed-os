@@ -97,14 +97,14 @@ extern "C" {
  *
  * \subsection asfdoc_sam0_system_clock_module_features Driver Feature Macro Definition
  * <table>
- *	<tr>
- *		<th>Driver Feature Macro</th>
- *		<th>Supported devices</th>
- *	</tr>
- *	<tr>
- *		<td>FEATURE_SYSTEM_CLOCK_DPLL</td>
- *		<td>SAMD21, SAMR21, SAMD10, SAMD11, SAMDAx</td>
- *	</tr>
+ *  <tr>
+ *      <th>Driver Feature Macro</th>
+ *      <th>Supported devices</th>
+ *  </tr>
+ *  <tr>
+ *      <td>FEATURE_SYSTEM_CLOCK_DPLL</td>
+ *      <td>SAMD21, SAMR21, SAMD10, SAMD11, SAMDAx</td>
+ *  </tr>
  * </table>
  * \note The specific features are only available in the driver when the
  * selected device supports those features.
@@ -520,7 +520,7 @@ enum system_clock_source {
     /** Internal 32KHz RC oscillator. */
     SYSTEM_CLOCK_SOURCE_OSC32K   = GCLK_SOURCE_OSC32K,
     /** External oscillator. */
-    SYSTEM_CLOCK_SOURCE_XOSC     = GCLK_SOURCE_XOSC ,
+    SYSTEM_CLOCK_SOURCE_XOSC     = GCLK_SOURCE_XOSC,
     /** External 32KHz oscillator. */
     SYSTEM_CLOCK_SOURCE_XOSC32K  = GCLK_SOURCE_XOSC32K,
     /** Digital Frequency Locked Loop (DFLL). */
@@ -958,31 +958,31 @@ static inline enum status_code system_apb_clock_set_divider(
     switch (bus) {
         case SYSTEM_CLOCK_APB_APBA:
                     PM->APBASEL.reg = (uint32_t)divider;
-                break;
-            case SYSTEM_CLOCK_APB_APBB:
-                PM->APBBSEL.reg = (uint32_t)divider;
-                break;
-            case SYSTEM_CLOCK_APB_APBC:
-                PM->APBCSEL.reg = (uint32_t)divider;
-                break;
-            default:
-                Assert(false);
-                return STATUS_ERR_INVALID_ARG;
-        }
-
-        return STATUS_OK;
+            break;
+        case SYSTEM_CLOCK_APB_APBB:
+            PM->APBBSEL.reg = (uint32_t)divider;
+            break;
+        case SYSTEM_CLOCK_APB_APBC:
+            PM->APBCSEL.reg = (uint32_t)divider;
+            break;
+        default:
+            Assert(false);
+            return STATUS_ERR_INVALID_ARG;
     }
 
-    /**
-     * \brief Retrieves the current frequency of a ABPx.
-     *
-     * Retrieves the operating frequency of an APBx bus, obtained from the main
-     * generic clock and the set APBx bus divider.
-     *
-     * \return Current APBx bus frequency in Hz.
-     */
-    static inline uint32_t system_apb_clock_get_hz(
-        const enum system_clock_apb_bus bus)
+    return STATUS_OK;
+}
+
+/**
+ * \brief Retrieves the current frequency of a ABPx.
+ *
+ * Retrieves the operating frequency of an APBx bus, obtained from the main
+ * generic clock and the set APBx bus divider.
+ *
+ * \return Current APBx bus frequency in Hz.
+ */
+static inline uint32_t system_apb_clock_get_hz(
+    const enum system_clock_apb_bus bus)
 {
     uint16_t bus_divider = 0;
 
@@ -1068,75 +1068,75 @@ static inline enum status_code system_apb_clock_set_mask(
     switch (bus) {
         case SYSTEM_CLOCK_APB_APBA:
                     PM->APBAMASK.reg |= mask;
-                break;
+            break;
 
-            case SYSTEM_CLOCK_APB_APBB:
-                PM->APBBMASK.reg |= mask;
-                break;
+        case SYSTEM_CLOCK_APB_APBB:
+            PM->APBBMASK.reg |= mask;
+            break;
 
-            case SYSTEM_CLOCK_APB_APBC:
-                PM->APBCMASK.reg |= mask;
-                break;
+        case SYSTEM_CLOCK_APB_APBC:
+            PM->APBCMASK.reg |= mask;
+            break;
 
-            default:
-                Assert(false);
-                return STATUS_ERR_INVALID_ARG;
+        default:
+            Assert(false);
+            return STATUS_ERR_INVALID_ARG;
 
-        }
-
-        return STATUS_OK;
     }
 
-    /**
-     * \brief Clear bits in the clock mask for an APBx bus.
-     *
-     * This function will clear bits in the clock mask for an APBx bus.
-     * Any bits set to 1 will disable the corresponding module clock, zero bits in
-     * the mask will be ignored.
-     *
-     * \param[in] mask  APBx clock mask, a \c SYSTEM_CLOCK_APB_APBx constant from
-     *                  the device header files
-     * \param[in] bus   Bus to clear clock mask bits
-     *
-     * \returns Status indicating the result of the clock mask change operation.
-     *
-     * \retval STATUS_ERR_INVALID_ARG  Invalid bus ID was given
-     * \retval STATUS_OK               The clock mask was changed successfully
-     */
-    static inline enum status_code system_apb_clock_clear_mask(
-        const enum system_clock_apb_bus bus,
-        const uint32_t mask)
+    return STATUS_OK;
+}
+
+/**
+ * \brief Clear bits in the clock mask for an APBx bus.
+ *
+ * This function will clear bits in the clock mask for an APBx bus.
+ * Any bits set to 1 will disable the corresponding module clock, zero bits in
+ * the mask will be ignored.
+ *
+ * \param[in] mask  APBx clock mask, a \c SYSTEM_CLOCK_APB_APBx constant from
+ *                  the device header files
+ * \param[in] bus   Bus to clear clock mask bits
+ *
+ * \returns Status indicating the result of the clock mask change operation.
+ *
+ * \retval STATUS_ERR_INVALID_ARG  Invalid bus ID was given
+ * \retval STATUS_OK               The clock mask was changed successfully
+ */
+static inline enum status_code system_apb_clock_clear_mask(
+    const enum system_clock_apb_bus bus,
+    const uint32_t mask)
 {
     switch (bus) {
         case SYSTEM_CLOCK_APB_APBA:
                     PM->APBAMASK.reg &= ~mask;
-                break;
+            break;
 
-            case SYSTEM_CLOCK_APB_APBB:
-                PM->APBBMASK.reg &= ~mask;
-                break;
+        case SYSTEM_CLOCK_APB_APBB:
+            PM->APBBMASK.reg &= ~mask;
+            break;
 
-            case SYSTEM_CLOCK_APB_APBC:
-                PM->APBCMASK.reg &= ~mask;
-                break;
+        case SYSTEM_CLOCK_APB_APBC:
+            PM->APBCMASK.reg &= ~mask;
+            break;
 
-            default:
-                Assert(false);
-                return STATUS_ERR_INVALID_ARG;
-        }
-
-        return STATUS_OK;
+        default:
+            Assert(false);
+            return STATUS_ERR_INVALID_ARG;
     }
 
-    /**
-     * @}
-     */
+    return STATUS_OK;
+}
+
+/**
+ * @}
+ */
 
 #ifdef FEATURE_SYSTEM_CLOCK_DPLL
-    /**
-     * \brief Reference clock source of the DPLL module.
-     */
-    enum system_clock_source_dpll_reference_clock {
+/**
+ * \brief Reference clock source of the DPLL module.
+ */
+enum system_clock_source_dpll_reference_clock {
     /** Select XOSC32K as clock reference. */
     SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_XOSC32K,
     /** Select XOSC as clock reference. */
@@ -1306,54 +1306,54 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  * intended meanings.
  *
  * <table>
- *	<tr>
- *		<th>Acronym</th>
- *		<th>Description</th>
- *	</tr>
- *	<tr>
- *		<td>DFLL</td>
- *		<td>Digital Frequency Locked Loop</td>
- *	</tr>
- *	<tr>
- *		<td>MUX</td>
- *		<td>Multiplexer</td>
- *	</tr>
- *	<tr>
- *		<td>OSC32K</td>
- *		<td>Internal 32KHz Oscillator</td>
- *	</tr>
- *	<tr>
- *		<td>OSC8M</td>
- *		<td>Internal 8MHz Oscillator</td>
- *	</tr>
- *	<tr>
- *		<td>PLL</td>
- *		<td>Phase Locked Loop</td>
- *	</tr>
- *	<tr>
- *		<td>OSC</td>
- *		<td>Oscillator</td>
- *	</tr>
- *	<tr>
- *		<td>XOSC</td>
- *		<td>External Oscillator</td>
- *	</tr>
- *	<tr>
- *		<td>XOSC32K</td>
- *		<td>External 32KHz Oscillator</td>
- *	</tr>
- *	<tr>
- *		<td>AHB</td>
- *		<td>Advanced High-performance Bus</td>
- *	</tr>
- *	<tr>
- *		<td>APB</td>
- *		<td>Advanced Peripheral Bus</td>
- *	</tr>
- *	<tr>
- *		<td>DPLL</td>
- *		<td>Digital Phase Locked Loop</td>
- *	</tr>
+ *  <tr>
+ *      <th>Acronym</th>
+ *      <th>Description</th>
+ *  </tr>
+ *  <tr>
+ *      <td>DFLL</td>
+ *      <td>Digital Frequency Locked Loop</td>
+ *  </tr>
+ *  <tr>
+ *      <td>MUX</td>
+ *      <td>Multiplexer</td>
+ *  </tr>
+ *  <tr>
+ *      <td>OSC32K</td>
+ *      <td>Internal 32KHz Oscillator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>OSC8M</td>
+ *      <td>Internal 8MHz Oscillator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>PLL</td>
+ *      <td>Phase Locked Loop</td>
+ *  </tr>
+ *  <tr>
+ *      <td>OSC</td>
+ *      <td>Oscillator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>XOSC</td>
+ *      <td>External Oscillator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>XOSC32K</td>
+ *      <td>External 32KHz Oscillator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>AHB</td>
+ *      <td>Advanced High-performance Bus</td>
+ *  </tr>
+ *  <tr>
+ *      <td>APB</td>
+ *      <td>Advanced Peripheral Bus</td>
+ *  </tr>
+ *  <tr>
+ *      <td>DPLL</td>
+ *      <td>Digital Phase Locked Loop</td>
+ *  </tr>
  * </table>
  *
  *
@@ -1365,11 +1365,11 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  *
  * \section asfdoc_sam0_system_clock_extra_errata Errata
  *
- *	- This driver implements experimental workaround for errata 9905
+ *  - This driver implements experimental workaround for errata 9905
  *
- *	  "The DFLL clock must be requested before being configured otherwise a
- *	  write access to a DFLL register can freeze the device."
- *	  This driver will enable and configure the DFLL before the ONDEMAND bit is set.
+ *    "The DFLL clock must be requested before being configured otherwise a
+ *    write access to a DFLL register can freeze the device."
+ *    This driver will enable and configure the DFLL before the ONDEMAND bit is set.
  *
  *
  * \section asfdoc_sam0_system_clock_extra_history Module History
@@ -1379,47 +1379,47 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  * the table.
  *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
- *	<tr>
- *		<td>
- *			\li Corrected OSC32K startup time definitions
- *			\li Support locking of OSC32K and XOSC32K config register (default: false)
- *			\li Added DPLL support, functions added:
- *			    \c system_clock_source_dpll_get_config_defaults() and
- *		        \c system_clock_source_dpll_set_config()
- *			\li Moved gclk channel locking feature out of the config struct
- *			    functions added:
- *			    \c system_gclk_chan_lock(),
- *			    \c system_gclk_chan_is_locked()
- *			    \c system_gclk_chan_is_enabled() and
- *			    \c system_gclk_gen_is_enabled()
- *		</td>
- *	</tr>
  *  <tr>
- *		<td>Fixed \c system_gclk_chan_disable() deadlocking if a channel is enabled
- *		    and configured to a failed/not running clock generator</td>
+ *      <th>Changelog</th>
  *  </tr>
- *	<tr>
- *		<td>
- *			\li Changed default value for CONF_CLOCK_DFLL_ON_DEMAND from \c true to \c false
- *			\li Fixed system_flash_set_waitstates() failing with an assertion
- *			    if an odd number of wait states provided
- *		</td>
- *	</tr>
- *	<tr>
- *		<td>
- *			\li Updated dfll configuration function to implement workaround for
- *			    errata 9905 in the DFLL module
- *			\li Updated \c system_clock_init() to reset interrupt flags before
- *			    they are used
- *			\li Fixed \c system_clock_source_get_hz() to return correcy DFLL
- *			    frequency number
- *		</td>
- *	</tr>
- *	<tr>
- *		<td>\li Fixed \c system_clock_source_is_ready not returning the correct
+ *  <tr>
+ *      <td>
+ *          \li Corrected OSC32K startup time definitions
+ *          \li Support locking of OSC32K and XOSC32K config register (default: false)
+ *          \li Added DPLL support, functions added:
+ *              \c system_clock_source_dpll_get_config_defaults() and
+ *              \c system_clock_source_dpll_set_config()
+ *          \li Moved gclk channel locking feature out of the config struct
+ *              functions added:
+ *              \c system_gclk_chan_lock(),
+ *              \c system_gclk_chan_is_locked()
+ *              \c system_gclk_chan_is_enabled() and
+ *              \c system_gclk_gen_is_enabled()
+ *      </td>
+ *  </tr>
+ *  <tr>
+ *      <td>Fixed \c system_gclk_chan_disable() deadlocking if a channel is enabled
+ *          and configured to a failed/not running clock generator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>
+ *          \li Changed default value for CONF_CLOCK_DFLL_ON_DEMAND from \c true to \c false
+ *          \li Fixed system_flash_set_waitstates() failing with an assertion
+ *              if an odd number of wait states provided
+ *      </td>
+ *  </tr>
+ *  <tr>
+ *      <td>
+ *          \li Updated dfll configuration function to implement workaround for
+ *              errata 9905 in the DFLL module
+ *          \li Updated \c system_clock_init() to reset interrupt flags before
+ *              they are used
+ *          \li Fixed \c system_clock_source_get_hz() to return correcy DFLL
+ *              frequency number
+ *      </td>
+ *  </tr>
+ *  <tr>
+ *      <td>\li Fixed \c system_clock_source_is_ready not returning the correct
  *              state for \c SYSTEM_CLOCK_SOURCE_OSC8M
  *          \li Renamed the various \c system_clock_source_*_get_default_config()
  *              functions to \c system_clock_source_*_get_config_defaults() to
@@ -1429,10 +1429,10 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  *          \li Updated default configuration of the XOSC32 to disable Automatic
  *              Gain Control due to silicon errata
  *      </td>
- *	</tr>
- *	<tr>
- *		<td>Initial Release</td>
- *	</tr>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial Release</td>
+ *  </tr>
  * </table>
  */
 
@@ -1451,37 +1451,37 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  * \page asfdoc_sam0_system_clock_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
- *	<tr>
- *		<td>E</td>
- *		<td>04/2015</td>
- *		<td>Added support for SAMDAx.</td>
- *	</tr>
- *	<tr>
- *		<td>D</td>
- *		<td>12/2014</td>
- *		<td>Added support for SAMR21 and SAMD10/D11.</td>
- *	</tr>
- *	<tr>
- *		<td>C</td>
- *		<td>01/2014</td>
- *		<td>Added support for SAMD21.</td>
- *	</tr>
- *	<tr>
- *		<td>B</td>
- *		<td>06/2013</td>
- *		<td>Corrected documentation typos. Fixed missing steps in the Basic
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
+ *  <tr>
+ *      <td>E</td>
+ *      <td>04/2015</td>
+ *      <td>Added support for SAMDAx.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>D</td>
+ *      <td>12/2014</td>
+ *      <td>Added support for SAMR21 and SAMD10/D11.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>C</td>
+ *      <td>01/2014</td>
+ *      <td>Added support for SAMD21.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>B</td>
+ *      <td>06/2013</td>
+ *      <td>Corrected documentation typos. Fixed missing steps in the Basic
  *          Use Case Quick Start Guide.</td>
- *	</tr>
- *	<tr>
- *		<td>A</td>
- *		<td>06/2013</td>
- *		<td>Initial release</td>
- *	</tr>
+ *  </tr>
+ *  <tr>
+ *      <td>A</td>
+ *      <td>06/2013</td>
+ *      <td>Initial release</td>
+ *  </tr>
  * </table>
  */
 

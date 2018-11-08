@@ -38,8 +38,7 @@ Includes   <System Includes> , "Project Includes"
 /*******************************************************************************
 Typedef definitions
 *******************************************************************************/
-typedef struct dmac_transinfo
-{
+typedef struct dmac_transinfo {
     uint32_t src_addr;      /* Transfer source address                */
     uint32_t dst_addr;      /* Transfer destination address           */
     uint32_t count;         /* Transfer byte count                    */
@@ -101,8 +100,7 @@ Macro definitions
 #define DMAC_DESC_LINK_ADDR         (7)     /* Link Address        */
 
 /* ==== On-chip peripheral module requests ===== */
-typedef enum dmac_request_factor
-{
+typedef enum dmac_request_factor {
     DMAC_REQ_USB0_DMA0_TX,      /* USB_0 channel 0 transmit FIFO empty            */
     DMAC_REQ_USB0_DMA0_RX,      /* USB_0 channel 0 receive FIFO full              */
     DMAC_REQ_USB0_DMA1_TX,      /* USB_0 channel 1 transmit FIFO empty            */

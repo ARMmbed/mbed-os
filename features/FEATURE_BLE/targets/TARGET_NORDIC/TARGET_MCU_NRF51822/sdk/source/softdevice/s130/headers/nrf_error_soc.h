@@ -34,7 +34,7 @@
   @{
   @defgroup nrf_soc_error SoC Library Error Codes
   @{
-     
+
   @brief Error definitions for the SoC library
 
 */

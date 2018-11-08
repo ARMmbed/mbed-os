@@ -54,8 +54,7 @@ Macro definitions
 #define DMAC_INDEFINE   (255)       /* Macro definition when REQD bit is not used */
 
 /* ==== Request setting information for on-chip peripheral module ==== */
-typedef enum dmac_peri_req_reg_type
-{
+typedef enum dmac_peri_req_reg_type {
     DMAC_REQ_MID,
     DMAC_REQ_RID,
     DMAC_REQ_AM,
@@ -81,9 +80,8 @@ Private global variables and functions
 
 /* ==== Global variable ==== */
 /* On-chip peripheral module request setting table */
-static const uint8_t usb1_host_dmac_peri_req_init_table[8][5] =
-{
-  /* MID,RID, AM,LVL,REQD */
+static const uint8_t usb1_host_dmac_peri_req_init_table[8][5] = {
+    /* MID,RID, AM,LVL,REQD */
     { 32,  3,  2,  1,  1},      /* USB_0 channel 0 transmit FIFO empty */
     { 32,  3,  2,  1,  0},      /* USB_0 channel 0 receive FIFO full   */
     { 33,  3,  2,  1,  1},      /* USB_0 channel 1 transmit FIFO empty */
@@ -123,12 +121,11 @@ static const uint8_t usb1_host_dmac_peri_req_init_table[8][5] =
 *              :                        : REQD bit
 * Return Value : none
 *******************************************************************************/
-void usb1_host_DMAC3_PeriReqInit (const dmac_transinfo_t * trans_info, uint32_t dmamode, uint32_t continuation,
-                              uint32_t request_factor, uint32_t req_direction)
+void usb1_host_DMAC3_PeriReqInit(const dmac_transinfo_t *trans_info, uint32_t dmamode, uint32_t continuation,
+                                 uint32_t request_factor, uint32_t req_direction)
 {
     /* ==== Register mode ==== */
-    if (DMAC_MODE_REGISTER == dmamode)
-    {
+    if (DMAC_MODE_REGISTER == dmamode) {
         /* ==== Next0 register set ==== */
         DMAC3.N0SA_n = trans_info->src_addr;        /* Start address of transfer source      */
         DMAC3.N0DA_n = trans_info->dst_addr;        /* Start address of transfer destination */
@@ -139,129 +136,124 @@ void usb1_host_DMAC3_PeriReqInit (const dmac_transinfo_t * trans_info, uint32_t 
         /* DDS : Transfer destination transfer size              */
         /* SDS : Transfer source transfer size                   */
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            trans_info->daddr_dir,
-                            DMAC3_CHCFG_n_DAD_SHIFT,
-                            DMAC3_CHCFG_n_DAD);
+                           trans_info->daddr_dir,
+                           DMAC3_CHCFG_n_DAD_SHIFT,
+                           DMAC3_CHCFG_n_DAD);
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            trans_info->saddr_dir,
-                            DMAC3_CHCFG_n_SAD_SHIFT,
-                            DMAC3_CHCFG_n_SAD);
+                           trans_info->saddr_dir,
+                           DMAC3_CHCFG_n_SAD_SHIFT,
+                           DMAC3_CHCFG_n_SAD);
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            trans_info->dst_size,
-                            DMAC3_CHCFG_n_DDS_SHIFT,
-                            DMAC3_CHCFG_n_DDS);
+                           trans_info->dst_size,
+                           DMAC3_CHCFG_n_DDS_SHIFT,
+                           DMAC3_CHCFG_n_DDS);
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            trans_info->src_size,
-                            DMAC3_CHCFG_n_SDS_SHIFT,
-                            DMAC3_CHCFG_n_SDS);
+                           trans_info->src_size,
+                           DMAC3_CHCFG_n_SDS_SHIFT,
+                           DMAC3_CHCFG_n_SDS);
 
         /* DMS  : Register mode                            */
         /* RSEL : Select Next0 register set                */
         /* SBE  : No discharge of buffer data when aborted */
         /* DEM  : No DMA interrupt mask                    */
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            0,
-                            DMAC3_CHCFG_n_DMS_SHIFT,
-                            DMAC3_CHCFG_n_DMS);
+                           0,
+                           DMAC3_CHCFG_n_DMS_SHIFT,
+                           DMAC3_CHCFG_n_DMS);
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            0,
-                            DMAC3_CHCFG_n_RSEL_SHIFT,
-                            DMAC3_CHCFG_n_RSEL);
+                           0,
+                           DMAC3_CHCFG_n_RSEL_SHIFT,
+                           DMAC3_CHCFG_n_RSEL);
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            0,
-                            DMAC3_CHCFG_n_SBE_SHIFT,
-                            DMAC3_CHCFG_n_SBE);
+                           0,
+                           DMAC3_CHCFG_n_SBE_SHIFT,
+                           DMAC3_CHCFG_n_SBE);
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            0,
-                            DMAC3_CHCFG_n_DEM_SHIFT,
-                            DMAC3_CHCFG_n_DEM);
+                           0,
+                           DMAC3_CHCFG_n_DEM_SHIFT,
+                           DMAC3_CHCFG_n_DEM);
 
         /* ---- Continuous transfer ---- */
-        if (DMAC_SAMPLE_CONTINUATION == continuation)
-        {
+        if (DMAC_SAMPLE_CONTINUATION == continuation) {
             /* REN : Execute continuous transfer                         */
             /* RSW : Change register set when DMA transfer is completed. */
             RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                                1,
-                                DMAC3_CHCFG_n_REN_SHIFT,
-                                DMAC3_CHCFG_n_REN);
+                               1,
+                               DMAC3_CHCFG_n_REN_SHIFT,
+                               DMAC3_CHCFG_n_REN);
             RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                                1,
-                                DMAC3_CHCFG_n_RSW_SHIFT,
-                                DMAC3_CHCFG_n_RSW);
+                               1,
+                               DMAC3_CHCFG_n_RSW_SHIFT,
+                               DMAC3_CHCFG_n_RSW);
         }
         /* ---- Single transfer ---- */
-        else
-        {
+        else {
             /* REN : Do not execute continuous transfer                         */
             /* RSW : Do not change register set when DMA transfer is completed. */
             RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                                0,
-                                DMAC3_CHCFG_n_REN_SHIFT,
-                                DMAC3_CHCFG_n_REN);
+                               0,
+                               DMAC3_CHCFG_n_REN_SHIFT,
+                               DMAC3_CHCFG_n_REN);
             RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                                0,
-                                DMAC3_CHCFG_n_RSW_SHIFT,
-                                DMAC3_CHCFG_n_RSW);
+                               0,
+                               DMAC3_CHCFG_n_RSW_SHIFT,
+                               DMAC3_CHCFG_n_RSW);
         }
 
         /* TM  : Single transfer                          */
         /* SEL : Channel setting                          */
         /* HIEN, LOEN : On-chip peripheral module request */
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            0,
-                            DMAC3_CHCFG_n_TM_SHIFT,
-                            DMAC3_CHCFG_n_TM);
+                           0,
+                           DMAC3_CHCFG_n_TM_SHIFT,
+                           DMAC3_CHCFG_n_TM);
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            3,
-                            DMAC3_CHCFG_n_SEL_SHIFT,
-                            DMAC3_CHCFG_n_SEL);
+                           3,
+                           DMAC3_CHCFG_n_SEL_SHIFT,
+                           DMAC3_CHCFG_n_SEL);
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            1,
-                            DMAC3_CHCFG_n_HIEN_SHIFT,
-                            DMAC3_CHCFG_n_HIEN);
+                           1,
+                           DMAC3_CHCFG_n_HIEN_SHIFT,
+                           DMAC3_CHCFG_n_HIEN);
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            0,
-                            DMAC3_CHCFG_n_LOEN_SHIFT,
-                            DMAC3_CHCFG_n_LOEN);
+                           0,
+                           DMAC3_CHCFG_n_LOEN_SHIFT,
+                           DMAC3_CHCFG_n_LOEN);
 
         /* ---- Set factor by specified on-chip peripheral module request ---- */
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_AM],
-                            DMAC3_CHCFG_n_AM_SHIFT,
-                            DMAC3_CHCFG_n_AM);
+                           usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_AM],
+                           DMAC3_CHCFG_n_AM_SHIFT,
+                           DMAC3_CHCFG_n_AM);
         RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                            usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_LVL],
-                            DMAC3_CHCFG_n_LVL_SHIFT,
-                            DMAC3_CHCFG_n_LVL);
-        if (usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_REQD] != DMAC_INDEFINE)
-        {
+                           usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_LVL],
+                           DMAC3_CHCFG_n_LVL_SHIFT,
+                           DMAC3_CHCFG_n_LVL);
+        if (usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_REQD] != DMAC_INDEFINE) {
             RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                                usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_REQD],
-                                DMAC3_CHCFG_n_REQD_SHIFT,
-                                DMAC3_CHCFG_n_REQD);
-        }
-        else
-        {
+                               usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_REQD],
+                               DMAC3_CHCFG_n_REQD_SHIFT,
+                               DMAC3_CHCFG_n_REQD);
+        } else {
             RZA_IO_RegWrite_32(&DMAC3.CHCFG_n,
-                                req_direction,
-                                DMAC3_CHCFG_n_REQD_SHIFT,
-                                DMAC3_CHCFG_n_REQD);
+                               req_direction,
+                               DMAC3_CHCFG_n_REQD_SHIFT,
+                               DMAC3_CHCFG_n_REQD);
         }
         RZA_IO_RegWrite_32(&DMAC23.DMARS,
-                            usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_RID],
-                            DMAC23_DMARS_CH3_RID_SHIFT,
-                            DMAC23_DMARS_CH3_RID);
+                           usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_RID],
+                           DMAC23_DMARS_CH3_RID_SHIFT,
+                           DMAC23_DMARS_CH3_RID);
         RZA_IO_RegWrite_32(&DMAC23.DMARS,
-                            usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_MID],
-                            DMAC23_DMARS_CH3_MID_SHIFT,
-                            DMAC23_DMARS_CH3_MID);
+                           usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_MID],
+                           DMAC23_DMARS_CH3_MID_SHIFT,
+                           DMAC23_DMARS_CH3_MID);
 
         /* PR : Round robin mode */
         RZA_IO_RegWrite_32(&DMAC07.DCTRL_0_7,
-                            1,
-                            DMAC07_DCTRL_0_7_PR_SHIFT,
-                            DMAC07_DCTRL_0_7_PR);
+                           1,
+                           DMAC07_DCTRL_0_7_PR_SHIFT,
+                           DMAC07_DCTRL_0_7_PR);
     }
 }
 
@@ -272,7 +264,7 @@ void usb1_host_DMAC3_PeriReqInit (const dmac_transinfo_t * trans_info, uint32_t 
 * Return Value :  0 : Succeeded in enabling DMA transfer
 *              : -1 : Failed to enable DMA transfer (due to DMA operation)
 *******************************************************************************/
-int32_t usb1_host_DMAC3_Open (uint32_t req)
+int32_t usb1_host_DMAC3_Open(uint32_t req)
 {
     int32_t ret;
     volatile uint8_t  dummy;
@@ -281,38 +273,34 @@ int32_t usb1_host_DMAC3_Open (uint32_t req)
     if ((0 == RZA_IO_RegRead_32(&DMAC3.CHSTAT_n,
                                 DMAC3_CHSTAT_n_EN_SHIFT,
                                 DMAC3_CHSTAT_n_EN)) &&
-        (0 == RZA_IO_RegRead_32(&DMAC3.CHSTAT_n,
-                                DMAC3_CHSTAT_n_TACT_SHIFT,
-                                DMAC3_CHSTAT_n_TACT)))
-    {
+            (0 == RZA_IO_RegRead_32(&DMAC3.CHSTAT_n,
+                                    DMAC3_CHSTAT_n_TACT_SHIFT,
+                                    DMAC3_CHSTAT_n_TACT))) {
         /* Clear Channel Status Register */
         RZA_IO_RegWrite_32(&DMAC3.CHCTRL_n,
-                            1,
-                            DMAC3_CHCTRL_n_SWRST_SHIFT,
-                            DMAC3_CHCTRL_n_SWRST);
+                           1,
+                           DMAC3_CHCTRL_n_SWRST_SHIFT,
+                           DMAC3_CHCTRL_n_SWRST);
         dummy = RZA_IO_RegRead_32(&DMAC3.CHCTRL_n,
-                                DMAC3_CHCTRL_n_SWRST_SHIFT,
-                                DMAC3_CHCTRL_n_SWRST);
+                                  DMAC3_CHCTRL_n_SWRST_SHIFT,
+                                  DMAC3_CHCTRL_n_SWRST);
         /* Enable DMA transfer */
         RZA_IO_RegWrite_32(&DMAC3.CHCTRL_n,
-                            1,
-                            DMAC3_CHCTRL_n_SETEN_SHIFT,
-                            DMAC3_CHCTRL_n_SETEN);
+                           1,
+                           DMAC3_CHCTRL_n_SETEN_SHIFT,
+                           DMAC3_CHCTRL_n_SETEN);
 
         /* ---- Request by software ---- */
-        if (DMAC_REQ_MODE_SOFT == req)
-        {
+        if (DMAC_REQ_MODE_SOFT == req) {
             /* DMA transfer Request by software */
             RZA_IO_RegWrite_32(&DMAC3.CHCTRL_n,
-                                1,
-                                DMAC3_CHCTRL_n_STG_SHIFT,
-                                DMAC3_CHCTRL_n_STG);
+                               1,
+                               DMAC3_CHCTRL_n_STG_SHIFT,
+                               DMAC3_CHCTRL_n_STG);
         }
 
         ret = 0;
-    }
-    else
-    {
+    } else {
         ret = -1;
     }
 
@@ -328,26 +316,24 @@ int32_t usb1_host_DMAC3_Open (uint32_t req)
 *              :                   : DMA transfer is aborted
 * Return Value : none
 *******************************************************************************/
-void usb1_host_DMAC3_Close (uint32_t * remain)
+void usb1_host_DMAC3_Close(uint32_t *remain)
 {
 
     /* ==== Abort transfer ==== */
     RZA_IO_RegWrite_32(&DMAC3.CHCTRL_n,
-                        1,
-                        DMAC3_CHCTRL_n_CLREN_SHIFT,
-                        DMAC3_CHCTRL_n_CLREN);
+                       1,
+                       DMAC3_CHCTRL_n_CLREN_SHIFT,
+                       DMAC3_CHCTRL_n_CLREN);
 
     while (1 == RZA_IO_RegRead_32(&DMAC3.CHSTAT_n,
-                                DMAC3_CHSTAT_n_TACT_SHIFT,
-                                DMAC3_CHSTAT_n_TACT))
-    {
+                                  DMAC3_CHSTAT_n_TACT_SHIFT,
+                                  DMAC3_CHSTAT_n_TACT)) {
         /* Loop until transfer is aborted */
     }
 
     while (1 == RZA_IO_RegRead_32(&DMAC3.CHSTAT_n,
-                                DMAC3_CHSTAT_n_EN_SHIFT,
-                                DMAC3_CHSTAT_n_EN))
-    {
+                                  DMAC3_CHSTAT_n_EN_SHIFT,
+                                  DMAC3_CHSTAT_n_EN)) {
         /* Loop until 0 is set in EN before checking the remaining transfer byte count */
     }
     /* ==== Obtain remaining transfer byte count ==== */
@@ -369,7 +355,7 @@ void usb1_host_DMAC3_Close (uint32_t * remain)
 *              : uint32_t count    : Total transfer byte count
 * Return Value : none
 *******************************************************************************/
-void usb1_host_DMAC3_Load_Set (uint32_t src_addr, uint32_t dst_addr, uint32_t count)
+void usb1_host_DMAC3_Load_Set(uint32_t src_addr, uint32_t dst_addr, uint32_t count)
 {
     uint8_t reg_set;
 
@@ -379,20 +365,17 @@ void usb1_host_DMAC3_Load_Set (uint32_t src_addr, uint32_t dst_addr, uint32_t co
                                 DMAC3_CHSTAT_n_SR);
 
     /* ==== Load ==== */
-    if (0 == reg_set)
-    {
+    if (0 == reg_set) {
         /* ---- Next0 Register Set ---- */
         DMAC3.N0SA_n = src_addr;    /* Start address of transfer source      */
         DMAC3.N0DA_n = dst_addr;    /* Start address of transfer destination */
         DMAC3.N0TB_n = count;       /* Total transfer byte count             */
-    }
-    else
-    {
+    } else {
         /* ---- Next1 Register Set ---- */
         DMAC3.N1SA_n = src_addr;    /* Start address of transfer source      */
         DMAC3.N1DA_n = dst_addr;    /* Start address of transfer destination */
         DMAC3.N1TB_n = count;       /* Total transfer byte count             */
-     }
+    }
 }
 
 /*******************************************************************************
@@ -423,12 +406,11 @@ void usb1_host_DMAC3_Load_Set (uint32_t src_addr, uint32_t dst_addr, uint32_t co
 *              :                        : REQD bit
 * Return Value : none
 *******************************************************************************/
-void usb1_host_DMAC4_PeriReqInit (const dmac_transinfo_t * trans_info, uint32_t dmamode, uint32_t continuation,
-                              uint32_t request_factor, uint32_t req_direction)
+void usb1_host_DMAC4_PeriReqInit(const dmac_transinfo_t *trans_info, uint32_t dmamode, uint32_t continuation,
+                                 uint32_t request_factor, uint32_t req_direction)
 {
     /* ==== Register mode ==== */
-    if (DMAC_MODE_REGISTER == dmamode)
-    {
+    if (DMAC_MODE_REGISTER == dmamode) {
         /* ==== Next0 register set ==== */
         DMAC4.N0SA_n = trans_info->src_addr;        /* Start address of transfer source      */
         DMAC4.N0DA_n = trans_info->dst_addr;        /* Start address of transfer destination */
@@ -439,129 +421,124 @@ void usb1_host_DMAC4_PeriReqInit (const dmac_transinfo_t * trans_info, uint32_t 
         /* DDS : Transfer destination transfer size              */
         /* SDS : Transfer source transfer size                   */
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            trans_info->daddr_dir,
-                            DMAC4_CHCFG_n_DAD_SHIFT,
-                            DMAC4_CHCFG_n_DAD);
+                           trans_info->daddr_dir,
+                           DMAC4_CHCFG_n_DAD_SHIFT,
+                           DMAC4_CHCFG_n_DAD);
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            trans_info->saddr_dir,
-                            DMAC4_CHCFG_n_SAD_SHIFT,
-                            DMAC4_CHCFG_n_SAD);
+                           trans_info->saddr_dir,
+                           DMAC4_CHCFG_n_SAD_SHIFT,
+                           DMAC4_CHCFG_n_SAD);
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            trans_info->dst_size,
-                            DMAC4_CHCFG_n_DDS_SHIFT,
-                            DMAC4_CHCFG_n_DDS);
+                           trans_info->dst_size,
+                           DMAC4_CHCFG_n_DDS_SHIFT,
+                           DMAC4_CHCFG_n_DDS);
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            trans_info->src_size,
-                            DMAC4_CHCFG_n_SDS_SHIFT,
-                            DMAC4_CHCFG_n_SDS);
+                           trans_info->src_size,
+                           DMAC4_CHCFG_n_SDS_SHIFT,
+                           DMAC4_CHCFG_n_SDS);
 
         /* DMS  : Register mode                            */
         /* RSEL : Select Next0 register set                */
         /* SBE  : No discharge of buffer data when aborted */
         /* DEM  : No DMA interrupt mask                    */
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            0,
-                            DMAC4_CHCFG_n_DMS_SHIFT,
-                            DMAC4_CHCFG_n_DMS);
+                           0,
+                           DMAC4_CHCFG_n_DMS_SHIFT,
+                           DMAC4_CHCFG_n_DMS);
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            0,
-                            DMAC4_CHCFG_n_RSEL_SHIFT,
-                            DMAC4_CHCFG_n_RSEL);
+                           0,
+                           DMAC4_CHCFG_n_RSEL_SHIFT,
+                           DMAC4_CHCFG_n_RSEL);
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            0,
-                            DMAC4_CHCFG_n_SBE_SHIFT,
-                            DMAC4_CHCFG_n_SBE);
+                           0,
+                           DMAC4_CHCFG_n_SBE_SHIFT,
+                           DMAC4_CHCFG_n_SBE);
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            0,
-                            DMAC4_CHCFG_n_DEM_SHIFT,
-                            DMAC4_CHCFG_n_DEM);
+                           0,
+                           DMAC4_CHCFG_n_DEM_SHIFT,
+                           DMAC4_CHCFG_n_DEM);
 
         /* ---- Continuous transfer ---- */
-        if (DMAC_SAMPLE_CONTINUATION == continuation)
-        {
+        if (DMAC_SAMPLE_CONTINUATION == continuation) {
             /* REN : Execute continuous transfer                         */
             /* RSW : Change register set when DMA transfer is completed. */
             RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                                1,
-                                DMAC4_CHCFG_n_REN_SHIFT,
-                                DMAC4_CHCFG_n_REN);
+                               1,
+                               DMAC4_CHCFG_n_REN_SHIFT,
+                               DMAC4_CHCFG_n_REN);
             RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                                1,
-                                DMAC4_CHCFG_n_RSW_SHIFT,
-                                DMAC4_CHCFG_n_RSW);
+                               1,
+                               DMAC4_CHCFG_n_RSW_SHIFT,
+                               DMAC4_CHCFG_n_RSW);
         }
         /* ---- Single transfer ---- */
-        else
-        {
+        else {
             /* REN : Do not execute continuous transfer                         */
             /* RSW : Do not change register set when DMA transfer is completed. */
             RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                                0,
-                                DMAC4_CHCFG_n_REN_SHIFT,
-                                DMAC4_CHCFG_n_REN);
+                               0,
+                               DMAC4_CHCFG_n_REN_SHIFT,
+                               DMAC4_CHCFG_n_REN);
             RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                                0,
-                                DMAC4_CHCFG_n_RSW_SHIFT,
-                                DMAC4_CHCFG_n_RSW);
+                               0,
+                               DMAC4_CHCFG_n_RSW_SHIFT,
+                               DMAC4_CHCFG_n_RSW);
         }
 
         /* TM  : Single transfer                          */
         /* SEL : Channel setting                          */
         /* HIEN, LOEN : On-chip peripheral module request */
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            0,
-                            DMAC4_CHCFG_n_TM_SHIFT,
-                            DMAC4_CHCFG_n_TM);
+                           0,
+                           DMAC4_CHCFG_n_TM_SHIFT,
+                           DMAC4_CHCFG_n_TM);
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            4,
-                            DMAC4_CHCFG_n_SEL_SHIFT,
-                            DMAC4_CHCFG_n_SEL);
+                           4,
+                           DMAC4_CHCFG_n_SEL_SHIFT,
+                           DMAC4_CHCFG_n_SEL);
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            1,
-                            DMAC4_CHCFG_n_HIEN_SHIFT,
-                            DMAC4_CHCFG_n_HIEN);
+                           1,
+                           DMAC4_CHCFG_n_HIEN_SHIFT,
+                           DMAC4_CHCFG_n_HIEN);
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            0,
-                            DMAC4_CHCFG_n_LOEN_SHIFT,
-                            DMAC4_CHCFG_n_LOEN);
+                           0,
+                           DMAC4_CHCFG_n_LOEN_SHIFT,
+                           DMAC4_CHCFG_n_LOEN);
 
         /* ---- Set factor by specified on-chip peripheral module request ---- */
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_AM],
-                            DMAC4_CHCFG_n_AM_SHIFT,
-                            DMAC4_CHCFG_n_AM);
+                           usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_AM],
+                           DMAC4_CHCFG_n_AM_SHIFT,
+                           DMAC4_CHCFG_n_AM);
         RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                            usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_LVL],
-                            DMAC4_CHCFG_n_LVL_SHIFT,
-                            DMAC4_CHCFG_n_LVL);
-        if (usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_REQD] != DMAC_INDEFINE)
-        {
+                           usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_LVL],
+                           DMAC4_CHCFG_n_LVL_SHIFT,
+                           DMAC4_CHCFG_n_LVL);
+        if (usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_REQD] != DMAC_INDEFINE) {
             RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                                usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_REQD],
-                                DMAC4_CHCFG_n_REQD_SHIFT,
-                                DMAC4_CHCFG_n_REQD);
-        }
-        else
-        {
+                               usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_REQD],
+                               DMAC4_CHCFG_n_REQD_SHIFT,
+                               DMAC4_CHCFG_n_REQD);
+        } else {
             RZA_IO_RegWrite_32(&DMAC4.CHCFG_n,
-                                req_direction,
-                                DMAC4_CHCFG_n_REQD_SHIFT,
-                                DMAC4_CHCFG_n_REQD);
+                               req_direction,
+                               DMAC4_CHCFG_n_REQD_SHIFT,
+                               DMAC4_CHCFG_n_REQD);
         }
         RZA_IO_RegWrite_32(&DMAC45.DMARS,
-                            usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_RID],
-                            DMAC45_DMARS_CH4_RID_SHIFT,
-                            DMAC45_DMARS_CH4_RID);
+                           usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_RID],
+                           DMAC45_DMARS_CH4_RID_SHIFT,
+                           DMAC45_DMARS_CH4_RID);
         RZA_IO_RegWrite_32(&DMAC45.DMARS,
-                            usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_MID],
-                            DMAC45_DMARS_CH4_MID_SHIFT,
-                            DMAC45_DMARS_CH4_MID);
+                           usb1_host_dmac_peri_req_init_table[request_factor][DMAC_REQ_MID],
+                           DMAC45_DMARS_CH4_MID_SHIFT,
+                           DMAC45_DMARS_CH4_MID);
 
         /* PR : Round robin mode */
         RZA_IO_RegWrite_32(&DMAC07.DCTRL_0_7,
-                            1,
-                            DMAC07_DCTRL_0_7_PR_SHIFT,
-                            DMAC07_DCTRL_0_7_PR);
+                           1,
+                           DMAC07_DCTRL_0_7_PR_SHIFT,
+                           DMAC07_DCTRL_0_7_PR);
     }
 }
 
@@ -572,7 +549,7 @@ void usb1_host_DMAC4_PeriReqInit (const dmac_transinfo_t * trans_info, uint32_t 
 * Return Value :  0 : Succeeded in enabling DMA transfer
 *              : -1 : Failed to enable DMA transfer (due to DMA operation)
 *******************************************************************************/
-int32_t usb1_host_DMAC4_Open (uint32_t req)
+int32_t usb1_host_DMAC4_Open(uint32_t req)
 {
     int32_t ret;
     volatile uint8_t  dummy;
@@ -581,38 +558,34 @@ int32_t usb1_host_DMAC4_Open (uint32_t req)
     if ((0 == RZA_IO_RegRead_32(&DMAC4.CHSTAT_n,
                                 DMAC4_CHSTAT_n_EN_SHIFT,
                                 DMAC4_CHSTAT_n_EN)) &&
-        (0 == RZA_IO_RegRead_32(&DMAC4.CHSTAT_n,
-                                DMAC4_CHSTAT_n_TACT_SHIFT,
-                                DMAC4_CHSTAT_n_TACT)))
-    {
+            (0 == RZA_IO_RegRead_32(&DMAC4.CHSTAT_n,
+                                    DMAC4_CHSTAT_n_TACT_SHIFT,
+                                    DMAC4_CHSTAT_n_TACT))) {
         /* Clear Channel Status Register */
         RZA_IO_RegWrite_32(&DMAC4.CHCTRL_n,
-                            1,
-                            DMAC4_CHCTRL_n_SWRST_SHIFT,
-                            DMAC4_CHCTRL_n_SWRST);
+                           1,
+                           DMAC4_CHCTRL_n_SWRST_SHIFT,
+                           DMAC4_CHCTRL_n_SWRST);
         dummy = RZA_IO_RegRead_32(&DMAC4.CHCTRL_n,
-                                DMAC4_CHCTRL_n_SWRST_SHIFT,
-                                DMAC4_CHCTRL_n_SWRST);
+                                  DMAC4_CHCTRL_n_SWRST_SHIFT,
+                                  DMAC4_CHCTRL_n_SWRST);
         /* Enable DMA transfer */
         RZA_IO_RegWrite_32(&DMAC4.CHCTRL_n,
-                            1,
-                            DMAC4_CHCTRL_n_SETEN_SHIFT,
-                            DMAC4_CHCTRL_n_SETEN);
+                           1,
+                           DMAC4_CHCTRL_n_SETEN_SHIFT,
+                           DMAC4_CHCTRL_n_SETEN);
 
         /* ---- Request by software ---- */
-        if (DMAC_REQ_MODE_SOFT == req)
-        {
+        if (DMAC_REQ_MODE_SOFT == req) {
             /* DMA transfer Request by software */
             RZA_IO_RegWrite_32(&DMAC4.CHCTRL_n,
-                                1,
-                                DMAC4_CHCTRL_n_STG_SHIFT,
-                                DMAC4_CHCTRL_n_STG);
+                               1,
+                               DMAC4_CHCTRL_n_STG_SHIFT,
+                               DMAC4_CHCTRL_n_STG);
         }
 
         ret = 0;
-    }
-    else
-    {
+    } else {
         ret = -1;
     }
 
@@ -628,26 +601,24 @@ int32_t usb1_host_DMAC4_Open (uint32_t req)
 *              :                   : DMA transfer is aborted
 * Return Value : none
 *******************************************************************************/
-void usb1_host_DMAC4_Close (uint32_t * remain)
+void usb1_host_DMAC4_Close(uint32_t *remain)
 {
 
     /* ==== Abort transfer ==== */
     RZA_IO_RegWrite_32(&DMAC4.CHCTRL_n,
-                        1,
-                        DMAC4_CHCTRL_n_CLREN_SHIFT,
-                        DMAC4_CHCTRL_n_CLREN);
+                       1,
+                       DMAC4_CHCTRL_n_CLREN_SHIFT,
+                       DMAC4_CHCTRL_n_CLREN);
 
     while (1 == RZA_IO_RegRead_32(&DMAC4.CHSTAT_n,
-                                DMAC4_CHSTAT_n_TACT_SHIFT,
-                                DMAC4_CHSTAT_n_TACT))
-    {
+                                  DMAC4_CHSTAT_n_TACT_SHIFT,
+                                  DMAC4_CHSTAT_n_TACT)) {
         /* Loop until transfer is aborted */
     }
 
     while (1 == RZA_IO_RegRead_32(&DMAC4.CHSTAT_n,
-                                DMAC4_CHSTAT_n_EN_SHIFT,
-                                DMAC4_CHSTAT_n_EN))
-    {
+                                  DMAC4_CHSTAT_n_EN_SHIFT,
+                                  DMAC4_CHSTAT_n_EN)) {
         /* Loop until 0 is set in EN before checking the remaining transfer byte count */
     }
     /* ==== Obtain remaining transfer byte count ==== */
@@ -669,7 +640,7 @@ void usb1_host_DMAC4_Close (uint32_t * remain)
 *              : uint32_t count    : Total transfer byte count
 * Return Value : none
 *******************************************************************************/
-void usb1_host_DMAC4_Load_Set (uint32_t src_addr, uint32_t dst_addr, uint32_t count)
+void usb1_host_DMAC4_Load_Set(uint32_t src_addr, uint32_t dst_addr, uint32_t count)
 {
     uint8_t reg_set;
 
@@ -679,20 +650,17 @@ void usb1_host_DMAC4_Load_Set (uint32_t src_addr, uint32_t dst_addr, uint32_t co
                                 DMAC4_CHSTAT_n_SR);
 
     /* ==== Load ==== */
-    if (0 == reg_set)
-    {
+    if (0 == reg_set) {
         /* ---- Next0 Register Set ---- */
         DMAC4.N0SA_n = src_addr;    /* Start address of transfer source      */
         DMAC4.N0DA_n = dst_addr;    /* Start address of transfer destination */
         DMAC4.N0TB_n = count;       /* Total transfer byte count             */
-    }
-    else
-    {
+    } else {
         /* ---- Next1 Register Set ---- */
         DMAC4.N1SA_n = src_addr;    /* Start address of transfer source      */
         DMAC4.N1DA_n = dst_addr;    /* Start address of transfer destination */
         DMAC4.N1TB_n = count;       /* Total transfer byte count             */
-     }
+    }
 }
 
 /* End of File */

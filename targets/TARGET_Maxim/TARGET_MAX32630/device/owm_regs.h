@@ -2,41 +2,41 @@
  * @file
  * @brief Type definitions for the 1-Wire Master Interface
  */
- /* ****************************************************************************
- * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
- * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * Except as contained in this notice, the name of Maxim Integrated
- * Products, Inc. shall not be used except as stated in the Maxim Integrated
- * Products, Inc. Branding Policy.
- *
- * The mere transfer of this software does not imply any licenses
- * of trade secrets, proprietary technology, copyrights, patents,
- * trademarks, maskwork rights, or any other form of intellectual
- * property whatsoever. Maxim Integrated Products, Inc. retains all
- * ownership rights.
- *
- * $Date: 2016-10-10 19:22:03 -0500 (Mon, 10 Oct 2016) $
- * $Revision: 24666 $
- *
- **************************************************************************** */
+/* ****************************************************************************
+* Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a
+* copy of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
+* and/or sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included
+* in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
+* OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+*
+* Except as contained in this notice, the name of Maxim Integrated
+* Products, Inc. shall not be used except as stated in the Maxim Integrated
+* Products, Inc. Branding Policy.
+*
+* The mere transfer of this software does not imply any licenses
+* of trade secrets, proprietary technology, copyrights, patents,
+* trademarks, maskwork rights, or any other form of intellectual
+* property whatsoever. Maxim Integrated Products, Inc. retains all
+* ownership rights.
+*
+* $Date: 2016-10-10 19:22:03 -0500 (Mon, 10 Oct 2016) $
+* $Revision: 24666 $
+*
+**************************************************************************** */
 
 /* Define to prevent redundant inclusion */
 #ifndef _MXC_OWM_REGS_H_
@@ -74,7 +74,7 @@ extern "C" {
  * @{
  */
 /**
- * Structure type for the 1-Wire Master module registers allowing direct 32-bit access to each register. 
+ * Structure type for the 1-Wire Master module registers allowing direct 32-bit access to each register.
  */
 typedef struct {
     __IO uint32_t cfg;                                  /**< <tt>\b 0x0000:</tt> OWM_CFG Register - 1-Wire Master Configuration           */
@@ -89,7 +89,7 @@ typedef struct {
 /**
  * @ingroup    owm_registers
  * @defgroup   OWM_Register_Offsets Register Offsets
- * @brief      1-Wire Master register offsets from the 1-Wire Master Base Peripheral Address. 
+ * @brief      1-Wire Master register offsets from the 1-Wire Master Base Peripheral Address.
  * @{
  */
 #define MXC_R_OWM_OFFS_CFG                                  ((uint32_t)0x00000000UL)        /**< Offset from the OWM Base Peripheral Address:<tt>\b 0x0000:</tt>*/
@@ -105,8 +105,8 @@ typedef struct {
 */
 /**
  * @ingroup     owm_registers
- * @defgroup    owm_cfg OWM_CFG 
- * @brief       Field Positions and Masks 
+ * @defgroup    owm_cfg OWM_CFG
+ * @brief       Field Positions and Masks
  */
 #define MXC_F_OWM_CFG_LONG_LINE_MODE_POS                    0                                                                     /**< LONG_LINE_MODE Position  */
 #define MXC_F_OWM_CFG_LONG_LINE_MODE                        ((uint32_t)(0x00000001UL << MXC_F_OWM_CFG_LONG_LINE_MODE_POS))        /**< LONG_LINE_MODE Mask  */
@@ -128,7 +128,7 @@ typedef struct {
 /**
  * @ingroup     owm_registers
  * @defgroup    owm_clk_div OWM_CLK_DIV
- * @brief       Field Positions and Masks 
+ * @brief       Field Positions and Masks
  */
 #define MXC_F_OWM_CLK_DIV_1US_DIVISOR_POS                   0                                                                     /**< 1US_DIVISOR Position  */
 #define MXC_F_OWM_CLK_DIV_1US_DIVISOR                       ((uint32_t)(0x000000FFUL << MXC_F_OWM_CLK_DIV_1US_DIVISOR_POS))       /**< 1US_DIVISOR Mask  */
@@ -136,7 +136,7 @@ typedef struct {
 /**
  * @ingroup     owm_registers
  * @defgroup    owm_ctrl_stat OWM_CTRL_STAT
- * @brief       Field Positions and Masks 
+ * @brief       Field Positions and Masks
  */
 #define MXC_F_OWM_CTRL_STAT_START_OW_RESET_POS              0                                                                     /**< START_OW_RESET Position  */
 #define MXC_F_OWM_CTRL_STAT_START_OW_RESET                  ((uint32_t)(0x00000001UL << MXC_F_OWM_CTRL_STAT_START_OW_RESET_POS))  /**< START_OW_RESET Mask  */
@@ -156,7 +156,7 @@ typedef struct {
 /**
  * @ingroup     owm_registers
  * @defgroup    owm_data OWM_DATA
- * @brief       Field Positions and Masks 
+ * @brief       Field Positions and Masks
  */
 #define MXC_F_OWM_DATA_TX_RX_POS                            0                                                                     /**< TX_RX Position  */
 #define MXC_F_OWM_DATA_TX_RX                                ((uint32_t)(0x000000FFUL << MXC_F_OWM_DATA_TX_RX_POS))                /**< TX_RX Mask  */
@@ -164,7 +164,7 @@ typedef struct {
 /**
  * @ingroup     owm_registers
  * @defgroup    owm_intfl OWM_INTFL
- * @brief       Field Positions and Masks 
+ * @brief       Field Positions and Masks
  */
 #define MXC_F_OWM_INTFL_OW_RESET_DONE_POS                   0                                                                     /**< OW_RESET_DONE Position  */
 #define MXC_F_OWM_INTFL_OW_RESET_DONE                       ((uint32_t)(0x00000001UL << MXC_F_OWM_INTFL_OW_RESET_DONE_POS))       /**< OW_RESET_DONE Mask  */
@@ -180,7 +180,7 @@ typedef struct {
 /**
  * @ingroup     owm_registers
  * @defgroup    owm_inten OWM_INTEN
- * @brief       Field Positions and Masks 
+ * @brief       Field Positions and Masks
  */
 #define MXC_F_OWM_INTEN_OW_RESET_DONE_POS                   0                                                                     /**< OW_RESET_DONE Position  */
 #define MXC_F_OWM_INTEN_OW_RESET_DONE                       ((uint32_t)(0x00000001UL << MXC_F_OWM_INTEN_OW_RESET_DONE_POS))       /**< OW_RESET_DONE Mask  */

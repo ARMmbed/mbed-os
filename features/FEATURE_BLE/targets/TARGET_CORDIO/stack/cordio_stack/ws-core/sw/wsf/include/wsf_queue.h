@@ -41,10 +41,9 @@ extern "C" {
 **************************************************************************************************/
 
 /*! Queue structure */
-typedef struct
-{
-  void      *pHead;         /*! head of queue */
-  void      *pTail;         /*! tail of queue */
+typedef struct {
+    void      *pHead;         /*! head of queue */
+    void      *pTail;         /*! tail of queue */
 } wsfQueue_t;
 
 /**************************************************************************************************

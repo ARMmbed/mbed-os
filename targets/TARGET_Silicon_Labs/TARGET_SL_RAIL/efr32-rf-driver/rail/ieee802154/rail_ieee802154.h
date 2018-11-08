@@ -75,9 +75,10 @@
  * @enum RAIL_IEEE802154_AddressLength_t
  * @brief Different lengths that an 802.15.4 address can have
  */
-RAIL_ENUM(RAIL_IEEE802154_AddressLength_t) {
-  RAIL_IEEE802154_ShortAddress = 2, /**< 2 byte short address. */
-  RAIL_IEEE802154_LongAddress = 3, /**< 8 byte extended address. */
+RAIL_ENUM(RAIL_IEEE802154_AddressLength_t)
+{
+    RAIL_IEEE802154_ShortAddress = 2, /**< 2 byte short address. */
+    RAIL_IEEE802154_LongAddress = 3, /**< 8 byte extended address. */
 };
 
 /**
@@ -86,16 +87,16 @@ RAIL_ENUM(RAIL_IEEE802154_AddressLength_t) {
  * This structure is only used for a received address, which needs to be parsed
  * to discover the type.
  */
-typedef struct RAIL_IEEE802154_Address{
-  /** Convenient storage for different address types */
-  union {
-    uint16_t shortAddress; /**< Present for 2 byte addresses. */
-    uint8_t longAddress[8]; /**< Present for 8 byte addresses. */
-  };
-  /**
-   * Enum of the received address length
-   */
-  RAIL_IEEE802154_AddressLength_t length;
+typedef struct RAIL_IEEE802154_Address {
+    /** Convenient storage for different address types */
+    union {
+        uint16_t shortAddress; /**< Present for 2 byte addresses. */
+        uint8_t longAddress[8]; /**< Present for 8 byte addresses. */
+    };
+    /**
+     * Enum of the received address length
+     */
+    RAIL_IEEE802154_AddressLength_t length;
 } RAIL_IEEE802154_Address_t;
 
 /** The maximum number of allowed addresses of each type. */
@@ -114,23 +115,23 @@ typedef struct RAIL_IEEE802154_Address{
  * not with the second PAN ID. The broadcast PAN ID and address will work with
  * any address or PAN ID, respectively.
  */
-typedef struct RAIL_IEEE802154_AddrConfig{
-  /**
-   * PAN IDs for destination filtering. Both must be specified.
-   * To disable a PAN ID, set it to the broadcast value, 0xFFFF.
-   */
-  uint16_t panId[RAIL_IEEE802154_MAX_ADDRESSES];
-  /**
-   * Short network addresses for destination filtering. Both must be specified.
-   * To disable a short address, set it to the broadcast value, 0xFFFF.
-   */
-  uint16_t shortAddr[RAIL_IEEE802154_MAX_ADDRESSES];
-  /**
-   * 64 bit address for destination filtering. Both must be specified.
-   * This field is parsed in over-the-air (OTA) byte order. To disable a long
-   * address, set it to the reserved value of 0x00 00 00 00 00 00 00 00.
-   */
-  uint8_t longAddr[RAIL_IEEE802154_MAX_ADDRESSES][8];
+typedef struct RAIL_IEEE802154_AddrConfig {
+    /**
+     * PAN IDs for destination filtering. Both must be specified.
+     * To disable a PAN ID, set it to the broadcast value, 0xFFFF.
+     */
+    uint16_t panId[RAIL_IEEE802154_MAX_ADDRESSES];
+    /**
+     * Short network addresses for destination filtering. Both must be specified.
+     * To disable a short address, set it to the broadcast value, 0xFFFF.
+     */
+    uint16_t shortAddr[RAIL_IEEE802154_MAX_ADDRESSES];
+    /**
+     * 64 bit address for destination filtering. Both must be specified.
+     * This field is parsed in over-the-air (OTA) byte order. To disable a long
+     * address, set it to the reserved value of 0x00 00 00 00 00 00 00 00.
+     */
+    uint8_t longAddr[RAIL_IEEE802154_MAX_ADDRESSES][8];
 } RAIL_IEEE802154_AddrConfig_t;
 
 /**
@@ -138,38 +139,38 @@ typedef struct RAIL_IEEE802154_AddrConfig{
  * @brief Configuration structure for IEEE 802.15.4 in RAIL
  */
 typedef struct RAIL_IEEE802154_Config {
-  /**
-   * Configure the RAIL Address Filter to allow the given destination
-   * addresses. If addresses is NULL, defer destination address configuration.
-   * If a member of addresses is NULL, defer configuration of just that member.
-   * This can be overridden via RAIL_IEEE802154_SetAddresses(), or the
-   * individual members can be changed via RAIL_IEEE802154_SetPanId(),
-   * RAIL_IEEE802154_SetShortAddress(), and RAIL_IEEE802154_SetLongAddress().
-   */
-  const RAIL_IEEE802154_AddrConfig_t *addresses;
-  /**
-   * Defines the acking configuration for the IEEE 802.15.4 implementation
-   */
-  RAIL_AutoAckConfig_t ackConfig;
-  /**
-   * Defines state timings for the IEEE 802.15.4 implementation
-   */
-  RAIL_StateTiming_t timings;
-  /**
-   * Set which 802.15.4 frame types will be received, of Beacon, Data, Ack, and
-   * Command. This setting can be overridden via RAIL_IEEE802154_AcceptFrames().
-   */
-  uint8_t framesMask;
-  /**
-   * Enable promiscuous mode during configuration. This can be overridden via
-   * RAIL_IEEE802154_SetPromiscuousMode() afterwards.
-   */
-  bool promiscuousMode;
-  /**
-   * Set whether the device is a PAN Coordinator during configuration. This can
-   * be overridden via RAIL_IEEE802154_SetPanCoordinator() afterwards.
-   */
-  bool isPanCoordinator;
+    /**
+     * Configure the RAIL Address Filter to allow the given destination
+     * addresses. If addresses is NULL, defer destination address configuration.
+     * If a member of addresses is NULL, defer configuration of just that member.
+     * This can be overridden via RAIL_IEEE802154_SetAddresses(), or the
+     * individual members can be changed via RAIL_IEEE802154_SetPanId(),
+     * RAIL_IEEE802154_SetShortAddress(), and RAIL_IEEE802154_SetLongAddress().
+     */
+    const RAIL_IEEE802154_AddrConfig_t *addresses;
+    /**
+     * Defines the acking configuration for the IEEE 802.15.4 implementation
+     */
+    RAIL_AutoAckConfig_t ackConfig;
+    /**
+     * Defines state timings for the IEEE 802.15.4 implementation
+     */
+    RAIL_StateTiming_t timings;
+    /**
+     * Set which 802.15.4 frame types will be received, of Beacon, Data, Ack, and
+     * Command. This setting can be overridden via RAIL_IEEE802154_AcceptFrames().
+     */
+    uint8_t framesMask;
+    /**
+     * Enable promiscuous mode during configuration. This can be overridden via
+     * RAIL_IEEE802154_SetPromiscuousMode() afterwards.
+     */
+    bool promiscuousMode;
+    /**
+     * Set whether the device is a PAN Coordinator during configuration. This can
+     * be overridden via RAIL_IEEE802154_SetPanCoordinator() afterwards.
+     */
+    bool isPanCoordinator;
 } RAIL_IEEE802154_Config_t;
 
 /**

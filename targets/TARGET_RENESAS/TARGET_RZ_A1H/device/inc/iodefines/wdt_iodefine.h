@@ -41,9 +41,8 @@
 #define WDTWRCSR (WDT.WRCSR)
 
 
-typedef struct st_wdt
-{
-                                                           /* WDT              */
+typedef struct st_wdt {
+    /* WDT              */
     volatile uint16_t WTCSR;                                  /*  WTCSR           */
     volatile uint16_t WTCNT;                                  /*  WTCNT           */
     volatile uint16_t WRCSR;                                  /*  WRCSR           */

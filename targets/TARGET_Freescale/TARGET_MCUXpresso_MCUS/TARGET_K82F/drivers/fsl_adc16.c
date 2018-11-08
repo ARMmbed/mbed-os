@@ -59,10 +59,8 @@ static uint32_t ADC16_GetInstance(ADC_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_ADC16_COUNT; instance++)
-    {
-        if (s_adc16Bases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_ADC16_COUNT; instance++) {
+        if (s_adc16Bases[instance] == base) {
             break;
         }
     }
@@ -85,29 +83,24 @@ void ADC16_Init(ADC_Type *base, const adc16_config_t *config)
 
     /* ADCx_CFG1. */
     tmp32 = ADC_CFG1_ADICLK(config->clockSource) | ADC_CFG1_MODE(config->resolution);
-    if (kADC16_LongSampleDisabled != config->longSampleMode)
-    {
+    if (kADC16_LongSampleDisabled != config->longSampleMode) {
         tmp32 |= ADC_CFG1_ADLSMP_MASK;
     }
     tmp32 |= ADC_CFG1_ADIV(config->clockDivider);
-    if (config->enableLowPower)
-    {
+    if (config->enableLowPower) {
         tmp32 |= ADC_CFG1_ADLPC_MASK;
     }
     base->CFG1 = tmp32;
 
     /* ADCx_CFG2. */
     tmp32 = base->CFG2 & ~(ADC_CFG2_ADACKEN_MASK | ADC_CFG2_ADHSC_MASK | ADC_CFG2_ADLSTS_MASK);
-    if (kADC16_LongSampleDisabled != config->longSampleMode)
-    {
+    if (kADC16_LongSampleDisabled != config->longSampleMode) {
         tmp32 |= ADC_CFG2_ADLSTS(config->longSampleMode);
     }
-    if (config->enableHighSpeed)
-    {
+    if (config->enableHighSpeed) {
         tmp32 |= ADC_CFG2_ADHSC_MASK;
     }
-    if (config->enableAsynchronousClock)
-    {
+    if (config->enableAsynchronousClock) {
         tmp32 |= ADC_CFG2_ADACKEN_MASK;
     }
     base->CFG2 = tmp32;
@@ -118,12 +111,9 @@ void ADC16_Init(ADC_Type *base, const adc16_config_t *config)
     base->SC2 = tmp32;
 
     /* ADCx_SC3. */
-    if (config->enableContinuousConversion)
-    {
+    if (config->enableContinuousConversion) {
         base->SC3 |= ADC_SC3_ADCO_MASK;
-    }
-    else
-    {
+    } else {
         base->SC3 &= ~ADC_SC3_ADCO_MASK;
     }
 }
@@ -160,19 +150,16 @@ status_t ADC16_DoAutoCalibration(ADC_Type *base)
 
     /* The calibration would be failed when in hardwar mode.
      * Remember the hardware trigger state here and restore it later if the hardware trigger is enabled.*/
-    if (0U != (ADC_SC2_ADTRG_MASK & base->SC2))
-    {
+    if (0U != (ADC_SC2_ADTRG_MASK & base->SC2)) {
         bHWTrigger = true;
         base->SC2 &= ~ADC_SC2_ADTRG_MASK;
     }
 
     /* Clear the CALF and launch the calibration. */
     base->SC3 |= ADC_SC3_CAL_MASK | ADC_SC3_CALF_MASK;
-    while (0U == (kADC16_ChannelConversionDoneFlag & ADC16_GetChannelStatusFlags(base, 0U)))
-    {
+    while (0U == (kADC16_ChannelConversionDoneFlag & ADC16_GetChannelStatusFlags(base, 0U))) {
         /* Check the CALF when the calibration is active. */
-        if (0U != (kADC16_CalibrationFailedFlag & ADC16_GetStatusFlags(base)))
-        {
+        if (0U != (kADC16_CalibrationFailedFlag & ADC16_GetStatusFlags(base))) {
             status = kStatus_Fail;
             break;
         }
@@ -180,17 +167,14 @@ status_t ADC16_DoAutoCalibration(ADC_Type *base)
     tmp32 = base->R[0]; /* Dummy read to clear COCO caused by calibration. */
 
     /* Restore the hardware trigger setting if it was enabled before. */
-    if (bHWTrigger)
-    {
+    if (bHWTrigger) {
         base->SC2 |= ADC_SC2_ADTRG_MASK;
     }
     /* Check the CALF at the end of calibration. */
-    if (0U != (kADC16_CalibrationFailedFlag & ADC16_GetStatusFlags(base)))
-    {
+    if (0U != (kADC16_CalibrationFailedFlag & ADC16_GetStatusFlags(base))) {
         status = kStatus_Fail;
     }
-    if (kStatus_Success != status) /* Check if the calibration process is succeed. */
-    {
+    if (kStatus_Success != status) { /* Check if the calibration process is succeed. */
         return status;
     }
 
@@ -212,12 +196,9 @@ status_t ADC16_DoAutoCalibration(ADC_Type *base)
 #if defined(FSL_FEATURE_ADC16_HAS_MUX_SELECT) && FSL_FEATURE_ADC16_HAS_MUX_SELECT
 void ADC16_SetChannelMuxMode(ADC_Type *base, adc16_channel_mux_mode_t mode)
 {
-    if (kADC16_ChannelMuxA == mode)
-    {
+    if (kADC16_ChannelMuxA == mode) {
         base->CFG2 &= ~ADC_CFG2_MUXSEL_MASK;
-    }
-    else /* kADC16_ChannelMuxB. */
-    {
+    } else { /* kADC16_ChannelMuxB. */
         base->CFG2 |= ADC_CFG2_MUXSEL_MASK;
     }
 }
@@ -227,8 +208,7 @@ void ADC16_SetHardwareCompareConfig(ADC_Type *base, const adc16_hardware_compare
 {
     uint32_t tmp32 = base->SC2 & ~(ADC_SC2_ACFE_MASK | ADC_SC2_ACFGT_MASK | ADC_SC2_ACREN_MASK);
 
-    if (!config) /* Pass "NULL" to disable the feature. */
-    {
+    if (!config) { /* Pass "NULL" to disable the feature. */
         base->SC2 = tmp32;
         return;
     }
@@ -236,8 +216,7 @@ void ADC16_SetHardwareCompareConfig(ADC_Type *base, const adc16_hardware_compare
     tmp32 |= ADC_SC2_ACFE_MASK;
 
     /* Select the hardware compare working mode. */
-    switch (config->hardwareCompareMode)
-    {
+    switch (config->hardwareCompareMode) {
         case kADC16_HardwareCompareMode0:
             break;
         case kADC16_HardwareCompareMode1:
@@ -264,8 +243,7 @@ void ADC16_SetHardwareAverage(ADC_Type *base, adc16_hardware_average_mode_t mode
 {
     uint32_t tmp32 = base->SC3 & ~(ADC_SC3_AVGE_MASK | ADC_SC3_AVGS_MASK);
 
-    if (kADC16_HardwareAverageDisabled != mode)
-    {
+    if (kADC16_HardwareAverageDisabled != mode) {
         tmp32 |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(mode);
     }
     base->SC3 = tmp32;
@@ -277,8 +255,7 @@ void ADC16_SetPGAConfig(ADC_Type *base, const adc16_pga_config_t *config)
 {
     uint32_t tmp32;
 
-    if (!config) /* Passing "NULL" is to disable the feature. */
-    {
+    if (!config) { /* Passing "NULL" is to disable the feature. */
         base->PGA = 0U;
         return;
     }
@@ -287,19 +264,16 @@ void ADC16_SetPGAConfig(ADC_Type *base, const adc16_pga_config_t *config)
     tmp32 = ADC_PGA_PGAEN_MASK | ADC_PGA_PGAG(config->pgaGain);
 
     /* Configure the misc features for PGA. */
-    if (config->enableRunInNormalMode)
-    {
+    if (config->enableRunInNormalMode) {
         tmp32 |= ADC_PGA_PGALPb_MASK;
     }
 #if defined(FSL_FEATURE_ADC16_HAS_PGA_CHOPPING) && FSL_FEATURE_ADC16_HAS_PGA_CHOPPING
-    if (config->disablePgaChopping)
-    {
+    if (config->disablePgaChopping) {
         tmp32 |= ADC_PGA_PGACHPb_MASK;
     }
 #endif /* FSL_FEATURE_ADC16_HAS_PGA_CHOPPING */
 #if defined(FSL_FEATURE_ADC16_HAS_PGA_OFFSET_MEASUREMENT) && FSL_FEATURE_ADC16_HAS_PGA_OFFSET_MEASUREMENT
-    if (config->enableRunInOffsetMeasurement)
-    {
+    if (config->enableRunInOffsetMeasurement) {
         tmp32 |= ADC_PGA_PGAOFSM_MASK;
     }
 #endif /* FSL_FEATURE_ADC16_HAS_PGA_OFFSET_MEASUREMENT */
@@ -311,13 +285,11 @@ uint32_t ADC16_GetStatusFlags(ADC_Type *base)
 {
     uint32_t ret = 0;
 
-    if (0U != (base->SC2 & ADC_SC2_ADACT_MASK))
-    {
+    if (0U != (base->SC2 & ADC_SC2_ADACT_MASK)) {
         ret |= kADC16_ActiveFlag;
     }
 #if defined(FSL_FEATURE_ADC16_HAS_CALIBRATION) && FSL_FEATURE_ADC16_HAS_CALIBRATION
-    if (0U != (base->SC3 & ADC_SC3_CALF_MASK))
-    {
+    if (0U != (base->SC3 & ADC_SC3_CALF_MASK)) {
         ret |= kADC16_CalibrationFailedFlag;
     }
 #endif /* FSL_FEATURE_ADC16_HAS_CALIBRATION */
@@ -327,8 +299,7 @@ uint32_t ADC16_GetStatusFlags(ADC_Type *base)
 void ADC16_ClearStatusFlags(ADC_Type *base, uint32_t mask)
 {
 #if defined(FSL_FEATURE_ADC16_HAS_CALIBRATION) && FSL_FEATURE_ADC16_HAS_CALIBRATION
-    if (0U != (mask & kADC16_CalibrationFailedFlag))
-    {
+    if (0U != (mask & kADC16_CalibrationFailedFlag)) {
         base->SC3 |= ADC_SC3_CALF_MASK;
     }
 #endif /* FSL_FEATURE_ADC16_HAS_CALIBRATION */
@@ -343,14 +314,12 @@ void ADC16_SetChannelConfig(ADC_Type *base, uint32_t channelGroup, const adc16_c
 
 #if defined(FSL_FEATURE_ADC16_HAS_DIFF_MODE) && FSL_FEATURE_ADC16_HAS_DIFF_MODE
     /* Enable the differential conversion. */
-    if (config->enableDifferentialConversion)
-    {
+    if (config->enableDifferentialConversion) {
         sc1 |= ADC_SC1_DIFF_MASK;
     }
 #endif /* FSL_FEATURE_ADC16_HAS_DIFF_MODE */
     /* Enable the interrupt when the conversion is done. */
-    if (config->enableInterruptOnConversionCompleted)
-    {
+    if (config->enableInterruptOnConversionCompleted) {
         sc1 |= ADC_SC1_AIEN_MASK;
     }
     base->SC1[channelGroup] = sc1;
@@ -362,8 +331,7 @@ uint32_t ADC16_GetChannelStatusFlags(ADC_Type *base, uint32_t channelGroup)
 
     uint32_t ret = 0U;
 
-    if (0U != (base->SC1[channelGroup] & ADC_SC1_COCO_MASK))
-    {
+    if (0U != (base->SC1[channelGroup] & ADC_SC1_COCO_MASK)) {
         ret |= kADC16_ChannelConversionDoneFlag;
     }
     return ret;

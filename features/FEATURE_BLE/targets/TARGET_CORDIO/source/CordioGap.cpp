@@ -49,7 +49,7 @@ void Gap::initialize()
         return;
     }
 
-    whitelist.addresses = new(std::nothrow) BLEProtocol::Address_t[whitelist_size];
+    whitelist.addresses = new (std::nothrow) BLEProtocol::Address_t[whitelist_size];
     if (whitelist.addresses == NULL) {
         return;
     }
@@ -96,8 +96,8 @@ ble_error_t Gap::getAddress(AddressType_t *typeP, Address_t address)
 {
     *typeP = m_type;
 
-    if(m_type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE ||
-       m_type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE) {
+    if (m_type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE ||
+            m_type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE) {
         return BLE_ERROR_NONE;
     }
 
@@ -118,8 +118,8 @@ ble_error_t Gap::setAdvertisingData(const GapAdvertisingData &advData, const Gap
     }
 
     /* set advertising and scan response data for discoverable mode */
-    DmAdvSetData(DM_ADV_HANDLE_DEFAULT, HCI_ADV_DATA_OP_COMP_FRAG, DM_DATA_LOC_ADV, advData.getPayloadLen(), (uint8_t*)advData.getPayload());
-    DmAdvSetData(DM_ADV_HANDLE_DEFAULT, HCI_ADV_DATA_OP_COMP_FRAG, DM_DATA_LOC_SCAN, scanResponse.getPayloadLen(), (uint8_t*)scanResponse.getPayload());
+    DmAdvSetData(DM_ADV_HANDLE_DEFAULT, HCI_ADV_DATA_OP_COMP_FRAG, DM_DATA_LOC_ADV, advData.getPayloadLen(), (uint8_t *)advData.getPayload());
+    DmAdvSetData(DM_ADV_HANDLE_DEFAULT, HCI_ADV_DATA_OP_COMP_FRAG, DM_DATA_LOC_SCAN, scanResponse.getPayloadLen(), (uint8_t *)scanResponse.getPayload());
 
     return BLE_ERROR_NONE;
 }
@@ -127,9 +127,10 @@ ble_error_t Gap::setAdvertisingData(const GapAdvertisingData &advData, const Gap
 ble_error_t Gap::connect(
     const BLEProtocol::AddressBytes_t peerAddr,
     BLEProtocol::AddressType_t peerAddrType,
-    const ConnectionParams_t* connectionParams,
-    const GapScanningParams* scanParams
-) {
+    const ConnectionParams_t *connectionParams,
+    const GapScanningParams *scanParams
+)
+{
     // prepare the scan interval
     if (scanParams != NULL) {
         DmConnSetScanInterval(scanParams->getInterval(), scanParams->getWindow());
@@ -149,11 +150,11 @@ ble_error_t Gap::connect(
 
     DmScanStop();
     dmConnId_t connection_id = DmConnOpen(
-        DM_CLIENT_ID_APP,
-        HCI_INIT_PHY_LE_1M_BIT,
-        peerAddrType,
-        (uint8_t*) peerAddr
-    );
+                                   DM_CLIENT_ID_APP,
+                                   HCI_INIT_PHY_LE_1M_BIT,
+                                   peerAddrType,
+                                   (uint8_t *) peerAddr
+                               );
 
     if (connection_id == DM_CONN_ID_NONE) {
         return BLE_ERROR_INTERNAL_STACK_FAILURE;
@@ -189,12 +190,12 @@ ble_error_t Gap::startAdvertising(const GapAdvertisingParams &params)
     if (params.getAdvertisingType() == GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED) {
         /* Min delay is slightly longer for unconnectable devices */
         if ((params.getIntervalInADVUnits() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON) ||
-            (params.getIntervalInADVUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
+                (params.getIntervalInADVUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
     } else {
         if ((params.getIntervalInADVUnits() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN) ||
-            (params.getIntervalInADVUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
+                (params.getIntervalInADVUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
     }
@@ -208,7 +209,7 @@ ble_error_t Gap::startAdvertising(const GapAdvertisingParams &params)
 
     /* Check timeout for other advertising types */
     if ((params.getAdvertisingType() != GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) &&
-        (params.getTimeout() > GapAdvertisingParams::GAP_ADV_PARAMS_TIMEOUT_MAX)) {
+            (params.getTimeout() > GapAdvertisingParams::GAP_ADV_PARAMS_TIMEOUT_MAX)) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -226,7 +227,7 @@ ble_error_t Gap::startAdvertising(const GapAdvertisingParams &params)
     DmAdvConfig(DM_ADV_HANDLE_DEFAULT, params.getAdvertisingType(), peerAddrType, peerAddr);
 
     uint8_t adv_handles[] = { DM_ADV_HANDLE_DEFAULT };
-    uint16_t adv_durations[] = { (uint16_t) (params.getTimeout() * 1000) };
+    uint16_t adv_durations[] = { (uint16_t)(params.getTimeout() * 1000) };
     uint8_t max_ea_events[] = { 0 };
     DmAdvStart(1, adv_handles, adv_durations, max_ea_events);
 
@@ -272,7 +273,7 @@ ble_error_t Gap::setDeviceName(const uint8_t *deviceName)
 
 ble_error_t Gap::getDeviceName(uint8_t *deviceName, unsigned *lengthP)
 {
-    const uint8_t* name = NULL;
+    const uint8_t *name = NULL;
     uint16_t length = 0;
 
     GattServer::getInstance().getDeviceName(name, length);
@@ -335,12 +336,12 @@ ble_error_t Gap::setPreferredConnectionParams(const ConnectionParams_t *params)
     // see BLUETOOTH SPECIFICATION Version 4.2 [Vol 3, Part C]
     // section 12.3 PERIPHERAL PREFERRED CONNECTION PARAMETERS CHARACTERISTIC
     if (((0x0006 > params->minConnectionInterval) || (params->minConnectionInterval > 0x0C80)) &&
-        params->minConnectionInterval != 0xFFFF) {
+            params->minConnectionInterval != 0xFFFF) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
     if (((params->minConnectionInterval > params->maxConnectionInterval) || (params->maxConnectionInterval > 0x0C80)) &&
-        params->maxConnectionInterval != 0xFFFF) {
+            params->maxConnectionInterval != 0xFFFF) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -349,7 +350,7 @@ ble_error_t Gap::setPreferredConnectionParams(const ConnectionParams_t *params)
     }
 
     if (((0x000A > params->connectionSupervisionTimeout) || (params->connectionSupervisionTimeout > 0x0C80)) &&
-        params->connectionSupervisionTimeout != 0xFFFF) {
+            params->connectionSupervisionTimeout != 0xFFFF) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -422,7 +423,7 @@ uint8_t Gap::getMaxWhitelistSize(void) const
 ble_error_t Gap::getWhitelist(Whitelist_t &other) const
 {
     // i is a shorthand for other.size
-    uint8_t& i = other.size;
+    uint8_t &i = other.size;
 
     for (i = 0; (i < whitelist.capacity) && (i < other.capacity); ++i) {
         other.addresses[i] = whitelist.addresses[i];
@@ -431,7 +432,7 @@ ble_error_t Gap::getWhitelist(Whitelist_t &other) const
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::setWhitelist(const Whitelist_t& other)
+ble_error_t Gap::setWhitelist(const Whitelist_t &other)
 {
     if (other.capacity > whitelist.capacity) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
@@ -442,7 +443,7 @@ ble_error_t Gap::setWhitelist(const Whitelist_t& other)
     DmDevWhiteListClear();
 
     // alias i to whitelist.size
-    uint8_t& i = whitelist.size;
+    uint8_t &i = whitelist.size;
 
     for (i = 0; (i < other.capacity) && (i < whitelist.capacity); ++i) {
         whitelist.addresses[i] = other.addresses[i];
@@ -458,9 +459,9 @@ ble_error_t Gap::setWhitelist(const Whitelist_t& other)
 ble_error_t Gap::setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode)
 {
     bool_t result = DmDevSetFilterPolicy(
-        DM_FILT_POLICY_MODE_ADV,
-        mode
-    );
+                        DM_FILT_POLICY_MODE_ADV,
+                        mode
+                    );
 
     if (result == false) {
         return BLE_ERROR_INVALID_STATE;
@@ -478,9 +479,9 @@ Gap::AdvertisingPolicyMode_t Gap::getAdvertisingPolicyMode(void) const
 ble_error_t Gap::setScanningPolicyMode(ScanningPolicyMode_t mode)
 {
     bool_t result = DmDevSetFilterPolicy(
-        DM_FILT_POLICY_MODE_SCAN,
-        mode
-    );
+                        DM_FILT_POLICY_MODE_SCAN,
+                        mode
+                    );
 
     if (result == false) {
         return BLE_ERROR_INVALID_STATE;
@@ -499,9 +500,9 @@ Gap::ScanningPolicyMode_t Gap::getScanningPolicyMode(void) const
 ble_error_t Gap::setInitiatorPolicyMode(InitiatorPolicyMode_t mode)
 {
     bool_t result = DmDevSetFilterPolicy(
-        DM_FILT_POLICY_MODE_INIT,
-        mode
-    );
+                        DM_FILT_POLICY_MODE_INIT,
+                        mode
+                    );
 
     if (result == false) {
         return BLE_ERROR_INVALID_STATE;

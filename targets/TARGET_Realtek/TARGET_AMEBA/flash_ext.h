@@ -29,7 +29,7 @@ extern "C" {
 #define FLASH_OFS_END     (FLASH_OFS_START + FLASH_SIZE)
 
 extern void flash_ext_erase_sector(flash_t *obj, uint32_t address);
-extern void flash_ext_erase_block(flash_t * obj, uint32_t address);
+extern void flash_ext_erase_block(flash_t *obj, uint32_t address);
 extern int flash_ext_read_word(flash_t *obj, uint32_t address, uint32_t *data);
 extern int flash_ext_write_word(flash_t *obj, uint32_t address, uint32_t data);
 extern int flash_ext_stream_read(flash_t *obj, uint32_t address, uint32_t len, uint8_t *data);

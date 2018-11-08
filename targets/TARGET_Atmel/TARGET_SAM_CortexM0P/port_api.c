@@ -20,9 +20,9 @@
 
 
 #if defined(TARGET_SAMR21G18A)
-#define PORTA_MASK	0xDBDFFFF3  // mask for available pins in Port A
-#define PORTB_MASK	0xC0C3C30D  // mask for available pins in Port B
-#define PORTC_MASK	0x000D0000  // mask for available pins in Port C
+#define PORTA_MASK  0xDBDFFFF3  // mask for available pins in Port A
+#define PORTB_MASK  0xC0C3C30D  // mask for available pins in Port B
+#define PORTC_MASK  0x000D0000  // mask for available pins in Port C
 #elif defined(TARGET_SAMD21J18A)
 #define PORTA_MASK  0xDBFFFFFF  // mask for available pins in Port A
 #define PORTB_MASK  0xC0C3FFFF  // mask for available pins in Port B
@@ -37,7 +37,7 @@
 
 uint32_t start_pin(PortName port)
 {
-    if(port < PortMax) { /* PortC value is 2*/
+    if (port < PortMax) { /* PortC value is 2*/
         return port * 32;
     } else {
         return (uint32_t)NC;
@@ -65,8 +65,10 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
             return;
     }
 
-    PortGroup *const port_base = (PortGroup*)port_get_group_from_gpio_pin(port * 32);  // 32 pins in port // function reused to get the port base
-    if(port_base == NULL) return; /* returns NULL if invalid*/
+    PortGroup *const port_base = (PortGroup *)port_get_group_from_gpio_pin(port * 32); // 32 pins in port // function reused to get the port base
+    if (port_base == NULL) {
+        return;    /* returns NULL if invalid*/
+    }
     switch (port) {
         case PortA:
             obj->mask = (uint32_t)mask & PORTA_MASK;
@@ -83,15 +85,16 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
             return;
     }
     start = start_pin(port);
-    if(start == NC)
+    if (start == NC) {
         return;
+    }
     obj->port = port;
     obj->direction = dir;
     obj->powersave = pin_conf.powersave;
     obj->mode = PORT_PIN_PULL_UP;
 
     for (i = start, j = 0; j < 32; i++, j++) {
-        if (obj->mask & (1<<j)) {
+        if (obj->mask & (1 << j)) {
             port_pin_set_config((PinName)i, &pin_conf);
         }
     }
@@ -107,11 +110,12 @@ void port_mode(port_t *obj, PinMode mode)
     int i, j;
     int start;
     start = start_pin(obj->port);
-    if(start == NC)
+    if (start == NC) {
         return;
+    }
     for (i = start, j = 0; j < 32; i++, j++) {
-        if (obj->mask & (1<<j)) {
-            pin_mode((PinName)i , mode);
+        if (obj->mask & (1 << j)) {
+            pin_mode((PinName)i, mode);
         }
     }
 }
@@ -137,14 +141,15 @@ void port_dir(port_t *obj, PinDirection dir)
             return;
     }
     start = start_pin(obj->port);
-    if(start == NC)
+    if (start == NC) {
         return;
+    }
     obj->direction = dir;
     pin_conf.input_pull = (enum port_pin_pull)obj->mode;
     pin_conf.powersave  = obj->powersave;
 
     for (i = start, j = 0; j < 32; i++, j++) {
-        if (obj->mask & (1<<j)) {
+        if (obj->mask & (1 << j)) {
             port_pin_set_config((PinName)i, &pin_conf);
         }
     }
@@ -156,11 +161,12 @@ void port_write(port_t *obj, int value)
     int i;
     int start;
     start = start_pin(obj->port);
-    if(start == NC)
+    if (start == NC) {
         return;
+    }
     for (i = 0; i < 32 ; i++) {
-        if (obj->mask & (1<<i)) {
-            if (value & (1<<i)) {
+        if (obj->mask & (1 << i)) {
+            if (value & (1 << i)) {
                 *obj->OUTSET = 1 << i;
             } else {
                 *obj->OUTCLR = 1 << i;

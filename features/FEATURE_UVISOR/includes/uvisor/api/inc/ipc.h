@@ -34,7 +34,7 @@
  *                          other value means wait forever.
  * @return     0 on success, non-zero error code otherwise
  */
-UVISOR_EXTERN int ipc_waitforany(uint32_t wait_tokens, uint32_t * done_tokens, uint32_t timeout_ms);
+UVISOR_EXTERN int ipc_waitforany(uint32_t wait_tokens, uint32_t *done_tokens, uint32_t timeout_ms);
 
 /** Wait for all of the specified IPC operations to complete.
  *
@@ -47,7 +47,7 @@ UVISOR_EXTERN int ipc_waitforany(uint32_t wait_tokens, uint32_t * done_tokens, u
  *                          Any other value means wait forever.
  * @return     0 on success, non-zero error code otherwise
  */
-UVISOR_EXTERN int ipc_waitforall(uint32_t wait_tokens, uint32_t * done_tokens, uint32_t timeout_ms);
+UVISOR_EXTERN int ipc_waitforall(uint32_t wait_tokens, uint32_t *done_tokens, uint32_t timeout_ms);
 
 /** Asynchronously send an IPC message
  *
@@ -61,7 +61,7 @@ UVISOR_EXTERN int ipc_waitforall(uint32_t wait_tokens, uint32_t * done_tokens, u
  *
  * @return     0 on success, non-zero error code otherwise
  * */
-UVISOR_EXTERN int ipc_send(uvisor_ipc_desc_t * desc, const void * msg);
+UVISOR_EXTERN int ipc_send(uvisor_ipc_desc_t *desc, const void *msg);
 
 /** Asynchronously receive an IPC message
  *
@@ -75,6 +75,6 @@ UVISOR_EXTERN int ipc_send(uvisor_ipc_desc_t * desc, const void * msg);
  *
  * @return     0 on success, non-zero error code otherwise
  */
-UVISOR_EXTERN int ipc_recv(uvisor_ipc_desc_t * desc, void * msg);
+UVISOR_EXTERN int ipc_recv(uvisor_ipc_desc_t *desc, void *msg);
 
 #endif /* __UVISOR_API_IPC_H__ */

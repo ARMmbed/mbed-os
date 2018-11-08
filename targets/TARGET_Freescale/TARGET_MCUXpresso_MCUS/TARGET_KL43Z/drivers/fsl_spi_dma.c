@@ -34,15 +34,13 @@
  * Definitons
  ******************************************************************************/
 /*<! Structure definition for spi_dma_private_handle_t. The structure is private. */
-typedef struct _spi_dma_private_handle
-{
+typedef struct _spi_dma_private_handle {
     SPI_Type *base;
     spi_dma_handle_t *handle;
 } spi_dma_private_handle_t;
 
 /*! @brief SPI transfer state, which is used for SPI transactiaonl APIs' internal state. */
-enum _spi_dma_states_t
-{
+enum _spi_dma_states_t {
     kSPI_Idle = 0x0, /*!< SPI is idle state */
     kSPI_Busy        /*!< SPI is busy tranferring data. */
 };
@@ -101,11 +99,9 @@ static void SPI_TxDMACallback(dma_handle_t *handle, void *userData)
     spiHandle->txInProgress = false;
 
     /* All finished, call the callback */
-    if ((spiHandle->txInProgress == false) && (spiHandle->rxInProgress == false))
-    {
+    if ((spiHandle->txInProgress == false) && (spiHandle->rxInProgress == false)) {
         spiHandle->state = kSPI_Idle;
-        if (spiHandle->callback)
-        {
+        if (spiHandle->callback) {
             (spiHandle->callback)(base, spiHandle, kStatus_Success, spiHandle->userData);
         }
     }
@@ -127,11 +123,9 @@ static void SPI_RxDMACallback(dma_handle_t *handle, void *userData)
     spiHandle->rxInProgress = false;
 
     /* All finished, call the callback */
-    if ((spiHandle->txInProgress == false) && (spiHandle->rxInProgress == false))
-    {
+    if ((spiHandle->txInProgress == false) && (spiHandle->rxInProgress == false)) {
         spiHandle->state = kSPI_Idle;
-        if (spiHandle->callback)
-        {
+        if (spiHandle->callback) {
             (spiHandle->callback)(base, spiHandle, kStatus_Success, spiHandle->userData);
         }
     }
@@ -161,7 +155,7 @@ void SPI_MasterTransferCreateHandleDMA(SPI_Type *base,
     s_dmaPrivateHandle[instance].base = base;
     s_dmaPrivateHandle[instance].handle = handle;
 
-/* Compute internal state */
+    /* Compute internal state */
 #if defined(FSL_FEATURE_SPI_16BIT_TRANSFERS) && (FSL_FEATURE_SPI_16BIT_TRANSFERS)
     handle->bytesPerFrame = ((base->C2 & SPI_C2_SPIMODE_MASK) >> SPI_C2_SPIMODE_SHIFT) + 1U;
 #else
@@ -172,8 +166,7 @@ void SPI_MasterTransferCreateHandleDMA(SPI_Type *base,
     /* If using DMA, disable FIFO, as the FIFO may cause data loss if the data size is not integer
        times of 2bytes. As SPI cannot set watermark to 0, only can set to 1/2 FIFO size or 3/4 FIFO
        size. */
-    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0)
-    {
+    if (FSL_FEATURE_SPI_FIFO_SIZEn(base) != 0) {
         base->C3 &= ~SPI_C3_FIFOMODE_MASK;
     }
 
@@ -183,13 +176,10 @@ void SPI_MasterTransferCreateHandleDMA(SPI_Type *base,
     config.destAddr = SPI_GetDataRegisterAddress(base);
     config.enableDestIncrement = false;
     config.enableSrcIncrement = true;
-    if (handle->bytesPerFrame == 1U)
-    {
+    if (handle->bytesPerFrame == 1U) {
         config.srcSize = kDMA_Transfersize8bits;
         config.destSize = kDMA_Transfersize8bits;
-    }
-    else
-    {
+    } else {
         config.srcSize = kDMA_Transfersize16bits;
         config.destSize = kDMA_Transfersize16bits;
     }
@@ -215,14 +205,12 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
     dma_transfer_config_t config = {0};
 
     /* Check if the device is busy */
-    if (handle->state == kSPI_Busy)
-    {
+    if (handle->state == kSPI_Busy) {
         return kStatus_SPI_Busy;
     }
 
     /* Check if input parameter invalid */
-    if (((xfer->txData == NULL) && (xfer->rxData == NULL)) || (xfer->dataSize == 0U))
-    {
+    if (((xfer->txData == NULL) && (xfer->rxData == NULL)) || (xfer->dataSize == 0U)) {
         return kStatus_InvalidArgument;
     }
 
@@ -233,25 +221,19 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
     /* Configure tx transfer DMA */
     config.destAddr = SPI_GetDataRegisterAddress(base);
     config.enableDestIncrement = false;
-    if (handle->bytesPerFrame == 1U)
-    {
+    if (handle->bytesPerFrame == 1U) {
         config.srcSize = kDMA_Transfersize8bits;
         config.destSize = kDMA_Transfersize8bits;
-    }
-    else
-    {
+    } else {
         config.srcSize = kDMA_Transfersize16bits;
         config.destSize = kDMA_Transfersize16bits;
     }
     config.transferSize = xfer->dataSize;
     /* Configure DMA channel */
-    if (xfer->txData)
-    {
+    if (xfer->txData) {
         config.enableSrcIncrement = true;
         config.srcAddr = (uint32_t)(xfer->txData);
-    }
-    else
-    {
+    } else {
         /* Disable the source increasement and source set to dummyData */
         config.enableSrcIncrement = false;
         config.srcAddr = (uint32_t)(&s_dummyData);
@@ -259,8 +241,7 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
     DMA_SubmitTransfer(handle->txHandle, &config, true);
 
     /* Handle rx transfer */
-    if (xfer->rxData)
-    {
+    if (xfer->rxData) {
         /* Set the source address */
         DMA_SetDestinationAddress(handle->rxHandle->base, handle->rxHandle->channel, (uint32_t)(xfer->rxData));
 
@@ -273,8 +254,7 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
     handle->state = kSPI_Busy;
 
     /* Start Rx transfer if needed */
-    if (xfer->rxData)
-    {
+    if (xfer->rxData) {
         handle->rxInProgress = true;
         SPI_EnableDMA(base, kSPI_RxDmaEnable, true);
         DMA_StartTransfer(handle->rxHandle);
@@ -294,18 +274,12 @@ status_t SPI_MasterTransferGetCountDMA(SPI_Type *base, spi_dma_handle_t *handle,
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kSPI_Busy)
-    {
+    if (handle->state != kSPI_Busy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
-        if (handle->rxInProgress)
-        {
+    } else {
+        if (handle->rxInProgress) {
             *count = handle->transferSize - DMA_GetRemainingBytes(handle->rxHandle->base, handle->rxHandle->channel);
-        }
-        else
-        {
+        } else {
             *count = handle->transferSize - DMA_GetRemainingBytes(handle->txHandle->base, handle->txHandle->channel);
         }
     }

@@ -26,29 +26,29 @@ int main()
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(SPI C12832 display);
     MBED_HOSTTEST_START("MBED_35");
-    
+
     C12832 lcd(D11, D13, D12, D7, D10);
 
     // clear the screen
     lcd.cls();
-    
+
     // print the first line and wait 3 sec
-    lcd.locate(0,3);
+    lcd.locate(0, 3);
     lcd.printf("mbed application board!");
-    
+
     // print the counter prefix; the number will be printed in the while loop
-    lcd.locate(0,15);
+    lcd.locate(0, 15);
     lcd.printf("Counting:");
 
-    int i=1, j=0;
-    while(i++,i<=200) {
-        lcd.locate(42,15);
+    int i = 1, j = 0;
+    while (i++, i <= 200) {
+        lcd.locate(42, 15);
         lcd.printf("%d", i);
         if (i % 50 == 0) {
             lcd.invert(j = j ? 0 : 1);
         };
         wait(0.001);
     }
-    
+
     MBED_HOSTTEST_RESULT(1);
 }

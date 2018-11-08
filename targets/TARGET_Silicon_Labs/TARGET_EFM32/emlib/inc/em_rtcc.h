@@ -74,104 +74,104 @@ extern "C" {
 
 /** Operational mode of the counter. */
 typedef enum {
-  /** Normal counter mode. The counter is incremented by 1 for each tick. */
-  rtccCntModeNormal = _RTCC_CTRL_CNTMODE_NORMAL,
+    /** Normal counter mode. The counter is incremented by 1 for each tick. */
+    rtccCntModeNormal = _RTCC_CTRL_CNTMODE_NORMAL,
 
-  /** Calendar mode. Refer to the RTCC chapter of the Reference Manual for more
-   *  details on the calendar mode. */
-  rtccCntModeCalendar = _RTCC_CTRL_CNTMODE_CALENDAR
+    /** Calendar mode. Refer to the RTCC chapter of the Reference Manual for more
+     *  details on the calendar mode. */
+    rtccCntModeCalendar = _RTCC_CTRL_CNTMODE_CALENDAR
 } RTCC_CntMode_TypeDef;
 
 /** Counter prescaler selection. */
 typedef enum {
-  rtccCntPresc_1     = _RTCC_CTRL_CNTPRESC_DIV1,      /**< Divide clock by 1. */
-  rtccCntPresc_2     = _RTCC_CTRL_CNTPRESC_DIV2,      /**< Divide clock by 2. */
-  rtccCntPresc_4     = _RTCC_CTRL_CNTPRESC_DIV4,      /**< Divide clock by 4. */
-  rtccCntPresc_8     = _RTCC_CTRL_CNTPRESC_DIV8,      /**< Divide clock by 8. */
-  rtccCntPresc_16    = _RTCC_CTRL_CNTPRESC_DIV16,     /**< Divide clock by 16. */
-  rtccCntPresc_32    = _RTCC_CTRL_CNTPRESC_DIV32,     /**< Divide clock by 32. */
-  rtccCntPresc_64    = _RTCC_CTRL_CNTPRESC_DIV64,     /**< Divide clock by 64. */
-  rtccCntPresc_128   = _RTCC_CTRL_CNTPRESC_DIV128,    /**< Divide clock by 128. */
-  rtccCntPresc_256   = _RTCC_CTRL_CNTPRESC_DIV256,    /**< Divide clock by 256. */
-  rtccCntPresc_512   = _RTCC_CTRL_CNTPRESC_DIV512,    /**< Divide clock by 512. */
-  rtccCntPresc_1024  = _RTCC_CTRL_CNTPRESC_DIV1024,   /**< Divide clock by 1024. */
-  rtccCntPresc_2048  = _RTCC_CTRL_CNTPRESC_DIV2048,   /**< Divide clock by 2048. */
-  rtccCntPresc_4096  = _RTCC_CTRL_CNTPRESC_DIV4096,   /**< Divide clock by 4096. */
-  rtccCntPresc_8192  = _RTCC_CTRL_CNTPRESC_DIV8192,   /**< Divide clock by 8192. */
-  rtccCntPresc_16384 = _RTCC_CTRL_CNTPRESC_DIV16384,  /**< Divide clock by 16384. */
-  rtccCntPresc_32768 = _RTCC_CTRL_CNTPRESC_DIV32768   /**< Divide clock by 32768. */
+    rtccCntPresc_1     = _RTCC_CTRL_CNTPRESC_DIV1,      /**< Divide clock by 1. */
+    rtccCntPresc_2     = _RTCC_CTRL_CNTPRESC_DIV2,      /**< Divide clock by 2. */
+    rtccCntPresc_4     = _RTCC_CTRL_CNTPRESC_DIV4,      /**< Divide clock by 4. */
+    rtccCntPresc_8     = _RTCC_CTRL_CNTPRESC_DIV8,      /**< Divide clock by 8. */
+    rtccCntPresc_16    = _RTCC_CTRL_CNTPRESC_DIV16,     /**< Divide clock by 16. */
+    rtccCntPresc_32    = _RTCC_CTRL_CNTPRESC_DIV32,     /**< Divide clock by 32. */
+    rtccCntPresc_64    = _RTCC_CTRL_CNTPRESC_DIV64,     /**< Divide clock by 64. */
+    rtccCntPresc_128   = _RTCC_CTRL_CNTPRESC_DIV128,    /**< Divide clock by 128. */
+    rtccCntPresc_256   = _RTCC_CTRL_CNTPRESC_DIV256,    /**< Divide clock by 256. */
+    rtccCntPresc_512   = _RTCC_CTRL_CNTPRESC_DIV512,    /**< Divide clock by 512. */
+    rtccCntPresc_1024  = _RTCC_CTRL_CNTPRESC_DIV1024,   /**< Divide clock by 1024. */
+    rtccCntPresc_2048  = _RTCC_CTRL_CNTPRESC_DIV2048,   /**< Divide clock by 2048. */
+    rtccCntPresc_4096  = _RTCC_CTRL_CNTPRESC_DIV4096,   /**< Divide clock by 4096. */
+    rtccCntPresc_8192  = _RTCC_CTRL_CNTPRESC_DIV8192,   /**< Divide clock by 8192. */
+    rtccCntPresc_16384 = _RTCC_CTRL_CNTPRESC_DIV16384,  /**< Divide clock by 16384. */
+    rtccCntPresc_32768 = _RTCC_CTRL_CNTPRESC_DIV32768   /**< Divide clock by 32768. */
 } RTCC_CntPresc_TypeDef;
 
 /** Prescaler mode of the RTCC counter. */
 typedef enum {
-  /** CNT register ticks according to the prescaler value. */
-  rtccCntTickPresc = _RTCC_CTRL_CNTTICK_PRESC,
+    /** CNT register ticks according to the prescaler value. */
+    rtccCntTickPresc = _RTCC_CTRL_CNTTICK_PRESC,
 
-  /** CNT register ticks when PRECNT matches the 15 least significant bits of
-   *  ch. 0 CCV register. */
-  rtccCntTickCCV0Match = _RTCC_CTRL_CNTTICK_CCV0MATCH
+    /** CNT register ticks when PRECNT matches the 15 least significant bits of
+     *  ch. 0 CCV register. */
+    rtccCntTickCCV0Match = _RTCC_CTRL_CNTTICK_CCV0MATCH
 } RTCC_PrescMode_TypeDef;
 
 /** Capture/Compare channel mode. */
 typedef enum {
-  rtccCapComChModeOff     = _RTCC_CC_CTRL_MODE_OFF,           /**< Capture/Compare channel turned off. */
-  rtccCapComChModeCapture = _RTCC_CC_CTRL_MODE_INPUTCAPTURE,  /**< Capture mode. */
-  rtccCapComChModeCompare = _RTCC_CC_CTRL_MODE_OUTPUTCOMPARE, /**< Compare mode. */
+    rtccCapComChModeOff     = _RTCC_CC_CTRL_MODE_OFF,           /**< Capture/Compare channel turned off. */
+    rtccCapComChModeCapture = _RTCC_CC_CTRL_MODE_INPUTCAPTURE,  /**< Capture mode. */
+    rtccCapComChModeCompare = _RTCC_CC_CTRL_MODE_OUTPUTCOMPARE, /**< Compare mode. */
 } RTCC_CapComChMode_TypeDef;
 
 /** Compare match output action mode. */
 typedef enum {
-  rtccCompMatchOutActionPulse  = _RTCC_CC_CTRL_CMOA_PULSE,  /**< Generate a pulse. */
-  rtccCompMatchOutActionToggle = _RTCC_CC_CTRL_CMOA_TOGGLE, /**< Toggle output. */
-  rtccCompMatchOutActionClear  = _RTCC_CC_CTRL_CMOA_CLEAR,  /**< Clear output. */
-  rtccCompMatchOutActionSet    = _RTCC_CC_CTRL_CMOA_SET     /**< Set output. */
+    rtccCompMatchOutActionPulse  = _RTCC_CC_CTRL_CMOA_PULSE,  /**< Generate a pulse. */
+    rtccCompMatchOutActionToggle = _RTCC_CC_CTRL_CMOA_TOGGLE, /**< Toggle output. */
+    rtccCompMatchOutActionClear  = _RTCC_CC_CTRL_CMOA_CLEAR,  /**< Clear output. */
+    rtccCompMatchOutActionSet    = _RTCC_CC_CTRL_CMOA_SET     /**< Set output. */
 } RTCC_CompMatchOutAction_TypeDef;
 
 /** PRS input sources. */
 typedef enum {
-  rtccPRSCh0 = _RTCC_CC_CTRL_PRSSEL_PRSCH0,   /**< PRS channel 0. */
-  rtccPRSCh1 = _RTCC_CC_CTRL_PRSSEL_PRSCH1,   /**< PRS channel 1. */
-  rtccPRSCh2 = _RTCC_CC_CTRL_PRSSEL_PRSCH2,   /**< PRS channel 2. */
-  rtccPRSCh3 = _RTCC_CC_CTRL_PRSSEL_PRSCH3,   /**< PRS channel 3. */
-  rtccPRSCh4 = _RTCC_CC_CTRL_PRSSEL_PRSCH4,   /**< PRS channel 4. */
-  rtccPRSCh5 = _RTCC_CC_CTRL_PRSSEL_PRSCH5,   /**< PRS channel 5. */
-  rtccPRSCh6 = _RTCC_CC_CTRL_PRSSEL_PRSCH6,   /**< PRS channel 6. */
-  rtccPRSCh7 = _RTCC_CC_CTRL_PRSSEL_PRSCH7,   /**< PRS channel 7. */
+    rtccPRSCh0 = _RTCC_CC_CTRL_PRSSEL_PRSCH0,   /**< PRS channel 0. */
+    rtccPRSCh1 = _RTCC_CC_CTRL_PRSSEL_PRSCH1,   /**< PRS channel 1. */
+    rtccPRSCh2 = _RTCC_CC_CTRL_PRSSEL_PRSCH2,   /**< PRS channel 2. */
+    rtccPRSCh3 = _RTCC_CC_CTRL_PRSSEL_PRSCH3,   /**< PRS channel 3. */
+    rtccPRSCh4 = _RTCC_CC_CTRL_PRSSEL_PRSCH4,   /**< PRS channel 4. */
+    rtccPRSCh5 = _RTCC_CC_CTRL_PRSSEL_PRSCH5,   /**< PRS channel 5. */
+    rtccPRSCh6 = _RTCC_CC_CTRL_PRSSEL_PRSCH6,   /**< PRS channel 6. */
+    rtccPRSCh7 = _RTCC_CC_CTRL_PRSSEL_PRSCH7,   /**< PRS channel 7. */
 #if defined(_RTCC_CC_CTRL_PRSSEL_PRSCH8)
-  rtccPRSCh8 = _RTCC_CC_CTRL_PRSSEL_PRSCH8,   /**< PRS channel 8. */
+    rtccPRSCh8 = _RTCC_CC_CTRL_PRSSEL_PRSCH8,   /**< PRS channel 8. */
 #endif
 #if defined(_RTCC_CC_CTRL_PRSSEL_PRSCH9)
-  rtccPRSCh9 = _RTCC_CC_CTRL_PRSSEL_PRSCH9,   /**< PRS channel 9. */
+    rtccPRSCh9 = _RTCC_CC_CTRL_PRSSEL_PRSCH9,   /**< PRS channel 9. */
 #endif
 #if defined(_RTCC_CC_CTRL_PRSSEL_PRSCH10)
-  rtccPRSCh10 = _RTCC_CC_CTRL_PRSSEL_PRSCH10, /**< PRS channel 10. */
+    rtccPRSCh10 = _RTCC_CC_CTRL_PRSSEL_PRSCH10, /**< PRS channel 10. */
 #endif
 #if defined(_RTCC_CC_CTRL_PRSSEL_PRSCH11)
-  rtccPRSCh11 = _RTCC_CC_CTRL_PRSSEL_PRSCH11  /**< PRS channel 11. */
+    rtccPRSCh11 = _RTCC_CC_CTRL_PRSSEL_PRSCH11  /**< PRS channel 11. */
 #endif
 } RTCC_PRSSel_TypeDef;
 
 /** Input edge select. */
 typedef enum {
-  rtccInEdgeRising  = _RTCC_CC_CTRL_ICEDGE_RISING,  /**< Rising edges detected. */
-  rtccInEdgeFalling = _RTCC_CC_CTRL_ICEDGE_FALLING, /**< Falling edges detected. */
-  rtccInEdgeBoth    = _RTCC_CC_CTRL_ICEDGE_BOTH,    /**< Both edges detected. */
-  rtccInEdgeNone    = _RTCC_CC_CTRL_ICEDGE_NONE     /**< No edge detection, signal is left as is. */
+    rtccInEdgeRising  = _RTCC_CC_CTRL_ICEDGE_RISING,  /**< Rising edges detected. */
+    rtccInEdgeFalling = _RTCC_CC_CTRL_ICEDGE_FALLING, /**< Falling edges detected. */
+    rtccInEdgeBoth    = _RTCC_CC_CTRL_ICEDGE_BOTH,    /**< Both edges detected. */
+    rtccInEdgeNone    = _RTCC_CC_CTRL_ICEDGE_NONE     /**< No edge detection, signal is left as is. */
 } RTCC_InEdgeSel_TypeDef;
 
 /** Capture/Compare channel compare mode. */
 typedef enum {
-  /** CCVx is compared with the CNT register. */
-  rtccCompBaseCnt = _RTCC_CC_CTRL_COMPBASE_CNT,
+    /** CCVx is compared with the CNT register. */
+    rtccCompBaseCnt = _RTCC_CC_CTRL_COMPBASE_CNT,
 
-  /** CCVx is compared with a CNT[16:0] and PRECNT[14:0]. */
-  rtccCompBasePreCnt = _RTCC_CC_CTRL_COMPBASE_PRECNT
+    /** CCVx is compared with a CNT[16:0] and PRECNT[14:0]. */
+    rtccCompBasePreCnt = _RTCC_CC_CTRL_COMPBASE_PRECNT
 } RTCC_CompBase_TypeDef;
 
 /** Day compare mode. */
 typedef enum {
-  rtccDayCompareModeMonth = _RTCC_CC_CTRL_DAYCC_MONTH,  /**< Day of month is selected for Capture/Compare. */
-  rtccDayCompareModeWeek  = _RTCC_CC_CTRL_DAYCC_WEEK    /**< Day of week is selected for Capture/Compare. */
+    rtccDayCompareModeMonth = _RTCC_CC_CTRL_DAYCC_MONTH,  /**< Day of month is selected for Capture/Compare. */
+    rtccDayCompareModeWeek  = _RTCC_CC_CTRL_DAYCC_WEEK    /**< Day of week is selected for Capture/Compare. */
 } RTCC_DayCompareMode_TypeDef;
 
 /*******************************************************************************
@@ -180,66 +180,66 @@ typedef enum {
 
 /** RTCC initialization structure. */
 typedef struct {
-  /** Enable/disable counting when initialization is completed. */
-  bool                   enable;
+    /** Enable/disable counting when initialization is completed. */
+    bool                   enable;
 
-  /** Enable/disable timer counting during debug halt. */
-  bool                   debugRun;
+    /** Enable/disable timer counting during debug halt. */
+    bool                   debugRun;
 
-  /** Enable/disable precounter wrap on ch. 0 CCV value. */
-  bool                   precntWrapOnCCV0;
+    /** Enable/disable precounter wrap on ch. 0 CCV value. */
+    bool                   precntWrapOnCCV0;
 
-  /** Enable/disable counter wrap on ch. 1 CCV value. */
-  bool                   cntWrapOnCCV1;
+    /** Enable/disable counter wrap on ch. 1 CCV value. */
+    bool                   cntWrapOnCCV1;
 
-  /** Counter prescaler. */
-  RTCC_CntPresc_TypeDef  presc;
+    /** Counter prescaler. */
+    RTCC_CntPresc_TypeDef  presc;
 
-  /** Prescaler mode. */
-  RTCC_PrescMode_TypeDef prescMode;
+    /** Prescaler mode. */
+    RTCC_PrescMode_TypeDef prescMode;
 
 #if defined(_RTCC_CTRL_BUMODETSEN_MASK)
-  /** Enable/disable storing RTCC counter value in RTCC_CCV2 upon backup mode
-   *  entry. */
-  bool                   enaBackupModeSet;
+    /** Enable/disable storing RTCC counter value in RTCC_CCV2 upon backup mode
+     *  entry. */
+    bool                   enaBackupModeSet;
 #endif
 
-  /** Enable/disable the check that sets the OSCFFAIL interrupt flag if no
-   *  LFCLK-RTCC ticks are detected within one ULFRCO cycles. */
-  bool                   enaOSCFailDetect;
+    /** Enable/disable the check that sets the OSCFFAIL interrupt flag if no
+     *  LFCLK-RTCC ticks are detected within one ULFRCO cycles. */
+    bool                   enaOSCFailDetect;
 
-  /** Select the operational mode of the counter. */
-  RTCC_CntMode_TypeDef   cntMode;
+    /** Select the operational mode of the counter. */
+    RTCC_CntMode_TypeDef   cntMode;
 
-  /** Disable leap year correction for the calendar mode. When this parameter is
-   *  set to false, February has 29 days if (year % 4 == 0). If true, February
-   *  always has 28 days. */
-  bool                   disLeapYearCorr;
+    /** Disable leap year correction for the calendar mode. When this parameter is
+     *  set to false, February has 29 days if (year % 4 == 0). If true, February
+     *  always has 28 days. */
+    bool                   disLeapYearCorr;
 } RTCC_Init_TypeDef;
 
 /** RTCC capture/compare channel configuration structure. */
 typedef struct {
-  /** Select the mode of the Capture/Compare channel. */
-  RTCC_CapComChMode_TypeDef        chMode;
+    /** Select the mode of the Capture/Compare channel. */
+    RTCC_CapComChMode_TypeDef        chMode;
 
-  /** Compare mode channel match output action. */
-  RTCC_CompMatchOutAction_TypeDef  compMatchOutAction;
+    /** Compare mode channel match output action. */
+    RTCC_CompMatchOutAction_TypeDef  compMatchOutAction;
 
-  /** Capture mode channel PRS input channel selection. */
-  RTCC_PRSSel_TypeDef              prsSel;
+    /** Capture mode channel PRS input channel selection. */
+    RTCC_PRSSel_TypeDef              prsSel;
 
-  /** Capture mode channel input edge selection. */
-  RTCC_InEdgeSel_TypeDef           inputEdgeSel;
+    /** Capture mode channel input edge selection. */
+    RTCC_InEdgeSel_TypeDef           inputEdgeSel;
 
-  /** Comparison base of the channel in compare mode. */
-  RTCC_CompBase_TypeDef            compBase;
+    /** Comparison base of the channel in compare mode. */
+    RTCC_CompBase_TypeDef            compBase;
 
-  /** The COMPMASK (5 bit) most significant bits of the compare value will not
-   *  be subject to comparison.  */
-  uint8_t                          compMask;
+    /** The COMPMASK (5 bit) most significant bits of the compare value will not
+     *  be subject to comparison.  */
+    uint8_t                          compMask;
 
-  /** Day compare mode. */
-  RTCC_DayCompareMode_TypeDef      dayCompMode;
+    /** Day compare mode. */
+    RTCC_DayCompareMode_TypeDef      dayCompMode;
 } RTCC_CCChConf_TypeDef;
 
 /*******************************************************************************
@@ -319,8 +319,8 @@ typedef struct {
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTCC_ChannelCCVGet(int ch)
 {
-  EFM_ASSERT(RTCC_CH_VALID(ch) );
-  return RTCC->CC[ch].CCV;
+    EFM_ASSERT(RTCC_CH_VALID(ch));
+    return RTCC->CC[ch].CCV;
 }
 
 /***************************************************************************//**
@@ -335,8 +335,8 @@ __STATIC_INLINE uint32_t RTCC_ChannelCCVGet(int ch)
  ******************************************************************************/
 __STATIC_INLINE void RTCC_ChannelCCVSet(int ch, uint32_t value)
 {
-  EFM_ASSERT(RTCC_CH_VALID(ch) );
-  RTCC->CC[ch].CCV = value;
+    EFM_ASSERT(RTCC_CH_VALID(ch));
+    RTCC->CC[ch].CCV = value;
 }
 
 /***************************************************************************//**
@@ -351,8 +351,8 @@ __STATIC_INLINE void RTCC_ChannelCCVSet(int ch, uint32_t value)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTCC_ChannelDateGet(int ch)
 {
-  EFM_ASSERT(RTCC_CH_VALID(ch) );
-  return RTCC->CC[ch].DATE;
+    EFM_ASSERT(RTCC_CH_VALID(ch));
+    return RTCC->CC[ch].DATE;
 }
 
 /***************************************************************************//**
@@ -367,8 +367,8 @@ __STATIC_INLINE uint32_t RTCC_ChannelDateGet(int ch)
  ******************************************************************************/
 __STATIC_INLINE void RTCC_ChannelDateSet(int ch, uint32_t date)
 {
-  EFM_ASSERT(RTCC_CH_VALID(ch) );
-  RTCC->CC[ch].DATE = date;
+    EFM_ASSERT(RTCC_CH_VALID(ch));
+    RTCC->CC[ch].DATE = date;
 }
 
 void RTCC_ChannelInit(int ch, RTCC_CCChConf_TypeDef const *confPtr);
@@ -385,8 +385,8 @@ void RTCC_ChannelInit(int ch, RTCC_CCChConf_TypeDef const *confPtr);
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTCC_ChannelTimeGet(int ch)
 {
-  EFM_ASSERT(RTCC_CH_VALID(ch) );
-  return RTCC->CC[ch].TIME;
+    EFM_ASSERT(RTCC_CH_VALID(ch));
+    return RTCC->CC[ch].TIME;
 }
 
 /***************************************************************************//**
@@ -401,8 +401,8 @@ __STATIC_INLINE uint32_t RTCC_ChannelTimeGet(int ch)
  ******************************************************************************/
 __STATIC_INLINE void RTCC_ChannelTimeSet(int ch, uint32_t time)
 {
-  EFM_ASSERT(RTCC_CH_VALID(ch) );
-  RTCC->CC[ch].TIME = time;
+    EFM_ASSERT(RTCC_CH_VALID(ch));
+    RTCC->CC[ch].TIME = time;
 }
 
 /***************************************************************************//**
@@ -414,7 +414,7 @@ __STATIC_INLINE void RTCC_ChannelTimeSet(int ch, uint32_t time)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTCC_CombinedCounterGet(void)
 {
-  return RTCC->COMBCNT;
+    return RTCC->COMBCNT;
 }
 
 /***************************************************************************//**
@@ -426,7 +426,7 @@ __STATIC_INLINE uint32_t RTCC_CombinedCounterGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTCC_CounterGet(void)
 {
-  return RTCC->CNT;
+    return RTCC->CNT;
 }
 
 /***************************************************************************//**
@@ -438,7 +438,7 @@ __STATIC_INLINE uint32_t RTCC_CounterGet(void)
  ******************************************************************************/
 __STATIC_INLINE void RTCC_CounterSet(uint32_t value)
 {
-  RTCC->CNT = value;
+    RTCC->CNT = value;
 }
 
 /***************************************************************************//**
@@ -450,7 +450,7 @@ __STATIC_INLINE void RTCC_CounterSet(uint32_t value)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTCC_DateGet(void)
 {
-  return RTCC->DATE;
+    return RTCC->DATE;
 }
 
 /***************************************************************************//**
@@ -462,7 +462,7 @@ __STATIC_INLINE uint32_t RTCC_DateGet(void)
  ******************************************************************************/
 __STATIC_INLINE void RTCC_DateSet(uint32_t date)
 {
-  RTCC->DATE = date;
+    RTCC->DATE = date;
 }
 
 /***************************************************************************//**
@@ -474,11 +474,11 @@ __STATIC_INLINE void RTCC_DateSet(uint32_t date)
  ******************************************************************************/
 __STATIC_INLINE void RTCC_EM4WakeupEnable(bool enable)
 {
-  if ( enable ) {
-    RTCC->EM4WUEN = RTCC_EM4WUEN_EM4WU;
-  } else {
-    RTCC->EM4WUEN = 0;
-  }
+    if (enable) {
+        RTCC->EM4WUEN = RTCC_EM4WUEN_EM4WU;
+    } else {
+        RTCC->EM4WUEN = 0;
+    }
 }
 
 void RTCC_Enable(bool enable);
@@ -495,7 +495,7 @@ void RTCC_Init(const RTCC_Init_TypeDef *init);
  ******************************************************************************/
 __STATIC_INLINE void RTCC_IntClear(uint32_t flags)
 {
-  RTCC->IFC = flags;
+    RTCC->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -508,7 +508,7 @@ __STATIC_INLINE void RTCC_IntClear(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void RTCC_IntDisable(uint32_t flags)
 {
-  RTCC->IEN &= ~flags;
+    RTCC->IEN &= ~flags;
 }
 
 /***************************************************************************//**
@@ -526,7 +526,7 @@ __STATIC_INLINE void RTCC_IntDisable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void RTCC_IntEnable(uint32_t flags)
 {
-  RTCC->IEN |= flags;
+    RTCC->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -542,7 +542,7 @@ __STATIC_INLINE void RTCC_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTCC_IntGet(void)
 {
-  return RTCC->IF;
+    return RTCC->IF;
 }
 
 /***************************************************************************//**
@@ -558,12 +558,12 @@ __STATIC_INLINE uint32_t RTCC_IntGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTCC_IntGetEnabled(void)
 {
-  uint32_t tmp;
+    uint32_t tmp;
 
-  tmp = RTCC->IEN;
+    tmp = RTCC->IEN;
 
-  /* Bitwise AND of pending and enabled interrupt flags. */
-  return RTCC->IF & tmp;
+    /* Bitwise AND of pending and enabled interrupt flags. */
+    return RTCC->IF & tmp;
 }
 
 /***************************************************************************//**
@@ -576,7 +576,7 @@ __STATIC_INLINE uint32_t RTCC_IntGetEnabled(void)
  ******************************************************************************/
 __STATIC_INLINE void RTCC_IntSet(uint32_t flags)
 {
-  RTCC->IFS = flags;
+    RTCC->IFS = flags;
 }
 
 /***************************************************************************//**
@@ -591,22 +591,22 @@ __STATIC_INLINE void RTCC_IntSet(uint32_t flags)
 __STATIC_INLINE void RTCC_Lock(void)
 {
 #if defined(ERRATA_FIX_RTCC_E203)
-  /* RTCC_E203 - Potential Stability Issue with RTCC Registers
-   * RTCC_LOCK register must be modified while RTCC clock is disabled. */
-  uint32_t lfeReg = CMU->LFECLKEN0;
-  bool cmuLocked = (CMU->LOCK == CMU_LOCK_LOCKKEY_LOCKED);
-  if (cmuLocked) {
-    CMU->LOCK = CMU_LOCK_LOCKKEY_UNLOCK;
-  }
-  CMU->LFECLKEN0 = 0x0;
+    /* RTCC_E203 - Potential Stability Issue with RTCC Registers
+     * RTCC_LOCK register must be modified while RTCC clock is disabled. */
+    uint32_t lfeReg = CMU->LFECLKEN0;
+    bool cmuLocked = (CMU->LOCK == CMU_LOCK_LOCKKEY_LOCKED);
+    if (cmuLocked) {
+        CMU->LOCK = CMU_LOCK_LOCKKEY_UNLOCK;
+    }
+    CMU->LFECLKEN0 = 0x0;
 #endif
-  RTCC->LOCK = RTCC_LOCK_LOCKKEY_LOCK;
+    RTCC->LOCK = RTCC_LOCK_LOCKKEY_LOCK;
 #if defined(ERRATA_FIX_RTCC_E203)
-  /* Restore clock state after RTCC_E203 fix. */
-  CMU->LFECLKEN0 = lfeReg;
-  if (cmuLocked) {
-    CMU->LOCK = CMU_LOCK_LOCKKEY_LOCK;
-  }
+    /* Restore clock state after RTCC_E203 fix. */
+    CMU->LFECLKEN0 = lfeReg;
+    if (cmuLocked) {
+        CMU->LOCK = CMU_LOCK_LOCKKEY_LOCK;
+    }
 #endif
 }
 
@@ -619,7 +619,7 @@ __STATIC_INLINE void RTCC_Lock(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTCC_PreCounterGet(void)
 {
-  return RTCC->PRECNT;
+    return RTCC->PRECNT;
 }
 
 /***************************************************************************//**
@@ -631,7 +631,7 @@ __STATIC_INLINE uint32_t RTCC_PreCounterGet(void)
  ******************************************************************************/
 __STATIC_INLINE void RTCC_PreCounterSet(uint32_t preCntVal)
 {
-  RTCC->PRECNT = preCntVal;
+    RTCC->PRECNT = preCntVal;
 }
 
 void RTCC_Reset(void);
@@ -646,9 +646,9 @@ void RTCC_Reset(void);
 __STATIC_INLINE void RTCC_RetentionRamPowerDown(void)
 {
 #if !defined(ERRATA_FIX_RTCC_E204)
-  /* Devices that are affected by RTCC_E204 should always keep the RTCC
-   * backup RAM retained. */
-  RTCC->POWERDOWN = RTCC_POWERDOWN_RAM;
+    /* Devices that are affected by RTCC_E204 should always keep the RTCC
+     * backup RAM retained. */
+    RTCC->POWERDOWN = RTCC_POWERDOWN_RAM;
 #endif
 }
 
@@ -663,10 +663,10 @@ void RTCC_StatusClear(void);
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTCC_StatusGet(void)
 {
-  while ( RTCC->SYNCBUSY & RTCC_SYNCBUSY_CMD ) {
-    // Wait for syncronization.
-  }
-  return RTCC->STATUS;
+    while (RTCC->SYNCBUSY & RTCC_SYNCBUSY_CMD) {
+        // Wait for syncronization.
+    }
+    return RTCC->STATUS;
 }
 
 /***************************************************************************//**
@@ -678,7 +678,7 @@ __STATIC_INLINE uint32_t RTCC_StatusGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTCC_TimeGet(void)
 {
-  return RTCC->TIME;
+    return RTCC->TIME;
 }
 
 /***************************************************************************//**
@@ -690,7 +690,7 @@ __STATIC_INLINE uint32_t RTCC_TimeGet(void)
  ******************************************************************************/
 __STATIC_INLINE void RTCC_TimeSet(uint32_t time)
 {
-  RTCC->TIME = time;
+    RTCC->TIME = time;
 }
 
 /***************************************************************************//**
@@ -705,22 +705,22 @@ __STATIC_INLINE void RTCC_TimeSet(uint32_t time)
 __STATIC_INLINE void RTCC_Unlock(void)
 {
 #if defined(ERRATA_FIX_RTCC_E203)
-  /* RTCC_E203 - Potential Stability Issue with RTCC Registers
-   * RTCC_LOCK register must be modified while RTCC clock is disabled. */
-  uint32_t lfeReg = CMU->LFECLKEN0;
-  bool cmuLocked = (CMU->LOCK == CMU_LOCK_LOCKKEY_LOCKED);
-  if (cmuLocked) {
-    CMU->LOCK = CMU_LOCK_LOCKKEY_UNLOCK;
-  }
-  CMU->LFECLKEN0 = 0x0;
+    /* RTCC_E203 - Potential Stability Issue with RTCC Registers
+     * RTCC_LOCK register must be modified while RTCC clock is disabled. */
+    uint32_t lfeReg = CMU->LFECLKEN0;
+    bool cmuLocked = (CMU->LOCK == CMU_LOCK_LOCKKEY_LOCKED);
+    if (cmuLocked) {
+        CMU->LOCK = CMU_LOCK_LOCKKEY_UNLOCK;
+    }
+    CMU->LFECLKEN0 = 0x0;
 #endif
-  RTCC->LOCK = RTCC_LOCK_LOCKKEY_UNLOCK;
+    RTCC->LOCK = RTCC_LOCK_LOCKKEY_UNLOCK;
 #if defined(ERRATA_FIX_RTCC_E203)
-  /* Restore clock state after RTCC_E203 fix. */
-  CMU->LFECLKEN0 = lfeReg;
-  if (cmuLocked) {
-    CMU->LOCK = CMU_LOCK_LOCKKEY_LOCK;
-  }
+    /* Restore clock state after RTCC_E203 fix. */
+    CMU->LFECLKEN0 = lfeReg;
+    if (cmuLocked) {
+        CMU->LOCK = CMU_LOCK_LOCKKEY_LOCK;
+    }
 #endif
 }
 

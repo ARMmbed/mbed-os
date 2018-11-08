@@ -112,7 +112,7 @@ static inline void dma_crc_get_config_defaults(struct dma_crc_config *config)
  * \retval STATUS_BUSY DMA CRC module is already taken and not ready yet
  */
 static inline enum status_code dma_crc_channel_enable(uint32_t channel_id,
-        struct dma_crc_config *config)
+                                                      struct dma_crc_config *config)
 {
     if (DMAC->CRCSTATUS.reg & DMAC_CRCSTATUS_CRCBUSY) {
         return STATUS_BUSY;
@@ -120,7 +120,7 @@ static inline enum status_code dma_crc_channel_enable(uint32_t channel_id,
 
     DMAC->CRCCTRL.reg = DMAC_CRCCTRL_CRCBEATSIZE(config->size) |
                         DMAC_CRCCTRL_CRCPOLY(config->type) |
-                        DMAC_CRCCTRL_CRCSRC(channel_id+DMA_CRC_CHANNEL_N_OFFSET);
+                        DMAC_CRCCTRL_CRCSRC(channel_id + DMA_CRC_CHANNEL_N_OFFSET);
 
     DMAC->CTRL.reg |= DMAC_CTRL_CRCENABLE;
 
@@ -197,14 +197,14 @@ static inline enum status_code dma_crc_io_enable(
  * \return Calculated CRC checksum value.
  */
 static inline void dma_crc_io_calculation(void *buffer,
-        uint32_t total_beat_size)
+                                          uint32_t total_beat_size)
 {
     uint32_t counter = total_beat_size;
     uint8_t *buffer_8;
     uint16_t *buffer_16;
     uint32_t *buffer_32;
 
-    for (counter=0; counter<total_beat_size; counter++) {
+    for (counter = 0; counter < total_beat_size; counter++) {
         if (DMAC->CRCCTRL.bit.CRCBEATSIZE == CRC_BEAT_SIZE_BYTE) {
             buffer_8 = buffer;
             DMAC->CRCDATAIN.reg = buffer_8[counter];

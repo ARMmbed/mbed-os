@@ -66,7 +66,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t listen(int backlog = 1);
-    
+
     /** Accepts a connection on a TCP socket
      *
      *  The server socket must be bound and set to listen for connections.

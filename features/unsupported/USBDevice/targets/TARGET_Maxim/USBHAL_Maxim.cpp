@@ -66,7 +66,7 @@ typedef struct {
 #ifdef __IAR_SYSTEMS_ICC__
 #pragma data_alignment = 512
 #else
-__attribute__ ((aligned (512))) 
+__attribute__((aligned(512)))
 #endif
 ep_buffer_descriptor_t ep_buffer_descriptor;
 
@@ -74,7 +74,7 @@ ep_buffer_descriptor_t ep_buffer_descriptor;
 #ifdef __IAR_SYSTEMS_ICC__
 #pragma data_alignment = 4
 #else
-__attribute__ ((aligned (4))) 
+__attribute__((aligned(4)))
 #endif
 static uint8_t aligned_buffer[NUMBER_OF_LOGICAL_ENDPOINTS][MXC_USB_MAX_PACKET];
 
@@ -217,7 +217,7 @@ void USBHAL::EP0setup(uint8_t *buffer)
 {
     // Setup packet is fixed at 8 bytes
     // Setup registers cannot be read in byte mode
-    uint32_t *ptr32 = (uint32_t*)buffer;
+    uint32_t *ptr32 = (uint32_t *)buffer;
     ptr32[0] = (uint32_t)MXC_USB->setup0;
     ptr32[1] = (uint32_t)MXC_USB->setup1;
 }
@@ -287,7 +287,7 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize)
     if (maximumSize > MXC_USB_MAX_PACKET) {
         return EP_INVALID;
     }
-    
+
     uint32_t mask = (1 << epnum);
     if (MXC_USB->out_owner & mask) {
         return EP_INVALID;
@@ -417,7 +417,7 @@ void USBHAL::usbisr(void)
     // process only enabled interrupts
     irq_flags &= MXC_USB->dev_inten;
 
-    // suspend 
+    // suspend
     if (irq_flags & MXC_F_USB_DEV_INTFL_SUSP) {
         suspendStateChanged(1);
     }

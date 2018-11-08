@@ -439,7 +439,7 @@ typedef uint32_t CRYPTO_Data_TypeDef[CRYPTO_DATA_SIZE_IN_32BIT_WORDS];
 typedef uint32_t CRYPTO_DData_TypeDef[CRYPTO_DDATA_SIZE_IN_32BIT_WORDS];
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
-typedef uint32_t* CRYPTO_DDataPtr_TypeDef;
+typedef uint32_t *CRYPTO_DDataPtr_TypeDef;
 /** @endcond */
 
 /**
@@ -470,69 +470,69 @@ typedef uint32_t CRYPTO_KeyBuf_TypeDef[CRYPTO_KEYBUF_SIZE_IN_32BIT_WORDS];
  * load 128 bit values as input and output data for cryptographic and big
  * integer arithmetic functions of the CRYPTO module.
  */
-typedef volatile uint32_t* CRYPTO_DataReg_TypeDef;
+typedef volatile uint32_t *CRYPTO_DataReg_TypeDef;
 
 /**
  * CRYPTO 256 bit DData (Double Data) register pointer type. The 256 bit
  * registers are used to load 256 bit values as input and output data for
  * cryptographic and big integer arithmetic functions of the CRYPTO module.
  */
-typedef volatile uint32_t* CRYPTO_DDataReg_TypeDef;
+typedef volatile uint32_t *CRYPTO_DDataReg_TypeDef;
 
 /**
  * CRYPTO 512 bit QData (Quad data) register pointer type. The 512 bit
  * registers are used to load 512 bit values as input and output data for
  * cryptographic and big integer arithmetic functions of the CRYPTO module.
  */
-typedef volatile uint32_t* CRYPTO_QDataReg_TypeDef;
+typedef volatile uint32_t *CRYPTO_QDataReg_TypeDef;
 
 /** CRYPTO modulus identifiers. */
 typedef enum {
-  cryptoModulusBin256        = CRYPTO_WAC_MODULUS_BIN256,       /**< Generic 256 bit modulus 2^256 */
-  cryptoModulusBin128        = CRYPTO_WAC_MODULUS_BIN128,       /**< Generic 128 bit modulus 2^128 */
-  cryptoModulusGcmBin128     = CRYPTO_WAC_MODULUS_GCMBIN128,    /**< GCM 128 bit modulus = 2^128 + 2^7 + 2^2 + 2 + 1 */
-  cryptoModulusEccB233       = CRYPTO_WAC_MODULUS_ECCBIN233P,   /**< ECC B233 prime modulus = 2^233 + 2^74 + 1   */
-  cryptoModulusEccB163       = CRYPTO_WAC_MODULUS_ECCBIN163P,   /**< ECC B163 prime modulus = 2^163 + 2^7 + 2^6 + 2^3 + 1 */
-  cryptoModulusEccP256       = CRYPTO_WAC_MODULUS_ECCPRIME256P, /**< ECC P256 prime modulus = 2^256 - 2^224 + 2^192 + 2^96 - 1 */
-  cryptoModulusEccP224       = CRYPTO_WAC_MODULUS_ECCPRIME224P, /**< ECC P224 prime modulus = 2^224 - 2^96 - 1 */
-  cryptoModulusEccP192       = CRYPTO_WAC_MODULUS_ECCPRIME192P, /**< ECC P192 prime modulus = 2^192 - 2^64 - 1 */
-  cryptoModulusEccB233Order  = CRYPTO_WAC_MODULUS_ECCBIN233N,   /**< ECC B233 order modulus   */
-  cryptoModulusEccB233KOrder = CRYPTO_WAC_MODULUS_ECCBIN233KN,  /**< ECC B233K order modulus */
-  cryptoModulusEccB163Order  = CRYPTO_WAC_MODULUS_ECCBIN163N,   /**< ECC B163 order modulus */
-  cryptoModulusEccB163KOrder = CRYPTO_WAC_MODULUS_ECCBIN163KN,  /**< ECC B163K order modulus */
-  cryptoModulusEccP256Order  = CRYPTO_WAC_MODULUS_ECCPRIME256N, /**< ECC P256 order modulus */
-  cryptoModulusEccP224Order  = CRYPTO_WAC_MODULUS_ECCPRIME224N, /**< ECC P224 order modulus */
-  cryptoModulusEccP192Order  = CRYPTO_WAC_MODULUS_ECCPRIME192N  /**< ECC P192 order modulus */
+    cryptoModulusBin256        = CRYPTO_WAC_MODULUS_BIN256,       /**< Generic 256 bit modulus 2^256 */
+    cryptoModulusBin128        = CRYPTO_WAC_MODULUS_BIN128,       /**< Generic 128 bit modulus 2^128 */
+    cryptoModulusGcmBin128     = CRYPTO_WAC_MODULUS_GCMBIN128,    /**< GCM 128 bit modulus = 2^128 + 2^7 + 2^2 + 2 + 1 */
+    cryptoModulusEccB233       = CRYPTO_WAC_MODULUS_ECCBIN233P,   /**< ECC B233 prime modulus = 2^233 + 2^74 + 1   */
+    cryptoModulusEccB163       = CRYPTO_WAC_MODULUS_ECCBIN163P,   /**< ECC B163 prime modulus = 2^163 + 2^7 + 2^6 + 2^3 + 1 */
+    cryptoModulusEccP256       = CRYPTO_WAC_MODULUS_ECCPRIME256P, /**< ECC P256 prime modulus = 2^256 - 2^224 + 2^192 + 2^96 - 1 */
+    cryptoModulusEccP224       = CRYPTO_WAC_MODULUS_ECCPRIME224P, /**< ECC P224 prime modulus = 2^224 - 2^96 - 1 */
+    cryptoModulusEccP192       = CRYPTO_WAC_MODULUS_ECCPRIME192P, /**< ECC P192 prime modulus = 2^192 - 2^64 - 1 */
+    cryptoModulusEccB233Order  = CRYPTO_WAC_MODULUS_ECCBIN233N,   /**< ECC B233 order modulus   */
+    cryptoModulusEccB233KOrder = CRYPTO_WAC_MODULUS_ECCBIN233KN,  /**< ECC B233K order modulus */
+    cryptoModulusEccB163Order  = CRYPTO_WAC_MODULUS_ECCBIN163N,   /**< ECC B163 order modulus */
+    cryptoModulusEccB163KOrder = CRYPTO_WAC_MODULUS_ECCBIN163KN,  /**< ECC B163K order modulus */
+    cryptoModulusEccP256Order  = CRYPTO_WAC_MODULUS_ECCPRIME256N, /**< ECC P256 order modulus */
+    cryptoModulusEccP224Order  = CRYPTO_WAC_MODULUS_ECCPRIME224N, /**< ECC P224 order modulus */
+    cryptoModulusEccP192Order  = CRYPTO_WAC_MODULUS_ECCPRIME192N  /**< ECC P192 order modulus */
 } CRYPTO_ModulusId_TypeDef;
 
 /** CRYPTO multiplication widths for wide arithmetic operations. */
 typedef enum {
-  cryptoMulOperand256Bits     = CRYPTO_WAC_MULWIDTH_MUL256, /**< 256 bits operands */
-  cryptoMulOperand128Bits     = CRYPTO_WAC_MULWIDTH_MUL128, /**< 128 bits operands */
-  cryptoMulOperandModulusBits = CRYPTO_WAC_MULWIDTH_MULMOD  /**< MUL operand width
+    cryptoMulOperand256Bits     = CRYPTO_WAC_MULWIDTH_MUL256, /**< 256 bits operands */
+    cryptoMulOperand128Bits     = CRYPTO_WAC_MULWIDTH_MUL128, /**< 128 bits operands */
+    cryptoMulOperandModulusBits = CRYPTO_WAC_MULWIDTH_MULMOD  /**< MUL operand width
                                                                  is specified by the
                                                                  modulus type.*/
 } CRYPTO_MulOperandWidth_TypeDef;
 
 /** CRYPTO result widths for MUL operations. */
 typedef enum {
-  cryptoResult128Bits = CRYPTO_WAC_RESULTWIDTH_128BIT, /**< Multiplication result width is 128 bits*/
-  cryptoResult256Bits = CRYPTO_WAC_RESULTWIDTH_256BIT, /**< Multiplication result width is 256 bits*/
-  cryptoResult260Bits = CRYPTO_WAC_RESULTWIDTH_260BIT  /**< Multiplication result width is 260 bits*/
+    cryptoResult128Bits = CRYPTO_WAC_RESULTWIDTH_128BIT, /**< Multiplication result width is 128 bits*/
+    cryptoResult256Bits = CRYPTO_WAC_RESULTWIDTH_256BIT, /**< Multiplication result width is 256 bits*/
+    cryptoResult260Bits = CRYPTO_WAC_RESULTWIDTH_260BIT  /**< Multiplication result width is 260 bits*/
 } CRYPTO_ResultWidth_TypeDef;
 
 /** CRYPTO result widths for MUL operations. */
 typedef enum {
-  cryptoInc1byte = CRYPTO_CTRL_INCWIDTH_INCWIDTH1, /**< inc width is 1 byte*/
-  cryptoInc2byte = CRYPTO_CTRL_INCWIDTH_INCWIDTH2, /**< inc width is 2 byte*/
-  cryptoInc3byte = CRYPTO_CTRL_INCWIDTH_INCWIDTH3, /**< inc width is 3 byte*/
-  cryptoInc4byte = CRYPTO_CTRL_INCWIDTH_INCWIDTH4  /**< inc width is 4 byte*/
+    cryptoInc1byte = CRYPTO_CTRL_INCWIDTH_INCWIDTH1, /**< inc width is 1 byte*/
+    cryptoInc2byte = CRYPTO_CTRL_INCWIDTH_INCWIDTH2, /**< inc width is 2 byte*/
+    cryptoInc3byte = CRYPTO_CTRL_INCWIDTH_INCWIDTH3, /**< inc width is 3 byte*/
+    cryptoInc4byte = CRYPTO_CTRL_INCWIDTH_INCWIDTH4  /**< inc width is 4 byte*/
 } CRYPTO_IncWidth_TypeDef;
 
 /** CRYPTO key width. */
 typedef enum {
-  cryptoKey128Bits = 8,     /**< Key width is 128 bits*/
-  cryptoKey256Bits = 16,    /**< Key width is 256 bits*/
+    cryptoKey128Bits = 8,     /**< Key width is 128 bits*/
+    cryptoKey256Bits = 16,    /**< Key width is 256 bits*/
 } CRYPTO_KeyWidth_TypeDef;
 
 /**
@@ -579,7 +579,7 @@ typedef uint8_t CRYPTO_SHA256_Digest_TypeDef[CRYPTO_SHA256_DIGEST_SIZE_IN_BYTES]
  *
  * @param[in]  ctr   Counter value to be modified.
  */
-typedef void (*CRYPTO_AES_CtrFuncPtr_TypeDef)(uint8_t * ctr);
+typedef void (*CRYPTO_AES_CtrFuncPtr_TypeDef)(uint8_t *ctr);
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -599,7 +599,7 @@ typedef void (*CRYPTO_AES_CtrFuncPtr_TypeDef)(uint8_t * ctr);
  * @param[in]  modType
  *   Modulus type.
  ******************************************************************************/
-void CRYPTO_ModulusSet(CRYPTO_TypeDef *          crypto,
+void CRYPTO_ModulusSet(CRYPTO_TypeDef           *crypto,
                        CRYPTO_ModulusId_TypeDef  modType);
 
 /***************************************************************************//**
@@ -620,8 +620,8 @@ __STATIC_INLINE
 void CRYPTO_MulOperandWidthSet(CRYPTO_TypeDef *crypto,
                                CRYPTO_MulOperandWidth_TypeDef mulOperandWidth)
 {
-  uint32_t temp = crypto->WAC & (~_CRYPTO_WAC_MULWIDTH_MASK);
-  crypto->WAC = temp | mulOperandWidth;
+    uint32_t temp = crypto->WAC & (~_CRYPTO_WAC_MULWIDTH_MASK);
+    crypto->WAC = temp | mulOperandWidth;
 }
 
 /***************************************************************************//**
@@ -641,8 +641,8 @@ __STATIC_INLINE
 void CRYPTO_ResultWidthSet(CRYPTO_TypeDef *crypto,
                            CRYPTO_ResultWidth_TypeDef resultWidth)
 {
-  uint32_t temp = crypto->WAC & (~_CRYPTO_WAC_RESULTWIDTH_MASK);
-  crypto->WAC = temp | resultWidth;
+    uint32_t temp = crypto->WAC & (~_CRYPTO_WAC_RESULTWIDTH_MASK);
+    crypto->WAC = temp | resultWidth;
 }
 
 /***************************************************************************//**
@@ -662,8 +662,8 @@ void CRYPTO_ResultWidthSet(CRYPTO_TypeDef *crypto,
 __STATIC_INLINE void CRYPTO_IncWidthSet(CRYPTO_TypeDef *crypto,
                                         CRYPTO_IncWidth_TypeDef incWidth)
 {
-  uint32_t temp = crypto->CTRL & (~_CRYPTO_CTRL_INCWIDTH_MASK);
-  crypto->CTRL = temp | incWidth;
+    uint32_t temp = crypto->CTRL & (~_CRYPTO_CTRL_INCWIDTH_MASK);
+    crypto->CTRL = temp | incWidth;
 }
 
 /***************************************************************************//**
@@ -683,19 +683,19 @@ __STATIC_INLINE void CRYPTO_IncWidthSet(CRYPTO_TypeDef *crypto,
  *   This is a pointer to 4 32 bit integers that contains the 128 bit value
  *   which will be written to the crypto register.
  ******************************************************************************/
-__STATIC_INLINE void CRYPTO_BurstToCrypto(volatile uint32_t * reg,
-                                          const uint32_t * val)
+__STATIC_INLINE void CRYPTO_BurstToCrypto(volatile uint32_t *reg,
+                                          const uint32_t *val)
 {
-  /* Load data from memory into local registers. */
-  register uint32_t v0 = val[0];
-  register uint32_t v1 = val[1];
-  register uint32_t v2 = val[2];
-  register uint32_t v3 = val[3];
-  /* Store data to CRYPTO */
-  *reg = v0;
-  *reg = v1;
-  *reg = v2;
-  *reg = v3;
+    /* Load data from memory into local registers. */
+    register uint32_t v0 = val[0];
+    register uint32_t v1 = val[1];
+    register uint32_t v2 = val[2];
+    register uint32_t v3 = val[3];
+    /* Store data to CRYPTO */
+    *reg = v0;
+    *reg = v1;
+    *reg = v2;
+    *reg = v3;
 }
 
 /***************************************************************************//**
@@ -715,18 +715,18 @@ __STATIC_INLINE void CRYPTO_BurstToCrypto(volatile uint32_t * reg,
  *   This is a pointer to an array that is capable of holding 4 32 bit integers
  *   that will be filled with the 128 bit value from the crypto register.
  ******************************************************************************/
-__STATIC_INLINE void CRYPTO_BurstFromCrypto(volatile uint32_t * reg, uint32_t * val)
+__STATIC_INLINE void CRYPTO_BurstFromCrypto(volatile uint32_t *reg, uint32_t *val)
 {
-  /* Load data from CRYPTO into local registers. */
-  register uint32_t v0 = *reg;
-  register uint32_t v1 = *reg;
-  register uint32_t v2 = *reg;
-  register uint32_t v3 = *reg;
-  /* Store data to memory */
-  val[0] = v0;
-  val[1] = v1;
-  val[2] = v2;
-  val[3] = v3;
+    /* Load data from CRYPTO into local registers. */
+    register uint32_t v0 = *reg;
+    register uint32_t v1 = *reg;
+    register uint32_t v2 = *reg;
+    register uint32_t v3 = *reg;
+    /* Store data to memory */
+    val[0] = v0;
+    val[1] = v1;
+    val[2] = v2;
+    val[3] = v3;
 }
 
 /***************************************************************************//**
@@ -744,7 +744,7 @@ __STATIC_INLINE void CRYPTO_BurstFromCrypto(volatile uint32_t * reg, uint32_t * 
 __STATIC_INLINE void CRYPTO_DataWrite(CRYPTO_DataReg_TypeDef dataReg,
                                       const CRYPTO_Data_TypeDef val)
 {
-  CRYPTO_BurstToCrypto((volatile uint32_t *)dataReg, val);
+    CRYPTO_BurstToCrypto((volatile uint32_t *)dataReg, val);
 }
 
 /***************************************************************************//**
@@ -762,7 +762,7 @@ __STATIC_INLINE void CRYPTO_DataWrite(CRYPTO_DataReg_TypeDef dataReg,
 __STATIC_INLINE void CRYPTO_DataRead(CRYPTO_DataReg_TypeDef  dataReg,
                                      CRYPTO_Data_TypeDef     val)
 {
-  CRYPTO_BurstFromCrypto((volatile uint32_t *)dataReg, val);
+    CRYPTO_BurstFromCrypto((volatile uint32_t *)dataReg, val);
 }
 
 /***************************************************************************//**
@@ -780,8 +780,8 @@ __STATIC_INLINE void CRYPTO_DataRead(CRYPTO_DataReg_TypeDef  dataReg,
 __STATIC_INLINE void CRYPTO_DDataWrite(CRYPTO_DDataReg_TypeDef ddataReg,
                                        const CRYPTO_DData_TypeDef val)
 {
-  CRYPTO_BurstToCrypto((volatile uint32_t *)ddataReg, &val[0]);
-  CRYPTO_BurstToCrypto((volatile uint32_t *)ddataReg, &val[4]);
+    CRYPTO_BurstToCrypto((volatile uint32_t *)ddataReg, &val[0]);
+    CRYPTO_BurstToCrypto((volatile uint32_t *)ddataReg, &val[4]);
 }
 
 /***************************************************************************//**
@@ -799,8 +799,8 @@ __STATIC_INLINE void CRYPTO_DDataWrite(CRYPTO_DDataReg_TypeDef ddataReg,
 __STATIC_INLINE void CRYPTO_DDataRead(CRYPTO_DDataReg_TypeDef  ddataReg,
                                       CRYPTO_DData_TypeDef     val)
 {
-  CRYPTO_BurstFromCrypto((volatile uint32_t *)ddataReg, &val[0]);
-  CRYPTO_BurstFromCrypto((volatile uint32_t *)ddataReg, &val[4]);
+    CRYPTO_BurstFromCrypto((volatile uint32_t *)ddataReg, &val[0]);
+    CRYPTO_BurstFromCrypto((volatile uint32_t *)ddataReg, &val[4]);
 }
 
 /***************************************************************************//**
@@ -818,10 +818,10 @@ __STATIC_INLINE void CRYPTO_DDataRead(CRYPTO_DDataReg_TypeDef  ddataReg,
 __STATIC_INLINE void CRYPTO_QDataWrite(CRYPTO_QDataReg_TypeDef  qdataReg,
                                        CRYPTO_QData_TypeDef     val)
 {
-  CRYPTO_BurstToCrypto((volatile uint32_t *)qdataReg, &val[0]);
-  CRYPTO_BurstToCrypto((volatile uint32_t *)qdataReg, &val[4]);
-  CRYPTO_BurstToCrypto((volatile uint32_t *)qdataReg, &val[8]);
-  CRYPTO_BurstToCrypto((volatile uint32_t *)qdataReg, &val[12]);
+    CRYPTO_BurstToCrypto((volatile uint32_t *)qdataReg, &val[0]);
+    CRYPTO_BurstToCrypto((volatile uint32_t *)qdataReg, &val[4]);
+    CRYPTO_BurstToCrypto((volatile uint32_t *)qdataReg, &val[8]);
+    CRYPTO_BurstToCrypto((volatile uint32_t *)qdataReg, &val[12]);
 }
 
 /***************************************************************************//**
@@ -839,10 +839,10 @@ __STATIC_INLINE void CRYPTO_QDataWrite(CRYPTO_QDataReg_TypeDef  qdataReg,
 __STATIC_INLINE void CRYPTO_QDataRead(CRYPTO_QDataReg_TypeDef qdataReg,
                                       CRYPTO_QData_TypeDef    val)
 {
-  CRYPTO_BurstFromCrypto((volatile uint32_t *)qdataReg, &val[0]);
-  CRYPTO_BurstFromCrypto((volatile uint32_t *)qdataReg, &val[4]);
-  CRYPTO_BurstFromCrypto((volatile uint32_t *)qdataReg, &val[8]);
-  CRYPTO_BurstFromCrypto((volatile uint32_t *)qdataReg, &val[12]);
+    CRYPTO_BurstFromCrypto((volatile uint32_t *)qdataReg, &val[0]);
+    CRYPTO_BurstFromCrypto((volatile uint32_t *)qdataReg, &val[4]);
+    CRYPTO_BurstFromCrypto((volatile uint32_t *)qdataReg, &val[8]);
+    CRYPTO_BurstFromCrypto((volatile uint32_t *)qdataReg, &val[12]);
 }
 
 /***************************************************************************//**
@@ -865,16 +865,16 @@ __STATIC_INLINE void CRYPTO_KeyBufWrite(CRYPTO_TypeDef          *crypto,
                                         CRYPTO_KeyBuf_TypeDef    val,
                                         CRYPTO_KeyWidth_TypeDef  keyWidth)
 {
-  if (keyWidth == cryptoKey256Bits) {
-    /* Set AES-256 mode */
-    BUS_RegBitWrite(&crypto->CTRL, _CRYPTO_CTRL_AES_SHIFT, _CRYPTO_CTRL_AES_AES256);
-    /* Load key in KEYBUF register (= DDATA4) */
-    CRYPTO_DDataWrite(&crypto->DDATA4, (uint32_t *)val);
-  } else {
-    /* Set AES-128 mode */
-    BUS_RegBitWrite(&crypto->CTRL, _CRYPTO_CTRL_AES_SHIFT, _CRYPTO_CTRL_AES_AES128);
-    CRYPTO_BurstToCrypto(&crypto->KEYBUF, &val[0]);
-  }
+    if (keyWidth == cryptoKey256Bits) {
+        /* Set AES-256 mode */
+        BUS_RegBitWrite(&crypto->CTRL, _CRYPTO_CTRL_AES_SHIFT, _CRYPTO_CTRL_AES_AES256);
+        /* Load key in KEYBUF register (= DDATA4) */
+        CRYPTO_DDataWrite(&crypto->DDATA4, (uint32_t *)val);
+    } else {
+        /* Set AES-128 mode */
+        BUS_RegBitWrite(&crypto->CTRL, _CRYPTO_CTRL_AES_SHIFT, _CRYPTO_CTRL_AES_AES128);
+        CRYPTO_BurstToCrypto(&crypto->KEYBUF, &val[0]);
+    }
 }
 
 void CRYPTO_KeyRead(CRYPTO_TypeDef *crypto,
@@ -895,9 +895,9 @@ void CRYPTO_KeyRead(CRYPTO_TypeDef *crypto,
  *   Value of the data to write to the KEYBUF register.
  ******************************************************************************/
 __STATIC_INLINE void CRYPTO_KeyBuf128Write(CRYPTO_TypeDef *crypto,
-                                           const uint32_t * val)
+                                           const uint32_t *val)
 {
-  CRYPTO_BurstToCrypto(&crypto->KEYBUF, val);
+    CRYPTO_BurstToCrypto(&crypto->KEYBUF, val);
 }
 
 /***************************************************************************//**
@@ -915,8 +915,8 @@ __STATIC_INLINE void CRYPTO_KeyBuf128Write(CRYPTO_TypeDef *crypto,
  ******************************************************************************/
 __STATIC_INLINE bool CRYPTO_CarryIsSet(CRYPTO_TypeDef *crypto)
 {
-  return (crypto->DSTATUS & _CRYPTO_DSTATUS_CARRY_MASK)
-         >> _CRYPTO_DSTATUS_CARRY_SHIFT;
+    return (crypto->DSTATUS & _CRYPTO_DSTATUS_CARRY_MASK)
+           >> _CRYPTO_DSTATUS_CARRY_SHIFT;
 }
 
 /***************************************************************************//**
@@ -935,8 +935,8 @@ __STATIC_INLINE bool CRYPTO_CarryIsSet(CRYPTO_TypeDef *crypto)
  ******************************************************************************/
 __STATIC_INLINE uint8_t CRYPTO_DData0_4LSBitsRead(CRYPTO_TypeDef *crypto)
 {
-  return (crypto->DSTATUS & _CRYPTO_DSTATUS_DDATA0LSBS_MASK)
-         >> _CRYPTO_DSTATUS_DDATA0LSBS_SHIFT;
+    return (crypto->DSTATUS & _CRYPTO_DSTATUS_DDATA0LSBS_MASK)
+           >> _CRYPTO_DSTATUS_DDATA0LSBS_SHIFT;
 }
 
 /***************************************************************************//**
@@ -958,9 +958,9 @@ __STATIC_INLINE uint8_t CRYPTO_DData0_4LSBitsRead(CRYPTO_TypeDef *crypto)
 __STATIC_INLINE void CRYPTO_DData0Read260(CRYPTO_TypeDef *crypto,
                                           CRYPTO_Data260_TypeDef val)
 {
-  CRYPTO_DDataRead(&crypto->DDATA0, val);
-  val[8] = (crypto->DSTATUS & _CRYPTO_DSTATUS_DDATA0MSBS_MASK)
-           >> _CRYPTO_DSTATUS_DDATA0MSBS_SHIFT;
+    CRYPTO_DDataRead(&crypto->DDATA0, val);
+    val[8] = (crypto->DSTATUS & _CRYPTO_DSTATUS_DDATA0MSBS_MASK)
+             >> _CRYPTO_DSTATUS_DDATA0MSBS_SHIFT;
 }
 
 /***************************************************************************//**
@@ -982,8 +982,8 @@ __STATIC_INLINE void CRYPTO_DData0Read260(CRYPTO_TypeDef *crypto,
 __STATIC_INLINE void CRYPTO_DData0Write260(CRYPTO_TypeDef *crypto,
                                            const CRYPTO_Data260_TypeDef val)
 {
-  CRYPTO_DDataWrite(&crypto->DDATA0, val);
-  crypto->DDATA0BYTE32 = val[8] & _CRYPTO_DDATA0BYTE32_DDATA0BYTE32_MASK;
+    CRYPTO_DDataWrite(&crypto->DDATA0, val);
+    crypto->DDATA0BYTE32 = val[8] & _CRYPTO_DDATA0BYTE32_DDATA0BYTE32_MASK;
 }
 
 /***************************************************************************//**
@@ -1004,8 +1004,8 @@ __STATIC_INLINE void CRYPTO_DData0Write260(CRYPTO_TypeDef *crypto,
  ******************************************************************************/
 __STATIC_INLINE bool CRYPTO_DData1_MSBitRead(CRYPTO_TypeDef *crypto)
 {
-  return (crypto->DSTATUS & _CRYPTO_DSTATUS_DDATA1MSB_MASK)
-         >> _CRYPTO_DSTATUS_DDATA1MSB_SHIFT;
+    return (crypto->DSTATUS & _CRYPTO_DSTATUS_DDATA1MSB_MASK)
+           >> _CRYPTO_DSTATUS_DDATA1MSB_SHIFT;
 }
 
 /***************************************************************************//**
@@ -1028,13 +1028,13 @@ __STATIC_INLINE
 void CRYPTO_InstructionSequenceLoad(CRYPTO_TypeDef *crypto,
                                     const CRYPTO_InstructionSequence_TypeDef instructionSequence)
 {
-  const uint32_t * pas = (const uint32_t *) instructionSequence;
+    const uint32_t *pas = (const uint32_t *) instructionSequence;
 
-  crypto->SEQ0 = pas[0];
-  crypto->SEQ1 = pas[1];
-  crypto->SEQ2 = pas[2];
-  crypto->SEQ3 = pas[3];
-  crypto->SEQ4 = pas[4];
+    crypto->SEQ0 = pas[0];
+    crypto->SEQ1 = pas[1];
+    crypto->SEQ2 = pas[2];
+    crypto->SEQ3 = pas[3];
+    crypto->SEQ4 = pas[4];
 }
 
 /***************************************************************************//**
@@ -1050,8 +1050,8 @@ void CRYPTO_InstructionSequenceLoad(CRYPTO_TypeDef *crypto,
  ******************************************************************************/
 __STATIC_INLINE void CRYPTO_InstructionSequenceExecute(CRYPTO_TypeDef *crypto)
 {
-  /* Start the command sequence. */
-  crypto->CMD = CRYPTO_CMD_SEQSTART;
+    /* Start the command sequence. */
+    crypto->CMD = CRYPTO_CMD_SEQSTART;
 }
 
 /***************************************************************************//**
@@ -1069,9 +1069,9 @@ __STATIC_INLINE void CRYPTO_InstructionSequenceExecute(CRYPTO_TypeDef *crypto)
  ******************************************************************************/
 __STATIC_INLINE bool CRYPTO_InstructionSequenceDone(CRYPTO_TypeDef *crypto)
 {
-  /* Return true if operation has completed. */
-  return !(crypto->STATUS
-           & (CRYPTO_STATUS_INSTRRUNNING | CRYPTO_STATUS_SEQRUNNING));
+    /* Return true if operation has completed. */
+    return !(crypto->STATUS
+             & (CRYPTO_STATUS_INSTRRUNNING | CRYPTO_STATUS_SEQRUNNING));
 }
 
 /***************************************************************************//**
@@ -1087,8 +1087,8 @@ __STATIC_INLINE bool CRYPTO_InstructionSequenceDone(CRYPTO_TypeDef *crypto)
  ******************************************************************************/
 __STATIC_INLINE void CRYPTO_InstructionSequenceWait(CRYPTO_TypeDef *crypto)
 {
-  while (!CRYPTO_InstructionSequenceDone(crypto))
-    ;
+    while (!CRYPTO_InstructionSequenceDone(crypto))
+        ;
 }
 
 /***************************************************************************//**
@@ -1104,10 +1104,10 @@ __STATIC_INLINE void CRYPTO_InstructionSequenceWait(CRYPTO_TypeDef *crypto)
  ******************************************************************************/
 __STATIC_INLINE void CRYPTO_InstructionWait(CRYPTO_TypeDef *crypto)
 {
-  /* Wait for completion */
-  while (!(crypto->IF & CRYPTO_IF_INSTRDONE))
-    ;
-  crypto->IFC = CRYPTO_IF_INSTRDONE;
+    /* Wait for completion */
+    while (!(crypto->IF & CRYPTO_IF_INSTRDONE))
+        ;
+    crypto->IFC = CRYPTO_IF_INSTRDONE;
 }
 
 void CRYPTO_SHA_1(CRYPTO_TypeDef                *crypto,
@@ -1121,89 +1121,89 @@ void CRYPTO_SHA_256(CRYPTO_TypeDef              *crypto,
                     CRYPTO_SHA256_Digest_TypeDef digest);
 
 void CRYPTO_Mul(CRYPTO_TypeDef *crypto,
-                uint32_t * A, int aSize,
-                uint32_t * B, int bSize,
-                uint32_t * R, int rSize);
+                uint32_t *A, int aSize,
+                uint32_t *B, int bSize,
+                uint32_t *R, int rSize);
 
 void CRYPTO_AES_CBC128(CRYPTO_TypeDef *crypto,
-                       uint8_t * out,
-                       const uint8_t * in,
+                       uint8_t *out,
+                       const uint8_t *in,
                        unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
+                       const uint8_t *key,
+                       const uint8_t *iv,
                        bool encrypt);
 
 void CRYPTO_AES_CBC256(CRYPTO_TypeDef *crypto,
-                       uint8_t * out,
-                       const uint8_t * in,
+                       uint8_t *out,
+                       const uint8_t *in,
                        unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
+                       const uint8_t *key,
+                       const uint8_t *iv,
                        bool encrypt);
 
 void CRYPTO_AES_CFB128(CRYPTO_TypeDef *crypto,
-                       uint8_t * out,
-                       const uint8_t * in,
+                       uint8_t *out,
+                       const uint8_t *in,
                        unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
+                       const uint8_t *key,
+                       const uint8_t *iv,
                        bool encrypt);
 
 void CRYPTO_AES_CFB256(CRYPTO_TypeDef *crypto,
-                       uint8_t * out,
-                       const uint8_t * in,
+                       uint8_t *out,
+                       const uint8_t *in,
                        unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
+                       const uint8_t *key,
+                       const uint8_t *iv,
                        bool encrypt);
 
 void CRYPTO_AES_CTR128(CRYPTO_TypeDef *crypto,
-                       uint8_t * out,
-                       const uint8_t * in,
+                       uint8_t *out,
+                       const uint8_t *in,
                        unsigned int len,
-                       const uint8_t * key,
-                       uint8_t * ctr,
+                       const uint8_t *key,
+                       uint8_t *ctr,
                        CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc);
 
 void CRYPTO_AES_CTR256(CRYPTO_TypeDef *crypto,
-                       uint8_t * out,
-                       const uint8_t * in,
+                       uint8_t *out,
+                       const uint8_t *in,
                        unsigned int len,
-                       const uint8_t * key,
-                       uint8_t * ctr,
+                       const uint8_t *key,
+                       uint8_t *ctr,
                        CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc);
 
-void CRYPTO_AES_CTRUpdate32Bit(uint8_t * ctr);
-void CRYPTO_AES_DecryptKey128(CRYPTO_TypeDef *crypto, uint8_t * out, const uint8_t * in);
-void CRYPTO_AES_DecryptKey256(CRYPTO_TypeDef *crypto, uint8_t * out, const uint8_t * in);
+void CRYPTO_AES_CTRUpdate32Bit(uint8_t *ctr);
+void CRYPTO_AES_DecryptKey128(CRYPTO_TypeDef *crypto, uint8_t *out, const uint8_t *in);
+void CRYPTO_AES_DecryptKey256(CRYPTO_TypeDef *crypto, uint8_t *out, const uint8_t *in);
 
 void CRYPTO_AES_ECB128(CRYPTO_TypeDef *crypto,
-                       uint8_t * out,
-                       const uint8_t * in,
+                       uint8_t *out,
+                       const uint8_t *in,
                        unsigned int len,
-                       const uint8_t * key,
+                       const uint8_t *key,
                        bool encrypt);
 
 void CRYPTO_AES_ECB256(CRYPTO_TypeDef *crypto,
-                       uint8_t * out,
-                       const uint8_t * in,
+                       uint8_t *out,
+                       const uint8_t *in,
                        unsigned int len,
-                       const uint8_t * key,
+                       const uint8_t *key,
                        bool encrypt);
 
 void CRYPTO_AES_OFB128(CRYPTO_TypeDef *crypto,
-                       uint8_t * out,
-                       const uint8_t * in,
+                       uint8_t *out,
+                       const uint8_t *in,
                        unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv);
+                       const uint8_t *key,
+                       const uint8_t *iv);
 
 void CRYPTO_AES_OFB256(CRYPTO_TypeDef *crypto,
-                       uint8_t * out,
-                       const uint8_t * in,
+                       uint8_t *out,
+                       const uint8_t *in,
                        unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv);
+                       const uint8_t *key,
+                       const uint8_t *iv);
 
 /***************************************************************************//**
  * @brief
@@ -1218,7 +1218,7 @@ void CRYPTO_AES_OFB256(CRYPTO_TypeDef *crypto,
  ******************************************************************************/
 __STATIC_INLINE void CRYPTO_IntClear(CRYPTO_TypeDef *crypto, uint32_t flags)
 {
-  crypto->IFC = flags;
+    crypto->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -1234,7 +1234,7 @@ __STATIC_INLINE void CRYPTO_IntClear(CRYPTO_TypeDef *crypto, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CRYPTO_IntDisable(CRYPTO_TypeDef *crypto, uint32_t flags)
 {
-  crypto->IEN &= ~(flags);
+    crypto->IEN &= ~(flags);
 }
 
 /***************************************************************************//**
@@ -1255,7 +1255,7 @@ __STATIC_INLINE void CRYPTO_IntDisable(CRYPTO_TypeDef *crypto, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CRYPTO_IntEnable(CRYPTO_TypeDef *crypto, uint32_t flags)
 {
-  crypto->IEN |= flags;
+    crypto->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -1274,7 +1274,7 @@ __STATIC_INLINE void CRYPTO_IntEnable(CRYPTO_TypeDef *crypto, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CRYPTO_IntGet(CRYPTO_TypeDef *crypto)
 {
-  return crypto->IF;
+    return crypto->IF;
 }
 
 /***************************************************************************//**
@@ -1296,14 +1296,14 @@ __STATIC_INLINE uint32_t CRYPTO_IntGet(CRYPTO_TypeDef *crypto)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CRYPTO_IntGetEnabled(CRYPTO_TypeDef *crypto)
 {
-  uint32_t tmp;
+    uint32_t tmp;
 
-  /* Store IEN in temporary variable in order to define explicit order
-   * of volatile accesses. */
-  tmp = crypto->IEN;
+    /* Store IEN in temporary variable in order to define explicit order
+     * of volatile accesses. */
+    tmp = crypto->IEN;
 
-  /* Bitwise AND of pending and enabled interrupts */
-  return crypto->IF & tmp;
+    /* Bitwise AND of pending and enabled interrupts */
+    return crypto->IF & tmp;
 }
 
 /***************************************************************************//**
@@ -1319,7 +1319,7 @@ __STATIC_INLINE uint32_t CRYPTO_IntGetEnabled(CRYPTO_TypeDef *crypto)
  ******************************************************************************/
 __STATIC_INLINE void CRYPTO_IntSet(CRYPTO_TypeDef *crypto, uint32_t flags)
 {
-  crypto->IFS = flags;
+    crypto->IFS = flags;
 }
 
 /*******************************************************************************
@@ -1336,14 +1336,14 @@ __STATIC_INLINE void CRYPTO_IntSet(CRYPTO_TypeDef *crypto, uint32_t flags)
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_CBC128 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_CBC128(uint8_t * out,
-                                const uint8_t * in,
+__STATIC_INLINE void AES_CBC128(uint8_t *out,
+                                const uint8_t *in,
                                 unsigned int len,
-                                const uint8_t * key,
-                                const uint8_t * iv,
+                                const uint8_t *key,
+                                const uint8_t *iv,
                                 bool encrypt)
 {
-  CRYPTO_AES_CBC128(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
+    CRYPTO_AES_CBC128(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
 }
 
 /***************************************************************************//**
@@ -1355,14 +1355,14 @@ __STATIC_INLINE void AES_CBC128(uint8_t * out,
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_CBC256 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_CBC256(uint8_t * out,
-                                const uint8_t * in,
+__STATIC_INLINE void AES_CBC256(uint8_t *out,
+                                const uint8_t *in,
                                 unsigned int len,
-                                const uint8_t * key,
-                                const uint8_t * iv,
+                                const uint8_t *key,
+                                const uint8_t *iv,
                                 bool encrypt)
 {
-  CRYPTO_AES_CBC256(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
+    CRYPTO_AES_CBC256(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
 }
 
 /***************************************************************************//**
@@ -1373,14 +1373,14 @@ __STATIC_INLINE void AES_CBC256(uint8_t * out,
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_CFB128 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_CFB128(uint8_t * out,
-                                const uint8_t * in,
+__STATIC_INLINE void AES_CFB128(uint8_t *out,
+                                const uint8_t *in,
                                 unsigned int len,
-                                const uint8_t * key,
-                                const uint8_t * iv,
+                                const uint8_t *key,
+                                const uint8_t *iv,
                                 bool encrypt)
 {
-  CRYPTO_AES_CFB128(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
+    CRYPTO_AES_CFB128(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
 }
 
 /***************************************************************************//**
@@ -1391,14 +1391,14 @@ __STATIC_INLINE void AES_CFB128(uint8_t * out,
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_CFB256 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_CFB256(uint8_t * out,
-                                const uint8_t * in,
+__STATIC_INLINE void AES_CFB256(uint8_t *out,
+                                const uint8_t *in,
                                 unsigned int len,
-                                const uint8_t * key,
-                                const uint8_t * iv,
+                                const uint8_t *key,
+                                const uint8_t *iv,
                                 bool encrypt)
 {
-  CRYPTO_AES_CFB256(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
+    CRYPTO_AES_CFB256(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
 }
 
 /***************************************************************************//**
@@ -1409,14 +1409,14 @@ __STATIC_INLINE void AES_CFB256(uint8_t * out,
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_CTR128 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_CTR128(uint8_t * out,
-                                const uint8_t * in,
+__STATIC_INLINE void AES_CTR128(uint8_t *out,
+                                const uint8_t *in,
                                 unsigned int len,
-                                const uint8_t * key,
-                                uint8_t * ctr,
+                                const uint8_t *key,
+                                uint8_t *ctr,
                                 CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc)
 {
-  CRYPTO_AES_CTR128(DEFAULT_CRYPTO, out, in, len, key, ctr, ctrFunc);
+    CRYPTO_AES_CTR128(DEFAULT_CRYPTO, out, in, len, key, ctr, ctrFunc);
 }
 
 /***************************************************************************//**
@@ -1427,14 +1427,14 @@ __STATIC_INLINE void AES_CTR128(uint8_t * out,
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_CTR256 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_CTR256(uint8_t * out,
-                                const uint8_t * in,
+__STATIC_INLINE void AES_CTR256(uint8_t *out,
+                                const uint8_t *in,
                                 unsigned int len,
-                                const uint8_t * key,
-                                uint8_t * ctr,
+                                const uint8_t *key,
+                                uint8_t *ctr,
                                 CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc)
 {
-  CRYPTO_AES_CTR256(DEFAULT_CRYPTO, out, in, len, key, ctr, ctrFunc);
+    CRYPTO_AES_CTR256(DEFAULT_CRYPTO, out, in, len, key, ctr, ctrFunc);
 }
 
 /***************************************************************************//**
@@ -1445,9 +1445,9 @@ __STATIC_INLINE void AES_CTR256(uint8_t * out,
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_CTRUpdate32Bit instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_CTRUpdate32Bit(uint8_t * ctr)
+__STATIC_INLINE void AES_CTRUpdate32Bit(uint8_t *ctr)
 {
-  CRYPTO_AES_CTRUpdate32Bit(ctr);
+    CRYPTO_AES_CTRUpdate32Bit(ctr);
 }
 
 /***************************************************************************//**
@@ -1459,9 +1459,9 @@ __STATIC_INLINE void AES_CTRUpdate32Bit(uint8_t * ctr)
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_DecryptKey128 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_DecryptKey128(uint8_t * out, const uint8_t * in)
+__STATIC_INLINE void AES_DecryptKey128(uint8_t *out, const uint8_t *in)
 {
-  CRYPTO_AES_DecryptKey128(DEFAULT_CRYPTO, out, in);
+    CRYPTO_AES_DecryptKey128(DEFAULT_CRYPTO, out, in);
 }
 
 /***************************************************************************//**
@@ -1473,9 +1473,9 @@ __STATIC_INLINE void AES_DecryptKey128(uint8_t * out, const uint8_t * in)
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_DecryptKey256 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_DecryptKey256(uint8_t * out, const uint8_t * in)
+__STATIC_INLINE void AES_DecryptKey256(uint8_t *out, const uint8_t *in)
 {
-  CRYPTO_AES_DecryptKey256(DEFAULT_CRYPTO, out, in);
+    CRYPTO_AES_DecryptKey256(DEFAULT_CRYPTO, out, in);
 }
 
 /***************************************************************************//**
@@ -1487,13 +1487,13 @@ __STATIC_INLINE void AES_DecryptKey256(uint8_t * out, const uint8_t * in)
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_ECB128 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_ECB128(uint8_t * out,
-                                const uint8_t * in,
+__STATIC_INLINE void AES_ECB128(uint8_t *out,
+                                const uint8_t *in,
                                 unsigned int len,
-                                const uint8_t * key,
+                                const uint8_t *key,
                                 bool encrypt)
 {
-  CRYPTO_AES_ECB128(DEFAULT_CRYPTO, out, in, len, key, encrypt);
+    CRYPTO_AES_ECB128(DEFAULT_CRYPTO, out, in, len, key, encrypt);
 }
 
 /***************************************************************************//**
@@ -1505,13 +1505,13 @@ __STATIC_INLINE void AES_ECB128(uint8_t * out,
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_ECB256 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_ECB256(uint8_t * out,
-                                const uint8_t * in,
+__STATIC_INLINE void AES_ECB256(uint8_t *out,
+                                const uint8_t *in,
                                 unsigned int len,
-                                const uint8_t * key,
+                                const uint8_t *key,
                                 bool encrypt)
 {
-  CRYPTO_AES_ECB256(DEFAULT_CRYPTO, out, in, len, key, encrypt);
+    CRYPTO_AES_ECB256(DEFAULT_CRYPTO, out, in, len, key, encrypt);
 }
 
 /***************************************************************************//**
@@ -1522,13 +1522,13 @@ __STATIC_INLINE void AES_ECB256(uint8_t * out,
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_OFB128 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_OFB128(uint8_t * out,
-                                const uint8_t * in,
+__STATIC_INLINE void AES_OFB128(uint8_t *out,
+                                const uint8_t *in,
                                 unsigned int len,
-                                const uint8_t * key,
-                                const uint8_t * iv)
+                                const uint8_t *key,
+                                const uint8_t *iv)
 {
-  CRYPTO_AES_OFB128(DEFAULT_CRYPTO, out, in, len, key, iv);
+    CRYPTO_AES_OFB128(DEFAULT_CRYPTO, out, in, len, key, iv);
 }
 
 /***************************************************************************//**
@@ -1539,13 +1539,13 @@ __STATIC_INLINE void AES_OFB128(uint8_t * out,
  *   This function is present to preserve backwards compatibility. Use
  *   @ref CRYPTO_AES_OFB256 instead.
  ******************************************************************************/
-__STATIC_INLINE void AES_OFB256(uint8_t * out,
-                                const uint8_t * in,
+__STATIC_INLINE void AES_OFB256(uint8_t *out,
+                                const uint8_t *in,
                                 unsigned int len,
-                                const uint8_t * key,
-                                const uint8_t * iv)
+                                const uint8_t *key,
+                                const uint8_t *iv)
 {
-  CRYPTO_AES_OFB256(DEFAULT_CRYPTO, out, in, len, key, iv);
+    CRYPTO_AES_OFB256(DEFAULT_CRYPTO, out, in, len, key, iv);
 }
 
 #ifdef __cplusplus

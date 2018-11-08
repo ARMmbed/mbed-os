@@ -49,8 +49,7 @@ typedef struct _spi_dma_handle spi_dma_handle_t;
 typedef void (*spi_dma_callback_t)(SPI_Type *base, spi_dma_handle_t *handle, status_t status, void *userData);
 
 /*! @brief SPI DMA transfer handle, users should not touch the content of the handle.*/
-struct _spi_dma_handle
-{
+struct _spi_dma_handle {
     bool txInProgress;           /*!< Send transfer finished */
     bool rxInProgress;           /*!< Receive transfer finished */
     dma_handle_t *txHandle;      /*!< DMA handler for SPI send */

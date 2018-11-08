@@ -76,19 +76,19 @@
  * closed-loop mode using the default parameters specified through
  * configuration symbols.
  * \code
-	dfll_enable_config_defaults(0); \endcode
+    dfll_enable_config_defaults(0); \endcode
  *
  * To configure and enable DFLL0 in closed-loop mode using the default
  * parameters and to enable specific feature like dithering for better accuracy,
  * you can use this initialization process.
  * \code
-	struct dfll_config dfllcfg;
+    struct dfll_config dfllcfg;
 
-	dfll_enable_source(CONFIG_DFLL0_SOURCE);
-	dfll_config_defaults(&dfllcfg, 0);
-	dfll_config_enable_dithering(&dfllcfg);
-	dfll_enable(&dfllcfg, 0);
-	dfll_wait_for_accurate_lock(0); \endcode
+    dfll_enable_source(CONFIG_DFLL0_SOURCE);
+    dfll_config_defaults(&dfllcfg, 0);
+    dfll_config_enable_dithering(&dfllcfg);
+    dfll_enable(&dfllcfg, 0);
+    dfll_wait_for_accurate_lock(0); \endcode
  *
  * When the last function call returns, DFLL0 is running at a frequency
  * which matches the default configuration as accurately as possible.

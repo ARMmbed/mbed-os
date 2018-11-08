@@ -139,8 +139,7 @@ do                                          \
 } while (0)
 
 
-typedef struct
-{
+typedef struct {
     bool                peer_ids_initialized;
     pds_evt_handler_t   evt_handlers[MAX_REGISTRANTS];
     uint8_t             n_registrants;
@@ -148,7 +147,7 @@ typedef struct
 
 static pds_t m_pds = {.n_registrants = 0};
 
-static void internal_state_reset(pds_t * p_pds)
+static void internal_state_reset(pds_t *p_pds)
 {
     memset(p_pds, 0, sizeof(pds_t));
 }
@@ -157,10 +156,9 @@ static void internal_state_reset(pds_t * p_pds)
  *
  * @param[in]  p_event  The event to dispatch.
  */
-static void pds_evt_send(pds_evt_t * p_event)
+static void pds_evt_send(pds_evt_t *p_event)
 {
-    for (int i = 0; i < m_pds.n_registrants; i++)
-    {
+    for (int i = 0; i < m_pds.n_registrants; i++) {
         m_pds.evt_handlers[i](p_event);
     }
 }
@@ -214,7 +212,7 @@ static pm_peer_data_id_t convert_type_id_to_peer_data_id(fds_type_id_t type_id)
 
 static ret_code_t find_fds_item(pm_peer_id_t              peer_id,
                                 pm_peer_data_id_t         data_id,
-                                fds_record_desc_t * const p_desc)
+                                fds_record_desc_t *const p_desc)
 {
     fds_find_token_t find_tok;
 
@@ -237,10 +235,8 @@ static void peer_ids_init()
     fds_type_id_t     const type_id = convert_peer_data_id_to_type_id(PM_PEER_DATA_ID_BONDING);
     pm_peer_id_t            peer_id;
 
-    if (!m_pds.peer_ids_initialized)
-    {
-        while(fds_find_by_type(type_id, &record_desc, &find_tok) == NRF_SUCCESS)
-        {
+    if (!m_pds.peer_ids_initialized) {
+        while (fds_find_by_type(type_id, &record_desc, &find_tok) == NRF_SUCCESS) {
             fds_open(&record_desc, &record);
             fds_close(&record_desc);
             peer_id = convert_instance_id_to_peer_id(record.header.ic.instance);
@@ -263,8 +259,7 @@ static void fds_evt_handler(ret_code_t          result,
                             /*fds_record_t  const * const p_record*/)
 {
     pds_evt_t evt;
-    switch(cmd)
-    {
+    switch (cmd) {
         case FDS_CMD_INIT:
 
             break;
@@ -286,33 +281,26 @@ static void fds_evt_handler(ret_code_t          result,
             pds_evt_send(&evt);
             break;
 
-        case FDS_CMD_CLEAR_INST:
-            {
-                if ((record_key.type     == FDS_TYPE_ID_INVALID) &&
-                    (record_key.instance != FDS_TYPE_ID_INVALID))
-                {
-                    pm_peer_id_t peer_id = convert_instance_id_to_peer_id(record_key.instance);
+        case FDS_CMD_CLEAR_INST: {
+            if ((record_key.type     == FDS_TYPE_ID_INVALID) &&
+                    (record_key.instance != FDS_TYPE_ID_INVALID)) {
+                pm_peer_id_t peer_id = convert_instance_id_to_peer_id(record_key.instance);
 
-                    evt.peer_id = peer_id;
-                    evt.data_id = PM_PEER_DATA_ID_INVALID;
-                    if (result == NRF_SUCCESS)
-                    {
-                        evt.evt_id = PDS_EVT_PEER_ID_CLEAR;
-                        peer_id_free(peer_id);
-                    }
-                    else
-                    {
-                        evt.evt_id = PDS_EVT_ERROR_PEER_ID_CLEAR;
-                    }
+                evt.peer_id = peer_id;
+                evt.data_id = PM_PEER_DATA_ID_INVALID;
+                if (result == NRF_SUCCESS) {
+                    evt.evt_id = PDS_EVT_PEER_ID_CLEAR;
+                    peer_id_free(peer_id);
+                } else {
+                    evt.evt_id = PDS_EVT_ERROR_PEER_ID_CLEAR;
                 }
-                else
-                {
-                    // TODO: Not supported yet (clear many without clearing peer_id)
-                }
-
-                pds_evt_send(&evt);
+            } else {
+                // TODO: Not supported yet (clear many without clearing peer_id)
             }
-            break;
+
+            pds_evt_send(&evt);
+        }
+        break;
 
         case FDS_CMD_GC:
             evt.peer_id = convert_instance_id_to_peer_id(record_key.instance);
@@ -331,29 +319,25 @@ static void fds_evt_handler(ret_code_t          result,
 
 ret_code_t pds_register(pds_evt_handler_t evt_handler)
 {
-    if (m_pds.n_registrants >= MAX_REGISTRANTS)
-    {
+    if (m_pds.n_registrants >= MAX_REGISTRANTS) {
         return NRF_ERROR_NO_MEM;
     }
 
     VERIFY_PARAM_NOT_NULL(evt_handler);
 
-    if (!MODULE_INITIALIZED)
-    {
+    if (!MODULE_INITIALIZED) {
         ret_code_t retval;
         internal_state_reset(&m_pds);
         peer_id_init();
 
         fds_cb_t cb = fds_evt_handler;
         retval = fds_register(cb);
-        if(retval != NRF_SUCCESS)
-        {
+        if (retval != NRF_SUCCESS) {
             return retval;
         }
 
         retval = fds_init();
-        if(retval != NRF_SUCCESS)
-        {
+        if (retval != NRF_SUCCESS) {
             return retval;
         }
     }
@@ -368,8 +352,8 @@ ret_code_t pds_register(pds_evt_handler_t evt_handler)
 
 ret_code_t pds_peer_data_read_ptr_get(pm_peer_id_t            peer_id,
                                       pm_peer_data_id_t       data_id,
-                                      pm_peer_data_flash_t  * p_data,
-                                      pm_store_token_t      * p_token)
+                                      pm_peer_data_flash_t   *p_data,
+                                      pm_store_token_t       *p_token)
 {
     ret_code_t retval;
 
@@ -381,8 +365,7 @@ ret_code_t pds_peer_data_read_ptr_get(pm_peer_id_t            peer_id,
     VERIFY_PEER_DATA_ID_IN_RANGE(data_id);
 
     retval = find_fds_item(peer_id, data_id, &record_desc);
-    if (retval != NRF_SUCCESS)
-    {
+    if (retval != NRF_SUCCESS) {
         return retval;
     }
 
@@ -393,16 +376,14 @@ ret_code_t pds_peer_data_read_ptr_get(pm_peer_id_t            peer_id,
 
     //NRF_LOG_PRINTF("Found item with peer_id: %d, data_id: %d, Address: %p\r\n", record.p_data);
 
-    if (p_data != NULL)
-    {
+    if (p_data != NULL) {
         p_data->data_type    = data_id;
         p_data->length_words = record.header.tl.length_words;
 
-        p_data->data.p_application_data = (uint8_t const*)record.p_data;
+        p_data->data.p_application_data = (uint8_t const *)record.p_data;
     }
 
-    if (p_token != NULL)
-    {
+    if (p_token != NULL) {
         *p_token = (uint32_t)record.header.id;
     }
 
@@ -434,8 +415,8 @@ ret_code_t pds_peer_data_verify(pm_store_token_t store_token)
 
 ret_code_t pds_peer_data_read(pm_peer_id_t          peer_id,
                               pm_peer_data_id_t     data_id,
-                              pm_peer_data_t      * p_data,
-                              fds_length_t        * p_len_words)
+                              pm_peer_data_t       *p_data,
+                              fds_length_t         *p_len_words)
 {
     VERIFY_PEER_ID_IN_RANGE(peer_id);
     VERIFY_PEER_DATA_ID_IN_RANGE(data_id);
@@ -447,18 +428,14 @@ ret_code_t pds_peer_data_read(pm_peer_id_t          peer_id,
 
     err_code = pds_peer_data_read_ptr_get(peer_id, data_id, &peer_data_flash, NULL);
 
-    if (err_code != NRF_SUCCESS)
-    {
+    if (err_code != NRF_SUCCESS) {
         return err_code;
     }
 
-    if ((*p_len_words) == 0)
-    {
+    if ((*p_len_words) == 0) {
         (*p_len_words) = peer_data_flash.length_words;
         return NRF_SUCCESS;
-    }
-    else if ((*p_len_words) < peer_data_flash.length_words)
-    {
+    } else if ((*p_len_words) < peer_data_flash.length_words) {
         return NRF_ERROR_NO_MEM;
     }
 
@@ -470,8 +447,8 @@ ret_code_t pds_peer_data_read(pm_peer_id_t          peer_id,
 }
 
 
-ret_code_t pds_peer_data_write_prepare(pm_peer_data_const_t const * p_peer_data,
-                                       pm_prepare_token_t         * p_prepare_token)
+ret_code_t pds_peer_data_write_prepare(pm_peer_data_const_t const *p_peer_data,
+                                       pm_prepare_token_t          *p_prepare_token)
 {
     ret_code_t retval;
 
@@ -480,7 +457,7 @@ ret_code_t pds_peer_data_write_prepare(pm_peer_data_const_t const * p_peer_data,
     VERIFY_PARAM_NOT_NULL(p_prepare_token);
     VERIFY_PEER_DATA_ID_IN_RANGE(p_peer_data->data_type);
 
-    retval = fds_reserve((fds_write_token_t*)p_prepare_token, p_peer_data->length_words);
+    retval = fds_reserve((fds_write_token_t *)p_prepare_token, p_peer_data->length_words);
     return retval;
 }
 
@@ -492,15 +469,15 @@ ret_code_t pds_peer_data_write_prepare_cancel(pm_prepare_token_t prepare_token)
     VERIFY_MODULE_INITIALIZED();
     VERIFY_PARAM_NOT_ZERO(prepare_token);
 
-    retval = fds_reserve_cancel((fds_write_token_t*)&prepare_token);
+    retval = fds_reserve_cancel((fds_write_token_t *)&prepare_token);
     return retval;
 }
 
 
 ret_code_t pds_peer_data_write_prepared(pm_peer_id_t                    peer_id,
-                                        pm_peer_data_const_t    const * p_peer_data,
+                                        pm_peer_data_const_t    const *p_peer_data,
                                         pm_prepare_token_t              prepare_token,
-                                        pm_store_token_t              * p_store_token)
+                                        pm_store_token_t               *p_store_token)
 {
     ret_code_t         retval;
     fds_record_desc_t  record_desc;
@@ -521,12 +498,11 @@ ret_code_t pds_peer_data_write_prepared(pm_peer_id_t                    peer_id,
     // Create chunks.
     peer_data_parts_get(p_peer_data, chunks, &n_chunks);
 
-    retval = fds_write_reserved((fds_write_token_t*)&prepare_token, &record_desc,
+    retval = fds_write_reserved((fds_write_token_t *)&prepare_token, &record_desc,
                                 record_key, n_chunks, chunks);
 
-    if ((retval == NRF_SUCCESS) && (p_store_token != NULL))
-    {
-        fds_record_id_from_desc(&record_desc, (fds_record_id_t*)p_store_token);
+    if ((retval == NRF_SUCCESS) && (p_store_token != NULL)) {
+        fds_record_id_from_desc(&record_desc, (fds_record_id_t *)p_store_token);
     }
 
     return retval;
@@ -534,8 +510,8 @@ ret_code_t pds_peer_data_write_prepared(pm_peer_id_t                    peer_id,
 
 
 ret_code_t pds_peer_data_write(pm_peer_id_t                 peer_id,
-                               pm_peer_data_const_t const * p_peer_data,
-                               pm_store_token_t           * p_store_token)
+                               pm_peer_data_const_t const *p_peer_data,
+                               pm_store_token_t            *p_store_token)
 {
     ret_code_t          retval;
     fds_record_desc_t   record_desc;
@@ -557,9 +533,8 @@ ret_code_t pds_peer_data_write(pm_peer_id_t                 peer_id,
     // Request write
     retval = fds_write(&record_desc, record_key, n_chunks, chunks);
 
-    if ((retval == NRF_SUCCESS) && (p_store_token != NULL))
-    {
-        fds_record_id_from_desc(&record_desc, (fds_record_id_t*)p_store_token);
+    if ((retval == NRF_SUCCESS) && (p_store_token != NULL)) {
+        fds_record_id_from_desc(&record_desc, (fds_record_id_t *)p_store_token);
     }
 
     return retval;
@@ -567,9 +542,9 @@ ret_code_t pds_peer_data_write(pm_peer_id_t                 peer_id,
 
 
 ret_code_t pds_peer_data_update(pm_peer_id_t                 peer_id,
-                                pm_peer_data_const_t const * p_peer_data,
+                                pm_peer_data_const_t const *p_peer_data,
                                 pm_store_token_t             old_token,
-                                pm_store_token_t           * p_store_token)
+                                pm_store_token_t            *p_store_token)
 {
     ret_code_t         retval;
     fds_record_desc_t  record_desc;
@@ -591,9 +566,8 @@ ret_code_t pds_peer_data_update(pm_peer_id_t                 peer_id,
 
     retval = fds_update(&record_desc, record_key, n_chunks, chunks);
 
-    if ((retval == NRF_SUCCESS) && (p_store_token != NULL))
-    {
-        fds_record_id_from_desc(&record_desc, (fds_record_id_t*)p_store_token);
+    if ((retval == NRF_SUCCESS) && (p_store_token != NULL)) {
+        fds_record_id_from_desc(&record_desc, (fds_record_id_t *)p_store_token);
     }
 
     return retval;
@@ -615,8 +589,7 @@ ret_code_t pds_peer_data_clear(pm_peer_id_t peer_id, pm_peer_data_id_t data_id)
     instance_id = convert_peer_id_to_instance_id(peer_id);
 
     retval = fds_find(type_id, instance_id, &record_desc, &find_tok);
-    if(retval != NRF_SUCCESS)
-    {
+    if (retval != NRF_SUCCESS) {
         return retval;
     }
 
@@ -627,8 +600,7 @@ ret_code_t pds_peer_data_clear(pm_peer_id_t peer_id, pm_peer_data_id_t data_id)
 
 pm_peer_id_t pds_peer_id_allocate(void)
 {
-    if (!MODULE_INITIALIZED)
-    {
+    if (!MODULE_INITIALIZED) {
         return PM_PEER_ID_INVALID;
     }
     PEER_IDS_INITIALIZE();
@@ -654,8 +626,7 @@ ret_code_t pds_peer_id_free(pm_peer_id_t peer_id)
 
 bool pds_peer_id_is_allocated(pm_peer_id_t peer_id)
 {
-    if (!MODULE_INITIALIZED)
-    {
+    if (!MODULE_INITIALIZED) {
         return false;
     }
     PEER_IDS_INITIALIZE();
@@ -666,8 +637,7 @@ bool pds_peer_id_is_allocated(pm_peer_id_t peer_id)
 
 pm_peer_id_t pds_next_peer_id_get(pm_peer_id_t prev_peer_id)
 {
-    if (!MODULE_INITIALIZED)
-    {
+    if (!MODULE_INITIALIZED) {
         return PM_PEER_ID_INVALID;
     }
     PEER_IDS_INITIALIZE();
@@ -678,8 +648,7 @@ pm_peer_id_t pds_next_peer_id_get(pm_peer_id_t prev_peer_id)
 
 uint32_t pds_n_peers(void)
 {
-    if (!MODULE_INITIALIZED)
-    {
+    if (!MODULE_INITIALIZED) {
         return 0;
     }
     PEER_IDS_INITIALIZE();

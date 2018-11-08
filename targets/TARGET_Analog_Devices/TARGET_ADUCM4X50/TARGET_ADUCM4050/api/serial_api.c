@@ -56,7 +56,7 @@
 #define ADI_UART_NUM_DEVICES   2
 
 static ADI_UART_HANDLE hDevice[ADI_UART_NUM_DEVICES];
-static uint32_t UartDeviceMem[ADI_UART_NUM_DEVICES][(ADI_UART_MEMORY_SIZE + 3)/4];
+static uint32_t UartDeviceMem[ADI_UART_NUM_DEVICES][(ADI_UART_MEMORY_SIZE + 3) / 4];
 static uint32_t serial_irq_ids[ADI_UART_NUM_DEVICES] = {0};
 static uart_irq_handler irq_handler = NULL;
 int stdio_uart_inited = 0;
@@ -68,10 +68,11 @@ static void uart_callback(void *pCBParam, uint32_t Event, void *pArg)
 {
     MBED_ASSERT(irq_handler);
     serial_t *obj = pCBParam;
-    if (Event == ADI_UART_EVENT_TX_BUFFER_PROCESSED)
+    if (Event == ADI_UART_EVENT_TX_BUFFER_PROCESSED) {
         irq_handler(serial_irq_ids[obj->index], TxIrq);
-    else if (Event == ADI_UART_EVENT_RX_BUFFER_PROCESSED)
+    } else if (Event == ADI_UART_EVENT_RX_BUFFER_PROCESSED) {
         irq_handler(serial_irq_ids[obj->index], RxIrq);
+    }
 }
 
 
@@ -82,55 +83,55 @@ void serial_free(serial_t *obj)
 
 void serial_baud(serial_t *obj, int baudrate)
 {
-    uint32_t uartdivc,uartdivm,uartdivn,uartosr;
+    uint32_t uartdivc, uartdivm, uartdivn, uartosr;
 
     // figures based on PCLK of 26MHz
     switch (baudrate) {
         case    9600:
-            uartdivc= 28;
-            uartdivm= 3;
-            uartdivn= 46;
-            uartosr= 3;
+            uartdivc = 28;
+            uartdivm = 3;
+            uartdivn = 46;
+            uartosr = 3;
             break;
         case   19200:
-            uartdivc= 14;
-            uartdivm= 3;
-            uartdivn= 46;
-            uartosr= 3;
+            uartdivc = 14;
+            uartdivm = 3;
+            uartdivn = 46;
+            uartosr = 3;
             break;
         case   38400:
-            uartdivc= 07;
-            uartdivm= 3;
-            uartdivn= 46;
-            uartosr= 3;
+            uartdivc = 07;
+            uartdivm = 3;
+            uartdivn = 46;
+            uartosr = 3;
             break;
         case   57600:
-            uartdivc= 14;
-            uartdivm= 1;
-            uartdivn= 15;
-            uartosr= 3;
+            uartdivc = 14;
+            uartdivm = 1;
+            uartdivn = 15;
+            uartosr = 3;
             break;
         case  115200:
-            uartdivc= 03;
-            uartdivm= 2;
-            uartdivn= 719;
-            uartosr= 3;
+            uartdivc = 03;
+            uartdivm = 2;
+            uartdivn = 719;
+            uartosr = 3;
             break;
         case  230400:
-            uartdivc= 03;
-            uartdivm= 1;
-            uartdivn= 359;
-            uartosr= 3;
+            uartdivc = 03;
+            uartdivm = 1;
+            uartdivn = 359;
+            uartosr = 3;
             break;
         default:    // default of 9600kbps
-            uartdivc= 28;
-            uartdivm= 3;
-            uartdivn= 46;
-            uartosr= 3;
+            uartdivc = 28;
+            uartdivm = 3;
+            uartdivn = 46;
+            uartosr = 3;
             break;
     }
 
-    adi_uart_ConfigBaudRate(hDevice[obj->index],uartdivc,uartdivm,uartdivn,uartosr);
+    adi_uart_ConfigBaudRate(hDevice[obj->index], uartdivc, uartdivm, uartdivn, uartosr);
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
@@ -162,7 +163,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
     obj->index = pinmap_merge(uart_tx, uart_rx);
     MBED_ASSERT((int)obj->index != NC);
-    adi_uart_Open(obj->index,ADI_UART_DIR_BIDIRECTION,UartDeviceMem[obj->index],ADI_UART_MEMORY_SIZE,&hDevice[obj->index]);
+    adi_uart_Open(obj->index, ADI_UART_DIR_BIDIRECTION, UartDeviceMem[obj->index], ADI_UART_MEMORY_SIZE, &hDevice[obj->index]);
     serial_baud(obj, 9600);
     serial_format(obj, 8, ParityNone, 1);
     pinmap_pinout(tx, PinMap_UART_TX);
@@ -208,8 +209,8 @@ void serial_putc(serial_t *obj, int c)
 {
     void *pBuff;
     uint32_t pHwError;
-    txbuffer[obj->index]= (char) c;
-    adi_uart_SubmitTxBuffer(hDevice[obj->index],&txbuffer[obj->index], 1, 1);
+    txbuffer[obj->index] = (char) c;
+    adi_uart_SubmitTxBuffer(hDevice[obj->index], &txbuffer[obj->index], 1, 1);
     adi_uart_GetTxBuffer(hDevice[obj->index], &pBuff, &pHwError);
     return;
 }

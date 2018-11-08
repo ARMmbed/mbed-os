@@ -79,8 +79,7 @@ uint8_t BOARD_ExtClk_Setup_HookUp(uint32_t clk_out_value)
 {
     uint8_t result = 0;
 
-    switch (clk_out_value)
-    {
+    switch (clk_out_value) {
         case 4000000U:
             /* Start XCVR clock in order to derive MCGOUTCLK */
             SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTC_MASK; /* Ungate PORTB and PORTC clock*/
@@ -125,8 +124,7 @@ void BOARD_BootClockVLPR(void)
 
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
     SMC_SetPowerModeVlpr(SMC, false);
-    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr)
-    {
+    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr) {
     }
 }
 
@@ -148,8 +146,7 @@ void BOARD_BootClockRUN(void)
     };
 
     /* Perform initialization of the wireless modem clock output */
-    if (BOARD_ExtClk_Setup_HookUp(BOARD_XTAL0_CLK_HZ) != 1U)
-    {
+    if (BOARD_ExtClk_Setup_HookUp(BOARD_XTAL0_CLK_HZ) != 1U) {
         /* If the initialization was not successfully, do not continue with clock setup */
         return;
     }
@@ -169,12 +166,13 @@ void BOARD_InitOsc0(void)
     const osc_config_t oscConfig = {.freq = BOARD_XTAL0_CLK_HZ,
                                     .capLoad = 0,
                                     .workMode = kOSC_ModeOscLowPower,
-                                    .oscerConfig = {
-                                        .enableMode = kOSC_ErClkEnable | kOSC_ErClkEnableInStop,
+    .oscerConfig = {
+        .enableMode = kOSC_ErClkEnable | kOSC_ErClkEnableInStop,
 #if (defined(FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER) && FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER)
-                                        .erclkDiv = 0U,
+        .erclkDiv = 0U,
 #endif
-                                    }};
+    }
+                                   };
 
     CLOCK_InitOsc0(&oscConfig);
 

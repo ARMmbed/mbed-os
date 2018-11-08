@@ -101,7 +101,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return       None
  *
  *    @details      Set UI2C_PROTCTL register to control USCI_I2C bus conditions of START, STOP, SI, ACK.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_SET_CONTROL_REG(ui2c, u8Ctrl) ((ui2c)->PROTCTL = ((ui2c)->PROTCTL & ~0x2EU) | (u8Ctrl))
 
@@ -113,7 +113,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return       None
  *
  *    @details      Set the USCI_I2C bus START condition in UI2C_PROTCTL register.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_START(ui2c) ((ui2c)->PROTCTL = ((ui2c)->PROTCTL & ~UI2C_PROTCTL_PTRG_Msk) | UI2C_PROTCTL_STA_Msk)
 
@@ -125,7 +125,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return       None
  *
  *    @details      Set the USCI_I2C bus STOP condition in UI2C_PROTCTL register.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_STOP(ui2c) ((ui2c)->PROTCTL = ((ui2c)->PROTCTL & ~0x2E) | (UI2C_PROTCTL_PTRG_Msk | UI2C_PROTCTL_STO_Msk))
 
@@ -137,7 +137,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return       Data
  *
  *    @details      Read a byte data value of UI2C_RXDAT register from USCI_I2C bus
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_GET_DATA(ui2c) ((ui2c)->RXDAT)
 
@@ -150,7 +150,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return       None
  *
  *    @details      Write a byte data value of UI2C_TXDAT register, then sends address or data to USCI I2C bus
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_SET_DATA(ui2c, u8Data) ((ui2c)->TXDAT = (u8Data))
 
@@ -163,7 +163,7 @@ enum UI2C_SLAVE_EVENT {
  *    @retval       1        USCI_I2C bus time-out is happened
  *
  *    @details      USCI_I2C bus occurs time-out event, the time-out flag will be set. If not occurs time-out event, this bit is cleared.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_GET_TIMEOUT_FLAG(ui2c) (((ui2c)->PROTSTS & UI2C_PROTSTS_TOIF_Msk) == UI2C_PROTSTS_TOIF_Msk ? 1:0)
 
@@ -176,7 +176,7 @@ enum UI2C_SLAVE_EVENT {
  *    @retval       1        Chip is woken-up from power-down mode
  *
  *    @details      USCI_I2C controller wake-up flag will be set when USCI_I2C bus occurs wake-up from deep-sleep.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_GET_WAKEUP_FLAG(ui2c) (((ui2c)->WKSTS & UI2C_WKSTS_WKF_Msk) == UI2C_WKSTS_WKF_Msk ? 1:0)
 
@@ -188,7 +188,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return       None
  *
  *    @details      If USCI_I2C wake-up flag is set, use this macro to clear it.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_CLR_WAKEUP_FLAG(ui2c)  ((ui2c)->WKSTS = UI2C_WKSTS_WKF_Msk)
 
@@ -200,7 +200,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return       None
  *
  *    @details      The UI2C_I2C is 7-bit address mode, when disable USCI_I2C 10-bit address match function.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_DISABLE_10BIT_ADDR_MODE(ui2c)  ((ui2c)->PROTCTL &= ~(UI2C_PROTCTL_ADDR10EN_Msk))
 
@@ -212,7 +212,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return       None
  *
  *    @details      To enable USCI_I2C 10-bit address match function.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_ENABLE_10BIT_ADDR_MODE(ui2c)  ((ui2c)->PROTCTL |= UI2C_PROTCTL_ADDR10EN_Msk)
 
@@ -224,7 +224,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return       A word data of USCI_I2C_PROTSTS register
  *
  *    @details      Read a word data of USCI_I2C PROTSTS register to get USCI_I2C bus Interrupt flags or status.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_GET_PROT_STATUS(ui2c)    ((ui2c)->PROTSTS)
 
@@ -242,7 +242,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return None
  *
  *    @details      To clear interrupt flag when USCI_I2C occurs interrupt and set interrupt flag.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_CLR_PROT_INT_FLAG(ui2c,u32IntTypeFlag)    ((ui2c)->PROTSTS = (u32IntTypeFlag))
 
@@ -260,7 +260,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return None
  *
  *    @details      Set specified USCI_I2C protocol interrupt bits to enable interrupt function.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_ENABLE_PROT_INT(ui2c, u32IntSel)    ((ui2c)->PROTIEN |= (u32IntSel))
 
@@ -278,7 +278,7 @@ enum UI2C_SLAVE_EVENT {
  *    @return None
  *
  *    @details      Clear specified USCI_I2C protocol interrupt bits to disable interrupt function.
- *    \hideinitializer 
+ *    \hideinitializer
  */
 #define UI2C_DISABLE_PROT_INT(ui2c, u32IntSel)    ((ui2c)->PROTIEN &= ~ (u32IntSel))
 
@@ -292,7 +292,7 @@ void UI2C_EnableInt(UI2C_T *ui2c, uint32_t u32Mask);
 uint32_t UI2C_GetBusClockFreq(UI2C_T *ui2c);
 uint32_t UI2C_SetBusClockFreq(UI2C_T *ui2c, uint32_t u32BusClock);
 uint32_t UI2C_GetIntFlag(UI2C_T *ui2c, uint32_t u32Mask);
-void UI2C_ClearIntFlag(UI2C_T* ui2c , uint32_t u32Mask);
+void UI2C_ClearIntFlag(UI2C_T *ui2c, uint32_t u32Mask);
 uint32_t UI2C_GetData(UI2C_T *ui2c);
 void UI2C_SetData(UI2C_T *ui2c, uint8_t u8Data);
 void UI2C_SetSlaveAddr(UI2C_T *ui2c, uint8_t u8SlaveNo, uint16_t u16SlaveAddr, uint8_t u8GCMode);

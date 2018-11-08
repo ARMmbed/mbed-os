@@ -40,7 +40,7 @@
 #define __STM32F3xx_HAL_FLASH_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,7 +52,7 @@
 
 /** @addtogroup FLASHEx
   * @{
-  */ 
+  */
 
 /** @addtogroup FLASHEx_Private_Constants
   * @{
@@ -62,20 +62,20 @@
 
 /**
   * @}
-  */  
+  */
 
 /** @addtogroup FLASHEx_Private_Macros
   * @{
   */
 #define IS_FLASH_TYPEERASE(VALUE) (((VALUE) == FLASH_TYPEERASE_PAGES) || \
-                             ((VALUE) == FLASH_TYPEERASE_MASSERASE))  
+                             ((VALUE) == FLASH_TYPEERASE_MASSERASE))
 
 #define IS_OPTIONBYTE(VALUE) ((VALUE) <= (OPTIONBYTE_WRP | OPTIONBYTE_RDP | OPTIONBYTE_USER | OPTIONBYTE_DATA))
 
 #define IS_WRPSTATE(VALUE) (((VALUE) == OB_WRPSTATE_DISABLE) || \
-                            ((VALUE) == OB_WRPSTATE_ENABLE))  
+                            ((VALUE) == OB_WRPSTATE_ENABLE))
 
-#define IS_OB_DATA_ADDRESS(ADDRESS) (((ADDRESS) == OB_DATA_ADDRESS_DATA0) || ((ADDRESS) == OB_DATA_ADDRESS_DATA1)) 
+#define IS_OB_DATA_ADDRESS(ADDRESS) (((ADDRESS) == OB_DATA_ADDRESS_DATA0) || ((ADDRESS) == OB_DATA_ADDRESS_DATA1))
 
 #define IS_OB_RDP_LEVEL(LEVEL)     (((LEVEL) == OB_RDP_LEVEL_0)   ||\
                                     ((LEVEL) == OB_RDP_LEVEL_1))/*||\
@@ -107,7 +107,7 @@
                                            ((ADDRESS) <= 0x0803FFFFU) :  (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x80U) ? \
                                            ((ADDRESS) <= 0x0801FFFFU) :  ((ADDRESS) <= 0x0800FFFFU))))
 #endif /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F373xC || STM32F378xx */
+/* STM32F373xC || STM32F378xx */
 
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
 #define IS_FLASH_PROGRAM_ADDRESS(ADDRESS) (((ADDRESS) >= FLASH_BASE) && ((ADDRESS) <= 0x0807FFFFU))
@@ -119,7 +119,7 @@
                                            ((ADDRESS) <= 0x0800FFFFU) :  (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x20U) ? \
                                            ((ADDRESS) <= 0x08007FFFU) :  ((ADDRESS) <= 0x08003FFFU))))
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx */
+/* STM32F303x8 || STM32F334x8 || STM32F328xx */
 
 #if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) \
  || defined(STM32F373xC) || defined(STM32F378xx)
@@ -127,7 +127,7 @@
                                            (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x80U)  ? ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1U <= 0x0801FFFFU) : \
                                             ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1U <= 0x0800FFFFU)))
 #endif /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F373xC || STM32F378xx */
+/* STM32F373xC || STM32F378xx */
 
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
 #define IS_FLASH_NB_PAGES(ADDRESS,NBPAGES) ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1U <= 0x0807FFFFU)
@@ -139,52 +139,50 @@
                                            (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x20U) ? ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1U <= 0x08007FFFU) : \
                                             ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1U <= 0x08003FFFU)))
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx */
+/* STM32F303x8 || STM32F334x8 || STM32F328xx */
 
 /**
   * @}
   */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /** @defgroup FLASHEx_Exported_Types FLASHEx Exported Types
   * @{
   */
 /**
   * @brief  FLASH Erase structure definition
   */
-typedef struct
-{
-  uint32_t TypeErase;   /*!< TypeErase: Mass erase or page erase.
+typedef struct {
+    uint32_t TypeErase;   /*!< TypeErase: Mass erase or page erase.
                              This parameter can be a value of @ref FLASHEx_Type_Erase */
 
-  uint32_t PageAddress; /*!< PageAdress: Initial FLASH page address to erase when mass erase is disabled
+    uint32_t PageAddress; /*!< PageAdress: Initial FLASH page address to erase when mass erase is disabled
                              This parameter must be a number between Min_Data = FLASH_BASE and Max_Data = FLASH_BANK1_END */
-  
-  uint32_t NbPages;     /*!< NbPages: Number of pagess to be erased.
+
+    uint32_t NbPages;     /*!< NbPages: Number of pagess to be erased.
                              This parameter must be a value between Min_Data = 1 and Max_Data = (max number of pages - value of initial page)*/
-                                                          
+
 } FLASH_EraseInitTypeDef;
 
 /**
   * @brief  FLASH Options bytes program structure definition
   */
-typedef struct
-{
-  uint32_t OptionType;  /*!< OptionType: Option byte to be configured.
+typedef struct {
+    uint32_t OptionType;  /*!< OptionType: Option byte to be configured.
                              This parameter can be a value of @ref FLASHEx_OB_Type */
 
-  uint32_t WRPState;    /*!< WRPState: Write protection activation or deactivation.
+    uint32_t WRPState;    /*!< WRPState: Write protection activation or deactivation.
                              This parameter can be a value of @ref FLASHEx_OB_WRP_State */
 
-  uint32_t WRPPage;     /*!< WRPPage: specifies the page(s) to be write protected
+    uint32_t WRPPage;     /*!< WRPPage: specifies the page(s) to be write protected
                              This parameter can be a value of @ref FLASHEx_OB_Write_Protection */
 
-  uint8_t RDPLevel;     /*!< RDPLevel: Set the read protection level..
+    uint8_t RDPLevel;     /*!< RDPLevel: Set the read protection level..
                              This parameter can be a value of @ref FLASHEx_OB_Read_Protection */
 
-  uint8_t USERConfig;   /*!< USERConfig: Program the FLASH User Option Byte: 
+    uint8_t USERConfig;   /*!< USERConfig: Program the FLASH User Option Byte:
                              IWDG / STOP / STDBY / BOOT1 / VDDA_ANALOG / SRAM_PARITY / SDADC12_VDD_MONITOR
-                             This parameter can be a combination of @ref FLASHEx_OB_IWatchdog, @ref FLASHEx_OB_nRST_STOP, 
+                             This parameter can be a combination of @ref FLASHEx_OB_IWatchdog, @ref FLASHEx_OB_nRST_STOP,
                              @ref FLASHEx_OB_nRST_STDBY, @ref FLASHEx_OB_BOOT1, @ref FLASHEx_OB_VDDA_Analog_Monitoring,
                              @ref FLASHEx_OB_RAM_Parity_Check_Enable.
                              @if STM32F373xC
@@ -195,15 +193,15 @@ typedef struct
                              @endif
                              */
 
-  uint32_t DATAAddress; /*!< DATAAddress: Address of the option byte DATA to be programmed
+    uint32_t DATAAddress; /*!< DATAAddress: Address of the option byte DATA to be programmed
                              This parameter can be a value of @ref FLASHEx_OB_Data_Address */
-  
-  uint8_t DATAData;     /*!< DATAData: Data to be stored in the option byte DATA
-                             This parameter must be a number between Min_Data = 0x00 and Max_Data = 0xFFU */  
+
+    uint8_t DATAData;     /*!< DATAData: Data to be stored in the option byte DATA
+                             This parameter must be a number between Min_Data = 0x00 and Max_Data = 0xFFU */
 } FLASH_OBProgramInitTypeDef;
 /**
   * @}
-  */  
+  */
 
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup FLASHEx_Exported_Constants FLASHEx Exported Constants
@@ -220,17 +218,17 @@ typedef struct
 
 /** @defgroup FLASHEx_Type_Erase FLASH Type Erase
   * @{
-  */ 
+  */
 #define FLASH_TYPEERASE_PAGES     (0x00U)  /*!<Pages erase only*/
 #define FLASH_TYPEERASE_MASSERASE (0x01U)  /*!<Flash mass erase activation*/
 
 /**
   * @}
   */
-  
+
 /** @defgroup FLASHEx_OptionByte_Constants Option Byte Constants
   * @{
-  */ 
+  */
 
 /** @defgroup FLASHEx_OB_Type Option Bytes Type
   * @{
@@ -246,7 +244,7 @@ typedef struct
 
 /** @defgroup FLASHEx_OB_WRP_State Option Byte WRP State
   * @{
-  */ 
+  */
 #define OB_WRPSTATE_DISABLE   (0x00U)  /*!<Disable the write protection of the desired pages*/
 #define OB_WRPSTATE_ENABLE    (0x01U)  /*!<Enable the write protection of the desired pagess*/
 
@@ -292,8 +290,8 @@ typedef struct
 #define OB_WRP_PAGES58TO59             (0x20000000U) /* Write protection of page 58 to 59 */
 #define OB_WRP_PAGES60TO61             (0x40000000U) /* Write protection of page 60 to 61 */
 #define OB_WRP_PAGES62TO127            (0x80000000U) /* Write protection of page 62 to 127 */
-#endif /* STM32F302xC || STM32F303xC || STM32F358xx || */ 
-       /* STM32F373xC || STM32F378xx                   */
+#endif /* STM32F302xC || STM32F303xC || STM32F358xx || */
+/* STM32F373xC || STM32F378xx                   */
 
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
 #define OB_WRP_PAGES32TO33             (0x00010000U) /* Write protection of page 32 to 33 */
@@ -322,7 +320,7 @@ typedef struct
 #define OB_WRP_PAGES32TO47MASK         (0x00FF0000U)
 #define OB_WRP_PAGES48TO127MASK        (0xFF000000U)
 #endif /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F373xC || STM32F378xx                   */
+/* STM32F373xC || STM32F378xx                   */
 
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
 #define OB_WRP_PAGES32TO47MASK         (0x00FF0000U)
@@ -334,21 +332,21 @@ typedef struct
 #define OB_WRP_PAGES32TO47MASK         (0x00FF0000U)
 #define OB_WRP_PAGES48TO127MASK        (0xFF000000U)
 #endif /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F373xC || STM32F378xx                   */
+/* STM32F373xC || STM32F378xx                   */
 
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) \
  || defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) \
  || defined(STM32F373xC) || defined(STM32F378xx)
 #define OB_WRP_ALLPAGES                (0xFFFFFFFFU) /*!< Write protection of all pages */
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F373xC || STM32F378xx                   */
+/* STM32F302xC || STM32F303xC || STM32F358xx || */
+/* STM32F373xC || STM32F378xx                   */
 
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) \
  || defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
 #define OB_WRP_ALLPAGES                (0x0000FFFFU) /*!< Write protection of all pages */
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx    */
+/* STM32F303x8 || STM32F334x8 || STM32F328xx    */
 
 /**
   * @}
@@ -364,19 +362,19 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup FLASHEx_OB_IWatchdog Option Byte IWatchdog
   * @{
-  */ 
+  */
 #define OB_IWDG_SW                 ((uint8_t)0x01U)  /*!< Software IWDG selected */
 #define OB_IWDG_HW                 ((uint8_t)0x00U)  /*!< Hardware IWDG selected */
 /**
   * @}
   */
-  
+
 /** @defgroup FLASHEx_OB_nRST_STOP Option Byte nRST STOP
   * @{
-  */ 
+  */
 #define OB_STOP_NO_RST             ((uint8_t)0x02U) /*!< No reset generated when entering in STOP */
 #define OB_STOP_RST                ((uint8_t)0x00U) /*!< Reset generated when entering in STOP */
 /**
@@ -385,7 +383,7 @@ typedef struct
 
 /** @defgroup FLASHEx_OB_nRST_STDBY Option Byte nRST STDBY
   * @{
-  */ 
+  */
 #define OB_STDBY_NO_RST            ((uint8_t)0x04U) /*!< No reset generated when entering in STANDBY */
 #define OB_STDBY_RST               ((uint8_t)0x00U) /*!< Reset generated when entering in STANDBY */
 /**
@@ -429,7 +427,7 @@ typedef struct
 
 /**
   * @}
-  */ 
+  */
 #endif /* FLASH_OBR_SDADC12_VDD_MONITOR */
 
 /** @defgroup FLASHEx_OB_Data_Address  Option Byte Data Address
@@ -453,21 +451,21 @@ typedef struct
 /** @addtogroup FLASHEx_Exported_Functions
   * @{
   */
-  
+
 /** @addtogroup FLASHEx_Exported_Functions_Group1
   * @{
-  */   
+  */
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef  HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t *PageError);
 HAL_StatusTypeDef  HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit);
 
 /**
   * @}
-  */ 
+  */
 
 /** @addtogroup FLASHEx_Exported_Functions_Group2
   * @{
-  */   
+  */
 /* Peripheral Control functions ***********************************************/
 HAL_StatusTypeDef  HAL_FLASHEx_OBErase(void);
 HAL_StatusTypeDef  HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit);
@@ -481,7 +479,7 @@ uint32_t           HAL_FLASHEx_OBGetUserData(uint32_t DATAAdress);
 /**
   * @}
   */
-  
+
 /**
   * @}
   */

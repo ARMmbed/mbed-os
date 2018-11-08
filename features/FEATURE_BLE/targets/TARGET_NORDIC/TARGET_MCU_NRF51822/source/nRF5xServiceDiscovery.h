@@ -26,8 +26,7 @@
 
 class nRF5xGattClient; /* forward declaration */
 
-class nRF5xServiceDiscovery : public ServiceDiscovery
-{
+class nRF5xServiceDiscovery : public ServiceDiscovery {
 public:
     static const uint16_t SRV_DISC_START_HANDLE             = 0x0001; /**< The start handle value used during service discovery. */
     static const uint16_t SRV_DISC_END_HANDLE               = 0xFFFF; /**< The end handle value used during service discovery. */
@@ -47,7 +46,8 @@ public:
         characteristics(),
         serviceUUIDDiscoveryQueue(this),
         charUUIDDiscoveryQueue(this),
-        onTerminationCallback(NULL) {
+        onTerminationCallback(NULL)
+    {
         /* empty */
     }
 
@@ -86,21 +86,25 @@ public:
         return BLE_ERROR_NONE;
     }
 
-    virtual bool isActive(void) const {
+    virtual bool isActive(void) const
+    {
         return state != INACTIVE;
     }
 
-    virtual void terminate(void) {
+    virtual void terminate(void)
+    {
         terminateServiceDiscovery();
     }
 
-    void terminate(Gap::Handle_t connectionHandle) {
-        if(connHandle == connectionHandle) {
+    void terminate(Gap::Handle_t connectionHandle)
+    {
+        if (connHandle == connectionHandle) {
             terminate();
         }
     }
 
-    virtual void onTermination(ServiceDiscovery::TerminationCallback_t callback) {
+    virtual void onTermination(ServiceDiscovery::TerminationCallback_t callback)
+    {
         onTerminationCallback = callback;
     }
 
@@ -110,7 +114,8 @@ public:
      * @return
      *           BLE_ERROR_NONE if successful.
      */
-    virtual ble_error_t reset(void) {
+    virtual ble_error_t reset(void)
+    {
         /* Clear all state that is from the parent, including private members */
         if (ServiceDiscovery::reset() != BLE_ERROR_NONE) {
             return BLE_ERROR_INVALID_STATE;
@@ -142,7 +147,8 @@ private:
     void processDiscoverUUIDResponse(const ble_gattc_evt_char_val_by_uuid_read_rsp_t *response);
     void removeFirstServiceNeedingUUIDDiscovery(void);
 
-    void terminateServiceDiscovery(void) {
+    void terminateServiceDiscovery(void)
+    {
         discoveredCharacteristic = nRF5xDiscoveredCharacteristic();
 
         bool wasActive = isActive();
@@ -153,22 +159,23 @@ private:
         }
     }
 
-    void terminateCharacteristicDiscovery(ble_error_t err) {
+    void terminateCharacteristicDiscovery(ble_error_t err)
+    {
         if (state == CHARACTERISTIC_DISCOVERY_ACTIVE) {
-            if(discoveredCharacteristic != nRF5xDiscoveredCharacteristic()) {
-               if(err == BLE_ERROR_NONE) {
+            if (discoveredCharacteristic != nRF5xDiscoveredCharacteristic()) {
+                if (err == BLE_ERROR_NONE) {
                     // fullfill the last characteristic
                     discoveredCharacteristic.setLastHandle(services[serviceIndex].getEndHandle());
 
                     if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
-                        ((matchingCharacteristicUUID == discoveredCharacteristic.getUUID()) &&
-                         (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
+                            ((matchingCharacteristicUUID == discoveredCharacteristic.getUUID()) &&
+                             (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
                         if (characteristicCallback) {
                             characteristicCallback(&discoveredCharacteristic);
                         }
                     }
-               }
-               discoveredCharacteristic = nRF5xDiscoveredCharacteristic();
+                }
+                discoveredCharacteristic = nRF5xDiscoveredCharacteristic();
             }
 
             state = SERVICE_DISCOVERY_ACTIVE;
@@ -177,24 +184,28 @@ private:
     }
 
 private:
-    void resetDiscoveredServices(void) {
+    void resetDiscoveredServices(void)
+    {
         numServices  = 0;
         serviceIndex = 0;
     }
 
-    void resetDiscoveredCharacteristics(void) {
+    void resetDiscoveredCharacteristics(void)
+    {
         numCharacteristics  = 0;
     }
 
 private:
-    void serviceDiscoveryStarted(Gap::Handle_t connectionHandle) {
+    void serviceDiscoveryStarted(Gap::Handle_t connectionHandle)
+    {
         connHandle = connectionHandle;
         resetDiscoveredServices();
         state = SERVICE_DISCOVERY_ACTIVE;
     }
 
 private:
-    void characteristicDiscoveryStarted(Gap::Handle_t connectionHandle) {
+    void characteristicDiscoveryStarted(Gap::Handle_t connectionHandle)
+    {
         connHandle = connectionHandle;
         resetDiscoveredCharacteristics();
         state = CHARACTERISTIC_DISCOVERY_ACTIVE;
@@ -210,21 +221,25 @@ private:
         ServiceUUIDDiscoveryQueue(nRF5xServiceDiscovery *parent) :
             numIndices(0),
             serviceIndices(),
-            parentDiscoveryObject(parent) {
+            parentDiscoveryObject(parent)
+        {
             /* empty */
         }
 
     public:
-        void reset(void) {
+        void reset(void)
+        {
             numIndices = 0;
             for (unsigned i = 0; i < BLE_DB_DISCOVERY_MAX_SRV; i++) {
                 serviceIndices[i] = INVALID_INDEX;
             }
         }
-        void enqueue(int serviceIndex) {
+        void enqueue(int serviceIndex)
+        {
             serviceIndices[numIndices++] = serviceIndex;
         }
-        int dequeue(void) {
+        int dequeue(void)
+        {
             if (numIndices == 0) {
                 return INVALID_INDEX;
             }
@@ -237,10 +252,12 @@ private:
 
             return valueToReturn;
         }
-        unsigned getFirst(void) const {
+        unsigned getFirst(void) const
+        {
             return serviceIndices[0];
         }
-        size_t getCount(void) const {
+        size_t getCount(void) const
+        {
             return numIndices;
         }
 
@@ -269,21 +286,25 @@ private:
         CharUUIDDiscoveryQueue(nRF5xServiceDiscovery *parent) :
             numIndices(0),
             charIndices(),
-            parentDiscoveryObject(parent) {
+            parentDiscoveryObject(parent)
+        {
             /* empty */
         }
 
     public:
-        void reset(void) {
+        void reset(void)
+        {
             numIndices = 0;
             for (unsigned i = 0; i < BLE_DB_DISCOVERY_MAX_SRV; i++) {
                 charIndices[i] = INVALID_INDEX;
             }
         }
-        void enqueue(int serviceIndex) {
+        void enqueue(int serviceIndex)
+        {
             charIndices[numIndices++] = serviceIndex;
         }
-        int dequeue(void) {
+        int dequeue(void)
+        {
             if (numIndices == 0) {
                 return INVALID_INDEX;
             }
@@ -296,10 +317,12 @@ private:
 
             return valueToReturn;
         }
-        unsigned getFirst(void) const {
+        unsigned getFirst(void) const
+        {
             return charIndices[0];
         }
-        size_t getCount(void) const {
+        size_t getCount(void) const
+        {
             return numIndices;
         }
 

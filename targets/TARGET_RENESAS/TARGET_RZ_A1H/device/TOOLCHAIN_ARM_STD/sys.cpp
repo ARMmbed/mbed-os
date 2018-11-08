@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library - stackheap
- * Setup a fixed single stack/heap memory model, 
+ * Setup a fixed single stack/heap memory model,
  * between the top of the RW/ZI region and the stackpointer
  *******************************************************************************
  * Copyright (c) 2017 ARM Limited.
@@ -32,7 +32,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 #include <arm_compat.h>
@@ -44,7 +44,8 @@ extern "C" {
 extern char Image$$ARM_LIB_HEAP$$Base[];
 extern char Image$$ARM_LIB_STACK$$Base[];
 
-extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
+extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
+{
     uint32_t zi_limit = (uint32_t)Image$$ARM_LIB_HEAP$$Base;
     uint32_t sp_limit = (uint32_t)Image$$ARM_LIB_STACK$$Base;
 
@@ -58,4 +59,4 @@ extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uin
 
 #ifdef __cplusplus
 }
-#endif 
+#endif

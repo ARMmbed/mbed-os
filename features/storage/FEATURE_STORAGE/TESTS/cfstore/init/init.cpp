@@ -44,8 +44,7 @@ using namespace utest::v1;
 static char cfstore_init_utest_msg_g[CFSTORE_UTEST_MSG_BUF_SIZE];
 
 /// @cond CFSTORE_DOXYGEN_DISABLE
-typedef struct cfstore_init_ctx_t
-{
+typedef struct cfstore_init_ctx_t {
     ARM_CFSTORE_CAPABILITIES caps;
 } cfstore_init_ctx_t;
 
@@ -67,35 +66,35 @@ static control_t cfstore_init_test_00(const size_t call_count)
     return CaseNext;
 }
 
-static void cfstore_init_test_01(cfstore_init_ctx_t* ctx)
+static void cfstore_init_test_01(cfstore_init_ctx_t *ctx)
 {
     int32_t ret;
 
     (void) ctx;
-	CFSTORE_DBGLOG("INITIALIZING%s", "\r\n");
-	ret = cfstore_drv->Initialize(NULL, NULL);
+    CFSTORE_DBGLOG("INITIALIZING%s", "\r\n");
+    ret = cfstore_drv->Initialize(NULL, NULL);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_init_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Initialize() should return ret >= 0 for async/synch modes(ret=%ld)\r\n", __func__, ret);
-	TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_init_utest_msg_g);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_init_utest_msg_g);
 
-	CFSTORE_DBGLOG("FLUSHING1%s", "\r\n");
-	ret = cfstore_drv->Flush();
+    CFSTORE_DBGLOG("FLUSHING1%s", "\r\n");
+    ret = cfstore_drv->Flush();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_init_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Flush() failed (ret=%ld)\r\n", __func__, ret);
-	TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_init_utest_msg_g);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_init_utest_msg_g);
 
-	CFSTORE_DBGLOG("UNINITIALIZING%s", "\r\n");
-	ret = cfstore_drv->Uninitialize();
+    CFSTORE_DBGLOG("UNINITIALIZING%s", "\r\n");
+    ret = cfstore_drv->Uninitialize();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_init_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() should return ret >= 0 for synch mode(ret=%ld)\r\n", __func__, ret);
-	TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_init_utest_msg_g);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_init_utest_msg_g);
 
-	CFSTORE_DBGLOG("***************%s", "\r\n");
-	CFSTORE_DBGLOG("*** SUCCESS ***%s", "\r\n");
-	CFSTORE_DBGLOG("***************%s", "\r\n");
-	return;
+    CFSTORE_DBGLOG("***************%s", "\r\n");
+    CFSTORE_DBGLOG("*** SUCCESS ***%s", "\r\n");
+    CFSTORE_DBGLOG("***************%s", "\r\n");
+    return;
 }
 
 static control_t cfstore_init_app_start(const size_t call_count)
 {
-    cfstore_init_ctx_t* ctx = &cfstore_init_ctx_g;
+    cfstore_init_ctx_t *ctx = &cfstore_init_ctx_g;
 
     (void) call_count;
 
@@ -103,9 +102,9 @@ static control_t cfstore_init_app_start(const size_t call_count)
     memset(ctx, 0, sizeof(cfstore_init_ctx_t));
     ctx->caps = cfstore_drv->GetCapabilities();
     CFSTORE_LOG("%s:INITIALIZING: caps.asynchronous_ops=%lu\n", __func__, ctx->caps.asynchronous_ops);
-    if(ctx->caps.asynchronous_ops == 1){
-    	/* This is a sync mode only test. If this test is not built for sync mode, then skip testing return true
-    	 * This means the test will conveniently pass when run in CI as part of async mode testing */
+    if (ctx->caps.asynchronous_ops == 1) {
+        /* This is a sync mode only test. If this test is not built for sync mode, then skip testing return true
+         * This means the test will conveniently pass when run in CI as part of async mode testing */
         CFSTORE_LOG("*** Skipping test as binary built for flash journal async mode, and this test is sync-only%s", "\n");
         return CaseNext;
     }
@@ -126,10 +125,10 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("INIT_test_00", cfstore_init_test_00),
-        Case("INIT_test_01_start", cfstore_init_app_start),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("INIT_test_00", cfstore_init_test_00),
+    Case("INIT_test_01_start", cfstore_init_app_start),
 };
 
 
@@ -147,7 +146,7 @@ int main()
 
 
 // stand alone Configuration-Store-Example
-void app_start(int argc __unused, char** argv __unused)
+void app_start(int argc __unused, char **argv __unused)
 {
     cfstore_init_app_start(0);
 }

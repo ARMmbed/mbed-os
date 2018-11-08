@@ -52,7 +52,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     // SDA and SCL must map to same peripheral instance
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
-    mxc_i2cm_regs_t *i2c = (mxc_i2cm_regs_t*)pinmap_merge(i2c_sda, i2c_scl);
+    mxc_i2cm_regs_t *i2c = (mxc_i2cm_regs_t *)pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT((int)i2c != NC);
 
     obj->i2c = i2c;
@@ -164,7 +164,7 @@ int i2c_byte_read(i2c_t *obj, int last)
         while (!(i2cm->intfl & MXC_F_I2CM_INTFL_RX_FIFO_NOT_EMPTY) &&
                 ((i2cm->bb & MXC_F_I2CM_BB_RX_FIFO_CNT) == 0)) {
 
-            if((timeout-- < 0) || (i2cm->trans & MXC_F_I2CM_TRANS_TX_TIMEOUT)) {
+            if ((timeout-- < 0) || (i2cm->trans & MXC_F_I2CM_TRANS_TX_TIMEOUT)) {
                 goto byte_write_err;
             }
 

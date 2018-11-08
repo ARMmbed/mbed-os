@@ -4,19 +4,19 @@
  *
  * @defgroup ip IP
  * @ingroup callbackstyle_api
- * 
+ *
  * @defgroup ip4 IPv4
  * @ingroup ip
  *
  * @defgroup ip6 IPv6
  * @ingroup ip
- * 
+ *
  * @defgroup ipaddr IP address handling
  * @ingroup infrastructure
- * 
+ *
  * @defgroup ip4addr IPv4 only
  * @ingroup ipaddr
- * 
+ *
  * @defgroup ip6addr IPv6 only
  * @ingroup ipaddr
  */
@@ -79,27 +79,27 @@ const ip_addr_t ip_addr_any_type = IPADDR_ANY_TYPE_INIT;
 int
 ipaddr_aton(const char *cp, ip_addr_t *addr)
 {
-  if (cp != NULL) {
-    const char* c;
-    for (c = cp; *c != 0; c++) {
-      if (*c == ':') {
-        /* contains a colon: IPv6 address */
-        if (addr) {
-          IP_SET_TYPE_VAL(*addr, IPADDR_TYPE_V6);
+    if (cp != NULL) {
+        const char *c;
+        for (c = cp; *c != 0; c++) {
+            if (*c == ':') {
+                /* contains a colon: IPv6 address */
+                if (addr) {
+                    IP_SET_TYPE_VAL(*addr, IPADDR_TYPE_V6);
+                }
+                return ip6addr_aton(cp, ip_2_ip6(addr));
+            } else if (*c == '.') {
+                /* contains a dot: IPv4 address */
+                break;
+            }
         }
-        return ip6addr_aton(cp, ip_2_ip6(addr));
-      } else if (*c == '.') {
-        /* contains a dot: IPv4 address */
-        break;
-      }
+        /* call ip4addr_aton as fallback or if IPv4 was found */
+        if (addr) {
+            IP_SET_TYPE_VAL(*addr, IPADDR_TYPE_V4);
+        }
+        return ip4addr_aton(cp, ip_2_ip4(addr));
     }
-    /* call ip4addr_aton as fallback or if IPv4 was found */
-    if (addr) {
-      IP_SET_TYPE_VAL(*addr, IPADDR_TYPE_V4);
-    }
-    return ip4addr_aton(cp, ip_2_ip4(addr));
-  }
-  return 0;
+    return 0;
 }
 
 /**
@@ -110,13 +110,13 @@ ipaddr_aton(const char *cp, ip_addr_t *addr)
 err_t
 ip_input(struct pbuf *p, struct netif *inp)
 {
-  if (p != NULL) {
-    if (IP_HDR_GET_VERSION(p->payload) == 6) {
-      return ip6_input(p, inp);
+    if (p != NULL) {
+        if (IP_HDR_GET_VERSION(p->payload) == 6) {
+            return ip6_input(p, inp);
+        }
+        return ip4_input(p, inp);
     }
-    return ip4_input(p, inp);
-  }
-  return ERR_VAL;
+    return ERR_VAL;
 }
 
 #endif /* LWIP_IPV4 && LWIP_IPV6 */

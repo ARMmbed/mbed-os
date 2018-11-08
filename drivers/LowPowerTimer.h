@@ -35,7 +35,8 @@ namespace mbed {
 class LowPowerTimer : public Timer, private NonCopyable<LowPowerTimer> {
 
 public:
-    LowPowerTimer() : Timer(get_lp_ticker_data()) {
+    LowPowerTimer() : Timer(get_lp_ticker_data())
+    {
     }
 
 };

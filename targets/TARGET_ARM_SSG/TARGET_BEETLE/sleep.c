@@ -16,11 +16,11 @@
 #include "sleep_api.h"
 #include "cmsis.h"
 
- void hal_sleep(void)
- {
+void hal_sleep(void)
+{
     SystemPowerSuspend(POWER_MODE_SLEEP);
     SystemPowerResume(POWER_MODE_SLEEP);
- }
+}
 
 void hal_deepsleep(void)
 {

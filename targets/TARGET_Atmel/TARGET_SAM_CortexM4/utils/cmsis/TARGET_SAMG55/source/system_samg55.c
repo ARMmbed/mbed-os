@@ -58,8 +58,8 @@ extern "C" {
 
     /* Clock Settings (120MHz) */
 #define SYS_BOARD_PLLAR     (CKGR_PLLAR_MULA(0xe4eU) \
-							| CKGR_PLLAR_PLLACOUNT(0x3fU) \
-							| CKGR_PLLAR_PLLAEN(0x1U))
+                            | CKGR_PLLAR_PLLACOUNT(0x3fU) \
+                            | CKGR_PLLAR_PLLAEN(0x1U))
 #define SYS_BOARD_MCKR      (PMC_MCKR_PRES_CLK_1 | PMC_MCKR_CSS_PLLA_CLK)
 
     /* Key to unlock MOR register */
@@ -81,7 +81,7 @@ extern "C" {
     void SystemInit(void)
 {
     /* Set FWS according to SYS_BOARD_MCKR configuration */
-    EFC->EEFC_FMR = EEFC_FMR_FWS(8)|EEFC_FMR_CLOE;
+    EFC->EEFC_FMR = EEFC_FMR_FWS(8) | EEFC_FMR_CLOE;
 
     /* Initialize PLLA */
     PMC->CKGR_PLLAR = SYS_BOARD_PLLAR;
@@ -100,14 +100,14 @@ void SystemCoreClockUpdate(void)
 {
     /* Determine clock frequency according to clock register values */
     switch (PMC->PMC_MCKR & (uint32_t) PMC_MCKR_CSS_Msk) {
-        case PMC_MCKR_CSS_SLOW_CLK:	/* Slow clock */
+        case PMC_MCKR_CSS_SLOW_CLK: /* Slow clock */
             if (SUPC->SUPC_SR & SUPC_SR_OSCSEL) {
                 SystemCoreClock = CHIP_FREQ_XTAL_32K;
             } else {
                 SystemCoreClock = CHIP_FREQ_SLCK_RC;
             }
             break;
-        case PMC_MCKR_CSS_MAIN_CLK:	/* Main clock */
+        case PMC_MCKR_CSS_MAIN_CLK: /* Main clock */
             if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) {
                 SystemCoreClock = CHIP_FREQ_XTAL;
             } else {
@@ -127,13 +127,13 @@ void SystemCoreClockUpdate(void)
                 }
             }
             break;
-        case PMC_MCKR_CSS_PLLA_CLK:	/* PLLA clock */
+        case PMC_MCKR_CSS_PLLA_CLK: /* PLLA clock */
             if (SUPC->SUPC_SR & SUPC_SR_OSCSEL) {
                 SystemCoreClock = CHIP_FREQ_XTAL_32K;
             } else {
                 SystemCoreClock = CHIP_FREQ_SLCK_RC;
             }
-            if ((uint32_t) (PMC->PMC_MCKR & (uint32_t) PMC_MCKR_CSS_Msk) == PMC_MCKR_CSS_PLLA_CLK) {
+            if ((uint32_t)(PMC->PMC_MCKR & (uint32_t) PMC_MCKR_CSS_Msk) == PMC_MCKR_CSS_PLLA_CLK) {
                 SystemCoreClock *= ((((PMC->CKGR_PLLAR) & CKGR_PLLAR_MULA_Msk) >>
                                      CKGR_PLLAR_MULA_Pos) + 1U);
             }
@@ -156,17 +156,17 @@ void system_init_flash(uint32_t ul_clk)
 {
     /* Set FWS for embedded Flash access according to operating frequency */
     if (ul_clk < CHIP_FREQ_FWS_0) {
-        EFC->EEFC_FMR = EEFC_FMR_FWS(0)|EEFC_FMR_CLOE;
+        EFC->EEFC_FMR = EEFC_FMR_FWS(0) | EEFC_FMR_CLOE;
     } else if (ul_clk < CHIP_FREQ_FWS_1) {
-        EFC->EEFC_FMR = EEFC_FMR_FWS(1)|EEFC_FMR_CLOE;
+        EFC->EEFC_FMR = EEFC_FMR_FWS(1) | EEFC_FMR_CLOE;
     } else if (ul_clk < CHIP_FREQ_FWS_2) {
-        EFC->EEFC_FMR = EEFC_FMR_FWS(2)|EEFC_FMR_CLOE;
+        EFC->EEFC_FMR = EEFC_FMR_FWS(2) | EEFC_FMR_CLOE;
     } else if (ul_clk < CHIP_FREQ_FWS_3) {
-        EFC->EEFC_FMR = EEFC_FMR_FWS(3)|EEFC_FMR_CLOE;
+        EFC->EEFC_FMR = EEFC_FMR_FWS(3) | EEFC_FMR_CLOE;
     } else if (ul_clk < CHIP_FREQ_FWS_4) {
-        EFC->EEFC_FMR = EEFC_FMR_FWS(4)|EEFC_FMR_CLOE;
+        EFC->EEFC_FMR = EEFC_FMR_FWS(4) | EEFC_FMR_CLOE;
     } else {
-        EFC->EEFC_FMR = EEFC_FMR_FWS(5)|EEFC_FMR_CLOE;
+        EFC->EEFC_FMR = EEFC_FMR_FWS(5) | EEFC_FMR_CLOE;
     }
 }
 

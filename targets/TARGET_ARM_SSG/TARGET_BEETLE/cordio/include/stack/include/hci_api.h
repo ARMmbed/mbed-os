@@ -83,402 +83,361 @@ extern "C" {
 **************************************************************************************************/
 
 /*! Connection specification type */
-typedef struct
-{
-  uint16_t            connIntervalMin;
-  uint16_t            connIntervalMax;
-  uint16_t            connLatency;
-  uint16_t            supTimeout;
-  uint16_t            minCeLen;
-  uint16_t            maxCeLen;
+typedef struct {
+    uint16_t            connIntervalMin;
+    uint16_t            connIntervalMax;
+    uint16_t            connLatency;
+    uint16_t            supTimeout;
+    uint16_t            minCeLen;
+    uint16_t            maxCeLen;
 } hciConnSpec_t;
 
 /*! LE connection complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             role;
-  uint8_t             addrType;
-  bdAddr_t            peerAddr;
-  uint16_t            connInterval;
-  uint16_t            connLatency;
-  uint16_t            supTimeout;
-  uint8_t             clockAccuracy;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             role;
+    uint8_t             addrType;
+    bdAddr_t            peerAddr;
+    uint16_t            connInterval;
+    uint16_t            connLatency;
+    uint16_t            supTimeout;
+    uint8_t             clockAccuracy;
 
-  /* enhanced fields */
-  bdAddr_t            localRpa;
-  bdAddr_t            peerRpa;
+    /* enhanced fields */
+    bdAddr_t            localRpa;
+    bdAddr_t            peerRpa;
 } hciLeConnCmplEvt_t;
 
 /*! Disconnect complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             reason;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             reason;
 } hciDisconnectCmplEvt_t;
 
 /*! LE connection update complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint16_t            connInterval;
-  uint16_t            connLatency;
-  uint16_t            supTimeout;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint16_t            connInterval;
+    uint16_t            connLatency;
+    uint16_t            supTimeout;
 } hciLeConnUpdateCmplEvt_t;
 
 /*! LE create connection cancel command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
 } hciLeCreateConnCancelCmdCmplEvt_t;
 
 /*! LE advertising report event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             *pData;
-  uint8_t             len;
-  int8_t              rssi;
-  uint8_t             eventType;
-  uint8_t             addrType;
-  bdAddr_t            addr;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             *pData;
+    uint8_t             len;
+    int8_t              rssi;
+    uint8_t             eventType;
+    uint8_t             addrType;
+    bdAddr_t            addr;
 
-  /* direct fields */
-  uint8_t             directAddrType;
-  bdAddr_t            directAddr;
+    /* direct fields */
+    uint8_t             directAddrType;
+    bdAddr_t            directAddr;
 } hciLeAdvReportEvt_t;
 
 /*! Read RSSI command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  int8_t              rssi;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    int8_t              rssi;
 } hciReadRssiCmdCmplEvt_t;
 
 /*! LE Read channel map command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             chanMap[HCI_CHAN_MAP_LEN];
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             chanMap[HCI_CHAN_MAP_LEN];
 } hciReadChanMapCmdCmplEvt_t;
 
 /*! Read transmit power level command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint8_t             handle;
-  int8_t              pwrLvl;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint8_t             handle;
+    int8_t              pwrLvl;
 } hciReadTxPwrLvlCmdCmplEvt_t;
 
 /*! Read remote version information complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             version;
-  uint16_t            mfrName;
-  uint16_t            subversion;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             version;
+    uint16_t            mfrName;
+    uint16_t            subversion;
 } hciReadRemoteVerInfoCmplEvt_t;
 
 /*! LE read remote features complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             features[HCI_FEAT_LEN];
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             features[HCI_FEAT_LEN];
 } hciLeReadRemoteFeatCmplEvt_t;
 
 /*! LE LTK request reply command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
 } hciLeLtkReqReplCmdCmplEvt_t;
 
 /*! LE LTK request negative reply command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
 } hciLeLtkReqNegReplCmdCmplEvt_t;
 
 /*! Encryption key refresh complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
 } hciEncKeyRefreshCmpl_t;
 
 /*! Encryption change event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
-  uint8_t             enabled;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
+    uint8_t             enabled;
 } hciEncChangeEvt_t;
 
 /*! LE LTK request event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint16_t            handle;
-  uint8_t             randNum[HCI_RAND_LEN];
-  uint16_t            encDiversifier;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint16_t            handle;
+    uint8_t             randNum[HCI_RAND_LEN];
+    uint16_t            encDiversifier;
 } hciLeLtkReqEvt_t;
 
 /*! Vendor specific command status event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint16_t           opcode;
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint16_t           opcode;
 } hciVendorSpecCmdStatusEvt_t;
 
 /*! Vendor specific command complete event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint16_t           opcode;
-  uint8_t            param[1];
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint16_t           opcode;
+    uint8_t            param[1];
 } hciVendorSpecCmdCmplEvt_t;
 
 /*! Vendor specific event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint8_t            param[1];
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint8_t            param[1];
 } hciVendorSpecEvt_t;
 
 /*! Hardware error event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint8_t            code;
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint8_t            code;
 } hciHwErrorEvt_t;
 
 /*! LE encrypt command complete event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint8_t            status;
-  uint8_t            data[HCI_ENCRYPT_DATA_LEN];
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint8_t            status;
+    uint8_t            data[HCI_ENCRYPT_DATA_LEN];
 } hciLeEncryptCmdCmplEvt_t;
 
 /*! LE rand command complete event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint8_t            status;
-  uint8_t            randNum[HCI_RAND_LEN];
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint8_t            status;
+    uint8_t            randNum[HCI_RAND_LEN];
 } hciLeRandCmdCmplEvt_t;
 
 /*! LE remote connection parameter request reply command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
 } hciLeRemConnParamRepEvt_t;
 
 /*! LE remote connection parameter request negative reply command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
 } hciLeRemConnParamNegRepEvt_t;
 
 /*! LE read suggested default data len command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            suggestedMaxTxOctets;
-  uint16_t            suggestedMaxTxTime;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            suggestedMaxTxOctets;
+    uint16_t            suggestedMaxTxTime;
 } hciLeReadDefDataLenEvt_t;
 
 /*! LE write suggested default data len command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
 } hciLeWriteDefDataLenEvt_t;
 
 /*! LE set data len command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
 } hciLeSetDataLenEvt_t;
 
 /*! LE read maximum data len command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            supportedMaxTxOctets;
-  uint16_t            supportedMaxTxTime;
-  uint16_t            supportedMaxRxOctets;
-  uint16_t            supportedMaxRxTime;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            supportedMaxTxOctets;
+    uint16_t            supportedMaxTxTime;
+    uint16_t            supportedMaxRxOctets;
+    uint16_t            supportedMaxRxTime;
 } hciLeReadMaxDataLenEvt_t;
 
 /*! LE remote connetion parameter request event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint16_t            handle;
-  uint16_t            intervalMin;
-  uint16_t            intervalMax;
-  uint16_t            latency;
-  uint16_t            timeout;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint16_t            handle;
+    uint16_t            intervalMin;
+    uint16_t            intervalMax;
+    uint16_t            latency;
+    uint16_t            timeout;
 } hciLeRemConnParamReqEvt_t;
 
 /*! LE data length change event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint16_t           handle;
-  uint16_t           maxTxOctets;
-  uint16_t           maxTxTime;
-  uint16_t           maxRxOctets;
-  uint16_t           maxRxTime;
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint16_t           handle;
+    uint16_t           maxTxOctets;
+    uint16_t           maxTxTime;
+    uint16_t           maxRxOctets;
+    uint16_t           maxRxTime;
 } hciLeDataLenChangeEvt_t;
 
 /*! LE local  p256 ecc key command complete event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint8_t            status;
-  uint8_t            key[HCI_P256_KEY_LEN];
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint8_t            status;
+    uint8_t            key[HCI_P256_KEY_LEN];
 } hciLeP256CmplEvt_t;
 
 /*! LE generate DH key command complete event */
-typedef struct
-{
-  wsfMsgHdr_t        hdr;
-  uint8_t            status;
-  uint8_t            key[HCI_DH_KEY_LEN];
+typedef struct {
+    wsfMsgHdr_t        hdr;
+    uint8_t            status;
+    uint8_t            key[HCI_DH_KEY_LEN];
 } hciLeGenDhKeyEvt_t;
 
 /*! LE read peer resolving address command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint8_t             peerRpa[BDA_ADDR_LEN];
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint8_t             peerRpa[BDA_ADDR_LEN];
 } hciLeReadPeerResAddrCmdCmplEvt_t;
 
 /*! LE read local resolving address command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint8_t             localRpa[BDA_ADDR_LEN];
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint8_t             localRpa[BDA_ADDR_LEN];
 } hciLeReadLocalResAddrCmdCmplEvt_t;
 
 /*! LE set address resolving enable command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
 } hciLeSetAddrResEnableCmdCmplEvt_t;
 
 /*! LE add device to resolving list command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
 } hciLeAddDevToResListCmdCmplEvt_t;
 
 /*! LE remove device from resolving list command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
 } hciLeRemDevFromResListCmdCmplEvt_t;
 
 /*! LE clear resolving list command complete event */
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
 } hciLeClearResListCmdCmplEvt_t;
 
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint8_t             status;
-  uint16_t            handle;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint8_t             status;
+    uint16_t            handle;
 } hciWriteAuthPayloadToCmdCmplEvt_t;
 
-typedef struct
-{
-  wsfMsgHdr_t         hdr;
-  uint16_t            handle;
+typedef struct {
+    wsfMsgHdr_t         hdr;
+    uint16_t            handle;
 } hciAuthPayloadToExpiredEvt_t;
 
 /*! Union of all event types */
-typedef union
-{
-  wsfMsgHdr_t                        hdr;
-  wsfMsgHdr_t                        resetSeqCmpl;
-  hciLeConnCmplEvt_t                 leConnCmpl;
-  hciDisconnectCmplEvt_t             disconnectCmpl;
-  hciLeConnUpdateCmplEvt_t           leConnUpdateCmpl;
-  hciLeCreateConnCancelCmdCmplEvt_t  leCreateConnCancelCmdCmpl;
-  hciLeAdvReportEvt_t                leAdvReport;
-  hciReadRssiCmdCmplEvt_t            readRssiCmdCmpl;
-  hciReadChanMapCmdCmplEvt_t         readChanMapCmdCmpl;
-  hciReadTxPwrLvlCmdCmplEvt_t        readTxPwrLvlCmdCmpl;
-  hciReadRemoteVerInfoCmplEvt_t      readRemoteVerInfoCmpl;
-  hciLeReadRemoteFeatCmplEvt_t       leReadRemoteFeatCmpl;
-  hciLeLtkReqReplCmdCmplEvt_t        leLtkReqReplCmdCmpl;
-  hciLeLtkReqNegReplCmdCmplEvt_t     leLtkReqNegReplCmdCmpl;
-  hciEncKeyRefreshCmpl_t             encKeyRefreshCmpl;
-  hciEncChangeEvt_t                  encChange;
-  hciLeLtkReqEvt_t                   leLtkReq;
-  hciVendorSpecCmdStatusEvt_t        vendorSpecCmdStatus;
-  hciVendorSpecCmdCmplEvt_t          vendorSpecCmdCmpl;
-  hciVendorSpecEvt_t                 vendorSpec;
-  hciHwErrorEvt_t                    hwError;
-  hciLeEncryptCmdCmplEvt_t           leEncryptCmdCmpl;
-  hciLeRandCmdCmplEvt_t              leRandCmdCmpl;
-  hciLeReadPeerResAddrCmdCmplEvt_t   leReadPeerResAddrCmdCmpl;
-  hciLeReadLocalResAddrCmdCmplEvt_t  leReadLocalResAddrCmdCmpl;
-  hciLeSetAddrResEnableCmdCmplEvt_t  leSetAddrResEnableCmdCmpl;
-  hciLeAddDevToResListCmdCmplEvt_t   leAddDevToResListCmdCmpl;
-  hciLeRemDevFromResListCmdCmplEvt_t leRemDevFromResListCmdCmpl;
-  hciLeClearResListCmdCmplEvt_t      leClearResListCmdCmpl;
-  hciLeRemConnParamRepEvt_t          leRemConnParamRepCmdCmpl;
-  hciLeRemConnParamNegRepEvt_t       leRemConnParamNegRepCmdCmpl;
-  hciLeReadDefDataLenEvt_t           leReadDefDataLenCmdCmpl;
-  hciLeWriteDefDataLenEvt_t          leWriteDefDataLenCmdCmpl;
-  hciLeSetDataLenEvt_t               leSetDataLenCmdCmpl;
-  hciLeReadMaxDataLenEvt_t           leReadMaxDataLenCmdCmpl;
-  hciLeRemConnParamReqEvt_t          leRemConnParamReq;
-  hciLeDataLenChangeEvt_t            leDataLenChange;
-  hciLeP256CmplEvt_t                 leP256;
-  hciLeGenDhKeyEvt_t                 leGenDHKey;
-  hciWriteAuthPayloadToCmdCmplEvt_t  writeAuthPayloadToCmdCmpl;
-  hciAuthPayloadToExpiredEvt_t       authPayloadToExpired;
+typedef union {
+    wsfMsgHdr_t                        hdr;
+    wsfMsgHdr_t                        resetSeqCmpl;
+    hciLeConnCmplEvt_t                 leConnCmpl;
+    hciDisconnectCmplEvt_t             disconnectCmpl;
+    hciLeConnUpdateCmplEvt_t           leConnUpdateCmpl;
+    hciLeCreateConnCancelCmdCmplEvt_t  leCreateConnCancelCmdCmpl;
+    hciLeAdvReportEvt_t                leAdvReport;
+    hciReadRssiCmdCmplEvt_t            readRssiCmdCmpl;
+    hciReadChanMapCmdCmplEvt_t         readChanMapCmdCmpl;
+    hciReadTxPwrLvlCmdCmplEvt_t        readTxPwrLvlCmdCmpl;
+    hciReadRemoteVerInfoCmplEvt_t      readRemoteVerInfoCmpl;
+    hciLeReadRemoteFeatCmplEvt_t       leReadRemoteFeatCmpl;
+    hciLeLtkReqReplCmdCmplEvt_t        leLtkReqReplCmdCmpl;
+    hciLeLtkReqNegReplCmdCmplEvt_t     leLtkReqNegReplCmdCmpl;
+    hciEncKeyRefreshCmpl_t             encKeyRefreshCmpl;
+    hciEncChangeEvt_t                  encChange;
+    hciLeLtkReqEvt_t                   leLtkReq;
+    hciVendorSpecCmdStatusEvt_t        vendorSpecCmdStatus;
+    hciVendorSpecCmdCmplEvt_t          vendorSpecCmdCmpl;
+    hciVendorSpecEvt_t                 vendorSpec;
+    hciHwErrorEvt_t                    hwError;
+    hciLeEncryptCmdCmplEvt_t           leEncryptCmdCmpl;
+    hciLeRandCmdCmplEvt_t              leRandCmdCmpl;
+    hciLeReadPeerResAddrCmdCmplEvt_t   leReadPeerResAddrCmdCmpl;
+    hciLeReadLocalResAddrCmdCmplEvt_t  leReadLocalResAddrCmdCmpl;
+    hciLeSetAddrResEnableCmdCmplEvt_t  leSetAddrResEnableCmdCmpl;
+    hciLeAddDevToResListCmdCmplEvt_t   leAddDevToResListCmdCmpl;
+    hciLeRemDevFromResListCmdCmplEvt_t leRemDevFromResListCmdCmpl;
+    hciLeClearResListCmdCmplEvt_t      leClearResListCmdCmpl;
+    hciLeRemConnParamRepEvt_t          leRemConnParamRepCmdCmpl;
+    hciLeRemConnParamNegRepEvt_t       leRemConnParamNegRepCmdCmpl;
+    hciLeReadDefDataLenEvt_t           leReadDefDataLenCmdCmpl;
+    hciLeWriteDefDataLenEvt_t          leWriteDefDataLenCmdCmpl;
+    hciLeSetDataLenEvt_t               leSetDataLenCmdCmpl;
+    hciLeReadMaxDataLenEvt_t           leReadMaxDataLenCmdCmpl;
+    hciLeRemConnParamReqEvt_t          leRemConnParamReq;
+    hciLeDataLenChangeEvt_t            leDataLenChange;
+    hciLeP256CmplEvt_t                 leP256;
+    hciLeGenDhKeyEvt_t                 leGenDHKey;
+    hciWriteAuthPayloadToCmdCmplEvt_t  writeAuthPayloadToCmdCmpl;
+    hciAuthPayloadToExpiredEvt_t       authPayloadToExpired;
 } hciEvt_t;
 
 /**************************************************************************************************

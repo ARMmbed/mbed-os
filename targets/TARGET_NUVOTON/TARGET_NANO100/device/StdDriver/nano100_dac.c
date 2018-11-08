@@ -42,17 +42,20 @@ void DAC_Open(DAC_T *dac, uint32_t u32Ch, uint32_t u32TrgSrc)
 
     // DAC needs 6 us to stable after power on
     u32Delay = CLK_GetHCLKFreq() * 6 / 1000000;
-    if(u32Delay == 0)
+    if (u32Delay == 0) {
         u32Delay++;
-    if(u32Ch == 0)
+    }
+    if (u32Ch == 0) {
         DAC->CTL0 = (u32Delay << DAC_CTL_DACPWONSTBCNT_Pos) | u32TrgSrc | DAC_CTL_DACEN_Msk;
-    else
+    } else {
         DAC->CTL1 = (u32Delay << DAC_CTL_DACPWONSTBCNT_Pos) | u32TrgSrc | DAC_CTL_DACEN_Msk;
+    }
 
     // DAC needs 2 us to stable after convert.
     u32Delay = CLK_GetHCLKFreq() * 2 / 1000000;
-    if(u32Delay == 0)
+    if (u32Delay == 0) {
         u32Delay++;
+    }
     DAC->COMCTL = (DAC->COMCTL & ~DAC_COMCTL_WAITDACCONV_Msk) | u32Delay;
 }
 
@@ -65,7 +68,7 @@ void DAC_Open(DAC_T *dac, uint32_t u32Ch, uint32_t u32TrgSrc)
   */
 void DAC_Close(DAC_T *dac, uint32_t u32Ch)
 {
-    if(u32Ch == 0) {
+    if (u32Ch == 0) {
         DAC->CTL0 &= ~DAC_CTL_DACEN_Msk;
     } else {
         DAC->CTL1 &= ~DAC_CTL_DACEN_Msk;
@@ -93,11 +96,13 @@ int DAC_SetDelayTime(DAC_T *dac, uint32_t u32Delay)
 
     // DAC needs 2 us to stable after DAC convert, calculate minimal setting
     u32Dly = CLK_GetHCLKFreq() * 2 / 1000000;
-    if(u32Dly == 0)
+    if (u32Dly == 0) {
         u32Dly++;
+    }
 
-    if(u32Delay < u32Dly)  // return error id stable time is shorter than 2us
+    if (u32Delay < u32Dly) { // return error id stable time is shorter than 2us
         return -1;
+    }
     DAC->COMCTL = (DAC->COMCTL & ~DAC_COMCTL_WAITDACCONV_Msk) | u32Delay;
     return 0;
 }

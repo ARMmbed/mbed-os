@@ -78,14 +78,14 @@ extern "C" {
  * - Fields
  *   - Positions
  *   - Values
- *   - Masks 
+ *   - Masks
  * @{
  */
 
 /* **** Definitions **** */
 
 /**
- * Structure type to access the Timer Registers, see #MXC_TMR_GET_TMR(i) to get a pointer to the Timer[i] register structure. 
+ * Structure type to access the Timer Registers, see #MXC_TMR_GET_TMR(i) to get a pointer to the Timer[i] register structure.
  */
 typedef struct {
     __IO uint32_t ctrl;                                 /**< <tt>\b 0x0000</tt> - TMR_CTRL Register - Timer Control Register                                            */
@@ -108,7 +108,7 @@ typedef struct {
 /**
  * @ingroup    tmr_registers
  * @defgroup   TMR_Register_Offsets Register Offsets
- * @brief      Timer Register Offsets from the Timer[n] Base Peripheral Address, where n is between 0 and #MXC_CFG_TMR_INSTANCES for the \MXIM_Device. Use #MXC_TMR_GET_BASE(i) to get the base address for a specific timer number. 
+ * @brief      Timer Register Offsets from the Timer[n] Base Peripheral Address, where n is between 0 and #MXC_CFG_TMR_INSTANCES for the \MXIM_Device. Use #MXC_TMR_GET_BASE(i) to get the base address for a specific timer number.
  * @{
  */
 #define MXC_R_TMR_OFFS_CTRL                                 ((uint32_t)0x00000000UL)        /**< Offset from TMR[n] Base Address: TMR_CTRL         : <tt>\b 0x0x0000 </tt>  */
@@ -148,7 +148,7 @@ typedef struct {
  * @defgroup TMR_COUNT16_0_Register TMR_COUNT16_0 Register
  * @brief    Field Positions and Bit Masks for the TMR_COUNT16_0 register. This field indicates the current count value of the <b> 16-bit Timer 0 </b> instance.
  * @{
- */  
+ */
 #define MXC_F_TMR_COUNT16_0_VALUE_POS                       0                                                           /**< VALUE Field Position for the 16-bit timer 0 when the Timer is set to 2 16-bit timers, TMR2X16 is 1. */
 #define MXC_F_TMR_COUNT16_0_VALUE                           ((uint32_t)(0x0000FFFFUL << MXC_F_TMR_COUNT16_0_VALUE_POS)) /**< VALUE Field Mask for the 16-bit timer 0 when the Timer is set to 2 16-bit timers, TMR2X16 is 1. */
 /**@} end of group TMR_COUNT16_0 */
@@ -158,7 +158,7 @@ typedef struct {
  * @defgroup TMR_TERM_CNT16_0_Register TMR_TERM_CNT16_0 Register
  * @brief    Field Positions and Bit Masks for the TMR_TERM_CNT16_0 register. This field indicates the termination count value for the <b> 16-bit Timer 0 </b> instance if the Timer is set to 2 16-bit Timers.
  * @{
- */ 
+ */
 #define MXC_F_TMR_TERM_CNT16_0_TERM_COUNT_POS               0                                                                   /**< TERM_COUNT Field Position for the 16-bit timer 0 when the Timer is set to 2 16-bit timers, TMR2X16 is 1. */
 #define MXC_F_TMR_TERM_CNT16_0_TERM_COUNT                   ((uint32_t)(0x0000FFFFUL << MXC_F_TMR_TERM_CNT16_0_TERM_COUNT_POS)) /**< TERM_COUNT Field Mask for the 16-bit timer 0 when the Timer is set to 2 16-bit timers, TMR2X16 is 1. */
 /**@} end of group TMR_TERM_CNT16_0 */
@@ -168,7 +168,7 @@ typedef struct {
  * @defgroup TMR_COUNT16_1__Register _TMR_COUNT16_1_ Register
  * @brief    Field Positions and Bit Masks for the _TMR_COUNT16_1_ register. This field indicates the current count value of the <b> 16-bit Timer 0 </b> instance.
  * @{
- */ 
+ */
 #define MXC_F_TMR_COUNT16_1_VALUE_POS                       0                                                           /**< VALUE Field Position for the 16-bit timer 1 when the Timer is set to 2 16-bit timers, TMR2X16 is 1. */
 #define MXC_F_TMR_COUNT16_1_VALUE                           ((uint32_t)(0x0000FFFFUL << MXC_F_TMR_COUNT16_1_VALUE_POS)) /**< VALUE Field Mask for the 16-bit timer 1 when the Timer is set to 2 16-bit timers, TMR2X16 is 1. */
 /**@} end of group TMR_COUNT16_1 */
@@ -178,7 +178,7 @@ typedef struct {
  * @defgroup TMR_TERM_CNT16_1_Register TMR_TERM_CNT16_1 Register
  * @brief    Field Positions and Bit Masks for the TMR_TERM_CNT16_1 register. This field indicates the termination count value for the <b> 16-bit Timer 1 </b> instance if the Timer is set to 2 16-bit Timers.
  * @{
- */ 
+ */
 #define MXC_F_TMR_TERM_CNT16_1_TERM_COUNT_POS               0                                                                   /**< TERM_COUNT Field Position for the 16-bit timer 1 when the Timer is set to 2 16-bit timers, TMR2X16 is 1. */
 #define MXC_F_TMR_TERM_CNT16_1_TERM_COUNT                   ((uint32_t)(0x0000FFFFUL << MXC_F_TMR_TERM_CNT16_1_TERM_COUNT_POS)) /**< TERM_COUNT Field Mask for the 16-bit timer 1 when the Timer is set to 2 16-bit timers, TMR2X16 is 1. */
 /**@} end of group TMR_TERM_CNT16_1 */
@@ -188,7 +188,7 @@ typedef struct {
  * @defgroup TMR_INTFL_Register TMR_INTFL Register
  * @brief    Field Positions and Bit Masks for the TMR_INTFL register. This register includes the interrupt flags for both <b> 16-bit Timer 0 and 16-bit Timer 1</b>.
  * @{
- */ 
+ */
 #define MXC_F_TMR_INTFL_TIMER0_POS                          0                                                         /**< TIMER0 Interrupt Flag Field Position */
 #define MXC_F_TMR_INTFL_TIMER0                              ((uint32_t)(0x00000001UL << MXC_F_TMR_INTFL_TIMER0_POS))  /**< TIMER0 Interrupt Flag Shifted Field */
 #define MXC_F_TMR_INTFL_TIMER1_POS                          1                                                         /**< TIMER1 Interrupt Flag Field Position */
@@ -215,13 +215,13 @@ typedef struct {
 /**
  * @ingroup  TMR_CTRL_Register
  * @defgroup TMR_CTRL_field_values TMR_CTRL Field and Shifted Field Values
- * @brief    Field values and Shifted Field values for the TMR_CTRL register. Shifted field values are field values shifted to the loacation of the field in the register.  
+ * @brief    Field values and Shifted Field values for the TMR_CTRL register. Shifted field values are field values shifted to the loacation of the field in the register.
  */
 /**
  * @ingroup TMR_CTRL_field_values
  * @defgroup TMR_CTRL_MODE_Field Mode Field for 32-bit Timer Operation.
- * @brief This field is used to select the timer mode for a 32-bit timer. 
- * @details The mode field is used to set the 32-bit timer instance to one of the supported modes, e.g. 1-Shot, Continuous, etc. 
+ * @brief This field is used to select the timer mode for a 32-bit timer.
+ * @details The mode field is used to set the 32-bit timer instance to one of the supported modes, e.g. 1-Shot, Continuous, etc.
  * @note If the 32-bit timer is set to operate as 2 16-bit timers, see @ref TMR_CTRL_MODE_16_Field.
  * @{
  */
@@ -246,7 +246,7 @@ typedef struct {
 /**
  * @ingroup TMR_CTRL_field_values
  * @defgroup TMR_CTRL_MODE_16_Field 16-bit Timer Mode Field and Shifted Field Values.
- * @brief This field is used to select the timer mode when the timer is set to a dual 16-bit timer. The mode field is used to set the 16-bit timer instance to one of the supported modes, e.g. 1-Shot, Continuous, etc. 
+ * @brief This field is used to select the timer mode when the timer is set to a dual 16-bit timer. The mode field is used to set the 16-bit timer instance to one of the supported modes, e.g. 1-Shot, Continuous, etc.
  * @{
  */
 #define MXC_F_TMR_CTRL_MODE_16_0_POS     0
@@ -259,7 +259,7 @@ typedef struct {
 /**
  * @ingroup TMR_CTRL_field_values
  * @defgroup TMR_CTRL_PRESCALE_Field Prescale Divide Selection Field and Shifted Field Values.
- * @brief Timer Clock Prescaler divide values and shifted values. The Prescale Divide field is used to scale the timer instance peripheral clock by the specified value. 
+ * @brief Timer Clock Prescaler divide values and shifted values. The Prescale Divide field is used to scale the timer instance peripheral clock by the specified value.
  * @{
  */
 #define MXC_V_TMR_CTRL_PRESCALE_DIVIDE_BY_1                                     ((uint32_t)(0x00000000UL))    /**< Field value to divide the peripheral input clock by \f$ TMR_{Prescaler} = 2^{0}= 1 \f$       */

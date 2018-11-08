@@ -45,7 +45,7 @@ extern const uint8_t BEACON_UUID[sizeof(UUID::ShortUUIDBytes_t)];
 *
 */
 class URIBeaconConfigService {
-  public:
+public:
     /**
      * @brief Transmission power modes for UriBeacon.
      */
@@ -111,7 +111,8 @@ class URIBeaconConfigService {
         advPowerLevelsChar(UUID_ADV_POWER_LEVELS_CHAR, &params.advPowerLevels),
         txPowerModeChar(UUID_TX_POWER_MODE_CHAR, &params.txPowerMode),
         beaconPeriodChar(UUID_BEACON_PERIOD_CHAR, &params.beaconPeriod),
-        resetChar(UUID_RESET_CHAR, &resetFlag) {
+        resetChar(UUID_RESET_CHAR, &resetFlag)
+    {
 
         encodeURI(defaultURIDataIn, defaultUriData, defaultUriDataLength);
         if (defaultUriDataLength > URI_DATA_MAX) {
@@ -153,7 +154,8 @@ class URIBeaconConfigService {
         initSucceeded = true;
     }
 
-    bool configuredSuccessfully(void) const {
+    bool configuredSuccessfully(void) const
+    {
         return initSucceeded;
     }
 
@@ -223,9 +225,10 @@ class URIBeaconConfigService {
         ble.gap().accumulateAdvertisingPayload(GapAdvertisingData::SERVICE_DATA, serviceData, serviceDataLen);
     }
 
-  private:
+private:
     // True if the lock bits are non-zero.
-    bool isLocked() {
+    bool isLocked()
+    {
         Lock_t testLock;
         memset(testLock, 0, sizeof(Lock_t));
         return memcmp(params.lock, testLock, sizeof(Lock_t));
@@ -236,7 +239,8 @@ class URIBeaconConfigService {
      * characteristics of this service. These attempts are also applied to
      * the internal state of this service object.
      */
-    void onDataWrittenCallback(const GattWriteCallbackParams *writeParams) {
+    void onDataWrittenCallback(const GattWriteCallbackParams *writeParams)
+    {
         uint16_t handle = writeParams->handle;
 
         if (handle == lockChar.getValueHandle()) {
@@ -282,7 +286,8 @@ class URIBeaconConfigService {
     /*
      * Reset the default values.
      */
-    void resetToDefaults(void) {
+    void resetToDefaults(void)
+    {
         lockedState             = false;
         memset(params.lock, 0, sizeof(Lock_t));
         memcpy(params.uriData, defaultUriData, URI_DATA_MAX);
@@ -298,19 +303,21 @@ class URIBeaconConfigService {
      * Internal helper function used to update the GATT database following any
      * change to the internal state of the service object.
      */
-    void updateCharacteristicValues(void) {
+    void updateCharacteristicValues(void)
+    {
         ble.gattServer().write(lockedStateChar.getValueHandle(), &lockedState, 1);
         ble.gattServer().write(uriDataChar.getValueHandle(), params.uriData, params.uriDataLength);
         ble.gattServer().write(flagsChar.getValueHandle(), &params.flags, 1);
         ble.gattServer().write(beaconPeriodChar.getValueHandle(),
-                                      reinterpret_cast<uint8_t *>(&params.beaconPeriod), sizeof(uint16_t));
+                               reinterpret_cast<uint8_t *>(&params.beaconPeriod), sizeof(uint16_t));
         ble.gattServer().write(txPowerModeChar.getValueHandle(), &params.txPowerMode, 1);
         ble.gattServer().write(advPowerLevelsChar.getValueHandle(),
-                                      reinterpret_cast<uint8_t *>(params.advPowerLevels), sizeof(PowerLevels_t));
+                               reinterpret_cast<uint8_t *>(params.advPowerLevels), sizeof(PowerLevels_t));
     }
 
 protected:
-    void lockAuthorizationCallback(GattWriteAuthCallbackParams *authParams) {
+    void lockAuthorizationCallback(GattWriteAuthCallbackParams *authParams)
+    {
         if (lockedState) {
             authParams->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION;
         } else if (authParams->len != sizeof(Lock_t)) {
@@ -323,7 +330,8 @@ protected:
     }
 
 
-    void unlockAuthorizationCallback(GattWriteAuthCallbackParams *authParams) {
+    void unlockAuthorizationCallback(GattWriteAuthCallbackParams *authParams)
+    {
         if (!lockedState) {
             authParams->authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS;
         } else if (authParams->len != sizeof(Lock_t)) {
@@ -337,7 +345,8 @@ protected:
         }
     }
 
-    void uriDataWriteAuthorizationCallback(GattWriteAuthCallbackParams *authParams) {
+    void uriDataWriteAuthorizationCallback(GattWriteAuthCallbackParams *authParams)
+    {
         if (lockedState) {
             authParams->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION;
         } else if (authParams->offset != 0) {
@@ -347,7 +356,8 @@ protected:
         }
     }
 
-    void powerModeAuthorizationCallback(GattWriteAuthCallbackParams *authParams) {
+    void powerModeAuthorizationCallback(GattWriteAuthCallbackParams *authParams)
+    {
         if (lockedState) {
             authParams->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION;
         } else if (authParams->len != sizeof(uint8_t)) {
@@ -362,7 +372,8 @@ protected:
     }
 
     template <typename T>
-    void basicAuthorizationCallback(GattWriteAuthCallbackParams *authParams) {
+    void basicAuthorizationCallback(GattWriteAuthCallbackParams *authParams)
+    {
         if (lockedState) {
             authParams->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION;
         } else if (authParams->len != sizeof(T)) {
@@ -400,7 +411,8 @@ public:
     /*
      *  Encode a human-readable URI into the binary format defined by the UriBeacon spec (https://github.com/google/uribeacon/tree/master/specification).
      */
-    static void encodeURI(const char *uriDataIn, UriData_t uriDataOut, size_t &sizeofURIDataOut) {
+    static void encodeURI(const char *uriDataIn, UriData_t uriDataOut, size_t &sizeofURIDataOut)
+    {
         const char *prefixes[] = {
             "http://www.",
             "https://www.",

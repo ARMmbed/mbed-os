@@ -42,7 +42,7 @@
 #include <stddef.h>
 #include "mxc_assert.h"
 #include "tmr.h"
- 
+
 /**
  * @ingroup tmr
  * @{
@@ -62,8 +62,9 @@ int TMR_Init(mxc_tmr_regs_t *tmr, tmr_prescale_t prescale, const sys_cfg_tmr_t *
     MXC_ASSERT(tmrNum >= 0);
 
     //steup system GPIO config
-    if((err = SYS_TMR_Init(tmr, sysCfg)) != E_NO_ERROR)
+    if ((err = SYS_TMR_Init(tmr, sysCfg)) != E_NO_ERROR) {
         return err;
+    }
 
     //save the prescale value for this timer
     prescaler[tmrNum] = prescale;
@@ -133,16 +134,17 @@ void TMR16_Config(mxc_tmr_regs_t *tmr, uint8_t index, const tmr16_cfg_t *config)
     //stop timer
     TMR16_Stop(tmr, index);
 
-    if(index > 0) { //configure timer 16_1
+    if (index > 0) { //configure timer 16_1
 
         //setup timer configuration register
         tmr->ctrl |= MXC_F_TMR_CTRL_TMR2X16;   //1 = 16bit mode
 
         //set mode
-        if(config->mode)
+        if (config->mode) {
             tmr->ctrl |= MXC_F_TMR_CTRL_MODE_16_1;
-        else
+        } else {
             tmr->ctrl &= ~MXC_F_TMR_CTRL_MODE_16_1;
+        }
 
         //setup timer Ticks registers
         tmr->term_cnt16_1 = config->compareCount;
@@ -152,10 +154,11 @@ void TMR16_Config(mxc_tmr_regs_t *tmr, uint8_t index, const tmr16_cfg_t *config)
         tmr->ctrl |= MXC_F_TMR_CTRL_TMR2X16;    //1 = 16bit mode
 
         //set mode
-        if(config->mode)
+        if (config->mode) {
             tmr->ctrl |= MXC_F_TMR_CTRL_MODE_16_0;
-        else
+        } else {
             tmr->ctrl &= ~MXC_F_TMR_CTRL_MODE_16_0;
+        }
 
         //setup timer Ticks registers
         tmr->term_cnt16_0 = config->compareCount;
@@ -198,15 +201,16 @@ void TMR16_Start(mxc_tmr_regs_t *tmr, uint8_t index)
 
     //prescaler gets reset to 0 when both 16 bit timers are disabled
     //set the prescale to the saved value for this timer if is is not already set
-    if((ctrl & MXC_F_TMR_CTRL_PRESCALE) != (uint32_t)(prescaler[tmrNum] << MXC_F_TMR_CTRL_PRESCALE_POS)) {
+    if ((ctrl & MXC_F_TMR_CTRL_PRESCALE) != (uint32_t)(prescaler[tmrNum] << MXC_F_TMR_CTRL_PRESCALE_POS)) {
         ctrl &= ~(MXC_F_TMR_CTRL_PRESCALE); //clear prescaler bits
         ctrl |= prescaler[tmrNum] << MXC_F_TMR_CTRL_PRESCALE_POS;   //set prescaler
     }
 
-    if(index > 0)
-        ctrl |= MXC_F_TMR_CTRL_ENABLE1; //start timer 16_1
-    else
-        ctrl |= MXC_F_TMR_CTRL_ENABLE0; //start timer 16_0
+    if (index > 0) {
+        ctrl |= MXC_F_TMR_CTRL_ENABLE1;    //start timer 16_1
+    } else {
+        ctrl |= MXC_F_TMR_CTRL_ENABLE0;    //start timer 16_0
+    }
 
     tmr->ctrl = ctrl;
 
@@ -232,17 +236,20 @@ int TMR32_GetPWMTicks(mxc_tmr_regs_t *tmr, uint8_t dutyPercent, uint32_t freq, u
     uint32_t prescale;
     uint64_t ticks;
 
-    if(dutyPercent > 100)
+    if (dutyPercent > 100) {
         return E_BAD_PARAM;
+    }
 
-    if(freq == 0)
+    if (freq == 0) {
         return E_BAD_PARAM;
+    }
 
     timerClock = SYS_TMR_GetFreq(tmr);
     prescale = TMR_GetPrescaler(tmr);
 
-    if(timerClock == 0 || prescale > TMR_PRESCALE_DIV_2_12)
+    if (timerClock == 0 || prescale > TMR_PRESCALE_DIV_2_12) {
         return E_UNINITIALIZED;
+    }
 
     ticks = timerClock / (1 << (prescale & 0xF)) / freq;
 
@@ -250,7 +257,7 @@ int TMR32_GetPWMTicks(mxc_tmr_regs_t *tmr, uint8_t dutyPercent, uint32_t freq, u
     if (!(ticks & 0xffffffff00000000)  && (ticks & 0xffffffff)) {
         *periodTicks = ticks;
 
-        *dutyTicks = ((uint64_t)*periodTicks * dutyPercent) / 100;
+        *dutyTicks = ((uint64_t) * periodTicks * dutyPercent) / 100;
 
         return E_NO_ERROR;
     }
@@ -269,8 +276,9 @@ int TMR32_TimeToTicks(mxc_tmr_regs_t *tmr, uint32_t time, tmr_unit_t units, uint
     timerClock = SYS_TMR_GetFreq(tmr);
     prescale = TMR_GetPrescaler(tmr);
 
-    if(timerClock == 0 || prescale > TMR_PRESCALE_DIV_2_12)
+    if (timerClock == 0 || prescale > TMR_PRESCALE_DIV_2_12) {
         return E_UNINITIALIZED;
+    }
 
     switch (units) {
         case TMR_UNIT_NANOSEC:
@@ -315,8 +323,9 @@ int TMR16_TimeToTicks(mxc_tmr_regs_t *tmr, uint32_t time, tmr_unit_t units, uint
     timerClock = SYS_TMR_GetFreq(tmr);
     prescale = TMR_GetPrescaler(tmr);
 
-    if(timerClock == 0 || prescale > TMR_PRESCALE_DIV_2_12)
+    if (timerClock == 0 || prescale > TMR_PRESCALE_DIV_2_12) {
         return E_UNINITIALIZED;
+    }
 
     switch (units) {
         case TMR_UNIT_NANOSEC:
@@ -359,8 +368,9 @@ int TMR_TicksToTime(mxc_tmr_regs_t *tmr, uint32_t ticks, uint32_t *time, tmr_uni
     uint32_t timerClock = SYS_TMR_GetFreq(tmr);
     uint32_t prescale = TMR_GetPrescaler(tmr);
 
-    if(timerClock == 0 || prescale > TMR_PRESCALE_DIV_2_12)
+    if (timerClock == 0 || prescale > TMR_PRESCALE_DIV_2_12) {
         return E_UNINITIALIZED;
+    }
 
     tmr_unit_t temp_unit = TMR_UNIT_NANOSEC;
     temp_time = (uint64_t)ticks * 1000 * (1 << (prescale & 0xF)) / (timerClock / 1000000);

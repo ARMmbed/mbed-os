@@ -139,8 +139,7 @@ typedef enum _spi_ssel {
 } spi_ssel_t;
 
 /*! @brief SPI master user configure structure.*/
-typedef struct _spi_master_config
-{
+typedef struct _spi_master_config {
     bool enableLoopback;                /*!< Enable loopback for test purpose */
     bool enableMaster;                  /*!< Enable SPI at initialization time */
     spi_clock_polarity_t polarity;      /*!< Clock polarity */
@@ -154,8 +153,7 @@ typedef struct _spi_master_config
 } spi_master_config_t;
 
 /*! @brief SPI slave user configure structure.*/
-typedef struct _spi_slave_config
-{
+typedef struct _spi_slave_config {
     bool enableSlave;                   /*!< Enable SPI at initialization time */
     spi_clock_polarity_t polarity;      /*!< Clock polarity */
     spi_clock_phase_t phase;            /*!< Clock phase */
@@ -166,8 +164,7 @@ typedef struct _spi_slave_config
 } spi_slave_config_t;
 
 /*! @brief SPI transfer status.*/
-enum _spi_status
-{
+enum _spi_status {
     kStatus_SPI_Busy = MAKE_STATUS(kStatusGroup_LPC_SPI, 0),  /*!< SPI bus is busy */
     kStatus_SPI_Idle = MAKE_STATUS(kStatusGroup_LPC_SPI, 1),  /*!< SPI is idle */
     kStatus_SPI_Error = MAKE_STATUS(kStatusGroup_LPC_SPI, 2), /*!< SPI  error */
@@ -176,15 +173,13 @@ enum _spi_status
 };
 
 /*! @brief SPI interrupt sources.*/
-enum _spi_interrupt_enable
-{
+enum _spi_interrupt_enable {
     kSPI_RxLvlIrq = SPI_FIFOINTENSET_RXLVL_MASK, /*!< Rx level interrupt */
     kSPI_TxLvlIrq = SPI_FIFOINTENSET_TXLVL_MASK, /*!< Tx level interrupt */
 };
 
 /*! @brief SPI status flags.*/
-enum _spi_statusflags
-{
+enum _spi_statusflags {
     kSPI_TxEmptyFlag = SPI_FIFOSTAT_TXEMPTY_MASK,       /*!< txFifo is empty */
     kSPI_TxNotFullFlag = SPI_FIFOSTAT_TXNOTFULL_MASK,   /*!< txFifo is not full */
     kSPI_RxNotEmptyFlag = SPI_FIFOSTAT_RXNOTEMPTY_MASK, /*!< rxFIFO is not empty */
@@ -192,8 +187,7 @@ enum _spi_statusflags
 };
 
 /*! @brief SPI transfer structure */
-typedef struct _spi_transfer
-{
+typedef struct _spi_transfer {
     uint8_t *txData;      /*!< Send buffer */
     uint8_t *rxData;      /*!< Receive buffer */
     uint32_t configFlags; /*!< Additional option to control transfer */
@@ -201,8 +195,7 @@ typedef struct _spi_transfer
 } spi_transfer_t;
 
 /*! @brief Internal configuration structure used in 'spi' and 'spi_dma' driver */
-typedef struct _spi_config
-{
+typedef struct _spi_config {
     spi_data_width_t dataWidth;
     spi_ssel_t sselNum;
 } spi_config_t;
@@ -220,8 +213,7 @@ typedef void (*spi_master_callback_t)(SPI_Type *base, spi_master_handle_t *handl
 typedef void (*spi_slave_callback_t)(SPI_Type *base, spi_slave_handle_t *handle, status_t status, void *userData);
 
 /*! @brief SPI transfer handle structure */
-struct _spi_master_handle
-{
+struct _spi_master_handle {
     uint8_t *volatile txData;         /*!< Transfer buffer */
     uint8_t *volatile rxData;         /*!< Receive buffer */
     volatile size_t txRemainingBytes; /*!< Number of data to be transmitted [in bytes] */
@@ -340,12 +332,9 @@ void SPI_Deinit(SPI_Type *base);
  */
 static inline void SPI_Enable(SPI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CFG |= SPI_CFG_ENABLE_MASK;
-    }
-    else
-    {
+    } else {
         base->CFG &= ~SPI_CFG_ENABLE_MASK;
     }
 }
@@ -587,7 +576,7 @@ static inline status_t SPI_SlaveTransferNonBlocking(SPI_Type *base, spi_slave_ha
  */
 static inline status_t SPI_SlaveTransferGetCount(SPI_Type *base, spi_slave_handle_t *handle, size_t *count)
 {
-    return SPI_MasterTransferGetCount(base, (spi_master_handle_t*)handle, count);
+    return SPI_MasterTransferGetCount(base, (spi_master_handle_t *)handle, count);
 }
 
 /*!
@@ -600,7 +589,7 @@ static inline status_t SPI_SlaveTransferGetCount(SPI_Type *base, spi_slave_handl
  */
 static inline void SPI_SlaveTransferAbort(SPI_Type *base, spi_slave_handle_t *handle)
 {
-    SPI_MasterTransferAbort(base, (spi_master_handle_t*)handle);
+    SPI_MasterTransferAbort(base, (spi_master_handle_t *)handle);
 }
 
 /*!

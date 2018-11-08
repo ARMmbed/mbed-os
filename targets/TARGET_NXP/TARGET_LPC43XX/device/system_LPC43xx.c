@@ -178,8 +178,7 @@ void SystemCoreClockUpdate(void)
     reg = LPC_CCU1->CLKCCU[CLK_MX_MXCORE].CFG;
     if (((reg >> 5) & 0x7) == 0) {
         div = 1;
-    }
-    else {
+    } else {
         div = 2;
     }
     rate = rate / div;
@@ -290,8 +289,8 @@ void SystemSetupClock(void)
     /* Connect base clocks */
     for (i = 0; i < COUNT_OF(clock_states); i++) {
         LPC_CGU->BASE_CLK[clock_states[i].clk] =
-                         ( clock_states[i].powerdn << 0)
-                         | (1 << 11) | (clock_states[i].clkin << 24);
+            (clock_states[i].powerdn << 0)
+            | (1 << 11) | (clock_states[i].clkin << 24);
     }
 #endif /* CLOCK_SETUP */
     /* Reset peripherals */
@@ -327,17 +326,17 @@ void SystemSetupMemory(void)
  */
 void fpuInit(void)
 {
-   /*
-    * from ARM TRM manual:
-    *   ; CPACR is located at address 0xE000ED88
-    *   LDR.W R0, =0xE000ED88
-    *   ; Read CPACR
-    *   LDR R1, [R0]
-    *   ; Set bits 20-23 to enable CP10 and CP11 coprocessors
-    *   ORR R1, R1, #(0xF << 20)
-    *   ; Write back the modified value to the CPACR
-    *   STR R1, [R0]
-    */
+    /*
+     * from ARM TRM manual:
+     *   ; CPACR is located at address 0xE000ED88
+     *   LDR.W R0, =0xE000ED88
+     *   ; Read CPACR
+     *   LDR R1, [R0]
+     *   ; Set bits 20-23 to enable CP10 and CP11 coprocessors
+     *   ORR R1, R1, #(0xF << 20)
+     *   ; Write back the modified value to the CPACR
+     *   STR R1, [R0]
+     */
 
     volatile uint32_t *regCpacr = (uint32_t *) LPC_CPACR;
     volatile uint32_t *regMvfr0 = (uint32_t *) SCB_MVFR0;

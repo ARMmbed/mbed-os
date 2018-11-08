@@ -19,7 +19,8 @@ void eventOS_timeout_cancel(timeout_t *t)
 
 }
 
-void test_eventOS_timeout_trigger() {
+void test_eventOS_timeout_trigger()
+{
     test_callback(test_args);
 }
 

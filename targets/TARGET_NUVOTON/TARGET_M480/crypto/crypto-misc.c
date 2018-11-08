@@ -64,7 +64,7 @@ void crypto_init(void)
         SYS_UnlockReg();    // Unlock protected register
         CLK_EnableModuleClock(CRPT_MODULE);
         SYS_LockReg();      // Lock protected register
-        
+
         NVIC_EnableIRQ(CRPT_IRQn);
     }
     core_util_critical_section_exit();
@@ -72,7 +72,7 @@ void crypto_init(void)
 
 /* As crypto init counter changes from 1 to 0:
  *
- * 1. Disable crypto interrupt 
+ * 1. Disable crypto interrupt
  * 2. Disable crypto clock
  */
 void crypto_uninit(void)
@@ -85,7 +85,7 @@ void crypto_uninit(void)
     core_util_atomic_decr_u16(&crypto_init_counter, 1);
     if (crypto_init_counter == 0) {
         NVIC_DisableIRQ(CRPT_IRQn);
-        
+
         SYS_UnlockReg();    // Unlock protected register
         CLK_DisableModuleClock(CRPT_MODULE);
         SYS_LockReg();      // Lock protected register
@@ -96,7 +96,7 @@ void crypto_uninit(void)
 /* Implementation that should never be optimized out by the compiler */
 void crypto_zeroize(void *v, size_t n)
 {
-    volatile unsigned char *p = (unsigned char*) v;
+    volatile unsigned char *p = (unsigned char *) v;
     while (n--) {
         *p++ = 0;
     }
@@ -167,8 +167,8 @@ bool crypto_dma_buff_compat(const void *buff, size_t buff_size, size_t size_alig
     uint32_t buff_ = (uint32_t) buff;
 
     return (((buff_ & 0x03) == 0) &&                                        /* Word-aligned buffer base address */
-        ((buff_size & (size_aligned_to - 1)) == 0) &&                       /* Crypto submodule dependent buffer size alignment */
-        (((buff_ >> 28) == 0x2) && (buff_size <= (0x30000000 - buff_))));   /* 0x20000000-0x2FFFFFFF */
+            ((buff_size & (size_aligned_to - 1)) == 0) &&                       /* Crypto submodule dependent buffer size alignment */
+            (((buff_ >> 28) == 0x2) && (buff_size <= (0x30000000 - buff_))));   /* 0x20000000-0x2FFFFFFF */
 }
 
 /* Overlap cases
@@ -199,7 +199,7 @@ bool crypto_dma_buffs_overlap(const void *in_buff, size_t in_buff_size, const vo
     uint32_t out_end = out + out_buff_size;
 
     bool overlap = (in <= out && out < in_end) || (out <= in && in < out_end);
-    
+
     return overlap;
 }
 
@@ -218,7 +218,7 @@ static void crypto_submodule_release(uint16_t *submodule_avail)
 static void crypto_submodule_prestart(volatile uint16_t *submodule_done)
 {
     *submodule_done = 0;
-    
+
     /* Ensure memory accesses above are completed before DMA is started
      *
      * Replacing __DSB() with __DMB() is also OK in this case.

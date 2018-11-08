@@ -26,8 +26,7 @@ void never_call_case()
 {
     TEST_FAIL_MESSAGE("Case handler should have never been called!");
 }
-Case cases[] =
-{
+Case cases[] = {
     Case("dummy test", never_call_case),
     Case("dummy test 2", never_call_case)
 };

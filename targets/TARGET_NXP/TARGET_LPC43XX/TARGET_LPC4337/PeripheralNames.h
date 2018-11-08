@@ -98,8 +98,8 @@ typedef enum {
 } PWMName;
 
 typedef enum {
-     CAN_0 = (int)LPC_C_CAN0_BASE,
-     CAN_1 = (int)LPC_C_CAN1_BASE
+    CAN_0 = (int)LPC_C_CAN0_BASE,
+    CAN_1 = (int)LPC_C_CAN1_BASE
 } CANName;
 
 #define STDIO_UART_TX     USBTX

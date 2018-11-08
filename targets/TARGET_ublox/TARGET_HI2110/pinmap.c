@@ -44,28 +44,28 @@
  * FUNCTION PROTOTYPES
  * ----------------------------------------------------------------*/
 
-static inline uint32_t clr_mask (PinName pin);
-static inline uint32_t set_mask (PinName pin, int function);
-static inline volatile uint32_t * func_reg (PinName pin);
+static inline uint32_t clr_mask(PinName pin);
+static inline uint32_t set_mask(PinName pin, int function);
+static inline volatile uint32_t *func_reg(PinName pin);
 
 /* ----------------------------------------------------------------
  * NON-API FUNCTIONS
  * ----------------------------------------------------------------*/
 
 // Return the clear mask for a pin
-static inline uint32_t clr_mask (PinName pin)
+static inline uint32_t clr_mask(PinName pin)
 {
     return HAL_PIO_MASK_FUNC << ((pin & HAL_PIO_MODULO_4_MASK) << 3);
 }
 
 // Return the set mask for a pin and a given function
-static inline uint32_t set_mask (PinName pin, int function)
+static inline uint32_t set_mask(PinName pin, int function)
 {
     return function << ((pin & HAL_PIO_MODULO_4_MASK) << 3);
 }
 
 // Return the function register for a pin
-static inline volatile uint32_t * func_reg (PinName pin)
+static inline volatile uint32_t *func_reg(PinName pin)
 {
     return &PIO_FUNC0 + (pin >> 2);
 }
@@ -78,7 +78,7 @@ static inline volatile uint32_t * func_reg (PinName pin)
 static inline uint8_t get_owner(PinName pin)
 {
     uint8_t pio_owner_shift = (pin & 0x0F) << 1;
-    volatile uint32_t * pio_owner_reg = (&PIO_OWNER0 + (pin >> 4));
+    volatile uint32_t *pio_owner_reg = (&PIO_OWNER0 + (pin >> 4));
 
     return 0x03 & (*pio_owner_reg >> pio_owner_shift);
 }
@@ -92,7 +92,7 @@ void pin_function(PinName pin, int function)
     volatile uint32_t *pio_func_reg;
 
     /* Set the function for the given pin */
-    pio_func_reg = func_reg (pin);
+    pio_func_reg = func_reg(pin);
     *pio_func_reg = (*pio_func_reg & ~(clr_mask(pin))) | set_mask(pin, function);
 
     /* Power the pin */
@@ -101,10 +101,10 @@ void pin_function(PinName pin, int function)
     if ((pin >= p0) && (pin <= p10)) {
         /* Grab pin 19 as a GPIO if we don't have it already */
         if (get_owner(p19) != 0x03) {
-            pio_func_reg = func_reg (p19);
+            pio_func_reg = func_reg(p19);
             *pio_func_reg = (*pio_func_reg & ~(clr_mask(p19))) | set_mask(p19, 1); /* 1 == PIN_FUNCTION_GPIO */
 
-            MBED_ASSERT (get_owner(p19) == 0x03);
+            MBED_ASSERT(get_owner(p19) == 0x03);
         }
 
         /* Set pin 19 to be an output and to be high */
@@ -124,22 +124,19 @@ void pin_mode(PinName pin, PinMode mode)
     MBED_ASSERT(pin != (PinName)NC);
 
     switch (mode) {
-        case PullUp:
-        {
+        case PullUp: {
             MBED_ASSERT(false);  /* Not currently supported on HI2100 */
         }
         break;
-        case PullDown:
-        {
+        case PullDown: {
             GPIO_PULLEN_BITSET = 1U << pin;
         }
         break;
-        case PullNone:
-        {
+        case PullNone: {
             GPIO_PULLEN_BITCLR = 1U << pin;
         }
         break;
         default:
-        break;
+            break;
     }
 }

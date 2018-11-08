@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2016 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -59,25 +59,22 @@ extern "C" {
 #endif
 
 /**@brief Queue control block. */
-typedef struct
-{
+typedef struct {
     size_t front;                   //!< Queue front index.
     size_t back;                    //!< Queue back index.
     size_t max_utilization;         //!< Maximum utilization of the queue.
 } nrf_queue_cb_t;
 
 /**@brief Supported queue modes. */
-typedef enum
-{
+typedef enum {
     NRF_QUEUE_MODE_OVERFLOW,        //!< If the queue is full, new element will not be accepted.
     NRF_QUEUE_MODE_NO_OVERFLOW,     //!< If the queue is full, new element will overwrite the oldest.
 } nrf_queue_mode_t;
 
 /**@brief Instance of the queue. */
-typedef struct
-{
-    nrf_queue_cb_t * p_cb;          //!< Pointer to the instance control block.
-    void           * p_buffer;      //!< Pointer to the memory that is used as storage.
+typedef struct {
+    nrf_queue_cb_t *p_cb;           //!< Pointer to the instance control block.
+    void            *p_buffer;      //!< Pointer to the memory that is used as storage.
     size_t           size;          //!< Size of the queue.
     size_t           element_size;  //!< Size of one element.
     nrf_queue_mode_t mode;          //!< Mode of the queue.
@@ -239,7 +236,7 @@ typedef struct
  * @return      NRF_SUCCESS         If an element has been successfully added.
  * @return      NRF_ERROR_NO_MEM    If the queue is full (only in @ref NRF_QUEUE_MODE_NO_OVERFLOW).
  */
-ret_code_t nrf_queue_push(nrf_queue_t const * p_queue, void const * p_element);
+ret_code_t nrf_queue_push(nrf_queue_t const *p_queue, void const *p_element);
 
 /**@brief Generic pop implementation.
  *
@@ -250,8 +247,8 @@ ret_code_t nrf_queue_push(nrf_queue_t const * p_queue, void const * p_element);
  * @return      NRF_SUCCESS         If an element was returned.
  * @return      NRF_ERROR_NOT_FOUND If there are no more elements in the queue.
  */
-ret_code_t nrf_queue_generic_pop(nrf_queue_t const * p_queue,
-                                 void              * p_element,
+ret_code_t nrf_queue_generic_pop(nrf_queue_t const *p_queue,
+                                 void               *p_element,
                                  bool                just_peek);
 
 /**@brief Pop element from the front of the queue.
@@ -283,8 +280,8 @@ ret_code_t nrf_queue_generic_pop(nrf_queue_t const * p_queue,
  * @return      NRF_SUCCESS         If an element was written.
  * @return      NRF_ERROR_NO_MEM    There is not enough space in the queue. No element was written.
  */
-ret_code_t nrf_queue_write(nrf_queue_t const * p_queue,
-                           void const        * p_data,
+ret_code_t nrf_queue_write(nrf_queue_t const *p_queue,
+                           void const         *p_data,
                            size_t              element_count);
 
 /**@brief Function for writing a portion of elements to the queue.
@@ -295,8 +292,8 @@ ret_code_t nrf_queue_write(nrf_queue_t const * p_queue,
  *
  * @return      The number of added elements.
  */
-size_t nrf_queue_in(nrf_queue_t const * p_queue,
-                    void const        * p_data,
+size_t nrf_queue_in(nrf_queue_t const *p_queue,
+                    void const         *p_data,
                     size_t              element_count);
 
 /**@brief Function for reading elements from the queue.
@@ -308,8 +305,8 @@ size_t nrf_queue_in(nrf_queue_t const * p_queue,
  * @return      NRF_SUCCESS         If an element was returned.
  * @return      NRF_ERROR_NOT_FOUND There is not enough elements in the queue.
  */
-ret_code_t nrf_queue_read(nrf_queue_t const * p_queue,
-                          void              * p_data,
+ret_code_t nrf_queue_read(nrf_queue_t const *p_queue,
+                          void               *p_data,
                           size_t              element_count);
 
 /**@brief Function for reading a portion of elements from the queue.
@@ -320,71 +317,71 @@ ret_code_t nrf_queue_read(nrf_queue_t const * p_queue,
  *
  * @return      The number of read elements.
  */
-size_t nrf_queue_out(nrf_queue_t const * p_queue,
-                    void               * p_data,
-                    size_t               element_count);
+size_t nrf_queue_out(nrf_queue_t const *p_queue,
+                     void                *p_data,
+                     size_t               element_count);
 
-/**@brief Function for checking if the queue is full. 
+/**@brief Function for checking if the queue is full.
  *
  * @param[in]   p_queue     Pointer to the queue instance.
  *
  * @return      True if the queue is full.
  */
-bool nrf_queue_is_full(nrf_queue_t const * p_queue);
+bool nrf_queue_is_full(nrf_queue_t const *p_queue);
 
-/**@brief Function for checking if the queue is empty. 
+/**@brief Function for checking if the queue is empty.
  *
  * @param[in]   p_queue     Pointer to the queue instance.
  *
  * @return      True if the queue is empty.
  */
-__STATIC_INLINE bool nrf_queue_is_empty(nrf_queue_t const * p_queue);
+__STATIC_INLINE bool nrf_queue_is_empty(nrf_queue_t const *p_queue);
 
-/**@brief Function for getting the current queue utilization. 
+/**@brief Function for getting the current queue utilization.
  *
  * @param[in]   p_queue     Pointer to the queue instance.
  *
  * @return      Current queue utilization.
  */
-size_t nrf_queue_utilization_get(nrf_queue_t const * p_queue);
+size_t nrf_queue_utilization_get(nrf_queue_t const *p_queue);
 
-/**@brief Function for getting the size of available space. 
+/**@brief Function for getting the size of available space.
  *
  * @param[in]   p_queue     Pointer to the queue instance.
  *
  * @return      Size of available space.
  */
-__STATIC_INLINE size_t nrf_queue_available_get(nrf_queue_t const * p_queue);
+__STATIC_INLINE size_t nrf_queue_available_get(nrf_queue_t const *p_queue);
 
-/**@brief Function for getting the maximal queue utilization. 
+/**@brief Function for getting the maximal queue utilization.
  *
  * @param[in]   p_queue     Pointer to the queue instance.
  *
  * @return      Maximal queue utilization.
  */
-__STATIC_INLINE size_t nrf_queue_max_utilization_get(nrf_queue_t const * p_queue);
+__STATIC_INLINE size_t nrf_queue_max_utilization_get(nrf_queue_t const *p_queue);
 
-/**@brief Function for resetting the queue state. 
+/**@brief Function for resetting the queue state.
  *
  * @param[in]   p_queue     Pointer to the queue instance.
  */
-void nrf_queue_reset(nrf_queue_t const * p_queue);
+void nrf_queue_reset(nrf_queue_t const *p_queue);
 
 #ifndef SUPPRESS_INLINE_IMPLEMENTATION
 
-__STATIC_INLINE bool nrf_queue_is_empty(nrf_queue_t const * p_queue)
+__STATIC_INLINE bool nrf_queue_is_empty(nrf_queue_t const *p_queue)
 {
     ASSERT(p_queue != NULL);
     return (p_queue->p_cb->front == p_queue->p_cb->back);
 }
 
-__STATIC_INLINE size_t nrf_queue_available_get(nrf_queue_t const * p_queue)
+__STATIC_INLINE size_t nrf_queue_available_get(nrf_queue_t const *p_queue)
 {
     ASSERT(p_queue != NULL);
     return p_queue->size - nrf_queue_utilization_get(p_queue);
 }
 
-__STATIC_INLINE size_t nrf_queue_max_utilization_get(nrf_queue_t const * p_queue)
+__STATIC_INLINE size_t nrf_queue_max_utilization_get(nrf_queue_t const *p_queue)
 {
     ASSERT(p_queue != NULL);
     return p_queue->p_cb->max_utilization;

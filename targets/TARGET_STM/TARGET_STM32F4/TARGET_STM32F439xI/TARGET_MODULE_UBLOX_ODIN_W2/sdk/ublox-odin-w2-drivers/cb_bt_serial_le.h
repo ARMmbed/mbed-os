@@ -57,11 +57,10 @@ typedef void (*cbBSL_WriteCnf)(
     cb_uint32 nBytes,
     cb_int32 tag);
 
-typedef struct
-{
+typedef struct {
     cbBSL_DataAvailEvt        pfDataEvt;
     cbBSL_WriteCnf            pfWriteCnf;
-}cbBSL_Callback;
+} cbBSL_Callback;
 
 /*===========================================================================
  * FUNCTIONS
@@ -69,14 +68,14 @@ typedef struct
 /**
  * Initialization of Bluetooth serial manager. Called during stack
  * initialization. Shall not be called by application.
- * 
+ *
  * @return None
  */
 extern void cbBSL_init(void);
 
 /**
  * Open a data channel.
- * 
+ *
  * @param   handle      Connection handle
  * @param   pCallback   Callback for data events.
  * @return  If the operation is successful cbBSL_OK is returned.
@@ -88,7 +87,7 @@ extern cb_int32 cbBSL_open(
 /**
  * Send data to remote device. A data confirmation event is generated when
  * the data has been sent and a cbBSL_write call can be done.
- * 
+ *
  * Detailed description optionally verbose.
  * @param   handle  Connection handle
  * @param   pBuf    Data pointer
@@ -104,7 +103,7 @@ extern cb_int32 cbBSL_write(
 
 /**
  * Get received data.
- * 
+ *
  * @param handle Connection handle
  * @param   ppBuf    Pointer to data buffer
  * @param   pLength  Pointer to buffer length variable.
@@ -117,7 +116,7 @@ extern cb_int32 cbBSL_getReadBuf(
     cb_uint32 *pLength);
 
 /**
- * Notify that received data has been handled and underlying buffers 
+ * Notify that received data has been handled and underlying buffers
  * can be freed.
  *
  * @param handle Connection handle
@@ -130,7 +129,7 @@ extern cb_int32 cbBSL_readBufConsumed(
 
 /**
  * Read max frame size for a data channel.
- * 
+ *
  * @param   handle      Connection handle
  * @param   pFrameSize  Max frame size for connection.
  * @return  If the operation is successful cbBSE_OK is returned.
@@ -139,12 +138,12 @@ extern cb_int32 cbBSL_frameSize(cbBCM_Handle handle, cb_uint32 *pFrameSize);
 
 /**
  * Bluetooth serial message handling. Shall not be called by application.
- * 
+ *
  * @param msgId Message id
  * @param pData Pointer to message data
  * @return None
  */
-extern void cbBSL_handleMsg(cb_uint32 msgId, void* pData);
+extern void cbBSL_handleMsg(cb_uint32 msgId, void *pData);
 
 #ifdef __cplusplus
 }

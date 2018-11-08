@@ -106,8 +106,7 @@ STATIC_ASSERT((((DFU_APP_DATA_RESERVED) & (CODE_PAGE_SIZE - 1)) == 0x00));
 
 /**@brief Structure holding a start packet containing update mode and image sizes.
  */
-typedef struct
-{
+typedef struct {
     uint8_t  dfu_update_mode;                                                                           /**< Packet type, used to identify the content of the received packet referenced by data packet. */
     uint32_t sd_image_size;                                                                             /**< Size of the SoftDevice image to be transferred. Zero if no SoftDevice image will be transfered. */
     uint32_t bl_image_size;                                                                             /**< Size of the Bootloader image to be transferred. Zero if no Bootloader image will be transfered. */
@@ -116,28 +115,24 @@ typedef struct
 
 /**@brief Structure holding a bootloader init/data packet received.
  */
-typedef struct
-{
+typedef struct {
     uint32_t   packet_length;                                                                           /**< Packet length of the data packet. Each data is word size, meaning length of 4 is 4 words, not bytes. */
-    uint32_t * p_data_packet;                                                                           /**< Data Packet received. Each data is a word size entry. */
+    uint32_t *p_data_packet;                                                                            /**< Data Packet received. Each data is a word size entry. */
 } dfu_data_packet_t;
 
 /**@brief Structure for holding dfu update packet. Packet type indicate the type of packet.
  */
-typedef struct
-{
+typedef struct {
     uint32_t   packet_type;                                                                             /**< Packet type, used to identify the content of the received packet referenced by data packet. */
-    union
-    {
+    union {
         dfu_data_packet_t    data_packet;                                                               /**< Used when packet type is INIT_PACKET or DATA_PACKET. Packet contains data received for init or data. */
-        dfu_start_packet_t * start_packet;                                                              /**< Used when packet type is START_DATA_PACKET. Will contain information on software to be updtaed, i.e. SoftDevice, Bootloader and/or Application along with image sizes. */
+        dfu_start_packet_t *start_packet;                                                               /**< Used when packet type is START_DATA_PACKET. Will contain information on software to be updtaed, i.e. SoftDevice, Bootloader and/or Application along with image sizes. */
     } params;
 } dfu_update_packet_t;
 
 /**@brief DFU status error codes.
 */
-typedef enum
-{
+typedef enum {
     DFU_UPDATE_APP_COMPLETE,                                                                            /**< Status update of application complete.*/
     DFU_UPDATE_SD_COMPLETE,                                                                             /**< Status update of SoftDevice update complete. Note that this solely indicates that a new SoftDevice has been received and stored in bank 0 and 1. */
     DFU_UPDATE_SD_SWAPPED,                                                                              /**< Status update of SoftDevice update complete. Note that this solely indicates that a new SoftDevice has been received and stored in bank 0 and 1. */
@@ -149,8 +144,7 @@ typedef enum
 
 /**@brief Structure holding DFU complete event.
 */
-typedef struct
-{
+typedef struct {
     dfu_update_status_code_t status_code;                                                               /**< Device Firmware Update status. */
     uint16_t                 app_crc;                                                                   /**< CRC of the recieved application. */
     uint32_t                 sd_size;                                                                   /**< Size of the recieved SoftDevice. */

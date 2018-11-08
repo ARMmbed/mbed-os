@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -23,18 +23,18 @@ typedef struct _GDMA_CH_LLI_ELE_ {
     u32                   CtlxLow;
     u32                   CtlxUp;
     u32                   Temp;
-}GDMA_CH_LLI_ELE, *PGDMA_CH_LLI_ELE;
+} GDMA_CH_LLI_ELE, *PGDMA_CH_LLI_ELE;
 #if 1
 #if 0
 typedef struct _GDMA_CH_LLI_ {
     PGDMA_CH_LLI_ELE      pLliEle;
     PGDMA_CH_LLI          pNextLli;
-}GDMA_CH_LLI, *PGDMA_CH_LLI;
+} GDMA_CH_LLI, *PGDMA_CH_LLI;
 
 typedef struct _BLOCK_SIZE_LIST_ {
     u32                  BlockSize;
     PBLOCK_SIZE_LIST     pNextBlockSiz;
-}BLOCK_SIZE_LIST, *PBLOCK_SIZE_LIST;
+} BLOCK_SIZE_LIST, *PBLOCK_SIZE_LIST;
 #else
 struct GDMA_CH_LLI {
     PGDMA_CH_LLI_ELE                pLliEle;
@@ -67,20 +67,20 @@ typedef struct _HAL_GDMA_ADAPTER_ {
     u8                    TestItem;
     u8                          ChNum;
     u8                          GdmaIndex;
-    u8                          IsrCtrl:1;
-    u8                          GdmaOnOff:1;
-    u8                          Llpctrl:1;
-    u8                          Lli0:1;
-    u8                          Rsvd4to7:4;
+    u8                          IsrCtrl: 1;
+    u8                          GdmaOnOff: 1;
+    u8                          Llpctrl: 1;
+    u8                          Lli0: 1;
+    u8                          Rsvd4to7: 4;
     u8                          GdmaIsrType;
-}HAL_GDMA_ADAPTER, *PHAL_GDMA_ADAPTER;
+} HAL_GDMA_ADAPTER, *PHAL_GDMA_ADAPTER;
 
 typedef struct _HAL_GDMA_CHNL_ {
     u8 GdmaIndx;
     u8 GdmaChnl;
     u8 IrqNum;
     u8 Reserved;
-}HAL_GDMA_CHNL, *PHAL_GDMA_CHNL;
+} HAL_GDMA_CHNL, *PHAL_GDMA_CHNL;
 
 typedef struct _HAL_GDMA_BLOCK_ {
     u32 SrcAddr;
@@ -88,7 +88,7 @@ typedef struct _HAL_GDMA_BLOCK_ {
     u32 BlockLength;
     u32 SrcOffset;
     u32 DstOffset;
-}HAL_GDMA_BLOCK, *PHAL_GDMA_BLOCK;
+} HAL_GDMA_BLOCK, *PHAL_GDMA_BLOCK;
 
 typedef struct _HAL_GDMA_OP_ {
     VOID (*HalGdmaOnOff)(VOID *Data);
@@ -97,11 +97,11 @@ typedef struct _HAL_GDMA_OP_ {
     BOOL (*HalGdmaChBlockSeting)(VOID *Data);
     VOID (*HalGdmaChDis)(VOID *Data);
     VOID (*HalGdmaChEn)(VOID *Data);
-    VOID (*HalGdmaChIsrEnAndDis) (VOID *Data);
-    u8   (*HalGdmaChIsrClean)(VOID *Data);
+    VOID (*HalGdmaChIsrEnAndDis)(VOID *Data);
+    u8(*HalGdmaChIsrClean)(VOID *Data);
     VOID (*HalGdmaChCleanAutoSrc)(VOID *Data);
     VOID (*HalGdmaChCleanAutoDst)(VOID *Data);
-}HAL_GDMA_OP, *PHAL_GDMA_OP;
+} HAL_GDMA_OP, *PHAL_GDMA_OP;
 
 typedef struct _HAL_GDMA_OBJ_ {
     HAL_GDMA_ADAPTER HalGdmaAdapter;
@@ -127,13 +127,13 @@ u8 HalGdmaChIsrClean(PHAL_GDMA_ADAPTER pHalGdmaAdapter);
 VOID HalGdmaChCleanAutoSrc(PHAL_GDMA_ADAPTER pHalGdmaAdapter);
 VOID HalGdmaChCleanAutoDst(PHAL_GDMA_ADAPTER pHalGdmaAdapter);
 
-extern HAL_Status HalGdmaChnlRegister (u8 GdmaIdx, u8 ChnlNum);
-extern VOID HalGdmaChnlUnRegister (u8 GdmaIdx, u8 ChnlNum);
-extern PHAL_GDMA_CHNL HalGdmaChnlAlloc (HAL_GDMA_CHNL *pChnlOption);
-extern VOID HalGdmaChnlFree (HAL_GDMA_CHNL *pChnl);
+extern HAL_Status HalGdmaChnlRegister(u8 GdmaIdx, u8 ChnlNum);
+extern VOID HalGdmaChnlUnRegister(u8 GdmaIdx, u8 ChnlNum);
+extern PHAL_GDMA_CHNL HalGdmaChnlAlloc(HAL_GDMA_CHNL *pChnlOption);
+extern VOID HalGdmaChnlFree(HAL_GDMA_CHNL *pChnl);
 extern BOOL HalGdmaMemCpyInit(PHAL_GDMA_OBJ pHalGdmaObj);
 extern VOID HalGdmaMemCpyDeInit(PHAL_GDMA_OBJ pHalGdmaObj);
-extern VOID* HalGdmaMemCpy(PHAL_GDMA_OBJ pHalGdmaObj, void* pDest, void* pSrc, u32 len);
+extern VOID *HalGdmaMemCpy(PHAL_GDMA_OBJ pHalGdmaObj, void *pDest, void *pSrc, u32 len);
 extern VOID HalGdmaMemAggr(PHAL_GDMA_OBJ pHalGdmaObj, PHAL_GDMA_BLOCK pHalGdmaBlock);
 extern BOOL HalGdmaMemCpyAggrInit(PHAL_GDMA_OBJ pHalGdmaObj);
 

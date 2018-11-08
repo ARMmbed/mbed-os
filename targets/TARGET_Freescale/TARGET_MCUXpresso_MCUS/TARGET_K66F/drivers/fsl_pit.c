@@ -61,10 +61,8 @@ static uint32_t PIT_GetInstance(PIT_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_pitBases); instance++)
-    {
-        if (s_pitBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_pitBases); instance++) {
+        if (s_pitBases[instance] == base) {
             break;
         }
     }
@@ -87,12 +85,9 @@ void PIT_Init(PIT_Type *base, const pit_config_t *config)
     base->MCR &= ~PIT_MCR_MDIS_MASK;
 
     /* Config timer operation when in debug mode */
-    if (config->enableRunInDebug)
-    {
+    if (config->enableRunInDebug) {
         base->MCR &= ~PIT_MCR_FRZ_MASK;
-    }
-    else
-    {
+    } else {
         base->MCR |= PIT_MCR_FRZ_MASK;
     }
 }

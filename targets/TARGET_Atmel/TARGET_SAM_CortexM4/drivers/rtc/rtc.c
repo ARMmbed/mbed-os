@@ -178,7 +178,7 @@ void rtc_get_time(Rtc *p_rtc, uint32_t *pul_hour, uint32_t *pul_minute,
     /* Minute */
     if (pul_minute) {
         ul_temp = (ul_time & RTC_TIMR_MIN_Msk) >> RTC_TIMR_MIN_Pos;
-        *pul_minute = (ul_temp >> BCD_SHIFT) * BCD_FACTOR +  (ul_temp & BCD_MASK);
+        *pul_minute = (ul_temp >> BCD_SHIFT) * BCD_FACTOR + (ul_temp & BCD_MASK);
     }
 
     /* Second */
@@ -870,7 +870,7 @@ uint32_t rtc_get_tamper_event_counter(Rtc *p_rtc)
  */
 bool rtc_is_tamper_occur_in_backup_mode(Rtc *p_rtc, uint8_t reg_num)
 {
-    if(p_rtc->RTC_TS[reg_num].RTC_TSTR & RTC_TSTR_BACKUP) {
+    if (p_rtc->RTC_TS[reg_num].RTC_TSTR & RTC_TSTR_BACKUP) {
         return true;
     } else {
         return false;

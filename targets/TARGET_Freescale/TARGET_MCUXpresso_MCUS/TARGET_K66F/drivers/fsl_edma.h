@@ -55,8 +55,7 @@
 #define DMA_DCHPRIn(base, channel) ((volatile uint8_t *)&(base->DCHPRI3))[DMA_DCHPRI_INDEX(channel)]
 
 /*! @brief eDMA transfer configuration */
-typedef enum _edma_transfer_size
-{
+typedef enum _edma_transfer_size {
     kEDMA_TransferSize1Bytes = 0x0U,  /*!< Source/Destination data transfer size is 1 byte every time */
     kEDMA_TransferSize2Bytes = 0x1U,  /*!< Source/Destination data transfer size is 2 bytes every time */
     kEDMA_TransferSize4Bytes = 0x2U,  /*!< Source/Destination data transfer size is 4 bytes every time */
@@ -65,8 +64,7 @@ typedef enum _edma_transfer_size
 } edma_transfer_size_t;
 
 /*! @brief eDMA modulo configuration */
-typedef enum _edma_modulo
-{
+typedef enum _edma_modulo {
     kEDMA_ModuloDisable = 0x0U, /*!< Disable modulo */
     kEDMA_Modulo2bytes,         /*!< Circular buffer size is 2 bytes. */
     kEDMA_Modulo4bytes,         /*!< Circular buffer size is 4 bytes. */
@@ -102,32 +100,28 @@ typedef enum _edma_modulo
 } edma_modulo_t;
 
 /*! @brief Bandwidth control */
-typedef enum _edma_bandwidth
-{
+typedef enum _edma_bandwidth {
     kEDMA_BandwidthStallNone = 0x0U,   /*!< No eDMA engine stalls. */
     kEDMA_BandwidthStall4Cycle = 0x2U, /*!< eDMA engine stalls for 4 cycles after each read/write. */
     kEDMA_BandwidthStall8Cycle = 0x3U, /*!< eDMA engine stalls for 8 cycles after each read/write. */
 } edma_bandwidth_t;
 
 /*! @brief Channel link type */
-typedef enum _edma_channel_link_type
-{
+typedef enum _edma_channel_link_type {
     kEDMA_LinkNone = 0x0U, /*!< No channel link  */
     kEDMA_MinorLink,       /*!< Channel link after each minor loop */
     kEDMA_MajorLink,       /*!< Channel link while major loop count exhausted */
 } edma_channel_link_type_t;
 
 /*!@brief eDMA channel status flags. */
-enum _edma_channel_status_flags
-{
+enum _edma_channel_status_flags {
     kEDMA_DoneFlag = 0x1U,      /*!< DONE flag, set while transfer finished, CITER value exhausted*/
     kEDMA_ErrorFlag = 0x2U,     /*!< eDMA error flag, an error occurred in a transfer */
     kEDMA_InterruptFlag = 0x4U, /*!< eDMA interrupt flag, set while an interrupt occurred of this channel */
 };
 
 /*! @brief eDMA channel error status flags. */
-enum _edma_error_status_flags
-{
+enum _edma_error_status_flags {
     kEDMA_DestinationBusErrorFlag = DMA_ES_DBE_MASK,    /*!< Bus error on destination address */
     kEDMA_SourceBusErrorFlag = DMA_ES_SBE_MASK,         /*!< Bus error on the source address */
     kEDMA_ScatterGatherErrorFlag = DMA_ES_SGE_MASK,     /*!< Error on the Scatter/Gather address, not 32byte aligned. */
@@ -146,32 +140,28 @@ enum _edma_error_status_flags
 };
 
 /*! @brief eDMA interrupt source */
-typedef enum _edma_interrupt_enable
-{
+typedef enum _edma_interrupt_enable {
     kEDMA_ErrorInterruptEnable = 0x1U,                  /*!< Enable interrupt while channel error occurs. */
     kEDMA_MajorInterruptEnable = DMA_CSR_INTMAJOR_MASK, /*!< Enable interrupt while major count exhausted. */
     kEDMA_HalfInterruptEnable = DMA_CSR_INTHALF_MASK,   /*!< Enable interrupt while major count to half value. */
 } edma_interrupt_enable_t;
 
 /*! @brief eDMA transfer type */
-typedef enum _edma_transfer_type
-{
+typedef enum _edma_transfer_type {
     kEDMA_MemoryToMemory = 0x0U, /*!< Transfer from memory to memory */
     kEDMA_PeripheralToMemory,    /*!< Transfer from peripheral to memory */
     kEDMA_MemoryToPeripheral,    /*!< Transfer from memory to peripheral */
 } edma_transfer_type_t;
 
 /*! @brief eDMA transfer status */
-enum _edma_transfer_status
-{
+enum _edma_transfer_status {
     kStatus_EDMA_QueueFull = MAKE_STATUS(kStatusGroup_EDMA, 0), /*!< TCD queue is full. */
     kStatus_EDMA_Busy = MAKE_STATUS(kStatusGroup_EDMA, 1),      /*!< Channel is busy and can't handle the
                                                                      transfer request. */
 };
 
 /*! @brief eDMA global configuration structure.*/
-typedef struct _edma_config
-{
+typedef struct _edma_config {
     bool enableContinuousLinkMode;    /*!< Enable (true) continuous link mode. Upon minor loop completion, the channel
                                            activates again if that channel has a minor loop channel link enabled and
                                            the link channel is itself. */
@@ -201,8 +191,7 @@ typedef struct _edma_config
  *
  *               ---------------------------------------------------------> Transfer complete
  */
-typedef struct _edma_transfer_config
-{
+typedef struct _edma_transfer_config {
     uint32_t srcAddr;                      /*!< Source data address. */
     uint32_t destAddr;                     /*!< Destination data address. */
     edma_transfer_size_t srcTransferSize;  /*!< Source data transfer size. */
@@ -216,16 +205,14 @@ typedef struct _edma_transfer_config
 } edma_transfer_config_t;
 
 /*! @brief eDMA channel priority configuration */
-typedef struct _edma_channel_Preemption_config
-{
+typedef struct _edma_channel_Preemption_config {
     bool enableChannelPreemption; /*!< If true: a channel can be suspended by other channel with higher priority */
     bool enablePreemptAbility;    /*!< If true: a channel can suspend other channel with low priority */
     uint8_t channelPriority;      /*!< Channel priority */
 } edma_channel_Preemption_config_t;
 
 /*! @brief eDMA minor offset configuration */
-typedef struct _edma_minor_offset_config
-{
+typedef struct _edma_minor_offset_config {
     bool enableSrcMinorOffset;  /*!< Enable(true) or Disable(false) source minor loop offset. */
     bool enableDestMinorOffset; /*!< Enable(true) or Disable(false) destination minor loop offset. */
     uint32_t minorOffset;       /*!< Offset for a minor loop mapping. */
@@ -237,8 +224,7 @@ typedef struct _edma_minor_offset_config
  * This structure is same as TCD register which is described in reference manual,
  * and is used to configure the scatter/gather feature as a next hardware TCD.
  */
-typedef struct _edma_tcd
-{
+typedef struct _edma_tcd {
     __IO uint32_t SADDR;     /*!< SADDR register, used to save source address */
     __IO uint16_t SOFF;      /*!< SOFF register, save offset bytes every transfer */
     __IO uint16_t ATTR;      /*!< ATTR register, source/destination transfer size and modulo */
@@ -259,8 +245,7 @@ struct _edma_handle;
 typedef void (*edma_callback)(struct _edma_handle *handle, void *userData, bool transferDone, uint32_t tcds);
 
 /*! @brief eDMA transfer handle structure */
-typedef struct _edma_handle
-{
+typedef struct _edma_handle {
     edma_callback callback; /*!< Callback function for major count exhausted. */
     void *userData;         /*!< Callback function parameter. */
     DMA_Type *base;         /*!< eDMA peripheral base address. */

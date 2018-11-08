@@ -42,7 +42,7 @@
  * search-and-replace for the word "ethernetif" to replace it with
  * something that better describes your network interface.
  */
- 
+
 #include "lwip/opt.h"
 
 #include "lwip/def.h"
@@ -110,8 +110,7 @@ void mbed_mac_address(char *mac)
     // http://en.wikipedia.org/wiki/MAC_address
     uint32_t word1 = *(uint32_t *)0x7F800; // 2KB Data Flash at 0x7F800
 
-	if( word0 == 0xFFFFFFFF )		// Not burn any mac address at 1st 2 words of Data Flash
-	{
+    if (word0 == 0xFFFFFFFF) {       // Not burn any mac address at 1st 2 words of Data Flash
         // with a semi-unique MAC address from the UUID
         /* Enable FMC ISP function */
         SYS_UnlockReg();
@@ -119,24 +118,24 @@ void mbed_mac_address(char *mac)
         // = FMC_ReadUID(0);
         uID1 = FMC_ReadUID(1);
         word1 = (uID1 & 0x003FFFFF) | ((uID1 & 0x030000) << 6) >> 8;
-        word0 = ((FMC_ReadUID(0) >> 4) << 20) | ((uID1 & 0xFF)<<12) | (FMC_ReadUID(2) & 0xFFF);
+        word0 = ((FMC_ReadUID(0) >> 4) << 20) | ((uID1 & 0xFF) << 12) | (FMC_ReadUID(2) & 0xFFF);
         /* Disable FMC ISP function */
         FMC_Close();
         /* Lock protected registers */
         SYS_LockReg();
-	}
+    }
 
     word1 |= 0x00000200;
     word1 &= 0x0000FEFF;
 
-    mac[0] = (word1 & 0x0000ff00) >> 8;    
+    mac[0] = (word1 & 0x0000ff00) >> 8;
     mac[1] = (word1 & 0x000000ff);
     mac[2] = (word0 & 0xff000000) >> 24;
     mac[3] = (word0 & 0x00ff0000) >> 16;
     mac[4] = (word0 & 0x0000ff00) >> 8;
     mac[5] = (word0 & 0x000000ff);
-    
-    LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING|LWIP_DBG_ON, ("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", mac[0], mac[1],mac[2],mac[3],mac[4],mac[5]));
+
+    LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING | LWIP_DBG_ON, ("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]));
 }
 
 /**
@@ -153,17 +152,17 @@ low_level_init(struct netif *netif)
     /* set MAC hardware address length */
     netif->hwaddr_len = ETH_HWADDR_LEN;
 
-  /* set MAC hardware address */
+    /* set MAC hardware address */
 #if 1  // set MAC HW address
 #if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
-  netif->hwaddr[0] = MBED_MAC_ADDR_0;
-  netif->hwaddr[1] = MBED_MAC_ADDR_1;
-  netif->hwaddr[2] = MBED_MAC_ADDR_2;
-  netif->hwaddr[3] = MBED_MAC_ADDR_3;
-  netif->hwaddr[4] = MBED_MAC_ADDR_4;
-  netif->hwaddr[5] = MBED_MAC_ADDR_5;
+    netif->hwaddr[0] = MBED_MAC_ADDR_0;
+    netif->hwaddr[1] = MBED_MAC_ADDR_1;
+    netif->hwaddr[2] = MBED_MAC_ADDR_2;
+    netif->hwaddr[3] = MBED_MAC_ADDR_3;
+    netif->hwaddr[4] = MBED_MAC_ADDR_4;
+    netif->hwaddr[5] = MBED_MAC_ADDR_5;
 #else
-  mbed_mac_address((char *)netif->hwaddr);
+    mbed_mac_address((char *)netif->hwaddr);
 #endif  /* set MAC HW address */
 
 #else
@@ -174,13 +173,13 @@ low_level_init(struct netif *netif)
     netif->hwaddr[4] = my_mac_addr[4];
     netif->hwaddr[5] = my_mac_addr[5];
 #endif // endif 
-	
+
     /* maximum transfer unit */
     netif->mtu = 1500;
 
     /* device capabilities */
     /* NETIF_FLAG_LINK_UP should be enabled by netif_set_link_up() */
-    netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET; 
+    netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
 #ifdef LWIP_IGMP
     netif->flags |= NETIF_FLAG_IGMP;
 #endif
@@ -224,14 +223,15 @@ low_level_output(struct netif *netif, struct pbuf *p)
 
 
     buf = ETH_get_tx_buf();
-    if(buf == NULL)
+    if (buf == NULL) {
         return ERR_MEM;
+    }
 #if ETH_PAD_SIZE
     pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
 #endif
 
-    for(q = p; q != NULL; q = q->next) {
-        memcpy((u8_t*)&buf[len], q->payload, q->len);
+    for (q = p; q != NULL; q = q->next) {
+        memcpy((u8_t *)&buf[len], q->payload, q->len);
         len = len + q->len;
     }
 #ifdef TIME_STAMPING
@@ -279,8 +279,8 @@ low_level_input(struct netif *netif, u16_t len, u8_t *buf)
         len = 0;
         /* We iterate over the pbuf chain until we have read the entire
         * packet into the pbuf. */
-        for(q = p; q != NULL; q = q->next) {
-            memcpy((u8_t*)q->payload, (u8_t*)&buf[len], q->len);
+        for (q = p; q != NULL; q = q->next) {
+            memcpy((u8_t *)q->payload, (u8_t *)&buf[len], q->len);
             len = len + q->len;
         }
 
@@ -318,7 +318,9 @@ ethernetif_input(u16_t len, u8_t *buf, u32_t s, u32_t ns)
     /* move received packet into a new pbuf */
     p = low_level_input(_netif, len, buf);
     /* no packet could be read, silently ignore this */
-    if (p == NULL) return;
+    if (p == NULL) {
+        return;
+    }
 #ifdef TIME_STAMPING
     p->ts_sec = s;
     p->ts_nsec = ns;
@@ -328,26 +330,26 @@ ethernetif_input(u16_t len, u8_t *buf, u32_t s, u32_t ns)
     ethhdr = p->payload;
 
     switch (htons(ethhdr->type)) {
-    /* IP or ARP packet? */
-    case ETHTYPE_IP:
-    case ETHTYPE_ARP:
+        /* IP or ARP packet? */
+        case ETHTYPE_IP:
+        case ETHTYPE_ARP:
 #if PPPOE_SUPPORT
-    /* PPPoE packet? */
-    case ETHTYPE_PPPOEDISC:
-    case ETHTYPE_PPPOE:
+        /* PPPoE packet? */
+        case ETHTYPE_PPPOEDISC:
+        case ETHTYPE_PPPOE:
 #endif /* PPPOE_SUPPORT */
-        /* full packet send to tcpip_thread to process */
-        if (_netif->input(p, _netif)!=ERR_OK) {
-            LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
+            /* full packet send to tcpip_thread to process */
+            if (_netif->input(p, _netif) != ERR_OK) {
+                LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
+                pbuf_free(p);
+                p = NULL;
+            }
+            break;
+
+        default:
             pbuf_free(p);
             p = NULL;
-        }
-        break;
-
-    default:
-        pbuf_free(p);
-        p = NULL;
-        break;
+            break;
     }
 }
 
@@ -378,7 +380,7 @@ ethernetif_loopback_input(struct pbuf *p)           // TODO: make sure packet no
  *         any other err_t on error
  */
 err_t
- eth_arch_enetif_init(struct netif *netif)
+eth_arch_enetif_init(struct netif *netif)
 {
     err_t err;
     struct ethernetif *ethernetif;
@@ -392,9 +394,9 @@ err_t
         return ERR_MEM;
     }
 
-   // Chris: The initialization code uses osDelay, so timers neet to run
-   // SysTick_Init();
-	
+    // Chris: The initialization code uses osDelay, so timers neet to run
+    // SysTick_Init();
+
 #if LWIP_NETIF_HOSTNAME
     /* Initialize interface hostname */
     netif->hostname = "nuc472";
@@ -422,7 +424,7 @@ err_t
 #endif
     netif->linkoutput = low_level_output;
 
-    ethernetif->ethaddr = (struct eth_addr *)&(netif->hwaddr[0]);
+    ethernetif->ethaddr = (struct eth_addr *) & (netif->hwaddr[0]);
 
     /* initialize the hardware */
     low_level_init(netif);
@@ -430,53 +432,55 @@ err_t
     /* Packet receive task */
 
     err = sys_sem_new(&RxReadySem, 0);
-    if(err != ERR_OK) LWIP_ASSERT("RxReadySem creation error", (err == ERR_OK));
-	// In GCC code, DEFAULT_THREAD_STACKSIZE 512 bytes is not enough for rx_task
-#if defined (__GNUC__)	
+    if (err != ERR_OK) {
+        LWIP_ASSERT("RxReadySem creation error", (err == ERR_OK));
+    }
+    // In GCC code, DEFAULT_THREAD_STACKSIZE 512 bytes is not enough for rx_task
+#if defined (__GNUC__)
     // mbed OS 2.0, DEFAULT_THREAD_STACKSIZE*3
-	// mbed OS 5.0, DEFAULT_THREAD_STACKSIZE*5 
-	sys_thread_new("nuc472_emac_rx_thread", __packet_rx_task, &RxReadySem, DEFAULT_THREAD_STACKSIZE*5, osPriorityNormal);
+    // mbed OS 5.0, DEFAULT_THREAD_STACKSIZE*5
+    sys_thread_new("nuc472_emac_rx_thread", __packet_rx_task, &RxReadySem, DEFAULT_THREAD_STACKSIZE * 5, osPriorityNormal);
 #else
-	sys_thread_new("nuc472_emac_rx_thread", __packet_rx_task, &RxReadySem, DEFAULT_THREAD_STACKSIZE, osPriorityNormal);
+    sys_thread_new("nuc472_emac_rx_thread", __packet_rx_task, &RxReadySem, DEFAULT_THREAD_STACKSIZE, osPriorityNormal);
 #endif
     /* PHY monitoring task */
-#if defined (__GNUC__)		
+#if defined (__GNUC__)
     // mbed OS 2.0, DEFAULT_THREAD_STACKSIZE
-	// mbed OS 5.0, DEFAULT_THREAD_STACKSIZE*2
-    sys_thread_new("nuc472_emac_phy_thread", __phy_task, netif, DEFAULT_THREAD_STACKSIZE*2, osPriorityNormal);
+    // mbed OS 5.0, DEFAULT_THREAD_STACKSIZE*2
+    sys_thread_new("nuc472_emac_phy_thread", __phy_task, netif, DEFAULT_THREAD_STACKSIZE * 2, osPriorityNormal);
 #else
     sys_thread_new("nuc472_emac_phy_thread", __phy_task, netif, DEFAULT_THREAD_STACKSIZE, osPriorityNormal);
-#endif	
+#endif
     /* Allow the PHY task to detect the initial link state and set up the proper flags */
     osDelay(10);
-	
+
     return ERR_OK;
 }
 
-void eth_arch_enable_interrupts(void) {
+void eth_arch_enable_interrupts(void)
+{
 //  enet_hal_config_interrupt(BOARD_DEBUG_ENET_INSTANCE_ADDR, (kEnetTxFrameInterrupt | kEnetRxFrameInterrupt), true);
     EMAC->INTEN |= EMAC_INTEN_RXIEN_Msk |
                    EMAC_INTEN_TXIEN_Msk ;
-	NVIC_EnableIRQ(EMAC_RX_IRQn);
-	NVIC_EnableIRQ(EMAC_TX_IRQn);
+    NVIC_EnableIRQ(EMAC_RX_IRQn);
+    NVIC_EnableIRQ(EMAC_TX_IRQn);
 }
 
-void eth_arch_disable_interrupts(void) {
-	NVIC_DisableIRQ(EMAC_RX_IRQn);
-	NVIC_DisableIRQ(EMAC_TX_IRQn);
+void eth_arch_disable_interrupts(void)
+{
+    NVIC_DisableIRQ(EMAC_RX_IRQn);
+    NVIC_DisableIRQ(EMAC_TX_IRQn);
 }
 
 
 /* Defines the PHY link speed */
-typedef enum _phy_speed
-{
+typedef enum _phy_speed {
     kPHY_Speed10M = 0U, /* ENET PHY 10M speed. */
     kPHY_Speed100M      /* ENET PHY 100M speed. */
 } phy_speed_t;
 
 /* Defines the PHY link duplex. */
-typedef enum _phy_duplex
-{
+typedef enum _phy_duplex {
     kPHY_HalfDuplex = 0U, /* ENET PHY half duplex. */
     kPHY_FullDuplex       /* ENET PHY full duplex. */
 } phy_duplex_t;
@@ -489,41 +493,43 @@ typedef struct {
 
 #define STATE_UNKNOWN           (-1)
 
-static void __phy_task(void *data) {
-  struct netif *netif = (struct netif*)data;
+static void __phy_task(void *data)
+{
+    struct netif *netif = (struct netif *)data;
 //  PHY_STATE crt_state = {STATE_UNKNOWN, (phy_speed_t)STATE_UNKNOWN, (phy_duplex_t)STATE_UNKNOWN};
 //  PHY_STATE prev_state;
 
 //  prev_state = crt_state;
-  while (1) {
-    // Get current status
-    // Get the actual PHY link speed
-    // Compare with previous state
-			
-			if( !(ETH_link_ok()) && (netif->flags & NETIF_FLAG_LINK_UP) ) {
-				/* tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, (void*) netif, 1); */
-				netif_set_link_down(netif);
-				LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING|LWIP_DBG_ON, ("Link Down\r\n"));	
-			}else if ( ETH_link_ok() && !(netif->flags & NETIF_FLAG_LINK_UP) ) { 
-				/* tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up, (void*) netif, 1); */
-				netif_set_link_up(netif);
-				LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING|LWIP_DBG_ON, ("Link Up\r\n"));
-			}
-			
-    osDelay(200);
-  }
+    while (1) {
+        // Get current status
+        // Get the actual PHY link speed
+        // Compare with previous state
+
+        if (!(ETH_link_ok()) && (netif->flags & NETIF_FLAG_LINK_UP)) {
+            /* tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, (void*) netif, 1); */
+            netif_set_link_down(netif);
+            LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING | LWIP_DBG_ON, ("Link Down\r\n"));
+        } else if (ETH_link_ok() && !(netif->flags & NETIF_FLAG_LINK_UP)) {
+            /* tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up, (void*) netif, 1); */
+            netif_set_link_up(netif);
+            LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING | LWIP_DBG_ON, ("Link Up\r\n"));
+        }
+
+        osDelay(200);
+    }
 }
 
 void ack_emac_rx_isr()
 {
-  sys_sem_signal(&RxReadySem);
+    sys_sem_signal(&RxReadySem);
 }
 
-static void __packet_rx_task(void *data) {
+static void __packet_rx_task(void *data)
+{
 
-  while (1) {
-    /* Wait for receive task to wakeup */
-    sys_arch_sem_wait(&RxReadySem, 0);
-	EMAC_RX_Action();
-  }
+    while (1) {
+        /* Wait for receive task to wakeup */
+        sys_arch_sem_wait(&RxReadySem, 0);
+        EMAC_RX_Action();
+    }
 }

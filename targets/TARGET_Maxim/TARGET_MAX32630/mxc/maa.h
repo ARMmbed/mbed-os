@@ -55,9 +55,9 @@ extern "C" {
 /**
  * @ingroup periphlibs
  * @defgroup maa MAA
- * @details The API only supports synchronous operations due to the sensitive 
- *          nature of the input and output data. 
- * @{     
+ * @details The API only supports synchronous operations due to the sensitive
+ *          nature of the input and output data.
+ * @{
  */
 
 /* **** Definitions **** */
@@ -77,23 +77,23 @@ extern "C" {
 #define MXC_MAA_HALF_SIZE (MXC_MAA_REG_SIZE/2)
 
 /** Flags for MAA_Load() and MAA_Unload() */
-#define MXC_MAA_F_MEM_VERBATIM                        0 
+#define MXC_MAA_F_MEM_VERBATIM                        0
 /** Flags for MAA_Load() and MAA_Unload() */
-#define MXC_MAA_F_MEM_REVERSE                         1 
+#define MXC_MAA_F_MEM_REVERSE                         1
 
 /**
  * Enumeration type for Segment and Sub-segment selection
  */
 /* Warning: Do not change the assigned numbers/ordering without associated changes to UMAA_REGFILE_TO_ADDR(x) */
 typedef enum {
-    /* Register names when MAWS > 512 */ 
+    /* Register names when MAWS > 512 */
     MXC_E_REG_0 = 0,      /**< Register MXC_E_REG_0:  If MAA_MAWS > 512 use this register name. */
     MXC_E_REG_1 = 2,      /**< Register MXC_E_REG_1:  If MAA_MAWS > 512 use this register name. */
     MXC_E_REG_2 = 4,      /**< Register MXC_E_REG_2:  If MAA_MAWS > 512 use this register name. */
     MXC_E_REG_3 = 6,      /**< Register MXC_E_REG_3:  If MAA_MAWS > 512 use this register name. */
     MXC_E_REG_4 = 8,      /**< Register MXC_E_REG_4:  If MAA_MAWS > 512 use this register name. */
     MXC_E_REG_5 = 10,     /**< Register MXC_E_REG_5:  If MAA_MAWS > 512 use this register name. */
-    /* Register names when MAWS < 512 */ 
+    /* Register names when MAWS < 512 */
     MXC_E_REG_00 = 0,     /**< Register MXC_E_REG_00: If MAA_MAWS < 512 this is the register name. */
     MXC_E_REG_01 = 1,     /**< Register MXC_E_REG_01: If MAA_MAWS < 512 this is the register name. */
     MXC_E_REG_10 = 2,     /**< Register MXC_E_REG_10: If MAA_MAWS < 512 this is the register name. */
@@ -104,7 +104,7 @@ typedef enum {
     MXC_E_REG_31 = 7,     /**< Register MXC_E_REG_31: If MAA_MAWS < 512 this is the register name. */
     MXC_E_REG_40 = 8,     /**< Register MXC_E_REG_40: If MAA_MAWS < 512 this is the register name. */
     MXC_E_REG_41 = 9,     /**< Register MXC_E_REG_41: If MAA_MAWS < 512 this is the register name. */
-    MXC_E_REG_50 = 10,    /**< Register MXC_E_REG_50: If MAA_MAWS < 512 this is the register name. */ 
+    MXC_E_REG_50 = 10,    /**< Register MXC_E_REG_50: If MAA_MAWS < 512 this is the register name. */
     MXC_E_REG_51 = 11     /**< Register MXC_E_REG_51: If MAA_MAWS < 512 this is the register name. */
 } mxc_maa_reg_select_t;
 
@@ -124,34 +124,34 @@ typedef enum {
  * Enumeration type to set special flags for loading & unloading data.
  */
 typedef enum {
-  
-  MXC_E_MAA_VERBATIM = 0,   /**< Copy bytes without reversal and right-justification */
-  MXC_E_MAA_REVERSE         /**< Reverse bytes and right-justify (bytes are loaded at the highest address, then descending) */
+
+    MXC_E_MAA_VERBATIM = 0,   /**< Copy bytes without reversal and right-justification */
+    MXC_E_MAA_REVERSE         /**< Reverse bytes and right-justify (bytes are loaded at the highest address, then descending) */
 } mxc_maa_endian_select_t;
 
 /**
  * Enumeration type for MAA module specific return codes.
  */
 typedef enum {
-  MXC_E_MAA_ERR = -1,     /**< Error */
-  MXC_E_MAA_OK = 0,       /**< No Error */
-  MXC_E_MAA_BUSY          /**< MAA engine busy, try again later */
+    MXC_E_MAA_ERR = -1,     /**< Error */
+    MXC_E_MAA_OK = 0,       /**< No Error */
+    MXC_E_MAA_BUSY          /**< MAA engine busy, try again later */
 } mxc_maa_ret_t;
 
 /**
  * @brief      Initialize the required clocks and enable the MAA peripheral
  *             module.
- * @retval     #MXC_E_MAA_ERR on error. 
- * @retval     #MXC_E_MAA_BUSY if the MAA is busy. 
- * @retval     #MXC_E_MAA_OK if the MAA is initialized successfully. 
+ * @retval     #MXC_E_MAA_ERR on error.
+ * @retval     #MXC_E_MAA_BUSY if the MAA is busy.
+ * @retval     #MXC_E_MAA_OK if the MAA is initialized successfully.
  */
 mxc_maa_ret_t MAA_Init(void);
 
 /**
  * @brief      Erase all MAA register RAM
- * @retval     #MXC_E_MAA_ERR on error. 
- * @retval     #MXC_E_MAA_BUSY if the MAA is busy. 
- * @retval     #MXC_E_MAA_OK if the MAA is initialized successfully. 
+ * @retval     #MXC_E_MAA_ERR on error.
+ * @retval     #MXC_E_MAA_BUSY if the MAA is busy.
+ * @retval     #MXC_E_MAA_OK if the MAA is initialized successfully.
  */
 mxc_maa_ret_t MAA_WipeRAM(void);
 
@@ -166,7 +166,7 @@ mxc_maa_ret_t MAA_WipeRAM(void);
  *                      little endian machines, see #mxc_maa_endian_select_t.
  *
  * @return     #MXC_E_MAA_ERR if any parameter out of range.
- * @return     #MXC_E_MAA_BUSY if MAA registers are not currently accessible. 
+ * @return     #MXC_E_MAA_BUSY if MAA registers are not currently accessible.
  * @return     #MXC_E_MAA_OK if the selected register is loaded correctly.
  */
 mxc_maa_ret_t MAA_Load(mxc_maa_reg_select_t regfile, const uint8_t *data, unsigned int size, mxc_maa_endian_select_t flag);
@@ -195,14 +195,14 @@ mxc_maa_ret_t MAA_Unload(mxc_maa_reg_select_t regfile, uint8_t *data, unsigned i
  * @param      rl    Segment which will hold result R after the operation is
  *                   complete.
  * @param      tl    Segment to use for temporary storage T.
- * 
+ *
  * @return     #MXC_E_MAA_ERR if any parameter out of range.
  * @return     #MXC_E_MAA_BUSY if MAA registers are not currently accessible.
- * @return     #MXC_E_MAA_OK if the operation completed. 
+ * @return     #MXC_E_MAA_OK if the operation completed.
  */
 mxc_maa_ret_t MAA_Run(mxc_maa_operation_t op, \
-          mxc_maa_reg_select_t al, mxc_maa_reg_select_t bl, \
-          mxc_maa_reg_select_t rl, mxc_maa_reg_select_t tl);
+                      mxc_maa_reg_select_t al, mxc_maa_reg_select_t bl, \
+                      mxc_maa_reg_select_t rl, mxc_maa_reg_select_t tl);
 
 /**
  * @brief      Set the bit length of the modulus.
@@ -211,7 +211,7 @@ mxc_maa_ret_t MAA_Run(mxc_maa_operation_t op, \
  *
  * @return     #MXC_E_MAA_ERR if any parameter out of range.
  * @return     #MXC_E_MAA_BUSY if MAA registers are not currently accessible.
- * @return     #MXC_E_MAA_OK if the length is set as requested. 
+ * @return     #MXC_E_MAA_OK if the length is set as requested.
  */
 mxc_maa_ret_t MAA_SetWordSize(unsigned int len);
 

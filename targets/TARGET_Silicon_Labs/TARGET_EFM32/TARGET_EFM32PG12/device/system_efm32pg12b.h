@@ -106,7 +106,7 @@ uint32_t SystemCoreClockGet(void);
  *****************************************************************************/
 static __INLINE void SystemCoreClockUpdate(void)
 {
-  SystemCoreClockGet();
+    SystemCoreClockGet();
 }
 
 uint32_t SystemMaxCoreClockGet(void);

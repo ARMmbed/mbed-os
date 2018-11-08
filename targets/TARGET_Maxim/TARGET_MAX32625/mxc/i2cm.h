@@ -80,7 +80,7 @@ struct i2cm_req {
      * @param   i2cm_req_t*  Pointer to the transaction request.
      * @param   int         Error code.
      */
-    void (*callback)(i2cm_req_t*, int);
+    void (*callback)(i2cm_req_t *, int);
 };
 
 /***** Globals *****/
@@ -118,7 +118,7 @@ int I2CM_Shutdown(mxc_i2cm_regs_t *i2cm);
  * @returns Bytes transacted if everything is successful, error if unsuccessful.
  */
 int I2CM_Read(mxc_i2cm_regs_t *i2cm, uint8_t addr, const uint8_t *cmd_data,
-              uint32_t cmd_len, uint8_t* data, uint32_t len);
+              uint32_t cmd_len, uint8_t *data, uint32_t len);
 
 /**
  * @brief   Write I2CM data. Will block until transaction is complete.
@@ -135,7 +135,7 @@ int I2CM_Read(mxc_i2cm_regs_t *i2cm, uint8_t addr, const uint8_t *cmd_data,
  * @returns Bytes transacted if everything is successful, error if unsuccessful.
  */
 int I2CM_Write(mxc_i2cm_regs_t *i2cm, uint8_t addr, const uint8_t *cmd_data,
-               uint32_t cmd_len, uint8_t* data, uint32_t len);
+               uint32_t cmd_len, uint8_t *data, uint32_t len);
 
 /**
  * @brief   Asynchronously read I2CM data.
@@ -233,7 +233,7 @@ __STATIC_INLINE void I2CM_ClearFlags(mxc_i2cm_regs_t *i2cm, uint32_t mask)
  */
 __STATIC_INLINE unsigned I2CM_GetFlags(mxc_i2cm_regs_t *i2cm)
 {
-    return(i2cm->intfl);
+    return (i2cm->intfl);
 }
 /**
  * @brief   Set the I2C Frequency

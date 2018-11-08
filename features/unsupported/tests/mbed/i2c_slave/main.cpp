@@ -2,7 +2,7 @@
 #include "test_env.h"
 
 #if !DEVICE_I2CSLAVE
-  #error [NOT_SUPPORTED] I2C Slave is not supported
+#error [NOT_SUPPORTED] I2C Slave is not supported
 #endif
 
 #define SIZE (10)
@@ -28,25 +28,26 @@ I2CSlave slave(PA10, PA09);
 I2CSlave slave(p28, p27);
 #endif
 
- int main() {
-     char buf[SIZE];
+int main()
+{
+    char buf[SIZE];
 
-     slave.address(ADDR);
+    slave.address(ADDR);
 
-     while (1) {
-         int i = slave.receive();
-         switch (i) {
-             case I2CSlave::ReadAddressed:
-                 slave.write(buf, SIZE);
-				 for(int i = 0; i < SIZE; i++){
-				}
-                 break;
-             case I2CSlave::WriteAddressed:
-                 slave.read(buf, SIZE);
-                 for(int i = 0; i < SIZE; i++){
-					buf[i]++;
-				}
-                 break;
-         }
-     }
- }
+    while (1) {
+        int i = slave.receive();
+        switch (i) {
+            case I2CSlave::ReadAddressed:
+                slave.write(buf, SIZE);
+                for (int i = 0; i < SIZE; i++) {
+                }
+                break;
+            case I2CSlave::WriteAddressed:
+                slave.read(buf, SIZE);
+                for (int i = 0; i < SIZE; i++) {
+                    buf[i]++;
+                }
+                break;
+        }
+    }
+}

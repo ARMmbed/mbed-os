@@ -36,16 +36,15 @@
 /**************************************************************************//**
  * @brief LDMA_CH EFM32PG12B LDMA CH
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t REQSEL;       /**< Channel Peripheral Request Select Register  */
-  __IOM uint32_t CFG;          /**< Channel Configuration Register  */
-  __IOM uint32_t LOOP;         /**< Channel Loop Counter Register  */
-  __IOM uint32_t CTRL;         /**< Channel Descriptor Control Word Register  */
-  __IOM uint32_t SRC;          /**< Channel Descriptor Source Data Address Register  */
-  __IOM uint32_t DST;          /**< Channel Descriptor Destination Data Address Register  */
-  __IOM uint32_t LINK;         /**< Channel Descriptor Link Structure Address Register  */
-  uint32_t       RESERVED0[5]; /**< Reserved future */
+typedef struct {
+    __IOM uint32_t REQSEL;       /**< Channel Peripheral Request Select Register  */
+    __IOM uint32_t CFG;          /**< Channel Configuration Register  */
+    __IOM uint32_t LOOP;         /**< Channel Loop Counter Register  */
+    __IOM uint32_t CTRL;         /**< Channel Descriptor Control Word Register  */
+    __IOM uint32_t SRC;          /**< Channel Descriptor Source Data Address Register  */
+    __IOM uint32_t DST;          /**< Channel Descriptor Destination Data Address Register  */
+    __IOM uint32_t LINK;         /**< Channel Descriptor Link Structure Address Register  */
+    uint32_t       RESERVED0[5]; /**< Reserved future */
 } LDMA_CH_TypeDef;
 
 /** @} End of group Parts */

@@ -72,11 +72,11 @@
   * @brief  Enable the specified TMRB channel.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
-  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.  
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
+  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @retval None
   */
-void TMRB_Enable(TSB_TB_TypeDef * TBx)
+void TMRB_Enable(TSB_TB_TypeDef *TBx)
 {
     /* Check the parameters */
     assert_param(IS_TMRB_ALL_PERIPH(TBx));
@@ -88,11 +88,11 @@ void TMRB_Enable(TSB_TB_TypeDef * TBx)
   * @brief  Disable the specified TMRB channel.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @retval None
   */
-void TMRB_Disable(TSB_TB_TypeDef * TBx)
+void TMRB_Disable(TSB_TB_TypeDef *TBx)
 {
     /* Check the parameters */
     assert_param(IS_TMRB_ALL_PERIPH(TBx));
@@ -104,13 +104,13 @@ void TMRB_Disable(TSB_TB_TypeDef * TBx)
   * @brief  Start or stop counter of the specified TMRB channel.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @param  Cmd: The command for the counter.
   *   This parameter can be TMRB_RUN or TMRB_STOP.
   * @retval None
   */
-void TMRB_SetRunState(TSB_TB_TypeDef * TBx, uint32_t Cmd)
+void TMRB_SetRunState(TSB_TB_TypeDef *TBx, uint32_t Cmd)
 {
     /* Check the parameters */
     assert_param(IS_TMRB_ALL_PERIPH(TBx));
@@ -124,12 +124,12 @@ void TMRB_SetRunState(TSB_TB_TypeDef * TBx, uint32_t Cmd)
   * @brief  Initialize the specified TMRB channel.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @param  InitStruct: The structure containing basic TMRB configuration.
   * @retval None
   */
-void TMRB_Init(TSB_TB_TypeDef * TBx, TMRB_InitTypeDef * InitStruct)
+void TMRB_Init(TSB_TB_TypeDef *TBx, TMRB_InitTypeDef *InitStruct)
 {
     uint32_t tmp = 0U;
 
@@ -174,14 +174,14 @@ void TMRB_Init(TSB_TB_TypeDef * TBx, TMRB_InitTypeDef * InitStruct)
   * @brief  Configure the capture timing.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5.
   * @param  CaptureTiming: Specify TMRB capture timing.
   *    This parameter can be one of the following values:
   *    TMRB_DISABLE_CAPTURE, TMRB_CAPTURE_IN_RISING_FALLING, TMRB_CAPTURE_FF_RISING_FALLING.
   * @retval None
   */
-void TMRB_SetCaptureTiming(TSB_TB_TypeDef * TBx, uint32_t CaptureTiming)
+void TMRB_SetCaptureTiming(TSB_TB_TypeDef *TBx, uint32_t CaptureTiming)
 {
     uint32_t tmp = 0U;
 
@@ -202,12 +202,12 @@ void TMRB_SetCaptureTiming(TSB_TB_TypeDef * TBx, uint32_t CaptureTiming)
   * @brief  Configure the flip-flop function.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
-  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7. 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
+  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @param FFStruct: The structure containing TMRB flip-flop configuration
   * @retval None
   */
-void TMRB_SetFlipFlop(TSB_TB_TypeDef * TBx, TMRB_FFOutputTypeDef * FFStruct)
+void TMRB_SetFlipFlop(TSB_TB_TypeDef *TBx, TMRB_FFOutputTypeDef *FFStruct)
 {
     /* Check the parameters */
     assert_param(IS_POINTER_NOT_NULL(FFStruct));
@@ -223,11 +223,11 @@ void TMRB_SetFlipFlop(TSB_TB_TypeDef * TBx, TMRB_FFOutputTypeDef * FFStruct)
   * @brief  Indicate what causes the interrupt.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @retval The interrupt factor of TBx.
   */
-TMRB_INTFactor TMRB_GetINTFactor(TSB_TB_TypeDef * TBx)
+TMRB_INTFactor TMRB_GetINTFactor(TSB_TB_TypeDef *TBx)
 {
     TMRB_INTFactor retval = { 0U };
 
@@ -242,11 +242,11 @@ TMRB_INTFactor TMRB_GetINTFactor(TSB_TB_TypeDef * TBx)
   * @brief  Indicate what interrupt cause source be masked.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @retval The masked interrupt cause source of TBx.
   */
-TMRB_INTMask TMRB_GetINTMask(TSB_TB_TypeDef * TBx)
+TMRB_INTMask TMRB_GetINTMask(TSB_TB_TypeDef *TBx)
 {
     TMRB_INTMask retval = { 0U };
 
@@ -261,7 +261,7 @@ TMRB_INTMask TMRB_GetINTMask(TSB_TB_TypeDef * TBx)
   * @brief  Mask some TMRB interrupts.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @param  INTMask: Select the mask of TMRB interrupt.
   *   This parameter can be one of the following values:
@@ -269,7 +269,7 @@ TMRB_INTMask TMRB_GetINTMask(TSB_TB_TypeDef * TBx)
   *   or TMRB_MASK_OVERFLOW_INT.
   * @retval None
   */
-void TMRB_SetINTMask(TSB_TB_TypeDef * TBx, uint32_t INTMask)
+void TMRB_SetINTMask(TSB_TB_TypeDef *TBx, uint32_t INTMask)
 {
     /* Check the parameters */
     assert_param(IS_TMRB_ALL_PERIPH(TBx));
@@ -283,12 +283,12 @@ void TMRB_SetINTMask(TSB_TB_TypeDef * TBx, uint32_t INTMask)
   * @brief  Change leadingtiming value of TBx.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @param  LeadingTiming: New leadingtiming value, max 0xFFFF.
   * @retval None
   */
-void TMRB_ChangeLeadingTiming(TSB_TB_TypeDef * TBx, uint32_t LeadingTiming)
+void TMRB_ChangeLeadingTiming(TSB_TB_TypeDef *TBx, uint32_t LeadingTiming)
 {
     /* Check the parameters */
     assert_param(IS_TMRB_ALL_PERIPH(TBx));
@@ -303,12 +303,12 @@ void TMRB_ChangeLeadingTiming(TSB_TB_TypeDef * TBx, uint32_t LeadingTiming)
   * @brief  Change trailingtiming value of TBx.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @param  TrailingTiming: New trailingtiming value, max 0xFFFF.
   * @retval None
   */
-void TMRB_ChangeTrailingTiming(TSB_TB_TypeDef * TBx, uint32_t TrailingTiming)
+void TMRB_ChangeTrailingTiming(TSB_TB_TypeDef *TBx, uint32_t TrailingTiming)
 {
     /* Check the parameters */
     assert_param(IS_TMRB_ALL_PERIPH(TBx));
@@ -323,13 +323,13 @@ void TMRB_ChangeTrailingTiming(TSB_TB_TypeDef * TBx, uint32_t TrailingTiming)
   * @brief  Get TMRB register value of TBx.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @param Reg: Select the timer register to read.
   *   This parameter can be: TMRB_REG_0 or TMRB_REG_1.
   * @retval Register value of TBx
   */
-uint16_t TMRB_GetRegisterValue(TSB_TB_TypeDef * TBx, uint8_t Reg)
+uint16_t TMRB_GetRegisterValue(TSB_TB_TypeDef *TBx, uint8_t Reg)
 {
     /* Check the parameters */
     assert_param(IS_TMRB_ALL_PERIPH(TBx));
@@ -342,11 +342,11 @@ uint16_t TMRB_GetRegisterValue(TSB_TB_TypeDef * TBx, uint8_t Reg)
   * @brief  Get up-counter value of TBx.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @retval Up-counter value of TBx
   */
-uint16_t TMRB_GetUpCntValue(TSB_TB_TypeDef * TBx)
+uint16_t TMRB_GetUpCntValue(TSB_TB_TypeDef *TBx)
 {
     /* Check the parameters */
     assert_param(IS_TMRB_ALL_PERIPH(TBx));
@@ -359,13 +359,13 @@ uint16_t TMRB_GetUpCntValue(TSB_TB_TypeDef * TBx)
   * @brief  Get TMRB capture value of TBx.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5.
   * @param  CapReg: Select the capture register to read.
   *   This parameter can be: TMRB_CAPTURE_0 or TMRB_CAPTURE_1.
   * @retval Capture value of TBx
   */
-uint16_t TMRB_GetCaptureValue(TSB_TB_TypeDef * TBx, uint8_t CapReg)
+uint16_t TMRB_GetCaptureValue(TSB_TB_TypeDef *TBx, uint8_t CapReg)
 {
     /* Check the parameters */
     assert_param(IS_TMRB_CAP_PERIPH(TBx));
@@ -378,11 +378,11 @@ uint16_t TMRB_GetCaptureValue(TSB_TB_TypeDef * TBx, uint8_t CapReg)
   * @brief  Capture counter by software and take them into capture register 0.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
   *   TSB_TB4, TSB_TB5.
   * @retval None
   */
-void TMRB_ExecuteSWCapture(TSB_TB_TypeDef * TBx)
+void TMRB_ExecuteSWCapture(TSB_TB_TypeDef *TBx)
 {
     uint32_t tmp = 0U;
 
@@ -404,7 +404,7 @@ void TMRB_ExecuteSWCapture(TSB_TB_TypeDef * TBx)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void TMRB_SetSyncMode(TSB_TB_TypeDef * TBx, FunctionalState NewState)
+void TMRB_SetSyncMode(TSB_TB_TypeDef *TBx, FunctionalState NewState)
 {
     uint32_t tmp = 0U;
 
@@ -427,13 +427,13 @@ void TMRB_SetSyncMode(TSB_TB_TypeDef * TBx, FunctionalState NewState)
   * @brief  Enable or disable double buffer of TBx.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
-  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7. 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
+  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @param  NewState: New state of TBx double buffer.
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void TMRB_SetDoubleBuf(TSB_TB_TypeDef * TBx, FunctionalState NewState)
+void TMRB_SetDoubleBuf(TSB_TB_TypeDef *TBx, FunctionalState NewState)
 {
     uint32_t tmp = 0U;
 
@@ -456,15 +456,15 @@ void TMRB_SetDoubleBuf(TSB_TB_TypeDef * TBx, FunctionalState NewState)
   * @brief  Enable or disable external trigger to start count and set the active edge.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
-  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7. 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
+  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @param  NewState: New state of external trigger.
   *   This parameter can be ENABLE or DISABLE.
   * @param  TrgMode: Active edge of the external trigger signal.
   *   This parameter can be TMRB_TRG_EDGE_RISING or TMRB_TRG_EDGE_FALLING.
   * @retval None
   */
-void TMRB_SetExtStartTrg(TSB_TB_TypeDef * TBx, FunctionalState NewState, uint8_t TrgMode)
+void TMRB_SetExtStartTrg(TSB_TB_TypeDef *TBx, FunctionalState NewState, uint8_t TrgMode)
 {
     uint32_t tmp = 0U;
 
@@ -493,13 +493,13 @@ void TMRB_SetExtStartTrg(TSB_TB_TypeDef * TBx, FunctionalState NewState, uint8_t
   * @brief  Enable or disable clock operation during debug HALT.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
-  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7. 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
+  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @param  ClkState: Timer state in HALT mode.
   *   This parameter can be TMRB_RUNNING_IN_CORE_HALT or TMRB_STOP_IN_CORE_HALT.
   * @retval None
   */
-void TMRB_SetClkInCoreHalt(TSB_TB_TypeDef * TBx, uint8_t ClkState)
+void TMRB_SetClkInCoreHalt(TSB_TB_TypeDef *TBx, uint8_t ClkState)
 {
     /* Check the parameters */
     assert_param(IS_TMRB_ALL_PERIPH(TBx));
@@ -518,15 +518,15 @@ void TMRB_SetClkInCoreHalt(TSB_TB_TypeDef * TBx, uint8_t ClkState)
   * @brief  Enable or disable DMA request.
   * @param  TBx: Select the TMRB channel.
   *   This parameter can be one of the following values:
-  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3, 
-  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7. 
+  *   TSB_TB0, TSB_TB1, TSB_TB2, TSB_TB3,
+  *   TSB_TB4, TSB_TB5, TSB_TB6, TSB_TB7.
   * @param  NewState: New state of DMA request.
   *   This parameter can be ENABLE or DISABLE.
   * @param  DMAReq: DMA request.
   *   This parameter can be TMRB_DMA_REQ_CMP_MATCH, TMRB_DMA_REQ_CAPTURE_1 or TMRB_DMA_REQ_CAPTURE_0.
   * @retval None
   */
-void TMRB_SetDMAReq(TSB_TB_TypeDef * TBx, FunctionalState NewState, uint8_t DMAReq)
+void TMRB_SetDMAReq(TSB_TB_TypeDef *TBx, FunctionalState NewState, uint8_t DMAReq)
 {
     /* Check the parameters */
     assert_param(IS_TMRB_ALL_PERIPH(TBx));

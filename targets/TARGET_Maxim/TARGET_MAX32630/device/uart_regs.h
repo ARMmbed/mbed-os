@@ -1,5 +1,5 @@
 /**
- * @file    
+ * @file
  * @brief   Registers, Bit Masks and Bit Positions for the UART Peripheral Module.
  */
 
@@ -95,20 +95,20 @@ typedef struct {
 /**
  * @ingroup uart_registers
  * @defgroup uart_fifos UART TX and RX FIFOs
- * @brief TX and RX FIFO access for reads and writes using 8-bit, 16-bit and 32-bit data types. 
+ * @brief TX and RX FIFO access for reads and writes using 8-bit, 16-bit and 32-bit data types.
  * @{
  */
 /**
  * Structure type for accessing the UART Transmit and Receive FIFOs.
  */
 typedef struct {
-    union {                                             
+    union {
         __IO uint8_t  tx;                               /**< TX FIFO write point for data to transmit.                                          */
         __IO uint8_t  tx_8[2048];                       /**< 8-bit access to TX FIFO.                                                           */
         __IO uint16_t tx_16[1024];                      /**< 16-bit access to TX FIFO.                                                          */
         __IO uint32_t tx_32[512];                       /**< 32-bit access to TX FIFO.                                                          */
     };
-    union {                                             
+    union {
         __IO uint8_t  rx;                               /**< RX FIFO read point for received data.                                              */
         __IO uint8_t  rx_8[2048];                       /**< 8-bit access to RX FIFO.                                                           */
         __IO uint16_t rx_16[1024];                      /**< 16-bit access to RX FIFO.                                                          */

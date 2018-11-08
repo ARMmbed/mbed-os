@@ -42,7 +42,7 @@ extern "C" {
 #endif
 
 #if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx) || defined(STM32F412Zx) ||\
-    defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx) 
+    defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
@@ -64,31 +64,30 @@ extern "C" {
   * @brief  FMPI2C Configuration Structure definition
   * @{
   */
-typedef struct
-{
-  uint32_t Timing;              /*!< Specifies the FMPI2C_TIMINGR_register value.
+typedef struct {
+    uint32_t Timing;              /*!< Specifies the FMPI2C_TIMINGR_register value.
                                   This parameter calculated by referring to FMPI2C initialization
                                          section in Reference manual */
 
-  uint32_t OwnAddress1;         /*!< Specifies the first device own address.
+    uint32_t OwnAddress1;         /*!< Specifies the first device own address.
                                   This parameter can be a 7-bit or 10-bit address. */
 
-  uint32_t AddressingMode;      /*!< Specifies if 7-bit or 10-bit addressing mode is selected.
+    uint32_t AddressingMode;      /*!< Specifies if 7-bit or 10-bit addressing mode is selected.
                                   This parameter can be a value of @ref FMPI2C_ADDRESSING_MODE */
 
-  uint32_t DualAddressMode;     /*!< Specifies if dual addressing mode is selected.
+    uint32_t DualAddressMode;     /*!< Specifies if dual addressing mode is selected.
                                   This parameter can be a value of @ref FMPI2C_DUAL_ADDRESSING_MODE */
 
-  uint32_t OwnAddress2;         /*!< Specifies the second device own address if dual addressing mode is selected
+    uint32_t OwnAddress2;         /*!< Specifies the second device own address if dual addressing mode is selected
                                   This parameter can be a 7-bit address. */
 
-  uint32_t OwnAddress2Masks;    /*!< Specifies the acknowledge mask address second device own address if dual addressing mode is selected
+    uint32_t OwnAddress2Masks;    /*!< Specifies the acknowledge mask address second device own address if dual addressing mode is selected
                                   This parameter can be a value of @ref FMPI2C_OWN_ADDRESS2_MASKS */
 
-  uint32_t GeneralCallMode;     /*!< Specifies if general call mode is selected.
+    uint32_t GeneralCallMode;     /*!< Specifies if general call mode is selected.
                                   This parameter can be a value of @ref FMPI2C_GENERAL_CALL_ADDRESSING_MODE */
 
-  uint32_t NoStretchMode;       /*!< Specifies if nostretch mode is selected.
+    uint32_t NoStretchMode;       /*!< Specifies if nostretch mode is selected.
                                   This parameter can be a value of @ref FMPI2C_NOSTRETCH_MODE */
 
 } FMPI2C_InitTypeDef;
@@ -124,21 +123,20 @@ typedef struct
   *             1  : Busy (Tx operation ongoing)
   * @{
   */
-typedef enum
-{
-  HAL_FMPI2C_STATE_RESET             = 0x00U,   /*!< Peripheral is not yet Initialized         */
-  HAL_FMPI2C_STATE_READY             = 0x20U,   /*!< Peripheral Initialized and ready for use  */
-  HAL_FMPI2C_STATE_BUSY              = 0x24U,   /*!< An internal process is ongoing            */
-  HAL_FMPI2C_STATE_BUSY_TX           = 0x21U,   /*!< Data Transmission process is ongoing      */
-  HAL_FMPI2C_STATE_BUSY_RX           = 0x22U,   /*!< Data Reception process is ongoing         */
-  HAL_FMPI2C_STATE_LISTEN            = 0x28U,   /*!< Address Listen Mode is ongoing            */
-  HAL_FMPI2C_STATE_BUSY_TX_LISTEN    = 0x29U,   /*!< Address Listen Mode and Data Transmission
+typedef enum {
+    HAL_FMPI2C_STATE_RESET             = 0x00U,   /*!< Peripheral is not yet Initialized         */
+    HAL_FMPI2C_STATE_READY             = 0x20U,   /*!< Peripheral Initialized and ready for use  */
+    HAL_FMPI2C_STATE_BUSY              = 0x24U,   /*!< An internal process is ongoing            */
+    HAL_FMPI2C_STATE_BUSY_TX           = 0x21U,   /*!< Data Transmission process is ongoing      */
+    HAL_FMPI2C_STATE_BUSY_RX           = 0x22U,   /*!< Data Reception process is ongoing         */
+    HAL_FMPI2C_STATE_LISTEN            = 0x28U,   /*!< Address Listen Mode is ongoing            */
+    HAL_FMPI2C_STATE_BUSY_TX_LISTEN    = 0x29U,   /*!< Address Listen Mode and Data Transmission
                                                  process is ongoing                         */
-  HAL_FMPI2C_STATE_BUSY_RX_LISTEN    = 0x2AU,   /*!< Address Listen Mode and Data Reception
+    HAL_FMPI2C_STATE_BUSY_RX_LISTEN    = 0x2AU,   /*!< Address Listen Mode and Data Reception
                                                  process is ongoing                         */
-  HAL_FMPI2C_STATE_ABORT             = 0x60U,   /*!< Abort user request ongoing                */
-  HAL_FMPI2C_STATE_TIMEOUT           = 0xA0U,   /*!< Timeout state                             */
-  HAL_FMPI2C_STATE_ERROR             = 0xE0U    /*!< Error                                     */
+    HAL_FMPI2C_STATE_ABORT             = 0x60U,   /*!< Abort user request ongoing                */
+    HAL_FMPI2C_STATE_TIMEOUT           = 0xA0U,   /*!< Timeout state                             */
+    HAL_FMPI2C_STATE_ERROR             = 0xE0U    /*!< Error                                     */
 
 } HAL_FMPI2C_StateTypeDef;
 
@@ -164,12 +162,11 @@ typedef enum
   *             xxxx : Should be set to 0000
   * @{
   */
-typedef enum
-{
-  HAL_FMPI2C_MODE_NONE               = 0x00U,   /*!< No FMPI2C communication on going             */
-  HAL_FMPI2C_MODE_MASTER             = 0x10U,   /*!< FMPI2C communication is in Master Mode       */
-  HAL_FMPI2C_MODE_SLAVE              = 0x20U,   /*!< FMPI2C communication is in Slave Mode        */
-  HAL_FMPI2C_MODE_MEM                = 0x40U    /*!< FMPI2C communication is in Memory Mode       */
+typedef enum {
+    HAL_FMPI2C_MODE_NONE               = 0x00U,   /*!< No FMPI2C communication on going             */
+    HAL_FMPI2C_MODE_MASTER             = 0x10U,   /*!< FMPI2C communication is in Master Mode       */
+    HAL_FMPI2C_MODE_SLAVE              = 0x20U,   /*!< FMPI2C communication is in Slave Mode        */
+    HAL_FMPI2C_MODE_MEM                = 0x40U    /*!< FMPI2C communication is in Memory Mode       */
 
 } HAL_FMPI2C_ModeTypeDef;
 
@@ -197,38 +194,37 @@ typedef enum
   * @brief  FMPI2C handle Structure definition
   * @{
   */
-typedef struct __FMPI2C_HandleTypeDef
-{
-  FMPI2C_TypeDef                *Instance;      /*!< FMPI2C registers base address                */
+typedef struct __FMPI2C_HandleTypeDef {
+    FMPI2C_TypeDef                *Instance;      /*!< FMPI2C registers base address                */
 
-  FMPI2C_InitTypeDef            Init;           /*!< FMPI2C communication parameters              */
+    FMPI2C_InitTypeDef            Init;           /*!< FMPI2C communication parameters              */
 
-  uint8_t                    *pBuffPtr;      /*!< Pointer to FMPI2C transfer buffer            */
+    uint8_t                    *pBuffPtr;      /*!< Pointer to FMPI2C transfer buffer            */
 
-  uint16_t                   XferSize;       /*!< FMPI2C transfer size                         */
+    uint16_t                   XferSize;       /*!< FMPI2C transfer size                         */
 
-  __IO uint16_t              XferCount;      /*!< FMPI2C transfer counter                      */
+    __IO uint16_t              XferCount;      /*!< FMPI2C transfer counter                      */
 
-  __IO uint32_t              XferOptions;    /*!< FMPI2C sequantial transfer options, this parameter can
+    __IO uint32_t              XferOptions;    /*!< FMPI2C sequantial transfer options, this parameter can
                                                   be a value of @ref FMPI2C_XFEROPTIONS */
 
-  __IO uint32_t              PreviousState;  /*!< FMPI2C communication Previous state          */
+    __IO uint32_t              PreviousState;  /*!< FMPI2C communication Previous state          */
 
-  HAL_StatusTypeDef(*XferISR)(struct __FMPI2C_HandleTypeDef *hfmpi2c, uint32_t ITFlags, uint32_t ITSources);  /*!< FMPI2C transfer IRQ handler function pointer */
+    HAL_StatusTypeDef(*XferISR)(struct __FMPI2C_HandleTypeDef *hfmpi2c, uint32_t ITFlags, uint32_t ITSources);  /*!< FMPI2C transfer IRQ handler function pointer */
 
-  DMA_HandleTypeDef          *hdmatx;        /*!< FMPI2C Tx DMA handle parameters              */
+    DMA_HandleTypeDef          *hdmatx;        /*!< FMPI2C Tx DMA handle parameters              */
 
-  DMA_HandleTypeDef          *hdmarx;        /*!< FMPI2C Rx DMA handle parameters              */
+    DMA_HandleTypeDef          *hdmarx;        /*!< FMPI2C Rx DMA handle parameters              */
 
-  HAL_LockTypeDef            Lock;           /*!< FMPI2C locking object                        */
+    HAL_LockTypeDef            Lock;           /*!< FMPI2C locking object                        */
 
-  __IO HAL_FMPI2C_StateTypeDef  State;          /*!< FMPI2C communication state                   */
+    __IO HAL_FMPI2C_StateTypeDef  State;          /*!< FMPI2C communication state                   */
 
-  __IO HAL_FMPI2C_ModeTypeDef   Mode;           /*!< FMPI2C communication mode                    */
+    __IO HAL_FMPI2C_ModeTypeDef   Mode;           /*!< FMPI2C communication mode                    */
 
-  __IO uint32_t              ErrorCode;      /*!< FMPI2C Error code                            */
+    __IO uint32_t              ErrorCode;      /*!< FMPI2C Error code                            */
 
-  __IO uint32_t              AddrEventCount; /*!< FMPI2C Address Event counter                 */
+    __IO uint32_t              AddrEventCount; /*!< FMPI2C Address Event counter                 */
 } FMPI2C_HandleTypeDef;
 /**
   * @}
@@ -700,7 +696,7 @@ uint32_t             HAL_FMPI2C_GetError(FMPI2C_HandleTypeDef *hfmpi2c);
 /**
   * @}
   */
-#endif /* STM32F410xx || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx || STM32F413xx || STM32F423xx */ 
+#endif /* STM32F410xx || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx || STM32F413xx || STM32F423xx */
 #ifdef __cplusplus
 }
 #endif

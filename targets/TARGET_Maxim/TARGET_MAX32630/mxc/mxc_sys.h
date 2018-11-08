@@ -2,41 +2,41 @@
  * @file  mxc_sys.h
  * @brief Registers, Bit Masks and Bit Positions for the System Clock Management module.
  */
- /* ****************************************************************************
- * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
- * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * Except as contained in this notice, the name of Maxim Integrated
- * Products, Inc. shall not be used except as stated in the Maxim Integrated
- * Products, Inc. Branding Policy.
- *
- * The mere transfer of this software does not imply any licenses
- * of trade secrets, proprietary technology, copyrights, patents,
- * trademarks, maskwork rights, or any other form of intellectual
- * property whatsoever. Maxim Integrated Products, Inc. retains all
- * ownership rights.
- *
- * $Date: 2016-08-24 18:33:23 -0500 (Wed, 24 Aug 2016) $
- * $Revision: 24159 $
- *
- **************************************************************************** */
+/* ****************************************************************************
+* Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a
+* copy of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
+* and/or sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included
+* in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
+* OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+*
+* Except as contained in this notice, the name of Maxim Integrated
+* Products, Inc. shall not be used except as stated in the Maxim Integrated
+* Products, Inc. Branding Policy.
+*
+* The mere transfer of this software does not imply any licenses
+* of trade secrets, proprietary technology, copyrights, patents,
+* trademarks, maskwork rights, or any other form of intellectual
+* property whatsoever. Maxim Integrated Products, Inc. retains all
+* ownership rights.
+*
+* $Date: 2016-08-24 18:33:23 -0500 (Wed, 24 Aug 2016) $
+* $Revision: 24159 $
+*
+**************************************************************************** */
 
 /* Define to prevent redundant inclusion */
 #ifndef _MXC_SYS_H_
@@ -92,50 +92,50 @@ typedef struct {
  */
 typedef sys_cfg_t sys_cfg_uart_t;
 
-/** 
+/**
  * Structure type for I2CM System Configuration.
  * @ingroup  i2cm
  */
 typedef sys_cfg_t sys_cfg_i2cm_t;
 
-/** 
- * Structure type for I2CS System Configuration. 
+/**
+ * Structure type for I2CS System Configuration.
  * @ingroup i2cs
  */
 typedef sys_cfg_t sys_cfg_i2cs_t;
 
-/** 
- * Structure type for SPIM System Configuration. 
+/**
+ * Structure type for SPIM System Configuration.
  * @ingroup spim
  */
 typedef sys_cfg_t sys_cfg_spim_t;
 
-/** 
- * Structure type for SPIX System Configuration. 
- * @ingroup spix 
+/**
+ * Structure type for SPIX System Configuration.
+ * @ingroup spix
  */
 typedef sys_cfg_t sys_cfg_spix_t;
 
-/** 
- * Structure type for OWM System Configuration. 
+/**
+ * Structure type for OWM System Configuration.
  * @ingroup owm
  */
 typedef sys_cfg_t sys_cfg_owm_t;
 
-/** 
- * Structure type for Timer System Configuration. 
+/**
+ * Structure type for Timer System Configuration.
  * @ingroup timer
  */
 typedef gpio_cfg_t sys_cfg_tmr_t;
 
-/** 
+/**
  * Structure type for Pulse Train System Configuration.
  * @ingroup pulsetrain
  */
 typedef gpio_cfg_t sys_cfg_pt_t;
 
 /**
- * Structure type for Pulse Train Clock Scale Configuration. 
+ * Structure type for Pulse Train Clock Scale Configuration.
  * @ingroup clkman
  * @ingroup pulsetrain
  */
@@ -168,7 +168,7 @@ uint32_t SYS_CPU_GetFreq(void);
  * @ingroup    adc
  */
 int SYS_ADC_Init(void);
-  
+
 /**
  * @brief      System level initialization for the AES module.
  * @return     #E_NO_ERROR if everything is successful
@@ -405,7 +405,7 @@ int SYS_SysTick_Config(uint32_t ticks, int clk_src);
  */
 __STATIC_INLINE void SYS_SysTick_Disable(void)
 {
-	SysTick->CTRL = 0;
+    SysTick->CTRL = 0;
 }
 
 /**

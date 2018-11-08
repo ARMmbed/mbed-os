@@ -60,23 +60,23 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint32_t ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint32_t MODE:3;           /*!< bit:  2.. 4  Operating Mode                     */
-        uint32_t :2;               /*!< bit:  5.. 6  Reserved                           */
-        uint32_t RUNSTDBY:1;       /*!< bit:      7  Run in Standby                     */
-        uint32_t :8;               /*!< bit:  8..15  Reserved                           */
-        uint32_t PINOUT:1;         /*!< bit:     16  Pin Usage                          */
-        uint32_t :3;               /*!< bit: 17..19  Reserved                           */
-        uint32_t SDAHOLD:2;        /*!< bit: 20..21  SDA Hold Time                      */
-        uint32_t MEXTTOEN:1;       /*!< bit:     22  Master SCL Low Extend Timeout      */
-        uint32_t SEXTTOEN:1;       /*!< bit:     23  Slave SCL Low Extend Timeout       */
-        uint32_t SPEED:2;          /*!< bit: 24..25  Transfer Speed                     */
-        uint32_t :1;               /*!< bit:     26  Reserved                           */
-        uint32_t SCLSM:1;          /*!< bit:     27  SCL Clock Stretch Mode             */
-        uint32_t INACTOUT:2;       /*!< bit: 28..29  Inactive Time-Out                  */
-        uint32_t LOWTOUTEN:1;      /*!< bit:     30  SCL Low Timeout Enable             */
-        uint32_t :1;               /*!< bit:     31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint32_t MODE: 3;          /*!< bit:  2.. 4  Operating Mode                     */
+        uint32_t : 2;              /*!< bit:  5.. 6  Reserved                           */
+        uint32_t RUNSTDBY: 1;      /*!< bit:      7  Run in Standby                     */
+        uint32_t : 8;              /*!< bit:  8..15  Reserved                           */
+        uint32_t PINOUT: 1;        /*!< bit:     16  Pin Usage                          */
+        uint32_t : 3;              /*!< bit: 17..19  Reserved                           */
+        uint32_t SDAHOLD: 2;       /*!< bit: 20..21  SDA Hold Time                      */
+        uint32_t MEXTTOEN: 1;      /*!< bit:     22  Master SCL Low Extend Timeout      */
+        uint32_t SEXTTOEN: 1;      /*!< bit:     23  Slave SCL Low Extend Timeout       */
+        uint32_t SPEED: 2;         /*!< bit: 24..25  Transfer Speed                     */
+        uint32_t : 1;              /*!< bit:     26  Reserved                           */
+        uint32_t SCLSM: 1;         /*!< bit:     27  SCL Clock Stretch Mode             */
+        uint32_t INACTOUT: 2;      /*!< bit: 28..29  Inactive Time-Out                  */
+        uint32_t LOWTOUTEN: 1;     /*!< bit:     30  SCL Low Timeout Enable             */
+        uint32_t : 1;              /*!< bit:     31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_I2CM_CTRLA_Type;
@@ -119,23 +119,23 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint32_t ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint32_t MODE:3;           /*!< bit:  2.. 4  Operating Mode                     */
-        uint32_t :2;               /*!< bit:  5.. 6  Reserved                           */
-        uint32_t RUNSTDBY:1;       /*!< bit:      7  Run during Standby                 */
-        uint32_t :8;               /*!< bit:  8..15  Reserved                           */
-        uint32_t PINOUT:1;         /*!< bit:     16  Pin Usage                          */
-        uint32_t :3;               /*!< bit: 17..19  Reserved                           */
-        uint32_t SDAHOLD:2;        /*!< bit: 20..21  SDA Hold Time                      */
-        uint32_t :1;               /*!< bit:     22  Reserved                           */
-        uint32_t SEXTTOEN:1;       /*!< bit:     23  Slave SCL Low Extend Timeout       */
-        uint32_t SPEED:2;          /*!< bit: 24..25  Transfer Speed                     */
-        uint32_t :1;               /*!< bit:     26  Reserved                           */
-        uint32_t SCLSM:1;          /*!< bit:     27  SCL Clock Stretch Mode             */
-        uint32_t :2;               /*!< bit: 28..29  Reserved                           */
-        uint32_t LOWTOUTEN:1;      /*!< bit:     30  SCL Low Timeout Enable             */
-        uint32_t :1;               /*!< bit:     31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint32_t MODE: 3;          /*!< bit:  2.. 4  Operating Mode                     */
+        uint32_t : 2;              /*!< bit:  5.. 6  Reserved                           */
+        uint32_t RUNSTDBY: 1;      /*!< bit:      7  Run during Standby                 */
+        uint32_t : 8;              /*!< bit:  8..15  Reserved                           */
+        uint32_t PINOUT: 1;        /*!< bit:     16  Pin Usage                          */
+        uint32_t : 3;              /*!< bit: 17..19  Reserved                           */
+        uint32_t SDAHOLD: 2;       /*!< bit: 20..21  SDA Hold Time                      */
+        uint32_t : 1;              /*!< bit:     22  Reserved                           */
+        uint32_t SEXTTOEN: 1;      /*!< bit:     23  Slave SCL Low Extend Timeout       */
+        uint32_t SPEED: 2;         /*!< bit: 24..25  Transfer Speed                     */
+        uint32_t : 1;              /*!< bit:     26  Reserved                           */
+        uint32_t SCLSM: 1;         /*!< bit:     27  SCL Clock Stretch Mode             */
+        uint32_t : 2;              /*!< bit: 28..29  Reserved                           */
+        uint32_t LOWTOUTEN: 1;     /*!< bit:     30  SCL Low Timeout Enable             */
+        uint32_t : 1;              /*!< bit:     31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_I2CS_CTRLA_Type;
@@ -173,22 +173,22 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint32_t ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint32_t MODE:3;           /*!< bit:  2.. 4  Operating Mode                     */
-        uint32_t :2;               /*!< bit:  5.. 6  Reserved                           */
-        uint32_t RUNSTDBY:1;       /*!< bit:      7  Run during Standby                 */
-        uint32_t IBON:1;           /*!< bit:      8  Immediate Buffer Overflow Notification */
-        uint32_t :7;               /*!< bit:  9..15  Reserved                           */
-        uint32_t DOPO:2;           /*!< bit: 16..17  Data Out Pinout                    */
-        uint32_t :2;               /*!< bit: 18..19  Reserved                           */
-        uint32_t DIPO:2;           /*!< bit: 20..21  Data In Pinout                     */
-        uint32_t :2;               /*!< bit: 22..23  Reserved                           */
-        uint32_t FORM:4;           /*!< bit: 24..27  Frame Format                       */
-        uint32_t CPHA:1;           /*!< bit:     28  Clock Phase                        */
-        uint32_t CPOL:1;           /*!< bit:     29  Clock Polarity                     */
-        uint32_t DORD:1;           /*!< bit:     30  Data Order                         */
-        uint32_t :1;               /*!< bit:     31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint32_t MODE: 3;          /*!< bit:  2.. 4  Operating Mode                     */
+        uint32_t : 2;              /*!< bit:  5.. 6  Reserved                           */
+        uint32_t RUNSTDBY: 1;      /*!< bit:      7  Run during Standby                 */
+        uint32_t IBON: 1;          /*!< bit:      8  Immediate Buffer Overflow Notification */
+        uint32_t : 7;              /*!< bit:  9..15  Reserved                           */
+        uint32_t DOPO: 2;          /*!< bit: 16..17  Data Out Pinout                    */
+        uint32_t : 2;              /*!< bit: 18..19  Reserved                           */
+        uint32_t DIPO: 2;          /*!< bit: 20..21  Data In Pinout                     */
+        uint32_t : 2;              /*!< bit: 22..23  Reserved                           */
+        uint32_t FORM: 4;          /*!< bit: 24..27  Frame Format                       */
+        uint32_t CPHA: 1;          /*!< bit:     28  Clock Phase                        */
+        uint32_t CPOL: 1;          /*!< bit:     29  Clock Polarity                     */
+        uint32_t DORD: 1;          /*!< bit:     30  Data Order                         */
+        uint32_t : 1;              /*!< bit:     31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_SPI_CTRLA_Type;
@@ -229,23 +229,23 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint32_t ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint32_t MODE:3;           /*!< bit:  2.. 4  Operating Mode                     */
-        uint32_t :2;               /*!< bit:  5.. 6  Reserved                           */
-        uint32_t RUNSTDBY:1;       /*!< bit:      7  Run during Standby                 */
-        uint32_t IBON:1;           /*!< bit:      8  Immediate Buffer Overflow Notification */
-        uint32_t :4;               /*!< bit:  9..12  Reserved                           */
-        uint32_t SAMPR:3;          /*!< bit: 13..15  Sample                             */
-        uint32_t TXPO:2;           /*!< bit: 16..17  Transmit Data Pinout               */
-        uint32_t :2;               /*!< bit: 18..19  Reserved                           */
-        uint32_t RXPO:2;           /*!< bit: 20..21  Receive Data Pinout                */
-        uint32_t SAMPA:2;          /*!< bit: 22..23  Sample Adjustment                  */
-        uint32_t FORM:4;           /*!< bit: 24..27  Frame Format                       */
-        uint32_t CMODE:1;          /*!< bit:     28  Communication Mode                 */
-        uint32_t CPOL:1;           /*!< bit:     29  Clock Polarity                     */
-        uint32_t DORD:1;           /*!< bit:     30  Data Order                         */
-        uint32_t :1;               /*!< bit:     31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint32_t MODE: 3;          /*!< bit:  2.. 4  Operating Mode                     */
+        uint32_t : 2;              /*!< bit:  5.. 6  Reserved                           */
+        uint32_t RUNSTDBY: 1;      /*!< bit:      7  Run during Standby                 */
+        uint32_t IBON: 1;          /*!< bit:      8  Immediate Buffer Overflow Notification */
+        uint32_t : 4;              /*!< bit:  9..12  Reserved                           */
+        uint32_t SAMPR: 3;         /*!< bit: 13..15  Sample                             */
+        uint32_t TXPO: 2;          /*!< bit: 16..17  Transmit Data Pinout               */
+        uint32_t : 2;              /*!< bit: 18..19  Reserved                           */
+        uint32_t RXPO: 2;          /*!< bit: 20..21  Receive Data Pinout                */
+        uint32_t SAMPA: 2;         /*!< bit: 22..23  Sample Adjustment                  */
+        uint32_t FORM: 4;          /*!< bit: 24..27  Frame Format                       */
+        uint32_t CMODE: 1;         /*!< bit:     28  Communication Mode                 */
+        uint32_t CPOL: 1;          /*!< bit:     29  Clock Polarity                     */
+        uint32_t DORD: 1;          /*!< bit:     30  Data Order                         */
+        uint32_t : 1;              /*!< bit:     31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_USART_CTRLA_Type;
@@ -292,13 +292,13 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :8;               /*!< bit:  0.. 7  Reserved                           */
-        uint32_t SMEN:1;           /*!< bit:      8  Smart Mode Enable                  */
-        uint32_t QCEN:1;           /*!< bit:      9  Quick Command Enable               */
-        uint32_t :6;               /*!< bit: 10..15  Reserved                           */
-        uint32_t CMD:2;            /*!< bit: 16..17  Command                            */
-        uint32_t ACKACT:1;         /*!< bit:     18  Acknowledge Action                 */
-        uint32_t :13;              /*!< bit: 19..31  Reserved                           */
+        uint32_t : 8;              /*!< bit:  0.. 7  Reserved                           */
+        uint32_t SMEN: 1;          /*!< bit:      8  Smart Mode Enable                  */
+        uint32_t QCEN: 1;          /*!< bit:      9  Quick Command Enable               */
+        uint32_t : 6;              /*!< bit: 10..15  Reserved                           */
+        uint32_t CMD: 2;           /*!< bit: 16..17  Command                            */
+        uint32_t ACKACT: 1;        /*!< bit:     18  Acknowledge Action                 */
+        uint32_t : 13;             /*!< bit: 19..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_I2CM_CTRLB_Type;
@@ -322,15 +322,15 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t :8;               /*!< bit:  0.. 7  Reserved                           */
-        uint32_t SMEN:1;           /*!< bit:      8  Smart Mode Enable                  */
-        uint32_t GCMD:1;           /*!< bit:      9  PMBus Group Command                */
-        uint32_t AACKEN:1;         /*!< bit:     10  Automatic Address Acknowledge      */
-        uint32_t :3;               /*!< bit: 11..13  Reserved                           */
-        uint32_t AMODE:2;          /*!< bit: 14..15  Address Mode                       */
-        uint32_t CMD:2;            /*!< bit: 16..17  Command                            */
-        uint32_t ACKACT:1;         /*!< bit:     18  Acknowledge Action                 */
-        uint32_t :13;              /*!< bit: 19..31  Reserved                           */
+        uint32_t : 8;              /*!< bit:  0.. 7  Reserved                           */
+        uint32_t SMEN: 1;          /*!< bit:      8  Smart Mode Enable                  */
+        uint32_t GCMD: 1;          /*!< bit:      9  PMBus Group Command                */
+        uint32_t AACKEN: 1;        /*!< bit:     10  Automatic Address Acknowledge      */
+        uint32_t : 3;              /*!< bit: 11..13  Reserved                           */
+        uint32_t AMODE: 2;         /*!< bit: 14..15  Address Mode                       */
+        uint32_t CMD: 2;           /*!< bit: 16..17  Command                            */
+        uint32_t ACKACT: 1;        /*!< bit:     18  Acknowledge Action                 */
+        uint32_t : 13;             /*!< bit: 19..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_I2CS_CTRLB_Type;
@@ -359,17 +359,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t CHSIZE:3;         /*!< bit:  0.. 2  Character Size                     */
-        uint32_t :3;               /*!< bit:  3.. 5  Reserved                           */
-        uint32_t PLOADEN:1;        /*!< bit:      6  Data Preload Enable                */
-        uint32_t :2;               /*!< bit:  7.. 8  Reserved                           */
-        uint32_t SSDE:1;           /*!< bit:      9  Slave Select Low Detect Enable     */
-        uint32_t :3;               /*!< bit: 10..12  Reserved                           */
-        uint32_t MSSEN:1;          /*!< bit:     13  Master Slave Select Enable         */
-        uint32_t AMODE:2;          /*!< bit: 14..15  Address Mode                       */
-        uint32_t :1;               /*!< bit:     16  Reserved                           */
-        uint32_t RXEN:1;           /*!< bit:     17  Receiver Enable                    */
-        uint32_t :14;              /*!< bit: 18..31  Reserved                           */
+        uint32_t CHSIZE: 3;        /*!< bit:  0.. 2  Character Size                     */
+        uint32_t : 3;              /*!< bit:  3.. 5  Reserved                           */
+        uint32_t PLOADEN: 1;       /*!< bit:      6  Data Preload Enable                */
+        uint32_t : 2;              /*!< bit:  7.. 8  Reserved                           */
+        uint32_t SSDE: 1;          /*!< bit:      9  Slave Select Low Detect Enable     */
+        uint32_t : 3;              /*!< bit: 10..12  Reserved                           */
+        uint32_t MSSEN: 1;         /*!< bit:     13  Master Slave Select Enable         */
+        uint32_t AMODE: 2;         /*!< bit: 14..15  Address Mode                       */
+        uint32_t : 1;              /*!< bit:     16  Reserved                           */
+        uint32_t RXEN: 1;          /*!< bit:     17  Receiver Enable                    */
+        uint32_t : 14;             /*!< bit: 18..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_SPI_CTRLB_Type;
@@ -398,19 +398,19 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t CHSIZE:3;         /*!< bit:  0.. 2  Character Size                     */
-        uint32_t :3;               /*!< bit:  3.. 5  Reserved                           */
-        uint32_t SBMODE:1;         /*!< bit:      6  Stop Bit Mode                      */
-        uint32_t :1;               /*!< bit:      7  Reserved                           */
-        uint32_t COLDEN:1;         /*!< bit:      8  Collision Detection Enable         */
-        uint32_t SFDE:1;           /*!< bit:      9  Start of Frame Detection Enable    */
-        uint32_t ENC:1;            /*!< bit:     10  Encoding Format                    */
-        uint32_t :2;               /*!< bit: 11..12  Reserved                           */
-        uint32_t PMODE:1;          /*!< bit:     13  Parity Mode                        */
-        uint32_t :2;               /*!< bit: 14..15  Reserved                           */
-        uint32_t TXEN:1;           /*!< bit:     16  Transmitter Enable                 */
-        uint32_t RXEN:1;           /*!< bit:     17  Receiver Enable                    */
-        uint32_t :14;              /*!< bit: 18..31  Reserved                           */
+        uint32_t CHSIZE: 3;        /*!< bit:  0.. 2  Character Size                     */
+        uint32_t : 3;              /*!< bit:  3.. 5  Reserved                           */
+        uint32_t SBMODE: 1;        /*!< bit:      6  Stop Bit Mode                      */
+        uint32_t : 1;              /*!< bit:      7  Reserved                           */
+        uint32_t COLDEN: 1;        /*!< bit:      8  Collision Detection Enable         */
+        uint32_t SFDE: 1;          /*!< bit:      9  Start of Frame Detection Enable    */
+        uint32_t ENC: 1;           /*!< bit:     10  Encoding Format                    */
+        uint32_t : 2;              /*!< bit: 11..12  Reserved                           */
+        uint32_t PMODE: 1;         /*!< bit:     13  Parity Mode                        */
+        uint32_t : 2;              /*!< bit: 14..15  Reserved                           */
+        uint32_t TXEN: 1;          /*!< bit:     16  Transmitter Enable                 */
+        uint32_t RXEN: 1;          /*!< bit:     17  Receiver Enable                    */
+        uint32_t : 14;             /*!< bit: 18..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_USART_CTRLB_Type;
@@ -442,10 +442,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t BAUD:8;           /*!< bit:  0.. 7  Baud Rate Value                    */
-        uint32_t BAUDLOW:8;        /*!< bit:  8..15  Baud Rate Value Low                */
-        uint32_t HSBAUD:8;         /*!< bit: 16..23  High Speed Baud Rate Value         */
-        uint32_t HSBAUDLOW:8;      /*!< bit: 24..31  High Speed Baud Rate Value Low     */
+        uint32_t BAUD: 8;          /*!< bit:  0.. 7  Baud Rate Value                    */
+        uint32_t BAUDLOW: 8;       /*!< bit:  8..15  Baud Rate Value Low                */
+        uint32_t HSBAUD: 8;        /*!< bit: 16..23  High Speed Baud Rate Value         */
+        uint32_t HSBAUDLOW: 8;     /*!< bit: 24..31  High Speed Baud Rate Value Low     */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_I2CM_BAUD_Type;
@@ -472,7 +472,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  BAUD:8;           /*!< bit:  0.. 7  Baud Rate Value                    */
+        uint8_t  BAUD: 8;          /*!< bit:  0.. 7  Baud Rate Value                    */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_SPI_BAUD_Type;
@@ -490,18 +490,18 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t BAUD:16;          /*!< bit:  0..15  Baud Rate Value                    */
+        uint16_t BAUD: 16;         /*!< bit:  0..15  Baud Rate Value                    */
     } bit;                       /*!< Structure used for bit  access                  */
     struct { // FRAC mode
-        uint16_t BAUD:13;          /*!< bit:  0..12  Baud Rate Value                    */
-        uint16_t FP:3;             /*!< bit: 13..15  Fractional Part                    */
+        uint16_t BAUD: 13;         /*!< bit:  0..12  Baud Rate Value                    */
+        uint16_t FP: 3;            /*!< bit: 13..15  Fractional Part                    */
     } FRAC;                      /*!< Structure used for FRAC                         */
     struct { // FRACFP mode
-        uint16_t BAUD:13;          /*!< bit:  0..12  Baud Rate Value                    */
-        uint16_t FP:3;             /*!< bit: 13..15  Fractional Part                    */
+        uint16_t BAUD: 13;         /*!< bit:  0..12  Baud Rate Value                    */
+        uint16_t FP: 3;            /*!< bit: 13..15  Fractional Part                    */
     } FRACFP;                    /*!< Structure used for FRACFP                       */
     struct { // USARTFP mode
-        uint16_t BAUD:16;          /*!< bit:  0..15  Baud Rate Value                    */
+        uint16_t BAUD: 16;         /*!< bit:  0..15  Baud Rate Value                    */
     } USARTFP;                   /*!< Structure used for USARTFP                      */
     uint16_t reg;                /*!< Type      used for register access              */
 } SERCOM_USART_BAUD_Type;
@@ -543,7 +543,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  RXPL:8;           /*!< bit:  0.. 7  Receive Pulse Length               */
+        uint8_t  RXPL: 8;          /*!< bit:  0.. 7  Receive Pulse Length               */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_USART_RXPL_Type;
@@ -561,10 +561,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  MB:1;             /*!< bit:      0  Master On Bus Interrupt Disable    */
-        uint8_t  SB:1;             /*!< bit:      1  Slave On Bus Interrupt Disable     */
-        uint8_t  :5;               /*!< bit:  2.. 6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt Disable   */
+        uint8_t  MB: 1;            /*!< bit:      0  Master On Bus Interrupt Disable    */
+        uint8_t  SB: 1;            /*!< bit:      1  Slave On Bus Interrupt Disable     */
+        uint8_t  : 5;              /*!< bit:  2.. 6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt Disable   */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_I2CM_INTENCLR_Type;
@@ -585,11 +585,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PREC:1;           /*!< bit:      0  Stop Received Interrupt Disable    */
-        uint8_t  AMATCH:1;         /*!< bit:      1  Address Match Interrupt Disable    */
-        uint8_t  DRDY:1;           /*!< bit:      2  Data Interrupt Disable             */
-        uint8_t  :4;               /*!< bit:  3.. 6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt Disable   */
+        uint8_t  PREC: 1;          /*!< bit:      0  Stop Received Interrupt Disable    */
+        uint8_t  AMATCH: 1;        /*!< bit:      1  Address Match Interrupt Disable    */
+        uint8_t  DRDY: 1;          /*!< bit:      2  Data Interrupt Disable             */
+        uint8_t  : 4;              /*!< bit:  3.. 6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt Disable   */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_I2CS_INTENCLR_Type;
@@ -612,12 +612,12 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DRE:1;            /*!< bit:      0  Data Register Empty Interrupt Disable */
-        uint8_t  TXC:1;            /*!< bit:      1  Transmit Complete Interrupt Disable */
-        uint8_t  RXC:1;            /*!< bit:      2  Receive Complete Interrupt Disable */
-        uint8_t  SSL:1;            /*!< bit:      3  Slave Select Low Interrupt Disable */
-        uint8_t  :3;               /*!< bit:  4.. 6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt Disable   */
+        uint8_t  DRE: 1;           /*!< bit:      0  Data Register Empty Interrupt Disable */
+        uint8_t  TXC: 1;           /*!< bit:      1  Transmit Complete Interrupt Disable */
+        uint8_t  RXC: 1;           /*!< bit:      2  Receive Complete Interrupt Disable */
+        uint8_t  SSL: 1;           /*!< bit:      3  Slave Select Low Interrupt Disable */
+        uint8_t  : 3;              /*!< bit:  4.. 6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt Disable   */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_SPI_INTENCLR_Type;
@@ -642,14 +642,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DRE:1;            /*!< bit:      0  Data Register Empty Interrupt Disable */
-        uint8_t  TXC:1;            /*!< bit:      1  Transmit Complete Interrupt Disable */
-        uint8_t  RXC:1;            /*!< bit:      2  Receive Complete Interrupt Disable */
-        uint8_t  RXS:1;            /*!< bit:      3  Receive Start Interrupt Disable    */
-        uint8_t  CTSIC:1;          /*!< bit:      4  Clear To Send Input Change Interrupt Disable */
-        uint8_t  RXBRK:1;          /*!< bit:      5  Break Received Interrupt Disable   */
-        uint8_t  :1;               /*!< bit:      6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt Disable   */
+        uint8_t  DRE: 1;           /*!< bit:      0  Data Register Empty Interrupt Disable */
+        uint8_t  TXC: 1;           /*!< bit:      1  Transmit Complete Interrupt Disable */
+        uint8_t  RXC: 1;           /*!< bit:      2  Receive Complete Interrupt Disable */
+        uint8_t  RXS: 1;           /*!< bit:      3  Receive Start Interrupt Disable    */
+        uint8_t  CTSIC: 1;         /*!< bit:      4  Clear To Send Input Change Interrupt Disable */
+        uint8_t  RXBRK: 1;         /*!< bit:      5  Break Received Interrupt Disable   */
+        uint8_t  : 1;              /*!< bit:      6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt Disable   */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_USART_INTENCLR_Type;
@@ -678,10 +678,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  MB:1;             /*!< bit:      0  Master On Bus Interrupt Enable     */
-        uint8_t  SB:1;             /*!< bit:      1  Slave On Bus Interrupt Enable      */
-        uint8_t  :5;               /*!< bit:  2.. 6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt Enable    */
+        uint8_t  MB: 1;            /*!< bit:      0  Master On Bus Interrupt Enable     */
+        uint8_t  SB: 1;            /*!< bit:      1  Slave On Bus Interrupt Enable      */
+        uint8_t  : 5;              /*!< bit:  2.. 6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt Enable    */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_I2CM_INTENSET_Type;
@@ -702,11 +702,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PREC:1;           /*!< bit:      0  Stop Received Interrupt Enable     */
-        uint8_t  AMATCH:1;         /*!< bit:      1  Address Match Interrupt Enable     */
-        uint8_t  DRDY:1;           /*!< bit:      2  Data Interrupt Enable              */
-        uint8_t  :4;               /*!< bit:  3.. 6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt Enable    */
+        uint8_t  PREC: 1;          /*!< bit:      0  Stop Received Interrupt Enable     */
+        uint8_t  AMATCH: 1;        /*!< bit:      1  Address Match Interrupt Enable     */
+        uint8_t  DRDY: 1;          /*!< bit:      2  Data Interrupt Enable              */
+        uint8_t  : 4;              /*!< bit:  3.. 6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt Enable    */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_I2CS_INTENSET_Type;
@@ -729,12 +729,12 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DRE:1;            /*!< bit:      0  Data Register Empty Interrupt Enable */
-        uint8_t  TXC:1;            /*!< bit:      1  Transmit Complete Interrupt Enable */
-        uint8_t  RXC:1;            /*!< bit:      2  Receive Complete Interrupt Enable  */
-        uint8_t  SSL:1;            /*!< bit:      3  Slave Select Low Interrupt Enable  */
-        uint8_t  :3;               /*!< bit:  4.. 6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt Enable    */
+        uint8_t  DRE: 1;           /*!< bit:      0  Data Register Empty Interrupt Enable */
+        uint8_t  TXC: 1;           /*!< bit:      1  Transmit Complete Interrupt Enable */
+        uint8_t  RXC: 1;           /*!< bit:      2  Receive Complete Interrupt Enable  */
+        uint8_t  SSL: 1;           /*!< bit:      3  Slave Select Low Interrupt Enable  */
+        uint8_t  : 3;              /*!< bit:  4.. 6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt Enable    */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_SPI_INTENSET_Type;
@@ -759,14 +759,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DRE:1;            /*!< bit:      0  Data Register Empty Interrupt Enable */
-        uint8_t  TXC:1;            /*!< bit:      1  Transmit Complete Interrupt Enable */
-        uint8_t  RXC:1;            /*!< bit:      2  Receive Complete Interrupt Enable  */
-        uint8_t  RXS:1;            /*!< bit:      3  Receive Start Interrupt Enable     */
-        uint8_t  CTSIC:1;          /*!< bit:      4  Clear To Send Input Change Interrupt Enable */
-        uint8_t  RXBRK:1;          /*!< bit:      5  Break Received Interrupt Enable    */
-        uint8_t  :1;               /*!< bit:      6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt Enable    */
+        uint8_t  DRE: 1;           /*!< bit:      0  Data Register Empty Interrupt Enable */
+        uint8_t  TXC: 1;           /*!< bit:      1  Transmit Complete Interrupt Enable */
+        uint8_t  RXC: 1;           /*!< bit:      2  Receive Complete Interrupt Enable  */
+        uint8_t  RXS: 1;           /*!< bit:      3  Receive Start Interrupt Enable     */
+        uint8_t  CTSIC: 1;         /*!< bit:      4  Clear To Send Input Change Interrupt Enable */
+        uint8_t  RXBRK: 1;         /*!< bit:      5  Break Received Interrupt Enable    */
+        uint8_t  : 1;              /*!< bit:      6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt Enable    */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_USART_INTENSET_Type;
@@ -795,10 +795,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  MB:1;             /*!< bit:      0  Master On Bus Interrupt            */
-        uint8_t  SB:1;             /*!< bit:      1  Slave On Bus Interrupt             */
-        uint8_t  :5;               /*!< bit:  2.. 6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt           */
+        uint8_t  MB: 1;            /*!< bit:      0  Master On Bus Interrupt            */
+        uint8_t  SB: 1;            /*!< bit:      1  Slave On Bus Interrupt             */
+        uint8_t  : 5;              /*!< bit:  2.. 6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_I2CM_INTFLAG_Type;
@@ -819,11 +819,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PREC:1;           /*!< bit:      0  Stop Received Interrupt            */
-        uint8_t  AMATCH:1;         /*!< bit:      1  Address Match Interrupt            */
-        uint8_t  DRDY:1;           /*!< bit:      2  Data Interrupt                     */
-        uint8_t  :4;               /*!< bit:  3.. 6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt           */
+        uint8_t  PREC: 1;          /*!< bit:      0  Stop Received Interrupt            */
+        uint8_t  AMATCH: 1;        /*!< bit:      1  Address Match Interrupt            */
+        uint8_t  DRDY: 1;          /*!< bit:      2  Data Interrupt                     */
+        uint8_t  : 4;              /*!< bit:  3.. 6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_I2CS_INTFLAG_Type;
@@ -846,12 +846,12 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DRE:1;            /*!< bit:      0  Data Register Empty Interrupt      */
-        uint8_t  TXC:1;            /*!< bit:      1  Transmit Complete Interrupt        */
-        uint8_t  RXC:1;            /*!< bit:      2  Receive Complete Interrupt         */
-        uint8_t  SSL:1;            /*!< bit:      3  Slave Select Low Interrupt Flag    */
-        uint8_t  :3;               /*!< bit:  4.. 6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt           */
+        uint8_t  DRE: 1;           /*!< bit:      0  Data Register Empty Interrupt      */
+        uint8_t  TXC: 1;           /*!< bit:      1  Transmit Complete Interrupt        */
+        uint8_t  RXC: 1;           /*!< bit:      2  Receive Complete Interrupt         */
+        uint8_t  SSL: 1;           /*!< bit:      3  Slave Select Low Interrupt Flag    */
+        uint8_t  : 3;              /*!< bit:  4.. 6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_SPI_INTFLAG_Type;
@@ -876,14 +876,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DRE:1;            /*!< bit:      0  Data Register Empty Interrupt      */
-        uint8_t  TXC:1;            /*!< bit:      1  Transmit Complete Interrupt        */
-        uint8_t  RXC:1;            /*!< bit:      2  Receive Complete Interrupt         */
-        uint8_t  RXS:1;            /*!< bit:      3  Receive Start Interrupt            */
-        uint8_t  CTSIC:1;          /*!< bit:      4  Clear To Send Input Change Interrupt */
-        uint8_t  RXBRK:1;          /*!< bit:      5  Break Received Interrupt           */
-        uint8_t  :1;               /*!< bit:      6  Reserved                           */
-        uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt           */
+        uint8_t  DRE: 1;           /*!< bit:      0  Data Register Empty Interrupt      */
+        uint8_t  TXC: 1;           /*!< bit:      1  Transmit Complete Interrupt        */
+        uint8_t  RXC: 1;           /*!< bit:      2  Receive Complete Interrupt         */
+        uint8_t  RXS: 1;           /*!< bit:      3  Receive Start Interrupt            */
+        uint8_t  CTSIC: 1;         /*!< bit:      4  Clear To Send Input Change Interrupt */
+        uint8_t  RXBRK: 1;         /*!< bit:      5  Break Received Interrupt           */
+        uint8_t  : 1;              /*!< bit:      6  Reserved                           */
+        uint8_t  ERROR: 1;         /*!< bit:      7  Combined Error Interrupt           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_USART_INTFLAG_Type;
@@ -912,17 +912,17 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t BUSERR:1;         /*!< bit:      0  Bus Error                          */
-        uint16_t ARBLOST:1;        /*!< bit:      1  Arbitration Lost                   */
-        uint16_t RXNACK:1;         /*!< bit:      2  Received Not Acknowledge           */
-        uint16_t :1;               /*!< bit:      3  Reserved                           */
-        uint16_t BUSSTATE:2;       /*!< bit:  4.. 5  Bus State                          */
-        uint16_t LOWTOUT:1;        /*!< bit:      6  SCL Low Timeout                    */
-        uint16_t CLKHOLD:1;        /*!< bit:      7  Clock Hold                         */
-        uint16_t MEXTTOUT:1;       /*!< bit:      8  Master SCL Low Extend Timeout      */
-        uint16_t SEXTTOUT:1;       /*!< bit:      9  Slave SCL Low Extend Timeout       */
-        uint16_t LENERR:1;         /*!< bit:     10  Length Error                       */
-        uint16_t :5;               /*!< bit: 11..15  Reserved                           */
+        uint16_t BUSERR: 1;        /*!< bit:      0  Bus Error                          */
+        uint16_t ARBLOST: 1;       /*!< bit:      1  Arbitration Lost                   */
+        uint16_t RXNACK: 1;        /*!< bit:      2  Received Not Acknowledge           */
+        uint16_t : 1;              /*!< bit:      3  Reserved                           */
+        uint16_t BUSSTATE: 2;      /*!< bit:  4.. 5  Bus State                          */
+        uint16_t LOWTOUT: 1;       /*!< bit:      6  SCL Low Timeout                    */
+        uint16_t CLKHOLD: 1;       /*!< bit:      7  Clock Hold                         */
+        uint16_t MEXTTOUT: 1;      /*!< bit:      8  Master SCL Low Extend Timeout      */
+        uint16_t SEXTTOUT: 1;      /*!< bit:      9  Slave SCL Low Extend Timeout       */
+        uint16_t LENERR: 1;        /*!< bit:     10  Length Error                       */
+        uint16_t : 5;              /*!< bit: 11..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } SERCOM_I2CM_STATUS_Type;
@@ -956,18 +956,18 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t BUSERR:1;         /*!< bit:      0  Bus Error                          */
-        uint16_t COLL:1;           /*!< bit:      1  Transmit Collision                 */
-        uint16_t RXNACK:1;         /*!< bit:      2  Received Not Acknowledge           */
-        uint16_t DIR:1;            /*!< bit:      3  Read/Write Direction               */
-        uint16_t SR:1;             /*!< bit:      4  Repeated Start                     */
-        uint16_t :1;               /*!< bit:      5  Reserved                           */
-        uint16_t LOWTOUT:1;        /*!< bit:      6  SCL Low Timeout                    */
-        uint16_t CLKHOLD:1;        /*!< bit:      7  Clock Hold                         */
-        uint16_t :1;               /*!< bit:      8  Reserved                           */
-        uint16_t SEXTTOUT:1;       /*!< bit:      9  Slave SCL Low Extend Timeout       */
-        uint16_t HS:1;             /*!< bit:     10  High Speed                         */
-        uint16_t :5;               /*!< bit: 11..15  Reserved                           */
+        uint16_t BUSERR: 1;        /*!< bit:      0  Bus Error                          */
+        uint16_t COLL: 1;          /*!< bit:      1  Transmit Collision                 */
+        uint16_t RXNACK: 1;        /*!< bit:      2  Received Not Acknowledge           */
+        uint16_t DIR: 1;           /*!< bit:      3  Read/Write Direction               */
+        uint16_t SR: 1;            /*!< bit:      4  Repeated Start                     */
+        uint16_t : 1;              /*!< bit:      5  Reserved                           */
+        uint16_t LOWTOUT: 1;       /*!< bit:      6  SCL Low Timeout                    */
+        uint16_t CLKHOLD: 1;       /*!< bit:      7  Clock Hold                         */
+        uint16_t : 1;              /*!< bit:      8  Reserved                           */
+        uint16_t SEXTTOUT: 1;      /*!< bit:      9  Slave SCL Low Extend Timeout       */
+        uint16_t HS: 1;            /*!< bit:     10  High Speed                         */
+        uint16_t : 5;              /*!< bit: 11..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } SERCOM_I2CS_STATUS_Type;
@@ -1000,9 +1000,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t :2;               /*!< bit:  0.. 1  Reserved                           */
-        uint16_t BUFOVF:1;         /*!< bit:      2  Buffer Overflow                    */
-        uint16_t :13;              /*!< bit:  3..15  Reserved                           */
+        uint16_t : 2;              /*!< bit:  0.. 1  Reserved                           */
+        uint16_t BUFOVF: 1;        /*!< bit:      2  Buffer Overflow                    */
+        uint16_t : 13;             /*!< bit:  3..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } SERCOM_SPI_STATUS_Type;
@@ -1019,13 +1019,13 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t PERR:1;           /*!< bit:      0  Parity Error                       */
-        uint16_t FERR:1;           /*!< bit:      1  Frame Error                        */
-        uint16_t BUFOVF:1;         /*!< bit:      2  Buffer Overflow                    */
-        uint16_t CTS:1;            /*!< bit:      3  Clear To Send                      */
-        uint16_t ISF:1;            /*!< bit:      4  Inconsistent Sync Field            */
-        uint16_t COLL:1;           /*!< bit:      5  Collision Detected                 */
-        uint16_t :10;              /*!< bit:  6..15  Reserved                           */
+        uint16_t PERR: 1;          /*!< bit:      0  Parity Error                       */
+        uint16_t FERR: 1;          /*!< bit:      1  Frame Error                        */
+        uint16_t BUFOVF: 1;        /*!< bit:      2  Buffer Overflow                    */
+        uint16_t CTS: 1;           /*!< bit:      3  Clear To Send                      */
+        uint16_t ISF: 1;           /*!< bit:      4  Inconsistent Sync Field            */
+        uint16_t COLL: 1;          /*!< bit:      5  Collision Detected                 */
+        uint16_t : 10;             /*!< bit:  6..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } SERCOM_USART_STATUS_Type;
@@ -1052,10 +1052,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset Synchronization Busy */
-        uint32_t ENABLE:1;         /*!< bit:      1  SERCOM Enable Synchronization Busy */
-        uint32_t SYSOP:1;          /*!< bit:      2  System Operation Synchronization Busy */
-        uint32_t :29;              /*!< bit:  3..31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset Synchronization Busy */
+        uint32_t ENABLE: 1;        /*!< bit:      1  SERCOM Enable Synchronization Busy */
+        uint32_t SYSOP: 1;         /*!< bit:      2  System Operation Synchronization Busy */
+        uint32_t : 29;             /*!< bit:  3..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_I2CM_SYNCBUSY_Type;
@@ -1076,9 +1076,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset Synchronization Busy */
-        uint32_t ENABLE:1;         /*!< bit:      1  SERCOM Enable Synchronization Busy */
-        uint32_t :30;              /*!< bit:  2..31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset Synchronization Busy */
+        uint32_t ENABLE: 1;        /*!< bit:      1  SERCOM Enable Synchronization Busy */
+        uint32_t : 30;             /*!< bit:  2..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_I2CS_SYNCBUSY_Type;
@@ -1097,10 +1097,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset Synchronization Busy */
-        uint32_t ENABLE:1;         /*!< bit:      1  SERCOM Enable Synchronization Busy */
-        uint32_t CTRLB:1;          /*!< bit:      2  CTRLB Synchronization Busy         */
-        uint32_t :29;              /*!< bit:  3..31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset Synchronization Busy */
+        uint32_t ENABLE: 1;        /*!< bit:      1  SERCOM Enable Synchronization Busy */
+        uint32_t CTRLB: 1;         /*!< bit:      2  CTRLB Synchronization Busy         */
+        uint32_t : 29;             /*!< bit:  3..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_SPI_SYNCBUSY_Type;
@@ -1121,10 +1121,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset Synchronization Busy */
-        uint32_t ENABLE:1;         /*!< bit:      1  SERCOM Enable Synchronization Busy */
-        uint32_t CTRLB:1;          /*!< bit:      2  CTRLB Synchronization Busy         */
-        uint32_t :29;              /*!< bit:  3..31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset Synchronization Busy */
+        uint32_t ENABLE: 1;        /*!< bit:      1  SERCOM Enable Synchronization Busy */
+        uint32_t CTRLB: 1;         /*!< bit:      2  CTRLB Synchronization Busy         */
+        uint32_t : 29;             /*!< bit:  3..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_USART_SYNCBUSY_Type;
@@ -1145,13 +1145,13 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t ADDR:11;          /*!< bit:  0..10  Address Value                      */
-        uint32_t :2;               /*!< bit: 11..12  Reserved                           */
-        uint32_t LENEN:1;          /*!< bit:     13  Length Enable                      */
-        uint32_t HS:1;             /*!< bit:     14  High Speed Mode                    */
-        uint32_t TENBITEN:1;       /*!< bit:     15  Ten Bit Addressing Enable          */
-        uint32_t LEN:8;            /*!< bit: 16..23  Length                             */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t ADDR: 11;         /*!< bit:  0..10  Address Value                      */
+        uint32_t : 2;              /*!< bit: 11..12  Reserved                           */
+        uint32_t LENEN: 1;         /*!< bit:     13  Length Enable                      */
+        uint32_t HS: 1;            /*!< bit:     14  High Speed Mode                    */
+        uint32_t TENBITEN: 1;      /*!< bit:     15  Ten Bit Addressing Enable          */
+        uint32_t LEN: 8;           /*!< bit: 16..23  Length                             */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_I2CM_ADDR_Type;
@@ -1178,13 +1178,13 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t GENCEN:1;         /*!< bit:      0  General Call Address Enable        */
-        uint32_t ADDR:10;          /*!< bit:  1..10  Address Value                      */
-        uint32_t :4;               /*!< bit: 11..14  Reserved                           */
-        uint32_t TENBITEN:1;       /*!< bit:     15  Ten Bit Addressing Enable          */
-        uint32_t :1;               /*!< bit:     16  Reserved                           */
-        uint32_t ADDRMASK:10;      /*!< bit: 17..26  Address Mask                       */
-        uint32_t :5;               /*!< bit: 27..31  Reserved                           */
+        uint32_t GENCEN: 1;        /*!< bit:      0  General Call Address Enable        */
+        uint32_t ADDR: 10;         /*!< bit:  1..10  Address Value                      */
+        uint32_t : 4;              /*!< bit: 11..14  Reserved                           */
+        uint32_t TENBITEN: 1;      /*!< bit:     15  Ten Bit Addressing Enable          */
+        uint32_t : 1;              /*!< bit:     16  Reserved                           */
+        uint32_t ADDRMASK: 10;     /*!< bit: 17..26  Address Mask                       */
+        uint32_t : 5;              /*!< bit: 27..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_I2CS_ADDR_Type;
@@ -1209,10 +1209,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t ADDR:8;           /*!< bit:  0.. 7  Address Value                      */
-        uint32_t :8;               /*!< bit:  8..15  Reserved                           */
-        uint32_t ADDRMASK:8;       /*!< bit: 16..23  Address Mask                       */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+        uint32_t ADDR: 8;          /*!< bit:  0.. 7  Address Value                      */
+        uint32_t : 8;              /*!< bit:  8..15  Reserved                           */
+        uint32_t ADDRMASK: 8;      /*!< bit: 16..23  Address Mask                       */
+        uint32_t : 8;              /*!< bit: 24..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_SPI_ADDR_Type;
@@ -1233,7 +1233,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DATA:8;           /*!< bit:  0.. 7  Data Value                         */
+        uint8_t  DATA: 8;          /*!< bit:  0.. 7  Data Value                         */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_I2CM_DATA_Type;
@@ -1251,7 +1251,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DATA:8;           /*!< bit:  0.. 7  Data Value                         */
+        uint8_t  DATA: 8;          /*!< bit:  0.. 7  Data Value                         */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_I2CS_DATA_Type;
@@ -1269,8 +1269,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t DATA:9;           /*!< bit:  0.. 8  Data Value                         */
-        uint32_t :23;              /*!< bit:  9..31  Reserved                           */
+        uint32_t DATA: 9;          /*!< bit:  0.. 8  Data Value                         */
+        uint32_t : 23;             /*!< bit:  9..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } SERCOM_SPI_DATA_Type;
@@ -1288,8 +1288,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t DATA:9;           /*!< bit:  0.. 8  Data Value                         */
-        uint16_t :7;               /*!< bit:  9..15  Reserved                           */
+        uint16_t DATA: 9;          /*!< bit:  0.. 8  Data Value                         */
+        uint16_t : 7;              /*!< bit:  9..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } SERCOM_USART_DATA_Type;
@@ -1307,8 +1307,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DBGSTOP:1;        /*!< bit:      0  Debug Mode                         */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  DBGSTOP: 1;       /*!< bit:      0  Debug Mode                         */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_I2CM_DBGCTRL_Type;
@@ -1325,8 +1325,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DBGSTOP:1;        /*!< bit:      0  Debug Mode                         */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  DBGSTOP: 1;       /*!< bit:      0  Debug Mode                         */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_SPI_DBGCTRL_Type;
@@ -1343,8 +1343,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DBGSTOP:1;        /*!< bit:      0  Debug Mode                         */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  DBGSTOP: 1;       /*!< bit:      0  Debug Mode                         */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } SERCOM_USART_DBGCTRL_Type;

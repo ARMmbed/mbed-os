@@ -213,7 +213,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     adc_set_negative_input(&adc_instance, obj->config_adc.negative_input);
     adc_start_conversion(&adc_instance);
     do {
-    } while(adc_read(&(adc_instance), &result) == STATUS_BUSY);   // 12 bit value
+    } while (adc_read(&(adc_instance), &result) == STATUS_BUSY);  // 12 bit value
 
     return (uint16_t)(((uint32_t)result * 0xFFFF) / 0x0FFF);  // for normalizing to 16 bit value
 }

@@ -54,7 +54,7 @@ static int get_available_spi(PinName mosi, PinName miso, PinName sclk, PinName s
 
     // Investigate if same pins as the used SPI0/1 - to be able to reuse it
     for (int spi_n = 0; spi_n < 2; spi_n++) {
-        if (spi_used & (1<<spi_n)) {
+        if (spi_used & (1 << spi_n)) {
             if (sclk != NC) {
                 swm = &SWM_SPI_SCLK[spi_n];
                 regVal = LPC_SWM->PINASSIGN[swm->n] & (0xFF << swm->offset);
@@ -130,33 +130,33 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (sclk != NC) {
         swm = &SWM_SPI_SCLK[obj->spi_n];
         regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-        LPC_SWM->PINASSIGN[swm->n] = regVal |  (sclk   << swm->offset);
+        LPC_SWM->PINASSIGN[swm->n] = regVal | (sclk   << swm->offset);
     }
 
     if (mosi != NC) {
         swm = &SWM_SPI_MOSI[obj->spi_n];
         regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-        LPC_SWM->PINASSIGN[swm->n] = regVal |  (mosi   << swm->offset);
+        LPC_SWM->PINASSIGN[swm->n] = regVal | (mosi   << swm->offset);
     }
 
     if (miso != NC) {
         swm = &SWM_SPI_MISO[obj->spi_n];
         regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-        LPC_SWM->PINASSIGN[swm->n] = regVal |  (miso   << swm->offset);
+        LPC_SWM->PINASSIGN[swm->n] = regVal | (miso   << swm->offset);
     }
 
     if (ssel != NC) {
         swm = &SWM_SPI_SSEL[obj->spi_n];
         regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
-        LPC_SWM->PINASSIGN[swm->n] = regVal |  (ssel   << swm->offset);
+        LPC_SWM->PINASSIGN[swm->n] = regVal | (ssel   << swm->offset);
     }
 
     // clear interrupts
     obj->spi->INTENCLR = 0x3f;
 
     // enable power and clocking
-    LPC_SYSCON->SYSAHBCLKCTRL1 |=  (0x1 << (obj->spi_n + 9));
-    LPC_SYSCON->PRESETCTRL1    |=  (0x1 << (obj->spi_n + 9));
+    LPC_SYSCON->SYSAHBCLKCTRL1 |= (0x1 << (obj->spi_n + 9));
+    LPC_SYSCON->PRESETCTRL1    |= (0x1 << (obj->spi_n + 9));
     LPC_SYSCON->PRESETCTRL1    &= ~(0x1 << (obj->spi_n + 9));
 }
 
@@ -196,7 +196,7 @@ void spi_frequency(spi_t *obj, int hz)
     spi_disable(obj);
 
     // rise DIV value if it cannot be divided
-    obj->spi->DIV = (SystemCoreClock + (hz - 1))/hz - 1;
+    obj->spi->DIV = (SystemCoreClock + (hz - 1)) / hz - 1;
     obj->spi->DLY = 0;
 
     spi_enable(obj);
@@ -249,7 +249,8 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer,
-                           int tx_length, char *rx_buffer, int rx_length, char write_fill) {
+                           int tx_length, char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {

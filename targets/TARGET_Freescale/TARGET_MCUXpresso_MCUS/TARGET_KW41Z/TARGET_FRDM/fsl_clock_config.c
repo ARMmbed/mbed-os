@@ -36,8 +36,7 @@
  * Definitions
  ******************************************************************************/
 /*! @brief Clock configuration structure. */
-typedef struct _clock_config
-{
+typedef struct _clock_config {
     mcg_config_t mcgConfig;       /*!< MCG configuration.      */
     sim_clock_config_t simConfig; /*!< SIM configuration.      */
     osc_config_t oscConfig;       /*!< OSC configuration.      */
@@ -53,54 +52,54 @@ extern uint32_t SystemCoreClock;
 /* Configuration for enter VLPR mode. Core clock = 4MHz. */
 const clock_config_t g_defaultClockConfigVlpr = {
     .mcgConfig =
-        {
-            .mcgMode = kMCG_ModeBLPI,            /* Work in BLPI mode. */
-            .irclkEnableMode = kMCG_IrclkEnable, /* MCGIRCLK enable. */
-            .ircs = kMCG_IrcFast,                /* Select IRC4M. */
-            .fcrdiv = 0U,                        /* FCRDIV is 0. */
+    {
+        .mcgMode = kMCG_ModeBLPI,            /* Work in BLPI mode. */
+        .irclkEnableMode = kMCG_IrclkEnable, /* MCGIRCLK enable. */
+        .ircs = kMCG_IrcFast,                /* Select IRC4M. */
+        .fcrdiv = 0U,                        /* FCRDIV is 0. */
 
-            .frdiv = 5U,
-            .drs = kMCG_DrsLow,         /* Low frequency range */
-            .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25% */
-            .oscsel = kMCG_OscselOsc,   /* Select OSC */
-        },
+        .frdiv = 5U,
+        .drs = kMCG_DrsLow,         /* Low frequency range */
+        .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25% */
+        .oscsel = kMCG_OscselOsc,   /* Select OSC */
+    },
     .simConfig =
-        {
-            .er32kSrc = 0U,         /* ERCLK32K selection, use OSC. */
-            .clkdiv1 = 0x00040000U, /* SIM_CLKDIV1. */
-        },
+    {
+        .er32kSrc = 0U,         /* ERCLK32K selection, use OSC. */
+        .clkdiv1 = 0x00040000U, /* SIM_CLKDIV1. */
+    },
     .oscConfig =
-        {
-            .freq = BOARD_XTAL0_CLK_HZ, /* Feed by RF XTAL_32M */
-            .workMode = kOSC_ModeExt,   /* Must work in external source mode. */
-        },
+    {
+        .freq = BOARD_XTAL0_CLK_HZ, /* Feed by RF XTAL_32M */
+        .workMode = kOSC_ModeExt,   /* Must work in external source mode. */
+    },
     .coreClock = 4000000U, /* Core clock frequency */
 };
 
 /* Configuration for enter RUN mode. Core clock = 40MHz. */
 const clock_config_t g_defaultClockConfigRun = {
     .mcgConfig =
-        {
-            .mcgMode = kMCG_ModeFEE,             /* Work in FEE mode. */
-            .irclkEnableMode = kMCG_IrclkEnable, /* MCGIRCLK enable. */
-            .ircs = kMCG_IrcFast,                /* Select IRC4M. */
-            .fcrdiv = 0U,                        /* FCRDIV is 0. */
+    {
+        .mcgMode = kMCG_ModeFEE,             /* Work in FEE mode. */
+        .irclkEnableMode = kMCG_IrclkEnable, /* MCGIRCLK enable. */
+        .ircs = kMCG_IrcFast,                /* Select IRC4M. */
+        .fcrdiv = 0U,                        /* FCRDIV is 0. */
 
-            .frdiv = 5U,
-            .drs = kMCG_DrsMid,         /* Middle frequency range */
-            .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25% */
-            .oscsel = kMCG_OscselOsc,   /* Select OSC */
-        },
+        .frdiv = 5U,
+        .drs = kMCG_DrsMid,         /* Middle frequency range */
+        .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25% */
+        .oscsel = kMCG_OscselOsc,   /* Select OSC */
+    },
     .simConfig =
-        {
-            .er32kSrc = 0U,         /* ERCLK32K selection, use OSC. */
-            .clkdiv1 = 0x00010000U, /* SIM_CLKDIV1. */
-        },
+    {
+        .er32kSrc = 0U,         /* ERCLK32K selection, use OSC. */
+        .clkdiv1 = 0x00010000U, /* SIM_CLKDIV1. */
+    },
     .oscConfig =
-        {
-            .freq = BOARD_XTAL0_CLK_HZ, /* Feed by RF XTAL_32M */
-            .workMode = kOSC_ModeExt,   /* Must work in external source mode. */
-        },
+    {
+        .freq = BOARD_XTAL0_CLK_HZ, /* Feed by RF XTAL_32M */
+        .workMode = kOSC_ModeExt,   /* Must work in external source mode. */
+    },
     .coreClock = 40000000U, /* Core clock frequency */
 };
 
@@ -138,8 +137,7 @@ const clock_config_t g_defaultClockConfigRun = {
 static void CLOCK_SYS_FllStableDelay(void)
 {
     uint32_t i = 30000U;
-    while (i--)
-    {
+    while (i--) {
         __NOP();
     }
 }
@@ -160,8 +158,7 @@ void BOARD_BootClockVLPR(void)
 
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
     SMC_SetPowerModeVlpr(SMC);
-    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr)
-    {
+    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr) {
     }
 }
 
@@ -194,8 +191,7 @@ void BOARD_RfOscInit(void)
     temp = SIM->SDID;
     revId = (uint8_t)((temp & SIM_SDID_REVID_MASK) >> SIM_SDID_REVID_SHIFT);
 
-    if(0 == revId)
-    {
+    if (0 == revId) {
         tempTrim = RSIM->ANA_TRIM;
         RSIM->ANA_TRIM |= RSIM_ANA_TRIM_BB_LDO_XO_TRIM_MASK;            /* Set max trim for BB LDO for XO */
     }/* Workaround for Rev 1.0 XTAL startup and ADC analog diagnostics circuitry */
@@ -209,10 +205,9 @@ void BOARD_RfOscInit(void)
     /* ERR010224 */
     RSIM->RF_OSC_CTRL |= RSIM_RF_OSC_CTRL_RADIO_EXT_OSC_OVRD_EN_MASK;   /* Prevent XTAL_OUT_EN from generating XTAL_OUT request */
 
-    while((RSIM->CONTROL & RSIM_CONTROL_RF_OSC_READY_MASK) == 0);       /* Wait for RF_OSC_READY */
+    while ((RSIM->CONTROL & RSIM_CONTROL_RF_OSC_READY_MASK) == 0);      /* Wait for RF_OSC_READY */
 
-    if(0 == revId)
-    {
+    if (0 == revId) {
         SIM->SCGC5 |= SIM_SCGC5_PHYDIG_MASK;
         XCVR_TSM->OVRD0 |= XCVR_TSM_OVRD0_BB_LDO_ADCDAC_EN_OVRD_EN_MASK | XCVR_TSM_OVRD0_BB_LDO_ADCDAC_EN_OVRD_MASK; /* Force ADC DAC LDO on to prevent BGAP failure */
 

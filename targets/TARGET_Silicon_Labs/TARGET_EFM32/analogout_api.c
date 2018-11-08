@@ -80,7 +80,7 @@ void analogout_free(dac_t *obj)
     DAC_InitChannel(obj->dac, &initChannel, obj->channel);
 
     //Check all channels to see if we can disable the DAC completely
-    if((DAC0->CH0CTRL & DAC_CH0CTRL_EN) == 0 && (DAC0->CH1CTRL & DAC_CH1CTRL_EN) == 0) {
+    if ((DAC0->CH0CTRL & DAC_CH0CTRL_EN) == 0 && (DAC0->CH1CTRL & DAC_CH1CTRL_EN) == 0) {
         CMU_ClockEnable(cmuClock_DAC0, false);
         dac_initialized = 0;
     }
@@ -118,7 +118,7 @@ void analogout_write(dac_t *obj, float value)
 {
     /* We multiply the float value with 0xFFF because the DAC has 12-bit resolution.
      * Ie. accepts values between 0 and 0xFFF (4096). */
-    dac_write(obj, value*0xFFF);
+    dac_write(obj, value * 0xFFF);
 }
 
 void analogout_write_u16(dac_t *obj, uint16_t value)
@@ -130,7 +130,7 @@ void analogout_write_u16(dac_t *obj, uint16_t value)
 float analogout_read(dac_t *obj)
 {
     /* dac_read returns a number between 0 and 0xFFF. Division gives us a float between 0 and 1 */
-    return dac_read(obj)/(float)0xFFF;
+    return dac_read(obj) / (float)0xFFF;
 }
 
 uint16_t analogout_read_u16(dac_t *obj)

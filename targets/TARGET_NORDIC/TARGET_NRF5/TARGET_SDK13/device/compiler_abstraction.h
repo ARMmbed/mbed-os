@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2016 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,9 +33,9 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
- 
+
 #ifndef _COMPILER_ABSTRACTION_H
 #define _COMPILER_ABSTRACTION_H
 
@@ -43,107 +43,107 @@
 
 #if defined ( __CC_ARM )
 
-    #ifndef __ASM
-        #define __ASM               __asm
-    #endif
+#ifndef __ASM
+#define __ASM               __asm
+#endif
 
-    #ifndef __INLINE
-        #define __INLINE            __inline
-    #endif
+#ifndef __INLINE
+#define __INLINE            __inline
+#endif
 
-    #ifndef __WEAK
-        #define __WEAK              __weak
-    #endif
+#ifndef __WEAK
+#define __WEAK              __weak
+#endif
 
-    #ifndef __ALIGN
-        #define __ALIGN(n)          __align(n)
-    #endif
+#ifndef __ALIGN
+#define __ALIGN(n)          __align(n)
+#endif
 
-    #ifndef __PACKED
-        #define __PACKED            __packed
-    #endif
+#ifndef __PACKED
+#define __PACKED            __packed
+#endif
 
-    #define GET_SP()                __current_sp()
+#define GET_SP()                __current_sp()
 
 #elif defined ( __ICCARM__ )
 
-    #ifndef __ASM
-        #define __ASM               __asm
-    #endif
+#ifndef __ASM
+#define __ASM               __asm
+#endif
 
-    #ifndef __INLINE
-        #define __INLINE            inline
-    #endif
+#ifndef __INLINE
+#define __INLINE            inline
+#endif
 
-    #ifndef __WEAK
-        #define __WEAK              __weak
-    #endif
+#ifndef __WEAK
+#define __WEAK              __weak
+#endif
 
-    #ifndef __ALIGN
-        #define STRING_PRAGMA(x) _Pragma(#x)
-        #define __ALIGN(n) STRING_PRAGMA(data_alignment = n)
-    #endif
+#ifndef __ALIGN
+#define STRING_PRAGMA(x) _Pragma(#x)
+#define __ALIGN(n) STRING_PRAGMA(data_alignment = n)
+#endif
 
-    #ifndef __PACKED
-        #define __PACKED            __packed
-    #endif
-    
-    #define GET_SP()                __get_SP()
+#ifndef __PACKED
+#define __PACKED            __packed
+#endif
+
+#define GET_SP()                __get_SP()
 
 #elif defined   ( __GNUC__ )
 
-    #ifndef __ASM
-        #define __ASM               __asm
-    #endif
+#ifndef __ASM
+#define __ASM               __asm
+#endif
 
-    #ifndef __INLINE
-        #define __INLINE            inline
-    #endif
+#ifndef __INLINE
+#define __INLINE            inline
+#endif
 
-    #ifndef __WEAK
-        #define __WEAK              __attribute__((weak))
-    #endif
+#ifndef __WEAK
+#define __WEAK              __attribute__((weak))
+#endif
 
-    #ifndef __ALIGN
-        #define __ALIGN(n)          __attribute__((aligned(n)))
-    #endif
+#ifndef __ALIGN
+#define __ALIGN(n)          __attribute__((aligned(n)))
+#endif
 
-    #ifndef __PACKED
-        #define __PACKED           __attribute__((packed)) 
-    #endif
+#ifndef __PACKED
+#define __PACKED           __attribute__((packed))
+#endif
 
-    #define GET_SP()                gcc_current_sp()
+#define GET_SP()                gcc_current_sp()
 
-    static inline unsigned int gcc_current_sp(void)
-    {
-        register unsigned sp __ASM("sp");
-        return sp;
-    }
+static inline unsigned int gcc_current_sp(void)
+{
+    register unsigned sp __ASM("sp");
+    return sp;
+}
 
 #elif defined   ( __TASKING__ )
 
-    #ifndef __ASM
-        #define __ASM               __asm
-    #endif
+#ifndef __ASM
+#define __ASM               __asm
+#endif
 
-    #ifndef __INLINE
-        #define __INLINE            inline
-    #endif
+#ifndef __INLINE
+#define __INLINE            inline
+#endif
 
-    #ifndef __WEAK
-        #define __WEAK              __attribute__((weak))
-    #endif
+#ifndef __WEAK
+#define __WEAK              __attribute__((weak))
+#endif
 
-    #ifndef __ALIGN
-        #define __ALIGN(n)          __align(n)
-    #endif
-    
-    /* Not defined for TASKING. */
-    #ifndef __PACKED
-        #define __PACKED
-    #endif
+#ifndef __ALIGN
+#define __ALIGN(n)          __align(n)
+#endif
 
-    #define GET_SP()                __get_MSP()
+/* Not defined for TASKING. */
+#ifndef __PACKED
+#define __PACKED
+#endif
+
+#define GET_SP()                __get_MSP()
 
 #endif
 

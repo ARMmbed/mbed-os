@@ -44,19 +44,13 @@
 
 void GPIO_PinInit(GPIO_Type *base, uint32_t port, uint32_t pin, const gpio_pin_config_t *config)
 {
-    if (config->pinDirection == kGPIO_DigitalInput)
-    {
+    if (config->pinDirection == kGPIO_DigitalInput) {
         base->DIR[port] &= ~(1U << pin);
-    }
-    else
-    {
+    } else {
         /* Set default output value */
-        if (config->outputLogic == 0U)
-        {
+        if (config->outputLogic == 0U) {
             base->CLR[port] = (1U << pin);
-        }
-        else
-        {
+        } else {
             base->SET[port] = (1U << pin);
         }
         /* Set pin direction */

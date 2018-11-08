@@ -26,8 +26,7 @@
 #include "PlatformMutex.h"
 
 
-class ReadOnlyBlockDevice : public BlockDevice
-{
+class ReadOnlyBlockDevice : public BlockDevice {
 public:
 
     /** Lifetime of the block device

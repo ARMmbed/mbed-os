@@ -109,7 +109,7 @@ typedef enum {
     // Standardized button names
     BUTTON1 = BTN1,
     BUTTON2 = BTN2,
-    
+
     // UART
     UART_TX = P0_19,
     UART_RX = P0_18,
@@ -125,12 +125,12 @@ typedef enum {
     D7 = P0_7,
     D8 = P0_2,
     D9 = P1_25,
-    D10= P1_23,
-    D11= P0_21,
-    D12= P0_22,
-    D13= P1_15,
-    D14= P0_5,
-    D15= P0_4,
+    D10 = P1_23,
+    D11 = P0_21,
+    D12 = P0_22,
+    D13 = P1_15,
+    D14 = P0_5,
+    D15 = P0_4,
 
     A0 = P0_11,
     A1 = P0_12,
@@ -138,16 +138,16 @@ typedef enum {
     A3 = P0_16,
     A4 = P0_5, // same port as SDA
     A5 = P0_4, // same port as SCL
-    
-    SDA= P0_5, // same port as A4
-    SCL= P0_4, // same port as A5
-    
+
+    SDA = P0_5, // same port as A4
+    SCL = P0_4, // same port as A5
+
     //SD Card pins
     SDMOSI = P0_9,
     SDMISO = P0_8,
     SDSCLK = P1_29,
     SDSSEL = P1_12,
-    
+
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;

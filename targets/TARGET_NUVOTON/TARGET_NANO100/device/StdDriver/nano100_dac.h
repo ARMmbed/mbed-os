@@ -2,12 +2,12 @@
  * @file     dac.h
  * @version  V1.00
  * $Revision: 4 $
- * $Date: 14/09/08 12:31p $ 
+ * $Date: 14/09/08 12:31p $
  * @brief    NANO100 series DAC driver header file
  *
  * @note
  * Copyright (C) 2014 Nuvoton Technology Corp. All rights reserved.
-*****************************************************************************/ 
+*****************************************************************************/
 #ifndef __DAC_H__
 #define __DAC_H__
 
@@ -49,7 +49,7 @@ extern "C"
 */
 
 /**
-  * @brief Write data for conversion. 
+  * @brief Write data for conversion.
   * @param[in] dac Base address of DAC module.
   * @param[in] u32Ch DAC channel number, could be 0 or 1
   * @param[in] u32Data Decides the data for conversion, valid range are between 0~0xFFF.
@@ -66,7 +66,7 @@ extern "C"
 
 
 /**
-  * @brief Enable DAC group mode 
+  * @brief Enable DAC group mode
   * @param[in] dac Base address of DAC module.
   * @return None
   * \hideinitializer
@@ -74,7 +74,7 @@ extern "C"
 #define DAC_ENABLE_GROUP_MODE(dac) (DAC->COMCTL |= DAC_COMCTL_DAC01GRP_Msk)
 
 /**
-  * @brief Disable DAC group mode 
+  * @brief Disable DAC group mode
   * @param[in] dac Base address of DAC module.
   * @return None
   * \hideinitializer
@@ -82,20 +82,20 @@ extern "C"
 #define DAC_DISABLE_GROUP_MODE(dac) (DAC->COMCTL &= ~DAC_COMCTL_DAC01GRP_Msk)
 
 /**
-  * @brief Get the busy state of DAC. 
+  * @brief Get the busy state of DAC.
   * @param[in] dac Base address of DAC module.
   * @param[in] u32Ch DAC channel number, could be 0 or 1
-  * @return If DAC is able to convert or not.  
+  * @return If DAC is able to convert or not.
   * @retval 0 DAC is in idle state.
   * @retval 1 DAC is in busy state, or DAC is not in ready state.
   * @details If this macro returns 1, DAC is \b not in ready state. Ether DAC is busy or not in ready state.
   * \hideinitializer
   */
 #define DAC_IS_BUSY(dac, u32Ch) (inp32(DAC_BASE + 0x8 + 0x10 * (u32Ch)) & DAC_STS_BUSY_Msk ? 1 : 0)
-                                    
+
 
 /**
-  * @brief Get the interrupt flag of specified channel. 
+  * @brief Get the interrupt flag of specified channel.
   * @param[in] dac Base address of DAC module.
   * @param[in] u32Ch DAC channel number, could be 0 or 1
   * @return Returns the interrupt flag of selected channel.
@@ -106,7 +106,7 @@ extern "C"
 #define DAC_GET_INT_FLAG(dac, u32Ch) (inp32(DAC_BASE + 0x8 + 0x10 * (u32Ch)) & DAC_STS_DACIFG_Msk ? 1 : 0)
 
 /**
-  * @brief This macro clear the interrupt status bit of specified channel. 
+  * @brief This macro clear the interrupt status bit of specified channel.
   * @param[in] dac Base address of DAC module.
   * @param[in] u32Ch DAC channel number, could be 0 or 1
   * @return None
@@ -133,7 +133,7 @@ extern "C"
 #define DAC_SET_REF_VOLTAGE(dac, u32Ref) (DAC->COMCTL = ((DAC->COMCTL) & ~DAC_COMCTL_REFSEL_Msk) | u32Ref)
 
 /**
-  * @brief This macro enable the interrupt of specified channel. 
+  * @brief This macro enable the interrupt of specified channel.
   * @param[in] dac Base address of DAC module.
   * @param[in] u32Ch DAC channel number, could be 0 or 1
   * @return None
@@ -159,7 +159,7 @@ extern "C"
                                         else\
                                             DAC->CTL0 &= ~DAC_CTL_DACIE_Msk;\
                                     }while(0)
-                                   
+
 void DAC_Open(DAC_T *dac, uint32_t u32Ch, uint32_t u32TrgSrc);
 void DAC_Close(DAC_T *dac, uint32_t u32Ch);
 int DAC_SetDelayTime(DAC_T *dac, uint32_t u32Delay);

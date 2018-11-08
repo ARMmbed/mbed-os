@@ -58,7 +58,8 @@ const handlers_t utest::v1::selftest_handlers = {
 
 // --- SPECIAL HANDLERS ---
 
-static void selftest_failure_handler(const failure_t failure) {
+static void selftest_failure_handler(const failure_t failure)
+{
     UTEST_LOG_FUNCTION();
     if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN || failure.reason == REASON_ASSERTION) {
         verbose_test_failure_handler(failure);
@@ -66,16 +67,17 @@ static void selftest_failure_handler(const failure_t failure) {
     if (failure.reason == REASON_ASSERTION) {
         UTEST_DUMP_TRACE
         GREENTEA_TESTSUITE_RESULT(false);
-        while(1) ;
+        while (1) ;
     }
 }
 
-static void test_failure_handler(const failure_t failure) {
+static void test_failure_handler(const failure_t failure)
+{
     UTEST_LOG_FUNCTION();
     if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN) {
         verbose_test_failure_handler(failure);
         GREENTEA_TESTSUITE_RESULT(false);
-        while(1) ;
+        while (1) ;
     }
 }
 

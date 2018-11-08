@@ -84,8 +84,8 @@ const mem_stat_t *ns_dyn_mem_get_mem_stat(void)
 
 
 ns_mem_book_t *ns_mem_init(void *heap, ns_mem_heap_size_t h_size,
-                         void (*passed_fptr)(heap_fail_t),
-                                      mem_stat_t *info_ptr)
+                           void (*passed_fptr)(heap_fail_t),
+                           mem_stat_t *info_ptr)
 {
 #ifndef STANDARD_MALLOC
     ns_mem_book_t *book;
@@ -105,7 +105,7 @@ ns_mem_book_t *ns_mem_init(void *heap, ns_mem_heap_size_t h_size,
         h_size -= (sizeof(ns_mem_word_size_t) - temp_int);
     }
     book = heap;
-    book->heap_main = (ns_mem_word_size_t *)&(book[1]); // SET Heap Pointer
+    book->heap_main = (ns_mem_word_size_t *) & (book[1]); // SET Heap Pointer
     book->heap_size = h_size - sizeof(ns_mem_book_t); //Set Heap Size
     temp_int = (book->heap_size / sizeof(ns_mem_word_size_t));
     temp_int -= 2;
@@ -170,7 +170,7 @@ static ns_mem_word_size_t convert_allocation_size(ns_mem_book_t *book, ns_mem_bl
         heap_failure(book, NS_DYN_MEM_HEAP_SECTOR_UNITIALIZED);
     } else if (requested_bytes < 1) {
         heap_failure(book, NS_DYN_MEM_ALLOCATE_SIZE_NOT_VALID);
-    } else if (requested_bytes > (book->heap_size - 2 * sizeof(ns_mem_word_size_t)) ) {
+    } else if (requested_bytes > (book->heap_size - 2 * sizeof(ns_mem_word_size_t))) {
         heap_failure(book, NS_DYN_MEM_ALLOCATE_SIZE_NOT_VALID);
     }
     return (requested_bytes + sizeof(ns_mem_word_size_t) - 1) / sizeof(ns_mem_word_size_t);
@@ -214,10 +214,10 @@ static void *ns_mem_internal_alloc(ns_mem_book_t *book, const ns_mem_block_size_
 
     // ns_list_foreach, either forwards or backwards, result to ptr
     for (hole_t *cur_hole = direction > 0 ? ns_list_get_first(&book->holes_list)
-                                          : ns_list_get_last(&book->holes_list);
-         cur_hole;
-         cur_hole = direction > 0 ? ns_list_get_next(&book->holes_list, cur_hole)
-                                  : ns_list_get_previous(&book->holes_list, cur_hole)
+                            : ns_list_get_last(&book->holes_list);
+            cur_hole;
+            cur_hole = direction > 0 ? ns_list_get_next(&book->holes_list, cur_hole)
+                       : ns_list_get_previous(&book->holes_list, cur_hole)
         ) {
         ns_mem_word_size_t *p = block_start_from_hole(cur_hole);
         if (ns_mem_block_validate(p, direction) != 0 || *p >= 0) {
@@ -241,7 +241,7 @@ static void *ns_mem_internal_alloc(ns_mem_book_t *book, const ns_mem_block_size_
         ns_mem_word_size_t hole_size = block_data_size - data_size - 2;
         ns_mem_word_size_t *hole_ptr;
         //There is enough room for a new hole so create it first
-        if ( direction > 0 ) {
+        if (direction > 0) {
             hole_ptr = block_ptr + 1 + data_size + 1;
             // Hole will be left at end of area.
             // Would like to just replace this block_ptr with new descriptor, but
@@ -270,7 +270,7 @@ static void *ns_mem_internal_alloc(ns_mem_book_t *book, const ns_mem_block_size_
     block_ptr[0] = data_size;
     block_ptr[1 + data_size] = data_size;
 
- done:
+done:
     if (book->mem_stat_info_ptr) {
         if (block_ptr) {
             //Update Allocate OK
@@ -379,7 +379,7 @@ static void ns_mem_free_and_merge_with_adjacent_blocks(ns_mem_book_t *book, ns_m
     } else {
         // Didn't find adjacent descriptors, but may still
         // be merging with small blocks without descriptors.
-        if ( merged_data_size >= HOLE_T_SIZE ) {
+        if (merged_data_size >= HOLE_T_SIZE) {
             // Locate hole position in list, if we don't already know
             // from merging with the block above.
             if (!existing_end) {

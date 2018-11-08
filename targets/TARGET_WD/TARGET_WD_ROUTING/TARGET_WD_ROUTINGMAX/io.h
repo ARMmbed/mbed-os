@@ -17,19 +17,19 @@
 #include "ActorDigitalOut.h"
 #include "ActorCurrentLoopOut.h"
 
-#define DINCount	10
-#define AINCount	6
-#define PTCount		2
-#define DOUTCount	3
-#define AOUTCount	2
+#define DINCount    10
+#define AINCount    6
+#define PTCount     2
+#define DOUTCount   3
+#define AOUTCount   2
 
 extern struct RoutingmaxIO {
-	SensorDigitalIn DINs[DINCount];
-	SensorCurrentLoopIn AINs[AINCount];
-	SensorPlatinumTemperature PTs[PTCount];
-	DS18B20 OneWireDS18B20;
-	ActorDigitalOut DOUTs[DOUTCount];
-	ActorCurrentLoopOut AOUTs[AOUTCount];
+    SensorDigitalIn DINs[DINCount];
+    SensorCurrentLoopIn AINs[AINCount];
+    SensorPlatinumTemperature PTs[PTCount];
+    DS18B20 OneWireDS18B20;
+    ActorDigitalOut DOUTs[DOUTCount];
+    ActorCurrentLoopOut AOUTs[AOUTCount];
 } routingmax_io;
 
 extern uint8_t board_hw_version;

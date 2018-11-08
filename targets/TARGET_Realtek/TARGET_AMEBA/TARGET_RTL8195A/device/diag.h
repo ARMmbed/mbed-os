@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -36,36 +36,36 @@ extern u32 CfgSysDebugWarn;
 #define DBG_INFO_MSG_OFF(x)     (ConfigDebugInfo &= ~(x))
 
 // Define debug group
-#define	_DBG_BOOT_          	0x00000001
-#define	_DBG_GDMA_          	0x00000002
-#define	_DBG_GPIO_			    0x00000004
-#define	_DBG_TIMER_         	0x00000008
-#define	_DBG_I2C_           	0x00000010
-#define	_DBG_I2S_           	0x00000020
-#define	_DBG_MII_           	0x00000040
-#define	_DBG_NFC_           	0x00000080
-#define	_DBG_PCM_           	0x00000100
-#define	_DBG_PWM_           	0x00000200
-#define	_DBG_SDIO_          	0x00000400
-#define	_DBG_SSI_           	0x00000800
-#define	_DBG_SPI_FLASH_         0x00001000
-#define	_DBG_SDR_           	0x00002000
-#define	_DBG_UART_          	0x00004000
-#define	_DBG_USB_OTG_           0x00008000
-#define	_DBG_USB_CORE_          0x00010000
-#define	_DBG_CRYPTO_        	0x00020000
-#define	_DBG_ADC_           	0x00040000
-#define	_DBG_DAC_               0x00080000
+#define _DBG_BOOT_              0x00000001
+#define _DBG_GDMA_              0x00000002
+#define _DBG_GPIO_              0x00000004
+#define _DBG_TIMER_             0x00000008
+#define _DBG_I2C_               0x00000010
+#define _DBG_I2S_               0x00000020
+#define _DBG_MII_               0x00000040
+#define _DBG_NFC_               0x00000080
+#define _DBG_PCM_               0x00000100
+#define _DBG_PWM_               0x00000200
+#define _DBG_SDIO_              0x00000400
+#define _DBG_SSI_               0x00000800
+#define _DBG_SPI_FLASH_         0x00001000
+#define _DBG_SDR_               0x00002000
+#define _DBG_UART_              0x00004000
+#define _DBG_USB_OTG_           0x00008000
+#define _DBG_USB_CORE_          0x00010000
+#define _DBG_CRYPTO_            0x00020000
+#define _DBG_ADC_               0x00040000
+#define _DBG_DAC_               0x00080000
 
 #define _DBG_MISC_              0x40000000
-#define	_DBG_FAULT_        	    0x80000000
+#define _DBG_FAULT_             0x80000000
 
 enum _SYSTEM_DBG_DEFINE_ {
-    _SYSDBG_MISC_       = 1<<0,
-    _SYSDBG_MAILBOX_    = 1<<1,
-    _SYSDBG_TIMER_      = 1<<2
+    _SYSDBG_MISC_       = 1 << 0,
+    _SYSDBG_MAILBOX_    = 1 << 1,
+    _SYSDBG_TIMER_      = 1 << 2
 
-}; 
+};
 typedef uint32_t SYSTEM_DBG;
 
 extern
@@ -94,12 +94,12 @@ prvDiagSPrintf(
 
 #define _DbgDump  DiagPrintf
 
-#define DRIVER_PREFIX	"RTL8195A[Driver]: "
+#define DRIVER_PREFIX   "RTL8195A[Driver]: "
 #define HAL_PREFIX      "RTL8195A[HAL]: "
 #define DMA_PREFIX      "RTL8195A[DMA]: "
 #define SDIO_PREFIX     "RTL8195A[SDIO]"
-#define MBOX_PREFIX		"[OS-MBOX]"
-#define TIMER_PREFIX	"[OS-TMR]"
+#define MBOX_PREFIX     "[OS-MBOX]"
+#define TIMER_PREFIX    "[OS-TMR]"
 
 #define BOOT_ERR_PREFIX         "[BOOT Err]"
 #define BOOT_WARN_PREFIX        "[BOOT Wrn]"
@@ -331,7 +331,7 @@ prvDiagSPrintf(
                 if (unlikely(ConfigDebugErr & _DBG_USB_OTG_)) \
                     _DbgDump("\r" OTG_PREFIX __VA_ARGS__);\
             }while(0)
-            
+
 #define DBG_8195A_OTG_LVL(LVL,...)  do{\
     if (unlikely(ConfigDebugInfo & _DBG_USB_OTG_)){ \
         _DbgDump("\r" OTG_PREFIX_LVL,LVL);\
@@ -828,15 +828,15 @@ prvDiagSPrintf(
 
 #ifdef CONFIG_DEBUG_LOG
 enum _DBG_CFG_TYPE_ {
-	DBG_CFG_ERR=0,
-	DBG_CFG_WARN=1,
-	DBG_CFG_INFO=2
+    DBG_CFG_ERR = 0,
+    DBG_CFG_WARN = 1,
+    DBG_CFG_INFO = 2
 };
 typedef uint32_t DBG_CFG_TYPE;
 
 typedef struct _DBG_CFG_CMD_ {
-	u8 cmd_name[16];
-	u32	cmd_type;
+    u8 cmd_name[16];
+    u32 cmd_type;
 } DBG_CFG_CMD, *PDBG_CFG_CMD;
 
 #endif

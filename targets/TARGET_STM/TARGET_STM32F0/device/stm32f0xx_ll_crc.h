@@ -176,7 +176,7 @@ extern "C" {
   */
 __STATIC_INLINE void LL_CRC_ResetCRCCalculationUnit(CRC_TypeDef *CRCx)
 {
-  SET_BIT(CRCx->CR, CRC_CR_RESET);
+    SET_BIT(CRCx->CR, CRC_CR_RESET);
 }
 
 #if  defined(CRC_PROG_POLYNOMIAL_SUPPORT)
@@ -195,7 +195,7 @@ __STATIC_INLINE void LL_CRC_ResetCRCCalculationUnit(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE void LL_CRC_SetPolynomialSize(CRC_TypeDef *CRCx, uint32_t PolySize)
 {
-  MODIFY_REG(CRCx->CR, CRC_CR_POLYSIZE, PolySize);
+    MODIFY_REG(CRCx->CR, CRC_CR_POLYSIZE, PolySize);
 }
 
 /**
@@ -212,7 +212,7 @@ __STATIC_INLINE void LL_CRC_SetPolynomialSize(CRC_TypeDef *CRCx, uint32_t PolySi
   */
 __STATIC_INLINE uint32_t LL_CRC_GetPolynomialSize(CRC_TypeDef *CRCx)
 {
-  return (uint32_t)(READ_BIT(CRCx->CR, CRC_CR_POLYSIZE));
+    return (uint32_t)(READ_BIT(CRCx->CR, CRC_CR_POLYSIZE));
 }
 #endif
 
@@ -229,7 +229,7 @@ __STATIC_INLINE uint32_t LL_CRC_GetPolynomialSize(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE void LL_CRC_SetInputDataReverseMode(CRC_TypeDef *CRCx, uint32_t ReverseMode)
 {
-  MODIFY_REG(CRCx->CR, CRC_CR_REV_IN, ReverseMode);
+    MODIFY_REG(CRCx->CR, CRC_CR_REV_IN, ReverseMode);
 }
 
 /**
@@ -244,7 +244,7 @@ __STATIC_INLINE void LL_CRC_SetInputDataReverseMode(CRC_TypeDef *CRCx, uint32_t 
   */
 __STATIC_INLINE uint32_t LL_CRC_GetInputDataReverseMode(CRC_TypeDef *CRCx)
 {
-  return (uint32_t)(READ_BIT(CRCx->CR, CRC_CR_REV_IN));
+    return (uint32_t)(READ_BIT(CRCx->CR, CRC_CR_REV_IN));
 }
 
 /**
@@ -258,7 +258,7 @@ __STATIC_INLINE uint32_t LL_CRC_GetInputDataReverseMode(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE void LL_CRC_SetOutputDataReverseMode(CRC_TypeDef *CRCx, uint32_t ReverseMode)
 {
-  MODIFY_REG(CRCx->CR, CRC_CR_REV_OUT, ReverseMode);
+    MODIFY_REG(CRCx->CR, CRC_CR_REV_OUT, ReverseMode);
 }
 
 /**
@@ -271,7 +271,7 @@ __STATIC_INLINE void LL_CRC_SetOutputDataReverseMode(CRC_TypeDef *CRCx, uint32_t
   */
 __STATIC_INLINE uint32_t LL_CRC_GetOutputDataReverseMode(CRC_TypeDef *CRCx)
 {
-  return (uint32_t)(READ_BIT(CRCx->CR, CRC_CR_REV_OUT));
+    return (uint32_t)(READ_BIT(CRCx->CR, CRC_CR_REV_OUT));
 }
 
 /**
@@ -286,7 +286,7 @@ __STATIC_INLINE uint32_t LL_CRC_GetOutputDataReverseMode(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE void LL_CRC_SetInitialData(CRC_TypeDef *CRCx, uint32_t InitCrc)
 {
-  WRITE_REG(CRCx->INIT, InitCrc);
+    WRITE_REG(CRCx->INIT, InitCrc);
 }
 
 /**
@@ -299,7 +299,7 @@ __STATIC_INLINE void LL_CRC_SetInitialData(CRC_TypeDef *CRCx, uint32_t InitCrc)
   */
 __STATIC_INLINE uint32_t LL_CRC_GetInitialData(CRC_TypeDef *CRCx)
 {
-  return (uint32_t)(READ_REG(CRCx->INIT));
+    return (uint32_t)(READ_REG(CRCx->INIT));
 }
 
 #if  defined(CRC_PROG_POLYNOMIAL_SUPPORT)
@@ -319,7 +319,7 @@ __STATIC_INLINE uint32_t LL_CRC_GetInitialData(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE void LL_CRC_SetPolynomialCoef(CRC_TypeDef *CRCx, uint32_t PolynomCoef)
 {
-  WRITE_REG(CRCx->POL, PolynomCoef);
+    WRITE_REG(CRCx->POL, PolynomCoef);
 }
 
 /**
@@ -335,7 +335,7 @@ __STATIC_INLINE void LL_CRC_SetPolynomialCoef(CRC_TypeDef *CRCx, uint32_t Polyno
   */
 __STATIC_INLINE uint32_t LL_CRC_GetPolynomialCoef(CRC_TypeDef *CRCx)
 {
-  return (uint32_t)(READ_REG(CRCx->POL));
+    return (uint32_t)(READ_REG(CRCx->POL));
 }
 #endif
 
@@ -356,7 +356,7 @@ __STATIC_INLINE uint32_t LL_CRC_GetPolynomialCoef(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE void LL_CRC_FeedData32(CRC_TypeDef *CRCx, uint32_t InData)
 {
-  WRITE_REG(CRCx->DR, InData);
+    WRITE_REG(CRCx->DR, InData);
 }
 
 /**
@@ -368,7 +368,7 @@ __STATIC_INLINE void LL_CRC_FeedData32(CRC_TypeDef *CRCx, uint32_t InData)
   */
 __STATIC_INLINE void LL_CRC_FeedData16(CRC_TypeDef *CRCx, uint16_t InData)
 {
-  *(uint16_t __IO *)(&CRCx->DR) = (uint16_t) InData;
+    *(uint16_t __IO *)(&CRCx->DR) = (uint16_t) InData;
 }
 
 /**
@@ -380,7 +380,7 @@ __STATIC_INLINE void LL_CRC_FeedData16(CRC_TypeDef *CRCx, uint16_t InData)
   */
 __STATIC_INLINE void LL_CRC_FeedData8(CRC_TypeDef *CRCx, uint8_t InData)
 {
-  *(uint8_t __IO *)(&CRCx->DR) = (uint8_t) InData;
+    *(uint8_t __IO *)(&CRCx->DR) = (uint8_t) InData;
 }
 
 /**
@@ -391,7 +391,7 @@ __STATIC_INLINE void LL_CRC_FeedData8(CRC_TypeDef *CRCx, uint8_t InData)
   */
 __STATIC_INLINE uint32_t LL_CRC_ReadData32(CRC_TypeDef *CRCx)
 {
-  return (uint32_t)(READ_REG(CRCx->DR));
+    return (uint32_t)(READ_REG(CRCx->DR));
 }
 
 #if  defined(CRC_PROG_POLYNOMIAL_SUPPORT)
@@ -406,7 +406,7 @@ __STATIC_INLINE uint32_t LL_CRC_ReadData32(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE uint16_t LL_CRC_ReadData16(CRC_TypeDef *CRCx)
 {
-  return (uint16_t)READ_REG(CRCx->DR);
+    return (uint16_t)READ_REG(CRCx->DR);
 }
 
 /**
@@ -420,7 +420,7 @@ __STATIC_INLINE uint16_t LL_CRC_ReadData16(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE uint8_t LL_CRC_ReadData8(CRC_TypeDef *CRCx)
 {
-  return (uint8_t)READ_REG(CRCx->DR);
+    return (uint8_t)READ_REG(CRCx->DR);
 }
 
 /**
@@ -434,7 +434,7 @@ __STATIC_INLINE uint8_t LL_CRC_ReadData8(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE uint8_t LL_CRC_ReadData7(CRC_TypeDef *CRCx)
 {
-  return (uint8_t)(READ_REG(CRCx->DR) & 0x7FU);
+    return (uint8_t)(READ_REG(CRCx->DR) & 0x7FU);
 }
 #endif
 
@@ -447,7 +447,7 @@ __STATIC_INLINE uint8_t LL_CRC_ReadData7(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE uint32_t LL_CRC_Read_IDR(CRC_TypeDef *CRCx)
 {
-  return (uint32_t)(READ_REG(CRCx->IDR));
+    return (uint32_t)(READ_REG(CRCx->IDR));
 }
 
 /**
@@ -460,7 +460,7 @@ __STATIC_INLINE uint32_t LL_CRC_Read_IDR(CRC_TypeDef *CRCx)
   */
 __STATIC_INLINE void LL_CRC_Write_IDR(CRC_TypeDef *CRCx, uint32_t InData)
 {
-  *((uint8_t __IO *)(&CRCx->IDR)) = (uint8_t) InData;
+    *((uint8_t __IO *)(&CRCx->IDR)) = (uint8_t) InData;
 }
 /**
   * @}

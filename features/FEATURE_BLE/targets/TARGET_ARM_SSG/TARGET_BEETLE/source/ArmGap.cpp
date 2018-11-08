@@ -18,7 +18,8 @@
 #include "ArmGap.h"
 #include "mbed.h"
 
-ArmGap &ArmGap::getInstance() {
+ArmGap &ArmGap::getInstance()
+{
     static ArmGap m_instance;
     return m_instance;
 }
@@ -36,8 +37,8 @@ ble_error_t ArmGap::setAdvertisingData(const GapAdvertisingData &advData, const 
     }
 
     /* set advertising and scan response data for discoverable mode */
-    DmAdvSetData(DM_DATA_LOC_ADV, advData.getPayloadLen(), (uint8_t*)advData.getPayload());
-    DmAdvSetData(DM_DATA_LOC_SCAN, scanResponse.getPayloadLen(), (uint8_t*)scanResponse.getPayload());
+    DmAdvSetData(DM_DATA_LOC_ADV, advData.getPayloadLen(), (uint8_t *)advData.getPayload());
+    DmAdvSetData(DM_DATA_LOC_SCAN, scanResponse.getPayloadLen(), (uint8_t *)scanResponse.getPayload());
 
     return BLE_ERROR_NONE;
 }
@@ -54,12 +55,12 @@ ble_error_t ArmGap::startAdvertising(const GapAdvertisingParams &params)
     if (params.getAdvertisingType() == GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED) {
         /* Min delay is slightly longer for unconnectable devices */
         if ((params.getInterval() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON) ||
-            (params.getInterval() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
+                (params.getInterval() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
     } else {
         if ((params.getInterval() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN) ||
-            (params.getInterval() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
+                (params.getInterval() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
     }
@@ -73,7 +74,7 @@ ble_error_t ArmGap::startAdvertising(const GapAdvertisingParams &params)
 
     /* Check timeout for other advertising types */
     if ((params.getAdvertisingType() != GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) &&
-        (params.getTimeout() > GapAdvertisingParams::GAP_ADV_PARAMS_TIMEOUT_MAX)) {
+            (params.getTimeout() > GapAdvertisingParams::GAP_ADV_PARAMS_TIMEOUT_MAX)) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -228,7 +229,7 @@ void ArmGap::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *coun
 {
     static const int8_t permittedTxValues[] = {
         -18, -15, -12, -9, -6, -3, 0, 3
-    };
+        };
 
     *valueArrayPP = permittedTxValues;
     *countP = sizeof(permittedTxValues) / sizeof(int8_t);

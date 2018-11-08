@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
- 
+
 #include "mbed_assert.h"
 #include "pinmap.h"
 #include "PortNames.h"
@@ -39,7 +39,7 @@
 uint32_t Get_GPIO_BaseAddress(uint32_t port_idx)
 {
     uint32_t gpio_add = 0;
-    switch(port_idx)    {
+    switch (port_idx)    {
         case PortA:
             gpio_add = GPIOA_BASE;
             break;
@@ -63,16 +63,17 @@ uint32_t Get_GPIO_BaseAddress(uint32_t port_idx)
  * Configure pin (input, output, alternate function or analog) + output speed + AF
  */
 
-void pin_function(PinName pin, int data) {
+void pin_function(PinName pin, int data)
+{
     MBED_ASSERT(pin != (PinName)NC);
     // Get the pin informations
     uint32_t mode  = WIZ_PIN_MODE(data);
     uint32_t pupd  = WIZ_PIN_PUPD(data);
     uint32_t afnum = WIZ_PIN_AFNUM(data);
-    
+
     uint32_t port_num = WIZ_PORT(pin);
     uint32_t pin_index  = WIZ_PIN_INDEX(pin);
-    
+
     GPIO_TypeDef *gpio;
 
     // Configure Alternate Function
@@ -94,12 +95,13 @@ void pin_function(PinName pin, int data) {
             break;
     }
 
-    if(mode == WIZ_MODE_AF)
+    if (mode == WIZ_MODE_AF) {
         return;
+    }
 
     // Configure GPIO
     gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(port_num);
-    
+
     GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.GPIO_Pin       = pin_index;
     GPIO_InitStructure.GPIO_Mode      = (GPIOMode_TypeDef)mode;
@@ -113,37 +115,37 @@ void pin_function(PinName pin, int data) {
 void pin_mode(PinName pin, PinMode pupd)
 {
     MBED_ASSERT(pin != (PinName)NC);
-   
+
     uint32_t port_num = WIZ_PORT(pin);
     uint32_t pin_num = WIZ_PIN_NUM(pin);
 
-    switch(port_num) {
+    switch (port_num) {
         case PortA:
-            if(pupd != 0) {
+            if (pupd != 0) {
                 PA_PCR->Port[pin_num] &= 0xFFFFFFFC;
             }
             PA_PCR->Port[pin_num] |= pupd;
             break;
         case PortB:
-            if(pupd != 0) {
+            if (pupd != 0) {
                 PB_PCR->Port[pin_num] &= 0xFFFFFFFC;
             }
             PB_PCR->Port[pin_num] |= pupd;
             break;
         case PortC:
-            if(pupd != 0) {
+            if (pupd != 0) {
                 PC_PCR->Port[pin_num] &= 0xFFFFFFFC;
             }
             PC_PCR->Port[pin_num] |= pupd;
             break;
         case PortD:
-            if(pupd != 0) {
+            if (pupd != 0) {
                 PD_PCR->Port[pin_num] &= 0xFFFFFFFC;
             }
             PD_PCR->Port[pin_num] |= pupd;
             break;
         default:
-            error("Pinmap error: wrong port number.");            
+            error("Pinmap error: wrong port number.");
             return;
     }
 }

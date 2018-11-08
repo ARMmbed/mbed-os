@@ -57,8 +57,7 @@ void lp_ticker_init(void)
 {
     uint32_t lp_ticker_irqn = 0;
     /* Verify if lp_ticker has been already Initialized */
-    if (lp_ticker_initialized == 1)
-    {
+    if (lp_ticker_initialized == 1) {
         return;
     }
     lp_ticker_initialized = 1;
@@ -67,18 +66,18 @@ void lp_ticker_init(void)
     DualTimer_Initialize(DUALTIMER0, lp_ticker_reload);
     /* Dualtimer Enable */
     DualTimer_Enable(DUALTIMER0, DUALTIMER_COUNT_32
-            //| DUALTIMER_PERIODIC
-            );
+                     //| DUALTIMER_PERIODIC
+                    );
     /* DualTimer get IRQn */
     lp_ticker_irqn = DualTimer_GetIRQn(DUALTIMER0);
     /* Enable lp_ticker IRQ */
     NVIC_SetVector((IRQn_Type)lp_ticker_irqn,
-                (uint32_t)__lp_ticker_irq_handler);
+                   (uint32_t)__lp_ticker_irq_handler);
     NVIC_EnableIRQ((IRQn_Type)lp_ticker_irqn);
 
     /* DualTimer set interrupt on SINGLETIMER2 */
     DualTimer_SetInterrupt_2(DUALTIMER0, DUALTIMER_DEFAULT_RELOAD,
-                DUALTIMER_COUNT_32 | DUALTIMER_PERIODIC);
+                             DUALTIMER_COUNT_32 | DUALTIMER_PERIODIC);
 
     /*
      * Set lp_ticker Overflow limit. The lp_ticker overflow limit is required
@@ -88,7 +87,7 @@ void lp_ticker_init(void)
      * register if it is greater than (0xFFFFFFFF ticks)/DUALTIMER_DIVIDER_US.
      */
     lp_ticker_overflow_limit = DualTimer_GetReloadValue(DUALTIMER0,
-                SINGLETIMER2);
+                                                        SINGLETIMER2);
 }
 
 /**
@@ -100,8 +99,9 @@ uint32_t lp_ticker_read(void)
     uint32_t microseconds = 0;
 
     /* Verify if lp_ticker has not been Initialized */
-    if (lp_ticker_initialized == 0)
+    if (lp_ticker_initialized == 0) {
         lp_ticker_init();
+    }
 
     /* Read Timer Value */
     microseconds = lp_ticker_overflows_delta + DualTimer_Read_2(DUALTIMER0);
@@ -116,15 +116,16 @@ uint32_t lp_ticker_read(void)
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
     /* Verify if lp_ticker has been not Initialized */
-    if (lp_ticker_initialized == 0)
+    if (lp_ticker_initialized == 0) {
         lp_ticker_init();
+    }
 
     /* Calculate the delta */
     uint32_t delta = timestamp - lp_ticker_read();
 
     /* Enable interrupt on SingleTimer1 */
     DualTimer_SetInterrupt_1(DUALTIMER0, delta,
-            DUALTIMER_COUNT_32 | DUALTIMER_ONESHOT);
+                             DUALTIMER_COUNT_32 | DUALTIMER_ONESHOT);
 }
 
 void lp_ticker_fire_interrupt(void)

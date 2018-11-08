@@ -69,15 +69,15 @@ extern "C" {
 
 /* **** Definitions **** */
 
-/** 
+/**
  * @ingroup  crc
  * @defgroup crc_registers Registers
  * @brief      Registers, Bit Masks and Bit Positions for the CRC Peripheral Module.
  * @{
- */ 
+ */
 
 /**
- * Structure type for the CRC peripheral registers for reseeding and seeding the CRC16/32 
+ * Structure type for the CRC peripheral registers for reseeding and seeding the CRC16/32
  */
 typedef struct {
     __IO uint32_t reseed;                               /**< <tt>\b 0x0000:</tt> CRC_RESEED Register */
@@ -98,7 +98,7 @@ typedef struct {
 /**
  * @ingroup    crc_registers
  * @defgroup   CRC_Register_Offsets Register Offsets
- * @brief      CRC Peripheral Module Register Offsets from the CRC Base Peripheral Address. 
+ * @brief      CRC Peripheral Module Register Offsets from the CRC Base Peripheral Address.
  * @{
  */
 #define MXC_R_CRC_OFFS_RESEED           ((uint32_t)0x00000000UL)                    /**< Offset from CRC Base Address: <tt>\b 0x0000</tt> */
@@ -114,9 +114,9 @@ typedef struct {
  * @brief    Field Positions and Bit Masks for the CRC_RESEED register
  * @{
  */
-#define MXC_F_CRC_RESEED_CRC16_POS                          0                                                                   /**< CRC16 Position */  
-#define MXC_F_CRC_RESEED_CRC16                              ((uint32_t)(0x00000001UL << MXC_F_CRC_RESEED_CRC16_POS))            /**< CRC16 Mask */  
-#define MXC_F_CRC_RESEED_CRC32_POS                          1                                                                   /**< CRC32 Position */  
+#define MXC_F_CRC_RESEED_CRC16_POS                          0                                                                   /**< CRC16 Position */
+#define MXC_F_CRC_RESEED_CRC16                              ((uint32_t)(0x00000001UL << MXC_F_CRC_RESEED_CRC16_POS))            /**< CRC16 Mask */
+#define MXC_F_CRC_RESEED_CRC32_POS                          1                                                                   /**< CRC32 Position */
 #define MXC_F_CRC_RESEED_CRC32                              ((uint32_t)(0x00000001UL << MXC_F_CRC_RESEED_CRC32_POS))            /**< CRC32 Mask */
 #define MXC_F_CRC_RESEED_REV_ENDIAN16_POS                   4                                                                   /**< REV_ENDIAN16 Position */
 #define MXC_F_CRC_RESEED_REV_ENDIAN16                       ((uint32_t)(0x00000001UL << MXC_F_CRC_RESEED_REV_ENDIAN16_POS))     /**< REV_ENDIAN16 Mask */

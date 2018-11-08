@@ -82,7 +82,8 @@ DigitalIn in(p25);
 
 #endif
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(10);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(DigitalIn DigitalOut);

@@ -25,7 +25,7 @@ void mbed_sdk_init(void)
         return;
     }
     inited = 1;
-    
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -47,10 +47,10 @@ void mbed_sdk_init(void)
     CLK_WaitClockReady(CLK_STATUS_LXTSTB_Msk);
 
     /* Switch HCLK clock source to HXT */
-    CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HXT,CLK_CLKDIV0_HCLK(1));
+    CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HXT, CLK_CLKDIV0_HCLK(1));
 
     /* Set PLL to power down mode and PLLSTB bit in CLKSTATUS register will be cleared by hardware.*/
-    CLK->PLLCTL|= CLK_PLLCTL_PD_Msk;
+    CLK->PLLCTL |= CLK_PLLCTL_PD_Msk;
 
     /* Set PLL frequency */
     CLK->PLLCTL = CLK_PLLCTL_84MHz_HXT;
@@ -59,7 +59,7 @@ void mbed_sdk_init(void)
     CLK_WaitClockReady(CLK_STATUS_PLLSTB_Msk);
 
     /* Switch HCLK clock source to PLL */
-    CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_PLL,CLK_CLKDIV0_HCLK(1));
+    CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_PLL, CLK_CLKDIV0_HCLK(1));
 
     /* Enable IP clock */
     //CLK_EnableModuleClock(UART0_MODULE);
@@ -73,7 +73,7 @@ void mbed_sdk_init(void)
     /* Switch ADC0 to EADC mode */
     SYS->VREFCTL = (SYS->VREFCTL & ~SYS_VREFCTL_ADCMODESEL_Msk) | SYS_VREFCTL_ADCMODESEL_EADC;
 #endif
-    
+
     /* Update System Core Clock */
     /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock. */
     SystemCoreClockUpdate();

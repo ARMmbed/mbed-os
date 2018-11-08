@@ -18,25 +18,27 @@
 #include "gpio_api.h"
 #include "gpio_addrdefine.h"
 
-PinName port_pin(PortName port, int pin_n) {
-    return (PinName)((port*0x10)+pin_n);
+PinName port_pin(PortName port, int pin_n)
+{
+    return (PinName)((port * 0x10) + pin_n);
 }
 
-void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
+void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
+{
     obj->port = port;
     obj->mask = mask;
-    
+
     obj->reg_dir = (volatile uint32_t *)PMSR(port);
     obj->reg_out = (volatile uint32_t *)PORT(port);
     obj->reg_in  = (volatile uint32_t *)PPR(port);
     obj->reg_buf = (volatile uint32_t *)PIBC(port);
     // Do not use masking, because it prevents the use of the unmasked pins
     // port_reg->FIOMASK = ~mask;
-    
+
     uint32_t i;
     // The function is set per pin: reuse gpio logic
-    for (i=0; i<32; i++) {
-        if (obj->mask & (1<<i)) {
+    for (i = 0; i < 32; i++) {
+        if (obj->mask & (1 << i)) {
             gpio_set(port_pin(obj->port, i));
         }
     }
@@ -44,31 +46,37 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     port_dir(obj, dir);
 }
 
-void port_mode(port_t *obj, PinMode mode) {
+void port_mode(port_t *obj, PinMode mode)
+{
     uint32_t i;
     // The mode is set per pin: reuse pinmap logic
-    for (i=0; i<32; i++) {
-        if (obj->mask & (1<<i)) {
+    for (i = 0; i < 32; i++) {
+        if (obj->mask & (1 << i)) {
             pin_mode(port_pin(obj->port, i), mode);
         }
     }
 }
 
-void port_dir(port_t *obj, PinDirection dir) {
+void port_dir(port_t *obj, PinDirection dir)
+{
     switch (dir) {
-        case PIN_INPUT : *obj->reg_dir = (obj->mask << 16) | obj->mask;
-			 *obj->reg_buf |=  obj->mask;
-	break;
-        case PIN_OUTPUT: *obj->reg_dir = (obj->mask << 16) | ~obj->mask;
-			 *obj->reg_buf &= ~obj->mask;
-	break;
+        case PIN_INPUT :
+            *obj->reg_dir = (obj->mask << 16) | obj->mask;
+            *obj->reg_buf |=  obj->mask;
+            break;
+        case PIN_OUTPUT:
+            *obj->reg_dir = (obj->mask << 16) | ~obj->mask;
+            *obj->reg_buf &= ~obj->mask;
+            break;
     }
 }
 
-void port_write(port_t *obj, int value) {
+void port_write(port_t *obj, int value)
+{
     *obj->reg_out = (obj->mask << 16) | (value & obj->mask);
 }
 
-int port_read(port_t *obj) {
+int port_read(port_t *obj)
+{
     return (*obj->reg_in & obj->mask);
 }

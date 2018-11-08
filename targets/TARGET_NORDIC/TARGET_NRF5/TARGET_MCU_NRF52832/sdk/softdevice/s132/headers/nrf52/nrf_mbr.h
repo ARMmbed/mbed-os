@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2000 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**
@@ -78,19 +78,17 @@ This is the offset where the first byte of the softdevice hex file is written.*/
  * @{ */
 
 /**@brief nRF Master Boot Record API SVC numbers. */
-enum NRF_MBR_SVCS
-{
-  SD_MBR_COMMAND = MBR_SVC_BASE, /**< ::sd_mbr_command */
+enum NRF_MBR_SVCS {
+    SD_MBR_COMMAND = MBR_SVC_BASE, /**< ::sd_mbr_command */
 };
 
 /**@brief Possible values for ::sd_mbr_command_t.command */
-enum NRF_MBR_COMMANDS
-{
-  SD_MBR_COMMAND_COPY_BL,               /**< Copy a new BootLoader. @see sd_mbr_command_copy_bl_t */
-  SD_MBR_COMMAND_COPY_SD,               /**< Copy a new SoftDevice. @see ::sd_mbr_command_copy_sd_t*/
-  SD_MBR_COMMAND_INIT_SD,               /**< Init forwarding interrupts to SD, and run reset function in SD*/
-  SD_MBR_COMMAND_COMPARE,               /**< This command works like memcmp. @see ::sd_mbr_command_compare_t*/
-  SD_MBR_COMMAND_VECTOR_TABLE_BASE_SET, /**< Start forwarding all exception to this address @see ::sd_mbr_command_vector_table_base_set_t*/
+enum NRF_MBR_COMMANDS {
+    SD_MBR_COMMAND_COPY_BL,               /**< Copy a new BootLoader. @see sd_mbr_command_copy_bl_t */
+    SD_MBR_COMMAND_COPY_SD,               /**< Copy a new SoftDevice. @see ::sd_mbr_command_copy_sd_t*/
+    SD_MBR_COMMAND_INIT_SD,               /**< Init forwarding interrupts to SD, and run reset function in SD*/
+    SD_MBR_COMMAND_COMPARE,               /**< This command works like memcmp. @see ::sd_mbr_command_compare_t*/
+    SD_MBR_COMMAND_VECTOR_TABLE_BASE_SET, /**< Start forwarding all exception to this address @see ::sd_mbr_command_vector_table_base_set_t*/
 };
 
 /** @} */
@@ -108,11 +106,10 @@ enum NRF_MBR_COMMANDS
  * @retval ::NRF_SUCCESS indicates that the contents of the memory blocks where copied correctly.
  * @retval ::NRF_ERROR_INTERNAL indicates that the contents of the memory blocks where not verified correctly after copying.
  */
-typedef struct
-{
-  uint32_t *src;  /**< Pointer to the source of data to be copied.*/
-  uint32_t *dst;  /**< Pointer to the destination where the content is to be copied.*/
-  uint32_t len;   /**< Number of 32 bit words to copy. Must be a multiple of @ref MBR_PAGE_SIZE_IN_WORDS words.*/
+typedef struct {
+    uint32_t *src;  /**< Pointer to the source of data to be copied.*/
+    uint32_t *dst;  /**< Pointer to the destination where the content is to be copied.*/
+    uint32_t len;   /**< Number of 32 bit words to copy. Must be a multiple of @ref MBR_PAGE_SIZE_IN_WORDS words.*/
 } sd_mbr_command_copy_sd_t;
 
 
@@ -121,11 +118,10 @@ typedef struct
  * @retval ::NRF_SUCCESS indicates that the contents of both memory blocks are equal.
  * @retval ::NRF_ERROR_NULL indicates that the contents of the memory blocks are not equal.
  */
-typedef struct
-{
-  uint32_t *ptr1; /**< Pointer to block of memory. */
-  uint32_t *ptr2; /**< Pointer to block of memory. */
-  uint32_t len;   /**< Number of 32 bit words to compare.*/
+typedef struct {
+    uint32_t *ptr1; /**< Pointer to block of memory. */
+    uint32_t *ptr2; /**< Pointer to block of memory. */
+    uint32_t len;   /**< Number of 32 bit words to compare.*/
 } sd_mbr_command_compare_t;
 
 
@@ -144,10 +140,9 @@ typedef struct
  * @retval ::NRF_ERROR_INVALID_LENGTH if parameters attempts to read or write outside flash area.
  * @retval ::NRF_ERROR_NO_MEM if no parameter page is provided (see sds for more info)
  */
-typedef struct
-{
-  uint32_t *bl_src;  /**< Pointer to the source of the Bootloader to be be copied.*/
-  uint32_t bl_len;   /**< Number of 32 bit words to copy for BootLoader. */
+typedef struct {
+    uint32_t *bl_src;  /**< Pointer to the source of the Bootloader to be be copied.*/
+    uint32_t bl_len;   /**< Number of 32 bit words to copy for BootLoader. */
 } sd_mbr_command_copy_bl_t;
 
 /**@brief Sets the base address of the interrupt vector table for interrupts forwarded from the MBR
@@ -163,22 +158,19 @@ typedef struct
  * @retval ::NRF_ERROR_INVALID_ADDR if parameter address is outside of the flash size.
  * @retval ::NRF_ERROR_NO_MEM if no parameter page is provided (see sds for more info)
  */
-typedef struct
-{
-  uint32_t address; /**< The base address of the interrupt vector table for forwarded interrupts.*/
+typedef struct {
+    uint32_t address; /**< The base address of the interrupt vector table for forwarded interrupts.*/
 } sd_mbr_command_vector_table_base_set_t;
 
 
-typedef struct
-{
-  uint32_t command;  /**< type of command to be issued see @ref NRF_MBR_COMMANDS. */
-  union
-  {
-    sd_mbr_command_copy_sd_t copy_sd;  /**< Parameters for copy SoftDevice.*/
-    sd_mbr_command_compare_t compare;  /**< Parameters for verify.*/
-    sd_mbr_command_copy_bl_t copy_bl;  /**< Parameters for copy BootLoader. Requires parameter page. */
-    sd_mbr_command_vector_table_base_set_t base_set; /**< Parameters for vector table base set. Requires parameter page.*/
-  } params;
+typedef struct {
+    uint32_t command;  /**< type of command to be issued see @ref NRF_MBR_COMMANDS. */
+    union {
+        sd_mbr_command_copy_sd_t copy_sd;  /**< Parameters for copy SoftDevice.*/
+        sd_mbr_command_compare_t compare;  /**< Parameters for verify.*/
+        sd_mbr_command_copy_bl_t copy_bl;  /**< Parameters for copy BootLoader. Requires parameter page. */
+        sd_mbr_command_vector_table_base_set_t base_set; /**< Parameters for vector table base set. Requires parameter page.*/
+    } params;
 } sd_mbr_command_t;
 
 /** @} */
@@ -206,7 +198,7 @@ typedef struct
  * @retval NRF_ERROR_NO_MEM if UICR.NRFFW[1] is not set (i.e. is 0xFFFFFFFF).
  * @retval NRF_ERROR_INVALID_PARAM if an invalid command is given.
 */
-SVCALL(SD_MBR_COMMAND, uint32_t, sd_mbr_command(sd_mbr_command_t* param));
+SVCALL(SD_MBR_COMMAND, uint32_t, sd_mbr_command(sd_mbr_command_t *param));
 
 /** @} */
 

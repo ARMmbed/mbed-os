@@ -30,21 +30,21 @@
  ******************************************************************************/
 
 static const PinMap PinMap_UART_TX[] = {
-    {MCC_TX  , UART_0, 0},
-    {USBTX   , UART_1, 0},
-    {SH0_TX  , UART_2, ALTERNATE_FUNC},
-    {SH1_TX  , UART_3, ALTERNATE_FUNC},
-    {XB_TX   , UART_4, ALTERNATE_FUNC},
-    {NC      , NC    , 0}
+    {MCC_TX, UART_0, 0},
+    {USBTX, UART_1, 0},
+    {SH0_TX, UART_2, ALTERNATE_FUNC},
+    {SH1_TX, UART_3, ALTERNATE_FUNC},
+    {XB_TX, UART_4, ALTERNATE_FUNC},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {MCC_RX  , UART_0, 0},
-    {USBRX   , UART_1, 0},
-    {SH0_RX  , UART_2, ALTERNATE_FUNC},
-    {SH1_RX  , UART_3, ALTERNATE_FUNC},
-    {XB_RX   , UART_4, ALTERNATE_FUNC},
-    {NC      , NC    , 0}
+    {MCC_RX, UART_0, 0},
+    {USBRX, UART_1, 0},
+    {SH0_RX, UART_2, ALTERNATE_FUNC},
+    {SH1_RX, UART_3, ALTERNATE_FUNC},
+    {XB_RX, UART_4, ALTERNATE_FUNC},
+    {NC, NC, 0}
 };
 
 #define UART_NUM    5
@@ -138,7 +138,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
 void serial_free(serial_t *obj)
 {
-      uart_data[obj->index].serial_irq_id = 0;
+    uart_data[obj->index].serial_irq_id = 0;
 }
 
 void serial_baud(serial_t *obj, int baudrate)
@@ -246,25 +246,27 @@ static inline void uart_irq(uint32_t intstatus, uint32_t index,
 
 void uart0_irq()
 {
-    uart_irq(CMSDK_UART0->INTSTATUS & 0x3, 0, (CMSDK_UART_TypeDef*)CMSDK_UART0);
+    uart_irq(CMSDK_UART0->INTSTATUS & 0x3, 0, (CMSDK_UART_TypeDef *)CMSDK_UART0);
 }
 
 void uart1_irq()
 {
-    uart_irq(CMSDK_UART1->INTSTATUS & 0x3, 1, (CMSDK_UART_TypeDef*)CMSDK_UART1);
+    uart_irq(CMSDK_UART1->INTSTATUS & 0x3, 1, (CMSDK_UART_TypeDef *)CMSDK_UART1);
 }
 
 void uart2_irq()
 {
-    uart_irq(CMSDK_UART2->INTSTATUS & 0x3, 2, (CMSDK_UART_TypeDef*)CMSDK_UART2);
+    uart_irq(CMSDK_UART2->INTSTATUS & 0x3, 2, (CMSDK_UART_TypeDef *)CMSDK_UART2);
 }
 
-void uart3_irq() {
-    uart_irq(CMSDK_UART3->INTSTATUS & 0x3, 3, (CMSDK_UART_TypeDef*)CMSDK_UART3);
+void uart3_irq()
+{
+    uart_irq(CMSDK_UART3->INTSTATUS & 0x3, 3, (CMSDK_UART_TypeDef *)CMSDK_UART3);
 }
 
-void uart4_irq() {
-    uart_irq(CMSDK_UART4->INTSTATUS & 0x3, 4, (CMSDK_UART_TypeDef*)CMSDK_UART4);
+void uart4_irq()
+{
+    uart_irq(CMSDK_UART4->INTSTATUS & 0x3, 4, (CMSDK_UART_TypeDef *)CMSDK_UART4);
 }
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
@@ -315,7 +317,7 @@ static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enabl
     } else if ((irq == TxIrq) ||
                (uart_data[obj->index].rx_irq_set_api
                 + uart_data[obj->index].rx_irq_set_flow == 0)) {
-         /* Disable IRQ */
+        /* Disable IRQ */
         int all_disabled = 0;
         SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
 

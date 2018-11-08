@@ -30,8 +30,8 @@
 #define RTC_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_rtc
-{                                                          /* RTC              */
+struct st_rtc {
+    /* RTC              */
     volatile uint8_t   R64CNT;                                 /*  R64CNT          */
     volatile uint8_t   dummy537[1];                            /*                  */
     volatile uint8_t   RSECCNT;                                /*  RSECCNT         */

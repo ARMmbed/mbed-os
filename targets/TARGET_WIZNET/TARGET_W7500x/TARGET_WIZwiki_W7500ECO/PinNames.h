@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
- 
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -82,11 +82,11 @@ typedef enum {
     PA_13 = 0x00D,
     PA_14 = 0x00E,
     PA_15 = 0x00F,
-              
-    PB_0  = 0x010, 
-    PB_1  = 0x011, 
-    PB_2  = 0x012, 
-    PB_3  = 0x013, 
+
+    PB_0  = 0x010,
+    PB_1  = 0x011,
+    PB_2  = 0x012,
+    PB_3  = 0x013,
     PB_4  = 0x014,
     PB_5  = 0x015,
     PB_6  = 0x016,
@@ -99,7 +99,7 @@ typedef enum {
     PB_13 = 0x01D,
     PB_14 = 0x01E,
     PB_15 = 0x01F,
-              
+
     PC_0  = 0x020,
     PC_1  = 0x021,
     PC_2  = 0x022,
@@ -110,14 +110,14 @@ typedef enum {
     PC_7  = 0x027,
     PC_8  = 0x028,
     PC_9  = 0x029,
-              
+
     PC_10 = 0x02A,
     PC_11 = 0x02B,
     PC_12 = 0x02C,
     PC_13 = 0x02D,
     PC_14 = 0x02E,
     PC_15 = 0x02F,
-              
+
     PD_0  = 0x030,
     PD_1  = 0x031,
     PD_2  = 0x032,
@@ -162,7 +162,7 @@ typedef enum {
     PD_02  = PD_2,
     PD_03  = PD_3,
     PD_04  = PD_4,
-    
+
 
     // Generic signals namings
     LED1        = PA_01,
@@ -174,34 +174,34 @@ typedef enum {
     USBRX       = PC_11,
 
     // For ECO
-    P5	  = PA_5,
-    P6	  = PA_6,
-    P7	  = PA_7,
-    P8	  = PA_8,
-    P9	  = PA_9,
-    P10	  = PA_10,
-    P11	  = PA_11,
-    P12	  = PA_12,
-    P13	  = PA_13,
-    P14	  = PA_14,
-    P15	  = PB_0,
-    P16	  = PB_1,
-    P17	  = PB_2,
-    P18	  = PB_3,
-    P19	  = PC_5,
-    P20	  = PC_4,
-    P21	  = PC_0,
-    P22	  = PC_1,
-    P23	  = PC_2,
-    P24	  = PC_3,
-    P25	  = PC_8,
-    P26	  = PC_9,
-    P27	  = PC_12,
-    P28	  = PC_13,
-    P29	  = PC_14,
-    P30	  = PC_15,
-    P31	  = PC_6,
-    P32	  = PC_7,
+    P5    = PA_5,
+    P6    = PA_6,
+    P7    = PA_7,
+    P8    = PA_8,
+    P9    = PA_9,
+    P10   = PA_10,
+    P11   = PA_11,
+    P12   = PA_12,
+    P13   = PA_13,
+    P14   = PA_14,
+    P15   = PB_0,
+    P16   = PB_1,
+    P17   = PB_2,
+    P18   = PB_3,
+    P19   = PC_5,
+    P20   = PC_4,
+    P21   = PC_0,
+    P22   = PC_1,
+    P23   = PC_2,
+    P24   = PC_3,
+    P25   = PC_8,
+    P26   = PC_9,
+    P27   = PC_12,
+    P28   = PC_13,
+    P29   = PC_14,
+    P30   = PC_15,
+    P31   = PC_6,
+    P32   = PC_7,
 
     //Use SPI1
     SD_SEL      = PB_0,         // SPI1_CS

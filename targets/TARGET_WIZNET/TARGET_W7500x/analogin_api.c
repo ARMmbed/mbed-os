@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -40,7 +40,7 @@
 #include "PeripheralPins.h"
 
 
-ADC_TypeDef * AdcHandle;
+ADC_TypeDef *AdcHandle;
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
@@ -90,7 +90,7 @@ static inline uint16_t adc_read(analogin_t *obj)
     ADC_Start();
 
     // Wait end of conversion and get value
-    while(ADC_IsInterrupt());
+    while (ADC_IsInterrupt());
     return ADC_ReadData();
 }
 

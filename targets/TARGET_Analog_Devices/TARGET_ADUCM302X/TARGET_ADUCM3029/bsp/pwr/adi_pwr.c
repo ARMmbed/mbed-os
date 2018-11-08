@@ -106,7 +106,7 @@ static uint32_t gnLowPowerIntOccFlag = 0u;
  * @return      Status
  *    - #ADI_PWR_SUCCESS : Successfully initialized the power service.
  */
-ADI_PWR_RESULT adi_pwr_Init (void)
+ADI_PWR_RESULT adi_pwr_Init(void)
 {
     /* Enable internal HF oscillators */
     pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
@@ -120,8 +120,7 @@ ADI_PWR_RESULT adi_pwr_Init (void)
     pADI_CLKG0_OSC->CTL |= BITM_CLKG_OSC_CTL_HFOSC_EN;
 
     /* wait for HF OSC to stabilize */
-    while ((pADI_CLKG0_OSC->CTL & (1U << BITP_CLKG_OSC_CTL_HFOSC_OK)) == 0u)
-    {
+    while ((pADI_CLKG0_OSC->CTL & (1U << BITP_CLKG_OSC_CTL_HFOSC_OK)) == 0u) {
     }
 
     /* Switch over to the internal HF oscillator */
@@ -130,11 +129,11 @@ ADI_PWR_RESULT adi_pwr_Init (void)
     /* complete remaining reset sequence */
     pADI_CLKG0_CLK->CTL0    = CLOCK_CTL0_CONFIG_VALUE;
     pADI_CLKG0_CLK->CTL1    = CLOCK_CTL1_CONFIG_VALUE;
-    
-#if defined(__ADUCM4x50__)    
+
+#if defined(__ADUCM4x50__)
     pADI_CLKG0_CLK->CTL2    = CLOCK_CTL2_CONFIG_VALUE;
-#endif /*__ADUCM4x50__ */     
-    
+#endif /*__ADUCM4x50__ */
+
     pADI_CLKG0_CLK->CTL3    = CLOCK_CTL3_CONFIG_VALUE;
     /* No CLK CTL4 */
     pADI_CLKG0_CLK->CTL5    = CLOCK_CTL5_CONFIG_VALUE;
@@ -145,7 +144,7 @@ ADI_PWR_RESULT adi_pwr_Init (void)
     pADI_PMG0->IEN          = PWM_INTERRUPT_CONFIG;
     pADI_PMG0->PWRMOD       = PWM_PWRMOD_CONFIG;
     pADI_PMG0->CTL1         = PWM_HPBUCK_CONTROL;
-    
+
     /* disable external HF crystal oscillator */
     /* (don't disable LF crystal or the RTC will lose time */
     pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
@@ -160,7 +159,7 @@ ADI_PWR_RESULT adi_pwr_Init (void)
     /* compute new internal clocks based on the newly reset controller */
     SystemCoreClockUpdate();
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 
@@ -176,10 +175,10 @@ ADI_PWR_RESULT adi_pwr_Init (void)
  *
  * @sa adi_pwr_GetClockFrequency ()
  */
-ADI_PWR_RESULT adi_pwr_UpdateCoreClock (void)
+ADI_PWR_RESULT adi_pwr_UpdateCoreClock(void)
 {
     SystemCoreClockUpdate();
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 /**
@@ -196,16 +195,15 @@ ADI_PWR_RESULT adi_pwr_UpdateCoreClock (void)
  *              - #ADI_PWR_NULL_POINTER [D]   : Failed to install the callback function since the call back function pointer is NULL.
  */
 ADI_PWR_RESULT adi_pwr_RegisterCallback(
-               const ADI_CALLBACK pfCallback,
-               void *pcbParam
-           )
+    const ADI_CALLBACK pfCallback,
+    void *pcbParam
+)
 {
 
 #ifdef ADI_DEBUG
-   if(pfCallback == NULL)
-   {
-      return(ADI_PWR_NULL_POINTER);
-   }
+    if (pfCallback == NULL) {
+        return (ADI_PWR_NULL_POINTER);
+    }
 #endif
 
     gpfCallbackFunction = pfCallback;
@@ -225,16 +223,15 @@ ADI_PWR_RESULT adi_pwr_RegisterCallback(
  *
  * @sa adi_pwr_GetClockFrequency ()
  */
-ADI_PWR_RESULT adi_pwr_SetExtClkFreq (const uint32_t ExtClkFreq)
+ADI_PWR_RESULT adi_pwr_SetExtClkFreq(const uint32_t ExtClkFreq)
 {
 #ifdef ADI_DEBUG
-    if(ExtClkFreq > MAXIMUM_EXT_CLOCK)
-    {
-         return(ADI_PWR_INVALID_CLOCK_SPEED);
+    if (ExtClkFreq > MAXIMUM_EXT_CLOCK) {
+        return (ADI_PWR_INVALID_CLOCK_SPEED);
     }
 #endif
     gpioClock = ExtClkFreq;
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 /**
@@ -255,32 +252,31 @@ ADI_PWR_RESULT  adi_pwr_SetPLLClockMux(const ADI_CLOCK_MUX_ID eClockID)
 
 #ifdef ADI_DEBUG
     /* Validate the given clock ID */
-    switch (eClockID)
-    {
+    switch (eClockID) {
         case ADI_CLOCK_MUX_SPLL_HFOSC:
         case ADI_CLOCK_MUX_SPLL_HFXTAL:
-          
-#if defined(__ADUCM4x50__)          
+
+#if defined(__ADUCM4x50__)
         case ADI_CLOCK_MUX_SPLL_GPIO:
-#endif /* __ADUCM4x50__ */           
+#endif /* __ADUCM4x50__ */
             break;
 
-            
-      /* Any other clock ID is not valid since we are configuring the SPLL clock multiplexer.
-       * Only valid input clock to the multiplexer is HFOSC, HFXTAL, GPIO */
+
+        /* Any other clock ID is not valid since we are configuring the SPLL clock multiplexer.
+         * Only valid input clock to the multiplexer is HFOSC, HFXTAL, GPIO */
         default:
-            return(ADI_PWR_INVALID_CLOCK_ID);
+            return (ADI_PWR_INVALID_CLOCK_ID);
     }
 #endif /* ADI_DEBUG */
 
     /* update the mux setting inside a critical region */
     ADI_ENTER_CRITICAL_REGION();
-    tmp     =   (pADI_CLKG0_CLK->CTL0 & ~BITM_CLKG_CLK_CTL0_PLL_IPSEL);
-    tmp     |=  (( (uint32_t)eClockID - (uint32_t)ADI_CLOCK_MUX_SPLL_HFOSC) << BITP_CLKG_CLK_CTL0_PLL_IPSEL);
+    tmp     = (pADI_CLKG0_CLK->CTL0 & ~BITM_CLKG_CLK_CTL0_PLL_IPSEL);
+    tmp     |= (((uint32_t)eClockID - (uint32_t)ADI_CLOCK_MUX_SPLL_HFOSC) << BITP_CLKG_CLK_CTL0_PLL_IPSEL);
     pADI_CLKG0_CLK->CTL0 = tmp;
     ADI_EXIT_CRITICAL_REGION();
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 /**
@@ -301,17 +297,16 @@ ADI_PWR_RESULT  adi_pwr_SetLFClockMux(const ADI_CLOCK_MUX_ID eClockID)
     ADI_INT_STATUS_ALLOC();
 
 #ifdef ADI_DEBUG
-    switch (eClockID)
-    {
+    switch (eClockID) {
 
         case ADI_CLOCK_MUX_LFCLK_LFOSC:
         case ADI_CLOCK_MUX_LFCLK_LFXTAL:
             break;
-      /* Any other clock ID is not valid since we are configuring the Low frequency clock multiplexer.
-       * Only valid input clock to the multiplexer is LFOSC, LFXTAL */
+        /* Any other clock ID is not valid since we are configuring the Low frequency clock multiplexer.
+         * Only valid input clock to the multiplexer is LFOSC, LFXTAL */
 
-    default:
-        return(ADI_PWR_INVALID_CLOCK_ID);
+        default:
+            return (ADI_PWR_INVALID_CLOCK_ID);
 
     }
 #endif /* ADI_DEBUG */
@@ -321,12 +316,12 @@ ADI_PWR_RESULT  adi_pwr_SetLFClockMux(const ADI_CLOCK_MUX_ID eClockID)
 
     pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
     tmp = (pADI_CLKG0_OSC->CTL & ~BITM_CLKG_OSC_CTL_LFCLK_MUX);
-    tmp |=(((uint32_t)eClockID - (uint32_t)ADI_CLOCK_MUX_LFCLK_LFOSC) << BITP_CLKG_OSC_CTL_LFCLK_MUX);
+    tmp |= (((uint32_t)eClockID - (uint32_t)ADI_CLOCK_MUX_LFCLK_LFOSC) << BITP_CLKG_OSC_CTL_LFCLK_MUX);
     pADI_CLKG0_OSC->CTL = tmp;
 
     ADI_EXIT_CRITICAL_REGION();
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 /**
@@ -349,17 +344,16 @@ ADI_PWR_RESULT  adi_pwr_SetRefClockMux(const ADI_CLOCK_MUX_ID eClockID)
     ADI_INT_STATUS_ALLOC();
 
 #ifdef ADI_DEBUG
-    switch (eClockID)
-    {
+    switch (eClockID) {
 
         case ADI_CLOCK_MUX_REF_HFOSC_CLK:
         case ADI_CLOCK_MUX_REF_HFXTAL_26MHZ_CLK:
         case ADI_CLOCK_MUX_REF_HFXTAL_16MHZ_CLK:
             break;
-      /* Any other clock ID is not valid since we are configuring the out clock multiplexer.*/
+        /* Any other clock ID is not valid since we are configuring the out clock multiplexer.*/
 
         default:
-            return(ADI_PWR_INVALID_CLOCK_ID);
+            return (ADI_PWR_INVALID_CLOCK_ID);
     }
 #endif /* ADI_DEBUG */
 
@@ -367,12 +361,12 @@ ADI_PWR_RESULT  adi_pwr_SetRefClockMux(const ADI_CLOCK_MUX_ID eClockID)
     ADI_ENTER_CRITICAL_REGION();
 
     tmp = (pADI_CLKG0_CLK->CTL0 & ~BITM_CLKG_CLK_CTL0_RCLKMUX);
-    tmp |=(((uint32_t)eClockID - (uint32_t)ADI_CLOCK_MUX_REF_HFOSC_CLK) << BITP_CLKG_CLK_CTL0_RCLKMUX);
+    tmp |= (((uint32_t)eClockID - (uint32_t)ADI_CLOCK_MUX_REF_HFOSC_CLK) << BITP_CLKG_CLK_CTL0_RCLKMUX);
     pADI_CLKG0_CLK->CTL0 = tmp;
 
     ADI_EXIT_CRITICAL_REGION();
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 /**
@@ -393,30 +387,29 @@ ADI_PWR_RESULT  adi_pwr_SetRootClockMux(const ADI_CLOCK_MUX_ID eClockID)
     ADI_INT_STATUS_ALLOC();
 
 #ifdef ADI_DEBUG
-    switch (eClockID)
-    {
-       case ADI_CLOCK_MUX_ROOT_HFOSC:
-       case ADI_CLOCK_MUX_ROOT_HFXTAL:
-       case ADI_CLOCK_MUX_ROOT_SPLL:
-       case ADI_CLOCK_MUX_ROOT_GPIO:
+    switch (eClockID) {
+        case ADI_CLOCK_MUX_ROOT_HFOSC:
+        case ADI_CLOCK_MUX_ROOT_HFXTAL:
+        case ADI_CLOCK_MUX_ROOT_SPLL:
+        case ADI_CLOCK_MUX_ROOT_GPIO:
             break;
-		  /* Any other clock ID is not valid since we are configuring the root clock multiplexer.
-		   * Only valid input clock to the multiplexer is HFOSC, HFXTAL, SPLL, GPIO */
-		default:
-        	return(ADI_PWR_INVALID_CLOCK_ID);
+        /* Any other clock ID is not valid since we are configuring the root clock multiplexer.
+         * Only valid input clock to the multiplexer is HFOSC, HFXTAL, SPLL, GPIO */
+        default:
+            return (ADI_PWR_INVALID_CLOCK_ID);
     }
 #endif /* ADI_DEBUG */
 
     /* update the mux setting inside a critical region */
     ADI_ENTER_CRITICAL_REGION();
 
-    tmp =  (pADI_CLKG0_CLK->CTL0 & ~BITM_CLKG_CLK_CTL0_CLKMUX);
+    tmp = (pADI_CLKG0_CLK->CTL0 & ~BITM_CLKG_CLK_CTL0_CLKMUX);
     tmp |= (((uint32_t)eClockID - (uint32_t)ADI_CLOCK_MUX_ROOT_HFOSC) << BITP_CLKG_CLK_CTL0_CLKMUX);
     pADI_CLKG0_CLK->CTL0 = tmp;
 
     ADI_EXIT_CRITICAL_REGION();
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 
@@ -431,17 +424,15 @@ ADI_PWR_RESULT  adi_pwr_SetRootClockMux(const ADI_CLOCK_MUX_ID eClockID)
  *              - #ADI_PWR_NULL_POINTER [D] : If the given pointer is pointing to NULL.
  *              - #ADI_PWR_FAILURE [D]      : The system is not initialized yet. Call SystemInit before calling this API.
  */
-ADI_PWR_RESULT adi_pwr_GetExtClkFreq (uint32_t *pExtClock)
+ADI_PWR_RESULT adi_pwr_GetExtClkFreq(uint32_t *pExtClock)
 {
 #ifdef ADI_DEBUG
     /* Trap here if the app fails to set the external clock frequency. */
-    if (0u == gpioClock)
-    {
+    if (0u == gpioClock) {
         return (ADI_PWR_FAILURE);
     }
 
-    if(pExtClock == NULL)
-    {
+    if (pExtClock == NULL) {
         return (ADI_PWR_NULL_POINTER);
     }
 #endif
@@ -464,14 +455,13 @@ ADI_PWR_RESULT adi_pwr_GetExtClkFreq (uint32_t *pExtClock)
  * @sa adi_PWR_SetClockDivide
  * @sa SystemSetClockDivider
 */
-ADI_PWR_RESULT adi_pwr_GetClockFrequency (const ADI_CLOCK_ID eClockId, uint32_t *pClock )
+ADI_PWR_RESULT adi_pwr_GetClockFrequency(const ADI_CLOCK_ID eClockId, uint32_t *pClock)
 {
     uint32_t src, nDiv;
 
 #ifdef ADI_DEBUG
     /* trap here if the app fails to call SystemInit(). */
-    if ((0u == hfClock) || (0u == lfClock))
-    {
+    if ((0u == hfClock) || (0u == lfClock)) {
         return ADI_PWR_SYSTEM_NOT_INITIALIZED;
     }
 #endif
@@ -496,12 +486,11 @@ ADI_PWR_RESULT adi_pwr_GetClockFrequency (const ADI_CLOCK_ID eClockId, uint32_t 
             return ADI_PWR_INVALID_CLOCK_ID;
     } /* end switch */
 
-    if(nDiv == 0u)
-    {
+    if (nDiv == 0u) {
         nDiv = 1u;
     }
 
-    *pClock =  (src/nDiv);
+    *pClock = (src / nDiv);
 
     return ADI_PWR_SUCCESS;
 }
@@ -520,7 +509,7 @@ ADI_PWR_RESULT adi_pwr_GetClockFrequency (const ADI_CLOCK_ID eClockId, uint32_t 
 
     @details    Manage individual peripheral clock gates to enable or disable the clocks to the peripheral.
 */
-ADI_PWR_RESULT adi_pwr_EnableClock (const ADI_CLOCK_GATE eClockGate, const bool bEnable)
+ADI_PWR_RESULT adi_pwr_EnableClock(const ADI_CLOCK_GATE eClockGate, const bool bEnable)
 {
     uint32_t mask;
     ADI_INT_STATUS_ALLOC();
@@ -529,15 +518,15 @@ ADI_PWR_RESULT adi_pwr_EnableClock (const ADI_CLOCK_GATE eClockGate, const bool 
     /* update the Clock Gate register in a critical region */
     ADI_ENTER_CRITICAL_REGION();
 
-        /* NOTE NEGATIVE LOGIC!!! */
-        if (bEnable == true) {
+    /* NOTE NEGATIVE LOGIC!!! */
+    if (bEnable == true) {
 
         /* clear disable bit */
-            pADI_CLKG0_CLK->CTL5 &= ~mask;
-        } else {
-            /* set disable bit */
-            pADI_CLKG0_CLK->CTL5 |= mask;
-        }
+        pADI_CLKG0_CLK->CTL5 &= ~mask;
+    } else {
+        /* set disable bit */
+        pADI_CLKG0_CLK->CTL5 |= mask;
+    }
 
     /* end critical region */
     ADI_EXIT_CRITICAL_REGION();
@@ -562,7 +551,7 @@ ADI_PWR_RESULT adi_pwr_EnableClock (const ADI_CLOCK_GATE eClockGate, const bool 
 
     @sa         SystemGetClockFrequency
 */
-ADI_PWR_RESULT adi_pwr_SetClockDivider (const ADI_CLOCK_ID eClockId, const uint16_t nDiv)
+ADI_PWR_RESULT adi_pwr_SetClockDivider(const ADI_CLOCK_ID eClockId, const uint16_t nDiv)
 {
     uint32_t mask;
     uint32_t value;
@@ -573,13 +562,11 @@ ADI_PWR_RESULT adi_pwr_SetClockDivider (const ADI_CLOCK_ID eClockId, const uint1
     uint32_t hdiv, pdiv;
 #endif  /*ADI_DEBUG*/
 
-    switch (eClockId)
-    {
+    switch (eClockId) {
         case ADI_CLOCK_HCLK:
 #ifdef ADI_DEBUG
             /* Verify the divide factor is within the range */
-            if ((nDiv > CLOCK_MAX_DIV_VALUE) || (nDiv < CLOCK_MIN_DIV_VALUE))
-            {
+            if ((nDiv > CLOCK_MAX_DIV_VALUE) || (nDiv < CLOCK_MIN_DIV_VALUE)) {
                 return ADI_PWR_INVALID_CLOCK_DIVIDER;
             }
 
@@ -591,8 +578,7 @@ ADI_PWR_RESULT adi_pwr_SetClockDivider (const ADI_CLOCK_ID eClockId, const uint1
             }
 
             /* verify new PDIV:HDIV ratio will be integral */
-            if ((pdiv % hdiv) != 0u) 
-            {
+            if ((pdiv % hdiv) != 0u) {
                 return ADI_PWR_INVALID_CLOCK_RATIO;
             }
 #endif  /*ADI_DEBUG*/
@@ -605,8 +591,7 @@ ADI_PWR_RESULT adi_pwr_SetClockDivider (const ADI_CLOCK_ID eClockId, const uint1
 #ifdef ADI_DEBUG
 
             /* Verify the divide factor is within the range */
-            if ((nDiv > CLOCK_MAX_DIV_VALUE) || (nDiv < CLOCK_MIN_DIV_VALUE))
-            {
+            if ((nDiv > CLOCK_MAX_DIV_VALUE) || (nDiv < CLOCK_MIN_DIV_VALUE)) {
                 return ADI_PWR_INVALID_CLOCK_DIVIDER;
             }
 
@@ -618,8 +603,7 @@ ADI_PWR_RESULT adi_pwr_SetClockDivider (const ADI_CLOCK_ID eClockId, const uint1
             }
 
             /* verify new PDIV:HDIV ratio will be integral */
-            if ((pdiv % hdiv) != 0u) 
-            {
+            if ((pdiv % hdiv) != 0u) {
                 return ADI_PWR_INVALID_CLOCK_RATIO;
             }
 #endif  /*ADI_DEBUG*/
@@ -630,8 +614,7 @@ ADI_PWR_RESULT adi_pwr_SetClockDivider (const ADI_CLOCK_ID eClockId, const uint1
         case ADI_CLOCK_ACLK:
 #ifdef ADI_DEBUG
             /* Verify the divide factor is within the range */
-            if ((nDiv > ACLK_MAX_DIV_VALUE) || (nDiv < ACLK_MIN_DIV_VALUE))
-            {
+            if ((nDiv > ACLK_MAX_DIV_VALUE) || (nDiv < ACLK_MIN_DIV_VALUE)) {
                 return ADI_PWR_INVALID_CLOCK_DIVIDER;
             }
 
@@ -643,8 +626,7 @@ ADI_PWR_RESULT adi_pwr_SetClockDivider (const ADI_CLOCK_ID eClockId, const uint1
             }
 
             /* verify new PDIV:HDIV ratio will be integral */
-            if ((pdiv % hdiv) != 0u)
-            {
+            if ((pdiv % hdiv) != 0u) {
                 return ADI_PWR_INVALID_CLOCK_RATIO;
             }
 #endif  /*ADI_DEBUG*/
@@ -690,7 +672,7 @@ ADI_PWR_RESULT adi_pwr_SetClockDivider (const ADI_CLOCK_ID eClockId, const uint1
  * @details    Enables or disables clock sources without additional checks, by writing a "1" or "0" to the enable bit.
  *
  */
-ADI_PWR_RESULT adi_pwr_EnableClockSource (const ADI_CLOCK_SOURCE_ID eClockSource, const bool bEnable)
+ADI_PWR_RESULT adi_pwr_EnableClockSource(const ADI_CLOCK_SOURCE_ID eClockSource, const bool bEnable)
 {
     uint32_t val = 0u;
     volatile uint32_t *pReg = NULL;
@@ -702,67 +684,60 @@ ADI_PWR_RESULT adi_pwr_EnableClockSource (const ADI_CLOCK_SOURCE_ID eClockSource
      * ADI_CLOCK_SOURCE_LFOSC is not checked  because it is enabled always and it cannot be disabled
      * ADI_CLOCK_SOURCE_GPIO is only checked if a specific configuration macro is defined
      */
-    switch(eClockSource)
-    {
+    switch (eClockSource) {
         case ADI_CLOCK_SOURCE_HFXTAL:
-            val     =   (1u << BITP_CLKG_OSC_CTL_HFX_EN);
+            val     = (1u << BITP_CLKG_OSC_CTL_HFX_EN);
             pReg    =   &pADI_CLKG0_OSC->CTL;
             nMask   =   BITM_CLKG_OSC_CTL_HFX_OK;
             break;
 
         case ADI_CLOCK_SOURCE_LFXTAL:
-            val     =   (1u << BITP_CLKG_OSC_CTL_LFX_EN);
+            val     = (1u << BITP_CLKG_OSC_CTL_LFX_EN);
             pReg    =   &pADI_CLKG0_OSC->CTL;
             nMask   =   BITM_CLKG_OSC_CTL_LFX_OK;
             break;
 
         case ADI_CLOCK_SOURCE_HFOSC:
-            val     =   (1u << BITP_CLKG_OSC_CTL_HFOSC_EN);
+            val     = (1u << BITP_CLKG_OSC_CTL_HFOSC_EN);
             pReg    =   &pADI_CLKG0_OSC->CTL;
             nMask   =   BITM_CLKG_OSC_CTL_HFOSC_OK;
             break;
 
         case ADI_CLOCK_SOURCE_SPLL:
-            val     =   (1u << BITP_CLKG_CLK_CTL3_SPLLEN);
+            val     = (1u << BITP_CLKG_CLK_CTL3_SPLLEN);
             pReg    =   &pADI_CLKG0_CLK->CTL3;
             nMask   =   BITM_CLKG_CLK_CTL3_SPLLEN;
             break;
 
 #if (ADI_PWR_CFG_ENABLE_CLOCK_SOURCE_GPIO == 1)
         case ADI_CLOCK_SOURCE_GPIO:
-            if(adi_gpio_PullUpEnable(ADI_GPIO_PORT1,ADI_GPIO_PIN_10,false) != ADI_GPIO_SUCCESS)
-            {
-               return(ADI_PWR_FAILURE);
+            if (adi_gpio_PullUpEnable(ADI_GPIO_PORT1, ADI_GPIO_PIN_10, false) != ADI_GPIO_SUCCESS) {
+                return (ADI_PWR_FAILURE);
             }
-            if(adi_gpio_InputEnable(ADI_GPIO_PORT1,ADI_GPIO_PIN_10,true) != ADI_GPIO_SUCCESS)
-            {
-               return ADI_PWR_SUCCESS;
+            if (adi_gpio_InputEnable(ADI_GPIO_PORT1, ADI_GPIO_PIN_10, true) != ADI_GPIO_SUCCESS) {
+                return ADI_PWR_SUCCESS;
             }
             break;
 #endif
 
         default:
-            return(ADI_PWR_INVALID_PARAM);
+            return (ADI_PWR_INVALID_PARAM);
 
     } /* end switch */
 
     ADI_ENTER_CRITICAL_REGION();
 
-        pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
-        if (bEnable == true)
-        {
-            *pReg |= val;
-        }
-        else
-        {
-            *pReg &= ~val;
-        }
+    pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
+    if (bEnable == true) {
+        *pReg |= val;
+    } else {
+        *pReg &= ~val;
+    }
 
     ADI_EXIT_CRITICAL_REGION();
 
-    if((nMask !=0u) && (bEnable == true))
-    {
-        while(0u== (pADI_CLKG0_OSC->CTL & nMask)){}
+    if ((nMask != 0u) && (bEnable == true)) {
+        while (0u == (pADI_CLKG0_OSC->CTL & nMask)) {}
     }
 
     return (ADI_PWR_SUCCESS);
@@ -782,61 +757,47 @@ ADI_PWR_RESULT adi_pwr_EnableClockSource (const ADI_CLOCK_SOURCE_ID eClockSource
  *  @details    Return the status of a clock source.
  *
  */
-ADI_PWR_RESULT adi_pwr_GetClockStatus (const ADI_CLOCK_SOURCE_ID eClockSource, ADI_CLOCK_SOURCE_STATUS *peStatus)
+ADI_PWR_RESULT adi_pwr_GetClockStatus(const ADI_CLOCK_SOURCE_ID eClockSource, ADI_CLOCK_SOURCE_STATUS *peStatus)
 {
     uint32_t val = pADI_CLKG0_OSC->CTL;
 
 #ifdef ADI_DEBUG
-    if(peStatus == NULL)
-    {
+    if (peStatus == NULL) {
         return ADI_PWR_NULL_POINTER;
     }
 #endif /* ADI_DEBUG */
 
     *peStatus = ADI_CLOCK_SOURCE_DISABLED;
 
-    switch(eClockSource)
-    {
+    switch (eClockSource) {
         case ADI_CLOCK_SOURCE_HFOSC:
-            if ((val & BITM_CLKG_OSC_CTL_HFOSC_EN) != 0u)
-            {
+            if ((val & BITM_CLKG_OSC_CTL_HFOSC_EN) != 0u) {
                 /* Clock source enabled, now check for stable */
-                if ((val & BITM_CLKG_OSC_CTL_HFOSC_OK) != 0u)
-                {
+                if ((val & BITM_CLKG_OSC_CTL_HFOSC_OK) != 0u) {
                     *peStatus = ADI_CLOCK_SOURCE_ENABLED_STABLE;
-                }
-                else
-                {
+                } else {
                     *peStatus  = ADI_CLOCK_SOURCE_ENABLED_NOT_STABLE;
                 }
             }
             break;
 
         case ADI_CLOCK_SOURCE_HFXTAL:
-            if ((val & BITM_CLKG_OSC_CTL_HFX_EN) != 0u)
-            {
+            if ((val & BITM_CLKG_OSC_CTL_HFX_EN) != 0u) {
                 /* Clock source enabled, now check for stable */
-                if ((val & BITM_CLKG_OSC_CTL_HFX_OK) != 0u)
-                {
+                if ((val & BITM_CLKG_OSC_CTL_HFX_OK) != 0u) {
                     *peStatus  = ADI_CLOCK_SOURCE_ENABLED_STABLE;
-                }
-                else
-                {
+                } else {
                     *peStatus  = ADI_CLOCK_SOURCE_ENABLED_NOT_STABLE;
                 }
             }
             break;
 
         case ADI_CLOCK_SOURCE_LFXTAL:
-            if ((val & BITM_CLKG_OSC_CTL_LFX_EN) != 0u)
-            {
+            if ((val & BITM_CLKG_OSC_CTL_LFX_EN) != 0u) {
                 /* Clock source enabled, now check for stable */
-                if ((val & BITM_CLKG_OSC_CTL_LFX_OK) != 0u)
-                {
+                if ((val & BITM_CLKG_OSC_CTL_LFX_OK) != 0u) {
                     *peStatus  = ADI_CLOCK_SOURCE_ENABLED_STABLE;
-                }
-                else
-                {
+                } else {
                     *peStatus  = ADI_CLOCK_SOURCE_ENABLED_NOT_STABLE;
                 }
             }
@@ -844,12 +805,9 @@ ADI_PWR_RESULT adi_pwr_GetClockStatus (const ADI_CLOCK_SOURCE_ID eClockSource, A
 
         case ADI_CLOCK_SOURCE_LFOSC:
             /* Clock source enabled, now check for stable */
-            if ((val & BITM_CLKG_OSC_CTL_LFOSC_OK) != 0u)
-            {
+            if ((val & BITM_CLKG_OSC_CTL_LFOSC_OK) != 0u) {
                 *peStatus  = ADI_CLOCK_SOURCE_ENABLED_STABLE;
-            }
-            else
-            {
+            } else {
                 *peStatus  = ADI_CLOCK_SOURCE_ENABLED_NOT_STABLE;
             }
             break;
@@ -859,7 +817,7 @@ ADI_PWR_RESULT adi_pwr_GetClockStatus (const ADI_CLOCK_SOURCE_ID eClockSource, A
         case ADI_CLOCK_SOURCE_GPIO:
         default:
             *peStatus  =  ADI_CLOCK_SOURCE_ID_NOT_VALID;
-             break;
+            break;
 
     } /* end switch */
 
@@ -884,15 +842,14 @@ ADI_PWR_RESULT adi_pwr_EnableClockInterrupt(const ADI_PWR_CLOCK_IRQ eIrq, const 
     volatile uint32_t *pReg = NULL;
     uint32_t tmp;
 
-    switch(eIrq)
-    {
-#if defined(__ADUCM4x50__)      
+    switch (eIrq) {
+#if defined(__ADUCM4x50__)
         /*! Interrupt for root clock monitor and Clock Fail */
         case ADI_PWR_ROOT_CLOCK_MON_IEN:
             pReg = &pADI_CLKG0_OSC->CTL;
             break;
 #endif /* __ADUCM4x50__ */
-            
+
         /*! Interrupt for LFXTAL clock monitor and Clock Fail */
         case ADI_PWR_LFXTAL_CLOCK_MON_IEN:
             pReg = &pADI_CLKG0_OSC->CTL;
@@ -921,25 +878,21 @@ ADI_PWR_RESULT adi_pwr_EnableClockInterrupt(const ADI_PWR_CLOCK_IRQ eIrq, const 
 
     tmp = *pReg;
 
-    if(bEnable == true)
-    {
+    if (bEnable == true) {
         tmp |= (uint32_t)eIrq;
-    }
-    else
-    {
+    } else {
         tmp &= ~((uint32_t)eIrq);
     }
 
     /* If we have to write to oscillator control register unlock it */
-    if(pReg == &pADI_CLKG0_OSC->CTL)
-    {
+    if (pReg == &pADI_CLKG0_OSC->CTL) {
         pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
     }
     *pReg = tmp;
 
     ADI_EXIT_CRITICAL_REGION();
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 
@@ -969,48 +922,42 @@ ADI_PWR_RESULT adi_pwr_SetPll(uint8_t  nDivFactor, const uint8_t  nMulFactor, co
 
 #ifdef ADI_DEBUG
     /* Check if multiplication factor and division factor is more than 6 bits */
-    if (((nMulFactor & ~0x3Fu) != 0u) || ((nDivFactor & ~0x3Fu) != 0u))
-    {
+    if (((nMulFactor & ~0x3Fu) != 0u) || ((nDivFactor & ~0x3Fu) != 0u)) {
         return ADI_PWR_INVALID_CLOCK_DIVIDER;
     }
 
     /* Check if the PLL is multipexed in as root clock source, parameters should not change in that case */
-    if((pADI_CLKG0_CLK->CTL0 & BITM_CLKG_CLK_CTL0_CLKMUX) ==
-       ((uint32_t)((ADI_CLOCK_MUX_ROOT_SPLL - ADI_CLOCK_MUX_ROOT_HFOSC) << BITP_CLKG_CLK_CTL0_CLKMUX))) 
-    {
-         return ADI_PWR_OPERATION_NOT_ALLOWED;
+    if ((pADI_CLKG0_CLK->CTL0 & BITM_CLKG_CLK_CTL0_CLKMUX) ==
+            ((uint32_t)((ADI_CLOCK_MUX_ROOT_SPLL - ADI_CLOCK_MUX_ROOT_HFOSC) << BITP_CLKG_CLK_CTL0_CLKMUX))) {
+        return ADI_PWR_OPERATION_NOT_ALLOWED;
     }
 #endif
 
-     if(nTempDivFactor < MINIMUM_PLL_DIVIDER)
-     {
-         nTempDivFactor = MINIMUM_PLL_DIVIDER;
-     }
-     if(nTempMulFactor < MINIMUM_PLL_MULTIPLIER)
-     {
-         nTempMulFactor = MINIMUM_PLL_MULTIPLIER;
-     }
-
-    cfg =  (((uint32_t)nTempDivFactor) << BITP_CLKG_CLK_CTL3_SPLLMSEL)|( ((uint32_t) nTempMulFactor) << BITP_CLKG_CLK_CTL3_SPLLNSEL);
-
-    if(bDiv2 == true)
-    {
-      cfg |= (1u <<BITP_CLKG_CLK_CTL3_SPLLDIV2);
+    if (nTempDivFactor < MINIMUM_PLL_DIVIDER) {
+        nTempDivFactor = MINIMUM_PLL_DIVIDER;
     }
-    if(bMul2 == true)
-    {
-      cfg |= (1u <<BITP_CLKG_CLK_CTL3_SPLLMUL2);
+    if (nTempMulFactor < MINIMUM_PLL_MULTIPLIER) {
+        nTempMulFactor = MINIMUM_PLL_MULTIPLIER;
+    }
+
+    cfg = (((uint32_t)nTempDivFactor) << BITP_CLKG_CLK_CTL3_SPLLMSEL) | (((uint32_t) nTempMulFactor) << BITP_CLKG_CLK_CTL3_SPLLNSEL);
+
+    if (bDiv2 == true) {
+        cfg |= (1u << BITP_CLKG_CLK_CTL3_SPLLDIV2);
+    }
+    if (bMul2 == true) {
+        cfg |= (1u << BITP_CLKG_CLK_CTL3_SPLLMUL2);
     }
 
     /* critical region */
     ADI_ENTER_CRITICAL_REGION();
 
     val = pADI_CLKG0_CLK->CTL3;
-    val &= ~( BITM_CLKG_CLK_CTL3_SPLLMUL2 | BITM_CLKG_CLK_CTL3_SPLLMSEL | BITM_CLKG_CLK_CTL3_SPLLDIV2 | BITM_CLKG_CLK_CTL3_SPLLNSEL);
+    val &= ~(BITM_CLKG_CLK_CTL3_SPLLMUL2 | BITM_CLKG_CLK_CTL3_SPLLMSEL | BITM_CLKG_CLK_CTL3_SPLLDIV2 | BITM_CLKG_CLK_CTL3_SPLLNSEL);
     val |= cfg;
     pADI_CLKG0_CLK->CTL3 = val;
 
-   /* end critical region */
+    /* end critical region */
     ADI_EXIT_CRITICAL_REGION();
 
     return ADI_PWR_SUCCESS;
@@ -1033,27 +980,23 @@ ADI_PWR_RESULT adi_pwr_SetPll(uint8_t  nDivFactor, const uint8_t  nMulFactor, co
  */
 ADI_PWR_RESULT adi_pwr_EnablePMGInterrupt(const ADI_PWR_PMG_IRQ eIrq, const bool bEnable)
 {
-   ADI_INT_STATUS_ALLOC();
+    ADI_INT_STATUS_ALLOC();
 
 #ifdef ADI_DEBUG
-   if(((pADI_PMG0->IEN & BITM_PMG_IEN_RANGEBAT) == 0u) || (eIrq != ADI_PWR_BATTERY_VOLTAGE_RANGE_IEN))
-   {
-       return(ADI_PWR_FAILURE);
-   }
+    if (((pADI_PMG0->IEN & BITM_PMG_IEN_RANGEBAT) == 0u) || (eIrq != ADI_PWR_BATTERY_VOLTAGE_RANGE_IEN)) {
+        return (ADI_PWR_FAILURE);
+    }
 #endif
 
-  ADI_ENTER_CRITICAL_REGION();
-  if(bEnable == true)
-  {
-    pADI_PMG0->IEN  |= (uint32_t)eIrq;
-  }
-  else
-  {
-    pADI_PMG0->IEN  &= ~(uint32_t)(eIrq);
-  }
-  ADI_EXIT_CRITICAL_REGION();
+    ADI_ENTER_CRITICAL_REGION();
+    if (bEnable == true) {
+        pADI_PMG0->IEN  |= (uint32_t)eIrq;
+    } else {
+        pADI_PMG0->IEN  &= ~(uint32_t)(eIrq);
+    }
+    ADI_EXIT_CRITICAL_REGION();
 
-  return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 
@@ -1072,25 +1015,21 @@ ADI_PWR_RESULT adi_pwr_EnablePMGInterrupt(const ADI_PWR_PMG_IRQ eIrq, const bool
 ADI_PWR_RESULT  adi_pwr_EnableLFXTALBypass(const bool bEnable)
 {
     volatile uint32_t nDelay = 0xFFFFFFu;
-    if(bEnable == true)
-    {
+    if (bEnable == true) {
         /* Write the oscillator key */
         pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
         /* Disable the LFXTAL */
         pADI_CLKG0_OSC->CTL  &= ~(BITM_CLKG_OSC_CTL_LFX_EN);
         /* Wait till status de-asserted. */
-        while(nDelay != 0u)
-        {
-            if((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFX_OK) == 0u)
-            {
+        while (nDelay != 0u) {
+            if ((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFX_OK) == 0u) {
                 break;
             }
             nDelay--;
         }
 #ifdef ADI_DEBUG
-        if(nDelay == 0u)
-        {
-            return(ADI_PWR_FAILURE);
+        if (nDelay == 0u) {
+            return (ADI_PWR_FAILURE);
         }
 #endif
         pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
@@ -1098,46 +1037,38 @@ ADI_PWR_RESULT  adi_pwr_EnableLFXTALBypass(const bool bEnable)
         pADI_CLKG0_OSC->CTL  |= (BITM_CLKG_OSC_CTL_LFX_BYP);
         /* Wait till status asserted. */
         nDelay = 0xFFFFFFu;
-        while(nDelay != 0u)
-        {
-            if(((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFX_OK)== BITM_CLKG_OSC_CTL_LFX_OK))
-            {
+        while (nDelay != 0u) {
+            if (((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFX_OK) == BITM_CLKG_OSC_CTL_LFX_OK)) {
                 break;
             }
             nDelay--;
         }
 #ifdef ADI_DEBUG
-        if(nDelay == 0u)
-        {
-            return(ADI_PWR_FAILURE);
+        if (nDelay == 0u) {
+            return (ADI_PWR_FAILURE);
         }
 #endif
 
-    }
-    else
-    {
+    } else {
         /* Write the oscillator key */
         pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
         /* Disable  the BYPASS mode */
         pADI_CLKG0_OSC->CTL  &= ~(BITM_CLKG_OSC_CTL_LFX_BYP);
         /* Wait till status de-asserted. */
-        while(nDelay != 0u)
-        {
-            if((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFX_OK) == 0u)
-            {
+        while (nDelay != 0u) {
+            if ((pADI_CLKG0_OSC->CTL & BITM_CLKG_OSC_CTL_LFX_OK) == 0u) {
                 break;
             }
             nDelay--;
         }
 #ifdef ADI_DEBUG
-        if(nDelay == 0u)
-        {
-            return(ADI_PWR_FAILURE);
+        if (nDelay == 0u) {
+            return (ADI_PWR_FAILURE);
         }
 #endif
     }
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 
@@ -1157,21 +1088,18 @@ ADI_PWR_RESULT  adi_pwr_EnableLFXTALBypass(const bool bEnable)
  *
  * @sa adi_pwr_SetLFXTALRobustModeLoad()
  */
-ADI_PWR_RESULT adi_pwr_EnableLFXTALRobustMode( const bool bEnable )
+ADI_PWR_RESULT adi_pwr_EnableLFXTALRobustMode(const bool bEnable)
 {
     /* Write the oscillator key */
     pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
 
-    if(bEnable == true)
-    {
+    if (bEnable == true) {
         pADI_CLKG0_OSC->CTL |= BITM_CLKG_OSC_CTL_LFX_ROBUST_EN;
-    }
-    else
-    {
+    } else {
         pADI_CLKG0_OSC->CTL &= ~(BITM_CLKG_OSC_CTL_LFX_ROBUST_EN);
     }
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 /*!
@@ -1184,20 +1112,17 @@ ADI_PWR_RESULT adi_pwr_EnableLFXTALRobustMode( const bool bEnable )
  *  @return     Status
  *                - #ADI_PWR_SUCCESS     Enabled/Disabled LFXTAL Auto switch mode.
  */
-ADI_PWR_RESULT adi_pwr_EnableLFXTALFailAutoSwitch( const bool  bEnable )
+ADI_PWR_RESULT adi_pwr_EnableLFXTALFailAutoSwitch(const bool  bEnable)
 {
     /* Write the oscillator key */
     pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
 
-    if(bEnable == true)
-    {
+    if (bEnable == true) {
         pADI_CLKG0_OSC->CTL  |= BITM_CLKG_OSC_CTL_LFX_AUTSW_EN;
-    }
-    else
-    {
+    } else {
         pADI_CLKG0_OSC->CTL  &= ~(BITM_CLKG_OSC_CTL_LFX_AUTSW_EN);
     }
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 
@@ -1211,18 +1136,18 @@ ADI_PWR_RESULT adi_pwr_EnableLFXTALFailAutoSwitch( const bool  bEnable )
  *
  * @sa adi_pwr_EnableLFXTALRobustMode()
  */
-ADI_PWR_RESULT adi_pwr_SetLFXTALRobustModeLoad( const ADI_PWR_LFXTAL_LOAD eLoad )
+ADI_PWR_RESULT adi_pwr_SetLFXTALRobustModeLoad(const ADI_PWR_LFXTAL_LOAD eLoad)
 {
     uint32_t tmp;
 
     tmp =   pADI_CLKG0_OSC->CTL & ~BITM_CLKG_OSC_CTL_LFX_ROBUST_LD;
-    tmp |=  ((uint32_t)eLoad) << BITP_CLKG_OSC_CTL_LFX_ROBUST_LD;
+    tmp |= ((uint32_t)eLoad) << BITP_CLKG_OSC_CTL_LFX_ROBUST_LD;
 
     /* Write the oscillator key */
     pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
     pADI_CLKG0_OSC->CTL = tmp;
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 /*!
@@ -1238,21 +1163,18 @@ ADI_PWR_RESULT adi_pwr_SetLFXTALRobustModeLoad( const ADI_PWR_LFXTAL_LOAD eLoad 
  *
  * @sa adi_pwr_EnableClockInterrupt()
  */
-ADI_PWR_RESULT adi_pwr_EnableRootClockFailAutoSwitch( const bool bEnable )
+ADI_PWR_RESULT adi_pwr_EnableRootClockFailAutoSwitch(const bool bEnable)
 {
     /* Write the oscillator key */
     pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
 
-    if(bEnable == true)
-    {
+    if (bEnable == true) {
         pADI_CLKG0_OSC->CTL |= BITM_CLKG_OSC_CTL_ROOT_AUTSW_EN;
-    }
-    else
-    {
+    } else {
         pADI_CLKG0_OSC->CTL &= ~(BITM_CLKG_OSC_CTL_ROOT_AUTSW_EN);
     }
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 
@@ -1272,15 +1194,15 @@ ADI_PWR_RESULT adi_pwr_EnableRootClockFailAutoSwitch( const bool bEnable )
  *
  * @sa adi_pwr_EnableHFOscAutoDivBy1()
  */
-ADI_PWR_RESULT adi_pwr_SetHFOscDivFactor( const ADI_PWR_HFOSC_DIV  eDivFactor )
+ADI_PWR_RESULT adi_pwr_SetHFOscDivFactor(const ADI_PWR_HFOSC_DIV  eDivFactor)
 {
     uint32_t tmp;
 
-    tmp =  (pADI_CLKG0_CLK->CTL2 & ~BITM_CLKG_CLK_CTL2_HFOSCDIVCLKSEL);
+    tmp = (pADI_CLKG0_CLK->CTL2 & ~BITM_CLKG_CLK_CTL2_HFOSCDIVCLKSEL);
     tmp |= ((uint32_t) eDivFactor << BITP_CLKG_CLK_CTL2_HFOSCDIVCLKSEL);
     pADI_CLKG0_CLK->CTL2 = tmp;
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 
@@ -1304,18 +1226,15 @@ ADI_PWR_RESULT adi_pwr_SetHFOscDivFactor( const ADI_PWR_HFOSC_DIV  eDivFactor )
  *
  * @sa adi_pwr_SetHFOscDivFactor()
  */
-ADI_PWR_RESULT adi_pwr_EnableHFOscAutoDivBy1( const bool bEnable )
+ADI_PWR_RESULT adi_pwr_EnableHFOscAutoDivBy1(const bool bEnable)
 {
-    if(bEnable == true)
-    {
+    if (bEnable == true) {
         pADI_CLKG0_CLK->CTL2 |= BITM_CLKG_CLK_CTL2_HFOSCAUTODIV_EN;
-    }
-    else
-    {
+    } else {
         pADI_CLKG0_CLK->CTL2 &= ~(BITM_CLKG_CLK_CTL2_HFOSCAUTODIV_EN);
     }
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 
@@ -1327,15 +1246,15 @@ ADI_PWR_RESULT adi_pwr_EnableHFOscAutoDivBy1( const bool bEnable )
  * @return      Status
  *              - #ADI_PWR_SUCCESS  Successfully set the GPIO clock output.
  */
-ADI_PWR_RESULT  adi_pwr_SetGPIOClockOutput( const ADI_CLOCK_OUTPUT_ID eClockOutput )
+ADI_PWR_RESULT  adi_pwr_SetGPIOClockOutput(const ADI_CLOCK_OUTPUT_ID eClockOutput)
 {
     uint32_t tmp;
 
-    tmp =  (pADI_CLKG0_CLK->CTL0 & ~BITM_CLKG_CLK_CTL0_CLKOUT);
+    tmp = (pADI_CLKG0_CLK->CTL0 & ~BITM_CLKG_CLK_CTL0_CLKOUT);
     tmp |= ((uint32_t)eClockOutput << BITP_CLKG_CLK_CTL0_CLKOUT);
     pADI_CLKG0_CLK->CTL0 = tmp;
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 /*!
@@ -1349,18 +1268,15 @@ ADI_PWR_RESULT  adi_pwr_SetGPIOClockOutput( const ADI_CLOCK_OUTPUT_ID eClockOutp
  * @return      Status
  *              - #ADI_PWR_SUCCESS  Successfully enabled or disabled the HPBuck low power mode.
  */
-ADI_PWR_RESULT adi_pwr_EnableHPBuckLowPowerMode( const bool bEnable )
+ADI_PWR_RESULT adi_pwr_EnableHPBuckLowPowerMode(const bool bEnable)
 {
-  if(bEnable == true)
-  {
-    pADI_PMG0->CTL1  |= BITM_PMG_CTL1_HPBUCK_LOWPWR_MODE;
-  }
-  else
-  {
-    pADI_PMG0->CTL1  &= ~(BITM_PMG_CTL1_HPBUCK_LOWPWR_MODE);
-  }
+    if (bEnable == true) {
+        pADI_PMG0->CTL1  |= BITM_PMG_CTL1_HPBUCK_LOWPWR_MODE;
+    } else {
+        pADI_PMG0->CTL1  &= ~(BITM_PMG_CTL1_HPBUCK_LOWPWR_MODE);
+    }
 
-  return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 /*!
@@ -1375,18 +1291,15 @@ ADI_PWR_RESULT adi_pwr_EnableHPBuckLowPowerMode( const bool bEnable )
  * @return      Status
  *              - #ADI_PWR_SUCCESS  Successfully set the load mode.
  */
-ADI_PWR_RESULT adi_pwr_SetHPBuckLoadMode( const ADI_PWR_HPBUCK_LD_MODE eLoadMode )
+ADI_PWR_RESULT adi_pwr_SetHPBuckLoadMode(const ADI_PWR_HPBUCK_LD_MODE eLoadMode)
 {
-  if(eLoadMode == ADI_PWR_HPBUCK_LD_MODE_HIGH)
-  {
-    pADI_PMG0->CTL1  |= BITM_PMG_CTL1_HPBUCK_LD_MODE;
-  }
-  else
-  {
-    pADI_PMG0->CTL1  &= ~(BITM_PMG_CTL1_HPBUCK_LD_MODE);
-  }
+    if (eLoadMode == ADI_PWR_HPBUCK_LD_MODE_HIGH) {
+        pADI_PMG0->CTL1  |= BITM_PMG_CTL1_HPBUCK_LD_MODE;
+    } else {
+        pADI_PMG0->CTL1  &= ~(BITM_PMG_CTL1_HPBUCK_LD_MODE);
+    }
 
-  return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 #endif /* ADUCM4x50 */
 
@@ -1401,16 +1314,13 @@ ADI_PWR_RESULT adi_pwr_SetHPBuckLoadMode( const ADI_PWR_HPBUCK_LD_MODE eLoadMode
  */
 ADI_PWR_RESULT  adi_pwr_EnableHPBuck(const bool bEnable)
 {
-  if(bEnable == true)
-  {
-    pADI_PMG0->CTL1  |= BITM_PMG_CTL1_HPBUCKEN;
-  }
-  else
-  {
-    pADI_PMG0->CTL1  &= ~(BITM_PMG_CTL1_HPBUCKEN);
-  }
+    if (bEnable == true) {
+        pADI_PMG0->CTL1  |= BITM_PMG_CTL1_HPBUCKEN;
+    } else {
+        pADI_PMG0->CTL1  &= ~(BITM_PMG_CTL1_HPBUCKEN);
+    }
 
-  return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 /*!
@@ -1423,8 +1333,8 @@ ADI_PWR_RESULT  adi_pwr_EnableHPBuck(const bool bEnable)
  */
 ADI_PWR_RESULT adi_pwr_GetWakeUpStatus(ADI_PWR_WAKEUP_STATUS  *peStatus)
 {
-    *peStatus =(ADI_PWR_WAKEUP_STATUS) pADI_PMG0->SHDN_STAT;
-    return(ADI_PWR_SUCCESS);
+    *peStatus = (ADI_PWR_WAKEUP_STATUS) pADI_PMG0->SHDN_STAT;
+    return (ADI_PWR_SUCCESS);
 }
 
 
@@ -1446,7 +1356,7 @@ ADI_PWR_RESULT adi_pwr_SetVoltageRange(const ADI_PWR_VOLTAGE_RANGE eRange)
     tmp |= ((uint32_t)eRange << BITP_PMG_IEN_RANGEBAT);
     pADI_PMG0->IEN = tmp;
 
-    return(ADI_PWR_SUCCESS);
+    return (ADI_PWR_SUCCESS);
 }
 
 /*! \cond PRIVATE */
@@ -1456,37 +1366,31 @@ ADI_PWR_RESULT adi_pwr_SetVoltageRange(const ADI_PWR_VOLTAGE_RANGE eRange)
  */
 void PLL_Int_Handler(void)
 {
-     ISR_PROLOG();
+    ISR_PROLOG();
 
     /* As the same status word is shared between two interrupts
        Crystal_osc_Int_Handler and PLL_Int_Handler
        check and clear status bits handled in this handler */
-     uint32_t nStatus = (pADI_CLKG0_CLK->STAT0 &
+    uint32_t nStatus = (pADI_CLKG0_CLK->STAT0 &
                         (BITM_CLKG_CLK_STAT0_SPLLUNLK | BITM_CLKG_CLK_STAT0_SPLLLK));
 
-     /* If a callback is registered notify the events */
-     if(gpfCallbackFunction != NULL)
-     {
-        if((nStatus & BITM_CLKG_CLK_STAT0_SPLLUNLK ) != 0u)
-        {
+    /* If a callback is registered notify the events */
+    if (gpfCallbackFunction != NULL) {
+        if ((nStatus & BITM_CLKG_CLK_STAT0_SPLLUNLK) != 0u) {
             /* PLL unlock event */
-            gpfCallbackFunction( gpPowcbParam, ADI_PWR_EVENT_PLLC_UNLOCK,(void *)0);
-        }
-        else if((nStatus & BITM_CLKG_CLK_STAT0_SPLLLK) != 0u)
-        {
+            gpfCallbackFunction(gpPowcbParam, ADI_PWR_EVENT_PLLC_UNLOCK, (void *)0);
+        } else if ((nStatus & BITM_CLKG_CLK_STAT0_SPLLLK) != 0u) {
             /* PLL lock event */
-            gpfCallbackFunction( gpPowcbParam, ADI_PWR_EVENT_PLLC_LOCK,(void *)0);
+            gpfCallbackFunction(gpPowcbParam, ADI_PWR_EVENT_PLLC_LOCK, (void *)0);
+        } else {
+            /* Do nothing */
         }
-        else
-        {
-           /* Do nothing */
-        }
-     }
+    }
 
-     /* Clear the status bits */
-     pADI_CLKG0_CLK->STAT0 = nStatus;
+    /* Clear the status bits */
+    pADI_CLKG0_CLK->STAT0 = nStatus;
 
-     ISR_EPILOG();
+    ISR_EPILOG();
 }
 
 /*
@@ -1494,99 +1398,90 @@ void PLL_Int_Handler(void)
  */
 void Crystal_osc_Int_Handler(void)
 {
-     ISR_PROLOG();
+    ISR_PROLOG();
 
-     /* As the same status word is shared between two interrupts
-        Crystal_osc_Int_Handler and PLL_Int_Handler
-        check and clear status bits handled in this handler */
-     uint32_t nClkStatus = (pADI_CLKG0_CLK->STAT0 &
-                         (BITM_CLKG_CLK_STAT0_HFXTALNOK |
-                          BITM_CLKG_CLK_STAT0_HFXTALOK  |
-                          BITM_CLKG_CLK_STAT0_LFXTALOK  |
-                          BITM_CLKG_CLK_STAT0_LFXTALNOK));
+    /* As the same status word is shared between two interrupts
+       Crystal_osc_Int_Handler and PLL_Int_Handler
+       check and clear status bits handled in this handler */
+    uint32_t nClkStatus = (pADI_CLKG0_CLK->STAT0 &
+                           (BITM_CLKG_CLK_STAT0_HFXTALNOK |
+                            BITM_CLKG_CLK_STAT0_HFXTALOK  |
+                            BITM_CLKG_CLK_STAT0_LFXTALOK  |
+                            BITM_CLKG_CLK_STAT0_LFXTALNOK));
 #if defined(__ADUCM4x50__)
-     /* Check if the interrupt was generated due to failure in Root Clock or LFXTAL */
-     uint32_t nOscStatus = (pADI_CLKG0_OSC->CTL &   (BITM_CLKG_OSC_CTL_LFX_FAIL_STA   |
-                                                     BITM_CLKG_OSC_CTL_ROOT_FAIL_STA  |
-                                                     BITM_CLKG_OSC_CTL_ROOT_AUTSW_STA |
-                                                     BITM_CLKG_OSC_CTL_LFX_AUTSW_STA ));
+    /* Check if the interrupt was generated due to failure in Root Clock or LFXTAL */
+    uint32_t nOscStatus = (pADI_CLKG0_OSC->CTL & (BITM_CLKG_OSC_CTL_LFX_FAIL_STA   |
+                                                  BITM_CLKG_OSC_CTL_ROOT_FAIL_STA  |
+                                                  BITM_CLKG_OSC_CTL_ROOT_AUTSW_STA |
+                                                  BITM_CLKG_OSC_CTL_LFX_AUTSW_STA));
 #endif /* __ADUCM4x50__ */
 
-     uint32_t nEvent = 0u;
+    uint32_t nEvent = 0u;
 
 
-     if(gpfCallbackFunction != NULL)
-     {
-         /* Is the interrupt caused due to HFXTAL or LFXTAL status */
-         if(nClkStatus != 0u)
-         {
-                  if ((nClkStatus & BITM_CLKG_CLK_STAT0_HFXTALNOK) != 0u) { nEvent |= ADI_PWR_EVENT_OSC_HFXTAL_CLOCK_NO_OK;  }
-             else if ((nClkStatus & BITM_CLKG_CLK_STAT0_HFXTALOK)  != 0u) { nEvent |= ADI_PWR_EVENT_OSC_HFXTAL_CLOCK_OK; }
-             else if ((nClkStatus & BITM_CLKG_CLK_STAT0_LFXTALOK)  != 0u) { nEvent |= ADI_PWR_EVENT_OSC_LFXTAL_CLOCK_OK; }
-             else if ((nClkStatus & BITM_CLKG_CLK_STAT0_LFXTALNOK) != 0u) { nEvent |= ADI_PWR_EVENT_OSC_LFXTAL_CLOCK_NO_OK; }
-             else { /* do nothing */ }
+    if (gpfCallbackFunction != NULL) {
+        /* Is the interrupt caused due to HFXTAL or LFXTAL status */
+        if (nClkStatus != 0u) {
+            if ((nClkStatus & BITM_CLKG_CLK_STAT0_HFXTALNOK) != 0u) {
+                nEvent |= ADI_PWR_EVENT_OSC_HFXTAL_CLOCK_NO_OK;
+            } else if ((nClkStatus & BITM_CLKG_CLK_STAT0_HFXTALOK)  != 0u) {
+                nEvent |= ADI_PWR_EVENT_OSC_HFXTAL_CLOCK_OK;
+            } else if ((nClkStatus & BITM_CLKG_CLK_STAT0_LFXTALOK)  != 0u) {
+                nEvent |= ADI_PWR_EVENT_OSC_LFXTAL_CLOCK_OK;
+            } else if ((nClkStatus & BITM_CLKG_CLK_STAT0_LFXTALNOK) != 0u) {
+                nEvent |= ADI_PWR_EVENT_OSC_LFXTAL_CLOCK_NO_OK;
+            } else { /* do nothing */ }
 
-             if(nEvent != 0u)  { gpfCallbackFunction( gpPowcbParam, nEvent, (void *)0u); }
+            if (nEvent != 0u)  {
+                gpfCallbackFunction(gpPowcbParam, nEvent, (void *)0u);
+            }
 
-         }
-#if defined(__ADUCM4x50__)         
-         /* Or is the interrupt caused due to Root Clock or LFXTAL failure status */
-         else if(nOscStatus != 0u)
-         {
+        }
+#if defined(__ADUCM4x50__)
+        /* Or is the interrupt caused due to Root Clock or LFXTAL failure status */
+        else if (nOscStatus != 0u) {
             /* Did the LFXTAL failed */
-            if( (nOscStatus & BITM_CLKG_OSC_CTL_LFX_FAIL_STA) != 0u)
-            {
+            if ((nOscStatus & BITM_CLKG_OSC_CTL_LFX_FAIL_STA) != 0u) {
                 /* Notifiy LFXTAL failure */
-                gpfCallbackFunction( gpPowcbParam, ADI_PWR_EVENT_OSC_LFXTAL_MON_FAIL, (void *)0u);
+                gpfCallbackFunction(gpPowcbParam, ADI_PWR_EVENT_OSC_LFXTAL_MON_FAIL, (void *)0u);
 
                 /* Did the HW auto switched to LFOSC due to LFXTAL failure */
-                if((nOscStatus & BITM_CLKG_OSC_CTL_LFX_AUTSW_STA) != 0u)
-                {
-                   /* Notify about the auto switch to LFOSC */
-                   gpfCallbackFunction( gpPowcbParam, ADI_PWR_EVENT_OSC_LFXTAL_AUTO_SWITCH, (void *)0u);
+                if ((nOscStatus & BITM_CLKG_OSC_CTL_LFX_AUTSW_STA) != 0u) {
+                    /* Notify about the auto switch to LFOSC */
+                    gpfCallbackFunction(gpPowcbParam, ADI_PWR_EVENT_OSC_LFXTAL_AUTO_SWITCH, (void *)0u);
                 }
             }
             /* Did the root clock failed */
-            else if((nOscStatus & BITM_CLKG_OSC_CTL_ROOT_FAIL_STA) != 0u)
-            {
-               /* Indicate about the root clock failure */
-               gpfCallbackFunction( gpPowcbParam, ADI_PWR_EVENT_OSC_ROOT_CLOCK_MON_FAIL, (void *)0u);
+            else if ((nOscStatus & BITM_CLKG_OSC_CTL_ROOT_FAIL_STA) != 0u) {
+                /* Indicate about the root clock failure */
+                gpfCallbackFunction(gpPowcbParam, ADI_PWR_EVENT_OSC_ROOT_CLOCK_MON_FAIL, (void *)0u);
 
-               /* Did the HW auto switched to HFOSC due to root clock failure */
-               if((nOscStatus & BITM_CLKG_OSC_CTL_ROOT_AUTSW_STA) != 0u)
-               {
-                  /* Notify about auto switch to HFOSC */
-                  gpfCallbackFunction( gpPowcbParam, ADI_PWR_EVENT_OSC_ROOT_CLOCK_FAIL_AUTO_SWITCH, (void *)0u);
-               }
+                /* Did the HW auto switched to HFOSC due to root clock failure */
+                if ((nOscStatus & BITM_CLKG_OSC_CTL_ROOT_AUTSW_STA) != 0u) {
+                    /* Notify about auto switch to HFOSC */
+                    gpfCallbackFunction(gpPowcbParam, ADI_PWR_EVENT_OSC_ROOT_CLOCK_FAIL_AUTO_SWITCH, (void *)0u);
+                }
+            } else {
+                /* Do nothing */
             }
-            else
-            {
-               /* Do nothing */
-            }
-         }
-         else
-         {
+        } else {
             /* Do nothing */
-         }
-#endif /* __ADUCM4x50__ */         
-     }
+        }
+#endif /* __ADUCM4x50__ */
+    }
 
     /* Clear the staus bits */
-    if(nClkStatus != 0u)
-    {
-      pADI_CLKG0_CLK->STAT0 = nClkStatus;
+    if (nClkStatus != 0u) {
+        pADI_CLKG0_CLK->STAT0 = nClkStatus;
     }
-#if defined(__ADUCM4x50__)    
-    else if(nOscStatus  != 0u)
-    {
+#if defined(__ADUCM4x50__)
+    else if (nOscStatus  != 0u) {
         /* Write the oscillator key to clear the status bits */
         pADI_CLKG0_OSC->KEY = ADI_OSC_KEY;
 
         /* Clear only status bits */
         pADI_CLKG0_OSC->CTL |= nOscStatus;
-    }
-    else
-    {
+    } else {
         /* Do nothing */
     }
 #endif /* __ADUCM4x50__ */
@@ -1602,14 +1497,12 @@ void Battery_Voltage_Int_Handler(void)
     ISR_PROLOG();
     uint32_t nStatus = pADI_PMG0->PSM_STAT;
 
-     if ((nStatus & BITM_PMG_PSM_STAT_VBATUNDR) != 0u)
-     {
-     if(gpfCallbackFunction != NULL)
-     {
-             gpfCallbackFunction( gpPowcbParam, (uint32_t)nStatus, (void *)0);
-     }
-         pADI_PMG0->PSM_STAT |= (BITM_PMG_PSM_STAT_VBATUNDR);
-     }
+    if ((nStatus & BITM_PMG_PSM_STAT_VBATUNDR) != 0u) {
+        if (gpfCallbackFunction != NULL) {
+            gpfCallbackFunction(gpPowcbParam, (uint32_t)nStatus, (void *)0);
+        }
+        pADI_PMG0->PSM_STAT |= (BITM_PMG_PSM_STAT_VBATUNDR);
+    }
     ISR_EPILOG();
 }
 
@@ -1619,20 +1512,17 @@ void Battery_Voltage_Int_Handler(void)
 void Vreg_over_Int_Handler(void)
 {
     ISR_PROLOG();
-     uint32_t nStatus = pADI_PMG0->PSM_STAT;
+    uint32_t nStatus = pADI_PMG0->PSM_STAT;
 
-     if(gpfCallbackFunction != NULL)
-     {
-        if ((nStatus & BITM_PMG_PSM_STAT_VREGOVR) != 0u)
-        {
+    if (gpfCallbackFunction != NULL) {
+        if ((nStatus & BITM_PMG_PSM_STAT_VREGOVR) != 0u) {
             gpfCallbackFunction(gpPowcbParam, (uint32_t)ADI_PWR_EVENT_VREG_OVER_VOLTAGE, NULL);
         }
-        if ((nStatus & BITM_PMG_PSM_STAT_VREGUNDR) != 0u)
-        {
+        if ((nStatus & BITM_PMG_PSM_STAT_VREGUNDR) != 0u) {
             gpfCallbackFunction(gpPowcbParam, (uint32_t)ADI_PWR_EVENT_VREG_UNDER_VOLTAGE, NULL);
         }
-     }
-     pADI_PMG0->PSM_STAT |= (nStatus &(BITM_PMG_PSM_STAT_VREGOVR | BITM_PMG_PSM_STAT_VREGUNDR));
+    }
+    pADI_PMG0->PSM_STAT |= (nStatus & (BITM_PMG_PSM_STAT_VREGOVR | BITM_PMG_PSM_STAT_VREGUNDR));
     ISR_EPILOG();
 }
 
@@ -1689,8 +1579,8 @@ void Vreg_over_Int_Handler(void)
     interrupt" (WFI) instruction to implement a persistent sleep mode.
 
     When non-Null, a software strategy is used to control sleeping.  As awakening interrupts are processed, they
-    can increment the interrupt controlling variable and thereby cause the sleep mode to be exited.  Note that all 
-    interrupts share a common variable and any interrupt that sets the variable will cause the sleep mode to be 
+    can increment the interrupt controlling variable and thereby cause the sleep mode to be exited.  Note that all
+    interrupts share a common variable and any interrupt that sets the variable will cause the sleep mode to be
     exited.
 
     Use of the \a pnInterruptOccurred parameter provides a mechanism to resolve two potential hibernation trouble
@@ -1757,10 +1647,10 @@ void Vreg_over_Int_Handler(void)
 
     @sa      adi_pwr_ExitLowPowerMode
 */
-ADI_PWR_RESULT adi_pwr_EnterLowPowerMode ( const ADI_PWR_POWER_MODE PowerMode,
-                                           uint32_t volatile *      pnInterruptOccurred,
-                                           const uint8_t            PriorityMask
-                                         )
+ADI_PWR_RESULT adi_pwr_EnterLowPowerMode(const ADI_PWR_POWER_MODE PowerMode,
+                                         uint32_t volatile       *pnInterruptOccurred,
+                                         const uint8_t            PriorityMask
+                                        )
 {
     uint32_t savedPriority;
     uint32_t scrSetBits = 0u;
@@ -1770,15 +1660,14 @@ ADI_PWR_RESULT adi_pwr_EnterLowPowerMode ( const ADI_PWR_POWER_MODE PowerMode,
 #ifdef ADI_DEBUG
 
     /* verify the requested priority mask bits are right-justified and don't exceed __NVIC_PRIO_BITS in width */
-    if ((PriorityMask & ~((1u << __NVIC_PRIO_BITS) - 1u)) != 0u)
-    {
+    if ((PriorityMask & ~((1u << __NVIC_PRIO_BITS) - 1u)) != 0u) {
         return ADI_PWR_INVALID_PARAM;
     }
 
 #endif  /* ADI_DEBUG */
 
     /* pre-calculate the sleep-on-exit set/clear bits */
-    if(NULL == pnInterruptOccurred) {
+    if (NULL == pnInterruptOccurred) {
         scrSetBits |= SCB_SCR_SLEEPONEXIT_Msk;
 
         /* point to private control variable when in hardware (sleep-on-exit) mode */
@@ -1813,57 +1702,57 @@ ADI_PWR_RESULT adi_pwr_EnterLowPowerMode ( const ADI_PWR_POWER_MODE PowerMode,
     /* put the power mode and system control mods, as well as the WFI loop inside a critical section */
     ADI_ENTER_CRITICAL_REGION();
 
-        { /* these lines must be in a success-checking loop if they are not inside critical section */
-            /* Uninterruptable unlock sequence */
-            pADI_PMG0->PWRKEY = ADI_PMG_KEY;
+    { /* these lines must be in a success-checking loop if they are not inside critical section */
+        /* Uninterruptable unlock sequence */
+        pADI_PMG0->PWRKEY = ADI_PMG_KEY;
 
-            /* Clear the previous mode and set new mode */
-            pADI_PMG0->PWRMOD = (uint32_t) ( ( pADI_PMG0->PWRMOD & (uint32_t) (~BITM_PMG_PWRMOD_MODE) ) | PowerMode );
-        }
+        /* Clear the previous mode and set new mode */
+        pADI_PMG0->PWRMOD = (uint32_t)((pADI_PMG0->PWRMOD & (uint32_t)(~BITM_PMG_PWRMOD_MODE)) | PowerMode);
+    }
 
-        /* Update the SCR (sleepdeep and sleep-on-exit bits) */
-        SCB->SCR = ((SCB->SCR | scrSetBits) & ~scrClrBits);
+    /* Update the SCR (sleepdeep and sleep-on-exit bits) */
+    SCB->SCR = ((SCB->SCR | scrSetBits) & ~scrClrBits);
 
-        /* save/restore current Base Priority Level */
-        savedPriority = __get_BASEPRI();
+    /* save/restore current Base Priority Level */
+    savedPriority = __get_BASEPRI();
 
-        /* assert caller's priority threshold (left-justified) */
-        __set_BASEPRI((uint32_t)PriorityMask << (8u -__NVIC_PRIO_BITS));
-        
-        /* if we are in the software looping mode, loop on the user's variable until set */
-        while (0u == *pnInterruptOccurred) {
+    /* assert caller's priority threshold (left-justified) */
+    __set_BASEPRI((uint32_t)PriorityMask << (8u - __NVIC_PRIO_BITS));
 
-            __DSB();  /* bus sync to insure register writes from interrupt handlers are always complete before WFI */
+    /* if we are in the software looping mode, loop on the user's variable until set */
+    while (0u == *pnInterruptOccurred) {
 
-            /* NOTE: aggressive compiler optimizations can muck up critical timing here, so reduce if hangs are present */
+        __DSB();  /* bus sync to insure register writes from interrupt handlers are always complete before WFI */
 
-            /* The WFI loop MUST reside in a critical section because we need to insure that the interrupt
-               that is planned to take us out of WFI (via a call to adi_pwr_ExitLowPowerMode()) is not
-               dispatched until we get into the WFI.  If that interrupt sneaks in prior to our getting to the
-               WFI, then we may end up waiting (potentially forever) for an interrupt that has already occurred.
-            */
-            __WFI();
+        /* NOTE: aggressive compiler optimizations can muck up critical timing here, so reduce if hangs are present */
 
-            /* Recycle the critical section so that other (non-wakeup) interrupts are dispatched.
-               This allows *pnInterruptOccurred to be set from any interrupt context.
-             */
-            ADI_EXIT_CRITICAL_REGION();
-            /* nop */
-            ADI_ENTER_CRITICAL_REGION();
+        /* The WFI loop MUST reside in a critical section because we need to insure that the interrupt
+           that is planned to take us out of WFI (via a call to adi_pwr_ExitLowPowerMode()) is not
+           dispatched until we get into the WFI.  If that interrupt sneaks in prior to our getting to the
+           WFI, then we may end up waiting (potentially forever) for an interrupt that has already occurred.
+        */
+        __WFI();
 
-        }  /* end while */
+        /* Recycle the critical section so that other (non-wakeup) interrupts are dispatched.
+           This allows *pnInterruptOccurred to be set from any interrupt context.
+         */
+        ADI_EXIT_CRITICAL_REGION();
+        /* nop */
+        ADI_ENTER_CRITICAL_REGION();
 
-        /* ...still within critical section... */
+    }  /* end while */
 
-        (*pnInterruptOccurred)--;       /* decrement the completion variable on exit */
+    /* ...still within critical section... */
 
-        /* Restore previous base priority */
-        __set_BASEPRI(savedPriority);
+    (*pnInterruptOccurred)--;       /* decrement the completion variable on exit */
 
-        /* clear sleep-on-exit bit to avoid sleeping on exception return to thread level */
-        SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
+    /* Restore previous base priority */
+    __set_BASEPRI(savedPriority);
 
-        __DSB(); /* bus sync before re-enabling interrupts */
+    /* clear sleep-on-exit bit to avoid sleeping on exception return to thread level */
+    SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
+
+    __DSB(); /* bus sync before re-enabling interrupts */
 
     ADI_EXIT_CRITICAL_REGION();
 
@@ -1885,7 +1774,7 @@ ADI_PWR_RESULT adi_pwr_EnterLowPowerMode ( const ADI_PWR_POWER_MODE PowerMode,
 
  * @sa adi_pwr_EnterLowPowerMode
  */
-ADI_PWR_RESULT adi_pwr_ExitLowPowerMode(uint32_t volatile * pnInterruptOccurred)
+ADI_PWR_RESULT adi_pwr_ExitLowPowerMode(uint32_t volatile *pnInterruptOccurred)
 {
     ADI_INT_STATUS_ALLOC();
 
@@ -1900,8 +1789,8 @@ ADI_PWR_RESULT adi_pwr_ExitLowPowerMode(uint32_t volatile * pnInterruptOccurred)
         /* clear hardware sleep-on-exit feature */
         ADI_ENTER_CRITICAL_REGION();
 
-            SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
-            __DSB();  /* bus sync before interrupt exit */
+        SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
+        __DSB();  /* bus sync before interrupt exit */
 
         ADI_EXIT_CRITICAL_REGION();
     }

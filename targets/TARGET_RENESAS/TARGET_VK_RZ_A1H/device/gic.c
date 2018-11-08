@@ -50,7 +50,7 @@ void GIC_EnableDistributor(void)
 
 void GIC_DisableDistributor(void)
 {
-    GICDistributor->ICDDCR &=~1; //disable distributor
+    GICDistributor->ICDDCR &= ~1; //disable distributor
 }
 
 uint32_t GIC_DistributorInfo(void)
@@ -65,29 +65,28 @@ uint32_t GIC_DistributorImplementer(void)
 
 void GIC_SetTarget(IRQn_Type IRQn, uint32_t cpu_target)
 {
-    volatile uint8_t* field = (volatile uint8_t*)&(GICDistributor->ICDIPTR[IRQn / 4]);
+    volatile uint8_t *field = (volatile uint8_t *) & (GICDistributor->ICDIPTR[IRQn / 4]);
     field += IRQn % 4;
     *field = (uint8_t)cpu_target & 0xf;
 }
 
-void GIC_SetICDICFR (const uint32_t *ICDICFRn)
+void GIC_SetICDICFR(const uint32_t *ICDICFRn)
 {
     uint32_t i, num_irq;
 
     //Get the maximum number of interrupts that the GIC supports
     num_irq = 32 * ((GIC_DistributorInfo() & 0x1f) + 1);
 
-    for (i = 0; i < (num_irq/16); i++)
-    {
+    for (i = 0; i < (num_irq / 16); i++) {
         GICDistributor->ICDISPR[i] = *ICDICFRn++;
     }
 }
 
 uint32_t GIC_GetTarget(IRQn_Type IRQn)
 {
-    volatile uint8_t* field = (volatile uint8_t*)&(GICDistributor->ICDIPTR[IRQn / 4]);
+    volatile uint8_t *field = (volatile uint8_t *) & (GICDistributor->ICDIPTR[IRQn / 4]);
     field += IRQn % 4;
-    return ((uint32_t)*field & 0xf);
+    return ((uint32_t) * field & 0xf);
 }
 
 void GIC_EnableInterface(void)
@@ -97,7 +96,7 @@ void GIC_EnableInterface(void)
 
 void GIC_DisableInterface(void)
 {
-    GICInterface->ICCICR &=~1; //disable distributor
+    GICInterface->ICCICR &= ~1; //disable distributor
 }
 
 IRQn_Type GIC_AcknowledgePending(void)
@@ -132,8 +131,8 @@ void GIC_ClearPendingIRQ(IRQn_Type IRQn)
 
 void GIC_SetLevelModel(IRQn_Type IRQn, int8_t edge_level, int8_t model)
 {
-    volatile uint8_t* field = (volatile uint8_t*)&(GICDistributor->ICDICFR[IRQn / 16]);
-    int  bit_shift = (IRQn % 16)<<1;
+    volatile uint8_t *field = (volatile uint8_t *) & (GICDistributor->ICDICFR[IRQn / 16]);
+    int  bit_shift = (IRQn % 16) << 1;
     uint8_t save_byte;
 
     field += (bit_shift / 8);
@@ -142,21 +141,21 @@ void GIC_SetLevelModel(IRQn_Type IRQn, int8_t edge_level, int8_t model)
     save_byte = *field;
     save_byte &= ((uint8_t)~(3u << bit_shift));
 
-    *field = save_byte | ((uint8_t)((edge_level<<1) | model)<< bit_shift);
+    *field = save_byte | ((uint8_t)((edge_level << 1) | model) << bit_shift);
 }
 
 void GIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
 {
-    volatile uint8_t* field = (volatile uint8_t*)&(GICDistributor->ICDIPR[IRQn / 4]);
+    volatile uint8_t *field = (volatile uint8_t *) & (GICDistributor->ICDIPR[IRQn / 4]);
     field += (IRQn % 4);
     *field = (uint8_t)priority;
 }
 
 uint32_t GIC_GetPriority(IRQn_Type IRQn)
 {
-    volatile uint8_t* field = (volatile uint8_t*)&(GICDistributor->ICDIPR[IRQn / 4]);
+    volatile uint8_t *field = (volatile uint8_t *) & (GICDistributor->ICDIPR[IRQn / 4]);
     field += (IRQn % 4);
-    return (uint32_t)*field;
+    return (uint32_t) * field;
 }
 
 void GIC_InterfacePriorityMask(uint32_t priority)
@@ -179,9 +178,9 @@ uint32_t GIC_GetIRQStatus(IRQn_Type IRQn)
     uint32_t pending, active;
 
     active = ((GICDistributor->ICDABR[IRQn / 32])  >> (IRQn % 32)) & 0x1;
-    pending =((GICDistributor->ICDISPR[IRQn / 32]) >> (IRQn % 32)) & 0x1;
+    pending = ((GICDistributor->ICDISPR[IRQn / 32]) >> (IRQn % 32)) & 0x1;
 
-    return ((active<<1) | pending);
+    return ((active << 1) | pending);
 }
 
 void GIC_SendSGI(IRQn_Type IRQn, uint32_t target_list, uint32_t filter_list)
@@ -210,14 +209,13 @@ void GIC_DistInit(void)
     GIC_SetPriority((IRQn_Type)0, 0xff);
     priority_field = GIC_GetPriority((IRQn_Type)0);
 
-    for (i = 32; i < num_irq; i++)
-    {
+    for (i = 32; i < num_irq; i++) {
         //Disable all SPI the interrupts
         GIC_DisableIRQ((IRQn_Type)i);
         //Set level-sensitive and N-N model
         //GIC_SetLevelModel(i, 0, 0);
         //Set priority
-        GIC_SetPriority((IRQn_Type)i, priority_field/2);
+        GIC_SetPriority((IRQn_Type)i, priority_field / 2);
         //Set target list to "all cpus"
         GIC_SetTarget((IRQn_Type)i, 0xff);
     }
@@ -279,15 +277,14 @@ void GIC_CPUInterfaceInit(void)
     priority_field = GIC_GetPriority((IRQn_Type)0);
 
     //SGI and PPI
-    for (i = (IRQn_Type)0; i < 32; i++)
-    {
+    for (i = (IRQn_Type)0; i < 32; i++) {
         //Set level-sensitive and N-N model for PPI
         //if(i > 15)
-            //GIC_SetLevelModel(i, 0, 0);
+        //GIC_SetLevelModel(i, 0, 0);
         //Disable SGI and PPI interrupts
         GIC_DisableIRQ(i);
         //Set priority
-        GIC_SetPriority(i, priority_field/2);
+        GIC_SetPriority(i, priority_field / 2);
     }
     //Enable interface
     GIC_EnableInterface();

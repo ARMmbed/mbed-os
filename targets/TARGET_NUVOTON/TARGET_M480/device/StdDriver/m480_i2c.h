@@ -423,10 +423,10 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /* inline functions                                                                                        */
 /*---------------------------------------------------------------------------------------------------------*/
-  
-/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */ 
-static __INLINE void I2C_STOP(I2C_T *i2c);  
-  
+
+/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */
+static __INLINE void I2C_STOP(I2C_T *i2c);
+
 /**
  *    @brief        The macro is used to set STOP condition of I2C Bus
  *
@@ -440,7 +440,7 @@ static __INLINE void I2C_STOP(I2C_T *i2c)
 {
 
     (i2c)->CTL0 |= (I2C_CTL0_SI_Msk | I2C_CTL0_STO_Msk);
-    while(i2c->CTL0 & I2C_CTL0_STO_Msk) {
+    while (i2c->CTL0 & I2C_CTL0_STO_Msk) {
     }
 }
 

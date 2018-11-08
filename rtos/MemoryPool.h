@@ -37,7 +37,7 @@ namespace rtos {
  * \defgroup rtos_MemoryPool MemoryPool class
  * @{
  */
- 
+
 /** Define and manage fixed-size memory pools of objects of a given type.
   @tparam  T         data type of a single object (element).
   @tparam  queue_sz  maximum number of objects (elements) in the memory pool.
@@ -48,10 +48,11 @@ namespace rtos {
 */
 template<typename T, uint32_t pool_sz>
 class MemoryPool : private mbed::NonCopyable<MemoryPool<T, pool_sz> > {
-	MBED_STATIC_ASSERT(pool_sz > 0, "Invalid memory pool size. Must be greater than 0.");
+    MBED_STATIC_ASSERT(pool_sz > 0, "Invalid memory pool size. Must be greater than 0.");
 public:
     /** Create and Initialize a memory pool. */
-    MemoryPool() {
+    MemoryPool()
+    {
         memset(_pool_mem, 0, sizeof(_pool_mem));
         memset(&_obj_mem, 0, sizeof(_obj_mem));
         osMemoryPoolAttr_t attr = { 0 };
@@ -64,22 +65,25 @@ public:
     }
 
     /** Destroy a memory pool */
-    ~MemoryPool() {
+    ~MemoryPool()
+    {
         osMemoryPoolDelete(_id);
     }
 
     /** Allocate a memory block of type T from a memory pool.
       @return  address of the allocated memory block or NULL in case of no memory available.
     */
-    T* alloc(void) {
-        return (T*)osMemoryPoolAlloc(_id, 0);
+    T *alloc(void)
+    {
+        return (T *)osMemoryPoolAlloc(_id, 0);
     }
 
     /** Allocate a memory block of type T from a memory pool and set memory block to zero.
       @return  address of the allocated memory block or NULL in case of no memory available.
     */
-    T* calloc(void) {
-        T *item = (T*)osMemoryPoolAlloc(_id, 0);
+    T *calloc(void)
+    {
+        T *item = (T *)osMemoryPoolAlloc(_id, 0);
         if (item != NULL) {
             memset(item, 0, sizeof(T));
         }
@@ -93,8 +97,9 @@ public:
                       invalid memory pool state.
 
     */
-    osStatus free(T *block) {
-        return osMemoryPoolFree(_id, (void*)block);
+    osStatus free(T *block)
+    {
+        return osMemoryPoolFree(_id, (void *)block);
     }
 
 private:

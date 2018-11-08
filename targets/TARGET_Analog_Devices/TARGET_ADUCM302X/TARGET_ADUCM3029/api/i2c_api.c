@@ -61,7 +61,7 @@ int adi_i2c_memtype = 0;
    ADI_I2C_DEV_DATA_TYPE Instance memory containing memory pointer should
    guarantee 4 byte alignmnet.
  *******************************************************************************/
-static uint32_t         i2c_Mem[(ADI_I2C_MEMORY_SIZE + 3)/4];
+static uint32_t         i2c_Mem[(ADI_I2C_MEMORY_SIZE + 3) / 4];
 static ADI_I2C_HANDLE   i2c_Handle;
 #if defined(ADI_DEBUG)
 #warning "BUILD_I2C_MI_DYNAMIC is NOT defined.  Memory allocation for I2C will be static"
@@ -154,7 +154,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     I2C_Return = adi_i2c_SetSlaveAddress(I2C_Handle, (address & 0x0000FFFF));
     I2C_inst.pPrologue     = &I2C_PrologueData;
     I2C_inst.nPrologueSize = 0;
-    I2C_inst.pData         = (uint8_t*) data;
+    I2C_inst.pData         = (uint8_t *) data;
     I2C_inst.nDataSize     = length;
     I2C_inst.bReadNotWrite = true;
     I2C_inst.bRepeatStart  = stop;
@@ -181,7 +181,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     I2C_Return = adi_i2c_SetSlaveAddress(I2C_Handle, (address & 0x0000FFFF));
     I2C_inst.pPrologue      = &I2C_PrologueData;
     I2C_inst.nPrologueSize  = 0;
-    I2C_inst.pData          = (uint8_t*) data;
+    I2C_inst.pData          = (uint8_t *) data;
     I2C_inst.nDataSize      = length;
     I2C_inst.bReadNotWrite  = false;
     I2C_inst.bRepeatStart   = stop;

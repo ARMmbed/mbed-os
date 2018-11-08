@@ -108,7 +108,7 @@ typedef enum {
     P_C16      = PF_7,   // GPIO-7
     P_C17      = PF_1,   // I2C-SCL
     P_C18      = PF_0,   // I2C-SDA
-	  // D
+    // D
     P_D1       = PB_12,  // RMII-TXD0
     P_D2       = PB_13,  // RMII-TXD1
     P_D3       = PB_11,  // RMII-TXEN
@@ -159,7 +159,7 @@ typedef enum {
     LED_BLUE   = LED3,
     SW0        = PF_2,   // Switch-0
     SW1        = PB_6,   // Green / Switch-1
-    
+
     I2C_SCL     = D15,
     I2C_SDA     = D14,
     SPI0_MOSI    = D11,
@@ -167,7 +167,7 @@ typedef enum {
     SPI0_SCK     = D13,
     SPI0_CS      = D10,
     SPI1_CS      = D9,
-    
+
     SPI_MOSI   = SPI0_MOSI,
     SPI_MISO   = SPI0_MISO,
     SPI_SCK    = SPI0_SCK,

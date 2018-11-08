@@ -73,10 +73,8 @@ static uint32_t UTICK_GetInstance(UTICK_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_utickBases); instance++)
-    {
-        if (s_utickBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_utickBases); instance++) {
+        if (s_utickBases[instance] == base) {
             break;
         }
     }
@@ -129,8 +127,7 @@ void UTICK_ClearStatusFlags(UTICK_Type *base)
 void UTICK_HandleIRQ(UTICK_Type *base, utick_callback_t cb)
 {
     UTICK_ClearStatusFlags(base);
-    if (cb)
-    {
+    if (cb) {
         cb();
     }
 }

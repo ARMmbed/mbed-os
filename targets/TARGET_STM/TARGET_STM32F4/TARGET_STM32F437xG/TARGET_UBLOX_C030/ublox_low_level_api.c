@@ -18,13 +18,14 @@
 #include <stdbool.h>
 #include "gpio_api.h"
 
-void ublox_board_init(void) {
+void ublox_board_init(void)
+{
     gpio_t gpio;
 
     // Enable power to 3V3
     gpio_init_inout(&gpio, PWR3V3, PIN_OUTPUT, OpenDrain, 1);
-    
-    // start with modem disabled 
+
+    // start with modem disabled
     gpio_init_out_ex(&gpio, MDMRST,    0);
     gpio_init_out_ex(&gpio, MDMPWRON,  0);
     gpio_init_out_ex(&gpio, MDMRTS,    0);

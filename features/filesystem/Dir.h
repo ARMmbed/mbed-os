@@ -35,7 +35,7 @@ public:
      */
     Dir();
 
-    /** Open a directory on a filesystem 
+    /** Open a directory on a filesystem
      *
      *  @param fs       Filesystem as target for a directory
      *  @param path     Name of the directory to open
@@ -86,7 +86,7 @@ public:
      */
     virtual void rewind();
 
-    /** Get the sizeof the directory 
+    /** Get the sizeof the directory
      *
      *  @return         Number of files in the directory
      */

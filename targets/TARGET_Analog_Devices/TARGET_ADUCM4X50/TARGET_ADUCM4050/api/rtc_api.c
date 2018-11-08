@@ -50,14 +50,14 @@
    ADI_RTC_DEVICE Instance memory containing memory pointer should guarantee
    4 byte alignmnet.
  *******************************************************************************/
-static uint32_t       aRtcDevMem0[(ADI_RTC_MEMORY_SIZE + 3)/4];
+static uint32_t       aRtcDevMem0[(ADI_RTC_MEMORY_SIZE + 3) / 4];
 static ADI_RTC_HANDLE hDevice0 = NULL;
 
 
 void rtc_init(void)
 {
     /* initialize driver */
-    adi_rtc_Open(RTC_DEVICE_NUM,aRtcDevMem0,ADI_RTC_MEMORY_SIZE,&hDevice0);
+    adi_rtc_Open(RTC_DEVICE_NUM, aRtcDevMem0, ADI_RTC_MEMORY_SIZE, &hDevice0);
 
     adi_rtc_Enable(hDevice0, true);
 }
@@ -75,9 +75,9 @@ int rtc_isenabled(void)
 {
     uint32_t ControlReg;
 
-    adi_rtc_GetControl (hDevice0, ADI_RTC_CONTROL_REGISTER_0,&ControlReg);
+    adi_rtc_GetControl(hDevice0, ADI_RTC_CONTROL_REGISTER_0, &ControlReg);
 
-    return((int) (ControlReg & BITM_RTC_CR0_CNTEN));
+    return ((int)(ControlReg & BITM_RTC_CR0_CNTEN));
 }
 
 time_t rtc_read(void)
@@ -86,12 +86,12 @@ time_t rtc_read(void)
 
     adi_rtc_GetCount(hDevice0, (uint32_t *)(&currentCount));
 
-    return(currentCount);
+    return (currentCount);
 }
 
 void rtc_write(time_t t)
 {
-    adi_rtc_SetCount (hDevice0, t);
+    adi_rtc_SetCount(hDevice0, t);
 }
 
 #endif //  #if DEVICE_RTC

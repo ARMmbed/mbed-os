@@ -137,12 +137,13 @@ void ADC_SetExtraSampleTime(ADC_T *adc,
                             uint32_t u32SampleTime)
 {
 
-    if (u32ChNum < 8)
+    if (u32ChNum < 8) {
         ADC->SMPLCNT0 = (ADC->SMPLCNT0 & ~(ADC_SMPLCNT0_CH0SAMPCNT_Msk << (u32ChNum * 4))) | (u32SampleTime << (u32ChNum * 4));
-    else if (u32ChNum < 12)
-        ADC->SMPLCNT1 = (ADC->SMPLCNT1 & ~(ADC_SMPLCNT1_CH8SAMPCNT_Msk << ((u32ChNum - 8) * 4))) | (u32SampleTime << ((u32ChNum - 8 ) * 4));
-    else
+    } else if (u32ChNum < 12) {
+        ADC->SMPLCNT1 = (ADC->SMPLCNT1 & ~(ADC_SMPLCNT1_CH8SAMPCNT_Msk << ((u32ChNum - 8) * 4))) | (u32SampleTime << ((u32ChNum - 8) * 4));
+    } else {
         ADC->SMPLCNT1 = (ADC->SMPLCNT1 & ~ADC_SMPLCNT1_INTCHSAMPCNT_Msk) | (u32SampleTime << ADC_SMPLCNT1_INTCHSAMPCNT_Pos);
+    }
 }
 
 /**
@@ -158,12 +159,15 @@ void ADC_SetExtraSampleTime(ADC_T *adc,
   */
 void ADC_EnableInt(ADC_T *adc, uint32_t u32Mask)
 {
-    if(u32Mask & ADC_ADF_INT)
+    if (u32Mask & ADC_ADF_INT) {
         ADC->CR |= ADC_CR_ADIE_Msk;
-    if(u32Mask & ADC_CMP0_INT)
+    }
+    if (u32Mask & ADC_CMP0_INT) {
         ADC->CMPR0 |= ADC_CMPR_CMPIE_Msk;
-    if(u32Mask & ADC_CMP1_INT)
+    }
+    if (u32Mask & ADC_CMP1_INT) {
         ADC->CMPR1 |= ADC_CMPR_CMPIE_Msk;
+    }
 
     return;
 }
@@ -181,12 +185,15 @@ void ADC_EnableInt(ADC_T *adc, uint32_t u32Mask)
   */
 void ADC_DisableInt(ADC_T *adc, uint32_t u32Mask)
 {
-    if(u32Mask & ADC_ADF_INT)
+    if (u32Mask & ADC_ADF_INT) {
         ADC->CR &= ~ADC_CR_ADIE_Msk;
-    if(u32Mask & ADC_CMP0_INT)
+    }
+    if (u32Mask & ADC_CMP0_INT) {
         ADC->CMPR0 &= ~ADC_CMPR_CMPIE_Msk;
-    if(u32Mask & ADC_CMP1_INT)
+    }
+    if (u32Mask & ADC_CMP1_INT) {
         ADC->CMPR1 &= ~ADC_CMPR_CMPIE_Msk;
+    }
 
     return;
 }

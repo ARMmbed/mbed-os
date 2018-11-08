@@ -29,12 +29,11 @@ class NetworkStack;
 /** Realtek Wlan (RTW) interface class
  *  Implementation of the NetworkStack for Ameba
  */
-class RTWInterface: public WiFiInterface
-{
+class RTWInterface: public WiFiInterface {
 public:
     /** RTWWlanInterface lifetime
      */
-    RTWInterface(bool debug=false);
+    RTWInterface(bool debug = false);
     ~RTWInterface();
 
     /** Set a static IP address
@@ -79,9 +78,9 @@ public:
      *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
      *  @return          0 on success, or error code on failure
      */
-     virtual nsapi_error_t connect(const char *ssid, const char *pass,
-                         nsapi_security_t security = NSAPI_SECURITY_NONE,
-                         uint8_t channel = 0);
+    virtual nsapi_error_t connect(const char *ssid, const char *pass,
+                                  nsapi_security_t security = NSAPI_SECURITY_NONE,
+                                  uint8_t channel = 0);
 
     /** Start the interface
      *  @return          0 on success, negative on failure
@@ -106,17 +105,17 @@ public:
      *  @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
      *  see @a nsapi_error
      */
-     virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, unsigned count);
+    virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, unsigned count);
 
-     virtual nsapi_error_t set_channel(uint8_t channel);
-     virtual int8_t get_rssi();
+    virtual nsapi_error_t set_channel(uint8_t channel);
+    virtual int8_t get_rssi();
 
     /** Get the local MAC address
      *
      *  Provided MAC address is intended for info or debug purposes and
      *  may not be provided if the underlying network interface does not
      *  provide a MAC address
-     *  
+     *
      *  @return         Null-terminated representation of the local MAC address
      *                  or null if no MAC address is available
      */
@@ -131,7 +130,7 @@ public:
 
     /** Get the local network mask
      *
-     *  @return         Null-terminated representation of the local network mask 
+     *  @return         Null-terminated representation of the local network mask
      *                  or null if no network mask has been recieved
      */
     virtual const char *get_netmask();
@@ -146,7 +145,7 @@ public:
 protected:
     /** Provide access to the underlying stack
      *
-     *  @return The underlying network stack 
+     *  @return The underlying network stack
      */
     virtual NetworkStack *get_stack();
 

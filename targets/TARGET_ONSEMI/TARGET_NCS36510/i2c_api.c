@@ -50,13 +50,13 @@ void i2c_frequency(i2c_t *obj, int hz)
 /* See i2c_api.h for details */
 int i2c_start(i2c_t *obj)
 {
-    return(fI2cStart(obj));
+    return (fI2cStart(obj));
 }
 
 /* See i2c_api.h for details */
 int i2c_stop(i2c_t *obj)
 {
-    return(fI2cStop(obj));
+    return (fI2cStop(obj));
 }
 
 /* See i2c_api.h for details */
@@ -68,27 +68,27 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 
     /* Send  start bit */
     status = fI2cStart(obj);
-    if(status) {
+    if (status) {
         /* Error sending start bit */
         return status;
     }
 
     /* Send address | read */
     Count = fI2cWriteB(obj, &WriteData, 1);
-    if(Count != 1) {
+    if (Count != 1) {
         /* Error sending address */
         return Count;
     }
 
     /* Send command/s */
     Count = fI2cReadB(obj, data, length);
-    if(Count != length) {
+    if (Count != length) {
         /* Error sending coomand/s */
         return Count;
     }
-    if(stop) {    /* Send stop bit if requested */
+    if (stop) {   /* Send stop bit if requested */
         status = fI2cStop(obj);
-        if(status) {
+        if (status) {
             /* Error sending stop bit */
             return status;
         }
@@ -104,29 +104,29 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
     /* Send start bit */
     status = fI2cStart(obj);
-    if(status) {
+    if (status) {
         /* Error sending start bit */
         return status;
     }
 
     /* Send address | write */
     Count = fI2cWriteB(obj, &WriteData, 1);
-    if(Count != 1) {
+    if (Count != 1) {
         /* Error sending address */
         return Count;
     }
 
     /* Sens command, [data] */
     Count = fI2cWriteB(obj, data, length);
-    if(Count != length) {
+    if (Count != length) {
         /* Error sending address */
         return Count;
     }
 
-    if(stop) {    /* If stop requested */
+    if (stop) {   /* If stop requested */
         /* Send stop bit */
         status = fI2cStop(obj);
-        if(status) {
+        if (status) {
             /* Error sending stop bit */
             return status;
         }
@@ -146,11 +146,11 @@ int i2c_byte_read(i2c_t *obj, int last) /* TODO return size can be uint8_t */
     int Count;
     char data;
     Count = fI2cReadB(obj, &data, 1);
-    if(Count != 1) {
+    if (Count != 1) {
         /* Error */
         return Count;
     }
-    if(last) {
+    if (last) {
         /* ACK */
         SEND_COMMAND(I2C_CMD_WDAT0);
     } else {
@@ -165,11 +165,11 @@ int i2c_byte_write(i2c_t *obj, int data)
 {
     int Count;
     Count = fI2cWriteB(obj, (const char *)&data, 1);
-    if(Count != 1) {
+    if (Count != 1) {
         return Count;
     }
 
-    if(I2C_BUS_ERR_CHECK) {
+    if (I2C_BUS_ERR_CHECK) {
         /* Bus error means NAK received */
         return 0;
     } else {

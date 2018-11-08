@@ -73,7 +73,7 @@ static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
         pADI_PMG0->PWRKEY = ADI_PMG_KEY;
 
         /* Clear the previous mode and set new mode */
-        pADI_PMG0->PWRMOD = (uint32_t) ( ( pADI_PMG0->PWRMOD & (uint32_t) (~BITM_PMG_PWRMOD_MODE) ) | PowerMode );
+        pADI_PMG0->PWRMOD = (uint32_t)((pADI_PMG0->PWRMOD & (uint32_t)(~BITM_PMG_PWRMOD_MODE)) | PowerMode);
     }
 
     /* Update the SCR (sleepdeep and sleep-on-exit bits) */
@@ -132,14 +132,14 @@ static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
     /* Restore previous base priority */
     __set_BASEPRI(savedPriority);
 
-    /* 	conditionally, restore WDT control register.
-    	avoid unnecessary WDT writes which will invoke a sync problem
-    	described above as SAR-51938: going into hibernation with pending,
-    	unsynchronized WDT writes may lock out the sync bits.
+    /*  conditionally, restore WDT control register.
+        avoid unnecessary WDT writes which will invoke a sync problem
+        described above as SAR-51938: going into hibernation with pending,
+        unsynchronized WDT writes may lock out the sync bits.
 
-    	Note: it takes over 1000us to sync WDT writes between the 26MHz and
-    	32kHz clock	domains, so this write may actually impact the NEXT
-    	low-power entry.
+        Note: it takes over 1000us to sync WDT writes between the 26MHz and
+        32kHz clock domains, so this write may actually impact the NEXT
+        low-power entry.
     */
     if (ActiveWDT > 0u) {
         pADI_WDT0->CTL = savedWDT;

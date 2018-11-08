@@ -60,37 +60,37 @@ extern "C" {
 /** RMU reset modes */
 typedef enum {
 #if defined(_RMU_CTRL_PINRMODE_MASK)
-  rmuResetModeDisabled = _RMU_CTRL_PINRMODE_DISABLED,
-  rmuResetModeLimited  = _RMU_CTRL_PINRMODE_LIMITED,
-  rmuResetModeExtended = _RMU_CTRL_PINRMODE_EXTENDED,
-  rmuResetModeFull     = _RMU_CTRL_PINRMODE_FULL,
+    rmuResetModeDisabled = _RMU_CTRL_PINRMODE_DISABLED,
+    rmuResetModeLimited  = _RMU_CTRL_PINRMODE_LIMITED,
+    rmuResetModeExtended = _RMU_CTRL_PINRMODE_EXTENDED,
+    rmuResetModeFull     = _RMU_CTRL_PINRMODE_FULL,
 #else
-  rmuResetModeClear    = 0,
-  rmuResetModeSet      = 1,
+    rmuResetModeClear    = 0,
+    rmuResetModeSet      = 1,
 #endif
 } RMU_ResetMode_TypeDef;
 
 /** RMU controlled peripheral reset control and reset source control */
 typedef enum {
 #if defined(RMU_CTRL_BURSTEN)
-  rmuResetBU = _RMU_CTRL_BURSTEN_MASK,              /**< Reset control over Backup Power domain select */
+    rmuResetBU = _RMU_CTRL_BURSTEN_MASK,              /**< Reset control over Backup Power domain select */
 #endif
 #if defined(RMU_CTRL_LOCKUPRDIS)
-  rmuResetLockUp = _RMU_CTRL_LOCKUPRDIS_MASK,       /**< Cortex lockup reset select */
+    rmuResetLockUp = _RMU_CTRL_LOCKUPRDIS_MASK,       /**< Cortex lockup reset select */
 #elif defined(_RMU_CTRL_LOCKUPRMODE_MASK)
-  rmuResetLockUp = _RMU_CTRL_LOCKUPRMODE_MASK,      /**< Cortex lockup reset select */
+    rmuResetLockUp = _RMU_CTRL_LOCKUPRMODE_MASK,      /**< Cortex lockup reset select */
 #endif
 #if defined(_RMU_CTRL_WDOGRMODE_MASK)
-  rmuResetWdog = _RMU_CTRL_WDOGRMODE_MASK,          /**< WDOG reset select */
+    rmuResetWdog = _RMU_CTRL_WDOGRMODE_MASK,          /**< WDOG reset select */
 #endif
 #if defined(_RMU_CTRL_LOCKUPRMODE_MASK)
-  rmuResetCoreLockup = _RMU_CTRL_LOCKUPRMODE_MASK,  /**< Cortex lockup reset select */
+    rmuResetCoreLockup = _RMU_CTRL_LOCKUPRMODE_MASK,  /**< Cortex lockup reset select */
 #endif
 #if defined(_RMU_CTRL_SYSRMODE_MASK)
-  rmuResetSys = _RMU_CTRL_SYSRMODE_MASK,            /**< SYSRESET select */
+    rmuResetSys = _RMU_CTRL_SYSRMODE_MASK,            /**< SYSRESET select */
 #endif
 #if defined(_RMU_CTRL_PINRMODE_MASK)
-  rmuResetPin = _RMU_CTRL_PINRMODE_MASK,            /**< Pin reset select */
+    rmuResetPin = _RMU_CTRL_PINRMODE_MASK,            /**< Pin reset select */
 #endif
 } RMU_Reset_TypeDef;
 
@@ -115,10 +115,10 @@ uint32_t RMU_ResetCauseGet(void);
  ******************************************************************************/
 __STATIC_INLINE void RMU_UserResetStateSet(uint32_t userState)
 {
-  EFM_ASSERT(!(userState
-               & ~(_RMU_CTRL_RESETSTATE_MASK >> _RMU_CTRL_RESETSTATE_SHIFT)));
-  RMU->CTRL = (RMU->CTRL & ~_RMU_CTRL_RESETSTATE_MASK)
-              | (userState << _RMU_CTRL_RESETSTATE_SHIFT);
+    EFM_ASSERT(!(userState
+                 & ~(_RMU_CTRL_RESETSTATE_MASK >> _RMU_CTRL_RESETSTATE_SHIFT)));
+    RMU->CTRL = (RMU->CTRL & ~_RMU_CTRL_RESETSTATE_MASK)
+                | (userState << _RMU_CTRL_RESETSTATE_SHIFT);
 }
 
 /***************************************************************************//**
@@ -131,9 +131,9 @@ __STATIC_INLINE void RMU_UserResetStateSet(uint32_t userState)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RMU_UserResetStateGet(void)
 {
-  uint32_t userState = (RMU->CTRL & _RMU_CTRL_RESETSTATE_MASK)
-                       >> _RMU_CTRL_RESETSTATE_SHIFT;
-  return userState;
+    uint32_t userState = (RMU->CTRL & _RMU_CTRL_RESETSTATE_MASK)
+                         >> _RMU_CTRL_RESETSTATE_SHIFT;
+    return userState;
 }
 #endif
 

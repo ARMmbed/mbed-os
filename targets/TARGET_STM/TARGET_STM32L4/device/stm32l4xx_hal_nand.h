@@ -40,7 +40,7 @@
 #define __STM32L4xx_HAL_NAND_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined(STM32L471xx) || defined(STM32L475xx) || defined(STM32L476xx) || defined(STM32L485xx) || defined(STM32L486xx) || \
@@ -55,7 +55,7 @@
 
 /** @addtogroup NAND
   * @{
-  */ 
+  */
 
 /** @addtogroup NAND_Private_Constants
   * @{
@@ -73,10 +73,10 @@
 #define NAND_CMD_AREA_TRUE1        ((uint8_t)0x30)
 
 #define NAND_CMD_WRITE0            ((uint8_t)0x80)
-#define NAND_CMD_WRITE_TRUE1       ((uint8_t)0x10)  
+#define NAND_CMD_WRITE_TRUE1       ((uint8_t)0x10)
 #define NAND_CMD_ERASE0            ((uint8_t)0x60)
-#define NAND_CMD_ERASE1            ((uint8_t)0xD0)  
-#define NAND_CMD_READID            ((uint8_t)0x90)  
+#define NAND_CMD_ERASE1            ((uint8_t)0xD0)
+#define NAND_CMD_READID            ((uint8_t)0x90)
 #define NAND_CMD_STATUS            ((uint8_t)0x70)
 #define NAND_CMD_LOCK_STATUS       ((uint8_t)0x7A)
 #define NAND_CMD_RESET             ((uint8_t)0xFF)
@@ -126,77 +126,72 @@
   * @{
   */
 
-/** 
+/**
   * @brief  HAL NAND State structures definition
   */
-typedef enum
-{
-  HAL_NAND_STATE_RESET     = 0x00,  /*!< NAND not yet initialized or disabled */
-  HAL_NAND_STATE_READY     = 0x01,  /*!< NAND initialized and ready for use   */
-  HAL_NAND_STATE_BUSY      = 0x02,  /*!< NAND internal process is ongoing     */
-  HAL_NAND_STATE_ERROR     = 0x03   /*!< NAND error state                     */
-}HAL_NAND_StateTypeDef;
-   
-/** 
+typedef enum {
+    HAL_NAND_STATE_RESET     = 0x00,  /*!< NAND not yet initialized or disabled */
+    HAL_NAND_STATE_READY     = 0x01,  /*!< NAND initialized and ready for use   */
+    HAL_NAND_STATE_BUSY      = 0x02,  /*!< NAND internal process is ongoing     */
+    HAL_NAND_STATE_ERROR     = 0x03   /*!< NAND error state                     */
+} HAL_NAND_StateTypeDef;
+
+/**
   * @brief  NAND Memory electronic signature Structure definition
   */
-typedef struct
-{
-  /*<! NAND memory electronic signature maker and device IDs */
+typedef struct {
+    /*<! NAND memory electronic signature maker and device IDs */
 
-  uint8_t Maker_Id; 
+    uint8_t Maker_Id;
 
-  uint8_t Device_Id;
+    uint8_t Device_Id;
 
-  uint8_t Third_Id;
+    uint8_t Third_Id;
 
-  uint8_t Fourth_Id;
-}NAND_IDTypeDef;
+    uint8_t Fourth_Id;
+} NAND_IDTypeDef;
 
-/** 
+/**
   * @brief  NAND Memory address Structure definition
   */
-typedef struct 
-{
-  uint16_t Page;   /*!< NAND memory Page address  */
+typedef struct {
+    uint16_t Page;   /*!< NAND memory Page address  */
 
-  uint16_t Zone;   /*!< NAND memory Zone address  */
+    uint16_t Zone;   /*!< NAND memory Zone address  */
 
-  uint16_t Block;  /*!< NAND memory Block address */
+    uint16_t Block;  /*!< NAND memory Block address */
 
-}NAND_AddressTypeDef;
+} NAND_AddressTypeDef;
 
-/** 
+/**
   * @brief  NAND Memory info Structure definition
-  */ 
-typedef struct
-{
-  uint32_t PageSize;       /*!< NAND memory page (without spare area) size measured in K. bytes */
+  */
+typedef struct {
+    uint32_t PageSize;       /*!< NAND memory page (without spare area) size measured in K. bytes */
 
-  uint32_t SpareAreaSize;  /*!< NAND memory spare area size measured in K. bytes                */
+    uint32_t SpareAreaSize;  /*!< NAND memory spare area size measured in K. bytes                */
 
-  uint32_t BlockSize;      /*!< NAND memory block size number of pages                          */
+    uint32_t BlockSize;      /*!< NAND memory block size number of pages                          */
 
-  uint32_t BlockNbr;       /*!< NAND memory number of blocks                                    */
+    uint32_t BlockNbr;       /*!< NAND memory number of blocks                                    */
 
-  uint32_t ZoneSize;       /*!< NAND memory zone size measured in number of blocks              */
-}NAND_InfoTypeDef;
+    uint32_t ZoneSize;       /*!< NAND memory zone size measured in number of blocks              */
+} NAND_InfoTypeDef;
 
-/** 
+/**
   * @brief  NAND handle Structure definition
-  */   
-typedef struct
-{
-  FMC_NAND_TypeDef             *Instance;  /*!< Register base address                        */
-  
-  FMC_NAND_InitTypeDef         Init;       /*!< NAND device control configuration parameters */
+  */
+typedef struct {
+    FMC_NAND_TypeDef             *Instance;  /*!< Register base address                        */
 
-  HAL_LockTypeDef              Lock;       /*!< NAND locking object                          */
+    FMC_NAND_InitTypeDef         Init;       /*!< NAND device control configuration parameters */
 
-  __IO HAL_NAND_StateTypeDef   State;      /*!< NAND device access state                     */
+    HAL_LockTypeDef              Lock;       /*!< NAND locking object                          */
 
-  NAND_InfoTypeDef             Info;       /*!< NAND characteristic information structure    */
-}NAND_HandleTypeDef;
+    __IO HAL_NAND_StateTypeDef   State;      /*!< NAND device access state                     */
+
+    NAND_InfoTypeDef             Info;       /*!< NAND characteristic information structure    */
+} NAND_HandleTypeDef;
 
 /**
   * @}
@@ -206,7 +201,7 @@ typedef struct
 /* Exported macro ------------------------------------------------------------*/
 /** @defgroup NAND_Exported_Macros NAND Exported Macros
  * @{
- */ 
+ */
 
 /** @brief Reset NAND handle state.
   * @param  __HANDLE__: specifies the NAND handle.
@@ -222,8 +217,8 @@ typedef struct
 /** @addtogroup NAND_Exported_Functions NAND Exported Functions
   * @{
   */
-    
-/** @addtogroup NAND_Exported_Functions_Group1 Initialization and de-initialization functions 
+
+/** @addtogroup NAND_Exported_Functions_Group1 Initialization and de-initialization functions
   * @{
   */
 
@@ -238,8 +233,8 @@ void                HAL_NAND_ITCallback(NAND_HandleTypeDef *hnand);
 /**
   * @}
   */
-  
-/** @addtogroup NAND_Exported_Functions_Group2 Input and Output functions 
+
+/** @addtogroup NAND_Exported_Functions_Group2 Input and Output functions
   * @{
   */
 
@@ -258,7 +253,7 @@ uint32_t            HAL_NAND_Address_Inc(NAND_HandleTypeDef *hnand, NAND_Address
   * @}
   */
 
-/** @addtogroup NAND_Exported_Functions_Group3 Peripheral Control functions 
+/** @addtogroup NAND_Exported_Functions_Group3 Peripheral Control functions
   * @{
   */
 
@@ -270,8 +265,8 @@ HAL_StatusTypeDef  HAL_NAND_GetECC(NAND_HandleTypeDef *hnand, uint32_t *ECCval, 
 /**
   * @}
   */
-    
-/** @addtogroup NAND_Exported_Functions_Group4 Peripheral State functions 
+
+/** @addtogroup NAND_Exported_Functions_Group4 Peripheral State functions
   * @{
   */
 
@@ -281,22 +276,22 @@ uint32_t              HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 #endif /* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx || */
-       /* STM32L496xx || STM32L4A6xx ||                            */
+/* STM32L496xx || STM32L4A6xx ||                            */
 
 #ifdef __cplusplus
 }

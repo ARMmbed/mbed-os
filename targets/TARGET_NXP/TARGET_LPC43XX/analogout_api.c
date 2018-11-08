@@ -32,7 +32,8 @@ static const PinMap PinMap_DAC[] = {
     {NC,   NC,    0}
 };
 
-void analogout_init(dac_t *obj, PinName pin) {
+void analogout_init(dac_t *obj, PinName pin)
+{
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
     MBED_ASSERT(obj->dac != (DACName)NC);
 
@@ -45,23 +46,26 @@ void analogout_init(dac_t *obj, PinName pin) {
     LPC_DAC->CR &= ~DAC_BIAS_EN;
     // Enable DAC and DMA
     LPC_DAC->CTRL |= DAC_DMA_ENA;
-	
+
     analogout_write_u16(obj, 0);
 }
 
 void analogout_free(dac_t *obj) {}
 
-static inline void dac_write(int value) {
-    
+static inline void dac_write(int value)
+{
+
     // Set the DAC output
     LPC_DAC->CR = DAC_SET(value);
 }
 
-static inline int dac_read() {
+static inline int dac_read()
+{
     return (DAC_GET(LPC_DAC->CR));
 }
 
-void analogout_write(dac_t *obj, float value) {
+void analogout_write(dac_t *obj, float value)
+{
     if (value < 0.0f) {
         dac_write(0);
     } else if (value > 1.0f) {
@@ -71,16 +75,19 @@ void analogout_write(dac_t *obj, float value) {
     }
 }
 
-void analogout_write_u16(dac_t *obj, uint16_t value) {
+void analogout_write_u16(dac_t *obj, uint16_t value)
+{
     dac_write(value >> 6); // 10-bit
 }
 
-float analogout_read(dac_t *obj) {
+float analogout_read(dac_t *obj)
+{
     uint32_t value = dac_read();
     return (float)value * (1.0f / (float)DAC_RANGE);
 }
 
-uint16_t analogout_read_u16(dac_t *obj) {
+uint16_t analogout_read_u16(dac_t *obj)
+{
     uint32_t value = dac_read(); // 10-bit
     return (value << 6) | ((value >> 4) & 0x003F);
 }

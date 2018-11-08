@@ -364,7 +364,8 @@ void protocol_6lowpan_router_init(protocol_interface_info_entry_t *cur)
 }
 
 
-void protocol_6lowpan_configure_core(protocol_interface_info_entry_t *cur) {
+void protocol_6lowpan_configure_core(protocol_interface_info_entry_t *cur)
+{
     cur->dup_addr_detect_transmits = 0;
     cur->ipv6_neighbour_cache.max_ll_len = 2 + 8;
     cur->ipv6_neighbour_cache.link_mtu = LOWPAN_MTU;
@@ -461,7 +462,7 @@ void protocol_6lowpan_neighbor_priority_update(protocol_interface_info_entry_t *
     if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
 #ifndef NO_MLE
         if (removed_priority) {
-            mle_set_link_priority(cur->id,removed_priority, false);
+            mle_set_link_priority(cur->id, removed_priority, false);
         }
 
         if (updated_priority) {
@@ -731,7 +732,7 @@ uint8_t protocol_6lowpan_beacon_join_priority_tx(int8_t interface_id)
     int16_t priority = 0;
 #ifdef HAVE_RPL
     if (cur->rpl_domain) {
-         priority = protocol_6lowpan_rpl_global_priority_get();
+        priority = protocol_6lowpan_rpl_global_priority_get();
     }
 #endif
 

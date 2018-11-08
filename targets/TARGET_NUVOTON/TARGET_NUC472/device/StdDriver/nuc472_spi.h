@@ -286,8 +286,9 @@ extern "C"
   */
 static __INLINE void SPI_SET_DATA_WIDTH(SPI_T *spi, uint32_t u32Width)
 {
-    if(u32Width == 32)
+    if (u32Width == 32) {
         u32Width = 0;
+    }
 
     spi->CTL = (spi->CTL & ~SPI_CTL_DWIDTH_Msk) | (u32Width << SPI_CTL_DWIDTH_Pos);
 }
@@ -432,7 +433,7 @@ static __INLINE void SPI_SET_DATA_WIDTH(SPI_T *spi, uint32_t u32Width)
   */
 #define SPI_DISABLE_2BIT_MODE(spi) ( (spi)->CTL &= ~SPI_CTL_TWOBIT_Msk )
 
-uint32_t SPI_Open(SPI_T *spi,uint32_t u32MasterSlave, uint32_t u32SPIMode,  uint32_t u32DataWidth, uint32_t u32BusClock);
+uint32_t SPI_Open(SPI_T *spi, uint32_t u32MasterSlave, uint32_t u32SPIMode,  uint32_t u32DataWidth, uint32_t u32BusClock);
 void SPI_Close(SPI_T *spi);
 void SPI_ClearRxFIFO(SPI_T *spi);
 void SPI_ClearTxFIFO(SPI_T *spi);

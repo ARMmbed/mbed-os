@@ -52,8 +52,7 @@
 /*@}*/
 
 /*! @brief Error codes for the UART driver. */
-enum _flexio_uart_status
-{
+enum _flexio_uart_status {
     kStatus_FLEXIO_UART_TxBusy = MAKE_STATUS(kStatusGroup_FLEXIO_UART, 0), /*!< Transmitter is busy. */
     kStatus_FLEXIO_UART_RxBusy = MAKE_STATUS(kStatusGroup_FLEXIO_UART, 1), /*!< Receiver is busy. */
     kStatus_FLEXIO_UART_TxIdle = MAKE_STATUS(kStatusGroup_FLEXIO_UART, 2), /*!< UART transmitter is idle. */
@@ -65,31 +64,27 @@ enum _flexio_uart_status
 };
 
 /*! @brief FlexIO UART bit count per char. */
-typedef enum _flexio_uart_bit_count_per_char
-{
+typedef enum _flexio_uart_bit_count_per_char {
     kFLEXIO_UART_7BitsPerChar = 7U, /*!< 7-bit data characters */
     kFLEXIO_UART_8BitsPerChar = 8U, /*!< 8-bit data characters */
     kFLEXIO_UART_9BitsPerChar = 9U, /*!< 9-bit data characters */
 } flexio_uart_bit_count_per_char_t;
 
 /*! @brief Define FlexIO UART interrupt mask. */
-enum _flexio_uart_interrupt_enable
-{
+enum _flexio_uart_interrupt_enable {
     kFLEXIO_UART_TxDataRegEmptyInterruptEnable = 0x1U, /*!< Transmit buffer empty interrupt enable. */
     kFLEXIO_UART_RxDataRegFullInterruptEnable = 0x2U,  /*!< Receive buffer full interrupt enable. */
 };
 
 /*! @brief Define FlexIO UART status mask. */
-enum _flexio_uart_status_flags
-{
+enum _flexio_uart_status_flags {
     kFLEXIO_UART_TxDataRegEmptyFlag = 0x1U, /*!< Transmit buffer empty flag. */
     kFLEXIO_UART_RxDataRegFullFlag = 0x2U,  /*!< Receive buffer full flag. */
     kFLEXIO_UART_RxOverRunFlag = 0x4U,      /*!< Receive buffer over run flag. */
 };
 
 /*! @brief Define FlexIO UART access structure typedef. */
-typedef struct _flexio_uart_type
-{
+typedef struct _flexio_uart_type {
     FLEXIO_Type *flexioBase; /*!< FlexIO base pointer. */
     uint8_t TxPinIndex;      /*!< Pin select for UART_Tx. */
     uint8_t RxPinIndex;      /*!< Pin select for UART_Rx. */
@@ -98,8 +93,7 @@ typedef struct _flexio_uart_type
 } FLEXIO_UART_Type;
 
 /*! @brief Define FlexIO UART user configuration structure. */
-typedef struct _flexio_uart_config
-{
+typedef struct _flexio_uart_config {
     bool enableUart;                                  /*!< Enable/disable FlexIO UART TX & RX. */
     bool enableInDoze;                                /*!< Enable/disable FlexIO operation in doze mode*/
     bool enableInDebug;                               /*!< Enable/disable FlexIO operation in debug mode*/
@@ -111,8 +105,7 @@ typedef struct _flexio_uart_config
 } flexio_uart_config_t;
 
 /*! @brief Define FlexIO UART transfer structure. */
-typedef struct _flexio_uart_transfer
-{
+typedef struct _flexio_uart_transfer {
     uint8_t *data;   /*!< Transfer buffer*/
     size_t dataSize; /*!< Transfer size*/
 } flexio_uart_transfer_t;
@@ -127,8 +120,7 @@ typedef void (*flexio_uart_transfer_callback_t)(FLEXIO_UART_Type *base,
                                                 void *userData);
 
 /*! @brief Define FLEXIO UART handle structure*/
-struct _flexio_uart_handle
-{
+struct _flexio_uart_handle {
     uint8_t *volatile txData;   /*!< Address of remaining data to send. */
     volatile size_t txDataSize; /*!< Size of the remaining data to send. */
     uint8_t *volatile rxData;   /*!< Address of remaining data to receive. */
@@ -343,12 +335,9 @@ static inline void FLEXIO_UART_EnableRxDMA(FLEXIO_UART_Type *base, bool enable)
 */
 static inline void FLEXIO_UART_Enable(FLEXIO_UART_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->flexioBase->CTRL |= FLEXIO_CTRL_FLEXEN_MASK;
-    }
-    else
-    {
+    } else {
         base->flexioBase->CTRL &= ~FLEXIO_CTRL_FLEXEN_MASK;
     }
 }

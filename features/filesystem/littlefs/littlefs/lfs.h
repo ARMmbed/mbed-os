@@ -95,14 +95,14 @@ struct lfs_config {
     // Read a region in a block. Negative error codes are propogated
     // to the user.
     int (*read)(const struct lfs_config *c, lfs_block_t block,
-            lfs_off_t off, void *buffer, lfs_size_t size);
+                lfs_off_t off, void *buffer, lfs_size_t size);
 
     // Program a region in a block. The block must have previously
     // been erased. Negative error codes are propogated to the user.
     // The prog function must return LFS_ERR_CORRUPT if the block should
     // be considered bad.
     int (*prog)(const struct lfs_config *c, lfs_block_t block,
-            lfs_off_t off, const void *buffer, lfs_size_t size);
+                lfs_off_t off, const void *buffer, lfs_size_t size);
 
     // Erase a block. A block must be erased before being programmed.
     // The state of an erased block is undefined. Negative error codes
@@ -162,7 +162,7 @@ struct lfs_info {
     lfs_size_t size;
 
     // Name of the file stored as a null-terminated string
-    char name[LFS_NAME_MAX+1];
+    char name[LFS_NAME_MAX + 1];
 };
 
 
@@ -322,7 +322,7 @@ int lfs_stat(lfs_t *lfs, const char *path, struct lfs_info *info);
 //
 // Returns a negative error code on failure.
 int lfs_file_open(lfs_t *lfs, lfs_file_t *file,
-        const char *path, int flags);
+                  const char *path, int flags);
 
 // Close a file
 //
@@ -343,7 +343,7 @@ int lfs_file_sync(lfs_t *lfs, lfs_file_t *file);
 // Takes a buffer and size indicating where to store the read data.
 // Returns the number of bytes read, or a negative error code on failure.
 lfs_ssize_t lfs_file_read(lfs_t *lfs, lfs_file_t *file,
-        void *buffer, lfs_size_t size);
+                          void *buffer, lfs_size_t size);
 
 // Write data to file
 //
@@ -352,14 +352,14 @@ lfs_ssize_t lfs_file_read(lfs_t *lfs, lfs_file_t *file,
 //
 // Returns the number of bytes written, or a negative error code on failure.
 lfs_ssize_t lfs_file_write(lfs_t *lfs, lfs_file_t *file,
-        const void *buffer, lfs_size_t size);
+                           const void *buffer, lfs_size_t size);
 
 // Change the position of the file
 //
 // The change in position is determined by the offset and whence flag.
 // Returns the old position of the file, or a negative error code on failure.
 lfs_soff_t lfs_file_seek(lfs_t *lfs, lfs_file_t *file,
-        lfs_soff_t off, int whence);
+                         lfs_soff_t off, int whence);
 
 // Return the position of the file
 //
@@ -436,7 +436,7 @@ int lfs_dir_rewind(lfs_t *lfs, lfs_dir_t *dir);
 // blocks are in use or how much of the storage is available.
 //
 // Returns a negative error code on failure.
-int lfs_traverse(lfs_t *lfs, int (*cb)(void*, lfs_block_t), void *data);
+int lfs_traverse(lfs_t *lfs, int (*cb)(void *, lfs_block_t), void *data);
 
 // Prunes any recoverable errors that may have occured in the filesystem
 //

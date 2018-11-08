@@ -55,9 +55,9 @@ typedef struct {
     uint16_t unfrag_ptr; /*!< Offset within buf of headers that precede the FRAG header */
     uint16_t frag_len;
     uint8_t unfrag_len; /*!< Length of headers that precede the FRAG header */
-    bool fragmented_data:1;
-    bool first_fragment:1;
-    bool indirectData:1;
+    bool fragmented_data: 1;
+    bool first_fragment: 1;
+    bool indirectData: 1;
     buffer_t *buf;
     uint8_t *fragmenter_buf;
     ns_list_link_t      link; /*!< List link entry */
@@ -89,8 +89,8 @@ static NS_LIST_DEFINE(fragmenter_interface_list, fragmenter_interface_t, link);
 static fragmenter_interface_t *lowpan_adaptation_interface_discover(int8_t interfaceId);
 
 /* Interface direct message pending queue functions */
-static void lowpan_adaptation_tx_queue_write(fragmenter_interface_t *interface_ptr , buffer_t *buf);
-static buffer_t * lowpan_adaptation_tx_queue_read(fragmenter_interface_t *interface_ptr, protocol_interface_info_entry_t *cur);
+static void lowpan_adaptation_tx_queue_write(fragmenter_interface_t *interface_ptr, buffer_t *buf);
+static buffer_t *lowpan_adaptation_tx_queue_read(fragmenter_interface_t *interface_ptr, protocol_interface_info_entry_t *cur);
 
 /* Data direction and message length validation */
 static bool lowpan_adaptation_indirect_data_request(mle_neigh_table_entry_t *mle_entry);
@@ -100,13 +100,13 @@ static bool lowpan_adaptation_request_longer_than_mtu(protocol_interface_info_en
 static void lowpan_active_buffer_state_reset(fragmenter_tx_entry_t *tx_buffer);
 static uint8_t lowpan_data_request_unique_handle_get(fragmenter_interface_t *interface_ptr);
 static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_buffer_size);
-static fragmenter_tx_entry_t * lowpan_adaptation_tx_process_init(fragmenter_interface_t *interface_ptr, bool indirect, bool fragmented, bool is_unicast);
+static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_interface_t *interface_ptr, bool indirect, bool fragmented, bool is_unicast);
 static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcps_data_req_t *dataReq, protocol_interface_info_entry_t *cur);
 static void lowpan_data_request_to_mac(protocol_interface_info_entry_t *cur, buffer_t *buf, fragmenter_tx_entry_t *tx_ptr);
 
 /* Tx confirmation local functions */
 static bool lowpan_active_tx_handle_verify(uint8_t handle, buffer_t *buf);
-static fragmenter_tx_entry_t * lowpan_indirect_tx_handle_verify(uint8_t handle, fragmenter_tx_list_t *indirect_tx_queue);
+static fragmenter_tx_entry_t *lowpan_indirect_tx_handle_verify(uint8_t handle, fragmenter_tx_list_t *indirect_tx_queue);
 static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr, uint8_t socket_event);
 static uint8_t map_mlme_status_to_socket_event(uint8_t mlme_status);
 static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr);
@@ -130,7 +130,7 @@ static fragmenter_interface_t *lowpan_adaptation_interface_discover(int8_t inter
 }
 
 
-static void lowpan_adaptation_tx_queue_write(fragmenter_interface_t *interface_ptr , buffer_t *buf)
+static void lowpan_adaptation_tx_queue_write(fragmenter_interface_t *interface_ptr, buffer_t *buf)
 {
     buffer_t *lower_priority_buf = NULL;
 
@@ -148,7 +148,7 @@ static void lowpan_adaptation_tx_queue_write(fragmenter_interface_t *interface_p
     }
 }
 
-static buffer_t * lowpan_adaptation_tx_queue_read(fragmenter_interface_t *interface_ptr, protocol_interface_info_entry_t *cur)
+static buffer_t *lowpan_adaptation_tx_queue_read(fragmenter_interface_t *interface_ptr, protocol_interface_info_entry_t *cur)
 {
     /* Currently this function is called only when data confirm is received for previously sent packet.
      * Data confirm has freed the corresponding "active buffer" and this function will look for new buffer to be set as active buffer.
@@ -159,7 +159,7 @@ static buffer_t * lowpan_adaptation_tx_queue_read(fragmenter_interface_t *interf
         if (fragmented_needed && interface_ptr->fragmenter_active) {
             tr_debug("Do not trig Second active fragmentation");
         } else if ((buf->link_specific.ieee802_15_4.requestAck && !interface_ptr->active_unicast_tx_buf.buf)
-                || (!buf->link_specific.ieee802_15_4.requestAck && !interface_ptr->active_broadcast_tx_buf.buf)) {
+                   || (!buf->link_specific.ieee802_15_4.requestAck && !interface_ptr->active_broadcast_tx_buf.buf)) {
             ns_list_remove(&interface_ptr->directTxQueue, buf);
             return buf;
         }
@@ -213,7 +213,7 @@ static bool lowpan_active_tx_handle_verify(uint8_t handle, buffer_t *buf)
 
 
 
-static fragmenter_tx_entry_t * lowpan_indirect_tx_handle_verify(uint8_t handle, fragmenter_tx_list_t *indirect_tx_queue)
+static fragmenter_tx_entry_t *lowpan_indirect_tx_handle_verify(uint8_t handle, fragmenter_tx_list_t *indirect_tx_queue)
 {
     ns_list_foreach(fragmenter_tx_entry_t, entry, indirect_tx_queue) {
         if (entry->buf->seq == handle) {
@@ -229,10 +229,10 @@ static uint8_t lowpan_data_request_unique_handle_get(fragmenter_interface_t *int
 {
     bool valid_info = false;
     uint8_t handle;
-    while(!valid_info) {
+    while (!valid_info) {
         handle = interface_ptr->msduHandle++;
-        if (!lowpan_active_tx_handle_verify(handle,interface_ptr->active_unicast_tx_buf.buf)
-                && !lowpan_active_tx_handle_verify(handle,interface_ptr->active_broadcast_tx_buf.buf)
+        if (!lowpan_active_tx_handle_verify(handle, interface_ptr->active_unicast_tx_buf.buf)
+                && !lowpan_active_tx_handle_verify(handle, interface_ptr->active_broadcast_tx_buf.buf)
                 && !lowpan_indirect_tx_handle_verify(handle, &interface_ptr->indirect_tx_queue)) {
             valid_info = true;
         }
@@ -241,7 +241,7 @@ static uint8_t lowpan_data_request_unique_handle_get(fragmenter_interface_t *int
 
 }
 
-static void lowpan_indirect_entry_free(fragmenter_tx_list_t *list , fragmenter_tx_entry_t *entry)
+static void lowpan_indirect_entry_free(fragmenter_tx_list_t *list, fragmenter_tx_entry_t *entry)
 {
     ns_list_remove(list, entry);
     if (entry->buf) {
@@ -253,7 +253,7 @@ static void lowpan_indirect_entry_free(fragmenter_tx_list_t *list , fragmenter_t
 
 static void lowpan_indirect_queue_free(fragmenter_tx_list_t *list)
 {
-    while(!ns_list_is_empty(list)) {
+    while (!ns_list_is_empty(list)) {
         fragmenter_tx_entry_t *entry = ns_list_get_first(list);
         lowpan_indirect_entry_free(list, entry);
     }
@@ -277,7 +277,7 @@ int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_si
         return -1;
     }
 
-    memset(interface_ptr, 0 ,sizeof(fragmenter_interface_t));
+    memset(interface_ptr, 0, sizeof(fragmenter_interface_t));
     interface_ptr->interface_id = interface_id;
     interface_ptr->fragment_indirect_tx_buffer = tx_buffer;
     interface_ptr->mtu_size = mac_mtu_size;
@@ -456,7 +456,7 @@ static bool lowpan_message_fragmentation_message_write(const fragmenter_tx_entry
     return frag_entry->offset * 8 + frag_entry->frag_len < frag_entry->size;
 }
 
-static fragmenter_tx_entry_t * lowpan_adaptation_tx_process_init(fragmenter_interface_t *interface_ptr, bool indirect, bool fragmented, bool is_unicast)
+static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_interface_t *interface_ptr, bool indirect, bool fragmented, bool is_unicast)
 {
     fragmenter_tx_entry_t *tx_entry;
     if (!indirect) {
@@ -485,7 +485,7 @@ static fragmenter_tx_entry_t * lowpan_adaptation_tx_process_init(fragmenter_inte
     return tx_entry;
 }
 
-buffer_t * lowpan_adaptation_data_process_tx_preprocess(protocol_interface_info_entry_t *cur, buffer_t *buf)
+buffer_t *lowpan_adaptation_data_process_tx_preprocess(protocol_interface_info_entry_t *cur, buffer_t *buf)
 {
     //Validate is link known and set indirect, datareq and security key id mode
     if (buf->dst_sa.addr_type == ADDR_NONE) {
@@ -494,10 +494,10 @@ buffer_t * lowpan_adaptation_data_process_tx_preprocess(protocol_interface_info_
 
     mle_neigh_table_entry_t *mle_entry = NULL;
     /* If MLE is enabled, we will talk if we have an MLE association */
-    if (buf->dst_sa.addr_type == ADDR_802_15_4_LONG ) {
+    if (buf->dst_sa.addr_type == ADDR_802_15_4_LONG) {
         mle_entry = mle_class_get_by_link_address(cur->id, buf->dst_sa.address + 2, buf->dst_sa.addr_type);
 
-    } else if(buf->dst_sa.addr_type == ADDR_802_15_4_SHORT && (common_read_16_bit(buf->dst_sa.address + 2)) != 0xffff) {
+    } else if (buf->dst_sa.addr_type == ADDR_802_15_4_SHORT && (common_read_16_bit(buf->dst_sa.address + 2)) != 0xffff) {
         mle_entry = mle_class_get_by_link_address(cur->id, buf->dst_sa.address + 2, buf->dst_sa.addr_type);
     }
 
@@ -528,7 +528,7 @@ buffer_t * lowpan_adaptation_data_process_tx_preprocess(protocol_interface_info_
 
     if (buf->link_specific.ieee802_15_4.key_id_mode != B_SECURITY_KEY_ID_2) {
 
-        if (!buf->link_specific.ieee802_15_4.requestAck ) {
+        if (!buf->link_specific.ieee802_15_4.requestAck) {
             buf->link_specific.ieee802_15_4.key_id_mode = B_SECURITY_KEY_ID_MODE_DEFAULT;
         } else if (mle_entry && !mle_entry->thread_commission) {
             buf->link_specific.ieee802_15_4.key_id_mode  = B_SECURITY_KEY_ID_MODE_DEFAULT;
@@ -539,7 +539,7 @@ buffer_t * lowpan_adaptation_data_process_tx_preprocess(protocol_interface_info_
 
     return buf;
 
-    tx_error_handler:
+tx_error_handler:
     socket_tx_buffer_event_and_free(buf, SOCKET_TX_FAIL);
     return NULL;
 
@@ -697,7 +697,7 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
 
     if (fragmented_needed) {
         //Fragmentation init
-        if (lowpan_message_fragmentation_init(buf, tx_ptr, cur) ) {
+        if (lowpan_message_fragmentation_init(buf, tx_ptr, cur)) {
             tr_error("Fragment init fail");
             if (indirect) {
                 ns_dyn_mem_free(tx_ptr->fragmenter_buf);
@@ -803,7 +803,7 @@ static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interfa
 
 int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *cur, const mcps_data_conf_t *confirm)
 {
-    if( !cur || !confirm ){
+    if (!cur || !confirm) {
         return -1;
     }
 
@@ -817,10 +817,10 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
     bool active_direct_confirm;
     bool is_unicast = true;
 
-    if (lowpan_active_tx_handle_verify(confirm->msduHandle,interface_ptr->active_unicast_tx_buf.buf)) {
+    if (lowpan_active_tx_handle_verify(confirm->msduHandle, interface_ptr->active_unicast_tx_buf.buf)) {
         active_direct_confirm = true;
         tx_ptr = &interface_ptr->active_unicast_tx_buf;
-    } else if (lowpan_active_tx_handle_verify(confirm->msduHandle,interface_ptr->active_broadcast_tx_buf.buf)) {
+    } else if (lowpan_active_tx_handle_verify(confirm->msduHandle, interface_ptr->active_broadcast_tx_buf.buf)) {
         active_direct_confirm = true;
         tx_ptr = &interface_ptr->active_broadcast_tx_buf;
         is_unicast = false;
@@ -839,8 +839,7 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
 
     //Indirect data expiration
     if (confirm->status == MLME_TRANSACTION_EXPIRED && !active_direct_confirm) {
-        if (buf->link_specific.ieee802_15_4.indirectTTL > 7000)
-        {
+        if (buf->link_specific.ieee802_15_4.indirectTTL > 7000) {
             buf->link_specific.ieee802_15_4.indirectTTL -= 7000;
             //Push Back to MAC
             lowpan_data_request_to_mac(cur, buf, tx_ptr);
@@ -857,7 +856,7 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
                 if (confirm->status == MLME_SUCCESS) {
                     success = true;
                 }
-                etx_transm_attempts_update(cur->id, 1 + confirm->tx_retries , success, buf->dst_sa.addr_type, buf->dst_sa.address);
+                etx_transm_attempts_update(cur->id, 1 + confirm->tx_retries, success, buf->dst_sa.addr_type, buf->dst_sa.address);
             }
             break;
         default:
@@ -999,7 +998,7 @@ int8_t lowpan_adaptation_indirect_free_messages_from_queues_by_address(struct pr
 {
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
 
-    if (!interface_ptr ) {
+    if (!interface_ptr) {
         return -1;
     }
 

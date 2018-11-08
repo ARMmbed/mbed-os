@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   att_defs.h
- *        
+ *
  *  \brief  Attribute protocol constants and definitions from the Bluetooth specification.
  *
  *          $Date: 2015-09-10 14:58:31 -0700 (Thu, 10 Sep 2015) $
  *          $Revision: 3838 $
- *  
+ *
  *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
  *  Wicentric confidential and proprietary.
  *

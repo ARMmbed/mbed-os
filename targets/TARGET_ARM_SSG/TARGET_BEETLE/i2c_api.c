@@ -45,26 +45,27 @@ typedef enum i2c_transfer_state_t {
 typedef struct private_i2c_t {
     /* State of a possibly combined ongoing i2c transfer */
     i2c_transfer_state_t transfer_state;
-}private_i2c_t;
+} private_i2c_t;
 
 
 /*
  * Retrieve the private data of the instance related to a given IP
  */
-static private_i2c_t* get_i2c_private(i2c_t *obj) {
+static private_i2c_t *get_i2c_private(i2c_t *obj)
+{
     static private_i2c_t data0, data1;
     /*
      * Select which instance to give using the base
      * address of registers
      */
-    switch((intptr_t)obj->i2c) {
+    switch ((intptr_t)obj->i2c) {
         case I2C0_BASE:
             return &data0;
         case I2C1_BASE:
             return &data1;
         default:
             error("i2c driver private data structure not found for this registers base address");
-            return (void*)0;
+            return (void *)0;
     }
 }
 
@@ -75,8 +76,9 @@ static private_i2c_t* get_i2c_private(i2c_t *obj) {
  * MUST be called ONCE AND ONLY ONCE at the beginning of i2c transfer
  * functions (read and write)
  */
-static i2c_transfer_state_t update_transfer_state(i2c_t *obj, int stop) {
-    private_i2c_t* private_data = get_i2c_private(obj);
+static i2c_transfer_state_t update_transfer_state(i2c_t *obj, int stop)
+{
+    private_i2c_t *private_data = get_i2c_private(obj);
     i2c_transfer_state_t *state = &private_data->transfer_state;
 
     /*
@@ -84,7 +86,7 @@ static i2c_transfer_state_t update_transfer_state(i2c_t *obj, int stop) {
      * This basically implements rising and falling edge detection on
      * "stop" variable
      */
-    switch(*state) {
+    switch (*state) {
         /* This is the default state for non restarted repeat transfer */
         default:
         case I2C_TRANSFER_SINGLE: /* Not a combined transfer */
@@ -123,7 +125,7 @@ static i2c_transfer_state_t update_transfer_state(i2c_t *obj, int stop) {
 static const PinMap PinMap_I2C_SDA[] = {
     {SHIELD_SDA, I2C_0, 0},
     {SENSOR_SDA, I2C_1, 0},
-    {NC, NC , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_I2C_SCL[] = {
@@ -132,7 +134,8 @@ static const PinMap PinMap_I2C_SCL[] = {
     {NC, NC, 0}
 };
 
-static void clear_isr(i2c_t *obj) {
+static void clear_isr(i2c_t *obj)
+{
     /*
      * Writing to the IRQ status register clears set bits. Therefore, to
      * clear indiscriminately, just read the register and write it back.
@@ -141,7 +144,8 @@ static void clear_isr(i2c_t *obj) {
     obj->i2c->IRQ_STATUS = reg;
 }
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
+void i2c_init(i2c_t *obj, PinName sda, PinName scl)
+{
     /* Determine the I2C to use */
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
@@ -173,11 +177,13 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     i2c_frequency(obj, 100000); /* Default to 100kHz SCL frequency */
 }
 
-int i2c_start(i2c_t *obj) {
+int i2c_start(i2c_t *obj)
+{
     return 0;
 }
 
-int i2c_stop(i2c_t *obj) {
+int i2c_stop(i2c_t *obj)
+{
     /* Clear the hardware FIFO */
     obj->i2c->CONTROL |= I2C_CTRL_CLR_FIFO;
     /* Clear the HOLD bit used for performing combined transfers */
@@ -189,7 +195,8 @@ int i2c_stop(i2c_t *obj) {
     return 0;
 }
 
-void i2c_frequency(i2c_t *obj, int hz) {
+void i2c_frequency(i2c_t *obj, int hz)
+{
     /*
      * Divider is split in two halfs : A and B
      * A is 2 bits wide and B is 6 bits wide
@@ -210,13 +217,14 @@ void i2c_frequency(i2c_t *obj, int hz) {
                 I2C_CTRL_DIVISOR_B_BIT_MASK : divisor_b;
 
     uint8_t divisor_combinded = (divisor_a & I2C_CTRL_DIVISOR_A_BIT_MASK)
-                              | (divisor_b & I2C_CTRL_DIVISOR_B_BIT_MASK);
+                                | (divisor_b & I2C_CTRL_DIVISOR_B_BIT_MASK);
 
     obj->i2c->CONTROL = (obj->i2c->CONTROL & ~I2C_CTRL_DIVISORS)
-        | (divisor_combinded << I2C_CTRL_DIVISOR_OFFSET);
+                        | (divisor_combinded << I2C_CTRL_DIVISOR_OFFSET);
 }
 
-int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
+int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
+{
     int bytes_read = 0;
     int length_backup = length;
     char *data_backup = data;
@@ -241,8 +249,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
          * Only touch the HOLD bit at the beginning of
          * (possibly combined) transactions
          */
-        if(transfer_state == I2C_TRANSFER_COMBINED_FIRST_MESSAGE
-            || transfer_state == I2C_TRANSFER_SINGLE) {
+        if (transfer_state == I2C_TRANSFER_COMBINED_FIRST_MESSAGE
+                || transfer_state == I2C_TRANSFER_SINGLE) {
 
             reg |= I2C_CTRL_HOLD;
         }
@@ -264,8 +272,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
          */
         obj->i2c->ADDRESS = (address & 0xFF) >> 1;
 
-        if(transfer_state == I2C_TRANSFER_COMBINED_LAST_MESSAGE
-           || transfer_state == I2C_TRANSFER_SINGLE) {
+        if (transfer_state == I2C_TRANSFER_COMBINED_LAST_MESSAGE
+                || transfer_state == I2C_TRANSFER_SINGLE) {
 
             /* Clear the hold bit before reading the DATA register */
             obj->i2c->CONTROL &= ~I2C_CTRL_HOLD;
@@ -278,13 +286,13 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 
             uint32_t irq_status = obj->i2c->IRQ_STATUS;
             if (irq_status & I2C_IRQ_NACK
-                || irq_status & I2C_IRQ_ARB_LOST) {
+                    || irq_status & I2C_IRQ_ARB_LOST) {
 
                 retry = 1;
                 break;
             }
 
-            if(irq_status & I2C_IRQ_COMP) {
+            if (irq_status & I2C_IRQ_COMP) {
                 break;
             }
         }
@@ -305,8 +313,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
             uint32_t irq_status = obj->i2c->IRQ_STATUS;
             uint32_t status = obj->i2c->STATUS;
 
-            if(irq_status & I2C_IRQ_NACK ||
-               irq_status & I2C_IRQ_ARB_LOST) {
+            if (irq_status & I2C_IRQ_NACK ||
+                    irq_status & I2C_IRQ_ARB_LOST) {
 
                 retry = 1;
                 break;
@@ -334,7 +342,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
             retry = 1;
             continue;
         }
-    } while(retry && main_timeout);
+    } while (retry && main_timeout);
 
     if (!main_timeout) {
         bytes_read = 0;
@@ -347,7 +355,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length,
-              int stop) {
+              int stop)
+{
 
     int bytes_written = 0;
     int length_backup = length;
@@ -375,8 +384,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length,
          * Only touch the HOLD bit at the beginning of
          * (possibly combined) transactions
          */
-        if(transfer_state == I2C_TRANSFER_COMBINED_FIRST_MESSAGE
-           || transfer_state == I2C_TRANSFER_SINGLE) {
+        if (transfer_state == I2C_TRANSFER_COMBINED_FIRST_MESSAGE
+                || transfer_state == I2C_TRANSFER_SINGLE) {
 
             reg |= I2C_CTRL_HOLD;
         }
@@ -415,7 +424,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length,
             }
 
             if (irq_status & I2C_IRQ_NACK
-                || irq_status & I2C_IRQ_ARB_LOST) {
+                    || irq_status & I2C_IRQ_ARB_LOST) {
 
                 retry = 1;
                 break;
@@ -432,8 +441,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length,
             continue;
         }
 
-        if(transfer_state == I2C_TRANSFER_COMBINED_LAST_MESSAGE
-           || transfer_state == I2C_TRANSFER_SINGLE) {
+        if (transfer_state == I2C_TRANSFER_COMBINED_LAST_MESSAGE
+                || transfer_state == I2C_TRANSFER_SINGLE) {
             /*
              * Clear the hold bit to signify the end
              * of the write sequence
@@ -448,12 +457,12 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length,
             completion_timeout--;
 
             uint32_t irq_status = obj->i2c->IRQ_STATUS;
-            if(irq_status & I2C_IRQ_NACK
-               || irq_status & I2C_IRQ_ARB_LOST) {
+            if (irq_status & I2C_IRQ_NACK
+                    || irq_status & I2C_IRQ_ARB_LOST) {
                 retry = 1;
                 break;
             }
-            if(irq_status & I2C_IRQ_COMP) {
+            if (irq_status & I2C_IRQ_COMP) {
                 break;
             }
         }
@@ -465,44 +474,53 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length,
 
         obj->i2c->CONTROL |= I2C_CTRL_CLR_FIFO;
         clear_isr(obj);
-    } while(retry && main_timeout);
+    } while (retry && main_timeout);
 
     return bytes_written;
 }
 
-void i2c_reset(i2c_t *obj) {
+void i2c_reset(i2c_t *obj)
+{
     i2c_stop(obj);
 }
 
-int i2c_byte_read(i2c_t *obj, int last) {
+int i2c_byte_read(i2c_t *obj, int last)
+{
     char i2c_ret = 0;
     i2c_read(obj, obj->last_xfer_address, &i2c_ret, 1, last);
     return i2c_ret;
 }
 
-int i2c_byte_write(i2c_t *obj, int data) {
+int i2c_byte_write(i2c_t *obj, int data)
+{
     /* Store the number of written bytes */
-    uint32_t wb = i2c_write(obj, obj->last_xfer_address, (char*)&data, 1, 0);
-    if (wb == 1)
+    uint32_t wb = i2c_write(obj, obj->last_xfer_address, (char *)&data, 1, 0);
+    if (wb == 1) {
         return 1;
-    else
+    } else {
         return 0;
+    }
 }
 
-void i2c_slave_mode(i2c_t *obj, int enable_slave) {
+void i2c_slave_mode(i2c_t *obj, int enable_slave)
+{
 }
 
-int i2c_slave_receive(i2c_t *obj) {
+int i2c_slave_receive(i2c_t *obj)
+{
     return 0;
 }
 
-int i2c_slave_read(i2c_t *obj, char *data, int length) {
+int i2c_slave_read(i2c_t *obj, char *data, int length)
+{
     return 0;
 }
 
-int i2c_slave_write(i2c_t *obj, const char *data, int length) {
+int i2c_slave_write(i2c_t *obj, const char *data, int length)
+{
     return 0;
 }
 
-void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
+void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
+{
 }

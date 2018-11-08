@@ -82,16 +82,14 @@
     (((uint32_t)(((uint32_t)(x)) << MPU_REGION_RWRIGHTS_MASTER_SHIFT(n))) & MPU_REGION_RWRIGHTS_MASTER_MASK(n))
 
 /*! @brief Describes the number of MPU regions. */
-typedef enum _mpu_region_total_num
-{
+typedef enum _mpu_region_total_num {
     kMPU_8Regions = 0x0U,  /*!< MPU supports 8 regions.  */
     kMPU_12Regions = 0x1U, /*!< MPU supports 12 regions. */
     kMPU_16Regions = 0x2U  /*!< MPU supports 16 regions. */
 } mpu_region_total_num_t;
 
 /*! @brief MPU slave port number. */
-typedef enum _mpu_slave
-{
+typedef enum _mpu_slave {
     kMPU_Slave0 = 4U, /*!< MPU slave port 0. */
     kMPU_Slave1 = 3U, /*!< MPU slave port 1. */
     kMPU_Slave2 = 2U, /*!< MPU slave port 2. */
@@ -100,23 +98,20 @@ typedef enum _mpu_slave
 } mpu_slave_t;
 
 /*! @brief MPU error access control detail. */
-typedef enum _mpu_err_access_control
-{
+typedef enum _mpu_err_access_control {
     kMPU_NoRegionHit = 0U,        /*!< No region hit error. */
     kMPU_NoneOverlappRegion = 1U, /*!< Access single region error. */
     kMPU_OverlappRegion = 2U      /*!< Access overlapping region error. */
 } mpu_err_access_control_t;
 
 /*! @brief MPU error access type. */
-typedef enum _mpu_err_access_type
-{
+typedef enum _mpu_err_access_type {
     kMPU_ErrTypeRead = 0U, /*!< MPU error access type --- read.  */
     kMPU_ErrTypeWrite = 1U /*!< MPU error access type --- write. */
 } mpu_err_access_type_t;
 
 /*! @brief MPU access error attributes.*/
-typedef enum _mpu_err_attributes
-{
+typedef enum _mpu_err_attributes {
     kMPU_InstructionAccessInUserMode = 0U,       /*!< Access instruction error in user mode. */
     kMPU_DataAccessInUserMode = 1U,              /*!< Access data error in user mode. */
     kMPU_InstructionAccessInSupervisorMode = 2U, /*!< Access instruction error in supervisor mode. */
@@ -124,8 +119,7 @@ typedef enum _mpu_err_attributes
 } mpu_err_attributes_t;
 
 /*! @brief MPU access rights in supervisor mode for bus master 0 ~ 3. */
-typedef enum _mpu_supervisor_access_rights
-{
+typedef enum _mpu_supervisor_access_rights {
     kMPU_SupervisorReadWriteExecute = 0U, /*!< Read write and execute operations are allowed in supervisor mode. */
     kMPU_SupervisorReadExecute = 1U,      /*!< Read and execute operations are allowed in supervisor mode. */
     kMPU_SupervisorReadWrite = 2U,        /*!< Read write operations are allowed in supervisor mode. */
@@ -133,8 +127,7 @@ typedef enum _mpu_supervisor_access_rights
 } mpu_supervisor_access_rights_t;
 
 /*! @brief MPU access rights in user mode for bus master 0 ~ 3. */
-typedef enum _mpu_user_access_rights
-{
+typedef enum _mpu_user_access_rights {
     kMPU_UserNoAccessRights = 0U,  /*!< No access allowed in user mode.  */
     kMPU_UserExecute = 1U,         /*!< Execute operation is allowed in user mode. */
     kMPU_UserWrite = 2U,           /*!< Write operation is allowed in user mode. */
@@ -146,16 +139,14 @@ typedef enum _mpu_user_access_rights
 } mpu_user_access_rights_t;
 
 /*! @brief MPU hardware basic information. */
-typedef struct _mpu_hardware_info
-{
+typedef struct _mpu_hardware_info {
     uint8_t hardwareRevisionLevel;         /*!< Specifies the MPU's hardware and definition reversion level. */
     uint8_t slavePortsNumbers;             /*!< Specifies the number of slave ports connected to MPU. */
     mpu_region_total_num_t regionsNumbers; /*!< Indicates the number of region descriptors implemented. */
 } mpu_hardware_info_t;
 
 /*! @brief MPU detail error access information. */
-typedef struct _mpu_access_err_info
-{
+typedef struct _mpu_access_err_info {
     uint32_t master;                        /*!< Access error master. */
     mpu_err_attributes_t attributes;        /*!< Access error attributes. */
     mpu_err_access_type_t accessType;       /*!< Access error type. */
@@ -167,8 +158,7 @@ typedef struct _mpu_access_err_info
 } mpu_access_err_info_t;
 
 /*! @brief MPU read/write/execute rights control for bus master 0 ~ 3. */
-typedef struct _mpu_rwxrights_master_access_control
-{
+typedef struct _mpu_rwxrights_master_access_control {
     mpu_supervisor_access_rights_t superAccessRights; /*!< Master access rights in supervisor mode. */
     mpu_user_access_rights_t userAccessRights;        /*!< Master access rights in user mode. */
 #if FSL_FEATURE_MPU_HAS_PROCESS_IDENTIFIER
@@ -177,8 +167,7 @@ typedef struct _mpu_rwxrights_master_access_control
 } mpu_rwxrights_master_access_control_t;
 
 /*! @brief MPU read/write access control for bus master 4 ~ 7. */
-typedef struct _mpu_rwrights_master_access_control
-{
+typedef struct _mpu_rwrights_master_access_control {
     bool writeEnable; /*!< Enables or disables write permission. */
     bool readEnable;  /*!< Enables or disables read permission.  */
 } mpu_rwrights_master_access_control_t;
@@ -201,8 +190,7 @@ typedef struct _mpu_rwrights_master_access_control
  * be changed by the core or any other bus master. Prepare
  * the region configuration when regionNum is 0.
  */
-typedef struct _mpu_region_config
-{
+typedef struct _mpu_region_config {
     uint32_t regionNum;    /*!< MPU region number, range form 0 ~ FSL_FEATURE_MPU_DESCRIPTOR_COUNT - 1. */
     uint32_t startAddress; /*!< Memory region start address. Note: bit0 ~ bit4 always be marked as 0 by MPU. The actual
                               start address is 0-modulo-32 byte address.  */
@@ -213,7 +201,7 @@ typedef struct _mpu_region_config
 #if FSL_FEATURE_MPU_HAS_PROCESS_IDENTIFIER
     uint8_t processIdentifier; /*!< Process identifier used when "processIdentifierEnable" set with true. */
     uint8_t
-        processIdMask; /*!< Process identifier mask. The setting bit will ignore the same bit in process identifier. */
+    processIdMask; /*!< Process identifier mask. The setting bit will ignore the same bit in process identifier. */
 #endif                 /* FSL_FEATURE_MPU_HAS_PROCESS_IDENTIFIER */
 } mpu_region_config_t;
 
@@ -222,8 +210,7 @@ typedef struct _mpu_region_config
  *
  * This structure is used when calling the MPU_Init function.
  */
-typedef struct _mpu_config
-{
+typedef struct _mpu_config {
     mpu_region_config_t regionConfig; /*!< region access permission. */
     struct _mpu_config *next;         /*!< pointer to the next structure. */
 } mpu_config_t;
@@ -275,13 +262,11 @@ void MPU_Deinit(MPU_Type *base);
  */
 static inline void MPU_Enable(MPU_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         /* Enable the MPU globally. */
         base->CESR |= MPU_CESR_VLD_MASK;
-    }
-    else
-    { /* Disable the MPU globally. */
+    } else {
+        /* Disable the MPU globally. */
         base->CESR &= ~MPU_CESR_VLD_MASK;
     }
 }
@@ -298,13 +283,11 @@ static inline void MPU_Enable(MPU_Type *base, bool enable)
  */
 static inline void MPU_RegionEnable(MPU_Type *base, uint32_t number, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         /* Enable the #number region MPU. */
         base->WORD[number][3] |= MPU_WORD_VLD_MASK;
-    }
-    else
-    { /* Disable the #number region MPU. */
+    } else {
+        /* Disable the #number region MPU. */
         base->WORD[number][3] &= ~MPU_WORD_VLD_MASK;
     }
 }

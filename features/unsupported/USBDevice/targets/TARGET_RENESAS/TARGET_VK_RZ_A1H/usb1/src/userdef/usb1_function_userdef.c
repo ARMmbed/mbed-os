@@ -84,7 +84,7 @@ Private global variables and functions
 * Arguments    : none
 * Return Value : D0FIFO DMA Interrupt ID
 *******************************************************************************/
-IRQn_Type Userdef_USB_usb1_function_d0fifo_dmaintid (void)
+IRQn_Type Userdef_USB_usb1_function_d0fifo_dmaintid(void)
 {
 #if 0
     return DMAINT1_IRQn;
@@ -99,7 +99,7 @@ IRQn_Type Userdef_USB_usb1_function_d0fifo_dmaintid (void)
 * Arguments    : none
 * Return Value : D1FIFO DMA Interrupt ID
 *******************************************************************************/
-IRQn_Type Userdef_USB_usb1_function_d1fifo_dmaintid (void)
+IRQn_Type Userdef_USB_usb1_function_d1fifo_dmaintid(void)
 {
 #if 0
     return DMAINT1_IRQn;
@@ -115,7 +115,7 @@ IRQn_Type Userdef_USB_usb1_function_d1fifo_dmaintid (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void Userdef_USB_usb1_function_attach (void)
+void Userdef_USB_usb1_function_attach(void)
 {
     printf("\n");
     printf("channel 1 attach device\n");
@@ -129,7 +129,7 @@ void Userdef_USB_usb1_function_attach (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void Userdef_USB_usb1_function_detach (void)
+void Userdef_USB_usb1_function_detach(void)
 {
     printf("\n");
     printf("channel 1 detach device\n");
@@ -143,7 +143,7 @@ void Userdef_USB_usb1_function_detach (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void Userdef_USB_usb1_function_delay_1ms (void)
+void Userdef_USB_usb1_function_delay_1ms(void)
 {
     volatile int i;
     volatile unsigned long tmp;
@@ -151,8 +151,7 @@ void Userdef_USB_usb1_function_delay_1ms (void)
     /*
      * Wait 1ms (Please change for your MCU).
      */
-    for (i = 0; i < 1440; ++i)
-    {
+    for (i = 0; i < 1440; ++i) {
         tmp = DUMMY_ACCESS;
     }
 }
@@ -165,12 +164,11 @@ void Userdef_USB_usb1_function_delay_1ms (void)
 * Arguments    : uint32_t msec ; Wait Time (msec)
 * Return Value : none
 *******************************************************************************/
-void Userdef_USB_usb1_function_delay_xms (uint32_t msec)
+void Userdef_USB_usb1_function_delay_xms(uint32_t msec)
 {
     volatile unsigned short i;
 
-    for (i = 0; i < msec; ++i)
-    {
+    for (i = 0; i < msec; ++i) {
         Userdef_USB_usb1_function_delay_1ms();
     }
 }
@@ -182,13 +180,12 @@ void Userdef_USB_usb1_function_delay_xms (uint32_t msec)
 * Arguments    : uint32_t usec ; Wait Time(x 10usec)
 * Return Value : none
 *******************************************************************************/
-void Userdef_USB_usb1_function_delay_10us (uint32_t usec)
+void Userdef_USB_usb1_function_delay_10us(uint32_t usec)
 {
     volatile int i;
 
     /* Wait 10us (Please change for your MCU) */
-    for (i = 0; i < usec; ++i)
-    {
+    for (i = 0; i < usec; ++i) {
         Userdef_USB_usb1_function_delay_10us_2();
     }
 }
@@ -200,14 +197,13 @@ void Userdef_USB_usb1_function_delay_10us (uint32_t usec)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-static void Userdef_USB_usb1_function_delay_10us_2 (void)
+static void Userdef_USB_usb1_function_delay_10us_2(void)
 {
     volatile int i;
     volatile unsigned long tmp;
 
     /* Wait 1us (Please change for your MCU) */
-    for (i = 0; i < 14; ++i)
-    {
+    for (i = 0; i < 14; ++i) {
         tmp = DUMMY_ACCESS;
     }
 }
@@ -219,7 +215,7 @@ static void Userdef_USB_usb1_function_delay_10us_2 (void)
 * Arguments    : none
 * Return Value : none
 *******************************************************************************/
-void Userdef_USB_usb1_function_delay_500ns (void)
+void Userdef_USB_usb1_function_delay_500ns(void)
 {
     volatile int i;
     volatile unsigned long tmp;
@@ -248,7 +244,7 @@ void Userdef_USB_usb1_function_delay_500ns (void)
 *              :                  2 : 32byte continuous mode
 * Return Value : none
 *******************************************************************************/
-void Userdef_USB_usb1_function_start_dma (USB_FUNCTION_DMA_t * dma, uint16_t dfacc)
+void Userdef_USB_usb1_function_start_dma(USB_FUNCTION_DMA_t *dma, uint16_t dfacc)
 {
     uint32_t trncount;
     uint32_t src;
@@ -262,203 +258,134 @@ void Userdef_USB_usb1_function_start_dma (USB_FUNCTION_DMA_t * dma, uint16_t dfa
     trncount = dma->bytes;
     dir      = dma->dir;
 
-    if (dir == USB_FUNCTION_FIFO2BUF)
-    {
+    if (dir == USB_FUNCTION_FIFO2BUF) {
         /* DxFIFO determination */
         dst = dma->buffer;
 #ifndef __USB_FUNCTION_DF_ACC_ENABLE__
-        if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-        {
+        if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
             src = (uint32_t)(&USB201.D0FIFO.UINT32);
-        }
-        else
-        {
+        } else {
             src = (uint32_t)(&USB201.D1FIFO.UINT32);
         }
         size = dma->size;
 
-        if (size == 0)
-        {
+        if (size == 0) {
             src += 3;       /* byte access  */
-        }
-        else if (size == 1)
-        {
+        } else if (size == 1) {
             src += 2;       /* short access */
-        }
-        else
-        {
+        } else {
             /* Do Nothing */
         }
 #else
         size = dma->size;
 
-        if (size == 2)
-        {
+        if (size == 2) {
             /* 32bit access */
-            if (dfacc == 2)
-            {
+            if (dfacc == 2) {
                 /* 32byte access */
-                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-                {
+                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
                     src = (uint32_t)(&USB201.D0FIFOB0);
-                }
-                else
-                {
+                } else {
                     src = (uint32_t)(&USB201.D1FIFOB0);
                 }
-            }
-            else if (dfacc == 1)
-            {
+            } else if (dfacc == 1) {
                 /* 16byte access */
-                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-                {
+                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
                     src = (uint32_t)(&USB201.D0FIFOB0);
-                }
-                else
-                {
+                } else {
                     src = (uint32_t)(&USB201.D1FIFOB0);
                 }
-            }
-            else
-            {
+            } else {
                 /* normal access */
-                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-                {
+                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
                     src = (uint32_t)(&USB201.D0FIFO.UINT32);
-                }
-                else
-                {
+                } else {
                     src = (uint32_t)(&USB201.D1FIFO.UINT32);
                 }
             }
-        }
-        else if (size == 1)
-        {
+        } else if (size == 1) {
             /* 16bit access */
             dfacc = 0;      /* force normal access */
 
-            if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-            {
+            if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
                 src = (uint32_t)(&USB201.D0FIFO.UINT32);
-            }
-            else
-            {
+            } else {
                 src = (uint32_t)(&USB201.D1FIFO.UINT32);
             }
             src += 2;       /* short access */
-        }
-        else
-        {
+        } else {
             /* 8bit access */
             dfacc = 0;      /* force normal access */
 
-            if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-            {
+            if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
                 src = (uint32_t)(&USB201.D0FIFO.UINT32);
-            }
-            else
-            {
+            } else {
                 src = (uint32_t)(&USB201.D1FIFO.UINT32);
             }
             src += 3;       /* byte access */
         }
 #endif
-    }
-    else
-    {
+    } else {
         /* DxFIFO determination */
         src = dma->buffer;
 #ifndef __USB_FUNCTION_DF_ACC_ENABLE__
-        if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-        {
+        if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
             dst = (uint32_t)(&USB201.D0FIFO.UINT32);
-        }
-        else
-        {
+        } else {
             dst = (uint32_t)(&USB201.D1FIFO.UINT32);
         }
         size = dma->size;
 
-        if (size == 0)
-        {
+        if (size == 0) {
             dst += 3;       /* byte access  */
-        }
-        else if (size == 1)
-        {
+        } else if (size == 1) {
             dst += 2;       /* short access */
-        }
-        else
-        {
+        } else {
             /* Do Nothing */
         }
 #else
         size = dma->size;
 
-        if (size == 2)
-        {
+        if (size == 2) {
             /* 32bit access */
-            if (dfacc == 2)
-            {
+            if (dfacc == 2) {
                 /* 32byte access */
-                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-                {
+                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
                     dst = (uint32_t)(&USB201.D0FIFOB0);
-                }
-                else
-                {
+                } else {
                     dst = (uint32_t)(&USB201.D1FIFOB0);
                 }
-            }
-            else if (dfacc == 1)
-            {
+            } else if (dfacc == 1) {
                 /* 16byte access */
-                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-                {
+                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
                     dst = (uint32_t)(&USB201.D0FIFOB0);
-                }
-                else
-                {
+                } else {
                     dst = (uint32_t)(&USB201.D1FIFOB0);
                 }
-            }
-            else
-            {
+            } else {
                 /* normal access */
-                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-                {
+                if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
                     dst = (uint32_t)(&USB201.D0FIFO.UINT32);
-                }
-                else
-                {
+                } else {
                     dst = (uint32_t)(&USB201.D1FIFO.UINT32);
                 }
             }
-        }
-        else if (size == 1)
-        {
+        } else if (size == 1) {
             /* 16bit access */
             dfacc = 0;      /* force normal access */
-            if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-            {
+            if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
                 dst = (uint32_t)(&USB201.D0FIFO.UINT32);
-            }
-            else
-            {
+            } else {
                 dst = (uint32_t)(&USB201.D1FIFO.UINT32);
             }
             dst += 2;       /* short access */
-        }
-        else
-        {
+        } else {
             /* 8bit access */
             dfacc = 0;      /* force normal access */
 
-            if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-            {
+            if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
                 dst = (uint32_t)(&USB201.D0FIFO.UINT32);
-            }
-            else
-            {
+            } else {
                 dst = (uint32_t)(&USB201.D1FIFO.UINT32);
             }
             dst += 3;       /* byte access  */
@@ -469,18 +396,14 @@ void Userdef_USB_usb1_function_start_dma (USB_FUNCTION_DMA_t * dma, uint16_t dfa
 #ifdef CACHE_WRITEBACK
     ptr = (uint32_t)dma->buffer;
 
-    if ((ptr & 0x20000000ul) == 0)
-    {
+    if ((ptr & 0x20000000ul) == 0) {
         io_cwb((uint32_t)ptr, (uint32_t)(ptr) + trncount);
     }
 #endif
 
-    if (dma->fifo == USB_FUNCTION_D0FIFO_DMA)
-    {
+    if (dma->fifo == USB_FUNCTION_D0FIFO_DMA) {
         usb1_function_enable_dmac0(src, dst, trncount, size, dir, dma->fifo, dfacc);
-    }
-    else
-    {
+    } else {
         usb1_function_enable_dmac1(src, dst, trncount, size, dir, dma->fifo, dfacc);
     }
 }
@@ -499,8 +422,8 @@ void Userdef_USB_usb1_function_start_dma (USB_FUNCTION_DMA_t * dma, uint16_t dfa
 *              :                : 2 : 32byte access
 * Return Value : none
 *******************************************************************************/
-static void usb1_function_enable_dmac0 (uint32_t src, uint32_t dst, uint32_t count,
-                                        uint32_t size, uint32_t dir, uint32_t fifo, uint16_t dfacc)
+static void usb1_function_enable_dmac0(uint32_t src, uint32_t dst, uint32_t count,
+                                       uint32_t size, uint32_t dir, uint32_t fifo, uint16_t dfacc)
 {
     dmac_transinfo_t trans_info;
     uint32_t         request_factor = 0;
@@ -511,77 +434,53 @@ static void usb1_function_enable_dmac0 (uint32_t src, uint32_t dst, uint32_t cou
     trans_info.dst_addr = (uint32_t)dst;                /* Start address of transfer destination */
     trans_info.count    = (uint32_t)count;              /* Total byte count to be transferred    */
 #ifndef __USB_FUNCTION_DF_ACC_ENABLE__
-    if (size == 0)
-    {
+    if (size == 0) {
         trans_info.src_size = DMAC_TRANS_SIZE_8;        /* Transfer source transfer size      */
         trans_info.dst_size = DMAC_TRANS_SIZE_8;        /* Transfer destination transfer size */
-    }
-    else if (size == 1)
-    {
+    } else if (size == 1) {
         trans_info.src_size = DMAC_TRANS_SIZE_16;       /* Transfer source transfer size      */
         trans_info.dst_size = DMAC_TRANS_SIZE_16;       /* Transfer destination transfer size */
-    }
-    else if (size == 2)
-    {
+    } else if (size == 2) {
         trans_info.src_size = DMAC_TRANS_SIZE_32;       /* Transfer source transfer size      */
         trans_info.dst_size = DMAC_TRANS_SIZE_32;       /* Transfer destination transfer size */
-    }
-    else
-    {
+    } else {
         printf("size error!!\n");
     }
 #else
-    if (dfacc == 2)
-    {
+    if (dfacc == 2) {
         /* 32byte access */
         trans_info.src_size = DMAC_TRANS_SIZE_256;      /* Transfer source transfer size      */
         trans_info.dst_size = DMAC_TRANS_SIZE_256;      /* Transfer destination transfer size */
-    }
-    else if (dfacc == 1)
-    {
+    } else if (dfacc == 1) {
         /* 16byte access */
         trans_info.src_size = DMAC_TRANS_SIZE_128;      /* Transfer source transfer size      */
         trans_info.dst_size = DMAC_TRANS_SIZE_128;      /* Transfer destination transfer size */
-    }
-    else
-    {
+    } else {
         /* normal access */
-        if (size == 0)
-        {
+        if (size == 0) {
             trans_info.src_size = DMAC_TRANS_SIZE_8;    /* Transfer source transfer size      */
             trans_info.dst_size = DMAC_TRANS_SIZE_8;    /* Transfer destination transfer size */
-        }
-        else if (size == 1)
-        {
+        } else if (size == 1) {
             trans_info.src_size = DMAC_TRANS_SIZE_16;   /* Transfer source transfer size      */
             trans_info.dst_size = DMAC_TRANS_SIZE_16;   /* Transfer destination transfer size */
-        }
-        else if (size == 2)
-        {
+        } else if (size == 2) {
             trans_info.src_size = DMAC_TRANS_SIZE_32;   /* Transfer source transfer size      */
             trans_info.dst_size = DMAC_TRANS_SIZE_32;   /* Transfer destination transfer size */
-        }
-        else
-        {
+        } else {
             printf("size error!!\n");
         }
     }
 #endif
 
-    if (dir == USB_FUNCTION_FIFO2BUF)
-    {
-        request_factor =DMAC_REQ_USB1_DMA0_RX;          /* USB_0 channel 0 receive FIFO full               */
+    if (dir == USB_FUNCTION_FIFO2BUF) {
+        request_factor = DMAC_REQ_USB1_DMA0_RX;         /* USB_0 channel 0 receive FIFO full               */
         trans_info.saddr_dir = DMAC_TRANS_ADR_NO_INC;   /* Count direction of transfer source address      */
         trans_info.daddr_dir = DMAC_TRANS_ADR_INC;      /* Count direction of transfer destination address */
-    }
-    else if (dir == USB_FUNCTION_BUF2FIFO)
-    {
-        request_factor =DMAC_REQ_USB1_DMA0_TX;          /* USB_0 channel 0 receive FIFO empty              */
+    } else if (dir == USB_FUNCTION_BUF2FIFO) {
+        request_factor = DMAC_REQ_USB1_DMA0_TX;         /* USB_0 channel 0 receive FIFO empty              */
         trans_info.saddr_dir = DMAC_TRANS_ADR_INC;      /* Count direction of transfer source address      */
         trans_info.daddr_dir = DMAC_TRANS_ADR_NO_INC;   /* Count direction of transfer destination address */
-    }
-    else
-    {
+    } else {
         /* Do Nothing */
     }
 
@@ -595,8 +494,7 @@ static void usb1_function_enable_dmac0 (uint32_t src, uint32_t dst, uint32_t cou
 
     /* ==== DMAC startup ==== */
     ret = usb1_function_DMAC3_Open(DMAC_REQ_MODE_PERI);
-    if (ret != 0)
-    {
+    if (ret != 0) {
         printf("DMAC3 Open error!!\n");
     }
 
@@ -617,8 +515,8 @@ static void usb1_function_enable_dmac0 (uint32_t src, uint32_t dst, uint32_t cou
 *              :                : 2 : 32byte access
 * Return Value : none
 *******************************************************************************/
-static void usb1_function_enable_dmac1 (uint32_t src, uint32_t dst, uint32_t count,
-                                        uint32_t size, uint32_t dir, uint32_t fifo, uint16_t dfacc)
+static void usb1_function_enable_dmac1(uint32_t src, uint32_t dst, uint32_t count,
+                                       uint32_t size, uint32_t dir, uint32_t fifo, uint16_t dfacc)
 {
     dmac_transinfo_t trans_info;
     uint32_t         request_factor = 0;
@@ -629,77 +527,53 @@ static void usb1_function_enable_dmac1 (uint32_t src, uint32_t dst, uint32_t cou
     trans_info.dst_addr = (uint32_t)dst;                /* Start address of transfer destination */
     trans_info.count    = (uint32_t)count;              /* Total byte count to be transferred    */
 #ifndef __USB_FUNCTION_DF_ACC_ENABLE__
-    if (size == 0)
-    {
+    if (size == 0) {
         trans_info.src_size = DMAC_TRANS_SIZE_8;        /* Transfer source transfer size      */
         trans_info.dst_size = DMAC_TRANS_SIZE_8;        /* Transfer destination transfer size */
-    }
-    else if (size == 1)
-    {
+    } else if (size == 1) {
         trans_info.src_size = DMAC_TRANS_SIZE_16;       /* Transfer source transfer size      */
         trans_info.dst_size = DMAC_TRANS_SIZE_16;       /* Transfer destination transfer size */
-    }
-    else if (size == 2)
-    {
+    } else if (size == 2) {
         trans_info.src_size = DMAC_TRANS_SIZE_32;       /* Transfer source transfer size      */
         trans_info.dst_size = DMAC_TRANS_SIZE_32;       /* Transfer destination transfer size */
-    }
-    else
-    {
+    } else {
         printf("size error!!\n");
     }
 #else
-    if (dfacc == 2)
-    {
+    if (dfacc == 2) {
         /* 32byte access */
         trans_info.src_size = DMAC_TRANS_SIZE_256;      /* Transfer source transfer size      */
         trans_info.dst_size = DMAC_TRANS_SIZE_256;      /* Transfer destination transfer size */
-    }
-    else if (dfacc == 1)
-    {
+    } else if (dfacc == 1) {
         /* 16byte access */
         trans_info.src_size = DMAC_TRANS_SIZE_128;      /* Transfer source transfer size      */
         trans_info.dst_size = DMAC_TRANS_SIZE_128;      /* Transfer destination transfer size */
-    }
-    else
-    {
+    } else {
         /* normal access */
-        if (size == 0)
-        {
+        if (size == 0) {
             trans_info.src_size = DMAC_TRANS_SIZE_8;    /* Transfer source transfer size      */
             trans_info.dst_size = DMAC_TRANS_SIZE_8;    /* Transfer destination transfer size */
-        }
-        else if (size == 1)
-        {
+        } else if (size == 1) {
             trans_info.src_size = DMAC_TRANS_SIZE_16;   /* Transfer source transfer size      */
             trans_info.dst_size = DMAC_TRANS_SIZE_16;   /* Transfer destination transfer size */
-        }
-        else if (size == 2)
-        {
+        } else if (size == 2) {
             trans_info.src_size = DMAC_TRANS_SIZE_32;   /* Transfer source transfer size      */
             trans_info.dst_size = DMAC_TRANS_SIZE_32;   /* Transfer destination transfer size */
-        }
-        else
-        {
+        } else {
             printf("size error!!\n");
         }
     }
 #endif
 
-    if (dir == USB_FUNCTION_FIFO2BUF)
-    {
-        request_factor =DMAC_REQ_USB1_DMA1_RX;          /* USB_0 channel 0 receive FIFO full               */
+    if (dir == USB_FUNCTION_FIFO2BUF) {
+        request_factor = DMAC_REQ_USB1_DMA1_RX;         /* USB_0 channel 0 receive FIFO full               */
         trans_info.saddr_dir = DMAC_TRANS_ADR_NO_INC;   /* Count direction of transfer source address      */
         trans_info.daddr_dir = DMAC_TRANS_ADR_INC;      /* Count direction of transfer destination address */
-    }
-    else if (dir == USB_FUNCTION_BUF2FIFO)
-    {
-        request_factor =DMAC_REQ_USB1_DMA1_TX;          /* USB_0 channel 0 receive FIFO empty              */
+    } else if (dir == USB_FUNCTION_BUF2FIFO) {
+        request_factor = DMAC_REQ_USB1_DMA1_TX;         /* USB_0 channel 0 receive FIFO empty              */
         trans_info.saddr_dir = DMAC_TRANS_ADR_INC;      /* Count direction of transfer source address      */
         trans_info.daddr_dir = DMAC_TRANS_ADR_NO_INC;   /* Count direction of transfer destination address */
-    }
-    else
-    {
+    } else {
         /* Do Nothing */
     }
 
@@ -713,8 +587,7 @@ static void usb1_function_enable_dmac1 (uint32_t src, uint32_t dst, uint32_t cou
 
     /* ==== DMAC startup ==== */
     ret = usb1_function_DMAC4_Open(DMAC_REQ_MODE_PERI);
-    if (ret != 0)
-    {
+    if (ret != 0) {
         printf("DMAC4 Open error!!\n");
     }
 
@@ -730,7 +603,7 @@ static void usb1_function_enable_dmac1 (uint32_t src, uint32_t dst, uint32_t cou
 * Return Value : uint32_t return Transfer Counter register(DMATCRn) value
 *              : regarding to the bus width.
 *******************************************************************************/
-uint32_t Userdef_USB_usb1_function_stop_dma0 (void)
+uint32_t Userdef_USB_usb1_function_stop_dma0(void)
 {
     uint32_t remain;
 
@@ -749,7 +622,7 @@ uint32_t Userdef_USB_usb1_function_stop_dma0 (void)
 * Return Value : uint32_t return Transfer Counter register(DMATCRn) value
 *              : regarding to the bus width.
 *******************************************************************************/
-uint32_t Userdef_USB_usb1_function_stop_dma1 (void)
+uint32_t Userdef_USB_usb1_function_stop_dma1(void)
 {
     uint32_t remain;
 

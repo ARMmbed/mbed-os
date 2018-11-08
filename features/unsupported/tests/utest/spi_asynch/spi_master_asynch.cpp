@@ -82,7 +82,8 @@
 
 volatile int why;
 volatile bool complete;
-void cbdone(int event) {
+void cbdone(int event)
+{
     complete = true;
     why = event;
 }
@@ -107,7 +108,7 @@ TEST_GROUP(SPI_Master_Asynchronous)
         for (uint32_t i = 0; i < sizeof(tx_buf); i++) {
             tx_buf[i] = i + TEST_BYTE_TX_BASE;
         }
-        memset(rx_buf,TEST_BYTE_RX,sizeof(rx_buf));
+        memset(rx_buf, TEST_BYTE_RX, sizeof(rx_buf));
     }
     void teardown() {
         delete obj;
@@ -115,10 +116,9 @@ TEST_GROUP(SPI_Master_Asynchronous)
         delete cs;
         cs = NULL;
     }
-    uint32_t cmpnbuf(uint8_t *expect, uint8_t *actual, uint32_t offset, uint32_t end, const char *file, uint32_t line)
-    {
+    uint32_t cmpnbuf(uint8_t *expect, uint8_t *actual, uint32_t offset, uint32_t end, const char *file, uint32_t line) {
         uint32_t i;
-        for (i = offset; i < end; i++){
+        for (i = offset; i < end; i++) {
             if (expect[i] != actual[i]) {
                 break;
             }
@@ -129,10 +129,9 @@ TEST_GROUP(SPI_Master_Asynchronous)
         CHECK_EQUAL_LOCATION(end, i, file, line);
         return i;
     }
-    uint32_t cmpnbufc(uint8_t expect, uint8_t *actual, uint32_t offset, uint32_t end, const char *file, uint32_t line)
-    {
+    uint32_t cmpnbufc(uint8_t expect, uint8_t *actual, uint32_t offset, uint32_t end, const char *file, uint32_t line) {
         uint32_t i;
-        for (i = offset; i < end; i++){
+        for (i = offset; i < end; i++) {
             if (expect != actual[i]) {
                 break;
             }
@@ -148,9 +147,9 @@ TEST_GROUP(SPI_Master_Asynchronous)
         printf("\r\n");
         printf("RX Buffer Contents: [");
         //flushf(stdout);
-        for (i = 0; i < sizeof(rx_buf); i++){
-            printf("%02x",rx_buf[i]);
-            if (i+1 < sizeof(rx_buf)){
+        for (i = 0; i < sizeof(rx_buf); i++) {
+            printf("%02x", rx_buf[i]);
+            if (i + 1 < sizeof(rx_buf)) {
                 printf(",");
             }
         }
@@ -164,7 +163,7 @@ TEST(SPI_Master_Asynchronous, short_tx_0_rx)
 {
     int rc;
     // Write a buffer of Short Transfer length.
-    rc = obj->transfer( (const uint8_t *) tx_buf, SHORT_XFR,  (uint8_t *) NULL, 0, callback, SPI_EVENT_ALL);
+    rc = obj->transfer((const uint8_t *) tx_buf, SHORT_XFR, (uint8_t *) NULL, 0, callback, SPI_EVENT_ALL);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
@@ -183,7 +182,7 @@ TEST(SPI_Master_Asynchronous, short_tx_0_rx_nn)
 {
     int rc;
     // Write a buffer of Short Transfer length.
-    rc = obj->transfer( (const uint8_t *)tx_buf,SHORT_XFR,(uint8_t *) rx_buf, 0,callback, SPI_EVENT_ALL);
+    rc = obj->transfer((const uint8_t *)tx_buf, SHORT_XFR, (uint8_t *) rx_buf, 0, callback, SPI_EVENT_ALL);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
@@ -192,7 +191,7 @@ TEST(SPI_Master_Asynchronous, short_tx_0_rx_nn)
     CHECK_EQUAL(SPI_EVENT_COMPLETE, why);
 
     // Check that the rx buffer is untouched
-    cmpnbufc(TEST_BYTE_RX,rx_buf,0,sizeof(rx_buf),__FILE__,__LINE__);
+    cmpnbufc(TEST_BYTE_RX, rx_buf, 0, sizeof(rx_buf), __FILE__, __LINE__);
 }
 
 // SPI write tx length: 0, read length: FIFO-1
@@ -201,7 +200,7 @@ TEST(SPI_Master_Asynchronous, 0_tx_short_rx)
 {
     int rc;
     // Read a buffer of Short Transfer length.
-    rc = obj->transfer( (const uint8_t *)NULL,0,(uint8_t *) rx_buf,SHORT_XFR,callback, SPI_EVENT_ALL);
+    rc = obj->transfer((const uint8_t *)NULL, 0, (uint8_t *) rx_buf, SHORT_XFR, callback, SPI_EVENT_ALL);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
@@ -211,9 +210,9 @@ TEST(SPI_Master_Asynchronous, 0_tx_short_rx)
 
     // TODO: Check for null pointer exception
     // Check that the receive buffer contains the fill byte.
-    cmpnbufc(SPI_FILL_WORD,rx_buf,0,SHORT_XFR,__FILE__,__LINE__);
+    cmpnbufc(SPI_FILL_WORD, rx_buf, 0, SHORT_XFR, __FILE__, __LINE__);
     // Check that remaining portion of the receive buffer contains the rx test byte
-    cmpnbufc(TEST_BYTE_RX,rx_buf,SHORT_XFR,sizeof(rx_buf),__FILE__,__LINE__);
+    cmpnbufc(TEST_BYTE_RX, rx_buf, SHORT_XFR, sizeof(rx_buf), __FILE__, __LINE__);
 }
 
 // SPI write tx length: 0, read length: FIFO-1
@@ -222,7 +221,7 @@ TEST(SPI_Master_Asynchronous, 0_tx_nn_short_rx)
 {
     int rc;
     // Read a buffer of Short Transfer length.
-    rc = obj->transfer(tx_buf,0,rx_buf,SHORT_XFR,callback, SPI_EVENT_ALL);
+    rc = obj->transfer(tx_buf, 0, rx_buf, SHORT_XFR, callback, SPI_EVENT_ALL);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
@@ -231,9 +230,9 @@ TEST(SPI_Master_Asynchronous, 0_tx_nn_short_rx)
     CHECK_EQUAL(SPI_EVENT_COMPLETE, why);
 
     // Check that the receive buffer contains the fill byte.
-    cmpnbufc(SPI_FILL_WORD,rx_buf,0,SHORT_XFR,__FILE__,__LINE__);
+    cmpnbufc(SPI_FILL_WORD, rx_buf, 0, SHORT_XFR, __FILE__, __LINE__);
     // Check that remaining portion of the receive buffer contains the rx test byte
-    cmpnbufc(TEST_BYTE_RX,rx_buf,SHORT_XFR,sizeof(rx_buf),__FILE__,__LINE__);
+    cmpnbufc(TEST_BYTE_RX, rx_buf, SHORT_XFR, sizeof(rx_buf), __FILE__, __LINE__);
 }
 
 // SPI write tx length: FIFO-1 ascending values, read length: FIFO-1
@@ -242,7 +241,7 @@ TEST(SPI_Master_Asynchronous, short_tx_short_rx)
 {
     int rc;
     // Write/Read a buffer of Long Transfer length.
-    rc = obj->transfer( tx_buf,SHORT_XFR,rx_buf,SHORT_XFR,callback, SPI_EVENT_ALL);
+    rc = obj->transfer(tx_buf, SHORT_XFR, rx_buf, SHORT_XFR, callback, SPI_EVENT_ALL);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
@@ -251,9 +250,9 @@ TEST(SPI_Master_Asynchronous, short_tx_short_rx)
     CHECK_EQUAL(SPI_EVENT_COMPLETE, why);
 
     // Check that the rx buffer contains the tx bytes
-    cmpnbuf(tx_buf,rx_buf,0,SHORT_XFR,__FILE__,__LINE__);
+    cmpnbuf(tx_buf, rx_buf, 0, SHORT_XFR, __FILE__, __LINE__);
     // Check that remaining portion of the receive buffer contains the rx test byte
-    cmpnbufc(TEST_BYTE_RX,rx_buf,SHORT_XFR,sizeof(rx_buf),__FILE__,__LINE__);
+    cmpnbufc(TEST_BYTE_RX, rx_buf, SHORT_XFR, sizeof(rx_buf), __FILE__, __LINE__);
 }
 // SPI write tx length: 2xFIFO ascending values, read length: 2xFIFO
 //   Checks: Receive buffer == tx buffer, completion event
@@ -261,7 +260,7 @@ TEST(SPI_Master_Asynchronous, long_tx_long_rx)
 {
     int rc;
     // Write/Read a buffer of Long Transfer length.
-    rc = obj->transfer(tx_buf,LONG_XFR,rx_buf,LONG_XFR,callback, SPI_EVENT_ALL);
+    rc = obj->transfer(tx_buf, LONG_XFR, rx_buf, LONG_XFR, callback, SPI_EVENT_ALL);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
@@ -271,9 +270,9 @@ TEST(SPI_Master_Asynchronous, long_tx_long_rx)
 
     //dumpRXbuf();
     // Check that the rx buffer contains the tx bytes
-    cmpnbuf(tx_buf,rx_buf,0,LONG_XFR,__FILE__,__LINE__);
+    cmpnbuf(tx_buf, rx_buf, 0, LONG_XFR, __FILE__, __LINE__);
     // Check that remaining portion of the receive buffer contains the rx test byte
-    cmpnbufc(TEST_BYTE_RX,rx_buf,LONG_XFR,sizeof(rx_buf),__FILE__,__LINE__);
+    cmpnbufc(TEST_BYTE_RX, rx_buf, LONG_XFR, sizeof(rx_buf), __FILE__, __LINE__);
 }
 
 // SPI write tx length: 2xFIFO, ascending, read length: FIFO-1
@@ -282,7 +281,7 @@ TEST(SPI_Master_Asynchronous, long_tx_short_rx)
 {
     int rc;
     // Write a buffer of Short Transfer length.
-    rc = obj->transfer(tx_buf,LONG_XFR,rx_buf,SHORT_XFR,callback, SPI_EVENT_ALL);
+    rc = obj->transfer(tx_buf, LONG_XFR, rx_buf, SHORT_XFR, callback, SPI_EVENT_ALL);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
@@ -291,9 +290,9 @@ TEST(SPI_Master_Asynchronous, long_tx_short_rx)
     CHECK_EQUAL(SPI_EVENT_COMPLETE, why);
 
     // Check that the rx buffer contains the tx bytes
-    cmpnbuf(tx_buf,rx_buf,0,SHORT_XFR,__FILE__,__LINE__);
+    cmpnbuf(tx_buf, rx_buf, 0, SHORT_XFR, __FILE__, __LINE__);
     // Check that remaining portion of the receive buffer contains the rx test byte
-    cmpnbufc(TEST_BYTE_RX,rx_buf,SHORT_XFR,sizeof(rx_buf),__FILE__,__LINE__);
+    cmpnbufc(TEST_BYTE_RX, rx_buf, SHORT_XFR, sizeof(rx_buf), __FILE__, __LINE__);
 }
 
 // SPI write tx length: FIFO-1, ascending, read length: 2xFIFO
@@ -302,7 +301,7 @@ TEST(SPI_Master_Asynchronous, short_tx_long_rx)
 {
     int rc;
     // Write a buffer of Short Transfer length.
-    rc = obj->transfer(tx_buf,SHORT_XFR,rx_buf,LONG_XFR,callback, SPI_EVENT_ALL);
+    rc = obj->transfer(tx_buf, SHORT_XFR, rx_buf, LONG_XFR, callback, SPI_EVENT_ALL);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
@@ -312,22 +311,22 @@ TEST(SPI_Master_Asynchronous, short_tx_long_rx)
 
     //dumpRXbuf();
     // Check that the rx buffer contains the tx bytes
-    cmpnbuf(tx_buf,rx_buf,0,SHORT_XFR,__FILE__,__LINE__);
+    cmpnbuf(tx_buf, rx_buf, 0, SHORT_XFR, __FILE__, __LINE__);
     // Check that the rx buffer contains the tx fill bytes
-    cmpnbufc(SPI_FILL_WORD,rx_buf,SHORT_XFR,LONG_XFR,__FILE__,__LINE__);
+    cmpnbufc(SPI_FILL_WORD, rx_buf, SHORT_XFR, LONG_XFR, __FILE__, __LINE__);
     // Check that remaining portion of the receive buffer contains the rx test byte
-    cmpnbufc(TEST_BYTE_RX,rx_buf,LONG_XFR,sizeof(rx_buf),__FILE__,__LINE__);
+    cmpnbufc(TEST_BYTE_RX, rx_buf, LONG_XFR, sizeof(rx_buf), __FILE__, __LINE__);
 }
 
 TEST(SPI_Master_Asynchronous, queue_test)
 {
     int rc;
     // Write/Read a buffer of Long Transfer length.
-    rc = obj->transfer( tx_buf,4,rx_buf,4,callback, 0);
+    rc = obj->transfer(tx_buf, 4, rx_buf, 4, callback, 0);
     CHECK_EQUAL(0, rc);
-    rc = obj->transfer( &tx_buf[4],4, &rx_buf[4],4,callback, 0);
+    rc = obj->transfer(&tx_buf[4], 4, &rx_buf[4], 4, callback, 0);
     CHECK_EQUAL(0, rc);
-    rc = obj->transfer( &tx_buf[8],4, &rx_buf[8],4,callback, SPI_EVENT_ALL);
+    rc = obj->transfer(&tx_buf[8], 4, &rx_buf[8], 4, callback, SPI_EVENT_ALL);
     CHECK_EQUAL(0, rc);
 
     while (!complete);
@@ -336,7 +335,7 @@ TEST(SPI_Master_Asynchronous, queue_test)
     CHECK_EQUAL(SPI_EVENT_COMPLETE, why);
 
     // Check that the rx buffer contains the tx bytes
-    cmpnbuf(tx_buf,rx_buf,0,12,__FILE__,__LINE__);
+    cmpnbuf(tx_buf, rx_buf, 0, 12, __FILE__, __LINE__);
     // Check that remaining portion of the receive buffer contains the rx test byte
-    cmpnbufc(TEST_BYTE_RX,rx_buf,12,sizeof(rx_buf),__FILE__,__LINE__);
+    cmpnbufc(TEST_BYTE_RX, rx_buf, 12, sizeof(rx_buf), __FILE__, __LINE__);
 }

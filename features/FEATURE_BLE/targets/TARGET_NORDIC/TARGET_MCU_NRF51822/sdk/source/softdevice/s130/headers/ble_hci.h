@@ -31,13 +31,13 @@
  */
 
 /**
-  @addtogroup BLE_COMMON 
+  @addtogroup BLE_COMMON
   @{
 */
 
 
 #ifndef BLE_HCI_H__
-#define BLE_HCI_H__ 
+#define BLE_HCI_H__
 
 /** @defgroup BLE_HCI_STATUS_CODES Bluetooth status codes
  * @{ */

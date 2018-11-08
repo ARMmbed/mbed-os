@@ -76,10 +76,8 @@ static int32_t DMA_GetInstance(DMA_Type *base)
 {
     int32_t instance;
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_dmaBases); instance++)
-    {
-        if (s_dmaBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_dmaBases); instance++) {
+        if (s_dmaBases[instance] == base) {
             break;
         }
     }
@@ -112,10 +110,10 @@ void DMA_ConfigureChannelTrigger(DMA_Type *base, uint32_t channel, dma_channel_t
     assert((channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS) && (NULL != trigger));
 
     uint32_t tmp = (
-        DMA_CHANNEL_CFG_HWTRIGEN_MASK | DMA_CHANNEL_CFG_TRIGPOL_MASK | DMA_CHANNEL_CFG_TRIGTYPE_MASK |
-        DMA_CHANNEL_CFG_TRIGBURST_MASK | DMA_CHANNEL_CFG_BURSTPOWER_MASK | DMA_CHANNEL_CFG_SRCBURSTWRAP_MASK |
-        DMA_CHANNEL_CFG_DSTBURSTWRAP_MASK
-    );
+                       DMA_CHANNEL_CFG_HWTRIGEN_MASK | DMA_CHANNEL_CFG_TRIGPOL_MASK | DMA_CHANNEL_CFG_TRIGTYPE_MASK |
+                       DMA_CHANNEL_CFG_TRIGBURST_MASK | DMA_CHANNEL_CFG_BURSTPOWER_MASK | DMA_CHANNEL_CFG_SRCBURSTWRAP_MASK |
+                       DMA_CHANNEL_CFG_DSTBURSTWRAP_MASK
+                   );
     tmp = base->CHANNEL[channel].CFG & (~tmp);
     tmp |= (uint32_t)(trigger->type) | (uint32_t)(trigger->burst) | (uint32_t)(trigger->wrap);
     base->CHANNEL[channel].CFG = tmp;
@@ -132,7 +130,7 @@ uint32_t DMA_GetRemainingBytes(DMA_Type *base, uint32_t channel)
 {
     assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS);
 
-    /* NOTE: when descriptors are chained, ACTIVE bit is set for whole chain. It makes 
+    /* NOTE: when descriptors are chained, ACTIVE bit is set for whole chain. It makes
      * impossible to distinguish between:
      * - transfer finishes (represented by value '0x3FF')
      * - and remaining 1024 bytes to transfer (value 0x3FF)
@@ -141,10 +139,9 @@ uint32_t DMA_GetRemainingBytes(DMA_Type *base, uint32_t channel)
 
     /* Channel not active (transfer finished) and value is 0x3FF - nothing to transfer */
     if (
-        (!(base->COMMON[DMA_CHANNEL_GROUP(channel)].ACTIVE & (1U << (DMA_CHANNEL_INDEX(channel))))) && 
+        (!(base->COMMON[DMA_CHANNEL_GROUP(channel)].ACTIVE & (1U << (DMA_CHANNEL_INDEX(channel))))) &&
         (0x3FF == ((base->CHANNEL[channel].XFERCFG & DMA_CHANNEL_XFERCFG_XFERCOUNT_MASK) >> DMA_CHANNEL_XFERCFG_XFERCOUNT_SHIFT))
-    )
-    {
+    ) {
         return 0;
     }
 
@@ -187,9 +184,9 @@ static void DMA_SetupXferCFG(
     /* set reload - allow link to next descriptor */
     xfer |= DMA_CHANNEL_XFERCFG_RELOAD(xfercfg->reload ? 1 : 0);
     /* set swtrig flag - start transfer */
-    xfer |= DMA_CHANNEL_XFERCFG_SWTRIG(xfercfg->swtrig? 1 : 0);
+    xfer |= DMA_CHANNEL_XFERCFG_SWTRIG(xfercfg->swtrig ? 1 : 0);
     /* set transfer count */
-    xfer |= DMA_CHANNEL_XFERCFG_CLRTRIG(xfercfg->clrtrig? 1 : 0);
+    xfer |= DMA_CHANNEL_XFERCFG_CLRTRIG(xfercfg->clrtrig ? 1 : 0);
     /* set INTA */
     xfer |= DMA_CHANNEL_XFERCFG_SETINTA(xfercfg->intA ? 1 : 0);
     /* set INTB */
@@ -230,10 +227,10 @@ void DMA_CreateDescriptor(
 
     /* Set descriptor structure */
     DMA_SetupDescriptor(desc, xfercfg_reg,
-        (uint8_t*)srcAddr + (xfercfg->srcInc * xfercfg->byteWidth * (xfercfg->transferCount - 1)),
-        (uint8_t*)dstAddr + (xfercfg->dstInc * xfercfg->byteWidth * (xfercfg->transferCount - 1)),
-        nextDesc
-    );
+                        (uint8_t *)srcAddr + (xfercfg->srcInc * xfercfg->byteWidth * (xfercfg->transferCount - 1)),
+                        (uint8_t *)dstAddr + (xfercfg->dstInc * xfercfg->byteWidth * (xfercfg->transferCount - 1)),
+                        nextDesc
+                       );
 }
 
 void DMA_AbortTransfer(dma_handle_t *handle)
@@ -272,12 +269,12 @@ void DMA_SetCallback(dma_handle_t *handle, dma_callback callback, void *userData
 }
 
 void DMA_PrepareTransfer(dma_transfer_config_t *config,
-                          void *srcAddr,
-                          void *dstAddr,
-                          uint32_t byteWidth,
-                          uint32_t transferBytes,
-                          dma_transfer_type_t type,
-                          void *nextDesc)
+                         void *srcAddr,
+                         void *dstAddr,
+                         uint32_t byteWidth,
+                         uint32_t transferBytes,
+                         dma_transfer_type_t type,
+                         void *nextDesc)
 {
     uint32_t xfer_count;
     assert((NULL != config) && (NULL != srcAddr) && (NULL != dstAddr));
@@ -288,37 +285,36 @@ void DMA_PrepareTransfer(dma_transfer_config_t *config,
     assert((xfer_count <= DMA_MAX_TRANSFER_COUNT) && (0 == transferBytes % byteWidth));
 
     memset(config, 0, sizeof(*config));
-    switch (type)
-    {
-    case kDMA_MemoryToMemory:
-        config->xfercfg.srcInc = 1;
-        config->xfercfg.dstInc = 1;
-        config->isPeriph = false;
-        break;
-    case kDMA_PeripheralToMemory:
-        /* Peripheral register - source doesn't increment */
-        config->xfercfg.srcInc = 0;
-        config->xfercfg.dstInc = 1;
-        config->isPeriph = true;
-        break;
-    case kDMA_MemoryToPeripheral:
-        /* Peripheral register - destination doesn't increment */
-        config->xfercfg.srcInc = 1;
-        config->xfercfg.dstInc = 0;
-        config->isPeriph = true;
-        break;
-    case kDMA_StaticToStatic:
-        config->xfercfg.srcInc = 0;
-        config->xfercfg.dstInc = 0;
-        config->isPeriph = true;
-        break;
-    default:
-        return;
+    switch (type) {
+        case kDMA_MemoryToMemory:
+            config->xfercfg.srcInc = 1;
+            config->xfercfg.dstInc = 1;
+            config->isPeriph = false;
+            break;
+        case kDMA_PeripheralToMemory:
+            /* Peripheral register - source doesn't increment */
+            config->xfercfg.srcInc = 0;
+            config->xfercfg.dstInc = 1;
+            config->isPeriph = true;
+            break;
+        case kDMA_MemoryToPeripheral:
+            /* Peripheral register - destination doesn't increment */
+            config->xfercfg.srcInc = 1;
+            config->xfercfg.dstInc = 0;
+            config->isPeriph = true;
+            break;
+        case kDMA_StaticToStatic:
+            config->xfercfg.srcInc = 0;
+            config->xfercfg.dstInc = 0;
+            config->isPeriph = true;
+            break;
+        default:
+            return;
     }
 
-    config->dstAddr = (uint8_t*)dstAddr;
-    config->srcAddr = (uint8_t*)srcAddr;
-    config->nextDesc = (uint8_t*)nextDesc;
+    config->dstAddr = (uint8_t *)dstAddr;
+    config->srcAddr = (uint8_t *)srcAddr;
+    config->nextDesc = (uint8_t *)nextDesc;
     config->xfercfg.transferCount = xfer_count;
     config->xfercfg.byteWidth = byteWidth;
     config->xfercfg.intA = true;
@@ -331,18 +327,14 @@ status_t DMA_SubmitTransfer(dma_handle_t *handle, dma_transfer_config_t *config)
     assert((NULL != handle) && (NULL != config));
 
     /* Previous transfer has not finished */
-    if (DMA_ChannelIsActive(handle->base, handle->channel))
-    {
-         return kStatus_DMA_Busy;
+    if (DMA_ChannelIsActive(handle->base, handle->channel)) {
+        return kStatus_DMA_Busy;
     }
 
     /* enable/disable peripheral request */
-    if (config->isPeriph)
-    {
+    if (config->isPeriph) {
         DMA_EnableChannelPeriphRq(handle->base, handle->channel);
-    }
-    else
-    {
+    } else {
         DMA_DisableChannelPeriphRq(handle->base, handle->channel);
     }
 
@@ -362,20 +354,18 @@ void DMA_StartTransfer(dma_handle_t *handle)
     handle->base->COMMON[DMA_CHANNEL_GROUP(handle->channel)].INTENSET |= 1U << DMA_CHANNEL_INDEX(handle->channel);
 
     /* If HW trigger is enabled - disable SW trigger */
-    if (handle->base->CHANNEL[handle->channel].CFG & DMA_CHANNEL_CFG_HWTRIGEN_MASK)
-    {
+    if (handle->base->CHANNEL[handle->channel].CFG & DMA_CHANNEL_CFG_HWTRIGEN_MASK) {
         s_dma_descriptor_table[ handle->channel ].xfercfg &= ~(DMA_CHANNEL_XFERCFG_SWTRIG_MASK);
     }
     /* Otherwise enable SW trigger */
-    else
-    {
+    else {
         s_dma_descriptor_table[ handle->channel ].xfercfg |= DMA_CHANNEL_XFERCFG_SWTRIG_MASK;
     }
 
     /* Set channel XFERCFG register according first channel descriptor. */
     handle->base->CHANNEL[handle->channel].XFERCFG = s_dma_descriptor_table[ handle->channel ].xfercfg;
-    /* At this moment, the channel ACTIVE bit is set and application cannot modify 
-     * or start another transfer using this channel. Channel ACTIVE bit is cleared by 
+    /* At this moment, the channel ACTIVE bit is set and application cannot modify
+     * or start another transfer using this channel. Channel ACTIVE bit is cleared by
     * 'AbortTransfer' function or when the transfer finishes */
 }
 
@@ -386,33 +376,27 @@ void DMA0_DriverIRQHandler(void)
     int32_t channel_index;
 
     /* Find channels that have completed transfer */
-    for (int i = 0; i < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS; i++)
-    {
+    for (int i = 0; i < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS; i++) {
         handle = s_DMAHandle[i];
         /* Handle is not present */
-        if (NULL == handle)
-        {
+        if (NULL == handle) {
             continue;
         }
         channel_group = DMA_CHANNEL_GROUP(handle->channel);
         channel_index = DMA_CHANNEL_INDEX(handle->channel);
         /* Channel uses INTA flag */
-        if (handle->base->COMMON[channel_group].INTA & (1U << channel_index))
-        {
+        if (handle->base->COMMON[channel_group].INTA & (1U << channel_index)) {
             /* Clear INTA flag */
             handle->base->COMMON[channel_group].INTA = 1U << channel_index;
-            if (handle->callback)
-            {
+            if (handle->callback) {
                 (handle->callback)(handle, handle->userData, true, kDMA_IntA);
             }
         }
         /* Channel uses INTB flag */
-        if (handle->base->COMMON[channel_group].INTB & (1U << channel_index))
-        {
+        if (handle->base->COMMON[channel_group].INTB & (1U << channel_index)) {
             /* Clear INTB flag */
             handle->base->COMMON[channel_group].INTB = 1U << channel_index;
-            if (handle->callback)
-            {
+            if (handle->callback) {
                 (handle->callback)(handle, handle->userData, true, kDMA_IntB);
             }
         }

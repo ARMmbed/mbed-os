@@ -30,8 +30,8 @@
 #define SPIBSC_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_spibsc
-{                                                          /* SPIBSC           */
+struct st_spibsc {
+    /* SPIBSC           */
     volatile uint32_t  CMNCR;                                  /*  CMNCR           */
     volatile uint32_t  SSLDR;                                  /*  SSLDR           */
     volatile uint32_t  SPBCR;                                  /*  SPBCR           */
@@ -50,7 +50,7 @@ struct st_spibsc
     union iodefine_reg32_t  SMRDR1;                        /*  SMRDR1          */
     union iodefine_reg32_t  SMWDR0;                        /*  SMWDR0          */
     union iodefine_reg32_t  SMWDR1;                        /*  SMWDR1          */
-    
+
     volatile uint32_t  CMNSR;                                  /*  CMNSR           */
     volatile uint8_t   dummy2[12];                             /*                  */
     volatile uint32_t  DRDMCR;                                 /*  DRDMCR          */

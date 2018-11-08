@@ -99,17 +99,17 @@
 __STATIC_INLINE void regSync(LETIMER_TypeDef *letimer, uint32_t mask)
 {
 #if defined(_LETIMER_FREEZE_MASK)
-  /* Avoid deadlock if modifying the same register twice when freeze mode is */
-  /* activated. */
-  if (letimer->FREEZE & LETIMER_FREEZE_REGFREEZE) {
-    return;
-  }
+    /* Avoid deadlock if modifying the same register twice when freeze mode is */
+    /* activated. */
+    if (letimer->FREEZE & LETIMER_FREEZE_REGFREEZE) {
+        return;
+    }
 #endif
 
-  /* Wait for any pending previous write operation to have been completed */
-  /* in low frequency domain, only required for Gecko Family of devices  */
-  while (letimer->SYNCBUSY & mask)
-    ;
+    /* Wait for any pending previous write operation to have been completed */
+    /* in low frequency domain, only required for Gecko Family of devices  */
+    while (letimer->SYNCBUSY & mask)
+        ;
 }
 #endif
 
@@ -134,27 +134,27 @@ __STATIC_INLINE void regSync(LETIMER_TypeDef *letimer, uint32_t mask)
  ******************************************************************************/
 uint32_t LETIMER_CompareGet(LETIMER_TypeDef *letimer, unsigned int comp)
 {
-  uint32_t ret;
+    uint32_t ret;
 
-  EFM_ASSERT(LETIMER_REF_VALID(letimer) && LETIMER_COMP_REG_VALID(comp));
+    EFM_ASSERT(LETIMER_REF_VALID(letimer) && LETIMER_COMP_REG_VALID(comp));
 
-  /* Initialize selected compare value */
-  switch (comp) {
-    case 0:
-      ret = letimer->COMP0;
-      break;
+    /* Initialize selected compare value */
+    switch (comp) {
+        case 0:
+            ret = letimer->COMP0;
+            break;
 
-    case 1:
-      ret = letimer->COMP1;
-      break;
+        case 1:
+            ret = letimer->COMP1;
+            break;
 
-    default:
-      /* Unknown compare register selected */
-      ret = 0;
-      break;
-  }
+        default:
+            /* Unknown compare register selected */
+            ret = 0;
+            break;
+    }
 
-  return(ret);
+    return (ret);
 }
 
 /***************************************************************************//**
@@ -181,35 +181,35 @@ void LETIMER_CompareSet(LETIMER_TypeDef *letimer,
                         unsigned int comp,
                         uint32_t value)
 {
-  volatile uint32_t *compReg;
+    volatile uint32_t *compReg;
 
-  EFM_ASSERT(LETIMER_REF_VALID(letimer)
-             && LETIMER_COMP_REG_VALID(comp)
-             && ((value & ~(_LETIMER_COMP0_COMP0_MASK
-                            >> _LETIMER_COMP0_COMP0_SHIFT))
-                 == 0));
+    EFM_ASSERT(LETIMER_REF_VALID(letimer)
+               && LETIMER_COMP_REG_VALID(comp)
+               && ((value & ~(_LETIMER_COMP0_COMP0_MASK
+                              >> _LETIMER_COMP0_COMP0_SHIFT))
+                   == 0));
 
-  /* Initialize selected compare value */
-  switch (comp) {
-    case 0:
-      compReg  = &(letimer->COMP0);
-      break;
+    /* Initialize selected compare value */
+    switch (comp) {
+        case 0:
+            compReg  = &(letimer->COMP0);
+            break;
 
-    case 1:
-      compReg  = &(letimer->COMP1);
-      break;
+        case 1:
+            compReg  = &(letimer->COMP1);
+            break;
 
-    default:
-      /* Unknown compare register selected, abort */
-      return;
-  }
+        default:
+            /* Unknown compare register selected, abort */
+            return;
+    }
 
 #if defined(_EFM32_GECKO_FAMILY)
-  /* LF register about to be modified require sync. busy check */
-  regSync(letimer, comp ? LETIMER_SYNCBUSY_COMP1 : LETIMER_SYNCBUSY_COMP0);
+    /* LF register about to be modified require sync. busy check */
+    regSync(letimer, comp ? LETIMER_SYNCBUSY_COMP1 : LETIMER_SYNCBUSY_COMP0);
 #endif
 
-  *compReg = value;
+    *compReg = value;
 }
 
 /***************************************************************************//**
@@ -232,18 +232,18 @@ void LETIMER_CompareSet(LETIMER_TypeDef *letimer,
  ******************************************************************************/
 void LETIMER_Enable(LETIMER_TypeDef *letimer, bool enable)
 {
-  EFM_ASSERT(LETIMER_REF_VALID(letimer));
+    EFM_ASSERT(LETIMER_REF_VALID(letimer));
 
 #if defined(_EFM32_GECKO_FAMILY)
-  /* LF register about to be modified require sync. busy check */
-  regSync(letimer, LETIMER_SYNCBUSY_CMD);
+    /* LF register about to be modified require sync. busy check */
+    regSync(letimer, LETIMER_SYNCBUSY_CMD);
 #endif
 
-  if (enable) {
-    letimer->CMD = LETIMER_CMD_START;
-  } else {
-    letimer->CMD = LETIMER_CMD_STOP;
-  }
+    if (enable) {
+        letimer->CMD = LETIMER_CMD_START;
+    } else {
+        letimer->CMD = LETIMER_CMD_STOP;
+    }
 }
 
 #if defined(_LETIMER_FREEZE_MASK)
@@ -276,23 +276,23 @@ void LETIMER_Enable(LETIMER_TypeDef *letimer, bool enable)
  ******************************************************************************/
 void LETIMER_FreezeEnable(LETIMER_TypeDef *letimer, bool enable)
 {
-  if (enable) {
-    /*
-     * Wait for any ongoing LF synchronization to complete. This is just to
-     * protect against the rare case when a user
-     * - modifies a register requiring LF sync
-     * - then enables freeze before LF sync completed
-     * - then modifies the same register again
-     * since modifying a register while it is in sync progress should be
-     * avoided.
-     */
-    while (letimer->SYNCBUSY)
-      ;
+    if (enable) {
+        /*
+         * Wait for any ongoing LF synchronization to complete. This is just to
+         * protect against the rare case when a user
+         * - modifies a register requiring LF sync
+         * - then enables freeze before LF sync completed
+         * - then modifies the same register again
+         * since modifying a register while it is in sync progress should be
+         * avoided.
+         */
+        while (letimer->SYNCBUSY)
+            ;
 
-    letimer->FREEZE = LETIMER_FREEZE_REGFREEZE;
-  } else {
-    letimer->FREEZE = 0;
-  }
+        letimer->FREEZE = LETIMER_FREEZE_REGFREEZE;
+    } else {
+        letimer->FREEZE = 0;
+    }
 }
 #endif /* defined(_LETIMER_FREEZE_MASK) */
 
@@ -322,69 +322,69 @@ void LETIMER_FreezeEnable(LETIMER_TypeDef *letimer, bool enable)
  ******************************************************************************/
 void LETIMER_Init(LETIMER_TypeDef *letimer, const LETIMER_Init_TypeDef *init)
 {
-  uint32_t tmp = 0;
+    uint32_t tmp = 0;
 
-  EFM_ASSERT(LETIMER_REF_VALID(letimer));
+    EFM_ASSERT(LETIMER_REF_VALID(letimer));
 
-  /* Stop timer if specified to be disabled and running */
-  if (!(init->enable) && (letimer->STATUS & LETIMER_STATUS_RUNNING)) {
+    /* Stop timer if specified to be disabled and running */
+    if (!(init->enable) && (letimer->STATUS & LETIMER_STATUS_RUNNING)) {
 #if defined(_EFM32_GECKO_FAMILY)
-    /* LF register about to be modified require sync. busy check */
-    regSync(letimer, LETIMER_SYNCBUSY_CMD);
+        /* LF register about to be modified require sync. busy check */
+        regSync(letimer, LETIMER_SYNCBUSY_CMD);
 #endif
-    letimer->CMD = LETIMER_CMD_STOP;
-  }
+        letimer->CMD = LETIMER_CMD_STOP;
+    }
 
-  /* Configure DEBUGRUN flag, sets whether or not counter should be
-   * updated when debugger is active */
-  if (init->debugRun) {
-    tmp |= LETIMER_CTRL_DEBUGRUN;
-  }
+    /* Configure DEBUGRUN flag, sets whether or not counter should be
+     * updated when debugger is active */
+    if (init->debugRun) {
+        tmp |= LETIMER_CTRL_DEBUGRUN;
+    }
 
 #if defined(LETIMER_CTRL_RTCC0TEN)
-  if (init->rtcComp0Enable) {
-    tmp |= LETIMER_CTRL_RTCC0TEN;
-  }
+    if (init->rtcComp0Enable) {
+        tmp |= LETIMER_CTRL_RTCC0TEN;
+    }
 
-  if (init->rtcComp1Enable) {
-    tmp |= LETIMER_CTRL_RTCC1TEN;
-  }
+    if (init->rtcComp1Enable) {
+        tmp |= LETIMER_CTRL_RTCC1TEN;
+    }
 #endif
 
-  if (init->comp0Top) {
-    tmp |= LETIMER_CTRL_COMP0TOP;
-  }
+    if (init->comp0Top) {
+        tmp |= LETIMER_CTRL_COMP0TOP;
+    }
 
-  if (init->bufTop) {
-    tmp |= LETIMER_CTRL_BUFTOP;
-  }
+    if (init->bufTop) {
+        tmp |= LETIMER_CTRL_BUFTOP;
+    }
 
-  if (init->out0Pol) {
-    tmp |= LETIMER_CTRL_OPOL0;
-  }
+    if (init->out0Pol) {
+        tmp |= LETIMER_CTRL_OPOL0;
+    }
 
-  if (init->out1Pol) {
-    tmp |= LETIMER_CTRL_OPOL1;
-  }
+    if (init->out1Pol) {
+        tmp |= LETIMER_CTRL_OPOL1;
+    }
 
-  tmp |= init->ufoa0 << _LETIMER_CTRL_UFOA0_SHIFT;
-  tmp |= init->ufoa1 << _LETIMER_CTRL_UFOA1_SHIFT;
-  tmp |= init->repMode << _LETIMER_CTRL_REPMODE_SHIFT;
+    tmp |= init->ufoa0 << _LETIMER_CTRL_UFOA0_SHIFT;
+    tmp |= init->ufoa1 << _LETIMER_CTRL_UFOA1_SHIFT;
+    tmp |= init->repMode << _LETIMER_CTRL_REPMODE_SHIFT;
 
-#if defined(_EFM32_GECKO_FAMILY)
-  /* LF register about to be modified require sync. busy check */
-  regSync(letimer, LETIMER_SYNCBUSY_CTRL);
-#endif
-  letimer->CTRL = tmp;
-
-  /* Start timer if specified to be enabled and not already running */
-  if (init->enable && !(letimer->STATUS & LETIMER_STATUS_RUNNING)) {
 #if defined(_EFM32_GECKO_FAMILY)
     /* LF register about to be modified require sync. busy check */
-    regSync(letimer, LETIMER_SYNCBUSY_CMD);
+    regSync(letimer, LETIMER_SYNCBUSY_CTRL);
 #endif
-    letimer->CMD = LETIMER_CMD_START;
-  }
+    letimer->CTRL = tmp;
+
+    /* Start timer if specified to be enabled and not already running */
+    if (init->enable && !(letimer->STATUS & LETIMER_STATUS_RUNNING)) {
+#if defined(_EFM32_GECKO_FAMILY)
+        /* LF register about to be modified require sync. busy check */
+        regSync(letimer, LETIMER_SYNCBUSY_CMD);
+#endif
+        letimer->CMD = LETIMER_CMD_START;
+    }
 }
 
 /***************************************************************************//**
@@ -402,27 +402,27 @@ void LETIMER_Init(LETIMER_TypeDef *letimer, const LETIMER_Init_TypeDef *init)
  ******************************************************************************/
 uint32_t LETIMER_RepeatGet(LETIMER_TypeDef *letimer, unsigned int rep)
 {
-  uint32_t ret;
+    uint32_t ret;
 
-  EFM_ASSERT(LETIMER_REF_VALID(letimer) && LETIMER_REP_REG_VALID(rep));
+    EFM_ASSERT(LETIMER_REF_VALID(letimer) && LETIMER_REP_REG_VALID(rep));
 
-  /* Initialize selected compare value */
-  switch (rep) {
-    case 0:
-      ret = letimer->REP0;
-      break;
+    /* Initialize selected compare value */
+    switch (rep) {
+        case 0:
+            ret = letimer->REP0;
+            break;
 
-    case 1:
-      ret = letimer->REP1;
-      break;
+        case 1:
+            ret = letimer->REP1;
+            break;
 
-    default:
-      /* Unknown compare register selected */
-      ret = 0;
-      break;
-  }
+        default:
+            /* Unknown compare register selected */
+            ret = 0;
+            break;
+    }
 
-  return(ret);
+    return (ret);
 }
 
 /***************************************************************************//**
@@ -449,43 +449,43 @@ void LETIMER_RepeatSet(LETIMER_TypeDef *letimer,
                        unsigned int rep,
                        uint32_t value)
 {
-  volatile uint32_t *repReg;
+    volatile uint32_t *repReg;
 #if defined(_EFM32_GECKO_FAMILY)
-  uint32_t          syncbusy;
+    uint32_t          syncbusy;
 #endif
-  EFM_ASSERT(LETIMER_REF_VALID(letimer)
-             && LETIMER_REP_REG_VALID(rep)
-             && ((value & ~(_LETIMER_REP0_REP0_MASK
-                            >> _LETIMER_REP0_REP0_SHIFT))
-                 == 0));
+    EFM_ASSERT(LETIMER_REF_VALID(letimer)
+               && LETIMER_REP_REG_VALID(rep)
+               && ((value & ~(_LETIMER_REP0_REP0_MASK
+                              >> _LETIMER_REP0_REP0_SHIFT))
+                   == 0));
 
-  /* Initialize selected compare value */
-  switch (rep) {
-    case 0:
-      repReg = &(letimer->REP0);
+    /* Initialize selected compare value */
+    switch (rep) {
+        case 0:
+            repReg = &(letimer->REP0);
 #if defined(_EFM32_GECKO_FAMILY)
-      syncbusy = LETIMER_SYNCBUSY_REP0;
+            syncbusy = LETIMER_SYNCBUSY_REP0;
 #endif
-      break;
+            break;
 
-    case 1:
-      repReg = &(letimer->REP1);
+        case 1:
+            repReg = &(letimer->REP1);
 #if defined(_EFM32_GECKO_FAMILY)
-      syncbusy = LETIMER_SYNCBUSY_REP1;
+            syncbusy = LETIMER_SYNCBUSY_REP1;
 #endif
-      break;
+            break;
 
-    default:
-      /* Unknown compare register selected, abort */
-      return;
-  }
+        default:
+            /* Unknown compare register selected, abort */
+            return;
+    }
 
 #if defined(_EFM32_GECKO_FAMILY)
-  /* LF register about to be modified require sync. busy check */
-  regSync(letimer, syncbusy);
+    /* LF register about to be modified require sync. busy check */
+    regSync(letimer, syncbusy);
 #endif
 
-  *repReg = value;
+    *repReg = value;
 }
 
 /***************************************************************************//**
@@ -502,25 +502,25 @@ void LETIMER_RepeatSet(LETIMER_TypeDef *letimer,
 void LETIMER_Reset(LETIMER_TypeDef *letimer)
 {
 #if defined(_LETIMER_FREEZE_MASK)
-  /* Freeze registers to avoid stalling for LF synchronization */
-  LETIMER_FreezeEnable(letimer, true);
+    /* Freeze registers to avoid stalling for LF synchronization */
+    LETIMER_FreezeEnable(letimer, true);
 #endif
 
-  /* Make sure disabled first, before resetting other registers */
-  letimer->CMD = LETIMER_CMD_STOP | LETIMER_CMD_CLEAR
-                 | LETIMER_CMD_CTO0 | LETIMER_CMD_CTO1;
-  letimer->CTRL  = _LETIMER_CTRL_RESETVALUE;
-  letimer->COMP0 = _LETIMER_COMP0_RESETVALUE;
-  letimer->COMP1 = _LETIMER_COMP1_RESETVALUE;
-  letimer->REP0  = _LETIMER_REP0_RESETVALUE;
-  letimer->REP1  = _LETIMER_REP1_RESETVALUE;
-  letimer->IEN   = _LETIMER_IEN_RESETVALUE;
-  letimer->IFC   = _LETIMER_IFC_MASK;
-  /* Do not reset route register, setting should be done independently */
+    /* Make sure disabled first, before resetting other registers */
+    letimer->CMD = LETIMER_CMD_STOP | LETIMER_CMD_CLEAR
+                   | LETIMER_CMD_CTO0 | LETIMER_CMD_CTO1;
+    letimer->CTRL  = _LETIMER_CTRL_RESETVALUE;
+    letimer->COMP0 = _LETIMER_COMP0_RESETVALUE;
+    letimer->COMP1 = _LETIMER_COMP1_RESETVALUE;
+    letimer->REP0  = _LETIMER_REP0_RESETVALUE;
+    letimer->REP1  = _LETIMER_REP1_RESETVALUE;
+    letimer->IEN   = _LETIMER_IEN_RESETVALUE;
+    letimer->IFC   = _LETIMER_IFC_MASK;
+    /* Do not reset route register, setting should be done independently */
 
 #if defined(_LETIMER_FREEZE_MASK)
-  /* Unfreeze registers, pass new settings on to LETIMER */
-  LETIMER_FreezeEnable(letimer, false);
+    /* Unfreeze registers, pass new settings on to LETIMER */
+    LETIMER_FreezeEnable(letimer, false);
 #endif
 }
 

@@ -22,7 +22,7 @@
 #include <wifi_constants.h>
 #include "wifi_structures.h"
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 extern "C" {
 #endif
 
@@ -44,8 +44,8 @@ int wext_register_multicast_address(const char *ifname, rtw_mac_t *mac);
 int wext_unregister_multicast_address(const char *ifname, rtw_mac_t *mac);
 int wext_set_scan(const char *ifname, char *buf, __u16 buf_len, __u16 flags);
 int wext_get_scan(const char *ifname, char *buf, __u16 buf_len);
-int wext_set_mac_address(const char *ifname, char * mac);
-int wext_get_mac_address(const char *ifname, char * mac);
+int wext_set_mac_address(const char *ifname, char *mac);
+int wext_get_mac_address(const char *ifname, char *mac);
 int wext_enable_powersave(const char *ifname, __u8 lps_mode, __u8 ips_mode);
 int wext_disable_powersave(const char *ifname);
 int wext_set_tdma_param(const char *ifname, __u8 slot_period, __u8 rfon_period_len_1, __u8 rfon_period_len_2, __u8 rfon_period_len_3);
@@ -53,8 +53,8 @@ int wext_set_lps_dtim(const char *ifname, __u8 lps_dtim);
 int wext_get_lps_dtim(const char *ifname, __u8 *lps_dtim);
 int wext_get_tx_power(const char *ifname, __u8 *poweridx);
 int wext_set_txpower(const char *ifname, int poweridx);
-int wext_get_associated_client_list(const char *ifname, void * client_list_buffer, __u16 buffer_length);
-int wext_get_ap_info(const char *ifname, rtw_bss_info_t * ap_info, rtw_security_t* security);
+int wext_get_associated_client_list(const char *ifname, void *client_list_buffer, __u16 buffer_length);
+int wext_get_ap_info(const char *ifname, rtw_bss_info_t *ap_info, rtw_security_t *security);
 int wext_mp_command(const char *ifname, char *cmd, int show_msg);
 int wext_private_command(const char *ifname, char *cmd, int show_msg);
 int wext_private_command_with_retval(const char *ifname, char *cmd, char *ret_buf, int ret_len);
@@ -66,15 +66,15 @@ int wext_set_adaptivity(rtw_adaptivity_mode_t adaptivity_mode);
 int wext_set_adaptivity_th_l2h_ini(__u8 l2h_threshold);
 int wext_get_auto_chl(const char *ifname, unsigned char *channel_set, unsigned char channel_num);
 int wext_set_sta_num(unsigned char ap_sta_num);
-int wext_del_station(const char *ifname, unsigned char* hwaddr);
+int wext_del_station(const char *ifname, unsigned char *hwaddr);
 int wext_init_mac_filter(void);
 int wext_deinit_mac_filter(void);
-int wext_add_mac_filter(unsigned char* hwaddr);
-int wext_del_mac_filter(unsigned char* hwaddr);
+int wext_add_mac_filter(unsigned char *hwaddr);
+int wext_del_mac_filter(unsigned char *hwaddr);
 void wext_set_indicate_mgnt(int enable);
 #ifdef CONFIG_CUSTOM_IE
-int wext_add_custom_ie(const char *ifname, void * cus_ie, int ie_num);
-int wext_update_custom_ie(const char *ifname, void * cus_ie, int ie_index);
+int wext_add_custom_ie(const char *ifname, void *cus_ie, int ie_num);
+int wext_update_custom_ie(const char *ifname, void *cus_ie, int ie_index);
 int wext_del_custom_ie(const char *ifname);
 #endif
 
@@ -84,7 +84,7 @@ int wext_send_mgnt(const char *ifname, char *buf, __u16 buf_len, __u16 flags);
 int wext_send_eapol(const char *ifname, char *buf, __u16 buf_len, __u16 flags);
 int wext_set_gen_ie(const char *ifname, char *buf, __u16 buf_len, __u16 flags);
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 }
 #endif
 

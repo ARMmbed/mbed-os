@@ -4,9 +4,9 @@
  * @brief   This file provides API functions for I2C driver.
  * @version V2.0.2.1
  * @date    2015/09/10
- * 
+ *
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENCE AGREEMENT.
- * 
+ *
  * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
  *******************************************************************************
  */
@@ -20,7 +20,7 @@
   * @{
   */
 
-/** @defgroup I2C 
+/** @defgroup I2C
   * @brief I2C driver modules
   * @{
   */
@@ -100,7 +100,7 @@
   */
 
 /**
-  * @brief  Enable or disable the generation of ACK clock. 
+  * @brief  Enable or disable the generation of ACK clock.
   * @param  I2Cx: Select the I2C channel.
   *   This parameter can be one of the following values:
   *   TSB_I2C0,TSB_I2C1
@@ -108,7 +108,7 @@
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SetACK(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SetACK(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     uint32_t tmp = 0U;
 
@@ -136,7 +136,7 @@ void I2C_SetACK(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   * @param  InitI2CStruct: The structure containing I2C in I2C mode configuration.
   * @retval None
   */
-void I2C_Init(TSB_I2C_TypeDef * I2Cx, I2C_InitTypeDef * InitI2CStruct)
+void I2C_Init(TSB_I2C_TypeDef *I2Cx, I2C_InitTypeDef *InitI2CStruct)
 {
     uint32_t tmp = 0U;
 
@@ -190,7 +190,7 @@ void I2C_Init(TSB_I2C_TypeDef * I2Cx, I2C_InitTypeDef * InitI2CStruct)
   *   I2C_DATA_LEN_4, I2C_DATA_LEN_5,I2C_DATA_LEN_6 and I2C_DATA_LEN_7.
   * @retval None
   */
-void I2C_SetBitNum(TSB_I2C_TypeDef * I2Cx, uint32_t I2CBitNum)
+void I2C_SetBitNum(TSB_I2C_TypeDef *I2Cx, uint32_t I2CBitNum)
 {
     uint32_t tmp = 0U;
 
@@ -212,7 +212,7 @@ void I2C_SetBitNum(TSB_I2C_TypeDef * I2Cx, uint32_t I2CBitNum)
   *   TSB_I2C0,TSB_I2C1
   * @retval None
   */
-void I2C_SWReset(TSB_I2C_TypeDef * I2Cx)
+void I2C_SWReset(TSB_I2C_TypeDef *I2Cx)
 {
     uint32_t tmp = 0U;
 
@@ -231,7 +231,7 @@ void I2C_SWReset(TSB_I2C_TypeDef * I2Cx)
   *   TSB_I2C0,TSB_I2C1
   * @retval None
   */
-void I2C_ClearINTReq(TSB_I2C_TypeDef * I2Cx)
+void I2C_ClearINTReq(TSB_I2C_TypeDef *I2Cx)
 {
     uint32_t tmp = 0U;
 
@@ -252,7 +252,7 @@ void I2C_ClearINTReq(TSB_I2C_TypeDef * I2Cx)
   *   TSB_I2C0,TSB_I2C1
   * @retval None
   */
-void I2C_GenerateStart(TSB_I2C_TypeDef * I2Cx)
+void I2C_GenerateStart(TSB_I2C_TypeDef *I2Cx)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -268,7 +268,7 @@ void I2C_GenerateStart(TSB_I2C_TypeDef * I2Cx)
   *   TSB_I2C0,TSB_I2C1
   * @retval None
   */
-void I2C_GenerateStop(TSB_I2C_TypeDef * I2Cx)
+void I2C_GenerateStop(TSB_I2C_TypeDef *I2Cx)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -284,7 +284,7 @@ void I2C_GenerateStop(TSB_I2C_TypeDef * I2Cx)
   *   TSB_I2C0,TSB_I2C1
   * @retval The state of the I2C channel in I2C bus.
   */
-I2C_State I2C_GetState(TSB_I2C_TypeDef * I2Cx)
+I2C_State I2C_GetState(TSB_I2C_TypeDef *I2Cx)
 {
     I2C_State state;
     state.All = 0U;
@@ -306,7 +306,7 @@ I2C_State I2C_GetState(TSB_I2C_TypeDef * I2Cx)
   * @param  Data: The data to be sent, max 0xFF.
   * @retval None
   */
-void I2C_SetSendData(TSB_I2C_TypeDef * I2Cx, uint32_t Data)
+void I2C_SetSendData(TSB_I2C_TypeDef *I2Cx, uint32_t Data)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -323,7 +323,7 @@ void I2C_SetSendData(TSB_I2C_TypeDef * I2Cx, uint32_t Data)
   *   TSB_I2C0,TSB_I2C1
   * @retval The data having been received
   */
-uint32_t I2C_GetReceiveData(TSB_I2C_TypeDef * I2Cx)
+uint32_t I2C_GetReceiveData(TSB_I2C_TypeDef *I2Cx)
 {
     uint32_t retval = 0U;
 
@@ -346,7 +346,7 @@ uint32_t I2C_GetReceiveData(TSB_I2C_TypeDef * I2Cx)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SetFreeDataMode(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SetFreeDataMode(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -368,7 +368,7 @@ void I2C_SetFreeDataMode(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   TSB_I2C0,TSB_I2C1
   * @retval DISABLE or ENABLE.
   */
-FunctionalState I2C_GetSlaveAddrMatchState(TSB_I2C_TypeDef * I2Cx)
+FunctionalState I2C_GetSlaveAddrMatchState(TSB_I2C_TypeDef *I2Cx)
 {
     uint32_t tmp = 0U;
     FunctionalState retval = DISABLE;
@@ -396,7 +396,7 @@ FunctionalState I2C_GetSlaveAddrMatchState(TSB_I2C_TypeDef * I2Cx)
   *   I2C_PRESCALER_DIV_1 to I2C_PRESCALER_DIV_32
   * @retval None
   */
-void I2C_SetPrescalerClock(TSB_I2C_TypeDef * I2Cx, uint32_t PrescalerClock)
+void I2C_SetPrescalerClock(TSB_I2C_TypeDef *I2Cx, uint32_t PrescalerClock)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -420,7 +420,7 @@ void I2C_SetPrescalerClock(TSB_I2C_TypeDef * I2Cx, uint32_t PrescalerClock)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SetSELPINCDReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SetSELPINCDReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -445,7 +445,7 @@ void I2C_SetSELPINCDReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SetDMARI2CTXReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SetDMARI2CTXReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -469,7 +469,7 @@ void I2C_SetDMARI2CTXReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SetDMARI2CRXReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SetDMARI2CRXReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -493,7 +493,7 @@ void I2C_SetDMARI2CRXReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SetINTNACKReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SetINTNACKReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -517,7 +517,7 @@ void I2C_SetINTNACKReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SetINTI2CBFReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SetINTI2CBFReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -541,7 +541,7 @@ void I2C_SetINTI2CBFReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SetINTI2CALReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SetINTI2CALReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -565,7 +565,7 @@ void I2C_SetINTI2CALReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SetINTI2CReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SetINTI2CReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -587,7 +587,7 @@ void I2C_SetINTI2CReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   TSB_I2C0,TSB_I2C1
   * @retval DISABLE or ENABLE.
   */
-FunctionalState I2C_GetNACKStatus(TSB_I2C_TypeDef * I2Cx)
+FunctionalState I2C_GetNACKStatus(TSB_I2C_TypeDef *I2Cx)
 {
     uint32_t tmp = 0U;
     FunctionalState retval = DISABLE;
@@ -612,7 +612,7 @@ FunctionalState I2C_GetNACKStatus(TSB_I2C_TypeDef * I2Cx)
   *   TSB_I2C0,TSB_I2C1
   * @retval DISABLE or ENABLE.
   */
-FunctionalState I2C_GetINTI2CBFStatus(TSB_I2C_TypeDef * I2Cx)
+FunctionalState I2C_GetINTI2CBFStatus(TSB_I2C_TypeDef *I2Cx)
 {
     uint32_t tmp = 0U;
     FunctionalState retval = DISABLE;
@@ -637,7 +637,7 @@ FunctionalState I2C_GetINTI2CBFStatus(TSB_I2C_TypeDef * I2Cx)
   *   TSB_I2C0,TSB_I2C1
   * @retval DISABLE or ENABLE.
   */
-FunctionalState I2C_GetINTI2CALStatus(TSB_I2C_TypeDef * I2Cx)
+FunctionalState I2C_GetINTI2CALStatus(TSB_I2C_TypeDef *I2Cx)
 {
     uint32_t tmp = 0U;
     FunctionalState retval = DISABLE;
@@ -662,7 +662,7 @@ FunctionalState I2C_GetINTI2CALStatus(TSB_I2C_TypeDef * I2Cx)
   *   TSB_I2C0,TSB_I2C1
   * @retval DISABLE or ENABLE.
   */
-FunctionalState I2C_GetINTI2CStatus(TSB_I2C_TypeDef * I2Cx)
+FunctionalState I2C_GetINTI2CStatus(TSB_I2C_TypeDef *I2Cx)
 {
     uint32_t tmp = 0U;
     FunctionalState retval = DISABLE;
@@ -687,7 +687,7 @@ FunctionalState I2C_GetINTI2CStatus(TSB_I2C_TypeDef * I2Cx)
   *   TSB_I2C0,TSB_I2C1
   * @retval None
   */
-void I2C_ClearINTNACKOutput(TSB_I2C_TypeDef * I2Cx)
+void I2C_ClearINTNACKOutput(TSB_I2C_TypeDef *I2Cx)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -703,7 +703,7 @@ void I2C_ClearINTNACKOutput(TSB_I2C_TypeDef * I2Cx)
   *   TSB_I2C0,TSB_I2C1
   * @retval None
   */
-void I2C_ClearINTI2CBFOutput(TSB_I2C_TypeDef * I2Cx)
+void I2C_ClearINTI2CBFOutput(TSB_I2C_TypeDef *I2Cx)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -719,7 +719,7 @@ void I2C_ClearINTI2CBFOutput(TSB_I2C_TypeDef * I2Cx)
   *   TSB_I2C0,TSB_I2C1
   * @retval None
   */
-void I2C_ClearINTI2CALOutput(TSB_I2C_TypeDef * I2Cx)
+void I2C_ClearINTI2CALOutput(TSB_I2C_TypeDef *I2Cx)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -735,7 +735,7 @@ void I2C_ClearINTI2CALOutput(TSB_I2C_TypeDef * I2Cx)
   *   TSB_I2C0,TSB_I2C1
   * @retval None
   */
-void I2C_ClearINTOutput(TSB_I2C_TypeDef * I2Cx)
+void I2C_ClearINTOutput(TSB_I2C_TypeDef *I2Cx)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -745,7 +745,7 @@ void I2C_ClearINTOutput(TSB_I2C_TypeDef * I2Cx)
 }
 
 /**
-  * @brief  Enable or disable general-call detection. 
+  * @brief  Enable or disable general-call detection.
   * @param  I2Cx: Select the I2C channel.
   *   This parameter can be one of the following values:
   *   TSB_I2C0,TSB_I2C1
@@ -753,7 +753,7 @@ void I2C_ClearINTOutput(TSB_I2C_TypeDef * I2Cx)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SetGeneralCall(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SetGeneralCall(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     uint32_t tmp = 0U;
 
@@ -782,7 +782,7 @@ void I2C_SetGeneralCall(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_DetectRepeatStart(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_DetectRepeatStart(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -804,7 +804,7 @@ void I2C_DetectRepeatStart(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   TSB_I2C0,TSB_I2C1
   * @retval DISABLE or ENABLE.
   */
-FunctionalState I2C_GetRepeatStartDetState(TSB_I2C_TypeDef * I2Cx)
+FunctionalState I2C_GetRepeatStartDetState(TSB_I2C_TypeDef *I2Cx)
 {
     uint32_t tmp = 0U;
     FunctionalState retval = DISABLE;
@@ -831,7 +831,7 @@ FunctionalState I2C_GetRepeatStartDetState(TSB_I2C_TypeDef * I2Cx)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SelectACKoutput(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SelectACKoutput(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -855,7 +855,7 @@ void I2C_SelectACKoutput(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_SetRepeatStart(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_SetRepeatStart(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));
@@ -877,7 +877,7 @@ void I2C_SetRepeatStart(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
   *   TSB_I2C0,TSB_I2C1
   * @retval BUSY or DONE.
   */
-WorkState I2C_GetRepeatStartState(TSB_I2C_TypeDef * I2Cx)
+WorkState I2C_GetRepeatStartState(TSB_I2C_TypeDef *I2Cx)
 {
     uint32_t tmp = 0U;
     WorkState retval = BUSY;
@@ -904,7 +904,7 @@ WorkState I2C_GetRepeatStartState(TSB_I2C_TypeDef * I2Cx)
   *   This parameter can be ENABLE or DISABLE.
   * @retval None
   */
-void I2C_Set2ndSlaveAddress(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState)
+void I2C_Set2ndSlaveAddress(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState)
 {
     /* Check the parameters */
     assert_param(IS_I2C_PERIPH(I2Cx));

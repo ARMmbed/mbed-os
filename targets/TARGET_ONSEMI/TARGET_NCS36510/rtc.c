@@ -51,19 +51,21 @@ static volatile uint64_t last_time_read;
  * Convert sub seconds ticks to micro seconds.
  * The clock running at 32kHz, a tick is 1/32768 of a second.
  */
-static inline uint32_t ticks_to_us(uint16_t ticks) {
-	return (((uint64_t)ticks * RTC_SEC_TO_US) / RTC_CLOCK_HZ);
+static inline uint32_t ticks_to_us(uint16_t ticks)
+{
+    return (((uint64_t)ticks * RTC_SEC_TO_US) / RTC_CLOCK_HZ);
 }
 
 /**
  * Convert us into sub seconds ticks.
  * @note result might be troncated to be in the range [0 - RTC_SUB_SEC_MASK].
  */
-static inline uint16_t us_to_ticks(uint32_t us) {
-	return (((uint64_t) us * RTC_CLOCK_HZ) / RTC_SEC_TO_US) & RTC_SUB_SEC_MASK;
+static inline uint16_t us_to_ticks(uint32_t us)
+{
+    return (((uint64_t) us * RTC_CLOCK_HZ) / RTC_SEC_TO_US) & RTC_SUB_SEC_MASK;
 }
 
-#define RTC_TICK_THRESHOLD 5 
+#define RTC_TICK_THRESHOLD 5
 
 /* See rtc.h for details */
 void fRtcInit(void)
@@ -86,25 +88,25 @@ void fRtcInit(void)
 
     /* Clear interrupt status */
     RTCREG->INT_CLEAR.WORD = (
-        (1 << RTC_INT_CLR_SUB_SEC_BIT_POS) | 
-        (1 << RTC_INT_CLR_SEC_BIT_POS)
-    );
+                                 (1 << RTC_INT_CLR_SUB_SEC_BIT_POS) |
+                                 (1 << RTC_INT_CLR_SEC_BIT_POS)
+                             );
 
     /* Wait previous write to complete */
-    while(RTCREG->STATUS.BITS.BSY_CTRL_REG_WRT == True);
+    while (RTCREG->STATUS.BITS.BSY_CTRL_REG_WRT == True);
     /* Start sec & sub_sec counter */
     RTCREG->CONTROL.WORD |= (
-        (True << RTC_CONTROL_SUBSEC_CNT_START_BIT_POS) |
-        (True << RTC_CONTROL_SEC_CNT_START_BIT_POS)
-    );
+                                (True << RTC_CONTROL_SUBSEC_CNT_START_BIT_POS) |
+                                (True << RTC_CONTROL_SEC_CNT_START_BIT_POS)
+                            );
 
     /* enable interruption associated with the rtc at NVIC level */
-    NVIC_SetVector(Rtc_IRQn,(uint32_t) fRtcHandler); /* TODO define lp_ticker_isr */
+    NVIC_SetVector(Rtc_IRQn, (uint32_t) fRtcHandler); /* TODO define lp_ticker_isr */
     NVIC_ClearPendingIRQ(Rtc_IRQn);
     NVIC_EnableIRQ(Rtc_IRQn);
 
     /* Wait for RTC to finish writing register */
-    while(RTCREG->STATUS.BITS.BSY_CTRL_REG_WRT == True);
+    while (RTCREG->STATUS.BITS.BSY_CTRL_REG_WRT == True);
 }
 
 /* See rtc.h for details */
@@ -117,64 +119,64 @@ void fRtcFree(void)
     NVIC_DisableIRQ(Rtc_IRQn);
 
     /* Wait for RTC to finish writing register */
-    while(RTCREG->STATUS.BITS.BSY_CTRL_REG_WRT == True);
+    while (RTCREG->STATUS.BITS.BSY_CTRL_REG_WRT == True);
 }
 
 /* See rtc.h for details */
 void fRtcSetInterrupt(uint32_t timestamp)
 {
-	uint64_t current_time = fRtcRead();
+    uint64_t current_time = fRtcRead();
 
-	uint64_t full_timestamp = (current_time & ~UINT32_MAX) | timestamp;
-	if ( (uint32_t)current_time > timestamp) {
-		full_timestamp += ((uint64_t) UINT32_MAX) + 1;
-	}
+    uint64_t full_timestamp = (current_time & ~UINT32_MAX) | timestamp;
+    if ((uint32_t)current_time > timestamp) {
+        full_timestamp += ((uint64_t) UINT32_MAX) + 1;
+    }
 
-	uint32_t target_seconds = full_timestamp / RTC_SEC_TO_US;
-	uint16_t target_ticks = us_to_ticks(full_timestamp);
+    uint32_t target_seconds = full_timestamp / RTC_SEC_TO_US;
+    uint16_t target_ticks = us_to_ticks(full_timestamp);
 
-	/*
-	 * If the interrupt is in more than one second from now then use the
-	 * second alarm, otherwise use the subsecond alarm.
-	 * In case of the second alarm is used, there is no need to preserve the
-	 * remaining subsecond because the irq handler should manage spurious
-	 * interrupts (like when the timestamp is in the past). In such case, irq
-	 * handler will schedule a new interrupt with the remaining us.
-	 */
-	NVIC_DisableIRQ(Rtc_IRQn);
-	if (target_seconds != RTCREG->SECOND_COUNTER) {
-		RTCREG->SECOND_ALARM = target_seconds;
+    /*
+     * If the interrupt is in more than one second from now then use the
+     * second alarm, otherwise use the subsecond alarm.
+     * In case of the second alarm is used, there is no need to preserve the
+     * remaining subsecond because the irq handler should manage spurious
+     * interrupts (like when the timestamp is in the past). In such case, irq
+     * handler will schedule a new interrupt with the remaining us.
+     */
+    NVIC_DisableIRQ(Rtc_IRQn);
+    if (target_seconds != RTCREG->SECOND_COUNTER) {
+        RTCREG->SECOND_ALARM = target_seconds;
 
-		uint32_t rtc_control = RTCREG->CONTROL.WORD;
-		rtc_control |= (1 << RTC_CONTROL_SEC_CNT_INT_BIT_POS); // enable seconds interrupt
-		rtc_control &= ~(1 << RTC_CONTROL_SUBSEC_CNT_INT_BIT_POS); // disable sub sec interrupt
-		RTCREG->CONTROL.WORD = rtc_control;
-	} else {
-		uint16_t current_ticks = RTCREG->SUB_SECOND_COUNTER;
-		if (current_ticks == target_ticks ||
-			((target_ticks > current_ticks) && ((target_ticks - current_ticks) < RTC_TICK_THRESHOLD)) ||
-			((target_ticks < current_ticks) && ((RTC_SUB_SEC_MASK - (current_ticks - target_ticks)) < RTC_TICK_THRESHOLD))) {
-			// target ticks too close; schedule the interrupt immediately
-			NVIC_SetPendingIRQ(Rtc_IRQn);
-		} else {
-			RTCREG->SUB_SECOND_ALARM = target_ticks;
+        uint32_t rtc_control = RTCREG->CONTROL.WORD;
+        rtc_control |= (1 << RTC_CONTROL_SEC_CNT_INT_BIT_POS); // enable seconds interrupt
+        rtc_control &= ~(1 << RTC_CONTROL_SUBSEC_CNT_INT_BIT_POS); // disable sub sec interrupt
+        RTCREG->CONTROL.WORD = rtc_control;
+    } else {
+        uint16_t current_ticks = RTCREG->SUB_SECOND_COUNTER;
+        if (current_ticks == target_ticks ||
+                ((target_ticks > current_ticks) && ((target_ticks - current_ticks) < RTC_TICK_THRESHOLD)) ||
+                ((target_ticks < current_ticks) && ((RTC_SUB_SEC_MASK - (current_ticks - target_ticks)) < RTC_TICK_THRESHOLD))) {
+            // target ticks too close; schedule the interrupt immediately
+            NVIC_SetPendingIRQ(Rtc_IRQn);
+        } else {
+            RTCREG->SUB_SECOND_ALARM = target_ticks;
 
-			uint32_t rtc_control = RTCREG->CONTROL.WORD;
-			rtc_control &= ~(1 << RTC_CONTROL_SEC_CNT_INT_BIT_POS); // disable seconds interrupt
-			rtc_control |= (1 << RTC_CONTROL_SUBSEC_CNT_INT_BIT_POS); // enable sub sec interrupt
-			RTCREG->CONTROL.WORD = rtc_control;
-		}
-	}
-	 NVIC_EnableIRQ(Rtc_IRQn);
+            uint32_t rtc_control = RTCREG->CONTROL.WORD;
+            rtc_control &= ~(1 << RTC_CONTROL_SEC_CNT_INT_BIT_POS); // disable seconds interrupt
+            rtc_control |= (1 << RTC_CONTROL_SUBSEC_CNT_INT_BIT_POS); // enable sub sec interrupt
+            RTCREG->CONTROL.WORD = rtc_control;
+        }
+    }
+    NVIC_EnableIRQ(Rtc_IRQn);
 
-     /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
-     while(RTCREG->STATUS.WORD &
-        (
-        	(True << RTC_STATUS_SUB_SEC_ALARM_WRT_BIT_POS) |
-			(True << RTC_STATUS_SEC_ALARM_WRT_BIT_POS) |
-			(True << RTC_STATUS_CONTROL_WRT_BIT_POS)
-		)
-	);
+    /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
+    while (RTCREG->STATUS.WORD &
+            (
+                (True << RTC_STATUS_SUB_SEC_ALARM_WRT_BIT_POS) |
+                (True << RTC_STATUS_SEC_ALARM_WRT_BIT_POS) |
+                (True << RTC_STATUS_CONTROL_WRT_BIT_POS)
+            )
+          );
 }
 
 /* See rtc.h for details */
@@ -196,9 +198,9 @@ void fRtcClearInterrupt(void)
     /* Clear sec & sub_sec interrupts */
     RTCREG->INT_CLEAR.WORD = ((True << RTC_INT_CLR_SUB_SEC_BIT_POS) |
                               (True << RTC_INT_CLR_SEC_BIT_POS));
-    
-    while((RTCREG->STATUS.WORD & ((True << RTC_STATUS_SUB_SEC_INT_CLR_WRT_BIT_POS) |
-                                  (True << RTC_STATUS_SEC_INT_CLR_WRT_BIT_POS))));  /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
+
+    while ((RTCREG->STATUS.WORD & ((True << RTC_STATUS_SUB_SEC_INT_CLR_WRT_BIT_POS) |
+                                   (True << RTC_STATUS_SEC_INT_CLR_WRT_BIT_POS))));  /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
 }
 
 /* See rtc.h for details */
@@ -210,7 +212,7 @@ uint64_t fRtcRead(void)
      * If you read a zero in the sub-second counter then increment the second counter by 1.
      * Alternatively, subtract 1 from the Sub-seconds counter to align the Second and Sub-Second rollover.
      */
-	uint32_t seconds = RTCREG->SECOND_COUNTER;
+    uint32_t seconds = RTCREG->SECOND_COUNTER;
     uint16_t ticks = (RTCREG->SUB_SECOND_COUNTER - 1) & SUB_SEC_MASK;
 
     /*
@@ -224,7 +226,7 @@ uint64_t fRtcRead(void)
     uint64_t current_time = ((uint64_t) seconds *  RTC_SEC_TO_US) + ticks_to_us(ticks);
 
     /*check that the time did not go backwards */
-	MBED_ASSERT(current_time >= last_time_read);
+    MBED_ASSERT(current_time >= last_time_read);
     last_time_read = current_time;
 
     return current_time;
@@ -239,25 +241,25 @@ void fRtcWrite(uint64_t RtcTimeus)
     RTCREG->CONTROL.WORD &= ~((True << RTC_CONTROL_SUBSEC_CNT_START_BIT_POS) |
                               (True << RTC_CONTROL_SEC_CNT_START_BIT_POS));
 
-    if(RtcTimeus > RTC_SEC_TO_US) {
+    if (RtcTimeus > RTC_SEC_TO_US) {
         /* TimeStamp is big enough to set second counter */
-        Second =  ((RtcTimeus / RTC_SEC_TO_US) & RTC_SEC_MASK);
+        Second = ((RtcTimeus / RTC_SEC_TO_US) & RTC_SEC_MASK);
     }
     RTCREG->SECOND_COUNTER = Second;
     RtcTimeus = RtcTimeus - (Second * RTC_SEC_TO_US);
-    if(RtcTimeus > False) {
+    if (RtcTimeus > False) {
         /* Convert TimeStamp to sub_seconds */
-        SubSecond =  (uint16_t)((float)(RtcTimeus * RTC_CLOCK_HZ / RTC_SEC_TO_US)) & RTC_SUB_SEC_MASK;
+        SubSecond = (uint16_t)((float)(RtcTimeus * RTC_CLOCK_HZ / RTC_SEC_TO_US)) & RTC_SUB_SEC_MASK;
     }
     /* Set SUB_SEC_ALARM */
     RTCREG->SUB_SECOND_COUNTER = SubSecond;
 
-    while(RTCREG->STATUS.BITS.BSY_CTRL_REG_WRT == True); /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
+    while (RTCREG->STATUS.BITS.BSY_CTRL_REG_WRT == True); /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
     /* Start RTC */
     RTCREG->CONTROL.WORD |= ((True << RTC_CONTROL_SUBSEC_CNT_START_BIT_POS) |
                              (True << RTC_CONTROL_SEC_CNT_START_BIT_POS));
 
-    while(RTCREG->STATUS.BITS.BSY_ANY_WRT == True); /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
+    while (RTCREG->STATUS.BITS.BSY_ANY_WRT == True); /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
 }
 
 /* See rtc.h for details */
@@ -268,33 +270,33 @@ void fRtcHandler(void)
 
     /* Clear sec & sub_sec interrupts */
     RTCREG->INT_CLEAR.WORD = (
-    	(True << RTC_INT_CLR_SUB_SEC_BIT_POS) |
-        (True << RTC_INT_CLR_SEC_BIT_POS)
-	);
+                                 (True << RTC_INT_CLR_SUB_SEC_BIT_POS) |
+                                 (True << RTC_INT_CLR_SEC_BIT_POS)
+                             );
 
     /* Disable sub seconds and seconds interrupts */
     RTCREG->CONTROL.WORD &= ~(
-    	(True << RTC_CONTROL_SUBSEC_CNT_INT_BIT_POS) |
-        (True << RTC_CONTROL_SEC_CNT_INT_BIT_POS)
-	);
+                                (True << RTC_CONTROL_SUBSEC_CNT_INT_BIT_POS) |
+                                (True << RTC_CONTROL_SEC_CNT_INT_BIT_POS)
+                            );
 
-	NVIC_EnableIRQ(Rtc_IRQn);
-	
+    NVIC_EnableIRQ(Rtc_IRQn);
+
     /* Wait for RTC to finish writing registers */
-    while(RTCREG->STATUS.WORD &
-    	(
-    		(True << RTC_STATUS_CONTROL_WRT_BIT_POS) |
-			(True << RTC_STATUS_SUB_SEC_INT_CLR_WRT_BIT_POS) |
-            (True << RTC_STATUS_SEC_INT_CLR_WRT_BIT_POS)
-		)
-	);
-	
-	lp_ticker_irq_handler();
+    while (RTCREG->STATUS.WORD &
+            (
+                (True << RTC_STATUS_CONTROL_WRT_BIT_POS) |
+                (True << RTC_STATUS_SUB_SEC_INT_CLR_WRT_BIT_POS) |
+                (True << RTC_STATUS_SEC_INT_CLR_WRT_BIT_POS)
+            )
+          );
+
+    lp_ticker_irq_handler();
 }
 
 boolean fIsRtcEnabled(void)
 {
-    if(RTCREG->CONTROL.BITS.SUB_SEC_COUNTER_EN | RTCREG->CONTROL.BITS.SEC_COUNTER_EN) {
+    if (RTCREG->CONTROL.BITS.SUB_SEC_COUNTER_EN | RTCREG->CONTROL.BITS.SEC_COUNTER_EN) {
         return True;
     } else {
         return False;

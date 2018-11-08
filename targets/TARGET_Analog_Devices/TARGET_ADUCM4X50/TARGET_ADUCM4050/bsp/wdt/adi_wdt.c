@@ -94,7 +94,7 @@ static ADI_CALLBACK gAppCallback;
 /*! \endcond */
 
 /*********************************************************************************
-                                    API IMPLEMENTATIONS 
+                                    API IMPLEMENTATIONS
 *********************************************************************************/
 
 
@@ -112,7 +112,8 @@ static ADI_CALLBACK gAppCallback;
  *                - #ADI_WDT_FAILURE_LOCKED           WDT has already been initialized
  *                - #ADI_WDT_SUCCESS                  Function call completed successfully
  */
-ADI_WDT_RESULT adi_wdt_Enable(bool const bEnable, ADI_CALLBACK const pfCallback) {
+ADI_WDT_RESULT adi_wdt_Enable(bool const bEnable, ADI_CALLBACK const pfCallback)
+{
     /* IF(Device is enabled, application can't modify it) */
     if ((pADI_WDT0->STAT & ((uint16_t) BITM_WDT_STAT_LOCKED)) != ((uint16_t) 0x0u)) {
         return ADI_WDT_FAILURE_LOCKED;
@@ -123,15 +124,15 @@ ADI_WDT_RESULT adi_wdt_Enable(bool const bEnable, ADI_CALLBACK const pfCallback)
     gAppCallback = pfCallback;
     /* IF(We are enabling the WDT) */
     if (bEnable == true) {
-        NVIC_EnableIRQ (WDT_EXP_IRQn);
-    /* ELSE (We are disabling the WDT, this might not be necessary, depends on startup config) */
+        NVIC_EnableIRQ(WDT_EXP_IRQn);
+        /* ELSE (We are disabling the WDT, this might not be necessary, depends on startup config) */
     } else {
         NVIC_DisableIRQ(WDT_EXP_IRQn);
     } /* ENDIF */
 #endif
 
     /* WHILE(Bus sync is underway) */
-    while((pADI_WDT0->STAT & ADI_WDT_SYNC_BITS) != 0u) {
+    while ((pADI_WDT0->STAT & ADI_WDT_SYNC_BITS) != 0u) {
         ;
     } /* ENDWHILE */
 
@@ -144,17 +145,17 @@ ADI_WDT_RESULT adi_wdt_Enable(bool const bEnable, ADI_CALLBACK const pfCallback)
     /* IF(Turning the WDT on) */
     if (bEnable == true) {
         pADI_WDT0->CTL  = (ADI_WDT_CONTROL_TIMER_MODE      << BITP_WDT_CTL_MODE) |
-                          (0x1u                            << BITP_WDT_CTL_EN  ) |
-                          (ADI_WDT_CONTROL_CLOCK_PRESCALER << BITP_WDT_CTL_PRE ) |
-                          (ADI_WDT_CONTROL_TIMEOUT_MODE    << BITP_WDT_CTL_IRQ ) |
-                          (ADI_WDT_CONTROL_POWER_MODE      <<               0u );
-    /* ELSE(Turning the WDT off) */
+                          (0x1u                            << BITP_WDT_CTL_EN) |
+                          (ADI_WDT_CONTROL_CLOCK_PRESCALER << BITP_WDT_CTL_PRE) |
+                          (ADI_WDT_CONTROL_TIMEOUT_MODE    << BITP_WDT_CTL_IRQ) |
+                          (ADI_WDT_CONTROL_POWER_MODE      <<               0u);
+        /* ELSE(Turning the WDT off) */
     } else {
         pADI_WDT0->CTL  = (ADI_WDT_CONTROL_TIMER_MODE      << BITP_WDT_CTL_MODE) |
-                          (0x0u                            << BITP_WDT_CTL_EN  ) |
-                          (ADI_WDT_CONTROL_CLOCK_PRESCALER << BITP_WDT_CTL_PRE ) |
-                          (ADI_WDT_CONTROL_TIMEOUT_MODE    << BITP_WDT_CTL_IRQ ) |
-                          (ADI_WDT_CONTROL_POWER_MODE      <<               0u );
+                          (0x0u                            << BITP_WDT_CTL_EN) |
+                          (ADI_WDT_CONTROL_CLOCK_PRESCALER << BITP_WDT_CTL_PRE) |
+                          (ADI_WDT_CONTROL_TIMEOUT_MODE    << BITP_WDT_CTL_IRQ) |
+                          (ADI_WDT_CONTROL_POWER_MODE      <<               0u);
     } /* ENDIF */
 
     ADI_EXIT_CRITICAL_REGION();
@@ -169,13 +170,14 @@ ADI_WDT_RESULT adi_wdt_Enable(bool const bEnable, ADI_CALLBACK const pfCallback)
  *
  * @return     None
  */
-void adi_wdt_Kick(void) {
+void adi_wdt_Kick(void)
+{
     /* WHILE(Bus sync is underway) */
-    while((pADI_WDT0->STAT & ADI_WDT_SYNC_BITS) != 0u) {
+    while ((pADI_WDT0->STAT & ADI_WDT_SYNC_BITS) != 0u) {
         ;
     } /* ENDWHILE */
 
-   /* Kick the dog! */
+    /* Kick the dog! */
     pADI_WDT0->RESTART = ADI_WDT_CLR_VALUE;
 }
 
@@ -188,7 +190,8 @@ void adi_wdt_Kick(void) {
  *
  * @return      None
  */
-void adi_wdt_GetCount(uint16_t * const pCurCount) {
+void adi_wdt_GetCount(uint16_t *const pCurCount)
+{
     /* Read the count */
     *pCurCount = pADI_WDT0->CCNT;
 }
@@ -206,13 +209,14 @@ void adi_wdt_GetCount(uint16_t * const pCurCount) {
  *            kicking the dog performs this action.
  */
 #if (ADI_WDT_CONTROL_TIMEOUT_MODE == 1u)
-extern void WDog_Tmr_Int_Handler(void); 
-void WDog_Tmr_Int_Handler(void) {
+extern void WDog_Tmr_Int_Handler(void);
+void WDog_Tmr_Int_Handler(void)
+{
     ISR_PROLOG()
     /* Kick the dog  */
     adi_wdt_Kick();
     /* IF(Application supplied a callback) */
-    if(gAppCallback != NULL) {
+    if (gAppCallback != NULL) {
         /* Call the callback */
         gAppCallback(NULL, 0x0u, NULL);
     } /* ENDIF */

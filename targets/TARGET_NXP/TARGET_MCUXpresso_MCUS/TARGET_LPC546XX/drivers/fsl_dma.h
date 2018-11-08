@@ -123,7 +123,7 @@ typedef enum _dma_trigger_burst {
     kDMA_EdgeBurstTransfer256 = DMA_CHANNEL_CFG_TRIGBURST(1) | DMA_CHANNEL_CFG_BURSTPOWER(8),   /*!< Perform 256 transfers by edge trigger */
     kDMA_EdgeBurstTransfer512 = DMA_CHANNEL_CFG_TRIGBURST(1) | DMA_CHANNEL_CFG_BURSTPOWER(9),   /*!< Perform 512 transfers by edge trigger */
     kDMA_EdgeBurstTransfer1024 = DMA_CHANNEL_CFG_TRIGBURST(1) | DMA_CHANNEL_CFG_BURSTPOWER(10), /*!< Perform 1024 transfers by edge trigger */
-} dma_trigger_burst_t;  
+} dma_trigger_burst_t;
 
 /*! @brief DMA burst wrapping */
 typedef enum _dma_burst_wrap {
@@ -134,8 +134,7 @@ typedef enum _dma_burst_wrap {
 } dma_burst_wrap_t;
 
 /*! @brief DMA transfer type */
-typedef enum _dma_transfer_type
-{
+typedef enum _dma_transfer_type {
     kDMA_MemoryToMemory = 0x0U, /*!< Transfer from memory to memory (increment source and destination) */
     kDMA_PeripheralToMemory,    /*!< Transfer from peripheral to memory (increment only destination) */
     kDMA_MemoryToPeripheral,    /*!< Transfer from memory to peripheral (increment only source)*/
@@ -150,15 +149,13 @@ typedef struct _dma_channel_trigger {
 } dma_channel_trigger_t;
 
 /*! @brief DMA transfer status */
-enum _dma_transfer_status
-{
+enum _dma_transfer_status {
     kStatus_DMA_Busy = MAKE_STATUS(kStatusGroup_DMA, 0),      /*!< Channel is busy and can't handle the
                                                                      transfer request. */
 };
 
 /*! @brief DMA transfer configuration */
-typedef struct _dma_transfer_config
-{
+typedef struct _dma_transfer_config {
     uint8_t             *srcAddr;       /*!< Source data address */
     uint8_t             *dstAddr;       /*!< Destination data address */
     uint8_t             *nextDesc;      /*!< Chain custom descriptor */
@@ -173,9 +170,8 @@ struct _dma_handle;
 typedef void (*dma_callback)(struct _dma_handle *handle, void *userData, bool transferDone, uint32_t intmode);
 
 /*! @brief DMA transfer handle structure */
-typedef struct _dma_handle
-{
-    dma_callback callback;  /*!< Callback function. Invoked when transfer 
+typedef struct _dma_handle {
+    dma_callback callback;  /*!< Callback function. Invoked when transfer
                                 of descriptor with interrupt flag finishes */
     void *userData;         /*!< Callback function parameter */
     DMA_Type *base;         /*!< DMA peripheral base address */
@@ -219,13 +215,13 @@ void DMA_Deinit(DMA_Type *base);
  * @{
  */
 
- /*!
- * @brief Return whether DMA channel is processing transfer
- *
- * @param base DMA peripheral base address.
- * @param channel DMA channel number.
- * @return True for active state, false otherwise.
- */
+/*!
+* @brief Return whether DMA channel is processing transfer
+*
+* @param base DMA peripheral base address.
+* @param channel DMA channel number.
+* @return True for active state, false otherwise.
+*/
 static inline bool DMA_ChannelIsActive(DMA_Type *base, uint32_t channel)
 {
     assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS);
@@ -350,7 +346,7 @@ static inline dma_priority_t DMA_GetChannelPriority(DMA_Type *base, uint32_t cha
 }
 
 /*!
- * @brief Create application specific DMA descriptor 
+ * @brief Create application specific DMA descriptor
  *        to be used in a chain in transfer
  *
  * @param desc DMA descriptor address.
@@ -379,7 +375,7 @@ void DMA_CreateDescriptor(
  *
  * This function aborts DMA transfer specified by handle.
  *
- * @param handle DMA handle pointer. 
+ * @param handle DMA handle pointer.
  */
 void DMA_AbortTransfer(dma_handle_t *handle);
 
@@ -425,12 +421,12 @@ void DMA_SetCallback(dma_handle_t *handle, dma_callback callback, void *userData
  *       source address error(SAE).
  */
 void DMA_PrepareTransfer(dma_transfer_config_t *config,
-                          void *srcAddr,
-                          void *dstAddr,
-                          uint32_t byteWidth,
-                          uint32_t transferBytes,
-                          dma_transfer_type_t type,
-                          void *nextDesc);
+                         void *srcAddr,
+                         void *dstAddr,
+                         uint32_t byteWidth,
+                         uint32_t transferBytes,
+                         dma_transfer_type_t type,
+                         void *nextDesc);
 
 /*!
  * @brief Submits the DMA transfer request.

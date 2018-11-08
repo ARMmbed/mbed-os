@@ -46,28 +46,28 @@ protected:
     *
     * @returns pointer to the device descriptor
     */
-    virtual uint8_t * deviceDesc();
+    virtual uint8_t *deviceDesc();
 
     /*
     * Get string product descriptor
     *
     * @returns pointer to the string product descriptor
     */
-    virtual uint8_t * stringIproductDesc();
+    virtual uint8_t *stringIproductDesc();
 
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
-    virtual uint8_t * stringIinterfaceDesc();
+    virtual uint8_t *stringIinterfaceDesc();
 
     /*
     * Get configuration descriptor
     *
     * @returns pointer to the configuration descriptor
     */
-    virtual uint8_t * configurationDesc();
+    virtual uint8_t *configurationDesc();
 
     /*
     * Send a buffer
@@ -77,7 +77,7 @@ protected:
     * @param size length of the buffer
     * @returns true if successful
     */
-    bool send(uint8_t * buffer, uint32_t size);
+    bool send(uint8_t *buffer, uint32_t size);
 
     /*
     * Read a buffer from a certain endpoint. Warning: blocking
@@ -88,7 +88,7 @@ protected:
     * @param maxSize the maximum length that can be read
     * @returns true if successful
     */
-    bool readEP(uint8_t * buffer, uint32_t * size);
+    bool readEP(uint8_t *buffer, uint32_t *size);
 
     /*
     * Read a buffer from a certain endpoint. Warning: non blocking
@@ -99,7 +99,7 @@ protected:
     * @param maxSize the maximum length that can be read
     * @returns true if successful
     */
-    bool readEP_NB(uint8_t * buffer, uint32_t * size);
+    bool readEP_NB(uint8_t *buffer, uint32_t *size);
 
     /*
     * Called by USBCallback_requestCompleted when CDC line coding is changed

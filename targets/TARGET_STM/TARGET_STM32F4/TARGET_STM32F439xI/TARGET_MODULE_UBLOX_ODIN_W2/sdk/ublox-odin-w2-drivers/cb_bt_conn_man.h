@@ -23,7 +23,7 @@
 
 /**
 * @file cb_bt_conn_man.h
-* @brief Connection management. Functionality for setting up and tearing 
+* @brief Connection management. Functionality for setting up and tearing
 * down Bluetooth connections. Profile services are also enabled
 * using this module.
  */
@@ -68,8 +68,7 @@ extern "C" {
  *=========================================================================*/
 typedef cb_uint32 cbBCM_Handle;
 
-typedef enum 
-{
+typedef enum {
     cbBCM_INVALID_CONNECTION = 0,
     cbBCM_SPP_CONNECTION,           // Serial Port Profile
     cbBCM_DUN_CONNECTION,           // Dial Up Networking Profile
@@ -78,10 +77,9 @@ typedef enum
 
     cbBCM_ACL_LE_CONNECTION,        // GATT
     cbBCM_SPS_CONNECTION            // LE connectBlue Serial Service connection
-}cbBCM_ConnectionType;
+} cbBCM_ConnectionType;
 
-typedef enum
-{
+typedef enum {
     cbBM_LINK_QUALITY_READY_OK,
     cbBM_LINK_QUALITY_READY_ERROR
 } cbBCM_LinkQualityEvt;
@@ -89,8 +87,7 @@ typedef enum
 /**
  * Bluetooth Classic Acl connection parameters
  */
-typedef struct 
-{
+typedef struct {
     cb_uint16           pageTimeout;            /** Length of connection attempt. Default value 5000ms. */
     cb_uint16           packetType;             /** Packet types allowed in the connection. By default all packets but 3MBit EDR are allowed. */
     TMasterSlavePolicy  masterSlavePolicy;      /** Whether master slave switch shall be allowed or not. By default master slave switch is allowed. */
@@ -101,8 +98,7 @@ typedef struct
 /**
  * Bluetooth Low Energy Acl connection parameters
  */
-typedef struct 
-{
+typedef struct {
     cb_uint32 createConnectionTimeout;      /** Length of connection attempt in ms. Default value 5000ms. */
     cb_uint16 connectionIntervalMin;        /** Minimum connection interval in ms. Default value 6ms. */
     cb_uint16 connectionIntervalMax;        /** Maximum connection interval in ms. Default value 8ms. */
@@ -110,15 +106,13 @@ typedef struct
     cb_uint16 linkLossTimeout;              /** Link loss timeout in ms. Default 2000ms. */
 } cbBCM_ConnectionParametersLe;
 
-typedef enum
-{
+typedef enum {
     cbBCM_PAN_ROLE_PANU = 0,
     cbBCM_PAN_ROLE_NAP,
     cbBCM_PAN_ROLE_NONE
-}cbBCM_PAN_Role;
+} cbBCM_PAN_Role;
 
-typedef struct
-{
+typedef struct {
     TBdAddr                 address;
     cbBCM_ConnectionType    type;
     TConnHandle             aclHandle;
@@ -129,8 +123,7 @@ typedef struct
     cb_char                 serviceName[cbBCM_SERVICE_NAME_MAX_LEN];
 } cbBCM_ConnectionInfo;
 
-typedef struct
-{
+typedef struct {
     cb_uint8  flags;            /** Reserved for future use. */
     cb_uint8  flowDirection;    /** 0x00 for Outgoing Flow and 0x01 for Incoming Flow */
     cb_uint8  serviceType;      /** 0x00 No Traffic; 0x01 Best Effort; 0x02 Guaranteed */
@@ -156,8 +149,7 @@ typedef void (*cbBCM_ConnectCnf)(
 typedef void (*cbBCM_DisconnectEvt)(
     cbBCM_Handle handle);
 
-typedef struct
-{
+typedef struct {
     cbBCM_ConnectInd         pfConnectInd;
     cbBCM_ConnectEvt         pfConnectEvt;
     cbBCM_ConnectCnf         pfConnectCnf;
@@ -185,27 +177,26 @@ typedef void (*cbBCM_WriteCnf)(
 
 /**
  * Set max number of Bluetooth links.
- * Not used by application 
+ * Not used by application
  * @return status TRUE if command was successful
  */
-typedef cb_int32 (*cbBCM_SetMaxLinksCmd)(cb_uint32 maxLinks);
+typedef cb_int32(*cbBCM_SetMaxLinksCmd)(cb_uint32 maxLinks);
 
 /**
- * Check if Handle is free to use 
+ * Check if Handle is free to use
  * @return TRUE if handle is free, FALSE otherwise
  */
-typedef cb_boolean (*cbBCM_IsHandleFree)(cbBCM_Handle handle);
+typedef cb_boolean(*cbBCM_IsHandleFree)(cbBCM_Handle handle);
 /**
- * Callback to indicate that remaining buffer size needs to be obtained from 
- * upper layer. The callback returns remaining buffer size and there is 
+ * Callback to indicate that remaining buffer size needs to be obtained from
+ * upper layer. The callback returns remaining buffer size and there is
  * therefore no response function.
- * Not used by application 
+ * Not used by application
  * @return Number of free bytes in channel data buffer
  */
-typedef cb_uint16 (*cbBCM_RemainBufSizeInd)(void);
+typedef cb_uint16(*cbBCM_RemainBufSizeInd)(void);
 
-typedef struct
-{
+typedef struct {
     cbBCM_ConnectEvt         pfConnectEvt;
     cbBCM_DisconnectEvt      pfDisconnectEvt;
     cbBCM_DataEvt            pfDataEvt;
@@ -250,17 +241,17 @@ typedef void(*cbBCM_SetFlowSpecCallback)(
 /**
  * Initialization of connection manager. Called during stack
  * initialization. Shall not be called by application.
- * 
+ *
  * @return None
  */
 extern void cbBCM_init(void);
 
 /**
- * Enable a Bluetooth Serial Port Profile (SPP)service record to 
+ * Enable a Bluetooth Serial Port Profile (SPP)service record to
  * allow other devices to connect to this device using SPP.
- * 
+ *
  * @param   pServiceName The name of the service
- * @param   pServerChannel Pointer to return variable. The server channel is used to identify 
+ * @param   pServerChannel Pointer to return variable. The server channel is used to identify
  *          incoming connections.
  * @param   pConnectionCallback Callback structure for connection management.
  * @param   pServiceClassEnabled Callback structure to inform when service is running.
@@ -273,11 +264,11 @@ extern cb_int32 cbBCM_enableServerProfileSpp(
     cbBCM_ServiceClassEnabled pServiceClassEnabled);
 
 /**
- * Enable a Dial Up Networking Profile (DUN)service record to 
+ * Enable a Dial Up Networking Profile (DUN)service record to
  * allow other devices to connect to this device using DUN.
- * 
+ *
  * @param   pServiceName The name of the service
- * @param   pServerChannel Pointer to return variable. The server channel is used to identify 
+ * @param   pServerChannel Pointer to return variable. The server channel is used to identify
  *          incoming connections.
  * @param   pConnectionCallback Callback structure for connection management.
  * @param   pServiceClassEnabled Callback structure to inform when service is running.
@@ -292,10 +283,10 @@ extern cb_int32 cbBCM_enableServerProfileDun(
 /**
  * Enable a service record with an application specific UUID.
  * This is used to enable Android and iOS support.
- * 
+ *
  * @param   pUuid128 The UUID of the service.
  * @param   pServiceName The name of the service
- * @param   pServerChannel Pointer to return variable. The server channel is used to identify 
+ * @param   pServerChannel Pointer to return variable. The server channel is used to identify
  *          incoming connections.
  * @param   pConnectionCallback Callback structure for connection management.
  * @param   pServiceClassEnabled Callback structure to inform when service is running.
@@ -305,7 +296,7 @@ extern cb_int32 cbBCM_enableServerProfileUuid128(
     cb_uint8 *pUuid128,
     cb_char *pServiceName,
     cb_uint8 *pServerChannel,
-    cbBCM_ConnectionCallback *pConnectionCallback, 
+    cbBCM_ConnectionCallback *pConnectionCallback,
     cbBCM_ServiceClassEnabled pServiceClassEnabled);
 
 
@@ -329,11 +320,11 @@ extern cb_int32 cbBCM_enableServerProfilePan(
     cbBCM_ServiceClassEnabled pServiceClassEnabled);
 
 /**
- * Enable device id service record.The device id service record is  a method by which 
- * Bluetooth devices may provide information that may be used by peer Bluetooth devices 
- * to find representative icons or load associated support software. 
- * This information is published as Bluetooth SDP records, and optionally in the 
- * Extended Inquiry Response. 
+ * Enable device id service record.The device id service record is  a method by which
+ * Bluetooth devices may provide information that may be used by peer Bluetooth devices
+ * to find representative icons or load associated support software.
+ * This information is published as Bluetooth SDP records, and optionally in the
+ * Extended Inquiry Response.
  * @param   vendorId        Uniquely identifier for the vendor of the device. Used in conjunction with required attribute 0x0205, VendorIDSource, which determines which organization assigned the VendorID value. Note: The Bluetooth Special Interest Group assigns Device ID Vendor ID and the USB Implementer's Forum assigns vendor IDs, either of which can be used for the VendorID value here. Device providers should procure the vendor ID from the USB Implementer's Forum or the Company Identifier from the Bluetooth SIG. The VendorID '0xFFFF' is reserved as the default VendorID when no Device ID Service Record is present in the device.
  * @param   productId       This is intended to distinguish between different products made by the vendor above. These IDs are managed by the vendors themselves.
  * @param   version         A numeric expression identifying the device release number in Binary-Coded Decimal. This is a vendor-assigned field, which defines the version of the product identified by the VendorID and ProductID attributes. This attribute is intended to differentiate between versions of products with identical VendorIDs and ProductIDs. The value of the field is 0xJJMN for version JJ.M.N (JJ - major version number, M - minor version number, N - sub-minor version number); e.g., version 2.1.3 is represented with value 0x0213 and version 2.0.0 is represented with a value of 0x0200. When upward-compatible changes are made to the device, it is recommended that the minor version number be incremented. If incompatible changes are made to the device, it is recommended that the major version number be incremented.
@@ -372,7 +363,7 @@ extern cb_uint16 cbBCM_getPacketType(void);
 
 /**
  * Set max number of Bluetooth classic links. Reconfigures buffer management.
- * 
+ *
  * @param   maxLinks Max number of Bluetooth classic connections.
  * @return  If the operation is successful cbBCM_OK is returned.
  */
@@ -380,14 +371,14 @@ extern cb_int32 cbBCM_setMaxLinksClassic(cb_uint16 maxLinks);
 
 /**
  * Get max number of Bluetooth classic links.
- * 
+ *
  * @return  The maximum number of Bluetooth classic links.
  */
 extern cb_uint16 cbBCM_getMaxLinksClassic(void);
 
 /**
  * Set max number of Bluetooth Low Energy links. Reconfigures buffer management.
- * 
+ *
  * @param   maxLinks Max number of Bluetooth Low Energy connections.
  * @return  If the operation is successful cbBCM_OK is returned.
  */
@@ -395,17 +386,17 @@ extern cb_int32 cbBCM_setMaxLinksLE(cb_uint16 maxLinks);
 
 /**
  * Get max number of Bluetooth Low Energy links.
- * 
+ *
  * @return  The maximum number of Bluetooth Low Energy links.
  */
 extern cb_uint16 cbBCM_getMaxLinksLE(void);
 
 /**
  * Initiate a Bluetooth Serial Port Profile connection.
- * The connection sequence includes ACL connection setup, SDP service 
- * search and RFCOMM connection setup. The server channel of the first 
+ * The connection sequence includes ACL connection setup, SDP service
+ * search and RFCOMM connection setup. The server channel of the first
  * valid SPP service record will be used. A pfConnectCnf callback will
- * be received when the connection is complete.The error code in the 
+ * be received when the connection is complete.The error code in the
  * callback is cbBCM_OK if the connection was successfully established.
  * The error code in the callback is cbBCM_ERROR if the connection failed.
  * @param   pAddress          Pointer to address of remote device.
@@ -414,13 +405,13 @@ extern cb_uint16 cbBCM_getMaxLinksLE(void);
  *                            If set to NULL then the last of the SPP services
  *                            on the remote device will be used. If serverChannel
  *                            parameter is different than cbBCM_INVALID_SERVER_CHANNEL
- *                            this parameter is ignored and the specified server channel 
+ *                            this parameter is ignored and the specified server channel
  *                            will be used.
  * @param   serverChannel     RFCOMM server channel that shall be used. Set to
  *                            cbBCM_INVALID_SERVER_CHANNEL to perform automatic
  *                            service search to find the server channel.
  * @param   pAclParameters    Link configuration including link supervision timeout
- *                            and master slave policy. Pass NULL to use default connection 
+ *                            and master slave policy. Pass NULL to use default connection
  *                            parameters.
  * @param   pConnectionCallback Callback structure for connection management.
  * @return  If the operation is successful the connection handle is returned. If
@@ -434,11 +425,11 @@ extern cbBCM_Handle cbBCM_reqConnectSpp(
     cbBCM_ConnectionCallback *pConnectionCallback);
 
 /**
- * Accept or reject an incoming SPP connection. This is a 
+ * Accept or reject an incoming SPP connection. This is a
  * response to a cbBCM_ConnectInd connection indication.
  *
  * @param handle    Connection handle
- * @param accept    TRUE to accept the incoming connection. 
+ * @param accept    TRUE to accept the incoming connection.
                     FALSE to reject.
  * @return If the operation is successful cbBCM_OK is returned.
  */
@@ -448,10 +439,10 @@ extern cb_int32 cbBCM_rspConnectSppCnf(
 
 /**
  * Initiate a Bluetooth Dial Up Networking Profile connection.
- * The connection sequence includes ACL connection setup, SDP service 
- * search and RFCOMM connection setup. The server channel of the first 
+ * The connection sequence includes ACL connection setup, SDP service
+ * search and RFCOMM connection setup. The server channel of the first
  * valid SPP service record will be used. A pfConnectCnf callback will
- * be received when the connection is complete.The error code in the 
+ * be received when the connection is complete.The error code in the
  * callback is cbBCM_OK if the connection was successfully established.
  * The error code in the callback is cbBCM_ERROR if the connection failed.
  * @param   pAddress          Pointer to address of remote device.
@@ -460,13 +451,13 @@ extern cb_int32 cbBCM_rspConnectSppCnf(
  *                            If set to NULL then the last of the DUN services
  *                            on the remote device will be used. If serverChannel
  *                            parameter is different than cbBCM_INVALID_SERVER_CHANNEL
- *                            this parameter is ignored and the specified server channel 
+ *                            this parameter is ignored and the specified server channel
  *                            will be used.
  * @param   serverChannel     RFCOMM server channel that shall be used. Set to
  *                            cbBCM_INVALID_SERVER_CHANNEL to perform automatic
  *                            service search to find the server channel.
  * @param   pAclParameters    Link configuration including link supervision timeout
- *                            and master slave policy. Pass NULL to use default connection 
+ *                            and master slave policy. Pass NULL to use default connection
  *                            parameters.
  * @param   pConnectionCallback Callback structure for connection management.
  * @return  If the operation is successful the connection handle is returned. If
@@ -480,11 +471,11 @@ extern cbBCM_Handle cbBCM_reqConnectDun(
     cbBCM_ConnectionCallback *pConnectionCallback);
 
 /**
- * Accept or reject an incoming DUN connection. This is a 
+ * Accept or reject an incoming DUN connection. This is a
  * response to a cbBCM_ConnectInd connection indication.
  *
  * @param   handle  Connection handle
- * @param accept    TRUE to accept the incoming connection. 
+ * @param accept    TRUE to accept the incoming connection.
                     FALSE to reject.
  * @return If the operation is successful cbBCM_OK is returned.
  */
@@ -578,8 +569,8 @@ extern cb_int32 cbBCM_rspConnectPan(
     cb_boolean accept);
 
 /**
- * Enable Serial Port Service. 
- * When the device is acting Bluetooth Low Energy peripheral the Serial 
+ * Enable Serial Port Service.
+ * When the device is acting Bluetooth Low Energy peripheral the Serial
  * Port Service will be added to the attribute table.
  *
  * @param   pConnectionCallback Callback structure for connection management.
@@ -591,16 +582,16 @@ extern cb_int32 cbBCM_enableSps(
     cbBCM_ConnectionCallback *pConnectionCallback);
 
 /**
- * Enable or disable Bluetooth low energy auto connect. 
+ * Enable or disable Bluetooth low energy auto connect.
  * When the device is acting as central and auto connect is enabled it runs
- * passive scan and initiates an ACL connection to devices that performs 
+ * passive scan and initiates an ACL connection to devices that performs
  * directed advertisements.
  * The serial port service muast be enabled using cbBCM_enableSps() before
  * auto connect is enabled.
- * If SPS is enabled the SPS Gatt client will initiate a SPS connection 
+ * If SPS is enabled the SPS Gatt client will initiate a SPS connection
  * attempt on the ACL connection.
  * When the device is acting peripheral this functionality is inactive.
- * 
+ *
  * @param   enable  Set to TRUE to enable. Set to false to disable.
  * @return  If the operation is successful cbBCM_OK is returned.
  */
@@ -609,9 +600,9 @@ extern cb_int32 cbBCM_autoConnect(
 
 /**
  * Initiate a Serial Port Service connection.
- * The connection sequence includes ACL connection setup , GATT service 
- * search and Serial Port Service connection setup. A connect confirm 
- * callback will be received when the connection is complete. The error 
+ * The connection sequence includes ACL connection setup , GATT service
+ * search and Serial Port Service connection setup. A connect confirm
+ * callback will be received when the connection is complete. The error
  * code in the callback is cbBCM_OK if the connection was successfully established.
  * The error code in the callback is cbBCM_ERROR if the connection failed.
  * The serial port service must be enabled using cbBCM_enableSps() before
@@ -628,10 +619,10 @@ extern cbBCM_Handle cbBCM_reqConnectSps(
     cbBCM_ConnectionCallback *pConnectionCallback);
 
 /**
- * Accept or reject an incoming SPS connection. This is a 
+ * Accept or reject an incoming SPS connection. This is a
  * response to a cbBCM_ConnectInd connection indication.
  * @param   handle  Connection handle
- * @param   accept  TRUE to accept the incoming connection. 
+ * @param   accept  TRUE to accept the incoming connection.
  *                  FALSE to reject.
  * @return  If the operation is successful cbBCM_OK is returned.
  */
@@ -642,7 +633,7 @@ extern cb_int32 cbBCM_rspConnectSpsCnf(
 /**
  * Initiate a Bluetooth low energy ACL connection. The ACL connection is
  * intended for GATT communication.
- * A connect confirm callback will be received when the connection is complete. The error 
+ * A connect confirm callback will be received when the connection is complete. The error
  * code in the  callback is cbBCM_OK if the connection was successfully established.
  * The error code in the callback is cbBCM_ERROR if the connection failed.
  * @param  pAddress     Address of remote device.
@@ -762,7 +753,7 @@ extern cb_int32 cbBCM_cmdChangePacketType(
     cbBCM_Handle handle);
 
 /**
- * @brief   Get the current  connection parameters for an active Bluetooth 
+ * @brief   Get the current  connection parameters for an active Bluetooth
  *          Low Energy ACL connection.
  * @param   handle   Connection handle
  * @param   pConnectionInterval     Connection interval
@@ -777,7 +768,7 @@ extern cb_int32 cbBCM_getConnectionParams(
     cb_uint16    *pLinkSupervisionTmo);
 
 /**
- * @brief   Update connection parameters for an active Bluetooth 
+ * @brief   Update connection parameters for an active Bluetooth
  *          Low Energy ACL connection.
  * @param   handle   Connection handle
  * @param   pAclLeParams New Link configuration parameters
@@ -789,9 +780,9 @@ extern cb_int32 cbBCM_updateConnectionParams(
 
 /**
  * Register a GATT device information service. The device information service
- * is used by remote devices to get for example the model and firmware version 
+ * is used by remote devices to get for example the model and firmware version
  * of this device.
- * Note that an application easily can define and register its own device information 
+ * Note that an application easily can define and register its own device information
  * service if other characteristics are required.
  * @param   pManufacturer   String defining the manufacturer.
  * @param   pModel String   defining the device model.
@@ -807,9 +798,9 @@ extern cb_int32 cbBCM_enableDevInfoService(
     cb_uint16 startIndex);
 
 /**
- * @brief   Get the address of the remote device on an 
+ * @brief   Get the address of the remote device on an
  *          active connection
- * 
+ *
  * @param handle Connection handle
  * @return Address of the remote device.
  */
@@ -818,7 +809,7 @@ extern TBdAddr cbBCM_getAddress(cbBCM_Handle handle);
 /**
  * @brief   Register a data manager for a type of connections. Shall not be
  *          used by the application. Only used by data managers.
- * 
+ *
  * @param   type            Connection type.
  * @param   pDataCallback   Data callback
  * @return  If the operation is successful cbBCM_OK is returned.
@@ -830,17 +821,17 @@ extern cb_int32 cbBCM_registerDataCallback(
 /**
  * @brief   Get the protocol handle for an active connection. Shall not be used
  *          by the application. Only used by data managers.
- * 
+ *
  * @param   handle Connection handle
  * @return  If the operation is not successful cbBCM_INVALID_CONNECTION_HANDLE
- *          is returned. If the operation is successful the protocol handle is 
+ *          is returned. If the operation is successful the protocol handle is
  *          returned.
  */
 extern cbBCM_Handle cbBCM_getProtocolHandle(
     cbBCM_Handle handle);
 
 /**
-* @brief   Get the bcm id from acl handle for an active connection. 
+* @brief   Get the bcm id from acl handle for an active connection.
 *
 * @param   handle Connection handle
 * @return  bcm handle.
@@ -849,7 +840,7 @@ extern cbBCM_Handle cbBCM_getIdFromAclHandle(TConnHandle aclHandle);
 
 /**
 * @brief   Get the acl handle from bcm handle.
-* 
+*
 * @param   handle bcm handle
 * @return  acl handle
 */

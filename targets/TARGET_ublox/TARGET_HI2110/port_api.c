@@ -22,7 +22,7 @@
 
 PinName port_pin(PortName port, int pin_n)
 {
-    MBED_ASSERT (port < PortMaxNumber);
+    MBED_ASSERT(port < PortMaxNumber);
 
     (void) port;
     return (PinName)(pin_n);
@@ -30,7 +30,7 @@ PinName port_pin(PortName port, int pin_n)
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 {
-    MBED_ASSERT (port < PortMaxNumber);
+    MBED_ASSERT(port < PortMaxNumber);
 
     obj->port = port;
     obj->mask = mask;
@@ -46,7 +46,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
             pin_function((PinName) x, PIN_FUNCTION_GPIO);
         }
     }
-    
+
     /* Set up the pins */
     port_dir(obj, dir);
 }
@@ -54,36 +54,31 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 void port_mode(port_t *obj, PinMode mode)
 {
     switch (mode) {
-        case PullUp:
-        {
+        case PullUp: {
             MBED_ASSERT(false);  /* Not currently supported on HI2110 */
         }
         break;
-        case PullDown:
-        {
+        case PullDown: {
             GPIO_PULLEN_BITSET |= obj->mask;
         }
         break;
-        case PullNone:
-        {
+        case PullNone: {
             GPIO_PULLEN_BITCLR &= ~(obj->mask);
         }
         break;
         default:
-        break;
+            break;
     }
 }
 
 void port_dir(port_t *obj, PinDirection dir)
 {
     switch (dir) {
-        case PIN_INPUT:
-        {
+        case PIN_INPUT: {
             *(obj->reg_dir) &= ~(obj->mask);
         }
         break;
-        case PIN_OUTPUT:
-        {
+        case PIN_OUTPUT: {
             *(obj->reg_dir) |= obj->mask;
             /* TODO: do we need to set the drive strength?  If so, how do we decide which way? */
             /* obj->reg_drv |= obj->mask; */

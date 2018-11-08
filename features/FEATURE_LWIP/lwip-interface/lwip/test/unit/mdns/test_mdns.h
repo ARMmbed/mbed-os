@@ -3,6 +3,6 @@
 
 #include "../lwip_check.h"
 
-Suite* mdns_suite(void);
+Suite *mdns_suite(void);
 
 #endif

@@ -44,32 +44,31 @@ void USBHostSerial::disconnect(void)
     dev = NULL;
 }
 
-bool USBHostSerial::connect() {
+bool USBHostSerial::connect()
+{
 
-    if (dev)
-    {
-        for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++)
-        {
-            USBDeviceConnected* d = host->getDevice(i);
-            if (dev == d)
+    if (dev) {
+        for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
+            USBDeviceConnected *d = host->getDevice(i);
+            if (dev == d) {
                 return true;
+            }
         }
         disconnect();
     }
-    for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++)
-    {
-        USBDeviceConnected* d = host->getDevice(i);
+    for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
+        USBDeviceConnected *d = host->getDevice(i);
         if (d != NULL) {
 
             USB_DBG("Trying to connect serial device \r\n");
-            if(host->enumerate(d, this))
+            if (host->enumerate(d, this)) {
                 break;
+            }
 
-            USBEndpoint* bulk_in  = d->getEndpoint(port_intf, BULK_ENDPOINT, IN);
-            USBEndpoint* bulk_out = d->getEndpoint(port_intf, BULK_ENDPOINT, OUT);
-            if (bulk_in && bulk_out)
-            {
-                USBHostSerialPort::connect(host,d,port_intf,bulk_in, bulk_out);
+            USBEndpoint *bulk_in  = d->getEndpoint(port_intf, BULK_ENDPOINT, IN);
+            USBEndpoint *bulk_out = d->getEndpoint(port_intf, BULK_ENDPOINT, OUT);
+            if (bulk_in && bulk_out) {
+                USBHostSerialPort::connect(host, d, port_intf, bulk_in, bulk_out);
                 dev = d;
                 dev_connected = true;
             }
@@ -86,7 +85,7 @@ bool USBHostSerial::connect() {
 /*virtual*/ bool USBHostSerial::parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) //Must return true if the interface should be parsed
 {
     if (!ports_found &&
-        CHECK_INTERFACE(intf_class, intf_subclass, intf_protocol)) {
+            CHECK_INTERFACE(intf_class, intf_subclass, intf_protocol)) {
         port_intf = intf_nb;
         ports_found = true;
         return true;
@@ -97,8 +96,9 @@ bool USBHostSerial::connect() {
 /*virtual*/ bool USBHostSerial::useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir) //Must return true if the endpoint will be used
 {
     if (ports_found && (intf_nb == port_intf)) {
-        if (type == BULK_ENDPOINT)
+        if (type == BULK_ENDPOINT) {
             return true;
+        }
     }
     return false;
 }
@@ -128,10 +128,8 @@ bool USBHostMultiSerial::connected()
 
 void USBHostMultiSerial::disconnect(void)
 {
-    for (int port = 0; port < USBHOST_SERIAL; port ++)
-    {
-        if (ports[port])
-        {
+    for (int port = 0; port < USBHOST_SERIAL; port ++) {
+        if (ports[port]) {
             delete ports[port];
             ports[port] = NULL;
         }
@@ -140,37 +138,34 @@ void USBHostMultiSerial::disconnect(void)
     dev = NULL;
 }
 
-bool USBHostMultiSerial::connect() {
+bool USBHostMultiSerial::connect()
+{
 
-    if (dev)
-    {
-        for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++)
-        {
-            USBDeviceConnected* d = host->getDevice(i);
-            if (dev == d)
+    if (dev) {
+        for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
+            USBDeviceConnected *d = host->getDevice(i);
+            if (dev == d) {
                 return true;
+            }
         }
         disconnect();
     }
-    for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++)
-    {
-        USBDeviceConnected* d = host->getDevice(i);
+    for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
+        USBDeviceConnected *d = host->getDevice(i);
         if (d != NULL) {
 
             USB_DBG("Trying to connect serial device \r\n");
-            if(host->enumerate(d, this))
+            if (host->enumerate(d, this)) {
                 break;
+            }
 
-            for (int port = 0; port < ports_found; port ++)
-            {
-                USBEndpoint* bulk_in  = d->getEndpoint(port_intf[port], BULK_ENDPOINT, IN);
-                USBEndpoint* bulk_out = d->getEndpoint(port_intf[port], BULK_ENDPOINT, OUT);
-                if (bulk_in && bulk_out)
-                {
+            for (int port = 0; port < ports_found; port ++) {
+                USBEndpoint *bulk_in  = d->getEndpoint(port_intf[port], BULK_ENDPOINT, IN);
+                USBEndpoint *bulk_out = d->getEndpoint(port_intf[port], BULK_ENDPOINT, OUT);
+                if (bulk_in && bulk_out) {
                     ports[port] = new USBHostSerialPort();
-                    if (ports[port])
-                    {
-                        ports[port]->connect(host,d,port_intf[port],bulk_in, bulk_out);
+                    if (ports[port]) {
+                        ports[port]->connect(host, d, port_intf[port], bulk_in, bulk_out);
                         dev = d;
                         dev_connected = true;
                     }
@@ -189,7 +184,7 @@ bool USBHostMultiSerial::connect() {
 /*virtual*/ bool USBHostMultiSerial::parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) //Must return true if the interface should be parsed
 {
     if ((ports_found < USBHOST_SERIAL) &&
-        CHECK_INTERFACE(intf_class, intf_subclass, intf_protocol)) {
+            CHECK_INTERFACE(intf_class, intf_subclass, intf_protocol)) {
         port_intf[ports_found++] = intf_nb;
         return true;
     }
@@ -198,9 +193,10 @@ bool USBHostMultiSerial::connect() {
 
 /*virtual*/ bool USBHostMultiSerial::useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir) //Must return true if the endpoint will be used
 {
-    if ((ports_found > 0) && (intf_nb == port_intf[ports_found-1])) {
-        if (type == BULK_ENDPOINT)
+    if ((ports_found > 0) && (intf_nb == port_intf[ports_found - 1])) {
+        if (type == BULK_ENDPOINT) {
             return true;
+        }
     }
     return false;
 }
@@ -232,8 +228,8 @@ void USBHostSerialPort::init(void)
     circ_buf.flush();
 }
 
-void USBHostSerialPort::connect(USBHost* _host, USBDeviceConnected * _dev,
-        uint8_t _serial_intf, USBEndpoint* _bulk_in, USBEndpoint* _bulk_out)
+void USBHostSerialPort::connect(USBHost *_host, USBDeviceConnected *_dev,
+                                uint8_t _serial_intf, USBEndpoint *_bulk_in, USBEndpoint *_bulk_out)
 {
     host = _host;
     dev = _dev;
@@ -252,7 +248,8 @@ void USBHostSerialPort::connect(USBHost* _host, USBDeviceConnected * _dev,
     host->bulkRead(dev, bulk_in, buf, size_bulk_in, false);
 }
 
-void USBHostSerialPort::rxHandler() {
+void USBHostSerialPort::rxHandler()
+{
     if (bulk_in) {
         int len = bulk_in->getLengthTransferred();
         if (bulk_in->getState() == USB_TYPE_IDLE) {
@@ -265,7 +262,8 @@ void USBHostSerialPort::rxHandler() {
     }
 }
 
-void USBHostSerialPort::txHandler() {
+void USBHostSerialPort::txHandler()
+{
     if (bulk_out) {
         if (bulk_out->getState() == USB_TYPE_IDLE) {
             tx.call();
@@ -273,7 +271,8 @@ void USBHostSerialPort::txHandler() {
     }
 }
 
-int USBHostSerialPort::_putc(int c) {
+int USBHostSerialPort::_putc(int c)
+{
     if (bulk_out) {
         if (host->bulkWrite(dev, bulk_out, (uint8_t *)&c, 1) == USB_TYPE_OK) {
             return 1;
@@ -282,24 +281,27 @@ int USBHostSerialPort::_putc(int c) {
     return -1;
 }
 
-void USBHostSerialPort::baud(int baudrate) {
+void USBHostSerialPort::baud(int baudrate)
+{
     line_coding.baudrate = baudrate;
     format(line_coding.data_bits, (Parity)line_coding.parity, line_coding.stop_bits);
 }
 
-void USBHostSerialPort::format(int bits, Parity parity, int stop_bits) {
+void USBHostSerialPort::format(int bits, Parity parity, int stop_bits)
+{
     line_coding.data_bits = bits;
     line_coding.parity = parity;
     line_coding.stop_bits = (stop_bits == 1) ? 0 : 2;
 
     // set line coding
-    host->controlWrite( dev,
-                        USB_RECIPIENT_INTERFACE | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS,
-                        SET_LINE_CODING,
-                        0, serial_intf, (uint8_t *)&line_coding, 7);
+    host->controlWrite(dev,
+                       USB_RECIPIENT_INTERFACE | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS,
+                       SET_LINE_CODING,
+                       0, serial_intf, (uint8_t *)&line_coding, 7);
 }
 
-int USBHostSerialPort::_getc() {
+int USBHostSerialPort::_getc()
+{
     uint8_t c = 0;
     if (bulk_in == NULL) {
         init();
@@ -310,33 +312,33 @@ int USBHostSerialPort::_getc() {
     return c;
 }
 
-int USBHostSerialPort::writeBuf(const char* b, int s)
+int USBHostSerialPort::writeBuf(const char *b, int s)
 {
     int c = 0;
-    if (bulk_out)
-    {
-        while (c < s)
-        {
+    if (bulk_out) {
+        while (c < s) {
             int i = (s < size_bulk_out) ? s : size_bulk_out;
-            if (host->bulkWrite(dev, bulk_out, (uint8_t *)(b+c), i) == USB_TYPE_OK)
+            if (host->bulkWrite(dev, bulk_out, (uint8_t *)(b + c), i) == USB_TYPE_OK) {
                 c += i;
+            }
         }
     }
     return s;
 }
 
-int USBHostSerialPort::readBuf(char* b, int s)
+int USBHostSerialPort::readBuf(char *b, int s)
 {
     int i = 0;
-    if (bulk_in)
-    {
-        for (i = 0; i < s; )
+    if (bulk_in) {
+        for (i = 0; i < s;) {
             b[i++] = getc();
+        }
     }
     return i;
 }
 
-uint8_t USBHostSerialPort::available() {
+uint8_t USBHostSerialPort::available()
+{
     return circ_buf.available();
 }
 

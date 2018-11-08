@@ -36,8 +36,7 @@
  * Definitions
  ******************************************************************************/
 /*! @brief Clock configuration structure. */
-typedef struct _clock_config
-{
+typedef struct _clock_config {
     mcglite_config_t mcgliteConfig; /*!< MCG configuration.      */
     sim_clock_config_t simConfig;   /*!< SIM configuration.      */
     osc_config_t oscConfig;         /*!< OSC configuration.      */
@@ -53,56 +52,60 @@ extern uint32_t SystemCoreClock;
 /* Configuration for enter VLPR mode. Core clock = 2MHz. */
 const clock_config_t g_defaultClockConfigVlpr = {
     .mcgliteConfig =
-        {
-            .outSrc = kMCGLITE_ClkSrcLirc,
-            .irclkEnableMode = kMCGLITE_IrclkEnable,
-            .ircs = kMCGLITE_Lirc2M,
-            .fcrdiv = kMCGLITE_LircDivBy1,
-            .lircDiv2 = kMCGLITE_LircDivBy1,
-            .hircEnableInNotHircMode = false,
-        },
+    {
+        .outSrc = kMCGLITE_ClkSrcLirc,
+        .irclkEnableMode = kMCGLITE_IrclkEnable,
+        .ircs = kMCGLITE_Lirc2M,
+        .fcrdiv = kMCGLITE_LircDivBy1,
+        .lircDiv2 = kMCGLITE_LircDivBy1,
+        .hircEnableInNotHircMode = false,
+    },
     .simConfig =
+    {
+        .clkdiv1 = 0x00010000U, /* SIM_CLKDIV1. */
+    },
+    .oscConfig = {
+        .freq = BOARD_XTAL0_CLK_HZ,
+        .capLoad = 0U,
+        .workMode = kOSC_ModeOscLowPower,
+        .oscerConfig =
         {
-            .clkdiv1 = 0x00010000U, /* SIM_CLKDIV1. */
-        },
-    .oscConfig = {.freq = BOARD_XTAL0_CLK_HZ,
-                  .capLoad = 0U,
-                  .workMode = kOSC_ModeOscLowPower,
-                  .oscerConfig =
-                      {
-                          .enableMode = kOSC_ErClkEnable,
+            .enableMode = kOSC_ErClkEnable,
 #if (defined(FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER) && FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER)
-                          .erclkDiv = 0U,
+            .erclkDiv = 0U,
 #endif
-                      }},
+        }
+    },
     .coreClock = 2000000U, /* Core clock frequency */
 };
 
 /* Configuration for enter RUN mode. Core clock = 48000000Hz. */
 const clock_config_t g_defaultClockConfigRun = {
     .mcgliteConfig =
-        {
-            .outSrc = kMCGLITE_ClkSrcHirc,
-            .irclkEnableMode = kMCGLITE_IrclkEnable,
-            .ircs = kMCGLITE_Lirc8M,
-            .fcrdiv = kMCGLITE_LircDivBy1,
-            .lircDiv2 = kMCGLITE_LircDivBy1,
-            .hircEnableInNotHircMode = true,
-        },
+    {
+        .outSrc = kMCGLITE_ClkSrcHirc,
+        .irclkEnableMode = kMCGLITE_IrclkEnable,
+        .ircs = kMCGLITE_Lirc8M,
+        .fcrdiv = kMCGLITE_LircDivBy1,
+        .lircDiv2 = kMCGLITE_LircDivBy1,
+        .hircEnableInNotHircMode = true,
+    },
     .simConfig =
+    {
+        .clkdiv1 = 0x00010000U, /* SIM_CLKDIV1. */
+    },
+    .oscConfig = {
+        .freq = BOARD_XTAL0_CLK_HZ,
+        .capLoad = 0U,
+        .workMode = kOSC_ModeOscLowPower,
+        .oscerConfig =
         {
-            .clkdiv1 = 0x00010000U, /* SIM_CLKDIV1. */
-        },
-    .oscConfig = {.freq = BOARD_XTAL0_CLK_HZ,
-                  .capLoad = 0U,
-                  .workMode = kOSC_ModeOscLowPower,
-                  .oscerConfig =
-                      {
-                          .enableMode = kOSC_ErClkEnable,
+            .enableMode = kOSC_ErClkEnable,
 #if (defined(FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER) && FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER)
-                          .erclkDiv = 0U,
+            .erclkDiv = 0U,
 #endif
-                      }},
+        }
+    },
     .coreClock = 48000000U, /* Core clock frequency */
 };
 
@@ -132,8 +135,7 @@ void BOARD_BootClockVLPR(void)
 
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
     SMC_SetPowerModeVlpr(SMC);
-    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr)
-    {
+    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr) {
     }
 }
 

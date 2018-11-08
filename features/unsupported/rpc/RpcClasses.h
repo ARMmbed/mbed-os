@@ -22,12 +22,19 @@ namespace mbed {
 
 class RpcDigitalOut : public RPC {
 public:
-    RpcDigitalOut(PinName a0, const char *name=NULL) : RPC(name), o(a0) {}
+    RpcDigitalOut(PinName a0, const char *name = NULL) : RPC(name), o(a0) {}
 
-    void write(int a0) {o.write(a0);}
-    int read(void) {return o.read();}
+    void write(int a0)
+    {
+        o.write(a0);
+    }
+    int read(void)
+    {
+        return o.read();
+    }
 
-    virtual const struct rpc_method *get_rpc_methods() {
+    virtual const struct rpc_method *get_rpc_methods()
+    {
         static const rpc_method rpc_methods[] = {
             {"write", rpc_method_caller<RpcDigitalOut, int, &RpcDigitalOut::write>},
             {"read", rpc_method_caller<int, RpcDigitalOut, &RpcDigitalOut::read>},
@@ -35,9 +42,10 @@ public:
         };
         return rpc_methods;
     }
-    static struct rpc_class *get_rpc_class() {
+    static struct rpc_class *get_rpc_class()
+    {
         static const rpc_function funcs[] = {
-            {"new", rpc_function_caller<const char*, PinName, const char*, &RPC::construct<RpcDigitalOut, PinName, const char*> >},
+            {"new", rpc_function_caller<const char *, PinName, const char *, &RPC::construct<RpcDigitalOut, PinName, const char *> >},
             RPC_METHOD_END
         };
         static rpc_class c = {"DigitalOut", funcs, NULL};
@@ -49,20 +57,25 @@ private:
 
 class RpcDigitalIn : public RPC {
 public:
-    RpcDigitalIn(PinName a0, const char *name=NULL) : RPC(name), o(a0) {}
+    RpcDigitalIn(PinName a0, const char *name = NULL) : RPC(name), o(a0) {}
 
-    int read(void) {return o.read();}
+    int read(void)
+    {
+        return o.read();
+    }
 
-    virtual const struct rpc_method *get_rpc_methods() {
+    virtual const struct rpc_method *get_rpc_methods()
+    {
         static const rpc_method rpc_methods[] = {
             {"read", rpc_method_caller<int, RpcDigitalIn, &RpcDigitalIn::read>},
             RPC_METHOD_SUPER(RPC)
         };
         return rpc_methods;
     }
-    static struct rpc_class *get_rpc_class() {
+    static struct rpc_class *get_rpc_class()
+    {
         static const rpc_function funcs[] = {
-            {"new", rpc_function_caller<const char*, PinName, const char*, &RPC::construct<RpcDigitalIn, PinName, const char*> >},
+            {"new", rpc_function_caller<const char *, PinName, const char *, &RPC::construct<RpcDigitalIn, PinName, const char *> >},
             RPC_METHOD_END
         };
         static rpc_class c = {"DigitalIn", funcs, NULL};
@@ -74,14 +87,27 @@ private:
 
 class RpcDigitalInOut : public RPC {
 public:
-    RpcDigitalInOut(PinName a0, const char *name=NULL) : RPC(name), o(a0) {}
+    RpcDigitalInOut(PinName a0, const char *name = NULL) : RPC(name), o(a0) {}
 
-    int read(void) {return o.read();}
-    void write(int a0) {o.write(a0);}
-    void input(void) {o.input();}
-    void output(void) {o.output();}
+    int read(void)
+    {
+        return o.read();
+    }
+    void write(int a0)
+    {
+        o.write(a0);
+    }
+    void input(void)
+    {
+        o.input();
+    }
+    void output(void)
+    {
+        o.output();
+    }
 
-    virtual const struct rpc_method *get_rpc_methods() {
+    virtual const struct rpc_method *get_rpc_methods()
+    {
         static const rpc_method rpc_methods[] = {
             {"read", rpc_method_caller<int, RpcDigitalInOut, &RpcDigitalInOut::read>},
             {"write", rpc_method_caller<RpcDigitalInOut, int, &RpcDigitalInOut::write>},
@@ -91,9 +117,10 @@ public:
         };
         return rpc_methods;
     }
-    static struct rpc_class *get_rpc_class() {
+    static struct rpc_class *get_rpc_class()
+    {
         static const rpc_function funcs[] = {
-            {"new", rpc_function_caller<const char*, PinName, const char*, &RPC::construct<RpcDigitalInOut, PinName, const char*> >},
+            {"new", rpc_function_caller<const char *, PinName, const char *, &RPC::construct<RpcDigitalInOut, PinName, const char *> >},
             RPC_METHOD_END
         };
         static rpc_class c = {"DigitalInOut", funcs, NULL};
@@ -106,12 +133,19 @@ private:
 #if DEVICE_ANALOGIN
 class RpcAnalogIn : public RPC {
 public:
-    RpcAnalogIn(PinName a0, const char *name=NULL) : RPC(name), o(a0) {}
+    RpcAnalogIn(PinName a0, const char *name = NULL) : RPC(name), o(a0) {}
 
-    float read(void) {return o.read();}
-    unsigned short read_u16(void) {return o.read_u16();}
+    float read(void)
+    {
+        return o.read();
+    }
+    unsigned short read_u16(void)
+    {
+        return o.read_u16();
+    }
 
-    virtual const struct rpc_method *get_rpc_methods() {
+    virtual const struct rpc_method *get_rpc_methods()
+    {
         static const rpc_method rpc_methods[] = {
             {"read", rpc_method_caller<float, RpcAnalogIn, &RpcAnalogIn::read>},
             {"read_u16", rpc_method_caller<unsigned short, RpcAnalogIn, &RpcAnalogIn::read_u16>},
@@ -119,9 +153,10 @@ public:
         };
         return rpc_methods;
     }
-    static struct rpc_class *get_rpc_class() {
+    static struct rpc_class *get_rpc_class()
+    {
         static const rpc_function funcs[] = {
-            {"new", rpc_function_caller<const char*, PinName, const char*, &RPC::construct<RpcAnalogIn, PinName, const char*> >},
+            {"new", rpc_function_caller<const char *, PinName, const char *, &RPC::construct<RpcAnalogIn, PinName, const char *> >},
             RPC_METHOD_END
         };
         static rpc_class c = {"AnalogIn", funcs, NULL};
@@ -135,13 +170,23 @@ private:
 #if DEVICE_ANALOGOUT
 class RpcAnalogOut : public RPC {
 public:
-    RpcAnalogOut(PinName a0, const char *name=NULL) : RPC(name), o(a0) {}
+    RpcAnalogOut(PinName a0, const char *name = NULL) : RPC(name), o(a0) {}
 
-    float read(void) {return o.read();}
-    void write(float a0) {o.write(a0);}
-    void write_u16(unsigned short a0) {o.write_u16(a0);}
+    float read(void)
+    {
+        return o.read();
+    }
+    void write(float a0)
+    {
+        o.write(a0);
+    }
+    void write_u16(unsigned short a0)
+    {
+        o.write_u16(a0);
+    }
 
-    virtual const struct rpc_method *get_rpc_methods() {
+    virtual const struct rpc_method *get_rpc_methods()
+    {
         static const rpc_method rpc_methods[] = {
             {"read", rpc_method_caller<float, RpcAnalogOut, &RpcAnalogOut::read>},
             {"write", rpc_method_caller<RpcAnalogOut, float, &RpcAnalogOut::write>},
@@ -150,9 +195,10 @@ public:
         };
         return rpc_methods;
     }
-    static struct rpc_class *get_rpc_class() {
+    static struct rpc_class *get_rpc_class()
+    {
         static const rpc_function funcs[] = {
-            {"new", rpc_function_caller<const char*, PinName, const char*, &RPC::construct<RpcAnalogOut, PinName, const char*> >},
+            {"new", rpc_function_caller<const char *, PinName, const char *, &RPC::construct<RpcAnalogOut, PinName, const char *> >},
             RPC_METHOD_END
         };
         static rpc_class c = {"AnalogOut", funcs, NULL};
@@ -166,16 +212,35 @@ private:
 #if DEVICE_PWMOUT
 class RpcPwmOut : public RPC {
 public:
-    RpcPwmOut(PinName a0, const char *name=NULL) : RPC(name), o(a0) {}
+    RpcPwmOut(PinName a0, const char *name = NULL) : RPC(name), o(a0) {}
 
-    float read(void) {return o.read();}
-    void write(float a0) {o.write(a0);}
-    void period(float a0) {o.period(a0);}
-    void period_ms(int a0) {o.period_ms(a0);}
-    void pulsewidth(float a0) {o.pulsewidth(a0);}
-    void pulsewidth_ms(int a0) {o.pulsewidth_ms(a0);}
+    float read(void)
+    {
+        return o.read();
+    }
+    void write(float a0)
+    {
+        o.write(a0);
+    }
+    void period(float a0)
+    {
+        o.period(a0);
+    }
+    void period_ms(int a0)
+    {
+        o.period_ms(a0);
+    }
+    void pulsewidth(float a0)
+    {
+        o.pulsewidth(a0);
+    }
+    void pulsewidth_ms(int a0)
+    {
+        o.pulsewidth_ms(a0);
+    }
 
-    virtual const struct rpc_method *get_rpc_methods() {
+    virtual const struct rpc_method *get_rpc_methods()
+    {
         static const rpc_method rpc_methods[] = {
             {"read", rpc_method_caller<float, RpcPwmOut, &RpcPwmOut::read>},
             {"write", rpc_method_caller<RpcPwmOut, float, &RpcPwmOut::write>},
@@ -187,9 +252,10 @@ public:
         };
         return rpc_methods;
     }
-    static struct rpc_class *get_rpc_class() {
+    static struct rpc_class *get_rpc_class()
+    {
         static const rpc_function funcs[] = {
-            {"new", rpc_function_caller<const char*, PinName, const char*, &RPC::construct<RpcPwmOut, PinName, const char*> >},
+            {"new", rpc_function_caller<const char *, PinName, const char *, &RPC::construct<RpcPwmOut, PinName, const char *> >},
             RPC_METHOD_END
         };
         static rpc_class c = {"PwmOut", funcs, NULL};
@@ -203,13 +269,23 @@ private:
 #if DEVICE_SPI
 class RpcSPI : public RPC {
 public:
-    RpcSPI(PinName a0, PinName a1, PinName a2, const char *name=NULL) : RPC(name), o(a0, a1, a2) {}
+    RpcSPI(PinName a0, PinName a1, PinName a2, const char *name = NULL) : RPC(name), o(a0, a1, a2) {}
 
-    void format(int a0, int a1) {o.format(a0, a1);}
-    void frequency(int a0) {o.frequency(a0);}
-    int write(int a0) {return o.write(a0);}
+    void format(int a0, int a1)
+    {
+        o.format(a0, a1);
+    }
+    void frequency(int a0)
+    {
+        o.frequency(a0);
+    }
+    int write(int a0)
+    {
+        return o.write(a0);
+    }
 
-    virtual const struct rpc_method *get_rpc_methods() {
+    virtual const struct rpc_method *get_rpc_methods()
+    {
         static const rpc_method rpc_methods[] = {
             {"format", rpc_method_caller<RpcSPI, int, int, &RpcSPI::format>},
             {"frequency", rpc_method_caller<RpcSPI, int, &RpcSPI::frequency>},
@@ -218,9 +294,10 @@ public:
         };
         return rpc_methods;
     }
-    static struct rpc_class *get_rpc_class() {
+    static struct rpc_class *get_rpc_class()
+    {
         static const rpc_function funcs[] = {
-            {"new", rpc_function_caller<const char*, PinName, PinName, PinName, const char*, &RPC::construct<RpcSPI, PinName, PinName, PinName, const char*> >},
+            {"new", rpc_function_caller<const char *, PinName, PinName, PinName, const char *, &RPC::construct<RpcSPI, PinName, PinName, PinName, const char *> >},
             RPC_METHOD_END
         };
         static rpc_class c = {"SPI", funcs, NULL};
@@ -234,16 +311,35 @@ private:
 #if DEVICE_SERIAL
 class RpcSerial : public RPC {
 public:
-    RpcSerial(PinName a0, PinName a1, const char *name=NULL) : RPC(name), o(a0, a1) {}
+    RpcSerial(PinName a0, PinName a1, const char *name = NULL) : RPC(name), o(a0, a1) {}
 
-    void baud(int a0) {o.baud(a0);}
-    int readable(void) {return o.readable();}
-    int writeable(void) {return o.writeable();}
-    int putc(int a0) {return o.putc(a0);}
-    int getc(void) {return o.getc();}
-    int puts(const char * a0) {return o.puts(a0);}
+    void baud(int a0)
+    {
+        o.baud(a0);
+    }
+    int readable(void)
+    {
+        return o.readable();
+    }
+    int writeable(void)
+    {
+        return o.writeable();
+    }
+    int putc(int a0)
+    {
+        return o.putc(a0);
+    }
+    int getc(void)
+    {
+        return o.getc();
+    }
+    int puts(const char *a0)
+    {
+        return o.puts(a0);
+    }
 
-    virtual const struct rpc_method *get_rpc_methods() {
+    virtual const struct rpc_method *get_rpc_methods()
+    {
         static const rpc_method rpc_methods[] = {
             {"baud", rpc_method_caller<RpcSerial, int, &RpcSerial::baud>},
             {"readable", rpc_method_caller<int, RpcSerial, &RpcSerial::readable>},
@@ -255,9 +351,10 @@ public:
         };
         return rpc_methods;
     }
-    static struct rpc_class *get_rpc_class() {
+    static struct rpc_class *get_rpc_class()
+    {
         static const rpc_function funcs[] = {
-            {"new", rpc_function_caller<const char*, PinName, PinName, const char*, &RPC::construct<RpcSerial, PinName, PinName, const char*> >},
+            {"new", rpc_function_caller<const char *, PinName, PinName, const char *, &RPC::construct<RpcSerial, PinName, PinName, const char *> >},
             RPC_METHOD_END
         };
         static rpc_class c = {"Serial", funcs, NULL};
@@ -270,16 +367,35 @@ private:
 
 class RpcTimer : public RPC {
 public:
-    RpcTimer(const char *name=NULL) : RPC(name), o() {}
+    RpcTimer(const char *name = NULL) : RPC(name), o() {}
 
-    void start(void) {o.start();}
-    void stop(void) {o.stop();}
-    void reset(void) {o.reset();}
-    float read(void) {return o.read();}
-    int read_ms(void) {return o.read_ms();}
-    int read_us(void) {return o.read_us();}
+    void start(void)
+    {
+        o.start();
+    }
+    void stop(void)
+    {
+        o.stop();
+    }
+    void reset(void)
+    {
+        o.reset();
+    }
+    float read(void)
+    {
+        return o.read();
+    }
+    int read_ms(void)
+    {
+        return o.read_ms();
+    }
+    int read_us(void)
+    {
+        return o.read_us();
+    }
 
-    virtual const struct rpc_method *get_rpc_methods() {
+    virtual const struct rpc_method *get_rpc_methods()
+    {
         static const rpc_method rpc_methods[] = {
             {"start", rpc_method_caller<RpcTimer, &RpcTimer::start>},
             {"stop", rpc_method_caller<RpcTimer, &RpcTimer::stop>},
@@ -291,9 +407,10 @@ public:
         };
         return rpc_methods;
     }
-    static struct rpc_class *get_rpc_class() {
+    static struct rpc_class *get_rpc_class()
+    {
         static const rpc_function funcs[] = {
-            {"new", rpc_function_caller<const char*, const char*, &RPC::construct<RpcTimer, const char*> >},
+            {"new", rpc_function_caller<const char *, const char *, &RPC::construct<RpcTimer, const char *> >},
             RPC_METHOD_END
         };
         static rpc_class c = {"Timer", funcs, NULL};

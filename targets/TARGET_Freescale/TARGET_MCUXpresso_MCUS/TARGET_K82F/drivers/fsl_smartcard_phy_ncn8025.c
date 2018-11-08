@@ -93,8 +93,7 @@ static uint32_t smartcard_phy_ncn8025_InterfaceClockInit(void *base,
     /* Calculate MOD value */
     ftmModValue = ((periph_clk_mhz * 1000u / 2u) / (config->smartCardClock / 1000u)) - 1u;
     /* un-gate FTM peripheral clock */
-    switch (config->clockModule)
-    {
+    switch (config->clockModule) {
         case 0u:
             CLOCK_EnableClock(kCLOCK_Ftm0);
             break;
@@ -150,8 +149,7 @@ static void smartcard_phy_ncn8025_InterfaceClockDeinit(void *base, smartcard_int
 #elif defined(FSL_FEATURE_SOC_FTM_COUNT) && (FSL_FEATURE_SOC_FTM_COUNT)
     assert(config->clockModule < FSL_FEATURE_SOC_FTM_COUNT);
     /* gate FTM peripheral clock */
-    switch (config->clockModule)
-    {
+    switch (config->clockModule) {
         case 0u:
             CLOCK_DisableClock(kCLOCK_Ftm0);
             break;
@@ -186,8 +184,7 @@ void SMARTCARD_PHY_NCN8025_GetDefaultConfig(smartcard_interface_config_t *config
 
 status_t SMARTCARD_PHY_NCN8025_Init(void *base, smartcard_interface_config_t const *config, uint32_t srcClock_Hz)
 {
-    if ((NULL == config) || (0u == srcClock_Hz))
-    {
+    if ((NULL == config) || (0u == srcClock_Hz)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
@@ -218,8 +215,7 @@ status_t SMARTCARD_PHY_NCN8025_Init(void *base, smartcard_interface_config_t con
     /* Enable Port IRQ for smartcard presence detection */
     NVIC_EnableIRQ(port_irq[config->irqPort]);
     /* Smartcard clock initialization */
-    if (config->smartCardClock != smartcard_phy_ncn8025_InterfaceClockInit(base, config, srcClock_Hz))
-    {
+    if (config->smartCardClock != smartcard_phy_ncn8025_InterfaceClockInit(base, config, srcClock_Hz)) {
         return kStatus_SMARTCARD_OtherError;
     }
 
@@ -238,8 +234,7 @@ void SMARTCARD_PHY_NCN8025_Deinit(void *base, smartcard_interface_config_t *conf
 
 status_t SMARTCARD_PHY_NCN8025_Activate(void *base, smartcard_context_t *context, smartcard_reset_type_t resetType)
 {
-    if ((NULL == context) || (NULL == context->timeDelay))
-    {
+    if ((NULL == context) || (NULL == context->timeDelay)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
@@ -250,8 +245,8 @@ status_t SMARTCARD_PHY_NCN8025_Activate(void *base, smartcard_context_t *context
     EMVSIM_Type *emvsimBase = (EMVSIM_Type *)base;
 #endif
 
-    if (resetType == kSMARTCARD_ColdReset)
-    { /* Ensure that RST is LOW and CMD is high here so that PHY goes in normal mode */
+    if (resetType == kSMARTCARD_ColdReset) {
+        /* Ensure that RST is LOW and CMD is high here so that PHY goes in normal mode */
 #if defined(FSL_FEATURE_SOC_EMVSIM_COUNT) && (FSL_FEATURE_SOC_EMVSIM_COUNT)
         emvsimBase->PCSR =
             (emvsimBase->PCSR & ~(EMVSIM_PCSR_VCCENP_MASK | EMVSIM_PCSR_SRST_MASK)) | EMVSIM_PCSR_SVCC_EN_MASK;
@@ -265,50 +260,41 @@ status_t SMARTCARD_PHY_NCN8025_Activate(void *base, smartcard_context_t *context
          * vcc = 1.8v: vsel0=1,vsel1= 1 */
         /* Setting of VSEL1 pin */
         if ((kSMARTCARD_VoltageClassA5_0V == context->interfaceConfig.vcc) ||
-            (kSMARTCARD_VoltageClassC1_8V == context->interfaceConfig.vcc))
-        {
+                (kSMARTCARD_VoltageClassC1_8V == context->interfaceConfig.vcc)) {
             ((GPIO_Type *)gpio_base[context->interfaceConfig.vsel1Port])->PSOR |=
                 (1u << context->interfaceConfig.vsel1Pin);
-        }
-        else
-        {
+        } else {
             ((GPIO_Type *)gpio_base[context->interfaceConfig.vsel1Port])->PCOR |=
                 (1u << context->interfaceConfig.vsel1Pin);
         }
         /* Setting of VSEL0 pin */
-        if (kSMARTCARD_VoltageClassC1_8V == context->interfaceConfig.vcc)
-        {
+        if (kSMARTCARD_VoltageClassC1_8V == context->interfaceConfig.vcc) {
             ((GPIO_Type *)gpio_base[context->interfaceConfig.vsel0Port])->PSOR |=
                 (1u << context->interfaceConfig.vsel0Pin);
-        }
-        else
-        {
+        } else {
             ((GPIO_Type *)gpio_base[context->interfaceConfig.vsel0Port])->PCOR |=
                 (1u << context->interfaceConfig.vsel0Pin);
         }
-/* Set PHY to start Activation sequence by pulling CMDVCC low */
+        /* Set PHY to start Activation sequence by pulling CMDVCC low */
 #if defined(FSL_FEATURE_SOC_EMVSIM_COUNT) && (FSL_FEATURE_SOC_EMVSIM_COUNT)
         emvsimBase->PCSR |= EMVSIM_PCSR_VCCENP_MASK;
 #else
         ((GPIO_Type *)gpio_base[context->interfaceConfig.controlPort])->PCOR |=
             (1u << context->interfaceConfig.controlPin);
 #endif
-    }
-    else if (resetType == kSMARTCARD_WarmReset)
-    { /* Ensure that card is already active */
-        if (!context->cardParams.active)
-        { /* Card is not active;hence return */
+    } else if (resetType == kSMARTCARD_WarmReset) {
+        /* Ensure that card is already active */
+        if (!context->cardParams.active) {
+            /* Card is not active;hence return */
             return kStatus_SMARTCARD_CardNotActivated;
         }
-/* Pull RESET low to start warm Activation sequence */
+        /* Pull RESET low to start warm Activation sequence */
 #if defined(FSL_FEATURE_SOC_EMVSIM_COUNT) && (FSL_FEATURE_SOC_EMVSIM_COUNT)
         emvsimBase->PCSR &= ~EMVSIM_PCSR_SRST_MASK;
 #else
         ((GPIO_Type *)gpio_base[context->interfaceConfig.resetPort])->PCOR |= (1u << context->interfaceConfig.resetPin);
 #endif
-    }
-    else
-    {
+    } else {
         return kStatus_SMARTCARD_InvalidInput;
     }
     /* Wait for sometime as specified by EMV before pulling RST High
@@ -319,7 +305,7 @@ status_t SMARTCARD_PHY_NCN8025_Activate(void *base, smartcard_context_t *context
                                                    ((float)context->interfaceConfig.smartCardClock))));
     context->timeDelay(temp);
 
-/* Pull reset HIGH Now to mark the end of Activation sequence */
+    /* Pull reset HIGH Now to mark the end of Activation sequence */
 #if defined(FSL_FEATURE_SOC_EMVSIM_COUNT) && (FSL_FEATURE_SOC_EMVSIM_COUNT)
     emvsimBase->PCSR |= EMVSIM_PCSR_SRST_MASK;
 #else
@@ -348,7 +334,7 @@ status_t SMARTCARD_PHY_NCN8025_Activate(void *base, smartcard_context_t *context
     /* Enable external timer for TS detection time-out */
     smartcard_uart_TimerStart(context->interfaceConfig.tsTimerId,
                               (SMARTCARD_INIT_DELAY_CLOCK_CYCLES + SMARTCARD_INIT_DELAY_CLOCK_CYCLES_ADJUSTMENT) *
-                                  (CLOCK_GetFreq(kCLOCK_CoreSysClk) / context->interfaceConfig.smartCardClock));
+                              (CLOCK_GetFreq(kCLOCK_CoreSysClk) / context->interfaceConfig.smartCardClock));
 #endif
     /* Here the card was activated */
     context->cardParams.active = true;
@@ -358,15 +344,14 @@ status_t SMARTCARD_PHY_NCN8025_Activate(void *base, smartcard_context_t *context
 
 status_t SMARTCARD_PHY_NCN8025_Deactivate(void *base, smartcard_context_t *context)
 {
-    if ((NULL == context))
-    {
+    if ((NULL == context)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
 #if !(defined(FSL_FEATURE_SOC_EMVSIM_COUNT) && (FSL_FEATURE_SOC_EMVSIM_COUNT))
     uint32_t gpio_base[] = GPIO_BASE_ADDRS;
 #endif
-/* Tell PHY to start Deactivation sequence by pulling CMD high and reset low */
+    /* Tell PHY to start Deactivation sequence by pulling CMD high and reset low */
 #if defined(FSL_FEATURE_SOC_EMVSIM_COUNT) && (FSL_FEATURE_SOC_EMVSIM_COUNT)
     ((EMVSIM_Type *)base)->PCSR |= EMVSIM_PCSR_SVCC_EN_MASK;
     ((EMVSIM_Type *)base)->PCSR &= ~EMVSIM_PCSR_VCCENP_MASK;
@@ -391,8 +376,7 @@ status_t SMARTCARD_PHY_NCN8025_Control(void *base,
                                        smartcard_interface_control_t control,
                                        uint32_t param)
 {
-    if ((NULL == context))
-    {
+    if ((NULL == context)) {
         return kStatus_SMARTCARD_InvalidInput;
     }
 
@@ -400,8 +384,7 @@ status_t SMARTCARD_PHY_NCN8025_Control(void *base,
     uint32_t gpio_base[] = GPIO_BASE_ADDRS;
 #endif
 
-    switch (control)
-    {
+    switch (control) {
         case kSMARTCARD_InterfaceSetVcc:
             /* Set card parameter to VCC level set by caller */
             context->interfaceConfig.vcc = (smartcard_card_voltage_class_t)param;
@@ -418,37 +401,32 @@ status_t SMARTCARD_PHY_NCN8025_Control(void *base,
                                                    EMVSIM_PCSR_SPDP_SHIFT) == kEMVSIM_DetectPinIsLow);
 #else
             if (((GPIO_Type *)gpio_base[context->interfaceConfig.controlPort])->PDIR &
-                (1u << context->interfaceConfig.controlPin))
-            {
+                    (1u << context->interfaceConfig.controlPin)) {
                 if (((GPIO_Type *)gpio_base[context->interfaceConfig.irqPort])->PDIR &
-                    (1u << context->interfaceConfig.irqPin))
-                { /* CMDVCC is high => session is inactive and INT is high => card is present */
+                        (1u << context->interfaceConfig.irqPin)) {
+                    /* CMDVCC is high => session is inactive and INT is high => card is present */
                     context->cardParams.present = true;
                     context->cardParams.active = false;
                     context->cardParams.faulty = false;
                     context->cardParams.status = SMARTCARD_NCN8025_STATUS_PRES;
-                }
-                else
-                { /* CMDVCC is high => session is inactive and INT is low => card is absent */
+                } else {
+                    /* CMDVCC is high => session is inactive and INT is low => card is absent */
                     context->cardParams.present = false;
                     context->cardParams.active = false;
                     context->cardParams.faulty = false;
                     context->cardParams.status = 0u;
                 }
-            }
-            else
-            {
+            } else {
                 if (((GPIO_Type *)gpio_base[context->interfaceConfig.irqPort])->PDIR &
-                    (1u << context->interfaceConfig.irqPin))
-                { /* CMDVCC is low => session is active and INT is high => card is present */
+                        (1u << context->interfaceConfig.irqPin)) {
+                    /* CMDVCC is low => session is active and INT is high => card is present */
                     context->cardParams.present = true;
                     context->cardParams.active = true;
                     context->cardParams.faulty = false;
                     context->cardParams.status = SMARTCARD_NCN8025_STATUS_PRES | SMARTCARD_NCN8025_STATUS_ACTIVE;
-                }
-                else
-                { /* CMDVCC is low => session is active and INT is low => card is absent/deactivated due to some fault
-                   */
+                } else {
+                    /* CMDVCC is low => session is active and INT is low => card is absent/deactivated due to some fault
+                     */
                     /* A fault has been detected (card has been deactivated) but The cause of the deactivation is not
                      * yet known.
                      * Lets determine the cause of fault by pulling CMD high
@@ -457,8 +435,8 @@ status_t SMARTCARD_PHY_NCN8025_Control(void *base,
                         (1u << context->interfaceConfig.controlPin);
 
                     if (((GPIO_Type *)gpio_base[context->interfaceConfig.irqPort])->PDIR &
-                        (1u << context->interfaceConfig.irqPin))
-                    {   /* The fault detected was not a card removal (card is still present) */
+                            (1u << context->interfaceConfig.irqPin)) {
+                        /* The fault detected was not a card removal (card is still present) */
                         /* If INT follows CMDVCCN, the fault is due to a supply voltage drop, a VCC over-current
                          * detection or overheating. */
                         context->cardParams.present = true;
@@ -466,12 +444,11 @@ status_t SMARTCARD_PHY_NCN8025_Control(void *base,
                         context->cardParams.faulty = true;
                         context->cardParams.status = SMARTCARD_NCN8025_STATUS_PRES | SMARTCARD_NCN8025_STATUS_FAULTY |
                                                      SMARTCARD_NCN8025_STATUS_CARD_DEACTIVATED;
-                    }
-                    else
-                    { /* The fault detected was the card removal
-                       * Setting CMDVCCN allows checking if the deactivation is due to card removal.
-                       * In this case the INT pin will stay low after CMDVCCN is high.
-                       */
+                    } else {
+                        /* The fault detected was the card removal
+                         * Setting CMDVCCN allows checking if the deactivation is due to card removal.
+                         * In this case the INT pin will stay low after CMDVCCN is high.
+                         */
                         context->cardParams.present = false;
                         context->cardParams.active = false;
                         context->cardParams.faulty = false;
@@ -491,16 +468,14 @@ status_t SMARTCARD_PHY_NCN8025_Control(void *base,
 
 void SMARTCARD_PHY_NCN8025_IRQHandler(void *base, smartcard_context_t *context)
 {
-    if ((NULL == context))
-    {
+    if ((NULL == context)) {
         return;
     }
 
     /* Read interface/card status */
     SMARTCARD_PHY_NCN8025_Control(base, context, kSMARTCARD_InterfaceReadStatus, 0u);
     /* Invoke callback if there is one */
-    if (NULL != context->interfaceCallback)
-    {
+    if (NULL != context->interfaceCallback) {
         context->interfaceCallback(context, context->interfaceCallbackParam);
     }
 }

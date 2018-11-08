@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #ifndef NRF_DRV_COMP_H__
@@ -80,29 +80,26 @@ typedef void (* comp_events_handler_t)(nrf_comp_event_t event);
  * @enum nrf_drv_comp_short_mask_t
  * @brief COMP shortcut masks.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_COMP_SHORT_STOP_AFTER_CROSS_EVT = COMP_SHORTS_CROSS_STOP_Msk,        /*!< Shortcut between the CROSS event and the STOP task. */
     NRF_DRV_COMP_SHORT_STOP_AFTER_UP_EVT = COMP_SHORTS_UP_STOP_Msk,              /*!< Shortcut between the UP event and the STOP task. */
     NRF_DRV_COMP_SHORT_STOP_AFTER_DOWN_EVT = COMP_SHORTS_DOWN_STOP_Msk           /*!< Shortcut between the DOWN event and the STOP task. */
-}nrf_drv_comp_short_mask_t;
+} nrf_drv_comp_short_mask_t;
 
 /**
  * @enum nrf_drv_comp_evt_en_mask_t
  * @brief COMP events masks.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_COMP_EVT_EN_CROSS_MASK = COMP_INTENSET_CROSS_Msk,                /*!< CROSS event (generated after VIN+ == VIN-). */
     NRF_DRV_COMP_EVT_EN_UP_MASK = COMP_INTENSET_UP_Msk,                      /*!< UP event (generated when VIN+ crosses VIN- while increasing). */
     NRF_DRV_COMP_EVT_EN_DOWN_MASK = COMP_INTENSET_DOWN_Msk,                  /*!< DOWN event (generated when VIN+ crosses VIN- while decreasing). */
     NRF_DRV_COMP_EVT_EN_READY_MASK = COMP_INTENSET_READY_Msk                 /*!< READY event (generated when the module is ready). */
-}nrf_drv_comp_evt_en_mask_t;
+} nrf_drv_comp_evt_en_mask_t;
 
 /**@brief COMP configuration.
  */
-typedef struct
-{
+typedef struct {
     nrf_comp_ref_t           reference;          /**< Reference selection. */
     nrf_comp_ext_ref_t       ext_ref;            /**< External analog reference selection. */
     nrf_comp_main_mode_t     main_mode;          /**< Main operation mode. */
@@ -149,7 +146,7 @@ typedef struct
  * @retval NRF_ERROR_INVALID_STATE     If the driver has already been initialized.
  * @retval NRF_ERROR_BUSY              If the LPCOMP driver is initialized.
  */
-ret_code_t nrf_drv_comp_init(const nrf_drv_comp_config_t * p_config,
+ret_code_t nrf_drv_comp_init(const nrf_drv_comp_config_t *p_config,
                              comp_events_handler_t   event_handler);
 
 

@@ -29,39 +29,39 @@
 #define SPI_PL022_SSPCR0_SCR_MSK     (0xFFul<<SPI_PL022_SSPCR0_SCR_POS)
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {SPI_SCLK         , SPI_0, 0},
-    {CLCD_SCLK        , SPI_1, 0},
-    {ADC_SCLK         , SPI_2, ALTERNATE_FUNC},
-    {SHIELD_0_SPI_SCK , SPI_3, ALTERNATE_FUNC},
-    {SHIELD_1_SPI_SCK , SPI_4, ALTERNATE_FUNC},
-    {NC               , NC   , 0}
+    {SPI_SCLK, SPI_0, 0},
+    {CLCD_SCLK, SPI_1, 0},
+    {ADC_SCLK, SPI_2, ALTERNATE_FUNC},
+    {SHIELD_0_SPI_SCK, SPI_3, ALTERNATE_FUNC},
+    {SHIELD_1_SPI_SCK, SPI_4, ALTERNATE_FUNC},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {SPI_MOSI         , SPI_0, 0},
-    {CLCD_MOSI        , SPI_1, 0},
-    {ADC_MOSI         , SPI_2, ALTERNATE_FUNC},
+    {SPI_MOSI, SPI_0, 0},
+    {CLCD_MOSI, SPI_1, 0},
+    {ADC_MOSI, SPI_2, ALTERNATE_FUNC},
     {SHIELD_0_SPI_MOSI, SPI_3, ALTERNATE_FUNC},
     {SHIELD_1_SPI_MOSI, SPI_4, ALTERNATE_FUNC},
-    {NC               , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {SPI_MISO         , SPI_0, 0},
-    {CLCD_MISO        , SPI_1, 0},
-    {ADC_MISO         , SPI_2, ALTERNATE_FUNC},
+    {SPI_MISO, SPI_0, 0},
+    {CLCD_MISO, SPI_1, 0},
+    {ADC_MISO, SPI_2, ALTERNATE_FUNC},
     {SHIELD_0_SPI_MISO, SPI_3, ALTERNATE_FUNC},
     {SHIELD_1_SPI_MISO, SPI_4, ALTERNATE_FUNC},
-    {NC               , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
-    {SPI_SSEL        , SPI_0, 0},
-    {CLCD_SSEL       , SPI_1, 0},
-    {ADC_SSEL        , SPI_2, ALTERNATE_FUNC},
+    {SPI_SSEL, SPI_0, 0},
+    {CLCD_SSEL, SPI_1, 0},
+    {ADC_SSEL, SPI_2, ALTERNATE_FUNC},
     {SHIELD_0_SPI_nCS, SPI_3, ALTERNATE_FUNC},
     {SHIELD_1_SPI_nCS, SPI_4, ALTERNATE_FUNC},
-    {NC              , NC   , 0}
+    {NC, NC, 0}
 };
 
 static inline int ssp_disable(spi_t *obj);
@@ -77,7 +77,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
 
-    obj->spi = (MPS2_SSP_TypeDef*)pinmap_merge(spi_data, spi_cntl);
+    obj->spi = (MPS2_SSP_TypeDef *)pinmap_merge(spi_data, spi_cntl);
     if ((int)obj->spi == NC) {
         error("SPI pinout mapping failed");
     }
@@ -98,15 +98,15 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
             obj->spi->DMACR = 0;                /* Disable FIFO DMA                 */
             obj->spi->IMSC  = 0;                /* Mask all FIFO/IRQ interrupts     */
             obj->spi->ICR   = ((1ul <<  0) |    /* Clear SSPRORINTR interrupt       */
-                               (1ul <<  1) );   /* Clear SSPRTINTR interrupt        */
+                               (1ul <<  1));    /* Clear SSPRTINTR interrupt        */
             obj->spi->CR0   = ((7ul <<  0) |    /* 8 bit data size                  */
                                (0ul <<  4) |    /* Motorola frame format            */
                                (0ul <<  6) |    /* CPOL = 0                         */
                                (0ul <<  7) |    /* CPHA = 0                         */
-                               (1ul <<  8) );   /* Set serial clock rate            */
+                               (1ul <<  8));    /* Set serial clock rate            */
             obj->spi->CPSR  = (2ul <<  0);      /* set SSP clk to 6MHz (6.6MHz max) */
             obj->spi->CR1   = ((1ul <<  1) |    /* Synchronous serial port enable   */
-                               (0ul <<  2) );   /* Device configured as master      */
+                               (0ul <<  2));    /* Device configured as master      */
             break;
         case SPI_2:  /* Shield ADC SPI */
         case SPI_3:  /* Shield 0 SPI */
@@ -172,16 +172,16 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     uint32_t tmp = obj->spi->CR0;
     tmp &= ~(0xFFFF);
     tmp |= DSS << 0
-        | FRF << 4
-        | SPO << 6
-        | SPH << 7;
+           | FRF << 4
+           | SPO << 6
+           | SPH << 7;
     obj->spi->CR0 = tmp;
 
     tmp = obj->spi->CR1;
     tmp &= ~(0xD);
     tmp |= 0 << 0                  /* LBM - loop back mode - off */
-        | ((slave) ? 1 : 0) << 2   /* MS  - master slave mode, 1 = slave */
-        | 0 << 3;                  /* SOD - slave output disable - na */
+           | ((slave) ? 1 : 0) << 2   /* MS  - master slave mode, 1 = slave */
+           | 0 << 3;                  /* SOD - slave output disable - na */
     obj->spi->CR1 = tmp;
 
     ssp_enable(obj);
@@ -192,8 +192,8 @@ void spi_frequency(spi_t *obj, int hz)
     uint32_t clkps_dvsr, scr;
     uint32_t sys_clk = SystemCoreClock;
 
-    for(clkps_dvsr = SPI_PL022_MIN_SSPCPSR_VALUE;
-        clkps_dvsr <= SPI_PL022_MAX_SSPCPSR_VALUE; clkps_dvsr += 2) {
+    for (clkps_dvsr = SPI_PL022_MIN_SSPCPSR_VALUE;
+            clkps_dvsr <= SPI_PL022_MAX_SSPCPSR_VALUE; clkps_dvsr += 2) {
 
         /* Calculate clock rate based on the new clock prescale divisor */
         scr = (sys_clk / (clkps_dvsr * hz)) - 1;

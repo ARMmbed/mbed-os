@@ -18,20 +18,24 @@
 namespace mbed {
 
 //Custom rpc method caller for execute so that the string will not be delimited by anything
-void rpc_method_caller_run(RPC *this_ptr, Arguments *arguments, Reply *result) {
-    ((static_cast<RPCFunction*>(this_ptr))->run)(arguments, result);
+void rpc_method_caller_run(RPC *this_ptr, Arguments *arguments, Reply *result)
+{
+    ((static_cast<RPCFunction *>(this_ptr))->run)(arguments, result);
 }
 
-RPCFunction::RPCFunction(void (*f)(Arguments*, Reply*), const char* name) : RPC(name) {
+RPCFunction::RPCFunction(void (*f)(Arguments *, Reply *), const char *name) : RPC(name)
+{
     _ftr = f;
 }
 
 //Just run the attached function using the string thats in private memory - or just using null values,
-void RPCFunction::run(Arguments* args, Reply* r) {
+void RPCFunction::run(Arguments *args, Reply *r)
+{
     (*_ftr)(args, r);
 }
 
-const rpc_method *RPCFunction::get_rpc_methods() {
+const rpc_method *RPCFunction::get_rpc_methods()
+{
     static const rpc_method rpc_methods[] = {
         {"run", rpc_method_caller_run }, //Run using custom caller, all characters accepted in string
         RPC_METHOD_SUPER(RPC)

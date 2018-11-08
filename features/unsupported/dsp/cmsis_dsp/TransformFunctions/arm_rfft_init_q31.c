@@ -1,24 +1,24 @@
-/* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
-*    
-* $Date:        19. March 2015 
-* $Revision: 	V.1.4.5  
-*    
-* Project: 	    CMSIS DSP Library    
-* Title:	    arm_rfft_init_q31.c    
-*    
-* Description:	RFFT & RIFFT Q31 initialisation function    
-*    
+/* ----------------------------------------------------------------------
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.
+*
+* $Date:        19. March 2015
+* $Revision:    V.1.4.5
+*
+* Project:      CMSIS DSP Library
+* Title:        arm_rfft_init_q31.c
+*
+* Description:  RFFT & RIFFT Q31 initialisation function
+*
 * Target Processor: Cortex-M4/Cortex-M3/Cortex-M0
-*  
-* Redistribution and use in source and binary forms, with or without 
+*
+* Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions
 * are met:
 *   - Redistributions of source code must retain the above copyright
 *     notice, this list of conditions and the following disclaimer.
 *   - Redistributions in binary form must reproduce the above copyright
 *     notice, this list of conditions and the following disclaimer in
-*     the documentation and/or other materials provided with the 
+*     the documentation and/or other materials provided with the
 *     distribution.
 *   - Neither the name of ARM LIMITED nor the names of its contributors
 *     may be used to endorse or promote products derived from this
@@ -27,7 +27,7 @@
 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
 * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
 * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
 * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -35,35 +35,35 @@
 * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-* POSSIBILITY OF SUCH DAMAGE.  
+* POSSIBILITY OF SUCH DAMAGE.
 * -------------------------------------------------------------------- */
 
 #include "arm_math.h"
 #include "arm_common_tables.h"
 #include "arm_const_structs.h"
 
-/**    
-* @ingroup groupTransforms    
+/**
+* @ingroup groupTransforms
 */
 
-/**    
-* @addtogroup RealFFT    
-* @{    
+/**
+* @addtogroup RealFFT
+* @{
 */
 
-/**    
-* \par    
-* Generation fixed-point realCoefAQ31 array in Q31 format:    
-* \par    
-* n = 4096    
-* <pre>for (i = 0; i < n; i++)    
-* {    
-*    pATable[2 * i] = 0.5 * (1.0 - sin (2 * PI / (double) (2 * n) * (double) i));    
-*    pATable[2 * i + 1] = 0.5 * (-1.0 * cos (2 * PI / (double) (2 * n) * (double) i));    
-* }</pre>    
-* \par    
-* Convert to fixed point Q31 format    
-*     round(pATable[i] * pow(2, 31))    
+/**
+* \par
+* Generation fixed-point realCoefAQ31 array in Q31 format:
+* \par
+* n = 4096
+* <pre>for (i = 0; i < n; i++)
+* {
+*    pATable[2 * i] = 0.5 * (1.0 - sin (2 * PI / (double) (2 * n) * (double) i));
+*    pATable[2 * i + 1] = 0.5 * (-1.0 * cos (2 * PI / (double) (2 * n) * (double) i));
+* }</pre>
+* \par
+* Convert to fixed point Q31 format
+*     round(pATable[i] * pow(2, 31))
 */
 
 
@@ -2119,20 +2119,20 @@ static const q31_t realCoefAQ31[8192] = {
 };
 
 
-/**    
-* \par   
-* Generation of realCoefBQ31 array:    
-* \par    
-*  n = 4096        
-* <pre>for (i = 0; i < n; i++)    
-* {    
-*    pBTable[2 * i] = 0.5 * (1.0 + sin (2 * PI / (double) (2 * n) * (double) i));    
-*    pBTable[2 * i + 1] = 0.5 * (1.0 * cos (2 * PI / (double) (2 * n) * (double) i));    
-* } </pre>    
-* \par    
-* Convert to fixed point Q31 format    
-*     round(pBTable[i] * pow(2, 31))    
-*    
+/**
+* \par
+* Generation of realCoefBQ31 array:
+* \par
+*  n = 4096
+* <pre>for (i = 0; i < n; i++)
+* {
+*    pBTable[2 * i] = 0.5 * (1.0 + sin (2 * PI / (double) (2 * n) * (double) i));
+*    pBTable[2 * i + 1] = 0.5 * (1.0 * cos (2 * PI / (double) (2 * n) * (double) i));
+* } </pre>
+* \par
+* Convert to fixed point Q31 format
+*     round(pBTable[i] * pow(2, 31))
+*
 */
 
 static const q31_t realCoefBQ31[8192] = {
@@ -4186,29 +4186,29 @@ static const q31_t realCoefBQ31[8192] = {
     0x401921fb, 0xc00004ef, 0x400c90fe, 0xc000013c,
 };
 
-/**    
-* @brief  Initialization function for the Q31 RFFT/RIFFT.   
-* @param[in, out] *S             points to an instance of the Q31 RFFT/RIFFT structure.   
-* @param[in]      fftLenReal     length of the FFT.   
-* @param[in]      ifftFlagR      flag that selects forward (ifftFlagR=0) or inverse (ifftFlagR=1) transform.   
-* @param[in]      bitReverseFlag flag that enables (bitReverseFlag=1) or disables (bitReverseFlag=0) bit reversal of output.   
-* @return		The function returns ARM_MATH_SUCCESS if initialization is successful or ARM_MATH_ARGUMENT_ERROR if <code>fftLenReal</code> is not a supported value.   
-*    
-* \par Description:   
-* \par   
-* The parameter <code>fftLenReal</code>	Specifies length of RFFT/RIFFT Process. Supported FFT Lengths are 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192.    
-* \par    
-* The parameter <code>ifftFlagR</code> controls whether a forward or inverse transform is computed.    
-* Set(=1) ifftFlagR to calculate RIFFT, otherwise RFFT is calculated.    
-* \par    
-* The parameter <code>bitReverseFlag</code> controls whether output is in normal order or bit reversed order.    
-* Set(=1) bitReverseFlag for output to be in normal order otherwise output is in bit reversed order.   
+/**
+* @brief  Initialization function for the Q31 RFFT/RIFFT.
+* @param[in, out] *S             points to an instance of the Q31 RFFT/RIFFT structure.
+* @param[in]      fftLenReal     length of the FFT.
+* @param[in]      ifftFlagR      flag that selects forward (ifftFlagR=0) or inverse (ifftFlagR=1) transform.
+* @param[in]      bitReverseFlag flag that enables (bitReverseFlag=1) or disables (bitReverseFlag=0) bit reversal of output.
+* @return       The function returns ARM_MATH_SUCCESS if initialization is successful or ARM_MATH_ARGUMENT_ERROR if <code>fftLenReal</code> is not a supported value.
+*
+* \par Description:
+* \par
+* The parameter <code>fftLenReal</code> Specifies length of RFFT/RIFFT Process. Supported FFT Lengths are 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192.
+* \par
+* The parameter <code>ifftFlagR</code> controls whether a forward or inverse transform is computed.
+* Set(=1) ifftFlagR to calculate RIFFT, otherwise RFFT is calculated.
+* \par
+* The parameter <code>bitReverseFlag</code> controls whether output is in normal order or bit reversed order.
+* Set(=1) bitReverseFlag for output to be in normal order otherwise output is in bit reversed order.
 * \par    7
-* This function also initializes Twiddle factor table.    
+* This function also initializes Twiddle factor table.
 */
 
 arm_status arm_rfft_init_q31(
-    arm_rfft_instance_q31 * S,
+    arm_rfft_instance_q31 *S,
     uint32_t fftLenReal,
     uint32_t ifftFlagR,
     uint32_t bitReverseFlag)
@@ -4232,54 +4232,53 @@ arm_status arm_rfft_init_q31(
     S->bitReverseFlagR = (uint8_t) bitReverseFlag;
 
     /*  Initialization of coef modifier depending on the FFT length */
-    switch (S->fftLenReal)
-    {
-    case 8192u:
-        S->twidCoefRModifier = 1u;
-        S->pCfft = &arm_cfft_sR_q31_len4096;
-        break;
-    case 4096u:
-        S->twidCoefRModifier = 2u;
-        S->pCfft = &arm_cfft_sR_q31_len2048;
-        break;
-    case 2048u:
-        S->twidCoefRModifier = 4u;
-        S->pCfft = &arm_cfft_sR_q31_len1024;
-        break;
-    case 1024u:
-        S->twidCoefRModifier = 8u;
-        S->pCfft = &arm_cfft_sR_q31_len512;
-        break;
-    case 512u:
-        S->twidCoefRModifier = 16u;
-        S->pCfft = &arm_cfft_sR_q31_len256;
-        break;
-    case 256u:
-        S->twidCoefRModifier = 32u;
-        S->pCfft = &arm_cfft_sR_q31_len128;
-        break;
-    case 128u:
-        S->twidCoefRModifier = 64u;
-        S->pCfft = &arm_cfft_sR_q31_len64;
-        break;
-    case 64u:
-        S->twidCoefRModifier = 128u;
-        S->pCfft = &arm_cfft_sR_q31_len32;
-        break;
-    case 32u:
-        S->twidCoefRModifier = 256u;
-        S->pCfft = &arm_cfft_sR_q31_len16;
-        break;
-    default:
-        /*  Reporting argument error if rfftSize is not valid value */
-        status = ARM_MATH_ARGUMENT_ERROR;
-        break;
+    switch (S->fftLenReal) {
+        case 8192u:
+            S->twidCoefRModifier = 1u;
+            S->pCfft = &arm_cfft_sR_q31_len4096;
+            break;
+        case 4096u:
+            S->twidCoefRModifier = 2u;
+            S->pCfft = &arm_cfft_sR_q31_len2048;
+            break;
+        case 2048u:
+            S->twidCoefRModifier = 4u;
+            S->pCfft = &arm_cfft_sR_q31_len1024;
+            break;
+        case 1024u:
+            S->twidCoefRModifier = 8u;
+            S->pCfft = &arm_cfft_sR_q31_len512;
+            break;
+        case 512u:
+            S->twidCoefRModifier = 16u;
+            S->pCfft = &arm_cfft_sR_q31_len256;
+            break;
+        case 256u:
+            S->twidCoefRModifier = 32u;
+            S->pCfft = &arm_cfft_sR_q31_len128;
+            break;
+        case 128u:
+            S->twidCoefRModifier = 64u;
+            S->pCfft = &arm_cfft_sR_q31_len64;
+            break;
+        case 64u:
+            S->twidCoefRModifier = 128u;
+            S->pCfft = &arm_cfft_sR_q31_len32;
+            break;
+        case 32u:
+            S->twidCoefRModifier = 256u;
+            S->pCfft = &arm_cfft_sR_q31_len16;
+            break;
+        default:
+            /*  Reporting argument error if rfftSize is not valid value */
+            status = ARM_MATH_ARGUMENT_ERROR;
+            break;
     }
 
     /* return the status of RFFT Init function */
     return (status);
 }
 
-/**    
-* @} end of RealFFT group    
+/**
+* @} end of RealFFT group
 */

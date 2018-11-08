@@ -2,44 +2,44 @@
  * @file
  * @brief UART data types, definitions and function prototypes.
  */
- /* ****************************************************************************
- * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
- * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * Except as contained in this notice, the name of Maxim Integrated
- * Products, Inc. shall not be used except as stated in the Maxim Integrated
- * Products, Inc. Branding Policy.
- *
- * The mere transfer of this software does not imply any licenses
- * of trade secrets, proprietary technology, copyrights, patents,
- * trademarks, maskwork rights, or any other form of intellectual
- * property whatsoever. Maxim Integrated Products, Inc. retains all
- * ownership rights.
- *
- * $Date: 2016-10-10 19:51:14 -0500 (Mon, 10 Oct 2016) $
- * $Revision: 24676 $
- *
- **************************************************************************** */
+/* ****************************************************************************
+* Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a
+* copy of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
+* and/or sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included
+* in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
+* OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+*
+* Except as contained in this notice, the name of Maxim Integrated
+* Products, Inc. shall not be used except as stated in the Maxim Integrated
+* Products, Inc. Branding Policy.
+*
+* The mere transfer of this software does not imply any licenses
+* of trade secrets, proprietary technology, copyrights, patents,
+* trademarks, maskwork rights, or any other form of intellectual
+* property whatsoever. Maxim Integrated Products, Inc. retains all
+* ownership rights.
+*
+* $Date: 2016-10-10 19:51:14 -0500 (Mon, 10 Oct 2016) $
+* $Revision: 24676 $
+*
+**************************************************************************** */
 
 
-/* **** Includes **** */ 
+/* **** Includes **** */
 #include "mxc_config.h"
 #include "mxc_sys.h"
 #include "uart_regs.h"
@@ -55,14 +55,14 @@ extern "C" {
 /**
  * @ingroup commperipherals
  * @defgroup uart_comm UART
- * @brief UART serial communications peripheral. 
+ * @brief UART serial communications peripheral.
  * @{
  */
 
 /* **** Definitions **** */
 
 /**
- * Enumeration type for defining the number of bits per character. 
+ * Enumeration type for defining the number of bits per character.
  */
 typedef enum {
     UART_DATA_SIZE_5_BITS = MXC_V_UART_CTRL_DATA_SIZE_5_BITS,
@@ -73,7 +73,7 @@ typedef enum {
 uart_data_size_t;
 
 /**
- * Enumeration type for selecting Parity and type. 
+ * Enumeration type for selecting Parity and type.
  */
 typedef enum {
     UART_PARITY_DISABLE = MXC_V_UART_CTRL_PARITY_DISABLE,
@@ -83,7 +83,7 @@ typedef enum {
 } uart_parity_t;
 
 /**
- * Configuration structure type for a UART port. 
+ * Configuration structure type for a UART port.
  */
 typedef struct {
     uint8_t extra_stop;             /**< Number of stop bits.
@@ -114,7 +114,7 @@ typedef struct uart_req uart_req_t;
  * @param   error_code      Return code for the UART request. @see mxc_errors.h.
  * @addtogroup uart_async
  */
-typedef void (*uart_async_callback)(uart_req_t*, int); 
+typedef void (*uart_async_callback)(uart_req_t *, int);
 
 /**
  * Structure for a UART asynchronous transaction request.
@@ -162,7 +162,7 @@ int UART_Shutdown(mxc_uart_regs_t *uart);
  *             transmitted.
  * @return     Number of bytes written if successful, error if unsuccessful.
  */
-int UART_Write(mxc_uart_regs_t *uart, uint8_t* data, int len);
+int UART_Write(mxc_uart_regs_t *uart, uint8_t *data, int len);
 
 /**
  * @brief      Read UART data, <em>blocking</em> until transaction is complete.
@@ -175,7 +175,7 @@ int UART_Write(mxc_uart_regs_t *uart, uint8_t* data, int len);
  * @return     Number of bytes read, @ref MXC_Error_Codes "error" if
  *             unsuccessful.
  */
-int UART_Read(mxc_uart_regs_t *uart, uint8_t* data, int len, int *num);
+int UART_Read(mxc_uart_regs_t *uart, uint8_t *data, int len, int *num);
 
 /**
  * @ingroup uart_comm

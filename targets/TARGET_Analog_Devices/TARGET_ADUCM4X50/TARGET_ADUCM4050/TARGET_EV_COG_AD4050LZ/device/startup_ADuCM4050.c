@@ -60,9 +60,8 @@ __attribute__((section(".ARM.__at_0x000001A0")))
 #elif defined(__ICCARM__)
 __root
 #endif
-const uint32_t SECTION_PLACE(blank_checksum[],".checksum") =
-{
-    BLANKX60,BLANKX600
+const uint32_t SECTION_PLACE(blank_checksum[], ".checksum") = {
+    BLANKX60, BLANKX600
 };
 
 
@@ -74,80 +73,80 @@ extern void SramInit(void);
 /*----------------------------------------------------------------------------
   Exception / Interrupt Handler
  *----------------------------------------------------------------------------*/
-WEAK_FUNCTION( NMI_Handler                )
-WEAK_FUNCTION( HardFault_Handler          )
-WEAK_FUNCTION( MemManage_Handler          )
-WEAK_FUNCTION( BusFault_Handler           )
-WEAK_FUNCTION( UsageFault_Handler         )
-WEAK_FUNCTION( SVC_Handler                )
-WEAK_FUNCTION( DebugMon_Handler           )
-WEAK_FUNCTION( PendSV_Handler             )
-WEAK_FUNCTION( SysTick_Handler            )
-WEAK_FUNCTION( RTC1_Int_Handler           )
-WEAK_FUNCTION( Ext_Int0_Handler           )
-WEAK_FUNCTION( Ext_Int1_Handler           )
-WEAK_FUNCTION( Ext_Int2_Handler           )
-WEAK_FUNCTION( Ext_Int3_Handler           )
-WEAK_FUNCTION( WDog_Tmr_Int_Handler       )
-WEAK_FUNCTION( Vreg_over_Int_Handler      )
-WEAK_FUNCTION( Battery_Voltage_Int_Handler)
-WEAK_FUNCTION( RTC0_Int_Handler           )
-WEAK_FUNCTION( GPIO_A_Int_Handler         )
-WEAK_FUNCTION( GPIO_B_Int_Handler         )
-WEAK_FUNCTION( GP_Tmr0_Int_Handler        )
-WEAK_FUNCTION( GP_Tmr1_Int_Handler        )
-WEAK_FUNCTION( Flash0_Int_Handler         )
-WEAK_FUNCTION( UART0_Int_Handler          )
-WEAK_FUNCTION( SPI0_Int_Handler           )
-WEAK_FUNCTION( SPI2_Int_Handler           )
-WEAK_FUNCTION( I2C0_Slave_Int_Handler     )
-WEAK_FUNCTION( I2C0_Master_Int_Handler    )
-WEAK_FUNCTION( DMA_Err_Int_Handler        )
-WEAK_FUNCTION( DMA_SPIH_TX_Int_Handler    )
-WEAK_FUNCTION( DMA_SPIH_RX_Int_Handler    )
-WEAK_FUNCTION( DMA_SPORT0A_Int_Handler    )
-WEAK_FUNCTION( DMA_SPORT0B_Int_Handler    )
-WEAK_FUNCTION( DMA_SPI0_TX_Int_Handler    )
-WEAK_FUNCTION( DMA_SPI0_RX_Int_Handler    )
-WEAK_FUNCTION( DMA_SPI1_TX_Int_Handler    )
-WEAK_FUNCTION( DMA_SPI1_RX_Int_Handler    )
-WEAK_FUNCTION( DMA_UART0_TX_Int_Handler   )
-WEAK_FUNCTION( DMA_UART0_RX_Int_Handler   )
-WEAK_FUNCTION( DMA_I2C0_STX_Int_Handler   )
-WEAK_FUNCTION( DMA_I2C0_SRX_Int_Handler   )
-WEAK_FUNCTION( DMA_I2C0_MX_Int_Handler    )
-WEAK_FUNCTION( DMA_AES0_IN_Int_Handler    )
-WEAK_FUNCTION( DMA_AES0_OUT_Int_Handler   )
-WEAK_FUNCTION( DMA_FLASH0_Int_Handler     )
-WEAK_FUNCTION( SPORT0A_Int_Handler        )
-WEAK_FUNCTION( SPORT0B_Int_Handler        )
-WEAK_FUNCTION( Crypto_Int_Handler         )
-WEAK_FUNCTION( DMA_ADC0_Int_Handler       )
-WEAK_FUNCTION( GP_Tmr2_Int_Handler        )
-WEAK_FUNCTION( Crystal_osc_Int_Handler    )
-WEAK_FUNCTION( SPI1_Int_Handler           )
-WEAK_FUNCTION( PLL_Int_Handler            )
-WEAK_FUNCTION( RNG_Int_Handler            )
-WEAK_FUNCTION( Beep_Int_Handler           )
-WEAK_FUNCTION( ADC0_Int_Handler           )
-WEAK_FUNCTION( DMA_SIP0_Int_Handler       )
-WEAK_FUNCTION( DMA_SIP1_Int_Handler       )
-WEAK_FUNCTION( DMA_SIP2_Int_Handler       )
-WEAK_FUNCTION( DMA_SIP3_Int_Handler       )
-WEAK_FUNCTION( DMA_SIP4_Int_Handler       )
-WEAK_FUNCTION( DMA_SIP5_Int_Handler       )
-WEAK_FUNCTION( DMA_SIP6_Int_Handler       )
-WEAK_FUNCTION( DMA_SIP7_Int_Handler       )
-WEAK_FUNCTION( UART1_Int_Handler          )
-WEAK_FUNCTION( DMA_UART1_TX_Int_Handler   )
-WEAK_FUNCTION( DMA_UART1_RX_Int_Handler   )
-WEAK_FUNCTION( RGB_Tmr_Int_Handler        )
-WEAK_FUNCTION( Root_Clk_Err_Handler       )
+WEAK_FUNCTION(NMI_Handler)
+WEAK_FUNCTION(HardFault_Handler)
+WEAK_FUNCTION(MemManage_Handler)
+WEAK_FUNCTION(BusFault_Handler)
+WEAK_FUNCTION(UsageFault_Handler)
+WEAK_FUNCTION(SVC_Handler)
+WEAK_FUNCTION(DebugMon_Handler)
+WEAK_FUNCTION(PendSV_Handler)
+WEAK_FUNCTION(SysTick_Handler)
+WEAK_FUNCTION(RTC1_Int_Handler)
+WEAK_FUNCTION(Ext_Int0_Handler)
+WEAK_FUNCTION(Ext_Int1_Handler)
+WEAK_FUNCTION(Ext_Int2_Handler)
+WEAK_FUNCTION(Ext_Int3_Handler)
+WEAK_FUNCTION(WDog_Tmr_Int_Handler)
+WEAK_FUNCTION(Vreg_over_Int_Handler)
+WEAK_FUNCTION(Battery_Voltage_Int_Handler)
+WEAK_FUNCTION(RTC0_Int_Handler)
+WEAK_FUNCTION(GPIO_A_Int_Handler)
+WEAK_FUNCTION(GPIO_B_Int_Handler)
+WEAK_FUNCTION(GP_Tmr0_Int_Handler)
+WEAK_FUNCTION(GP_Tmr1_Int_Handler)
+WEAK_FUNCTION(Flash0_Int_Handler)
+WEAK_FUNCTION(UART0_Int_Handler)
+WEAK_FUNCTION(SPI0_Int_Handler)
+WEAK_FUNCTION(SPI2_Int_Handler)
+WEAK_FUNCTION(I2C0_Slave_Int_Handler)
+WEAK_FUNCTION(I2C0_Master_Int_Handler)
+WEAK_FUNCTION(DMA_Err_Int_Handler)
+WEAK_FUNCTION(DMA_SPIH_TX_Int_Handler)
+WEAK_FUNCTION(DMA_SPIH_RX_Int_Handler)
+WEAK_FUNCTION(DMA_SPORT0A_Int_Handler)
+WEAK_FUNCTION(DMA_SPORT0B_Int_Handler)
+WEAK_FUNCTION(DMA_SPI0_TX_Int_Handler)
+WEAK_FUNCTION(DMA_SPI0_RX_Int_Handler)
+WEAK_FUNCTION(DMA_SPI1_TX_Int_Handler)
+WEAK_FUNCTION(DMA_SPI1_RX_Int_Handler)
+WEAK_FUNCTION(DMA_UART0_TX_Int_Handler)
+WEAK_FUNCTION(DMA_UART0_RX_Int_Handler)
+WEAK_FUNCTION(DMA_I2C0_STX_Int_Handler)
+WEAK_FUNCTION(DMA_I2C0_SRX_Int_Handler)
+WEAK_FUNCTION(DMA_I2C0_MX_Int_Handler)
+WEAK_FUNCTION(DMA_AES0_IN_Int_Handler)
+WEAK_FUNCTION(DMA_AES0_OUT_Int_Handler)
+WEAK_FUNCTION(DMA_FLASH0_Int_Handler)
+WEAK_FUNCTION(SPORT0A_Int_Handler)
+WEAK_FUNCTION(SPORT0B_Int_Handler)
+WEAK_FUNCTION(Crypto_Int_Handler)
+WEAK_FUNCTION(DMA_ADC0_Int_Handler)
+WEAK_FUNCTION(GP_Tmr2_Int_Handler)
+WEAK_FUNCTION(Crystal_osc_Int_Handler)
+WEAK_FUNCTION(SPI1_Int_Handler)
+WEAK_FUNCTION(PLL_Int_Handler)
+WEAK_FUNCTION(RNG_Int_Handler)
+WEAK_FUNCTION(Beep_Int_Handler)
+WEAK_FUNCTION(ADC0_Int_Handler)
+WEAK_FUNCTION(DMA_SIP0_Int_Handler)
+WEAK_FUNCTION(DMA_SIP1_Int_Handler)
+WEAK_FUNCTION(DMA_SIP2_Int_Handler)
+WEAK_FUNCTION(DMA_SIP3_Int_Handler)
+WEAK_FUNCTION(DMA_SIP4_Int_Handler)
+WEAK_FUNCTION(DMA_SIP5_Int_Handler)
+WEAK_FUNCTION(DMA_SIP6_Int_Handler)
+WEAK_FUNCTION(DMA_SIP7_Int_Handler)
+WEAK_FUNCTION(UART1_Int_Handler)
+WEAK_FUNCTION(DMA_UART1_TX_Int_Handler)
+WEAK_FUNCTION(DMA_UART1_RX_Int_Handler)
+WEAK_FUNCTION(RGB_Tmr_Int_Handler)
+WEAK_FUNCTION(Root_Clk_Err_Handler)
 
 /*----------------------------------------------------------------------------
   Exception / Interrupt Vector table
  *----------------------------------------------------------------------------*/
-const pFunc SECTION_PLACE(IVT_NAME[104],VECTOR_SECTION) = {
+const pFunc SECTION_PLACE(IVT_NAME[104], VECTOR_SECTION) = {
     (pFunc) INITIAL_SP,    /* Initial Stack Pointer */
     ADUCM4050_VECTORS
 };
@@ -174,9 +173,9 @@ void zero_bss(void)
     pTable = &__copy_table_start__;
 
     for (; pTable < &__copy_table_end__; pTable = pTable + 3) {
-        pSrc  = (uint32_t*)*(pTable + 0);
-        pDest = (uint32_t*)*(pTable + 1);
-        for (; pDest < (uint32_t*)(*(pTable + 1) + *(pTable + 2)) ; ) {
+        pSrc  = (uint32_t *) * (pTable + 0);
+        pDest = (uint32_t *) * (pTable + 1);
+        for (; pDest < (uint32_t *)(*(pTable + 1) + * (pTable + 2)) ;) {
             *pDest++ = *pSrc++;
         }
     }
@@ -193,7 +192,7 @@ void zero_bss(void)
     pSrc  = &__etext;
     pDest = &__data_start__;
 
-    for ( ; pDest < &__data_end__ ; ) {
+    for (; pDest < &__data_end__ ;) {
         *pDest++ = *pSrc++;
     }
 #endif /*__STARTUP_COPY_MULTIPLE */
@@ -219,8 +218,8 @@ void zero_bss(void)
     pTable = &__zero_table_start__;
 
     for (; pTable < &__zero_table_end__; pTable = pTable + 2) {
-        pDest = (uint32_t*)*(pTable + 0);
-        for (; pDest < (uint32_t*)(*(pTable + 0) + *(pTable + 1)) ; ) {
+        pDest = (uint32_t *) * (pTable + 0);
+        for (; pDest < (uint32_t *)(*(pTable + 0) + * (pTable + 1)) ;) {
             *pDest++ = 0;
         }
     }
@@ -235,7 +234,7 @@ void zero_bss(void)
      */
     pDest = &__bss_start__;
 
-    for ( ; pDest < &__bss_end__ ; ) {
+    for (; pDest < &__bss_end__ ;) {
         *pDest++ = 0ul;
     }
 #endif /* __STARTUP_CLEAR_BSS_MULTIPLE || __STARTUP_CLEAR_BSS */
@@ -268,7 +267,7 @@ void Reset_Handler(void)
 #if defined(__ARMCC_VERSION) || defined (__GNUC__)
 void Default_Handler(void)
 {
-    while(1);
+    while (1);
 }
 #endif
 

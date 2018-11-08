@@ -53,25 +53,25 @@ const int ethernet_MTU_SIZE  = 0x300;
 #define ETHERNET_ADDR_SIZE 6
 
 struct RX_DESC_TypeDef {                        /* RX Descriptor struct              */
-   unsigned int Packet;
-   unsigned int Ctrl;
+    unsigned int Packet;
+    unsigned int Ctrl;
 } PACKED;
 typedef struct RX_DESC_TypeDef RX_DESC_TypeDef;
 
 struct RX_STAT_TypeDef {                        /* RX Status struct                  */
-   unsigned int Info;
-   unsigned int HashCRC;
+    unsigned int Info;
+    unsigned int HashCRC;
 } PACKED;
 typedef struct RX_STAT_TypeDef RX_STAT_TypeDef;
 
 struct TX_DESC_TypeDef {                        /* TX Descriptor struct              */
-   unsigned int Packet;
-   unsigned int Ctrl;
+    unsigned int Packet;
+    unsigned int Ctrl;
 } PACKED;
 typedef struct TX_DESC_TypeDef TX_DESC_TypeDef;
 
 struct TX_STAT_TypeDef {                        /* TX Status struct                  */
-   unsigned int Info;
+    unsigned int Info;
 } PACKED;
 typedef struct TX_STAT_TypeDef TX_STAT_TypeDef;
 
@@ -382,47 +382,49 @@ static int receive_idx  = -1;
 
 static uint32_t phy_id = 0;
 
-static inline int rinc(int idx, int mod) {
-  ++idx;
-  idx %= mod;
-  return idx;
+static inline int rinc(int idx, int mod)
+{
+    ++idx;
+    idx %= mod;
+    return idx;
 }
 
 //extern unsigned int SystemFrequency;
-static inline unsigned int clockselect() {
-  if(SystemCoreClock < 10000000) {
-    return 1;
-  } else if(SystemCoreClock <  15000000) {
-    return 2;
-  } else if(SystemCoreClock <  20000000) {
-    return 3;
-  } else if(SystemCoreClock <  25000000) {
-    return 4;
-  } else if(SystemCoreClock <  35000000) {
-    return 5;
-  } else if(SystemCoreClock <  50000000) {
-    return 6;
-  } else if(SystemCoreClock <  70000000) {
-    return 7;
-  } else if(SystemCoreClock <  80000000) {
-    return 8;
-  } else if(SystemCoreClock <  90000000) {
-    return 9;
-  } else if(SystemCoreClock < 100000000) {
-    return 10;
-  } else if(SystemCoreClock < 120000000) {
-    return 11;
-  } else if(SystemCoreClock < 130000000) {
-    return 12;
-  } else if(SystemCoreClock < 140000000) {
-    return 13;
-  } else if(SystemCoreClock < 150000000) {
-    return 15;
-  } else if(SystemCoreClock < 160000000) {
-    return 16;
-  } else {
-    return 0;
-  }
+static inline unsigned int clockselect()
+{
+    if (SystemCoreClock < 10000000) {
+        return 1;
+    } else if (SystemCoreClock <  15000000) {
+        return 2;
+    } else if (SystemCoreClock <  20000000) {
+        return 3;
+    } else if (SystemCoreClock <  25000000) {
+        return 4;
+    } else if (SystemCoreClock <  35000000) {
+        return 5;
+    } else if (SystemCoreClock <  50000000) {
+        return 6;
+    } else if (SystemCoreClock <  70000000) {
+        return 7;
+    } else if (SystemCoreClock <  80000000) {
+        return 8;
+    } else if (SystemCoreClock <  90000000) {
+        return 9;
+    } else if (SystemCoreClock < 100000000) {
+        return 10;
+    } else if (SystemCoreClock < 120000000) {
+        return 11;
+    } else if (SystemCoreClock < 130000000) {
+        return 12;
+    } else if (SystemCoreClock < 140000000) {
+        return 13;
+    } else if (SystemCoreClock < 150000000) {
+        return 15;
+    } else if (SystemCoreClock < 160000000) {
+        return 16;
+    } else {
+        return 0;
+    }
 }
 
 #ifndef min
@@ -432,103 +434,111 @@ static inline unsigned int clockselect() {
 /*----------------------------------------------------------------------------
   Ethernet Device initialize
  *----------------------------------------------------------------------------*/
-int ethernet_init() {
-  int regv, tout;
-  char mac[ETHERNET_ADDR_SIZE];
-  unsigned int clock = clockselect();
+int ethernet_init()
+{
+    int regv, tout;
+    char mac[ETHERNET_ADDR_SIZE];
+    unsigned int clock = clockselect();
 
-  LPC_SC->PCONP |= 0x40000000;                       /* Power Up the EMAC controller. */
+    LPC_SC->PCONP |= 0x40000000;                       /* Power Up the EMAC controller. */
 
-  LPC_PINCON->PINSEL2 = 0x50150105;                  /* Enable P1 Ethernet Pins. */
-  LPC_PINCON->PINSEL3 = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000005;
+    LPC_PINCON->PINSEL2 = 0x50150105;                  /* Enable P1 Ethernet Pins. */
+    LPC_PINCON->PINSEL3 = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000005;
 
-   /* Reset all EMAC internal modules. */
-  LPC_EMAC->MAC1    = MAC1_RES_TX | MAC1_RES_MCS_TX | MAC1_RES_RX |
-                      MAC1_RES_MCS_RX | MAC1_SIM_RES | MAC1_SOFT_RES;
-  LPC_EMAC->Command = CR_REG_RES | CR_TX_RES | CR_RX_RES | CR_PASS_RUNT_FRM;
+    /* Reset all EMAC internal modules. */
+    LPC_EMAC->MAC1    = MAC1_RES_TX | MAC1_RES_MCS_TX | MAC1_RES_RX |
+                        MAC1_RES_MCS_RX | MAC1_SIM_RES | MAC1_SOFT_RES;
+    LPC_EMAC->Command = CR_REG_RES | CR_TX_RES | CR_RX_RES | CR_PASS_RUNT_FRM;
 
-  for(tout = 100; tout; tout--) __NOP();             /* A short delay after reset. */
-
-  LPC_EMAC->MAC1 = MAC1_PASS_ALL;                    /* Initialize MAC control registers. */
-  LPC_EMAC->MAC2 = MAC2_CRC_EN | MAC2_PAD_EN;
-  LPC_EMAC->MAXF = ETH_MAX_FLEN;
-  LPC_EMAC->CLRT = CLRT_DEF;
-  LPC_EMAC->IPGR = IPGR_DEF;
-
-  LPC_EMAC->Command = CR_RMII | CR_PASS_RUNT_FRM;    /* Enable Reduced MII interface. */
-
-  LPC_EMAC->MCFG = (clock << 0x2) & MCFG_CLK_SEL;    /* Set clock */
-  LPC_EMAC->MCFG |= MCFG_RES_MII;                    /* and reset */
-
-  for(tout = 100; tout; tout--) __NOP();             /* A short delay */
-
-  LPC_EMAC->MCFG = (clock << 0x2) & MCFG_CLK_SEL;
-  LPC_EMAC->MCMD = 0;
-
-  LPC_EMAC->SUPP = SUPP_RES_RMII;                    /* Reset Reduced MII Logic. */
-
-  for (tout = 100; tout; tout--) __NOP();            /* A short delay */
-
-  LPC_EMAC->SUPP = 0;
-
-  phy_write(PHY_REG_BMCR, PHY_BMCR_RESET);           /* perform PHY reset */
-  for(tout = 0x20000; ; tout--) {                    /* Wait for hardware reset to end. */
-    regv = phy_read(PHY_REG_BMCR);
-    if(regv < 0 || tout == 0) {
-       return -1;                                    /* Error */
+    for (tout = 100; tout; tout--) {
+        __NOP();    /* A short delay after reset. */
     }
-    if(!(regv & PHY_BMCR_RESET)) {
-       break;                                        /* Reset complete. */
+
+    LPC_EMAC->MAC1 = MAC1_PASS_ALL;                    /* Initialize MAC control registers. */
+    LPC_EMAC->MAC2 = MAC2_CRC_EN | MAC2_PAD_EN;
+    LPC_EMAC->MAXF = ETH_MAX_FLEN;
+    LPC_EMAC->CLRT = CLRT_DEF;
+    LPC_EMAC->IPGR = IPGR_DEF;
+
+    LPC_EMAC->Command = CR_RMII | CR_PASS_RUNT_FRM;    /* Enable Reduced MII interface. */
+
+    LPC_EMAC->MCFG = (clock << 0x2) & MCFG_CLK_SEL;    /* Set clock */
+    LPC_EMAC->MCFG |= MCFG_RES_MII;                    /* and reset */
+
+    for (tout = 100; tout; tout--) {
+        __NOP();    /* A short delay */
     }
-  }
 
-  phy_id =  (phy_read(PHY_REG_IDR1) << 16);
-  phy_id |= (phy_read(PHY_REG_IDR2) & 0XFFF0);
+    LPC_EMAC->MCFG = (clock << 0x2) & MCFG_CLK_SEL;
+    LPC_EMAC->MCMD = 0;
 
-  if (phy_id != DP83848C_ID && phy_id != LAN8720_ID) {
-      error("Unknown Ethernet PHY (%x)", (unsigned int)phy_id);
-  }
+    LPC_EMAC->SUPP = SUPP_RES_RMII;                    /* Reset Reduced MII Logic. */
 
-  ethernet_set_link(-1, 0);
+    for (tout = 100; tout; tout--) {
+        __NOP();    /* A short delay */
+    }
 
-  /* Set the Ethernet MAC Address registers */
-  ethernet_address(mac);
-  LPC_EMAC->SA0 = ((uint32_t)mac[5] << 8) | (uint32_t)mac[4];
-  LPC_EMAC->SA1 = ((uint32_t)mac[3] << 8) | (uint32_t)mac[2];
-  LPC_EMAC->SA2 = ((uint32_t)mac[1] << 8) | (uint32_t)mac[0];
+    LPC_EMAC->SUPP = 0;
 
-  txdscr_init();                                      /* initialize DMA TX Descriptor */
-  rxdscr_init();                                      /* initialize DMA RX Descriptor */
+    phy_write(PHY_REG_BMCR, PHY_BMCR_RESET);           /* perform PHY reset */
+    for (tout = 0x20000; ; tout--) {                   /* Wait for hardware reset to end. */
+        regv = phy_read(PHY_REG_BMCR);
+        if (regv < 0 || tout == 0) {
+            return -1;                                    /* Error */
+        }
+        if (!(regv & PHY_BMCR_RESET)) {
+            break;                                        /* Reset complete. */
+        }
+    }
 
-  LPC_EMAC->RxFilterCtrl = RFC_UCAST_EN | RFC_MCAST_EN | RFC_BCAST_EN | RFC_PERFECT_EN;
-                                                      /* Receive Broadcast, Perfect Match Packets */
+    phy_id = (phy_read(PHY_REG_IDR1) << 16);
+    phy_id |= (phy_read(PHY_REG_IDR2) & 0XFFF0);
 
-  LPC_EMAC->IntEnable = INT_RX_DONE | INT_TX_DONE;    /* Enable EMAC interrupts. */
-  LPC_EMAC->IntClear  = 0xFFFF;                       /* Reset all interrupts */
+    if (phy_id != DP83848C_ID && phy_id != LAN8720_ID) {
+        error("Unknown Ethernet PHY (%x)", (unsigned int)phy_id);
+    }
+
+    ethernet_set_link(-1, 0);
+
+    /* Set the Ethernet MAC Address registers */
+    ethernet_address(mac);
+    LPC_EMAC->SA0 = ((uint32_t)mac[5] << 8) | (uint32_t)mac[4];
+    LPC_EMAC->SA1 = ((uint32_t)mac[3] << 8) | (uint32_t)mac[2];
+    LPC_EMAC->SA2 = ((uint32_t)mac[1] << 8) | (uint32_t)mac[0];
+
+    txdscr_init();                                      /* initialize DMA TX Descriptor */
+    rxdscr_init();                                      /* initialize DMA RX Descriptor */
+
+    LPC_EMAC->RxFilterCtrl = RFC_UCAST_EN | RFC_MCAST_EN | RFC_BCAST_EN | RFC_PERFECT_EN;
+    /* Receive Broadcast, Perfect Match Packets */
+
+    LPC_EMAC->IntEnable = INT_RX_DONE | INT_TX_DONE;    /* Enable EMAC interrupts. */
+    LPC_EMAC->IntClear  = 0xFFFF;                       /* Reset all interrupts */
 
 
-  LPC_EMAC->Command  |= (CR_RX_EN | CR_TX_EN);        /* Enable receive and transmit mode of MAC Ethernet core */
-  LPC_EMAC->MAC1     |= MAC1_REC_EN;
+    LPC_EMAC->Command  |= (CR_RX_EN | CR_TX_EN);        /* Enable receive and transmit mode of MAC Ethernet core */
+    LPC_EMAC->MAC1     |= MAC1_REC_EN;
 
 #if NEW_LOGIC
-  rx_consume_offset = -1;
-  tx_produce_offset = -1;
+    rx_consume_offset = -1;
+    tx_produce_offset = -1;
 #else
-  send_doff =  0;
-  send_idx  = -1;
-  send_size =  0;
+    send_doff =  0;
+    send_idx  = -1;
+    send_size =  0;
 
-  receive_soff =  0;
-  receive_idx  = -1;
+    receive_soff =  0;
+    receive_idx  = -1;
 #endif
 
-  return 0;
+    return 0;
 }
 
 /*----------------------------------------------------------------------------
   Ethernet Device Uninitialize
  *----------------------------------------------------------------------------*/
-void ethernet_free() {
+void ethernet_free()
+{
     LPC_EMAC->IntEnable &= ~(INT_RX_DONE | INT_TX_DONE);
     LPC_EMAC->IntClear   =  0xFFFF;
 
@@ -543,34 +553,35 @@ void ethernet_free() {
 // TxProduceIndex - The buffer that will/is being fileld by driver, s/w increment
 // TxConsumeIndex - The buffer that will/is beign sent by hardware
 
-int ethernet_write(const char *data, int slen) {
+int ethernet_write(const char *data, int slen)
+{
 
 #if NEW_LOGIC
 
-   if(tx_produce_offset < 0) { // mark as active if not already
-     tx_produce_offset = 0;
-   }
+    if (tx_produce_offset < 0) { // mark as active if not already
+        tx_produce_offset = 0;
+    }
 
-   int index = LPC_EMAC->TxProduceIndex;
+    int index = LPC_EMAC->TxProduceIndex;
 
-   int remaining = ETH_MAX_FLEN - tx_produce_offset - 4; // bytes written plus checksum
-   int requested = slen;
-   int ncopy = min(remaining, requested);
+    int remaining = ETH_MAX_FLEN - tx_produce_offset - 4; // bytes written plus checksum
+    int requested = slen;
+    int ncopy = min(remaining, requested);
 
-   void *pdst = (void *)(txdesc[index].Packet + tx_produce_offset);
-   void *psrc = (void *)(data);
+    void *pdst = (void *)(txdesc[index].Packet + tx_produce_offset);
+    void *psrc = (void *)(data);
 
-   if(ncopy > 0 ){
-     if(data != NULL) {
-       memcpy(pdst, psrc, ncopy);
-     } else {
-       memset(pdst, 0, ncopy);
-     }
-   }
+    if (ncopy > 0) {
+        if (data != NULL) {
+            memcpy(pdst, psrc, ncopy);
+        } else {
+            memset(pdst, 0, ncopy);
+        }
+    }
 
-   tx_produce_offset += ncopy;
+    tx_produce_offset += ncopy;
 
-   return ncopy;
+    return ncopy;
 
 #else
     void       *pdst, *psrc;
@@ -578,25 +589,25 @@ int ethernet_write(const char *data, int slen) {
     int         copy = 0;
     int         soff = 0;
 
-    if(send_idx == -1) {
+    if (send_idx == -1) {
         send_idx = LPC_EMAC->TxProduceIndex;
     }
 
-    if(slen + send_doff > ethernet_MTU_SIZE) {
-       return -1;
+    if (slen + send_doff > ethernet_MTU_SIZE) {
+        return -1;
     }
 
     do {
         copy = min(slen - soff, dlen - send_doff);
         pdst = (void *)(txdesc[send_idx].Packet + send_doff);
         psrc = (void *)(data + soff);
-        if(send_doff + copy > ETH_FRAG_SIZE) {
-            txdesc[send_idx].Ctrl = (send_doff-1) | (TCTRL_INT);
+        if (send_doff + copy > ETH_FRAG_SIZE) {
+            txdesc[send_idx].Ctrl = (send_doff - 1) | (TCTRL_INT);
             send_idx = rinc(send_idx, NUM_TX_FRAG);
             send_doff = 0;
         }
 
-        if(data != NULL) {
+        if (data != NULL) {
             memcpy(pdst, psrc, copy);
         } else {
             memset(pdst, 0, copy);
@@ -605,43 +616,46 @@ int ethernet_write(const char *data, int slen) {
         soff += copy;
         send_doff += copy;
         send_size += copy;
-    } while(soff != slen);
+    } while (soff != slen);
 
     return soff;
 #endif
 }
 
-int ethernet_send() {
+int ethernet_send()
+{
 
 #if NEW_LOGIC
-  if(tx_produce_offset < 0) { // no buffer active
-    return -1;
-  }
+    if (tx_produce_offset < 0) { // no buffer active
+        return -1;
+    }
 
-  // ensure there is a link
-  if(!ethernet_link()) {
-    return -2;
-  }
+    // ensure there is a link
+    if (!ethernet_link()) {
+        return -2;
+    }
 
-  // we have been writing in to a buffer, so finalise it
-  int size = tx_produce_offset;
-  int index = LPC_EMAC->TxProduceIndex;
-  txdesc[index].Ctrl = (tx_produce_offset-1) | (TCTRL_INT | TCTRL_LAST);
+    // we have been writing in to a buffer, so finalise it
+    int size = tx_produce_offset;
+    int index = LPC_EMAC->TxProduceIndex;
+    txdesc[index].Ctrl = (tx_produce_offset - 1) | (TCTRL_INT | TCTRL_LAST);
 
-  // Increment ProduceIndex to allow it to be sent
-  // We can only do this if the next slot is free
-  int next = rinc(index, NUM_TX_FRAG);
-  while(next == LPC_EMAC->TxConsumeIndex) {
-    for(int i=0; i<1000; i++) { __NOP(); }
-  }
+    // Increment ProduceIndex to allow it to be sent
+    // We can only do this if the next slot is free
+    int next = rinc(index, NUM_TX_FRAG);
+    while (next == LPC_EMAC->TxConsumeIndex) {
+        for (int i = 0; i < 1000; i++) {
+            __NOP();
+        }
+    }
 
-  LPC_EMAC->TxProduceIndex = next;
-  tx_produce_offset = -1;
-  return size;
+    LPC_EMAC->TxProduceIndex = next;
+    tx_produce_offset = -1;
+    return size;
 
 #else
     int s = send_size;
-    txdesc[send_idx].Ctrl = (send_doff-1) | (TCTRL_INT | TCTRL_LAST);
+    txdesc[send_idx].Ctrl = (send_doff - 1) | (TCTRL_INT | TCTRL_LAST);
     send_idx  = rinc(send_idx, NUM_TX_FRAG);
     LPC_EMAC->TxProduceIndex = send_idx;
     send_doff =  0;
@@ -668,42 +682,43 @@ int ethernet_send() {
 // rx_consume_offset = 0  // start of frame
 // Assumption: A fragment should alway be a whole frame
 
-int ethernet_receive() {
+int ethernet_receive()
+{
 #if NEW_LOGIC
 
-  // if we are currently reading a valid RxConsume buffer, increment to the next one
-  if(rx_consume_offset >= 0) {
-    LPC_EMAC->RxConsumeIndex = rinc(LPC_EMAC->RxConsumeIndex, NUM_RX_FRAG);
-  }
+    // if we are currently reading a valid RxConsume buffer, increment to the next one
+    if (rx_consume_offset >= 0) {
+        LPC_EMAC->RxConsumeIndex = rinc(LPC_EMAC->RxConsumeIndex, NUM_RX_FRAG);
+    }
 
-  // if the buffer is empty, mark it as no valid buffer
-  if(LPC_EMAC->RxConsumeIndex == LPC_EMAC->RxProduceIndex) {
-    rx_consume_offset = -1;
-    return 0;
-  }
+    // if the buffer is empty, mark it as no valid buffer
+    if (LPC_EMAC->RxConsumeIndex == LPC_EMAC->RxProduceIndex) {
+        rx_consume_offset = -1;
+        return 0;
+    }
 
-  uint32_t info = rxstat[LPC_EMAC->RxConsumeIndex].Info;
-  rx_consume_offset = 0;
+    uint32_t info = rxstat[LPC_EMAC->RxConsumeIndex].Info;
+    rx_consume_offset = 0;
 
-  // check if it is not marked as last or for errors
-  if(!(info & RINFO_LAST_FLAG) || (info & RINFO_ERR_MASK)) {
-    return -1;
-  }
+    // check if it is not marked as last or for errors
+    if (!(info & RINFO_LAST_FLAG) || (info & RINFO_ERR_MASK)) {
+        return -1;
+    }
 
-  int size = (info & RINFO_SIZE) + 1;
-  return size - 4; // don't include checksum bytes
+    int size = (info & RINFO_SIZE) + 1;
+    return size - 4; // don't include checksum bytes
 
 #else
-    if(receive_idx == -1) {
-      receive_idx = LPC_EMAC->RxConsumeIndex;
+    if (receive_idx == -1) {
+        receive_idx = LPC_EMAC->RxConsumeIndex;
     } else {
-        while(!(rxstat[receive_idx].Info & RINFO_LAST_FLAG) && ((uint32_t)receive_idx != LPC_EMAC->RxProduceIndex)) {
+        while (!(rxstat[receive_idx].Info & RINFO_LAST_FLAG) && ((uint32_t)receive_idx != LPC_EMAC->RxProduceIndex)) {
             receive_idx  = rinc(receive_idx, NUM_RX_FRAG);
         }
         unsigned int info =   rxstat[receive_idx].Info;
-        int slen =  (info & RINFO_SIZE) + 1;
+        int slen = (info & RINFO_SIZE) + 1;
 
-        if(slen > ethernet_MTU_SIZE || (info & RINFO_ERR_MASK)) {
+        if (slen > ethernet_MTU_SIZE || (info & RINFO_ERR_MASK)) {
             /* Invalid frame, ignore it and free buffer. */
             receive_idx = rinc(receive_idx, NUM_RX_FRAG);
         }
@@ -713,7 +728,7 @@ int ethernet_receive() {
         LPC_EMAC->RxConsumeIndex = receive_idx;
     }
 
-    if((uint32_t)receive_idx == LPC_EMAC->RxProduceIndex) {
+    if ((uint32_t)receive_idx == LPC_EMAC->RxProduceIndex) {
         receive_idx = -1;
         return 0;
     }
@@ -729,31 +744,32 @@ int ethernet_receive() {
 // It is possible to use read multible times.
 // Each time read will start reading after the last read byte before.
 
-int ethernet_read(char *data, int dlen) {
+int ethernet_read(char *data, int dlen)
+{
 #if NEW_LOGIC
-  // Check we have a valid buffer to read
-  if(rx_consume_offset < 0) {
-    return 0;
-  }
+    // Check we have a valid buffer to read
+    if (rx_consume_offset < 0) {
+        return 0;
+    }
 
-  // Assume 1 fragment block
-  uint32_t info = rxstat[LPC_EMAC->RxConsumeIndex].Info;
-  int size = (info & RINFO_SIZE) + 1 - 4; // exclude checksum
+    // Assume 1 fragment block
+    uint32_t info = rxstat[LPC_EMAC->RxConsumeIndex].Info;
+    int size = (info & RINFO_SIZE) + 1 - 4; // exclude checksum
 
-  int remaining = size - rx_consume_offset;
-  int requested = dlen;
-  int ncopy = min(remaining, requested);
+    int remaining = size - rx_consume_offset;
+    int requested = dlen;
+    int ncopy = min(remaining, requested);
 
-  void *psrc = (void *)(rxdesc[LPC_EMAC->RxConsumeIndex].Packet + rx_consume_offset);
-  void *pdst = (void *)(data);
+    void *psrc = (void *)(rxdesc[LPC_EMAC->RxConsumeIndex].Packet + rx_consume_offset);
+    void *pdst = (void *)(data);
 
-  if(data != NULL && ncopy > 0) {
-    memcpy(pdst, psrc, ncopy);
-  }
+    if (data != NULL && ncopy > 0) {
+        memcpy(pdst, psrc, ncopy);
+    }
 
-  rx_consume_offset += ncopy;
+    rx_consume_offset += ncopy;
 
-  return ncopy;
+    return ncopy;
 #else
     int          slen;
     int          copy   = 0;
@@ -762,16 +778,16 @@ int ethernet_read(char *data, int dlen) {
     void        *pdst, *psrc;
     int          doff = 0;
 
-    if((uint32_t)receive_idx == LPC_EMAC->RxProduceIndex || receive_idx == -1) {
+    if ((uint32_t)receive_idx == LPC_EMAC->RxProduceIndex || receive_idx == -1) {
         return 0;
     }
 
     do {
         info =   rxstat[receive_idx].Info;
         more = !(info & RINFO_LAST_FLAG);
-        slen =  (info & RINFO_SIZE) + 1;
+        slen = (info & RINFO_SIZE) + 1;
 
-        if(slen > ethernet_MTU_SIZE || (info & RINFO_ERR_MASK)) {
+        if (slen > ethernet_MTU_SIZE || (info & RINFO_ERR_MASK)) {
             /* Invalid frame, ignore it and free buffer. */
             receive_idx = rinc(receive_idx, NUM_RX_FRAG);
         } else {
@@ -780,7 +796,7 @@ int ethernet_read(char *data, int dlen) {
             psrc = (void *)(rxdesc[receive_idx].Packet + receive_soff);
             pdst = (void *)(data + doff);
 
-            if(data != NULL) {
+            if (data != NULL) {
                 /* check if Buffer available */
                 memcpy(pdst, psrc, copy);
             }
@@ -788,35 +804,36 @@ int ethernet_read(char *data, int dlen) {
             receive_soff += copy;
             doff += copy;
 
-            if((more && (receive_soff == slen))) {
+            if ((more && (receive_soff == slen))) {
                 receive_idx = rinc(receive_idx, NUM_RX_FRAG);
                 receive_soff = 0;
             }
         }
-    } while(more && !(doff == dlen) && !receive_soff);
+    } while (more && !(doff == dlen) && !receive_soff);
 
     return doff;
 #endif
 }
 
-int ethernet_link(void) {
+int ethernet_link(void)
+{
 
     if (phy_id == DP83848C_ID) {
-      return (phy_read(PHY_REG_STS) & PHY_STS_LINK);
-    }
-    else { // LAN8720_ID
-      return (phy_read(PHY_REG_BMSR) & PHY_BMSR_LINK);
+        return (phy_read(PHY_REG_STS) & PHY_STS_LINK);
+    } else { // LAN8720_ID
+        return (phy_read(PHY_REG_BMSR) & PHY_BMSR_LINK);
     }
 }
 
-static int phy_write(unsigned int PhyReg, unsigned short Data) {
+static int phy_write(unsigned int PhyReg, unsigned short Data)
+{
     unsigned int timeOut;
 
     LPC_EMAC->MADR = DP83848C_DEF_ADR | PhyReg;
     LPC_EMAC->MWTD = Data;
 
-    for(timeOut = 0; timeOut < MII_WR_TOUT; timeOut++) {     /* Wait until operation completed */
-        if((LPC_EMAC->MIND & MIND_BUSY) == 0) {
+    for (timeOut = 0; timeOut < MII_WR_TOUT; timeOut++) {    /* Wait until operation completed */
+        if ((LPC_EMAC->MIND & MIND_BUSY) == 0) {
             return 0;
         }
     }
@@ -825,14 +842,15 @@ static int phy_write(unsigned int PhyReg, unsigned short Data) {
 }
 
 
-static int phy_read(unsigned int PhyReg) {
+static int phy_read(unsigned int PhyReg)
+{
     unsigned int timeOut;
 
     LPC_EMAC->MADR = DP83848C_DEF_ADR | PhyReg;
     LPC_EMAC->MCMD = MCMD_READ;
 
-    for(timeOut = 0; timeOut < MII_RD_TOUT; timeOut++) {     /* Wait until operation completed */
-        if((LPC_EMAC->MIND & MIND_BUSY) == 0) {
+    for (timeOut = 0; timeOut < MII_RD_TOUT; timeOut++) {    /* Wait until operation completed */
+        if ((LPC_EMAC->MIND & MIND_BUSY) == 0) {
             LPC_EMAC->MCMD = 0;
             return LPC_EMAC->MRDD;                           /* Return a 16-bit value. */
         }
@@ -842,10 +860,11 @@ static int phy_read(unsigned int PhyReg) {
 }
 
 
-static void txdscr_init() {
+static void txdscr_init()
+{
     int i;
 
-    for(i = 0; i < NUM_TX_FRAG; i++) {
+    for (i = 0; i < NUM_TX_FRAG; i++) {
         txdesc[i].Packet = (uint32_t)&txbuf[i];
         txdesc[i].Ctrl   = 0;
         txstat[i].Info   = 0;
@@ -853,38 +872,41 @@ static void txdscr_init() {
 
     LPC_EMAC->TxDescriptor       = (uint32_t)txdesc;         /* Set EMAC Transmit Descriptor Registers. */
     LPC_EMAC->TxStatus           = (uint32_t)txstat;
-    LPC_EMAC->TxDescriptorNumber = NUM_TX_FRAG-1;
+    LPC_EMAC->TxDescriptorNumber = NUM_TX_FRAG - 1;
 
     LPC_EMAC->TxProduceIndex  = 0;                           /* Tx Descriptors Point to 0 */
 }
 
 
-static void rxdscr_init() {
+static void rxdscr_init()
+{
     int i;
 
-    for(i = 0; i < NUM_RX_FRAG; i++) {
+    for (i = 0; i < NUM_RX_FRAG; i++) {
         rxdesc[i].Packet  = (uint32_t)&rxbuf[i];
-        rxdesc[i].Ctrl    = RCTRL_INT | (ETH_FRAG_SIZE-1);
+        rxdesc[i].Ctrl    = RCTRL_INT | (ETH_FRAG_SIZE - 1);
         rxstat[i].Info    = 0;
         rxstat[i].HashCRC = 0;
     }
 
     LPC_EMAC->RxDescriptor       = (uint32_t)rxdesc;        /* Set EMAC Receive Descriptor Registers. */
     LPC_EMAC->RxStatus           = (uint32_t)rxstat;
-    LPC_EMAC->RxDescriptorNumber = NUM_RX_FRAG-1;
+    LPC_EMAC->RxDescriptorNumber = NUM_RX_FRAG - 1;
 
     LPC_EMAC->RxConsumeIndex  = 0;                          /* Rx Descriptors Point to 0 */
 }
 
-void ethernet_address(char *mac) {
+void ethernet_address(char *mac)
+{
     mbed_mac_address(mac);
 }
 
-void ethernet_set_link(int speed, int duplex) {
+void ethernet_set_link(int speed, int duplex)
+{
     unsigned short phy_data;
     int tout;
 
-    if((speed < 0) || (speed > 1)) {
+    if ((speed < 0) || (speed > 1)) {
 
         phy_data = PHY_AUTO_NEG;
 
@@ -896,52 +918,54 @@ void ethernet_set_link(int speed, int duplex) {
 
     phy_write(PHY_REG_BMCR, phy_data);
 
-    for(tout = 100; tout; tout--) { __NOP(); }     /* A short delay */
+    for (tout = 100; tout; tout--) {
+        __NOP();    /* A short delay */
+    }
 
-    switch(phy_id) {
-    case DP83848C_ID:
+    switch (phy_id) {
+        case DP83848C_ID:
 
-        phy_data = phy_read(PHY_REG_STS);
+            phy_data = phy_read(PHY_REG_STS);
 
-        if(phy_data & PHY_STS_DUPLEX) {
-            LPC_EMAC->MAC2 |= MAC2_FULL_DUP;
-            LPC_EMAC->Command |= CR_FULL_DUP;
-            LPC_EMAC->IPGT = IPGT_FULL_DUP;
-        } else {
-        LPC_EMAC->MAC2 &= ~MAC2_FULL_DUP;
-            LPC_EMAC->Command &= ~CR_FULL_DUP;
-            LPC_EMAC->IPGT = IPGT_HALF_DUP;
-        }
+            if (phy_data & PHY_STS_DUPLEX) {
+                LPC_EMAC->MAC2 |= MAC2_FULL_DUP;
+                LPC_EMAC->Command |= CR_FULL_DUP;
+                LPC_EMAC->IPGT = IPGT_FULL_DUP;
+            } else {
+                LPC_EMAC->MAC2 &= ~MAC2_FULL_DUP;
+                LPC_EMAC->Command &= ~CR_FULL_DUP;
+                LPC_EMAC->IPGT = IPGT_HALF_DUP;
+            }
 
-        if(phy_data & PHY_STS_SPEED) {
-            LPC_EMAC->SUPP &= ~SUPP_SPEED;
-        } else {
-            LPC_EMAC->SUPP |= SUPP_SPEED;
-        }
-
-
-        break;
-    case LAN8720_ID:
-
-        phy_data = phy_read(PHY_REG_SCSR);
-
-        if (phy_data & PHY_SCSR_DUPLEX) {
-            LPC_EMAC->MAC2 |= MAC2_FULL_DUP;
-            LPC_EMAC->Command |= CR_FULL_DUP;
-            LPC_EMAC->IPGT = IPGT_FULL_DUP;
-        } else {
-            LPC_EMAC->Command &= ~CR_FULL_DUP;
-            LPC_EMAC->IPGT = IPGT_HALF_DUP;
-        }
-
-        if(phy_data & PHY_SCSR_100MBIT) {
-            LPC_EMAC->SUPP |= SUPP_SPEED;
-        } else {
-            LPC_EMAC->SUPP &= ~SUPP_SPEED;
-        }
+            if (phy_data & PHY_STS_SPEED) {
+                LPC_EMAC->SUPP &= ~SUPP_SPEED;
+            } else {
+                LPC_EMAC->SUPP |= SUPP_SPEED;
+            }
 
 
-        break;
+            break;
+        case LAN8720_ID:
+
+            phy_data = phy_read(PHY_REG_SCSR);
+
+            if (phy_data & PHY_SCSR_DUPLEX) {
+                LPC_EMAC->MAC2 |= MAC2_FULL_DUP;
+                LPC_EMAC->Command |= CR_FULL_DUP;
+                LPC_EMAC->IPGT = IPGT_FULL_DUP;
+            } else {
+                LPC_EMAC->Command &= ~CR_FULL_DUP;
+                LPC_EMAC->IPGT = IPGT_HALF_DUP;
+            }
+
+            if (phy_data & PHY_SCSR_100MBIT) {
+                LPC_EMAC->SUPP |= SUPP_SPEED;
+            } else {
+                LPC_EMAC->SUPP &= ~SUPP_SPEED;
+            }
+
+
+            break;
     }
 
 

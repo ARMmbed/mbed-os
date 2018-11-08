@@ -20,7 +20,8 @@
 
 int us_ticker_inited = 0;
 
-void us_ticker_init(void) {
+void us_ticker_init(void)
+{
     ctimer_config_t config;
 
     if (us_ticker_inited) {
@@ -42,14 +43,17 @@ void us_ticker_init(void) {
     NVIC_EnableIRQ(CTIMER1_IRQn);
 }
 
-uint32_t us_ticker_read(void) {
-    if (!us_ticker_inited)
+uint32_t us_ticker_read(void)
+{
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     return CTIMER1->TC;
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
     ctimer_match_config_t matchConfig;
 
     matchConfig.enableCounterReset = false;
@@ -62,11 +66,13 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     CTIMER_SetupMatch(CTIMER1, kCTIMER_Match_0, &matchConfig);
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
     CTIMER1->MCR &= ~1;
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
     CTIMER1->IR = 1;
 }
 

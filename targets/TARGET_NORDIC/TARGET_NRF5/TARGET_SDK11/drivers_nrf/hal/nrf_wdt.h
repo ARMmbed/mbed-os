@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -64,8 +64,7 @@
  * @enum nrf_wdt_task_t
  * @brief WDT tasks.
  */
-typedef enum
-{
+typedef enum {
     /*lint -save -e30 -esym(628,__INTADDR__)*/
     NRF_WDT_TASK_START = offsetof(NRF_WDT_Type, TASKS_START), /**< Task for starting WDT. */
     /*lint -restore*/
@@ -75,8 +74,7 @@ typedef enum
  * @enum nrf_wdt_event_t
  * @brief WDT events.
  */
-typedef enum
-{
+typedef enum {
     /*lint -save -e30*/
     NRF_WDT_EVENT_TIMEOUT = offsetof(NRF_WDT_Type, EVENTS_TIMEOUT), /**< Event from WDT time-out. */
     /*lint -restore*/
@@ -86,8 +84,7 @@ typedef enum
  * @enum nrf_wdt_behaviour_t
  * @brief WDT behavior in CPU SLEEP or HALT mode.
  */
-typedef enum
-{
+typedef enum {
     NRF_WDT_BEHAVIOUR_RUN_SLEEP        = WDT_CONFIG_SLEEP_Msk,                       /**< WDT will run when CPU is in SLEEP mode. */
     NRF_WDT_BEHAVIOUR_RUN_HALT         = WDT_CONFIG_HALT_Msk,                        /**< WDT will run when CPU is in HALT mode. */
     NRF_WDT_BEHAVIOUR_RUN_SLEEP_HALT   = WDT_CONFIG_SLEEP_Msk | WDT_CONFIG_HALT_Msk, /**< WDT will run when CPU is in SLEEP or HALT mode. */
@@ -98,8 +95,7 @@ typedef enum
  * @enum nrf_wdt_rr_register_t
  * @brief WDT reload request registers.
  */
-typedef enum
-{
+typedef enum {
     NRF_WDT_RR0 = 0, /**< Reload request register 0. */
     NRF_WDT_RR1,     /**< Reload request register 1. */
     NRF_WDT_RR2,     /**< Reload request register 2. */
@@ -114,8 +110,7 @@ typedef enum
  * @enum nrf_wdt_int_mask_t
  * @brief WDT interrupts.
  */
-typedef enum
-{
+typedef enum {
     NRF_WDT_INT_TIMEOUT_MASK = WDT_INTENSET_TIMEOUT_Msk, /**< WDT interrupt from time-out event. */
 } nrf_wdt_int_mask_t;
 
@@ -162,7 +157,7 @@ __STATIC_INLINE void nrf_wdt_event_clear(nrf_wdt_event_t event)
  */
 __STATIC_INLINE bool nrf_wdt_event_check(nrf_wdt_event_t event)
 {
-    return (bool)*((volatile uint32_t *)((uint8_t *)NRF_WDT + event));
+    return (bool) * ((volatile uint32_t *)((uint8_t *)NRF_WDT + event));
 }
 
 

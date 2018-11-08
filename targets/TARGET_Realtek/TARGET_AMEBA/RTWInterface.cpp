@@ -38,18 +38,18 @@ typedef struct _wifi_scan_hdl {
 
 static bool _inited = false;
 
-static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_scan_result )
+static rtw_result_t scan_result_handler(rtw_scan_handler_result_t *malloced_scan_result)
 {
     wifi_scan_hdl *scan_handler = (wifi_scan_hdl *)malloced_scan_result->user_data;
     if (malloced_scan_result->scan_complete != RTW_TRUE) {
-        if(scan_handler->ap_details && scan_handler->scan_num > scan_handler->ap_num){
+        if (scan_handler->ap_details && scan_handler->scan_num > scan_handler->ap_num) {
             nsapi_wifi_ap_t ap;
-            rtw_scan_result_t* record = &malloced_scan_result->ap_details;
+            rtw_scan_result_t *record = &malloced_scan_result->ap_details;
             record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */
-            memset((void*)&ap, 0x00, sizeof(nsapi_wifi_ap_t));
+            memset((void *)&ap, 0x00, sizeof(nsapi_wifi_ap_t));
             memcpy(ap.ssid, record->SSID.val, record->SSID.len);
             memcpy(ap.bssid, record->BSSID.octet, 6);
-            switch (record->security){
+            switch (record->security) {
                 case RTW_SECURITY_OPEN:
                     ap.security = NSAPI_SECURITY_NONE;
                     break;
@@ -78,7 +78,7 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
             scan_handler->ap_details[scan_handler->ap_num] = WiFiAccessPoint(ap);
         }
         scan_handler->ap_num++;
-    } else{
+    } else {
         // scan done
         rtw_up_sema(&scan_handler->scan_sema);
     }
@@ -92,7 +92,7 @@ RTWInterface::RTWInterface(bool debug)
     int ret;
     extern u32 GlobalDebugEnable;
 
-    GlobalDebugEnable = debug?1:0;
+    GlobalDebugEnable = debug ? 1 : 0;
     emac = wlan_emac_init_interface();
     if (!emac) {
         printf("Error init RTWInterface!\r\n");
@@ -135,7 +135,7 @@ nsapi_error_t RTWInterface::set_dhcp(bool dhcp)
  */
 nsapi_error_t RTWInterface::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)
 {
-    if(!ssid) {
+    if (!ssid) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -144,7 +144,7 @@ nsapi_error_t RTWInterface::set_credentials(const char *ssid, const char *pass, 
         case NSAPI_SECURITY_WPA2:
         case NSAPI_SECURITY_WPA_WPA2:
         case NSAPI_SECURITY_WEP:
-            if((strlen(pass) < 8) || (strlen(pass) > 63)) { // 802.11 password 8-63 characters
+            if ((strlen(pass) < 8) || (strlen(pass) > 63)) { // 802.11 password 8-63 characters
                 return NSAPI_ERROR_PARAMETER;
             }
             break;
@@ -187,7 +187,7 @@ nsapi_error_t RTWInterface::connect()
             return NSAPI_ERROR_PARAMETER;
     }
 
-    if(_channel > 0 && _channel < 14){
+    if (_channel > 0 && _channel < 14) {
         uint8_t pscan_config = PSCAN_ENABLE;
         wifi_set_pscan_chan(&_channel, &pscan_config, 1);
     }
@@ -209,20 +209,22 @@ nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
 {
     static wifi_scan_hdl scan_handler;
     scan_handler.ap_num = 0;
-    if(!scan_handler.scan_sema)
+    if (!scan_handler.scan_sema) {
         rtw_init_sema(&scan_handler.scan_sema, 0);
+    }
     scan_handler.scan_num = count;
     scan_handler.ap_details = res;
-    if(wifi_scan_networks(scan_result_handler, (void *)&scan_handler) != RTW_SUCCESS){
+    if (wifi_scan_networks(scan_result_handler, (void *)&scan_handler) != RTW_SUCCESS) {
         printf("wifi scan failed\n\r");
         return NSAPI_ERROR_DEVICE_ERROR;
     }
-    if(rtw_down_timeout_sema( &scan_handler.scan_sema, MAX_SCAN_TIMEOUT ) == RTW_FALSE) {
+    if (rtw_down_timeout_sema(&scan_handler.scan_sema, MAX_SCAN_TIMEOUT) == RTW_FALSE) {
         printf("wifi scan timeout\r\n");
         return NSAPI_ERROR_DEVICE_ERROR;
     }
-    if(count <= 0 || count > scan_handler.ap_num)
+    if (count <= 0 || count > scan_handler.ap_num) {
         count = scan_handler.ap_num;
+    }
 
     return count;
 }
@@ -236,13 +238,14 @@ nsapi_error_t RTWInterface::set_channel(uint8_t channel)
 int8_t RTWInterface::get_rssi()
 {
     int rssi = 0;
-    if(wifi_get_rssi(&rssi) == 0)
+    if (wifi_get_rssi(&rssi) == 0) {
         return (int8_t)rssi;
+    }
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t RTWInterface::connect(const char *ssid, const char *pass,
-                            nsapi_security_t security, uint8_t channel)
+                                    nsapi_security_t security, uint8_t channel)
 {
     set_credentials(ssid, pass, security);
     set_channel(channel);
@@ -255,13 +258,14 @@ nsapi_error_t RTWInterface::disconnect()
 
     wlan_emac_link_change(false);
     mbed_lwip_bringdown();
-    if(wifi_is_connected_to_ap() != RTW_SUCCESS)
+    if (wifi_is_connected_to_ap() != RTW_SUCCESS) {
         return NSAPI_ERROR_NO_CONNECTION;
-    if(wifi_disconnect()<0){
+    }
+    if (wifi_disconnect() < 0) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
-    while(1){
-        if(wext_get_ssid(WLAN0_NAME, (unsigned char *) essid) < 0) {
+    while (1) {
+        if (wext_get_ssid(WLAN0_NAME, (unsigned char *) essid) < 0) {
             break;
         }
     }

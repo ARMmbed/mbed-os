@@ -18,7 +18,7 @@
 #define HI2110_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include "system_hi2110.h"
@@ -33,38 +33,37 @@
  * ==========================================================================
  */
 
-typedef enum IRQn
-{
-/******  Cortex-M0 Processor Exceptions Numbers ***************************************************/
-  Thread_mode                   = -16,      /*!<  0 Thread mode                                   */
-  NonMaskableInt_IRQn           = -14,      /*!<  2 Non Maskable Interrupt                        */
-  HardFault_IRQn                = -13,      /*!<  3 Hard Fault Interrupt                          */
-  SVCall_IRQn                   = -5,       /*!< 11 SV Call Interrupt                             */
-  PendSV_IRQn                   = -2,       /*!< 14 Pend SV Interrupt                             */
-  SysTick_IRQn                  = -1,       /*!< 15 System Tick Interrupt                         */
+typedef enum IRQn {
+    /******  Cortex-M0 Processor Exceptions Numbers ***************************************************/
+    Thread_mode                   = -16,      /*!<  0 Thread mode                                   */
+    NonMaskableInt_IRQn           = -14,      /*!<  2 Non Maskable Interrupt                        */
+    HardFault_IRQn                = -13,      /*!<  3 Hard Fault Interrupt                          */
+    SVCall_IRQn                   = -5,       /*!< 11 SV Call Interrupt                             */
+    PendSV_IRQn                   = -2,       /*!< 14 Pend SV Interrupt                             */
+    SysTick_IRQn                  = -1,       /*!< 15 System Tick Interrupt                         */
 
-/******  Device Specific Interrupt Numbers ********************************************************/
-  RTC_IRQn                      = 0,        /*!< RTC Interrupt                                    */
-  Timer_IRQn                    = 1,        /*!< Timer Interrupt                                  */
-  Security_IRQn                 = 2,        /*!< From Security Interrupt                          */
-  Protocol_IRQn                 = 3,        /*!< From Protocol Interrupt                          */
-  Apps_IRQn                     = 4,        /*!< Core Self Interrupt                              */
-  GPIO_IRQn                     = 5,        /*!< GPIO Interrupt                                   */
-  DMA_IRQn                      = 6,        /*!< DMA Interrupt                                    */
-  UART0_IRQn                    = 7,        /*!< UART0 Interrupt                                  */
-  UART1_IRQn                    = 8,        /*!< UART1 Interrupt                                  */
-  SSP0_IRQn                     = 9,        /*!< SPI0 Interrupt                                   */
-  SSP1_IRQn                     = 10,       /*!< SPI1 Interrupt                                   */
-  PWM0_Inner_IRQn               = 11,       /*!< PW0 Inner Interrupt                              */
-  PWM0_Outer_IRQn               = 12,       /*!< PW0 Outer Interrupt                              */
-  PWM1_Inner_IRQn               = 13,       /*!< PW1 Inner Interrupt                              */
-  PWM1_Outer_IRQn               = 14,       /*!< PW1 Outer Interrupt                              */
-  I2C_IRQn                      = 15,       /*!< I2C Interrupt                                    */
-  LPUART_IRQn                   = 16,       /*!< Low Power UART Interrupt                         */
-  CAP_IRQn                      = 17,       /*!< CAP Interrupt                                    */
-  COMP_IRQn                     = 18,       /*!< COMP Interrupt                                   */
-  EDGE_IRQn                     = 19,       /*!< EDGE Interrupt                                   */
-  Pulse_SWD_IRQn                = 23,       /*!< SWD Pulse Interrupt                              */
+    /******  Device Specific Interrupt Numbers ********************************************************/
+    RTC_IRQn                      = 0,        /*!< RTC Interrupt                                    */
+    Timer_IRQn                    = 1,        /*!< Timer Interrupt                                  */
+    Security_IRQn                 = 2,        /*!< From Security Interrupt                          */
+    Protocol_IRQn                 = 3,        /*!< From Protocol Interrupt                          */
+    Apps_IRQn                     = 4,        /*!< Core Self Interrupt                              */
+    GPIO_IRQn                     = 5,        /*!< GPIO Interrupt                                   */
+    DMA_IRQn                      = 6,        /*!< DMA Interrupt                                    */
+    UART0_IRQn                    = 7,        /*!< UART0 Interrupt                                  */
+    UART1_IRQn                    = 8,        /*!< UART1 Interrupt                                  */
+    SSP0_IRQn                     = 9,        /*!< SPI0 Interrupt                                   */
+    SSP1_IRQn                     = 10,       /*!< SPI1 Interrupt                                   */
+    PWM0_Inner_IRQn               = 11,       /*!< PW0 Inner Interrupt                              */
+    PWM0_Outer_IRQn               = 12,       /*!< PW0 Outer Interrupt                              */
+    PWM1_Inner_IRQn               = 13,       /*!< PW1 Inner Interrupt                              */
+    PWM1_Outer_IRQn               = 14,       /*!< PW1 Outer Interrupt                              */
+    I2C_IRQn                      = 15,       /*!< I2C Interrupt                                    */
+    LPUART_IRQn                   = 16,       /*!< Low Power UART Interrupt                         */
+    CAP_IRQn                      = 17,       /*!< CAP Interrupt                                    */
+    COMP_IRQn                     = 18,       /*!< COMP Interrupt                                   */
+    EDGE_IRQn                     = 19,       /*!< EDGE Interrupt                                   */
+    Pulse_SWD_IRQn                = 23,       /*!< SWD Pulse Interrupt                              */
 
 } IRQn_Type;
 

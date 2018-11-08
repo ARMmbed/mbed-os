@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -79,27 +79,27 @@
 
 enum _BOOT_TYPE_ {
     BOOT_FROM_FLASH = 0,
-    BOOT_FROM_SDIO  = 1,        
+    BOOT_FROM_SDIO  = 1,
     BOOT_FROM_USB   = 2,
-    BOOT_FROM_RSVD  = 3,    
+    BOOT_FROM_RSVD  = 3,
 };
 
 enum _EFUSE_CPU_CLK_ {
-    #if 1
+#if 1
     CLK_200M   = 0,
     CLK_100M   = 1,
     CLK_50M    = 2,
     CLK_25M    = 3,
-    CLK_12_5M  = 4,    
+    CLK_12_5M  = 4,
     CLK_4M     = 5,
-    #else
+#else
     CLK_25M    = 0,
     CLK_200M   = 1,
-    CLK_100M   = 2,        
+    CLK_100M   = 2,
     CLK_50M    = 3,
-    CLK_12_5M  = 4,    
-    CLK_4M     = 5,    
-    #endif
+    CLK_12_5M  = 4,
+    CLK_4M     = 5,
+#endif
 };
 
 

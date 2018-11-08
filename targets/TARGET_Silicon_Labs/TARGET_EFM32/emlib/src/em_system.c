@@ -58,29 +58,29 @@
  ******************************************************************************/
 void SYSTEM_ChipRevisionGet(SYSTEM_ChipRevision_TypeDef *rev)
 {
-  uint8_t tmp;
+    uint8_t tmp;
 
-  EFM_ASSERT(rev);
+    EFM_ASSERT(rev);
 
-  uint32_t pid0 = SECURE_READ(&(ROMTABLE->PID0));
-  uint32_t pid1 = SECURE_READ(&(ROMTABLE->PID1));
-  uint32_t pid2 = SECURE_READ(&(ROMTABLE->PID2));
-  uint32_t pid3 = SECURE_READ(&(ROMTABLE->PID3));
+    uint32_t pid0 = SECURE_READ(&(ROMTABLE->PID0));
+    uint32_t pid1 = SECURE_READ(&(ROMTABLE->PID1));
+    uint32_t pid2 = SECURE_READ(&(ROMTABLE->PID2));
+    uint32_t pid3 = SECURE_READ(&(ROMTABLE->PID3));
 
-  /* CHIP FAMILY bit [5:2] */
-  tmp  = (((pid1 & _ROMTABLE_PID1_FAMILYMSB_MASK) >> _ROMTABLE_PID1_FAMILYMSB_SHIFT) << 2);
-  /* CHIP FAMILY bit [1:0] */
-  tmp |=  ((pid0 & _ROMTABLE_PID0_FAMILYLSB_MASK) >> _ROMTABLE_PID0_FAMILYLSB_SHIFT);
-  rev->family = tmp;
+    /* CHIP FAMILY bit [5:2] */
+    tmp  = (((pid1 & _ROMTABLE_PID1_FAMILYMSB_MASK) >> _ROMTABLE_PID1_FAMILYMSB_SHIFT) << 2);
+    /* CHIP FAMILY bit [1:0] */
+    tmp |= ((pid0 & _ROMTABLE_PID0_FAMILYLSB_MASK) >> _ROMTABLE_PID0_FAMILYLSB_SHIFT);
+    rev->family = tmp;
 
-  /* CHIP MAJOR bit [3:0] */
-  rev->major = (pid0 & _ROMTABLE_PID0_REVMAJOR_MASK) >> _ROMTABLE_PID0_REVMAJOR_SHIFT;
+    /* CHIP MAJOR bit [3:0] */
+    rev->major = (pid0 & _ROMTABLE_PID0_REVMAJOR_MASK) >> _ROMTABLE_PID0_REVMAJOR_SHIFT;
 
-  /* CHIP MINOR bit [7:4] */
-  tmp  = (((pid2 & _ROMTABLE_PID2_REVMINORMSB_MASK) >> _ROMTABLE_PID2_REVMINORMSB_SHIFT) << 4);
-  /* CHIP MINOR bit [3:0] */
-  tmp |=  ((pid3 & _ROMTABLE_PID3_REVMINORLSB_MASK) >> _ROMTABLE_PID3_REVMINORLSB_SHIFT);
-  rev->minor = tmp;
+    /* CHIP MINOR bit [7:4] */
+    tmp  = (((pid2 & _ROMTABLE_PID2_REVMINORMSB_MASK) >> _ROMTABLE_PID2_REVMINORMSB_SHIFT) << 4);
+    /* CHIP MINOR bit [3:0] */
+    tmp |= ((pid3 & _ROMTABLE_PID3_REVMINORLSB_MASK) >> _ROMTABLE_PID3_REVMINORLSB_SHIFT);
+    rev->minor = tmp;
 }
 
 /***************************************************************************//**
@@ -97,19 +97,19 @@ void SYSTEM_ChipRevisionGet(SYSTEM_ChipRevision_TypeDef *rev)
  ******************************************************************************/
 bool SYSTEM_GetCalibrationValue(volatile uint32_t *regAddress)
 {
-  SYSTEM_CalAddrVal_TypeDef * p, * end;
+    SYSTEM_CalAddrVal_TypeDef *p, * end;
 
-  p   = (SYSTEM_CalAddrVal_TypeDef *)(DEVINFO_BASE & 0xFFFFF000);
-  end = (SYSTEM_CalAddrVal_TypeDef *)DEVINFO_BASE;
+    p   = (SYSTEM_CalAddrVal_TypeDef *)(DEVINFO_BASE & 0xFFFFF000);
+    end = (SYSTEM_CalAddrVal_TypeDef *)DEVINFO_BASE;
 
-  for (; p < end; p++) {
-    if (p->address == (uint32_t)regAddress) {
-      *regAddress = p->calValue;
-      return true;
+    for (; p < end; p++) {
+        if (p->address == (uint32_t)regAddress) {
+            *regAddress = p->calValue;
+            return true;
+        }
     }
-  }
-  /* Nothing found for regAddress */
-  return false;
+    /* Nothing found for regAddress */
+    return false;
 }
 
 /** @} (end addtogroup SYSTEM) */

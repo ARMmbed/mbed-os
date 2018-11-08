@@ -40,7 +40,7 @@
 #define __STM32L4xx_HAL_DMA_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -63,99 +63,94 @@
 /**
   * @brief  DMA Configuration Structure definition
   */
-typedef struct
-{
-  uint32_t Request;                   /*!< Specifies the request selected for the specified channel.
+typedef struct {
+    uint32_t Request;                   /*!< Specifies the request selected for the specified channel.
                                            This parameter can be a value of @ref DMA_request */
 
-  uint32_t Direction;                 /*!< Specifies if the data will be transferred from memory to peripheral,
+    uint32_t Direction;                 /*!< Specifies if the data will be transferred from memory to peripheral,
                                            from memory to memory or from peripheral to memory.
                                            This parameter can be a value of @ref DMA_Data_transfer_direction */
 
-  uint32_t PeriphInc;                 /*!< Specifies whether the Peripheral address register should be incremented or not.
+    uint32_t PeriphInc;                 /*!< Specifies whether the Peripheral address register should be incremented or not.
                                            This parameter can be a value of @ref DMA_Peripheral_incremented_mode */
 
-  uint32_t MemInc;                    /*!< Specifies whether the memory address register should be incremented or not.
+    uint32_t MemInc;                    /*!< Specifies whether the memory address register should be incremented or not.
                                            This parameter can be a value of @ref DMA_Memory_incremented_mode */
 
-  uint32_t PeriphDataAlignment;       /*!< Specifies the Peripheral data width.
+    uint32_t PeriphDataAlignment;       /*!< Specifies the Peripheral data width.
                                            This parameter can be a value of @ref DMA_Peripheral_data_size */
 
-  uint32_t MemDataAlignment;          /*!< Specifies the Memory data width.
+    uint32_t MemDataAlignment;          /*!< Specifies the Memory data width.
                                            This parameter can be a value of @ref DMA_Memory_data_size */
 
-  uint32_t Mode;                      /*!< Specifies the operation mode of the DMAy Channelx.
+    uint32_t Mode;                      /*!< Specifies the operation mode of the DMAy Channelx.
                                            This parameter can be a value of @ref DMA_mode
                                            @note The circular buffer mode cannot be used if the memory-to-memory
                                                  data transfer is configured on the selected Channel */
 
-  uint32_t Priority;                  /*!< Specifies the software priority for the DMAy Channelx.
+    uint32_t Priority;                  /*!< Specifies the software priority for the DMAy Channelx.
                                            This parameter can be a value of @ref DMA_Priority_level */
 } DMA_InitTypeDef;
 
 /**
   * @brief  HAL DMA State structures definition
   */
-typedef enum
-{
-  HAL_DMA_STATE_RESET             = 0x00,  /*!< DMA not yet initialized or disabled    */
-  HAL_DMA_STATE_READY             = 0x01,  /*!< DMA initialized and ready for use      */
-  HAL_DMA_STATE_BUSY              = 0x02,  /*!< DMA process is ongoing                 */
-  HAL_DMA_STATE_TIMEOUT           = 0x03,  /*!< DMA timeout state                     */
-}HAL_DMA_StateTypeDef;
+typedef enum {
+    HAL_DMA_STATE_RESET             = 0x00,  /*!< DMA not yet initialized or disabled    */
+    HAL_DMA_STATE_READY             = 0x01,  /*!< DMA initialized and ready for use      */
+    HAL_DMA_STATE_BUSY              = 0x02,  /*!< DMA process is ongoing                 */
+    HAL_DMA_STATE_TIMEOUT           = 0x03,  /*!< DMA timeout state                     */
+} HAL_DMA_StateTypeDef;
 
 /**
   * @brief  HAL DMA Error Code structure definition
   */
-typedef enum
-{
-  HAL_DMA_FULL_TRANSFER      = 0x00,    /*!< Full transfer     */
-  HAL_DMA_HALF_TRANSFER      = 0x01     /*!< Half Transfer     */
-}HAL_DMA_LevelCompleteTypeDef;
+typedef enum {
+    HAL_DMA_FULL_TRANSFER      = 0x00,    /*!< Full transfer     */
+    HAL_DMA_HALF_TRANSFER      = 0x01     /*!< Half Transfer     */
+} HAL_DMA_LevelCompleteTypeDef;
 
 
-/** 
+/**
   * @brief  HAL DMA Callback ID structure definition
   */
-typedef enum
-{
-  HAL_DMA_XFER_CPLT_CB_ID          = 0x00,    /*!< Full transfer     */
-  HAL_DMA_XFER_HALFCPLT_CB_ID      = 0x01,    /*!< Half transfer     */
-  HAL_DMA_XFER_ERROR_CB_ID         = 0x02,    /*!< Error             */ 
-  HAL_DMA_XFER_ABORT_CB_ID         = 0x03,    /*!< Abort             */ 
-  HAL_DMA_XFER_ALL_CB_ID           = 0x04     /*!< All               */ 
-    
-}HAL_DMA_CallbackIDTypeDef;
+typedef enum {
+    HAL_DMA_XFER_CPLT_CB_ID          = 0x00,    /*!< Full transfer     */
+    HAL_DMA_XFER_HALFCPLT_CB_ID      = 0x01,    /*!< Half transfer     */
+    HAL_DMA_XFER_ERROR_CB_ID         = 0x02,    /*!< Error             */
+    HAL_DMA_XFER_ABORT_CB_ID         = 0x03,    /*!< Abort             */
+    HAL_DMA_XFER_ALL_CB_ID           = 0x04     /*!< All               */
+
+} HAL_DMA_CallbackIDTypeDef;
 
 /**
   * @brief  DMA handle Structure definition
   */
-typedef struct __DMA_HandleTypeDef
-{
-  DMA_Channel_TypeDef    *Instance;                                                  /*!< Register base address                */
-                                                                                
-  DMA_InitTypeDef       Init;                                                        /*!< DMA communication parameters         */
-                                                                                
-  HAL_LockTypeDef       Lock;                                                        /*!< DMA locking object                   */
-                                                                                
-  __IO HAL_DMA_StateTypeDef  State;                                                  /*!< DMA transfer state                   */
-                                                                                
-  void                  *Parent;                                                     /*!< Parent object state                  */
+typedef struct __DMA_HandleTypeDef {
+    DMA_Channel_TypeDef    *Instance;                                                  /*!< Register base address                */
 
-  void                  (* XferCpltCallback)(struct __DMA_HandleTypeDef * hdma);     /*!< DMA transfer complete callback       */
+    DMA_InitTypeDef       Init;                                                        /*!< DMA communication parameters         */
 
-  void                  (* XferHalfCpltCallback)(struct __DMA_HandleTypeDef * hdma); /*!< DMA Half transfer complete callback  */
+    HAL_LockTypeDef       Lock;                                                        /*!< DMA locking object                   */
 
-  void                  (* XferErrorCallback)(struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback          */
+    __IO HAL_DMA_StateTypeDef  State;                                                  /*!< DMA transfer state                   */
 
-  void                  (* XferAbortCallback)( struct __DMA_HandleTypeDef * hdma);   /*!< DMA transfer abort callback          */  
-  
-  __IO uint32_t          ErrorCode;                                                  /*!< DMA Error code                       */
+    void                  *Parent;                                                     /*!< Parent object state                  */
 
-  DMA_TypeDef            *DmaBaseAddress;                                            /*!< DMA Channel Base Address             */
-  
-  uint32_t               ChannelIndex;                                               /*!< DMA Channel Index                    */  
-}DMA_HandleTypeDef;
+    void (* XferCpltCallback)(struct __DMA_HandleTypeDef *hdma);                       /*!< DMA transfer complete callback       */
+
+    void (* XferHalfCpltCallback)(struct __DMA_HandleTypeDef *hdma);                   /*!< DMA Half transfer complete callback  */
+
+    void (* XferErrorCallback)(struct __DMA_HandleTypeDef *hdma);                      /*!< DMA transfer error callback          */
+
+    void (* XferAbortCallback)(struct __DMA_HandleTypeDef *hdma);                      /*!< DMA transfer abort callback          */
+
+    __IO uint32_t          ErrorCode;                                                  /*!< DMA Error code                       */
+
+    DMA_TypeDef            *DmaBaseAddress;                                            /*!< DMA Channel Base Address             */
+
+    uint32_t               ChannelIndex;                                               /*!< DMA Channel Index                    */
+} DMA_HandleTypeDef;
 /**
   * @}
   */
@@ -173,7 +168,7 @@ typedef struct __DMA_HandleTypeDef
 #define HAL_DMA_ERROR_TE            ((uint32_t)0x00000001)    /*!< Transfer error                        */
 #define HAL_DMA_ERROR_NO_XFER       ((uint32_t)0x00000004)    /*!< no ongoing transfer                   */
 #define HAL_DMA_ERROR_TIMEOUT       ((uint32_t)0x00000020)    /*!< Timeout error                         */
-#define HAL_DMA_ERROR_NOT_SUPPORTED ((uint32_t)0x00000100)    /*!< Not supported mode                    */     
+#define HAL_DMA_ERROR_NOT_SUPPORTED ((uint32_t)0x00000100)    /*!< Not supported mode                    */
 /**
   * @}
   */
@@ -508,7 +503,7 @@ typedef struct __DMA_HandleTypeDef
   */
 /* Initialization and de-initialization functions *****************************/
 HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma);
-HAL_StatusTypeDef HAL_DMA_DeInit (DMA_HandleTypeDef *hdma);
+HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma);
 /**
   * @}
   */
@@ -517,13 +512,13 @@ HAL_StatusTypeDef HAL_DMA_DeInit (DMA_HandleTypeDef *hdma);
   * @{
   */
 /* IO operation functions *****************************************************/
-HAL_StatusTypeDef HAL_DMA_Start (DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
+HAL_StatusTypeDef HAL_DMA_Start(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout);
 void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma);
-HAL_StatusTypeDef HAL_DMA_RegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_CallbackIDTypeDef CallbackID, void (* pCallback)( DMA_HandleTypeDef * _hdma));
+HAL_StatusTypeDef HAL_DMA_RegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_CallbackIDTypeDef CallbackID, void (* pCallback)(DMA_HandleTypeDef *_hdma));
 HAL_StatusTypeDef HAL_DMA_UnRegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_CallbackIDTypeDef CallbackID);
 
 /**
@@ -588,7 +583,7 @@ uint32_t             HAL_DMA_GetError(DMA_HandleTypeDef *hdma);
 
 /**
   * @}
-  */ 
+  */
 
 /* Private functions ---------------------------------------------------------*/
 

@@ -105,17 +105,16 @@ extern "C" {
 /**
   * @brief  UTILS PLL structure definition
   */
-typedef struct
-{
-  uint32_t PLLMul;   /*!< Multiplication factor for PLL VCO input clock.
+typedef struct {
+    uint32_t PLLMul;   /*!< Multiplication factor for PLL VCO input clock.
                           This parameter can be a value of @ref RCC_LL_EC_PLL_MUL
 
                           This feature can be modified afterwards using unitary function
                           @ref LL_RCC_PLL_ConfigDomain_SYS(). */
 
-  uint32_t PLLDiv;   /*!< Division factor for PLL VCO output clock.
-                          This parameter can be a value of @ref RCC_LL_EC_PLL_DIV 
-  
+    uint32_t PLLDiv;   /*!< Division factor for PLL VCO output clock.
+                          This parameter can be a value of @ref RCC_LL_EC_PLL_DIV
+
                           This feature can be modified afterwards using unitary function
                           @ref LL_RCC_PLL_ConfigDomain_SYS(). */
 } LL_UTILS_PLLInitTypeDef;
@@ -123,21 +122,20 @@ typedef struct
 /**
   * @brief  UTILS System, AHB and APB buses clock configuration structure definition
   */
-typedef struct
-{
-  uint32_t AHBCLKDivider;         /*!< The AHB clock (HCLK) divider. This clock is derived from the system clock (SYSCLK).
+typedef struct {
+    uint32_t AHBCLKDivider;         /*!< The AHB clock (HCLK) divider. This clock is derived from the system clock (SYSCLK).
                                        This parameter can be a value of @ref RCC_LL_EC_SYSCLK_DIV
 
                                        This feature can be modified afterwards using unitary function
                                        @ref LL_RCC_SetAHBPrescaler(). */
 
-  uint32_t APB1CLKDivider;        /*!< The APB1 clock (PCLK1) divider. This clock is derived from the AHB clock (HCLK).
+    uint32_t APB1CLKDivider;        /*!< The APB1 clock (PCLK1) divider. This clock is derived from the AHB clock (HCLK).
                                        This parameter can be a value of @ref RCC_LL_EC_APB1_DIV
 
                                        This feature can be modified afterwards using unitary function
                                        @ref LL_RCC_SetAPB1Prescaler(). */
 
-  uint32_t APB2CLKDivider;        /*!< The APB2 clock (PCLK2) divider. This clock is derived from the AHB clock (HCLK).
+    uint32_t APB2CLKDivider;        /*!< The APB2 clock (PCLK2) divider. This clock is derived from the AHB clock (HCLK).
                                        This parameter can be a value of @ref RCC_LL_EC_APB2_DIV
 
                                        This feature can be modified afterwards using unitary function
@@ -184,7 +182,7 @@ typedef struct
   */
 __STATIC_INLINE uint32_t LL_GetUID_Word0(void)
 {
-  return (uint32_t)(READ_REG(*((uint32_t *)UID_BASE_ADDRESS)));
+    return (uint32_t)(READ_REG(*((uint32_t *)UID_BASE_ADDRESS)));
 }
 
 /**
@@ -193,7 +191,7 @@ __STATIC_INLINE uint32_t LL_GetUID_Word0(void)
   */
 __STATIC_INLINE uint32_t LL_GetUID_Word1(void)
 {
-  return (uint32_t)(READ_REG(*((uint32_t *)(UID_BASE_ADDRESS + 4U))));
+    return (uint32_t)(READ_REG(*((uint32_t *)(UID_BASE_ADDRESS + 4U))));
 }
 
 /**
@@ -202,7 +200,7 @@ __STATIC_INLINE uint32_t LL_GetUID_Word1(void)
   */
 __STATIC_INLINE uint32_t LL_GetUID_Word2(void)
 {
-  return (uint32_t)(READ_REG(*((uint32_t *)(UID_BASE_ADDRESS + 8U))));
+    return (uint32_t)(READ_REG(*((uint32_t *)(UID_BASE_ADDRESS + 8U))));
 }
 
 /**
@@ -213,7 +211,7 @@ __STATIC_INLINE uint32_t LL_GetUID_Word2(void)
   */
 __STATIC_INLINE uint32_t LL_GetFlashSize(void)
 {
-  return (uint16_t)(READ_REG(*((uint32_t *)FLASHSIZE_BASE_ADDRESS)));
+    return (uint16_t)(READ_REG(*((uint32_t *)FLASHSIZE_BASE_ADDRESS)));
 }
 
 /**
@@ -227,18 +225,18 @@ __STATIC_INLINE uint32_t LL_GetFlashSize(void)
 /**
   * @brief  This function configures the Cortex-M SysTick source of the time base.
   * @param  HCLKFrequency HCLK frequency in Hz (can be calculated thanks to RCC helper macro)
-  * @note   When a RTOS is used, it is recommended to avoid changing the SysTick 
+  * @note   When a RTOS is used, it is recommended to avoid changing the SysTick
   *         configuration by calling this function, for a delay use rather osDelay RTOS service.
   * @param  Ticks Number of ticks
   * @retval None
   */
 __STATIC_INLINE void LL_InitTick(uint32_t HCLKFrequency, uint32_t Ticks)
 {
-  /* Configure the SysTick to have interrupt in 1ms time base */
-  SysTick->LOAD  = (uint32_t)((HCLKFrequency / Ticks) - 1UL);  /* set reload register */
-  SysTick->VAL   = 0UL;                                       /* Load the SysTick Counter Value */
-  SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
-                   SysTick_CTRL_ENABLE_Msk;                   /* Enable the Systick Timer */
+    /* Configure the SysTick to have interrupt in 1ms time base */
+    SysTick->LOAD  = (uint32_t)((HCLKFrequency / Ticks) - 1UL);  /* set reload register */
+    SysTick->VAL   = 0UL;                                       /* Load the SysTick Counter Value */
+    SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
+                     SysTick_CTRL_ENABLE_Msk;                   /* Enable the Systick Timer */
 }
 
 void        LL_Init1msTick(uint32_t HCLKFrequency);

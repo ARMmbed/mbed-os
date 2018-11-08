@@ -44,39 +44,38 @@
 
 static void CLOCK_CONFIG_SetRtcClock(uint32_t capLoad, uint8_t enableOutPeriph)
 {
-  /* RTC clock gate enable */
-  CLOCK_EnableClock(kCLOCK_Rtc0);
-  if ((RTC->CR & RTC_CR_OSCE_MASK) == 0u) { /* Only if the Rtc oscillator is not already enabled */
-    /* Set the specified capacitor configuration for the RTC oscillator */
-    RTC_SetOscCapLoad(RTC, capLoad);
-    /* Enable the RTC 32KHz oscillator */
-    RTC->CR |= RTC_CR_OSCE_MASK;
-  }
-  /* Output to other peripherals */
-  if (enableOutPeriph) {
-    RTC->CR &= ~RTC_CR_CLKO_MASK;
-  }
-  else {
-    RTC->CR |= RTC_CR_CLKO_MASK;
-  }
-  /* Set the XTAL32/RTC_CLKIN frequency based on board setting. */
-  CLOCK_SetXtal32Freq(BOARD_XTAL32K_CLK_HZ);
-  /* Set RTC_TSR if there is fault value in RTC */
-  if (RTC->SR & RTC_SR_TIF_MASK) {
-    RTC -> TSR = RTC -> TSR;
-  }
-  /* RTC clock gate disable */
-  CLOCK_DisableClock(kCLOCK_Rtc0);
+    /* RTC clock gate enable */
+    CLOCK_EnableClock(kCLOCK_Rtc0);
+    if ((RTC->CR & RTC_CR_OSCE_MASK) == 0u) { /* Only if the Rtc oscillator is not already enabled */
+        /* Set the specified capacitor configuration for the RTC oscillator */
+        RTC_SetOscCapLoad(RTC, capLoad);
+        /* Enable the RTC 32KHz oscillator */
+        RTC->CR |= RTC_CR_OSCE_MASK;
+    }
+    /* Output to other peripherals */
+    if (enableOutPeriph) {
+        RTC->CR &= ~RTC_CR_CLKO_MASK;
+    } else {
+        RTC->CR |= RTC_CR_CLKO_MASK;
+    }
+    /* Set the XTAL32/RTC_CLKIN frequency based on board setting. */
+    CLOCK_SetXtal32Freq(BOARD_XTAL32K_CLK_HZ);
+    /* Set RTC_TSR if there is fault value in RTC */
+    if (RTC->SR & RTC_SR_TIF_MASK) {
+        RTC -> TSR = RTC -> TSR;
+    }
+    /* RTC clock gate disable */
+    CLOCK_DisableClock(kCLOCK_Rtc0);
 }
 
 static void CLOCK_CONFIG_EnableIrc48MOsc()
 {
-  /* USB clock gate enable */
-  CLOCK_EnableClock(kCLOCK_Usbfs0);
-  /* IRC48M oscillator enable */
-  USB0->CLK_RECOVER_IRC_EN = USB_CLK_RECOVER_IRC_EN_IRC_EN_MASK | USB_CLK_RECOVER_IRC_EN_REG_EN_MASK;
-  /* USB clock gate disable */
-  CLOCK_DisableClock(kCLOCK_Usbfs0);
+    /* USB clock gate enable */
+    CLOCK_EnableClock(kCLOCK_Usbfs0);
+    /* IRC48M oscillator enable */
+    USB0->CLK_RECOVER_IRC_EN = USB_CLK_RECOVER_IRC_EN_IRC_EN_MASK | USB_CLK_RECOVER_IRC_EN_REG_EN_MASK;
+    /* USB clock gate disable */
+    CLOCK_DisableClock(kCLOCK_Usbfs0);
 }
 
 static void CLOCK_CONFIG_SetFllExtRefDiv(uint8_t frdiv)
@@ -88,8 +87,7 @@ static void CLOCK_CONFIG_SetFllExtRefDiv(uint8_t frdiv)
  * Definitions
  ******************************************************************************/
 /*! @brief Clock configuration structure. */
-typedef struct _clock_config
-{
+typedef struct _clock_config {
     mcg_config_t mcgConfig;       /*!< MCG configuration.      */
     sim_clock_config_t simConfig; /*!< SIM configuration.      */
     osc_config_t oscConfig;       /*!< OSC configuration.      */
@@ -105,79 +103,81 @@ extern uint32_t SystemCoreClock;
 /* Configuration for enter VLPR mode. Core clock = 4MHz. */
 const clock_config_t g_defaultClockConfigVlpr = {
     .mcgConfig =
+    {
+        .mcgMode = kMCG_ModeBLPI,            /* Work in BLPI mode. */
+        .irclkEnableMode = kMCG_IrclkEnable, /* MCGIRCLK enable. */
+        .ircs = kMCG_IrcFast,                /* Select IRC4M. */
+        .fcrdiv = 0U,                        /* FCRDIV is 0. */
+
+        .frdiv = 0U,
+        .drs = kMCG_DrsLow,         /* Low frequency range. */
+        .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25%. */
+        .oscsel = kMCG_OscselOsc,   /* Select OSC. */
+
+        .pll0Config =
         {
-            .mcgMode = kMCG_ModeBLPI,            /* Work in BLPI mode. */
-            .irclkEnableMode = kMCG_IrclkEnable, /* MCGIRCLK enable. */
-            .ircs = kMCG_IrcFast,                /* Select IRC4M. */
-            .fcrdiv = 0U,                        /* FCRDIV is 0. */
-
-            .frdiv = 0U,
-            .drs = kMCG_DrsLow,         /* Low frequency range. */
-            .dmx32 = kMCG_Dmx32Default, /* DCO has a default range of 25%. */
-            .oscsel = kMCG_OscselOsc,   /* Select OSC. */
-
-            .pll0Config =
-                {
-                    .enableMode = 0U, /* Don't eanble PLL. */
-                    .prdiv = 0U,
-                    .vdiv = 0U,
-                },
+            .enableMode = 0U, /* Don't eanble PLL. */
+            .prdiv = 0U,
+            .vdiv = 0U,
         },
+    },
     .simConfig =
+    {
+        .pllFllSel = 3U,        /* PLLFLLSEL select IRC48MCLK. */
+        .er32kSrc = 2U,         /* ERCLK32K selection, use RTC. */
+        .clkdiv1 = 0x00040000U, /* SIM_CLKDIV1. */
+    },
+    .oscConfig = {
+        .freq = BOARD_XTAL0_CLK_HZ,
+        .capLoad = 0,
+        .workMode = kOSC_ModeExt,
+        .oscerConfig =
         {
-            .pllFllSel = 3U,        /* PLLFLLSEL select IRC48MCLK. */
-            .er32kSrc = 2U,         /* ERCLK32K selection, use RTC. */
-            .clkdiv1 = 0x00040000U, /* SIM_CLKDIV1. */
-        },
-    .oscConfig = {.freq = BOARD_XTAL0_CLK_HZ,
-                  .capLoad = 0,
-                  .workMode = kOSC_ModeExt,
-                  .oscerConfig =
-                      {
-                          .enableMode = kOSC_ErClkEnable,
+            .enableMode = kOSC_ErClkEnable,
 #if (defined(FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER) && FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER)
-                          .erclkDiv = 0U,
+            .erclkDiv = 0U,
 #endif
-                      }},
+        }
+    },
     .coreClock = 4000000U, /* Core clock frequency */
 };
 
 /* Configuration for enter RUN mode. Core clock = 95.977472 MHz. */
 const clock_config_t g_defaultClockConfigRun = {
     .mcgConfig =
+    {
+        .mcgMode = kMCG_ModePEE,                  /* PEE - PLL Engaged External */
+        .irclkEnableMode = MCG_IRCLK_DISABLE,     /* MCGIRCLK disabled */
+        .ircs = kMCG_IrcSlow,                     /* Slow internal reference clock selected */
+        .fcrdiv = 0x0U,                           /* Fast IRC divider: divided by 1 */
+        .frdiv = 0x2U,                            /* FLL reference clock divider: divided by 4 */
+        .drs = kMCG_DrsLow,                       /* Low frequency range */
+        .dmx32 = kMCG_Dmx32Default,               /* DCO has a default range of 25% */
+        .oscsel = kMCG_OscselIrc,                 /* Selects 48 MHz IRC Oscillator */
+        .pll0Config =
         {
-            .mcgMode = kMCG_ModePEE,                  /* PEE - PLL Engaged External */
-            .irclkEnableMode = MCG_IRCLK_DISABLE,     /* MCGIRCLK disabled */
-            .ircs = kMCG_IrcSlow,                     /* Slow internal reference clock selected */
-            .fcrdiv = 0x0U,                           /* Fast IRC divider: divided by 1 */
-            .frdiv = 0x2U,                            /* FLL reference clock divider: divided by 4 */
-            .drs = kMCG_DrsLow,                       /* Low frequency range */
-            .dmx32 = kMCG_Dmx32Default,               /* DCO has a default range of 25% */
-            .oscsel = kMCG_OscselIrc,                 /* Selects 48 MHz IRC Oscillator */
-            .pll0Config =
-                {
-                    .enableMode = MCG_PLL_DISABLE,    /* MCGPLLCLK disabled */
-                    .prdiv = 0xbU,                    /* PLL Reference divider: divided by 12 */
-                    .vdiv = 0x0U,                     /* VCO divider: multiplied by 24 */
-                },
+            .enableMode = MCG_PLL_DISABLE,    /* MCGPLLCLK disabled */
+            .prdiv = 0xbU,                    /* PLL Reference divider: divided by 12 */
+            .vdiv = 0x0U,                     /* VCO divider: multiplied by 24 */
         },
+    },
     .simConfig = //OK
+    {
+        .pllFllSel = SIM_PLLFLLSEL_MCGFLLCLK_CLK, /* PLLFLL select: MCGFLLCLK clock */
+        .er32kSrc = SIM_OSC32KSEL_RTC32KCLK_CLK,  /* OSC32KSEL select: RTC32KCLK clock (32.768kHz) */
+        .clkdiv1 = 0x1240000U,                    /* SIM_CLKDIV1 - OUTDIV1: /1, OUTDIV2: /2, OUTDIV3: /3, OUTDIV4: /5 */
+    },
+    .oscConfig =
+    {
+        .freq = 0U,                               /* Oscillator frequency: 0Hz */
+        .capLoad = (OSC_CAP0P),                   /* Oscillator capacity load: 0pF */
+        .workMode = kOSC_ModeExt,                 /* Use external clock */
+        .oscerConfig =
         {
-            .pllFllSel = SIM_PLLFLLSEL_MCGFLLCLK_CLK, /* PLLFLL select: MCGFLLCLK clock */
-            .er32kSrc = SIM_OSC32KSEL_RTC32KCLK_CLK,  /* OSC32KSEL select: RTC32KCLK clock (32.768kHz) */
-            .clkdiv1 = 0x1240000U,                    /* SIM_CLKDIV1 - OUTDIV1: /1, OUTDIV2: /2, OUTDIV3: /3, OUTDIV4: /5 */
-        },
-    .oscConfig = 
-        {
-            .freq = 0U,                               /* Oscillator frequency: 0Hz */
-            .capLoad = (OSC_CAP0P),                   /* Oscillator capacity load: 0pF */
-            .workMode = kOSC_ModeExt,                 /* Use external clock */
-            .oscerConfig =
-                {
-                    .enableMode = kOSC_ErClkEnable,   /* Enable external reference clock, disable external reference clock in STOP mode */
+            .enableMode = kOSC_ErClkEnable,   /* Enable external reference clock, disable external reference clock in STOP mode */
 
-                }
-        },
+        }
+    },
     .coreClock = 96000000U, /* Core clock frequency */
 };
 
@@ -211,7 +211,7 @@ const clock_config_t g_defaultClockConfigRun = {
  *
  * 4. Call CLOCK_SetSimConfig to set the clock configuration in SIM.
  */
- 
+
 static void fllStableDelay(void)
 {
     /*
@@ -219,8 +219,7 @@ static void fllStableDelay(void)
        at most, so this function could obtain the 1ms delay.
      */
     volatile uint32_t i = 30000U;
-    while (i--)
-    {
+    while (i--) {
         __NOP();
     }
 }
@@ -238,8 +237,7 @@ void BOARD_BootClockVLPR(void)
 
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
     SMC_SetPowerModeVlpr(SMC, false);
-    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr)
-    {
+    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateVlpr) {
     }
 }
 

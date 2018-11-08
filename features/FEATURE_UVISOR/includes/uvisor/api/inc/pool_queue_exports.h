@@ -59,7 +59,7 @@ typedef struct uvisor_pool {
     uint32_t magic;
 
     /* The array holds slots of data. */
-    void const * array;
+    void const *array;
 
     /* The distance between elements in the array. */
     size_t stride;
@@ -93,71 +93,71 @@ typedef struct uvisor_pool_queue {
     /* The last allocated slot */
     uvisor_pool_slot_t tail;
 
-    uvisor_pool_t * pool;
+    uvisor_pool_t *pool;
 } uvisor_pool_queue_t;
 
 /* Intialize a pool.
  * Return 0 on success, non-zero otherwise. */
-UVISOR_EXTERN int uvisor_pool_init(uvisor_pool_t * pool, void * array, size_t stride, size_t num);
+UVISOR_EXTERN int uvisor_pool_init(uvisor_pool_t *pool, void *array, size_t stride, size_t num);
 
 /* Initialize a pool queue.
  * Return 0 on success, non-zero otherwise. */
-UVISOR_EXTERN int uvisor_pool_queue_init(uvisor_pool_queue_t * pool_queue, uvisor_pool_t * pool, void * array, size_t stride, size_t num);
+UVISOR_EXTERN int uvisor_pool_queue_init(uvisor_pool_queue_t *pool_queue, uvisor_pool_t *pool, void *array, size_t stride, size_t num);
 
 /* Allocate a slot from the pool. This doesn't put anything in the slot for
  * you. It's up to you to do that. Return the index of the allocated slot, or
  * UVISOR_POOL_SLOT_INVALID if there is no available slot. This function will
  * spin until the spin lock serializing access to the pool can be taken. */
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_allocate(uvisor_pool_t * pool);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_allocate(uvisor_pool_t *pool);
 /* Attempt to allocate a slot. This function will fail if the spin lock
  * serializing access to the pool can not be taken. */
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_try_allocate(uvisor_pool_t * pool);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_try_allocate(uvisor_pool_t *pool);
 
 /* Enqueue the specified slot into the queue. */
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_enqueue(uvisor_pool_queue_t * pool_queue, uvisor_pool_slot_t slot);
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_try_enqueue(uvisor_pool_queue_t * pool_queue, uvisor_pool_slot_t slot);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_enqueue(uvisor_pool_queue_t *pool_queue, uvisor_pool_slot_t slot);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_try_enqueue(uvisor_pool_queue_t *pool_queue, uvisor_pool_slot_t slot);
 
 /* Free the specified slot back into the pool. Invalid slots are ignored.
  * Return the slot that was freed, or UVISOR_POOL_SLOT_IS_FREE if the slot was
  * already freed, or UVISOR_POOL_SLOT_INVALID if the slot being requested to
  * free is outside the range of the queue. */
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_free(uvisor_pool_t * pool, uvisor_pool_slot_t slot);
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_try_free(uvisor_pool_t * pool, uvisor_pool_slot_t slot);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_free(uvisor_pool_t *pool, uvisor_pool_slot_t slot);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_try_free(uvisor_pool_t *pool, uvisor_pool_slot_t slot);
 
 /* Remove the specified slot from the queue. This function does not free the
  * specified slot back into the pool. Return the slot that was dequeued, or
  * UVISOR_POOL_SLOT_IS_DEQUEUED if the slot was already dequeued, or
  * UVISOR_POOL_SLOT_INVALID if the slot being requested to dequeue is outside
  * the range of the queue. */
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_try_dequeue(uvisor_pool_queue_t * pool_queue, uvisor_pool_slot_t slot);
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_dequeue(uvisor_pool_queue_t * pool_queue, uvisor_pool_slot_t slot);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_try_dequeue(uvisor_pool_queue_t *pool_queue, uvisor_pool_slot_t slot);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_dequeue(uvisor_pool_queue_t *pool_queue, uvisor_pool_slot_t slot);
 
 /* Remove the first slot from the queue. This function does not free the
  * specified slot back into the pool. Return the slot that was dequeued or
  * UVISOR_POOL_SLOT_INVALID if the slot being requested to dequeue is outside
  * the range of the queue. */
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_dequeue_first(uvisor_pool_queue_t * pool_queue);
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_try_dequeue_first(uvisor_pool_queue_t * pool_queue);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_dequeue_first(uvisor_pool_queue_t *pool_queue);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_try_dequeue_first(uvisor_pool_queue_t *pool_queue);
 
 /* Find the first (in queue order) slot that the supplied query function
  * returns non-zero for. The query function is provided with `context` on every
  * invocation. This allows query functions to access additional data without
  * having to use global variables. `uvisor_pool_queue_find_first` is reentrant. */
-typedef int (*TQueryFN_Ptr)(uvisor_pool_slot_t slot, void * context);
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_try_find_first(uvisor_pool_queue_t * pool_queue,
-                                                                  TQueryFN_Ptr query_fn, void * context);
-UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_find_first(uvisor_pool_queue_t * pool_queue,
-                                                              TQueryFN_Ptr query_fn, void * context);
+typedef int (*TQueryFN_Ptr)(uvisor_pool_slot_t slot, void *context);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_try_find_first(uvisor_pool_queue_t *pool_queue,
+                                                                  TQueryFN_Ptr query_fn, void *context);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_find_first(uvisor_pool_queue_t *pool_queue,
+                                                              TQueryFN_Ptr query_fn, void *context);
 
 /* Inline helper function to make allocating slots for pool queues easier and
  * better encapsulated (clients don't need to pull the pool out of the pool
  * queue, or even realize pool_queue is implemented with a pool) */
-static inline uvisor_pool_slot_t uvisor_pool_queue_allocate(uvisor_pool_queue_t * pool_queue)
+static inline uvisor_pool_slot_t uvisor_pool_queue_allocate(uvisor_pool_queue_t *pool_queue)
 {
     return uvisor_pool_allocate(pool_queue->pool);
 }
 
-static inline uvisor_pool_slot_t uvisor_pool_queue_try_allocate(uvisor_pool_queue_t * pool_queue)
+static inline uvisor_pool_slot_t uvisor_pool_queue_try_allocate(uvisor_pool_queue_t *pool_queue)
 {
     return uvisor_pool_try_allocate(pool_queue->pool);
 }
@@ -165,18 +165,18 @@ static inline uvisor_pool_slot_t uvisor_pool_queue_try_allocate(uvisor_pool_queu
 /* Inline helper function to make freeing slots for pool queues easier and
  * better encapsulated (clients don't need to pull the pool out of the pool
  * queue, or even realize pool_queue is implemented with a pool) */
-static inline uvisor_pool_slot_t uvisor_pool_queue_free(uvisor_pool_queue_t * pool_queue, uvisor_pool_slot_t slot)
+static inline uvisor_pool_slot_t uvisor_pool_queue_free(uvisor_pool_queue_t *pool_queue, uvisor_pool_slot_t slot)
 {
     return uvisor_pool_free(pool_queue->pool, slot);
 }
 
-static inline uvisor_pool_slot_t uvisor_pool_queue_try_free(uvisor_pool_queue_t * pool_queue, uvisor_pool_slot_t slot)
+static inline uvisor_pool_slot_t uvisor_pool_queue_try_free(uvisor_pool_queue_t *pool_queue, uvisor_pool_slot_t slot)
 {
     return uvisor_pool_try_free(pool_queue->pool, slot);
 }
 
 /* Return a pointer to the specified slot within the pool. */
-static inline void * uvisor_pool_pointer_to(uvisor_pool_t * pool, uvisor_pool_slot_t slot)
+static inline void *uvisor_pool_pointer_to(uvisor_pool_t *pool, uvisor_pool_slot_t slot)
 {
     if (slot >= pool->num) {
         return NULL;

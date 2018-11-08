@@ -41,8 +41,7 @@
 #define PDRCFG0 0x0U
 #define PDRCFG1 0x1U
 
-typedef enum pd_bits
-{
+typedef enum pd_bits {
     kPDRUNCFG_LP_REG = MAKE_PD_BITS(PDRCFG0, 2U),
     kPDRUNCFG_PD_FRO_EN = MAKE_PD_BITS(PDRCFG0, 4U),
     kPDRUNCFG_PD_TS = MAKE_PD_BITS(PDRCFG0, 6U),
@@ -79,8 +78,7 @@ typedef enum pd_bits
 } pd_bit_t;
 
 /* Power mode configuration API parameter */
-typedef enum _power_mode_config
-{
+typedef enum _power_mode_config {
     kPmu_Sleep = 0U,
     kPmu_Deep_Sleep = 1U,
     kPmu_Deep_PowerDown = 2U,
@@ -214,9 +212,9 @@ void POWER_EnterDeepSleep(uint64_t exclude_from_pd);
 /*!
  * @brief Power Library API to enter deep power down mode.
  *
- * @param exclude_from_pd   Bit mask of the PDRUNCFG0(low 32bits) and PDRUNCFG1(high 32bits) that needs to be powered on during deep power 
+ * @param exclude_from_pd   Bit mask of the PDRUNCFG0(low 32bits) and PDRUNCFG1(high 32bits) that needs to be powered on during deep power
  *                          down mode, but this is has no effect as the voltages are cut off.
- 
+
  * @return none
  */
 void POWER_EnterDeepPowerDown(uint64_t exclude_from_pd);
@@ -224,7 +222,7 @@ void POWER_EnterDeepPowerDown(uint64_t exclude_from_pd);
 /*!
  * @brief Power Library API to choose normal regulation and set the voltage for the desired operating frequency.
  *
- * @param freq  - The desired frequency at which the part would like to operate, 
+ * @param freq  - The desired frequency at which the part would like to operate,
  *                note that the voltage and flash wait states should be set before changing frequency
  * @return none
  */

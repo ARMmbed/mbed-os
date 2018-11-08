@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F7xx_HAL_PWR_H
 #define __STM32F7xx_HAL_PWR_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,25 +52,24 @@
 
 /** @addtogroup PWR
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 
 /** @defgroup PWR_Exported_Types PWR Exported Types
   * @{
   */
-   
+
 /**
   * @brief  PWR PVD configuration structure definition
   */
-typedef struct
-{
-  uint32_t PVDLevel;   /*!< PVDLevel: Specifies the PVD detection level.
+typedef struct {
+    uint32_t PVDLevel;   /*!< PVDLevel: Specifies the PVD detection level.
                             This parameter can be a value of @ref PWR_PVD_detection_level */
 
-  uint32_t Mode;      /*!< Mode: Specifies the operating mode for the selected pins.
+    uint32_t Mode;      /*!< Mode: Specifies the operating mode for the selected pins.
                            This parameter can be a value of @ref PWR_PVD_Mode */
-}PWR_PVDTypeDef;
+} PWR_PVDTypeDef;
 
 /**
   * @}
@@ -83,7 +82,7 @@ typedef struct
 
 /** @defgroup PWR_PVD_detection_level PWR PVD detection level
   * @{
-  */ 
+  */
 #define PWR_PVDLEVEL_0                  PWR_CR1_PLS_LEV0
 #define PWR_PVDLEVEL_1                  PWR_CR1_PLS_LEV1
 #define PWR_PVDLEVEL_2                  PWR_CR1_PLS_LEV2
@@ -96,8 +95,8 @@ typedef struct
 
 /**
   * @}
-  */   
- 
+  */
+
 /** @defgroup PWR_PVD_Mode PWR PVD Mode
   * @{
   */
@@ -120,7 +119,7 @@ typedef struct
 /**
   * @}
   */
-    
+
 /** @defgroup PWR_SLEEP_mode_entry PWR SLEEP mode entry
   * @{
   */
@@ -163,8 +162,8 @@ typedef struct
 
 /**
   * @}
-  */ 
-  
+  */
+
 /* Exported macro ------------------------------------------------------------*/
 /** @defgroup PWR_Exported_Macro PWR Exported Macro
   * @{
@@ -186,24 +185,24 @@ typedef struct
                                                             /* Delay after an RCC peripheral clock enabling */  \
                                                             tmpreg = READ_BIT(PWR->CR1, PWR_CR1_VOS);           \
                                                             UNUSED(tmpreg);                                     \
-				                                                	} while(0)
+                                                                    } while(0)
 
 /** @brief  Check PWR flag is set or not.
   * @param  __FLAG__: specifies the flag to check.
   *           This parameter can be one of the following values:
-  *            @arg PWR_FLAG_WU: Wake Up flag. This flag indicates that a wakeup event 
+  *            @arg PWR_FLAG_WU: Wake Up flag. This flag indicates that a wakeup event
   *                  was received on the internal wakeup line in standby mode (RTC alarm (Alarm A or Alarm B),
   *                  RTC Tamper event, RTC TimeStamp event or RTC Wakeup)).
   *            @arg PWR_FLAG_SB: StandBy flag. This flag indicates that the system was
-  *                  resumed from StandBy mode.    
-  *            @arg PWR_FLAG_PVDO: PVD Output. This flag is valid only if PVD is enabled 
-  *                  by the HAL_PWR_EnablePVD() function. The PVD is stopped by Standby mode 
+  *                  resumed from StandBy mode.
+  *            @arg PWR_FLAG_PVDO: PVD Output. This flag is valid only if PVD is enabled
+  *                  by the HAL_PWR_EnablePVD() function. The PVD is stopped by Standby mode
   *                  For this reason, this bit is equal to 0 after Standby or reset
   *                  until the PVDE bit is set.
-  *            @arg PWR_FLAG_BRR: Backup regulator ready flag. This bit is not reset 
-  *                  when the device wakes up from Standby mode or by a system reset 
-  *                  or power reset.  
-  *            @arg PWR_FLAG_VOSRDY: This flag indicates that the Regulator voltage 
+  *            @arg PWR_FLAG_BRR: Backup regulator ready flag. This bit is not reset
+  *                  when the device wakes up from Standby mode or by a system reset
+  *                  or power reset.
+  *            @arg PWR_FLAG_VOSRDY: This flag indicates that the Regulator voltage
   *                 scaling output selection is ready.
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
@@ -307,8 +306,8 @@ typedef struct
 /** @addtogroup PWR_Exported_Functions PWR Exported Functions
   * @{
   */
-  
-/** @addtogroup PWR_Exported_Functions_Group1 Initialization and de-initialization functions 
+
+/** @addtogroup PWR_Exported_Functions_Group1 Initialization and de-initialization functions
   * @{
   */
 /* Initialization and de-initialization functions *****************************/
@@ -319,7 +318,7 @@ void HAL_PWR_DisableBkUpAccess(void);
   * @}
   */
 
-/** @addtogroup PWR_Exported_Functions_Group2 Peripheral Control functions 
+/** @addtogroup PWR_Exported_Functions_Group2 Peripheral Control functions
   * @{
   */
 /* Peripheral Control functions  **********************************************/
@@ -406,12 +405,12 @@ void HAL_PWR_DisableSEVOnPend(void);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
   */
-  
+
 #ifdef __cplusplus
 }
 #endif

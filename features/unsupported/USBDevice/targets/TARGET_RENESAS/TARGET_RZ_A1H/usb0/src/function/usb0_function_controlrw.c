@@ -76,7 +76,7 @@ Private global variables and functions
 *              : DEVDRV_USBF_WRITING           ; Continue of data write
 *              : DEVDRV_USBF_FIFOERROR         ; FIFO access error
 *******************************************************************************/
-uint16_t usb0_api_function_CtrlReadStart (uint32_t size, uint8_t * data)
+uint16_t usb0_api_function_CtrlReadStart(uint32_t size, uint8_t *data)
 {
     uint16_t status;
     uint16_t mbw;
@@ -87,27 +87,26 @@ uint16_t usb0_api_function_CtrlReadStart (uint32_t size, uint8_t * data)
     g_usb0_function_data_pointer[USB_FUNCTION_PIPE0] = data;
 
     mbw = usb0_function_get_mbw(g_usb0_function_data_count[USB_FUNCTION_PIPE0],
-                                 (uint32_t)g_usb0_function_data_pointer[USB_FUNCTION_PIPE0]);
+                                (uint32_t)g_usb0_function_data_pointer[USB_FUNCTION_PIPE0]);
     usb0_function_set_curpipe(USB_FUNCTION_PIPE0, USB_FUNCTION_CUSE, USB_FUNCTION_CFIFO_WRITE, mbw);
     USB200.CFIFOCTR = USB_FUNCTION_BITBCLR;
 
     status = usb0_function_write_buffer_c(USB_FUNCTION_PIPE0);
 
     /* Peripheral Control sequence */
-    switch (status)
-    {
+    switch (status) {
         case DEVDRV_USBF_WRITESHRT:                                     /* End of data write */
         case DEVDRV_USBF_WRITEEND:                                      /* End of data write (not null) */
         case DEVDRV_USBF_WRITING:                                       /* Continue of data write */
             usb0_function_enable_bemp_int(USB_FUNCTION_PIPE0);          /* Enable Empty Interrupt */
             usb0_function_set_pid_buf(USB_FUNCTION_PIPE0);              /* Set BUF */
-        break;
+            break;
 
         case DEVDRV_USBF_FIFOERROR:                                     /* FIFO access error */
-        break;
+            break;
 
         default:
-        break;
+            break;
     }
 
     return status;                                                      /* End or Err or Continue */
@@ -121,7 +120,7 @@ uint16_t usb0_api_function_CtrlReadStart (uint32_t size, uint8_t * data)
 *              : uint8_t  *data         ; Data Address
 * Return Value : none
 *******************************************************************************/
-void usb0_api_function_CtrlWriteStart (uint32_t size, uint8_t * data)
+void usb0_api_function_CtrlWriteStart(uint32_t size, uint8_t *data)
 {
     uint16_t mbw;
 

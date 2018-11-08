@@ -52,12 +52,12 @@ extern "C" {
  * @see tcp_new_ip_type(), udp_new_ip_type(), raw_new_ip_type().
  */
 enum lwip_ip_addr_type {
-  /** IPv4 */
-  IPADDR_TYPE_V4 =   0U,
-  /** IPv6 */
-  IPADDR_TYPE_V6 =   6U,
-  /** IPv4+IPv6 ("dual-stack") */
-  IPADDR_TYPE_ANY = 46U
+    /** IPv4 */
+    IPADDR_TYPE_V4 =   0U,
+    /** IPv6 */
+    IPADDR_TYPE_V6 =   6U,
+    /** IPv4+IPv6 ("dual-stack") */
+    IPADDR_TYPE_ANY = 46U
 };
 
 #if LWIP_IPV4 && LWIP_IPV6
@@ -67,12 +67,12 @@ enum lwip_ip_addr_type {
  * ATTENTION: watch out for its size when adding IPv6 address scope!
  */
 typedef struct ip_addr {
-  union {
-    ip6_addr_t ip6;
-    ip4_addr_t ip4;
-  } u_addr;
-  /** @ref lwip_ip_addr_type */
-  u8_t type;
+    union {
+        ip6_addr_t ip6;
+        ip4_addr_t ip4;
+    } u_addr;
+    /** @ref lwip_ip_addr_type */
+    u8_t type;
 } ip_addr_t;
 
 extern const ip_addr_t ip_addr_any_type;
@@ -373,7 +373,7 @@ extern const ip_addr_t ip_addr_broadcast;
 
 extern const ip_addr_t ip6_addr_any;
 
-/** 
+/**
  * @ingroup ip6addr
  * IP6_ADDR_ANY can be used as a fixed ip_addr_t
  * for the IPv6 wildcard address

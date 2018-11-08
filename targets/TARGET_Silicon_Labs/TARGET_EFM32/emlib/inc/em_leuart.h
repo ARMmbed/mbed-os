@@ -59,36 +59,36 @@ extern "C" {
 
 /** Databit selection. */
 typedef enum {
-  leuartDatabits8 = LEUART_CTRL_DATABITS_EIGHT,     /**< 8 databits. */
-  leuartDatabits9 = LEUART_CTRL_DATABITS_NINE       /**< 9 databits. */
+    leuartDatabits8 = LEUART_CTRL_DATABITS_EIGHT,     /**< 8 databits. */
+    leuartDatabits9 = LEUART_CTRL_DATABITS_NINE       /**< 9 databits. */
 } LEUART_Databits_TypeDef;
 
 /** Enable selection. */
 typedef enum {
-  /** Disable both receiver and transmitter. */
-  leuartDisable  = 0x0,
+    /** Disable both receiver and transmitter. */
+    leuartDisable  = 0x0,
 
-  /** Enable receiver only, transmitter disabled. */
-  leuartEnableRx = LEUART_CMD_RXEN,
+    /** Enable receiver only, transmitter disabled. */
+    leuartEnableRx = LEUART_CMD_RXEN,
 
-  /** Enable transmitter only, receiver disabled. */
-  leuartEnableTx = LEUART_CMD_TXEN,
+    /** Enable transmitter only, receiver disabled. */
+    leuartEnableTx = LEUART_CMD_TXEN,
 
-  /** Enable both receiver and transmitter. */
-  leuartEnable   = (LEUART_CMD_RXEN | LEUART_CMD_TXEN)
+    /** Enable both receiver and transmitter. */
+    leuartEnable   = (LEUART_CMD_RXEN | LEUART_CMD_TXEN)
 } LEUART_Enable_TypeDef;
 
 /** Parity selection. */
 typedef enum {
-  leuartNoParity   = LEUART_CTRL_PARITY_NONE,    /**< No parity. */
-  leuartEvenParity = LEUART_CTRL_PARITY_EVEN,    /**< Even parity. */
-  leuartOddParity  = LEUART_CTRL_PARITY_ODD      /**< Odd parity. */
+    leuartNoParity   = LEUART_CTRL_PARITY_NONE,    /**< No parity. */
+    leuartEvenParity = LEUART_CTRL_PARITY_EVEN,    /**< Even parity. */
+    leuartOddParity  = LEUART_CTRL_PARITY_ODD      /**< Odd parity. */
 } LEUART_Parity_TypeDef;
 
 /** Stopbits selection. */
 typedef enum {
-  leuartStopbits1 = LEUART_CTRL_STOPBITS_ONE,           /**< 1 stopbits. */
-  leuartStopbits2 = LEUART_CTRL_STOPBITS_TWO            /**< 2 stopbits. */
+    leuartStopbits1 = LEUART_CTRL_STOPBITS_ONE,           /**< 1 stopbits. */
+    leuartStopbits2 = LEUART_CTRL_STOPBITS_TWO            /**< 2 stopbits. */
 } LEUART_Stopbits_TypeDef;
 
 /*******************************************************************************
@@ -97,26 +97,26 @@ typedef enum {
 
 /** Init structure. */
 typedef struct {
-  /** Specifies whether TX and/or RX shall be enabled when init completed. */
-  LEUART_Enable_TypeDef   enable;
+    /** Specifies whether TX and/or RX shall be enabled when init completed. */
+    LEUART_Enable_TypeDef   enable;
 
-  /**
-   * LEUART reference clock assumed when configuring baudrate setup. Set
-   * it to 0 if currently configurated reference clock shall be used.
-   */
-  uint32_t                refFreq;
+    /**
+     * LEUART reference clock assumed when configuring baudrate setup. Set
+     * it to 0 if currently configurated reference clock shall be used.
+     */
+    uint32_t                refFreq;
 
-  /** Desired baudrate. */
-  uint32_t                baudrate;
+    /** Desired baudrate. */
+    uint32_t                baudrate;
 
-  /** Number of databits in frame. */
-  LEUART_Databits_TypeDef databits;
+    /** Number of databits in frame. */
+    LEUART_Databits_TypeDef databits;
 
-  /** Parity mode to use. */
-  LEUART_Parity_TypeDef   parity;
+    /** Parity mode to use. */
+    LEUART_Parity_TypeDef   parity;
 
-  /** Number of stopbits to use. */
-  LEUART_Stopbits_TypeDef stopbits;
+    /** Number of stopbits to use. */
+    LEUART_Stopbits_TypeDef stopbits;
 } LEUART_Init_TypeDef;
 
 /** Default config for LEUART init structure. */
@@ -158,7 +158,7 @@ void LEUART_RxDmaInEM2Enable(LEUART_TypeDef *leuart, bool enable);
  ******************************************************************************/
 __STATIC_INLINE void LEUART_IntClear(LEUART_TypeDef *leuart, uint32_t flags)
 {
-  leuart->IFC = flags;
+    leuart->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -174,7 +174,7 @@ __STATIC_INLINE void LEUART_IntClear(LEUART_TypeDef *leuart, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void LEUART_IntDisable(LEUART_TypeDef *leuart, uint32_t flags)
 {
-  leuart->IEN &= ~flags;
+    leuart->IEN &= ~flags;
 }
 
 /***************************************************************************//**
@@ -195,7 +195,7 @@ __STATIC_INLINE void LEUART_IntDisable(LEUART_TypeDef *leuart, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void LEUART_IntEnable(LEUART_TypeDef *leuart, uint32_t flags)
 {
-  leuart->IEN |= flags;
+    leuart->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -214,7 +214,7 @@ __STATIC_INLINE void LEUART_IntEnable(LEUART_TypeDef *leuart, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t LEUART_IntGet(LEUART_TypeDef *leuart)
 {
-  return leuart->IF;
+    return leuart->IF;
 }
 
 /***************************************************************************//**
@@ -238,14 +238,14 @@ __STATIC_INLINE uint32_t LEUART_IntGet(LEUART_TypeDef *leuart)
  ******************************************************************************/
 __STATIC_INLINE uint32_t LEUART_IntGetEnabled(LEUART_TypeDef *leuart)
 {
-  uint32_t tmp;
+    uint32_t tmp;
 
-  /* Store LEUARTx->IEN in temporary variable in order to define explicit order
-   * of volatile accesses. */
-  tmp = leuart->IEN;
+    /* Store LEUARTx->IEN in temporary variable in order to define explicit order
+     * of volatile accesses. */
+    tmp = leuart->IEN;
 
-  /* Bitwise AND of pending and enabled interrupts */
-  return leuart->IF & tmp;
+    /* Bitwise AND of pending and enabled interrupts */
+    return leuart->IF & tmp;
 }
 
 /***************************************************************************//**
@@ -261,7 +261,7 @@ __STATIC_INLINE uint32_t LEUART_IntGetEnabled(LEUART_TypeDef *leuart)
  ******************************************************************************/
 __STATIC_INLINE void LEUART_IntSet(LEUART_TypeDef *leuart, uint32_t flags)
 {
-  leuart->IFS = flags;
+    leuart->IFS = flags;
 }
 
 /***************************************************************************//**
@@ -277,7 +277,7 @@ __STATIC_INLINE void LEUART_IntSet(LEUART_TypeDef *leuart, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t LEUART_StatusGet(LEUART_TypeDef *leuart)
 {
-  return leuart->STATUS;
+    return leuart->STATUS;
 }
 
 void LEUART_Reset(LEUART_TypeDef *leuart);
@@ -316,7 +316,7 @@ void LEUART_TxExt(LEUART_TypeDef *leuart, uint16_t data);
  ******************************************************************************/
 __STATIC_INLINE uint8_t LEUART_RxDataGet(LEUART_TypeDef *leuart)
 {
-  return (uint8_t)leuart->RXDATA;
+    return (uint8_t)leuart->RXDATA;
 }
 
 /***************************************************************************//**
@@ -349,7 +349,7 @@ __STATIC_INLINE uint8_t LEUART_RxDataGet(LEUART_TypeDef *leuart)
  ******************************************************************************/
 __STATIC_INLINE uint16_t LEUART_RxDataXGet(LEUART_TypeDef *leuart)
 {
-  return (uint16_t)leuart->RXDATAX;
+    return (uint16_t)leuart->RXDATAX;
 }
 
 /** @} (end addtogroup LEUART) */

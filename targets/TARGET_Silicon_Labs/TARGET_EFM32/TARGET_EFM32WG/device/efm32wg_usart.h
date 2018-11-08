@@ -38,32 +38,31 @@
  * @{
  * @brief EFM32WG_USART Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;       /**< Control Register  */
-  __IOM uint32_t FRAME;      /**< USART Frame Format Register  */
-  __IOM uint32_t TRIGCTRL;   /**< USART Trigger Control register  */
-  __IOM uint32_t CMD;        /**< Command Register  */
-  __IM uint32_t  STATUS;     /**< USART Status Register  */
-  __IOM uint32_t CLKDIV;     /**< Clock Control Register  */
-  __IM uint32_t  RXDATAX;    /**< RX Buffer Data Extended Register  */
-  __IM uint32_t  RXDATA;     /**< RX Buffer Data Register  */
-  __IM uint32_t  RXDOUBLEX;  /**< RX Buffer Double Data Extended Register  */
-  __IM uint32_t  RXDOUBLE;   /**< RX FIFO Double Data Register  */
-  __IM uint32_t  RXDATAXP;   /**< RX Buffer Data Extended Peek Register  */
-  __IM uint32_t  RXDOUBLEXP; /**< RX Buffer Double Data Extended Peek Register  */
-  __IOM uint32_t TXDATAX;    /**< TX Buffer Data Extended Register  */
-  __IOM uint32_t TXDATA;     /**< TX Buffer Data Register  */
-  __IOM uint32_t TXDOUBLEX;  /**< TX Buffer Double Data Extended Register  */
-  __IOM uint32_t TXDOUBLE;   /**< TX Buffer Double Data Register  */
-  __IM uint32_t  IF;         /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;        /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;        /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;        /**< Interrupt Enable Register  */
-  __IOM uint32_t IRCTRL;     /**< IrDA Control Register  */
-  __IOM uint32_t ROUTE;      /**< I/O Routing Register  */
-  __IOM uint32_t INPUT;      /**< USART Input Register  */
-  __IOM uint32_t I2SCTRL;    /**< I2S Control Register  */
+typedef struct {
+    __IOM uint32_t CTRL;       /**< Control Register  */
+    __IOM uint32_t FRAME;      /**< USART Frame Format Register  */
+    __IOM uint32_t TRIGCTRL;   /**< USART Trigger Control register  */
+    __IOM uint32_t CMD;        /**< Command Register  */
+    __IM uint32_t  STATUS;     /**< USART Status Register  */
+    __IOM uint32_t CLKDIV;     /**< Clock Control Register  */
+    __IM uint32_t  RXDATAX;    /**< RX Buffer Data Extended Register  */
+    __IM uint32_t  RXDATA;     /**< RX Buffer Data Register  */
+    __IM uint32_t  RXDOUBLEX;  /**< RX Buffer Double Data Extended Register  */
+    __IM uint32_t  RXDOUBLE;   /**< RX FIFO Double Data Register  */
+    __IM uint32_t  RXDATAXP;   /**< RX Buffer Data Extended Peek Register  */
+    __IM uint32_t  RXDOUBLEXP; /**< RX Buffer Double Data Extended Peek Register  */
+    __IOM uint32_t TXDATAX;    /**< TX Buffer Data Extended Register  */
+    __IOM uint32_t TXDATA;     /**< TX Buffer Data Register  */
+    __IOM uint32_t TXDOUBLEX;  /**< TX Buffer Double Data Extended Register  */
+    __IOM uint32_t TXDOUBLE;   /**< TX Buffer Double Data Register  */
+    __IM uint32_t  IF;         /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;        /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;        /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN;        /**< Interrupt Enable Register  */
+    __IOM uint32_t IRCTRL;     /**< IrDA Control Register  */
+    __IOM uint32_t ROUTE;      /**< I/O Routing Register  */
+    __IOM uint32_t INPUT;      /**< USART Input Register  */
+    __IOM uint32_t I2SCTRL;    /**< I2S Control Register  */
 } USART_TypeDef;             /** @} */
 
 /**************************************************************************//**

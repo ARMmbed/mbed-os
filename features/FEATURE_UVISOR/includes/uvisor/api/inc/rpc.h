@@ -36,7 +36,7 @@
  * @param timeout_ms         specifies how long to wait (in ms) for an incoming
  *                           RPC message before returning
  */
-UVISOR_EXTERN int rpc_fncall_waitfor(const TFN_Ptr fn_ptr_array[], size_t fn_count, int * box_id_caller, uint32_t timeout_ms);
+UVISOR_EXTERN int rpc_fncall_waitfor(const TFN_Ptr fn_ptr_array[], size_t fn_count, int *box_id_caller, uint32_t timeout_ms);
 
 /** Wait for an outgoing RPC to finish.
  *
@@ -51,6 +51,6 @@ UVISOR_EXTERN int rpc_fncall_waitfor(const TFN_Ptr fn_ptr_array[], size_t fn_cou
  *                       the target function
  * @returns              Non-zero on error or timeout, zero on successful wait
  */
-UVISOR_EXTERN int rpc_fncall_wait(uvisor_rpc_result_t result, uint32_t timeout_ms, uint32_t * ret);
+UVISOR_EXTERN int rpc_fncall_wait(uvisor_rpc_result_t result, uint32_t timeout_ms, uint32_t *ret);
 
 #endif /* __UVISOR_API_RPC_H__ */

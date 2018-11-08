@@ -2,43 +2,43 @@
  * @file
  * @brief Registers, Bit Masks and Bit Positions for the SPI Master module.
  */
- /* ****************************************************************************
- * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
- * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * Except as contained in this notice, the name of Maxim Integrated
- * Products, Inc. shall not be used except as stated in the Maxim Integrated
- * Products, Inc. Branding Policy.
- *
- * The mere transfer of this software does not imply any licenses
- * of trade secrets, proprietary technology, copyrights, patents,
- * trademarks, maskwork rights, or any other form of intellectual
- * property whatsoever. Maxim Integrated Products, Inc. retains all
- * ownership rights.
- *
- * $Date: 2016-10-10 19:42:44 -0500 (Mon, 10 Oct 2016) $
- * $Revision: 24672 $
- *
- **************************************************************************** */
+/* ****************************************************************************
+* Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a
+* copy of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
+* and/or sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included
+* in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
+* OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+*
+* Except as contained in this notice, the name of Maxim Integrated
+* Products, Inc. shall not be used except as stated in the Maxim Integrated
+* Products, Inc. Branding Policy.
+*
+* The mere transfer of this software does not imply any licenses
+* of trade secrets, proprietary technology, copyrights, patents,
+* trademarks, maskwork rights, or any other form of intellectual
+* property whatsoever. Maxim Integrated Products, Inc. retains all
+* ownership rights.
+*
+* $Date: 2016-10-10 19:42:44 -0500 (Mon, 10 Oct 2016) $
+* $Revision: 24672 $
+*
+**************************************************************************** */
 
-/* **** Includes **** */ 
+/* **** Includes **** */
 #include "mxc_config.h"
 #include "mxc_sys.h"
 #include "spim_regs.h"
@@ -46,45 +46,45 @@
 /* Define to prevent redundant inclusion */
 #ifndef _SPIM_H_
 #define _SPIM_H_
- 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 /**
  * @ingroup commperipherals
  * @defgroup spi_comm SPI
- * @brief SPI Master and Slave Communication Peripherals 
+ * @brief SPI Master and Slave Communication Peripherals
  */
 
 /**
  * @ingroup    spi_comm
  * @defgroup   spim SPI Master
  * @brief      Serial Peripheral Interface Master (SPIM) Communications
- *             Interface. 
+ *             Interface.
  * @{
  */
 
 /* **** Definitions **** */
 
-/** 
- * Enumeration type for selecting the active levels for the SPI Master Slave Select (SS) lines. 
+/**
+ * Enumeration type for selecting the active levels for the SPI Master Slave Select (SS) lines.
  */
 typedef enum {
-    SPIM_SSEL0_HIGH  =    (0x1 << 0), /**<  Slave Select 0 High. */
+    SPIM_SSEL0_HIGH  = (0x1 << 0),    /**<  Slave Select 0 High. */
     SPIM_SSEL0_LOW   =    0,          /**<  Slave Select 0 Low.  */
-    SPIM_SSEL1_HIGH  =    (0x1 << 1), /**<  Slave Select 1 High. */
+    SPIM_SSEL1_HIGH  = (0x1 << 1),    /**<  Slave Select 1 High. */
     SPIM_SSEL1_LOW   =    0,          /**<  Slave Select 1 Low.  */
-    SPIM_SSEL2_HIGH  =    (0x1 << 2), /**<  Slave Select 2 High. */
+    SPIM_SSEL2_HIGH  = (0x1 << 2),    /**<  Slave Select 2 High. */
     SPIM_SSEL2_LOW   =    0,          /**<  Slave Select 2 Low.  */
-    SPIM_SSEL3_HIGH  =    (0x1 << 3), /**<  Slave Select 3 High. */
+    SPIM_SSEL3_HIGH  = (0x1 << 3),    /**<  Slave Select 3 High. */
     SPIM_SSEL3_LOW   =    0,          /**<  Slave Select 3 Low.  */
-    SPIM_SSEL4_HIGH  =    (0x1 << 4), /**<  Slave Select 4 High. */
+    SPIM_SSEL4_HIGH  = (0x1 << 4),    /**<  Slave Select 4 High. */
     SPIM_SSEL4_LOW   =    0           /**<  Slave Select 4 Low.  */
 }
 spim_ssel_t;
 
-/** 
- * Enumeration type for setting the number data lines to use for communication. 
+/**
+ * Enumeration type for setting the number data lines to use for communication.
  */
 typedef enum {
     SPIM_WIDTH_1 = 0,  /**< 1 Data Line.                        */
@@ -92,8 +92,8 @@ typedef enum {
     SPIM_WIDTH_4 = 2   /**< 4 Data Lines (x4).                  */
 } spim_width_t;
 
-/** 
- * Structure type for configuring a SPIM port. 
+/**
+ * Structure type for configuring a SPIM port.
  */
 typedef struct {
     uint8_t     mode;       /**< SPIM mode selection, 0 to 3.                                           */
@@ -101,7 +101,7 @@ typedef struct {
     uint32_t    baud;       /**< Baud rate in Hz.                                                       */
 } spim_cfg_t;
 
-/** 
+/**
  * Structure type representing a SPI Master Transaction request.
  */
 typedef struct spim_req spim_req_t;
@@ -109,7 +109,7 @@ typedef struct spim_req spim_req_t;
 /**
  * @brief Callback function type used in asynchromous SPIM communications requests.
  * @details The function declaration for the SPIM callback is:
- * @code 
+ * @code
  * void callback(spim_req_t * req, int error_code);
  * @endcode
  * |        |                                            |
@@ -118,7 +118,7 @@ typedef struct spim_req spim_req_t;
  * | \p error_code | An error code if the active transaction had a failure or #E_NO_ERROR if successful. |
  * @addtogroup spim_async
  */
-typedef void (*spim_callback_fn)(spim_req_t * req, int error_code);
+typedef void (*spim_callback_fn)(spim_req_t *req, int error_code);
 
 /**
  * @brief      Structure definition for an SPI Master Transaction request.
@@ -193,7 +193,7 @@ int SPIM_Clocks(mxc_spim_regs_t *spim, uint32_t len, uint8_t ssel, uint8_t deass
 int SPIM_Trans(mxc_spim_regs_t *spim, spim_req_t *req);
 /**
  * @defgroup spim_async SPIM Asynchrous Functions
- * @{ 
+ * @{
  */
 /**
  * @brief      Asynchronously read/write SPIM data.

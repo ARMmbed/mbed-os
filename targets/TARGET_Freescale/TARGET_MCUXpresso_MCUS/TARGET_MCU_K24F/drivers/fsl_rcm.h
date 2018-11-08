@@ -49,10 +49,9 @@
 /*!
  * @brief System Reset Source Name definitions
  */
-typedef enum _rcm_reset_source
-{
+typedef enum _rcm_reset_source {
 #if (defined(FSL_FEATURE_RCM_REG_WIDTH) && (FSL_FEATURE_RCM_REG_WIDTH == 32))
-/* RCM register bit width is 32. */
+    /* RCM register bit width is 32. */
 #if (defined(FSL_FEATURE_RCM_HAS_WAKEUP) && FSL_FEATURE_RCM_HAS_WAKEUP)
     kRCM_SourceWakeup = RCM_SRS_WAKEUP_MASK, /*!< Low-leakage wakeup reset */
 #endif
@@ -80,7 +79,7 @@ typedef enum _rcm_reset_source
     kRCM_SourceSackerr = RCM_SRS_SACKERR_MASK, /*!< Parameter could get all reset flags */
 
 #else /* (FSL_FEATURE_RCM_REG_WIDTH == 32) */
-/* RCM register bit width is 8. */
+    /* RCM register bit width is 8. */
 #if (defined(FSL_FEATURE_RCM_HAS_WAKEUP) && FSL_FEATURE_RCM_HAS_WAKEUP)
     kRCM_SourceWakeup = RCM_SRS0_WAKEUP_MASK, /*!< Low-leakage wakeup reset */
 #endif
@@ -113,8 +112,7 @@ typedef enum _rcm_reset_source
 /*!
  * @brief Reset pin filter select in Run and Wait modes.
  */
-typedef enum _rcm_run_wait_filter_mode
-{
+typedef enum _rcm_run_wait_filter_mode {
     kRCM_FilterDisable = 0U,  /*!< All filtering disabled */
     kRCM_FilterBusClock = 1U, /*!< Bus clock filter enabled */
     kRCM_FilterLpoClock = 2U  /*!< LPO clock filter enabled */
@@ -124,8 +122,7 @@ typedef enum _rcm_run_wait_filter_mode
 /*!
  * @brief Boot from ROM configuration.
  */
-typedef enum _rcm_boot_rom_config
-{
+typedef enum _rcm_boot_rom_config {
     kRCM_BootFlash = 0U,   /*!< Boot from flash */
     kRCM_BootRomCfg0 = 1U, /*!< Boot from boot ROM due to BOOTCFG0 */
     kRCM_BootRomFopt = 2U, /*!< Boot from boot ROM due to FOPT[7] */
@@ -137,8 +134,7 @@ typedef enum _rcm_boot_rom_config
 /*!
  * @brief Maximum delay time from interrupt asserts to system reset.
  */
-typedef enum _rcm_reset_delay
-{
+typedef enum _rcm_reset_delay {
     kRCM_ResetDelay8Lpo = 0U,   /*!< Delay 8 LPO cycles.   */
     kRCM_ResetDelay32Lpo = 1U,  /*!< Delay 32 LPO cycles.  */
     kRCM_ResetDelay128Lpo = 2U, /*!< Delay 128 LPO cycles. */
@@ -148,8 +144,7 @@ typedef enum _rcm_reset_delay
 /*!
  * @brief System reset interrupt enable bit definitions.
  */
-typedef enum _rcm_interrupt_enable
-{
+typedef enum _rcm_interrupt_enable {
     kRCM_IntNone = 0U,                              /*!< No interrupt enabled.           */
     kRCM_IntLossOfClk = RCM_SRIE_LOC_MASK,          /*!< Loss of clock interrupt.        */
     kRCM_IntLossOfLock = RCM_SRIE_LOL_MASK,         /*!< Loss of lock interrupt.         */
@@ -177,8 +172,7 @@ typedef enum _rcm_interrupt_enable
 /*!
  * @brief IP version ID definition.
  */
-typedef struct _rcm_version_id
-{
+typedef struct _rcm_version_id {
     uint16_t feature; /*!< Feature Specification Number. */
     uint8_t minor;    /*!< Minor version number.         */
     uint8_t major;    /*!< Major version number.         */
@@ -188,8 +182,7 @@ typedef struct _rcm_version_id
 /*!
  * @brief Reset pin filter configuration.
  */
-typedef struct _rcm_reset_pin_filter_config
-{
+typedef struct _rcm_reset_pin_filter_config {
     bool enableFilterInStop;                    /*!< Reset pin filter select in stop mode. */
     rcm_run_wait_filter_mode_t filterInRunWait; /*!< Reset pin filter in run/wait mode. */
     uint8_t busClockFilterCount;                /*!< Reset pin bus clock filter width.  */

@@ -60,7 +60,7 @@ public:
      * see pal::GattClient::get_mtu_size .
      */
     virtual ble_error_t get_mtu_size(
-        connection_handle_t connection_handle, uint16_t& mtu_size
+        connection_handle_t connection_handle, uint16_t &mtu_size
     );
 
     /**
@@ -77,7 +77,7 @@ public:
     virtual ble_error_t discover_primary_service_by_service_uuid(
         connection_handle_t connection_handle,
         attribute_handle_t discovery_range_beginning,
-        const UUID& uuid
+        const UUID &uuid
     );
 
     /**
@@ -118,7 +118,7 @@ public:
     virtual ble_error_t read_using_characteristic_uuid(
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
-        const UUID& uuid
+        const UUID &uuid
     );
 
     /**
@@ -135,7 +135,7 @@ public:
      */
     virtual ble_error_t read_multiple_characteristic_values(
         connection_handle_t connection,
-        const ArrayView<const attribute_handle_t>& characteristic_handles
+        const ArrayView<const attribute_handle_t> &characteristic_handles
     );
 
     /**
@@ -144,7 +144,7 @@ public:
     virtual ble_error_t write_without_response(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t> &value
     );
 
     /**
@@ -153,7 +153,7 @@ public:
     virtual ble_error_t signed_write_without_response(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t> &value
     );
 
     /**
@@ -162,7 +162,7 @@ public:
     virtual ble_error_t write_attribute(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t> &value
     );
 
     /**
@@ -171,7 +171,7 @@ public:
     virtual ble_error_t queue_prepare_write(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value,
+        const ArrayView<const uint8_t> &value,
         uint16_t offset
     );
 
@@ -184,7 +184,7 @@ public:
     );
 
     // singleton of the ARM Cordio client
-    static nRF5XGattClient& get_client();
+    static nRF5XGattClient &get_client();
 
     /**
      * Function call from btle.cpp
@@ -215,28 +215,28 @@ private:
     struct ExecuteWriteQueueProcedure;
 
     template<typename ProcType, typename A0>
-    ble_error_t launch_procedure(connection_handle_t connection, const A0& a0);
+    ble_error_t launch_procedure(connection_handle_t connection, const A0 &a0);
 
     template<typename ProcType, typename A0, typename A1>
     ble_error_t launch_procedure(
-        connection_handle_t connection, const A0& a0, const A1& a1
+        connection_handle_t connection, const A0 &a0, const A1 &a1
     );
 
     template<typename ProcType, typename A0, typename A1, typename A2>
     ble_error_t launch_procedure(
         connection_handle_t connection,
-        const A0& a0, const A1& a1, const A2& a2
+        const A0 &a0, const A1 &a1, const A2 &a2
     );
 
     template<typename ProcType, typename A0, typename A1, typename A2, typename A3>
     ble_error_t launch_procedure(
         connection_handle_t connection,
-        const A0& a0, const A1& a1, const A2& a2, const A3& a3
+        const A0 &a0, const A1 &a1, const A2 &a2, const A3 &a3
     );
 
-    GattProcedure* get_procedure(connection_handle_t) const;
-    bool register_procedure(GattProcedure*);
-    bool remove_procedure(GattProcedure*);
+    GattProcedure *get_procedure(connection_handle_t) const;
+    bool register_procedure(GattProcedure *);
+    bool remove_procedure(GattProcedure *);
 
     void handle_procedure_event(const ble_evt_t &evt);
     void handle_hvx_event(const ble_evt_t &evt);
@@ -246,7 +246,7 @@ private:
         CENTRAL_LINK_COUNT + PERIPHERAL_LINK_COUNT;
 
     // Note: Ideally we would have used an array of variant here
-    GattProcedure* _procedures[max_procedures_count];
+    GattProcedure *_procedures[max_procedures_count];
 };
 
 } // nordic

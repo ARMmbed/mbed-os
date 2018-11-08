@@ -67,10 +67,8 @@ static uint32_t LPTMR_GetInstance(LPTMR_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_lptmrBases); instance++)
-    {
-        if (s_lptmrBases[instance] == base)
-        {
+    for (instance = 0; instance < ARRAY_SIZE(s_lptmrBases); instance++) {
+        if (s_lptmrBases[instance] == base) {
             break;
         }
     }
@@ -85,7 +83,7 @@ void LPTMR_Init(LPTMR_Type *base, const lptmr_config_t *config)
     assert(config);
 
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
-    
+
     uint32_t instance = LPTMR_GetInstance(base);
 
     /* Ungate the LPTMR clock*/

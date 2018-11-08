@@ -62,10 +62,8 @@ static uint32_t FLEXBUS_GetInstance(FB_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_FB_COUNT; instance++)
-    {
-        if (s_flexbusBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_FB_COUNT; instance++) {
+        if (s_flexbusBases[instance] == base) {
             break;
         }
     }
@@ -88,8 +86,7 @@ void FLEXBUS_Init(FB_Type *base, const flexbus_config_t *config)
     CLOCK_EnableClock(s_flexbusClocks[FLEXBUS_GetInstance(base)]);
 
     /* Reset all the register to default state */
-    for (chip = 0; chip < FB_CSAR_COUNT; chip++)
-    {
+    for (chip = 0; chip < FB_CSAR_COUNT; chip++) {
         /* Reset CSMR register, all chips not valid (disabled) */
         base->CS[chip].CSMR = 0x0000U;
         /* Set default base address */

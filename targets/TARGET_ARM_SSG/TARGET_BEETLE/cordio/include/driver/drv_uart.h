@@ -138,16 +138,16 @@ struct drv_uart {
     **--------------------------------------------------------------------------------------------*/
     int32_t (*Receive)(uint8_t *buf, uint32_t len);
 
-   /*----------------------------------------------------------------------------------------------
-    ** Transmit()
-    **
-    ** DESCRIPTION: Transmit data.
-    **
-    ** PARAMETERS:  buf  Pointer to buffer of data to transmit
-    **              len  Number of data bytes to transmit
-    **
-    ** RETURNS:     Number of bytes transmitted
-    **--------------------------------------------------------------------------------------------*/
+    /*----------------------------------------------------------------------------------------------
+     ** Transmit()
+     **
+     ** DESCRIPTION: Transmit data.
+     **
+     ** PARAMETERS:  buf  Pointer to buffer of data to transmit
+     **              len  Number of data bytes to transmit
+     **
+     ** RETURNS:     Number of bytes transmitted
+     **--------------------------------------------------------------------------------------------*/
     int32_t (*Transmit)(const uint8_t *buf, uint32_t len);
 
     /*----------------------------------------------------------------------------------------------

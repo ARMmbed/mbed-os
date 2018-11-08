@@ -26,14 +26,17 @@ extern struct pwm_pin_channel pwn_pins[];
 static uint32_t pinmap_merge_pins(uint32_t a, uint32_t b)
 {
     /* both are the same (inc both NC) */
-    if (a == b)
+    if (a == b) {
         return a;
+    }
 
     /* one (or both) is not connected */
-    if (a == (uint32_t)NC)
+    if (a == (uint32_t)NC) {
         return b;
-    if (b == (uint32_t)NC)
+    }
+    if (b == (uint32_t)NC) {
         return a;
+    }
 
     return (uint32_t)NC;
 }
@@ -47,9 +50,11 @@ static uint32_t pinmap_merge_pins(uint32_t a, uint32_t b)
  */
 uint32_t pinmap_find_peripheral_from_pad(PinName pin, enum sercom_pad_selection pad_select)
 {
-    uint32_t pin_sercom =(uint32_t)NC;
+    uint32_t pin_sercom = (uint32_t)NC;
 
-    if (pin == NC) return (uint32_t)NC;
+    if (pin == NC) {
+        return (uint32_t)NC;
+    }
 
     if (pad_select == SERCOM_USE_EXTENDED_PAD) {
         pin_sercom = pinmap_find_peripheral(pin, PinMap_SERCOM_PADEx);
@@ -107,7 +112,7 @@ uint32_t pinmap_find_sercom(PinName pin1, PinName pin2, PinName pin3, PinName pi
     sercom_index[3] = pinmap_find_peripheral_from_pad(pin4, SERCOM_USE_DEFAULT_PAD);
 
     /* Find common SERCOM, if there are conflicts, return NC */
-    for (i=0; i<4; i++) {
+    for (i = 0; i < 4; i++) {
         if (sercom_index[i] != (uint32_t)NC) {
             if (pin_com == (uint32_t)NC) {
                 pin_com = sercom_index[i] & 0x0F;
@@ -203,7 +208,7 @@ uint32_t pinmap_peripheral_sercom(PinName pin, uint32_t sercom_index)
     if (index >= SERCOM_INST_NUM) {
         return (uint32_t)NC;
     }
-    return sercom_address[(sercom_index&0x0F)];
+    return sercom_address[(sercom_index & 0x0F)];
 }
 
 /** Find the channel index of a pin specific to a PWM instance

@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -45,10 +45,10 @@ static uint32_t channel_ids[4][16];
 
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
-void port_generic_handler(GPIO_TypeDef* GPIOx, uint32_t port_num);
- 
+void port_generic_handler(GPIO_TypeDef *GPIOx, uint32_t port_num);
+
 void PORT0_Handler(void)
 {
     NVIC_ClearPendingIRQ(PORT0_IRQn);
@@ -70,22 +70,23 @@ void PORT3_Handler(void)
     port_generic_handler(GPIOD, 3);
 }
 
-void port_generic_handler(GPIO_TypeDef* GPIOx, uint32_t port_num)
+void port_generic_handler(GPIO_TypeDef *GPIOx, uint32_t port_num)
 {
     int i = 0;
     int loop = 16;
 
-    if(GPIOx == GPIOD) loop = 5;
-    
-    for(i=0; i<loop; i++)
-    {
-        if(GPIOx->Interrupt.INTSTATUS & (1 << i))
-        {
+    if (GPIOx == GPIOD) {
+        loop = 5;
+    }
+
+    for (i = 0; i < loop; i++) {
+        if (GPIOx->Interrupt.INTSTATUS & (1 << i)) {
             GPIOx->Interrupt.INTCLEAR |= (1 << i);
-            if(GPIOx->INTPOLSET >> i) //rising
+            if (GPIOx->INTPOLSET >> i) { //rising
                 irq_handler(channel_ids[port_num][i], IRQ_RISE);
-            else //falling
+            } else { //falling
                 irq_handler(channel_ids[port_num][i], IRQ_FALL);
+            }
         }
     }
 }
@@ -96,77 +97,80 @@ void port_generic_handler(GPIO_TypeDef* GPIOx, uint32_t port_num)
 
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
-{   
+{
     obj->port_num = WIZ_PORT(pin);
     obj->pin_num = WIZ_PIN_NUM(pin);
     obj->pin_index  = WIZ_PIN_INDEX(pin);
-    
+
     //gpio_irq_disable(obj);
 
-    if (pin == NC) return -1;
-    
-    if(obj->port_num == 0)
+    if (pin == NC) {
+        return -1;
+    }
+
+    if (obj->port_num == 0) {
         obj->irq_n = PORT0_IRQn;
-    else if(obj->port_num == 1)
+    } else if (obj->port_num == 1) {
         obj->irq_n = PORT1_IRQn;
-    else if(obj->port_num == 2)
+    } else if (obj->port_num == 2) {
         obj->irq_n = PORT2_IRQn;
-    else
+    } else {
         obj->irq_n = PORT3_IRQn;
-    
+    }
+
     obj->pin = pin;
     obj->event = EDGE_NONE;
 
-    // Enable EXTI interrupt    
+    // Enable EXTI interrupt
     NVIC_ClearPendingIRQ(obj->irq_n);
     NVIC_EnableIRQ(obj->irq_n);
 
     channel_ids[obj->port_num][obj->pin_num] = id;
-    
+
     irq_handler = handler;
-    
+
     return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
     channel_ids[obj->port_num][obj->pin_num] = 0;
-        
+
     obj->event = EDGE_NONE;
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(obj->port_num);
-    
+
     if (enable) {
         if (event == IRQ_RISE) {
             gpio->INTPOLSET |= obj->pin_index;
             obj->event = EDGE_RISE;
             obj->rise_null = 0;
-        }
-        else if (event == IRQ_FALL) {
+        } else if (event == IRQ_FALL) {
             gpio->INTPOLCLR |= obj->pin_index;
             obj->event = EDGE_FALL;
             obj->fall_null = 0;
         }
 
-    
+
         gpio->INTENCLR |= obj->pin_index;
         gpio->INTTYPESET |= obj->pin_index;
         gpio->INTENSET |= obj->pin_index;
-        
-        
+
+
     } else {
         if (event == IRQ_RISE) {
             obj->rise_null = 1;
-            if(obj->fall_null)
+            if (obj->fall_null) {
                 gpio->INTENCLR |= obj->pin_index;
-        }
-        else if (event == IRQ_FALL) {
+            }
+        } else if (event == IRQ_FALL) {
             obj->fall_null = 1;
-            if(obj->rise_null)
+            if (obj->rise_null) {
                 gpio->INTENCLR |= obj->pin_index;
+            }
         }
     }
 }

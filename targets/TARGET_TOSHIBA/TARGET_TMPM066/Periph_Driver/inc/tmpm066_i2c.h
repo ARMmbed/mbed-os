@@ -34,27 +34,27 @@ extern "C" {
 /** @defgroup I2C_Exported_Types
   * @{
   */
-    typedef struct {
-        uint32_t I2CSelfAddr;   /*!< Specify self-address of the I2C channel in I2C mode */
-        uint32_t I2CDataLen;    /*!< Specify data length of the I2C channel in I2C mode */
-        FunctionalState I2CACKState;    /*!< Enable or disable the generation of ACK clock */
-        uint32_t I2CClkDiv;     /*!< Select the division of the prescaler clock for generating the serial clock */
-        uint32_t PrescalerClkDiv;       /* Select the division of fsys for generating the fprsck */
-    } I2C_InitTypeDef;
+typedef struct {
+    uint32_t I2CSelfAddr;   /*!< Specify self-address of the I2C channel in I2C mode */
+    uint32_t I2CDataLen;    /*!< Specify data length of the I2C channel in I2C mode */
+    FunctionalState I2CACKState;    /*!< Enable or disable the generation of ACK clock */
+    uint32_t I2CClkDiv;     /*!< Select the division of the prescaler clock for generating the serial clock */
+    uint32_t PrescalerClkDiv;       /* Select the division of fsys for generating the fprsck */
+} I2C_InitTypeDef;
 
-    typedef union {
-        uint32_t All;
-        struct {
-            uint32_t LastRxBit:1;
-            uint32_t GeneralCall:1;
-            uint32_t SlaveAddrMatch:1;
-            uint32_t ArbitrationLost:1;
-            uint32_t INTReq:1;
-            uint32_t BusState:1;
-            uint32_t TRx:1;
-            uint32_t MasterSlave:1;
-        } Bit;
-    } I2C_State;
+typedef union {
+    uint32_t All;
+    struct {
+        uint32_t LastRxBit: 1;
+        uint32_t GeneralCall: 1;
+        uint32_t SlaveAddrMatch: 1;
+        uint32_t ArbitrationLost: 1;
+        uint32_t INTReq: 1;
+        uint32_t BusState: 1;
+        uint32_t TRx: 1;
+        uint32_t MasterSlave: 1;
+    } Bit;
+} I2C_State;
 
 #define I2C_CHANNEL_NUMBER              2U
 #define IS_I2C_PERIPH(param)      (((param) == TSB_I2C0) || \
@@ -125,7 +125,7 @@ extern "C" {
 /** @} */
 /* End of group I2C_Exported_Types */
 
-/** @defgroup I2C_Exported_Macros 
+/** @defgroup I2C_Exported_Macros
   * @{
   */
 #define IS_PRESCALER_CLK_VALID(param1, param2)     (((param1) >= I2C_PRESCALER_DIV_1) && \
@@ -147,44 +147,44 @@ extern "C" {
   * @{
   */
 
-    void I2C_SetACK(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    void I2C_Init(TSB_I2C_TypeDef * I2Cx, I2C_InitTypeDef * InitI2CStruct);
-    void I2C_SetBitNum(TSB_I2C_TypeDef * I2Cx, uint32_t I2CBitNum);
-    void I2C_SWReset(TSB_I2C_TypeDef * I2Cx);
-    void I2C_ClearINTReq(TSB_I2C_TypeDef * I2Cx);
-    void I2C_GenerateStart(TSB_I2C_TypeDef * I2Cx);
-    void I2C_GenerateStop(TSB_I2C_TypeDef * I2Cx);
-    I2C_State I2C_GetState(TSB_I2C_TypeDef * I2Cx);
-    void I2C_SetSendData(TSB_I2C_TypeDef * I2Cx, uint32_t Data);
-    uint32_t I2C_GetReceiveData(TSB_I2C_TypeDef * I2Cx);
-    void I2C_SetFreeDataMode(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    FunctionalState I2C_GetSlaveAddrMatchState(TSB_I2C_TypeDef * I2Cx);
-    void I2C_SetPrescalerClock(TSB_I2C_TypeDef * I2Cx, uint32_t PrescalerClock);
+void I2C_SetACK(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+void I2C_Init(TSB_I2C_TypeDef *I2Cx, I2C_InitTypeDef *InitI2CStruct);
+void I2C_SetBitNum(TSB_I2C_TypeDef *I2Cx, uint32_t I2CBitNum);
+void I2C_SWReset(TSB_I2C_TypeDef *I2Cx);
+void I2C_ClearINTReq(TSB_I2C_TypeDef *I2Cx);
+void I2C_GenerateStart(TSB_I2C_TypeDef *I2Cx);
+void I2C_GenerateStop(TSB_I2C_TypeDef *I2Cx);
+I2C_State I2C_GetState(TSB_I2C_TypeDef *I2Cx);
+void I2C_SetSendData(TSB_I2C_TypeDef *I2Cx, uint32_t Data);
+uint32_t I2C_GetReceiveData(TSB_I2C_TypeDef *I2Cx);
+void I2C_SetFreeDataMode(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+FunctionalState I2C_GetSlaveAddrMatchState(TSB_I2C_TypeDef *I2Cx);
+void I2C_SetPrescalerClock(TSB_I2C_TypeDef *I2Cx, uint32_t PrescalerClock);
 
-    void I2C_SetSELPINCDReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    void I2C_SetDMARI2CTXReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    void I2C_SetDMARI2CRXReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    void I2C_SetINTNACKReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    void I2C_SetINTI2CBFReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    void I2C_SetINTI2CALReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    void I2C_SetINTI2CReq(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
+void I2C_SetSELPINCDReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+void I2C_SetDMARI2CTXReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+void I2C_SetDMARI2CRXReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+void I2C_SetINTNACKReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+void I2C_SetINTI2CBFReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+void I2C_SetINTI2CALReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+void I2C_SetINTI2CReq(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
 
-    FunctionalState I2C_GetNACKStatus(TSB_I2C_TypeDef * I2Cx);
-    FunctionalState I2C_GetINTI2CBFStatus(TSB_I2C_TypeDef * I2Cx);
-    FunctionalState I2C_GetINTI2CALStatus(TSB_I2C_TypeDef * I2Cx);
-    FunctionalState I2C_GetINTI2CStatus(TSB_I2C_TypeDef * I2Cx);
+FunctionalState I2C_GetNACKStatus(TSB_I2C_TypeDef *I2Cx);
+FunctionalState I2C_GetINTI2CBFStatus(TSB_I2C_TypeDef *I2Cx);
+FunctionalState I2C_GetINTI2CALStatus(TSB_I2C_TypeDef *I2Cx);
+FunctionalState I2C_GetINTI2CStatus(TSB_I2C_TypeDef *I2Cx);
 
-    void I2C_ClearINTNACKOutput(TSB_I2C_TypeDef * I2Cx);
-    void I2C_ClearINTI2CBFOutput(TSB_I2C_TypeDef * I2Cx);
-    void I2C_ClearINTI2CALOutput(TSB_I2C_TypeDef * I2Cx);
-    void I2C_ClearINTI2COutput(TSB_I2C_TypeDef * I2Cx);
+void I2C_ClearINTNACKOutput(TSB_I2C_TypeDef *I2Cx);
+void I2C_ClearINTI2CBFOutput(TSB_I2C_TypeDef *I2Cx);
+void I2C_ClearINTI2CALOutput(TSB_I2C_TypeDef *I2Cx);
+void I2C_ClearINTI2COutput(TSB_I2C_TypeDef *I2Cx);
 
-    void I2C_SetGeneralCall(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    void I2C_DetectRepeatStart(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    FunctionalState I2C_GetRepeatStartDetState(TSB_I2C_TypeDef * I2Cx);
-    void I2C_SelectACKoutput(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    void I2C_SetRepeatStart(TSB_I2C_TypeDef * I2Cx, FunctionalState NewState);
-    WorkState I2C_GetRepeatStartState(TSB_I2C_TypeDef * I2Cx);
+void I2C_SetGeneralCall(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+void I2C_DetectRepeatStart(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+FunctionalState I2C_GetRepeatStartDetState(TSB_I2C_TypeDef *I2Cx);
+void I2C_SelectACKoutput(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+void I2C_SetRepeatStart(TSB_I2C_TypeDef *I2Cx, FunctionalState NewState);
+WorkState I2C_GetRepeatStartState(TSB_I2C_TypeDef *I2Cx);
 
 
 /** @} */

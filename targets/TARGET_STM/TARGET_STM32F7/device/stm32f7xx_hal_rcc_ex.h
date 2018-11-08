@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    stm32f7xx_hal_rcc_ex.h
-  * @author  MCD Application Team                                                                                                     
+  * @author  MCD Application Team
   * @version V1.2.2
   * @date    14-April-2017
   * @brief   Header file of RCC HAL Extension module.
@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F7xx_HAL_RCC_EX_H
 #define __STM32F7xx_HAL_RCC_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,194 +52,190 @@
 
 /** @addtogroup RCCEx
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 /** @defgroup RCCEx_Exported_Types RCCEx Exported Types
   * @{
   */
-   
-/** 
-  * @brief  RCC PLL configuration structure definition  
+
+/**
+  * @brief  RCC PLL configuration structure definition
   */
-typedef struct
-{
-  uint32_t PLLState;   /*!< The new state of the PLL.
+typedef struct {
+    uint32_t PLLState;   /*!< The new state of the PLL.
                             This parameter can be a value of @ref RCC_PLL_Config                      */
 
-  uint32_t PLLSource;  /*!< RCC_PLLSource: PLL entry clock source.
-                            This parameter must be a value of @ref RCC_PLL_Clock_Source               */           
+    uint32_t PLLSource;  /*!< RCC_PLLSource: PLL entry clock source.
+                            This parameter must be a value of @ref RCC_PLL_Clock_Source               */
 
-  uint32_t PLLM;       /*!< PLLM: Division factor for PLL VCO input clock.
-                            This parameter must be a number between Min_Data = 2 and Max_Data = 63    */        
+    uint32_t PLLM;       /*!< PLLM: Division factor for PLL VCO input clock.
+                            This parameter must be a number between Min_Data = 2 and Max_Data = 63    */
 
-  uint32_t PLLN;       /*!< PLLN: Multiplication factor for PLL VCO output clock.
+    uint32_t PLLN;       /*!< PLLN: Multiplication factor for PLL VCO output clock.
                             This parameter must be a number between Min_Data = 50 and Max_Data = 432  */
 
-  uint32_t PLLP;       /*!< PLLP: Division factor for main system clock (SYSCLK).
+    uint32_t PLLP;       /*!< PLLP: Division factor for main system clock (SYSCLK).
                             This parameter must be a value of @ref RCC_PLLP_Clock_Divider             */
 
-  uint32_t PLLQ;       /*!< PLLQ: Division factor for OTG FS, SDMMC and RNG clocks.
+    uint32_t PLLQ;       /*!< PLLQ: Division factor for OTG FS, SDMMC and RNG clocks.
                             This parameter must be a number between Min_Data = 2 and Max_Data = 15    */
 #if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
-  uint32_t PLLR;       /*!< PLLR: Division factor for DSI clock.
+    uint32_t PLLR;       /*!< PLLR: Division factor for DSI clock.
                             This parameter must be a number between Min_Data = 2 and Max_Data = 7    */
-#endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */  
+#endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 
-}RCC_PLLInitTypeDef;   
+} RCC_PLLInitTypeDef;
 
-/** 
-  * @brief  PLLI2S Clock structure definition  
+/**
+  * @brief  PLLI2S Clock structure definition
   */
-typedef struct
-{
-  uint32_t PLLI2SN;    /*!< Specifies the multiplication factor for PLLI2S VCO output clock.
+typedef struct {
+    uint32_t PLLI2SN;    /*!< Specifies the multiplication factor for PLLI2S VCO output clock.
                             This parameter must be a number between Min_Data = 50 and Max_Data = 432.
                             This parameter will be used only when PLLI2S is selected as Clock Source I2S or SAI */
 
-  uint32_t PLLI2SR;    /*!< Specifies the division factor for I2S clock.
-                            This parameter must be a number between Min_Data = 2 and Max_Data = 7. 
+    uint32_t PLLI2SR;    /*!< Specifies the division factor for I2S clock.
+                            This parameter must be a number between Min_Data = 2 and Max_Data = 7.
                             This parameter will be used only when PLLI2S is selected as Clock Source I2S or SAI */
 
-  uint32_t PLLI2SQ;    /*!< Specifies the division factor for SAI1 clock.
-                            This parameter must be a number between Min_Data = 2 and Max_Data = 15. 
+    uint32_t PLLI2SQ;    /*!< Specifies the division factor for SAI1 clock.
+                            This parameter must be a number between Min_Data = 2 and Max_Data = 15.
                             This parameter will be used only when PLLI2S is selected as Clock Source SAI */
 
 #if defined (STM32F745xx) || defined (STM32F746xx) || defined (STM32F756xx) || defined (STM32F765xx) || defined (STM32F767xx) || \
     defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
-  uint32_t PLLI2SP;    /*!< Specifies the division factor for SPDIF-RX clock.
-                            This parameter must be a value of @ref RCCEx_PLLI2SP_Clock_Divider. 
+    uint32_t PLLI2SP;    /*!< Specifies the division factor for SPDIF-RX clock.
+                            This parameter must be a value of @ref RCCEx_PLLI2SP_Clock_Divider.
                             This parameter will be used only when PLLI2S is selected as Clock Source SPDIF-RX */
-#endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */  
-}RCC_PLLI2SInitTypeDef;
+#endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
+} RCC_PLLI2SInitTypeDef;
 
-/** 
-  * @brief  PLLSAI Clock structure definition  
+/**
+  * @brief  PLLSAI Clock structure definition
   */
-typedef struct
-{
-  uint32_t PLLSAIN;    /*!< Specifies the multiplication factor for PLLI2S VCO output clock.
+typedef struct {
+    uint32_t PLLSAIN;    /*!< Specifies the multiplication factor for PLLI2S VCO output clock.
                             This parameter must be a number between Min_Data = 50 and Max_Data = 432.
-                            This parameter will be used only when PLLSAI is selected as Clock Source SAI or LTDC */ 
-                                 
-  uint32_t PLLSAIQ;    /*!< Specifies the division factor for SAI1 clock.
+                            This parameter will be used only when PLLSAI is selected as Clock Source SAI or LTDC */
+
+    uint32_t PLLSAIQ;    /*!< Specifies the division factor for SAI1 clock.
                             This parameter must be a number between Min_Data = 2 and Max_Data = 15.
                             This parameter will be used only when PLLSAI is selected as Clock Source SAI or LTDC */
-  
+
 #if defined (STM32F745xx) || defined (STM32F746xx) || defined (STM32F756xx) || defined (STM32F765xx) || defined (STM32F767xx) || \
     defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
-  uint32_t PLLSAIR;    /*!< specifies the division factor for LTDC clock
+    uint32_t PLLSAIR;    /*!< specifies the division factor for LTDC clock
                             This parameter must be a number between Min_Data = 2 and Max_Data = 7.
                             This parameter will be used only when PLLSAI is selected as Clock Source LTDC */
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-  
-  uint32_t PLLSAIP;    /*!< Specifies the division factor for 48MHz clock.
+
+    uint32_t PLLSAIP;    /*!< Specifies the division factor for 48MHz clock.
                             This parameter must be a value of @ref RCCEx_PLLSAIP_Clock_Divider
                             This parameter will be used only when PLLSAI is disabled */
-}RCC_PLLSAIInitTypeDef;
+} RCC_PLLSAIInitTypeDef;
 
-/** 
-  * @brief  RCC extended clocks structure definition  
+/**
+  * @brief  RCC extended clocks structure definition
   */
-typedef struct
-{
-  uint32_t PeriphClockSelection; /*!< The Extended Clock to be configured.
+typedef struct {
+    uint32_t PeriphClockSelection; /*!< The Extended Clock to be configured.
                                       This parameter can be a value of @ref RCCEx_Periph_Clock_Selection */
 
-  RCC_PLLI2SInitTypeDef PLLI2S;  /*!< PLL I2S structure parameters. 
+    RCC_PLLI2SInitTypeDef PLLI2S;  /*!< PLL I2S structure parameters.
                                       This parameter will be used only when PLLI2S is selected as Clock Source I2S or SAI */
 
-  RCC_PLLSAIInitTypeDef PLLSAI;  /*!< PLL SAI structure parameters. 
+    RCC_PLLSAIInitTypeDef PLLSAI;  /*!< PLL SAI structure parameters.
                                       This parameter will be used only when PLLI2S is selected as Clock Source SAI or LTDC */
 
-  uint32_t PLLI2SDivQ;           /*!< Specifies the PLLI2S division factor for SAI1 clock.
+    uint32_t PLLI2SDivQ;           /*!< Specifies the PLLI2S division factor for SAI1 clock.
                                       This parameter must be a number between Min_Data = 1 and Max_Data = 32
                                       This parameter will be used only when PLLI2S is selected as Clock Source SAI */
 
-  uint32_t PLLSAIDivQ;           /*!< Specifies the PLLI2S division factor for SAI1 clock.
+    uint32_t PLLSAIDivQ;           /*!< Specifies the PLLI2S division factor for SAI1 clock.
                                       This parameter must be a number between Min_Data = 1 and Max_Data = 32
                                       This parameter will be used only when PLLSAI is selected as Clock Source SAI */
 
-  uint32_t PLLSAIDivR;           /*!< Specifies the PLLSAI division factor for LTDC clock.
+    uint32_t PLLSAIDivR;           /*!< Specifies the PLLSAI division factor for LTDC clock.
                                       This parameter must be one value of @ref RCCEx_PLLSAI_DIVR */
 
-  uint32_t RTCClockSelection;      /*!< Specifies RTC Clock source Selection. 
+    uint32_t RTCClockSelection;      /*!< Specifies RTC Clock source Selection.
                                         This parameter can be a value of @ref RCC_RTC_Clock_Source */
-                                        
-  uint32_t I2sClockSelection;      /*!< Specifies I2S Clock source Selection. 
+
+    uint32_t I2sClockSelection;      /*!< Specifies I2S Clock source Selection.
                                         This parameter can be a value of @ref RCCEx_I2S_Clock_Source */
 
-  uint32_t TIMPresSelection;      /*!< Specifies TIM Clock Prescalers Selection. 
+    uint32_t TIMPresSelection;      /*!< Specifies TIM Clock Prescalers Selection.
                                        This parameter can be a value of @ref RCCEx_TIM_Prescaler_Selection */
-  
-  uint32_t Sai1ClockSelection;     /*!< Specifies SAI1 Clock Prescalers Selection
+
+    uint32_t Sai1ClockSelection;     /*!< Specifies SAI1 Clock Prescalers Selection
                                         This parameter can be a value of @ref RCCEx_SAI1_Clock_Source */
 
-  uint32_t Sai2ClockSelection;     /*!< Specifies SAI2 Clock Prescalers Selection
+    uint32_t Sai2ClockSelection;     /*!< Specifies SAI2 Clock Prescalers Selection
                                         This parameter can be a value of @ref RCCEx_SAI2_Clock_Source */
-  
-  uint32_t Usart1ClockSelection; /*!< USART1 clock source      
+
+    uint32_t Usart1ClockSelection; /*!< USART1 clock source
                                       This parameter can be a value of @ref RCCEx_USART1_Clock_Source */
-  
-  uint32_t Usart2ClockSelection; /*!< USART2 clock source      
+
+    uint32_t Usart2ClockSelection; /*!< USART2 clock source
                                       This parameter can be a value of @ref RCCEx_USART2_Clock_Source */
 
-  uint32_t Usart3ClockSelection; /*!< USART3 clock source      
-                                      This parameter can be a value of @ref RCCEx_USART3_Clock_Source */                                
-  
-  uint32_t Uart4ClockSelection;  /*!< UART4 clock source      
+    uint32_t Usart3ClockSelection; /*!< USART3 clock source
+                                      This parameter can be a value of @ref RCCEx_USART3_Clock_Source */
+
+    uint32_t Uart4ClockSelection;  /*!< UART4 clock source
                                       This parameter can be a value of @ref RCCEx_UART4_Clock_Source */
-  
-  uint32_t Uart5ClockSelection;  /*!< UART5 clock source      
+
+    uint32_t Uart5ClockSelection;  /*!< UART5 clock source
                                       This parameter can be a value of @ref RCCEx_UART5_Clock_Source */
-  
-  uint32_t Usart6ClockSelection;  /*!< USART6 clock source      
+
+    uint32_t Usart6ClockSelection;  /*!< USART6 clock source
                                       This parameter can be a value of @ref RCCEx_USART6_Clock_Source */
-  
-  uint32_t Uart7ClockSelection;  /*!< UART7 clock source      
+
+    uint32_t Uart7ClockSelection;  /*!< UART7 clock source
                                       This parameter can be a value of @ref RCCEx_UART7_Clock_Source */
-  
-  uint32_t Uart8ClockSelection;  /*!< UART8 clock source      
+
+    uint32_t Uart8ClockSelection;  /*!< UART8 clock source
                                       This parameter can be a value of @ref RCCEx_UART8_Clock_Source */
-  
-  uint32_t I2c1ClockSelection;   /*!< I2C1 clock source      
+
+    uint32_t I2c1ClockSelection;   /*!< I2C1 clock source
                                       This parameter can be a value of @ref RCCEx_I2C1_Clock_Source */
 
-  uint32_t I2c2ClockSelection;   /*!< I2C2 clock source      
+    uint32_t I2c2ClockSelection;   /*!< I2C2 clock source
                                       This parameter can be a value of @ref RCCEx_I2C2_Clock_Source */
 
-  uint32_t I2c3ClockSelection;   /*!< I2C3 clock source      
+    uint32_t I2c3ClockSelection;   /*!< I2C3 clock source
                                       This parameter can be a value of @ref RCCEx_I2C3_Clock_Source */
-  
-  uint32_t I2c4ClockSelection;   /*!< I2C4 clock source      
+
+    uint32_t I2c4ClockSelection;   /*!< I2C4 clock source
                                       This parameter can be a value of @ref RCCEx_I2C4_Clock_Source */
-  
-  uint32_t Lptim1ClockSelection;   /*!< Specifies LPTIM1 clock source
+
+    uint32_t Lptim1ClockSelection;   /*!< Specifies LPTIM1 clock source
                                         This parameter can be a value of @ref RCCEx_LPTIM1_Clock_Source */
-  
-  uint32_t CecClockSelection;      /*!< CEC clock source      
+
+    uint32_t CecClockSelection;      /*!< CEC clock source
                                         This parameter can be a value of @ref RCCEx_CEC_Clock_Source */
-  
-  uint32_t Clk48ClockSelection;    /*!< Specifies 48Mhz clock source used by USB OTG FS, RNG and SDMMC
+
+    uint32_t Clk48ClockSelection;    /*!< Specifies 48Mhz clock source used by USB OTG FS, RNG and SDMMC
                                         This parameter can be a value of @ref RCCEx_CLK48_Clock_Source */
-  
-  uint32_t Sdmmc1ClockSelection;     /*!< SDMMC1 clock source      
+
+    uint32_t Sdmmc1ClockSelection;     /*!< SDMMC1 clock source
                                         This parameter can be a value of @ref RCCEx_SDMMC1_Clock_Source */
-                                          
+
 #if defined (STM32F722xx) || defined (STM32F723xx) || defined (STM32F732xx) || defined (STM32F733xx) || defined (STM32F765xx) ||\
     defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
-  uint32_t Sdmmc2ClockSelection;     /*!< SDMMC2 clock source      
+    uint32_t Sdmmc2ClockSelection;     /*!< SDMMC2 clock source
                                         This parameter can be a value of @ref RCCEx_SDMMC2_Clock_Source */
 #endif /* STM32F722xx || STM32F723xx || STM32F732xx || STM32F733xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-  
-#if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)  
-  uint32_t Dfsdm1ClockSelection;     /*!< DFSDM1 clock source      
+
+#if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
+    uint32_t Dfsdm1ClockSelection;     /*!< DFSDM1 clock source
                                         This parameter can be a value of @ref RCCEx_DFSDM1_Kernel_Clock_Source */
-                                          
-  uint32_t Dfsdm1AudioClockSelection; /*!< DFSDM1 clock source      
+
+    uint32_t Dfsdm1AudioClockSelection; /*!< DFSDM1 clock source
                                         This parameter can be a value of @ref RCCEx_DFSDM1_AUDIO_Clock_Source */
-#endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */  
-}RCC_PeriphCLKInitTypeDef;
+#endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
+} RCC_PeriphCLKInitTypeDef;
 /**
   * @}
   */
@@ -284,9 +280,9 @@ typedef struct
 #endif /* STM32F722xx || STM32F723xx || STM32F732xx || STM32F733xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 #if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define RCC_PERIPHCLK_DFSDM1           ((uint32_t)0x08000000U)
-#define RCC_PERIPHCLK_DFSDM1_AUDIO      ((uint32_t)0x10000000U)    
+#define RCC_PERIPHCLK_DFSDM1_AUDIO      ((uint32_t)0x10000000U)
 #endif /* STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-    
+
 /**
   * @}
   */
@@ -304,7 +300,7 @@ typedef struct
   * @}
   */
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-  
+
 /** @defgroup RCCEx_PLLSAIP_Clock_Divider RCCEx PLLSAIP Clock Divider
   * @{
   */
@@ -335,9 +331,9 @@ typedef struct
 
 /**
   * @}
-  */ 
-  
-  
+  */
+
+
 /** @defgroup RCCEx_SAI1_Clock_Source RCCEx SAI1 Clock Source
   * @{
   */
@@ -349,7 +345,7 @@ typedef struct
 #endif /* STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup RCCEx_SAI2_Clock_Source RCCEx SAI2 Clock Source
   * @{
@@ -362,7 +358,7 @@ typedef struct
 #endif /* STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup RCCEx_CEC_Clock_Source RCCEx CEC Clock Source
   * @{
@@ -551,9 +547,9 @@ typedef struct
 /**
   * @}
   */
-#endif /* STM32F722xx || STM32F723xx || STM32F732xx || STM32F733xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */      
+#endif /* STM32F722xx || STM32F723xx || STM32F732xx || STM32F733xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 
-#if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)      
+#if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 /** @defgroup RCCEx_DFSDM1_Kernel_Clock_Source  RCCEx DFSDM1 Kernel Clock Source
   * @{
   */
@@ -578,16 +574,16 @@ typedef struct
   * @{
   */
 #define RCC_DSICLKSOURCE_DSIPHY             ((uint32_t)0x00000000U)
-#define RCC_DSICLKSOURCE_PLLR               ((uint32_t)RCC_DCKCFGR2_DSISEL)      
+#define RCC_DSICLKSOURCE_PLLR               ((uint32_t)RCC_DCKCFGR2_DSISEL)
 /**
   * @}
-  */ 
+  */
 #endif /* STM32F769xx || STM32F779xx */
 
 /**
   * @}
   */
-     
+
 /* Exported macro ------------------------------------------------------------*/
 /** @defgroup RCCEx_Exported_Macros RCCEx Exported Macros
   * @{
@@ -595,14 +591,14 @@ typedef struct
 /** @defgroup RCCEx_Peripheral_Clock_Enable_Disable RCCEx_Peripheral_Clock_Enable_Disable
   * @brief  Enables or disables the AHB/APB peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
-  *         is disabled and the application software has to enable this clock before 
-  *         using it.   
+  *         is disabled and the application software has to enable this clock before
+  *         using it.
   * @{
   */
- 
+
 /** @brief  Enables or disables the AHB1 peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
-  *         is disabled and the application software has to enable this clock before 
+  *         is disabled and the application software has to enable this clock before
   *         using it.
   */
 #define __HAL_RCC_BKPSRAM_CLK_ENABLE()   do { \
@@ -612,7 +608,7 @@ typedef struct
                                         tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_BKPSRAMEN);\
                                         UNUSED(tmpreg); \
                                       } while(0)
-                                      
+
 #define __HAL_RCC_DTCMRAMEN_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_DTCMRAMEN);\
@@ -620,7 +616,7 @@ typedef struct
                                         tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_DTCMRAMEN);\
                                         UNUSED(tmpreg); \
                                       } while(0)
-                                      
+
 #define __HAL_RCC_DMA2_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_DMA2EN);\
@@ -734,7 +730,7 @@ typedef struct
                                         tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOKEN);\
                                         UNUSED(tmpreg); \
                                       } while(0)
-                                        
+
 #define __HAL_RCC_DMA2D_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_DMA2DEN);\
@@ -764,7 +760,7 @@ typedef struct
 #define __HAL_RCC_GPIOK_CLK_DISABLE()           (RCC->AHB1ENR &= ~(RCC_AHB1ENR_GPIOKEN))
 #define __HAL_RCC_DMA2D_CLK_DISABLE()           (RCC->AHB1ENR &= ~(RCC_AHB1ENR_DMA2DEN))
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-                                        
+
 #if defined (STM32F745xx) || defined (STM32F746xx) || defined (STM32F756xx) || defined (STM32F765xx) ||\
     defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 /**
@@ -801,7 +797,7 @@ typedef struct
                                         tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_ETHMACPTPEN);\
                                         UNUSED(tmpreg); \
                                       } while(0)
-                                      
+
 #define __HAL_RCC_ETH_CLK_ENABLE()       do {                            \
                                      __HAL_RCC_ETHMAC_CLK_ENABLE();      \
                                      __HAL_RCC_ETHMACTX_CLK_ENABLE();    \
@@ -820,14 +816,14 @@ typedef struct
                                       __HAL_RCC_ETHMAC_CLK_DISABLE();      \
                                      } while(0)
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-                                     
+
 /** @brief  Enable or disable the AHB2 peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
-  *         is disabled and the application software has to enable this clock before 
+  *         is disabled and the application software has to enable this clock before
   *         using it.
   */
 #if defined (STM32F745xx) || defined (STM32F746xx) || defined (STM32F756xx) || defined (STM32F765xx) ||\
-    defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)      
+    defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_DCMI_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->AHB2ENR, RCC_AHB2ENR_DCMIEN);\
@@ -838,7 +834,7 @@ typedef struct
 #define __HAL_RCC_DCMI_CLK_DISABLE()  (RCC->AHB2ENR &= ~(RCC_AHB2ENR_DCMIEN))
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 
-#if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)                                        
+#if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_JPEG_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->AHB2ENR, RCC_AHB2ENR_JPEGEN);\
@@ -846,8 +842,8 @@ typedef struct
                                         tmpreg = READ_BIT(RCC->AHB2ENR, RCC_AHB2ENR_JPEGEN);\
                                         UNUSED(tmpreg); \
                                       } while(0)
-#define __HAL_RCC_JPEG_CLK_DISABLE()  (RCC->AHB2ENR &= ~(RCC_AHB2ENR_JPEGEN))                                        
-#endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */                                       
+#define __HAL_RCC_JPEG_CLK_DISABLE()  (RCC->AHB2ENR &= ~(RCC_AHB2ENR_JPEGEN))
+#endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 
 #define __HAL_RCC_RNG_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
@@ -864,9 +860,9 @@ typedef struct
                                         tmpreg = READ_BIT(RCC->AHB2ENR, RCC_AHB2ENR_OTGFSEN);\
                                         UNUSED(tmpreg); \
                                         __HAL_RCC_SYSCFG_CLK_ENABLE();\
-                                      } while(0) 
+                                      } while(0)
 
-#define __HAL_RCC_RNG_CLK_DISABLE()   (RCC->AHB2ENR &= ~(RCC_AHB2ENR_RNGEN))                                        
+#define __HAL_RCC_RNG_CLK_DISABLE()   (RCC->AHB2ENR &= ~(RCC_AHB2ENR_RNGEN))
 
 #define __HAL_RCC_USB_OTG_FS_CLK_DISABLE() (RCC->AHB2ENR &= ~(RCC_AHB2ENR_OTGFSEN))
 #if defined(STM32F756xx) || defined (STM32F777xx) || defined (STM32F779xx)
@@ -885,11 +881,11 @@ typedef struct
                                         tmpreg = READ_BIT(RCC->AHB2ENR, RCC_AHB2ENR_HASHEN);\
                                         UNUSED(tmpreg); \
                                       } while(0)
-                                      
+
 #define __HAL_RCC_CRYP_CLK_DISABLE()  (RCC->AHB2ENR &= ~(RCC_AHB2ENR_CRYPEN))
-#define __HAL_RCC_HASH_CLK_DISABLE()  (RCC->AHB2ENR &= ~(RCC_AHB2ENR_HASHEN)) 
+#define __HAL_RCC_HASH_CLK_DISABLE()  (RCC->AHB2ENR &= ~(RCC_AHB2ENR_HASHEN))
 #endif /* STM32F756x || STM32F777xx || STM32F779xx */
-                                        
+
 #if defined(STM32F732xx) || defined (STM32F733xx)
 #define __HAL_RCC_AES_CLK_ENABLE()    do { \
                                         __IO uint32_t tmpreg; \
@@ -898,14 +894,14 @@ typedef struct
                                         tmpreg = READ_BIT(RCC->AHB2ENR, RCC_AHB2ENR_AESEN);\
                                         UNUSED(tmpreg); \
                                       } while(0)
-                                      
-#define __HAL_RCC_AES_CLK_DISABLE()  (RCC->AHB2ENR &= ~(RCC_AHB2ENR_AESEN)) 
+
+#define __HAL_RCC_AES_CLK_DISABLE()  (RCC->AHB2ENR &= ~(RCC_AHB2ENR_AESEN))
 #endif /* STM32F732xx || STM32F733xx */
-                                        
+
 /** @brief  Enables or disables the AHB3 peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
-  *         is disabled and the application software has to enable this clock before 
-  *         using it. 
+  *         is disabled and the application software has to enable this clock before
+  *         using it.
   */
 #define __HAL_RCC_FMC_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
@@ -928,8 +924,8 @@ typedef struct
 
 /** @brief  Enable or disable the Low Speed APB (APB1) peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
-  *         is disabled and the application software has to enable this clock before 
-  *         using it. 
+  *         is disabled and the application software has to enable this clock before
+  *         using it.
   */
 #define __HAL_RCC_TIM2_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
@@ -1033,7 +1029,7 @@ typedef struct
                                         UNUSED(tmpreg); \
                                       } while(0)
 #endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-                                        
+
 #define __HAL_RCC_SPI2_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB1ENR, RCC_APB1ENR_SPI2EN);\
@@ -1105,7 +1101,7 @@ typedef struct
                                         tmpreg = READ_BIT(RCC->APB1ENR, RCC_APB1ENR_I2C3EN);\
                                         UNUSED(tmpreg); \
                                       } while(0)
-                                        
+
 #define __HAL_RCC_CAN1_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB1ENR, RCC_APB1ENR_CAN1EN);\
@@ -1137,7 +1133,7 @@ typedef struct
                                         tmpreg = READ_BIT(RCC->APB1ENR, RCC_APB1ENR_UART8EN);\
                                         UNUSED(tmpreg); \
                                       } while(0)
-                                        
+
 #if defined (STM32F745xx) || defined (STM32F746xx) || defined (STM32F756xx) || defined (STM32F765xx) ||\
     defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_SPDIFRX_CLK_ENABLE()   do { \
@@ -1191,7 +1187,7 @@ typedef struct
           STM32F769xx || STM32F777xx || STM32F779xx */
 #if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_CAN3_CLK_DISABLE()   (RCC->APB1ENR &= ~(RCC_APB1ENR_CAN3EN))
-#endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */                                        
+#endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 #define __HAL_RCC_SPI2_CLK_DISABLE()   (RCC->APB1ENR &= ~(RCC_APB1ENR_SPI2EN))
 #define __HAL_RCC_SPI3_CLK_DISABLE()   (RCC->APB1ENR &= ~(RCC_APB1ENR_SPI3EN))
 #define __HAL_RCC_USART2_CLK_DISABLE() (RCC->APB1ENR &= ~(RCC_APB1ENR_USART2EN))
@@ -1215,7 +1211,7 @@ typedef struct
 
 /** @brief  Enable or disable the High Speed APB (APB2) peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
-  *         is disabled and the application software has to enable this clock before 
+  *         is disabled and the application software has to enable this clock before
   *         using it.
   */
 #define __HAL_RCC_TIM1_CLK_ENABLE()   do { \
@@ -1374,25 +1370,25 @@ typedef struct
                                         UNUSED(tmpreg); \
                                       } while(0)
 #endif /* STM32F746xx || STM32F756xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-                                        
-#if defined (STM32F769xx) || defined (STM32F779xx)                                        
+
+#if defined (STM32F769xx) || defined (STM32F779xx)
 #define __HAL_RCC_DSI_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB2ENR, RCC_APB2ENR_DSIEN);\
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->APB2ENR, RCC_APB2ENR_DSIEN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)                                                                            
+                                      } while(0)
 #endif /* STM32F769xx || STM32F779xx */
-                                        
-#if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)                                        
+
+#if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_DFSDM1_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB2ENR, RCC_APB2ENR_DFSDM1EN);\
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->APB2ENR, RCC_APB2ENR_DFSDM1EN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)    
+                                      } while(0)
 
 #define __HAL_RCC_MDIO_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
@@ -1411,7 +1407,7 @@ typedef struct
                                         UNUSED(tmpreg); \
                                       } while(0)
 #endif /* STM32F723xx || STM32F733xx */
-                                        
+
 #define __HAL_RCC_TIM1_CLK_DISABLE()   (RCC->APB2ENR &= ~(RCC_APB2ENR_TIM1EN))
 #define __HAL_RCC_TIM8_CLK_DISABLE()   (RCC->APB2ENR &= ~(RCC_APB2ENR_TIM8EN))
 #define __HAL_RCC_USART1_CLK_DISABLE() (RCC->APB2ENR &= ~(RCC_APB2ENR_USART1EN))
@@ -1419,7 +1415,7 @@ typedef struct
 #if defined (STM32F722xx) || defined (STM32F723xx) || defined (STM32F732xx) || defined (STM32F733xx) || defined (STM32F765xx) ||\
     defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_SDMMC2_CLK_DISABLE() (RCC->APB2ENR &= ~(RCC_APB2ENR_SDMMC2EN))
-#endif /* STM32F722xx || STM32F723xx || STM32F732xx || STM32F733xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */                                        
+#endif /* STM32F722xx || STM32F723xx || STM32F732xx || STM32F733xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 #define __HAL_RCC_ADC1_CLK_DISABLE()   (RCC->APB2ENR &= ~(RCC_APB2ENR_ADC1EN))
 #define __HAL_RCC_ADC2_CLK_DISABLE()   (RCC->APB2ENR &= ~(RCC_APB2ENR_ADC2EN))
 #define __HAL_RCC_ADC3_CLK_DISABLE()   (RCC->APB2ENR &= ~(RCC_APB2ENR_ADC3EN))
@@ -1436,17 +1432,17 @@ typedef struct
 #if defined (STM32F746xx) || defined (STM32F756xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_LTDC_CLK_DISABLE()   (RCC->APB2ENR &= ~(RCC_APB2ENR_LTDCEN))
 #endif /* STM32F746xx || STM32F756xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-#if defined (STM32F769xx) || defined (STM32F779xx)                                        
+#if defined (STM32F769xx) || defined (STM32F779xx)
 #define __HAL_RCC_DSI_CLK_DISABLE()    (RCC->APB2ENR &= ~(RCC_APB2ENR_DSIEN))
-#endif /* STM32F769xx || STM32F779xx */                                        
-#if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)                                        
+#endif /* STM32F769xx || STM32F779xx */
+#if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_DFSDM1_CLK_DISABLE() (RCC->APB2ENR &= ~(RCC_APB2ENR_DFSDM1EN))
 #define __HAL_RCC_MDIO_CLK_DISABLE()   (RCC->APB2ENR &= ~(RCC_APB2ENR_MDIOEN))
 #endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 #if defined (STM32F723xx) || defined (STM32F733xx)
 #define __HAL_RCC_OTGPHYC_CLK_DISABLE() (RCC->APB2ENR &= ~(RCC_APB2ENR_OTGPHYCEN))
 #endif /* STM32F723xx || STM32F733xx */
-                                        
+
 /**
   * @}
   */
@@ -1459,15 +1455,15 @@ typedef struct
   *         using it.
   * @{
   */
- 
+
 /** @brief  Get the enable or disable status of the AHB1 peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
   *         is disabled and the application software has to enable this clock before
-  *         using it. 
+  *         using it.
   */
 #define __HAL_RCC_BKPSRAM_IS_CLK_ENABLED()          ((RCC->AHB1ENR & (RCC_AHB1ENR_BKPSRAMEN)) != RESET)
 #define __HAL_RCC_DTCMRAMEN_IS_CLK_ENABLED()        ((RCC->AHB1ENR & (RCC_AHB1ENR_DTCMRAMEN)) != RESET)
-#define __HAL_RCC_DMA2_IS_CLK_ENABLED()             ((RCC->AHB1ENR & (RCC_AHB1ENR_DMA2EN)) != RESET)  
+#define __HAL_RCC_DMA2_IS_CLK_ENABLED()             ((RCC->AHB1ENR & (RCC_AHB1ENR_DMA2EN)) != RESET)
 #define __HAL_RCC_USB_OTG_HS_IS_CLK_ENABLED()       ((RCC->AHB1ENR & (RCC_AHB1ENR_OTGHSEN)) != RESET)
 #define __HAL_RCC_USB_OTG_HS_ULPI_IS_CLK_ENABLED()  ((RCC->AHB1ENR & (RCC_AHB1ENR_OTGHSULPIEN)) != RESET)
 #define __HAL_RCC_GPIOA_IS_CLK_ENABLED()            ((RCC->AHB1ENR & (RCC_AHB1ENR_GPIOAEN)) != RESET)
@@ -1535,19 +1531,19 @@ typedef struct
 /** @brief  Get the enable or disable status of the AHB2 peripheral clock.
   * @note   After reset, the peripheral clock (used for registers read/write access)
   *         is disabled and the application software has to enable this clock before
-  *         using it. 
+  *         using it.
   */
 #define __HAL_RCC_RNG_IS_CLK_ENABLED()         ((RCC->AHB2ENR & (RCC_AHB2ENR_RNGEN)) != RESET)
 #define __HAL_RCC_USB_OTG_FS_IS_CLK_ENABLED()  ((RCC->AHB2ENR & (RCC_AHB2ENR_OTGFSEN)) != RESET)
-                                   
-#define __HAL_RCC_RNG_IS_CLK_DISABLED()        ((RCC->AHB2ENR & (RCC_AHB2ENR_RNGEN)) == RESET)                                        
+
+#define __HAL_RCC_RNG_IS_CLK_DISABLED()        ((RCC->AHB2ENR & (RCC_AHB2ENR_RNGEN)) == RESET)
 #define __HAL_RCC_USB_IS_OTG_FS_CLK_DISABLED() ((RCC->AHB2ENR & (RCC_AHB2ENR_OTGFSEN)) == RESET)
 
 #if defined(STM32F756xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_CRYP_IS_CLK_ENABLED()   ((RCC->AHB2ENR & (RCC_AHB2ENR_CRYPEN)) != RESET)
 #define __HAL_RCC_HASH_IS_CLK_ENABLED()   ((RCC->AHB2ENR & (RCC_AHB2ENR_HASHEN)) != RESET)
 #define __HAL_RCC_CRYP_IS_CLK_DISABLED()  ((RCC->AHB2ENR & (RCC_AHB2ENR_CRYPEN)) == RESET)
-#define __HAL_RCC_HASH_IS_CLK_DISABLED()  ((RCC->AHB2ENR & (RCC_AHB2ENR_HASHEN)) == RESET) 
+#define __HAL_RCC_HASH_IS_CLK_DISABLED()  ((RCC->AHB2ENR & (RCC_AHB2ENR_HASHEN)) == RESET)
 #endif /* STM32F756xx || STM32F777xx || STM32F779xx */
 
 #if defined(STM32F732xx) || defined (STM32F733xx)
@@ -1570,7 +1566,7 @@ typedef struct
   * @note   After reset, the peripheral clock (used for registers read/write access)
   *         is disabled and the application software has to enable this clock before
   *         using it.
-  */  
+  */
 #define __HAL_RCC_FMC_IS_CLK_ENABLED()   ((RCC->AHB3ENR & (RCC_AHB3ENR_FMCEN)) != RESET)
 #define __HAL_RCC_QSPI_IS_CLK_ENABLED()  ((RCC->AHB3ENR & (RCC_AHB3ENR_QSPIEN)) != RESET)
 
@@ -1647,7 +1643,7 @@ typedef struct
 #define __HAL_RCC_CEC_IS_CLK_DISABLED()    ((RCC->APB1ENR & (RCC_APB1ENR_CECEN)) == RESET)
 #define __HAL_RCC_I2C4_IS_CLK_DISABLED()   ((RCC->APB1ENR & (RCC_APB1ENR_I2C4EN)) == RESET)
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-      
+
 #if defined (STM32F722xx) || defined (STM32F723xx) || defined (STM32F732xx) || defined (STM32F733xx) ||\
     defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) ||\
     defined (STM32F779xx)
@@ -1714,7 +1710,7 @@ typedef struct
 #define __HAL_RCC_SAI1_IS_CLK_DISABLED()   ((RCC->APB2ENR & (RCC_APB2ENR_SAI1EN)) == RESET)
 #define __HAL_RCC_SAI2_IS_CLK_DISABLED()   ((RCC->APB2ENR & (RCC_APB2ENR_SAI2EN)) == RESET)
 #if defined (STM32F746xx) || defined (STM32F756xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
-#define __HAL_RCC_LTDC_IS_CLK_DISABLED()   ((RCC->APB2ENR & (RCC_APB2ENR_LTDCEN)) == RESET)  
+#define __HAL_RCC_LTDC_IS_CLK_DISABLED()   ((RCC->APB2ENR & (RCC_APB2ENR_LTDCEN)) == RESET)
 #endif /* STM32F746xx || STM32F756xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 #if defined (STM32F769xx) || defined (STM32F779xx)
 #define __HAL_RCC_DSI_IS_CLK_DISABLED()    ((RCC->APB2ENR & (RCC_APB2ENR_DSIEN)) == RESET)
@@ -1733,15 +1729,15 @@ typedef struct
 
 /**
   * @}
-  */  
+  */
 
 /** @defgroup RCCEx_Force_Release_Peripheral_Reset RCCEx Force Release Peripheral Reset
   * @brief  Forces or releases AHB/APB peripheral reset.
   * @{
   */
-  
+
 /** @brief  Force or release AHB1 peripheral reset.
-  */  
+  */
 #define __HAL_RCC_DMA2_FORCE_RESET()    (RCC->AHB1RSTR |= (RCC_AHB1RSTR_DMA2RST))
 #define __HAL_RCC_USB_OTG_HS_FORCE_RESET()    (RCC->AHB1RSTR |= (RCC_AHB1RSTR_OTGHRST))
 #define __HAL_RCC_GPIOA_FORCE_RESET()   (RCC->AHB1RSTR |= (RCC_AHB1RSTR_GPIOARST))
@@ -1781,7 +1777,7 @@ typedef struct
 
 /** @brief  Force or release AHB2 peripheral reset.
   */
-#define __HAL_RCC_AHB2_FORCE_RESET()    (RCC->AHB2RSTR = 0xFFFFFFFFU) 
+#define __HAL_RCC_AHB2_FORCE_RESET()    (RCC->AHB2RSTR = 0xFFFFFFFFU)
 #define __HAL_RCC_RNG_FORCE_RESET()    (RCC->AHB2RSTR |= (RCC_AHB2RSTR_RNGRST))
 #define __HAL_RCC_USB_OTG_FS_FORCE_RESET()   (RCC->AHB2RSTR |= (RCC_AHB2RSTR_OTGFSRST))
 
@@ -1800,7 +1796,7 @@ typedef struct
 #define __HAL_RCC_CRYP_RELEASE_RESET() (RCC->AHB2RSTR &= ~(RCC_AHB2RSTR_CRYPRST))
 #define __HAL_RCC_HASH_RELEASE_RESET() (RCC->AHB2RSTR &= ~(RCC_AHB2RSTR_HASHRST))
 #endif /* STM32F756xx || STM32F777xx || STM32F779xx */
-      
+
 #if defined(STM32F732xx) || defined (STM32F733xx)
 #define __HAL_RCC_AES_FORCE_RESET()   (RCC->AHB2RSTR |= (RCC_AHB2RSTR_AESRST))
 #define __HAL_RCC_AES_RELEASE_RESET() (RCC->AHB2RSTR &= ~(RCC_AHB2RSTR_AESRST))
@@ -1813,17 +1809,17 @@ typedef struct
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 
 /** @brief  Force or release AHB3 peripheral reset
-  */ 
-#define __HAL_RCC_AHB3_FORCE_RESET()   (RCC->AHB3RSTR = 0xFFFFFFFFU) 
+  */
+#define __HAL_RCC_AHB3_FORCE_RESET()   (RCC->AHB3RSTR = 0xFFFFFFFFU)
 #define __HAL_RCC_FMC_FORCE_RESET()    (RCC->AHB3RSTR |= (RCC_AHB3RSTR_FMCRST))
 #define __HAL_RCC_QSPI_FORCE_RESET()   (RCC->AHB3RSTR |= (RCC_AHB3RSTR_QSPIRST))
 
 #define __HAL_RCC_AHB3_RELEASE_RESET() (RCC->AHB3RSTR = 0x00U)
 #define __HAL_RCC_FMC_RELEASE_RESET()  (RCC->AHB3RSTR &= ~(RCC_AHB3RSTR_FMCRST))
 #define __HAL_RCC_QSPI_RELEASE_RESET() (RCC->AHB3RSTR &= ~(RCC_AHB3RSTR_QSPIRST))
- 
+
 /** @brief  Force or release APB1 peripheral reset.
-  */ 
+  */
 #define __HAL_RCC_TIM2_FORCE_RESET()     (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM2RST))
 #define __HAL_RCC_TIM3_FORCE_RESET()     (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM3RST))
 #define __HAL_RCC_TIM4_FORCE_RESET()     (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM4RST))
@@ -1884,7 +1880,7 @@ typedef struct
 #define __HAL_RCC_I2C4_FORCE_RESET()     (RCC->APB1RSTR |= (RCC_APB1RSTR_I2C4RST))
 #define __HAL_RCC_CAN2_FORCE_RESET()     (RCC->APB1RSTR |= (RCC_APB1RSTR_CAN2RST))
 #define __HAL_RCC_CEC_FORCE_RESET()      (RCC->APB1RSTR |= (RCC_APB1RSTR_CECRST))
-      
+
 #define __HAL_RCC_SPDIFRX_RELEASE_RESET()(RCC->APB1RSTR &= ~(RCC_APB1RSTR_SPDIFRXRST))
 #define __HAL_RCC_I2C4_RELEASE_RESET()   (RCC->APB1RSTR &= ~(RCC_APB1RSTR_I2C4RST))
 #define __HAL_RCC_CAN2_RELEASE_RESET()   (RCC->APB1RSTR &= ~(RCC_APB1RSTR_CAN2RST))
@@ -1956,7 +1952,7 @@ typedef struct
 #endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup RCCEx_Peripheral_Clock_Sleep_Enable_Disable RCCEx Peripheral Clock Sleep Enable Disable
   * @brief  Enables or disables the AHB/APB peripheral clock during Low Power (Sleep) mode.
@@ -1965,10 +1961,10 @@ typedef struct
   * @note   After wakeup from SLEEP mode, the peripheral clock is enabled again.
   * @note   By default, all peripheral clocks are enabled during SLEEP mode.
   * @{
-  */ 
-  
+  */
+
 /** @brief  Enable or disable the AHB1 peripheral clock during Low Power (Sleep) mode.
-  */ 
+  */
 #define __HAL_RCC_FLITF_CLK_SLEEP_ENABLE()      (RCC->AHB1LPENR |= (RCC_AHB1LPENR_FLITFLPEN))
 #define __HAL_RCC_AXI_CLK_SLEEP_ENABLE()        (RCC->AHB1LPENR |= (RCC_AHB1LPENR_AXILPEN))
 #define __HAL_RCC_SRAM1_CLK_SLEEP_ENABLE()      (RCC->AHB1LPENR |= (RCC_AHB1LPENR_SRAM1LPEN))
@@ -2052,15 +2048,15 @@ typedef struct
 #if defined(STM32F756xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_CRYP_CLK_SLEEP_ENABLE()        (RCC->AHB2LPENR |= (RCC_AHB2LPENR_CRYPLPEN))
 #define __HAL_RCC_HASH_CLK_SLEEP_ENABLE()        (RCC->AHB2LPENR |= (RCC_AHB2LPENR_HASHLPEN))
-                                         
+
 #define __HAL_RCC_CRYP_CLK_SLEEP_DISABLE()       (RCC->AHB2LPENR &= ~(RCC_AHB2LPENR_CRYPLPEN))
 #define __HAL_RCC_HASH_CLK_SLEEP_DISABLE()       (RCC->AHB2LPENR &= ~(RCC_AHB2LPENR_HASHLPEN))
 #endif /* STM32F756xx || STM32F777xx || STM32F779xx */
-      
+
 #if defined(STM32F732xx) || defined (STM32F733xx)
 #define __HAL_RCC_AES_CLK_SLEEP_ENABLE()        (RCC->AHB2LPENR |= (RCC_AHB2LPENR_AESLPEN))
 #define __HAL_RCC_AES_CLK_SLEEP_DISABLE()       (RCC->AHB2LPENR &= ~(RCC_AHB2LPENR_AESLPEN))
-#endif /* STM32F732xx || STM32F733xx */      
+#endif /* STM32F732xx || STM32F733xx */
 
 /** @brief  Enable or disable the AHB3 peripheral clock during Low Power (Sleep) mode.
   * @note   Peripheral clock gating in SLEEP mode can be used to further reduce
@@ -2079,7 +2075,7 @@ typedef struct
   *         power consumption.
   * @note   After wakeup from SLEEP mode, the peripheral clock is enabled again.
   * @note   By default, all peripheral clocks are enabled during SLEEP mode.
-  */  
+  */
 #define __HAL_RCC_TIM2_CLK_SLEEP_ENABLE()    (RCC->APB1LPENR |= (RCC_APB1LPENR_TIM2LPEN))
 #define __HAL_RCC_TIM3_CLK_SLEEP_ENABLE()    (RCC->APB1LPENR |= (RCC_APB1LPENR_TIM3LPEN))
 #define __HAL_RCC_TIM4_CLK_SLEEP_ENABLE()    (RCC->APB1LPENR |= (RCC_APB1LPENR_TIM4LPEN))
@@ -2152,7 +2148,7 @@ typedef struct
 #define __HAL_RCC_SPDIFRX_CLK_SLEEP_DISABLE()(RCC->APB1LPENR &= ~(RCC_APB1LPENR_SPDIFRXLPEN))
 #define __HAL_RCC_I2C4_CLK_SLEEP_DISABLE()   (RCC->APB1LPENR &= ~(RCC_APB1LPENR_I2C4LPEN))
 #define __HAL_RCC_CAN2_CLK_SLEEP_DISABLE()   (RCC->APB1LPENR &= ~(RCC_APB1LPENR_CAN2LPEN))
-#define __HAL_RCC_CEC_CLK_SLEEP_DISABLE()    (RCC->APB1LPENR &= ~(RCC_APB1LPENR_CECLPEN))	
+#define __HAL_RCC_CEC_CLK_SLEEP_DISABLE()    (RCC->APB1LPENR &= ~(RCC_APB1LPENR_CECLPEN))
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 
 /** @brief  Enable or disable the APB2 peripheral clock during Low Power (Sleep) mode.
@@ -2160,7 +2156,7 @@ typedef struct
   *         power consumption.
   * @note   After wakeup from SLEEP mode, the peripheral clock is enabled again.
   * @note   By default, all peripheral clocks are enabled during SLEEP mode.
-  */ 
+  */
 #define __HAL_RCC_TIM1_CLK_SLEEP_ENABLE()    (RCC->APB2LPENR |= (RCC_APB2LPENR_TIM1LPEN))
 #define __HAL_RCC_TIM8_CLK_SLEEP_ENABLE()    (RCC->APB2LPENR |= (RCC_APB2LPENR_TIM8LPEN))
 #define __HAL_RCC_USART1_CLK_SLEEP_ENABLE()  (RCC->APB2LPENR |= (RCC_APB2LPENR_USART1LPEN))
@@ -2219,7 +2215,7 @@ typedef struct
 #if defined (STM32F745xx) || defined (STM32F746xx) || defined (STM32F756xx) || defined (STM32F765xx) ||\
     defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_SPI6_CLK_SLEEP_ENABLE()    (RCC->APB2LPENR |= (RCC_APB2LPENR_SPI6LPEN))
-#define __HAL_RCC_SPI6_CLK_SLEEP_DISABLE()   (RCC->APB2LPENR &= ~(RCC_APB2LPENR_SPI6LPEN))	
+#define __HAL_RCC_SPI6_CLK_SLEEP_DISABLE()   (RCC->APB2LPENR &= ~(RCC_APB2LPENR_SPI6LPEN))
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 /**
   * @}
@@ -2233,12 +2229,12 @@ typedef struct
   * @note   By default, all peripheral clocks are enabled during SLEEP mode.
   * @{
   */
-  
+
 /** @brief  Get the enable or disable status of the AHB1 peripheral clock during Low Power (Sleep) mode.
   * @note   Peripheral clock gating in SLEEP mode can be used to further reduce
   *         power consumption.
   * @note   After wakeup from SLEEP mode, the peripheral clock is enabled again.
-  * @note   By default, all peripheral clocks are enabled during SLEEP mode.  
+  * @note   By default, all peripheral clocks are enabled during SLEEP mode.
   */
 #define __HAL_RCC_FLITF_IS_CLK_SLEEP_ENABLED()      ((RCC->AHB1LPENR & (RCC_AHB1LPENR_FLITFLPEN)) != RESET)
 #define __HAL_RCC_AXI_IS_CLK_SLEEP_ENABLED()        ((RCC->AHB1LPENR & (RCC_AHB1LPENR_AXILPEN)) != RESET)
@@ -2309,29 +2305,29 @@ typedef struct
 #define __HAL_RCC_DCMI_IS_CLK_SLEEP_DISABLED()       ((RCC->AHB2LPENR & (RCC_AHB2LPENR_DCMILPEN)) == RESET)
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 
-#if defined(STM32F767xx) || defined(STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx) 
+#if defined(STM32F767xx) || defined(STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_JPEG_IS_CLK_SLEEP_ENABLED()        ((RCC->AHB2LPENR & (RCC_AHB2LPENR_JPEGLPEN)) != RESET)
 #define __HAL_RCC_JPEG_IS_CLK_SLEEP_DISABLED()       ((RCC->AHB2LPENR & (RCC_AHB2LPENR_JPEGLPEN)) == RESET)
 #endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-                                         
+
 #define __HAL_RCC_RNG_IS_CLK_SLEEP_ENABLED()         ((RCC->AHB2LPENR & (RCC_AHB2LPENR_RNGLPEN)) != RESET)
 #define __HAL_RCC_RNG_IS_CLK_SLEEP_DISABLED()        ((RCC->AHB2LPENR & (RCC_AHB2LPENR_RNGLPEN)) == RESET)
 
 #define __HAL_RCC_USB_OTG_FS_IS_CLK_SLEEP_ENABLED()  ((RCC->AHB2LPENR & (RCC_AHB2LPENR_OTGFSLPEN)) != RESET)
 #define __HAL_RCC_USB_OTG_FS_IS_CLK_SLEEP_DISABLED() ((RCC->AHB2LPENR & (RCC_AHB2LPENR_OTGFSLPEN)) == RESET)
 
-#if defined(STM32F756xx) || defined (STM32F777xx) || defined (STM32F779xx) 
+#if defined(STM32F756xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_CRYP_IS_CLK_SLEEP_ENABLED()        ((RCC->AHB2LPENR & (RCC_AHB2LPENR_CRYPLPEN)) != RESET)
 #define __HAL_RCC_HASH_IS_CLK_SLEEP_ENABLED()        ((RCC->AHB2LPENR & (RCC_AHB2LPENR_HASHLPEN)) != RESET)
-                                         
+
 #define __HAL_RCC_CRYP_IS_CLK_SLEEP_DISABLED()       ((RCC->AHB2LPENR & (RCC_AHB2LPENR_CRYPLPEN)) == RESET)
 #define __HAL_RCC_HASH_IS_CLK_SLEEP_DISABLED()       ((RCC->AHB2LPENR & (RCC_AHB2LPENR_HASHLPEN)) == RESET)
 #endif /* STM32F756xx || STM32F777xx || STM32F779xx */
-      
+
 #if defined(STM32F732xx) || defined (STM32F733xx)
 #define __HAL_RCC_AES_IS_CLK_SLEEP_ENABLED()        ((RCC->AHB2LPENR & (RCC_AHB2LPENR_AESLPEN)) != RESET)
 #define __HAL_RCC_AES_IS_CLK_SLEEP_DISABLED()       ((RCC->AHB2LPENR & (RCC_AHB2LPENR_AESLPEN)) == RESET)
-#endif /* STM32F732xx || STM32F733xx */      
+#endif /* STM32F732xx || STM32F733xx */
 
 /** @brief  Get the enable or disable status of the AHB3 peripheral clock during Low Power (Sleep) mode.
   * @note   Peripheral clock gating in SLEEP mode can be used to further reduce
@@ -2350,7 +2346,7 @@ typedef struct
   *         power consumption.
   * @note   After wakeup from SLEEP mode, the peripheral clock is enabled again.
   * @note   By default, all peripheral clocks are enabled during SLEEP mode.
-  */  
+  */
 #define __HAL_RCC_TIM2_IS_CLK_SLEEP_ENABLED()    ((RCC->APB1LPENR & (RCC_APB1LPENR_TIM2LPEN)) != RESET)
 #define __HAL_RCC_TIM3_IS_CLK_SLEEP_ENABLED()    ((RCC->APB1LPENR & (RCC_APB1LPENR_TIM3LPEN)) != RESET)
 #define __HAL_RCC_TIM4_IS_CLK_SLEEP_ENABLED()    ((RCC->APB1LPENR & (RCC_APB1LPENR_TIM4LPEN)) != RESET)
@@ -2423,7 +2419,7 @@ typedef struct
 #define __HAL_RCC_I2C4_IS_CLK_SLEEP_ENABLED()    ((RCC->APB1LPENR & (RCC_APB1LPENR_I2C4LPEN)) != RESET)
 #define __HAL_RCC_CAN2_IS_CLK_SLEEP_ENABLED()    ((RCC->APB1LPENR & (RCC_APB1LPENR_CAN2LPEN)) != RESET)
 #define __HAL_RCC_CEC_IS_CLK_SLEEP_ENABLED()     ((RCC->APB1LPENR & (RCC_APB1LPENR_CECLPEN)) != RESET)
-      
+
 #define __HAL_RCC_SPDIFRX_IS_CLK_SLEEP_DISABLED()((RCC->APB1LPENR & (RCC_APB1LPENR_SPDIFRXLPEN)) == RESET)
 #define __HAL_RCC_I2C4_IS_CLK_SLEEP_DISABLED()   ((RCC->APB1LPENR & (RCC_APB1LPENR_I2C4LPEN)) == RESET)
 #define __HAL_RCC_CAN2_IS_CLK_SLEEP_DISABLED()   ((RCC->APB1LPENR & (RCC_APB1LPENR_CAN2LPEN)) == RESET)
@@ -2435,7 +2431,7 @@ typedef struct
   *         power consumption.
   * @note   After wakeup from SLEEP mode, the peripheral clock is enabled again.
   * @note   By default, all peripheral clocks are enabled during SLEEP mode.
-  */ 
+  */
 #define __HAL_RCC_TIM1_IS_CLK_SLEEP_ENABLED()    ((RCC->APB2LPENR & (RCC_APB2LPENR_TIM1LPEN)) != RESET)
 #define __HAL_RCC_TIM8_IS_CLK_SLEEP_ENABLED()    ((RCC->APB2LPENR & (RCC_APB2LPENR_TIM8LPEN)) != RESET)
 #define __HAL_RCC_USART1_IS_CLK_SLEEP_ENABLED()  ((RCC->APB2LPENR & (RCC_APB2LPENR_USART1LPEN)) != RESET)
@@ -2501,7 +2497,7 @@ typedef struct
 #if defined (STM32F745xx) || defined (STM32F746xx) || defined (STM32F756xx) || defined (STM32F765xx) ||\
     defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define __HAL_RCC_SPI6_IS_CLK_SLEEP_ENABLED()    ((RCC->APB2LPENR & (RCC_APB2LPENR_SPI6LPEN)) != RESET)
-#define __HAL_RCC_SPI6_IS_CLK_SLEEP_DISABLED()   ((RCC->APB2LPENR & (RCC_APB2LPENR_SPI6LPEN)) == RESET)	
+#define __HAL_RCC_SPI6_IS_CLK_SLEEP_DISABLED()   ((RCC->APB2LPENR & (RCC_APB2LPENR_SPI6LPEN)) == RESET)
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 /**
   * @}
@@ -2515,7 +2511,7 @@ typedef struct
   *         This parameter can be one of the following values:
   *            @arg RCC_PLLSOURCE_HSI: HSI oscillator clock selected as PLL clock entry
   *            @arg RCC_PLLSOURCE_HSE: HSE oscillator clock selected as PLL clock entry
-  * @note   This clock source (RCC_PLLSource) is common for the main PLL and PLLI2S.  
+  * @note   This clock source (RCC_PLLSource) is common for the main PLL and PLLI2S.
   * @param  __PLLM__: specifies the division factor for PLL VCO input clock
   *         This parameter must be a number between Min_Data = 2 and Max_Data = 63.
   * @note   You have to set the PLLM parameter correctly to ensure that the VCO input
@@ -2551,7 +2547,7 @@ typedef struct
   *         This parameter can be one of the following values:
   *            @arg RCC_PLLSOURCE_HSI: HSI oscillator clock selected as PLL clock entry
   *            @arg RCC_PLLSOURCE_HSE: HSE oscillator clock selected as PLL clock entry
-  * @note   This clock source (RCC_PLLSource) is common for the main PLL and PLLI2S.  
+  * @note   This clock source (RCC_PLLSource) is common for the main PLL and PLLI2S.
   * @param  __PLLM__: specifies the division factor for PLL VCO input clock
   *         This parameter must be a number between Min_Data = 2 and Max_Data = 63.
   * @note   You have to set the PLLM parameter correctly to ensure that the VCO input
@@ -2577,27 +2573,27 @@ typedef struct
                             ((__PLLN__) << POSITION_VAL(RCC_PLLCFGR_PLLN))                | \
                             ((((__PLLP__) >> 1) -1) << POSITION_VAL(RCC_PLLCFGR_PLLP))    | \
                             ((__PLLQ__) << POSITION_VAL(RCC_PLLCFGR_PLLQ))))
-#endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */ 
+#endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 /*---------------------------------------------------------------------------------------------*/
 
-/** @brief  Macro to configure the Timers clocks prescalers 
+/** @brief  Macro to configure the Timers clocks prescalers
   * @param  __PRESC__ : specifies the Timers clocks prescalers selection
   *         This parameter can be one of the following values:
-  *            @arg RCC_TIMPRES_DESACTIVATED: The Timers kernels clocks prescaler is 
-  *                 equal to HPRE if PPREx is corresponding to division by 1 or 2, 
-  *                 else it is equal to [(HPRE * PPREx) / 2] if PPREx is corresponding to 
-  *                 division by 4 or more.       
-  *            @arg RCC_TIMPRES_ACTIVATED: The Timers kernels clocks prescaler is 
-  *                 equal to HPRE if PPREx is corresponding to division by 1, 2 or 4, 
-  *                 else it is equal to [(HPRE * PPREx) / 4] if PPREx is corresponding 
+  *            @arg RCC_TIMPRES_DESACTIVATED: The Timers kernels clocks prescaler is
+  *                 equal to HPRE if PPREx is corresponding to division by 1 or 2,
+  *                 else it is equal to [(HPRE * PPREx) / 2] if PPREx is corresponding to
+  *                 division by 4 or more.
+  *            @arg RCC_TIMPRES_ACTIVATED: The Timers kernels clocks prescaler is
+  *                 equal to HPRE if PPREx is corresponding to division by 1, 2 or 4,
+  *                 else it is equal to [(HPRE * PPREx) / 4] if PPREx is corresponding
   *                 to division by 8 or more.
-  */     
+  */
 #define __HAL_RCC_TIMCLKPRESCALER(__PRESC__) do {RCC->DCKCFGR1 &= ~(RCC_DCKCFGR1_TIMPRE);\
                                                  RCC->DCKCFGR1 |= (__PRESC__);           \
                                                 }while(0)
 
-/** @brief Macros to Enable or Disable the PLLISAI. 
-  * @note  The PLLSAI is disabled by hardware when entering STOP and STANDBY modes. 
+/** @brief Macros to Enable or Disable the PLLISAI.
+  * @note  The PLLSAI is disabled by hardware when entering STOP and STANDBY modes.
   */
 #define __HAL_RCC_PLLSAI_ENABLE() (RCC->CR |= (RCC_CR_PLLSAION))
 #define __HAL_RCC_PLLSAI_DISABLE() (RCC->CR &= ~(RCC_CR_PLLSAION))
@@ -2605,17 +2601,17 @@ typedef struct
 #if defined (STM32F722xx) || defined (STM32F723xx) || defined (STM32F732xx) || defined (STM32F733xx)
 /** @brief  Macro to configure the PLLSAI clock multiplication and division factors.
   * @note   This function must be used only when the PLLSAI is disabled.
-  * @note   PLLSAI clock source is common with the main PLL (configured in 
+  * @note   PLLSAI clock source is common with the main PLL (configured in
   *         RCC_PLLConfig function )
   * @param  __PLLSAIN__: specifies the multiplication factor for PLLSAI VCO output clock.
   *         This parameter must be a number between Min_Data = 50 and Max_Data = 432.
-  * @note   You have to set the PLLSAIN parameter correctly to ensure that the VCO 
+  * @note   You have to set the PLLSAIN parameter correctly to ensure that the VCO
   *         output frequency is between Min_Data = 100 and Max_Data = 432 MHz.
   * @param  __PLLSAIP__: specifies the division factor for USB, RNG, SDMMC clocks
-  *         This parameter can be a value of @ref RCCEx_PLLSAIP_Clock_Divider.                                                  
+  *         This parameter can be a value of @ref RCCEx_PLLSAIP_Clock_Divider.
   * @param  __PLLSAIQ__: specifies the division factor for SAI clock
   *         This parameter must be a number between Min_Data = 2 and Max_Data = 15.
-  */   
+  */
 #define __HAL_RCC_PLLSAI_CONFIG(__PLLSAIN__, __PLLSAIP__, __PLLSAIQ__)                        \
                                (RCC->PLLSAICFGR = ((__PLLSAIN__) << POSITION_VAL(RCC_PLLSAICFGR_PLLSAIN)) |\
                                ((__PLLSAIP__) << POSITION_VAL(RCC_PLLSAICFGR_PLLSAIP))                    |\
@@ -2623,39 +2619,39 @@ typedef struct
 
 /** @brief  Macro to configure the PLLI2S clock multiplication and division factors.
   * @note   This macro must be used only when the PLLI2S is disabled.
-  * @note   PLLI2S clock source is common with the main PLL (configured in 
-  *         HAL_RCC_ClockConfig() API)             
+  * @note   PLLI2S clock source is common with the main PLL (configured in
+  *         HAL_RCC_ClockConfig() API)
   * @param  __PLLI2SN__: specifies the multiplication factor for PLLI2S VCO output clock.
   *         This parameter must be a number between Min_Data = 50 and Max_Data = 432.
-  * @note   You have to set the PLLI2SN parameter correctly to ensure that the VCO 
-  *         output frequency is between Min_Data = 100 and Max_Data = 432 MHz.                                
+  * @note   You have to set the PLLI2SN parameter correctly to ensure that the VCO
+  *         output frequency is between Min_Data = 100 and Max_Data = 432 MHz.
   * @param  __PLLI2SQ__: specifies the division factor for SAI clock.
-  *         This parameter must be a number between Min_Data = 2 and Max_Data = 15. 
+  *         This parameter must be a number between Min_Data = 2 and Max_Data = 15.
   * @param  __PLLI2SR__: specifies the division factor for I2S clock
   *         This parameter must be a number between Min_Data = 2 and Max_Data = 7.
   * @note   You have to set the PLLI2SR parameter correctly to not exceed 192 MHz
-  *         on the I2S clock frequency. 
+  *         on the I2S clock frequency.
   */
 #define __HAL_RCC_PLLI2S_CONFIG(__PLLI2SN__, __PLLI2SQ__, __PLLI2SR__)                        \
                                (RCC->PLLI2SCFGR = ((__PLLI2SN__) << POSITION_VAL(RCC_PLLI2SCFGR_PLLI2SN)) |\
                                ((__PLLI2SQ__) << POSITION_VAL(RCC_PLLI2SCFGR_PLLI2SQ))                    |\
                                ((__PLLI2SR__) << POSITION_VAL(RCC_PLLI2SCFGR_PLLI2SR)))
-#else                                                  
+#else
 /** @brief  Macro to configure the PLLSAI clock multiplication and division factors.
   * @note   This function must be used only when the PLLSAI is disabled.
-  * @note   PLLSAI clock source is common with the main PLL (configured in 
+  * @note   PLLSAI clock source is common with the main PLL (configured in
   *         RCC_PLLConfig function )
   * @param  __PLLSAIN__: specifies the multiplication factor for PLLSAI VCO output clock.
   *         This parameter must be a number between Min_Data = 50 and Max_Data = 432.
-  * @note   You have to set the PLLSAIN parameter correctly to ensure that the VCO 
+  * @note   You have to set the PLLSAIN parameter correctly to ensure that the VCO
   *         output frequency is between Min_Data = 100 and Max_Data = 432 MHz.
   * @param  __PLLSAIP__: specifies the division factor for USB, RNG, SDMMC clocks
-  *         This parameter can be a value of @ref RCCEx_PLLSAIP_Clock_Divider.                                                  
+  *         This parameter can be a value of @ref RCCEx_PLLSAIP_Clock_Divider.
   * @param  __PLLSAIQ__: specifies the division factor for SAI clock
   *         This parameter must be a number between Min_Data = 2 and Max_Data = 15.
   * @param  __PLLSAIR__: specifies the division factor for LTDC clock
   *         This parameter must be a number between Min_Data = 2 and Max_Data = 7.
-  */   
+  */
 #define __HAL_RCC_PLLSAI_CONFIG(__PLLSAIN__, __PLLSAIP__, __PLLSAIQ__, __PLLSAIR__)                        \
                                (RCC->PLLSAICFGR = ((__PLLSAIN__) << POSITION_VAL(RCC_PLLSAICFGR_PLLSAIN)) |\
                                ((__PLLSAIP__) << POSITION_VAL(RCC_PLLSAICFGR_PLLSAIP))                    |\
@@ -2664,33 +2660,33 @@ typedef struct
 
 /** @brief  Macro to configure the PLLI2S clock multiplication and division factors.
   * @note   This macro must be used only when the PLLI2S is disabled.
-  * @note   PLLI2S clock source is common with the main PLL (configured in 
-  *         HAL_RCC_ClockConfig() API)             
+  * @note   PLLI2S clock source is common with the main PLL (configured in
+  *         HAL_RCC_ClockConfig() API)
   * @param  __PLLI2SN__: specifies the multiplication factor for PLLI2S VCO output clock.
   *         This parameter must be a number between Min_Data = 50 and Max_Data = 432.
-  * @note   You have to set the PLLI2SN parameter correctly to ensure that the VCO 
+  * @note   You have to set the PLLI2SN parameter correctly to ensure that the VCO
   *         output frequency is between Min_Data = 100 and Max_Data = 432 MHz.
   * @param  __PLLI2SP__: specifies the division factor for SPDDIF-RX clock.
-  *         This parameter can be a value of @ref RCCEx_PLLI2SP_Clock_Divider.                                 
+  *         This parameter can be a value of @ref RCCEx_PLLI2SP_Clock_Divider.
   * @param  __PLLI2SQ__: specifies the division factor for SAI clock.
-  *         This parameter must be a number between Min_Data = 2 and Max_Data = 15. 
+  *         This parameter must be a number between Min_Data = 2 and Max_Data = 15.
   * @param  __PLLI2SR__: specifies the division factor for I2S clock
   *         This parameter must be a number between Min_Data = 2 and Max_Data = 7.
   * @note   You have to set the PLLI2SR parameter correctly to not exceed 192 MHz
-  *         on the I2S clock frequency. 
+  *         on the I2S clock frequency.
   */
 #define __HAL_RCC_PLLI2S_CONFIG(__PLLI2SN__, __PLLI2SP__, __PLLI2SQ__, __PLLI2SR__)                        \
                                (RCC->PLLI2SCFGR = ((__PLLI2SN__) << POSITION_VAL(RCC_PLLI2SCFGR_PLLI2SN)) |\
                                ((__PLLI2SP__) << POSITION_VAL(RCC_PLLI2SCFGR_PLLI2SP))                    |\
                                ((__PLLI2SQ__) << POSITION_VAL(RCC_PLLI2SCFGR_PLLI2SQ))                    |\
                                ((__PLLI2SR__) << POSITION_VAL(RCC_PLLI2SCFGR_PLLI2SR)))
-#endif /* STM32F722xx || STM32F723xx || STM32F732xx || STM32F733xx */                               
-    
+#endif /* STM32F722xx || STM32F723xx || STM32F732xx || STM32F733xx */
+
 /** @brief  Macro to configure the SAI clock Divider coming from PLLI2S.
-  * @note   This function must be called before enabling the PLLI2S.          
+  * @note   This function must be called before enabling the PLLI2S.
   * @param  __PLLI2SDivQ__: specifies the PLLI2S division factor for SAI1 clock .
   *          This parameter must be a number between 1 and 32.
-  *          SAI1 clock frequency = f(PLLI2SQ) / __PLLI2SDivQ__ 
+  *          SAI1 clock frequency = f(PLLI2SQ) / __PLLI2SDivQ__
   */
 #define __HAL_RCC_PLLI2S_PLLSAICLKDIVQ_CONFIG(__PLLI2SDivQ__) (MODIFY_REG(RCC->DCKCFGR1, RCC_DCKCFGR1_PLLI2SDIVQ, (__PLLI2SDivQ__)-1))
 
@@ -2698,69 +2694,69 @@ typedef struct
   * @note   This function must be called before enabling the PLLSAI.
   * @param  __PLLSAIDivQ__: specifies the PLLSAI division factor for SAI1 clock .
   *         This parameter must be a number between Min_Data = 1 and Max_Data = 32.
-  *         SAI1 clock frequency = f(PLLSAIQ) / __PLLSAIDivQ__  
+  *         SAI1 clock frequency = f(PLLSAIQ) / __PLLSAIDivQ__
   */
 #define __HAL_RCC_PLLSAI_PLLSAICLKDIVQ_CONFIG(__PLLSAIDivQ__) (MODIFY_REG(RCC->DCKCFGR1, RCC_DCKCFGR1_PLLSAIDIVQ, ((__PLLSAIDivQ__)-1)<<8))
 
 #if defined (STM32F745xx) || defined (STM32F746xx) || defined (STM32F756xx) || defined (STM32F765xx) ||\
     defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 /** @brief  Macro to configure the LTDC clock Divider coming from PLLSAI.
-  * @note   This function must be called before enabling the PLLSAI. 
+  * @note   This function must be called before enabling the PLLSAI.
   * @param  __PLLSAIDivR__: specifies the PLLSAI division factor for LTDC clock .
   *          This parameter can be a value of @ref RCCEx_PLLSAI_DIVR.
-  *          LTDC clock frequency = f(PLLSAIR) / __PLLSAIDivR__ 
-  */   
+  *          LTDC clock frequency = f(PLLSAIR) / __PLLSAIDivR__
+  */
 #define __HAL_RCC_PLLSAI_PLLSAICLKDIVR_CONFIG(__PLLSAIDivR__)\
                             MODIFY_REG(RCC->DCKCFGR1, RCC_DCKCFGR1_PLLSAIDIVR, (uint32_t)(__PLLSAIDivR__))
 #endif /* STM32F745xx || STM32F746xx || STM32F756xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 
 /** @brief  Macro to configure SAI1 clock source selection.
-  * @note   This function must be called before enabling PLLSAI, PLLI2S and  
+  * @note   This function must be called before enabling PLLSAI, PLLI2S and
   *         the SAI clock.
   * @param  __SOURCE__: specifies the SAI1 clock source.
   *         This parameter can be one of the following values:
-  *            @arg RCC_SAI1CLKSOURCE_PLLI2S: PLLI2S_Q clock divided by PLLI2SDIVQ used 
-  *                                           as SAI1 clock. 
-  *            @arg RCC_SAI1CLKSOURCE_PLLSAI: PLLISAI_Q clock divided by PLLSAIDIVQ used 
+  *            @arg RCC_SAI1CLKSOURCE_PLLI2S: PLLI2S_Q clock divided by PLLI2SDIVQ used
+  *                                           as SAI1 clock.
+  *            @arg RCC_SAI1CLKSOURCE_PLLSAI: PLLISAI_Q clock divided by PLLSAIDIVQ used
   *                                           as SAI1 clock.
   *            @arg RCC_SAI1CLKSOURCE_PIN: External clock mapped on the I2S_CKIN pin
   *                                        used as SAI1 clock.
-  *            @arg RCC_SAI1CLKSOURCE_PLLSRC: HSI or HSE depending from PLL Source clock 
+  *            @arg RCC_SAI1CLKSOURCE_PLLSRC: HSI or HSE depending from PLL Source clock
   *                                           used as SAI1 clock.
-  * @note      The RCC_SAI1CLKSOURCE_PLLSRC value is only available with STM32F767/769/777/779xx Devices                               
+  * @note      The RCC_SAI1CLKSOURCE_PLLSRC value is only available with STM32F767/769/777/779xx Devices
   */
 #define __HAL_RCC_SAI1_CONFIG(__SOURCE__)\
                              MODIFY_REG(RCC->DCKCFGR1, RCC_DCKCFGR1_SAI1SEL, (uint32_t)(__SOURCE__))
 
 /** @brief  Macro to get the SAI1 clock source.
   * @retval The clock source can be one of the following values:
-  *            @arg RCC_SAI1CLKSOURCE_PLLI2S: PLLI2S_Q clock divided by PLLI2SDIVQ used 
-  *                                           as SAI1 clock. 
-  *            @arg RCC_SAI1CLKSOURCE_PLLSAI: PLLISAI_Q clock divided by PLLSAIDIVQ used 
+  *            @arg RCC_SAI1CLKSOURCE_PLLI2S: PLLI2S_Q clock divided by PLLI2SDIVQ used
+  *                                           as SAI1 clock.
+  *            @arg RCC_SAI1CLKSOURCE_PLLSAI: PLLISAI_Q clock divided by PLLSAIDIVQ used
   *                                           as SAI1 clock.
   *            @arg RCC_SAI1CLKSOURCE_PIN: External clock mapped on the I2S_CKIN pin
   *                                        used as SAI1 clock.
-  *            @arg RCC_SAI1CLKSOURCE_PLLSRC: HSI or HSE depending from PLL Source clock 
+  *            @arg RCC_SAI1CLKSOURCE_PLLSRC: HSI or HSE depending from PLL Source clock
   *                                           used as SAI1 clock.
-  * @note      The RCC_SAI1CLKSOURCE_PLLSRC value is only available with STM32F767/769/777/779xx Devices                               
+  * @note      The RCC_SAI1CLKSOURCE_PLLSRC value is only available with STM32F767/769/777/779xx Devices
   */
 #define __HAL_RCC_GET_SAI1_SOURCE() ((uint32_t)(READ_BIT(RCC->DCKCFGR1, RCC_DCKCFGR1_SAI1SEL)))
 
 
 /** @brief  Macro to configure SAI2 clock source selection.
-  * @note   This function must be called before enabling PLLSAI, PLLI2S and  
+  * @note   This function must be called before enabling PLLSAI, PLLI2S and
   *         the SAI clock.
   * @param  __SOURCE__: specifies the SAI2 clock source.
   *         This parameter can be one of the following values:
-  *            @arg RCC_SAI2CLKSOURCE_PLLI2S: PLLI2S_Q clock divided by PLLI2SDIVQ used 
-  *                                           as SAI2 clock. 
-  *            @arg RCC_SAI2CLKSOURCE_PLLSAI: PLLISAI_Q clock divided by PLLSAIDIVQ used 
-  *                                           as SAI2 clock. 
+  *            @arg RCC_SAI2CLKSOURCE_PLLI2S: PLLI2S_Q clock divided by PLLI2SDIVQ used
+  *                                           as SAI2 clock.
+  *            @arg RCC_SAI2CLKSOURCE_PLLSAI: PLLISAI_Q clock divided by PLLSAIDIVQ used
+  *                                           as SAI2 clock.
   *            @arg RCC_SAI2CLKSOURCE_PIN: External clock mapped on the I2S_CKIN pin
   *                                        used as SAI2 clock.
-  *            @arg RCC_SAI2CLKSOURCE_PLLSRC: HSI or HSE depending from PLL Source clock 
+  *            @arg RCC_SAI2CLKSOURCE_PLLSRC: HSI or HSE depending from PLL Source clock
   *                                           used as SAI2 clock.
-  * @note      The RCC_SAI2CLKSOURCE_PLLSRC value is only available with STM32F767/769/777/779xx Devices                                
+  * @note      The RCC_SAI2CLKSOURCE_PLLSRC value is only available with STM32F767/769/777/779xx Devices
   */
 #define __HAL_RCC_SAI2_CONFIG(__SOURCE__)\
                             MODIFY_REG(RCC->DCKCFGR1, RCC_DCKCFGR1_SAI2SEL, (uint32_t)(__SOURCE__))
@@ -2768,15 +2764,15 @@ typedef struct
 
 /** @brief  Macro to get the SAI2 clock source.
   * @retval The clock source can be one of the following values:
-  *            @arg RCC_SAI2CLKSOURCE_PLLI2S: PLLI2S_Q clock divided by PLLI2SDIVQ used 
-  *                                           as SAI2 clock. 
-  *            @arg RCC_SAI2CLKSOURCE_PLLSAI: PLLISAI_Q clock divided by PLLSAIDIVQ used 
+  *            @arg RCC_SAI2CLKSOURCE_PLLI2S: PLLI2S_Q clock divided by PLLI2SDIVQ used
+  *                                           as SAI2 clock.
+  *            @arg RCC_SAI2CLKSOURCE_PLLSAI: PLLISAI_Q clock divided by PLLSAIDIVQ used
   *                                           as SAI2 clock.
   *            @arg RCC_SAI2CLKSOURCE_PIN: External clock mapped on the I2S_CKIN pin
   *                                        used as SAI2 clock.
-  *            @arg RCC_SAI2CLKSOURCE_PLLSRC: HSI or HSE depending from PLL Source clock 
+  *            @arg RCC_SAI2CLKSOURCE_PLLSRC: HSI or HSE depending from PLL Source clock
   *                                           used as SAI2 clock.
-  * @note      The RCC_SAI2CLKSOURCE_PLLSRC value is only available with STM32F767/769/777/779xx Devices                              
+  * @note      The RCC_SAI2CLKSOURCE_PLLSRC value is only available with STM32F767/769/777/779xx Devices
   */
 #define __HAL_RCC_GET_SAI2_SOURCE() ((uint32_t)(READ_BIT(RCC->DCKCFGR1, RCC_DCKCFGR1_SAI2SEL)))
 
@@ -2805,7 +2801,7 @@ typedef struct
 
 /** @brief  Macro to Get I2S clock source selection.
   * @retval The clock source can be one of the following values:
-  *            @arg RCC_I2SCLKSOURCE_PLLI2S: PLLI2S VCO output clock divided by PLLI2SR used as I2S clock. 
+  *            @arg RCC_I2SCLKSOURCE_PLLI2S: PLLI2S VCO output clock divided by PLLI2SR used as I2S clock.
   *            @arg RCC_I2SCLKSOURCE_EXT: External clock mapped on the I2S_CKIN pin used as I2S clock source
   */
 #define __HAL_RCC_GET_I2SCLKSOURCE() (READ_BIT(RCC->CFGR, RCC_CFGR_I2SSRC))
@@ -2949,15 +2945,15 @@ typedef struct
   */
 #define __HAL_RCC_GET_USART3_SOURCE() ((uint32_t)(READ_BIT(RCC->DCKCFGR2, RCC_DCKCFGR2_USART3SEL)))
 
- /** @brief  Macro to configure the UART4 clock (UART4CLK).
-  *
-  * @param  __UART4_CLKSOURCE__: specifies the UART4 clock source.
-  *          This parameter can be one of the following values:
-  *            @arg RCC_UART4CLKSOURCE_PCLK1: PCLK1 selected as UART4 clock
-  *            @arg RCC_UART4CLKSOURCE_HSI: HSI selected as UART4 clock
-  *            @arg RCC_UART4CLKSOURCE_SYSCLK: System Clock selected as UART4 clock
-  *            @arg RCC_UART4CLKSOURCE_LSE: LSE selected as UART4 clock
-  */
+/** @brief  Macro to configure the UART4 clock (UART4CLK).
+ *
+ * @param  __UART4_CLKSOURCE__: specifies the UART4 clock source.
+ *          This parameter can be one of the following values:
+ *            @arg RCC_UART4CLKSOURCE_PCLK1: PCLK1 selected as UART4 clock
+ *            @arg RCC_UART4CLKSOURCE_HSI: HSI selected as UART4 clock
+ *            @arg RCC_UART4CLKSOURCE_SYSCLK: System Clock selected as UART4 clock
+ *            @arg RCC_UART4CLKSOURCE_LSE: LSE selected as UART4 clock
+ */
 #define __HAL_RCC_UART4_CONFIG(__UART4_CLKSOURCE__) \
                   MODIFY_REG(RCC->DCKCFGR2, RCC_DCKCFGR2_UART4SEL, (uint32_t)(__UART4_CLKSOURCE__))
 
@@ -2970,15 +2966,15 @@ typedef struct
   */
 #define __HAL_RCC_GET_UART4_SOURCE() ((uint32_t)(READ_BIT(RCC->DCKCFGR2, RCC_DCKCFGR2_UART4SEL)))
 
- /** @brief  Macro to configure the UART5 clock (UART5CLK).
-  *
-  * @param  __UART5_CLKSOURCE__: specifies the UART5 clock source.
-  *          This parameter can be one of the following values:
-  *            @arg RCC_UART5CLKSOURCE_PCLK1: PCLK1 selected as UART5 clock
-  *            @arg RCC_UART5CLKSOURCE_HSI: HSI selected as UART5 clock
-  *            @arg RCC_UART5CLKSOURCE_SYSCLK: System Clock selected as UART5 clock
-  *            @arg RCC_UART5CLKSOURCE_LSE: LSE selected as UART5 clock
-  */
+/** @brief  Macro to configure the UART5 clock (UART5CLK).
+ *
+ * @param  __UART5_CLKSOURCE__: specifies the UART5 clock source.
+ *          This parameter can be one of the following values:
+ *            @arg RCC_UART5CLKSOURCE_PCLK1: PCLK1 selected as UART5 clock
+ *            @arg RCC_UART5CLKSOURCE_HSI: HSI selected as UART5 clock
+ *            @arg RCC_UART5CLKSOURCE_SYSCLK: System Clock selected as UART5 clock
+ *            @arg RCC_UART5CLKSOURCE_LSE: LSE selected as UART5 clock
+ */
 #define __HAL_RCC_UART5_CONFIG(__UART5_CLKSOURCE__) \
                   MODIFY_REG(RCC->DCKCFGR2, RCC_DCKCFGR2_UART5SEL, (uint32_t)(__UART5_CLKSOURCE__))
 
@@ -2991,15 +2987,15 @@ typedef struct
   */
 #define __HAL_RCC_GET_UART5_SOURCE() ((uint32_t)(READ_BIT(RCC->DCKCFGR2, RCC_DCKCFGR2_UART5SEL)))
 
- /** @brief  Macro to configure the USART6 clock (USART6CLK).
-  *
-  * @param  __USART6_CLKSOURCE__: specifies the USART6 clock source.
-  *          This parameter can be one of the following values:
-  *            @arg RCC_USART6CLKSOURCE_PCLK1: PCLK1 selected as USART6 clock
-  *            @arg RCC_USART6CLKSOURCE_HSI: HSI selected as USART6 clock
-  *            @arg RCC_USART6CLKSOURCE_SYSCLK: System Clock selected as USART6 clock
-  *            @arg RCC_USART6CLKSOURCE_LSE: LSE selected as USART6 clock
-  */
+/** @brief  Macro to configure the USART6 clock (USART6CLK).
+ *
+ * @param  __USART6_CLKSOURCE__: specifies the USART6 clock source.
+ *          This parameter can be one of the following values:
+ *            @arg RCC_USART6CLKSOURCE_PCLK1: PCLK1 selected as USART6 clock
+ *            @arg RCC_USART6CLKSOURCE_HSI: HSI selected as USART6 clock
+ *            @arg RCC_USART6CLKSOURCE_SYSCLK: System Clock selected as USART6 clock
+ *            @arg RCC_USART6CLKSOURCE_LSE: LSE selected as USART6 clock
+ */
 #define __HAL_RCC_USART6_CONFIG(__USART6_CLKSOURCE__) \
                   MODIFY_REG(RCC->DCKCFGR2, RCC_DCKCFGR2_USART6SEL, (uint32_t)(__USART6_CLKSOURCE__))
 
@@ -3012,15 +3008,15 @@ typedef struct
   */
 #define __HAL_RCC_GET_USART6_SOURCE() ((uint32_t)(READ_BIT(RCC->DCKCFGR2, RCC_DCKCFGR2_USART6SEL)))
 
- /** @brief  Macro to configure the UART7 clock (UART7CLK).
-  *
-  * @param  __UART7_CLKSOURCE__: specifies the UART7 clock source.
-  *          This parameter can be one of the following values:
-  *            @arg RCC_UART7CLKSOURCE_PCLK1: PCLK1 selected as UART7 clock
-  *            @arg RCC_UART7CLKSOURCE_HSI: HSI selected as UART7 clock
-  *            @arg RCC_UART7CLKSOURCE_SYSCLK: System Clock selected as UART7 clock
-  *            @arg RCC_UART7CLKSOURCE_LSE: LSE selected as UART7 clock
-  */
+/** @brief  Macro to configure the UART7 clock (UART7CLK).
+ *
+ * @param  __UART7_CLKSOURCE__: specifies the UART7 clock source.
+ *          This parameter can be one of the following values:
+ *            @arg RCC_UART7CLKSOURCE_PCLK1: PCLK1 selected as UART7 clock
+ *            @arg RCC_UART7CLKSOURCE_HSI: HSI selected as UART7 clock
+ *            @arg RCC_UART7CLKSOURCE_SYSCLK: System Clock selected as UART7 clock
+ *            @arg RCC_UART7CLKSOURCE_LSE: LSE selected as UART7 clock
+ */
 #define __HAL_RCC_UART7_CONFIG(__UART7_CLKSOURCE__) \
                   MODIFY_REG(RCC->DCKCFGR2, RCC_DCKCFGR2_UART7SEL, (uint32_t)(__UART7_CLKSOURCE__))
 
@@ -3144,7 +3140,7 @@ typedef struct
   */
 #define __HAL_RCC_GET_SDMMC2_SOURCE() ((uint32_t)(READ_BIT(RCC->DCKCFGR2, RCC_DCKCFGR2_SDMMC2SEL)))
 #endif /* STM32F722xx || STM32F723xx || STM32F732xx || STM32F733xx || STM32F765xx || STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-                    
+
 #if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 /** @brief  Macro to configure the DFSDM1 clock
   * @param  __DFSDM1_CLKSOURCE__: specifies the DFSDM1  clock source.
@@ -3176,25 +3172,25 @@ typedef struct
   *            @arg RCC_DFSDM1AUDIOCLKSOURCE_SAI1:  SAI1 Clock selected as DFSDM1 Audio clock
   *            @arg RCC_DFSDM1AUDIOCLKSOURCE_SAI2:  SAI2 Clock selected as DFSDM1 Audio clock
   */
-#define __HAL_RCC_GET_DFSDM1AUDIO_SOURCE() ((uint32_t)(READ_BIT(RCC->DCKCFGR1, RCC_DCKCFGR1_ADFSDM1SEL)))                   
+#define __HAL_RCC_GET_DFSDM1AUDIO_SOURCE() ((uint32_t)(READ_BIT(RCC->DCKCFGR1, RCC_DCKCFGR1_ADFSDM1SEL)))
 #endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 
 #if defined (STM32F769xx) || defined (STM32F779xx)
 /** @brief  Macro to configure the DSI clock.
   * @param  __DSI_CLKSOURCE__: specifies the DSI clock source.
   *         This parameter can be one of the following values:
-  *            @arg RCC_DSICLKSOURCE_PLLR: PLLR output used as DSI clock. 
-  *            @arg RCC_DSICLKSOURCE_DSIPHY: DSI-PHY output used as DSI clock. 
+  *            @arg RCC_DSICLKSOURCE_PLLR: PLLR output used as DSI clock.
+  *            @arg RCC_DSICLKSOURCE_DSIPHY: DSI-PHY output used as DSI clock.
   */
 #define __HAL_RCC_DSI_CONFIG(__DSI_CLKSOURCE__) (MODIFY_REG(RCC->DCKCFGR2, RCC_DCKCFGR2_DSISEL, (uint32_t)(__DSI_CLKSOURCE__)))
 
 /** @brief  Macro to Get the DSI clock.
   * @retval The clock source can be one of the following values:
-  *            @arg RCC_DSICLKSOURCE_PLLR: PLLR output used as DSI clock. 
-  *            @arg RCC_DSICLKSOURCE_DSIPHY: DSI-PHY output used as DSI clock. 
+  *            @arg RCC_DSICLKSOURCE_PLLR: PLLR output used as DSI clock.
+  *            @arg RCC_DSICLKSOURCE_DSIPHY: DSI-PHY output used as DSI clock.
   */
-#define __HAL_RCC_GET_DSI_SOURCE() (READ_BIT(RCC->DCKCFGR2, RCC_DCKCFGR2_DSISEL))                    
-#endif /* STM32F769xx || STM32F779xx */                    
+#define __HAL_RCC_GET_DSI_SOURCE() (READ_BIT(RCC->DCKCFGR2, RCC_DCKCFGR2_DSISEL))
+#endif /* STM32F769xx || STM32F779xx */
 /**
   * @}
   */
@@ -3209,7 +3205,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk);
 
 /**
   * @}
-  */ 
+  */
 /* Private macros ------------------------------------------------------------*/
 /** @addtogroup RCCEx_Private_Macros RCCEx Private Macros
   * @{
@@ -3293,7 +3289,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk);
                 (((SELECTION) & RCC_PERIPHCLK_DFSDM1)       == RCC_PERIPHCLK_DFSDM1)   || \
                 (((SELECTION) & RCC_PERIPHCLK_DFSDM1_AUDIO) == RCC_PERIPHCLK_DFSDM1_AUDIO) || \
                 (((SELECTION) & RCC_PERIPHCLK_SPDIFRX)     == RCC_PERIPHCLK_SPDIFRX) || \
-                (((SELECTION) & RCC_PERIPHCLK_RTC)         == RCC_PERIPHCLK_RTC))                
+                (((SELECTION) & RCC_PERIPHCLK_RTC)         == RCC_PERIPHCLK_RTC))
 #elif defined (STM32F765xx)
 #define IS_RCC_PERIPHCLOCK(SELECTION)  \
                ((((SELECTION) & RCC_PERIPHCLK_I2S)         == RCC_PERIPHCLK_I2S)     || \
@@ -3320,7 +3316,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk);
                 (((SELECTION) & RCC_PERIPHCLK_DFSDM1)       == RCC_PERIPHCLK_DFSDM1)   || \
                 (((SELECTION) & RCC_PERIPHCLK_DFSDM1_AUDIO) == RCC_PERIPHCLK_DFSDM1_AUDIO) || \
                 (((SELECTION) & RCC_PERIPHCLK_SPDIFRX)     == RCC_PERIPHCLK_SPDIFRX) || \
-                (((SELECTION) & RCC_PERIPHCLK_RTC)         == RCC_PERIPHCLK_RTC)) 
+                (((SELECTION) & RCC_PERIPHCLK_RTC)         == RCC_PERIPHCLK_RTC))
 #elif defined (STM32F722xx) || defined (STM32F723xx) || defined (STM32F732xx) || defined (STM32F733xx)
 #define IS_RCC_PERIPHCLOCK(SELECTION)  \
                ((((SELECTION) & RCC_PERIPHCLK_I2S)         == RCC_PERIPHCLK_I2S)     || \
@@ -3342,8 +3338,8 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk);
                 (((SELECTION) & RCC_PERIPHCLK_CLK48)       == RCC_PERIPHCLK_CLK48)   || \
                 (((SELECTION) & RCC_PERIPHCLK_SDMMC1)      == RCC_PERIPHCLK_SDMMC1)  || \
                 (((SELECTION) & RCC_PERIPHCLK_SDMMC2)      == RCC_PERIPHCLK_SDMMC2)  || \
-                (((SELECTION) & RCC_PERIPHCLK_RTC)         == RCC_PERIPHCLK_RTC)) 
-#endif /* STM32F746xx || STM32F756xx */                 
+                (((SELECTION) & RCC_PERIPHCLK_RTC)         == RCC_PERIPHCLK_RTC))
+#endif /* STM32F746xx || STM32F756xx */
 #define IS_RCC_PLLI2SN_VALUE(VALUE) ((50 <= (VALUE)) && ((VALUE) <= 432))
 #if defined (STM32F745xx) || defined (STM32F746xx) || defined (STM32F756xx) || defined (STM32F765xx) || defined (STM32F767xx) || \
     defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
@@ -3361,7 +3357,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk);
                                      ((VALUE) == RCC_PLLSAIP_DIV6) ||\
                                      ((VALUE) == RCC_PLLSAIP_DIV8))
 #define IS_RCC_PLLSAIQ_VALUE(VALUE) ((2 <= (VALUE)) && ((VALUE) <= 15))
-#define IS_RCC_PLLSAIR_VALUE(VALUE) ((2 <= (VALUE)) && ((VALUE) <= 7))  
+#define IS_RCC_PLLSAIR_VALUE(VALUE) ((2 <= (VALUE)) && ((VALUE) <= 7))
 
 #define IS_RCC_PLLSAI_DIVQ_VALUE(VALUE) ((1 <= (VALUE)) && ((VALUE) <= 32))
 
@@ -3463,10 +3459,10 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk);
                                        ((SOURCE) == RCC_SAI2CLKSOURCE_PLLI2S) || \
                                        ((SOURCE) == RCC_SAI2CLKSOURCE_PIN))
 #endif /* STM32F722xx || STM32F723xx || STM32F732xx || STM32F733xx || STM32F745xx || STM32F746xx || STM32F756xx */
-                 
+
 #if defined (STM32F765xx) || defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx) || defined (STM32F779xx)
 #define IS_RCC_PLLR_VALUE(VALUE)            ((2 <= (VALUE)) && ((VALUE) <= 7))
-                 
+
 #define IS_RCC_SAI1CLKSOURCE(SOURCE)  (((SOURCE) == RCC_SAI1CLKSOURCE_PLLSAI) || \
                                        ((SOURCE) == RCC_SAI1CLKSOURCE_PLLI2S) || \
                                        ((SOURCE) == RCC_SAI1CLKSOURCE_PIN)    || \
@@ -3494,10 +3490,6 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk);
 #define IS_RCC_DSIBYTELANECLKSOURCE(SOURCE) (((SOURCE) == RCC_DSICLKSOURCE_PLLR)  ||\
                                              ((SOURCE) == RCC_DSICLKSOURCE_DSIPHY))
 #endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
-                 
-/**
-  * @}
-  */ 
 
 /**
   * @}
@@ -3505,11 +3497,15 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */  
+  */
+
+/**
+  * @}
+  */
 #ifdef __cplusplus
 }
 #endif

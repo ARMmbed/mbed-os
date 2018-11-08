@@ -60,8 +60,7 @@
  * }
  * @endcode
  */
-class MMA7660
-{
+class MMA7660 {
 public:
     /**
     * The 6 different orientations and unknown
@@ -94,7 +93,7 @@ public:
     *
     * @param return - true for successfull connection, false for no connection
     */
-    bool testConnection( void );
+    bool testConnection(void);
 
     /**
     * Sets the active state of the MMA7660
@@ -103,7 +102,7 @@ public:
     *
     * @param state - true for active, false for standby
     */
-    void setActive( bool state);
+    void setActive(bool state);
 
     /**
     * Reads acceleration data from the sensor
@@ -113,29 +112,29 @@ public:
     *
     * @param data - pointer to array with length 3 where the acceleration data will be stored, X-Y-Z
     */
-    void readData( int *data);
-    void readData( float *data);
+    void readData(int *data);
+    void readData(float *data);
 
     /**
     * Get X-data
     *
     * @param return - X-acceleration in g's
     */
-    float x( void );
+    float x(void);
 
     /**
     * Get Y-data
     *
     * @param return - Y-acceleration in g's
     */
-    float y( void );
+    float y(void);
 
     /**
     * Get Z-data
     *
     * @param return - Z-acceleration in g's
     */
-    float z( void );
+    float z(void);
 
     /**
     * Sets the active samplerate
@@ -154,7 +153,7 @@ public:
     *
     * @param return - Front, Back or Unknown orientation
     */
-    Orientation getSide( void );
+    Orientation getSide(void);
 
     /**
     * Returns if it is on it left, right, down or up side
@@ -163,7 +162,7 @@ public:
     *
     * @param return - Left, Right, Down, Up or Unknown orientation
     */
-    Orientation getOrientation ( void );
+    Orientation getOrientation(void);
 
 
 private:
@@ -174,7 +173,7 @@ private:
     * @param adress - register address to write to
     * @param data - data to write
     */
-    void write( char address, char data);
+    void write(char address, char data);
 
     /**
     * Read data from the device
@@ -182,7 +181,7 @@ private:
     * @param adress - register address to write to
     * @return - data from the register specified by RA
     */
-    char read( char adress);
+    char read(char adress);
 
     /**
      * Read multiple regigsters from the device, more efficient than using multiple normal reads.
@@ -191,7 +190,7 @@ private:
      * @param length - number of bytes to read
      * @param data - pointer where the data needs to be written to
      */
-    void read( char adress, char *data, int length);
+    void read(char adress, char *data, int length);
 
     /**
     * Reads single axis

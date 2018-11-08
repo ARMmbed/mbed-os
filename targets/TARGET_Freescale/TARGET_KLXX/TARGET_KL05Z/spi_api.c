@@ -22,25 +22,26 @@
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {PTB0, SPI_0, 3},
-    {NC  , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
     {PTA7, SPI_0, 3},
-    {NC  , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
     {PTA6, SPI_0, 3},
-    {NC  , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
     {PTA5, SPI_0, 3},
-    {NC  , NC   , 0}
+    {NC, NC, 0}
 };
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
     // determine the SPI to use
     SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
@@ -49,15 +50,15 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
 
-    obj->spi = (SPI_Type*)pinmap_merge(spi_data, spi_cntl);
+    obj->spi = (SPI_Type *)pinmap_merge(spi_data, spi_cntl);
     MBED_ASSERT((int)obj->spi != NC);
 
     // enable power and clocking
     switch ((int)obj->spi) {
         case SPI_0:
-          SIM->SCGC5 |= (SIM_SCGC5_PORTA_MASK | SIM_SCGC5_PORTB_MASK);
-          SIM->SCGC4 |= SIM_SCGC4_SPI0_MASK;
-          break;
+            SIM->SCGC5 |= (SIM_SCGC5_PORTA_MASK | SIM_SCGC5_PORTB_MASK);
+            SIM->SCGC4 |= SIM_SCGC4_SPI0_MASK;
+            break;
     }
 
     // enable SPI
@@ -72,10 +73,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 }
 
-void spi_free(spi_t *obj) {
+void spi_free(spi_t *obj)
+{
     // [TODO]
 }
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
     MBED_ASSERT(bits == 8);
     MBED_ASSERT((mode >= 0) && (mode <= 3));
 
@@ -90,7 +93,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     obj->spi->C1 |= c1_data;
 }
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     uint32_t error = 0;
     uint32_t p_error = 0xffffffff;
     uint32_t ref = 0;
@@ -106,9 +110,10 @@ void spi_frequency(spi_t *obj, int hz) {
     for (prescaler = 1; prescaler <= 8; prescaler++) {
         divisor = 2;
         for (spr = 0; spr <= 8; spr++) {
-            ref = PCLK / (prescaler*divisor);
-            if (ref > (uint32_t)hz)
+            ref = PCLK / (prescaler * divisor);
+            if (ref > (uint32_t)hz) {
                 continue;
+            }
             error = hz - ref;
             if (error < p_error) {
                 ref_spr = spr;
@@ -123,17 +128,20 @@ void spi_frequency(spi_t *obj, int hz) {
     obj->spi->BR = ((ref_prescaler & 0x7) << 4) | (ref_spr & 0xf);
 }
 
-static inline int spi_writeable(spi_t * obj) {
+static inline int spi_writeable(spi_t *obj)
+{
     return (obj->spi->S & SPI_S_SPTEF_MASK) ? 1 : 0;
 }
 
-static inline int spi_readable(spi_t * obj) {
+static inline int spi_readable(spi_t *obj)
+{
     return (obj->spi->S & SPI_S_SPRF_MASK) ? 1 : 0;
 }
 
-int spi_master_write(spi_t *obj, int value) {
+int spi_master_write(spi_t *obj, int value)
+{
     // wait tx buffer empty
-    while(!spi_writeable(obj));
+    while (!spi_writeable(obj));
     obj->spi->D = (value & 0xff);
 
     // wait rx buffer full
@@ -142,7 +150,8 @@ int spi_master_write(spi_t *obj, int value) {
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -156,15 +165,18 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     return total;
 }
 
-int spi_slave_receive(spi_t *obj) {
+int spi_slave_receive(spi_t *obj)
+{
     return spi_readable(obj);
 }
 
-int spi_slave_read(spi_t *obj) {
+int spi_slave_read(spi_t *obj)
+{
     return obj->spi->D;
 }
 
-void spi_slave_write(spi_t *obj, int value) {
+void spi_slave_write(spi_t *obj, int value)
+{
     while (!spi_writeable(obj));
     obj->spi->D = value;
 }

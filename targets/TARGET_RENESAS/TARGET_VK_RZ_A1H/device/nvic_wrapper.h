@@ -67,15 +67,15 @@ void     NVIC_ClearPendingIRQ(IRQn_Type IRQn);
 uint32_t NVIC_GetActive(IRQn_Type IRQn);
 void     NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority);
 uint32_t NVIC_GetPriority(IRQn_Type IRQn);
-uint32_t NVIC_EncodePriority (uint32_t PriorityGroup, uint32_t PreemptPriority, uint32_t SubPriority);
-void     NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGroup, uint32_t* pPreemptPriority, uint32_t* pSubPriority);
+uint32_t NVIC_EncodePriority(uint32_t PriorityGroup, uint32_t PreemptPriority, uint32_t SubPriority);
+void     NVIC_DecodePriority(uint32_t Priority, uint32_t PriorityGroup, uint32_t *pPreemptPriority, uint32_t *pSubPriority);
 void     NVIC_SystemReset(void);
 /* SysTick function */
 uint32_t SysTick_Config(uint32_t ticks);
 /* Debug In/Output function */
-uint32_t ITM_SendChar (uint32_t ch);
-int32_t  ITM_ReceiveChar (void);
-int32_t  ITM_CheckChar (void);
+uint32_t ITM_SendChar(uint32_t ch);
+int32_t  ITM_ReceiveChar(void);
+int32_t  ITM_CheckChar(void);
 
 #ifdef __cplusplus
 }

@@ -57,8 +57,7 @@ typedef void (*uart_edma_transfer_callback_t)(UART_Type *base,
 /*!
 * @brief UART eDMA handle
 */
-struct _uart_edma_handle
-{
+struct _uart_edma_handle {
     uart_edma_transfer_callback_t callback; /*!< Callback function. */
     void *userData;                         /*!< UART callback function parameter.*/
     size_t rxDataSizeAll;                   /*!< Size of the data to receive. */
@@ -94,11 +93,11 @@ extern "C" {
  * @param txEdmaHandle User requested DMA handle for TX DMA transfer.
  */
 void UART_TransferCreateHandleEDMA(UART_Type *base,
-                           uart_edma_handle_t *handle,
-                           uart_edma_transfer_callback_t callback,
-                           void *userData,
-                           edma_handle_t *txEdmaHandle,
-                           edma_handle_t *rxEdmaHandle);
+                                   uart_edma_handle_t *handle,
+                                   uart_edma_transfer_callback_t callback,
+                                   void *userData,
+                                   edma_handle_t *txEdmaHandle,
+                                   edma_handle_t *rxEdmaHandle);
 
 /*!
  * @brief Sends data using eDMA.

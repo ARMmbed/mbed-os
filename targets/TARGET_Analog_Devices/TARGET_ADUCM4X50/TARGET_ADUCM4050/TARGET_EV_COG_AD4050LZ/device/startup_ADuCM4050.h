@@ -112,10 +112,10 @@ extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 #define RESET_EXCPT_HNDLR              __START
 #endif
 #ifndef __STACK_SIZE
-#define	__STACK_SIZE  0x00000400
+#define __STACK_SIZE  0x00000400
 #endif
 #if !defined(__HEAP_SIZE) || (__HEAP_SIZE <= 0)
-#define	__HEAP_SIZE   0x00000C00
+#define __HEAP_SIZE   0x00000C00
 #endif
 #define SECTION_NAME(sectionname)      __attribute__ ((section(sectionname)))
 #define SECTION_PLACE(def,sectionname) def __attribute__ ((section(sectionname)))
@@ -133,7 +133,7 @@ extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 void RESET_EXCPT_HNDLR(void);
 void Reset_Handler(void);
 /* IVT typedefs. */
-typedef void( *pFunc )( void );
+typedef void(*pFunc)(void);
 
 #define ADUCM4050_VECTORS \
     /* Configure Initial Stack Pointer, using linker-generated symbols */\

@@ -164,16 +164,18 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 
     switch ((base->PCR[obj->pin] & PORT_PCR_IRQC_MASK) >> PORT_PCR_IRQC_SHIFT) {
         case IRQ_DISABLED:
-            if (enable)
+            if (enable) {
                 irq_settings = (event == IRQ_RISE) ? (kPORT_InterruptRisingEdge) : (kPORT_InterruptFallingEdge);
+            }
             break;
 
         case IRQ_RAISING_EDGE:
             if (enable) {
                 irq_settings = (event == IRQ_RISE) ? (kPORT_InterruptRisingEdge) : (kPORT_InterruptEitherEdge);
             } else {
-                if (event == IRQ_FALL)
+                if (event == IRQ_FALL) {
                     irq_settings = kPORT_InterruptRisingEdge;
+                }
             }
             break;
 
@@ -181,8 +183,9 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
             if (enable) {
                 irq_settings = (event == IRQ_FALL) ? (kPORT_InterruptFallingEdge) : (kPORT_InterruptEitherEdge);
             } else {
-                if (event == IRQ_RISE)
+                if (event == IRQ_RISE) {
                     irq_settings = kPORT_InterruptFallingEdge;
+                }
             }
             break;
 

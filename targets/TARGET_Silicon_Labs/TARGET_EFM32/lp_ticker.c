@@ -38,7 +38,7 @@ static int rtc_reserved = 0;
 
 void lp_ticker_init()
 {
-    if(!rtc_reserved) {
+    if (!rtc_reserved) {
         core_util_critical_section_enter();
         rtc_init_real(RTC_INIT_LPTIMER);
         rtc_set_comp0_handler((uint32_t)lp_ticker_irq_handler);
@@ -49,7 +49,7 @@ void lp_ticker_init()
 
 void lp_ticker_free()
 {
-    if(rtc_reserved) {
+    if (rtc_reserved) {
         core_util_critical_section_enter();
         rtc_free_real(RTC_INIT_LPTIMER);
         rtc_reserved = 0;
@@ -72,7 +72,9 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 
     /* calculate offset value */
     timestamp_t offset = timestamp - current_time;
-    if(offset > 0xEFFFFFFF) offset = 100;
+    if (offset > 0xEFFFFFFF) {
+        offset = 100;
+    }
 
     /* map offset to RTC value */
     // ticks = offset * RTC frequency div 1000000
@@ -83,7 +85,9 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     timestamp_ticks &= 0xFFFFFF;
 
     /* check for RTC limitation */
-    if((timestamp_ticks - RTC_CounterGet()) >= 0x800000) timestamp_ticks = RTC_CounterGet() + 2;
+    if ((timestamp_ticks - RTC_CounterGet()) >= 0x800000) {
+        timestamp_ticks = RTC_CounterGet() + 2;
+    }
 
     /* Set callback */
     RTC_FreezeEnable(true);
@@ -110,7 +114,7 @@ inline void lp_ticker_clear_interrupt()
 timestamp_t lp_ticker_read()
 {
     lp_ticker_init();
-    
+
     uint64_t ticks_temp;
     uint64_t ticks = RTC_CounterGet();
 
@@ -120,7 +124,7 @@ timestamp_t lp_ticker_read()
      */
 
     ticks_temp = (ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT);
-    return (timestamp_t) (ticks_temp & 0xFFFFFFFF);
+    return (timestamp_t)(ticks_temp & 0xFFFFFFFF);
 }
 
 #else
@@ -138,14 +142,16 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 
     /* calculate offset value */
     timestamp_t offset = timestamp - current_time;
-    if(offset > 0xEFFFFFFF) offset = 100;
+    if (offset > 0xEFFFFFFF) {
+        offset = 100;
+    }
 
     /* map offset to RTC value */
     // ticks = offset * RTC frequency div 1000000
     timestamp_ticks = ((uint64_t)offset * (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT)) / 1000000;
     // checking the rounding. If timeout is wanted between RTCC ticks, irq should be configured to
     // trigger in the latter RTCC-tick. Otherwise ticker-api fails to send timer event to its client
-    if(((timestamp_ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT)) < offset){
+    if (((timestamp_ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT)) < offset) {
         timestamp_ticks++;
     }
 
@@ -155,11 +161,13 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     timestamp_ticks &= 0xFFFFFFFF;
 
     /* check for RTCC limitation */
-    if((timestamp_ticks - RTCC_CounterGet()) >= 0x80000000) timestamp_ticks = RTCC_CounterGet() + 2;
+    if ((timestamp_ticks - RTCC_CounterGet()) >= 0x80000000) {
+        timestamp_ticks = RTCC_CounterGet() + 2;
+    }
 
     /* init channel */
     RTCC_CCChConf_TypeDef ccchConf = RTCC_CH_INIT_COMPARE_DEFAULT;
-    RTCC_ChannelInit(0,&ccchConf);
+    RTCC_ChannelInit(0, &ccchConf);
     /* Set callback */
     RTCC_ChannelCCVSet(0, (uint32_t)timestamp_ticks);
     RTCC_IntEnable(RTCC_IF_CC0);
@@ -183,7 +191,7 @@ inline void lp_ticker_clear_interrupt()
 timestamp_t lp_ticker_read()
 {
     lp_ticker_init();
-    
+
     uint64_t ticks_temp;
     uint64_t ticks = RTCC_CounterGet();
 
@@ -193,7 +201,7 @@ timestamp_t lp_ticker_read()
      */
 
     ticks_temp = (ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT);
-    return (timestamp_t) (ticks_temp & 0xFFFFFFFF);
+    return (timestamp_t)(ticks_temp & 0xFFFFFFFF);
 }
 
 #endif /* RTCC */

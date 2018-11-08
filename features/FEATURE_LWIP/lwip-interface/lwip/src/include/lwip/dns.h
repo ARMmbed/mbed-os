@@ -70,11 +70,11 @@ extern "C" {
 #if DNS_LOCAL_HOSTLIST
 /** struct used for local host-list */
 struct local_hostlist_entry {
-  /** static hostname */
-  const char *name;
-  /** static host address in network byteorder */
-  ip_addr_t addr;
-  struct local_hostlist_entry *next;
+    /** static hostname */
+    const char *name;
+    /** static host address in network byteorder */
+    ip_addr_t addr;
+    struct local_hostlist_entry *next;
 };
 #define DNS_LOCAL_HOSTLIST_ELEM(name, addr_init) {name, addr_init, NULL}
 #if DNS_LOCAL_HOSTLIST_IS_DYNAMIC
@@ -104,12 +104,12 @@ typedef void (*dns_found_callback)(const char *name, const ip_addr_t *ipaddr, vo
 void             dns_init(void);
 void             dns_tmr(void);
 void             dns_setserver(u8_t numdns, const ip_addr_t *dnsserver);
-const ip_addr_t* dns_getserver(u8_t numdns);
+const ip_addr_t *dns_getserver(u8_t numdns);
 err_t            dns_gethostbyname(const char *hostname, ip_addr_t *addr,
                                    dns_found_callback found, void *callback_arg);
 err_t            dns_gethostbyname_addrtype(const char *hostname, ip_addr_t *addr,
-                                   dns_found_callback found, void *callback_arg,
-                                   u8_t dns_addrtype);
+                                            dns_found_callback found, void *callback_arg,
+                                            u8_t dns_addrtype);
 
 
 #if DNS_LOCAL_HOSTLIST

@@ -36,15 +36,13 @@
  ******************************************************************************/
 
 /*<! @brief Structure definition for DMA callback param pass in. */
-typedef struct _flexio_uart_dma_private_handle
-{
+typedef struct _flexio_uart_dma_private_handle {
     FLEXIO_UART_Type *base;
     flexio_uart_dma_handle_t *handle;
 } flexio_uart_dma_private_handle_t;
 
 /*<! @brief uart transfer state. */
-enum _flexio_uart_dma_transfer_states
-{
+enum _flexio_uart_dma_transfer_states {
     kFLEXIO_UART_TxIdle, /* TX idle. */
     kFLEXIO_UART_TxBusy, /* TX busy. */
     kFLEXIO_UART_RxIdle, /* RX idle. */
@@ -103,8 +101,7 @@ static void FLEXIO_UART_TransferSendDMACallback(dma_handle_t *handle, void *para
 
     uartPrivateHandle->handle->txState = kFLEXIO_UART_TxIdle;
 
-    if (uartPrivateHandle->handle->callback)
-    {
+    if (uartPrivateHandle->handle->callback) {
         uartPrivateHandle->handle->callback(uartPrivateHandle->base, uartPrivateHandle->handle,
                                             kStatus_FLEXIO_UART_TxIdle, uartPrivateHandle->handle->userData);
     }
@@ -122,8 +119,7 @@ static void FLEXIO_UART_TransferReceiveDMACallback(dma_handle_t *handle, void *p
 
     uartPrivateHandle->handle->rxState = kFLEXIO_UART_RxIdle;
 
-    if (uartPrivateHandle->handle->callback)
-    {
+    if (uartPrivateHandle->handle->callback) {
         uartPrivateHandle->handle->callback(uartPrivateHandle->base, uartPrivateHandle->handle,
                                             kStatus_FLEXIO_UART_RxIdle, uartPrivateHandle->handle->userData);
     }
@@ -142,18 +138,15 @@ status_t FLEXIO_UART_TransferCreateHandleDMA(FLEXIO_UART_Type *base,
     uint8_t index = 0;
 
     /* Find the an empty handle pointer to store the handle. */
-    for (index = 0; index < FLEXIO_UART_HANDLE_COUNT; index++)
-    {
-        if (s_dmaPrivateHandle[index].base == NULL)
-        {
+    for (index = 0; index < FLEXIO_UART_HANDLE_COUNT; index++) {
+        if (s_dmaPrivateHandle[index].base == NULL) {
             s_dmaPrivateHandle[index].base = base;
             s_dmaPrivateHandle[index].handle = handle;
             break;
         }
     }
 
-    if (index == FLEXIO_UART_HANDLE_COUNT)
-    {
+    if (index == FLEXIO_UART_HANDLE_COUNT) {
         return kStatus_OutOfRange;
     }
 
@@ -174,8 +167,7 @@ status_t FLEXIO_UART_TransferCreateHandleDMA(FLEXIO_UART_Type *base,
     dmaXferConfig.destSize = kDMA_Transfersize8bits;
 
     /* Configure TX. */
-    if (txDmaHandle)
-    {
+    if (txDmaHandle) {
         DMA_SetCallback(txDmaHandle, FLEXIO_UART_TransferSendDMACallback, &s_dmaPrivateHandle[index]);
 
         DMA_ResetChannel(txDmaHandle->base, txDmaHandle->channel);
@@ -187,8 +179,7 @@ status_t FLEXIO_UART_TransferCreateHandleDMA(FLEXIO_UART_Type *base,
     }
 
     /* Configure RX. */
-    if (rxDmaHandle)
-    {
+    if (rxDmaHandle) {
         DMA_SetCallback(rxDmaHandle, FLEXIO_UART_TransferReceiveDMACallback, &s_dmaPrivateHandle[index]);
 
         DMA_ResetChannel(rxDmaHandle->base, rxDmaHandle->channel);
@@ -212,18 +203,14 @@ status_t FLEXIO_UART_TransferSendDMA(FLEXIO_UART_Type *base,
     status_t status;
 
     /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
+    if ((0U == xfer->dataSize) || (NULL == xfer->data)) {
         return kStatus_InvalidArgument;
     }
 
     /* If previous TX not finished. */
-    if (kFLEXIO_UART_TxBusy == handle->txState)
-    {
+    if (kFLEXIO_UART_TxBusy == handle->txState) {
         status = kStatus_FLEXIO_UART_TxBusy;
-    }
-    else
-    {
+    } else {
         handle->txState = kFLEXIO_UART_TxBusy;
 
         /* Set transfer data address and data size. */
@@ -252,18 +239,14 @@ status_t FLEXIO_UART_TransferReceiveDMA(FLEXIO_UART_Type *base,
     status_t status;
 
     /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
+    if ((0U == xfer->dataSize) || (NULL == xfer->data)) {
         return kStatus_InvalidArgument;
     }
 
     /* If previous RX not finished. */
-    if (kFLEXIO_UART_RxBusy == handle->rxState)
-    {
+    if (kFLEXIO_UART_RxBusy == handle->rxState) {
         status = kStatus_FLEXIO_UART_RxBusy;
-    }
-    else
-    {
+    } else {
         handle->rxState = kFLEXIO_UART_RxBusy;
 
         /* Set transfer data address and data size. */
@@ -319,17 +302,13 @@ status_t FLEXIO_UART_TransferGetSendCountDMA(FLEXIO_UART_Type *base, flexio_uart
 {
     assert(handle->txDmaHandle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
-    if (kFLEXIO_UART_TxBusy == handle->txState)
-    {
+    if (kFLEXIO_UART_TxBusy == handle->txState) {
         *count = (handle->txSize - DMA_GetRemainingBytes(handle->txDmaHandle->base, handle->txDmaHandle->channel));
-    }
-    else
-    {
+    } else {
         *count = handle->txSize;
     }
 
@@ -340,17 +319,13 @@ status_t FLEXIO_UART_TransferGetReceiveCountDMA(FLEXIO_UART_Type *base, flexio_u
 {
     assert(handle->rxDmaHandle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
-    if (kFLEXIO_UART_RxBusy == handle->rxState)
-    {
+    if (kFLEXIO_UART_RxBusy == handle->rxState) {
         *count = (handle->rxSize - DMA_GetRemainingBytes(handle->rxDmaHandle->base, handle->rxDmaHandle->channel));
-    }
-    else
-    {
+    } else {
         *count = handle->rxSize;
     }
 

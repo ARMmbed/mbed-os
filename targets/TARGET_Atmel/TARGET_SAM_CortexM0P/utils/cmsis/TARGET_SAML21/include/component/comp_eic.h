@@ -60,11 +60,11 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint8_t  ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint8_t  :2;               /*!< bit:  2.. 3  Reserved                           */
-        uint8_t  CKSEL:1;          /*!< bit:      4  Clock Selection                    */
-        uint8_t  :3;               /*!< bit:  5.. 7  Reserved                           */
+        uint8_t  SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint8_t  ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint8_t  : 2;              /*!< bit:  2.. 3  Reserved                           */
+        uint8_t  CKSEL: 1;         /*!< bit:      4  Clock Selection                    */
+        uint8_t  : 3;              /*!< bit:  5.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } EIC_CTRLA_Type;
@@ -85,10 +85,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  NMISENSE:3;       /*!< bit:  0.. 2  NMI Input Sense Configuration      */
-        uint8_t  NMIFILTEN:1;      /*!< bit:      3  NMI Filter Enable                  */
-        uint8_t  NMIASYNCH:1;      /*!< bit:      4  NMI Asynchronous edge Detection Enable */
-        uint8_t  :3;               /*!< bit:  5.. 7  Reserved                           */
+        uint8_t  NMISENSE: 3;      /*!< bit:  0.. 2  NMI Input Sense Configuration      */
+        uint8_t  NMIFILTEN: 1;     /*!< bit:      3  NMI Filter Enable                  */
+        uint8_t  NMIASYNCH: 1;     /*!< bit:      4  NMI Asynchronous edge Detection Enable */
+        uint8_t  : 3;              /*!< bit:  5.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } EIC_NMICTRL_Type;
@@ -122,8 +122,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t NMI:1;            /*!< bit:      0  NMI Interrupt Flag                 */
-        uint16_t :15;              /*!< bit:  1..15  Reserved                           */
+        uint16_t NMI: 1;           /*!< bit:      0  NMI Interrupt Flag                 */
+        uint16_t : 15;             /*!< bit:  1..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } EIC_NMIFLAG_Type;
@@ -140,9 +140,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software reset synchronisation     */
-        uint32_t ENABLE:1;         /*!< bit:      1  Enable synchronisation             */
-        uint32_t :30;              /*!< bit:  2..31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software reset synchronisation     */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Enable synchronisation             */
+        uint32_t : 30;             /*!< bit:  2..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EIC_SYNCBUSY_Type;
@@ -161,8 +161,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t EXTINTEO:16;      /*!< bit:  0..15  External Interrupt Event Output Enable */
-        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+        uint32_t EXTINTEO: 16;     /*!< bit:  0..15  External Interrupt Event Output Enable */
+        uint32_t : 16;             /*!< bit: 16..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EIC_EVCTRL_Type;
@@ -180,8 +180,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t EXTINT:16;        /*!< bit:  0..15  External Interrupt Disable         */
-        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+        uint32_t EXTINT: 16;       /*!< bit:  0..15  External Interrupt Disable         */
+        uint32_t : 16;             /*!< bit: 16..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EIC_INTENCLR_Type;
@@ -199,8 +199,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t EXTINT:16;        /*!< bit:  0..15  External Interrupt Disable         */
-        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+        uint32_t EXTINT: 16;       /*!< bit:  0..15  External Interrupt Disable         */
+        uint32_t : 16;             /*!< bit: 16..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EIC_INTENSET_Type;
@@ -218,8 +218,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t EXTINT:16;        /*!< bit:  0..15  External Interrupt Flag            */
-        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+        uint32_t EXTINT: 16;       /*!< bit:  0..15  External Interrupt Flag            */
+        uint32_t : 16;             /*!< bit: 16..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EIC_INTFLAG_Type;
@@ -237,8 +237,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t ASYNCH:16;        /*!< bit:  0..15  EIC Asynchronous edge Detection Enable */
-        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+        uint32_t ASYNCH: 16;       /*!< bit:  0..15  EIC Asynchronous edge Detection Enable */
+        uint32_t : 16;             /*!< bit: 16..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EIC_EIC_ASYNCH_Type;
@@ -256,22 +256,22 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SENSE0:3;         /*!< bit:  0.. 2  Input Sense Configuration 0        */
-        uint32_t FILTEN0:1;        /*!< bit:      3  Filter Enable 0                    */
-        uint32_t SENSE1:3;         /*!< bit:  4.. 6  Input Sense Configuration 1        */
-        uint32_t FILTEN1:1;        /*!< bit:      7  Filter Enable 1                    */
-        uint32_t SENSE2:3;         /*!< bit:  8..10  Input Sense Configuration 2        */
-        uint32_t FILTEN2:1;        /*!< bit:     11  Filter Enable 2                    */
-        uint32_t SENSE3:3;         /*!< bit: 12..14  Input Sense Configuration 3        */
-        uint32_t FILTEN3:1;        /*!< bit:     15  Filter Enable 3                    */
-        uint32_t SENSE4:3;         /*!< bit: 16..18  Input Sense Configuration 4        */
-        uint32_t FILTEN4:1;        /*!< bit:     19  Filter Enable 4                    */
-        uint32_t SENSE5:3;         /*!< bit: 20..22  Input Sense Configuration 5        */
-        uint32_t FILTEN5:1;        /*!< bit:     23  Filter Enable 5                    */
-        uint32_t SENSE6:3;         /*!< bit: 24..26  Input Sense Configuration 6        */
-        uint32_t FILTEN6:1;        /*!< bit:     27  Filter Enable 6                    */
-        uint32_t SENSE7:3;         /*!< bit: 28..30  Input Sense Configuration 7        */
-        uint32_t FILTEN7:1;        /*!< bit:     31  Filter Enable 7                    */
+        uint32_t SENSE0: 3;        /*!< bit:  0.. 2  Input Sense Configuration 0        */
+        uint32_t FILTEN0: 1;       /*!< bit:      3  Filter Enable 0                    */
+        uint32_t SENSE1: 3;        /*!< bit:  4.. 6  Input Sense Configuration 1        */
+        uint32_t FILTEN1: 1;       /*!< bit:      7  Filter Enable 1                    */
+        uint32_t SENSE2: 3;        /*!< bit:  8..10  Input Sense Configuration 2        */
+        uint32_t FILTEN2: 1;       /*!< bit:     11  Filter Enable 2                    */
+        uint32_t SENSE3: 3;        /*!< bit: 12..14  Input Sense Configuration 3        */
+        uint32_t FILTEN3: 1;       /*!< bit:     15  Filter Enable 3                    */
+        uint32_t SENSE4: 3;        /*!< bit: 16..18  Input Sense Configuration 4        */
+        uint32_t FILTEN4: 1;       /*!< bit:     19  Filter Enable 4                    */
+        uint32_t SENSE5: 3;        /*!< bit: 20..22  Input Sense Configuration 5        */
+        uint32_t FILTEN5: 1;       /*!< bit:     23  Filter Enable 5                    */
+        uint32_t SENSE6: 3;        /*!< bit: 24..26  Input Sense Configuration 6        */
+        uint32_t FILTEN6: 1;       /*!< bit:     27  Filter Enable 6                    */
+        uint32_t SENSE7: 3;        /*!< bit: 28..30  Input Sense Configuration 7        */
+        uint32_t FILTEN7: 1;       /*!< bit:     31  Filter Enable 7                    */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EIC_CONFIG_Type;

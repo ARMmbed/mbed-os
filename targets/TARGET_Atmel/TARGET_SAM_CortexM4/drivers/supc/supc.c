@@ -337,9 +337,9 @@ void supc_set_slcd_power_mode(Supc *p_supc, enum slcdc_power_mode mode)
     p_supc->SUPC_MR = tmp;
 
     if (mode == SLCDC_POWER_MODE_LCDOFF) {
-        while(supc_get_status(p_supc) & SUPC_SR_LCDS_ENABLED);
+        while (supc_get_status(p_supc) & SUPC_SR_LCDS_ENABLED);
     } else {
-        while(!(supc_get_status(p_supc) & SUPC_SR_LCDS_ENABLED));
+        while (!(supc_get_status(p_supc) & SUPC_SR_LCDS_ENABLED));
     }
 }
 
@@ -351,7 +351,7 @@ void supc_set_slcd_power_mode(Supc *p_supc, enum slcdc_power_mode mode)
  */
 void supc_set_slcd_vol(Supc *p_supc, uint32_t vol)
 {
-    uint32_t tmp= p_supc->SUPC_MR;
+    uint32_t tmp = p_supc->SUPC_MR;
     tmp &= ~SUPC_MR_LCDVROUT_Msk;
     tmp |=  SUPC_MR_KEY_PASSWD |  SUPC_MR_LCDVROUT(vol);
     p_supc->SUPC_MR = tmp;

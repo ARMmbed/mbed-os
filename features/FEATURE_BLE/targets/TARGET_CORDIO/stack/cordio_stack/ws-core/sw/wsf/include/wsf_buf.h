@@ -44,38 +44,33 @@ extern "C" {
 **************************************************************************************************/
 
 /*! Buffer pool descriptor structure */
-typedef struct
-{
-  uint16_t   len;                  /*! length of buffers in pool */
-  uint8_t    num;                  /*! number of buffers in pool */
+typedef struct {
+    uint16_t   len;                  /*! length of buffers in pool */
+    uint8_t    num;                  /*! number of buffers in pool */
 } wsfBufPoolDesc_t;
 
 /*! Pool statistics */
-typedef struct
-{
-  uint16_t   bufSize;              /*!< Pool buffer size. */
-  uint8_t    numBuf;               /*!< Total number of buffers. */
-  uint8_t    numAlloc;             /*!< Number of outstanding allocations. */
-  uint8_t    maxAlloc;             /*!< High allocation watermark. */
-  uint16_t   maxReqLen;            /*!< Maximum requested buffer length. */
+typedef struct {
+    uint16_t   bufSize;              /*!< Pool buffer size. */
+    uint8_t    numBuf;               /*!< Total number of buffers. */
+    uint8_t    numAlloc;             /*!< Number of outstanding allocations. */
+    uint8_t    maxAlloc;             /*!< High allocation watermark. */
+    uint16_t   maxReqLen;            /*!< Maximum requested buffer length. */
 } WsfBufPoolStat_t;
 
 /*! WSF buffer diagnostics - buffer allocation failure */
-typedef struct
-{
-  uint8_t    taskId;               /*! Task handler ID where failure occured */
-  uint16_t   len;                  /*! Length of buffer being allocated */
+typedef struct {
+    uint8_t    taskId;               /*! Task handler ID where failure occured */
+    uint16_t   len;                  /*! Length of buffer being allocated */
 } wsfBufDiagAllocFail_t;
 
 /*! WSF buffer diagnostics message */
-typedef struct
-{
-  union
-  {
-    wsfBufDiagAllocFail_t alloc;   /*! Buffer allocation failure */
-  } param;
+typedef struct {
+    union {
+        wsfBufDiagAllocFail_t alloc;   /*! Buffer allocation failure */
+    } param;
 
-  uint8_t type;                    /*! Type of error */
+    uint8_t type;                    /*! Type of error */
 } WsfBufDiag_t;
 
 /**************************************************************************************************

@@ -80,19 +80,19 @@
  ******************************************************************************/
 void RTCC_ChannelInit(int ch, RTCC_CCChConf_TypeDef const *confPtr)
 {
-  EFM_ASSERT(RTCC_CH_VALID(ch) );
-  EFM_ASSERT( (uint32_t)confPtr->compMask
-              < (_RTCC_CC_CTRL_COMPMASK_MASK >> _RTCC_CC_CTRL_COMPMASK_SHIFT)
-              + 1);
+    EFM_ASSERT(RTCC_CH_VALID(ch));
+    EFM_ASSERT((uint32_t)confPtr->compMask
+               < (_RTCC_CC_CTRL_COMPMASK_MASK >> _RTCC_CC_CTRL_COMPMASK_SHIFT)
+               + 1);
 
-  /** Configure the selected capture/compare channel. */
-  RTCC->CC[ch].CTRL = ( (uint32_t)confPtr->chMode << _RTCC_CC_CTRL_MODE_SHIFT)
-                      | ( (uint32_t)confPtr->compMatchOutAction << _RTCC_CC_CTRL_CMOA_SHIFT)
-                      | ( (uint32_t)confPtr->prsSel << _RTCC_CC_CTRL_PRSSEL_SHIFT)
-                      | ( (uint32_t)confPtr->inputEdgeSel << _RTCC_CC_CTRL_ICEDGE_SHIFT)
-                      | ( (uint32_t)confPtr->compBase << _RTCC_CC_CTRL_COMPBASE_SHIFT)
-                      | ( (uint32_t)confPtr->compMask << _RTCC_CC_CTRL_COMPMASK_SHIFT)
-                      | ( (uint32_t)confPtr->dayCompMode << _RTCC_CC_CTRL_DAYCC_SHIFT);
+    /** Configure the selected capture/compare channel. */
+    RTCC->CC[ch].CTRL = ((uint32_t)confPtr->chMode << _RTCC_CC_CTRL_MODE_SHIFT)
+                        | ((uint32_t)confPtr->compMatchOutAction << _RTCC_CC_CTRL_CMOA_SHIFT)
+                        | ((uint32_t)confPtr->prsSel << _RTCC_CC_CTRL_PRSSEL_SHIFT)
+                        | ((uint32_t)confPtr->inputEdgeSel << _RTCC_CC_CTRL_ICEDGE_SHIFT)
+                        | ((uint32_t)confPtr->compBase << _RTCC_CC_CTRL_COMPBASE_SHIFT)
+                        | ((uint32_t)confPtr->compMask << _RTCC_CC_CTRL_COMPMASK_SHIFT)
+                        | ((uint32_t)confPtr->dayCompMode << _RTCC_CC_CTRL_DAYCC_SHIFT);
 }
 
 /***************************************************************************//**
@@ -104,8 +104,8 @@ void RTCC_ChannelInit(int ch, RTCC_CCChConf_TypeDef const *confPtr)
  ******************************************************************************/
 void RTCC_Enable(bool enable)
 {
-  /* Bitbanding the enable bit in the CTRL register (atomic). */
-  BUS_RegBitWrite((&RTCC->CTRL), _RTCC_CTRL_ENABLE_SHIFT, enable);
+    /* Bitbanding the enable bit in the CTRL register (atomic). */
+    BUS_RegBitWrite((&RTCC->CTRL), _RTCC_CTRL_ENABLE_SHIFT, enable);
 }
 
 /***************************************************************************//**
@@ -122,18 +122,18 @@ void RTCC_Enable(bool enable)
  ******************************************************************************/
 void RTCC_Init(const RTCC_Init_TypeDef *init)
 {
-  RTCC->CTRL = ( (uint32_t)init->enable << _RTCC_CTRL_ENABLE_SHIFT)
-               | ( (uint32_t)init->debugRun << _RTCC_CTRL_DEBUGRUN_SHIFT)
-               | ( (uint32_t)init->precntWrapOnCCV0 << _RTCC_CTRL_PRECCV0TOP_SHIFT)
-               | ( (uint32_t)init->cntWrapOnCCV1 << _RTCC_CTRL_CCV1TOP_SHIFT)
-               | ( (uint32_t)init->presc << _RTCC_CTRL_CNTPRESC_SHIFT)
-               | ( (uint32_t)init->prescMode << _RTCC_CTRL_CNTTICK_SHIFT)
+    RTCC->CTRL = ((uint32_t)init->enable << _RTCC_CTRL_ENABLE_SHIFT)
+                 | ((uint32_t)init->debugRun << _RTCC_CTRL_DEBUGRUN_SHIFT)
+                 | ((uint32_t)init->precntWrapOnCCV0 << _RTCC_CTRL_PRECCV0TOP_SHIFT)
+                 | ((uint32_t)init->cntWrapOnCCV1 << _RTCC_CTRL_CCV1TOP_SHIFT)
+                 | ((uint32_t)init->presc << _RTCC_CTRL_CNTPRESC_SHIFT)
+                 | ((uint32_t)init->prescMode << _RTCC_CTRL_CNTTICK_SHIFT)
 #if defined(_RTCC_CTRL_BUMODETSEN_MASK)
-               | ( (uint32_t)init->enaBackupModeSet << _RTCC_CTRL_BUMODETSEN_SHIFT)
+                 | ((uint32_t)init->enaBackupModeSet << _RTCC_CTRL_BUMODETSEN_SHIFT)
 #endif
-               | ( (uint32_t)init->enaOSCFailDetect << _RTCC_CTRL_OSCFDETEN_SHIFT)
-               | ( (uint32_t)init->cntMode << _RTCC_CTRL_CNTMODE_SHIFT)
-               | ( (uint32_t)init->disLeapYearCorr << _RTCC_CTRL_LYEARCORRDIS_SHIFT);
+                 | ((uint32_t)init->enaOSCFailDetect << _RTCC_CTRL_OSCFDETEN_SHIFT)
+                 | ((uint32_t)init->cntMode << _RTCC_CTRL_CNTMODE_SHIFT)
+                 | ((uint32_t)init->disLeapYearCorr << _RTCC_CTRL_LYEARCORRDIS_SHIFT);
 }
 
 /***************************************************************************//**
@@ -142,26 +142,26 @@ void RTCC_Init(const RTCC_Init_TypeDef *init)
  ******************************************************************************/
 void RTCC_Reset(void)
 {
-  int i;
+    int i;
 
-  /* Restore all RTCC registers to their default values. */
-  RTCC_Unlock();
-  RTCC->CTRL    = _RTCC_CTRL_RESETVALUE;
-  RTCC->PRECNT  = _RTCC_PRECNT_RESETVALUE;
-  RTCC->CNT     = _RTCC_CNT_RESETVALUE;
-  RTCC->TIME    = _RTCC_TIME_RESETVALUE;
-  RTCC->DATE    = _RTCC_DATE_RESETVALUE;
-  RTCC->IEN     = _RTCC_IEN_RESETVALUE;
-  RTCC->IFC     = _RTCC_IFC_MASK;
-  RTCC_StatusClear();
-  RTCC->EM4WUEN = _RTCC_EM4WUEN_RESETVALUE;
+    /* Restore all RTCC registers to their default values. */
+    RTCC_Unlock();
+    RTCC->CTRL    = _RTCC_CTRL_RESETVALUE;
+    RTCC->PRECNT  = _RTCC_PRECNT_RESETVALUE;
+    RTCC->CNT     = _RTCC_CNT_RESETVALUE;
+    RTCC->TIME    = _RTCC_TIME_RESETVALUE;
+    RTCC->DATE    = _RTCC_DATE_RESETVALUE;
+    RTCC->IEN     = _RTCC_IEN_RESETVALUE;
+    RTCC->IFC     = _RTCC_IFC_MASK;
+    RTCC_StatusClear();
+    RTCC->EM4WUEN = _RTCC_EM4WUEN_RESETVALUE;
 
-  for (i = 0; i < 3; i++) {
-    RTCC->CC[i].CTRL = _RTCC_CC_CTRL_RESETVALUE;
-    RTCC->CC[i].CCV  = _RTCC_CC_CCV_RESETVALUE;
-    RTCC->CC[i].TIME = _RTCC_CC_TIME_RESETVALUE;
-    RTCC->CC[i].DATE = _RTCC_CC_DATE_RESETVALUE;
-  }
+    for (i = 0; i < 3; i++) {
+        RTCC->CC[i].CTRL = _RTCC_CC_CTRL_RESETVALUE;
+        RTCC->CC[i].CCV  = _RTCC_CC_CCV_RESETVALUE;
+        RTCC->CC[i].TIME = _RTCC_CC_TIME_RESETVALUE;
+        RTCC->CC[i].DATE = _RTCC_CC_DATE_RESETVALUE;
+    }
 }
 
 /***************************************************************************//**
@@ -170,10 +170,10 @@ void RTCC_Reset(void)
  ******************************************************************************/
 void RTCC_StatusClear(void)
 {
-  while ( RTCC->SYNCBUSY & RTCC_SYNCBUSY_CMD ) {
-    // Wait for syncronization.
-  }
-  RTCC->CMD = RTCC_CMD_CLRSTATUS;
+    while (RTCC->SYNCBUSY & RTCC_SYNCBUSY_CMD) {
+        // Wait for syncronization.
+    }
+    RTCC->CMD = RTCC_CMD_CLRSTATUS;
 }
 
 /** @} (end addtogroup RTCC) */

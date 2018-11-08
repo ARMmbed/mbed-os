@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Component   : 
+ * Component   :
  * File        : bt_types.h
  *
  * Description : Common Bluetooth types
@@ -87,116 +87,100 @@ typedef cb_uint8       TLinkType;
 typedef cb_uint16      TPacketType;
 typedef cb_uint16      TConnHandle;
 
-typedef enum
-{
-  BT_SECURITY_MODE_1 = 1,
-  BT_SECURITY_MODE_2,
-  BT_SECURITY_MODE_3,
-  BT_SECURITY_MODE_4
+typedef enum {
+    BT_SECURITY_MODE_1 = 1,
+    BT_SECURITY_MODE_2,
+    BT_SECURITY_MODE_3,
+    BT_SECURITY_MODE_4
 
 } TSecurityMode;
 
-typedef enum
-{
-  BT_SECURITY_LEVEL_0 = 0,
-  BT_SECURITY_LEVEL_1,
-  BT_SECURITY_LEVEL_2,
-  BT_SECURITY_LEVEL_3,
-  // Used with security modes 1,2,3 where security level is not applicable
-  BT_SECURITY_LEVEL_DUMMY = 5,
+typedef enum {
+    BT_SECURITY_LEVEL_0 = 0,
+    BT_SECURITY_LEVEL_1,
+    BT_SECURITY_LEVEL_2,
+    BT_SECURITY_LEVEL_3,
+    // Used with security modes 1,2,3 where security level is not applicable
+    BT_SECURITY_LEVEL_DUMMY = 5,
 
 } TSecurityLevel;
 
 
-typedef enum 
-{
-  BT_MASTER_SLAVE_POLICY_ALWAYS_MASTER     = 0,
-  BT_MASTER_SLAVE_POLICY_OTHER_SIDE_DECIDE = 1
+typedef enum {
+    BT_MASTER_SLAVE_POLICY_ALWAYS_MASTER     = 0,
+    BT_MASTER_SLAVE_POLICY_OTHER_SIDE_DECIDE = 1
 
 } TMasterSlavePolicy;
 
-typedef enum 
-{
+typedef enum {
     BT_TYPE_CLASSIC    = 0,
     BT_TYPE_LOW_ENERGY = 1
 
 } TBluetoothType;
 
-typedef enum
-{
+typedef enum {
     BT_PUBLIC_ADDRESS = 0x00,
     BT_RANDOM_ADDRESS = 0x01,
 
 } TAddressType;
 
-typedef struct
-{
-  cb_uint8      BdAddress[SIZE_OF_BD_ADDR];
-  TAddressType  AddrType;
+typedef struct {
+    cb_uint8      BdAddress[SIZE_OF_BD_ADDR];
+    TAddressType  AddrType;
 
 } TBdAddr;
 
-typedef struct
-{
-  cb_uint8 Cod[SIZE_OF_COD];
+typedef struct {
+    cb_uint8 Cod[SIZE_OF_COD];
 
 } TCod;
 
-typedef struct
-{
-  cb_uint8 LinkKey[SIZE_OF_LINK_KEY];
+typedef struct {
+    cb_uint8 LinkKey[SIZE_OF_LINK_KEY];
 
 } TLinkKey;
 
-typedef struct
-{
-  cb_uint8 Name[SIZE_OF_NAME];
+typedef struct {
+    cb_uint8 Name[SIZE_OF_NAME];
 
 } TName;
 
-typedef struct
-{
-  cb_uint8 PinCode[SIZE_OF_PIN_CODE];
+typedef struct {
+    cb_uint8 PinCode[SIZE_OF_PIN_CODE];
 
 } TPinCode;
 
 typedef cb_uint32 TPasskey;
 
-typedef struct
-{
-  cb_uint8 Lap[SIZE_OF_LAP];
+typedef struct {
+    cb_uint8 Lap[SIZE_OF_LAP];
 
 } TLap;
 
-typedef struct
-{
-  cb_uint8 Data[SIZE_OF_EXT_INQ_RSP];
+typedef struct {
+    cb_uint8 Data[SIZE_OF_EXT_INQ_RSP];
 
 } TExtInqRsp;
 
 typedef cb_uint8 TAfhLmpHciChannelMap[SIZE_OF_AFH_LMP_HCI_CHANNEL_MAP];
 
-typedef struct
-{
+typedef struct {
     uint16 channel[CHANNEL_MAP_SIZE];
 } TChannelMap;
 
 
-typedef enum
-{
+typedef enum {
     BT_ADV_TYPE_ADV  = 0x01,
     BT_ADV_TYPE_SCAN = 0x00,
 } TAdvDataType;
 
-typedef struct 
-{
+typedef struct {
     TAdvDataType type;
     cb_uint8 length;
     cb_uint8 data[MAX_ADV_DATA_LENGTH];
 } TAdvData;
 
-typedef struct
-{
+typedef struct {
     cb_uint16 createConnectionTimeout;
     cb_uint16 connectionIntervalMin;
     cb_uint16 connectionIntervalMax;

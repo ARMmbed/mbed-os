@@ -47,7 +47,7 @@ extern "C" {
  */
 
 /**
- * @brief  Settings for AES_CTRL.CRYPT_MODE 
+ * @brief  Settings for AES_CTRL.CRYPT_MODE
  */
 typedef enum {
     MXC_E_AES_CTRL_ENCRYPT_MODE = 0,
@@ -55,7 +55,7 @@ typedef enum {
 } mxc_aes_ctrl_crypt_mode_t;
 
 /**
- * @brief Settings for AES_CTRL.EXP_KEY_MODE 
+ * @brief Settings for AES_CTRL.EXP_KEY_MODE
  */
 typedef enum {
     MXC_E_AES_CTRL_CALC_NEW_EXP_KEY = 0,
@@ -63,7 +63,7 @@ typedef enum {
 } mxc_aes_ctrl_exp_key_mode_t;
 
 /**
- * @brief Settings for AES_CTRL.KEY_SIZE 
+ * @brief Settings for AES_CTRL.KEY_SIZE
  */
 typedef enum {
     MXC_E_AES_CTRL_KEY_SIZE_128 = 0,

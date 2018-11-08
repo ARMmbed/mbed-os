@@ -31,12 +31,12 @@
 /* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_lin
-{                                                          /* LIN              */
+struct st_lin {
+    /* LIN              */
     volatile uint8_t   dummy1[1];                              /*                  */
     volatile uint8_t   RLN3nLWBR;                              /*  RLN3nLWBR       */
     union iodefine_reg16_8_t  RLN3nLBRP01;                     /*  RLN3nLBRP01 */
-    
+
     volatile uint8_t   RLN3nLSTC;                              /*  RLN3nLSTC       */
     volatile uint8_t   dummy2[3];                              /*                  */
     volatile uint8_t   RLN3nLMD;                               /*  RLN3nLMD        */
@@ -70,7 +70,7 @@ struct st_lin
     union iodefine_reg16_8_t  RLN3nLUTDR;                      /*  RLN3nLUTDR  */
     union iodefine_reg16_8_t  RLN3nLURDR;                      /*  RLN3nLURDR  */
     union iodefine_reg16_8_t  RLN3nLUWTDR;                     /*  RLN3nLUWTDR */
-    
+
 };
 
 

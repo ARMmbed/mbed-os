@@ -17,7 +17,7 @@
 #ifndef USBHOST_H
 #define USBHOST_H
 #ifdef TARGET_STM
-#include "mbed.h" 
+#include "mbed.h"
 #endif
 #include "USBHALHost.h"
 #include "USBDeviceConnected.h"
@@ -36,7 +36,7 @@ public:
     /**
     * Static method to create or retrieve the single USBHost instance
     */
-    static USBHost * getHostInst();
+    static USBHost *getHostInst();
 
     /**
     * Control read: setup stage, data stage and status stage
@@ -51,7 +51,7 @@ public:
     *
     * @returns status of the control read
     */
-    USB_TYPE controlRead(USBDeviceConnected * dev, uint8_t requestType, uint8_t request, uint32_t value, uint32_t index, uint8_t * buf, uint32_t len);
+    USB_TYPE controlRead(USBDeviceConnected *dev, uint8_t requestType, uint8_t request, uint32_t value, uint32_t index, uint8_t *buf, uint32_t len);
 
     /**
     * Control write: setup stage, data stage and status stage
@@ -66,7 +66,7 @@ public:
     *
     * @returns status of the control write
     */
-    USB_TYPE controlWrite(USBDeviceConnected * dev, uint8_t requestType, uint8_t request, uint32_t value, uint32_t index, uint8_t * buf, uint32_t len);
+    USB_TYPE controlWrite(USBDeviceConnected *dev, uint8_t requestType, uint8_t request, uint32_t value, uint32_t index, uint8_t *buf, uint32_t len);
 
     /**
     * Bulk read
@@ -79,7 +79,7 @@ public:
     *
     * @returns status of the bulk read
     */
-    USB_TYPE bulkRead(USBDeviceConnected * dev, USBEndpoint * ep, uint8_t * buf, uint32_t len, bool blocking = true);
+    USB_TYPE bulkRead(USBDeviceConnected *dev, USBEndpoint *ep, uint8_t *buf, uint32_t len, bool blocking = true);
 
     /**
     * Bulk write
@@ -92,7 +92,7 @@ public:
     *
     * @returns status of the bulk write
     */
-    USB_TYPE bulkWrite(USBDeviceConnected * dev, USBEndpoint * ep, uint8_t * buf, uint32_t len, bool blocking = true);
+    USB_TYPE bulkWrite(USBDeviceConnected *dev, USBEndpoint *ep, uint8_t *buf, uint32_t len, bool blocking = true);
 
     /**
     * Interrupt read
@@ -105,7 +105,7 @@ public:
     *
     * @returns status of the interrupt read
     */
-    USB_TYPE interruptRead(USBDeviceConnected * dev, USBEndpoint * ep, uint8_t * buf, uint32_t len, bool blocking = true);
+    USB_TYPE interruptRead(USBDeviceConnected *dev, USBEndpoint *ep, uint8_t *buf, uint32_t len, bool blocking = true);
 
     /**
     * Interrupt write
@@ -118,7 +118,7 @@ public:
     *
     * @returns status of the interrupt write
     */
-    USB_TYPE interruptWrite(USBDeviceConnected * dev, USBEndpoint * ep, uint8_t * buf, uint32_t len, bool blocking = true);
+    USB_TYPE interruptWrite(USBDeviceConnected *dev, USBEndpoint *ep, uint8_t *buf, uint32_t len, bool blocking = true);
 
     /**
     * Enumerate a device.
@@ -127,14 +127,14 @@ public:
     *
     * @returns status of the enumeration
     */
-    USB_TYPE enumerate(USBDeviceConnected * dev, IUSBEnumerator* pEnumerator);
+    USB_TYPE enumerate(USBDeviceConnected *dev, IUSBEnumerator *pEnumerator);
 
     /**
     * reset a specific device
     *
     * @param dev device which will be resetted
     */
-    USB_TYPE resetDevice(USBDeviceConnected * dev);
+    USB_TYPE resetDevice(USBDeviceConnected *dev);
 
     /**
     * Get a device
@@ -143,7 +143,7 @@ public:
     *
     * @returns pointer on the "index" device
     */
-    USBDeviceConnected * getDevice(uint8_t index);
+    USBDeviceConnected *getDevice(uint8_t index);
 
     /*
     * If there is a HID device connected, the host stores the length of the report descriptor.
@@ -151,7 +151,8 @@ public:
     *
     * @returns length of the report descriptor
     */
-    inline uint16_t getLengthReportDescr() {
+    inline uint16_t getLengthReportDescr()
+    {
         return lenReportDescr;
     };
 
@@ -164,7 +165,8 @@ public:
      *  @param mptr pointer to the member function to be called
      */
     template<typename T>
-    inline void registerDriver(USBDeviceConnected * dev, uint8_t intf, T* tptr, void (T::*mptr)(void)) {
+    inline void registerDriver(USBDeviceConnected *dev, uint8_t intf, T *tptr, void (T::*mptr)(void))
+    {
         int index = findDevice(dev);
         if ((index != -1) && (mptr != NULL) && (tptr != NULL)) {
             USB_DBG("register driver for dev: %p on intf: %d", dev, intf);
@@ -180,7 +182,8 @@ public:
      * @param intf interface number
      * @param fn callback called when the specified device has been disconnected
      */
-    inline void registerDriver(USBDeviceConnected * dev, uint8_t intf, void (*fn)(void)) {
+    inline void registerDriver(USBDeviceConnected *dev, uint8_t intf, void (*fn)(void))
+    {
         int index = findDevice(dev);
         if ((index != -1) && (fn != NULL)) {
             USB_DBG("register driver for dev: %p on intf: %d", dev, intf);
@@ -192,13 +195,12 @@ public:
     /**
      * Instantiate to protect USB thread from accessing shared objects (USBConnectedDevices and Interfaces)
      */
-    class Lock
-    {
+    class Lock {
     public:
-      Lock(USBHost* pHost);
-      ~Lock();
+        Lock(USBHost *pHost);
+        ~Lock();
     private:
-      USBHost* m_pHost;
+        USBHost *m_pHost;
     };
 
     friend class USBHostHub;
@@ -220,7 +222,7 @@ protected:
     * @param lowSpeed 1 if low speed, 0 otherwise
     * @param hub_parent reference on the parent hub
     */
-    virtual void deviceConnected(int hub, int port, bool lowSpeed, USBHostHub * hub_parent = NULL);
+    virtual void deviceConnected(int hub, int port, bool lowSpeed, USBHostHub *hub_parent = NULL);
 
     /**
     * Virtuel method called when a device has been disconnected
@@ -229,27 +231,27 @@ protected:
     * @param port port number of the device
     * @param addr list of the TDs which have been completed to dequeue freed TDs
     */
-    virtual void deviceDisconnected(int hub, int port, USBHostHub * hub_parent, volatile uint32_t addr);
+    virtual void deviceDisconnected(int hub, int port, USBHostHub *hub_parent, volatile uint32_t addr);
 
 
 private:
     // singleton class -> constructor is private
     USBHost();
-    static USBHost * instHost;
+    static USBHost *instHost;
     uint16_t  lenReportDescr;
 
     // endpoints
-    void unqueueEndpoint(USBEndpoint * ep) ;
+    void unqueueEndpoint(USBEndpoint *ep) ;
     USBEndpoint  endpoints[MAX_ENDPOINT];
-    USBEndpoint* volatile  control;
+    USBEndpoint *volatile  control;
 
-    USBEndpoint* volatile  headControlEndpoint;
-    USBEndpoint* volatile  headBulkEndpoint;
-    USBEndpoint* volatile  headInterruptEndpoint;
+    USBEndpoint *volatile  headControlEndpoint;
+    USBEndpoint *volatile  headBulkEndpoint;
+    USBEndpoint *volatile  headInterruptEndpoint;
 
-    USBEndpoint* volatile  tailControlEndpoint;
-    USBEndpoint* volatile  tailBulkEndpoint;
-    USBEndpoint* volatile  tailInterruptEndpoint;
+    USBEndpoint *volatile  tailControlEndpoint;
+    USBEndpoint *volatile  tailBulkEndpoint;
+    USBEndpoint *volatile  tailInterruptEndpoint;
 
     bool controlEndpointAllocated;
 
@@ -270,12 +272,12 @@ private:
 
     typedef struct {
         uint8_t event_id;
-        void * td_addr;
+        void *td_addr;
         uint8_t hub;
         uint8_t port;
         uint8_t lowSpeed;
         uint8_t td_state;
-        void * hub_parent;
+        void *hub_parent;
     } message_t;
 
     Thread usbThread;
@@ -296,7 +298,7 @@ private:
     *
     * @return status of the transfer
     */
-    USB_TYPE addTransfer(USBEndpoint * ed, uint8_t * buf, uint32_t len) ;
+    USB_TYPE addTransfer(USBEndpoint *ed, uint8_t *buf, uint32_t len) ;
 
     /**
     * Link the USBEndpoint to the linked list and attach an USBEndpoint this USBEndpoint to a device
@@ -306,7 +308,7 @@ private:
     *
     * return true if successful
     */
-    bool addEndpoint(USBDeviceConnected * dev, uint8_t intf_nb, USBEndpoint * ep) ;
+    bool addEndpoint(USBDeviceConnected *dev, uint8_t intf_nb, USBEndpoint *ep) ;
 
     /**
     * Create an USBEndpoint descriptor. Warning: the USBEndpoint is not linked.
@@ -318,7 +320,7 @@ private:
     *
     * @returns pointer on the USBEndpoint created
     */
-    USBEndpoint * newEndpoint(ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir, uint32_t size, uint8_t addr) ;
+    USBEndpoint *newEndpoint(ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir, uint32_t size, uint8_t addr) ;
 
     /**
     * Request the device descriptor
@@ -328,7 +330,7 @@ private:
     * @param max_len_buf maximum size of buf
     * @param len_dev_descr pointer to store the length of the packet transferred
     */
-    USB_TYPE getDeviceDescriptor(USBDeviceConnected * dev, uint8_t * buf, uint16_t max_len_buf, uint16_t * len_dev_descr = NULL);
+    USB_TYPE getDeviceDescriptor(USBDeviceConnected *dev, uint8_t *buf, uint16_t max_len_buf, uint16_t *len_dev_descr = NULL);
 
     /**
     * Request the configuration descriptor
@@ -338,7 +340,7 @@ private:
     * @param max_len_buf maximum size of buf
     * @param len_conf_descr pointer to store the length of the packet transferred
     */
-    USB_TYPE getConfigurationDescriptor(USBDeviceConnected * dev, uint8_t * buf, uint16_t max_len_buf, uint16_t * len_conf_descr = NULL);
+    USB_TYPE getConfigurationDescriptor(USBDeviceConnected *dev, uint8_t *buf, uint16_t max_len_buf, uint16_t *len_conf_descr = NULL);
 
     /**
     * Set the address of a specific device
@@ -346,7 +348,7 @@ private:
     * @param dev device to set the address
     * @param address address
     */
-    USB_TYPE setAddress(USBDeviceConnected * dev, uint8_t address);
+    USB_TYPE setAddress(USBDeviceConnected *dev, uint8_t address);
 
     /**
     * Set the configuration of a device
@@ -354,37 +356,37 @@ private:
     * @param dev device on which the specified configuration will be activated
     * @param conf configuration number to activate (usually 1)
     */
-    USB_TYPE setConfiguration(USBDeviceConnected * dev, uint8_t conf);
+    USB_TYPE setConfiguration(USBDeviceConnected *dev, uint8_t conf);
 
     /**
     * Free a specific device
     *
     * @param dev device to be freed
     */
-    void freeDevice(USBDeviceConnected * dev);
+    void freeDevice(USBDeviceConnected *dev);
 
-    USB_TYPE controlTransfer(   USBDeviceConnected * dev,
-                                uint8_t requestType,
-                                uint8_t request,
-                                uint32_t value,
-                                uint32_t index,
-                                uint8_t * buf,
-                                uint32_t len,
-                                bool write);
+    USB_TYPE controlTransfer(USBDeviceConnected *dev,
+                             uint8_t requestType,
+                             uint8_t request,
+                             uint32_t value,
+                             uint32_t index,
+                             uint8_t *buf,
+                             uint32_t len,
+                             bool write);
 
-    USB_TYPE generalTransfer(   USBDeviceConnected * dev,
-                                USBEndpoint * ep,
-                                uint8_t * buf,
-                                uint32_t len,
-                                bool blocking,
-                                ENDPOINT_TYPE type,
-                                bool write) ;
+    USB_TYPE generalTransfer(USBDeviceConnected *dev,
+                             USBEndpoint *ep,
+                             uint8_t *buf,
+                             uint32_t len,
+                             bool blocking,
+                             ENDPOINT_TYPE type,
+                             bool write) ;
 
     void fillControlBuf(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, int len) ;
-    void parseConfDescr(USBDeviceConnected * dev, uint8_t * conf_descr, uint32_t len, IUSBEnumerator* pEnumerator) ;
-    int findDevice(USBDeviceConnected * dev) ;
-    int findDevice(uint8_t hub, uint8_t port, USBHostHub * hub_parent = NULL) ;
-    uint8_t numberDriverAttached(USBDeviceConnected * dev);
+    void parseConfDescr(USBDeviceConnected *dev, uint8_t *conf_descr, uint32_t len, IUSBEnumerator *pEnumerator) ;
+    int findDevice(USBDeviceConnected *dev) ;
+    int findDevice(uint8_t hub, uint8_t port, USBHostHub *hub_parent = NULL) ;
+    uint8_t numberDriverAttached(USBDeviceConnected *dev);
 
     /////////////////////////
     /// FOR DEBUG

@@ -23,26 +23,29 @@
 #include "ble/SecurityManager.h"
 #include "btle_security.h"
 
-class nRF5xSecurityManager : public SecurityManager
-{
+class nRF5xSecurityManager : public SecurityManager {
 public:
     /* Functions that must be implemented from SecurityManager */
     virtual ble_error_t init(bool                     enableBonding,
                              bool                     requireMITM,
                              SecurityIOCapabilities_t iocaps,
-                             const Passkey_t          passkey) {
+                             const Passkey_t          passkey)
+    {
         return btle_initializeSecurity(enableBonding, requireMITM, iocaps, passkey);
     }
 
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
+    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP)
+    {
         return btle_getLinkSecurity(connectionHandle, securityStatusP);
     }
 
-    virtual ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
+    virtual ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode)
+    {
         return btle_setLinkSecurity(connectionHandle, securityMode);
     }
 
-    virtual ble_error_t purgeAllBondingState(void) {
+    virtual ble_error_t purgeAllBondingState(void)
+    {
         return btle_purgeAllBondingState();
     }
 #if  (NRF_SD_BLE_API_VERSION <= 2)
@@ -58,7 +61,8 @@ public:
      * @return
      *           BLE_ERROR_NONE if successful.
      */
-    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
+    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const
+    {
         uint8_t i;
 
         ble_gap_whitelist_t  whitelistFromBondTable;
@@ -125,7 +129,8 @@ public:
      * @retval BLE_ERROR_NONE         if successful.
      * @retval BLE_ERROR_UNSPECIFIED  Bond data could not be found in flash or is inconsistent.
      */
-    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
+    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const
+    {
         return btle_getAddressesFromBondTable(addresses);
     }
 #endif // #if  (NRF_SD_BLE_API_VERSION <= 2)
@@ -147,7 +152,8 @@ public:
         return BLE_ERROR_NONE;
     }
 
-    bool hasInitialized(void) const {
+    bool hasInitialized(void) const
+    {
         return btle_hasInitializedSecurity();
     }
 
@@ -157,20 +163,22 @@ public:
      */
     friend class nRF5xn;
 
-    nRF5xSecurityManager() {
+    nRF5xSecurityManager()
+    {
         /* empty */
     }
 
 private:
     nRF5xSecurityManager(const nRF5xSecurityManager &);
-    const nRF5xSecurityManager& operator=(const nRF5xSecurityManager &);
+    const nRF5xSecurityManager &operator=(const nRF5xSecurityManager &);
 
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     /*
      * Expose an interface that allows us to query the SoftDevice bond table
      * and extract a whitelist.
      */
-    ble_error_t createWhitelistFromBondTable(ble_gap_whitelist_t &whitelistFromBondTable) const {
+    ble_error_t createWhitelistFromBondTable(ble_gap_whitelist_t &whitelistFromBondTable) const
+    {
         return btle_createWhitelistFromBondTable(&whitelistFromBondTable);
     }
 #endif
@@ -180,7 +188,8 @@ private:
      * function and algorithm described in the Bluetooth low Energy
      * Specification. Internally, Nordic SDK functions are used.
      */
-    bool matchAddressAndIrk(ble_gap_addr_t *address, ble_gap_irk_t *irk) const {
+    bool matchAddressAndIrk(ble_gap_addr_t *address, ble_gap_irk_t *irk) const
+    {
         return btle_matchAddressAndIrk(address, irk);
     }
 

@@ -20,7 +20,7 @@
  *-------------------------------------------------------------------------*/
 
 /**
- * @file cb_wlan_target_data.h Handles the anonymous port specific packetization 
+ * @file cb_wlan_target_data.h Handles the anonymous port specific packetization
  * of ethernet frames.
  * @ingroup target
  */
@@ -45,7 +45,7 @@ extern "C" {
 typedef struct cbWLANTARGET_dataFrame cbWLANTARGET_dataFrame;
 typedef struct cbWLANTARGET_Handle cbWLANTARGET_Handle;
 
-   
+
 /**
  * Copy data from frame data memory to buffer.
  *
@@ -55,7 +55,7 @@ typedef struct cbWLANTARGET_Handle cbWLANTARGET_Handle;
  * @param offsetInFrame     Offset into frame memory.
  * @return                  @ref TRUE if successful, otherwise @ref FALSE.
  */
-typedef cb_boolean(*cbWLANTARGET_copyFromDataFrame)(cb_uint8* buffer, cbWLANTARGET_dataFrame* frame, cb_uint32 size, cb_uint32 offsetInFrame);
+typedef cb_boolean(*cbWLANTARGET_copyFromDataFrame)(cb_uint8 *buffer, cbWLANTARGET_dataFrame *frame, cb_uint32 size, cb_uint32 offsetInFrame);
 
 /**
  * Copy data from buffer to frame data memory.
@@ -66,17 +66,17 @@ typedef cb_boolean(*cbWLANTARGET_copyFromDataFrame)(cb_uint8* buffer, cbWLANTARG
  * @param offsetInFrame     Offset into frame memory.
  * @return                  @ref TRUE if successful, otherwise @ref FALSE.
  */
-typedef cb_boolean(*cbWLANTARGET_copyToDataFrame)(cbWLANTARGET_dataFrame* frame, cb_uint8* buffer, cb_uint32 size, cb_uint32 offsetInFrame);
+typedef cb_boolean(*cbWLANTARGET_copyToDataFrame)(cbWLANTARGET_dataFrame *frame, cb_uint8 *buffer, cb_uint32 size, cb_uint32 offsetInFrame);
 
 /**
  * Allocate memory in frame data memory.
  *
  * @param size              Number of bytes to allocate.
  * @return                  Pointer to the frame memory.
- * 
+ *
  * @ref cbWLANTARGET_freeDataFrame
  */
-typedef cbWLANTARGET_dataFrame*(*cbWLANTARGET_allocDataFrame)(cb_uint32 size);
+typedef cbWLANTARGET_dataFrame *(*cbWLANTARGET_allocDataFrame)(cb_uint32 size);
 
 /**
  * Destroy memory in frame data memory.
@@ -84,22 +84,21 @@ typedef cbWLANTARGET_dataFrame*(*cbWLANTARGET_allocDataFrame)(cb_uint32 size);
  * @param frame             Pointer to the frame memory that should be destroyed.
  * @ref cbWLANTARGET_allocDataFrame
  */
-typedef void(*cbWLANTARGET_freeDataFrame)(cbWLANTARGET_dataFrame* frame);
+typedef void(*cbWLANTARGET_freeDataFrame)(cbWLANTARGET_dataFrame *frame);
 
-typedef cb_uint32(*cbWLANTARGET_getDataFrameSize)(cbWLANTARGET_dataFrame* frame);
+typedef cb_uint32(*cbWLANTARGET_getDataFrameSize)(cbWLANTARGET_dataFrame *frame);
 
-typedef cb_uint8(*cbWLANTARGET_getDataFrameTID)(cbWLANTARGET_dataFrame* frame);
+typedef cb_uint8(*cbWLANTARGET_getDataFrameTID)(cbWLANTARGET_dataFrame *frame);
 
-typedef struct
-{
+typedef struct {
     cbWLANTARGET_copyFromDataFrame      copyFromDataFrameIndication;
     cbWLANTARGET_copyToDataFrame        copyToDataFrameIndication;
     cbWLANTARGET_allocDataFrame         allocDataFrameIndication;
     cbWLANTARGET_freeDataFrame          freeDataFrameIndication;
     cbWLANTARGET_getDataFrameSize       getDataFrameSizeIndication;
     cbWLANTARGET_getDataFrameTID        getDataFrameTIDIndication;
-}cbWLANTARGET_Callback;
-    
+} cbWLANTARGET_Callback;
+
 /*===========================================================================
  * FUNCTIONS
  *=========================================================================*/
@@ -110,8 +109,8 @@ typedef struct
  *
  * @param callbacks           Callbacks
  */
-void cbWLANTARGET_registerCallbacks(cbWLANTARGET_Callback* callbacks);
-    
+void cbWLANTARGET_registerCallbacks(cbWLANTARGET_Callback *callbacks);
+
 #ifdef __cplusplus
 }
 #endif

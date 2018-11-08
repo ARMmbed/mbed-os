@@ -2,11 +2,13 @@
 #include "test_env.h"
 #include "mbed_rpc.h"
 
-void foo(Arguments *args, Reply *reply) {
+void foo(Arguments *args, Reply *reply)
+{
     reply->putData<float>(args->getArg<float>() * 3.3);
 }
 
-bool rpc_test(const char *input, const char *expected) {
+bool rpc_test(const char *input, const char *expected)
+{
     char outbuf[RPC_MAX_STRING] = {0};
     bool result = RPC::call(input, outbuf);
     printf("RPC: %s -> ", input);
@@ -24,7 +26,8 @@ bool rpc_test(const char *input, const char *expected) {
 
 #define RPC_TEST(INPUT,EXPECTED) result = result && rpc_test(INPUT,EXPECTED); if (result == false) { notify_completion(result); exit(1); }
 
-int main() {
+int main()
+{
     float f = 0;
     bool result = true;
     // Variable

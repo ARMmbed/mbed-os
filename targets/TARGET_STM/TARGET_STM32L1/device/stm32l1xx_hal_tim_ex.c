@@ -78,7 +78,7 @@
   */
 
 /** @defgroup TIMEx_Exported_Functions_Group1 Peripheral Control functions
- *  @brief   	Peripheral Control functions
+ *  @brief      Peripheral Control functions
  *
 @verbatim
   ==============================================================================
@@ -101,32 +101,32 @@
   *         mode.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim, TIM_MasterConfigTypeDef * sMasterConfig)
+HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim, TIM_MasterConfigTypeDef *sMasterConfig)
 {
-  /* Check the parameters */
-  assert_param(IS_TIM_MASTER_INSTANCE(htim->Instance));
-  assert_param(IS_TIM_TRGO_SOURCE(sMasterConfig->MasterOutputTrigger));
-  assert_param(IS_TIM_MSM_STATE(sMasterConfig->MasterSlaveMode));
+    /* Check the parameters */
+    assert_param(IS_TIM_MASTER_INSTANCE(htim->Instance));
+    assert_param(IS_TIM_TRGO_SOURCE(sMasterConfig->MasterOutputTrigger));
+    assert_param(IS_TIM_MSM_STATE(sMasterConfig->MasterSlaveMode));
 
-  __HAL_LOCK(htim);
+    __HAL_LOCK(htim);
 
-  htim->State = HAL_TIM_STATE_BUSY;
+    htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Reset the MMS Bits */
-  htim->Instance->CR2 &= ~TIM_CR2_MMS;
-  /* Select the TRGO source */
-  htim->Instance->CR2 |=  sMasterConfig->MasterOutputTrigger;
+    /* Reset the MMS Bits */
+    htim->Instance->CR2 &= ~TIM_CR2_MMS;
+    /* Select the TRGO source */
+    htim->Instance->CR2 |=  sMasterConfig->MasterOutputTrigger;
 
-  /* Reset the MSM Bit */
-  htim->Instance->SMCR &= ~TIM_SMCR_MSM;
-  /* Set or Reset the MSM Bit */
-  htim->Instance->SMCR |= sMasterConfig->MasterSlaveMode;
+    /* Reset the MSM Bit */
+    htim->Instance->SMCR &= ~TIM_SMCR_MSM;
+    /* Set or Reset the MSM Bit */
+    htim->Instance->SMCR |= sMasterConfig->MasterSlaveMode;
 
-  htim->State = HAL_TIM_STATE_READY;
+    htim->State = HAL_TIM_STATE_READY;
 
-  __HAL_UNLOCK(htim);
+    __HAL_UNLOCK(htim);
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 /**
@@ -173,9 +173,9 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
   *            @arg TIM_TIM11_RI:                TIM11 Channel 1 is connected to RI
   * @note For TIM11, the field2 can have the following values:
   *            @arg TIM_TIM11_ETR_LSE:           TIM11 ETR input is connected to LSE clock
-  *            @arg TIM_TIM11_ETR_TIM9_TGO:      TIM11 ETR input is connected to TIM9 TGO 
+  *            @arg TIM_TIM11_ETR_TIM9_TGO:      TIM11 ETR input is connected to TIM9 TGO
   * @note For TIM11, the field3 can have the following values:
-  *            @arg TIM_TIM11_GPIO:     TIM11 Channel1 is connected to GPIO           
+  *            @arg TIM_TIM11_GPIO:     TIM11 Channel1 is connected to GPIO
   *            @arg TIM_TIM11_MSI:      TIM11 Channel1 is connected to MSI internal clock
   *            @arg TIM_TIM11_HSE_RTC:  TIM11 Channel1 is connected to HSE_RTC clock
   *            @arg TIM_TIM11_GPIO1:    TIM11 Channel1 is connected to GPIO
@@ -183,20 +183,20 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
   */
 HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap)
 {
-  __HAL_LOCK(htim);
+    __HAL_LOCK(htim);
 
-  /* Check parameters */
-  assert_param(IS_TIM_REMAP_INSTANCE(htim->Instance));
-  assert_param(IS_TIM_REMAP(htim->Instance,Remap));
+    /* Check parameters */
+    assert_param(IS_TIM_REMAP_INSTANCE(htim->Instance));
+    assert_param(IS_TIM_REMAP(htim->Instance, Remap));
 
-  /* Set the Timer remapping configuration */
-  htim->Instance->OR = Remap;
+    /* Set the Timer remapping configuration */
+    htim->Instance->OR = Remap;
 
-  htim->State = HAL_TIM_STATE_READY;
+    htim->State = HAL_TIM_STATE_READY;
 
-  __HAL_UNLOCK(htim);
+    __HAL_UNLOCK(htim);
 
-  return HAL_OK;
+    return HAL_OK;
 }
 
 /**

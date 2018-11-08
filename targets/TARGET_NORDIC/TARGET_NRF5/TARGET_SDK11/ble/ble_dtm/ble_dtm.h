@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2012 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -105,7 +105,7 @@ typedef uint32_t dtm_pkt_type_t;                                        /**< Typ
 
 
 /**@brief Function for initializing or re-initializing DTM module
- *     
+ *
  * @return DTM_SUCCESS on successful initialization of the DTM module.
 */
 uint32_t dtm_init(void);
@@ -136,27 +136,27 @@ uint32_t dtm_cmd(dtm_cmd_t cmd, dtm_freq_t freq, uint32_t length, dtm_pkt_type_t
 /**@brief Function for reading the result of a DTM command
  *
  * @param[out]  p_dtm_event   Pointer to buffer for 16 bit event code according to DTM standard.
- * 
+ *
  * @return      true: new event, false: no event since last call, this event has been read earlier
  */
-bool dtm_event_get(dtm_event_t * p_dtm_event);
+bool dtm_event_get(dtm_event_t *p_dtm_event);
 
 
 /**@brief Function for configuring the timer to use.
  *
- * @note        Must be called when no DTM test is running. 
- * 
+ * @note        Must be called when no DTM test is running.
+ *
  * @param[in]   new_timer   Index (0..2) of timer to be used by the DTM library
  *
- * @return      true: success, new timer was selected, false: parameter error 
+ * @return      true: success, new timer was selected, false: parameter error
  */
-bool dtm_set_timer(uint32_t new_timer); 
+bool dtm_set_timer(uint32_t new_timer);
 
 
 /**@brief Function for configuring the transmit power.
  *
  * @note        Must be called when no DTM test is running.
- * 
+ *
  * @param[in]   new_tx_power   New output level, +4..-40, in steps of 4.
  *
  * @return      true: tx power setting changed, false: parameter error

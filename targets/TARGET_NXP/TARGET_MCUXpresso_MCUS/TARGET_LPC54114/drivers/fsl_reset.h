@@ -51,8 +51,7 @@
  *
  * Defines the enumeration for peripheral reset control bits in PRESETCTRL/ASYNCPRESETCTRL registers
  */
-typedef enum _SYSCON_RSTn
-{
+typedef enum _SYSCON_RSTn {
     kFLASH_RST_SHIFT_RSTn = 0 | 7U,          /**< Flash controller reset control */
     kFMC_RST_SHIFT_RSTn = 0 | 8U,            /**< Flash accelerator reset control */
     kMUX_RST_SHIFT_RSTn = 0 | 11U,           /**< Input mux reset control */

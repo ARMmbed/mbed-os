@@ -67,11 +67,11 @@ extern "C" {
  */
 PACK_STRUCT_BEGIN
 struct icmp_echo_hdr {
-  PACK_STRUCT_FLD_8(u8_t type);
-  PACK_STRUCT_FLD_8(u8_t code);
-  PACK_STRUCT_FIELD(u16_t chksum);
-  PACK_STRUCT_FIELD(u16_t id);
-  PACK_STRUCT_FIELD(u16_t seqno);
+    PACK_STRUCT_FLD_8(u8_t type);
+    PACK_STRUCT_FLD_8(u8_t code);
+    PACK_STRUCT_FIELD(u16_t chksum);
+    PACK_STRUCT_FIELD(u16_t id);
+    PACK_STRUCT_FIELD(u16_t seqno);
 } PACK_STRUCT_STRUCT;
 PACK_STRUCT_END
 #ifdef PACK_STRUCT_USE_INCLUDES

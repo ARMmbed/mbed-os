@@ -42,7 +42,7 @@
 __STATIC_INLINE uint32_t countTrailingZeros(uint32_t mask)
 {
     uint32_t zeros;
-    for(zeros=0; (zeros<32) && (0 == (mask&0x1)); zeros++, mask>>=1);
+    for (zeros = 0; (zeros < 32) && (0 == (mask & 0x1)); zeros++, mask >>= 1);
     return zeros;
 }
 #else
@@ -50,7 +50,7 @@ __STATIC_INLINE uint32_t countTrailingZeros(uint32_t mask)
 #endif
 
 static uint32_t channel_ids[NUM_GPIO_CHANNELS] = { 0 }; // Relates pin number with interrupt action id
-static uint8_t channel_ports[NUM_GPIO_CHANNELS/2] = { 0 }; // Storing 2 ports in each uint8
+static uint8_t channel_ports[NUM_GPIO_CHANNELS / 2] = { 0 }; // Storing 2 ports in each uint8
 static gpio_irq_handler irq_handler;
 static void GPIOINT_IRQDispatcher(uint32_t iflags);
 
@@ -63,7 +63,7 @@ static void handle_interrupt_in(uint8_t pin)
 
     //we are storing two ports in each uint8, so we must aquire the one we want.
     // If pin is odd, the port is encoded in the 4 most significant bits. If pin is even, the port is encoded in the 4 least significant bits
-    uint8_t isRise = GPIO_PinInGet((pin & 0x1) ? channel_ports[(pin>>1) & 0x7] >> 4 & 0xF : channel_ports[(pin>>1) & 0x7] & 0xF, pin);
+    uint8_t isRise = GPIO_PinInGet((pin & 0x1) ? channel_ports[(pin >> 1) & 0x7] >> 4 & 0xF : channel_ports[(pin >> 1) & 0x7] & 0xF, pin);
 
     // Get trigger event
     gpio_irq_event event = IRQ_NONE;
@@ -137,9 +137,11 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     gpio_irq_disable(obj);
 
     bool was_disabled = false;
-    if(GPIO->IEN == 0) was_disabled = true;
+    if (GPIO->IEN == 0) {
+        was_disabled = true;
+    }
 
-    GPIO_IntConfig((GPIO_Port_TypeDef)((obj->pin >> 4) & 0xF), obj->pin &0xF, obj->risingEdge, obj->fallingEdge, obj->risingEdge || obj->fallingEdge);
+    GPIO_IntConfig((GPIO_Port_TypeDef)((obj->pin >> 4) & 0xF), obj->pin & 0xF, obj->risingEdge, obj->fallingEdge, obj->risingEdge || obj->fallingEdge);
 }
 
 inline void gpio_irq_enable(gpio_irq_t *obj)
@@ -170,7 +172,7 @@ static void GPIOINT_IRQDispatcher(uint32_t iflags)
     uint32_t irqIdx;
 
     /* check for all flags set in IF register */
-    while(iflags) {
+    while (iflags) {
         irqIdx = GPIOINT_MASK2IDX(iflags);
 
         /* clear flag */

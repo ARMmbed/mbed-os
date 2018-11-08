@@ -57,10 +57,8 @@ static uint32_t GINT_GetInstance(GINT_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_GINT_COUNT; instance++)
-    {
-        if (s_gintBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_GINT_COUNT; instance++) {
+        if (s_gintBases[instance] == base) {
             break;
         }
     }
@@ -165,8 +163,7 @@ void GINT0_DriverIRQHandler(void)
     /* Clear interrupt before callback */
     s_gintBases[0]->CTRL |= GINT_CTRL_INT_MASK;
     /* Call user function */
-    if (s_gintCallback[0] != NULL)
-    {
+    if (s_gintCallback[0] != NULL) {
         s_gintCallback[0]();
     }
 }
@@ -177,8 +174,7 @@ void GINT1_DriverIRQHandler(void)
     /* Clear interrupt before callback */
     s_gintBases[1]->CTRL |= GINT_CTRL_INT_MASK;
     /* Call user function */
-    if (s_gintCallback[1] != NULL)
-    {
+    if (s_gintCallback[1] != NULL) {
         s_gintCallback[1]();
     }
 }
@@ -190,8 +186,7 @@ void GINT2_DriverIRQHandler(void)
     /* Clear interrupt before callback */
     s_gintBases[2]->CTRL |= GINT_CTRL_INT_MASK;
     /* Call user function */
-    if (s_gintCallback[2] != NULL)
-    {
+    if (s_gintCallback[2] != NULL) {
         s_gintCallback[2]();
     }
 }
@@ -203,8 +198,7 @@ void GINT3_DriverIRQHandler(void)
     /* Clear interrupt before callback */
     s_gintBases[3]->CTRL |= GINT_CTRL_INT_MASK;
     /* Call user function */
-    if (s_gintCallback[3] != NULL)
-    {
+    if (s_gintCallback[3] != NULL) {
         s_gintCallback[3]();
     }
 }
@@ -216,8 +210,7 @@ void GINT4_DriverIRQHandler(void)
     /* Clear interrupt before callback */
     s_gintBases[4]->CTRL |= GINT_CTRL_INT_MASK;
     /* Call user function */
-    if (s_gintCallback[4] != NULL)
-    {
+    if (s_gintCallback[4] != NULL) {
         s_gintCallback[4]();
     }
 }
@@ -229,8 +222,7 @@ void GINT5_DriverIRQHandler(void)
     /* Clear interrupt before callback */
     s_gintBases[5]->CTRL |= GINT_CTRL_INT_MASK;
     /* Call user function */
-    if (s_gintCallback[5] != NULL)
-    {
+    if (s_gintCallback[5] != NULL) {
         s_gintCallback[5]();
     }
 }
@@ -242,8 +234,7 @@ void GINT6_DriverIRQHandler(void)
     /* Clear interrupt before callback */
     s_gintBases[6]->CTRL |= GINT_CTRL_INT_MASK;
     /* Call user function */
-    if (s_gintCallback[6] != NULL)
-    {
+    if (s_gintCallback[6] != NULL) {
         s_gintCallback[6]();
     }
 }
@@ -255,8 +246,7 @@ void GINT7_DriverIRQHandler(void)
     /* Clear interrupt before callback */
     s_gintBases[7]->CTRL |= GINT_CTRL_INT_MASK;
     /* Call user function */
-    if (s_gintCallback[7] != NULL)
-    {
+    if (s_gintCallback[7] != NULL) {
         s_gintCallback[7]();
     }
 }

@@ -74,8 +74,7 @@
  * @brief DNS-client states.@n
  * Used mainly for debugging purposes.
  ******************************************************************************/
-typedef enum
-{
+typedef enum {
     FNET_DNS_STATE_DISABLED = 0,    /**< @brief The DNS-client service is not
                                     * initialized or is released.*/
     FNET_DNS_STATE_TX,              /**< @brief The DNS-client service sends the
@@ -88,8 +87,7 @@ typedef enum
 /**************************************************************************/ /*!
  * @brief Initialization parameters for the @ref fnet_dns_init() function.
  ******************************************************************************/
-struct fnet_dns_resolved_addr
-{
+struct fnet_dns_resolved_addr {
     struct sockaddr             resolved_addr;      /**< @brief Socket address of the resolved host name.*/
     fnet_uint32_t               resolved_addr_ttl;  /**< @brief Specifies the time interval (in seconds) that the
                                                     * resolved address may be cached before it should be discarded.*/
@@ -114,8 +112,7 @@ typedef void(*fnet_dns_callback_resolved_t)(const struct fnet_dns_resolved_addr 
 /**************************************************************************/ /*!
  * @brief Initialization parameters for the @ref fnet_dns_init() function.
  ******************************************************************************/
-struct fnet_dns_params
-{
+struct fnet_dns_params {
     struct sockaddr                 dns_server_addr;    /**< @brief Socket address of the remote DNS server to
                                                         * connect to. */
     fnet_char_t                     *host_name;         /**< @brief Host name to resolve (null-terminated string). */
@@ -158,7 +155,7 @@ extern "C" {
  * resolving is finished or an error is occurred.
  *
  ******************************************************************************/
-fnet_return_t fnet_dns_init( struct fnet_dns_params *params );
+fnet_return_t fnet_dns_init(struct fnet_dns_params *params);
 
 /***************************************************************************/ /*!
  *

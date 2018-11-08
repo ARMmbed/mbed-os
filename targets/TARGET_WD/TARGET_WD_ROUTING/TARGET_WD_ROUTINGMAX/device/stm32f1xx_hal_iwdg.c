@@ -21,9 +21,9 @@
     (+) The IWDG is clocked by Low-Speed clock (LSI) and thus stays active even
         if the main clock fails.
 
-    (+) Once the IWDG is started, the LSI is forced ON and both can not be 
+    (+) Once the IWDG is started, the LSI is forced ON and both can not be
         disabled. The counter starts counting down from the reset value (0xFFF).
-        When it reaches the end of count value (0x000) a reset signal is 
+        When it reaches the end of count value (0x000) a reset signal is
         generated (IWDG reset).
 
     (+) Whenever the key value 0x0000 AAAA is written in the IWDG_KR register,
@@ -119,7 +119,7 @@
 /** @defgroup IWDG_Private_Defines IWDG Private Defines
   * @{
   */
-/* Status register need 5 RC LSI divided by prescaler clock to be updated. With 
+/* Status register need 5 RC LSI divided by prescaler clock to be updated. With
    higher prescaler (256), and according to HSI variation, we need to wait at
    least 6 cycles so 48 ms. */
 #define HAL_IWDG_DEFAULT_TIMEOUT            48U
@@ -163,46 +163,43 @@
   */
 HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
 {
-  uint32_t tickstart;
+    uint32_t tickstart;
 
-  /* Check the IWDG handle allocation */
-  if(hiwdg == NULL)
-  {
-    return HAL_ERROR;
-  }
-
-  /* Check the parameters */
-  assert_param(IS_IWDG_ALL_INSTANCE(hiwdg->Instance));
-  assert_param(IS_IWDG_PRESCALER(hiwdg->Init.Prescaler));
-  assert_param(IS_IWDG_RELOAD(hiwdg->Init.Reload));
-
-  /* Enable IWDG. LSI is turned on automaticaly */
-  __HAL_IWDG_START(hiwdg);
-
-  /* Enable write access to IWDG_PR and IWDG_RLR registers by writing 0x5555 in KR */
-  IWDG_ENABLE_WRITE_ACCESS(hiwdg);
-
-  /* Write to IWDG registers the Prescaler & Reload values to work with */
-  hiwdg->Instance->PR = hiwdg->Init.Prescaler;
-  hiwdg->Instance->RLR = hiwdg->Init.Reload;
-
-  /* Check pending flag, if previous update not done, return timeout */
-  tickstart = HAL_GetTick();
-
-  /* Wait for register to be updated */
-  while(hiwdg->Instance->SR != RESET)
-  {
-    if((HAL_GetTick() - tickstart ) > HAL_IWDG_DEFAULT_TIMEOUT)
-    {
-      return HAL_TIMEOUT;
+    /* Check the IWDG handle allocation */
+    if (hiwdg == NULL) {
+        return HAL_ERROR;
     }
-  }
 
-  /* Reload IWDG counter with value defined in the reload register */
-  __HAL_IWDG_RELOAD_COUNTER(hiwdg);
+    /* Check the parameters */
+    assert_param(IS_IWDG_ALL_INSTANCE(hiwdg->Instance));
+    assert_param(IS_IWDG_PRESCALER(hiwdg->Init.Prescaler));
+    assert_param(IS_IWDG_RELOAD(hiwdg->Init.Reload));
 
-  /* Return function status */
-  return HAL_OK;
+    /* Enable IWDG. LSI is turned on automaticaly */
+    __HAL_IWDG_START(hiwdg);
+
+    /* Enable write access to IWDG_PR and IWDG_RLR registers by writing 0x5555 in KR */
+    IWDG_ENABLE_WRITE_ACCESS(hiwdg);
+
+    /* Write to IWDG registers the Prescaler & Reload values to work with */
+    hiwdg->Instance->PR = hiwdg->Init.Prescaler;
+    hiwdg->Instance->RLR = hiwdg->Init.Reload;
+
+    /* Check pending flag, if previous update not done, return timeout */
+    tickstart = HAL_GetTick();
+
+    /* Wait for register to be updated */
+    while (hiwdg->Instance->SR != RESET) {
+        if ((HAL_GetTick() - tickstart) > HAL_IWDG_DEFAULT_TIMEOUT) {
+            return HAL_TIMEOUT;
+        }
+    }
+
+    /* Reload IWDG counter with value defined in the reload register */
+    __HAL_IWDG_RELOAD_COUNTER(hiwdg);
+
+    /* Return function status */
+    return HAL_OK;
 }
 
 /**
@@ -231,11 +228,11 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
   */
 HAL_StatusTypeDef HAL_IWDG_Refresh(IWDG_HandleTypeDef *hiwdg)
 {
-  /* Reload IWDG counter with value defined in the reload register */
-  __HAL_IWDG_RELOAD_COUNTER(hiwdg);
+    /* Reload IWDG counter with value defined in the reload register */
+    __HAL_IWDG_RELOAD_COUNTER(hiwdg);
 
-  /* Return function status */
-  return HAL_OK;
+    /* Return function status */
+    return HAL_OK;
 }
 
 /**

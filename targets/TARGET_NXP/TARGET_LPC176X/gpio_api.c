@@ -17,16 +17,19 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 
-uint32_t gpio_set(PinName pin) {
+uint32_t gpio_set(PinName pin)
+{
     MBED_ASSERT(pin != (PinName)NC);
     pin_function(pin, 0);
     return (1 << ((int)pin & 0x1F));
 }
 
-void gpio_init(gpio_t *obj, PinName pin) {
+void gpio_init(gpio_t *obj, PinName pin)
+{
     obj->pin = pin;
-    if (pin == (PinName)NC)
+    if (pin == (PinName)NC) {
         return;
+    }
 
     obj->mask = gpio_set(pin);
     LPC_GPIO_TypeDef *port_reg = (LPC_GPIO_TypeDef *)((int)pin & ~0x1F);
@@ -36,11 +39,13 @@ void gpio_init(gpio_t *obj, PinName pin) {
     obj->reg_dir = &port_reg->FIODIR;
 }
 
-void gpio_mode(gpio_t *obj, PinMode mode) {
+void gpio_mode(gpio_t *obj, PinMode mode)
+{
     pin_mode(obj->pin, mode);
 }
 
-void gpio_dir(gpio_t *obj, PinDirection direction) {
+void gpio_dir(gpio_t *obj, PinDirection direction)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     switch (direction) {
         case PIN_INPUT :

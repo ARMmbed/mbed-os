@@ -61,8 +61,8 @@ typedef enum {
     P0_27 = 27,
     P0_28 = 28,
     P0_29 = 29,
-    P0_30 = 30,  
-   
+    P0_30 = 30,
+
     //MICROBIT EDGE CONNECTOR PINS
     P0  = P0_3,
     P1  = P0_2,
@@ -83,12 +83,12 @@ typedef enum {
     P16 = P0_16,
     P19 = P0_0,
     P20 = P0_30,
- 
+
     //PADS
     PAD3 = P0_1,
     PAD2 = P0_2,
     PAD1 = P0_3,
-    
+
 
     //LED MATRIX COLS
     COL1 = P0_4,
@@ -111,11 +111,11 @@ typedef enum {
 
     // BUTTON A
     BUTTON_A = P0_17,
-    
+
 
     //NORMAL PIN (NO SPECIFIED FUNCTIONALITY)
     //PIN_18
-    
+
     //TARGET RESET
     TGT_NRESET = P0_19,
 
@@ -124,7 +124,7 @@ typedef enum {
 
     //MASTER OUT SLAVE IN
     MOSI = P0_21,
-    
+
     //MASTER IN SLAVE OUT
     MISO = P0_22,
 
@@ -137,7 +137,7 @@ typedef enum {
 
     //BUTTON B
     BUTTON_B = P0_26,
-    
+
     //ACCEL INTERRUPT PINS (MMA8653FC)
     ACCEL_INT2 = P0_27,
     ACCEL_INT1 = P0_28,
@@ -151,7 +151,7 @@ typedef enum {
     RX_PIN_NUMBER = TGT_RX,
     TX_PIN_NUMBER = TGT_TX,
     CTS_PIN_NUMBER = 31, //unused  ** REQUIRES A PROPER FIX **
-    RTS_PIN_NUMBER = 31, //unused 
+    RTS_PIN_NUMBER = 31, //unused
 
     // mBed interface Pins
     USBTX = TX_PIN_NUMBER,

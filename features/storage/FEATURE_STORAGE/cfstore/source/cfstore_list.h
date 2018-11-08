@@ -26,8 +26,7 @@
  *  Introduction to Algorithms, TH Cormen, CE Leiserson, Rl Rivest,
  *  ISBN 0-262-03141-8 (1989), Pages 206-207.
  */
-typedef struct cfstore_list_node_t
-{
+typedef struct cfstore_list_node_t {
     struct cfstore_list_node_t *next;
     struct cfstore_list_node_t *prev;
 } cfstore_list_node_t;
@@ -46,7 +45,7 @@ typedef struct cfstore_list_node_t
     } while (0)
 
 /* brief insert the new_node between 2 other nodes, the one before being node_before, the one after being node_after */
-static inline void cfstore_listAdd(cfstore_list_node_t* node_before, cfstore_list_node_t * new_node, cfstore_list_node_t* node_after)
+static inline void cfstore_listAdd(cfstore_list_node_t *node_before, cfstore_list_node_t *new_node, cfstore_list_node_t *node_after)
 {
     /* init new node before insertion */
     new_node->next = node_after;

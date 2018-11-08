@@ -24,7 +24,7 @@ void mbed_sdk_init(void)
         return;
     }
     inited = 1;
-    
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -51,7 +51,7 @@ void mbed_sdk_init(void)
 
     /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
-    
+
     /* Set core clock as 72000000 from PLL */
     CLK_SetCoreClock(72000000);
 
@@ -59,7 +59,7 @@ void mbed_sdk_init(void)
     /* Vref connect to internal */
     SYS->VREFCTL = (SYS->VREFCTL & ~SYS_VREFCTL_VREFCTL_Msk) | SYS_VREFCTL_VREF_3_072V;
 #endif
-    
+
     /* Update System Core Clock */
     /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock. */
     SystemCoreClockUpdate();

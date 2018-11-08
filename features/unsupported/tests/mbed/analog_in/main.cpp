@@ -27,34 +27,33 @@ DigitalOut indicator(LED1);
 
 uint8_t successes = 0;
 
-int main() {
-	control = 0;
+int main()
+{
+    control = 0;
 
-	for (int i = 0; i < 10; i++) {
-		// Read value,
-		float expectedValue = i * 0.1;
-		float value = analogInput.read();
+    for (int i = 0; i < 10; i++) {
+        // Read value,
+        float expectedValue = i * 0.1;
+        float value = analogInput.read();
 
-		if (value > expectedValue + ERROR_TOLERANCE || value < expectedValue - ERROR_TOLERANCE) {
-			// Failure.
-			printf("ERROR (out:%.4f) - (in:%.4f) = (%.4f)"NL, expectedValue, value, fabs(expectedValue - value));
-		}
-		else {
-			printf("OK    (out:%.4f) - (in:%.4f) = (%.4f)"NL, out_value, in_value, diff);
-			successes++;
-		}
+        if (value > expectedValue + ERROR_TOLERANCE || value < expectedValue - ERROR_TOLERANCE) {
+            // Failure.
+            printf("ERROR (out:%.4f) - (in:%.4f) = (%.4f)"NL, expectedValue, value, fabs(expectedValue - value));
+        } else {
+            printf("OK    (out:%.4f) - (in:%.4f) = (%.4f)"NL, out_value, in_value, diff);
+            successes++;
+        }
 
-		control = 1;
-		indicator = 1;
-		wait(0.1);
-		control = 0;
-		indicator = 0;
-	}
+        control = 1;
+        indicator = 1;
+        wait(0.1);
+        control = 0;
+        indicator = 0;
+    }
 
-	if (successes > 8) {
-		notify_success(true);
-	}
-	else {
-		notify_success(false);
-	}
+    if (successes > 8) {
+        notify_success(true);
+    } else {
+        notify_success(false);
+    }
 }

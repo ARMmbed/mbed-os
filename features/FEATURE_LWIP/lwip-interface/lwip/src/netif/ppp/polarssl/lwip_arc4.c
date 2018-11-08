@@ -10,7 +10,7 @@
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
  *  are met:
- *  
+ *
  *    * Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above copyright
@@ -19,7 +19,7 @@
  *    * Neither the names of PolarSSL or XySSL nor the names of its contributors
  *      may be used to endorse or promote products derived from this software
  *      without specific prior written permission.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -45,7 +45,7 @@
 /*
  * ARC4 key schedule
  */
-void arc4_setup( arc4_context *ctx, unsigned char *key, int keylen )
+void arc4_setup(arc4_context *ctx, unsigned char *key, int keylen)
 {
     int i, j, k, a;
     unsigned char *m;
@@ -54,17 +54,19 @@ void arc4_setup( arc4_context *ctx, unsigned char *key, int keylen )
     ctx->y = 0;
     m = ctx->m;
 
-    for( i = 0; i < 256; i++ )
+    for (i = 0; i < 256; i++) {
         m[i] = (unsigned char) i;
+    }
 
     j = k = 0;
 
-    for( i = 0; i < 256; i++, k++ )
-    {
-        if( k >= keylen ) k = 0;
+    for (i = 0; i < 256; i++, k++) {
+        if (k >= keylen) {
+            k = 0;
+        }
 
         a = m[i];
-        j = ( j + a + key[k] ) & 0xFF;
+        j = (j + a + key[k]) & 0xFF;
         m[i] = m[j];
         m[j] = (unsigned char) a;
     }
@@ -73,7 +75,7 @@ void arc4_setup( arc4_context *ctx, unsigned char *key, int keylen )
 /*
  * ARC4 cipher function
  */
-void arc4_crypt( arc4_context *ctx, unsigned char *buf, int buflen )
+void arc4_crypt(arc4_context *ctx, unsigned char *buf, int buflen)
 {
     int i, x, y, a, b;
     unsigned char *m;
@@ -82,16 +84,17 @@ void arc4_crypt( arc4_context *ctx, unsigned char *buf, int buflen )
     y = ctx->y;
     m = ctx->m;
 
-    for( i = 0; i < buflen; i++ )
-    {
-        x = ( x + 1 ) & 0xFF; a = m[x];
-        y = ( y + a ) & 0xFF; b = m[y];
+    for (i = 0; i < buflen; i++) {
+        x = (x + 1) & 0xFF;
+        a = m[x];
+        y = (y + a) & 0xFF;
+        b = m[y];
 
         m[x] = (unsigned char) b;
         m[y] = (unsigned char) a;
 
         buf[i] = (unsigned char)
-            ( buf[i] ^ m[(unsigned char)( a + b )] );
+                 (buf[i] ^ m[(unsigned char)(a + b)]);
     }
 
     ctx->x = x;

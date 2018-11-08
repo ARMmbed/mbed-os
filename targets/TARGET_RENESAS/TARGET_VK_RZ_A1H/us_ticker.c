@@ -33,12 +33,16 @@ static uint32_t last_read = 0;
 static uint32_t wrap_arround = 0;
 static uint64_t ticker_us_last64 = 0;
 
-void us_ticker_interrupt(void) {
+void us_ticker_interrupt(void)
+{
     us_ticker_irq_handler();
 }
 
-void us_ticker_init(void) {
-    if (us_ticker_inited) return;
+void us_ticker_init(void)
+{
+    if (us_ticker_inited) {
+        return;
+    }
     us_ticker_inited = 1;
 
     /* set Counter Clock(us) */
@@ -63,12 +67,14 @@ void us_ticker_init(void) {
     GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
-static uint64_t ticker_read_counter64(void) {
+static uint64_t ticker_read_counter64(void)
+{
     uint32_t cnt_val;
     uint64_t cnt_val64;
 
-    if (!us_ticker_inited)
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     /* read counter */
     cnt_val = OSTM1CNT;
@@ -81,7 +87,8 @@ static uint64_t ticker_read_counter64(void) {
     return cnt_val64;
 }
 
-uint32_t us_ticker_read() {
+uint32_t us_ticker_read()
+{
     uint64_t cnt_val64;
     uint64_t us_val64;
 
@@ -96,7 +103,8 @@ uint32_t us_ticker_read() {
     return (uint32_t)us_val64;
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
     // set match value
     uint64_t timestamp64;
     uint64_t set_cmp_val64;
@@ -123,14 +131,17 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
-void us_ticker_fire_interrupt(void) {
+void us_ticker_fire_interrupt(void)
+{
     GIC_SetPendingIRQ(US_TICKER_TIMER_IRQn);
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
     GIC_DisableIRQ(US_TICKER_TIMER_IRQn);
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
     GIC_ClearPendingIRQ(US_TICKER_TIMER_IRQn);
 }

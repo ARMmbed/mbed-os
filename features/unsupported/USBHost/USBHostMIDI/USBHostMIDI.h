@@ -25,7 +25,7 @@
 
 #include "USBHost.h"
 
-/** 
+/**
  * A class to communicate a USB MIDI device
  */
 class USBHostMIDI : public IUSBEnumerator {
@@ -41,21 +41,22 @@ public:
      * @returns true if a midi device is connected
      */
     bool connected();
-    
+
     /**
      * Try to connect a midi device
      *
      * @return true if connection was successful
      */
     bool connect();
-    
+
     /**
      * Attach a callback called when miscellaneous function code is received
      *
      * @param ptr function pointer
      *   prototype: void onMiscellaneousFunctionCode(uint8_t data1, uint8_t data2, uint8_t data3);
      */
-    inline void attachMiscellaneousFunctionCode(void (*fn)(uint8_t, uint8_t, uint8_t)) {
+    inline void attachMiscellaneousFunctionCode(void (*fn)(uint8_t, uint8_t, uint8_t))
+    {
         miscellaneousFunctionCode = fn;
     }
 
@@ -65,7 +66,8 @@ public:
      * @param ptr function pointer
      *   prototype: void onCableEvent(uint8_t data1, uint8_t data2, uint8_t data3);
      */
-    inline void attachCableEvent(void (*fn)(uint8_t, uint8_t, uint8_t)) {
+    inline void attachCableEvent(void (*fn)(uint8_t, uint8_t, uint8_t))
+    {
         cableEvent = fn;
     }
 
@@ -75,27 +77,30 @@ public:
      * @param ptr function pointer
      *   prototype: void onSystemCommonTwoBytes(uint8_t data1, uint8_t data2);
      */
-    inline void attachSystemCommonTwoBytes(void (*fn)(uint8_t, uint8_t)) {
+    inline void attachSystemCommonTwoBytes(void (*fn)(uint8_t, uint8_t))
+    {
         systemCommonTwoBytes = fn;
     }
-    
+
     /**
      * Attach a callback called when system exclusive is received
      *
      * @param ptr function pointer
      *   prototype: void onSystemCommonThreeBytes(uint8_t data1, uint8_t data2, uint8_t data3);
      */
-    inline void attachSystemCommonThreeBytes(void (*fn)(uint8_t, uint8_t, uint8_t)) {
+    inline void attachSystemCommonThreeBytes(void (*fn)(uint8_t, uint8_t, uint8_t))
+    {
         systemCommonThreeBytes = fn;
     }
-    
+
     /**
      * Attach a callback called when system exclusive is received
      *
      * @param ptr function pointer
      *   prototype: void onSystemExclusive(uint8_t *data, uint16_t length, bool hasNextData);
      */
-    inline void attachSystemExclusive(void (*fn)(uint8_t *, uint16_t, bool)) {
+    inline void attachSystemExclusive(void (*fn)(uint8_t *, uint16_t, bool))
+    {
         systemExclusive = fn;
     }
 
@@ -105,7 +110,8 @@ public:
      * @param ptr function pointer
      *   prototype: void onNoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
      */
-    inline void attachNoteOn(void (*fn)(uint8_t, uint8_t, uint8_t)) {
+    inline void attachNoteOn(void (*fn)(uint8_t, uint8_t, uint8_t))
+    {
         noteOn = fn;
     }
 
@@ -115,7 +121,8 @@ public:
      * @param ptr function pointer
      *   prototype: void onNoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
      */
-    inline void attachNoteOff(void (*fn)(uint8_t, uint8_t, uint8_t)) {
+    inline void attachNoteOff(void (*fn)(uint8_t, uint8_t, uint8_t))
+    {
         noteOff = fn;
     }
 
@@ -125,7 +132,8 @@ public:
      * @param ptr function pointer
      *   prototype: void onPolyKeyPress(uint8_t channel, uint8_t note, uint8_t pressure);
      */
-    inline void attachPolyKeyPress(void (*fn)(uint8_t, uint8_t, uint8_t)) {
+    inline void attachPolyKeyPress(void (*fn)(uint8_t, uint8_t, uint8_t))
+    {
         polyKeyPress = fn;
     }
 
@@ -135,7 +143,8 @@ public:
      * @param ptr function pointer
      *   prototype: void onControlChange(uint8_t channel, uint8_t key, uint8_t value);
      */
-    inline void attachControlChange(void (*fn)(uint8_t, uint8_t, uint8_t)) {
+    inline void attachControlChange(void (*fn)(uint8_t, uint8_t, uint8_t))
+    {
         controlChange = fn;
     }
 
@@ -145,7 +154,8 @@ public:
      * @param ptr function pointer
      *   prototype: void onProgramChange(uint8_t channel, uint8_t program);
      */
-    inline void attachProgramChange(void (*fn)(uint8_t, uint8_t)) {
+    inline void attachProgramChange(void (*fn)(uint8_t, uint8_t))
+    {
         programChange = fn;
     }
 
@@ -155,7 +165,8 @@ public:
      * @param ptr function pointer
      *   prototype: void onChannelPressure(uint8_t channel, uint8_t pressure);
      */
-    inline void attachChannelPressure(void (*fn)(uint8_t, uint8_t)) {
+    inline void attachChannelPressure(void (*fn)(uint8_t, uint8_t))
+    {
         channelPressure = fn;
     }
 
@@ -165,7 +176,8 @@ public:
      * @param ptr function pointer
      *   prototype: void onPitchBend(uint8_t channel, uint16_t value);
      */
-    inline void attachPitchBend(void (*fn)(uint8_t, uint16_t)) {
+    inline void attachPitchBend(void (*fn)(uint8_t, uint16_t))
+    {
         pitchBend = fn;
     }
 
@@ -175,7 +187,8 @@ public:
      * @param ptr function pointer
      *   prototype: void onSingleByte(uint8_t value);
      */
-    inline void attachSingleByte(void (*fn)(uint8_t)) {
+    inline void attachSingleByte(void (*fn)(uint8_t))
+    {
         singleByte = fn;
     }
 
@@ -309,10 +322,10 @@ protected:
     virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
 
 private:
-    USBHost * host;
-    USBDeviceConnected * dev;
-    USBEndpoint * bulk_in;
-    USBEndpoint * bulk_out;
+    USBHost *host;
+    USBDeviceConnected *dev;
+    USBEndpoint *bulk_in;
+    USBEndpoint *bulk_out;
     uint32_t size_bulk_in;
     uint32_t size_bulk_out;
 

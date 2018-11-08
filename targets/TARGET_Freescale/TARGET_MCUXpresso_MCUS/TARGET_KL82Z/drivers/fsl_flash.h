@@ -62,8 +62,7 @@
 #define FSL_FLASH_DRIVER_VERSION (MAKE_VERSION(2, 1, 0)) /*!< Version 2.1.0. */
 
 /*! @brief FLASH driver version for ROM*/
-enum _flash_driver_version_constants
-{
+enum _flash_driver_version_constants {
     kFLASH_DriverVersionName = 'F', /*!< Flash driver version name.*/
     kFLASH_DriverVersionMajor = 2,  /*!< Major flash driver version.*/
     kFLASH_DriverVersionMinor = 1,  /*!< Minor flash driver version.*/
@@ -126,8 +125,7 @@ enum _flash_driver_version_constants
 /*!
  * @brief Flash driver status codes.
  */
-enum _flash_status
-{
+enum _flash_status {
     kStatus_FLASH_Success = MAKE_STATUS(kStatusGroupGeneric, 0),         /*!< API is executed successfully*/
     kStatus_FLASH_InvalidArgument = MAKE_STATUS(kStatusGroupGeneric, 4), /*!< Invalid argument*/
     kStatus_FLASH_SizeError = MAKE_STATUS(kStatusGroupFlashDriver, 0),   /*!< Error size*/
@@ -137,7 +135,7 @@ enum _flash_status
     kStatus_FLASH_AccessError =
         MAKE_STATUS(kStatusGroupFlashDriver, 3), /*!< Invalid instruction codes and out-of bounds addresses */
     kStatus_FLASH_ProtectionViolation = MAKE_STATUS(
-        kStatusGroupFlashDriver, 4), /*!< The program/erase operation is requested to execute on protected areas */
+                                            kStatusGroupFlashDriver, 4), /*!< The program/erase operation is requested to execute on protected areas */
     kStatus_FLASH_CommandFailure =
         MAKE_STATUS(kStatusGroupFlashDriver, 5), /*!< Run-time error during command execution. */
     kStatus_FLASH_UnknownProperty = MAKE_STATUS(kStatusGroupFlashDriver, 6),   /*!< Unknown property.*/
@@ -178,8 +176,7 @@ enum _flash_status
  * being readable in expected order when viewed in a hex editor, if the value
  * is treated as a 32-bit little endian value.
  */
-enum _flash_driver_api_keys
-{
+enum _flash_driver_api_keys {
     kFLASH_ApiEraseKey = FOUR_CHAR_CODE('k', 'f', 'e', 'k') /*!< Key value used to validate all flash erase APIs.*/
 };
 /*@}*/
@@ -187,8 +184,7 @@ enum _flash_driver_api_keys
 /*!
  * @brief Enumeration for supported flash margin levels.
  */
-typedef enum _flash_margin_value
-{
+typedef enum _flash_margin_value {
     kFLASH_MarginValueNormal,  /*!< Use the 'normal' read level for 1s.*/
     kFLASH_MarginValueUser,    /*!< Apply the 'User' margin to the normal read-1 level.*/
     kFLASH_MarginValueFactory, /*!< Apply the 'Factory' margin to the normal read-1 level.*/
@@ -198,8 +194,7 @@ typedef enum _flash_margin_value
 /*!
  * @brief Enumeration for the three possible flash security states.
  */
-typedef enum _flash_security_state
-{
+typedef enum _flash_security_state {
     kFLASH_SecurityStateNotSecure,       /*!< Flash is not secure.*/
     kFLASH_SecurityStateBackdoorEnabled, /*!< Flash backdoor is enabled.*/
     kFLASH_SecurityStateBackdoorDisabled /*!< Flash backdoor is disabled.*/
@@ -208,8 +203,7 @@ typedef enum _flash_security_state
 /*!
  * @brief Enumeration for the three possible flash protection levels.
  */
-typedef enum _flash_protection_state
-{
+typedef enum _flash_protection_state {
     kFLASH_ProtectionStateUnprotected, /*!< Flash region is not protected.*/
     kFLASH_ProtectionStateProtected,   /*!< Flash region is protected.*/
     kFLASH_ProtectionStateMixed        /*!< Flash is mixed with protected and unprotected region.*/
@@ -218,8 +212,7 @@ typedef enum _flash_protection_state
 /*!
  * @brief Enumeration for the three possible flash execute access levels.
  */
-typedef enum _flash_execute_only_access_state
-{
+typedef enum _flash_execute_only_access_state {
     kFLASH_AccessStateUnLimited,   /*!< Flash region is unLimited.*/
     kFLASH_AccessStateExecuteOnly, /*!< Flash region is execute only.*/
     kFLASH_AccessStateMixed        /*!< Flash is mixed with unLimited and execute only region.*/
@@ -228,8 +221,7 @@ typedef enum _flash_execute_only_access_state
 /*!
  * @brief Enumeration for various flash properties.
  */
-typedef enum _flash_property_tag
-{
+typedef enum _flash_property_tag {
     kFLASH_PropertyPflashSectorSize = 0x00U,         /*!< Pflash sector size property.*/
     kFLASH_PropertyPflashTotalSize = 0x01U,          /*!< Pflash total size property.*/
     kFLASH_PropertyPflashBlockSize = 0x02U,          /*!< Pflash block size property.*/
@@ -251,8 +243,7 @@ typedef enum _flash_property_tag
 /*!
  * @brief Constants for execute-in-RAM flash function.
  */
-enum _flash_execute_in_ram_function_constants
-{
+enum _flash_execute_in_ram_function_constants {
     kFLASH_ExecuteInRamFunctionMaxSizeInWords = 16U, /*!< Max size of execute-in-RAM function.*/
     kFLASH_ExecuteInRamFunctionTotalNum = 2U         /*!< Total number of execute-in-RAM functions.*/
 };
@@ -260,8 +251,7 @@ enum _flash_execute_in_ram_function_constants
 /*!
  * @brief Flash execute-in-RAM function information.
  */
-typedef struct _flash_execute_in_ram_function_config
-{
+typedef struct _flash_execute_in_ram_function_config {
     uint32_t activeFunctionCount;     /*!< Number of available execute-in-RAM functions.*/
     uint32_t *flashRunCommand;        /*!< execute-in-RAM function: flash_run_command.*/
     uint32_t *flashCacheClearCommand; /*!< execute-in-RAM function: flash_cache_clear_command.*/
@@ -270,8 +260,7 @@ typedef struct _flash_execute_in_ram_function_config
 /*!
  * @brief Enumeration for the two possible options of flash read resource command.
  */
-typedef enum _flash_read_resource_option
-{
+typedef enum _flash_read_resource_option {
     kFLASH_ResourceOptionFlashIfr =
         0x00U, /*!< Select code for Program flash 0 IFR, Program flash swap 0 IFR, Data flash 0 IFR */
     kFLASH_ResourceOptionVersionId = 0x01U /*!< Select code for Version ID*/
@@ -280,8 +269,7 @@ typedef enum _flash_read_resource_option
 /*!
  * @brief Enumeration for the range of special-purpose flash resource
  */
-enum _flash_read_resource_range
-{
+enum _flash_read_resource_range {
 #if (FSL_FEATURE_FLASH_IS_FTFE == 1)
     kFLASH_ResourceRangePflashIfrSizeInBytes = 1024U,  /*!< Pflash IFR size in byte.*/
     kFLASH_ResourceRangeVersionIdSizeInBytes = 8U,     /*!< Version ID IFR size in byte.*/
@@ -314,8 +302,7 @@ enum _flash_read_resource_range
 /*!
  * @brief Enumeration for the two possilbe options of set flexram function command.
  */
-typedef enum _flash_flexram_function_option
-{
+typedef enum _flash_flexram_function_option {
     kFLASH_FlexramFunctionOptionAvailableAsRam = 0xFFU,    /*!< Option used to make FlexRAM available as RAM */
     kFLASH_FlexramFunctionOptionAvailableForEeprom = 0x00U /*!< Option used to make FlexRAM available for EEPROM */
 } flash_flexram_function_option_t;
@@ -323,16 +310,14 @@ typedef enum _flash_flexram_function_option
 /*!
  * @brief Enumeration for acceleration RAM property.
  */
-enum _flash_acceleration_ram_property
-{
+enum _flash_acceleration_ram_property {
     kFLASH_AccelerationRamSize = 0x400U
 };
 
 /*!
  * @brief Enumeration for the possible options of Swap function
  */
-typedef enum _flash_swap_function_option
-{
+typedef enum _flash_swap_function_option {
     kFLASH_SwapFunctionOptionEnable = 0x00U, /*!< Option used to enable Swap function */
     kFLASH_SwapFunctionOptionDisable = 0x01U /*!< Option used to Disable Swap function */
 } flash_swap_function_option_t;
@@ -340,8 +325,7 @@ typedef enum _flash_swap_function_option
 /*!
  * @brief Enumeration for the possible options of Swap Control commands
  */
-typedef enum _flash_swap_control_option
-{
+typedef enum _flash_swap_control_option {
     kFLASH_SwapControlOptionIntializeSystem = 0x01U,    /*!< Option used to Intialize Swap System */
     kFLASH_SwapControlOptionSetInUpdateState = 0x02U,   /*!< Option used to Set Swap in Update State */
     kFLASH_SwapControlOptionSetInCompleteState = 0x04U, /*!< Option used to Set Swap in Complete State */
@@ -352,8 +336,7 @@ typedef enum _flash_swap_control_option
 /*!
  * @brief Enumeration for the possible flash swap status.
  */
-typedef enum _flash_swap_state
-{
+typedef enum _flash_swap_state {
     kFLASH_SwapStateUninitialized = 0x00U, /*!< Flash swap system is in uninitialized state.*/
     kFLASH_SwapStateReady = 0x01U,         /*!< Flash swap system is in ready state.*/
     kFLASH_SwapStateUpdate = 0x02U,        /*!< Flash swap system is in update state.*/
@@ -365,8 +348,7 @@ typedef enum _flash_swap_state
 /*!
  * @breif Enumeration for the possible flash swap block status
  */
-typedef enum _flash_swap_block_status
-{
+typedef enum _flash_swap_block_status {
     kFLASH_SwapBlockStatusLowerHalfProgramBlocksAtZero =
         0x00U, /*!< Swap block status is that lower half program block at zero.*/
     kFLASH_SwapBlockStatusUpperHalfProgramBlocksAtZero =
@@ -376,8 +358,7 @@ typedef enum _flash_swap_block_status
 /*!
  * @brief Flash Swap information.
  */
-typedef struct _flash_swap_state_config
-{
+typedef struct _flash_swap_state_config {
     flash_swap_state_t flashSwapState;                /*!< Current swap system status.*/
     flash_swap_block_status_t currentSwapBlockStatus; /*!< Current swap block status.*/
     flash_swap_block_status_t nextSwapBlockStatus;    /*!< Next swap block status.*/
@@ -386,8 +367,7 @@ typedef struct _flash_swap_state_config
 /*!
  * @brief Flash Swap IFR fields.
  */
-typedef struct _flash_swap_ifr_field_config
-{
+typedef struct _flash_swap_ifr_field_config {
     uint16_t swapIndicatorAddress; /*!< Swap indicator address field.*/
     uint16_t swapEnableWord;       /*!< Swap enable word field.*/
     uint8_t reserved0[4];          /*!< Reserved field.*/
@@ -401,8 +381,7 @@ typedef struct _flash_swap_ifr_field_config
 /*!
  * @brief Flash Swap IFR field data.
  */
-typedef union _flash_swap_ifr_field_data
-{
+typedef union _flash_swap_ifr_field_data {
     uint32_t flashSwapIfrData[2];                    /*!< Flash Swap IFR field data .*/
     flash_swap_ifr_field_config_t flashSwapIfrField; /*!< Flash Swap IFR field struct.*/
 } flash_swap_ifr_field_data_t;
@@ -410,8 +389,7 @@ typedef union _flash_swap_ifr_field_data
 /*!
  * @brief Enumeration for FlexRAM load during reset option.
  */
-typedef enum _flash_partition_flexram_load_option
-{
+typedef enum _flash_partition_flexram_load_option {
     kFLASH_PartitionFlexramLoadOptionLoadedWithValidEepromData =
         0x00U, /*!< FlexRAM is loaded with valid EEPROM data during reset sequence.*/
     kFLASH_PartitionFlexramLoadOptionNotLoaded = 0x01U /*!< FlexRAM is not loaded during reset sequence.*/
@@ -423,8 +401,7 @@ typedef void (*flash_callback_t)(void);
 /*!
  * @brief Active flash information for current operation.
  */
-typedef struct _flash_operation_config
-{
+typedef struct _flash_operation_config {
     uint32_t convertedAddress;           /*!< Converted address for current flash type.*/
     uint32_t activeSectorSize;           /*!< Sector size of current flash type.*/
     uint32_t activeBlockSize;            /*!< Block size of current flash type.*/
@@ -440,8 +417,7 @@ typedef struct _flash_operation_config
  * An instance of this structure is allocated by the user of the flash driver and
  * passed into each of the driver APIs.
  */
-typedef struct _flash_config
-{
+typedef struct _flash_config {
     uint32_t PFlashBlockBase;                /*!< Base address of the first PFlash block */
     uint32_t PFlashTotalSize;                /*!< Size of all combined PFlash block. */
     uint32_t PFlashBlockCount;               /*!< Number of PFlash blocks. */

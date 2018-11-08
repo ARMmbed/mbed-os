@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #ifndef MBED_PERIPHERALPINS_H
 #define MBED_PERIPHERALPINS_H
 

@@ -203,7 +203,7 @@ void system_gclk_gen_enable(
     system_interrupt_enter_critical_section();
 
     /* Select the requested generator */
-    *((uint8_t*)&GCLK->GENCTRL.reg) = generator;
+    *((uint8_t *)&GCLK->GENCTRL.reg) = generator;
     while (system_gclk_is_syncing()) {
         /* Wait for synchronization */
     };
@@ -232,7 +232,7 @@ void system_gclk_gen_disable(
     system_interrupt_enter_critical_section();
 
     /* Select the requested generator */
-    *((uint8_t*)&GCLK->GENCTRL.reg) = generator;
+    *((uint8_t *)&GCLK->GENCTRL.reg) = generator;
     while (system_gclk_is_syncing()) {
         /* Wait for synchronization */
     };
@@ -263,7 +263,7 @@ bool system_gclk_gen_is_enabled(
     system_interrupt_enter_critical_section();
 
     /* Select the requested generator */
-    *((uint8_t*)&GCLK->GENCTRL.reg) = generator;
+    *((uint8_t *)&GCLK->GENCTRL.reg) = generator;
     /* Obtain the enabled status */
     enabled = (GCLK->GENCTRL.reg & GCLK_GENCTRL_GENEN);
 
@@ -292,7 +292,7 @@ uint32_t system_gclk_gen_get_hz(
     system_interrupt_enter_critical_section();
 
     /* Select the appropriate generator */
-    *((uint8_t*)&GCLK->GENCTRL.reg) = generator;
+    *((uint8_t *)&GCLK->GENCTRL.reg) = generator;
     while (system_gclk_is_syncing()) {
         /* Wait for synchronization */
     };
@@ -301,12 +301,12 @@ uint32_t system_gclk_gen_get_hz(
     uint32_t gen_input_hz = system_clock_source_get_hz(
                                 (enum system_clock_source)GCLK->GENCTRL.bit.SRC);
 
-    *((uint8_t*)&GCLK->GENCTRL.reg) = generator;
+    *((uint8_t *)&GCLK->GENCTRL.reg) = generator;
 
     uint8_t divsel = GCLK->GENCTRL.bit.DIVSEL;
 
     /* Select the appropriate generator division register */
-    *((uint8_t*)&GCLK->GENDIV.reg) = generator;
+    *((uint8_t *)&GCLK->GENDIV.reg) = generator;
     while (system_gclk_is_syncing()) {
         /* Wait for synchronization */
     };
@@ -319,7 +319,7 @@ uint32_t system_gclk_gen_get_hz(
     if (!divsel && divider > 1) {
         gen_input_hz /= divider;
     } else if (divsel) {
-        gen_input_hz >>= (divider+1);
+        gen_input_hz >>= (divider + 1);
     }
 
     return gen_input_hz;
@@ -372,7 +372,7 @@ void system_gclk_chan_enable(
     system_interrupt_enter_critical_section();
 
     /* Select the requested generator channel */
-    *((uint8_t*)&GCLK->CLKCTRL.reg) = channel;
+    *((uint8_t *)&GCLK->CLKCTRL.reg) = channel;
 
     /* Enable the generic clock */
     GCLK->CLKCTRL.reg |= GCLK_CLKCTRL_CLKEN;
@@ -394,7 +394,7 @@ void system_gclk_chan_disable(
     system_interrupt_enter_critical_section();
 
     /* Select the requested generator channel */
-    *((uint8_t*)&GCLK->CLKCTRL.reg) = channel;
+    *((uint8_t *)&GCLK->CLKCTRL.reg) = channel;
 
     /* Sanity check WRTLOCK */
     Assert(!GCLK->CLKCTRL.bit.WRTLOCK);
@@ -432,7 +432,7 @@ bool system_gclk_chan_is_enabled(
     system_interrupt_enter_critical_section();
 
     /* Select the requested generic clock channel */
-    *((uint8_t*)&GCLK->CLKCTRL.reg) = channel;
+    *((uint8_t *)&GCLK->CLKCTRL.reg) = channel;
     enabled = GCLK->CLKCTRL.bit.CLKEN;
 
     system_interrupt_leave_critical_section();
@@ -454,7 +454,7 @@ void system_gclk_chan_lock(
     system_interrupt_enter_critical_section();
 
     /* Select the requested generator channel */
-    *((uint8_t*)&GCLK->CLKCTRL.reg) = channel;
+    *((uint8_t *)&GCLK->CLKCTRL.reg) = channel;
 
     /* Lock the generic clock */
     GCLK->CLKCTRL.reg |= GCLK_CLKCTRL_WRTLOCK;
@@ -479,7 +479,7 @@ bool system_gclk_chan_is_locked(
     system_interrupt_enter_critical_section();
 
     /* Select the requested generic clock channel */
-    *((uint8_t*)&GCLK->CLKCTRL.reg) = channel;
+    *((uint8_t *)&GCLK->CLKCTRL.reg) = channel;
     locked = GCLK->CLKCTRL.bit.WRTLOCK;
 
     system_interrupt_leave_critical_section();
@@ -505,7 +505,7 @@ uint32_t system_gclk_chan_get_hz(
     system_interrupt_enter_critical_section();
 
     /* Select the requested generic clock channel */
-    *((uint8_t*)&GCLK->CLKCTRL.reg) = channel;
+    *((uint8_t *)&GCLK->CLKCTRL.reg) = channel;
     gen_id = GCLK->CLKCTRL.bit.GEN;
 
     system_interrupt_leave_critical_section();

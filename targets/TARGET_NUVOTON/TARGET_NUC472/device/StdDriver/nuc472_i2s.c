@@ -34,34 +34,35 @@ static uint32_t I2S_GetSourceClockFreq(I2S_T *i2s)
     uint32_t u32Freq, u32ClkSrcSel;
 
     // get I2S selection clock source
-    if((uint32_t)i2s == I2S0_BASE)
+    if ((uint32_t)i2s == I2S0_BASE) {
         u32ClkSrcSel = CLK->CLKSEL3 & CLK_CLKSEL3_I2S0SEL_Msk;
-    else
+    } else {
         u32ClkSrcSel = CLK->CLKSEL3 & CLK_CLKSEL3_I2S1SEL_Msk;
+    }
 
     switch (u32ClkSrcSel) {
-    case CLK_CLKSEL3_I2S0SEL_HXT:
-        u32Freq = __HXT;
-        break;
+        case CLK_CLKSEL3_I2S0SEL_HXT:
+            u32Freq = __HXT;
+            break;
 
-    case CLK_CLKSEL3_I2S0SEL_PLL:
-    case CLK_CLKSEL3_I2S1SEL_PLL:
-        u32Freq = CLK_GetPLLClockFreq();
-        break;
+        case CLK_CLKSEL3_I2S0SEL_PLL:
+        case CLK_CLKSEL3_I2S1SEL_PLL:
+            u32Freq = CLK_GetPLLClockFreq();
+            break;
 
-    case CLK_CLKSEL3_I2S0SEL_HIRC:
-    case CLK_CLKSEL3_I2S1SEL_HIRC:
-        u32Freq = __HIRC;
-        break;
+        case CLK_CLKSEL3_I2S0SEL_HIRC:
+        case CLK_CLKSEL3_I2S1SEL_HIRC:
+            u32Freq = __HIRC;
+            break;
 
-    case CLK_CLKSEL3_I2S0SEL_PCLK:
-    case CLK_CLKSEL3_I2S1SEL_PCLK:
-        u32Freq = SystemCoreClock;
-        break;
+        case CLK_CLKSEL3_I2S0SEL_PCLK:
+        case CLK_CLKSEL3_I2S1SEL_PCLK:
+            u32Freq = SystemCoreClock;
+            break;
 
-    default:
-        u32Freq = __HIRC;
-        break;
+        default:
+            u32Freq = __HIRC;
+            break;
     }
 
     return u32Freq;
@@ -99,7 +100,7 @@ uint32_t I2S_Open(I2S_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate, u
     uint16_t u16Divider;
     uint32_t u32BitRate, u32SrcClk;
 
-    if((uint32_t)i2s == I2S0_BASE) {
+    if ((uint32_t)i2s == I2S0_BASE) {
         SYS->IPRST1 |= SYS_IPRST1_I2S0RST_Msk;
         SYS->IPRST1 &= ~SYS_IPRST1_I2S0RST_Msk;
     } else {
@@ -111,13 +112,13 @@ uint32_t I2S_Open(I2S_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate, u
 
     u32SrcClk = I2S_GetSourceClockFreq(i2s);
 
-    u32BitRate = u32SampleRate * (((u32WordWidth>>4) & 0x3) + 1) * 16;
-    u16Divider = ((u32SrcClk/u32BitRate) >> 1) - 1;
+    u32BitRate = u32SampleRate * (((u32WordWidth >> 4) & 0x3) + 1) * 16;
+    u16Divider = ((u32SrcClk / u32BitRate) >> 1) - 1;
     i2s->CLKDIV = (i2s->CLKDIV & ~I2S_CLKDIV_BCLKDIV_Msk) | (u16Divider << 8);
 
     //calculate real sample rate
-    u32BitRate = u32SrcClk / (2*(u16Divider+1));
-    u32SampleRate = u32BitRate / ((((u32WordWidth>>4) & 0x3) + 1) * 16);
+    u32BitRate = u32SrcClk / (2 * (u16Divider + 1));
+    u32SampleRate = u32BitRate / ((((u32WordWidth >> 4) & 0x3) + 1) * 16);
 
     i2s->CTL |= I2S_CTL_I2SEN_Msk;
 
@@ -170,10 +171,11 @@ uint32_t I2S_EnableMCLK(I2S_T *i2s, uint32_t u32BusClock)
     uint32_t u32SrcClk, u32Reg;
 
     u32SrcClk = I2S_GetSourceClockFreq(i2s);
-    if (u32BusClock == u32SrcClk)
+    if (u32BusClock == u32SrcClk) {
         u8Divider = 0;
-    else
-        u8Divider = (u32SrcClk/u32BusClock) >> 1;
+    } else {
+        u8Divider = (u32SrcClk / u32BusClock) >> 1;
+    }
 
     i2s->CLKDIV = (i2s->CLKDIV & ~I2S_CLKDIV_MCLKDIV_Msk) | u8Divider;
 
@@ -181,10 +183,11 @@ uint32_t I2S_EnableMCLK(I2S_T *i2s, uint32_t u32BusClock)
 
     u32Reg = i2s->CLKDIV & I2S_CLKDIV_MCLKDIV_Msk;
 
-    if (u32Reg == 0)
+    if (u32Reg == 0) {
         return u32SrcClk;
-    else
+    } else {
         return ((u32SrcClk >> 1) / u32Reg);
+    }
 }
 
 /**

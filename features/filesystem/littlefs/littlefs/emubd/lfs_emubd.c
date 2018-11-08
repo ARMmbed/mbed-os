@@ -30,7 +30,8 @@
 
 
 // Block device emulated on existing filesystem
-int lfs_emubd_create(const struct lfs_config *cfg, const char *path) {
+int lfs_emubd_create(const struct lfs_config *cfg, const char *path)
+{
     lfs_emubd_t *emu = cfg->context;
     emu->cfg.read_size   = cfg->read_size;
     emu->cfg.prog_size   = cfg->prog_size;
@@ -46,8 +47,8 @@ int lfs_emubd_create(const struct lfs_config *cfg, const char *path) {
 
     strcpy(emu->path, path);
     emu->path[pathlen] = '/';
-    emu->child = &emu->path[pathlen+1];
-    memset(emu->child, '\0', LFS_NAME_MAX+1);
+    emu->child = &emu->path[pathlen + 1];
+    memset(emu->child, '\0', LFS_NAME_MAX + 1);
 
     // Create directory if it doesn't exist
     int err = mkdir(path, 0777);
@@ -75,7 +76,8 @@ int lfs_emubd_create(const struct lfs_config *cfg, const char *path) {
     return 0;
 }
 
-void lfs_emubd_destroy(const struct lfs_config *cfg) {
+void lfs_emubd_destroy(const struct lfs_config *cfg)
+{
     lfs_emubd_sync(cfg);
 
     lfs_emubd_t *emu = cfg->context;
@@ -83,7 +85,8 @@ void lfs_emubd_destroy(const struct lfs_config *cfg) {
 }
 
 int lfs_emubd_read(const struct lfs_config *cfg, lfs_block_t block,
-        lfs_off_t off, void *buffer, lfs_size_t size) {
+                   lfs_off_t off, void *buffer, lfs_size_t size)
+{
     lfs_emubd_t *emu = cfg->context;
     uint8_t *data = buffer;
 
@@ -125,7 +128,8 @@ int lfs_emubd_read(const struct lfs_config *cfg, lfs_block_t block,
 }
 
 int lfs_emubd_prog(const struct lfs_config *cfg, lfs_block_t block,
-        lfs_off_t off, const void *buffer, lfs_size_t size) {
+                   lfs_off_t off, const void *buffer, lfs_size_t size)
+{
     lfs_emubd_t *emu = cfg->context;
     const uint8_t *data = buffer;
 
@@ -175,7 +179,8 @@ int lfs_emubd_prog(const struct lfs_config *cfg, lfs_block_t block,
     return 0;
 }
 
-int lfs_emubd_erase(const struct lfs_config *cfg, lfs_block_t block) {
+int lfs_emubd_erase(const struct lfs_config *cfg, lfs_block_t block)
+{
     lfs_emubd_t *emu = cfg->context;
 
     // Check if erase is valid
@@ -212,7 +217,8 @@ int lfs_emubd_erase(const struct lfs_config *cfg, lfs_block_t block) {
     return 0;
 }
 
-int lfs_emubd_sync(const struct lfs_config *cfg) {
+int lfs_emubd_sync(const struct lfs_config *cfg)
+{
     lfs_emubd_t *emu = cfg->context;
 
     // Just write out info/stats for later lookup

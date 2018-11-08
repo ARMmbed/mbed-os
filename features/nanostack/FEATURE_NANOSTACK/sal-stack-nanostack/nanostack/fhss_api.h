@@ -46,8 +46,7 @@ typedef struct fhss_callback fhss_callback_t;
 /**
  * @brief FHSS states.
  */
-typedef enum
-{
+typedef enum {
     FHSS_UNSYNCHRONIZED,
     FHSS_SYNCHRONIZED,
 } fhss_states;

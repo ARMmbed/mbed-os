@@ -32,10 +32,11 @@ typedef struct {
 static inline void gpio_write(gpio_t *obj, int value)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
-    if (value)
+    if (value) {
         ioport_set_pin_level(obj->pin, IOPORT_PIN_LEVEL_HIGH);
-    else
+    } else {
         ioport_set_pin_level(obj->pin, IOPORT_PIN_LEVEL_LOW);
+    }
 }
 
 static inline int gpio_read(gpio_t *obj)

@@ -60,9 +60,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint8_t  ENABLE:1;         /*!< bit:      1  Enable DAC Controller              */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint8_t  ENABLE: 1;        /*!< bit:      1  Enable DAC Controller              */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } DAC_CTRLA_Type;
@@ -81,9 +81,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DIFF:1;           /*!< bit:      0  Differential mode enable           */
-        uint8_t  REFSEL:2;         /*!< bit:  1.. 2  Reference Selection for DAC0/1     */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  DIFF: 1;          /*!< bit:      0  Differential mode enable           */
+        uint8_t  REFSEL: 2;        /*!< bit:  1.. 2  Reference Selection for DAC0/1     */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } DAC_CTRLB_Type;
@@ -111,19 +111,19 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  STARTEI0:1;       /*!< bit:      0  Start Conversion Event Input DAC 0 */
-        uint8_t  STARTEI1:1;       /*!< bit:      1  Start Conversion Event Input DAC 1 */
-        uint8_t  EMPTYEO0:1;       /*!< bit:      2  Data Buffer Empty Event Output DAC 0 */
-        uint8_t  EMPTYEO1:1;       /*!< bit:      3  Data Buffer Empty Event Output DAC 1 */
-        uint8_t  INVEI0:1;         /*!< bit:      4  Enable Invertion of DAC 0 input event */
-        uint8_t  INVEI1:1;         /*!< bit:      5  Enable Invertion of DAC 1 input event */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  STARTEI0: 1;      /*!< bit:      0  Start Conversion Event Input DAC 0 */
+        uint8_t  STARTEI1: 1;      /*!< bit:      1  Start Conversion Event Input DAC 1 */
+        uint8_t  EMPTYEO0: 1;      /*!< bit:      2  Data Buffer Empty Event Output DAC 0 */
+        uint8_t  EMPTYEO1: 1;      /*!< bit:      3  Data Buffer Empty Event Output DAC 1 */
+        uint8_t  INVEI0: 1;        /*!< bit:      4  Enable Invertion of DAC 0 input event */
+        uint8_t  INVEI1: 1;        /*!< bit:      5  Enable Invertion of DAC 1 input event */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  STARTEI:2;        /*!< bit:  0.. 1  Start Conversion Event Input DAC x */
-        uint8_t  EMPTYEO:2;        /*!< bit:  2.. 3  Data Buffer Empty Event Output DAC x */
-        uint8_t  INVEI:2;          /*!< bit:  4.. 5  Enable Invertion of DAC x input event */
-        uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+        uint8_t  STARTEI: 2;       /*!< bit:  0.. 1  Start Conversion Event Input DAC x */
+        uint8_t  EMPTYEO: 2;       /*!< bit:  2.. 3  Data Buffer Empty Event Output DAC x */
+        uint8_t  INVEI: 2;         /*!< bit:  4.. 5  Enable Invertion of DAC x input event */
+        uint8_t  : 2;              /*!< bit:  6.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } DAC_EVCTRL_Type;
@@ -159,16 +159,16 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  UNDERRUN0:1;      /*!< bit:      0  Underrun Interrupt Enable for DAC 0 */
-        uint8_t  UNDERRUN1:1;      /*!< bit:      1  Underrun Interrupt Enable for DAC 1 */
-        uint8_t  EMPTY0:1;         /*!< bit:      2  Data Buffer 0 Empty Interrupt Enable */
-        uint8_t  EMPTY1:1;         /*!< bit:      3  Data Buffer 1 Empty Interrupt Enable */
-        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+        uint8_t  UNDERRUN0: 1;     /*!< bit:      0  Underrun Interrupt Enable for DAC 0 */
+        uint8_t  UNDERRUN1: 1;     /*!< bit:      1  Underrun Interrupt Enable for DAC 1 */
+        uint8_t  EMPTY0: 1;        /*!< bit:      2  Data Buffer 0 Empty Interrupt Enable */
+        uint8_t  EMPTY1: 1;        /*!< bit:      3  Data Buffer 1 Empty Interrupt Enable */
+        uint8_t  : 4;              /*!< bit:  4.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  UNDERRUN:2;       /*!< bit:  0.. 1  Underrun Interrupt Enable for DAC x */
-        uint8_t  EMPTY:2;          /*!< bit:  2.. 3  Data Buffer x Empty Interrupt Enable */
-        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+        uint8_t  UNDERRUN: 2;      /*!< bit:  0.. 1  Underrun Interrupt Enable for DAC x */
+        uint8_t  EMPTY: 2;         /*!< bit:  2.. 3  Data Buffer x Empty Interrupt Enable */
+        uint8_t  : 4;              /*!< bit:  4.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } DAC_INTENCLR_Type;
@@ -197,16 +197,16 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  UNDERRUN0:1;      /*!< bit:      0  Underrun Interrupt Enable for DAC 0 */
-        uint8_t  UNDERRUN1:1;      /*!< bit:      1  Underrun Interrupt Enable for DAC 1 */
-        uint8_t  EMPTY0:1;         /*!< bit:      2  Data Buffer 0 Empty Interrupt Enable */
-        uint8_t  EMPTY1:1;         /*!< bit:      3  Data Buffer 1 Empty Interrupt Enable */
-        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+        uint8_t  UNDERRUN0: 1;     /*!< bit:      0  Underrun Interrupt Enable for DAC 0 */
+        uint8_t  UNDERRUN1: 1;     /*!< bit:      1  Underrun Interrupt Enable for DAC 1 */
+        uint8_t  EMPTY0: 1;        /*!< bit:      2  Data Buffer 0 Empty Interrupt Enable */
+        uint8_t  EMPTY1: 1;        /*!< bit:      3  Data Buffer 1 Empty Interrupt Enable */
+        uint8_t  : 4;              /*!< bit:  4.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  UNDERRUN:2;       /*!< bit:  0.. 1  Underrun Interrupt Enable for DAC x */
-        uint8_t  EMPTY:2;          /*!< bit:  2.. 3  Data Buffer x Empty Interrupt Enable */
-        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+        uint8_t  UNDERRUN: 2;      /*!< bit:  0.. 1  Underrun Interrupt Enable for DAC x */
+        uint8_t  EMPTY: 2;         /*!< bit:  2.. 3  Data Buffer x Empty Interrupt Enable */
+        uint8_t  : 4;              /*!< bit:  4.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } DAC_INTENSET_Type;
@@ -235,16 +235,16 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  UNDERRUN0:1;      /*!< bit:      0  DAC 0 Underrun                     */
-        uint8_t  UNDERRUN1:1;      /*!< bit:      1  DAC 1 Underrun                     */
-        uint8_t  EMPTY0:1;         /*!< bit:      2  Data Buffer 0 Empty                */
-        uint8_t  EMPTY1:1;         /*!< bit:      3  Data Buffer 1 Empty                */
-        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+        uint8_t  UNDERRUN0: 1;     /*!< bit:      0  DAC 0 Underrun                     */
+        uint8_t  UNDERRUN1: 1;     /*!< bit:      1  DAC 1 Underrun                     */
+        uint8_t  EMPTY0: 1;        /*!< bit:      2  Data Buffer 0 Empty                */
+        uint8_t  EMPTY1: 1;        /*!< bit:      3  Data Buffer 1 Empty                */
+        uint8_t  : 4;              /*!< bit:  4.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  UNDERRUN:2;       /*!< bit:  0.. 1  DAC x Underrun                     */
-        uint8_t  EMPTY:2;          /*!< bit:  2.. 3  Data Buffer x Empty                */
-        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+        uint8_t  UNDERRUN: 2;      /*!< bit:  0.. 1  DAC x Underrun                     */
+        uint8_t  EMPTY: 2;         /*!< bit:  2.. 3  Data Buffer x Empty                */
+        uint8_t  : 4;              /*!< bit:  4.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } DAC_INTFLAG_Type;
@@ -273,16 +273,16 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  READY0:1;         /*!< bit:      0  DAC 0 Startup Ready                */
-        uint8_t  READY1:1;         /*!< bit:      1  DAC 1 Startup Ready                */
-        uint8_t  EOC0:1;           /*!< bit:      2  DAC 0 End of Conversion            */
-        uint8_t  EOC1:1;           /*!< bit:      3  DAC 1 End of Conversion            */
-        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+        uint8_t  READY0: 1;        /*!< bit:      0  DAC 0 Startup Ready                */
+        uint8_t  READY1: 1;        /*!< bit:      1  DAC 1 Startup Ready                */
+        uint8_t  EOC0: 1;          /*!< bit:      2  DAC 0 End of Conversion            */
+        uint8_t  EOC1: 1;          /*!< bit:      3  DAC 1 End of Conversion            */
+        uint8_t  : 4;              /*!< bit:  4.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint8_t  READY:2;          /*!< bit:  0.. 1  DAC x Startup Ready                */
-        uint8_t  EOC:2;            /*!< bit:  2.. 3  DAC x End of Conversion            */
-        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+        uint8_t  READY: 2;         /*!< bit:  0.. 1  DAC x Startup Ready                */
+        uint8_t  EOC: 2;           /*!< bit:  2.. 3  DAC x End of Conversion            */
+        uint8_t  : 4;              /*!< bit:  4.. 7  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } DAC_STATUS_Type;
@@ -311,19 +311,19 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint32_t ENABLE:1;         /*!< bit:      1  DAC Enable Status                  */
-        uint32_t DATA0:1;          /*!< bit:      2  Data DAC 0                         */
-        uint32_t DATA1:1;          /*!< bit:      3  Data DAC 1                         */
-        uint32_t DATABUF0:1;       /*!< bit:      4  Data Buffer DAC 0                  */
-        uint32_t DATABUF1:1;       /*!< bit:      5  Data Buffer DAC 1                  */
-        uint32_t :26;              /*!< bit:  6..31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint32_t ENABLE: 1;        /*!< bit:      1  DAC Enable Status                  */
+        uint32_t DATA0: 1;         /*!< bit:      2  Data DAC 0                         */
+        uint32_t DATA1: 1;         /*!< bit:      3  Data DAC 1                         */
+        uint32_t DATABUF0: 1;      /*!< bit:      4  Data Buffer DAC 0                  */
+        uint32_t DATABUF1: 1;      /*!< bit:      5  Data Buffer DAC 1                  */
+        uint32_t : 26;             /*!< bit:  6..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t :2;               /*!< bit:  0.. 1  Reserved                           */
-        uint32_t DATA:2;           /*!< bit:  2.. 3  Data DAC x                         */
-        uint32_t DATABUF:2;        /*!< bit:  4.. 5  Data Buffer DAC x                  */
-        uint32_t :26;              /*!< bit:  6..31  Reserved                           */
+        uint32_t : 2;              /*!< bit:  0.. 1  Reserved                           */
+        uint32_t DATA: 2;          /*!< bit:  2.. 3  Data DAC x                         */
+        uint32_t DATABUF: 2;       /*!< bit:  4.. 5  Data Buffer DAC x                  */
+        uint32_t : 26;             /*!< bit:  6..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } DAC_SYNCBUSY_Type;
@@ -356,14 +356,14 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t LEFTADJ:1;        /*!< bit:      0  Left Adjusted Data                 */
-        uint16_t ENABLE:1;         /*!< bit:      1  Enable DAC0                        */
-        uint16_t CCTRL:2;          /*!< bit:  2.. 3  Current Control                    */
-        uint16_t :2;               /*!< bit:  4.. 5  Reserved                           */
-        uint16_t RUNSTDBY:1;       /*!< bit:      6  Run in Standby                     */
-        uint16_t DITHER:1;         /*!< bit:      7  Dithering Mode                     */
-        uint16_t REFRESH:4;        /*!< bit:  8..11  Refresh period                     */
-        uint16_t :4;               /*!< bit: 12..15  Reserved                           */
+        uint16_t LEFTADJ: 1;       /*!< bit:      0  Left Adjusted Data                 */
+        uint16_t ENABLE: 1;        /*!< bit:      1  Enable DAC0                        */
+        uint16_t CCTRL: 2;         /*!< bit:  2.. 3  Current Control                    */
+        uint16_t : 2;              /*!< bit:  4.. 5  Reserved                           */
+        uint16_t RUNSTDBY: 1;      /*!< bit:      6  Run in Standby                     */
+        uint16_t DITHER: 1;        /*!< bit:      7  Dithering Mode                     */
+        uint16_t REFRESH: 4;       /*!< bit:  8..11  Refresh period                     */
+        uint16_t : 4;              /*!< bit: 12..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } DAC_DACCTRL_Type;
@@ -400,7 +400,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t DATA:16;          /*!< bit:  0..15  DAC0 Data                          */
+        uint16_t DATA: 16;         /*!< bit:  0..15  DAC0 Data                          */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } DAC_DATA_Type;
@@ -418,7 +418,7 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t DATABUF:16;       /*!< bit:  0..15  DAC0 Data Buffer                   */
+        uint16_t DATABUF: 16;      /*!< bit:  0..15  DAC0 Data Buffer                   */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } DAC_DATABUF_Type;
@@ -436,8 +436,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DBGRUN:1;         /*!< bit:      0  Debug Run                          */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  DBGRUN: 1;        /*!< bit:      0  Debug Run                          */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } DAC_DBGCTRL_Type;

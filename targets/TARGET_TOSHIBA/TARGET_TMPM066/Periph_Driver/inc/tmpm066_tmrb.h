@@ -34,52 +34,52 @@ extern "C" {
 /**
   * @brief TMRB Init Structure definition
   */
-    typedef struct {
-        uint32_t Mode;          /*!< Select TMRB mode between internal interval
+typedef struct {
+    uint32_t Mode;          /*!< Select TMRB mode between internal interval
                                    timer mode and external event counter */
-        uint32_t ClkDiv;        /*!< Select the division for TMRB source clock */
-        uint32_t TrailingTiming;        /*!< Specify the trailingtiming value to be written 
+    uint32_t ClkDiv;        /*!< Select the division for TMRB source clock */
+    uint32_t TrailingTiming;        /*!< Specify the trailingtiming value to be written
                                            into TBnRG1 */
-        uint32_t UpCntCtrl;     /*!< Select up-counter work mode between 
+    uint32_t UpCntCtrl;     /*!< Select up-counter work mode between
                                    freerun and auto-reload */
-        uint32_t LeadingTiming; /*!< Specify the leadingtiming value to be written 
+    uint32_t LeadingTiming; /*!< Specify the leadingtiming value to be written
                                    into TBnRG0 */
-    } TMRB_InitTypeDef;
+} TMRB_InitTypeDef;
 
 /**
   * @brief TMRB Flip-flop Structure definition
   */
 
-    typedef struct {
-        uint32_t FlipflopCtrl;  /*!< Select TMRB flip-flop output level */
-        uint32_t FlipflopReverseTrg;    /*!< Specify TMRB flip-flop reverse trigger */
-    } TMRB_FFOutputTypeDef;
+typedef struct {
+    uint32_t FlipflopCtrl;  /*!< Select TMRB flip-flop output level */
+    uint32_t FlipflopReverseTrg;    /*!< Specify TMRB flip-flop reverse trigger */
+} TMRB_FFOutputTypeDef;
 
 /**
   * @brief TMRB Interrupt factor Union definition
   */
-    typedef union {
-        uint32_t All;
-        struct {
-            uint32_t MatchLeadingTiming:1;
-            uint32_t MatchTrailingTiming:1;
-            uint32_t OverFlow:1;
-            uint32_t Reserverd:29;
-        } Bit;
-    } TMRB_INTFactor;
+typedef union {
+    uint32_t All;
+    struct {
+        uint32_t MatchLeadingTiming: 1;
+        uint32_t MatchTrailingTiming: 1;
+        uint32_t OverFlow: 1;
+        uint32_t Reserverd: 29;
+    } Bit;
+} TMRB_INTFactor;
 
-/**                                              
+/**
   * @brief TMRB Interrupt masked Union definition
   */
-    typedef union {
-        uint32_t All;
-        struct {
-            uint32_t MatchLeadingTimingMask:1;
-            uint32_t MatchTrailingTimingMask:1;
-            uint32_t OverFlowMask:1;
-            uint32_t Reserverd:29;
-        } Bit;
-    } TMRB_INTMask;
+typedef union {
+    uint32_t All;
+    struct {
+        uint32_t MatchLeadingTimingMask: 1;
+        uint32_t MatchTrailingTimingMask: 1;
+        uint32_t OverFlowMask: 1;
+        uint32_t Reserverd: 29;
+    } Bit;
+} TMRB_INTMask;
 
 /** @} */
 /* End of group TMRB_Exported_Types */
@@ -222,26 +222,26 @@ extern "C" {
 /** @defgroup TMRB_Exported_FunctionPrototypes
   * @{
   */
-    void TMRB_Enable(TSB_TB_TypeDef * TBx);
-    void TMRB_Disable(TSB_TB_TypeDef * TBx);
-    void TMRB_SetRunState(TSB_TB_TypeDef * TBx, uint32_t Cmd);
-    void TMRB_Init(TSB_TB_TypeDef * TBx, TMRB_InitTypeDef * InitStruct);
-    void TMRB_SetCaptureTiming(TSB_TB_TypeDef * TBx, uint32_t CaptureTiming);
-    void TMRB_SetFlipFlop(TSB_TB_TypeDef * TBx, TMRB_FFOutputTypeDef * FFStruct);
-    TMRB_INTFactor TMRB_GetINTFactor(TSB_TB_TypeDef * TBx);
-    TMRB_INTMask TMRB_GetINTMask(TSB_TB_TypeDef * TBx);
-    void TMRB_SetINTMask(TSB_TB_TypeDef * TBx, uint32_t INTMask);
-    void TMRB_ChangeLeadingTiming(TSB_TB_TypeDef * TBx, uint32_t LeadingTiming);
-    void TMRB_ChangeTrailingTiming(TSB_TB_TypeDef * TBx, uint32_t TrailingTiming);
-    uint16_t TMRB_GetRegisterValue(TSB_TB_TypeDef * TBx, uint8_t Reg);
-    uint16_t TMRB_GetUpCntValue(TSB_TB_TypeDef * TBx);
-    uint16_t TMRB_GetCaptureValue(TSB_TB_TypeDef * TBx, uint8_t CapReg);
-    void TMRB_ExecuteSWCapture(TSB_TB_TypeDef * TBx);
-    void TMRB_SetSyncMode(TSB_TB_TypeDef * TBx, FunctionalState NewState);
-    void TMRB_SetDoubleBuf(TSB_TB_TypeDef * TBx, FunctionalState NewState);
-    void TMRB_SetExtStartTrg(TSB_TB_TypeDef * TBx, FunctionalState NewState, uint8_t TrgMode);
-    void TMRB_SetClkInCoreHalt(TSB_TB_TypeDef * TBx, uint8_t ClkState);
-    void TMRB_SetDMAReq(TSB_TB_TypeDef * TBx, FunctionalState NewState, uint8_t DMAReq);
+void TMRB_Enable(TSB_TB_TypeDef *TBx);
+void TMRB_Disable(TSB_TB_TypeDef *TBx);
+void TMRB_SetRunState(TSB_TB_TypeDef *TBx, uint32_t Cmd);
+void TMRB_Init(TSB_TB_TypeDef *TBx, TMRB_InitTypeDef *InitStruct);
+void TMRB_SetCaptureTiming(TSB_TB_TypeDef *TBx, uint32_t CaptureTiming);
+void TMRB_SetFlipFlop(TSB_TB_TypeDef *TBx, TMRB_FFOutputTypeDef *FFStruct);
+TMRB_INTFactor TMRB_GetINTFactor(TSB_TB_TypeDef *TBx);
+TMRB_INTMask TMRB_GetINTMask(TSB_TB_TypeDef *TBx);
+void TMRB_SetINTMask(TSB_TB_TypeDef *TBx, uint32_t INTMask);
+void TMRB_ChangeLeadingTiming(TSB_TB_TypeDef *TBx, uint32_t LeadingTiming);
+void TMRB_ChangeTrailingTiming(TSB_TB_TypeDef *TBx, uint32_t TrailingTiming);
+uint16_t TMRB_GetRegisterValue(TSB_TB_TypeDef *TBx, uint8_t Reg);
+uint16_t TMRB_GetUpCntValue(TSB_TB_TypeDef *TBx);
+uint16_t TMRB_GetCaptureValue(TSB_TB_TypeDef *TBx, uint8_t CapReg);
+void TMRB_ExecuteSWCapture(TSB_TB_TypeDef *TBx);
+void TMRB_SetSyncMode(TSB_TB_TypeDef *TBx, FunctionalState NewState);
+void TMRB_SetDoubleBuf(TSB_TB_TypeDef *TBx, FunctionalState NewState);
+void TMRB_SetExtStartTrg(TSB_TB_TypeDef *TBx, FunctionalState NewState, uint8_t TrgMode);
+void TMRB_SetClkInCoreHalt(TSB_TB_TypeDef *TBx, uint8_t ClkState);
+void TMRB_SetDMAReq(TSB_TB_TypeDef *TBx, FunctionalState NewState, uint8_t DMAReq);
 
 /** @} */
 /* End of group TMRB_Exported_FunctionPrototypes */

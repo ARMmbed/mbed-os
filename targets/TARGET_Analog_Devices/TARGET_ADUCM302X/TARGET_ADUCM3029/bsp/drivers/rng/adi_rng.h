@@ -77,8 +77,7 @@ extern "C" {
  * \enum ADI_RNG_RESULT
  * Random Number Generator API return codes
  */
-typedef enum
-{
+typedef enum {
     ADI_RNG_SUCCESS = 0,            /*!<  No Error, API suceeded */
     ADI_RNG_UNKNOWN_ERROR,          /*!<  Unknown error detected */
     ADI_RNG_ALREADY_INITIALIZED,    /*!<  RNG is already initialized */
@@ -93,8 +92,7 @@ typedef enum
  * \enum ADI_RNG_EVENT
  * Random Number Generator callback events
  */
-typedef enum
-{
+typedef enum {
     ADI_RNG_EVENT_READY,               /*!< Random number ready event */
     ADI_RNG_EVENT_STUCK                /*!< The ring oscillator got stuck event */
 } ADI_RNG_EVENT;
@@ -105,7 +103,7 @@ typedef enum
 
 
 /*! RNG Device handle typedef */
-typedef void* ADI_RNG_HANDLE;
+typedef void *ADI_RNG_HANDLE;
 
 /*================ E X T E R N A L S ==================*/
 
@@ -115,77 +113,77 @@ typedef void* ADI_RNG_HANDLE;
 
 /* Open a random number generator device */
 extern ADI_RNG_RESULT adi_rng_Open(
-                            uint32_t             const  nDeviceNum,
-                            void*                const  pMemory,
-                            uint32_t             const  MemorySize,
-                            ADI_RNG_HANDLE*      const  phDevice
-                            );
+    uint32_t             const  nDeviceNum,
+    void                *const  pMemory,
+    uint32_t             const  MemorySize,
+    ADI_RNG_HANDLE      *const  phDevice
+);
 
 /* Close the RNG Device */
 extern ADI_RNG_RESULT adi_rng_Close(ADI_RNG_HANDLE hDevice);
 
 /* Enable/Disable the device */
-extern ADI_RNG_RESULT adi_rng_Enable (
-                                      ADI_RNG_HANDLE const hDevice,
-                                      bool           const bFlag
-                                      );
+extern ADI_RNG_RESULT adi_rng_Enable(
+    ADI_RNG_HANDLE const hDevice,
+    bool           const bFlag
+);
 /* Enable/Disable buffering */
-extern ADI_RNG_RESULT adi_rng_EnableBuffering (
-                                               ADI_RNG_HANDLE const hDevice,
-                                               bool           const bFlag
-                                               );
+extern ADI_RNG_RESULT adi_rng_EnableBuffering(
+    ADI_RNG_HANDLE const hDevice,
+    bool           const bFlag
+);
 
 /* Set the sample length */
-extern ADI_RNG_RESULT adi_rng_SetSampleLen (
-                                            ADI_RNG_HANDLE const hDevice,
-                                            uint16_t       const nLenPrescaler,
-                                            uint16_t       const nLenReload
-                                            );
+extern ADI_RNG_RESULT adi_rng_SetSampleLen(
+    ADI_RNG_HANDLE const hDevice,
+    uint16_t       const nLenPrescaler,
+    uint16_t       const nLenReload
+);
 
 /* Get whether the random number is ready */
-extern ADI_RNG_RESULT adi_rng_GetRdyStatus (
-                                            ADI_RNG_HANDLE const hDevice,
-                                            bool*          const pbFlag
-                                            );
+extern ADI_RNG_RESULT adi_rng_GetRdyStatus(
+    ADI_RNG_HANDLE const hDevice,
+    bool          *const pbFlag
+);
 
 /* Get whether the ring oscillator output is stuck or not */
-extern ADI_RNG_RESULT adi_rng_GetStuckStatus (
-                                              ADI_RNG_HANDLE const hDevice,
-                                              bool*          const pbFlag
-                                              );
+extern ADI_RNG_RESULT adi_rng_GetStuckStatus(
+    ADI_RNG_HANDLE const hDevice,
+    bool          *const pbFlag
+);
 
 /* Get the random number */
-extern ADI_RNG_RESULT adi_rng_GetRngData (
-                                          ADI_RNG_HANDLE const hDevice,
-                                          uint32_t*      const pRegData
-                                          );
+extern ADI_RNG_RESULT adi_rng_GetRngData(
+    ADI_RNG_HANDLE const hDevice,
+    uint32_t      *const pRegData
+);
 
 /* Get the oscillator count */
-extern ADI_RNG_RESULT adi_rng_GetOscCount (
-                                           ADI_RNG_HANDLE const hDevice,
-                                           uint32_t*      const pOscCount
-                                           );
+extern ADI_RNG_RESULT adi_rng_GetOscCount(
+    ADI_RNG_HANDLE const hDevice,
+    uint32_t      *const pOscCount
+);
 
 /* Get the oscillator count difference value */
-extern ADI_RNG_RESULT adi_rng_GetOscDiff (
-                                          ADI_RNG_HANDLE const hDevice,
-                                          uint32_t       const nIndex,
-                                          uint8_t*       const pOscDiff
-                                          );
+extern ADI_RNG_RESULT adi_rng_GetOscDiff(
+    ADI_RNG_HANDLE const hDevice,
+    uint32_t       const nIndex,
+    uint8_t       *const pOscDiff
+);
 
 /* Register a callback */
-extern ADI_RNG_RESULT adi_rng_RegisterCallback (
-                                                ADI_RNG_HANDLE  hDevice,
-                                                ADI_CALLBACK    cbFunc,
-                                                void           *pCBParam
-                                                );
+extern ADI_RNG_RESULT adi_rng_RegisterCallback(
+    ADI_RNG_HANDLE  hDevice,
+    ADI_CALLBACK    cbFunc,
+    void           *pCBParam
+);
 
 /* Retrieve the current RNG sample length prescale and reload value configured in the device. */
-extern ADI_RNG_RESULT adi_rng_GetSampleLen (
-                                            ADI_RNG_HANDLE const hDevice,
-                                            uint16_t*      const pLenPrescaler,
-                                            uint16_t*      const pLenReload
-                                            );
+extern ADI_RNG_RESULT adi_rng_GetSampleLen(
+    ADI_RNG_HANDLE const hDevice,
+    uint16_t      *const pLenPrescaler,
+    uint16_t      *const pLenReload
+);
 
 #ifdef __cplusplus
 }

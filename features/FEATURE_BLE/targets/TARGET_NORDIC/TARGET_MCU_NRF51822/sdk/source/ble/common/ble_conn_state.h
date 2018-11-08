@@ -67,8 +67,7 @@
 
 /**@brief Connection handle statuses.
  */
-typedef enum
-{
+typedef enum {
     BLE_CONN_STATUS_INVALID,       /**< The connection handle is invalid. */
     BLE_CONN_STATUS_DISCONNECTED,  /**< The connection handle refers to a connection that has been disconnected, but not yet invalidated. */
     BLE_CONN_STATUS_CONNECTED,     /**< The connection handle refers to an active connection. */
@@ -81,8 +80,7 @@ typedef enum
  *
  * @details These IDs are used to identify user flag collections in the API calls.
  */
-typedef enum
-{
+typedef enum {
     BLE_CONN_STATE_USER_FLAG0 = 0,
     BLE_CONN_STATE_USER_FLAG1,
     BLE_CONN_STATE_USER_FLAG2,
@@ -120,7 +118,7 @@ void ble_conn_state_init(void);
  *
  * @param[in]  p_ble_evt    The SoftDevice event.
  */
-void ble_conn_state_on_ble_evt(ble_evt_t * p_ble_evt);
+void ble_conn_state_on_ble_evt(ble_evt_t *p_ble_evt);
 
 
 /**@brief Function for querying whether a connection handle represents a valid connection.

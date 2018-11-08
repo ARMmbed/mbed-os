@@ -70,8 +70,9 @@ bool USBHostMSD::connect()
 
             USB_DBG("Trying to connect MSD device\r\n");
 
-            if(host->enumerate(dev, this))
+            if (host->enumerate(dev, this)) {
                 break;
+            }
 
             if (msd_device_found) {
                 /* As this is done in a specific thread
@@ -82,8 +83,9 @@ bool USBHostMSD::connect()
                 bulk_in = dev->getEndpoint(msd_intf, BULK_ENDPOINT, IN);
                 bulk_out = dev->getEndpoint(msd_intf, BULK_ENDPOINT, OUT);
 
-                if (!bulk_in || !bulk_out)
+                if (!bulk_in || !bulk_out) {
                     continue;
+                }
 
                 USB_INFO("New MSD device: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, msd_intf);
                 dev->setName("MSD", msd_intf);
@@ -120,8 +122,9 @@ bool USBHostMSD::connect()
     if (intf_nb == msd_intf) {
         if (type == BULK_ENDPOINT) {
             nb_ep++;
-            if (nb_ep == 2)
+            if (nb_ep == 2) {
                 msd_device_found = true;
+            }
             return true;
         }
     }
@@ -139,13 +142,13 @@ int USBHostMSD::testUnitReady()
 int USBHostMSD::readCapacity()
 {
     USB_DBG("Read capacity");
-    uint8_t cmd[10] = {0x25,0,0,0,0,0,0,0,0,0};
+    uint8_t cmd[10] = {0x25, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint8_t result[8];
     int status = SCSITransfer(cmd, 10, DEVICE_TO_HOST, result, 8);
     if (status == 0) {
         blockCount = (result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3];
         blockSize = (result[4] << 24) | (result[5] << 16) | (result[6] << 8) | result[7];
-        USB_INFO("MSD [dev: %p] - blockCount: %u, blockSize: %d, Capacity: %d\r\n", dev, blockCount, blockSize, blockCount*blockSize);
+        USB_INFO("MSD [dev: %p] - blockCount: %u, blockSize: %d, Capacity: %d\r\n", dev, blockCount, blockSize, blockCount * blockSize);
     }
     return status;
 }
@@ -154,7 +157,7 @@ int USBHostMSD::readCapacity()
 int USBHostMSD::SCSIRequestSense()
 {
     USB_DBG("Request sense");
-    uint8_t cmd[6] = {0x03,0,0,0,18,0};
+    uint8_t cmd[6] = {0x03, 0, 0, 0, 18, 0};
     uint8_t result[18];
     int status = SCSITransfer(cmd, 6, DEVICE_TO_HOST, result, 18);
     return status;
@@ -185,28 +188,29 @@ int USBHostMSD::inquiry(uint8_t lun, uint8_t page_code)
     return status;
 }
 
-int USBHostMSD::checkResult(uint8_t res, USBEndpoint * ep)
+int USBHostMSD::checkResult(uint8_t res, USBEndpoint *ep)
 {
     // if ep stalled: send clear feature
     if (res == USB_TYPE_STALL_ERROR) {
-        res = host->controlWrite(   dev,
-                                    USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
-                                    CLEAR_FEATURE,
-                                    0, ep->getAddress(), NULL, 0);
+        res = host->controlWrite(dev,
+                                 USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
+                                 CLEAR_FEATURE,
+                                 0, ep->getAddress(), NULL, 0);
         // set state to IDLE if clear feature successful
         if (res == USB_TYPE_OK) {
             ep->setState(USB_TYPE_IDLE);
         }
     }
 
-    if (res != USB_TYPE_OK)
+    if (res != USB_TYPE_OK) {
         return -1;
+    }
 
     return 0;
 }
 
 
-int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t * data, uint32_t transfer_len)
+int USBHostMSD::SCSITransfer(uint8_t *cmd, uint8_t cmd_len, int flags, uint8_t *data, uint32_t transfer_len)
 {
 
     int res = 0;
@@ -217,16 +221,17 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
     cbw.Flags = flags;
     cbw.LUN = 0;
     cbw.CBLength = cmd_len;
-    memset(cbw.CB,0,sizeof(cbw.CB));
+    memset(cbw.CB, 0, sizeof(cbw.CB));
     if (cmd) {
-        memcpy(cbw.CB,cmd,cmd_len);
+        memcpy(cbw.CB, cmd, cmd_len);
     }
 
     // send the cbw
     USB_DBG("Send CBW");
-    res = host->bulkWrite(dev, bulk_out,(uint8_t *)&cbw, 31);
-    if (checkResult(res, bulk_out))
+    res = host->bulkWrite(dev, bulk_out, (uint8_t *)&cbw, 31);
+    if (checkResult(res, bulk_out)) {
         return -1;
+    }
 
     // data stage if needed
     if (data) {
@@ -234,23 +239,26 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
         if (flags == HOST_TO_DEVICE) {
 
             res = host->bulkWrite(dev, bulk_out, data, transfer_len);
-            if (checkResult(res, bulk_out))
+            if (checkResult(res, bulk_out)) {
                 return -1;
+            }
 
         } else if (flags == DEVICE_TO_HOST) {
 
             res = host->bulkRead(dev, bulk_in, data, transfer_len);
-            if (checkResult(res, bulk_in))
+            if (checkResult(res, bulk_in)) {
                 return -1;
+            }
         }
     }
 
     // status stage
     csw.Signature = 0;
     USB_DBG("Read CSW");
-    res = host->bulkRead(dev, bulk_in,(uint8_t *)&csw, 13);
-    if (checkResult(res, bulk_in))
+    res = host->bulkRead(dev, bulk_in, (uint8_t *)&csw, 13);
+    if (checkResult(res, bulk_in)) {
         return -1;
+    }
 
     if (csw.Signature != CSW_SIGNATURE) {
         return -1;
@@ -268,21 +276,21 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
     if ((csw.Status == 2) && (cmd[0] != 0x03)) {
 
         // send Bulk-Only Mass Storage Reset request
-        res = host->controlWrite(   dev,
-                                    USB_RECIPIENT_INTERFACE | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS,
-                                    BO_MASS_STORAGE_RESET,
-                                    0, msd_intf, NULL, 0);
+        res = host->controlWrite(dev,
+                                 USB_RECIPIENT_INTERFACE | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS,
+                                 BO_MASS_STORAGE_RESET,
+                                 0, msd_intf, NULL, 0);
 
         // unstall both endpoints
-        res = host->controlWrite(   dev,
-                                    USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
-                                    CLEAR_FEATURE,
-                                    0, bulk_in->getAddress(), NULL, 0);
+        res = host->controlWrite(dev,
+                                 USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
+                                 CLEAR_FEATURE,
+                                 0, bulk_in->getAddress(), NULL, 0);
 
-        res = host->controlWrite(   dev,
-                                    USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
-                                    CLEAR_FEATURE,
-                                    0, bulk_out->getAddress(), NULL, 0);
+        res = host->controlWrite(dev,
+                                 USB_RECIPIENT_ENDPOINT | USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_STANDARD,
+                                 CLEAR_FEATURE,
+                                 0, bulk_out->getAddress(), NULL, 0);
 
     }
 
@@ -290,10 +298,10 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
 }
 
 
-int USBHostMSD::dataTransfer(uint8_t * buf, uint32_t block, uint8_t nbBlock, int direction)
+int USBHostMSD::dataTransfer(uint8_t *buf, uint32_t block, uint8_t nbBlock, int direction)
 {
     uint8_t cmd[10];
-    memset(cmd,0,10);
+    memset(cmd, 0, 10);
     cmd[0] = (direction == DEVICE_TO_HOST) ? 0x28 : 0x2A;
 
     cmd[2] = (block >> 24) & 0xff;
@@ -304,14 +312,14 @@ int USBHostMSD::dataTransfer(uint8_t * buf, uint32_t block, uint8_t nbBlock, int
     cmd[7] = (nbBlock >> 8) & 0xff;
     cmd[8] = nbBlock & 0xff;
 
-    return SCSITransfer(cmd, 10, direction, buf, blockSize*nbBlock);
+    return SCSITransfer(cmd, 10, direction, buf, blockSize * nbBlock);
 }
 
 int USBHostMSD::getMaxLun()
 {
     uint8_t buf[1], res;
-    res = host->controlRead(    dev, USB_RECIPIENT_INTERFACE | USB_DEVICE_TO_HOST | USB_REQUEST_TYPE_CLASS,
-                                0xfe, 0, msd_intf, buf, 1);
+    res = host->controlRead(dev, USB_RECIPIENT_INTERFACE | USB_DEVICE_TO_HOST | USB_REQUEST_TYPE_CLASS,
+                            0xfe, 0, msd_intf, buf, 1);
     USB_DBG("max lun: %d", buf[0]);
     return res;
 }
@@ -323,8 +331,9 @@ int USBHostMSD::init()
     getMaxLun();
     for (i = 0; i < timeout; i++) {
         Thread::wait(100);
-        if (!testUnitReady())
+        if (!testUnitReady()) {
             break;
+        }
     }
 
     if (i == timeout) {
@@ -348,11 +357,12 @@ int USBHostMSD::program(const void *buffer, bd_addr_t addr, bd_size_t size)
         return -1;
     }
     block_number =  addr / blockSize;
-    count = size /blockSize;
+    count = size / blockSize;
 
     for (uint32_t b = block_number; b < block_number + count; b++) {
-        if (dataTransfer(buf, b, 1, HOST_TO_DEVICE))
+        if (dataTransfer(buf, b, 1, HOST_TO_DEVICE)) {
             return -1;
+        }
         buf += blockSize;
     }
     return 0;
@@ -372,8 +382,9 @@ int USBHostMSD::read(void *buffer, bd_addr_t addr, bd_size_t size)
     count = size / blockSize;
 
     for (uint32_t b = block_number; b < block_number + count; b++) {
-        if (dataTransfer(buf, b, 1, DEVICE_TO_HOST))
+        if (dataTransfer(buf, b, 1, DEVICE_TO_HOST)) {
             return -1;
+        }
         buf += blockSize;
     }
     return 0;

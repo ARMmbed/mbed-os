@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #include <stddef.h>
 #include "cmsis.h"
 #include "gpio_irq_api.h"
@@ -53,7 +53,7 @@ static void handle_irq(unsigned int port)
 
     /* Read interrupts */
     intfl = MXC_GPIO->intfl[port] & MXC_GPIO->inten[port];
-    
+
     mask = 1;
 
     for (pin = 0; pin < NUM_PINS_PER_PORT; pin++) {
@@ -71,19 +71,44 @@ static void handle_irq(unsigned int port)
     }
 }
 
-void gpio_irq_0(void) { handle_irq(0); }
-void gpio_irq_1(void) { handle_irq(1); }
-void gpio_irq_2(void) { handle_irq(2); }
-void gpio_irq_3(void) { handle_irq(3); }
-void gpio_irq_4(void) { handle_irq(4); }
-void gpio_irq_5(void) { handle_irq(5); }
-void gpio_irq_6(void) { handle_irq(6); }
-void gpio_irq_7(void) { handle_irq(7); }
+void gpio_irq_0(void)
+{
+    handle_irq(0);
+}
+void gpio_irq_1(void)
+{
+    handle_irq(1);
+}
+void gpio_irq_2(void)
+{
+    handle_irq(2);
+}
+void gpio_irq_3(void)
+{
+    handle_irq(3);
+}
+void gpio_irq_4(void)
+{
+    handle_irq(4);
+}
+void gpio_irq_5(void)
+{
+    handle_irq(5);
+}
+void gpio_irq_6(void)
+{
+    handle_irq(6);
+}
+void gpio_irq_7(void)
+{
+    handle_irq(7);
+}
 
 int gpio_irq_init(gpio_irq_t *obj, PinName name, gpio_irq_handler handler, uint32_t id)
 {
-    if (name == NC)
+    if (name == NC) {
         return -1;
+    }
 
     uint8_t port = PINNAME_TO_PORT(name);
     uint8_t pin = PINNAME_TO_PIN(name);
@@ -110,7 +135,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName name, gpio_irq_handler handler, uint3
     NVIC_SetVector(GPIO_P7_IRQn, (uint32_t)gpio_irq_7);
 
     /* disable the interrupt locally */
-    MXC_GPIO->int_mode[port] &= ~(0xF << (pin*4));
+    MXC_GPIO->int_mode[port] &= ~(0xF << (pin * 4));
 
     /* clear a pending request */
     MXC_GPIO->intfl[port] = 1 << pin;
@@ -126,7 +151,7 @@ void gpio_irq_free(gpio_irq_t *obj)
 {
     /* disable interrupt */
     MXC_GPIO->inten[obj->port] &= ~(1 << obj->pin);
-    MXC_GPIO->int_mode[obj->port] &= ~(0xF << (obj->pin*4));
+    MXC_GPIO->int_mode[obj->port] &= ~(0xF << (obj->pin * 4));
 
     ids[obj->port][obj->pin] = 0;
 }
@@ -134,7 +159,7 @@ void gpio_irq_free(gpio_irq_t *obj)
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
     uint32_t int_mode = MXC_GPIO->int_mode[obj->port];
-    uint32_t curr_mode = (int_mode >> (obj->pin*4)) & 0x3;   /* only supporting edge interrupts */
+    uint32_t curr_mode = (int_mode >> (obj->pin * 4)) & 0x3; /* only supporting edge interrupts */
 
     uint32_t new_mode = curr_mode;
     if (event == IRQ_FALL) {
@@ -151,8 +176,8 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         }
     }
 
-    int_mode &= ~(0xF << (obj->pin*4));
-    int_mode |= (new_mode << (obj->pin*4));
+    int_mode &= ~(0xF << (obj->pin * 4));
+    int_mode |= (new_mode << (obj->pin * 4));
     MXC_GPIO->int_mode[obj->port] = int_mode;
 }
 

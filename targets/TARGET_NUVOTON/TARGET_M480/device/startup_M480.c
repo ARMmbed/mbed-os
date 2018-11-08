@@ -84,7 +84,7 @@ void Reset_Handler_Cascade(void *sp, void *pc);
 WEAK_ALIAS_FUNC(NMI_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(HardFault_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(MemManage_Handler, Default_Handler)
-WEAK_ALIAS_FUNC(BusFault_Handler , Default_Handler)
+WEAK_ALIAS_FUNC(BusFault_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(UsageFault_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(SVC_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(DebugMon_Handler, Default_Handler)
@@ -97,7 +97,7 @@ WEAK_ALIAS_FUNC(IRC_IRQHandler, Default_Handler)        // 1: Internal RC
 WEAK_ALIAS_FUNC(PWRWU_IRQHandler, Default_Handler)      // 2: Power down wake up
 WEAK_ALIAS_FUNC(RAMPE_IRQHandler, Default_Handler)      // 3: RAM parity error
 WEAK_ALIAS_FUNC(CKFAIL_IRQHandler, Default_Handler)     // 4: Clock detection fail
-                                                        // 5: Reserved
+// 5: Reserved
 WEAK_ALIAS_FUNC(RTC_IRQHandler, Default_Handler)        // 6: Real Time Clock
 WEAK_ALIAS_FUNC(TAMPER_IRQHandler, Default_Handler)     // 7: Tamper detection
 WEAK_ALIAS_FUNC(WDT_IRQHandler, Default_Handler)        // 8: Watchdog timer
@@ -137,12 +137,12 @@ WEAK_ALIAS_FUNC(DAC_IRQHandler, Default_Handler)        // 41: DAC
 WEAK_ALIAS_FUNC(ADC00_IRQHandler, Default_Handler)      // 42: ADC0 interrupt source 0
 WEAK_ALIAS_FUNC(ADC01_IRQHandler, Default_Handler)      // 43: ADC0 interrupt source 1
 WEAK_ALIAS_FUNC(ACMP01_IRQHandler, Default_Handler)     // 44: ACMP0 and ACMP1
-                                                        // 45: Reserved
+// 45: Reserved
 WEAK_ALIAS_FUNC(ADC02_IRQHandler, Default_Handler)      // 46: ADC0 interrupt source 2
 WEAK_ALIAS_FUNC(ADC03_IRQHandler, Default_Handler)      // 47: ADC0 interrupt source 3
 WEAK_ALIAS_FUNC(UART2_IRQHandler, Default_Handler)      // 48: UART2
 WEAK_ALIAS_FUNC(UART3_IRQHandler, Default_Handler)      // 49: UART3
-                                                        // 50: Reserved
+// 50: Reserved
 WEAK_ALIAS_FUNC(SPI2_IRQHandler, Default_Handler)       // 51: SPI2
 WEAK_ALIAS_FUNC(SPI3_IRQHandler, Default_Handler)       // 52: SPI3
 WEAK_ALIAS_FUNC(USBD_IRQHandler, Default_Handler)       // 53: USB device
@@ -153,15 +153,15 @@ WEAK_ALIAS_FUNC(CAN1_IRQHandler, Default_Handler)       // 57: CAN1
 WEAK_ALIAS_FUNC(SC0_IRQHandler, Default_Handler)        // 58:
 WEAK_ALIAS_FUNC(SC1_IRQHandler, Default_Handler)        // 59:
 WEAK_ALIAS_FUNC(SC2_IRQHandler, Default_Handler)        // 60:
-                                                        // 61:
+// 61:
 WEAK_ALIAS_FUNC(SPI4_IRQHandler, Default_Handler)       // 62: SPI4
-                                                        // 63:
+// 63:
 WEAK_ALIAS_FUNC(SDH0_IRQHandler, Default_Handler)       // 64: SDH0
 WEAK_ALIAS_FUNC(USBD20_IRQHandler, Default_Handler)     // 65: USBD20
 WEAK_ALIAS_FUNC(EMAC_TX_IRQHandler, Default_Handler)    // 66: EMAC_TX
 WEAK_ALIAS_FUNC(EMAC_RX_IRQHandler, Default_Handler)    // 67: EMAX_RX
 WEAK_ALIAS_FUNC(I2S0_IRQHandler, Default_Handler)       // 68: I2S0
-                                                        // 69: ToDo: Add description to this Interrupt
+// 69: ToDo: Add description to this Interrupt
 WEAK_ALIAS_FUNC(OPA0_IRQHandler, Default_Handler)       // 70: OPA0
 WEAK_ALIAS_FUNC(CRYPTO_IRQHandler, Default_Handler)     // 71: CRYPTO
 WEAK_ALIAS_FUNC(GPG_IRQHandler, Default_Handler)        // 72:
@@ -173,9 +173,9 @@ WEAK_ALIAS_FUNC(USCI1_IRQHandler, Default_Handler)      // 77: USCI1
 WEAK_ALIAS_FUNC(BPWM0_IRQHandler, Default_Handler)      // 78: BPWM0
 WEAK_ALIAS_FUNC(BPWM1_IRQHandler, Default_Handler)      // 79: BPWM1
 WEAK_ALIAS_FUNC(SPIM_IRQHandler, Default_Handler)       // 80: SPIM
-                                                        // 81:
+// 81:
 WEAK_ALIAS_FUNC(I2C2_IRQHandler, Default_Handler)       // 82: I2C2
-                                                        // 83:
+// 83:
 WEAK_ALIAS_FUNC(QEI0_IRQHandler, Default_Handler)       // 84: QEI0
 WEAK_ALIAS_FUNC(QEI1_IRQHandler, Default_Handler)       // 85: QEI1
 WEAK_ALIAS_FUNC(ECAP0_IRQHandler, Default_Handler)      // 86: ECAP0
@@ -183,7 +183,7 @@ WEAK_ALIAS_FUNC(ECAP1_IRQHandler, Default_Handler)      // 87: ECAP1
 WEAK_ALIAS_FUNC(GPH_IRQHandler, Default_Handler)        // 88:
 WEAK_ALIAS_FUNC(EINT7_IRQHandler, Default_Handler)      // 89:
 WEAK_ALIAS_FUNC(SDH1_IRQHandler, Default_Handler)       // 90: SDH1
-                                                        // 91:
+// 91:
 WEAK_ALIAS_FUNC(EHCI_IRQHandler, Default_Handler)       // 92: EHCI
 WEAK_ALIAS_FUNC(USBOTG20_IRQHandler, Default_Handler)   // 93:
 WEAK_ALIAS_FUNC(SWDC_IRQHandler, Default_Handler)       // 94:
@@ -191,13 +191,13 @@ WEAK_ALIAS_FUNC(ETMC_IRQHandler, Default_Handler)       // 95:
 
 /* Vector table */
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-__attribute__ ((section("RESET")))
+__attribute__((section("RESET")))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
 extern uint32_t CSTACK$$Limit;
 const uint32_t __vector_table[] @ ".intvec" = {
 #elif defined(__GNUC__)
-__attribute__ ((section(".vector_table")))
+__attribute__((section(".vector_table")))
 const uint32_t __vector_handlers[] = {
 #endif
 
@@ -324,30 +324,30 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) ETMC_IRQHandler,         // 95:
 };
 
-/* 
- * Reset_Handler: 
+/*
+ * Reset_Handler:
  *  Divert one small memory block for Initial Stack
  *  Continue Initial Stack for Reset_Handler_1
  *  Jump to Reset_Handler_1
- * 
+ *
  * Reset_Handler_1
  *  Enable SPIM CCM memory. From now on, this memory could be used for Initial Stack, depending on linker.
  *  Configure Initial Stack, using linker-generated symbols for Reset_Handler_2
  *  Jump to Reset_Handler_2
- * 
+ *
  * Reset_Handler_2
  *  C/C++ runtime initialization
  */
-     
+
 #if defined(__CC_ARM)
 
 __asm static void Reset_Handler(void)
-{    
-    LDR SP, =0x20000200
-    LDR R0, =0x20000200
-    LDR R1, =__cpp(Reset_Handler_1)
-    LDR R2, =__cpp(Reset_Handler_Cascade)
-    BX  R2
+{
+    LDR SP, = 0x20000200
+              LDR R0, = 0x20000200
+                        LDR R1, = __cpp(Reset_Handler_1)
+                                  LDR R2, = __cpp(Reset_Handler_Cascade)
+                                            BX  R2
 }
 
 __asm void Reset_Handler_Cascade(void *sp, void *pc)
@@ -361,7 +361,7 @@ __asm void Reset_Handler_Cascade(void *sp, void *pc)
 void Reset_Handler(void)
 {
     /* NOTE: In debugger disassembly view, check initial stack cannot be accessed until initial stack pointer has changed to 0x20000200 */
-    __asm volatile (
+    __asm volatile(
         "mov    sp, %0                  \n"
         "mov    r0, sp                  \n"
         "mov    r1, %1                  \n"
@@ -374,7 +374,7 @@ void Reset_Handler(void)
 
 void Reset_Handler_Cascade(void *sp, void *pc)
 {
-    __asm volatile (
+    __asm volatile(
         "mov    sp,  %0             \n"
         "bx     %1                  \n"
         :                           /* output operands */
@@ -393,19 +393,19 @@ void Reset_Handler_1(void)
 {
     /* Disable register write-protection function */
     SYS_UnlockReg();
-    
+
     /* Disable Power-on Reset function */
     SYS_DISABLE_POR();
-    
+
     /**
      * NOTE 1: Some register accesses require unlock.
      * NOTE 2: Because EBI (external SRAM) init is done in SystemInit(), SystemInit() must be called at the very start.
      */
     SystemInit();
-    
+
     /* Enable register write-protection function */
     SYS_LockReg();
-    
+
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     Reset_Handler_Cascade((void *) &Image$$ARM_LIB_STACK$$ZI$$Limit, (void *) Reset_Handler_2);
 #elif defined(__ICCARM__)
@@ -421,8 +421,8 @@ void Reset_Handler_2(void)
      * The call to uvisor_init() happens independently of uVisor being enabled or
      * not, so it is conditionally compiled only based on FEATURE_UVISOR.
      *
-     * The call to uvisor_init() must be right after system initialization (usually called SystemInit()) and 
-     * right before the C/C++ library initialization (zeroing the BSS section, loading data from flash to SRAM). 
+     * The call to uvisor_init() must be right after system initialization (usually called SystemInit()) and
+     * right before the C/C++ library initialization (zeroing the BSS section, loading data from flash to SRAM).
      * Otherwise, we might get data corruption.
      */
 #if defined(FEATURE_UVISOR)
@@ -431,7 +431,7 @@ void Reset_Handler_2(void)
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     __main();
-    
+
 #elif defined(__ICCARM__)
     __iar_program_start();
 
@@ -446,7 +446,7 @@ void Reset_Handler_2(void)
             *dst_ind ++ = *src_ind ++;
         }
     }
-   
+
     /* Initialize .bss section to zero */
     dst_ind = (uint32_t *) &__bss_start__;
     dst_end = (uint32_t *) &__bss_end__;
@@ -455,9 +455,9 @@ void Reset_Handler_2(void)
             *dst_ind ++ = 0;
         }
     }
-    
+
     _start();
-    
+
 #endif
 
     /* Infinite loop */

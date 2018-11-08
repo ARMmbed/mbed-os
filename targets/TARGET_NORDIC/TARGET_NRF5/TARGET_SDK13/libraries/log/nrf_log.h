@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2016 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**@file
@@ -54,13 +54,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
 /** @brief  Default module name prefix.
  *
  * The prefix can be defined in a module to override the default.
  */
 #ifndef NRF_LOG_MODULE_NAME
-    #define NRF_LOG_MODULE_NAME ""
+#define NRF_LOG_MODULE_NAME ""
 #endif
 
 /** @brief Severity level for the module.
@@ -68,7 +68,7 @@ extern "C" {
  * The severity level can be defined in a module to override the default.
  */
 #ifndef NRF_LOG_LEVEL
-    #define NRF_LOG_LEVEL NRF_LOG_DEFAULT_LEVEL
+#define NRF_LOG_LEVEL NRF_LOG_DEFAULT_LEVEL
 #endif
 
 /** @brief  Color prefix of debug logs for the module.
@@ -76,7 +76,7 @@ extern "C" {
  * This color prefix can be defined in a module to override the default.
  */
 #ifndef NRF_LOG_DEBUG_COLOR
-    #define NRF_LOG_DEBUG_COLOR NRF_LOG_COLOR_DEFAULT
+#define NRF_LOG_DEBUG_COLOR NRF_LOG_COLOR_DEFAULT
 #endif
 
 /** @brief  Color prefix of info logs for the module.
@@ -84,7 +84,7 @@ extern "C" {
  * This color prefix can be defined in a module to override the default.
  */
 #ifndef NRF_LOG_INFO_COLOR
-    #define NRF_LOG_INFO_COLOR NRF_LOG_COLOR_DEFAULT
+#define NRF_LOG_INFO_COLOR NRF_LOG_COLOR_DEFAULT
 #endif
 
 #include "nrf_log_internal.h"
@@ -185,7 +185,7 @@ extern "C" {
  *
  * @return Address to the location where the string is stored in the internal logger buffer.
  */
-uint32_t nrf_log_push(char * const p_str);
+uint32_t nrf_log_push(char *const p_str);
 
 /**
  * @brief Macro to be used in a formatted string to a pass float number to the log.

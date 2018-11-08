@@ -11,7 +11,7 @@
 static ADI_ADC_INFO AdcDevInfo[] = {
     {
         NULL,
-        (ADI_ADC_TypeDef*)REG_ADC0_CFG
+        (ADI_ADC_TypeDef *)REG_ADC0_CFG
     }
 };
 

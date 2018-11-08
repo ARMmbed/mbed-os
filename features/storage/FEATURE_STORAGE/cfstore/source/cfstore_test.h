@@ -34,7 +34,7 @@ extern "C" {
 #define CFSTORE_TEST_BYTE_DATA_TABLE_SIZE       256
 #define CFSTORE_UTEST_MSG_BUF_SIZE              256
 #define CFSTORE_UTEST_DEFAULT_TIMEOUT_MS        10000
-#define CFSTORE_MBED_HOSTTEST_TIMEOUT 			60
+#define CFSTORE_MBED_HOSTTEST_TIMEOUT           60
 
 /* support macro for make string for utest _MESSAGE macros, which dont support formatted output */
 #define CFSTORE_TEST_UTEST_MESSAGE(_buf, _max_len, _fmt, ...)   \
@@ -50,12 +50,11 @@ extern "C" {
 
 /* kv data for test */
 typedef struct cfstore_kv_data_t {
-    const char* key_name;
-    const char* value;
+    const char *key_name;
+    const char *value;
 } cfstore_kv_data_t;
 
-typedef struct cfstore_test_rw_data_entry_t
-{
+typedef struct cfstore_test_rw_data_entry_t {
     uint32_t offset;
     char rw_char;
 } cfstore_test_rw_data_entry_t;
@@ -63,21 +62,21 @@ typedef struct cfstore_test_rw_data_entry_t
 
 extern cfstore_kv_data_t cfstore_test_init_1_data[];
 extern cfstore_test_rw_data_entry_t cfstore_test_rw_data_table[];
-extern const char* cfstore_test_opcode_str[];
+extern const char *cfstore_test_opcode_str[];
 extern const uint8_t cfstore_test_byte_data_table[CFSTORE_TEST_BYTE_DATA_TABLE_SIZE];
 
-int32_t cfstore_test_check_node_correct(const cfstore_kv_data_t* node);
-int32_t cfstore_test_create(const char* key_name, const char* data, size_t* len, ARM_CFSTORE_KEYDESC* kdesc);
-int32_t cfstore_test_create_table(const cfstore_kv_data_t* table);
-int32_t cfstore_test_delete(const char* key_name);
+int32_t cfstore_test_check_node_correct(const cfstore_kv_data_t *node);
+int32_t cfstore_test_create(const char *key_name, const char *data, size_t *len, ARM_CFSTORE_KEYDESC *kdesc);
+int32_t cfstore_test_create_table(const cfstore_kv_data_t *table);
+int32_t cfstore_test_delete(const char *key_name);
 int32_t cfstore_test_delete_all(void);
 int32_t cfstore_test_dump(void);
 int32_t cfstore_test_init_1(void);
-int32_t cfstore_test_kv_is_found(const char* key_name, bool* bfound);
-int32_t cfstore_test_kv_name_gen(char* name, const size_t len);
-int32_t cfstore_test_read(const char* key_name, char* data, size_t* len);
+int32_t cfstore_test_kv_is_found(const char *key_name, bool *bfound);
+int32_t cfstore_test_kv_name_gen(char *name, const size_t len);
+int32_t cfstore_test_read(const char *key_name, char *data, size_t *len);
 int32_t cfstore_test_startup(void);
-int32_t cfstore_test_write(const char* key_name, const char* data, size_t* len);
+int32_t cfstore_test_write(const char *key_name, const char *data, size_t *len);
 
 #ifdef __cplusplus
 }

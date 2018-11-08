@@ -498,34 +498,34 @@ void dac_chan_disable_output_buffer(
  * The table below presents the acronyms used in this module:
  *
  * <table>
- *	<tr>
- *		<th>Acronym</th>
- *		<th>Description</th>
- *	</tr>
- *	<tr>
- *		<td>ADC</td>
- *		<td>Analog-to-Digital Converter</td>
- *	</tr>
- *	<tr>
- *		<td>AC</td>
- *		<td>Analog Comparator</td>
- *	</tr>
- *	<tr>
- *		<td>DAC</td>
- *		<td>Digital-to-Analog Converter</td>
- *	</tr>
- *	<tr>
- *		<td>LSB</td>
- *		<td>Least Significant Bit</td>
- *	</tr>
- *	<tr>
- *		<td>MSB</td>
- *		<td>Most Significant Bit</td>
- *	</tr>
- *	<tr>
- *		<td>DMA</td>
- *		<td>Direct Memory Access</td>
- *	</tr>
+ *  <tr>
+ *      <th>Acronym</th>
+ *      <th>Description</th>
+ *  </tr>
+ *  <tr>
+ *      <td>ADC</td>
+ *      <td>Analog-to-Digital Converter</td>
+ *  </tr>
+ *  <tr>
+ *      <td>AC</td>
+ *      <td>Analog Comparator</td>
+ *  </tr>
+ *  <tr>
+ *      <td>DAC</td>
+ *      <td>Digital-to-Analog Converter</td>
+ *  </tr>
+ *  <tr>
+ *      <td>LSB</td>
+ *      <td>Least Significant Bit</td>
+ *  </tr>
+ *  <tr>
+ *      <td>MSB</td>
+ *      <td>Most Significant Bit</td>
+ *  </tr>
+ *  <tr>
+ *      <td>DMA</td>
+ *      <td>Direct Memory Access</td>
+ *  </tr>
  * </table>
  *
  *
@@ -546,23 +546,23 @@ void dac_chan_disable_output_buffer(
  * the table.
  *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
- *	<tr>
- *		<td>Add configuration for using 14-bit hardware dithering (SAMC21 support)</td>
- *	</tr>
- *	<tr>
- *		<td>Added new configuration parameters \c databuf_protection_bypass,
- *		\c voltage_pump_disable. Added new callback functions
- *		\c dac_chan_write_buffer_wait,
- *		\c dac_chan_write_buffer_job, \c dac_chan_write_job,
- *		\c dac_get_job_status, \c dac_abort_job and new callback type
- *		\c DAC_CALLBACK_TRANSFER_COMPLETE for DAC conversion job</td>
- *	</tr>
- *	<tr>
- *		<td>Initial Release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Changelog</th>
+ *  </tr>
+ *  <tr>
+ *      <td>Add configuration for using 14-bit hardware dithering (SAMC21 support)</td>
+ *  </tr>
+ *  <tr>
+ *      <td>Added new configuration parameters \c databuf_protection_bypass,
+ *      \c voltage_pump_disable. Added new callback functions
+ *      \c dac_chan_write_buffer_wait,
+ *      \c dac_chan_write_buffer_job, \c dac_chan_write_job,
+ *      \c dac_get_job_status, \c dac_abort_job and new callback type
+ *      \c DAC_CALLBACK_TRANSFER_COMPLETE for DAC conversion job</td>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial Release</td>
+ *  </tr>
  * </table>
  */
 
@@ -592,37 +592,37 @@ void dac_chan_disable_output_buffer(
  * \page asfdoc_sam0_dac_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
- *	<tr>
- *		<td>42110E</td>
- *		<td>06/2015</td>
- *		<td>Add SAMC21 and SAMDAx support</td>
- *	</tr>
- *	<tr>
- *		<td>42110D</td>
- *		<td>12/2014</td>
- *		<td>Add SAMD10/D11 support</td>
- *	</tr>
- *	<tr>
- *		<td>42110C</td>
- *		<td>01/2014</td>
- *		<td>Add SAMD21 support</td>
- *	</tr>
- *	<tr>
- *		<td>42110B</td>
- *		<td>06/2013</td>
- *		<td>Added additional documentation on the event system. Corrected
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42110E</td>
+ *      <td>06/2015</td>
+ *      <td>Add SAMC21 and SAMDAx support</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42110D</td>
+ *      <td>12/2014</td>
+ *      <td>Add SAMD10/D11 support</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42110C</td>
+ *      <td>01/2014</td>
+ *      <td>Add SAMD21 support</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42110B</td>
+ *      <td>06/2013</td>
+ *      <td>Added additional documentation on the event system. Corrected
  *          documentation typos.</td>
- *	</tr>
- *	<tr>
- *		<td>42110A</td>
- *		<td>06/2013</td>
- *		<td>Initial document release</td>
- *	</tr>
+ *  </tr>
+ *  <tr>
+ *      <td>42110A</td>
+ *      <td>06/2013</td>
+ *      <td>Initial document release</td>
+ *  </tr>
  * </table>
  */
 

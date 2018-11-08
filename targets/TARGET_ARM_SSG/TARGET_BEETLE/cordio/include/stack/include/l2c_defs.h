@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   l2c_defs.h
- *        
+ *
  *  \brief  L2CAP constants and definitions from the Bluetooth specification.
  *
  *          $Date: 2015-06-12 04:19:18 -0700 (Fri, 12 Jun 2015) $
  *          $Revision: 3061 $
- *  
+ *
  *  Copyright (c) 2009 Wicentric, Inc., all rights reserved.
  *  Wicentric confidential and proprietary.
  *

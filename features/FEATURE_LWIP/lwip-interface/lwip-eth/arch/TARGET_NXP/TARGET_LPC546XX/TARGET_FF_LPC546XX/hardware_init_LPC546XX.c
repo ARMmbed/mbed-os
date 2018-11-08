@@ -40,188 +40,188 @@ void lpc546xx_init_eth_hardware(void)
     CLOCK_EnableClock(kCLOCK_Iocon);
 
     const uint32_t port0_pin10_config = (/* Pin is configured as SWO */
-                                         IOCON_PIO_FUNC6 |
-                                         /* No addition pin function */
-                                         IOCON_PIO_MODE_INACT |
-                                         /* Input function is not inverted */
-                                         IOCON_PIO_INV_DI |
-                                         /* Enables digital function */
-                                         IOCON_PIO_DIGITAL_EN |
-                                         /* Input filter disabled */
-                                         IOCON_PIO_INPFILT_OFF |
-                                         /* Open drain is disabled */
-                                         IOCON_PIO_OPENDRAIN_DI);
+                                            IOCON_PIO_FUNC6 |
+                                            /* No addition pin function */
+                                            IOCON_PIO_MODE_INACT |
+                                            /* Input function is not inverted */
+                                            IOCON_PIO_INV_DI |
+                                            /* Enables digital function */
+                                            IOCON_PIO_DIGITAL_EN |
+                                            /* Input filter disabled */
+                                            IOCON_PIO_INPFILT_OFF |
+                                            /* Open drain is disabled */
+                                            IOCON_PIO_OPENDRAIN_DI);
     /* PORT0 PIN10 (coords: P2) is configured as SWO */
     IOCON_PinMuxSet(IOCON, 0U, 10U, port0_pin10_config);
 
     const uint32_t port1_pin10_config = (/* Pin is configured as ENET_TXD1 */
-                                         IOCON_PIO_FUNC1  /* IOCON_PIO_FUNC1  */ |
-                                         /* No addition pin function */
-                                         IOCON_PIO_MODE_INACT |
-                                         /* Input function is not inverted */
-                                         IOCON_PIO_INV_DI |
-                                         /* Enables digital function */
-                                         IOCON_PIO_DIGITAL_EN |
-                                         /* Input filter disabled */
-                                         IOCON_PIO_INPFILT_OFF |
-                                         /* Standard mode, output slew rate control is enabled */
-                                         IOCON_PIO_SLEW_STANDARD |
-                                         /* Open drain is disabled */
-                                         IOCON_PIO_OPENDRAIN_DI);
+                                            IOCON_PIO_FUNC1  /* IOCON_PIO_FUNC1  */ |
+                                            /* No addition pin function */
+                                            IOCON_PIO_MODE_INACT |
+                                            /* Input function is not inverted */
+                                            IOCON_PIO_INV_DI |
+                                            /* Enables digital function */
+                                            IOCON_PIO_DIGITAL_EN |
+                                            /* Input filter disabled */
+                                            IOCON_PIO_INPFILT_OFF |
+                                            /* Standard mode, output slew rate control is enabled */
+                                            IOCON_PIO_SLEW_STANDARD |
+                                            /* Open drain is disabled */
+                                            IOCON_PIO_OPENDRAIN_DI);
     /* PORT1 PIN10 (coords: E14) is configured as ENET_TXD1 */
-     IOCON_PinMuxSet(IOCON, 1U, 10U, port1_pin10_config);                                        
+    IOCON_PinMuxSet(IOCON, 1U, 10U, port1_pin10_config);
 
 
     const uint32_t port1_pin18_config = (/* Pin is configured as ENET_PHY_RST */
-                                         IOCON_PIO_FUNC0 |
-                                         /* Selects pull-up function */
-                                         IOCON_PIO_MODE_PULLUP |
-                                         /* Input function is not inverted */
-                                         IOCON_PIO_INV_DI |
-                                         /* Enables digital function */
-                                         IOCON_PIO_DIGITAL_EN |
-                                         /* Input filter disabled */
-                                         IOCON_PIO_INPFILT_OFF |
-                                         /* Standard mode, output slew rate control is enabled */
-                                         IOCON_PIO_SLEW_STANDARD |
-                                         /* Open drain is disabled */
-                                         IOCON_PIO_OPENDRAIN_DI);
+                                            IOCON_PIO_FUNC0 |
+                                            /* Selects pull-up function */
+                                            IOCON_PIO_MODE_PULLUP |
+                                            /* Input function is not inverted */
+                                            IOCON_PIO_INV_DI |
+                                            /* Enables digital function */
+                                            IOCON_PIO_DIGITAL_EN |
+                                            /* Input filter disabled */
+                                            IOCON_PIO_INPFILT_OFF |
+                                            /* Standard mode, output slew rate control is enabled */
+                                            IOCON_PIO_SLEW_STANDARD |
+                                            /* Open drain is disabled */
+                                            IOCON_PIO_OPENDRAIN_DI);
     /* PORT1 PIN18 (coords: H11) is configured as ENET_PHY_RST */
     IOCON_PinMuxSet(IOCON, 1U, 18U, port1_pin18_config);
 
-    const uint32_t port1_pin14_config = (/* Pin is configured as ENET_RX_DV */      
-                                         IOCON_PIO_FUNC1 |
-                                         /* No addition pin function */
-                                         IOCON_PIO_MODE_INACT |
-                                         /* Input function is not inverted */
-                                         IOCON_PIO_INV_DI |
-                                         /* Enables digital function */
-                                         IOCON_PIO_DIGITAL_EN |
-                                         /* Input filter disabled */
-                                         IOCON_PIO_INPFILT_OFF |
-                                         /* Standard mode, output slew rate control is enabled */
-                                         IOCON_PIO_SLEW_STANDARD |
-                                         /* Open drain is disabled */
-                                         IOCON_PIO_OPENDRAIN_DI);
+    const uint32_t port1_pin14_config = (/* Pin is configured as ENET_RX_DV */
+                                            IOCON_PIO_FUNC1 |
+                                            /* No addition pin function */
+                                            IOCON_PIO_MODE_INACT |
+                                            /* Input function is not inverted */
+                                            IOCON_PIO_INV_DI |
+                                            /* Enables digital function */
+                                            IOCON_PIO_DIGITAL_EN |
+                                            /* Input filter disabled */
+                                            IOCON_PIO_INPFILT_OFF |
+                                            /* Standard mode, output slew rate control is enabled */
+                                            IOCON_PIO_SLEW_STANDARD |
+                                            /* Open drain is disabled */
+                                            IOCON_PIO_OPENDRAIN_DI);
     /* PORT1 PIN14 (coords: B9) is configured as ENET_RX_DV */
     IOCON_PinMuxSet(IOCON, 1U, 14U, port1_pin14_config);
 
     const uint32_t port1_pin12_config = (/* Pin is configured as ENET_RXD0 */
-                                         IOCON_PIO_FUNC1 |
-                                         /* No addition pin function */
-                                         IOCON_PIO_MODE_INACT |
-                                         /* Input function is not inverted */
-                                         IOCON_PIO_INV_DI |
-                                         /* Enables digital function */
-                                         IOCON_PIO_DIGITAL_EN |
-                                         /* Input filter disabled */
-                                         IOCON_PIO_INPFILT_OFF |
-                                         /* Standard mode, output slew rate control is enabled */
-                                         IOCON_PIO_SLEW_STANDARD |
-                                         /* Open drain is disabled */
-                                         IOCON_PIO_OPENDRAIN_DI);
+                                            IOCON_PIO_FUNC1 |
+                                            /* No addition pin function */
+                                            IOCON_PIO_MODE_INACT |
+                                            /* Input function is not inverted */
+                                            IOCON_PIO_INV_DI |
+                                            /* Enables digital function */
+                                            IOCON_PIO_DIGITAL_EN |
+                                            /* Input filter disabled */
+                                            IOCON_PIO_INPFILT_OFF |
+                                            /* Standard mode, output slew rate control is enabled */
+                                            IOCON_PIO_SLEW_STANDARD |
+                                            /* Open drain is disabled */
+                                            IOCON_PIO_OPENDRAIN_DI);
     /* PORT1 PIN12 (coords: A9) is configured as ENET_RXD0 */
     IOCON_PinMuxSet(IOCON, 1U, 12U, port1_pin12_config);
 
     const uint32_t port1_pin13_config = (/* Pin is configured as ENET_RXD1 */
-                                         IOCON_PIO_FUNC1 |
-                                         /* No addition pin function */
-                                         IOCON_PIO_MODE_INACT |
-                                         /* Input function is not inverted */
-                                         IOCON_PIO_INV_DI |
-                                         /* Enables digital function */
-                                         IOCON_PIO_DIGITAL_EN |
-                                         /* Input filter disabled */
-                                         IOCON_PIO_INPFILT_OFF |
-                                         /* Standard mode, output slew rate control is enabled */
-                                         IOCON_PIO_SLEW_STANDARD |
-                                         /* Open drain is disabled */
-                                         IOCON_PIO_OPENDRAIN_DI);
+                                            IOCON_PIO_FUNC1 |
+                                            /* No addition pin function */
+                                            IOCON_PIO_MODE_INACT |
+                                            /* Input function is not inverted */
+                                            IOCON_PIO_INV_DI |
+                                            /* Enables digital function */
+                                            IOCON_PIO_DIGITAL_EN |
+                                            /* Input filter disabled */
+                                            IOCON_PIO_INPFILT_OFF |
+                                            /* Standard mode, output slew rate control is enabled */
+                                            IOCON_PIO_SLEW_STANDARD |
+                                            /* Open drain is disabled */
+                                            IOCON_PIO_OPENDRAIN_DI);
     /* PORT4 PIN12 (coords: A6) is configured as ENET_RXD1 */
     IOCON_PinMuxSet(IOCON, 1U, 13U, port1_pin13_config);
 
     const uint32_t port1_pin11_config = (/* Pin is configured as ENET_TX_EN */
-                                         IOCON_PIO_FUNC1 |
-                                         /* No addition pin function */
-                                         IOCON_PIO_MODE_INACT |
-                                         /* Input function is not inverted */
-                                         IOCON_PIO_INV_DI |
-                                         /* Enables digital function */
-                                         IOCON_PIO_DIGITAL_EN |
-                                         /* Input filter disabled */
-                                         IOCON_PIO_INPFILT_OFF |
-                                         /* Standard mode, output slew rate control is enabled */
-                                         IOCON_PIO_SLEW_STANDARD |
-                                         /* Open drain is disabled */
-                                         IOCON_PIO_OPENDRAIN_DI);
+                                            IOCON_PIO_FUNC1 |
+                                            /* No addition pin function */
+                                            IOCON_PIO_MODE_INACT |
+                                            /* Input function is not inverted */
+                                            IOCON_PIO_INV_DI |
+                                            /* Enables digital function */
+                                            IOCON_PIO_DIGITAL_EN |
+                                            /* Input filter disabled */
+                                            IOCON_PIO_INPFILT_OFF |
+                                            /* Standard mode, output slew rate control is enabled */
+                                            IOCON_PIO_SLEW_STANDARD |
+                                            /* Open drain is disabled */
+                                            IOCON_PIO_OPENDRAIN_DI);
     /* PORT4 PIN13 (coords: B6) is configured as ENET_TX_EN */
     IOCON_PinMuxSet(IOCON, 1U, 11U, port1_pin11_config);
 
     const uint32_t port1_pin15_config = (/* Pin is configured as ENET_RX_CLK */
-                                         IOCON_PIO_FUNC1 |
-                                         /* No addition pin function */
-                                         IOCON_PIO_MODE_INACT |
-                                         /* Input function is not inverted */
-                                         IOCON_PIO_INV_DI |
-                                         /* Enables digital function */
-                                         IOCON_PIO_DIGITAL_EN |
-                                         /* Input filter disabled */
-                                         IOCON_PIO_INPFILT_OFF |
-                                         /* Standard mode, output slew rate control is enabled */
-                                         IOCON_PIO_SLEW_STANDARD |
-                                         /* Open drain is disabled */
-                                         IOCON_PIO_OPENDRAIN_DI);
+                                            IOCON_PIO_FUNC1 |
+                                            /* No addition pin function */
+                                            IOCON_PIO_MODE_INACT |
+                                            /* Input function is not inverted */
+                                            IOCON_PIO_INV_DI |
+                                            /* Enables digital function */
+                                            IOCON_PIO_DIGITAL_EN |
+                                            /* Input filter disabled */
+                                            IOCON_PIO_INPFILT_OFF |
+                                            /* Standard mode, output slew rate control is enabled */
+                                            IOCON_PIO_SLEW_STANDARD |
+                                            /* Open drain is disabled */
+                                            IOCON_PIO_OPENDRAIN_DI);
     /* PORT4 PIN14 (coords: B5) is configured as ENET_RX_CLK */
     IOCON_PinMuxSet(IOCON, 1U, 15U, port1_pin15_config);
 
     const uint32_t port1_pin16_config = (/* Pin is configured as ENET_MDC */
-                                         IOCON_PIO_FUNC1 |
-                                         /* No addition pin function */
-                                         IOCON_PIO_MODE_INACT |
-                                         /* Input function is not inverted */
-                                         IOCON_PIO_INV_DI |
-                                         /* Enables digital function */
-                                         IOCON_PIO_DIGITAL_EN |
-                                         /* Input filter disabled */
-                                         IOCON_PIO_INPFILT_OFF |
-                                         /* Standard mode, output slew rate control is enabled */
-                                         IOCON_PIO_SLEW_STANDARD |
-                                         /* Open drain is disabled */
-                                         IOCON_PIO_OPENDRAIN_DI);
+                                            IOCON_PIO_FUNC1 |
+                                            /* No addition pin function */
+                                            IOCON_PIO_MODE_INACT |
+                                            /* Input function is not inverted */
+                                            IOCON_PIO_INV_DI |
+                                            /* Enables digital function */
+                                            IOCON_PIO_DIGITAL_EN |
+                                            /* Input filter disabled */
+                                            IOCON_PIO_INPFILT_OFF |
+                                            /* Standard mode, output slew rate control is enabled */
+                                            IOCON_PIO_SLEW_STANDARD |
+                                            /* Open drain is disabled */
+                                            IOCON_PIO_OPENDRAIN_DI);
     /* PORT4 PIN15 (coords: A4) is configured as ENET_MDC */
     IOCON_PinMuxSet(IOCON, 1U, 16U, port1_pin16_config);
 
     const uint32_t port1_pin17_config = (/* Pin is configured as ENET_MDIO */
-                                         IOCON_PIO_FUNC1 |
-                                         /* No addition pin function */
-                                         IOCON_PIO_MODE_INACT |
-                                         /* Input function is not inverted */
-                                         IOCON_PIO_INV_DI |
-                                         /* Enables digital function */
-                                         IOCON_PIO_DIGITAL_EN |
-                                         /* Input filter disabled */
-                                         IOCON_PIO_INPFILT_OFF |
-                                         /* Standard mode, output slew rate control is enabled */
-                                         IOCON_PIO_SLEW_STANDARD |
-                                         /* Open drain is disabled */
-                                         IOCON_PIO_OPENDRAIN_DI);
+                                            IOCON_PIO_FUNC1 |
+                                            /* No addition pin function */
+                                            IOCON_PIO_MODE_INACT |
+                                            /* Input function is not inverted */
+                                            IOCON_PIO_INV_DI |
+                                            /* Enables digital function */
+                                            IOCON_PIO_DIGITAL_EN |
+                                            /* Input filter disabled */
+                                            IOCON_PIO_INPFILT_OFF |
+                                            /* Standard mode, output slew rate control is enabled */
+                                            IOCON_PIO_SLEW_STANDARD |
+                                            /* Open drain is disabled */
+                                            IOCON_PIO_OPENDRAIN_DI);
     /* PORT4 PIN16 (coords: C4) is configured as ENET_MDIO */
     IOCON_PinMuxSet(IOCON, 1U, 17U, port1_pin17_config);
 
     const uint32_t port1_pin9_config = (/* Pin is configured as ENET_TXD0 */
-                                        IOCON_PIO_FUNC1 |
-                                        /* No addition pin function */
-                                        IOCON_PIO_MODE_INACT |
-                                        /* Input function is not inverted */
-                                        IOCON_PIO_INV_DI |
-                                        /* Enables digital function */
-                                        IOCON_PIO_DIGITAL_EN |
-                                        /* Input filter disabled */
-                                        IOCON_PIO_INPFILT_OFF |
-                                        /* Standard mode, output slew rate control is enabled */
-                                        IOCON_PIO_SLEW_STANDARD |
-                                        /* Open drain is disabled */
-                                        IOCON_PIO_OPENDRAIN_DI);
+                                           IOCON_PIO_FUNC1 |
+                                           /* No addition pin function */
+                                           IOCON_PIO_MODE_INACT |
+                                           /* Input function is not inverted */
+                                           IOCON_PIO_INV_DI |
+                                           /* Enables digital function */
+                                           IOCON_PIO_DIGITAL_EN |
+                                           /* Input filter disabled */
+                                           IOCON_PIO_INPFILT_OFF |
+                                           /* Standard mode, output slew rate control is enabled */
+                                           IOCON_PIO_SLEW_STANDARD |
+                                           /* Open drain is disabled */
+                                           IOCON_PIO_OPENDRAIN_DI);
     /* PORT4 PIN8 (coords: B14) is configured as ENET_TXD0 */
     IOCON_PinMuxSet(IOCON, 1U, 9U, port1_pin9_config);
 }

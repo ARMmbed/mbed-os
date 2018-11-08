@@ -60,7 +60,7 @@ static ADI_TMR_CONFIG tmrConfig, tmr2Config;
 
 static volatile uint32_t Upper_count = 0, largecnt = 0;
 
-static ADI_TMR_TypeDef * adi_tmr_registers[ADI_TMR_DEVICE_NUM] = {pADI_TMR0, pADI_TMR1, pADI_TMR2};
+static ADI_TMR_TypeDef *adi_tmr_registers[ADI_TMR_DEVICE_NUM] = {pADI_TMR0, pADI_TMR1, pADI_TMR2};
 
 #if defined(__ADUCM302x__)
 static const IRQn_Type adi_tmr_interrupt[ADI_TMR_DEVICE_NUM] = {TMR0_EVT_IRQn, TMR1_EVT_IRQn, TMR2_EVT_IRQn};
@@ -74,7 +74,7 @@ static const IRQn_Type adi_tmr_interrupt[ADI_TMR_DEVICE_NUM] = {TMR0_EVT_IRQn, T
 /*---------------------------------------------------------------------------*
    Local functions
  *---------------------------------------------------------------------------*/
-static void GP1CallbackFunction(void *pCBParam, uint32_t Event, void  * pArg)
+static void GP1CallbackFunction(void *pCBParam, uint32_t Event, void   *pArg)
 {
     Upper_count++;
 }
@@ -116,7 +116,7 @@ static uint32_t get_current_time(void)
          * thereby clearing any TMR1 pend's.  This have no effect if this routine is called with interrupts globally disabled.
          */
 
-        NVIC_DisableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);		// Prevent Upper_count increment
+        NVIC_DisableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);     // Prevent Upper_count increment
         tmrpend0 = NVIC_GetPendingIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
         // Check if there is a pending interrupt for timer 1
 
@@ -128,27 +128,27 @@ static uint32_t get_current_time(void)
 
         tmrcnt1 = adi_tmr_registers[ADI_TMR_DEVICE_GP1]->CURCNT;    // read both timers manually
 
-        totaltmr0 = tmrcnt0;        								// expand to u32 bits
-        totaltmr1 = tmrcnt1;        								// expand to u32 bits
+        totaltmr0 = tmrcnt0;                                        // expand to u32 bits
+        totaltmr1 = tmrcnt1;                                        // expand to u32 bits
 
         tmrcnt0 &= 0xff00u;
         tmrcnt1 <<= 8;
 
         __DMB();
 
-        uc1 = *ucptr;												// Read Upper_count
+        uc1 = *ucptr;                                               // Read Upper_count
 
         tmrpend1 = NVIC_GetPendingIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
         // Check for a pending interrupt again.  Only leave loop if they match
 
-        NVIC_EnableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);		// enable interrupt on every loop to allow TMR1 interrupt to run
+        NVIC_EnableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);      // enable interrupt on every loop to allow TMR1 interrupt to run
     } while ((tmrcnt0 != tmrcnt1) || (tmrpend0 != tmrpend1));
 
     totaltmr1 <<= 8;                 // Timer1 runs 256x slower
     totaltmr1 += totaltmr0 & 0xffu;  // Use last 8 bits of Timer0 as it runs faster
     // totaltmr1 now contain 24 bits of significance
 
-    if (tmrpend0) {					 // If an interrupt is pending, then increment local copy of upper count
+    if (tmrpend0) {                  // If an interrupt is pending, then increment local copy of upper count
         uc1++;
     }
 
@@ -158,7 +158,7 @@ static uint32_t get_current_time(void)
     // Divide Uc by 26 (26MHz converted to 1MHz) todo scale for other clock freqs
 
     Uc *= 1290555u;                  // Divide total(1/26) << 25
-    Uc >>= 25;						 // shift back.  Fixed point avoid use of floating point divide.
+    Uc >>= 25;                       // shift back.  Fixed point avoid use of floating point divide.
     // Compiler does this inline using shifts and adds.
 
     return Uc;
@@ -173,13 +173,15 @@ static void calc_event_counts(uint32_t timestamp)
     calc_time = get_current_time();
     offset = timestamp - calc_time; // offset in useconds
 
-    if (offset > 0xf0000000u)       // if offset is a really big number, assume that timer has already expired (i.e. negative)
+    if (offset > 0xf0000000u) {     // if offset is a really big number, assume that timer has already expired (i.e. negative)
         offset = 0u;
+    }
 
     if (offset > 10u) {             // it takes 10us to user timer routine after interrupt.  Offset timer to account for that.
         offset -= 10u;
-    } else
+    } else {
         offset = 0u;
+    }
 
     aa = (uint64_t) offset;
     aa *= 26u;                      // convert from 1MHz to 26MHz clock. todo scale for other clock freqs
@@ -187,7 +189,7 @@ static void calc_event_counts(uint32_t timestamp)
     blocks = aa >> 7;
     blocks++;                       // round
 
-    largecnt = blocks>>1;           // communicate to event_timer() routine
+    largecnt = blocks >> 1;         // communicate to event_timer() routine
 }
 
 static void event_timer()
@@ -197,8 +199,9 @@ static void event_timer()
 
         if (cnt > 65535u) {
             cnt = 0u;
-        } else
+        } else {
             cnt = 65536u - cnt;
+        }
 
         tmr2Config.nLoad        = cnt;
         tmr2Config.nAsyncLoad   = cnt;
@@ -220,12 +223,13 @@ static void event_timer()
  * largecnt is a global that is used to communicate between event_timer and the interrupt routine
  * On entry, largecnt will be any value larger than 0.
  */
-static void GP2CallbackFunction(void *pCBParam, uint32_t Event, void  * pArg)
+static void GP2CallbackFunction(void *pCBParam, uint32_t Event, void   *pArg)
 {
     if (largecnt >= 65536u) {
         largecnt -= 65536u;
-    } else
+    } else {
         largecnt = 0;
+    }
 
     if (largecnt < 65536u) {
         adi_tmr_Enable(ADI_TMR_DEVICE_GP2, false);
@@ -326,7 +330,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
      *
      */
     calc_event_counts(timestamp);             // use timestamp to calculate largecnt to control number of timer interrupts
-    event_timer();							  // uses largecnt to initiate timer interrupts
+    event_timer();                            // uses largecnt to initiate timer interrupts
 }
 
 /** Set pending interrupt that should be fired right away.

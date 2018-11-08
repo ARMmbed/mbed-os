@@ -41,8 +41,7 @@ extern "C" {
  *  \brief  Callbacks for allocating buffers and handling read and write completion.
  */
 /*************************************************************************************************/
-typedef struct
-{
+typedef struct {
     /*********************************************************************************************/
     /*!
      * \brief   Allocate a buffer for a received message.
@@ -54,7 +53,7 @@ typedef struct
      * \return  Pointer to buffer or NULL if buffer could not be allocated
      */
     /*********************************************************************************************/
-    uint8_t *(*BufAlloc) (uint16_t len);
+    uint8_t *(*BufAlloc)(uint16_t len);
 
     /*********************************************************************************************/
     /*!
@@ -63,7 +62,7 @@ typedef struct
      * \param   buf  Pointer to buffer
      */
     /*********************************************************************************************/
-    void (*BufFree)  (uint8_t *buf);
+    void (*BufFree)(uint8_t *buf);
 
     /*********************************************************************************************/
     /*!
@@ -79,7 +78,7 @@ typedef struct
      * \return  None.
      */
     /*********************************************************************************************/
-    void (*ReadDone) (uint8_t type, uint8_t *pData, uint16_t len);
+    void (*ReadDone)(uint8_t type, uint8_t *pData, uint16_t len);
 
     /*********************************************************************************************/
     /*!
@@ -109,8 +108,7 @@ typedef struct
  */
 /*************************************************************************************************/
 /*! \{ */
-enum
-{
+enum {
     HPAL_HCI_LOGGING_LEVEL_OFF     = 0, /*!< No information will be logged. */
     HPAL_HCI_LOGGING_LEVEL_INFO    = 1, /*!< Basic details about packets will be interpreted. */
     HPAL_HCI_LOGGING_LEVEL_VERBOSE = 2  /*!< The full byte contents of packets will be logged. */
@@ -128,8 +126,7 @@ enum
  */
 /*************************************************************************************************/
 /*! \{ */
-enum
-{
+enum {
     HPAL_HCI_ERROR_OK      =  0,  /*!< No error; the operation succeeded. */
     HPAL_HCI_ERROR_BAD_ACK = -1,  /*!< The write failed because a bad ACK was received. */
     HPAL_HCI_ERROR_ABORTED = -2,  /*!< The write was aborted. */

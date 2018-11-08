@@ -32,12 +32,13 @@
 
 static volatile uint8_t usb_buf[TOTAL_SIZE + ALIGNE_MSK];  //16 bytes aligned!
 
-USBHALHost * USBHALHost::instHost;
+USBHALHost *USBHALHost::instHost;
 
-USBHALHost::USBHALHost() {
+USBHALHost::USBHALHost()
+{
     instHost = this;
     memInit();
-    memset((void*)usb_hcca, 0, HCCA_SIZE);
+    memset((void *)usb_hcca, 0, HCCA_SIZE);
     for (int i = 0; i < MAX_ENDPOINT; i++) {
         edBufAlloc[i] = false;
     }
@@ -46,7 +47,8 @@ USBHALHost::USBHALHost() {
     }
 }
 
-void USBHALHost::init() {
+void USBHALHost::init()
+{
     ohciwrapp_init(&_usbisr);
 
     ohciwrapp_reg_w(OHCI_REG_CONTROL, 1);       // HARDWARE RESET
@@ -88,36 +90,43 @@ void USBHALHost::init() {
     }
 }
 
-uint32_t USBHALHost::controlHeadED() {
+uint32_t USBHALHost::controlHeadED()
+{
     return ohciwrapp_reg_r(OHCI_REG_CONTROLHEADED);
 }
 
-uint32_t USBHALHost::bulkHeadED() {
+uint32_t USBHALHost::bulkHeadED()
+{
     return ohciwrapp_reg_r(OHCI_REG_BULKHEADED);
 }
 
-uint32_t USBHALHost::interruptHeadED() {
+uint32_t USBHALHost::interruptHeadED()
+{
     return usb_hcca->IntTable[0];
 }
 
-void USBHALHost::updateBulkHeadED(uint32_t addr) {
+void USBHALHost::updateBulkHeadED(uint32_t addr)
+{
     ohciwrapp_reg_w(OHCI_REG_BULKHEADED, addr);
 }
 
 
-void USBHALHost::updateControlHeadED(uint32_t addr) {
+void USBHALHost::updateControlHeadED(uint32_t addr)
+{
     ohciwrapp_reg_w(OHCI_REG_CONTROLHEADED, addr);
 }
 
-void USBHALHost::updateInterruptHeadED(uint32_t addr) {
+void USBHALHost::updateInterruptHeadED(uint32_t addr)
+{
     usb_hcca->IntTable[0] = addr;
 }
 
 
-void USBHALHost::enableList(ENDPOINT_TYPE type) {
+void USBHALHost::enableList(ENDPOINT_TYPE type)
+{
     uint32_t wk_data;
 
-    switch(type) {
+    switch (type) {
         case CONTROL_ENDPOINT:
             ohciwrapp_reg_w(OHCI_REG_COMMANDSTATUS, OR_CMD_STATUS_CLF);
             wk_data = (ohciwrapp_reg_r(OHCI_REG_CONTROL) | OR_CONTROL_CLE);
@@ -138,13 +147,14 @@ void USBHALHost::enableList(ENDPOINT_TYPE type) {
 }
 
 
-bool USBHALHost::disableList(ENDPOINT_TYPE type) {
+bool USBHALHost::disableList(ENDPOINT_TYPE type)
+{
     uint32_t wk_data;
 
-    switch(type) {
+    switch (type) {
         case CONTROL_ENDPOINT:
             wk_data = ohciwrapp_reg_r(OHCI_REG_CONTROL);
-            if(wk_data & OR_CONTROL_CLE) {
+            if (wk_data & OR_CONTROL_CLE) {
                 wk_data &= ~OR_CONTROL_CLE;
                 ohciwrapp_reg_w(OHCI_REG_CONTROL, wk_data);
                 return true;
@@ -154,7 +164,7 @@ bool USBHALHost::disableList(ENDPOINT_TYPE type) {
             return false;
         case BULK_ENDPOINT:
             wk_data = ohciwrapp_reg_r(OHCI_REG_CONTROL);
-            if(wk_data & OR_CONTROL_BLE) {
+            if (wk_data & OR_CONTROL_BLE) {
                 wk_data &= ~OR_CONTROL_BLE;
                 ohciwrapp_reg_w(OHCI_REG_CONTROL, wk_data);
                 return true;
@@ -162,7 +172,7 @@ bool USBHALHost::disableList(ENDPOINT_TYPE type) {
             return false;
         case INTERRUPT_ENDPOINT:
             wk_data = ohciwrapp_reg_r(OHCI_REG_CONTROL);
-            if(wk_data & OR_CONTROL_PLE) {
+            if (wk_data & OR_CONTROL_PLE) {
                 wk_data &= ~OR_CONTROL_PLE;
                 ohciwrapp_reg_w(OHCI_REG_CONTROL, wk_data);
                 return true;
@@ -173,31 +183,34 @@ bool USBHALHost::disableList(ENDPOINT_TYPE type) {
 }
 
 
-void USBHALHost::memInit() {
+void USBHALHost::memInit()
+{
     volatile uint8_t *p_wk_buf = (uint8_t *)(((uint32_t)usb_buf + ALIGNE_MSK) & ~ALIGNE_MSK);
 
     usb_hcca = (volatile HCCA *)p_wk_buf;
     usb_edBuf = (volatile uint8_t *)(p_wk_buf + HCCA_SIZE);
-    usb_tdBuf = (volatile uint8_t *)(p_wk_buf + HCCA_SIZE + (MAX_ENDPOINT*ED_SIZE));
+    usb_tdBuf = (volatile uint8_t *)(p_wk_buf + HCCA_SIZE + (MAX_ENDPOINT * ED_SIZE));
 }
 
-volatile uint8_t * USBHALHost::getED() {
+volatile uint8_t *USBHALHost::getED()
+{
     for (int i = 0; i < MAX_ENDPOINT; i++) {
-        if ( !edBufAlloc[i] ) {
+        if (!edBufAlloc[i]) {
             edBufAlloc[i] = true;
-            return (volatile uint8_t *)(usb_edBuf + i*ED_SIZE);
+            return (volatile uint8_t *)(usb_edBuf + i * ED_SIZE);
         }
     }
     perror("Could not allocate ED\r\n");
     return NULL; //Could not alloc ED
 }
 
-volatile uint8_t * USBHALHost::getTD() {
+volatile uint8_t *USBHALHost::getTD()
+{
     int i;
     for (i = 0; i < MAX_TD; i++) {
-        if ( !tdBufAlloc[i] ) {
+        if (!tdBufAlloc[i]) {
             tdBufAlloc[i] = true;
-            return (volatile uint8_t *)(usb_tdBuf + i*TD_SIZE);
+            return (volatile uint8_t *)(usb_tdBuf + i * TD_SIZE);
         }
     }
     perror("Could not allocate TD\r\n");
@@ -205,20 +218,23 @@ volatile uint8_t * USBHALHost::getTD() {
 }
 
 
-void USBHALHost::freeED(volatile uint8_t * ed) {
+void USBHALHost::freeED(volatile uint8_t *ed)
+{
     int i;
     i = (ed - usb_edBuf) / ED_SIZE;
     edBufAlloc[i] = false;
 }
 
-void USBHALHost::freeTD(volatile uint8_t * td) {
+void USBHALHost::freeTD(volatile uint8_t *td)
+{
     int i;
     i = (td - usb_tdBuf) / TD_SIZE;
     tdBufAlloc[i] = false;
 }
 
 
-void USBHALHost::resetRootHub() {
+void USBHALHost::resetRootHub()
+{
     // Initiate port reset
     ohciwrapp_reg_w(OHCI_REG_RHPORTSTATUS1, OR_RH_PORT_PRS);
 
@@ -229,13 +245,15 @@ void USBHALHost::resetRootHub() {
 }
 
 
-void USBHALHost::_usbisr(void) {
+void USBHALHost::_usbisr(void)
+{
     if (instHost) {
         instHost->UsbIrqhandler();
     }
 }
 
-void USBHALHost::UsbIrqhandler() {
+void USBHALHost::UsbIrqhandler()
+{
     uint32_t int_status = ohciwrapp_reg_r(OHCI_REG_INTERRUPTSTATUS) & ohciwrapp_reg_r(OHCI_REG_INTERRUPTENABLE);
     uint32_t data;
 

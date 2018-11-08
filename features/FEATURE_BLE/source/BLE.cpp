@@ -31,7 +31,7 @@
 #include <toolchain.h>
 #endif
 
-static const char* error_strings[] = {
+static const char *error_strings[] = {
     "BLE_ERROR_NONE: No error",
     "BLE_ERROR_BUFFER_OVERFLOW: The requested action would cause a buffer overflow and has been aborted",
     "BLE_ERROR_NOT_IMPLEMENTED: Requested a feature that isn't yet implement or isn't supported by the target HW",
@@ -47,7 +47,7 @@ static const char* error_strings[] = {
     "BLE_ERROR_INTERNAL_STACK_FAILURE: The platform-specific stack failed"
 };
 
-const char* BLE::errorToString(ble_error_t error)
+const char *BLE::errorToString(ble_error_t error)
 {
     if (error > BLE_ERROR_INTERNAL_STACK_FAILURE) {
         return "Illegal error code";
@@ -56,7 +56,7 @@ const char* BLE::errorToString(ble_error_t error)
 }
 
 ble_error_t
-BLE::initImplementation(FunctionPointerWithContext<InitializationCompleteCallbackContext*> callback)
+BLE::initImplementation(FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback)
 {
     ble_error_t err = transport->init(instanceID, callback);
     if (err != BLE_ERROR_NONE) {
@@ -118,7 +118,8 @@ BLE::initImplementation(FunctionPointerWithContext<InitializationCompleteCallbac
 #if !defined(YOTTA_CFG_MBED_OS)
 
 // this stub is required by ARMCC otherwise link will systematically fail
-MBED_WEAK BLEInstanceBase* createBLEInstance() {
+MBED_WEAK BLEInstanceBase *createBLEInstance()
+{
     error("Please provide an implementation for mbed BLE");
     return NULL;
 }
@@ -155,7 +156,8 @@ BLE::Instance(InstanceID_t id)
 }
 
 #ifdef YOTTA_CFG_MBED_OS
-void defaultSchedulingCallback(BLE::OnEventsToProcessCallbackContext* params) {
+void defaultSchedulingCallback(BLE::OnEventsToProcessCallbackContext *params)
+{
     minar::Scheduler::postCallback(&params->ble, &BLE::processEvents);
 }
 #else
@@ -225,7 +227,7 @@ Gap &BLE::gap()
     return transport->getGap();
 }
 
-const GattServer& BLE::gattServer() const
+const GattServer &BLE::gattServer() const
 {
     if (!transport) {
         error("bad handle to underlying transport");
@@ -234,7 +236,7 @@ const GattServer& BLE::gattServer() const
     return transport->getGattServer();
 }
 
-GattServer& BLE::gattServer()
+GattServer &BLE::gattServer()
 {
     if (!transport) {
         error("bad handle to underlying transport");
@@ -243,7 +245,7 @@ GattServer& BLE::gattServer()
     return transport->getGattServer();
 }
 
-const GattClient& BLE::gattClient() const
+const GattClient &BLE::gattClient() const
 {
     if (!transport) {
         error("bad handle to underlying transport");
@@ -252,7 +254,7 @@ const GattClient& BLE::gattClient() const
     return transport->getGattClient();
 }
 
-GattClient& BLE::gattClient()
+GattClient &BLE::gattClient()
 {
     if (!transport) {
         error("bad handle to underlying transport");
@@ -261,7 +263,7 @@ GattClient& BLE::gattClient()
     return transport->getGattClient();
 }
 
-const SecurityManager& BLE::securityManager() const
+const SecurityManager &BLE::securityManager() const
 {
     if (!transport) {
         error("bad handle to underlying transport");
@@ -270,7 +272,7 @@ const SecurityManager& BLE::securityManager() const
     return transport->getSecurityManager();
 }
 
-SecurityManager& BLE::securityManager()
+SecurityManager &BLE::securityManager()
 {
     if (!transport) {
         error("bad handle to underlying transport");
@@ -303,7 +305,7 @@ void BLE::processEvents()
     transport->processEvents();
 }
 
-void BLE::onEventsToProcess(const BLE::OnEventsToProcessCallback_t& callback)
+void BLE::onEventsToProcess(const BLE::OnEventsToProcessCallback_t &callback)
 {
     whenEventsToProcess = callback;
 

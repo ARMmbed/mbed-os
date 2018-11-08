@@ -107,27 +107,27 @@ POSSIBILITY OF SUCH DAMAGE.
 /*! \cond PRIVATE */
 
 /* Since the RGB typedef is a superset of the GP typedef, treat the GP timers as RGB timers and restrict top register access */
-static ADI_TMR_RGB_TypeDef * adi_tmr_registers[ADI_TMR_DEVICE_NUM] = {(ADI_TMR_RGB_TypeDef *) pADI_TMR0, (ADI_TMR_RGB_TypeDef *) pADI_TMR1, (ADI_TMR_RGB_TypeDef *) pADI_TMR2, pADI_TMR_RGB};
+static ADI_TMR_RGB_TypeDef *adi_tmr_registers[ADI_TMR_DEVICE_NUM] = {(ADI_TMR_RGB_TypeDef *) pADI_TMR0, (ADI_TMR_RGB_TypeDef *) pADI_TMR1, (ADI_TMR_RGB_TypeDef *) pADI_TMR2, pADI_TMR_RGB};
 
 /* Interrupt enums */
 static const IRQn_Type adi_tmr_interrupt[ADI_TMR_DEVICE_NUM] = {TMR0_EVT_IRQn, TMR1_EVT_IRQn, TMR2_EVT_IRQn, TMR_RGB_EVT_IRQn};
 
 /* Private data that the driver needs to retain between function calls */
 static ADI_CALLBACK adi_tmr_callbacks[ADI_TMR_DEVICE_NUM];
-static void * adi_tmr_parameters[ADI_TMR_DEVICE_NUM];
+static void *adi_tmr_parameters[ADI_TMR_DEVICE_NUM];
 
-static ADI_TMR_RESULT WaitForStatusBit   (ADI_TMR_DEVICE const eDevice, uint16_t nBusyBit);
-static void           CommonIntHandler   (ADI_TMR_DEVICE const eDevice);
-       void           GP_Tmr0_Int_Handler(void);
-       void           GP_Tmr1_Int_Handler(void);
-       void           GP_Tmr2_Int_Handler(void);
-       void           RGB_Tmr_Int_Handler(void);
+static ADI_TMR_RESULT WaitForStatusBit(ADI_TMR_DEVICE const eDevice, uint16_t nBusyBit);
+static void           CommonIntHandler(ADI_TMR_DEVICE const eDevice);
+void           GP_Tmr0_Int_Handler(void);
+void           GP_Tmr1_Int_Handler(void);
+void           GP_Tmr2_Int_Handler(void);
+void           RGB_Tmr_Int_Handler(void);
 
 /*! \endcond */
 
 
 /*********************************************************************************
-                                    API IMPLEMENTATIONS 
+                                    API IMPLEMENTATIONS
 *********************************************************************************/
 
 
@@ -153,7 +153,8 @@ static void           CommonIntHandler   (ADI_TMR_DEVICE const eDevice);
  *                - #ADI_TMR_SUCCESS                    Function call completed successfully
  *
  */
-ADI_TMR_RESULT adi_tmr_Init(ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfCallback, void * const pCBParam, bool bEnableInt) {
+ADI_TMR_RESULT adi_tmr_Init(ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfCallback, void *const pCBParam, bool bEnableInt)
+{
 #ifdef ADI_DEBUG
     /* IF(Bad device input parameter) */
     if (eDevice >= ADI_TMR_DEVICE_NUM) {
@@ -162,7 +163,7 @@ ADI_TMR_RESULT adi_tmr_Init(ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfC
     /* IF(The timer is already running) */
     if ((adi_tmr_registers[eDevice]->CTL & BITM_TMR_RGB_CTL_EN) == BITM_TMR_RGB_CTL_EN) {
         return ADI_TMR_OPERATION_NOT_ALLOWED;
-    } /* ENDIF */         
+    } /* ENDIF */
 #endif
     /* Setup the callback function */
     adi_tmr_callbacks [eDevice] = pfCallback;
@@ -171,7 +172,7 @@ ADI_TMR_RESULT adi_tmr_Init(ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfC
     /* IF(Enable interrupt) */
     if (bEnableInt == true) {
         NVIC_EnableIRQ(adi_tmr_interrupt[eDevice]);
-    /* ELSE(Disable interrupt) */
+        /* ELSE(Disable interrupt) */
     } else {
         NVIC_DisableIRQ(adi_tmr_interrupt[eDevice]);
     } /* ENDIF */
@@ -183,16 +184,16 @@ ADI_TMR_RESULT adi_tmr_Init(ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfC
     adi_tmr_registers[eDevice]->ALOAD         = aTimerALoadConfig   [eDevice];
     adi_tmr_registers[eDevice]->EVENTSELECT   = aTimerEventConfig   [eDevice];
     adi_tmr_registers[eDevice]->PWM0CTL       = aTimerPwmCtlConfig  [eDevice];
-    adi_tmr_registers[eDevice]->PWM0MATCH     = aTimerPwmMatchConfig[eDevice];    
+    adi_tmr_registers[eDevice]->PWM0MATCH     = aTimerPwmMatchConfig[eDevice];
 
     /* IF(Initializing the RGB timer, there are 2 other PWM outputs to configure) */
-    if (eDevice == ADI_TMR_DEVICE_RGB) { 
+    if (eDevice == ADI_TMR_DEVICE_RGB) {
         /* The array is bumped by 1 to get to the 5th entry in the static config array, which contains RGB PWM1 */
-        adi_tmr_registers[eDevice]->PWM1CTL   = aTimerPwmCtlConfig  [eDevice+1u];
-        adi_tmr_registers[eDevice]->PWM1MATCH = aTimerPwmMatchConfig[eDevice+1u];
+        adi_tmr_registers[eDevice]->PWM1CTL   = aTimerPwmCtlConfig  [eDevice + 1u];
+        adi_tmr_registers[eDevice]->PWM1MATCH = aTimerPwmMatchConfig[eDevice + 1u];
         /* The array is bumped by 2 to get to the 6th entry in the static config array, which contains RGB PWM2 */
-        adi_tmr_registers[eDevice]->PWM2CTL   = aTimerPwmCtlConfig  [eDevice+2u];        
-        adi_tmr_registers[eDevice]->PWM2MATCH = aTimerPwmMatchConfig[eDevice+2u];
+        adi_tmr_registers[eDevice]->PWM2CTL   = aTimerPwmCtlConfig  [eDevice + 2u];
+        adi_tmr_registers[eDevice]->PWM2MATCH = aTimerPwmMatchConfig[eDevice + 2u];
     } /* ENDIF */
 #endif
 
@@ -219,7 +220,8 @@ ADI_TMR_RESULT adi_tmr_Init(ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfC
  *                - #ADI_TMR_SUCCESS                      Function call completed successfully
  *
  */
-ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG timerConfig) {
+ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG timerConfig)
+{
     uint16_t nTemp;
 #ifdef ADI_DEBUG
     /* IF(Bad device input parameter) */
@@ -241,37 +243,37 @@ ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG 
 
     /* IF(Busy bit does not clear after waiting) */
     if (ADI_TMR_SUCCESS != WaitForStatusBit(eDevice, (uint16_t) BITM_TMR_RGB_STAT_BUSY)) {
-        return ADI_TMR_DEVICE_BUSY; 
+        return ADI_TMR_DEVICE_BUSY;
     } /* ENDIF */
 
     /* Read the control register and clear everything aside to the event capture bits, which are the only fields not set in this function */
     nTemp  = adi_tmr_registers[eDevice]->CTL;
-    nTemp &= (uint16_t) (BITM_TMR_RGB_CTL_EVTEN | BITM_TMR_RGB_CTL_RSTEN);
+    nTemp &= (uint16_t)(BITM_TMR_RGB_CTL_EVTEN | BITM_TMR_RGB_CTL_RSTEN);
 
     /* Setup the prescaler and the clock source */
-    nTemp |=  (uint16_t)(((uint16_t) timerConfig.ePrescaler  ) << BITP_TMR_RGB_CTL_PRE);
-    nTemp |=  (uint16_t)(((uint16_t) timerConfig.eClockSource) << BITP_TMR_RGB_CTL_CLK);
+    nTemp |= (uint16_t)(((uint16_t) timerConfig.ePrescaler) << BITP_TMR_RGB_CTL_PRE);
+    nTemp |= (uint16_t)(((uint16_t) timerConfig.eClockSource) << BITP_TMR_RGB_CTL_CLK);
 
     /* IF(Periodic mode) */
     if (timerConfig.bPeriodic == true) {
         nTemp |= (1u << BITP_TMR_RGB_CTL_MODE);
-    } /* ENDIF */    
-    
+    } /* ENDIF */
+
     /* IF(Counting up) */
     if (timerConfig.bCountingUp == true) {
         nTemp |= (1u << BITP_TMR_RGB_CTL_UP);
     } /* ENDIF */
-    
+
     /* IF(Reloading is enabled) */
     if (timerConfig.bReloading == true) {
         nTemp |= (1u << BITP_TMR_RGB_CTL_RLD);
     } /* ENDIF */
-    
+
     /* IF(Sync bypass is enabled) */
     if (timerConfig.bSyncBypass == true) {
         nTemp |= (1u << BITP_TMR_RGB_CTL_SYNCBYP);
     } /* ENDIF */
-    
+
     /* Update the control register with the new configuration */
     adi_tmr_registers[eDevice]->CTL = nTemp;
 
@@ -284,7 +286,7 @@ ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG 
  *
  * @details     The timer can be configured to capture the timer value when a specific event occurs. The
  *              list of events can be found in the hardware reference manual. The callback function specified
- *              in #adi_tmr_Init will be supplied #ADI_TMR_EVENT_CAPTURE to indicate the event occured. The 
+ *              in #adi_tmr_Init will be supplied #ADI_TMR_EVENT_CAPTURE to indicate the event occured. The
  *              user can then read the captured value by calling #adi_tmr_GetCaptureCount.
  *
  * @note        This function can only be called when the timer is disabled.
@@ -301,7 +303,8 @@ ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG 
  *                - #ADI_TMR_SUCCESS                   Function call completed successfully
  *
  */
-ADI_TMR_RESULT adi_tmr_ConfigEvent(ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_CONFIG eventConfig) {
+ADI_TMR_RESULT adi_tmr_ConfigEvent(ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_CONFIG eventConfig)
+{
 #ifdef ADI_DEBUG
     /* IF(Bad device input parameter) */
     if (eDevice >= ADI_TMR_DEVICE_NUM) {
@@ -314,14 +317,14 @@ ADI_TMR_RESULT adi_tmr_ConfigEvent(ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_C
     /* IF(The timer is already running) */
     if ((adi_tmr_registers[eDevice]->CTL & BITM_TMR_RGB_CTL_EN) == BITM_TMR_RGB_CTL_EN) {
         return ADI_TMR_OPERATION_NOT_ALLOWED;
-    } /* ENDIF */        
+    } /* ENDIF */
 #endif
     /* Set the event number */
     adi_tmr_registers[eDevice]->EVENTSELECT = (uint16_t) eventConfig.nEventID;
 
     /* IF(Busy bit does not clear after waiting) */
     if (ADI_TMR_SUCCESS != WaitForStatusBit(eDevice, (uint16_t) BITM_TMR_RGB_STAT_BUSY)) {
-        return ADI_TMR_DEVICE_BUSY; 
+        return ADI_TMR_DEVICE_BUSY;
     } /* ENDIF */
 
     /* Clear the event enable bit and keep the other bits */
@@ -364,7 +367,8 @@ ADI_TMR_RESULT adi_tmr_ConfigEvent(ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_C
  *                - #ADI_TMR_SUCCESS                     Function call completed successfully
  *
  */
-ADI_TMR_RESULT adi_tmr_ConfigPwm(ADI_TMR_DEVICE const eDevice, ADI_TMR_PWM_CONFIG pwmConfig) {
+ADI_TMR_RESULT adi_tmr_ConfigPwm(ADI_TMR_DEVICE const eDevice, ADI_TMR_PWM_CONFIG pwmConfig)
+{
     uint16_t nControl = 0u;
 #ifdef ADI_DEBUG
     /* IF(Bad device input parameter) */
@@ -384,21 +388,21 @@ ADI_TMR_RESULT adi_tmr_ConfigPwm(ADI_TMR_DEVICE const eDevice, ADI_TMR_PWM_CONFI
     if (pwmConfig.bIdleHigh == true) {
         nControl = (1u << ((uint16_t) BITP_TMR_RGB_PWM0CTL_IDLESTATE));
     } /* ENDIF */
- 
+
     /* IF(Match mode is enabled) */
     if (pwmConfig.bMatch == true) {
         nControl |= (1u << ((uint16_t) BITP_TMR_RGB_PWM0CTL_MATCH));
-    } /* ENDIF */    
-    
+    } /* ENDIF */
+
     /* IF(PWM output 0) */
     if (pwmConfig.eOutput == ADI_TMR_PWM_OUTPUT_0) {
         adi_tmr_registers[eDevice]->PWM0CTL   = nControl;
-        adi_tmr_registers[eDevice]->PWM0MATCH = pwmConfig.nMatchValue; 
-    /* IF(PWM output 1) */
+        adi_tmr_registers[eDevice]->PWM0MATCH = pwmConfig.nMatchValue;
+        /* IF(PWM output 1) */
     } else if (pwmConfig.eOutput == ADI_TMR_PWM_OUTPUT_1) {
         adi_tmr_registers[eDevice]->PWM1CTL   = nControl;
-        adi_tmr_registers[eDevice]->PWM1MATCH = pwmConfig.nMatchValue;     
-    /* ELSE(PWM output 2) */
+        adi_tmr_registers[eDevice]->PWM1MATCH = pwmConfig.nMatchValue;
+        /* ELSE(PWM output 2) */
     } else {
         adi_tmr_registers[eDevice]->PWM2CTL   = nControl;
         adi_tmr_registers[eDevice]->PWM2MATCH = pwmConfig.nMatchValue;
@@ -423,7 +427,8 @@ ADI_TMR_RESULT adi_tmr_ConfigPwm(ADI_TMR_DEVICE const eDevice, ADI_TMR_PWM_CONFI
  *                - #ADI_TMR_SUCCESS            Function call completed successfully
  *
  */
-ADI_TMR_RESULT adi_tmr_Enable(ADI_TMR_DEVICE const eDevice, bool bEnable) {
+ADI_TMR_RESULT adi_tmr_Enable(ADI_TMR_DEVICE const eDevice, bool bEnable)
+{
 #ifdef ADI_DEBUG
     /* IF(Bad device input parameter) */
     if (eDevice >= ADI_TMR_DEVICE_NUM) {
@@ -432,7 +437,7 @@ ADI_TMR_RESULT adi_tmr_Enable(ADI_TMR_DEVICE const eDevice, bool bEnable) {
 #endif
     /* IF(Busy bit does not clear after waiting) */
     if (ADI_TMR_SUCCESS != WaitForStatusBit(eDevice, (uint16_t) BITM_TMR_RGB_STAT_BUSY)) {
-        return ADI_TMR_DEVICE_BUSY; 
+        return ADI_TMR_DEVICE_BUSY;
     } /* ENDIF */
 
     /* Clear the enable bit and keep the other bits */
@@ -462,7 +467,8 @@ ADI_TMR_RESULT adi_tmr_Enable(ADI_TMR_DEVICE const eDevice, bool bEnable) {
  *                - #ADI_TMR_SUCCESS                 Function call completed successfully
  *
  */
-ADI_TMR_RESULT adi_tmr_GetCurrentCount(ADI_TMR_DEVICE const eDevice, uint16_t *pCount) {
+ADI_TMR_RESULT adi_tmr_GetCurrentCount(ADI_TMR_DEVICE const eDevice, uint16_t *pCount)
+{
 #ifdef ADI_DEBUG
     /* IF(Bad device input parameter) */
     if (eDevice >= ADI_TMR_DEVICE_NUM) {
@@ -470,7 +476,7 @@ ADI_TMR_RESULT adi_tmr_GetCurrentCount(ADI_TMR_DEVICE const eDevice, uint16_t *p
     } /* ENDIF */
     /* IF(Null pointer) */
     if (pCount == NULL) {
-        return ADI_TMR_NULL_POINTER; 
+        return ADI_TMR_NULL_POINTER;
     } /* ENDIF */
 #endif
     *pCount = adi_tmr_registers[eDevice]->CURCNT;
@@ -494,7 +500,8 @@ ADI_TMR_RESULT adi_tmr_GetCurrentCount(ADI_TMR_DEVICE const eDevice, uint16_t *p
  *                - #ADI_TMR_SUCCESS                 Function call completed successfully
  *
  */
-ADI_TMR_RESULT adi_tmr_GetCaptureCount(ADI_TMR_DEVICE const eDevice, uint16_t *pCount) {
+ADI_TMR_RESULT adi_tmr_GetCaptureCount(ADI_TMR_DEVICE const eDevice, uint16_t *pCount)
+{
 #ifdef ADI_DEBUG
     /* IF(Bad device input parameter) */
     if (eDevice >= ADI_TMR_DEVICE_NUM) {
@@ -502,7 +509,7 @@ ADI_TMR_RESULT adi_tmr_GetCaptureCount(ADI_TMR_DEVICE const eDevice, uint16_t *p
     } /* ENDIF */
     /* IF(Null pointer) */
     if (pCount == NULL) {
-        return ADI_TMR_NULL_POINTER; 
+        return ADI_TMR_NULL_POINTER;
     } /* ENDIF */
 #endif
     *pCount = adi_tmr_registers[eDevice]->CAPTURE;
@@ -513,7 +520,7 @@ ADI_TMR_RESULT adi_tmr_GetCaptureCount(ADI_TMR_DEVICE const eDevice, uint16_t *p
 /*!
  * @brief       Reload GP or RGB Timer
  *
- * @details     Only relevent in peridic mode and when bReloading was set to 
+ * @details     Only relevent in peridic mode and when bReloading was set to
  *              true when configuring the timer. Calling this function will
  *              reload (i.e. reset) the timer to the LOAD value.
  *
@@ -526,7 +533,8 @@ ADI_TMR_RESULT adi_tmr_GetCaptureCount(ADI_TMR_DEVICE const eDevice, uint16_t *p
  *                - #ADI_TMR_SUCCESS                 Function call completed successfully
  *
  */
-ADI_TMR_RESULT adi_tmr_Reload(ADI_TMR_DEVICE const eDevice) {
+ADI_TMR_RESULT adi_tmr_Reload(ADI_TMR_DEVICE const eDevice)
+{
 #ifdef ADI_DEBUG
     /* IF(Bad device input parameter) */
     if (eDevice >= ADI_TMR_DEVICE_NUM) {
@@ -541,8 +549,8 @@ ADI_TMR_RESULT adi_tmr_Reload(ADI_TMR_DEVICE const eDevice) {
     adi_tmr_registers[eDevice]->CLRINT = BITM_TMR_RGB_CLRINT_TIMEOUT;
     /* IF(The clear interrupt does not take effect in a reasonable amount of time) */
     if (ADI_TMR_SUCCESS != WaitForStatusBit(eDevice, (uint16_t) BITM_TMR_RGB_STAT_PDOK)) {
-        return ADI_TMR_DEVICE_BUSY; 
-    } /* ENDIF */    
+        return ADI_TMR_DEVICE_BUSY;
+    } /* ENDIF */
     return ADI_TMR_SUCCESS;
 }
 
@@ -551,30 +559,32 @@ ADI_TMR_RESULT adi_tmr_Reload(ADI_TMR_DEVICE const eDevice) {
                                    PRIVATE FUNCTIONS
 *********************************************************************************/
 
- /*! \cond PRIVATE */
+/*! \cond PRIVATE */
 
-static ADI_TMR_RESULT WaitForStatusBit(ADI_TMR_DEVICE const eDevice, uint16_t nBusyBit) {
+static ADI_TMR_RESULT WaitForStatusBit(ADI_TMR_DEVICE const eDevice, uint16_t nBusyBit)
+{
     /* FOR(Number of arbitrary iterations) */
-    for (uint16_t i = 0u; i < 1000u; i++) { 
-            /* IF(Busy bit is low) */
-            if ((adi_tmr_registers[(eDevice)]->STAT & nBusyBit) == ((uint16_t) 0u)) {
-                return ADI_TMR_SUCCESS;
-            } /* ENDIF */
+    for (uint16_t i = 0u; i < 1000u; i++) {
+        /* IF(Busy bit is low) */
+        if ((adi_tmr_registers[(eDevice)]->STAT & nBusyBit) == ((uint16_t) 0u)) {
+            return ADI_TMR_SUCCESS;
+        } /* ENDIF */
     } /* ENDFOR */
     return ADI_TMR_DEVICE_BUSY;
 }
 
-static void CommonIntHandler(ADI_TMR_DEVICE const eDevice) {
+static void CommonIntHandler(ADI_TMR_DEVICE const eDevice)
+{
     /* Read status register */
     uint16_t IntStatus = adi_tmr_registers[eDevice]->STAT;
     /* IF(Callback function has been set) */
-    if(adi_tmr_callbacks[eDevice] != NULL) {
+    if (adi_tmr_callbacks[eDevice] != NULL) {
         /* IF(Timeout interrupt occurred) */
-        if((IntStatus & ((uint16_t) BITM_TMR_RGB_STAT_TIMEOUT)) != ((uint16_t) 0u)) {
+        if ((IntStatus & ((uint16_t) BITM_TMR_RGB_STAT_TIMEOUT)) != ((uint16_t) 0u)) {
             adi_tmr_callbacks[eDevice](adi_tmr_parameters[eDevice], ADI_TMR_EVENT_TIMEOUT, NULL);
         } /* ENDIF */
         /* IF(Event capture interrupt occurred) */
-        if((IntStatus & ((uint16_t) BITM_TMR_RGB_STAT_CAPTURE)) != ((uint16_t) 0u)) {
+        if ((IntStatus & ((uint16_t) BITM_TMR_RGB_STAT_CAPTURE)) != ((uint16_t) 0u)) {
             adi_tmr_callbacks[eDevice](adi_tmr_parameters[eDevice], ADI_TMR_EVENT_CAPTURE, NULL);
         } /* ENDIF */
     } /* ENDIF */
@@ -582,25 +592,29 @@ static void CommonIntHandler(ADI_TMR_DEVICE const eDevice) {
     adi_tmr_registers[eDevice]->CLRINT = (BITM_TMR_RGB_CLRINT_EVTCAPT | BITM_TMR_RGB_CLRINT_TIMEOUT);
 }
 
-void GP_Tmr0_Int_Handler(void) {
+void GP_Tmr0_Int_Handler(void)
+{
     ISR_PROLOG()
     CommonIntHandler(ADI_TMR_DEVICE_GP0);
     ISR_EPILOG()
 }
 
-void GP_Tmr1_Int_Handler(void) {
+void GP_Tmr1_Int_Handler(void)
+{
     ISR_PROLOG()
     CommonIntHandler(ADI_TMR_DEVICE_GP1);
     ISR_EPILOG()
 }
 
-void GP_Tmr2_Int_Handler(void) {
+void GP_Tmr2_Int_Handler(void)
+{
     ISR_PROLOG()
     CommonIntHandler(ADI_TMR_DEVICE_GP2);
     ISR_EPILOG()
 }
 
-void RGB_Tmr_Int_Handler(void) {
+void RGB_Tmr_Int_Handler(void)
+{
     ISR_PROLOG()
     CommonIntHandler(ADI_TMR_DEVICE_RGB);
     ISR_EPILOG()

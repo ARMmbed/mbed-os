@@ -60,5 +60,5 @@ typedef struct exti_lines {
 // Used to return the index for channels array.
 extern const exti_lines_t pin_lines_desc[];
 
-	
+
 #endif

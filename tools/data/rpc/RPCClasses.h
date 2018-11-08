@@ -26,7 +26,10 @@
 
 namespace mbed {
 
-{{classes}}
+{{
+        classes
+    }
+}
 
 }
 

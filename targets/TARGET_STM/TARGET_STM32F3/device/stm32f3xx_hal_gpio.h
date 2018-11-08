@@ -40,7 +40,7 @@
 #define __STM32F3xx_HAL_GPIO_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -62,32 +62,30 @@
 /**
   * @brief   GPIO Init structure definition
   */
-typedef struct
-{
-  uint32_t Pin;        /*!< Specifies the GPIO pins to be configured.
+typedef struct {
+    uint32_t Pin;        /*!< Specifies the GPIO pins to be configured.
                            This parameter can be any value of @ref GPIO_pins */
 
-  uint32_t Mode;       /*!< Specifies the operating mode for the selected pins.
+    uint32_t Mode;       /*!< Specifies the operating mode for the selected pins.
                            This parameter can be a value of @ref GPIO_mode */
 
-  uint32_t Pull;       /*!< Specifies the Pull-up or Pull-Down activation for the selected pins.
+    uint32_t Pull;       /*!< Specifies the Pull-up or Pull-Down activation for the selected pins.
                            This parameter can be a value of @ref GPIO_pull */
 
-  uint32_t Speed;      /*!< Specifies the speed for the selected pins.
+    uint32_t Speed;      /*!< Specifies the speed for the selected pins.
                            This parameter can be a value of @ref GPIO_speed */
 
-  uint32_t Alternate;  /*!< Peripheral to be connected to the selected pins 
+    uint32_t Alternate;  /*!< Peripheral to be connected to the selected pins
                             This parameter can be a value of @ref GPIOEx_Alternate_function_selection */
-}GPIO_InitTypeDef;
+} GPIO_InitTypeDef;
 
 /**
   * @brief  GPIO Bit SET and Bit RESET enumeration
   */
-typedef enum
-{
-  GPIO_PIN_RESET = 0U,
-  GPIO_PIN_SET
-}GPIO_PinState;
+typedef enum {
+    GPIO_PIN_RESET = 0U,
+    GPIO_PIN_SET
+} GPIO_PinState;
 /**
   * @}
   */
@@ -159,10 +157,10 @@ typedef enum
   * @}
   */
 
- /** @defgroup GPIO_pull GPIO pull
-   * @brief GPIO Pull-Up or Pull-Down Activation
-   * @{
-   */
+/** @defgroup GPIO_pull GPIO pull
+  * @brief GPIO Pull-Up or Pull-Down Activation
+  * @{
+  */
 #define  GPIO_NOPULL        (0x00000000U)   /*!< No Pull-up or Pull-down activation  */
 #define  GPIO_PULLUP        (0x00000001U)   /*!< Pull-up activation                  */
 #define  GPIO_PULLDOWN      (0x00000002U)   /*!< Pull-down activation                */
@@ -178,7 +176,7 @@ typedef enum
 /** @defgroup GPIO_Exported_Macros GPIO Exported Macros
   * @{
   */
-  
+
 /**
   * @brief  Check whether the specified EXTI line flag is set or not.
   * @param  __EXTI_LINE__: specifies the EXTI line flag to check.
@@ -259,16 +257,16 @@ typedef enum
 /* Include GPIO HAL Extended module */
 #include "stm32f3xx_hal_gpio_ex.h"
 
-/* Exported functions --------------------------------------------------------*/ 
+/* Exported functions --------------------------------------------------------*/
 /** @addtogroup GPIO_Exported_Functions GPIO Exported Functions
   * @{
   */
 
-/** @addtogroup GPIO_Exported_Functions_Group1 Initialization/de-initialization functions 
+/** @addtogroup GPIO_Exported_Functions_Group1 Initialization/de-initialization functions
  *  @brief    Initialization and Configuration functions
  * @{
  */
-     
+
 /* Initialization and de-initialization functions *****************************/
 void              HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init);
 void              HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin);
@@ -277,15 +275,15 @@ void              HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin);
   * @}
   */
 
-/** @addtogroup GPIO_Exported_Functions_Group2 IO operation functions 
+/** @addtogroup GPIO_Exported_Functions_Group2 IO operation functions
  * @{
  */
-   
+
 /* IO operation functions *****************************************************/
-GPIO_PinState     HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
-void              HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
-void              HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
-HAL_StatusTypeDef HAL_GPIO_LockPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+GPIO_PinState     HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
+void              HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
+void              HAL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
+HAL_StatusTypeDef HAL_GPIO_LockPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
 void              HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin);
 void              HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 
@@ -299,12 +297,12 @@ void              HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */  
-  
+  */
+
 #ifdef __cplusplus
 }
 #endif

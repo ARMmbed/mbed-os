@@ -43,9 +43,8 @@
 #define LVDSLPHYACC (LVDS.LPHYACC)
 
 
-typedef struct st_lvds
-{
-                                                           /* LVDS             */
+typedef struct st_lvds {
+    /* LVDS             */
     volatile uint32_t  LVDS_UPDATE;                            /*  LVDS_UPDATE     */
     volatile uint32_t  LVDSFCL;                                /*  LVDSFCL         */
     volatile uint8_t   dummy608[24];                           /*                  */

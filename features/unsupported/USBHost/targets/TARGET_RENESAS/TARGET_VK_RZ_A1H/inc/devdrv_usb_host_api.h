@@ -230,8 +230,7 @@ Macro definitions
 /*******************************************************************************
 Variable Externs
 *******************************************************************************/
-typedef struct
-{
+typedef struct {
     uint16_t    pipe_number;
     uint16_t    pipe_cfg;
     uint16_t    pipe_buf;
@@ -240,8 +239,7 @@ typedef struct
     uint16_t    fifo_port;
 } USB_HOST_CFG_PIPETBL_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t    fifo;
     uint32_t    buffer;
     uint32_t    bytes;
@@ -263,7 +261,7 @@ int32_t R_USB_api_host_control_transfer(uint16_t root, uint16_t devadr, uint16_t
 int32_t R_USB_api_host_set_endpoint(uint16_t root, uint16_t devadr, USB_HOST_CFG_PIPETBL_t *user_table, uint8_t *configdescriptor);
 int32_t R_USB_api_host_clear_endpoint(uint16_t root, USB_HOST_CFG_PIPETBL_t *user_table);
 int32_t R_USB_api_host_clear_endpoint_pipe(uint16_t root, uint16_t pipe_sel, USB_HOST_CFG_PIPETBL_t *user_table);
-uint16_t R_USB_api_host_SetEndpointTable(uint16_t root, uint16_t devadr, USB_HOST_CFG_PIPETBL_t *user_table, uint8_t* Table);
+uint16_t R_USB_api_host_SetEndpointTable(uint16_t root, uint16_t devadr, USB_HOST_CFG_PIPETBL_t *user_table, uint8_t *Table);
 
 int32_t R_USB_api_host_GetDeviceDescriptor(uint16_t root, uint16_t devadr, uint16_t size, uint8_t *buf);
 int32_t R_USB_api_host_GetConfigDescriptor(uint16_t root, uint16_t devadr, uint16_t size, uint8_t *buf);
@@ -301,11 +299,11 @@ void     Userdef_USB_usb0_host_delay_1ms(void);
 void     Userdef_USB_usb0_host_delay_xms(uint32_t msec);
 void     Userdef_USB_usb0_host_delay_10us(uint32_t usec);
 void     Userdef_USB_usb0_host_delay_500ns(void);
-void     Userdef_USB_usb0_host_start_dma(USB_HOST_DMA_t * dma, uint16_t dfacc);
+void     Userdef_USB_usb0_host_start_dma(USB_HOST_DMA_t *dma, uint16_t dfacc);
 uint32_t Userdef_USB_usb0_host_stop_dma0(void);
 uint32_t Userdef_USB_usb0_host_stop_dma1(void);
-void     Userdef_USB_usb0_host_notice(const char * format);
-void     Userdef_USB_usb0_host_user_rdy(const char * format, uint16_t data);
+void     Userdef_USB_usb0_host_notice(const char *format);
+void     Userdef_USB_usb0_host_user_rdy(const char *format, uint16_t data);
 #endif
 
 #ifdef USB1_HOST_API_H
@@ -317,11 +315,11 @@ void     Userdef_USB_usb1_host_delay_1ms(void);
 void     Userdef_USB_usb1_host_delay_xms(uint32_t msec);
 void     Userdef_USB_usb1_host_delay_10us(uint32_t usec);
 void     Userdef_USB_usb1_host_delay_500ns(void);
-void     Userdef_USB_usb1_host_start_dma(USB_HOST_DMA_t * dma, uint16_t dfacc);
+void     Userdef_USB_usb1_host_start_dma(USB_HOST_DMA_t *dma, uint16_t dfacc);
 uint32_t Userdef_USB_usb1_host_stop_dma0(void);
 uint32_t Userdef_USB_usb1_host_stop_dma1(void);
-void     Userdef_USB_usb1_host_notice(const char * format);
-void     Userdef_USB_usb1_host_user_rdy(const char * format, uint16_t data);
+void     Userdef_USB_usb1_host_notice(const char *format);
+void     Userdef_USB_usb1_host_user_rdy(const char *format, uint16_t data);
 #endif
 
 #endif /* USB_HOST_API_H */

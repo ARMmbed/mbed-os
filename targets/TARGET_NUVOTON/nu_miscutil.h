@@ -28,8 +28,8 @@ extern "C" {
 #define NU_ALIGN_UP(X, ALIGN)       (((X) + (ALIGN) - 1) & ~((ALIGN) - 1))
 
 void nu_nop(uint32_t n);
-    
-    
+
+
 #ifdef __cplusplus
 }
 #endif

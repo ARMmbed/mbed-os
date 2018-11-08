@@ -56,18 +56,18 @@ extern "C" {
 
 /** MLD group */
 struct mld_group {
-  /** next link */
-  struct mld_group *next;
-  /** multicast address */
-  ip6_addr_t         group_address;
-  /** signifies we were the last person to report */
-  u8_t               last_reporter_flag;
-  /** current state of the group */
-  u8_t               group_state;
-  /** timer for reporting */
-  u16_t              timer;
-  /** counter of simultaneous uses */
-  u8_t               use;
+    /** next link */
+    struct mld_group *next;
+    /** multicast address */
+    ip6_addr_t         group_address;
+    /** signifies we were the last person to report */
+    u8_t               last_reporter_flag;
+    /** current state of the group */
+    u8_t               group_state;
+    /** timer for reporting */
+    u16_t              timer;
+    /** counter of simultaneous uses */
+    u8_t               use;
 };
 
 #define MLD6_TMR_INTERVAL              100 /* Milliseconds */
@@ -84,7 +84,7 @@ err_t  mld6_leavegroup_netif(struct netif *netif, const ip6_addr_t *groupaddr);
 
 /** @ingroup mld6
  * Get list head of MLD6 groups for netif.
- * Note: The allnodes group IP is NOT in the list, since it must always 
+ * Note: The allnodes group IP is NOT in the list, since it must always
  * be received for correct IPv6 operation.
  * @see @ref netif_set_mld_mac_filter()
  */

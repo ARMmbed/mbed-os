@@ -118,7 +118,7 @@ typedef enum mle_tlv_type_t_ {
     MLE_TYPE_OPERATIONAL_DATASET = 24,
     MLE_TYPE_PENDING_OPERATIONAL_DATASET = 25,
     MLE_TYPE_DISCOVERY = 26,
-	/* Thread low power TLVs*/
+    /* Thread low power TLVs*/
     MLE_TYPE_LINK_METRICS_QUERY = 87,
     MLE_TYPE_LINK_METRICS_MANAGEMENT = 88,
     MLE_TYPE_LINK_METRICS_REPORT = 89,
@@ -161,7 +161,7 @@ typedef struct mle_neigh_table_entry_t {
     uint8_t                            remote_incoming_idr;       /*!< 5 bits fraction */
     uint32_t                           last_key_sequence;
     unsigned                           accumulated_failures: 5;
-    unsigned                           new_key_pending:1;
+    unsigned                           new_key_pending: 1;
     unsigned                           link_q_adv_sent: 1;
     unsigned                           tmp_etx: 1;
     unsigned                           priority_child_flag: 1;    /* Is using our node as preferred parent */
@@ -197,7 +197,7 @@ typedef bool mle_entry_interface_activate(int8_t interface_id);
 
 int8_t mle_class_init(int8_t interface_id, uint8_t table_size, mle_entry_user_entry_remove_notify *remove_cb, mle_entry_link_keep_alive *keep_alive_cb, mle_entry_interface_activate *interface_is_active);
 
-int8_t mle_class_router_challenge(int8_t interface_id,mle_entry_link_keep_alive *challenge_cb);
+int8_t mle_class_router_challenge(int8_t interface_id, mle_entry_link_keep_alive *challenge_cb);
 
 bool mle_class_exists_for_interface(int8_t interface_id);
 
@@ -205,7 +205,7 @@ int8_t mle_class_deallocate(int8_t interface_id);
 
 int8_t mle_class_list_clean(int8_t interface_id);
 
-int8_t mle_class_mode_set(int8_t interface_id,mle_class_user_mode mode);
+int8_t mle_class_mode_set(int8_t interface_id, mle_class_user_mode mode);
 
 int8_t mle_class_set_new_key_pending(int8_t interface_id);
 

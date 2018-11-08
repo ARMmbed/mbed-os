@@ -62,8 +62,7 @@
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 */
 FNET_COMP_PACKED_BEGIN
-typedef struct
-{
+typedef struct {
     fnet_uint16_t id FNET_COMP_PACKED;         /* A 16 bit identifier assigned by the program that
                                                 * generates any kind of query. This identifier is copied
                                                 * the corresponding reply and can be used by the requester
@@ -103,8 +102,7 @@ FNET_COMP_PACKED_END
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 */
 FNET_COMP_PACKED_BEGIN
-typedef struct
-{
+typedef struct {
     fnet_uint8_t   zero_length FNET_COMP_PACKED;   /* The domain name terminates with the
                                                     * zero length octet for the null label of the root. */
     fnet_uint16_t  qtype FNET_COMP_PACKED;         /* Specifies the type of the query.*/
@@ -137,10 +135,8 @@ FNET_COMP_PACKED_END
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 */
 FNET_COMP_PACKED_BEGIN
-typedef struct
-{
-    union
-    {
+typedef struct {
+    union {
         fnet_uint8_t   name_ptr_c[2] FNET_COMP_PACKED; /* A domain name to which this resource record pertains.
                                                         * For compression, it is replaced with a pointer to a prior occurance
                                                         * of the same name */

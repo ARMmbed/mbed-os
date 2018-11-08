@@ -55,9 +55,9 @@ struct port_s {
 };
 
 struct analogin_s {
-	ADCName adc;
-	PinName pin;
-	uint8_t channel;
+    ADCName adc;
+    PinName pin;
+    uint8_t channel;
 };
 
 struct trng_s {

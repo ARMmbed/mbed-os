@@ -44,12 +44,13 @@
   */
 uint32_t SPI_Open(SPI_T *spi, uint32_t u32MasterSlave, uint32_t u32SPIMode,  uint32_t u32DataWidth, uint32_t u32BusClock)
 {
-    if(u32DataWidth == 32)
+    if (u32DataWidth == 32) {
         u32DataWidth = 0;
+    }
 
     spi->CTL = u32MasterSlave | (u32DataWidth << SPI_CTL_DWIDTH_Pos) | (u32SPIMode);
 
-    return ( SPI_SetBusClock(spi, u32BusClock) );
+    return (SPI_SetBusClock(spi, u32BusClock));
 }
 
 /**
@@ -60,13 +61,13 @@ uint32_t SPI_Open(SPI_T *spi, uint32_t u32MasterSlave, uint32_t u32SPIMode,  uin
 void SPI_Close(SPI_T *spi)
 {
     /* Reset SPI */
-    if((uint32_t)spi == SPI0_BASE) {
+    if ((uint32_t)spi == SPI0_BASE) {
         SYS->IPRST1 |= SYS_IPRST1_SPI0RST_Msk;
         SYS->IPRST1 &= ~SYS_IPRST1_SPI0RST_Msk;
-    } else if((uint32_t)spi == SPI1_BASE) {
+    } else if ((uint32_t)spi == SPI1_BASE) {
         SYS->IPRST1 |= SYS_IPRST1_SPI1RST_Msk;
         SYS->IPRST1 &= ~SYS_IPRST1_SPI1RST_Msk;
-    } else if((uint32_t)spi == SPI2_BASE) {
+    } else if ((uint32_t)spi == SPI2_BASE) {
         SYS->IPRST1 |= SYS_IPRST1_SPI2RST_Msk;
         SYS->IPRST1 &= ~SYS_IPRST1_SPI2RST_Msk;
     } else {
@@ -131,41 +132,48 @@ uint32_t SPI_SetBusClock(SPI_T *spi, uint32_t u32BusClock)
 {
     uint32_t u32ClkSrc, u32Div = 0;
 
-    if(spi == SPI0) {
-        if((CLK->CLKSEL1 & CLK_CLKSEL1_SPI0SEL_Msk) == CLK_CLKSEL1_SPI0SEL_PCLK)
+    if (spi == SPI0) {
+        if ((CLK->CLKSEL1 & CLK_CLKSEL1_SPI0SEL_Msk) == CLK_CLKSEL1_SPI0SEL_PCLK) {
             u32ClkSrc = CLK_GetPCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
-    } else if(spi == SPI1) {
-        if((CLK->CLKSEL1 & CLK_CLKSEL1_SPI1SEL_Msk) == CLK_CLKSEL1_SPI1SEL_PCLK)
+        }
+    } else if (spi == SPI1) {
+        if ((CLK->CLKSEL1 & CLK_CLKSEL1_SPI1SEL_Msk) == CLK_CLKSEL1_SPI1SEL_PCLK) {
             u32ClkSrc = CLK_GetPCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
-    } else if(spi == SPI2) {
-        if((CLK->CLKSEL1 & CLK_CLKSEL1_SPI1SEL_Msk) == CLK_CLKSEL1_SPI2SEL_PCLK)
+        }
+    } else if (spi == SPI2) {
+        if ((CLK->CLKSEL1 & CLK_CLKSEL1_SPI1SEL_Msk) == CLK_CLKSEL1_SPI2SEL_PCLK) {
             u32ClkSrc = CLK_GetPCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
+        }
     } else {
-        if((CLK->CLKSEL1 & CLK_CLKSEL1_SPI3SEL_Msk) == CLK_CLKSEL1_SPI3SEL_PCLK)
+        if ((CLK->CLKSEL1 & CLK_CLKSEL1_SPI3SEL_Msk) == CLK_CLKSEL1_SPI3SEL_PCLK) {
             u32ClkSrc = CLK_GetPCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
+        }
     }
 
-    if(u32BusClock > u32ClkSrc)
+    if (u32BusClock > u32ClkSrc) {
         u32BusClock = u32ClkSrc;
+    }
 
-    if(u32BusClock != 0 ) {
+    if (u32BusClock != 0) {
         u32Div = (u32ClkSrc / u32BusClock) - 1;
-        if(u32Div > SPI_CLKDIV_DIVIDER_Msk)
+        if (u32Div > SPI_CLKDIV_DIVIDER_Msk) {
             u32Div = SPI_CLKDIV_DIVIDER_Msk;
-    } else
+        }
+    } else {
         return 0;
+    }
 
     spi->CLKDIV = (spi->CLKDIV & ~SPI_CLKDIV_DIVIDER_Msk) | u32Div;
 
-    return ( u32ClkSrc / (u32Div+1) );
+    return (u32ClkSrc / (u32Div + 1));
 }
 
 /**
@@ -192,26 +200,30 @@ uint32_t SPI_GetBusClock(SPI_T *spi)
     uint32_t u32Div;
     uint32_t u32ClkSrc;
 
-    if(spi == SPI0) {
-        if((CLK->CLKSEL1 & CLK_CLKSEL1_SPI0SEL_Msk) == CLK_CLKSEL1_SPI0SEL_PCLK)
+    if (spi == SPI0) {
+        if ((CLK->CLKSEL1 & CLK_CLKSEL1_SPI0SEL_Msk) == CLK_CLKSEL1_SPI0SEL_PCLK) {
             u32ClkSrc = CLK_GetPCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
-    } else if(spi == SPI1) {
-        if((CLK->CLKSEL1 & CLK_CLKSEL1_SPI1SEL_Msk) == CLK_CLKSEL1_SPI1SEL_PCLK)
+        }
+    } else if (spi == SPI1) {
+        if ((CLK->CLKSEL1 & CLK_CLKSEL1_SPI1SEL_Msk) == CLK_CLKSEL1_SPI1SEL_PCLK) {
             u32ClkSrc = CLK_GetPCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
-    } else if(spi == SPI2) {
-        if((CLK->CLKSEL1 & CLK_CLKSEL1_SPI2SEL_Msk) == CLK_CLKSEL1_SPI2SEL_PCLK)
+        }
+    } else if (spi == SPI2) {
+        if ((CLK->CLKSEL1 & CLK_CLKSEL1_SPI2SEL_Msk) == CLK_CLKSEL1_SPI2SEL_PCLK) {
             u32ClkSrc = CLK_GetPCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
+        }
     } else {
-        if((CLK->CLKSEL1 & CLK_CLKSEL1_SPI3SEL_Msk) == CLK_CLKSEL1_SPI3SEL_PCLK)
+        if ((CLK->CLKSEL1 & CLK_CLKSEL1_SPI3SEL_Msk) == CLK_CLKSEL1_SPI3SEL_PCLK) {
             u32ClkSrc = CLK_GetPCLKFreq();
-        else
+        } else {
             u32ClkSrc = CLK_GetPLLClockFreq();
+        }
     }
 
     u32Div = spi->CLKDIV & SPI_CLKDIV_DIVIDER_Msk;
@@ -239,38 +251,49 @@ uint32_t SPI_GetBusClock(SPI_T *spi)
   */
 void SPI_EnableInt(SPI_T *spi, uint32_t u32Mask)
 {
-    if((u32Mask & SPI_UNITIEN_MASK) == SPI_UNITIEN_MASK)
+    if ((u32Mask & SPI_UNITIEN_MASK) == SPI_UNITIEN_MASK) {
         spi->CTL |= SPI_CTL_UNITIEN_Msk;
+    }
 
-    if((u32Mask & SPI_SSINAIEN_MASK) == SPI_SSINAIEN_MASK)
+    if ((u32Mask & SPI_SSINAIEN_MASK) == SPI_SSINAIEN_MASK) {
         spi->SSCTL |= SPI_SSCTL_SSINAIEN_Msk;
+    }
 
-    if((u32Mask & SPI_SSACTIEN_MASK) == SPI_SSACTIEN_MASK)
+    if ((u32Mask & SPI_SSACTIEN_MASK) == SPI_SSACTIEN_MASK) {
         spi->SSCTL |= SPI_SSCTL_SSACTIEN_Msk;
+    }
 
-    if((u32Mask & SPI_SLVURIEN_MASK) == SPI_SLVURIEN_MASK)
+    if ((u32Mask & SPI_SLVURIEN_MASK) == SPI_SLVURIEN_MASK) {
         spi->SSCTL |= SPI_SSCTL_SLVURIEN_Msk;
+    }
 
-    if((u32Mask & SPI_SLVBEIEN_MASK) == SPI_SLVBEIEN_MASK)
+    if ((u32Mask & SPI_SLVBEIEN_MASK) == SPI_SLVBEIEN_MASK) {
         spi->SSCTL |= SPI_SSCTL_SLVBEIEN_Msk;
+    }
 
-    if((u32Mask & SPI_SLVTOIEN_MASK) == SPI_SLVTOIEN_MASK)
+    if ((u32Mask & SPI_SLVTOIEN_MASK) == SPI_SLVTOIEN_MASK) {
         spi->SSCTL |= SPI_SSCTL_SLVTOIEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_TXTHIEN_MASK) == SPI_FIFO_TXTHIEN_MASK)
+    if ((u32Mask & SPI_FIFO_TXTHIEN_MASK) == SPI_FIFO_TXTHIEN_MASK) {
         spi->FIFOCTL |= SPI_FIFOCTL_TXTHIEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_RXTHIEN_MASK) == SPI_FIFO_RXTHIEN_MASK)
+    if ((u32Mask & SPI_FIFO_RXTHIEN_MASK) == SPI_FIFO_RXTHIEN_MASK) {
         spi->FIFOCTL |= SPI_FIFOCTL_RXTHIEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_RXOVIEN_MASK) == SPI_FIFO_RXOVIEN_MASK)
+    if ((u32Mask & SPI_FIFO_RXOVIEN_MASK) == SPI_FIFO_RXOVIEN_MASK) {
         spi->FIFOCTL |= SPI_FIFOCTL_RXOVIEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_TXUFIEN_MASK) == SPI_FIFO_TXUFIEN_MASK)
+    if ((u32Mask & SPI_FIFO_TXUFIEN_MASK) == SPI_FIFO_TXUFIEN_MASK) {
         spi->FIFOCTL |= SPI_FIFOCTL_TXUFIEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_RXTOIEN_MASK) == SPI_FIFO_RXTOIEN_MASK)
+    if ((u32Mask & SPI_FIFO_RXTOIEN_MASK) == SPI_FIFO_RXTOIEN_MASK) {
         spi->FIFOCTL |= SPI_FIFOCTL_RXTOIEN_Msk;
+    }
 }
 
 /**
@@ -294,38 +317,49 @@ void SPI_EnableInt(SPI_T *spi, uint32_t u32Mask)
   */
 void SPI_DisableInt(SPI_T *spi, uint32_t u32Mask)
 {
-    if((u32Mask & SPI_UNITIEN_MASK) == SPI_UNITIEN_MASK)
+    if ((u32Mask & SPI_UNITIEN_MASK) == SPI_UNITIEN_MASK) {
         spi->CTL &= ~SPI_CTL_UNITIEN_Msk;
+    }
 
-    if((u32Mask & SPI_SSINAIEN_MASK) == SPI_SSINAIEN_MASK)
+    if ((u32Mask & SPI_SSINAIEN_MASK) == SPI_SSINAIEN_MASK) {
         spi->SSCTL &= ~SPI_SSCTL_SSINAIEN_Msk;
+    }
 
-    if((u32Mask & SPI_SSACTIEN_MASK) == SPI_SSACTIEN_MASK)
+    if ((u32Mask & SPI_SSACTIEN_MASK) == SPI_SSACTIEN_MASK) {
         spi->SSCTL &= ~SPI_SSCTL_SSACTIEN_Msk;
+    }
 
-    if((u32Mask & SPI_SLVURIEN_MASK) == SPI_SLVURIEN_MASK)
+    if ((u32Mask & SPI_SLVURIEN_MASK) == SPI_SLVURIEN_MASK) {
         spi->SSCTL &= ~SPI_SSCTL_SLVURIEN_Msk;
+    }
 
-    if((u32Mask & SPI_SLVBEIEN_MASK) == SPI_SLVBEIEN_MASK)
+    if ((u32Mask & SPI_SLVBEIEN_MASK) == SPI_SLVBEIEN_MASK) {
         spi->SSCTL &= ~SPI_SSCTL_SLVBEIEN_Msk;
+    }
 
-    if((u32Mask & SPI_SLVTOIEN_MASK) == SPI_SLVTOIEN_MASK)
+    if ((u32Mask & SPI_SLVTOIEN_MASK) == SPI_SLVTOIEN_MASK) {
         spi->SSCTL &= ~SPI_SSCTL_SLVTOIEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_TXTHIEN_MASK) == SPI_FIFO_TXTHIEN_MASK)
+    if ((u32Mask & SPI_FIFO_TXTHIEN_MASK) == SPI_FIFO_TXTHIEN_MASK) {
         spi->FIFOCTL &= ~SPI_FIFOCTL_TXTHIEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_RXTHIEN_MASK) == SPI_FIFO_RXTHIEN_MASK)
+    if ((u32Mask & SPI_FIFO_RXTHIEN_MASK) == SPI_FIFO_RXTHIEN_MASK) {
         spi->FIFOCTL &= ~SPI_FIFOCTL_RXTHIEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_RXOVIEN_MASK) == SPI_FIFO_RXOVIEN_MASK)
+    if ((u32Mask & SPI_FIFO_RXOVIEN_MASK) == SPI_FIFO_RXOVIEN_MASK) {
         spi->FIFOCTL &= ~SPI_FIFOCTL_RXOVIEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_TXUFIEN_MASK) == SPI_FIFO_TXUFIEN_MASK)
+    if ((u32Mask & SPI_FIFO_TXUFIEN_MASK) == SPI_FIFO_TXUFIEN_MASK) {
         spi->FIFOCTL &= ~SPI_FIFOCTL_TXUFIEN_Msk;
+    }
 
-    if((u32Mask & SPI_FIFO_RXTOIEN_MASK) == SPI_FIFO_RXTOIEN_MASK)
+    if ((u32Mask & SPI_FIFO_RXTOIEN_MASK) == SPI_FIFO_RXTOIEN_MASK) {
         spi->FIFOCTL &= ~SPI_FIFOCTL_RXTOIEN_Msk;
+    }
 }
 
 /*@}*/ /* end of group NUC472_442_SPI_EXPORTED_FUNCTIONS */

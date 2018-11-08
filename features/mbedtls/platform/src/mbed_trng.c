@@ -18,7 +18,8 @@
 
 #include "hal/trng_api.h"
 
-int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen ) {
+int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len, size_t *olen)
+{
     trng_t trng_obj;
     trng_init(&trng_obj);
     int ret = trng_get_bytes(&trng_obj, output, len, olen);

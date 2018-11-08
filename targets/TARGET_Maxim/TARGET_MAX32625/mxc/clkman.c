@@ -44,7 +44,7 @@ void CLKMAN_SetSystemClock(clkman_system_source_select_t select, clkman_system_s
     MXC_CLKMAN->clk_ctrl = ((MXC_CLKMAN->clk_ctrl & ~MXC_F_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT) |
                             (MXC_V_CLKMAN_CLK_CTRL_SYSTEM_SOURCE_SELECT_96MHZ_RO));
 
-    switch(select) {
+    switch (select) {
         case CLKMAN_SYSTEM_SOURCE_96MHZ:
         default:
             // Enable and select the 96MHz oscillator
@@ -124,7 +124,7 @@ clkman_scale_t CLKMAN_GetClkScale(clkman_clk_t clk)
         clk_ctrl_reg = &MXC_CLKMAN->crypt_clk_ctrl_0_aes + (clk - CLKMAN_CRYPTO_CLK_AES);
     }
 
-    return (clkman_scale_t)*clk_ctrl_reg;
+    return (clkman_scale_t) * clk_ctrl_reg;
 }
 
 /******************************************************************************/

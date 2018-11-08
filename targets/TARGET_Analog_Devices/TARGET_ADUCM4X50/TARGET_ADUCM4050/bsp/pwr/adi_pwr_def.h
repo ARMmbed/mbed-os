@@ -46,22 +46,22 @@
 #ifndef ADI_PWR_DEF_H
 #define ADI_PWR_DEF_H
 
- /*Power control register access key */
+/*Power control register access key */
 #define ADI_PMG_KEY             (0x4859u)
 
- /*Osc control register access key */
+/*Osc control register access key */
 #define ADI_OSC_KEY             (0xCB14u)
 
- /*HCLK/PCLK minimum Divider value */
+/*HCLK/PCLK minimum Divider value */
 #define CLOCK_MIN_DIV_VALUE     (0x1u)
 
- /*HCLK/PCLK maximum Divider value */
+/*HCLK/PCLK maximum Divider value */
 #define CLOCK_MAX_DIV_VALUE     (32u)
 
- /*ADC Clock minimum Divider value */
+/*ADC Clock minimum Divider value */
 #define ACLK_MIN_DIV_VALUE      (0x1u)
 
- /*ADC Clock maximum Divider value */
+/*ADC Clock maximum Divider value */
 #define ACLK_MAX_DIV_VALUE      (511u)
 
 /* Minimum divider for PLL */
@@ -73,7 +73,7 @@
 /* Maximum external clock */
 #define MAXIMUM_EXT_CLOCK       (26000000u)
 
- /* Default osc  control register value */
+/* Default osc  control register value */
 #define OSCCTRL_CONFIG_VALUE                                                                                              \
           ( (uint32_t) ADI_PWR_LF_CLOCK_MUX                             << BITP_CLKG_OSC_CTL_LFCLK_MUX                  | \
             (uint32_t) ADI_PWR_HFOSC_CLOCK_ENABLE                       << BITP_CLKG_OSC_CTL_HFOSC_EN                   | \
@@ -86,7 +86,7 @@
             (uint32_t) ADI_PWR_ROOT_CLOCK_MON_INT_ENABLE                << BITP_CLKG_OSC_CTL_ROOT_MON_EN                | \
             (uint32_t) ADI_PWR_ROOT_CLOCK_FAIL_AUTOSWITCH_ENABLE        << BITP_CLKG_OSC_CTL_ROOT_AUTSW_EN )
 
- /* Default clock control register-0 value */
+/* Default clock control register-0 value */
 #define CLOCK_CTL0_CONFIG_VALUE                                                                                           \
           ( (uint32_t) ADI_PWR_INPUT_TO_ROOT_CLOCK_MUX                  << BITP_CLKG_CLK_CTL0_CLKMUX                    | \
             (uint32_t) ADI_PWR_GPIO_CLOCK_OUT_SELECT                    << BITP_CLKG_CLK_CTL0_CLKOUT                    | \
@@ -95,7 +95,7 @@
             (uint32_t) ADI_PWR_LFXTAL_CLOCK_INTERRUPT_ENABLE            << BITP_CLKG_CLK_CTL0_LFXTALIE                  | \
             (uint32_t) ADI_PWR_HFXTAL_CLOCK_INTERRUPT_ENABLE             << BITP_CLKG_CLK_CTL0_HFXTALIE )
 
- /* Default clock control register-1 value */
+/* Default clock control register-1 value */
 #define CLOCK_CTL1_CONFIG_VALUE                                                                                           \
           ( (uint32_t) ADI_PWR_HCLK_DIVIDE_COUNT                        << BITP_CLKG_CLK_CTL1_HCLKDIVCNT                | \
             (uint32_t) ADI_PWR_PCLK_DIVIDE_COUNT                        << BITP_CLKG_CLK_CTL1_PCLKDIVCNT                | \
@@ -106,7 +106,7 @@
           ( (uint32_t) ADI_PWR_HFOSC_AUTO_DIV_BY_1                      << BITP_CLKG_CLK_CTL2_HFOSCAUTODIV_EN           | \
             (uint32_t) ADI_PWR_HFOSC_DIVIDE_SELECT                      << BITP_CLKG_CLK_CTL2_HFOSCDIVCLKSEL )
 
- /* Default clock control register-3 value */
+/* Default clock control register-3 value */
 #define CLOCK_CTL3_CONFIG_VALUE                                                                                           \
           ( (uint32_t) ADI_PWR_SPLL_MUL_FACTOR                          << BITP_CLKG_CLK_CTL3_SPLLNSEL                  | \
             (uint32_t) ADI_PWR_SPLL_ENABLE_DIV2                         << BITP_CLKG_CLK_CTL3_SPLLDIV2                  | \
@@ -115,7 +115,7 @@
             (uint32_t) ADI_PWR_SPLL_DIV_FACTOR                          << BITP_CLKG_CLK_CTL3_SPLLMSEL                  | \
             (uint32_t) ADI_PWR_SPLL_ENABLE_MUL2                         << BITP_CLKG_CLK_CTL3_SPLLMUL2 )
 
- /* Default clock control register-5 value */
+/* Default clock control register-5 value */
 #define CLOCK_CTL5_CONFIG_VALUE                                                                                           \
           ( (uint32_t) ADI_PWR_GPT0_CLOCK_ENABLE                        << BITP_CLKG_CLK_CTL5_GPTCLK0OFF                | \
             (uint32_t) ADI_PWR_GPT1_CLOCK_ENABLE                        << BITP_CLKG_CLK_CTL5_GPTCLK1OFF                | \
@@ -124,35 +124,35 @@
             (uint32_t) ADI_PWR_GPIO_CLOCK_ENABLE                        << BITP_CLKG_CLK_CTL5_GPIOCLKOFF                | \
             (uint32_t) ADI_PWR_PCLK_ENABLE                              << BITP_CLKG_CLK_CTL5_PERCLKOFF                 | \
             (uint32_t) ADI_PWR_TIMER_RGB_ENABLE                         << BITP_CLKG_CLK_CTL5_TMRRGBCLKOFF )
-            
-/* Default configuration for Power supply monitor Interrupt Enable Register */            
+
+/* Default configuration for Power supply monitor Interrupt Enable Register */
 #define PWM_INTERRUPT_CONFIG                                                                                              \
           ( (uint32_t) ADI_PWR_ENABLE_VBAT_INTERRUPT                    << BITP_PMG_IEN_VBAT                            | \
             (uint32_t) ADI_PWR_ENABLE_VREG_UNDER_VOLTAGE_INTERRUPT      << BITP_PMG_IEN_VREGUNDR                        | \
             (uint32_t) ADI_PWR_ENABLE_VREG_OVER_VOLTAGE_INTERRUPT       << BITP_PMG_IEN_VREGOVR                         | \
             (uint32_t) ADI_PWR_ENABLE_BATTERY_VOLTAGE_RANGE_INTERRUPT   << BITP_PMG_IEN_IENBAT                          | \
             (uint32_t) ADI_PWR_BATTERY_VOLTAGE_RANGE_FOR_INTERRUPT      << BITP_PMG_IEN_RANGEBAT )
-            
- /* Default configuration for Power Mode Register */            
- #define PWM_PWRMOD_CONFIG                                                                                                \
-         (  (uint32_t) ADI_PWR_ENABLE_BATTERY_VOLTAGE_MONITORING        << BITP_PMG_PWRMOD_MONVBATN ) 
- 
+
+/* Default configuration for Power Mode Register */
+#define PWM_PWRMOD_CONFIG                                                                                                \
+         (  (uint32_t) ADI_PWR_ENABLE_BATTERY_VOLTAGE_MONITORING        << BITP_PMG_PWRMOD_MONVBATN )
+
 /* Default configuration for HP Buck Control register */
 #define PWM_HPBUCK_CONTROL                                                                                                \
          (  (uint32_t) ADI_PWR_HP_BUCK_ENABLE                           << BITP_PMG_CTL1_HPBUCKEN                       | \
             (uint32_t) ADI_PWR_HP_BUCK_LOAD_MODE                        << BITP_PMG_CTL1_HPBUCK_LD_MODE                 | \
-            (uint32_t) ADI_PWR_HP_BUCK_LOW_POWER_MODE                   << BITP_PMG_CTL1_HPBUCK_LOWPWR_MODE )  
-           
- /*Selecting HFOSC as input for generating root clock*/
+            (uint32_t) ADI_PWR_HP_BUCK_LOW_POWER_MODE                   << BITP_PMG_CTL1_HPBUCK_LOWPWR_MODE )
+
+/*Selecting HFOSC as input for generating root clock*/
 #define HFMUX_INTERNAL_OSC_VAL      (0u << BITP_CLKG_CLK_CTL0_CLKMUX)
 
- /*Selecting HFXTAL as input for generating root clock*/
+/*Selecting HFXTAL as input for generating root clock*/
 #define HFMUX_EXTERNAL_XTAL_VAL     (1u << BITP_CLKG_CLK_CTL0_CLKMUX)
 
- /*Selecting SPLL as input for generating root clock*/
+/*Selecting SPLL as input for generating root clock*/
 #define HFMUX_SYSTEM_SPLL_VAL       (2u << BITP_CLKG_CLK_CTL0_CLKMUX)
 
- /*Selecting GPIO as input for generating root clock*/
+/*Selecting GPIO as input for generating root clock*/
 #define HFMUX_GPIO_VAL              (3u << BITP_CLKG_CLK_CTL0_CLKMUX)
 
 /* Interrupt handler for the battery voltage interrupt */
@@ -160,8 +160,8 @@ void Battery_Voltage_Int_Handler(void);
 /* Interrupt handler for the VREG under/over voltage interrupt */
 void Vreg_over_Int_Handler(void);
 /* Interrupt handler for PLL interrupts. */
-void PLL_Int_Handler(void);     
-/*Interrupt handler for oscillator interrupts.*/                                 
+void PLL_Int_Handler(void);
+/*Interrupt handler for oscillator interrupts.*/
 void Crystal_osc_Int_Handler(void);
 
 #endif /* ADI_PWR_DEF_H */

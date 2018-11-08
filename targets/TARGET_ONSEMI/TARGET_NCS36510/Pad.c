@@ -121,11 +121,11 @@ boolean fPadIOCtrl(uint8_t PadNum, uint8_t OutputDriveStrength, uint8_t OutputDr
         *Values are only accessible when CDBGPWRUPREQ is high.  This limits the maximum output current in functional mode. \endverbatim */
 
 
-    if((PadNum  <= PAD_NUM_OF_IO) &&
+    if ((PadNum  <= PAD_NUM_OF_IO) &&
             (OutputDriveStrength <= PAD_OP_DRIVE_STRGTH_MAX) &&
             (OutputDriveType <= PAD_OP_DRIVE_TYPE_MAX) && (PullType <= PAD_OP_PULL_TYPE_MAX)) {
         /** - Get PAD IO register address for the PAD number */
-        PadRegOffset = (PadReg_t*)(PADREG_BASE + (PadNum * PAD_REG_ADRS_BYTE_SIZE));
+        PadRegOffset = (PadReg_t *)(PADREG_BASE + (PadNum * PAD_REG_ADRS_BYTE_SIZE));
 
         /** - Enable the clock for PAD peripheral device */
         CLOCK_ENABLE(CLOCK_PAD);

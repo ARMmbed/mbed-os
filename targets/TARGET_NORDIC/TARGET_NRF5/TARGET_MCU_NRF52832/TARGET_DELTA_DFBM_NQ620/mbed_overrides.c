@@ -16,7 +16,7 @@
 
 void mbed_sdk_init()
 {
-    char* debug_date = __DATE__;
-    char* debug_time = __TIME__;	
+    char *debug_date = __DATE__;
+    char *debug_time = __TIME__;
 
 }

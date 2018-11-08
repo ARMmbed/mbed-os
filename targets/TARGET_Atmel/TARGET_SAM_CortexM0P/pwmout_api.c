@@ -41,7 +41,7 @@ extern const uint32_t _tcc_maxs[TCC_INST_NUM];
  * @param[in] period_us  Period in microseconds
  * @return    void
  */
-static void pwmout_set_period(pwmout_t* obj, int period_us)
+static void pwmout_set_period(pwmout_t *obj, int period_us)
 {
     uint8_t i;
     uint32_t freq_hz;
@@ -60,9 +60,11 @@ static void pwmout_set_period(pwmout_t* obj, int period_us)
 
     freq_hz = system_gclk_gen_get_hz(obj->clock_source);
 
-    for (i=0; i<sizeof(tcc_prescaler) / sizeof(tcc_prescaler[0]); i++) {
+    for (i = 0; i < sizeof(tcc_prescaler) / sizeof(tcc_prescaler[0]); i++) {
         div_freq = freq_hz >> tcc_prescaler[i];
-        if (!div_freq) break;
+        if (!div_freq) {
+            break;
+        }
         us_per_cycle = 1000000.00 / div_freq;
         max_period = us_per_cycle * count_max;
         if (max_period >= us_period) {
@@ -79,7 +81,7 @@ static void pwmout_set_period(pwmout_t* obj, int period_us)
  * @param[in][out] obj  The PWM object to initialize
  * @return         non-zero if success
  */
-bool pwmout_init_hw(pwmout_t* obj)
+bool pwmout_init_hw(pwmout_t *obj)
 {
     uint32_t mux_func = (uint32_t)NC;
     uint32_t pwm = (uint32_t)NC;
@@ -93,7 +95,9 @@ bool pwmout_init_hw(pwmout_t* obj)
 
     pin = obj->pin;
     pwm = pinmap_peripheral(pin, PinMap_PWM);
-    if (pwm == (uint32_t)NC) return 0; /* Pin not supported */
+    if (pwm == (uint32_t)NC) {
+        return 0;    /* Pin not supported */
+    }
 
     mux_func = pinmap_function(pin, PinMap_PWM);
     ch_index = pinmap_channel_pwm(pin, (PWMName) pwm);
@@ -111,7 +115,7 @@ bool pwmout_init_hw(pwmout_t* obj)
         tcc_channel = 3;
     }
 
-    tcc_get_config_defaults(&config_tcc, (Tcc*)pwm);
+    tcc_get_config_defaults(&config_tcc, (Tcc *)pwm);
 
     config_tcc.counter.clock_source = obj->clock_source;
     config_tcc.counter.clock_prescaler = (enum tcc_clock_prescaler)obj->clock_prescaler;
@@ -124,7 +128,7 @@ bool pwmout_init_hw(pwmout_t* obj)
     config_tcc.pins.wave_out_pin[ch_index]        = pin;
     config_tcc.pins.wave_out_pin_mux[ch_index]    = mux_func;
 
-    return (STATUS_OK == tcc_init(&obj->tcc, (Tcc*)pwm, &config_tcc));
+    return (STATUS_OK == tcc_init(&obj->tcc, (Tcc *)pwm, &config_tcc));
 
 }
 
@@ -133,7 +137,7 @@ bool pwmout_init_hw(pwmout_t* obj)
  * @param[in][out] obj  The PWM object to initialize
  * @return         void
  */
-void pwmout_init(pwmout_t* obj, PinName pin)
+void pwmout_init(pwmout_t *obj, PinName pin)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -162,7 +166,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
  * @param[in] obj  The PWM object to free
  * @return    void
  */
-void pwmout_free(pwmout_t* obj)
+void pwmout_free(pwmout_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -176,7 +180,7 @@ void pwmout_free(pwmout_t* obj)
  * @param[in] value  New duty cycle to be set
  * @return    void
  */
-void pwmout_write(pwmout_t* obj, float value)
+void pwmout_write(pwmout_t *obj, float value)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -205,7 +209,7 @@ void pwmout_write(pwmout_t* obj, float value)
  * @param[in] obj  The PWM object
  * @return    Current duty cycle
  */
-float pwmout_read(pwmout_t* obj)
+float pwmout_read(pwmout_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -219,7 +223,7 @@ float pwmout_read(pwmout_t* obj)
  * @param[in] seconds  New period in seconds
  * @return           void
  */
-void pwmout_period(pwmout_t* obj, float seconds)
+void pwmout_period(pwmout_t *obj, float seconds)
 {
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
@@ -230,7 +234,7 @@ void pwmout_period(pwmout_t* obj, float seconds)
  * @param[in] value  New period in milliseconds
  * @return           void
  */
-void pwmout_period_ms(pwmout_t* obj, int ms)
+void pwmout_period_ms(pwmout_t *obj, int ms)
 {
     pwmout_period_us(obj, ms * 1000);
 }
@@ -241,7 +245,7 @@ void pwmout_period_ms(pwmout_t* obj, int ms)
  * @param[in] us   New period in microseconds
  * @return    void
  */
-void pwmout_period_us(pwmout_t* obj, int us)
+void pwmout_period_us(pwmout_t *obj, int us)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -265,7 +269,7 @@ void pwmout_period_us(pwmout_t* obj, int us)
  * @param[in] seconds  New pulse width in seconds
  * @return    void
  */
-void pwmout_pulsewidth(pwmout_t* obj, float seconds)
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
@@ -276,7 +280,7 @@ void pwmout_pulsewidth(pwmout_t* obj, float seconds)
  * @param[in] ms   New pulse width in milliseconds
  * @return    void
  */
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
@@ -287,7 +291,7 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
  * @param[in] us   New pulse width in microseconds
  * @return    void
  */
-void pwmout_pulsewidth_us(pwmout_t* obj, int us)
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);

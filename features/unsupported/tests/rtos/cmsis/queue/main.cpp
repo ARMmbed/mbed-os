@@ -2,7 +2,7 @@
 #include "cmsis_os.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 typedef struct {
@@ -17,11 +17,12 @@ osPoolId  mpool;
 osMessageQDef(queue, 16, message_t);
 osMessageQId  queue;
 
-void send_thread (void const *argument) {
+void send_thread(void const *argument)
+{
     uint32_t i = 0;
     while (true) {
         i++; // fake data update
-        message_t *message = (message_t*)osPoolAlloc(mpool);
+        message_t *message = (message_t *)osPoolAlloc(mpool);
         message->voltage = (i * 0.1) * 33;
         message->current = (i * 0.1) * 11;
         message->counter = i;
@@ -32,7 +33,8 @@ void send_thread (void const *argument) {
 
 osThreadDef(send_thread, osPriorityNormal, DEFAULT_STACK_SIZE);
 
-int main (void) {
+int main(void)
+{
     mpool = osPoolCreate(osPool(mpool));
     queue = osMessageCreate(osMessageQ(queue), NULL);
 
@@ -41,9 +43,9 @@ int main (void) {
     while (true) {
         osEvent evt = osMessageGet(queue, osWaitForever);
         if (evt.status == osEventMessage) {
-            message_t *message = (message_t*)evt.value.p;
-            printf("\nVoltage: %.2f V\n\r"   , message->voltage);
-            printf("Current: %.2f A\n\r"     , message->current);
+            message_t *message = (message_t *)evt.value.p;
+            printf("\nVoltage: %.2f V\n\r", message->voltage);
+            printf("Current: %.2f A\n\r", message->current);
             printf("Number of cycles: %u\n\r", message->counter);
 
             osPoolFree(mpool, message);

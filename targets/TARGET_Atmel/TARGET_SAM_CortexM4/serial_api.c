@@ -25,18 +25,18 @@
 #include "pdc.h"
 
 #if DEVICE_SERIAL_ASYNCH
-#define pUSART_S(obj)			obj->serial.uart
-#define pSERIAL_S(obj)			((struct serial_s*)&(obj->serial))
+#define pUSART_S(obj)           obj->serial.uart
+#define pSERIAL_S(obj)          ((struct serial_s*)&(obj->serial))
 #else
-#define pUSART_S(obj)			obj->uart
-#define pSERIAL_S(obj)			((struct serial_s*)obj)
+#define pUSART_S(obj)           obj->uart
+#define pSERIAL_S(obj)          ((struct serial_s*)obj)
 #endif
-#define _USART(obj)			((Usart*)pUSART_S(obj))
+#define _USART(obj)         ((Usart*)pUSART_S(obj))
 #define USART_NUM 8
 
 static uint8_t serial_get_index(serial_t *obj);
-static IRQn_Type get_serial_irq_num (serial_t *obj);
-static uint32_t get_serial_vector (serial_t *obj);
+static IRQn_Type get_serial_irq_num(serial_t *obj);
+static uint32_t get_serial_vector(serial_t *obj);
 static uint32_t serial_irq_ids[USART_NUM] = {0};
 static uart_irq_handler irq_handler;
 static void uart0_irq(void);
@@ -151,11 +151,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     pSERIAL_S(obj)->acttra = false;
 
     /* Configure UART pins */
-    if(tx != NC) {
+    if (tx != NC) {
         pin_function(tx, pinmap_find_function(tx, PinMap_UART_TX));
         ioport_disable_pin(tx);
     }
-    if(rx != NC) {
+    if (rx != NC) {
         pin_function(rx, pinmap_find_function(rx, PinMap_UART_RX));
         ioport_disable_pin(rx);
     }
@@ -168,32 +168,32 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #if (!SAM4L)
 #if (SAMG55)
     /* Configure flexcom for usart */
-    flexcom_enable((Flexcom* )flexcom);
-    flexcom_set_opmode((Flexcom* )flexcom, FLEXCOM_USART);
+    flexcom_enable((Flexcom *)flexcom);
+    flexcom_set_opmode((Flexcom *)flexcom, FLEXCOM_USART);
 #else
     sysclk_enable_peripheral_clock(clockid);
 #endif
     /* Configure USART */
-    usart_init_rs232((Usart*)uart, (sam_usart_opt_t*)&(pSERIAL_S(obj)->uart_serial_options),
+    usart_init_rs232((Usart *)uart, (sam_usart_opt_t *) & (pSERIAL_S(obj)->uart_serial_options),
                      sysclk_get_peripheral_hz());
 #endif
 #if (SAM4L)
     sysclk_enable_peripheral_clock(clockid);
     /* Configure USART */
-    usart_init_rs232((Usart*)uart,  (sam_usart_opt_t*)&(pSERIAL_S(obj)->uart_serial_options, sysclk_get_peripheral_bus_hz((Usart*)uart));
+    usart_init_rs232((Usart *)uart, (sam_usart_opt_t *) & (pSERIAL_S(obj)->uart_serial_options, sysclk_get_peripheral_bus_hz((Usart *)uart));
 #endif
                      /* Disable rx and tx in case 1 line only required to be configured for usart */
-                     usart_disable_tx((Usart*)uart);
-                     usart_disable_rx((Usart*)uart);
+                     usart_disable_tx((Usart *)uart);
+                     usart_disable_rx((Usart *)uart);
                      /* Enable the receiver and transmitter. */
-    if(tx != NC) {
-    usart_enable_tx((Usart*)uart);
+    if (tx != NC) {
+    usart_enable_tx((Usart *)uart);
     }
-    if(rx != NC) {
-    usart_enable_rx((Usart*)uart);
+    if (rx != NC) {
+    usart_enable_rx((Usart *)uart);
     }
 
-    if(uart == STDIO_UART) {
+    if (uart == STDIO_UART) {
     stdio_uart_inited = 1;
     memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
@@ -212,7 +212,7 @@ void serial_baud(serial_t *obj, int baudrate)
     MBED_ASSERT(obj);
     MBED_ASSERT((baudrate == 110) || (baudrate == 150) || (baudrate == 300) || (baudrate == 1200) ||
                 (baudrate == 2400) || (baudrate == 4800) || (baudrate == 9600) || (baudrate == 19200) || (baudrate == 38400) ||
-                (baudrate == 57600) || (baudrate == 115200) || (baudrate == 230400) || (baudrate == 460800) || (baudrate == 921600) );
+                (baudrate == 57600) || (baudrate == 115200) || (baudrate == 230400) || (baudrate == 460800) || (baudrate == 921600));
     uint32_t clockid = 0;
     clockid = get_usart_clock_id(pUSART_S(obj));
     if (clockid != (uint32_t)NC) {
@@ -237,7 +237,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         sysclk_disable_peripheral_clock(clockid);
     }
 
-    switch(stop_bits) { /*selecting the stop bits*/
+    switch (stop_bits) { /*selecting the stop bits*/
         case 1:
             pSERIAL_S(obj)->uart_serial_options.stopbits = US_MR_NBSTOP_1_BIT;
             break;
@@ -246,7 +246,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
             break;
     }
 
-    switch(parity) { /*selecting the parity bits*/
+    switch (parity) { /*selecting the parity bits*/
         case ParityNone:
             pSERIAL_S(obj)->uart_serial_options.paritytype = US_MR_PAR_NO;
             break;
@@ -264,7 +264,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
             break;
     }
 
-    switch(data_bits) { /*selecting the data bits*/
+    switch (data_bits) { /*selecting the data bits*/
         case 5:
             pSERIAL_S(obj)->uart_serial_options.charlength = US_MR_CHRL_5_BIT;
             break;
@@ -290,7 +290,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 
-    if(FlowControlNone == type) {
+    if (FlowControlNone == type) {
         /* Disable Hardware Handshaking. */
         _USART(obj)->US_MR = (_USART(obj)->US_MR & ~US_MR_USART_MODE_Msk) | US_MR_USART_MODE_NORMAL;
         return;
@@ -302,13 +302,13 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     UARTName uart = (UARTName)pinmap_merge(uart_cts, uart_rts);
     MBED_ASSERT(uart != (UARTName)NC);
 
-    if((FlowControlCTS == type) || (FlowControlRTSCTS== type)) {
+    if ((FlowControlCTS == type) || (FlowControlRTSCTS == type)) {
         /* Configure CTS pin. */
         pin_function(txflow, pinmap_find_function(txflow, PinMap_UART_CTS));
         ioport_disable_pin(txflow);
     }
 
-    if((FlowControlRTS == type) || (FlowControlRTSCTS== type))  {
+    if ((FlowControlRTS == type) || (FlowControlRTSCTS == type))  {
         /* Configure CTS pin. */
         pin_function(rxflow, pinmap_find_function(rxflow, PinMap_UART_RTS));
         ioport_disable_pin(rxflow);
@@ -392,7 +392,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
 static inline void uart_irq(Usart *const usart, uint32_t index)
 {
-    MBED_ASSERT(usart != (void*)0);
+    MBED_ASSERT(usart != (void *)0);
     uint32_t mask, status;
     /* Read and clear mask. */
     status = usart_get_status(usart);
@@ -473,7 +473,7 @@ static uint8_t serial_get_index(serial_t *obj)
     return 0;
 }
 
-static uint32_t get_serial_vector (serial_t *obj)
+static uint32_t get_serial_vector(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -507,7 +507,7 @@ static uint32_t get_serial_vector (serial_t *obj)
     return vector;
 }
 
-IRQn_Type get_serial_irq_num (serial_t *obj)
+IRQn_Type get_serial_irq_num(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -580,13 +580,13 @@ int serial_writable(serial_t *obj)
 }
 
 /************************************************************************************
- * 			ASYNCHRONOUS HAL														*
+ *          ASYNCHRONOUS HAL                                                        *
  ************************************************************************************/
 
 
 #if DEVICE_SERIAL_ASYNCH
 /************************************
- * HELPER FUNCTIONS					*
+ * HELPER FUNCTIONS                 *
  ***********************************/
 
 void serial_set_char_match(serial_t *obj, uint8_t char_match)
@@ -601,14 +601,16 @@ void serial_set_char_match(serial_t *obj, uint8_t char_match)
 }
 
 /************************************
- * TRANSFER FUNCTIONS				*
+ * TRANSFER FUNCTIONS               *
  ***********************************/
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    MBED_ASSERT(tx != (void*)0);
-    if(tx_length == 0) return 0;
+    MBED_ASSERT(tx != (void *)0);
+    if (tx_length == 0) {
+        return 0;
+    }
     Pdc *pdc_base;
     IRQn_Type irq_n = (IRQn_Type)0;
     pdc_packet_t packet;
@@ -639,8 +641,10 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    MBED_ASSERT(rx != (void*)0);
-    if(rx_length == 0) return 0;
+    MBED_ASSERT(rx != (void *)0);
+    if (rx_length == 0) {
+        return 0;
+    }
     Pdc *pdc_base;
     IRQn_Type irq_n = (IRQn_Type)0;
     pdc_packet_t packet;
@@ -717,10 +721,10 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
         serial_rx_abort_asynch(obj);
         return SERIAL_EVENT_RX_PARITY_ERROR;
     }
-    if ((ul_status & (US_IER_RXBUFF | US_IER_CMP)) ==  (US_IER_RXBUFF | US_IER_CMP)) { /* Character match in last character in transfer*/
+    if ((ul_status & (US_IER_RXBUFF | US_IER_CMP)) == (US_IER_RXBUFF | US_IER_CMP)) {  /* Character match in last character in transfer*/
         usart_disable_interrupt(_USART(obj), US_IDR_CMP);
         serial_rx_abort_asynch(obj);
-        return SERIAL_EVENT_RX_COMPLETE|SERIAL_EVENT_RX_CHARACTER_MATCH;
+        return SERIAL_EVENT_RX_COMPLETE | SERIAL_EVENT_RX_CHARACTER_MATCH;
     }
     if (ul_status & US_IER_CMP) { /* Character match */
         usart_disable_interrupt(_USART(obj), US_IDR_CMP);

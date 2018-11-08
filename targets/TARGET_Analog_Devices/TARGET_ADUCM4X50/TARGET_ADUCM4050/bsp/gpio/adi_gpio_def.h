@@ -48,8 +48,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 /*! local enum for callback table indexing */
-typedef enum
-{
+typedef enum {
     /* Group interrupts */
     ADI_GPIO_IRQ_GROUPA_INDEX     = (0x0),   /*!< GroupA interrupt index.   */
     ADI_GPIO_IRQ_GROUPB_INDEX     = (0x1),   /*!< GroupB interrupt index.   */
@@ -60,15 +59,13 @@ typedef enum
 
 
 /*! Structure to hold callback function and parameter */
-typedef struct _ADI_GPIO_CALLBACK_INFO
-{
+typedef struct _ADI_GPIO_CALLBACK_INFO {
     ADI_CALLBACK         pfCallback;    /*!< Callback function pointer */
     void                 *pCBParam;      /*!< Callback parameter */
 } ADI_GPIO_CALLBACK_INFO;
 
 /*! Structure to hold callback function and parameter */
-typedef struct _ADI_GPIO_DEV_DATA
-{
+typedef struct _ADI_GPIO_DEV_DATA {
     ADI_GPIO_CALLBACK_INFO  CallbackTable[ADI_GPIO_NUM_INTERRUPTS];  /*!< Callback Info for External interrupts */
 } ADI_GPIO_DEV_DATA;
 
@@ -80,10 +77,9 @@ typedef struct _ADI_GPIO_DEV_DATA
     instance of the device.  For GPIO there is only one
     of these objects.
 */
-typedef struct _ADI_GPIO_DRIVER_STRUCT
-{
-	ADI_GPIO_TypeDef            *pReg[ADI_GPIO_NUM_PORTS];          /*!< GPIO Ports Register base          */
-	ADI_GPIO_DEV_DATA           *pData;                             /*!< Pointer to device data            */
+typedef struct _ADI_GPIO_DRIVER_STRUCT {
+    ADI_GPIO_TypeDef            *pReg[ADI_GPIO_NUM_PORTS];          /*!< GPIO Ports Register base          */
+    ADI_GPIO_DEV_DATA           *pData;                             /*!< Pointer to device data            */
 } ADI_GPIO_DRIVER_STRUCT;
 
 

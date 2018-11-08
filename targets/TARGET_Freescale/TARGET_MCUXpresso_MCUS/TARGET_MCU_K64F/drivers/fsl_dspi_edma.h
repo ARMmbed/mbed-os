@@ -77,8 +77,7 @@ typedef void (*dspi_slave_edma_transfer_callback_t)(SPI_Type *base,
                                                     void *userData);
 
 /*! @brief DSPI master eDMA transfer handle structure used for the transactional API. */
-struct _dspi_master_edma_handle
-{
+struct _dspi_master_edma_handle {
     uint32_t bitsPerFrame;         /*!< The desired number of bits per frame. */
     volatile uint32_t command;     /*!< The desired data command. */
     volatile uint32_t lastCommand; /*!< The desired last data command. */
@@ -86,7 +85,7 @@ struct _dspi_master_edma_handle
     uint8_t fifoSize; /*!< FIFO dataSize. */
 
     volatile bool
-        isPcsActiveAfterTransfer; /*!< Indicates whether the PCS signal keeps active after the last frame transfer.*/
+    isPcsActiveAfterTransfer; /*!< Indicates whether the PCS signal keeps active after the last frame transfer.*/
 
     uint8_t nbytes;         /*!< eDMA minor byte transfer count initially configured. */
     volatile uint8_t state; /*!< DSPI transfer state , _dspi_transfer_state.*/
@@ -111,8 +110,7 @@ struct _dspi_master_edma_handle
 };
 
 /*! @brief DSPI slave eDMA transfer handle structure used for the transactional API.*/
-struct _dspi_slave_edma_handle
-{
+struct _dspi_slave_edma_handle {
     uint32_t bitsPerFrame; /*!< The desired number of bits per frame. */
 
     uint8_t *volatile txData;                  /*!< Send buffer. */
@@ -274,8 +272,8 @@ status_t DSPI_SlaveTransferGetCountEDMA(SPI_Type *base, dspi_slave_edma_handle_t
 #if defined(__cplusplus)
 }
 #endif /*_cplusplus*/
-       /*!
-        *@}
-        */
+/*!
+ *@}
+ */
 
 #endif /*_FSL_DSPI_EDMA_H_*/

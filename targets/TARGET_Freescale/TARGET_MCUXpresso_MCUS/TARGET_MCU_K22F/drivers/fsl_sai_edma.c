@@ -37,14 +37,12 @@
 #define STCD_ADDR(address) (edma_tcd_t *)(((uint32_t)address + 32) & ~0x1FU)
 
 /*<! Structure definition for uart_edma_private_handle_t. The structure is private. */
-typedef struct _sai_edma_private_handle
-{
+typedef struct _sai_edma_private_handle {
     I2S_Type *base;
     sai_edma_handle_t *handle;
 } sai_edma_private_handle_t;
 
-enum _sai_edma_transfer_state
-{
+enum _sai_edma_transfer_state {
     kSAI_Busy = 0x0U, /*!< SAI is busy */
     kSAI_Idle,        /*!< Transfer is done. */
 };
@@ -93,14 +91,12 @@ static void SAI_TxEDMACallback(edma_handle_t *handle, void *userData, bool done,
     /* If finished a blcok, call the callback function */
     memset(&saiHandle->saiQueue[saiHandle->queueDriver], 0, sizeof(sai_transfer_t));
     saiHandle->queueDriver = (saiHandle->queueDriver + 1) % SAI_XFER_QUEUE_SIZE;
-    if (saiHandle->callback)
-    {
+    if (saiHandle->callback) {
         (saiHandle->callback)(privHandle->base, saiHandle, kStatus_SAI_TxIdle, saiHandle->userData);
     }
 
     /* If all data finished, just stop the transfer */
-    if (saiHandle->saiQueue[saiHandle->queueDriver].data == NULL)
-    {
+    if (saiHandle->saiQueue[saiHandle->queueDriver].data == NULL) {
         SAI_TransferAbortSendEDMA(privHandle->base, saiHandle);
     }
 }
@@ -113,14 +109,12 @@ static void SAI_RxEDMACallback(edma_handle_t *handle, void *userData, bool done,
     /* If finished a blcok, call the callback function */
     memset(&saiHandle->saiQueue[saiHandle->queueDriver], 0, sizeof(sai_transfer_t));
     saiHandle->queueDriver = (saiHandle->queueDriver + 1) % SAI_XFER_QUEUE_SIZE;
-    if (saiHandle->callback)
-    {
+    if (saiHandle->callback) {
         (saiHandle->callback)(privHandle->base, saiHandle, kStatus_SAI_RxIdle, saiHandle->userData);
     }
 
     /* If all data finished, just stop the transfer */
-    if (saiHandle->saiQueue[saiHandle->queueDriver].data == NULL)
-    {
+    if (saiHandle->saiQueue[saiHandle->queueDriver].data == NULL) {
         SAI_TransferAbortReceiveEDMA(privHandle->base, saiHandle);
     }
 }
@@ -230,13 +224,11 @@ status_t SAI_TransferSendEDMA(I2S_Type *base, sai_edma_handle_t *handle, sai_tra
     uint32_t destAddr = SAI_TxGetDataRegisterAddress(base, handle->channel);
 
     /* Check if input parameter invalid */
-    if ((xfer->data == NULL) || (xfer->dataSize == 0U))
-    {
+    if ((xfer->data == NULL) || (xfer->dataSize == 0U)) {
         return kStatus_InvalidArgument;
     }
 
-    if (handle->saiQueue[handle->queueUser].data)
-    {
+    if (handle->saiQueue[handle->queueUser].data) {
         return kStatus_SAI_QueueFull;
     }
 
@@ -275,13 +267,11 @@ status_t SAI_TransferReceiveEDMA(I2S_Type *base, sai_edma_handle_t *handle, sai_
     uint32_t srcAddr = SAI_RxGetDataRegisterAddress(base, handle->channel);
 
     /* Check if input parameter invalid */
-    if ((xfer->data == NULL) || (xfer->dataSize == 0U))
-    {
+    if ((xfer->data == NULL) || (xfer->dataSize == 0U)) {
         return kStatus_InvalidArgument;
     }
 
-    if (handle->saiQueue[handle->queueUser].data)
-    {
+    if (handle->saiQueue[handle->queueUser].data) {
         return kStatus_SAI_QueueFull;
     }
 
@@ -346,12 +336,9 @@ status_t SAI_TransferGetSendCountEDMA(I2S_Type *base, sai_edma_handle_t *handle,
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kSAI_Busy)
-    {
+    if (handle->state != kSAI_Busy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = (handle->transferSize[handle->queueDriver] -
                   EDMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel));
     }
@@ -365,12 +352,9 @@ status_t SAI_TransferGetReceiveCountEDMA(I2S_Type *base, sai_edma_handle_t *hand
 
     status_t status = kStatus_Success;
 
-    if (handle->state != kSAI_Busy)
-    {
+    if (handle->state != kSAI_Busy) {
         status = kStatus_NoTransferInProgress;
-    }
-    else
-    {
+    } else {
         *count = (handle->transferSize[handle->queueDriver] -
                   EDMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel));
     }

@@ -38,16 +38,15 @@
  * @{
  * @brief EFR32MG12P_CRYOTIMER Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;      /**< Control Register  */
-  __IOM uint32_t PERIODSEL; /**< Interrupt Duration  */
-  __IM uint32_t  CNT;       /**< Counter Value  */
-  __IOM uint32_t EM4WUEN;   /**< Wake Up Enable  */
-  __IM uint32_t  IF;        /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;       /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;       /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;       /**< Interrupt Enable Register  */
+typedef struct {
+    __IOM uint32_t CTRL;      /**< Control Register  */
+    __IOM uint32_t PERIODSEL; /**< Interrupt Duration  */
+    __IM uint32_t  CNT;       /**< Counter Value  */
+    __IOM uint32_t EM4WUEN;   /**< Wake Up Enable  */
+    __IM uint32_t  IF;        /**< Interrupt Flag Register  */
+    __IOM uint32_t IFS;       /**< Interrupt Flag Set Register  */
+    __IOM uint32_t IFC;       /**< Interrupt Flag Clear Register  */
+    __IOM uint32_t IEN;       /**< Interrupt Enable Register  */
 } CRYOTIMER_TypeDef;        /** @} */
 
 /**************************************************************************//**

@@ -512,8 +512,8 @@ void thread_routing_force_next_hop(protocol_interface_info_entry_t *cur, uint8_t
  */
 
 static thread_router_link_t *thread_routing_update_link_margin_internal(thread_info_t *thread,
-        uint16_t sender,
-        uint8_t link_margin_db)
+                                                                        uint16_t sender,
+                                                                        uint8_t link_margin_db)
 {
     thread_router_id_t sender_id = thread_router_id_from_addr(sender);
 
@@ -543,9 +543,9 @@ static thread_router_link_t *thread_routing_update_link_margin_internal(thread_i
 }
 
 int_fast8_t thread_routing_update_link_margin(protocol_interface_info_entry_t *cur,
-        uint16_t sender,
-        uint8_t link_margin_db,
-        uint8_t outgoing_link_margin_db)
+                                              uint16_t sender,
+                                              uint8_t link_margin_db,
+                                              uint8_t outgoing_link_margin_db)
 {
     thread_info_t *thread = cur->thread_info;
     /* Sanity check that the source is a Thread router */
@@ -579,8 +579,8 @@ int_fast8_t thread_routing_update_link_margin(protocol_interface_info_entry_t *c
 }
 
 int_fast8_t thread_routing_force_link_margin(protocol_interface_info_entry_t *cur,
-        uint16_t addr,
-        uint8_t link_margin_db)
+                                             uint16_t addr,
+                                             uint8_t link_margin_db)
 {
     thread_info_t *thread = cur->thread_info;
     if (!thread || !cur->mac_parameters || !thread_is_router_addr(addr)) {
@@ -818,16 +818,16 @@ uint8_t thread_routing_get_route_data_size(protocol_interface_info_entry_t *cur)
     return len;
 }
 
-uint_fast8_t thread_routing_cost_get_by_router_id(thread_routing_info_t *routing , uint8_t routerId)
+uint_fast8_t thread_routing_cost_get_by_router_id(thread_routing_info_t *routing, uint8_t routerId)
 {
     return thread_compute_route_cost(routing, routerId, NULL);
 }
 
 int_fast8_t thread_routing_get_route_data(protocol_interface_info_entry_t *cur,
-        uint8_t *id_seq,
-        uint8_t *id_mask,
-        uint8_t *data,
-        uint8_t *len_out)
+                                          uint8_t *id_seq,
+                                          uint8_t *id_mask,
+                                          uint8_t *data,
+                                          uint8_t *len_out)
 {
     uint8_t len = 0;
     thread_info_t *thread = cur->thread_info;
@@ -968,7 +968,7 @@ static void thread_trickle_accelerate(trickle_t *t, const trickle_params_t *para
     }
     if (t->now > t->t) {
         // if now is larger than t move t to trigger event again during this period
-        t->t = t->now + randLIB_get_random_in_range(0, params->Imin/2);
+        t->t = t->now + randLIB_get_random_in_range(0, params->Imin / 2);
     }
 }
 
@@ -984,11 +984,11 @@ void thread_routing_leader_connection_validate(thread_info_t *thread, uint16_t d
     if (disconnect_period < NETWORK_ID_SPEEDUP) {
         return;
     }
-    if (disconnect_period > NETWORK_ID_SPEEDUP_MAX ) {
-        tr_debug("Leader restored:accelerate reset: %d",disconnect_period);
+    if (disconnect_period > NETWORK_ID_SPEEDUP_MAX) {
+        tr_debug("Leader restored:accelerate reset: %d", disconnect_period);
         trickle_inconsistent_heard(&routing->mle_advert_timer, &thread_mle_advert_trickle_params);
     } else {
-        tr_debug("Leader restored:accelerate: %d",disconnect_period);
+        tr_debug("Leader restored:accelerate: %d", disconnect_period);
         thread_trickle_accelerate(&routing->mle_advert_timer, &thread_mle_advert_trickle_params, 100);// 10 second with 100ms tics
     }
 }

@@ -62,7 +62,7 @@ static control_t cfstore_flash_set_test_01_end(const size_t call_count)
 {
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_FMODE flags;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_CAPABILITIES caps = cfstore_driver.GetCapabilities();
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
@@ -71,21 +71,21 @@ static control_t cfstore_flash_set_test_01_end(const size_t call_count)
 
     CFSTORE_LOG("caps.asynchronous_ops : %d\n", (int) caps.asynchronous_ops);
     ret = cfstore_test_init_1();
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to write data to falsh.", __func__);
     }
     ret = drv->Flush();
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Flush() call failed (ret=%d).\r\n", __func__, (int) ret);
     }
 #ifdef CFSTORE_DEBUG
     ret = cfstore_test_dump();
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("Error: failed to dump CFSTORE contents%s", "\n");
     }
 #endif /* CFSTORE_DEBUG */
     ret = drv->Uninitialize();
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("Error: failed to Uninitialize() CFSTORE%s", "\n");
     }
     return CaseNext;
@@ -99,10 +99,10 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("FLASH_SET_test_01_start", cfstore_utest_default_start),
-        Case("FLASH_SET_test_01_end", cfstore_flash_set_test_01_end),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("FLASH_SET_test_01_start", cfstore_utest_default_start),
+    Case("FLASH_SET_test_01_end", cfstore_flash_set_test_01_end),
 };
 
 

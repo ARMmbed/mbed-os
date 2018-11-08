@@ -152,7 +152,7 @@ uint8_t custom_add_uuid_base(uint8_t const *const p_uuid_base)
         base_uuid.uuid128[i] = p_uuid_base[i];
     }
 
-    ASSERT_INT( ERROR_NONE, sd_ble_uuid_vs_add( &base_uuid, &uuid_type ), 0);
+    ASSERT_INT(ERROR_NONE, sd_ble_uuid_vs_add(&base_uuid, &uuid_type), 0);
 
     return uuid_type;
 }
@@ -171,7 +171,7 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
         uuid_base_le[i] = p_uuid_base[i];
     }
 
-    ASSERT_STATUS( sd_ble_uuid_decode(UUID::LENGTH_OF_LONG_UUID, uuid_base_le, p_uuid));
+    ASSERT_STATUS(sd_ble_uuid_decode(UUID::LENGTH_OF_LONG_UUID, uuid_base_le, p_uuid));
 
     return ERROR_NONE;
 }
@@ -219,7 +219,7 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
 
     if (char_props.notify || char_props.indicate) {
         /* Notification requires cccd */
-        memclr_( &cccd_md, sizeof(ble_gatts_attr_md_t));
+        memclr_(&cccd_md, sizeof(ble_gatts_attr_md_t));
         cccd_md.vloc = BLE_GATTS_VLOC_STACK;
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
@@ -298,10 +298,10 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
     attr_char_value.max_len   = max_length;
     attr_char_value.p_value   = p_data;
 
-    ASSERT_STATUS ( sd_ble_gatts_characteristic_add(service_handle,
-                                                    &char_md,
-                                                    &attr_char_value,
-                                                    p_char_handle));
+    ASSERT_STATUS(sd_ble_gatts_characteristic_add(service_handle,
+                                                  &char_md,
+                                                  &attr_char_value,
+                                                  p_char_handle));
 
     return ERROR_NONE;
 }
@@ -353,9 +353,9 @@ error_t custom_add_in_descriptor(uint16_t    char_handle,
     attr_desc.max_len   = max_length;
     attr_desc.p_value   = p_data;
 
-    ASSERT_STATUS ( sd_ble_gatts_descriptor_add(char_handle,
-                                                &attr_desc,
-                                                p_desc_handle));
+    ASSERT_STATUS(sd_ble_gatts_descriptor_add(char_handle,
+                                              &attr_desc,
+                                              p_desc_handle));
 
     return ERROR_NONE;
 }

@@ -67,10 +67,8 @@ static uint32_t SLCD_GetInstance(LCD_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_SLCD_COUNT; instance++)
-    {
-        if (s_slcdBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_SLCD_COUNT; instance++) {
+        if (s_slcdBases[instance] == base) {
             break;
         }
     }
@@ -120,8 +118,7 @@ void SLCD_Init(LCD_Type *base, slcd_config_t *configure)
     gcrReg |= LCD_GCR_FFR(configure->clkConfig->fastFrameRateEnable ? 1U : 0U);
 #endif /* FSL_FEATURE_SLCD_HAS_FAST_FRAME_RATE */
 
-    if (configure->powerSupply & 0x1U)
-    {
+    if (configure->powerSupply & 0x1U) {
         gcrReg |= LCD_GCR_RVTRIM(configure->voltageTrim);
     }
     base->GCR = gcrReg;
@@ -137,35 +134,30 @@ void SLCD_Init(LCD_Type *base, slcd_config_t *configure)
 
     /* Set the fault frame detection. */
     base->FDCR = 0;
-    if (configure->faultConfig)
-    {
+    if (configure->faultConfig) {
         /* If fault configure structure is not NULL, the fault detection is enabled. */
         base->FDCR = LCD_FDCR_FDPRS(configure->faultConfig->faultPrescaler) |
                      LCD_FDCR_FDSWW(configure->faultConfig->width) |
                      LCD_FDCR_FDBPEN(configure->faultConfig->faultDetectBackPlaneEnable ? 1U : 0U) |
                      LCD_FDCR_FDPINID(configure->faultConfig->faultDetectPinIndex) | LCD_FDCR_FDEN_MASK;
-        if (configure->faultConfig->faultDetectIntEnable)
-        {
+        if (configure->faultConfig->faultDetectIntEnable) {
             base->GCR |= LCD_GCR_FDCIEN_MASK;
             intEnabled = true;
         }
     }
 
     /* Initialize the Waveform. */
-    for (regNum = 0; regNum < SLCD_WAVEFORM_CONFIG_NUM; regNum++)
-    {
+    for (regNum = 0; regNum < SLCD_WAVEFORM_CONFIG_NUM; regNum++) {
         base->WF[regNum] = 0;
     }
 
-/* Enable the NVIC. */
+    /* Enable the NVIC. */
 #if FSL_FEATURE_SLCD_HAS_FRAME_FREQUENCY_INTERRUPT
-    if (configure->frameFreqIntEnable)
-    {
+    if (configure->frameFreqIntEnable) {
         intEnabled = true;
     }
 #endif /* FSL_FEATURE_SLCD_HAS_FRAME_FREQUENCY_INTERRUPT */
-    if (intEnabled)
-    {
+    if (intEnabled) {
         EnableIRQ(LCD_IRQn);
     }
 }
@@ -231,14 +223,12 @@ void SLCD_DisableInterrupts(LCD_Type *base, uint32_t mask)
     uint32_t gcrReg = base->GCR;
 
     /*!< SLCD fault detection complete interrupt source. */
-    if (mask & kSLCD_FaultDetectCompleteInterrupt)
-    {
+    if (mask & kSLCD_FaultDetectCompleteInterrupt) {
         gcrReg &= ~LCD_GCR_FDCIEN_MASK;
     }
-/*!< SLCD frame frequency interrupt source. */
+    /*!< SLCD frame frequency interrupt source. */
 #if FSL_FEATURE_SLCD_HAS_FRAME_FREQUENCY_INTERRUPT
-    if (mask & kSLCD_FrameFreqInterrupt)
-    {
+    if (mask & kSLCD_FrameFreqInterrupt) {
         gcrReg &= ~LCD_GCR_LCDIEN_MASK;
     }
 #endif /* FSL_FEATURE_SLCD_HAS_FRAME_FREQUENCY_INTERRUPT */
@@ -249,14 +239,12 @@ void SLCD_DisableInterrupts(LCD_Type *base, uint32_t mask)
 void SLCD_ClearInterruptStatus(LCD_Type *base, uint32_t mask)
 {
     /*!< SLCD fault detection complete interrupt source. */
-    if (mask & kSLCD_FaultDetectCompleteInterrupt)
-    {
+    if (mask & kSLCD_FaultDetectCompleteInterrupt) {
         base->FDSR |= LCD_FDSR_FDCF_MASK;
     }
-/*!< SLCD frame frequency interrupt source. */
+    /*!< SLCD frame frequency interrupt source. */
 #if FSL_FEATURE_SLCD_HAS_FRAME_FREQUENCY_INTERRUPT
-    if (mask & kSLCD_FrameFreqInterrupt)
-    {
+    if (mask & kSLCD_FrameFreqInterrupt) {
         base->AR |= LCD_AR_LCDIF_MASK;
     }
 #endif /* FSL_FEATURE_SLCD_HAS_FRAME_FREQUENCY_INTERRUPT */

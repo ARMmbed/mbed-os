@@ -149,7 +149,7 @@ static inline void sleepmgr_lock_mode(enum sleepmgr_mode mode)
 #ifdef CONFIG_SLEEPMGR_ENABLE
     irqflags_t flags;
 
-    if(sleepmgr_locks[mode] >= 0xff) {
+    if (sleepmgr_locks[mode] >= 0xff) {
         while (true) {
             // Warning: maximum value of sleepmgr_locks buffer is no more than 255.
             // Check APP or change the data type to uint16_t.
@@ -181,7 +181,7 @@ static inline void sleepmgr_unlock_mode(enum sleepmgr_mode mode)
 #ifdef CONFIG_SLEEPMGR_ENABLE
     irqflags_t flags;
 
-    if(sleepmgr_locks[mode] == 0) {
+    if (sleepmgr_locks[mode] == 0) {
         while (true) {
             // Warning: minimum value of sleepmgr_locks buffer is no less than 0.
             // Check APP.
@@ -252,7 +252,7 @@ static inline void sleepmgr_enter_sleep(void)
     // Find the deepest allowable sleep mode
     sleep_mode = sleepmgr_get_sleep_mode();
     // Return right away if first mode (ACTIVE) is locked.
-    if (sleep_mode==SLEEPMGR_ACTIVE) {
+    if (sleep_mode == SLEEPMGR_ACTIVE) {
         cpu_irq_enable();
         return;
     }

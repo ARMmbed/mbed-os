@@ -59,31 +59,31 @@ extern "C" {
 
 /** Warm-up Time in High Frequency Peripheral Clock cycles */
 typedef enum {
-  /** 4 cycles */
-  vcmpWarmTime4Cycles   = _VCMP_CTRL_WARMTIME_4CYCLES,
-  /** 8 cycles */
-  vcmpWarmTime8Cycles   = _VCMP_CTRL_WARMTIME_8CYCLES,
-  /** 16 cycles */
-  vcmpWarmTime16Cycles  = _VCMP_CTRL_WARMTIME_16CYCLES,
-  /** 32 cycles */
-  vcmpWarmTime32Cycles  = _VCMP_CTRL_WARMTIME_32CYCLES,
-  /** 64 cycles */
-  vcmpWarmTime64Cycles  = _VCMP_CTRL_WARMTIME_64CYCLES,
-  /** 128 cycles */
-  vcmpWarmTime128Cycles = _VCMP_CTRL_WARMTIME_128CYCLES,
-  /** 256 cycles */
-  vcmpWarmTime256Cycles = _VCMP_CTRL_WARMTIME_256CYCLES,
-  /** 512 cycles */
-  vcmpWarmTime512Cycles = _VCMP_CTRL_WARMTIME_512CYCLES
+    /** 4 cycles */
+    vcmpWarmTime4Cycles   = _VCMP_CTRL_WARMTIME_4CYCLES,
+    /** 8 cycles */
+    vcmpWarmTime8Cycles   = _VCMP_CTRL_WARMTIME_8CYCLES,
+    /** 16 cycles */
+    vcmpWarmTime16Cycles  = _VCMP_CTRL_WARMTIME_16CYCLES,
+    /** 32 cycles */
+    vcmpWarmTime32Cycles  = _VCMP_CTRL_WARMTIME_32CYCLES,
+    /** 64 cycles */
+    vcmpWarmTime64Cycles  = _VCMP_CTRL_WARMTIME_64CYCLES,
+    /** 128 cycles */
+    vcmpWarmTime128Cycles = _VCMP_CTRL_WARMTIME_128CYCLES,
+    /** 256 cycles */
+    vcmpWarmTime256Cycles = _VCMP_CTRL_WARMTIME_256CYCLES,
+    /** 512 cycles */
+    vcmpWarmTime512Cycles = _VCMP_CTRL_WARMTIME_512CYCLES
 } VCMP_WarmTime_TypeDef;
 
 /** Hyseresis configuration */
 typedef enum {
-  /** Normal operation, no hysteresis */
-  vcmpHystNone,
-  /** Digital output will not toggle until positive edge is at least
-   *  20mV above or below negative input voltage */
-  vcmpHyst20mV
+    /** Normal operation, no hysteresis */
+    vcmpHystNone,
+    /** Digital output will not toggle until positive edge is at least
+     *  20mV above or below negative input voltage */
+    vcmpHyst20mV
 } VCMP_Hysteresis_TypeDef;
 
 /*******************************************************************************
@@ -92,28 +92,28 @@ typedef enum {
 
 /** VCMP Initialization structure */
 typedef struct {
-  /** If set to true, will reduce by half the bias current */
-  bool                    halfBias;
-  /** BIAS current configuration, depends on halfBias setting,
-   *  above, see reference manual */
-  int                     biasProg;
-  /** Enable interrupt for falling edge */
-  bool                    irqFalling;
-  /** Enable interrupt for rising edge */
-  bool                    irqRising;
-  /** Warm-up time in clock cycles */
-  VCMP_WarmTime_TypeDef   warmup;
-  /** Hysteresis configuration */
-  VCMP_Hysteresis_TypeDef hyst;
-  /** Output value when comparator is inactive, should be 0 or 1 */
-  int                     inactive;
-  /** Enable low power mode for VDD and bandgap reference */
-  bool                    lowPowerRef;
-  /** Trigger level, according to formula
-   *  VDD Trigger Level = 1.667V + 0.034V x triggerLevel */
-  int                     triggerLevel;
-  /** Enable VCMP after configuration */
-  bool                    enable;
+    /** If set to true, will reduce by half the bias current */
+    bool                    halfBias;
+    /** BIAS current configuration, depends on halfBias setting,
+     *  above, see reference manual */
+    int                     biasProg;
+    /** Enable interrupt for falling edge */
+    bool                    irqFalling;
+    /** Enable interrupt for rising edge */
+    bool                    irqRising;
+    /** Warm-up time in clock cycles */
+    VCMP_WarmTime_TypeDef   warmup;
+    /** Hysteresis configuration */
+    VCMP_Hysteresis_TypeDef hyst;
+    /** Output value when comparator is inactive, should be 0 or 1 */
+    int                     inactive;
+    /** Enable low power mode for VDD and bandgap reference */
+    bool                    lowPowerRef;
+    /** Trigger level, according to formula
+     *  VDD Trigger Level = 1.667V + 0.034V x triggerLevel */
+    int                     triggerLevel;
+    /** Enable VCMP after configuration */
+    bool                    enable;
 } VCMP_Init_TypeDef;
 
 /** Default VCMP initialization structure */
@@ -145,7 +145,7 @@ void VCMP_TriggerSet(int level);
  ******************************************************************************/
 __STATIC_INLINE void VCMP_Enable(void)
 {
-  VCMP->CTRL |= VCMP_CTRL_EN;
+    VCMP->CTRL |= VCMP_CTRL_EN;
 }
 
 /***************************************************************************//**
@@ -154,7 +154,7 @@ __STATIC_INLINE void VCMP_Enable(void)
  ******************************************************************************/
 __STATIC_INLINE void VCMP_Disable(void)
 {
-  VCMP->CTRL &= ~VCMP_CTRL_EN;
+    VCMP->CTRL &= ~VCMP_CTRL_EN;
 }
 
 /***************************************************************************//**
@@ -169,7 +169,7 @@ __STATIC_INLINE void VCMP_Disable(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t VCMP_VoltageToLevel(float v)
 {
-  return (uint32_t)((v - (float)1.667) / (float)0.034);
+    return (uint32_t)((v - (float)1.667) / (float)0.034);
 }
 
 /***************************************************************************//**
@@ -179,11 +179,11 @@ __STATIC_INLINE uint32_t VCMP_VoltageToLevel(float v)
  ******************************************************************************/
 __STATIC_INLINE bool VCMP_VDDLower(void)
 {
-  if (VCMP->STATUS & VCMP_STATUS_VCMPOUT) {
-    return false;
-  } else {
-    return true;
-  }
+    if (VCMP->STATUS & VCMP_STATUS_VCMPOUT) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 /***************************************************************************//**
@@ -193,11 +193,11 @@ __STATIC_INLINE bool VCMP_VDDLower(void)
  ******************************************************************************/
 __STATIC_INLINE bool VCMP_VDDHigher(void)
 {
-  if (VCMP->STATUS & VCMP_STATUS_VCMPOUT) {
-    return true;
-  } else {
-    return false;
-  }
+    if (VCMP->STATUS & VCMP_STATUS_VCMPOUT) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /***************************************************************************//**
@@ -206,11 +206,11 @@ __STATIC_INLINE bool VCMP_VDDHigher(void)
  ******************************************************************************/
 __STATIC_INLINE bool VCMP_Ready(void)
 {
-  if (VCMP->STATUS & VCMP_STATUS_VCMPACT) {
-    return true;
-  } else {
-    return false;
-  }
+    if (VCMP->STATUS & VCMP_STATUS_VCMPACT) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /***************************************************************************//**
@@ -224,7 +224,7 @@ __STATIC_INLINE bool VCMP_Ready(void)
  ******************************************************************************/
 __STATIC_INLINE void VCMP_IntClear(uint32_t flags)
 {
-  VCMP->IFC = flags;
+    VCMP->IFC = flags;
 }
 
 /***************************************************************************//**
@@ -238,7 +238,7 @@ __STATIC_INLINE void VCMP_IntClear(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void VCMP_IntSet(uint32_t flags)
 {
-  VCMP->IFS = flags;
+    VCMP->IFS = flags;
 }
 
 /***************************************************************************//**
@@ -252,7 +252,7 @@ __STATIC_INLINE void VCMP_IntSet(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void VCMP_IntDisable(uint32_t flags)
 {
-  VCMP->IEN &= ~flags;
+    VCMP->IEN &= ~flags;
 }
 
 /***************************************************************************//**
@@ -266,7 +266,7 @@ __STATIC_INLINE void VCMP_IntDisable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void VCMP_IntEnable(uint32_t flags)
 {
-  VCMP->IEN |= flags;
+    VCMP->IEN |= flags;
 }
 
 /***************************************************************************//**
@@ -282,7 +282,7 @@ __STATIC_INLINE void VCMP_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t VCMP_IntGet(void)
 {
-  return VCMP->IF;
+    return VCMP->IF;
 }
 
 /***************************************************************************//**
@@ -305,14 +305,14 @@ __STATIC_INLINE uint32_t VCMP_IntGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t VCMP_IntGetEnabled(void)
 {
-  uint32_t tmp = 0U;
+    uint32_t tmp = 0U;
 
-  /* Store VCMP->IEN in temporary variable in order to define explicit order
-   * of volatile accesses. */
-  tmp = VCMP->IEN;
+    /* Store VCMP->IEN in temporary variable in order to define explicit order
+     * of volatile accesses. */
+    tmp = VCMP->IEN;
 
-  /* Bitwise AND of pending and enabled interrupts */
-  return VCMP->IF & tmp;
+    /* Bitwise AND of pending and enabled interrupts */
+    return VCMP->IF & tmp;
 }
 
 /** @} (end addtogroup VCMP) */

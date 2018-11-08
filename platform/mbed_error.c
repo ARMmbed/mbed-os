@@ -25,7 +25,8 @@
 
 static uint8_t error_in_progress = 0;
 
-WEAK void error(const char* format, ...) {
+WEAK void error(const char *format, ...)
+{
 
     // Prevent recursion if error is called again
     if (error_in_progress) {

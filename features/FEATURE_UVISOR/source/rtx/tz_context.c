@@ -21,22 +21,27 @@
 /* Provide do-nothing stubs for RTX's trustzone context saving hooks. uVisor
  * doesn't use these on ARMv8-M. */
 
-uint32_t TZ_InitContextSystem_S(void) {
+uint32_t TZ_InitContextSystem_S(void)
+{
     return 1; /* Success */
 }
 
-TZ_MemoryId_t TZ_AllocModuleContext_S(TZ_ModuleId_t module) {
+TZ_MemoryId_t TZ_AllocModuleContext_S(TZ_ModuleId_t module)
+{
     return 1; /* Always hand out slot 1. */
 }
 
-uint32_t TZ_FreeModuleContext_S(TZ_MemoryId_t id) {
+uint32_t TZ_FreeModuleContext_S(TZ_MemoryId_t id)
+{
     return 1; /* Success */
 }
 
-uint32_t TZ_LoadContext_S(TZ_MemoryId_t id) {
+uint32_t TZ_LoadContext_S(TZ_MemoryId_t id)
+{
     return 1; /* Success */
 }
 
-uint32_t TZ_StoreContext_S(TZ_MemoryId_t id) {
+uint32_t TZ_StoreContext_S(TZ_MemoryId_t id)
+{
     return 1; /* Success */
 }

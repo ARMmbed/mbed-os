@@ -75,9 +75,9 @@ public:
 
     int getDongleType();
 
-    IUSBHostSerial& getSerial(int index);
+    IUSBHostSerial &getSerial(int index);
     int getSerialCount();
-    bool addInitializer(WANDongleInitializer* pInitializer);
+    bool addInitializer(WANDongleInitializer *pInitializer);
 
     //From IUSBEnumerator
 
@@ -88,11 +88,11 @@ public:
     virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
 
 protected:
-    USBHost * host;
-    USBDeviceConnected * dev;
+    USBHost *host;
+    USBDeviceConnected *dev;
     bool dev_connected;
 
-    WANDongleInitializer* m_pInitializer;
+    WANDongleInitializer *m_pInitializer;
 
     void init();
 
@@ -100,7 +100,7 @@ protected:
     int m_serialCount;
 
     int m_totalInitializers;
-    WANDongleInitializer* m_Initializers[WANDONGLE_MAX_INITIALIZERS];
+    WANDongleInitializer *m_Initializers[WANDONGLE_MAX_INITIALIZERS];
 };
 
 #endif /* USBHOST_3GMODULE */

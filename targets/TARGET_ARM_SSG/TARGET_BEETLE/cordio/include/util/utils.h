@@ -88,7 +88,7 @@ int Util_VSNPrintf(char *s, size_t size, const char *format, va_list ap) PRINTF_
 **
 ** RETURNS:     Number of characters stored in s
 **------------------------------------------------------------------------------------------------*/
-int Util_SNPrintf (char *s, size_t size, const char *format, ...) PRINTF_ATTRIBUTE(3, 4);
+int Util_SNPrintf(char *s, size_t size, const char *format, ...) PRINTF_ATTRIBUTE(3, 4);
 
 /*--------------------------------------------------------------------------------------------------
 ** Util_ParseMacAddr()

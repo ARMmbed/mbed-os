@@ -59,8 +59,9 @@ int WDT2_Init(uint8_t runInSleep, uint8_t unlock_key)
     MXC_WDT2->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (MXC_WDT2->lock_ctrl & 0x01)
+    if (MXC_WDT2->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //disable all interrupts
     interruptEnable = 0;
@@ -72,7 +73,7 @@ int WDT2_Init(uint8_t runInSleep, uint8_t unlock_key)
     //clear all interrupt flags
     MXC_WDT2->flags = WDT2_FLAGS_CLEAR_ALL;
 
-    if(runInSleep) {
+    if (runInSleep) {
         // turn on nanoring during sleep
         MXC_PWRSEQ->reg0 |= (MXC_F_PWRSEQ_REG0_PWR_NREN_SLP);
         //turn on timer during sleep
@@ -94,15 +95,17 @@ int WDT2_Init(uint8_t runInSleep, uint8_t unlock_key)
 int WDT2_EnableWakeUp(wdt2_period_t int_period, uint8_t unlock_key)
 {
     // Make sure interrupt period is valid
-    if (int_period >= WDT2_PERIOD_MAX)
-        return E_INVALID; 
+    if (int_period >= WDT2_PERIOD_MAX) {
+        return E_INVALID;
+    }
 
     //unlock ctrl to be writable
     MXC_WDT2->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (MXC_WDT2->lock_ctrl & 0x01)
+    if (MXC_WDT2->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //stop timer and clear interval period
     MXC_WDT2->ctrl &= ~(MXC_F_WDT2_CTRL_INT_PERIOD | MXC_F_WDT2_CTRL_EN_TIMER);
@@ -129,8 +132,9 @@ int WDT2_DisableWakeUp(uint8_t unlock_key)
     MXC_WDT2->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (MXC_WDT2->lock_ctrl & 0x01)
+    if (MXC_WDT2->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //disable timeout wake-up
     interruptEnable &= ~MXC_F_WDT2_ENABLE_TIMEOUT;
@@ -149,15 +153,17 @@ int WDT2_DisableWakeUp(uint8_t unlock_key)
 int WDT2_EnableReset(wdt2_period_t rst_period, uint8_t unlock_key)
 {
     // Make sure reset period is valid
-    if (rst_period >= WDT2_PERIOD_MAX)
-        return E_INVALID; 
+    if (rst_period >= WDT2_PERIOD_MAX) {
+        return E_INVALID;
+    }
 
     //unlock ctrl to be writable
     MXC_WDT2->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (MXC_WDT2->lock_ctrl & 0x01)
+    if (MXC_WDT2->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //stop timer and clear reset period
     MXC_WDT2->ctrl &= ~(MXC_F_WDT2_CTRL_RST_PERIOD | MXC_F_WDT2_CTRL_EN_TIMER);
@@ -187,8 +193,9 @@ int WDT2_DisableReset(uint8_t unlock_key)
     MXC_WDT2->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (MXC_WDT2->lock_ctrl & 0x01)
+    if (MXC_WDT2->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //disable reset
     interruptEnable &= ~MXC_F_WDT2_ENABLE_RESET_OUT;
@@ -207,15 +214,17 @@ int WDT2_DisableReset(uint8_t unlock_key)
 int WDT2_Start(uint8_t unlock_key)
 {
     //check if watchdog is already running
-    if(WDT2_IsActive())
+    if (WDT2_IsActive()) {
         return E_BAD_STATE;
+    }
 
     //unlock ctrl to be writable
     MXC_WDT2->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (MXC_WDT2->lock_ctrl & 0x01)
+    if (MXC_WDT2->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     WDT2_Reset();
 
@@ -242,7 +251,7 @@ void WDT2_Reset(void)
     MXC_WDT2->flags = WDT2_FLAGS_CLEAR_ALL;
 
     //wait for all interrupts to clear
-    while(MXC_WDT2->flags != 0) {
+    while (MXC_WDT2->flags != 0) {
         MXC_WDT2->flags = WDT2_FLAGS_CLEAR_ALL;
     }
 
@@ -253,15 +262,17 @@ void WDT2_Reset(void)
 int WDT2_Stop(uint8_t unlock_key)
 {
     //check if watchdog is not running
-    if(!WDT2_IsActive())
+    if (!WDT2_IsActive()) {
         return E_BAD_STATE;
+    }
 
     //unlock ctrl to be writable
     MXC_WDT2->lock_ctrl = unlock_key;
 
     //check to make sure it unlocked
-    if (MXC_WDT2->lock_ctrl & 0x01)
+    if (MXC_WDT2->lock_ctrl & 0x01) {
         return E_BAD_STATE;
+    }
 
     //disabled the timer and interrupts
     MXC_WDT2->enable = 0;

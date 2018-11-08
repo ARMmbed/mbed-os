@@ -40,9 +40,9 @@
 #define __STM32L1xx_HAL_DAC_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
-   
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal_def.h"
 
@@ -60,50 +60,47 @@
   * @{
   */
 
-/** 
-  * @brief  HAL State structures definition  
-  */ 
-typedef enum
-{
-  HAL_DAC_STATE_RESET             = 0x00,  /*!< DAC not yet initialized or disabled  */
-  HAL_DAC_STATE_READY             = 0x01,  /*!< DAC initialized and ready for use    */
-  HAL_DAC_STATE_BUSY              = 0x02,  /*!< DAC internal processing is ongoing   */
-  HAL_DAC_STATE_TIMEOUT           = 0x03,  /*!< DAC timeout state                    */
-  HAL_DAC_STATE_ERROR             = 0x04   /*!< DAC error state                      */
- 
-}HAL_DAC_StateTypeDef;
- 
-/** 
-  * @brief  DAC handle Structure definition  
-  */ 
-typedef struct
-{
-  DAC_TypeDef                 *Instance;     /*!< Register base address             */
-  
-  __IO HAL_DAC_StateTypeDef   State;         /*!< DAC communication state           */
+/**
+  * @brief  HAL State structures definition
+  */
+typedef enum {
+    HAL_DAC_STATE_RESET             = 0x00,  /*!< DAC not yet initialized or disabled  */
+    HAL_DAC_STATE_READY             = 0x01,  /*!< DAC initialized and ready for use    */
+    HAL_DAC_STATE_BUSY              = 0x02,  /*!< DAC internal processing is ongoing   */
+    HAL_DAC_STATE_TIMEOUT           = 0x03,  /*!< DAC timeout state                    */
+    HAL_DAC_STATE_ERROR             = 0x04   /*!< DAC error state                      */
 
-  HAL_LockTypeDef             Lock;          /*!< DAC locking object                */
-  
-  DMA_HandleTypeDef           *DMA_Handle1;  /*!< Pointer DMA handler for channel 1 */
-  
-  DMA_HandleTypeDef           *DMA_Handle2;  /*!< Pointer DMA handler for channel 2 */ 
-  
-  __IO uint32_t               ErrorCode;     /*!< DAC Error code                    */
-  
-}DAC_HandleTypeDef;
+} HAL_DAC_StateTypeDef;
 
-/** 
-  * @brief   DAC Configuration regular Channel structure definition  
-  */ 
-typedef struct
-{
-  uint32_t DAC_Trigger;       /*!< Specifies the external trigger for the selected DAC channel.
+/**
+  * @brief  DAC handle Structure definition
+  */
+typedef struct {
+    DAC_TypeDef                 *Instance;     /*!< Register base address             */
+
+    __IO HAL_DAC_StateTypeDef   State;         /*!< DAC communication state           */
+
+    HAL_LockTypeDef             Lock;          /*!< DAC locking object                */
+
+    DMA_HandleTypeDef           *DMA_Handle1;  /*!< Pointer DMA handler for channel 1 */
+
+    DMA_HandleTypeDef           *DMA_Handle2;  /*!< Pointer DMA handler for channel 2 */
+
+    __IO uint32_t               ErrorCode;     /*!< DAC Error code                    */
+
+} DAC_HandleTypeDef;
+
+/**
+  * @brief   DAC Configuration regular Channel structure definition
+  */
+typedef struct {
+    uint32_t DAC_Trigger;       /*!< Specifies the external trigger for the selected DAC channel.
                                    This parameter can be a value of @ref DAC_trigger_selection */
-  
-  uint32_t DAC_OutputBuffer;  /*!< Specifies whether the DAC channel output buffer is enabled or disabled.
+
+    uint32_t DAC_OutputBuffer;  /*!< Specifies whether the DAC channel output buffer is enabled or disabled.
                                    This parameter can be a value of @ref DAC_output_buffer */
-  
-}DAC_ChannelConfTypeDef;
+
+} DAC_ChannelConfTypeDef;
 
 /**
   * @}
@@ -121,11 +118,11 @@ typedef struct
 #define  HAL_DAC_ERROR_NONE              0x00    /*!< No error                          */
 #define  HAL_DAC_ERROR_DMAUNDERRUNCH1    0x01    /*!< DAC channel1 DMA underrun error   */
 #define  HAL_DAC_ERROR_DMAUNDERRUNCH2    0x02    /*!< DAC channel2 DMA underrun error   */
-#define  HAL_DAC_ERROR_DMA               0x04    /*!< DMA error                         */   
+#define  HAL_DAC_ERROR_DMA               0x04    /*!< DMA error                         */
 /**
   * @}
   */
-  
+
 /** @defgroup DAC_trigger_selection DAC trigger selection
   * @{
   */
@@ -176,9 +173,9 @@ typedef struct
 
 /** @defgroup DAC_flags_definition DAC flags definition
   * @{
-  */ 
+  */
 #define DAC_FLAG_DMAUDR1                   ((uint32_t)DAC_SR_DMAUDR1)
-#define DAC_FLAG_DMAUDR2                   ((uint32_t)DAC_SR_DMAUDR2)   
+#define DAC_FLAG_DMAUDR2                   ((uint32_t)DAC_SR_DMAUDR2)
 
 /**
   * @}
@@ -186,9 +183,9 @@ typedef struct
 
 /** @defgroup DAC_IT_definition DAC IT definition
   * @{
-  */ 
+  */
 #define DAC_IT_DMAUDR1                   ((uint32_t)DAC_SR_DMAUDR1)
-#define DAC_IT_DMAUDR2                   ((uint32_t)DAC_SR_DMAUDR2)   
+#define DAC_IT_DMAUDR2                   ((uint32_t)DAC_SR_DMAUDR2)
 
 /**
   * @}
@@ -225,7 +222,7 @@ typedef struct
   */
 #define __HAL_DAC_DISABLE(__HANDLE__, __DAC_Channel__) \
 ((__HANDLE__)->Instance->CR &=  ~(DAC_CR_EN1 << (__DAC_Channel__)))
- 
+
 
 /** @brief Enable the DAC interrupt
   * @param  __HANDLE__: specifies the DAC handle
@@ -256,7 +253,7 @@ typedef struct
   * @retval State of interruption (SET or RESET)
   */
 #define __HAL_DAC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->CR & (__INTERRUPT__)) == (__INTERRUPT__))
-    
+
 /** @brief  Get the selected DAC's flag status.
   * @param  __HANDLE__: specifies the DAC handle.
   * @param  __FLAG__: specifies the DAC flag to get.
@@ -279,7 +276,7 @@ typedef struct
 
 /**
   * @}
-  */ 
+  */
 
 /* Private macro -------------------------------------------------------------*/
 
@@ -316,7 +313,7 @@ typedef struct
 /**
   * @}
   */
-  
+
 
 /* Include DAC HAL Extension module */
 #include "stm32l1xx_hal_dac_ex.h"
@@ -330,11 +327,11 @@ typedef struct
 /** @addtogroup DAC_Exported_Functions_Group1
   * @{
   */
-/* Initialization and de-initialization functions *****************************/ 
-HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac);
-HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac);
-void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac);
-void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac);
+/* Initialization and de-initialization functions *****************************/
+HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef *hdac);
+HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef *hdac);
+void HAL_DAC_MspInit(DAC_HandleTypeDef *hdac);
+void HAL_DAC_MspDeInit(DAC_HandleTypeDef *hdac);
 
 /**
   * @}
@@ -344,12 +341,12 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac);
   * @{
   */
 /* IO operation functions *****************************************************/
-HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel);
-HAL_StatusTypeDef HAL_DAC_Stop(DAC_HandleTypeDef* hdac, uint32_t Channel);
-HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t* pData, uint32_t Length, uint32_t Alignment);
-HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel);
-HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Alignment, uint32_t Data);
-uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t Channel);
+HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef *hdac, uint32_t Channel);
+HAL_StatusTypeDef HAL_DAC_Stop(DAC_HandleTypeDef *hdac, uint32_t Channel);
+HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel, uint32_t *pData, uint32_t Length, uint32_t Alignment);
+HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef *hdac, uint32_t Channel);
+HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef *hdac, uint32_t Channel, uint32_t Alignment, uint32_t Data);
+uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef *hdac, uint32_t Channel);
 
 /**
   * @}
@@ -359,7 +356,7 @@ uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t Channel);
   * @{
   */
 /* Peripheral Control functions ***********************************************/
-HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConfTypeDef* sConfig, uint32_t Channel);
+HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef *hdac, DAC_ChannelConfTypeDef *sConfig, uint32_t Channel);
 
 /**
   * @}
@@ -369,12 +366,12 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConf
   * @{
   */
 /* Peripheral State functions *************************************************/
-HAL_DAC_StateTypeDef HAL_DAC_GetState(DAC_HandleTypeDef* hdac);
-void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac);
+HAL_DAC_StateTypeDef HAL_DAC_GetState(DAC_HandleTypeDef *hdac);
+void HAL_DAC_IRQHandler(DAC_HandleTypeDef *hdac);
 uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac);
 
-void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac);
-void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac);
+void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef *hdac);
+void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef *hdac);
 void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac);
 void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac);
 
@@ -393,7 +390,7 @@ void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac);
 /**
   * @}
   */
-  
+
 #ifdef __cplusplus
 }
 #endif

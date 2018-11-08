@@ -56,85 +56,91 @@ void EBI_Open(uint32_t u32Bank, uint32_t u32DataWidth, uint32_t u32TimingClass, 
     EBI->TCTL[u32Bank] |= EBI_TCTL_CSEN_Msk;
 
     /* Configure data bus to 8 or 16bit */
-    if(u32DataWidth == EBI_BUSWIDTH_8BIT)
+    if (u32DataWidth == EBI_BUSWIDTH_8BIT) {
         EBI->TCTL[u32Bank] &= ~EBI_TCTL_DW16_Msk;
-    else
+    } else {
         EBI->TCTL[u32Bank] |= EBI_TCTL_DW16_Msk;
+    }
 
     /* Enable separate mode */
-    if(u32BusMode)
+    if (u32BusMode) {
         EBI->TCTL[u32Bank] |= EBI_TCTL_SEPEN_Msk;
-    else
+    } else {
         EBI->TCTL[u32Bank] &= ~EBI_TCTL_SEPEN_Msk;
+    }
 
     /* Setup active level of chip select */
-    switch(u32Bank) {
-    case EBI_BANK0:
-        if(u32CSActiveLevel)
-            EBI->CTL |= (0x1ul << EBI_CTL_CSPOLINV_Pos);
-        else
-            EBI->CTL &= ~(0x1ul << EBI_CTL_CSPOLINV_Pos);
-        break;
+    switch (u32Bank) {
+        case EBI_BANK0:
+            if (u32CSActiveLevel) {
+                EBI->CTL |= (0x1ul << EBI_CTL_CSPOLINV_Pos);
+            } else {
+                EBI->CTL &= ~(0x1ul << EBI_CTL_CSPOLINV_Pos);
+            }
+            break;
 
-    case EBI_BANK1:
-        if(u32CSActiveLevel)
-            EBI->CTL |= (0x2ul << EBI_CTL_CSPOLINV_Pos);
-        else
-            EBI->CTL &= ~(0x2ul << EBI_CTL_CSPOLINV_Pos);
-        break;
+        case EBI_BANK1:
+            if (u32CSActiveLevel) {
+                EBI->CTL |= (0x2ul << EBI_CTL_CSPOLINV_Pos);
+            } else {
+                EBI->CTL &= ~(0x2ul << EBI_CTL_CSPOLINV_Pos);
+            }
+            break;
 
-    case EBI_BANK2:
-        if(u32CSActiveLevel)
-            EBI->CTL |= (0x4ul << EBI_CTL_CSPOLINV_Pos);
-        else
-            EBI->CTL &= ~(0x4ul << EBI_CTL_CSPOLINV_Pos);
-        break;
+        case EBI_BANK2:
+            if (u32CSActiveLevel) {
+                EBI->CTL |= (0x4ul << EBI_CTL_CSPOLINV_Pos);
+            } else {
+                EBI->CTL &= ~(0x4ul << EBI_CTL_CSPOLINV_Pos);
+            }
+            break;
 
-    case EBI_BANK3:
-        if(u32CSActiveLevel)
-            EBI->CTL |= (0x8ul << EBI_CTL_CSPOLINV_Pos);
-        else
-            EBI->CTL &= ~(0x8ul << EBI_CTL_CSPOLINV_Pos);
-        break;
+        case EBI_BANK3:
+            if (u32CSActiveLevel) {
+                EBI->CTL |= (0x8ul << EBI_CTL_CSPOLINV_Pos);
+            } else {
+                EBI->CTL &= ~(0x8ul << EBI_CTL_CSPOLINV_Pos);
+            }
+            break;
     }
 
     /* Clear R2R/R2W/R2X/TAHD/TACC/TALE entries for safety */
     EBI->TCTL[u32Bank] &= ~0x0F0FF7FF;
 
     /* Setup EBI timing */
-    switch(u32TimingClass) {
-    case EBI_TIMING_FASTEST:
-        EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (  EBI_MCLKDIV_1 << 8);
-        break;
+    switch (u32TimingClass) {
+        case EBI_TIMING_FASTEST:
+            EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (EBI_MCLKDIV_1 << 8);
+            break;
 
-    case EBI_TIMING_VERYFAST:
-        EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (  EBI_MCLKDIV_1 << 8);
-        EBI->TCTL[u32Bank] |= 0x0303331B;
-        break;
+        case EBI_TIMING_VERYFAST:
+            EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (EBI_MCLKDIV_1 << 8);
+            EBI->TCTL[u32Bank] |= 0x0303331B;
+            break;
 
-    case EBI_TIMING_FAST:
-        EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (  EBI_MCLKDIV_2 << 8);
-        break;
+        case EBI_TIMING_FAST:
+            EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (EBI_MCLKDIV_2 << 8);
+            break;
 
-    case EBI_TIMING_NORMAL:
-        EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (  EBI_MCLKDIV_2 << 8);
-        EBI->TCTL[u32Bank] |= 0x0303331B;
-        break;
+        case EBI_TIMING_NORMAL:
+            EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (EBI_MCLKDIV_2 << 8);
+            EBI->TCTL[u32Bank] |= 0x0303331B;
+            break;
 
-    case EBI_TIMING_SLOW:
-        EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (  EBI_MCLKDIV_2 << 8);
-        EBI->TCTL[u32Bank] |= 0x0707773F;
-        break;
+        case EBI_TIMING_SLOW:
+            EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (EBI_MCLKDIV_2 << 8);
+            EBI->TCTL[u32Bank] |= 0x0707773F;
+            break;
 
-    case EBI_TIMING_VERYSLOW:
-        EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (  EBI_MCLKDIV_4 << 8);
-        EBI->TCTL[u32Bank] |= 0x0707773F;
-        break;
+        case EBI_TIMING_VERYSLOW:
+            EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (EBI_MCLKDIV_4 << 8);
+            EBI->TCTL[u32Bank] |= 0x0707773F;
+            break;
 
-    case EBI_TIMING_SLOWEST:
-        EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (  EBI_MCLKDIV_8 << 8);
-        EBI->TCTL[u32Bank] |= 0x0707773F;
-        break;
+        case EBI_TIMING_SLOWEST:
+            EBI->CTL = (EBI->CTL & ~EBI_CTL_MCLKDIV_Msk) | (EBI_MCLKDIV_8 << 8);
+            EBI->TCTL[u32Bank] |= 0x0707773F;
+            break;
     }
 }
 
@@ -187,19 +193,19 @@ void EBI_SetBusTiming(uint32_t u32Bank, uint32_t u32TimingConfig, uint32_t u32Mc
   */
 void EBI_EnableCrypto(uint32_t u32Bank, uint32_t *u32Key)
 {
-    switch(u32Bank) {
-    case EBI_BANK0:
-        EBI->CTL |= (0x1ul << EBI_CTL_CRYPTOEN_Pos);
-        break;
-    case EBI_BANK1:
-        EBI->CTL |= (0x2ul << EBI_CTL_CRYPTOEN_Pos);
-        break;
-    case EBI_BANK2:
-        EBI->CTL |= (0x4ul << EBI_CTL_CRYPTOEN_Pos);
-        break;
-    case EBI_BANK3:
-        EBI->CTL |= (0x8ul << EBI_CTL_CRYPTOEN_Pos);
-        break;
+    switch (u32Bank) {
+        case EBI_BANK0:
+            EBI->CTL |= (0x1ul << EBI_CTL_CRYPTOEN_Pos);
+            break;
+        case EBI_BANK1:
+            EBI->CTL |= (0x2ul << EBI_CTL_CRYPTOEN_Pos);
+            break;
+        case EBI_BANK2:
+            EBI->CTL |= (0x4ul << EBI_CTL_CRYPTOEN_Pos);
+            break;
+        case EBI_BANK3:
+            EBI->CTL |= (0x8ul << EBI_CTL_CRYPTOEN_Pos);
+            break;
     }
 
     /* Setup 128-bits key */
@@ -220,19 +226,19 @@ void EBI_EnableCrypto(uint32_t u32Bank, uint32_t *u32Key)
   */
 void EBI_DisbleCrypto(uint32_t u32Bank)
 {
-    switch(u32Bank) {
-    case EBI_BANK0:
-        EBI->CTL &= ~(0x1ul << EBI_CTL_CRYPTOEN_Pos);
-        break;
-    case EBI_BANK1:
-        EBI->CTL &= ~(0x2ul << EBI_CTL_CRYPTOEN_Pos);
-        break;
-    case EBI_BANK2:
-        EBI->CTL &= ~(0x4ul << EBI_CTL_CRYPTOEN_Pos);
-        break;
-    case EBI_BANK3:
-        EBI->CTL &= ~(0x8ul << EBI_CTL_CRYPTOEN_Pos);
-        break;
+    switch (u32Bank) {
+        case EBI_BANK0:
+            EBI->CTL &= ~(0x1ul << EBI_CTL_CRYPTOEN_Pos);
+            break;
+        case EBI_BANK1:
+            EBI->CTL &= ~(0x2ul << EBI_CTL_CRYPTOEN_Pos);
+            break;
+        case EBI_BANK2:
+            EBI->CTL &= ~(0x4ul << EBI_CTL_CRYPTOEN_Pos);
+            break;
+        case EBI_BANK3:
+            EBI->CTL &= ~(0x8ul << EBI_CTL_CRYPTOEN_Pos);
+            break;
     }
 }
 

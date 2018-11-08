@@ -22,13 +22,13 @@
 
 #include "pinmap_function.h"
 
-#define 	SERCOM_SPI_STATUS_SYNCBUSY_Pos   15
-#define 	SERCOM_SPI_STATUS_SYNCBUSY   (0x1u << SERCOM_SPI_STATUS_SYNCBUSY_Pos)
+#define     SERCOM_SPI_STATUS_SYNCBUSY_Pos   15
+#define     SERCOM_SPI_STATUS_SYNCBUSY   (0x1u << SERCOM_SPI_STATUS_SYNCBUSY_Pos)
 
-#define SPI_MOSI_INDEX	0
-#define SPI_MISO_INDEX	1
-#define SPI_SCLK_INDEX	2
-#define SPI_SSEL_INDEX	3
+#define SPI_MOSI_INDEX  0
+#define SPI_MISO_INDEX  1
+#define SPI_SCLK_INDEX  2
+#define SPI_SSEL_INDEX  3
 
 /**
  * \brief SPI modes enum
@@ -43,16 +43,16 @@ enum spi_mode {
 };
 
 #if DEVICE_SPI_ASYNCH
-#define pSPI_S(obj)			(&obj->spi)
-#define pSPI_SERCOM(obj)	obj->spi.spi
+#define pSPI_S(obj)         (&obj->spi)
+#define pSPI_SERCOM(obj)    obj->spi.spi
 #else
-#define pSPI_S(obj)			(obj)
-#define pSPI_SERCOM(obj)	(obj->spi)
+#define pSPI_S(obj)         (obj)
+#define pSPI_SERCOM(obj)    (obj->spi)
 #endif
-#define _SPI(obj)			pSPI_SERCOM(obj)->SPI
+#define _SPI(obj)           pSPI_SERCOM(obj)->SPI
 
 /** SPI default baud rate. */
-#define SPI_DEFAULT_BAUD	100000
+#define SPI_DEFAULT_BAUD    100000
 
 
 /** SPI timeout value. */
@@ -256,7 +256,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     /* Calculate SERCOM instance from pins */
     uint32_t sercom_index = pinmap_find_sercom(mosi, miso, sclk, ssel);
-    pSPI_SERCOM(obj) = (Sercom*)pinmap_peripheral_sercom(NC, sercom_index);
+    pSPI_SERCOM(obj) = (Sercom *)pinmap_peripheral_sercom(NC, sercom_index);
 
     /* Disable SPI */
     spi_disable(obj);
@@ -436,13 +436,13 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     _SPI(obj).CTRLA.reg = ctrla;
 
     /* Set SPI Frame size - only 8-bit and 9-bit supported now */
-    _SPI(obj).CTRLB.bit.CHSIZE = (bits > 8)? 1 : 0;
+    _SPI(obj).CTRLB.bit.CHSIZE = (bits > 8) ? 1 : 0;
 
     /* Set SPI Clock Phase */
-    _SPI(obj).CTRLA.bit.CPHA = (mode & 0x01)? 1 : 0;
+    _SPI(obj).CTRLA.bit.CPHA = (mode & 0x01) ? 1 : 0;
 
     /* Set SPI Clock Polarity */
-    _SPI(obj).CTRLA.bit.CPOL = (mode & 0x02)? 1 : 0;
+    _SPI(obj).CTRLA.bit.CPOL = (mode & 0x02) ? 1 : 0;
 
     /* Enable SPI */
     spi_enable(obj);
@@ -556,7 +556,8 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -701,8 +702,9 @@ static void _spi_write_async(spi_t *obj)
         obj->tx_buff.pos++;
 
         if (_SPI(obj).CTRLB.bit.CHSIZE == 1) {
-            if (tx_buffer)
+            if (tx_buffer) {
                 data_to_send |= (tx_buffer[obj->tx_buff.pos] << 8);
+            }
             /* Increment 8-bit index */
             obj->tx_buff.pos++;
         }
@@ -885,14 +887,14 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     uint8_t sercom_index = _sercom_get_sercom_inst_index(obj->spi.spi);
 
     obj->spi.tx_buffer = (void *)tx;
-    obj->tx_buff.buffer =(void *)tx;
+    obj->tx_buff.buffer = (void *)tx;
     obj->tx_buff.pos = 0;
     if (tx) {
         /* Only two bit rates supported now */
-        obj->tx_buff.length = tx_length * ((bit_width > 8)? 2 : 1);
+        obj->tx_buff.length = tx_length * ((bit_width > 8) ? 2 : 1);
     } else {
         if (rx) {
-            obj->tx_buff.length = rx_length * ((bit_width > 8)? 2 : 1);
+            obj->tx_buff.length = rx_length * ((bit_width > 8) ? 2 : 1);
         } else {
             /* Nothing to transfer */
             return;
@@ -904,7 +906,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     obj->rx_buff.pos = 0;
     if (rx) {
         /* Only two bit rates supported now */
-        obj->rx_buff.length = rx_length * ((bit_width > 8)? 2 : 1);
+        obj->rx_buff.length = rx_length * ((bit_width > 8) ? 2 : 1);
     } else {
         /* Disable RXEN */
         spi_disable(obj);

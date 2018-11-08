@@ -510,7 +510,7 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
     const uint32_t address_pref = SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT;
     dhcp_options_msg_t elapsed_time;
 
-    if (libdhcpv6_message_option_discover((msg_tr_ptr->msg_ptr + 4), (msg_tr_ptr->msg_len -4), DHCPV6_ELAPSED_TIME_OPTION, &elapsed_time) == 0 &&
+    if (libdhcpv6_message_option_discover((msg_tr_ptr->msg_ptr + 4), (msg_tr_ptr->msg_len - 4), DHCPV6_ELAPSED_TIME_OPTION, &elapsed_time) == 0 &&
             elapsed_time.len == 2) {
         uint32_t t = protocol_core_monotonic_time - msg_tr_ptr->first_transmit_time; // time in 1/10s ticks
         uint16_t cs;

@@ -64,9 +64,8 @@
 #define IEBB0DR (IEB.B0DR)
 
 
-typedef struct st_ieb
-{
-                                                           /* IEB              */
+typedef struct st_ieb {
+    /* IEB              */
     volatile uint8_t   B0BCR;                                  /*  B0BCR           */
     volatile uint8_t   dummy495[3];                            /*                  */
     volatile uint8_t   B0PSR;                                  /*  B0PSR           */

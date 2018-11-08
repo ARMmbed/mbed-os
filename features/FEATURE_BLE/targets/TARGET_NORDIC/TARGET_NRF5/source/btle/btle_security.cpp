@@ -41,16 +41,16 @@ static ble_gap_sec_params_t securityParameters = {
     .min_key_size  = 16,           /**< Minimum encryption key size in octets between 7 and 16. If 0 then not applicable in this instance. */
     .max_key_size  = 16,           /**< Maximum encryption key size in octets between min_key_size and 16. */
     .kdist_own  = {
-      .enc  = 0,                   /**< Long Term Key and Master Identification. */
-      .id   = 0,                   /**< Identity Resolving Key and Identity Address Information. */
-      .sign = 0,                   /**< Connection Signature Resolving Key. */
-      .link = 0                    /**< Derive the Link Key from the LTK. */
+        .enc  = 0,                   /**< Long Term Key and Master Identification. */
+        .id   = 0,                   /**< Identity Resolving Key and Identity Address Information. */
+        .sign = 0,                   /**< Connection Signature Resolving Key. */
+        .link = 0                    /**< Derive the Link Key from the LTK. */
     },                             /**< Key distribution bitmap: keys that the local device will distribute. */
     .kdist_peer  = {
-      .enc  = 1,                   /**< Long Term Key and Master Identification. */
-      .id   = 1,                   /**< Identity Resolving Key and Identity Address Information. */
-      .sign = 1,                   /**< Connection Signature Resolving Key. */
-      .link = 0                    /**< Derive the Link Key from the LTK. */
+        .enc  = 1,                   /**< Long Term Key and Master Identification. */
+        .id   = 1,                   /**< Identity Resolving Key and Identity Address Information. */
+        .sign = 1,                   /**< Connection Signature Resolving Key. */
+        .link = 0                    /**< Derive the Link Key from the LTK. */
     }                              /**< Key distribution bitmap: keys that the peripheral device will distribute. */
 };
 
@@ -197,11 +197,11 @@ btle_setLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager::SecurityMo
         // not yet implemented security modes
         case SecurityManager::SECURITY_MODE_NO_ACCESS:
         case SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM:
-            /**< Require encryption and MITM protection. */
+        /**< Require encryption and MITM protection. */
         case SecurityManager::SECURITY_MODE_SIGNED_NO_MITM:
-            /**< Require signing or encryption, but no MITM protection. */
+        /**< Require signing or encryption, but no MITM protection. */
         case SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM:
-            /**< Require signing or encryption, and MITM protection. */
+        /**< Require signing or encryption, and MITM protection. */
         default:
             return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -223,18 +223,18 @@ dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t ev
     nRF5xSecurityManager &securityManager = (nRF5xSecurityManager &) ble.getSecurityManager();
 
     switch (p_event->event_id) {
-        case DM_EVT_SECURITY_SETUP: /* started */ {
+        case DM_EVT_SECURITY_SETUP: { /* started */
             const ble_gap_sec_params_t *peerParams = &p_event->event_param.p_gap_param->params.sec_params_request.peer_params;
             securityManager.processSecuritySetupInitiatedEvent(p_event->event_param.p_gap_param->conn_handle,
-                                                                                   peerParams->bond,
-                                                                                   peerParams->mitm,
-                                                                                   (SecurityManager::SecurityIOCapabilities_t)peerParams->io_caps);
+                                                               peerParams->bond,
+                                                               peerParams->mitm,
+                                                               (SecurityManager::SecurityIOCapabilities_t)peerParams->io_caps);
             break;
         }
         case DM_EVT_SECURITY_SETUP_COMPLETE:
             securityManager.
-                processSecuritySetupCompletedEvent(p_event->event_param.p_gap_param->conn_handle,
-                                                   (SecurityManager::SecurityCompletionStatus_t)(p_event->event_param.p_gap_param->params.auth_status.auth_status));
+            processSecuritySetupCompletedEvent(p_event->event_param.p_gap_param->conn_handle,
+                                               (SecurityManager::SecurityCompletionStatus_t)(p_event->event_param.p_gap_param->params.auth_status.auth_status));
             break;
         case DM_EVT_LINK_SECURED: {
             unsigned securityMode                    = p_event->event_param.p_gap_param->params.conn_sec_update.conn_sec.sec_mode.sm;
@@ -297,7 +297,7 @@ btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist)
 
 
 bool
-btle_matchAddressAndIrk(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_irk)
+btle_matchAddressAndIrk(ble_gap_addr_t const *p_addr, ble_gap_irk_t const *p_irk)
 {
     /*
      * Use a helper function from the Nordic SDK to test whether the BLE

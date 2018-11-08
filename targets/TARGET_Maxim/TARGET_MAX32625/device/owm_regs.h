@@ -147,8 +147,8 @@ typedef struct {
 #define MXC_F_OWM_INTEN_LINE_LOW_POS                        4
 #define MXC_F_OWM_INTEN_LINE_LOW                            ((uint32_t)(0x00000001UL << MXC_F_OWM_INTEN_LINE_LOW_POS))
 
-#define MXC_V_OWM_CFG_EXT_PULLUP_MODE_UNUSED         		((uint32_t)(0x00000000UL))
-#define MXC_V_OWM_CFG_EXT_PULLUP_MODE_USED          		((uint32_t)(0x00000001UL))
+#define MXC_V_OWM_CFG_EXT_PULLUP_MODE_UNUSED                ((uint32_t)(0x00000000UL))
+#define MXC_V_OWM_CFG_EXT_PULLUP_MODE_USED                  ((uint32_t)(0x00000001UL))
 
 #define MXC_V_OWM_CTRL_STAT_OD_SPEC_MODE_12US               ((uint32_t)(0x00000000UL))
 #define MXC_V_OWM_CTRL_STAT_OD_SPEC_MODE_10US               ((uint32_t)(0x00000001UL))

@@ -28,7 +28,7 @@ const PinMap PinMap_ADC[] = {
     {PB02, ADC_6, NC},
     {PB03, ADC_7, NC},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************UART***************/
@@ -44,7 +44,7 @@ const PinMap PinMap_UART_TX[] = {
     {PB10, UART_4, 0},
     {PB10, UART_6, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_UART_RX[] = {
@@ -59,7 +59,7 @@ const PinMap PinMap_UART_RX[] = {
     {PB11, UART_4, 0},
     {PB11, UART_6, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_UART_CTS[] = {
@@ -72,7 +72,7 @@ const PinMap PinMap_UART_CTS[] = {
     {PB14, UART_3, 0},
     {PB14, UART_6, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_UART_RTS[] = {
@@ -85,7 +85,7 @@ const PinMap PinMap_UART_RTS[] = {
     {PB15, UART_3, 0},
     {PB15, UART_6, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************SPI***************/
@@ -100,7 +100,7 @@ const PinMap PinMap_SPI_SCLK[] = {
     {PB13, (int)SPI6, 1},
     {PA29, (int)SPI7, 1},
     /* Not connected */
-    {NC  , (int)NC   , NC}
+    {NC, (int)NC, NC}
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
@@ -115,7 +115,7 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PB10, (int)SPI6, 1},
     {PA28, (int)SPI7, 1},
     /* Not connected */
-    {NC  , (int)NC   , NC}
+    {NC, (int)NC, NC}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
@@ -130,7 +130,7 @@ const PinMap PinMap_SPI_MISO[] = {
     {PB11, (int)SPI6, 1},
     {PA27, (int)SPI7, 1},
     /* Not connected */
-    {NC  , (int)NC   , NC}
+    {NC, (int)NC, NC}
 };
 
 /************I2C***************/
@@ -147,7 +147,7 @@ const PinMap PinMap_I2C_SDA[] = {
     {PB10, (int)TWI6, 1},
     {PA28, (int)TWI7, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
@@ -162,7 +162,7 @@ const PinMap PinMap_I2C_SCL[] = {
     {PB11, (int)TWI6, 1},
     {PA27, (int)TWI7, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************PWM***************/
@@ -174,7 +174,7 @@ const PinMap PinMap_PWM[] = {
     {PA16, (int)TC0, 1},
     {PA22, (int)TC0, 0},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 /************PWM***************/
@@ -186,7 +186,7 @@ const PinMap PinMap_PWM_IO_Line[] = {
     {PA16, 1, 1},
     {PA22, 2, 1},
     /* Not connected */
-    {NC  , NC   , NC}
+    {NC, NC, NC}
 };
 
 

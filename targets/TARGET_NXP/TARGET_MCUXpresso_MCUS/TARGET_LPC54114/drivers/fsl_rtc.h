@@ -49,22 +49,19 @@
 /*@}*/
 
 /*! @brief List of RTC interrupts */
-typedef enum _rtc_interrupt_enable
-{
+typedef enum _rtc_interrupt_enable {
     kRTC_AlarmInterruptEnable = RTC_CTRL_ALARMDPD_EN_MASK, /*!< Alarm interrupt.*/
     kRTC_WakeupInterruptEnable = RTC_CTRL_WAKEDPD_EN_MASK  /*!< Wake-up interrupt.*/
 } rtc_interrupt_enable_t;
 
 /*! @brief List of RTC flags */
-typedef enum _rtc_status_flags
-{
+typedef enum _rtc_status_flags {
     kRTC_AlarmFlag = RTC_CTRL_ALARM1HZ_MASK, /*!< Alarm flag*/
     kRTC_WakeupFlag = RTC_CTRL_WAKE1KHZ_MASK /*!< 1kHz wake-up timer flag*/
 } rtc_status_flags_t;
 
 /*! @brief Structure is used to hold the date and time */
-typedef struct _rtc_datetime
-{
+typedef struct _rtc_datetime {
     uint16_t year;  /*!< Range from 1970 to 2099.*/
     uint8_t month;  /*!< Range from 1 to 12.*/
     uint8_t day;    /*!< Range from 1 to 31 (depending on month).*/

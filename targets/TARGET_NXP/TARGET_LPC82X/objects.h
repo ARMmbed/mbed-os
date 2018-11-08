@@ -49,8 +49,8 @@ struct analogin_s {
 };
 
 struct pwmout_s {
-     LPC_SCT_Type* pwm;
-     uint32_t pwm_ch;
+    LPC_SCT_Type *pwm;
+    uint32_t pwm_ch;
 };
 
 #include "gpio_object.h"

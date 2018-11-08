@@ -56,143 +56,117 @@ extern "C" {
 extern USBD_Device_TypeDef *dev;
 extern volatile bool USBD_poweredDown;
 
-__STATIC_INLINE void USBD_ArmEp0( USBD_Ep_TypeDef *ep );
-__STATIC_INLINE void USBD_ArmEpN( USBD_Ep_TypeDef *ep );
-__STATIC_INLINE void USBD_AbortEp( USBD_Ep_TypeDef *ep );
+__STATIC_INLINE void USBD_ArmEp0(USBD_Ep_TypeDef *ep);
+__STATIC_INLINE void USBD_ArmEpN(USBD_Ep_TypeDef *ep);
+__STATIC_INLINE void USBD_AbortEp(USBD_Ep_TypeDef *ep);
 
-void USBD_SetUsbState( USBD_State_TypeDef newState );
+void USBD_SetUsbState(USBD_State_TypeDef newState);
 
-int  USBDCH9_SetupCmd( USBD_Device_TypeDef *device );
+int  USBDCH9_SetupCmd(USBD_Device_TypeDef *device);
 
-void USBDEP_Ep0Handler( USBD_Device_TypeDef *device );
-void USBDEP_EpHandler( uint8_t epAddr );
+void USBDEP_Ep0Handler(USBD_Device_TypeDef *device);
+void USBDEP_EpHandler(uint8_t epAddr);
 
-__STATIC_INLINE void USBD_ActivateAllEps( bool forceIdle )
+__STATIC_INLINE void USBD_ActivateAllEps(bool forceIdle)
 {
-  int i;
+    int i;
 
-  for ( i = 1; i <= NUM_EP_USED; i++ )
-  {
-    USBDHAL_ActivateEp( &dev->ep[ i ], forceIdle );
-  }
+    for (i = 1; i <= NUM_EP_USED; i++) {
+        USBDHAL_ActivateEp(&dev->ep[ i ], forceIdle);
+    }
 }
 
-__STATIC_INLINE void USBD_ArmEp( USBD_Ep_TypeDef *ep )
+__STATIC_INLINE void USBD_ArmEp(USBD_Ep_TypeDef *ep)
 {
-  if ( ep->num == 0 )
-  {
-    USBD_ArmEp0( ep );
-  }
-  else
-  {
-    USBD_ArmEpN( ep );
-  }
+    if (ep->num == 0) {
+        USBD_ArmEp0(ep);
+    } else {
+        USBD_ArmEpN(ep);
+    }
 }
 
-__STATIC_INLINE void USBD_ArmEp0( USBD_Ep_TypeDef *ep )
+__STATIC_INLINE void USBD_ArmEp0(USBD_Ep_TypeDef *ep)
 {
-  if ( ep->in )
-  {
-    if ( ep->remaining == 0 )       /* Zero Length Packet? */
-    {
-      ep->zlp = 1;
+    if (ep->in) {
+        if (ep->remaining == 0) {       /* Zero Length Packet? */
+            ep->zlp = 1;
+        }
+
+        USBDHAL_SetEp0InDmaPtr(ep->buf);
+        USBDHAL_StartEp0In(EFM32_MIN(ep->remaining, ep->packetSize),
+                           dev->ep0MpsCode);
+    } else {
+        USBDHAL_SetEp0OutDmaPtr(ep->buf);
+        USBDHAL_StartEp0Out(ep->packetSize, dev->ep0MpsCode);
+    }
+}
+
+__STATIC_INLINE void USBD_ArmEpN(USBD_Ep_TypeDef *ep)
+{
+    if (ep->in) {
+        USBDHAL_StartEpIn(ep);
+    } else {
+        USBDHAL_StartEpOut(ep);
+    }
+}
+
+__STATIC_INLINE void USBD_DeactivateAllEps(USB_Status_TypeDef reason)
+{
+    int i;
+    USBD_Ep_TypeDef *ep;
+
+    for (i = 1; i <= NUM_EP_USED; i++) {
+        ep = &dev->ep[ i ];
+
+        if (ep->state == D_EP_IDLE) {
+            USBDHAL_DeactivateEp(ep);
+        }
     }
 
-    USBDHAL_SetEp0InDmaPtr( ep->buf );
-    USBDHAL_StartEp0In( EFM32_MIN( ep->remaining, ep->packetSize ),
-                        dev->ep0MpsCode );
-  }
-  else
-  {
-    USBDHAL_SetEp0OutDmaPtr( ep->buf );
-    USBDHAL_StartEp0Out( ep->packetSize, dev->ep0MpsCode );
-  }
+    USBDHAL_AbortAllTransfers(reason);
 }
 
-__STATIC_INLINE void USBD_ArmEpN( USBD_Ep_TypeDef *ep )
+__STATIC_INLINE USBD_Ep_TypeDef *USBD_GetEpFromAddr(uint8_t epAddr)
 {
-  if ( ep->in )
-  {
-    USBDHAL_StartEpIn( ep );
-  }
-  else
-  {
-    USBDHAL_StartEpOut( ep );
-  }
-}
+    int epIndex;
+    USBD_Ep_TypeDef *ep = NULL;
 
-__STATIC_INLINE void USBD_DeactivateAllEps( USB_Status_TypeDef reason )
-{
-  int i;
-  USBD_Ep_TypeDef *ep;
-
-  for ( i = 1; i <= NUM_EP_USED; i++ )
-  {
-    ep = &dev->ep[ i ];
-
-    if ( ep->state == D_EP_IDLE )
-    {
-      USBDHAL_DeactivateEp( ep );
+    if (epAddr & USB_SETUP_DIR_MASK) {
+        epIndex = dev->inEpAddr2EpIndex[ epAddr & USB_EPNUM_MASK ];
+    } else {
+        epIndex = dev->outEpAddr2EpIndex[ epAddr & USB_EPNUM_MASK ];
     }
-  }
 
-  USBDHAL_AbortAllTransfers( reason );
+    if (epIndex) {
+        ep = &dev->ep[ epIndex ];
+    } else if ((epAddr & USB_EPNUM_MASK) == 0) {
+        ep = &dev->ep[ 0 ];
+    }
+
+    return ep;
 }
 
-__STATIC_INLINE USBD_Ep_TypeDef *USBD_GetEpFromAddr( uint8_t epAddr )
+__STATIC_INLINE void USBD_ReArmEp0(USBD_Ep_TypeDef *ep)
 {
-  int epIndex;
-  USBD_Ep_TypeDef *ep = NULL;
-
-  if ( epAddr & USB_SETUP_DIR_MASK )
-  {
-    epIndex = dev->inEpAddr2EpIndex[ epAddr & USB_EPNUM_MASK ];
-  }
-  else
-  {
-    epIndex = dev->outEpAddr2EpIndex[ epAddr & USB_EPNUM_MASK ];
-  }
-
-  if ( epIndex )
-  {
-    ep = &dev->ep[ epIndex ];
-  }
-  else if ( ( epAddr & USB_EPNUM_MASK ) == 0 )
-  {
-    ep = &dev->ep[ 0 ];
-  }
-
-  return ep;
+    if (ep->in) {
+        USBDHAL_StartEp0In(EFM32_MIN(ep->remaining, ep->packetSize),
+                           dev->ep0MpsCode);
+    } else {
+        USBDHAL_StartEp0Out(ep->packetSize, dev->ep0MpsCode);
+    }
 }
 
-__STATIC_INLINE void USBD_ReArmEp0( USBD_Ep_TypeDef *ep )
+__STATIC_INLINE void USBD_AbortEp(USBD_Ep_TypeDef *ep)
 {
-  if ( ep->in )
-  {
-    USBDHAL_StartEp0In( EFM32_MIN( ep->remaining, ep->packetSize ),
-                        dev->ep0MpsCode );
-  }
-  else
-  {
-    USBDHAL_StartEp0Out( ep->packetSize, dev->ep0MpsCode );
-  }
-}
+    if (ep->state == D_EP_IDLE) {
+        return;
+    }
 
-__STATIC_INLINE void USBD_AbortEp( USBD_Ep_TypeDef *ep )
-{
-  if ( ep->state == D_EP_IDLE )
-  {
-    return;
-  }
-
-  if ( ep->in )
-  {
-    USBDHAL_AbortEpIn( ep );
-  }
-  else
-  {
-    USBDHAL_AbortEpOut( ep );
-  }
+    if (ep->in) {
+        USBDHAL_AbortEpIn(ep);
+    } else {
+        USBDHAL_AbortEpOut(ep);
+    }
 }
 
 /** @endcond */

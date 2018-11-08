@@ -133,49 +133,49 @@ POSSIBILITY OF SUCH DAMAGE.
 /*========  L O C A L    F U N C    D E C L  ========*/
 
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
-static void dmaCallback                      (void *pCBParam, uint32_t Event, void *pArg);
+static void dmaCallback(void *pCBParam, uint32_t Event, void *pArg);
 #endif
 
 #ifdef ADI_DEBUG
 /* Validatation routines */
-static ADI_CRYPTO_RESULT ValidateHandle      (ADI_CRYPTO_HANDLE const hDevice);
-static ADI_CRYPTO_RESULT ValidateUserBuffer  (ADI_CRYPTO_TRANSACTION * const pBuffer);
+static ADI_CRYPTO_RESULT ValidateHandle(ADI_CRYPTO_HANDLE const hDevice);
+static ADI_CRYPTO_RESULT ValidateUserBuffer(ADI_CRYPTO_TRANSACTION *const pBuffer);
 #endif
 
 /* Generate a uint32_t value from a pointer to a uint8_t buffer */
-static uint32_t u32FromU8p                   (uint8_t * const pFourBytes);
+static uint32_t u32FromU8p(uint8_t *const pFourBytes);
 
 /* load KEY registers with provided key */
-static void loadAesKey                       (uint8_t * const pKey, ADI_CRYPTO_AES_KEY_LEN const keyLen);
+static void loadAesKey(uint8_t *const pKey, ADI_CRYPTO_AES_KEY_LEN const keyLen);
 
 /* Initialize the internal device handle object (user memory) */
-static void InitializeDevData                (ADI_CRYPTO_HANDLE const hDevice);
+static void InitializeDevData(ADI_CRYPTO_HANDLE const hDevice);
 
 /* Initiate the computation for a buffer */
-static void StartCompute                     (ADI_CRYPTO_HANDLE const hDevice);
+static void StartCompute(ADI_CRYPTO_HANDLE const hDevice);
 
 /* Stop the device */
-static void StopCompute                      (ADI_CRYPTO_HANDLE const hDevice);
+static void StopCompute(ADI_CRYPTO_HANDLE const hDevice);
 
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
-static void programDMA                       (ADI_CRYPTO_HANDLE const hDevice);
+static void programDMA(ADI_CRYPTO_HANDLE const hDevice);
 #endif
 
 /* PIO mode write input data */
-static void writePioInputData                (ADI_CRYPTO_HANDLE const hDevice, uint32_t const status);
+static void writePioInputData(ADI_CRYPTO_HANDLE const hDevice, uint32_t const status);
 
 /* PIO mode read output data */
-static void readPioOutputData                (ADI_CRYPTO_HANDLE const hDevice, uint32_t const status);
+static void readPioOutputData(ADI_CRYPTO_HANDLE const hDevice, uint32_t const status);
 
 /* Flush the input and output buffers */
-static void FlushInputOutputRegisters        (ADI_CRYPTO_HANDLE const hDevice);
+static void FlushInputOutputRegisters(ADI_CRYPTO_HANDLE const hDevice);
 
 
 /* pre-defined Crypto interrupt handler prototypes, as linked in IVT */
 void Crypto_Int_Handler(void);
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
-void DMA_AES0_IN_Int_Handler (void);
-void DMA_AES0_OUT_Int_Handler (void);
+void DMA_AES0_IN_Int_Handler(void);
+void DMA_AES0_OUT_Int_Handler(void);
 #endif
 
 
@@ -183,14 +183,15 @@ void DMA_AES0_OUT_Int_Handler (void);
 /* Internal device structure */
 
 static CRYPTO_INFO CryptoDevInfo[] = {
-    {pADI_CRYPT0,          /* physical device controller pointer */
-     NULL,                 /* hDevice */
+    {
+        pADI_CRYPT0,          /* physical device controller pointer */
+        NULL,                 /* hDevice */
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
-     DMA0_CH13_DONE_IRQn,  /* DMA input interrupt number */
-     DMA0_CH14_DONE_IRQn,  /* DMA output interrupt number */
-     AES0_IN_CHANn,        /* DMA input channel */
-     AES0_OUT_CHANn,       /* DMA output channel */
-     ADI_CRYPTO_SUCCESS,   /* DMA error state */
+        DMA0_CH13_DONE_IRQn,  /* DMA input interrupt number */
+        DMA0_CH14_DONE_IRQn,  /* DMA output interrupt number */
+        AES0_IN_CHANn,        /* DMA input channel */
+        AES0_OUT_CHANn,       /* DMA output channel */
+        ADI_CRYPTO_SUCCESS,   /* DMA error state */
 #endif
     }
 };
@@ -236,7 +237,7 @@ static void dmaCallback(void *pCBParam, uint32_t Event, void *pArg)
 
     /* call user's callback */
     if (0u != hDevice->pfCallback) {
-        hDevice->pfCallback (hDevice->pCBParam, (uint32_t)hDevice->dmaErrorCode, (void*)failingChannel);
+        hDevice->pfCallback(hDevice->pCBParam, (uint32_t)hDevice->dmaErrorCode, (void *)failingChannel);
     }
 
     /* game over... */
@@ -265,25 +266,24 @@ static ADI_CRYPTO_RESULT ValidateHandle(ADI_CRYPTO_HANDLE const hDevice)
 
 
 #ifdef ADI_DEBUG
-static ADI_CRYPTO_RESULT ValidateUserBuffer(ADI_CRYPTO_TRANSACTION * const pBuffer)
+static ADI_CRYPTO_RESULT ValidateUserBuffer(ADI_CRYPTO_TRANSACTION *const pBuffer)
 {
 
     /* null pointer and zero count checks */
     if (
-           (pBuffer->pInputData     == NULL)
+        (pBuffer->pInputData     == NULL)
         || (pBuffer->numInputBytes  == 0u)
         || (pBuffer->pOutputData    == NULL)
         || (pBuffer->numOutputBytes == 0u)
         || (
-               (pBuffer->eAesByteSwap != ADI_CRYPTO_AES_LITTLE_ENDIAN)
+            (pBuffer->eAesByteSwap != ADI_CRYPTO_AES_LITTLE_ENDIAN)
             && (pBuffer->eAesByteSwap != ADI_CRYPTO_AES_BIG_ENDIAN))
-            )
-    {
+    ) {
         return ADI_CRYPTO_ERR_BAD_BUFFER;
     }
 
     /* check buffer pointers for 32-bit alignment */
-    if ( (0u != (3u & (uint32_t)pBuffer->pAuthData)) || (0u != (3u & (uint32_t)pBuffer->pInputData)) || (0u != (3u & (uint32_t)pBuffer->pOutputData)) ) {
+    if ((0u != (3u & (uint32_t)pBuffer->pAuthData)) || (0u != (3u & (uint32_t)pBuffer->pInputData)) || (0u != (3u & (uint32_t)pBuffer->pOutputData))) {
         return ADI_CRYPTO_ERR_BAD_BUFFER;
     }
 
@@ -295,14 +295,12 @@ static ADI_CRYPTO_RESULT ValidateUserBuffer(ADI_CRYPTO_TRANSACTION * const pBuff
 #endif
 
 #if ADI_CRYPTO_ENABLE_SHA_SUPPORT == 1
-    if (pBuffer->eCipherMode == ADI_CRYPTO_MODE_SHA)
-    {
+    if (pBuffer->eCipherMode == ADI_CRYPTO_MODE_SHA) {
         /* SHA output digest is 256-bit and hence the output buffer size should be at least 32 bytes */
         if (pBuffer->numOutputBytes < SHA_OUTPUT_SIZE_IN_BYTES) {
             return ADI_CRYPTO_ERR_BAD_BUFFER;
         }
-    }
-    else
+    } else
 #endif
     {
 
@@ -312,23 +310,20 @@ static ADI_CRYPTO_RESULT ValidateUserBuffer(ADI_CRYPTO_TRANSACTION * const pBuff
             if (pBuffer->numOutputBytes < CRYPTO_INPUT_SIZE_IN_BYTES) {
                 return ADI_CRYPTO_ERR_BAD_BUFFER;
             }
-        }
-        else
+        } else
 #endif
         {
             if (
-                   (pBuffer->pKey == NULL)
-                || (   (pBuffer->eAesKeyLen  != ADI_CRYPTO_AES_KEY_LEN_128_BIT)
+                (pBuffer->pKey == NULL)
+                || ((pBuffer->eAesKeyLen  != ADI_CRYPTO_AES_KEY_LEN_128_BIT)
                     && (pBuffer->eAesKeyLen  != ADI_CRYPTO_AES_KEY_LEN_256_BIT))
-                || (   (pBuffer->eCodingMode != ADI_CRYPTO_ENCODE)
-                    && (pBuffer->eCodingMode != ADI_CRYPTO_DECODE)))
-            {
+                || ((pBuffer->eCodingMode != ADI_CRYPTO_ENCODE)
+                    && (pBuffer->eCodingMode != ADI_CRYPTO_DECODE))) {
                 return ADI_CRYPTO_ERR_BAD_CONFIG;
             }
 
 #if ADI_CRYPTO_ENABLE_CTR_SUPPORT == 1
-            if (pBuffer->eCipherMode == ADI_CRYPTO_MODE_CTR)
-            {
+            if (pBuffer->eCipherMode == ADI_CRYPTO_MODE_CTR) {
                 if ((pBuffer->CounterInit & (0xFFF00000u)) != 0u) {
                     return ADI_CRYPTO_ERR_BAD_BUFFER;
                 }
@@ -336,43 +331,38 @@ static ADI_CRYPTO_RESULT ValidateUserBuffer(ADI_CRYPTO_TRANSACTION * const pBuff
 #endif
 
 #if ADI_CRYPTO_ENABLE_CCM_SUPPORT == 1
-            if (pBuffer->eCipherMode == ADI_CRYPTO_MODE_CCM)
-            {
-                if ( ((pBuffer->CounterInit & (0xFFFF0000u)) != 0u)
-                    ||  (   (pBuffer->pAuthData != NULL)
-                                && (
-                                       (pBuffer->numAuthBytes == 0u)
-                                    || (pBuffer->numValidBytes == 0u)
-                                    || (pBuffer->numValidBytes > CRYPTO_INPUT_SIZE_IN_BYTES)
-                                    || (pBuffer->numOutputBytes < (pBuffer->numInputBytes + CRYPTO_INPUT_SIZE_IN_BYTES))
-                                    )
-                        )
-                 )
-                {
+            if (pBuffer->eCipherMode == ADI_CRYPTO_MODE_CCM) {
+                if (((pBuffer->CounterInit & (0xFFFF0000u)) != 0u)
+                        || ((pBuffer->pAuthData != NULL)
+                            && (
+                                (pBuffer->numAuthBytes == 0u)
+                                || (pBuffer->numValidBytes == 0u)
+                                || (pBuffer->numValidBytes > CRYPTO_INPUT_SIZE_IN_BYTES)
+                                || (pBuffer->numOutputBytes < (pBuffer->numInputBytes + CRYPTO_INPUT_SIZE_IN_BYTES))
+                            )
+                           )
+                   ) {
                     return ADI_CRYPTO_ERR_BAD_BUFFER;
                 }
-            }
-            else
+            } else
 #endif
             {
-                if (pBuffer->numOutputBytes < pBuffer->numInputBytes)
-                {
+                if (pBuffer->numOutputBytes < pBuffer->numInputBytes) {
                     return ADI_CRYPTO_ERR_BAD_BUFFER;
                 }
             }
         }
     }
 
-/* FIXME: Issue http://labrea.ad.analog.com/browse/MSKEW-299 describes missing support
-   for HMAC mode, so reject HMAC submits until support for this mode is implemented.
-   ***REMOVE THIS BLOCK WHEN HMAC SUPPORT IS ADDED***
-*/
+    /* FIXME: Issue http://labrea.ad.analog.com/browse/MSKEW-299 describes missing support
+       for HMAC mode, so reject HMAC submits until support for this mode is implemented.
+       ***REMOVE THIS BLOCK WHEN HMAC SUPPORT IS ADDED***
+    */
 #if defined (__ADUCM4x50__)
 #if ADI_CRYPTO_ENABLE_HMAC_SUPPORT == 1
-	if (pBuffer->eCipherMode == ADI_CRYPTO_MODE_HMAC)
-	{
-		return ADI_CRYPTO_ERR_BAD_BUFFER;
-	}
+    if (pBuffer->eCipherMode == ADI_CRYPTO_MODE_HMAC) {
+        return ADI_CRYPTO_ERR_BAD_BUFFER;
+    }
 #endif
 #endif /*ADUCM4x50__*/
 
@@ -401,7 +391,7 @@ static ADI_CRYPTO_RESULT ValidateUserBuffer(ADI_CRYPTO_TRANSACTION * const pBuff
  *
  * @sa adi_crypto_Close().
  */
-ADI_CRYPTO_RESULT adi_crypto_Open (uint32_t const nDeviceNum, void * const pMemory, uint32_t const nMemorySize, ADI_CRYPTO_HANDLE * const phDevice)
+ADI_CRYPTO_RESULT adi_crypto_Open(uint32_t const nDeviceNum, void *const pMemory, uint32_t const nMemorySize, ADI_CRYPTO_HANDLE *const phDevice)
 {
     ADI_CRYPTO_HANDLE hDevice = NULL;
 
@@ -423,8 +413,8 @@ ADI_CRYPTO_RESULT adi_crypto_Open (uint32_t const nDeviceNum, void * const pMemo
     }
 
     /* reality checks */
-    assert (ADI_CRYPTO_MEMORY_SIZE == sizeof(ADI_CRYPTO_DEV_DATA_TYPE));
-    assert (sizeof(ADI_CRYPTO_TRANSACTION) == sizeof(CRYPTO_COMPUTE));
+    assert(ADI_CRYPTO_MEMORY_SIZE == sizeof(ADI_CRYPTO_DEV_DATA_TYPE));
+    assert(sizeof(ADI_CRYPTO_TRANSACTION) == sizeof(CRYPTO_COMPUTE));
 
 #endif /* ADI_DEBUG */
 
@@ -454,13 +444,13 @@ ADI_CRYPTO_RESULT adi_crypto_Open (uint32_t const nDeviceNum, void * const pMemo
     adi_dma_Init();
 
     /* register DMA error callback for INPUT channel */
-    if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(hDevice->pDevInfo->dmaInputChanNum, dmaCallback, (void*)hDevice)) {
+    if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(hDevice->pDevInfo->dmaInputChanNum, dmaCallback, (void *)hDevice)) {
         /* uninitialize crypto driver and fail */
         adi_crypto_Close(hDevice);
         return  ADI_CRYPTO_ERR_DMA_REGISTER;
     }
     /* register DMA error callback for OUTPUT channel */
-    if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(hDevice->pDevInfo->dmaOutputChanNum, dmaCallback, (void*)hDevice)) {
+    if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(hDevice->pDevInfo->dmaOutputChanNum, dmaCallback, (void *)hDevice)) {
         /* uninitialize crypto driver and fail */
         adi_crypto_Close(hDevice);
         return  ADI_CRYPTO_ERR_DMA_REGISTER;
@@ -486,7 +476,7 @@ ADI_CRYPTO_RESULT adi_crypto_Open (uint32_t const nDeviceNum, void * const pMemo
  *
  * @sa adi_crypto_Open().
  */
-ADI_CRYPTO_RESULT adi_crypto_Close (ADI_CRYPTO_HANDLE const hDevice)
+ADI_CRYPTO_RESULT adi_crypto_Close(ADI_CRYPTO_HANDLE const hDevice)
 {
     uint32_t x;
     ADI_CRYPTO_RESULT result;
@@ -509,7 +499,7 @@ ADI_CRYPTO_RESULT adi_crypto_Close (ADI_CRYPTO_HANDLE const hDevice)
     SEM_DELETE(hDevice, ADI_CRYPTO_ERR_SEMAPHORE_FAILED);
 
     /* Close the device */
-    for (x=0u; x < NUM_DEVICES; x++) {
+    for (x = 0u; x < NUM_DEVICES; x++) {
         if (CryptoDevInfo[x].hDevice == hDevice) {
             CryptoDevInfo[x].hDevice = NULL;
             break;
@@ -538,7 +528,7 @@ ADI_CRYPTO_RESULT adi_crypto_Close (ADI_CRYPTO_HANDLE const hDevice)
  *           - #ADI_CRYPTO_SUCCESS                  Successfully registered the callback.
  *           - #ADI_CRYPTO_ERR_BAD_DEV_HANDLE   [D] Error: Handle Passed is invalid.
  */
- ADI_CRYPTO_RESULT adi_crypto_RegisterCallback (ADI_CRYPTO_HANDLE const hDevice, ADI_CALLBACK const pfCallback, void * const pCBParam)
+ADI_CRYPTO_RESULT adi_crypto_RegisterCallback(ADI_CRYPTO_HANDLE const hDevice, ADI_CALLBACK const pfCallback, void *const pCBParam)
 {
 #ifdef ADI_DEBUG
     ADI_CRYPTO_RESULT result;
@@ -551,8 +541,8 @@ ADI_CRYPTO_RESULT adi_crypto_Close (ADI_CRYPTO_HANDLE const hDevice)
     /* store user's callback values (critical section) */
     ADI_INT_STATUS_ALLOC();
     ADI_ENTER_CRITICAL_REGION();
-		hDevice->pfCallback = pfCallback;
-		hDevice->pCBParam = pCBParam;
+    hDevice->pfCallback = pfCallback;
+    hDevice->pCBParam = pCBParam;
     ADI_EXIT_CRITICAL_REGION();
 
     return ADI_CRYPTO_SUCCESS;
@@ -591,7 +581,7 @@ ADI_CRYPTO_RESULT adi_crypto_Close (ADI_CRYPTO_HANDLE const hDevice)
  * @sa adi_crypto_GetBuffer().
  * @sa adi_crypto_IsBufferAvailable().
  */
- ADI_CRYPTO_RESULT adi_crypto_SubmitBuffer (ADI_CRYPTO_HANDLE const hDevice, ADI_CRYPTO_TRANSACTION * const pBuffer)
+ADI_CRYPTO_RESULT adi_crypto_SubmitBuffer(ADI_CRYPTO_HANDLE const hDevice, ADI_CRYPTO_TRANSACTION *const pBuffer)
 {
     ADI_CRYPTO_RESULT result = ADI_CRYPTO_SUCCESS;
 
@@ -620,8 +610,8 @@ ADI_CRYPTO_RESULT adi_crypto_Close (ADI_CRYPTO_HANDLE const hDevice)
 
     /* don't initiate transaction until we get adi_crypto_Enable() */
 
-	/* reset dma error code */
-	hDevice->dmaErrorCode = ADI_CRYPTO_SUCCESS;
+    /* reset dma error code */
+    hDevice->dmaErrorCode = ADI_CRYPTO_SUCCESS;
 
     return result;
 }
@@ -649,7 +639,7 @@ ADI_CRYPTO_RESULT adi_crypto_Close (ADI_CRYPTO_HANDLE const hDevice)
  * @sa adi_crypto_SubmitBuffer().
  * @sa adi_crypto_IsBufferAvailable().
  */
-ADI_CRYPTO_RESULT adi_crypto_GetBuffer (ADI_CRYPTO_HANDLE const hDevice, ADI_CRYPTO_TRANSACTION ** const ppBuffer)
+ADI_CRYPTO_RESULT adi_crypto_GetBuffer(ADI_CRYPTO_HANDLE const hDevice, ADI_CRYPTO_TRANSACTION **const ppBuffer)
 {
     ADI_CRYPTO_RESULT result = ADI_CRYPTO_SUCCESS;
 
@@ -663,9 +653,9 @@ ADI_CRYPTO_RESULT adi_crypto_GetBuffer (ADI_CRYPTO_HANDLE const hDevice, ADI_CRY
     }
 #endif /* ADI_DEBUG */
 
-	if (NULL != hDevice->pfCallback) {
-		return ADI_CRYPTO_ERR_INVALID_STATE;
-	}
+    if (NULL != hDevice->pfCallback) {
+        return ADI_CRYPTO_ERR_INVALID_STATE;
+    }
 
     /* pend on completion (even if already complete) */
     SEM_PEND(hDevice, ADI_CRYPTO_ERR_SEMAPHORE_FAILED);
@@ -676,10 +666,10 @@ ADI_CRYPTO_RESULT adi_crypto_GetBuffer (ADI_CRYPTO_HANDLE const hDevice, ADI_CRY
     /* clear internal user buffer pointer */
     hDevice->pUserBuffer = NULL;
 
-	/* if we had a DMA error, return that instead of success */
-	if (ADI_CRYPTO_SUCCESS != hDevice->dmaErrorCode) {
-		result = hDevice->dmaErrorCode;
-	}
+    /* if we had a DMA error, return that instead of success */
+    if (ADI_CRYPTO_SUCCESS != hDevice->dmaErrorCode) {
+        result = hDevice->dmaErrorCode;
+    }
 
     return result;
 }
@@ -704,13 +694,12 @@ ADI_CRYPTO_RESULT adi_crypto_GetBuffer (ADI_CRYPTO_HANDLE const hDevice, ADI_CRY
  * @sa adi_crypto_SubmitBuffer().
  * @sa adi_crypto_GetBuffer().
  */
-ADI_CRYPTO_RESULT adi_crypto_IsBufferAvailable (ADI_CRYPTO_HANDLE const hDevice, bool * const pbAvailable)
+ADI_CRYPTO_RESULT adi_crypto_IsBufferAvailable(ADI_CRYPTO_HANDLE const hDevice, bool *const pbAvailable)
 {
     ADI_CRYPTO_RESULT result = ADI_CRYPTO_SUCCESS;
 
 #ifdef ADI_DEBUG
-    if (pbAvailable == NULL)
-    {
+    if (pbAvailable == NULL) {
         return ADI_CRYPTO_ERR_INVALID_PARAM;
     }
     if (ADI_CRYPTO_SUCCESS != (result = ValidateHandle(hDevice))) {
@@ -721,10 +710,10 @@ ADI_CRYPTO_RESULT adi_crypto_IsBufferAvailable (ADI_CRYPTO_HANDLE const hDevice,
     /* let the respective PIO/DMA interrupts drive completion... just return that state here */
     *pbAvailable = hDevice->bCompletion;
 
-	/* if we had a DMA error, return that instead of success */
-	if (ADI_CRYPTO_SUCCESS != hDevice->dmaErrorCode) {
-		result = hDevice->dmaErrorCode;
-	}
+    /* if we had a DMA error, return that instead of success */
+    if (ADI_CRYPTO_SUCCESS != hDevice->dmaErrorCode) {
+        result = hDevice->dmaErrorCode;
+    }
 
     return result;
 }
@@ -743,7 +732,7 @@ ADI_CRYPTO_RESULT adi_crypto_IsBufferAvailable (ADI_CRYPTO_HANDLE const hDevice,
  *                                                         disable when the device is already disabled.
  *
  */
-ADI_CRYPTO_RESULT adi_crypto_Enable (ADI_CRYPTO_HANDLE const hDevice, bool const bEnable)
+ADI_CRYPTO_RESULT adi_crypto_Enable(ADI_CRYPTO_HANDLE const hDevice, bool const bEnable)
 {
     ADI_CRYPTO_RESULT result = ADI_CRYPTO_SUCCESS;
 
@@ -794,8 +783,8 @@ ADI_CRYPTO_RESULT adi_crypto_Enable (ADI_CRYPTO_HANDLE const hDevice, bool const
 
         /* if we had a DMA error, return that instead of success */
         if (ADI_CRYPTO_SUCCESS != hDevice->dmaErrorCode) {
-			result = hDevice->dmaErrorCode;
-		}
+            result = hDevice->dmaErrorCode;
+        }
     }
 
     /* Return success */
@@ -824,7 +813,7 @@ ADI_CRYPTO_RESULT adi_crypto_Enable (ADI_CRYPTO_HANDLE const hDevice, bool const
  * to both enable DMA support and to activate the DMA mode in a fully static manner, without need of
  * calling adi_crypto_EnableDmaMode() at all (in which case, this function may be eliminated by the linker).
  */
-ADI_CRYPTO_RESULT adi_crypto_EnableDmaMode (ADI_CRYPTO_HANDLE const hDevice, bool const bEnable)
+ADI_CRYPTO_RESULT adi_crypto_EnableDmaMode(ADI_CRYPTO_HANDLE const hDevice, bool const bEnable)
 {
 #ifdef ADI_DEBUG
     ADI_CRYPTO_RESULT result;
@@ -837,17 +826,14 @@ ADI_CRYPTO_RESULT adi_crypto_EnableDmaMode (ADI_CRYPTO_HANDLE const hDevice, boo
     }
 #endif /* ADI_DEBUG */
 
-    if (bEnable)
-    {
+    if (bEnable) {
         /* Enable DMA and map data pump handler */
         hDevice->bDmaEnabled = true;
 
         /* Enable the DMA interrupts */
         NVIC_EnableIRQ(hDevice->pDevInfo->dmaInputIrqNum);
         NVIC_EnableIRQ(hDevice->pDevInfo->dmaOutputIrqNum);
-    }
-    else
-    {
+    } else {
         /* Disable DMA and map data pump handler */
         hDevice->bDmaEnabled = false;
 
@@ -869,61 +855,61 @@ ADI_CRYPTO_RESULT adi_crypto_EnableDmaMode (ADI_CRYPTO_HANDLE const hDevice, boo
 
 
 /* Convert from a (4-byte) byte pointer to a u32 */
-static uint32_t u32FromU8p(uint8_t * const pFourBytes)
+static uint32_t u32FromU8p(uint8_t *const pFourBytes)
 {
-    return ( (pFourBytes[3] << 24) | (pFourBytes[2] << 16) | (pFourBytes[1] << 8) | (pFourBytes[0]) );
+    return ((pFourBytes[3] << 24) | (pFourBytes[2] << 16) | (pFourBytes[1] << 8) | (pFourBytes[0]));
 }
 
 
 /* load KEY register set by length */
-static void loadAesKey(uint8_t * const pKey, ADI_CRYPTO_AES_KEY_LEN const keyLen)
+static void loadAesKey(uint8_t *const pKey, ADI_CRYPTO_AES_KEY_LEN const keyLen)
 {
-	uint32_t volatile *pKeyReg = pREG_CRYPT0_AESKEY0;
-	uint8_t *pUserKey = pKey;
-	uint32_t numKeyWords;
+    uint32_t volatile *pKeyReg = pREG_CRYPT0_AESKEY0;
+    uint8_t *pUserKey = pKey;
+    uint32_t numKeyWords;
 
-	/* set AES KEY length register */
-	CLR_BITS(*pREG_CRYPT0_CFG, BITM_CRYPT_CFG_AESKEYLEN);
-	SET_BITS(*pREG_CRYPT0_CFG, (uint32_t)keyLen);  /* pre-shifted */
+    /* set AES KEY length register */
+    CLR_BITS(*pREG_CRYPT0_CFG, BITM_CRYPT_CFG_AESKEYLEN);
+    SET_BITS(*pREG_CRYPT0_CFG, (uint32_t)keyLen);  /* pre-shifted */
 
-	/* Set the number of keywords to write to the 32-bit keyword registers */
-	switch (keyLen) {
-		case ADI_CRYPTO_AES_KEY_LEN_128_BIT:
-			numKeyWords = 4u;
-			break;
-		case ADI_CRYPTO_AES_KEY_LEN_256_BIT:
-			numKeyWords = 8u;
-			break;
-		default:
-			numKeyWords = 0u;  /* hardware only supports only 128-bit and 256-bit key length (no 192-bit) */
-			break;
-	}
+    /* Set the number of keywords to write to the 32-bit keyword registers */
+    switch (keyLen) {
+        case ADI_CRYPTO_AES_KEY_LEN_128_BIT:
+            numKeyWords = 4u;
+            break;
+        case ADI_CRYPTO_AES_KEY_LEN_256_BIT:
+            numKeyWords = 8u;
+            break;
+        default:
+            numKeyWords = 0u;  /* hardware only supports only 128-bit and 256-bit key length (no 192-bit) */
+            break;
+    }
 
-	/* load the key (key registers have write-no-read attribute) */
-	for (uint32_t count = 0u; count < numKeyWords; count++) {
-		*pKeyReg = u32FromU8p(pUserKey);
-		pKeyReg++;
-		pUserKey += sizeof(uint32_t);
+    /* load the key (key registers have write-no-read attribute) */
+    for (uint32_t count = 0u; count < numKeyWords; count++) {
+        *pKeyReg = u32FromU8p(pUserKey);
+        pKeyReg++;
+        pUserKey += sizeof(uint32_t);
     }
 }
 
 
 /* Initialize the device structure */
-static void InitializeDevData (ADI_CRYPTO_HANDLE const hDevice)
+static void InitializeDevData(ADI_CRYPTO_HANDLE const hDevice)
 {
     /* Clear the device structure */
     memset(hDevice, 0, sizeof(ADI_CRYPTO_HANDLE));
 
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
-    #if (ADI_CRYPTO_ENABLE_DMA == 1)
-        hDevice->bDmaEnabled = true;
-        NVIC_EnableIRQ(hDevice->pDevInfo->dmaInputIrqNum);
-        NVIC_EnableIRQ(hDevice->pDevInfo->dmaOutputIrqNum);
-    #else
-        hDevice->bDmaEnabled = false;
-        NVIC_DisableIRQ(hDevice->pDevInfo->dmaInputIrqNum);
-        NVIC_DisableIRQ(hDevice->pDevInfo->dmaOutputIrqNum);
-    #endif
+#if (ADI_CRYPTO_ENABLE_DMA == 1)
+    hDevice->bDmaEnabled = true;
+    NVIC_EnableIRQ(hDevice->pDevInfo->dmaInputIrqNum);
+    NVIC_EnableIRQ(hDevice->pDevInfo->dmaOutputIrqNum);
+#else
+    hDevice->bDmaEnabled = false;
+    NVIC_DisableIRQ(hDevice->pDevInfo->dmaInputIrqNum);
+    NVIC_DisableIRQ(hDevice->pDevInfo->dmaOutputIrqNum);
+#endif
 #else
     /* no DMA support */
     hDevice->bDmaEnabled = false;
@@ -938,7 +924,7 @@ static void StartCompute(ADI_CRYPTO_HANDLE const hDevice)
     hDevice->bCompletion = false;
 
     /* Get pointer to the compute buffer */
-    CRYPTO_COMPUTE* pCompute = &hDevice->Computation;
+    CRYPTO_COMPUTE *pCompute = &hDevice->Computation;
 
     /* Clear any pending interrupts (all are R/W1C) */
     hDevice->pDev->STAT = hDevice->pDev->STAT;
@@ -955,43 +941,41 @@ static void StartCompute(ADI_CRYPTO_HANDLE const hDevice)
 
     /* program main config register settings */
     SET_BITS(hDevice->pDev->CFG,
-            ( (uint32_t)pCompute->eCipherMode   /* cipher mode    */
+             ((uint32_t)pCompute->eCipherMode    /* cipher mode    */
 #if defined (__ADUCM4x50__)
-            | (uint32_t)pCompute->eKeyByteSwap  /* KEY endianness */
-            | (uint32_t)pCompute->eShaByteSwap  /* SHA endianness */
+              | (uint32_t)pCompute->eKeyByteSwap  /* KEY endianness */
+              | (uint32_t)pCompute->eShaByteSwap  /* SHA endianness */
 #endif /*ADUCM4x50*/
-            | (uint32_t)pCompute->eAesByteSwap  /* AES endianness */
-            | (uint32_t)pCompute->eAesKeyLen    /* AES key length */
-            | (uint32_t)pCompute->eCodingMode   /* encode mode    */
-            )
-        );
+              | (uint32_t)pCompute->eAesByteSwap  /* AES endianness */
+              | (uint32_t)pCompute->eAesKeyLen    /* AES key length */
+              | (uint32_t)pCompute->eCodingMode   /* encode mode    */
+             )
+            );
 
 #if (CRYPTO_SUPPORT_KEY_REQUIRED)
 
 #if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
 
-	/* if PKSTOR extensions enabled... check is actually in use. */
+    /* if PKSTOR extensions enabled... check is actually in use. */
 
-	/* load AES key indirectly from encrypted key in PKSTOR (no 512-bit keys allowed here) */
-	if ( (true == pCompute->bUsePKSTOR) && ((ADI_PK_KUW_LEN_128 == pCompute->pkKuwLen) || (ADI_PK_KUW_LEN_256 == pCompute->pkKuwLen)) )
-    {
-		/* retrieve and unwrap key from PKSTOR and "use" it (load it into AES register set) */
-        adi_crypto_pk_EnablePKSTOR    (hDevice, true);
-        adi_crypto_pk_SetKuwLen       (hDevice, pCompute->pkKuwLen);
-		adi_crypto_pk_LoadDeviceKey   (hDevice);
-		adi_crypto_pk_RetrieveKey     (hDevice, pCompute->pkIndex);
-		adi_crypto_pk_UnwrapKuwReg    (hDevice);
-		adi_crypto_pk_UseDecryptedKey (hDevice);
-        adi_crypto_pk_EnablePKSTOR    (hDevice, false);
-    }
-    else
+    /* load AES key indirectly from encrypted key in PKSTOR (no 512-bit keys allowed here) */
+    if ((true == pCompute->bUsePKSTOR) && ((ADI_PK_KUW_LEN_128 == pCompute->pkKuwLen) || (ADI_PK_KUW_LEN_256 == pCompute->pkKuwLen))) {
+        /* retrieve and unwrap key from PKSTOR and "use" it (load it into AES register set) */
+        adi_crypto_pk_EnablePKSTOR(hDevice, true);
+        adi_crypto_pk_SetKuwLen(hDevice, pCompute->pkKuwLen);
+        adi_crypto_pk_LoadDeviceKey(hDevice);
+        adi_crypto_pk_RetrieveKey(hDevice, pCompute->pkIndex);
+        adi_crypto_pk_UnwrapKuwReg(hDevice);
+        adi_crypto_pk_UseDecryptedKey(hDevice);
+        adi_crypto_pk_EnablePKSTOR(hDevice, false);
+    } else
 #endif /*ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT */
     {
-		/* load AES key directly from compute block... */
-		if (NULL != pCompute->pKey) {
+        /* load AES key directly from compute block... */
+        if (NULL != pCompute->pKey) {
             loadAesKey(pCompute->pKey, pCompute->eAesKeyLen);
-    	}
-	}  /* if PKSTOR / else */
+        }
+    }  /* if PKSTOR / else */
 
 #endif  /* (CRYPTO_SUPPORT_KEY_REQUIRED) */
 
@@ -1014,10 +998,9 @@ static void StartCompute(ADI_CRYPTO_HANDLE const hDevice)
 
 #if (ADI_CRYPTO_ENABLE_CBC_SUPPORT == 1) || (ADI_CRYPTO_ENABLE_CCM_SUPPORT == 1) || (ADI_CRYPTO_ENABLE_CTR_SUPPORT == 1)
 
-    if ( (ADI_CRYPTO_MODE_CBC == pCompute->eCipherMode) || (ADI_CRYPTO_MODE_CCM == pCompute->eCipherMode) || (ADI_CRYPTO_MODE_CTR == pCompute->eCipherMode) )
-    {
+    if ((ADI_CRYPTO_MODE_CBC == pCompute->eCipherMode) || (ADI_CRYPTO_MODE_CCM == pCompute->eCipherMode) || (ADI_CRYPTO_MODE_CTR == pCompute->eCipherMode)) {
         /* program NONCE/IV for CBC, CCM and CTR modes */
-        assert (NULL != pCompute->pNonceIV);
+        assert(NULL != pCompute->pNonceIV);
 
         /* Configure Counter Init and NONCE values */
         hDevice->pDev->CNTRINIT = pCompute->CounterInit;
@@ -1032,7 +1015,7 @@ static void StartCompute(ADI_CRYPTO_HANDLE const hDevice)
         if (ADI_CRYPTO_MODE_CBC == pCompute->eCipherMode) {
 
             /* additionally, CBC mode requires remaining IV data */
-            hDevice->pDev->NONCE3 |= ( ((uint32_t)pCompute->pNonceIV[14] << 16u) | ((uint32_t)pCompute->pNonceIV[15] << 24u) );
+            hDevice->pDev->NONCE3 |= (((uint32_t)pCompute->pNonceIV[14] << 16u) | ((uint32_t)pCompute->pNonceIV[15] << 24u));
         }
 #endif    /* (ADI_CRYPTO_ENABLE_CBC_SUPPORT == 1) */
     }
@@ -1041,9 +1024,8 @@ static void StartCompute(ADI_CRYPTO_HANDLE const hDevice)
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
 
     /* onle enable DMA for non-SHA mode or SHA mode with > 4 bytes of input... */
-    if ( ((true == hDevice->bDmaEnabled) && (ADI_CRYPTO_MODE_SHA != pCompute->eCipherMode))
-        || ((true == hDevice->bDmaEnabled) && (ADI_CRYPTO_MODE_SHA == pCompute->eCipherMode) && (4u < pCompute->numInputBytesRemaining)) )
-    {
+    if (((true == hDevice->bDmaEnabled) && (ADI_CRYPTO_MODE_SHA != pCompute->eCipherMode))
+            || ((true == hDevice->bDmaEnabled) && (ADI_CRYPTO_MODE_SHA == pCompute->eCipherMode) && (4u < pCompute->numInputBytesRemaining))) {
 
         /* DMA startup... */
         programDMA(hDevice);
@@ -1076,7 +1058,7 @@ static void StartCompute(ADI_CRYPTO_HANDLE const hDevice)
         /* mode-specific PIO interrupt enables */
         switch (pCompute->eCipherMode) {
 #if defined (__ADUCM4x50__)
-                case ADI_CRYPTO_MODE_HMAC:
+            case ADI_CRYPTO_MODE_HMAC:
                 /* HMAC done interrupts via PIO handler (do NOT use INRDY in HMAC mode) */
                 SET_BITS(hDevice->pDev->INTEN, (BITM_CRYPT_INTEN_HMACDONEEN | BITM_CRYPT_INTEN_OUTRDYEN | BITM_CRYPT_INTEN_INOVREN));
                 break;
@@ -1100,7 +1082,7 @@ static void StartCompute(ADI_CRYPTO_HANDLE const hDevice)
 
 
 /* halt computation */
-static void StopCompute (ADI_CRYPTO_HANDLE const hDevice)
+static void StopCompute(ADI_CRYPTO_HANDLE const hDevice)
 {
 
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
@@ -1125,8 +1107,8 @@ static void StopCompute (ADI_CRYPTO_HANDLE const hDevice)
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
 static void programDMA(ADI_CRYPTO_HANDLE const hDevice)
 {
-    CRYPTO_COMPUTE* pCompute = &hDevice->Computation;
-    ADI_DCC_TypeDef* pCCD;  /* pointer to DMA Control Data Descriptor */
+    CRYPTO_COMPUTE *pCompute = &hDevice->Computation;
+    ADI_DCC_TypeDef *pCCD;  /* pointer to DMA Control Data Descriptor */
     uint32_t channelBit;
     uint32_t num32BitWords;
 
@@ -1155,12 +1137,12 @@ static void programDMA(ADI_CRYPTO_HANDLE const hDevice)
         /* program DMA Control Data Config register */
         num32BitWords = pCompute->numAuthBytesRemaining / sizeof(uint32_t);
         pCCD->DMACDC =
-            ( ((uint32_t)ADI_DMA_INCR_NONE                << DMA_BITP_CTL_DST_INC)
-            | ((uint32_t)ADI_DMA_INCR_4_BYTE              << DMA_BITP_CTL_SRC_INC)
-            | ((uint32_t)ADI_DMA_WIDTH_4_BYTE             << DMA_BITP_CTL_SRC_SIZE)
-            | ((uint32_t)ADI_DMA_RPOWER_4                 << DMA_BITP_CTL_R_POWER)
-            | (uint32_t)((num32BitWords - 1u)             << DMA_BITP_CTL_N_MINUS_1)
-            | ((uint32_t)DMA_ENUM_CTL_CYCLE_CTL_PING_PONG << DMA_BITP_CTL_CYCLE_CTL) );
+            (((uint32_t)ADI_DMA_INCR_NONE                << DMA_BITP_CTL_DST_INC)
+             | ((uint32_t)ADI_DMA_INCR_4_BYTE              << DMA_BITP_CTL_SRC_INC)
+             | ((uint32_t)ADI_DMA_WIDTH_4_BYTE             << DMA_BITP_CTL_SRC_SIZE)
+             | ((uint32_t)ADI_DMA_RPOWER_4                 << DMA_BITP_CTL_R_POWER)
+             | (uint32_t)((num32BitWords - 1u)             << DMA_BITP_CTL_N_MINUS_1)
+             | ((uint32_t)DMA_ENUM_CTL_CYCLE_CTL_PING_PONG << DMA_BITP_CTL_CYCLE_CTL));
 
 
         /* schedule input data into alternate descriptor (in basic mode) */
@@ -1174,12 +1156,12 @@ static void programDMA(ADI_CRYPTO_HANDLE const hDevice)
         /* program DMA Control Data Config register */
         num32BitWords = pCompute->numInputBytesRemaining / sizeof(uint32_t);
         pCCD->DMACDC =
-            ( ((uint32_t)ADI_DMA_INCR_NONE                << DMA_BITP_CTL_DST_INC)
-            | ((uint32_t)ADI_DMA_INCR_4_BYTE              << DMA_BITP_CTL_SRC_INC)
-            | ((uint32_t)ADI_DMA_WIDTH_4_BYTE             << DMA_BITP_CTL_SRC_SIZE)
-            | ((uint32_t)ADI_DMA_RPOWER_4                 << DMA_BITP_CTL_R_POWER)
-            | (uint32_t)((num32BitWords - 1u)             << DMA_BITP_CTL_N_MINUS_1)
-            | ((uint32_t)DMA_ENUM_CTL_CYCLE_CTL_BASIC     << DMA_BITP_CTL_CYCLE_CTL) );
+            (((uint32_t)ADI_DMA_INCR_NONE                << DMA_BITP_CTL_DST_INC)
+             | ((uint32_t)ADI_DMA_INCR_4_BYTE              << DMA_BITP_CTL_SRC_INC)
+             | ((uint32_t)ADI_DMA_WIDTH_4_BYTE             << DMA_BITP_CTL_SRC_SIZE)
+             | ((uint32_t)ADI_DMA_RPOWER_4                 << DMA_BITP_CTL_R_POWER)
+             | (uint32_t)((num32BitWords - 1u)             << DMA_BITP_CTL_N_MINUS_1)
+             | ((uint32_t)DMA_ENUM_CTL_CYCLE_CTL_BASIC     << DMA_BITP_CTL_CYCLE_CTL));
 
     } else
 #endif  /* #if (ADI_CRYPTO_ENABLE_CBC_SUPPORT == 1) || (ADI_CRYPTO_ENABLE_CCM_SUPPORT == 1) || (ADI_CRYPTO_ENABLE_CTR_SUPPORT == 1) */
@@ -1198,12 +1180,11 @@ static void programDMA(ADI_CRYPTO_HANDLE const hDevice)
                can manually call PIO write function to handle SHA end flag and last write manually. */
             pCCD->DMASRCEND = (uint32_t)pCompute->pNextInput + sizeof(uint32_t) * (pCompute->numInputBytesRemaining  / FIFO_WIDTH_IN_BYTES - 2u);
             num32BitWords = (pCompute->numInputBytesRemaining - (pCompute->numInputBytesRemaining % sizeof(uint32_t))) / sizeof(uint32_t) - 1u;  /* count - 1 */
-        }
-        else
+        } else
 #endif
         {
             /* stop at last write end */
-            pCCD->DMASRCEND = (uint32_t)pCompute->pNextInput + sizeof(uint32_t) * ( pCompute->numInputBytesRemaining / FIFO_WIDTH_IN_BYTES - 1u);
+            pCCD->DMASRCEND = (uint32_t)pCompute->pNextInput + sizeof(uint32_t) * (pCompute->numInputBytesRemaining / FIFO_WIDTH_IN_BYTES - 1u);
             num32BitWords = pCompute->numInputBytesRemaining / sizeof(uint32_t); /* count */
         }
 
@@ -1211,15 +1192,15 @@ static void programDMA(ADI_CRYPTO_HANDLE const hDevice)
 
         /* program DMA Control Data Config register */
         pCCD->DMACDC =
-            ( ((uint32_t)ADI_DMA_INCR_NONE                << DMA_BITP_CTL_DST_INC)
-            | ((uint32_t)ADI_DMA_INCR_4_BYTE              << DMA_BITP_CTL_SRC_INC)
-            | ((uint32_t)ADI_DMA_WIDTH_4_BYTE             << DMA_BITP_CTL_SRC_SIZE)
-            | ((uint32_t)ADI_DMA_RPOWER_4                 << DMA_BITP_CTL_R_POWER)
-            | (uint32_t)((num32BitWords - 1u)             << DMA_BITP_CTL_N_MINUS_1)
-            | ((uint32_t)DMA_ENUM_CTL_CYCLE_CTL_BASIC     << DMA_BITP_CTL_CYCLE_CTL) );
+            (((uint32_t)ADI_DMA_INCR_NONE                << DMA_BITP_CTL_DST_INC)
+             | ((uint32_t)ADI_DMA_INCR_4_BYTE              << DMA_BITP_CTL_SRC_INC)
+             | ((uint32_t)ADI_DMA_WIDTH_4_BYTE             << DMA_BITP_CTL_SRC_SIZE)
+             | ((uint32_t)ADI_DMA_RPOWER_4                 << DMA_BITP_CTL_R_POWER)
+             | (uint32_t)((num32BitWords - 1u)             << DMA_BITP_CTL_N_MINUS_1)
+             | ((uint32_t)DMA_ENUM_CTL_CYCLE_CTL_BASIC     << DMA_BITP_CTL_CYCLE_CTL));
     }
 
-/* don't program output DMA in SHA mode... */
+    /* don't program output DMA in SHA mode... */
 #if CRYPTO_SUPPORT_MODE_ANY_NON_SHA
 
     if (ADI_CRYPTO_MODE_SHA != pCompute->eCipherMode) {
@@ -1244,12 +1225,12 @@ static void programDMA(ADI_CRYPTO_HANDLE const hDevice)
         /* program DMA Control Data Config register */
         num32BitWords = pCompute->numOutputBytesRemaining / sizeof(uint32_t);
         pCCD->DMACDC =
-            ( ((uint32_t)ADI_DMA_INCR_4_BYTE           << DMA_BITP_CTL_DST_INC)
-            | ((uint32_t)ADI_DMA_INCR_NONE             << DMA_BITP_CTL_SRC_INC)
-            | ((uint32_t)ADI_DMA_WIDTH_4_BYTE          << DMA_BITP_CTL_SRC_SIZE)
-            | ((uint32_t)ADI_DMA_RPOWER_4              << DMA_BITP_CTL_R_POWER)
-            | (uint32_t)((num32BitWords - 1u)          << DMA_BITP_CTL_N_MINUS_1)
-            | ((uint32_t)DMA_ENUM_CTL_CYCLE_CTL_BASIC  << DMA_BITP_CTL_CYCLE_CTL) );
+            (((uint32_t)ADI_DMA_INCR_4_BYTE           << DMA_BITP_CTL_DST_INC)
+             | ((uint32_t)ADI_DMA_INCR_NONE             << DMA_BITP_CTL_SRC_INC)
+             | ((uint32_t)ADI_DMA_WIDTH_4_BYTE          << DMA_BITP_CTL_SRC_SIZE)
+             | ((uint32_t)ADI_DMA_RPOWER_4              << DMA_BITP_CTL_R_POWER)
+             | (uint32_t)((num32BitWords - 1u)          << DMA_BITP_CTL_N_MINUS_1)
+             | ((uint32_t)DMA_ENUM_CTL_CYCLE_CTL_BASIC  << DMA_BITP_CTL_CYCLE_CTL));
 
     }  /* end non-SHA mode */
 
@@ -1260,7 +1241,7 @@ static void programDMA(ADI_CRYPTO_HANDLE const hDevice)
 
 static void writePioInputData(ADI_CRYPTO_HANDLE const hDevice, uint32_t const status)
 {
-    CRYPTO_COMPUTE* pCompute = &hDevice->Computation;
+    CRYPTO_COMPUTE *pCompute = &hDevice->Computation;
     uint32_t numWritable = FIFO_DEPTH - ((status & BITM_CRYPT_STAT_INWORDS) >> BITP_CRYPT_STAT_INWORDS);
 
 #if (ADI_CRYPTO_ENABLE_CBC_SUPPORT == 1) || (ADI_CRYPTO_ENABLE_CCM_SUPPORT == 1) || (ADI_CRYPTO_ENABLE_CTR_SUPPORT == 1)
@@ -1287,8 +1268,7 @@ static void writePioInputData(ADI_CRYPTO_HANDLE const hDevice, uint32_t const st
                hardware compute block.
             */
 
-            if (pCompute->numInputBytesRemaining >= SHA_CHUNK_MAX_BYTES)
-            {
+            if (pCompute->numInputBytesRemaining >= SHA_CHUNK_MAX_BYTES) {
                 /* This is the simple case, load up an entire chunk and let it go */
                 for (uint8_t i = 0u; i < SHA_CHUNK_MAX_WORDS; i++) {
                     hDevice->pDev->INBUF = *pCompute->pNextInput;
@@ -1297,9 +1277,7 @@ static void writePioInputData(ADI_CRYPTO_HANDLE const hDevice, uint32_t const st
 
                 pCompute->numShaBitsRemaining    -= SHA_CHUNK_MAX_BITS;
                 pCompute->numInputBytesRemaining -= SHA_CHUNK_MAX_BYTES;
-            }
-            else
-            {
+            } else {
                 /* The final case, we load up any bytes less than a full chunk and trigger the last word */
                 while (FIFO_WIDTH_IN_BITS <= pCompute->numShaBitsRemaining) {
                     hDevice->pDev->INBUF = *pCompute->pNextInput;
@@ -1348,35 +1326,33 @@ static void readPioOutputData(ADI_CRYPTO_HANDLE const hDevice, uint32_t const st
 
 #if  ADI_CRYPTO_ENABLE_SHA_SUPPORT == 1
     /* Copy the SHA output if enabled */
-    if (pCompute->eCipherMode == ADI_CRYPTO_MODE_SHA)
-    {
+    if (pCompute->eCipherMode == ADI_CRYPTO_MODE_SHA) {
         if (IS_ANY_BIT_SET(status, BITM_CRYPT_STAT_SHADONE)) {
 
-			/* Get 1 SHADONE per block + 1 SHADONE when we trigger the last word */
-			if (0u == pCompute->numOutputBytesRemaining) {
+            /* Get 1 SHADONE per block + 1 SHADONE when we trigger the last word */
+            if (0u == pCompute->numOutputBytesRemaining) {
 #if ADI_CRYPTO_SHA_OUTPUT_FORMAT == 0 /* Little Endian */
-				pCompute->pNextOutput[0] = hDevice->pDev->SHAH7;
-				pCompute->pNextOutput[1] = hDevice->pDev->SHAH6;
-				pCompute->pNextOutput[2] = hDevice->pDev->SHAH5;
-				pCompute->pNextOutput[3] = hDevice->pDev->SHAH4;
-				pCompute->pNextOutput[4] = hDevice->pDev->SHAH3;
-				pCompute->pNextOutput[5] = hDevice->pDev->SHAH2;
-				pCompute->pNextOutput[6] = hDevice->pDev->SHAH1;
-				pCompute->pNextOutput[7] = hDevice->pDev->SHAH0;
+                pCompute->pNextOutput[0] = hDevice->pDev->SHAH7;
+                pCompute->pNextOutput[1] = hDevice->pDev->SHAH6;
+                pCompute->pNextOutput[2] = hDevice->pDev->SHAH5;
+                pCompute->pNextOutput[3] = hDevice->pDev->SHAH4;
+                pCompute->pNextOutput[4] = hDevice->pDev->SHAH3;
+                pCompute->pNextOutput[5] = hDevice->pDev->SHAH2;
+                pCompute->pNextOutput[6] = hDevice->pDev->SHAH1;
+                pCompute->pNextOutput[7] = hDevice->pDev->SHAH0;
 #else
-				pCompute->pNextOutput[0] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH0);
-				pCompute->pNextOutput[1] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH1);
-				pCompute->pNextOutput[2] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH2);
-				pCompute->pNextOutput[3] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH3);
-				pCompute->pNextOutput[4] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH4);
-				pCompute->pNextOutput[5] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH5);
-				pCompute->pNextOutput[6] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH6);
-				pCompute->pNextOutput[7] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH7);
+                pCompute->pNextOutput[0] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH0);
+                pCompute->pNextOutput[1] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH1);
+                pCompute->pNextOutput[2] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH2);
+                pCompute->pNextOutput[3] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH3);
+                pCompute->pNextOutput[4] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH4);
+                pCompute->pNextOutput[5] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH5);
+                pCompute->pNextOutput[6] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH6);
+                pCompute->pNextOutput[7] = __ADI_BYTE_SWAP(hDevice->pDev->SHAH7);
 #endif
-			}
+            }
         }
-    }
-    else
+    } else
 #endif
     {
         /* read any ready non-SHA output from output FIFO */
@@ -1445,8 +1421,7 @@ void Crypto_Int_Handler(void)
     if (false == hDevice->bCompletion) {
 
         /* push more inputs, but not in SHA DMA mode (except for when it’s perfectly aligned block) */
-        if ((pCompute->eCipherMode != ADI_CRYPTO_MODE_SHA) || (hDevice->bDmaEnabled == false) || (pCompute->numInputBytesRemaining == 0u))
-        {
+        if ((pCompute->eCipherMode != ADI_CRYPTO_MODE_SHA) || (hDevice->bDmaEnabled == false) || (pCompute->numInputBytesRemaining == 0u)) {
             writePioInputData(hDevice, status);
         }
 
@@ -1464,34 +1439,50 @@ void Crypto_Int_Handler(void)
                 /* completion message depends on mode */
                 switch (hDevice->Computation.eCipherMode) {
 #if (ADI_CRYPTO_ENABLE_CBC_SUPPORT == 1)
-                    case ADI_CRYPTO_MODE_CBC:  event = ADI_CRYPTO_EVENT_STATUS_CBC_DONE;  break;
+                    case ADI_CRYPTO_MODE_CBC:
+                        event = ADI_CRYPTO_EVENT_STATUS_CBC_DONE;
+                        break;
 #endif
 #if (ADI_CRYPTO_ENABLE_CCM_SUPPORT == 1)
-                    case ADI_CRYPTO_MODE_CCM:  event = ADI_CRYPTO_EVENT_STATUS_CCM_DONE;  break;
+                    case ADI_CRYPTO_MODE_CCM:
+                        event = ADI_CRYPTO_EVENT_STATUS_CCM_DONE;
+                        break;
 #endif
 #if (ADI_CRYPTO_ENABLE_CMAC_SUPPORT == 1)
-                    case ADI_CRYPTO_MODE_CMAC: event = ADI_CRYPTO_EVENT_STATUS_CMAC_DONE; break;
+                    case ADI_CRYPTO_MODE_CMAC:
+                        event = ADI_CRYPTO_EVENT_STATUS_CMAC_DONE;
+                        break;
 #endif
 #if (ADI_CRYPTO_ENABLE_CTR_SUPPORT == 1)
-                    case ADI_CRYPTO_MODE_CTR:  event = ADI_CRYPTO_EVENT_STATUS_CTR_DONE;  break;
+                    case ADI_CRYPTO_MODE_CTR:
+                        event = ADI_CRYPTO_EVENT_STATUS_CTR_DONE;
+                        break;
 #endif
 #if (ADI_CRYPTO_ENABLE_ECB_SUPPORT == 1)
-					case ADI_CRYPTO_MODE_ECB:  event = ADI_CRYPTO_EVENT_STATUS_ECB_DONE;  break;
+                    case ADI_CRYPTO_MODE_ECB:
+                        event = ADI_CRYPTO_EVENT_STATUS_ECB_DONE;
+                        break;
 #endif
 #if defined (__ADUCM4x50__) /* HMAC support is provided only in ADuCM4x50*/
 #if (ADI_CRYPTO_ENABLE_HMAC_SUPPORT == 1)
-                    case ADI_CRYPTO_MODE_HMAC: event = ADI_CRYPTO_EVENT_STATUS_HMAC_DONE; break;
+                    case ADI_CRYPTO_MODE_HMAC:
+                        event = ADI_CRYPTO_EVENT_STATUS_HMAC_DONE;
+                        break;
 #endif
 #endif /*__ADUCM4x50__*/
 #if (ADI_CRYPTO_ENABLE_SHA_SUPPORT == 1)
-                    case ADI_CRYPTO_MODE_SHA:  event = ADI_CRYPTO_EVENT_STATUS_SHA_DONE;  break;
+                    case ADI_CRYPTO_MODE_SHA:
+                        event = ADI_CRYPTO_EVENT_STATUS_SHA_DONE;
+                        break;
 #endif
-                    default:                   event = ADI_CRYPTO_EVENT_STATUS_UNKNOWN;   break;
+                    default:
+                        event = ADI_CRYPTO_EVENT_STATUS_UNKNOWN;
+                        break;
                 }
             }
 
             /* call user's callback and give back buffer pointer */
-            hDevice->pfCallback(hDevice->pCBParam, event, (void*)hDevice->pUserBuffer);
+            hDevice->pfCallback(hDevice->pCBParam, event, (void *)hDevice->pUserBuffer);
 
             /* clear private copy of user buffer pointer */
             /* (this is done in GetBuffer in non-Callback mode) */
@@ -1511,7 +1502,7 @@ void Crypto_Int_Handler(void)
 
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
 /* native DMA input interrupt handler */
-void DMA_AES0_IN_Int_Handler (void)
+void DMA_AES0_IN_Int_Handler(void)
 {
     ISR_PROLOG();
 
@@ -1524,20 +1515,17 @@ void DMA_AES0_IN_Int_Handler (void)
         /* Update the compute structure to reflect the "post DMA" state of the transaction */
         uint32_t numTotalBytes            = pCompute->numInputBytesRemaining;
         uint32_t num32BitWords            = (numTotalBytes - (numTotalBytes % sizeof(uint32_t))) / sizeof(uint32_t) - 1u;
-        pCompute->numInputBytesRemaining -= num32BitWords*4u;
-        pCompute->numShaBitsRemaining    -= num32BitWords*32u;
+        pCompute->numInputBytesRemaining -= num32BitWords * 4u;
+        pCompute->numShaBitsRemaining    -= num32BitWords * 32u;
         pCompute->pNextInput             += num32BitWords;
 
-        if ((numTotalBytes % SHA_CHUNK_MAX_BYTES) == 0u)
-        {
+        if ((numTotalBytes % SHA_CHUNK_MAX_BYTES) == 0u) {
             /* For perfect block sizes, need to write the last word WITHOUT triggering SHA_LAST_WORD */
             hDevice->pDev->INBUF = *pCompute->pNextInput;
 
             pCompute->numInputBytesRemaining = 0u;
             pCompute->numShaBitsRemaining    = 0u;
-        }
-        else
-        {
+        } else {
             /* Go ahead and write the remaining word, and it’s okay to trigger SHA_LAST_WORD */
             writePioInputData(hDevice, hDevice->pDev->STAT);
         }
@@ -1553,7 +1541,7 @@ void DMA_AES0_IN_Int_Handler (void)
 
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
 /* native DMA output interrupt handler */
-void DMA_AES0_OUT_Int_Handler (void)
+void DMA_AES0_OUT_Int_Handler(void)
 {
     ISR_PROLOG();
     ADI_CRYPTO_HANDLE hDevice = CryptoDevInfo[0].hDevice;
@@ -1572,37 +1560,53 @@ void DMA_AES0_OUT_Int_Handler (void)
             /* completion message depends on mode */
             switch (hDevice->Computation.eCipherMode) {
 #if (ADI_CRYPTO_ENABLE_CBC_SUPPORT == 1)
-                case ADI_CRYPTO_MODE_CBC:  event = ADI_CRYPTO_EVENT_STATUS_CBC_DONE;  break;
+                case ADI_CRYPTO_MODE_CBC:
+                    event = ADI_CRYPTO_EVENT_STATUS_CBC_DONE;
+                    break;
 #endif
 #if (ADI_CRYPTO_ENABLE_CCM_SUPPORT == 1)
-                case ADI_CRYPTO_MODE_CCM:  event = ADI_CRYPTO_EVENT_STATUS_CCM_DONE;  break;
+                case ADI_CRYPTO_MODE_CCM:
+                    event = ADI_CRYPTO_EVENT_STATUS_CCM_DONE;
+                    break;
 #endif
 #if (ADI_CRYPTO_ENABLE_CMAC_SUPPORT == 1)
-                case ADI_CRYPTO_MODE_CMAC: event = ADI_CRYPTO_EVENT_STATUS_CMAC_DONE; break;
+                case ADI_CRYPTO_MODE_CMAC:
+                    event = ADI_CRYPTO_EVENT_STATUS_CMAC_DONE;
+                    break;
 #endif
 #if (ADI_CRYPTO_ENABLE_CTR_SUPPORT == 1)
-                case ADI_CRYPTO_MODE_CTR:  event = ADI_CRYPTO_EVENT_STATUS_CTR_DONE;  break;
+                case ADI_CRYPTO_MODE_CTR:
+                    event = ADI_CRYPTO_EVENT_STATUS_CTR_DONE;
+                    break;
 #endif
 #if (ADI_CRYPTO_ENABLE_ECB_SUPPORT == 1)
-                case ADI_CRYPTO_MODE_ECB:  event = ADI_CRYPTO_EVENT_STATUS_ECB_DONE;  break;
+                case ADI_CRYPTO_MODE_ECB:
+                    event = ADI_CRYPTO_EVENT_STATUS_ECB_DONE;
+                    break;
 #endif
 #if defined (__ADUCM4x50__)
 #if (ADI_CRYPTO_ENABLE_HMAC_SUPPORT == 1)
-                case ADI_CRYPTO_MODE_HMAC: event = ADI_CRYPTO_EVENT_STATUS_HMAC_DONE; break;
+                case ADI_CRYPTO_MODE_HMAC:
+                    event = ADI_CRYPTO_EVENT_STATUS_HMAC_DONE;
+                    break;
 #endif
 #endif /*__ADUCM4x50__*/
 #if (ADI_CRYPTO_ENABLE_SHA_SUPPORT == 1)
-                case ADI_CRYPTO_MODE_SHA:  event = ADI_CRYPTO_EVENT_STATUS_SHA_DONE;  break;
+                case ADI_CRYPTO_MODE_SHA:
+                    event = ADI_CRYPTO_EVENT_STATUS_SHA_DONE;
+                    break;
 #endif
-                default:                   event = ADI_CRYPTO_EVENT_STATUS_UNKNOWN;   break;
+                default:
+                    event = ADI_CRYPTO_EVENT_STATUS_UNKNOWN;
+                    break;
             }
         }
 
         /* call user's callback and give back buffer pointer */
-        hDevice->pfCallback(hDevice->pCBParam, event, (void*)hDevice->pUserBuffer);
+        hDevice->pfCallback(hDevice->pCBParam, event, (void *)hDevice->pUserBuffer);
 
         /* clear private copy of user buffer pointer */
-          /* this is done in GetBuffer in non-Callback mode */
+        /* this is done in GetBuffer in non-Callback mode */
         hDevice->pUserBuffer = NULL;
     }
 

@@ -55,8 +55,7 @@
 #endif /* FSL_FEATURE_I2C_HAS_START_STOP_DETECT / FSL_FEATURE_I2C_HAS_STOP_DETECT */
 
 /*! @brief  I2C status return codes. */
-enum _i2c_status
-{
+enum _i2c_status {
     kStatus_I2C_Busy = MAKE_STATUS(kStatusGroup_I2C, 0),            /*!< I2C is busy with current transfer. */
     kStatus_I2C_Idle = MAKE_STATUS(kStatusGroup_I2C, 1),            /*!< Bus is Idle. */
     kStatus_I2C_Nak = MAKE_STATUS(kStatusGroup_I2C, 2),             /*!< NAK received during transfer. */
@@ -76,8 +75,7 @@ enum _i2c_status
  * @note These enumerations are meant to be OR'd together to form a bit mask.
  *
  */
-enum _i2c_flags
-{
+enum _i2c_flags {
     kI2C_ReceiveNakFlag = I2C_S_RXAK_MASK,       /*!< I2C receive NAK flag. */
     kI2C_IntPendingFlag = I2C_S_IICIF_MASK,      /*!< I2C interrupt pending flag. */
     kI2C_TransferDirectionFlag = I2C_S_SRW_MASK, /*!< I2C transfer direction flag. */
@@ -96,8 +94,7 @@ enum _i2c_flags
 };
 
 /*! @brief I2C feature interrupt source. */
-enum _i2c_interrupt_enable
-{
+enum _i2c_interrupt_enable {
     kI2C_GlobalInterruptEnable = I2C_C1_IICIE_MASK, /*!< I2C global interrupt. */
 
 #if defined(FSL_FEATURE_I2C_HAS_STOP_DETECT) && FSL_FEATURE_I2C_HAS_STOP_DETECT
@@ -110,22 +107,19 @@ enum _i2c_interrupt_enable
 };
 
 /*! @brief Direction of master and slave transfers. */
-typedef enum _i2c_direction
-{
+typedef enum _i2c_direction {
     kI2C_Write = 0x0U, /*!< Master transmit to slave. */
     kI2C_Read = 0x1U,  /*!< Master receive from slave. */
 } i2c_direction_t;
 
 /*! @brief Addressing mode. */
-typedef enum _i2c_slave_address_mode
-{
+typedef enum _i2c_slave_address_mode {
     kI2C_Address7bit = 0x0U, /*!< 7-bit addressing mode. */
     kI2C_RangeMatch = 0X2U,  /*!< Range address match addressing mode. */
 } i2c_slave_address_mode_t;
 
 /*! @brief I2C transfer control flag. */
-enum _i2c_master_transfer_flags
-{
+enum _i2c_master_transfer_flags {
     kI2C_TransferDefaultFlag = 0x0U,       /*!< Transfer starts with a start signal, stops with a stop signal. */
     kI2C_TransferNoStartFlag = 0x1U,       /*!< Transfer starts without a start signal. */
     kI2C_TransferRepeatedStartFlag = 0x2U, /*!< Transfer starts with a repeated start signal. */
@@ -142,8 +136,7 @@ enum _i2c_master_transfer_flags
  *
  * @note These enumerations are meant to be OR'd together to form a bit mask of events.
  */
-typedef enum _i2c_slave_transfer_event
-{
+typedef enum _i2c_slave_transfer_event {
     kI2C_SlaveAddressMatchEvent = 0x01U, /*!< Received the slave address after a start or repeated start. */
     kI2C_SlaveTransmitEvent = 0x02U,     /*!< Callback is requested to provide data to transmit
                                                 (slave-transmitter role). */
@@ -164,8 +157,7 @@ typedef enum _i2c_slave_transfer_event
 } i2c_slave_transfer_event_t;
 
 /*! @brief I2C master user configuration. */
-typedef struct _i2c_master_config
-{
+typedef struct _i2c_master_config {
     bool enableMaster; /*!< Enables the I2C peripheral at initialization time. */
 #if defined(FSL_FEATURE_I2C_HAS_HIGH_DRIVE_SELECTION) && FSL_FEATURE_I2C_HAS_HIGH_DRIVE_SELECTION
     bool enableHighDrive; /*!< Controls the drive capability of the I2C pads. */
@@ -178,8 +170,7 @@ typedef struct _i2c_master_config
 } i2c_master_config_t;
 
 /*! @brief I2C slave user configuration. */
-typedef struct _i2c_slave_config
-{
+typedef struct _i2c_slave_config {
     bool enableSlave;       /*!< Enables the I2C peripheral at initialization time. */
     bool enableGeneralCall; /*!< Enable general call addressing mode. */
     bool enableWakeUp;      /*!< Enables/disables waking up MCU from low power mode. */
@@ -205,8 +196,7 @@ typedef void (*i2c_master_transfer_callback_t)(I2C_Type *base,
 typedef struct _i2c_slave_handle i2c_slave_handle_t;
 
 /*! @brief I2C master transfer structure. */
-typedef struct _i2c_master_transfer
-{
+typedef struct _i2c_master_transfer {
     uint32_t flags;            /*!< Transfer flag which controls the transfer. */
     uint8_t slaveAddress;      /*!< 7-bit slave address. */
     i2c_direction_t direction; /*!< Transfer direction, read or write. */
@@ -217,8 +207,7 @@ typedef struct _i2c_master_transfer
 } i2c_master_transfer_t;
 
 /*! @brief I2C master handle structure. */
-struct _i2c_master_handle
-{
+struct _i2c_master_handle {
     i2c_master_transfer_t transfer;                    /*!< I2C master transfer copy. */
     size_t transferSize;                               /*!< Total bytes to be transferred. */
     uint8_t state;                                     /*!< Transfer state maintained during transfer. */
@@ -227,8 +216,7 @@ struct _i2c_master_handle
 };
 
 /*! @brief I2C slave transfer structure. */
-typedef struct _i2c_slave_transfer
-{
+typedef struct _i2c_slave_transfer {
     i2c_slave_transfer_event_t event; /*!< Reason the callback is being invoked. */
     uint8_t *volatile data;           /*!< Transfer buffer. */
     volatile size_t dataSize;         /*!< Transfer size. */
@@ -241,8 +229,7 @@ typedef struct _i2c_slave_transfer
 typedef void (*i2c_slave_transfer_callback_t)(I2C_Type *base, i2c_slave_transfer_t *xfer, void *userData);
 
 /*! @brief I2C slave handle structure. */
-struct _i2c_slave_handle
-{
+struct _i2c_slave_handle {
     bool isBusy;                            /*!< Whether transfer is busy. */
     i2c_slave_transfer_t transfer;          /*!< I2C slave transfer copy. */
     uint32_t eventMask;                     /*!< Mask of enabled events. */
@@ -368,12 +355,9 @@ void I2C_SlaveGetDefaultConfig(i2c_slave_config_t *slaveConfig);
  */
 static inline void I2C_Enable(I2C_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->C1 |= I2C_C1_IICEN_MASK;
-    }
-    else
-    {
+    } else {
         base->C1 &= ~I2C_C1_IICEN_MASK;
     }
 }
@@ -419,18 +403,16 @@ static inline uint32_t I2C_SlaveGetStatusFlags(I2C_Type *base)
  */
 static inline void I2C_MasterClearStatusFlags(I2C_Type *base, uint32_t statusMask)
 {
-/* Must clear the STARTF / STOPF bits prior to clearing IICIF */
+    /* Must clear the STARTF / STOPF bits prior to clearing IICIF */
 #if defined(FSL_FEATURE_I2C_HAS_START_STOP_DETECT) && FSL_FEATURE_I2C_HAS_START_STOP_DETECT
-    if (statusMask & kI2C_StartDetectFlag)
-    {
+    if (statusMask & kI2C_StartDetectFlag) {
         /* Shift the odd-ball flags back into place. */
         base->FLT |= (uint8_t)(statusMask >> 8U);
     }
 #endif
 
 #ifdef I2C_HAS_STOP_DETECT
-    if (statusMask & kI2C_StopDetectFlag)
-    {
+    if (statusMask & kI2C_StopDetectFlag) {
         /* Shift the odd-ball flags back into place. */
         base->FLT |= (uint8_t)(statusMask >> 8U);
     }
@@ -501,12 +483,9 @@ void I2C_DisableInterrupts(I2C_Type *base, uint32_t mask);
 */
 static inline void I2C_EnableDMA(I2C_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->C1 |= I2C_C1_DMAEN_MASK;
-    }
-    else
-    {
+    } else {
         base->C1 &= ~I2C_C1_DMAEN_MASK;
     }
 }

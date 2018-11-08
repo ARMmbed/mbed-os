@@ -102,8 +102,8 @@ uint8_t thread_version = THREAD_PROTOCOL_VERSION;
 
 thread_leader_data_t *thread_leader_data_generate(void);
 thread_parent_info_t *thread_parent_data_allocate(thread_info_t *info);
-static uint8_t * thread_joining_port_tlv_write(uint16_t port, uint8_t *ptr);
-static uint8_t * thread_commissioner_port_tlv_write(uint16_t port, uint8_t *ptr);
+static uint8_t *thread_joining_port_tlv_write(uint16_t port, uint8_t *ptr);
+static uint8_t *thread_commissioner_port_tlv_write(uint16_t port, uint8_t *ptr);
 static void thread_tx_failure_handler(int8_t nwk_id, uint8_t accumulated_failures, mle_neigh_table_entry_t *neighbor);
 static void thread_address_notification_cb(struct protocol_interface_info_entry *interface, const struct if_address_entry *addr, if_address_callback_t reason);
 
@@ -177,7 +177,7 @@ uint8_t *thread_management_key_request_with_sequence(int8_t interface_id, uint8_
     }
     return keyPtr;
 }
-uint8_t * thread_mle_service_security_notify_cb(int8_t interface_id, mle_security_event_t event, uint8_t keyId)
+uint8_t *thread_mle_service_security_notify_cb(int8_t interface_id, mle_security_event_t event, uint8_t keyId)
 {
     protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (!interface) {
@@ -197,7 +197,7 @@ uint8_t * thread_mle_service_security_notify_cb(int8_t interface_id, mle_securit
             break;
 
         case MLE_SEC_UNKNOWN_KEY:
-            return thread_management_key_request(interface_id,keyId);
+            return thread_management_key_request(interface_id, keyId);
     }
     return NULL;
 }
@@ -238,13 +238,13 @@ int8_t thread_bootstrap_down(protocol_interface_info_entry_t *cur)
     // store frame counters
     if (cur->thread_info) {
         thread_nvm_fast_data_t fast_data;
-        memset(&fast_data,0,sizeof(thread_nvm_fast_data_t));
+        memset(&fast_data, 0, sizeof(thread_nvm_fast_data_t));
         link_configuration_s *linkConfiguration = thread_joiner_application_get_config(cur->id);
-        if(linkConfiguration) {
+        if (linkConfiguration) {
             fast_data.seq_counter = linkConfiguration->key_sequence;
         }
         mac_helper_link_frame_counter_read(cur->id, &fast_data.mac_frame_counter);
-        fast_data.mle_frame_counter=mle_service_security_get_frame_counter(cur->id);
+        fast_data.mle_frame_counter = mle_service_security_get_frame_counter(cur->id);
         thread_nvm_store_fast_data_store(&fast_data);
         mac_pairwise_key_flush_list(cur->id);
         thread_discovery_reset(cur->id);
@@ -395,7 +395,7 @@ thread_parent_info_t *thread_parent_data_allocate(thread_info_t *info)
 
     parent_data = info->thread_endnode_parent;
     if (parent_data) {
-        memset(parent_data,0,sizeof(thread_parent_info_t));
+        memset(parent_data, 0, sizeof(thread_parent_info_t));
     }
     return parent_data;
 }
@@ -465,12 +465,12 @@ int thread_info_allocate_and_init(protocol_interface_info_entry_t *cur)
 
         thread_routing_init(&cur->thread_info->routing);
         thread_network_local_server_data_base_init(&cur->thread_info->localServerDataBase);
-        memset(&cur->thread_info->registered_commissioner,0,sizeof(thread_commissioner_t));
+        memset(&cur->thread_info->registered_commissioner, 0, sizeof(thread_commissioner_t));
         thread_dynamic_reed_initialize(&cur->thread_info->routerSelectParameters);
         thread_extension_allocate(cur);
         ns_list_init(&cur->thread_info->childIdReqPending);
         ns_list_init(&cur->thread_info->child_mcast_list);
-        if (!thread_leader_data_get(cur->thread_info)){
+        if (!thread_leader_data_get(cur->thread_info)) {
             return -1;
         }
     } else {
@@ -780,9 +780,9 @@ int thread_init(protocol_interface_info_entry_t *cur)
     // set mle security - first allocate instance and then set security
     mle_service_security_instance_allocate(cur->id);
     if (mle_service_security_init(cur->id, 5,
-            0,
-            thread_management_key_request_with_sequence,
-            thread_mle_service_security_notify_cb) != 0) {
+                                  0,
+                                  thread_management_key_request_with_sequence,
+                                  thread_mle_service_security_notify_cb) != 0) {
         tr_error("Mle Service security init Fail");
         return -1;
     }
@@ -797,7 +797,7 @@ int thread_init(protocol_interface_info_entry_t *cur)
 
     thread_leader_service_leader_data_free(cur->thread_info);
     thread_data_base_init(cur->thread_info, cur->id);
-    mac_helper_pib_boolean_set(cur,macThreadForceLongAddressForBeacon , true);
+    mac_helper_pib_boolean_set(cur, macThreadForceLongAddressForBeacon, true);
     mac_helper_mac16_address_set(cur, 0xffff);
     mle_class_mode_set(cur->id, MLE_CLASS_END_DEVICE);
     return 0;
@@ -823,7 +823,7 @@ int thread_attach_ready(protocol_interface_info_entry_t *cur)
 
 bool thread_attach_active_router(protocol_interface_info_entry_t *cur)
 {
-    if(cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER) {
+    if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER) {
         return true;
     }
 
@@ -959,13 +959,13 @@ void thread_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t ticks)
 
     if (thread_joiner_application_next_pending_config_exists(cur->id)) {
         thread_management_get_leader_address(cur->id, leader_address);
-        thread_management_client_pending_set(cur->id, leader_address );
+        thread_management_client_pending_set(cur->id, leader_address);
         thread_joiner_application_next_pending_config_delete(cur->id);
     }
 
     // Check if we need to make application provisioning
     if (PROVISIONING_STATUS_NOT_DONE == thread_joiner_application_provisioning_get(cur->id) &&
-        thread_management_get_commissioner_address(cur->id, commissioner_address, &commissioner_port) == 0) {
+            thread_management_get_commissioner_address(cur->id, commissioner_address, &commissioner_port) == 0) {
         // Provisioning not done and commissioner is present
         thread_management_client_provision_request(cur->id,  commissioner_address, commissioner_port);
     }
@@ -973,7 +973,7 @@ void thread_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t ticks)
 
     // add more checks here when to become router
     // If we are doing attach to new partition, do not upgrade
-    if(cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
+    if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
         return;
     }
 
@@ -998,14 +998,14 @@ void thread_network_data_request_send(protocol_interface_info_entry_t *cur, uint
 
     tr_debug("Send MLE network data request");
 
-    if(cur->thread_info->networkDataRequested){
+    if (cur->thread_info->networkDataRequested) {
         tr_debug("Pending data request found");
         return;
     }
 
     cur->thread_info->networkDataRequested = true;
 
-    thread_tlv_request(thread_info->interface_id, requestDstAddress,delaydTrig, &req_tlv, 1);
+    thread_tlv_request(thread_info->interface_id, requestDstAddress, delaydTrig, &req_tlv, 1);
 }
 
 void thread_timer(protocol_interface_info_entry_t *cur, uint8_t ticks)
@@ -1049,7 +1049,7 @@ int8_t thread_beacon_create_payload(struct protocol_interface_info_entry *cur)
         return -1;
     }
 
-    if(!(leader_link_setup->securityPolicy & SECURITY_POLICY_BEACON_PAYLOAD_ENABLED)){
+    if (!(leader_link_setup->securityPolicy & SECURITY_POLICY_BEACON_PAYLOAD_ENABLED)) {
         mac_helper_beacon_payload_reallocate(cur, 0);
         return mac_helper_beacon_payload_register(cur);
     }
@@ -1066,7 +1066,7 @@ int8_t thread_beacon_create_payload(struct protocol_interface_info_entry *cur)
     if (server_data.joiner_router_enabled) {
         payload_len +=  4/*Joiner UDP port*/;
     }
-    if((leader_link_setup->securityPolicy & SECURITY_POLICY_NATIVE_COMMISSIONING_ALLOWED)){
+    if ((leader_link_setup->securityPolicy & SECURITY_POLICY_NATIVE_COMMISSIONING_ALLOWED)) {
         payload_len +=  4/*Commissioner UDP port*/;
     }
 
@@ -1081,7 +1081,7 @@ int8_t thread_beacon_create_payload(struct protocol_interface_info_entry *cur)
     if (cur->thread_info->registered_commissioner.commissioner_valid && cur->thread_info->registered_commissioner.steering_data_len > 0) {
         *ptr |= THREAD_BEACON_JOINING_PERMITTED_BIT;    // permit join bit set on
     }
-    if((leader_link_setup->securityPolicy & SECURITY_POLICY_NATIVE_COMMISSIONING_ALLOWED)){
+    if ((leader_link_setup->securityPolicy & SECURITY_POLICY_NATIVE_COMMISSIONING_ALLOWED)) {
         *ptr |= THREAD_BEACON_NATIVE_COMMISSIONER_BIT;
     }
     ptr++;
@@ -1094,13 +1094,13 @@ int8_t thread_beacon_create_payload(struct protocol_interface_info_entry *cur)
         /* MESHCOP_TLV_JOINER_UDP_PORT */
         ptr = thread_joining_port_tlv_write(server_data.joiner_router_port, ptr);
     }
-    if((leader_link_setup->securityPolicy & SECURITY_POLICY_NATIVE_COMMISSIONING_ALLOWED)){
+    if ((leader_link_setup->securityPolicy & SECURITY_POLICY_NATIVE_COMMISSIONING_ALLOWED)) {
         /* MESHCOP_TLV_COMMISSIONER_UDP_PORT */
         ptr = thread_commissioner_port_tlv_write(server_data.commissioner_port, ptr);
     }
 
 
-    if (cur->thread_info->registered_commissioner.commissioner_valid && cur->thread_info->registered_commissioner.steering_data_len > 0){
+    if (cur->thread_info->registered_commissioner.commissioner_valid && cur->thread_info->registered_commissioner.steering_data_len > 0) {
         ptr = thread_nd_commission_data_write_steering_data(ptr, cur->thread_info->registered_commissioner.steering_data, cur->thread_info->registered_commissioner.steering_data_len);
     }
 
@@ -1168,7 +1168,8 @@ uint8_t *thread_route_option_write(protocol_interface_info_entry_t *cur, uint8_t
                                       ptr, /* ptr to ID sequence (1 byte) */
                                       ptr + 1, /* ptr to ID mask (MLE_ROUTE_ID_MASK_SIZE bytes) */
                                       ptr + MLE_ROUTE_MIN_OPTION_LEN, /* ptr to router table data */
-                                      len_ptr) != 0) /* ptr to length */ { /* 0 -> SUCCESS */
+                                      len_ptr) != 0) { /* ptr to length */
+        /* 0 -> SUCCESS */
         /* Point to beginning of buffer again */
         ptr = saved_ptr;
     } else {
@@ -1189,11 +1190,11 @@ uint8_t *thread_connectivity_tlv_write(uint8_t *ptr, protocol_interface_info_ent
     *ptr++ = 10;
 
     // determine parent priority
-    if ((mode & MLE_DEV_MASK) == MLE_RFD_DEV && (3*mle_class_rfd_entry_count_get(cur->id) > 2*THREAD_MAX_MTD_CHILDREN)) {
+    if ((mode & MLE_DEV_MASK) == MLE_RFD_DEV && (3 * mle_class_rfd_entry_count_get(cur->id) > 2 * THREAD_MAX_MTD_CHILDREN)) {
         *ptr++ = CONNECTIVITY_PP_LOW;
-    } else if (!(mode & MLE_RX_ON_IDLE) && (3*mle_class_sleepy_entry_count_get(cur->id) > 2*THREAD_MAX_SED_CHILDREN)) {
+    } else if (!(mode & MLE_RX_ON_IDLE) && (3 * mle_class_sleepy_entry_count_get(cur->id) > 2 * THREAD_MAX_SED_CHILDREN)) {
         *ptr++ = CONNECTIVITY_PP_LOW;
-    } else if (3*thread_router_bootstrap_child_count_get(cur) > 2*thread->maxChildCount) {
+    } else if (3 * thread_router_bootstrap_child_count_get(cur) > 2 * thread->maxChildCount) {
         // 1/3 of the child capacity remaining, PP=low
         *ptr++ = CONNECTIVITY_PP_LOW;
     } else if (mle_class_free_entry_count_get(cur->id) < THREAD_FREE_MLE_ENTRY_THRESHOLD) {
@@ -1206,7 +1207,7 @@ uint8_t *thread_connectivity_tlv_write(uint8_t *ptr, protocol_interface_info_ent
     ptr = thread_linkquality_write(cur->id, ptr);
 
     // Route Cost To leader
-    if (thread->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER){
+    if (thread->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER) {
         // Leader cost
         *ptr++ = thread_routing_cost_get_by_router_id(&thread->routing, thread->thread_leader_data->leaderRouterId);
         //Router ID sequence
@@ -1226,7 +1227,7 @@ uint8_t *thread_connectivity_tlv_write(uint8_t *ptr, protocol_interface_info_ent
     uint8_t activeRouters = 0;
     if (cur->thread_info->leader_private_data) {
         activeRouters = thread_routing_count_active_routers_from_mask(cur->thread_info->leader_private_data->master_router_id_mask);
-    } else if (thread->thread_device_mode == THREAD_DEVICE_MODE_ROUTER ) {
+    } else if (thread->thread_device_mode == THREAD_DEVICE_MODE_ROUTER) {
         activeRouters = thread_routing_count_active_routers(&thread->routing);
     }
     *ptr++ = activeRouters;
@@ -1292,7 +1293,7 @@ uint16_t thread_network_data_generate_stable_set(protocol_interface_info_entry_t
                 uint8_t *length_ptr = NULL;
                 length -= 2;
 
-                uint8_t prefix_bytes_len = prefixBits_to_bytes(*(dptr+1));
+                uint8_t prefix_bytes_len = prefixBits_to_bytes(*(dptr + 1));
 
                 if (prefix_bytes_len > length) {
                     return 0;
@@ -1392,7 +1393,7 @@ uint16_t thread_network_data_generate_stable_set(protocol_interface_info_entry_t
                 }
 
             } else if (type == THREAD_NWK_DATA_TYPE_SERVICE_DATA) {
-                uint8_t * length_ptr = NULL;
+                uint8_t *length_ptr = NULL;
                 uint16_t total_tlv_length = 0;
                 uint16_t copy_length = 1;
                 uint8_t T = (*dptr) >> 7;
@@ -1405,7 +1406,7 @@ uint16_t thread_network_data_generate_stable_set(protocol_interface_info_entry_t
                     length -= 4;
                 }
 
-                uint16_t service_data_length = *(dptr+copy_length);
+                uint16_t service_data_length = *(dptr + copy_length);
 
                 if (result_ptr) {
                     *result_ptr++ = type | THREAD_NWK_STABLE_DATA;
@@ -1554,7 +1555,7 @@ bool thread_active_operational_dataset_process(protocol_interface_info_entry_t *
     uint64_t timestamp;
     link_configuration_s *link_configuration;
 
-    if(!cur || !cur->thread_info || !ptr || !len){
+    if (!cur || !cur->thread_info || !ptr || !len) {
         return false;
     }
     link_configuration = thread_joiner_application_get_config(cur->id);
@@ -1575,15 +1576,15 @@ bool thread_active_operational_dataset_process(protocol_interface_info_entry_t *
     tr_debug("Update Active dataset");
     // New active operational dataset received;
     thread_joiner_application_update_configuration(cur->id, ptr, len, false);
-    thread_joiner_application_active_timestamp_set(cur->id,dataset_timestamp);
-    thread_configuration_thread_activate(cur,link_configuration);
+    thread_joiner_application_active_timestamp_set(cur->id, dataset_timestamp);
+    thread_configuration_thread_activate(cur, link_configuration);
     thread_joiner_application_configuration_nvm_save(cur->id);
     return true;
 }
 
 uint8_t thread_pending_timestamp_tlv_size(protocol_interface_info_entry_t *cur)
 {
-    if (!thread_joiner_application_pending_config_timestamp_get(cur->id) ) {
+    if (!thread_joiner_application_pending_config_timestamp_get(cur->id)) {
         return 0;
     }
     return 2 + 8;
@@ -1594,7 +1595,7 @@ uint8_t *thread_pending_timestamp_write(protocol_interface_info_entry_t *cur, ui
     uint64_t pending_timestamp;
 
     pending_timestamp = thread_joiner_application_pending_config_timestamp_get(cur->id);
-    if (!pending_timestamp ) {
+    if (!pending_timestamp) {
         return ptr;
     }
     *ptr++ = MLE_TYPE_PENDING_TIMESTAMP;
@@ -1634,34 +1635,34 @@ bool thread_pending_operational_dataset_process(protocol_interface_info_entry_t 
 {
     uint32_t delay_timer;
 
-    if(!cur || !cur->thread_info ){
+    if (!cur || !cur->thread_info) {
         return false;
     }
     tr_debug("process pending dataset");
-    if( !ptr || !len){
+    if (!ptr || !len) {
         // No pending set received
         return false;
     }
 
-    if (4 > thread_meshcop_tlv_data_get_uint32(ptr, len,MESHCOP_TLV_DELAY_TIMER, &delay_timer)){
+    if (4 > thread_meshcop_tlv_data_get_uint32(ptr, len, MESHCOP_TLV_DELAY_TIMER, &delay_timer)) {
         tr_warn("Delay timer not present");
         return false;
     }
 
-    if (mle_pending_timestamp < thread_joiner_application_pending_config_timestamp_get(cur->id) ) {
+    if (mle_pending_timestamp < thread_joiner_application_pending_config_timestamp_get(cur->id)) {
         // Saving this config for later use first we get the current active
         tr_debug("save pending set for future");
         thread_joiner_application_next_pending_config_save(cur->id);
     }
 
-    if( 0 != thread_joiner_application_pending_config_create(cur->id, ptr, len)){
+    if (0 != thread_joiner_application_pending_config_create(cur->id, ptr, len)) {
         tr_error("pending set creation failed");
         return false;
     }
 
     tr_debug("updating pending dataset");
-    thread_joiner_application_pending_config_timestamp_set(cur->id,mle_pending_timestamp);
-    thread_joiner_application_pending_config_enable(cur->id,delay_timer);
+    thread_joiner_application_pending_config_timestamp_set(cur->id, mle_pending_timestamp);
+    thread_joiner_application_pending_config_enable(cur->id, delay_timer);
     return true;
 }
 
@@ -1695,7 +1696,7 @@ uint8_t *thread_address_registration_tlv_write(uint8_t *ptr, protocol_interface_
     uint8_t *address_len_ptr;
 
     if (thread_info(cur)->thread_device_mode != THREAD_DEVICE_MODE_SLEEPY_END_DEVICE &&
-        thread_info(cur)->thread_device_mode != THREAD_DEVICE_MODE_END_DEVICE) {
+            thread_info(cur)->thread_device_mode != THREAD_DEVICE_MODE_END_DEVICE) {
         // No address registration for others than MED or SED
         return ptr;
     }
@@ -1707,7 +1708,7 @@ uint8_t *thread_address_registration_tlv_write(uint8_t *ptr, protocol_interface_
     // Register all global addressess
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
 
-        if (*address_len_ptr > 148 ) {
+        if (*address_len_ptr > 148) {
             // Maximum length of address registrations
             continue;
         }
@@ -1732,8 +1733,7 @@ uint8_t *thread_address_registration_tlv_write(uint8_t *ptr, protocol_interface_
     /* Registers multicast addresses to the parent */
     thread_bootstrap_all_nodes_address_generate(thread_realm_local_mcast_addr, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, 3);
 
-    ns_list_foreach(if_group_entry_t, entry, &cur->ip_groups)
-    {
+    ns_list_foreach(if_group_entry_t, entry, &cur->ip_groups) {
         if (*address_len_ptr > 148) {
             // Maximum length of address registrations
             continue;
@@ -1797,7 +1797,7 @@ int thread_link_reject_send(protocol_interface_info_entry_t *interface, const ui
     *ptr++ = 1;
     *ptr++ = MLE_STATUS_ERROR;
 
-    if (mle_service_update_length_by_ptr(buf_id,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(buf_id, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
 
@@ -1812,14 +1812,14 @@ int thread_link_reject_send(protocol_interface_info_entry_t *interface, const ui
 
 }
 
-static uint8_t * thread_joining_port_tlv_write(uint16_t port, uint8_t *ptr)
+static uint8_t *thread_joining_port_tlv_write(uint16_t port, uint8_t *ptr)
 {
     *ptr++ = MESHCOP_TLV_JOINER_UDP_PORT;
     *ptr++ = 2;
     return common_write_16_bit(port, ptr);
 }
 
-static uint8_t * thread_commissioner_port_tlv_write(uint16_t port, uint8_t *ptr)
+static uint8_t *thread_commissioner_port_tlv_write(uint16_t port, uint8_t *ptr)
 {
     *ptr++ = MESHCOP_TLV_COMMISSIONER_UDP_PORT;
     *ptr++ = 2;
@@ -1837,47 +1837,50 @@ static void thread_tx_failure_handler(int8_t nwk_id, uint8_t accumulated_failure
     }
 
     if (thread_i_am_router(cur)) {
-       if (thread_addr_is_child(mac_helper_mac16_address_get(cur), neighbor->short_adr)) {
-           if (accumulated_failures < THREAD_MAC_TRANSMISSIONS*THREAD_FAILED_CHILD_TRANSMISSIONS) {
-               return;
-           }
+        if (thread_addr_is_child(mac_helper_mac16_address_get(cur), neighbor->short_adr)) {
+            if (accumulated_failures < THREAD_MAC_TRANSMISSIONS * THREAD_FAILED_CHILD_TRANSMISSIONS) {
+                return;
+            }
 
-           tr_debug("Free the Child node, mac16=%d", neighbor->short_adr);
-           thread_bootstrap_reset_child_info(cur, neighbor);
+            tr_debug("Free the Child node, mac16=%d", neighbor->short_adr);
+            thread_bootstrap_reset_child_info(cur, neighbor);
 
-           protocol_6lowpan_release_short_link_address_from_neighcache(cur, neighbor->short_adr);
-           protocol_6lowpan_release_long_link_address_from_neighcache(cur, neighbor->mac64);
-           mac_helper_devicetable_remove(cur->mac_api, neighbor->attribute_index);
-       } else if (thread_is_router_addr(neighbor->short_adr)) {
-           if (accumulated_failures < THREAD_MAC_TRANSMISSIONS*THREAD_FAILED_ROUTER_TRANSMISSIONS) {
-               return;
-           }
+            protocol_6lowpan_release_short_link_address_from_neighcache(cur, neighbor->short_adr);
+            protocol_6lowpan_release_long_link_address_from_neighcache(cur, neighbor->mac64);
+            mac_helper_devicetable_remove(cur->mac_api, neighbor->attribute_index);
+        } else if (thread_is_router_addr(neighbor->short_adr)) {
+            if (accumulated_failures < THREAD_MAC_TRANSMISSIONS * THREAD_FAILED_ROUTER_TRANSMISSIONS) {
+                return;
+            }
 
-           tr_debug("Set link quality to neighbor router to zero...");
-           thread_routing_force_link_margin(cur, neighbor->short_adr, 0);
-       }
-   } else { // We are a Child
-       if (thread_check_is_this_my_parent(cur, neighbor)) {
-           if (accumulated_failures < THREAD_MAC_TRANSMISSIONS*THREAD_FAILED_CHILD_TRANSMISSIONS) {
-               return;
-           }
+            tr_debug("Set link quality to neighbor router to zero...");
+            thread_routing_force_link_margin(cur, neighbor->short_adr, 0);
+        }
+    } else { // We are a Child
+        if (thread_check_is_this_my_parent(cur, neighbor)) {
+            if (accumulated_failures < THREAD_MAC_TRANSMISSIONS * THREAD_FAILED_CHILD_TRANSMISSIONS) {
+                return;
+            }
 
-           tr_debug("Consider the parent gone...");
-           thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
-       }
-   }
+            tr_debug("Consider the parent gone...");
+            thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
+        }
+    }
 }
 
 uint8_t thread_get_router_count_from_route_tlv(mle_tlv_info_t *routeTlv)
 {
-    if (!routeTlv)
+    if (!routeTlv) {
         return 0;
+    }
 
-    if (routeTlv->tlvLen < (MLE_ROUTE_ID_MASK_SIZE + 1))
+    if (routeTlv->tlvLen < (MLE_ROUTE_ID_MASK_SIZE + 1)) {
         return 0;
+    }
 
-    if (!routeTlv->dataPtr)
+    if (!routeTlv->dataPtr) {
         return 0;
+    }
 
     return routeTlv->tlvLen - MLE_ROUTE_ID_MASK_SIZE - 1;
 }

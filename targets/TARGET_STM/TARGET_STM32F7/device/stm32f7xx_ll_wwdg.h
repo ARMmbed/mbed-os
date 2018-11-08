@@ -146,7 +146,7 @@ extern "C" {
   */
 __STATIC_INLINE void LL_WWDG_Enable(WWDG_TypeDef *WWDGx)
 {
-  SET_BIT(WWDGx->CR, WWDG_CR_WDGA);
+    SET_BIT(WWDGx->CR, WWDG_CR_WDGA);
 }
 
 /**
@@ -157,7 +157,7 @@ __STATIC_INLINE void LL_WWDG_Enable(WWDG_TypeDef *WWDGx)
   */
 __STATIC_INLINE uint32_t LL_WWDG_IsEnabled(WWDG_TypeDef *WWDGx)
 {
-  return (READ_BIT(WWDGx->CR, WWDG_CR_WDGA) == (WWDG_CR_WDGA));
+    return (READ_BIT(WWDGx->CR, WWDG_CR_WDGA) == (WWDG_CR_WDGA));
 }
 
 /**
@@ -173,7 +173,7 @@ __STATIC_INLINE uint32_t LL_WWDG_IsEnabled(WWDG_TypeDef *WWDGx)
   */
 __STATIC_INLINE void LL_WWDG_SetCounter(WWDG_TypeDef *WWDGx, uint32_t Counter)
 {
-  MODIFY_REG(WWDGx->CR, WWDG_CR_T, Counter);
+    MODIFY_REG(WWDGx->CR, WWDG_CR_T, Counter);
 }
 
 /**
@@ -184,7 +184,7 @@ __STATIC_INLINE void LL_WWDG_SetCounter(WWDG_TypeDef *WWDGx, uint32_t Counter)
   */
 __STATIC_INLINE uint32_t LL_WWDG_GetCounter(WWDG_TypeDef *WWDGx)
 {
-  return (uint32_t)(READ_BIT(WWDGx->CR, WWDG_CR_T));
+    return (uint32_t)(READ_BIT(WWDGx->CR, WWDG_CR_T));
 }
 
 /**
@@ -202,7 +202,7 @@ __STATIC_INLINE uint32_t LL_WWDG_GetCounter(WWDG_TypeDef *WWDGx)
   */
 __STATIC_INLINE void LL_WWDG_SetPrescaler(WWDG_TypeDef *WWDGx, uint32_t Prescaler)
 {
-  MODIFY_REG(WWDGx->CFR, WWDG_CFR_WDGTB, Prescaler);
+    MODIFY_REG(WWDGx->CFR, WWDG_CFR_WDGTB, Prescaler);
 }
 
 /**
@@ -217,7 +217,7 @@ __STATIC_INLINE void LL_WWDG_SetPrescaler(WWDG_TypeDef *WWDGx, uint32_t Prescale
   */
 __STATIC_INLINE uint32_t LL_WWDG_GetPrescaler(WWDG_TypeDef *WWDGx)
 {
-  return (uint32_t)(READ_BIT(WWDGx->CFR, WWDG_CFR_WDGTB));
+    return (uint32_t)(READ_BIT(WWDGx->CFR, WWDG_CFR_WDGTB));
 }
 
 /**
@@ -238,7 +238,7 @@ __STATIC_INLINE uint32_t LL_WWDG_GetPrescaler(WWDG_TypeDef *WWDGx)
   */
 __STATIC_INLINE void LL_WWDG_SetWindow(WWDG_TypeDef *WWDGx, uint32_t Window)
 {
-  MODIFY_REG(WWDGx->CFR, WWDG_CFR_W, Window);
+    MODIFY_REG(WWDGx->CFR, WWDG_CFR_W, Window);
 }
 
 /**
@@ -249,7 +249,7 @@ __STATIC_INLINE void LL_WWDG_SetWindow(WWDG_TypeDef *WWDGx, uint32_t Window)
   */
 __STATIC_INLINE uint32_t LL_WWDG_GetWindow(WWDG_TypeDef *WWDGx)
 {
-  return (uint32_t)(READ_BIT(WWDGx->CFR, WWDG_CFR_W));
+    return (uint32_t)(READ_BIT(WWDGx->CFR, WWDG_CFR_W));
 }
 
 /**
@@ -270,7 +270,7 @@ __STATIC_INLINE uint32_t LL_WWDG_GetWindow(WWDG_TypeDef *WWDGx)
   */
 __STATIC_INLINE uint32_t LL_WWDG_IsActiveFlag_EWKUP(WWDG_TypeDef *WWDGx)
 {
-  return (READ_BIT(WWDGx->SR, WWDG_SR_EWIF) == (WWDG_SR_EWIF));
+    return (READ_BIT(WWDGx->SR, WWDG_SR_EWIF) == (WWDG_SR_EWIF));
 }
 
 /**
@@ -281,7 +281,7 @@ __STATIC_INLINE uint32_t LL_WWDG_IsActiveFlag_EWKUP(WWDG_TypeDef *WWDGx)
   */
 __STATIC_INLINE void LL_WWDG_ClearFlag_EWKUP(WWDG_TypeDef *WWDGx)
 {
-  WRITE_REG(WWDGx->SR, ~WWDG_SR_EWIF);
+    WRITE_REG(WWDGx->SR, ~WWDG_SR_EWIF);
 }
 
 /**
@@ -301,7 +301,7 @@ __STATIC_INLINE void LL_WWDG_ClearFlag_EWKUP(WWDG_TypeDef *WWDGx)
   */
 __STATIC_INLINE void LL_WWDG_EnableIT_EWKUP(WWDG_TypeDef *WWDGx)
 {
-  SET_BIT(WWDGx->CFR, WWDG_CFR_EWI);
+    SET_BIT(WWDGx->CFR, WWDG_CFR_EWI);
 }
 
 /**
@@ -312,7 +312,7 @@ __STATIC_INLINE void LL_WWDG_EnableIT_EWKUP(WWDG_TypeDef *WWDGx)
   */
 __STATIC_INLINE uint32_t LL_WWDG_IsEnabledIT_EWKUP(WWDG_TypeDef *WWDGx)
 {
-  return (READ_BIT(WWDGx->CFR, WWDG_CFR_EWI) == (WWDG_CFR_EWI));
+    return (READ_BIT(WWDGx->CFR, WWDG_CFR_EWI) == (WWDG_CFR_EWI));
 }
 
 /**

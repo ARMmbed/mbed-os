@@ -38,18 +38,17 @@
  * @{
  * @brief EFR32MG1P_GPCRC Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL;           /**< Control Register  */
-  __IOM uint32_t CMD;            /**< Command Register  */
-  __IOM uint32_t INIT;           /**< CRC Init Value  */
-  __IOM uint32_t POLY;           /**< CRC Polynomial Value  */
-  __IOM uint32_t INPUTDATA;      /**< Input 32-bit Data Register  */
-  __IOM uint32_t INPUTDATAHWORD; /**< Input 16-bit Data Register  */
-  __IOM uint32_t INPUTDATABYTE;  /**< Input 8-bit Data Register  */
-  __IM uint32_t  DATA;           /**< CRC Data Register  */
-  __IM uint32_t  DATAREV;        /**< CRC Data Reverse Register  */
-  __IM uint32_t  DATABYTEREV;    /**< CRC Data Byte Reverse Register  */
+typedef struct {
+    __IOM uint32_t CTRL;           /**< Control Register  */
+    __IOM uint32_t CMD;            /**< Command Register  */
+    __IOM uint32_t INIT;           /**< CRC Init Value  */
+    __IOM uint32_t POLY;           /**< CRC Polynomial Value  */
+    __IOM uint32_t INPUTDATA;      /**< Input 32-bit Data Register  */
+    __IOM uint32_t INPUTDATAHWORD; /**< Input 16-bit Data Register  */
+    __IOM uint32_t INPUTDATABYTE;  /**< Input 8-bit Data Register  */
+    __IM uint32_t  DATA;           /**< CRC Data Register  */
+    __IM uint32_t  DATAREV;        /**< CRC Data Reverse Register  */
+    __IM uint32_t  DATABYTEREV;    /**< CRC Data Byte Reverse Register  */
 } GPCRC_TypeDef;                 /** @} */
 
 /**************************************************************************//**

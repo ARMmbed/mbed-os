@@ -65,9 +65,8 @@
 #define ADCADCMPSR (ADC.ADCMPSR)
 
 
-typedef struct st_adc
-{
-                                                           /* ADC              */
+typedef struct st_adc {
+    /* ADC              */
     volatile uint16_t ADDRA;                                  /*  ADDRA           */
     volatile uint16_t ADDRB;                                  /*  ADDRB           */
     volatile uint16_t ADDRC;                                  /*  ADDRC           */

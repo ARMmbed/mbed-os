@@ -39,7 +39,7 @@ static const PinMap PinMap_I2C_SCL[] = {
     {NC,  NC,    0}
 };
 
-void I2C_ClearINTOutput(TSB_I2C_TypeDef * I2Cx);
+void I2C_ClearINTOutput(TSB_I2C_TypeDef *I2Cx);
 // Clock setting structure definition
 typedef struct {
     uint32_t sck;
@@ -124,7 +124,7 @@ void i2c_frequency(i2c_t *obj, int hz)
                     if ((fscl <= (uint64_t)hz) && (fscl > tmp_fscl)) {
                         tmp_fscl = fscl;
                         tmp_sck = sck;
-                        tmp_prsck = (prsck < 32)? prsck: 0;
+                        tmp_prsck = (prsck < 32) ? prsck : 0;
                     }
                 }
             }
@@ -292,7 +292,7 @@ int i2c_slave_receive(i2c_t *obj)
 {
     int32_t result = I2C_NO_DATA;
 
-    if  ((I2C_GetINTI2CStatus(obj->i2c)) && (I2C_GetSlaveAddrMatchState(obj->i2c))) {
+    if ((I2C_GetINTI2CStatus(obj->i2c)) && (I2C_GetSlaveAddrMatchState(obj->i2c))) {
         status = I2C_GetState(obj->i2c);
         if (!status.Bit.TRx) {
             result = I2C_WRITE_ADDRESSED;
@@ -308,7 +308,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
     int32_t count = 0;
 
     while (count < length) {
-        int32_t pdata = i2c_byte_read(obj, ((count < (length - 1))? 0: 1));
+        int32_t pdata = i2c_byte_read(obj, ((count < (length - 1)) ? 0 : 1));
         status = I2C_GetState(obj->i2c);
         if (status.Bit.TRx) {
             return (count);

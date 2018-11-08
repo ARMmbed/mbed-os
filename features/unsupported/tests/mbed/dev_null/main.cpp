@@ -6,22 +6,25 @@ public:
     DevNull(const char *name = NULL) : Stream(name) {}
 
 protected:
-    virtual int _getc() {
+    virtual int _getc()
+    {
         return 0;
     }
-    virtual int _putc(int c) {
+    virtual int _putc(int c)
+    {
         return c;
     }
 };
 
 DevNull null("null");
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(dev_null_auto);
     MBED_HOSTTEST_DESCRIPTION(stdout redirected to dev null);
     MBED_HOSTTEST_START("EXAMPLE_1");
-    
+
     printf("MBED: re-routing stdout to /null\r\n");
     freopen("/null", "w", stdout);
     printf("MBED: printf redirected to /null\r\n");   // This shouldn't appear

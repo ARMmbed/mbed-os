@@ -213,17 +213,17 @@ typedef int_fast32_t int_fast24_t;
 # define NS_STATIC_ASSERT(test, str) _Static_assert(test, str);
 # elif defined __GNUC__ && NS_GCC_VERSION >= 40600 && !defined __CC_ARM
 # ifdef _Static_assert
-    /*
-     * Some versions of glibc cdefs.h (which comes in via <stdint.h> above)
-     * attempt to define their own _Static_assert (if GCC < 4.6 or
-     * __STRICT_ANSI__) using an extern declaration, which doesn't work in a
-     * struct/union.
-     *
-     * For GCC >= 4.6 and __STRICT_ANSI__, we can do better - just use
-     * the built-in _Static_assert with __extension__. We have to do this, as
-     * ns_list.h needs to use it in a union. No way to get at it though, without
-     * overriding their define.
-     */
+/*
+ * Some versions of glibc cdefs.h (which comes in via <stdint.h> above)
+ * attempt to define their own _Static_assert (if GCC < 4.6 or
+ * __STRICT_ANSI__) using an extern declaration, which doesn't work in a
+ * struct/union.
+ *
+ * For GCC >= 4.6 and __STRICT_ANSI__, we can do better - just use
+ * the built-in _Static_assert with __extension__. We have to do this, as
+ * ns_list.h needs to use it in a union. No way to get at it though, without
+ * overriding their define.
+ */
 #   undef _Static_assert
 #   define _Static_assert(x, y) __extension__ _Static_assert(x, y)
 # endif

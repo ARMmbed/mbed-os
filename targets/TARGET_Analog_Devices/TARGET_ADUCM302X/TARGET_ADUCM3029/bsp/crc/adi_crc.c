@@ -215,9 +215,8 @@ Sequence of function calls for Computing CRC :\n
 /**
  * Information for managing all the CRC devices available
  */
-static ADI_CRC_INFO crc_device_info[ADI_CRC_NUM_DEVICES] =
-{
-   { pADI_CRC0,  NULL }      /* CRC  0 */
+static ADI_CRC_INFO crc_device_info[ADI_CRC_NUM_DEVICES] = {
+    { pADI_CRC0,  NULL }      /* CRC  0 */
 };
 
 /*==============  M O R E   D E F I N E S  ===============*/
@@ -246,13 +245,13 @@ static ADI_CRC_INFO crc_device_info[ADI_CRC_NUM_DEVICES] =
 
 static ADI_CRC_INFO *crc_DeviceInfo(ADI_CRC_HANDLE hDevice);
 
-static void crc_ResetRegisters (ADI_CRC_DEVICE *pDevice);
+static void crc_ResetRegisters(ADI_CRC_DEVICE *pDevice);
 
 #if (ADI_CRC_CFG_ENABLE_DMA_SUPPORT == 0)
 
 /* Functions specific to core driven CRC operations */
 
-static ADI_CRC_RESULT crc_ExecuteCoreDrivenOperation (ADI_CRC_DEVICE *pDevice, void *pCrcBuf, uint32_t NumBytes, uint32_t NumBits);
+static ADI_CRC_RESULT crc_ExecuteCoreDrivenOperation(ADI_CRC_DEVICE *pDevice, void *pCrcBuf, uint32_t NumBytes, uint32_t NumBits);
 
 #else
 
@@ -278,8 +277,8 @@ void ADI_DMA_CRC_ISR(void);
 static ADI_CRC_INFO *crc_DeviceInfo(ADI_CRC_HANDLE hDevice)
 {
     ADI_CRC_INFO *pCrcInfo = (ADI_CRC_INVALID_HANDLE(hDevice))
-                           ? NULL
-                           : (&(crc_device_info[0]));
+                             ? NULL
+                             : (&(crc_device_info[0]));
     return pCrcInfo;
 }
 
@@ -304,8 +303,8 @@ static void crc_ResetRegisters(ADI_CRC_DEVICE *pDevice)
     const uint32_t polynomial = (uint32_t) ADI_CFG_CRC_POLYNOMIAL;
 
     /* Set byte mirroring and bit mirroring in CTL register as configured */
-    pDevice->pReg->CTL = ( (byte_mirroring_val << byte_mirroring_pos)
-                         | (bit_mirroring_val << bit_mirroring_pos)
+    pDevice->pReg->CTL = ((byte_mirroring_val << byte_mirroring_pos)
+                          | (bit_mirroring_val << bit_mirroring_pos)
                          );
     pDevice->pReg->RESULT = seed_value;
     pDevice->pReg->POLY   = polynomial;
@@ -337,12 +336,10 @@ static ADI_CRC_RESULT crc_ExecuteCoreDrivenOperation(
 
     pDevice->pReg->CTL |= (BITM_CRC_CTL_EN);    /*! enable CRC peripheral */
 
-    if (((uint32_t)pData & 0x3u) != 0u)         /* If the buffer is not 4-byte aligned */
-    {
+    if (((uint32_t)pData & 0x3u) != 0u) {       /* If the buffer is not 4-byte aligned */
         /* feed the CRC byte per byte as long as there are data in the input buffer AND
          * the data left in the buffer are not 4-byte aligned */
-        while ((NumBytes > 0u) && (((uint32_t)pData & 0x3u) != 0u))
-        {
+        while ((NumBytes > 0u) && (((uint32_t)pData & 0x3u) != 0u)) {
             pDevice->pReg->IPBYTE = *pData;     /* feed the CRC with the first byte in the buffer */
             pData++;                            /* get the next byte to feed into CRC */
             NumBytes--;                         /* decrease the number of bytes to be processed */
@@ -351,23 +348,20 @@ static ADI_CRC_RESULT crc_ExecuteCoreDrivenOperation(
 
     /* data left in the input buffer are now 4-byte aligned */
 
-    while (NumBytes >= 4u)                      /* if the number of bytes left is greater than 4 bytes */
-    {                                           /* feed CRC peripheral with 4-byte data */
+    while (NumBytes >= 4u) {                    /* if the number of bytes left is greater than 4 bytes */
+        /* feed CRC peripheral with 4-byte data */
         uint32_t nData;                         /* 32-bit variable to be used to feed the CRC peripheral */
 
         /*
          * Here we assume memory is little endian. We need change the following
          * code if we produce a Cortex-M processor with big endian memory.
          */
-        if (lsbFirst != 0u)
-        {
+        if (lsbFirst != 0u) {
             nData = pData[3];
             nData = (nData << 8) | pData[2];
             nData = (nData << 8) | pData[1];
             nData = (nData << 8) | pData[0];
-        }
-        else
-        {
+        } else {
             nData = pData[0];
             nData = (nData << 8) | pData[1];
             nData = (nData << 8) | pData[2];
@@ -378,15 +372,13 @@ static ADI_CRC_RESULT crc_ExecuteCoreDrivenOperation(
         NumBytes -= 4u;                         /* decrease the number of data to be processed */
     }
 
-    while (NumBytes > 0u)                       /* if the number of data left in the input buffer is smaller than 4 */
-    {
+    while (NumBytes > 0u) {                     /* if the number of data left in the input buffer is smaller than 4 */
         pDevice->pReg->IPBYTE = *pData;         /* feed the CRC peripheral with the remaining bytes */
         pData++;                                /* move the pointer to the next byte in input data buffer */
         NumBytes--;                             /* decrease the number of data to be fed into the CRC peripheral */
     }
 
-    if (NumBits > 0u)                           /* if the last byte is a partial byte containing less than 8 bits */
-    {
+    if (NumBits > 0u) {                         /* if the last byte is a partial byte containing less than 8 bits */
         pDevice->pReg->IPBITS[NumBits] = *pData;/* feed the CRC peripheral with the remaining bits (use IPBITS[N] to feed N bits) */
     }
 
@@ -422,24 +414,19 @@ static ADI_CRC_RESULT crc_ExecuteDmaDrivenOperation(
     bool bUseDma = false;                               /* assume core driven CRC by default */
 
 #ifdef ADI_DEBUG
-    if (!ADI_CRC_VALID_DMA_CHANNEL(ADI_CFG_CRC_DMA_CHANNEL))
-    {
+    if (!ADI_CRC_VALID_DMA_CHANNEL(ADI_CFG_CRC_DMA_CHANNEL)) {
         /* Report error as Memory DMA not open */
         result = ADI_CRC_INVALID_DMA_CHANNEL;
-    }
-    else
+    } else
 #endif /* ADI_DEBUG */
     {
         /* If LSBFIRST, it's easy. */
-        if ((pDevice->pReg->CTL & BITM_CRC_CTL_LSBFIRST) != 0u)
-        {
+        if ((pDevice->pReg->CTL & BITM_CRC_CTL_LSBFIRST) != 0u) {
             /* If the buffer is not 4-byte aligned */
-            if (((uint32_t)pData & 0x3u) != 0u)
-            {
+            if (((uint32_t)pData & 0x3u) != 0u) {
                 /* process the first bytes until a 4-byte aligned data location is reached */
                 pDevice->pReg->CTL |= (BITM_CRC_CTL_EN);        /* enable CRC */
-                while ((NumBytes > 0u) && (((uint32_t)pData & 0x3u) != 0u))
-                {
+                while ((NumBytes > 0u) && (((uint32_t)pData & 0x3u) != 0u)) {
                     pDevice->pReg->IPBYTE = *pData;             /* feed byte into CRC */
                     pData++;                                    /* get to the next byte */
                     NumBytes--;                                 /* decrease the number of bytes still to be processed */
@@ -448,18 +435,17 @@ static ADI_CRC_RESULT crc_ExecuteDmaDrivenOperation(
             }
 
             /* 4-byte aligned data transfer */
-            if (NumBytes >= 4u)
-            {
+            if (NumBytes >= 4u) {
                 /* there are enough data for kicking off a DMA driven CRC operation */
                 const uint32_t channelId = (uint32_t) ADI_CFG_CRC_DMA_CHANNEL;
                 const uint32_t channelBit = 1ul << channelId;           /* get a value with the bit set at position identified by channelId */
                 const uint32_t numData = NumBytes / 4u;                 /* number of 4-byte data to be transferred */
                 const uint32_t src = (uint32_t) pData;                  /* DMA source address */
                 const uint32_t dst = (uint32_t) &pDevice->pReg->IPDATA; /* destination is CRC IPDATA 32-bit register */
-                const uint32_t numTransData = ( (numData > DMA_TRANSFER_LIMIT)
-                                              ? DMA_TRANSFER_LIMIT
-                                              : numData
-                                               );
+                const uint32_t numTransData = ((numData > DMA_TRANSFER_LIMIT)
+                                               ? DMA_TRANSFER_LIMIT
+                                               : numData
+                                              );
                 const uint32_t numTransBytes = (numTransData << 2u);
                 const uint32_t lastDataPos = (numTransBytes - 4u);      /* position of last 32-bit data to be transferred in current DMA request */
 
@@ -474,13 +460,13 @@ static ADI_CRC_RESULT crc_ExecuteDmaDrivenOperation(
                 pPrimaryCCD[channelId].DMASRCEND = src + lastDataPos;   /* source end address */
 
                 pPrimaryCCD[channelId].DMACDC =
-                    ( (((uint32_t) ADI_DMA_INCR_NONE)    << ((uint32_t) DMA_BITP_CTL_DST_INC))  /* destination address not incremented */
-                    | (((uint32_t) ADI_DMA_INCR_4_BYTE)  << ((uint32_t) DMA_BITP_CTL_SRC_INC))  /* source address incremented by 4 bytes */
-                    | (((uint32_t) ADI_DMA_WIDTH_4_BYTE) << ((uint32_t) DMA_BITP_CTL_SRC_SIZE)) /* source data size is 4-byte */
-                    | ((numTransData - 1u)               << ((uint32_t) DMA_BITP_CTL_N_MINUS_1))/* number of DMA transfers (minus 1) */
-                    | (DMA_ENUM_CTL_CYCLE_CTL_AUTO_REQ << DMA_BITP_CTL_CYCLE_CTL)               /* DMA Auto Request transmission */
+                    ((((uint32_t) ADI_DMA_INCR_NONE)    << ((uint32_t) DMA_BITP_CTL_DST_INC))   /* destination address not incremented */
+                     | (((uint32_t) ADI_DMA_INCR_4_BYTE)  << ((uint32_t) DMA_BITP_CTL_SRC_INC))  /* source address incremented by 4 bytes */
+                     | (((uint32_t) ADI_DMA_WIDTH_4_BYTE) << ((uint32_t) DMA_BITP_CTL_SRC_SIZE)) /* source data size is 4-byte */
+                     | ((numTransData - 1u)               << ((uint32_t) DMA_BITP_CTL_N_MINUS_1))/* number of DMA transfers (minus 1) */
+                     | (DMA_ENUM_CTL_CYCLE_CTL_AUTO_REQ << DMA_BITP_CTL_CYCLE_CTL)               /* DMA Auto Request transmission */
                     );
-                pDevice->pRemainingData = (void*)(src + numTransBytes); /* remaining data start address */
+                pDevice->pRemainingData = (void *)(src + numTransBytes); /* remaining data start address */
                 pDevice->RemainingBytes = NumBytes - numTransBytes;     /* remaining bytes that cannot be processed in this DMA batch */
                 pDevice->RemainingBits = NumBits;                       /* remaining bits if last byte is a partial byte */
                 bUseDma = true;                                         /* there are enough data to run 4-byte DMA transfers to CRC */
@@ -493,10 +479,8 @@ static ADI_CRC_RESULT crc_ExecuteDmaDrivenOperation(
         *
         * Another option is using mirroring feature of CRC unit, which would be more complicated.
         */
-        else
-        {
-            if (NumBytes > 0u)
-            {
+        else {
+            if (NumBytes > 0u) {
                 /**
                  * There are enough data for kicking off a DMA driven CRC operation.
                  * DMA transfers are limited to 1024 bytes : if the buffer is larger
@@ -508,9 +492,9 @@ static ADI_CRC_RESULT crc_ExecuteDmaDrivenOperation(
                 const uint32_t channelBit = 1ul << channelId;           /* get a value with the bit set at position identified by channelId */
                 const uint32_t src = (uint32_t) pData;                  /* DMA source address */
                 const uint32_t dst = (uint32_t) &pDevice->pReg->IPBYTE; /* destination is CRC IPBYTE 8-bit register */
-                const uint32_t numTransData = ( (NumBytes > DMA_TRANSFER_LIMIT)
-                                              ? DMA_TRANSFER_LIMIT
-                                              : NumBytes
+                const uint32_t numTransData = ((NumBytes > DMA_TRANSFER_LIMIT)
+                                               ? DMA_TRANSFER_LIMIT
+                                               : NumBytes
                                               );
                 const uint32_t lastDataPos = (numTransData - 1u);       /* position of last data to be transferred in buffer */
 
@@ -524,13 +508,13 @@ static ADI_CRC_RESULT crc_ExecuteDmaDrivenOperation(
                 pPrimaryCCD[channelId].DMADSTEND = dst;                 /* destination is CRC IPBYTE 8-bit register */
                 pPrimaryCCD[channelId].DMASRCEND = src + lastDataPos;   /* source end address */
                 pPrimaryCCD[channelId].DMACDC =
-                    ( (((uint32_t) ADI_DMA_INCR_NONE)    << ((uint32_t) DMA_BITP_CTL_DST_INC))  /* destination address not incremented */
-                    | (((uint32_t) ADI_DMA_INCR_1_BYTE)  << ((uint32_t) DMA_BITP_CTL_SRC_INC))  /* source address incremented by 1 byte */
-                    | (((uint32_t) ADI_DMA_WIDTH_1_BYTE) << ((uint32_t) DMA_BITP_CTL_SRC_SIZE)) /* source data size is 1-byte */
-                    | ((numTransData - 1u)               << ((uint32_t) DMA_BITP_CTL_N_MINUS_1))/* number of DMA transfers (minus 1) */
-                    | (DMA_ENUM_CTL_CYCLE_CTL_AUTO_REQ   << DMA_BITP_CTL_CYCLE_CTL)             /* DMA Auto Request transmission */
+                    ((((uint32_t) ADI_DMA_INCR_NONE)    << ((uint32_t) DMA_BITP_CTL_DST_INC))   /* destination address not incremented */
+                     | (((uint32_t) ADI_DMA_INCR_1_BYTE)  << ((uint32_t) DMA_BITP_CTL_SRC_INC))  /* source address incremented by 1 byte */
+                     | (((uint32_t) ADI_DMA_WIDTH_1_BYTE) << ((uint32_t) DMA_BITP_CTL_SRC_SIZE)) /* source data size is 1-byte */
+                     | ((numTransData - 1u)               << ((uint32_t) DMA_BITP_CTL_N_MINUS_1))/* number of DMA transfers (minus 1) */
+                     | (DMA_ENUM_CTL_CYCLE_CTL_AUTO_REQ   << DMA_BITP_CTL_CYCLE_CTL)             /* DMA Auto Request transmission */
                     );
-                pDevice->pRemainingData = (void*) (src + numTransData); /* remaining data start address */
+                pDevice->pRemainingData = (void *)(src + numTransData); /* remaining data start address */
                 pDevice->RemainingBytes = NumBytes - numTransData;      /* remaining bytes */
                 pDevice->RemainingBits = NumBits;                       /* remaining bits if last byte is a partial byte */
                 bUseDma = true;                                         /* there are enough data to run 4-byte DMA transfers to CRC */
@@ -538,19 +522,15 @@ static ADI_CRC_RESULT crc_ExecuteDmaDrivenOperation(
         }
 
         /* if we are in a position to use the DMA to transfer data to the CRC */
-        if (bUseDma== true)
-        {
+        if (bUseDma == true) {
             const uint32_t channelId = (uint32_t) ADI_CFG_CRC_DMA_CHANNEL;
             const uint32_t channelBit = 1ul << channelId;       /* get a value with the bit set at position identified by channelId */
             pADI_DMA0->SWREQ = channelBit;                      /* Issue a software DMA request */
-        }
-        else
-        {
+        } else {
             pDevice->pReg->CTL |= (BITM_CRC_CTL_EN);
             crc_CalculateCrcForRemaining(pDevice, pData, NumBytes, NumBits);
             pDevice->pReg->CTL &= ~(BITM_CRC_CTL_EN);
-            if(pDevice->pfCallback != NULL)
-            {
+            if (pDevice->pfCallback != NULL) {
                 pDevice->pfCallback(pDevice->pCBParam, (uint32_t) ADI_CRC_EVENT_BUFFER_PROCESSED, pData);
             }
             pDevice->eCrcOpStatus = ADI_CRC_OP_IDLE;            /* CRC calculation completed */
@@ -572,16 +552,14 @@ static ADI_CRC_RESULT crc_ExecuteDmaDrivenOperation(
 static void crc_CalculateCrcForRemaining(ADI_CRC_DEVICE *pDevice, uint8_t *pData, uint32_t NumBytes, uint32_t NumBits)
 {
     /* process the remaining bytes */
-    while (NumBytes > 0u)
-    {
+    while (NumBytes > 0u) {
         pDevice->pReg->IPBYTE = *pData;
         pData++;
         NumBytes--;
     }
 
     /* process the remaining bits in the last byte if the number of bits is smaller than 8 */
-    if (NumBits > 0u)
-    {
+    if (NumBits > 0u) {
         pDevice->pReg->IPBITS[NumBits] = *pData;
     }
 }
@@ -596,8 +574,7 @@ static void CRC_Callback_For_DMA_Err_Int_Handler(void *pcbparam, uint32_t nEvent
 {
     ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(pcbparam);
 
-    if (NULL != pDevice)
-    {
+    if (NULL != pDevice) {
         /* DMA error detected */
         pDevice->eCrcOpStatus = ADI_CRC_OP_IDLE;                /* mark the CRC peripheral as IDLE */
         pDevice->pReg->CTL &= (uint32_t)(~(BITM_CRC_CTL_EN));   /* disable CRC peripheral */
@@ -616,37 +593,31 @@ void ADI_DMA_CRC_ISR(void)
 {
     ISR_PROLOG();
 
-    if (ADI_CRC_DEVICE_IN_USE(0))
-    {
-        ADI_CRC_DEVICE * pDevice = HDL_TO_DEVICE_PTR(crc_device_info[0].hDevice);
-        if (NULL != pDevice)
-        {
+    if (ADI_CRC_DEVICE_IN_USE(0)) {
+        ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(crc_device_info[0].hDevice);
+        if (NULL != pDevice) {
             uint8_t *pData = (uint8_t *)(pDevice->pRemainingData);
             uint32_t NumBytes = pDevice->RemainingBytes;
             uint32_t NumBits = pDevice->RemainingBits;
             bool finishing = (NumBytes < 4u);
 
-            if (!finishing)
-            {
+            if (!finishing) {
                 /* there's enough data left for another DMA transfer */
                 ADI_CRC_RESULT result = pDevice->pfSubmitBuffer(pDevice, pData, NumBytes, NumBits);
-                if (ADI_CRC_SUCCESS != result)
-                {
+                if (ADI_CRC_SUCCESS != result) {
                     /* buffer submission failed: complete the task through core driven operations */
                     finishing = true;
                 }
             }
 
-            if (finishing)
-            {
+            if (finishing) {
                 /* There are a very few bytes/bits left to be processed or
                  * a DMA transfer request could not be sent */
                 crc_CalculateCrcForRemaining(pDevice, pData, NumBytes, NumBits);
 
                 /* if a callback function is registered with the interrupt handler
                  * associated with the software DMA channel driving the CRC */
-                if(pDevice->pfCallback != NULL)
-                {
+                if (pDevice->pfCallback != NULL) {
                     pDevice->pfCallback(pDevice->pCBParam, (uint32_t) ADI_CRC_EVENT_BUFFER_PROCESSED, NULL);
                 }
                 pDevice->eCrcOpStatus = ADI_CRC_OP_IDLE;        /* CRC back in idle state */
@@ -656,7 +627,7 @@ void ADI_DMA_CRC_ISR(void)
     }
 
 #if defined(ADI_CYCLECOUNT_CRC_ISR_ENABLED) && (ADI_CYCLECOUNT_CRC_ISR_ENABLED == 1u)
-    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_CRC);    
+    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_CRC);
 #endif
 
     ISR_EPILOG();
@@ -688,30 +659,24 @@ void ADI_DMA_CRC_ISR(void)
  *
  */
 ADI_CRC_RESULT adi_crc_Open(
-	uint32_t            DeviceNum,
-	void                *pMemory,
-	uint32_t            MemorySize,
-	ADI_CRC_HANDLE      *phDevice)
+    uint32_t            DeviceNum,
+    void                *pMemory,
+    uint32_t            MemorySize,
+    ADI_CRC_HANDLE      *phDevice)
 {
     ADI_CRC_RESULT result = ADI_CRC_SUCCESS;
-    ADI_CRC_DEVICE *pDevice = (ADI_CRC_DEVICE*) pMemory;/* memory block to be used to manage a CRC driver instance */
+    ADI_CRC_DEVICE *pDevice = (ADI_CRC_DEVICE *) pMemory; /* memory block to be used to manage a CRC driver instance */
 
 #ifdef ADI_DEBUG                                        /* IF (Debug information enabled) */
-    if (!ADI_CRC_VALID_DEVICE_ID(DeviceNum))            /* IF (This is not a valid CRC device number) */
-    {
+    if (!ADI_CRC_VALID_DEVICE_ID(DeviceNum)) {          /* IF (This is not a valid CRC device number) */
         result = ADI_CRC_BAD_DEVICE_NUMBER;             /* Report failure as bad device number */
-    }
-    else if (ADI_CRC_DEVICE_IN_USE(DeviceNum))          /* IF (The device is in use) */
-    {
+    } else if (ADI_CRC_DEVICE_IN_USE(DeviceNum)) {      /* IF (The device is in use) */
         result = ADI_CRC_IN_USE;                        /* return CRC Device in use error */
-    }
-    else if (  (MemorySize < ADI_CRC_MEMORY_SIZE)       /* IF (Supplied memory size is insufficient) */
-            || (ADI_CRC_MEMORY_SIZE < sizeof(ADI_CRC_DEVICE))
-            )
-    {
+    } else if ((MemorySize < ADI_CRC_MEMORY_SIZE)       /* IF (Supplied memory size is insufficient) */
+               || (ADI_CRC_MEMORY_SIZE < sizeof(ADI_CRC_DEVICE))
+              ) {
         result = ADI_CRC_INSUFFICIENT_MEMORY;           /* Report failure as insufficient memory */
-    }
-    else
+    } else
 #endif  /* ADI_DEBUG */
     {
         /* check that ADI_CRC_MEMORY_SIZE is accurately defined */
@@ -722,9 +687,9 @@ ADI_CRC_RESULT adi_crc_Open(
         ADI_INT_STATUS_ALLOC();
         ADI_ENTER_CRITICAL_REGION();                    /* Entering critical region, disable interrupts */
 
-            /* Save the supplied device memory address */
-            crc_device_info[DeviceNum].hDevice = (ADI_CRC_HANDLE)pDevice;
-            pDevice->pReg = crc_device_info[DeviceNum].pReg;
+        /* Save the supplied device memory address */
+        crc_device_info[DeviceNum].hDevice = (ADI_CRC_HANDLE)pDevice;
+        pDevice->pReg = crc_device_info[DeviceNum].pReg;
 
         ADI_EXIT_CRITICAL_REGION();                     /* Re-enable interrupts */
 
@@ -742,12 +707,11 @@ ADI_CRC_RESULT adi_crc_Open(
 
         /* Register CRC DMA callback */
 #ifdef ADI_DEBUG                                        /* IF (Debug information enabled) */
-        if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(ADI_CFG_CRC_DMA_CHANNEL,CRC_Callback_For_DMA_Err_Int_Handler,pDevice))
-        {
+        if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(ADI_CFG_CRC_DMA_CHANNEL, CRC_Callback_For_DMA_Err_Int_Handler, pDevice)) {
             result = ADI_CRC_FAILURE;
         }
 #else
-        adi_dma_RegisterCallback(ADI_CFG_CRC_DMA_CHANNEL,CRC_Callback_For_DMA_Err_Int_Handler,pDevice);
+        adi_dma_RegisterCallback(ADI_CFG_CRC_DMA_CHANNEL, CRC_Callback_For_DMA_Err_Int_Handler, pDevice);
 #endif
         NVIC_EnableIRQ(ADI_CRC_IRQ_ID);                 /* Enable the interrupt for the DMA channel used by CRC */
 #endif  /* ADI_CRC_CFG_ENABLE_DMA_SUPPORT */
@@ -770,23 +734,20 @@ ADI_CRC_RESULT adi_crc_Close(ADI_CRC_HANDLE const hDevice)
     ADI_CRC_RESULT result = ADI_CRC_SUCCESS;
     ADI_CRC_INFO *pCrcInfo = crc_DeviceInfo(hDevice);   /* get CRC info pointer from CRC handle */
 #ifdef ADI_DEBUG
-    if (NULL == pCrcInfo)
-    {
+    if (NULL == pCrcInfo) {
         result = ADI_CRC_BAD_HANDLE;                    /* invalid CRC handle being used */
-    }
-    else
+    } else
 #endif
     {
 #if (ADI_CRC_CFG_ENABLE_DMA_SUPPORT != 0)
         NVIC_DisableIRQ(ADI_CRC_IRQ_ID);                /* Disable the interrupt for the DMA channel used by CRC. */
         /* Register CRC DMA callback */
 #ifdef ADI_DEBUG                                        /* IF (Debug information enabled) */
-        if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(ADI_CFG_CRC_DMA_CHANNEL,NULL,NULL))
-        {
+        if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(ADI_CFG_CRC_DMA_CHANNEL, NULL, NULL)) {
             result = ADI_CRC_FAILURE;
         }
 #else
-        adi_dma_RegisterCallback(ADI_CFG_CRC_DMA_CHANNEL,NULL,NULL);
+        adi_dma_RegisterCallback(ADI_CFG_CRC_DMA_CHANNEL, NULL, NULL);
 #endif
 #endif
         pCrcInfo->hDevice = NULL;                       /* Mark CRC driver as closed */
@@ -816,24 +777,17 @@ ADI_CRC_RESULT adi_crc_SetBitMirroring(ADI_CRC_HANDLE const hDevice, const bool 
     ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(hDevice);       /* get CRC device pointer from CRC handle */
 
 #ifdef ADI_DEBUG
-    if (NULL == pDevice)                                        /* IF (CRC device handle is invalid) */
-    {
+    if (NULL == pDevice) {                                      /* IF (CRC device handle is invalid) */
         result = ADI_CRC_BAD_HANDLE;
-    }
-    else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice))                  /* IF (CRC in progress) */
-    {
+    } else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice)) {              /* IF (CRC in progress) */
         result = ADI_CRC_FN_NOT_PERMITTED;                      /* Function not permitted when CRC operation is in progress */
-    }
-    else
+    } else
 #endif
-    if(bEnable == true)
-    {
-        pDevice->pReg->CTL |= (BITM_CRC_CTL_BITMIRR);                   /* enable bit mirroring */
-    }
-    else
-    {
-        pDevice->pReg->CTL &= (uint32_t)(~(BITM_CRC_CTL_BITMIRR));      /* disable bit mirroring */
-    }
+        if (bEnable == true) {
+            pDevice->pReg->CTL |= (BITM_CRC_CTL_BITMIRR);                   /* enable bit mirroring */
+        } else {
+            pDevice->pReg->CTL &= (uint32_t)(~(BITM_CRC_CTL_BITMIRR));      /* disable bit mirroring */
+        }
     return result;
 }
 /*!
@@ -859,24 +813,17 @@ ADI_CRC_RESULT  adi_crc_SetByteMirroring(ADI_CRC_HANDLE const hDevice, const boo
     ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(hDevice);       /* get CRC device pointer from CRC handle */
 
 #ifdef ADI_DEBUG
-    if (NULL == pDevice)                                        /* IF (CRC device handle is invalid) */
-    {
+    if (NULL == pDevice) {                                      /* IF (CRC device handle is invalid) */
         result = ADI_CRC_BAD_HANDLE;
-    }
-    else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice))                  /* IF (CRC in progress) */
-    {
+    } else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice)) {              /* IF (CRC in progress) */
         result = ADI_CRC_FN_NOT_PERMITTED;                      /* Function not permitted when CRC operation is in progress */
-    }
-    else
+    } else
 #endif
-    if(bEnable == true)
-    {
-       pDevice->pReg->CTL |= (BITM_CRC_CTL_BYTMIRR);                    /* enable byte mirroring */
-    }
-    else
-    {
-       pDevice->pReg->CTL &= (uint32_t)(~(BITM_CRC_CTL_BYTMIRR));       /* disable byte mirroring */
-    }
+        if (bEnable == true) {
+            pDevice->pReg->CTL |= (BITM_CRC_CTL_BYTMIRR);                    /* enable byte mirroring */
+        } else {
+            pDevice->pReg->CTL &= (uint32_t)(~(BITM_CRC_CTL_BYTMIRR));       /* disable byte mirroring */
+        }
     return result;
 }
 
@@ -904,24 +851,17 @@ ADI_CRC_RESULT  adi_crc_SetLSBFirst(ADI_CRC_HANDLE const hDevice, const bool bEn
     ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(hDevice);       /* get CRC device pointer from CRC handle */
 
 #ifdef ADI_DEBUG
-    if (NULL == pDevice)                                        /* IF (CRC device handle is invalid) */
-    {
+    if (NULL == pDevice) {                                      /* IF (CRC device handle is invalid) */
         result =  ADI_CRC_BAD_HANDLE;
-    }
-    else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice))                  /* IF (CRC in progress) */
-    {
+    } else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice)) {              /* IF (CRC in progress) */
         result = ADI_CRC_FN_NOT_PERMITTED;                      /* function not permitted when CRC operation is in progress */
-    }
-    else
+    } else
 #endif
-    if(bEnable == true)
-    {
-       pDevice->pReg->CTL |= (BITM_CRC_CTL_LSBFIRST);           /* enable LSB first (MSB first disable) */
-    }
-    else
-    {
-       pDevice->pReg->CTL &= ~(BITM_CRC_CTL_LSBFIRST);          /* disable LSB first (MSB first enable) */
-    }
+        if (bEnable == true) {
+            pDevice->pReg->CTL |= (BITM_CRC_CTL_LSBFIRST);           /* enable LSB first (MSB first disable) */
+        } else {
+            pDevice->pReg->CTL &= ~(BITM_CRC_CTL_LSBFIRST);          /* disable LSB first (MSB first enable) */
+        }
     return result;
 }
 /*!
@@ -947,24 +887,17 @@ ADI_CRC_RESULT adi_crc_EnableWordSwap(ADI_CRC_HANDLE const hDevice, const bool b
     ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(hDevice);
 
 #ifdef ADI_DEBUG
-    if (NULL == pDevice)                                /* IF (CRC device handle is invalid) */
-    {
+    if (NULL == pDevice) {                              /* IF (CRC device handle is invalid) */
         result = ADI_CRC_BAD_HANDLE;
-    }
-    else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice))          /* IF (CRC in progress) */
-    {
+    } else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice)) {      /* IF (CRC in progress) */
         result = ADI_CRC_FN_NOT_PERMITTED;              /* function not permitted when CRC operation is in progress */
-    }
-    else
+    } else
 #endif
-    if(bEnable == true)
-    {
-       pDevice->pReg->CTL |= BITM_CRC_CTL_W16SWP;       /* enable word swap */
-    }
-    else
-    {
-       pDevice->pReg->CTL &= ~BITM_CRC_CTL_W16SWP;      /* disable word swap */
-    }
+        if (bEnable == true) {
+            pDevice->pReg->CTL |= BITM_CRC_CTL_W16SWP;       /* enable word swap */
+        } else {
+            pDevice->pReg->CTL &= ~BITM_CRC_CTL_W16SWP;      /* disable word swap */
+        }
 
     return result;
 }
@@ -988,15 +921,11 @@ ADI_CRC_RESULT adi_crc_SetCrcSeedVal(
     ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(hDevice);
 
 #ifdef ADI_DEBUG
-    if (NULL == pDevice)                                /* IF (CRC device handle is invalid) */
-    {
+    if (NULL == pDevice) {                              /* IF (CRC device handle is invalid) */
         result = ADI_CRC_BAD_HANDLE;
-    }
-    else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice))          /* IF (CRC in progress) */
-    {
+    } else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice)) {      /* IF (CRC in progress) */
         result = ADI_CRC_FN_NOT_PERMITTED;              /* function not permitted when CRC operation is in progress */
-    }
-    else
+    } else
 #endif /* ADI_DEBUG */
     {
         pDevice->pReg->RESULT = CrcSeedVal;             /* Load the CRC seed value */
@@ -1024,15 +953,11 @@ ADI_CRC_RESULT adi_crc_SetPolynomialVal(
     ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(hDevice);
 
 #ifdef ADI_DEBUG
-    if (NULL == pDevice)                                /* IF (CRC device handle is invalid) */
-    {
+    if (NULL == pDevice) {                              /* IF (CRC device handle is invalid) */
         result = ADI_CRC_BAD_HANDLE;
-    }
-    else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice))          /* IF (CRC in progress) */
-    {
+    } else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice)) {      /* IF (CRC in progress) */
         result = ADI_CRC_FN_NOT_PERMITTED;              /* function not permitted when CRC operation is in progress */
-    }
-    else
+    } else
 #endif /* ADI_DEBUG */
     {
         pDevice->pReg->POLY = PolynomialVal;            /* Load Polynomial value */
@@ -1072,24 +997,15 @@ ADI_CRC_RESULT adi_crc_Compute(
     ADI_CRC_RESULT result = ADI_CRC_SUCCESS;
     ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(hDevice);
 #ifdef ADI_DEBUG
-    if (NumBits >= 8u)
-    {
+    if (NumBits >= 8u) {
         result = ADI_CRC_INVALID_PARAMETER;
-    }
-    else if (NULL == pDevice)
-    {
+    } else if (NULL == pDevice) {
         result = ADI_CRC_BAD_HANDLE;
-    }
-    else if (((pDevice->pReg->CTL & BITM_CRC_CTL_REVID) == 0u) && (NumBits != 0u))
-    {
+    } else if (((pDevice->pReg->CTL & BITM_CRC_CTL_REVID) == 0u) && (NumBits != 0u)) {
         result = ADI_CRC_FN_NOT_SUPPORTED;      /* Partial byte needs CRC unit revision 1 or up */
-    }
-    else
-    if (!ADI_CRC_DEVICE_IS_IDLE(pDevice))       /* IF (CRC in progress) */
-    {
+    } else if (!ADI_CRC_DEVICE_IS_IDLE(pDevice)) {  /* IF (CRC in progress) */
         result = ADI_CRC_FN_NOT_PERMITTED;      /* function not permitted when CRC operation is in progress */
-    }
-    else
+    } else
 #endif /* ADI_DEBUG */
     {
         pDevice->eCrcOpStatus = ADI_CRC_OP_IN_PROGRESS; /* mark the CRC as in progress */
@@ -1122,24 +1038,19 @@ ADI_CRC_RESULT adi_crc_IsCrcInProgress(
     ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(hDevice);
 
 #ifdef ADI_DEBUG
-    if (NULL == pDevice)        /* IF (CRC device handle is invalid) */
-    {
+    if (NULL == pDevice) {      /* IF (CRC device handle is invalid) */
         result = ADI_CRC_BAD_HANDLE;
-    }
-    else
+    } else
 #endif /* ADI_DEBUG */
     {
 
-      if ((pDevice)->eCrcOpStatus == ADI_CRC_OP_IN_PROGRESS) 
-      {
-                *pbCrcInProgress = true;
+        if ((pDevice)->eCrcOpStatus == ADI_CRC_OP_IN_PROGRESS) {
+            *pbCrcInProgress = true;
 
-      } 
-      else 
-      {
-                *pbCrcInProgress = false;
+        } else {
+            *pbCrcInProgress = false;
 
-      }
+        }
     }
     return result;
 }
@@ -1173,11 +1084,9 @@ ADI_CRC_RESULT adi_crc_GetFinalCrcVal(
     ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(hDevice);
 
 #ifdef ADI_DEBUG
-    if (NULL == pDevice)        /* IF (CRC device handle is invalid) */
-    {
+    if (NULL == pDevice) {      /* IF (CRC device handle is invalid) */
         result = ADI_CRC_BAD_HANDLE;
-    }
-    else
+    } else
 #endif /* ADI_DEBUG */
     {
         const uint32_t seed_value = (uint32_t) ADI_CFG_CRC_SEED_VALUE;
@@ -1206,11 +1115,9 @@ ADI_CRC_RESULT adi_crc_GetCurrentCrcVal(
     ADI_CRC_DEVICE *pDevice = HDL_TO_DEVICE_PTR(hDevice);
 
 #ifdef ADI_DEBUG
-    if (NULL == pDevice)                                /* IF (CRC device handle is invalid) */
-    {
+    if (NULL == pDevice) {                              /* IF (CRC device handle is invalid) */
         result = ADI_CRC_BAD_HANDLE;
-    }
-    else
+    } else
 #endif /* ADI_DEBUG */
     {
         *pCurrentCrcVal = pDevice->pReg->RESULT;        /* Get the current CRC result */
@@ -1256,11 +1163,9 @@ ADI_CRC_RESULT adi_crc_RegisterCallback(
     ADI_ENTER_CRITICAL_REGION();                /* Entering critical region, disable interrupts */
 
 #ifdef ADI_DEBUG
-    if (NULL == pDevice)                        /* IF (CRC device handle is invalid) */
-    {
+    if (NULL == pDevice) {                      /* IF (CRC device handle is invalid) */
         result = ADI_CRC_BAD_HANDLE;
-    }
-    else
+    } else
 #endif /* ADI_DEBUG */
     {
         /* Update CRC Callback information */

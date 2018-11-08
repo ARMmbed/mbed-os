@@ -256,8 +256,7 @@ typedef struct {
 } border_router_setup_s;
 
 /** Channel list */
-typedef struct channel_list_s
-{
+typedef struct channel_list_s {
     channel_page_e channel_page;    /**< Channel page */
     uint32_t channel_mask[8];       /**< Channel mask. Each bit defining one channel */
 } channel_list_s;

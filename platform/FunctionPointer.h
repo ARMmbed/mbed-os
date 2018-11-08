@@ -35,21 +35,23 @@ template <typename R, typename A1>
 class FunctionPointerArg1 : public Callback<R(A1)> {
 public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "FunctionPointerArg1<R, A> has been replaced by Callback<R(A)>")
-    FunctionPointerArg1(R (*function)(A1) = 0)
+                          "FunctionPointerArg1<R, A> has been replaced by Callback<R(A)>")
+    FunctionPointerArg1(R(*function)(A1) = 0)
         : Callback<R(A1)>(function) {}
 
     template<typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "FunctionPointerArg1<R, A> has been replaced by Callback<R(A)>")
-    FunctionPointerArg1(T *object, R (T::*member)(A1))
+                          "FunctionPointerArg1<R, A> has been replaced by Callback<R(A)>")
+    FunctionPointerArg1(T *object, R(T::*member)(A1))
         : Callback<R(A1)>(object, member) {}
 
-    R (*get_function())(A1) {
-        return *reinterpret_cast<R (**)(A1)>(this);
+    R(*get_function())(A1)
+    {
+        return *reinterpret_cast<R(* *)(A1)>(this);
     }
 
-    R call(A1 a1) const {
+    R call(A1 a1) const
+    {
         if (!Callback<R(A1)>::operator bool()) {
             return (R)0;
         }
@@ -57,7 +59,8 @@ public:
         return Callback<R(A1)>::call(a1);
     }
 
-    R operator()(A1 a1) const {
+    R operator()(A1 a1) const
+    {
         return Callback<R(A1)>::call(a1);
     }
 };
@@ -66,21 +69,23 @@ template <typename R>
 class FunctionPointerArg1<R, void> : public Callback<R()> {
 public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "FunctionPointer has been replaced by Callback<void()>")
-    FunctionPointerArg1(R (*function)() = 0)
+                          "FunctionPointer has been replaced by Callback<void()>")
+    FunctionPointerArg1(R(*function)() = 0)
         : Callback<R()>(function) {}
 
     template<typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "FunctionPointer has been replaced by Callback<void()>")
-    FunctionPointerArg1(T *object, R (T::*member)())
+                          "FunctionPointer has been replaced by Callback<void()>")
+    FunctionPointerArg1(T *object, R(T::*member)())
         : Callback<R()>(object, member) {}
 
-    R (*get_function())() {
-        return *reinterpret_cast<R (**)()>(this);
+    R(*get_function())()
+    {
+        return *reinterpret_cast<R(* *)()>(this);
     }
 
-    R call() const {
+    R call() const
+    {
         if (!Callback<R()>::operator bool()) {
             return (R)0;
         }
@@ -88,7 +93,8 @@ public:
         return Callback<R()>::call();
     }
 
-    R operator()() const {
+    R operator()() const
+    {
         return Callback<R()>::call();
     }
 };

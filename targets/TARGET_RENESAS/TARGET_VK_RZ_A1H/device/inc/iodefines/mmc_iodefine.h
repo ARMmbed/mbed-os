@@ -30,8 +30,8 @@
 #define MMC_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_mmc
-{                                                          /* MMC              */
+struct st_mmc {
+    /* MMC              */
     volatile uint16_t CE_CMD_SETH;                      /*  CE_CMD_SETH */
     volatile uint16_t CE_CMD_SETL;                      /*  CE_CMD_SETL */
     volatile uint8_t   dummy182[4];                            /*                  */

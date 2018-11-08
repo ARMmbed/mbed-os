@@ -516,10 +516,10 @@ __STATIC_INLINE uint32_t CLK_GetPLLClockFreq(void)
 
     u32PllReg = CLK->PLLCTL;
 
-    if(u32PllReg & (CLK_PLLCTL_PD_Msk | CLK_PLLCTL_OE_Msk)) {		
+    if (u32PllReg & (CLK_PLLCTL_PD_Msk | CLK_PLLCTL_OE_Msk)) {
         u32PllFreq = 0UL;           /* PLL is in power down mode or fix low */
-    } else if((u32PllReg & CLK_PLLCTL_BP_Msk) == CLK_PLLCTL_BP_Msk) {
-        if((u32PllReg & CLK_PLLCTL_PLLSRC_HIRC) == CLK_PLLCTL_PLLSRC_HIRC) {
+    } else if ((u32PllReg & CLK_PLLCTL_BP_Msk) == CLK_PLLCTL_BP_Msk) {
+        if ((u32PllReg & CLK_PLLCTL_PLLSRC_HIRC) == CLK_PLLCTL_PLLSRC_HIRC) {
             u32FIN = __HIRC;    /* PLL source clock from HIRC */
         } else {
             u32FIN = __HXT;     /* PLL source clock from HXT */
@@ -527,7 +527,7 @@ __STATIC_INLINE uint32_t CLK_GetPLLClockFreq(void)
 
         u32PllFreq = u32FIN;
     } else {
-        if((u32PllReg & CLK_PLLCTL_PLLSRC_HIRC) == CLK_PLLCTL_PLLSRC_HIRC) {
+        if ((u32PllReg & CLK_PLLCTL_PLLSRC_HIRC) == CLK_PLLCTL_PLLSRC_HIRC) {
             u32FIN = __HIRC;    /* PLL source clock from HIRC */
         } else {
             u32FIN = __HXT;     /* PLL source clock from HXT */
@@ -560,7 +560,7 @@ __STATIC_INLINE void CLK_SysTickDelay(uint32_t us)
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;
 
     /* Waiting for down-count to zero */
-    while((SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) == 0UL) {
+    while ((SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) == 0UL) {
     }
 
     /* Disable SysTick counter */

@@ -17,7 +17,7 @@
  * @file    wifi_conf.h
  * @author
  * @version
- * @brief   This file provides user interface for Wi-Fi station and AP mode configuration 
+ * @brief   This file provides user interface for Wi-Fi station and AP mode configuration
  *             base on the functionalities provided by Realtek Wi-Fi driver.
  ******************************************************************************
  */
@@ -25,16 +25,16 @@
 #define __WIFI_API_H
 
 #include "osdep_service.h"
-#include "wifi_constants.h"   
-#include "wifi_structures.h"  
-#include "wifi_util.h"    
-#include "wifi_ind.h"    
-#ifndef CONFIG_MBED_ENABLED  
+#include "wifi_constants.h"
+#include "wifi_structures.h"
+#include "wifi_util.h"
+#include "wifi_ind.h"
+#ifndef CONFIG_MBED_ENABLED
 #include <platform/platform_stdlib.h>
 #endif
 
 #ifdef __cplusplus
-  extern "C" {
+extern "C" {
 #endif
 
 /******************************************************
@@ -44,9 +44,9 @@
 #define RTW_ENABLE_API_INFO
 
 #ifdef RTW_ENABLE_API_INFO
-    #define RTW_API_INFO(args) do {printf args;} while(0)
+#define RTW_API_INFO(args) do {printf args;} while(0)
 #else
-    #define RTW_API_INFO(args)
+#define RTW_API_INFO(args)
 #endif
 
 #define MAC_ARG(x) ((u8*)(x))[0],((u8*)(x))[1],((u8*)(x))[2],((u8*)(x))[3],((u8*)(x))[4],((u8*)(x))[5]
@@ -78,38 +78,38 @@
  * @param result_ptr  : A pointer to the pointer that indicates where to put the next scan result
  * @param user_data   : User provided data
  */
-typedef void (*rtw_scan_result_callback_t)( rtw_scan_result_t** result_ptr, void* user_data );
-typedef rtw_result_t (*rtw_scan_result_handler_t)( rtw_scan_handler_result_t* malloced_scan_result );
+typedef void (*rtw_scan_result_callback_t)(rtw_scan_result_t **result_ptr, void *user_data);
+typedef rtw_result_t (*rtw_scan_result_handler_t)(rtw_scan_handler_result_t *malloced_scan_result);
 
 /******************************************************
  *                    Structures
  ******************************************************/
 typedef struct {
-	char *buf;
-	int buf_len;
+    char *buf;
+    int buf_len;
 } scan_buf_arg;
 
 /******************************************************
  *                    Structures
  ******************************************************/
-typedef struct internal_scan_handler{
-	rtw_scan_result_t** pap_details;
-	rtw_scan_result_t * ap_details;
-	int	scan_cnt;
-	rtw_bool_t	scan_complete;
-	unsigned char	max_ap_size;
-	rtw_scan_result_handler_t gscan_result_handler;
+typedef struct internal_scan_handler {
+    rtw_scan_result_t **pap_details;
+    rtw_scan_result_t *ap_details;
+    int scan_cnt;
+    rtw_bool_t  scan_complete;
+    unsigned char   max_ap_size;
+    rtw_scan_result_handler_t gscan_result_handler;
 #if SCAN_USE_SEMAPHORE
-	void *scan_semaphore;
+    void *scan_semaphore;
 #else
-	int 	scan_running;
+    int     scan_running;
 #endif
-	void*	user_data;
-	unsigned int	scan_start_time;
+    void   *user_data;
+    unsigned int    scan_start_time;
 } internal_scan_handler_t;
 
 typedef struct {
-    rtw_network_info_t	network_info;
+    rtw_network_info_t  network_info;
     void *join_sema;
 } internal_join_result_t;
 
@@ -118,17 +118,17 @@ typedef struct {
  ******************************************************/
 /**
  * @brief  Initialize Realtek WiFi API System.
- * 			- Initialize the required parts of the software platform.
- *   			i.e. worker, event registering, semaphore, etc.
- * 			- Initialize the RTW API thread which handles the asynchronous event.
+ *          - Initialize the required parts of the software platform.
+ *              i.e. worker, event registering, semaphore, etc.
+ *          - Initialize the RTW API thread which handles the asynchronous event.
  * @return RTW_SUCCESS if initialization is successful, RTW_ERROR otherwise
  */
 int wifi_manager_init(void);
 
 /**
  * @brief  Join a Wi-Fi network.
- * 		Scan for, associate and authenticate with a Wi-Fi network.
- *		On successful return, the system is ready to send data packets.
+ *      Scan for, associate and authenticate with a Wi-Fi network.
+ *      On successful return, the system is ready to send data packets.
  *
  * @param[in]  ssid: A null terminated string containing the SSID name of the network to join.
  * @param[in]  security_type: Authentication type:
@@ -140,8 +140,8 @@ int wifi_manager_init(void);
  *                         - RTW_SECURITY_WPA2_TKIP_PSK  - WPA2 Security using TKIP cipher
  *                         - RTW_SECURITY_WPA2_MIXED_PSK - WPA2 Security using AES and/or TKIP ciphers
  * @param[in]  password: A byte array containing either the cleartext security key for WPA/WPA2
- *  						 secured networks, or a pointer to an array of rtw_wep_key_t
- *  						 structures for WEP secured networks.
+ *                           secured networks, or a pointer to an array of rtw_wep_key_t
+ *                           structures for WEP secured networks.
  * @param[in]  ssid_len: The length of the SSID in bytes.
  * @param[in]  password_len: The length of the security_key in bytes.
  * @param[in]  key_id: The index of the wep key (0, 1, 2, or 3). If not using it, leave it with value -1.
@@ -151,18 +151,18 @@ int wifi_manager_init(void);
  * @note  Please make sure the Wi-Fi is enabled before invoking this function. (@ref wifi_on())
  */
 int wifi_connect(
-	char 				*ssid,
-	rtw_security_t	security_type,
-	char 				*password,
-	int 				ssid_len,
-	int 				password_len,
-	int 				key_id,
-	void 				*semaphore);
+    char                *ssid,
+    rtw_security_t  security_type,
+    char                *password,
+    int                 ssid_len,
+    int                 password_len,
+    int                 key_id,
+    void                *semaphore);
 
 /**
  * @brief  Join a Wi-Fi network with specified BSSID.
- * 		Scan for, associate and authenticate with a Wi-Fi network.
- *		On successful return, the system is ready to send data packets.
+ *      Scan for, associate and authenticate with a Wi-Fi network.
+ *      On successful return, the system is ready to send data packets.
  * @param[in]  bssid: The specified BSSID to connect.
  * @param[in]  ssid: A null terminated string containing the SSID name of the network to join.
  * @param[in]  security_type: Authentication type:
@@ -174,8 +174,8 @@ int wifi_connect(
  *                         - RTW_SECURITY_WPA2_TKIP_PSK  - WPA2 Security using TKIP cipher
  *                         - RTW_SECURITY_WPA2_MIXED_PSK - WPA2 Security using AES and/or TKIP ciphers
  * @param[in]  password: A byte array containing either the cleartext security key for WPA/WPA2
- *  						 secured networks, or a pointer to an array of rtw_wep_key_t
- *  						 structures for WEP secured networks.
+ *                           secured networks, or a pointer to an array of rtw_wep_key_t
+ *                           structures for WEP secured networks.
  * @param[in]  ssid_len: The length of the SSID in bytes.
  * @param[in]  password_len: The length of the security_key in bytes.
  * @param[in]  key_id: The index of the wep key.
@@ -186,15 +186,15 @@ int wifi_connect(
  * @note  The difference between @ref wifi_connect_bssid() and @ref wifi_connect() is that BSSID has higher priority as the basis of connection in @ref wifi_connect_bssid.
  */
 int wifi_connect_bssid(
-	unsigned char 		bssid[ETH_ALEN],
-	char 				*ssid,
-	rtw_security_t	security_type,
-	char 				*password,
-	int 				bssid_len,
-	int 				ssid_len,
-	int 				password_len,
-	int 				key_id,
-	void 				*semaphore);
+    unsigned char       bssid[ETH_ALEN],
+    char                *ssid,
+    rtw_security_t  security_type,
+    char                *password,
+    int                 bssid_len,
+    int                 ssid_len,
+    int                 password_len,
+    int                 key_id,
+    void                *semaphore);
 
 /**
   * @brief  Disassociates from current Wi-Fi network.
@@ -221,24 +221,24 @@ int wifi_is_up(rtw_interface_t interface);
 
 /** Determines if a particular interface is ready to transceive ethernet packets
  *
- * @param     Radio interface to check, options are 
- *  				RTW_STA_INTERFACE, RTW_AP_INTERFACE
- * @return    RTW_SUCCESS  : if the interface is ready to 
- *  		  transceive ethernet packets
- * @return    RTW_NOTFOUND : no AP with a matching SSID was 
- *  		  found
+ * @param     Radio interface to check, options are
+ *                  RTW_STA_INTERFACE, RTW_AP_INTERFACE
+ * @return    RTW_SUCCESS  : if the interface is ready to
+ *            transceive ethernet packets
+ * @return    RTW_NOTFOUND : no AP with a matching SSID was
+ *            found
  * @return    RTW_NOT_AUTHENTICATED: a matching AP was found but
- *  								   it won't let you
- *  								   authenticate. This can
- *  								   occur if this device is
- *  								   in the block list on the
- *  								   AP.
- * @return    RTW_NOT_KEYED: the device has authenticated and 
- *  						   associated but has not completed
- *  						   the key exchange. This can occur
- *  						   if the passphrase is incorrect.
- * @return    RTW_ERROR    : if the interface is not ready to 
- *  		  transceive ethernet packets
+ *                                     it won't let you
+ *                                     authenticate. This can
+ *                                     occur if this device is
+ *                                     in the block list on the
+ *                                     AP.
+ * @return    RTW_NOT_KEYED: the device has authenticated and
+ *                             associated but has not completed
+ *                             the key exchange. This can occur
+ *                             if the passphrase is incorrect.
+ * @return    RTW_ERROR    : if the interface is not ready to
+ *            transceive ethernet packets
  */
 int wifi_is_ready_to_transceive(rtw_interface_t interface);
 
@@ -247,15 +247,15 @@ int wifi_is_ready_to_transceive(rtw_interface_t interface);
  * @param[in] mac: Wi-Fi MAC address.
  * @return    RTW_SUCCESS or RTW_ERROR
  */
-int wifi_set_mac_address(char * mac);
+int wifi_set_mac_address(char *mac);
 
 /**
  * @brief  Retrieves the current Media Access Control (MAC) address
- *			(or Ethernet hardware address) of the 802.11 device.
+ *          (or Ethernet hardware address) of the 802.11 device.
  * @param[in]  mac: Point to the result of the mac address will be get.
  * @return    RTW_SUCCESS or RTW_ERROR
  */
-int wifi_get_mac_address(char * mac);
+int wifi_get_mac_address(char *mac);
 
 /**
  * @brief Enable Wi-Fi powersave mode.
@@ -295,7 +295,7 @@ int wifi_set_txpower(int poweridx);
  * @return  RTW_SUCCESS: The result is successfully got.
  * @return  RTW_ERROR: The result is not successfully got.
  */
-int wifi_get_associated_client_list(void * client_list_buffer, unsigned short buffer_length);
+int wifi_get_associated_client_list(void *client_list_buffer, unsigned short buffer_length);
 
 /**
  * @brief  Get the SoftAP information.
@@ -304,7 +304,7 @@ int wifi_get_associated_client_list(void * client_list_buffer, unsigned short bu
  * @return  RTW_SUCCESS: The result is successfully got.
  * @return  RTW_ERROR: The result is not successfully got.
  */
-int wifi_get_ap_info(rtw_bss_info_t * ap_info, rtw_security_t* security);
+int wifi_get_ap_info(rtw_bss_info_t *ap_info, rtw_security_t *security);
 
 /**
  * @brief  Set the country code to driver to determine the channel set.
@@ -333,8 +333,8 @@ int wifi_set_channel(int channel);
 
 /**
  * @brief  Get the current channel on STA interface.
- * @param[out] channel: A pointer to the variable where the 
- *  				channel value will be written
+ * @param[out] channel: A pointer to the variable where the
+ *                  channel value will be written
  * @return  RTW_SUCCESS: If the channel is successfully read.
  * @return  RTW_ERROR: If the channel is not successfully read.
  */
@@ -342,19 +342,19 @@ int wifi_get_channel(int *channel);
 
 /**
  * @brief  Register interest in a multicast address.\n
- * 		Once a multicast address has been registered, all packets detected on the
- * 		medium destined for that address are forwarded to the host.
- * 		Otherwise they are ignored.
+ *      Once a multicast address has been registered, all packets detected on the
+ *      medium destined for that address are forwarded to the host.
+ *      Otherwise they are ignored.
  * @param[in] mac: Ethernet MAC address
  * @return  RTW_SUCCESS: If the address is registered successfully.
  * @return  RTW_ERROR: If the address is not registered.
  */
 int wifi_register_multicast_address(rtw_mac_t *mac);
 
-/** 
+/**
  * @brief  Unregister interest in a multicast address.\n
- * 		Once a multicast address has been unregistered, all packets detected on the
- * 		medium destined for that address are ignored.
+ *      Once a multicast address has been unregistered, all packets detected on the
+ *      medium destined for that address are ignored.
  * @param[in] mac: Ethernet MAC address
  * @return  RTW_SUCCESS: If the address is unregistered successfully.
  * @return  RTW_ERROR: If the address is not unregistered.
@@ -398,7 +398,7 @@ int wifi_on(rtw_mode_t mode);
 
 /**
  * @brief  Disable Wi-Fi.
- *  
+ *
  * @param  None
  * @return  RTW_SUCCESS: if deinitialization is successful.
  * @return  RTW_ERROR: otherwise.
@@ -412,21 +412,21 @@ int wifi_off(void);
  * - De-Initialises the driver thread which arbitrates access
  *   to the SDIO/SPI bus
  *
- * @return RTW_SUCCESS if deinitialization is successful, 
- *  	   RTW_ERROR otherwise
+ * @return RTW_SUCCESS if deinitialization is successful,
+ *         RTW_ERROR otherwise
  */
 int wifi_off_fastly(void);
 
 /**
  * @brief  Set IPS/LPS mode.
  * @param[in] ips_mode: The desired IPS mode. It becomes effective when wlan enter ips.\n
- *		@ref ips_mode is inactive power save mode. Wi-Fi automatically turns RF off if it is not associated to AP. Set 1 to enable inactive power save mode.
+ *      @ref ips_mode is inactive power save mode. Wi-Fi automatically turns RF off if it is not associated to AP. Set 1 to enable inactive power save mode.
  * @param[in] lps_mode: The desired LPS mode. It becomes effective when wlan enter lps.\n
- *		@ref lps_mode is leisure power save mode. Wi-Fi automatically turns RF off during the association to AP is traffic is not busy while it also automatically turns RF on to listen to beacon. Set 1 to enable leisure power save mode.
+ *      @ref lps_mode is leisure power save mode. Wi-Fi automatically turns RF off during the association to AP is traffic is not busy while it also automatically turns RF on to listen to beacon. Set 1 to enable leisure power save mode.
  * @return  RTW_SUCCESS if setting LPS mode successful.
  * @return  RTW_ERROR otherwise.
  */
- 
+
 int wifi_set_power_mode(unsigned char ips_mode, unsigned char lps_mode);
 
 /**
@@ -471,7 +471,7 @@ int wifi_get_lps_dtim(unsigned char *dtim);
  * @warning If a STA interface is active when this function is called, the softAP will
  *          start on the same channel as the STA. It will NOT use the channel provided!
  * @param[in]  ssid: A null terminated string containing the SSID name of the network.
- * @param[in]  security_type: 
+ * @param[in]  security_type:
  *                         - RTW_SECURITY_OPEN           - Open Security
  *                         - RTW_SECURITY_WPA_TKIP_PSK   - WPA Security
  *                         - RTW_SECURITY_WPA2_AES_PSK   - WPA2 Security using AES cipher
@@ -486,12 +486,12 @@ int wifi_get_lps_dtim(unsigned char *dtim);
  * @note  Please make sure the Wi-Fi is enabled before invoking this function. (@ref wifi_on())
  */
 int wifi_start_ap(
-	char 				*ssid,
-	rtw_security_t		security_type,
-	char 				*password,
-	int 				ssid_len,
-	int 				password_len,
-	int					channel);
+    char                *ssid,
+    rtw_security_t      security_type,
+    char                *password,
+    int                 ssid_len,
+    int                 password_len,
+    int                 channel);
 
 /**
  * @brief  Start an infrastructure Wi-Fi network with hidden SSID.
@@ -499,7 +499,7 @@ int wifi_start_ap(
  *          start on the same channel as the STA. It will NOT use the channel provided!
  *
  * @param[in]  ssid: A null terminated string containing
- *  	 the SSID name of the network to join.
+ *       the SSID name of the network to join.
  * @param[in]  security_type: Authentication type: \n
  *                         - RTW_SECURITY_OPEN           - Open Security
  *                         - RTW_SECURITY_WPA_TKIP_PSK   - WPA Security
@@ -507,7 +507,7 @@ int wifi_start_ap(
  *                         - RTW_SECURITY_WPA2_MIXED_PSK - WPA2 Security using AES and/or TKIP ciphers
  *                         - WEP security is NOT IMPLEMENTED. It is NOT SECURE!
  * @param[in]  password: A byte array containing the cleartext
- *  	 security key for the network.
+ *       security key for the network.
  * @param[in]  ssid_len: The length of the SSID in bytes.
  * @param[in]  password_len: The length of the security_key in bytes.
  * @param[in]  channel: 802.11 channel number
@@ -516,58 +516,58 @@ int wifi_start_ap(
  * @return  RTW_ERROR: If an error occurred.
  */
 int wifi_start_ap_with_hidden_ssid(
-	char 				*ssid,
-	rtw_security_t		security_type,
-	char 				*password,
-	int 				ssid_len,
-	int 				password_len,
-	int					channel);
+    char                *ssid,
+    rtw_security_t      security_type,
+    char                *password,
+    int                 ssid_len,
+    int                 password_len,
+    int                 channel);
 
 /**
  * @brief  Initiate a scan to search for 802.11 networks.
  *
- * @param[in]  scan_type: Specifies whether the scan should 
- *                             be Active, Passive or scan 
+ * @param[in]  scan_type: Specifies whether the scan should
+ *                             be Active, Passive or scan
  *                             Prohibited channels
- * @param[in]  bss_type: Specifies whether the scan should 
+ * @param[in]  bss_type: Specifies whether the scan should
  *                             search for Infrastructure
  *                             networks (those using an Access
  *                             Point), Ad-hoc networks, or both
  *                             types.
- * @param[in]  result_ptr: Scan specific ssid. The first 4 
+ * @param[in]  result_ptr: Scan specific ssid. The first 4
  *                             bytes is ssid lenth, and ssid name
  *                             append after it.
  *                             If no specific ssid need to scan,
  *                             PLEASE CLEAN result_ptr before pass
  *                             it into parameter.
- * @param[out]  result_ptr: a pointer to a pointer to a result 
+ * @param[out]  result_ptr: a pointer to a pointer to a result
  *                             storage structure.
  * @return  RTW_SUCCESS or RTW_ERROR
  * @note  The scan progressively accumulates results over time, and
- *  			may take between 1 and 3 seconds to complete. The results of
- *  			the scan will be individually provided to the callback
- *  			function. Note: The callback function will be executed in
- *  			the context of the RTW thread.
- * @note  When scanning specific channels, devices with a 
- *  	 strong signal strength on nearby channels may be
- *  	 detected
+ *              may take between 1 and 3 seconds to complete. The results of
+ *              the scan will be individually provided to the callback
+ *              function. Note: The callback function will be executed in
+ *              the context of the RTW thread.
+ * @note  When scanning specific channels, devices with a
+ *       strong signal strength on nearby channels may be
+ *       detected
  */
 int wifi_scan(rtw_scan_type_t                    scan_type,
-				  rtw_bss_type_t                     bss_type,
-				  void*                result_ptr);
+              rtw_bss_type_t                     bss_type,
+              void                *result_ptr);
 
 /**
  * @brief  Initiate a scan to search for 802.11 networks, a higher level API based on wifi_scan
- *			to simplify the scan operation.
+ *          to simplify the scan operation.
  * @param[in]  results_handler: The callback function which will receive and process the result data.
  * @param[in]  user_data: User specified data that will be passed directly to the callback function.
  * @return  RTW_SUCCESS or RTW_ERROR
- * @note  Callback must not use blocking functions, since it is called from the context of the RTW thread. 
- *			The callback, user_data variables will be referenced after the function returns. 
- *			Those variables must remain valid until the scan is completed.
- *			The usage of this api can reference ATWS in atcmd_wifi.c.
+ * @note  Callback must not use blocking functions, since it is called from the context of the RTW thread.
+ *          The callback, user_data variables will be referenced after the function returns.
+ *          Those variables must remain valid until the scan is completed.
+ *          The usage of this api can reference ATWS in atcmd_wifi.c.
  */
-int wifi_scan_networks(rtw_scan_result_handler_t results_handler, void* user_data);
+int wifi_scan_networks(rtw_scan_result_handler_t results_handler, void *user_data);
 
 /**
  * @brief  Initiate a scan to search for 802.11 networks with specified SSID.
@@ -577,11 +577,11 @@ int wifi_scan_networks(rtw_scan_result_handler_t results_handler, void* user_dat
  * @param[in]  ssid: The SSID of target network.
  * @param[in]  ssid_len: The length of the target network SSID.
  * @return  RTW_SUCCESS or RTW_ERROR
- * @note  Callback must not use blocking functions, since it is called from the context of the RTW thread. 
- *			The callback, user_data variables will be referenced after the function returns. 
- *			Those variables must remain valid until the scan is completed.
+ * @note  Callback must not use blocking functions, since it is called from the context of the RTW thread.
+ *          The callback, user_data variables will be referenced after the function returns.
+ *          Those variables must remain valid until the scan is completed.
  */
-int wifi_scan_networks_with_ssid(int (results_handler)(char*, int, char *, void *), void* user_data, int scan_buflen, char* ssid, int ssid_len);
+int wifi_scan_networks_with_ssid(int (results_handler)(char *, int, char *, void *), void *user_data, int scan_buflen, char *ssid, int ssid_len);
 
 /**
 * @brief  Set the channel used to be partial scanned.
@@ -590,9 +590,9 @@ int wifi_scan_networks_with_ssid(int (results_handler)(char*, int, char *, void 
 * @param[in]  length: The length of the channel_list.
 * @return  RTW_SUCCESS or RTW_ERROR.
 * @note  This function should be used with wifi_scan function. First, use @ref wifi_set_pscan_chan to
-*			indicate which channel will be scanned, and then use @ref wifi_scan to get scanned results.
+*           indicate which channel will be scanned, and then use @ref wifi_scan to get scanned results.
 */
-int wifi_set_pscan_chan(__u8 * channel_list,__u8 * pscan_config, __u8 length);
+int wifi_set_pscan_chan(__u8 *channel_list, __u8 *pscan_config, __u8 length);
 
 /**
  * @brief  Get current Wi-Fi setting from driver.
@@ -600,7 +600,7 @@ int wifi_set_pscan_chan(__u8 * channel_list,__u8 * pscan_config, __u8 length);
  * @param[out]  pSetting: Points to the rtw_wifi_setting_t structure to store the WIFI setting gotten from driver.
  * @return  RTW_SUCCESS or RTW_ERROR.
  */
-int wifi_get_setting(const char *ifname,rtw_wifi_setting_t *pSetting);
+int wifi_get_setting(const char *ifname, rtw_wifi_setting_t *pSetting);
 
 /**
  * @brief  Show the network information stored in a rtw_wifi_setting_t structure.
@@ -608,13 +608,13 @@ int wifi_get_setting(const char *ifname,rtw_wifi_setting_t *pSetting);
  * @param[in]  pSetting: Points to the rtw_wifi_setting_t structure which information is gotten by @ref wifi_get_setting().
  * @return  RTW_SUCCESS or RTW_ERROR.
  */
-int wifi_show_setting(const char *ifname,rtw_wifi_setting_t *pSetting);
+int wifi_show_setting(const char *ifname, rtw_wifi_setting_t *pSetting);
 
 /**
- * @brief  
-Set the network mode according to the data rate its supported. 
- *			Driver works in BGN mode in default after driver initialization. This function is used to
- *			change wireless network mode for station mode before connecting to AP.
+ * @brief
+Set the network mode according to the data rate its supported.
+ *          Driver works in BGN mode in default after driver initialization. This function is used to
+ *          change wireless network mode for station mode before connecting to AP.
  * @param[in]  mode: Network mode to set. The value can be RTW_NETWORK_B/RTW_NETWORK_BG/RTW_NETWORK_BGN.
  * @return  RTW_SUCCESS or RTW_ERROR.
  */
@@ -626,15 +626,15 @@ int wifi_set_network_mode(rtw_network_mode_t mode);
  *                    - 0 means disable the promisc.
  *                    - 1 means enable the promisc.
  *                    - 2 means enable the promisc special for length is used.
- * @param[in]  callback: the callback function which will 
- *  			  receive and process the netowork data.
+ * @param[in]  callback: the callback function which will
+ *                receive and process the netowork data.
  * @param[in]  len_used: specify if the the promisc length is used.
- *				If len_used set to 1, packet length will be saved and transferred to callback function.
+ *              If len_used set to 1, packet length will be saved and transferred to callback function.
  *
  * @return  RTW_SUCCESS or RTW_ERROR
  * @note  This function can be used to implement vendor specified simple configure.
  */
-int wifi_set_promisc(rtw_rcr_level_t enabled, void (*callback)(unsigned char*, unsigned int, void*), unsigned char len_used);
+int wifi_set_promisc(rtw_rcr_level_t enabled, void (*callback)(unsigned char *, unsigned int, void *), unsigned char len_used);
 
 /**
  * @brief  Let Wi-Fi enter promiscuous mode.
@@ -644,7 +644,7 @@ int wifi_set_promisc(rtw_rcr_level_t enabled, void (*callback)(unsigned char*, u
 void wifi_enter_promisc_mode(void);
 
 /** Set the wps phase
- *  
+ *
  * @param is_trigger_wps[in]   : to trigger wps function or not
  *
  * @return    RTW_SUCCESS or RTW_ERROR
@@ -656,7 +656,7 @@ int wifi_set_wps_phase(unsigned char is_trigger_wps);
  * @warning If a STA interface is active when this function is called, the softAP will
  *          start on the same channel as the STA. It will NOT use the channel provided!
  * @param[in]  ssid: A null terminated string containing the SSID name of the network.
- * @param[in]  security_type: 
+ * @param[in]  security_type:
  *                         - RTW_SECURITY_OPEN           - Open Security
  *                         - RTW_SECURITY_WPA_TKIP_PSK   - WPA Security
  *                         - RTW_SECURITY_WPA2_AES_PSK   - WPA2 Security using AES cipher
@@ -671,12 +671,12 @@ int wifi_set_wps_phase(unsigned char is_trigger_wps);
  * @note  Please make sure the Wi-Fi is enabled before invoking this function. (@ref wifi_on())
  */
 int wifi_restart_ap(
-	unsigned char 		*ssid,
-	rtw_security_t		security_type,
-	unsigned char 		*password,
-	int 				ssid_len,
-	int 				password_len,
-	int					channel);
+    unsigned char       *ssid,
+    rtw_security_t      security_type,
+    unsigned char       *password,
+    int                 ssid_len,
+    int                 password_len,
+    int                 channel);
 
 /**
  * @brief  Set reconnection mode with configuration.
@@ -685,10 +685,10 @@ int wifi_restart_ap(
  * @param[in]  timeout: The timeout value (in seconds).
  * @return  0 if success, otherwise return -1.
  * @note  Defining CONFIG_AUTO_RECONNECT in "autoconf.h" needs to be done before compiling,
- *			or this API won't be effective.
- * @note  The difference between @ref wifi_config_autoreconnect() and @ref wifi_set_autoreconnect() is that 
- *			user can specify the retry times and timeout value in @ref wifi_config_autoreconnect().
- *			But in @ref wifi_set_autoreconnect() these values are set with 3 retry limit and 5 seconds timeout as default.
+ *          or this API won't be effective.
+ * @note  The difference between @ref wifi_config_autoreconnect() and @ref wifi_set_autoreconnect() is that
+ *          user can specify the retry times and timeout value in @ref wifi_config_autoreconnect().
+ *          But in @ref wifi_set_autoreconnect() these values are set with 3 retry limit and 5 seconds timeout as default.
  */
 int wifi_config_autoreconnect(__u8 mode, __u8 retry_times, __u16 timeout);
 
@@ -697,10 +697,10 @@ int wifi_config_autoreconnect(__u8 mode, __u8 retry_times, __u16 timeout);
   * @param[in]  mode: Set 1/0 to enalbe/disable the reconnection mode.
   * @return  0 if success, otherwise return -1.
   * @note  Defining CONFIG_AUTO_RECONNECT in "autoconf.h" needs to be done before compiling,
-  *			or this API won't be effective.
-  * @note  The difference between @ref wifi_config_autoreconnect() and @ref wifi_set_autoreconnect() is that 
-  *			user can specify the retry times and timeout value in @ref wifi_config_autoreconnect().
-  *			But in @ref wifi_set_autoreconnect() these values are set with 3 retry limit and 5 seconds timeout as default.
+  *         or this API won't be effective.
+  * @note  The difference between @ref wifi_config_autoreconnect() and @ref wifi_set_autoreconnect() is that
+  *         user can specify the retry times and timeout value in @ref wifi_config_autoreconnect().
+  *         But in @ref wifi_set_autoreconnect() these values are set with 3 retry limit and 5 seconds timeout as default.
   */
 int wifi_set_autoreconnect(__u8 mode);
 
@@ -709,7 +709,7 @@ int wifi_set_autoreconnect(__u8 mode);
   * @param[out]  mode: Point to the result of setting reconnection mode.
   * @return  0 if success, otherwise return -1.
   * @note  Defining CONFIG_AUTO_RECONNECT in "autoconf.h" needs to be done before compiling,
-  *			or this API won't be effective.
+  *         or this API won't be effective.
   */
 int wifi_get_autoreconnect(__u8 *mode);
 
@@ -717,19 +717,19 @@ int wifi_get_autoreconnect(__u8 *mode);
   * @brief  Present the device disconnect reason while connecting.
   * @param  None
   * @return  @ref rtw_connect_error_flag_t
-  *			- 0: RTW_NO_ERROR
-  *			- 1: RTW_NONE_NETWORK
-  *			- 2: RTW_CONNECT_FAIL
-  *			- 3: RTW_WRONG_PASSWORD
-  *			- 4: RTW_DHCP_FAIL
-  *			- 5: RTW_UNKNOWN (initial status)
+  *         - 0: RTW_NO_ERROR
+  *         - 1: RTW_NONE_NETWORK
+  *         - 2: RTW_CONNECT_FAIL
+  *         - 3: RTW_WRONG_PASSWORD
+  *         - 4: RTW_DHCP_FAIL
+  *         - 5: RTW_UNKNOWN (initial status)
   */
 int wifi_get_last_error(void);
 
 
 #ifdef CONFIG_CUSTOM_IE
 #ifndef BIT
-#define BIT(x)	((__u32)1 << (x))
+#define BIT(x)  ((__u32)1 << (x))
 #endif
 
 #ifndef _CUSTOM_IE_TYPE_
@@ -737,10 +737,10 @@ int wifi_get_last_error(void);
 /**
   * @brief  The enumeration is transmission type for wifi custom ie.
   */
-enum CUSTOM_IE_TYPE{
-	PROBE_REQ = BIT(0),
-	PROBE_RSP = BIT(1),
-	BEACON	  = BIT(2),
+enum CUSTOM_IE_TYPE {
+    PROBE_REQ = BIT(0),
+    PROBE_RSP = BIT(1),
+    BEACON    = BIT(2),
 };
 typedef uint32_t rtw_custom_ie_type_t;
 #endif /* _CUSTOM_IE_TYPE_ */
@@ -756,12 +756,12 @@ typedef uint32_t rtw_custom_ie_type_t;
 #define _CUS_IE_
 /**
   * @brief  The structure is used to set WIFI custom ie list, and type match CUSTOM_IE_TYPE.\n
-  *			The ie will be transmitted according to the type.
+  *         The ie will be transmitted according to the type.
   */
-typedef struct _cus_ie{
-	__u8 *ie;
-	__u8 type;
-}rtw_custom_ie_t, *p_rtw_custom_ie_t;
+typedef struct _cus_ie {
+    __u8 *ie;
+    __u8 type;
+} rtw_custom_ie_t, *p_rtw_custom_ie_t;
 #endif /* _CUS_IE_ */
 
 /**
@@ -771,7 +771,7 @@ typedef struct _cus_ie{
   * @param[in]  ie_num: The number of WIFI CUSTOM IE list.
   * @return  0 if success, otherwise return -1.
   * @note  Defininig CONFIG_CUSTOM_IE in "autoconf.h" needs to be done before compiling,
-  *			or this API won't be effective.
+  *         or this API won't be effective.
   */
 int wifi_add_custom_ie(void *cus_ie, int ie_num);
 
@@ -781,7 +781,7 @@ int wifi_add_custom_ie(void *cus_ie, int ie_num);
   * @param[in]  ie_index: Index of WIFI CUSTOM IE list.
   * @return  0 if success, otherwise return -1.
   * @note  Defininig CONFIG_CUSTOM_IE in "autoconf.h" needs to be done before compiling,
-  *			or this API won't be effective.
+  *         or this API won't be effective.
   */
 int wifi_update_custom_ie(void *cus_ie, int ie_index);
 
@@ -790,7 +790,7 @@ int wifi_update_custom_ie(void *cus_ie, int ie_index);
   * @param  None
   * @return  0 if success, otherwise return -1.
   * @note  Defininig CONFIG_CUSTOM_IE in "autoconf.h" needs to be done before compiling,
-  *			or this API won't be effective.
+  *         or this API won't be effective.
   */
 int wifi_del_custom_ie(void);
 #endif
@@ -840,7 +840,7 @@ int wifi_remove_packet_filter(unsigned char filter_id);
 void wifi_set_indicate_mgnt(int enable);
 
 #ifdef __cplusplus
-  }
+}
 #endif
 
 #endif // __WIFI_API_H

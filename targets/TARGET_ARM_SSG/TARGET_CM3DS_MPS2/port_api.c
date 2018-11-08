@@ -55,8 +55,8 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
     obj->reg_dirclr = &port_reg->OUTENABLECLR;
 
     /* The function is set per pin: reuse gpio logic */
-    for (i=0; i < MAX_GPIO_PINS; i++) {
-        if (obj->mask & (1<<i)) {
+    for (i = 0; i < MAX_GPIO_PINS; i++) {
+        if (obj->mask & (1 << i)) {
             gpio_set(port_pin(obj->port, i));
         }
     }
@@ -68,7 +68,7 @@ void port_mode(port_t *obj, PinMode mode)
 {
     uint32_t i;
     /* The mode is set per pin: reuse pinmap logic */
-    for (i=0; i < MAX_GPIO_PINS; i++) {
+    for (i = 0; i < MAX_GPIO_PINS; i++) {
         if (obj->mask & (1 << i)) {
             pin_mode(port_pin(obj->port, i), mode);
         }

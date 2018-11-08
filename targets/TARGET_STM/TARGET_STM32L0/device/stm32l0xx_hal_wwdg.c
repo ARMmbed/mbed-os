@@ -5,16 +5,16 @@
   * @version V1.7.0
   * @date    31-May-2016
   * @brief   WWDG HAL module driver.
-  *          This file provides firmware functions to manage the following 
+  *          This file provides firmware functions to manage the following
   *          functionalities of the Window Watchdog (WWDG) peripheral:
   *           + Initialization and de-initialization functions
   *           + IO operation functions
-  *           + Peripheral State functions        
+  *           + Peripheral State functions
   @verbatim
   ==============================================================================
                       ##### WWDG specific features #####
   ==============================================================================
-  [..] 
+  [..]
     Once enabled the WWDG generates a system reset on expiry of a programmed
        time period, unless the program refreshes the counter (downcounter)
        before reaching 0x3F value (i.e. a reset is generated when the counter
@@ -25,11 +25,11 @@
             implies that the counter must be refreshed in a limited window.
         (+) Once enabled the WWDG cannot be disabled except by a system reset.
         (+) WWDGRST flag in RCC_CSR register can be used to inform when a WWDG
-            reset occurs.               
+            reset occurs.
         (+) The WWDG counter input clock is derived from the APB clock divided
             by a programmable prescaler.
         (+) WWDG counter clock = PCLK1 / Prescaler
-            WWDG timeout = (WWDG counter clock) * (counter value) 
+            WWDG timeout = (WWDG counter clock) * (counter value)
         (+) Min-max timeout value @32 MHz(PCLK1): ~128.0 us / ~65.54 ms
 
 
@@ -50,16 +50,16 @@
         intervals during normal operation to prevent an MCU reset, using
         HAL_WWDG_Refresh() function. This operation must occur only when
         the counter is lower than the refresh window value already programmed.
-        
+
      *** WWDG HAL driver macros list ***
      ==================================
      [..]
        Below the list of most used macros in WWDG HAL driver.
-       
-      (+) __HAL_WWDG_ENABLE: Enable the WWDG peripheral 
+
+      (+) __HAL_WWDG_ENABLE: Enable the WWDG peripheral
       (+) __HAL_WWDG_GET_FLAG: Get the selected WWDG's flag status
-      (+) __HAL_WWDG_CLEAR_FLAG: Clear the WWDG's pending flags 
-      (+) __HAL_WWDG_ENABLE_IT:  Enables the WWDG early wakeup interrupt  
+      (+) __HAL_WWDG_CLEAR_FLAG: Clear the WWDG's pending flags
+      (+) __HAL_WWDG_ENABLE_IT:  Enables the WWDG early wakeup interrupt
 
   @endverbatim
   ******************************************************************************
@@ -118,7 +118,7 @@
   ==============================================================================
           ##### Initialization and de-initialization functions #####
   ==============================================================================
-  [..]  
+  [..]
     This section provides functions allowing to:
       (+) Initialize the WWDG according to the specified parameters
           in the WWDG_InitTypeDef and create the associated handle
@@ -140,41 +140,39 @@
 HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
 {
 
-  /* Check the WWDG handle allocation */
-  if(hwwdg == NULL)
-  {
-    return HAL_ERROR;
-  }
+    /* Check the WWDG handle allocation */
+    if (hwwdg == NULL) {
+        return HAL_ERROR;
+    }
 
-  /* Check the parameters */
-  assert_param(IS_WWDG_ALL_INSTANCE(hwwdg->Instance));
-  assert_param(IS_WWDG_PRESCALER(hwwdg->Init.Prescaler));
-  assert_param(IS_WWDG_WINDOW(hwwdg->Init.Window));
-  assert_param(IS_WWDG_COUNTER(hwwdg->Init.Counter));
-  
-  if(hwwdg->State == HAL_WWDG_STATE_RESET)
-  {
-    /* Allocate lock resource and initialize it */
-    hwwdg->Lock = HAL_UNLOCKED;
+    /* Check the parameters */
+    assert_param(IS_WWDG_ALL_INSTANCE(hwwdg->Instance));
+    assert_param(IS_WWDG_PRESCALER(hwwdg->Init.Prescaler));
+    assert_param(IS_WWDG_WINDOW(hwwdg->Init.Window));
+    assert_param(IS_WWDG_COUNTER(hwwdg->Init.Counter));
 
-    /* Init the low level hardware */
-    HAL_WWDG_MspInit(hwwdg);
-  }
+    if (hwwdg->State == HAL_WWDG_STATE_RESET) {
+        /* Allocate lock resource and initialize it */
+        hwwdg->Lock = HAL_UNLOCKED;
 
-  /* Take lock  and change peripheral state */
-   __HAL_LOCK(hwwdg);
-  hwwdg->State = HAL_WWDG_STATE_BUSY;
+        /* Init the low level hardware */
+        HAL_WWDG_MspInit(hwwdg);
+    }
 
-   /* Set WWDG Prescaler and Window  and Counter*/
-  MODIFY_REG(hwwdg->Instance->CFR, (WWDG_CFR_WDGTB | WWDG_CFR_W), (hwwdg->Init.Prescaler | hwwdg->Init.Window));
-  MODIFY_REG(hwwdg->Instance->CR, WWDG_CR_T, hwwdg->Init.Counter);
+    /* Take lock  and change peripheral state */
+    __HAL_LOCK(hwwdg);
+    hwwdg->State = HAL_WWDG_STATE_BUSY;
 
-  /* Change peripheral state and release lock*/
-  hwwdg->State = HAL_WWDG_STATE_READY;
-  __HAL_UNLOCK(hwwdg);
+    /* Set WWDG Prescaler and Window  and Counter*/
+    MODIFY_REG(hwwdg->Instance->CFR, (WWDG_CFR_WDGTB | WWDG_CFR_W), (hwwdg->Init.Prescaler | hwwdg->Init.Window));
+    MODIFY_REG(hwwdg->Instance->CR, WWDG_CR_T, hwwdg->Init.Counter);
 
-  /* Return function status */
-  return HAL_OK;
+    /* Change peripheral state and release lock*/
+    hwwdg->State = HAL_WWDG_STATE_READY;
+    __HAL_UNLOCK(hwwdg);
+
+    /* Return function status */
+    return HAL_OK;
 }
 
 /**
@@ -185,27 +183,27 @@ HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
   */
 HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
 {
-  /* Check the parameters */
-  assert_param(IS_WWDG_ALL_INSTANCE(hwwdg->Instance));
+    /* Check the parameters */
+    assert_param(IS_WWDG_ALL_INSTANCE(hwwdg->Instance));
 
-  /* Take lock and change peripheral state */
-   __HAL_LOCK(hwwdg);
-  hwwdg->State = HAL_WWDG_STATE_BUSY;
+    /* Take lock and change peripheral state */
+    __HAL_LOCK(hwwdg);
+    hwwdg->State = HAL_WWDG_STATE_BUSY;
 
-  /* DeInit the low level hardware */
-  HAL_WWDG_MspDeInit(hwwdg);
+    /* DeInit the low level hardware */
+    HAL_WWDG_MspDeInit(hwwdg);
 
-  /* Reset WWDG Control, configuration and status  register */
-  MODIFY_REG(hwwdg->Instance->CR, (WWDG_CR_T | WWDG_CR_WDGA),0x0000007FU);
-  MODIFY_REG(hwwdg->Instance->CFR, (WWDG_CFR_WDGTB | WWDG_CFR_W | WWDG_CFR_EWI),0x0000007FU);
-  MODIFY_REG(hwwdg->Instance->SR,WWDG_SR_EWIF,0x0U);
+    /* Reset WWDG Control, configuration and status  register */
+    MODIFY_REG(hwwdg->Instance->CR, (WWDG_CR_T | WWDG_CR_WDGA), 0x0000007FU);
+    MODIFY_REG(hwwdg->Instance->CFR, (WWDG_CFR_WDGTB | WWDG_CFR_W | WWDG_CFR_EWI), 0x0000007FU);
+    MODIFY_REG(hwwdg->Instance->SR, WWDG_SR_EWIF, 0x0U);
 
-  /* Change peripheral state and release lock*/
-  hwwdg->State = HAL_WWDG_STATE_RESET;
-  __HAL_UNLOCK(hwwdg);
+    /* Change peripheral state and release lock*/
+    hwwdg->State = HAL_WWDG_STATE_RESET;
+    __HAL_UNLOCK(hwwdg);
 
-  /* Return function status */
-  return HAL_OK;
+    /* Return function status */
+    return HAL_OK;
 }
 
 /**
@@ -216,12 +214,12 @@ HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
   */
 __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hwwdg);
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hwwdg);
 
-  /* NOTE: This function Should not be modified, when the callback is needed,
-           the HAL_WWDG_MspInit could be implemented in the user file
-   */
+    /* NOTE: This function Should not be modified, when the callback is needed,
+             the HAL_WWDG_MspInit could be implemented in the user file
+     */
 }
 
 /**
@@ -232,12 +230,12 @@ __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
   */
 __weak void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hwwdg);
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hwwdg);
 
-  /* NOTE: This function Should not be modified, when the callback is needed,
-           the HAL_WWDG_MspDeInit could be implemented in the user file
-   */
+    /* NOTE: This function Should not be modified, when the callback is needed,
+             the HAL_WWDG_MspDeInit could be implemented in the user file
+     */
 }
 
 /**
@@ -245,13 +243,13 @@ __weak void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg)
   */
 
 /** @addtogroup WWDG_Exported_Functions_Group2
- *  @brief    IO operation functions 
+ *  @brief    IO operation functions
  *
 @verbatim
   ==============================================================================
                       ##### IO operation functions #####
-  ==============================================================================  
-  [..]  
+  ==============================================================================
+  [..]
     This section provides functions allowing to:
       (+) Start the WWDG.
       (+) Refresh the WWDG.
@@ -269,19 +267,19 @@ __weak void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg)
   */
 HAL_StatusTypeDef HAL_WWDG_Start(WWDG_HandleTypeDef *hwwdg)
 {
-  /* Take lock and change peripheral state */
-  __HAL_LOCK(hwwdg); 
-  hwwdg->State = HAL_WWDG_STATE_BUSY;
+    /* Take lock and change peripheral state */
+    __HAL_LOCK(hwwdg);
+    hwwdg->State = HAL_WWDG_STATE_BUSY;
 
-  /* Enable the peripheral */
-  __HAL_WWDG_ENABLE(hwwdg);
+    /* Enable the peripheral */
+    __HAL_WWDG_ENABLE(hwwdg);
 
-  /* Change peripheral state and release lock*/
-  hwwdg->State = HAL_WWDG_STATE_READY;
-  __HAL_UNLOCK(hwwdg);
+    /* Change peripheral state and release lock*/
+    hwwdg->State = HAL_WWDG_STATE_READY;
+    __HAL_UNLOCK(hwwdg);
 
-  /* Return function status */
-  return HAL_OK;
+    /* Return function status */
+    return HAL_OK;
 }
 
 /**
@@ -292,22 +290,22 @@ HAL_StatusTypeDef HAL_WWDG_Start(WWDG_HandleTypeDef *hwwdg)
   */
 HAL_StatusTypeDef HAL_WWDG_Start_IT(WWDG_HandleTypeDef *hwwdg)
 {
-  /* Take lock and change peripheral state */
-  __HAL_LOCK(hwwdg);
-  hwwdg->State = HAL_WWDG_STATE_BUSY;
+    /* Take lock and change peripheral state */
+    __HAL_LOCK(hwwdg);
+    hwwdg->State = HAL_WWDG_STATE_BUSY;
 
-  /* Enable the Early Wakeup Interrupt */
-  __HAL_WWDG_ENABLE_IT(hwwdg,WWDG_IT_EWI);
+    /* Enable the Early Wakeup Interrupt */
+    __HAL_WWDG_ENABLE_IT(hwwdg, WWDG_IT_EWI);
 
-  /* Enable the peripheral */
-  __HAL_WWDG_ENABLE(hwwdg);
+    /* Enable the peripheral */
+    __HAL_WWDG_ENABLE(hwwdg);
 
-  /* Change peripheral state and release lock*/
-  hwwdg->State = HAL_WWDG_STATE_READY;
-  __HAL_UNLOCK(hwwdg);
+    /* Change peripheral state and release lock*/
+    hwwdg->State = HAL_WWDG_STATE_READY;
+    __HAL_UNLOCK(hwwdg);
 
-  /* Return function status */
-  return HAL_OK;
+    /* Return function status */
+    return HAL_OK;
 }
 
 /**
@@ -320,14 +318,14 @@ HAL_StatusTypeDef HAL_WWDG_Start_IT(WWDG_HandleTypeDef *hwwdg)
 HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter)
 {
 
-  /* Check the parameters */
-  assert_param(IS_WWDG_COUNTER(Counter));
+    /* Check the parameters */
+    assert_param(IS_WWDG_COUNTER(Counter));
 
-  /* Write to WWDG CR the WWDG Counter value to refresh with */
-  MODIFY_REG(hwwdg->Instance->CR, (uint32_t)WWDG_CR_T, Counter);
-  
-  /* Return function status */
-  return HAL_OK;
+    /* Write to WWDG CR the WWDG Counter value to refresh with */
+    MODIFY_REG(hwwdg->Instance->CR, (uint32_t)WWDG_CR_T, Counter);
+
+    /* Return function status */
+    return HAL_OK;
 }
 
 /**
@@ -345,19 +343,17 @@ HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter)
   */
 void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
 {
-  /* Check if Early Wakeup Interrupt is enable */
-  if(__HAL_WWDG_GET_IT_SOURCE(hwwdg, WWDG_IT_EWI) != RESET)
-  {
-    /* Check if WWDG Early Wakeup Interrupt occurred */
-    if(__HAL_WWDG_GET_FLAG(hwwdg, WWDG_FLAG_EWIF) != RESET)
-    {
-      /* Early Wakeup callback */
-      HAL_WWDG_WakeupCallback(hwwdg);
+    /* Check if Early Wakeup Interrupt is enable */
+    if (__HAL_WWDG_GET_IT_SOURCE(hwwdg, WWDG_IT_EWI) != RESET) {
+        /* Check if WWDG Early Wakeup Interrupt occurred */
+        if (__HAL_WWDG_GET_FLAG(hwwdg, WWDG_FLAG_EWIF) != RESET) {
+            /* Early Wakeup callback */
+            HAL_WWDG_WakeupCallback(hwwdg);
 
-      /* Clear the WWDG Data Ready flag */
-      __HAL_WWDG_CLEAR_IT(hwwdg, WWDG_FLAG_EWIF);
+            /* Clear the WWDG Data Ready flag */
+            __HAL_WWDG_CLEAR_IT(hwwdg, WWDG_FLAG_EWIF);
+        }
     }
-  }
 }
 
 /**
@@ -366,10 +362,10 @@ void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
   *              the configuration information for the specified WWDG module.
   * @retval None
   */
-__weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg)
+__weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef *hwwdg)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hwwdg);
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hwwdg);
 }
 
 /**
@@ -382,7 +378,7 @@ __weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg)
 @verbatim
   ==============================================================================
                       ##### Peripheral State functions #####
-  ==============================================================================  
+  ==============================================================================
     [..]
     This subsection permits to get in run-time the status of the peripheral
     and the data flow.
@@ -399,7 +395,7 @@ __weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg)
   */
 HAL_WWDG_StateTypeDef HAL_WWDG_GetState(WWDG_HandleTypeDef *hwwdg)
 {
-  return hwwdg->State;
+    return hwwdg->State;
 }
 
 /**

@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 #ifndef NRF_DRV_TWIS_H__
 #define NRF_DRV_TWIS_H__
@@ -64,18 +64,17 @@ extern "C" {
 /**
  * @brief Event callback function event definitions.
  */
-typedef enum
-{
+typedef enum {
     TWIS_EVT_READ_REQ,     ///< Read request detected
-                           /**< If there is no buffer prepared, buf_req flag in the even will be set.
-                                Call then @ref nrf_drv_twis_tx_prepare to give parameters for buffer.
-                                */
+    /**< If there is no buffer prepared, buf_req flag in the even will be set.
+         Call then @ref nrf_drv_twis_tx_prepare to give parameters for buffer.
+         */
     TWIS_EVT_READ_DONE,    ///< Read request has finished - free any data
     TWIS_EVT_READ_ERROR,   ///< Read request finished with error
     TWIS_EVT_WRITE_REQ,    ///< Write request detected
-                           /**< If there is no buffer prepared, buf_req flag in the even will be set.
-                                Call then @ref nrf_drv_twis_rx_prepare to give parameters for buffer.
-                                */
+    /**< If there is no buffer prepared, buf_req flag in the even will be set.
+         Call then @ref nrf_drv_twis_rx_prepare to give parameters for buffer.
+         */
     TWIS_EVT_WRITE_DONE,   ///< Write request has finished - process data
     TWIS_EVT_WRITE_ERROR,  ///< Write request finished with error
     TWIS_EVT_GENERAL_ERROR ///< Error that happens not inside WRITE or READ transaction
@@ -88,46 +87,42 @@ typedef enum
  * that would be send to every driver function.
  * But for compatibility reason this number is inserted into the structure.
  */
-typedef struct
-{
+typedef struct {
     uint8_t instNr; /**< Instance number */
-}nrf_drv_twis_t;
+} nrf_drv_twis_t;
 
 /**
  * @brief TWIS driver event structure
  */
-typedef struct
-{
+typedef struct {
     nrf_drv_twis_evt_type_t type; ///< Event type
-    union
-    {
+    union {
         bool buf_req;       ///< Flag for @ref TWIS_EVT_READ_REQ and @ref TWIS_EVT_WRITE_REQ
-                            /**< Information if transmission buffer requires to be prepared */
+        /**< Information if transmission buffer requires to be prepared */
         uint32_t tx_amount; ///< Data for @ref TWIS_EVT_READ_DONE
         uint32_t rx_amount; ///< Data for @ref TWIS_EVT_WRITE_DONE
         uint32_t error;     ///< Data for @ref TWIS_EVT_GENERAL_ERROR
-    }data;
-}nrf_drv_twis_evt_t;
+    } data;
+} nrf_drv_twis_evt_t;
 
 /**
  * @brief TWI slave event callback function type.
  *
  * @param[in] p_event Event information structure.
  */
-typedef void (*nrf_drv_twis_event_handler_t)(nrf_drv_twis_evt_t const * const p_event);
+typedef void (*nrf_drv_twis_event_handler_t)(nrf_drv_twis_evt_t const *const p_event);
 
 /**
  * @brief Structure for TWIS configuration
  */
-typedef struct
-{
+typedef struct {
     uint32_t addr[2];               //!< Set addresses that this slave should respond. Set 0 to disable.
     uint32_t scl;                   //!< SCL pin number
     nrf_gpio_pin_pull_t scl_pull;   //!< SCL pin pull
     uint32_t sda;                   //!< SDA pin number
     nrf_gpio_pin_pull_t sda_pull;   //!< SDA pin pull
     uint8_t  interrupt_priority;    //!< The priority of interrupt for the module to set
-}nrf_drv_twis_config_t;
+} nrf_drv_twis_config_t;
 
 /**
  * @brief Possible error sources
@@ -137,13 +132,12 @@ typedef struct
  * We could use directly @ref nrf_twis_error_t. Error type enum is redefined here becouse
  * of possible future extension (eg. supporting timeouts and synchronous mode).
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_TWIS_ERROR_OVERFLOW         = NRF_TWIS_ERROR_OVERFLOW,  /**< RX buffer overflow detected, and prevented */
     NRF_DRV_TWIS_ERROR_DATA_NACK        = NRF_TWIS_ERROR_DATA_NACK, /**< NACK sent after receiving a data byte */
     NRF_DRV_TWIS_ERROR_OVERREAD         = NRF_TWIS_ERROR_OVERREAD,  /**< TX buffer over-read detected, and prevented */
     NRF_DRV_TWIS_ERROR_UNEXPECTED_EVENT = 1 << 8                    /**< Unexpected event detected by state machine */
-}nrf_drv_twis_error_t;
+} nrf_drv_twis_error_t;
 
 /**
  * @internal
@@ -202,9 +196,9 @@ typedef enum
  *                                 is set to a value other than zero.
  */
 ret_code_t nrf_drv_twis_init(
-        nrf_drv_twis_t          const * const p_instance,
-        nrf_drv_twis_config_t   const * p_config,
-        nrf_drv_twis_event_handler_t    const event_handler);
+    nrf_drv_twis_t          const *const p_instance,
+    nrf_drv_twis_config_t   const *p_config,
+    nrf_drv_twis_event_handler_t    const event_handler);
 
 /**
  * @brief Function for uninitializing the TWIS driver instance.
@@ -220,7 +214,7 @@ ret_code_t nrf_drv_twis_init(
  * If TWIS driver was in uninitialized state before calling this function,
  * selected pins would not be reset to default configuration.
  */
-void nrf_drv_twis_uninit(nrf_drv_twis_t const * const p_instance);
+void nrf_drv_twis_uninit(nrf_drv_twis_t const *const p_instance);
 
 /**
  * @brief Enable TWIS instance
@@ -232,7 +226,7 @@ void nrf_drv_twis_uninit(nrf_drv_twis_t const * const p_instance);
  *
  * @param p_instance Pointer to the driver instance structure.
  */
-void nrf_drv_twis_enable(nrf_drv_twis_t const * const p_instance);
+void nrf_drv_twis_enable(nrf_drv_twis_t const *const p_instance);
 
 /**
  * @brief Disable TWIS instance
@@ -242,7 +236,7 @@ void nrf_drv_twis_enable(nrf_drv_twis_t const * const p_instance);
  *
  * @param p_instance Pointer to the driver instance structure.
  */
-void nrf_drv_twis_disable(nrf_drv_twis_t const * const p_instance);
+void nrf_drv_twis_disable(nrf_drv_twis_t const *const p_instance);
 
 /**
  * @brief Get and clear last error flags
@@ -255,7 +249,7 @@ void nrf_drv_twis_disable(nrf_drv_twis_t const * const p_instance);
  * @attention
  * This function clears error state and flags.
  */
-uint32_t nrf_drv_twis_error_get_and_clear(nrf_drv_twis_t const * const p_instance);
+uint32_t nrf_drv_twis_error_get_and_clear(nrf_drv_twis_t const *const p_instance);
 
 
 /**
@@ -274,9 +268,9 @@ uint32_t nrf_drv_twis_error_get_and_clear(nrf_drv_twis_t const * const p_instanc
  * @retval NRF_ERROR_INVALID_STATE  Module not initialized or not enabled
  */
 ret_code_t nrf_drv_twis_tx_prepare(
-        nrf_drv_twis_t const * const p_instance,
-        void const * const p_buf,
-        size_t size);
+    nrf_drv_twis_t const *const p_instance,
+    void const *const p_buf,
+    size_t size);
 
 /**
  * @brief Get number of transmitted bytes
@@ -288,7 +282,7 @@ ret_code_t nrf_drv_twis_tx_prepare(
  *
  * @return Number of bytes sent.
  */
-size_t nrf_drv_twis_tx_amount(nrf_drv_twis_t const * const p_instance);
+size_t nrf_drv_twis_tx_amount(nrf_drv_twis_t const *const p_instance);
 
 /**
  * @brief Prepare data for receiving
@@ -306,9 +300,9 @@ size_t nrf_drv_twis_tx_amount(nrf_drv_twis_t const * const p_instance);
  * @retval NRF_ERROR_INVALID_STATE  Module not initialized or not enabled
  */
 ret_code_t nrf_drv_twis_rx_prepare(
-        nrf_drv_twis_t const * const p_instance,
-        void * const p_buf,
-        size_t size);
+    nrf_drv_twis_t const *const p_instance,
+    void *const p_buf,
+    size_t size);
 
 /**
  * @brief Get number of received bytes
@@ -320,7 +314,7 @@ ret_code_t nrf_drv_twis_rx_prepare(
  *
  * @return Number of bytes received.
  */
-size_t nrf_drv_twis_rx_amount(nrf_drv_twis_t const * const p_instance);
+size_t nrf_drv_twis_rx_amount(nrf_drv_twis_t const *const p_instance);
 
 /**
  * @brief Function checks if driver is busy right now
@@ -333,7 +327,7 @@ size_t nrf_drv_twis_rx_amount(nrf_drv_twis_t const * const p_instance);
  * @retval true  Driver is in state other than ERROR or IDLE
  * @retval false There is no transmission pending.
  */
-bool nrf_drv_twis_is_busy(nrf_drv_twis_t const * const p_instance);
+bool nrf_drv_twis_is_busy(nrf_drv_twis_t const *const p_instance);
 
 /**
  * @brief Function checks if driver is waiting for tx buffer
@@ -346,7 +340,7 @@ bool nrf_drv_twis_is_busy(nrf_drv_twis_t const * const p_instance);
  * @retval true Driver waits for @ref nrf_drv_twis_tx_prepare
  * @retval false Driver is not in the state where it waits for preparing tx buffer.
  */
-bool nrf_drv_twis_is_waiting_tx_buff(nrf_drv_twis_t const * const p_instance);
+bool nrf_drv_twis_is_waiting_tx_buff(nrf_drv_twis_t const *const p_instance);
 
 /**
  * @brief Function checks if driver is waiting for rx buffer
@@ -359,7 +353,7 @@ bool nrf_drv_twis_is_waiting_tx_buff(nrf_drv_twis_t const * const p_instance);
  * @retval true Driver waits for @ref nrf_drv_twis_rx_prepare
  * @retval false Driver is not in the state where it waits for preparing rx buffer.
  */
-bool nrf_drv_twis_is_waiting_rx_buff(nrf_drv_twis_t const * const p_instance);
+bool nrf_drv_twis_is_waiting_rx_buff(nrf_drv_twis_t const *const p_instance);
 
 /**
  * @brief Check if driver is sending data
@@ -371,7 +365,7 @@ bool nrf_drv_twis_is_waiting_rx_buff(nrf_drv_twis_t const * const p_instance);
  * @retval true There is ongoing output transmission.
  * @retval false Driver is in other state.
  */
-bool nrf_drv_twis_is_pending_tx(nrf_drv_twis_t const * const p_instance);
+bool nrf_drv_twis_is_pending_tx(nrf_drv_twis_t const *const p_instance);
 
 /**
  * @brief Check if driver is receiving data
@@ -383,7 +377,7 @@ bool nrf_drv_twis_is_pending_tx(nrf_drv_twis_t const * const p_instance);
  * @retval true There is ongoing input transmission.
  * @retval false Driver is in other state.
  */
-bool nrf_drv_twis_is_pending_rx(nrf_drv_twis_t const * const p_instance);
+bool nrf_drv_twis_is_pending_rx(nrf_drv_twis_t const *const p_instance);
 
 /** @} */ /* End of lib_twis_drv group */
 

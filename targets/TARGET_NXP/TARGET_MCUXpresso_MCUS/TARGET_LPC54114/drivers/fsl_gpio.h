@@ -51,8 +51,7 @@
 /*@}*/
 
 /*! @brief LPC GPIO direction definition */
-typedef enum _gpio_pin_direction
-{
+typedef enum _gpio_pin_direction {
     kGPIO_DigitalInput = 0U,  /*!< Set current pin as digital input*/
     kGPIO_DigitalOutput = 1U, /*!< Set current pin as digital output*/
 } gpio_pin_direction_t;
@@ -63,8 +62,7 @@ typedef enum _gpio_pin_direction
  * Every pin can only be configured as either output pin or input pin at a time.
  * If configured as a input pin, then leave the outputConfig unused.
  */
-typedef struct _gpio_pin_config
-{
+typedef struct _gpio_pin_config {
     gpio_pin_direction_t pinDirection; /*!< GPIO direction, input or output */
     /* Output configurations, please ignore if configured as a input one */
     uint8_t outputLogic; /*!< Set default output logic, no use in input */

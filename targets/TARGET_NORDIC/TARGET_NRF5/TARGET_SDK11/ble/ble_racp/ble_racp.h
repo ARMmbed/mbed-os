@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2012 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -86,12 +86,11 @@
 #define RACP_RESPONSE_OPERAND_UNSUPPORTED   9       /**< Record Access Control Point response code - Unsupported operand. */
 
 /**@brief Record Access Control Point value structure. */
-typedef struct
-{
+typedef struct {
     uint8_t   opcode;                               /**< Op Code. */
     uint8_t   operator;                             /**< Operator. */
     uint8_t   operand_len;                          /**< Length of the operand. */
-    uint8_t * p_operand;                            /**< Pointer to the operand. */
+    uint8_t *p_operand;                             /**< Pointer to the operand. */
 } ble_racp_value_t;
 
 /**@brief Function for decoding a Record Access Control Point write.
@@ -104,7 +103,7 @@ typedef struct
  *                           @note This does not do a data copy. It assumes the data pointed to by
  *                                 p_data is persistant until no longer needed.
  */
-void ble_racp_decode(uint8_t data_len, uint8_t * p_data, ble_racp_value_t * p_racp_val);
+void ble_racp_decode(uint8_t data_len, uint8_t *p_data, ble_racp_value_t *p_racp_val);
 
 /**@brief Function for encoding a Record Access Control Point response.
  *
@@ -116,7 +115,7 @@ void ble_racp_decode(uint8_t data_len, uint8_t * p_data, ble_racp_value_t * p_ra
  *
  * @return      Length of encoded data.
  */
-uint8_t ble_racp_encode(const ble_racp_value_t * p_racp_val, uint8_t * p_data);
+uint8_t ble_racp_encode(const ble_racp_value_t *p_racp_val, uint8_t *p_data);
 
 #endif // BLE_RACP_H__
 

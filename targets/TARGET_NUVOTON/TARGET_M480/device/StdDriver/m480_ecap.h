@@ -438,10 +438,10 @@ extern "C"
   */
 #define ECAP_SET_CNT_CMP(ecap, u32Val) ((ecap)->CNTCMP = (u32Val))
 
-void ECAP_Open(ECAP_T* ecap, uint32_t u32FuncMask);
-void ECAP_Close(ECAP_T* ecap);
-void ECAP_EnableINT(ECAP_T* ecap, uint32_t u32Mask);
-void ECAP_DisableINT(ECAP_T* ecap, uint32_t u32Mask);
+void ECAP_Open(ECAP_T *ecap, uint32_t u32FuncMask);
+void ECAP_Close(ECAP_T *ecap);
+void ECAP_EnableINT(ECAP_T *ecap, uint32_t u32Mask);
+void ECAP_DisableINT(ECAP_T *ecap, uint32_t u32Mask);
 /*@}*/ /* end of group ECAP_EXPORTED_FUNCTIONS */
 
 /*@}*/ /* end of group ECAP_Driver */

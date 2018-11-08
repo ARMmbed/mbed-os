@@ -263,10 +263,10 @@
 
 /* This function is private to uvisor-lib, but needs to be publicly visible for
  * the RPC gateway creation macros to work. */
-UVISOR_EXTERN uint32_t rpc_fncall_sync(uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3, const TRPCGateway * gateway);
+UVISOR_EXTERN uint32_t rpc_fncall_sync(uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3, const TRPCGateway *gateway);
 
 /* This function is private to uvisor-lib, but needs to be publicly visible for
  * the RPC gateway creation macros to work. */
-UVISOR_EXTERN uvisor_rpc_result_t rpc_fncall_async(uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3, const TRPCGateway * gateway);
+UVISOR_EXTERN uvisor_rpc_result_t rpc_fncall_async(uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3, const TRPCGateway *gateway);
 
 #endif /* __UVISOR_API_RPC_GATEWAY_H__ */

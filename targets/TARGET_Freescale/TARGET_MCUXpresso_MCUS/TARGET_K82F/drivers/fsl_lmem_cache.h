@@ -52,16 +52,14 @@
 #define LMEM_CACHE_SIZE_ONEWAY (4096U) /*!< Cache size is 4K-bytes one way. */
 
 /*! @brief LMEM cache mode options. */
-typedef enum _lmem_cache_mode
-{
+typedef enum _lmem_cache_mode {
     kLMEM_NonCacheable = 0x0U,      /*!< Cache mode: non-cacheable. */
     kLMEM_CacheWriteThrough = 0x2U, /*!< Cache mode: write-through. */
     kLMEM_CacheWriteBack = 0x3U     /*!< Cache mode: write-back. */
 } lmem_cache_mode_t;
 
 /*! @brief LMEM cache regions. */
-typedef enum _lmem_cache_region
-{
+typedef enum _lmem_cache_region {
     kLMEM_CacheRegion15 = 0U, /*!< Cache Region 15. */
     kLMEM_CacheRegion14,      /*!< Cache Region 14. */
     kLMEM_CacheRegion13,      /*!< Cache Region 13. */
@@ -81,8 +79,7 @@ typedef enum _lmem_cache_region
 } lmem_cache_region_t;
 
 /*! @brief LMEM cache line command. */
-typedef enum _lmem_cache_line_command
-{
+typedef enum _lmem_cache_line_command {
     kLMEM_CacheLineSearchReadOrWrite = 0U, /*!< Cache line search and read or write. */
     kLMEM_CacheLineInvalidate,             /*!< Cache line invalidate. */
     kLMEM_CacheLinePush,                   /*!< Cache line push. */
@@ -124,12 +121,9 @@ void LMEM_EnableCodeCache(LMEM_Type *base, bool enable);
  */
 static inline void LMEM_EnableCodeWriteBuffer(LMEM_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->PCCCR |= LMEM_PCCCR_ENWRBUF_MASK;
-    }
-    else
-    {
+    } else {
         base->PCCCR &= ~LMEM_PCCCR_ENWRBUF_MASK;
     }
 }
@@ -316,13 +310,10 @@ void LMEM_EnableSystemCache(LMEM_Type *base, bool enable);
  */
 static inline void LMEM_EnableSystemWriteBuffer(LMEM_Type *base, bool enable)
 {
-    if (enable)
-    {
-        base->PSCCR |= LMEM_PSCCR_ENWRBUF_MASK;       
-    }
-    else
-    {
-        base->PSCCR &= ~LMEM_PSCCR_ENWRBUF_MASK;               
+    if (enable) {
+        base->PSCCR |= LMEM_PSCCR_ENWRBUF_MASK;
+    } else {
+        base->PSCCR &= ~LMEM_PSCCR_ENWRBUF_MASK;
     }
 }
 

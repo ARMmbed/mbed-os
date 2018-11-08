@@ -63,10 +63,10 @@ static const uint32_t clk_div_table[3][8] = {
     /* MXC_E_I2CM_SPEED_100KHZ */
     {
         /* 0:       */ 0, /* not supported */
-        /* 1: 6MHz  */ (( 3 << MXC_F_I2CM_CLK_DIV_FILTER_CLK_DIV_POS) | ( 7 << MXC_F_I2CM_CLK_DIV_SCL_HI_CNT_POS) | ( 36 << MXC_F_I2CM_CLK_DIV_SCL_LO_CNT_POS)),
-        /* 2: 8MHz  */ (( 4 << MXC_F_I2CM_CLK_DIV_FILTER_CLK_DIV_POS) | (10 << MXC_F_I2CM_CLK_DIV_SCL_HI_CNT_POS) | ( 48 << MXC_F_I2CM_CLK_DIV_SCL_LO_CNT_POS)),
-        /* 3: 12MHz */ (( 6 << MXC_F_I2CM_CLK_DIV_FILTER_CLK_DIV_POS) | (17 << MXC_F_I2CM_CLK_DIV_SCL_HI_CNT_POS) | ( 72 << MXC_F_I2CM_CLK_DIV_SCL_LO_CNT_POS)),
-        /* 4: 16MHz */ (( 8 << MXC_F_I2CM_CLK_DIV_FILTER_CLK_DIV_POS) | (24 << MXC_F_I2CM_CLK_DIV_SCL_HI_CNT_POS) | ( 96 << MXC_F_I2CM_CLK_DIV_SCL_LO_CNT_POS)),
+        /* 1: 6MHz  */ ((3 << MXC_F_I2CM_CLK_DIV_FILTER_CLK_DIV_POS) | (7 << MXC_F_I2CM_CLK_DIV_SCL_HI_CNT_POS) | (36 << MXC_F_I2CM_CLK_DIV_SCL_LO_CNT_POS)),
+        /* 2: 8MHz  */ ((4 << MXC_F_I2CM_CLK_DIV_FILTER_CLK_DIV_POS) | (10 << MXC_F_I2CM_CLK_DIV_SCL_HI_CNT_POS) | (48 << MXC_F_I2CM_CLK_DIV_SCL_LO_CNT_POS)),
+        /* 3: 12MHz */ ((6 << MXC_F_I2CM_CLK_DIV_FILTER_CLK_DIV_POS) | (17 << MXC_F_I2CM_CLK_DIV_SCL_HI_CNT_POS) | (72 << MXC_F_I2CM_CLK_DIV_SCL_LO_CNT_POS)),
+        /* 4: 16MHz */ ((8 << MXC_F_I2CM_CLK_DIV_FILTER_CLK_DIV_POS) | (24 << MXC_F_I2CM_CLK_DIV_SCL_HI_CNT_POS) | (96 << MXC_F_I2CM_CLK_DIV_SCL_LO_CNT_POS)),
         /* 5:       */ 0, /* not supported */
         /* 6:       */ 0, /* not supported */
         /* 7: 24MHz */ ((12 << MXC_F_I2CM_CLK_DIV_FILTER_CLK_DIV_POS) | (38 << MXC_F_I2CM_CLK_DIV_SCL_HI_CNT_POS) | (144 << MXC_F_I2CM_CLK_DIV_SCL_LO_CNT_POS)),
@@ -100,14 +100,14 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     // determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
-    mxc_i2cm_regs_t *i2c = (mxc_i2cm_regs_t*)pinmap_merge(i2c_sda, i2c_scl);
+    mxc_i2cm_regs_t *i2c = (mxc_i2cm_regs_t *)pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT((int)i2c != NC);
 
     obj->i2c = i2c;
-    obj->txfifo = (uint16_t*)MXC_I2CM_GET_BASE_TX_FIFO(MXC_I2CM_BASE_TO_INSTANCE(i2c));
-    obj->rxfifo = (uint16_t*)MXC_I2CM_GET_BASE_RX_FIFO(MXC_I2CM_BASE_TO_INSTANCE(i2c));
+    obj->txfifo = (uint16_t *)MXC_I2CM_GET_BASE_TX_FIFO(MXC_I2CM_BASE_TO_INSTANCE(i2c));
+    obj->rxfifo = (uint16_t *)MXC_I2CM_GET_BASE_RX_FIFO(MXC_I2CM_BASE_TO_INSTANCE(i2c));
     obj->start_pending = 0;
-	obj->stop_pending = 0;
+    obj->stop_pending = 0;
 
     // configure the pins
     pinmap_pinout(sda, PinMap_I2C_SDA);
@@ -268,7 +268,7 @@ int i2c_byte_read(i2c_t *obj, int last)
     while (!(obj->i2c->intfl & MXC_F_I2CM_INTFL_RX_FIFO_NOT_EMPTY) &&
             (!(obj->i2c->bb & MXC_F_I2CM_BB_RX_FIFO_CNT))) {
         if ((--timeout < 0) || (obj->i2c->trans & (MXC_F_I2CM_TRANS_TX_TIMEOUT |
-            MXC_F_I2CM_TRANS_TX_LOST_ARBITR | MXC_F_I2CM_TRANS_TX_NACKED))) {
+                                                   MXC_F_I2CM_TRANS_TX_LOST_ARBITR | MXC_F_I2CM_TRANS_TX_NACKED))) {
             break;
         }
     }
@@ -314,7 +314,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     }
 
     if (stop) {
-		obj->stop_pending = 0;
+        obj->stop_pending = 0;
         if ((err = write_tx_fifo(obj, MXC_S_I2CM_TRANS_TAG_STOP)) != 0) { // stop condition
             retval = (retval ? retval : err);
         }
@@ -389,7 +389,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         while (!(obj->i2c->intfl & MXC_F_I2CM_INTFL_RX_FIFO_NOT_EMPTY) &&
                 (!(obj->i2c->bb & MXC_F_I2CM_BB_RX_FIFO_CNT))) {
             if ((--timeout < 0) || (obj->i2c->trans & (MXC_F_I2CM_TRANS_TX_TIMEOUT |
-                MXC_F_I2CM_TRANS_TX_LOST_ARBITR | MXC_F_I2CM_TRANS_TX_NACKED))) {
+                                                       MXC_F_I2CM_TRANS_TX_LOST_ARBITR | MXC_F_I2CM_TRANS_TX_NACKED))) {
                 retval = -3;
                 goto read_done;
             }

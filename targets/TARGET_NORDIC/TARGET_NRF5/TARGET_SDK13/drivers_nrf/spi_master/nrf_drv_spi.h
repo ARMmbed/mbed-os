@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**@file
@@ -60,14 +60,14 @@ extern "C" {
 #endif
 
 #if defined(SPIM_PRESENT)
-    #define NRF_DRV_SPI_PERIPHERAL(id)           \
+#define NRF_DRV_SPI_PERIPHERAL(id)           \
         (CONCAT_3(SPI, id, _USE_EASY_DMA) == 1 ? \
             (void *)CONCAT_2(NRF_SPIM, id)       \
           : (void *)CONCAT_2(NRF_SPI, id))
-    #define SPI2_IRQ            SPIM2_SPIS2_SPI2_IRQn
-    #define SPI2_IRQ_HANDLER    SPIM2_SPIS2_SPI2_IRQHandler
+#define SPI2_IRQ            SPIM2_SPIS2_SPI2_IRQn
+#define SPI2_IRQ_HANDLER    SPIM2_SPIS2_SPI2_IRQHandler
 #else
-    #define NRF_DRV_SPI_PERIPHERAL(id)  (void *)CONCAT_2(NRF_SPI, id)
+#define NRF_DRV_SPI_PERIPHERAL(id)  (void *)CONCAT_2(NRF_SPI, id)
 #endif
 #define SPI0_IRQ            SPI0_TWI0_IRQn
 #define SPI0_IRQ_HANDLER    SPI0_TWI0_IRQHandler
@@ -86,9 +86,8 @@ extern "C" {
 /**
  * @brief SPI master driver instance data structure.
  */
-typedef struct
-{
-    void *    p_registers;  ///< Pointer to the structure with SPI/SPIM peripheral instance registers.
+typedef struct {
+    void     *p_registers;  ///< Pointer to the structure with SPI/SPIM peripheral instance registers.
     IRQn_Type irq;          ///< SPI/SPIM peripheral instance IRQ number.
     uint8_t   drv_inst_idx; ///< Driver instance index.
     bool      use_easy_dma; ///< True if the peripheral with EasyDMA (SPIM) shall be used.
@@ -119,8 +118,7 @@ typedef struct
 /**
  * @brief SPI data rates.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_SPI_FREQ_125K = NRF_SPI_FREQ_125K, ///< 125 kbps.
     NRF_DRV_SPI_FREQ_250K = NRF_SPI_FREQ_250K, ///< 250 kbps.
     NRF_DRV_SPI_FREQ_500K = NRF_SPI_FREQ_500K, ///< 500 kbps.
@@ -133,8 +131,7 @@ typedef enum
 /**
  * @brief SPI modes.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_SPI_MODE_0 = NRF_SPI_MODE_0, ///< SCK active high, sample on leading edge of clock.
     NRF_DRV_SPI_MODE_1 = NRF_SPI_MODE_1, ///< SCK active high, sample on trailing edge of clock.
     NRF_DRV_SPI_MODE_2 = NRF_SPI_MODE_2, ///< SCK active low, sample on leading edge of clock.
@@ -144,8 +141,7 @@ typedef enum
 /**
  * @brief SPI bit orders.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_SPI_BIT_ORDER_MSB_FIRST = NRF_SPI_BIT_ORDER_MSB_FIRST, ///< Most significant bit shifted out first.
     NRF_DRV_SPI_BIT_ORDER_LSB_FIRST = NRF_SPI_BIT_ORDER_LSB_FIRST  ///< Least significant bit shifted out first.
 } nrf_drv_spi_bit_order_t;
@@ -153,25 +149,24 @@ typedef enum
 /**
  * @brief SPI master driver instance configuration structure.
  */
-typedef struct
-{
+typedef struct {
     uint8_t sck_pin;      ///< SCK pin number.
     uint8_t mosi_pin;     ///< MOSI pin number (optional).
-                          /**< Set to @ref NRF_DRV_SPI_PIN_NOT_USED
-                           *   if this signal is not needed. */
+    /**< Set to @ref NRF_DRV_SPI_PIN_NOT_USED
+     *   if this signal is not needed. */
     uint8_t miso_pin;     ///< MISO pin number (optional).
-                          /**< Set to @ref NRF_DRV_SPI_PIN_NOT_USED
-                           *   if this signal is not needed. */
+    /**< Set to @ref NRF_DRV_SPI_PIN_NOT_USED
+     *   if this signal is not needed. */
     uint8_t ss_pin;       ///< Slave Select pin number (optional).
-                          /**< Set to @ref NRF_DRV_SPI_PIN_NOT_USED
-                           *   if this signal is not needed. The driver
-                           *   supports only active low for this signal.
-                           *   If the signal should be active high,
-                           *   it must be controlled externally. */
+    /**< Set to @ref NRF_DRV_SPI_PIN_NOT_USED
+     *   if this signal is not needed. The driver
+     *   supports only active low for this signal.
+     *   If the signal should be active high,
+     *   it must be controlled externally. */
     uint8_t irq_priority; ///< Interrupt priority.
     uint8_t orc;          ///< Over-run character.
-                          /**< This character is used when all bytes from the TX buffer are sent,
-                               but the transfer continues due to RX. */
+    /**< This character is used when all bytes from the TX buffer are sent,
+         but the transfer continues due to RX. */
     nrf_drv_spi_frequency_t frequency; ///< SPI frequency.
     nrf_drv_spi_mode_t      mode;      ///< SPI mode.
     nrf_drv_spi_bit_order_t bit_order; ///< SPI bit order.
@@ -202,13 +197,12 @@ typedef struct
 /**
  * @brief Single transfer descriptor structure.
  */
-typedef struct
-{
-    uint8_t const * p_tx_buffer; ///< Pointer to TX buffer.
+typedef struct {
+    uint8_t const *p_tx_buffer;  ///< Pointer to TX buffer.
     uint8_t         tx_length;   ///< TX buffer length.
-    uint8_t       * p_rx_buffer; ///< Pointer to RX buffer.
+    uint8_t        *p_rx_buffer; ///< Pointer to RX buffer.
     uint8_t         rx_length;   ///< RX buffer length.
-}nrf_drv_spi_xfer_desc_t;
+} nrf_drv_spi_xfer_desc_t;
 
 
 /**
@@ -246,16 +240,13 @@ typedef struct
  * @brief SPI master driver event types, passed to the handler routine provided
  *        during initialization.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_SPI_EVENT_DONE, ///< Transfer done.
 } nrf_drv_spi_evt_type_t;
 
-typedef struct
-{
+typedef struct {
     nrf_drv_spi_evt_type_t  type;      ///< Event type.
-    union
-    {
+    union {
         nrf_drv_spi_xfer_desc_t done;  ///< Event data for DONE event.
     } data;
 } nrf_drv_spi_evt_t;
@@ -263,7 +254,7 @@ typedef struct
 /**
  * @brief SPI master driver event handler type.
  */
-typedef void (*nrf_drv_spi_handler_t)(nrf_drv_spi_evt_t const * p_event);
+typedef void (*nrf_drv_spi_handler_t)(nrf_drv_spi_evt_t const *p_event);
 
 
 /**
@@ -284,8 +275,8 @@ typedef void (*nrf_drv_spi_handler_t)(nrf_drv_spi_evt_t const * p_event);
  *                                 possible only if PERIPHERAL_RESOURCE_SHARING_ENABLED
  *                                 is set to a value other than zero.
  */
-ret_code_t nrf_drv_spi_init(nrf_drv_spi_t const * const p_instance,
-                            nrf_drv_spi_config_t const * p_config,
+ret_code_t nrf_drv_spi_init(nrf_drv_spi_t const *const p_instance,
+                            nrf_drv_spi_config_t const *p_config,
                             nrf_drv_spi_handler_t handler);
 
 /**
@@ -293,7 +284,7 @@ ret_code_t nrf_drv_spi_init(nrf_drv_spi_t const * const p_instance,
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void       nrf_drv_spi_uninit(nrf_drv_spi_t const * const p_instance);
+void       nrf_drv_spi_uninit(nrf_drv_spi_t const *const p_instance);
 
 /**
  * @brief Function for starting the SPI data transfer.
@@ -321,10 +312,10 @@ void       nrf_drv_spi_uninit(nrf_drv_spi_t const * const p_instance);
  * @retval NRF_ERROR_INVALID_ADDR If the provided buffers are not placed in the Data
  *                                RAM region.
  */
-ret_code_t nrf_drv_spi_transfer(nrf_drv_spi_t const * const p_instance,
-                                uint8_t const * p_tx_buffer,
+ret_code_t nrf_drv_spi_transfer(nrf_drv_spi_t const *const p_instance,
+                                uint8_t const *p_tx_buffer,
                                 uint8_t         tx_buffer_length,
-                                uint8_t       * p_rx_buffer,
+                                uint8_t        *p_rx_buffer,
                                 uint8_t         rx_buffer_length);
 
 
@@ -369,8 +360,8 @@ ret_code_t nrf_drv_spi_transfer(nrf_drv_spi_t const * const p_instance,
  * @retval NRF_ERROR_INVALID_ADDR  If the provided buffers are not placed in the Data
  *                                 RAM region.
  */
-ret_code_t nrf_drv_spi_xfer(nrf_drv_spi_t     const * const p_instance,
-                            nrf_drv_spi_xfer_desc_t const * p_xfer_desc,
+ret_code_t nrf_drv_spi_xfer(nrf_drv_spi_t     const *const p_instance,
+                            nrf_drv_spi_xfer_desc_t const *p_xfer_desc,
                             uint32_t                        flags);
 
 /**
@@ -383,7 +374,7 @@ ret_code_t nrf_drv_spi_xfer(nrf_drv_spi_t     const * const p_instance,
  *
  * @return     Start task address.
  */
-uint32_t nrf_drv_spi_start_task_get(nrf_drv_spi_t const * p_instance);
+uint32_t nrf_drv_spi_start_task_get(nrf_drv_spi_t const *p_instance);
 
 /**
  * @brief Function for returning the address of a END SPIM event.
@@ -395,11 +386,11 @@ uint32_t nrf_drv_spi_start_task_get(nrf_drv_spi_t const * p_instance);
  *
  * @return     END event address.
  */
-uint32_t nrf_drv_spi_end_event_get(nrf_drv_spi_t const * p_instance);
+uint32_t nrf_drv_spi_end_event_get(nrf_drv_spi_t const *p_instance);
 
 // modification for mbed-os
 #if __MBED__
-void nrf_drv_spi_abort(nrf_drv_spi_t const * p_instance);
+void nrf_drv_spi_abort(nrf_drv_spi_t const *p_instance);
 #endif
 
 #ifdef __cplusplus

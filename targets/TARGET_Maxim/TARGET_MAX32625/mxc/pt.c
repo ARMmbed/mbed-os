@@ -59,27 +59,32 @@ int PT_PTConfig(mxc_pt_regs_t *pt, pt_pt_cfg_t *cfg, const sys_cfg_pt_t *sysCfg)
     //check for valid base pointer
     MXC_ASSERT(MXC_PT_GET_IDX(pt) >= 0);
 
-    if(cfg == NULL)
+    if (cfg == NULL) {
         return E_NULL_PTR;
+    }
 
-    if(cfg->bps == 0)
+    if (cfg->bps == 0) {
         return E_BAD_PARAM;
+    }
 
     //disable pulse train
     PT_Stop(pt);
 
     //setup system GPIO configuration
-    if((err = SYS_PT_Config(pt, sysCfg)) != E_NO_ERROR)
+    if ((err = SYS_PT_Config(pt, sysCfg)) != E_NO_ERROR) {
         return err;
+    }
 
     //get PT clock frequency from SYS level
     ptClock = SYS_PT_GetFreq();
 
-    if(ptClock == 0)
+    if (ptClock == 0) {
         return E_UNINITIALIZED;
+    }
 
-    if(ptClock < (cfg->bps))
+    if (ptClock < (cfg->bps)) {
         return E_BAD_STATE;
+    }
 
     rate = (ptClock / (cfg->bps));
 
@@ -105,26 +110,30 @@ int PT_SqrWaveConfig(mxc_pt_regs_t *pt, uint32_t freq, const sys_cfg_pt_t *sysCf
     //check for valid base pointer
     MXC_ASSERT(MXC_PT_GET_IDX(pt) >= 0);
 
-    if(freq == 0)
+    if (freq == 0) {
         return E_BAD_PARAM;
+    }
 
     //disable pulse train
     PT_Stop(pt);
 
     //setup system GPIO configuration
-    if((err = SYS_PT_Config(pt, sysCfg)) != E_NO_ERROR)
+    if ((err = SYS_PT_Config(pt, sysCfg)) != E_NO_ERROR) {
         return err;
+    }
 
     //get PT clock frequency from SYS level
     ptClock = SYS_PT_GetFreq();
 
-    if(ptClock == 0)
+    if (ptClock == 0) {
         return E_UNINITIALIZED;
+    }
 
-    if(ptClock < (2*freq))
+    if (ptClock < (2 * freq)) {
         return E_BAD_STATE;
+    }
 
-    rate = (ptClock / (2*freq)) + 1;
+    rate = (ptClock / (2 * freq)) + 1;
 
     pt->rate_length = ((rate << MXC_F_PT_RATE_LENGTH_RATE_CONTROL_POS)
                        & MXC_F_PT_RATE_LENGTH_RATE_CONTROL) |

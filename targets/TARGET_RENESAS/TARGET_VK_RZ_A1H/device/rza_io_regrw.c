@@ -71,13 +71,13 @@ Private global variables and functions
 *              :                          : Use register definition name of the
 *              :                          : iodefine.h
 *              : uint8_t write_value      : Write value for the IO register
-*              : uint8_t shift            : The number of left shifts to the 
+*              : uint8_t shift            : The number of left shifts to the
 *              :                          : target bit
 *              : uint8_t mask             : Mask value for the IO register
 *              :                          : (Target bit : "1")
 * Return Value : None
 ******************************************************************************/
-void RZA_IO_RegWrite_8(volatile uint8_t * ioreg, uint8_t write_value, uint8_t shift, uint8_t mask)
+void RZA_IO_RegWrite_8(volatile uint8_t *ioreg, uint8_t write_value, uint8_t shift, uint8_t mask)
 {
     uint8_t reg_value;
 
@@ -93,13 +93,13 @@ void RZA_IO_RegWrite_8(volatile uint8_t * ioreg, uint8_t write_value, uint8_t sh
 *              :                           : Use register definition name of the
 *              :                           : iodefine.h
 *              : uint16_t write_value      : Write value for the IO register
-*              : uint16_t shift            : The number of left shifts to the 
+*              : uint16_t shift            : The number of left shifts to the
 *              :                           : target bit
 *              : uint16_t mask             : Mask value for the IO register
 *              :                           : (Target bit : "1")
 * Return Value : None
 ******************************************************************************/
-void RZA_IO_RegWrite_16(volatile uint16_t * ioreg, uint16_t write_value, uint16_t shift, uint16_t mask)
+void RZA_IO_RegWrite_16(volatile uint16_t *ioreg, uint16_t write_value, uint16_t shift, uint16_t mask)
 {
     uint16_t reg_value;
 
@@ -115,13 +115,13 @@ void RZA_IO_RegWrite_16(volatile uint16_t * ioreg, uint16_t write_value, uint16_
 *              :                           : Use register definition name of the
 *              :                           : iodefine.h
 *              : uint32_t write_value      : Write value for the IO register
-*              : uint32_t shift            : The number of left shifts to the 
+*              : uint32_t shift            : The number of left shifts to the
 *              :                           : target bit
 *              : uint32_t mask             : Mask value for the IO register
 *              :                           : (Target bit : "1")
 * Return Value : None
 ******************************************************************************/
-void RZA_IO_RegWrite_32(volatile uint32_t * ioreg, uint32_t write_value, uint32_t shift, uint32_t mask)
+void RZA_IO_RegWrite_32(volatile uint32_t *ioreg, uint32_t write_value, uint32_t shift, uint32_t mask)
 {
     uint32_t reg_value;
 
@@ -134,15 +134,15 @@ void RZA_IO_RegWrite_32(volatile uint32_t * ioreg, uint32_t write_value, uint32_
 * Function Name: RZA_IO_RegRead_8
 * Description  : IO register 8-bit read
 * Arguments    : volatile uint8_t * ioreg : IO register for reading
-*              :                          : Use register definition name of the 
+*              :                          : Use register definition name of the
 *              :                          : iodefine.h
-*              : uint8_t shift            : The number of right shifts to the 
+*              : uint8_t shift            : The number of right shifts to the
 *              :                          : target bit
 *              : uint8_t mask             : Mask bit for the IO register
 *              :                          : (Target bit: "1")
 * Return Value : uint8_t : Value of the obtained target bit
 ******************************************************************************/
-uint8_t RZA_IO_RegRead_8(volatile uint8_t * ioreg, uint8_t shift, uint8_t mask)
+uint8_t RZA_IO_RegRead_8(volatile uint8_t *ioreg, uint8_t shift, uint8_t mask)
 {
     uint8_t reg_value;
 
@@ -156,15 +156,15 @@ uint8_t RZA_IO_RegRead_8(volatile uint8_t * ioreg, uint8_t shift, uint8_t mask)
 * Function Name: RZA_IO_RegRead_16
 * Description  : IO register 16-bit read
 * Arguments    : volatile uint16_t * ioreg : IO register for reading
-*              :                           : Use register definition name of the 
+*              :                           : Use register definition name of the
 *              :                           : iodefine.h
-*              : uint16_t shift            : The number of right shifts to the 
+*              : uint16_t shift            : The number of right shifts to the
 *              :                           : target bit
 *              : uint16_t mask             : Mask bit for the IO register
 *              :                           : (Target bit: "1")
 * Return Value : uint16_t : Value of the obtained target bit
 ******************************************************************************/
-uint16_t RZA_IO_RegRead_16(volatile uint16_t * ioreg, uint16_t shift, uint16_t mask)
+uint16_t RZA_IO_RegRead_16(volatile uint16_t *ioreg, uint16_t shift, uint16_t mask)
 {
     uint16_t reg_value;
 
@@ -178,15 +178,15 @@ uint16_t RZA_IO_RegRead_16(volatile uint16_t * ioreg, uint16_t shift, uint16_t m
 * Function Name: RZA_IO_RegRead_32
 * Description  : IO register 32-bit read
 * Arguments    : volatile uint32_t * ioreg : IO register for reading
-*              :                           : Use register definition name of the 
+*              :                           : Use register definition name of the
 *              :                           : iodefine.h
-*              : uint32_t shift            : The number of right shifts to the 
+*              : uint32_t shift            : The number of right shifts to the
 *              :                           : target bit
 *              : uint32_t mask             : Mask bit for the IO register
 *              :                           : (Target bit: "1")
 * Return Value : uint32_t : Value of the obtained target bit
 ******************************************************************************/
-uint32_t RZA_IO_RegRead_32(volatile uint32_t * ioreg, uint32_t shift, uint32_t mask)
+uint32_t RZA_IO_RegRead_32(volatile uint32_t *ioreg, uint32_t shift, uint32_t mask)
 {
     uint32_t reg_value;
 

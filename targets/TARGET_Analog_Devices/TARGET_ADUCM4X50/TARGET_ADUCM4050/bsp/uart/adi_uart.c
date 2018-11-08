@@ -97,97 +97,95 @@ POSSIBILITY OF SUCH DAMAGE.
 /**********************************************************
  * UART Data
  **********************************************************/
-static  ADI_UART_DEVICE_INFO uart_device_info[ ] =
-{
-  {
-    UART0_TX_CHANn,             /*!< DMA channel number for UART0 Tx. */
-    UART0_RX_CHANn,             /*!< DMA channel number for UART0 Rx. */
-    DMA0_CH8_DONE_IRQn,         /*!< DMA channel IRQ for UART0 Tx.    */
-    DMA0_CH9_DONE_IRQn,         /*!< DMA channel IRQ for UART0 Rx.    */
-    (IRQn_Type)INTR_UART0_EVT,  /*!< UART0 interrupt ID.              */
-    pADI_UART0,                 /*!< Start address of UART0.          */
-    NULL                        /*!< Device Handle for UART0.         */
-  },
-  {
-    UART1_TX_CHANn,             /*!< DMA channel number for UART1 Tx. */
-    UART1_RX_CHANn,             /*!< DMA channel number for UART1 Rx. */
-    DMA0_CH25_DONE_IRQn,        /*!< DMA channel IRQ for UART1 Tx.    */
-    DMA0_CH26_DONE_IRQn,        /*!< DMA channel IRQ for UART1 Rx.    */
-    (IRQn_Type)INTR_UART1_EVT,  /*!< UART1 interrupt ID.              */
-    pADI_UART1,                 /*!< Start address of UART1.          */
-    NULL                        /*!< Device Handle for UART1.         */
-  },
+static  ADI_UART_DEVICE_INFO uart_device_info[ ] = {
+    {
+        UART0_TX_CHANn,             /*!< DMA channel number for UART0 Tx. */
+        UART0_RX_CHANn,             /*!< DMA channel number for UART0 Rx. */
+        DMA0_CH8_DONE_IRQn,         /*!< DMA channel IRQ for UART0 Tx.    */
+        DMA0_CH9_DONE_IRQn,         /*!< DMA channel IRQ for UART0 Rx.    */
+        (IRQn_Type)INTR_UART0_EVT,  /*!< UART0 interrupt ID.              */
+        pADI_UART0,                 /*!< Start address of UART0.          */
+        NULL                        /*!< Device Handle for UART0.         */
+    },
+    {
+        UART1_TX_CHANn,             /*!< DMA channel number for UART1 Tx. */
+        UART1_RX_CHANn,             /*!< DMA channel number for UART1 Rx. */
+        DMA0_CH25_DONE_IRQn,        /*!< DMA channel IRQ for UART1 Tx.    */
+        DMA0_CH26_DONE_IRQn,        /*!< DMA channel IRQ for UART1 Rx.    */
+        (IRQn_Type)INTR_UART1_EVT,  /*!< UART1 interrupt ID.              */
+        pADI_UART1,                 /*!< Start address of UART1.          */
+        NULL                        /*!< Device Handle for UART1.         */
+    },
 };
 
-static const ADI_UART_CONFIG gUARTCfg[ ] =
-{
+static const ADI_UART_CONFIG gUARTCfg[ ] = {
     {
-      /* Line control register.                                         */
-      ((ADI_UART0_CFG_WORD_LENGTH          << BITP_UART_LCR_WLS)  |
-       (ADI_UART0_CFG_STOP_BIT             << BITP_UART_LCR_STOP) |
-       (ADI_UART0_CFG_ENABLE_PARITY        << BITP_UART_LCR_PEN)  |
-       (ADI_UART0_CFG_PARITY_SELECTION     << BITP_UART_LCR_EPS)  |
-       (ADI_UART0_CFG_ENABLE_STICKY_PARITY << BITP_UART_LCR_SP)),
+        /* Line control register.                                         */
+        ((ADI_UART0_CFG_WORD_LENGTH          << BITP_UART_LCR_WLS)  |
+         (ADI_UART0_CFG_STOP_BIT             << BITP_UART_LCR_STOP) |
+         (ADI_UART0_CFG_ENABLE_PARITY        << BITP_UART_LCR_PEN)  |
+         (ADI_UART0_CFG_PARITY_SELECTION     << BITP_UART_LCR_EPS)  |
+         (ADI_UART0_CFG_ENABLE_STICKY_PARITY << BITP_UART_LCR_SP)),
 
-      /* Div-C in baudrate divider register.                            */
-      ADI_UART0_CFG_DIVC,
+        /* Div-C in baudrate divider register.                            */
+        ADI_UART0_CFG_DIVC,
 
-      /* Div-M and Div-N in fractional baudrate Register.               */
-      (((uint32_t)ADI_UART0_CFG_DIVN       << BITP_UART_FBR_DIVN) |
-       ((uint32_t)ADI_UART0_CFG_DIVM       << BITP_UART_FBR_DIVM) |
-       ((uint32_t)BITM_UART_FBR_FBEN)),
+        /* Div-M and Div-N in fractional baudrate Register.               */
+        (((uint32_t)ADI_UART0_CFG_DIVN       << BITP_UART_FBR_DIVN) |
+         ((uint32_t)ADI_UART0_CFG_DIVM       << BITP_UART_FBR_DIVM) |
+         ((uint32_t)BITM_UART_FBR_FBEN)),
 
-      /* Over sample rate in second line control register.              */
-      ADI_UART0_CFG_OSR,
+        /* Over sample rate in second line control register.              */
+        ADI_UART0_CFG_OSR,
 
-      /* FIFO control register.                                         */
-      ((ADI_UART0_CFG_ENABLE_FIFO          << BITP_UART_FCR_FIFOEN)|
-       (ADI_UART0_CFG_TRIG_LEVEL           << BITP_UART_FCR_RFTRIG)),
+        /* FIFO control register.                                         */
+        ((ADI_UART0_CFG_ENABLE_FIFO          << BITP_UART_FCR_FIFOEN) |
+         (ADI_UART0_CFG_TRIG_LEVEL           << BITP_UART_FCR_RFTRIG)),
 
-      /* Half duplex control register.                                  */
-      ((ADI_UART0_CFG_SOUT_POLARITY        << BITP_UART_RSC_OENP)  |
-       (ADI_UART0_CFG_DEASSERTION          << BITP_UART_RSC_OENSP) |
-       (ADI_UART0_CFG_DISABLE_RX           << BITP_UART_RSC_DISRX) |
-       (ADI_UART0_CFG_HOLD_TX              << BITP_UART_RSC_DISTX)),
+        /* Half duplex control register.                                  */
+        ((ADI_UART0_CFG_SOUT_POLARITY        << BITP_UART_RSC_OENP)  |
+         (ADI_UART0_CFG_DEASSERTION          << BITP_UART_RSC_OENSP) |
+         (ADI_UART0_CFG_DISABLE_RX           << BITP_UART_RSC_DISRX) |
+         (ADI_UART0_CFG_HOLD_TX              << BITP_UART_RSC_DISTX)),
 
-      /* Interrupt enable register.                                     */
-      ((ADI_UART0_CFG_ENABLE_MODEM_STATUS_INTERRUPT << BITP_UART_IEN_EDSSI) |
-      (ADI_UART0_CFG_ENABLE_RX_STATUS_INTERRUPT     << BITP_UART_IEN_ELSI))
+        /* Interrupt enable register.                                     */
+        ((ADI_UART0_CFG_ENABLE_MODEM_STATUS_INTERRUPT << BITP_UART_IEN_EDSSI) |
+         (ADI_UART0_CFG_ENABLE_RX_STATUS_INTERRUPT     << BITP_UART_IEN_ELSI))
 
     },
 
     {
-      /* Line control register.                                         */
-      ((ADI_UART1_CFG_WORD_LENGTH          << BITP_UART_LCR_WLS)  |
-       (ADI_UART1_CFG_STOP_BIT             << BITP_UART_LCR_STOP) |
-       (ADI_UART1_CFG_ENABLE_PARITY        << BITP_UART_LCR_PEN)  |
-       (ADI_UART1_CFG_PARITY_SELECTION     << BITP_UART_LCR_EPS)  |
-       (ADI_UART1_CFG_ENABLE_STICKY_PARITY << BITP_UART_LCR_SP)),
+        /* Line control register.                                         */
+        ((ADI_UART1_CFG_WORD_LENGTH          << BITP_UART_LCR_WLS)  |
+         (ADI_UART1_CFG_STOP_BIT             << BITP_UART_LCR_STOP) |
+         (ADI_UART1_CFG_ENABLE_PARITY        << BITP_UART_LCR_PEN)  |
+         (ADI_UART1_CFG_PARITY_SELECTION     << BITP_UART_LCR_EPS)  |
+         (ADI_UART1_CFG_ENABLE_STICKY_PARITY << BITP_UART_LCR_SP)),
 
-      /* Div-C in Baudrate divider register.                            */
-      ADI_UART1_CFG_DIVC,
+        /* Div-C in Baudrate divider register.                            */
+        ADI_UART1_CFG_DIVC,
 
-      /* Div-M and Div-N in fractional baudrate Register.               */
-      (((uint32_t)ADI_UART1_CFG_DIVN       << BITP_UART_FBR_DIVN) |
-       ((uint32_t)ADI_UART1_CFG_DIVM       << BITP_UART_FBR_DIVM) |
-       ((uint32_t)BITM_UART_FBR_FBEN)),
+        /* Div-M and Div-N in fractional baudrate Register.               */
+        (((uint32_t)ADI_UART1_CFG_DIVN       << BITP_UART_FBR_DIVN) |
+         ((uint32_t)ADI_UART1_CFG_DIVM       << BITP_UART_FBR_DIVM) |
+         ((uint32_t)BITM_UART_FBR_FBEN)),
 
-      /* Over sample rate in second line control register.              */
-      ADI_UART1_CFG_OSR,
+        /* Over sample rate in second line control register.              */
+        ADI_UART1_CFG_OSR,
 
-      /* FIFO control register.                                         */
-      ((ADI_UART1_CFG_ENABLE_FIFO          << BITP_UART_FCR_FIFOEN)|
-       (ADI_UART1_CFG_TRIG_LEVEL           << BITP_UART_FCR_RFTRIG)),
+        /* FIFO control register.                                         */
+        ((ADI_UART1_CFG_ENABLE_FIFO          << BITP_UART_FCR_FIFOEN) |
+         (ADI_UART1_CFG_TRIG_LEVEL           << BITP_UART_FCR_RFTRIG)),
 
-      /* Half duplex control register.                                  */
-      ((ADI_UART1_CFG_SOUT_POLARITY        << BITP_UART_RSC_OENP)  |
-       (ADI_UART1_CFG_DEASSERTION          << BITP_UART_RSC_OENSP) |
-       (ADI_UART1_CFG_DISABLE_RX           << BITP_UART_RSC_DISRX) |
-       (ADI_UART1_CFG_HOLD_TX              << BITP_UART_RSC_DISTX)),
+        /* Half duplex control register.                                  */
+        ((ADI_UART1_CFG_SOUT_POLARITY        << BITP_UART_RSC_OENP)  |
+         (ADI_UART1_CFG_DEASSERTION          << BITP_UART_RSC_OENSP) |
+         (ADI_UART1_CFG_DISABLE_RX           << BITP_UART_RSC_DISRX) |
+         (ADI_UART1_CFG_HOLD_TX              << BITP_UART_RSC_DISTX)),
 
-      /* Interrupt enable register.                                     */
-      ((ADI_UART1_CFG_ENABLE_MODEM_STATUS_INTERRUPT << BITP_UART_IEN_EDSSI) |
-       (ADI_UART1_CFG_ENABLE_RX_STATUS_INTERRUPT    << BITP_UART_IEN_ELSI))
+        /* Interrupt enable register.                                     */
+        ((ADI_UART1_CFG_ENABLE_MODEM_STATUS_INTERRUPT << BITP_UART_IEN_EDSSI) |
+         (ADI_UART1_CFG_ENABLE_RX_STATUS_INTERRUPT    << BITP_UART_IEN_ELSI))
     }
 };
 
@@ -207,11 +205,12 @@ extern void DMA_UART1_RX_Int_Handler(void);
 
 /* Internal DMA Callback for receiving DMA faults from common DMA error handler. */
 static void RxDmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg);
-static void RxDmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg) {
+static void RxDmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg)
+{
 
     /* Recover the device handle. */
     ADI_UART_HANDLE hDevice = (ADI_UART_HANDLE)pCBParam;
-    ADI_UART_BUFF_INFO * pNextBuff = hDevice->pChannelRx->pFillBuffer->pNextBuffer;
+    ADI_UART_BUFF_INFO *pNextBuff = hDevice->pChannelRx->pFillBuffer->pNextBuffer;
     uint32_t nEvent = 0u;
 
     /* Save the DMA error. */
@@ -227,23 +226,23 @@ static void RxDmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg) {
             break;
     }
 
-    if((pNextBuff->pStartAddress != NULL) && (pNextBuff->bDMA == true))
-    {
+    if ((pNextBuff->pStartAddress != NULL) && (pNextBuff->bDMA == true)) {
         hDevice->nHwError |= nEvent;
         pNextBuff->bInUse = false;
-        uart_ManageProcessedBuffer(hDevice,hDevice->pChannelRx,ADI_UART_EVENT_RX_BUFFER_PROCESSED);
+        uart_ManageProcessedBuffer(hDevice, hDevice->pChannelRx, ADI_UART_EVENT_RX_BUFFER_PROCESSED);
 
     }
     hDevice->nHwError |= nEvent;
-    uart_ManageProcessedBuffer(hDevice,hDevice->pChannelRx,ADI_UART_EVENT_RX_BUFFER_PROCESSED);
+    uart_ManageProcessedBuffer(hDevice, hDevice->pChannelRx, ADI_UART_EVENT_RX_BUFFER_PROCESSED);
 }
 
 static void TxDmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg);
-static void TxDmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg) {
+static void TxDmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg)
+{
 
     /* Recover the device handle. */
     ADI_UART_HANDLE hDevice = (ADI_UART_HANDLE)pCBParam;
-    ADI_UART_BUFF_INFO * pNextBuff = hDevice->pChannelTx->pFillBuffer->pNextBuffer;
+    ADI_UART_BUFF_INFO *pNextBuff = hDevice->pChannelTx->pFillBuffer->pNextBuffer;
     uint32_t nEvent = 0u;
 
     /* Save the DMA error. */
@@ -258,16 +257,15 @@ static void TxDmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg) {
             nEvent |= (uint32_t)ADI_UART_HW_ERR_TX_CHAN_DMA_UNKNOWN_ERROR;
             break;
     }
-    if((pNextBuff->pStartAddress != NULL) && (pNextBuff->bDMA == true))
-    {
+    if ((pNextBuff->pStartAddress != NULL) && (pNextBuff->bDMA == true)) {
         hDevice->nHwError |= nEvent;
         pNextBuff->bInUse = false;
-        uart_ManageProcessedBuffer(hDevice,hDevice->pChannelTx,ADI_UART_EVENT_TX_BUFFER_PROCESSED);
+        uart_ManageProcessedBuffer(hDevice, hDevice->pChannelTx, ADI_UART_EVENT_TX_BUFFER_PROCESSED);
 
     }
 
     hDevice->nHwError |= nEvent;
-    uart_ManageProcessedBuffer(hDevice,hDevice->pChannelTx,ADI_UART_EVENT_TX_BUFFER_PROCESSED);
+    uart_ManageProcessedBuffer(hDevice, hDevice->pChannelTx, ADI_UART_EVENT_TX_BUFFER_PROCESSED);
 }
 /*! \endcond */
 
@@ -303,47 +301,41 @@ static void TxDmaErrorCallback(void *pCBParam, uint32_t Event, void *pArg) {
  *
  */
 ADI_UART_RESULT adi_uart_Open(
-                              uint32_t            const nDeviceNum,
-                              ADI_UART_DIRECTION  const eDirection,
-                              void                     *pMemory,
-                              uint32_t            const nMemSize,
-                              ADI_UART_HANDLE    *const phDevice
-                             )
+    uint32_t            const nDeviceNum,
+    ADI_UART_DIRECTION  const eDirection,
+    void                     *pMemory,
+    uint32_t            const nMemSize,
+    ADI_UART_HANDLE    *const phDevice
+)
 {
 #ifdef ADI_DEBUG
     /* Check if the given device number is within the range of UART
      * devices present in the processor. There are two devices present here
      * so this can be a 0 or 1.
      */
-    if(nDeviceNum >= ADI_UART_NUM_DEVICES)
-    {
-        return(ADI_UART_INVALID_DEVICE_NUM);
+    if (nDeviceNum >= ADI_UART_NUM_DEVICES) {
+        return (ADI_UART_INVALID_DEVICE_NUM);
     }
 
     /* Verify the device is not already open. */
-    if(uart_device_info[nDeviceNum].hDevice != NULL)
-    {
-        return(ADI_UART_DEVICE_IN_USE);
+    if (uart_device_info[nDeviceNum].hDevice != NULL) {
+        return (ADI_UART_DEVICE_IN_USE);
     }
 
     /* Make sure there is enough memory for the device instance to operate in a single direction. */
-    if(eDirection !=  ADI_UART_DIR_BIDIRECTION)
-    {
-        if(nMemSize < (uint32_t)ADI_UART_UNIDIR_MEMORY_SIZE)
-        {
-            return(ADI_UART_INSUFFICIENT_MEMORY);
+    if (eDirection !=  ADI_UART_DIR_BIDIRECTION) {
+        if (nMemSize < (uint32_t)ADI_UART_UNIDIR_MEMORY_SIZE) {
+            return (ADI_UART_INSUFFICIENT_MEMORY);
         }
         assert(nMemSize == (sizeof(ADI_UART_DEVICE) + sizeof(ADI_UART_DATA_CHANNEL)));
     }
 
     /* Make sure there is enough memory for the device instance to operate in both directions. */
-    else
-    {
-        if(nMemSize < (uint32_t)ADI_UART_BIDIR_MEMORY_SIZE)
-        {
-            return(ADI_UART_INSUFFICIENT_MEMORY);
+    else {
+        if (nMemSize < (uint32_t)ADI_UART_BIDIR_MEMORY_SIZE) {
+            return (ADI_UART_INSUFFICIENT_MEMORY);
         }
-        assert(nMemSize == (sizeof(ADI_UART_DEVICE) + (sizeof(ADI_UART_DATA_CHANNEL)*2u)));
+        assert(nMemSize == (sizeof(ADI_UART_DEVICE) + (sizeof(ADI_UART_DATA_CHANNEL) * 2u)));
     }
 #endif /* ADI_DEBUG */
 
@@ -351,7 +343,7 @@ ADI_UART_RESULT adi_uart_Open(
     *phDevice = NULL;
 
     /* Link the ADI_UART_HANDLE to the ADI_UART_DEVICE structure. */
-     ADI_UART_HANDLE hDevice = pMemory;
+    ADI_UART_HANDLE hDevice = pMemory;
 
     /* Zero the device handle memory so we do not have to explicitely initialize
        the structure members to 0.
@@ -374,49 +366,46 @@ ADI_UART_RESULT adi_uart_Open(
        so we can set the channel data next without overwriting
        the #ADI_UART_DEVICE data.
     */
-    pMemory = ((uint8_t *)pMemory +(sizeof(ADI_UART_DEVICE)));
+    pMemory = ((uint8_t *)pMemory + (sizeof(ADI_UART_DEVICE)));
 
     /* Set up the DMA Controller. */
     adi_dma_Init();
 
     /* Initialize the TX-channel. */
-    if(ADI_UART_DIR_RECEIVE != eDirection)
-    {
-         hDevice->pChannelTx = (ADI_UART_DATA_CHANNEL *)pMemory;
+    if (ADI_UART_DIR_RECEIVE != eDirection) {
+        hDevice->pChannelTx = (ADI_UART_DATA_CHANNEL *)pMemory;
 
-         /* Initialize the data transfer mode. */
-         hDevice->pChannelTx->eDataTranferMode = ADI_UART_DATA_TRANSFER_MODE_NONE;
+        /* Initialize the data transfer mode. */
+        hDevice->pChannelTx->eDataTranferMode = ADI_UART_DATA_TRANSFER_MODE_NONE;
 
-         /* Initialize Tx buffer pointers. */
-         hDevice->pChannelTx->pFreeBuffer = &hDevice->pChannelTx->PingPong[0];
-         hDevice->pChannelTx->pActiveBuffer = &hDevice->pChannelTx->PingPong[0];
-         hDevice->pChannelTx->pFillBuffer = &hDevice->pChannelTx->PingPong[0];
+        /* Initialize Tx buffer pointers. */
+        hDevice->pChannelTx->pFreeBuffer = &hDevice->pChannelTx->PingPong[0];
+        hDevice->pChannelTx->pActiveBuffer = &hDevice->pChannelTx->PingPong[0];
+        hDevice->pChannelTx->pFillBuffer = &hDevice->pChannelTx->PingPong[0];
 
 
-         /* Create a "semaphore" (varies per OS) used for blocking buffer resource management. */
-         SEM_CREATE(hDevice->pChannelTx, "UART_TX_SEM", ADI_UART_SEMAPHORE_FAILED);
+        /* Create a "semaphore" (varies per OS) used for blocking buffer resource management. */
+        SEM_CREATE(hDevice->pChannelTx, "UART_TX_SEM", ADI_UART_SEMAPHORE_FAILED);
 
-         /* Set submit buffer function pointer. */
-         hDevice->pChannelTx->pfSubmitBuffer = &uart_submittxbuffer;
+        /* Set submit buffer function pointer. */
+        hDevice->pChannelTx->pfSubmitBuffer = &uart_submittxbuffer;
 
-         hDevice->pChannelTx->PingPong[0].pNextBuffer  = &hDevice->pChannelTx->PingPong[1];
-         hDevice->pChannelTx->PingPong[1].pNextBuffer  = &hDevice->pChannelTx->PingPong[0];
+        hDevice->pChannelTx->PingPong[0].pNextBuffer  = &hDevice->pChannelTx->PingPong[1];
+        hDevice->pChannelTx->PingPong[1].pNextBuffer  = &hDevice->pChannelTx->PingPong[0];
 
-         /*Register DMA Callback. */
-         if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(hDevice->pUartInfo->dmaTxChannelNum, TxDmaErrorCallback, (void*)hDevice))
-         {
-              adi_uart_Close(hDevice);
-              return  ADI_UART_ERR_DMA_REGISTER;
-         }
+        /*Register DMA Callback. */
+        if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(hDevice->pUartInfo->dmaTxChannelNum, TxDmaErrorCallback, (void *)hDevice)) {
+            adi_uart_Close(hDevice);
+            return  ADI_UART_ERR_DMA_REGISTER;
+        }
 
-         /* Increment the device handle the size of #ADI_UART_DATA_CHANNEL
-            structure in case there is another channel to configure.
-         */
-         pMemory =  ((uint8_t *)pMemory + sizeof(ADI_UART_DATA_CHANNEL));
+        /* Increment the device handle the size of #ADI_UART_DATA_CHANNEL
+           structure in case there is another channel to configure.
+        */
+        pMemory = ((uint8_t *)pMemory + sizeof(ADI_UART_DATA_CHANNEL));
     }
     /* Initialize the RX-channel. */
-    if(ADI_UART_DIR_TRANSMIT != eDirection)
-    {
+    if (ADI_UART_DIR_TRANSMIT != eDirection) {
         hDevice->pChannelRx = (ADI_UART_DATA_CHANNEL *)pMemory;
 
         /* Initialize the data transfer mode. */
@@ -436,12 +425,11 @@ ADI_UART_RESULT adi_uart_Open(
         hDevice->pChannelRx->PingPong[0].pNextBuffer  = &hDevice->pChannelRx->PingPong[1];
         hDevice->pChannelRx->PingPong[1].pNextBuffer  = &hDevice->pChannelRx->PingPong[0];
 
-         /*Register DMA Callback. */
-         if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(hDevice->pUartInfo->dmaRxChannelNum, RxDmaErrorCallback, (void*)hDevice))
-         {
-              adi_uart_Close(hDevice);
-              return  ADI_UART_ERR_DMA_REGISTER;
-         }
+        /*Register DMA Callback. */
+        if (ADI_DMA_SUCCESS != adi_dma_RegisterCallback(hDevice->pUartInfo->dmaRxChannelNum, RxDmaErrorCallback, (void *)hDevice)) {
+            adi_uart_Close(hDevice);
+            return  ADI_UART_ERR_DMA_REGISTER;
+        }
     }
 
     /* Initialize the device with the static config values.*/
@@ -463,7 +451,7 @@ ADI_UART_RESULT adi_uart_Open(
     NVIC_EnableIRQ(hDevice->pUartInfo->eDMARx);
 
     /* Return SUCCESS */
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 /*!
@@ -485,14 +473,13 @@ ADI_UART_RESULT adi_uart_Open(
  * @note: It is the user's responsibility to free/reuse the memory supplied during the opening of the device.
  */
 ADI_UART_RESULT adi_uart_Close(
-                               ADI_UART_HANDLE const hDevice
-                              )
+    ADI_UART_HANDLE const hDevice
+)
 {
 #ifdef ADI_DEBUG
     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* Make sure there are no active buffers on any active channel, autobaud is not in progress and the
@@ -501,12 +488,11 @@ ADI_UART_RESULT adi_uart_Close(
        address of the active buffer will remain in use until the buffer has been completely processed.
        Therefore if the start address is NULL it means it has not been submitted for a transaction.
     */
-    if(((hDevice->pUARTRegs->LSR & BITM_UART_LSR_TEMT) != BITM_UART_LSR_TEMT)                                        ||
-       ((hDevice->eDirection != ADI_UART_DIR_TRANSMIT) && (hDevice->pChannelRx->pFillBuffer->pStartAddress != NULL)) ||
-       ((hDevice->eDirection != ADI_UART_DIR_RECEIVE ) && (hDevice->pChannelTx->pFillBuffer->pStartAddress != NULL)) ||
-       (hDevice->bAutobaudInProgress == true))
-    {
-        return(ADI_UART_DEVICE_IN_USE);
+    if (((hDevice->pUARTRegs->LSR & BITM_UART_LSR_TEMT) != BITM_UART_LSR_TEMT)                                        ||
+            ((hDevice->eDirection != ADI_UART_DIR_TRANSMIT) && (hDevice->pChannelRx->pFillBuffer->pStartAddress != NULL)) ||
+            ((hDevice->eDirection != ADI_UART_DIR_RECEIVE) && (hDevice->pChannelTx->pFillBuffer->pStartAddress != NULL)) ||
+            (hDevice->bAutobaudInProgress == true)) {
+        return (ADI_UART_DEVICE_IN_USE);
     }
 #endif /* ADI_DEBUG */
 
@@ -521,21 +507,19 @@ ADI_UART_RESULT adi_uart_Close(
     NVIC_DisableIRQ(hDevice->pUartInfo->eIRQn);
 
     /* Delete Tx-Channel semaphore. */
-    if(hDevice->eDirection != ADI_UART_DIR_RECEIVE)
-    {
+    if (hDevice->eDirection != ADI_UART_DIR_RECEIVE) {
         SEM_DELETE(hDevice->pChannelTx, ADI_UART_SEMAPHORE_FAILED);
     }
 
     /* Delete Rx-Channel semaphore. */
-    if(hDevice->eDirection != ADI_UART_DIR_TRANSMIT)
-    {
+    if (hDevice->eDirection != ADI_UART_DIR_TRANSMIT) {
         SEM_DELETE(hDevice->pChannelRx, ADI_UART_SEMAPHORE_FAILED);
     }
 
-     /* Free up the device memory. */
+    /* Free up the device memory. */
     hDevice->pUartInfo->hDevice = NULL;
 
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 /*!
@@ -572,48 +556,42 @@ ADI_UART_RESULT adi_uart_Close(
  *
  */
 ADI_UART_RESULT adi_uart_SubmitTxBuffer(
-                                         ADI_UART_HANDLE const hDevice,
-                                         void           *const pBuffer,
-                                         uint32_t        const nBufSize,
-                                         bool            const bDMA
-                                       )
+    ADI_UART_HANDLE const hDevice,
+    void           *const pBuffer,
+    uint32_t        const nBufSize,
+    bool            const bDMA
+)
 {
 
 #ifdef ADI_DEBUG
     /* Validate the device handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* Validate the pointer to the buffer memory. */
-    if(pBuffer == NULL)
-    {
-        return(ADI_UART_INVALID_POINTER);
+    if (pBuffer == NULL) {
+        return (ADI_UART_INVALID_POINTER);
     }
 
     /* Validate the buffer size. */
-    if(nBufSize == 0U)
-    {
-        return(ADI_UART_FAILED);
+    if (nBufSize == 0U) {
+        return (ADI_UART_FAILED);
     }
 
     /* Autobaud in progress. */
-    if(hDevice->bAutobaudInProgress == true)
-    {
-        return(ADI_UART_DEVICE_IN_USE);
+    if (hDevice->bAutobaudInProgress == true) {
+        return (ADI_UART_DEVICE_IN_USE);
     }
 
     /* Make sure we are transmitting. */
-    if(ADI_UART_DIR_RECEIVE == hDevice->eDirection)
-    {
-        return(ADI_UART_OPERATION_NOT_ALLOWED);
+    if (ADI_UART_DIR_RECEIVE == hDevice->eDirection) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
     }
 
     /* Check the data transfer mode (only allowed in nonblocking mode). */
-    if(hDevice->pChannelTx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_BLOCKING)
-    {
-        return(ADI_UART_INVALID_DATA_TRANSFER_MODE);
+    if (hDevice->pChannelTx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_BLOCKING) {
+        return (ADI_UART_INVALID_DATA_TRANSFER_MODE);
     }
 
     /* Check that there is a free buffer to use for this transmit operation. pFreeBuffer
@@ -621,58 +599,55 @@ ADI_UART_RESULT adi_uart_SubmitTxBuffer(
        there are no buffers available. The start address is set to NULL once the buffer
        has finished being processed in "adi_uart_GetBuffer()" or "adi_uart_PendForBuffer()".
     */
-    if(hDevice->pChannelTx->pFreeBuffer->pStartAddress != NULL)
-    {
-        return(ADI_UART_OPERATION_NOT_ALLOWED);
+    if (hDevice->pChannelTx->pFreeBuffer->pStartAddress != NULL) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
     }
 
     /* Make sure the DMA transfer size is not too large. */
-    if((bDMA == true) && (nBufSize > DMA_TRANSFER_LIMIT))
-    {
-        return(ADI_UART_INVALID_DATA_SIZE);
+    if ((bDMA == true) && (nBufSize > DMA_TRANSFER_LIMIT)) {
+        return (ADI_UART_INVALID_DATA_SIZE);
     }
 
 #endif /* ADI_DEBUG */
 
-     /* Set the start address of the data buffer we are going to submit. */
-     hDevice->pChannelTx->pFreeBuffer->pStartAddress =   pBuffer;
+    /* Set the start address of the data buffer we are going to submit. */
+    hDevice->pChannelTx->pFreeBuffer->pStartAddress =   pBuffer;
 
-     /* Set the buffer size to the size of the data buffer passed down from the API. */
-     hDevice->pChannelTx->pFreeBuffer->nCount        =   nBufSize;
+    /* Set the buffer size to the size of the data buffer passed down from the API. */
+    hDevice->pChannelTx->pFreeBuffer->nCount        =   nBufSize;
 
-     /* Initialize the buffer index to zero because we will start shifting out
-        the Tx data from the first position of the buffer.
-     */
-     hDevice->pChannelTx->pFreeBuffer->nIndex        =   0U;
+    /* Initialize the buffer index to zero because we will start shifting out
+       the Tx data from the first position of the buffer.
+    */
+    hDevice->pChannelTx->pFreeBuffer->nIndex        =   0U;
 
-     /* Mark the buffer as in use so no other transactions can use it until this one is complete. */
-     hDevice->pChannelTx->pFreeBuffer->bInUse        =   true;
+    /* Mark the buffer as in use so no other transactions can use it until this one is complete. */
+    hDevice->pChannelTx->pFreeBuffer->bInUse        =   true;
 
-     /* Mark the DMA as in use. */
-     hDevice->pChannelTx->pFreeBuffer->bDMA          =   bDMA;
+    /* Mark the DMA as in use. */
+    hDevice->pChannelTx->pFreeBuffer->bDMA          =   bDMA;
 
-     /* Now that this "pFreeBuffer" is no longer free for use, update the
-        "pFreeBuffer" to the other PingPong buffer. Because there are only two
-        buffers in the PingPong structure, this will be the opposite of the one
-        we just submitted. "pFreeBuffer" will only be updated during the process of
-        submitting a buffer or a read/write operation.
-     */
-      hDevice->pChannelTx->pFreeBuffer = hDevice->pChannelTx->pFreeBuffer->pNextBuffer;
+    /* Now that this "pFreeBuffer" is no longer free for use, update the
+       "pFreeBuffer" to the other PingPong buffer. Because there are only two
+       buffers in the PingPong structure, this will be the opposite of the one
+       we just submitted. "pFreeBuffer" will only be updated during the process of
+       submitting a buffer or a read/write operation.
+    */
+    hDevice->pChannelTx->pFreeBuffer = hDevice->pChannelTx->pFreeBuffer->pNextBuffer;
 
-     /* Set the data transfer mode in case it was #ADI_UART_DATA_TRANSFER_MODE_NONE.
-        This will be set back to #ADI_UART_DATA_TRANSFER_MODE_NONE once this
-        transaction is complete. Then, if a buffer is not currently active, set up the
-        interrupts for this transaction. Otherwise if a buffer is currently active,
-        this will be taken care of in the ISR.
-     */
-     if (hDevice->pChannelTx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONE)
-     {
-         hDevice->pChannelTx->eDataTranferMode = ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING;
-         hDevice->pChannelTx->pfSubmitBuffer(hDevice, hDevice->pChannelTx->pFillBuffer);
-     }
+    /* Set the data transfer mode in case it was #ADI_UART_DATA_TRANSFER_MODE_NONE.
+       This will be set back to #ADI_UART_DATA_TRANSFER_MODE_NONE once this
+       transaction is complete. Then, if a buffer is not currently active, set up the
+       interrupts for this transaction. Otherwise if a buffer is currently active,
+       this will be taken care of in the ISR.
+    */
+    if (hDevice->pChannelTx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONE) {
+        hDevice->pChannelTx->eDataTranferMode = ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING;
+        hDevice->pChannelTx->pfSubmitBuffer(hDevice, hDevice->pChannelTx->pFillBuffer);
+    }
 
-     return(ADI_UART_SUCCESS);
-  }
+    return (ADI_UART_SUCCESS);
+}
 
 /*!  \cond PRIVATE */
 
@@ -686,45 +661,43 @@ ADI_UART_RESULT adi_uart_SubmitTxBuffer(
  * @param [in]  bDMA       Submit the buffer using the DMA.
 */
 static void uart_submittxbuffer(
-                                 ADI_UART_CONST_HANDLE  const hDevice,
-                                 ADI_UART_BUFF_INFO    *const pBuffer
-                               )
+    ADI_UART_CONST_HANDLE  const hDevice,
+    ADI_UART_BUFF_INFO    *const pBuffer
+)
 {
-  /* If this transmission is using DMA... */
-  if (pBuffer->bDMA)
-  {
-      /* Enable clear source address decrement for TX channel DMA. */
-      pADI_DMA0->SRCADDR_CLR = 1u << (uint32_t)hDevice->pUartInfo->dmaTxChannelNum;
+    /* If this transmission is using DMA... */
+    if (pBuffer->bDMA) {
+        /* Enable clear source address decrement for TX channel DMA. */
+        pADI_DMA0->SRCADDR_CLR = 1u << (uint32_t)hDevice->pUartInfo->dmaTxChannelNum;
 
-      /* Enable Tx channel DMA. */
-      pADI_DMA0->EN_SET = 1u << hDevice->pUartInfo->dmaTxChannelNum;
+        /* Enable Tx channel DMA. */
+        pADI_DMA0->EN_SET = 1u << hDevice->pUartInfo->dmaTxChannelNum;
 
-      /* Enable UART peripheral to generate DMA requests. */
-      pADI_DMA0->RMSK_CLR = 1u << hDevice->pUartInfo->dmaTxChannelNum;
+        /* Enable UART peripheral to generate DMA requests. */
+        pADI_DMA0->RMSK_CLR = 1u << hDevice->pUartInfo->dmaTxChannelNum;
 
-      /* Set the primary control data structure as the current DMA descriptor. */
-      pADI_DMA0->ALT_CLR = 1u << hDevice->pUartInfo->dmaTxChannelNum;
+        /* Set the primary control data structure as the current DMA descriptor. */
+        pADI_DMA0->ALT_CLR = 1u << hDevice->pUartInfo->dmaTxChannelNum;
 
-      /* Fill in the DMA RAM descriptors */
-      pPrimaryCCD[hDevice->pUartInfo->dmaTxChannelNum].DMASRCEND =   ((uint32_t)pBuffer->pStartAddress + (uint32_t)(pBuffer->nCount - 1u));
+        /* Fill in the DMA RAM descriptors */
+        pPrimaryCCD[hDevice->pUartInfo->dmaTxChannelNum].DMASRCEND = ((uint32_t)pBuffer->pStartAddress + (uint32_t)(pBuffer->nCount - 1u));
 
-      pPrimaryCCD[hDevice->pUartInfo->dmaTxChannelNum].DMADSTEND =   (uint32_t)&hDevice->pUARTRegs->TX;
+        pPrimaryCCD[hDevice->pUartInfo->dmaTxChannelNum].DMADSTEND = (uint32_t)&hDevice->pUARTRegs->TX;
 
-      pPrimaryCCD[hDevice->pUartInfo->dmaTxChannelNum].DMACDC    =   ((uint32_t)ADI_DMA_INCR_NONE << DMA_BITP_CTL_DST_INC)      |
+        pPrimaryCCD[hDevice->pUartInfo->dmaTxChannelNum].DMACDC    = ((uint32_t)ADI_DMA_INCR_NONE << DMA_BITP_CTL_DST_INC)      |
                                                                      ((uint32_t)ADI_DMA_INCR_1_BYTE << DMA_BITP_CTL_SRC_INC)    |
                                                                      (ADI_DMA_WIDTH_1_BYTE << DMA_BITP_CTL_SRC_SIZE)            |
                                                                      (0u << DMA_BITP_CTL_R_POWER)                               |
                                                                      ((pBuffer->nCount - 1u) << DMA_BITP_CTL_N_MINUS_1)         |
                                                                      (DMA_ENUM_CTL_CYCLE_CTL_BASIC << DMA_BITP_CTL_CYCLE_CTL);
-      /* Enable UART DMA request interrupt for the Tx channel. */
-      hDevice->pUARTRegs->IEN |= (BITM_UART_IEN_EDMAT);
-  }
-  else
-  /* If this transmission is using UART interrupts.. */
-  {
-      /* Enable buffer empty interrupts.  */
-      hDevice->pUARTRegs->IEN |= (BITM_UART_IEN_ETBEI);
-  }
+        /* Enable UART DMA request interrupt for the Tx channel. */
+        hDevice->pUARTRegs->IEN |= (BITM_UART_IEN_EDMAT);
+    } else
+        /* If this transmission is using UART interrupts.. */
+    {
+        /* Enable buffer empty interrupts.  */
+        hDevice->pUARTRegs->IEN |= (BITM_UART_IEN_ETBEI);
+    }
 }
 
 /*! \endcond */
@@ -762,48 +735,42 @@ static void uart_submittxbuffer(
  *        and then right away another using the DMA, this transaction will be denied.
 */
 ADI_UART_RESULT adi_uart_SubmitRxBuffer(
-                                         ADI_UART_HANDLE const hDevice,
-                                         void           *const pBuffer,
-                                         uint32_t        const nBufSize,
-                                         bool            const bDMA
-                                       )
+    ADI_UART_HANDLE const hDevice,
+    void           *const pBuffer,
+    uint32_t        const nBufSize,
+    bool            const bDMA
+)
 {
 
 #ifdef ADI_DEBUG
     /* Validate the device handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* Validate the pointer to the buffer memory. */
-    if(pBuffer == NULL)
-    {
-        return(ADI_UART_INVALID_POINTER);
+    if (pBuffer == NULL) {
+        return (ADI_UART_INVALID_POINTER);
     }
 
     /* Validate the buffer size. */
-    if(nBufSize == 0U )
-    {
-        return(ADI_UART_FAILED);
+    if (nBufSize == 0U) {
+        return (ADI_UART_FAILED);
     }
 
     /* Autobaud in progress. */
-    if(hDevice->bAutobaudInProgress == true)
-    {
-        return(ADI_UART_DEVICE_IN_USE);
+    if (hDevice->bAutobaudInProgress == true) {
+        return (ADI_UART_DEVICE_IN_USE);
     }
 
     /* Make sure the UART device is configured to operate in the receive direction. */
-    if(ADI_UART_DIR_TRANSMIT == hDevice->eDirection)
-    {
-        return(ADI_UART_OPERATION_NOT_ALLOWED);
+    if (ADI_UART_DIR_TRANSMIT == hDevice->eDirection) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
     }
 
     /* Check for the data transfer mode(only allowed in nonblocking mode). */
-    if(hDevice->pChannelRx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_BLOCKING)
-    {
-        return(ADI_UART_INVALID_DATA_TRANSFER_MODE);
+    if (hDevice->pChannelRx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_BLOCKING) {
+        return (ADI_UART_INVALID_DATA_TRANSFER_MODE);
     }
 
     /* Check that there is a free buffer to use for this operation. pFreeBuffer
@@ -812,43 +779,41 @@ ADI_UART_RESULT adi_uart_SubmitRxBuffer(
        can conclude the buffer has not finished being processed because this gets set in
        adi_uart_pend_for_buffer() and adi_uart_get_buffer().
     */
-    if(hDevice->pChannelRx->pFreeBuffer->pStartAddress != NULL)
-    {
-        return(ADI_UART_OPERATION_NOT_ALLOWED);
+    if (hDevice->pChannelRx->pFreeBuffer->pStartAddress != NULL) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
     }
 
     /* Make sure the DMA transfer size is not too large. */
-    if((bDMA == true) && (nBufSize > DMA_TRANSFER_LIMIT))
-    {
-        return(ADI_UART_INVALID_DATA_SIZE);
+    if ((bDMA == true) && (nBufSize > DMA_TRANSFER_LIMIT)) {
+        return (ADI_UART_INVALID_DATA_SIZE);
     }
 
 #endif /* ADI_DEBUG */
 
     /* Set the start address of the buffer you are going to submit. */
-     hDevice->pChannelRx->pFreeBuffer->pStartAddress =   pBuffer;
+    hDevice->pChannelRx->pFreeBuffer->pStartAddress =   pBuffer;
 
-     /* Set the size of the buffer. */
-     hDevice->pChannelRx->pFreeBuffer->nCount        =   nBufSize;
+    /* Set the size of the buffer. */
+    hDevice->pChannelRx->pFreeBuffer->nCount        =   nBufSize;
 
-     /* Initialize the buffer index to 0, because as we receive data it will be put into
-        the buffer starting at the first position.
-     */
-     hDevice->pChannelRx->pFreeBuffer->nIndex        =   0U;
+    /* Initialize the buffer index to 0, because as we receive data it will be put into
+       the buffer starting at the first position.
+    */
+    hDevice->pChannelRx->pFreeBuffer->nIndex        =   0U;
 
-     /* Mark the buffer as in use. */
-     hDevice->pChannelRx->pFreeBuffer->bInUse        =   true;
+    /* Mark the buffer as in use. */
+    hDevice->pChannelRx->pFreeBuffer->bInUse        =   true;
 
-     /* Mark the DMA as in use. */
-     hDevice->pChannelRx->pFreeBuffer->bDMA          =   bDMA;
+    /* Mark the DMA as in use. */
+    hDevice->pChannelRx->pFreeBuffer->bDMA          =   bDMA;
 
-     /* Now that this "pFreeBuffer" is no longer free for use, update the
-        "pFreeBuffer" to the other PingPong buffer. Because there are only two
-        buffers in the PingPong structure, this will be the opposite of the one
-        we just submitted. "pFreeBuffer" will only be updated during the process of
-        submitting a buffer or a read/write operation.
-     */
-      hDevice->pChannelRx->pFreeBuffer = hDevice->pChannelRx->pFreeBuffer->pNextBuffer;
+    /* Now that this "pFreeBuffer" is no longer free for use, update the
+       "pFreeBuffer" to the other PingPong buffer. Because there are only two
+       buffers in the PingPong structure, this will be the opposite of the one
+       we just submitted. "pFreeBuffer" will only be updated during the process of
+       submitting a buffer or a read/write operation.
+    */
+    hDevice->pChannelRx->pFreeBuffer = hDevice->pChannelRx->pFreeBuffer->pNextBuffer;
 
 
     /* Set the data transfer mode in case it was #ADI_UART_DATA_TRANSFER_MODE_NONE.
@@ -857,13 +822,12 @@ ADI_UART_RESULT adi_uart_SubmitRxBuffer(
        interrupts for this transaction. Otherwise if a buffer is currently active,
        this will be taken care of in the ISR.
     */
-     if (hDevice->pChannelRx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONE)
-     {
-         hDevice->pChannelRx->eDataTranferMode = ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING;
-         hDevice->pChannelRx->pfSubmitBuffer(hDevice, hDevice->pChannelRx->pFillBuffer);
-     }
+    if (hDevice->pChannelRx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONE) {
+        hDevice->pChannelRx->eDataTranferMode = ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING;
+        hDevice->pChannelRx->pfSubmitBuffer(hDevice, hDevice->pChannelRx->pFillBuffer);
+    }
 
-     return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 /*! \cond PRIVATE */
@@ -878,15 +842,14 @@ ADI_UART_RESULT adi_uart_SubmitRxBuffer(
  * @param [in]  bDMA       Submit the buffer using the DMA.
 */
 static void uart_submitrxbuffer(
-                                 ADI_UART_CONST_HANDLE   const hDevice,
-                                 ADI_UART_BUFF_INFO     *const pBuffer
-                               )
+    ADI_UART_CONST_HANDLE   const hDevice,
+    ADI_UART_BUFF_INFO     *const pBuffer
+)
 {
 
 
     /* If this transaction is using the DMA.. */
-    if (pBuffer->bDMA)
-    {
+    if (pBuffer->bDMA) {
         /* Enable source address decrement for RX DMA channel. */
         pADI_DMA0->DSTADDR_CLR = 1u << (uint32_t)hDevice->pUartInfo->dmaRxChannelNum;
 
@@ -900,22 +863,21 @@ static void uart_submitrxbuffer(
         pADI_DMA0->ALT_CLR = 1u << hDevice->pUartInfo->dmaRxChannelNum;
 
         /* Fill in the DMA RAM descriptors. */
-        pPrimaryCCD[hDevice->pUartInfo->dmaRxChannelNum].DMASRCEND =   (uint32_t)&hDevice->pUARTRegs->RX;
+        pPrimaryCCD[hDevice->pUartInfo->dmaRxChannelNum].DMASRCEND = (uint32_t)&hDevice->pUARTRegs->RX;
 
-        pPrimaryCCD[hDevice->pUartInfo->dmaRxChannelNum].DMADSTEND =   ((uint32_t)pBuffer->pStartAddress + (uint32_t)(pBuffer->nCount - 1u));
+        pPrimaryCCD[hDevice->pUartInfo->dmaRxChannelNum].DMADSTEND = ((uint32_t)pBuffer->pStartAddress + (uint32_t)(pBuffer->nCount - 1u));
 
-        pPrimaryCCD[hDevice->pUartInfo->dmaRxChannelNum].DMACDC    =   (uint32_t)(ADI_DMA_INCR_1_BYTE << DMA_BITP_CTL_DST_INC)            |
-                                                                       (uint32_t)(ADI_DMA_INCR_NONE << DMA_BITP_CTL_SRC_INC)              |
-                                                                       (ADI_DMA_WIDTH_1_BYTE << DMA_BITP_CTL_SRC_SIZE)                    |
-                                                                       (0u << DMA_BITP_CTL_R_POWER)                                       |
-                                                                       ((pBuffer->nCount - 1u) << DMA_BITP_CTL_N_MINUS_1)                 |
-                                                                       (DMA_ENUM_CTL_CYCLE_CTL_BASIC << DMA_BITP_CTL_CYCLE_CTL);
+        pPrimaryCCD[hDevice->pUartInfo->dmaRxChannelNum].DMACDC    = (uint32_t)(ADI_DMA_INCR_1_BYTE << DMA_BITP_CTL_DST_INC)            |
+                                                                     (uint32_t)(ADI_DMA_INCR_NONE << DMA_BITP_CTL_SRC_INC)              |
+                                                                     (ADI_DMA_WIDTH_1_BYTE << DMA_BITP_CTL_SRC_SIZE)                    |
+                                                                     (0u << DMA_BITP_CTL_R_POWER)                                       |
+                                                                     ((pBuffer->nCount - 1u) << DMA_BITP_CTL_N_MINUS_1)                 |
+                                                                     (DMA_ENUM_CTL_CYCLE_CTL_BASIC << DMA_BITP_CTL_CYCLE_CTL);
         /* Enable UART receive DMA requests. */
         hDevice->pUARTRegs->IEN |= (BITM_UART_IEN_EDMAR);
     }
     /* If this transaction is using UART interrupts.. */
-    else
-    {
+    else {
         /* Enable buffer full interrupt. */
         hDevice->pUARTRegs->IEN |= (BITM_UART_IEN_ERBFI);
     }
@@ -948,35 +910,32 @@ static void uart_submitrxbuffer(
  * @note: If the transaction has already completed, this will return immediately rather than block.
  */
 ADI_UART_RESULT adi_uart_GetTxBuffer(
-                                      ADI_UART_HANDLE const   hDevice,
-                                      void          **const   ppBuffer,
-                                      uint32_t               *pHwError
-                                     )
+    ADI_UART_HANDLE const   hDevice,
+    void          **const   ppBuffer,
+    uint32_t               *pHwError
+)
 
 {
 
 #ifdef ADI_DEBUG
     /* Validate the device handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* Validate that this buffer has actually been submitted. */
-    if(hDevice->pChannelTx->pActiveBuffer->pStartAddress == NULL)
-    {
-        return(ADI_UART_BUFFER_NOT_SUBMITTED);
+    if (hDevice->pChannelTx->pActiveBuffer->pStartAddress == NULL) {
+        return (ADI_UART_BUFFER_NOT_SUBMITTED);
     }
 
     /* This function is allowed to be called when the channel is operating in NONBLOCKING mode. */
-    if(hDevice->pChannelTx->eDataTranferMode ==  ADI_UART_DATA_TRANSFER_MODE_BLOCKING)
-    {
-        return(ADI_UART_OPERATION_NOT_ALLOWED);
+    if (hDevice->pChannelTx->eDataTranferMode ==  ADI_UART_DATA_TRANSFER_MODE_BLOCKING) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
     }
 #endif /* ADI_DEBUG */
 
     /* Blocking call to get the submitted buffer */
-    return(uart_getbuffer(hDevice, hDevice->pChannelTx, ppBuffer, pHwError));
+    return (uart_getbuffer(hDevice, hDevice->pChannelTx, ppBuffer, pHwError));
 }
 
 
@@ -1006,35 +965,32 @@ ADI_UART_RESULT adi_uart_GetTxBuffer(
  * @note: If the transaction has already completed, this will return immediately rather than block.
 */
 ADI_UART_RESULT adi_uart_GetRxBuffer(
-                                      ADI_UART_HANDLE  const   hDevice,
-                                      void           **const   ppBuffer,
-                                      uint32_t                *pHwError
-                                     )
+    ADI_UART_HANDLE  const   hDevice,
+    void           **const   ppBuffer,
+    uint32_t                *pHwError
+)
 
 {
 
 #ifdef ADI_DEBUG
     /* Validate the device handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* Validate that this buffer has actually been submitted. */
-    if(hDevice->pChannelRx->pActiveBuffer->pStartAddress == NULL)
-    {
-        return(ADI_UART_BUFFER_NOT_SUBMITTED);
+    if (hDevice->pChannelRx->pActiveBuffer->pStartAddress == NULL) {
+        return (ADI_UART_BUFFER_NOT_SUBMITTED);
     }
 
-     /* This function is only allowed to be called when the channel is operating in NONBLOCKING mode. */
-    if(hDevice->pChannelRx->eDataTranferMode ==  ADI_UART_DATA_TRANSFER_MODE_BLOCKING)
-    {
-        return(ADI_UART_OPERATION_NOT_ALLOWED);
+    /* This function is only allowed to be called when the channel is operating in NONBLOCKING mode. */
+    if (hDevice->pChannelRx->eDataTranferMode ==  ADI_UART_DATA_TRANSFER_MODE_BLOCKING) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
     }
 #endif /* ADI_DEBUG */
 
     /* Blocking call to get the full Rx Buffer */
-    return(uart_getbuffer(hDevice, hDevice->pChannelRx, ppBuffer, pHwError));
+    return (uart_getbuffer(hDevice, hDevice->pChannelRx, ppBuffer, pHwError));
 }
 
 /*! \cond PRIVATE */
@@ -1055,17 +1011,17 @@ ADI_UART_RESULT adi_uart_GetRxBuffer(
  *
 */
 static ADI_UART_RESULT uart_getbuffer(
-                                       ADI_UART_HANDLE        hDevice,
-                                       ADI_UART_DATA_CHANNEL *pChannel,
-                                       void                 **ppBuffer,
-                                       uint32_t              *pHwError
-                                      )
+    ADI_UART_HANDLE        hDevice,
+    ADI_UART_DATA_CHANNEL *pChannel,
+    void                 **ppBuffer,
+    uint32_t              *pHwError
+)
 {
     /* Set ppBuffer to NULL in case there is an error. */
     *ppBuffer = NULL;
 
     /* Wait until the peripheral has finished processing the buffer. */
-    SEM_PEND(pChannel,ADI_UART_FAILED);
+    SEM_PEND(pChannel, ADI_UART_FAILED);
 
     /* Save the address of the buffer that has just been processed, so it can be
        returned back to the API.
@@ -1079,30 +1035,26 @@ static ADI_UART_RESULT uart_getbuffer(
        in use. We can update "pActiveBuffer" to point to the next buffer that will become or is already
        active.
     */
-     pChannel->pActiveBuffer = pChannel->pActiveBuffer->pNextBuffer;
+    pChannel->pActiveBuffer = pChannel->pActiveBuffer->pNextBuffer;
 
-     /* Set the data transfer mode to none so that the next transfer can be either in blocking or in nonblocking mode.
-        This will only be done if there are no other active buffers in flight to avoid disrupting an active transfer.
+    /* Set the data transfer mode to none so that the next transfer can be either in blocking or in nonblocking mode.
+       This will only be done if there are no other active buffers in flight to avoid disrupting an active transfer.
     */
-     if(pChannel->pActiveBuffer->pStartAddress == NULL)
-     {
+    if (pChannel->pActiveBuffer->pStartAddress == NULL) {
         pChannel->eDataTranferMode = ADI_UART_DATA_TRANSFER_MODE_NONE;
-     }
+    }
 
     /* If there are hardware errors and no callback, then return failure. */
-    if(hDevice->nHwError != 0u)
-    {
+    if (hDevice->nHwError != 0u) {
         /* Save the hardware error detected. This will be passed back to the API. */
         *pHwError = hDevice->nHwError;
 
         /* Clear any hardware errors detected. */
         hDevice->nHwError = 0u;
 
-        return(ADI_UART_HW_ERROR_DETECTED);
-    }
-    else
-    {
-        return(ADI_UART_SUCCESS);
+        return (ADI_UART_HW_ERROR_DETECTED);
+    } else {
+        return (ADI_UART_SUCCESS);
     }
 }
 
@@ -1144,101 +1096,93 @@ static ADI_UART_RESULT uart_getbuffer(
  *        buffer transmission.
 */
 ADI_UART_RESULT adi_uart_Write(
-                               ADI_UART_HANDLE const hDevice,
-                               void           *const pBuffer,
-                               uint32_t        const nBufSize,
-                               bool            const bDMA,
-                               uint32_t             *pHwError
-                              )
+    ADI_UART_HANDLE const hDevice,
+    void           *const pBuffer,
+    uint32_t        const nBufSize,
+    bool            const bDMA,
+    uint32_t             *pHwError
+)
 {
 
 #ifdef ADI_DEBUG
-        /* Validate the given handle. */
-        if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-        {
-            return(ADI_UART_INVALID_HANDLE);
-        }
+    /* Validate the given handle. */
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
+    }
 
-        /* Validate the pointer to the buffer memory. */
-        if(pBuffer == NULL)
-        {
-            return(ADI_UART_INVALID_POINTER);
-        }
+    /* Validate the pointer to the buffer memory. */
+    if (pBuffer == NULL) {
+        return (ADI_UART_INVALID_POINTER);
+    }
 
-        /* Validate the buffer size. */
-        if(nBufSize == 0U )
-        {
-            return(ADI_UART_FAILED);
-        }
+    /* Validate the buffer size. */
+    if (nBufSize == 0U) {
+        return (ADI_UART_FAILED);
+    }
 
-        /* Autobaud in progress. */
-        if(hDevice->bAutobaudInProgress == true)
-        {
-            return(ADI_UART_DEVICE_IN_USE);
-        }
+    /* Autobaud in progress. */
+    if (hDevice->bAutobaudInProgress == true) {
+        return (ADI_UART_DEVICE_IN_USE);
+    }
 
-        /* Make sure we are transmitting. */
-        if(ADI_UART_DIR_RECEIVE == hDevice->eDirection)
-        {
-            return(ADI_UART_OPERATION_NOT_ALLOWED);
-        }
+    /* Make sure we are transmitting. */
+    if (ADI_UART_DIR_RECEIVE == hDevice->eDirection) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
+    }
 
-        /* Check for the data transfer mode (only allowed in blocking mode). */
-        if(hDevice->pChannelTx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING)
-        {
-            return(ADI_UART_INVALID_DATA_TRANSFER_MODE);
-        }
+    /* Check for the data transfer mode (only allowed in blocking mode). */
+    if (hDevice->pChannelTx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING) {
+        return (ADI_UART_INVALID_DATA_TRANSFER_MODE);
+    }
 
-        /* Check that there is a free buffer to use for this transmit operation. "pFreeBuffer"
-          is the next buffer available, so if it is in use we can make the assumption that
-          there are no buffers available. The start address is set to NULL once the buffer
-          has been processed.
-        */
-        if(hDevice->pChannelTx->pFreeBuffer->pStartAddress != NULL)
-        {
-            return(ADI_UART_OPERATION_NOT_ALLOWED);
-        }
+    /* Check that there is a free buffer to use for this transmit operation. "pFreeBuffer"
+      is the next buffer available, so if it is in use we can make the assumption that
+      there are no buffers available. The start address is set to NULL once the buffer
+      has been processed.
+    */
+    if (hDevice->pChannelTx->pFreeBuffer->pStartAddress != NULL) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
+    }
 
-        /* Make sure the DMA transfer size is not too large. */
-        if((bDMA == true) && (nBufSize > DMA_TRANSFER_LIMIT))
-        {
-            return(ADI_UART_INVALID_DATA_SIZE);
-        }
+    /* Make sure the DMA transfer size is not too large. */
+    if ((bDMA == true) && (nBufSize > DMA_TRANSFER_LIMIT)) {
+        return (ADI_UART_INVALID_DATA_SIZE);
+    }
 
 #endif /* ADI_DEBUG */
 
-        /* Set the data transfer mode in case it was #ADI_UART_DATA_TRANSFER_MODE_NONE. */
-        hDevice->pChannelTx->eDataTranferMode = ADI_UART_DATA_TRANSFER_MODE_BLOCKING;
+    /* Set the data transfer mode in case it was #ADI_UART_DATA_TRANSFER_MODE_NONE. */
+    hDevice->pChannelTx->eDataTranferMode = ADI_UART_DATA_TRANSFER_MODE_BLOCKING;
 
-        /* Set the start address of the data buffer we are going to submit. */
-        hDevice->pChannelTx->pFreeBuffer->pStartAddress  =   pBuffer;
+    /* Set the start address of the data buffer we are going to submit. */
+    hDevice->pChannelTx->pFreeBuffer->pStartAddress  =   pBuffer;
 
-        /* Set the buffer size to the size of the data buffer passed down from the API. */
-        hDevice->pChannelTx->pFreeBuffer->nCount         =   nBufSize;
+    /* Set the buffer size to the size of the data buffer passed down from the API. */
+    hDevice->pChannelTx->pFreeBuffer->nCount         =   nBufSize;
 
-        /* Initialize the buffer index to zero because we will start shifting out
-           the Tx data from the first position of the buffer.
-        */
-        hDevice->pChannelTx->pFreeBuffer->nIndex         =   0U;
+    /* Initialize the buffer index to zero because we will start shifting out
+       the Tx data from the first position of the buffer.
+    */
+    hDevice->pChannelTx->pFreeBuffer->nIndex         =   0U;
 
-        /* Mark the buffer as in use so no other transactions can use it until this one is complete. */
-        hDevice->pChannelTx->pFreeBuffer->bInUse         =   true;
+    /* Mark the buffer as in use so no other transactions can use it until this one is complete. */
+    hDevice->pChannelTx->pFreeBuffer->bInUse         =   true;
 
-        /* Mark the DMA as in use. */
-        hDevice->pChannelTx->pFreeBuffer->bDMA           =   bDMA;
+    /* Mark the DMA as in use. */
+    hDevice->pChannelTx->pFreeBuffer->bDMA           =   bDMA;
 
-        /* Now that this "pFreeBuffer" is no longer free for use, update the
-           "pFreeBuffer" to the other PingPong buffer. Because there are only two
-           buffers in the PingPong structure, this will be the opposite of the one
-           we just submitted. "pFreeBuffer" will only be updated during the process of
-           submitting a buffer or a read/write operation.
-        */
-        hDevice->pChannelTx->pFreeBuffer = hDevice->pChannelTx->pFreeBuffer->pNextBuffer;
+    /* Now that this "pFreeBuffer" is no longer free for use, update the
+       "pFreeBuffer" to the other PingPong buffer. Because there are only two
+       buffers in the PingPong structure, this will be the opposite of the one
+       we just submitted. "pFreeBuffer" will only be updated during the process of
+       submitting a buffer or a read/write operation.
+    */
+    hDevice->pChannelTx->pFreeBuffer = hDevice->pChannelTx->pFreeBuffer->pNextBuffer;
 
-        hDevice->pChannelTx->pfSubmitBuffer(hDevice, hDevice->pChannelTx->pFillBuffer);
+    hDevice->pChannelTx->pfSubmitBuffer(hDevice, hDevice->pChannelTx->pFillBuffer);
 
-        /* Block for the active buffer to complete. */
-        return(uart_PendForBuffer(hDevice, hDevice->pChannelTx, pHwError));
+    /* Block for the active buffer to complete. */
+    return (uart_PendForBuffer(hDevice, hDevice->pChannelTx, pHwError));
 }
 
 /*!
@@ -1276,49 +1220,43 @@ ADI_UART_RESULT adi_uart_Write(
  *        data receive.
 */
 ADI_UART_RESULT adi_uart_Read(
-                              ADI_UART_HANDLE const hDevice,
-                              void           *const pBuffer,
-                              uint32_t        const nBufSize,
-                              bool            const bDMA,
-                              uint32_t             *pHwError
-                             )
+    ADI_UART_HANDLE const hDevice,
+    void           *const pBuffer,
+    uint32_t        const nBufSize,
+    bool            const bDMA,
+    uint32_t             *pHwError
+)
 {
 
 #ifdef ADI_DEBUG
-     /* Validate the given handle. */
-     if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-     {
-         return(ADI_UART_INVALID_HANDLE);
-     }
+    /* Validate the given handle. */
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
+    }
 
     /* Validate the pointer to the buffer memory. */
-    if(pBuffer == NULL)
-    {
-        return(ADI_UART_INVALID_POINTER);
+    if (pBuffer == NULL) {
+        return (ADI_UART_INVALID_POINTER);
     }
 
     /* Validate the buffer size. */
-    if(nBufSize == 0U )
-    {
-        return(ADI_UART_FAILED);
+    if (nBufSize == 0U) {
+        return (ADI_UART_FAILED);
     }
 
     /* Autobaud in progress. */
-    if(hDevice->bAutobaudInProgress == true)
-    {
-        return(ADI_UART_DEVICE_IN_USE);
+    if (hDevice->bAutobaudInProgress == true) {
+        return (ADI_UART_DEVICE_IN_USE);
     }
 
     /* Make sure the UART device is configured to operate in the receive direction. */
-    if(ADI_UART_DIR_TRANSMIT == hDevice->eDirection)
-    {
-        return(ADI_UART_OPERATION_NOT_ALLOWED);
+    if (ADI_UART_DIR_TRANSMIT == hDevice->eDirection) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
     }
 
     /* Check for the data transfer mode(only allowed in blocking mode).*/
-    if(hDevice->pChannelRx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING)
-    {
-        return(ADI_UART_INVALID_DATA_TRANSFER_MODE);
+    if (hDevice->pChannelRx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING) {
+        return (ADI_UART_INVALID_DATA_TRANSFER_MODE);
     }
 
     /* Check that there is a free buffer to use for this receive operation. "pFreeBuffer"
@@ -1326,15 +1264,13 @@ ADI_UART_RESULT adi_uart_Read(
        there are no buffers available. The start address gets set to NULL once the buffer
        processing has completed.
     */
-    if(hDevice->pChannelRx->pFreeBuffer->pStartAddress != NULL)
-    {
-        return(ADI_UART_OPERATION_NOT_ALLOWED);
+    if (hDevice->pChannelRx->pFreeBuffer->pStartAddress != NULL) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
     }
 
     /* Make sure the DMA transfer size is not too large. */
-    if((bDMA == true) && (nBufSize > DMA_TRANSFER_LIMIT))
-    {
-        return(ADI_UART_INVALID_DATA_SIZE);
+    if ((bDMA == true) && (nBufSize > DMA_TRANSFER_LIMIT)) {
+        return (ADI_UART_INVALID_DATA_SIZE);
     }
 
 #endif /* ADI_DEBUG */
@@ -1374,7 +1310,7 @@ ADI_UART_RESULT adi_uart_Read(
     hDevice->pChannelRx->pfSubmitBuffer(hDevice, hDevice->pChannelRx->pFillBuffer);
 
     /* Block for the active buffer to complete. */
-    return(uart_PendForBuffer(hDevice, hDevice->pChannelRx, pHwError));
+    return (uart_PendForBuffer(hDevice, hDevice->pChannelRx, pHwError));
 }
 
 /*! \cond PRIVATE */
@@ -1394,48 +1330,44 @@ ADI_UART_RESULT adi_uart_Read(
  *
 */
 static ADI_UART_RESULT uart_PendForBuffer(
-                                           ADI_UART_HANDLE        const hDevice,
-                                           ADI_UART_DATA_CHANNEL       *pChannel,
-                                           uint32_t                    *pHwError
-                                          )
+    ADI_UART_HANDLE        const hDevice,
+    ADI_UART_DATA_CHANNEL       *pChannel,
+    uint32_t                    *pHwError
+)
 {
 
     /* Wait until the peripheral has finished processing the buffer. */
-    SEM_PEND(pChannel,ADI_UART_FAILED);
+    SEM_PEND(pChannel, ADI_UART_FAILED);
 
-     /* Reinitialize the start address to NULL so this buffer can be used for a new transaction. */
-     pChannel->pActiveBuffer->pStartAddress = NULL;
+    /* Reinitialize the start address to NULL so this buffer can be used for a new transaction. */
+    pChannel->pActiveBuffer->pStartAddress = NULL;
 
-      /* Now that the desired data has either been transmitted or received, this buffer is no longer
-         in use. We can update "pActiveBuffer" to point to the next buffer that will become or is already
-         active. This will only be updated in places where transactions are completed,
-         such as uart_PendForBuffer() and uart_GetBuffer().
-      */
-       pChannel->pActiveBuffer = pChannel->pActiveBuffer->pNextBuffer;
+    /* Now that the desired data has either been transmitted or received, this buffer is no longer
+       in use. We can update "pActiveBuffer" to point to the next buffer that will become or is already
+       active. This will only be updated in places where transactions are completed,
+       such as uart_PendForBuffer() and uart_GetBuffer().
+    */
+    pChannel->pActiveBuffer = pChannel->pActiveBuffer->pNextBuffer;
 
-     /* Set the data transfer mode to none so that the next transfer can be either in blocking or in nonblocking mode.
-        Only if there are no active buffers.
-     */
-     if(pChannel->pActiveBuffer->pStartAddress == NULL)
-     {
+    /* Set the data transfer mode to none so that the next transfer can be either in blocking or in nonblocking mode.
+       Only if there are no active buffers.
+    */
+    if (pChannel->pActiveBuffer->pStartAddress == NULL) {
         pChannel->eDataTranferMode = ADI_UART_DATA_TRANSFER_MODE_NONE;
-     }
+    }
 
-      /* If there are hardware errors and no callback, then return failure. */
-      if(hDevice->nHwError != 0u)
-      {
-          /* Save the hardware error detected. This will be passed back to the API. */
-          *pHwError = hDevice->nHwError;
+    /* If there are hardware errors and no callback, then return failure. */
+    if (hDevice->nHwError != 0u) {
+        /* Save the hardware error detected. This will be passed back to the API. */
+        *pHwError = hDevice->nHwError;
 
-          /* Clear any hardware errors detected. */
-          hDevice->nHwError = 0u;
+        /* Clear any hardware errors detected. */
+        hDevice->nHwError = 0u;
 
-          return(ADI_UART_HW_ERROR_DETECTED);
-      }
-      else
-      {
-          return(ADI_UART_SUCCESS);
-      }
+        return (ADI_UART_HW_ERROR_DETECTED);
+    } else {
+        return (ADI_UART_SUCCESS);
+    }
 
 }
 /*! \endcond */
@@ -1459,22 +1391,20 @@ static ADI_UART_RESULT uart_PendForBuffer(
  */
 
 ADI_UART_RESULT adi_uart_IsTxBufferAvailable(
-                                              ADI_UART_HANDLE const hDevice,
-                                              bool           *const pbAvailable
-                                            )
+    ADI_UART_HANDLE const hDevice,
+    bool           *const pbAvailable
+)
 {
 
 #ifdef ADI_DEBUG
     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* This function is only allowed to be called when the channel is operating in NONBLOCKING mode. */
-    if(hDevice->pChannelTx->eDataTranferMode ==  ADI_UART_DATA_TRANSFER_MODE_BLOCKING)
-    {
-        return(ADI_UART_OPERATION_NOT_ALLOWED);
+    if (hDevice->pChannelTx->eDataTranferMode ==  ADI_UART_DATA_TRANSFER_MODE_BLOCKING) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
     }
 #endif /* ADI_DEBUG */
 
@@ -1485,17 +1415,15 @@ ADI_UART_RESULT adi_uart_IsTxBufferAvailable(
        currently no active buffers. This is only updated in adi_uart_GetBuffer(), which is
        called once a transaction has completed.
     */
-    if (hDevice->pChannelTx->pActiveBuffer->pStartAddress != NULL)
-    {
+    if (hDevice->pChannelTx->pActiveBuffer->pStartAddress != NULL) {
         /* If the buffer has reached the interrupt handler, "bInUse" will be
            updated so we know that the buffer has become available.
         */
-        if (hDevice->pChannelTx->pActiveBuffer->bInUse == false)
-        {
+        if (hDevice->pChannelTx->pActiveBuffer->bInUse == false) {
             *pbAvailable = true;
         }
     }
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 /*!
@@ -1515,22 +1443,20 @@ ADI_UART_RESULT adi_uart_IsTxBufferAvailable(
  *
  */
 ADI_UART_RESULT    adi_uart_IsRxBufferAvailable(
-                                                 ADI_UART_HANDLE const hDevice,
-                                                 bool           *const pbAvailable
-                                                )
+    ADI_UART_HANDLE const hDevice,
+    bool           *const pbAvailable
+)
 {
 
 #ifdef ADI_DEBUG
     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* This function is only allowed to be called when the channel is operating in NONBLOCKING mode. */
-    if(hDevice->pChannelRx->eDataTranferMode ==  ADI_UART_DATA_TRANSFER_MODE_BLOCKING)
-    {
-        return(ADI_UART_OPERATION_NOT_ALLOWED);
+    if (hDevice->pChannelRx->eDataTranferMode ==  ADI_UART_DATA_TRANSFER_MODE_BLOCKING) {
+        return (ADI_UART_OPERATION_NOT_ALLOWED);
     }
 #endif /* ADI_DEBUG */
 
@@ -1541,17 +1467,15 @@ ADI_UART_RESULT    adi_uart_IsRxBufferAvailable(
        currently no active buffers. This is only updated in adi_uart_GetBuffer(), which is
        called once a transaction has completed.
     */
-    if(hDevice->pChannelRx->pActiveBuffer->pStartAddress != NULL)
-    {
+    if (hDevice->pChannelRx->pActiveBuffer->pStartAddress != NULL) {
         /* If the buffer has reached the interrupt handler, "bInUse" will be
            updated so we know that the buffer has become available.
         */
-        if (hDevice->pChannelRx->pActiveBuffer->bInUse == false)
-        {
+        if (hDevice->pChannelRx->pActiveBuffer->bInUse == false) {
             *pbAvailable = true;
         }
     }
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 /*!
@@ -1574,15 +1498,14 @@ ADI_UART_RESULT    adi_uart_IsRxBufferAvailable(
  */
 
 ADI_UART_RESULT adi_uart_IsTxComplete(
-                                     ADI_UART_HANDLE const hDevice,
-                                     bool           *const pbComplete
-                                     )
+    ADI_UART_HANDLE const hDevice,
+    bool           *const pbComplete
+)
 {
 #ifdef ADI_DEBUG
     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 #endif /* ADI_DEBUG */
 
@@ -1592,11 +1515,10 @@ ADI_UART_RESULT adi_uart_IsTxComplete(
     /* If the register is empty, set the return variable to "true".
        This register is empty, when the value becomes a 1.
     */
-    if((hDevice->pUARTRegs->LSR & BITM_UART_LSR_TEMT) == BITM_UART_LSR_TEMT)
-    {
+    if ((hDevice->pUARTRegs->LSR & BITM_UART_LSR_TEMT) == BITM_UART_LSR_TEMT) {
         *pbComplete = true;
     }
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 
@@ -1616,25 +1538,23 @@ ADI_UART_RESULT adi_uart_IsTxComplete(
  *
 */
 ADI_UART_RESULT adi_uart_RegisterCallback(
-                                          ADI_UART_HANDLE const hDevice,
-                                          const ADI_CALLBACK    pfCallback,
-                                          void           *const pCBParam
-                                         )
+    ADI_UART_HANDLE const hDevice,
+    const ADI_CALLBACK    pfCallback,
+    void           *const pCBParam
+)
 {
 
 #ifdef ADI_DEBUG
     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* Make sure there are no active buffers on any active channel and autobaud is not in progress. */
-    if(((hDevice->eDirection != ADI_UART_DIR_TRANSMIT) && (hDevice->pChannelRx->pActiveBuffer->pStartAddress != NULL)) ||
-       ((hDevice->eDirection != ADI_UART_DIR_RECEIVE ) && (hDevice->pChannelTx->pActiveBuffer->pStartAddress != NULL)) ||
-       (hDevice->bAutobaudInProgress == true))
-    {
-        return(ADI_UART_DEVICE_IN_USE);
+    if (((hDevice->eDirection != ADI_UART_DIR_TRANSMIT) && (hDevice->pChannelRx->pActiveBuffer->pStartAddress != NULL)) ||
+            ((hDevice->eDirection != ADI_UART_DIR_RECEIVE) && (hDevice->pChannelTx->pActiveBuffer->pStartAddress != NULL)) ||
+            (hDevice->bAutobaudInProgress == true)) {
+        return (ADI_UART_DEVICE_IN_USE);
     }
 #endif /* ADI_DEBUG */
 
@@ -1644,7 +1564,7 @@ ADI_UART_RESULT adi_uart_RegisterCallback(
     /* Set the callback parameter. */
     hDevice->pCBParam = pCBParam;
 
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 
@@ -1667,39 +1587,37 @@ ADI_UART_RESULT adi_uart_RegisterCallback(
  *
 */
 ADI_UART_RESULT adi_uart_SetConfiguration(
-                                         ADI_UART_HANDLE   const hDevice,
-                                         ADI_UART_PARITY   const eParity,
-                                         ADI_UART_STOPBITS const eStopBits,
-                                         ADI_UART_WORDLEN  const eWordLength
-                                         )
+    ADI_UART_HANDLE   const hDevice,
+    ADI_UART_PARITY   const eParity,
+    ADI_UART_STOPBITS const eStopBits,
+    ADI_UART_WORDLEN  const eWordLength
+)
 {
 #ifdef ADI_DEBUG
     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* Make sure there are no active buffers on any active channel and autobaud is not in progress. */
-    if(((hDevice->eDirection != ADI_UART_DIR_TRANSMIT) && (hDevice->pChannelRx->pActiveBuffer->pStartAddress != NULL)) ||
-       ((hDevice->eDirection != ADI_UART_DIR_RECEIVE ) && (hDevice->pChannelTx->pActiveBuffer->pStartAddress != NULL)) ||
-       (hDevice->bAutobaudInProgress == true))
-    {
-        return(ADI_UART_DEVICE_IN_USE);
+    if (((hDevice->eDirection != ADI_UART_DIR_TRANSMIT) && (hDevice->pChannelRx->pActiveBuffer->pStartAddress != NULL)) ||
+            ((hDevice->eDirection != ADI_UART_DIR_RECEIVE) && (hDevice->pChannelTx->pActiveBuffer->pStartAddress != NULL)) ||
+            (hDevice->bAutobaudInProgress == true)) {
+        return (ADI_UART_DEVICE_IN_USE);
     }
 #endif /* ADI_DEBUG */
 
     /* Clear all the fields.  */
-    uint16_t nDataCfg = hDevice->pUARTRegs->LCR & (uint16_t)(~(BITM_UART_LCR_WLS |BITM_UART_LCR_STOP |BITM_UART_LCR_PEN));
+    uint16_t nDataCfg = hDevice->pUARTRegs->LCR & (uint16_t)(~(BITM_UART_LCR_WLS | BITM_UART_LCR_STOP | BITM_UART_LCR_PEN));
 
     /* Construct the configuration word. */
-    nDataCfg |= (uint16_t)(((uint16_t)((uint16_t)eWordLength |(uint16_t)eStopBits) |(uint16_t)eParity));
+    nDataCfg |= (uint16_t)(((uint16_t)((uint16_t)eWordLength | (uint16_t)eStopBits) | (uint16_t)eParity));
 
     /* Write to the register */
     hDevice->pUARTRegs->LCR = nDataCfg;
 
     /* Return Success */
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 /*!
@@ -1729,30 +1647,27 @@ ADI_UART_RESULT adi_uart_SetConfiguration(
  *
  */
 ADI_UART_RESULT adi_uart_ConfigBaudRate(
-                                       ADI_UART_HANDLE const hDevice,
-                                       uint16_t        const nDivC,
-                                       uint8_t         const nDivM,
-                                       uint16_t        const nDivN,
-                                       uint8_t         const nOSR
-                                       )
+    ADI_UART_HANDLE const hDevice,
+    uint16_t        const nDivC,
+    uint8_t         const nDivM,
+    uint16_t        const nDivN,
+    uint8_t         const nOSR
+)
 {
 #ifdef ADI_DEBUG
     /* Validate the given handle */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* Make sure there are no active buffers on any active channel. */
-    if(((hDevice->eDirection != ADI_UART_DIR_TRANSMIT) && (hDevice->pChannelRx->pActiveBuffer->pStartAddress != NULL)) ||
-       ((hDevice->eDirection != ADI_UART_DIR_RECEIVE ) && (hDevice->pChannelTx->pActiveBuffer->pStartAddress != NULL)))
-    {
-        return(ADI_UART_DEVICE_IN_USE);
+    if (((hDevice->eDirection != ADI_UART_DIR_TRANSMIT) && (hDevice->pChannelRx->pActiveBuffer->pStartAddress != NULL)) ||
+            ((hDevice->eDirection != ADI_UART_DIR_RECEIVE) && (hDevice->pChannelTx->pActiveBuffer->pStartAddress != NULL))) {
+        return (ADI_UART_DEVICE_IN_USE);
     }
 
     /* Check if the given baudrate is valid */
-    if( (nDivM < 1u) || (nDivM > 3u)|| (nDivN > 2047u ) || (nOSR > 3u))
-    {
+    if ((nDivM < 1u) || (nDivM > 3u) || (nDivN > 2047u) || (nOSR > 3u)) {
         return ADI_UART_INVALID_PARAMETER;
     }
 
@@ -1760,10 +1675,10 @@ ADI_UART_RESULT adi_uart_ConfigBaudRate(
 
     /* Write back the register contents for baudrate detection in the hardware. */
     hDevice->pUARTRegs->DIV  =  nDivC;
-    hDevice->pUARTRegs->FBR  =  (uint16_t)((uint16_t)nDivN | (uint16_t)((uint16_t)nDivM <<BITP_UART_FBR_DIVM)) | (uint16_t)BITM_UART_FBR_FBEN;
+    hDevice->pUARTRegs->FBR  = (uint16_t)((uint16_t)nDivN | (uint16_t)((uint16_t)nDivM << BITP_UART_FBR_DIVM)) | (uint16_t)BITM_UART_FBR_FBEN;
     hDevice->pUARTRegs->LCR2 = nOSR;
 
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 
@@ -1787,23 +1702,21 @@ ADI_UART_RESULT adi_uart_ConfigBaudRate(
  *
 */
 ADI_UART_RESULT adi_uart_GetBaudRate(
-                                      ADI_UART_HANDLE const     hDevice,
-                                      uint32_t                 *pnBaudRate,
-                                      uint32_t                 *pAutobaudError
-                                    )
+    ADI_UART_HANDLE const     hDevice,
+    uint32_t                 *pnBaudRate,
+    uint32_t                 *pAutobaudError
+)
 {
 
 #ifdef ADI_DEBUG
     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* Validate pointers. */
-    if(pnBaudRate == NULL)
-    {
-        return(ADI_UART_INVALID_POINTER);
+    if (pnBaudRate == NULL) {
+        return (ADI_UART_INVALID_POINTER);
     }
 
 #endif /* ADI_DEBUG */
@@ -1812,21 +1725,20 @@ ADI_UART_RESULT adi_uart_GetBaudRate(
        non-zero value. The specific error can be found by checking against
        #ADI_UART_EVENT.
     */
-    if(hDevice->nAutobaudError != 0u)
-    {
-      /* Save the autobaud error to pass back to the API.*/
-      *pAutobaudError = hDevice->nAutobaudError;
+    if (hDevice->nAutobaudError != 0u) {
+        /* Save the autobaud error to pass back to the API.*/
+        *pAutobaudError = hDevice->nAutobaudError;
 
-      /* Clear the autobaud errors found. */
-      hDevice->nAutobaudError = 0u;
+        /* Clear the autobaud errors found. */
+        hDevice->nAutobaudError = 0u;
 
-      return(ADI_UART_AUTOBAUD_ERROR_DETECTED);
+        return (ADI_UART_AUTOBAUD_ERROR_DETECTED);
     }
 
     /* Return the baudrate. If this is 0, then autobaud has not completed. */
     *pnBaudRate = hDevice->nBaudRate;
 
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 
@@ -1856,35 +1768,32 @@ ADI_UART_RESULT adi_uart_GetBaudRate(
  *        This will give us a total bit count of 8 bits that we will time in order to figure out the baud rate (bits/second).
  */
 ADI_UART_RESULT adi_uart_EnableAutobaud(
-                                        ADI_UART_HANDLE          const hDevice,
-                                        bool                     const bEnable,
-                                        bool                     const bAutobaudCallbackMode
-                                       )
+    ADI_UART_HANDLE          const hDevice,
+    bool                     const bEnable,
+    bool                     const bAutobaudCallbackMode
+)
 {
 
 #ifdef ADI_DEBUG
-     /* Validate the given handle */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    /* Validate the given handle */
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 
     /* Make sure there are no active buffers on any active channel and autobaud is not in progress. */
-    if(((hDevice->eDirection != ADI_UART_DIR_TRANSMIT) && (hDevice->pChannelRx->pActiveBuffer->pStartAddress != NULL)) ||
-       ((hDevice->eDirection != ADI_UART_DIR_RECEIVE ) && (hDevice->pChannelTx->pActiveBuffer->pStartAddress != NULL)))
-    {
-        return(ADI_UART_DEVICE_IN_USE);
+    if (((hDevice->eDirection != ADI_UART_DIR_TRANSMIT) && (hDevice->pChannelRx->pActiveBuffer->pStartAddress != NULL)) ||
+            ((hDevice->eDirection != ADI_UART_DIR_RECEIVE) && (hDevice->pChannelTx->pActiveBuffer->pStartAddress != NULL))) {
+        return (ADI_UART_DEVICE_IN_USE);
     }
 
 #endif /* ADI_DEBUG */
 
-    if(bEnable)
-    {
+    if (bEnable) {
         /* Enable Autobaud, timeout interrupt and done interrupt in the autobaud control register.
            Set the starting edge trigger to the second edge. Set the ending edge count to
            the fourth edge, for the carrige return key character (0xD).
         */
-        hDevice->pUARTRegs->ACR |=(BITM_UART_ACR_ABE | BITM_UART_ACR_DNIEN | BITM_UART_ACR_TOIEN |(1u << 4u) | (3u << 8u));
+        hDevice->pUARTRegs->ACR |= (BITM_UART_ACR_ABE | BITM_UART_ACR_DNIEN | BITM_UART_ACR_TOIEN | (1u << 4u) | (3u << 8u));
 
         /* Initialize device baudrate to 0. This will be set once autobaud is complete. */
         hDevice->nBaudRate = 0u;
@@ -1894,9 +1803,7 @@ ADI_UART_RESULT adi_uart_EnableAutobaud(
 
         /* Set the callback mode for autobaud based on the user input. */
         hDevice->bAutobaudCallbackMode = bAutobaudCallbackMode;
-    }
-    else
-    {
+    } else {
         /* Change the state to indicate autobaud is not in progress. */
         hDevice->bAutobaudInProgress = false;
 
@@ -1928,26 +1835,22 @@ ADI_UART_RESULT adi_uart_EnableAutobaud(
  * - #ADI_UART_INVALID_HANDLE   [D] If the given UART handle is invalid.
  */
 ADI_UART_RESULT adi_uart_ForceTxBreak(
-                                      ADI_UART_HANDLE         const hDevice,
-                                      bool                    const bEnable
-                                     )
+    ADI_UART_HANDLE         const hDevice,
+    bool                    const bEnable
+)
 {
 
 #ifdef ADI_DEBUG
-     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    /* Validate the given handle. */
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 #endif /* ADI_DEBUG */
 
-    if(bEnable == true)
-    {
+    if (bEnable == true) {
         /* Set the force break bit. */
         hDevice->pUARTRegs->LCR    |= BITM_UART_LCR_BRK;
-    }
-    else
-    {
+    } else {
         /* Clear the force break bit. */
         hDevice->pUARTRegs->LCR    &= (uint16_t)~(BITM_UART_LCR_BRK);
     }
@@ -1967,30 +1870,26 @@ ADI_UART_RESULT adi_uart_ForceTxBreak(
  *
 */
 ADI_UART_RESULT adi_uart_EnableLoopBack(
-                                        ADI_UART_HANDLE const hDevice,
-                                        bool            const bEnable
-                                       )
+    ADI_UART_HANDLE const hDevice,
+    bool            const bEnable
+)
 {
 
 #ifdef ADI_DEBUG
-     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    /* Validate the given handle. */
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 #endif /* ADI_DEBUG */
 
-    if(true == bEnable)
-    {
+    if (true == bEnable) {
         /* Enable loopback. */
         hDevice->pUARTRegs->MCR |= (BITM_UART_MCR_LOOPBACK);
-    }
-    else
-    {
+    } else {
         /* Disable loopback. */
         hDevice->pUARTRegs->MCR &= (uint16_t)~(BITM_UART_MCR_LOOPBACK);
     }
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 /*!
@@ -2006,15 +1905,14 @@ ADI_UART_RESULT adi_uart_EnableLoopBack(
  *  - #ADI_UART_INVALID_HANDLE  [D] The given UART handle is invalid.
  */
 ADI_UART_RESULT adi_uart_SetRxFifoTriggerLevel(
-                                               ADI_UART_CONST_HANDLE         const hDevice,
-                                               ADI_UART_TRIG_LEVEL           const eTriglevel
-                                              )
+    ADI_UART_CONST_HANDLE         const hDevice,
+    ADI_UART_TRIG_LEVEL           const eTriglevel
+)
 {
 #ifdef ADI_DEBUG
-     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    /* Validate the given handle. */
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 #endif /* ADI_DEBUG */
 
@@ -2024,7 +1922,7 @@ ADI_UART_RESULT adi_uart_SetRxFifoTriggerLevel(
     /* Set the FIFO trigger level. */
     hDevice->pUARTRegs->FCR |= (uint16_t)eTriglevel;
 
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 /*!
  * @brief       Enables internal FIFO as to work in 16550 mode. This helps to minimize system overhead
@@ -2038,34 +1936,30 @@ ADI_UART_RESULT adi_uart_SetRxFifoTriggerLevel(
  *  - #ADI_UART_INVALID_HANDLE   [D] The given UART handle is invalid.
  */
 ADI_UART_RESULT adi_uart_EnableFifo(
-                                     ADI_UART_HANDLE         const hDevice,
-                                     bool                    const bEnable
-                                    )
+    ADI_UART_HANDLE         const hDevice,
+    bool                    const bEnable
+)
 {
 
 #ifdef ADI_DEBUG
-     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    /* Validate the given handle. */
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 #endif /* ADI_DEBUG */
 
-    if(bEnable == true)
-    {
-       /* Enable TX/RX FIFO. */
-       hDevice->pUARTRegs->FCR    |=  BITM_UART_FCR_FIFOEN;
-       hDevice->pUARTRegs->IEN |= (BITM_UART_IEN_ERBFI);
+    if (bEnable == true) {
+        /* Enable TX/RX FIFO. */
+        hDevice->pUARTRegs->FCR    |=  BITM_UART_FCR_FIFOEN;
+        hDevice->pUARTRegs->IEN |= (BITM_UART_IEN_ERBFI);
 
-       hDevice->bRxFifoEn = true;
+        hDevice->bRxFifoEn = true;
 
-    }
-    else
-    {
-       /* Disable TX/RX FIFO. */
-       hDevice->pUARTRegs->FCR    &= (uint16_t)~(BITM_UART_FCR_FIFOEN);
+    } else {
+        /* Disable TX/RX FIFO. */
+        hDevice->pUARTRegs->FCR    &= (uint16_t)~(BITM_UART_FCR_FIFOEN);
 
-       hDevice->bRxFifoEn = false;
+        hDevice->bRxFifoEn = false;
     }
 
     return ADI_UART_SUCCESS;
@@ -2083,22 +1977,21 @@ ADI_UART_RESULT adi_uart_EnableFifo(
  *  - #ADI_UART_INVALID_HANDLE  [D] The given UART handle is invalid.
  */
 ADI_UART_RESULT adi_uart_FlushTxFifo(
-                                     ADI_UART_CONST_HANDLE         const hDevice
-                                    )
+    ADI_UART_CONST_HANDLE         const hDevice
+)
 {
 
 #ifdef ADI_DEBUG
-     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    /* Validate the given handle. */
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 #endif /* ADI_DEBUG */
 
     /* Flush the Tx FIFO. */
     hDevice->pUARTRegs->FCR    |=  BITM_UART_FCR_TFCLR;
 
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 /*!
@@ -2113,15 +2006,14 @@ ADI_UART_RESULT adi_uart_FlushTxFifo(
  *  - #ADI_UART_INVALID_HANDLE   [D] The given UART handle is invalid.
  */
 ADI_UART_RESULT adi_uart_FlushRxFifo(
-                                      ADI_UART_CONST_HANDLE         const hDevice
-                                     )
+    ADI_UART_CONST_HANDLE         const hDevice
+)
 {
 
 #ifdef ADI_DEBUG
-     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    /* Validate the given handle. */
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 #endif /* ADI_DEBUG */
 
@@ -2145,15 +2037,14 @@ ADI_UART_RESULT adi_uart_FlushRxFifo(
  *  - #ADI_UART_INVALID_HANDLE            [D] The given UART handle is invalid.
  */
 ADI_UART_RESULT adi_uart_FlushRxChannel(
-                                         ADI_UART_CONST_HANDLE  const hDevice
-                                        )
+    ADI_UART_CONST_HANDLE  const hDevice
+)
 {
 
 #ifdef ADI_DEBUG
-     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    /* Validate the given handle. */
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 #endif /* ADI_DEBUG */
 
@@ -2164,7 +2055,7 @@ ADI_UART_RESULT adi_uart_FlushRxChannel(
     hDevice->pUARTRegs->FCR |=  BITM_UART_FCR_RFCLR;
 
     /* Reset the buffers to 0. */
-    memset(hDevice->pChannelRx->PingPong,0, sizeof (hDevice->pChannelRx->PingPong));
+    memset(hDevice->pChannelRx->PingPong, 0, sizeof(hDevice->pChannelRx->PingPong));
 
     hDevice->pChannelRx->PingPong[0].pNextBuffer  = &hDevice->pChannelRx->PingPong[1];
     hDevice->pChannelRx->PingPong[1].pNextBuffer  = &hDevice->pChannelRx->PingPong[0];
@@ -2177,7 +2068,7 @@ ADI_UART_RESULT adi_uart_FlushRxChannel(
     /* Dummy read to flush the RX register. */
     hDevice->pUARTRegs->RX;
 
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 /*!
@@ -2196,10 +2087,9 @@ ADI_UART_RESULT adi_uart_FlushTxChannel(ADI_UART_CONST_HANDLE  const hDevice)
 {
 
 #ifdef ADI_DEBUG
-     /* Validate the given handle. */
-    if(ValidateHandle(hDevice) != ADI_UART_SUCCESS)
-    {
-        return(ADI_UART_INVALID_HANDLE);
+    /* Validate the given handle. */
+    if (ValidateHandle(hDevice) != ADI_UART_SUCCESS) {
+        return (ADI_UART_INVALID_HANDLE);
     }
 #endif /* ADI_DEBUG */
 
@@ -2210,7 +2100,7 @@ ADI_UART_RESULT adi_uart_FlushTxChannel(ADI_UART_CONST_HANDLE  const hDevice)
     hDevice->pUARTRegs->FCR |=  BITM_UART_FCR_TFCLR;
 
     /* Reset the buffers to 0. */
-    memset(hDevice->pChannelTx->PingPong,0, sizeof (hDevice->pChannelTx->PingPong));
+    memset(hDevice->pChannelTx->PingPong, 0, sizeof(hDevice->pChannelTx->PingPong));
 
     hDevice->pChannelTx->PingPong[0].pNextBuffer  = &hDevice->pChannelTx->PingPong[1];
     hDevice->pChannelTx->PingPong[1].pNextBuffer  = &hDevice->pChannelTx->PingPong[0];
@@ -2220,7 +2110,7 @@ ADI_UART_RESULT adi_uart_FlushTxChannel(ADI_UART_CONST_HANDLE  const hDevice)
     hDevice->pChannelTx->pFreeBuffer = &hDevice->pChannelTx->PingPong[0];
     hDevice->pChannelTx->pFillBuffer = &hDevice->pChannelTx->PingPong[0];
 
-    return(ADI_UART_SUCCESS);
+    return (ADI_UART_SUCCESS);
 }
 
 
@@ -2232,7 +2122,7 @@ void UART0_Int_Handler(void)
     ADI_UART_HANDLE hDevice = (ADI_UART_HANDLE)uart_device_info[0].hDevice;
     Common_Uart_Interrupt_Handler(hDevice);
 #if defined(ADI_CYCLECOUNT_UART_ISR_ENABLED) && (ADI_CYCLECOUNT_UART_ISR_ENABLED == 1u)
-    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_UART);    
+    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_UART);
 #endif
     ISR_EPILOG();
     return;
@@ -2244,7 +2134,7 @@ void UART1_Int_Handler(void)
     ADI_UART_HANDLE hDevice = (ADI_UART_HANDLE)uart_device_info[1].hDevice;
     Common_Uart_Interrupt_Handler(hDevice);
 #if defined(ADI_CYCLECOUNT_UART_ISR_ENABLED) && (ADI_CYCLECOUNT_UART_ISR_ENABLED == 1u)
-    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_UART);    
+    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_UART);
 #endif
     ISR_EPILOG();
     return;
@@ -2252,30 +2142,28 @@ void UART1_Int_Handler(void)
 
 static void Common_Uart_Interrupt_Handler(ADI_UART_HANDLE hDevice)
 {
-      switch(hDevice->pUARTRegs->IIR & BITM_UART_IIR_STAT )
-    {
+    switch (hDevice->pUARTRegs->IIR & BITM_UART_IIR_STAT) {
         /* Tx buffer empty interrupt. This means that the data has successfully left the holding register and is
            now in transmit shift register or has completed its transfer.
         */
         case ENUM_UART_IIR_STAT_ETBEI:
-          uart_TxDataHandler(hDevice);
-          break;
+            uart_TxDataHandler(hDevice);
+            break;
 
         /* Rx buffer FIFO timeout interrupt. This means that we have data in the RX FIFO
            but there is not enough data to trigger an interrupt so we will process this data here.
         */
         case ENUM_UART_IIR_STAT_RFTOI:
-          uart_RxDataHandler(hDevice);
-          break;
+            uart_RxDataHandler(hDevice);
+            break;
 
         /* Rx buffer full interrupt. This means that the RX buffer has finished receiving data. */
         case ENUM_UART_IIR_STAT_ERBFI:
-          uart_RxDataHandler(hDevice);
-          break;
+            uart_RxDataHandler(hDevice);
+            break;
 
         /* Line status interrupt. */
-        case ENUM_UART_IIR_STAT_RLSI:
-        {
+        case ENUM_UART_IIR_STAT_RLSI: {
             /* Initialze the line status event to 0. */
             uint32_t nEvent = 0u;
 
@@ -2283,8 +2171,7 @@ static void Common_Uart_Interrupt_Handler(ADI_UART_HANDLE hDevice)
             uint16_t  nStatus = hDevice->pUARTRegs->LSR;
 
             /* If a break signal is detected.. */
-            if((BITM_UART_LSR_BI & nStatus) == BITM_UART_LSR_BI)
-            {
+            if ((BITM_UART_LSR_BI & nStatus) == BITM_UART_LSR_BI) {
                 /* Dummy read to flush the RX register. We do this because
                    we do not actaully want to do anything with this data as it
                    is only a break indicator. */
@@ -2297,23 +2184,18 @@ static void Common_Uart_Interrupt_Handler(ADI_UART_HANDLE hDevice)
             /* Ignore the framing error if the break is asserted.
                We do this because a break can trigger a false framing error.
             */
-            else if((BITM_UART_LSR_FE & nStatus) == BITM_UART_LSR_FE)
-            {
+            else if ((BITM_UART_LSR_FE & nStatus) == BITM_UART_LSR_FE) {
                 /* Set the event to show a framing error has been detected. */
                 nEvent |= (uint32_t)ADI_UART_HW_ERR_FRAMING;
-            }
-            else
-            {
-              /* Do nothing. This is required for MISRA. */
+            } else {
+                /* Do nothing. This is required for MISRA. */
             }
 
-            if((BITM_UART_LSR_PE & nStatus) == BITM_UART_LSR_PE)
-            {
+            if ((BITM_UART_LSR_PE & nStatus) == BITM_UART_LSR_PE) {
                 /* Set the event to show a parity error has been detected. */
-                nEvent  |=  (uint32_t)ADI_UART_HW_ERR_PARITY;
+                nEvent  |= (uint32_t)ADI_UART_HW_ERR_PARITY;
             }
-            if((BITM_UART_LSR_OE & nStatus) == BITM_UART_LSR_OE)
-            {
+            if ((BITM_UART_LSR_OE & nStatus) == BITM_UART_LSR_OE) {
                 /* Set the event to show a hardware overrun error has been detected, meaning receive data has
                    been overwritten.
                 */
@@ -2321,8 +2203,7 @@ static void Common_Uart_Interrupt_Handler(ADI_UART_HANDLE hDevice)
             }
 
             /* If there was an event and autobaud is not in progress, notify the API. */
-            if((nEvent != 0u) && (hDevice->bAutobaudInProgress == false))
-            {
+            if ((nEvent != 0u) && (hDevice->bAutobaudInProgress == false)) {
                 /* Set the UART device hw error bit field. This will allow us to return the
                    specific failure to the application once we return from this ISR.
                 */
@@ -2330,11 +2211,10 @@ static void Common_Uart_Interrupt_Handler(ADI_UART_HANDLE hDevice)
                 uart_ManageProcessedBuffer(hDevice, hDevice->pChannelRx, ADI_UART_EVENT_HW_ERROR_DETECTED);
             }
             break;
-         }
+        }
 
-         /* If there was a modem status interrupt. For our purposes, we will only check if this is related to autobaud. */
-         case ENUM_UART_IIR_STAT_EDSSI:
-         {
+        /* If there was a modem status interrupt. For our purposes, we will only check if this is related to autobaud. */
+        case ENUM_UART_IIR_STAT_EDSSI: {
 #if (ADI_UART_CFG_ENABLE_AUTOBAUD == 1)
             /* Initialize the autobaud event to 0. */
             uint32_t nEvent = 0u;
@@ -2346,15 +2226,13 @@ static void Common_Uart_Interrupt_Handler(ADI_UART_HANDLE hDevice)
             uint16_t  acr = (hDevice->pUARTRegs->ACR & BITM_UART_ACR_ABE);
 
             /* If there is an autobaud event and autobaud is enabled */
-            if((nStatus != 0u) && (acr != 0u))
-            {
+            if ((nStatus != 0u) && (acr != 0u)) {
                 uint32_t nClock;
                 uint32_t nCount;
 
                 /*Get the clock frequency. */
-                if(adi_pwr_GetClockFrequency(ADI_CLOCK_PCLK,&nClock) != ADI_PWR_SUCCESS)
-                {
-                  nClock = 0u;
+                if (adi_pwr_GetClockFrequency(ADI_CLOCK_PCLK, &nClock) != ADI_PWR_SUCCESS) {
+                    nClock = 0u;
                 }
 
                 /* Get the autobaud counter bits 12-19. */
@@ -2364,13 +2242,11 @@ static void Common_Uart_Interrupt_Handler(ADI_UART_HANDLE hDevice)
                 nCount |= (uint32_t)hDevice->pUARTRegs->ASRL >> 4u;
 
                 /* if the autobaud event was that the autobaud is done.. */
-                if((nStatus & BITM_UART_ASRL_DONE) == BITM_UART_ASRL_DONE)
-                {
+                if ((nStatus & BITM_UART_ASRL_DONE) == BITM_UART_ASRL_DONE) {
                     /* If the fractional baud generator is enabled, calculate the fractional portional of the baudrate.
                        It seems that in order to get a correct baudrate reading, we need the fractional divider enabled.
                     */
-                    if ((hDevice->pUARTRegs->FBR & 0x8000u) == 0x8000u)
-                    {
+                    if ((hDevice->pUARTRegs->FBR & 0x8000u) == 0x8000u) {
                         uint8_t nOSR = 0u;
                         uint32_t nDivN;
                         uint32_t nDivNSubtractor = 2048u;
@@ -2379,29 +2255,25 @@ static void Common_Uart_Interrupt_Handler(ADI_UART_HANDLE hDevice)
                         uint16_t nDivC = 1u;
 
                         /* If the oversample rate is 4.. */
-                        if(nCount < (8u << 3u))
-                        {
-                             nDivN = ((nCount << 9u) / 8u) - nDivNSubtractor;
+                        if (nCount < (8u << 3u)) {
+                            nDivN = ((nCount << 9u) / 8u) - nDivNSubtractor;
                         }
 
                         /* If the oversample rate is 8.. */
-                        else if(nCount < (8u << 4u))
-                        {
-                             nDivN = ((nCount << 8u) / 8u) - nDivNSubtractor;
-                             nOSR = 1u;
+                        else if (nCount < (8u << 4u)) {
+                            nDivN = ((nCount << 8u) / 8u) - nDivNSubtractor;
+                            nOSR = 1u;
                         }
 
                         /* If the oversample rate is 16.. */
-                        else if(nCount < (8u << 5u))
-                        {
-                             nDivN = ((nCount << 7u) / 8u) - nDivNSubtractor;
-                             nOSR = 2u;
+                        else if (nCount < (8u << 5u)) {
+                            nDivN = ((nCount << 7u) / 8u) - nDivNSubtractor;
+                            nOSR = 2u;
                         }
 
                         /* If the oversample rate is 32.. */
-                        else
-                        {
-                            nDivC = (uint16_t) (nCount / 32u / 8u);
+                        else {
+                            nDivC = (uint16_t)(nCount / 32u / 8u);
                             nDivN = ((nCount << 6u) / (8u * nDivC)) - nDivNSubtractor;
                             nOSR = 3u;
                         }
@@ -2419,49 +2291,38 @@ static void Common_Uart_Interrupt_Handler(ADI_UART_HANDLE hDevice)
 
                         /* In order to avoid bringing in the extra floating point libraries, we will use the non fractional baudrate for the API. */
                         hDevice->nBaudRate = ((nClock * 8u) / nCount);
-                    }
-                    else
-                    {
-                      /* No Fractional divider: Baudrate (bits/second) = (UARTCLK (cycles/second) * counted bits (bits)) / nCount (cycles)*/
-                      hDevice->nBaudRate = ((nClock * 8u) / nCount);
+                    } else {
+                        /* No Fractional divider: Baudrate (bits/second) = (UARTCLK (cycles/second) * counted bits (bits)) / nCount (cycles)*/
+                        hDevice->nBaudRate = ((nClock * 8u) / nCount);
                     }
 
                     /* If there is a callback, notify the API that autobaud is complete.
                        If there is not a callback, the baudrate will be set to a non zero value so the user can call "Get_BaudRate"
                        to know that autobaud has completed.
                     */
-                    if((hDevice->pfCallback != NULL) && (hDevice->bAutobaudCallbackMode == true))
-                    {
-                        hDevice->pfCallback(hDevice->pCBParam, ADI_UART_EVENT_AUTOBAUD_COMPLETE, (void*)hDevice->nBaudRate);
+                    if ((hDevice->pfCallback != NULL) && (hDevice->bAutobaudCallbackMode == true)) {
+                        hDevice->pfCallback(hDevice->pCBParam, ADI_UART_EVENT_AUTOBAUD_COMPLETE, (void *)hDevice->nBaudRate);
                     }
-                }
-                else
-                {
-                    if((nStatus & BITM_UART_ASRL_BRKTO) == BITM_UART_ASRL_BRKTO)
-                    {
+                } else {
+                    if ((nStatus & BITM_UART_ASRL_BRKTO) == BITM_UART_ASRL_BRKTO) {
                         /* Autobaud timed out due to break error. */
-                       nEvent |= (uint32_t)ADI_UART_AUTOBAUD_TIMEOUT_LONGBREAK;
+                        nEvent |= (uint32_t)ADI_UART_AUTOBAUD_TIMEOUT_LONGBREAK;
                     }
-                    if((nStatus & BITM_UART_ASRL_NSETO) == BITM_UART_ASRL_NSETO)
-                    {
+                    if ((nStatus & BITM_UART_ASRL_NSETO) == BITM_UART_ASRL_NSETO) {
                         /* Autobaud timed out due to no valid start edge found. */
                         nEvent |= (uint32_t)ADI_UART_AUTOBAUD_TIMEOUT_NO_START_EDGE;
                     }
-                    if((nStatus & BITM_UART_ASRL_NEETO) == BITM_UART_ASRL_NEETO)
-                    {
+                    if ((nStatus & BITM_UART_ASRL_NEETO) == BITM_UART_ASRL_NEETO) {
                         /* Autobaud timed out due to no valid end edge found. */
                         nEvent |= (uint32_t)ADI_UART_AUTOBAUD_TIMEOUT_NO_END_EDGE;
                     }
                     /* If there is an event callback.. */
-                    if((hDevice->pfCallback != NULL) && (hDevice->pChannelRx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING))
-                    {
-                      /* Notify application of errors through callback. */
-                      hDevice->pfCallback(hDevice->pCBParam, ADI_UART_EVENT_AUTOBAUD_ERROR_DETECTED, (void*)nEvent);
-                    }
-                    else
-                    {
-                      /* Notify application of errors through autobaud return value. */
-                      hDevice->nAutobaudError = nEvent;
+                    if ((hDevice->pfCallback != NULL) && (hDevice->pChannelRx->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING)) {
+                        /* Notify application of errors through callback. */
+                        hDevice->pfCallback(hDevice->pCBParam, ADI_UART_EVENT_AUTOBAUD_ERROR_DETECTED, (void *)nEvent);
+                    } else {
+                        /* Notify application of errors through autobaud return value. */
+                        hDevice->nAutobaudError = nEvent;
                     }
 
                 }
@@ -2471,15 +2332,15 @@ static void Common_Uart_Interrupt_Handler(ADI_UART_HANDLE hDevice)
             }
 #endif
             /* Clear auto baud enable and interrupt registers. We disable autobaud here because it is required in order to clear the counter.  */
-             hDevice->pUARTRegs->ACR &=(uint16_t)~( BITM_UART_ACR_ABE   |
-                                                       BITM_UART_ACR_DNIEN |
-                                                       BITM_UART_ACR_TOIEN );
+            hDevice->pUARTRegs->ACR &= (uint16_t)~(BITM_UART_ACR_ABE   |
+                                                   BITM_UART_ACR_DNIEN |
+                                                   BITM_UART_ACR_TOIEN);
 
-             hDevice->bAutobaudInProgress = false;
-             break;
-         }
+            hDevice->bAutobaudInProgress = false;
+            break;
+        }
         default:
-          break;
+            break;
     }
     return;
 }
@@ -2488,46 +2349,46 @@ static void Common_Uart_Interrupt_Handler(ADI_UART_HANDLE hDevice)
 /* DMA interrupt handlers */
 void DMA_UART0_TX_Int_Handler(void)
 {
-   ISR_PROLOG();
-   ADI_UART_HANDLE const hDevice = (ADI_UART_HANDLE)uart_device_info[0].hDevice;
-   uart_ManageProcessedBuffer(hDevice,hDevice->pChannelTx,ADI_UART_EVENT_TX_BUFFER_PROCESSED);
+    ISR_PROLOG();
+    ADI_UART_HANDLE const hDevice = (ADI_UART_HANDLE)uart_device_info[0].hDevice;
+    uart_ManageProcessedBuffer(hDevice, hDevice->pChannelTx, ADI_UART_EVENT_TX_BUFFER_PROCESSED);
 #if defined(ADI_CYCLECOUNT_UART_ISR_ENABLED) && (ADI_CYCLECOUNT_UART_ISR_ENABLED == 1u)
-    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_DMA_UART_TX);    
+    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_DMA_UART_TX);
 #endif
-   ISR_EPILOG();
+    ISR_EPILOG();
 }
 
 void DMA_UART0_RX_Int_Handler(void)
 {
-   ISR_PROLOG();
-   ADI_UART_HANDLE const hDevice = (ADI_UART_HANDLE)uart_device_info[0].hDevice;
-   uart_ManageProcessedBuffer(hDevice,hDevice->pChannelRx,ADI_UART_EVENT_RX_BUFFER_PROCESSED);
+    ISR_PROLOG();
+    ADI_UART_HANDLE const hDevice = (ADI_UART_HANDLE)uart_device_info[0].hDevice;
+    uart_ManageProcessedBuffer(hDevice, hDevice->pChannelRx, ADI_UART_EVENT_RX_BUFFER_PROCESSED);
 #if defined(ADI_CYCLECOUNT_UART_ISR_ENABLED) && (ADI_CYCLECOUNT_UART_ISR_ENABLED == 1u)
-    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_DMA_UART_RX);    
+    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_DMA_UART_RX);
 #endif
-   ISR_EPILOG();
+    ISR_EPILOG();
 }
 
 void DMA_UART1_TX_Int_Handler(void)
 {
-   ISR_PROLOG();
-   ADI_UART_HANDLE const hDevice = (ADI_UART_HANDLE)uart_device_info[1].hDevice;
-   uart_ManageProcessedBuffer(hDevice,hDevice->pChannelTx,ADI_UART_EVENT_TX_BUFFER_PROCESSED);
+    ISR_PROLOG();
+    ADI_UART_HANDLE const hDevice = (ADI_UART_HANDLE)uart_device_info[1].hDevice;
+    uart_ManageProcessedBuffer(hDevice, hDevice->pChannelTx, ADI_UART_EVENT_TX_BUFFER_PROCESSED);
 #if defined(ADI_CYCLECOUNT_UART_ISR_ENABLED) && (ADI_CYCLECOUNT_UART_ISR_ENABLED == 1u)
-    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_DMA_UART_TX);    
+    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_DMA_UART_TX);
 #endif
-   ISR_EPILOG();
+    ISR_EPILOG();
 }
 
 void DMA_UART1_RX_Int_Handler(void)
 {
-   ISR_PROLOG();
-   ADI_UART_HANDLE const hDevice = (ADI_UART_HANDLE)uart_device_info[1].hDevice;
-   uart_ManageProcessedBuffer(hDevice,hDevice->pChannelRx,ADI_UART_EVENT_RX_BUFFER_PROCESSED);
+    ISR_PROLOG();
+    ADI_UART_HANDLE const hDevice = (ADI_UART_HANDLE)uart_device_info[1].hDevice;
+    uart_ManageProcessedBuffer(hDevice, hDevice->pChannelRx, ADI_UART_EVENT_RX_BUFFER_PROCESSED);
 #if defined(ADI_CYCLECOUNT_UART_ISR_ENABLED) && (ADI_CYCLECOUNT_UART_ISR_ENABLED == 1u)
-    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_DMA_UART_RX);    
+    ADI_CYCLECOUNT_STORE(ADI_CYCLECOUNT_ISR_DMA_UART_RX);
 #endif
-   ISR_EPILOG();
+    ISR_EPILOG();
 }
 
 
@@ -2542,44 +2403,39 @@ static void uart_RxDataHandler(ADI_UART_HANDLE hDevice)
     volatile uint8_t *pNextData;
 
     /* If there is an active buffer.. */
-    if((hDevice->pChannelRx->pFillBuffer->pStartAddress != NULL) && (hDevice->pChannelRx->pFillBuffer->bInUse == true))
-    {
-           /* Get the address of the buffer we are filling. */
-           pNextData = (uint8_t *)hDevice->pChannelRx->pFillBuffer->pStartAddress;
+    if ((hDevice->pChannelRx->pFillBuffer->pStartAddress != NULL) && (hDevice->pChannelRx->pFillBuffer->bInUse == true)) {
+        /* Get the address of the buffer we are filling. */
+        pNextData = (uint8_t *)hDevice->pChannelRx->pFillBuffer->pStartAddress;
 
-           /* Read data from the RX holding register into the buffer at the indexed location. */
-           pNextData[hDevice->pChannelRx->pFillBuffer->nIndex] = (uint8_t) hDevice->pUARTRegs->RX;
+        /* Read data from the RX holding register into the buffer at the indexed location. */
+        pNextData[hDevice->pChannelRx->pFillBuffer->nIndex] = (uint8_t) hDevice->pUARTRegs->RX;
 
-           /* Increment the buffer index so we don't overwrite this data in the buffer. */
-           hDevice->pChannelRx->pFillBuffer->nIndex++;
+        /* Increment the buffer index so we don't overwrite this data in the buffer. */
+        hDevice->pChannelRx->pFillBuffer->nIndex++;
 
-           /* If all of the data has been processed, manage the processed data buffer. Otherwise we will
-              leave everything as is and continue to receive interrupts for the incoming data, until this
-              buffer has been filled.
-           */
-           if(hDevice->pChannelRx->pFillBuffer->nIndex == hDevice->pChannelRx->pFillBuffer->nCount)
-           {
-                  uart_ManageProcessedBuffer(hDevice, hDevice->pChannelRx, ADI_UART_EVENT_RX_BUFFER_PROCESSED);
-           }
+        /* If all of the data has been processed, manage the processed data buffer. Otherwise we will
+           leave everything as is and continue to receive interrupts for the incoming data, until this
+           buffer has been filled.
+        */
+        if (hDevice->pChannelRx->pFillBuffer->nIndex == hDevice->pChannelRx->pFillBuffer->nCount) {
+            uart_ManageProcessedBuffer(hDevice, hDevice->pChannelRx, ADI_UART_EVENT_RX_BUFFER_PROCESSED);
+        }
     }
     /* If we do not have a buffer submitted.. */
-    else
-    {
-          /* Ask the API for a buffer so we can process this data before having an overflow.
-             if there is no callback, the API will not be able to submit a buffer in time.
-          */
-          if (hDevice->pfCallback != NULL)
-          {
-              hDevice->pfCallback(hDevice->pCBParam, (uint32_t)ADI_UART_EVENT_NO_RX_BUFFER_EVENT, NULL);
-          }
+    else {
+        /* Ask the API for a buffer so we can process this data before having an overflow.
+           if there is no callback, the API will not be able to submit a buffer in time.
+        */
+        if (hDevice->pfCallback != NULL) {
+            hDevice->pfCallback(hDevice->pCBParam, (uint32_t)ADI_UART_EVENT_NO_RX_BUFFER_EVENT, NULL);
+        }
 
-          /* This check here is in case in the callback the application submitted a buffer. If they did
-             not then we need to clear the RX register in order to clear this interrupt.
-          */
-          if((hDevice->pChannelRx->pFillBuffer->pStartAddress == NULL) && (hDevice->pChannelRx->pFillBuffer->bInUse == false))
-          {
-              hDevice->pUARTRegs->RX;
-          }
+        /* This check here is in case in the callback the application submitted a buffer. If they did
+           not then we need to clear the RX register in order to clear this interrupt.
+        */
+        if ((hDevice->pChannelRx->pFillBuffer->pStartAddress == NULL) && (hDevice->pChannelRx->pFillBuffer->bInUse == false)) {
+            hDevice->pUARTRegs->RX;
+        }
     }
 
     return;
@@ -2593,27 +2449,25 @@ static void uart_RxDataHandler(ADI_UART_HANDLE hDevice)
 */
 static void uart_TxDataHandler(ADI_UART_HANDLE hDevice)
 {
-      volatile uint8_t *pNextData;
+    volatile uint8_t *pNextData;
 
     /* If there is an active buffer.. */
-   if((hDevice->pChannelTx->pFillBuffer->pStartAddress != NULL) && (hDevice->pChannelTx->pFillBuffer->bInUse == true))
-    {
-           /* Get the start address of the buffer we are transmitting data from. */
-           pNextData = (uint8_t *)hDevice->pChannelTx->pFillBuffer->pStartAddress;
+    if ((hDevice->pChannelTx->pFillBuffer->pStartAddress != NULL) && (hDevice->pChannelTx->pFillBuffer->bInUse == true)) {
+        /* Get the start address of the buffer we are transmitting data from. */
+        pNextData = (uint8_t *)hDevice->pChannelTx->pFillBuffer->pStartAddress;
 
-           /* Write data to the TX holding register. This will be shifted out at the baud rate by the shift register. */
-           hDevice->pUARTRegs->TX = (uint16_t)pNextData[hDevice->pChannelTx->pFillBuffer->nIndex];
+        /* Write data to the TX holding register. This will be shifted out at the baud rate by the shift register. */
+        hDevice->pUARTRegs->TX = (uint16_t)pNextData[hDevice->pChannelTx->pFillBuffer->nIndex];
 
-           /* Increment the buffer index. */
-          hDevice->pChannelTx->pFillBuffer->nIndex++;
+        /* Increment the buffer index. */
+        hDevice->pChannelTx->pFillBuffer->nIndex++;
 
 
-           /* If all of the characters have been transmitted, manage the data buffer. Otherwise we will leave everything
-              as is and continue to transmit this data until everything is out of the buffer. */
-           if(hDevice->pChannelTx->pFillBuffer->nIndex >= hDevice->pChannelTx->pFillBuffer->nCount)
-           {
-                  uart_ManageProcessedBuffer(hDevice,hDevice->pChannelTx,ADI_UART_EVENT_TX_BUFFER_PROCESSED);
-           }
+        /* If all of the characters have been transmitted, manage the data buffer. Otherwise we will leave everything
+           as is and continue to transmit this data until everything is out of the buffer. */
+        if (hDevice->pChannelTx->pFillBuffer->nIndex >= hDevice->pChannelTx->pFillBuffer->nCount) {
+            uart_ManageProcessedBuffer(hDevice, hDevice->pChannelTx, ADI_UART_EVENT_TX_BUFFER_PROCESSED);
+        }
     }
     return;
 }
@@ -2629,7 +2483,7 @@ static void uart_TxDataHandler(ADI_UART_HANDLE hDevice)
  *
 */
 
-static void uart_ManageProcessedBuffer(ADI_UART_HANDLE hDevice,ADI_UART_DATA_CHANNEL *pChannel, ADI_UART_EVENT eEvent)
+static void uart_ManageProcessedBuffer(ADI_UART_HANDLE hDevice, ADI_UART_DATA_CHANNEL *pChannel, ADI_UART_EVENT eEvent)
 {
 
 
@@ -2638,20 +2492,16 @@ static void uart_ManageProcessedBuffer(ADI_UART_HANDLE hDevice,ADI_UART_DATA_CHA
 
     pChannel->pFillBuffer = pChannel->pFillBuffer->pNextBuffer;
 
-    if(eEvent == ADI_UART_EVENT_TX_BUFFER_PROCESSED)
-    {
+    if (eEvent == ADI_UART_EVENT_TX_BUFFER_PROCESSED) {
         /* Disable Tx buffer interrupts. */
         hDevice->pUARTRegs->IEN &= (uint16_t)~(BITM_UART_IEN_ETBEI | BITM_UART_IEN_EDMAT);
-    }
-    else
-    {
+    } else {
         /* Disable Rx buffer interrupts for the DMA. We do not disable receive buffer full interrupts to allow
            the use of the RX FIFO.
         */
         hDevice->pUARTRegs->IEN &= (uint16_t)~(BITM_UART_IEN_EDMAR);
 
-        if (hDevice->bRxFifoEn != true)
-        {
+        if (hDevice->bRxFifoEn != true) {
             /* Disable Rx buffer interrupts for PIO mode if the FIFO is not enabled.
             */
             hDevice->pUARTRegs->IEN &= (uint16_t)~(BITM_UART_IEN_ERBFI);
@@ -2660,8 +2510,7 @@ static void uart_ManageProcessedBuffer(ADI_UART_HANDLE hDevice,ADI_UART_DATA_CHA
     }
 
     /* If there is a callback registered, notify the API that a buffer has been processed. Clean up the buffer. */
-    if((hDevice->pfCallback != NULL) && (pChannel->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING))
-    {
+    if ((hDevice->pfCallback != NULL) && (pChannel->eDataTranferMode == ADI_UART_DATA_TRANSFER_MODE_NONBLOCKING)) {
         uint32_t nEvent = hDevice->nHwError;
         hDevice->nHwError = 0u;
 
@@ -2674,28 +2523,22 @@ static void uart_ManageProcessedBuffer(ADI_UART_HANDLE hDevice,ADI_UART_DATA_CHA
            in use. We can update "pActiveBuffer" to point to the next buffer that will become or is already
            active.
         */
-         pChannel->pActiveBuffer = pChannel->pActiveBuffer->pNextBuffer;
+        pChannel->pActiveBuffer = pChannel->pActiveBuffer->pNextBuffer;
 
         /* Set the data transfer mode to none so that the next transfer can be either in blocking or in nonblocking mode.
            This will only be done if there are no other active buffers in flight to avoid disrupting an active transfer.
         */
-        if(pChannel->pActiveBuffer->pStartAddress == NULL)
-        {
+        if (pChannel->pActiveBuffer->pStartAddress == NULL) {
             pChannel->eDataTranferMode = ADI_UART_DATA_TRANSFER_MODE_NONE;
         }
-        if(nEvent != 0u)
-        {
-           hDevice->pfCallback(hDevice->pCBParam, ADI_UART_EVENT_HW_ERROR_DETECTED,(void*)nEvent);
+        if (nEvent != 0u) {
+            hDevice->pfCallback(hDevice->pCBParam, ADI_UART_EVENT_HW_ERROR_DETECTED, (void *)nEvent);
 
-        }
-        else
-        {
-            hDevice->pfCallback(hDevice->pCBParam, (uint32_t)eEvent, (void*)pBuffer);
+        } else {
+            hDevice->pfCallback(hDevice->pCBParam, (uint32_t)eEvent, (void *)pBuffer);
         }
 
-    }
-    else
-    {
+    } else {
         /* Post to the blocking function. If we are in blocking mode, this will allow the buffer to be returned to the API.
            If we are in nonblocking mode, this will allow adi_uart_GetBuffer() to return immediately so the API can have
            control over the buffer again.
@@ -2706,8 +2549,7 @@ static void uart_ManageProcessedBuffer(ADI_UART_HANDLE hDevice,ADI_UART_DATA_CHA
     /* If there is another buffer active. The buffer we want to check is "pFillBuffer" because that is the next one that would
        be processed. So if it has been submitted, now would be the time to set up the interrupts based on its requirements.
     */
-    if(pChannel->pFillBuffer->bInUse == true)
-    {
+    if (pChannel->pFillBuffer->bInUse == true) {
         pChannel->pfSubmitBuffer(hDevice, pChannel->pFillBuffer);
     }
 }
@@ -2723,7 +2565,7 @@ static void uart_ManageProcessedBuffer(ADI_UART_HANDLE hDevice,ADI_UART_DATA_CHA
 static void uart_init(ADI_UART_CONST_HANDLE const hDevice, uint32_t const nDeviceNum)
 {
 
-    ADI_UART_CONFIG const* pUARTCfg = &gUARTCfg[nDeviceNum];
+    ADI_UART_CONFIG const *pUARTCfg = &gUARTCfg[nDeviceNum];
 
     /* Line Control Register. */
     hDevice->pUARTRegs->LCR = pUARTCfg->LCR;
@@ -2764,15 +2606,13 @@ static ADI_UART_RESULT ValidateHandle(ADI_UART_CONST_HANDLE hDevice)
     uint32_t i;
 
 
-    for(i = 0U; i <  ADI_UART_NUM_DEVICES; i++)
-    {
+    for (i = 0U; i <  ADI_UART_NUM_DEVICES; i++) {
 
-      if((hDevice == uart_device_info[i].hDevice) && (hDevice != NULL))
-       {
-           return(ADI_UART_SUCCESS);
-       }
+        if ((hDevice == uart_device_info[i].hDevice) && (hDevice != NULL)) {
+            return (ADI_UART_SUCCESS);
+        }
     }
-    return(ADI_UART_INVALID_HANDLE);
+    return (ADI_UART_INVALID_HANDLE);
 }
 #endif /* ADI_DEBUG */
 /*! \endcond */

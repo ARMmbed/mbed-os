@@ -83,7 +83,7 @@
 #define MAX_PACKET_SIZE_EPINT   64
 #define MAX_PACKET_SIZE_EPISO   1023
 
-#define USBD_GET_EP_MAX_PAYLOAD(ep)     (*((__IO uint32_t *) ((uint32_t)&USBD->EPAMPS + (uint32_t)((ep)*0x28)))) 
+#define USBD_GET_EP_MAX_PAYLOAD(ep)     (*((__IO uint32_t *) ((uint32_t)&USBD->EPAMPS + (uint32_t)((ep)*0x28))))
 #define USBD_GET_EP_DATA_COUNT(ep)      ((*((__IO uint32_t *) ((uint32_t)&USBD->EPADATCNT + (uint32_t)((ep)*0x28)))) & 0xFFFFF)
 #define USBD_SET_EP_SHORT_PACKET(ep)    (*((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)((ep)*0x28))) = (*((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)((ep)*0x28)))) & 0x10 | 0x40)
 #define USBD_GET_EP_INT_EN(ep)          (*((__IO uint32_t *) ((uint32_t)&USBD->EPAINTEN + (uint32_t)((ep)*0x28))))

@@ -35,7 +35,7 @@ extern "C" {
  *
  * Example:
  * nu_countdown_ctx_s ctx;
- * 
+ *
  * // Set up 2 ms timeout
  * nu_countdown_init(&ctx, 2000);
  *
@@ -53,7 +53,7 @@ extern "C" {
  */
 
 struct nu_countdown_ctx_s {
-    const ticker_data_t *   _ticker_data;       // Hold ticker_data_t
+    const ticker_data_t    *_ticker_data;       // Hold ticker_data_t
     us_timestamp_t          _interval_end_us;   // End of interval in us
     bool                    _expired;           // Expired or not
 };
@@ -75,7 +75,7 @@ __STATIC_INLINE bool nu_countdown_expired(struct nu_countdown_ctx_s *ctx)
         ctx->_expired = ticker_read_us(ctx->_ticker_data) >= ctx->_interval_end_us;
     }
     core_util_critical_section_exit();
-    
+
     return ctx->_expired;
 }
 

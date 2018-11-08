@@ -28,7 +28,7 @@
  *\return 0 This address is behind this interface or Route is not onLink at Upstream
  *\return <0 This address is not registered to this interface or this address is OnLink at this interface
  */
-typedef int (nd_proxy_req_cb)(int8_t interface_id , uint8_t *address);
+typedef int (nd_proxy_req_cb)(int8_t interface_id, uint8_t *address);
 
 /**
  * Inform Downstram Interface when proxy is enabled and disabled
@@ -40,7 +40,7 @@ typedef int (nd_proxy_req_cb)(int8_t interface_id , uint8_t *address);
  *\return 0 Process OK
  *\return <0 Process not valid
  */
-typedef int (bridge_state_update_cb)(int8_t upstream_id , int8_t downstream_id, bool status);
+typedef int (bridge_state_update_cb)(int8_t upstream_id, int8_t downstream_id, bool status);
 
 /**
  * Register connected Downstram interface to nd proxy
@@ -55,7 +55,7 @@ typedef int (bridge_state_update_cb)(int8_t upstream_id , int8_t downstream_id, 
  *\return 0 Register OK
  *\return <0 Registeration fail
  */
-int nd_proxy_downstream_interface_register(int8_t interface_id, nd_proxy_req_cb *nd_proxy_req, bridge_state_update_cb * bridge_state_update);
+int nd_proxy_downstream_interface_register(int8_t interface_id, nd_proxy_req_cb *nd_proxy_req, bridge_state_update_cb *bridge_state_update);
 
 /**
  * Remove connected Downstram interface from nd proxy

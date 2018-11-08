@@ -1,4 +1,4 @@
-/** 
+/**
  *******************************************************************************
  * @file    tmpm066_uart.h
  * @brief   This file provides all the functions prototypes for UART driver.
@@ -34,47 +34,47 @@ extern "C" {
   * @{
   */
 
-/** 
+/**
   * @brief  UART Init Structure definition
   */
 
-    typedef struct {
-        uint32_t BaudRate;      /*!< This member configures the UART communication
+typedef struct {
+    uint32_t BaudRate;      /*!< This member configures the UART communication
                                    baud rate. */
-        uint32_t DataBits;      /*!< Specifies UART transfer mode, which could be 
+    uint32_t DataBits;      /*!< Specifies UART transfer mode, which could be
                                    7-bit mode, 8-bit mode or 9-bit mode. */
-        uint32_t StopBits;      /*!< Specifies the length of stop bit transmission
+    uint32_t StopBits;      /*!< Specifies the length of stop bit transmission
                                    in UART mode. */
-        uint32_t Parity;        /*!< Specifies the parity mode which could be odd 
+    uint32_t Parity;        /*!< Specifies the parity mode which could be odd
                                    parity, even parity or no parity. */
-        uint32_t Mode;          /*!< Enables or disables Receive, Transmit or 
+    uint32_t Mode;          /*!< Enables or disables Receive, Transmit or
                                    both. */
-        uint32_t FlowCtrl;      /*!< Specifies wether the hardware flow control 
+    uint32_t FlowCtrl;      /*!< Specifies wether the hardware flow control
                                    mode is enabled or disabled. */
-    } UART_InitTypeDef;
+} UART_InitTypeDef;
 
-    typedef struct {
-        uint32_t InputClkEdge;  /*!< Select the input clock edge.on the SCLK output mode
+typedef struct {
+    uint32_t InputClkEdge;  /*!< Select the input clock edge.on the SCLK output mode
                                    this bit only can set to be 0(SIO_SCLKS_TXDF_RXDR) */
-        uint32_t TIDLE;         /*!< The status of TXDx pin after output of the
+    uint32_t TIDLE;         /*!< The status of TXDx pin after output of the
                                    last bit */
-        uint32_t TXDEMP;        /*!< The status of TXDx pin when an under run error 
+    uint32_t TXDEMP;        /*!< The status of TXDx pin when an under run error
                                    is  occured in SCLK input mode */
-        uint32_t EHOLDTime;     /*!< The last bit hold time of TXDx pin in SCLK
+    uint32_t EHOLDTime;     /*!< The last bit hold time of TXDx pin in SCLK
                                    input mode */
-        uint32_t IntervalTime;  /*!< Setting interval time of continuous transmission which 
+    uint32_t IntervalTime;  /*!< Setting interval time of continuous transmission which
                                    could be None,1*SCLK,2*SCLK,4*SCLK,8*SCLK,16*SCLK,32*SCLK,64*SCLK.
-                                   this bit is valid only for SCLK output mode and double 
+                                   this bit is valid only for SCLK output mode and double
                                    buffer is enabled. */
-        uint32_t TransferMode;  /*!< Setting transfer mode which could be transfer prohibited, 
+    uint32_t TransferMode;  /*!< Setting transfer mode which could be transfer prohibited,
                                    half duplex(Receive),half duplex(Transmit) or full duplex. */
-        uint32_t TransferDir;   /*!< Setting transfer direction which could be
+    uint32_t TransferDir;   /*!< Setting transfer direction which could be
                                    LSB_FRIST or MSB_FRIST. */
-        uint32_t Mode;          /*!< Enables or disables Receive, Transmit or both. */
-        uint32_t DoubleBuffer;  /*!< Double Buffer mode is enabled or disabled. */
-        uint32_t BaudRateClock; /*!< Select the input clock for baud rate generator */
-        uint32_t Divider;       /*!< Division ratio "N" */
-    } SIO_InitTypeDef;
+    uint32_t Mode;          /*!< Enables or disables Receive, Transmit or both. */
+    uint32_t DoubleBuffer;  /*!< Double Buffer mode is enabled or disabled. */
+    uint32_t BaudRateClock; /*!< Select the input clock for baud rate generator */
+    uint32_t Divider;       /*!< Division ratio "N" */
+} SIO_InitTypeDef;
 
 /** @} */
 /* End of group UART_Exported_Types */
@@ -306,18 +306,18 @@ extern "C" {
 /** @addtogroup UART_Exported_Types
   * @{
   */
-    typedef enum {
-        UART_NO_ERR = 0U,
-        UART_OVERRUN = 1U,
-        UART_PARITY_ERR = 2U,
-        UART_FRAMING_ERR = 3U,
-        UART_ERRS = 4U
-    } UART_Err;
+typedef enum {
+    UART_NO_ERR = 0U,
+    UART_OVERRUN = 1U,
+    UART_PARITY_ERR = 2U,
+    UART_FRAMING_ERR = 3U,
+    UART_ERRS = 4U
+} UART_Err;
 
-    typedef enum {
-        UART_RXTXCNT_NONE = 0U,
-        UART_RXTXCNT_AUTODISABLE = 1U
-    } UART_TRxDisable;
+typedef enum {
+    UART_RXTXCNT_NONE = 0U,
+    UART_RXTXCNT_AUTODISABLE = 1U
+} UART_TRxDisable;
 #define IS_UATR_TRX_AUTODISABLE(param)  (((param) == UART_RXTXCNT_NONE) || \
                                          ((param) == UART_RXTXCNT_AUTODISABLE))
 
@@ -328,43 +328,43 @@ extern "C" {
   * @{
   */
 
-    void UART_Enable(TSB_SC_TypeDef * UARTx);
-    void UART_Disable(TSB_SC_TypeDef * UARTx);
-    WorkState UART_GetBufState(TSB_SC_TypeDef * UARTx, uint32_t Direction);
-    void UART_SWReset(TSB_SC_TypeDef * UARTx);
-    void UART_Init(TSB_SC_TypeDef * UARTx, UART_InitTypeDef * InitStruct);
-    uint32_t UART_GetRxData(TSB_SC_TypeDef * UARTx);
-    void UART_SetTxData(TSB_SC_TypeDef * UARTx, uint32_t Data);
-    void UART_DefaultConfig(TSB_SC_TypeDef * UARTx);
-    UART_Err UART_GetErrState(TSB_SC_TypeDef * UARTx);
-    void UART_SetWakeUpFunc(TSB_SC_TypeDef * UARTx, FunctionalState NewState);
-    void UART_SetIdleMode(TSB_SC_TypeDef * UARTx, FunctionalState NewState);
-    void UART_SetInputClock(TSB_SC_TypeDef * UARTx, uint32_t clock);
-    void UART_FIFOConfig(TSB_SC_TypeDef * UARTx, FunctionalState NewState);
-    void UART_SetFIFOTransferMode(TSB_SC_TypeDef * UARTx, uint32_t TransferMode);
-    void UART_TRxAutoDisable(TSB_SC_TypeDef * UARTx, UART_TRxDisable TRxAutoDisable);
-    void UART_RxFIFOINTCtrl(TSB_SC_TypeDef * UARTx, FunctionalState NewState);
-    void UART_TxFIFOINTCtrl(TSB_SC_TypeDef * UARTx, FunctionalState NewState);
-    void UART_RxFIFOByteSel(TSB_SC_TypeDef * UARTx, uint32_t BytesUsed);
-    void UART_RxFIFOFillLevel(TSB_SC_TypeDef * UARTx, uint32_t RxFIFOLevel);
-    void UART_RxFIFOINTSel(TSB_SC_TypeDef * UARTx, uint32_t RxINTCondition);
-    void UART_RxFIFOClear(TSB_SC_TypeDef * UARTx);
-    void UART_TxFIFOFillLevel(TSB_SC_TypeDef * UARTx, uint32_t TxFIFOLevel);
-    void UART_TxFIFOINTSel(TSB_SC_TypeDef * UARTx, uint32_t TxINTCondition);
-    void UART_TxFIFOClear(TSB_SC_TypeDef * UARTx);
-    void UART_TxBufferClear(TSB_SC_TypeDef * UARTx);
-    uint32_t UART_GetRxFIFOFillLevelStatus(TSB_SC_TypeDef * UARTx);
-    uint32_t UART_GetRxFIFOOverRunStatus(TSB_SC_TypeDef * UARTx);
-    uint32_t UART_GetTxFIFOFillLevelStatus(TSB_SC_TypeDef * UARTx);
-    uint32_t UART_GetTxFIFOUnderRunStatus(TSB_SC_TypeDef * UARTx);
-    void UART_SetRxDMAReq(TSB_SC_TypeDef * UARTx, FunctionalState NewState);
-    void UART_SetTxDMAReq(TSB_SC_TypeDef * UARTx, FunctionalState NewState);
-    void SIO_SetInputClock(TSB_SC_TypeDef * SIOx, uint32_t Clock);
-    void SIO_Enable(TSB_SC_TypeDef * SIOx);
-    void SIO_Disable(TSB_SC_TypeDef * SIOx);
-    uint8_t SIO_GetRxData(TSB_SC_TypeDef * SIOx);
-    void SIO_SetTxData(TSB_SC_TypeDef * SIOx, uint8_t Data);
-    void SIO_Init(TSB_SC_TypeDef * SIOx, uint32_t IOClkSel, SIO_InitTypeDef * InitStruct);
+void UART_Enable(TSB_SC_TypeDef *UARTx);
+void UART_Disable(TSB_SC_TypeDef *UARTx);
+WorkState UART_GetBufState(TSB_SC_TypeDef *UARTx, uint32_t Direction);
+void UART_SWReset(TSB_SC_TypeDef *UARTx);
+void UART_Init(TSB_SC_TypeDef *UARTx, UART_InitTypeDef *InitStruct);
+uint32_t UART_GetRxData(TSB_SC_TypeDef *UARTx);
+void UART_SetTxData(TSB_SC_TypeDef *UARTx, uint32_t Data);
+void UART_DefaultConfig(TSB_SC_TypeDef *UARTx);
+UART_Err UART_GetErrState(TSB_SC_TypeDef *UARTx);
+void UART_SetWakeUpFunc(TSB_SC_TypeDef *UARTx, FunctionalState NewState);
+void UART_SetIdleMode(TSB_SC_TypeDef *UARTx, FunctionalState NewState);
+void UART_SetInputClock(TSB_SC_TypeDef *UARTx, uint32_t clock);
+void UART_FIFOConfig(TSB_SC_TypeDef *UARTx, FunctionalState NewState);
+void UART_SetFIFOTransferMode(TSB_SC_TypeDef *UARTx, uint32_t TransferMode);
+void UART_TRxAutoDisable(TSB_SC_TypeDef *UARTx, UART_TRxDisable TRxAutoDisable);
+void UART_RxFIFOINTCtrl(TSB_SC_TypeDef *UARTx, FunctionalState NewState);
+void UART_TxFIFOINTCtrl(TSB_SC_TypeDef *UARTx, FunctionalState NewState);
+void UART_RxFIFOByteSel(TSB_SC_TypeDef *UARTx, uint32_t BytesUsed);
+void UART_RxFIFOFillLevel(TSB_SC_TypeDef *UARTx, uint32_t RxFIFOLevel);
+void UART_RxFIFOINTSel(TSB_SC_TypeDef *UARTx, uint32_t RxINTCondition);
+void UART_RxFIFOClear(TSB_SC_TypeDef *UARTx);
+void UART_TxFIFOFillLevel(TSB_SC_TypeDef *UARTx, uint32_t TxFIFOLevel);
+void UART_TxFIFOINTSel(TSB_SC_TypeDef *UARTx, uint32_t TxINTCondition);
+void UART_TxFIFOClear(TSB_SC_TypeDef *UARTx);
+void UART_TxBufferClear(TSB_SC_TypeDef *UARTx);
+uint32_t UART_GetRxFIFOFillLevelStatus(TSB_SC_TypeDef *UARTx);
+uint32_t UART_GetRxFIFOOverRunStatus(TSB_SC_TypeDef *UARTx);
+uint32_t UART_GetTxFIFOFillLevelStatus(TSB_SC_TypeDef *UARTx);
+uint32_t UART_GetTxFIFOUnderRunStatus(TSB_SC_TypeDef *UARTx);
+void UART_SetRxDMAReq(TSB_SC_TypeDef *UARTx, FunctionalState NewState);
+void UART_SetTxDMAReq(TSB_SC_TypeDef *UARTx, FunctionalState NewState);
+void SIO_SetInputClock(TSB_SC_TypeDef *SIOx, uint32_t Clock);
+void SIO_Enable(TSB_SC_TypeDef *SIOx);
+void SIO_Disable(TSB_SC_TypeDef *SIOx);
+uint8_t SIO_GetRxData(TSB_SC_TypeDef *SIOx);
+void SIO_SetTxData(TSB_SC_TypeDef *SIOx, uint8_t Data);
+void SIO_Init(TSB_SC_TypeDef *SIOx, uint32_t IOClkSel, SIO_InitTypeDef *InitStruct);
 /** @} */
 /* End of group UART_Exported_FunctionPrototypes */
 

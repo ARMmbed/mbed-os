@@ -118,13 +118,13 @@ extern "C" {
         case OSC_MAINCK_XTAL:
             pmc_switch_mainck_to_xtal(PMC_OSC_XTAL,
                                       pmc_us_to_moscxtst(BOARD_OSC_STARTUP_US,
-                                              OSC_SLCK_32K_RC_HZ));
+                                                         OSC_SLCK_32K_RC_HZ));
             break;
 
         case OSC_MAINCK_BYPASS:
             pmc_switch_mainck_to_xtal(PMC_OSC_BYPASS,
                                       pmc_us_to_moscxtst(BOARD_OSC_STARTUP_US,
-                                              OSC_SLCK_32K_RC_HZ));
+                                                         OSC_SLCK_32K_RC_HZ));
             break;
     }
 }

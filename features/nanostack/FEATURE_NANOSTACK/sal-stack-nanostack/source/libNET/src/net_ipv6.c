@@ -56,7 +56,7 @@ int8_t arm_nwk_ipv6_opaque_iid_key(const void *secret_key, uint8_t key_len)
 int8_t arm_nwk_ipv6_opaque_iid_enable(int8_t interface_id, bool enable)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur ) {
+    if (!cur) {
         return -1;
     }
 

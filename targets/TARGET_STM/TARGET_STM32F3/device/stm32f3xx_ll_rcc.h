@@ -115,12 +115,11 @@ extern "C" {
 /**
   * @brief  RCC Clocks Frequency Structure
   */
-typedef struct
-{
-  uint32_t SYSCLK_Frequency;        /*!< SYSCLK clock frequency */
-  uint32_t HCLK_Frequency;          /*!< HCLK clock frequency */
-  uint32_t PCLK1_Frequency;         /*!< PCLK1 clock frequency */
-  uint32_t PCLK2_Frequency;         /*!< PCLK2 clock frequency */
+typedef struct {
+    uint32_t SYSCLK_Frequency;        /*!< SYSCLK clock frequency */
+    uint32_t HCLK_Frequency;          /*!< HCLK clock frequency */
+    uint32_t PCLK1_Frequency;         /*!< PCLK1 clock frequency */
+    uint32_t PCLK2_Frequency;         /*!< PCLK2 clock frequency */
 } LL_RCC_ClocksTypeDef;
 
 /**
@@ -1027,7 +1026,7 @@ typedef struct
   */
 __STATIC_INLINE void LL_RCC_HSE_EnableCSS(void)
 {
-  SET_BIT(RCC->CR, RCC_CR_CSSON);
+    SET_BIT(RCC->CR, RCC_CR_CSSON);
 }
 
 /**
@@ -1038,7 +1037,7 @@ __STATIC_INLINE void LL_RCC_HSE_EnableCSS(void)
   */
 __STATIC_INLINE void LL_RCC_HSE_DisableCSS(void)
 {
-  CLEAR_BIT(RCC->CR, RCC_CR_CSSON);
+    CLEAR_BIT(RCC->CR, RCC_CR_CSSON);
 }
 
 /**
@@ -1048,7 +1047,7 @@ __STATIC_INLINE void LL_RCC_HSE_DisableCSS(void)
   */
 __STATIC_INLINE void LL_RCC_HSE_EnableBypass(void)
 {
-  SET_BIT(RCC->CR, RCC_CR_HSEBYP);
+    SET_BIT(RCC->CR, RCC_CR_HSEBYP);
 }
 
 /**
@@ -1058,7 +1057,7 @@ __STATIC_INLINE void LL_RCC_HSE_EnableBypass(void)
   */
 __STATIC_INLINE void LL_RCC_HSE_DisableBypass(void)
 {
-  CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
+    CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
 }
 
 /**
@@ -1068,7 +1067,7 @@ __STATIC_INLINE void LL_RCC_HSE_DisableBypass(void)
   */
 __STATIC_INLINE void LL_RCC_HSE_Enable(void)
 {
-  SET_BIT(RCC->CR, RCC_CR_HSEON);
+    SET_BIT(RCC->CR, RCC_CR_HSEON);
 }
 
 /**
@@ -1078,7 +1077,7 @@ __STATIC_INLINE void LL_RCC_HSE_Enable(void)
   */
 __STATIC_INLINE void LL_RCC_HSE_Disable(void)
 {
-  CLEAR_BIT(RCC->CR, RCC_CR_HSEON);
+    CLEAR_BIT(RCC->CR, RCC_CR_HSEON);
 }
 
 /**
@@ -1088,7 +1087,7 @@ __STATIC_INLINE void LL_RCC_HSE_Disable(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_HSE_IsReady(void)
 {
-  return (READ_BIT(RCC->CR, RCC_CR_HSERDY) == (RCC_CR_HSERDY));
+    return (READ_BIT(RCC->CR, RCC_CR_HSERDY) == (RCC_CR_HSERDY));
 }
 
 /**
@@ -1106,7 +1105,7 @@ __STATIC_INLINE uint32_t LL_RCC_HSE_IsReady(void)
   */
 __STATIC_INLINE void LL_RCC_HSI_Enable(void)
 {
-  SET_BIT(RCC->CR, RCC_CR_HSION);
+    SET_BIT(RCC->CR, RCC_CR_HSION);
 }
 
 /**
@@ -1116,7 +1115,7 @@ __STATIC_INLINE void LL_RCC_HSI_Enable(void)
   */
 __STATIC_INLINE void LL_RCC_HSI_Disable(void)
 {
-  CLEAR_BIT(RCC->CR, RCC_CR_HSION);
+    CLEAR_BIT(RCC->CR, RCC_CR_HSION);
 }
 
 /**
@@ -1126,7 +1125,7 @@ __STATIC_INLINE void LL_RCC_HSI_Disable(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_HSI_IsReady(void)
 {
-  return (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == (RCC_CR_HSIRDY));
+    return (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == (RCC_CR_HSIRDY));
 }
 
 /**
@@ -1138,7 +1137,7 @@ __STATIC_INLINE uint32_t LL_RCC_HSI_IsReady(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_HSI_GetCalibration(void)
 {
-  return (uint32_t)(READ_BIT(RCC->CR, RCC_CR_HSICAL) >> RCC_POSITION_HSICAL);
+    return (uint32_t)(READ_BIT(RCC->CR, RCC_CR_HSICAL) >> RCC_POSITION_HSICAL);
 }
 
 /**
@@ -1152,7 +1151,7 @@ __STATIC_INLINE uint32_t LL_RCC_HSI_GetCalibration(void)
   */
 __STATIC_INLINE void LL_RCC_HSI_SetCalibTrimming(uint32_t Value)
 {
-  MODIFY_REG(RCC->CR, RCC_CR_HSITRIM, Value << RCC_POSITION_HSITRIM);
+    MODIFY_REG(RCC->CR, RCC_CR_HSITRIM, Value << RCC_POSITION_HSITRIM);
 }
 
 /**
@@ -1162,7 +1161,7 @@ __STATIC_INLINE void LL_RCC_HSI_SetCalibTrimming(uint32_t Value)
   */
 __STATIC_INLINE uint32_t LL_RCC_HSI_GetCalibTrimming(void)
 {
-  return (uint32_t)(READ_BIT(RCC->CR, RCC_CR_HSITRIM) >> RCC_POSITION_HSITRIM);
+    return (uint32_t)(READ_BIT(RCC->CR, RCC_CR_HSITRIM) >> RCC_POSITION_HSITRIM);
 }
 
 /**
@@ -1180,7 +1179,7 @@ __STATIC_INLINE uint32_t LL_RCC_HSI_GetCalibTrimming(void)
   */
 __STATIC_INLINE void LL_RCC_LSE_Enable(void)
 {
-  SET_BIT(RCC->BDCR, RCC_BDCR_LSEON);
+    SET_BIT(RCC->BDCR, RCC_BDCR_LSEON);
 }
 
 /**
@@ -1190,7 +1189,7 @@ __STATIC_INLINE void LL_RCC_LSE_Enable(void)
   */
 __STATIC_INLINE void LL_RCC_LSE_Disable(void)
 {
-  CLEAR_BIT(RCC->BDCR, RCC_BDCR_LSEON);
+    CLEAR_BIT(RCC->BDCR, RCC_BDCR_LSEON);
 }
 
 /**
@@ -1200,7 +1199,7 @@ __STATIC_INLINE void LL_RCC_LSE_Disable(void)
   */
 __STATIC_INLINE void LL_RCC_LSE_EnableBypass(void)
 {
-  SET_BIT(RCC->BDCR, RCC_BDCR_LSEBYP);
+    SET_BIT(RCC->BDCR, RCC_BDCR_LSEBYP);
 }
 
 /**
@@ -1210,7 +1209,7 @@ __STATIC_INLINE void LL_RCC_LSE_EnableBypass(void)
   */
 __STATIC_INLINE void LL_RCC_LSE_DisableBypass(void)
 {
-  CLEAR_BIT(RCC->BDCR, RCC_BDCR_LSEBYP);
+    CLEAR_BIT(RCC->BDCR, RCC_BDCR_LSEBYP);
 }
 
 /**
@@ -1226,7 +1225,7 @@ __STATIC_INLINE void LL_RCC_LSE_DisableBypass(void)
   */
 __STATIC_INLINE void LL_RCC_LSE_SetDriveCapability(uint32_t LSEDrive)
 {
-  MODIFY_REG(RCC->BDCR, RCC_BDCR_LSEDRV, LSEDrive);
+    MODIFY_REG(RCC->BDCR, RCC_BDCR_LSEDRV, LSEDrive);
 }
 
 /**
@@ -1240,7 +1239,7 @@ __STATIC_INLINE void LL_RCC_LSE_SetDriveCapability(uint32_t LSEDrive)
   */
 __STATIC_INLINE uint32_t LL_RCC_LSE_GetDriveCapability(void)
 {
-  return (uint32_t)(READ_BIT(RCC->BDCR, RCC_BDCR_LSEDRV));
+    return (uint32_t)(READ_BIT(RCC->BDCR, RCC_BDCR_LSEDRV));
 }
 
 /**
@@ -1250,7 +1249,7 @@ __STATIC_INLINE uint32_t LL_RCC_LSE_GetDriveCapability(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_LSE_IsReady(void)
 {
-  return (READ_BIT(RCC->BDCR, RCC_BDCR_LSERDY) == (RCC_BDCR_LSERDY));
+    return (READ_BIT(RCC->BDCR, RCC_BDCR_LSERDY) == (RCC_BDCR_LSERDY));
 }
 
 /**
@@ -1268,7 +1267,7 @@ __STATIC_INLINE uint32_t LL_RCC_LSE_IsReady(void)
   */
 __STATIC_INLINE void LL_RCC_LSI_Enable(void)
 {
-  SET_BIT(RCC->CSR, RCC_CSR_LSION);
+    SET_BIT(RCC->CSR, RCC_CSR_LSION);
 }
 
 /**
@@ -1278,7 +1277,7 @@ __STATIC_INLINE void LL_RCC_LSI_Enable(void)
   */
 __STATIC_INLINE void LL_RCC_LSI_Disable(void)
 {
-  CLEAR_BIT(RCC->CSR, RCC_CSR_LSION);
+    CLEAR_BIT(RCC->CSR, RCC_CSR_LSION);
 }
 
 /**
@@ -1288,7 +1287,7 @@ __STATIC_INLINE void LL_RCC_LSI_Disable(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_LSI_IsReady(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_LSIRDY) == (RCC_CSR_LSIRDY));
+    return (READ_BIT(RCC->CSR, RCC_CSR_LSIRDY) == (RCC_CSR_LSIRDY));
 }
 
 /**
@@ -1310,7 +1309,7 @@ __STATIC_INLINE uint32_t LL_RCC_LSI_IsReady(void)
   */
 __STATIC_INLINE void LL_RCC_SetSysClkSource(uint32_t Source)
 {
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, Source);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, Source);
 }
 
 /**
@@ -1323,7 +1322,7 @@ __STATIC_INLINE void LL_RCC_SetSysClkSource(uint32_t Source)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetSysClkSource(void)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_SWS));
+    return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_SWS));
 }
 
 /**
@@ -1343,7 +1342,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetSysClkSource(void)
   */
 __STATIC_INLINE void LL_RCC_SetAHBPrescaler(uint32_t Prescaler)
 {
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, Prescaler);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, Prescaler);
 }
 
 /**
@@ -1359,7 +1358,7 @@ __STATIC_INLINE void LL_RCC_SetAHBPrescaler(uint32_t Prescaler)
   */
 __STATIC_INLINE void LL_RCC_SetAPB1Prescaler(uint32_t Prescaler)
 {
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, Prescaler);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, Prescaler);
 }
 
 /**
@@ -1375,7 +1374,7 @@ __STATIC_INLINE void LL_RCC_SetAPB1Prescaler(uint32_t Prescaler)
   */
 __STATIC_INLINE void LL_RCC_SetAPB2Prescaler(uint32_t Prescaler)
 {
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, Prescaler);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, Prescaler);
 }
 
 /**
@@ -1394,7 +1393,7 @@ __STATIC_INLINE void LL_RCC_SetAPB2Prescaler(uint32_t Prescaler)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetAHBPrescaler(void)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_HPRE));
+    return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_HPRE));
 }
 
 /**
@@ -1409,7 +1408,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetAHBPrescaler(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetAPB1Prescaler(void)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_PPRE1));
+    return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_PPRE1));
 }
 
 /**
@@ -1424,7 +1423,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetAPB1Prescaler(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetAPB2Prescaler(void)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_PPRE2));
+    return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_PPRE2));
 }
 
 /**
@@ -1468,12 +1467,12 @@ __STATIC_INLINE void LL_RCC_ConfigMCO(uint32_t MCOxSource, uint32_t MCOxPrescale
 {
 #if defined(RCC_CFGR_MCOPRE)
 #if defined(RCC_CFGR_PLLNODIV)
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_MCOSEL | RCC_CFGR_MCOPRE | RCC_CFGR_PLLNODIV, MCOxSource | MCOxPrescaler);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_MCOSEL | RCC_CFGR_MCOPRE | RCC_CFGR_PLLNODIV, MCOxSource | MCOxPrescaler);
 #else
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_MCOSEL | RCC_CFGR_MCOPRE, MCOxSource | MCOxPrescaler);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_MCOSEL | RCC_CFGR_MCOPRE, MCOxSource | MCOxPrescaler);
 #endif /* RCC_CFGR_PLLNODIV */
 #else
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_MCOSEL, MCOxSource);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_MCOSEL, MCOxSource);
 #endif /* RCC_CFGR_MCOPRE */
 }
 
@@ -1510,7 +1509,7 @@ __STATIC_INLINE void LL_RCC_ConfigMCO(uint32_t MCOxSource, uint32_t MCOxPrescale
   */
 __STATIC_INLINE void LL_RCC_SetUSARTClockSource(uint32_t USARTxSource)
 {
-  MODIFY_REG(RCC->CFGR3, (RCC_CFGR3_USART1SW << ((USARTxSource  & 0xFF000000U) >> 24U)), (USARTxSource & 0x00FFFFFFU));
+    MODIFY_REG(RCC->CFGR3, (RCC_CFGR3_USART1SW << ((USARTxSource  & 0xFF000000U) >> 24U)), (USARTxSource & 0x00FFFFFFU));
 }
 
 #if defined(RCC_CFGR3_UART4SW) || defined(RCC_CFGR3_UART5SW)
@@ -1531,7 +1530,7 @@ __STATIC_INLINE void LL_RCC_SetUSARTClockSource(uint32_t USARTxSource)
   */
 __STATIC_INLINE void LL_RCC_SetUARTClockSource(uint32_t UARTxSource)
 {
-  MODIFY_REG(RCC->CFGR3, ((UARTxSource  & 0x0000FFFFU) << 8U), (UARTxSource & (RCC_CFGR3_UART4SW | RCC_CFGR3_UART5SW)));
+    MODIFY_REG(RCC->CFGR3, ((UARTxSource  & 0x0000FFFFU) << 8U), (UARTxSource & (RCC_CFGR3_UART4SW | RCC_CFGR3_UART5SW)));
 }
 #endif /* RCC_CFGR3_UART4SW || RCC_CFGR3_UART5SW */
 
@@ -1553,7 +1552,7 @@ __STATIC_INLINE void LL_RCC_SetUARTClockSource(uint32_t UARTxSource)
   */
 __STATIC_INLINE void LL_RCC_SetI2CClockSource(uint32_t I2CxSource)
 {
-  MODIFY_REG(RCC->CFGR3, ((I2CxSource  & 0xFF000000U) >> 24U), (I2CxSource & 0x00FFFFFFU));
+    MODIFY_REG(RCC->CFGR3, ((I2CxSource  & 0xFF000000U) >> 24U), (I2CxSource & 0x00FFFFFFU));
 }
 
 #if defined(RCC_CFGR_I2SSRC)
@@ -1567,7 +1566,7 @@ __STATIC_INLINE void LL_RCC_SetI2CClockSource(uint32_t I2CxSource)
   */
 __STATIC_INLINE void LL_RCC_SetI2SClockSource(uint32_t I2SxSource)
 {
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_I2SSRC, I2SxSource);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_I2SSRC, I2SxSource);
 }
 #endif /* RCC_CFGR_I2SSRC */
 
@@ -1605,7 +1604,7 @@ __STATIC_INLINE void LL_RCC_SetI2SClockSource(uint32_t I2SxSource)
   */
 __STATIC_INLINE void LL_RCC_SetTIMClockSource(uint32_t TIMxSource)
 {
-  MODIFY_REG(RCC->CFGR3, (RCC_CFGR3_TIM1SW << (TIMxSource >> 27U)), (TIMxSource & 0x03FFFFFFU));
+    MODIFY_REG(RCC->CFGR3, (RCC_CFGR3_TIM1SW << (TIMxSource >> 27U)), (TIMxSource & 0x03FFFFFFU));
 }
 #endif /* RCC_CFGR3_TIMSW */
 
@@ -1620,7 +1619,7 @@ __STATIC_INLINE void LL_RCC_SetTIMClockSource(uint32_t TIMxSource)
   */
 __STATIC_INLINE void LL_RCC_SetHRTIMClockSource(uint32_t HRTIMxSource)
 {
-  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_HRTIMSW, HRTIMxSource);
+    MODIFY_REG(RCC->CFGR3, RCC_CFGR3_HRTIMSW, HRTIMxSource);
 }
 #endif /* HRTIM1 */
 
@@ -1635,7 +1634,7 @@ __STATIC_INLINE void LL_RCC_SetHRTIMClockSource(uint32_t HRTIMxSource)
   */
 __STATIC_INLINE void LL_RCC_SetCECClockSource(uint32_t CECxSource)
 {
-  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_CECSW, CECxSource);
+    MODIFY_REG(RCC->CFGR3, RCC_CFGR3_CECSW, CECxSource);
 }
 #endif /* CEC */
 
@@ -1650,7 +1649,7 @@ __STATIC_INLINE void LL_RCC_SetCECClockSource(uint32_t CECxSource)
   */
 __STATIC_INLINE void LL_RCC_SetUSBClockSource(uint32_t USBxSource)
 {
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_USBPRE, USBxSource);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_USBPRE, USBxSource);
 }
 #endif /* USB */
 
@@ -1667,7 +1666,7 @@ __STATIC_INLINE void LL_RCC_SetUSBClockSource(uint32_t USBxSource)
   */
 __STATIC_INLINE void LL_RCC_SetADCClockSource(uint32_t ADCxSource)
 {
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_ADCPRE, ADCxSource);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_ADCPRE, ADCxSource);
 }
 
 #elif defined(RCC_CFGR2_ADC1PRES)
@@ -1692,7 +1691,7 @@ __STATIC_INLINE void LL_RCC_SetADCClockSource(uint32_t ADCxSource)
   */
 __STATIC_INLINE void LL_RCC_SetADCClockSource(uint32_t ADCxSource)
 {
-  MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADC1PRES, ADCxSource);
+    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADC1PRES, ADCxSource);
 }
 
 #elif defined(RCC_CFGR2_ADCPRE12) || defined(RCC_CFGR2_ADCPRE34)
@@ -1734,9 +1733,9 @@ __STATIC_INLINE void LL_RCC_SetADCClockSource(uint32_t ADCxSource)
 __STATIC_INLINE void LL_RCC_SetADCClockSource(uint32_t ADCxSource)
 {
 #if defined(RCC_CFGR2_ADCPRE34)
-  MODIFY_REG(RCC->CFGR2, (ADCxSource >> 16U), (ADCxSource & 0x0000FFFFU));
+    MODIFY_REG(RCC->CFGR2, (ADCxSource >> 16U), (ADCxSource & 0x0000FFFFU));
 #else
-  MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12, ADCxSource);
+    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12, ADCxSource);
 #endif /* RCC_CFGR2_ADCPRE34 */
 }
 #endif /* RCC_CFGR_ADCPRE */
@@ -1767,7 +1766,7 @@ __STATIC_INLINE void LL_RCC_SetADCClockSource(uint32_t ADCxSource)
   */
 __STATIC_INLINE void LL_RCC_SetSDADCClockSource(uint32_t SDADCxSource)
 {
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_SDPRE, SDADCxSource);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_SDPRE, SDADCxSource);
 }
 #endif /* RCC_CFGR_SDPRE */
 
@@ -1801,7 +1800,7 @@ __STATIC_INLINE void LL_RCC_SetSDADCClockSource(uint32_t SDADCxSource)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetUSARTClockSource(uint32_t USARTx)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR3, (RCC_CFGR3_USART1SW << USARTx)) | (USARTx << 24U));
+    return (uint32_t)(READ_BIT(RCC->CFGR3, (RCC_CFGR3_USART1SW << USARTx)) | (USARTx << 24U));
 }
 
 #if defined(RCC_CFGR3_UART4SW) || defined(RCC_CFGR3_UART5SW)
@@ -1824,7 +1823,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetUSARTClockSource(uint32_t USARTx)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetUARTClockSource(uint32_t UARTx)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR3, UARTx) | (UARTx >> 8U));
+    return (uint32_t)(READ_BIT(RCC->CFGR3, UARTx) | (UARTx >> 8U));
 }
 #endif /* RCC_CFGR3_UART4SW || RCC_CFGR3_UART5SW */
 
@@ -1851,7 +1850,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetUARTClockSource(uint32_t UARTx)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetI2CClockSource(uint32_t I2Cx)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR3, I2Cx) | (I2Cx << 24U));
+    return (uint32_t)(READ_BIT(RCC->CFGR3, I2Cx) | (I2Cx << 24U));
 }
 
 #if defined(RCC_CFGR_I2SSRC)
@@ -1866,7 +1865,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetI2CClockSource(uint32_t I2Cx)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetI2SClockSource(uint32_t I2Sx)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR, I2Sx));
+    return (uint32_t)(READ_BIT(RCC->CFGR, I2Sx));
 }
 #endif /* RCC_CFGR_I2SSRC */
 
@@ -1914,7 +1913,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetI2SClockSource(uint32_t I2Sx)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetTIMClockSource(uint32_t TIMx)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR3, (RCC_CFGR3_TIM1SW << TIMx)) | (TIMx << 27U));
+    return (uint32_t)(READ_BIT(RCC->CFGR3, (RCC_CFGR3_TIM1SW << TIMx)) | (TIMx << 27U));
 }
 #endif /* RCC_CFGR3_TIMSW */
 
@@ -1930,7 +1929,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetTIMClockSource(uint32_t TIMx)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetHRTIMClockSource(uint32_t HRTIMx)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR3, HRTIMx));
+    return (uint32_t)(READ_BIT(RCC->CFGR3, HRTIMx));
 }
 #endif /* HRTIM1 */
 
@@ -1946,7 +1945,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetHRTIMClockSource(uint32_t HRTIMx)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetCECClockSource(uint32_t CECx)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR3, CECx));
+    return (uint32_t)(READ_BIT(RCC->CFGR3, CECx));
 }
 #endif /* CEC */
 
@@ -1962,7 +1961,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetCECClockSource(uint32_t CECx)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetUSBClockSource(uint32_t USBx)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR, USBx));
+    return (uint32_t)(READ_BIT(RCC->CFGR, USBx));
 }
 #endif /* USB */
 
@@ -1980,7 +1979,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetUSBClockSource(uint32_t USBx)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetADCClockSource(uint32_t ADCx)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR, ADCx));
+    return (uint32_t)(READ_BIT(RCC->CFGR, ADCx));
 }
 
 #elif defined(RCC_CFGR2_ADC1PRES)
@@ -2006,7 +2005,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetADCClockSource(uint32_t ADCx)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetADCClockSource(uint32_t ADCx)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR2, ADCx));
+    return (uint32_t)(READ_BIT(RCC->CFGR2, ADCx));
 }
 
 #elif defined(RCC_CFGR2_ADCPRE12) || defined(RCC_CFGR2_ADCPRE34)
@@ -2052,9 +2051,9 @@ __STATIC_INLINE uint32_t LL_RCC_GetADCClockSource(uint32_t ADCx)
 __STATIC_INLINE uint32_t LL_RCC_GetADCClockSource(uint32_t ADCx)
 {
 #if defined(RCC_CFGR2_ADCPRE34)
-  return (uint32_t)(READ_BIT(RCC->CFGR2, ADCx) | (ADCx << 16U));
+    return (uint32_t)(READ_BIT(RCC->CFGR2, ADCx) | (ADCx << 16U));
 #else
-  return (uint32_t)(READ_BIT(RCC->CFGR2, ADCx));
+    return (uint32_t)(READ_BIT(RCC->CFGR2, ADCx));
 #endif /*RCC_CFGR2_ADCPRE34*/
 }
 #endif /* RCC_CFGR_ADCPRE */
@@ -2086,7 +2085,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetADCClockSource(uint32_t ADCx)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetSDADCClockSource(uint32_t SDADCx)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR, SDADCx));
+    return (uint32_t)(READ_BIT(RCC->CFGR, SDADCx));
 }
 #endif /* RCC_CFGR_SDPRE */
 
@@ -2112,7 +2111,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetSDADCClockSource(uint32_t SDADCx)
   */
 __STATIC_INLINE void LL_RCC_SetRTCClockSource(uint32_t Source)
 {
-  MODIFY_REG(RCC->BDCR, RCC_BDCR_RTCSEL, Source);
+    MODIFY_REG(RCC->BDCR, RCC_BDCR_RTCSEL, Source);
 }
 
 /**
@@ -2126,7 +2125,7 @@ __STATIC_INLINE void LL_RCC_SetRTCClockSource(uint32_t Source)
   */
 __STATIC_INLINE uint32_t LL_RCC_GetRTCClockSource(void)
 {
-  return (uint32_t)(READ_BIT(RCC->BDCR, RCC_BDCR_RTCSEL));
+    return (uint32_t)(READ_BIT(RCC->BDCR, RCC_BDCR_RTCSEL));
 }
 
 /**
@@ -2136,7 +2135,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetRTCClockSource(void)
   */
 __STATIC_INLINE void LL_RCC_EnableRTC(void)
 {
-  SET_BIT(RCC->BDCR, RCC_BDCR_RTCEN);
+    SET_BIT(RCC->BDCR, RCC_BDCR_RTCEN);
 }
 
 /**
@@ -2146,7 +2145,7 @@ __STATIC_INLINE void LL_RCC_EnableRTC(void)
   */
 __STATIC_INLINE void LL_RCC_DisableRTC(void)
 {
-  CLEAR_BIT(RCC->BDCR, RCC_BDCR_RTCEN);
+    CLEAR_BIT(RCC->BDCR, RCC_BDCR_RTCEN);
 }
 
 /**
@@ -2156,7 +2155,7 @@ __STATIC_INLINE void LL_RCC_DisableRTC(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledRTC(void)
 {
-  return (READ_BIT(RCC->BDCR, RCC_BDCR_RTCEN) == (RCC_BDCR_RTCEN));
+    return (READ_BIT(RCC->BDCR, RCC_BDCR_RTCEN) == (RCC_BDCR_RTCEN));
 }
 
 /**
@@ -2166,7 +2165,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsEnabledRTC(void)
   */
 __STATIC_INLINE void LL_RCC_ForceBackupDomainReset(void)
 {
-  SET_BIT(RCC->BDCR, RCC_BDCR_BDRST);
+    SET_BIT(RCC->BDCR, RCC_BDCR_BDRST);
 }
 
 /**
@@ -2176,7 +2175,7 @@ __STATIC_INLINE void LL_RCC_ForceBackupDomainReset(void)
   */
 __STATIC_INLINE void LL_RCC_ReleaseBackupDomainReset(void)
 {
-  CLEAR_BIT(RCC->BDCR, RCC_BDCR_BDRST);
+    CLEAR_BIT(RCC->BDCR, RCC_BDCR_BDRST);
 }
 
 /**
@@ -2194,7 +2193,7 @@ __STATIC_INLINE void LL_RCC_ReleaseBackupDomainReset(void)
   */
 __STATIC_INLINE void LL_RCC_PLL_Enable(void)
 {
-  SET_BIT(RCC->CR, RCC_CR_PLLON);
+    SET_BIT(RCC->CR, RCC_CR_PLLON);
 }
 
 /**
@@ -2205,7 +2204,7 @@ __STATIC_INLINE void LL_RCC_PLL_Enable(void)
   */
 __STATIC_INLINE void LL_RCC_PLL_Disable(void)
 {
-  CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
+    CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
 }
 
 /**
@@ -2215,7 +2214,7 @@ __STATIC_INLINE void LL_RCC_PLL_Disable(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_PLL_IsReady(void)
 {
-  return (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == (RCC_CR_PLLRDY));
+    return (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == (RCC_CR_PLLRDY));
 }
 
 #if defined(RCC_PLLSRC_PREDIV1_SUPPORT)
@@ -2264,8 +2263,8 @@ __STATIC_INLINE uint32_t LL_RCC_PLL_IsReady(void)
   */
 __STATIC_INLINE void LL_RCC_PLL_ConfigDomain_SYS(uint32_t Source, uint32_t PLLMul, uint32_t PLLDiv)
 {
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL, Source | PLLMul);
-  MODIFY_REG(RCC->CFGR2, RCC_CFGR2_PREDIV, PLLDiv);
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL, Source | PLLMul);
+    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_PREDIV, PLLDiv);
 }
 
 #else
@@ -2313,8 +2312,8 @@ __STATIC_INLINE void LL_RCC_PLL_ConfigDomain_SYS(uint32_t Source, uint32_t PLLMu
   */
 __STATIC_INLINE void LL_RCC_PLL_ConfigDomain_SYS(uint32_t Source, uint32_t PLLMul)
 {
-  MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL, (Source & RCC_CFGR_PLLSRC) | PLLMul);
-  MODIFY_REG(RCC->CFGR2, RCC_CFGR2_PREDIV, (Source & RCC_CFGR2_PREDIV));
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL, (Source & RCC_CFGR_PLLSRC) | PLLMul);
+    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_PREDIV, (Source & RCC_CFGR2_PREDIV));
 }
 #endif /* RCC_PLLSRC_PREDIV1_SUPPORT */
 
@@ -2330,7 +2329,7 @@ __STATIC_INLINE void LL_RCC_PLL_ConfigDomain_SYS(uint32_t Source, uint32_t PLLMu
   */
 __STATIC_INLINE uint32_t LL_RCC_PLL_GetMainSource(void)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_PLLSRC));
+    return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_PLLSRC));
 }
 
 /**
@@ -2355,7 +2354,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL_GetMainSource(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_PLL_GetMultiplicator(void)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_PLLMUL));
+    return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_PLLMUL));
 }
 
 /**
@@ -2382,7 +2381,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL_GetMultiplicator(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_PLL_GetPrediv(void)
 {
-  return (uint32_t)(READ_BIT(RCC->CFGR2, RCC_CFGR2_PREDIV));
+    return (uint32_t)(READ_BIT(RCC->CFGR2, RCC_CFGR2_PREDIV));
 }
 
 /**
@@ -2400,7 +2399,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL_GetPrediv(void)
   */
 __STATIC_INLINE void LL_RCC_ClearFlag_LSIRDY(void)
 {
-  SET_BIT(RCC->CIR, RCC_CIR_LSIRDYC);
+    SET_BIT(RCC->CIR, RCC_CIR_LSIRDYC);
 }
 
 /**
@@ -2410,7 +2409,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_LSIRDY(void)
   */
 __STATIC_INLINE void LL_RCC_ClearFlag_LSERDY(void)
 {
-  SET_BIT(RCC->CIR, RCC_CIR_LSERDYC);
+    SET_BIT(RCC->CIR, RCC_CIR_LSERDYC);
 }
 
 /**
@@ -2420,7 +2419,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_LSERDY(void)
   */
 __STATIC_INLINE void LL_RCC_ClearFlag_HSIRDY(void)
 {
-  SET_BIT(RCC->CIR, RCC_CIR_HSIRDYC);
+    SET_BIT(RCC->CIR, RCC_CIR_HSIRDYC);
 }
 
 /**
@@ -2430,7 +2429,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_HSIRDY(void)
   */
 __STATIC_INLINE void LL_RCC_ClearFlag_HSERDY(void)
 {
-  SET_BIT(RCC->CIR, RCC_CIR_HSERDYC);
+    SET_BIT(RCC->CIR, RCC_CIR_HSERDYC);
 }
 
 /**
@@ -2440,7 +2439,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_HSERDY(void)
   */
 __STATIC_INLINE void LL_RCC_ClearFlag_PLLRDY(void)
 {
-  SET_BIT(RCC->CIR, RCC_CIR_PLLRDYC);
+    SET_BIT(RCC->CIR, RCC_CIR_PLLRDYC);
 }
 
 /**
@@ -2450,7 +2449,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_PLLRDY(void)
   */
 __STATIC_INLINE void LL_RCC_ClearFlag_HSECSS(void)
 {
-  SET_BIT(RCC->CIR, RCC_CIR_CSSC);
+    SET_BIT(RCC->CIR, RCC_CIR_CSSC);
 }
 
 /**
@@ -2460,7 +2459,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_HSECSS(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LSIRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_LSIRDYF) == (RCC_CIR_LSIRDYF));
+    return (READ_BIT(RCC->CIR, RCC_CIR_LSIRDYF) == (RCC_CIR_LSIRDYF));
 }
 
 /**
@@ -2470,7 +2469,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LSIRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LSERDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_LSERDYF) == (RCC_CIR_LSERDYF));
+    return (READ_BIT(RCC->CIR, RCC_CIR_LSERDYF) == (RCC_CIR_LSERDYF));
 }
 
 /**
@@ -2480,7 +2479,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LSERDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSIRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_HSIRDYF) == (RCC_CIR_HSIRDYF));
+    return (READ_BIT(RCC->CIR, RCC_CIR_HSIRDYF) == (RCC_CIR_HSIRDYF));
 }
 
 /**
@@ -2490,7 +2489,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSIRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSERDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_HSERDYF) == (RCC_CIR_HSERDYF));
+    return (READ_BIT(RCC->CIR, RCC_CIR_HSERDYF) == (RCC_CIR_HSERDYF));
 }
 
 #if defined(RCC_CFGR_MCOF)
@@ -2501,7 +2500,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSERDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_MCO1(void)
 {
-  return (READ_BIT(RCC->CFGR, RCC_CFGR_MCOF) == (RCC_CFGR_MCOF));
+    return (READ_BIT(RCC->CFGR, RCC_CFGR_MCOF) == (RCC_CFGR_MCOF));
 }
 #endif /* RCC_CFGR_MCOF */
 
@@ -2512,7 +2511,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_MCO1(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PLLRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_PLLRDYF) == (RCC_CIR_PLLRDYF));
+    return (READ_BIT(RCC->CIR, RCC_CIR_PLLRDYF) == (RCC_CIR_PLLRDYF));
 }
 
 /**
@@ -2522,7 +2521,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PLLRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSECSS(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_CSSF) == (RCC_CIR_CSSF));
+    return (READ_BIT(RCC->CIR, RCC_CIR_CSSF) == (RCC_CIR_CSSF));
 }
 
 /**
@@ -2532,7 +2531,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSECSS(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_IWDGRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_IWDGRSTF) == (RCC_CSR_IWDGRSTF));
+    return (READ_BIT(RCC->CSR, RCC_CSR_IWDGRSTF) == (RCC_CSR_IWDGRSTF));
 }
 
 /**
@@ -2542,7 +2541,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_IWDGRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LPWRRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_LPWRRSTF) == (RCC_CSR_LPWRRSTF));
+    return (READ_BIT(RCC->CSR, RCC_CSR_LPWRRSTF) == (RCC_CSR_LPWRRSTF));
 }
 
 /**
@@ -2552,7 +2551,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LPWRRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_OBLRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_OBLRSTF) == (RCC_CSR_OBLRSTF));
+    return (READ_BIT(RCC->CSR, RCC_CSR_OBLRSTF) == (RCC_CSR_OBLRSTF));
 }
 
 /**
@@ -2562,7 +2561,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_OBLRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PINRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_PINRSTF) == (RCC_CSR_PINRSTF));
+    return (READ_BIT(RCC->CSR, RCC_CSR_PINRSTF) == (RCC_CSR_PINRSTF));
 }
 
 /**
@@ -2572,7 +2571,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PINRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PORRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_PORRSTF) == (RCC_CSR_PORRSTF));
+    return (READ_BIT(RCC->CSR, RCC_CSR_PORRSTF) == (RCC_CSR_PORRSTF));
 }
 
 /**
@@ -2582,7 +2581,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_PORRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_SFTRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_SFTRSTF) == (RCC_CSR_SFTRSTF));
+    return (READ_BIT(RCC->CSR, RCC_CSR_SFTRSTF) == (RCC_CSR_SFTRSTF));
 }
 
 /**
@@ -2592,7 +2591,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_SFTRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_WWDGRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_WWDGRSTF) == (RCC_CSR_WWDGRSTF));
+    return (READ_BIT(RCC->CSR, RCC_CSR_WWDGRSTF) == (RCC_CSR_WWDGRSTF));
 }
 
 #if defined(RCC_CSR_V18PWRRSTF)
@@ -2603,7 +2602,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_WWDGRST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_V18PWRRST(void)
 {
-  return (READ_BIT(RCC->CSR, RCC_CSR_V18PWRRSTF) == (RCC_CSR_V18PWRRSTF));
+    return (READ_BIT(RCC->CSR, RCC_CSR_V18PWRRSTF) == (RCC_CSR_V18PWRRSTF));
 }
 #endif /* RCC_CSR_V18PWRRSTF */
 
@@ -2614,7 +2613,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_V18PWRRST(void)
   */
 __STATIC_INLINE void LL_RCC_ClearResetFlags(void)
 {
-  SET_BIT(RCC->CSR, RCC_CSR_RMVF);
+    SET_BIT(RCC->CSR, RCC_CSR_RMVF);
 }
 
 /**
@@ -2632,7 +2631,7 @@ __STATIC_INLINE void LL_RCC_ClearResetFlags(void)
   */
 __STATIC_INLINE void LL_RCC_EnableIT_LSIRDY(void)
 {
-  SET_BIT(RCC->CIR, RCC_CIR_LSIRDYIE);
+    SET_BIT(RCC->CIR, RCC_CIR_LSIRDYIE);
 }
 
 /**
@@ -2642,7 +2641,7 @@ __STATIC_INLINE void LL_RCC_EnableIT_LSIRDY(void)
   */
 __STATIC_INLINE void LL_RCC_EnableIT_LSERDY(void)
 {
-  SET_BIT(RCC->CIR, RCC_CIR_LSERDYIE);
+    SET_BIT(RCC->CIR, RCC_CIR_LSERDYIE);
 }
 
 /**
@@ -2652,7 +2651,7 @@ __STATIC_INLINE void LL_RCC_EnableIT_LSERDY(void)
   */
 __STATIC_INLINE void LL_RCC_EnableIT_HSIRDY(void)
 {
-  SET_BIT(RCC->CIR, RCC_CIR_HSIRDYIE);
+    SET_BIT(RCC->CIR, RCC_CIR_HSIRDYIE);
 }
 
 /**
@@ -2662,7 +2661,7 @@ __STATIC_INLINE void LL_RCC_EnableIT_HSIRDY(void)
   */
 __STATIC_INLINE void LL_RCC_EnableIT_HSERDY(void)
 {
-  SET_BIT(RCC->CIR, RCC_CIR_HSERDYIE);
+    SET_BIT(RCC->CIR, RCC_CIR_HSERDYIE);
 }
 
 /**
@@ -2672,7 +2671,7 @@ __STATIC_INLINE void LL_RCC_EnableIT_HSERDY(void)
   */
 __STATIC_INLINE void LL_RCC_EnableIT_PLLRDY(void)
 {
-  SET_BIT(RCC->CIR, RCC_CIR_PLLRDYIE);
+    SET_BIT(RCC->CIR, RCC_CIR_PLLRDYIE);
 }
 
 /**
@@ -2682,7 +2681,7 @@ __STATIC_INLINE void LL_RCC_EnableIT_PLLRDY(void)
   */
 __STATIC_INLINE void LL_RCC_DisableIT_LSIRDY(void)
 {
-  CLEAR_BIT(RCC->CIR, RCC_CIR_LSIRDYIE);
+    CLEAR_BIT(RCC->CIR, RCC_CIR_LSIRDYIE);
 }
 
 /**
@@ -2692,7 +2691,7 @@ __STATIC_INLINE void LL_RCC_DisableIT_LSIRDY(void)
   */
 __STATIC_INLINE void LL_RCC_DisableIT_LSERDY(void)
 {
-  CLEAR_BIT(RCC->CIR, RCC_CIR_LSERDYIE);
+    CLEAR_BIT(RCC->CIR, RCC_CIR_LSERDYIE);
 }
 
 /**
@@ -2702,7 +2701,7 @@ __STATIC_INLINE void LL_RCC_DisableIT_LSERDY(void)
   */
 __STATIC_INLINE void LL_RCC_DisableIT_HSIRDY(void)
 {
-  CLEAR_BIT(RCC->CIR, RCC_CIR_HSIRDYIE);
+    CLEAR_BIT(RCC->CIR, RCC_CIR_HSIRDYIE);
 }
 
 /**
@@ -2712,7 +2711,7 @@ __STATIC_INLINE void LL_RCC_DisableIT_HSIRDY(void)
   */
 __STATIC_INLINE void LL_RCC_DisableIT_HSERDY(void)
 {
-  CLEAR_BIT(RCC->CIR, RCC_CIR_HSERDYIE);
+    CLEAR_BIT(RCC->CIR, RCC_CIR_HSERDYIE);
 }
 
 /**
@@ -2722,7 +2721,7 @@ __STATIC_INLINE void LL_RCC_DisableIT_HSERDY(void)
   */
 __STATIC_INLINE void LL_RCC_DisableIT_PLLRDY(void)
 {
-  CLEAR_BIT(RCC->CIR, RCC_CIR_PLLRDYIE);
+    CLEAR_BIT(RCC->CIR, RCC_CIR_PLLRDYIE);
 }
 
 /**
@@ -2732,7 +2731,7 @@ __STATIC_INLINE void LL_RCC_DisableIT_PLLRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_LSIRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_LSIRDYIE) == (RCC_CIR_LSIRDYIE));
+    return (READ_BIT(RCC->CIR, RCC_CIR_LSIRDYIE) == (RCC_CIR_LSIRDYIE));
 }
 
 /**
@@ -2742,7 +2741,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_LSIRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_LSERDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_LSERDYIE) == (RCC_CIR_LSERDYIE));
+    return (READ_BIT(RCC->CIR, RCC_CIR_LSERDYIE) == (RCC_CIR_LSERDYIE));
 }
 
 /**
@@ -2752,7 +2751,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_LSERDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_HSIRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_HSIRDYIE) == (RCC_CIR_HSIRDYIE));
+    return (READ_BIT(RCC->CIR, RCC_CIR_HSIRDYIE) == (RCC_CIR_HSIRDYIE));
 }
 
 /**
@@ -2762,7 +2761,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_HSIRDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_HSERDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_HSERDYIE) == (RCC_CIR_HSERDYIE));
+    return (READ_BIT(RCC->CIR, RCC_CIR_HSERDYIE) == (RCC_CIR_HSERDYIE));
 }
 
 /**
@@ -2772,7 +2771,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_HSERDY(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsEnabledIT_PLLRDY(void)
 {
-  return (READ_BIT(RCC->CIR, RCC_CIR_PLLRDYIE) == (RCC_CIR_PLLRDYIE));
+    return (READ_BIT(RCC->CIR, RCC_CIR_PLLRDYIE) == (RCC_CIR_PLLRDYIE));
 }
 
 /**

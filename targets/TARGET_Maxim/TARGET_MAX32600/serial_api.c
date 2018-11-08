@@ -69,7 +69,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     MBED_ASSERT(uart != (UARTName)NC);
 
     // Set the obj pointer to the proper uart
-    obj->uart = (mxc_uart_regs_t*)uart;
+    obj->uart = (mxc_uart_regs_t *)uart;
 
     // Set the uart index
     obj->index = MXC_UART_BASE_TO_INSTANCE(obj->uart);
@@ -79,7 +79,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     pinmap_pinout(rx, PinMap_UART_RX);
 
     // Flush the RX and TX FIFOs, clear the settings
-    obj->uart->ctrl = ( MXC_F_UART_CTRL_TX_FIFO_FLUSH |  MXC_F_UART_CTRL_RX_FIFO_FLUSH);
+    obj->uart->ctrl = (MXC_F_UART_CTRL_TX_FIFO_FLUSH |  MXC_F_UART_CTRL_RX_FIFO_FLUSH);
 
     // Disable interrupts
     obj->uart->inten = 0;
@@ -90,7 +90,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     serial_format(obj, 8, ParityNone, 1);
 
     // Manage stdio UART
-    if(uart == STDIO_UART) {
+    if (uart == STDIO_UART) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
@@ -164,16 +164,16 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 }
 
 //******************************************************************************
-void uart_handler(mxc_uart_regs_t* uart, int id)
+void uart_handler(mxc_uart_regs_t *uart, int id)
 {
     // Check for errors or RX Threshold
-    if(uart->intfl & (MXC_F_UART_INTFL_RX_OVER_THRESHOLD | UART_ERRORS)) {
+    if (uart->intfl & (MXC_F_UART_INTFL_RX_OVER_THRESHOLD | UART_ERRORS)) {
         irq_handler(serial_irq_ids[id], RxIrq);
         uart->intfl &= ~(MXC_F_UART_INTFL_RX_OVER_THRESHOLD | UART_ERRORS);
     }
 
     // Check for TX Threshold
-    if(uart->intfl & MXC_F_UART_INTFL_TX_ALMOST_EMPTY) {
+    if (uart->intfl & MXC_F_UART_INTFL_TX_ALMOST_EMPTY) {
         irq_handler(serial_irq_ids[id], TxIrq);
         uart->intfl &= ~(MXC_F_UART_INTFL_TX_ALMOST_EMPTY);
     }
@@ -198,7 +198,7 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 //******************************************************************************
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
-    if(obj->index == 0) {
+    if (obj->index == 0) {
         NVIC_SetVector(UART0_IRQn, (uint32_t)uart0_handler);
         NVIC_EnableIRQ(UART0_IRQn);
     } else {
@@ -206,12 +206,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         NVIC_EnableIRQ(UART1_IRQn);
     }
 
-    if(irq == RxIrq) {
+    if (irq == RxIrq) {
         // Set the RX FIFO Threshold to 1
         obj->uart->ctrl &= ~MXC_F_UART_CTRL_RX_THRESHOLD;
         obj->uart->ctrl |= 0x1;
         // Enable RX FIFO Threshold Interrupt
-        if(enable) {
+        if (enable) {
             // Clear pending interrupts
             obj->uart->intfl = 0;
             obj->uart->inten |= (MXC_F_UART_INTFL_RX_OVER_THRESHOLD |
@@ -225,7 +225,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
     } else if (irq == TxIrq) {
         // Enable TX Almost empty Interrupt
-        if(enable) {
+        if (enable) {
             // Clear pending interrupts
             obj->uart->intfl = 0;
             obj->uart->inten |= MXC_F_UART_INTFL_TX_ALMOST_EMPTY;
@@ -247,7 +247,7 @@ int serial_getc(serial_t *obj)
     int c;
 
     // Wait for data to be available
-    while(obj->uart->status & MXC_F_UART_STATUS_RX_FIFO_EMPTY) {}
+    while (obj->uart->status & MXC_F_UART_STATUS_RX_FIFO_EMPTY) {}
     c = obj->uart->tx_rx_fifo & 0xFF;
 
     return c;
@@ -257,7 +257,7 @@ int serial_getc(serial_t *obj)
 void serial_putc(serial_t *obj, int c)
 {
     // Wait for TXFIFO to not be full
-    while(obj->uart->status & MXC_F_UART_STATUS_TX_FIFO_FULL) {}
+    while (obj->uart->status & MXC_F_UART_STATUS_TX_FIFO_FULL) {}
     obj->uart->tx_rx_fifo = c;
 }
 
@@ -277,7 +277,7 @@ int serial_writable(serial_t *obj)
 void serial_clear(serial_t *obj)
 {
     // Clear the rx and tx fifos
-    obj->uart->ctrl |= (MXC_F_UART_CTRL_TX_FIFO_FLUSH  | MXC_F_UART_CTRL_RX_FIFO_FLUSH );
+    obj->uart->ctrl |= (MXC_F_UART_CTRL_TX_FIFO_FLUSH  | MXC_F_UART_CTRL_RX_FIFO_FLUSH);
 }
 
 //******************************************************************************
@@ -361,7 +361,7 @@ void serial_pinout_tx(PinName tx)
 //******************************************************************************
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
-    if(FlowControlNone == type) {
+    if (FlowControlNone == type) {
         // Disable hardware flow control
         obj->uart->ctrl &= ~(MXC_F_UART_CTRL_HW_FLOW_CTRL_EN);
         return;
@@ -372,7 +372,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     UARTName uart_rts = (UARTName)pinmap_peripheral(rxflow, PinMap_UART_RTS);
     UARTName uart = (UARTName)pinmap_merge(uart_cts, uart_rts);
 
-    if((FlowControlCTS == type) || (FlowControlRTSCTS== type)) {
+    if ((FlowControlCTS == type) || (FlowControlRTSCTS == type)) {
         // Make sure pin is in the PinMap
         MBED_ASSERT(uart_cts != (UARTName)NC);
 
@@ -380,7 +380,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         pinmap_pinout(txflow, PinMap_UART_CTS);
     }
 
-    if((FlowControlRTS == type) || (FlowControlRTSCTS== type))  {
+    if ((FlowControlRTS == type) || (FlowControlRTSCTS == type))  {
         // Make sure pin is in the PinMap
         MBED_ASSERT(uart_rts != (UARTName)NC);
 
@@ -388,7 +388,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         pinmap_pinout(rxflow, PinMap_UART_RTS);
     }
 
-    if(FlowControlRTSCTS == type){ 
+    if (FlowControlRTSCTS == type) {
         // Make sure that the pins are pointing to the same UART
         MBED_ASSERT(uart != (UARTName)NC);
     }

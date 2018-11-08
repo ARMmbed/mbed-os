@@ -63,7 +63,8 @@ public:
         receiveBufferIndex(0),
         txCharacteristic(UARTServiceTXCharacteristicUUID, receiveBuffer, 1, BLE_UART_SERVICE_MAX_DATA_LEN,
                          GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE_WITHOUT_RESPONSE),
-        rxCharacteristic(UARTServiceRXCharacteristicUUID, sendBuffer, 1, BLE_UART_SERVICE_MAX_DATA_LEN, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) {
+        rxCharacteristic(UARTServiceRXCharacteristicUUID, sendBuffer, 1, BLE_UART_SERVICE_MAX_DATA_LEN, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)
+    {
         GattCharacteristic *charTable[] = {&txCharacteristic, &rxCharacteristic};
         GattService         uartService(UARTServiceUUID, charTable, sizeof(charTable) / sizeof(GattCharacteristic *));
 
@@ -74,14 +75,16 @@ public:
     /**
      * Note: TX and RX characteristics are to be interpreted from the viewpoint of the GATT client using this service.
      */
-    uint16_t getTXCharacteristicHandle() {
+    uint16_t getTXCharacteristicHandle()
+    {
         return txCharacteristic.getValueAttribute().getHandle();
     }
 
     /**
      * Note: TX and RX characteristics are to be interpreted from the viewpoint of the GATT client using this service.
      */
-    uint16_t getRXCharacteristicHandle() {
+    uint16_t getRXCharacteristicHandle()
+    {
         return rxCharacteristic.getValueAttribute().getHandle();
     }
 
@@ -102,7 +105,8 @@ public:
      * @param  length Number of characters to be appended.
      * @return        Number of characters appended to the rxCharacteristic.
      */
-    size_t write(const void *_buffer, size_t length) {
+    size_t write(const void *_buffer, size_t length)
+    {
         size_t         origLength = length;
         const uint8_t *buffer     = static_cast<const uint8_t *>(_buffer);
 
@@ -120,8 +124,8 @@ public:
 
                 /* Have we collected enough? */
                 if ((sendBufferIndex == BLE_UART_SERVICE_MAX_DATA_LEN) ||
-                    // (sendBuffer[sendBufferIndex - 1] == '\r')          ||
-                    (sendBuffer[sendBufferIndex - 1] == '\n')) {
+                        // (sendBuffer[sendBufferIndex - 1] == '\r')          ||
+                        (sendBuffer[sendBufferIndex - 1] == '\n')) {
                     ble.gattServer().write(getRXCharacteristicHandle(), static_cast<const uint8_t *>(sendBuffer), sendBufferIndex);
                     sendBufferIndex = 0;
                 }
@@ -136,7 +140,8 @@ public:
      * @param  str The received string.
      * @return     Number of characters appended to the rxCharacteristic.
      */
-    size_t writeString(const char *str) {
+    size_t writeString(const char *str)
+    {
         return write(str, strlen(str));
     }
 
@@ -144,7 +149,8 @@ public:
      * Flush sendBuffer, i.e., forcefully write its contents to the UART RX
      * characteristic even if the buffer is not full.
      */
-    void flush() {
+    void flush()
+    {
         if (ble.getGapState().connected) {
             if (sendBufferIndex != 0) {
                 ble.gattServer().write(getRXCharacteristicHandle(), static_cast<const uint8_t *>(sendBuffer), sendBufferIndex);
@@ -160,7 +166,8 @@ public:
      * @return
      *     The character written as an unsigned char cast to an int or EOF on error.
      */
-    int _putc(int c) {
+    int _putc(int c)
+    {
         return (write(&c, 1) == 1) ? 1 : EOF;
     }
 
@@ -169,7 +176,8 @@ public:
      * @return
      *     The character read.
      */
-    int _getc() {
+    int _getc()
+    {
         if (receiveBufferIndex == numBytesReceived) {
             return EOF;
         }
@@ -184,7 +192,8 @@ protected:
      * function from the global onDataWritten() callback handler; if that's
      * not used, this method can be used as a callback directly.
      */
-    void onDataWritten(const GattWriteCallbackParams *params) {
+    void onDataWritten(const GattWriteCallbackParams *params)
+    {
         if (params->handle == getTXCharacteristicHandle()) {
             uint16_t bytesRead = params->len;
             if (bytesRead <= BLE_UART_SERVICE_MAX_DATA_LEN) {

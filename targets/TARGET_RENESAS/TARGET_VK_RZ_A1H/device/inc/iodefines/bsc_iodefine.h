@@ -30,8 +30,8 @@
 #define BSC_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_bsc
-{                                                          /* BSC              */
+struct st_bsc {
+    /* BSC              */
     volatile uint32_t  CMNCR;                                  /*  CMNCR           */
 #define BSC_CSnBCR_COUNT 6
     volatile uint32_t  CS0BCR;                                 /*  CS0BCR          */

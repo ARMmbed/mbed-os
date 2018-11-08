@@ -39,13 +39,13 @@ const PinMap PinMap_ADC[] = {
     {PTD1,  ADC0_SE5b, 0},
     {PTD5,  ADC0_SE6b, 0},
     {PTD6,  ADC0_SE7b, 0},
-    {NC   , NC       , 0}
+    {NC, NC, 0}
 };
 
 /************DAC***************/
 const PinMap PinMap_DAC[] = {
     {DAC0_OUT, DAC_0, 0},
-    {NC      , NC   , 0}
+    {NC, NC, 0}
 };
 
 /************I2C***************/
@@ -63,7 +63,7 @@ const PinMap PinMap_I2C_SDA[] = {
     {PTC11, I2C_1, 2},
     {PTD3,  I2C_0, 7},
     {PTD9,  I2C_0, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
@@ -80,7 +80,7 @@ const PinMap PinMap_I2C_SCL[] = {
     {PTC10, I2C_1, 2},
     {PTD2,  I2C_0, 7},
     {PTD8,  I2C_0, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 /************UART***************/
@@ -99,7 +99,7 @@ const PinMap PinMap_UART_TX[] = {
     {PTC17, LPUART_3, 3},
     {PTD3,  LPUART_2, 3},
     {PTD7,  LPUART_0, 3},
-    {NC  ,  NC    , 0}
+    {NC,  NC, 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
@@ -117,7 +117,7 @@ const PinMap PinMap_UART_RX[] = {
     {PTC16, LPUART_3, 3},
     {PTD2,  LPUART_2, 3},
     {PTD6,  LPUART_0, 3},
-    {NC  ,  NC    , 0}
+    {NC,  NC, 0}
 };
 
 const PinMap PinMap_UART_CTS[] = {
@@ -133,7 +133,7 @@ const PinMap PinMap_UART_CTS[] = {
     {PTC19, LPUART_3, 3},
     {PTD1,  LPUART_2, 3},
     {PTD5,  LPUART_0, 3},
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_UART_RTS[] = {
@@ -149,7 +149,7 @@ const PinMap PinMap_UART_RTS[] = {
     {PTC18, LPUART_3, 3},
     {PTD0,  LPUART_2, 3},
     {PTD4,  LPUART_0, 3},
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 /************SPI***************/
@@ -165,7 +165,7 @@ const PinMap PinMap_SPI_SCLK[] = {
     {PTD1,  SPI_0, 2},
     {PTD5,  SPI_1, 7},
     {PTD12, SPI_2, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
@@ -181,7 +181,7 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PTD2,  SPI_0, 2},
     {PTD6,  SPI_1, 7},
     {PTD13, SPI_2, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
@@ -196,7 +196,7 @@ const PinMap PinMap_SPI_MISO[] = {
     {PTD3,  SPI_0, 2},
     {PTD7,  SPI_1, 7},
     {PTD14, SPI_2, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
@@ -210,7 +210,7 @@ const PinMap PinMap_SPI_SSEL[] = {
     {PTD0,  SPI_0, 2},
     {PTD4,  SPI_1, 7},
     {PTD11, SPI_2, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 /************PWM***************/
@@ -263,5 +263,5 @@ const PinMap PinMap_PWM[] = {
     {PTD2,  PWM_15, 4},
     {PTD3,  PWM_16, 4},
 
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };

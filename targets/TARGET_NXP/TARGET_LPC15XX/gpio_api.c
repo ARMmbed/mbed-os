@@ -19,41 +19,48 @@
 
 static int  gpio_enabled = 0;
 
-static void gpio_enable(void) {
+static void gpio_enable(void)
+{
     gpio_enabled = 1;
-    
+
     /* Enable AHB clock to the GPIO0/1/2 and IOCON domain. */
     LPC_SYSCON->SYSAHBCLKCTRL0 |= (0xFUL << 13);
 }
 
-uint32_t gpio_set(PinName pin) {
+uint32_t gpio_set(PinName pin)
+{
     MBED_ASSERT(pin != (PinName)NC);
-    if (!gpio_enabled)
-         gpio_enable();
-    
+    if (!gpio_enabled) {
+        gpio_enable();
+    }
+
     return (1UL << ((int)pin & 0x1f));
 }
 
-void gpio_init(gpio_t *obj, PinName pin) {
+void gpio_init(gpio_t *obj, PinName pin)
+{
     obj->pin = pin;
-    if (pin == (PinName)NC)
+    if (pin == (PinName)NC) {
         return;
+    }
 
     obj->mask = gpio_set(pin);
-    
+
     unsigned int port = (unsigned int)(pin >> 5);
-    
+
     obj->reg_set = &LPC_GPIO_PORT->SET[port];
     obj->reg_clr = &LPC_GPIO_PORT->CLR[port];
     obj->reg_in  = &LPC_GPIO_PORT->PIN[port];
     obj->reg_dir = &LPC_GPIO_PORT->DIR[port];
 }
 
-void gpio_mode(gpio_t *obj, PinMode mode) {
+void gpio_mode(gpio_t *obj, PinMode mode)
+{
     pin_mode(obj->pin, mode);
 }
 
-void gpio_dir(gpio_t *obj, PinDirection direction) {
+void gpio_dir(gpio_t *obj, PinDirection direction)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     switch (direction) {
         case PIN_INPUT :

@@ -29,27 +29,27 @@ static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
 extern uint8_t g_sys_init;
 
-static IRQn_Type pin_to_irq (uint32_t pin);
+static IRQn_Type pin_to_irq(uint32_t pin);
 
 void gpio_irq_common_handler(uint32_t port_id)
 {
     uint32_t i = 0, status = 0, mask = 0, temp = 0;
     gpio_irq_event event;
 
-    Pio* pio_base = arch_ioport_port_to_base(port_id);
+    Pio *pio_base = arch_ioport_port_to_base(port_id);
     mask = pio_base->PIO_IMR;
     status = pio_base->PIO_ISR;
     status = status & mask;
 
     for (i = 0; i < MAX_PINS_IN_PORT ; i++) {
-        temp = (1 << i );
-        if (status & temp ) {
-            if((pio_base->PIO_PDSR) & temp) {
+        temp = (1 << i);
+        if (status & temp) {
+            if ((pio_base->PIO_PDSR) & temp) {
                 event = IRQ_RISE;
             } else {
                 event = IRQ_FALL;
             }
-            if(irq_handler) {
+            if (irq_handler) {
                 irq_handler(channel_ids[(port_id * 32) + i], event);
             }
         }
@@ -69,8 +69,9 @@ void gpio_irq_portb(void)
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
 {
     MBED_ASSERT(obj);
-    if (pin == NC)
+    if (pin == NC) {
         return -1;
+    }
     if (g_sys_init == 0) {
         sysclk_init();
         system_board_init();
@@ -81,7 +82,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     uint32_t port_id;
     uint32_t vector = 0;
     uint8_t int_channel = 0;
-    Pio* pio_base;
+    Pio *pio_base;
 
     irq_handler = handler;  // assuming the usage of these apis in mbed layer only
     int_channel = ((pin / 32) * 32)  + (pin % 32); /*to get the channel to be used*/
@@ -122,7 +123,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     MBED_ASSERT(obj);
     uint32_t mask = 0;
 
-    Pio* pio_base = arch_ioport_port_to_base(arch_ioport_pin_to_port_id(obj->pin));
+    Pio *pio_base = arch_ioport_port_to_base(arch_ioport_pin_to_port_id(obj->pin));
     mask = (1 << (obj->pin % 32));
 
     if (enable) {
@@ -158,7 +159,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     }
 }
 
-static IRQn_Type pin_to_irq (uint32_t pin)
+static IRQn_Type pin_to_irq(uint32_t pin)
 {
     uint32_t port_id;
     IRQn_Type irq_n = (IRQn_Type)0;

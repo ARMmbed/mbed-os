@@ -16,7 +16,7 @@
  * Component   : RTSL
  * File        : cb_status.h
  *
- * Description : Common RTSL status codes 
+ * Description : Common RTSL status codes
  *-------------------------------------------------------------------------*/
 #ifndef _CB_STATUS_H_
 #define _CB_STATUS_H_
@@ -33,15 +33,14 @@
  * TYPES
  *=========================================================================*/
 
- typedef enum
- {
+typedef enum {
     cbSTATUS_OK,
     cbSTATUS_ERROR,
     cbSTATUS_BUSY,
     cbSTATUS_RECEIVE_DATA_MODE,
     cbSTATUS_TIMEOUT
- 
- } cbRTSL_Status;
+
+} cbRTSL_Status;
 
 #endif /* _CB_STATUS_H_ */
 

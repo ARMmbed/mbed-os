@@ -68,10 +68,10 @@
  * @ingroup lwip_opts
  */
 
- /*
-   ------------------------------------
-   -------------- NO SYS --------------
-   ------------------------------------
+/*
+  ------------------------------------
+  -------------- NO SYS --------------
+  ------------------------------------
 */
 /**
  * @defgroup lwip_opts_nosys NO_SYS
@@ -2575,8 +2575,8 @@
  * - src: source eth address
  * - dst: destination eth address
  * - eth_type: ethernet type to packet to be sent\n
- * 
- * 
+ *
+ *
  * Return values:
  * - &lt;0: Packet shall not contain VLAN header.
  * - 0 &lt;= return value &lt;= 0xFFFF: Packet shall contain VLAN header. Return value is prio_vid in host byte order.

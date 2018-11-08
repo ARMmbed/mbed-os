@@ -226,8 +226,9 @@ static uint32_t twi_mk_addr(const uint8_t *addr, int len)
 {
     uint32_t val;
 
-    if (len == 0)
+    if (len == 0) {
         return 0;
+    }
 
     val = addr[0];
     if (len > 1) {

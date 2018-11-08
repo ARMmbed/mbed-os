@@ -49,13 +49,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Default to ADuCM4050 if no processor macro is defined. */
 
 #if !defined(__ADUCM4050__)
-  #define __ADUCM4050__
+#define __ADUCM4050__
 #endif
 
 /* Define a family macro */
 
 #if !defined(__ADUCM4x50__)
-  #define __ADUCM4x50__
+#define __ADUCM4x50__
 #endif
 
 /* Include CMSIS device header for selected target processor. */

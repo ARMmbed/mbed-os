@@ -66,11 +66,10 @@ extern wsfHandlerId_t WsfActiveHandler;
 **************************************************************************************************/
 
 /*! Common message structure passed to event handler */
-typedef struct
-{
-  uint16_t        param;          /*! General purpose parameter passed to event handler */
-  uint8_t         event;          /*! General purpose event value passed to event handler */
-  uint8_t         status;         /*! General purpose status value passed to event handler */
+typedef struct {
+    uint16_t        param;          /*! General purpose parameter passed to event handler */
+    uint8_t         event;          /*! General purpose event value passed to event handler */
+    uint8_t         status;         /*! General purpose status value passed to event handler */
 } wsfMsgHdr_t;
 
 /**************************************************************************************************

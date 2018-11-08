@@ -32,8 +32,8 @@
 static uint32_t initialized = 0;
 const char *system_core_version = SYSTEM_CORE_VERSION();
 
- /* Get System Core Version */
-const char* SystemCoreGetVersion()
+/* Get System Core Version */
+const char *SystemCoreGetVersion()
 {
-     return system_core_version;
+    return system_core_version;
 }

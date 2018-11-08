@@ -240,12 +240,12 @@ int rtc_isenabled(void)
 
 time_t rtc_read(void)
 {
-    return (time_t) (rtc_get_full() >> RTC_FREQ_SHIFT) + time_base;
+    return (time_t)(rtc_get_full() >> RTC_FREQ_SHIFT) + time_base;
 }
 
 time_t rtc_read_uncompensated(void)
 {
-    return (time_t) (rtc_get_full() >> RTC_FREQ_SHIFT);
+    return (time_t)(rtc_get_full() >> RTC_FREQ_SHIFT);
 }
 
 void rtc_write(time_t t)

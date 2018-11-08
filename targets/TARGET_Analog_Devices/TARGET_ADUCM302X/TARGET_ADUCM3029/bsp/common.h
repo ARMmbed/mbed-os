@@ -1,7 +1,7 @@
 /*!
  *****************************************************************************
  * @file:    common.h
- * @brief:   Common include file for all example 
+ * @brief:   Common include file for all example
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2016 Analog Devices, Inc.
@@ -77,11 +77,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
-/* Enable REDIRECT_OUTPUT_TO_UART to send the output to UART terminal. 
+/* Enable REDIRECT_OUTPUT_TO_UART to send the output to UART terminal.
 This requires the UART Driver(adi_uart.c) to be included in the project */
-/* #define REDIRECT_OUTPUT_TO_UART */  
+/* #define REDIRECT_OUTPUT_TO_UART */
 
-extern char aDebugString[150]; 
+extern char aDebugString[150];
 
 #ifdef __ICCARM__
 /*

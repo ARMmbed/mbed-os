@@ -469,7 +469,7 @@ public:
      * @param Pointer to a buffer to hold the accelerometer value for the
      *        x-axis, y-axis and z-axis [in that order].
      */
-    void getOutput(int* readings);
+    void getOutput(int *readings);
 
     /**
      * Get the FIFO control settings.
@@ -521,7 +521,7 @@ private:
      * @param buffer Pointer to a buffer to store data read from the device.
      * @param size The number of bytes to read.
      */
-    void multiByteRead(int startAddress, char* buffer, int size);
+    void multiByteRead(int startAddress, char *buffer, int size);
 
     /**
      * Write several consecutive bytes on the device.
@@ -530,7 +530,7 @@ private:
      * @param buffer Pointer to a buffer which contains the data to write.
      * @param size The number of bytes to write.
      */
-    void multiByteWrite(int startAddress, char* buffer, int size);
+    void multiByteWrite(int startAddress, char *buffer, int size);
 
 };
 

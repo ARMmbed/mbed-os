@@ -4,7 +4,7 @@
  * @brief   This file provides API functions for ADC driver.
  * @version V2.0.2.1
  * @date    2015/10/09
- * 
+ *
  * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
  *******************************************************************************
  */
@@ -18,7 +18,7 @@
   * @{
   */
 
-/** @defgroup ADC 
+/** @defgroup ADC
   * @brief ADC driver modules
   * @{
   */
@@ -200,7 +200,7 @@ ADC_State ADC_GetConvertState(void)
   * @param  InputChannel: Analog input channel, it also related with other settings.
   *   This parameter can be one of the following values:
   *   ADC_AN_0, ADC_AN_1, ADC_AN_2, ADC_AN_3,
-  *   ADC_AN_4, ADC_AN_5, ADC_AN_6, ADC_AN_7.  
+  *   ADC_AN_4, ADC_AN_5, ADC_AN_6, ADC_AN_7.
   * @retval None.
   */
 void ADC_SetInputChannel(uint32_t InputChannel)
@@ -450,35 +450,35 @@ ADC_ResultTypeDef ADC_GetConvertResult(uint32_t ADREGx)
     assert_param(IS_ADC_REG(ADREGx));
     /* Read ADREGx<ADRx[9:0]> to get ADC result */
     switch (ADREGx) {
-    case ADC_REG_0:
-        tmp = TSB_AD->REG0;
-        break;
-    case ADC_REG_1:
-        tmp = TSB_AD->REG1;
-        break;
-    case ADC_REG_2:
-        tmp = TSB_AD->REG2;
-        break;
-    case ADC_REG_3:
-        tmp = TSB_AD->REG3;
-        break;
-    case ADC_REG_4:
-        tmp = TSB_AD->REG4;
-        break;
-    case ADC_REG_5:
-        tmp = TSB_AD->REG5;
-        break;
-    case ADC_REG_6:
-        tmp = TSB_AD->REG6;
-        break;
-    case ADC_REG_7:
-        tmp = TSB_AD->REG7;
-        break;
-    case ADC_REG_SP:
-        tmp = TSB_AD->REGSP;
-        break;
-    default:                   /* Do nothing */
-        break;
+        case ADC_REG_0:
+            tmp = TSB_AD->REG0;
+            break;
+        case ADC_REG_1:
+            tmp = TSB_AD->REG1;
+            break;
+        case ADC_REG_2:
+            tmp = TSB_AD->REG2;
+            break;
+        case ADC_REG_3:
+            tmp = TSB_AD->REG3;
+            break;
+        case ADC_REG_4:
+            tmp = TSB_AD->REG4;
+            break;
+        case ADC_REG_5:
+            tmp = TSB_AD->REG5;
+            break;
+        case ADC_REG_6:
+            tmp = TSB_AD->REG6;
+            break;
+        case ADC_REG_7:
+            tmp = TSB_AD->REG7;
+            break;
+        case ADC_REG_SP:
+            tmp = TSB_AD->REGSP;
+            break;
+        default:                   /* Do nothing */
+            break;
     }
 
     if ((tmp & ADC_REGx_ADRxRF_MASK) == 0U) {
@@ -541,21 +541,21 @@ void ADC_SetDMAReq(uint8_t DMAReq, FunctionalState NewState)
     assert_param(IS_FUNCTIONAL_STATE(NewState));
 
     switch (DMAReq) {
-    case ADC_DMA_REQ_NORMAL:
-        TSB_AD_MOD6_ADDMA = NewState;
-        break;
-    case ADC_DMA_REQ_TOP:
-        TSB_AD_MOD6_ADHPDMA = NewState;
-        break;
-    case ADC_DMA_REQ_MONITOR1:
-        TSB_AD_MOD6_ADM0DMA = NewState;
-        break;
-    case ADC_DMA_REQ_MONITOR2:
-        TSB_AD_MOD6_ADM1DMA = NewState;
-        break;
-    default:
-        /* Do nothing */
-        break;
+        case ADC_DMA_REQ_NORMAL:
+            TSB_AD_MOD6_ADDMA = NewState;
+            break;
+        case ADC_DMA_REQ_TOP:
+            TSB_AD_MOD6_ADHPDMA = NewState;
+            break;
+        case ADC_DMA_REQ_MONITOR1:
+            TSB_AD_MOD6_ADM0DMA = NewState;
+            break;
+        case ADC_DMA_REQ_MONITOR2:
+            TSB_AD_MOD6_ADM1DMA = NewState;
+            break;
+        default:
+            /* Do nothing */
+            break;
     }
 }
 

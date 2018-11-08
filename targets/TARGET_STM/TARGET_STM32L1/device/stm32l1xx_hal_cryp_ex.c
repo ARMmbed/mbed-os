@@ -5,11 +5,11 @@
   * @version V1.2.0
   * @date    01-July-2016
   * @brief   CRYPEx HAL module driver.
-  *    
-  *          This file provides firmware functions to manage the following 
+  *
+  *          This file provides firmware functions to manage the following
   *          functionalities of the Cryptography (CRYP) extension peripheral:
   *           + Computation completed callback.
-  *         
+  *
   ******************************************************************************
   * @attention
   *
@@ -37,8 +37,8 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
-  */ 
+  ******************************************************************************
+  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal.h"
@@ -68,13 +68,13 @@
   */
 
 
-/** @defgroup CRYPEx_Exported_Functions_Group1 Extended features functions 
- *  @brief    Extended features functions. 
+/** @defgroup CRYPEx_Exported_Functions_Group1 Extended features functions
+ *  @brief    Extended features functions.
  *
-@verbatim   
+@verbatim
  ===============================================================================
                  ##### Extended features functions #####
- =============================================================================== 
+ ===============================================================================
     [..]  This section provides callback functions:
       (+) Computation completed.
 
@@ -90,12 +90,12 @@
   */
 __weak void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hcryp);
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hcryp);
 
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_CRYPEx_ComputationCpltCallback could be implemented in the user file
-   */ 
+    /* NOTE : This function Should not be modified, when the callback is needed,
+              the HAL_CRYPEx_ComputationCpltCallback could be implemented in the user file
+     */
 }
 
 /**

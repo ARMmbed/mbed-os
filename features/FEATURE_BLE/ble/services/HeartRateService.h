@@ -123,7 +123,7 @@ public:
         ),
         hrmLocation(
             GattCharacteristic::UUID_BODY_SENSOR_LOCATION_CHAR,
-            reinterpret_cast<uint8_t*>(&location)
+            reinterpret_cast<uint8_t *>(&location)
         )
     {
         setupService();
@@ -142,7 +142,8 @@ public:
      * @attention This function must be called in the execution context of the
      * BLE stack.
      */
-    void updateHeartRate(uint16_t hrmCounter) {
+    void updateHeartRate(uint16_t hrmCounter)
+    {
         valueBytes.updateHeartRate(hrmCounter);
         ble.gattServer().write(
             hrmRate.getValueHandle(),
@@ -155,7 +156,8 @@ protected:
     /**
      * Construct and add to the GattServer the heart rate service.
      */
-    void setupService(void) {
+    void setupService(void)
+    {
         GattCharacteristic *charTable[] = {
             &hrmRate,
             &hrmLocation
@@ -163,7 +165,7 @@ protected:
         GattService hrmService(
             GattService::UUID_HEART_RATE_SERVICE,
             charTable,
-            sizeof(charTable) / sizeof(GattCharacteristic*)
+            sizeof(charTable) / sizeof(GattCharacteristic *)
         );
 
         ble.gattServer().addService(hrmService);

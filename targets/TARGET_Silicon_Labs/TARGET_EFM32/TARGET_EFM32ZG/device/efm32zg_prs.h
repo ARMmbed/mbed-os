@@ -38,14 +38,13 @@
  * @{
  * @brief EFM32ZG_PRS Register Declaration
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t SWPULSE;      /**< Software Pulse Register  */
-  __IOM uint32_t SWLEVEL;      /**< Software Level Register  */
-  __IOM uint32_t ROUTE;        /**< I/O Routing Register  */
+typedef struct {
+    __IOM uint32_t SWPULSE;      /**< Software Pulse Register  */
+    __IOM uint32_t SWLEVEL;      /**< Software Level Register  */
+    __IOM uint32_t ROUTE;        /**< I/O Routing Register  */
 
-  uint32_t       RESERVED0[1]; /**< Reserved registers */
-  PRS_CH_TypeDef CH[4];        /**< Channel registers */
+    uint32_t       RESERVED0[1]; /**< Reserved registers */
+    PRS_CH_TypeDef CH[4];        /**< Channel registers */
 } PRS_TypeDef;                 /** @} */
 
 /**************************************************************************//**

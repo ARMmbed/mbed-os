@@ -160,74 +160,74 @@ typedef enum {
     PH_0  = 0x70,
     PH_1  = 0x71,
 
-	// ADC internal channels
+    // ADC internal channels
     ADC_TEMP = 0xF0,
     ADC_VREF = 0xF1,
     ADC_VBAT = 0xF2,
-	
-	// Generic signals namings
+
+    // Generic signals namings
     SERIAL_TX   = PE_8, // Virtual Com Port
     SERIAL_RX   = PE_7, // Virtual Com Port
     USBTX       = PE_8, // Virtual Com Port
     USBRX       = PE_7, // Virtual Com Port
-	
-	BUS_RxD0	= PC_11,
-	BUS_TxD0	= PC_10,
-	
-	I2C_SCL     = PB_8,
+
+    BUS_RxD0    = PC_11,
+    BUS_TxD0    = PC_10,
+
+    I2C_SCL     = PB_8,
     I2C_SDA     = PB_9,
-    
-	SPI_MOSI    = PB_5,
+
+    SPI_MOSI    = PB_5,
     SPI_MISO    = PA_6,
     SPI_SCK     = PA_5,
     SPI_CS0     = PD_12,
-	SPI_CS1     = PD_13,
-	SPI_CS2     = PD_14,
-	SPI_CS_FLASH     = PD_15,	// SPI_CS3
-	SPI_CS4     = PC_6,
-	
-	N_WAKEUP	= PD_9,
-	OLED_A0		= PD_10,
-	
-	GSM_NetLig	= PE_2,
-	GSM_RFTxMon = PE_3,
-	GSM_nReset	= PE_6,
-	GSM_RI		= PC_13,
-	GSM_CTS		= PA_0,
-	GSM_RXD		= PA_3,
-	GSM_TXD		= PD_5,
-	GSM_PWRMON	= PB_14,
-	GSM_ON_OFF	= PB_15,
-	
-	ETH_RXER	= PB_10,
-	ETH_nINT	= PE_4,
-	BUS_nINT	= PE_5,
-		
+    SPI_CS1     = PD_13,
+    SPI_CS2     = PD_14,
+    SPI_CS_FLASH     = PD_15,   // SPI_CS3
+    SPI_CS4     = PC_6,
+
+    N_WAKEUP    = PD_9,
+    OLED_A0     = PD_10,
+
+    GSM_NetLig  = PE_2,
+    GSM_RFTxMon = PE_3,
+    GSM_nReset  = PE_6,
+    GSM_RI      = PC_13,
+    GSM_CTS     = PA_0,
+    GSM_RXD     = PA_3,
+    GSM_TXD     = PD_5,
+    GSM_PWRMON  = PB_14,
+    GSM_ON_OFF  = PB_15,
+
+    ETH_RXER    = PB_10,
+    ETH_nINT    = PE_4,
+    BUS_nINT    = PE_5,
+
     // Extension Socket X10
-	ONEWIRE_TxH	= PB_0,
-	ONEWIRE_Tx	= PB_1,
-	ONEWIRE_Rx	= PB_2,
+    ONEWIRE_TxH = PB_0,
+    ONEWIRE_Tx  = PB_1,
+    ONEWIRE_Rx  = PB_2,
     TX1         = PE_1,
     RX1         = PE_0,
     TX2         = PB_6,
     RX2         = PB_7,
 
-	BUS_LED		= PE_10,
-	RGBLED1_BL	= PE_11,
-	LED_RED		= PE_12,	// for mbed_die() error signalling
-	RGBLED1_RT	= LED_RED,
-	LED1        = PE_13,
-	RGBLED1_GN	= LED1,
+    BUS_LED     = PE_10,
+    RGBLED1_BL  = PE_11,
+    LED_RED     = PE_12,    // for mbed_die() error signalling
+    RGBLED1_RT  = LED_RED,
+    LED1        = PE_13,
+    RGBLED1_GN  = LED1,
     LED2        = PE_14,
-	RGBLED2_BL	= LED2,
-	RGBLED2_RT	= PE_15,
-	RGBLED2_GN	= PE_9,
-	
-	Version1	= PA_8,
-	Version2	= PC_9,
-	Version4	= PC_8,
-	Version8	= PC_7,
-	
+    RGBLED2_BL  = LED2,
+    RGBLED2_RT  = PE_15,
+    RGBLED2_GN  = PE_9,
+
+    Version1    = PA_8,
+    Version2    = PC_9,
+    Version4    = PC_8,
+    Version8    = PC_7,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

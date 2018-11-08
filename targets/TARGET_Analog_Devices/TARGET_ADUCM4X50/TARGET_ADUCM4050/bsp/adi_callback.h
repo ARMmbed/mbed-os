@@ -52,9 +52,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**
  * @brief Device Drivers Callback function definition
  */
-typedef void (* ADI_CALLBACK) (  /*!< Callback function pointer */
+typedef void (* ADI_CALLBACK)(   /*!< Callback function pointer */
     void      *pCBParam,         /*!< Client supplied callback param */
     uint32_t   Event,            /*!< Event ID specific to the Driver/Service */
     void      *pArg);            /*!< Pointer to the event specific argument */
-    
+
 #endif /* ADI_CALLBACK_H */

@@ -71,8 +71,7 @@ int i2c_start(i2c_t *obj)
     base->C1 |= I2C_C1_MST_MASK | I2C_C1_TX_MASK;
 
 #if defined(FSL_FEATURE_I2C_HAS_DOUBLE_BUFFERING) && FSL_FEATURE_I2C_HAS_DOUBLE_BUFFERING
-    while (!(base->S2 & I2C_S2_EMPTY_MASK))
-    {
+    while (!(base->S2 & I2C_S2_EMPTY_MASK)) {
     }
 #endif /* FSL_FEATURE_I2C_HAS_DOUBLE_BUFFERING */
 

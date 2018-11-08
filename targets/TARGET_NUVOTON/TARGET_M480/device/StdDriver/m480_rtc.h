@@ -284,14 +284,14 @@ static __INLINE void RTC_WaitAccessEnable(void);
   */
 static __INLINE void RTC_WaitAccessEnable(void)
 {
-    while((RTC->RWEN & RTC_RWEN_RTCBUSY_Msk) == RTC_RWEN_RTCBUSY_Msk) {
+    while ((RTC->RWEN & RTC_RWEN_RTCBUSY_Msk) == RTC_RWEN_RTCBUSY_Msk) {
     }
 
     /* To wait RWENF bit is cleared and enable RWENF bit (Access Enable bit) again */
     RTC->RWEN = RTC_WRITE_KEY;
 
     /* To wait RWENF bit is set and user can access the protected-register of RTC from now on */
-    while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == (uint32_t)0x0) {
+    while ((RTC->RWEN & RTC_RWEN_RWENF_Msk) == (uint32_t)0x0) {
     }
 }
 

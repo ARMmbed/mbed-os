@@ -3,7 +3,7 @@
 #include "rtos.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 DigitalOut LEDs[4] = {
@@ -16,7 +16,8 @@ void print_char(char c = '*')
     fflush(stdout);
 }
 
-void blink(void const *n) {
+void blink(void const *n)
+{
     static int counter = 0;
     const int led_id = int(n);
     LEDs[led_id] = !LEDs[led_id];
@@ -26,7 +27,8 @@ void blink(void const *n) {
     }
 }
 
-int main(void) {
+int main(void)
+{
     MBED_HOSTTEST_TIMEOUT(15);
     MBED_HOSTTEST_SELECT(wait_us_auto);
     MBED_HOSTTEST_DESCRIPTION(Timer);

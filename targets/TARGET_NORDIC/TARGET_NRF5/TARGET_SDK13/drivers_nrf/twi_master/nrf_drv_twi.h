@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**@file
@@ -57,16 +57,16 @@
 // of supported peripherals is not used.
 #if ((TWI0_ENABLED == 1 && TWI0_USE_EASY_DMA == 1) || \
      (TWI1_ENABLED == 1 && TWI1_USE_EASY_DMA == 1))
-    #define TWIM_IN_USE
+#define TWIM_IN_USE
 #endif
 #if ((TWI0_ENABLED == 1 && TWI0_USE_EASY_DMA != 1) || \
      (TWI1_ENABLED == 1 && TWI1_USE_EASY_DMA != 1))
-    #define TWI_IN_USE
+#define TWI_IN_USE
 #endif
 
 #include "nrf_twi.h"
 #ifdef TWIM_IN_USE
-    #include "nrf_twim.h"
+#include "nrf_twim.h"
 #endif
 #include "sdk_errors.h"
 
@@ -75,26 +75,24 @@ extern "C" {
 #endif
 
 #if defined(TWIM_IN_USE)
-    #define NRF_DRV_TWI_PERIPHERAL(id)           \
+#define NRF_DRV_TWI_PERIPHERAL(id)           \
         (CONCAT_3(TWI, id, _USE_EASY_DMA) == 1 ? \
             (void *)CONCAT_2(NRF_TWIM, id)       \
           : (void *)CONCAT_2(NRF_TWI, id))
 #else
-    #define NRF_DRV_TWI_PERIPHERAL(id)  (void *)CONCAT_2(NRF_TWI, id)
+#define NRF_DRV_TWI_PERIPHERAL(id)  (void *)CONCAT_2(NRF_TWI, id)
 #endif
 
 
 /**
  * @brief Structure for the TWI master driver instance.
  */
-typedef struct
-{
-    union
-    {
+typedef struct {
+    union {
 #ifdef TWIM_IN_USE
-        NRF_TWIM_Type * p_twim; ///< Pointer to a structure with TWIM registers.
+        NRF_TWIM_Type *p_twim;  ///< Pointer to a structure with TWIM registers.
 #endif
-        NRF_TWI_Type  * p_twi;  ///< Pointer to a structure with TWI registers.
+        NRF_TWI_Type   *p_twi;  ///< Pointer to a structure with TWI registers.
     } reg;
     uint8_t drv_inst_idx; ///< Driver instance index.
     bool    use_easy_dma; ///< True if the peripheral with EasyDMA (TWIM) shall be used.
@@ -116,8 +114,7 @@ typedef struct
 /**
  * @brief Structure for the TWI master driver instance configuration.
  */
-typedef struct
-{
+typedef struct {
     uint32_t            scl;                 ///< SCL pin number.
     uint32_t            sda;                 ///< SDA pin number.
     nrf_twi_frequency_t frequency;           ///< TWI frequency.
@@ -149,8 +146,7 @@ typedef struct
 /**
  * @brief TWI master driver event types.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_TWI_EVT_DONE,         ///< Transfer completed event.
     NRF_DRV_TWI_EVT_ADDRESS_NACK, ///< Error event: NACK received after sending the address.
     NRF_DRV_TWI_EVT_DATA_NACK     ///< Error event: NACK received after sending a data byte.
@@ -159,8 +155,7 @@ typedef enum
 /**
  * @brief TWI master driver transfer types.
  */
-typedef enum
-{
+typedef enum {
     NRF_DRV_TWI_XFER_TX,          ///< TX transfer.
     NRF_DRV_TWI_XFER_RX,          ///< RX transfer.
     NRF_DRV_TWI_XFER_TXRX,        ///< TX transfer followed by RX transfer with repeated start.
@@ -170,14 +165,13 @@ typedef enum
 /**
  * @brief Structure for a TWI transfer descriptor.
  */
-typedef struct
-{
+typedef struct {
     nrf_drv_twi_xfer_type_t type;             ///< Type of transfer.
     uint8_t                 address;          ///< Slave address.
     uint8_t                 primary_length;   ///< Number of bytes transferred.
     uint8_t                 secondary_length; ///< Number of bytes transferred.
-    uint8_t *               p_primary_buf;    ///< Pointer to transferred data.
-    uint8_t *               p_secondary_buf;  ///< Pointer to transferred data.
+    uint8_t                *p_primary_buf;    ///< Pointer to transferred data.
+    uint8_t                *p_secondary_buf;  ///< Pointer to transferred data.
 } nrf_drv_twi_xfer_desc_t;
 
 
@@ -224,8 +218,7 @@ typedef struct
 /**
  * @brief Structure for a TWI event.
  */
-typedef struct
-{
+typedef struct {
     nrf_drv_twi_evt_type_t  type;      ///< Event type.
     nrf_drv_twi_xfer_desc_t xfer_desc; ///< Transfer details.
 } nrf_drv_twi_evt_t;
@@ -233,8 +226,8 @@ typedef struct
 /**
  * @brief TWI event handler prototype.
  */
-typedef void (* nrf_drv_twi_evt_handler_t)(nrf_drv_twi_evt_t const * p_event,
-                                           void *                    p_context);
+typedef void (* nrf_drv_twi_evt_handler_t)(nrf_drv_twi_evt_t const *p_event,
+                                           void                     *p_context);
 
 /**
  * @brief Function for initializing the TWI driver instance.
@@ -251,31 +244,31 @@ typedef void (* nrf_drv_twi_evt_handler_t)(nrf_drv_twi_evt_t const * p_event,
  *                                 possible only if PERIPHERAL_RESOURCE_SHARING_ENABLED
  *                                 is set to a value other than zero.
  */
-ret_code_t nrf_drv_twi_init(nrf_drv_twi_t const *        p_instance,
-                            nrf_drv_twi_config_t const * p_config,
+ret_code_t nrf_drv_twi_init(nrf_drv_twi_t const         *p_instance,
+                            nrf_drv_twi_config_t const *p_config,
                             nrf_drv_twi_evt_handler_t    event_handler,
-                            void *                       p_context);
+                            void                        *p_context);
 
 /**
  * @brief Function for uninitializing the TWI instance.
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrf_drv_twi_uninit(nrf_drv_twi_t const * p_instance);
+void nrf_drv_twi_uninit(nrf_drv_twi_t const *p_instance);
 
 /**
  * @brief Function for enabling the TWI instance.
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrf_drv_twi_enable(nrf_drv_twi_t const * p_instance);
+void nrf_drv_twi_enable(nrf_drv_twi_t const *p_instance);
 
 /**
  * @brief Function for disabling the TWI instance.
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrf_drv_twi_disable(nrf_drv_twi_t const * p_instance);
+void nrf_drv_twi_disable(nrf_drv_twi_t const *p_instance);
 
 /**
  * @brief Function for sending data to a TWI slave.
@@ -298,9 +291,9 @@ void nrf_drv_twi_disable(nrf_drv_twi_t const * p_instance);
  * @retval NRF_ERROR_DRV_TWI_ERR_ANACK  If NACK received after sending the address.
  * @retval NRF_ERROR_DRV_TWI_ERR_DNACK  If NACK received after sending a data byte.
  */
-ret_code_t nrf_drv_twi_tx(nrf_drv_twi_t const * p_instance,
+ret_code_t nrf_drv_twi_tx(nrf_drv_twi_t const *p_instance,
                           uint8_t               address,
-                          uint8_t const *       p_data,
+                          uint8_t const        *p_data,
                           uint8_t               length,
                           bool                  no_stop);
 
@@ -322,9 +315,9 @@ ret_code_t nrf_drv_twi_tx(nrf_drv_twi_t const * p_instance,
  * @retval NRF_ERROR_DRV_TWI_ERR_ANACK    If NACK received after sending the address.
  * @retval NRF_ERROR_DRV_TWI_ERR_DNACK    If NACK received after sending a data byte.
  */
-ret_code_t nrf_drv_twi_rx(nrf_drv_twi_t const * p_instance,
+ret_code_t nrf_drv_twi_rx(nrf_drv_twi_t const *p_instance,
                           uint8_t               address,
-                          uint8_t *             p_data,
+                          uint8_t              *p_data,
                           uint8_t               length);
 
 /**
@@ -376,8 +369,8 @@ ret_code_t nrf_drv_twi_rx(nrf_drv_twi_t const * p_instance,
  * @retval NRF_ERROR_DRV_TWI_ERR_ANACK    If NACK received after sending the address.
  * @retval NRF_ERROR_DRV_TWI_ERR_DNACK    If NACK received after sending a data byte.
  */
-ret_code_t nrf_drv_twi_xfer(nrf_drv_twi_t           const * p_instance,
-                            nrf_drv_twi_xfer_desc_t const * p_xfer_desc,
+ret_code_t nrf_drv_twi_xfer(nrf_drv_twi_t           const *p_instance,
+                            nrf_drv_twi_xfer_desc_t const *p_xfer_desc,
                             uint32_t                        flags);
 
 // modification for mbed-os
@@ -390,7 +383,7 @@ ret_code_t nrf_drv_twi_xfer(nrf_drv_twi_t           const * p_instance,
  * @retval true  If the TWI driver is currently busy performing a transfer.
  * @retval false If the TWI driver is ready for a new transfer.
  */
-bool nrf_drv_twi_is_busy(nrf_drv_twi_t const * p_instance);
+bool nrf_drv_twi_is_busy(nrf_drv_twi_t const *p_instance);
 #endif
 
 /**
@@ -402,7 +395,7 @@ bool nrf_drv_twi_is_busy(nrf_drv_twi_t const * p_instance);
  *
  * @return     Data count.
  */
-uint32_t nrf_drv_twi_data_count_get(nrf_drv_twi_t const * const p_instance);
+uint32_t nrf_drv_twi_data_count_get(nrf_drv_twi_t const *const p_instance);
 
 /**
  * @brief Function for returning the address of a TWI/TWIM start task.
@@ -415,7 +408,7 @@ uint32_t nrf_drv_twi_data_count_get(nrf_drv_twi_t const * const p_instance);
  *
  * @return     Start task address (TX or RX) depending on the value of xfer_type.
  */
-uint32_t nrf_drv_twi_start_task_get(nrf_drv_twi_t const * p_instance, nrf_drv_twi_xfer_type_t xfer_type);
+uint32_t nrf_drv_twi_start_task_get(nrf_drv_twi_t const *p_instance, nrf_drv_twi_xfer_type_t xfer_type);
 
 /**
  * @brief Function for returning the address of a STOPPED TWI/TWIM event.
@@ -427,7 +420,7 @@ uint32_t nrf_drv_twi_start_task_get(nrf_drv_twi_t const * p_instance, nrf_drv_tw
  *
  * @return     STOPPED event address.
  */
-uint32_t nrf_drv_twi_stopped_event_get(nrf_drv_twi_t const * p_instance);
+uint32_t nrf_drv_twi_stopped_event_get(nrf_drv_twi_t const *p_instance);
 /**
  *@}
  **/

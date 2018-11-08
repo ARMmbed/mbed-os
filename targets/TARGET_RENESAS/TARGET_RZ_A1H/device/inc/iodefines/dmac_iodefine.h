@@ -374,18 +374,16 @@
 #define DMACDMARS7 (DMAC.DMARS7)
 
 
-typedef struct st_dmars_mm
-{
- 
+typedef struct st_dmars_mm {
+
     volatile uint32_t  DMARS;                                    /*  DMARS     */
 } r_io_dmars_mm_t;
 
 
-typedef struct st_dmac
-{
-                                                           /* DMAC             */
+typedef struct st_dmac {
+    /* DMAC             */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_0;                                 /*  N0SA_0          */
     volatile uint32_t  N0DA_0;                                 /*  N0DA_0          */
     volatile uint32_t  N0TB_0;                                 /*  N0TB_0          */
@@ -403,9 +401,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_0;                                 /*  NXLA_0          */
     volatile uint32_t  CRLA_0;                                 /*  CRLA_0          */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_1;                                 /*  N0SA_1          */
     volatile uint32_t  N0DA_1;                                 /*  N0DA_1          */
     volatile uint32_t  N0TB_1;                                 /*  N0TB_1          */
@@ -423,9 +421,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_1;                                 /*  NXLA_1          */
     volatile uint32_t  CRLA_1;                                 /*  CRLA_1          */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_2;                                 /*  N0SA_2          */
     volatile uint32_t  N0DA_2;                                 /*  N0DA_2          */
     volatile uint32_t  N0TB_2;                                 /*  N0TB_2          */
@@ -443,9 +441,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_2;                                 /*  NXLA_2          */
     volatile uint32_t  CRLA_2;                                 /*  CRLA_2          */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_3;                                 /*  N0SA_3          */
     volatile uint32_t  N0DA_3;                                 /*  N0DA_3          */
     volatile uint32_t  N0TB_3;                                 /*  N0TB_3          */
@@ -463,9 +461,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_3;                                 /*  NXLA_3          */
     volatile uint32_t  CRLA_3;                                 /*  CRLA_3          */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_4;                                 /*  N0SA_4          */
     volatile uint32_t  N0DA_4;                                 /*  N0DA_4          */
     volatile uint32_t  N0TB_4;                                 /*  N0TB_4          */
@@ -483,9 +481,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_4;                                 /*  NXLA_4          */
     volatile uint32_t  CRLA_4;                                 /*  CRLA_4          */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_5;                                 /*  N0SA_5          */
     volatile uint32_t  N0DA_5;                                 /*  N0DA_5          */
     volatile uint32_t  N0TB_5;                                 /*  N0TB_5          */
@@ -503,9 +501,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_5;                                 /*  NXLA_5          */
     volatile uint32_t  CRLA_5;                                 /*  CRLA_5          */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_6;                                 /*  N0SA_6          */
     volatile uint32_t  N0DA_6;                                 /*  N0DA_6          */
     volatile uint32_t  N0TB_6;                                 /*  N0TB_6          */
@@ -523,9 +521,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_6;                                 /*  NXLA_6          */
     volatile uint32_t  CRLA_6;                                 /*  CRLA_6          */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_7;                                 /*  N0SA_7          */
     volatile uint32_t  N0DA_7;                                 /*  N0DA_7          */
     volatile uint32_t  N0TB_7;                                 /*  N0TB_7          */
@@ -543,10 +541,10 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_7;                                 /*  NXLA_7          */
     volatile uint32_t  CRLA_7;                                 /*  CRLA_7          */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
     volatile uint8_t   dummy187[256];                          /*                  */
 
-/* start of struct st_dmaccommon_n */
+    /* start of struct st_dmaccommon_n */
     volatile uint32_t  DCTRL_0_7;                              /*  DCTRL_0_7       */
     volatile uint8_t   dummy188[12];                           /*                  */
     volatile uint32_t  DSTAT_EN_0_7;                           /*  DSTAT_EN_0_7    */
@@ -555,10 +553,10 @@ typedef struct st_dmac
     volatile uint32_t  DSTAT_TC_0_7;                           /*  DSTAT_TC_0_7    */
     volatile uint32_t  DSTAT_SUS_0_7;                          /*  DSTAT_SUS_0_7   */
 
-/* end of struct st_dmaccommon_n */
+    /* end of struct st_dmaccommon_n */
     volatile uint8_t   dummy189[220];                          /*                  */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_8;                                 /*  N0SA_8          */
     volatile uint32_t  N0DA_8;                                 /*  N0DA_8          */
     volatile uint32_t  N0TB_8;                                 /*  N0TB_8          */
@@ -576,9 +574,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_8;                                 /*  NXLA_8          */
     volatile uint32_t  CRLA_8;                                 /*  CRLA_8          */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_9;                                 /*  N0SA_9          */
     volatile uint32_t  N0DA_9;                                 /*  N0DA_9          */
     volatile uint32_t  N0TB_9;                                 /*  N0TB_9          */
@@ -596,9 +594,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_9;                                 /*  NXLA_9          */
     volatile uint32_t  CRLA_9;                                 /*  CRLA_9          */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_10;                                /*  N0SA_10         */
     volatile uint32_t  N0DA_10;                                /*  N0DA_10         */
     volatile uint32_t  N0TB_10;                                /*  N0TB_10         */
@@ -616,9 +614,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_10;                                /*  NXLA_10         */
     volatile uint32_t  CRLA_10;                                /*  CRLA_10         */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_11;                                /*  N0SA_11         */
     volatile uint32_t  N0DA_11;                                /*  N0DA_11         */
     volatile uint32_t  N0TB_11;                                /*  N0TB_11         */
@@ -636,9 +634,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_11;                                /*  NXLA_11         */
     volatile uint32_t  CRLA_11;                                /*  CRLA_11         */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_12;                                /*  N0SA_12         */
     volatile uint32_t  N0DA_12;                                /*  N0DA_12         */
     volatile uint32_t  N0TB_12;                                /*  N0TB_12         */
@@ -656,9 +654,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_12;                                /*  NXLA_12         */
     volatile uint32_t  CRLA_12;                                /*  CRLA_12         */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_13;                                /*  N0SA_13         */
     volatile uint32_t  N0DA_13;                                /*  N0DA_13         */
     volatile uint32_t  N0TB_13;                                /*  N0TB_13         */
@@ -676,9 +674,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_13;                                /*  NXLA_13         */
     volatile uint32_t  CRLA_13;                                /*  CRLA_13         */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_14;                                /*  N0SA_14         */
     volatile uint32_t  N0DA_14;                                /*  N0DA_14         */
     volatile uint32_t  N0TB_14;                                /*  N0TB_14         */
@@ -696,9 +694,9 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_14;                                /*  NXLA_14         */
     volatile uint32_t  CRLA_14;                                /*  CRLA_14         */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
 
-/* start of struct st_dmac_n */
+    /* start of struct st_dmac_n */
     volatile uint32_t  N0SA_15;                                /*  N0SA_15         */
     volatile uint32_t  N0DA_15;                                /*  N0DA_15         */
     volatile uint32_t  N0TB_15;                                /*  N0TB_15         */
@@ -716,10 +714,10 @@ typedef struct st_dmac
     volatile uint32_t  NXLA_15;                                /*  NXLA_15         */
     volatile uint32_t  CRLA_15;                                /*  CRLA_15         */
 
-/* end of struct st_dmac_n */
+    /* end of struct st_dmac_n */
     volatile uint8_t   dummy190[256];                          /*                  */
 
-/* start of struct st_dmaccommon_n */
+    /* start of struct st_dmaccommon_n */
     volatile uint32_t  DCTRL_8_15;                             /*  DCTRL_8_15      */
     volatile uint8_t   dummy191[12];                           /*                  */
     volatile uint32_t  DSTAT_EN_8_15;                          /*  DSTAT_EN_8_15   */
@@ -728,7 +726,7 @@ typedef struct st_dmac
     volatile uint32_t  DSTAT_TC_8_15;                          /*  DSTAT_TC_8_15   */
     volatile uint32_t  DSTAT_SUS_8_15;                         /*  DSTAT_SUS_8_15  */
 
-/* end of struct st_dmaccommon_n */
+    /* end of struct st_dmaccommon_n */
     volatile uint8_t   dummy192[350095580];                    /*                  */
     volatile uint32_t  DMARS0;                                 /*  DMARS0          */
     volatile uint32_t  DMARS1;                                 /*  DMARS1          */
@@ -741,9 +739,8 @@ typedef struct st_dmac
 } r_io_dmac_t;
 
 
-typedef struct st_dmaccommon_n
-{
- 
+typedef struct st_dmaccommon_n {
+
     volatile uint32_t  DCTRL_0_7;                              /*  DCTRL_0_7       */
     volatile uint8_t   dummy1[12];                             /*                  */
     volatile uint32_t  DSTAT_EN_0_7;                           /*  DSTAT_EN_0_7    */
@@ -754,9 +751,8 @@ typedef struct st_dmaccommon_n
 } r_io_dmaccommon_n_t;
 
 
-typedef struct st_dmac_n
-{
- 
+typedef struct st_dmac_n {
+
     volatile uint32_t  N0SA_n;                                 /*  N0SA_n          */
     volatile uint32_t  N0DA_n;                                 /*  N0DA_n          */
     volatile uint32_t  N0TB_n;                                 /*  N0TB_n          */
@@ -778,24 +774,24 @@ typedef struct st_dmac_n
 
 /* Channel array defines of DMAC (2)*/
 #ifdef  DECLARE_DMACmm_CHANNELS
-volatile struct st_dmars_mm*  DMACmm[ DMACmm_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    DMACmm_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_dmars_mm  *DMACmm[ DMACmm_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        DMACmm_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_DMACmm_CHANNELS */
 
 #ifdef  DECLARE_DMACn_CHANNELS
-volatile struct st_dmac_n*  DMACn[ DMACn_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    DMACn_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_dmac_n  *DMACn[ DMACn_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        DMACn_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_DMACn_CHANNELS */
 
 #ifdef  DECLARE_DMACnn_CHANNELS
-volatile struct st_dmaccommon_n*  DMACnn[ DMACnn_COUNT ] =
-    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
-    DMACnn_ADDRESS_LIST;
-    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+volatile struct st_dmaccommon_n  *DMACnn[ DMACnn_COUNT ] =
+/* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+        DMACnn_ADDRESS_LIST;
+/* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 #endif  /* DECLARE_DMACnn_CHANNELS */
 /* End of channel array defines of DMAC (2)*/
 

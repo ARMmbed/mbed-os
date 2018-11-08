@@ -48,43 +48,37 @@
 /*@}*/
 
 /*! @brief Status structure of SPIFI.*/
-enum _status_t
-{
+enum _status_t {
     kStatus_SPIFI_Idle = MAKE_STATUS(kStatusGroup_SPIFI, 0),  /*!< SPIFI is in idle state  */
     kStatus_SPIFI_Busy = MAKE_STATUS(kStatusGroup_SPIFI, 1),  /*!< SPIFI is busy */
     kStatus_SPIFI_Error = MAKE_STATUS(kStatusGroup_SPIFI, 2), /*!< Error occurred during SPIFI transfer */
 };
 
 /*! @brief SPIFI interrupt source */
-typedef enum _spifi_interrupt_enable
-{
+typedef enum _spifi_interrupt_enable {
     kSPIFI_CommandFinishInterruptEnable = SPIFI_CTRL_INTEN_MASK, /*!< Interrupt while command finished */
 } spifi_interrupt_enable_t;
 
 /*! @brief SPIFI SPI mode select */
-typedef enum _spifi_spi_mode
-{
+typedef enum _spifi_spi_mode {
     kSPIFI_SPISckLow = 0x0U, /*!< SCK low after last bit of command, keeps low while CS high */
     kSPIFI_SPISckHigh = 0x1U /*!< SCK high after last bit of command and while CS high */
 } spifi_spi_mode_t;
 
 /*! @brief SPIFI dual mode select */
-typedef enum _spifi_dual_mode
-{
+typedef enum _spifi_dual_mode {
     kSPIFI_QuadMode = 0x0U, /*!< SPIFI uses IO3:0 */
     kSPIFI_DualMode = 0x1U  /*!< SPIFI uses IO1:0 */
 } spifi_dual_mode_t;
 
 /*! @brief SPIFI data direction */
-typedef enum _spifi_data_direction
-{
+typedef enum _spifi_data_direction {
     kSPIFI_DataInput = 0x0U, /*!< Data input from serial flash. */
     kSPIFI_DataOutput = 0x1U /*!< Data output to serial flash. */
 } spifi_data_direction_t;
 
 /*! @brief SPIFI command opcode format */
-typedef enum _spifi_command_format
-{
+typedef enum _spifi_command_format {
     kSPIFI_CommandAllSerial = 0x0,     /*!< All fields of command are serial. */
     kSPIFI_CommandDataQuad = 0x1U,     /*!< Only data field is dual/quad, others are serial. */
     kSPIFI_CommandOpcodeSerial = 0x2U, /*!< Only opcode field is serial, others are quad/dual. */
@@ -92,8 +86,7 @@ typedef enum _spifi_command_format
 } spifi_command_format_t;
 
 /*! @brief SPIFI command type */
-typedef enum _spifi_command_type
-{
+typedef enum _spifi_command_type {
     kSPIFI_CommandOpcodeOnly = 0x1U,             /*!< Command only have opcode, no address field */
     kSPIFI_CommandOpcodeAddrOneByte = 0x2U,      /*!< Command have opcode and also one byte address field */
     kSPIFI_CommandOpcodeAddrTwoBytes = 0x3U,     /*!< Command have opcode and also two bytes address field */
@@ -104,16 +97,14 @@ typedef enum _spifi_command_type
 } spifi_command_type_t;
 
 /*! @brief SPIFI status flags */
-enum _spifi_status_flags
-{
+enum _spifi_status_flags {
     kSPIFI_MemoryCommandWriteFinished = SPIFI_STAT_MCINIT_MASK, /*!< Memory command write finished */
     kSPIFI_CommandWriteFinished = SPIFI_STAT_CMD_MASK,          /*!< Command write finished */
     kSPIFI_InterruptRequest = SPIFI_STAT_INTRQ_MASK /*!< CMD flag from 1 to 0, means command execute finished */
 };
 
 /*! @brief SPIFI command structure */
-typedef struct _spifi_command
-{
+typedef struct _spifi_command {
     uint16_t dataLen;                 /*!< How many data bytes are needed in this command. */
     bool isPollMode;                  /*!< For command need to read data from serial flash */
     spifi_data_direction_t direction; /*!< Data direction of this command. */
@@ -126,8 +117,7 @@ typedef struct _spifi_command
 /*!
  * @brief SPIFI region configuration structure.
  */
-typedef struct _spifi_config
-{
+typedef struct _spifi_config {
     uint16_t timeout;           /*!< SPI transfer timeout, the unit is SCK cycles */
     uint8_t csHighTime;         /*!< CS high time cycles */
     bool disablePrefetch;       /*!< True means SPIFI will not attempt a speculative prefetch. */
@@ -139,8 +129,7 @@ typedef struct _spifi_config
 } spifi_config_t;
 
 /*! @brief Transfer structure for SPIFI */
-typedef struct _spifi_transfer
-{
+typedef struct _spifi_transfer {
     uint8_t *data;   /*!< Pointer to data to transmit */
     size_t dataSize; /*!< Bytes to be transmit */
 } spifi_transfer_t;
@@ -248,8 +237,7 @@ static inline void SPIFI_ResetCommand(SPIFI_Type *base)
 {
     base->STAT = SPIFI_STAT_RESET_MASK;
     /* Wait for the RESET flag cleared by HW */
-    while (base->STAT & SPIFI_STAT_RESET_MASK)
-    {
+    while (base->STAT & SPIFI_STAT_RESET_MASK) {
     }
 }
 
@@ -318,12 +306,9 @@ static inline uint32_t SPIFI_GetStatusFlag(SPIFI_Type *base)
  */
 static inline void SPIFI_EnableDMA(SPIFI_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->CTRL |= SPIFI_CTRL_DMAEN_MASK;
-    }
-    else
-    {
+    } else {
         base->CTRL &= ~SPIFI_CTRL_DMAEN_MASK;
     }
 }

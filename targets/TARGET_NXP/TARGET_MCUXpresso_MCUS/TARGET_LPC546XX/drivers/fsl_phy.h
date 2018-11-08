@@ -76,8 +76,7 @@
 #define PHY_ALL_CAPABLE_MASK 0x1e0U
 
 /*! @brief Defines the PHY status. */
-enum _phy_status
-{
+enum _phy_status {
     kStatus_PHY_SMIVisitTimeout = MAKE_STATUS(kStatusGroup_PHY, 0),  /*!< ENET PHY SMI visit timeout. */
 };
 

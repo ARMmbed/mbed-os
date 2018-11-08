@@ -84,10 +84,8 @@ static uint32_t FTM_GetInstance(FTM_Type *base)
     uint32_t ftmArrayCount = (sizeof(s_ftmBases) / sizeof(s_ftmBases[0]));
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ftmArrayCount; instance++)
-    {
-        if (s_ftmBases[instance] == base)
-        {
+    for (instance = 0; instance < ftmArrayCount; instance++) {
+        if (s_ftmBases[instance] == base) {
             break;
         }
     }
@@ -107,8 +105,7 @@ static void FTM_SetPwmSync(FTM_Type *base, uint32_t syncMethod)
     syncReg |= FTM_SYNC_SYNCHOM_MASK;
 
     reg = base->COMBINE;
-    for (chnlNumber = 0; chnlNumber < (FSL_FEATURE_FTM_CHANNEL_COUNTn(base) / 2); chnlNumber++)
-    {
+    for (chnlNumber = 0; chnlNumber < (FSL_FEATURE_FTM_CHANNEL_COUNTn(base) / 2); chnlNumber++) {
         /* Enable PWM synchronization of registers C(n)V and C(n+1)V */
         reg |= (1U << (FTM_COMBINE_SYNCEN0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * chnlNumber)));
     }
@@ -119,30 +116,25 @@ static void FTM_SetPwmSync(FTM_Type *base, uint32_t syncMethod)
     /* Use enhanced PWM synchronization method. Use PWM sync to update register values */
     reg |= (FTM_SYNCONF_SYNCMODE_MASK | FTM_SYNCONF_CNTINC_MASK | FTM_SYNCONF_INVC_MASK | FTM_SYNCONF_SWOC_MASK);
 
-    if (syncMethod & FTM_SYNC_SWSYNC_MASK)
-    {
+    if (syncMethod & FTM_SYNC_SWSYNC_MASK) {
         /* Enable needed bits for software trigger to update registers with its buffer value */
         reg |= (FTM_SYNCONF_SWRSTCNT_MASK | FTM_SYNCONF_SWWRBUF_MASK | FTM_SYNCONF_SWINVC_MASK |
                 FTM_SYNCONF_SWSOC_MASK | FTM_SYNCONF_SWOM_MASK);
     }
 
-    if (syncMethod & (FTM_SYNC_TRIG0_MASK | FTM_SYNC_TRIG1_MASK | FTM_SYNC_TRIG2_MASK))
-    {
+    if (syncMethod & (FTM_SYNC_TRIG0_MASK | FTM_SYNC_TRIG1_MASK | FTM_SYNC_TRIG2_MASK)) {
         /* Enable needed bits for hardware trigger to update registers with its buffer value */
         reg |= (FTM_SYNCONF_HWRSTCNT_MASK | FTM_SYNCONF_HWWRBUF_MASK | FTM_SYNCONF_HWINVC_MASK |
                 FTM_SYNCONF_HWSOC_MASK | FTM_SYNCONF_HWOM_MASK);
 
         /* Enable the appropriate hardware trigger that is used for PWM sync */
-        if (syncMethod & FTM_SYNC_TRIG0_MASK)
-        {
+        if (syncMethod & FTM_SYNC_TRIG0_MASK) {
             syncReg |= FTM_SYNC_TRIG0_MASK;
         }
-        if (syncMethod & FTM_SYNC_TRIG1_MASK)
-        {
+        if (syncMethod & FTM_SYNC_TRIG1_MASK) {
             syncReg |= FTM_SYNC_TRIG1_MASK;
         }
-        if (syncMethod & FTM_SYNC_TRIG2_MASK)
-        {
+        if (syncMethod & FTM_SYNC_TRIG2_MASK) {
             syncReg |= FTM_SYNC_TRIG2_MASK;
         }
     }
@@ -163,8 +155,7 @@ static void FTM_SetReloadPoints(FTM_Type *base, uint32_t reloadPoints)
     base->SYNCONF |= FTM_SYNCONF_CNTINC_MASK;
 
     reg = base->COMBINE;
-    for (chnlNumber = 0; chnlNumber < (FSL_FEATURE_FTM_CHANNEL_COUNTn(base) / 2); chnlNumber++)
-    {
+    for (chnlNumber = 0; chnlNumber < (FSL_FEATURE_FTM_CHANNEL_COUNTn(base) / 2); chnlNumber++) {
         /* Need SYNCEN bit to be 1 for CnV reg to update with its buffer value on reload  */
         reg |= (1U << (FTM_COMBINE_SYNCEN0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * chnlNumber)));
     }
@@ -179,12 +170,9 @@ static void FTM_SetReloadPoints(FTM_Type *base, uint32_t reloadPoints)
 
 #if defined(FSL_FEATURE_FTM_HAS_HALFCYCLE_RELOAD) && (FSL_FEATURE_FTM_HAS_HALFCYCLE_RELOAD)
     /* Enable half cycle match as a reload point */
-    if (reloadPoints & kFTM_HalfCycMatch)
-    {
+    if (reloadPoints & kFTM_HalfCycMatch) {
         reg |= FTM_PWMLOAD_HCSEL_MASK;
-    }
-    else
-    {
+    } else {
         reg &= ~FTM_PWMLOAD_HCSEL_MASK;
     }
 #endif /* FSL_FEATURE_FTM_HAS_HALFCYCLE_RELOAD */
@@ -193,23 +181,17 @@ static void FTM_SetReloadPoints(FTM_Type *base, uint32_t reloadPoints)
 
     /* These reload points are used when counter is in up-down counting mode */
     reg = base->SYNC;
-    if (reloadPoints & kFTM_CntMax)
-    {
+    if (reloadPoints & kFTM_CntMax) {
         /* Reload when counter turns from up to down */
         reg |= FTM_SYNC_CNTMAX_MASK;
-    }
-    else
-    {
+    } else {
         reg &= ~FTM_SYNC_CNTMAX_MASK;
     }
 
-    if (reloadPoints & kFTM_CntMin)
-    {
+    if (reloadPoints & kFTM_CntMin) {
         /* Reload when counter turns from down to up */
         reg |= FTM_SYNC_CNTMIN_MASK;
-    }
-    else
-    {
+    } else {
         reg &= ~FTM_SYNC_CNTMIN_MASK;
     }
     base->SYNC = reg;
@@ -222,8 +204,7 @@ status_t FTM_Init(FTM_Type *base, const ftm_config_t *config)
     uint32_t reg;
 
     if (!(config->pwmSyncMode &
-          (FTM_SYNC_TRIG0_MASK | FTM_SYNC_TRIG1_MASK | FTM_SYNC_TRIG2_MASK | FTM_SYNC_SWSYNC_MASK)))
-    {
+            (FTM_SYNC_TRIG0_MASK | FTM_SYNC_TRIG1_MASK | FTM_SYNC_TRIG2_MASK | FTM_SYNC_SWSYNC_MASK))) {
         /* Invalid PWM sync mode */
         return kStatus_Fail;
     }
@@ -255,12 +236,9 @@ status_t FTM_Init(FTM_Type *base, const ftm_config_t *config)
     /* Set the external trigger sources */
     base->EXTTRIG = config->extTriggers;
 #if defined(FSL_FEATURE_FTM_HAS_RELOAD_INITIALIZATION_TRIGGER) && (FSL_FEATURE_FTM_HAS_RELOAD_INITIALIZATION_TRIGGER)
-    if (config->extTriggers & kFTM_ReloadInitTrigger)
-    {
+    if (config->extTriggers & kFTM_ReloadInitTrigger) {
         base->CONF |= FTM_CONF_ITRIGR_MASK;
-    }
-    else
-    {
+    } else {
         base->CONF &= ~FTM_CONF_ITRIGR_MASK;
     }
 #endif /* FSL_FEATURE_FTM_HAS_RELOAD_INITIALIZATION_TRIGGER */
@@ -333,8 +311,7 @@ status_t FTM_SetupPwm(FTM_Type *base,
     uint16_t cnv, cnvFirstEdge;
     uint8_t i;
 
-    switch (mode)
-    {
+    switch (mode) {
         case kFTM_EdgeAlignedPwm:
         case kFTM_CombinedPwm:
             base->SC &= ~FTM_SC_CPWMS_MASK;
@@ -350,24 +327,20 @@ status_t FTM_SetupPwm(FTM_Type *base,
 
     /* Return an error in case we overflow the registers, probably would require changing
      * clock source to get the desired frequency */
-    if (mod > 65535U)
-    {
+    if (mod > 65535U) {
         return kStatus_Fail;
     }
     /* Set the PWM period */
     base->MOD = mod;
 
     /* Setup each FTM channel */
-    for (i = 0; i < numOfChnls; i++)
-    {
+    for (i = 0; i < numOfChnls; i++) {
         /* Return error if requested dutycycle is greater than the max allowed */
-        if (chnlParams->dutyCyclePercent > 100)
-        {
+        if (chnlParams->dutyCyclePercent > 100) {
             return kStatus_Fail;
         }
 
-        if ((mode == kFTM_EdgeAlignedPwm) || (mode == kFTM_CenterAlignedPwm))
-        {
+        if ((mode == kFTM_EdgeAlignedPwm) || (mode == kFTM_CenterAlignedPwm)) {
             /* Clear the current mode and edge level bits */
             reg = base->CONTROLS[chnlParams->chnlNumber].CnSC;
             reg &= ~(FTM_CnSC_MSA_MASK | FTM_CnSC_MSB_MASK | FTM_CnSC_ELSA_MASK | FTM_CnSC_ELSB_MASK);
@@ -381,17 +354,13 @@ status_t FTM_SetupPwm(FTM_Type *base,
             /* Update the mode and edge level */
             base->CONTROLS[chnlParams->chnlNumber].CnSC = reg;
 
-            if (chnlParams->dutyCyclePercent == 0)
-            {
+            if (chnlParams->dutyCyclePercent == 0) {
                 /* Signal stays low */
                 cnv = 0;
-            }
-            else
-            {
+            } else {
                 cnv = (mod * chnlParams->dutyCyclePercent) / 100;
                 /* For 100% duty cycle */
-                if (cnv >= mod)
-                {
+                if (cnv >= mod) {
                     cnv = mod + 1;
                 }
             }
@@ -401,45 +370,34 @@ status_t FTM_SetupPwm(FTM_Type *base,
             /* Set to output mode */
             FTM_SetPwmOutputEnable(base, chnlParams->chnlNumber, true);
 #endif
-        }
-        else
-        {
+        } else {
             /* This check is added for combined mode as the channel number should be the pair number */
-            if (chnlParams->chnlNumber >= (FSL_FEATURE_FTM_CHANNEL_COUNTn(base) / 2))
-            {
+            if (chnlParams->chnlNumber >= (FSL_FEATURE_FTM_CHANNEL_COUNTn(base) / 2)) {
                 return kStatus_Fail;
             }
 
             /* Return error if requested value is greater than the max allowed */
-            if (chnlParams->firstEdgeDelayPercent > 100)
-            {
+            if (chnlParams->firstEdgeDelayPercent > 100) {
                 return kStatus_Fail;
             }
 
             /* Configure delay of the first edge */
-            if (chnlParams->firstEdgeDelayPercent == 0)
-            {
+            if (chnlParams->firstEdgeDelayPercent == 0) {
                 /* No delay for the first edge */
                 cnvFirstEdge = 0;
-            }
-            else
-            {
+            } else {
                 cnvFirstEdge = (mod * chnlParams->firstEdgeDelayPercent) / 100;
             }
 
             /* Configure dutycycle */
-            if (chnlParams->dutyCyclePercent == 0)
-            {
+            if (chnlParams->dutyCyclePercent == 0) {
                 /* Signal stays low */
                 cnv = 0;
                 cnvFirstEdge = 0;
-            }
-            else
-            {
+            } else {
                 cnv = (mod * chnlParams->dutyCyclePercent) / 100;
                 /* For 100% duty cycle */
-                if (cnv >= mod)
-                {
+                if (cnv >= mod) {
                     cnv = mod + 1;
                 }
             }
@@ -492,29 +450,23 @@ void FTM_UpdatePwmDutycycle(FTM_Type *base,
     uint16_t cnv, cnvFirstEdge = 0, mod;
 
     mod = base->MOD;
-    if ((currentPwmMode == kFTM_EdgeAlignedPwm) || (currentPwmMode == kFTM_CenterAlignedPwm))
-    {
+    if ((currentPwmMode == kFTM_EdgeAlignedPwm) || (currentPwmMode == kFTM_CenterAlignedPwm)) {
         cnv = (mod * dutyCyclePercent) / 100;
         /* For 100% duty cycle */
-        if (cnv >= mod)
-        {
+        if (cnv >= mod) {
             cnv = mod + 1;
         }
         base->CONTROLS[chnlNumber].CnV = cnv;
-    }
-    else
-    {
+    } else {
         /* This check is added for combined mode as the channel number should be the pair number */
-        if (chnlNumber >= (FSL_FEATURE_FTM_CHANNEL_COUNTn(base) / 2))
-        {
+        if (chnlNumber >= (FSL_FEATURE_FTM_CHANNEL_COUNTn(base) / 2)) {
             return;
         }
 
         cnv = (mod * dutyCyclePercent) / 100;
         cnvFirstEdge = base->CONTROLS[chnlNumber * 2].CnV;
         /* For 100% duty cycle */
-        if (cnv >= mod)
-        {
+        if (cnv >= mod) {
             cnv = mod + 1;
         }
         base->CONTROLS[(chnlNumber * 2) + 1].CnV = cnvFirstEdge + cnv;
@@ -553,8 +505,7 @@ void FTM_SetupInputCapture(FTM_Type *base,
     /* Set the requested input capture mode */
     base->CONTROLS[chnlNumber].CnSC = reg;
     /* Input filter available only for channels 0, 1, 2, 3 */
-    if (chnlNumber < kFTM_Chnl_4)
-    {
+    if (chnlNumber < kFTM_Chnl_4) {
         reg = base->FILTER;
         reg &= ~(FTM_FILTER_CH0FVAL_MASK << (FTM_FILTER_CH1FVAL_SHIFT * chnlNumber));
         reg |= (filterValue << (FTM_FILTER_CH1FVAL_SHIFT * chnlNumber));
@@ -624,8 +575,7 @@ void FTM_SetupDualEdgeCapture(FTM_Type *base,
     base->CONTROLS[(chnlPairNumber * 2) + 1].CnSC = reg;
 
     /* Input filter available only for channels 0, 1, 2, 3 */
-    if (chnlPairNumber < kFTM_Chnl_4)
-    {
+    if (chnlPairNumber < kFTM_Chnl_4) {
         reg = base->FILTER;
         reg &= ~(FTM_FILTER_CH0FVAL_MASK << (FTM_FILTER_CH1FVAL_SHIFT * chnlPairNumber));
         reg |= (filterValue << (FTM_FILTER_CH1FVAL_SHIFT * chnlPairNumber));
@@ -649,8 +599,7 @@ void FTM_SetupQuadDecode(FTM_Type *base,
     uint32_t reg;
 
     /* Set Phase A filter value if phase filter is enabled */
-    if (phaseAParams->enablePhaseFilter)
-    {
+    if (phaseAParams->enablePhaseFilter) {
         reg = base->FILTER;
         reg &= ~(FTM_FILTER_CH0FVAL_MASK);
         reg |= FTM_FILTER_CH0FVAL(phaseAParams->phaseFilterVal);
@@ -658,8 +607,7 @@ void FTM_SetupQuadDecode(FTM_Type *base,
     }
 
     /* Set Phase B filter value if phase filter is enabled */
-    if (phaseBParams->enablePhaseFilter)
-    {
+    if (phaseBParams->enablePhaseFilter) {
         reg = base->FILTER;
         reg &= ~(FTM_FILTER_CH1FVAL_MASK);
         reg |= FTM_FILTER_CH1FVAL(phaseBParams->phaseFilterVal);
@@ -685,36 +633,27 @@ void FTM_SetupFault(FTM_Type *base, ftm_fault_input_t faultNumber, const ftm_fau
     uint32_t reg;
 
     reg = base->FLTCTRL;
-    if (faultParams->enableFaultInput)
-    {
+    if (faultParams->enableFaultInput) {
         /* Enable the fault input */
         reg |= (FTM_FLTCTRL_FAULT0EN_MASK << faultNumber);
-    }
-    else
-    {
+    } else {
         /* Disable the fault input */
         reg &= ~(FTM_FLTCTRL_FAULT0EN_MASK << faultNumber);
     }
 
-    if (faultParams->useFaultFilter)
-    {
+    if (faultParams->useFaultFilter) {
         /* Enable the fault filter */
         reg |= (FTM_FLTCTRL_FFLTR0EN_MASK << (FTM_FLTCTRL_FFLTR0EN_SHIFT + faultNumber));
-    }
-    else
-    {
+    } else {
         /* Disable the fault filter */
         reg &= ~(FTM_FLTCTRL_FFLTR0EN_MASK << (FTM_FLTCTRL_FFLTR0EN_SHIFT + faultNumber));
     }
     base->FLTCTRL = reg;
 
-    if (faultParams->faultLevel)
-    {
+    if (faultParams->faultLevel) {
         /* Active low polarity for the fault input pin */
         base->FLTPOL |= (1U << faultNumber);
-    }
-    else
-    {
+    } else {
         /* Active high polarity for the fault input pin */
         base->FLTPOL &= ~(1U << faultNumber);
     }
@@ -726,30 +665,25 @@ void FTM_EnableInterrupts(FTM_Type *base, uint32_t mask)
     uint8_t chnlNumber = 0;
 
     /* Enable the timer overflow interrupt */
-    if (mask & kFTM_TimeOverflowInterruptEnable)
-    {
+    if (mask & kFTM_TimeOverflowInterruptEnable) {
         base->SC |= FTM_SC_TOIE_MASK;
     }
 
     /* Enable the fault interrupt */
-    if (mask & kFTM_FaultInterruptEnable)
-    {
+    if (mask & kFTM_FaultInterruptEnable) {
         base->MODE |= FTM_MODE_FAULTIE_MASK;
     }
 
 #if defined(FSL_FEATURE_FTM_HAS_RELOAD_INTERRUPT) && (FSL_FEATURE_FTM_HAS_RELOAD_INTERRUPT)
     /* Enable the reload interrupt available only on certain SoC's */
-    if (mask & kFTM_ReloadInterruptEnable)
-    {
+    if (mask & kFTM_ReloadInterruptEnable) {
         base->SC |= FTM_SC_RIE_MASK;
     }
 #endif
 
     /* Enable the channel interrupts */
-    while (chnlInts)
-    {
-        if (chnlInts & 0x1)
-        {
+    while (chnlInts) {
+        if (chnlInts & 0x1) {
             base->CONTROLS[chnlNumber].CnSC |= FTM_CnSC_CHIE_MASK;
         }
         chnlNumber++;
@@ -763,29 +697,24 @@ void FTM_DisableInterrupts(FTM_Type *base, uint32_t mask)
     uint8_t chnlNumber = 0;
 
     /* Disable the timer overflow interrupt */
-    if (mask & kFTM_TimeOverflowInterruptEnable)
-    {
+    if (mask & kFTM_TimeOverflowInterruptEnable) {
         base->SC &= ~FTM_SC_TOIE_MASK;
     }
     /* Disable the fault interrupt */
-    if (mask & kFTM_FaultInterruptEnable)
-    {
+    if (mask & kFTM_FaultInterruptEnable) {
         base->MODE &= ~FTM_MODE_FAULTIE_MASK;
     }
 
 #if defined(FSL_FEATURE_FTM_HAS_RELOAD_INTERRUPT) && (FSL_FEATURE_FTM_HAS_RELOAD_INTERRUPT)
     /* Disable the reload interrupt available only on certain SoC's */
-    if (mask & kFTM_ReloadInterruptEnable)
-    {
+    if (mask & kFTM_ReloadInterruptEnable) {
         base->SC &= ~FTM_SC_RIE_MASK;
     }
 #endif
 
     /* Disable the channel interrupts */
-    while (chnlInts)
-    {
-        if (chnlInts & 0x1)
-        {
+    while (chnlInts) {
+        if (chnlInts & 0x1) {
             base->CONTROLS[chnlNumber].CnSC &= ~FTM_CnSC_CHIE_MASK;
         }
         chnlNumber++;
@@ -802,30 +731,25 @@ uint32_t FTM_GetEnabledInterrupts(FTM_Type *base)
     assert(chnlCount != -1);
 
     /* Check if timer overflow interrupt is enabled */
-    if (base->SC & FTM_SC_TOIE_MASK)
-    {
+    if (base->SC & FTM_SC_TOIE_MASK) {
         enabledInterrupts |= kFTM_TimeOverflowInterruptEnable;
     }
     /* Check if fault interrupt is enabled */
-    if (base->MODE & FTM_MODE_FAULTIE_MASK)
-    {
+    if (base->MODE & FTM_MODE_FAULTIE_MASK) {
         enabledInterrupts |= kFTM_FaultInterruptEnable;
     }
 
 #if defined(FSL_FEATURE_FTM_HAS_RELOAD_INTERRUPT) && (FSL_FEATURE_FTM_HAS_RELOAD_INTERRUPT)
     /* Check if the reload interrupt is enabled */
-    if (base->SC & FTM_SC_RIE_MASK)
-    {
+    if (base->SC & FTM_SC_RIE_MASK) {
         enabledInterrupts |= kFTM_ReloadInterruptEnable;
     }
 #endif
 
     /* Check if the channel interrupts are enabled */
-    while (chnlCount > 0)
-    {
+    while (chnlCount > 0) {
         chnlCount--;
-        if (base->CONTROLS[chnlCount].CnSC & FTM_CnSC_CHIE_MASK)
-        {
+        if (base->CONTROLS[chnlCount].CnSC & FTM_CnSC_CHIE_MASK) {
             enabledInterrupts |= (1U << chnlCount);
         }
     }
@@ -838,24 +762,20 @@ uint32_t FTM_GetStatusFlags(FTM_Type *base)
     uint32_t statusFlags = 0;
 
     /* Check the timer flag */
-    if (base->SC & FTM_SC_TOF_MASK)
-    {
+    if (base->SC & FTM_SC_TOF_MASK) {
         statusFlags |= kFTM_TimeOverflowFlag;
     }
     /* Check fault flag */
-    if (base->FMS & FTM_FMS_FAULTF_MASK)
-    {
+    if (base->FMS & FTM_FMS_FAULTF_MASK) {
         statusFlags |= kFTM_FaultFlag;
     }
     /* Check channel trigger flag */
-    if (base->EXTTRIG & FTM_EXTTRIG_TRIGF_MASK)
-    {
+    if (base->EXTTRIG & FTM_EXTTRIG_TRIGF_MASK) {
         statusFlags |= kFTM_ChnlTriggerFlag;
     }
 #if defined(FSL_FEATURE_FTM_HAS_RELOAD_INTERRUPT) && (FSL_FEATURE_FTM_HAS_RELOAD_INTERRUPT)
     /* Check reload flag */
-    if (base->SC & FTM_SC_RF_MASK)
-    {
+    if (base->SC & FTM_SC_RF_MASK) {
         statusFlags |= kFTM_ReloadFlag;
     }
 #endif
@@ -869,25 +789,21 @@ uint32_t FTM_GetStatusFlags(FTM_Type *base)
 void FTM_ClearStatusFlags(FTM_Type *base, uint32_t mask)
 {
     /* Clear the timer overflow flag by writing a 0 to the bit while it is set */
-    if (mask & kFTM_TimeOverflowFlag)
-    {
+    if (mask & kFTM_TimeOverflowFlag) {
         base->SC &= ~FTM_SC_TOF_MASK;
     }
     /* Clear fault flag by writing a 0 to the bit while it is set */
-    if (mask & kFTM_FaultFlag)
-    {
+    if (mask & kFTM_FaultFlag) {
         base->FMS &= ~FTM_FMS_FAULTF_MASK;
     }
     /* Clear channel trigger flag */
-    if (mask & kFTM_ChnlTriggerFlag)
-    {
+    if (mask & kFTM_ChnlTriggerFlag) {
         base->EXTTRIG &= ~FTM_EXTTRIG_TRIGF_MASK;
     }
 
 #if defined(FSL_FEATURE_FTM_HAS_RELOAD_INTERRUPT) && (FSL_FEATURE_FTM_HAS_RELOAD_INTERRUPT)
     /* Check reload flag by writing a 0 to the bit while it is set */
-    if (mask & kFTM_ReloadFlag)
-    {
+    if (mask & kFTM_ReloadFlag) {
         base->SC &= ~FTM_SC_RF_MASK;
     }
 #endif

@@ -50,15 +50,14 @@
 #define ANT_STACK_EVT_STRUCT_SIZE       (sizeof(ant_evt_t))                               /**< Size of the @ref ant_evt_t structure. This will be used by the @ref softdevice_handler to internal event buffer size needed. */
 
 /**@brief ANT stack event type. */
-typedef struct
-{
+typedef struct {
     uint8_t channel;                                                                      /**< Channel number. */
     uint8_t event;                                                                        /**< Event code. */
     uint8_t evt_buffer[ANT_STACK_EVT_MSG_BUF_SIZE];                                       /**< Event message buffer. */
 } ant_evt_t;
 
 /**@brief Application ANT stack event handler type. */
-typedef void (*ant_evt_handler_t) (ant_evt_t * p_ant_evt);
+typedef void (*ant_evt_handler_t)(ant_evt_t *p_ant_evt);
 
 /**@brief     Function for registering for ANT events.
  *

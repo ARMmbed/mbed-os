@@ -36,9 +36,8 @@
 /**************************************************************************//**
  * @brief PRS_CH EFM32ZG PRS CH
  *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t CTRL; /**< Channel Control Register  */
+typedef struct {
+    __IOM uint32_t CTRL; /**< Channel Control Register  */
 } PRS_CH_TypeDef;
 
 /** @} End of group Parts */

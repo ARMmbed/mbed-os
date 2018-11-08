@@ -60,9 +60,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  :2;               /*!< bit:  0.. 1  Reserved                           */
-        uint8_t  IORET:1;          /*!< bit:      2  I/O Retention                      */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  : 2;              /*!< bit:  0.. 1  Reserved                           */
+        uint8_t  IORET: 1;         /*!< bit:      2  I/O Retention                      */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } PM_CTRLA_Type;
@@ -79,8 +79,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SLEEPMODE:3;      /*!< bit:  0.. 2  Sleep Mode                         */
-        uint8_t  :5;               /*!< bit:  3.. 7  Reserved                           */
+        uint8_t  SLEEPMODE: 3;     /*!< bit:  0.. 2  Sleep Mode                         */
+        uint8_t  : 5;              /*!< bit:  3.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } PM_SLEEPCFG_Type;
@@ -110,8 +110,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PLSEL:2;          /*!< bit:  0.. 1  Performance Level Select           */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  PLSEL: 2;         /*!< bit:  0.. 1  Performance Level Select           */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } PM_PLCFG_Type;
@@ -135,8 +135,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PLRDY:1;          /*!< bit:      0  Performance Level Interrupt Enable */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  PLRDY: 1;         /*!< bit:      0  Performance Level Interrupt Enable */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } PM_INTENCLR_Type;
@@ -153,8 +153,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PLRDY:1;          /*!< bit:      0  Performance Level Ready interrupt Enable */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  PLRDY: 1;         /*!< bit:      0  Performance Level Ready interrupt Enable */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } PM_INTENSET_Type;
@@ -171,8 +171,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  PLRDY:1;          /*!< bit:      0  Performance Level Ready            */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  PLRDY: 1;         /*!< bit:      0  Performance Level Ready            */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } PM_INTFLAG_Type;
@@ -189,16 +189,16 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t PDCFG:2;          /*!< bit:  0.. 1  Power Domain Configuration         */
-        uint16_t :2;               /*!< bit:  2.. 3  Reserved                           */
-        uint16_t DPGPD0:1;         /*!< bit:      4  Dynamic Power Gating for PD0       */
-        uint16_t DPGPD1:1;         /*!< bit:      5  Dynamic Power Gating for PD1       */
-        uint16_t :1;               /*!< bit:      6  Reserved                           */
-        uint16_t AVREGSD:1;        /*!< bit:      7  Automatic VREG Switching Disable   */
-        uint16_t LINKPD:2;         /*!< bit:  8.. 9  Linked Power Domain                */
-        uint16_t BBIASHS:2;        /*!< bit: 10..11  Back Bias for HMCRAMCHS            */
-        uint16_t BBIASLP:2;        /*!< bit: 12..13  Back Bias for HMCRAMCLP            */
-        uint16_t BBIASPP:2;        /*!< bit: 14..15  Back Bias for PicoPram             */
+        uint16_t PDCFG: 2;         /*!< bit:  0.. 1  Power Domain Configuration         */
+        uint16_t : 2;              /*!< bit:  2.. 3  Reserved                           */
+        uint16_t DPGPD0: 1;        /*!< bit:      4  Dynamic Power Gating for PD0       */
+        uint16_t DPGPD1: 1;        /*!< bit:      5  Dynamic Power Gating for PD1       */
+        uint16_t : 1;              /*!< bit:      6  Reserved                           */
+        uint16_t AVREGSD: 1;       /*!< bit:      7  Automatic VREG Switching Disable   */
+        uint16_t LINKPD: 2;        /*!< bit:  8.. 9  Linked Power Domain                */
+        uint16_t BBIASHS: 2;       /*!< bit: 10..11  Back Bias for HMCRAMCHS            */
+        uint16_t BBIASLP: 2;       /*!< bit: 12..13  Back Bias for HMCRAMCLP            */
+        uint16_t BBIASPP: 2;       /*!< bit: 14..15  Back Bias for PicoPram             */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } PM_STDBYCFG_Type;
@@ -250,8 +250,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DLYVAL:7;         /*!< bit:  0.. 6  Delay Value                        */
-        uint8_t  IGNACK:1;         /*!< bit:      7  Ignore Acknowledge                 */
+        uint8_t  DLYVAL: 7;        /*!< bit:  0.. 6  Delay Value                        */
+        uint8_t  IGNACK: 1;        /*!< bit:      7  Ignore Acknowledge                 */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } PM_PWSAKDLY_Type;

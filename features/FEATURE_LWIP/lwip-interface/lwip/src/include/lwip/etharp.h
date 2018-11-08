@@ -68,15 +68,15 @@ extern "C" {
   * defined here to be accessed by memp.h
   */
 struct etharp_q_entry {
-  struct etharp_q_entry *next;
-  struct pbuf *p;
+    struct etharp_q_entry *next;
+    struct pbuf *p;
 };
 #endif /* ARP_QUEUEING */
 
 #define etharp_init() /* Compatibility define, no init needed. */
 void etharp_tmr(void);
 s8_t etharp_find_addr(struct netif *netif, const ip4_addr_t *ipaddr,
-         struct eth_addr **eth_ret, const ip4_addr_t **ip_ret);
+                      struct eth_addr **eth_ret, const ip4_addr_t **ip_ret);
 u8_t etharp_get_entry(u8_t i, ip4_addr_t **ipaddr, struct netif **netif, struct eth_addr **eth_ret);
 err_t etharp_output(struct netif *netif, struct pbuf *q, const ip4_addr_t *ipaddr);
 err_t etharp_query(struct netif *netif, const ip4_addr_t *ipaddr, struct pbuf *q);

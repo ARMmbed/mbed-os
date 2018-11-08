@@ -49,8 +49,7 @@
 /*@}*/
 
 /*! @brief SAI return status*/
-enum _sai_status_t
-{
+enum _sai_status_t {
     kStatus_SAI_TxBusy = MAKE_STATUS(kStatusGroup_SAI, 0),    /*!< SAI Tx is busy. */
     kStatus_SAI_RxBusy = MAKE_STATUS(kStatusGroup_SAI, 1),    /*!< SAI Rx is busy. */
     kStatus_SAI_TxError = MAKE_STATUS(kStatusGroup_SAI, 2),   /*!< SAI Tx FIFO error. */
@@ -61,8 +60,7 @@ enum _sai_status_t
 };
 
 /*! @brief Define the SAI bus type */
-typedef enum _sai_protocol
-{
+typedef enum _sai_protocol {
     kSAI_BusLeftJustified = 0x0U, /*!< Uses left justified format.*/
     kSAI_BusRightJustified,       /*!< Uses right justified format. */
     kSAI_BusI2S,                  /*!< Uses I2S format. */
@@ -71,23 +69,20 @@ typedef enum _sai_protocol
 } sai_protocol_t;
 
 /*! @brief Master or slave mode */
-typedef enum _sai_master_slave
-{
+typedef enum _sai_master_slave {
     kSAI_Master = 0x0U, /*!< Master mode */
     kSAI_Slave = 0x1U   /*!< Slave mode */
 } sai_master_slave_t;
 
 /*! @brief Mono or stereo audio format */
-typedef enum _sai_mono_stereo
-{
+typedef enum _sai_mono_stereo {
     kSAI_Stereo = 0x0U, /*!< Stereo sound. */
     kSAI_MonoLeft,      /*!< Only left channel have sound. */
     kSAI_MonoRight      /*!< Only Right channel have sound. */
 } sai_mono_stereo_t;
 
 /*! @brief Synchronous or asynchronous mode */
-typedef enum _sai_sync_mode
-{
+typedef enum _sai_sync_mode {
     kSAI_ModeAsync = 0x0U,    /*!< Asynchronous mode */
     kSAI_ModeSync,            /*!< Synchronous mode (with receiver or transmit) */
     kSAI_ModeSyncWithOtherTx, /*!< Synchronous with another SAI transmit */
@@ -95,8 +90,7 @@ typedef enum _sai_sync_mode
 } sai_sync_mode_t;
 
 /*! @brief Mater clock source */
-typedef enum _sai_mclk_source
-{
+typedef enum _sai_mclk_source {
     kSAI_MclkSourceSysclk = 0x0U, /*!< Master clock from the system clock */
     kSAI_MclkSourceSelect1,       /*!< Master clock from source 1 */
     kSAI_MclkSourceSelect2,       /*!< Master clock from source 2 */
@@ -104,8 +98,7 @@ typedef enum _sai_mclk_source
 } sai_mclk_source_t;
 
 /*! @brief Bit clock source */
-typedef enum _sai_bclk_source
-{
+typedef enum _sai_bclk_source {
     kSAI_BclkSourceBusclk = 0x0U, /*!< Bit clock using bus clock */
     kSAI_BclkSourceMclkDiv,       /*!< Bit clock using master clock divider */
     kSAI_BclkSourceOtherSai0,     /*!< Bit clock from other SAI device  */
@@ -113,8 +106,7 @@ typedef enum _sai_bclk_source
 } sai_bclk_source_t;
 
 /*! @brief The SAI interrupt enable flag */
-enum _sai_interrupt_enable_t
-{
+enum _sai_interrupt_enable_t {
     kSAI_WordStartInterruptEnable =
         I2S_TCSR_WSIE_MASK, /*!< Word start flag, means the first word in a frame detected */
     kSAI_SyncErrorInterruptEnable = I2S_TCSR_SEIE_MASK,   /*!< Sync error flag, means the sync error is detected */
@@ -126,8 +118,7 @@ enum _sai_interrupt_enable_t
 };
 
 /*! @brief The DMA request sources */
-enum _sai_dma_enable_t
-{
+enum _sai_dma_enable_t {
     kSAI_FIFOWarningDMAEnable = I2S_TCSR_FWDE_MASK, /*!< FIFO warning caused by the DMA request */
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
     kSAI_FIFORequestDMAEnable = I2S_TCSR_FRDE_MASK, /*!< FIFO request caused by the DMA request */
@@ -135,8 +126,7 @@ enum _sai_dma_enable_t
 };
 
 /*! @brief The SAI status flag */
-enum _sai_flags
-{
+enum _sai_flags {
     kSAI_WordStartFlag = I2S_TCSR_WSF_MASK, /*!< Word start flag, means the first word in a frame detected */
     kSAI_SyncErrorFlag = I2S_TCSR_SEF_MASK, /*!< Sync error flag, means the sync error is detected */
     kSAI_FIFOErrorFlag = I2S_TCSR_FEF_MASK, /*!< FIFO error flag */
@@ -147,8 +137,7 @@ enum _sai_flags
 };
 
 /*! @brief The reset type */
-typedef enum _sai_reset_type
-{
+typedef enum _sai_reset_type {
     kSAI_ResetTypeSoftware = I2S_TCSR_SR_MASK,          /*!< Software reset, reset the logic state */
     kSAI_ResetTypeFIFO = I2S_TCSR_FR_MASK,              /*!< FIFO reset, reset the FIFO read and write pointer */
     kSAI_ResetAll = I2S_TCSR_SR_MASK | I2S_TCSR_FR_MASK /*!< All reset. */
@@ -159,8 +148,7 @@ typedef enum _sai_reset_type
  * @brief The SAI packing mode
  * The mode includes 8 bit and 16 bit packing.
  */
-typedef enum _sai_fifo_packing
-{
+typedef enum _sai_fifo_packing {
     kSAI_FifoPackingDisabled = 0x0U, /*!< Packing disabled */
     kSAI_FifoPacking8bit = 0x2U,     /*!< 8 bit packing enabled */
     kSAI_FifoPacking16bit = 0x3U     /*!< 16bit packing enabled */
@@ -168,8 +156,7 @@ typedef enum _sai_fifo_packing
 #endif /* FSL_FEATURE_SAI_HAS_FIFO_PACKING */
 
 /*! @brief SAI user configuration structure */
-typedef struct _sai_config
-{
+typedef struct _sai_config {
     sai_protocol_t protocol;  /*!< Audio bus protocol in SAI */
     sai_sync_mode_t syncMode; /*!< SAI sync mode, control Tx/Rx clock sync */
 #if defined(FSL_FEATURE_SAI_HAS_MCR) && (FSL_FEATURE_SAI_HAS_MCR)
@@ -184,8 +171,7 @@ typedef struct _sai_config
 #define SAI_XFER_QUEUE_SIZE (4)
 
 /*! @brief Audio sample rate */
-typedef enum _sai_sample_rate
-{
+typedef enum _sai_sample_rate {
     kSAI_SampleRate8KHz = 8000U,     /*!< Sample rate 8000Hz */
     kSAI_SampleRate11025Hz = 11025U, /*!< Sample rate 11025Hz */
     kSAI_SampleRate12KHz = 12000U,   /*!< Sample rate 12000Hz */
@@ -199,8 +185,7 @@ typedef enum _sai_sample_rate
 } sai_sample_rate_t;
 
 /*! @brief Audio word width */
-typedef enum _sai_word_width
-{
+typedef enum _sai_word_width {
     kSAI_WordWidth8bits = 8U,   /*!< Audio data width 8 bits */
     kSAI_WordWidth16bits = 16U, /*!< Audio data width 16 bits */
     kSAI_WordWidth24bits = 24U, /*!< Audio data width 24 bits */
@@ -208,8 +193,7 @@ typedef enum _sai_word_width
 } sai_word_width_t;
 
 /*! @brief sai transfer format */
-typedef struct _sai_transfer_format
-{
+typedef struct _sai_transfer_format {
     uint32_t sampleRate_Hz;   /*!< Sample rate of audio data */
     uint32_t bitWidth;        /*!< Data length of audio data, usually 8/16/24/32bits */
     sai_mono_stereo_t stereo; /*!< Mono or stereo */
@@ -222,8 +206,7 @@ typedef struct _sai_transfer_format
 } sai_transfer_format_t;
 
 /*! @brief SAI transfer structure */
-typedef struct _sai_transfer
-{
+typedef struct _sai_transfer {
     uint8_t *data;   /*!< Data start address to transfer. */
     size_t dataSize; /*!< Transfer size. */
 } sai_transfer_t;
@@ -234,8 +217,7 @@ typedef struct _sai_handle sai_handle_t;
 typedef void (*sai_transfer_callback_t)(I2S_Type *base, sai_handle_t *handle, status_t status, void *userData);
 
 /*! @brief SAI handle structure */
-struct _sai_handle
-{
+struct _sai_handle {
     uint32_t state;                               /*!< Transfer status */
     sai_transfer_callback_t callback;             /*!< Callback function called at transfer event*/
     void *userData;                               /*!< Callback parameter passed to callback function*/
@@ -521,12 +503,9 @@ static inline void SAI_RxDisableInterrupts(I2S_Type *base, uint32_t mask)
  */
 static inline void SAI_TxEnableDMA(I2S_Type *base, uint32_t mask, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->TCSR = ((base->TCSR & 0xFFE3FFFFU) | mask);
-    }
-    else
-    {
+    } else {
         base->TCSR = ((base->TCSR & 0xFFE3FFFFU) & (~mask));
     }
 }
@@ -542,12 +521,9 @@ static inline void SAI_TxEnableDMA(I2S_Type *base, uint32_t mask, bool enable)
  */
 static inline void SAI_RxEnableDMA(I2S_Type *base, uint32_t mask, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->RCSR = ((base->RCSR & 0xFFE3FFFFU) | mask);
-    }
-    else
-    {
+    } else {
         base->RCSR = ((base->RCSR & 0xFFE3FFFFU) & (~mask));
     }
 }

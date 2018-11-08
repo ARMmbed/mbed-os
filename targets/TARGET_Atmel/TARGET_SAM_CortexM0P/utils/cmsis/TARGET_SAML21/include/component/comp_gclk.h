@@ -60,8 +60,8 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } GCLK_CTRLA_Type;
@@ -78,10 +78,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset Synchroniation Busy bit */
-        uint32_t :1;               /*!< bit:      1  Reserved                           */
-        uint32_t GENCTRL:9;        /*!< bit:  2..10  Generic Clock Generator Control Synchronization Busy bits */
-        uint32_t :21;              /*!< bit: 11..31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset Synchroniation Busy bit */
+        uint32_t : 1;              /*!< bit:      1  Reserved                           */
+        uint32_t GENCTRL: 9;       /*!< bit:  2..10  Generic Clock Generator Control Synchronization Busy bits */
+        uint32_t : 21;             /*!< bit: 11..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } GCLK_SYNCBUSY_Type;
@@ -119,16 +119,16 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SRC:4;            /*!< bit:  0.. 3  Source Select                      */
-        uint32_t :4;               /*!< bit:  4.. 7  Reserved                           */
-        uint32_t GENEN:1;          /*!< bit:      8  Generic Clock Generator Enable     */
-        uint32_t IDC:1;            /*!< bit:      9  Improve Duty Cycle                 */
-        uint32_t OOV:1;            /*!< bit:     10  Output Off Value                   */
-        uint32_t OE:1;             /*!< bit:     11  Output Enable                      */
-        uint32_t DIVSEL:1;         /*!< bit:     12  Divide Selection                   */
-        uint32_t RUNSTDBY:1;       /*!< bit:     13  Run in Standby                     */
-        uint32_t :2;               /*!< bit: 14..15  Reserved                           */
-        uint32_t DIV:16;           /*!< bit: 16..31  Division Factor                    */
+        uint32_t SRC: 4;           /*!< bit:  0.. 3  Source Select                      */
+        uint32_t : 4;              /*!< bit:  4.. 7  Reserved                           */
+        uint32_t GENEN: 1;         /*!< bit:      8  Generic Clock Generator Enable     */
+        uint32_t IDC: 1;           /*!< bit:      9  Improve Duty Cycle                 */
+        uint32_t OOV: 1;           /*!< bit:     10  Output Off Value                   */
+        uint32_t OE: 1;            /*!< bit:     11  Output Enable                      */
+        uint32_t DIVSEL: 1;        /*!< bit:     12  Divide Selection                   */
+        uint32_t RUNSTDBY: 1;      /*!< bit:     13  Run in Standby                     */
+        uint32_t : 2;              /*!< bit: 14..15  Reserved                           */
+        uint32_t DIV: 16;          /*!< bit: 16..31  Division Factor                    */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } GCLK_GENCTRL_Type;
@@ -179,11 +179,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t GEN:4;            /*!< bit:  0.. 3  Generic Clock Generator            */
-        uint32_t :2;               /*!< bit:  4.. 5  Reserved                           */
-        uint32_t CHEN:1;           /*!< bit:      6  Channel Enable                     */
-        uint32_t WRTLOCK:1;        /*!< bit:      7  Write Lock                         */
-        uint32_t :24;              /*!< bit:  8..31  Reserved                           */
+        uint32_t GEN: 4;           /*!< bit:  0.. 3  Generic Clock Generator            */
+        uint32_t : 2;              /*!< bit:  4.. 5  Reserved                           */
+        uint32_t CHEN: 1;          /*!< bit:      6  Channel Enable                     */
+        uint32_t WRTLOCK: 1;       /*!< bit:      7  Write Lock                         */
+        uint32_t : 24;             /*!< bit:  8..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } GCLK_PCHCTRL_Type;

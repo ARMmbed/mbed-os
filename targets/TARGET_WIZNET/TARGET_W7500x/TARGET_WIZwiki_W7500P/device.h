@@ -1,6 +1,6 @@
 // The 'features' section in 'target.json' is now used to create the device's hardware preprocessor switches.
 // Check the 'features' section of the target description in 'targets.json' for more details.
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -29,7 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
- 
+
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 

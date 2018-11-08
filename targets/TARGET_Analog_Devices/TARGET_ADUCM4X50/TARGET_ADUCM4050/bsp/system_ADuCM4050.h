@@ -67,8 +67,7 @@ extern uint32_t SystemCoreClock;     /* System Clock Frequency (Core Clock)  */
  */
 
 /*! System API function return codes */
-typedef enum
-{
+typedef enum {
     ADI_SYS_SUCCESS = 0,  /*!< No error detected. */
     ADI_SYS_FAILURE,      /*!< The API call failed. */
 } ADI_SYS_RESULT;
@@ -81,19 +80,19 @@ typedef enum
 /* System clock constant (may also be 16000000) */
 #define __HFXTAL    26000000u
 
- /*System clock constant (same whether internal osc or external xtal) */
+/*System clock constant (same whether internal osc or external xtal) */
 #define __LFCLK        32768u
 
- /*Selecting HFOSC as input for generating root clock*/
+/*Selecting HFOSC as input for generating root clock*/
 #define HFMUX_INTERNAL_OSC_VAL      (0u << BITP_CLKG_CLK_CTL0_CLKMUX)
 
- /*Selecting HFXTAL as input for generating root clock*/
+/*Selecting HFXTAL as input for generating root clock*/
 #define HFMUX_EXTERNAL_XTAL_VAL     (1u << BITP_CLKG_CLK_CTL0_CLKMUX)
 
- /*Selecting SPLL as input for generating root clock*/
+/*Selecting SPLL as input for generating root clock*/
 #define HFMUX_SYSTEM_SPLL_VAL       (2u << BITP_CLKG_CLK_CTL0_CLKMUX)
 
- /*Selecting GPIO as input for generating root clock*/
+/*Selecting GPIO as input for generating root clock*/
 #define HFMUX_GPIO_VAL              (3u << BITP_CLKG_CLK_CTL0_CLKMUX)
 
 /*! Cache controller key */
@@ -105,11 +104,11 @@ typedef enum
  * Security options
  */
 typedef struct {
-        const uint32_t ReadProtectKeyHash[4];
-        const uint32_t CrcOfReadProtectKeyHash;
-        const uint32_t LastCRCPage;
-        const uint32_t InCircuitWriteProtectCode;
-        const uint32_t FlashBlockWriteProtect;
+    const uint32_t ReadProtectKeyHash[4];
+    const uint32_t CrcOfReadProtectKeyHash;
+    const uint32_t LastCRCPage;
+    const uint32_t InCircuitWriteProtectCode;
+    const uint32_t FlashBlockWriteProtect;
 
 } ADI_ADUCM4X50_SECURITY_OPTIONS;
 

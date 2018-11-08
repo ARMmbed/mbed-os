@@ -31,7 +31,7 @@ typedef enum {
 
 #define IS_POINTER_NOT_NULL(param) ((void*)(param) != (void*)0)
 
-/* 
+/*
  * To report the name of the source file and source line number where the
  * assert_param error has occurred, "DEBUG" must be defined. And detailed
  * definition of assert_failed() is needed to be implemented, which can be

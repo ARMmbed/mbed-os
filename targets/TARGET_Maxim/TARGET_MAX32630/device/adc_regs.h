@@ -97,7 +97,7 @@ typedef struct {
 /**
  * @ingroup    adc_registers
  * @defgroup   ADC_Register_Offsets Register Offsets
- * @brief      ADC Peripheral Register Offsets from the ADC Base Peripheral Address. 
+ * @brief      ADC Peripheral Register Offsets from the ADC Base Peripheral Address.
  * @{
  */
 #define MXC_R_ADC_OFFS_CTRL                                 ((uint32_t)0x00000000UL) /**< Offset from ADC Base Address: <tt>\b 0x000</tt>  */
@@ -122,7 +122,7 @@ typedef struct {
  */
 #define MXC_F_ADC_CTRL_CPU_ADC_START_POS                    0                                                                   /**< CPU_ADC_START Position         */
 #define MXC_F_ADC_CTRL_CPU_ADC_START                        ((uint32_t)(0x00000001UL << MXC_F_ADC_CTRL_CPU_ADC_START_POS))      /**< CPU_ADC_START Mask             */
-#define MXC_F_ADC_CTRL_ADC_PU_POS                           1                                                                   /**< ADC_PU Position                */ 
+#define MXC_F_ADC_CTRL_ADC_PU_POS                           1                                                                   /**< ADC_PU Position                */
 #define MXC_F_ADC_CTRL_ADC_PU                               ((uint32_t)(0x00000001UL << MXC_F_ADC_CTRL_ADC_PU_POS))             /**< ADC_PU Mask                    */
 #define MXC_F_ADC_CTRL_BUF_PU_POS                           2                                                                   /**< BUF_PU Position                */
 #define MXC_F_ADC_CTRL_BUF_PU                               ((uint32_t)(0x00000001UL << MXC_F_ADC_CTRL_BUF_PU_POS))             /**< BUF_PU Mask                    */
@@ -140,20 +140,20 @@ typedef struct {
 #define MXC_F_ADC_CTRL_ADC_REFSCL                           ((uint32_t)(0x00000001UL << MXC_F_ADC_CTRL_ADC_REFSCL_POS))         /**< ADC_REFSCL Mask                */
 #define MXC_F_ADC_CTRL_ADC_SCALE_POS                        9                                                                   /**< ADC_SCALE Position             */
 #define MXC_F_ADC_CTRL_ADC_SCALE                            ((uint32_t)(0x00000001UL << MXC_F_ADC_CTRL_ADC_SCALE_POS))          /**< ADC_SCALE Mask                 */
-#define MXC_F_ADC_CTRL_ADC_REFSEL_POS                       10                                                                  /**< ADC_REFSEL Position            */ 
+#define MXC_F_ADC_CTRL_ADC_REFSEL_POS                       10                                                                  /**< ADC_REFSEL Position            */
 #define MXC_F_ADC_CTRL_ADC_REFSEL                           ((uint32_t)(0x00000001UL << MXC_F_ADC_CTRL_ADC_REFSEL_POS))         /**< ADC_REFSEL Mask                */
-#define MXC_F_ADC_CTRL_ADC_CLK_EN_POS                       11                                                                  /**< ADC_CLK_EN Position            */ 
+#define MXC_F_ADC_CTRL_ADC_CLK_EN_POS                       11                                                                  /**< ADC_CLK_EN Position            */
 #define MXC_F_ADC_CTRL_ADC_CLK_EN                           ((uint32_t)(0x00000001UL << MXC_F_ADC_CTRL_ADC_CLK_EN_POS))         /**< ADC_CLK_EN Mask                */
-#define MXC_F_ADC_CTRL_ADC_CHSEL_POS                        12                                                                  /**< ADC_CHSEL Position             */ 
+#define MXC_F_ADC_CTRL_ADC_CHSEL_POS                        12                                                                  /**< ADC_CHSEL Position             */
 #define MXC_F_ADC_CTRL_ADC_CHSEL                            ((uint32_t)(0x0000000FUL << MXC_F_ADC_CTRL_ADC_CHSEL_POS))          /**< ADC_CHSEL Mask                 */
 
 #if (MXC_ADC_REV == 0)
-#define MXC_F_ADC_CTRL_ADC_XREF_POS                         16                                                                  /**< ADC_XREF Position              */ 
+#define MXC_F_ADC_CTRL_ADC_XREF_POS                         16                                                                  /**< ADC_XREF Position              */
 #define MXC_F_ADC_CTRL_ADC_XREF                             ((uint32_t)(0x00000001UL << MXC_F_ADC_CTRL_ADC_XREF_POS))           /**< ADC_XREF Mask                  */
 #endif
 #define MXC_F_ADC_CTRL_ADC_DATAALIGN_POS                    17                                                                  /**< ADC_DATAALIGN Position         */
 #define MXC_F_ADC_CTRL_ADC_DATAALIGN                        ((uint32_t)(0x00000001UL << MXC_F_ADC_CTRL_ADC_DATAALIGN_POS))      /**< ADC_DATAALIGN Mask             */
-#define MXC_F_ADC_CTRL_AFE_PWR_UP_DLY_POS                   24                                                                  /**< AFE_PWR_UP_DLY Position        */ 
+#define MXC_F_ADC_CTRL_AFE_PWR_UP_DLY_POS                   24                                                                  /**< AFE_PWR_UP_DLY Position        */
 #define MXC_F_ADC_CTRL_AFE_PWR_UP_DLY                       ((uint32_t)(0x000000FFUL << MXC_F_ADC_CTRL_AFE_PWR_UP_DLY_POS))     /**< AFE_PWR_UP_DLY Mask            */
 
 /**@} end of group adc_ctrl_register */
@@ -194,7 +194,7 @@ typedef struct {
  * @defgroup    ADC_INTR_IE_Register Interrupt Enable Bits
  * @brief       Interrupt Enable Bit Positions and Masks
  * @{
- */  
+ */
 #define MXC_F_ADC_INTR_ADC_DONE_IE_POS                      0                                                                   /**< ADC_DONE_IE Position       */
 #define MXC_F_ADC_INTR_ADC_DONE_IE                          ((uint32_t)(0x00000001UL << MXC_F_ADC_INTR_ADC_DONE_IE_POS))        /**< ADC_DONE_IE Mask           */
 #define MXC_F_ADC_INTR_ADC_REF_READY_IE_POS                 1                                                                   /**< ADC_REF_READY_IE Position  */
@@ -256,15 +256,15 @@ typedef struct {
  * @brief     Field Positions and Bit Masks for the ADC_LIMIT1 register
  * @{
  */
-#define MXC_F_ADC_LIMIT1_CH_LO_LIMIT_POS                    0                                                                   /**< CH_LO_LIMIT Position       */    
+#define MXC_F_ADC_LIMIT1_CH_LO_LIMIT_POS                    0                                                                   /**< CH_LO_LIMIT Position       */
 #define MXC_F_ADC_LIMIT1_CH_LO_LIMIT                        ((uint32_t)(0x000003FFUL << MXC_F_ADC_LIMIT1_CH_LO_LIMIT_POS))      /**< CH_LO_LIMIT Mask           */
-#define MXC_F_ADC_LIMIT1_CH_HI_LIMIT_POS                    12                                                                  /**< CH_HI_LIMIT Position       */    
+#define MXC_F_ADC_LIMIT1_CH_HI_LIMIT_POS                    12                                                                  /**< CH_HI_LIMIT Position       */
 #define MXC_F_ADC_LIMIT1_CH_HI_LIMIT                        ((uint32_t)(0x000003FFUL << MXC_F_ADC_LIMIT1_CH_HI_LIMIT_POS))      /**< CH_HI_LIMIT Mask           */
-#define MXC_F_ADC_LIMIT1_CH_SEL_POS                         24                                                                  /**< CH_SEL Position            */    
+#define MXC_F_ADC_LIMIT1_CH_SEL_POS                         24                                                                  /**< CH_SEL Position            */
 #define MXC_F_ADC_LIMIT1_CH_SEL                             ((uint32_t)(0x0000000FUL << MXC_F_ADC_LIMIT1_CH_SEL_POS))           /**< CH_SEL Mask                */
-#define MXC_F_ADC_LIMIT1_CH_LO_LIMIT_EN_POS                 28                                                                  /**< CH_LO_LIMIT_EN Position    */    
+#define MXC_F_ADC_LIMIT1_CH_LO_LIMIT_EN_POS                 28                                                                  /**< CH_LO_LIMIT_EN Position    */
 #define MXC_F_ADC_LIMIT1_CH_LO_LIMIT_EN                     ((uint32_t)(0x00000001UL << MXC_F_ADC_LIMIT1_CH_LO_LIMIT_EN_POS))   /**< CH_LO_LIMIT_EN Mask        */
-#define MXC_F_ADC_LIMIT1_CH_HI_LIMIT_EN_POS                 29                                                                  /**< CH_HI_LIMIT_EN Position    */    
+#define MXC_F_ADC_LIMIT1_CH_HI_LIMIT_EN_POS                 29                                                                  /**< CH_HI_LIMIT_EN Position    */
 #define MXC_F_ADC_LIMIT1_CH_HI_LIMIT_EN                     ((uint32_t)(0x00000001UL << MXC_F_ADC_LIMIT1_CH_HI_LIMIT_EN_POS))   /**< CH_HI_LIMIT_EN Mask        */
 /**@} end of group ADC_LIMIT1_register */
 
@@ -274,15 +274,15 @@ typedef struct {
  * @brief     Field Positions and Bit Masks for the ADC_LIMIT2 register
  * @{
  */
-#define MXC_F_ADC_LIMIT2_CH_LO_LIMIT_POS                    0                                                                   /**< CH_LO_LIMIT Position       */   
+#define MXC_F_ADC_LIMIT2_CH_LO_LIMIT_POS                    0                                                                   /**< CH_LO_LIMIT Position       */
 #define MXC_F_ADC_LIMIT2_CH_LO_LIMIT                        ((uint32_t)(0x000003FFUL << MXC_F_ADC_LIMIT2_CH_LO_LIMIT_POS))      /**< CH_LO_LIMIT Mask           */
-#define MXC_F_ADC_LIMIT2_CH_HI_LIMIT_POS                    12                                                                  /**< CH_HI_LIMIT Position       */    
+#define MXC_F_ADC_LIMIT2_CH_HI_LIMIT_POS                    12                                                                  /**< CH_HI_LIMIT Position       */
 #define MXC_F_ADC_LIMIT2_CH_HI_LIMIT                        ((uint32_t)(0x000003FFUL << MXC_F_ADC_LIMIT2_CH_HI_LIMIT_POS))      /**< CH_HI_LIMIT Mask           */
-#define MXC_F_ADC_LIMIT2_CH_SEL_POS                         24                                                                  /**< CH_SEL Position            */    
+#define MXC_F_ADC_LIMIT2_CH_SEL_POS                         24                                                                  /**< CH_SEL Position            */
 #define MXC_F_ADC_LIMIT2_CH_SEL                             ((uint32_t)(0x0000000FUL << MXC_F_ADC_LIMIT2_CH_SEL_POS))           /**< CH_SEL Mask                */
-#define MXC_F_ADC_LIMIT2_CH_LO_LIMIT_EN_POS                 28                                                                  /**< CH_LO_LIMIT_EN Position    */    
+#define MXC_F_ADC_LIMIT2_CH_LO_LIMIT_EN_POS                 28                                                                  /**< CH_LO_LIMIT_EN Position    */
 #define MXC_F_ADC_LIMIT2_CH_LO_LIMIT_EN                     ((uint32_t)(0x00000001UL << MXC_F_ADC_LIMIT2_CH_LO_LIMIT_EN_POS))   /**< CH_LO_LIMIT_EN Mask        */
-#define MXC_F_ADC_LIMIT2_CH_HI_LIMIT_EN_POS                 29                                                                  /**< CH_HI_LIMIT_EN Position    */    
+#define MXC_F_ADC_LIMIT2_CH_HI_LIMIT_EN_POS                 29                                                                  /**< CH_HI_LIMIT_EN Position    */
 #define MXC_F_ADC_LIMIT2_CH_HI_LIMIT_EN                     ((uint32_t)(0x00000001UL << MXC_F_ADC_LIMIT2_CH_HI_LIMIT_EN_POS))   /**< CH_HI_LIMIT_EN Mask        */
 /**@} end of group ADC_LIMIT2_register */
 
@@ -292,15 +292,15 @@ typedef struct {
  * @brief     Field Positions and Bit Masks for the ADC_LIMIT3 register
  * @{
  */
-#define MXC_F_ADC_LIMIT3_CH_LO_LIMIT_POS                    0                                                                   /**< CH_LO_LIMIT Position       */    
+#define MXC_F_ADC_LIMIT3_CH_LO_LIMIT_POS                    0                                                                   /**< CH_LO_LIMIT Position       */
 #define MXC_F_ADC_LIMIT3_CH_LO_LIMIT                        ((uint32_t)(0x000003FFUL << MXC_F_ADC_LIMIT3_CH_LO_LIMIT_POS))      /**< CH_LO_LIMIT Mask           */
-#define MXC_F_ADC_LIMIT3_CH_HI_LIMIT_POS                    12                                                                  /**< CH_HI_LIMIT Position       */    
+#define MXC_F_ADC_LIMIT3_CH_HI_LIMIT_POS                    12                                                                  /**< CH_HI_LIMIT Position       */
 #define MXC_F_ADC_LIMIT3_CH_HI_LIMIT                        ((uint32_t)(0x000003FFUL << MXC_F_ADC_LIMIT3_CH_HI_LIMIT_POS))      /**< CH_HI_LIMIT Mask           */
-#define MXC_F_ADC_LIMIT3_CH_SEL_POS                         24                                                                  /**< CH_SEL Position            */     
+#define MXC_F_ADC_LIMIT3_CH_SEL_POS                         24                                                                  /**< CH_SEL Position            */
 #define MXC_F_ADC_LIMIT3_CH_SEL                             ((uint32_t)(0x0000000FUL << MXC_F_ADC_LIMIT3_CH_SEL_POS))           /**< CH_SEL Mask                */
-#define MXC_F_ADC_LIMIT3_CH_LO_LIMIT_EN_POS                 28                                                                  /**< CH_LO_LIMIT_EN Position    */     
+#define MXC_F_ADC_LIMIT3_CH_LO_LIMIT_EN_POS                 28                                                                  /**< CH_LO_LIMIT_EN Position    */
 #define MXC_F_ADC_LIMIT3_CH_LO_LIMIT_EN                     ((uint32_t)(0x00000001UL << MXC_F_ADC_LIMIT3_CH_LO_LIMIT_EN_POS))   /**< CH_LO_LIMIT_EN Mask        */
-#define MXC_F_ADC_LIMIT3_CH_HI_LIMIT_EN_POS                 29                                                                  /**< CH_HI_LIMIT_EN Position    */     
+#define MXC_F_ADC_LIMIT3_CH_HI_LIMIT_EN_POS                 29                                                                  /**< CH_HI_LIMIT_EN Position    */
 #define MXC_F_ADC_LIMIT3_CH_HI_LIMIT_EN                     ((uint32_t)(0x00000001UL << MXC_F_ADC_LIMIT3_CH_HI_LIMIT_EN_POS))   /**< CH_HI_LIMIT_EN Mask        */
 /**@} end of group ADC_LIMIT3_register */
 
@@ -310,10 +310,10 @@ typedef struct {
  * @brief      Field Positions and Bit Masks for the ADC_AFE_CTRL register
  * @{
  */
-#define MXC_F_ADC_AFE_CTRL_TMON_INTBIAS_EN_POS              8                                                                     /**< TMON_INTBIAS_EN Position */  
-#define MXC_F_ADC_AFE_CTRL_TMON_INTBIAS_EN                  ((uint32_t)(0x00000001UL << MXC_F_ADC_AFE_CTRL_TMON_INTBIAS_EN_POS))  /**< TMON_INTBIAS_EN Mask     */  
-#define MXC_F_ADC_AFE_CTRL_TMON_EXTBIAS_EN_POS              9                                                                     /**< TMON_EXTBIAS_EN Position */  
-#define MXC_F_ADC_AFE_CTRL_TMON_EXTBIAS_EN                  ((uint32_t)(0x00000001UL << MXC_F_ADC_AFE_CTRL_TMON_EXTBIAS_EN_POS))  /**< TMON_EXTBIAS_EN Mask     */  
+#define MXC_F_ADC_AFE_CTRL_TMON_INTBIAS_EN_POS              8                                                                     /**< TMON_INTBIAS_EN Position */
+#define MXC_F_ADC_AFE_CTRL_TMON_INTBIAS_EN                  ((uint32_t)(0x00000001UL << MXC_F_ADC_AFE_CTRL_TMON_INTBIAS_EN_POS))  /**< TMON_INTBIAS_EN Mask     */
+#define MXC_F_ADC_AFE_CTRL_TMON_EXTBIAS_EN_POS              9                                                                     /**< TMON_EXTBIAS_EN Position */
+#define MXC_F_ADC_AFE_CTRL_TMON_EXTBIAS_EN                  ((uint32_t)(0x00000001UL << MXC_F_ADC_AFE_CTRL_TMON_EXTBIAS_EN_POS))  /**< TMON_EXTBIAS_EN Mask     */
 /**@} end of group ADC_AFE_CTRL_register */
 
 /**
@@ -322,20 +322,20 @@ typedef struct {
  * @brief     Field Positions and Bit Masks for the ADC_RO_CAL0 register
  * @{
  */
-#define MXC_F_ADC_RO_CAL0_RO_CAL_EN_POS                     0                                                                       /**< RO_CAL_EN Position     */  
-#define MXC_F_ADC_RO_CAL0_RO_CAL_EN                         ((uint32_t)(0x00000001UL << MXC_F_ADC_RO_CAL0_RO_CAL_EN_POS))           /**< RO_CAL_EN Mask         */   
-#define MXC_F_ADC_RO_CAL0_RO_CAL_RUN_POS                    1                                                                       /**< RO_CAL_RUN Position    */  
-#define MXC_F_ADC_RO_CAL0_RO_CAL_RUN                        ((uint32_t)(0x00000001UL << MXC_F_ADC_RO_CAL0_RO_CAL_RUN_POS))          /**< RO_CAL_RUN Mask        */   
-#define MXC_F_ADC_RO_CAL0_RO_CAL_LOAD_POS                   2                                                                       /**< RO_CAL_LOAD Position   */  
-#define MXC_F_ADC_RO_CAL0_RO_CAL_LOAD                       ((uint32_t)(0x00000001UL << MXC_F_ADC_RO_CAL0_RO_CAL_LOAD_POS))         /**< RO_CAL_LOAD Mask       */  
-#define MXC_F_ADC_RO_CAL0_RO_CAL_ATOMIC_POS                 4                                                                       /**< RO_CAL_ATOMIC Position */  
-#define MXC_F_ADC_RO_CAL0_RO_CAL_ATOMIC                     ((uint32_t)(0x00000001UL << MXC_F_ADC_RO_CAL0_RO_CAL_ATOMIC_POS))       /**< RO_CAL_ATOMIC Mask     */  
-#define MXC_F_ADC_RO_CAL0_DUMMY_POS                         5                                                                       /**< DUMMY Position         */   
-#define MXC_F_ADC_RO_CAL0_DUMMY                             ((uint32_t)(0x00000007UL << MXC_F_ADC_RO_CAL0_DUMMY_POS))               /**< DUMMY Mask             */   
-#define MXC_F_ADC_RO_CAL0_TRM_MU_POS                        8                                                                       /**< TRM_MU Position        */   
-#define MXC_F_ADC_RO_CAL0_TRM_MU                            ((uint32_t)(0x00000FFFUL << MXC_F_ADC_RO_CAL0_TRM_MU_POS))              /**< TRM_MU Mask            */   
-#define MXC_F_ADC_RO_CAL0_RO_TRM_POS                        23                                                                      /**< RO_TRM Position        */   
-#define MXC_F_ADC_RO_CAL0_RO_TRM                            ((uint32_t)(0x000001FFUL << MXC_F_ADC_RO_CAL0_RO_TRM_POS))              /**< RO_TRM Mask            */   
+#define MXC_F_ADC_RO_CAL0_RO_CAL_EN_POS                     0                                                                       /**< RO_CAL_EN Position     */
+#define MXC_F_ADC_RO_CAL0_RO_CAL_EN                         ((uint32_t)(0x00000001UL << MXC_F_ADC_RO_CAL0_RO_CAL_EN_POS))           /**< RO_CAL_EN Mask         */
+#define MXC_F_ADC_RO_CAL0_RO_CAL_RUN_POS                    1                                                                       /**< RO_CAL_RUN Position    */
+#define MXC_F_ADC_RO_CAL0_RO_CAL_RUN                        ((uint32_t)(0x00000001UL << MXC_F_ADC_RO_CAL0_RO_CAL_RUN_POS))          /**< RO_CAL_RUN Mask        */
+#define MXC_F_ADC_RO_CAL0_RO_CAL_LOAD_POS                   2                                                                       /**< RO_CAL_LOAD Position   */
+#define MXC_F_ADC_RO_CAL0_RO_CAL_LOAD                       ((uint32_t)(0x00000001UL << MXC_F_ADC_RO_CAL0_RO_CAL_LOAD_POS))         /**< RO_CAL_LOAD Mask       */
+#define MXC_F_ADC_RO_CAL0_RO_CAL_ATOMIC_POS                 4                                                                       /**< RO_CAL_ATOMIC Position */
+#define MXC_F_ADC_RO_CAL0_RO_CAL_ATOMIC                     ((uint32_t)(0x00000001UL << MXC_F_ADC_RO_CAL0_RO_CAL_ATOMIC_POS))       /**< RO_CAL_ATOMIC Mask     */
+#define MXC_F_ADC_RO_CAL0_DUMMY_POS                         5                                                                       /**< DUMMY Position         */
+#define MXC_F_ADC_RO_CAL0_DUMMY                             ((uint32_t)(0x00000007UL << MXC_F_ADC_RO_CAL0_DUMMY_POS))               /**< DUMMY Mask             */
+#define MXC_F_ADC_RO_CAL0_TRM_MU_POS                        8                                                                       /**< TRM_MU Position        */
+#define MXC_F_ADC_RO_CAL0_TRM_MU                            ((uint32_t)(0x00000FFFUL << MXC_F_ADC_RO_CAL0_TRM_MU_POS))              /**< TRM_MU Mask            */
+#define MXC_F_ADC_RO_CAL0_RO_TRM_POS                        23                                                                      /**< RO_TRM Position        */
+#define MXC_F_ADC_RO_CAL0_RO_TRM                            ((uint32_t)(0x000001FFUL << MXC_F_ADC_RO_CAL0_RO_TRM_POS))              /**< RO_TRM Mask            */
 /**@} end of group ADC_RO_CAL0_register */
 
 /**
@@ -344,11 +344,11 @@ typedef struct {
  * @brief     Field Positions and Bit Masks for the ADC_RO_CAL1 register
  * @{
  */
-#define MXC_F_ADC_RO_CAL1_TRM_INIT_POS                      0                                                                    /**< TRM_INIT Position         */   
-#define MXC_F_ADC_RO_CAL1_TRM_INIT                          ((uint32_t)(0x000001FFUL << MXC_F_ADC_RO_CAL1_TRM_INIT_POS))         /**< TRM_INIT Mask             */   
-#define MXC_F_ADC_RO_CAL1_TRM_MIN_POS                       10                                                                   /**< TRM_MIN Position          */   
+#define MXC_F_ADC_RO_CAL1_TRM_INIT_POS                      0                                                                    /**< TRM_INIT Position         */
+#define MXC_F_ADC_RO_CAL1_TRM_INIT                          ((uint32_t)(0x000001FFUL << MXC_F_ADC_RO_CAL1_TRM_INIT_POS))         /**< TRM_INIT Mask             */
+#define MXC_F_ADC_RO_CAL1_TRM_MIN_POS                       10                                                                   /**< TRM_MIN Position          */
 #define MXC_F_ADC_RO_CAL1_TRM_MIN                           ((uint32_t)(0x000001FFUL << MXC_F_ADC_RO_CAL1_TRM_MIN_POS))          /**< TRM_MIN Mask              */
-#define MXC_F_ADC_RO_CAL1_TRM_MAX_POS                       20                                                                   /**< TRM_MAX Position          */    
+#define MXC_F_ADC_RO_CAL1_TRM_MAX_POS                       20                                                                   /**< TRM_MAX Position          */
 #define MXC_F_ADC_RO_CAL1_TRM_MAX                           ((uint32_t)(0x000001FFUL << MXC_F_ADC_RO_CAL1_TRM_MAX_POS))          /**< TRM_MAX Mask              */
 /**@} end of group RO_CAL1_register */
 
@@ -359,7 +359,7 @@ typedef struct {
  * @{
  */
 #define MXC_F_ADC_RO_CAL2_AUTO_CAL_DONE_CNT_POS             0                                                                       /**< AUTO_CAL_DONE_CNT Position */
-#define MXC_F_ADC_RO_CAL2_AUTO_CAL_DONE_CNT                 ((uint32_t)(0x000000FFUL << MXC_F_ADC_RO_CAL2_AUTO_CAL_DONE_CNT_POS))   /**< AUTO_CAL_DONE_CNT Mask     */    
+#define MXC_F_ADC_RO_CAL2_AUTO_CAL_DONE_CNT                 ((uint32_t)(0x000000FFUL << MXC_F_ADC_RO_CAL2_AUTO_CAL_DONE_CNT_POS))   /**< AUTO_CAL_DONE_CNT Mask     */
 /**@} end of group RO_CAL2_register */
 
 /**

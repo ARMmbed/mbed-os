@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -46,13 +46,12 @@ static int us_ticker_inited = 0;
 
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
 void DUALTIMER0_Handler(void)
 {
-   if(DUALTIMER_GetIntStatus(DUALTIMER0_0))
-    {
+    if (DUALTIMER_GetIntStatus(DUALTIMER0_0)) {
         DUALTIMER_IntClear(DUALTIMER0_0);
         us_ticker_irq_handler();
     }
@@ -64,11 +63,13 @@ void DUALTIMER0_Handler(void)
 
 void us_ticker_init(void)
 {
-    if (us_ticker_inited) return;
+    if (us_ticker_inited) {
+        return;
+    }
     us_ticker_inited = 1;
 
     SystemCoreClockUpdate();
-    TimerInitType.PWM_CHn_PR = (GetSystemClock() / 1000000) -1;
+    TimerInitType.PWM_CHn_PR = (GetSystemClock() / 1000000) - 1;
     TimerInitType.PWM_CHn_LR = 0xFFFFFFFF;
     TimerInitType.PWM_CHn_PDMR = 1;
 
@@ -79,7 +80,9 @@ void us_ticker_init(void)
 
 uint32_t us_ticker_read()
 {
-    if (!us_ticker_inited) us_ticker_init();
+    if (!us_ticker_inited) {
+        us_ticker_init();
+    }
     return (TIMER_1->TCR);
 }
 
@@ -87,33 +90,32 @@ uint32_t us_ticker_read()
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     int32_t dev = 0;
-    
-    if (!us_ticker_inited)
-    {
+
+    if (!us_ticker_inited) {
         us_ticker_init();
     }
-    
+
     dev = (int32_t)(timestamp - us_ticker_read());
-    dev = dev * ((GetSystemClock() / 1000000) / 16);     
+    dev = dev * ((GetSystemClock() / 1000000) / 16);
 
     DUALTIMER_ClockEnable(TIMER_0);
     DUALTIMER_Stop(TIMER_0);
-    
+
     TimerHandler.TimerControl_Mode       = DUALTIMER_TimerControl_Periodic;
     TimerHandler.TimerControl_OneShot    = DUALTIMER_TimerControl_OneShot;
     TimerHandler.TimerControl_Pre        = DUALTIMER_TimerControl_Pre_16;
     TimerHandler.TimerControl_Size       = DUALTIMER_TimerControl_Size_32;
-    
+
     TimerHandler.TimerLoad      = (uint32_t)dev;
-    
+
     DUALTIMER_Init(TIMER_0, &TimerHandler);
-    
+
     DUALTIMER_IntConfig(TIMER_0, ENABLE);
-    
+
     NVIC_EnableIRQ(TIMER_IRQn);
-    
+
     DUALTIMER_Start(TIMER_0);
-    
+
 
 }
 
@@ -125,7 +127,7 @@ void us_ticker_fire_interrupt(void)
 void us_ticker_disable_interrupt(void)
 {
     NVIC_DisableIRQ(TIMER_IRQn);
-    
+
     DUALTIMER_IntConfig(TIMER_0, DISABLE);
 }
 

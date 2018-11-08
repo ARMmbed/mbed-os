@@ -56,7 +56,7 @@ extern "C" {
 /** This is the aligned version of ip6_addr_t,
     used as local variable, on the stack, etc. */
 struct ip6_addr {
-  u32_t addr[4];
+    u32_t addr[4];
 };
 
 /** IPv6 address */

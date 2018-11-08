@@ -51,10 +51,9 @@
 *   R_IO_HL - Middle High 8 bit
 *   R_IO_HH - High 8 bit
 ************************************************************************/
-typedef enum iodefine_byte_select_t
-{
+typedef enum iodefine_byte_select_t {
     R_IO_L = 0, R_IO_H = 1,
-    R_IO_LL= 0, R_IO_LH = 1, R_IO_HL = 2, R_IO_HH = 3
+    R_IO_LL = 0, R_IO_LH = 1, R_IO_HL = 2, R_IO_HH = 3
 } iodefine_byte_select_t;
 
 
@@ -68,8 +67,7 @@ typedef enum iodefine_byte_select_t
 * - Endian : Independent (Same as CPU endian as register endian)
 * - Bit-Order : Independent
 ************************************************************************/
-typedef union iodefine_reg32_t
-{
+typedef union iodefine_reg32_t {
     volatile uint32_t  UINT32;                                  /*  32-bit Access   */
     volatile uint16_t  UINT16[2];                               /*  16-bit Access   */
     volatile uint8_t   UINT8[4];                                /*  8-bit Access    */
@@ -79,14 +77,13 @@ typedef union iodefine_reg32_t
 /***********************************************************************
 * Type: iodefine_reg32_16_t
 *   32/16 bit access register
-* 
+*
 * - Padding : sizeof(iodefine_reg32_16_t) == 4
 * - Alignment(Offset) : &UINT32==0, &UINT16[0]==0, &UINT16[1]==2
 * - Endian : Independent (Same as CPU endian as register endian)
 * - Bit-Order : Independent
 ************************************************************************/
-typedef union iodefine_reg32_16_t
-{
+typedef union iodefine_reg32_16_t {
     volatile uint32_t  UINT32;                                  /*  32-bit Access   */
     volatile uint16_t  UINT16[2];                               /*  16-bit Access   */
 } iodefine_reg32_16_t;
@@ -95,14 +92,13 @@ typedef union iodefine_reg32_16_t
 /***********************************************************************
 * Type: iodefine_reg16_8_t
 *   16/8 bit access register
-* 
+*
 * - Padding : sizeof(iodefine_reg16_8_t) == 2
 * - Alignment(Offset) : &UINT16==0, &UINT8[0]==0, &UINT8[1]==1
 * - Endian : Independent (Same as CPU endian as register endian)
 * - Bit-Order : Independent
 ************************************************************************/
-typedef union iodefine_reg16_8_t
-{
+typedef union iodefine_reg16_8_t {
     volatile uint16_t  UINT16;                                  /*  16-bit Access   */
     volatile uint8_t   UINT8[2];                                /*  8-bit Access    */
 } iodefine_reg16_8_t;

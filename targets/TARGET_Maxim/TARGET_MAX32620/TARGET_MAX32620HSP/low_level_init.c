@@ -42,10 +42,10 @@ void low_level_init(void)
      * debug triggered resets do not reset the entire system properly. This
      * work-around ensures a proper system reset.
      */
-    if (*((volatile uint32_t*)MXC_SYS_MEM_BASE) != 0xDEADBEEF) {
-        *((volatile uint32_t*)MXC_SYS_MEM_BASE) = 0xDEADBEEF;
+    if (*((volatile uint32_t *)MXC_SYS_MEM_BASE) != 0xDEADBEEF) {
+        *((volatile uint32_t *)MXC_SYS_MEM_BASE) = 0xDEADBEEF;
         MXC_PWRMAN->pwr_rst_ctrl |= MXC_F_PWRMAN_PWR_RST_CTRL_FIRMWARE_RESET;
     } else {
-        *((volatile uint32_t*)MXC_SYS_MEM_BASE) = 0;
+        *((volatile uint32_t *)MXC_SYS_MEM_BASE) = 0;
     }
 }

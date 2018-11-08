@@ -62,60 +62,60 @@ extern "C" {
   * defined here to be accessed by memp.h
   */
 struct nd6_q_entry {
-  struct nd6_q_entry *next;
-  struct pbuf *p;
+    struct nd6_q_entry *next;
+    struct pbuf *p;
 };
 #endif /* LWIP_ND6_QUEUEING */
 
 /** Struct for tables. */
 struct nd6_neighbor_cache_entry {
-  ip6_addr_t next_hop_address;
-  struct netif *netif;
-  u8_t lladdr[NETIF_MAX_HWADDR_LEN];
-  /*u32_t pmtu;*/
+    ip6_addr_t next_hop_address;
+    struct netif *netif;
+    u8_t lladdr[NETIF_MAX_HWADDR_LEN];
+    /*u32_t pmtu;*/
 #if LWIP_ND6_QUEUEING
-  /** Pointer to queue of pending outgoing packets on this entry. */
-  struct nd6_q_entry *q;
+    /** Pointer to queue of pending outgoing packets on this entry. */
+    struct nd6_q_entry *q;
 #else /* LWIP_ND6_QUEUEING */
-  /** Pointer to a single pending outgoing packet on this entry. */
-  struct pbuf *q;
+    /** Pointer to a single pending outgoing packet on this entry. */
+    struct pbuf *q;
 #endif /* LWIP_ND6_QUEUEING */
-  u8_t state;
-  u8_t isrouter;
-  union {
-    u32_t reachable_time; /* in seconds */
-    u32_t delay_time;     /* ticks (ND6_TMR_INTERVAL) */
-    u32_t probes_sent;
-    u32_t stale_time;     /* ticks (ND6_TMR_INTERVAL) */
-  } counter;
+    u8_t state;
+    u8_t isrouter;
+    union {
+        u32_t reachable_time; /* in seconds */
+        u32_t delay_time;     /* ticks (ND6_TMR_INTERVAL) */
+        u32_t probes_sent;
+        u32_t stale_time;     /* ticks (ND6_TMR_INTERVAL) */
+    } counter;
 };
 
 struct nd6_destination_cache_entry {
-  ip6_addr_t destination_addr;
-  ip6_addr_t next_hop_addr;
-  u16_t pmtu;
-  u32_t age;
+    ip6_addr_t destination_addr;
+    ip6_addr_t next_hop_addr;
+    u16_t pmtu;
+    u32_t age;
 };
 
 struct nd6_prefix_list_entry {
-  ip6_addr_t prefix;
-  struct netif *netif;
-  u32_t invalidation_timer; /* in seconds */
+    ip6_addr_t prefix;
+    struct netif *netif;
+    u32_t invalidation_timer; /* in seconds */
 };
 
 struct nd6_router_list_entry {
-  struct nd6_neighbor_cache_entry *neighbor_entry;
-  u32_t invalidation_timer; /* in seconds */
-  u8_t flags;
+    struct nd6_neighbor_cache_entry *neighbor_entry;
+    u32_t invalidation_timer; /* in seconds */
+    u8_t flags;
 };
 
 enum nd6_neighbor_cache_entry_state {
-  ND6_NO_ENTRY = 0,
-  ND6_INCOMPLETE,
-  ND6_REACHABLE,
-  ND6_STALE,
-  ND6_DELAY,
-  ND6_PROBE
+    ND6_NO_ENTRY = 0,
+    ND6_INCOMPLETE,
+    ND6_REACHABLE,
+    ND6_STALE,
+    ND6_DELAY,
+    ND6_PROBE
 };
 
 #define ND6_HOPLIM 255 /* maximum hop limit, required in all ND packets */

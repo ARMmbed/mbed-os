@@ -73,10 +73,10 @@ extern "C" {
 #endif
 PACK_STRUCT_BEGIN
 struct igmp_msg {
-  PACK_STRUCT_FLD_8(u8_t         igmp_msgtype);
-  PACK_STRUCT_FLD_8(u8_t         igmp_maxresp);
-  PACK_STRUCT_FIELD(u16_t        igmp_checksum);
-  PACK_STRUCT_FLD_S(ip4_addr_p_t igmp_group_address);
+    PACK_STRUCT_FLD_8(u8_t         igmp_msgtype);
+    PACK_STRUCT_FLD_8(u8_t         igmp_maxresp);
+    PACK_STRUCT_FIELD(u16_t        igmp_checksum);
+    PACK_STRUCT_FLD_S(ip4_addr_p_t igmp_group_address);
 } PACK_STRUCT_STRUCT;
 PACK_STRUCT_END
 #ifdef PACK_STRUCT_USE_INCLUDES

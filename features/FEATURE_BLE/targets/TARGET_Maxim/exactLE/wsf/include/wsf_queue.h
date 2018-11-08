@@ -1,12 +1,12 @@
 /*************************************************************************************************/
 /*!
  *  \file   wsf_queue.h
- *        
+ *
  *  \brief  General purpose queue service.
  *
  *          $Date: 2011-10-14 21:35:03 -0700 (Fri, 14 Oct 2011) $
  *          $Revision: 191 $
- *  
+ *
  *  Copyright (c) 2009-2016 ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: LicenseRef-PBL
@@ -38,10 +38,9 @@ extern "C" {
 **************************************************************************************************/
 
 /*! Queue structure */
-typedef struct
-{
-  void      *pHead;         /*! head of queue */
-  void      *pTail;         /*! tail of queue */
+typedef struct {
+    void      *pHead;         /*! head of queue */
+    void      *pTail;         /*! tail of queue */
 } wsfQueue_t;
 
 /**************************************************************************************************
@@ -51,7 +50,7 @@ typedef struct
 /*************************************************************************************************/
 /*!
  *  \fn     WsfQueueEnq
- *        
+ *
  *  \brief  Enqueue an element to the tail of a queue.
  *
  *  \param  pQueue    Pointer to queue.
@@ -65,7 +64,7 @@ void WsfQueueEnq(wsfQueue_t *pQueue, void *pElem);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfQueueDeq
- *        
+ *
  *  \brief  Dequeue an element from the head of a queue.
  *
  *  \param  pQueue    Pointer to queue.
@@ -78,7 +77,7 @@ void *WsfQueueDeq(wsfQueue_t *pQueue);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfQueuePush
- *        
+ *
  *  \brief  Push an element to the head of a queue.
  *
  *  \param  pQueue    Pointer to queue.
@@ -92,7 +91,7 @@ void WsfQueuePush(wsfQueue_t *pQueue, void *pElem);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfQueueInsert
- *        
+ *
  *  \brief  Insert an element into a queue.  This function is typically used when iterating
  *          over a queue.
  *
@@ -108,7 +107,7 @@ void WsfQueueInsert(wsfQueue_t *pQueue, void *pElem, void *pPrev);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfQueueRemove
- *        
+ *
  *  \brief  Remove an element from a queue.  This function is typically used when iterating
  *          over a queue.
  *
@@ -124,7 +123,7 @@ void WsfQueueRemove(wsfQueue_t *pQueue, void *pElem, void *pPrev);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfQueueCount
- *        
+ *
  *  \brief  Count the number of elements in a queue.
  *
  *  \param  pQueue    Pointer to queue.
@@ -137,7 +136,7 @@ uint16_t WsfQueueCount(wsfQueue_t *pQueue);
 /*************************************************************************************************/
 /*!
  *  \fn     WsfQueueEmpty
- *        
+ *
  *  \brief  Return TRUE if queue is empty.
  *
  *  \param  pQueue    Pointer to queue.

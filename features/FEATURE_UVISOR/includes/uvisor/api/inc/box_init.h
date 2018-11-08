@@ -19,6 +19,6 @@
 
 #include "api/inc/uvisor-lib.h"
 
-UVISOR_EXTERN void __uvisor_lib_box_init(void * lib_config);
+UVISOR_EXTERN void __uvisor_lib_box_init(void *lib_config);
 
 #endif

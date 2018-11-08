@@ -104,7 +104,7 @@ extern "C" {
  */
 void rtt_sel_source(Rtt *p_rtt, bool is_rtc_sel)
 {
-    if(is_rtc_sel) {
+    if (is_rtc_sel) {
         g_wobits_in_rtt_mr |= RTT_MR_RTC1HZ;
         p_rtt->RTT_MR |= g_wobits_in_rtt_mr;
     } else {
@@ -136,7 +136,7 @@ void rtt_disable(Rtt *p_rtt)
 #elif (SAMG53 || SAMG54 || SAMG55)
 void rtt_sel_source(Rtt *p_rtt, bool is_rtc_sel)
 {
-    if(is_rtc_sel) {
+    if (is_rtc_sel) {
         p_rtt->RTT_MR |= RTT_MR_RTC1HZ;
     } else {
         p_rtt->RTT_MR &= ~RTT_MR_RTC1HZ;

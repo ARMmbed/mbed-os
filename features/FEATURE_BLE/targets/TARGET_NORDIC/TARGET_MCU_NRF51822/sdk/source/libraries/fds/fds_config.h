@@ -33,12 +33,12 @@
 #ifndef FDS_CONFIG_H__
 #define FDS_CONFIG_H__
 
- /**
- * @file fds_config.h
- *
- * @addtogroup flash_data_storage
- * @{
- */
+/**
+* @file fds_config.h
+*
+* @addtogroup flash_data_storage
+* @{
+*/
 
 /**@brief Configures the size of the internal queue. */
 #define FDS_CMD_QUEUE_SIZE          (8)

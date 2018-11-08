@@ -30,8 +30,8 @@
 #define MTU2_IODEFINE_H
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_mtu2
-{                                                          /* MTU2             */
+struct st_mtu2 {
+    /* MTU2             */
     volatile uint8_t   TCR_2;                                  /*  TCR_2           */
     volatile uint8_t   TMDR_2;                                 /*  TMDR_2          */
     volatile uint8_t   TIOR_2;                                 /*  TIOR_2          */

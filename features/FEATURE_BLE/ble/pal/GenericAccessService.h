@@ -56,7 +56,7 @@ struct GenericAccessService {
      *
      * @see Bluetooth 4.2 Vol 3 PartC: 12.1 - Device Name Characteristic
      */
-    virtual ble_error_t get_device_name_length(uint8_t& length) = 0;
+    virtual ble_error_t get_device_name_length(uint8_t &length) = 0;
 
     /**
      * Get the current device name.
@@ -71,7 +71,7 @@ struct GenericAccessService {
      *
      * @see Bluetooth 4.2 Vol 3 PartC: 12.1 - Device Name Characteristic
      */
-    virtual ble_error_t get_device_name(ArrayView<uint8_t>& array) = 0;
+    virtual ble_error_t get_device_name(ArrayView<uint8_t> &array) = 0;
 
     /**
      * Set the value of the device name characteristic exposed by the GAP GATT
@@ -85,7 +85,7 @@ struct GenericAccessService {
      *
      * @see Bluetooth 4.2 Vol 3 PartC: 12.1 - Device Name Characteristic
      */
-    virtual ble_error_t set_device_name(const uint8_t* device_name) = 0;
+    virtual ble_error_t set_device_name(const uint8_t *device_name) = 0;
 
     /**
      * Acquire the appearance stored in the appearance characteristic of the GAP
@@ -100,7 +100,7 @@ struct GenericAccessService {
      * @see Bluetooth 4.2 Vol 3 PartC: 12.2 - Appearance Characteristic
      */
     virtual ble_error_t get_appearance(
-        GapAdvertisingData::Appearance& appearance
+        GapAdvertisingData::Appearance &appearance
     ) = 0;
 
     /**
@@ -113,8 +113,8 @@ struct GenericAccessService {
      *
      * @see Bluetooth 4.2 Vol 3 PartC: 12.2 - Appearance Characteristic
      */
-     virtual ble_error_t set_appearance(
-         GapAdvertisingData::Appearance appearance
+    virtual ble_error_t set_appearance(
+        GapAdvertisingData::Appearance appearance
     ) = 0;
 
     /**
@@ -130,8 +130,8 @@ struct GenericAccessService {
      * @see Bluetooth 4.2 Vol 3 PartC: 12.3 - Peripheral Preferred Connection
      * Parameters Characteristic
      */
-     virtual ble_error_t get_peripheral_prefered_connection_parameters(
-         ::Gap::ConnectionParams_t& parameters
+    virtual ble_error_t get_peripheral_prefered_connection_parameters(
+        ::Gap::ConnectionParams_t &parameters
     ) = 0;
 
     /**
@@ -148,12 +148,12 @@ struct GenericAccessService {
      * Parameters Characteristic
      */
     virtual ble_error_t set_peripheral_prefered_connection_parameters(
-        const ::Gap::ConnectionParams_t& parameters
-   ) = 0;
+        const ::Gap::ConnectionParams_t &parameters
+    ) = 0;
 
 private:
-    GenericAccessService(const GenericAccessService&);
-    GenericAccessService& operator=(const GenericAccessService&);
+    GenericAccessService(const GenericAccessService &);
+    GenericAccessService &operator=(const GenericAccessService &);
 };
 
 } // namespace pal

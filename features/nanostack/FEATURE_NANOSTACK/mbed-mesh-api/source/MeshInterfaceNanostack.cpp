@@ -70,7 +70,7 @@ nsapi_error_t MeshInterfaceNanostack::register_phy()
     return 0;
 }
 
-NetworkStack * MeshInterfaceNanostack::get_stack()
+NetworkStack *MeshInterfaceNanostack::get_stack()
 {
     return NanostackInterface::get_stack();
 }

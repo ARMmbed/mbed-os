@@ -69,10 +69,8 @@ static uint32_t DMA_GetInstance(DMA_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_DMA_COUNT; instance++)
-    {
-        if (s_dmaBases[instance] == base)
-        {
+    for (instance = 0; instance < FSL_FEATURE_SOC_DMA_COUNT; instance++) {
+        if (s_dmaBases[instance] == base) {
             break;
         }
     }
@@ -188,8 +186,7 @@ void DMA_PrepareTransfer(dma_transfer_config_t *config,
     config->srcAddr = (uint32_t)srcAddr;
     config->destAddr = (uint32_t)destAddr;
     config->transferSize = transferBytes;
-    switch (srcWidth)
-    {
+    switch (srcWidth) {
         case 1U:
             config->srcSize = kDMA_Transfersize8bits;
             break;
@@ -202,8 +199,7 @@ void DMA_PrepareTransfer(dma_transfer_config_t *config,
         default:
             break;
     }
-    switch (destWidth)
-    {
+    switch (destWidth) {
         case 1U:
             config->destSize = kDMA_Transfersize8bits;
             break;
@@ -216,8 +212,7 @@ void DMA_PrepareTransfer(dma_transfer_config_t *config,
         default:
             break;
     }
-    switch (type)
-    {
+    switch (type) {
         case kDMA_MemoryToMemory:
             config->enableSrcIncrement = true;
             config->enableDestIncrement = true;
@@ -249,14 +244,12 @@ status_t DMA_SubmitTransfer(dma_handle_t *handle, const dma_transfer_config_t *c
     assert(config != NULL);
 
     /* Check if DMA is busy */
-    if (handle->base->DMA[handle->channel].DSR_BCR & DMA_DSR_BCR_BSY_MASK)
-    {
+    if (handle->base->DMA[handle->channel].DSR_BCR & DMA_DSR_BCR_BSY_MASK) {
         return kStatus_DMA_Busy;
     }
     DMA_ResetChannel(handle->base, handle->channel);
     DMA_SetTransferConfig(handle->base, handle->channel, config);
-    if (options & kDMA_EnableInterrupt)
-    {
+    if (options & kDMA_EnableInterrupt) {
         DMA_EnableInterrupts(handle->base, handle->channel);
     }
     return kStatus_Success;
@@ -277,8 +270,7 @@ void DMA_HandleIRQ(dma_handle_t *handle)
 
     /* Clear interrupt pending bit */
     DMA_ClearChannelStatusFlags(handle->base, handle->channel, kDMA_TransactionsDoneFlag);
-    if (handle->callback)
-    {
+    if (handle->callback) {
         (handle->callback)(handle, handle->userData);
     }
 }

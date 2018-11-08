@@ -37,14 +37,12 @@
 #define USART_HANDLE_ARRAY_SIZE 7
 
 /*<! Structure definition for uart_dma_handle_t. The structure is private. */
-typedef struct _usart_dma_private_handle
-{
+typedef struct _usart_dma_private_handle {
     USART_Type *base;
     usart_dma_handle_t *handle;
 } usart_dma_private_handle_t;
 
-enum _usart_transfer_states
-{
+enum _usart_transfer_states {
     kUSART_TxIdle, /* TX idle. */
     kUSART_TxBusy, /* TX busy. */
     kUSART_RxIdle, /* RX idle. */
@@ -70,8 +68,7 @@ static void USART_TransferSendDMACallback(dma_handle_t *handle, void *param, boo
 
     usartPrivateHandle->handle->txState = kUSART_TxIdle;
 
-    if (usartPrivateHandle->handle->callback)
-    {
+    if (usartPrivateHandle->handle->callback) {
         usartPrivateHandle->handle->callback(usartPrivateHandle->base, usartPrivateHandle->handle, kStatus_USART_TxIdle,
                                              usartPrivateHandle->handle->userData);
     }
@@ -89,8 +86,7 @@ static void USART_TransferReceiveDMACallback(dma_handle_t *handle, void *param, 
 
     usartPrivateHandle->handle->rxState = kUSART_RxIdle;
 
-    if (usartPrivateHandle->handle->callback)
-    {
+    if (usartPrivateHandle->handle->callback) {
         usartPrivateHandle->handle->callback(usartPrivateHandle->base, usartPrivateHandle->handle, kStatus_USART_RxIdle,
                                              usartPrivateHandle->handle->userData);
     }
@@ -107,14 +103,12 @@ status_t USART_TransferCreateHandleDMA(USART_Type *base,
 
     /* check 'base' */
     assert(!(NULL == base));
-    if (NULL == base)
-    {
+    if (NULL == base) {
         return kStatus_InvalidArgument;
     }
     /* check 'handle' */
     assert(!(NULL == handle));
-    if (NULL == handle)
-    {
+    if (NULL == handle) {
         return kStatus_InvalidArgument;
     }
 
@@ -136,14 +130,12 @@ status_t USART_TransferCreateHandleDMA(USART_Type *base,
     handle->txDmaHandle = txDmaHandle;
 
     /* Configure TX. */
-    if (txDmaHandle)
-    {
+    if (txDmaHandle) {
         DMA_SetCallback(txDmaHandle, USART_TransferSendDMACallback, &s_dmaPrivateHandle[instance]);
     }
 
     /* Configure RX. */
-    if (rxDmaHandle)
-    {
+    if (rxDmaHandle) {
         DMA_SetCallback(rxDmaHandle, USART_TransferReceiveDMACallback, &s_dmaPrivateHandle[instance]);
     }
 
@@ -162,12 +154,9 @@ status_t USART_TransferSendDMA(USART_Type *base, usart_dma_handle_t *handle, usa
     status_t status;
 
     /* If previous TX not finished. */
-    if (kUSART_TxBusy == handle->txState)
-    {
+    if (kUSART_TxBusy == handle->txState) {
         status = kStatus_USART_TxBusy;
-    }
-    else
-    {
+    } else {
         handle->txState = kUSART_TxBusy;
         handle->txDataSizeAll = xfer->dataSize;
 
@@ -200,12 +189,9 @@ status_t USART_TransferReceiveDMA(USART_Type *base, usart_dma_handle_t *handle, 
     status_t status;
 
     /* If previous RX not finished. */
-    if (kUSART_RxBusy == handle->rxState)
-    {
+    if (kUSART_RxBusy == handle->rxState) {
         status = kStatus_USART_RxBusy;
-    }
-    else
-    {
+    } else {
         handle->rxState = kUSART_RxBusy;
         handle->rxDataSizeAll = xfer->dataSize;
 
@@ -252,8 +238,7 @@ status_t USART_TransferGetReceiveCountDMA(USART_Type *base, usart_dma_handle_t *
     assert(handle->rxDmaHandle);
     assert(count);
 
-    if (kUSART_RxIdle == handle->rxState)
-    {
+    if (kUSART_RxIdle == handle->rxState) {
         return kStatus_NoTransferInProgress;
     }
 

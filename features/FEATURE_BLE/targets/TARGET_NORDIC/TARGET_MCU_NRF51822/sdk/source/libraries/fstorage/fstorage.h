@@ -34,14 +34,14 @@
 #ifndef FS_H__
 #define FS_H__
 
- /** @file
- *
- * @defgroup fstorage FStorage
- * @{
- * @ingroup app_common
- * @brief Module which provides low level functionality to store data to flash.
- *
- */
+/** @file
+*
+* @defgroup fstorage FStorage
+* @{
+* @ingroup app_common
+* @brief Module which provides low level functionality to store data to flash.
+*
+*/
 
 
 #include <stdint.h>
@@ -53,8 +53,7 @@
 typedef uint16_t fs_length_t;
 
 
-typedef enum
-{
+typedef enum {
     FS_OP_NONE          = 0,
     FS_OP_STORE         = 1,
     FS_OP_ERASE         = 2
@@ -70,22 +69,21 @@ typedef enum
  */
 typedef void (*fs_cb_t)(uint8_t             op_code,
                         uint32_t            result,
-                        uint32_t    const * p_data,
+                        uint32_t    const *p_data,
                         fs_length_t         length_words);
 
 
 /**@brief Flash storage config variable.
  *
- * @details     The fstorage module will update the start_addr and end_address according to 
+ * @details     The fstorage module will update the start_addr and end_address according to
  *              ordering rules and the number of pages requested by the fstorage module user.
  */
-typedef struct
-{
+typedef struct {
     const fs_cb_t   cb;               /**< Callback to run when flash operation has completed. */
     const uint8_t   num_pages;        /**< The number of pages to reserve for flash storage. */
     const uint8_t   page_order;       /**< The order used to allocate pages. */
-    uint32_t      * p_start_addr;     /**< Pointer to the start address of the allocated flash storage. Set by running @ref fs_init. */
-    uint32_t *      p_end_addr;       /**< Pointer to the end address of the allcoated flash storage. Set by running @ref fs_init. */
+    uint32_t       *p_start_addr;     /**< Pointer to the start address of the allocated flash storage. Set by running @ref fs_init. */
+    uint32_t       *p_end_addr;       /**< Pointer to the end address of the allcoated flash storage. Set by running @ref fs_init. */
 } fs_config_t;
 
 
@@ -123,15 +121,15 @@ ret_code_t fs_init(void);
  * @retval NRF_ERROR_INVALID_ADDR       Error. Data is unaligned or invalid configuration.
  * @retval Any error returned by the SoftDevice flash API.
  */
-ret_code_t fs_store(fs_config_t const *       p_config,
-                    uint32_t    const *       p_addr,
-                    uint32_t    const * const p_data,
+ret_code_t fs_store(fs_config_t const        *p_config,
+                    uint32_t    const        *p_addr,
+                    uint32_t    const *const p_data,
                     fs_length_t               length_words);
 
 
 /** Function to erase a page in flash.
  *
- * @note        The erase address must be aligned on a page boundary. The length in words must be 
+ * @note        The erase address must be aligned on a page boundary. The length in words must be
  *              equivalent to the page size.
  *
  * @param[in]   p_config        Pointer to the configuration of the user that requests the operation.
@@ -143,8 +141,8 @@ ret_code_t fs_store(fs_config_t const *       p_config,
  * @retval NRF_ERROR_INVALID_ADDR       Error. Data is unaligned or invalid configuration.
  * @retval Any error returned by the SoftDevice flash API.
  */
-ret_code_t fs_erase(fs_config_t const *       p_config,
-                    uint32_t          * const p_addr,
+ret_code_t fs_erase(fs_config_t const        *p_config,
+                    uint32_t           *const p_addr,
                     fs_length_t               length_words);
 
 

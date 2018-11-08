@@ -66,7 +66,7 @@ static void SPIM_SPANSION_4Bytes_Enable(int isEn, uint32_t u32NBit);
 static void SPIM_WriteInPageDataByIo(uint32_t u32Addr, int is4ByteAddr, uint32_t u32NTx, uint8_t pu8TxBuf[], uint8_t wrCmd,
                                      uint32_t u32NBitCmd, uint32_t u32NBitAddr, uint32_t u32NBitDat, int isSync);
 static void SPIM_WriteInPageDataByPageWrite(uint32_t u32Addr, int is4ByteAddr, uint32_t u32NTx,
-        uint8_t pu8TxBuf[], uint32_t wrCmd, int isSync);
+                                            uint8_t pu8TxBuf[], uint32_t wrCmd, int isSync);
 
 
 static void  N_delay(int n)
@@ -79,40 +79,40 @@ static void  N_delay(int n)
 static void SwitchNBitOutput(uint32_t u32NBit)
 {
     switch (u32NBit) {
-    case 1UL:
-        SPIM_ENABLE_SING_OUTPUT_MODE();     /* 1-bit, Output. */
-        break;
+        case 1UL:
+            SPIM_ENABLE_SING_OUTPUT_MODE();     /* 1-bit, Output. */
+            break;
 
-    case 2UL:
-        SPIM_ENABLE_DUAL_OUTPUT_MODE();     /* 2-bit, Output. */
-        break;
+        case 2UL:
+            SPIM_ENABLE_DUAL_OUTPUT_MODE();     /* 2-bit, Output. */
+            break;
 
-    case 4UL:
-        SPIM_ENABLE_QUAD_OUTPUT_MODE();     /* 4-bit, Output. */
-        break;
+        case 4UL:
+            SPIM_ENABLE_QUAD_OUTPUT_MODE();     /* 4-bit, Output. */
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 }
 
 static void SwitchNBitInput(uint32_t u32NBit)
 {
     switch (u32NBit) {
-    case 1UL:
-        SPIM_ENABLE_SING_INPUT_MODE();      /* 1-bit, Input.  */
-        break;
+        case 1UL:
+            SPIM_ENABLE_SING_INPUT_MODE();      /* 1-bit, Input.  */
+            break;
 
-    case 2UL:
-        SPIM_ENABLE_DUAL_INPUT_MODE();      /* 2-bit, Input.  */
-        break;
+        case 2UL:
+            SPIM_ENABLE_DUAL_INPUT_MODE();      /* 2-bit, Input.  */
+            break;
 
-    case 4UL:
-        SPIM_ENABLE_QUAD_INPUT_MODE();      /* 4-bit, Input.  */
-        break;
+        case 4UL:
+            SPIM_ENABLE_QUAD_INPUT_MODE();      /* 4-bit, Input.  */
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 }
 
@@ -213,7 +213,7 @@ static void spim_read(uint8_t pu8RxBuf[], uint32_t u32NRx)
         while (dataNum) {
             uint32_t tmp;
 
-            tmp = SPIM->RX[dataNum-1UL];
+            tmp = SPIM->RX[dataNum - 1UL];
             memcpy(&pu8RxBuf[buf_idx], &tmp, 4U);
             buf_idx += 4UL;
             dataNum --;
@@ -250,7 +250,7 @@ static void SPIM_ReadStatusRegister(uint8_t dataBuf[], uint32_t u32NRx, uint32_t
 
     SPIM_SET_SS_EN(1);                          /* CS activated. */
     SwitchNBitOutput(u32NBit);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SwitchNBitInput(u32NBit);
     spim_read(dataBuf, u32NRx);
     SPIM_SET_SS_EN(0);                          /* CS deactivated. */
@@ -270,7 +270,7 @@ static void SPIM_WriteStatusRegister(uint8_t dataBuf[], uint32_t u32NTx, uint32_
     cmdBuf[1] = dataBuf[0];
     SPIM_SET_SS_EN(1);                          /* CS activated. */
     SwitchNBitOutput(u32NBit);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SPIM_SET_SS_EN(0);                          /* CS deactivated. */
 }
 
@@ -287,7 +287,7 @@ static void SPIM_ReadStatusRegister2(uint8_t dataBuf[], uint32_t u32NRx, uint32_
 
     SPIM_SET_SS_EN(1);                          /* CS activated.  */
     SwitchNBitOutput(u32NBit);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SwitchNBitInput(u32NBit);
     spim_read(dataBuf, u32NRx);
     SPIM_SET_SS_EN(0);                          /* CS deactivated.  */
@@ -310,7 +310,7 @@ static void SPIM_WriteStatusRegister2(uint8_t dataBuf[], uint32_t u32NTx, uint32
 
     SPIM_SET_SS_EN(1);                          /* CS activated.    */
     SwitchNBitOutput(u32NBit);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SPIM_SET_SS_EN(0);                          /* CS deactivated.  */
 }
 
@@ -329,7 +329,7 @@ static void SPIM_WriteStatusRegister3(uint8_t dataBuf[], uint32_t u32NTx, uint32
 
     SPIM_SET_SS_EN(1);                          /* CS activated. */
     SwitchNBitOutput(u32NBit);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SPIM_SET_SS_EN(0);                          /* CS deactivated. */
 }
 #endif
@@ -347,7 +347,7 @@ static void SPIM_ReadStatusRegister3(uint8_t dataBuf[], uint32_t u32NRx, uint32_
 
     SPIM_SET_SS_EN(1);                          /* CS activated. */
     SwitchNBitOutput(u32NBit);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SwitchNBitInput(u32NBit);
     spim_read(dataBuf, u32NRx);
     SPIM_SET_SS_EN(0);                          /* CS deactivated. */
@@ -368,7 +368,7 @@ static void SPIM_WriteSecurityRegister(uint8_t dataBuf[], uint32_t u32NTx, uint3
 
     SPIM_SET_SS_EN(1);                          /* CS activated. */
     SwitchNBitOutput(u32NBit);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SPIM_SET_SS_EN(0);                          /* CS deactivated. */
 }
 #endif
@@ -386,7 +386,7 @@ static void SPIM_ReadSecurityRegister(uint8_t dataBuf[], uint32_t u32NRx, uint32
 
     SPIM_SET_SS_EN(1);                          /* CS activated. */
     SwitchNBitOutput(u32NBit);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SwitchNBitInput(u32NBit);
     spim_read(dataBuf, u32NRx);
     SPIM_SET_SS_EN(0);                          /* CS deactivated. */
@@ -399,8 +399,8 @@ static void SPIM_ReadSecurityRegister(uint8_t dataBuf[], uint32_t u32NRx, uint32
 static int spim_is_write_done(uint32_t u32NBit)
 {
     uint8_t status[1];
-    SPIM_ReadStatusRegister(status, sizeof (status), u32NBit);
-    return ! (status[0] & SR_WIP);
+    SPIM_ReadStatusRegister(status, sizeof(status), u32NBit);
+    return !(status[0] & SR_WIP);
 }
 
 /**
@@ -413,7 +413,7 @@ static int spim_wait_write_done(uint32_t u32NBit)
     uint32_t   count;
     int        ret = -1;
 
-    for (count = 0UL; count < SystemCoreClock/1000UL; count++) {
+    for (count = 0UL; count < SystemCoreClock / 1000UL; count++) {
         if (spim_is_write_done(u32NBit)) {
             ret = 0;
             break;
@@ -438,7 +438,7 @@ static void spim_set_write_enable(int isEn, uint32_t u32NBit)
 
     SPIM_SET_SS_EN(1);                          /* CS activated.   */
     SwitchNBitOutput(u32NBit);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SPIM_SET_SS_EN(0);                          /* CS deactivated.  */
 }
 
@@ -478,43 +478,43 @@ int SPIM_InitFlash(int clrWP)
     cmdBuf[0] = OPCODE_RSTEN;
     SPIM_SET_SS_EN(1);                          /* CS activated.    */
     SPIM_ENABLE_QUAD_OUTPUT_MODE();             /* 1-bit, Output.   */
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SPIM_SET_SS_EN(0);                          /* CS deactivated.  */
 
     /* QPI Reset */
     cmdBuf[0] = OPCODE_RST;
     SPIM_SET_SS_EN(1);                          /* CS activated.    */
     SPIM_ENABLE_QUAD_OUTPUT_MODE();             /* 1-bit, Output.   */
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SPIM_SET_SS_EN(0);                          /* CS deactivated.  */
 
     /* SPI ResetEnable */
     cmdBuf[0] = OPCODE_RSTEN;
     SPIM_SET_SS_EN(1);                          /* CS activated.    */
     SPIM_ENABLE_SING_OUTPUT_MODE();             /* 1-bit, Output.   */
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SPIM_SET_SS_EN(0);                          /* CS deactivated.  */
 
     /* SPI Reset */
     cmdBuf[0] = OPCODE_RST;
     SPIM_SET_SS_EN(1);                          /* CS activated.    */
     SPIM_ENABLE_SING_OUTPUT_MODE();             /* 1-bit, Output.   */
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SPIM_SET_SS_EN(0);                          /* CS deactivated.  */
 
     if (clrWP) {
         uint8_t dataBuf[] = {0x00U};
 
         spim_set_write_enable(1, 1UL);           /* Clear Block Protect. */
-        SPIM_WriteStatusRegister(dataBuf, sizeof (dataBuf), 1U);
+        SPIM_WriteStatusRegister(dataBuf, sizeof(dataBuf), 1U);
         spim_wait_write_done(1UL);
     }
 
-    SPIM_ReadJedecId(idBuf, sizeof (idBuf), 1UL);
+    SPIM_ReadJedecId(idBuf, sizeof(idBuf), 1UL);
 
     /* printf("ID: 0x%x, 0x%x, px%x\n", idBuf[0], idBuf[1], idBuf[2]); */
 
-    for (i = 0UL; i < sizeof(g_Supported_List)/sizeof(g_Supported_List[0]); i++) {
+    for (i = 0UL; i < sizeof(g_Supported_List) / sizeof(g_Supported_List[0]); i++) {
         if (idBuf[0] == g_Supported_List[i]) {
             ret = 0;
         }
@@ -538,7 +538,7 @@ void SPIM_ReadJedecId(uint8_t idBuf[], uint32_t u32NRx, uint32_t u32NBit)
 
     SPIM_SET_SS_EN(1);                          /* CS activated.    */
     SwitchNBitOutput(u32NBit);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SwitchNBitInput(u32NBit);
     spim_read(idBuf, u32NRx);
     SPIM_SET_SS_EN(0);                          /* CS deactivated.  */
@@ -555,9 +555,9 @@ static void spim_enable_spansion_quad_mode(int isEn)
 
     SPIM_SET_SS_EN(1);
     SwitchNBitOutput(1UL);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SwitchNBitInput(1UL);
-    spim_read(dataBuf, sizeof (dataBuf));
+    spim_read(dataBuf, sizeof(dataBuf));
     SPIM_SET_SS_EN(0);
     /* SPIM_DBGMSG("SR1 = 0x%x\n", dataBuf[0]); */
 
@@ -567,9 +567,9 @@ static void spim_enable_spansion_quad_mode(int isEn)
 
     SPIM_SET_SS_EN(1);
     SwitchNBitOutput(1UL);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SwitchNBitInput(1UL);
-    spim_read(dataBuf, sizeof (dataBuf));
+    spim_read(dataBuf, sizeof(dataBuf));
     SPIM_SET_SS_EN(0);
     /* SPIM_DBGMSG("CR1 = 0x%x\n", dataBuf[0]); */
 
@@ -596,9 +596,9 @@ static void spim_enable_spansion_quad_mode(int isEn)
 
     SPIM_SET_SS_EN(1);
     SwitchNBitOutput(1UL);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SwitchNBitInput(1UL);
-    spim_read(dataBuf, sizeof (dataBuf));
+    spim_read(dataBuf, sizeof(dataBuf));
     SPIM_SET_SS_EN(0);
 
     /* SPIM_DBGMSG("CR1 = 0x%x\n", dataBuf[0]); */
@@ -618,45 +618,45 @@ void SPIM_SetQuadEnable(int isEn, uint32_t u32NBit)
     uint8_t  idBuf[3];
     uint8_t  dataBuf[2];
 
-    SPIM_ReadJedecId(idBuf, sizeof (idBuf), u32NBit);
+    SPIM_ReadJedecId(idBuf, sizeof(idBuf), u32NBit);
 
     SPIM_DBGMSG("SPIM_SetQuadEnable - Flash ID is 0x%x\n", idBuf[0]);
 
     switch (idBuf[0]) {
-    case MFGID_WINBOND:                      /* Winbond SPI flash  */
-        SPIM_ReadStatusRegister(&dataBuf[0], 1UL, u32NBit);
-        SPIM_ReadStatusRegister2(&dataBuf[1], 1UL, u32NBit);
-        SPIM_DBGMSG("Status Register: 0x%x - 0x%x\n", dataBuf[0], dataBuf[1]);
-        if (isEn) {
-            dataBuf[1] |= SR2_QE;
-        } else {
-            dataBuf[1] &= ~SR2_QE;
-        }
+        case MFGID_WINBOND:                      /* Winbond SPI flash  */
+            SPIM_ReadStatusRegister(&dataBuf[0], 1UL, u32NBit);
+            SPIM_ReadStatusRegister2(&dataBuf[1], 1UL, u32NBit);
+            SPIM_DBGMSG("Status Register: 0x%x - 0x%x\n", dataBuf[0], dataBuf[1]);
+            if (isEn) {
+                dataBuf[1] |= SR2_QE;
+            } else {
+                dataBuf[1] &= ~SR2_QE;
+            }
 
-        spim_set_write_enable(1, u32NBit);   /* Write Enable.    */
-        SPIM_WriteStatusRegister2(dataBuf, sizeof (dataBuf), u32NBit);
-        spim_wait_write_done(u32NBit);
+            spim_set_write_enable(1, u32NBit);   /* Write Enable.    */
+            SPIM_WriteStatusRegister2(dataBuf, sizeof(dataBuf), u32NBit);
+            spim_wait_write_done(u32NBit);
 
-        SPIM_ReadStatusRegister(&dataBuf[0], 1UL, u32NBit);
-        SPIM_ReadStatusRegister2(&dataBuf[1], 1UL, u32NBit);
-        SPIM_DBGMSG("Status Register: 0x%x - 0x%x\n", dataBuf[0], dataBuf[1]);
-        break;
+            SPIM_ReadStatusRegister(&dataBuf[0], 1UL, u32NBit);
+            SPIM_ReadStatusRegister2(&dataBuf[1], 1UL, u32NBit);
+            SPIM_DBGMSG("Status Register: 0x%x - 0x%x\n", dataBuf[0], dataBuf[1]);
+            break;
 
-    case MFGID_MXIC:                         /* MXIC SPI flash.  */
-    case MFGID_EON:
-    case MFGID_ISSI:                         /* ISSI SPI flash.  */
-        spim_set_write_enable(1, u32NBit);   /* Write Enable.    */
-        dataBuf[0] = isEn ? SR_QE : 0U;
-        SPIM_WriteStatusRegister(dataBuf, sizeof (dataBuf), u32NBit);
-        spim_wait_write_done(u32NBit);
-        break;
+        case MFGID_MXIC:                         /* MXIC SPI flash.  */
+        case MFGID_EON:
+        case MFGID_ISSI:                         /* ISSI SPI flash.  */
+            spim_set_write_enable(1, u32NBit);   /* Write Enable.    */
+            dataBuf[0] = isEn ? SR_QE : 0U;
+            SPIM_WriteStatusRegister(dataBuf, sizeof(dataBuf), u32NBit);
+            spim_wait_write_done(u32NBit);
+            break;
 
-    case MFGID_SPANSION:
-        spim_enable_spansion_quad_mode(isEn);
-        break;
+        case MFGID_SPANSION:
+            spim_enable_spansion_quad_mode(isEn);
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 }
 
@@ -670,7 +670,7 @@ static void spim_eon_set_qpi_mode(int isEn)
     uint8_t cmdBuf[1];                           /* 1-byte command.  */
 
     uint8_t status[1];
-    SPIM_ReadStatusRegister(status, sizeof (status), 1UL);
+    SPIM_ReadStatusRegister(status, sizeof(status), 1UL);
     SPIM_DBGMSG("Status: 0x%x\n", status[0]);
 
     if (isEn) {                                  /* Assume in SPI mode. */
@@ -678,18 +678,18 @@ static void spim_eon_set_qpi_mode(int isEn)
 
         SPIM_SET_SS_EN(1);                      /* CS activated.    */
         SwitchNBitOutput(1UL);
-        spim_write(cmdBuf, sizeof (cmdBuf));
+        spim_write(cmdBuf, sizeof(cmdBuf));
         SPIM_SET_SS_EN(0);                      /* CS deactivated.  */
     } else {                                     /* Assume in QPI mode. */
         cmdBuf[0] = OPCODE_EXQPI;
 
         SPIM_SET_SS_EN(1);                      /* CS activated.    */
         SwitchNBitOutput(4UL);
-        spim_write(cmdBuf, sizeof (cmdBuf));
+        spim_write(cmdBuf, sizeof(cmdBuf));
         SPIM_SET_SS_EN(0);                      /* CS deactivated.  */
     }
 
-    SPIM_ReadStatusRegister(status, sizeof (status), 1UL);
+    SPIM_ReadStatusRegister(status, sizeof(status), 1UL);
     SPIM_DBGMSG("Status: 0x%x\n", status[0]);
 }
 
@@ -737,33 +737,33 @@ int SPIM_Is4ByteModeEnable(uint32_t u32NBit)
     uint8_t  idBuf[3];
     uint8_t  dataBuf[1];
 
-    SPIM_ReadJedecId(idBuf, sizeof (idBuf), u32NBit);
+    SPIM_ReadJedecId(idBuf, sizeof(idBuf), u32NBit);
 
     /* Based on Flash size, check if 4-byte address mode is supported.  */
     switch (idBuf[0]) {
-    case MFGID_WINBOND:
-    case MFGID_MXIC:
-    case MFGID_EON:
-        isSupt = (idBuf[2] < 0x19U) ? 0L : 1L;
-        break;
+        case MFGID_WINBOND:
+        case MFGID_MXIC:
+        case MFGID_EON:
+            isSupt = (idBuf[2] < 0x19U) ? 0L : 1L;
+            break;
 
-    case MFGID_ISSI:
-        isSupt = (idBuf[2] < 0x49U) ? 0L : 1L;
-        break;
+        case MFGID_ISSI:
+            isSupt = (idBuf[2] < 0x49U) ? 0L : 1L;
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 
     if (isSupt != 0) {
         if (idBuf[0] == MFGID_WINBOND) {
             /* Winbond SPI flash. */
-            SPIM_ReadStatusRegister3(dataBuf, sizeof (dataBuf), u32NBit);
-            isEn = !! (dataBuf[0] & SR3_ADR);
-        } else if ((idBuf[0] == MFGID_MXIC) || (idBuf[0] ==MFGID_EON)) {
+            SPIM_ReadStatusRegister3(dataBuf, sizeof(dataBuf), u32NBit);
+            isEn = !!(dataBuf[0] & SR3_ADR);
+        } else if ((idBuf[0] == MFGID_MXIC) || (idBuf[0] == MFGID_EON)) {
             /* MXIC/EON SPI flash. */
-            SPIM_ReadSecurityRegister(dataBuf, sizeof (dataBuf), u32NBit);
-            isEn = !! (dataBuf[0] & SCUR_4BYTE);
+            SPIM_ReadSecurityRegister(dataBuf, sizeof(dataBuf), u32NBit);
+            isEn = !!(dataBuf[0] & SCUR_4BYTE);
         }
     }
 
@@ -786,28 +786,28 @@ int SPIM_Enable_4Bytes_Mode(int isEn, uint32_t u32NBit)
     uint8_t idBuf[3];
     uint8_t cmdBuf[1];                           /* 1-byte Enter/Exit 4-Byte Mode command. */
 
-    SPIM_ReadJedecId(idBuf, sizeof (idBuf), u32NBit);
+    SPIM_ReadJedecId(idBuf, sizeof(idBuf), u32NBit);
 
     /* Based on Flash size, check if 4-byte address mode is supported. */
     switch (idBuf[0]) {
-    case MFGID_WINBOND:
-    case MFGID_MXIC:
-    case MFGID_EON:
-        isSupt = (idBuf[2] < 0x19U) ? 0L : 1L;
-        break;
+        case MFGID_WINBOND:
+        case MFGID_MXIC:
+        case MFGID_EON:
+            isSupt = (idBuf[2] < 0x19U) ? 0L : 1L;
+            break;
 
-    case MFGID_ISSI:
-        isSupt = (idBuf[2] < 0x49U) ? 0L : 1L;
-        break;
+        case MFGID_ISSI:
+            isSupt = (idBuf[2] < 0x49U) ? 0L : 1L;
+            break;
 
-    case MFGID_SPANSION:
-        SPIM_SPANSION_4Bytes_Enable(isEn, u32NBit);
-        isSupt = 1L;
-        ret = 0L;
-        break;
+        case MFGID_SPANSION:
+            SPIM_SPANSION_4Bytes_Enable(isEn, u32NBit);
+            isSupt = 1L;
+            ret = 0L;
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 
     if ((isSupt) && (idBuf[0] != MFGID_SPANSION)) {
@@ -815,7 +815,7 @@ int SPIM_Enable_4Bytes_Mode(int isEn, uint32_t u32NBit)
 
         SPIM_SET_SS_EN(1);                      /* CS activated.    */
         SwitchNBitOutput(u32NBit);
-        spim_write(cmdBuf, sizeof (cmdBuf));
+        spim_write(cmdBuf, sizeof(cmdBuf));
         SPIM_SET_SS_EN(0);                      /* CS deactivated.  */
 
         /*
@@ -848,7 +848,7 @@ void SPIM_ChipErase(uint32_t u32NBit, int isSync)
 
     SPIM_SET_SS_EN(1);                          /* CS activated.    */
     SwitchNBitOutput(u32NBit);
-    spim_write(cmdBuf, sizeof (cmdBuf));
+    spim_write(cmdBuf, sizeof(cmdBuf));
     SPIM_SET_SS_EN(0);                          /* CS deactivated.  */
 
     if (isSync) {
@@ -875,14 +875,14 @@ void SPIM_EraseBlock(uint32_t u32Addr, int is4ByteAddr, uint8_t u8ErsCmd, uint32
     cmdBuf[buf_idx++] = u8ErsCmd;
 
     if (is4ByteAddr) {
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 24);
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 16);
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 8);
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr & 0xFFUL);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 24);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 16);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 8);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr & 0xFFUL);
     } else {
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 16);
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 8);
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr & 0xFFUL);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 16);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 8);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr & 0xFFUL);
     }
 
     SPIM_SET_SS_EN(1);                      /* CS activated.    */
@@ -927,13 +927,13 @@ static void SPIM_WriteInPageDataByIo(uint32_t u32Addr, int is4ByteAddr, uint32_t
 
     buf_idx = 0UL;
     if (is4ByteAddr) {
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 24);
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 16);
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 8);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 24);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 16);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 8);
         cmdBuf[buf_idx++] = (uint8_t) u32Addr;
     } else {
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 16);
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 8);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 16);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 8);
         cmdBuf[buf_idx++] = (uint8_t) u32Addr;
     }
 
@@ -961,7 +961,7 @@ static void SPIM_WriteInPageDataByIo(uint32_t u32Addr, int is4ByteAddr, uint32_t
   * @return     None.
   */
 static void SPIM_WriteInPageDataByPageWrite(uint32_t u32Addr, int is4ByteAddr, uint32_t u32NTx,
-        uint8_t pu8TxBuf[], uint32_t wrCmd, int isSync)
+                                            uint8_t pu8TxBuf[], uint32_t wrCmd, int isSync)
 {
     if ((wrCmd == CMD_QUAD_PAGE_PROGRAM_WINBOND) ||
             (wrCmd == CMD_QUAD_PAGE_PROGRAM_MXIC)) {
@@ -1065,13 +1065,13 @@ void SPIM_IO_Read(uint32_t u32Addr, int is4ByteAddr, uint32_t u32NRx, uint8_t pu
 
     buf_idx = 0UL;
     if (is4ByteAddr) {
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 24);
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 16);
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 8);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 24);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 16);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 8);
         cmdBuf[buf_idx++] = (uint8_t) u32Addr;
     } else {
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 16);
-        cmdBuf[buf_idx++] = (uint8_t) (u32Addr >> 8);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 16);
+        cmdBuf[buf_idx++] = (uint8_t)(u32Addr >> 8);
         cmdBuf[buf_idx++] = (uint8_t) u32Addr;
     }
     SwitchNBitOutput(u32NBitAddr);

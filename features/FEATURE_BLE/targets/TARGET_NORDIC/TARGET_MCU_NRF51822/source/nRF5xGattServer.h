@@ -24,8 +24,7 @@
 #include "ble/Gap.h"
 #include "ble/GattServer.h"
 
-class nRF5xGattServer : public GattServer
-{
+class nRF5xGattServer : public GattServer {
 public:
     /* Functions that must be implemented from GattServer */
     virtual ble_error_t addService(GattService &);
@@ -52,7 +51,8 @@ private:
      * @param  valueHandle the value handle to be resolved.
      * @return             characteristic index if a resolution is found, else -1.
      */
-    int resolveValueHandleToCharIndex(GattAttribute::Handle_t valueHandle) const {
+    int resolveValueHandleToCharIndex(GattAttribute::Handle_t valueHandle) const
+    {
         unsigned charIndex;
         for (charIndex = 0; charIndex < characteristicCount; charIndex++) {
             if (nrfCharacteristicHandles[charIndex].value_handle == valueHandle) {
@@ -68,7 +68,8 @@ private:
      * @param  cccdHandle the CCCD handle to be resolved.
      * @return             characteristic index if a resolution is found, else -1.
      */
-    int resolveCCCDHandleToCharIndex(GattAttribute::Handle_t cccdHandle) const {
+    int resolveCCCDHandleToCharIndex(GattAttribute::Handle_t cccdHandle) const
+    {
         unsigned charIndex;
         for (charIndex = 0; charIndex < characteristicCount; charIndex++) {
             if (nrfCharacteristicHandles[charIndex].cccd_handle == cccdHandle) {
@@ -100,13 +101,14 @@ private:
      */
     friend class nRF5xn;
 
-    nRF5xGattServer() : GattServer(), p_characteristics(), nrfCharacteristicHandles(), p_descriptors(), descriptorCount(0), nrfDescriptorHandles() {
+    nRF5xGattServer() : GattServer(), p_characteristics(), nrfCharacteristicHandles(), p_descriptors(), descriptorCount(0), nrfDescriptorHandles()
+    {
         /* empty */
     }
 
 private:
     nRF5xGattServer(const nRF5xGattServer &);
-    const nRF5xGattServer& operator=(const nRF5xGattServer &);
+    const nRF5xGattServer &operator=(const nRF5xGattServer &);
 };
 
 #endif // ifndef __NRF51822_GATT_SERVER_H__

@@ -178,12 +178,9 @@ static inline void DMAMUX_EnableAlwaysOn(DMAMUX_Type *base, uint32_t channel, bo
 {
     assert(channel < FSL_FEATURE_DMAMUX_MODULE_CHANNEL);
 
-    if (enable)
-    {
+    if (enable) {
         base->CHCFG[channel] |= DMAMUX_CHCFG_A_ON_MASK;
-    }
-    else
-    {
+    } else {
         base->CHCFG[channel] &= ~DMAMUX_CHCFG_A_ON_MASK;
     }
 }

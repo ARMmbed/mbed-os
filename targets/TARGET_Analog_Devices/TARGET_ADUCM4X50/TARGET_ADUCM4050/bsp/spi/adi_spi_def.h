@@ -1,7 +1,7 @@
 /*!
  *****************************************************************************
  * @file:    adi_spi_def.h
- * @brief:   SPI Device Driver definition 
+ * @brief:   SPI Device Driver definition
  *****************************************************************************
 Copyright (c) 2010-2016 Analog Devices, Inc.
 
@@ -53,7 +53,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define ADI_SPI_FIFO_SIZE             (8u)
 
 
- /*! \cond PRIVATE */
+/*! \cond PRIVATE */
 
 /*
  *****************************************************************************
@@ -75,7 +75,7 @@ POSSIBILITY OF SUCH DAMAGE.
  * SPI0/SPI1 Control Register Initializer.  This macro configures default
  * settings for the SPI configuration control register when operated in Slave-mode.
  *****************************************************************************/
- #define ADI_SPI_SLAVECON_INITIALIZER  BITM_SPI_CTL_OEN           \
+#define ADI_SPI_SLAVECON_INITIALIZER  BITM_SPI_CTL_OEN           \
                                      | BITM_SPI_CTL_ZEN           \
                                      | BITM_SPI_CTL_SPIEN
 
@@ -89,29 +89,26 @@ POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************
  * SPI Configuration structure.
  *****************************************************************************/
-typedef struct ADI_SPI_CONFIG
-{
+typedef struct ADI_SPI_CONFIG {
     uint16_t SPI_CTL;                          /*!< SPI_CTL register configuration. */
     uint16_t SPI_DIV;                          /*!< SPI_DIV  register.     */
 } ADI_SPI_CFG_TYPE;
 
 /*! SPI device information */
 
-typedef struct __ADI_SPI_DEVICE_INFO
-{
+typedef struct __ADI_SPI_DEVICE_INFO {
     const uint16_t               dmaTxIrqNumber;     /*  DMA channel ID-Tx */
     const uint16_t               dmaTxChannelNumber; /*  Tx */
-    const uint16_t               dmaRxIrqNumber;     /*  DMA channel ID-Rx */    
-    const uint16_t               dmaRxChannelNumber; /*  DMA channel ID-Rx */    
+    const uint16_t               dmaRxIrqNumber;     /*  DMA channel ID-Rx */
+    const uint16_t               dmaRxChannelNumber; /*  DMA channel ID-Rx */
     volatile ADI_SPI_TypeDef     *pSpiRegs;          /*  Base address of the  SPI registers */
-    const IRQn_Type              eIRQn;              /*  IRQn */   
+    const IRQn_Type              eIRQn;              /*  IRQn */
     ADI_SPI_HANDLE               hDevice;            /*  SPI handle */
-}ADI_SPI_DEVICE_INFO;
+} ADI_SPI_DEVICE_INFO;
 
 
 /*! \struct ADI_SPI_DEV_DATA_TYPE SPI Device instance data structure */
-typedef struct __ADI_SPI_DEV_DATA_TYPE
-{
+typedef struct __ADI_SPI_DEV_DATA_TYPE {
 
     /* device attributes */
     volatile ADI_SPI_TypeDef *pSpi;              /*!< track MMR device pointer   */
@@ -119,24 +116,24 @@ typedef struct __ADI_SPI_DEV_DATA_TYPE
 
     /* Callback and Callback parameters */
     ADI_CALLBACK             pfCallback;         /*!< Callback address          */
-    void *                   pCBParam;           /*!< Callback parameter        */
+    void                    *pCBParam;           /*!< Callback parameter        */
     /* The last recorded SPI event */
     uint32_t                 HWErrors;           /*!< HW transaction status */
 
-    uint8_t*                 pTxBuffer;          /*!< Transmit Buffer           */
-    uint8_t*                 pRxBuffer;          /*!< Receive Buffer            */
+    uint8_t                 *pTxBuffer;          /*!< Transmit Buffer           */
+    uint8_t                 *pRxBuffer;          /*!< Receive Buffer            */
     uint16_t                 TxRemaining;        /*!< Transmit Count            */
     uint16_t                 RxRemaining;        /*!< Receive Count             */
     uint8_t                  TxIncrement;        /*!< Transmit Increment        */
     uint8_t                  RxIncrement;        /*!< Receive Increment         */
-    
+
     volatile bool            bTransferComplete;  /*!< Transfer Complete Flag    */
 
     bool                     bDmaMode;           /*!< DMA mode flag              */
     bool                     bRdCtlMode;         /* Use half duplex read control feature */
     bool                     bBlockingMode;      /*!< blocking mode flag         */
     ADI_SPI_CHIP_SELECT      ChipSelect;         /*!< track chip select          */
-    
+
     SEM_VAR_DECLR
 } ADI_SPI_DEV_DATA_TYPE;
 
@@ -144,5 +141,5 @@ typedef struct __ADI_SPI_DEV_DATA_TYPE
 
 /*! \endcond */
 
-#endif	/* ADI_SPI_DEF_H__ */
+#endif  /* ADI_SPI_DEF_H__ */
 

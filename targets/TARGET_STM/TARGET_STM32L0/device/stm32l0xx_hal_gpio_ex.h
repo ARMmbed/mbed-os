@@ -33,14 +33,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_HAL_GPIO_EX_H
 #define __STM32L0xx_HAL_GPIO_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -60,8 +60,8 @@
 
 /** @defgroup GPIOEx_Exported_Constants GPIOEx Exported Constants
   * @{
-  */ 
-  
+  */
+
 
 /*----------------------------------------------------------------------------*/
 /*------------------------- STM32L083xx/STM32L073xx---------------------------*/
@@ -364,9 +364,9 @@
                                         ((__AF__) ==  GPIO_AF6_USART4)))  ||   \
          (((__INSTANCE__) == GPIOH) && (((__AF__) ==  GPIO_AF0_USB))))
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 #endif /* (STM32L083xx) || (STM32L073xx) */
 
 /*----------------------------------------------------------------------------*/
@@ -579,9 +579,9 @@
   *
   */
 
- /*
-  * Alternate function AF7
- */
+/*
+ * Alternate function AF7
+*/
 #define GPIO_AF7_COMP1        ((uint8_t)0x07U)  /* COMP1 Alternate Function mapping     */
 #define GPIO_AF7_COMP2        ((uint8_t)0x07U)  /* COMP2 Alternate Function mapping     */
 #define GPIO_AF7_I2C3         ((uint8_t)0x07U)  /* I2C3 Alternate Function mapping      */
@@ -590,9 +590,9 @@
   *
   */
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 
 /**
   * @}
@@ -663,9 +663,9 @@
                                         ((__AF__) ==  GPIO_AF6_USART4)))  ||   \
          (((__INSTANCE__) == GPIOH) && (((__AF__) ==  GPIO_AF0_USB))))
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 #endif /* (STM32L082xx) || (STM32L072xx) */
 
 
@@ -908,9 +908,9 @@
  * @{
  */
 
- /**
- * IS_GPIO_AF macro definition
- */
+/**
+* IS_GPIO_AF macro definition
+*/
 #define IS_GPIO_AF(__AF__) (((__AF__) == GPIO_AF0_EVENTOUT) || ((__AF__) == GPIO_AF7_LPUART1)  || \
                             ((__AF__) == GPIO_AF0_SPI1)     || ((__AF__) == GPIO_AF1_I2C1)     || \
                             ((__AF__) == GPIO_AF0_TIM21)    || ((__AF__) == GPIO_AF1_SPI2)     || \
@@ -967,9 +967,9 @@
                                         ((__AF__) ==  GPIO_AF2_TIM3)      ||   \
                                         ((__AF__) ==  GPIO_AF6_USART4))))
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 #endif /* (STM32L081xx) || (STM32L071xx) */
 
 /*----------------------------------------------------------------------------*/
@@ -1067,9 +1067,9 @@
   *
   */
 
- /*
-  * Alternate function AF1
- */
+/*
+ * Alternate function AF1
+*/
 #define GPIO_AF1_SPI1          ((uint8_t)0x01U)  /* SPI1 Alternate Function mapping  */
 #define GPIO_AF1_SPI2          ((uint8_t)0x01U)  /* SPI2 Alternate Function mapping  */
 #define GPIO_AF1_I2C1          ((uint8_t)0x01U)  /* I2C1 Alternate Function mapping  */
@@ -1115,9 +1115,9 @@
   *
   */
 
- /*
- * Alternate function AF5
- */
+/*
+* Alternate function AF5
+*/
 #define GPIO_AF5_SPI2          ((uint8_t)0x05U)  /* SPI2 Alternate Function mapping     */
 #define GPIO_AF5_I2C2          ((uint8_t)0x05U)  /* I2C2 Alternate Function mapping     */
 #define GPIO_AF5_TIM2          ((uint8_t)0x05U)  /* TIM2 Alternate Function mapping     */
@@ -1450,9 +1450,9 @@
          (((__INSTANCE__) == GPIOD) && (((__AF__) ==  GPIO_AF0_LPUART1)))  ||   \
          (((__INSTANCE__) == GPIOH) && (((__AF__) ==  GPIO_AF0_USB))))
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 #endif /* STM32L052xx || STM32L062xx */
 /*------------------------------------------------------------------------------------------*/
 
@@ -1558,9 +1558,9 @@
   *
   */
 
- /*
-  * Alternate function AF2
- */
+/*
+ * Alternate function AF2
+*/
 #define GPIO_AF2_SPI2          ((uint8_t)0x02U)  /* SPI2 Alternate Function mapping       */
 #define GPIO_AF2_LPUART1       ((uint8_t)0x02U)  /* LPUART1 Alternate Function mapping    */
 #define GPIO_AF2_USB           ((uint8_t)0x02U)  /* USB Alternate Function mapping        */
@@ -1661,9 +1661,9 @@
                             ((__AF__) == GPIO_AF5_TIM21)    || ((__AF__) == GPIO_AF5_TIM22)    || \
                             ((__AF__) == GPIO_AF6_I2C2)     || ((__AF__) == GPIO_AF6_TIM21))
 
-                         
 
-   #define IS_GPIO_AF_AVAILABLE(__INSTANCE__,__AF__)  \
+
+#define IS_GPIO_AF_AVAILABLE(__INSTANCE__,__AF__)  \
         ((((__INSTANCE__) == GPIOA) && (((__AF__) ==  GPIO_AF0_EVENTOUT)  ||   \
                                         ((__AF__) ==  GPIO_AF2_TIM2)      ||   \
                                         ((__AF__) ==  GPIO_AF3_EVENTOUT)  ||   \
@@ -1682,9 +1682,9 @@
                                         ((__AF__) ==  GPIO_AF2_LPUART1))) ||   \
          (((__INSTANCE__) == GPIOD) && (((__AF__) ==  GPIO_AF0_LPUART1))))
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 #endif /* STM32L051xx/STM32L061xx*/
 /*------------------------------------------------------------------------------------------*/
 
@@ -1877,9 +1877,9 @@
                               ((__AF__) == GPIO_AF6_EVENTOUT  ) || \
                               ((__AF__) == GPIO_AF7_COMP1     ) || \
                               ((__AF__) == GPIO_AF7_COMP2     ))
-                                      
 
- #define IS_GPIO_AF_AVAILABLE(__INSTANCE__,__AF__)  \
+
+#define IS_GPIO_AF_AVAILABLE(__INSTANCE__,__AF__)  \
         ((((__INSTANCE__) == GPIOA) && (((__AF__) ==  GPIO_AF0_EVENTOUT)   ||   \
                                         ((__AF__) ==  GPIO_AF1_LPTIM1)     ||   \
                                         ((__AF__) ==  GPIO_AF2_TIM2)       ||   \
@@ -2078,9 +2078,9 @@
                               ((__AF__) == GPIO_AF6_EVENTOUT  ) || \
                               ((__AF__) == GPIO_AF7_COMP1     ) || \
                               ((__AF__) == GPIO_AF7_COMP2     ))
-                                      
 
- #define IS_GPIO_AF_AVAILABLE(__INSTANCE__,__AF__)  \
+
+#define IS_GPIO_AF_AVAILABLE(__INSTANCE__,__AF__)  \
         ((((__INSTANCE__) == GPIOA) && (((__AF__) ==  GPIO_AF0_EVENTOUT)   ||   \
                                         ((__AF__) ==  GPIO_AF1_LPTIM1)     ||   \
                                         ((__AF__) ==  GPIO_AF2_TIM2)       ||   \
@@ -2097,9 +2097,9 @@
                                         ((__AF__) ==  GPIO_AF5_TIM2)       ||   \
                                         ((__AF__) ==  GPIO_AF6_EVENTOUT))))
 
- /**
-  * @}
-  */
+/**
+ * @}
+ */
 
 #endif /* STM32L011xx/STM32L021xx*/
 /*------------------------------------------------------------------------------------------*/
@@ -2109,12 +2109,12 @@
 #if defined (STM32L083xx) || defined (STM32L082xx) || defined (STM32L081xx) || \
     defined (STM32L073xx) || defined (STM32L072xx) || defined (STM32L071xx)
 
- /** @addtogroup GPIOEx_Exported_Constants
- * @{
- */
- /** @defgroup GPIOEx_Pin_Available Pin available
- * @{
- */
+/** @addtogroup GPIOEx_Exported_Constants
+* @{
+*/
+/** @defgroup GPIOEx_Pin_Available Pin available
+* @{
+*/
 #define GPIOA_PIN_AVAILABLE  GPIO_PIN_All
 #define GPIOB_PIN_AVAILABLE  GPIO_PIN_All
 #define GPIOC_PIN_AVAILABLE  GPIO_PIN_All
@@ -2128,9 +2128,9 @@
   * @}
   */
 
- /** @addtogroup GPIOEx_Private
- * @{
- */
+/** @addtogroup GPIOEx_Private
+* @{
+*/
 #define GPIO_GET_INDEX(__GPIOx__)    (((__GPIOx__) == (GPIOA))? 0U :\
                                       ((__GPIOx__) == (GPIOB))? 1U :\
                                       ((__GPIOx__) == (GPIOC))? 2U :\

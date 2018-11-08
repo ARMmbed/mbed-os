@@ -52,8 +52,7 @@ uint32_t FMEAS_GetFrequency(SYSCON_Type *base, uint32_t refClockRate)
     uint32_t targetClockCount = TARGET_CLOCK_COUNT(base);
     uint64_t clkrate = 0;
 
-    if (targetClockCount > 0)
-    {
+    if (targetClockCount > 0) {
         clkrate = (((uint64_t)targetClockCount) * (uint64_t)refClockRate) / REFERENCE_CLOCK_COUNT;
     }
 

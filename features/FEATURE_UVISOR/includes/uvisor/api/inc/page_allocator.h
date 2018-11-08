@@ -30,7 +30,7 @@ UVISOR_EXTERN_C_BEGIN
  * @param table.page_origins[out] Pointers to the page origins. The table must be large enough to hold page_count entries.
  * @returns Non-zero on failure with failure class `UVISOR_ERROR_CLASS_PAGE`. See `UVISOR_ERROR_PAGE_*`.
  */
-static UVISOR_FORCEINLINE int uvisor_page_malloc(UvisorPageTable * const table)
+static UVISOR_FORCEINLINE int uvisor_page_malloc(UvisorPageTable *const table)
 {
     return uvisor_api.page_malloc(table);
 }
@@ -38,7 +38,7 @@ static UVISOR_FORCEINLINE int uvisor_page_malloc(UvisorPageTable * const table)
 /* Free the pages associated with the table, only if it passes validation.
  * @returns Non-zero on failure with failure class `UVISOR_ERROR_CLASS_PAGE`. See `UVISOR_ERROR_PAGE_*`.
  */
-static UVISOR_FORCEINLINE int uvisor_page_free(const UvisorPageTable * const table)
+static UVISOR_FORCEINLINE int uvisor_page_free(const UvisorPageTable *const table)
 {
     return uvisor_api.page_free(table);
 }

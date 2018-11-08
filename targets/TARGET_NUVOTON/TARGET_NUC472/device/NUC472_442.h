@@ -27041,7 +27041,7 @@ typedef struct {
 
 #define USBH_HcRhDescriptorA_NDP_Pos     (0)                                               /*!< USBH HcRhDescriptorA: NDP Position     */
 #define USBH_HcRhDescriptorA_NDP_Msk     (0xfful << USBH_HcRhDescriptorA_NDP_Pos)          /*!< USBH HcRhDescriptorA: NDP Mask         */
- 
+
 #define USBH_HcRhDescriptorA_PSM_Pos     (8)                                               /*!< USBH HcRhDescriptorA: PSM Position     */
 #define USBH_HcRhDescriptorA_PSM_Msk     (0x1ul << USBH_HcRhDescriptorA_PSM_Pos)           /*!< USBH HcRhDescriptorA: PSM Mask         */
 

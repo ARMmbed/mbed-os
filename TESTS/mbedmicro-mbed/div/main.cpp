@@ -17,7 +17,8 @@
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 
-uint32_t test_64(uint64_t ticks) {
+uint32_t test_64(uint64_t ticks)
+{
     ticks >>= 3; // divide by 8
     if (ticks > 0xFFFFFFFF) {
         ticks /= 3;
@@ -27,16 +28,19 @@ uint32_t test_64(uint64_t ticks) {
     return (uint32_t)(0xFFFFFFFF & ticks);
 }
 
-const char *result_str(bool result) {
+const char *result_str(bool result)
+{
     return result ? "[OK]" : "[FAIL]";
 }
 
-int main() {
+int main()
+{
     GREENTEA_SETUP(5, "default_auto");
 
     bool result = true;
 
-    {   // 0xFFFFFFFF *  8 =  0x7fffffff8
+    {
+        // 0xFFFFFFFF *  8 =  0x7fffffff8
         std::pair<uint32_t, uint64_t> values = std::make_pair(0x55555555, 0x7FFFFFFF8);
         uint32_t test_ret = test_64(values.second);
         bool test_res = values.first == test_ret;
@@ -44,7 +48,8 @@ int main() {
         printf("64bit: 0x7FFFFFFF8: expected 0x%lX got 0x%lX ... %s\r\n", values.first, test_ret, result_str(test_res));
     }
 
-    {   // 0xFFFFFFFF * 24 = 0x17ffffffe8
+    {
+        // 0xFFFFFFFF * 24 = 0x17ffffffe8
         std::pair<uint32_t, uint64_t> values = std::make_pair(0xFFFFFFFF, 0x17FFFFFFE8);
         uint32_t test_ret = test_64(values.second);
         bool test_res = values.first == test_ret;

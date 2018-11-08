@@ -25,20 +25,20 @@ extern "C" {
 #include "dma.h"
 
 enum dma_status_flags {
-    DMA_NOT_USED		= (uint32_t)1,
-    DMA_ALLOCATED		= (DMA_NOT_USED << 1),
-    DMA_TEMPORARY		= (DMA_NOT_USED << 2),
-    DMA_ERROR			= (DMA_NOT_USED << 3),
+    DMA_NOT_USED        = (uint32_t)1,
+    DMA_ALLOCATED       = (DMA_NOT_USED << 1),
+    DMA_TEMPORARY       = (DMA_NOT_USED << 2),
+    DMA_ERROR           = (DMA_NOT_USED << 3),
 };
 
 /* No other capabilities supported now */
-#define DMA_CAP_NONE				0
+#define DMA_CAP_NONE                0
 
-#define DMA_ADDRESS_INC_DISABLE		0
-#define DMA_ADDRESS_INC_ENABLE		1
+#define DMA_ADDRESS_INC_DISABLE     0
+#define DMA_ADDRESS_INC_ENABLE      1
 
-#define DMA_TRANSFER_ERROR		((uint32_t)1 << 1)
-#define DMA_TRANSFER_COMPLETE	((uint32_t)1 << 2)
+#define DMA_TRANSFER_ERROR      ((uint32_t)1 << 1)
+#define DMA_TRANSFER_COMPLETE   ((uint32_t)1 << 2)
 
 #define DMA_EVENT_ALL (DMA_TRANSFER_ERROR | DMA_TRANSFER_COMPLETE)
 
@@ -54,13 +54,13 @@ struct dma_instance_s {
 
 /** Setup a DMA descriptor for specified resource
  *
- * @param[in] channel_index		DMA channel id
- * @param[in] src				source address
- * @param[in] src_inc_enable	source address auto increment enable flag
- * @param[in] desc				destination address
- * @param[in] desc_inc_enable	destination address auto increment enable flag
- * @param[in] length			length of data to be transferred
- * @param[in] beat_size			beat size to be set
+ * @param[in] channel_index     DMA channel id
+ * @param[in] src               source address
+ * @param[in] src_inc_enable    source address auto increment enable flag
+ * @param[in] desc              destination address
+ * @param[in] desc_inc_enable   destination address auto increment enable flag
+ * @param[in] length            length of data to be transferred
+ * @param[in] beat_size         beat size to be set
  * @return void
  */
 void dma_setup_transfer(uint8_t channelid, uint32_t src, bool src_inc_enable, uint32_t desc, bool desc_inc_enable, uint32_t length, uint8_t beat_size);

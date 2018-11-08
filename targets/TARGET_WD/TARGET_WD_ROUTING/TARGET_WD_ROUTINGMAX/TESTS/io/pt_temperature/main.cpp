@@ -24,34 +24,38 @@
 
 using namespace utest::v1;
 
-void test_pt_temperature_read_value(void) {
-	
-	// wait for all measurements to refresh (mux selection + median window)
-	wait_ms(8000);
-	
-	for(int i=0; i<PTCount; i++) {
-		wd_log_info("measured value: %.2f", routingmax_io.PTs[i].getValue());
-		TEST_ASSERT_FLOAT_WITHIN_MESSAGE(2.0f, 0, routingmax_io.PTs[i].getValue(), "Temperature value was not within expected range!");
-	}
-	
+void test_pt_temperature_read_value(void)
+{
+
+    // wait for all measurements to refresh (mux selection + median window)
+    wait_ms(8000);
+
+    for (int i = 0; i < PTCount; i++) {
+        wd_log_info("measured value: %.2f", routingmax_io.PTs[i].getValue());
+        TEST_ASSERT_FLOAT_WITHIN_MESSAGE(2.0f, 0, routingmax_io.PTs[i].getValue(), "Temperature value was not within expected range!");
+    }
+
 }
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
-	greentea_case_failure_abort_handler(source, reason);
-	return STATUS_CONTINUE;
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
+    greentea_case_failure_abort_handler(source, reason);
+    return STATUS_CONTINUE;
 }
 
 Case cases[] = {
-	Case("PT100/PT1000 TEMPERATURE read and verify value", test_pt_temperature_read_value, greentea_failure_handler)
+    Case("PT100/PT1000 TEMPERATURE read and verify value", test_pt_temperature_read_value, greentea_failure_handler)
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-	GREENTEA_SETUP(20, "default_auto");
-	return greentea_test_setup_handler(number_of_cases);
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
+    GREENTEA_SETUP(20, "default_auto");
+    return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
-	Harness::run(specification);
+int main()
+{
+    Harness::run(specification);
 }

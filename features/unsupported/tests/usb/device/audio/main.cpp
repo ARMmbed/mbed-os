@@ -18,13 +18,14 @@
 // USBAudio object
 USBAudio audio(FREQ_SPK, NB_CHA_SPK, FREQ_MIC, NB_CHA_MIC, 0xab45, 0x0378);
 
-int main() {
+int main()
+{
     // buffer of int
-    int buf_in[LENGTH_AUDIO_PACKET_SPK/sizeof(int)];
-    int buf_out[LENGTH_AUDIO_PACKET_MIC/sizeof(int)];
-    int * stream_out = buf_in;
-    int * stream_in = buf_out;
-    int * tmp = NULL;
+    int buf_in[LENGTH_AUDIO_PACKET_SPK / sizeof(int)];
+    int buf_out[LENGTH_AUDIO_PACKET_MIC / sizeof(int)];
+    int *stream_out = buf_in;
+    int *stream_in = buf_out;
+    int *tmp = NULL;
 
     while (1) {
         // read and write one audio packet each frame

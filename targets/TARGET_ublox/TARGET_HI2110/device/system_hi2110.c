@@ -25,11 +25,11 @@
 #define __SYSTEM_CLOCK      (48000000UL)
 
 #if defined ( __CC_ARM )
-    uint32_t SystemCoreClock __attribute__((used)) = __SYSTEM_CLOCK;  
+uint32_t SystemCoreClock __attribute__((used)) = __SYSTEM_CLOCK;
 #elif defined ( __ICCARM__ )
-    __root uint32_t SystemCoreClock = __SYSTEM_CLOCK;
+__root uint32_t SystemCoreClock = __SYSTEM_CLOCK;
 #elif defined   ( __GNUC__ )
-    uint32_t SystemCoreClock __attribute__((used)) = __SYSTEM_CLOCK;
+uint32_t SystemCoreClock __attribute__((used)) = __SYSTEM_CLOCK;
 #endif
 
 void SystemCoreClockUpdate(void)
@@ -66,7 +66,7 @@ void SystemInit(void)
 
     /* Ensure interrupts are enabled */
     __set_PRIMASK(0);
-    
+
     /* Allow sleep */
     SystemAllowSleep(true);
 }

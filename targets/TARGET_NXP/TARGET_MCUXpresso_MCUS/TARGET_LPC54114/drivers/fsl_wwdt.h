@@ -56,8 +56,7 @@
 /*@}*/
 
 /*! @brief Describes WWDT configuration structure. */
-typedef struct _wwdt_config
-{
+typedef struct _wwdt_config {
     bool enableWwdt;            /*!< Enables or disables WWDT */
     bool enableWatchdogReset;   /*!< true: Watchdog timeout will cause a chip reset
                                      false: Watchdog timeout will not cause a chip reset */
@@ -80,8 +79,7 @@ typedef struct _wwdt_config
  *
  * This structure contains the WWDT status flags for use in the WWDT functions.
  */
-enum _wwdt_status_flags_t
-{
+enum _wwdt_status_flags_t {
     kWWDT_TimeoutFlag = WWDT_MOD_WDTOF_MASK, /*!< Time-out flag, set when the timer times out */
     kWWDT_WarningFlag = WWDT_MOD_WDINT_MASK  /*!< Warning interrupt flag, set when timer is below the value WDWARNINT */
 };

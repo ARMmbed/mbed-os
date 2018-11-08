@@ -41,14 +41,15 @@
 
 #define TOTAL_SIZE (HCCA_SIZE + (MAX_ENDPOINT*ED_SIZE) + (MAX_TD*TD_SIZE))
 
-static volatile uint8_t usb_buf[TOTAL_SIZE] __attribute((section("AHBSRAM1"),aligned(256)));  //256 bytes aligned!
+static volatile uint8_t usb_buf[TOTAL_SIZE] __attribute((section("AHBSRAM1"), aligned(256))); //256 bytes aligned!
 
-USBHALHost * USBHALHost::instHost;
+USBHALHost *USBHALHost::instHost;
 
-USBHALHost::USBHALHost() {
+USBHALHost::USBHALHost()
+{
     instHost = this;
     memInit();
-    memset((void*)usb_hcca, 0, HCCA_SIZE);
+    memset((void *)usb_hcca, 0, HCCA_SIZE);
     for (int i = 0; i < MAX_ENDPOINT; i++) {
         edBufAlloc[i] = false;
     }
@@ -57,15 +58,16 @@ USBHALHost::USBHALHost() {
     }
 }
 
-void USBHALHost::init() {
+void USBHALHost::init()
+{
     NVIC_DisableIRQ(USB_IRQn);
 
     //Cut power
-    LPC_SC->PCONP &= ~(1UL<<31);
+    LPC_SC->PCONP &= ~(1UL << 31);
     wait_ms(100);
 
     // turn on power for USB
-    LPC_SC->PCONP       |= (1UL<<31);
+    LPC_SC->PCONP       |= (1UL << 31);
 
     // Enable USB host clock, port selection and AHB clock
     LPC_USB->USBClkCtrl |= CLOCK_MASK;
@@ -88,8 +90,8 @@ void USBHALHost::init() {
     // configure USB D+/D- pins
     // P0[29] = USB_D+, 01
     // P0[30] = USB_D-, 01
-    LPC_PINCON->PINSEL1 &= ~((3<<26) | (3<<28));
-    LPC_PINCON->PINSEL1 |=  ((1<<26) | (1<<28));
+    LPC_PINCON->PINSEL1 &= ~((3 << 26) | (3 << 28));
+    LPC_PINCON->PINSEL1 |= ((1 << 26) | (1 << 28));
 
     LPC_USB->HcControl       = 0; // HARDWARE RESET
     LPC_USB->HcControlHeadED = 0; // Initialize Control list head to Zero
@@ -133,34 +135,41 @@ void USBHALHost::init() {
     }
 }
 
-uint32_t USBHALHost::controlHeadED() {
+uint32_t USBHALHost::controlHeadED()
+{
     return LPC_USB->HcControlHeadED;
 }
 
-uint32_t USBHALHost::bulkHeadED() {
+uint32_t USBHALHost::bulkHeadED()
+{
     return LPC_USB->HcBulkHeadED;
 }
 
-uint32_t USBHALHost::interruptHeadED() {
+uint32_t USBHALHost::interruptHeadED()
+{
     return usb_hcca->IntTable[0];
 }
 
-void USBHALHost::updateBulkHeadED(uint32_t addr) {
+void USBHALHost::updateBulkHeadED(uint32_t addr)
+{
     LPC_USB->HcBulkHeadED = addr;
 }
 
 
-void USBHALHost::updateControlHeadED(uint32_t addr) {
+void USBHALHost::updateControlHeadED(uint32_t addr)
+{
     LPC_USB->HcControlHeadED = addr;
 }
 
-void USBHALHost::updateInterruptHeadED(uint32_t addr) {
+void USBHALHost::updateInterruptHeadED(uint32_t addr)
+{
     usb_hcca->IntTable[0] = addr;
 }
 
 
-void USBHALHost::enableList(ENDPOINT_TYPE type) {
-    switch(type) {
+void USBHALHost::enableList(ENDPOINT_TYPE type)
+{
+    switch (type) {
         case CONTROL_ENDPOINT:
             LPC_USB->HcCommandStatus = OR_CMD_STATUS_CLF;
             LPC_USB->HcControl |= OR_CONTROL_CLE;
@@ -178,10 +187,11 @@ void USBHALHost::enableList(ENDPOINT_TYPE type) {
 }
 
 
-bool USBHALHost::disableList(ENDPOINT_TYPE type) {
-    switch(type) {
+bool USBHALHost::disableList(ENDPOINT_TYPE type)
+{
+    switch (type) {
         case CONTROL_ENDPOINT:
-            if(LPC_USB->HcControl & OR_CONTROL_CLE) {
+            if (LPC_USB->HcControl & OR_CONTROL_CLE) {
                 LPC_USB->HcControl &= ~OR_CONTROL_CLE;
                 return true;
             }
@@ -189,13 +199,13 @@ bool USBHALHost::disableList(ENDPOINT_TYPE type) {
         case ISOCHRONOUS_ENDPOINT:
             return false;
         case BULK_ENDPOINT:
-            if(LPC_USB->HcControl & OR_CONTROL_BLE){
+            if (LPC_USB->HcControl & OR_CONTROL_BLE) {
                 LPC_USB->HcControl &= ~OR_CONTROL_BLE;
                 return true;
             }
             return false;
         case INTERRUPT_ENDPOINT:
-            if(LPC_USB->HcControl & OR_CONTROL_PLE) {
+            if (LPC_USB->HcControl & OR_CONTROL_PLE) {
                 LPC_USB->HcControl &= ~OR_CONTROL_PLE;
                 return true;
             }
@@ -205,29 +215,32 @@ bool USBHALHost::disableList(ENDPOINT_TYPE type) {
 }
 
 
-void USBHALHost::memInit() {
+void USBHALHost::memInit()
+{
     usb_hcca = (volatile HCCA *)usb_buf;
     usb_edBuf = usb_buf + HCCA_SIZE;
-    usb_tdBuf = usb_buf + HCCA_SIZE + (MAX_ENDPOINT*ED_SIZE);
+    usb_tdBuf = usb_buf + HCCA_SIZE + (MAX_ENDPOINT * ED_SIZE);
 }
 
-volatile uint8_t * USBHALHost::getED() {
+volatile uint8_t *USBHALHost::getED()
+{
     for (int i = 0; i < MAX_ENDPOINT; i++) {
-        if ( !edBufAlloc[i] ) {
+        if (!edBufAlloc[i]) {
             edBufAlloc[i] = true;
-            return (volatile uint8_t *)(usb_edBuf + i*ED_SIZE);
+            return (volatile uint8_t *)(usb_edBuf + i * ED_SIZE);
         }
     }
     perror("Could not allocate ED\r\n");
     return NULL; //Could not alloc ED
 }
 
-volatile uint8_t * USBHALHost::getTD() {
+volatile uint8_t *USBHALHost::getTD()
+{
     int i;
     for (i = 0; i < MAX_TD; i++) {
-        if ( !tdBufAlloc[i] ) {
+        if (!tdBufAlloc[i]) {
             tdBufAlloc[i] = true;
-            return (volatile uint8_t *)(usb_tdBuf + i*TD_SIZE);
+            return (volatile uint8_t *)(usb_tdBuf + i * TD_SIZE);
         }
     }
     perror("Could not allocate TD\r\n");
@@ -235,20 +248,23 @@ volatile uint8_t * USBHALHost::getTD() {
 }
 
 
-void USBHALHost::freeED(volatile uint8_t * ed) {
+void USBHALHost::freeED(volatile uint8_t *ed)
+{
     int i;
     i = (ed - usb_edBuf) / ED_SIZE;
     edBufAlloc[i] = false;
 }
 
-void USBHALHost::freeTD(volatile uint8_t * td) {
+void USBHALHost::freeTD(volatile uint8_t *td)
+{
     int i;
     i = (td - usb_tdBuf) / TD_SIZE;
     tdBufAlloc[i] = false;
 }
 
 
-void USBHALHost::resetRootHub() {
+void USBHALHost::resetRootHub()
+{
     // Initiate port reset
     LPC_USB->HcRhPortStatus1 = OR_RH_PORT_PRS;
 
@@ -259,15 +275,16 @@ void USBHALHost::resetRootHub() {
 }
 
 
-void USBHALHost::_usbisr(void) {
+void USBHALHost::_usbisr(void)
+{
     if (instHost) {
         instHost->UsbIrqhandler();
     }
 }
 
-void USBHALHost::UsbIrqhandler() {
-    if( LPC_USB->HcInterruptStatus & LPC_USB->HcInterruptEnable ) //Is there something to actually process?
-    {
+void USBHALHost::UsbIrqhandler()
+{
+    if (LPC_USB->HcInterruptStatus & LPC_USB->HcInterruptEnable) { //Is there something to actually process?
 
         uint32_t int_status = LPC_USB->HcInterruptStatus & LPC_USB->HcInterruptEnable;
 

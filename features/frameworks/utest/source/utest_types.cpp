@@ -16,13 +16,12 @@
  ****************************************************************************
  */
 
- #include "utest/utest_types.h"
+#include "utest/utest_types.h"
 
-const char* utest::v1::stringify(utest::v1::failure_reason_t reason)
+const char *utest::v1::stringify(utest::v1::failure_reason_t reason)
 {
     const char *string;
-    switch(reason & ~REASON_IGNORE)
-    {
+    switch (reason & ~REASON_IGNORE) {
         case REASON_NONE:
             string = "Ignored: No Failure";
             break;
@@ -64,20 +63,21 @@ const char* utest::v1::stringify(utest::v1::failure_reason_t reason)
             string = "Ignored: Unknown Failure";
             break;
     }
-    if (!(reason & REASON_IGNORE)) string += 9;
+    if (!(reason & REASON_IGNORE)) {
+        string += 9;
+    }
     return string;
 }
 
-const char* utest::v1::stringify(utest::v1::failure_t failure)
+const char *utest::v1::stringify(utest::v1::failure_t failure)
 {
     return stringify(failure.reason);
 }
 
-const char* utest::v1::stringify(utest::v1::location_t location)
+const char *utest::v1::stringify(utest::v1::location_t location)
 {
     const char *string;
-    switch(location)
-    {
+    switch (location) {
         case LOCATION_TEST_SETUP:
             string = "Test Setup Handler";
             break;
@@ -101,10 +101,9 @@ const char* utest::v1::stringify(utest::v1::location_t location)
     return string;
 }
 
-const char* utest::v1::stringify(utest::v1::status_t status)
+const char *utest::v1::stringify(utest::v1::status_t status)
 {
-    switch(status)
-    {
+    switch (status) {
         case STATUS_CONTINUE:
             return "Continue";
         case STATUS_IGNORE:

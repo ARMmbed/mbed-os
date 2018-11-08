@@ -222,7 +222,7 @@ int8_t enet_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_id)
 
     if (re_connecting == false) {
         tasklet_data_ptr->tasklet = eventOS_event_handler_create(&enet_tasklet_main,
-                ARM_LIB_TASKLET_INIT_EVENT);
+                                                                 ARM_LIB_TASKLET_INIT_EVENT);
         if (tasklet_data_ptr->tasklet < 0) {
             // -1 handler already used by other tasklet
             // -2 memory allocation failure

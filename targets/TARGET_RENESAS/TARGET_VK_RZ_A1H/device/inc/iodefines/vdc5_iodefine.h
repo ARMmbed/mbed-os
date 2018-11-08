@@ -31,8 +31,8 @@
 /* ->QAC 0639 : Over 127 members (C90) */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_vdc5
-{                                                          /* VDC5             */
+struct st_vdc5 {
+    /* VDC5             */
     volatile uint32_t  INP_UPDATE;                             /*  INP_UPDATE      */
     volatile uint32_t  INP_SEL_CNT;                            /*  INP_SEL_CNT     */
     volatile uint32_t  INP_EXT_SYNC_CNT;                       /*  INP_EXT_SYNC_CNT */
@@ -54,7 +54,7 @@ struct st_vdc5
     volatile uint8_t   dummy3[4];                              /*                  */
     volatile uint32_t  IMGCNT_DRC_REG;                         /*  IMGCNT_DRC_REG  */
     volatile uint8_t   dummy4[60];                             /*                  */
-/* start of struct st_vdc5_from_sc0_scl0_update */
+    /* start of struct st_vdc5_from_sc0_scl0_update */
     volatile uint32_t  SC0_SCL0_UPDATE;                        /*  SC0_SCL0_UPDATE */
 #define VDC5_SC0_SCL0_FRC1_COUNT 7
     volatile uint32_t  SC0_SCL0_FRC1;                          /*  SC0_SCL0_FRC1   */
@@ -102,10 +102,10 @@ struct st_vdc5
     volatile uint32_t  SC0_SCL1_WR8;                           /*  SC0_SCL1_WR8    */
     volatile uint32_t  SC0_SCL1_WR9;                           /*  SC0_SCL1_WR9    */
     volatile uint32_t  SC0_SCL1_WR10;                          /*  SC0_SCL1_WR10   */
-/* end of struct st_vdc5_from_sc0_scl0_update */
+    /* end of struct st_vdc5_from_sc0_scl0_update */
     volatile uint32_t  SC0_SCL1_WR11;                          /*  SC0_SCL1_WR11   */
     volatile uint32_t  SC0_SCL1_MON1;                          /*  SC0_SCL1_MON1   */
-/* start of struct st_vdc5_from_sc0_scl1_pbuf0 */
+    /* start of struct st_vdc5_from_sc0_scl1_pbuf0 */
 #define VDC5_SC0_SCL1_PBUF0_COUNT 4
     volatile uint32_t  SC0_SCL1_PBUF0;                         /*  SC0_SCL1_PBUF0  */
     volatile uint32_t  SC0_SCL1_PBUF1;                         /*  SC0_SCL1_PBUF1  */
@@ -113,9 +113,9 @@ struct st_vdc5
     volatile uint32_t  SC0_SCL1_PBUF3;                         /*  SC0_SCL1_PBUF3  */
     volatile uint32_t  SC0_SCL1_PBUF_FLD;                      /*  SC0_SCL1_PBUF_FLD */
     volatile uint32_t  SC0_SCL1_PBUF_CNT;                      /*  SC0_SCL1_PBUF_CNT */
-/* end of struct st_vdc5_from_sc0_scl1_pbuf0 */
+    /* end of struct st_vdc5_from_sc0_scl1_pbuf0 */
     volatile uint8_t   dummy10[44];                            /*                  */
-/* start of struct st_vdc5_from_gr0_update */
+    /* start of struct st_vdc5_from_gr0_update */
     volatile uint32_t  GR0_UPDATE;                             /*  GR0_UPDATE      */
     volatile uint32_t  GR0_FLM_RD;                             /*  GR0_FLM_RD      */
 #define VDC5_GR0_FLM1_COUNT 6
@@ -129,19 +129,19 @@ struct st_vdc5
     volatile uint32_t  GR0_AB1;                                /*  GR0_AB1         */
     volatile uint32_t  GR0_AB2;                                /*  GR0_AB2         */
     volatile uint32_t  GR0_AB3;                                /*  GR0_AB3         */
-/* end of struct st_vdc5_from_gr0_update */
+    /* end of struct st_vdc5_from_gr0_update */
     volatile uint8_t   dummy11[12];                            /*                  */
-/* start of struct st_vdc5_from_gr0_ab7 */
+    /* start of struct st_vdc5_from_gr0_ab7 */
     volatile uint32_t  GR0_AB7;                                /*  GR0_AB7         */
     volatile uint32_t  GR0_AB8;                                /*  GR0_AB8         */
     volatile uint32_t  GR0_AB9;                                /*  GR0_AB9         */
     volatile uint32_t  GR0_AB10;                               /*  GR0_AB10        */
     volatile uint32_t  GR0_AB11;                               /*  GR0_AB11        */
     volatile uint32_t  GR0_BASE;                               /*  GR0_BASE        */
-/* end of struct st_vdc5_from_gr0_ab7 */
+    /* end of struct st_vdc5_from_gr0_ab7 */
     volatile uint32_t  GR0_CLUT;                               /*  GR0_CLUT        */
     volatile uint8_t   dummy12[44];                            /*                  */
-/* start of struct st_vdc5_from_adj0_update */
+    /* start of struct st_vdc5_from_adj0_update */
     volatile uint32_t  ADJ0_UPDATE;                            /*  ADJ0_UPDATE     */
     volatile uint32_t  ADJ0_BKSTR_SET;                         /*  ADJ0_BKSTR_SET  */
 #define VDC5_ADJ0_ENH_TIM1_COUNT 3
@@ -165,9 +165,9 @@ struct st_vdc5
     volatile uint32_t  ADJ0_MTX_CBB_ADJ1;                      /*  ADJ0_MTX_CBB_ADJ1 */
     volatile uint32_t  ADJ0_MTX_CRR_ADJ0;                      /*  ADJ0_MTX_CRR_ADJ0 */
     volatile uint32_t  ADJ0_MTX_CRR_ADJ1;                      /*  ADJ0_MTX_CRR_ADJ1 */
-/* end of struct st_vdc5_from_adj0_update */
+    /* end of struct st_vdc5_from_adj0_update */
     volatile uint8_t   dummy13[48];                            /*                  */
-/* start of struct st_vdc5_from_gr0_update */
+    /* start of struct st_vdc5_from_gr0_update */
     volatile uint32_t  GR2_UPDATE;                             /*  GR2_UPDATE      */
     volatile uint32_t  GR2_FLM_RD;                             /*  GR2_FLM_RD      */
 #define VDC5_GR2_FLM1_COUNT 6
@@ -181,22 +181,22 @@ struct st_vdc5
     volatile uint32_t  GR2_AB1;                                /*  GR2_AB1         */
     volatile uint32_t  GR2_AB2;                                /*  GR2_AB2         */
     volatile uint32_t  GR2_AB3;                                /*  GR2_AB3         */
-/* end of struct st_vdc5_from_gr0_update */
+    /* end of struct st_vdc5_from_gr0_update */
     volatile uint32_t  GR2_AB4;                                /*  GR2_AB4         */
     volatile uint32_t  GR2_AB5;                                /*  GR2_AB5         */
     volatile uint32_t  GR2_AB6;                                /*  GR2_AB6         */
-/* start of struct st_vdc5_from_gr0_ab7 */
+    /* start of struct st_vdc5_from_gr0_ab7 */
     volatile uint32_t  GR2_AB7;                                /*  GR2_AB7         */
     volatile uint32_t  GR2_AB8;                                /*  GR2_AB8         */
     volatile uint32_t  GR2_AB9;                                /*  GR2_AB9         */
     volatile uint32_t  GR2_AB10;                               /*  GR2_AB10        */
     volatile uint32_t  GR2_AB11;                               /*  GR2_AB11        */
     volatile uint32_t  GR2_BASE;                               /*  GR2_BASE        */
-/* end of struct st_vdc5_from_gr0_ab7 */
+    /* end of struct st_vdc5_from_gr0_ab7 */
     volatile uint32_t  GR2_CLUT;                               /*  GR2_CLUT        */
     volatile uint32_t  GR2_MON;                                /*  GR2_MON         */
     volatile uint8_t   dummy14[40];                            /*                  */
-/* start of struct st_vdc5_from_gr0_update */
+    /* start of struct st_vdc5_from_gr0_update */
     volatile uint32_t  GR3_UPDATE;                             /*  GR3_UPDATE      */
     volatile uint32_t  GR3_FLM_RD;                             /*  GR3_FLM_RD      */
 #define VDC5_GR3_FLM1_COUNT 6
@@ -210,18 +210,18 @@ struct st_vdc5
     volatile uint32_t  GR3_AB1;                                /*  GR3_AB1         */
     volatile uint32_t  GR3_AB2;                                /*  GR3_AB2         */
     volatile uint32_t  GR3_AB3;                                /*  GR3_AB3         */
-/* end of struct st_vdc5_from_gr0_update */
+    /* end of struct st_vdc5_from_gr0_update */
     volatile uint32_t  GR3_AB4;                                /*  GR3_AB4         */
     volatile uint32_t  GR3_AB5;                                /*  GR3_AB5         */
     volatile uint32_t  GR3_AB6;                                /*  GR3_AB6         */
-/* start of struct st_vdc5_from_gr0_ab7 */
+    /* start of struct st_vdc5_from_gr0_ab7 */
     volatile uint32_t  GR3_AB7;                                /*  GR3_AB7         */
     volatile uint32_t  GR3_AB8;                                /*  GR3_AB8         */
     volatile uint32_t  GR3_AB9;                                /*  GR3_AB9         */
     volatile uint32_t  GR3_AB10;                               /*  GR3_AB10        */
     volatile uint32_t  GR3_AB11;                               /*  GR3_AB11        */
     volatile uint32_t  GR3_BASE;                               /*  GR3_BASE        */
-/* end of struct st_vdc5_from_gr0_ab7 */
+    /* end of struct st_vdc5_from_gr0_ab7 */
     volatile uint32_t  GR3_CLUT_INT;                           /*  GR3_CLUT_INT    */
     volatile uint32_t  GR3_MON;                                /*  GR3_MON         */
     volatile uint8_t   dummy15[40];                            /*                  */
@@ -357,7 +357,7 @@ struct st_vdc5
     volatile uint16_t SYSCNT_PANEL_CLK;                       /*  SYSCNT_PANEL_CLK */
     volatile uint16_t SYSCNT_CLUT;                            /*  SYSCNT_CLUT     */
     volatile uint8_t   dummy24[356];                           /*                  */
-/* start of struct st_vdc5_from_sc0_scl0_update */
+    /* start of struct st_vdc5_from_sc0_scl0_update */
     volatile uint32_t  SC1_SCL0_UPDATE;                        /*  SC1_SCL0_UPDATE */
 #define VDC5_SC1_SCL0_FRC1_COUNT 7
     volatile uint32_t  SC1_SCL0_FRC1;                          /*  SC1_SCL0_FRC1   */
@@ -405,10 +405,10 @@ struct st_vdc5
     volatile uint32_t  SC1_SCL1_WR8;                           /*  SC1_SCL1_WR8    */
     volatile uint32_t  SC1_SCL1_WR9;                           /*  SC1_SCL1_WR9    */
     volatile uint32_t  SC1_SCL1_WR10;                          /*  SC1_SCL1_WR10   */
-/* end of struct st_vdc5_from_sc0_scl0_update */
+    /* end of struct st_vdc5_from_sc0_scl0_update */
     volatile uint32_t  SC1_SCL1_WR11;                          /*  SC1_SCL1_WR11   */
     volatile uint32_t  SC1_SCL1_MON1;                          /*  SC1_SCL1_MON1   */
-/* start of struct st_vdc5_from_sc0_scl1_pbuf0 */
+    /* start of struct st_vdc5_from_sc0_scl1_pbuf0 */
 #define VDC5_SC1_SCL1_PBUF0_COUNT 4
     volatile uint32_t  SC1_SCL1_PBUF0;                         /*  SC1_SCL1_PBUF0  */
     volatile uint32_t  SC1_SCL1_PBUF1;                         /*  SC1_SCL1_PBUF1  */
@@ -416,9 +416,9 @@ struct st_vdc5
     volatile uint32_t  SC1_SCL1_PBUF3;                         /*  SC1_SCL1_PBUF3  */
     volatile uint32_t  SC1_SCL1_PBUF_FLD;                      /*  SC1_SCL1_PBUF_FLD */
     volatile uint32_t  SC1_SCL1_PBUF_CNT;                      /*  SC1_SCL1_PBUF_CNT */
-/* end of struct st_vdc5_from_sc0_scl1_pbuf0 */
+    /* end of struct st_vdc5_from_sc0_scl1_pbuf0 */
     volatile uint8_t   dummy30[44];                            /*                  */
-/* start of struct st_vdc5_from_gr0_update */
+    /* start of struct st_vdc5_from_gr0_update */
     volatile uint32_t  GR1_UPDATE;                             /*  GR1_UPDATE      */
     volatile uint32_t  GR1_FLM_RD;                             /*  GR1_FLM_RD      */
 #define VDC5_GR1_FLM1_COUNT 6
@@ -432,22 +432,22 @@ struct st_vdc5
     volatile uint32_t  GR1_AB1;                                /*  GR1_AB1         */
     volatile uint32_t  GR1_AB2;                                /*  GR1_AB2         */
     volatile uint32_t  GR1_AB3;                                /*  GR1_AB3         */
-/* end of struct st_vdc5_from_gr0_update */
+    /* end of struct st_vdc5_from_gr0_update */
     volatile uint32_t  GR1_AB4;                                /*  GR1_AB4         */
     volatile uint32_t  GR1_AB5;                                /*  GR1_AB5         */
     volatile uint32_t  GR1_AB6;                                /*  GR1_AB6         */
-/* start of struct st_vdc5_from_gr0_ab7 */
+    /* start of struct st_vdc5_from_gr0_ab7 */
     volatile uint32_t  GR1_AB7;                                /*  GR1_AB7         */
     volatile uint32_t  GR1_AB8;                                /*  GR1_AB8         */
     volatile uint32_t  GR1_AB9;                                /*  GR1_AB9         */
     volatile uint32_t  GR1_AB10;                               /*  GR1_AB10        */
     volatile uint32_t  GR1_AB11;                               /*  GR1_AB11        */
     volatile uint32_t  GR1_BASE;                               /*  GR1_BASE        */
-/* end of struct st_vdc5_from_gr0_ab7 */
+    /* end of struct st_vdc5_from_gr0_ab7 */
     volatile uint32_t  GR1_CLUT;                               /*  GR1_CLUT        */
     volatile uint32_t  GR1_MON;                                /*  GR1_MON         */
     volatile uint8_t   dummy31[40];                            /*                  */
-/* start of struct st_vdc5_from_adj0_update */
+    /* start of struct st_vdc5_from_adj0_update */
     volatile uint32_t  ADJ1_UPDATE;                            /*  ADJ1_UPDATE     */
     volatile uint32_t  ADJ1_BKSTR_SET;                         /*  ADJ1_BKSTR_SET  */
 #define VDC5_ADJ1_ENH_TIM1_COUNT 3
@@ -471,7 +471,7 @@ struct st_vdc5
     volatile uint32_t  ADJ1_MTX_CBB_ADJ1;                      /*  ADJ1_MTX_CBB_ADJ1 */
     volatile uint32_t  ADJ1_MTX_CRR_ADJ0;                      /*  ADJ1_MTX_CRR_ADJ0 */
     volatile uint32_t  ADJ1_MTX_CRR_ADJ1;                      /*  ADJ1_MTX_CRR_ADJ1 */
-/* end of struct st_vdc5_from_adj0_update */
+    /* end of struct st_vdc5_from_adj0_update */
     volatile uint8_t   dummy32[48];                            /*                  */
     volatile uint32_t  GR_VIN_UPDATE;                          /*  GR_VIN_UPDATE   */
     volatile uint8_t   dummy33[28];                            /*                  */
@@ -549,8 +549,7 @@ struct st_vdc5
 };
 
 
-struct st_vdc5_from_gr0_update
-{
+struct st_vdc5_from_gr0_update {
     volatile uint32_t  GR0_UPDATE;                             /*  GR0_UPDATE      */
     volatile uint32_t  GR0_FLM_RD;                             /*  GR0_FLM_RD      */
     volatile uint32_t  GR0_FLM1;                               /*  GR0_FLM1        */
@@ -565,8 +564,7 @@ struct st_vdc5_from_gr0_update
 };
 
 
-struct st_vdc5_from_gr0_ab7
-{
+struct st_vdc5_from_gr0_ab7 {
     volatile uint32_t  GR0_AB7;                                /*  GR0_AB7         */
     volatile uint32_t  GR0_AB8;                                /*  GR0_AB8         */
     volatile uint32_t  GR0_AB9;                                /*  GR0_AB9         */
@@ -576,8 +574,7 @@ struct st_vdc5_from_gr0_ab7
 };
 
 
-struct st_vdc5_from_adj0_update
-{
+struct st_vdc5_from_adj0_update {
     volatile uint32_t  ADJ0_UPDATE;                            /*  ADJ0_UPDATE     */
     volatile uint32_t  ADJ0_BKSTR_SET;                         /*  ADJ0_BKSTR_SET  */
     volatile uint32_t  ADJ0_ENH_TIM1;                          /*  ADJ0_ENH_TIM1   */
@@ -601,8 +598,7 @@ struct st_vdc5_from_adj0_update
 };
 
 
-struct st_vdc5_from_sc0_scl0_update
-{
+struct st_vdc5_from_sc0_scl0_update {
     volatile uint32_t  SC0_SCL0_UPDATE;                        /*  SC0_SCL0_UPDATE */
     volatile uint32_t  SC0_SCL0_FRC1;                          /*  SC0_SCL0_FRC1   */
     volatile uint32_t  SC0_SCL0_FRC2;                          /*  SC0_SCL0_FRC2   */
@@ -649,8 +645,7 @@ struct st_vdc5_from_sc0_scl0_update
 };
 
 
-struct st_vdc5_from_sc0_scl1_pbuf0
-{
+struct st_vdc5_from_sc0_scl1_pbuf0 {
     volatile uint32_t  SC0_SCL1_PBUF0;                         /*  SC0_SCL1_PBUF0  */
     volatile uint32_t  SC0_SCL1_PBUF1;                         /*  SC0_SCL1_PBUF1  */
     volatile uint32_t  SC0_SCL1_PBUF2;                         /*  SC0_SCL1_PBUF2  */

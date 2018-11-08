@@ -125,8 +125,7 @@ extern "C" {
  * - the completion of a DMA driven CRC request
  * - errors detected when executing a DMA driven CRC request
  */
-typedef enum __ADI_CRC_EVENT
-{
+typedef enum __ADI_CRC_EVENT {
     /*! DMA driven CRC peripheral has completed processing a request */
     ADI_CRC_EVENT_BUFFER_PROCESSED = ADI_DMA_EVENT_BUFFER_PROCESSED,
 
@@ -141,13 +140,12 @@ typedef enum __ADI_CRC_EVENT
  * This handle is obtained when opening a CRC driver using adi_crc_Open.
  * It stops being valid after closing the CRC driver using adi_crc_Close.
  */
-typedef struct __ADI_CRC_DEVICE*  ADI_CRC_HANDLE;
+typedef struct __ADI_CRC_DEVICE  *ADI_CRC_HANDLE;
 
 /**
  *  CRC driver return codes
  */
-typedef enum
-{
+typedef enum {
     ADI_CRC_SUCCESS = 0,                /*!< 0x00 - Generic success */
     ADI_CRC_FAILURE,                    /*!< 0x01 - Generic failure */
     ADI_CRC_IN_USE,                     /*!< 0x02 - Supplied CRC device number is already open and in use */

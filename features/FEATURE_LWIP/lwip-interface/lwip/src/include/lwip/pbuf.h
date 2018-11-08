@@ -70,28 +70,28 @@ extern "C" {
  * Enumeration of pbuf layers
  */
 typedef enum {
-  /** Includes spare room for transport layer header, e.g. UDP header.
-   * Use this if you intend to pass the pbuf to functions like udp_send().
-   */
-  PBUF_TRANSPORT,
-  /** Includes spare room for IP header.
-   * Use this if you intend to pass the pbuf to functions like raw_send().
-   */
-  PBUF_IP,
-  /** Includes spare room for link layer header (ethernet header).
-   * Use this if you intend to pass the pbuf to functions like ethernet_output().
-   * @see PBUF_LINK_HLEN
-   */
-  PBUF_LINK,
-  /** Includes spare room for additional encapsulation header before ethernet
-   * headers (e.g. 802.11).
-   * Use this if you intend to pass the pbuf to functions like netif->linkoutput().
-   * @see PBUF_LINK_ENCAPSULATION_HLEN
-   */
-  PBUF_RAW_TX,
-  /** Use this for input packets in a netif driver when calling netif->input()
-   * in the most common case - ethernet-layer netif driver. */
-  PBUF_RAW
+    /** Includes spare room for transport layer header, e.g. UDP header.
+     * Use this if you intend to pass the pbuf to functions like udp_send().
+     */
+    PBUF_TRANSPORT,
+    /** Includes spare room for IP header.
+     * Use this if you intend to pass the pbuf to functions like raw_send().
+     */
+    PBUF_IP,
+    /** Includes spare room for link layer header (ethernet header).
+     * Use this if you intend to pass the pbuf to functions like ethernet_output().
+     * @see PBUF_LINK_HLEN
+     */
+    PBUF_LINK,
+    /** Includes spare room for additional encapsulation header before ethernet
+     * headers (e.g. 802.11).
+     * Use this if you intend to pass the pbuf to functions like netif->linkoutput().
+     * @see PBUF_LINK_ENCAPSULATION_HLEN
+     */
+    PBUF_RAW_TX,
+    /** Use this for input packets in a netif driver when calling netif->input()
+     * in the most common case - ethernet-layer netif driver. */
+    PBUF_RAW
 } pbuf_layer;
 
 /**
@@ -99,28 +99,28 @@ typedef enum {
  * Enumeration of pbuf types
  */
 typedef enum {
-  /** pbuf data is stored in RAM, used for TX mostly, struct pbuf and its payload
-      are allocated in one piece of contiguous memory (so the first payload byte
-      can be calculated from struct pbuf).
-      pbuf_alloc() allocates PBUF_RAM pbufs as unchained pbufs (although that might
-      change in future versions).
-      This should be used for all OUTGOING packets (TX).*/
-  PBUF_RAM,
-  /** pbuf data is stored in ROM, i.e. struct pbuf and its payload are located in
-      totally different memory areas. Since it points to ROM, payload does not
-      have to be copied when queued for transmission. */
-  PBUF_ROM,
-  /** pbuf comes from the pbuf pool. Much like PBUF_ROM but payload might change
-      so it has to be duplicated when queued before transmitting, depending on
-      who has a 'ref' to it. */
-  PBUF_REF,
-  /** pbuf payload refers to RAM. This one comes from a pool and should be used
-      for RX. Payload can be chained (scatter-gather RX) but like PBUF_RAM, struct
-      pbuf and its payload are allocated in one piece of contiguous memory (so
-      the first payload byte can be calculated from struct pbuf).
-      Don't use this for TX, if the pool becomes empty e.g. because of TCP queuing,
-      you are unable to receive TCP acks! */
-  PBUF_POOL
+    /** pbuf data is stored in RAM, used for TX mostly, struct pbuf and its payload
+        are allocated in one piece of contiguous memory (so the first payload byte
+        can be calculated from struct pbuf).
+        pbuf_alloc() allocates PBUF_RAM pbufs as unchained pbufs (although that might
+        change in future versions).
+        This should be used for all OUTGOING packets (TX).*/
+    PBUF_RAM,
+    /** pbuf data is stored in ROM, i.e. struct pbuf and its payload are located in
+        totally different memory areas. Since it points to ROM, payload does not
+        have to be copied when queued for transmission. */
+    PBUF_ROM,
+    /** pbuf comes from the pbuf pool. Much like PBUF_ROM but payload might change
+        so it has to be duplicated when queued before transmitting, depending on
+        who has a 'ref' to it. */
+    PBUF_REF,
+    /** pbuf payload refers to RAM. This one comes from a pool and should be used
+        for RX. Payload can be chained (scatter-gather RX) but like PBUF_RAM, struct
+        pbuf and its payload are allocated in one piece of contiguous memory (so
+        the first payload byte can be calculated from struct pbuf).
+        Don't use this for TX, if the pool becomes empty e.g. because of TCP queuing,
+        you are unable to receive TCP acks! */
+    PBUF_POOL
 } pbuf_type;
 
 
@@ -140,36 +140,36 @@ typedef enum {
 
 /** Main packet buffer struct */
 struct pbuf {
-  /** next pbuf in singly linked pbuf chain */
-  struct pbuf *next;
+    /** next pbuf in singly linked pbuf chain */
+    struct pbuf *next;
 
-  /** pointer to the actual data in the buffer */
-  void *payload;
+    /** pointer to the actual data in the buffer */
+    void *payload;
 
-  /**
-   * total length of this buffer and all next buffers in chain
-   * belonging to the same packet.
-   *
-   * For non-queue packet chains this is the invariant:
-   * p->tot_len == p->len + (p->next? p->next->tot_len: 0)
-   */
-  u16_t tot_len;
+    /**
+     * total length of this buffer and all next buffers in chain
+     * belonging to the same packet.
+     *
+     * For non-queue packet chains this is the invariant:
+     * p->tot_len == p->len + (p->next? p->next->tot_len: 0)
+     */
+    u16_t tot_len;
 
-  /** length of this buffer */
-  u16_t len;
+    /** length of this buffer */
+    u16_t len;
 
-  /** pbuf_type as u8_t instead of enum to save space */
-  u8_t /*pbuf_type*/ type;
+    /** pbuf_type as u8_t instead of enum to save space */
+    u8_t /*pbuf_type*/ type;
 
-  /** misc flags */
-  u8_t flags;
+    /** misc flags */
+    u8_t flags;
 
-  /**
-   * the reference count always equals the number of pointers
-   * that refer to this pbuf. This can be pointers from an application,
-   * the stack itself, or pbuf->next pointers from a chain.
-   */
-  u16_t ref;
+    /**
+     * the reference count always equals the number of pointers
+     * that refer to this pbuf. This can be pointers from an application,
+     * the stack itself, or pbuf->next pointers from a chain.
+     */
+    u16_t ref;
 };
 
 
@@ -178,11 +178,11 @@ struct pbuf {
  * for PBUF_ROM type.
  */
 struct pbuf_rom {
-  /** next pbuf in singly linked pbuf chain */
-  struct pbuf *next;
+    /** next pbuf in singly linked pbuf chain */
+    struct pbuf *next;
 
-  /** pointer to the actual data in the buffer */
-  const void *payload;
+    /** pointer to the actual data in the buffer */
+    const void *payload;
 };
 
 #if LWIP_SUPPORT_CUSTOM_PBUF
@@ -191,10 +191,10 @@ typedef void (*pbuf_free_custom_fn)(struct pbuf *p);
 
 /** A custom pbuf: like a pbuf, but following a function pointer to free it. */
 struct pbuf_custom {
-  /** The actual pbuf */
-  struct pbuf pbuf;
-  /** This function is called when pbuf_free deallocates this pbuf(_custom) */
-  pbuf_free_custom_fn custom_free_function;
+    /** The actual pbuf */
+    struct pbuf pbuf;
+    /** This function is called when pbuf_free deallocates this pbuf(_custom) */
+    pbuf_free_custom_fn custom_free_function;
 };
 #endif /* LWIP_SUPPORT_CUSTOM_PBUF */
 
@@ -213,8 +213,8 @@ void pbuf_free_ooseq(void);
      ooseq queued pbufs now */ \
   pbuf_free_ooseq(); }}while(0)
 #else /* LWIP_TCP && TCP_QUEUE_OOSEQ && NO_SYS && PBUF_POOL_FREE_OOSEQ */
-  /* Otherwise declare an empty PBUF_CHECK_FREE_OOSEQ */
-  #define PBUF_CHECK_FREE_OOSEQ()
+/* Otherwise declare an empty PBUF_CHECK_FREE_OOSEQ */
+#define PBUF_CHECK_FREE_OOSEQ()
 #endif /* LWIP_TCP && TCP_QUEUE_OOSEQ && NO_SYS && PBUF_POOL_FREE_OOSEQ*/
 
 /* Initializes the pbuf module. This call is empty for now, but may not be in future. */
@@ -239,7 +239,7 @@ err_t pbuf_copy(struct pbuf *p_to, const struct pbuf *p_from);
 u16_t pbuf_copy_partial(const struct pbuf *p, void *dataptr, u16_t len, u16_t offset);
 err_t pbuf_take(struct pbuf *buf, const void *dataptr, u16_t len);
 err_t pbuf_take_at(struct pbuf *buf, const void *dataptr, u16_t len, u16_t offset);
-struct pbuf *pbuf_skip(struct pbuf* in, u16_t in_offset, u16_t* out_offset);
+struct pbuf *pbuf_skip(struct pbuf *in, u16_t in_offset, u16_t *out_offset);
 struct pbuf *pbuf_coalesce(struct pbuf *p, pbuf_layer layer);
 #if LWIP_CHECKSUM_ON_COPY
 err_t pbuf_fill_chksum(struct pbuf *p, u16_t start_offset, const void *dataptr,
@@ -249,12 +249,12 @@ err_t pbuf_fill_chksum(struct pbuf *p, u16_t start_offset, const void *dataptr,
 void pbuf_split_64k(struct pbuf *p, struct pbuf **rest);
 #endif /* LWIP_TCP && TCP_QUEUE_OOSEQ && LWIP_WND_SCALE */
 
-u8_t pbuf_get_at(const struct pbuf* p, u16_t offset);
-int pbuf_try_get_at(const struct pbuf* p, u16_t offset);
-void pbuf_put_at(struct pbuf* p, u16_t offset, u8_t data);
-u16_t pbuf_memcmp(const struct pbuf* p, u16_t offset, const void* s2, u16_t n);
-u16_t pbuf_memfind(const struct pbuf* p, const void* mem, u16_t mem_len, u16_t start_offset);
-u16_t pbuf_strstr(const struct pbuf* p, const char* substr);
+u8_t pbuf_get_at(const struct pbuf *p, u16_t offset);
+int pbuf_try_get_at(const struct pbuf *p, u16_t offset);
+void pbuf_put_at(struct pbuf *p, u16_t offset, u8_t data);
+u16_t pbuf_memcmp(const struct pbuf *p, u16_t offset, const void *s2, u16_t n);
+u16_t pbuf_memfind(const struct pbuf *p, const void *mem, u16_t mem_len, u16_t start_offset);
+u16_t pbuf_strstr(const struct pbuf *p, const char *substr);
 
 #ifdef __cplusplus
 }

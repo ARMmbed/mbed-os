@@ -29,10 +29,10 @@ struct nu_modinit_s {
     uint32_t clksrc;
     uint32_t clkdiv;
     uint32_t rsetidx;
-    
+
     IRQn_Type irq_n;
     //int irq_n;
-    
+
     void *var;
 };
 

@@ -62,7 +62,7 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @param  None
   * @retval None
   */
-void SystemInit (void)
+void SystemInit(void)
 {
     /*!< Set MSION bit */
     RCC->CR |= (uint32_t)0x00000100;
@@ -116,7 +116,7 @@ void SetSysClock(void)
         {
             /* 3- If fail start with HSI clock */
             if (SetSysClock_PLL_HSI() == 0) {
-                while(1) {
+                while (1) {
                     // [TODO] Put something here to tell the user that a problem occured...
                 }
             }
@@ -136,8 +136,9 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_OscInitTypeDef RCC_OscInitStruct;
 
-    if (__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_CFGR_SWS_PLL)
-        return 1;   // already on HSE PLL, could occur from deepsleep waking
+    if (__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_CFGR_SWS_PLL) {
+        return 1;    // already on HSE PLL, could occur from deepsleep waking
+    }
 
     /* Used to gain time after DeepSleep in case HSI is used */
     if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) != RESET) {

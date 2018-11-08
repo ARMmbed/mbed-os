@@ -167,8 +167,7 @@ static uint32_t SDIF_GetInstance(SDIF_Type *base)
 {
     uint8_t instance = 0U;
 
-    while ((instance < ARRAY_SIZE(s_sdifBase)) && (s_sdifBase[instance] != base))
-    {
+    while ((instance < ARRAY_SIZE(s_sdifBase)) && (s_sdifBase[instance] != base)) {
         instance++;
     }
 
@@ -182,13 +181,11 @@ static status_t SDIF_TransferConfig(SDIF_Type *base, sdif_transfer_t *transfer)
     sdif_command_t *command = transfer->command;
     sdif_data_t *data = transfer->data;
 
-    if ((command == NULL) || (data && (data->blockSize > SDIF_BLKSIZ_BLOCK_SIZE_MASK)))
-    {
+    if ((command == NULL) || (data && (data->blockSize > SDIF_BLKSIZ_BLOCK_SIZE_MASK))) {
         return kStatue_SDIF_InvalidArgument;
     }
 
-    if (data != NULL)
-    {
+    if (data != NULL) {
         /* config the block size register ,the block size maybe smaller than FIFO
          depth, will test on the board */
         base->BLKSIZ = SDIF_BLKSIZ_BLOCK_SIZE(data->blockSize);
@@ -197,53 +194,38 @@ static status_t SDIF_TransferConfig(SDIF_Type *base, sdif_transfer_t *transfer)
 
         command->flags |= kSDIF_DataExpect; /* need transfer data flag */
 
-        if (data->txData != NULL)
-        {
+        if (data->txData != NULL) {
             command->flags |= kSDIF_DataWriteToCard; /* data transfer direction */
-        }
-        else
-        {
+        } else {
             /* config the card read threshold,enable the card read threshold */
-            if (data->blockSize <= (SDIF_FIFO_COUNT * sizeof(uint32_t)))
-            {
+            if (data->blockSize <= (SDIF_FIFO_COUNT * sizeof(uint32_t))) {
                 base->CARDTHRCTL = SDIF_CARDTHRCTL_CARDRDTHREN_MASK | SDIF_CARDTHRCTL_CARDTHRESHOLD(data->blockSize);
-            }
-            else
-            {
+            } else {
                 base->CARDTHRCTL &= ~SDIF_CARDTHRCTL_CARDRDTHREN_MASK;
             }
         }
 
-        if (data->streamTransfer)
-        {
+        if (data->streamTransfer) {
             command->flags |= kSDIF_DataStreamTransfer; /* indicate if use stream transfer or block transfer  */
         }
 
         if ((data->enableAutoCommand12) &&
-            (data->blockCount > 1U)) /* indicate if auto stop will send after the data transfer done */
-        {
+                (data->blockCount > 1U)) { /* indicate if auto stop will send after the data transfer done */
             command->flags |= kSDIF_DataTransferAutoStop;
         }
     }
     /* R2 response length long */
-    if (command->responseType == kCARD_ResponseTypeR2)
-    {
+    if (command->responseType == kCARD_ResponseTypeR2) {
         command->flags |= (kSDIF_CmdCheckResponseCRC | kSDIF_CmdResponseLengthLong | kSDIF_CmdResponseExpect);
-    }
-    else if ((command->responseType == kCARD_ResponseTypeR3) || (command->responseType == kCARD_ResponseTypeR4))
-    {
+    } else if ((command->responseType == kCARD_ResponseTypeR3) || (command->responseType == kCARD_ResponseTypeR4)) {
         command->flags |= kSDIF_CmdResponseExpect; /* response R3 do not check Response CRC */
-    }
-    else
-    {
-        if (command->responseType != kCARD_ResponseTypeNone)
-        {
+    } else {
+        if (command->responseType != kCARD_ResponseTypeNone) {
             command->flags |= (kSDIF_CmdCheckResponseCRC | kSDIF_CmdResponseExpect);
         }
     }
 
-    if (command->type == kCARD_CommandTypeAbort)
-    {
+    if (command->type == kCARD_CommandTypeAbort) {
         command->flags |= kSDIF_TransferStopAbort;
     }
 
@@ -256,23 +238,19 @@ static status_t SDIF_TransferConfig(SDIF_Type *base, sdif_transfer_t *transfer)
 static status_t SDIF_ReadCommandResponse(SDIF_Type *base, sdif_command_t *command)
 {
     /* check if command exsit,if not, do not read the response */
-    if (NULL != command)
-    {
+    if (NULL != command) {
         /* read reponse */
         command->response[0U] = base->RESP[0U];
-        if (command->responseType == kCARD_ResponseTypeR2)
-        {
+        if (command->responseType == kCARD_ResponseTypeR2) {
             command->response[1U] = base->RESP[1U];
             command->response[2U] = base->RESP[2U];
             command->response[3U] = base->RESP[3U];
         }
 
         if ((command->responseErrorFlags != 0U) &&
-            ((command->responseType == kCARD_ResponseTypeR1) || (command->responseType == kCARD_ResponseTypeR1b) ||
-             (command->responseType == kCARD_ResponseTypeR6) || (command->responseType == kCARD_ResponseTypeR5)))
-        {
-            if (((command->responseErrorFlags) & (command->response[0U])) != 0U)
-            {
+                ((command->responseType == kCARD_ResponseTypeR1) || (command->responseType == kCARD_ResponseTypeR1b) ||
+                 (command->responseType == kCARD_ResponseTypeR6) || (command->responseType == kCARD_ResponseTypeR5))) {
+            if (((command->responseErrorFlags) & (command->response[0U])) != 0U) {
                 return kStatus_SDIF_ResponseError;
             }
         }
@@ -285,12 +263,10 @@ static status_t SDIF_WaitCommandDone(SDIF_Type *base, sdif_command_t *command)
 {
     uint32_t status = 0U;
 
-    do
-    {
+    do {
         status = SDIF_GetInterruptStatus(base);
         if ((status &
-             (kSDIF_ResponseError | kSDIF_ResponseCRCError | kSDIF_ResponseTimeout | kSDIF_HardwareLockError)) != 0u)
-        {
+                (kSDIF_ResponseError | kSDIF_ResponseCRCError | kSDIF_ResponseTimeout | kSDIF_HardwareLockError)) != 0u) {
             SDIF_ClearInterruptStatus(base, status & (kSDIF_ResponseError | kSDIF_ResponseCRCError |
                                                       kSDIF_ResponseTimeout | kSDIF_HardwareLockError));
             return kStatus_SDIF_SendCmdFail;
@@ -315,36 +291,30 @@ status_t SDIF_ReleaseDMADescriptor(SDIF_Type *base, sdif_dma_config_t *dmaConfig
     dmaDesAddr = (sdif_dma_descriptor_t *)tempDMADesBuffer;
 
     /* chain descriptor mode */
-    if (dmaConfig->mode == kSDIF_ChainDMAMode)
-    {
+    if (dmaConfig->mode == kSDIF_ChainDMAMode) {
         while (((dmaDesAddr->dmaDesAttribute & kSDIF_DMADescriptorDataBufferEnd) != kSDIF_DMADescriptorDataBufferEnd) &&
-               (dmaDesBufferSize < dmaConfig->dmaDesBufferLen * sizeof(uint32_t)))
-        {
+                (dmaDesBufferSize < dmaConfig->dmaDesBufferLen * sizeof(uint32_t))) {
             /* set the OWN bit */
             dmaDesAddr->dmaDesAttribute |= kSDIF_DMADescriptorOwnByDMA;
             dmaDesAddr++;
             dmaDesBufferSize += sizeof(sdif_dma_descriptor_t);
         }
         /* if access dma des address overflow, return fail */
-        if (dmaDesBufferSize > dmaConfig->dmaDesBufferLen * sizeof(uint32_t))
-        {
+        if (dmaDesBufferSize > dmaConfig->dmaDesBufferLen * sizeof(uint32_t)) {
             return kStatus_Fail;
         }
         dmaDesAddr->dmaDesAttribute |= kSDIF_DMADescriptorOwnByDMA;
     }
     /* dual descriptor mode */
-    else
-    {
+    else {
         while (((dmaDesAddr->dmaDesAttribute & kSDIF_DMADescriptorEnd) != kSDIF_DMADescriptorEnd) &&
-               (dmaDesBufferSize < dmaConfig->dmaDesBufferLen * sizeof(uint32_t)))
-        {
+                (dmaDesBufferSize < dmaConfig->dmaDesBufferLen * sizeof(uint32_t))) {
             dmaDesAddr = (sdif_dma_descriptor_t *)tempDMADesBuffer;
             dmaDesAddr->dmaDesAttribute |= kSDIF_DMADescriptorOwnByDMA;
             tempDMADesBuffer += dmaConfig->dmaDesSkipLen;
         }
         /* if access dma des address overflow, return fail */
-        if (dmaDesBufferSize > dmaConfig->dmaDesBufferLen * sizeof(uint32_t))
-        {
+        if (dmaDesBufferSize > dmaConfig->dmaDesBufferLen * sizeof(uint32_t)) {
             return kStatus_Fail;
         }
         dmaDesAddr->dmaDesAttribute |= kSDIF_DMADescriptorOwnByDMA;
@@ -362,8 +332,7 @@ static uint32_t SDIF_ReadDataPort(SDIF_Type *base, sdif_data_t *data, uint32_t t
     uint32_t wordsCanBeRead; /* The words can be read at this time. */
     uint32_t readWatermark = ((base->FIFOTH & SDIF_FIFOTH_RX_WMARK_MASK) >> SDIF_FIFOTH_RX_WMARK_SHIFT);
 
-    if (data->blockSize % sizeof(uint32_t) != 0U)
-    {
+    if (data->blockSize % sizeof(uint32_t) != 0U) {
         data->blockSize +=
             sizeof(uint32_t) - (data->blockSize % sizeof(uint32_t)); /* make the block size as word-aligned */
     }
@@ -371,26 +340,22 @@ static uint32_t SDIF_ReadDataPort(SDIF_Type *base, sdif_data_t *data, uint32_t t
     totalWords = ((data->blockCount * data->blockSize) / sizeof(uint32_t));
 
     /* If watermark level is equal or bigger than totalWords, transfers totalWords data. */
-    if (readWatermark >= totalWords)
-    {
+    if (readWatermark >= totalWords) {
         wordsCanBeRead = totalWords;
     }
     /* If watermark level is less than totalWords and left words to be sent is equal or bigger than readWatermark,
     transfers watermark level words. */
-    else if ((readWatermark < totalWords) && ((totalWords - transferredWords) >= readWatermark))
-    {
+    else if ((readWatermark < totalWords) && ((totalWords - transferredWords) >= readWatermark)) {
         wordsCanBeRead = readWatermark;
     }
     /* If watermark level is less than totalWords and left words to be sent is less than readWatermark, transfers left
     words. */
-    else
-    {
+    else {
         wordsCanBeRead = (totalWords - transferredWords);
     }
 
     i = 0U;
-    while (i < wordsCanBeRead)
-    {
+    while (i < wordsCanBeRead) {
         data->rxData[transferredWords++] = base->FIFO[i];
         i++;
     }
@@ -405,8 +370,7 @@ static uint32_t SDIF_WriteDataPort(SDIF_Type *base, sdif_data_t *data, uint32_t 
     uint32_t wordsCanBeWrite; /* The words can be read at this time. */
     uint32_t writeWatermark = ((base->FIFOTH & SDIF_FIFOTH_TX_WMARK_MASK) >> SDIF_FIFOTH_TX_WMARK_SHIFT);
 
-    if (data->blockSize % sizeof(uint32_t) != 0U)
-    {
+    if (data->blockSize % sizeof(uint32_t) != 0U) {
         data->blockSize +=
             sizeof(uint32_t) - (data->blockSize % sizeof(uint32_t)); /* make the block size as word-aligned */
     }
@@ -414,26 +378,22 @@ static uint32_t SDIF_WriteDataPort(SDIF_Type *base, sdif_data_t *data, uint32_t 
     totalWords = ((data->blockCount * data->blockSize) / sizeof(uint32_t));
 
     /* If watermark level is equal or bigger than totalWords, transfers totalWords data. */
-    if (writeWatermark >= totalWords)
-    {
+    if (writeWatermark >= totalWords) {
         wordsCanBeWrite = totalWords;
     }
     /* If watermark level is less than totalWords and left words to be sent is equal or bigger than writeWatermark,
     transfers watermark level words. */
-    else if ((writeWatermark < totalWords) && ((totalWords - transferredWords) >= writeWatermark))
-    {
+    else if ((writeWatermark < totalWords) && ((totalWords - transferredWords) >= writeWatermark)) {
         wordsCanBeWrite = writeWatermark;
     }
     /* If watermark level is less than totalWords and left words to be sent is less than writeWatermark, transfers left
     words. */
-    else
-    {
+    else {
         wordsCanBeWrite = (totalWords - transferredWords);
     }
 
     i = 0U;
-    while (i < wordsCanBeWrite)
-    {
+    while (i < wordsCanBeWrite) {
         base->FIFO[i] = data->txData[transferredWords++];
         i++;
     }
@@ -449,36 +409,29 @@ static status_t SDIF_ReadDataPortBlocking(SDIF_Type *base, sdif_data_t *data)
     uint32_t status;
     bool transferOver = false;
 
-    if (data->blockSize % sizeof(uint32_t) != 0U)
-    {
+    if (data->blockSize % sizeof(uint32_t) != 0U) {
         data->blockSize +=
             sizeof(uint32_t) - (data->blockSize % sizeof(uint32_t)); /* make the block size as word-aligned */
     }
 
     totalWords = ((data->blockCount * data->blockSize) / sizeof(uint32_t));
 
-    while ((transferredWords < totalWords) && (error == kStatus_Success))
-    {
+    while ((transferredWords < totalWords) && (error == kStatus_Success)) {
         /* wait data transfer complete or reach RX watermark */
-        do
-        {
+        do {
             status = SDIF_GetInterruptStatus(base);
-            if (status & kSDIF_DataTransferError)
-            {
-                if (!(data->enableIgnoreError))
-                {
+            if (status & kSDIF_DataTransferError) {
+                if (!(data->enableIgnoreError)) {
                     error = kStatus_Fail;
                 }
             }
         } while (((status & (kSDIF_DataTransferOver | kSDIF_ReadFIFORequest)) == 0U) && (!transferOver));
 
-        if ((status & kSDIF_DataTransferOver) == kSDIF_DataTransferOver)
-        {
+        if ((status & kSDIF_DataTransferOver) == kSDIF_DataTransferOver) {
             transferOver = true;
         }
 
-        if (error == kStatus_Success)
-        {
+        if (error == kStatus_Success) {
             transferredWords = SDIF_ReadDataPort(base, data, transferredWords);
         }
 
@@ -496,31 +449,25 @@ static status_t SDIF_WriteDataPortBlocking(SDIF_Type *base, sdif_data_t *data)
     status_t error = kStatus_Success;
     uint32_t status;
 
-    if (data->blockSize % sizeof(uint32_t) != 0U)
-    {
+    if (data->blockSize % sizeof(uint32_t) != 0U) {
         data->blockSize +=
             sizeof(uint32_t) - (data->blockSize % sizeof(uint32_t)); /* make the block size as word-aligned */
     }
 
     totalWords = ((data->blockCount * data->blockSize) / sizeof(uint32_t));
 
-    while ((transferredWords < totalWords) && (error == kStatus_Success))
-    {
+    while ((transferredWords < totalWords) && (error == kStatus_Success)) {
         /* wait data transfer complete or reach RX watermark */
-        do
-        {
+        do {
             status = SDIF_GetInterruptStatus(base);
-            if (status & kSDIF_DataTransferError)
-            {
-                if (!(data->enableIgnoreError))
-                {
+            if (status & kSDIF_DataTransferError) {
+                if (!(data->enableIgnoreError)) {
                     error = kStatus_Fail;
                 }
             }
         } while ((status & kSDIF_WriteFIFORequest) == 0U);
 
-        if (error == kStatus_Success)
-        {
+        if (error == kStatus_Success) {
             transferredWords = SDIF_WriteDataPort(base, data, transferredWords);
         }
 
@@ -528,14 +475,11 @@ static status_t SDIF_WriteDataPortBlocking(SDIF_Type *base, sdif_data_t *data)
         SDIF_ClearInterruptStatus(base, status);
     }
 
-    while ((SDIF_GetInterruptStatus(base) & kSDIF_DataTransferOver) != kSDIF_DataTransferOver)
-    {
+    while ((SDIF_GetInterruptStatus(base) & kSDIF_DataTransferOver) != kSDIF_DataTransferOver) {
     }
 
-    if (SDIF_GetInterruptStatus(base) & kSDIF_DataTransferError)
-    {
-        if (!(data->enableIgnoreError))
-        {
+    if (SDIF_GetInterruptStatus(base) & kSDIF_DataTransferError) {
+        if (!(data->enableIgnoreError)) {
             error = kStatus_Fail;
         }
     }
@@ -549,10 +493,8 @@ bool SDIF_Reset(SDIF_Type *base, uint32_t mask, uint32_t timeout)
     base->CTRL |= mask;
 
     /* check software DMA reset here for DMA reset also need to check this bit */
-    while ((base->CTRL & mask) != 0U)
-    {
-        if (!timeout)
-        {
+    while ((base->CTRL & mask) != 0U) {
+        if (!timeout) {
             break;
         }
         timeout--;
@@ -569,22 +511,17 @@ static status_t SDIF_TransferDataBlocking(SDIF_Type *base, sdif_data_t *data, bo
     status_t error = kStatus_Success;
 
     /* in DMA mode, only need to wait the complete flag and check error */
-    if (isDMA)
-    {
-        do
-        {
+    if (isDMA) {
+        do {
             dmaStatus = SDIF_GetInternalDMAStatus(base);
-            if ((dmaStatus & kSDIF_DMAFatalBusError) == kSDIF_DMAFatalBusError)
-            {
+            if ((dmaStatus & kSDIF_DMAFatalBusError) == kSDIF_DMAFatalBusError) {
                 SDIF_ClearInternalDMAStatus(base, kSDIF_DMAFatalBusError | kSDIF_AbnormalInterruptSummary);
                 error = kStatus_SDIF_DMATransferFailWithFBE; /* in this condition,need reset */
             }
             /* Card error summary, include EBE,SBE,Data CRC,RTO,DRTO,Response error */
-            if ((dmaStatus & kSDIF_DMACardErrorSummary) == kSDIF_DMACardErrorSummary)
-            {
+            if ((dmaStatus & kSDIF_DMACardErrorSummary) == kSDIF_DMACardErrorSummary) {
                 SDIF_ClearInternalDMAStatus(base, kSDIF_DMACardErrorSummary | kSDIF_AbnormalInterruptSummary);
-                if (!(data->enableIgnoreError))
-                {
+                if (!(data->enableIgnoreError)) {
                     error = kStatus_SDIF_DataTransferFail;
                 }
 
@@ -598,15 +535,10 @@ static status_t SDIF_TransferDataBlocking(SDIF_Type *base, sdif_data_t *data, bo
                                            kSDIF_NormalInterruptSummary));
 
         SDIF_ClearInterruptStatus(base, SDIF_GetInterruptStatus(base));
-    }
-    else
-    {
-        if (data->rxData != NULL)
-        {
+    } else {
+        if (data->rxData != NULL) {
             error = SDIF_ReadDataPortBlocking(base, data);
-        }
-        else
-        {
+        } else {
             error = SDIF_WriteDataPortBlocking(base, data);
         }
     }
@@ -622,10 +554,8 @@ status_t SDIF_SendCommand(SDIF_Type *base, sdif_command_t *cmd, uint32_t timeout
     base->CMD = SDIF_CMD_CMD_INDEX(cmd->index) | SDIF_CMD_START_CMD_MASK | (cmd->flags & (~SDIF_CMD_CMD_INDEX_MASK));
 
     /* wait start_cmd bit auto clear within timeout */
-    while ((base->CMD & SDIF_CMD_START_CMD_MASK) == SDIF_CMD_START_CMD_MASK)
-    {
-        if (!timeout)
-        {
+    while ((base->CMD & SDIF_CMD_START_CMD_MASK) == SDIF_CMD_START_CMD_MASK) {
+        if (!timeout) {
             break;
         }
 
@@ -643,30 +573,26 @@ bool SDIF_SendCardActive(SDIF_Type *base, uint32_t timeout)
     memset(&command, 0U, sizeof(sdif_command_t));
 
     /* add for confict with interrupt mode,close the interrupt temporary */
-    if ((base->CTRL & SDIF_CTRL_INT_ENABLE_MASK) == SDIF_CTRL_INT_ENABLE_MASK)
-    {
+    if ((base->CTRL & SDIF_CTRL_INT_ENABLE_MASK) == SDIF_CTRL_INT_ENABLE_MASK) {
         enINT = true;
         base->CTRL &= ~SDIF_CTRL_INT_ENABLE_MASK;
     }
 
     command.flags = SDIF_CMD_SEND_INITIALIZATION_MASK;
 
-    if (SDIF_SendCommand(base, &command, timeout) == kStatus_Fail)
-    {
+    if (SDIF_SendCommand(base, &command, timeout) == kStatus_Fail) {
         return false;
     }
 
     /* wait command done */
-    while ((SDIF_GetInterruptStatus(base) & kSDIF_CommandDone) != kSDIF_CommandDone)
-    {
+    while ((SDIF_GetInterruptStatus(base) & kSDIF_CommandDone) != kSDIF_CommandDone) {
     }
 
     /* clear status */
     SDIF_ClearInterruptStatus(base, kSDIF_CommandDone);
 
     /* add for confict with interrupt mode */
-    if (enINT)
-    {
+    if (enINT) {
         base->CTRL |= SDIF_CTRL_INT_ENABLE_MASK;
     }
 
@@ -680,8 +606,7 @@ void SDIF_ConfigClockDelay(uint32_t target_HZ, uint32_t divider)
      *clk_in_sample to meet the min hold and
      *setup time
      */
-    if (target_HZ <= kSDIF_Freq400KHZ)
-    {
+    if (target_HZ <= kSDIF_Freq400KHZ) {
         /*min hold time:5ns
         * min setup time: 5ns
         * delay = (x+1)*250ps
@@ -690,9 +615,7 @@ void SDIF_ConfigClockDelay(uint32_t target_HZ, uint32_t divider)
                               SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_DELAY(SDIF_INDENTIFICATION_MODE_SAMPLE_DELAY) |
                               SYSCON_SDIOCLKCTRL_CCLK_DRV_DELAY_ACTIVE_MASK |
                               SYSCON_SDIOCLKCTRL_CCLK_DRV_DELAY(SDIF_INDENTIFICATION_MODE_DRV_DELAY);
-    }
-    else if (target_HZ >= kSDIF_Freq50MHZ)
-    {
+    } else if (target_HZ >= kSDIF_Freq50MHZ) {
         /*
         * user need to pay attention to this parameter
         * can be change the setting for you card and board
@@ -707,15 +630,12 @@ void SDIF_ConfigClockDelay(uint32_t target_HZ, uint32_t divider)
         /* means the input clock = 2 * card clock,
         * can use clock pharse shift tech
         */
-        if (divider == 1U)
-        {
+        if (divider == 1U) {
             SYSCON->SDIOCLKCTRL |= SYSCON_SDIOCLKCTRL_PHASE_ACTIVE_MASK |
                                    SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_PHASE(kSDIF_ClcokPharseShift90) |
                                    SYSCON_SDIOCLKCTRL_CCLK_DRV_PHASE(kSDIF_ClcokPharseShift180);
         }
-    }
-    else
-    {
+    } else {
         /*
         * user need to pay attention to this parameter
         * can be change the setting for you card and board
@@ -730,8 +650,7 @@ void SDIF_ConfigClockDelay(uint32_t target_HZ, uint32_t divider)
         /* means the input clock = 2 * card clock,
         * can use clock pharse shift tech
         */
-        if (divider == 1U)
-        {
+        if (divider == 1U) {
             SYSCON->SDIOCLKCTRL |= SYSCON_SDIOCLKCTRL_PHASE_ACTIVE_MASK |
                                    SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_PHASE(kSDIF_ClcokPharseShift90) |
                                    SYSCON_SDIOCLKCTRL_CCLK_DRV_PHASE(kSDIF_ClcokPharseShift90);
@@ -748,8 +667,7 @@ uint32_t SDIF_SetCardClock(SDIF_Type *base, uint32_t srcClock_Hz, uint32_t targe
 
     /* if target freq bigger than the source clk, set the target_HZ to
      src clk, this interface can run up to 52MHZ with card */
-    if (srcClock_Hz < targetFreq)
-    {
+    if (srcClock_Hz < targetFreq) {
         targetFreq = srcClock_Hz;
     }
 
@@ -761,8 +679,7 @@ uint32_t SDIF_SetCardClock(SDIF_Type *base, uint32_t srcClock_Hz, uint32_t targe
     SDIF_SendCommand(base, &cmd, SDIF_TIMEOUT_VALUE);
 
     /*calucate the divider*/
-    if (targetFreq != srcClock_Hz)
-    {
+    if (targetFreq != srcClock_Hz) {
         divider = (srcClock_Hz / targetFreq + 1U) / 2U;
     }
     /* load the clock divider */
@@ -789,10 +706,8 @@ bool SDIF_AbortReadData(SDIF_Type *base, uint32_t timeout)
     /* assert this bit to reset the data machine to abort the read data */
     base->CTRL |= SDIF_CTRL_ABORT_READ_DATA_MASK;
     /* polling the bit self clear */
-    while ((base->CTRL & SDIF_CTRL_ABORT_READ_DATA_MASK) == SDIF_CTRL_ABORT_READ_DATA_MASK)
-    {
-        if (!timeout)
-        {
+    while ((base->CTRL & SDIF_CTRL_ABORT_READ_DATA_MASK) == SDIF_CTRL_ABORT_READ_DATA_MASK) {
+        if (!timeout) {
             break;
         }
         timeout--;
@@ -814,66 +729,53 @@ status_t SDIF_InternalDMAConfig(SDIF_Type *base, sdif_dma_config_t *config, cons
 
     /* check the dma descriptor buffer length , it is user's responsibility to make sure the DMA descriptor table
     size is bigger enough to hold the transfer descriptor */
-    if (config->dmaDesBufferLen * sizeof(uint32_t) < sizeof(sdif_dma_descriptor_t))
-    {
+    if (config->dmaDesBufferLen * sizeof(uint32_t) < sizeof(sdif_dma_descriptor_t)) {
         return kStatus_SDIF_DescriptorBufferLenError;
     }
 
     /* check the read/write data size,must be a multiple of 4 */
-    if (dataSize % sizeof(uint32_t) != 0U)
-    {
+    if (dataSize % sizeof(uint32_t) != 0U) {
         dataSize += sizeof(uint32_t) - (dataSize % sizeof(uint32_t));
     }
 
     /*config the bus mode*/
-    if (config->enableFixBurstLen)
-    {
+    if (config->enableFixBurstLen) {
         base->BMOD |= SDIF_BMOD_FB_MASK;
     }
 
     /* calucate the dma descriptor entry due to DMA buffer size limit */
     /* if datasize smaller than one descriptor buffer size */
-    if (dataSize > maxDMABuffer)
-    {
+    if (dataSize > maxDMABuffer) {
         dmaEntry = dataSize / maxDMABuffer + (dataSize % maxDMABuffer ? 1U : 0U);
-    }
-    else /* need one dma descriptor */
-    {
+    } else { /* need one dma descriptor */
         dmaEntry = 1U;
     }
 
     /* check the DMA descriptor buffer len one more time,it is user's responsibility to make sure the DMA descriptor
     table
     size is bigger enough to hold the transfer descriptor */
-    if (config->dmaDesBufferLen * sizeof(uint32_t) < (dmaEntry * sizeof(sdif_dma_descriptor_t) + config->dmaDesSkipLen))
-    {
+    if (config->dmaDesBufferLen * sizeof(uint32_t) < (dmaEntry * sizeof(sdif_dma_descriptor_t) + config->dmaDesSkipLen)) {
         return kStatus_SDIF_DescriptorBufferLenError;
     }
 
-    switch (config->mode)
-    {
+    switch (config->mode) {
         case kSDIF_DualDMAMode:
             base->BMOD |= SDIF_BMOD_DSL(config->dmaDesSkipLen); /* config the distance between the DMA descriptor */
-            for (i = 0U; i < dmaEntry; i++)
-            {
-                if (dataSize > FSL_FEATURE_SDIF_INTERNAL_DMA_MAX_BUFFER_SIZE)
-                {
+            for (i = 0U; i < dmaEntry; i++) {
+                if (dataSize > FSL_FEATURE_SDIF_INTERNAL_DMA_MAX_BUFFER_SIZE) {
                     dmaBufferSize = FSL_FEATURE_SDIF_INTERNAL_DMA_MAX_BUFFER_SIZE;
                     dataSize -= dmaBufferSize;
                     dmaBuffer1Size = dataSize > FSL_FEATURE_SDIF_INTERNAL_DMA_MAX_BUFFER_SIZE ?
-                                         FSL_FEATURE_SDIF_INTERNAL_DMA_MAX_BUFFER_SIZE :
-                                         dataSize;
+                                     FSL_FEATURE_SDIF_INTERNAL_DMA_MAX_BUFFER_SIZE :
+                                     dataSize;
                     dataSize -= dmaBuffer1Size;
-                }
-                else
-                {
+                } else {
                     dmaBufferSize = dataSize;
                     dmaBuffer1Size = 0U;
                 }
 
                 descriptorPoniter = (sdif_dma_descriptor_t *)tempDMADesBuffer;
-                if (i == 0U)
-                {
+                if (i == 0U) {
                     descriptorPoniter->dmaDesAttribute = kSDIF_DMADescriptorDataBufferStart;
                 }
                 descriptorPoniter->dmaDesAttribute |= kSDIF_DMADescriptorOwnByDMA | kSDIF_DisableCompleteInterrupt;
@@ -893,21 +795,16 @@ status_t SDIF_InternalDMAConfig(SDIF_Type *base, sdif_dma_config_t *config, cons
             break;
 
         case kSDIF_ChainDMAMode:
-            for (i = 0U; i < dmaEntry; i++)
-            {
-                if (dataSize > FSL_FEATURE_SDIF_INTERNAL_DMA_MAX_BUFFER_SIZE)
-                {
+            for (i = 0U; i < dmaEntry; i++) {
+                if (dataSize > FSL_FEATURE_SDIF_INTERNAL_DMA_MAX_BUFFER_SIZE) {
                     dmaBufferSize = FSL_FEATURE_SDIF_INTERNAL_DMA_MAX_BUFFER_SIZE;
                     dataSize -= FSL_FEATURE_SDIF_INTERNAL_DMA_MAX_BUFFER_SIZE;
-                }
-                else
-                {
+                } else {
                     dmaBufferSize = dataSize;
                 }
 
                 descriptorPoniter = (sdif_dma_descriptor_t *)tempDMADesBuffer;
-                if (i == 0U)
-                {
+                if (i == 0U) {
                     descriptorPoniter->dmaDesAttribute = kSDIF_DMADescriptorDataBufferStart;
                 }
                 descriptorPoniter->dmaDesAttribute |=
@@ -989,51 +886,43 @@ status_t SDIF_TransferBlocking(SDIF_Type *base, sdif_dma_config_t *dmaConfig, sd
     sdif_data_t *data = transfer->data;
 
     /* config the transfer parameter */
-    if (SDIF_TransferConfig(base, transfer) != kStatus_Success)
-    {
+    if (SDIF_TransferConfig(base, transfer) != kStatus_Success) {
         return kStatue_SDIF_InvalidArgument;
     }
 
     /* if need transfer data in dma mode, config the DMA descriptor first */
-    if ((data != NULL) && (dmaConfig != NULL))
-    {
+    if ((data != NULL) && (dmaConfig != NULL)) {
         /* use internal DMA mode to transfer between the card and host*/
         isDMA = true;
 
         if (SDIF_InternalDMAConfig(base, dmaConfig, data->rxData ? data->rxData : data->txData,
-                                   data->blockSize * data->blockCount) != kStatus_Success)
-        {
+                                   data->blockSize * data->blockCount) != kStatus_Success) {
             return kStatus_SDIF_DescriptorBufferLenError;
         }
     }
 
     /* send command first */
-    if (SDIF_SendCommand(base, transfer->command, SDIF_TIMEOUT_VALUE) != kStatus_Success)
-    {
+    if (SDIF_SendCommand(base, transfer->command, SDIF_TIMEOUT_VALUE) != kStatus_Success) {
         return kStatus_SDIF_SyncCmdTimeout;
     }
 
     /* wait the command transfer done and check if error occurs */
-    if (SDIF_WaitCommandDone(base, transfer->command) != kStatus_Success)
-    {
+    if (SDIF_WaitCommandDone(base, transfer->command) != kStatus_Success) {
         return kStatus_SDIF_SendCmdFail;
     }
 
     /* if use DMA transfer mode ,check the corresponding status bit */
-    if (data != NULL)
-    {
+    if (data != NULL) {
         /* check the if has DMA descriptor featch error */
         if (isDMA &&
-            ((SDIF_GetInternalDMAStatus(base) & kSDIF_DMADescriptorUnavailable) == kSDIF_DMADescriptorUnavailable))
-        {
+                ((SDIF_GetInternalDMAStatus(base) & kSDIF_DMADescriptorUnavailable) == kSDIF_DMADescriptorUnavailable)) {
             SDIF_ClearInternalDMAStatus(base, kSDIF_DMADescriptorUnavailable | kSDIF_AbnormalInterruptSummary);
 
             /* release the DMA descriptor to DMA */
             SDIF_ReleaseDMADescriptor(base, dmaConfig);
         }
         /* handle data transfer */
-        if (SDIF_TransferDataBlocking(base, data, isDMA) != kStatus_Success)
-        {
+        if (SDIF_TransferDataBlocking(base, data, isDMA) != kStatus_Success) {
             return kStatus_SDIF_DataTransferFail;
         }
     }
@@ -1058,24 +947,20 @@ status_t SDIF_TransferNonBlocking(SDIF_Type *base,
     handle->dmaInterruptFlags = 0U;
 
     /* config the transfer parameter */
-    if (SDIF_TransferConfig(base, transfer) != kStatus_Success)
-    {
+    if (SDIF_TransferConfig(base, transfer) != kStatus_Success) {
         return kStatue_SDIF_InvalidArgument;
     }
 
-    if ((data != NULL) && (dmaConfig != NULL))
-    {
+    if ((data != NULL) && (dmaConfig != NULL)) {
         /* use internal DMA mode to transfer between the card and host*/
         if (SDIF_InternalDMAConfig(base, dmaConfig, data->rxData ? data->rxData : data->txData,
-                                   data->blockSize * data->blockCount) != kStatus_Success)
-        {
+                                   data->blockSize * data->blockCount) != kStatus_Success) {
             return kStatus_SDIF_DescriptorBufferLenError;
         }
     }
 
     /* send command first */
-    if (SDIF_SendCommand(base, transfer->command, SDIF_TIMEOUT_VALUE) != kStatus_Success)
-    {
+    if (SDIF_SendCommand(base, transfer->command, SDIF_TIMEOUT_VALUE) != kStatus_Success) {
         return kStatus_SDIF_SyncCmdTimeout;
     }
 
@@ -1131,24 +1016,19 @@ static void SDIF_TransferHandleCommand(SDIF_Type *base, sdif_handle_t *handle, u
     assert(handle->command);
 
     /* transfer error */
-    if (interruptFlags & (kSDIF_ResponseError | kSDIF_ResponseCRCError | kSDIF_ResponseTimeout))
-    {
+    if (interruptFlags & (kSDIF_ResponseError | kSDIF_ResponseCRCError | kSDIF_ResponseTimeout)) {
         handle->callback.TransferComplete(base, handle, kStatus_SDIF_SendCmdFail, handle->userData);
     }
     /* cmd buffer full, in this condition user need re-send the command */
-    else if (interruptFlags & kSDIF_HardwareLockError)
-    {
-        if (handle->callback.CommandReload)
-        {
+    else if (interruptFlags & kSDIF_HardwareLockError) {
+        if (handle->callback.CommandReload) {
             handle->callback.CommandReload();
         }
     }
     /* transfer command success */
-    else
-    {
+    else {
         SDIF_ReadCommandResponse(base, handle->command);
-        if (((handle->data) == NULL) && (handle->callback.TransferComplete))
-        {
+        if (((handle->data) == NULL) && (handle->callback.TransferComplete)) {
             handle->callback.TransferComplete(base, handle, kStatus_Success, handle->userData);
         }
     }
@@ -1159,48 +1039,34 @@ static void SDIF_TransferHandleData(SDIF_Type *base, sdif_handle_t *handle, uint
     assert(handle->data);
 
     /* data starvation by host time out, software should read/write FIFO*/
-    if (interruptFlags & kSDIF_DataStarvationByHostTimeout)
-    {
-        if (handle->data->rxData != NULL)
-        {
+    if (interruptFlags & kSDIF_DataStarvationByHostTimeout) {
+        if (handle->data->rxData != NULL) {
             handle->transferredWords = SDIF_ReadDataPort(base, handle->data, handle->transferredWords);
-        }
-        else if (handle->data->txData != NULL)
-        {
+        } else if (handle->data->txData != NULL) {
             handle->transferredWords = SDIF_WriteDataPort(base, handle->data, handle->transferredWords);
-        }
-        else
-        {
+        } else {
             handle->callback.TransferComplete(base, handle, kStatus_SDIF_DataTransferFail, handle->userData);
         }
     }
     /* data transfer fail */
-    else if (interruptFlags & kSDIF_DataTransferError)
-    {
-        if (!handle->data->enableIgnoreError)
-        {
+    else if (interruptFlags & kSDIF_DataTransferError) {
+        if (!handle->data->enableIgnoreError) {
             handle->callback.TransferComplete(base, handle, kStatus_SDIF_DataTransferFail, handle->userData);
         }
     }
     /* need fill data to FIFO */
-    else if (interruptFlags & kSDIF_WriteFIFORequest)
-    {
+    else if (interruptFlags & kSDIF_WriteFIFORequest) {
         handle->transferredWords = SDIF_WriteDataPort(base, handle->data, handle->transferredWords);
     }
     /* need read data from FIFO */
-    else if (interruptFlags & kSDIF_ReadFIFORequest)
-    {
+    else if (interruptFlags & kSDIF_ReadFIFORequest) {
         handle->transferredWords = SDIF_ReadDataPort(base, handle->data, handle->transferredWords);
-    }
-    else
-    {
+    } else {
     }
 
     /* data transfer over */
-    if (interruptFlags & kSDIF_DataTransferOver)
-    {
-        while ((handle->data->rxData != NULL) && ((base->STATUS & SDIF_STATUS_FIFO_COUNT_MASK) != 0U))
-        {
+    if (interruptFlags & kSDIF_DataTransferOver) {
+        while ((handle->data->rxData != NULL) && ((base->STATUS & SDIF_STATUS_FIFO_COUNT_MASK) != 0U)) {
             handle->transferredWords = SDIF_ReadDataPort(base, handle->data, handle->transferredWords);
         }
         handle->callback.TransferComplete(base, handle, kStatus_Success, handle->userData);
@@ -1209,33 +1075,25 @@ static void SDIF_TransferHandleData(SDIF_Type *base, sdif_handle_t *handle, uint
 
 static void SDIF_TransferHandleDMA(SDIF_Type *base, sdif_handle_t *handle, uint32_t interruptFlags)
 {
-    if (interruptFlags & kSDIF_DMAFatalBusError)
-    {
+    if (interruptFlags & kSDIF_DMAFatalBusError) {
         handle->callback.TransferComplete(base, handle, kStatus_SDIF_DMATransferFailWithFBE, handle->userData);
-    }
-    else if (interruptFlags & kSDIF_DMADescriptorUnavailable)
-    {
-        if (handle->callback.DMADesUnavailable)
-        {
+    } else if (interruptFlags & kSDIF_DMADescriptorUnavailable) {
+        if (handle->callback.DMADesUnavailable) {
             handle->callback.DMADesUnavailable();
         }
-    }
-    else if ((interruptFlags & (kSDIF_AbnormalInterruptSummary | kSDIF_DMACardErrorSummary)) &&
-             (!handle->data->enableIgnoreError))
-    {
+    } else if ((interruptFlags & (kSDIF_AbnormalInterruptSummary | kSDIF_DMACardErrorSummary)) &&
+               (!handle->data->enableIgnoreError)) {
         handle->callback.TransferComplete(base, handle, kStatus_SDIF_DataTransferFail, handle->userData);
     }
     /* card normal summary */
-    else
-    {
+    else {
         handle->callback.TransferComplete(base, handle, kStatus_Success, handle->userData);
     }
 }
 
 static void SDIF_TransferHandleSDIOInterrupt(sdif_handle_t *handle)
 {
-    if (handle->callback.SDIOInterrupt != NULL)
-    {
+    if (handle->callback.SDIOInterrupt != NULL) {
         handle->callback.SDIOInterrupt();
     }
 }
@@ -1252,20 +1110,16 @@ static void SDIF_TransferHandleIRQ(SDIF_Type *base, sdif_handle_t *handle)
     handle->interruptFlags = interruptFlags;
     handle->dmaInterruptFlags = dmaInterruptFlags;
 
-    if ((interruptFlags & kSDIF_CommandTransferStatus) != 0U)
-    {
+    if ((interruptFlags & kSDIF_CommandTransferStatus) != 0U) {
         SDIF_TransferHandleCommand(base, handle, (interruptFlags & kSDIF_CommandTransferStatus));
     }
-    if ((interruptFlags & kSDIF_DataTransferStatus) != 0U)
-    {
+    if ((interruptFlags & kSDIF_DataTransferStatus) != 0U) {
         SDIF_TransferHandleData(base, handle, (interruptFlags & kSDIF_DataTransferStatus));
     }
-    if (interruptFlags & kSDIF_SDIOInterrupt)
-    {
+    if (interruptFlags & kSDIF_SDIOInterrupt) {
         SDIF_TransferHandleSDIOInterrupt(handle);
     }
-    if (dmaInterruptFlags & kSDIF_DMAAllStatus)
-    {
+    if (dmaInterruptFlags & kSDIF_DMAAllStatus) {
         SDIF_TransferHandleDMA(base, handle, dmaInterruptFlags);
     }
 

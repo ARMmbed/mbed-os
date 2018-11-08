@@ -70,39 +70,37 @@ const uint8_t cfstore_test_byte_data_table[CFSTORE_TEST_BYTE_DATA_TABLE_SIZE] = 
 
 
 /* @brief   set of test data for sequential write tests */
-cfstore_test_rw_data_entry_t cfstore_test_rw_data_table[] =
-{
-        { 25, 'z' },
-        { 00, 'a' },
-        { 24, 'y' },
-        { 01, 'b' },
-        { 23, 'x' },
-        { 02, 'c' },
-        { 22, 'w' },
-        { 03, 'd' },
-        { 21, 'v' },
-        { 04, 'e' },
-        { 20, 'u' },
-        { 05, 'f' },
-        { 19, 't' },
-        { 06, 'g' },
-        { 18, 's' },
-        { 07, 'h' },
-        { 17, 'r' },
-        {  8, 'i' },
-        { 16, 'q' },
-        {  9, 'j' },
-        { 15, 'p' },
-        { 10, 'k' },
-        { 14, 'o' },
-        { 11, 'l' },
-        { 13, 'n' },
-        { 12, 'm' },
-        { CFSTORE_TEST_RW_TABLE_SENTINEL, '@' },
+cfstore_test_rw_data_entry_t cfstore_test_rw_data_table[] = {
+    { 25, 'z' },
+    { 00, 'a' },
+    { 24, 'y' },
+    { 01, 'b' },
+    { 23, 'x' },
+    { 02, 'c' },
+    { 22, 'w' },
+    { 03, 'd' },
+    { 21, 'v' },
+    { 04, 'e' },
+    { 20, 'u' },
+    { 05, 'f' },
+    { 19, 't' },
+    { 06, 'g' },
+    { 18, 's' },
+    { 07, 'h' },
+    { 17, 'r' },
+    {  8, 'i' },
+    { 16, 'q' },
+    {  9, 'j' },
+    { 15, 'p' },
+    { 10, 'k' },
+    { 14, 'o' },
+    { 11, 'l' },
+    { 13, 'n' },
+    { 12, 'm' },
+    { CFSTORE_TEST_RW_TABLE_SENTINEL, '@' },
 };
 
-const char* cfstore_test_opcode_str[] =
-{
+const char *cfstore_test_opcode_str[] = {
     "UNDEFINED",
     "CFSTORE_OPCODE_CLOSE",
     "CFSTORE_OPCODE_CREATE",
@@ -123,28 +121,28 @@ const char* cfstore_test_opcode_str[] =
 };
 
 
-static int32_t cfstore_test_dump_print_array(const char* data, ARM_CFSTORE_SIZE len)
+static int32_t cfstore_test_dump_print_array(const char *data, ARM_CFSTORE_SIZE len)
 {
     int i;
     char buf[80];
     char sbuf[80];
-    char* outbuf = buf;
-    char* soutbuf = sbuf;
+    char *outbuf = buf;
+    char *soutbuf = sbuf;
 
     memset(outbuf, 0, 80);
     memset(soutbuf, 0, 80);
     outbuf += sprintf(outbuf, "      ");
     soutbuf += sprintf(soutbuf, "      ");
-    for (i = 0; i < (int) len; i++){
+    for (i = 0; i < (int) len; i++) {
         outbuf += sprintf(outbuf, "%02X ", data[i]);
 
-        if( !(isalnum( (int) data[i]) || ispunct( (int) data[i])) ){
+        if (!(isalnum((int) data[i]) || ispunct((int) data[i]))) {
             *soutbuf++ =  '*';
         } else {
             *soutbuf++ = data[i];
         }
 
-        if( (i % 16 == 0) && i > 0){
+        if ((i % 16 == 0) && i > 0) {
             CFSTORE_LOG("%s", buf);
             CFSTORE_LOG("%s\n", sbuf);
             outbuf = buf;
@@ -155,9 +153,9 @@ static int32_t cfstore_test_dump_print_array(const char* data, ARM_CFSTORE_SIZE 
             soutbuf += sprintf(soutbuf, "      ");
         }
     }
-    if(i % 16){
+    if (i % 16) {
         /* Pad the end of the string to align string data. */
-        while(i % 16){
+        while (i % 16) {
             outbuf += sprintf(outbuf, "   ");
             i++;
         }
@@ -173,13 +171,13 @@ static int32_t cfstore_test_dump_print_array(const char* data, ARM_CFSTORE_SIZE 
  */
 int32_t cfstore_test_dump(void)
 {
-    const char* key_name_query = "*";
-    char* read_buf = NULL;
-    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
-    uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+    const char *key_name_query = "*";
+    char *read_buf = NULL;
+    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
+    uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
     ARM_CFSTORE_SIZE vlen = 0;
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_HANDLE_INIT(next);
     ARM_CFSTORE_HANDLE_INIT(prev);
     ARM_CFSTORE_CAPABILITIES caps = cfstore_driver.GetCapabilities();
@@ -188,26 +186,25 @@ int32_t cfstore_test_dump(void)
 
     CFSTORE_LOG("CFSTORE Flash Entries%s", "\n");
     CFSTORE_LOG("=====================%s", "\n\n");
-    while((ret = drv->Find(key_name_query, prev, next)) == ARM_DRIVER_OK)
-    {
-        len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+    while ((ret = drv->Find(key_name_query, prev, next)) == ARM_DRIVER_OK) {
+        len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
         ret = drv->GetKeyName(next, key_name, &len);
-        if(ret < ARM_DRIVER_OK){
+        if (ret < ARM_DRIVER_OK) {
             CFSTORE_ERRLOG("Error: failed to get key name%s", "\n");
             break;
         }
         ret = drv->GetValueLen(next, &vlen);
-        if(ret < ARM_DRIVER_OK){
+        if (ret < ARM_DRIVER_OK) {
             CFSTORE_ERRLOG("Error: failed to get value length%s", "\n");
             break;
         }
-        read_buf = (char*) malloc(vlen+1);
-        if(read_buf == NULL){
+        read_buf = (char *) malloc(vlen + 1);
+        if (read_buf == NULL) {
             CFSTORE_ERRLOG("Error: failed to malloc() read buffer%s", "\n");
             break;
         }
         ret = drv->Read(next, read_buf, &vlen);
-        if(ret < ARM_DRIVER_OK){
+        if (ret < ARM_DRIVER_OK) {
             CFSTORE_ERRLOG("Error: failed to read key value%s", "\n");
             free(read_buf);
             break;
@@ -216,7 +213,7 @@ int32_t cfstore_test_dump(void)
         CFSTORE_LOG("    name len : %d\n", (int) len);
         CFSTORE_LOG("    value len : %d\n", (int) vlen);
         CFSTORE_LOG("    data :%s", "\n");
-        cfstore_test_dump_print_array((const char*) read_buf, vlen);
+        cfstore_test_dump_print_array((const char *) read_buf, vlen);
         CFSTORE_LOG("%s", ".\n");
         free(read_buf);
         CFSTORE_HANDLE_SWAP(prev, next);
@@ -226,7 +223,7 @@ int32_t cfstore_test_dump(void)
     CFSTORE_LOG("%s", ".\n");
     CFSTORE_LOG("== End ==============%s", "\n\n");
 
-    if(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
+    if (ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
         /* As expected, no more keys have been found by the Find(). */
         ret = ARM_DRIVER_OK;
     }
@@ -239,24 +236,24 @@ int32_t cfstore_test_dump(void)
 int32_t cfstore_test_startup(void)
 {
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* cfstore_drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *cfstore_drv = &cfstore_driver;
     ARM_CFSTORE_CAPABILITIES caps = cfstore_driver.GetCapabilities();
 
     CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%d\n", (int) caps.asynchronous_ops);
 
     /* Dump contents of CFSTORE */
     ret = cfstore_drv->Initialize(NULL, NULL);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to initialize CFSTORE (ret=%d)\n", __func__, (int) ret);
         return ARM_DRIVER_ERROR;
     }
     ret = cfstore_test_dump();
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to dump CFSTORE (ret=%d)\n", __func__, (int) ret);
         return ARM_DRIVER_ERROR;
     }
     ret = cfstore_drv->Uninitialize();
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to uninitialize CFSTORE (ret=%d)\n", __func__, (int) ret);
         return ARM_DRIVER_ERROR;
     }
@@ -268,12 +265,12 @@ int32_t cfstore_test_startup(void)
     const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_MTD_K64F;
 
     ret = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
-    if(ret < JOURNAL_STATUS_OK){
+    if (ret < JOURNAL_STATUS_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to initialize flash journaling layer (ret=%d)\n", __func__, (int) ret);
         return ARM_DRIVER_ERROR;
     }
     ret = FlashJournal_reset(&jrnl);
-    if(ret < JOURNAL_STATUS_OK){
+    if (ret < JOURNAL_STATUS_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to reset flash journal (ret=%d)\n", __func__, (int) ret);
         return ARM_DRIVER_ERROR;
     }
@@ -288,12 +285,12 @@ int32_t cfstore_test_startup(void)
  * @note    this function expects cfstore to have been initialised with
  *          a call to ARM_CFSTORE_DRIVER::Initialize()
  */
-int32_t cfstore_test_check_node_correct(const cfstore_kv_data_t* node)
+int32_t cfstore_test_check_node_correct(const cfstore_kv_data_t *node)
 {
-    char* read_buf;
+    char *read_buf;
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE len = 0;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_HANDLE_INIT(hkey);
     ARM_CFSTORE_FMODE flags;
 
@@ -301,29 +298,31 @@ int32_t cfstore_test_check_node_correct(const cfstore_kv_data_t* node)
     memset(&flags, 0, sizeof(flags));
 
     ret = drv->Open(node->key_name, flags, hkey);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to open node (key_name=\"%s\", value=\"%s\")(ret=%d)\r\n", __func__, node->key_name, node->value, (int) ret);
         goto out0;
     }
     len = strlen(node->value) + 1;
-    read_buf = (char*) malloc(len);
-    if(read_buf == NULL) {
+    read_buf = (char *) malloc(len);
+    if (read_buf == NULL) {
         CFSTORE_ERRLOG("%s:Error: failed to allocated read buffer \r\n", __func__);
         goto out1;
     }
     memset(read_buf, 0, len);
     ret = drv->Read(hkey, read_buf, &len);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to write key (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
         goto out2;
     }
     /* check read data is as expected */
-    if(strncmp(read_buf, node->value, strlen(node->value)) != 0){
+    if (strncmp(read_buf, node->value, strlen(node->value)) != 0) {
         CFSTORE_ERRLOG("%s:Error: read value data (%s) != KV value data (key_name=\"%s\", value=\"%s\")\r\n", __func__, read_buf, node->key_name, node->value);
         ret = ARM_DRIVER_ERROR;
     }
 out2:
-    if(read_buf) free(read_buf);
+    if (read_buf) {
+        free(read_buf);
+    }
 out1:
     drv->Close(hkey);
     hkey = NULL;
@@ -336,20 +335,20 @@ out0:
  * @note    this function expects cfstore to have been initialised with
  *          a call to ARM_CFSTORE_DRIVER::Initialize()
  */
-int32_t cfstore_test_delete(const char* key_name)
+int32_t cfstore_test_delete(const char *key_name)
 {
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_HANDLE_INIT(hkey);
     ARM_CFSTORE_FMODE flags;
 
     CFSTORE_FENTRYLOG("%s:entered.\r\n", __func__);
     memset(&flags, 0, sizeof(flags));
     ret = drv->Open(key_name, flags, hkey);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         return ret;
     }
-    if(hkey != NULL){
+    if (hkey != NULL) {
         ret = drv->Delete(hkey);
         drv->Close(hkey);
     }
@@ -362,28 +361,27 @@ int32_t cfstore_test_delete(const char* key_name)
  */
 int32_t cfstore_test_delete_all(void)
 {
-    const char* key_name_query = "*";
-    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
-    uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+    const char *key_name_query = "*";
+    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
+    uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_HANDLE_INIT(next);
     ARM_CFSTORE_HANDLE_INIT(prev);
 
     CFSTORE_FENTRYLOG("%s:entered.\r\n", __func__);
-    while((ret = drv->Find(key_name_query, prev, next)) == ARM_DRIVER_OK)
-    {
-        len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+    while ((ret = drv->Find(key_name_query, prev, next)) == ARM_DRIVER_OK) {
+        len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
         drv->GetKeyName(next, key_name, &len);
         CFSTORE_TP(CFSTORE_TP_DELETE, "%s:deleting key_name=%s, len=%d\r\n", __func__, key_name, (int) len);
         ret = drv->Delete(next);
-        if(ret < ARM_DRIVER_OK){
+        if (ret < ARM_DRIVER_OK) {
             CFSTORE_ERRLOG("%s:Error: failed to delete key_name=%s, len=%d\r\n", __func__, key_name, (int) len);
             return ret;
         }
         CFSTORE_HANDLE_SWAP(prev, next);
     }
-    if(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
+    if (ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
         /* as expected, no more keys have been found by the Find()*/
         ret = ARM_DRIVER_OK;
     }
@@ -396,27 +394,27 @@ int32_t cfstore_test_delete_all(void)
  * @note    this function expects cfstore to have been initialised with
  *          a call to ARM_CFSTORE_DRIVER::Initialize()
  */
-int32_t cfstore_test_create(const char* key_name, const char* data, ARM_CFSTORE_SIZE* len, ARM_CFSTORE_KEYDESC* kdesc)
+int32_t cfstore_test_create(const char *key_name, const char *data, ARM_CFSTORE_SIZE *len, ARM_CFSTORE_KEYDESC *kdesc)
 {
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE value_len = 0;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_HANDLE_INIT(hkey);
 
     CFSTORE_FENTRYLOG("%s:entered.\r\n", __func__);
     value_len = *len;
     kdesc->drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
     ret = drv->Create(key_name, value_len, kdesc, hkey);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         return ret;
     }
     value_len = *len;
     ret = drv->Write(hkey, data, &value_len);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         drv->Close(hkey);
         return ret;
     }
-    if(value_len != *len){
+    if (value_len != *len) {
         drv->Close(hkey);
         return ARM_DRIVER_ERROR;
     }
@@ -428,22 +426,21 @@ int32_t cfstore_test_create(const char* key_name, const char* data, ARM_CFSTORE_
  * @note    this function expects cfstore to have been initialised with
  *          a call to ARM_CFSTORE_DRIVER::Initialize()
  */
-int32_t cfstore_test_create_table(const cfstore_kv_data_t* table)
+int32_t cfstore_test_create_table(const cfstore_kv_data_t *table)
 {
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE len = 0;
-    cfstore_kv_data_t* node = NULL;
+    cfstore_kv_data_t *node = NULL;
     ARM_CFSTORE_KEYDESC kdesc;
 
     (void) node; /* suppresses warning when building release */
     CFSTORE_FENTRYLOG("%s:entered.\r\n", __func__);
     memset(&kdesc, 0, sizeof(kdesc));
     kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
-    while(table->key_name != NULL)
-    {
+    while (table->key_name != NULL) {
         len = strlen(table->value);
         ret = cfstore_test_create(table->key_name, table->value, &len, &kdesc);
-        if(ret < ARM_DRIVER_OK){
+        if (ret < ARM_DRIVER_OK) {
             CFSTORE_ERRLOG("%s:Error: failed to create node (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
             return ret;
         }
@@ -453,65 +450,65 @@ int32_t cfstore_test_create_table(const cfstore_kv_data_t* table)
 }
 
 cfstore_kv_data_t cfstore_test_init_1_data[] = {
-        CFSTORE_INIT_1_TABLE_HEAD,
-        { "b", "1"},
-        { "c", "12"},
-        { "d", "123"},
-        { "e", "1234"},
-        { "g", "12345"},
-        { "h", "123456"},
-        { "i", "1234567"},
-        { "j", "12345678"},
-        { "k", "123456789"},
-        { "l", "1234567890"},
-        { "m", "12345678901"},
-        { "n", "123456789012"},
-        { "o", "1234567890123"},
-        { "p", "12345678901234"},
-        { "q", "123456789012345"},
-        { "r", "1234567890123456"},
-        { "0", "a"},
-        { "01", "ab"},
-        { "012", "abc"},
-        { "0123", "abcd"},
-        { "01234", "abcde"},
-        { "012345", "abcdef"},
-        { "0123456", "abcdefg"},
-        { "01234567", "abcdefgh"},
-        { "012345678", "abcdefghi"},
-        { "0123456789", "abcdefghj"},
-        { "0123456789a", "abcdefghjk"},
-        { "0123456789ab", "abcdefghjkl"},
-        { "0123456789abc", "abcdefghjklm"},
-        { "0123456789abcd", "abcdefghjklmn"},
-        { "0123456789abcde", "abcdefghjklmno"},
-        { "0123456789abcdef", "abcdefghjklmnop"},
-        { "0123456789abcdef0", "abcdefghjklmnopq"},
-        { "0123456789abcdef01", "abcdefghjklmnopqr"},
-        { "0123456789abcdef012", "abcdefghjklmnopqrs"},
-        { "0123456789abcdef0123", "abcdefghjklmnopqrst"},
-        { "0123456789abcdef01234", "abcdefghjklmnopqrstu"},
-        { "0123456789abcdef012345", "abcdefghjklmnopqrstuv"},
-        CFSTORE_INIT_1_TABLE_MID_NODE,
-        { "0123456789abcdef01234567", "abcdefghjklmnopqrstuvwx"},
-        { "0123456789abcdef012345678", "abcdefghjklmnopqrstuvwxy"},
-        { "0123456789abcdef0123456789", "abcdefghjklmnopqrstuvwxyz"},
-        { "0123456789abcdef0123456789a", "b"},
-        { "0123456789abcdef0123456789ab", "c"},
-        { "0123456789abcdef0123456789abc", "d"},
-        { "0123456789abcdef0123456789abcd", "e"},
-        { "0123456789abcdef0123456789abcde", "f"},
-        { "0123456789abcdef0123456789abcdef", "g"},
-        { "com.arm.mbed.wifi.accesspoint.essid", ""},
-        { "com.arm.mbed.wifi.accesspoint.essid2", ""},
-        { "yotta.your-yotta-registry-module-name.module1", ""},
-        { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "missing"},
-        { "yotta.hello-world.animal{wobbly-dog}{foot}frontRight", "present"},
-        { "yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "half present"},
-        { "piety.demands.us.to.honour.truth.above.our.friends", "Aristotle"},
-        { "basement.medicine.pavement.government.trenchcoat.off.cough.off.kid.did.when.again.alleyway.friend.cap.pen.dollarbills.ten.foot.soot.put.but.anyway.say.May.DA.kid.did.toes.bows.those.hose.nose.clothes.man.blows.well.well", "TheRollingStone" },
-        CFSTORE_INIT_1_TABLE_TAIL,
-        { NULL, NULL},
+    CFSTORE_INIT_1_TABLE_HEAD,
+    { "b", "1"},
+    { "c", "12"},
+    { "d", "123"},
+    { "e", "1234"},
+    { "g", "12345"},
+    { "h", "123456"},
+    { "i", "1234567"},
+    { "j", "12345678"},
+    { "k", "123456789"},
+    { "l", "1234567890"},
+    { "m", "12345678901"},
+    { "n", "123456789012"},
+    { "o", "1234567890123"},
+    { "p", "12345678901234"},
+    { "q", "123456789012345"},
+    { "r", "1234567890123456"},
+    { "0", "a"},
+    { "01", "ab"},
+    { "012", "abc"},
+    { "0123", "abcd"},
+    { "01234", "abcde"},
+    { "012345", "abcdef"},
+    { "0123456", "abcdefg"},
+    { "01234567", "abcdefgh"},
+    { "012345678", "abcdefghi"},
+    { "0123456789", "abcdefghj"},
+    { "0123456789a", "abcdefghjk"},
+    { "0123456789ab", "abcdefghjkl"},
+    { "0123456789abc", "abcdefghjklm"},
+    { "0123456789abcd", "abcdefghjklmn"},
+    { "0123456789abcde", "abcdefghjklmno"},
+    { "0123456789abcdef", "abcdefghjklmnop"},
+    { "0123456789abcdef0", "abcdefghjklmnopq"},
+    { "0123456789abcdef01", "abcdefghjklmnopqr"},
+    { "0123456789abcdef012", "abcdefghjklmnopqrs"},
+    { "0123456789abcdef0123", "abcdefghjklmnopqrst"},
+    { "0123456789abcdef01234", "abcdefghjklmnopqrstu"},
+    { "0123456789abcdef012345", "abcdefghjklmnopqrstuv"},
+    CFSTORE_INIT_1_TABLE_MID_NODE,
+    { "0123456789abcdef01234567", "abcdefghjklmnopqrstuvwx"},
+    { "0123456789abcdef012345678", "abcdefghjklmnopqrstuvwxy"},
+    { "0123456789abcdef0123456789", "abcdefghjklmnopqrstuvwxyz"},
+    { "0123456789abcdef0123456789a", "b"},
+    { "0123456789abcdef0123456789ab", "c"},
+    { "0123456789abcdef0123456789abc", "d"},
+    { "0123456789abcdef0123456789abcd", "e"},
+    { "0123456789abcdef0123456789abcde", "f"},
+    { "0123456789abcdef0123456789abcdef", "g"},
+    { "com.arm.mbed.wifi.accesspoint.essid", ""},
+    { "com.arm.mbed.wifi.accesspoint.essid2", ""},
+    { "yotta.your-yotta-registry-module-name.module1", ""},
+    { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "missing"},
+    { "yotta.hello-world.animal{wobbly-dog}{foot}frontRight", "present"},
+    { "yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "half present"},
+    { "piety.demands.us.to.honour.truth.above.our.friends", "Aristotle"},
+    { "basement.medicine.pavement.government.trenchcoat.off.cough.off.kid.did.when.again.alleyway.friend.cap.pen.dollarbills.ten.foot.soot.put.but.anyway.say.May.DA.kid.did.toes.bows.those.hose.nose.clothes.man.blows.well.well", "TheRollingStone" },
+    CFSTORE_INIT_1_TABLE_TAIL,
+    { NULL, NULL},
 };
 
 
@@ -522,58 +519,56 @@ cfstore_kv_data_t cfstore_test_init_1_data[] = {
  */
 int32_t cfstore_test_init_1(void)
 {
-    char* read_buf = NULL;
-    const uint8_t key_name_max_len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+    char *read_buf = NULL;
+    const uint8_t key_name_max_len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
     uint8_t key_name_len = 0;
-    char key_name_buf[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    char key_name_buf[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE len = 0;
     ARM_CFSTORE_SIZE max_len = 0;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
-    cfstore_kv_data_t* node = NULL;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
+    cfstore_kv_data_t *node = NULL;
     ARM_CFSTORE_KEYDESC kdesc;
     ARM_CFSTORE_HANDLE_INIT(hkey);
 
     CFSTORE_FENTRYLOG("%s:entered\r\n", __func__);
     memset(&kdesc, 0, sizeof(kdesc));
-    memset(key_name_buf, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
+    memset(key_name_buf, 0, CFSTORE_KEY_NAME_MAX_LENGTH + 1);
 
     /*scan for max length of value blob*/
     node = cfstore_test_init_1_data;
-    while(node->key_name != NULL)
-    {
+    while (node->key_name != NULL) {
         len = strlen(node->value);
-        if(len > max_len){
+        if (len > max_len) {
             max_len = len;
             max_len++;
         }
         node++;
     }
-    read_buf = (char*) malloc(max_len);
-    if(read_buf == NULL) {
+    read_buf = (char *) malloc(max_len);
+    if (read_buf == NULL) {
         CFSTORE_ERRLOG("%s:Error: failed to allocated read buffer \r\n", __func__);
         return ret;
     }
     kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
     node = cfstore_test_init_1_data;
-    while(node->key_name != NULL)
-    {
+    while (node->key_name != NULL) {
         CFSTORE_DBGLOG("%s:About to create new node (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
         ret = drv->Create(node->key_name, strlen(node->value), &kdesc, hkey);
-        if(ret < ARM_DRIVER_OK){
+        if (ret < ARM_DRIVER_OK) {
             CFSTORE_ERRLOG("%s:Error: failed to create node (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
             return ret;
         }
 
         CFSTORE_DBGLOG("%s:length of KV=%d (key_name=\"%s\", value=\"%s\")\r\n", __func__, (int) len, node->key_name, node->value);
         len = strlen(node->value);
-        ret = drv->Write(hkey, (char*) node->value, &len);
-        if(ret < ARM_DRIVER_OK){
+        ret = drv->Write(hkey, (char *) node->value, &len);
+        if (ret < ARM_DRIVER_OK) {
             CFSTORE_ERRLOG("%s:Error: failed to write key (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
             drv->Close(hkey);
             return ret;
         }
-        if(len != strlen(node->value)){
+        if (len != strlen(node->value)) {
             CFSTORE_ERRLOG("%s:Error: failed to write full value data (key_name=\"%s\", value=\"%s\"), len=%d\r\n", __func__, node->key_name, node->value, (int) len);
             drv->Close(hkey);
             return ARM_DRIVER_ERROR;
@@ -582,12 +577,12 @@ int32_t cfstore_test_init_1(void)
         len = strlen(node->value);
         memset(read_buf, 0, max_len);
         ret = drv->Read(hkey, read_buf, &len);
-        if(ret < ARM_DRIVER_OK){
+        if (ret < ARM_DRIVER_OK) {
             CFSTORE_ERRLOG("%s:Error: failed to read key (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
             drv->Close(hkey);
             return ret;
         }
-        if(len != strlen(node->value)){
+        if (len != strlen(node->value)) {
             CFSTORE_ERRLOG("%s:Error: failed to read full value data (key_name=\"%s\", value=\"%s\"), len=%d, ret=%d\r\n", __func__, node->key_name, node->value, (int) len, (int) ret);
             drv->Close(hkey);
             return ARM_DRIVER_ERROR;
@@ -595,7 +590,7 @@ int32_t cfstore_test_init_1(void)
         key_name_len = key_name_max_len;
         memset(key_name_buf, 0, key_name_len);
         drv->GetKeyName(hkey, key_name_buf, &key_name_len);
-        if(len != strlen(node->value)){
+        if (len != strlen(node->value)) {
             CFSTORE_ERRLOG("%s:Error: failed to GetKeyName() (key_name=\"%s\", value=\"%s\"), len=%d\r\n", __func__, node->key_name, node->value, (int) len);
             drv->Close(hkey);
             return ARM_DRIVER_ERROR;
@@ -614,20 +609,20 @@ int32_t cfstore_test_init_1(void)
  * @note    this function expects cfstore to have been initialised with
  *          a call to ARM_CFSTORE_DRIVER::Initialize()
  */
-int32_t cfstore_test_kv_is_found(const char* key_name, bool* bfound)
+int32_t cfstore_test_kv_is_found(const char *key_name, bool *bfound)
 {
     CFSTORE_FENTRYLOG("%s:entered.\r\n", __func__);
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_HANDLE_INIT(prev);
     ARM_CFSTORE_HANDLE_INIT(next);
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
 
     CFSTORE_ASSERT(bfound != NULL);
     CFSTORE_ASSERT(key_name != NULL);
     *bfound = 0;
 
     ret = drv->Find(key_name, prev, next);
-    if(ret == ARM_DRIVER_OK){
+    if (ret == ARM_DRIVER_OK) {
         *bfound = 1;
         CFSTORE_DBGLOG("%s:Found key_name=\"%s\", about to call close.\r\n", __func__, key_name);
         drv->Close(next);
@@ -639,18 +634,17 @@ int32_t cfstore_test_kv_is_found(const char* key_name, bool* bfound)
 /* @brief   support function for generating a kv_name
  * @param   name    buffer to hold kv name
  * @param   len     length of kv name to generate
- * @note	braces are not included in the generated names as the names are
+ * @note    braces are not included in the generated names as the names are
  *          of varible length and theyre may be unmatched
  *
  */
 #define CFSTORE_TEST_KV_NAME_BUF_MAX_DATA (10+26+26+4)
-int32_t cfstore_test_kv_name_gen(char* name, const size_t len)
+int32_t cfstore_test_kv_name_gen(char *name, const size_t len)
 {
     size_t i;
-    const char buf[CFSTORE_TEST_KV_NAME_BUF_MAX_DATA+1] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_@";
+    const char buf[CFSTORE_TEST_KV_NAME_BUF_MAX_DATA + 1] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_@";
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-    for(i = 0; i < len; i++)
-    {
+    for (i = 0; i < len; i++) {
         name[i] = buf[i % CFSTORE_TEST_KV_NAME_BUF_MAX_DATA];
     }
     return ARM_DRIVER_OK;
@@ -660,34 +654,34 @@ int32_t cfstore_test_kv_name_gen(char* name, const size_t len)
  * @note    this function expects cfstore to have been initialised with
  *          a call to ARM_CFSTORE_DRIVER::Initialize()
  */
-int32_t cfstore_test_read(const char* key_name, char* data, ARM_CFSTORE_SIZE* len)
+int32_t cfstore_test_read(const char *key_name, char *data, ARM_CFSTORE_SIZE *len)
 {
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_HANDLE_INIT(hkey);
     ARM_CFSTORE_FMODE flags;
 
     CFSTORE_FENTRYLOG("%s:entered\r\n", __func__);
     memset(&flags, 0, sizeof(flags));
-    if(key_name == NULL) {
+    if (key_name == NULL) {
         CFSTORE_ERRLOG("%s:invalid key_name argument \r\n", __func__);
         goto out0;
     }
-    if(data == NULL) {
+    if (data == NULL) {
         CFSTORE_ERRLOG("%s:invalid data argument \r\n", __func__);
         goto out0;
     }
-    if(len == NULL) {
+    if (len == NULL) {
         CFSTORE_ERRLOG("%s:invalid len argument \r\n", __func__);
         goto out0;
     }
     ret = drv->Open(key_name, flags, hkey);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to open node (key_name=\"%s\")(ret=%d)\r\n", __func__, key_name, (int) ret);
         goto out1;
     }
     ret = drv->Read(hkey, data, len);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to read key (key_name=\"%s\"\r\n", __func__, key_name);
         goto out2;
     }
@@ -702,35 +696,35 @@ out0:
  * @note    this function expects cfstore to have been initialised with
  *          a call to ARM_CFSTORE_DRIVER::Initialize()
  */
-int32_t cfstore_test_write(const char* key_name, const char* data, ARM_CFSTORE_SIZE* len)
+int32_t cfstore_test_write(const char *key_name, const char *data, ARM_CFSTORE_SIZE *len)
 {
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_HANDLE_INIT(hkey);
     ARM_CFSTORE_FMODE flags;
 
     CFSTORE_FENTRYLOG("%s:entered\r\n", __func__);
     memset(&flags, 0, sizeof(flags));
-    if(key_name == NULL) {
+    if (key_name == NULL) {
         CFSTORE_ERRLOG("%s:Error: invalid key_name argument \r\n", __func__);
         goto out0;
     }
-    if(data == NULL) {
+    if (data == NULL) {
         CFSTORE_ERRLOG("%s:Error: invalid data argument \r\n", __func__);
         goto out0;
     }
-    if(len == NULL) {
+    if (len == NULL) {
         CFSTORE_ERRLOG("%s:Error: invalid len argument \r\n", __func__);
         goto out0;
     }
     flags.write = 1;
     ret = drv->Open(key_name, flags, hkey);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to open node (key_name=\"%s\")(ret=%d)\r\n", __func__, key_name, (int) ret);
         goto out1;
     }
     ret = drv->Write(hkey, data, len);
-    if(ret < ARM_DRIVER_OK){
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to write key (key_name=\"%s\")\r\n", __func__, key_name);
         goto out2;
     }

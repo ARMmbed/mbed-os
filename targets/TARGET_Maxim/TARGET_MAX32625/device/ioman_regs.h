@@ -329,7 +329,7 @@ typedef struct {
     uint32_t             : 5;
     uint32_t sr0_io_ack  : 1;
     uint32_t sr1_io_ack  : 1;
-    uint32_t             : 2; 
+    uint32_t             : 2;
     uint32_t quad_io_ack : 1;
     uint32_t             : 3;
     uint32_t fast_mode   : 1;

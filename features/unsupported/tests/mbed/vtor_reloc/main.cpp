@@ -7,7 +7,7 @@
 #include "mbed_toolchain.h"
 #include <string.h>
 
-#if defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) 
+#if defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A)
 #define PIN_IN      (PB02)
 #define PIN_OUT     (PB03)
 #define NUM_VECTORS (16+28)
@@ -36,7 +36,8 @@ uint32_t int_table[NUM_VECTORS] MBED_ALIGN(256);
 
 #define FALLING_EDGE_COUNT 5
 
-void flipper() {
+void flipper()
+{
     for (int i = 0; i < FALLING_EDGE_COUNT; i++) {
         out = 1;
         wait(0.2);
@@ -45,12 +46,14 @@ void flipper() {
     }
 }
 
-void in_handler() {
+void in_handler()
+{
     checks++;
     myled = !myled;
 }
 
-static bool test_once() {
+static bool test_once()
+{
     InterruptIn in(PIN_IN);
     checks = 0;
     printf("Interrupt table location: 0x%08X\r\n", SCB->VTOR);
@@ -63,7 +66,8 @@ static bool test_once() {
     return result;
 }
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(15);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(Interrupt vector relocation);
@@ -81,7 +85,7 @@ int main() {
     // Relocate interrupt table and test again
     {
         printf("Starting second test (interrupts relocated).\r\n");
-        memcpy(int_table, (void*)SCB->VTOR, sizeof(int_table));
+        memcpy(int_table, (void *)SCB->VTOR, sizeof(int_table));
         SCB->VTOR = (uint32_t)int_table;
 
         bool ret = test_once();

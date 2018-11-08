@@ -60,10 +60,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint8_t  :3;               /*!< bit:  1.. 3  Reserved                           */
-        uint8_t  GCLKREQ:1;        /*!< bit:      4  Generic Clock Requests             */
-        uint8_t  :3;               /*!< bit:  5.. 7  Reserved                           */
+        uint8_t  SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint8_t  : 3;              /*!< bit:  1.. 3  Reserved                           */
+        uint8_t  GCLKREQ: 1;       /*!< bit:      4  Generic Clock Requests             */
+        uint8_t  : 3;              /*!< bit:  5.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } EVSYS_CTRL_Type;
@@ -82,15 +82,15 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t CHANNEL:4;        /*!< bit:  0.. 3  Channel Selection                  */
-        uint32_t :4;               /*!< bit:  4.. 7  Reserved                           */
-        uint32_t SWEVT:1;          /*!< bit:      8  Software Event                     */
-        uint32_t :7;               /*!< bit:  9..15  Reserved                           */
-        uint32_t EVGEN:7;          /*!< bit: 16..22  Event Generator Selection          */
-        uint32_t :1;               /*!< bit:     23  Reserved                           */
-        uint32_t PATH:2;           /*!< bit: 24..25  Path Selection                     */
-        uint32_t EDGSEL:2;         /*!< bit: 26..27  Edge Detection Selection           */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t CHANNEL: 4;       /*!< bit:  0.. 3  Channel Selection                  */
+        uint32_t : 4;              /*!< bit:  4.. 7  Reserved                           */
+        uint32_t SWEVT: 1;         /*!< bit:      8  Software Event                     */
+        uint32_t : 7;              /*!< bit:  9..15  Reserved                           */
+        uint32_t EVGEN: 7;         /*!< bit: 16..22  Event Generator Selection          */
+        uint32_t : 1;              /*!< bit:     23  Reserved                           */
+        uint32_t PATH: 2;          /*!< bit: 24..25  Path Selection                     */
+        uint32_t EDGSEL: 2;        /*!< bit: 26..27  Edge Detection Selection           */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EVSYS_CHANNEL_Type;
@@ -133,10 +133,10 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint16_t USER:5;           /*!< bit:  0.. 4  User Multiplexer Selection         */
-        uint16_t :3;               /*!< bit:  5.. 7  Reserved                           */
-        uint16_t CHANNEL:5;        /*!< bit:  8..12  Channel Event Selection            */
-        uint16_t :3;               /*!< bit: 13..15  Reserved                           */
+        uint16_t USER: 5;          /*!< bit:  0.. 4  User Multiplexer Selection         */
+        uint16_t : 3;              /*!< bit:  5.. 7  Reserved                           */
+        uint16_t CHANNEL: 5;       /*!< bit:  8..12  Channel Event Selection            */
+        uint16_t : 3;              /*!< bit: 13..15  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint16_t reg;                /*!< Type      used for register access              */
 } EVSYS_USER_Type;
@@ -159,40 +159,40 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t USRRDY0:1;        /*!< bit:      0  Channel 0 User Ready               */
-        uint32_t USRRDY1:1;        /*!< bit:      1  Channel 1 User Ready               */
-        uint32_t USRRDY2:1;        /*!< bit:      2  Channel 2 User Ready               */
-        uint32_t USRRDY3:1;        /*!< bit:      3  Channel 3 User Ready               */
-        uint32_t USRRDY4:1;        /*!< bit:      4  Channel 4 User Ready               */
-        uint32_t USRRDY5:1;        /*!< bit:      5  Channel 5 User Ready               */
-        uint32_t USRRDY6:1;        /*!< bit:      6  Channel 6 User Ready               */
-        uint32_t USRRDY7:1;        /*!< bit:      7  Channel 7 User Ready               */
-        uint32_t CHBUSY0:1;        /*!< bit:      8  Channel 0 Busy                     */
-        uint32_t CHBUSY1:1;        /*!< bit:      9  Channel 1 Busy                     */
-        uint32_t CHBUSY2:1;        /*!< bit:     10  Channel 2 Busy                     */
-        uint32_t CHBUSY3:1;        /*!< bit:     11  Channel 3 Busy                     */
-        uint32_t CHBUSY4:1;        /*!< bit:     12  Channel 4 Busy                     */
-        uint32_t CHBUSY5:1;        /*!< bit:     13  Channel 5 Busy                     */
-        uint32_t CHBUSY6:1;        /*!< bit:     14  Channel 6 Busy                     */
-        uint32_t CHBUSY7:1;        /*!< bit:     15  Channel 7 Busy                     */
-        uint32_t USRRDY8:1;        /*!< bit:     16  Channel 8 User Ready               */
-        uint32_t USRRDY9:1;        /*!< bit:     17  Channel 9 User Ready               */
-        uint32_t USRRDY10:1;       /*!< bit:     18  Channel 10 User Ready              */
-        uint32_t USRRDY11:1;       /*!< bit:     19  Channel 11 User Ready              */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t CHBUSY8:1;        /*!< bit:     24  Channel 8 Busy                     */
-        uint32_t CHBUSY9:1;        /*!< bit:     25  Channel 9 Busy                     */
-        uint32_t CHBUSY10:1;       /*!< bit:     26  Channel 10 Busy                    */
-        uint32_t CHBUSY11:1;       /*!< bit:     27  Channel 11 Busy                    */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t USRRDY0: 1;       /*!< bit:      0  Channel 0 User Ready               */
+        uint32_t USRRDY1: 1;       /*!< bit:      1  Channel 1 User Ready               */
+        uint32_t USRRDY2: 1;       /*!< bit:      2  Channel 2 User Ready               */
+        uint32_t USRRDY3: 1;       /*!< bit:      3  Channel 3 User Ready               */
+        uint32_t USRRDY4: 1;       /*!< bit:      4  Channel 4 User Ready               */
+        uint32_t USRRDY5: 1;       /*!< bit:      5  Channel 5 User Ready               */
+        uint32_t USRRDY6: 1;       /*!< bit:      6  Channel 6 User Ready               */
+        uint32_t USRRDY7: 1;       /*!< bit:      7  Channel 7 User Ready               */
+        uint32_t CHBUSY0: 1;       /*!< bit:      8  Channel 0 Busy                     */
+        uint32_t CHBUSY1: 1;       /*!< bit:      9  Channel 1 Busy                     */
+        uint32_t CHBUSY2: 1;       /*!< bit:     10  Channel 2 Busy                     */
+        uint32_t CHBUSY3: 1;       /*!< bit:     11  Channel 3 Busy                     */
+        uint32_t CHBUSY4: 1;       /*!< bit:     12  Channel 4 Busy                     */
+        uint32_t CHBUSY5: 1;       /*!< bit:     13  Channel 5 Busy                     */
+        uint32_t CHBUSY6: 1;       /*!< bit:     14  Channel 6 Busy                     */
+        uint32_t CHBUSY7: 1;       /*!< bit:     15  Channel 7 Busy                     */
+        uint32_t USRRDY8: 1;       /*!< bit:     16  Channel 8 User Ready               */
+        uint32_t USRRDY9: 1;       /*!< bit:     17  Channel 9 User Ready               */
+        uint32_t USRRDY10: 1;      /*!< bit:     18  Channel 10 User Ready              */
+        uint32_t USRRDY11: 1;      /*!< bit:     19  Channel 11 User Ready              */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t CHBUSY8: 1;       /*!< bit:     24  Channel 8 Busy                     */
+        uint32_t CHBUSY9: 1;       /*!< bit:     25  Channel 9 Busy                     */
+        uint32_t CHBUSY10: 1;      /*!< bit:     26  Channel 10 Busy                    */
+        uint32_t CHBUSY11: 1;      /*!< bit:     27  Channel 11 Busy                    */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t USRRDY:8;         /*!< bit:  0.. 7  Channel x User Ready               */
-        uint32_t CHBUSY:8;         /*!< bit:  8..15  Channel x Busy                     */
-        uint32_t USRRDYp8:4;       /*!< bit: 16..19  Channel x+8 User Ready             */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t CHBUSYp8:4;       /*!< bit: 24..27  Channel x+8 Busy                   */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t USRRDY: 8;        /*!< bit:  0.. 7  Channel x User Ready               */
+        uint32_t CHBUSY: 8;        /*!< bit:  8..15  Channel x Busy                     */
+        uint32_t USRRDYp8: 4;      /*!< bit: 16..19  Channel x+8 User Ready             */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t CHBUSYp8: 4;      /*!< bit: 24..27  Channel x+8 Busy                   */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EVSYS_CHSTATUS_Type;
@@ -267,40 +267,40 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t OVR0:1;           /*!< bit:      0  Channel 0 Overrun Interrupt Enable */
-        uint32_t OVR1:1;           /*!< bit:      1  Channel 1 Overrun Interrupt Enable */
-        uint32_t OVR2:1;           /*!< bit:      2  Channel 2 Overrun Interrupt Enable */
-        uint32_t OVR3:1;           /*!< bit:      3  Channel 3 Overrun Interrupt Enable */
-        uint32_t OVR4:1;           /*!< bit:      4  Channel 4 Overrun Interrupt Enable */
-        uint32_t OVR5:1;           /*!< bit:      5  Channel 5 Overrun Interrupt Enable */
-        uint32_t OVR6:1;           /*!< bit:      6  Channel 6 Overrun Interrupt Enable */
-        uint32_t OVR7:1;           /*!< bit:      7  Channel 7 Overrun Interrupt Enable */
-        uint32_t EVD0:1;           /*!< bit:      8  Channel 0 Event Detection Interrupt Enable */
-        uint32_t EVD1:1;           /*!< bit:      9  Channel 1 Event Detection Interrupt Enable */
-        uint32_t EVD2:1;           /*!< bit:     10  Channel 2 Event Detection Interrupt Enable */
-        uint32_t EVD3:1;           /*!< bit:     11  Channel 3 Event Detection Interrupt Enable */
-        uint32_t EVD4:1;           /*!< bit:     12  Channel 4 Event Detection Interrupt Enable */
-        uint32_t EVD5:1;           /*!< bit:     13  Channel 5 Event Detection Interrupt Enable */
-        uint32_t EVD6:1;           /*!< bit:     14  Channel 6 Event Detection Interrupt Enable */
-        uint32_t EVD7:1;           /*!< bit:     15  Channel 7 Event Detection Interrupt Enable */
-        uint32_t OVR8:1;           /*!< bit:     16  Channel 8 Overrun Interrupt Enable */
-        uint32_t OVR9:1;           /*!< bit:     17  Channel 9 Overrun Interrupt Enable */
-        uint32_t OVR10:1;          /*!< bit:     18  Channel 10 Overrun Interrupt Enable */
-        uint32_t OVR11:1;          /*!< bit:     19  Channel 11 Overrun Interrupt Enable */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t EVD8:1;           /*!< bit:     24  Channel 8 Event Detection Interrupt Enable */
-        uint32_t EVD9:1;           /*!< bit:     25  Channel 9 Event Detection Interrupt Enable */
-        uint32_t EVD10:1;          /*!< bit:     26  Channel 10 Event Detection Interrupt Enable */
-        uint32_t EVD11:1;          /*!< bit:     27  Channel 11 Event Detection Interrupt Enable */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t OVR0: 1;          /*!< bit:      0  Channel 0 Overrun Interrupt Enable */
+        uint32_t OVR1: 1;          /*!< bit:      1  Channel 1 Overrun Interrupt Enable */
+        uint32_t OVR2: 1;          /*!< bit:      2  Channel 2 Overrun Interrupt Enable */
+        uint32_t OVR3: 1;          /*!< bit:      3  Channel 3 Overrun Interrupt Enable */
+        uint32_t OVR4: 1;          /*!< bit:      4  Channel 4 Overrun Interrupt Enable */
+        uint32_t OVR5: 1;          /*!< bit:      5  Channel 5 Overrun Interrupt Enable */
+        uint32_t OVR6: 1;          /*!< bit:      6  Channel 6 Overrun Interrupt Enable */
+        uint32_t OVR7: 1;          /*!< bit:      7  Channel 7 Overrun Interrupt Enable */
+        uint32_t EVD0: 1;          /*!< bit:      8  Channel 0 Event Detection Interrupt Enable */
+        uint32_t EVD1: 1;          /*!< bit:      9  Channel 1 Event Detection Interrupt Enable */
+        uint32_t EVD2: 1;          /*!< bit:     10  Channel 2 Event Detection Interrupt Enable */
+        uint32_t EVD3: 1;          /*!< bit:     11  Channel 3 Event Detection Interrupt Enable */
+        uint32_t EVD4: 1;          /*!< bit:     12  Channel 4 Event Detection Interrupt Enable */
+        uint32_t EVD5: 1;          /*!< bit:     13  Channel 5 Event Detection Interrupt Enable */
+        uint32_t EVD6: 1;          /*!< bit:     14  Channel 6 Event Detection Interrupt Enable */
+        uint32_t EVD7: 1;          /*!< bit:     15  Channel 7 Event Detection Interrupt Enable */
+        uint32_t OVR8: 1;          /*!< bit:     16  Channel 8 Overrun Interrupt Enable */
+        uint32_t OVR9: 1;          /*!< bit:     17  Channel 9 Overrun Interrupt Enable */
+        uint32_t OVR10: 1;         /*!< bit:     18  Channel 10 Overrun Interrupt Enable */
+        uint32_t OVR11: 1;         /*!< bit:     19  Channel 11 Overrun Interrupt Enable */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t EVD8: 1;          /*!< bit:     24  Channel 8 Event Detection Interrupt Enable */
+        uint32_t EVD9: 1;          /*!< bit:     25  Channel 9 Event Detection Interrupt Enable */
+        uint32_t EVD10: 1;         /*!< bit:     26  Channel 10 Event Detection Interrupt Enable */
+        uint32_t EVD11: 1;         /*!< bit:     27  Channel 11 Event Detection Interrupt Enable */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t OVR:8;            /*!< bit:  0.. 7  Channel x Overrun Interrupt Enable */
-        uint32_t EVD:8;            /*!< bit:  8..15  Channel x Event Detection Interrupt Enable */
-        uint32_t OVRp8:4;          /*!< bit: 16..19  Channel x+8 Overrun Interrupt Enable */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t EVDp8:4;          /*!< bit: 24..27  Channel x+8 Event Detection Interrupt Enable */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t OVR: 8;           /*!< bit:  0.. 7  Channel x Overrun Interrupt Enable */
+        uint32_t EVD: 8;           /*!< bit:  8..15  Channel x Event Detection Interrupt Enable */
+        uint32_t OVRp8: 4;         /*!< bit: 16..19  Channel x+8 Overrun Interrupt Enable */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t EVDp8: 4;         /*!< bit: 24..27  Channel x+8 Event Detection Interrupt Enable */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EVSYS_INTENCLR_Type;
@@ -375,40 +375,40 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t OVR0:1;           /*!< bit:      0  Channel 0 Overrun Interrupt Enable */
-        uint32_t OVR1:1;           /*!< bit:      1  Channel 1 Overrun Interrupt Enable */
-        uint32_t OVR2:1;           /*!< bit:      2  Channel 2 Overrun Interrupt Enable */
-        uint32_t OVR3:1;           /*!< bit:      3  Channel 3 Overrun Interrupt Enable */
-        uint32_t OVR4:1;           /*!< bit:      4  Channel 4 Overrun Interrupt Enable */
-        uint32_t OVR5:1;           /*!< bit:      5  Channel 5 Overrun Interrupt Enable */
-        uint32_t OVR6:1;           /*!< bit:      6  Channel 6 Overrun Interrupt Enable */
-        uint32_t OVR7:1;           /*!< bit:      7  Channel 7 Overrun Interrupt Enable */
-        uint32_t EVD0:1;           /*!< bit:      8  Channel 0 Event Detection Interrupt Enable */
-        uint32_t EVD1:1;           /*!< bit:      9  Channel 1 Event Detection Interrupt Enable */
-        uint32_t EVD2:1;           /*!< bit:     10  Channel 2 Event Detection Interrupt Enable */
-        uint32_t EVD3:1;           /*!< bit:     11  Channel 3 Event Detection Interrupt Enable */
-        uint32_t EVD4:1;           /*!< bit:     12  Channel 4 Event Detection Interrupt Enable */
-        uint32_t EVD5:1;           /*!< bit:     13  Channel 5 Event Detection Interrupt Enable */
-        uint32_t EVD6:1;           /*!< bit:     14  Channel 6 Event Detection Interrupt Enable */
-        uint32_t EVD7:1;           /*!< bit:     15  Channel 7 Event Detection Interrupt Enable */
-        uint32_t OVR8:1;           /*!< bit:     16  Channel 8 Overrun Interrupt Enable */
-        uint32_t OVR9:1;           /*!< bit:     17  Channel 9 Overrun Interrupt Enable */
-        uint32_t OVR10:1;          /*!< bit:     18  Channel 10 Overrun Interrupt Enable */
-        uint32_t OVR11:1;          /*!< bit:     19  Channel 11 Overrun Interrupt Enable */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t EVD8:1;           /*!< bit:     24  Channel 8 Event Detection Interrupt Enable */
-        uint32_t EVD9:1;           /*!< bit:     25  Channel 9 Event Detection Interrupt Enable */
-        uint32_t EVD10:1;          /*!< bit:     26  Channel 10 Event Detection Interrupt Enable */
-        uint32_t EVD11:1;          /*!< bit:     27  Channel 11 Event Detection Interrupt Enable */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t OVR0: 1;          /*!< bit:      0  Channel 0 Overrun Interrupt Enable */
+        uint32_t OVR1: 1;          /*!< bit:      1  Channel 1 Overrun Interrupt Enable */
+        uint32_t OVR2: 1;          /*!< bit:      2  Channel 2 Overrun Interrupt Enable */
+        uint32_t OVR3: 1;          /*!< bit:      3  Channel 3 Overrun Interrupt Enable */
+        uint32_t OVR4: 1;          /*!< bit:      4  Channel 4 Overrun Interrupt Enable */
+        uint32_t OVR5: 1;          /*!< bit:      5  Channel 5 Overrun Interrupt Enable */
+        uint32_t OVR6: 1;          /*!< bit:      6  Channel 6 Overrun Interrupt Enable */
+        uint32_t OVR7: 1;          /*!< bit:      7  Channel 7 Overrun Interrupt Enable */
+        uint32_t EVD0: 1;          /*!< bit:      8  Channel 0 Event Detection Interrupt Enable */
+        uint32_t EVD1: 1;          /*!< bit:      9  Channel 1 Event Detection Interrupt Enable */
+        uint32_t EVD2: 1;          /*!< bit:     10  Channel 2 Event Detection Interrupt Enable */
+        uint32_t EVD3: 1;          /*!< bit:     11  Channel 3 Event Detection Interrupt Enable */
+        uint32_t EVD4: 1;          /*!< bit:     12  Channel 4 Event Detection Interrupt Enable */
+        uint32_t EVD5: 1;          /*!< bit:     13  Channel 5 Event Detection Interrupt Enable */
+        uint32_t EVD6: 1;          /*!< bit:     14  Channel 6 Event Detection Interrupt Enable */
+        uint32_t EVD7: 1;          /*!< bit:     15  Channel 7 Event Detection Interrupt Enable */
+        uint32_t OVR8: 1;          /*!< bit:     16  Channel 8 Overrun Interrupt Enable */
+        uint32_t OVR9: 1;          /*!< bit:     17  Channel 9 Overrun Interrupt Enable */
+        uint32_t OVR10: 1;         /*!< bit:     18  Channel 10 Overrun Interrupt Enable */
+        uint32_t OVR11: 1;         /*!< bit:     19  Channel 11 Overrun Interrupt Enable */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t EVD8: 1;          /*!< bit:     24  Channel 8 Event Detection Interrupt Enable */
+        uint32_t EVD9: 1;          /*!< bit:     25  Channel 9 Event Detection Interrupt Enable */
+        uint32_t EVD10: 1;         /*!< bit:     26  Channel 10 Event Detection Interrupt Enable */
+        uint32_t EVD11: 1;         /*!< bit:     27  Channel 11 Event Detection Interrupt Enable */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t OVR:8;            /*!< bit:  0.. 7  Channel x Overrun Interrupt Enable */
-        uint32_t EVD:8;            /*!< bit:  8..15  Channel x Event Detection Interrupt Enable */
-        uint32_t OVRp8:4;          /*!< bit: 16..19  Channel x+8 Overrun Interrupt Enable */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t EVDp8:4;          /*!< bit: 24..27  Channel x+8 Event Detection Interrupt Enable */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t OVR: 8;           /*!< bit:  0.. 7  Channel x Overrun Interrupt Enable */
+        uint32_t EVD: 8;           /*!< bit:  8..15  Channel x Event Detection Interrupt Enable */
+        uint32_t OVRp8: 4;         /*!< bit: 16..19  Channel x+8 Overrun Interrupt Enable */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t EVDp8: 4;         /*!< bit: 24..27  Channel x+8 Event Detection Interrupt Enable */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EVSYS_INTENSET_Type;
@@ -483,40 +483,40 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t OVR0:1;           /*!< bit:      0  Channel 0 Overrun                  */
-        uint32_t OVR1:1;           /*!< bit:      1  Channel 1 Overrun                  */
-        uint32_t OVR2:1;           /*!< bit:      2  Channel 2 Overrun                  */
-        uint32_t OVR3:1;           /*!< bit:      3  Channel 3 Overrun                  */
-        uint32_t OVR4:1;           /*!< bit:      4  Channel 4 Overrun                  */
-        uint32_t OVR5:1;           /*!< bit:      5  Channel 5 Overrun                  */
-        uint32_t OVR6:1;           /*!< bit:      6  Channel 6 Overrun                  */
-        uint32_t OVR7:1;           /*!< bit:      7  Channel 7 Overrun                  */
-        uint32_t EVD0:1;           /*!< bit:      8  Channel 0 Event Detection          */
-        uint32_t EVD1:1;           /*!< bit:      9  Channel 1 Event Detection          */
-        uint32_t EVD2:1;           /*!< bit:     10  Channel 2 Event Detection          */
-        uint32_t EVD3:1;           /*!< bit:     11  Channel 3 Event Detection          */
-        uint32_t EVD4:1;           /*!< bit:     12  Channel 4 Event Detection          */
-        uint32_t EVD5:1;           /*!< bit:     13  Channel 5 Event Detection          */
-        uint32_t EVD6:1;           /*!< bit:     14  Channel 6 Event Detection          */
-        uint32_t EVD7:1;           /*!< bit:     15  Channel 7 Event Detection          */
-        uint32_t OVR8:1;           /*!< bit:     16  Channel 8 Overrun                  */
-        uint32_t OVR9:1;           /*!< bit:     17  Channel 9 Overrun                  */
-        uint32_t OVR10:1;          /*!< bit:     18  Channel 10 Overrun                 */
-        uint32_t OVR11:1;          /*!< bit:     19  Channel 11 Overrun                 */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t EVD8:1;           /*!< bit:     24  Channel 8 Event Detection          */
-        uint32_t EVD9:1;           /*!< bit:     25  Channel 9 Event Detection          */
-        uint32_t EVD10:1;          /*!< bit:     26  Channel 10 Event Detection         */
-        uint32_t EVD11:1;          /*!< bit:     27  Channel 11 Event Detection         */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t OVR0: 1;          /*!< bit:      0  Channel 0 Overrun                  */
+        uint32_t OVR1: 1;          /*!< bit:      1  Channel 1 Overrun                  */
+        uint32_t OVR2: 1;          /*!< bit:      2  Channel 2 Overrun                  */
+        uint32_t OVR3: 1;          /*!< bit:      3  Channel 3 Overrun                  */
+        uint32_t OVR4: 1;          /*!< bit:      4  Channel 4 Overrun                  */
+        uint32_t OVR5: 1;          /*!< bit:      5  Channel 5 Overrun                  */
+        uint32_t OVR6: 1;          /*!< bit:      6  Channel 6 Overrun                  */
+        uint32_t OVR7: 1;          /*!< bit:      7  Channel 7 Overrun                  */
+        uint32_t EVD0: 1;          /*!< bit:      8  Channel 0 Event Detection          */
+        uint32_t EVD1: 1;          /*!< bit:      9  Channel 1 Event Detection          */
+        uint32_t EVD2: 1;          /*!< bit:     10  Channel 2 Event Detection          */
+        uint32_t EVD3: 1;          /*!< bit:     11  Channel 3 Event Detection          */
+        uint32_t EVD4: 1;          /*!< bit:     12  Channel 4 Event Detection          */
+        uint32_t EVD5: 1;          /*!< bit:     13  Channel 5 Event Detection          */
+        uint32_t EVD6: 1;          /*!< bit:     14  Channel 6 Event Detection          */
+        uint32_t EVD7: 1;          /*!< bit:     15  Channel 7 Event Detection          */
+        uint32_t OVR8: 1;          /*!< bit:     16  Channel 8 Overrun                  */
+        uint32_t OVR9: 1;          /*!< bit:     17  Channel 9 Overrun                  */
+        uint32_t OVR10: 1;         /*!< bit:     18  Channel 10 Overrun                 */
+        uint32_t OVR11: 1;         /*!< bit:     19  Channel 11 Overrun                 */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t EVD8: 1;          /*!< bit:     24  Channel 8 Event Detection          */
+        uint32_t EVD9: 1;          /*!< bit:     25  Channel 9 Event Detection          */
+        uint32_t EVD10: 1;         /*!< bit:     26  Channel 10 Event Detection         */
+        uint32_t EVD11: 1;         /*!< bit:     27  Channel 11 Event Detection         */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     struct {
-        uint32_t OVR:8;            /*!< bit:  0.. 7  Channel x Overrun                  */
-        uint32_t EVD:8;            /*!< bit:  8..15  Channel x Event Detection          */
-        uint32_t OVRp8:4;          /*!< bit: 16..19  Channel x+8 Overrun                */
-        uint32_t :4;               /*!< bit: 20..23  Reserved                           */
-        uint32_t EVDp8:4;          /*!< bit: 24..27  Channel x+8 Event Detection        */
-        uint32_t :4;               /*!< bit: 28..31  Reserved                           */
+        uint32_t OVR: 8;           /*!< bit:  0.. 7  Channel x Overrun                  */
+        uint32_t EVD: 8;           /*!< bit:  8..15  Channel x Event Detection          */
+        uint32_t OVRp8: 4;         /*!< bit: 16..19  Channel x+8 Overrun                */
+        uint32_t : 4;              /*!< bit: 20..23  Reserved                           */
+        uint32_t EVDp8: 4;         /*!< bit: 24..27  Channel x+8 Event Detection        */
+        uint32_t : 4;              /*!< bit: 28..31  Reserved                           */
     } vec;                       /*!< Structure used for vec  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } EVSYS_INTFLAG_Type;

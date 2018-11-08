@@ -31,14 +31,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F4xx_HAL_DCMI_EX_H
 #define __STM32F4xx_HAL_DCMI_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F427xx) || defined(STM32F437xx) ||\
@@ -56,65 +56,63 @@
 /** @addtogroup DCMIEx
   * @brief DCMI HAL module driver
   * @{
-  */  
+  */
 
 /* Exported types ------------------------------------------------------------*/
 /** @defgroup DCMIEx_Exported_Types DCMI Extended Exported Types
   * @{
   */
-/** 
+/**
   * @brief   DCMIEx Embedded Synchronisation CODE Init structure definition
-  */ 
-typedef struct
-{
-  uint8_t FrameStartCode; /*!< Specifies the code of the frame start delimiter. */
-  uint8_t LineStartCode;  /*!< Specifies the code of the line start delimiter.  */
-  uint8_t LineEndCode;    /*!< Specifies the code of the line end delimiter.    */
-  uint8_t FrameEndCode;   /*!< Specifies the code of the frame end delimiter.   */
-}DCMI_CodesInitTypeDef;
+  */
+typedef struct {
+    uint8_t FrameStartCode; /*!< Specifies the code of the frame start delimiter. */
+    uint8_t LineStartCode;  /*!< Specifies the code of the line start delimiter.  */
+    uint8_t LineEndCode;    /*!< Specifies the code of the line end delimiter.    */
+    uint8_t FrameEndCode;   /*!< Specifies the code of the frame end delimiter.   */
+} DCMI_CodesInitTypeDef;
 
-/** 
+/**
   * @brief   DCMI Init structure definition
-  */  
-typedef struct
-{
-  uint32_t  SynchroMode;                /*!< Specifies the Synchronization Mode: Hardware or Embedded.
+  */
+typedef struct {
+    uint32_t  SynchroMode;                /*!< Specifies the Synchronization Mode: Hardware or Embedded.
                                              This parameter can be a value of @ref DCMI_Synchronization_Mode   */
 
-  uint32_t  PCKPolarity;                /*!< Specifies the Pixel clock polarity: Falling or Rising.
+    uint32_t  PCKPolarity;                /*!< Specifies the Pixel clock polarity: Falling or Rising.
                                              This parameter can be a value of @ref DCMI_PIXCK_Polarity         */
 
-  uint32_t  VSPolarity;                 /*!< Specifies the Vertical synchronization polarity: High or Low.
+    uint32_t  VSPolarity;                 /*!< Specifies the Vertical synchronization polarity: High or Low.
                                              This parameter can be a value of @ref DCMI_VSYNC_Polarity         */
 
-  uint32_t  HSPolarity;                 /*!< Specifies the Horizontal synchronization polarity: High or Low.
+    uint32_t  HSPolarity;                 /*!< Specifies the Horizontal synchronization polarity: High or Low.
                                              This parameter can be a value of @ref DCMI_HSYNC_Polarity         */
 
-  uint32_t  CaptureRate;                /*!< Specifies the frequency of frame capture: All, 1/2 or 1/4.
+    uint32_t  CaptureRate;                /*!< Specifies the frequency of frame capture: All, 1/2 or 1/4.
                                              This parameter can be a value of @ref DCMI_Capture_Rate           */
 
-  uint32_t  ExtendedDataMode;           /*!< Specifies the data width: 8-bit, 10-bit, 12-bit or 14-bit.
+    uint32_t  ExtendedDataMode;           /*!< Specifies the data width: 8-bit, 10-bit, 12-bit or 14-bit.
                                              This parameter can be a value of @ref DCMI_Extended_Data_Mode     */
 
-  DCMI_CodesInitTypeDef SyncroCode;     /*!< Specifies the code of the frame start delimiter.                  */
+    DCMI_CodesInitTypeDef SyncroCode;     /*!< Specifies the code of the frame start delimiter.                  */
 
-  uint32_t JPEGMode;                    /*!< Enable or Disable the JPEG mode
+    uint32_t JPEGMode;                    /*!< Enable or Disable the JPEG mode
                                              This parameter can be a value of @ref DCMI_MODE_JPEG              */
 #if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
-  uint32_t ByteSelectMode;              /*!< Specifies the data to be captured by the interface 
+    uint32_t ByteSelectMode;              /*!< Specifies the data to be captured by the interface
                                             This parameter can be a value of @ref DCMIEx_Byte_Select_Mode      */
 
-  uint32_t ByteSelectStart;             /*!< Specifies if the data to be captured by the interface is even or odd
+    uint32_t ByteSelectStart;             /*!< Specifies if the data to be captured by the interface is even or odd
                                             This parameter can be a value of @ref DCMIEx_Byte_Select_Start     */
 
-  uint32_t LineSelectMode;              /*!< Specifies the line of data to be captured by the interface 
+    uint32_t LineSelectMode;              /*!< Specifies the line of data to be captured by the interface
                                             This parameter can be a value of @ref DCMIEx_Line_Select_Mode      */
 
-  uint32_t LineSelectStart;             /*!< Specifies if the line of data to be captured by the interface is even or odd
+    uint32_t LineSelectStart;             /*!< Specifies if the line of data to be captured by the interface is even or odd
                                             This parameter can be a value of @ref DCMIEx_Line_Select_Start     */
 
 #endif /* STM32F446xx || STM32F469xx || STM32F479xx */
-}DCMI_InitTypeDef;
+} DCMI_InitTypeDef;
 
 /**
   * @}
@@ -140,7 +138,7 @@ typedef struct
 
 /** @defgroup DCMIEx_Byte_Select_Start DCMI Byte Select Start
   * @{
-  */ 
+  */
 #define DCMI_OEBS_ODD               0x00000000U              /*!< Interface captures first data from the frame/line start, second one being dropped  */
 #define DCMI_OEBS_EVEN              ((uint32_t)DCMI_CR_OEBS) /*!< Interface captures second data from the frame/line start, first one being dropped */
 
@@ -160,14 +158,14 @@ typedef struct
 
 /** @defgroup DCMIEx_Line_Select_Start DCMI Line Select Start
   * @{
-  */ 
+  */
 #define DCMI_OELS_ODD               0x00000000U              /*!< Interface captures first line from the frame start, second one being dropped  */
 #define DCMI_OELS_EVEN              ((uint32_t)DCMI_CR_OELS) /*!< Interface captures second line from the frame start, first one being dropped */
 
 /**
   * @}
   */
-  
+
 /**
   * @}
   */
@@ -217,7 +215,7 @@ typedef struct
 
 /**
   * @}
-  */ 
+  */
 
 #ifdef __cplusplus
 }

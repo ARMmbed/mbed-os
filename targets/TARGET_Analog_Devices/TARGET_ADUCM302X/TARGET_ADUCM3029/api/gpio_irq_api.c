@@ -57,7 +57,7 @@ typedef struct {
    ADI_GPIO_DEV_DATA Instance memory containing memory pointer should
    guarantee 4 byte alignmnet.
  *******************************************************************************/
-extern uint32_t gpioMemory[(ADI_GPIO_MEMORY_SIZE + 3)/4];
+extern uint32_t gpioMemory[(ADI_GPIO_MEMORY_SIZE + 3) / 4];
 extern uint8_t  gpio_initialized;
 static gpio_chan_info_t channel_ids[MAX_GPIO_PORTS][MAX_GPIO_LINES];
 static gpio_irq_handler irq_handler = NULL;
@@ -67,15 +67,16 @@ static gpio_irq_handler irq_handler = NULL;
  */
 static void gpio_irq_callback(void *pCBParam, uint32_t Event, void *pArg)
 {
-    uint16_t pin = *(ADI_GPIO_DATA*)pArg;
+    uint16_t pin = *(ADI_GPIO_DATA *)pArg;
     int index = 0;
 
     // determine the index of the pin that caused the interrupt
     while (pin) {
         if (pin & 0x01) {
             // call the user ISR. The argument Event is the port number of the GPIO line.
-            if (irq_handler != NULL)
+            if (irq_handler != NULL) {
                 irq_handler((uint32_t)channel_ids[Event][index].id, channel_ids[Event][index].event);
+            }
         }
         index++;
         pin >>= 1;
@@ -87,9 +88,9 @@ static void gpio_irq_callback(void *pCBParam, uint32_t Event, void *pArg)
  *  Added here temporarily until these are available in the BSP
  */
 static ADI_GPIO_RESULT adi_gpio_GetGroupInterruptPins(const ADI_GPIO_PORT Port, const IRQn_Type eIrq,
-        const ADI_GPIO_DATA Pins, uint16_t* const pValue)
+                                                      const ADI_GPIO_DATA Pins, uint16_t *const pValue)
 {
-    ADI_GPIO_TypeDef 	*pReg[MAX_GPIO_PORTS] = {pADI_GPIO0, pADI_GPIO1, pADI_GPIO2};
+    ADI_GPIO_TypeDef    *pReg[MAX_GPIO_PORTS] = {pADI_GPIO0, pADI_GPIO1, pADI_GPIO2};
     ADI_GPIO_TypeDef    *pPort;     /* pointer to port registers */
     uint16_t            Value = 0u;
 
@@ -115,10 +116,10 @@ static ADI_GPIO_RESULT adi_gpio_GetGroupInterruptPins(const ADI_GPIO_PORT Port, 
  *  Added here temporarily until these are available in the BSP
  */
 static ADI_GPIO_RESULT adi_gpio_GetGroupInterruptPolarity(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins,
-        uint16_t* const pValue)
+                                                          uint16_t *const pValue)
 {
     ADI_GPIO_TypeDef    *pPort;     /* pointer to port registers */
-    ADI_GPIO_TypeDef 	*pReg[MAX_GPIO_PORTS] = {pADI_GPIO0, pADI_GPIO1, pADI_GPIO2};
+    ADI_GPIO_TypeDef    *pReg[MAX_GPIO_PORTS] = {pADI_GPIO0, pADI_GPIO1, pADI_GPIO2};
 
     pPort = pReg[Port];
 
@@ -193,7 +194,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
     // make sure gpio driver has been initialized
     if (!gpio_initialized) {
-        adi_gpio_Init(gpioMemory,ADI_GPIO_MEMORY_SIZE);
+        adi_gpio_Init(gpioMemory, ADI_GPIO_MEMORY_SIZE);
         gpio_initialized = 1;
     }
 
@@ -253,7 +254,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     }
 
     // read the current polarity register
-    adi_gpio_GetGroupInterruptPolarity((ADI_GPIO_PORT)port,	1 << pin_num, &int_polarity_reg);
+    adi_gpio_GetGroupInterruptPolarity((ADI_GPIO_PORT)port, 1 << pin_num, &int_polarity_reg);
 
     if (event == IRQ_RISE) {
         int_polarity_reg |= (1 << pin_num);
@@ -319,12 +320,11 @@ void gpio_irq_disable(gpio_irq_t *obj)
     // Group all RISE interrupts in INTA and FALL interrupts in INTB
     if (channel_ids[port][pin_num].event == IRQ_RISE) {
         disable_pin_interrupt((ADI_GPIO_PORT)port, pin_num);
-    }
-    else if (channel_ids[port][pin_num].event == IRQ_FALL) {
+    } else if (channel_ids[port][pin_num].event == IRQ_FALL) {
         disable_pin_interrupt((ADI_GPIO_PORT)port, pin_num);
     }
 
     channel_ids[port][pin_num].int_enable = 0;
 }
 
-#endif 	// #ifdef DEVICE_INTERRUPTIN
+#endif  // #ifdef DEVICE_INTERRUPTIN

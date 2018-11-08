@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -53,8 +53,7 @@
 
 /**@brief Structure containing the module variable(s) of the GCM module.
  */
-typedef struct
-{
+typedef struct {
     gcm_evt_handler_t             evt_handler;                     /**< The event handler to use for outbound GSCM events. */
     ble_conn_state_user_flag_id_t flag_id_local_db_update_pending; /**< Flag ID for flag collection to keep track of which connections need a local DB update procedure. */
     ble_conn_state_user_flag_id_t flag_id_local_db_apply_pending;  /**< Flag ID for flag collection to keep track of which connections need a local DB apply procedure. */
@@ -74,7 +73,7 @@ static void service_changed_pending_flags_check(void);
  *
  * @param[out]  The instance to reset.
  */
-static void internal_state_reset(gcm_t * p_gcm)
+static void internal_state_reset(gcm_t *p_gcm)
 {
     memset(p_gcm, 0, sizeof(gcm_t));
 }
@@ -87,11 +86,11 @@ static void internal_state_reset(gcm_t * p_gcm)
  *
  * @return  Whether the write was on a CCCD.
  */
-static bool cccd_written(ble_gatts_evt_write_t * p_write_evt)
+static bool cccd_written(ble_gatts_evt_write_t *p_write_evt)
 {
-    return (    (p_write_evt->op        == BLE_GATTS_OP_WRITE_REQ)
-             && (p_write_evt->uuid.type == BLE_UUID_TYPE_BLE)
-             && (p_write_evt->uuid.uuid == BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG)
+    return ((p_write_evt->op        == BLE_GATTS_OP_WRITE_REQ)
+            && (p_write_evt->uuid.type == BLE_UUID_TYPE_BLE)
+            && (p_write_evt->uuid.uuid == BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG)
            );
 }
 
@@ -110,15 +109,13 @@ static void local_db_apply_in_evt(uint16_t conn_handle)
     ret_code_t err_code;
     gcm_evt_t event;
 
-    if (conn_handle == BLE_CONN_HANDLE_INVALID)
-    {
+    if (conn_handle == BLE_CONN_HANDLE_INVALID) {
         return;
     }
 
     err_code = gscm_local_db_cache_apply(conn_handle);
 
-    switch(err_code)
-    {
+    switch (err_code) {
         case NRF_SUCCESS:
             event.evt_id                                    = GCM_EVT_LOCAL_DB_CACHE_APPLIED;
             event.peer_id                                   = im_peer_id_get_by_conn_handle(conn_handle);
@@ -171,8 +168,7 @@ static void local_db_update_in_evt(uint16_t conn_handle)
     bool set_procedure_as_pending = false;
     ret_code_t err_code = gscm_local_db_cache_update(conn_handle);
 
-    switch(err_code)
-    {
+    switch (err_code) {
         case NRF_SUCCESS:
             event.evt_id                                    = GCM_EVT_LOCAL_DB_CACHE_UPDATED;
             event.params.local_db_cache_applied.conn_handle = conn_handle;
@@ -234,8 +230,7 @@ static void service_changed_send_in_evt(uint16_t conn_handle)
     bool sc_sent_state = false;
     ret_code_t err_code = gscm_service_changed_ind_send(conn_handle);
 
-    switch(err_code)
-    {
+    switch (err_code) {
         case NRF_SUCCESS:
             sc_sent_state = true;
 
@@ -251,8 +246,8 @@ static void service_changed_send_in_evt(uint16_t conn_handle)
             break;
 
         case NRF_ERROR_INVALID_STATE:
-            // CCCDs not enabled. Drop indication.
-            // Fallthrough.
+        // CCCDs not enabled. Drop indication.
+        // Fallthrough.
 
         case NRF_ERROR_NOT_SUPPORTED:
             // Service changed not supported. Drop indication.
@@ -287,13 +282,12 @@ static void service_changed_send_in_evt(uint16_t conn_handle)
  *
  * @param[in]  p_event  The event from the GATT Cache Server Manager module.
  */
-static void gscm_evt_handler(gscm_evt_t const * p_event)
+static void gscm_evt_handler(gscm_evt_t const *p_event)
 {
     gcm_evt_t event;
     event.peer_id = p_event->peer_id;
 
-    switch (p_event->evt_id)
-    {
+    switch (p_event->evt_id) {
         case GSCM_EVT_LOCAL_DB_CACHE_STORED:
             event.evt_id = GCM_EVT_LOCAL_DB_CACHE_STORED;
 
@@ -309,11 +303,9 @@ static void gscm_evt_handler(gscm_evt_t const * p_event)
             break;
 
         case GSCM_EVT_SC_STATE_STORED:
-            if (p_event->params.sc_state_stored.state)
-            {
+            if (p_event->params.sc_state_stored.state) {
                 uint16_t conn_handle = im_conn_handle_get(p_event->peer_id);
-                if (conn_handle != BLE_CONN_HANDLE_INVALID)
-                {
+                if (conn_handle != BLE_CONN_HANDLE_INVALID) {
                     ble_conn_state_user_flag_set(conn_handle, m_gcm.flag_id_service_changed_pending, true);
                     service_changed_pending_flags_check();
                 }
@@ -327,7 +319,7 @@ static void gscm_evt_handler(gscm_evt_t const * p_event)
  *
  * @param[in]  p_event  The event from the GATT Cache Client Manager module.
  */
-static void gccm_evt_handler(gccm_evt_t const * p_event)
+static void gccm_evt_handler(gccm_evt_t const *p_event)
 {
 
 }
@@ -337,14 +329,12 @@ static void gccm_evt_handler(gccm_evt_t const * p_event)
  *
  * @param[in]  p_event  The event from the Identity Manager module.
  */
-static void im_evt_handler(im_evt_t const * p_event)
+static void im_evt_handler(im_evt_t const *p_event)
 {
-    switch (p_event->evt_id)
-    {
+    switch (p_event->evt_id) {
         case IM_EVT_BONDED_PEER_CONNECTED:
             local_db_apply_in_evt(p_event->conn_handle);
-            if (gscm_service_changed_ind_needed(p_event->conn_handle))
-            {
+            if (gscm_service_changed_ind_needed(p_event->conn_handle)) {
                 ble_conn_state_user_flag_set(p_event->conn_handle, m_gcm.flag_id_service_changed_pending, true);
             }
             break;
@@ -358,10 +348,9 @@ static void im_evt_handler(im_evt_t const * p_event)
  *
  * @param[in]  p_event  The event from the Security Dispatcher module.
  */
-static void smd_evt_handler(smd_evt_t const * p_event)
+static void smd_evt_handler(smd_evt_t const *p_event)
 {
-    switch (p_event->evt_id)
-    {
+    switch (p_event->evt_id) {
         case SMD_EVT_BONDING_INFO_STORED:
             local_db_update_in_evt(p_event->conn_handle);
             break;
@@ -398,11 +387,10 @@ ret_code_t gcm_init(gcm_evt_handler_t evt_handler)
     m_gcm.flag_id_service_changed_pending = ble_conn_state_user_flag_acquire();
     m_gcm.flag_id_service_changed_sent    = ble_conn_state_user_flag_acquire();
 
-    if  ((m_gcm.flag_id_local_db_update_pending  == BLE_CONN_STATE_USER_FLAG_INVALID)
-      || (m_gcm.flag_id_local_db_apply_pending   == BLE_CONN_STATE_USER_FLAG_INVALID)
-      || (m_gcm.flag_id_service_changed_pending  == BLE_CONN_STATE_USER_FLAG_INVALID)
-      || (m_gcm.flag_id_service_changed_sent     == BLE_CONN_STATE_USER_FLAG_INVALID))
-    {
+    if ((m_gcm.flag_id_local_db_update_pending  == BLE_CONN_STATE_USER_FLAG_INVALID)
+            || (m_gcm.flag_id_local_db_apply_pending   == BLE_CONN_STATE_USER_FLAG_INVALID)
+            || (m_gcm.flag_id_service_changed_pending  == BLE_CONN_STATE_USER_FLAG_INVALID)
+            || (m_gcm.flag_id_service_changed_sent     == BLE_CONN_STATE_USER_FLAG_INVALID)) {
         err_code = NRF_ERROR_INTERNAL;
     }
 
@@ -417,15 +405,12 @@ static void apply_pending_flags_check(void)
     sdk_mapped_flags_t apply_pending_flags;
 
     apply_pending_flags = ble_conn_state_user_flag_collection(m_gcm.flag_id_local_db_apply_pending);
-    if (sdk_mapped_flags_any_set(apply_pending_flags))
-    {
+    if (sdk_mapped_flags_any_set(apply_pending_flags)) {
         sdk_mapped_flags_key_list_t conn_handle_list;
         conn_handle_list = ble_conn_state_conn_handles();
 
-        for (uint32_t i = 0; i < conn_handle_list.len; i++)
-        {
-            if (ble_conn_state_user_flag_get(conn_handle_list.flag_keys[i], m_gcm.flag_id_local_db_apply_pending))
-            {
+        for (uint32_t i = 0; i < conn_handle_list.len; i++) {
+            if (ble_conn_state_user_flag_get(conn_handle_list.flag_keys[i], m_gcm.flag_id_local_db_apply_pending)) {
                 local_db_apply_in_evt(conn_handle_list.flag_keys[i]);
             }
         }
@@ -440,15 +425,12 @@ static void update_pending_flags_check(void)
     sdk_mapped_flags_t update_pending_flags;
 
     update_pending_flags = ble_conn_state_user_flag_collection(m_gcm.flag_id_local_db_update_pending);
-    if (sdk_mapped_flags_any_set(update_pending_flags))
-    {
+    if (sdk_mapped_flags_any_set(update_pending_flags)) {
         sdk_mapped_flags_key_list_t conn_handle_list;
         conn_handle_list = ble_conn_state_conn_handles();
 
-        for (uint32_t i = 0; i < conn_handle_list.len; i++)
-        {
-            if (ble_conn_state_user_flag_get(conn_handle_list.flag_keys[i], m_gcm.flag_id_local_db_update_pending))
-            {
+        for (uint32_t i = 0; i < conn_handle_list.len; i++) {
+            if (ble_conn_state_user_flag_get(conn_handle_list.flag_keys[i], m_gcm.flag_id_local_db_update_pending)) {
                 local_db_update_in_evt(conn_handle_list.flag_keys[i]);
             }
         }
@@ -463,18 +445,15 @@ static void service_changed_pending_flags_check(void)
     sdk_mapped_flags_t service_changed_pending_flags;
 
     service_changed_pending_flags = ble_conn_state_user_flag_collection(m_gcm.flag_id_service_changed_pending);
-    if (sdk_mapped_flags_any_set(service_changed_pending_flags))
-    {
+    if (sdk_mapped_flags_any_set(service_changed_pending_flags)) {
         sdk_mapped_flags_key_list_t conn_handle_list;
         conn_handle_list = ble_conn_state_conn_handles();
 
-        for (uint32_t i = 0; i < conn_handle_list.len; i++)
-        {
-            if (    ble_conn_state_user_flag_get(conn_handle_list.flag_keys[i],
-                                                 m_gcm.flag_id_service_changed_pending)
-                && !ble_conn_state_user_flag_get(conn_handle_list.flag_keys[i],
-                                                 m_gcm.flag_id_service_changed_sent))
-            {
+        for (uint32_t i = 0; i < conn_handle_list.len; i++) {
+            if (ble_conn_state_user_flag_get(conn_handle_list.flag_keys[i],
+                                             m_gcm.flag_id_service_changed_pending)
+                    && !ble_conn_state_user_flag_get(conn_handle_list.flag_keys[i],
+                                                     m_gcm.flag_id_service_changed_sent)) {
                 service_changed_send_in_evt(conn_handle_list.flag_keys[i]);
             }
         }
@@ -486,12 +465,11 @@ static void service_changed_pending_flags_check(void)
  *
  * @param[in]  p_ble_evt  The BLE event from the SoftDevice.
  */
-void gcm_ble_evt_handler(ble_evt_t * p_ble_evt)
+void gcm_ble_evt_handler(ble_evt_t *p_ble_evt)
 {
     gcm_evt_t event;
 
-    switch(p_ble_evt->header.evt_id)
-    {
+    switch (p_ble_evt->header.evt_id) {
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
             local_db_apply_in_evt(p_ble_evt->evt.gatts_evt.conn_handle);
             break;
@@ -508,8 +486,7 @@ void gcm_ble_evt_handler(ble_evt_t * p_ble_evt)
             break;
 
         case BLE_GATTS_EVT_WRITE:
-            if (cccd_written(&p_ble_evt->evt.gatts_evt.params.write))
-            {
+            if (cccd_written(&p_ble_evt->evt.gatts_evt.params.write)) {
                 local_db_update_in_evt(p_ble_evt->evt.gatts_evt.conn_handle);
             }
             break;
@@ -522,7 +499,7 @@ void gcm_ble_evt_handler(ble_evt_t * p_ble_evt)
 
 
 ret_code_t gcm_remote_db_store(pm_peer_id_t        peer_id,
-                               ble_gatt_db_srv_t * p_remote_db,
+                               ble_gatt_db_srv_t *p_remote_db,
                                uint32_t            n_services)
 {
     VERIFY_MODULE_INITIALIZED();
@@ -532,8 +509,8 @@ ret_code_t gcm_remote_db_store(pm_peer_id_t        peer_id,
 
 
 ret_code_t gcm_remote_db_retrieve(pm_peer_id_t        peer_id,
-                                  ble_gatt_db_srv_t * p_remote_db,
-                                  uint32_t          * p_n_services)
+                                  ble_gatt_db_srv_t *p_remote_db,
+                                  uint32_t           *p_n_services)
 {
     VERIFY_MODULE_INITIALIZED();
     VERIFY_PARAM_NOT_NULL(p_remote_db);
@@ -549,8 +526,7 @@ ret_code_t gcm_local_db_cache_update(uint16_t conn_handle)
     ret_code_t err_code = gscm_local_db_cache_update(conn_handle);
     bool set_procedure_as_pending = false;
 
-    if (err_code == NRF_ERROR_BUSY)
-    {
+    if (err_code == NRF_ERROR_BUSY) {
         set_procedure_as_pending = true;
         err_code = NRF_SUCCESS;
     }
@@ -561,7 +537,7 @@ ret_code_t gcm_local_db_cache_update(uint16_t conn_handle)
 }
 
 
-ret_code_t gcm_local_db_cache_set(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t * p_local_db)
+ret_code_t gcm_local_db_cache_set(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t *p_local_db)
 {
     VERIFY_MODULE_INITIALIZED();
 
@@ -569,7 +545,7 @@ ret_code_t gcm_local_db_cache_set(pm_peer_id_t peer_id, pm_peer_data_local_gatt_
 }
 
 
-ret_code_t gcm_local_db_cache_get(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t * p_local_db)
+ret_code_t gcm_local_db_cache_get(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t *p_local_db)
 {
     VERIFY_MODULE_INITIALIZED();
 
@@ -583,10 +559,8 @@ void gcm_local_database_has_changed(void)
 
     sdk_mapped_flags_key_list_t conn_handles = ble_conn_state_conn_handles();
 
-    for (uint16_t i = 0; i < conn_handles.len; i++)
-    {
-        if (im_peer_id_get_by_conn_handle(conn_handles.flag_keys[i]) == PM_PEER_ID_INVALID)
-        {
+    for (uint16_t i = 0; i < conn_handles.len; i++) {
+        if (im_peer_id_get_by_conn_handle(conn_handles.flag_keys[i]) == PM_PEER_ID_INVALID) {
             ble_conn_state_user_flag_set(conn_handles.flag_keys[i], m_gcm.flag_id_service_changed_pending, true);
         }
     }

@@ -50,8 +50,7 @@ typedef struct _sai_dma_handle sai_dma_handle_t;
 typedef void (*sai_dma_callback_t)(I2S_Type *base, sai_dma_handle_t *handle, status_t status, void *userData);
 
 /*! @brief SAI DMA transfer handle, users should not touch the content of the handle.*/
-struct _sai_dma_handle
-{
+struct _sai_dma_handle {
     dma_handle_t *dmaHandle;                      /*!< DMA handler for SAI send */
     uint8_t bytesPerFrame;                        /*!< Bytes in a frame */
     uint8_t channel;                              /*!< Which Data channel SAI use */

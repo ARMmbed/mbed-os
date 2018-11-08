@@ -47,7 +47,7 @@ typedef struct {
     __I uint32_t CURRENT_VALUE; /**< 0x4000A004 Gives the current value of the decrementing counter */
     union {
         struct {
-            __IO uint32_t WDT_EN :1;     /**< Watchdog enable, 0 – Watchdog disabled, 1 – Watchdog enabled */
+            __IO uint32_t WDT_EN : 1;    /**< Watchdog enable, 0 – Watchdog disabled, 1 – Watchdog enabled */
         } BITS;
         __IO uint32_t WORD;
     } CONTROL;             /* 0x4000A008 */
@@ -55,10 +55,10 @@ typedef struct {
     __O uint32_t LOCK;     /**< 0x4000A010 Use of this register causes write-access to all other registers to be disabled.  This is to prevent rogue software from disabling the watchdog functionality.  Writing a value of 0x1ACCE551 enables write access to all other registers.  Writing any other value disables write access.  A read from this register only returns the bottom bit…, 0 – Write access is enabled, 1 – Write access is disabled */
     union {
         struct {
-            __I uint32_t WRITE_BUSY_ANY :1;     /**< Busy writing any register */
-            __I uint32_t WRITE_BUSY_LOAD :1;    /**< Busy writing the load register */
-            __I uint32_t WRITE_BUSY_CONTROL :1; /**< Busy writing the control enable register */
-            __IO uint32_t WRITE_ERROR :1;       /**< Error bit.  Set when write occurs before previous write completes (busy) */
+            __I uint32_t WRITE_BUSY_ANY : 1;    /**< Busy writing any register */
+            __I uint32_t WRITE_BUSY_LOAD : 1;   /**< Busy writing the load register */
+            __I uint32_t WRITE_BUSY_CONTROL : 1; /**< Busy writing the control enable register */
+            __IO uint32_t WRITE_ERROR : 1;      /**< Error bit.  Set when write occurs before previous write completes (busy) */
         } BITS;
         __IO uint32_t WORD;
     } STATUS;    /* 0x4000A014 */

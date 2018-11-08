@@ -50,38 +50,33 @@
 /*@}*/
 
 /*! @brief  FlexIO I2C transfer status*/
-enum _flexio_i2c_status
-{
+enum _flexio_i2c_status {
     kStatus_FLEXIO_I2C_Busy = MAKE_STATUS(kStatusGroup_FLEXIO_I2C, 0), /*!< I2C is busy doing transfer. */
     kStatus_FLEXIO_I2C_Idle = MAKE_STATUS(kStatusGroup_FLEXIO_I2C, 1), /*!< I2C is busy doing transfer. */
     kStatus_FLEXIO_I2C_Nak = MAKE_STATUS(kStatusGroup_FLEXIO_I2C, 2),  /*!< NAK received during transfer. */
 };
 
 /*! @brief Define FlexIO I2C master interrupt mask. */
-enum _flexio_i2c_master_interrupt
-{
+enum _flexio_i2c_master_interrupt {
     kFLEXIO_I2C_TxEmptyInterruptEnable = 0x1U, /*!< Tx buffer empty interrupt enable. */
     kFLEXIO_I2C_RxFullInterruptEnable = 0x2U,  /*!< Rx buffer full interrupt enable. */
 };
 
 /*! @brief Define FlexIO I2C master status mask. */
-enum _flexio_i2c_master_status_flags
-{
+enum _flexio_i2c_master_status_flags {
     kFLEXIO_I2C_TxEmptyFlag = 0x1U,    /*!< Tx shifter empty flag. */
     kFLEXIO_I2C_RxFullFlag = 0x2U,     /*!< Rx shifter full/Transfer complete flag. */
     kFLEXIO_I2C_ReceiveNakFlag = 0x4U, /*!< Receive NAK flag. */
 };
 
 /*! @brief Direction of master transfer.*/
-typedef enum _flexio_i2c_direction
-{
+typedef enum _flexio_i2c_direction {
     kFLEXIO_I2C_Write = 0x0U, /*!< Master send to slave. */
     kFLEXIO_I2C_Read = 0x1U,  /*!< Master receive from slave. */
 } flexio_i2c_direction_t;
 
 /*! @brief Define FlexIO I2C master access structure typedef. */
-typedef struct _flexio_i2c_type
-{
+typedef struct _flexio_i2c_type {
     FLEXIO_Type *flexioBase; /*!< FlexIO base pointer. */
     uint8_t SDAPinIndex;     /*!< Pin select for I2C SDA. */
     uint8_t SCLPinIndex;     /*!< Pin select for I2C SCL. */
@@ -90,8 +85,7 @@ typedef struct _flexio_i2c_type
 } FLEXIO_I2C_Type;
 
 /*! @brief Define FlexIO I2C master user configuration structure. */
-typedef struct _flexio_i2c_master_config
-{
+typedef struct _flexio_i2c_master_config {
     bool enableMaster;     /*!< Enables the FlexIO I2C peripheral at initialization time. */
     bool enableInDoze;     /*!< Enable/disable FlexIO operation in doze mode. */
     bool enableInDebug;    /*!< Enable/disable FlexIO operation in debug mode. */
@@ -101,8 +95,7 @@ typedef struct _flexio_i2c_master_config
 } flexio_i2c_master_config_t;
 
 /*! @brief Define FlexIO I2C master transfer structure. */
-typedef struct _flexio_i2c_master_transfer
-{
+typedef struct _flexio_i2c_master_transfer {
     uint32_t flags;                   /*!< Transfer flag which controls the transfer, reserved for FlexIO I2C. */
     uint8_t slaveAddress;             /*!< 7-bit slave address. */
     flexio_i2c_direction_t direction; /*!< Transfer direction, read or write. */
@@ -122,13 +115,12 @@ typedef void (*flexio_i2c_master_transfer_callback_t)(FLEXIO_I2C_Type *base,
                                                       void *userData);
 
 /*! @brief Define FlexIO I2C master handle structure. */
-struct _flexio_i2c_master_handle
-{
+struct _flexio_i2c_master_handle {
     flexio_i2c_master_transfer_t transfer;                    /*!< FlexIO I2C master transfer copy. */
     size_t transferSize;                                      /*!< Total bytes to be transferred. */
     uint8_t state;                                            /*!< Transfer state maintained during transfer. */
     flexio_i2c_master_transfer_callback_t completionCallback; /*!< Callback function called at transfer event. */
-                                                              /*!< Callback function called at transfer event. */
+    /*!< Callback function called at transfer event. */
     void *userData;                                           /*!< Callback parameter passed to callback function. */
 };
 
@@ -202,12 +194,9 @@ void FLEXIO_I2C_MasterGetDefaultConfig(flexio_i2c_master_config_t *masterConfig)
 */
 static inline void FLEXIO_I2C_MasterEnable(FLEXIO_I2C_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         base->flexioBase->CTRL |= FLEXIO_CTRL_FLEXEN_MASK;
-    }
-    else
-    {
+    } else {
         base->flexioBase->CTRL &= ~FLEXIO_CTRL_FLEXEN_MASK;
     }
 }

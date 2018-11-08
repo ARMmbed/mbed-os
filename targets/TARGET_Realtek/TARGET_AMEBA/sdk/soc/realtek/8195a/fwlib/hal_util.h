@@ -1,12 +1,12 @@
 /*******************************************************************************
  *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
+ *
+ * Licensed under the Permissive Binary License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************
  */
@@ -27,7 +27,7 @@ extern "C" {
  * using the generic single-entry routines.
  */
 struct LIST_HEADER {
-	struct LIST_HEADER *Next, *Prev;
+    struct LIST_HEADER *Next, *Prev;
 };
 
 typedef struct  LIST_HEADER     _LIST;
@@ -35,27 +35,27 @@ typedef struct  LIST_HEADER     _LIST;
 //#define RTL_LIST_HEAD_INIT(name) { &(name), &(name) }
 
 #define RTL_INIT_LIST_HEAD(ptr) do { \
-	(ptr)->Next = (ptr); (ptr)->Prev = (ptr); \
+    (ptr)->Next = (ptr); (ptr)->Prev = (ptr); \
 } while (0)
 
 
 /*
- * Insert a new entry between two known consecutive entries. 
+ * Insert a new entry between two known consecutive entries.
  *
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
- static __inline__ VOID 
- __List_Add(
-    IN  struct LIST_HEADER * New,
-    IN  struct LIST_HEADER * Prev,
-    IN  struct LIST_HEADER * Next
+static __inline__ VOID
+__List_Add(
+    IN  struct LIST_HEADER *New,
+    IN  struct LIST_HEADER *Prev,
+    IN  struct LIST_HEADER *Next
 )
 {
-	Next->Prev = New;
-	New->Next = Next;
-	New->Prev = Prev;
-	Prev->Next = New;
+    Next->Prev = New;
+    New->Next = Next;
+    New->Prev = Prev;
+    Prev->Next = New;
 }
 
 /*
@@ -65,14 +65,14 @@ typedef struct  LIST_HEADER     _LIST;
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
- static __inline__ VOID
- __List_Del(
-    IN  struct LIST_HEADER * Prev,
-    IN  struct LIST_HEADER * Next
- )
+static __inline__ VOID
+__List_Del(
+    IN  struct LIST_HEADER *Prev,
+    IN  struct LIST_HEADER *Next
+)
 {
-	Next->Prev = Prev;
-	Prev->Next = Next;
+    Next->Prev = Prev;
+    Prev->Next = Next;
 }
 
 /**
@@ -80,12 +80,12 @@ typedef struct  LIST_HEADER     _LIST;
  * @entry: the element to delete from the list.
  * Note: list_empty on entry does not return true after this, the entry is in an undefined state.
  */
-static __inline__ VOID 
+static __inline__ VOID
 ListDel(
     IN  struct LIST_HEADER *Entry
 )
 {
-	__List_Del(Entry->Prev, Entry->Next);
+    __List_Del(Entry->Prev, Entry->Next);
 }
 
 /**
@@ -97,8 +97,8 @@ ListDelInit(
     IN  struct LIST_HEADER *Entry
 )
 {
-	__List_Del(Entry->Prev, Entry->Next);
-	RTL_INIT_LIST_HEAD(Entry);
+    __List_Del(Entry->Prev, Entry->Next);
+    RTL_INIT_LIST_HEAD(Entry);
 
 }
 
@@ -106,12 +106,12 @@ ListDelInit(
  * ListEmpty - tests whether a list is empty
  * @head: the list to test.
  */
-static __inline__ u32 
+static __inline__ u32
 ListEmpty(
     IN  struct LIST_HEADER *Head
 )
 {
-	return Head->Next == Head;
+    return Head->Next == Head;
 }
 
 /**
@@ -119,46 +119,46 @@ ListEmpty(
  * @list: the new list to add.
  * @head: the place to add it in the first list.
  */
-static __inline__ VOID 
+static __inline__ VOID
 ListSplice(
     IN  struct LIST_HEADER *List,
     IN  struct LIST_HEADER *Head
 )
 {
-	struct LIST_HEADER *First = List->Next;
+    struct LIST_HEADER *First = List->Next;
 
-	if (First != List) {
-		struct LIST_HEADER *Last = List->Prev;
-		struct LIST_HEADER *At = Head->Next;
+    if (First != List) {
+        struct LIST_HEADER *Last = List->Prev;
+        struct LIST_HEADER *At = Head->Next;
 
-		First->Prev = Head;
-		Head->Next = First;
+        First->Prev = Head;
+        Head->Next = First;
 
-		Last->Next = At;
-		At->Prev = Last;
-	}
+        Last->Next = At;
+        At->Prev = Last;
+    }
 }
 
-static __inline__ VOID 
+static __inline__ VOID
 ListAdd(
-    IN  struct LIST_HEADER *New, 
+    IN  struct LIST_HEADER *New,
     IN  struct LIST_HEADER *head
 )
 {
-	__List_Add(New, head, head->Next);
+    __List_Add(New, head, head->Next);
 }
 
 
-static __inline__ VOID 
+static __inline__ VOID
 ListAddTail(
-    IN  struct LIST_HEADER *New, 
+    IN  struct LIST_HEADER *New,
     IN  struct LIST_HEADER *head
 )
 {
-	__List_Add(New, head->Prev, head);
+    __List_Add(New, head->Prev, head);
 }
 
-static __inline VOID 
+static __inline VOID
 RtlInitListhead(
     IN  _LIST *list
 )
@@ -168,39 +168,40 @@ RtlInitListhead(
 
 
 /*
-For the following list_xxx operations, 
+For the following list_xxx operations,
 caller must guarantee the atomic context.
 Otherwise, there will be racing condition.
 */
-static __inline u32	
+static __inline u32
 RtlIsListEmpty(
     IN  _LIST *phead
 )
 {
 
-	if (ListEmpty(phead))
-		return _TRUE;
-	else
-		return _FALSE;
-	
+    if (ListEmpty(phead)) {
+        return _TRUE;
+    } else {
+        return _FALSE;
+    }
+
 }
 
-static __inline VOID 
+static __inline VOID
 RtlListInsertHead(
     IN  _LIST *plist,
     IN  _LIST *phead
 )
 {
-	ListAdd(plist, phead);
+    ListAdd(plist, phead);
 }
 
-static __inline VOID 
+static __inline VOID
 RtlListInsertTail(
     IN  _LIST *plist,
     IN  _LIST *phead
 )
 {
-	ListAddTail(plist, phead);	
+    ListAddTail(plist, phead);
 }
 
 
@@ -209,30 +210,30 @@ static __inline _LIST
     IN  _LIST *plist
 )
 {
-	return plist->Next;
+    return plist->Next;
 }
 
-static __inline VOID 
+static __inline VOID
 RtlListDelete(
     IN _LIST *plist
 )
 {
-	ListDelInit(plist);
+    ListDelInit(plist);
 }
 
 #define RTL_LIST_CONTAINOR(ptr, type, member) \
         ((type *)((char *)(ptr)-(SIZE_T)(&((type *)0)->member)))
-        
+
 #ifndef CONTAINER_OF
 #define CONTAINER_OF(ptr, type, member) \
         ((type *)((char *)(ptr)-(SIZE_T)(&((type *)0)->member)))
 #endif
 #if 0
 #define list_entry(ptr, type, member) \
- 		CONTAINER_OF(ptr, type, member)
+        CONTAINER_OF(ptr, type, member)
 
 #define list_first_entry(ptr, type, member) \
-        list_entry((ptr)->Next, type, member) 		
+        list_entry((ptr)->Next, type, member)
 
 #define list_next_entry(pos, member, type) \
         list_entry((pos)->member.Next, type, member)
@@ -246,7 +247,7 @@ RtlListDelete(
 #endif
 
 #ifndef BIT
-	#define BIT(x)	( 1 << (x))
+#define BIT(x)  ( 1 << (x))
 #endif
 
 #ifdef __cplusplus

@@ -31,8 +31,8 @@ typedef struct {
 } private_spi_t;
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {SHIELD_SPI_SCK , SPI_0, 0},
-    {ADC_SPI_SCK , SPI_1, 0},
+    {SHIELD_SPI_SCK, SPI_0, 0},
+    {ADC_SPI_SCK, SPI_1, 0},
     {NC, NC, 0}
 };
 
@@ -57,7 +57,8 @@ static const PinMap PinMap_SPI_SSEL[] = {
 /*
  * Retrieve the private data of the instance related to a given IP
  */
-static private_spi_t* get_spi_private(spi_t *obj) {
+static private_spi_t *get_spi_private(spi_t *obj)
+{
     static private_spi_t data0, data1;
     /*
      * Select which instance to give using the base
@@ -70,12 +71,13 @@ static private_spi_t* get_spi_private(spi_t *obj) {
             return &data1;
         default:
             error("SPI driver private data structure not found for this registers base address");
-            return (void*)0;
+            return (void *)0;
     }
 }
 
 void spi_init(spi_t *obj, PinName mosi,
-        PinName miso, PinName sclk, PinName ssel) {
+              PinName miso, PinName sclk, PinName ssel)
+{
     // determine the SPI to use
     SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
@@ -83,7 +85,7 @@ void spi_init(spi_t *obj, PinName mosi,
     SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-    obj->spi = (SPI_TypeDef*)pinmap_merge(spi_data, spi_cntl);
+    obj->spi = (SPI_TypeDef *)pinmap_merge(spi_data, spi_cntl);
     if ((int)obj->spi == NC) {
         error("SPI pinout mapping failed");
     }
@@ -112,7 +114,7 @@ void spi_init(spi_t *obj, PinName mosi,
      * RNE: RX FIFO Not Empty
      */
     uint32_t irqs = (IRQ_ENABLE_MFE | IRQ_ENABLE_TFE
-            | IRQ_ENABLE_TNFE | IRQ_ENABLE_RNEE);
+                     | IRQ_ENABLE_TNFE | IRQ_ENABLE_RNEE);
 
     /*
      * Enable:
@@ -122,7 +124,7 @@ void spi_init(spi_t *obj, PinName mosi,
      *   - Peripheral select decode
      */
     obj->spi->CONFIG |= (CONFIG_MSEL | CONFIG_MSE
-            /*| CONFIG_MCSE | CONFIG_PSD*/);
+                         /*| CONFIG_MCSE | CONFIG_PSD*/);
 
     /* Set all peripheral select lines high - these should be unused */
     obj->spi->CONFIG |= 0x00000; //CONFIG_PCSL;
@@ -132,10 +134,12 @@ void spi_init(spi_t *obj, PinName mosi,
     obj->spi->SPI_ENABLE |= SPI_ENABLE_SPIE;
 }
 
-void spi_free(spi_t *obj) {
+void spi_free(spi_t *obj)
+{
 }
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
     private_spi_t *private_spi = get_spi_private(obj);
 
     obj->spi->SPI_ENABLE &= ~SPI_ENABLE_SPIE;
@@ -183,7 +187,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     obj->spi->SPI_ENABLE |= SPI_ENABLE_SPIE;
 }
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     /*
      * Valid frequencies are derived from a 25MHz peripheral clock.
      * Frequency |  Divisor | MBRD Value |   Hz
@@ -197,7 +202,8 @@ void spi_frequency(spi_t *obj, int hz) {
      * 93.750   KHz     256      111      93750
      */
     int valid_frequencies[] = {12000000, 6000000, 3000000, 1500000,
-        750000, 375000, 187500, 93750};
+                               750000, 375000, 187500, 93750
+                              };
     uint16_t mbrd_value = 0;
     uint32_t config = (obj->spi->CONFIG & ~CONFIG_MBRD);
 
@@ -230,19 +236,21 @@ void spi_frequency(spi_t *obj, int hz) {
     obj->spi->CONFIG = config;
 }
 
-int spi_master_write(spi_t *obj, int value) {
+int spi_master_write(spi_t *obj, int value)
+{
     private_spi_t *private_spi = get_spi_private(obj);
 
     int data = 0;
-    if(private_spi->size == 16) {
+    if (private_spi->size == 16) {
         obj->spi->TX_DATA = (uint8_t)((value >> 8) & TX_DATA_TDATA);
         obj->spi->TX_DATA = (uint8_t)(value & TX_DATA_TDATA);
 
         /* Manually trigger start */
         obj->spi->CONFIG |= CONFIG_MSC;
 
-        while(!(obj->spi->IRQ_STATUS & IRQ_STATUS_TNF))
+        while (!(obj->spi->IRQ_STATUS & IRQ_STATUS_TNF)) {
             continue;
+        }
 
         data = (obj->spi->RX_DATA & RX_DATA_RDATA) << 8;
         data = data | (obj->spi->RX_DATA & RX_DATA_RDATA);
@@ -253,8 +261,9 @@ int spi_master_write(spi_t *obj, int value) {
         /* Manually trigger start */
         obj->spi->CONFIG |= CONFIG_MSC;
 
-        while(!(obj->spi->IRQ_STATUS & IRQ_STATUS_TNF))
+        while (!(obj->spi->IRQ_STATUS & IRQ_STATUS_TNF)) {
             continue;
+        }
 
         data = obj->spi->RX_DATA & RX_DATA_RDATA;
     }
@@ -263,7 +272,8 @@ int spi_master_write(spi_t *obj, int value) {
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -277,10 +287,12 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     return total;
 }
 
-uint8_t spi_get_module(spi_t *obj) {
+uint8_t spi_get_module(spi_t *obj)
+{
     return obj->spi->MID;
 }
 
-int spi_busy(spi_t *obj) {
+int spi_busy(spi_t *obj)
+{
     return 0;
 }

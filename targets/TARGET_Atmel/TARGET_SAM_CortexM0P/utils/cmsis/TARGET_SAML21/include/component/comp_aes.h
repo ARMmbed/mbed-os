@@ -60,19 +60,19 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint32_t SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint32_t ENABLE:1;         /*!< bit:      1  Enable                             */
-        uint32_t AESMODE:3;        /*!< bit:  2.. 4  AES Modes of operation             */
-        uint32_t CFBS:3;           /*!< bit:  5.. 7  CFB Types                          */
-        uint32_t KEYSIZE:2;        /*!< bit:  8.. 9  Keysize                            */
-        uint32_t CIPHER:1;         /*!< bit:     10  Cipher mode                        */
-        uint32_t STARTMODE:1;      /*!< bit:     11  Start mode                         */
-        uint32_t LOD:1;            /*!< bit:     12  LOD Enable                         */
-        uint32_t KEYGEN:1;         /*!< bit:     13  Last key generation                */
-        uint32_t XORKEY:1;         /*!< bit:     14  Xor Key operation                  */
-        uint32_t :1;               /*!< bit:     15  Reserved                           */
-        uint32_t CTYPE:4;          /*!< bit: 16..19  Counter measure types              */
-        uint32_t :12;              /*!< bit: 20..31  Reserved                           */
+        uint32_t SWRST: 1;         /*!< bit:      0  Software Reset                     */
+        uint32_t ENABLE: 1;        /*!< bit:      1  Enable                             */
+        uint32_t AESMODE: 3;       /*!< bit:  2.. 4  AES Modes of operation             */
+        uint32_t CFBS: 3;          /*!< bit:  5.. 7  CFB Types                          */
+        uint32_t KEYSIZE: 2;       /*!< bit:  8.. 9  Keysize                            */
+        uint32_t CIPHER: 1;        /*!< bit:     10  Cipher mode                        */
+        uint32_t STARTMODE: 1;     /*!< bit:     11  Start mode                         */
+        uint32_t LOD: 1;           /*!< bit:     12  LOD Enable                         */
+        uint32_t KEYGEN: 1;        /*!< bit:     13  Last key generation                */
+        uint32_t XORKEY: 1;        /*!< bit:     14  Xor Key operation                  */
+        uint32_t : 1;              /*!< bit:     15  Reserved                           */
+        uint32_t CTYPE: 4;         /*!< bit: 16..19  Counter measure types              */
+        uint32_t : 12;             /*!< bit: 20..31  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint32_t reg;                /*!< Type      used for register access              */
 } AES_CTRLA_Type;
@@ -113,11 +113,11 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  START:1;          /*!< bit:      0  Manual Start                       */
-        uint8_t  NEWMSG:1;         /*!< bit:      1  New message                        */
-        uint8_t  EOM:1;            /*!< bit:      2  End of message                     */
-        uint8_t  GFMUL:1;          /*!< bit:      3  GF Multiplication                  */
-        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+        uint8_t  START: 1;         /*!< bit:      0  Manual Start                       */
+        uint8_t  NEWMSG: 1;        /*!< bit:      1  New message                        */
+        uint8_t  EOM: 1;           /*!< bit:      2  End of message                     */
+        uint8_t  GFMUL: 1;         /*!< bit:      3  GF Multiplication                  */
+        uint8_t  : 4;              /*!< bit:  4.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AES_CTRLB_Type;
@@ -140,9 +140,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  ENCCMP:1;         /*!< bit:      0  Encryption Complete                */
-        uint8_t  GFMCMP:1;         /*!< bit:      1  GF Multiplication Complete         */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  ENCCMP: 1;        /*!< bit:      0  Encryption Complete                */
+        uint8_t  GFMCMP: 1;        /*!< bit:      1  GF Multiplication Complete         */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AES_INTENCLR_Type;
@@ -169,9 +169,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  ENCCMP:1;         /*!< bit:      0  Encryption Complete                */
-        uint8_t  GFMCMP:1;         /*!< bit:      1  GF Multiplication Complete         */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  ENCCMP: 1;        /*!< bit:      0  Encryption Complete                */
+        uint8_t  GFMCMP: 1;        /*!< bit:      1  GF Multiplication Complete         */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AES_INTENSET_Type;
@@ -190,9 +190,9 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  ENCCMP:1;         /*!< bit:      0  Encryption Complete                */
-        uint8_t  GFMCMP:1;         /*!< bit:      1  GF Multiplication Complete         */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  ENCCMP: 1;        /*!< bit:      0  Encryption Complete                */
+        uint8_t  GFMCMP: 1;        /*!< bit:      1  GF Multiplication Complete         */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AES_INTFLAG_Type;
@@ -211,8 +211,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  INDATAPTR:2;      /*!< bit:  0.. 1  Input Data Pointer                 */
-        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+        uint8_t  INDATAPTR: 2;     /*!< bit:  0.. 1  Input Data Pointer                 */
+        uint8_t  : 6;              /*!< bit:  2.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AES_DATABUFPTR_Type;
@@ -230,8 +230,8 @@ typedef union {
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
     struct {
-        uint8_t  DBGRUN:1;         /*!< bit:      0  Debug Run                          */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+        uint8_t  DBGRUN: 1;        /*!< bit:      0  Debug Run                          */
+        uint8_t  : 7;              /*!< bit:  1.. 7  Reserved                           */
     } bit;                       /*!< Structure used for bit  access                  */
     uint8_t reg;                 /*!< Type      used for register access              */
 } AES_DBGCTRL_Type;

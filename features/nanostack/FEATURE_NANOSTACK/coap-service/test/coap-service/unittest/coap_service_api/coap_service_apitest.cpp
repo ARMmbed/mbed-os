@@ -19,12 +19,10 @@
 
 TEST_GROUP(coap_service_api)
 {
-    void setup()
-    {
+    void setup() {
     }
 
-    void teardown()
-    {
+    void teardown() {
     }
 };
 

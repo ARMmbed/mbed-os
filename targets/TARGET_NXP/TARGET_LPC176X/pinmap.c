@@ -17,32 +17,34 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 
-void pin_function(PinName pin, int function) {
+void pin_function(PinName pin, int function)
+{
     MBED_ASSERT(pin != (PinName)NC);
 
     uint32_t pin_number = (uint32_t)pin - (uint32_t)P0_0;
     int index = pin_number >> 4;
     int offset = (pin_number & 0xF) << 1;
-    
+
     PINCONARRAY->PINSEL[index] &= ~(0x3 << offset);
     PINCONARRAY->PINSEL[index] |= function << offset;
 }
 
-void pin_mode(PinName pin, PinMode mode) {
+void pin_mode(PinName pin, PinMode mode)
+{
     MBED_ASSERT(pin != (PinName)NC);
-    
+
     uint32_t pin_number = (uint32_t)pin - (uint32_t)P0_0;
     int index = pin_number >> 5;
     int offset = pin_number & 0x1F;
     uint32_t drain = ((uint32_t) mode & (uint32_t) OpenDrain) >> 2;
-    
+
     PINCONARRAY->PINMODE_OD[index] &= ~(drain << offset);
     PINCONARRAY->PINMODE_OD[index] |= drain << offset;
-    
+
     if (!drain) {
         index = pin_number >> 4;
         offset = (pin_number & 0xF) << 1;
-        
+
         PINCONARRAY->PINMODE[index] &= ~(0x3 << offset);
         PINCONARRAY->PINMODE[index] |= (uint32_t)mode << offset;
     }

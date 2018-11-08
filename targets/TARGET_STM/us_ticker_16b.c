@@ -55,7 +55,7 @@ uint32_t us_ticker_read()
         if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
             cntH += 1;
         }
-    } while(cntH_old != cntH);
+    } while (cntH_old != cntH);
     // Glue the upper and lower part together to get a 32 bit timer
     return (uint32_t)(cntH << 16 | cntL);
 }
@@ -154,8 +154,8 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     uint32_t delta = timestamp - current_time;
     /* Note: The case of delta <= 0 is handled in MBED upper layer */
     oc_int_part = (delta - 1) >> 16;
-    if ( ((delta - 1) & 0xFFFF) >= 0x8000 &&
-         __HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET ) {
+    if (((delta - 1) & 0xFFFF) >= 0x8000 &&
+            __HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         ++oc_int_part;
         /* NOTE: Instead of incrementing oc_int_part here, we could clear
          *       the CC1 flag, but then you'd have to wait to ensure the

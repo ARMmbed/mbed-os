@@ -72,7 +72,7 @@ void USBHostHub::init()
     }
 }
 
-void USBHostHub::setHost(USBHost * host_)
+void USBHostHub::setHost(USBHost *host_)
 {
     host = host_;
 }
@@ -82,13 +82,13 @@ bool USBHostHub::connected()
     return dev_connected;
 }
 
-bool USBHostHub::connect(USBDeviceConnected * dev)
+bool USBHostHub::connect(USBDeviceConnected *dev)
 {
     if (dev_connected) {
         return true;
     }
 
-    if(host->enumerate(dev, this)) {
+    if (host->enumerate(dev, this)) {
         init();
         return false;
     }
@@ -110,10 +110,10 @@ bool USBHostHub::connect(USBDeviceConnected * dev)
         int_in->attach(this, &USBHostHub::rxHandler);
 
         // get HUB descriptor
-        host->controlRead(  dev,
-                            USB_DEVICE_TO_HOST | USB_REQUEST_TYPE_CLASS,
-                            GET_DESCRIPTOR,
-                            0x29 << 8, 0, buf, sizeof(HubDescriptor));
+        host->controlRead(dev,
+                          USB_DEVICE_TO_HOST | USB_REQUEST_TYPE_CLASS,
+                          GET_DESCRIPTOR,
+                          0x29 << 8, 0, buf, sizeof(HubDescriptor));
         nb_port = buf[2];
         hub_characteristics = buf[3];
 
@@ -122,7 +122,7 @@ bool USBHostHub::connect(USBDeviceConnected * dev)
         for (uint8_t j = 1; j <= nb_port; j++) {
             setPortFeature(PORT_POWER_FEATURE, j);
         }
-        wait_ms(buf[5]*2);
+        wait_ms(buf[5] * 2);
 
         host->interruptRead(dev, int_in, buf, 1, false);
         dev_connected = true;
@@ -165,12 +165,12 @@ void USBHostHub::disconnect()
     return false;
 }
 
-void USBHostHub::deviceConnected(USBDeviceConnected * dev)
+void USBHostHub::deviceConnected(USBDeviceConnected *dev)
 {
     device_children[dev->getPort() - 1] = dev;
 }
 
-void USBHostHub::deviceDisconnected(USBDeviceConnected * dev)
+void USBHostHub::deviceDisconnected(USBDeviceConnected *dev)
 {
     device_children[dev->getPort() - 1] = NULL;
 }
@@ -188,7 +188,7 @@ void USBHostHub::rxHandler()
 {
     uint32_t status;
     if (int_in) {
-        if ((int_in->getLengthTransferred())&&(int_in->getState() == USB_TYPE_IDLE)) {
+        if ((int_in->getLengthTransferred()) && (int_in->getState() == USB_TYPE_IDLE)) {
             for (int port = 1; port <= nb_port; port++) {
                 status = getPortStatus(port);
                 USB_DBG("[hub handler hub: %d] status port %d [hub: %p]: 0x%X", dev->getHub(), port, dev, status);
@@ -234,7 +234,7 @@ void USBHostHub::portReset(uint8_t port)
 #if defined(TARGET_RZ_A1H)
     Thread::wait(50);   // Reset release waiting for Hi-Speed check.
 #endif
-    while(1) {
+    while (1) {
         status = getPortStatus(port);
         /*  disconnection since reset request */
         if (!(status & PORT_CONNECTION)) {
@@ -255,36 +255,36 @@ void USBHostHub::portReset(uint8_t port)
 
 void USBHostHub::setPortFeature(uint32_t feature, uint8_t port)
 {
-    host->controlWrite( dev,
-                        USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS | USB_RECIPIENT_INTERFACE | USB_RECIPIENT_ENDPOINT,
-                        SET_FEATURE,
-                        feature,
-                        port,
-                        NULL,
-                        0);
+    host->controlWrite(dev,
+                       USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS | USB_RECIPIENT_INTERFACE | USB_RECIPIENT_ENDPOINT,
+                       SET_FEATURE,
+                       feature,
+                       port,
+                       NULL,
+                       0);
 }
 
 void USBHostHub::clearPortFeature(uint32_t feature, uint8_t port)
 {
-    host->controlWrite( dev,
-                        USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS | USB_RECIPIENT_INTERFACE | USB_RECIPIENT_ENDPOINT,
-                        CLEAR_FEATURE,
-                        feature,
-                        port,
-                        NULL,
-                        0);
+    host->controlWrite(dev,
+                       USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS | USB_RECIPIENT_INTERFACE | USB_RECIPIENT_ENDPOINT,
+                       CLEAR_FEATURE,
+                       feature,
+                       port,
+                       NULL,
+                       0);
 }
 
 uint32_t USBHostHub::getPortStatus(uint8_t port)
 {
     uint32_t st;
-    host->controlRead(  dev,
-                        USB_DEVICE_TO_HOST | USB_REQUEST_TYPE_CLASS | USB_RECIPIENT_INTERFACE | USB_RECIPIENT_ENDPOINT,
-                        GET_STATUS,
-                        0,
-                        port,
-                        (uint8_t *)&st,
-                        4);
+    host->controlRead(dev,
+                      USB_DEVICE_TO_HOST | USB_REQUEST_TYPE_CLASS | USB_RECIPIENT_INTERFACE | USB_RECIPIENT_ENDPOINT,
+                      GET_STATUS,
+                      0,
+                      port,
+                      (uint8_t *)&st,
+                      4);
     return st;
 }
 

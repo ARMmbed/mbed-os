@@ -49,8 +49,7 @@
 
 #if (defined(FSL_FEATURE_SIM_OPT_HAS_USB_VOLTAGE_REGULATOR) && FSL_FEATURE_SIM_OPT_HAS_USB_VOLTAGE_REGULATOR)
 /*!@brief USB voltage regulator enable setting. */
-enum _sim_usb_volt_reg_enable_mode
-{
+enum _sim_usb_volt_reg_enable_mode {
     kSIM_UsbVoltRegEnable = SIM_SOPT1_USBREGEN_MASK,           /*!< Enable voltage regulator. */
     kSIM_UsbVoltRegEnableInLowPower = SIM_SOPT1_USBVSTBY_MASK, /*!< Enable voltage regulator in VLPR/VLPW modes. */
     kSIM_UsbVoltRegEnableInStop = SIM_SOPT1_USBSSTBY_MASK, /*!< Enable voltage regulator in STOP/VLPS/LLS/VLLS modes. */
@@ -60,8 +59,7 @@ enum _sim_usb_volt_reg_enable_mode
 #endif /* (defined(FSL_FEATURE_SIM_OPT_HAS_USB_VOLTAGE_REGULATOR) && FSL_FEATURE_SIM_OPT_HAS_USB_VOLTAGE_REGULATOR) */
 
 /*!@brief Unique ID. */
-typedef struct _sim_uid
-{
+typedef struct _sim_uid {
 #if defined(SIM_UIDH)
     uint32_t H; /*!< UIDH.  */
 #endif
@@ -71,8 +69,7 @@ typedef struct _sim_uid
 } sim_uid_t;
 
 /*!@brief Flash enable mode. */
-enum _sim_flash_mode
-{
+enum _sim_flash_mode {
     kSIM_FlashDisableInWait = SIM_FCFG1_FLASHDOZE_MASK, /*!< Disable flash in wait mode.   */
     kSIM_FlashDisable = SIM_FCFG1_FLASHDIS_MASK         /*!< Disable flash in normal mode. */
 };

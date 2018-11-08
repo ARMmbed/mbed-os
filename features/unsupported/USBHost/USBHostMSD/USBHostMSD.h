@@ -28,8 +28,7 @@
 /**
  * A class to communicate a USB flash disk
  */
-class USBHostMSD : public IUSBEnumerator, public BlockDevice
-{
+class USBHostMSD : public IUSBEnumerator, public BlockDevice {
 public:
     /**
      * Constructor
@@ -74,11 +73,11 @@ protected:
 
 
 private:
-    USBHost * host;
-    USBDeviceConnected * dev;
+    USBHost *host;
+    USBDeviceConnected *dev;
     bool dev_connected;
-    USBEndpoint * bulk_in;
-    USBEndpoint * bulk_out;
+    USBEndpoint *bulk_in;
+    USBEndpoint *bulk_out;
     uint8_t nb_ep;
 
     // Bulk-only CBW
@@ -103,13 +102,13 @@ private:
     CBW cbw;
     CSW csw;
 
-    int SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t * data, uint32_t transfer_len);
+    int SCSITransfer(uint8_t *cmd, uint8_t cmd_len, int flags, uint8_t *data, uint32_t transfer_len);
     int testUnitReady();
     int readCapacity();
     int inquiry(uint8_t lun, uint8_t page_code);
     int SCSIRequestSense();
-    int dataTransfer(uint8_t * buf, uint32_t block, uint8_t nbBlock, int direction);
-    int checkResult(uint8_t res, USBEndpoint * ep);
+    int dataTransfer(uint8_t *buf, uint32_t block, uint8_t nbBlock, int direction);
+    int checkResult(uint8_t res, USBEndpoint *ep);
     int getMaxLun();
 
     int blockSize;

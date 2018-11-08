@@ -48,8 +48,7 @@
 #define PMUX_SHIFT 20U
 
 /*! @brief INPUTMUX connections type */
-typedef enum _inputmux_connection_t
-{
+typedef enum _inputmux_connection_t {
     /*!< Frequency measure. */
     kINPUTMUX_MainOscToFreqmeas = 0U + (FREQMEAS_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_Fro12MhzToFreqmeas = 1U + (FREQMEAS_PMUX_ID << PMUX_SHIFT),

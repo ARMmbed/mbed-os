@@ -617,7 +617,7 @@ typedef struct {
  * @brief TX Status structure type definition
  */
 typedef struct {
-   uint32_t Info;        /**< Transmit Information Status */
+    uint32_t Info;        /**< Transmit Information Status */
 } TX_Stat;
 
 

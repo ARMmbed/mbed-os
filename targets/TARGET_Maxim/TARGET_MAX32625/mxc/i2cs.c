@@ -130,7 +130,7 @@ int I2CS_Init(mxc_i2cs_regs_t *i2cs, const sys_cfg_i2cs_t *sys_cfg, i2cs_speed_t
     }
 
     // Clear the interrupt callbacks
-    for(i = 0; i < MXC_CFG_I2CS_BUFFER_SIZE; i++) {
+    for (i = 0; i < MXC_CFG_I2CS_BUFFER_SIZE; i++) {
         callbacks[i2cs_index][i] = NULL;
     }
 
@@ -171,9 +171,9 @@ void I2CS_Handler(mxc_i2cs_regs_t *i2cs)
     i2cs->intfl = intfl;
 
     // Process each interrupt
-    for(i = 0; i < 32; i++) {
-        if(intfl & (0x1 << i)) {
-            if(callbacks[i2cs_index][i] != NULL) {
+    for (i = 0; i < 32; i++) {
+        if (intfl & (0x1 << i)) {
+            if (callbacks[i2cs_index][i] != NULL) {
                 callbacks[i2cs_index][i](i);
             }
         }
@@ -189,7 +189,7 @@ void I2CS_RegisterCallback(mxc_i2cs_regs_t *i2cs, uint8_t addr, i2cs_callback_fn
     // Make sure we don't overflow
     MXC_ASSERT(addr < MXC_CFG_I2CS_BUFFER_SIZE);
 
-    if(callback != NULL) {
+    if (callback != NULL) {
         // Save the callback address
         callbacks[i2cs_index][addr] = callback;
 

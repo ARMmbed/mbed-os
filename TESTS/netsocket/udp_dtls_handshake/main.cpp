@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
- #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-     #error [NOT_SUPPORTED] No network configuration found for this target.
- #endif
+#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#error [NOT_SUPPORTED] No network configuration found for this target.
+#endif
 
 #include "mbed.h"
 #include MBED_CONF_APP_HEADER_FILE
@@ -50,8 +50,9 @@ uint8_t buffer[MBED_CFG_UDP_DTLS_HANDSHAKE_BUFFER_SIZE] = {0};
 int udp_dtls_handshake_pattern[] = {MBED_CFG_UDP_DTLS_HANDSHAKE_PATTERN};
 const int udp_dtls_handshake_count = sizeof(udp_dtls_handshake_pattern) / sizeof(int);
 
-void test_udp_dtls_handshake() {
-    NetworkInterface* net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+void test_udp_dtls_handshake()
+{
+    NetworkInterface *net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
     TEST_ASSERT_EQUAL(0, err);
 
@@ -84,7 +85,7 @@ void test_udp_dtls_handshake() {
     printf("MBED: DTLS pattern [");
     for (int i = 0; i < udp_dtls_handshake_count; i++) {
         printf("%d", udp_dtls_handshake_pattern[i]);
-        if (i != udp_dtls_handshake_count-1) {
+        if (i != udp_dtls_handshake_count - 1) {
             printf(", ");
         }
     }
@@ -149,7 +150,8 @@ void test_udp_dtls_handshake() {
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(120, "udp_shotgun");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -160,6 +162,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

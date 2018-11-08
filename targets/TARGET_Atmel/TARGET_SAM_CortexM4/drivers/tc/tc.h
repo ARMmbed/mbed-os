@@ -275,12 +275,12 @@ extern "C" {
  * the table.
  *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
- *	<tr>
- *		<td>Initial document release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Changelog</th>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial document release</td>
+ *  </tr>
  * </table>
  */
 
@@ -299,21 +299,21 @@ extern "C" {
  * \page asfdoc_sam_drivers_tc_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
- *	<tr>
- *		<td>42301B</td>
- *		<td>07/2015</td>
- *		<td>Updated title of application note and added list of supported devices</td>
- *	</tr>
- *	<tr>
- *		<td>42301A</td>
- *		<td>05/2014</td>
- *		<td>Initial document release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42301B</td>
+ *      <td>07/2015</td>
+ *      <td>Updated title of application note and added list of supported devices</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42301A</td>
+ *      <td>05/2014</td>
+ *      <td>Initial document release</td>
+ *  </tr>
  * </table>
  *
  */
@@ -417,30 +417,30 @@ extern "C" {
  * \code
  * static void tc_waveform_initialize(void)
  * {
- *	uint32_t ra, rc;
+ *  uint32_t ra, rc;
  *
- *	// Configure the PMC to enable the TC module.
- *	sysclk_enable_peripheral_clock(ID_TC_WAVEFORM);
+ *  // Configure the PMC to enable the TC module.
+ *  sysclk_enable_peripheral_clock(ID_TC_WAVEFORM);
  *
- *	// Init TC to waveform mode.
- *	tc_init(TC, TC_CHANNEL_WAVEFORM,
- *			TC_WAVEFORM_TIMER_SELECTION // Waveform Clock Selection
- *			| TC_CMR_WAVE       // Waveform mode is enabled
- *			| TC_CMR_ACPA_SET   // RA Compare Effect: set
- *			| TC_CMR_ACPC_CLEAR // RC Compare Effect: clear
- *			| TC_CMR_CPCTRG     // UP mode with automatic trigger on RC Compare
- *	);
+ *  // Init TC to waveform mode.
+ *  tc_init(TC, TC_CHANNEL_WAVEFORM,
+ *          TC_WAVEFORM_TIMER_SELECTION // Waveform Clock Selection
+ *          | TC_CMR_WAVE       // Waveform mode is enabled
+ *          | TC_CMR_ACPA_SET   // RA Compare Effect: set
+ *          | TC_CMR_ACPC_CLEAR // RC Compare Effect: clear
+ *          | TC_CMR_CPCTRG     // UP mode with automatic trigger on RC Compare
+ *  );
  *
- *	// Configure waveform frequency and duty cycle.
- *	rc = (sysclk_get_peripheral_bus_hz(TC) /
- *			TC_WAVEFORM_DIVISOR /
- *			TC_WAVEFORM_FREQUENCY;
- *	tc_write_rc(TC, TC_CHANNEL_WAVEFORM, rc);
- *	ra = (100 - TC_WAVEFORM_FREQUENCY_DUTY_CYCLE * rc / 100;
- *	tc_write_ra(TC, TC_CHANNEL_WAVEFORM, ra);
+ *  // Configure waveform frequency and duty cycle.
+ *  rc = (sysclk_get_peripheral_bus_hz(TC) /
+ *          TC_WAVEFORM_DIVISOR /
+ *          TC_WAVEFORM_FREQUENCY;
+ *  tc_write_rc(TC, TC_CHANNEL_WAVEFORM, rc);
+ *  ra = (100 - TC_WAVEFORM_FREQUENCY_DUTY_CYCLE * rc / 100;
+ *  tc_write_ra(TC, TC_CHANNEL_WAVEFORM, ra);
  *
- *	// Enable TC TC_CHANNEL_WAVEFORM.
- *	tc_start(TC, TC_CHANNEL_WAVEFORM);
+ *  // Enable TC TC_CHANNEL_WAVEFORM.
+ *  tc_start(TC, TC_CHANNEL_WAVEFORM);
  * } \endcode
  *
  * \subsection asfdoc_sam_drivers_tc_qsg_basic_waveform_setup_workflow Workflow

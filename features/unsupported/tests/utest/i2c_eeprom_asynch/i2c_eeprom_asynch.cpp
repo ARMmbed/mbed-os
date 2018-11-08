@@ -59,7 +59,8 @@ void sleep()
 
 volatile int why;
 volatile bool complete;
-void cbdone(int event) {
+void cbdone(int event)
+{
     complete = true;
     why = event;
 }

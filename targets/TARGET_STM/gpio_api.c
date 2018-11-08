@@ -36,7 +36,8 @@
 extern const uint32_t ll_pin_defines[16];
 
 // Enable GPIO clock and return GPIO base address
-GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx) {
+GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx)
+{
     uint32_t gpio_add = 0;
     switch (port_idx) {
         case PortA:
@@ -112,7 +113,8 @@ GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx) {
     return (GPIO_TypeDef *) gpio_add;
 }
 
-uint32_t gpio_set(PinName pin) {
+uint32_t gpio_set(PinName pin)
+{
     MBED_ASSERT(pin != (PinName)NC);
 
     pin_function(pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
@@ -121,7 +123,8 @@ uint32_t gpio_set(PinName pin) {
 }
 
 
-void gpio_init(gpio_t *obj, PinName pin) {
+void gpio_init(gpio_t *obj, PinName pin)
+{
     obj->pin = pin;
     if (pin == (PinName)NC) {
         return;
@@ -145,11 +148,13 @@ void gpio_init(gpio_t *obj, PinName pin) {
 #endif
 }
 
-void gpio_mode(gpio_t *obj, PinMode mode) {
+void gpio_mode(gpio_t *obj, PinMode mode)
+{
     pin_mode(obj->pin, mode);
 }
 
-inline void gpio_dir(gpio_t *obj, PinDirection direction) {
+inline void gpio_dir(gpio_t *obj, PinDirection direction)
+{
     if (direction == PIN_INPUT) {
         LL_GPIO_SetPinMode(obj->gpio, obj->ll_pin, LL_GPIO_MODE_INPUT);
     } else {

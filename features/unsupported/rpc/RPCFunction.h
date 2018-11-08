@@ -34,7 +34,7 @@ public:
      *@param f Pointer to the function to call. the function must be of the form void foo(char * input, char * output)
      *@param name The name of this object
      */
-    RPCFunction(void (*f)(Arguments*, Reply*), const char* = NULL);
+    RPCFunction(void (*f)(Arguments *, Reply *), const char * = NULL);
 
     /**
      *run
@@ -43,12 +43,12 @@ public:
      *@param str The string to be passed into the attached function. This string can consist of any ASCII characters apart from escape codes. The usual limtations on argument content for RPC strings has been removed
      *@return A string output from the function
      */
-    void run(Arguments* args, Reply* r);
+    void run(Arguments *args, Reply *r);
 
     virtual const struct rpc_method *get_rpc_methods();
 
 private:
-    void (*_ftr)(Arguments*, Reply*);
+    void (*_ftr)(Arguments *, Reply *);
 
     char _input[STR_LEN];
     char _output[STR_LEN];

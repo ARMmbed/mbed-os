@@ -673,7 +673,7 @@ static inline void adc_disable_positive_input_sequence(
  */
 static inline void adc_get_sequence_status(
     struct adc_module *const module_inst,
-    bool  * is_sequence_busy,
+    bool   *is_sequence_busy,
     uint8_t *sequence_state)
 {
     /* Sanity check arguments */
@@ -681,7 +681,7 @@ static inline void adc_get_sequence_status(
     uint8_t temp = false;
     Adc *const adc_module = module_inst->hw;
     temp = adc_module->SEQSTATUS.reg;
-    if(temp & ADC_SEQSTATUS_SEQBUSY) {
+    if (temp & ADC_SEQSTATUS_SEQBUSY) {
         *is_sequence_busy = true;
     }
     *sequence_state = temp & ADC_SEQSTATUS_SEQSTATE_Msk;

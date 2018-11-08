@@ -35,13 +35,13 @@ uint32_t I2C_Open(I2C_T *i2c, uint32_t u32BusClock)
     uint32_t u32Div;
     uint32_t u32Pclk = CLK_GetPCLKFreq();
 
-    u32Div = (uint32_t) ((( u32Pclk * 10)/(u32BusClock * 4) + 5) / 10 - 1); /* Compute proper divider for I2C clock */
+    u32Div = (uint32_t)(((u32Pclk * 10) / (u32BusClock * 4) + 5) / 10 - 1); /* Compute proper divider for I2C clock */
     i2c->CLKDIV = u32Div;
 
     /* Enable I2C */
     i2c->CTL |= I2C_CTL_I2CEN_Msk;
 
-    return ( u32Pclk / ((u32Div+1)<<2) );
+    return (u32Pclk / ((u32Div + 1) << 2));
 }
 
 /**
@@ -52,13 +52,13 @@ uint32_t I2C_Open(I2C_T *i2c, uint32_t u32BusClock)
 void I2C_Close(I2C_T *i2c)
 {
     /* Reset SPI */
-    if((uint32_t)i2c == I2C0_BASE) {
+    if ((uint32_t)i2c == I2C0_BASE) {
         SYS->IPRST1 |= SYS_IPRST1_I2C0RST_Msk;
         SYS->IPRST1 &= ~SYS_IPRST1_I2C0RST_Msk;
-    } else if((uint32_t)i2c == I2C1_BASE) {
+    } else if ((uint32_t)i2c == I2C1_BASE) {
         SYS->IPRST1 |= SYS_IPRST1_I2C1RST_Msk;
         SYS->IPRST1 &= ~SYS_IPRST1_I2C1RST_Msk;
-    } else if((uint32_t)i2c == I2C2_BASE) {
+    } else if ((uint32_t)i2c == I2C2_BASE) {
         SYS->IPRST1 |= SYS_IPRST1_I2C2RST_Msk;
         SYS->IPRST1 &= ~SYS_IPRST1_I2C2RST_Msk;
     } else {
@@ -94,14 +94,18 @@ void I2C_Trigger(I2C_T *i2c, uint8_t u8Start, uint8_t u8Stop, uint8_t u8Si, uint
     uint32_t u32Reg = 0;
     uint32_t u32Val = i2c->CTL & ~(I2C_STA | I2C_STO | I2C_AA);
 
-    if (u8Start)
+    if (u8Start) {
         u32Reg |= I2C_STA;
-    if (u8Stop)
+    }
+    if (u8Stop) {
         u32Reg |= I2C_STO;
-    if (u8Si)
+    }
+    if (u8Si) {
         u32Reg |= I2C_SI;
-    if (u8Ack)
+    }
+    if (u8Ack) {
         u32Reg |= I2C_AA;
+    }
 
     i2c->CTL = u32Val | u32Reg;
 }
@@ -135,7 +139,7 @@ uint32_t I2C_GetBusClockFreq(I2C_T *i2c)
 {
     uint32_t u32Divider = i2c->CLKDIV;
 
-    return ( CLK_GetPCLKFreq() / ((u32Divider+1)<<2) );
+    return (CLK_GetPCLKFreq() / ((u32Divider + 1) << 2));
 }
 
 /**
@@ -149,10 +153,10 @@ uint32_t I2C_SetBusClockFreq(I2C_T *i2c, uint32_t u32BusClock)
     uint32_t u32Div;
     uint32_t u32Pclk = CLK_GetPCLKFreq();
 
-    u32Div = (uint32_t) (((u32Pclk * 10)/(u32BusClock * 4) + 5) / 10 - 1); /* Compute proper divider for I2C clock */
+    u32Div = (uint32_t)(((u32Pclk * 10) / (u32BusClock * 4) + 5) / 10 - 1); /* Compute proper divider for I2C clock */
     i2c->CLKDIV = u32Div;
 
-    return ( u32Pclk / ((u32Div+1)<<2) );
+    return (u32Pclk / ((u32Div + 1) << 2));
 }
 
 /**
@@ -164,7 +168,7 @@ uint32_t I2C_SetBusClockFreq(I2C_T *i2c, uint32_t u32BusClock)
   */
 uint32_t I2C_GetIntFlag(I2C_T *i2c)
 {
-    return ( (i2c->CTL & I2C_CTL_SI_Msk) == I2C_CTL_SI_Msk ? 1:0 );
+    return ((i2c->CTL & I2C_CTL_SI_Msk) == I2C_CTL_SI_Msk ? 1 : 0);
 }
 
 /**
@@ -174,7 +178,7 @@ uint32_t I2C_GetIntFlag(I2C_T *i2c)
   */
 uint32_t I2C_GetStatus(I2C_T *i2c)
 {
-    return ( i2c->STATUS );
+    return (i2c->STATUS);
 }
 
 /**
@@ -184,7 +188,7 @@ uint32_t I2C_GetStatus(I2C_T *i2c)
   */
 uint32_t I2C_GetData(I2C_T *i2c)
 {
-    return ( i2c->DAT );
+    return (i2c->DAT);
 }
 
 /**
@@ -211,20 +215,20 @@ void I2C_SetData(I2C_T *i2c, uint8_t u8Data)
 void I2C_SetSlaveAddr(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddr, uint8_t u8GCMode)
 {
     switch (u8SlaveNo) {
-    case 0:
-        i2c->ADDR0  = (u8SlaveAddr << 1) | u8GCMode;
-        break;
-    case 1:
-        i2c->ADDR1  = (u8SlaveAddr << 1) | u8GCMode;
-        break;
-    case 2:
-        i2c->ADDR2  = (u8SlaveAddr << 1) | u8GCMode;
-        break;
-    case 3:
-        i2c->ADDR3  = (u8SlaveAddr << 1) | u8GCMode;
-        break;
-    default:
-        i2c->ADDR0  = (u8SlaveAddr << 1) | u8GCMode;
+        case 0:
+            i2c->ADDR0  = (u8SlaveAddr << 1) | u8GCMode;
+            break;
+        case 1:
+            i2c->ADDR1  = (u8SlaveAddr << 1) | u8GCMode;
+            break;
+        case 2:
+            i2c->ADDR2  = (u8SlaveAddr << 1) | u8GCMode;
+            break;
+        case 3:
+            i2c->ADDR3  = (u8SlaveAddr << 1) | u8GCMode;
+            break;
+        default:
+            i2c->ADDR0  = (u8SlaveAddr << 1) | u8GCMode;
     }
 }
 
@@ -238,20 +242,20 @@ void I2C_SetSlaveAddr(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddr, uint8_
 void I2C_SetSlaveAddrMask(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddrMask)
 {
     switch (u8SlaveNo) {
-    case 0:
-        i2c->ADDRMSK0  = u8SlaveAddrMask << 1;
-        break;
-    case 1:
-        i2c->ADDRMSK1  = u8SlaveAddrMask << 1;
-        break;
-    case 2:
-        i2c->ADDRMSK2  = u8SlaveAddrMask << 1;
-        break;
-    case 3:
-        i2c->ADDRMSK3  = u8SlaveAddrMask << 1;
-        break;
-    default:
-        i2c->ADDRMSK0  = u8SlaveAddrMask << 1;
+        case 0:
+            i2c->ADDRMSK0  = u8SlaveAddrMask << 1;
+            break;
+        case 1:
+            i2c->ADDRMSK1  = u8SlaveAddrMask << 1;
+            break;
+        case 2:
+            i2c->ADDRMSK2  = u8SlaveAddrMask << 1;
+            break;
+        case 3:
+            i2c->ADDRMSK3  = u8SlaveAddrMask << 1;
+            break;
+        default:
+            i2c->ADDRMSK0  = u8SlaveAddrMask << 1;
     }
 }
 
@@ -263,10 +267,11 @@ void I2C_SetSlaveAddrMask(I2C_T *i2c, uint8_t u8SlaveNo, uint8_t u8SlaveAddrMask
   */
 void I2C_EnableTimeout(I2C_T *i2c, uint8_t u8LongTimeout)
 {
-    if(u8LongTimeout)
+    if (u8LongTimeout) {
         i2c->TOCTL |= I2C_TOCTL_TOCDIV4_Msk;
-    else
+    } else {
         i2c->TOCTL &= ~I2C_TOCTL_TOCDIV4_Msk;
+    }
 
     i2c->TOCTL |= I2C_TOCTL_TOCEN_Msk;
 }

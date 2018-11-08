@@ -34,7 +34,7 @@
 #include "app_scheduler.h"
 #include <string.h>
 
-void softdevice_evt_get(void * p_event_data, uint16_t event_size)
+void softdevice_evt_get(void *p_event_data, uint16_t event_size)
 {
     APP_ERROR_CHECK_BOOL(event_size == 0);
     intern_softdevice_events_execute();

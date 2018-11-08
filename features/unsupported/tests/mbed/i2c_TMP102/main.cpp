@@ -36,7 +36,8 @@ TMP102 temperature(I2C_SDA, I2C_SCL, 0x90);
 TMP102 temperature(p28, p27, 0x90);
 #endif
 
-int main() {
+int main()
+{
     MBED_HOSTTEST_TIMEOUT(10);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(DigitalIn DigitalOut);

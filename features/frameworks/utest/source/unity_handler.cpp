@@ -36,6 +36,6 @@ void utest_unity_ignore_failure(void)
 void utest_safe_putc(int chr)
 {
     greentea_serial->putc(chr);
-}    
+}
 
 

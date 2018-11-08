@@ -50,8 +50,8 @@ extern "C" {
  */
 
 extern struct coap_s *sn_coap_protocol_init(void *(*used_malloc_func_ptr)(uint16_t), void (*used_free_func_ptr)(void *),
-        uint8_t (*used_tx_callback_ptr)(uint8_t *, uint16_t, sn_nsdl_addr_s *, void *),
-        int8_t (*used_rx_callback_ptr)(sn_coap_hdr_s *, sn_nsdl_addr_s *, void *));
+                                            uint8_t (*used_tx_callback_ptr)(uint8_t *, uint16_t, sn_nsdl_addr_s *, void *),
+                                            int8_t (*used_rx_callback_ptr)(sn_coap_hdr_s *, sn_nsdl_addr_s *, void *));
 
 /**
  * \fn int8_t sn_coap_protocol_destroy(void)
@@ -165,7 +165,7 @@ extern int8_t sn_coap_protocol_set_duplicate_buffer_size(struct coap_s *handle, 
  * \return  0 = success, -1 = failure
  */
 extern int8_t sn_coap_protocol_set_retransmission_parameters(struct coap_s *handle,
-        uint8_t resending_count, uint8_t resending_interval);
+                                                             uint8_t resending_count, uint8_t resending_interval);
 
 /**
  * \fn int8_t sn_coap_protocol_set_retransmission_buffer(uint8_t buffer_size_messages, uint16_t buffer_size_bytes)
@@ -178,7 +178,7 @@ extern int8_t sn_coap_protocol_set_retransmission_parameters(struct coap_s *hand
  * \return  0 = success, -1 = failure
  */
 extern int8_t sn_coap_protocol_set_retransmission_buffer(struct coap_s *handle,
-        uint8_t buffer_size_messages, uint16_t buffer_size_bytes);
+                                                         uint8_t buffer_size_messages, uint16_t buffer_size_bytes);
 
 /**
  * \fn void sn_coap_protocol_clear_retransmission_buffer(struct coap_s *handle)

@@ -117,58 +117,58 @@ extern "C" {
 
 /** Prescaler selection. */
 typedef enum {
-  cryotimerPresc_1     = _CRYOTIMER_CTRL_PRESC_DIV1,      /**< Divide clock by 1. */
-  cryotimerPresc_2     = _CRYOTIMER_CTRL_PRESC_DIV2,      /**< Divide clock by 2. */
-  cryotimerPresc_4     = _CRYOTIMER_CTRL_PRESC_DIV4,      /**< Divide clock by 4. */
-  cryotimerPresc_8     = _CRYOTIMER_CTRL_PRESC_DIV8,      /**< Divide clock by 8. */
-  cryotimerPresc_16    = _CRYOTIMER_CTRL_PRESC_DIV16,     /**< Divide clock by 16. */
-  cryotimerPresc_32    = _CRYOTIMER_CTRL_PRESC_DIV32,     /**< Divide clock by 32. */
-  cryotimerPresc_64    = _CRYOTIMER_CTRL_PRESC_DIV64,     /**< Divide clock by 64. */
-  cryotimerPresc_128   = _CRYOTIMER_CTRL_PRESC_DIV128,    /**< Divide clock by 128. */
+    cryotimerPresc_1     = _CRYOTIMER_CTRL_PRESC_DIV1,      /**< Divide clock by 1. */
+    cryotimerPresc_2     = _CRYOTIMER_CTRL_PRESC_DIV2,      /**< Divide clock by 2. */
+    cryotimerPresc_4     = _CRYOTIMER_CTRL_PRESC_DIV4,      /**< Divide clock by 4. */
+    cryotimerPresc_8     = _CRYOTIMER_CTRL_PRESC_DIV8,      /**< Divide clock by 8. */
+    cryotimerPresc_16    = _CRYOTIMER_CTRL_PRESC_DIV16,     /**< Divide clock by 16. */
+    cryotimerPresc_32    = _CRYOTIMER_CTRL_PRESC_DIV32,     /**< Divide clock by 32. */
+    cryotimerPresc_64    = _CRYOTIMER_CTRL_PRESC_DIV64,     /**< Divide clock by 64. */
+    cryotimerPresc_128   = _CRYOTIMER_CTRL_PRESC_DIV128,    /**< Divide clock by 128. */
 } CRYOTIMER_Presc_TypeDef;
 
 /** Low frequency oscillator selection. */
 typedef enum {
-  cryotimerOscLFRCO   = _CRYOTIMER_CTRL_OSCSEL_LFRCO,  /**< Select Low Frequency RC Oscillator. */
-  cryotimerOscLFXO    = _CRYOTIMER_CTRL_OSCSEL_LFXO,   /**< Select Low Frequency Crystal Oscillator. */
-  cryotimerOscULFRCO  = _CRYOTIMER_CTRL_OSCSEL_ULFRCO, /**< Select Ultra Low Frequency RC Oscillator. */
+    cryotimerOscLFRCO   = _CRYOTIMER_CTRL_OSCSEL_LFRCO,  /**< Select Low Frequency RC Oscillator. */
+    cryotimerOscLFXO    = _CRYOTIMER_CTRL_OSCSEL_LFXO,   /**< Select Low Frequency Crystal Oscillator. */
+    cryotimerOscULFRCO  = _CRYOTIMER_CTRL_OSCSEL_ULFRCO, /**< Select Ultra Low Frequency RC Oscillator. */
 } CRYOTIMER_Osc_TypeDef;
 
 /** Period selection value */
 typedef enum {
-  cryotimerPeriod_1     = 0,    /**< Wakeup event after every Pre-scaled clock cycle. */
-  cryotimerPeriod_2     = 1,    /**< Wakeup event after 2 Pre-scaled clock cycles. */
-  cryotimerPeriod_4     = 2,    /**< Wakeup event after 4 Pre-scaled clock cycles. */
-  cryotimerPeriod_8     = 3,    /**< Wakeup event after 8 Pre-scaled clock cycles. */
-  cryotimerPeriod_16    = 4,    /**< Wakeup event after 16 Pre-scaled clock cycles. */
-  cryotimerPeriod_32    = 5,    /**< Wakeup event after 32 Pre-scaled clock cycles. */
-  cryotimerPeriod_64    = 6,    /**< Wakeup event after 64 Pre-scaled clock cycles. */
-  cryotimerPeriod_128   = 7,    /**< Wakeup event after 128 Pre-scaled clock cycles. */
-  cryotimerPeriod_256   = 8,    /**< Wakeup event after 256 Pre-scaled clock cycles. */
-  cryotimerPeriod_512   = 9,    /**< Wakeup event after 512 Pre-scaled clock cycles. */
-  cryotimerPeriod_1k    = 10,   /**< Wakeup event after 1k Pre-scaled clock cycles. */
-  cryotimerPeriod_2k    = 11,   /**< Wakeup event after 2k Pre-scaled clock cycles. */
-  cryotimerPeriod_4k    = 12,   /**< Wakeup event after 4k Pre-scaled clock cycles. */
-  cryotimerPeriod_8k    = 13,   /**< Wakeup event after 8k Pre-scaled clock cycles. */
-  cryotimerPeriod_16k   = 14,   /**< Wakeup event after 16k Pre-scaled clock cycles. */
-  cryotimerPeriod_32k   = 15,   /**< Wakeup event after 32k Pre-scaled clock cycles. */
-  cryotimerPeriod_64k   = 16,   /**< Wakeup event after 64k Pre-scaled clock cycles. */
-  cryotimerPeriod_128k  = 17,   /**< Wakeup event after 128k Pre-scaled clock cycles. */
-  cryotimerPeriod_256k  = 18,   /**< Wakeup event after 256k Pre-scaled clock cycles. */
-  cryotimerPeriod_512k  = 19,   /**< Wakeup event after 512k Pre-scaled clock cycles. */
-  cryotimerPeriod_1m    = 20,   /**< Wakeup event after 1m Pre-scaled clock cycles. */
-  cryotimerPeriod_2m    = 21,   /**< Wakeup event after 2m Pre-scaled clock cycles. */
-  cryotimerPeriod_4m    = 22,   /**< Wakeup event after 4m Pre-scaled clock cycles. */
-  cryotimerPeriod_8m    = 23,   /**< Wakeup event after 8m Pre-scaled clock cycles. */
-  cryotimerPeriod_16m   = 24,   /**< Wakeup event after 16m Pre-scaled clock cycles. */
-  cryotimerPeriod_32m   = 25,   /**< Wakeup event after 32m Pre-scaled clock cycles. */
-  cryotimerPeriod_64m   = 26,   /**< Wakeup event after 64m Pre-scaled clock cycles. */
-  cryotimerPeriod_128m  = 27,   /**< Wakeup event after 128m Pre-scaled clock cycles. */
-  cryotimerPeriod_256m  = 28,   /**< Wakeup event after 256m Pre-scaled clock cycles. */
-  cryotimerPeriod_512m  = 29,   /**< Wakeup event after 512m Pre-scaled clock cycles. */
-  cryotimerPeriod_1024m = 30,   /**< Wakeup event after 1024m Pre-scaled clock cycles. */
-  cryotimerPeriod_2048m = 31,   /**< Wakeup event after 2048m Pre-scaled clock cycles. */
-  cryotimerPeriod_4096m = 32,   /**< Wakeup event after 4096m Pre-scaled clock cycles. */
+    cryotimerPeriod_1     = 0,    /**< Wakeup event after every Pre-scaled clock cycle. */
+    cryotimerPeriod_2     = 1,    /**< Wakeup event after 2 Pre-scaled clock cycles. */
+    cryotimerPeriod_4     = 2,    /**< Wakeup event after 4 Pre-scaled clock cycles. */
+    cryotimerPeriod_8     = 3,    /**< Wakeup event after 8 Pre-scaled clock cycles. */
+    cryotimerPeriod_16    = 4,    /**< Wakeup event after 16 Pre-scaled clock cycles. */
+    cryotimerPeriod_32    = 5,    /**< Wakeup event after 32 Pre-scaled clock cycles. */
+    cryotimerPeriod_64    = 6,    /**< Wakeup event after 64 Pre-scaled clock cycles. */
+    cryotimerPeriod_128   = 7,    /**< Wakeup event after 128 Pre-scaled clock cycles. */
+    cryotimerPeriod_256   = 8,    /**< Wakeup event after 256 Pre-scaled clock cycles. */
+    cryotimerPeriod_512   = 9,    /**< Wakeup event after 512 Pre-scaled clock cycles. */
+    cryotimerPeriod_1k    = 10,   /**< Wakeup event after 1k Pre-scaled clock cycles. */
+    cryotimerPeriod_2k    = 11,   /**< Wakeup event after 2k Pre-scaled clock cycles. */
+    cryotimerPeriod_4k    = 12,   /**< Wakeup event after 4k Pre-scaled clock cycles. */
+    cryotimerPeriod_8k    = 13,   /**< Wakeup event after 8k Pre-scaled clock cycles. */
+    cryotimerPeriod_16k   = 14,   /**< Wakeup event after 16k Pre-scaled clock cycles. */
+    cryotimerPeriod_32k   = 15,   /**< Wakeup event after 32k Pre-scaled clock cycles. */
+    cryotimerPeriod_64k   = 16,   /**< Wakeup event after 64k Pre-scaled clock cycles. */
+    cryotimerPeriod_128k  = 17,   /**< Wakeup event after 128k Pre-scaled clock cycles. */
+    cryotimerPeriod_256k  = 18,   /**< Wakeup event after 256k Pre-scaled clock cycles. */
+    cryotimerPeriod_512k  = 19,   /**< Wakeup event after 512k Pre-scaled clock cycles. */
+    cryotimerPeriod_1m    = 20,   /**< Wakeup event after 1m Pre-scaled clock cycles. */
+    cryotimerPeriod_2m    = 21,   /**< Wakeup event after 2m Pre-scaled clock cycles. */
+    cryotimerPeriod_4m    = 22,   /**< Wakeup event after 4m Pre-scaled clock cycles. */
+    cryotimerPeriod_8m    = 23,   /**< Wakeup event after 8m Pre-scaled clock cycles. */
+    cryotimerPeriod_16m   = 24,   /**< Wakeup event after 16m Pre-scaled clock cycles. */
+    cryotimerPeriod_32m   = 25,   /**< Wakeup event after 32m Pre-scaled clock cycles. */
+    cryotimerPeriod_64m   = 26,   /**< Wakeup event after 64m Pre-scaled clock cycles. */
+    cryotimerPeriod_128m  = 27,   /**< Wakeup event after 128m Pre-scaled clock cycles. */
+    cryotimerPeriod_256m  = 28,   /**< Wakeup event after 256m Pre-scaled clock cycles. */
+    cryotimerPeriod_512m  = 29,   /**< Wakeup event after 512m Pre-scaled clock cycles. */
+    cryotimerPeriod_1024m = 30,   /**< Wakeup event after 1024m Pre-scaled clock cycles. */
+    cryotimerPeriod_2048m = 31,   /**< Wakeup event after 2048m Pre-scaled clock cycles. */
+    cryotimerPeriod_4096m = 32,   /**< Wakeup event after 4096m Pre-scaled clock cycles. */
 } CRYOTIMER_Period_TypeDef;
 
 /*******************************************************************************
@@ -177,23 +177,23 @@ typedef enum {
 
 /** CRYOTIMER initialization structure. */
 typedef struct {
-  /** Enable/disable counting when initialization is completed. */
-  bool                      enable;
+    /** Enable/disable counting when initialization is completed. */
+    bool                      enable;
 
-  /** Enable/disable timer counting during debug halt. */
-  bool                      debugRun;
+    /** Enable/disable timer counting during debug halt. */
+    bool                      debugRun;
 
-  /** Enable/disable EM4 Wakeup. */
-  bool                      em4Wakeup;
+    /** Enable/disable EM4 Wakeup. */
+    bool                      em4Wakeup;
 
-  /** Select the oscillator for the CRYOTIMER. */
-  CRYOTIMER_Osc_TypeDef     osc;
+    /** Select the oscillator for the CRYOTIMER. */
+    CRYOTIMER_Osc_TypeDef     osc;
 
-  /** Prescaler. */
-  CRYOTIMER_Presc_TypeDef   presc;
+    /** Prescaler. */
+    CRYOTIMER_Presc_TypeDef   presc;
 
-  /** Period between wakeup event/interrupt. */
-  CRYOTIMER_Period_TypeDef  period;
+    /** Period between wakeup event/interrupt. */
+    CRYOTIMER_Period_TypeDef  period;
 } CRYOTIMER_Init_TypeDef;
 
 /*******************************************************************************
@@ -224,7 +224,7 @@ typedef struct {
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_IntClear(uint32_t flags)
 {
-  CRYOTIMER->IFC = flags & _CRYOTIMER_IFC_MASK;
+    CRYOTIMER->IFC = flags & _CRYOTIMER_IFC_MASK;
 }
 
 /***************************************************************************//**
@@ -240,7 +240,7 @@ __STATIC_INLINE void CRYOTIMER_IntClear(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CRYOTIMER_IntGet(void)
 {
-  return CRYOTIMER->IF;
+    return CRYOTIMER->IF;
 }
 
 /***************************************************************************//**
@@ -259,10 +259,10 @@ __STATIC_INLINE uint32_t CRYOTIMER_IntGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CRYOTIMER_IntGetEnabled(void)
 {
-  uint32_t ien;
+    uint32_t ien;
 
-  ien = CRYOTIMER->IEN & _CRYOTIMER_IEN_MASK;
-  return CRYOTIMER->IF & ien;
+    ien = CRYOTIMER->IEN & _CRYOTIMER_IEN_MASK;
+    return CRYOTIMER->IF & ien;
 }
 
 /***************************************************************************//**
@@ -274,7 +274,7 @@ __STATIC_INLINE uint32_t CRYOTIMER_IntGetEnabled(void)
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_IntEnable(uint32_t flags)
 {
-  CRYOTIMER->IEN |= (flags & _CRYOTIMER_IEN_MASK);
+    CRYOTIMER->IEN |= (flags & _CRYOTIMER_IEN_MASK);
 }
 
 /***************************************************************************//**
@@ -286,7 +286,7 @@ __STATIC_INLINE void CRYOTIMER_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_IntDisable(uint32_t flags)
 {
-  CRYOTIMER->IEN &= ~(flags & _CRYOTIMER_IEN_MASK);
+    CRYOTIMER->IEN &= ~(flags & _CRYOTIMER_IEN_MASK);
 }
 
 /***************************************************************************//**
@@ -302,7 +302,7 @@ __STATIC_INLINE void CRYOTIMER_IntDisable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_IntSet(uint32_t flags)
 {
-  CRYOTIMER->IFS = flags & _CRYOTIMER_IFS_MASK;
+    CRYOTIMER->IFS = flags & _CRYOTIMER_IFS_MASK;
 }
 
 /***************************************************************************//**
@@ -320,7 +320,7 @@ __STATIC_INLINE void CRYOTIMER_IntSet(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_PeriodSet(uint32_t period)
 {
-  CRYOTIMER->PERIODSEL = period & _CRYOTIMER_PERIODSEL_MASK;
+    CRYOTIMER->PERIODSEL = period & _CRYOTIMER_PERIODSEL_MASK;
 }
 
 /***************************************************************************//**
@@ -338,7 +338,7 @@ __STATIC_INLINE void CRYOTIMER_PeriodSet(uint32_t period)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CRYOTIMER_PeriodGet(void)
 {
-  return CRYOTIMER->PERIODSEL;
+    return CRYOTIMER->PERIODSEL;
 }
 
 /***************************************************************************//**
@@ -350,7 +350,7 @@ __STATIC_INLINE uint32_t CRYOTIMER_PeriodGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t CRYOTIMER_CounterGet(void)
 {
-  return CRYOTIMER->CNT;
+    return CRYOTIMER->CNT;
 }
 
 /***************************************************************************//**
@@ -362,7 +362,7 @@ __STATIC_INLINE uint32_t CRYOTIMER_CounterGet(void)
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_EM4WakeupEnable(bool enable)
 {
-  BUS_RegBitWrite((&CRYOTIMER->EM4WUEN), _CRYOTIMER_EM4WUEN_EM4WU_SHIFT, enable);
+    BUS_RegBitWrite((&CRYOTIMER->EM4WUEN), _CRYOTIMER_EM4WUEN_EM4WU_SHIFT, enable);
 }
 
 /***************************************************************************//**
@@ -374,7 +374,7 @@ __STATIC_INLINE void CRYOTIMER_EM4WakeupEnable(bool enable)
  ******************************************************************************/
 __STATIC_INLINE void CRYOTIMER_Enable(bool enable)
 {
-  BUS_RegBitWrite((&CRYOTIMER->CTRL), _CRYOTIMER_CTRL_EN_SHIFT, enable);
+    BUS_RegBitWrite((&CRYOTIMER->CTRL), _CRYOTIMER_CTRL_EN_SHIFT, enable);
 }
 
 void CRYOTIMER_Init(const CRYOTIMER_Init_TypeDef *init);

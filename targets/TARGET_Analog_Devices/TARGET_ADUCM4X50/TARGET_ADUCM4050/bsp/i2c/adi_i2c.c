@@ -53,7 +53,7 @@ POSSIBILITY OF SUCH DAMAGE.
  * @note The application must include drivers/i2c/adi_i2c.h to use this driver
  */
 
- /*! \cond PRIVATE */
+/*! \cond PRIVATE */
 #include <adi_processor.h>
 #include <assert.h>
 #include <string.h>     /* for "memset" */
@@ -62,7 +62,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <drivers/general/adi_drivers_general.h>
 #include <drivers/i2c/adi_i2c.h>
 
- /*! \cond PRIVATE */
+/*! \cond PRIVATE */
 
 #include <drivers/pwr/adi_pwr.h>
 
@@ -104,7 +104,7 @@ uint16_t uZero16 = 0u;
 /*!
  * Read/write bit.
  */
- #define READ_NOT_WRITE (1u)
+#define READ_NOT_WRITE (1u)
 
 /* Override "weak" default binding in startup.c */
 /*! \cond PRIVATE */
@@ -167,7 +167,8 @@ static bool IsDeviceHandle(ADI_I2C_HANDLE const hDevice)
  *
  * @sa      adi_spi_Close().
  */
-ADI_I2C_RESULT adi_i2c_Open (uint32_t const DeviceNum, void* const pMemory, uint32_t const MemorySize, ADI_I2C_HANDLE* const phDevice) {
+ADI_I2C_RESULT adi_i2c_Open(uint32_t const DeviceNum, void *const pMemory, uint32_t const MemorySize, ADI_I2C_HANDLE *const phDevice)
+{
 
     /* make a device handle out of the user memory */
     ADI_I2C_HANDLE hDevice = (ADI_I2C_HANDLE)pMemory;
@@ -218,11 +219,11 @@ ADI_I2C_RESULT adi_i2c_Open (uint32_t const DeviceNum, void* const pMemory, uint
     hDevice->pDev = i2c_device_info[DeviceNum].pDev;
 
     /* store a pointer to user's static configuration settings */
-    hDevice->pDevInfo->pConfig = (ADI_I2C_CONFIG*)&gConfigInfo[DeviceNum];
+    hDevice->pDevInfo->pConfig = (ADI_I2C_CONFIG *)&gConfigInfo[DeviceNum];
 
     /* create the semaphore */
     SEM_CREATE(hDevice, "i2c_sem", ADI_I2C_SEMAPHORE_FAILED)
-        ;
+    ;
 
     /* reset the driver and HW state */
     ADI_I2C_RESULT ignore ADI_UNUSED_ATTRIBUTE = i2cReset(hDevice);
@@ -250,7 +251,8 @@ ADI_I2C_RESULT adi_i2c_Open (uint32_t const DeviceNum, void* const pMemory, uint
  *
  * @sa  adi_spi_Open().
  */
-ADI_I2C_RESULT adi_i2c_Close (ADI_I2C_HANDLE const hDevice) {
+ADI_I2C_RESULT adi_i2c_Close(ADI_I2C_HANDLE const hDevice)
+{
 
 #ifdef ADI_DEBUG
     if (IsDeviceHandle(hDevice)) {
@@ -259,8 +261,8 @@ ADI_I2C_RESULT adi_i2c_Close (ADI_I2C_HANDLE const hDevice) {
 #endif
 
     /* destroy semaphore */
-    SEM_DELETE(hDevice,ADI_I2C_SEMAPHORE_FAILED)
-        ;
+    SEM_DELETE(hDevice, ADI_I2C_SEMAPHORE_FAILED)
+    ;
 
     /* reset the driver and HW state */
     ADI_I2C_RESULT ignore ADI_UNUSED_ATTRIBUTE = i2cReset(hDevice);
@@ -327,7 +329,8 @@ ADI_I2C_RESULT adi_i2c_Close (ADI_I2C_HANDLE const hDevice) {
  * @sa ADI_I2C_TRANSACTION.
  * @sa ADI_I2C_HW_ERRORS.
  */
-ADI_I2C_RESULT adi_i2c_ReadWrite (ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION* const pTransaction, uint32_t* const pHwErrors) {
+ADI_I2C_RESULT adi_i2c_ReadWrite(ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION *const pTransaction, uint32_t *const pHwErrors)
+{
 
 #ifdef ADI_DEBUG
     if (IsDeviceHandle(hDevice)) {
@@ -422,7 +425,8 @@ ADI_I2C_RESULT adi_i2c_ReadWrite (ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACT
  * @sa adi_i2c_GetBuffer().
  * @sa ADI_I2C_TRANSACTION.
  */
-ADI_I2C_RESULT adi_i2c_SubmitBuffer (ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION* const pTransaction) {
+ADI_I2C_RESULT adi_i2c_SubmitBuffer(ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION *const pTransaction)
+{
 
 #ifdef ADI_DEBUG
     if (IsDeviceHandle(hDevice)) {
@@ -483,7 +487,8 @@ ADI_I2C_RESULT adi_i2c_SubmitBuffer (ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANS
  * @sa adi_i2c_GetBuffer().
  * @sa ADI_I2C_TRANSACTION.
  */
-ADI_I2C_RESULT adi_i2c_IsBufferAvailable (ADI_I2C_HANDLE const hDevice, bool* const pbCompletionState) {
+ADI_I2C_RESULT adi_i2c_IsBufferAvailable(ADI_I2C_HANDLE const hDevice, bool *const pbCompletionState)
+{
 
 #ifdef ADI_DEBUG
     if (IsDeviceHandle(hDevice)) {
@@ -542,7 +547,8 @@ ADI_I2C_RESULT adi_i2c_IsBufferAvailable (ADI_I2C_HANDLE const hDevice, bool* co
  * @sa ADI_I2C_TRANSACTION.
  * @sa ADI_I2C_HW_ERRORS.
  */
-ADI_I2C_RESULT adi_i2c_GetBuffer (ADI_I2C_HANDLE const hDevice, uint32_t* const pHwErrors) {
+ADI_I2C_RESULT adi_i2c_GetBuffer(ADI_I2C_HANDLE const hDevice, uint32_t *const pHwErrors)
+{
 
 #ifdef ADI_DEBUG
     if (IsDeviceHandle(hDevice)) {
@@ -585,7 +591,8 @@ ADI_I2C_RESULT adi_i2c_GetBuffer (ADI_I2C_HANDLE const hDevice, uint32_t* const 
  *
  * Reset the I2C physical controller and device driver internals.
  */
-ADI_I2C_RESULT adi_i2c_Reset (ADI_I2C_HANDLE const hDevice) {
+ADI_I2C_RESULT adi_i2c_Reset(ADI_I2C_HANDLE const hDevice)
+{
 
 #ifdef ADI_DEBUG
     if (IsDeviceHandle(hDevice)) {
@@ -595,9 +602,9 @@ ADI_I2C_RESULT adi_i2c_Reset (ADI_I2C_HANDLE const hDevice) {
 
     /* destroy/recreate the semaphore to force a clear state */
     SEM_DELETE(hDevice, ADI_I2C_SEMAPHORE_FAILED)
-        ;
+    ;
     SEM_CREATE(hDevice, "i2c_sem", ADI_I2C_SEMAPHORE_FAILED)
-        ;
+    ;
 
     /* reset the driver and HW state */
     return i2cReset(hDevice);
@@ -628,7 +635,8 @@ ADI_I2C_RESULT adi_i2c_Reset (ADI_I2C_HANDLE const hDevice) {
  * @note Default clock rate may be specified statically in the default user configuration file,
  * "adi_i2c_config.h".
  */
-ADI_I2C_RESULT adi_i2c_SetBitRate (ADI_I2C_HANDLE const hDevice, uint32_t const requestedBitRate32) {
+ADI_I2C_RESULT adi_i2c_SetBitRate(ADI_I2C_HANDLE const hDevice, uint32_t const requestedBitRate32)
+{
 
     uint32_t clockFrequency32, halfClock32;
     uint16_t halfClock16;
@@ -673,11 +681,11 @@ ADI_I2C_RESULT adi_i2c_SetBitRate (ADI_I2C_HANDLE const hDevice, uint32_t const 
     lowTime16  <<= BITP_I2C_DIV_LOW;
 
     /* check for divider overflows beyond designated (8-bit) field masks */
-    if (    (uZero16 != ((uint16_t)highTime16 & (uint16_t)(~(BITM_I2C_DIV_HIGH))))
+    if ((uZero16 != ((uint16_t)highTime16 & (uint16_t)(~(BITM_I2C_DIV_HIGH))))
             ||
             (uZero16 != ((uint16_t)lowTime16 & (uint16_t)(~(BITM_I2C_DIV_LOW))))
        ) {
-       return ADI_I2C_BAD_BITRATE;
+        return ADI_I2C_BAD_BITRATE;
     }
 
     /* program new values */
@@ -707,7 +715,8 @@ ADI_I2C_RESULT adi_i2c_SetBitRate (ADI_I2C_HANDLE const hDevice, uint32_t const 
  * @note Default slave address may be specified statically in the default user configuration file,
  * "adi_i2c_config.h".
  */
-ADI_I2C_RESULT adi_i2c_SetSlaveAddress (ADI_I2C_HANDLE const hDevice, uint16_t const SlaveAddress) {
+ADI_I2C_RESULT adi_i2c_SetSlaveAddress(ADI_I2C_HANDLE const hDevice, uint16_t const SlaveAddress)
+{
 
 #ifdef ADI_DEBUG
     if (IsDeviceHandle(hDevice)) {
@@ -761,10 +770,11 @@ ADI_I2C_RESULT adi_i2c_SetSlaveAddress (ADI_I2C_HANDLE const hDevice, uint16_t c
  * commands to the reserved GC address (address zero).
  *
  */
-ADI_I2C_RESULT adi_i2c_IssueGeneralCall (ADI_I2C_HANDLE const hDevice, uint8_t* const pData, uint8_t const nDataSize, uint32_t* const pHwErrors) {
+ADI_I2C_RESULT adi_i2c_IssueGeneralCall(ADI_I2C_HANDLE const hDevice, uint8_t *const pData, uint8_t const nDataSize, uint32_t *const pHwErrors)
+{
 
-	ADI_I2C_RESULT result;
-	ADI_I2C_TRANSACTION xfr;
+    ADI_I2C_RESULT result;
+    ADI_I2C_TRANSACTION xfr;
 
 #ifdef ADI_DEBUG
     if (IsDeviceHandle(hDevice)) {
@@ -794,21 +804,22 @@ ADI_I2C_RESULT adi_i2c_IssueGeneralCall (ADI_I2C_HANDLE const hDevice, uint8_t* 
     hDevice->i2cDeviceAddress = savedSlaveAddress;
 
     if (ADI_I2C_SUCCESS != result) {
-		return result;  /* read/write failure... */
-	} else {
-		return hDevice->result;  /* actual result */
-	}
+        return result;  /* read/write failure... */
+    } else {
+        return hDevice->result;  /* actual result */
+    }
 }
 
 
- /*! \cond PRIVATE */
+/*! \cond PRIVATE */
 
 
 /**********************************************************************************\
 |*****************************static helper functions******************************|
 \**********************************************************************************/
 
-static void submitTransaction(ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION* const pTransaction) {
+static void submitTransaction(ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION *const pTransaction)
+{
 
     /* reset internal return code */
     hDevice->result = ADI_I2C_SUCCESS;
@@ -861,7 +872,8 @@ static void submitTransaction(ADI_I2C_HANDLE const hDevice, ADI_I2C_TRANSACTION*
 }
 
 
-static void commenceTransmit(ADI_I2C_HANDLE const hDevice) {
+static void commenceTransmit(ADI_I2C_HANDLE const hDevice)
+{
 
     /* transmit is always pure transmit, whether we have a prologue or not... */
 
@@ -896,7 +908,8 @@ static void commenceTransmit(ADI_I2C_HANDLE const hDevice) {
 
 
 /* initiate receive addressing phase */
-static void commenceReceive(ADI_I2C_HANDLE const hDevice) {
+static void commenceReceive(ADI_I2C_HANDLE const hDevice)
+{
 
     /* receive can be either pure receive (no prologue),
        or a transmit (of prologue) followed by a receive */
@@ -946,9 +959,10 @@ static void commenceReceive(ADI_I2C_HANDLE const hDevice) {
 
 
 /* reset the I2C HW */
-static ADI_I2C_RESULT i2cReset(ADI_I2C_HANDLE const hDevice) {
+static ADI_I2C_RESULT i2cReset(ADI_I2C_HANDLE const hDevice)
+{
 
-	volatile uint16_t temp;
+    volatile uint16_t temp;
     /* disable interrupts */
     NVIC_DisableIRQ(hDevice->pDevInfo->pioIRQn);
 
@@ -985,7 +999,8 @@ static ADI_I2C_RESULT i2cReset(ADI_I2C_HANDLE const hDevice) {
 
 
 /* transmit interrupt handler */
-static void transmitHandler(ADI_I2C_HANDLE const hDevice) {
+static void transmitHandler(ADI_I2C_HANDLE const hDevice)
+{
 
     /* how much room in transmit FIFO? */
     /* DO ***NOT*** USE MSTAT:MTXF... FALSELY INDICATES MOSTLY FULL FIFO! */
@@ -1028,7 +1043,8 @@ static void transmitHandler(ADI_I2C_HANDLE const hDevice) {
 
 
 /* receive interrupt handler */
-static void receiveHandler(ADI_I2C_HANDLE const hDevice) {
+static void receiveHandler(ADI_I2C_HANDLE const hDevice)
+{
 
     /* note: we never need to deal with prologue data here... it will already be transmitted... */
 
@@ -1061,7 +1077,8 @@ static void receiveHandler(ADI_I2C_HANDLE const hDevice) {
 }
 
 /* completion interrupt handler */
-static void completeHandler(ADI_I2C_HANDLE const hDevice) {
+static void completeHandler(ADI_I2C_HANDLE const hDevice)
+{
 
     /* block on busy until all transmit data has both left
        the fifo AND has been fully serialized to the bus. */
@@ -1078,7 +1095,8 @@ static void completeHandler(ADI_I2C_HANDLE const hDevice) {
 
 
 /* error interrupt handler */
-static void errorHandler(ADI_I2C_HANDLE const hDevice) {
+static void errorHandler(ADI_I2C_HANDLE const hDevice)
+{
 
     /* accumulate I2C bus errors */
 
@@ -1107,13 +1125,14 @@ static void errorHandler(ADI_I2C_HANDLE const hDevice) {
 
 
 /* PIO mode I2C interrupt handler */
-void I2C0_Master_Int_Handler(void) {
+void I2C0_Master_Int_Handler(void)
+{
 
     bool bPost = false;
 
     /* rtos prologue */
     ISR_PROLOG()
-        ;
+    ;
 
     /* recover device handle */
     ADI_I2C_HANDLE const hDevice = (ADI_I2C_HANDLE)i2c_device_info[0].hDevice;
@@ -1141,16 +1160,16 @@ void I2C0_Master_Int_Handler(void) {
     if (uZero16 != (hDevice->hwStatus & ADI_I2C_STATUS_ERROR_MASK)) {
         errorHandler(hDevice);
 
-      /* post on bus error */
-      bPost = true;
+        /* post on bus error */
+        bPost = true;
     }
 
     /* transmit complete */
     if (uZero16 != (hDevice->hwStatus & BITM_I2C_MSTAT_TCOMP)) {
         completeHandler(hDevice);
 
-      /* post on completion */
-      bPost = true;
+        /* post on completion */
+        bPost = true;
     }
 
     /* just post once */
@@ -1160,7 +1179,7 @@ void I2C0_Master_Int_Handler(void) {
 
     /* rtos epilogue */
     ISR_EPILOG()
-        ;
+    ;
 }
 
 /*! \endcond */

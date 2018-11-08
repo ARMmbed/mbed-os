@@ -91,7 +91,7 @@
  * RAIL_CAL_INVALID_VALUE to force the code to compute that calibration value.
  */
 typedef struct RAIL_CalValues {
-  uint32_t imageRejection; /**< Image Rejection (IR) calibration value */
+    uint32_t imageRejection; /**< Image Rejection (IR) calibration value */
 } RAIL_CalValues_t;
 
 /**
@@ -224,15 +224,16 @@ typedef uint8_t RAIL_TxPowerLevel_t;
  * are available. For more information about the power and performance
  * characteristics of a given amplifier, please consult the data sheet.
  */
-RAIL_ENUM(RAIL_TxPowerMode_t) {
-  /** High power amplifier, up to 20dBm, raw values: 0-252 */
-  RAIL_TX_POWER_MODE_2P4_HP,
-  /** Low power amplifier, up to 0dBm, raw values: 1-7 */
-  RAIL_TX_POWER_MODE_2P4_LP,
-  /** SubGig amplifier, up to 20dBm, raw values: 0-248 */
-  RAIL_TX_POWER_MODE_SUBGIG,
-  /** Invalid amplifier Selection */
-  RAIL_TX_POWER_MODE_NONE
+RAIL_ENUM(RAIL_TxPowerMode_t)
+{
+    /** High power amplifier, up to 20dBm, raw values: 0-252 */
+    RAIL_TX_POWER_MODE_2P4_HP,
+    /** Low power amplifier, up to 0dBm, raw values: 1-7 */
+    RAIL_TX_POWER_MODE_2P4_LP,
+    /** SubGig amplifier, up to 20dBm, raw values: 0-248 */
+    RAIL_TX_POWER_MODE_SUBGIG,
+    /** Invalid amplifier Selection */
+    RAIL_TX_POWER_MODE_NONE
 };
 
 /**
@@ -241,15 +242,15 @@ RAIL_ENUM(RAIL_TxPowerMode_t) {
  * @brief Structure containing values used to initialize the power amplifiers.
  */
 typedef struct RAIL_TxPowerConfig {
-  /** Tx power mode */
-  RAIL_TxPowerMode_t mode;
-  /** Power amplifier supply voltage in mV, generally:
-   *  DCDC supply ~ 1800mV (1.8V)
-   *  Battery supply ~ 3300mV (3.3V)
-   */
-  uint16_t voltage;
-  /** The amount of time to spend ramping for Tx in uS. */
-  uint16_t rampTime;
+    /** Tx power mode */
+    RAIL_TxPowerMode_t mode;
+    /** Power amplifier supply voltage in mV, generally:
+     *  DCDC supply ~ 1800mV (1.8V)
+     *  Battery supply ~ 3300mV (3.3V)
+     */
+    uint16_t voltage;
+    /** The amount of time to spend ramping for Tx in uS. */
+    uint16_t rampTime;
 } RAIL_TxPowerConfig_t;
 
 /** @} */ // end of group PA_EFR32
@@ -269,15 +270,16 @@ typedef struct RAIL_TxPowerConfig {
  */
 
 /** Channel type enumeration. */
-RAIL_ENUM(RAIL_PtiMode_t) {
-  /** Turn PTI off entirely */
-  RAIL_PTI_MODE_DISABLED,
-  /** SPI mode. */
-  RAIL_PTI_MODE_SPI,
-  /** UART mode. */
-  RAIL_PTI_MODE_UART,
-  /** 9bit UART mode. */
-  RAIL_PTI_MODE_UART_ONEWIRE
+RAIL_ENUM(RAIL_PtiMode_t)
+{
+    /** Turn PTI off entirely */
+    RAIL_PTI_MODE_DISABLED,
+    /** SPI mode. */
+    RAIL_PTI_MODE_SPI,
+    /** UART mode. */
+    RAIL_PTI_MODE_UART,
+    /** 9bit UART mode. */
+    RAIL_PTI_MODE_UART_ONEWIRE
 };
 
 /**
@@ -285,28 +287,28 @@ RAIL_ENUM(RAIL_PtiMode_t) {
  * @brief Configuration for PTI.
  */
 typedef struct RAIL_PtiConfig {
-  /** Packet Trace mode (UART or SPI) */
-  RAIL_PtiMode_t mode;
-  /** Output baudrate for PTI in Hz */
-  uint32_t baud;
-  /** Data output (DOUT) location for pin/port */
-  uint8_t doutLoc;
-  /** Data output (DOUT) GPIO port */
-  GPIO_Port_TypeDef doutPort;
-  /** Data output (DOUT) GPIO pin */
-  uint8_t doutPin;
-  /** Data clock (DCLK) location for pin/port. Only used in SPI mode */
-  uint8_t dclkLoc;
-  /** Data clock (DCLK) GPIO port. Only used in SPI mode */
-  GPIO_Port_TypeDef dclkPort;
-  /** Data clock (DCLK) GPIO pin. Only used in SPI mode */
-  uint8_t dclkPin;
-  /** Data frame (DFRAME) location for pin/port. Only used for  */
-  uint8_t dframeLoc;
-  /** Data frame (DFRAME) GPIO port */
-  GPIO_Port_TypeDef dframePort;
-  /** Data frame (DFRAME) GPIO pin */
-  uint8_t dframePin;
+    /** Packet Trace mode (UART or SPI) */
+    RAIL_PtiMode_t mode;
+    /** Output baudrate for PTI in Hz */
+    uint32_t baud;
+    /** Data output (DOUT) location for pin/port */
+    uint8_t doutLoc;
+    /** Data output (DOUT) GPIO port */
+    GPIO_Port_TypeDef doutPort;
+    /** Data output (DOUT) GPIO pin */
+    uint8_t doutPin;
+    /** Data clock (DCLK) location for pin/port. Only used in SPI mode */
+    uint8_t dclkLoc;
+    /** Data clock (DCLK) GPIO port. Only used in SPI mode */
+    GPIO_Port_TypeDef dclkPort;
+    /** Data clock (DCLK) GPIO pin. Only used in SPI mode */
+    uint8_t dclkPin;
+    /** Data frame (DFRAME) location for pin/port. Only used for  */
+    uint8_t dframeLoc;
+    /** Data frame (DFRAME) GPIO port */
+    GPIO_Port_TypeDef dframePort;
+    /** Data frame (DFRAME) GPIO pin */
+    uint8_t dframePin;
 } RAIL_PtiConfig_t;
 
 /** @} */ // end of group PTI_EFR32

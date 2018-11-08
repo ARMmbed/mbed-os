@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -64,8 +64,7 @@ extern "C" {
 
 /**@brief Events that can come from the GATT Cache Manager module.
  */
-typedef enum
-{
+typedef enum {
     GCM_EVT_LOCAL_DB_CACHE_STORED,           /**< The persistent cache for the local database has been updated with provided values, for one peer. */
     GCM_EVT_LOCAL_DB_CACHE_UPDATED,          /**< The persistent cache for the local database has been updated with values from the SoftDevice, for one peer. */
     GCM_EVT_LOCAL_DB_CACHE_APPLIED,          /**< The SoftDevice has been given local database values from the persistent cache, for one peer. */
@@ -81,20 +80,17 @@ typedef enum
 
 /**@brief A structure meant to be used for event parameters for multiple event types.
  */
-typedef struct
-{
+typedef struct {
     uint16_t conn_handle;  /**< The connection handle. Likely the connection handle an event pertains to. */
 } gcm_evt_param_conn_handle_t;
 
 
 /**@brief Structure containing an event from the GCM module.
  */
-typedef struct
-{
+typedef struct {
     gcm_evt_id_t   evt_id;  /**< The type of event this is. */
     pm_peer_id_t   peer_id; /**< The peer ID this event pertains to. */
-    union
-    {
+    union {
         gcm_evt_param_conn_handle_t local_db_cache_updated;
         gcm_evt_param_conn_handle_t local_db_cache_applied;
         gcm_evt_param_conn_handle_t error_local_db_cache_apply;
@@ -102,8 +98,7 @@ typedef struct
         gcm_evt_param_conn_handle_t service_changed_ind_confirmed;
         gcm_evt_param_conn_handle_t error_data_size;
         gcm_evt_param_conn_handle_t error_no_mem;
-        struct
-        {
+        struct {
             uint16_t   conn_handle; /**< The handle of the connection the event pertains to. */
             ret_code_t error;       /**< The unexpected error that occurred. */
         } error_unexpected;
@@ -116,7 +111,7 @@ typedef struct
  * @param[in]  peer  The id of the peer the event pertains to.
  * @param[in]  flags   The data the event pertains to.
  */
-typedef void (*gcm_evt_handler_t)(gcm_evt_t const * p_event);
+typedef void (*gcm_evt_handler_t)(gcm_evt_t const *p_event);
 
 
 /**@brief Function for initializing the GATT Cache Manager module.
@@ -131,7 +126,7 @@ ret_code_t gcm_init(void);
  *
  * @param[in]  p_ble_evt  The SoftDevice event.
  */
-void gcm_ble_evt_handler(ble_evt_t * p_ble_evt);
+void gcm_ble_evt_handler(ble_evt_t *p_ble_evt);
 
 
 
@@ -146,7 +141,7 @@ void gcm_ble_evt_handler(ble_evt_t * p_ble_evt);
  * @retval NRF_ERROR_INVALID_STATE  Module is not initialized.
  */
 ret_code_t gcm_remote_db_store(pm_peer_id_t        peer_id,
-                               ble_gatt_db_srv_t * p_remote_db,
+                               ble_gatt_db_srv_t *p_remote_db,
                                uint32_t            n_services);
 
 
@@ -165,8 +160,8 @@ ret_code_t gcm_remote_db_store(pm_peer_id_t        peer_id,
  * @retval NRF_ERROR_INVALID_STATE  Module is not initialized.
  */
 ret_code_t gcm_remote_db_retrieve(pm_peer_id_t        peer_id,
-                                  ble_gatt_db_srv_t * p_remote_db,
-                                  uint32_t          * p_n_services);
+                                  ble_gatt_db_srv_t *p_remote_db,
+                                  uint32_t           *p_n_services);
 
 
 /**@brief Function for triggering local GATT database data to be stored persistently. Values are
@@ -205,7 +200,7 @@ ret_code_t gcm_local_db_cache_update(uint16_t conn_handle);
  * @retval NRF_ERROR_NOT_FOUND      The peer ID was invalid or unallocated.
  * @retval NRF_ERROR_INVALID_STATE  Module is not initialized.
  */
-ret_code_t gcm_local_db_cache_set(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t * p_local_db);
+ret_code_t gcm_local_db_cache_set(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t *p_local_db);
 
 
 /**@brief Function for retrieving values in the local database cache.
@@ -220,7 +215,7 @@ ret_code_t gcm_local_db_cache_set(pm_peer_id_t peer_id, pm_peer_data_local_gatt_
  * @retval NRF_ERROR_NULL           p_local_db was NULL.
  * @retval NRF_ERROR_INVALID_STATE  Module is not initialized.
  */
-ret_code_t gcm_local_db_cache_get(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t * p_local_db);
+ret_code_t gcm_local_db_cache_get(pm_peer_id_t peer_id, pm_peer_data_local_gatt_db_t *p_local_db);
 
 
 /**@brief Function for manually informing that the local database has changed.

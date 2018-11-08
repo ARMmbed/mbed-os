@@ -40,8 +40,7 @@
  * @brief Possible socket error codes, returned by the @ref fnet_error_get(),
  * or used by the @ref SO_ERROR option.
  ******************************************************************************/
-typedef enum
-{
+typedef enum {
     FNET_ERR_OK             = (0),  /**< @brief There is no error.
                                      */
     FNET_ERR_NO_DESC        = (-2),  /**< @brief No more socket descriptors are available.@n
@@ -204,7 +203,7 @@ extern "C" {
  *   function call with error set to zero (@ref FNET_ERR_OK).
  *
  ******************************************************************************/
-fnet_error_t fnet_error_get( void );
+fnet_error_t fnet_error_get(void);
 
 /***************************************************************************/ /*!
  *
@@ -221,7 +220,7 @@ fnet_error_t fnet_error_get( void );
  *   override the error code, as set by this routine.
  *
  ******************************************************************************/
-void fnet_error_set( fnet_error_t error );
+void fnet_error_set(fnet_error_t error);
 
 #if defined(__cplusplus)
 }

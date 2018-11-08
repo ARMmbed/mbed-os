@@ -163,7 +163,7 @@ typedef struct {
 
 #define PMU_MOVE_NO_CONT                                    0 /* MOVE does not rely on previous MOVE */
 #define PMU_MOVE_CONT                                       1 /* MOVE continues from read/write address */
-                                                              /* and INC values defined in previous MOVE */
+/* and INC values defined in previous MOVE */
 
 /* MOVE bit positions */
 #define PMU_MOVE_READS_POS                                  5

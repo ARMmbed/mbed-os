@@ -44,7 +44,7 @@
  * @param[in]  p_flags  The collection of flags to modify.
  * @param[in]  index    The index of the flag to modify.
  */
-static __INLINE void sdk_mapped_flags_set_by_index(sdk_mapped_flags_t * p_flags, uint16_t index)
+static __INLINE void sdk_mapped_flags_set_by_index(sdk_mapped_flags_t *p_flags, uint16_t index)
 {
     *p_flags |= (1U << index);
 }
@@ -57,7 +57,7 @@ static __INLINE void sdk_mapped_flags_set_by_index(sdk_mapped_flags_t * p_flags,
  * @param[in]  p_flags  The collection of flags to modify.
  * @param[in]  index    The index of the flag to modify.
  */
-static __INLINE void sdk_mapped_flags_clear_by_index(sdk_mapped_flags_t * p_flags, uint16_t index)
+static __INLINE void sdk_mapped_flags_clear_by_index(sdk_mapped_flags_t *p_flags, uint16_t index)
 {
     *p_flags &= ~(1U << index);
 }
@@ -79,10 +79,8 @@ static __INLINE bool sdk_mapped_flags_get_by_index(sdk_mapped_flags_t flags, uin
 
 uint16_t sdk_mapped_flags_first_key_index_get(sdk_mapped_flags_t flags)
 {
-    for (uint16_t i = 0; i < SDK_MAPPED_FLAGS_N_KEYS; i++)
-    {
-        if (sdk_mapped_flags_get_by_index(flags, i))
-        {
+    for (uint16_t i = 0; i < SDK_MAPPED_FLAGS_N_KEYS; i++) {
+        if (sdk_mapped_flags_get_by_index(flags, i)) {
             return i;
         }
     }
@@ -90,8 +88,8 @@ uint16_t sdk_mapped_flags_first_key_index_get(sdk_mapped_flags_t flags)
 }
 
 
-void sdk_mapped_flags_update_by_key(uint16_t           * p_keys,
-                                    sdk_mapped_flags_t * p_flags,
+void sdk_mapped_flags_update_by_key(uint16_t            *p_keys,
+                                    sdk_mapped_flags_t *p_flags,
                                     uint16_t             key,
                                     bool                 value)
 {
@@ -99,26 +97,19 @@ void sdk_mapped_flags_update_by_key(uint16_t           * p_keys,
 }
 
 
-void sdk_mapped_flags_bulk_update_by_key(uint16_t           * p_keys,
-                                         sdk_mapped_flags_t * p_flags,
+void sdk_mapped_flags_bulk_update_by_key(uint16_t            *p_keys,
+                                         sdk_mapped_flags_t *p_flags,
                                          uint32_t             n_flag_collections,
                                          uint16_t             key,
                                          bool                 value)
 {
-    if ((p_keys != NULL) && (p_flags != NULL) && (n_flag_collections > 0))
-    {
-        for (int i = 0; i < SDK_MAPPED_FLAGS_N_KEYS; i++)
-        {
-            if (p_keys[i] == key)
-            {
-                for (uint32_t j = 0; j < n_flag_collections; j++)
-                {
-                    if (value)
-                    {
+    if ((p_keys != NULL) && (p_flags != NULL) && (n_flag_collections > 0)) {
+        for (int i = 0; i < SDK_MAPPED_FLAGS_N_KEYS; i++) {
+            if (p_keys[i] == key) {
+                for (uint32_t j = 0; j < n_flag_collections; j++) {
+                    if (value) {
                         sdk_mapped_flags_set_by_index(&p_flags[j], i);
-                    }
-                    else
-                    {
+                    } else {
                         sdk_mapped_flags_clear_by_index(&p_flags[j], i);
                     }
                 }
@@ -129,14 +120,11 @@ void sdk_mapped_flags_bulk_update_by_key(uint16_t           * p_keys,
 }
 
 
-bool sdk_mapped_flags_get_by_key(uint16_t * p_keys, sdk_mapped_flags_t flags, uint16_t key)
+bool sdk_mapped_flags_get_by_key(uint16_t *p_keys, sdk_mapped_flags_t flags, uint16_t key)
 {
-    if (p_keys != NULL)
-    {
-        for (int i = 0; i < SDK_MAPPED_FLAGS_N_KEYS; i++)
-        {
-            if (p_keys[i] == key)
-            {
+    if (p_keys != NULL) {
+        for (int i = 0; i < SDK_MAPPED_FLAGS_N_KEYS; i++) {
+            if (p_keys[i] == key) {
                 return sdk_mapped_flags_get_by_index(flags, i);
             }
         }
@@ -145,18 +133,15 @@ bool sdk_mapped_flags_get_by_key(uint16_t * p_keys, sdk_mapped_flags_t flags, ui
 }
 
 
-sdk_mapped_flags_key_list_t sdk_mapped_flags_key_list_get(uint16_t           * p_keys,
+sdk_mapped_flags_key_list_t sdk_mapped_flags_key_list_get(uint16_t            *p_keys,
                                                           sdk_mapped_flags_t   flags)
 {
     sdk_mapped_flags_key_list_t key_list;
     key_list.len = 0;
 
-    if (p_keys != NULL)
-    {
-        for (int i = 0; i < SDK_MAPPED_FLAGS_N_KEYS; i++)
-        {
-            if (sdk_mapped_flags_get_by_index(flags, i))
-            {
+    if (p_keys != NULL) {
+        for (int i = 0; i < SDK_MAPPED_FLAGS_N_KEYS; i++) {
+            if (sdk_mapped_flags_get_by_index(flags, i)) {
                 key_list.flag_keys[key_list.len++] = p_keys[i];
             }
         }
@@ -170,10 +155,8 @@ uint32_t sdk_mapped_flags_n_flags_set(sdk_mapped_flags_t flags)
 {
     uint32_t n_flags_set = 0;
 
-    for (int i = 0; i < SDK_MAPPED_FLAGS_N_KEYS; i++)
-    {
-        if (sdk_mapped_flags_get_by_index(flags, i))
-        {
+    for (int i = 0; i < SDK_MAPPED_FLAGS_N_KEYS; i++) {
+        if (sdk_mapped_flags_get_by_index(flags, i)) {
             n_flags_set += 1;
         }
     }

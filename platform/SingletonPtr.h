@@ -56,7 +56,7 @@ inline static void singleton_lock(void)
 inline static void singleton_unlock(void)
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    osMutexRelease (singleton_mutex_id);
+    osMutexRelease(singleton_mutex_id);
 #endif
 }
 
@@ -80,7 +80,8 @@ struct SingletonPtr {
      * @returns
      *   A pointer to the singleton
      */
-    T* get() {
+    T *get()
+    {
         if (NULL == _ptr) {
             singleton_lock();
             if (NULL == _ptr) {
@@ -99,7 +100,8 @@ struct SingletonPtr {
      * @returns
      *   A pointer to the singleton
      */
-    T* operator->() {
+    T *operator->()
+    {
         return get();
     }
 

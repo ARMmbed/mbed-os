@@ -41,9 +41,9 @@
  *          are used to provide the cause or nature of error. Each module is assigned a 16-bit
  *          unsigned integer. Which it will use to identify all errors that occurred in it. 16-bit
  *          LSB range is with module id as the MSB in the 32-bit error code is reserved for the
- *          module. As an example, if 0x8800 identifies a certain SDK module, all values from 
+ *          module. As an example, if 0x8800 identifies a certain SDK module, all values from
  *          0x88000000 - 0x8800FFFF are reserved for this module.
- *          It should be noted that common error reasons have been assigned values to make it 
+ *          It should be noted that common error reasons have been assigned values to make it
  *          possible to decode error reason easily. As an example, lets module uninitialized has
  *          been assigned an error code 0x000A0. Then, if application encounters an error code
  *          0xZZZZ00A0, it knows that it accessing a certain module without initializing it.
@@ -55,7 +55,7 @@
  *          A range is reserved for application as well, it can use this range for defining
  *          application specific errors.
  *
- * @note Success code, NRF_SUCCESS, does not include any module identifier.          
+ * @note Success code, NRF_SUCCESS, does not include any module identifier.
 
  */
 
@@ -89,7 +89,7 @@
 #define IOT_ERR_BASE_START        (0xA000)
 #define IOT_ERR_BASE_STOP         (0xAFFF)
 /* @} */
- 
+
 
 /**
  * @defgroup sdk_common_errors Codes reserved as identification for common errors.

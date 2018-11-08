@@ -74,7 +74,7 @@ extern "C" {
  * TYPES
  *=========================================================================*/
 
-/** 
+/**
  * The encryption mode.
  *
  * @ingroup wlantypes
@@ -88,7 +88,7 @@ typedef enum cbWLAN_EncryptionMode_e {
 } cbWLAN_EncryptionMode;
 
 
-/**  
+/**
  * Enterprise authentication mode.
  *
  * @ingroup wlan
@@ -108,7 +108,7 @@ typedef enum cbWLAN_EncryptionKeySize_e {
     cbWLAN_KEY_SIZE_WEP64      = 5,
     cbWLAN_KEY_SIZE_WEP128     = 13,
     cbWLAN_KEY_SIZE_WEP2       = 16,
-    cbWLAN_KEY_SIZE_TKIP       = 16,    
+    cbWLAN_KEY_SIZE_TKIP       = 16,
     cbWLAN_KEY_SIZE_AES        = 16,
     cbWLAN_KEY_SIZE_TKIP_MIC   = 8
 } cbWLAN_EncryptionKeySize;
@@ -177,7 +177,7 @@ typedef struct {
  *
  * @ingroup wlantypes
  */
-enum cbWLAN_Rate_e {    
+enum cbWLAN_Rate_e {
     cbWLAN_RATE_01 = 1, // 1
     cbWLAN_RATE_02,     // 2
     cbWLAN_RATE_5_5,    // 3
@@ -185,9 +185,9 @@ enum cbWLAN_Rate_e {
     cbWLAN_RATE_09,     // 5
     cbWLAN_RATE_11,     // 6
     cbWLAN_RATE_12,     // 7
-    cbWLAN_RATE_18,     // 8 
-    cbWLAN_RATE_24,     // 9 
-    cbWLAN_RATE_36,     // 10 
+    cbWLAN_RATE_18,     // 8
+    cbWLAN_RATE_24,     // 9
+    cbWLAN_RATE_36,     // 10
     cbWLAN_RATE_48,     // 11
     cbWLAN_RATE_54,     // 12
     cbWLAN_RATE_MCS0,   // 13
@@ -220,7 +220,7 @@ typedef cb_uint8 cbWLAN_Rate;
  *
  * @ingroup wlantypes
  */
-enum cbWLAN_RateMask_e {    
+enum cbWLAN_RateMask_e {
     cbRATE_MASK_01 = 0x00000001,
     cbRATE_MASK_02 = 0x00000002,
     cbRATE_MASK_5_5 = 0x00000004,
@@ -326,7 +326,7 @@ typedef enum cbWLAN_Band_e {
  */
 typedef enum cbWLAN_OperationalMode_e {
     cbWLAN_OPMODE_MANAGED,
-    cbWLAN_OPMODE_ADHOC,    
+    cbWLAN_OPMODE_ADHOC,
 } cbWLAN_OperationalMode;
 
 /**
@@ -353,40 +353,48 @@ typedef enum {
     cbWLAN_AP_MODE_ENTERPRISE,
 } cbWLAN_ApMode;
 
-/** 
+/**
  * Ethernet header
  *
  * @ingroup wlantypes
  */
-cb_PACKED_STRUCT_BEGIN(cbWLAN_EthernetHeader) {
+cb_PACKED_STRUCT_BEGIN(cbWLAN_EthernetHeader)
+{
     cbWLAN_MACAddress   dest;
     cbWLAN_MACAddress   src;
     cb_uint16           type;
-} cb_PACKED_STRUCT_END(cbWLAN_EthernetHeader);
+}
+cb_PACKED_STRUCT_END(cbWLAN_EthernetHeader);
 
 
-cb_PACKED_STRUCT_BEGIN(cbWLAN_EthernetFrame) {
+cb_PACKED_STRUCT_BEGIN(cbWLAN_EthernetFrame)
+{
     cbWLAN_EthernetHeader header;
     cb_uint8            payload[cb_EMPTY_ARRAY];
-} cb_PACKED_STRUCT_END(cbWLAN_EthernetFrame);
+}
+cb_PACKED_STRUCT_END(cbWLAN_EthernetFrame);
 
-/** 
+/**
  * SNAP header
  *
  * @ingroup wlantypes
  */
-cb_PACKED_STRUCT_BEGIN(cbWLAN_SNAPHeader) {
+cb_PACKED_STRUCT_BEGIN(cbWLAN_SNAPHeader)
+{
     cb_uint8    dsap;
     cb_uint8    ssap;
     cb_uint8    ctrl;
     cb_uint8    encapsulation[3];
     cb_uint16   ethType;
-} cb_PACKED_STRUCT_END(cbWLAN_SNAPHeader);
+}
+cb_PACKED_STRUCT_END(cbWLAN_SNAPHeader);
 
-cb_PACKED_STRUCT_BEGIN(cbWLAN_SNAPFrame) {
+cb_PACKED_STRUCT_BEGIN(cbWLAN_SNAPFrame)
+{
     cbWLAN_SNAPHeader header;
     cb_uint8    payload[cb_EMPTY_ARRAY];
-} cb_PACKED_STRUCT_END(cbWLAN_SNAPFrame);
+}
+cb_PACKED_STRUCT_END(cbWLAN_SNAPFrame);
 
 
 /**
@@ -394,7 +402,7 @@ cb_PACKED_STRUCT_BEGIN(cbWLAN_SNAPFrame) {
  *
  * @ingroup wlantypes
  */
-typedef struct cbWLAN_Ssid_s {    
+typedef struct cbWLAN_Ssid_s {
     cb_uint8 ssid[cbWLAN_SSID_MAX_LENGTH];
     cb_uint32 ssidLength;
 } cbWLAN_Ssid;
@@ -422,7 +430,7 @@ typedef struct {
         cb_uint32 patch1;
     } software;
     struct {
-        const char* id;
+        const char *id;
     } manufacturer;
 } cbWM_DriverRevision;
 
@@ -440,7 +448,7 @@ typedef struct {
         cb_uint32 patch2;
     } firmware;
     struct {
-        const char* id;
+        const char *id;
     } manufacturer;
 } cbWM_FWRevision;
 
@@ -451,7 +459,7 @@ typedef struct {
 *
 * @ingroup types
 */
-typedef struct version_st{
+typedef struct version_st {
     cbWM_DriverRevision host;
     cbWM_FWRevision target;
 } cbWM_Version;
@@ -538,7 +546,7 @@ cbWLAN_RateMask cbWLAN_getRatesForChannel(cbWLAN_Channel channel);
 cb_boolean cbWLAN_isNRate(cbWLAN_Rate rate);
 
 /**
- * Checks if a channel is valid 
+ * Checks if a channel is valid
  *
  * @return @ref TRUE if the channel is valid. @ref FALSE otherwise.
  */

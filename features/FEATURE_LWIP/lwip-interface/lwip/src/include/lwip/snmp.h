@@ -59,38 +59,38 @@ struct netif;
  * @see RFC1213, "MIB-II, 6. Definitions"
  */
 enum snmp_ifType {
-  snmp_ifType_other=1,                /* none of the following */
-  snmp_ifType_regular1822,
-  snmp_ifType_hdh1822,
-  snmp_ifType_ddn_x25,
-  snmp_ifType_rfc877_x25,
-  snmp_ifType_ethernet_csmacd,
-  snmp_ifType_iso88023_csmacd,
-  snmp_ifType_iso88024_tokenBus,
-  snmp_ifType_iso88025_tokenRing,
-  snmp_ifType_iso88026_man,
-  snmp_ifType_starLan,
-  snmp_ifType_proteon_10Mbit,
-  snmp_ifType_proteon_80Mbit,
-  snmp_ifType_hyperchannel,
-  snmp_ifType_fddi,
-  snmp_ifType_lapb,
-  snmp_ifType_sdlc,
-  snmp_ifType_ds1,                    /* T-1 */
-  snmp_ifType_e1,                     /* european equiv. of T-1 */
-  snmp_ifType_basicISDN,
-  snmp_ifType_primaryISDN,            /* proprietary serial */
-  snmp_ifType_propPointToPointSerial,
-  snmp_ifType_ppp,
-  snmp_ifType_softwareLoopback,
-  snmp_ifType_eon,                    /* CLNP over IP [11] */
-  snmp_ifType_ethernet_3Mbit,
-  snmp_ifType_nsip,                   /* XNS over IP */
-  snmp_ifType_slip,                   /* generic SLIP */
-  snmp_ifType_ultra,                  /* ULTRA technologies */
-  snmp_ifType_ds3,                    /* T-3 */
-  snmp_ifType_sip,                    /* SMDS */
-  snmp_ifType_frame_relay
+    snmp_ifType_other = 1,              /* none of the following */
+    snmp_ifType_regular1822,
+    snmp_ifType_hdh1822,
+    snmp_ifType_ddn_x25,
+    snmp_ifType_rfc877_x25,
+    snmp_ifType_ethernet_csmacd,
+    snmp_ifType_iso88023_csmacd,
+    snmp_ifType_iso88024_tokenBus,
+    snmp_ifType_iso88025_tokenRing,
+    snmp_ifType_iso88026_man,
+    snmp_ifType_starLan,
+    snmp_ifType_proteon_10Mbit,
+    snmp_ifType_proteon_80Mbit,
+    snmp_ifType_hyperchannel,
+    snmp_ifType_fddi,
+    snmp_ifType_lapb,
+    snmp_ifType_sdlc,
+    snmp_ifType_ds1,                    /* T-1 */
+    snmp_ifType_e1,                     /* european equiv. of T-1 */
+    snmp_ifType_basicISDN,
+    snmp_ifType_primaryISDN,            /* proprietary serial */
+    snmp_ifType_propPointToPointSerial,
+    snmp_ifType_ppp,
+    snmp_ifType_softwareLoopback,
+    snmp_ifType_eon,                    /* CLNP over IP [11] */
+    snmp_ifType_ethernet_3Mbit,
+    snmp_ifType_nsip,                   /* XNS over IP */
+    snmp_ifType_slip,                   /* generic SLIP */
+    snmp_ifType_ultra,                  /* ULTRA technologies */
+    snmp_ifType_ds3,                    /* T-3 */
+    snmp_ifType_sip,                    /* SMDS */
+    snmp_ifType_frame_relay
 };
 
 /** This macro has a precision of ~49 days because sys_now returns u32_t. \#define your own if you want ~490 days. */

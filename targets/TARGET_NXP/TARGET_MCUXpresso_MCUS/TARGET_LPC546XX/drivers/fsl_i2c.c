@@ -38,8 +38,7 @@
  ******************************************************************************/
 
 /*! @brief Common sets of flags used by the driver. */
-enum _i2c_flag_constants
-{
+enum _i2c_flag_constants {
     kI2C_MasterIrqFlags = I2C_INTSTAT_MSTPENDING_MASK | I2C_INTSTAT_MSTARBLOSS_MASK | I2C_INTSTAT_MSTSTSTPERR_MASK,
     kI2C_SlaveIrqFlags = I2C_INTSTAT_SLVPENDING_MASK | I2C_INTSTAT_SLVDESEL_MASK,
 };
@@ -88,10 +87,8 @@ static const IRQn_Type s_i2cIRQ[] = I2C_IRQS;
 uint32_t I2C_GetInstance(I2C_Type *base)
 {
     int i;
-    for (i = 0; i < FSL_FEATURE_SOC_I2C_COUNT; i++)
-    {
-        if ((uint32_t)base == s_i2cBaseAddrs[i])
-        {
+    for (i = 0; i < FSL_FEATURE_SOC_I2C_COUNT; i++) {
+        if ((uint32_t)base == s_i2cBaseAddrs[i]) {
             return i;
         }
     }
@@ -126,8 +123,7 @@ void I2C_MasterSetBaudRate(I2C_Type *base, uint32_t baudRate_Bps, uint32_t srcCl
 
     best_err = 0;
 
-    for (scl = 9; scl >= 2; scl--)
-    {
+    for (scl = 9; scl >= 2; scl--) {
         /* calculated ideal divider value for given scl */
         divider = srcClock_Hz / (baudRate_Bps * scl * 2u);
 
@@ -136,15 +132,13 @@ void I2C_MasterSetBaudRate(I2C_Type *base, uint32_t baudRate_Bps, uint32_t srcCl
 
         /* calculate error */
         err = srcClock_Hz - (baudRate_Bps * scl * 2u * divider);
-        if ((err < best_err) || (best_err == 0))
-        {
+        if ((err < best_err) || (best_err == 0)) {
             best_div = divider;
             best_scl = scl;
             best_err = err;
         }
 
-        if ((err == 0) || (divider >= 0x10000u))
-        {
+        if ((err == 0) || (divider >= 0x10000u)) {
             /* either exact value was found
                or divider is at its max (it would even greater in the next iteration for sure) */
             break;
@@ -159,8 +153,7 @@ static uint32_t I2C_PendingStatusWait(I2C_Type *base)
 {
     uint32_t status;
 
-    do
-    {
+    do {
         status = I2C_GetStatusFlags(base);
     } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 
@@ -201,23 +194,19 @@ status_t I2C_MasterWriteBlocking(I2C_Type *base, const void *txBuff, size_t txSi
     assert(txBuff);
 
     err = kStatus_Success;
-    while (txSize)
-    {
+    while (txSize) {
         status = I2C_PendingStatusWait(base);
 
-        if (status & I2C_STAT_MSTARBLOSS_MASK)
-        {
+        if (status & I2C_STAT_MSTARBLOSS_MASK) {
             return kStatus_I2C_ArbitrationLost;
         }
 
-        if (status & I2C_STAT_MSTSTSTPERR_MASK)
-        {
+        if (status & I2C_STAT_MSTSTSTPERR_MASK) {
             return kStatus_I2C_StartStopError;
         }
 
         master_state = (status & I2C_STAT_MSTSTATE_MASK) >> I2C_STAT_MSTSTATE_SHIFT;
-        switch (master_state)
-        {
+        switch (master_state) {
             case I2C_STAT_MSTCODE_TXREADY:
                 /* ready to send next byte */
                 base->MSTDAT = *buf++;
@@ -237,31 +226,26 @@ status_t I2C_MasterWriteBlocking(I2C_Type *base, const void *txBuff, size_t txSi
                 break;
         }
 
-        if (err != kStatus_Success)
-        {
+        if (err != kStatus_Success) {
             return err;
         }
     }
 
     status = I2C_PendingStatusWait(base);
 
-    if ((status & (I2C_STAT_MSTARBLOSS_MASK | I2C_STAT_MSTSTSTPERR_MASK)) == 0)
-    {
-        if (!(flags & kI2C_TransferNoStopFlag))
-        {
+    if ((status & (I2C_STAT_MSTARBLOSS_MASK | I2C_STAT_MSTSTSTPERR_MASK)) == 0) {
+        if (!(flags & kI2C_TransferNoStopFlag)) {
             /* Initiate stop */
             base->MSTCTL = I2C_MSTCTL_MSTSTOP_MASK;
             status = I2C_PendingStatusWait(base);
         }
     }
 
-    if (status & I2C_STAT_MSTARBLOSS_MASK)
-    {
+    if (status & I2C_STAT_MSTARBLOSS_MASK) {
         return kStatus_I2C_ArbitrationLost;
     }
 
-    if (status & I2C_STAT_MSTSTSTPERR_MASK)
-    {
+    if (status & I2C_STAT_MSTSTSTPERR_MASK) {
         return kStatus_I2C_StartStopError;
     }
 
@@ -279,29 +263,22 @@ status_t I2C_MasterReadBlocking(I2C_Type *base, void *rxBuff, size_t rxSize, uin
     assert(rxBuff);
 
     err = kStatus_Success;
-    while (rxSize)
-    {
+    while (rxSize) {
         status = I2C_PendingStatusWait(base);
 
-        if (status & (I2C_STAT_MSTARBLOSS_MASK | I2C_STAT_MSTSTSTPERR_MASK))
-        {
+        if (status & (I2C_STAT_MSTARBLOSS_MASK | I2C_STAT_MSTSTSTPERR_MASK)) {
             break;
         }
 
         master_state = (status & I2C_STAT_MSTSTATE_MASK) >> I2C_STAT_MSTSTATE_SHIFT;
-        switch (master_state)
-        {
+        switch (master_state) {
             case I2C_STAT_MSTCODE_RXREADY:
                 /* ready to send next byte */
                 *(buf++) = base->MSTDAT;
-                if (--rxSize)
-                {
+                if (--rxSize) {
                     base->MSTCTL = I2C_MSTCTL_MSTCONTINUE_MASK;
-                }
-                else
-                {
-                    if ((flags & kI2C_TransferNoStopFlag) == 0)
-                    {
+                } else {
+                    if ((flags & kI2C_TransferNoStopFlag) == 0) {
                         /* initiate NAK and stop */
                         base->MSTCTL = I2C_MSTCTL_MSTSTOP_MASK;
                         status = I2C_PendingStatusWait(base);
@@ -321,19 +298,16 @@ status_t I2C_MasterReadBlocking(I2C_Type *base, void *rxBuff, size_t rxSize, uin
                 break;
         }
 
-        if (err != kStatus_Success)
-        {
+        if (err != kStatus_Success) {
             return err;
         }
     }
 
-    if (status & I2C_STAT_MSTARBLOSS_MASK)
-    {
+    if (status & I2C_STAT_MSTARBLOSS_MASK) {
         return kStatus_I2C_ArbitrationLost;
     }
 
-    if (status & I2C_STAT_MSTSTSTPERR_MASK)
-    {
+    if (status & I2C_STAT_MSTSTSTPERR_MASK) {
         return kStatus_I2C_StartStopError;
     }
 
@@ -350,57 +324,42 @@ status_t I2C_MasterTransferBlocking(I2C_Type *base, i2c_master_transfer_t *xfer)
     assert(xfer);
 
     /* If repeated start is requested, send repeated start. */
-    if (!(xfer->flags & kI2C_TransferNoStartFlag))
-    {
-        if (xfer->subaddressSize)
-        {
+    if (!(xfer->flags & kI2C_TransferNoStartFlag)) {
+        if (xfer->subaddressSize) {
             result = I2C_MasterStart(base, xfer->slaveAddress, kI2C_Write);
-            if (result == kStatus_Success)
-            {
+            if (result == kStatus_Success) {
                 /* Prepare subaddress transmit buffer, most significant byte is stored at the lowest address */
                 subaddress = xfer->subaddress;
-                for (i = xfer->subaddressSize - 1; i >= 0; i--)
-                {
+                for (i = xfer->subaddressSize - 1; i >= 0; i--) {
                     subaddrBuf[i] = subaddress & 0xff;
                     subaddress >>= 8;
                 }
                 /* Send subaddress. */
                 result = I2C_MasterWriteBlocking(base, subaddrBuf, xfer->subaddressSize, kI2C_TransferNoStopFlag);
-                if ((result == kStatus_Success) && (xfer->direction == kI2C_Read))
-                {
+                if ((result == kStatus_Success) && (xfer->direction == kI2C_Read)) {
                     result = I2C_MasterRepeatedStart(base, xfer->slaveAddress, xfer->direction);
                 }
             }
-        }
-        else if (xfer->flags & kI2C_TransferRepeatedStartFlag)
-        {
+        } else if (xfer->flags & kI2C_TransferRepeatedStartFlag) {
             result = I2C_MasterRepeatedStart(base, xfer->slaveAddress, xfer->direction);
-        }
-        else
-        {
+        } else {
             result = I2C_MasterStart(base, xfer->slaveAddress, xfer->direction);
         }
     }
 
-    if (result == kStatus_Success)
-    {
-        if ((xfer->direction == kI2C_Write) && (xfer->dataSize > 0))
-        {
+    if (result == kStatus_Success) {
+        if ((xfer->direction == kI2C_Write) && (xfer->dataSize > 0)) {
             /* Transmit data. */
             result = I2C_MasterWriteBlocking(base, xfer->data, xfer->dataSize, xfer->flags);
-        }
-        else
-        {
-            if ((xfer->direction == kI2C_Read) && (xfer->dataSize > 0))
-            {
+        } else {
+            if ((xfer->direction == kI2C_Read) && (xfer->dataSize > 0)) {
                 /* Receive Data. */
                 result = I2C_MasterReadBlocking(base, xfer->data, xfer->dataSize, xfer->flags);
             }
         }
     }
 
-    if (result == kStatus_I2C_Nak)
-    {
+    if (result == kStatus_I2C_Nak) {
         I2C_MasterStop(base);
     }
 
@@ -442,8 +401,7 @@ status_t I2C_MasterTransferNonBlocking(I2C_Type *base, i2c_master_handle_t *hand
     assert(xfer->subaddressSize <= sizeof(xfer->subaddress));
 
     /* Return busy if another transaction is in progress. */
-    if (handle->state != kIdleState)
-    {
+    if (handle->state != kIdleState) {
         return kStatus_I2C_Busy;
     }
 
@@ -466,14 +424,12 @@ status_t I2C_MasterTransferGetCount(I2C_Type *base, i2c_master_handle_t *handle,
 {
     assert(handle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
     /* Catch when there is not an active transfer. */
-    if (handle->state == kIdleState)
-    {
+    if (handle->state == kIdleState) {
         *count = 0;
         return kStatus_NoTransferInProgress;
     }
@@ -488,8 +444,7 @@ void I2C_MasterTransferAbort(I2C_Type *base, i2c_master_handle_t *handle)
     uint32_t status;
     uint32_t master_state;
 
-    if (handle->state != kIdleState)
-    {
+    if (handle->state != kIdleState) {
         /* Disable internal IRQ enables. */
         I2C_DisableInterrupts(base, kI2C_MasterIrqFlags);
 
@@ -499,8 +454,7 @@ void I2C_MasterTransferAbort(I2C_Type *base, i2c_master_handle_t *handle)
         /* Get the state of the I2C module */
         master_state = (status & I2C_STAT_MSTSTATE_MASK) >> I2C_STAT_MSTSTATE_SHIFT;
 
-        if (master_state != I2C_STAT_MSTCODE_IDLE)
-        {
+        if (master_state != I2C_STAT_MSTCODE_IDLE) {
             /* Send a stop command to finalize the transfer. */
             base->MSTCTL = I2C_MSTCTL_MSTSTOP_MASK;
 
@@ -529,42 +483,29 @@ static status_t I2C_InitTransferStateMachine(I2C_Type *base, i2c_master_handle_t
     handle->buf = (uint8_t *)transfer->data;
     handle->remainingSubaddr = 0;
 
-    if (transfer->flags & kI2C_TransferNoStartFlag)
-    {
+    if (transfer->flags & kI2C_TransferNoStartFlag) {
         /* Start condition shall be ommited, switch directly to next phase */
-        if (transfer->dataSize == 0)
-        {
+        if (transfer->dataSize == 0) {
             handle->state = kStopState;
-        }
-        else if (handle->transfer.direction == kI2C_Write)
-        {
+        } else if (handle->transfer.direction == kI2C_Write) {
             handle->state = kTransmitDataState;
-        }
-        else if (handle->transfer.direction == kI2C_Read)
-        {
+        } else if (handle->transfer.direction == kI2C_Read) {
             handle->state = kReceiveDataState;
-        }
-        else
-        {
+        } else {
             return kStatus_I2C_InvalidParameter;
         }
-    }
-    else
-    {
-        if (transfer->subaddressSize != 0)
-        {
+    } else {
+        if (transfer->subaddressSize != 0) {
             int i;
             uint32_t subaddress;
 
-            if (transfer->subaddressSize > sizeof(handle->subaddrBuf))
-            {
+            if (transfer->subaddressSize > sizeof(handle->subaddrBuf)) {
                 return kStatus_I2C_InvalidParameter;
             }
 
             /* Prepare subaddress transmit buffer, most significant byte is stored at the lowest address */
             subaddress = xfer->subaddress;
-            for (i = xfer->subaddressSize - 1; i >= 0; i--)
-            {
+            for (i = xfer->subaddressSize - 1; i >= 0; i--) {
                 handle->subaddrBuf[i] = subaddress & 0xff;
                 subaddress >>= 8;
             }
@@ -597,28 +538,24 @@ static status_t I2C_RunTransferStateMachine(I2C_Type *base, i2c_master_handle_t 
 
     status = I2C_GetStatusFlags(base);
 
-    if (status & I2C_STAT_MSTARBLOSS_MASK)
-    {
+    if (status & I2C_STAT_MSTARBLOSS_MASK) {
         I2C_MasterClearStatusFlags(base, I2C_STAT_MSTARBLOSS_MASK);
         return kStatus_I2C_ArbitrationLost;
     }
 
-    if (status & I2C_STAT_MSTSTSTPERR_MASK)
-    {
+    if (status & I2C_STAT_MSTSTSTPERR_MASK) {
         I2C_MasterClearStatusFlags(base, I2C_STAT_MSTSTSTPERR_MASK);
         return kStatus_I2C_StartStopError;
     }
 
-    if ((status & I2C_STAT_MSTPENDING_MASK) == 0)
-    {
+    if ((status & I2C_STAT_MSTPENDING_MASK) == 0) {
         return kStatus_I2C_Busy;
     }
 
     /* Get the state of the I2C module */
     master_state = (status & I2C_STAT_MSTSTATE_MASK) >> I2C_STAT_MSTSTATE_SHIFT;
 
-    if ((master_state == I2C_STAT_MSTCODE_NACKADR) || (master_state == I2C_STAT_MSTCODE_NACKDAT))
-    {
+    if ((master_state == I2C_STAT_MSTCODE_NACKADR) || (master_state == I2C_STAT_MSTCODE_NACKDAT)) {
         /* Slave NACKed last byte, issue stop and return error */
         base->MSTCTL = I2C_MSTCTL_MSTSTOP_MASK;
         handle->state = kWaitForCompletionState;
@@ -626,22 +563,16 @@ static status_t I2C_RunTransferStateMachine(I2C_Type *base, i2c_master_handle_t 
     }
 
     err = kStatus_Success;
-    switch (handle->state)
-    {
+    switch (handle->state) {
         case kStartState:
-            if (handle->remainingSubaddr)
-            {
+            if (handle->remainingSubaddr) {
                 /* Subaddress takes precedence over the data transfer, direction is always "write" in this case */
                 base->MSTDAT = (uint32_t)transfer->slaveAddress << 1;
                 handle->state = kTransmitSubaddrState;
-            }
-            else if (transfer->direction == kI2C_Write)
-            {
+            } else if (transfer->direction == kI2C_Write) {
                 base->MSTDAT = (uint32_t)transfer->slaveAddress << 1;
                 handle->state = handle->remainingBytes ? kTransmitDataState : kStopState;
-            }
-            else
-            {
+            } else {
                 base->MSTDAT = ((uint32_t)transfer->slaveAddress << 1) | 1u;
                 handle->state = handle->remainingBytes ? kReceiveDataState : kStopState;
             }
@@ -650,41 +581,34 @@ static status_t I2C_RunTransferStateMachine(I2C_Type *base, i2c_master_handle_t 
             break;
 
         case kTransmitSubaddrState:
-            if (master_state != I2C_STAT_MSTCODE_TXREADY)
-            {
+            if (master_state != I2C_STAT_MSTCODE_TXREADY) {
                 return kStatus_I2C_UnexpectedState;
             }
 
             /* Most significant subaddress byte comes first */
             base->MSTDAT = handle->subaddrBuf[handle->transfer.subaddressSize - handle->remainingSubaddr];
             base->MSTCTL = I2C_MSTCTL_MSTCONTINUE_MASK;
-            if (--(handle->remainingSubaddr))
-            {
+            if (--(handle->remainingSubaddr)) {
                 /* There are still subaddress bytes to be transmitted */
                 break;
             }
-            if (handle->remainingBytes)
-            {
+            if (handle->remainingBytes) {
                 /* There is data to be transferred, if there is write to read turnaround it is necessary to perform
                  * repeated start */
                 handle->state = (transfer->direction == kI2C_Read) ? kStartState : kTransmitDataState;
-            }
-            else
-            {
+            } else {
                 /* No more data, schedule stop condition */
                 handle->state = kStopState;
             }
             break;
 
         case kTransmitDataState:
-            if (master_state != I2C_STAT_MSTCODE_TXREADY)
-            {
+            if (master_state != I2C_STAT_MSTCODE_TXREADY) {
                 return kStatus_I2C_UnexpectedState;
             }
             base->MSTDAT = *(handle->buf)++;
             base->MSTCTL = I2C_MSTCTL_MSTCONTINUE_MASK;
-            if (--handle->remainingBytes == 0)
-            {
+            if (--handle->remainingBytes == 0) {
                 /* No more data, schedule stop condition */
                 handle->state = kStopState;
             }
@@ -692,17 +616,13 @@ static status_t I2C_RunTransferStateMachine(I2C_Type *base, i2c_master_handle_t 
             break;
 
         case kReceiveDataState:
-            if (master_state != I2C_STAT_MSTCODE_RXREADY)
-            {
+            if (master_state != I2C_STAT_MSTCODE_RXREADY) {
                 return kStatus_I2C_UnexpectedState;
             }
             *(handle->buf)++ = base->MSTDAT;
-            if (--handle->remainingBytes)
-            {
+            if (--handle->remainingBytes) {
                 base->MSTCTL = I2C_MSTCTL_MSTCONTINUE_MASK;
-            }
-            else
-            {
+            } else {
                 /* No more data expected, issue NACK and STOP right away */
                 base->MSTCTL = I2C_MSTCTL_MSTSTOP_MASK;
                 handle->state = kWaitForCompletionState;
@@ -711,8 +631,7 @@ static status_t I2C_RunTransferStateMachine(I2C_Type *base, i2c_master_handle_t 
             break;
 
         case kStopState:
-            if (transfer->flags & kI2C_TransferNoStopFlag)
-            {
+            if (transfer->flags & kI2C_TransferNoStopFlag) {
                 /* Stop condition is omitted, we are done */
                 *isDone = true;
                 handle->state = kIdleState;
@@ -744,21 +663,18 @@ void I2C_MasterTransferHandleIRQ(I2C_Type *base, i2c_master_handle_t *handle)
     status_t result;
 
     /* Don't do anything if we don't have a valid handle. */
-    if (!handle)
-    {
+    if (!handle) {
         return;
     }
 
     result = I2C_RunTransferStateMachine(base, handle, &isDone);
 
-    if (isDone || (result != kStatus_Success))
-    {
+    if (isDone || (result != kStatus_Success)) {
         /* Disable internal IRQ enables. */
         I2C_DisableInterrupts(base, kI2C_MasterIrqFlags);
 
         /* Invoke callback. */
-        if (handle->completionCallback)
-        {
+        if (handle->completionCallback) {
             handle->completionCallback(base, handle, result, handle->userData);
         }
     }
@@ -789,8 +705,7 @@ static status_t I2C_SlaveDivVal(uint32_t srcClock_Hz, i2c_slave_bus_speed_t busS
 {
     uint32_t dataSetupTime_ns;
 
-    switch (busSpeed)
-    {
+    switch (busSpeed) {
         case kI2C_SlaveStandardMode:
             dataSetupTime_ns = 250u;
             break;
@@ -812,8 +727,7 @@ static status_t I2C_SlaveDivVal(uint32_t srcClock_Hz, i2c_slave_bus_speed_t busS
             break;
     }
 
-    if (0 == dataSetupTime_ns)
-    {
+    if (0 == dataSetupTime_ns) {
         return kStatus_InvalidArgument;
     }
 
@@ -822,8 +736,7 @@ static status_t I2C_SlaveDivVal(uint32_t srcClock_Hz, i2c_slave_bus_speed_t busS
     *divVal = (*divVal) * dataSetupTime_ns;
     *divVal = (*divVal) / 1000000u;
 
-    if ((*divVal) > I2C_CLKDIV_DIVVAL_MASK)
-    {
+    if ((*divVal) > I2C_CLKDIV_DIVVAL_MASK) {
         *divVal = I2C_CLKDIV_DIVVAL_MASK;
     }
 
@@ -842,8 +755,7 @@ static uint32_t I2C_SlavePollPending(I2C_Type *base)
 {
     uint32_t stat;
 
-    do
-    {
+    do {
         stat = base->STAT;
     } while (0u == (stat & I2C_STAT_SLVPENDING_MASK));
 
@@ -863,23 +775,19 @@ static uint32_t I2C_SlavePollPending(I2C_Type *base)
 static void I2C_SlaveInvokeEvent(I2C_Type *base, i2c_slave_handle_t *handle, i2c_slave_transfer_event_t event)
 {
     handle->transfer.event = event;
-    if ((handle->callback) && (handle->transfer.eventMask & event))
-    {
+    if ((handle->callback) && (handle->transfer.eventMask & event)) {
         handle->callback(base, &handle->transfer, handle->userData);
 
         /* if after event callback we have data buffer (callback func has added new data), keep transfer busy */
-        if (false == handle->isBusy)
-        {
+        if (false == handle->isBusy) {
             if (((handle->transfer.txData) && (handle->transfer.txSize)) ||
-                ((handle->transfer.rxData) && (handle->transfer.rxSize)))
-            {
+                    ((handle->transfer.rxData) && (handle->transfer.rxSize))) {
                 handle->isBusy = true;
             }
         }
 
         /* Clear the transferred count now that we have a new buffer. */
-        if ((event == kI2C_SlaveReceiveEvent) || (event == kI2C_SlaveTransmitEvent))
-        {
+        if ((event == kI2C_SlaveReceiveEvent) || (event == kI2C_SlaveTransmitEvent)) {
             handle->transfer.transferredCount = 0;
         }
     }
@@ -905,35 +813,28 @@ static bool I2C_SlaveAddressIRQ(I2C_Type *base, i2c_slave_handle_t *handle)
     handle->transfer.receivedAddress = addressByte0;
 
     /* R/nW */
-    if (addressByte0 & 1u)
-    {
+    if (addressByte0 & 1u) {
         /* if we have no data in this transfer, call callback to get new */
-        if ((handle->transfer.txData == NULL) || (handle->transfer.txSize == 0))
-        {
+        if ((handle->transfer.txData == NULL) || (handle->transfer.txSize == 0)) {
             I2C_SlaveInvokeEvent(base, handle, kI2C_SlaveTransmitEvent);
         }
 
         /* NACK if we have no data in this transfer. */
-        if ((handle->transfer.txData == NULL) || (handle->transfer.txSize == 0))
-        {
+        if ((handle->transfer.txData == NULL) || (handle->transfer.txSize == 0)) {
             base->SLVCTL = I2C_SLVCTL_SLVNACK_MASK;
             return false;
         }
 
         /* master wants to read, so slave transmit is next state */
         handle->slaveFsm = kI2C_SlaveFsmTransmit;
-    }
-    else
-    {
+    } else {
         /* if we have no receive buffer in this transfer, call callback to get new */
-        if ((handle->transfer.rxData == NULL) || (handle->transfer.rxSize == 0))
-        {
+        if ((handle->transfer.rxData == NULL) || (handle->transfer.rxSize == 0)) {
             I2C_SlaveInvokeEvent(base, handle, kI2C_SlaveReceiveEvent);
         }
 
         /* NACK if we have no data in this transfer */
-        if ((handle->transfer.rxData == NULL) || (handle->transfer.rxSize == 0))
-        {
+        if ((handle->transfer.rxData == NULL) || (handle->transfer.rxSize == 0)) {
             base->SLVCTL = I2C_SLVCTL_SLVNACK_MASK;
             return false;
         }
@@ -985,8 +886,7 @@ static status_t I2C_SlaveTransferNonBlockingInternal(I2C_Type *base,
     I2C_DisableInterrupts(base, kI2C_SlaveIrqFlags);
 
     /* Return busy if another transaction is in progress. */
-    if (handle->isBusy)
-    {
+    if (handle->isBusy) {
         status = kStatus_I2C_Busy;
     }
 
@@ -1053,8 +953,7 @@ status_t I2C_SlaveInit(I2C_Type *base, const i2c_slave_config_t *slaveConfig, ui
 
     /* configure data setup time used when slave stretches clock */
     status = I2C_SlaveDivVal(srcClock_Hz, slaveConfig->busSpeed, &divVal);
-    if (kStatus_Success != status)
-    {
+    if (kStatus_Success != status) {
         return status;
     }
 
@@ -1105,14 +1004,12 @@ status_t I2C_SlaveWriteBlocking(I2C_Type *base, const uint8_t *txBuff, size_t tx
     slaveTransmit = (((stat & I2C_STAT_SLVSTATE_MASK) >> I2C_STAT_SLVSTATE_SHIFT) == I2C_STAT_SLVST_TX);
 
     /* in I2C_SlaveSend() it shall be either slaveAddress or slaveTransmit */
-    if (!(slaveAddress || slaveTransmit))
-    {
+    if (!(slaveAddress || slaveTransmit)) {
         I2C_SlaveInternalStateMachineReset(base);
         return kStatus_Fail;
     }
 
-    if (slaveAddress)
-    {
+    if (slaveAddress) {
         /* Acknowledge (ack) the address by setting SLVCONTINUE = 1 in the slave control register */
         base->SLVCTL = I2C_SLVCTL_SLVCONTINUE_MASK;
 
@@ -1121,12 +1018,10 @@ status_t I2C_SlaveWriteBlocking(I2C_Type *base, const uint8_t *txBuff, size_t tx
     }
 
     /* send bytes up to txSize */
-    while (txSize)
-    {
+    while (txSize) {
         slaveTransmit = (((stat & I2C_STAT_SLVSTATE_MASK) >> I2C_STAT_SLVSTATE_SHIFT) == I2C_STAT_SLVST_TX);
 
-        if (!slaveTransmit)
-        {
+        if (!slaveTransmit) {
             I2C_SlaveInternalStateMachineReset(base);
             return kStatus_Fail;
         }
@@ -1141,8 +1036,7 @@ status_t I2C_SlaveWriteBlocking(I2C_Type *base, const uint8_t *txBuff, size_t tx
         buf++;
         txSize--;
 
-        if (txSize)
-        {
+        if (txSize) {
             /* wait for SLVPENDING */
             stat = I2C_SlavePollPending(base);
         }
@@ -1169,14 +1063,12 @@ status_t I2C_SlaveReadBlocking(I2C_Type *base, uint8_t *rxBuff, size_t rxSize)
     slaveReceive = (((stat & I2C_STAT_SLVSTATE_MASK) >> I2C_STAT_SLVSTATE_SHIFT) == I2C_STAT_SLVST_RX);
 
     /* in I2C_SlaveReceive() it shall be either slaveAddress or slaveReceive */
-    if (!(slaveAddress || slaveReceive))
-    {
+    if (!(slaveAddress || slaveReceive)) {
         I2C_SlaveInternalStateMachineReset(base);
         return kStatus_Fail;
     }
 
-    if (slaveAddress)
-    {
+    if (slaveAddress) {
         /* Acknowledge (ack) the address by setting SLVCONTINUE = 1 in the slave control register */
         base->SLVCTL = I2C_SLVCTL_SLVCONTINUE_MASK;
 
@@ -1185,12 +1077,10 @@ status_t I2C_SlaveReadBlocking(I2C_Type *base, uint8_t *rxBuff, size_t rxSize)
     }
 
     /* receive bytes up to rxSize */
-    while (rxSize)
-    {
+    while (rxSize) {
         slaveReceive = (((stat & I2C_STAT_SLVSTATE_MASK) >> I2C_STAT_SLVSTATE_SHIFT) == I2C_STAT_SLVST_RX);
 
-        if (!slaveReceive)
-        {
+        if (!slaveReceive) {
             I2C_SlaveInternalStateMachineReset(base);
             return kStatus_Fail;
         }
@@ -1205,8 +1095,7 @@ status_t I2C_SlaveReadBlocking(I2C_Type *base, uint8_t *rxBuff, size_t rxSize)
         buf++;
         rxSize--;
 
-        if (rxSize)
-        {
+        if (rxSize) {
             /* wait for SLVPENDING */
             stat = I2C_SlavePollPending(base);
         }
@@ -1256,14 +1145,12 @@ status_t I2C_SlaveTransferGetCount(I2C_Type *base, i2c_slave_handle_t *handle, s
 {
     assert(handle);
 
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
     /* Catch when there is not an active transfer. */
-    if (!handle->isBusy)
-    {
+    if (!handle->isBusy) {
         *count = 0;
         return kStatus_NoTransferInProgress;
     }
@@ -1291,42 +1178,32 @@ void I2C_SlaveTransferHandleIRQ(I2C_Type *base, i2c_slave_handle_t *handle)
 {
     uint32_t i2cStatus = base->STAT;
 
-    if (i2cStatus & I2C_STAT_SLVDESEL_MASK)
-    {
+    if (i2cStatus & I2C_STAT_SLVDESEL_MASK) {
         I2C_SlaveInvokeEvent(base, handle, kI2C_SlaveDeselectedEvent);
         I2C_SlaveClearStatusFlags(base, I2C_STAT_SLVDESEL_MASK);
     }
 
     /* SLVPENDING flag is cleared by writing I2C_SLVCTL_SLVCONTINUE_MASK to SLVCTL register */
-    if (i2cStatus & I2C_STAT_SLVPENDING_MASK)
-    {
+    if (i2cStatus & I2C_STAT_SLVPENDING_MASK) {
         bool slaveAddress = (((i2cStatus & I2C_STAT_SLVSTATE_MASK) >> I2C_STAT_SLVSTATE_SHIFT) == I2C_STAT_SLVST_ADDR);
 
-        if (slaveAddress)
-        {
+        if (slaveAddress) {
             I2C_SlaveAddressIRQ(base, handle);
             I2C_SlaveInvokeEvent(base, handle, kI2C_SlaveAddressMatchEvent);
-        }
-        else
-        {
-            switch (handle->slaveFsm)
-            {
-                case kI2C_SlaveFsmReceive:
-                {
+        } else {
+            switch (handle->slaveFsm) {
+                case kI2C_SlaveFsmReceive: {
                     bool slaveReceive =
                         (((i2cStatus & I2C_STAT_SLVSTATE_MASK) >> I2C_STAT_SLVSTATE_SHIFT) == I2C_STAT_SLVST_RX);
 
-                    if (slaveReceive)
-                    {
+                    if (slaveReceive) {
                         /* if we have no receive buffer in this transfer, call callback to get new */
-                        if ((handle->transfer.rxData == NULL) || (handle->transfer.rxSize == 0))
-                        {
+                        if ((handle->transfer.rxData == NULL) || (handle->transfer.rxSize == 0)) {
                             I2C_SlaveInvokeEvent(base, handle, kI2C_SlaveReceiveEvent);
                         }
 
                         /* receive a byte */
-                        if ((handle->transfer.rxData) && (handle->transfer.rxSize))
-                        {
+                        if ((handle->transfer.rxData) && (handle->transfer.rxSize)) {
                             *(handle->transfer.rxData) = (uint8_t)base->SLVDAT;
                             (handle->transfer.rxSize)--;
                             (handle->transfer.rxData)++;
@@ -1337,35 +1214,28 @@ void I2C_SlaveTransferHandleIRQ(I2C_Type *base, i2c_slave_handle_t *handle)
                         }
 
                         /* is this last transaction for this transfer? allow next transaction */
-                        if ((0 == handle->transfer.rxSize) && (0 == handle->transfer.txSize))
-                        {
+                        if ((0 == handle->transfer.rxSize) && (0 == handle->transfer.txSize)) {
                             handle->isBusy = false;
                             I2C_SlaveInvokeEvent(base, handle, kI2C_SlaveCompletionEvent);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         base->SLVCTL = I2C_SLVCTL_SLVNACK_MASK;
                     }
                 }
                 break;
 
-                case kI2C_SlaveFsmTransmit:
-                {
+                case kI2C_SlaveFsmTransmit: {
                     bool slaveTransmit =
                         (((i2cStatus & I2C_STAT_SLVSTATE_MASK) >> I2C_STAT_SLVSTATE_SHIFT) == I2C_STAT_SLVST_TX);
 
-                    if (slaveTransmit)
-                    {
+                    if (slaveTransmit) {
                         /* if we have no data in this transfer, call callback to get new */
-                        if ((handle->transfer.txData == NULL) || (handle->transfer.txSize == 0))
-                        {
+                        if ((handle->transfer.txData == NULL) || (handle->transfer.txSize == 0)) {
                             I2C_SlaveInvokeEvent(base, handle, kI2C_SlaveTransmitEvent);
                         }
 
                         /* transmit a byte */
-                        if ((handle->transfer.txData) && (handle->transfer.txSize))
-                        {
+                        if ((handle->transfer.txData) && (handle->transfer.txSize)) {
                             base->SLVDAT = *(handle->transfer.txData);
                             (handle->transfer.txSize)--;
                             (handle->transfer.txData)++;
@@ -1376,14 +1246,11 @@ void I2C_SlaveTransferHandleIRQ(I2C_Type *base, i2c_slave_handle_t *handle)
                         }
 
                         /* is this last transaction for this transfer? allow next transaction */
-                        if ((0 == handle->transfer.rxSize) && (0 == handle->transfer.txSize))
-                        {
+                        if ((0 == handle->transfer.rxSize) && (0 == handle->transfer.txSize)) {
                             handle->isBusy = false;
                             I2C_SlaveInvokeEvent(base, handle, kI2C_SlaveCompletionEvent);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         base->SLVCTL = I2C_SLVCTL_SLVNACK_MASK;
                     }
                 }

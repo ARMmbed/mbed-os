@@ -68,15 +68,14 @@ extern "C" {
 #define BUF_MEM_SIZE            (1024 * 4)
 
 /*! Free memory for pool buffers. */
-static uint32_t mainBufMem[BUF_MEM_SIZE/sizeof(uint32_t)];
+static uint32_t mainBufMem[BUF_MEM_SIZE / sizeof(uint32_t)];
 
 /*! Default pool descriptor. */
-static wsfBufPoolDesc_t mainPoolDesc[WSF_BUF_POOLS] =
-{
-  { 16,   8 },
-  { 32,   8 },
-  { 64,   8 },
-  { ACL_BUF_SIZE + 16, NUM_BUFS }
+static wsfBufPoolDesc_t mainPoolDesc[WSF_BUF_POOLS] = {
+    { 16,   8 },
+    { 32,   8 },
+    { 64,   8 },
+    { ACL_BUF_SIZE + 16, NUM_BUFS }
 };
 
 /* Store the Event signalling */
@@ -96,12 +95,11 @@ static void mainHciReadDone(uint8_t type, uint8_t *pData, uint16_t len);
 static void mainHciWriteDone(uint8_t type, uint8_t *pData, int32_t err, void *pContext);
 
 /*! \brief      HCI callbacks. */
-static const hpalHciCbacks_t mainHciCbacks =
-{
-  mainHciBufAlloc,
-  mainHciBufFree,
-  mainHciReadDone,
-  mainHciWriteDone
+static const hpalHciCbacks_t mainHciCbacks = {
+    mainHciBufAlloc,
+    mainHciBufFree,
+    mainHciReadDone,
+    mainHciWriteDone
 };
 
 /**************************************************************************************************
@@ -121,7 +119,7 @@ static const hpalHciCbacks_t mainHciCbacks =
 /*************************************************************************************************/
 static uint8_t *mainHciBufAlloc(uint16_t len)
 {
-  return (uint8_t*)WsfMsgAlloc(len);
+    return (uint8_t *)WsfMsgAlloc(len);
 }
 
 /*************************************************************************************************/
@@ -133,7 +131,7 @@ static uint8_t *mainHciBufAlloc(uint16_t len)
 /*************************************************************************************************/
 static void mainHciBufFree(uint8_t *pData)
 {
-  WsfMsgFree(pData);
+    WsfMsgFree(pData);
 }
 
 /*************************************************************************************************/
@@ -152,26 +150,23 @@ static void mainHciBufFree(uint8_t *pData)
 /*************************************************************************************************/
 static void mainHciReadDone(uint8_t type, uint8_t *pData, uint16_t len)
 {
-  WSF_ASSERT(align == 0);
+    WSF_ASSERT(align == 0);
 
-  switch (type)
-  {
-    /* Route standard types to stack. */
-    case HCI_CMD_TYPE:
-    case HCI_ACL_TYPE:
-    case HCI_EVT_TYPE:
-    {
-      hciCoreRecv(type, pData);
-      break;
-    }
+    switch (type) {
+        /* Route standard types to stack. */
+        case HCI_CMD_TYPE:
+        case HCI_ACL_TYPE:
+        case HCI_EVT_TYPE: {
+            hciCoreRecv(type, pData);
+            break;
+        }
 
-    /* We should not get anything else. */
-    default:
-    {
-      WsfMsgFree(pData);
-      break;
+        /* We should not get anything else. */
+        default: {
+            WsfMsgFree(pData);
+            break;
+        }
     }
-  }
 }
 
 /*************************************************************************************************/
@@ -191,20 +186,17 @@ static void mainHciReadDone(uint8_t type, uint8_t *pData, uint16_t len)
 /*************************************************************************************************/
 static void mainHciWriteDone(uint8_t type, uint8_t *pData, int32_t err, void *pContext)
 {
-  switch (type)
-  {
-    case HCI_CMD_TYPE:
-    {
-      WsfMsgFree(pData);
-      break;
-    }
+    switch (type) {
+        case HCI_CMD_TYPE: {
+            WsfMsgFree(pData);
+            break;
+        }
 
-    case HCI_ACL_TYPE:
-    {
-      hciCoreTxAclComplete((hciCoreConn_t *)pContext, pData);
-      break;
+        case HCI_ACL_TYPE: {
+            hciCoreTxAclComplete((hciCoreConn_t *)pContext, pData);
+            break;
+        }
     }
-  }
 }
 
 /*************************************************************************************************/
@@ -221,14 +213,14 @@ static void mainHciWriteDone(uint8_t type, uint8_t *pData, int32_t err, void *pC
 /*************************************************************************************************/
 void hciTrSendAclData(void *pContext, uint8_t *pData)
 {
-  uint16_t   len;
+    uint16_t   len;
 
-  /* get 16-bit length */
-  BYTES_TO_UINT16(len, &pData[2]);
-  len += HCI_ACL_HDR_LEN;
+    /* get 16-bit length */
+    BYTES_TO_UINT16(len, &pData[2]);
+    len += HCI_ACL_HDR_LEN;
 
-  /* transmit ACL header and data */
-  HpalHciWrite(HCI_ACL_TYPE, pData, len, pContext);
+    /* transmit ACL header and data */
+    HpalHciWrite(HCI_ACL_TYPE, pData, len, pContext);
 }
 
 /*************************************************************************************************/
@@ -244,16 +236,16 @@ void hciTrSendAclData(void *pContext, uint8_t *pData)
 /*************************************************************************************************/
 void hciTrSendCmd(uint8_t *pData)
 {
-  uint8_t   len;
+    uint8_t   len;
 
-  /* get length */
-  len = pData[2] + HCI_CMD_HDR_LEN;
+    /* get length */
+    len = pData[2] + HCI_CMD_HDR_LEN;
 
-  /* dump event for protocol analysis */
-  HCI_PDUMP_CMD(len, pData);
+    /* dump event for protocol analysis */
+    HCI_PDUMP_CMD(len, pData);
 
-  /* transmit ACL header and data */
-  HpalHciWrite(HCI_CMD_TYPE, pData, len, NULL);
+    /* transmit ACL header and data */
+    HpalHciWrite(HCI_CMD_TYPE, pData, len, NULL);
 }
 
 void beetleCordioReset(void)
@@ -303,8 +295,7 @@ static void DmCback(dmEvt_t *pDmEvt)
 {
     dmEvt_t *pMsg;
 
-    if ((pMsg = (dmEvt_t*)WsfMsgAlloc(sizeof(dmEvt_t))) != NULL)
-    {
+    if ((pMsg = (dmEvt_t *)WsfMsgAlloc(sizeof(dmEvt_t))) != NULL) {
         memcpy(pMsg, pDmEvt, sizeof(dmEvt_t));
         WsfMsgSend(armHandlerId, pMsg);
     }
@@ -312,10 +303,8 @@ static void DmCback(dmEvt_t *pDmEvt)
 
 static void armHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
 {
-    if (pMsg != NULL)
-    {
-        switch(pMsg->event)
-        {
+    if (pMsg != NULL) {
+        switch (pMsg->event) {
             case DM_RESET_CMPL_IND:
                 reset_complete = 1;
                 break;
@@ -324,41 +313,38 @@ static void armHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
             case DM_ADV_STOP_IND:
                 ArmGap::getInstance().advertisingStopped();
                 break;
-            case DM_SCAN_REPORT_IND:
-                {
-                    dmEvt_t *scan = (dmEvt_t*)pMsg;
-                    ArmGap::getInstance().processAdvertisementReport( scan->scanReport.addr,
-                                                                        scan->scanReport.rssi,
-                                                                        (scan->scanReport.eventType == DM_ADV_SCAN_RESPONSE) ? true : false,
-                                                                        (GapAdvertisingParams::AdvertisingType_t)scan->scanReport.eventType,
-                                                                        scan->scanReport.len,
-                                                                        scan->scanReport.pData);
-                }
-                break;
-            case DM_CONN_OPEN_IND:
-                {
-                    dmEvt_t *conn = (dmEvt_t*)pMsg;
-                    ArmGap::getInstance().setConnectionHandle(conn->hdr.param);
-                    Gap::ConnectionParams_t params = { conn->connOpen.connInterval, conn->connOpen.connInterval, conn->connOpen.connLatency, conn->connOpen.supTimeout };
-                    Gap::AddressType_t ownAddrType;
-                    Gap::Address_t ownAddr;
-                    ArmGap::getInstance().getAddress(&ownAddrType, ownAddr);
-                    ArmGap::getInstance().processConnectionEvent(conn->hdr.param,
-                                                                   Gap::PERIPHERAL,
-                                                                   (Gap::AddressType_t)conn->connOpen.addrType,
-                                                                   conn->connOpen.peerAddr,
-                                                                   ownAddrType,
-                                                                   ownAddr,
-                                                                   &params);
-                }
-                break;
-            case DM_CONN_CLOSE_IND:
-                {
-                    dmEvt_t *conn = (dmEvt_t*)pMsg;
-                    ArmGap::getInstance().setConnectionHandle(DM_CONN_ID_NONE);
-                    ArmGap::getInstance().processDisconnectionEvent(conn->hdr.param, (Gap::DisconnectionReason_t)conn->connClose.reason);
-                }
-                break;
+            case DM_SCAN_REPORT_IND: {
+                dmEvt_t *scan = (dmEvt_t *)pMsg;
+                ArmGap::getInstance().processAdvertisementReport(scan->scanReport.addr,
+                                                                 scan->scanReport.rssi,
+                                                                 (scan->scanReport.eventType == DM_ADV_SCAN_RESPONSE) ? true : false,
+                                                                 (GapAdvertisingParams::AdvertisingType_t)scan->scanReport.eventType,
+                                                                 scan->scanReport.len,
+                                                                 scan->scanReport.pData);
+            }
+            break;
+            case DM_CONN_OPEN_IND: {
+                dmEvt_t *conn = (dmEvt_t *)pMsg;
+                ArmGap::getInstance().setConnectionHandle(conn->hdr.param);
+                Gap::ConnectionParams_t params = { conn->connOpen.connInterval, conn->connOpen.connInterval, conn->connOpen.connLatency, conn->connOpen.supTimeout };
+                Gap::AddressType_t ownAddrType;
+                Gap::Address_t ownAddr;
+                ArmGap::getInstance().getAddress(&ownAddrType, ownAddr);
+                ArmGap::getInstance().processConnectionEvent(conn->hdr.param,
+                                                             Gap::PERIPHERAL,
+                                                             (Gap::AddressType_t)conn->connOpen.addrType,
+                                                             conn->connOpen.peerAddr,
+                                                             ownAddrType,
+                                                             ownAddr,
+                                                             &params);
+            }
+            break;
+            case DM_CONN_CLOSE_IND: {
+                dmEvt_t *conn = (dmEvt_t *)pMsg;
+                ArmGap::getInstance().setConnectionHandle(DM_CONN_ID_NONE);
+                ArmGap::getInstance().processDisconnectionEvent(conn->hdr.param, (Gap::DisconnectionReason_t)conn->connClose.reason);
+            }
+            break;
             default:
                 break;
         }
@@ -372,35 +358,34 @@ static void armHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
  */
 static void AttServerInitDeInitCback(dmEvt_t *pDmEvt)
 {
-  dmConnId_t connId = (dmConnId_t)pDmEvt->hdr.param;
+    dmConnId_t connId = (dmConnId_t)pDmEvt->hdr.param;
 
-  switch (pDmEvt->hdr.event)
-  {
-    case DM_CONN_OPEN_IND:
-      /* set up CCC table with uninitialized (all zero) values */
-      AttsCccInitTable(connId, NULL);
-      break;
-    case DM_CONN_CLOSE_IND:
-      /* clear CCC table on connection close */
-      AttsCccClearTable(connId);
-      break;
-    default:
-      break;
-  }
+    switch (pDmEvt->hdr.event) {
+        case DM_CONN_OPEN_IND:
+            /* set up CCC table with uninitialized (all zero) values */
+            AttsCccInitTable(connId, NULL);
+            break;
+        case DM_CONN_CLOSE_IND:
+            /* clear CCC table on connection close */
+            AttsCccClearTable(connId);
+            break;
+        default:
+            break;
+    }
 }
 
 /*
  * This function will signal to the user code by calling signalEventsToProcess.
  * It is registered and called into the Wsf Stack.
  */
- static uint32_t signalEvent()
- {
-     if(isEventsSignaled == false) {
-         isEventsSignaled = true;
-         deviceInstance.signalEventsToProcess(BLE::DEFAULT_INSTANCE);
-     }
-     return BLE_ERROR_NONE;
- }
+static uint32_t signalEvent()
+{
+    if (isEventsSignaled == false) {
+        isEventsSignaled = true;
+        deviceInstance.signalEventsToProcess(BLE::DEFAULT_INSTANCE);
+    }
+    return BLE_ERROR_NONE;
+}
 
 static void ArmBLEInit(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
 {
@@ -467,8 +452,7 @@ static void ArmBLEInit(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
 
 static void ArmBLEStartCallback(bool_t ok)
 {
-    if (ok)
-    {
+    if (ok) {
         /* If started up, allow remaining application to run. */
         WsfSetEvent(BleHandlerId, 1);
     }
@@ -483,7 +467,7 @@ ble_error_t ArmBLE::init(BLE::InstanceID_t instanceID, FunctionPointerWithContex
 
     /* init OS subsystems */
     WsfTimerInit();
-    WsfBufInit(sizeof(mainBufMem), (uint8_t*)mainBufMem, WSF_BUF_POOLS, mainPoolDesc);
+    WsfBufInit(sizeof(mainBufMem), (uint8_t *)mainBufMem, WSF_BUF_POOLS, mainPoolDesc);
 
     /* init stack */
     handlerId = WsfOsSetNextHandler(HpalBlepHandler);

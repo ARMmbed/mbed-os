@@ -26,32 +26,35 @@ uint32_t CyclesPerUs      = (__HSI / 1000000);  /*!< Cycles per micro second */
   */
 uint32_t SysGet_PLLClockFreq(void)
 {
-    uint32_t u32Freq =0, u32PLLSrc;
+    uint32_t u32Freq = 0, u32PLLSrc;
     uint32_t u32NO, u32NR, u32IN_DV, u32PllReg;
 
     u32PllReg = CLK->PLLCTL;
 
-    if (u32PllReg & CLK_PLLCTL_PD)
+    if (u32PllReg & CLK_PLLCTL_PD) {
         return 0;    /* PLL is in power down mode */
+    }
 
-    if (u32PllReg & CLK_PLLCTL_PLL_SRC_Msk)
+    if (u32PllReg & CLK_PLLCTL_PLL_SRC_Msk) {
         u32PLLSrc = __HIRC12M;
-    else
+    } else {
         u32PLLSrc = __HXT;
+    }
 
-    u32NO = (u32PllReg & CLK_PLLCTL_OUT_DV) ? 2: 1;
+    u32NO = (u32PllReg & CLK_PLLCTL_OUT_DV) ? 2 : 1;
 
     u32IN_DV = (u32PllReg & CLK_PLLCTL_IN_DV_Msk) >> 8;
-    if (u32IN_DV == 0)
+    if (u32IN_DV == 0) {
         u32NR = 2;
-    else if (u32IN_DV == 1)
+    } else if (u32IN_DV == 1) {
         u32NR = 4;
-    else if (u32IN_DV == 2)
+    } else if (u32IN_DV == 2) {
         u32NR = 8;
-    else
+    } else {
         u32NR = 16;
+    }
 
-    u32Freq = u32PLLSrc * ((u32PllReg & CLK_PLLCTL_FB_DV_Msk) +32) / u32NR / u32NO;
+    u32Freq = u32PLLSrc * ((u32PllReg & CLK_PLLCTL_FB_DV_Msk) + 32) / u32NR / u32NO;
 
     return u32Freq;
 }
@@ -71,18 +74,18 @@ uint32_t SysGet_HCLKFreq(void)
 
     if (u32ClkSel == CLK_CLKSEL0_HCLK_S_HXT) {  /* external HXT crystal clock */
         u32Freqout = __HXT;
-    } else if(u32ClkSel == CLK_CLKSEL0_HCLK_S_LXT) {    /* external LXT crystal clock */
+    } else if (u32ClkSel == CLK_CLKSEL0_HCLK_S_LXT) {   /* external LXT crystal clock */
         u32Freqout = __LXT;
-    } else if(u32ClkSel == CLK_CLKSEL0_HCLK_S_PLL) {    /* PLL clock */
+    } else if (u32ClkSel == CLK_CLKSEL0_HCLK_S_PLL) {   /* PLL clock */
         u32Freqout = SysGet_PLLClockFreq();
-    } else if(u32ClkSel == CLK_CLKSEL0_HCLK_S_LIRC) { /* internal LIRC oscillator clock */
+    } else if (u32ClkSel == CLK_CLKSEL0_HCLK_S_LIRC) { /* internal LIRC oscillator clock */
         u32Freqout = __LIRC;
     } else {                                /* internal HIRC oscillator clock */
         u32Freqout = __HIRC12M;
     }
     u32AHBDivider = (CLK->CLKDIV0 & CLK_CLKDIV0_HCLK_N_Msk) + 1 ;
 
-    return (u32Freqout/u32AHBDivider);
+    return (u32Freqout / u32AHBDivider);
 }
 
 
@@ -93,7 +96,7 @@ uint32_t SysGet_HCLKFreq(void)
   * @retval None.
   */
 
-void SystemCoreClockUpdate (void)
+void SystemCoreClockUpdate(void)
 {
 
     SystemCoreClock = SysGet_HCLKFreq();
@@ -113,13 +116,13 @@ void SystemCoreClockUpdate (void)
  * @details    The function prints the source file name and line number where
  *             the ASSERT_PARAM() error occurs, and then stops in an infinite loop.
  */
-void AssertError(uint8_t * file, uint32_t line)
+void AssertError(uint8_t *file, uint32_t line)
 {
 
     printf("[%s] line %d : wrong parameters.\r\n", file, line);
 
     /* Infinite loop */
-    while(1) ;
+    while (1) ;
 }
 #endif
 

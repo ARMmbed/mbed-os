@@ -280,7 +280,7 @@ extern "C" {
  * @{
  */
 #if (SAMD21) || (SAMR21) || (SAMD10) || (SAMD11) || (SAML21) || \
-	(SAMDA1) || (SAMC20) || (SAMC21) || defined(__DOXYGEN__)
+    (SAMDA1) || (SAMC20) || (SAMC21) || defined(__DOXYGEN__)
 /** Usart sync scheme version 2. */
 #  define FEATURE_USART_SYNC_SCHEME_V2
 /** Usart over sampling. */
@@ -343,16 +343,16 @@ enum lin_master_cmd {
  */
 enum lin_master_header_delay {
     /** Delay between break and sync transmission is 1 bit time.
-    	Delay between sync and ID transmission is 1 bit time. */
+        Delay between sync and ID transmission is 1 bit time. */
     LIN_MASTER_HEADER_DELAY_0 = SERCOM_USART_CTRLC_HDRDLY(0x0),
     /** Delay between break and sync transmission is 4 bit time.
-    	Delay between sync and ID transmission is 4 bit time. */
+        Delay between sync and ID transmission is 4 bit time. */
     LIN_MASTER_HEADER_DELAY_1 = SERCOM_USART_CTRLC_HDRDLY(0x01),
     /** Delay between break and sync transmission is 8 bit time.
-    	Delay between sync and ID transmission is 4 bit time. */
+        Delay between sync and ID transmission is 4 bit time. */
     LIN_MASTER_HEADER_DELAY_2 = SERCOM_USART_CTRLC_HDRDLY(0x02),
     /** Delay between break and sync transmission is 14 bit time.
-    	Delay between sync and ID transmission is 4 bit time. */
+        Delay between sync and ID transmission is 4 bit time. */
     LIN_MASTER_HEADER_DELAY_3 = SERCOM_USART_CTRLC_HDRDLY(0x03),
 };
 
@@ -1234,7 +1234,7 @@ static inline void lin_master_send_cmd(
 static inline bool lin_master_transmission_status(struct usart_module *const module)
 {
     SercomUsart *const usart_hw = &(module->hw->USART);
-    return ((usart_hw->STATUS.reg & SERCOM_USART_STATUS_TXE)? true:false);
+    return ((usart_hw->STATUS.reg & SERCOM_USART_STATUS_TXE) ? true : false);
 }
 
 /** @} */
@@ -1300,16 +1300,16 @@ static inline bool lin_master_transmission_status(struct usart_module *const mod
 * the table.
 *
  * <table>
- *	<tr>
- *		<th>Changelog</th>
- *	</tr>
-  *	<tr>
- *		<td>Added new feature as below:
+ *  <tr>
+ *      <th>Changelog</th>
+ *  </tr>
+  * <tr>
+ *      <td>Added new feature as below:
  *          \li LIN master
  *          \li RS485
- *	</tr>
- *	<tr>
- *		<td>Added new feature as below:
+ *  </tr>
+ *  <tr>
+ *      <td>Added new feature as below:
  *          \li Oversample
  *          \li Buffer overflow notification
  *          \li Irda
@@ -1318,18 +1318,18 @@ static inline bool lin_master_transmission_status(struct usart_module *const mod
  *          \li Hardware flow control
  *          \li Collision detection
  *          \li DMA support </td>
- *	</tr>
- *	<tr>
- *		<td>\li Added new \c transmitter_enable and \c receiver_enable Boolean
+ *  </tr>
+ *  <tr>
+ *      <td>\li Added new \c transmitter_enable and \c receiver_enable Boolean
  *              values to \c struct usart_config
  *          \li Altered \c usart_write_* and usart_read_* functions to abort with
  *              an error code if the relevant transceiver is not enabled
  *          \li Fixed \c usart_write_buffer_wait() and \c usart_read_buffer_wait()
  *              not aborting correctly when a timeout condition occurs</td>
- *	</tr>
- *	<tr>
- *		<td>Initial Release</td>
- *	</tr>
+ *  </tr>
+ *  <tr>
+ *      <td>Initial Release</td>
+ *  </tr>
  * </table>
 */
 
@@ -1366,109 +1366,109 @@ static inline bool lin_master_transmission_status(struct usart_module *const mod
  *
  *
  * <table>
- *		<tr>
- *			<th>MUX/Pad</th>
- *			<th>PAD 0</th>
- *			<th>PAD 1</th>
- *			<th>PAD 2</th>
- *			<th>PAD 3</th>
- *		</tr>
- *		<tr>
- *			<td>RX_0_TX_0_XCK_1</td>
- *			<td>TX / RX</td>
- *			<td>XCK</td>
- *			<td>-</td>
- *			<td>-</td>
- *		</tr>
- *		<tr>
- *			<td>RX_0_TX_2_XCK_3</td>
- *			<td>RX</td>
- *			<td>-</td>
- *			<td>TX</td>
- *			<td>XCK</td>
- *		</tr>
- *		<tr>
- *			<td>RX_1_TX_0_XCK_1</td>
- *			<td>TX</td>
- *			<td>RX / XCK</td>
- *			<td>-</td>
- *			<td>-</td>
- *		</tr>
- *		<tr>
- *			<td>RX_1_TX_2_XCK_3</td>
- *			<td>-</td>
- *			<td>RX</td>
- *			<td>TX</td>
- *			<td>XCK</td>
- *		</tr>
- *		<tr>
- *			<td>RX_2_TX_0_XCK_1</td>
- *			<td>TX</td>
- *			<td>XCK</td>
- *			<td>RX</td>
- *			<td>-</td>
- *		</tr>
- *		<tr>
- *			<td>RX_2_TX_2_XCK_3</td>
- *			<td>-</td>
- *			<td>-</td>
- *			<td>TX / RX</td>
- *			<td>XCK</td>
- *		</tr>
- *		<tr>
- *			<td>RX_3_TX_0_XCK_1</td>
- *			<td>TX</td>
- *			<td>XCK</td>
- *			<td>-</td>
- *			<td>RX</td>
- *		</tr>
- *		<tr>
- *			<td>RX_3_TX_2_XCK_3</td>
- *			<td>-</td>
- *			<td>-</td>
- *			<td>TX</td>
- *			<td>RX / XCK</td>
- *		</tr>
+ *      <tr>
+ *          <th>MUX/Pad</th>
+ *          <th>PAD 0</th>
+ *          <th>PAD 1</th>
+ *          <th>PAD 2</th>
+ *          <th>PAD 3</th>
+ *      </tr>
+ *      <tr>
+ *          <td>RX_0_TX_0_XCK_1</td>
+ *          <td>TX / RX</td>
+ *          <td>XCK</td>
+ *          <td>-</td>
+ *          <td>-</td>
+ *      </tr>
+ *      <tr>
+ *          <td>RX_0_TX_2_XCK_3</td>
+ *          <td>RX</td>
+ *          <td>-</td>
+ *          <td>TX</td>
+ *          <td>XCK</td>
+ *      </tr>
+ *      <tr>
+ *          <td>RX_1_TX_0_XCK_1</td>
+ *          <td>TX</td>
+ *          <td>RX / XCK</td>
+ *          <td>-</td>
+ *          <td>-</td>
+ *      </tr>
+ *      <tr>
+ *          <td>RX_1_TX_2_XCK_3</td>
+ *          <td>-</td>
+ *          <td>RX</td>
+ *          <td>TX</td>
+ *          <td>XCK</td>
+ *      </tr>
+ *      <tr>
+ *          <td>RX_2_TX_0_XCK_1</td>
+ *          <td>TX</td>
+ *          <td>XCK</td>
+ *          <td>RX</td>
+ *          <td>-</td>
+ *      </tr>
+ *      <tr>
+ *          <td>RX_2_TX_2_XCK_3</td>
+ *          <td>-</td>
+ *          <td>-</td>
+ *          <td>TX / RX</td>
+ *          <td>XCK</td>
+ *      </tr>
+ *      <tr>
+ *          <td>RX_3_TX_0_XCK_1</td>
+ *          <td>TX</td>
+ *          <td>XCK</td>
+ *          <td>-</td>
+ *          <td>RX</td>
+ *      </tr>
+ *      <tr>
+ *          <td>RX_3_TX_2_XCK_3</td>
+ *          <td>-</td>
+ *          <td>-</td>
+ *          <td>TX</td>
+ *          <td>RX / XCK</td>
+ *      </tr>
  * </table>
  *
  * \page asfdoc_sam0_sercom_usart_document_revision_history Document Revision History
  *
  * <table>
- *	<tr>
- *		<th>Doc. Rev.</td>
- *		<th>Date</td>
- *		<th>Comments</td>
- *	</tr>
- *	<tr>
- *		<td>42118F</td>
- *		<td>06/2015</td>
- *		<td>Add support for SAML21, SAMDAx, and SAMC20/C21.</td>
- *	</tr>
- *	<tr>
- *		<td>42118E</td>
- *		<td>12/2014</td>
- *		<td>Add support for SAMR21 and SAMD10/D11.</td>
- *	</tr>
- *	<tr>
- *		<td>42118D</td>
- *		<td>01/2014</td>
- *		<td>Add support for SAMD21.</td>
- *	</tr>
- *	<tr>
- *		<td>42118C</td>
- *		<td>10/2013</td>
- *		<td>Replaced the pad multiplexing documentation with a condensed table.</td>
- *	</tr>
- *	<tr>
- *		<td>42118B</td>
- *		<td>06/2013</td>
- *		<td>Corrected documentation typos.</td>
- *	</tr>
- *	<tr>
- *		<td>42118A</td>
- *		<td>06/2013</td>
- *		<td>Initial release</td>
- *	</tr>
+ *  <tr>
+ *      <th>Doc. Rev.</td>
+ *      <th>Date</td>
+ *      <th>Comments</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42118F</td>
+ *      <td>06/2015</td>
+ *      <td>Add support for SAML21, SAMDAx, and SAMC20/C21.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42118E</td>
+ *      <td>12/2014</td>
+ *      <td>Add support for SAMR21 and SAMD10/D11.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42118D</td>
+ *      <td>01/2014</td>
+ *      <td>Add support for SAMD21.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42118C</td>
+ *      <td>10/2013</td>
+ *      <td>Replaced the pad multiplexing documentation with a condensed table.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42118B</td>
+ *      <td>06/2013</td>
+ *      <td>Corrected documentation typos.</td>
+ *  </tr>
+ *  <tr>
+ *      <td>42118A</td>
+ *      <td>06/2013</td>
+ *      <td>Initial release</td>
+ *  </tr>
  * </table>
  */
 #endif /* USART_H_INCLUDED */

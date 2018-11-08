@@ -34,7 +34,7 @@
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
  *
- * $Date: 2016-10-10 18:59:48 -0500 (Mon, 10 Oct 2016) $ 
+ * $Date: 2016-10-10 18:59:48 -0500 (Mon, 10 Oct 2016) $
  * $Revision: 24661 $
  *
  *************************************************************************** */
@@ -62,12 +62,12 @@ extern "C" {
 
 /* **** Definitions **** */
 /**
- * Internal buffer size for storing I2C Slave Messages 
+ * Internal buffer size for storing I2C Slave Messages
  */
-#define I2CS_BUFFER_SIZE    32          
+#define I2CS_BUFFER_SIZE    32
 
 /**
- * Enumeration type to select supported I2CS frequencies. 
+ * Enumeration type to select supported I2CS frequencies.
  */
 typedef enum {
     I2CS_SPEED_100KHZ = 0,              /**< Use to select a bus communication speed of 100 kHz. */
@@ -75,7 +75,7 @@ typedef enum {
 } i2cs_speed_t;
 
 /**
- * Enumeration type to select the I2CS addressing mode. 
+ * Enumeration type to select the I2CS addressing mode.
  */
 typedef enum {
     I2CS_ADDR_8 = 0,                                    /**< Sets the slave address mode to 8-bits (7-bits address plus read/write bit). */
@@ -87,7 +87,7 @@ typedef enum {
  * @details The function prototype for implementing callback_fn is:
  * @code
  * void func(uint8_t addr);
- * @endcode         
+ * @endcode
  */
 typedef void (*i2cs_callback_fn)(uint8_t error_code);
 /* **** Globals **** */
@@ -104,14 +104,14 @@ typedef void (*i2cs_callback_fn)(uint8_t error_code);
  * @param      addr_len  I2CS address length.
  * @return     #E_NO_ERROR if everything is successful or an
  *             @ref MXC_Error_Codes "error code" if unsuccessful.
- *             
+ *
  */
 int I2CS_Init(mxc_i2cs_regs_t *i2cs, const sys_cfg_i2cs_t *sys_cfg, i2cs_speed_t speed, uint16_t address, i2cs_addr_t addr_len);
 
 /**
  * @brief      Shutdown I2CS module.
  * @param      i2cs  Pointer to I2CS regs.
- * @return     #E_NO_ERROR if everything is successful or an 
+ * @return     #E_NO_ERROR if everything is successful or an
  *             @ref MXC_Error_Codes "error code" if unsuccessful.
  */
 int I2CS_Shutdown(mxc_i2cs_regs_t *i2cs);
@@ -122,7 +122,7 @@ int I2CS_Shutdown(mxc_i2cs_regs_t *i2cs);
  *             interrupt handler if I2CS interrupts are enabled. Alternately,
  *             this function can be periodically called by the application if
  *             I2CS interrupts are disabled.
- *             
+ *
  * @param      i2cs  Pointer to I2CS regs.
  */
 void I2CS_Handler(mxc_i2cs_regs_t *i2cs);
@@ -156,7 +156,7 @@ __STATIC_INLINE void I2CS_Write(mxc_i2cs_regs_t *i2cs, uint8_t addr, uint8_t dat
     // Make sure we don't overflow
     MXC_ASSERT(addr < MXC_CFG_I2CS_BUFFER_SIZE);
     i2cs->data_byte[addr] = ((i2cs->data_byte[addr] & ~MXC_F_I2CS_DATA_BYTE_DATA_FIELD) |
-        (data << MXC_F_I2CS_DATA_BYTE_DATA_FIELD_POS));
+                             (data << MXC_F_I2CS_DATA_BYTE_DATA_FIELD_POS));
 }
 
 /**
@@ -173,8 +173,8 @@ __STATIC_INLINE uint8_t I2CS_Read(mxc_i2cs_regs_t *i2cs, uint8_t addr)
 {
     // Make sure we don't overflow
     MXC_ASSERT(addr < MXC_CFG_I2CS_BUFFER_SIZE);
-    return ((i2cs->data_byte[addr] & MXC_F_I2CS_DATA_BYTE_DATA_FIELD) >> 
-        MXC_F_I2CS_DATA_BYTE_DATA_FIELD_POS);
+    return ((i2cs->data_byte[addr] & MXC_F_I2CS_DATA_BYTE_DATA_FIELD) >>
+            MXC_F_I2CS_DATA_BYTE_DATA_FIELD_POS);
 }
 
 /**

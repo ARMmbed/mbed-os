@@ -4,12 +4,13 @@ Ticker tick;
 DigitalOut led(LED1);
 
 namespace {
-    const int MS_INTERVALS = 1000;
+const int MS_INTERVALS = 1000;
 }
 
 class TickerHandler {
 public:
-    TickerHandler(const int _ms_intervals) : m_ticker_count(0), m_ms_intervals(_ms_intervals) {
+    TickerHandler(const int _ms_intervals) : m_ticker_count(0), m_ms_intervals(_ms_intervals)
+    {
     }
 
     void print_char(char c = '*')

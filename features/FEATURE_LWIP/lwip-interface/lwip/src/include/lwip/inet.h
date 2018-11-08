@@ -56,14 +56,14 @@ typedef u32_t in_addr_t;
 #endif
 
 struct in_addr {
-  in_addr_t s_addr;
+    in_addr_t s_addr;
 };
 
 struct in6_addr {
-  union {
-    u32_t u32_addr[4];
-    u8_t  u8_addr[16];
-  } un;
+    union {
+        u32_t u32_addr[4];
+        u8_t  u8_addr[16];
+    } un;
 #define s6_addr  un.u8_addr
 };
 

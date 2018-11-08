@@ -124,7 +124,7 @@
 /*
 * Enable USB MIDI
 */
-#define USBHOST_MIDI                1 
+#define USBHOST_MIDI                1
 
 /*
 * Maximum number of interfaces of a usb device

@@ -29,7 +29,7 @@
   * @return     None
   * @details    This function reset QEI configuration and stop QEI counting.
   */
-void QEI_Close(QEI_T* qei)
+void QEI_Close(QEI_T *qei)
 {
     /* Reset QEI configuration */
     qei->CTL = (uint32_t)0;
@@ -46,13 +46,13 @@ void QEI_Close(QEI_T* qei)
   * @return     None
   * @details    This function disable QEI specified interrupt.
   */
-void QEI_DisableInt(QEI_T* qei, uint32_t u32IntSel)
+void QEI_DisableInt(QEI_T *qei, uint32_t u32IntSel)
 {
     /* Disable QEI specified interrupt */
     QEI_DISABLE_INT(qei, u32IntSel);
 
     /* Disable NVIC QEI IRQ */
-    if(qei ==(QEI_T*)QEI0) {
+    if (qei == (QEI_T *)QEI0) {
         NVIC_DisableIRQ((IRQn_Type)QEI0_IRQn);
     } else {
         NVIC_DisableIRQ((IRQn_Type)QEI1_IRQn);
@@ -70,13 +70,13 @@ void QEI_DisableInt(QEI_T* qei, uint32_t u32IntSel)
   * @return     None
   * @details    This function enable QEI specified interrupt.
   */
-void QEI_EnableInt(QEI_T* qei, uint32_t u32IntSel)
+void QEI_EnableInt(QEI_T *qei, uint32_t u32IntSel)
 {
     /* Enable QEI specified interrupt */
     QEI_ENABLE_INT(qei, u32IntSel);
 
     /* Enable NVIC QEI IRQ */
-    if(qei == (QEI_T*)QEI0) {
+    if (qei == (QEI_T *)QEI0) {
         NVIC_EnableIRQ(QEI0_IRQn);
     } else {
         NVIC_EnableIRQ(QEI1_IRQn);
@@ -95,7 +95,7 @@ void QEI_EnableInt(QEI_T* qei, uint32_t u32IntSel)
   * @return     None
   * @details    This function set QEI in specified mode and enable input.
   */
-void QEI_Open(QEI_T* qei, uint32_t u32Mode, uint32_t u32Value)
+void QEI_Open(QEI_T *qei, uint32_t u32Mode, uint32_t u32Value)
 {
     /* Set QEI function configuration */
     /* Set QEI counting mode */
@@ -112,7 +112,7 @@ void QEI_Open(QEI_T* qei, uint32_t u32Mode, uint32_t u32Value)
   * @return     None
   * @details    This function enable QEI function and start QEI counting.
   */
-void QEI_Start(QEI_T* qei)
+void QEI_Start(QEI_T *qei)
 {
     /* Enable QEI controller function */
     qei->CTL |= QEI_CTL_QEIEN_Msk;
@@ -124,7 +124,7 @@ void QEI_Start(QEI_T* qei)
   * @return     None
   * @details    This function disable QEI function and stop QEI counting.
   */
-void QEI_Stop(QEI_T* qei)
+void QEI_Stop(QEI_T *qei)
 {
     /* Disable QEI controller function */
     qei->CTL &= (~QEI_CTL_QEIEN_Msk);

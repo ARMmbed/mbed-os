@@ -15,7 +15,8 @@
  */
 #include "rtc_api.h"
 
-static void init(void) {
+static void init(void)
+{
     // enable PORTC clock
     SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK;
 
@@ -27,7 +28,8 @@ static void init(void) {
     SIM->SOPT1 |= SIM_SOPT1_OSC32KSEL(0);
 }
 
-void rtc_init(void) {
+void rtc_init(void)
+{
     init();
 
     // Enable the oscillator
@@ -36,7 +38,7 @@ void rtc_init(void) {
 #else
     // Teensy3.1 requires 20pF MCU loading capacitors for 32KHz RTC oscillator
     /* RTC->CR: SC2P=0,SC4P=1,SC8P=0,SC16P=1,CLKO=0,OSCE=1,UM=0,SUP=0,SPE=0,SWR=0 */
-    RTC->CR |= RTC_CR_OSCE_MASK |RTC_CR_SC16P_MASK | RTC_CR_SC4P_MASK;
+    RTC->CR |= RTC_CR_OSCE_MASK | RTC_CR_SC16P_MASK | RTC_CR_SC4P_MASK;
 #endif
 
     //Configure the TSR. default value: 1
@@ -46,7 +48,8 @@ void rtc_init(void) {
     RTC->SR |= RTC_SR_TCE_MASK;
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
     // [TODO]
 }
 
@@ -54,7 +57,8 @@ void rtc_free(void) {
  * Little check routine to see if the RTC has been enabled
  * 0 = Disabled, 1 = Enabled
  */
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     // even if the RTC module is enabled,
     // as we use RTC_CLKIN and an external clock,
     // we need to reconfigure the pins. That is why we
@@ -63,18 +67,21 @@ int rtc_isenabled(void) {
     // if RTC not enabled return 0
     SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK;
     SIM->SCGC6 |= SIM_SCGC6_RTC_MASK;
-    if ((RTC->SR & RTC_SR_TCE_MASK) == 0)
+    if ((RTC->SR & RTC_SR_TCE_MASK) == 0) {
         return 0;
+    }
 
     init();
     return 1;
 }
 
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
     return RTC->TSR;
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     // disable counter
     RTC->SR &= ~RTC_SR_TCE_MASK;
 

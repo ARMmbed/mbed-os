@@ -27,9 +27,9 @@
 #define __DEVICE_H
 
 #if defined CMSDK_CM3DS
-  #include "CMSDK_CM3DS.h"                         /* device specific header file */
+#include "CMSDK_CM3DS.h"                         /* device specific header file */
 #else
-  #warning "no appropriate header file found!"
+#warning "no appropriate header file found!"
 #endif
 
 #endif /* __DEVICE_H */

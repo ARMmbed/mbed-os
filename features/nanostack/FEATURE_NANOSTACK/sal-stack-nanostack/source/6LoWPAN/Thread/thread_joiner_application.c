@@ -67,93 +67,98 @@
 
 /* List of active/pending configuration dataset TLVs*/
 const uint8_t mle_pending_configuration_dataset_tlvs[] = {
-        MESHCOP_TLV_ACTIVE_TIME_STAMP,
-        MESHCOP_TLV_NETWORK_NAME,
-        MESHCOP_TLV_PANID,
-        MESHCOP_TLV_CHANNEL,
-        MESHCOP_TLV_CHANNEL_MASK,
-        MESHCOP_TLV_XPANID,
-        MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA,
-        MESHCOP_TLV_NETWORK_MASTER_KEY,
-        MESHCOP_TLV_PSKC,
-        MESHCOP_TLV_SECURITY_POLICY};
+    MESHCOP_TLV_ACTIVE_TIME_STAMP,
+    MESHCOP_TLV_NETWORK_NAME,
+    MESHCOP_TLV_PANID,
+    MESHCOP_TLV_CHANNEL,
+    MESHCOP_TLV_CHANNEL_MASK,
+    MESHCOP_TLV_XPANID,
+    MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA,
+    MESHCOP_TLV_NETWORK_MASTER_KEY,
+    MESHCOP_TLV_PSKC,
+    MESHCOP_TLV_SECURITY_POLICY
+};
 
 const uint8_t pending_configuration_dataset_tlvs[] = {
-        MESHCOP_TLV_PENDING_TIMESTAMP,
-        MESHCOP_TLV_ACTIVE_TIME_STAMP,
-        MESHCOP_TLV_NETWORK_NAME,
-        MESHCOP_TLV_PANID,
-        MESHCOP_TLV_CHANNEL,
-        MESHCOP_TLV_CHANNEL_MASK,
-        MESHCOP_TLV_XPANID,
-        MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA,
-        MESHCOP_TLV_NETWORK_MASTER_KEY,
-        MESHCOP_TLV_PSKC,
-        MESHCOP_TLV_SECURITY_POLICY};
+    MESHCOP_TLV_PENDING_TIMESTAMP,
+    MESHCOP_TLV_ACTIVE_TIME_STAMP,
+    MESHCOP_TLV_NETWORK_NAME,
+    MESHCOP_TLV_PANID,
+    MESHCOP_TLV_CHANNEL,
+    MESHCOP_TLV_CHANNEL_MASK,
+    MESHCOP_TLV_XPANID,
+    MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA,
+    MESHCOP_TLV_NETWORK_MASTER_KEY,
+    MESHCOP_TLV_PSKC,
+    MESHCOP_TLV_SECURITY_POLICY
+};
 
 const uint8_t active_configuration_dataset_tlvs[] = {
-        MESHCOP_TLV_ACTIVE_TIME_STAMP,
-        MESHCOP_TLV_NETWORK_NAME,
-        MESHCOP_TLV_PANID,
-        MESHCOP_TLV_CHANNEL,
-        MESHCOP_TLV_CHANNEL_MASK,
-        MESHCOP_TLV_XPANID,
-        MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA,
-        MESHCOP_TLV_NETWORK_MASTER_KEY,
-        MESHCOP_TLV_PSKC,
-        MESHCOP_TLV_SECURITY_POLICY};
+    MESHCOP_TLV_ACTIVE_TIME_STAMP,
+    MESHCOP_TLV_NETWORK_NAME,
+    MESHCOP_TLV_PANID,
+    MESHCOP_TLV_CHANNEL,
+    MESHCOP_TLV_CHANNEL_MASK,
+    MESHCOP_TLV_XPANID,
+    MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA,
+    MESHCOP_TLV_NETWORK_MASTER_KEY,
+    MESHCOP_TLV_PSKC,
+    MESHCOP_TLV_SECURITY_POLICY
+};
 
 const uint8_t mle_active_configuration_dataset_tlvs[] = {
-        MESHCOP_TLV_NETWORK_NAME,
-        MESHCOP_TLV_PANID,
-        MESHCOP_TLV_CHANNEL,
-        MESHCOP_TLV_CHANNEL_MASK,
-        MESHCOP_TLV_XPANID,
-        MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA,
-        MESHCOP_TLV_NETWORK_MASTER_KEY,
-        MESHCOP_TLV_PSKC,
-        MESHCOP_TLV_SECURITY_POLICY};
+    MESHCOP_TLV_NETWORK_NAME,
+    MESHCOP_TLV_PANID,
+    MESHCOP_TLV_CHANNEL,
+    MESHCOP_TLV_CHANNEL_MASK,
+    MESHCOP_TLV_XPANID,
+    MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA,
+    MESHCOP_TLV_NETWORK_MASTER_KEY,
+    MESHCOP_TLV_PSKC,
+    MESHCOP_TLV_SECURITY_POLICY
+};
 
 const uint8_t entrust_dataset_tlvs[] = {
-        MESHCOP_TLV_ACTIVE_TIME_STAMP,
-        MESHCOP_TLV_NETWORK_NAME,
-        MESHCOP_TLV_CHANNEL_MASK,// Missing specification
-        MESHCOP_TLV_XPANID,
-        MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA,
-        MESHCOP_TLV_NETWORK_MASTER_KEY,
-        MESHCOP_TLV_PSKC,
-        MESHCOP_TLV_SECURITY_POLICY,
-        MESHCOP_TLV_NETWORK_KEY_SEQUENCE};
+    MESHCOP_TLV_ACTIVE_TIME_STAMP,
+    MESHCOP_TLV_NETWORK_NAME,
+    MESHCOP_TLV_CHANNEL_MASK,// Missing specification
+    MESHCOP_TLV_XPANID,
+    MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA,
+    MESHCOP_TLV_NETWORK_MASTER_KEY,
+    MESHCOP_TLV_PSKC,
+    MESHCOP_TLV_SECURITY_POLICY,
+    MESHCOP_TLV_NETWORK_KEY_SEQUENCE
+};
 
 const uint8_t meshcop_pending_set_ignore[] = {
-        MESHCOP_TLV_BORDER_ROUTER_LOCATOR,
-        MESHCOP_TLV_COMMISSIONER_SESSION_ID,
-        MESHCOP_TLV_PENDING_TIMESTAMP,
-        MESHCOP_TLV_COMMISSIONER_ID,
-        MESHCOP_TLV_STEERING_DATA,
-        MESHCOP_TLV_DELAY_TIMER,
-        MESHCOP_TLV_GET,
-        MESHCOP_TLV_COMMISSIONER_UDP_PORT,
-        MESHCOP_TLV_JOINER_UDP_PORT,
-        MESHCOP_TLV_STATE,
-        MESHCOP_TLV_NETWORK_KEY_SEQUENCE
+    MESHCOP_TLV_BORDER_ROUTER_LOCATOR,
+    MESHCOP_TLV_COMMISSIONER_SESSION_ID,
+    MESHCOP_TLV_PENDING_TIMESTAMP,
+    MESHCOP_TLV_COMMISSIONER_ID,
+    MESHCOP_TLV_STEERING_DATA,
+    MESHCOP_TLV_DELAY_TIMER,
+    MESHCOP_TLV_GET,
+    MESHCOP_TLV_COMMISSIONER_UDP_PORT,
+    MESHCOP_TLV_JOINER_UDP_PORT,
+    MESHCOP_TLV_STATE,
+    MESHCOP_TLV_NETWORK_KEY_SEQUENCE
 };
 
 const uint8_t meshcop_active_set_ignore[] = {
-        MESHCOP_TLV_PENDING_TIMESTAMP,
-        MESHCOP_TLV_COMMISSIONER_SESSION_ID,
-        MESHCOP_TLV_COMMISSIONER_ID,
-        MESHCOP_TLV_STEERING_DATA,
-        MESHCOP_TLV_DELAY_TIMER,
-        MESHCOP_TLV_NETWORK_KEY_SEQUENCE
-        };
+    MESHCOP_TLV_PENDING_TIMESTAMP,
+    MESHCOP_TLV_COMMISSIONER_SESSION_ID,
+    MESHCOP_TLV_COMMISSIONER_ID,
+    MESHCOP_TLV_STEERING_DATA,
+    MESHCOP_TLV_DELAY_TIMER,
+    MESHCOP_TLV_NETWORK_KEY_SEQUENCE
+};
 
 const uint8_t mle_active_configuration_dataset_ignore_tlvs[] = {
-        MESHCOP_TLV_ACTIVE_TIME_STAMP
+    MESHCOP_TLV_ACTIVE_TIME_STAMP
 };
 
 const uint8_t mle_pending_configuration_dataset_ignore_tlvs[] = {
-        MESHCOP_TLV_PENDING_TIMESTAMP
+    MESHCOP_TLV_PENDING_TIMESTAMP
 };
 
 uint8_t mle_active_configuration_dataset_tlvs_size(void)
@@ -191,10 +196,10 @@ uint8_t entrust_dataset_tlvs_size(void)
 #define MAX_OPERATIONAL_DATASET_SIZE 254
 
 typedef struct {
-	uint32_t timeout_in_ms;
-	uint64_t timestamp;
-	uint16_t length;
-	uint8_t data[MAX_OPERATIONAL_DATASET_SIZE];
+    uint32_t timeout_in_ms;
+    uint64_t timestamp;
+    uint16_t length;
+    uint8_t data[MAX_OPERATIONAL_DATASET_SIZE];
 } configuration_set_t;
 
 typedef struct {
@@ -239,7 +244,7 @@ static void thread_joiner_application_validate_settings(thread_joiner_t *this);
 static int stringlen(const char *s, int n)
 {
     char *end = memchr(s, 0, n);
-    return end?end-s:n;
+    return end ? end - s : n;
 }
 
 static char *str_dub(char *str)
@@ -247,8 +252,8 @@ static char *str_dub(char *str)
     char *result_ptr = NULL;
     if (str) {
         result_ptr = ns_dyn_mem_alloc(strlen(str) + 1);
-        if(result_ptr) {
-            strcpy(result_ptr,str);
+        if (result_ptr) {
+            strcpy(result_ptr, str);
         }
     }
     return result_ptr;
@@ -283,7 +288,7 @@ static thread_joiner_t *thread_joiner_get(int8_t interface_id)
     thread_joiner_t *this = thread_joiner_find(interface_id);
     if (!this) {
         this = ns_dyn_mem_alloc(sizeof(thread_joiner_t));
-        if(this){
+        if (this) {
             memset(this, 0, sizeof(thread_joiner_t));
             ns_list_add_to_start(&instance_list, this);
             this->interface_id = interface_id;
@@ -296,7 +301,7 @@ static thread_joiner_t *thread_joiner_get(int8_t interface_id)
 static void thread_joiner_application_commission_clean(thread_joiner_t *this)
 {
     thread_commissioning_if_pairwise_key_delete_all(this->interface_id);
-    memset(this->parent_address,0,16);
+    memset(this->parent_address, 0, 16);
     this->parent_port = 0;
     coap_service_delete(this->secure_coap_service_id);
     coap_service_delete(this->coap_service_id);
@@ -343,7 +348,7 @@ static void link_configuration_copy(link_configuration_s *this, link_configurati
     memcpy(this->mesh_local_eid, configuration_ptr->mesh_local_eid, 8);
     memcpy(this->extented_pan_id, configuration_ptr->extented_pan_id, 8);
     memcpy(this->extended_random_mac, configuration_ptr->extended_random_mac, 8);
-    memcpy(this->channel_mask, configuration_ptr->channel_mask,5);
+    memcpy(this->channel_mask, configuration_ptr->channel_mask, 5);
     this->key_rotation = configuration_ptr->key_rotation;
     this->key_sequence = configuration_ptr->key_sequence;
     this->panId = configuration_ptr->panId;
@@ -357,11 +362,11 @@ static int link_configuration_update(link_configuration_s *link_configuration, u
     uint8_t *ptr;
     uint16_t len;
 
-    if( !msg_ptr || !link_configuration ){
+    if (!msg_ptr || !link_configuration) {
         return -1;
     }
     len = thread_meshcop_tlv_find(msg_ptr, msg_len, MESHCOP_TLV_NETWORK_NAME, &ptr);
-    if ( len > 0 ) {
+    if (len > 0) {
         memset(link_configuration->name, 0, 16);
         memcpy(link_configuration->name, ptr, (len > 16) ? 16 : len);
     }
@@ -372,9 +377,9 @@ static int link_configuration_update(link_configuration_s *link_configuration, u
     }
     if (thread_meshcop_tlv_find(msg_ptr, msg_len, MESHCOP_TLV_CHANNEL_MASK, &ptr) > 5) {
         //channel_page = channel_ptr[0];
-        if(ptr[0] == 0 && ptr[1] == 4) {
+        if (ptr[0] == 0 && ptr[1] == 4) {
             link_configuration->channel_page = ptr[0];
-            memcpy(link_configuration->channel_mask,&ptr[2],4);
+            memcpy(link_configuration->channel_mask, &ptr[2], 4);
         } else {
             tr_warn("Invalid channel mask");
         }
@@ -450,15 +455,15 @@ static void device_configuration_copy(device_configuration_s *this, device_confi
     if (!this || !configuration_ptr) {
         return;
     }
-    memcpy(this->eui64, configuration_ptr->eui64,8);
-    memcpy(this->vendor_stack_version, configuration_ptr->vendor_stack_version,6);
+    memcpy(this->eui64, configuration_ptr->eui64, 8);
+    memcpy(this->vendor_stack_version, configuration_ptr->vendor_stack_version, 6);
     //TODO: count PSKc instead and use that
-    if( configuration_ptr->PSKd_ptr && configuration_ptr->PSKd_len > 0 ){
+    if (configuration_ptr->PSKd_ptr && configuration_ptr->PSKd_len > 0) {
         this->PSKd_ptr = ns_dyn_mem_alloc(configuration_ptr->PSKd_len);
-        if( this->PSKd_ptr ){
+        if (this->PSKd_ptr) {
             memcpy(this->PSKd_ptr, configuration_ptr->PSKd_ptr, configuration_ptr->PSKd_len);
             this->PSKd_len = configuration_ptr->PSKd_len;
-        }else{
+        } else {
             this->PSKd_len = 0;
         }
     }
@@ -470,12 +475,12 @@ static void device_configuration_copy(device_configuration_s *this, device_confi
 
     uint16_t vendor_data_len = configuration_ptr->vendor_data_len;
 
-    if(vendor_data_len) {
+    if (vendor_data_len) {
         if (vendor_data_len > 64) {
             vendor_data_len = 64;
         }
         this->vendor_data_ptr = ns_dyn_mem_alloc(vendor_data_len);
-        if(this->vendor_data_ptr) {
+        if (this->vendor_data_ptr) {
             memcpy(this->vendor_data_ptr, configuration_ptr->vendor_data_ptr, vendor_data_len);
             this->vendor_data_len = vendor_data_len;
         }
@@ -487,7 +492,7 @@ static void device_configuration_trace(device_configuration_s *this)
     if (!this) {
         return;
     }
-    tr_debug("uri: %s", this->provisioning_uri_ptr ? this->provisioning_uri_ptr: "(none)");
+    tr_debug("uri: %s", this->provisioning_uri_ptr ? this->provisioning_uri_ptr : "(none)");
     tr_debug("name: %s", this->vendor_name_ptr);
     tr_debug("mode: %s", this->vendor_model_ptr);
     tr_debug("version: %s", this->vendor_sw_version_ptr);
@@ -507,7 +512,7 @@ static void device_configuration_validate(device_configuration_s *this)
     if (!this->vendor_sw_version_ptr) {
         this->vendor_sw_version_ptr = str_dub(THREAD_SW_VERSION);
     }
-    if (memcmp(this->vendor_stack_version, "\0\0\0\0\0\0",6) == 0) {
+    if (memcmp(this->vendor_stack_version, "\0\0\0\0\0\0", 6) == 0) {
         // Empty lets set defaults
         this->vendor_stack_version[0] = (uint8_t)(THREAD_ARM_OUI >> 16);
         this->vendor_stack_version[1] = (uint8_t)(THREAD_ARM_OUI >> 8);
@@ -528,7 +533,7 @@ static configuration_set_t *configuration_set_copy(configuration_set_t *source_p
     if (!result_ptr) {
         return NULL;
     }
-    memcpy(result_ptr->data,source_ptr->data,source_ptr->length);
+    memcpy(result_ptr->data, source_ptr->data, source_ptr->length);
     result_ptr->length = source_ptr->length;
     result_ptr->timeout_in_ms = source_ptr->timeout_in_ms;
     result_ptr->timestamp = source_ptr->timestamp;
@@ -537,9 +542,8 @@ static configuration_set_t *configuration_set_copy(configuration_set_t *source_p
 
 static bool configuration_set_tlv_required(uint8_t tlv_id, const uint8_t *tlv_ptr, uint8_t tlv_len)
 {
-    while(tlv_len)
-    {
-        if(tlv_ptr[tlv_len-- -1] == tlv_id) {
+    while (tlv_len) {
+        if (tlv_ptr[tlv_len-- -1] == tlv_id) {
             return true;
         }
     }
@@ -556,7 +560,7 @@ static uint16_t configuration_set_length(configuration_set_t *config_ptr, const 
 
     while (tlv_ptr && tlv_len) {
         if ((!req_tlv_ptr || req_tlv_len == 0 || configuration_set_tlv_required(*tlv_ptr, req_tlv_ptr, req_tlv_len)) &&
-                !configuration_set_tlv_required(*tlv_ptr, ignored_tlv_ptr, ignored_tlv_len)){
+                !configuration_set_tlv_required(*tlv_ptr, ignored_tlv_ptr, ignored_tlv_len)) {
             int16_t required_len = thread_meshcop_tlv_length_required(tlv_ptr, tlv_len);
             if (required_len < 0) {
                 return 0;
@@ -577,13 +581,13 @@ static uint8_t *configuration_set_write(configuration_set_t *config_ptr, uint8_t
     tlv_ptr = config_ptr->data;
     while (tlv_ptr && tlv_len) {
         if ((!req_tlv_ptr || req_tlv_len == 0  || configuration_set_tlv_required(*tlv_ptr, req_tlv_ptr, req_tlv_len)) &&
-                !configuration_set_tlv_required(*tlv_ptr, ignored_tlv_ptr,ignored_tlv_len)) {
-            int16_t required_len = thread_meshcop_tlv_length_required(tlv_ptr,tlv_len);
+                !configuration_set_tlv_required(*tlv_ptr, ignored_tlv_ptr, ignored_tlv_len)) {
+            int16_t required_len = thread_meshcop_tlv_length_required(tlv_ptr, tlv_len);
             if (required_len < 0 || config_ptr->length + required_len > MAX_OPERATIONAL_DATASET_SIZE) {
                 // Source configuration is corrupted or length exceeded
                 return ptr;
             }
-            memcpy(ptr,tlv_ptr,required_len);
+            memcpy(ptr, tlv_ptr, required_len);
             ptr += required_len;
         }
         tlv_ptr = thread_meshcop_tlv_get_next(tlv_ptr, &tlv_len);
@@ -597,12 +601,12 @@ static uint8_t *configuration_set_add_fields(configuration_set_t *destination_pt
     ptr = destination_ptr->data + destination_ptr->length;
     while (source_ptr && source_len) {
         if (configuration_set_tlv_required(*source_ptr, required_tlv_ptr, required_tlv_len)) {
-            int16_t required_len = thread_meshcop_tlv_length_required(source_ptr,source_len);
+            int16_t required_len = thread_meshcop_tlv_length_required(source_ptr, source_len);
             if (required_len < 0 || destination_ptr->length + required_len > MAX_OPERATIONAL_DATASET_SIZE) {
                 // Source configuration is corrupted or length exceeded
                 return ptr;
             }
-            memcpy(ptr,source_ptr,required_len);
+            memcpy(ptr, source_ptr, required_len);
             destination_ptr->length += required_len;
             ptr += required_len;
         }
@@ -616,12 +620,12 @@ static uint8_t *configuration_set_add_all_fields(configuration_set_t *destinatio
     ptr = destination_ptr->data + destination_ptr->length;
     while (source_ptr && source_len) {
         if (!configuration_set_tlv_required(*source_ptr, ignored_tlv_ptr, ignored_tlv_len)) {
-            int16_t required_len = thread_meshcop_tlv_length_required(source_ptr,source_len);
+            int16_t required_len = thread_meshcop_tlv_length_required(source_ptr, source_len);
             if (required_len < 0 || destination_ptr->length + required_len > MAX_OPERATIONAL_DATASET_SIZE) {
                 // Source configuration is corrupted or length exceeded
                 return ptr;
             }
-            memcpy(ptr,source_ptr,required_len);
+            memcpy(ptr, source_ptr, required_len);
             destination_ptr->length += required_len;
             ptr += required_len;
         }
@@ -636,21 +640,21 @@ static void configuration_set_copy_missing(configuration_set_t *destination_ptr,
     if (!source_ptr || !destination_ptr) {
         return;
     }
-    thread_meshcop_tlv_list_generate(source_ptr->data, source_ptr->length,NULL, &tlv_list_len);
-    if (tlv_list_len == 0){
+    thread_meshcop_tlv_list_generate(source_ptr->data, source_ptr->length, NULL, &tlv_list_len);
+    if (tlv_list_len == 0) {
         return;
     }
     tlv_list_ptr = ns_dyn_mem_temporary_alloc(tlv_list_len);
     if (!tlv_list_ptr) {
         return;
     }
-    thread_meshcop_tlv_list_generate(source_ptr->data, source_ptr->length,tlv_list_ptr, &tlv_list_len);
-    tr_debug("list in source: %s",trace_array(tlv_list_ptr,tlv_list_len));
+    thread_meshcop_tlv_list_generate(source_ptr->data, source_ptr->length, tlv_list_ptr, &tlv_list_len);
+    tr_debug("list in source: %s", trace_array(tlv_list_ptr, tlv_list_len));
 
-    for(uint8_t n = 0;n < tlv_list_len;n++) {
-        if(thread_meshcop_tlv_exist(destination_ptr->data, destination_ptr->length, tlv_list_ptr[n])){
+    for (uint8_t n = 0; n < tlv_list_len; n++) {
+        if (thread_meshcop_tlv_exist(destination_ptr->data, destination_ptr->length, tlv_list_ptr[n])) {
             // Depending specification 0 length TLVs from source should be also removed
-            tlv_list_len = thread_meshcop_tlv_list_remove(tlv_list_ptr,tlv_list_len,tlv_list_ptr[n]);
+            tlv_list_len = thread_meshcop_tlv_list_remove(tlv_list_ptr, tlv_list_len, tlv_list_ptr[n]);
             n--; // When we remove item from list we stay put
         }
     }
@@ -659,7 +663,7 @@ static void configuration_set_copy_missing(configuration_set_t *destination_ptr,
         ns_dyn_mem_free(tlv_list_ptr);
         return;
     }
-    tr_debug("mandatory TLVs needed: %s",trace_array(tlv_list_ptr,tlv_list_len));
+    tr_debug("mandatory TLVs needed: %s", trace_array(tlv_list_ptr, tlv_list_len));
     configuration_set_add_fields(destination_ptr, source_ptr->data, source_ptr->length, tlv_list_ptr, tlv_list_len);
     ns_dyn_mem_free(tlv_list_ptr);
 }
@@ -675,15 +679,15 @@ static void configuration_set_remove_null_tlv(configuration_set_t *configuration
     ptr = configuration_ptr->data;
 
     do {
-        if(thread_meshcop_tlv_length(ptr,length) == 0){
+        if (thread_meshcop_tlv_length(ptr, length) == 0) {
             // remove this TLV
-            configuration_ptr->length -= thread_meshcop_tlv_length_required(ptr,length);
-            next_ptr = (uint8_t*)thread_meshcop_tlv_get_next(ptr,&length);
+            configuration_ptr->length -= thread_meshcop_tlv_length_required(ptr, length);
+            next_ptr = (uint8_t *)thread_meshcop_tlv_get_next(ptr, &length);
             if (next_ptr) {
-                memmove(ptr,next_ptr,length);
+                memmove(ptr, next_ptr, length);
             }
         } else {
-            ptr = (uint8_t*)thread_meshcop_tlv_get_next(ptr,&length);
+            ptr = (uint8_t *)thread_meshcop_tlv_get_next(ptr, &length);
         }
 
     } while (ptr && length);
@@ -697,19 +701,19 @@ static void configuration_set_copy_mandatory(configuration_set_t *destination_pt
     if (!source_ptr || !destination_ptr) {
         return;
     }
-    memcpy(tlv_list,active_configuration_dataset_tlvs, sizeof(active_configuration_dataset_tlvs));
+    memcpy(tlv_list, active_configuration_dataset_tlvs, sizeof(active_configuration_dataset_tlvs));
 
-    for(uint8_t n = 0;n < sizeof(active_configuration_dataset_tlvs);n++) {
-        if(0 < thread_meshcop_tlv_find(destination_ptr->data, destination_ptr->length, active_configuration_dataset_tlvs[n], NULL)){
+    for (uint8_t n = 0; n < sizeof(active_configuration_dataset_tlvs); n++) {
+        if (0 < thread_meshcop_tlv_find(destination_ptr->data, destination_ptr->length, active_configuration_dataset_tlvs[n], NULL)) {
             // Depending specification 0 length TLVs from source should be also removed
-            tlv_list_len = thread_meshcop_tlv_list_remove(tlv_list,tlv_list_len,active_configuration_dataset_tlvs[n]);
+            tlv_list_len = thread_meshcop_tlv_list_remove(tlv_list, tlv_list_len, active_configuration_dataset_tlvs[n]);
         }
     }
     if (tlv_list_len == 0) {
         // All mandatory TLVs present
         return;
     }
-    tr_debug("mandatory TLVs needed: %s",trace_array(tlv_list,tlv_list_len));
+    tr_debug("mandatory TLVs needed: %s", trace_array(tlv_list, tlv_list_len));
     configuration_set_add_fields(destination_ptr, source_ptr->data, source_ptr->length, tlv_list, tlv_list_len);
 }
 static void configuration_set_generate(configuration_set_t *destination_ptr, link_configuration_s *configuration_ptr)
@@ -729,17 +733,17 @@ static void configuration_set_generate(configuration_set_t *destination_ptr, lin
     *response_ptr++ = 6; // length
     *response_ptr++ = configuration_ptr->channel_page; // channel page
     *response_ptr++ = 4; // channel mask length
-    memcpy(response_ptr,configuration_ptr->channel_mask,4);
+    memcpy(response_ptr, configuration_ptr->channel_mask, 4);
     response_ptr += 4;
     response_ptr = thread_tmfcop_tlv_data_write(response_ptr, MESHCOP_TLV_XPANID, 8, configuration_ptr->extented_pan_id);
     response_ptr = thread_tmfcop_tlv_data_write(response_ptr, MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA, 8, configuration_ptr->mesh_local_ula_prefix);
     response_ptr = thread_tmfcop_tlv_data_write(response_ptr, MESHCOP_TLV_NETWORK_MASTER_KEY, 16, configuration_ptr->master_key);
     response_ptr = thread_tmfcop_tlv_data_write_uint16(response_ptr, MESHCOP_TLV_PANID, configuration_ptr->panId);
     response_ptr = thread_tmfcop_tlv_data_write(response_ptr, MESHCOP_TLV_PSKC, 16, configuration_ptr->PSKc);
-    response_ptr = thread_tmfcop_tlv_data_write(response_ptr, MESHCOP_TLV_NETWORK_NAME, stringlen((char*)&configuration_ptr->name, 16), configuration_ptr->name);
+    response_ptr = thread_tmfcop_tlv_data_write(response_ptr, MESHCOP_TLV_NETWORK_NAME, stringlen((char *)&configuration_ptr->name, 16), configuration_ptr->name);
     *response_ptr++ = MESHCOP_TLV_SECURITY_POLICY; // type
     *response_ptr++ = 3; // length
-    response_ptr = common_write_16_bit(configuration_ptr->key_rotation,response_ptr);
+    response_ptr = common_write_16_bit(configuration_ptr->key_rotation, response_ptr);
     *response_ptr++ = configuration_ptr->securityPolicy;
     response_ptr = thread_tmfcop_tlv_data_write_uint64(response_ptr, MESHCOP_TLV_ACTIVE_TIME_STAMP, configuration_ptr->timestamp);
 
@@ -749,7 +753,7 @@ static void configuration_set_generate(configuration_set_t *destination_ptr, lin
 void thread_joiner_application_lc_nvm_read_callback(int status, void *context)
 {
     tr_debug("thread_joiner_application_lc_nvm_read_callback() status=%d, ctx=%p", status, context);
-    nvm_data_t *nvm_data_ptr = (nvm_data_t*)context;
+    nvm_data_t *nvm_data_ptr = (nvm_data_t *)context;
     thread_joiner_t *this = thread_joiner_find(nvm_data_ptr->interface_id);
 
     if (!this) {
@@ -763,31 +767,30 @@ void thread_joiner_application_lc_nvm_read_callback(int status, void *context)
 
     if (status == NS_NVM_OK) {
         ns_dyn_mem_free(this->active_configuration_ptr);
-        this->active_configuration_ptr = (configuration_set_t*)nvm_data_ptr->nvm_buffer;
+        this->active_configuration_ptr = (configuration_set_t *)nvm_data_ptr->nvm_buffer;
         link_configuration_update(this->configuration_ptr, this->active_configuration_ptr->data, this->active_configuration_ptr->length);
 
         thread_nvm_fast_data_t fast_data;
-        memset(&fast_data,0,sizeof(thread_nvm_fast_data_t));
+        memset(&fast_data, 0, sizeof(thread_nvm_fast_data_t));
         int ret = thread_nvm_store_fast_data_read(&fast_data);
         tr_info("From NVM");
-        tr_info("mac-counter %"PRIu32,fast_data.mac_frame_counter);
-        tr_info("mle-counter %"PRIu32,fast_data.mle_frame_counter);
-        tr_info("seq-counter %"PRIu32,fast_data.seq_counter);
+        tr_info("mac-counter %"PRIu32, fast_data.mac_frame_counter);
+        tr_info("mle-counter %"PRIu32, fast_data.mle_frame_counter);
+        tr_info("seq-counter %"PRIu32, fast_data.seq_counter);
 
         if (!ret) {
             // nvm working
             this->configuration_ptr->key_sequence = fast_data.seq_counter;
-        }
-        else {
+        } else {
             mac_helper_link_frame_counter_read(this->interface_id, &fast_data.mac_frame_counter);
-            fast_data.mle_frame_counter=mle_service_security_get_frame_counter(this->interface_id);
+            fast_data.mle_frame_counter = mle_service_security_get_frame_counter(this->interface_id);
         }
 
         fast_data.mac_frame_counter += MAC_FRAME_COUNTER_LIMIT;
         fast_data.mle_frame_counter += MLE_FRAME_COUNTER_LIMIT;
         thread_nvm_store_fast_data_store(&fast_data);
 
-        thread_dynamic_storage_device_configuration_read(this->interface_id,this->configuration_ptr->extended_random_mac,this->configuration_ptr->mesh_local_eid);
+        thread_dynamic_storage_device_configuration_read(this->interface_id, this->configuration_ptr->extended_random_mac, this->configuration_ptr->mesh_local_eid);
         thread_nvm_store_link_info_file_read();
         thread_joiner_application_validate_settings(this);// Generate all random information
         this->configuration_valid = true;
@@ -815,7 +818,7 @@ void thread_joiner_application_lc_nvm_read_callback(int status, void *context)
             }
             this->pending_configuration_ptr = ns_dyn_mem_alloc(sizeof(configuration_set_t));
             if (this->pending_configuration_ptr) {
-                thread_dynamic_storage_pending_configuration_read(this->interface_id, this->pending_configuration_ptr,sizeof(configuration_set_t));
+                thread_dynamic_storage_pending_configuration_read(this->interface_id, this->pending_configuration_ptr, sizeof(configuration_set_t));
                 this->pending_configuration_ptr->timeout_in_ms = 0; // We have lost the timer value
             }
         }
@@ -835,7 +838,7 @@ void thread_joiner_application_lc_nvm_read_callback(int status, void *context)
 void thread_joiner_application_nvm_write_callback(int status, void *context)
 {
     tr_debug("thread_joiner_application_nvm_write_callback() status=%d ctx=%p", status, context);
-    nvm_data_t *nvm_data_ptr = (nvm_data_t*)context;
+    nvm_data_t *nvm_data_ptr = (nvm_data_t *)context;
 
     thread_joiner_t *this = thread_joiner_find(nvm_data_ptr->interface_id);
     if (this) {
@@ -852,7 +855,7 @@ void thread_joiner_application_nvm_write_callback(int status, void *context)
 void thread_joiner_application_nvm_delete_callback(int status, void *context)
 {
     tr_debug("thread_joiner_application_nvm_delete_callback() status=%d ctx=%p", status, context);
-    nvm_data_t *nvm_data_ptr = (nvm_data_t*)context;
+    nvm_data_t *nvm_data_ptr = (nvm_data_t *)context;
 
     thread_joiner_t *this = thread_joiner_find(nvm_data_ptr->interface_id);
     if (this) {
@@ -868,7 +871,7 @@ void thread_joiner_application_nvm_delete_callback(int status, void *context)
 static void thread_joiner_application_validate_settings(thread_joiner_t *this)
 {
 
-    if (memcmp(this->configuration_ptr->extended_random_mac,ADDR_UNSPECIFIED, 8) == 0) {
+    if (memcmp(this->configuration_ptr->extended_random_mac, ADDR_UNSPECIFIED, 8) == 0) {
         randLIB_get_n_bytes_random(this->configuration_ptr->extended_random_mac, 8);
 
         this->configuration_ptr->extended_random_mac[0] |= 2; //Set Local Bit
@@ -876,7 +879,7 @@ static void thread_joiner_application_validate_settings(thread_joiner_t *this)
         tr_info("Generating Random MAC");
     }
     while (addr_iid_reserved(this->configuration_ptr->mesh_local_eid) ||
-           memcmp(this->configuration_ptr->mesh_local_eid, ADDR_SHORT_ADR_SUFFIC,6) == 0 ) {
+            memcmp(this->configuration_ptr->mesh_local_eid, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
         // addr_iid_reserved checks the all zeroes case.
         randLIB_get_n_bytes_random(this->configuration_ptr->mesh_local_eid, 8);
         tr_info("Generating Random ML-EID");
@@ -892,12 +895,12 @@ int thread_joiner_application_init(int8_t interface_id, device_configuration_s *
     thread_joiner_t *this;
     uint8_t pskd_len;
 
-    if ( !device_configuration_ptr ) {
+    if (!device_configuration_ptr) {
         return -1;
     }
     pskd_len = device_configuration_ptr->PSKd_len;
 
-    if (pskd_len > 32 || pskd_len < 6 ) {
+    if (pskd_len > 32 || pskd_len < 6) {
         return -2;
     }
 
@@ -908,26 +911,26 @@ int thread_joiner_application_init(int8_t interface_id, device_configuration_s *
 
     int ret = thread_nvm_store_init();
 
-    if(ret) {
+    if (ret) {
         tr_error("thread_nvm_store_init, NVM error %d", ret);
     }
 
-    if ( !this->device_configuration_ptr ) {
+    if (!this->device_configuration_ptr) {
         this->device_configuration_ptr = device_configuration_create();
     }
-    if ( !this->device_configuration_ptr ) {
+    if (!this->device_configuration_ptr) {
         tr_error("Joiner Device creation failed");
         return -4;
     }
     device_configuration_copy(this->device_configuration_ptr, device_configuration_ptr);
     device_configuration_validate(this->device_configuration_ptr); // Set defaults if missing
     device_configuration_trace(this->device_configuration_ptr);
-    if (memcmp(this->device_configuration_ptr->eui64, "\0\0\0\0\0\0\0\0",8) == 0) {
+    if (memcmp(this->device_configuration_ptr->eui64, "\0\0\0\0\0\0\0\0", 8) == 0) {
         //EUI64 is not set we then read that from Radio
         protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
         if (cur && cur->mac_api) {
-            cur->mac_api->mac64_get(cur->mac_api,MAC_EXTENDED_READ_ONLY, this->device_configuration_ptr->eui64);
+            cur->mac_api->mac64_get(cur->mac_api, MAC_EXTENDED_READ_ONLY, this->device_configuration_ptr->eui64);
         }
     }
     // Adding entropy for our random seed
@@ -944,7 +947,7 @@ int thread_joiner_application_init(int8_t interface_id, device_configuration_s *
         device_configuration_delete(this->device_configuration_ptr);
         return -4;
     }
-    if(!this->active_configuration_ptr){
+    if (!this->active_configuration_ptr) {
         this->active_configuration_ptr = ns_dyn_mem_alloc(sizeof(configuration_set_t));
     }
     if (!this->active_configuration_ptr) {
@@ -958,8 +961,8 @@ int thread_joiner_application_init(int8_t interface_id, device_configuration_s *
     if (default_configuration_ptr) {
         link_configuration_copy(this->configuration_ptr, default_configuration_ptr);
         thread_joiner_application_validate_settings(this);// Generate all random information
-        if( memcmp(this->configuration_ptr->master_key,ADDR_UNSPECIFIED ,16) != 0 ||
-            memcmp(this->configuration_ptr->PSKc,ADDR_UNSPECIFIED ,16) != 0     ) {
+        if (memcmp(this->configuration_ptr->master_key, ADDR_UNSPECIFIED, 16) != 0 ||
+                memcmp(this->configuration_ptr->PSKc, ADDR_UNSPECIFIED, 16) != 0) {
             //If no master key or PSKc set we assume not valid configuration for thread network others may be possible to be 0
             //This allows some configurations to be set statically for testing purposes
             this->configuration_valid = true;
@@ -1142,7 +1145,7 @@ void thread_joiner_application_active_timestamp_set(int8_t interface_id, uint64_
 
     thread_meshcop_tlv_find(this->active_configuration_ptr->data, this->active_configuration_ptr->length, MESHCOP_TLV_ACTIVE_TIME_STAMP, &timestamp_ptr);
     if (timestamp_ptr) {
-        common_write_64_bit(timestamp,timestamp_ptr);
+        common_write_64_bit(timestamp, timestamp_ptr);
     }
 
     //update timestamps in active configuration and link configuration
@@ -1178,22 +1181,22 @@ void thread_joiner_pending_config_activate(int8_t interface_id)
     }
 
     // Validate new link configuration
-	uint8_t *master_key_ptr = NULL;
+    uint8_t *master_key_ptr = NULL;
     uint64_t pending_active_timestamp = 0;
-    thread_meshcop_tlv_data_get_uint64(this->pending_configuration_ptr->data,this->pending_configuration_ptr->length,MESHCOP_TLV_ACTIVE_TIME_STAMP, &pending_active_timestamp);
-	thread_meshcop_tlv_find(this->pending_configuration_ptr->data,this->pending_configuration_ptr->length,MESHCOP_TLV_NETWORK_MASTER_KEY,&master_key_ptr);
+    thread_meshcop_tlv_data_get_uint64(this->pending_configuration_ptr->data, this->pending_configuration_ptr->length, MESHCOP_TLV_ACTIVE_TIME_STAMP, &pending_active_timestamp);
+    thread_meshcop_tlv_find(this->pending_configuration_ptr->data, this->pending_configuration_ptr->length, MESHCOP_TLV_NETWORK_MASTER_KEY, &master_key_ptr);
 
     if ((pending_active_timestamp < thread_joiner_application_active_timestamp_get(interface_id))) {
-    	// If new active timestamp is older than current master key must be changed.
+        // If new active timestamp is older than current master key must be changed.
         if (!master_key_ptr ||
-            memcmp(master_key_ptr,link_configuration->master_key,16) == 0) {
+                memcmp(master_key_ptr, link_configuration->master_key, 16) == 0) {
             tr_info("*** Pending set activation aborted - device has newer active timestamp");
             thread_joiner_application_pending_config_delete(interface_id);
             return;
         }
     }
 
-    if (master_key_ptr && memcmp(master_key_ptr,link_configuration->master_key,16) != 0) {
+    if (master_key_ptr && memcmp(master_key_ptr, link_configuration->master_key, 16) != 0) {
         this->configuration_ptr->key_sequence = 0;
         thread_nvm_store_seq_counter_store(this->configuration_ptr->key_sequence);
     }
@@ -1208,7 +1211,7 @@ void thread_joiner_pending_config_activate(int8_t interface_id)
     this->pending_configuration_ptr = NULL;
 
     configuration_set_copy_mandatory(this->active_configuration_ptr, this->old_active_configuration_ptr);
-    link_configuration_update(this->configuration_ptr,this->active_configuration_ptr->data, this->active_configuration_ptr->length);
+    link_configuration_update(this->configuration_ptr, this->active_configuration_ptr->data, this->active_configuration_ptr->length);
     link_configuration_trace(this->configuration_ptr);
 
     thread_joiner_application_configuration_nvm_save(this->interface_id);
@@ -1238,8 +1241,8 @@ void thread_joiner_application_seconds_timer(int8_t interface_id, uint32_t secon
     if (!this->pending_configuration_ptr || this->pending_configuration_ptr->timeout_in_ms == 0) {
         return;
     }
-    if (this->pending_configuration_ptr->timeout_in_ms > seconds*1000) {
-    	this->pending_configuration_ptr->timeout_in_ms -= seconds*1000;
+    if (this->pending_configuration_ptr->timeout_in_ms > seconds * 1000) {
+        this->pending_configuration_ptr->timeout_in_ms -= seconds * 1000;
         return;
     }
     // Activate the pending config
@@ -1252,7 +1255,7 @@ int thread_joiner_application_pending_config_create(int8_t interface_id, uint8_t
     if (!this || data_len > MAX_OPERATIONAL_DATASET_SIZE) {
         return -1;
     }
-    if(!this->pending_configuration_ptr){
+    if (!this->pending_configuration_ptr) {
         this->pending_configuration_ptr = ns_dyn_mem_alloc(sizeof(configuration_set_t));
     }
     if (!this->pending_configuration_ptr) {
@@ -1262,7 +1265,7 @@ int thread_joiner_application_pending_config_create(int8_t interface_id, uint8_t
     this->pending_configuration_ptr->length = 0;
     this->pending_configuration_ptr->timeout_in_ms = 0;
     this->pending_configuration_ptr->timestamp = 0;
-    configuration_set_add_all_fields(this->pending_configuration_ptr,data_ptr,data_len, meshcop_pending_set_ignore, sizeof(meshcop_pending_set_ignore));
+    configuration_set_add_all_fields(this->pending_configuration_ptr, data_ptr, data_len, meshcop_pending_set_ignore, sizeof(meshcop_pending_set_ignore));
     return 0;
 }
 
@@ -1303,8 +1306,8 @@ int thread_joiner_application_pending_config_enable(int8_t interface_id, uint32_
     }
     this->pending_configuration_ptr->timeout_in_ms = timeout_in_ms;
 
-    if(this->pending_configuration_ptr->timeout_in_ms > THREAD_MAX_DELAY_TIMER_SECONDS*1000) {
-        this->pending_configuration_ptr->timeout_in_ms = THREAD_MAX_DELAY_TIMER_SECONDS*1000;
+    if (this->pending_configuration_ptr->timeout_in_ms > THREAD_MAX_DELAY_TIMER_SECONDS * 1000) {
+        this->pending_configuration_ptr->timeout_in_ms = THREAD_MAX_DELAY_TIMER_SECONDS * 1000;
     }
     thread_joiner_application_configuration_nvm_save(this->interface_id);
 
@@ -1328,7 +1331,7 @@ uint16_t thread_joiner_application_pending_config_length(uint8_t interface_id, u
         return 0;
     }
 
-    result_len = configuration_set_length(this->pending_configuration_ptr,req_tlv_ptr,req_tlv_len, ignored_tlv_ptr, ignored_tlv_len);
+    result_len = configuration_set_length(this->pending_configuration_ptr, req_tlv_ptr, req_tlv_len, ignored_tlv_ptr, ignored_tlv_len);
 
     /* Add pending timestamp if required and not ignored*/
     if (thread_meshcop_tlv_list_type_available(req_tlv_ptr, req_tlv_len, MESHCOP_TLV_PENDING_TIMESTAMP) &&
@@ -1339,7 +1342,7 @@ uint16_t thread_joiner_application_pending_config_length(uint8_t interface_id, u
     /* Always add delay timer */
     result_len += 6;
 
-	return result_len;
+    return result_len;
 }
 
 uint8_t *thread_joiner_application_pending_config_build(uint8_t interface_id, uint8_t *ptr, uint8_t *req_tlv_ptr, uint8_t req_tlv_len, const uint8_t *ignored_tlv_ptr, uint8_t ignored_tlv_len)
@@ -1355,13 +1358,13 @@ uint8_t *thread_joiner_application_pending_config_build(uint8_t interface_id, ui
     /* Add pending timestamp (len = 10) if required and not ignored */
     if (thread_meshcop_tlv_list_type_available(req_tlv_ptr, req_tlv_len, MESHCOP_TLV_PENDING_TIMESTAMP) &&
             !thread_meshcop_tlv_list_type_available(ignored_tlv_ptr, ignored_tlv_len, MESHCOP_TLV_PENDING_TIMESTAMP)) {
-        ptr = thread_meshcop_tlv_data_write_uint64(ptr,MESHCOP_TLV_PENDING_TIMESTAMP, this->pending_configuration_ptr->timestamp);
+        ptr = thread_meshcop_tlv_data_write_uint64(ptr, MESHCOP_TLV_PENDING_TIMESTAMP, this->pending_configuration_ptr->timestamp);
     }
 
     /* Always add delay timer (len = 6) */
     ptr = thread_meshcop_tlv_data_write_uint32(ptr, MESHCOP_TLV_DELAY_TIMER, this->pending_configuration_ptr->timeout_in_ms);
 
-	return ptr;
+    return ptr;
 }
 
 uint8_t *thread_joiner_application_pending_config_tlv_list_get(uint8_t interface_id, uint16_t *length)
@@ -1376,7 +1379,7 @@ uint8_t *thread_joiner_application_pending_config_tlv_list_get(uint8_t interface
     }
     *length = 0;
     thread_meshcop_tlv_list_generate(this->pending_configuration_ptr->data, this->pending_configuration_ptr->length, NULL, &data_list_len);
-    if (data_list_len == 0){
+    if (data_list_len == 0) {
         return NULL;
     }
 
@@ -1385,12 +1388,12 @@ uint8_t *thread_joiner_application_pending_config_tlv_list_get(uint8_t interface
     result_ptr = return_ptr = ns_dyn_mem_alloc(*length);
 
     if (!result_ptr) {
-	    return NULL;
+        return NULL;
     }
 
-	*result_ptr++ = MESHCOP_TLV_PENDING_TIMESTAMP;
+    *result_ptr++ = MESHCOP_TLV_PENDING_TIMESTAMP;
 
-	thread_meshcop_tlv_list_generate(this->pending_configuration_ptr->data, this->pending_configuration_ptr->length, result_ptr, &data_list_len);
+    thread_meshcop_tlv_list_generate(this->pending_configuration_ptr->data, this->pending_configuration_ptr->length, result_ptr, &data_list_len);
 
     return return_ptr;
 }
@@ -1479,7 +1482,7 @@ bool thread_joiner_application_next_pending_config_exists(int8_t interface_id)
 uint16_t thread_joiner_application_next_pending_config_length(int8_t interface_id)
 {
     uint16_t response_len = 0;
-	thread_joiner_t *this = thread_joiner_find(interface_id);
+    thread_joiner_t *this = thread_joiner_find(interface_id);
     if (!this || !this->next_pending_configuration_ptr) {
         return 0;
     }
@@ -1495,10 +1498,10 @@ uint8_t *thread_joiner_application_next_pending_config_build(int8_t interface_id
     if (!this || !this->next_pending_configuration_ptr) {
         return ptr;
     }
-    memcpy(ptr, this->next_pending_configuration_ptr->data, this->next_pending_configuration_ptr->length );
-    ptr +=this->next_pending_configuration_ptr->length;
-    ptr = thread_meshcop_tlv_data_write_uint64(ptr,MESHCOP_TLV_PENDING_TIMESTAMP, this->next_pending_configuration_ptr->timestamp);
-    ptr = thread_meshcop_tlv_data_write_uint32(ptr,MESHCOP_TLV_DELAY_TIMER, this->next_pending_configuration_ptr->timeout_in_ms);
+    memcpy(ptr, this->next_pending_configuration_ptr->data, this->next_pending_configuration_ptr->length);
+    ptr += this->next_pending_configuration_ptr->length;
+    ptr = thread_meshcop_tlv_data_write_uint64(ptr, MESHCOP_TLV_PENDING_TIMESTAMP, this->next_pending_configuration_ptr->timestamp);
+    ptr = thread_meshcop_tlv_data_write_uint32(ptr, MESHCOP_TLV_DELAY_TIMER, this->next_pending_configuration_ptr->timeout_in_ms);
     return ptr;
 }
 void thread_joiner_application_next_pending_config_delete(int8_t interface_id)
@@ -1548,8 +1551,8 @@ uint8_t *thread_joiner_application_next_active_config_write(int8_t interface_id,
     if (!this || !this->next_active_configuration_ptr) {
         return ptr;
     }
-    memcpy(ptr, this->next_active_configuration_ptr->data, this->next_active_configuration_ptr->length );
-    ptr +=this->next_active_configuration_ptr->length;
+    memcpy(ptr, this->next_active_configuration_ptr->data, this->next_active_configuration_ptr->length);
+    ptr += this->next_active_configuration_ptr->length;
     return ptr;
 }
 
@@ -1583,8 +1586,8 @@ int thread_joiner_application_link_configuration_store(int8_t interface_id, link
     }
 
     if (!this->configuration_ptr) {
-            this->configuration_ptr = link_configuration_create();
-        }
+        this->configuration_ptr = link_configuration_create();
+    }
 
     thread_joiner_application_validate_settings(this);// Generate all random information
     configuration_set_generate(this->active_configuration_ptr, link_config);
@@ -1637,7 +1640,7 @@ int thread_joiner_application_provisioning_set(int8_t interface_id, thread_provi
         this->provisioning_done = status;
         if (status == PROVISIONING_STATUS_REJECTED) {
             // If commissioner rejects us retry done after some time -> state is changed back to not done
-            this->provisioning_timeout = randLIB_get_random_in_range(20,120);
+            this->provisioning_timeout = randLIB_get_random_in_range(20, 120);
         } else {
             this->provisioning_timeout = 0;
         }
@@ -1663,8 +1666,8 @@ static int joiner_application_security_start_cb(int8_t service_id, uint8_t addre
 
     thread_joiner_t *this = thread_joiner_find_by_service(service_id);
 
-    if( this ){
-        memcpy(pw, this->device_configuration_ptr->PSKd_ptr, this->device_configuration_ptr->PSKd_len );
+    if (this) {
+        memcpy(pw, this->device_configuration_ptr->PSKd_ptr, this->device_configuration_ptr->PSKd_len);
         *pw_len = this->device_configuration_ptr->PSKd_len;
         ret = 0;
 //        ret = coap_service_security_key_set( service_id, address, port,
@@ -1697,11 +1700,11 @@ int joiner_application_security_done_cb(int8_t service_id, uint8_t address[16], 
     return 0;
 }
 
-static void thread_joiner_attach_cb(void* arg)
+static void thread_joiner_attach_cb(void *arg)
 {
     thread_joiner_t *this = arg;
     tr_debug("Attach to new network");
-    if (!this){
+    if (!this) {
         return;
     }
     // Cleaning up the joining information
@@ -1710,11 +1713,11 @@ static void thread_joiner_attach_cb(void* arg)
         this->done_cb(this->interface_id);
     }
 }
-static void thread_joiner_entrust_timeout_cb(void* arg)
+static void thread_joiner_entrust_timeout_cb(void *arg)
 {
     thread_joiner_t *this = arg;
     tr_debug("No valid configuration received in time");
-    if (!this){
+    if (!this) {
         return;
     }
     // Cleaning up the joining information
@@ -1751,12 +1754,12 @@ int thread_joiner_application_finalisation_cb(int8_t service_id, uint8_t source_
     }
 
     // CoAP message failed - try to reattach
-    if(!response_ptr || !response_ptr->payload_ptr){
+    if (!response_ptr || !response_ptr->payload_ptr) {
         tr_debug("finalisation failed - no response");
         goto error;
     }
 
-    thci_trace("Device - Joiner|Direction - recv|EUI - %s|Type - JOIN_FIN.resp|Length - %d|Payload - %s",trace_array(this->device_configuration_ptr->eui64,8), response_ptr->payload_len, trace_array(response_ptr->payload_ptr, response_ptr->payload_len));
+    thci_trace("Device - Joiner|Direction - recv|EUI - %s|Type - JOIN_FIN.resp|Length - %d|Payload - %s", trace_array(this->device_configuration_ptr->eui64, 8), response_ptr->payload_len, trace_array(response_ptr->payload_ptr, response_ptr->payload_len));
     coap_service_close_secure_connection(service_id, this->parent_address, this->parent_port);
     // todo: free certificates
     if (1 <= thread_tmfcop_tlv_data_get_uint8(response_ptr->payload_ptr, response_ptr->payload_len, MESHCOP_TLV_STATE, &result)) {
@@ -1802,7 +1805,7 @@ static int thread_joiner_application_send_finalisation(thread_joiner_t *this, ui
     ptr = thread_joiner_application_device_configuration_build(ptr, this->device_configuration_ptr);
     ptr = thread_tmfcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_STATE, 0xff);
 
-    thci_trace("Device - Joiner|Direction - sent|EUI - %s|Type - JOIN_FIN.req|Length - %d|Payload - %s",trace_array(this->device_configuration_ptr->eui64,8),(int)( ptr - data_ptr), trace_array(data_ptr, ptr - data_ptr));
+    thci_trace("Device - Joiner|Direction - sent|EUI - %s|Type - JOIN_FIN.req|Length - %d|Payload - %s", trace_array(this->device_configuration_ptr->eui64, 8), (int)(ptr - data_ptr), trace_array(data_ptr, ptr - data_ptr));
     coap_service_request_send(this->secure_coap_service_id, COAP_REQUEST_OPTIONS_SECURE_BYPASS, parent_address, port,
                               COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_JOINER_FINALIZATION, COAP_CT_OCTET_STREAM, data_ptr, ptr - data_ptr, thread_joiner_application_finalisation_cb);
 
@@ -1822,10 +1825,10 @@ static int thread_joiner_application_entrust_recv_cb(int8_t service_id, uint8_t 
     }
 
     if (thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_MASTER_KEY, NULL) < 16 ||
-        thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA, NULL) < 8 ||
-        thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_XPANID, NULL) < 8 ||
-        thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_NAME, NULL) == 0 ||
-        thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_PSKC, NULL) < 16 ) {
+            thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_MESH_LOCAL_ULA, NULL) < 8 ||
+            thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_XPANID, NULL) < 8 ||
+            thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_NAME, NULL) == 0 ||
+            thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_PSKC, NULL) < 16) {
         // Absolutely minimum we must have is master secret to attach.
         // If commissioner wants to be connected we must have PSKc,Name,Xpanid
         // If there is some fields missing we could attach, but timestamp must be set to 0 which will then cause synchronization
@@ -1834,22 +1837,22 @@ static int thread_joiner_application_entrust_recv_cb(int8_t service_id, uint8_t 
         return -1;
     }
     uint8_t *result_ptr;
-    memcpy(this->active_configuration_ptr->data,request_ptr->payload_ptr, request_ptr->payload_len);
+    memcpy(this->active_configuration_ptr->data, request_ptr->payload_ptr, request_ptr->payload_len);
     this->active_configuration_ptr->length = request_ptr->payload_len;
 
     result_ptr = this->active_configuration_ptr->data + this->active_configuration_ptr->length;
 
     if (thread_meshcop_tlv_find(this->active_configuration_ptr->data, this->active_configuration_ptr->length, MESHCOP_TLV_ACTIVE_TIME_STAMP, NULL) == 0) {
-        result_ptr = thread_meshcop_tlv_data_write_uint64(result_ptr,MESHCOP_TLV_ACTIVE_TIME_STAMP, 0);
+        result_ptr = thread_meshcop_tlv_data_write_uint64(result_ptr, MESHCOP_TLV_ACTIVE_TIME_STAMP, 0);
     }
     if (thread_meshcop_tlv_find(this->active_configuration_ptr->data, this->active_configuration_ptr->length, MESHCOP_TLV_XPANID, NULL) == 0) {
-        result_ptr = thread_meshcop_tlv_data_write(result_ptr,MESHCOP_TLV_XPANID, 8, this->configuration_ptr->extented_pan_id );
+        result_ptr = thread_meshcop_tlv_data_write(result_ptr, MESHCOP_TLV_XPANID, 8, this->configuration_ptr->extented_pan_id);
     }
     if (thread_meshcop_tlv_find(this->active_configuration_ptr->data, this->active_configuration_ptr->length, MESHCOP_TLV_CHANNEL, NULL) == 0) {
-        result_ptr = thread_meshcop_tlv_data_write_uint16(result_ptr,MESHCOP_TLV_CHANNEL, this->configuration_ptr->rfChannel );
+        result_ptr = thread_meshcop_tlv_data_write_uint16(result_ptr, MESHCOP_TLV_CHANNEL, this->configuration_ptr->rfChannel);
     }
     if (thread_meshcop_tlv_find(this->active_configuration_ptr->data, this->active_configuration_ptr->length, MESHCOP_TLV_PANID, NULL) == 0) {
-        result_ptr = thread_meshcop_tlv_data_write_uint16(result_ptr,MESHCOP_TLV_PANID, this->configuration_ptr->panId );
+        result_ptr = thread_meshcop_tlv_data_write_uint16(result_ptr, MESHCOP_TLV_PANID, this->configuration_ptr->panId);
     }
 
     this->active_configuration_ptr->length = result_ptr - this->active_configuration_ptr->data;
@@ -1860,7 +1863,7 @@ static int thread_joiner_application_entrust_recv_cb(int8_t service_id, uint8_t 
         uint8_t *timestamp_ptr = NULL;
         thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_ACTIVE_TIME_STAMP, &timestamp_ptr);
         if (timestamp_ptr) {
-            common_write_64_bit(0,timestamp_ptr);
+            common_write_64_bit(0, timestamp_ptr);
         }
     }
 
@@ -1875,22 +1878,22 @@ static int thread_joiner_application_entrust_recv_cb(int8_t service_id, uint8_t 
 #ifdef THREAD_THCI_SUPPORT
     uint8_t *master_secret_ptr;
     if (thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_NETWORK_MASTER_KEY, &master_secret_ptr) >= 16) {
-        memset(master_secret_ptr,0,16);
+        memset(master_secret_ptr, 0, 16);
     }
-    thci_trace("Device - Joiner|Direction - recv|EUI - %s|Type - JOIN_ent.req|Length - %d|Payload - %s",trace_array(this->device_configuration_ptr->eui64,8), request_ptr->payload_len, trace_array(request_ptr->payload_ptr, request_ptr->payload_len));
+    thci_trace("Device - Joiner|Direction - recv|EUI - %s|Type - JOIN_ent.req|Length - %d|Payload - %s", trace_array(this->device_configuration_ptr->eui64, 8), request_ptr->payload_len, trace_array(request_ptr->payload_ptr, request_ptr->payload_len));
 #endif
 
     // save link configuration to NVM
 
     thci_trace("joinerAccepted");
-    link_configuration_update(this->configuration_ptr,this->active_configuration_ptr->data,this->active_configuration_ptr->length);
+    link_configuration_update(this->configuration_ptr, this->active_configuration_ptr->data, this->active_configuration_ptr->length);
     this->configuration_valid = true;
     thread_joiner_application_configuration_nvm_save(this->interface_id);
 
     link_configuration_trace(this->configuration_ptr);
 
 #ifdef THREAD_THCI_SUPPORT
-    thci_trace("Device - Joiner|Direction - sent|EUI - %s|Type - JOIN_ent.resp|Length - 0|Payload - ", trace_array(this->device_configuration_ptr->eui64,8));
+    thci_trace("Device - Joiner|Direction - sent|EUI - %s|Type - JOIN_ent.resp|Length - 0|Payload - ", trace_array(this->device_configuration_ptr->eui64, 8));
 #endif
     coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, NULL, 0);
 
@@ -1934,7 +1937,7 @@ int thread_joiner_application_pskd_commission_start(int8_t interface_id, uint8_t
     link_configuration_trace(this->configuration_ptr);
     //TODO this callback needs status for blacklist
     this->done_cb = done_cb;
-    memcpy(this->parent_address,parent_address,16);
+    memcpy(this->parent_address, parent_address, 16);
     this->parent_port = joiner_port;
 
     thci_trace("joinerDtlsSessionStarted");
@@ -1950,8 +1953,8 @@ int thread_joiner_application_configuration_nvm_save(int8_t interface_id)
         return -1;
     }
 
-    thread_dynamic_storage_device_configuration_store(interface_id,this->configuration_ptr->extended_random_mac,this->configuration_ptr->mesh_local_eid);
-    thread_dynamic_storage_pending_configuration_store(interface_id,this->pending_configuration_ptr, sizeof(configuration_set_t));
+    thread_dynamic_storage_device_configuration_store(interface_id, this->configuration_ptr->extended_random_mac, this->configuration_ptr->mesh_local_eid);
+    thread_dynamic_storage_pending_configuration_store(interface_id, this->pending_configuration_ptr, sizeof(configuration_set_t));
     thread_nvm_store_seq_counter_store(this->configuration_ptr->key_sequence);
     thread_joiner_application_nvm_link_config_write(this, this->active_configuration_ptr);
 
@@ -1969,9 +1972,9 @@ int thread_joiner_application_update_configuration(uint8_t interface_id, uint8_t
     if (!configuration_ptr) {
         return -2;
     }
-    memcpy(configuration_ptr,this->active_configuration_ptr,sizeof(configuration_set_t));
+    memcpy(configuration_ptr, this->active_configuration_ptr, sizeof(configuration_set_t));
     this->active_configuration_ptr->length = 0;
-    configuration_set_add_all_fields(this->active_configuration_ptr,msg_ptr,msg_len, meshcop_active_set_ignore, sizeof(meshcop_active_set_ignore));
+    configuration_set_add_all_fields(this->active_configuration_ptr, msg_ptr, msg_len, meshcop_active_set_ignore, sizeof(meshcop_active_set_ignore));
     if (include_missing_tlvs) {
         configuration_set_copy_missing(this->active_configuration_ptr, configuration_ptr);
         configuration_set_remove_null_tlv(this->active_configuration_ptr);
@@ -1979,7 +1982,7 @@ int thread_joiner_application_update_configuration(uint8_t interface_id, uint8_t
         configuration_set_copy_mandatory(this->active_configuration_ptr, configuration_ptr);
     }
     thread_meshcop_tlv_data_get_uint64(msg_ptr, msg_len, MESHCOP_TLV_ACTIVE_TIME_STAMP, &this->active_configuration_ptr->timestamp);
-    link_configuration_update(this->configuration_ptr,msg_ptr,msg_len);
+    link_configuration_update(this->configuration_ptr, msg_ptr, msg_len);
     ns_dyn_mem_free(configuration_ptr);
     thread_joiner_application_configuration_nvm_save(interface_id);
 
@@ -1993,14 +1996,14 @@ uint8_t *thread_joiner_application_active_config_tlv_list_get(uint8_t interface_
         return NULL;
     }
     *length = 0;
-    thread_meshcop_tlv_list_generate(this->active_configuration_ptr->data, this->active_configuration_ptr->length,NULL, length);
-    if (*length == 0){
+    thread_meshcop_tlv_list_generate(this->active_configuration_ptr->data, this->active_configuration_ptr->length, NULL, length);
+    if (*length == 0) {
         return NULL;
     }
     result_ptr = ns_dyn_mem_alloc(*length);
     if (!result_ptr) {
     }
-    thread_meshcop_tlv_list_generate(this->active_configuration_ptr->data, this->active_configuration_ptr->length,result_ptr, length);
+    thread_meshcop_tlv_list_generate(this->active_configuration_ptr->data, this->active_configuration_ptr->length, result_ptr, length);
 
     return result_ptr;
 }
@@ -2029,7 +2032,7 @@ uint8_t *thread_joiner_application_active_config_write(uint8_t interface_id, uin
     if (!this || !this->active_configuration_ptr) {
         return ptr;
     }
-    return configuration_set_write(this->active_configuration_ptr, ptr,req_tlv_ptr,req_tlv_len, ignored_tlv_ptr,ignored_tlv_len);
+    return configuration_set_write(this->active_configuration_ptr, ptr, req_tlv_ptr, req_tlv_len, ignored_tlv_ptr, ignored_tlv_len);
 }
 
 int thread_joiner_application_device_configuration_length(device_configuration_s *device_configuration)
@@ -2062,8 +2065,8 @@ uint8_t *thread_joiner_application_device_configuration_build(uint8_t *ptr, devi
     }
     ptr = thread_tmfcop_tlv_data_write(ptr, MESHCOP_TLV_VENDOR_STACK_VERSION, 6, device_configuration->vendor_stack_version);
     ptr = thread_tmfcop_tlv_data_write(ptr, MESHCOP_TLV_VENDOR_DATA,
-            device_configuration->vendor_data_len,
-            device_configuration->vendor_data_ptr);
+                                       device_configuration->vendor_data_len,
+                                       device_configuration->vendor_data_ptr);
 
     if (device_configuration->provisioning_uri_ptr) {
         ptr = thread_tmfcop_tlv_data_write(ptr, MESHCOP_TLV_PROVISIONING_URL,
@@ -2099,7 +2102,7 @@ int8_t thread_joiner_application_active_configuration_update(int8_t interface_id
     configuration_set_add_all_fields(this->active_configuration_ptr, data_ptr, data_len, ignore_ptr, ingore_len);
     thread_meshcop_tlv_data_get_uint64(data_ptr, data_len, MESHCOP_TLV_ACTIVE_TIME_STAMP, &timestamp);
     thread_joiner_application_active_timestamp_set(this->interface_id, timestamp);
-    link_configuration_update(this->configuration_ptr,this->active_configuration_ptr->data,this->active_configuration_ptr->length);
+    link_configuration_update(this->configuration_ptr, this->active_configuration_ptr->data, this->active_configuration_ptr->length);
     this->configuration_valid = true;
     thread_joiner_application_configuration_nvm_save(this->interface_id);
 

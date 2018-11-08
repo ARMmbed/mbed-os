@@ -98,7 +98,7 @@ void randLIB_seed_random(void)
 
     /* Spell out expressions so we get known ordering of 4 seed calls */
     uint64_t s = (uint64_t) arm_random_seed_get() << 32;
-    state[0] ^= ( s | arm_random_seed_get());
+    state[0] ^= (s | arm_random_seed_get());
 
     s = (uint64_t) arm_random_seed_get() << 32;
     state[1] ^= s | arm_random_seed_get();
@@ -129,19 +129,19 @@ void randLIB_add_seed(uint64_t seed)
 uint8_t randLIB_get_8bit(void)
 {
     uint64_t r = randLIB_get_64bit();
-    return (uint8_t) (r >> 56);
+    return (uint8_t)(r >> 56);
 }
 
 uint16_t randLIB_get_16bit(void)
 {
     uint64_t r = randLIB_get_64bit();
-    return (uint16_t) (r >> 48);
+    return (uint16_t)(r >> 48);
 }
 
 uint32_t randLIB_get_32bit(void)
 {
     uint64_t r = randLIB_get_64bit();
-    return (uint32_t) (r >> 32);
+    return (uint32_t)(r >> 32);
 }
 
 

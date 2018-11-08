@@ -1,7 +1,7 @@
 #include "mbed.h"
 
 #if !DEVICE_SPI
-  #error [NOT_SUPPORTED] SPI is not supported
+#error [NOT_SUPPORTED] SPI is not supported
 #endif
 
 #if defined(TARGET_SAMR21G18A)
@@ -18,7 +18,8 @@ SPI spi(p11, p12, p13);
 DigitalOut latchpin(p10);
 #endif
 
-int main() {
+int main()
+{
     spi.format(8, 0);
     spi.frequency(16 * 1000 * 1000);
 

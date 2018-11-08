@@ -10,7 +10,7 @@
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
  *  are met:
- *  
+ *
  *    * Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above copyright
@@ -19,7 +19,7 @@
  *    * Neither the names of PolarSSL or XySSL nor the names of its contributors
  *      may be used to endorse or promote products derived from this software
  *      without specific prior written permission.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -70,8 +70,7 @@
 /*
  * Expanded DES S-boxes
  */
-static const unsigned long SB1[64] =
-{
+static const unsigned long SB1[64] = {
     0x01010400, 0x00000000, 0x00010000, 0x01010404,
     0x01010004, 0x00010404, 0x00000004, 0x00010000,
     0x00000400, 0x01010400, 0x01010404, 0x00000400,
@@ -90,8 +89,7 @@ static const unsigned long SB1[64] =
     0x00010004, 0x00010400, 0x00000000, 0x01010004
 };
 
-static const unsigned long SB2[64] =
-{
+static const unsigned long SB2[64] = {
     0x80108020, 0x80008000, 0x00008000, 0x00108020,
     0x00100000, 0x00000020, 0x80100020, 0x80008020,
     0x80000020, 0x80108020, 0x80108000, 0x80000000,
@@ -110,8 +108,7 @@ static const unsigned long SB2[64] =
     0x80000000, 0x80100020, 0x80108020, 0x00108000
 };
 
-static const unsigned long SB3[64] =
-{
+static const unsigned long SB3[64] = {
     0x00000208, 0x08020200, 0x00000000, 0x08020008,
     0x08000200, 0x00000000, 0x00020208, 0x08000200,
     0x00020008, 0x08000008, 0x08000008, 0x00020000,
@@ -130,8 +127,7 @@ static const unsigned long SB3[64] =
     0x00020208, 0x00000008, 0x08020008, 0x00020200
 };
 
-static const unsigned long SB4[64] =
-{
+static const unsigned long SB4[64] = {
     0x00802001, 0x00002081, 0x00002081, 0x00000080,
     0x00802080, 0x00800081, 0x00800001, 0x00002001,
     0x00000000, 0x00802000, 0x00802000, 0x00802081,
@@ -150,8 +146,7 @@ static const unsigned long SB4[64] =
     0x00000080, 0x00800000, 0x00002000, 0x00802080
 };
 
-static const unsigned long SB5[64] =
-{
+static const unsigned long SB5[64] = {
     0x00000100, 0x02080100, 0x02080000, 0x42000100,
     0x00080000, 0x00000100, 0x40000000, 0x02080000,
     0x40080100, 0x00080000, 0x02000100, 0x40080100,
@@ -170,8 +165,7 @@ static const unsigned long SB5[64] =
     0x00000000, 0x40080000, 0x02080100, 0x40000100
 };
 
-static const unsigned long SB6[64] =
-{
+static const unsigned long SB6[64] = {
     0x20000010, 0x20400000, 0x00004000, 0x20404010,
     0x20400000, 0x00000010, 0x20404010, 0x00400000,
     0x20004000, 0x00404010, 0x00400000, 0x20000010,
@@ -190,8 +184,7 @@ static const unsigned long SB6[64] =
     0x20404000, 0x20000000, 0x00400010, 0x20004010
 };
 
-static const unsigned long SB7[64] =
-{
+static const unsigned long SB7[64] = {
     0x00200000, 0x04200002, 0x04000802, 0x00000000,
     0x00000800, 0x04000802, 0x00200802, 0x04200800,
     0x04200802, 0x00200000, 0x00000000, 0x04000002,
@@ -210,8 +203,7 @@ static const unsigned long SB7[64] =
     0x04000002, 0x04000800, 0x00000800, 0x00200002
 };
 
-static const unsigned long SB8[64] =
-{
+static const unsigned long SB8[64] = {
     0x10001040, 0x00001000, 0x00040000, 0x10041040,
     0x10000000, 0x10001040, 0x00000040, 0x10000000,
     0x00040040, 0x10040000, 0x10041040, 0x00041000,
@@ -233,16 +225,14 @@ static const unsigned long SB8[64] =
 /*
  * PC1: left and right halves bit-swap
  */
-static const unsigned long LHs[16] =
-{
+static const unsigned long LHs[16] = {
     0x00000000, 0x00000001, 0x00000100, 0x00000101,
     0x00010000, 0x00010001, 0x00010100, 0x00010101,
     0x01000000, 0x01000001, 0x01000100, 0x01000101,
     0x01010000, 0x01010001, 0x01010100, 0x01010101
 };
 
-static const unsigned long RHs[16] =
-{
+static const unsigned long RHs[16] = {
     0x00000000, 0x01000000, 0x00010000, 0x01010000,
     0x00000100, 0x01000100, 0x00010100, 0x01010100,
     0x00000001, 0x01000001, 0x00010001, 0x01010001,
@@ -297,29 +287,33 @@ static const unsigned long RHs[16] =
 
 #define SWAP(a,b) { unsigned long t = a; a = b; b = t; t = 0; }
 
-static void des_setkey( unsigned long SK[32], unsigned char key[8] )
+static void des_setkey(unsigned long SK[32], unsigned char key[8])
 {
     int i;
     unsigned long X, Y, T;
 
-    GET_ULONG_BE( X, key, 0 );
-    GET_ULONG_BE( Y, key, 4 );
+    GET_ULONG_BE(X, key, 0);
+    GET_ULONG_BE(Y, key, 4);
 
     /*
      * Permuted Choice 1
      */
-    T =  ((Y >>  4) ^ X) & 0x0F0F0F0F;  X ^= T; Y ^= (T <<  4);
-    T =  ((Y      ) ^ X) & 0x10101010;  X ^= T; Y ^= (T      );
+    T = ((Y >>  4) ^ X) & 0x0F0F0F0F;
+    X ^= T;
+    Y ^= (T <<  4);
+    T = ((Y) ^ X) & 0x10101010;
+    X ^= T;
+    Y ^= (T);
 
-    X =   (LHs[ (X      ) & 0xF] << 3) | (LHs[ (X >>  8) & 0xF ] << 2)
-        | (LHs[ (X >> 16) & 0xF] << 1) | (LHs[ (X >> 24) & 0xF ]     )
-        | (LHs[ (X >>  5) & 0xF] << 7) | (LHs[ (X >> 13) & 0xF ] << 6)
-        | (LHs[ (X >> 21) & 0xF] << 5) | (LHs[ (X >> 29) & 0xF ] << 4);
+    X = (LHs[(X) & 0xF] << 3) | (LHs[(X >>  8) & 0xF ] << 2)
+        | (LHs[(X >> 16) & 0xF] << 1) | (LHs[(X >> 24) & 0xF ])
+        | (LHs[(X >>  5) & 0xF] << 7) | (LHs[(X >> 13) & 0xF ] << 6)
+        | (LHs[(X >> 21) & 0xF] << 5) | (LHs[(X >> 29) & 0xF ] << 4);
 
-    Y =   (RHs[ (Y >>  1) & 0xF] << 3) | (RHs[ (Y >>  9) & 0xF ] << 2)
-        | (RHs[ (Y >> 17) & 0xF] << 1) | (RHs[ (Y >> 25) & 0xF ]     )
-        | (RHs[ (Y >>  4) & 0xF] << 7) | (RHs[ (Y >> 12) & 0xF ] << 6)
-        | (RHs[ (Y >> 20) & 0xF] << 5) | (RHs[ (Y >> 28) & 0xF ] << 4);
+    Y = (RHs[(Y >>  1) & 0xF] << 3) | (RHs[(Y >>  9) & 0xF ] << 2)
+        | (RHs[(Y >> 17) & 0xF] << 1) | (RHs[(Y >> 25) & 0xF ])
+        | (RHs[(Y >>  4) & 0xF] << 7) | (RHs[(Y >> 12) & 0xF ] << 6)
+        | (RHs[(Y >> 20) & 0xF] << 5) | (RHs[(Y >> 28) & 0xF ] << 4);
 
     X &= 0x0FFFFFFF;
     Y &= 0x0FFFFFFF;
@@ -327,32 +321,28 @@ static void des_setkey( unsigned long SK[32], unsigned char key[8] )
     /*
      * calculate subkeys
      */
-    for( i = 0; i < 16; i++ )
-    {
-        if( i < 2 || i == 8 || i == 15 )
-        {
+    for (i = 0; i < 16; i++) {
+        if (i < 2 || i == 8 || i == 15) {
             X = ((X <<  1) | (X >> 27)) & 0x0FFFFFFF;
             Y = ((Y <<  1) | (Y >> 27)) & 0x0FFFFFFF;
-        }
-        else
-        {
+        } else {
             X = ((X <<  2) | (X >> 26)) & 0x0FFFFFFF;
             Y = ((Y <<  2) | (Y >> 26)) & 0x0FFFFFFF;
         }
 
-        *SK++ =   ((X <<  4) & 0x24000000) | ((X << 28) & 0x10000000)
+        *SK++ = ((X <<  4) & 0x24000000) | ((X << 28) & 0x10000000)
                 | ((X << 14) & 0x08000000) | ((X << 18) & 0x02080000)
                 | ((X <<  6) & 0x01000000) | ((X <<  9) & 0x00200000)
                 | ((X >>  1) & 0x00100000) | ((X << 10) & 0x00040000)
                 | ((X <<  2) & 0x00020000) | ((X >> 10) & 0x00010000)
                 | ((Y >> 13) & 0x00002000) | ((Y >>  4) & 0x00001000)
                 | ((Y <<  6) & 0x00000800) | ((Y >>  1) & 0x00000400)
-                | ((Y >> 14) & 0x00000200) | ((Y      ) & 0x00000100)
+                | ((Y >> 14) & 0x00000200) | ((Y) & 0x00000100)
                 | ((Y >>  5) & 0x00000020) | ((Y >> 10) & 0x00000010)
                 | ((Y >>  3) & 0x00000008) | ((Y >> 18) & 0x00000004)
                 | ((Y >> 26) & 0x00000002) | ((Y >> 24) & 0x00000001);
 
-        *SK++ =   ((X << 15) & 0x20000000) | ((X << 17) & 0x10000000)
+        *SK++ = ((X << 15) & 0x20000000) | ((X << 17) & 0x10000000)
                 | ((X << 10) & 0x08000000) | ((X << 22) & 0x04000000)
                 | ((X >>  2) & 0x02000000) | ((X <<  1) & 0x01000000)
                 | ((X << 16) & 0x00200000) | ((X << 11) & 0x00100000)
@@ -360,7 +350,7 @@ static void des_setkey( unsigned long SK[32], unsigned char key[8] )
                 | ((X << 15) & 0x00020000) | ((X >>  4) & 0x00010000)
                 | ((Y >>  2) & 0x00002000) | ((Y <<  8) & 0x00001000)
                 | ((Y >> 14) & 0x00000808) | ((Y >>  9) & 0x00000400)
-                | ((Y      ) & 0x00000200) | ((Y <<  7) & 0x00000100)
+                | ((Y) & 0x00000200) | ((Y <<  7) & 0x00000100)
                 | ((Y >>  7) & 0x00000020) | ((Y >>  3) & 0x00000011)
                 | ((Y <<  2) & 0x00000004) | ((Y >> 21) & 0x00000002);
     }
@@ -369,54 +359,52 @@ static void des_setkey( unsigned long SK[32], unsigned char key[8] )
 /*
  * DES key schedule (56-bit, encryption)
  */
-void des_setkey_enc( des_context *ctx, unsigned char key[8] )
+void des_setkey_enc(des_context *ctx, unsigned char key[8])
 {
-    des_setkey( ctx->sk, key );
+    des_setkey(ctx->sk, key);
 }
 
 /*
  * DES key schedule (56-bit, decryption)
  */
-void des_setkey_dec( des_context *ctx, unsigned char key[8] )
+void des_setkey_dec(des_context *ctx, unsigned char key[8])
 {
     int i;
 
-    des_setkey( ctx->sk, key );
+    des_setkey(ctx->sk, key);
 
-    for( i = 0; i < 16; i += 2 )
-    {
-        SWAP( ctx->sk[i    ], ctx->sk[30 - i] );
-        SWAP( ctx->sk[i + 1], ctx->sk[31 - i] );
+    for (i = 0; i < 16; i += 2) {
+        SWAP(ctx->sk[i    ], ctx->sk[30 - i]);
+        SWAP(ctx->sk[i + 1], ctx->sk[31 - i]);
     }
 }
 
 /*
  * DES-ECB block encryption/decryption
  */
-void des_crypt_ecb( des_context *ctx,
-                    const unsigned char input[8],
-                    unsigned char output[8] )
+void des_crypt_ecb(des_context *ctx,
+                   const unsigned char input[8],
+                   unsigned char output[8])
 {
     int i;
     unsigned long X, Y, T, *SK;
 
     SK = ctx->sk;
 
-    GET_ULONG_BE( X, input, 0 );
-    GET_ULONG_BE( Y, input, 4 );
+    GET_ULONG_BE(X, input, 0);
+    GET_ULONG_BE(Y, input, 4);
 
-    DES_IP( X, Y );
+    DES_IP(X, Y);
 
-    for( i = 0; i < 8; i++ )
-    {
-        DES_ROUND( Y, X );
-        DES_ROUND( X, Y );
+    for (i = 0; i < 8; i++) {
+        DES_ROUND(Y, X);
+        DES_ROUND(X, Y);
     }
 
-    DES_FP( Y, X );
+    DES_FP(Y, X);
 
-    PUT_ULONG_BE( Y, output, 0 );
-    PUT_ULONG_BE( X, output, 4 );
+    PUT_ULONG_BE(Y, output, 0);
+    PUT_ULONG_BE(X, output, 4);
 }
 
 #endif /* PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_DES */

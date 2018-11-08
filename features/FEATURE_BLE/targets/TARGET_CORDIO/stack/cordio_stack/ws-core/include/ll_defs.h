@@ -70,25 +70,24 @@ extern "C" {
 /*** Advertising PDU ***/
 
 /*! \brief      Advertising channel PDU types. */
-enum
-{
-  /* --- Core Spec 4.0 --- */
-  LL_PDU_ADV_IND                = 0,    /*!< Connectable undirected advertising PDU. */
-  LL_PDU_ADV_DIRECT_IND         = 1,    /*!< Connectable directed advertising PDU. */
-  LL_PDU_ADV_NONCONN_IND        = 2,    /*!< Non-connectable undirected advertising PDU. */
-  LL_PDU_SCAN_REQ               = 3,    /*!< Scan request PDU. */
-  LL_PDU_SCAN_RSP               = 4,    /*!< Scan response PDU. */
-  LL_PDU_CONNECT_IND            = 5,    /*!< Connect indication PDU. */
-  LL_PDU_ADV_SCAN_IND           = 6,    /*!< Scannable undirected advertising PDU. */
-  /* --- Core Spec 5.0 --- */
-  LL_PDU_AUX_SCAN_REQ           = 3,    /*!< Auxiliary scan request PDU. */
-  LL_PDU_AUX_CONNECT_REQ        = 5,    /*!< Auxiliary connect request PDU. */
-  LL_PDU_ADV_EXT_IND            = 7,    /*!< Extended advertising PDU. */
-  LL_PDU_AUX_ADV_IND            = 7,    /*!< Auxiliary advertising PDU. */
-  LL_PDU_AUX_SCAN_RSP           = 7,    /*!< Auxiliary scan response PDU. */
-  LL_PDU_AUX_SYNC_IND           = 7,    /*!< Auxiliary synchronize PDU. */
-  LL_PDU_AUX_CHAIN_IND          = 7,    /*!< Auxiliary chain PDU. */
-  LL_PDU_AUX_CONNECT_RSP        = 8,    /*!< Auxiliary connect response PDU. */
+enum {
+    /* --- Core Spec 4.0 --- */
+    LL_PDU_ADV_IND                = 0,    /*!< Connectable undirected advertising PDU. */
+    LL_PDU_ADV_DIRECT_IND         = 1,    /*!< Connectable directed advertising PDU. */
+    LL_PDU_ADV_NONCONN_IND        = 2,    /*!< Non-connectable undirected advertising PDU. */
+    LL_PDU_SCAN_REQ               = 3,    /*!< Scan request PDU. */
+    LL_PDU_SCAN_RSP               = 4,    /*!< Scan response PDU. */
+    LL_PDU_CONNECT_IND            = 5,    /*!< Connect indication PDU. */
+    LL_PDU_ADV_SCAN_IND           = 6,    /*!< Scannable undirected advertising PDU. */
+    /* --- Core Spec 5.0 --- */
+    LL_PDU_AUX_SCAN_REQ           = 3,    /*!< Auxiliary scan request PDU. */
+    LL_PDU_AUX_CONNECT_REQ        = 5,    /*!< Auxiliary connect request PDU. */
+    LL_PDU_ADV_EXT_IND            = 7,    /*!< Extended advertising PDU. */
+    LL_PDU_AUX_ADV_IND            = 7,    /*!< Auxiliary advertising PDU. */
+    LL_PDU_AUX_SCAN_RSP           = 7,    /*!< Auxiliary scan response PDU. */
+    LL_PDU_AUX_SYNC_IND           = 7,    /*!< Auxiliary synchronize PDU. */
+    LL_PDU_AUX_CHAIN_IND          = 7,    /*!< Auxiliary chain PDU. */
+    LL_PDU_AUX_CONNECT_RSP        = 8,    /*!< Auxiliary connect response PDU. */
 };
 
 #define LL_SCAN_REQ_PDU_LEN     12      /*!< Size of a scan request PDU. */
@@ -102,17 +101,17 @@ enum
 #define LL_ADVB_MAX_LEN         39      /*!< Maximum advertising channel PDU length. */
 #define LL_ADVB_MIN_LEN         (LL_ADVB_MAX_LEN - LL_ADVBU_MAX_LEN)    /*!< Minimum advertising channel packet length. */
 #define LL_ADVB_MAX_TIME_1M     ((LL_BLE_US_PER_BYTE_1M * (LL_ADVB_MAX_LEN - LL_ADV_HDR_LEN)) + LL_MIN_PKT_TIME_US_1M)
-                                        /*!< Maximum time for a 1M advertising channel PDU. */
+/*!< Maximum time for a 1M advertising channel PDU. */
 #define LL_ADVB_MAX_TIME_2M     ((LL_BLE_US_PER_BYTE_2M * (LL_ADVB_MAX_LEN - LL_ADV_HDR_LEN)) + LL_MIN_PKT_TIME_US_2M)
-                                        /*!< Maximum time for a 2M advertising channel PDU. */
+/*!< Maximum time for a 2M advertising channel PDU. */
 #define LL_ADVB_MAX_TIME_S2     ((LL_BLE_US_PER_BYTE_CODED_S2 * (LL_ADVB_MAX_LEN - LL_ADV_HDR_LEN)) + LL_MIN_PKT_TIME_US_CODED_S2)
-                                        /*!< Maximum time for a Coded S2 advertising channel PDU. */
+/*!< Maximum time for a Coded S2 advertising channel PDU. */
 #define LL_ADVB_MAX_TIME_S8     ((LL_BLE_US_PER_BYTE_CODED_S8 * (LL_ADVB_MAX_LEN - LL_ADV_HDR_LEN)) + LL_MIN_PKT_TIME_US_CODED_S8)
-                                        /*!< Maximum time for a Coded S8 advertising channel PDU. */
+/*!< Maximum time for a Coded S8 advertising channel PDU. */
 
 #define LL_ADV_PKT_MAX_USEC     LL_ADVB_MAX_TIME_1M /*!< Maximum time in microseconds for an advertising packet. */
 #define LL_SCAN_REQ_MAX_USEC    ((8 * (LL_ADV_PREFIX_LEN + LL_SCAN_PREFIX_LEN)) + LL_MIN_PKT_TIME_US_1M)
-                                                    /*!< Maximum time in microseconds for a scan request packet. */
+/*!< Maximum time in microseconds for a scan request packet. */
 #define LL_SCAN_RSP_MAX_USEC    LL_ADVB_MAX_TIME_1M /*!< Maximum time in microseconds for a scan response packet. */
 
 #define LL_ADV_HDR_LEN          2       /*!< Advertising channel header length. */
@@ -130,15 +129,14 @@ enum
 #define LL_DIR_ADV_INTER_TICKS  6       /*!< Advertising interval between directed advertising events (3.75 ms). */
 #define LL_DIR_ADV_DUR_TICKS    2048    /*!< Maximum high duty cycle directed advertising duration (1.28 seconds). */
 
-enum
-{
-  LL_EXT_HDR_ADV_ADDR_BIT   = (1 << 0), /*!< Extended header AdvA bit. */
-  LL_EXT_HDR_TGT_ADDR_BIT   = (1 << 1), /*!< Extended header TargetA bit. */
-  LL_EXT_HDR_SUPP_INFO_BIT  = (1 << 2), /*!< Extended header SuppInfo bit. */
-  LL_EXT_HDR_ADI_BIT        = (1 << 3), /*!< Extended header AdvDataInfo bit. */
-  LL_EXT_HDR_AUX_PTR_BIT    = (1 << 4), /*!< Extended header AuxPtr bit. */
-  LL_EXT_HDR_SYNC_INFO_BIT  = (1 << 5), /*!< Extended header SyncInfo bit. */
-  LL_EXT_HDR_TX_PWR_BIT     = (1 << 6), /*!< Extended header TxPower bit. */
+enum {
+    LL_EXT_HDR_ADV_ADDR_BIT   = (1 << 0), /*!< Extended header AdvA bit. */
+    LL_EXT_HDR_TGT_ADDR_BIT   = (1 << 1), /*!< Extended header TargetA bit. */
+    LL_EXT_HDR_SUPP_INFO_BIT  = (1 << 2), /*!< Extended header SuppInfo bit. */
+    LL_EXT_HDR_ADI_BIT        = (1 << 3), /*!< Extended header AdvDataInfo bit. */
+    LL_EXT_HDR_AUX_PTR_BIT    = (1 << 4), /*!< Extended header AuxPtr bit. */
+    LL_EXT_HDR_SYNC_INFO_BIT  = (1 << 5), /*!< Extended header SyncInfo bit. */
+    LL_EXT_HDR_TX_PWR_BIT     = (1 << 6), /*!< Extended header TxPower bit. */
 };
 
 #define LL_MAX_ADV_HANDEL       0xEF    /*!< Maximum advertising handle. */
@@ -163,38 +161,37 @@ enum
 /*** Data PDU ***/
 
 /*! \brief      Data channel LL Control PDU types. */
-enum
-{
-  /* --- Core Spec 4.0 --- */
-  LL_PDU_CONN_UPDATE_IND        = 0x00, /*!< Connection update indication PDU. */
-  LL_PDU_CHANNEL_MAP_IND        = 0x01, /*!< Channel map indication PDU. */
-  LL_PDU_TERMINATE_IND          = 0x02, /*!< Terminate indication PDU. */
-  LL_PDU_ENC_REQ                = 0x03, /*!< Encryption request PDU. */
-  LL_PDU_ENC_RSP                = 0x04, /*!< Encryption response PDU. */
-  LL_PDU_START_ENC_REQ          = 0x05, /*!< Start encryption request PDU. */
-  LL_PDU_START_ENC_RSP          = 0x06, /*!< Start encryption response PDU. */
-  LL_PDU_UNKNOWN_RSP            = 0x07, /*!< Unknown response PDU. */
-  LL_PDU_FEATURE_REQ            = 0x08, /*!< Feature request PDU. */
-  LL_PDU_FEATURE_RSP            = 0x09, /*!< Feature response PDU. */
-  LL_PDU_PAUSE_ENC_REQ          = 0x0A, /*!< Pause encryption request PDU. */
-  LL_PDU_PAUSE_ENC_RSP          = 0x0B, /*!< Pause encryption response PDU. */
-  LL_PDU_VERSION_IND            = 0x0C, /*!< Version indication PDU. */
-  LL_PDU_REJECT_IND             = 0x0D, /*!< Reject indication PDU. */
-  /* --- Core Spec 4.2 --- */
-  LL_PDU_SLV_FEATURE_REQ        = 0x0E, /*!< Slave feature request PDU. */
-  LL_PDU_CONN_PARAM_REQ         = 0x0F, /*!< Connection parameter request PDU. */
-  LL_PDU_CONN_PARAM_RSP         = 0x10, /*!< Connection parameter response PDU. */
-  LL_PDU_REJECT_EXT_IND         = 0x11, /*!< Reject extended indication PDU. */
-  LL_PDU_PING_REQ               = 0x12, /*!< Ping request PDU. */
-  LL_PDU_PING_RSP               = 0x13, /*!< Ping response PDU. */
-  LL_PDU_LENGTH_REQ             = 0x14, /*!< Data length request PDU. */
-  LL_PDU_LENGTH_RSP             = 0x15, /*!< Data length response PDU. */
-  /* --- Core Spec 5.0 --- */
-  LL_PDU_PHY_REQ                = 0x16, /*!< PHY request PDU. */
-  LL_PDU_PHY_RSP                = 0x17, /*!< PHY response PDU. */
-  LL_PDU_PHY_UPDATE_IND         = 0x18, /*!< PHY update indication PDU. */
-  LL_PDU_MIN_USED_CHAN_IND      = 0x19, /*!< Minimum used channels indication PDU. */
-  LL_PDU_UNSPECIFIED            = 0xFF  /*!< Unspecified PDU. */
+enum {
+    /* --- Core Spec 4.0 --- */
+    LL_PDU_CONN_UPDATE_IND        = 0x00, /*!< Connection update indication PDU. */
+    LL_PDU_CHANNEL_MAP_IND        = 0x01, /*!< Channel map indication PDU. */
+    LL_PDU_TERMINATE_IND          = 0x02, /*!< Terminate indication PDU. */
+    LL_PDU_ENC_REQ                = 0x03, /*!< Encryption request PDU. */
+    LL_PDU_ENC_RSP                = 0x04, /*!< Encryption response PDU. */
+    LL_PDU_START_ENC_REQ          = 0x05, /*!< Start encryption request PDU. */
+    LL_PDU_START_ENC_RSP          = 0x06, /*!< Start encryption response PDU. */
+    LL_PDU_UNKNOWN_RSP            = 0x07, /*!< Unknown response PDU. */
+    LL_PDU_FEATURE_REQ            = 0x08, /*!< Feature request PDU. */
+    LL_PDU_FEATURE_RSP            = 0x09, /*!< Feature response PDU. */
+    LL_PDU_PAUSE_ENC_REQ          = 0x0A, /*!< Pause encryption request PDU. */
+    LL_PDU_PAUSE_ENC_RSP          = 0x0B, /*!< Pause encryption response PDU. */
+    LL_PDU_VERSION_IND            = 0x0C, /*!< Version indication PDU. */
+    LL_PDU_REJECT_IND             = 0x0D, /*!< Reject indication PDU. */
+    /* --- Core Spec 4.2 --- */
+    LL_PDU_SLV_FEATURE_REQ        = 0x0E, /*!< Slave feature request PDU. */
+    LL_PDU_CONN_PARAM_REQ         = 0x0F, /*!< Connection parameter request PDU. */
+    LL_PDU_CONN_PARAM_RSP         = 0x10, /*!< Connection parameter response PDU. */
+    LL_PDU_REJECT_EXT_IND         = 0x11, /*!< Reject extended indication PDU. */
+    LL_PDU_PING_REQ               = 0x12, /*!< Ping request PDU. */
+    LL_PDU_PING_RSP               = 0x13, /*!< Ping response PDU. */
+    LL_PDU_LENGTH_REQ             = 0x14, /*!< Data length request PDU. */
+    LL_PDU_LENGTH_RSP             = 0x15, /*!< Data length response PDU. */
+    /* --- Core Spec 5.0 --- */
+    LL_PDU_PHY_REQ                = 0x16, /*!< PHY request PDU. */
+    LL_PDU_PHY_RSP                = 0x17, /*!< PHY response PDU. */
+    LL_PDU_PHY_UPDATE_IND         = 0x18, /*!< PHY update indication PDU. */
+    LL_PDU_MIN_USED_CHAN_IND      = 0x19, /*!< Minimum used channels indication PDU. */
+    LL_PDU_UNSPECIFIED            = 0xFF  /*!< Unspecified PDU. */
 };
 
 /* Data PDU length */
@@ -232,14 +229,13 @@ enum
 #define LL_MIN_NUM_CHAN_DATA          2       /*!< Minimum number of used data channels. */
 
 /*! \brief      Data PDU LLID types. */
-enum
-{
-  LL_LLID_VS_PDU                = 0x00, /*!< Vendor specific PDU. */
-  /* N.B. next two enumerations intentionally use identical values. */
-  LL_LLID_EMPTY_PDU             = 0x01, /*!< Empty PDU. */
-  LL_LLID_CONT_PDU              = 0x01, /*!< Data PDU: continuation fragment of an L2CAP message. */
-  LL_LLID_START_PDU             = 0x02, /*!< Data PDU: start of an L2CAP message or a complete L2CAP message with no fragmentation. */
-  LL_LLID_CTRL_PDU              = 0x03, /*!< Control PDU. */
+enum {
+    LL_LLID_VS_PDU                = 0x00, /*!< Vendor specific PDU. */
+    /* N.B. next two enumerations intentionally use identical values. */
+    LL_LLID_EMPTY_PDU             = 0x01, /*!< Empty PDU. */
+    LL_LLID_CONT_PDU              = 0x01, /*!< Data PDU: continuation fragment of an L2CAP message. */
+    LL_LLID_START_PDU             = 0x02, /*!< Data PDU: start of an L2CAP message or a complete L2CAP message with no fragmentation. */
+    LL_LLID_CTRL_PDU              = 0x03, /*!< Control PDU. */
 };
 
 /*** Encryption ***/
@@ -258,13 +254,13 @@ enum
 /*** LLCP ***/
 
 #define LL_DATA_LEN_TO_TIME_1M(len)       ((LL_BLE_US_PER_BYTE_1M * ((len) + LL_DATA_MIC_LEN)) + LL_MIN_PKT_TIME_US_1M)
-                                              /*!< Convert data length to time. */
+/*!< Convert data length to time. */
 #define LL_DATA_LEN_TO_TIME_2M(len)       ((LL_BLE_US_PER_BYTE_2M * ((len) + LL_DATA_MIC_LEN)) + LL_MIN_PKT_TIME_US_2M)
-                                              /*!< Convert data length to time. */
+/*!< Convert data length to time. */
 #define LL_DATA_LEN_TO_TIME_CODED_S8(len) ((LL_BLE_US_PER_BYTE_CODED_S8 * ((len) + LL_DATA_MIC_LEN)) + LL_MIN_PKT_TIME_US_CODED_S8)
-                                              /*!< Convert data length to time. */
+/*!< Convert data length to time. */
 #define LL_DATA_LEN_TO_TIME_CODED_S2(len) ((LL_BLE_US_PER_BYTE_CODED_S2 * ((len) + LL_DATA_MIC_LEN)) + LL_MIN_PKT_TIME_US_CODED_S2)
-                                              /*!< Convert data length to time. */
+/*!< Convert data length to time. */
 
 #define LL_MIN_INSTANT                6       /*!< Minimum number of CE to apply a CONN_UPD or CHAN_MAP. */
 

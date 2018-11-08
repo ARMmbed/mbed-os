@@ -45,61 +45,61 @@ extern "C" {
 #endif
 
 struct pppapi_msg_msg {
-  ppp_pcb *ppp;
-  union {
+    ppp_pcb *ppp;
+    union {
 #if PPP_NOTIFY_PHASE
-    struct {
-      ppp_notify_phase_cb_fn notify_phase_cb;
-    } setnotifyphasecb;
+        struct {
+            ppp_notify_phase_cb_fn notify_phase_cb;
+        } setnotifyphasecb;
 #endif /* PPP_NOTIFY_PHASE */
 #if PPPOS_SUPPORT
-    struct {
-      struct netif *pppif;
-      pppos_output_cb_fn output_cb;
-      ppp_link_status_cb_fn link_status_cb;
-      void *ctx_cb;
-    } serialcreate;
+        struct {
+            struct netif *pppif;
+            pppos_output_cb_fn output_cb;
+            ppp_link_status_cb_fn link_status_cb;
+            void *ctx_cb;
+        } serialcreate;
 #endif /* PPPOS_SUPPORT */
 #if PPPOE_SUPPORT
-    struct {
-      struct netif *pppif;
-      struct netif *ethif;
-      const char *service_name;
-      const char *concentrator_name;
-      ppp_link_status_cb_fn link_status_cb;
-      void *ctx_cb;
-    } ethernetcreate;
+        struct {
+            struct netif *pppif;
+            struct netif *ethif;
+            const char *service_name;
+            const char *concentrator_name;
+            ppp_link_status_cb_fn link_status_cb;
+            void *ctx_cb;
+        } ethernetcreate;
 #endif /* PPPOE_SUPPORT */
 #if PPPOL2TP_SUPPORT
-    struct {
-      struct netif *pppif;
-      struct netif *netif;
-      API_MSG_M_DEF_C(ip_addr_t, ipaddr);
-      u16_t port;
+        struct {
+            struct netif *pppif;
+            struct netif *netif;
+            API_MSG_M_DEF_C(ip_addr_t, ipaddr);
+            u16_t port;
 #if PPPOL2TP_AUTH_SUPPORT
-      const u8_t *secret;
-      u8_t secret_len;
+            const u8_t *secret;
+            u8_t secret_len;
 #endif /* PPPOL2TP_AUTH_SUPPORT */
-      ppp_link_status_cb_fn link_status_cb;
-      void *ctx_cb;
-    } l2tpcreate;
+            ppp_link_status_cb_fn link_status_cb;
+            void *ctx_cb;
+        } l2tpcreate;
 #endif /* PPPOL2TP_SUPPORT */
-    struct {
-      u16_t holdoff;
-    } connect;
-    struct {
-      u8_t nocarrier;
-    } close;
-    struct {
-      u8_t cmd;
-      void *arg;
-    } ioctl;
-  } msg;
+        struct {
+            u16_t holdoff;
+        } connect;
+        struct {
+            u8_t nocarrier;
+        } close;
+        struct {
+            u8_t cmd;
+            void *arg;
+        } ioctl;
+    } msg;
 };
 
 struct pppapi_msg {
-  struct tcpip_api_call_data call;
-  struct pppapi_msg_msg msg;
+    struct tcpip_api_call_data call;
+    struct pppapi_msg_msg msg;
 };
 
 /* API for application */
@@ -112,13 +112,13 @@ ppp_pcb *pppapi_pppos_create(struct netif *pppif, pppos_output_cb_fn output_cb, 
 #endif /* PPPOS_SUPPORT */
 #if PPPOE_SUPPORT
 ppp_pcb *pppapi_pppoe_create(struct netif *pppif, struct netif *ethif, const char *service_name,
-                                const char *concentrator_name, ppp_link_status_cb_fn link_status_cb,
-                                void *ctx_cb);
+                             const char *concentrator_name, ppp_link_status_cb_fn link_status_cb,
+                             void *ctx_cb);
 #endif /* PPPOE_SUPPORT */
 #if PPPOL2TP_SUPPORT
 ppp_pcb *pppapi_pppol2tp_create(struct netif *pppif, struct netif *netif, ip_addr_t *ipaddr, u16_t port,
-                            const u8_t *secret, u8_t secret_len,
-                            ppp_link_status_cb_fn link_status_cb, void *ctx_cb);
+                                const u8_t *secret, u8_t secret_len,
+                                ppp_link_status_cb_fn link_status_cb, void *ctx_cb);
 #endif /* PPPOL2TP_SUPPORT */
 err_t pppapi_connect(ppp_pcb *pcb, u16_t holdoff);
 #if PPP_SERVER

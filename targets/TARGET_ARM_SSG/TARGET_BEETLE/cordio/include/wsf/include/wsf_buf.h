@@ -38,19 +38,17 @@ extern "C" {
 **************************************************************************************************/
 
 /*! Buffer pool descriptor structure */
-typedef struct
-{
-  uint16_t   len;                  /*! length of buffers in pool */
-  uint8_t    num;                  /*! number of buffers in pool */
+typedef struct {
+    uint16_t   len;                  /*! length of buffers in pool */
+    uint8_t    num;                  /*! number of buffers in pool */
 } wsfBufPoolDesc_t;
 
 /*! Pool statistics */
-typedef struct
-{
-  uint16_t   bufSize;              /*!< Pool buffer size. */
-  uint8_t    numBuf;               /*!< Total number of buffers. */
-  uint8_t    numAlloc;             /*!< Number of outstanding allocations. */
-  uint8_t    maxAlloc;             /*!< High allocation watermark. */
+typedef struct {
+    uint16_t   bufSize;              /*!< Pool buffer size. */
+    uint8_t    numBuf;               /*!< Total number of buffers. */
+    uint8_t    numAlloc;             /*!< Number of outstanding allocations. */
+    uint8_t    maxAlloc;             /*!< High allocation watermark. */
 } WsfBufPoolStat_t;
 
 

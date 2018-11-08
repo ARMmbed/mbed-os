@@ -10,7 +10,7 @@
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
  *  are met:
- *  
+ *
  *    * Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above copyright
@@ -19,7 +19,7 @@
  *    * Neither the names of PolarSSL or XySSL nor the names of its contributors
  *      may be used to endorse or promote products derived from this software
  *      without specific prior written permission.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -45,8 +45,7 @@
 /**
  * \brief          DES context structure
  */
-typedef struct
-{
+typedef struct {
     int mode;                   /*!<  encrypt/decrypt   */
     unsigned long sk[32];       /*!<  DES subkeys       */
 }
@@ -62,7 +61,7 @@ extern "C" {
  * \param ctx      DES context to be initialized
  * \param key      8-byte secret key
  */
-void des_setkey_enc( des_context *ctx, unsigned char key[8] );
+void des_setkey_enc(des_context *ctx, unsigned char key[8]);
 
 /**
  * \brief          DES key schedule (56-bit, decryption)
@@ -70,7 +69,7 @@ void des_setkey_enc( des_context *ctx, unsigned char key[8] );
  * \param ctx      DES context to be initialized
  * \param key      8-byte secret key
  */
-void des_setkey_dec( des_context *ctx, unsigned char key[8] );
+void des_setkey_dec(des_context *ctx, unsigned char key[8]);
 
 /**
  * \brief          DES-ECB block encryption/decryption
@@ -79,9 +78,9 @@ void des_setkey_dec( des_context *ctx, unsigned char key[8] );
  * \param input    64-bit input block
  * \param output   64-bit output block
  */
-void des_crypt_ecb( des_context *ctx,
-                    const unsigned char input[8],
-                    unsigned char output[8] );
+void des_crypt_ecb(des_context *ctx,
+                   const unsigned char input[8],
+                   unsigned char output[8]);
 
 #ifdef __cplusplus
 }

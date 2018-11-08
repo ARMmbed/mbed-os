@@ -32,7 +32,7 @@
  */
 
 #ifndef _MXC_CLKMAN_REGS_H_
-#define _MXC_CLKMAN_REGS_H_ 
+#define _MXC_CLKMAN_REGS_H_
 
 #ifdef __cplusplus
 extern "C" {

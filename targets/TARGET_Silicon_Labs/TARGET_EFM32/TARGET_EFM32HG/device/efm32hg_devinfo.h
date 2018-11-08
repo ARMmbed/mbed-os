@@ -37,26 +37,25 @@
  * @defgroup EFM32HG_DEVINFO
  * @{
  *****************************************************************************/
-typedef struct
-{
-  __IM uint32_t CAL;          /**< Calibration temperature and checksum */
-  __IM uint32_t ADC0CAL0;     /**< ADC0 Calibration register 0 */
-  __IM uint32_t ADC0CAL1;     /**< ADC0 Calibration register 1 */
-  __IM uint32_t ADC0CAL2;     /**< ADC0 Calibration register 2 */
-  uint32_t      RESERVED0[2]; /**< Reserved */
-  __IM uint32_t IDAC0CAL0;    /**< IDAC0 calibration register */
-  __IM uint32_t USHFRCOCAL0;  /**< USHFRCO calibration register */
-  uint32_t      RESERVED1[1]; /**< Reserved */
-  __IM uint32_t AUXHFRCOCAL0; /**< AUXHFRCO calibration register 0 */
-  __IM uint32_t AUXHFRCOCAL1; /**< AUXHFRCO calibration register 1 */
-  __IM uint32_t HFRCOCAL0;    /**< HFRCO calibration register 0 */
-  __IM uint32_t HFRCOCAL1;    /**< HFRCO calibration register 1 */
-  __IM uint32_t MEMINFO;      /**< Memory information */
-  uint32_t      RESERVED2[2]; /**< Reserved */
-  __IM uint32_t UNIQUEL;      /**< Low 32 bits of device unique number */
-  __IM uint32_t UNIQUEH;      /**< High 32 bits of device unique number */
-  __IM uint32_t MSIZE;        /**< Flash and SRAM Memory size in KiloBytes */
-  __IM uint32_t PART;         /**< Part description */
+typedef struct {
+    __IM uint32_t CAL;          /**< Calibration temperature and checksum */
+    __IM uint32_t ADC0CAL0;     /**< ADC0 Calibration register 0 */
+    __IM uint32_t ADC0CAL1;     /**< ADC0 Calibration register 1 */
+    __IM uint32_t ADC0CAL2;     /**< ADC0 Calibration register 2 */
+    uint32_t      RESERVED0[2]; /**< Reserved */
+    __IM uint32_t IDAC0CAL0;    /**< IDAC0 calibration register */
+    __IM uint32_t USHFRCOCAL0;  /**< USHFRCO calibration register */
+    uint32_t      RESERVED1[1]; /**< Reserved */
+    __IM uint32_t AUXHFRCOCAL0; /**< AUXHFRCO calibration register 0 */
+    __IM uint32_t AUXHFRCOCAL1; /**< AUXHFRCO calibration register 1 */
+    __IM uint32_t HFRCOCAL0;    /**< HFRCO calibration register 0 */
+    __IM uint32_t HFRCOCAL1;    /**< HFRCO calibration register 1 */
+    __IM uint32_t MEMINFO;      /**< Memory information */
+    uint32_t      RESERVED2[2]; /**< Reserved */
+    __IM uint32_t UNIQUEL;      /**< Low 32 bits of device unique number */
+    __IM uint32_t UNIQUEH;      /**< High 32 bits of device unique number */
+    __IM uint32_t MSIZE;        /**< Flash and SRAM Memory size in KiloBytes */
+    __IM uint32_t PART;         /**< Part description */
 } DEVINFO_TypeDef;            /** @} */
 
 /**************************************************************************//**

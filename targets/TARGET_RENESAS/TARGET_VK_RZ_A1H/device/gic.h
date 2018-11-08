@@ -41,51 +41,49 @@
 /**
 */
 #ifdef __cplusplus
-  #define   __I     volatile             /*!< Defines 'read only' permissions                 */
+#define   __I     volatile             /*!< Defines 'read only' permissions                 */
 #else
-  #define   __I     volatile const       /*!< Defines 'read only' permissions                 */
+#define   __I     volatile const       /*!< Defines 'read only' permissions                 */
 #endif
 #define     __O     volatile             /*!< Defines 'write only' permissions                */
 #define     __IO    volatile             /*!< Defines 'read / write' permissions              */
 
 /** \brief  Structure type to access the Generic Interrupt Controller Distributor (GICD)
  */
-typedef struct
-{
-  __IO uint32_t ICDDCR;
-  __I  uint32_t ICDICTR;
-  __I  uint32_t ICDIIDR;
-       uint32_t RESERVED0[29];
-  __IO uint32_t ICDISR[32];
-  __IO uint32_t ICDISER[32];
-  __IO uint32_t ICDICER[32];
-  __IO uint32_t ICDISPR[32];
-  __IO uint32_t ICDICPR[32];
-  __I  uint32_t ICDABR[32];
-       uint32_t RESERVED1[32];
-  __IO uint32_t ICDIPR[256];
-  __IO uint32_t ICDIPTR[256];
-  __IO uint32_t ICDICFR[64];
-       uint32_t RESERVED2[128];
-  __IO uint32_t ICDSGIR;
+typedef struct {
+    __IO uint32_t ICDDCR;
+    __I  uint32_t ICDICTR;
+    __I  uint32_t ICDIIDR;
+    uint32_t RESERVED0[29];
+    __IO uint32_t ICDISR[32];
+    __IO uint32_t ICDISER[32];
+    __IO uint32_t ICDICER[32];
+    __IO uint32_t ICDISPR[32];
+    __IO uint32_t ICDICPR[32];
+    __I  uint32_t ICDABR[32];
+    uint32_t RESERVED1[32];
+    __IO uint32_t ICDIPR[256];
+    __IO uint32_t ICDIPTR[256];
+    __IO uint32_t ICDICFR[64];
+    uint32_t RESERVED2[128];
+    __IO uint32_t ICDSGIR;
 }  GICDistributor_Type;
 
 /** \brief  Structure type to access the Controller Interface (GICC)
  */
-typedef struct
-{
-  __IO uint32_t ICCICR;          // +0x000 - RW - CPU Interface Control Register
-  __IO uint32_t ICCPMR;          // +0x004 - RW - Interrupt Priority Mask Register
-  __IO uint32_t ICCBPR;          // +0x008 - RW - Binary Point Register
-  __I  uint32_t ICCIAR;          // +0x00C - RO - Interrupt Acknowledge Register
-  __IO uint32_t ICCEOIR;         // +0x010 - WO - End of Interrupt Register
-  __I  uint32_t ICCRPR;          // +0x014 - RO - Running Priority Register
-  __I  uint32_t ICCHPIR;         // +0x018 - RO - Highest Pending Interrupt Register
-  __IO uint32_t ICCABPR;         // +0x01C - RW - Aliased Binary Point Register
+typedef struct {
+    __IO uint32_t ICCICR;          // +0x000 - RW - CPU Interface Control Register
+    __IO uint32_t ICCPMR;          // +0x004 - RW - Interrupt Priority Mask Register
+    __IO uint32_t ICCBPR;          // +0x008 - RW - Binary Point Register
+    __I  uint32_t ICCIAR;          // +0x00C - RO - Interrupt Acknowledge Register
+    __IO uint32_t ICCEOIR;         // +0x010 - WO - End of Interrupt Register
+    __I  uint32_t ICCRPR;          // +0x014 - RO - Running Priority Register
+    __I  uint32_t ICCHPIR;         // +0x018 - RO - Highest Pending Interrupt Register
+    __IO uint32_t ICCABPR;         // +0x01C - RW - Aliased Binary Point Register
 
-       uint32_t RESERVED[55];
+    uint32_t RESERVED[55];
 
-  __I  uint32_t ICCIIDR;         // +0x0FC - RO - CPU Interface Identification Register
+    __I  uint32_t ICCIIDR;         // +0x0FC - RO - CPU Interface Identification Register
 }  GICInterface_Type;
 
 /*@} end of GICD */
@@ -304,7 +302,7 @@ void GIC_CPUInterfaceInit(void);
    API call to initialise the Interrupt Configuration Registers
 
  */
-void GIC_SetICDICFR (const uint32_t *ICDICFRn);
+void GIC_SetICDICFR(const uint32_t *ICDICFRn);
 
 /** \brief  API call to  Enable the GIC
 

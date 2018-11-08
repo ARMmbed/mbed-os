@@ -244,8 +244,7 @@ extern uint32_t g_xtal32Freq;
 #define DSPI1_CLK_SRC SYS_CLK
 
 /*! @brief Clock name used to get clock frequency. */
-typedef enum _clock_name
-{
+typedef enum _clock_name {
 
     /* ----------------------------- System layer clock -------------------------------*/
     kCLOCK_CoreSysClk,    /*!< Core/system clock                                         */
@@ -278,8 +277,7 @@ typedef enum _clock_name
 } clock_name_t;
 
 /*! @brief USB clock source definition. */
-typedef enum _clock_usb_src
-{
+typedef enum _clock_usb_src {
     kCLOCK_UsbSrcPll0 = SIM_SOPT2_USBSRC(1U) | SIM_SOPT2_PLLFLLSEL(1U),   /*!< Use PLL0.      */
     kCLOCK_UsbSrcIrc48M = SIM_SOPT2_USBSRC(1U) | SIM_SOPT2_PLLFLLSEL(3U), /*!< Use IRC48M.    */
     kCLOCK_UsbSrcExt = SIM_SOPT2_USBSRC(0U)                               /*!< Use USB_CLKIN. */
@@ -314,8 +312,7 @@ typedef enum _clock_usb_src
 #define CLK_GATE_ABSTRACT_BITS_SHIFT(x) (((x)&CLK_GATE_BIT_SHIFT_MASK) >> CLK_GATE_BIT_SHIFT_SHIFT)
 
 /*! @brief Clock gate name used for CLOCK_EnableClock/CLOCK_DisableClock. */
-typedef enum _clock_ip_name
-{
+typedef enum _clock_ip_name {
     kCLOCK_IpInvalid = 0U,
 
     kCLOCK_Ewm0 = CLK_GATE_DEFINE(0x1034U, 1U),
@@ -364,8 +361,7 @@ typedef enum _clock_ip_name
 } clock_ip_name_t;
 
 /*!@brief SIM configuration structure for clock setting. */
-typedef struct _sim_clock_config
-{
+typedef struct _sim_clock_config {
     uint8_t pllFllSel;  /*!< PLL/FLL/IRC48M selection.         */
     uint8_t pllFllDiv;  /*!< PLLFLLSEL clock divider divisor.  */
     uint8_t pllFllFrac; /*!< PLLFLLSEL clock divider fraction. */
@@ -374,8 +370,7 @@ typedef struct _sim_clock_config
 } sim_clock_config_t;
 
 /*! @brief OSC work mode. */
-typedef enum _osc_mode
-{
+typedef enum _osc_mode {
     kOSC_ModeExt = 0U, /*!< Use an external clock.   */
 #if (defined(MCG_C2_EREFS_MASK) && !(defined(MCG_C2_EREFS0_MASK)))
     kOSC_ModeOscLowPower = MCG_C2_EREFS_MASK, /*!< Oscillator low power. */
@@ -400,8 +395,7 @@ typedef enum _osc_mode
 } osc_mode_t;
 
 /*! @brief Oscillator capacitor load setting.*/
-enum _osc_cap_load
-{
+enum _osc_cap_load {
     kOSC_Cap2P = OSC_CR_SC2P_MASK,  /*!< 2  pF capacitor load */
     kOSC_Cap4P = OSC_CR_SC4P_MASK,  /*!< 4  pF capacitor load */
     kOSC_Cap8P = OSC_CR_SC8P_MASK,  /*!< 8  pF capacitor load */
@@ -409,15 +403,13 @@ enum _osc_cap_load
 };
 
 /*! @brief OSCERCLK enable mode. */
-enum _oscer_enable_mode
-{
+enum _oscer_enable_mode {
     kOSC_ErClkEnable = OSC_CR_ERCLKEN_MASK,       /*!< Enable.              */
     kOSC_ErClkEnableInStop = OSC_CR_EREFSTEN_MASK /*!< Enable in stop mode. */
 };
 
 /*! @brief OSC configuration for OSCERCLK. */
-typedef struct _oscer_config
-{
+typedef struct _oscer_config {
     uint8_t enableMode; /*!< OSCERCLK enable mode. OR'ed value of @ref _oscer_enable_mode. */
 
     uint8_t erclkDiv; /*!< Divider for OSCERCLK.*/
@@ -432,8 +424,7 @@ typedef struct _oscer_config
  * 1. freq: The external frequency.
  * 2. workMode: The OSC module mode.
  */
-typedef struct _osc_config
-{
+typedef struct _osc_config {
     uint32_t freq;              /*!< External clock frequency.    */
     uint8_t capLoad;            /*!< Capacitor load setting.      */
     osc_mode_t workMode;        /*!< OSC work mode setting.       */
@@ -441,29 +432,25 @@ typedef struct _osc_config
 } osc_config_t;
 
 /*! @brief MCG FLL reference clock source select. */
-typedef enum _mcg_fll_src
-{
+typedef enum _mcg_fll_src {
     kMCG_FllSrcExternal, /*!< External reference clock is selected          */
     kMCG_FllSrcInternal  /*!< The slow internal reference clock is selected */
 } mcg_fll_src_t;
 
 /*! @brief MCG internal reference clock select */
-typedef enum _mcg_irc_mode
-{
+typedef enum _mcg_irc_mode {
     kMCG_IrcSlow, /*!< Slow internal reference clock selected */
     kMCG_IrcFast  /*!< Fast internal reference clock selected */
 } mcg_irc_mode_t;
 
 /*! @brief MCG DCO Maximum Frequency with 32.768 kHz Reference */
-typedef enum _mcg_dmx32
-{
+typedef enum _mcg_dmx32 {
     kMCG_Dmx32Default, /*!< DCO has a default range of 25% */
     kMCG_Dmx32Fine     /*!< DCO is fine-tuned for maximum frequency with 32.768 kHz reference */
 } mcg_dmx32_t;
 
 /*! @brief MCG DCO range select */
-typedef enum _mcg_drs
-{
+typedef enum _mcg_drs {
     kMCG_DrsLow,     /*!< Low frequency range       */
     kMCG_DrsMid,     /*!< Mid frequency range       */
     kMCG_DrsMidHigh, /*!< Mid-High frequency range  */
@@ -471,53 +458,46 @@ typedef enum _mcg_drs
 } mcg_drs_t;
 
 /*! @brief MCG PLL reference clock select */
-typedef enum _mcg_pll_ref_src
-{
+typedef enum _mcg_pll_ref_src {
     kMCG_PllRefOsc0, /*!< Selects OSC0 as PLL reference clock                 */
     kMCG_PllRefOsc1  /*!< Selects OSC1 as PLL reference clock                 */
 } mcg_pll_ref_src_t;
 
 /*! @brief MCGOUT clock source. */
-typedef enum _mcg_clkout_src
-{
+typedef enum _mcg_clkout_src {
     kMCG_ClkOutSrcOut,      /*!< Output of the FLL is selected (reset default)  */
     kMCG_ClkOutSrcInternal, /*!< Internal reference clock is selected           */
     kMCG_ClkOutSrcExternal, /*!< External reference clock is selected           */
 } mcg_clkout_src_t;
 
 /*! @brief MCG Automatic Trim Machine Select */
-typedef enum _mcg_atm_select
-{
+typedef enum _mcg_atm_select {
     kMCG_AtmSel32k, /*!< 32 kHz Internal Reference Clock selected  */
     kMCG_AtmSel4m   /*!< 4 MHz Internal Reference Clock selected   */
 } mcg_atm_select_t;
 
 /*! @brief MCG OSC Clock Select */
-typedef enum _mcg_oscsel
-{
+typedef enum _mcg_oscsel {
     kMCG_OscselOsc, /*!< Selects System Oscillator (OSCCLK) */
     kMCG_OscselRtc, /*!< Selects 32 kHz RTC Oscillator      */
     kMCG_OscselIrc  /*!< Selects 48 MHz IRC Oscillator      */
 } mcg_oscsel_t;
 
 /*! @brief MCG PLLCS select */
-typedef enum _mcg_pll_clk_select
-{
+typedef enum _mcg_pll_clk_select {
     kMCG_PllClkSelPll0, /*!< PLL0 output clock is selected  */
     kMCG_PllClkSelPll1  /* PLL1 output clock is selected    */
 } mcg_pll_clk_select_t;
 
 /*! @brief MCG clock monitor mode. */
-typedef enum _mcg_monitor_mode
-{
+typedef enum _mcg_monitor_mode {
     kMCG_MonitorNone, /*!< Clock monitor is disabled.         */
     kMCG_MonitorInt,  /*!< Trigger interrupt when clock lost. */
     kMCG_MonitorReset /*!< System reset when clock lost.      */
 } mcg_monitor_mode_t;
 
 /*! @brief MCG status. */
-enum _mcg_status
-{
+enum _mcg_status {
     kStatus_MCG_ModeUnreachable = MAKE_STATUS(kStatusGroup_MCG, 0),       /*!< Can't switch to target mode. */
     kStatus_MCG_ModeInvalid = MAKE_STATUS(kStatusGroup_MCG, 1),           /*!< Current mode invalid for the specific
                                                                                function. */
@@ -530,8 +510,7 @@ enum _mcg_status
 };
 
 /*! @brief MCG status flags. */
-enum _mcg_status_flags_t
-{
+enum _mcg_status_flags_t {
     kMCG_Osc0LostFlag = (1U << 0U),   /*!< OSC0 lost.         */
     kMCG_Osc0InitFlag = (1U << 1U),   /*!< OSC0 crystal initialized. */
     kMCG_RtcOscLostFlag = (1U << 4U), /*!< RTC OSC lost.      */
@@ -540,15 +519,13 @@ enum _mcg_status_flags_t
 };
 
 /*! @brief MCG internal reference clock (MCGIRCLK) enable mode definition. */
-enum _mcg_irclk_enable_mode
-{
+enum _mcg_irclk_enable_mode {
     kMCG_IrclkEnable = MCG_C1_IRCLKEN_MASK,       /*!< MCGIRCLK enable.              */
     kMCG_IrclkEnableInStop = MCG_C1_IREFSTEN_MASK /*!< MCGIRCLK enable in stop mode. */
 };
 
 /*! @brief MCG PLL clock enable mode definition. */
-enum _mcg_pll_enable_mode
-{
+enum _mcg_pll_enable_mode {
     kMCG_PllEnableIndependent = MCG_C5_PLLCLKEN0_MASK, /*!< MCGPLLCLK enable independent of the
                                                            MCG clock mode. Generally, the PLL
                                                            is disabled in FLL modes
@@ -559,8 +536,7 @@ enum _mcg_pll_enable_mode
 };
 
 /*! @brief MCG mode definitions */
-typedef enum _mcg_mode
-{
+typedef enum _mcg_mode {
     kMCG_ModeFEI = 0U, /*!< FEI   - FLL Engaged Internal         */
     kMCG_ModeFBI,      /*!< FBI   - FLL Bypassed Internal        */
     kMCG_ModeBLPI,     /*!< BLPI  - Bypassed Low Power Internal  */
@@ -573,8 +549,7 @@ typedef enum _mcg_mode
 } mcg_mode_t;
 
 /*! @brief MCG PLL configuration. */
-typedef struct _mcg_pll_config
-{
+typedef struct _mcg_pll_config {
     uint8_t enableMode; /*!< Enable mode. OR'ed value of @ref _mcg_pll_enable_mode. */
     uint8_t prdiv;      /*!< Reference divider PRDIV.    */
     uint8_t vdiv;       /*!< VCO divider VDIV.           */
@@ -591,8 +566,7 @@ typedef struct _mcg_pll_config
  *    PRDIV should be in the FSL_FEATURE_MCG_PLL_REF_MIN to
  *    FSL_FEATURE_MCG_PLL_REF_MAX range.
  */
-typedef struct _mcg_config
-{
+typedef struct _mcg_config {
     mcg_mode_t mcgMode; /*!< MCG mode.                   */
 
     /* ----------------------- MCGIRCCLK settings ------------------------ */
@@ -930,12 +904,9 @@ uint32_t CLOCK_GetPll0Freq(void);
  */
 static inline void CLOCK_SetLowPowerEnable(bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         MCG->C2 |= MCG_C2_LP_MASK;
-    }
-    else
-    {
+    } else {
         MCG->C2 &= ~MCG_C2_LP_MASK;
     }
 }

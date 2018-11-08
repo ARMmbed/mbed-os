@@ -95,7 +95,7 @@ typedef int                     cb_int;
  * - cb_PACKED_STRUCT_ATTR_INLINE_PRE is after the typedef but before the struct declaration.
  * - cb_PACKED_STRUCT_ATTR_INLINE_POST is used after the struct declaration but before the typedef'ed name.
  * - cb_PACKED_STRUCT_ATTR_POST is used after the entire struct declaration.
- * 
+ *
  * example:
  *      cb_PACKED_STRUCT_ATTR_PRE
  *      typedef cb_PACKED_STRUCT_ATTR_INLINE_PRE struct myPackedStruct {

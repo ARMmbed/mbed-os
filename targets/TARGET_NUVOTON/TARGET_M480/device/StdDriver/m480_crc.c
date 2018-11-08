@@ -65,20 +65,20 @@ uint32_t CRC_GetChecksum(void)
 {
     uint32_t ret;
 
-    switch(CRC->CTL & CRC_CTL_CRCMODE_Msk) {
-    case CRC_CCITT:
-    case CRC_16:
-        ret = (CRC->CHECKSUM & 0xFFFFU);
-        break;
-    case CRC_32:
-        ret = (CRC->CHECKSUM);
-        break;
-    case CRC_8:
-        ret = (CRC->CHECKSUM & 0xFFU);
-        break;
-    default:
-        ret = 0U;
-        break;
+    switch (CRC->CTL & CRC_CTL_CRCMODE_Msk) {
+        case CRC_CCITT:
+        case CRC_16:
+            ret = (CRC->CHECKSUM & 0xFFFFU);
+            break;
+        case CRC_32:
+            ret = (CRC->CHECKSUM);
+            break;
+        case CRC_8:
+            ret = (CRC->CHECKSUM & 0xFFU);
+            break;
+        default:
+            ret = 0U;
+            break;
     }
 
     return ret;

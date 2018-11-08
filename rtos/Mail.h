@@ -42,7 +42,7 @@ namespace rtos {
  * \defgroup rtos_Mail Mail class
  * @{
  */
- 
+
 /** The Mail class allow to control, send, receive, or wait for mail.
  A mail is a memory block that is send to a thread or interrupt service routine.
   @tparam  T         data type of a single message element.
@@ -62,7 +62,8 @@ public:
      *
      * @return True if the mail queue is empty, false if not
      */
-    bool empty() const {
+    bool empty() const
+    {
         return _queue.empty();
     }
 
@@ -70,7 +71,8 @@ public:
      *
      * @return True if the mail queue is full, false if not
      */
-    bool full() const {
+    bool full() const
+    {
         return _queue.full();
     }
 
@@ -78,7 +80,8 @@ public:
       @param   millisec  timeout value or 0 in case of no time-out. (default: 0).
       @return  pointer to memory block that can be filled with mail or NULL in case error.
     */
-    T* alloc(uint32_t millisec=0) {
+    T *alloc(uint32_t millisec = 0)
+    {
         return _pool.alloc();
     }
 
@@ -86,7 +89,8 @@ public:
       @param   millisec  timeout value or 0 in case of no time-out.  (default: 0).
       @return  pointer to memory block that can be filled with mail or NULL in case error.
     */
-    T* calloc(uint32_t millisec=0) {
+    T *calloc(uint32_t millisec = 0)
+    {
         return _pool.calloc();
     }
 
@@ -94,7 +98,8 @@ public:
       @param   mptr  memory block previously allocated with Mail::alloc or Mail::calloc.
       @return  status code that indicates the execution status of the function.
     */
-    osStatus put(T *mptr) {
+    osStatus put(T *mptr)
+    {
         return _queue.put(mptr);
     }
 
@@ -102,7 +107,8 @@ public:
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
       @return  event that contains mail information or error code.
     */
-    osEvent get(uint32_t millisec=osWaitForever) {
+    osEvent get(uint32_t millisec = osWaitForever)
+    {
         osEvent evt = _queue.get(millisec);
         if (evt.status == osEventMessage) {
             evt.status = osEventMail;
@@ -114,7 +120,8 @@ public:
       @param   mptr  pointer to the memory block that was obtained with Mail::get.
       @return  status code that indicates the execution status of the function.
     */
-    osStatus free(T *mptr) {
+    osStatus free(T *mptr)
+    {
         return _pool.free(mptr);
     }
 

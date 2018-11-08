@@ -78,13 +78,13 @@
 #define LOOP_100us              (6700)     /* Loop counter for software wait  6666=100us/((1/400MHz)*6cyc) */
 
 #define EDMAC_EESIPR_INI_RECV   (0x0205001F)    /* 0x02000000 : Detect reception suspended */
-                                                /* 0x00040000 : Detect frame reception */
-                                                /* 0x00010000 : Receive FIFO overflow */
-                                                /* 0x00000010 : Residual bit frame reception */
-                                                /* 0x00000008 : Long frame reception */
-                                                /* 0x00000004 : Short frame reception */
-                                                /* 0x00000002 : PHY-LSI reception error */
-                                                /* 0x00000001 : Receive frame CRC error */
+/* 0x00040000 : Detect frame reception */
+/* 0x00010000 : Receive FIFO overflow */
+/* 0x00000010 : Residual bit frame reception */
+/* 0x00000008 : Long frame reception */
+/* 0x00000004 : Short frame reception */
+/* 0x00000002 : PHY-LSI reception error */
+/* 0x00000001 : Receive frame CRC error */
 #define EDMAC_EESIPR_INI_EtherC (0x00400000)    /* 0x00400000 : E-MAC status register */
 
 /* Send descriptor */
@@ -109,16 +109,16 @@ typedef struct tag_edmac_recv_desc {
 #if defined(__ICCARM__)
 #pragma data_alignment=16
 static uint8_t ethernet_nc_memory[(sizeof(edmac_send_desc_t) * NUM_OF_TX_DESCRIPTOR) +
-                                 (sizeof(edmac_recv_desc_t) * NUM_OF_RX_DESCRIPTOR) +
-                                 (NUM_OF_TX_DESCRIPTOR * SIZE_OF_BUFFER) +
-                                 (NUM_OF_RX_DESCRIPTOR * SIZE_OF_BUFFER)]  //16 bytes aligned!
-                                 @ ".mirrorram";
+                                                             (sizeof(edmac_recv_desc_t) * NUM_OF_RX_DESCRIPTOR) +
+                                                             (NUM_OF_TX_DESCRIPTOR * SIZE_OF_BUFFER) +
+                                                             (NUM_OF_RX_DESCRIPTOR * SIZE_OF_BUFFER)]  //16 bytes aligned!
+@ ".mirrorram";
 #else
 static uint8_t ethernet_nc_memory[(sizeof(edmac_send_desc_t) * NUM_OF_TX_DESCRIPTOR) +
-                                 (sizeof(edmac_recv_desc_t) * NUM_OF_RX_DESCRIPTOR) +
-                                 (NUM_OF_TX_DESCRIPTOR * SIZE_OF_BUFFER) +
-                                 (NUM_OF_RX_DESCRIPTOR * SIZE_OF_BUFFER)]
-                                 __attribute((section("NC_BSS"),aligned(16)));  //16 bytes aligned!
+                                                             (sizeof(edmac_recv_desc_t) * NUM_OF_RX_DESCRIPTOR) +
+                                                             (NUM_OF_TX_DESCRIPTOR * SIZE_OF_BUFFER) +
+                                                             (NUM_OF_RX_DESCRIPTOR * SIZE_OF_BUFFER)]
+__attribute((section("NC_BSS"), aligned(16))); //16 bytes aligned!
 #endif
 static int32_t            rx_read_offset;   /* read offset */
 static int32_t            tx_wite_offset;   /* write offset */
@@ -150,7 +150,8 @@ static void set_ether_pir(uint32_t set_data);
 static void wait_100us(int32_t wait_cnt);
 
 
-int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
+int ethernetext_init(ethernet_cfg_t *p_ethcfg)
+{
     int32_t  i;
     uint16_t val;
 
@@ -198,7 +199,7 @@ int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
     }
 
     phy_id = ((uint32_t)phy_reg_read(PHY_IDENTIFIER1_REG) << 16)
-           |  (uint32_t)phy_reg_read(PHY_IDENTIFIER2_REG);
+             | (uint32_t)phy_reg_read(PHY_IDENTIFIER2_REG);
 
     Interrupt_priority = p_ethcfg->int_priority;
     p_recv_cb_fnc      = p_ethcfg->recv_cb;
@@ -213,7 +214,8 @@ int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
     return 0;
 }
 
-void ethernetext_start_stop(int32_t mode) {
+void ethernetext_start_stop(int32_t mode)
+{
     if (mode == 1) {
         /* start */
         ETHEREDTRR0 |= EDTRR0_TR;
@@ -227,7 +229,8 @@ void ethernetext_start_stop(int32_t mode) {
     }
 }
 
-int ethernetext_chk_link_mode(void) {
+int ethernetext_chk_link_mode(void)
+{
     int32_t  link;
     uint16_t data;
 
@@ -257,13 +260,15 @@ int ethernetext_chk_link_mode(void) {
     return link;
 }
 
-void ethernetext_set_link_mode(int32_t link) {
+void ethernetext_set_link_mode(int32_t link)
+{
     lan_reg_reset();            /* Resets the E-MAC,E-DMAC */
     lan_desc_create();          /* Initialize of buffer memory */
     lan_reg_set(link);          /* E-DMAC, E-MAC initialization */
 }
 
-int ethernet_init() {
+int ethernet_init()
+{
     ethernet_cfg_t ethcfg;
 
     ethcfg.int_priority = 5;
@@ -275,17 +280,19 @@ int ethernet_init() {
     return 0;
 }
 
-void ethernet_free() {
+void ethernet_free()
+{
     ETHERARSTR |= 0x00000001;            /* ETHER software reset */
     CPGSTBCR7  |= CPG_STBCR7_BIT_MSTP74; /* disable ETHER clock */
 }
 
-int ethernet_write(const char *data, int slen) {
+int ethernet_write(const char *data, int slen)
+{
     edmac_send_desc_t *p_send_desc;
     int32_t           copy_size;
 
     if ((p_eth_desc_dsend == NULL) || (data == NULL) || (slen < 0)
-     || (tx_wite_offset < 0) || (tx_wite_offset >= MAX_SEND_SIZE)) {
+            || (tx_wite_offset < 0) || (tx_wite_offset >= MAX_SEND_SIZE)) {
         copy_size = 0;
     } else {
         p_send_desc = &p_eth_desc_dsend[send_top_index];   /* Current descriptor */
@@ -304,7 +311,8 @@ int ethernet_write(const char *data, int slen) {
     return copy_size;
 }
 
-int ethernet_send() {
+int ethernet_send()
+{
     edmac_send_desc_t *p_send_desc;
     int32_t           ret;
 
@@ -336,7 +344,8 @@ int ethernet_send() {
     return ret;
 }
 
-int ethernet_receive() {
+int ethernet_receive()
+{
     edmac_recv_desc_t *p_recv_desc;
     int32_t           receive_size = 0;
 
@@ -380,7 +389,8 @@ int ethernet_receive() {
     return receive_size;
 }
 
-int ethernet_read(char *data, int dlen) {
+int ethernet_read(char *data, int dlen)
+{
     edmac_recv_desc_t *p_recv_desc = p_recv_end_desc;                   /* Read top descriptor */
     int32_t           copy_size;
 
@@ -398,13 +408,15 @@ int ethernet_read(char *data, int dlen) {
     return copy_size;
 }
 
-void ethernet_address(char *mac) {
+void ethernet_address(char *mac)
+{
     if (mac != NULL) {
         mbed_mac_address(mac); /* Get MAC Address */
     }
 }
 
-int ethernet_link(void) {
+int ethernet_link(void)
+{
     int32_t  ret;
     uint16_t data;
 
@@ -418,7 +430,8 @@ int ethernet_link(void) {
     return ret;
 }
 
-void ethernet_set_link(int speed, int duplex) {
+void ethernet_set_link(int speed, int duplex)
+{
     uint16_t data;
     int32_t  i;
     int32_t  link;
@@ -443,7 +456,8 @@ void ethernet_set_link(int speed, int duplex) {
     ethernetext_set_link_mode(link);
 }
 
-void INT_Ether(void) {
+void INT_Ether(void)
+{
     uint32_t stat_edmac;
     uint32_t stat_etherc;
 
@@ -464,7 +478,8 @@ void INT_Ether(void) {
     }
 }
 
-static void lan_reg_reset(void) {
+static void lan_reg_reset(void)
+{
     volatile int32_t j = 400;    /* Wait for B dia 256 cycles  ((I dia/B dia)*256)/6cyc = 8*256/6 = 342 */
 
     ETHERARSTR      |= 0x00000001;      /* ETHER software reset */
@@ -481,7 +496,8 @@ static void lan_reg_reset(void) {
     }
 }
 
-static void lan_desc_create(void) {
+static void lan_desc_create(void)
+{
     int32_t i;
     uint8_t *p_memory_top;
 
@@ -520,14 +536,15 @@ static void lan_desc_create(void) {
     p_recv_end_desc = NULL;
 }
 
-static void lan_reg_set(int32_t link) {
+static void lan_reg_set(int32_t link)
+{
     /* MAC address setting */
     ETHERMAHR0      = ((uint32_t)mac_addr[0] << 24)
-                    | ((uint32_t)mac_addr[1] << 16)
-                    | ((uint32_t)mac_addr[2] << 8)
-                    |  (uint32_t)mac_addr[3];
+                      | ((uint32_t)mac_addr[1] << 16)
+                      | ((uint32_t)mac_addr[2] << 8)
+                      | (uint32_t)mac_addr[3];
     ETHERMALR0      = ((uint32_t)mac_addr[4] << 8)
-                    |  (uint32_t)mac_addr[5];
+                      | (uint32_t)mac_addr[5];
 
     /* E-DMAC */
     ETHERTDLAR0     = (uint32_t)&p_eth_desc_dsend[0];
@@ -579,7 +596,8 @@ static void lan_reg_set(int32_t link) {
     }
 }
 
-static uint16_t phy_reg_read(uint16_t reg_addr) {
+static uint16_t phy_reg_read(uint16_t reg_addr)
+{
     uint16_t data;
 
     mii_preamble();
@@ -591,7 +609,8 @@ static uint16_t phy_reg_read(uint16_t reg_addr) {
     return data;
 }
 
-static void phy_reg_write(uint16_t reg_addr, uint16_t data) {
+static void phy_reg_write(uint16_t reg_addr, uint16_t data)
+{
     mii_preamble();
     mii_cmd(reg_addr, PHY_WRITE);
     mii_write_1();
@@ -600,7 +619,8 @@ static void phy_reg_write(uint16_t reg_addr, uint16_t data) {
     mii_z();
 }
 
-static void mii_preamble(void) {
+static void mii_preamble(void)
+{
     int32_t i = 32;
 
     for (i = 32; i > 0; i--) {
@@ -609,7 +629,8 @@ static void mii_preamble(void) {
     }
 }
 
-static void mii_cmd(uint16_t reg_addr, uint32_t option) {
+static void mii_cmd(uint16_t reg_addr, uint32_t option)
+{
     int32_t  i;
     uint16_t data = 0;
 
@@ -627,7 +648,8 @@ static void mii_cmd(uint16_t reg_addr, uint32_t option) {
     }
 }
 
-static void mii_reg_read(uint16_t *data) {
+static void mii_reg_read(uint16_t *data)
+{
     int32_t  i;
     uint16_t reg_data = 0;
 
@@ -643,7 +665,8 @@ static void mii_reg_read(uint16_t *data) {
     *data = reg_data;
 }
 
-static void mii_reg_write(uint16_t data) {
+static void mii_reg_write(uint16_t data)
+{
     int32_t i;
 
     /* Data are written one bit at a time */
@@ -657,28 +680,32 @@ static void mii_reg_write(uint16_t data) {
     }
 }
 
-static void mii_z(void) {
+static void mii_z(void)
+{
     set_ether_pir(PIR0_MDC_LOW);
     set_ether_pir(PIR0_MDC_HIGH);
     set_ether_pir(PIR0_MDC_HIGH);
     set_ether_pir(PIR0_MDC_LOW);
 }
 
-static void mii_write_1(void) {
+static void mii_write_1(void)
+{
     set_ether_pir(PIR0_MDO | PIR0_MMD);
     set_ether_pir(PIR0_MDO | PIR0_MMD | PIR0_MDC);
     set_ether_pir(PIR0_MDO | PIR0_MMD | PIR0_MDC);
     set_ether_pir(PIR0_MDO | PIR0_MMD);
 }
 
-static void mii_write_0(void) {
+static void mii_write_0(void)
+{
     set_ether_pir(PIR0_MMD);
     set_ether_pir(PIR0_MMD | PIR0_MDC);
     set_ether_pir(PIR0_MMD | PIR0_MDC);
     set_ether_pir(PIR0_MMD);
 }
 
-static void set_ether_pir(uint32_t set_data) {
+static void set_ether_pir(uint32_t set_data)
+{
     int32_t i;
 
     for (i = MDC_WAIT; i > 0; i--) {
@@ -686,7 +713,8 @@ static void set_ether_pir(uint32_t set_data) {
     }
 }
 
-static void wait_100us(int32_t wait_cnt) {
+static void wait_100us(int32_t wait_cnt)
+{
     volatile int32_t j = LOOP_100us * wait_cnt;
 
     while (--j) {

@@ -80,8 +80,9 @@ void PMU_Handler(void)
 /******************************************************************************/
 int PMU_Start(unsigned int channel, const void *program_address, pmu_callback callback)
 {
-    if(channel >= MXC_CFG_PMU_CHANNELS)
+    if (channel >= MXC_CFG_PMU_CHANNELS) {
         return E_BAD_PARAM;
+    }
 
     mxc_pmu_regs_t *MXC_PMUn = &MXC_PMU0[channel];
     uint32_t cfg = MXC_PMUn->cfg;
@@ -150,10 +151,10 @@ void PMU_Stop(unsigned int channel)
     /* MAX32630 A1 & A2 Erratum #6: PMU only supports channels 0-4 */
     /* Check channels 0-4 for any running channels. If none found, stop channel 5 */
     if ((MXC_PMU0->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
-        (MXC_PMU1->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
-        (MXC_PMU2->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
-        (MXC_PMU3->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
-        (MXC_PMU4->cfg & MXC_F_PMU_CFG_ENABLE) == 0) {
+            (MXC_PMU1->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
+            (MXC_PMU2->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
+            (MXC_PMU3->cfg & MXC_F_PMU_CFG_ENABLE) == 0 &&
+            (MXC_PMU4->cfg & MXC_F_PMU_CFG_ENABLE) == 0) {
 
         MXC_PMU5->cfg &= ~MXC_F_PMU_CFG_ENABLE;
     }
@@ -164,8 +165,9 @@ void PMU_Stop(unsigned int channel)
 /******************************************************************************/
 int PMU_SetCounter(unsigned int channel, unsigned int counter, uint16_t value)
 {
-    if((channel >= MXC_CFG_PMU_CHANNELS) || counter > 1)
+    if ((channel >= MXC_CFG_PMU_CHANNELS) || counter > 1) {
         return E_BAD_PARAM;
+    }
 
     mxc_pmu_regs_t *MXC_PMUn = &MXC_PMU0[channel];
 
@@ -181,8 +183,9 @@ int PMU_SetCounter(unsigned int channel, unsigned int counter, uint16_t value)
 /******************************************************************************/
 int PMU_SetTimeout(unsigned int channel, pmu_ps_sel_t timeoutClkScale, pmu_to_sel_t timeoutTicks)
 {
-    if(channel >= MXC_CFG_PMU_CHANNELS)
+    if (channel >= MXC_CFG_PMU_CHANNELS) {
         return E_BAD_PARAM;
+    }
 
     mxc_pmu_regs_t *MXC_PMUn = &MXC_PMU0[channel];
     uint32_t cfg = MXC_PMUn->cfg;

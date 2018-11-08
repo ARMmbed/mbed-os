@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2016 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**@file
@@ -63,34 +63,34 @@ extern "C" {
  *          at run time to ensure that the region is correct.
  */
 #if defined(NRF51)
-    #define CODE_PAGE_SIZE            (PAGE_SIZE_IN_WORDS * sizeof(uint32_t))
+#define CODE_PAGE_SIZE            (PAGE_SIZE_IN_WORDS * sizeof(uint32_t))
 #elif defined(NRF52) || defined(NRF52840_XXAA)
-    #define CODE_PAGE_SIZE            (MBR_PAGE_SIZE_IN_WORDS * sizeof(uint32_t))
+#define CODE_PAGE_SIZE            (MBR_PAGE_SIZE_IN_WORDS * sizeof(uint32_t))
 #else
-    #error "Architecture not set."
+#error "Architecture not set."
 #endif
 
 
 /** @brief  Maximum size of a data object.*/
 #if defined( NRF51 )
-    #define DATA_OBJECT_MAX_SIZE           (CODE_PAGE_SIZE * 4)
+#define DATA_OBJECT_MAX_SIZE           (CODE_PAGE_SIZE * 4)
 #elif defined( NRF52_SERIES ) || defined ( __SDK_DOXYGEN__ )
-    #define DATA_OBJECT_MAX_SIZE           (CODE_PAGE_SIZE)
+#define DATA_OBJECT_MAX_SIZE           (CODE_PAGE_SIZE)
 #else
-    #error "Architecture not set."
+#error "Architecture not set."
 #endif
 
 /** @brief  Page location of the bootloader settings address.
  */
 
 #if defined ( NRF51 )
-    #define BOOTLOADER_SETTINGS_ADDRESS     (0x0003FC00UL)
+#define BOOTLOADER_SETTINGS_ADDRESS     (0x0003FC00UL)
 #elif defined( NRF52832_XXAA )
-    #define BOOTLOADER_SETTINGS_ADDRESS     (0x0007F000UL)
+#define BOOTLOADER_SETTINGS_ADDRESS     (0x0007F000UL)
 #elif defined( NRF52840_XXAA )
-    #define BOOTLOADER_SETTINGS_ADDRESS     (0x000FF000UL)
+#define BOOTLOADER_SETTINGS_ADDRESS     (0x000FF000UL)
 #else
-    #error No valid target set for BOOTLOADER_SETTINGS_ADDRESS.
+#error No valid target set for BOOTLOADER_SETTINGS_ADDRESS.
 #endif
 
 
@@ -184,8 +184,7 @@ extern "C" {
 
 /** @brief Description of a single bank. */
 #pragma pack(4)
-typedef struct
-{
+typedef struct {
     uint32_t                image_size;         /**< Size of the image in the bank. */
     uint32_t                image_crc;          /**< CRC of the image. If set to 0, the CRC is ignored. */
     uint32_t                bank_code;          /**< Identifier code for the bank. */
@@ -195,8 +194,7 @@ typedef struct
  *
  * Be aware of the difference between objects and firmware images. A firmware image consists of multiple objects, each of a maximum size @ref DATA_OBJECT_MAX_SIZE.
  */
-typedef struct
-{
+typedef struct {
     uint32_t command_size;              /**< The size of the current init command stored in the DFU settings. */
     uint32_t command_offset;            /**< The offset of the currently received init command data. The offset will increase as the init command is received. */
     uint32_t command_crc;               /**< The calculated CRC of the init command (calculated after the transfer is completed). */
@@ -212,8 +210,7 @@ typedef struct
 
 /**@brief DFU settings for application and bank data.
  */
-typedef struct
-{
+typedef struct {
     uint32_t            crc;                /**< CRC for the stored DFU settings, not including the CRC itself. If 0xFFFFFFF, the CRC has never been calculated. */
     uint32_t            settings_version;   /**< Version of the currect dfu settings struct layout.*/
     uint32_t            app_version;        /**< Version of the last stored application. */

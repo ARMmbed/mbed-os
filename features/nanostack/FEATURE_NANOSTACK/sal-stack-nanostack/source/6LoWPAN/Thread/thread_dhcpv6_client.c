@@ -204,7 +204,7 @@ int thread_dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[st
     libdhcpv6_generic_nontemporal_address_message_write(payload_ptr, &solPacket, &nonTemporalAddress, NULL);
 
     // send solicit
-    srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client.service_instance, 0, srv_data_ptr , dhcp_addr, payload_ptr, payload_len, dhcp_solicit_resp_cb);
+    srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client.service_instance, 0, srv_data_ptr, dhcp_addr, payload_ptr, payload_len, dhcp_solicit_resp_cb);
     return srv_data_ptr->transActionId ? 0 : -1;
 }
 void thread_dhcp_client_global_address_renew(int8_t interface)

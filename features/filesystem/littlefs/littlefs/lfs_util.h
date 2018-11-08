@@ -28,15 +28,18 @@
 
 // Builtin functions, these may be replaced by more
 // efficient implementations in the system
-static inline uint32_t lfs_max(uint32_t a, uint32_t b) {
+static inline uint32_t lfs_max(uint32_t a, uint32_t b)
+{
     return (a > b) ? a : b;
 }
 
-static inline uint32_t lfs_min(uint32_t a, uint32_t b) {
+static inline uint32_t lfs_min(uint32_t a, uint32_t b)
+{
     return (a < b) ? a : b;
 }
 
-static inline uint32_t lfs_ctz(uint32_t a) {
+static inline uint32_t lfs_ctz(uint32_t a)
+{
 #if defined(__GNUC__) || defined(__CC_ARM)
     return __builtin_ctz(a);
 #elif defined(__ICCARM__) && defined(__CLZ)
@@ -44,33 +47,55 @@ static inline uint32_t lfs_ctz(uint32_t a) {
 #else
     uint32_t r = 32;
     a &= -a;
-    if (a) r -= 1;
-    if (a & 0x0000ffff) r -= 16;
-    if (a & 0x00ff00ff) r -= 8;
-    if (a & 0x0f0f0f0f) r -= 4;
-    if (a & 0x33333333) r -= 2;
-    if (a & 0x55555555) r -= 1;
+    if (a) {
+        r -= 1;
+    }
+    if (a & 0x0000ffff) {
+        r -= 16;
+    }
+    if (a & 0x00ff00ff) {
+        r -= 8;
+    }
+    if (a & 0x0f0f0f0f) {
+        r -= 4;
+    }
+    if (a & 0x33333333) {
+        r -= 2;
+    }
+    if (a & 0x55555555) {
+        r -= 1;
+    }
     return r;
 #endif
 }
 
-static inline uint32_t lfs_npw2(uint32_t a) {
+static inline uint32_t lfs_npw2(uint32_t a)
+{
 #if defined(__GNUC__) || defined(__CC_ARM)
-    return 32 - __builtin_clz(a-1);
+    return 32 - __builtin_clz(a - 1);
 #elif defined(__ICCARM__) && defined(__CLZ)
-    return 32 - __CLZ(a-1);
+    return 32 - __CLZ(a - 1);
 #else
     uint32_t r = 0;
     uint32_t s;
-    s = (a > 0xffff) << 4; a >>= s; r |= s;
-    s = (a > 0xff  ) << 3; a >>= s; r |= s;
-    s = (a > 0xf   ) << 2; a >>= s; r |= s;
-    s = (a > 0x3   ) << 1; a >>= s; r |= s;
+    s = (a > 0xffff) << 4;
+    a >>= s;
+    r |= s;
+    s = (a > 0xff) << 3;
+    a >>= s;
+    r |= s;
+    s = (a > 0xf) << 2;
+    a >>= s;
+    r |= s;
+    s = (a > 0x3) << 1;
+    a >>= s;
+    r |= s;
     return r | (a >> 1);
 #endif
 }
 
-static inline uint32_t lfs_popc(uint32_t a) {
+static inline uint32_t lfs_popc(uint32_t a)
+{
 #if defined(__GNUC__) || defined(__CC_ARM)
     return __builtin_popcount(a);
 #else
@@ -80,7 +105,8 @@ static inline uint32_t lfs_popc(uint32_t a) {
 #endif
 }
 
-static inline int lfs_scmp(uint32_t a, uint32_t b) {
+static inline int lfs_scmp(uint32_t a, uint32_t b)
+{
     return (int)(unsigned)(a - b);
 }
 

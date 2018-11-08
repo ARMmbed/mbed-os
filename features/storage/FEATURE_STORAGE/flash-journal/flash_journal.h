@@ -30,8 +30,7 @@ extern "C" {
  * both error and success status returns. This enumeration contains all
  * possible error status values.
  */
-typedef enum _FlashJournal_Status
-{
+typedef enum _FlashJournal_Status {
     JOURNAL_STATUS_OK                =   0,
     JOURNAL_STATUS_ERROR             =  -1, ///< Unspecified error
     JOURNAL_STATUS_BUSY              =  -2, ///< Underlying storage is currently unavailable
@@ -71,13 +70,13 @@ typedef struct _FlashJournal_Info {
     uint64_t capacity;             ///< Maximum capacity (in octets) of the flash journal--i.e. the largest 'blob' which can be contained as payload.
     uint64_t sizeofJournaledBlob;  ///< size (in octets) of the most recently logged blob.
     uint32_t program_unit;         ///< Minimum programming size (in units of octets) for
-                                   ///<   the current storage block--the one which will be used
-                                   ///<   for the next log() operation. This value may change as we
-                                   ///<   cycle through the blocks of the underlying MTD.
-                                   ///<   Callers of FlashJournal_log() should refer to this field
-                                   ///<   upon receiving the error JOURNAL_STATUS_SMALL_LOG_REQUEST
-                                   ///<   (of when the actual amount of data logged is smaller than
-                                   ///<   the requested amount).
+    ///<   the current storage block--the one which will be used
+    ///<   for the next log() operation. This value may change as we
+    ///<   cycle through the blocks of the underlying MTD.
+    ///<   Callers of FlashJournal_log() should refer to this field
+    ///<   upon receiving the error JOURNAL_STATUS_SMALL_LOG_REQUEST
+    ///<   (of when the actual amount of data logged is smaller than
+    ///<   the requested amount).
 } FlashJournal_Info_t;
 
 
@@ -148,42 +147,42 @@ typedef struct FlashJournal_Ops_t {
     /**
      * \brief Initialize the flash journal. Refer to @ref FlashJournal_initialize.
      */
-    int32_t               (*initialize)(struct FlashJournal_t           *journal,
-                                        ARM_DRIVER_STORAGE       *mtd,
-                                        const struct FlashJournal_Ops_t *ops,
-                                        FlashJournal_Callback_t   callback);
+    int32_t (*initialize)(struct FlashJournal_t           *journal,
+                          ARM_DRIVER_STORAGE       *mtd,
+                          const struct FlashJournal_Ops_t *ops,
+                          FlashJournal_Callback_t   callback);
 
     /**
      * \brief fetch journal metadata. Refer to @ref FlashJournal_getInfo.
      */
-    FlashJournal_Status_t (*getInfo)   (struct FlashJournal_t *journal, FlashJournal_Info_t *info);
+    FlashJournal_Status_t (*getInfo)(struct FlashJournal_t *journal, FlashJournal_Info_t *info);
 
     /**
      * @brief Read from the most recently logged blob. Refer to @ref FlashJournal_read.
      */
-    int32_t               (*read)      (struct FlashJournal_t *journal, void *buffer, size_t size);
+    int32_t (*read)(struct FlashJournal_t *journal, void *buffer, size_t size);
 
     /**
      * @brief Read from the most recently logged blob from a particular offset. Refer to @ref FlashJournal_readFrom.
      */
-    int32_t               (*readFrom)  (struct FlashJournal_t *journal, size_t offset, void *buffer, size_t size);
+    int32_t (*readFrom)(struct FlashJournal_t *journal, size_t offset, void *buffer, size_t size);
 
     /**
      * @brief Start logging a new blob or append to the one currently being logged. Refer to @ref FlashJournal_log.
      */
-    int32_t               (*log)       (struct FlashJournal_t *journal, const void *blob, size_t size);
+    int32_t (*log)(struct FlashJournal_t *journal, const void *blob, size_t size);
 
     /**
      * @brief commit a blob accumulated through a non-empty sequence of
      *     previously successful log() operations. Refer to @ref FlashJournal_commit.
      */
-    int32_t               (*commit)    (struct FlashJournal_t *journal);
+    int32_t (*commit)(struct FlashJournal_t *journal);
 
     /**
      * @brief Reset the journal. This has the effect of erasing all valid blobs.
      *     Refer to @ref FlashJournal_reset.
      */
-    int32_t               (*reset)     (struct FlashJournal_t *journal);
+    int32_t (*reset)(struct FlashJournal_t *journal);
 } FlashJournal_Ops_t;
 
 /**

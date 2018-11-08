@@ -24,7 +24,7 @@
 #include "string.h"
 
 /* Choose SHA S/W or H/W context and initialize it
- * 
+ *
  * try_hw:
  *   0: Initialize S/W context
  *   1: Try acquiring SHA H/W resource first and initialize its H/W context if successful. If failed, initialize S/W context.
@@ -81,10 +81,10 @@ void mbedtls_sha1_clone(mbedtls_sha1_context *dst,
         dst->sw_ctx.total[1] = 0;
         {
             unsigned char output[20];
-            crypto_sha_getinternstate(output, sizeof (output));
+            crypto_sha_getinternstate(output, sizeof(output));
             unsigned char *output_pos = output;
-            unsigned char *output_end = output + (sizeof (output) / sizeof (output[0]));
-            uint32_t *state_pos = (uint32_t *) &(dst->sw_ctx.state[0]);
+            unsigned char *output_end = output + (sizeof(output) / sizeof(output[0]));
+            uint32_t *state_pos = (uint32_t *) & (dst->sw_ctx.state[0]);
             while (output_pos != output_end) {
                 *state_pos ++ = nu_get32_be(output_pos);
                 output_pos += 4;

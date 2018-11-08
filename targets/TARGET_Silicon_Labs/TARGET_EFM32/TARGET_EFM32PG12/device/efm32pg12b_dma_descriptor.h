@@ -37,14 +37,13 @@
  * @defgroup EFM32PG12B_DMA_DESCRIPTOR
  * @{
  *****************************************************************************/
-typedef struct
-{
-  /* Note! Use of double __IOM (volatile) qualifier to ensure that both */
-  /* pointer and referenced memory are declared volatile. */
-  __IOM uint32_t     CTRL;     /**< DMA control register */
-  __IOM void * __IOM SRC;      /**< DMA source address */
-  __IOM void * __IOM DST;      /**< DMA destination address */
-  __IOM void * __IOM LINK;     /**< DMA link address */
+typedef struct {
+    /* Note! Use of double __IOM (volatile) qualifier to ensure that both */
+    /* pointer and referenced memory are declared volatile. */
+    __IOM uint32_t     CTRL;     /**< DMA control register */
+    __IOM void *__IOM SRC;       /**< DMA source address */
+    __IOM void *__IOM DST;       /**< DMA destination address */
+    __IOM void *__IOM LINK;      /**< DMA link address */
 } DMA_DESCRIPTOR_TypeDef;      /**< @} */
 
 /** @} End of group Parts */

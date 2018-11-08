@@ -51,8 +51,7 @@
 /*@}*/
 
 /*! @brief status flag for the DMA driver. */
-enum _dma_channel_status_flags
-{
+enum _dma_channel_status_flags {
     kDMA_TransactionsBCRFlag = DMA_DSR_BCR_BCR_MASK,       /*!< Contains the number of bytes yet to be
                                                                 transferred for a given block */
     kDMA_TransactionsDoneFlag = DMA_DSR_BCR_DONE_MASK,     /*!< Transactions Done */
@@ -64,16 +63,14 @@ enum _dma_channel_status_flags
 };
 
 /*! @brief DMA transfer size type*/
-typedef enum _dma_transfer_size
-{
+typedef enum _dma_transfer_size {
     kDMA_Transfersize32bits = 0x0U, /*!< 32 bits are transferred for every read/write */
     kDMA_Transfersize8bits,         /*!< 8 bits are transferred for every read/write */
     kDMA_Transfersize16bits,        /*!< 16b its are transferred for every read/write */
 } dma_transfer_size_t;
 
 /*! @brief Configuration type for the DMA modulo */
-typedef enum _dma_modulo
-{
+typedef enum _dma_modulo {
     kDMA_ModuloDisable = 0x0U, /*!< Buffer disabled */
     kDMA_Modulo16Bytes,        /*!< Circular buffer size is 16 bytes. */
     kDMA_Modulo32Bytes,        /*!< Circular buffer size is 32 bytes. */
@@ -93,8 +90,7 @@ typedef enum _dma_modulo
 } dma_modulo_t;
 
 /*! @brief DMA channel link type */
-typedef enum _dma_channel_link_type
-{
+typedef enum _dma_channel_link_type {
     kDMA_ChannelLinkDisable = 0x0U,      /*!< No channel link. */
     kDMA_ChannelLinkChannel1AndChannel2, /*!< Perform a link to channel LCH1 after each cycle-steal transfer.
                                               followed by a link to LCH2 after the BCR decrements to 0. */
@@ -103,29 +99,25 @@ typedef enum _dma_channel_link_type
 } dma_channel_link_type_t;
 
 /*! @brief DMA transfer type */
-typedef enum _dma_transfer_type
-{
+typedef enum _dma_transfer_type {
     kDMA_MemoryToMemory = 0x0U, /*!< Memory to Memory transfer. */
     kDMA_PeripheralToMemory,    /*!< Peripheral to Memory transfer. */
     kDMA_MemoryToPeripheral,    /*!< Memory to Peripheral transfer. */
 } dma_transfer_type_t;
 
 /*! @brief DMA transfer options */
-typedef enum _dma_transfer_options
-{
+typedef enum _dma_transfer_options {
     kDMA_NoOptions = 0x0U, /*!< Transfer without options. */
     kDMA_EnableInterrupt,  /*!< Enable interrupt while transfer complete. */
 } dma_transfer_options_t;
 
 /*! @brief DMA transfer status */
-enum _dma_transfer_status
-{
+enum _dma_transfer_status {
     kStatus_DMA_Busy = MAKE_STATUS(kStatusGroup_DMA, 0),
 };
 
 /*! @brief DMA transfer configuration structure */
-typedef struct _dma_transfer_config
-{
+typedef struct _dma_transfer_config {
     uint32_t srcAddr;             /*!< DMA transfer source address. */
     uint32_t destAddr;            /*!< DMA destination address.*/
     bool enableSrcIncrement;      /*!< Source address increase after each transfer. */
@@ -136,8 +128,7 @@ typedef struct _dma_transfer_config
 } dma_transfer_config_t;
 
 /*! @brief DMA transfer configuration structure */
-typedef struct _dma_channel_link_config
-{
+typedef struct _dma_channel_link_config {
     dma_channel_link_type_t linkType; /*!< Channel link type. */
     uint32_t channel1;                /*!< The index of channel 1. */
     uint32_t channel2;                /*!< The index of channel 2. */
@@ -148,8 +139,7 @@ struct _dma_handle;
 typedef void (*dma_callback)(struct _dma_handle *handle, void *userData);
 
 /*! @brief DMA DMA handle structure */
-typedef struct _dma_handle
-{
+typedef struct _dma_handle {
     DMA_Type *base;        /*!< DMA peripheral address. */
     uint8_t channel;       /*!< DMA channel used. */
     dma_callback callback; /*!< DMA callback function.*/
@@ -473,8 +463,7 @@ static inline void DMA_ClearChannelStatusFlags(DMA_Type *base, uint32_t channel,
 {
     assert(channel < FSL_FEATURE_DMAMUX_MODULE_CHANNEL);
 
-    if (mask != 0U)
-    {
+    if (mask != 0U) {
         base->DMA[channel].DSR_BCR |= DMA_DSR_BCR_DONE(true);
     }
 }

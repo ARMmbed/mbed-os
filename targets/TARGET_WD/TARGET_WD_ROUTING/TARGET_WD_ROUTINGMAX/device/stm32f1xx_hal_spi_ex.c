@@ -5,11 +5,11 @@
   * @version V1.1.1
   * @date    12-May-2017
   * @brief   Extended SPI HAL module driver.
-  *    
-  *          This file provides firmware functions to manage the following 
+  *
+  *          This file provides firmware functions to manage the following
   *          functionalities SPI extension peripheral:
   *           + Extended Peripheral Control functions
-  *  
+  *
   ******************************************************************************
   * @attention
   *
@@ -91,7 +91,7 @@ uint8_t uCRCErrorWorkaroundCheck = 0U;
   */
 
 /**
-  * @brief  Initializes the SPI according to the specified parameters 
+  * @brief  Initializes the SPI according to the specified parameters
   *         in the SPI_InitTypeDef and create the associated handle.
   * @param  hspi: pointer to a SPI_HandleTypeDef structure that contains
   *                the configuration information for SPI module.
@@ -99,81 +99,78 @@ uint8_t uCRCErrorWorkaroundCheck = 0U;
   */
 HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
 {
-  /* Check the SPI handle allocation */
-  if(hspi == NULL)
-  {
-    return HAL_ERROR;
-  }
+    /* Check the SPI handle allocation */
+    if (hspi == NULL) {
+        return HAL_ERROR;
+    }
 
-  /* Check the parameters */
-  assert_param(IS_SPI_ALL_INSTANCE(hspi->Instance));
-  assert_param(IS_SPI_MODE(hspi->Init.Mode));
-  assert_param(IS_SPI_DIRECTION(hspi->Init.Direction));
-  assert_param(IS_SPI_DATASIZE(hspi->Init.DataSize));
-  assert_param(IS_SPI_CPOL(hspi->Init.CLKPolarity));
-  assert_param(IS_SPI_CPHA(hspi->Init.CLKPhase));
-  assert_param(IS_SPI_NSS(hspi->Init.NSS));
-  assert_param(IS_SPI_BAUDRATE_PRESCALER(hspi->Init.BaudRatePrescaler));
-  assert_param(IS_SPI_FIRST_BIT(hspi->Init.FirstBit));
+    /* Check the parameters */
+    assert_param(IS_SPI_ALL_INSTANCE(hspi->Instance));
+    assert_param(IS_SPI_MODE(hspi->Init.Mode));
+    assert_param(IS_SPI_DIRECTION(hspi->Init.Direction));
+    assert_param(IS_SPI_DATASIZE(hspi->Init.DataSize));
+    assert_param(IS_SPI_CPOL(hspi->Init.CLKPolarity));
+    assert_param(IS_SPI_CPHA(hspi->Init.CLKPhase));
+    assert_param(IS_SPI_NSS(hspi->Init.NSS));
+    assert_param(IS_SPI_BAUDRATE_PRESCALER(hspi->Init.BaudRatePrescaler));
+    assert_param(IS_SPI_FIRST_BIT(hspi->Init.FirstBit));
 
 #if (USE_SPI_CRC != 0U)
-  assert_param(IS_SPI_CRC_CALCULATION(hspi->Init.CRCCalculation));
-  if(hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
-  {
-    assert_param(IS_SPI_CRC_POLYNOMIAL(hspi->Init.CRCPolynomial));
-  }
+    assert_param(IS_SPI_CRC_CALCULATION(hspi->Init.CRCCalculation));
+    if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE) {
+        assert_param(IS_SPI_CRC_POLYNOMIAL(hspi->Init.CRCPolynomial));
+    }
 #else
-  hspi->Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+    hspi->Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
 #endif /* USE_SPI_CRC */
 
-  if(hspi->State == HAL_SPI_STATE_RESET)
-  {
-    /* Init the low level hardware : GPIO, CLOCK, NVIC... */
-    HAL_SPI_MspInit(hspi);
-  }
-  
-  hspi->State = HAL_SPI_STATE_BUSY;
+    if (hspi->State == HAL_SPI_STATE_RESET) {
+        /* Init the low level hardware : GPIO, CLOCK, NVIC... */
+        HAL_SPI_MspInit(hspi);
+    }
 
-  /* Disble the selected SPI peripheral */
-  __HAL_SPI_DISABLE(hspi);
+    hspi->State = HAL_SPI_STATE_BUSY;
 
-  /*----------------------- SPIx CR1 & CR2 Configuration ---------------------*/
-  /* Configure : SPI Mode, Communication Mode, Data size, Clock polarity and phase, NSS management,
-  Communication speed, First bit and CRC calculation state */
-  WRITE_REG(hspi->Instance->CR1, (hspi->Init.Mode | hspi->Init.Direction | hspi->Init.DataSize |
-                                  hspi->Init.CLKPolarity | hspi->Init.CLKPhase | (hspi->Init.NSS & SPI_CR1_SSM) |
-                                  hspi->Init.BaudRatePrescaler | hspi->Init.FirstBit  | hspi->Init.CRCCalculation) );
+    /* Disble the selected SPI peripheral */
+    __HAL_SPI_DISABLE(hspi);
 
-  /* Configure : NSS management */
-  WRITE_REG(hspi->Instance->CR2, (((hspi->Init.NSS >> 16U) & SPI_CR2_SSOE) | hspi->Init.TIMode));
+    /*----------------------- SPIx CR1 & CR2 Configuration ---------------------*/
+    /* Configure : SPI Mode, Communication Mode, Data size, Clock polarity and phase, NSS management,
+    Communication speed, First bit and CRC calculation state */
+    WRITE_REG(hspi->Instance->CR1, (hspi->Init.Mode | hspi->Init.Direction | hspi->Init.DataSize |
+                                    hspi->Init.CLKPolarity | hspi->Init.CLKPhase | (hspi->Init.NSS & SPI_CR1_SSM) |
+                                    hspi->Init.BaudRatePrescaler | hspi->Init.FirstBit  | hspi->Init.CRCCalculation));
 
-  /*---------------------------- SPIx CRCPOLY Configuration ------------------*/
-  /* Configure : CRC Polynomial */
-  WRITE_REG(hspi->Instance->CRCPR, hspi->Init.CRCPolynomial);
+    /* Configure : NSS management */
+    WRITE_REG(hspi->Instance->CR2, (((hspi->Init.NSS >> 16U) & SPI_CR2_SSOE) | hspi->Init.TIMode));
+
+    /*---------------------------- SPIx CRCPOLY Configuration ------------------*/
+    /* Configure : CRC Polynomial */
+    WRITE_REG(hspi->Instance->CRCPR, hspi->Init.CRCPolynomial);
 
 #if defined(SPI_I2SCFGR_I2SMOD)
-  /* Activate the SPI mode (Make sure that I2SMOD bit in I2SCFGR register is reset) */
-  CLEAR_BIT(hspi->Instance->I2SCFGR, SPI_I2SCFGR_I2SMOD);
+    /* Activate the SPI mode (Make sure that I2SMOD bit in I2SCFGR register is reset) */
+    CLEAR_BIT(hspi->Instance->I2SCFGR, SPI_I2SCFGR_I2SMOD);
 #endif /* SPI_I2SCFGR_I2SMOD */
 
 #if (USE_SPI_CRC != 0U)
 #if defined (STM32F101xE) || defined (STM32F103xE)
-  /* Check RevisionID value for identifying if Device is Rev Z (0x0001) in order to enable workaround for
-     CRC errors wrongly detected */
-  /* Pb is that ES_STM32F10xxCDE also identify an issue in Debug registers access while not in Debug mode.
-     Revision ID information is only available in Debug mode, so Workaround could not be implemented
-     to distinguish Rev Z devices (issue present) from more recent version (issue fixed).
-     So, in case of Revison Z F101 or F103 devices, below variable should be assigned to 1 */
-  uCRCErrorWorkaroundCheck = 0U;
+    /* Check RevisionID value for identifying if Device is Rev Z (0x0001) in order to enable workaround for
+       CRC errors wrongly detected */
+    /* Pb is that ES_STM32F10xxCDE also identify an issue in Debug registers access while not in Debug mode.
+       Revision ID information is only available in Debug mode, so Workaround could not be implemented
+       to distinguish Rev Z devices (issue present) from more recent version (issue fixed).
+       So, in case of Revison Z F101 or F103 devices, below variable should be assigned to 1 */
+    uCRCErrorWorkaroundCheck = 0U;
 #else
-  uCRCErrorWorkaroundCheck = 0U;
+    uCRCErrorWorkaroundCheck = 0U;
 #endif /* STM32F101xE || STM32F103xE */
 #endif /* USE_SPI_CRC */
 
-  hspi->ErrorCode = HAL_SPI_ERROR_NONE;
-  hspi->State = HAL_SPI_STATE_READY;
-  
-  return HAL_OK;
+    hspi->ErrorCode = HAL_SPI_ERROR_NONE;
+    hspi->State = HAL_SPI_STATE_READY;
+
+    return HAL_OK;
 }
 
 /**
@@ -189,30 +186,28 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
   */
 #if (USE_SPI_CRC != 0U)
 /**
-  * @brief  Checks if encountered CRC error could be corresponding to wrongly detected errors 
+  * @brief  Checks if encountered CRC error could be corresponding to wrongly detected errors
   *         according to SPI instance, Device type, and revision ID.
   * @param  hspi: pointer to a SPI_HandleTypeDef structure that contains
   *               the configuration information for SPI module.
-  * @retval CRC error validity (SPI_INVALID_CRC_ERROR or SPI_VALID_CRC_ERROR).  
+  * @retval CRC error validity (SPI_INVALID_CRC_ERROR or SPI_VALID_CRC_ERROR).
 */
 uint8_t SPI_ISCRCErrorValid(SPI_HandleTypeDef *hspi)
 {
 #if defined(STM32F101xE) || defined(STM32F103xE)
-  /* Check how to handle this CRC error (workaround to be applied or not) */
-  /* If CRC errors could be wrongly detected (issue 2.15.2 in STM32F10xxC/D/E silicon limitations ES (DocID14732 Rev 13) */
-  if((uCRCErrorWorkaroundCheck != 0U) && (hspi->Instance == SPI2))
-  {
-    if(hspi->Instance->RXCRCR == 0U)
-    {
-      return (SPI_INVALID_CRC_ERROR);
+    /* Check how to handle this CRC error (workaround to be applied or not) */
+    /* If CRC errors could be wrongly detected (issue 2.15.2 in STM32F10xxC/D/E silicon limitations ES (DocID14732 Rev 13) */
+    if ((uCRCErrorWorkaroundCheck != 0U) && (hspi->Instance == SPI2)) {
+        if (hspi->Instance->RXCRCR == 0U) {
+            return (SPI_INVALID_CRC_ERROR);
+        }
     }
-  }
-  return (SPI_VALID_CRC_ERROR);
+    return (SPI_VALID_CRC_ERROR);
 #else
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hspi);
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hspi);
 
-  return (SPI_VALID_CRC_ERROR);
+    return (SPI_VALID_CRC_ERROR);
 #endif
 }
 #endif /* USE_SPI_CRC */

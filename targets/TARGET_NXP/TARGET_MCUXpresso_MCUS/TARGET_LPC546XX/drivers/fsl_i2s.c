@@ -45,8 +45,7 @@
 #define I2S_FIFOCFG_PACK48(x) (((uint32_t)(((uint32_t)(x)) << I2S_FIFOCFG_PACK48_SHIFT)) & I2S_FIFOCFG_PACK48_MASK)
 
 /*! @brief I2S states. */
-enum _i2s_state
-{
+enum _i2s_state {
     kI2S_StateIdle = 0x0,             /*!< Not performing transfer */
     kI2S_StateTx,                     /*!< Performing transmit */
     kI2S_StateTxWaitToWriteDummyData, /*!< Wait on FIFO in order to write final dummy data there */
@@ -199,13 +198,10 @@ void I2S_Deinit(I2S_Type *base)
 
 void I2S_TxEnable(I2S_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         I2S_EnableInterrupts(base, kI2S_TxErrorFlag | kI2S_TxLevelFlag);
         I2S_Enable(base);
-    }
-    else
-    {
+    } else {
         I2S_DisableInterrupts(base, kI2S_TxErrorFlag | kI2S_TxLevelFlag);
         I2S_Disable(base);
         base->FIFOCFG |= I2S_FIFOCFG_EMPTYTX_MASK;
@@ -214,13 +210,10 @@ void I2S_TxEnable(I2S_Type *base, bool enable)
 
 void I2S_RxEnable(I2S_Type *base, bool enable)
 {
-    if (enable)
-    {
+    if (enable) {
         I2S_EnableInterrupts(base, kI2S_RxErrorFlag | kI2S_RxLevelFlag);
         I2S_Enable(base);
-    }
-    else
-    {
+    } else {
         I2S_DisableInterrupts(base, kI2S_RxErrorFlag | kI2S_RxLevelFlag);
         I2S_Disable(base);
         base->FIFOCFG |= I2S_FIFOCFG_EMPTYRX_MASK;
@@ -230,92 +223,69 @@ void I2S_RxEnable(I2S_Type *base, bool enable)
 static status_t I2S_ValidateBuffer(i2s_handle_t *handle, i2s_transfer_t *transfer)
 {
     assert(transfer->data);
-    if (!transfer->data)
-    {
+    if (!transfer->data) {
         return kStatus_InvalidArgument;
     }
 
     assert(transfer->dataSize > 0U);
-    if (transfer->dataSize <= 0U)
-    {
+    if (transfer->dataSize <= 0U) {
         return kStatus_InvalidArgument;
     }
 
-    if (handle->dataLength == 4U)
-    {
+    if (handle->dataLength == 4U) {
         /* No alignment and data length requirements */
-    }
-    else if ((handle->dataLength >= 5U) && (handle->dataLength <= 8U))
-    {
+    } else if ((handle->dataLength >= 5U) && (handle->dataLength <= 8U)) {
         assert((((uint32_t)transfer->data) % 2U) == 0U);
-        if ((((uint32_t)transfer->data) % 2U) != 0U)
-        {
+        if ((((uint32_t)transfer->data) % 2U) != 0U) {
             /* Data not 2-bytes aligned */
             return kStatus_InvalidArgument;
         }
 
         assert((transfer->dataSize % 2U) == 0U);
-        if ((transfer->dataSize % 2U) != 0U)
-        {
+        if ((transfer->dataSize % 2U) != 0U) {
             /* Data not in pairs of left/right channel bytes */
             return kStatus_InvalidArgument;
         }
-    }
-    else if ((handle->dataLength >= 9U) && (handle->dataLength <= 16U))
-    {
+    } else if ((handle->dataLength >= 9U) && (handle->dataLength <= 16U)) {
         assert((((uint32_t)transfer->data) % 4U) == 0U);
-        if ((((uint32_t)transfer->data) % 4U) != 0U)
-        {
+        if ((((uint32_t)transfer->data) % 4U) != 0U) {
             /* Data not 4-bytes aligned */
             return kStatus_InvalidArgument;
         }
 
         assert((transfer->dataSize % 4U) == 0U);
-        if ((transfer->dataSize % 4U) != 0U)
-        {
+        if ((transfer->dataSize % 4U) != 0U) {
             /* Data lenght not multiply of 4 */
             return kStatus_InvalidArgument;
         }
-    }
-    else if ((handle->dataLength >= 17U) && (handle->dataLength <= 24U))
-    {
+    } else if ((handle->dataLength >= 17U) && (handle->dataLength <= 24U)) {
         assert((transfer->dataSize % 6U) == 0U);
-        if ((transfer->dataSize % 6U) != 0U)
-        {
+        if ((transfer->dataSize % 6U) != 0U) {
             /* Data lenght not multiply of 6 */
             return kStatus_InvalidArgument;
         }
 
         assert(!((handle->pack48) && ((((uint32_t)transfer->data) % 4U) != 0U)));
-        if ((handle->pack48) && ((((uint32_t)transfer->data) % 4U) != 0U))
-        {
+        if ((handle->pack48) && ((((uint32_t)transfer->data) % 4U) != 0U)) {
             /* Data not 4-bytes aligned */
             return kStatus_InvalidArgument;
         }
-    }
-    else /* if (handle->dataLength >= 25U) */
-    {
+    } else { /* if (handle->dataLength >= 25U) */
         assert((((uint32_t)transfer->data) % 4U) == 0U);
-        if ((((uint32_t)transfer->data) % 4U) != 0U)
-        {
+        if ((((uint32_t)transfer->data) % 4U) != 0U) {
             /* Data not 4-bytes aligned */
             return kStatus_InvalidArgument;
         }
 
-        if (handle->oneChannel)
-        {
+        if (handle->oneChannel) {
             assert((transfer->dataSize % 4U) == 0U);
-            if ((transfer->dataSize % 4U) != 0U)
-            {
+            if ((transfer->dataSize % 4U) != 0U) {
                 /* Data lenght not multiply of 4 */
                 return kStatus_InvalidArgument;
             }
-        }
-        else
-        {
+        } else {
             assert((transfer->dataSize % 8U) == 0U);
-            if ((transfer->dataSize % 8U) != 0U)
-            {
+            if ((transfer->dataSize % 8U) != 0U) {
                 /* Data lenght not multiply of 8 */
                 return kStatus_InvalidArgument;
             }
@@ -351,21 +321,18 @@ void I2S_TxTransferCreateHandle(I2S_Type *base, i2s_handle_t *handle, i2s_transf
 status_t I2S_TxTransferNonBlocking(I2S_Type *base, i2s_handle_t *handle, i2s_transfer_t transfer)
 {
     assert(handle);
-    if (!handle)
-    {
+    if (!handle) {
         return kStatus_InvalidArgument;
     }
 
     status_t result;
 
     result = I2S_ValidateBuffer(handle, &transfer);
-    if (result != kStatus_Success)
-    {
+    if (result != kStatus_Success) {
         return result;
     }
 
-    if (handle->i2sQueue[handle->queueUser].dataSize)
-    {
+    if (handle->i2sQueue[handle->queueUser].dataSize) {
         /* Previously prepared buffers not processed yet */
         return kStatus_I2S_Busy;
     }
@@ -423,21 +390,18 @@ void I2S_RxTransferCreateHandle(I2S_Type *base, i2s_handle_t *handle, i2s_transf
 status_t I2S_RxTransferNonBlocking(I2S_Type *base, i2s_handle_t *handle, i2s_transfer_t transfer)
 {
     assert(handle);
-    if (!handle)
-    {
+    if (!handle) {
         return kStatus_InvalidArgument;
     }
 
     status_t result;
 
     result = I2S_ValidateBuffer(handle, &transfer);
-    if (result != kStatus_Success)
-    {
+    if (result != kStatus_Success) {
         return result;
     }
 
-    if (handle->i2sQueue[handle->queueUser].dataSize)
-    {
+    if (handle->i2sQueue[handle->queueUser].dataSize) {
         /* Previously prepared buffers not processed yet */
         return kStatus_I2S_Busy;
     }
@@ -472,19 +436,16 @@ void I2S_RxTransferAbort(I2S_Type *base, i2s_handle_t *handle)
 status_t I2S_TransferGetCount(I2S_Type *base, i2s_handle_t *handle, size_t *count)
 {
     assert(handle);
-    if (!handle)
-    {
+    if (!handle) {
         return kStatus_InvalidArgument;
     }
 
     assert(count);
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
-    if (handle->state == kI2S_StateIdle)
-    {
+    if (handle->state == kI2S_StateIdle) {
         return kStatus_NoTransferInProgress;
     }
 
@@ -496,19 +457,16 @@ status_t I2S_TransferGetCount(I2S_Type *base, i2s_handle_t *handle, size_t *coun
 status_t I2S_TransferGetErrorCount(I2S_Type *base, i2s_handle_t *handle, size_t *count)
 {
     assert(handle);
-    if (!handle)
-    {
+    if (!handle) {
         return kStatus_InvalidArgument;
     }
 
     assert(count);
-    if (!count)
-    {
+    if (!count) {
         return kStatus_InvalidArgument;
     }
 
-    if (handle->state == kI2S_StateIdle)
-    {
+    if (handle->state == kI2S_StateIdle) {
         return kStatus_NoTransferInProgress;
     }
 
@@ -522,143 +480,108 @@ void I2S_TxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
     uint32_t intstat = base->FIFOINTSTAT;
     uint32_t data;
 
-    if (intstat & I2S_FIFOINTSTAT_TXERR_MASK)
-    {
+    if (intstat & I2S_FIFOINTSTAT_TXERR_MASK) {
         handle->errorCount++;
 
         /* Clear TX error interrupt flag */
         base->FIFOSTAT = I2S_FIFOSTAT_TXERR(1U);
     }
 
-    if (intstat & I2S_FIFOINTSTAT_TXLVL_MASK)
-    {
-        if (handle->state == kI2S_StateTx)
-        {
+    if (intstat & I2S_FIFOINTSTAT_TXLVL_MASK) {
+        if (handle->state == kI2S_StateTx) {
             /* Send data */
 
             while ((base->FIFOSTAT & I2S_FIFOSTAT_TXNOTFULL_MASK) &&
-                   (handle->i2sQueue[handle->queueDriver].dataSize > 0U))
-            {
+                    (handle->i2sQueue[handle->queueDriver].dataSize > 0U)) {
                 /* Write output data */
-                if (handle->dataLength == 4U)
-                {
+                if (handle->dataLength == 4U) {
                     data = *(handle->i2sQueue[handle->queueDriver].data);
                     base->FIFOWR = ((data & 0xF0U) << 12U) | (data & 0xFU);
                     handle->i2sQueue[handle->queueDriver].data++;
                     handle->transferCount++;
                     handle->i2sQueue[handle->queueDriver].dataSize--;
-                }
-                else if (handle->dataLength <= 8U)
-                {
+                } else if (handle->dataLength <= 8U) {
                     data = *((uint16_t *)handle->i2sQueue[handle->queueDriver].data);
                     base->FIFOWR = ((data & 0xFF00U) << 8U) | (data & 0xFFU);
                     handle->i2sQueue[handle->queueDriver].data += sizeof(uint16_t);
                     handle->transferCount += sizeof(uint16_t);
                     handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint16_t);
-                }
-                else if (handle->dataLength <= 16U)
-                {
+                } else if (handle->dataLength <= 16U) {
                     base->FIFOWR = *((uint32_t *)(handle->i2sQueue[handle->queueDriver].data));
                     handle->i2sQueue[handle->queueDriver].data += sizeof(uint32_t);
                     handle->transferCount += sizeof(uint32_t);
                     handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);
-                }
-                else if (handle->dataLength <= 24U)
-                {
-                    if (handle->pack48)
-                    {
-                        if (handle->useFifo48H)
-                        {
+                } else if (handle->dataLength <= 24U) {
+                    if (handle->pack48) {
+                        if (handle->useFifo48H) {
                             base->FIFOWR48H = *((uint16_t *)(handle->i2sQueue[handle->queueDriver].data));
                             handle->i2sQueue[handle->queueDriver].data += sizeof(uint16_t);
                             handle->transferCount += sizeof(uint16_t);
                             handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint16_t);
                             handle->useFifo48H = false;
-                        }
-                        else
-                        {
+                        } else {
                             base->FIFOWR = *((uint32_t *)(handle->i2sQueue[handle->queueDriver].data));
                             handle->i2sQueue[handle->queueDriver].data += sizeof(uint32_t);
                             handle->transferCount += sizeof(uint32_t);
                             handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);
                             handle->useFifo48H = true;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         data = (uint32_t)(*(handle->i2sQueue[handle->queueDriver].data++));
                         data |= ((uint32_t)(*(handle->i2sQueue[handle->queueDriver].data++))) << 8U;
                         data |= ((uint32_t)(*(handle->i2sQueue[handle->queueDriver].data++))) << 16U;
-                        if (handle->useFifo48H)
-                        {
+                        if (handle->useFifo48H) {
                             base->FIFOWR48H = data;
                             handle->useFifo48H = false;
-                        }
-                        else
-                        {
+                        } else {
                             base->FIFOWR = data;
                             handle->useFifo48H = true;
                         }
                         handle->transferCount += 3U;
                         handle->i2sQueue[handle->queueDriver].dataSize -= 3U;
                     }
-                }
-                else /* if (handle->dataLength <= 32U) */
-                {
+                } else { /* if (handle->dataLength <= 32U) */
                     base->FIFOWR = *((uint32_t *)(handle->i2sQueue[handle->queueDriver].data));
                     handle->i2sQueue[handle->queueDriver].data += sizeof(uint32_t);
                     handle->transferCount += sizeof(uint32_t);
                     handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);
                 }
 
-                if (handle->i2sQueue[handle->queueDriver].dataSize == 0U)
-                {
+                if (handle->i2sQueue[handle->queueDriver].dataSize == 0U) {
                     /* Actual data buffer sent out, switch to a next one */
                     handle->queueDriver = (handle->queueDriver + 1U) % I2S_NUM_BUFFERS;
 
                     /* Notify user */
-                    if (handle->completionCallback)
-                    {
+                    if (handle->completionCallback) {
                         handle->completionCallback(base, handle, kStatus_I2S_BufferComplete, handle->userData);
                     }
 
                     /* Check if the next buffer contains anything to send */
-                    if (handle->i2sQueue[handle->queueDriver].dataSize == 0U)
-                    {
+                    if (handle->i2sQueue[handle->queueDriver].dataSize == 0U) {
                         /* Everything has been written to FIFO */
                         handle->state = kI2S_StateTxWaitToWriteDummyData;
                         break;
                     }
                 }
             }
-        }
-        else if (handle->state == kI2S_StateTxWaitToWriteDummyData)
-        {
+        } else if (handle->state == kI2S_StateTxWaitToWriteDummyData) {
             /* Write dummy data */
-            if ((handle->dataLength > 16U) && (handle->dataLength < 25U))
-            {
-                if (handle->useFifo48H)
-                {
+            if ((handle->dataLength > 16U) && (handle->dataLength < 25U)) {
+                if (handle->useFifo48H) {
                     base->FIFOWR48H = 0U;
                     handle->useFifo48H = false;
-                }
-                else
-                {
+                } else {
                     base->FIFOWR = 0U;
                     base->FIFOWR48H = 0U;
                 }
-            }
-            else
-            {
+            } else {
                 base->FIFOWR = 0U;
             }
 
             /* Next time invoke this handler when FIFO becomes empty (TX level 0) */
             base->FIFOTRIG &= ~I2S_FIFOTRIG_TXLVL_MASK;
             handle->state = kI2S_StateTxWaitForEmptyFifo;
-        }
-        else if (handle->state == kI2S_StateTxWaitForEmptyFifo)
-        {
+        } else if (handle->state == kI2S_StateTxWaitForEmptyFifo) {
             /* FIFO, including additional dummy data, has been emptied now,
              * all relevant data should have been output from peripheral */
 
@@ -671,13 +594,10 @@ void I2S_TxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
             handle->state = kI2S_StateIdle;
 
             /* Notify user */
-            if (handle->completionCallback)
-            {
+            if (handle->completionCallback) {
                 handle->completionCallback(base, handle, kStatus_I2S_Done, handle->userData);
             }
-        }
-        else
-        {
+        } else {
             /* Do nothing */
         }
 
@@ -691,49 +611,37 @@ void I2S_RxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
     uint32_t intstat = base->FIFOINTSTAT;
     uint32_t data;
 
-    if (intstat & I2S_FIFOINTSTAT_RXERR_MASK)
-    {
+    if (intstat & I2S_FIFOINTSTAT_RXERR_MASK) {
         handle->errorCount++;
 
         /* Clear RX error interrupt flag */
         base->FIFOSTAT = I2S_FIFOSTAT_RXERR(1U);
     }
 
-    if (intstat & I2S_FIFOINTSTAT_RXLVL_MASK)
-    {
-        while ((base->FIFOSTAT & I2S_FIFOSTAT_RXNOTEMPTY_MASK) && (handle->i2sQueue[handle->queueDriver].dataSize > 0U))
-        {
+    if (intstat & I2S_FIFOINTSTAT_RXLVL_MASK) {
+        while ((base->FIFOSTAT & I2S_FIFOSTAT_RXNOTEMPTY_MASK) && (handle->i2sQueue[handle->queueDriver].dataSize > 0U)) {
             /* Read input data */
-            if (handle->dataLength == 4U)
-            {
+            if (handle->dataLength == 4U) {
                 data = base->FIFORD;
                 *(handle->i2sQueue[handle->queueDriver].data) = ((data & 0x000F0000U) >> 12U) | (data & 0x0000000FU);
                 handle->i2sQueue[handle->queueDriver].data++;
                 handle->transferCount++;
                 handle->i2sQueue[handle->queueDriver].dataSize--;
-            }
-            else if (handle->dataLength <= 8U)
-            {
+            } else if (handle->dataLength <= 8U) {
                 data = base->FIFORD;
                 *((uint16_t *)handle->i2sQueue[handle->queueDriver].data) = ((data >> 8U) & 0xFF00U) | (data & 0xFFU);
                 handle->i2sQueue[handle->queueDriver].data += sizeof(uint16_t);
                 handle->transferCount += sizeof(uint16_t);
                 handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint16_t);
-            }
-            else if (handle->dataLength <= 16U)
-            {
+            } else if (handle->dataLength <= 16U) {
                 data = base->FIFORD;
                 *((uint32_t *)handle->i2sQueue[handle->queueDriver].data) = data;
                 handle->i2sQueue[handle->queueDriver].data += sizeof(uint32_t);
                 handle->transferCount += sizeof(uint32_t);
                 handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);
-            }
-            else if (handle->dataLength <= 24U)
-            {
-                if (handle->pack48)
-                {
-                    if (handle->useFifo48H)
-                    {
+            } else if (handle->dataLength <= 24U) {
+                if (handle->pack48) {
+                    if (handle->useFifo48H) {
                         data = base->FIFORD48H;
                         handle->useFifo48H = false;
 
@@ -741,9 +649,7 @@ void I2S_RxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                         handle->i2sQueue[handle->queueDriver].data += sizeof(uint16_t);
                         handle->transferCount += sizeof(uint16_t);
                         handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint16_t);
-                    }
-                    else
-                    {
+                    } else {
                         data = base->FIFORD;
                         handle->useFifo48H = true;
 
@@ -752,16 +658,11 @@ void I2S_RxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                         handle->transferCount += sizeof(uint32_t);
                         handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);
                     }
-                }
-                else
-                {
-                    if (handle->useFifo48H)
-                    {
+                } else {
+                    if (handle->useFifo48H) {
                         data = base->FIFORD48H;
                         handle->useFifo48H = false;
-                    }
-                    else
-                    {
+                    } else {
                         data = base->FIFORD;
                         handle->useFifo48H = true;
                     }
@@ -772,9 +673,7 @@ void I2S_RxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                     handle->transferCount += 3U;
                     handle->i2sQueue[handle->queueDriver].dataSize -= 3U;
                 }
-            }
-            else /* if (handle->dataLength <= 32U) */
-            {
+            } else { /* if (handle->dataLength <= 32U) */
                 data = base->FIFORD;
                 *((uint32_t *)handle->i2sQueue[handle->queueDriver].data) = data;
                 handle->i2sQueue[handle->queueDriver].data += sizeof(uint32_t);
@@ -782,19 +681,16 @@ void I2S_RxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                 handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);
             }
 
-            if (handle->i2sQueue[handle->queueDriver].dataSize == 0U)
-            {
+            if (handle->i2sQueue[handle->queueDriver].dataSize == 0U) {
                 /* Actual data buffer filled with input data, switch to a next one */
                 handle->queueDriver = (handle->queueDriver + 1U) % I2S_NUM_BUFFERS;
 
                 /* Notify user */
-                if (handle->completionCallback)
-                {
+                if (handle->completionCallback) {
                     handle->completionCallback(base, handle, kStatus_I2S_BufferComplete, handle->userData);
                 }
 
-                if (handle->i2sQueue[handle->queueDriver].dataSize == 0U)
-                {
+                if (handle->i2sQueue[handle->queueDriver].dataSize == 0U) {
                     /* No other buffer prepared to receive data into */
 
                     /* Disable I2S operation and interrupts */
@@ -806,8 +702,7 @@ void I2S_RxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                     handle->state = kI2S_StateIdle;
 
                     /* Notify user */
-                    if (handle->completionCallback)
-                    {
+                    if (handle->completionCallback) {
                         handle->completionCallback(base, handle, kStatus_I2S_Done, handle->userData);
                     }
 

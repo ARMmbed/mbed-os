@@ -263,15 +263,15 @@ void nd_tasklet_configure_and_connect_to_network(void)
         tasklet_data_ptr->network_interface_id, NULL);
 
     arm_nwk_6lowpan_link_panid_filter_for_nwk_scan(
-         tasklet_data_ptr->network_interface_id,
-         MBED_CONF_MBED_MESH_API_6LOWPAN_ND_PANID_FILTER);
+        tasklet_data_ptr->network_interface_id,
+        MBED_CONF_MBED_MESH_API_6LOWPAN_ND_PANID_FILTER);
 
     // Enable MPL by default
-    const uint8_t all_mpl_forwarders[16] = {0xff, 0x03, [15]=0xfc};
+    const uint8_t all_mpl_forwarders[16] = {0xff, 0x03, [15] = 0xfc};
     multicast_mpl_domain_subscribe(tasklet_data_ptr->network_interface_id,
-                                      all_mpl_forwarders,
-                                      MULTICAST_MPL_SEED_ID_DEFAULT,
-                                      NULL);
+                                   all_mpl_forwarders,
+                                   MULTICAST_MPL_SEED_ID_DEFAULT,
+                                   NULL);
 
     status = arm_nwk_interface_up(tasklet_data_ptr->network_interface_id);
     if (status >= 0) {
@@ -321,7 +321,7 @@ void nd_tasklet_trace_bootstrap_info()
         tr_error("MAC Address read fail\n");
     } else {
         uint8_t temp[2];
-        common_write_16_bit(app_link_address_info.mac_short,temp);
+        common_write_16_bit(app_link_address_info.mac_short, temp);
         tr_debug("MAC 16-bit: %s", trace_array(temp, 2));
         common_write_16_bit(app_link_address_info.PANId, temp);
         tr_debug("PAN ID: %s", trace_array(temp, 2));
@@ -386,7 +386,7 @@ int8_t nd_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_id)
 
     if (re_connecting == false) {
         tasklet_data_ptr->tasklet = eventOS_event_handler_create(&nd_tasklet_main,
-                ARM_LIB_TASKLET_INIT_EVENT);
+                                                                 ARM_LIB_TASKLET_INIT_EVENT);
         if (tasklet_data_ptr->tasklet < 0) {
             // -1 handler already used by other tasklet
             // -2 memory allocation failure

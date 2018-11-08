@@ -4,7 +4,7 @@
   * @author  MCD Application Team
   * @version V1.2.2
   * @date    14-April-2017
-  * @brief   This file provides firmware functions to manage the following 
+  * @brief   This file provides firmware functions to manage the following
   *          functionalities of the Digital Filter for Sigma-Delta Modulators
   *          (DFSDM) peripherals:
   *           + Initialization and configuration of channels and filters
@@ -17,7 +17,7 @@
   *           + Extremes detector feature
   *           + Clock absence detector feature
   *           + Break generation on analog watchdog or short-circuit event
-  *         
+  *
   @verbatim
   ==============================================================================
                      ##### How to use this driver #####
@@ -34,7 +34,7 @@
         (++) If interrupt mode is used, enable and configure DFSDMz_FLT0 global
             interrupt with HAL_NVIC_SetPriority() and HAL_NVIC_EnableIRQ().
       (#) Configure the output clock, input, serial interface, analog watchdog,
-          offset and data right bit shift parameters for this channel using the 
+          offset and data right bit shift parameters for this channel using the
           HAL_DFSDM_ChannelInit() function.
 
     *** Channel clock absence detector ***
@@ -48,36 +48,36 @@
           clock absence is detected.
       (#) Stop clock absence detector using HAL_DFSDM_ChannelCkabStop() or
           HAL_DFSDM_ChannelCkabStop_IT().
-      (#) Please note that the same mode (polling or interrupt) has to be used 
+      (#) Please note that the same mode (polling or interrupt) has to be used
           for all channels because the channels are sharing the same interrupt.
       (#) Please note also that in interrupt mode, if clock absence detector is
           stopped for one channel, interrupt will be disabled for all channels.
 
     *** Channel short circuit detector ***
     ======================================
-    [..]    
+    [..]
       (#) Start short circuit detector using HAL_DFSDM_ChannelScdStart() or
           or HAL_DFSDM_ChannelScdStart_IT().
       (#) In polling mode, use HAL_DFSDM_ChannelPollForScd() to detect short
           circuit.
-      (#) In interrupt mode, HAL_DFSDM_ChannelScdCallback() will be called if 
+      (#) In interrupt mode, HAL_DFSDM_ChannelScdCallback() will be called if
           short circuit is detected.
       (#) Stop short circuit detector using HAL_DFSDM_ChannelScdStop() or
           or HAL_DFSDM_ChannelScdStop_IT().
-      (#) Please note that the same mode (polling or interrupt) has to be used 
+      (#) Please note that the same mode (polling or interrupt) has to be used
           for all channels because the channels are sharing the same interrupt.
       (#) Please note also that in interrupt mode, if short circuit detector is
           stopped for one channel, interrupt will be disabled for all channels.
 
     *** Channel analog watchdog value ***
     =====================================
-    [..]    
+    [..]
       (#) Get analog watchdog filter value of a channel using
           HAL_DFSDM_ChannelGetAwdValue().
 
     *** Channel offset value ***
     =====================================
-    [..]    
+    [..]
       (#) Modify offset value of a channel using HAL_DFSDM_ChannelModifyOffset().
 
     *** Filter initialization ***
@@ -96,21 +96,21 @@
 
     *** Filter regular channel conversion ***
     =========================================
-    [..]    
+    [..]
       (#) Select regular channel and enable/disable continuous mode using
           HAL_DFSDM_FilterConfigRegChannel().
       (#) Start regular conversion using HAL_DFSDM_FilterRegularStart(),
           HAL_DFSDM_FilterRegularStart_IT(), HAL_DFSDM_FilterRegularStart_DMA() or
           HAL_DFSDM_FilterRegularMsbStart_DMA().
-      (#) In polling mode, use HAL_DFSDM_FilterPollForRegConversion() to detect 
+      (#) In polling mode, use HAL_DFSDM_FilterPollForRegConversion() to detect
           the end of regular conversion.
       (#) In interrupt mode, HAL_DFSDM_FilterRegConvCpltCallback() will be called
           at the end of regular conversion.
-      (#) Get value of regular conversion and corresponding channel using 
+      (#) Get value of regular conversion and corresponding channel using
           HAL_DFSDM_FilterGetRegularValue().
-      (#) In DMA mode, HAL_DFSDM_FilterRegConvHalfCpltCallback() and 
+      (#) In DMA mode, HAL_DFSDM_FilterRegConvHalfCpltCallback() and
           HAL_DFSDM_FilterRegConvCpltCallback() will be called respectively at the
-          half transfer and at the transfer complete. Please note that 
+          half transfer and at the transfer complete. Please note that
           HAL_DFSDM_FilterRegConvHalfCpltCallback() will be called only in DMA
           circular mode.
       (#) Stop regular conversion using HAL_DFSDM_FilterRegularStop(),
@@ -123,15 +123,15 @@
       (#) Start injected conversion using HAL_DFSDM_FilterInjectedStart(),
           HAL_DFSDM_FilterInjectedStart_IT(), HAL_DFSDM_FilterInjectedStart_DMA() or
           HAL_DFSDM_FilterInjectedMsbStart_DMA().
-      (#) In polling mode, use HAL_DFSDM_FilterPollForInjConversion() to detect 
+      (#) In polling mode, use HAL_DFSDM_FilterPollForInjConversion() to detect
           the end of injected conversion.
       (#) In interrupt mode, HAL_DFSDM_FilterInjConvCpltCallback() will be called
           at the end of injected conversion.
-      (#) Get value of injected conversion and corresponding channel using 
+      (#) Get value of injected conversion and corresponding channel using
           HAL_DFSDM_FilterGetInjectedValue().
-      (#) In DMA mode, HAL_DFSDM_FilterInjConvHalfCpltCallback() and 
+      (#) In DMA mode, HAL_DFSDM_FilterInjConvHalfCpltCallback() and
           HAL_DFSDM_FilterInjConvCpltCallback() will be called respectively at the
-          half transfer and at the transfer complete. Please note that 
+          half transfer and at the transfer complete. Please note that
           HAL_DFSDM_FilterInjConvCpltCallback() will be called only in DMA
           circular mode.
       (#) Stop injected conversion using HAL_DFSDM_FilterInjectedStop(),
@@ -199,7 +199,7 @@
 /** @defgroup DFSDM DFSDM
   * @brief DFSDM HAL driver module
   * @{
-  */ 
+  */
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -241,7 +241,7 @@
   * @{
   */
 __IO uint32_t                v_dfsdm1ChannelCounter = 0;
-DFSDM_Channel_HandleTypeDef* a_dfsdm1ChannelHandle[DFSDM1_CHANNEL_NUMBER] = {NULL};
+DFSDM_Channel_HandleTypeDef *a_dfsdm1ChannelHandle[DFSDM1_CHANNEL_NUMBER] = {NULL};
 /**
   * @}
   */
@@ -251,11 +251,11 @@ DFSDM_Channel_HandleTypeDef* a_dfsdm1ChannelHandle[DFSDM1_CHANNEL_NUMBER] = {NUL
   * @{
   */
 static uint32_t DFSDM_GetInjChannelsNbr(uint32_t Channels);
-static uint32_t DFSDM_GetChannelFromInstance(DFSDM_Channel_TypeDef* Instance);
+static uint32_t DFSDM_GetChannelFromInstance(DFSDM_Channel_TypeDef *Instance);
 static void     DFSDM_RegConvStart(DFSDM_Filter_HandleTypeDef *hdfsdm_filter);
-static void     DFSDM_RegConvStop(DFSDM_Filter_HandleTypeDef* hdfsdm_filter);
-static void     DFSDM_InjConvStart(DFSDM_Filter_HandleTypeDef* hdfsdm_filter);
-static void     DFSDM_InjConvStop(DFSDM_Filter_HandleTypeDef* hdfsdm_filter);
+static void     DFSDM_RegConvStop(DFSDM_Filter_HandleTypeDef *hdfsdm_filter);
+static void     DFSDM_InjConvStart(DFSDM_Filter_HandleTypeDef *hdfsdm_filter);
+static void     DFSDM_InjConvStop(DFSDM_Filter_HandleTypeDef *hdfsdm_filter);
 static void     DFSDM_DMARegularHalfConvCplt(DMA_HandleTypeDef *hdma);
 static void     DFSDM_DMARegularConvCplt(DMA_HandleTypeDef *hdma);
 static void     DFSDM_DMAInjectedHalfConvCplt(DMA_HandleTypeDef *hdma);
@@ -271,7 +271,7 @@ static void     DFSDM_DMAError(DMA_HandleTypeDef *hdma);
   */
 
 /** @defgroup DFSDM_Exported_Functions_Group1_Channel Channel initialization and de-initialization functions
- *  @brief    Channel initialization and de-initialization functions 
+ *  @brief    Channel initialization and de-initialization functions
  *
 @verbatim
   ==============================================================================
@@ -292,91 +292,87 @@ static void     DFSDM_DMAError(DMA_HandleTypeDef *hdma);
   */
 HAL_StatusTypeDef HAL_DFSDM_ChannelInit(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  /* Check DFSDM Channel handle */
-  if(hdfsdm_channel == NULL)
-  {
-    return HAL_ERROR;
-  }
-
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
-  assert_param(IS_FUNCTIONAL_STATE(hdfsdm_channel->Init.OutputClock.Activation));
-  assert_param(IS_DFSDM_CHANNEL_INPUT(hdfsdm_channel->Init.Input.Multiplexer));
-  assert_param(IS_DFSDM_CHANNEL_DATA_PACKING(hdfsdm_channel->Init.Input.DataPacking));
-  assert_param(IS_DFSDM_CHANNEL_INPUT_PINS(hdfsdm_channel->Init.Input.Pins));
-  assert_param(IS_DFSDM_CHANNEL_SERIAL_INTERFACE_TYPE(hdfsdm_channel->Init.SerialInterface.Type));
-  assert_param(IS_DFSDM_CHANNEL_SPI_CLOCK(hdfsdm_channel->Init.SerialInterface.SpiClock));
-  assert_param(IS_DFSDM_CHANNEL_FILTER_ORDER(hdfsdm_channel->Init.Awd.FilterOrder));
-  assert_param(IS_DFSDM_CHANNEL_FILTER_OVS_RATIO(hdfsdm_channel->Init.Awd.Oversampling));
-  assert_param(IS_DFSDM_CHANNEL_OFFSET(hdfsdm_channel->Init.Offset));
-  assert_param(IS_DFSDM_CHANNEL_RIGHT_BIT_SHIFT(hdfsdm_channel->Init.RightBitShift));
-  
-  /* Check that channel has not been already initialized */
-  if(a_dfsdm1ChannelHandle[DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance)] != NULL)
-  {
-    return HAL_ERROR;
-  }
-  
-  /* Call MSP init function */
-  HAL_DFSDM_ChannelMspInit(hdfsdm_channel);
-  
-  /* Update the channel counter */
-  v_dfsdm1ChannelCounter++;
-  
-  /* Configure output serial clock and enable global DFSDM interface only for first channel */
-  if(v_dfsdm1ChannelCounter == 1)
-  {
-    assert_param(IS_DFSDM_CHANNEL_OUTPUT_CLOCK(hdfsdm_channel->Init.OutputClock.Selection));
-    /* Set the output serial clock source */
-    DFSDM1_Channel0->CHCFGR1 &= ~(DFSDM_CHCFGR1_CKOUTSRC);
-    DFSDM1_Channel0->CHCFGR1 |= hdfsdm_channel->Init.OutputClock.Selection;
-    
-    /* Reset clock divider */
-    DFSDM1_Channel0->CHCFGR1 &= ~(DFSDM_CHCFGR1_CKOUTDIV);
-    if(hdfsdm_channel->Init.OutputClock.Activation == ENABLE)
-    {
-      assert_param(IS_DFSDM_CHANNEL_OUTPUT_CLOCK_DIVIDER(hdfsdm_channel->Init.OutputClock.Divider));
-      /* Set the output clock divider */
-      DFSDM1_Channel0->CHCFGR1 |= (uint32_t) ((hdfsdm_channel->Init.OutputClock.Divider - 1) << 
-                                             DFSDM_CHCFGR1_CLK_DIV_OFFSET);
+    /* Check DFSDM Channel handle */
+    if (hdfsdm_channel == NULL) {
+        return HAL_ERROR;
     }
-    
-    /* enable the DFSDM global interface */
-    DFSDM1_Channel0->CHCFGR1 |= DFSDM_CHCFGR1_DFSDMEN;
-  }
-  
-  /* Set channel input parameters */
-  hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_DATPACK | DFSDM_CHCFGR1_DATMPX | 
-                                         DFSDM_CHCFGR1_CHINSEL);
-  hdfsdm_channel->Instance->CHCFGR1 |= (hdfsdm_channel->Init.Input.Multiplexer | 
-                                        hdfsdm_channel->Init.Input.DataPacking | 
-                                        hdfsdm_channel->Init.Input.Pins);
-  
-  /* Set serial interface parameters */
-  hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_SITP | DFSDM_CHCFGR1_SPICKSEL);
-  hdfsdm_channel->Instance->CHCFGR1 |= (hdfsdm_channel->Init.SerialInterface.Type | 
-                                        hdfsdm_channel->Init.SerialInterface.SpiClock);
-  
-  /* Set analog watchdog parameters */
-  hdfsdm_channel->Instance->CHAWSCDR &= ~(DFSDM_CHAWSCDR_AWFORD | DFSDM_CHAWSCDR_AWFOSR);
-  hdfsdm_channel->Instance->CHAWSCDR |= (hdfsdm_channel->Init.Awd.FilterOrder | 
-                                       ((hdfsdm_channel->Init.Awd.Oversampling - 1) << DFSDM_CHAWSCDR_FOSR_OFFSET));
 
-  /* Set channel offset and right bit shift */
-  hdfsdm_channel->Instance->CHCFGR2 &= ~(DFSDM_CHCFGR2_OFFSET | DFSDM_CHCFGR2_DTRBS);
-  hdfsdm_channel->Instance->CHCFGR2 |= (((uint32_t) hdfsdm_channel->Init.Offset << DFSDM_CHCFGR2_OFFSET_OFFSET) | 
-                                        (hdfsdm_channel->Init.RightBitShift << DFSDM_CHCFGR2_DTRBS_OFFSET));
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
+    assert_param(IS_FUNCTIONAL_STATE(hdfsdm_channel->Init.OutputClock.Activation));
+    assert_param(IS_DFSDM_CHANNEL_INPUT(hdfsdm_channel->Init.Input.Multiplexer));
+    assert_param(IS_DFSDM_CHANNEL_DATA_PACKING(hdfsdm_channel->Init.Input.DataPacking));
+    assert_param(IS_DFSDM_CHANNEL_INPUT_PINS(hdfsdm_channel->Init.Input.Pins));
+    assert_param(IS_DFSDM_CHANNEL_SERIAL_INTERFACE_TYPE(hdfsdm_channel->Init.SerialInterface.Type));
+    assert_param(IS_DFSDM_CHANNEL_SPI_CLOCK(hdfsdm_channel->Init.SerialInterface.SpiClock));
+    assert_param(IS_DFSDM_CHANNEL_FILTER_ORDER(hdfsdm_channel->Init.Awd.FilterOrder));
+    assert_param(IS_DFSDM_CHANNEL_FILTER_OVS_RATIO(hdfsdm_channel->Init.Awd.Oversampling));
+    assert_param(IS_DFSDM_CHANNEL_OFFSET(hdfsdm_channel->Init.Offset));
+    assert_param(IS_DFSDM_CHANNEL_RIGHT_BIT_SHIFT(hdfsdm_channel->Init.RightBitShift));
 
-  /* Enable DFSDM channel */
-  hdfsdm_channel->Instance->CHCFGR1 |= DFSDM_CHCFGR1_CHEN;
-  
-  /* Set DFSDM Channel to ready state */
-  hdfsdm_channel->State = HAL_DFSDM_CHANNEL_STATE_READY;
+    /* Check that channel has not been already initialized */
+    if (a_dfsdm1ChannelHandle[DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance)] != NULL) {
+        return HAL_ERROR;
+    }
 
-  /* Store channel handle in DFSDM channel handle table */
-  a_dfsdm1ChannelHandle[DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance)] = hdfsdm_channel;
-  
-  return HAL_OK;
+    /* Call MSP init function */
+    HAL_DFSDM_ChannelMspInit(hdfsdm_channel);
+
+    /* Update the channel counter */
+    v_dfsdm1ChannelCounter++;
+
+    /* Configure output serial clock and enable global DFSDM interface only for first channel */
+    if (v_dfsdm1ChannelCounter == 1) {
+        assert_param(IS_DFSDM_CHANNEL_OUTPUT_CLOCK(hdfsdm_channel->Init.OutputClock.Selection));
+        /* Set the output serial clock source */
+        DFSDM1_Channel0->CHCFGR1 &= ~(DFSDM_CHCFGR1_CKOUTSRC);
+        DFSDM1_Channel0->CHCFGR1 |= hdfsdm_channel->Init.OutputClock.Selection;
+
+        /* Reset clock divider */
+        DFSDM1_Channel0->CHCFGR1 &= ~(DFSDM_CHCFGR1_CKOUTDIV);
+        if (hdfsdm_channel->Init.OutputClock.Activation == ENABLE) {
+            assert_param(IS_DFSDM_CHANNEL_OUTPUT_CLOCK_DIVIDER(hdfsdm_channel->Init.OutputClock.Divider));
+            /* Set the output clock divider */
+            DFSDM1_Channel0->CHCFGR1 |= (uint32_t)((hdfsdm_channel->Init.OutputClock.Divider - 1) <<
+                                                   DFSDM_CHCFGR1_CLK_DIV_OFFSET);
+        }
+
+        /* enable the DFSDM global interface */
+        DFSDM1_Channel0->CHCFGR1 |= DFSDM_CHCFGR1_DFSDMEN;
+    }
+
+    /* Set channel input parameters */
+    hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_DATPACK | DFSDM_CHCFGR1_DATMPX |
+                                           DFSDM_CHCFGR1_CHINSEL);
+    hdfsdm_channel->Instance->CHCFGR1 |= (hdfsdm_channel->Init.Input.Multiplexer |
+                                          hdfsdm_channel->Init.Input.DataPacking |
+                                          hdfsdm_channel->Init.Input.Pins);
+
+    /* Set serial interface parameters */
+    hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_SITP | DFSDM_CHCFGR1_SPICKSEL);
+    hdfsdm_channel->Instance->CHCFGR1 |= (hdfsdm_channel->Init.SerialInterface.Type |
+                                          hdfsdm_channel->Init.SerialInterface.SpiClock);
+
+    /* Set analog watchdog parameters */
+    hdfsdm_channel->Instance->CHAWSCDR &= ~(DFSDM_CHAWSCDR_AWFORD | DFSDM_CHAWSCDR_AWFOSR);
+    hdfsdm_channel->Instance->CHAWSCDR |= (hdfsdm_channel->Init.Awd.FilterOrder |
+                                           ((hdfsdm_channel->Init.Awd.Oversampling - 1) << DFSDM_CHAWSCDR_FOSR_OFFSET));
+
+    /* Set channel offset and right bit shift */
+    hdfsdm_channel->Instance->CHCFGR2 &= ~(DFSDM_CHCFGR2_OFFSET | DFSDM_CHCFGR2_DTRBS);
+    hdfsdm_channel->Instance->CHCFGR2 |= (((uint32_t) hdfsdm_channel->Init.Offset << DFSDM_CHCFGR2_OFFSET_OFFSET) |
+                                          (hdfsdm_channel->Init.RightBitShift << DFSDM_CHCFGR2_DTRBS_OFFSET));
+
+    /* Enable DFSDM channel */
+    hdfsdm_channel->Instance->CHCFGR1 |= DFSDM_CHCFGR1_CHEN;
+
+    /* Set DFSDM Channel to ready state */
+    hdfsdm_channel->State = HAL_DFSDM_CHANNEL_STATE_READY;
+
+    /* Store channel handle in DFSDM channel handle table */
+    a_dfsdm1ChannelHandle[DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance)] = hdfsdm_channel;
+
+    return HAL_OK;
 }
 
 /**
@@ -386,43 +382,40 @@ HAL_StatusTypeDef HAL_DFSDM_ChannelInit(DFSDM_Channel_HandleTypeDef *hdfsdm_chan
   */
 HAL_StatusTypeDef HAL_DFSDM_ChannelDeInit(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  /* Check DFSDM Channel handle */
-  if(hdfsdm_channel == NULL)
-  {
-    return HAL_ERROR;
-  }
+    /* Check DFSDM Channel handle */
+    if (hdfsdm_channel == NULL) {
+        return HAL_ERROR;
+    }
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
-  
-  /* Check that channel has not been already deinitialized */
-  if(a_dfsdm1ChannelHandle[DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance)] == NULL)
-  {
-    return HAL_ERROR;
-  }
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
 
-  /* Disable the DFSDM channel */
-  hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_CHEN);
-  
-  /* Update the channel counter */
-  v_dfsdm1ChannelCounter--;
-  
-  /* Disable global DFSDM at deinit of last channel */
-  if(v_dfsdm1ChannelCounter == 0)
-  {
-    DFSDM1_Channel0->CHCFGR1 &= ~(DFSDM_CHCFGR1_DFSDMEN);
-  }
+    /* Check that channel has not been already deinitialized */
+    if (a_dfsdm1ChannelHandle[DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance)] == NULL) {
+        return HAL_ERROR;
+    }
 
-  /* Call MSP deinit function */
-  HAL_DFSDM_ChannelMspDeInit(hdfsdm_channel);
+    /* Disable the DFSDM channel */
+    hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_CHEN);
 
-  /* Set DFSDM Channel in reset state */
-  hdfsdm_channel->State = HAL_DFSDM_CHANNEL_STATE_RESET;
+    /* Update the channel counter */
+    v_dfsdm1ChannelCounter--;
 
-  /* Reset channel handle in DFSDM channel handle table */
-  a_dfsdm1ChannelHandle[DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance)] = (DFSDM_Channel_HandleTypeDef *) NULL;
+    /* Disable global DFSDM at deinit of last channel */
+    if (v_dfsdm1ChannelCounter == 0) {
+        DFSDM1_Channel0->CHCFGR1 &= ~(DFSDM_CHCFGR1_DFSDMEN);
+    }
 
-  return HAL_OK;
+    /* Call MSP deinit function */
+    HAL_DFSDM_ChannelMspDeInit(hdfsdm_channel);
+
+    /* Set DFSDM Channel in reset state */
+    hdfsdm_channel->State = HAL_DFSDM_CHANNEL_STATE_RESET;
+
+    /* Reset channel handle in DFSDM channel handle table */
+    a_dfsdm1ChannelHandle[DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance)] = (DFSDM_Channel_HandleTypeDef *) NULL;
+
+    return HAL_OK;
 }
 
 /**
@@ -432,12 +425,12 @@ HAL_StatusTypeDef HAL_DFSDM_ChannelDeInit(DFSDM_Channel_HandleTypeDef *hdfsdm_ch
   */
 __weak void HAL_DFSDM_ChannelMspInit(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_channel);
-  
-  /* NOTE : This function should not be modified, when the function is needed,
-            the HAL_DFSDM_ChannelMspInit could be implemented in the user file.
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_channel);
+
+    /* NOTE : This function should not be modified, when the function is needed,
+              the HAL_DFSDM_ChannelMspInit could be implemented in the user file.
+     */
 }
 
 /**
@@ -447,12 +440,12 @@ __weak void HAL_DFSDM_ChannelMspInit(DFSDM_Channel_HandleTypeDef *hdfsdm_channel
   */
 __weak void HAL_DFSDM_ChannelMspDeInit(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_channel);
-  
-  /* NOTE : This function should not be modified, when the function is needed,
-            the HAL_DFSDM_ChannelMspDeInit could be implemented in the user file.
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_channel);
+
+    /* NOTE : This function should not be modified, when the function is needed,
+              the HAL_DFSDM_ChannelMspDeInit could be implemented in the user file.
+     */
 }
 
 /**
@@ -486,49 +479,43 @@ __weak void HAL_DFSDM_ChannelMspDeInit(DFSDM_Channel_HandleTypeDef *hdfsdm_chann
   */
 HAL_StatusTypeDef HAL_DFSDM_ChannelCkabStart(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  HAL_StatusTypeDef status = HAL_OK;
-  uint32_t channel;
-  uint32_t tickstart;
+    HAL_StatusTypeDef status = HAL_OK;
+    uint32_t channel;
+    uint32_t tickstart;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
-  
-  /* Check DFSDM channel state */
-  if(hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY)
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Get channel number from channel instance */
-    channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
 
-    /* Get timeout */
-    tickstart = HAL_GetTick();
+    /* Check DFSDM channel state */
+    if (hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Get channel number from channel instance */
+        channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
 
-    /* Clear clock absence flag */
-    while((((DFSDM1_Filter0->FLTISR & DFSDM_FLTISR_CKABF) >> (DFSDM_FLTISR_CKABF_OFFSET + channel)) & 1) != 0)
-    {
-      DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
+        /* Get timeout */
+        tickstart = HAL_GetTick();
 
-      /* Check the Timeout */
-      if((HAL_GetTick()-tickstart) > DFSDM_CKAB_TIMEOUT)
-      {
-        /* Set timeout status */
-        status = HAL_TIMEOUT;
-        break;
-      }
+        /* Clear clock absence flag */
+        while ((((DFSDM1_Filter0->FLTISR & DFSDM_FLTISR_CKABF) >> (DFSDM_FLTISR_CKABF_OFFSET + channel)) & 1) != 0) {
+            DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
+
+            /* Check the Timeout */
+            if ((HAL_GetTick() - tickstart) > DFSDM_CKAB_TIMEOUT) {
+                /* Set timeout status */
+                status = HAL_TIMEOUT;
+                break;
+            }
+        }
+
+        if (status == HAL_OK) {
+            /* Start clock absence detection */
+            hdfsdm_channel->Instance->CHCFGR1 |= DFSDM_CHCFGR1_CKABEN;
+        }
     }
-
-    if(status == HAL_OK)
-    {
-      /* Start clock absence detection */
-      hdfsdm_channel->Instance->CHCFGR1 |= DFSDM_CHCFGR1_CKABEN;
-    }
-  }
-  /* Return function status */
-  return status;
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -537,49 +524,43 @@ HAL_StatusTypeDef HAL_DFSDM_ChannelCkabStart(DFSDM_Channel_HandleTypeDef *hdfsdm
   * @param  Timeout : Timeout value in milliseconds.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_DFSDM_ChannelPollForCkab(DFSDM_Channel_HandleTypeDef *hdfsdm_channel, 
+HAL_StatusTypeDef HAL_DFSDM_ChannelPollForCkab(DFSDM_Channel_HandleTypeDef *hdfsdm_channel,
                                                uint32_t Timeout)
 {
-  uint32_t tickstart;
-  uint32_t channel;
-  
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
+    uint32_t tickstart;
+    uint32_t channel;
 
-  /* Check DFSDM channel state */
-  if(hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY)
-  {
-    /* Return error status */
-    return HAL_ERROR;
-  }
-  else
-  {
-    /* Get channel number from channel instance */
-    channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
-    
-    /* Get timeout */
-    tickstart = HAL_GetTick();
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
 
-    /* Wait clock absence detection */
-    while((((DFSDM1_Filter0->FLTISR & DFSDM_FLTISR_CKABF) >> (DFSDM_FLTISR_CKABF_OFFSET + channel)) & 1) == 0)
-    {
-      /* Check the Timeout */
-      if(Timeout != HAL_MAX_DELAY)
-      {
-        if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
-        {
-          /* Return timeout status */
-          return HAL_TIMEOUT;
+    /* Check DFSDM channel state */
+    if (hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY) {
+        /* Return error status */
+        return HAL_ERROR;
+    } else {
+        /* Get channel number from channel instance */
+        channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
+
+        /* Get timeout */
+        tickstart = HAL_GetTick();
+
+        /* Wait clock absence detection */
+        while ((((DFSDM1_Filter0->FLTISR & DFSDM_FLTISR_CKABF) >> (DFSDM_FLTISR_CKABF_OFFSET + channel)) & 1) == 0) {
+            /* Check the Timeout */
+            if (Timeout != HAL_MAX_DELAY) {
+                if ((Timeout == 0) || ((HAL_GetTick() - tickstart) > Timeout)) {
+                    /* Return timeout status */
+                    return HAL_TIMEOUT;
+                }
+            }
         }
-      }
+
+        /* Clear clock absence detection flag */
+        DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
+
+        /* Return function status */
+        return HAL_OK;
     }
-    
-    /* Clear clock absence detection flag */
-    DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
-    
-    /* Return function status */
-    return HAL_OK;
-  }
 }
 
 /**
@@ -589,29 +570,26 @@ HAL_StatusTypeDef HAL_DFSDM_ChannelPollForCkab(DFSDM_Channel_HandleTypeDef *hdfs
   */
 HAL_StatusTypeDef HAL_DFSDM_ChannelCkabStop(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  HAL_StatusTypeDef status = HAL_OK;
-  uint32_t channel;
+    HAL_StatusTypeDef status = HAL_OK;
+    uint32_t channel;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
-  
-  /* Check DFSDM channel state */
-  if(hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY)
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Stop clock absence detection */
-    hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_CKABEN);
-    
-    /* Clear clock absence flag */
-    channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
-    DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
-  }
-  /* Return function status */
-  return status;
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
+
+    /* Check DFSDM channel state */
+    if (hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Stop clock absence detection */
+        hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_CKABEN);
+
+        /* Clear clock absence flag */
+        channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
+        DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -625,67 +603,61 @@ HAL_StatusTypeDef HAL_DFSDM_ChannelCkabStop(DFSDM_Channel_HandleTypeDef *hdfsdm_
   */
 HAL_StatusTypeDef HAL_DFSDM_ChannelCkabStart_IT(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  HAL_StatusTypeDef status = HAL_OK;
-  uint32_t channel;
-  uint32_t tickstart;
+    HAL_StatusTypeDef status = HAL_OK;
+    uint32_t channel;
+    uint32_t tickstart;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
-  
-  /* Check DFSDM channel state */
-  if(hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY)
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Get channel number from channel instance */
-    channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
 
-    /* Get timeout */
-    tickstart = HAL_GetTick();
+    /* Check DFSDM channel state */
+    if (hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Get channel number from channel instance */
+        channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
 
-    /* Clear clock absence flag */
-    while((((DFSDM1_Filter0->FLTISR & DFSDM_FLTISR_CKABF) >> (DFSDM_FLTISR_CKABF_OFFSET + channel)) & 1) != 0)
-    {
-      DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
+        /* Get timeout */
+        tickstart = HAL_GetTick();
 
-      /* Check the Timeout */
-      if((HAL_GetTick()-tickstart) > DFSDM_CKAB_TIMEOUT)
-      {
-        /* Set timeout status */
-        status = HAL_TIMEOUT;
-        break;
-      }
+        /* Clear clock absence flag */
+        while ((((DFSDM1_Filter0->FLTISR & DFSDM_FLTISR_CKABF) >> (DFSDM_FLTISR_CKABF_OFFSET + channel)) & 1) != 0) {
+            DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
+
+            /* Check the Timeout */
+            if ((HAL_GetTick() - tickstart) > DFSDM_CKAB_TIMEOUT) {
+                /* Set timeout status */
+                status = HAL_TIMEOUT;
+                break;
+            }
+        }
+
+        if (status == HAL_OK) {
+            /* Activate clock absence detection interrupt */
+            DFSDM1_Filter0->FLTCR2 |= DFSDM_FLTCR2_CKABIE;
+
+            /* Start clock absence detection */
+            hdfsdm_channel->Instance->CHCFGR1 |= DFSDM_CHCFGR1_CKABEN;
+        }
     }
-
-    if(status == HAL_OK)
-    {
-      /* Activate clock absence detection interrupt */
-      DFSDM1_Filter0->FLTCR2 |= DFSDM_FLTCR2_CKABIE;
-
-      /* Start clock absence detection */
-      hdfsdm_channel->Instance->CHCFGR1 |= DFSDM_CHCFGR1_CKABEN;
-    }
-  }
-  /* Return function status */
-  return status;
+    /* Return function status */
+    return status;
 }
 
 /**
-  * @brief  Clock absence detection callback. 
+  * @brief  Clock absence detection callback.
   * @param  hdfsdm_channel : DFSDM channel handle.
   * @retval None
   */
 __weak void HAL_DFSDM_ChannelCkabCallback(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_channel);
-  
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_DFSDM_ChannelCkabCallback could be implemented in the user file
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_channel);
+
+    /* NOTE : This function should not be modified, when the callback is needed,
+              the HAL_DFSDM_ChannelCkabCallback could be implemented in the user file
+     */
 }
 
 /**
@@ -696,32 +668,29 @@ __weak void HAL_DFSDM_ChannelCkabCallback(DFSDM_Channel_HandleTypeDef *hdfsdm_ch
   */
 HAL_StatusTypeDef HAL_DFSDM_ChannelCkabStop_IT(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  HAL_StatusTypeDef status = HAL_OK;
-  uint32_t channel;
+    HAL_StatusTypeDef status = HAL_OK;
+    uint32_t channel;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
-  
-  /* Check DFSDM channel state */
-  if(hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY)
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Stop clock absence detection */
-    hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_CKABEN);
-    
-    /* Clear clock absence flag */
-    channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
-    DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
 
-    /* Disable clock absence detection interrupt */
-    DFSDM1_Filter0->FLTCR2 &= ~(DFSDM_FLTCR2_CKABIE);
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM channel state */
+    if (hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Stop clock absence detection */
+        hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_CKABEN);
+
+        /* Clear clock absence flag */
+        channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
+        DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
+
+        /* Disable clock absence detection interrupt */
+        DFSDM1_Filter0->FLTCR2 &= ~(DFSDM_FLTCR2_CKABIE);
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -738,31 +707,28 @@ HAL_StatusTypeDef HAL_DFSDM_ChannelScdStart(DFSDM_Channel_HandleTypeDef *hdfsdm_
                                             uint32_t Threshold,
                                             uint32_t BreakSignal)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
-  assert_param(IS_DFSDM_CHANNEL_SCD_THRESHOLD(Threshold));
-  assert_param(IS_DFSDM_BREAK_SIGNALS(BreakSignal));
-  
-  /* Check DFSDM channel state */
-  if(hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY)
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Configure threshold and break signals */
-    hdfsdm_channel->Instance->CHAWSCDR &= ~(DFSDM_CHAWSCDR_BKSCD | DFSDM_CHAWSCDR_SCDT);
-    hdfsdm_channel->Instance->CHAWSCDR |= ((BreakSignal << DFSDM_CHAWSCDR_BKSCD_OFFSET) | \
-                                         Threshold);
-    
-    /* Start short circuit detection */
-    hdfsdm_channel->Instance->CHCFGR1 |= DFSDM_CHCFGR1_SCDEN;
-  }
-  /* Return function status */
-  return status;
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
+    assert_param(IS_DFSDM_CHANNEL_SCD_THRESHOLD(Threshold));
+    assert_param(IS_DFSDM_BREAK_SIGNALS(BreakSignal));
+
+    /* Check DFSDM channel state */
+    if (hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Configure threshold and break signals */
+        hdfsdm_channel->Instance->CHAWSCDR &= ~(DFSDM_CHAWSCDR_BKSCD | DFSDM_CHAWSCDR_SCDT);
+        hdfsdm_channel->Instance->CHAWSCDR |= ((BreakSignal << DFSDM_CHAWSCDR_BKSCD_OFFSET) | \
+                                               Threshold);
+
+        /* Start short circuit detection */
+        hdfsdm_channel->Instance->CHCFGR1 |= DFSDM_CHCFGR1_SCDEN;
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -771,49 +737,43 @@ HAL_StatusTypeDef HAL_DFSDM_ChannelScdStart(DFSDM_Channel_HandleTypeDef *hdfsdm_
   * @param  Timeout : Timeout value in milliseconds.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_DFSDM_ChannelPollForScd(DFSDM_Channel_HandleTypeDef *hdfsdm_channel, 
+HAL_StatusTypeDef HAL_DFSDM_ChannelPollForScd(DFSDM_Channel_HandleTypeDef *hdfsdm_channel,
                                               uint32_t Timeout)
 {
-  uint32_t tickstart;
-  uint32_t channel;
-  
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
+    uint32_t tickstart;
+    uint32_t channel;
 
-  /* Check DFSDM channel state */
-  if(hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY)
-  {
-    /* Return error status */
-    return HAL_ERROR;
-  }
-  else
-  {
-    /* Get channel number from channel instance */
-    channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
-    
-    /* Get timeout */
-    tickstart = HAL_GetTick();
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
 
-    /* Wait short circuit detection */
-    while(((DFSDM1_Filter0->FLTISR & DFSDM_FLTISR_SCDF) >> (DFSDM_FLTISR_SCDF_OFFSET + channel)) == 0)
-    {
-      /* Check the Timeout */
-      if(Timeout != HAL_MAX_DELAY)
-      {
-        if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
-        {
-          /* Return timeout status */
-          return HAL_TIMEOUT;
+    /* Check DFSDM channel state */
+    if (hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY) {
+        /* Return error status */
+        return HAL_ERROR;
+    } else {
+        /* Get channel number from channel instance */
+        channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
+
+        /* Get timeout */
+        tickstart = HAL_GetTick();
+
+        /* Wait short circuit detection */
+        while (((DFSDM1_Filter0->FLTISR & DFSDM_FLTISR_SCDF) >> (DFSDM_FLTISR_SCDF_OFFSET + channel)) == 0) {
+            /* Check the Timeout */
+            if (Timeout != HAL_MAX_DELAY) {
+                if ((Timeout == 0) || ((HAL_GetTick() - tickstart) > Timeout)) {
+                    /* Return timeout status */
+                    return HAL_TIMEOUT;
+                }
+            }
         }
-      }
+
+        /* Clear short circuit detection flag */
+        DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRSCDF_OFFSET + channel));
+
+        /* Return function status */
+        return HAL_OK;
     }
-    
-    /* Clear short circuit detection flag */
-    DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRSCDF_OFFSET + channel));
-    
-    /* Return function status */
-    return HAL_OK;
-  }
 }
 
 /**
@@ -823,29 +783,26 @@ HAL_StatusTypeDef HAL_DFSDM_ChannelPollForScd(DFSDM_Channel_HandleTypeDef *hdfsd
   */
 HAL_StatusTypeDef HAL_DFSDM_ChannelScdStop(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  HAL_StatusTypeDef status = HAL_OK;
-  uint32_t channel;
+    HAL_StatusTypeDef status = HAL_OK;
+    uint32_t channel;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
-  
-  /* Check DFSDM channel state */
-  if(hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY)
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Stop short circuit detection */
-    hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_SCDEN);
-    
-    /* Clear short circuit detection flag */
-    channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
-    DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRSCDF_OFFSET + channel));
-  }
-  /* Return function status */
-  return status;
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
+
+    /* Check DFSDM channel state */
+    if (hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Stop short circuit detection */
+        hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_SCDEN);
+
+        /* Clear short circuit detection flag */
+        channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
+        DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRSCDF_OFFSET + channel));
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -862,49 +819,46 @@ HAL_StatusTypeDef HAL_DFSDM_ChannelScdStart_IT(DFSDM_Channel_HandleTypeDef *hdfs
                                                uint32_t Threshold,
                                                uint32_t BreakSignal)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
-  assert_param(IS_DFSDM_CHANNEL_SCD_THRESHOLD(Threshold));
-  assert_param(IS_DFSDM_BREAK_SIGNALS(BreakSignal));
-  
-  /* Check DFSDM channel state */
-  if(hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY)
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Activate short circuit detection interrupt */
-    DFSDM1_Filter0->FLTCR2 |= DFSDM_FLTCR2_SCDIE;
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
+    assert_param(IS_DFSDM_CHANNEL_SCD_THRESHOLD(Threshold));
+    assert_param(IS_DFSDM_BREAK_SIGNALS(BreakSignal));
 
-    /* Configure threshold and break signals */
-    hdfsdm_channel->Instance->CHAWSCDR &= ~(DFSDM_CHAWSCDR_BKSCD | DFSDM_CHAWSCDR_SCDT);
-    hdfsdm_channel->Instance->CHAWSCDR |= ((BreakSignal << DFSDM_CHAWSCDR_BKSCD_OFFSET) | \
-                                         Threshold);
-    
-    /* Start short circuit detection */
-    hdfsdm_channel->Instance->CHCFGR1 |= DFSDM_CHCFGR1_SCDEN;
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM channel state */
+    if (hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Activate short circuit detection interrupt */
+        DFSDM1_Filter0->FLTCR2 |= DFSDM_FLTCR2_SCDIE;
+
+        /* Configure threshold and break signals */
+        hdfsdm_channel->Instance->CHAWSCDR &= ~(DFSDM_CHAWSCDR_BKSCD | DFSDM_CHAWSCDR_SCDT);
+        hdfsdm_channel->Instance->CHAWSCDR |= ((BreakSignal << DFSDM_CHAWSCDR_BKSCD_OFFSET) | \
+                                               Threshold);
+
+        /* Start short circuit detection */
+        hdfsdm_channel->Instance->CHCFGR1 |= DFSDM_CHCFGR1_SCDEN;
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
-  * @brief  Short circuit detection callback. 
+  * @brief  Short circuit detection callback.
   * @param  hdfsdm_channel : DFSDM channel handle.
   * @retval None
   */
 __weak void HAL_DFSDM_ChannelScdCallback(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_channel);
-  
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_DFSDM_ChannelScdCallback could be implemented in the user file
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_channel);
+
+    /* NOTE : This function should not be modified, when the callback is needed,
+              the HAL_DFSDM_ChannelScdCallback could be implemented in the user file
+     */
 }
 
 /**
@@ -915,32 +869,29 @@ __weak void HAL_DFSDM_ChannelScdCallback(DFSDM_Channel_HandleTypeDef *hdfsdm_cha
   */
 HAL_StatusTypeDef HAL_DFSDM_ChannelScdStop_IT(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  HAL_StatusTypeDef status = HAL_OK;
-  uint32_t channel;
+    HAL_StatusTypeDef status = HAL_OK;
+    uint32_t channel;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
-  
-  /* Check DFSDM channel state */
-  if(hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY)
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Stop short circuit detection */
-    hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_SCDEN);
-    
-    /* Clear short circuit detection flag */
-    channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
-    DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRSCDF_OFFSET + channel));
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
 
-    /* Disable short circuit detection interrupt */
-    DFSDM1_Filter0->FLTCR2 &= ~(DFSDM_FLTCR2_SCDIE);
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM channel state */
+    if (hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Stop short circuit detection */
+        hdfsdm_channel->Instance->CHCFGR1 &= ~(DFSDM_CHCFGR1_SCDEN);
+
+        /* Clear short circuit detection flag */
+        channel = DFSDM_GetChannelFromInstance(hdfsdm_channel->Instance);
+        DFSDM1_Filter0->FLTICR = (1 << (DFSDM_FLTICR_CLRSCDF_OFFSET + channel));
+
+        /* Disable short circuit detection interrupt */
+        DFSDM1_Filter0->FLTCR2 &= ~(DFSDM_FLTCR2_SCDIE);
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -950,7 +901,7 @@ HAL_StatusTypeDef HAL_DFSDM_ChannelScdStop_IT(DFSDM_Channel_HandleTypeDef *hdfsd
   */
 int16_t HAL_DFSDM_ChannelGetAwdValue(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  return (int16_t) hdfsdm_channel->Instance->CHWDATAR;
+    return (int16_t) hdfsdm_channel->Instance->CHWDATAR;
 }
 
 /**
@@ -963,26 +914,23 @@ int16_t HAL_DFSDM_ChannelGetAwdValue(DFSDM_Channel_HandleTypeDef *hdfsdm_channel
 HAL_StatusTypeDef HAL_DFSDM_ChannelModifyOffset(DFSDM_Channel_HandleTypeDef *hdfsdm_channel,
                                                 int32_t Offset)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
-  assert_param(IS_DFSDM_CHANNEL_OFFSET(Offset));
-  
-  /* Check DFSDM channel state */
-  if(hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY)
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Modify channel offset */
-    hdfsdm_channel->Instance->CHCFGR2 &= ~(DFSDM_CHCFGR2_OFFSET);
-    hdfsdm_channel->Instance->CHCFGR2 |= ((uint32_t) Offset << DFSDM_CHCFGR2_OFFSET_OFFSET);
-  }
-  /* Return function status */
-  return status;
+    /* Check parameters */
+    assert_param(IS_DFSDM_CHANNEL_ALL_INSTANCE(hdfsdm_channel->Instance));
+    assert_param(IS_DFSDM_CHANNEL_OFFSET(Offset));
+
+    /* Check DFSDM channel state */
+    if (hdfsdm_channel->State != HAL_DFSDM_CHANNEL_STATE_READY) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Modify channel offset */
+        hdfsdm_channel->Instance->CHCFGR2 &= ~(DFSDM_CHCFGR2_OFFSET);
+        hdfsdm_channel->Instance->CHCFGR2 |= ((uint32_t) Offset << DFSDM_CHCFGR2_OFFSET_OFFSET);
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -1009,8 +957,8 @@ HAL_StatusTypeDef HAL_DFSDM_ChannelModifyOffset(DFSDM_Channel_HandleTypeDef *hdf
   */
 HAL_DFSDM_Channel_StateTypeDef HAL_DFSDM_ChannelGetState(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
-  /* Return DFSDM channel handle state */
-  return hdfsdm_channel->State;
+    /* Return DFSDM channel handle state */
+    return hdfsdm_channel->State;
 }
 
 /**
@@ -1018,7 +966,7 @@ HAL_DFSDM_Channel_StateTypeDef HAL_DFSDM_ChannelGetState(DFSDM_Channel_HandleTyp
   */
 
 /** @defgroup DFSDM_Exported_Functions_Group1_Filter Filter initialization and de-initialization functions
- *  @brief    Filter initialization and de-initialization functions 
+ *  @brief    Filter initialization and de-initialization functions
  *
 @verbatim
   ==============================================================================
@@ -1039,107 +987,92 @@ HAL_DFSDM_Channel_StateTypeDef HAL_DFSDM_ChannelGetState(DFSDM_Channel_HandleTyp
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterInit(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Check DFSDM Channel handle */
-  if(hdfsdm_filter == NULL)
-  {
-    return HAL_ERROR;
-  }
+    /* Check DFSDM Channel handle */
+    if (hdfsdm_filter == NULL) {
+        return HAL_ERROR;
+    }
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  assert_param(IS_DFSDM_FILTER_REG_TRIGGER(hdfsdm_filter->Init.RegularParam.Trigger));
-  assert_param(IS_FUNCTIONAL_STATE(hdfsdm_filter->Init.RegularParam.FastMode));
-  assert_param(IS_FUNCTIONAL_STATE(hdfsdm_filter->Init.RegularParam.DmaMode));
-  assert_param(IS_DFSDM_FILTER_INJ_TRIGGER(hdfsdm_filter->Init.InjectedParam.Trigger));
-  assert_param(IS_FUNCTIONAL_STATE(hdfsdm_filter->Init.InjectedParam.ScanMode));
-  assert_param(IS_FUNCTIONAL_STATE(hdfsdm_filter->Init.InjectedParam.DmaMode));
-  assert_param(IS_DFSDM_FILTER_SINC_ORDER(hdfsdm_filter->Init.FilterParam.SincOrder));
-  assert_param(IS_DFSDM_FILTER_OVS_RATIO(hdfsdm_filter->Init.FilterParam.Oversampling));
-  assert_param(IS_DFSDM_FILTER_INTEGRATOR_OVS_RATIO(hdfsdm_filter->Init.FilterParam.IntOversampling));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    assert_param(IS_DFSDM_FILTER_REG_TRIGGER(hdfsdm_filter->Init.RegularParam.Trigger));
+    assert_param(IS_FUNCTIONAL_STATE(hdfsdm_filter->Init.RegularParam.FastMode));
+    assert_param(IS_FUNCTIONAL_STATE(hdfsdm_filter->Init.RegularParam.DmaMode));
+    assert_param(IS_DFSDM_FILTER_INJ_TRIGGER(hdfsdm_filter->Init.InjectedParam.Trigger));
+    assert_param(IS_FUNCTIONAL_STATE(hdfsdm_filter->Init.InjectedParam.ScanMode));
+    assert_param(IS_FUNCTIONAL_STATE(hdfsdm_filter->Init.InjectedParam.DmaMode));
+    assert_param(IS_DFSDM_FILTER_SINC_ORDER(hdfsdm_filter->Init.FilterParam.SincOrder));
+    assert_param(IS_DFSDM_FILTER_OVS_RATIO(hdfsdm_filter->Init.FilterParam.Oversampling));
+    assert_param(IS_DFSDM_FILTER_INTEGRATOR_OVS_RATIO(hdfsdm_filter->Init.FilterParam.IntOversampling));
 
-  /* Check parameters compatibility */
-  if((hdfsdm_filter->Instance == DFSDM1_Filter0) && 
-    ((hdfsdm_filter->Init.RegularParam.Trigger  == DFSDM_FILTER_SYNC_TRIGGER) || 
-     (hdfsdm_filter->Init.InjectedParam.Trigger == DFSDM_FILTER_SYNC_TRIGGER)))
-  {
-    return HAL_ERROR;
-  }
+    /* Check parameters compatibility */
+    if ((hdfsdm_filter->Instance == DFSDM1_Filter0) &&
+            ((hdfsdm_filter->Init.RegularParam.Trigger  == DFSDM_FILTER_SYNC_TRIGGER) ||
+             (hdfsdm_filter->Init.InjectedParam.Trigger == DFSDM_FILTER_SYNC_TRIGGER))) {
+        return HAL_ERROR;
+    }
 
-  /* Initialize DFSDM filter variables with default values */
-  hdfsdm_filter->RegularContMode     = DFSDM_CONTINUOUS_CONV_OFF;
-  hdfsdm_filter->InjectedChannelsNbr = 1;
-  hdfsdm_filter->InjConvRemaining    = 1;
-  hdfsdm_filter->ErrorCode           = DFSDM_FILTER_ERROR_NONE;
-  
-  /* Call MSP init function */
-  HAL_DFSDM_FilterMspInit(hdfsdm_filter);
+    /* Initialize DFSDM filter variables with default values */
+    hdfsdm_filter->RegularContMode     = DFSDM_CONTINUOUS_CONV_OFF;
+    hdfsdm_filter->InjectedChannelsNbr = 1;
+    hdfsdm_filter->InjConvRemaining    = 1;
+    hdfsdm_filter->ErrorCode           = DFSDM_FILTER_ERROR_NONE;
 
-  /* Set regular parameters */
-  hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_RSYNC);
-  if(hdfsdm_filter->Init.RegularParam.FastMode == ENABLE)
-  {
-    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_FAST;
-  }
-  else
-  {
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_FAST);
-  }
+    /* Call MSP init function */
+    HAL_DFSDM_FilterMspInit(hdfsdm_filter);
 
-  if(hdfsdm_filter->Init.RegularParam.DmaMode == ENABLE)
-  {
-    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_RDMAEN;
-  }
-  else
-  {
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_RDMAEN);
-  }
+    /* Set regular parameters */
+    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_RSYNC);
+    if (hdfsdm_filter->Init.RegularParam.FastMode == ENABLE) {
+        hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_FAST;
+    } else {
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_FAST);
+    }
 
-  /* Set injected parameters */
-  hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_JSYNC | DFSDM_FLTCR1_JEXTEN | DFSDM_FLTCR1_JEXTSEL);
-  if(hdfsdm_filter->Init.InjectedParam.Trigger == DFSDM_FILTER_EXT_TRIGGER)
-  {
-    assert_param(IS_DFSDM_FILTER_EXT_TRIG(hdfsdm_filter->Init.InjectedParam.ExtTrigger));
-    assert_param(IS_DFSDM_FILTER_EXT_TRIG_EDGE(hdfsdm_filter->Init.InjectedParam.ExtTriggerEdge));
-    hdfsdm_filter->Instance->FLTCR1 |= (hdfsdm_filter->Init.InjectedParam.ExtTrigger);
-  }
+    if (hdfsdm_filter->Init.RegularParam.DmaMode == ENABLE) {
+        hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_RDMAEN;
+    } else {
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_RDMAEN);
+    }
 
-  if(hdfsdm_filter->Init.InjectedParam.ScanMode == ENABLE)
-  {
-    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JSCAN;
-  }
-  else
-  {
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_JSCAN);
-  }
+    /* Set injected parameters */
+    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_JSYNC | DFSDM_FLTCR1_JEXTEN | DFSDM_FLTCR1_JEXTSEL);
+    if (hdfsdm_filter->Init.InjectedParam.Trigger == DFSDM_FILTER_EXT_TRIGGER) {
+        assert_param(IS_DFSDM_FILTER_EXT_TRIG(hdfsdm_filter->Init.InjectedParam.ExtTrigger));
+        assert_param(IS_DFSDM_FILTER_EXT_TRIG_EDGE(hdfsdm_filter->Init.InjectedParam.ExtTriggerEdge));
+        hdfsdm_filter->Instance->FLTCR1 |= (hdfsdm_filter->Init.InjectedParam.ExtTrigger);
+    }
 
-  if(hdfsdm_filter->Init.InjectedParam.DmaMode == ENABLE)
-  {
-    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JDMAEN;
-  }
-  else
-  {
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_JDMAEN);
-  }
-  
-  /* Set filter parameters */
-  hdfsdm_filter->Instance->FLTFCR &= ~(DFSDM_FLTFCR_FORD | DFSDM_FLTFCR_FOSR | DFSDM_FLTFCR_IOSR);
-  hdfsdm_filter->Instance->FLTFCR |= (hdfsdm_filter->Init.FilterParam.SincOrder |
-                                    ((hdfsdm_filter->Init.FilterParam.Oversampling - 1) << DFSDM_FLTFCR_FOSR_OFFSET) |
-                                  (hdfsdm_filter->Init.FilterParam.IntOversampling - 1));
+    if (hdfsdm_filter->Init.InjectedParam.ScanMode == ENABLE) {
+        hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JSCAN;
+    } else {
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_JSCAN);
+    }
 
-  /* Store regular and injected triggers and injected scan mode*/
-  hdfsdm_filter->RegularTrigger   = hdfsdm_filter->Init.RegularParam.Trigger;
-  hdfsdm_filter->InjectedTrigger  = hdfsdm_filter->Init.InjectedParam.Trigger;
-  hdfsdm_filter->ExtTriggerEdge   = hdfsdm_filter->Init.InjectedParam.ExtTriggerEdge;
-  hdfsdm_filter->InjectedScanMode = hdfsdm_filter->Init.InjectedParam.ScanMode;
-  
-  /* Enable DFSDM filter */
-  hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_DFEN;
+    if (hdfsdm_filter->Init.InjectedParam.DmaMode == ENABLE) {
+        hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JDMAEN;
+    } else {
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_JDMAEN);
+    }
 
-  /* Set DFSDM filter to ready state */
-  hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_READY;
-  
-  return HAL_OK;
+    /* Set filter parameters */
+    hdfsdm_filter->Instance->FLTFCR &= ~(DFSDM_FLTFCR_FORD | DFSDM_FLTFCR_FOSR | DFSDM_FLTFCR_IOSR);
+    hdfsdm_filter->Instance->FLTFCR |= (hdfsdm_filter->Init.FilterParam.SincOrder |
+                                        ((hdfsdm_filter->Init.FilterParam.Oversampling - 1) << DFSDM_FLTFCR_FOSR_OFFSET) |
+                                        (hdfsdm_filter->Init.FilterParam.IntOversampling - 1));
+
+    /* Store regular and injected triggers and injected scan mode*/
+    hdfsdm_filter->RegularTrigger   = hdfsdm_filter->Init.RegularParam.Trigger;
+    hdfsdm_filter->InjectedTrigger  = hdfsdm_filter->Init.InjectedParam.Trigger;
+    hdfsdm_filter->ExtTriggerEdge   = hdfsdm_filter->Init.InjectedParam.ExtTriggerEdge;
+    hdfsdm_filter->InjectedScanMode = hdfsdm_filter->Init.InjectedParam.ScanMode;
+
+    /* Enable DFSDM filter */
+    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_DFEN;
+
+    /* Set DFSDM filter to ready state */
+    hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_READY;
+
+    return HAL_OK;
 }
 
 /**
@@ -1149,25 +1082,24 @@ HAL_StatusTypeDef HAL_DFSDM_FilterInit(DFSDM_Filter_HandleTypeDef *hdfsdm_filter
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterDeInit(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Check DFSDM filter handle */
-  if(hdfsdm_filter == NULL)
-  {
-    return HAL_ERROR;
-  }
+    /* Check DFSDM filter handle */
+    if (hdfsdm_filter == NULL) {
+        return HAL_ERROR;
+    }
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  
-  /* Disable the DFSDM filter */
-  hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_DFEN);
-  
-  /* Call MSP deinit function */
-  HAL_DFSDM_FilterMspDeInit(hdfsdm_filter);
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Set DFSDM filter in reset state */
-  hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_RESET;
+    /* Disable the DFSDM filter */
+    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_DFEN);
 
-  return HAL_OK;
+    /* Call MSP deinit function */
+    HAL_DFSDM_FilterMspDeInit(hdfsdm_filter);
+
+    /* Set DFSDM filter in reset state */
+    hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_RESET;
+
+    return HAL_OK;
 }
 
 /**
@@ -1177,12 +1109,12 @@ HAL_StatusTypeDef HAL_DFSDM_FilterDeInit(DFSDM_Filter_HandleTypeDef *hdfsdm_filt
   */
 __weak void HAL_DFSDM_FilterMspInit(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_filter);
-  
-  /* NOTE : This function should not be modified, when the function is needed,
-            the HAL_DFSDM_FilterMspInit could be implemented in the user file.
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_filter);
+
+    /* NOTE : This function should not be modified, when the function is needed,
+              the HAL_DFSDM_FilterMspInit could be implemented in the user file.
+     */
 }
 
 /**
@@ -1192,12 +1124,12 @@ __weak void HAL_DFSDM_FilterMspInit(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
   */
 __weak void HAL_DFSDM_FilterMspDeInit(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_filter);
-  
-  /* NOTE : This function should not be modified, when the function is needed,
-            the HAL_DFSDM_FilterMspDeInit could be implemented in the user file.
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_filter);
+
+    /* NOTE : This function should not be modified, when the function is needed,
+              the HAL_DFSDM_FilterMspDeInit could be implemented in the user file.
+     */
 }
 
 /**
@@ -1232,38 +1164,32 @@ HAL_StatusTypeDef HAL_DFSDM_FilterConfigRegChannel(DFSDM_Filter_HandleTypeDef *h
                                                    uint32_t                    Channel,
                                                    uint32_t                    ContinuousMode)
 {
-  HAL_StatusTypeDef status = HAL_OK;
-  
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  assert_param(IS_DFSDM_REGULAR_CHANNEL(Channel));
-  assert_param(IS_DFSDM_CONTINUOUS_MODE(ContinuousMode));
-  
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_RESET) && 
-     (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_ERROR))
-  {
-    /* Configure channel and continuous mode for regular conversion */
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_RCH | DFSDM_FLTCR1_RCONT);
-    if(ContinuousMode == DFSDM_CONTINUOUS_CONV_ON)
-    {
-      hdfsdm_filter->Instance->FLTCR1 |= (uint32_t) (((Channel & DFSDM_MSB_MASK) << DFSDM_FLTCR1_MSB_RCH_OFFSET) |
-                                                     DFSDM_FLTCR1_RCONT);
-    }
-    else
-    {
-      hdfsdm_filter->Instance->FLTCR1 |= (uint32_t) ((Channel & DFSDM_MSB_MASK) << DFSDM_FLTCR1_MSB_RCH_OFFSET);
-    }
-    /* Store continuous mode information */
-    hdfsdm_filter->RegularContMode = ContinuousMode;
-  }  
-  else
-  {
-    status = HAL_ERROR;
-  }
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Return function status */
-  return status;
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    assert_param(IS_DFSDM_REGULAR_CHANNEL(Channel));
+    assert_param(IS_DFSDM_CONTINUOUS_MODE(ContinuousMode));
+
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_RESET) &&
+            (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_ERROR)) {
+        /* Configure channel and continuous mode for regular conversion */
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_RCH | DFSDM_FLTCR1_RCONT);
+        if (ContinuousMode == DFSDM_CONTINUOUS_CONV_ON) {
+            hdfsdm_filter->Instance->FLTCR1 |= (uint32_t)(((Channel & DFSDM_MSB_MASK) << DFSDM_FLTCR1_MSB_RCH_OFFSET) |
+                                                          DFSDM_FLTCR1_RCONT);
+        } else {
+            hdfsdm_filter->Instance->FLTCR1 |= (uint32_t)((Channel & DFSDM_MSB_MASK) << DFSDM_FLTCR1_MSB_RCH_OFFSET);
+        }
+        /* Store continuous mode information */
+        hdfsdm_filter->RegularContMode = ContinuousMode;
+    } else {
+        status = HAL_ERROR;
+    }
+
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -1276,30 +1202,27 @@ HAL_StatusTypeDef HAL_DFSDM_FilterConfigRegChannel(DFSDM_Filter_HandleTypeDef *h
 HAL_StatusTypeDef HAL_DFSDM_FilterConfigInjChannel(DFSDM_Filter_HandleTypeDef *hdfsdm_filter,
                                                    uint32_t                    Channel)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  assert_param(IS_DFSDM_INJECTED_CHANNEL(Channel));
-  
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_RESET) && 
-     (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_ERROR))
-  {
-    /* Configure channel for injected conversion */
-    hdfsdm_filter->Instance->FLTJCHGR = (uint32_t) (Channel & DFSDM_LSB_MASK);
-    /* Store number of injected channels */
-    hdfsdm_filter->InjectedChannelsNbr = DFSDM_GetInjChannelsNbr(Channel);
-    /* Update number of injected channels remaining */
-    hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
-                                      hdfsdm_filter->InjectedChannelsNbr : 1;
-  }
-  else
-  {
-    status = HAL_ERROR;
-  }
-  /* Return function status */
-  return status;
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    assert_param(IS_DFSDM_INJECTED_CHANNEL(Channel));
+
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_RESET) &&
+            (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_ERROR)) {
+        /* Configure channel for injected conversion */
+        hdfsdm_filter->Instance->FLTJCHGR = (uint32_t)(Channel & DFSDM_LSB_MASK);
+        /* Store number of injected channels */
+        hdfsdm_filter->InjectedChannelsNbr = DFSDM_GetInjChannelsNbr(Channel);
+        /* Update number of injected channels remaining */
+        hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
+                                          hdfsdm_filter->InjectedChannelsNbr : 1;
+    } else {
+        status = HAL_ERROR;
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -1338,31 +1261,28 @@ HAL_StatusTypeDef HAL_DFSDM_FilterConfigInjChannel(DFSDM_Filter_HandleTypeDef *h
 
 /**
   * @brief  This function allows to start regular conversion in polling mode.
-  * @note   This function should be called only when DFSDM filter instance is 
+  * @note   This function should be called only when DFSDM filter instance is
   *         in idle state or if injected conversion is ongoing.
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterRegularStart(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
-     (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ))
-  {
-    /* Start regular conversion */
-    DFSDM_RegConvStart(hdfsdm_filter);
-  }
-  else
-  {
-    status = HAL_ERROR;
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
+            (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ)) {
+        /* Start regular conversion */
+        DFSDM_RegConvStart(hdfsdm_filter);
+    } else {
+        status = HAL_ERROR;
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -1375,56 +1295,48 @@ HAL_StatusTypeDef HAL_DFSDM_FilterRegularStart(DFSDM_Filter_HandleTypeDef *hdfsd
 HAL_StatusTypeDef HAL_DFSDM_FilterPollForRegConversion(DFSDM_Filter_HandleTypeDef *hdfsdm_filter,
                                                        uint32_t                    Timeout)
 {
-  uint32_t tickstart;
+    uint32_t tickstart;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG) && \
-     (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ))
-  {
-    /* Return error status */
-    return HAL_ERROR;
-  }
-  else
-  {
-    /* Get timeout */
-    tickstart = HAL_GetTick();  
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG) && \
+            (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ)) {
+        /* Return error status */
+        return HAL_ERROR;
+    } else {
+        /* Get timeout */
+        tickstart = HAL_GetTick();
 
-    /* Wait end of regular conversion */
-    while((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_REOCF) != DFSDM_FLTISR_REOCF)
-    {
-      /* Check the Timeout */
-      if(Timeout != HAL_MAX_DELAY)
-      {
-        if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
-        {
-          /* Return timeout status */
-          return HAL_TIMEOUT;
+        /* Wait end of regular conversion */
+        while ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_REOCF) != DFSDM_FLTISR_REOCF) {
+            /* Check the Timeout */
+            if (Timeout != HAL_MAX_DELAY) {
+                if ((Timeout == 0) || ((HAL_GetTick() - tickstart) > Timeout)) {
+                    /* Return timeout status */
+                    return HAL_TIMEOUT;
+                }
+            }
         }
-      }
-    }
-    /* Check if overrun occurs */
-    if((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_ROVRF) == DFSDM_FLTISR_ROVRF)
-    {
-      /* Update error code and call error callback */
-      hdfsdm_filter->ErrorCode = DFSDM_FILTER_ERROR_REGULAR_OVERRUN;
-      HAL_DFSDM_FilterErrorCallback(hdfsdm_filter);
+        /* Check if overrun occurs */
+        if ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_ROVRF) == DFSDM_FLTISR_ROVRF) {
+            /* Update error code and call error callback */
+            hdfsdm_filter->ErrorCode = DFSDM_FILTER_ERROR_REGULAR_OVERRUN;
+            HAL_DFSDM_FilterErrorCallback(hdfsdm_filter);
 
-      /* Clear regular overrun flag */
-      hdfsdm_filter->Instance->FLTICR = DFSDM_FLTICR_CLRROVRF;
+            /* Clear regular overrun flag */
+            hdfsdm_filter->Instance->FLTICR = DFSDM_FLTICR_CLRROVRF;
+        }
+        /* Update DFSDM filter state only if not continuous conversion and SW trigger */
+        if ((hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
+                (hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER)) {
+            hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG) ? \
+                                   HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_INJ;
+        }
+        /* Return function status */
+        return HAL_OK;
     }
-    /* Update DFSDM filter state only if not continuous conversion and SW trigger */
-    if((hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
-       (hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER))
-    {
-      hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG) ? \
-                             HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_INJ;
-    }
-    /* Return function status */
-    return HAL_OK;
-  }
 }
 
 /**
@@ -1435,57 +1347,51 @@ HAL_StatusTypeDef HAL_DFSDM_FilterPollForRegConversion(DFSDM_Filter_HandleTypeDe
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterRegularStop(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG) && \
-     (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ))
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Stop regular conversion */
-    DFSDM_RegConvStop(hdfsdm_filter);
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG) && \
+            (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ)) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Stop regular conversion */
+        DFSDM_RegConvStop(hdfsdm_filter);
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
   * @brief  This function allows to start regular conversion in interrupt mode.
-  * @note   This function should be called only when DFSDM filter instance is 
+  * @note   This function should be called only when DFSDM filter instance is
   *         in idle state or if injected conversion is ongoing.
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterRegularStart_IT(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
-     (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ))
-  {
-    /* Enable interrupts for regular conversions */
-    hdfsdm_filter->Instance->FLTCR2 |= (DFSDM_FLTCR2_REOCIE | DFSDM_FLTCR2_ROVRIE);
-    
-    /* Start regular conversion */
-    DFSDM_RegConvStart(hdfsdm_filter);
-  }
-  else
-  {
-    status = HAL_ERROR;
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
+            (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ)) {
+        /* Enable interrupts for regular conversions */
+        hdfsdm_filter->Instance->FLTCR2 |= (DFSDM_FLTCR2_REOCIE | DFSDM_FLTCR2_ROVRIE);
+
+        /* Start regular conversion */
+        DFSDM_RegConvStart(hdfsdm_filter);
+    } else {
+        status = HAL_ERROR;
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -1496,33 +1402,30 @@ HAL_StatusTypeDef HAL_DFSDM_FilterRegularStart_IT(DFSDM_Filter_HandleTypeDef *hd
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterRegularStop_IT(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG) && \
-     (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ))
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Disable interrupts for regular conversions */
-    hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_REOCIE | DFSDM_FLTCR2_ROVRIE);
-    
-    /* Stop regular conversion */
-    DFSDM_RegConvStop(hdfsdm_filter);
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG) && \
+            (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ)) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Disable interrupts for regular conversions */
+        hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_REOCIE | DFSDM_FLTCR2_ROVRIE);
+
+        /* Stop regular conversion */
+        DFSDM_RegConvStop(hdfsdm_filter);
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
   * @brief  This function allows to start regular conversion in DMA mode.
-  * @note   This function should be called only when DFSDM filter instance is 
+  * @note   This function should be called only when DFSDM filter instance is
   *         in idle state or if injected conversion is ongoing.
   *         Please note that data on buffer will contain signed regular conversion
   *         value on 24 most significant bits and corresponding channel on 3 least
@@ -1536,71 +1439,60 @@ HAL_StatusTypeDef HAL_DFSDM_FilterRegularStart_DMA(DFSDM_Filter_HandleTypeDef *h
                                                    int32_t                    *pData,
                                                    uint32_t                    Length)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check destination address and length */
-  if((pData == NULL) || (Length == 0))
-  {
-    status = HAL_ERROR;
-  }
-  /* Check that DMA is enabled for regular conversion */
-  else if((hdfsdm_filter->Instance->FLTCR1 & DFSDM_FLTCR1_RDMAEN) != DFSDM_FLTCR1_RDMAEN)
-  {
-    status = HAL_ERROR;
-  }
-  /* Check parameters compatibility */
-  else if((hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER) && \
-          (hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
-          (hdfsdm_filter->hdmaReg->Init.Mode == DMA_NORMAL) && \
-          (Length != 1))
-  {
-    status = HAL_ERROR;
-  }
-  else if((hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER) && \
-          (hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
-          (hdfsdm_filter->hdmaReg->Init.Mode == DMA_CIRCULAR))
-  {
-    status = HAL_ERROR;
-  }
-  /* Check DFSDM filter state */
-  else if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
-          (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ))
-  {
-    /* Set callbacks on DMA handler */
-    hdfsdm_filter->hdmaReg->XferCpltCallback = DFSDM_DMARegularConvCplt;
-    hdfsdm_filter->hdmaReg->XferErrorCallback = DFSDM_DMAError;
-    hdfsdm_filter->hdmaReg->XferHalfCpltCallback = (hdfsdm_filter->hdmaReg->Init.Mode == DMA_CIRCULAR) ?\
-                                                   DFSDM_DMARegularHalfConvCplt : NULL;
-    
-    /* Start DMA in interrupt mode */
-    if(HAL_DMA_Start_IT(hdfsdm_filter->hdmaReg, (uint32_t)&hdfsdm_filter->Instance->FLTRDATAR, \
-                        (uint32_t) pData, Length) != HAL_OK)
-    {
-      /* Set DFSDM filter in error state */
-      hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
-      status = HAL_ERROR;
+    /* Check destination address and length */
+    if ((pData == NULL) || (Length == 0)) {
+        status = HAL_ERROR;
     }
-    else
-    {
-      /* Start regular conversion */
-      DFSDM_RegConvStart(hdfsdm_filter);
+    /* Check that DMA is enabled for regular conversion */
+    else if ((hdfsdm_filter->Instance->FLTCR1 & DFSDM_FLTCR1_RDMAEN) != DFSDM_FLTCR1_RDMAEN) {
+        status = HAL_ERROR;
     }
-  }
-  else
-  {
-    status = HAL_ERROR;
-  }
-  /* Return function status */
-  return status;
+    /* Check parameters compatibility */
+    else if ((hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER) && \
+             (hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
+             (hdfsdm_filter->hdmaReg->Init.Mode == DMA_NORMAL) && \
+             (Length != 1)) {
+        status = HAL_ERROR;
+    } else if ((hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER) && \
+               (hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
+               (hdfsdm_filter->hdmaReg->Init.Mode == DMA_CIRCULAR)) {
+        status = HAL_ERROR;
+    }
+    /* Check DFSDM filter state */
+    else if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
+             (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ)) {
+        /* Set callbacks on DMA handler */
+        hdfsdm_filter->hdmaReg->XferCpltCallback = DFSDM_DMARegularConvCplt;
+        hdfsdm_filter->hdmaReg->XferErrorCallback = DFSDM_DMAError;
+        hdfsdm_filter->hdmaReg->XferHalfCpltCallback = (hdfsdm_filter->hdmaReg->Init.Mode == DMA_CIRCULAR) ? \
+                                                       DFSDM_DMARegularHalfConvCplt : NULL;
+
+        /* Start DMA in interrupt mode */
+        if (HAL_DMA_Start_IT(hdfsdm_filter->hdmaReg, (uint32_t)&hdfsdm_filter->Instance->FLTRDATAR, \
+                             (uint32_t) pData, Length) != HAL_OK) {
+            /* Set DFSDM filter in error state */
+            hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
+            status = HAL_ERROR;
+        } else {
+            /* Start regular conversion */
+            DFSDM_RegConvStart(hdfsdm_filter);
+        }
+    } else {
+        status = HAL_ERROR;
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
   * @brief  This function allows to start regular conversion in DMA mode and to get
   *         only the 16 most significant bits of conversion.
-  * @note   This function should be called only when DFSDM filter instance is 
+  * @note   This function should be called only when DFSDM filter instance is
   *         in idle state or if injected conversion is ongoing.
   *         Please note that data on buffer will contain signed 16 most significant
   *         bits of regular conversion.
@@ -1613,65 +1505,54 @@ HAL_StatusTypeDef HAL_DFSDM_FilterRegularMsbStart_DMA(DFSDM_Filter_HandleTypeDef
                                                       int16_t                    *pData,
                                                       uint32_t                    Length)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check destination address and length */
-  if((pData == NULL) || (Length == 0))
-  {
-    status = HAL_ERROR;
-  }
-  /* Check that DMA is enabled for regular conversion */
-  else if((hdfsdm_filter->Instance->FLTCR1 & DFSDM_FLTCR1_RDMAEN) != DFSDM_FLTCR1_RDMAEN)
-  {
-    status = HAL_ERROR;
-  }
-  /* Check parameters compatibility */
-  else if((hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER) && \
-          (hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
-          (hdfsdm_filter->hdmaReg->Init.Mode == DMA_NORMAL) && \
-          (Length != 1))
-  {
-    status = HAL_ERROR;
-  }
-  else if((hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER) && \
-          (hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
-          (hdfsdm_filter->hdmaReg->Init.Mode == DMA_CIRCULAR))
-  {
-    status = HAL_ERROR;
-  }
-  /* Check DFSDM filter state */
-  else if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
-          (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ))
-  {
-    /* Set callbacks on DMA handler */
-    hdfsdm_filter->hdmaReg->XferCpltCallback = DFSDM_DMARegularConvCplt;
-    hdfsdm_filter->hdmaReg->XferErrorCallback = DFSDM_DMAError;
-    hdfsdm_filter->hdmaReg->XferHalfCpltCallback = (hdfsdm_filter->hdmaReg->Init.Mode == DMA_CIRCULAR) ?\
-                                                   DFSDM_DMARegularHalfConvCplt : NULL;
-    
-    /* Start DMA in interrupt mode */
-    if(HAL_DMA_Start_IT(hdfsdm_filter->hdmaReg, (uint32_t)(&hdfsdm_filter->Instance->FLTRDATAR) + 2, \
-                        (uint32_t) pData, Length) != HAL_OK)
-    {
-      /* Set DFSDM filter in error state */
-      hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
-      status = HAL_ERROR;
+    /* Check destination address and length */
+    if ((pData == NULL) || (Length == 0)) {
+        status = HAL_ERROR;
     }
-    else
-    {
-      /* Start regular conversion */
-      DFSDM_RegConvStart(hdfsdm_filter);
+    /* Check that DMA is enabled for regular conversion */
+    else if ((hdfsdm_filter->Instance->FLTCR1 & DFSDM_FLTCR1_RDMAEN) != DFSDM_FLTCR1_RDMAEN) {
+        status = HAL_ERROR;
     }
-  }
-  else
-  {
-    status = HAL_ERROR;
-  }
-  /* Return function status */
-  return status;
+    /* Check parameters compatibility */
+    else if ((hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER) && \
+             (hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
+             (hdfsdm_filter->hdmaReg->Init.Mode == DMA_NORMAL) && \
+             (Length != 1)) {
+        status = HAL_ERROR;
+    } else if ((hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER) && \
+               (hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
+               (hdfsdm_filter->hdmaReg->Init.Mode == DMA_CIRCULAR)) {
+        status = HAL_ERROR;
+    }
+    /* Check DFSDM filter state */
+    else if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
+             (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ)) {
+        /* Set callbacks on DMA handler */
+        hdfsdm_filter->hdmaReg->XferCpltCallback = DFSDM_DMARegularConvCplt;
+        hdfsdm_filter->hdmaReg->XferErrorCallback = DFSDM_DMAError;
+        hdfsdm_filter->hdmaReg->XferHalfCpltCallback = (hdfsdm_filter->hdmaReg->Init.Mode == DMA_CIRCULAR) ? \
+                                                       DFSDM_DMARegularHalfConvCplt : NULL;
+
+        /* Start DMA in interrupt mode */
+        if (HAL_DMA_Start_IT(hdfsdm_filter->hdmaReg, (uint32_t)(&hdfsdm_filter->Instance->FLTRDATAR) + 2, \
+                             (uint32_t) pData, Length) != HAL_OK) {
+            /* Set DFSDM filter in error state */
+            hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
+            status = HAL_ERROR;
+        } else {
+            /* Start regular conversion */
+            DFSDM_RegConvStart(hdfsdm_filter);
+        }
+    } else {
+        status = HAL_ERROR;
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -1682,35 +1563,29 @@ HAL_StatusTypeDef HAL_DFSDM_FilterRegularMsbStart_DMA(DFSDM_Filter_HandleTypeDef
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterRegularStop_DMA(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG) && \
-     (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ))
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Stop current DMA transfer */
-    if(HAL_DMA_Abort(hdfsdm_filter->hdmaReg) != HAL_OK)
-    {
-      /* Set DFSDM filter in error state */
-      hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
-      status = HAL_ERROR;
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG) && \
+            (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ)) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Stop current DMA transfer */
+        if (HAL_DMA_Abort(hdfsdm_filter->hdmaReg) != HAL_OK) {
+            /* Set DFSDM filter in error state */
+            hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
+            status = HAL_ERROR;
+        } else {
+            /* Stop regular conversion */
+            DFSDM_RegConvStop(hdfsdm_filter);
+        }
     }
-    else
-    {
-      /* Stop regular conversion */
-      DFSDM_RegConvStop(hdfsdm_filter);
-    }
-  }
-  /* Return function status */
-  return status;
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -1722,51 +1597,48 @@ HAL_StatusTypeDef HAL_DFSDM_FilterRegularStop_DMA(DFSDM_Filter_HandleTypeDef *hd
 int32_t HAL_DFSDM_FilterGetRegularValue(DFSDM_Filter_HandleTypeDef *hdfsdm_filter,
                                         uint32_t                   *Channel)
 {
-  uint32_t reg = 0;
-  int32_t  value = 0;
-  
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  assert_param(Channel != NULL);
+    uint32_t reg = 0;
+    int32_t  value = 0;
 
-  /* Get value of data register for regular channel */
-  reg = hdfsdm_filter->Instance->FLTRDATAR;
-  
-  /* Extract channel and regular conversion value */
-  *Channel = (reg & DFSDM_FLTRDATAR_RDATACH);
-  value = ((reg & DFSDM_FLTRDATAR_RDATA) >> DFSDM_FLTRDATAR_DATA_OFFSET);
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    assert_param(Channel != NULL);
 
-  /* return regular conversion value */
-  return value;
+    /* Get value of data register for regular channel */
+    reg = hdfsdm_filter->Instance->FLTRDATAR;
+
+    /* Extract channel and regular conversion value */
+    *Channel = (reg & DFSDM_FLTRDATAR_RDATACH);
+    value = ((reg & DFSDM_FLTRDATAR_RDATA) >> DFSDM_FLTRDATAR_DATA_OFFSET);
+
+    /* return regular conversion value */
+    return value;
 }
 
 /**
   * @brief  This function allows to start injected conversion in polling mode.
-  * @note   This function should be called only when DFSDM filter instance is 
+  * @note   This function should be called only when DFSDM filter instance is
   *         in idle state or if regular conversion is ongoing.
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterInjectedStart(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
-     (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG))
-  {
-    /* Start injected conversion */
-    DFSDM_InjConvStart(hdfsdm_filter);
-  }
-  else
-  {
-    status = HAL_ERROR;
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
+            (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG)) {
+        /* Start injected conversion */
+        DFSDM_InjConvStart(hdfsdm_filter);
+    } else {
+        status = HAL_ERROR;
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -1779,66 +1651,57 @@ HAL_StatusTypeDef HAL_DFSDM_FilterInjectedStart(DFSDM_Filter_HandleTypeDef *hdfs
 HAL_StatusTypeDef HAL_DFSDM_FilterPollForInjConversion(DFSDM_Filter_HandleTypeDef *hdfsdm_filter,
                                                        uint32_t                    Timeout)
 {
-  uint32_t tickstart;
+    uint32_t tickstart;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_INJ) && \
-     (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ))
-  {
-    /* Return error status */
-    return HAL_ERROR;
-  }
-  else
-  {
-    /* Get timeout */
-    tickstart = HAL_GetTick();  
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_INJ) && \
+            (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ)) {
+        /* Return error status */
+        return HAL_ERROR;
+    } else {
+        /* Get timeout */
+        tickstart = HAL_GetTick();
 
-    /* Wait end of injected conversions */
-    while((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_JEOCF) != DFSDM_FLTISR_JEOCF)
-    {
-      /* Check the Timeout */
-      if(Timeout != HAL_MAX_DELAY)
-      {
-        if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
-        {
-          /* Return timeout status */
-          return HAL_TIMEOUT;
+        /* Wait end of injected conversions */
+        while ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_JEOCF) != DFSDM_FLTISR_JEOCF) {
+            /* Check the Timeout */
+            if (Timeout != HAL_MAX_DELAY) {
+                if ((Timeout == 0) || ((HAL_GetTick() - tickstart) > Timeout)) {
+                    /* Return timeout status */
+                    return HAL_TIMEOUT;
+                }
+            }
         }
-      }
-    }
-    /* Check if overrun occurs */
-    if((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_JOVRF) == DFSDM_FLTISR_JOVRF)
-    {
-      /* Update error code and call error callback */
-      hdfsdm_filter->ErrorCode = DFSDM_FILTER_ERROR_INJECTED_OVERRUN;
-      HAL_DFSDM_FilterErrorCallback(hdfsdm_filter);
+        /* Check if overrun occurs */
+        if ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_JOVRF) == DFSDM_FLTISR_JOVRF) {
+            /* Update error code and call error callback */
+            hdfsdm_filter->ErrorCode = DFSDM_FILTER_ERROR_INJECTED_OVERRUN;
+            HAL_DFSDM_FilterErrorCallback(hdfsdm_filter);
 
-      /* Clear injected overrun flag */
-      hdfsdm_filter->Instance->FLTICR = DFSDM_FLTICR_CLRJOVRF;
-    }
+            /* Clear injected overrun flag */
+            hdfsdm_filter->Instance->FLTICR = DFSDM_FLTICR_CLRJOVRF;
+        }
 
-    /* Update remaining injected conversions */
-    hdfsdm_filter->InjConvRemaining--;
-    if(hdfsdm_filter->InjConvRemaining == 0)
-    {
-      /* Update DFSDM filter state only if trigger is software */
-      if(hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER)
-      {
-        hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ) ? \
-                               HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_REG;
-      }
-      
-      /* end of injected sequence, reset the value */
-      hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
-                                         hdfsdm_filter->InjectedChannelsNbr : 1;
-    }
+        /* Update remaining injected conversions */
+        hdfsdm_filter->InjConvRemaining--;
+        if (hdfsdm_filter->InjConvRemaining == 0) {
+            /* Update DFSDM filter state only if trigger is software */
+            if (hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) {
+                hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ) ? \
+                                       HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_REG;
+            }
 
-    /* Return function status */
-    return HAL_OK;
-  }
+            /* end of injected sequence, reset the value */
+            hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
+                                              hdfsdm_filter->InjectedChannelsNbr : 1;
+        }
+
+        /* Return function status */
+        return HAL_OK;
+    }
 }
 
 /**
@@ -1849,57 +1712,51 @@ HAL_StatusTypeDef HAL_DFSDM_FilterPollForInjConversion(DFSDM_Filter_HandleTypeDe
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterInjectedStop(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_INJ) && \
-     (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ))
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Stop injected conversion */
-    DFSDM_InjConvStop(hdfsdm_filter);
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_INJ) && \
+            (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ)) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Stop injected conversion */
+        DFSDM_InjConvStop(hdfsdm_filter);
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
   * @brief  This function allows to start injected conversion in interrupt mode.
-  * @note   This function should be called only when DFSDM filter instance is 
+  * @note   This function should be called only when DFSDM filter instance is
   *         in idle state or if regular conversion is ongoing.
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterInjectedStart_IT(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
-     (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG))
-  {
-    /* Enable interrupts for injected conversions */
-    hdfsdm_filter->Instance->FLTCR2 |= (DFSDM_FLTCR2_JEOCIE | DFSDM_FLTCR2_JOVRIE);
-    
-    /* Start injected conversion */
-    DFSDM_InjConvStart(hdfsdm_filter);
-  }
-  else
-  {
-    status = HAL_ERROR;
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
+            (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG)) {
+        /* Enable interrupts for injected conversions */
+        hdfsdm_filter->Instance->FLTCR2 |= (DFSDM_FLTCR2_JEOCIE | DFSDM_FLTCR2_JOVRIE);
+
+        /* Start injected conversion */
+        DFSDM_InjConvStart(hdfsdm_filter);
+    } else {
+        status = HAL_ERROR;
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -1910,33 +1767,30 @@ HAL_StatusTypeDef HAL_DFSDM_FilterInjectedStart_IT(DFSDM_Filter_HandleTypeDef *h
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterInjectedStop_IT(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_INJ) && \
-     (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ))
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Disable interrupts for injected conversions */
-    hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_JEOCIE | DFSDM_FLTCR2_JOVRIE);
-    
-    /* Stop injected conversion */
-    DFSDM_InjConvStop(hdfsdm_filter);
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_INJ) && \
+            (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ)) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Disable interrupts for injected conversions */
+        hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_JEOCIE | DFSDM_FLTCR2_JOVRIE);
+
+        /* Stop injected conversion */
+        DFSDM_InjConvStop(hdfsdm_filter);
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
   * @brief  This function allows to start injected conversion in DMA mode.
-  * @note   This function should be called only when DFSDM filter instance is 
+  * @note   This function should be called only when DFSDM filter instance is
   *         in idle state or if regular conversion is ongoing.
   *         Please note that data on buffer will contain signed injected conversion
   *         value on 24 most significant bits and corresponding channel on 3 least
@@ -1950,69 +1804,58 @@ HAL_StatusTypeDef HAL_DFSDM_FilterInjectedStart_DMA(DFSDM_Filter_HandleTypeDef *
                                                     int32_t                    *pData,
                                                     uint32_t                    Length)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check destination address and length */
-  if((pData == NULL) || (Length == 0))
-  {
-    status = HAL_ERROR;
-  }
-  /* Check that DMA is enabled for injected conversion */
-  else if((hdfsdm_filter->Instance->FLTCR1 & DFSDM_FLTCR1_JDMAEN) != DFSDM_FLTCR1_JDMAEN)
-  {
-    status = HAL_ERROR;
-  }
-  /* Check parameters compatibility */
-  else if((hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) && \
-          (hdfsdm_filter->hdmaInj->Init.Mode == DMA_NORMAL) && \
-          (Length > hdfsdm_filter->InjConvRemaining))
-  {
-    status = HAL_ERROR;
-  }
-  else if((hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) && \
-          (hdfsdm_filter->hdmaInj->Init.Mode == DMA_CIRCULAR))
-  {
-    status = HAL_ERROR;
-  }
-  /* Check DFSDM filter state */
-  else if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
-          (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG))
-  {
-    /* Set callbacks on DMA handler */
-    hdfsdm_filter->hdmaInj->XferCpltCallback = DFSDM_DMAInjectedConvCplt;
-    hdfsdm_filter->hdmaInj->XferErrorCallback = DFSDM_DMAError;
-    hdfsdm_filter->hdmaInj->XferHalfCpltCallback = (hdfsdm_filter->hdmaInj->Init.Mode == DMA_CIRCULAR) ?\
-                                                   DFSDM_DMAInjectedHalfConvCplt : NULL;
-    
-    /* Start DMA in interrupt mode */
-    if(HAL_DMA_Start_IT(hdfsdm_filter->hdmaInj, (uint32_t)&hdfsdm_filter->Instance->FLTJDATAR, \
-                        (uint32_t) pData, Length) != HAL_OK)
-    {
-      /* Set DFSDM filter in error state */
-      hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
-      status = HAL_ERROR;
+    /* Check destination address and length */
+    if ((pData == NULL) || (Length == 0)) {
+        status = HAL_ERROR;
     }
-    else
-    {
-      /* Start injected conversion */
-      DFSDM_InjConvStart(hdfsdm_filter);
+    /* Check that DMA is enabled for injected conversion */
+    else if ((hdfsdm_filter->Instance->FLTCR1 & DFSDM_FLTCR1_JDMAEN) != DFSDM_FLTCR1_JDMAEN) {
+        status = HAL_ERROR;
     }
-  }
-  else
-  {
-    status = HAL_ERROR;
-  }
-  /* Return function status */
-  return status;
+    /* Check parameters compatibility */
+    else if ((hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) && \
+             (hdfsdm_filter->hdmaInj->Init.Mode == DMA_NORMAL) && \
+             (Length > hdfsdm_filter->InjConvRemaining)) {
+        status = HAL_ERROR;
+    } else if ((hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) && \
+               (hdfsdm_filter->hdmaInj->Init.Mode == DMA_CIRCULAR)) {
+        status = HAL_ERROR;
+    }
+    /* Check DFSDM filter state */
+    else if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
+             (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG)) {
+        /* Set callbacks on DMA handler */
+        hdfsdm_filter->hdmaInj->XferCpltCallback = DFSDM_DMAInjectedConvCplt;
+        hdfsdm_filter->hdmaInj->XferErrorCallback = DFSDM_DMAError;
+        hdfsdm_filter->hdmaInj->XferHalfCpltCallback = (hdfsdm_filter->hdmaInj->Init.Mode == DMA_CIRCULAR) ? \
+                                                       DFSDM_DMAInjectedHalfConvCplt : NULL;
+
+        /* Start DMA in interrupt mode */
+        if (HAL_DMA_Start_IT(hdfsdm_filter->hdmaInj, (uint32_t)&hdfsdm_filter->Instance->FLTJDATAR, \
+                             (uint32_t) pData, Length) != HAL_OK) {
+            /* Set DFSDM filter in error state */
+            hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
+            status = HAL_ERROR;
+        } else {
+            /* Start injected conversion */
+            DFSDM_InjConvStart(hdfsdm_filter);
+        }
+    } else {
+        status = HAL_ERROR;
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
   * @brief  This function allows to start injected conversion in DMA mode and to get
   *         only the 16 most significant bits of conversion.
-  * @note   This function should be called only when DFSDM filter instance is 
+  * @note   This function should be called only when DFSDM filter instance is
   *         in idle state or if regular conversion is ongoing.
   *         Please note that data on buffer will contain signed 16 most significant
   *         bits of injected conversion.
@@ -2025,63 +1868,52 @@ HAL_StatusTypeDef HAL_DFSDM_FilterInjectedMsbStart_DMA(DFSDM_Filter_HandleTypeDe
                                                        int16_t                    *pData,
                                                        uint32_t                    Length)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check destination address and length */
-  if((pData == NULL) || (Length == 0))
-  {
-    status = HAL_ERROR;
-  }
-  /* Check that DMA is enabled for injected conversion */
-  else if((hdfsdm_filter->Instance->FLTCR1 & DFSDM_FLTCR1_JDMAEN) != DFSDM_FLTCR1_JDMAEN)
-  {
-    status = HAL_ERROR;
-  }
-  /* Check parameters compatibility */
-  else if((hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) && \
-          (hdfsdm_filter->hdmaInj->Init.Mode == DMA_NORMAL) && \
-          (Length > hdfsdm_filter->InjConvRemaining))
-  {
-    status = HAL_ERROR;
-  }
-  else if((hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) && \
-          (hdfsdm_filter->hdmaInj->Init.Mode == DMA_CIRCULAR))
-  {
-    status = HAL_ERROR;
-  }
-  /* Check DFSDM filter state */
-  else if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
-          (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG))
-  {
-    /* Set callbacks on DMA handler */
-    hdfsdm_filter->hdmaInj->XferCpltCallback = DFSDM_DMAInjectedConvCplt;
-    hdfsdm_filter->hdmaInj->XferErrorCallback = DFSDM_DMAError;
-    hdfsdm_filter->hdmaInj->XferHalfCpltCallback = (hdfsdm_filter->hdmaInj->Init.Mode == DMA_CIRCULAR) ?\
-                                                   DFSDM_DMAInjectedHalfConvCplt : NULL;
-    
-    /* Start DMA in interrupt mode */
-    if(HAL_DMA_Start_IT(hdfsdm_filter->hdmaInj, (uint32_t)(&hdfsdm_filter->Instance->FLTJDATAR) + 2, \
-                        (uint32_t) pData, Length) != HAL_OK)
-    {
-      /* Set DFSDM filter in error state */
-      hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
-      status = HAL_ERROR;
+    /* Check destination address and length */
+    if ((pData == NULL) || (Length == 0)) {
+        status = HAL_ERROR;
     }
-    else
-    {
-      /* Start injected conversion */
-      DFSDM_InjConvStart(hdfsdm_filter);
+    /* Check that DMA is enabled for injected conversion */
+    else if ((hdfsdm_filter->Instance->FLTCR1 & DFSDM_FLTCR1_JDMAEN) != DFSDM_FLTCR1_JDMAEN) {
+        status = HAL_ERROR;
     }
-  }
-  else
-  {
-    status = HAL_ERROR;
-  }
-  /* Return function status */
-  return status;
+    /* Check parameters compatibility */
+    else if ((hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) && \
+             (hdfsdm_filter->hdmaInj->Init.Mode == DMA_NORMAL) && \
+             (Length > hdfsdm_filter->InjConvRemaining)) {
+        status = HAL_ERROR;
+    } else if ((hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) && \
+               (hdfsdm_filter->hdmaInj->Init.Mode == DMA_CIRCULAR)) {
+        status = HAL_ERROR;
+    }
+    /* Check DFSDM filter state */
+    else if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) || \
+             (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG)) {
+        /* Set callbacks on DMA handler */
+        hdfsdm_filter->hdmaInj->XferCpltCallback = DFSDM_DMAInjectedConvCplt;
+        hdfsdm_filter->hdmaInj->XferErrorCallback = DFSDM_DMAError;
+        hdfsdm_filter->hdmaInj->XferHalfCpltCallback = (hdfsdm_filter->hdmaInj->Init.Mode == DMA_CIRCULAR) ? \
+                                                       DFSDM_DMAInjectedHalfConvCplt : NULL;
+
+        /* Start DMA in interrupt mode */
+        if (HAL_DMA_Start_IT(hdfsdm_filter->hdmaInj, (uint32_t)(&hdfsdm_filter->Instance->FLTJDATAR) + 2, \
+                             (uint32_t) pData, Length) != HAL_OK) {
+            /* Set DFSDM filter in error state */
+            hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
+            status = HAL_ERROR;
+        } else {
+            /* Start injected conversion */
+            DFSDM_InjConvStart(hdfsdm_filter);
+        }
+    } else {
+        status = HAL_ERROR;
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -2092,35 +1924,29 @@ HAL_StatusTypeDef HAL_DFSDM_FilterInjectedMsbStart_DMA(DFSDM_Filter_HandleTypeDe
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterInjectedStop_DMA(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_INJ) && \
-     (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ))
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Stop current DMA transfer */
-    if(HAL_DMA_Abort(hdfsdm_filter->hdmaInj) != HAL_OK)
-    {
-      /* Set DFSDM filter in error state */
-      hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
-      status = HAL_ERROR;
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_INJ) && \
+            (hdfsdm_filter->State != HAL_DFSDM_FILTER_STATE_REG_INJ)) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Stop current DMA transfer */
+        if (HAL_DMA_Abort(hdfsdm_filter->hdmaInj) != HAL_OK) {
+            /* Set DFSDM filter in error state */
+            hdfsdm_filter->State = HAL_DFSDM_FILTER_STATE_ERROR;
+            status = HAL_ERROR;
+        } else {
+            /* Stop regular conversion */
+            DFSDM_InjConvStop(hdfsdm_filter);
+        }
     }
-    else
-    {
-      /* Stop regular conversion */
-      DFSDM_InjConvStop(hdfsdm_filter);
-    }
-  }
-  /* Return function status */
-  return status;
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -2129,25 +1955,25 @@ HAL_StatusTypeDef HAL_DFSDM_FilterInjectedStop_DMA(DFSDM_Filter_HandleTypeDef *h
   * @param  Channel : Corresponding channel of injected conversion.
   * @retval Injected conversion value
   */
-int32_t HAL_DFSDM_FilterGetInjectedValue(DFSDM_Filter_HandleTypeDef *hdfsdm_filter, 
+int32_t HAL_DFSDM_FilterGetInjectedValue(DFSDM_Filter_HandleTypeDef *hdfsdm_filter,
                                          uint32_t                   *Channel)
 {
-  uint32_t reg = 0;
-  int32_t  value = 0;
-  
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  assert_param(Channel != NULL);
+    uint32_t reg = 0;
+    int32_t  value = 0;
 
-  /* Get value of data register for injected channel */
-  reg = hdfsdm_filter->Instance->FLTJDATAR;
-  
-  /* Extract channel and injected conversion value */
-  *Channel = (reg & DFSDM_FLTJDATAR_JDATACH);
-  value = ((reg & DFSDM_FLTJDATAR_JDATA) >> DFSDM_FLTJDATAR_DATA_OFFSET);
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    assert_param(Channel != NULL);
 
-  /* return regular conversion value */
-  return value;
+    /* Get value of data register for injected channel */
+    reg = hdfsdm_filter->Instance->FLTJDATAR;
+
+    /* Extract channel and injected conversion value */
+    *Channel = (reg & DFSDM_FLTJDATAR_JDATACH);
+    value = ((reg & DFSDM_FLTJDATAR_JDATA) >> DFSDM_FLTJDATAR_DATA_OFFSET);
+
+    /* return regular conversion value */
+    return value;
 }
 
 /**
@@ -2159,45 +1985,42 @@ int32_t HAL_DFSDM_FilterGetInjectedValue(DFSDM_Filter_HandleTypeDef *hdfsdm_filt
 HAL_StatusTypeDef HAL_DFSDM_FilterAwdStart_IT(DFSDM_Filter_HandleTypeDef   *hdfsdm_filter,
                                               DFSDM_Filter_AwdParamTypeDef *awdParam)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  assert_param(IS_DFSDM_FILTER_AWD_DATA_SOURCE(awdParam->DataSource));
-  assert_param(IS_DFSDM_INJECTED_CHANNEL(awdParam->Channel));
-  assert_param(IS_DFSDM_FILTER_AWD_THRESHOLD(awdParam->HighThreshold));
-  assert_param(IS_DFSDM_FILTER_AWD_THRESHOLD(awdParam->LowThreshold));
-  assert_param(IS_DFSDM_BREAK_SIGNALS(awdParam->HighBreakSignal));
-  assert_param(IS_DFSDM_BREAK_SIGNALS(awdParam->LowBreakSignal));
-  
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_RESET) || \
-     (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_ERROR))
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Set analog watchdog data source */
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_AWFSEL);
-    hdfsdm_filter->Instance->FLTCR1 |= awdParam->DataSource;
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    assert_param(IS_DFSDM_FILTER_AWD_DATA_SOURCE(awdParam->DataSource));
+    assert_param(IS_DFSDM_INJECTED_CHANNEL(awdParam->Channel));
+    assert_param(IS_DFSDM_FILTER_AWD_THRESHOLD(awdParam->HighThreshold));
+    assert_param(IS_DFSDM_FILTER_AWD_THRESHOLD(awdParam->LowThreshold));
+    assert_param(IS_DFSDM_BREAK_SIGNALS(awdParam->HighBreakSignal));
+    assert_param(IS_DFSDM_BREAK_SIGNALS(awdParam->LowBreakSignal));
 
-    /* Set thresholds and break signals */
-    hdfsdm_filter->Instance->FLTAWHTR &= ~(DFSDM_FLTAWHTR_AWHT | DFSDM_FLTAWHTR_BKAWH);
-    hdfsdm_filter->Instance->FLTAWHTR |= (((uint32_t) awdParam->HighThreshold << DFSDM_FLTAWHTR_THRESHOLD_OFFSET) | \
-                                        awdParam->HighBreakSignal);
-    hdfsdm_filter->Instance->FLTAWLTR &= ~(DFSDM_FLTAWLTR_AWLT | DFSDM_FLTAWLTR_BKAWL);
-    hdfsdm_filter->Instance->FLTAWLTR |= (((uint32_t) awdParam->LowThreshold << DFSDM_FLTAWLTR_THRESHOLD_OFFSET) | \
-                                        awdParam->LowBreakSignal);
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_RESET) || \
+            (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_ERROR)) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Set analog watchdog data source */
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_AWFSEL);
+        hdfsdm_filter->Instance->FLTCR1 |= awdParam->DataSource;
 
-    /* Set channels and interrupt for analog watchdog */
-    hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_AWDCH);
-    hdfsdm_filter->Instance->FLTCR2 |= (((awdParam->Channel & DFSDM_LSB_MASK) << DFSDM_FLTCR2_AWDCH_OFFSET) | \
-                                        DFSDM_FLTCR2_AWDIE);
-  }
-  /* Return function status */
-  return status;
+        /* Set thresholds and break signals */
+        hdfsdm_filter->Instance->FLTAWHTR &= ~(DFSDM_FLTAWHTR_AWHT | DFSDM_FLTAWHTR_BKAWH);
+        hdfsdm_filter->Instance->FLTAWHTR |= (((uint32_t) awdParam->HighThreshold << DFSDM_FLTAWHTR_THRESHOLD_OFFSET) | \
+                                              awdParam->HighBreakSignal);
+        hdfsdm_filter->Instance->FLTAWLTR &= ~(DFSDM_FLTAWLTR_AWLT | DFSDM_FLTAWLTR_BKAWL);
+        hdfsdm_filter->Instance->FLTAWLTR |= (((uint32_t) awdParam->LowThreshold << DFSDM_FLTAWLTR_THRESHOLD_OFFSET) | \
+                                              awdParam->LowBreakSignal);
+
+        /* Set channels and interrupt for analog watchdog */
+        hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_AWDCH);
+        hdfsdm_filter->Instance->FLTCR2 |= (((awdParam->Channel & DFSDM_LSB_MASK) << DFSDM_FLTCR2_AWDCH_OFFSET) | \
+                                            DFSDM_FLTCR2_AWDIE);
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -2207,35 +2030,32 @@ HAL_StatusTypeDef HAL_DFSDM_FilterAwdStart_IT(DFSDM_Filter_HandleTypeDef   *hdfs
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterAwdStop_IT(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_RESET) || \
-     (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_ERROR))
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Reset channels for analog watchdog and deactivate interrupt */
-    hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_AWDCH | DFSDM_FLTCR2_AWDIE);
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-    /* Clear all analog watchdog flags */
-    hdfsdm_filter->Instance->FLTAWCFR = (DFSDM_FLTAWCFR_CLRAWHTF | DFSDM_FLTAWCFR_CLRAWLTF);
-    
-    /* Reset thresholds and break signals */
-    hdfsdm_filter->Instance->FLTAWHTR &= ~(DFSDM_FLTAWHTR_AWHT | DFSDM_FLTAWHTR_BKAWH);
-    hdfsdm_filter->Instance->FLTAWLTR &= ~(DFSDM_FLTAWLTR_AWLT | DFSDM_FLTAWLTR_BKAWL);
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_RESET) || \
+            (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_ERROR)) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Reset channels for analog watchdog and deactivate interrupt */
+        hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_AWDCH | DFSDM_FLTCR2_AWDIE);
 
-    /* Reset analog watchdog data source */
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_AWFSEL);
-  }
-  /* Return function status */
-  return status;
+        /* Clear all analog watchdog flags */
+        hdfsdm_filter->Instance->FLTAWCFR = (DFSDM_FLTAWCFR_CLRAWHTF | DFSDM_FLTAWCFR_CLRAWLTF);
+
+        /* Reset thresholds and break signals */
+        hdfsdm_filter->Instance->FLTAWHTR &= ~(DFSDM_FLTAWHTR_AWHT | DFSDM_FLTAWHTR_BKAWH);
+        hdfsdm_filter->Instance->FLTAWLTR &= ~(DFSDM_FLTAWLTR_AWLT | DFSDM_FLTAWLTR_BKAWL);
+
+        /* Reset analog watchdog data source */
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_AWFSEL);
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -2248,27 +2068,24 @@ HAL_StatusTypeDef HAL_DFSDM_FilterAwdStop_IT(DFSDM_Filter_HandleTypeDef *hdfsdm_
 HAL_StatusTypeDef HAL_DFSDM_FilterExdStart(DFSDM_Filter_HandleTypeDef *hdfsdm_filter,
                                            uint32_t                    Channel)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  assert_param(IS_DFSDM_INJECTED_CHANNEL(Channel));
-  
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_RESET) || \
-     (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_ERROR))
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Set channels for extreme detector */
-    hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_EXCH);
-    hdfsdm_filter->Instance->FLTCR2 |= ((Channel & DFSDM_LSB_MASK) << DFSDM_FLTCR2_EXCH_OFFSET);    
-  }
-  /* Return function status */
-  return status;
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    assert_param(IS_DFSDM_INJECTED_CHANNEL(Channel));
+
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_RESET) || \
+            (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_ERROR)) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Set channels for extreme detector */
+        hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_EXCH);
+        hdfsdm_filter->Instance->FLTCR2 |= ((Channel & DFSDM_LSB_MASK) << DFSDM_FLTCR2_EXCH_OFFSET);
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -2278,33 +2095,30 @@ HAL_StatusTypeDef HAL_DFSDM_FilterExdStart(DFSDM_Filter_HandleTypeDef *hdfsdm_fi
   */
 HAL_StatusTypeDef HAL_DFSDM_FilterExdStop(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  HAL_StatusTypeDef status = HAL_OK;
-  __IO uint32_t     reg1;
-  __IO uint32_t     reg2;
+    HAL_StatusTypeDef status = HAL_OK;
+    __IO uint32_t     reg1;
+    __IO uint32_t     reg2;
 
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  
-  /* Check DFSDM filter state */
-  if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_RESET) || \
-     (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_ERROR))
-  {
-    /* Return error status */
-    status = HAL_ERROR;
-  }
-  else
-  {
-    /* Reset channels for extreme detector */
-    hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_EXCH);
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-    /* Clear extreme detector values */
-    reg1 = hdfsdm_filter->Instance->FLTEXMAX;
-    reg2 = hdfsdm_filter->Instance->FLTEXMIN;    
-    UNUSED(reg1); /* To avoid GCC warning */
-    UNUSED(reg2); /* To avoid GCC warning */
-  }
-  /* Return function status */
-  return status;
+    /* Check DFSDM filter state */
+    if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_RESET) || \
+            (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_ERROR)) {
+        /* Return error status */
+        status = HAL_ERROR;
+    } else {
+        /* Reset channels for extreme detector */
+        hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_EXCH);
+
+        /* Clear extreme detector values */
+        reg1 = hdfsdm_filter->Instance->FLTEXMAX;
+        reg2 = hdfsdm_filter->Instance->FLTEXMIN;
+        UNUSED(reg1); /* To avoid GCC warning */
+        UNUSED(reg2); /* To avoid GCC warning */
+    }
+    /* Return function status */
+    return status;
 }
 
 /**
@@ -2317,22 +2131,22 @@ HAL_StatusTypeDef HAL_DFSDM_FilterExdStop(DFSDM_Filter_HandleTypeDef *hdfsdm_fil
 int32_t HAL_DFSDM_FilterGetExdMaxValue(DFSDM_Filter_HandleTypeDef *hdfsdm_filter,
                                        uint32_t                   *Channel)
 {
-  uint32_t reg = 0;
-  int32_t  value = 0;
-  
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  assert_param(Channel != NULL);
+    uint32_t reg = 0;
+    int32_t  value = 0;
 
-  /* Get value of extreme detector maximum register */
-  reg = hdfsdm_filter->Instance->FLTEXMAX;
-  
-  /* Extract channel and extreme detector maximum value */
-  *Channel = (reg & DFSDM_FLTEXMAX_EXMAXCH);
-  value = ((reg & DFSDM_FLTEXMAX_EXMAX) >> DFSDM_FLTEXMAX_DATA_OFFSET);
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    assert_param(Channel != NULL);
 
-  /* return extreme detector maximum value */
-  return value;
+    /* Get value of extreme detector maximum register */
+    reg = hdfsdm_filter->Instance->FLTEXMAX;
+
+    /* Extract channel and extreme detector maximum value */
+    *Channel = (reg & DFSDM_FLTEXMAX_EXMAXCH);
+    value = ((reg & DFSDM_FLTEXMAX_EXMAX) >> DFSDM_FLTEXMAX_DATA_OFFSET);
+
+    /* return extreme detector maximum value */
+    return value;
 }
 
 /**
@@ -2345,22 +2159,22 @@ int32_t HAL_DFSDM_FilterGetExdMaxValue(DFSDM_Filter_HandleTypeDef *hdfsdm_filter
 int32_t HAL_DFSDM_FilterGetExdMinValue(DFSDM_Filter_HandleTypeDef *hdfsdm_filter,
                                        uint32_t                   *Channel)
 {
-  uint32_t reg = 0;
-  int32_t  value = 0;
-  
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
-  assert_param(Channel != NULL);
+    uint32_t reg = 0;
+    int32_t  value = 0;
 
-  /* Get value of extreme detector minimum register */
-  reg = hdfsdm_filter->Instance->FLTEXMIN;
-  
-  /* Extract channel and extreme detector minimum value */
-  *Channel = (reg & DFSDM_FLTEXMIN_EXMINCH);
-  value = ((reg & DFSDM_FLTEXMIN_EXMIN) >> DFSDM_FLTEXMIN_DATA_OFFSET);
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    assert_param(Channel != NULL);
 
-  /* return extreme detector minimum value */
-  return value;
+    /* Get value of extreme detector minimum register */
+    reg = hdfsdm_filter->Instance->FLTEXMIN;
+
+    /* Extract channel and extreme detector minimum value */
+    *Channel = (reg & DFSDM_FLTEXMIN_EXMINCH);
+    value = ((reg & DFSDM_FLTEXMIN_EXMIN) >> DFSDM_FLTEXMIN_DATA_OFFSET);
+
+    /* return extreme detector minimum value */
+    return value;
 }
 
 /**
@@ -2371,20 +2185,20 @@ int32_t HAL_DFSDM_FilterGetExdMinValue(DFSDM_Filter_HandleTypeDef *hdfsdm_filter
   */
 uint32_t HAL_DFSDM_FilterGetConvTimeValue(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  uint32_t reg = 0;
-  uint32_t value = 0;
-  
-  /* Check parameters */
-  assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
+    uint32_t reg = 0;
+    uint32_t value = 0;
 
-  /* Get value of conversion timer register */
-  reg = hdfsdm_filter->Instance->FLTCNVTIMR;
-  
-  /* Extract conversion time value */
-  value = ((reg & DFSDM_FLTCNVTIMR_CNVCNT) >> DFSDM_FLTCNVTIMR_DATA_OFFSET);
+    /* Check parameters */
+    assert_param(IS_DFSDM_FILTER_ALL_INSTANCE(hdfsdm_filter->Instance));
 
-  /* return extreme detector minimum value */
-  return value;
+    /* Get value of conversion timer register */
+    reg = hdfsdm_filter->Instance->FLTCNVTIMR;
+
+    /* Extract conversion time value */
+    value = ((reg & DFSDM_FLTCNVTIMR_CNVCNT) >> DFSDM_FLTCNVTIMR_DATA_OFFSET);
+
+    /* return extreme detector minimum value */
+    return value;
 }
 
 /**
@@ -2394,160 +2208,144 @@ uint32_t HAL_DFSDM_FilterGetConvTimeValue(DFSDM_Filter_HandleTypeDef *hdfsdm_fil
   */
 void HAL_DFSDM_IRQHandler(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Check if overrun occurs during regular conversion */
-  if(((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_ROVRF) != 0) && \
-     ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_ROVRIE) != 0))
-  {
-    /* Clear regular overrun flag */
-    hdfsdm_filter->Instance->FLTICR = DFSDM_FLTICR_CLRROVRF;
+    /* Check if overrun occurs during regular conversion */
+    if (((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_ROVRF) != 0) && \
+            ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_ROVRIE) != 0)) {
+        /* Clear regular overrun flag */
+        hdfsdm_filter->Instance->FLTICR = DFSDM_FLTICR_CLRROVRF;
 
-    /* Update error code */
-    hdfsdm_filter->ErrorCode = DFSDM_FILTER_ERROR_REGULAR_OVERRUN;
+        /* Update error code */
+        hdfsdm_filter->ErrorCode = DFSDM_FILTER_ERROR_REGULAR_OVERRUN;
 
-    /* Call error callback */
-    HAL_DFSDM_FilterErrorCallback(hdfsdm_filter);
-  }
-  /* Check if overrun occurs during injected conversion */
-  else if(((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_JOVRF) != 0) && \
-          ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_JOVRIE) != 0))
-  {
-    /* Clear injected overrun flag */
-    hdfsdm_filter->Instance->FLTICR = DFSDM_FLTICR_CLRJOVRF;
-
-    /* Update error code */
-    hdfsdm_filter->ErrorCode = DFSDM_FILTER_ERROR_INJECTED_OVERRUN;
-
-    /* Call error callback */
-    HAL_DFSDM_FilterErrorCallback(hdfsdm_filter);
-  }
-  /* Check if end of regular conversion */
-  else if(((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_REOCF) != 0) && \
-          ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_REOCIE) != 0))
-  {
-    /* Call regular conversion complete callback */
-    HAL_DFSDM_FilterRegConvCpltCallback(hdfsdm_filter);
-
-    /* End of conversion if mode is not continuous and software trigger */
-    if((hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
-       (hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER))
-    {
-      /* Disable interrupts for regular conversions */
-      hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_REOCIE);
-
-      /* Update DFSDM filter state */
-      hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG) ? \
-                             HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_INJ;
+        /* Call error callback */
+        HAL_DFSDM_FilterErrorCallback(hdfsdm_filter);
     }
-  }
-  /* Check if end of injected conversion */
-  else if(((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_JEOCF) != 0) && \
-          ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_JEOCIE) != 0))
-  {
-    /* Call injected conversion complete callback */
-    HAL_DFSDM_FilterInjConvCpltCallback(hdfsdm_filter);
+    /* Check if overrun occurs during injected conversion */
+    else if (((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_JOVRF) != 0) && \
+             ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_JOVRIE) != 0)) {
+        /* Clear injected overrun flag */
+        hdfsdm_filter->Instance->FLTICR = DFSDM_FLTICR_CLRJOVRF;
 
-    /* Update remaining injected conversions */
-    hdfsdm_filter->InjConvRemaining--;
-    if(hdfsdm_filter->InjConvRemaining == 0)
-    {
-      /* End of conversion if trigger is software */
-      if(hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER)
-      {
-        /* Disable interrupts for injected conversions */
-        hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_JEOCIE);
+        /* Update error code */
+        hdfsdm_filter->ErrorCode = DFSDM_FILTER_ERROR_INJECTED_OVERRUN;
 
-        /* Update DFSDM filter state */
-        hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ) ? \
-                               HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_REG;
-      }
-      /* end of injected sequence, reset the value */
-      hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
-                                         hdfsdm_filter->InjectedChannelsNbr : 1;
+        /* Call error callback */
+        HAL_DFSDM_FilterErrorCallback(hdfsdm_filter);
     }
-  }
-  /* Check if analog watchdog occurs */
-  else if(((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_AWDF) != 0) && \
-          ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_AWDIE) != 0))
-  {
-    uint32_t reg = 0;
-    uint32_t threshold = 0;
-    uint32_t channel = 0;
-    
-    /* Get channel and threshold */
-    reg = hdfsdm_filter->Instance->FLTAWSR;
-    threshold = ((reg & DFSDM_FLTAWSR_AWLTF) != 0) ? DFSDM_AWD_LOW_THRESHOLD : DFSDM_AWD_HIGH_THRESHOLD;
-    if(threshold == DFSDM_AWD_HIGH_THRESHOLD)
-    {
-      reg = reg >> DFSDM_FLTAWSR_HIGH_OFFSET;
-    }
-    while((reg & 1) == 0)
-    {
-      channel++;
-      reg = reg >> 1;
-    }
-    /* Clear analog watchdog flag */
-    hdfsdm_filter->Instance->FLTAWCFR = (threshold == DFSDM_AWD_HIGH_THRESHOLD) ? \
-                                        (1 << (DFSDM_FLTAWSR_HIGH_OFFSET + channel)) : \
-                                     (1 << channel);
+    /* Check if end of regular conversion */
+    else if (((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_REOCF) != 0) && \
+             ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_REOCIE) != 0)) {
+        /* Call regular conversion complete callback */
+        HAL_DFSDM_FilterRegConvCpltCallback(hdfsdm_filter);
 
-    /* Call analog watchdog callback */
-    HAL_DFSDM_FilterAwdCallback(hdfsdm_filter, channel, threshold);
-  }
-  /* Check if clock absence occurs */
-  else if((hdfsdm_filter->Instance == DFSDM1_Filter0) && \
-         ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_CKABF) != 0) && \
-         ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_CKABIE) != 0))
-  {
-    uint32_t reg = 0;
-    uint32_t channel = 0;
-    
-    reg = ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_CKABF) >> DFSDM_FLTISR_CKABF_OFFSET);
+        /* End of conversion if mode is not continuous and software trigger */
+        if ((hdfsdm_filter->RegularContMode == DFSDM_CONTINUOUS_CONV_OFF) && \
+                (hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER)) {
+            /* Disable interrupts for regular conversions */
+            hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_REOCIE);
 
-    while(channel < DFSDM1_CHANNEL_NUMBER)
-    {
-      /* Check if flag is set and corresponding channel is enabled */
-      if(((reg & 1) != 0) && (a_dfsdm1ChannelHandle[channel] != NULL))
-      {
-        /* Check clock absence has been enabled for this channel */
-        if((a_dfsdm1ChannelHandle[channel]->Instance->CHCFGR1 & DFSDM_CHCFGR1_CKABEN) != 0)
-        {
-          /* Clear clock absence flag */
-          hdfsdm_filter->Instance->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
-
-          /* Call clock absence callback */
-          HAL_DFSDM_ChannelCkabCallback(a_dfsdm1ChannelHandle[channel]);
+            /* Update DFSDM filter state */
+            hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG) ? \
+                                   HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_INJ;
         }
-      }
-      channel++;
-      reg = reg >> 1;
     }
-  }
-  /* Check if short circuit detection occurs */
-  else if((hdfsdm_filter->Instance == DFSDM1_Filter0) && \
-         ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_SCDF) != 0) && \
-         ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_SCDIE) != 0))
-  {
-    uint32_t reg = 0;
-    uint32_t channel = 0;
-    
-    /* Get channel */
-    reg = ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_SCDF) >> DFSDM_FLTISR_SCDF_OFFSET);
-    while((reg & 1) == 0)
-    {
-      channel++;
-      reg = reg >> 1;
-    }
-    
-    /* Clear short circuit detection flag */
-    hdfsdm_filter->Instance->FLTICR = (1 << (DFSDM_FLTICR_CLRSCDF_OFFSET + channel));
+    /* Check if end of injected conversion */
+    else if (((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_JEOCF) != 0) && \
+             ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_JEOCIE) != 0)) {
+        /* Call injected conversion complete callback */
+        HAL_DFSDM_FilterInjConvCpltCallback(hdfsdm_filter);
 
-    /* Call short circuit detection callback */
-    HAL_DFSDM_ChannelScdCallback(a_dfsdm1ChannelHandle[channel]);
-  }
+        /* Update remaining injected conversions */
+        hdfsdm_filter->InjConvRemaining--;
+        if (hdfsdm_filter->InjConvRemaining == 0) {
+            /* End of conversion if trigger is software */
+            if (hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) {
+                /* Disable interrupts for injected conversions */
+                hdfsdm_filter->Instance->FLTCR2 &= ~(DFSDM_FLTCR2_JEOCIE);
+
+                /* Update DFSDM filter state */
+                hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ) ? \
+                                       HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_REG;
+            }
+            /* end of injected sequence, reset the value */
+            hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
+                                              hdfsdm_filter->InjectedChannelsNbr : 1;
+        }
+    }
+    /* Check if analog watchdog occurs */
+    else if (((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_AWDF) != 0) && \
+             ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_AWDIE) != 0)) {
+        uint32_t reg = 0;
+        uint32_t threshold = 0;
+        uint32_t channel = 0;
+
+        /* Get channel and threshold */
+        reg = hdfsdm_filter->Instance->FLTAWSR;
+        threshold = ((reg & DFSDM_FLTAWSR_AWLTF) != 0) ? DFSDM_AWD_LOW_THRESHOLD : DFSDM_AWD_HIGH_THRESHOLD;
+        if (threshold == DFSDM_AWD_HIGH_THRESHOLD) {
+            reg = reg >> DFSDM_FLTAWSR_HIGH_OFFSET;
+        }
+        while ((reg & 1) == 0) {
+            channel++;
+            reg = reg >> 1;
+        }
+        /* Clear analog watchdog flag */
+        hdfsdm_filter->Instance->FLTAWCFR = (threshold == DFSDM_AWD_HIGH_THRESHOLD) ? \
+                                            (1 << (DFSDM_FLTAWSR_HIGH_OFFSET + channel)) : \
+                                            (1 << channel);
+
+        /* Call analog watchdog callback */
+        HAL_DFSDM_FilterAwdCallback(hdfsdm_filter, channel, threshold);
+    }
+    /* Check if clock absence occurs */
+    else if ((hdfsdm_filter->Instance == DFSDM1_Filter0) && \
+             ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_CKABF) != 0) && \
+             ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_CKABIE) != 0)) {
+        uint32_t reg = 0;
+        uint32_t channel = 0;
+
+        reg = ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_CKABF) >> DFSDM_FLTISR_CKABF_OFFSET);
+
+        while (channel < DFSDM1_CHANNEL_NUMBER) {
+            /* Check if flag is set and corresponding channel is enabled */
+            if (((reg & 1) != 0) && (a_dfsdm1ChannelHandle[channel] != NULL)) {
+                /* Check clock absence has been enabled for this channel */
+                if ((a_dfsdm1ChannelHandle[channel]->Instance->CHCFGR1 & DFSDM_CHCFGR1_CKABEN) != 0) {
+                    /* Clear clock absence flag */
+                    hdfsdm_filter->Instance->FLTICR = (1 << (DFSDM_FLTICR_CLRCKABF_OFFSET + channel));
+
+                    /* Call clock absence callback */
+                    HAL_DFSDM_ChannelCkabCallback(a_dfsdm1ChannelHandle[channel]);
+                }
+            }
+            channel++;
+            reg = reg >> 1;
+        }
+    }
+    /* Check if short circuit detection occurs */
+    else if ((hdfsdm_filter->Instance == DFSDM1_Filter0) && \
+             ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_SCDF) != 0) && \
+             ((hdfsdm_filter->Instance->FLTCR2 & DFSDM_FLTCR2_SCDIE) != 0)) {
+        uint32_t reg = 0;
+        uint32_t channel = 0;
+
+        /* Get channel */
+        reg = ((hdfsdm_filter->Instance->FLTISR & DFSDM_FLTISR_SCDF) >> DFSDM_FLTISR_SCDF_OFFSET);
+        while ((reg & 1) == 0) {
+            channel++;
+            reg = reg >> 1;
+        }
+
+        /* Clear short circuit detection flag */
+        hdfsdm_filter->Instance->FLTICR = (1 << (DFSDM_FLTICR_CLRSCDF_OFFSET + channel));
+
+        /* Call short circuit detection callback */
+        HAL_DFSDM_ChannelScdCallback(a_dfsdm1ChannelHandle[channel]);
+    }
 }
 
 /**
-  * @brief  Regular conversion complete callback. 
+  * @brief  Regular conversion complete callback.
   * @note   In interrupt mode, user has to read conversion value in this function
   *         using HAL_DFSDM_FilterGetRegularValue.
   * @param  hdfsdm_filter : DFSDM filter handle.
@@ -2555,31 +2353,31 @@ void HAL_DFSDM_IRQHandler(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
   */
 __weak void HAL_DFSDM_FilterRegConvCpltCallback(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_filter);
-  
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_DFSDM_FilterRegConvCpltCallback could be implemented in the user file.
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_filter);
+
+    /* NOTE : This function should not be modified, when the callback is needed,
+              the HAL_DFSDM_FilterRegConvCpltCallback could be implemented in the user file.
+     */
 }
 
 /**
-  * @brief  Half regular conversion complete callback. 
+  * @brief  Half regular conversion complete callback.
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @retval None
   */
 __weak void HAL_DFSDM_FilterRegConvHalfCpltCallback(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_filter);
-  
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_DFSDM_FilterRegConvHalfCpltCallback could be implemented in the user file.
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_filter);
+
+    /* NOTE : This function should not be modified, when the callback is needed,
+              the HAL_DFSDM_FilterRegConvHalfCpltCallback could be implemented in the user file.
+     */
 }
 
 /**
-  * @brief  Injected conversion complete callback. 
+  * @brief  Injected conversion complete callback.
   * @note   In interrupt mode, user has to read conversion value in this function
   *         using HAL_DFSDM_FilterGetInjectedValue.
   * @param  hdfsdm_filter : DFSDM filter handle.
@@ -2587,31 +2385,31 @@ __weak void HAL_DFSDM_FilterRegConvHalfCpltCallback(DFSDM_Filter_HandleTypeDef *
   */
 __weak void HAL_DFSDM_FilterInjConvCpltCallback(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_filter);
-  
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_DFSDM_FilterInjConvCpltCallback could be implemented in the user file.
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_filter);
+
+    /* NOTE : This function should not be modified, when the callback is needed,
+              the HAL_DFSDM_FilterInjConvCpltCallback could be implemented in the user file.
+     */
 }
 
 /**
-  * @brief  Half injected conversion complete callback. 
+  * @brief  Half injected conversion complete callback.
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @retval None
   */
 __weak void HAL_DFSDM_FilterInjConvHalfCpltCallback(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_filter);
-  
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_DFSDM_FilterInjConvHalfCpltCallback could be implemented in the user file.
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_filter);
+
+    /* NOTE : This function should not be modified, when the callback is needed,
+              the HAL_DFSDM_FilterInjConvHalfCpltCallback could be implemented in the user file.
+     */
 }
 
 /**
-  * @brief  Filter analog watchdog callback. 
+  * @brief  Filter analog watchdog callback.
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @param  Channel : Corresponding channel.
   * @param  Threshold : Low or high threshold has been reached.
@@ -2620,29 +2418,29 @@ __weak void HAL_DFSDM_FilterInjConvHalfCpltCallback(DFSDM_Filter_HandleTypeDef *
 __weak void HAL_DFSDM_FilterAwdCallback(DFSDM_Filter_HandleTypeDef *hdfsdm_filter,
                                         uint32_t Channel, uint32_t Threshold)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_filter);
-  UNUSED(Channel);
-  UNUSED(Threshold);
-  
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_DFSDM_FilterAwdCallback could be implemented in the user file.
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_filter);
+    UNUSED(Channel);
+    UNUSED(Threshold);
+
+    /* NOTE : This function should not be modified, when the callback is needed,
+              the HAL_DFSDM_FilterAwdCallback could be implemented in the user file.
+     */
 }
 
 /**
-  * @brief  Error callback. 
+  * @brief  Error callback.
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @retval None
   */
 __weak void HAL_DFSDM_FilterErrorCallback(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hdfsdm_filter);
-  
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_DFSDM_FilterErrorCallback could be implemented in the user file.
-   */
+    /* Prevent unused argument(s) compilation warning */
+    UNUSED(hdfsdm_filter);
+
+    /* NOTE : This function should not be modified, when the callback is needed,
+              the HAL_DFSDM_FilterErrorCallback could be implemented in the user file.
+     */
 }
 
 /**
@@ -2670,8 +2468,8 @@ __weak void HAL_DFSDM_FilterErrorCallback(DFSDM_Filter_HandleTypeDef *hdfsdm_fil
   */
 HAL_DFSDM_Filter_StateTypeDef HAL_DFSDM_FilterGetState(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Return DFSDM filter handle state */
-  return hdfsdm_filter->State;
+    /* Return DFSDM filter handle state */
+    return hdfsdm_filter->State;
 }
 
 /**
@@ -2681,7 +2479,7 @@ HAL_DFSDM_Filter_StateTypeDef HAL_DFSDM_FilterGetState(DFSDM_Filter_HandleTypeDe
   */
 uint32_t HAL_DFSDM_FilterGetError(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  return hdfsdm_filter->ErrorCode;
+    return hdfsdm_filter->ErrorCode;
 }
 
 /**
@@ -2699,76 +2497,76 @@ uint32_t HAL_DFSDM_FilterGetError(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
   */
 
 /**
-  * @brief  DMA half transfer complete callback for regular conversion. 
+  * @brief  DMA half transfer complete callback for regular conversion.
   * @param  hdma : DMA handle.
   * @retval None
   */
-static void DFSDM_DMARegularHalfConvCplt(DMA_HandleTypeDef *hdma)   
+static void DFSDM_DMARegularHalfConvCplt(DMA_HandleTypeDef *hdma)
 {
-  /* Get DFSDM filter handle */
-  DFSDM_Filter_HandleTypeDef* hdfsdm_filter = (DFSDM_Filter_HandleTypeDef*) ((DMA_HandleTypeDef*)hdma)->Parent;
+    /* Get DFSDM filter handle */
+    DFSDM_Filter_HandleTypeDef *hdfsdm_filter = (DFSDM_Filter_HandleTypeDef *)((DMA_HandleTypeDef *)hdma)->Parent;
 
-  /* Call regular half conversion complete callback */
-  HAL_DFSDM_FilterRegConvHalfCpltCallback(hdfsdm_filter);
+    /* Call regular half conversion complete callback */
+    HAL_DFSDM_FilterRegConvHalfCpltCallback(hdfsdm_filter);
 }
 
 /**
-  * @brief  DMA transfer complete callback for regular conversion. 
+  * @brief  DMA transfer complete callback for regular conversion.
   * @param  hdma : DMA handle.
   * @retval None
   */
-static void DFSDM_DMARegularConvCplt(DMA_HandleTypeDef *hdma)   
+static void DFSDM_DMARegularConvCplt(DMA_HandleTypeDef *hdma)
 {
-  /* Get DFSDM filter handle */
-  DFSDM_Filter_HandleTypeDef* hdfsdm_filter = (DFSDM_Filter_HandleTypeDef*) ((DMA_HandleTypeDef*)hdma)->Parent;
+    /* Get DFSDM filter handle */
+    DFSDM_Filter_HandleTypeDef *hdfsdm_filter = (DFSDM_Filter_HandleTypeDef *)((DMA_HandleTypeDef *)hdma)->Parent;
 
-  /* Call regular conversion complete callback */
-  HAL_DFSDM_FilterRegConvCpltCallback(hdfsdm_filter);
+    /* Call regular conversion complete callback */
+    HAL_DFSDM_FilterRegConvCpltCallback(hdfsdm_filter);
 }
 
 /**
-  * @brief  DMA half transfer complete callback for injected conversion. 
+  * @brief  DMA half transfer complete callback for injected conversion.
   * @param  hdma : DMA handle.
   * @retval None
   */
-static void DFSDM_DMAInjectedHalfConvCplt(DMA_HandleTypeDef *hdma)   
+static void DFSDM_DMAInjectedHalfConvCplt(DMA_HandleTypeDef *hdma)
 {
-  /* Get DFSDM filter handle */
-  DFSDM_Filter_HandleTypeDef* hdfsdm_filter = (DFSDM_Filter_HandleTypeDef*) ((DMA_HandleTypeDef*)hdma)->Parent;
+    /* Get DFSDM filter handle */
+    DFSDM_Filter_HandleTypeDef *hdfsdm_filter = (DFSDM_Filter_HandleTypeDef *)((DMA_HandleTypeDef *)hdma)->Parent;
 
-  /* Call injected half conversion complete callback */
-  HAL_DFSDM_FilterInjConvHalfCpltCallback(hdfsdm_filter);
+    /* Call injected half conversion complete callback */
+    HAL_DFSDM_FilterInjConvHalfCpltCallback(hdfsdm_filter);
 }
 
 /**
-  * @brief  DMA transfer complete callback for injected conversion. 
+  * @brief  DMA transfer complete callback for injected conversion.
   * @param  hdma : DMA handle.
   * @retval None
   */
-static void DFSDM_DMAInjectedConvCplt(DMA_HandleTypeDef *hdma)   
+static void DFSDM_DMAInjectedConvCplt(DMA_HandleTypeDef *hdma)
 {
-  /* Get DFSDM filter handle */
-  DFSDM_Filter_HandleTypeDef* hdfsdm_filter = (DFSDM_Filter_HandleTypeDef*) ((DMA_HandleTypeDef*)hdma)->Parent;
+    /* Get DFSDM filter handle */
+    DFSDM_Filter_HandleTypeDef *hdfsdm_filter = (DFSDM_Filter_HandleTypeDef *)((DMA_HandleTypeDef *)hdma)->Parent;
 
-  /* Call injected conversion complete callback */
-  HAL_DFSDM_FilterInjConvCpltCallback(hdfsdm_filter);
+    /* Call injected conversion complete callback */
+    HAL_DFSDM_FilterInjConvCpltCallback(hdfsdm_filter);
 }
 
 /**
-  * @brief  DMA error callback. 
+  * @brief  DMA error callback.
   * @param  hdma : DMA handle.
   * @retval None
   */
-static void DFSDM_DMAError(DMA_HandleTypeDef *hdma)   
+static void DFSDM_DMAError(DMA_HandleTypeDef *hdma)
 {
-  /* Get DFSDM filter handle */
-  DFSDM_Filter_HandleTypeDef* hdfsdm_filter = (DFSDM_Filter_HandleTypeDef*) ((DMA_HandleTypeDef*)hdma)->Parent;
+    /* Get DFSDM filter handle */
+    DFSDM_Filter_HandleTypeDef *hdfsdm_filter = (DFSDM_Filter_HandleTypeDef *)((DMA_HandleTypeDef *)hdma)->Parent;
 
-  /* Update error code */
-  hdfsdm_filter->ErrorCode = DFSDM_FILTER_ERROR_DMA;
+    /* Update error code */
+    hdfsdm_filter->ErrorCode = DFSDM_FILTER_ERROR_DMA;
 
-  /* Call error callback */
-  HAL_DFSDM_FilterErrorCallback(hdfsdm_filter);
+    /* Call error callback */
+    HAL_DFSDM_FilterErrorCallback(hdfsdm_filter);
 }
 
 /**
@@ -2778,20 +2576,18 @@ static void DFSDM_DMAError(DMA_HandleTypeDef *hdma)
   */
 static uint32_t DFSDM_GetInjChannelsNbr(uint32_t Channels)
 {
-  uint32_t nbChannels = 0;
-  uint32_t tmp;
-  
-  /* Get the number of channels from bitfield */
-  tmp = (uint32_t) (Channels & DFSDM_LSB_MASK);
-  while(tmp != 0)
-  {
-    if((tmp & 1) != 0)
-    {
-      nbChannels++;
+    uint32_t nbChannels = 0;
+    uint32_t tmp;
+
+    /* Get the number of channels from bitfield */
+    tmp = (uint32_t)(Channels & DFSDM_LSB_MASK);
+    while (tmp != 0) {
+        if ((tmp & 1) != 0) {
+            nbChannels++;
+        }
+        tmp = (uint32_t)(tmp >> 1);
     }
-    tmp = (uint32_t) (tmp >> 1);
-  }
-  return nbChannels;
+    return nbChannels;
 }
 
 /**
@@ -2799,45 +2595,30 @@ static uint32_t DFSDM_GetInjChannelsNbr(uint32_t Channels)
   * @param  Instance : DFSDM channel instance.
   * @retval Channel number.
   */
-static uint32_t DFSDM_GetChannelFromInstance(DFSDM_Channel_TypeDef* Instance)
+static uint32_t DFSDM_GetChannelFromInstance(DFSDM_Channel_TypeDef *Instance)
 {
-  uint32_t channel = 0xFF;
-  
-  /* Get channel from instance */
-  if(Instance == DFSDM1_Channel0)
-  {
-    channel = 0;
-  }
-  else if(Instance == DFSDM1_Channel1)
-  {
-    channel = 1;
-  }
-  else if(Instance == DFSDM1_Channel2)
-  {
-    channel = 2;
-  }
-  else if(Instance == DFSDM1_Channel3)
-  {
-    channel = 3;
-  }
-  else if(Instance == DFSDM1_Channel4)
-  {
-    channel = 4;
-  }
-  else if(Instance == DFSDM1_Channel5)
-  {
-    channel = 5;
-  }
-  else if(Instance == DFSDM1_Channel6)
-  {
-    channel = 6;
-  }
-  else if(Instance == DFSDM1_Channel7)
-  {
-    channel = 7;
-  }
+    uint32_t channel = 0xFF;
 
-  return channel;
+    /* Get channel from instance */
+    if (Instance == DFSDM1_Channel0) {
+        channel = 0;
+    } else if (Instance == DFSDM1_Channel1) {
+        channel = 1;
+    } else if (Instance == DFSDM1_Channel2) {
+        channel = 2;
+    } else if (Instance == DFSDM1_Channel3) {
+        channel = 3;
+    } else if (Instance == DFSDM1_Channel4) {
+        channel = 4;
+    } else if (Instance == DFSDM1_Channel5) {
+        channel = 5;
+    } else if (Instance == DFSDM1_Channel6) {
+        channel = 6;
+    } else if (Instance == DFSDM1_Channel7) {
+        channel = 7;
+    }
+
+    return channel;
 }
 
 /**
@@ -2845,40 +2626,35 @@ static uint32_t DFSDM_GetChannelFromInstance(DFSDM_Channel_TypeDef* Instance)
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @retval None
   */
-static void DFSDM_RegConvStart(DFSDM_Filter_HandleTypeDef* hdfsdm_filter)
+static void DFSDM_RegConvStart(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Check regular trigger */
-  if(hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER)
-  {
-    /* Software start of regular conversion */
-    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_RSWSTART;
-  }
-  else /* synchronous trigger */
-  {
-    /* Disable DFSDM filter */
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_DFEN);
-    
-    /* Set RSYNC bit in DFSDM_FLTCR1 register */
-    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_RSYNC;
+    /* Check regular trigger */
+    if (hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER) {
+        /* Software start of regular conversion */
+        hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_RSWSTART;
+    } else { /* synchronous trigger */
+        /* Disable DFSDM filter */
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_DFEN);
 
-    /* Enable DFSDM  filter */
-    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_DFEN;
-    
-    /* If injected conversion was in progress, restart it */
-    if(hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ)
-    {
-      if(hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER)
-      {
-        hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JSWSTART;
-      }
-      /* Update remaining injected conversions */
-      hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
-                                         hdfsdm_filter->InjectedChannelsNbr : 1;
+        /* Set RSYNC bit in DFSDM_FLTCR1 register */
+        hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_RSYNC;
+
+        /* Enable DFSDM  filter */
+        hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_DFEN;
+
+        /* If injected conversion was in progress, restart it */
+        if (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ) {
+            if (hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) {
+                hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JSWSTART;
+            }
+            /* Update remaining injected conversions */
+            hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
+                                              hdfsdm_filter->InjectedChannelsNbr : 1;
+        }
     }
-  }
-  /* Update DFSDM filter state */
-  hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) ? \
-                          HAL_DFSDM_FILTER_STATE_REG : HAL_DFSDM_FILTER_STATE_REG_INJ;
+    /* Update DFSDM filter state */
+    hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) ? \
+                           HAL_DFSDM_FILTER_STATE_REG : HAL_DFSDM_FILTER_STATE_REG_INJ;
 }
 
 /**
@@ -2886,35 +2662,32 @@ static void DFSDM_RegConvStart(DFSDM_Filter_HandleTypeDef* hdfsdm_filter)
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @retval None
   */
-static void DFSDM_RegConvStop(DFSDM_Filter_HandleTypeDef* hdfsdm_filter)
+static void DFSDM_RegConvStop(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Disable DFSDM filter */
-  hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_DFEN);
+    /* Disable DFSDM filter */
+    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_DFEN);
 
-  /* If regular trigger was synchronous, reset RSYNC bit in DFSDM_FLTCR1 register */
-  if(hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SYNC_TRIGGER)
-  {
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_RSYNC);
-  }
-
-  /* Enable DFSDM filter */
-  hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_DFEN;
-  
-  /* If injected conversion was in progress, restart it */
-  if(hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG_INJ)
-  {
-    if(hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER)
-    {
-      hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JSWSTART;
+    /* If regular trigger was synchronous, reset RSYNC bit in DFSDM_FLTCR1 register */
+    if (hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SYNC_TRIGGER) {
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_RSYNC);
     }
-    /* Update remaining injected conversions */
-    hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
-                                       hdfsdm_filter->InjectedChannelsNbr : 1;
-  }
-  
-  /* Update DFSDM filter state */
-  hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG) ? \
-                          HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_INJ;
+
+    /* Enable DFSDM filter */
+    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_DFEN;
+
+    /* If injected conversion was in progress, restart it */
+    if (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG_INJ) {
+        if (hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) {
+            hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JSWSTART;
+        }
+        /* Update remaining injected conversions */
+        hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
+                                          hdfsdm_filter->InjectedChannelsNbr : 1;
+    }
+
+    /* Update DFSDM filter state */
+    hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG) ? \
+                           HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_INJ;
 }
 
 /**
@@ -2922,43 +2695,36 @@ static void DFSDM_RegConvStop(DFSDM_Filter_HandleTypeDef* hdfsdm_filter)
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @retval None
   */
-static void DFSDM_InjConvStart(DFSDM_Filter_HandleTypeDef* hdfsdm_filter)
+static void DFSDM_InjConvStart(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Check injected trigger */
-  if(hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER)
-  {
-    /* Software start of injected conversion */
-    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JSWSTART;
-  }
-  else /* external or synchronous trigger */
-  {
-    /* Disable DFSDM filter */
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_DFEN);
-      
-    if(hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SYNC_TRIGGER)
-    {
-      /* Set JSYNC bit in DFSDM_FLTCR1 register */
-      hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JSYNC;
-    }
-    else /* external trigger */
-    {
-      /* Set JEXTEN[1:0] bits in DFSDM_FLTCR1 register */
-      hdfsdm_filter->Instance->FLTCR1 |= hdfsdm_filter->ExtTriggerEdge;
-    }
-    
-    /* Enable DFSDM filter */
-    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_DFEN;
+    /* Check injected trigger */
+    if (hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SW_TRIGGER) {
+        /* Software start of injected conversion */
+        hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JSWSTART;
+    } else { /* external or synchronous trigger */
+        /* Disable DFSDM filter */
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_DFEN);
 
-    /* If regular conversion was in progress, restart it */
-    if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG) && \
-       (hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER))
-    {
-      hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_RSWSTART;
+        if (hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SYNC_TRIGGER) {
+            /* Set JSYNC bit in DFSDM_FLTCR1 register */
+            hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_JSYNC;
+        } else { /* external trigger */
+            /* Set JEXTEN[1:0] bits in DFSDM_FLTCR1 register */
+            hdfsdm_filter->Instance->FLTCR1 |= hdfsdm_filter->ExtTriggerEdge;
+        }
+
+        /* Enable DFSDM filter */
+        hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_DFEN;
+
+        /* If regular conversion was in progress, restart it */
+        if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG) && \
+                (hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER)) {
+            hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_RSWSTART;
+        }
     }
-  }
-  /* Update DFSDM filter state */
-  hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) ? \
-                         HAL_DFSDM_FILTER_STATE_INJ : HAL_DFSDM_FILTER_STATE_REG_INJ;
+    /* Update DFSDM filter state */
+    hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_READY) ? \
+                           HAL_DFSDM_FILTER_STATE_INJ : HAL_DFSDM_FILTER_STATE_REG_INJ;
 }
 
 /**
@@ -2966,39 +2732,35 @@ static void DFSDM_InjConvStart(DFSDM_Filter_HandleTypeDef* hdfsdm_filter)
   * @param  hdfsdm_filter : DFSDM filter handle.
   * @retval None
   */
-static void DFSDM_InjConvStop(DFSDM_Filter_HandleTypeDef* hdfsdm_filter)
+static void DFSDM_InjConvStop(DFSDM_Filter_HandleTypeDef *hdfsdm_filter)
 {
-  /* Disable DFSDM filter */
-  hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_DFEN);
+    /* Disable DFSDM filter */
+    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_DFEN);
 
-  /* If injected trigger was synchronous, reset JSYNC bit in DFSDM_FLTCR1 register */
-  if(hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SYNC_TRIGGER)
-  {
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_JSYNC);
-  }
-  else if(hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_EXT_TRIGGER)
-  {
-    /* Reset JEXTEN[1:0] bits in DFSDM_FLTCR1 register */
-    hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_JEXTEN);
-  }
+    /* If injected trigger was synchronous, reset JSYNC bit in DFSDM_FLTCR1 register */
+    if (hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_SYNC_TRIGGER) {
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_JSYNC);
+    } else if (hdfsdm_filter->InjectedTrigger == DFSDM_FILTER_EXT_TRIGGER) {
+        /* Reset JEXTEN[1:0] bits in DFSDM_FLTCR1 register */
+        hdfsdm_filter->Instance->FLTCR1 &= ~(DFSDM_FLTCR1_JEXTEN);
+    }
 
-  /* Enable DFSDM filter */
-  hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_DFEN;
-  
-  /* If regular conversion was in progress, restart it */
-  if((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG_INJ) && \
-     (hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER))
-  {
-    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_RSWSTART;
-  }
+    /* Enable DFSDM filter */
+    hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_DFEN;
 
-  /* Update remaining injected conversions */
-  hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
-                                     hdfsdm_filter->InjectedChannelsNbr : 1;
+    /* If regular conversion was in progress, restart it */
+    if ((hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_REG_INJ) && \
+            (hdfsdm_filter->RegularTrigger == DFSDM_FILTER_SW_TRIGGER)) {
+        hdfsdm_filter->Instance->FLTCR1 |= DFSDM_FLTCR1_RSWSTART;
+    }
 
-  /* Update DFSDM filter state */
-  hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ) ? \
-                          HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_REG;
+    /* Update remaining injected conversions */
+    hdfsdm_filter->InjConvRemaining = (hdfsdm_filter->InjectedScanMode == ENABLE) ? \
+                                      hdfsdm_filter->InjectedChannelsNbr : 1;
+
+    /* Update DFSDM filter state */
+    hdfsdm_filter->State = (hdfsdm_filter->State == HAL_DFSDM_FILTER_STATE_INJ) ? \
+                           HAL_DFSDM_FILTER_STATE_READY : HAL_DFSDM_FILTER_STATE_REG;
 }
 
 /**
